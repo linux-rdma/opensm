@@ -437,7 +437,7 @@ cl_list_insert_head(IN cl_list_t * const p_list, IN const void *const p_object)
 *	cl_list_insert_tail
 *
 * DESCRIPTION
-*	The cl_list_insert_tail function inserts an object at the head of a list.
+*	The cl_list_insert_tail function inserts an object at the tail of a list.
 *
 * SYNOPSIS
 */
