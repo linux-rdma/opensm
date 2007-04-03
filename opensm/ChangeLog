@@ -1,3 +1,11 @@
+2007-03-29 Hal Rosenstock <halr@voltaire.com>
+
+	* configure.in: Bump version to 2.2.0
+
+2007-03-21 Sasha Khapyorsky <sashak@voltaire.com>
+
+	* osm_log.c: Changed to support daemon mode
+
 2007-03-01 Hal Rosenstock <halr@voltaire.com>
 
 	* configure.in: Bump version to 2.1.2

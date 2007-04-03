@@ -74,7 +74,8 @@
 static void
 __osm_pi_rcv_set_sm(
   IN const osm_pi_rcv_t* const p_rcv,
-  IN osm_physp_t* const p_physp )
+  IN osm_physp_t* const p_physp,
+  IN boolean_t const is_smdis )
 {
   osm_bind_handle_t h_bind;
   osm_dr_path_t *p_dr_path;
@@ -85,15 +86,27 @@ __osm_pi_rcv_set_sm(
   {
     osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
              "__osm_pi_rcv_set_sm: "
-             "Setting 'IS_SM' bit in port attributes\n" );
+             "Setting '%s' bit in port attributes\n",
+             is_smdis ? "SM_DISAB" : "IS_SM");
   }
 
   p_dr_path = osm_physp_get_dr_path_ptr( p_physp );
   h_bind = osm_dr_path_get_bind_handle( p_dr_path );
-  /*
-    The 'IS_SM' bit isn't already set, so set it.
-  */
-  osm_vendor_set_sm( h_bind, TRUE );
+
+  if (is_smdis)
+  {
+    /*
+      The 'SM_DISAB' bit isn't already set, so set it.
+    */
+    osm_vendor_set_sm( h_bind, FALSE );
+  }
+  else
+  {
+    /*
+      The 'IS_SM' bit isn't already set, so set it.
+    */
+    osm_vendor_set_sm( h_bind, TRUE );
+  }
 
   OSM_LOG_EXIT( p_rcv->p_log );
 }
@@ -112,6 +125,7 @@ __osm_pi_rcv_process_endport(
   uint8_t            rate, mtu;
   cl_qmap_t*         p_sm_tbl;
   osm_remote_sm_t*   p_sm;
+  boolean_t          is_smdis;
 
   OSM_LOG_ENTER( p_rcv->p_log, __osm_pi_rcv_process_endport );
 
@@ -148,15 +162,17 @@ __osm_pi_rcv_process_endport(
 
   if( port_guid == p_rcv->p_subn->sm_port_guid )
   {
+    is_smdis = (p_rcv->p_subn->sm_state == IB_SMINFO_STATE_NOTACTIVE);
     /*
       We received the PortInfo for our own port.
     */
-    if( !(p_pi->capability_mask & IB_PORT_CAP_IS_SM ) )
+    if( (!is_smdis && !(p_pi->capability_mask & IB_PORT_CAP_IS_SM ) ) ||
+        ( is_smdis && !(p_pi->capability_mask & IB_PORT_CAP_SM_DISAB ) ) )
     {
       /*
-        Set the IS_SM bit to indicate our port hosts an SM.
+        Set the IS_SM or SM_DISAB bit to indicate our port hosts an SM.
       */
-      __osm_pi_rcv_set_sm( p_rcv, p_physp );
+      __osm_pi_rcv_set_sm( p_rcv, p_physp, is_smdis );
     }
   }
   else

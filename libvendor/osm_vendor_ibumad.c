@@ -454,6 +454,7 @@ osm_vendor_init(
 	pthread_mutex_init(&p_vend->match_tbl_mutex, NULL);
 	p_vend->umad_port_id = -1;
 	p_vend->issmfd = -1;
+	p_vend->issmdisabledfd = -1;
 
 	/*
 	 * Open our instance of UMAD.
@@ -1179,12 +1180,20 @@ osm_vendor_set_sm(
 {
 	osm_umad_bind_info_t *p_bind = (osm_umad_bind_info_t *)h_bind;
 	osm_vendor_t *p_vend = p_bind->p_vend;
-	char issmstring[24];
+	char string[32];
 
 	OSM_LOG_ENTER( p_vend->p_log, osm_vendor_set_sm );
-	sprintf(issmstring, "/dev/infiniband/issm%d", p_vend->umad_port_id);
+	sprintf(string, "/dev/infiniband/issm%d", p_vend->umad_port_id);
 	if (TRUE == is_sm_val) {
-		p_vend->issmfd = open(issmstring, O_NONBLOCK);
+		if (p_vend->issmdisabledfd != -1) {
+			if (0 != close(p_vend->issmdisabledfd))
+				osm_log(p_vend->p_log, OSM_LOG_ERROR,
+					"osm_vendor_set_sm: ERR 5433: "
+					"clearing IS_SMdisabled capability"
+					" mask failed: errno %d\n", errno);
+		}
+		p_vend->issmdisabledfd = -1;
+		p_vend->issmfd = open(string, O_NONBLOCK);
 		if (p_vend->issmfd < 0) {
 			osm_log(p_vend->p_log, OSM_LOG_ERROR,
 				"osm_vendor_set_sm: ERR 5431: "
@@ -1193,13 +1202,23 @@ osm_vendor_set_sm(
 			p_vend->issmfd = -1;
 		}
 	} else {
-		if (p_vend->issmfd != -1)
+		if (p_vend->issmfd != -1) {
 			if (0 != close(p_vend->issmfd))
 				osm_log(p_vend->p_log, OSM_LOG_ERROR,
 					"osm_vendor_set_sm: ERR 5432: "
 					"clearing IS_SM capability"
 					" mask failed: errno %d\n", errno);
+		}
 		p_vend->issmfd = -1;
+		sprintf(string, "/dev/infiniband/issmdisabled%d", p_vend->umad_port_id);
+		p_vend->issmdisabledfd = open(string, O_NONBLOCK);
+		if (p_vend->issmdisabledfd < 0) {
+			osm_log(p_vend->p_log, OSM_LOG_ERROR,
+				"osm_vendor_set_sm: ERR 5434: "
+				"setting IS_SMdisabled capability"
+				" mask failed; errno %d\n", errno);
+			p_vend->issmdisabledfd = -1;
+		}
 	}
 	OSM_LOG_EXIT( p_vend->p_log );
 }

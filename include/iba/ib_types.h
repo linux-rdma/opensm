@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -450,7 +450,7 @@ BEGIN_C_DECLS
 *	IB_MCLASS_SUBN_ADM
 *
 * DESCRIPTION
-*	Subnet Management Class, Subnet Administration (13.4.4)
+*	Management Class, Subnet Administration (13.4.4)
 *
 * SOURCE
 */
@@ -462,7 +462,7 @@ BEGIN_C_DECLS
 *	IB_MCLASS_PERF
 *
 * DESCRIPTION
-*	Subnet Management Class, Performance Manager (13.4.4)
+*	Management Class, Performance Management (13.4.4)
 *
 * SOURCE
 */
@@ -474,7 +474,7 @@ BEGIN_C_DECLS
 *	IB_MCLASS_BM
 *
 * DESCRIPTION
-*	Subnet Management Class, Baseboard Manager (13.4.4)
+*	Management Class, Baseboard Management (13.4.4)
 *
 * SOURCE
 */
@@ -486,7 +486,7 @@ BEGIN_C_DECLS
 *	IB_MCLASS_DEV_MGMT
 *
 * DESCRIPTION
-*	Subnet Management Class, Device Management (13.4.4)
+*	Management Class, Device Management (13.4.4)
 *
 * SOURCE
 */
@@ -498,7 +498,7 @@ BEGIN_C_DECLS
 *	IB_MCLASS_COMM_MGMT
 *
 * DESCRIPTION
-*	Subnet Management Class, Communication Management (13.4.4)
+*	Management Class, Communication Management (13.4.4)
 *
 * SOURCE
 */
@@ -510,7 +510,7 @@ BEGIN_C_DECLS
 *	IB_MCLASS_SNMP
 *
 * DESCRIPTION
-*	Subnet Management Class, SNMP Tunneling (13.4.4)
+*	Management Class, SNMP Tunneling (13.4.4)
 *
 * SOURCE
 */
@@ -522,7 +522,7 @@ BEGIN_C_DECLS
 *	IB_MCLASS_VENDOR_LOW_RANGE_MIN
 *
 * DESCRIPTION
-*	Subnet Management Class, Vendor Specific Low Range Start
+*	Management Class, Vendor Specific Low Range Start
 *
 * SOURCE
 */
@@ -534,7 +534,7 @@ BEGIN_C_DECLS
 *	IB_MCLASS_VENDOR_LOW_RANGE_MAX
 *
 * DESCRIPTION
-*	Subnet Management Class, Vendor Specific Low Range End
+*	Management Class, Vendor Specific Low Range End
 *
 * SOURCE
 */
@@ -546,7 +546,7 @@ BEGIN_C_DECLS
 *	IB_MCLASS_DEV_ADM
 *
 * DESCRIPTION
-*	Subnet Management Class, Device Administration
+*	Management Class, Device Administration
 *
 * SOURCE
 */
@@ -558,7 +558,7 @@ BEGIN_C_DECLS
 *	IB_MCLASS_BIS
 *
 * DESCRIPTION
-*	Subnet Management Class, BIS
+*	Management Class, BIS
 *
 * SOURCE
 */
@@ -570,7 +570,7 @@ BEGIN_C_DECLS
 *	IB_MCLASS_VENDOR_HIGH_RANGE_MIN
 *
 * DESCRIPTION
-*	Subnet Management Class, Vendor Specific High Range Start
+*	Management Class, Vendor Specific High Range Start
 *
 * SOURCE
 */
@@ -582,7 +582,7 @@ BEGIN_C_DECLS
 *	IB_MCLASS_VENDOR_HIGH_RANGE_MAX
 *
 * DESCRIPTION
-*	Subnet Management Class, Vendor Specific High Range End
+*	Management Class, Vendor Specific High Range End
 *
 * SOURCE
 */

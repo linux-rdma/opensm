@@ -1,3 +1,11 @@
+2007-03-29  Hal Rosenstock <halr@voltaire.com>
+
+	* configure.in: Bump version to 2.2.0
+
+2007-03-27  Hal Rosenstock <halr@voltaire.com>
+
+	* osm_vendor_ibumad.(h c): Add support for issmdisabled
+
 2007-03-13  Hal Rosenstock <halr@voltaire.com>
 
 	* osm_vendor_ibumad.c: In osm_vendor_set_sm, set issmfd to

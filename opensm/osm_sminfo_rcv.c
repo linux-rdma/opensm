@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -364,7 +364,7 @@ __osm_sminfo_rcv_process_set_request(
   {
     osm_log( p_rcv->p_log, OSM_LOG_ERROR,
              "__osm_sminfo_rcv_process_set_request: ERR 2F07: "
-             "Check legality of SM needed transition. AttributeModifier:0x%X RemoteState:%s\n",
+             "Failed check of legality of needed SM transition. AttributeModifier:0x%X RemoteState:%s\n",
              p_smp->attr_mod,
              osm_get_sm_mgr_state_str(ib_sminfo_get_state( p_rcv_smi ) ) );
     /* send a response with error code */

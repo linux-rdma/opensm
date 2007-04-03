@@ -164,7 +164,7 @@ __osm_vl15_poller(
         */
 
         /* Decrement qp0_mads_sent and qp0_mads_outstanding_on_wire
-           that was incremented in the code above. */
+           that were incremented in the code above. */
         mads_sent = cl_atomic_dec( &p_vl->p_stats->qp0_mads_sent );
         if( p_madw->resp_expected == TRUE )
           cl_atomic_dec( &p_vl->p_stats->qp0_mads_outstanding_on_wire );
@@ -176,7 +176,7 @@ __osm_vl15_poller(
            the cl_disp_post with OSM_SIGNAL_NO_PENDING_TRANSACTION (in order
            to wake up the state mgr).
            There is one difference from the code in __osm_sm_mad_ctrl_retire_trans_mad.
-           This code is called on all mads, if osm_vendor_send() failed, unlike 
+           This code is called for all (vl15) mads, if osm_vendor_send() failed, unlike 
            __osm_sm_mad_ctrl_retire_trans_mad which is called only on mads where 
            resp_expected == TRUE. As a result, the qp0_mads_outstanding counter 
            should be decremented and handled accordingly only if this is a mad 

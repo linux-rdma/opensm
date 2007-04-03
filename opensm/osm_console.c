@@ -89,7 +89,7 @@ static void help_command(FILE *out, int detail)
 
 static void help_quit(FILE *out, int detail)
 {
-	fprintf(out, "quit\n");
+	fprintf(out, "quit (not valid in local mode; use ctl-c)\n");
 }
 
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -101,7 +101,7 @@ typedef struct _osm_bind_info
 *	is_trap_processor
 *		True if GSI Trap msgs are handled
 *	
-*	is_report_processo
+*	is_report_processor
 *		True if GSI Report msgs are handled
 *
 *	send_q_size
@@ -628,10 +628,10 @@ osm_madw_get_sa_mad_ptr(
 /*
 * PARAMETERS
 *	p_madw
-*		[in] Pointer to an osm_madw_t object to initialize.
+*		[in] Pointer to an osm_madw_t object.
 *
 * RETURN VALUES
-*	Pointer to the start of the SMP MAD.
+*	Pointer to the start of the SA MAD.
 *
 * NOTES
 *

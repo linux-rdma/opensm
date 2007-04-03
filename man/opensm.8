@@ -1,11 +1,11 @@
-.TH OPENSM 8 "March 21, 2007" "OpenIB" "OpenIB Management"
+.TH OPENSM 8 "March 29, 2007" "OpenIB" "OpenIB Management"
 
 .SH NAME
 opensm \- InfiniBand subnet manager and administration (SM/SA) 
 
 .SH SYNOPSIS
 .B opensm
-[\-c(ache-options)] [\-g(uid)[=]<GUID in hex>] [\-l(mc) <LMC>] [\-p(riority) <PRIORITY>] [\-smkey <SM_Key>] [\-r(eassign_lids)] [\-R <engine name> | \-routing_engine <engine name>] [\-M <file name> | \-lid_matrix_file <file name>] [\-U <file name> | \-ucast_file <file name>] [\-S | \-\-sadb_file <file name>] [\-a(dd_guid_file) <path to file>] [\-o(nce)] [\-s(weep) <interval>] [\-t(imeout) <milliseconds>] [\-maxsmps <number>] [\-console [off | local | socket]] [\-console-port <port>] [\-i(gnore-guids) <equalize-ignore-guids-file>] [\-f | \-\-log_file] [\-L | \-\-log_limit <size in MB>] [\-e(rase_log_file)] [\-P(config)] [\-Q | \-qos] [\-N | \-no_part_enforce] [\-y | \-stay_on_fatal] [\-B | \-daemon] [\-v(erbose)] [\-V] [\-D <flags>] [\-d(ebug) <number>] [\-h(elp)] [\-?]
+[\-c(ache-options)] [\-g(uid)[=]<GUID in hex>] [\-l(mc) <LMC>] [\-p(riority) <PRIORITY>] [\-smkey <SM_Key>] [\-r(eassign_lids)] [\-R <engine name> | \-routing_engine <engine name>] [\-M <file name> | \-lid_matrix_file <file name>] [\-U <file name> | \-ucast_file <file name>] [\-S | \-\-sadb_file <file name>] [\-a(dd_guid_file) <path to file>] [\-o(nce)] [\-s(weep) <interval>] [\-t(imeout) <milliseconds>] [\-maxsmps <number>] [\-console [off | local | socket]] [\-console-port <port>] [\-i(gnore-guids) <equalize-ignore-guids-file>] [\-f | \-\-log_file] [\-L | \-\-log_limit <size in MB>] [\-e(rase_log_file)] [\-P(config)] [\-Q | \-qos] [\-N | \-no_part_enforce] [\-y | \-stay_on_fatal] [\-B | \-daemon] [\-I | \-inactive] [\-v(erbose)] [\-V] [\-D <flags>] [\-d(ebug) <number>] [\-h(elp)] [\-?]
 
 .SH DESCRIPTION
 .PP
@@ -28,7 +28,7 @@ specified, it will select the first "best" available port.
 opensm can present the available ports and prompt for a port number to
 attach to.
 
-The run is logged to two files: /var/log/messages and /var/log/osm.log.
+By default, the run is logged to two files: /var/log/messages and /var/log/osm.log.
 The first file will register only general major events, whereas the second
 will include details of reported errors. All errors reported in this second 
 file should be treated as indicators of IB fabric health issues.
@@ -41,10 +41,14 @@ setup the subnet correctly.
 .PP
 .TP
 \fB\-c\fR, \fB\-\-cache-options\fR
-Cache the given command line options into the file
-/var/cache/osm/opensm.opts for use on next invocation.
-The cache directory can be changed by the environment
-variable OSM_CACHE_DIR
+Write out a list of all tunable OpenSM parameters,
+including their current values from the command line
+as well as defaults for others, into the file
+OSM_CACHE_DIR/opensm.opts (OSM_CACHE_DIR defaults to
+/var/cache/osm if the corresponding environment
+variable is not set). The options file is then
+used for subsequent OpenSM invocations but any
+command line options take precedence. 
 .TP
 \fB\-g\fR, \fB\-\-guid\fR
 This option specifies the local port GUID value
@@ -68,7 +72,8 @@ one path between any two ports.
 \fB\-p\fR, \fB\-\-priority\fR
 This option specifies the SM\'s PRIORITY.
 This will effect the handover cases, where master
-is chosen by priority and GUID.
+is chosen by priority and GUID.  Range goes from 0 
+(lowest priority) to 15 (highest).
 .TP
 \fB\-smkey\fR
 This option specifies the SM\'s SM_Key (64 bits).
@@ -183,6 +188,9 @@ By default, the SM will exit on these errors.
 .TP
 \fB\-B\fR, \fB\-\-daemon\fR
 Run in daemon mode - OpenSM will run in the background.
+.TP
+\fB\-I\fR, \fB\-\-inactive\fR
+Start SM in inactive rather than normal init SM state.
 .TP
 \fB\-v\fR, \fB\-\-verbose\fR
 This option increases the log verbosity level.

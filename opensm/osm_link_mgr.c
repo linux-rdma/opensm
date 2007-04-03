@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -202,7 +202,7 @@ __osm_link_mgr_set_physp_pi(
   /* we only change port fields if we do not change state */
   if (port_state == IB_LINK_NO_CHANGE)
   {
-    /* The following fields are relevant only for CA port or Enh. SP0 */
+    /* The following fields are relevant only for CA port, router, or Enh. SP0 */
     if( osm_node_get_type( p_node ) != IB_NODE_TYPE_SWITCH ||
         port_num == 0 )
     {

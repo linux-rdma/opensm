@@ -283,6 +283,7 @@ typedef struct _osm_subn_opt
   boolean_t                exit_on_fatal;
   boolean_t                honor_guid2lid_file;
   boolean_t                daemon;
+  boolean_t                sm_inactive;
   osm_qos_options_t        qos_options;
   osm_qos_options_t        qos_ca_options;
   osm_qos_options_t        qos_sw0_options;
@@ -464,6 +465,9 @@ typedef struct _osm_subn_opt
 *	daemon
 *		OpenSM will run in daemon mode.
 *
+*	sm_inactive
+*		OpenSM will start with SM in not active state.
+*	
 *	qos_options
 *		Default set of QoS options
 *
@@ -505,7 +509,7 @@ typedef struct _osm_subn_opt
 */
 typedef struct _osm_subn
 {
-  struct _osm_opensm_t *p_osm;
+  struct _osm_opensm_t    *p_osm;
   cl_qmap_t		   sw_guid_tbl;
   cl_qmap_t		   node_guid_tbl;
   cl_qmap_t		   port_guid_tbl;
@@ -1084,7 +1088,7 @@ osm_subn_set_default_opt(
 *
 * SYNOPSIS
 */
-void
+ib_api_status_t
 osm_subn_parse_conf_file(
   IN osm_subn_opt_t* const p_opt );
 /*
@@ -1094,7 +1098,7 @@ osm_subn_parse_conf_file(
 *		[in] Pointer to the subnet options structure.
 *
 * RETURN VALUES
-*	None
+*	IB_SUCCESS, IB_ERROR
 *
 * NOTES
 *  Assumes the conf file is part of the cache dir which defaults to
@@ -1114,7 +1118,7 @@ osm_subn_parse_conf_file(
 *
 * SYNOPSIS
 */
-void
+ib_api_status_t
 osm_subn_rescan_conf_file(
   IN osm_subn_opt_t* const p_opts );
 /*
@@ -1124,7 +1128,7 @@ osm_subn_rescan_conf_file(
 *		[in] Pointer to the subnet options structure.
 *
 * RETURN VALUES
-*	None
+*	IB_SUCCESS, IB_ERROR
 *
 * NOTES
 *  This uses the same file as osm_subn_parse_conf_file()
@@ -1140,7 +1144,7 @@ osm_subn_rescan_conf_file(
 *
 * SYNOPSIS
 */
-void
+ib_api_status_t
 osm_subn_write_conf_file(
   IN osm_subn_opt_t* const p_opt );
 /*
@@ -1150,7 +1154,7 @@ osm_subn_write_conf_file(
 *		[in] Pointer to the subnet options structure.
 *
 * RETURN VALUES
-*	None
+*	IB_SUCCESS, IB_ERROR
 *
 * NOTES
 *  Assumes the conf file is part of the cache dir which defaults to

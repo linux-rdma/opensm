@@ -157,7 +157,8 @@ show_usage(void)
           "--priority <PRIORITY>\n"
           "          This option specifies the SM's PRIORITY.\n"
           "          This will effect the handover cases, where master\n"
-          "          is chosen by priority and GUID.\n\n" );
+          "          is chosen by priority and GUID.  Range goes\n"
+          "          from 0 (lowest priority) to 15 (highest).\n\n" );
   printf( "-smkey <SM_Key>\n"
           "          This option specifies the SM's SM_Key (64 bits).\n"
           "          This will effect SM authentication.\n\n" );
@@ -269,6 +270,9 @@ show_usage(void)
   printf( "-B\n"
           "--daemon\n"
           "          Run in daemon mode - OpenSM will run in the background.\n\n");
+  printf("-I\n"
+         "--inactive\n"
+         "           Start SM in inactive rather than normal init SM state.\n\n");
   printf( "-v\n"
           "--verbose\n"
           "          This option increases the log verbosity level.\n"
@@ -581,10 +585,10 @@ main(
   boolean_t             cache_options = FALSE;
   char                 *ignore_guids_file_name = NULL;
   uint32_t              val;
-  const char * const    short_option = "i:f:ed:g:l:L:s:t:a:R:M:U:S:P:NBQvVhorcyx";
+  const char * const    short_option = "i:f:ed:g:l:L:s:t:a:R:M:U:S:P:NBIQvVhorcyx";
 
   /*
-    In the array below, the 2nd parameter specified the number
+    In the array below, the 2nd parameter specifies the number
     of arguments as follows:
     0: no arguments
     1: argument
@@ -616,16 +620,17 @@ main(
       {  "smkey",         1, NULL, 'k'},
       {  "routing_engine",1, NULL, 'R'},
       {  "lid_matrix_file",1, NULL, 'M'},
-      {  "ucast_file"    ,1, NULL, 'U'},
-      {  "sadb_file"     ,1, NULL, 'S'},
+      {  "ucast_file",    1, NULL, 'U'},
+      {  "sadb_file",     1, NULL, 'S'},
       {  "add_guid_file", 1, NULL, 'a'},
       {  "cache-options", 0, NULL, 'c'},
       {  "stay_on_fatal", 0, NULL, 'y'},
-      {  "honor_guid2lid", 0, NULL, 'x'},
+      {  "honor_guid2lid",0, NULL, 'x'},
 #ifdef ENABLE_OSM_CONSOLE_SOCKET
       {  "console-port",  1, NULL, 'C'},
 #endif
       {  "daemon",        0, NULL, 'B'},
+      {  "inactive",      0, NULL, 'I'},
       {  NULL,            0, NULL,  0 }  /* Required at the end of the array */
     };
 
@@ -646,7 +651,8 @@ main(
   printf("%s\n", OSM_VERSION);
 
   osm_subn_set_default_opt(&opt);
-  osm_subn_parse_conf_file(&opt);
+  if (osm_subn_parse_conf_file(&opt) != IB_SUCCESS)
+    printf("\nosm_subn_parse_conf_file failed!\n");
 
   printf("Command Line Arguments:\n");
   do
@@ -894,7 +900,12 @@ main(
 
     case 'B':
       opt.daemon = TRUE;
-      printf (" Daemon mode.\n");
+      printf (" Daemon mode\n");
+      break;
+
+    case 'I':
+      opt.sm_inactive = TRUE;
+      printf(" SM started in inactive state\n");
       break;
 
     case 'h':
@@ -959,7 +970,12 @@ main(
   }
 
   if ( cache_options == TRUE )
-    osm_subn_write_conf_file( &opt );
+  {
+    if (osm_subn_write_conf_file( &opt ) != IB_SUCCESS)
+    {
+      printf( "\nosm_subn_write_conf_file failed!\n" );
+    }
+  }
 
   status = osm_opensm_bind( &osm, opt.guid );
   if( status != IB_SUCCESS )

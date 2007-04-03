@@ -134,14 +134,16 @@ static void
 __osm_sm_state_mgr_notactive_msg(
    IN const osm_sm_state_mgr_t * p_sm_mgr )
 {
+   osm_log( p_sm_mgr->p_log, OSM_LOG_SYS, "Entering NOT-ACTIVE state\n" );   /* Format Waived */
+
    if( osm_log_is_active( p_sm_mgr->p_log, OSM_LOG_VERBOSE ) )
    {
       osm_log( p_sm_mgr->p_log, OSM_LOG_VERBOSE,
                "__osm_sm_state_mgr_notactive_msg: "
                "\n\n\n********************************"
                "**********************************\n"
-               "******************** ENTERING SM NOT-ACTIVE"
-               " STATE **********************\n"
+               "***************** ENTERING SM NOT-ACTIVE"
+               " STATE *******************\n"
                "**************************************"
                "****************************\n\n\n" );
    }
@@ -231,6 +233,11 @@ __osm_sm_state_mgr_send_master_sm_info_req(
        */
       p_port = ( osm_port_t * ) cl_qmap_get( &p_sm_mgr->p_subn->port_guid_tbl,
                                              p_sm_mgr->master_guid );
+      if( p_port ==
+           ( osm_port_t * ) cl_qmap_end( &p_sm_mgr->p_subn->port_guid_tbl ) )
+      {
+        p_port = NULL;
+      }
    }
    else
    {
@@ -302,7 +309,7 @@ __osm_sm_state_mgr_start_polling(
    if( cl_status != CL_SUCCESS )
    {
       osm_log( p_sm_mgr->p_log, OSM_LOG_ERROR,
-               "__osm_sm_state_mgr_start_polling : ERR 3210: "
+               "__osm_sm_state_mgr_start_polling: ERR 3210: "
                "Failed to start timer\n" );
    }
 
@@ -346,7 +353,7 @@ __osm_sm_state_mgr_polling_callback(
        osm_exit_flag == 1 )
    {
       osm_log( p_sm_mgr->p_log, OSM_LOG_VERBOSE,
-               "__osm_sm_state_mgr_polling_callback : "
+               "__osm_sm_state_mgr_polling_callback: "
                "Signalling subnet_up_event\n" );
       cl_event_signal( p_sm_mgr->p_state_mgr->p_subnet_up_event );
       goto Exit;
@@ -359,13 +366,13 @@ __osm_sm_state_mgr_polling_callback(
     */
    p_sm_mgr->retry_number++;
    osm_log( p_sm_mgr->p_log, OSM_LOG_VERBOSE,
-            "__osm_sm_state_mgr_polling_callback : "
+            "__osm_sm_state_mgr_polling_callback: "
             "Retry number:%d\n", p_sm_mgr->retry_number );
 
    if( p_sm_mgr->retry_number >= p_sm_mgr->p_subn->opt.polling_retry_number )
    {
       osm_log( p_sm_mgr->p_log, OSM_LOG_DEBUG,
-               "__osm_sm_state_mgr_polling_callback : "
+               "__osm_sm_state_mgr_polling_callback: "
                "Reached polling_retry_number value in retry_number. "
                "Go to DISCOVERY state\n" );
       osm_sm_state_mgr_process( p_sm_mgr, OSM_SM_SIGNAL_POLLING_TIMEOUT );
@@ -381,7 +388,7 @@ __osm_sm_state_mgr_polling_callback(
    if( cl_status != CL_SUCCESS )
    {
       osm_log( p_sm_mgr->p_log, OSM_LOG_ERROR,
-               "__osm_sm_state_mgr_polling_callback : ERR 3211: "
+               "__osm_sm_state_mgr_polling_callback: ERR 3211: "
                "Failed to restart timer\n" );
    }
 
@@ -442,8 +449,17 @@ osm_sm_state_mgr_init(
    p_sm_mgr->p_subn = p_subn;
    p_sm_mgr->p_state_mgr = p_state_mgr;
 
-   /* init the state of the SM to idle */
-   p_sm_mgr->p_subn->sm_state = IB_SMINFO_STATE_INIT;
+   if (p_subn->opt.sm_inactive)
+   {
+     /* init the state of the SM to not active */
+     p_sm_mgr->p_subn->sm_state = IB_SMINFO_STATE_NOTACTIVE;
+     __osm_sm_state_mgr_notactive_msg( p_sm_mgr );
+   }
+   else
+   {
+     /* init the state of the SM to init */
+     p_sm_mgr->p_subn->sm_state = IB_SMINFO_STATE_INIT;
+   }
 
    status = cl_spinlock_init( &p_sm_mgr->state_lock );
    if( status != CL_SUCCESS )

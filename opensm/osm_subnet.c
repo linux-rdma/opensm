@@ -461,6 +461,7 @@ osm_subn_set_default_opt(
   p_opt->log_flags = 0;
   p_opt->honor_guid2lid_file = FALSE;
   p_opt->daemon = FALSE;
+  p_opt->sm_inactive = FALSE;
 
   p_opt->dump_files_dir = getenv("OSM_TMP_DIR");
   if (!p_opt->dump_files_dir || !(*p_opt->dump_files_dir))
@@ -731,7 +732,7 @@ subn_dump_qos_options(
 
 /**********************************************************************
  **********************************************************************/
-void
+ib_api_status_t
 osm_subn_rescan_conf_file(
   IN osm_subn_opt_t* const p_opts )
 {
@@ -750,7 +751,7 @@ osm_subn_rescan_conf_file(
   
   opts_file = fopen(file_name, "r");
   if (!opts_file)
-    return;
+    return IB_ERROR;
 
   while (fgets(line, 1023, opts_file) != NULL)
   {
@@ -778,6 +779,8 @@ osm_subn_rescan_conf_file(
     }
   }
   fclose(opts_file);
+
+  return IB_SUCCESS;
 }
 
 /**********************************************************************
@@ -824,7 +827,7 @@ osm_subn_verify_conf_file(
 
 /**********************************************************************
  **********************************************************************/
-void
+ib_api_status_t
 osm_subn_parse_conf_file(
   IN osm_subn_opt_t* const p_opts )
 {
@@ -842,7 +845,8 @@ osm_subn_parse_conf_file(
   strcat(file_name, "/opensm.opts");
   
   opts_file = fopen(file_name, "r");
-  if (!opts_file) return;
+  if (!opts_file)
+    return IB_ERROR;
 
   while (fgets(line, 1023, opts_file) != NULL)
   {
@@ -1056,6 +1060,10 @@ osm_subn_parse_conf_file(
         "daemon",
         p_key, p_val, &p_opts->daemon);
 
+      __osm_subn_opts_unpack_boolean(
+        "sm_inactive",
+        p_key, p_val, &p_opts->sm_inactive);
+
       subn_parse_qos_options("qos",
         p_key, p_val, &p_opts->qos_options);
 
@@ -1084,11 +1092,13 @@ osm_subn_parse_conf_file(
   fclose(opts_file);
 
   osm_subn_verify_conf_file(p_opts);
+
+  return IB_SUCCESS;
 }
 
 /**********************************************************************
  **********************************************************************/
-void
+ib_api_status_t
 osm_subn_write_conf_file(
   IN osm_subn_opt_t* const p_opts )
 {
@@ -1104,7 +1114,8 @@ osm_subn_write_conf_file(
   strcat(file_name, "/opensm.opts");
   
   opts_file = fopen(file_name, "w");
-  if (!opts_file) return;
+  if (!opts_file)
+    return IB_ERROR;
 
   fprintf( 
     opts_file,
@@ -1249,6 +1260,7 @@ osm_subn_write_conf_file(
     opts_file,    
     "#\n# HANDOVER - MULTIPLE SMs OPTIONS\n#\n"
     "# SM priority used for deciding who is the master\n"
+    "# Range goes from 0 (lowest priority) to 15 (highest).\n"
     "sm_priority %u\n\n"
     "# If TRUE other SMs on the subnet should be ignored\n"
     "ignore_other_sm %s\n\n"
@@ -1290,8 +1302,11 @@ osm_subn_write_conf_file(
     opts_file,
     "#\n# MISC OPTIONS\n#\n"
     "# Daemon mode\n"
-    "daemon %s\n\n",
-    p_opts->daemon ? "TRUE" : "FALSE"
+    "daemon %s\n\n"
+    "# SM Inactive\n"
+    "sm_inactive %s\n\n",
+    p_opts->daemon ? "TRUE" : "FALSE",
+    p_opts->sm_inactive ? "TRUE" : "FALSE"
     );
 
   fprintf( 
@@ -1368,4 +1383,6 @@ osm_subn_write_conf_file(
   /* optional string attributes ... */
   
   fclose(opts_file);
+
+  return IB_SUCCESS;
 }

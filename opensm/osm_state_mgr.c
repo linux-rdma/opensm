@@ -1931,8 +1931,13 @@ osm_state_mgr_process(
                p_mgr->p_subn->subnet_initialization_error = FALSE;
 
                /* rescan configuration updates */
-               osm_subn_rescan_conf_file(&p_mgr->p_subn->opt);
-
+               status = osm_subn_rescan_conf_file(&p_mgr->p_subn->opt);
+               if( status != IB_SUCCESS )
+               {
+                 osm_log( p_mgr->p_log, OSM_LOG_ERROR,
+                         "osm_state_mgr_process: ERR 331A: "
+                         "osm_subn_rescan_conf_file failed\n" );
+               }
                status = __osm_state_mgr_sweep_hop_0( p_mgr );
                if( status == IB_SUCCESS )
                {
