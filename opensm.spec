@@ -1,4 +1,4 @@
-%define RELEASE 0.4.20070403git
+%define RELEASE 0.6.20070403git
 %define rel %{?CUSTOM_RELEASE} %{!?CUSTOM_RELEASE:%RELEASE}
 
 Summary: InfiniBand subnet manager and administration
