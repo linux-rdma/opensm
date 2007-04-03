@@ -1,0 +1,234 @@
+/*
+ * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
+ *
+ * This software is available to you under a choice of one of two
+ * licenses.  You may choose to be licensed under the terms of the GNU
+ * General Public License (GPL) Version 2, available from the file
+ * COPYING in the main directory of this source tree, or the
+ * OpenIB.org BSD license below:
+ *
+ *     Redistribution and use in source and binary forms, with or
+ *     without modification, are permitted provided that the following
+ *     conditions are met:
+ *
+ *      - Redistributions of source code must retain the above
+ *        copyright notice, this list of conditions and the following
+ *        disclaimer.
+ *
+ *      - Redistributions in binary form must reproduce the above
+ *        copyright notice, this list of conditions and the following
+ *        disclaimer in the documentation and/or other materials
+ *        provided with the distribution.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ */
+
+
+/*
+ * Abstract:
+ *    Implementation of osm_slvl_rcv_t.
+ * This object represents the SLtoVL Receiver object.
+ * This object is part of the opensm family of objects.
+ *
+ * Environment:
+ *    Linux User Mode
+ *
+ * $Revision: 1.4 $
+ */
+
+#if HAVE_CONFIG_H
+#  include <config.h>
+#endif /* HAVE_CONFIG_H */
+
+#include <string.h>
+#include <iba/ib_types.h>
+#include <complib/cl_qmap.h>
+#include <complib/cl_passivelock.h>
+#include <complib/cl_debug.h>
+#include <opensm/osm_slvl_map_rcv.h>
+#include <opensm/osm_node_info_rcv.h>
+#include <opensm/osm_req.h>
+#include <opensm/osm_madw.h>
+#include <opensm/osm_log.h>
+#include <opensm/osm_node.h>
+#include <opensm/osm_subnet.h>
+#include <opensm/osm_mad_pool.h>
+#include <opensm/osm_msgdef.h>
+#include <opensm/osm_helper.h>
+#include <vendor/osm_vendor_api.h>
+
+/**********************************************************************
+ **********************************************************************/
+void
+osm_slvl_rcv_construct(
+  IN osm_slvl_rcv_t* const p_rcv )
+{
+  memset( p_rcv, 0, sizeof(*p_rcv) );
+}
+
+/**********************************************************************
+ **********************************************************************/
+void
+osm_slvl_rcv_destroy(
+  IN osm_slvl_rcv_t* const p_rcv )
+{
+  CL_ASSERT( p_rcv );
+
+  OSM_LOG_ENTER( p_rcv->p_log, osm_slvl_rcv_destroy );
+
+  OSM_LOG_EXIT( p_rcv->p_log );
+}
+
+/**********************************************************************
+ **********************************************************************/
+ib_api_status_t
+osm_slvl_rcv_init(
+  IN osm_slvl_rcv_t* const p_rcv,
+  IN osm_req_t* const p_req,
+  IN osm_subn_t* const p_subn,
+  IN osm_log_t* const p_log,
+  IN cl_plock_t* const p_lock )
+{
+  ib_api_status_t status = IB_SUCCESS;
+
+  OSM_LOG_ENTER( p_log, osm_slvl_rcv_init );
+
+  osm_slvl_rcv_construct( p_rcv );
+
+  p_rcv->p_log = p_log;
+  p_rcv->p_subn = p_subn;
+  p_rcv->p_lock = p_lock;
+  p_rcv->p_req = p_req;
+
+  OSM_LOG_EXIT( p_log );
+  return( status );
+}
+
+/**********************************************************************
+ **********************************************************************/
+/*
+ * WE MIGHT ONLY RECEIVE A GET or SET responses
+ */
+void
+osm_slvl_rcv_process(
+  IN void *context,
+  IN void *p_data )
+{
+  osm_slvl_rcv_t *p_rcv = context;
+  osm_madw_t *p_madw = p_data;
+  cl_qmap_t *p_guid_tbl;
+  ib_slvl_table_t *p_slvl_tbl;
+  ib_smp_t *p_smp;
+  osm_port_t *p_port;
+  osm_physp_t *p_physp;
+  osm_node_t *p_node;
+  osm_slvl_context_t *p_context;
+  ib_net64_t port_guid;
+  ib_net64_t node_guid;
+  uint8_t out_port_num, in_port_num;
+
+  CL_ASSERT( p_rcv );
+
+  OSM_LOG_ENTER( p_rcv->p_log, osm_slvl_rcv_process );
+
+  CL_ASSERT( p_madw );
+
+  p_smp = osm_madw_get_smp_ptr( p_madw );
+  p_context = osm_madw_get_slvl_context_ptr( p_madw );
+  p_slvl_tbl = (ib_slvl_table_t*)ib_smp_get_payload_ptr( p_smp );
+
+  port_guid = p_context->port_guid;
+  node_guid = p_context->node_guid;
+
+  CL_ASSERT( p_smp->attr_id == IB_MAD_ATTR_SLVL_TABLE );
+
+  p_guid_tbl = &p_rcv->p_subn->port_guid_tbl;
+  cl_plock_excl_acquire( p_rcv->p_lock );
+  p_port = (osm_port_t*)cl_qmap_get( p_guid_tbl, port_guid );
+
+  if( p_port == (osm_port_t*)cl_qmap_end( p_guid_tbl) )
+  {
+    cl_plock_release( p_rcv->p_lock );
+    osm_log( p_rcv->p_log, OSM_LOG_ERROR,
+             "osm_slvl_rcv_process: ERR 2C06: "
+             "No port object for port with GUID 0x%" PRIx64
+             "\n\t\t\t\tfor parent node GUID 0x%" PRIx64
+             ", TID 0x%" PRIx64 "\n",
+             cl_ntoh64( port_guid ),
+             cl_ntoh64( node_guid ),
+             cl_ntoh64( p_smp->trans_id ) );
+    goto Exit;
+  }
+
+  p_node = osm_port_get_parent_node( p_port );
+  CL_ASSERT( p_node );
+
+  /* in case of a non switch node the attr modifier should be ignored */
+  if (osm_node_get_type( p_node ) == IB_NODE_TYPE_SWITCH)
+  {
+    out_port_num = (uint8_t)cl_ntoh32( p_smp->attr_mod & 0xFF000000);
+    in_port_num  = (uint8_t)cl_ntoh32( (p_smp->attr_mod & 0x00FF0000) << 8);
+    p_physp = osm_node_get_physp_ptr( p_node, out_port_num );
+  }
+  else
+  {
+    p_physp = osm_port_get_default_phys_ptr(p_port);
+    out_port_num = p_port->default_port_num;
+    in_port_num  = 0;
+  }
+
+  CL_ASSERT( p_physp );
+
+  /*
+    We do not mind if this is a result of a set or get - all we want is to update
+    the subnet.
+  */
+  if( osm_log_is_active( p_rcv->p_log, OSM_LOG_VERBOSE ) )
+  {
+    osm_log( p_rcv->p_log, OSM_LOG_VERBOSE,
+             "osm_slvl_rcv_process: "
+             "Got SLtoVL get response in_port_num %u out_port_num %u with GUID 0x%" PRIx64
+             " for parent node GUID 0x%" PRIx64
+             ", TID 0x%" PRIx64 "\n",
+             in_port_num, out_port_num,
+             cl_ntoh64( port_guid ),
+             cl_ntoh64( node_guid ),
+             cl_ntoh64( p_smp->trans_id ) );
+  }
+
+  /*
+    Determine if we encountered a new Physical Port.
+    If so, Ignore it.
+  */
+  if( !osm_physp_is_valid( p_physp ) )
+  {
+    osm_log( p_rcv->p_log, OSM_LOG_ERROR,
+             "osm_slvl_rcv_process: "
+             "Got invalid port number 0x%X\n",
+             out_port_num );
+    goto Exit;
+  }
+
+  osm_dump_slvl_map_table( p_rcv->p_log,
+                           port_guid, in_port_num,
+                           out_port_num, p_slvl_tbl,
+                           OSM_LOG_DEBUG );
+
+  osm_physp_set_slvl_tbl( p_physp, p_slvl_tbl, in_port_num);
+
+ Exit:
+  cl_plock_release( p_rcv->p_lock );
+
+  OSM_LOG_EXIT( p_rcv->p_log );
+}
+
