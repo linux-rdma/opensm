@@ -189,7 +189,7 @@ __osm_pi_rcv_process_endport(
       p_sm->smi.pri_state = 0xF0 & p_sm->smi.pri_state;
     }
 
-    if( p_pi->capability_mask & IB_PORT_CAP_IS_SM )
+    if( p_pi->capability_mask & ( IB_PORT_CAP_IS_SM | IB_PORT_CAP_SM_DISAB ) )
     {
       if( p_rcv->p_subn->opt.ignore_other_sm )
       {

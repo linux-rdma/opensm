@@ -51,6 +51,7 @@
 
 #include <string.h>
 #include <stdio.h>
+#include <limits.h>
 #include <complib/cl_debug.h>
 #include <complib/cl_log.h>
 #include <opensm/osm_subnet.h>
@@ -65,6 +66,14 @@
 #include <opensm/osm_multicast.h>
 #include <opensm/osm_inform.h>
 #include <opensm/osm_console.h>
+
+#if defined(PATH_MAX)
+#define OSM_PATH_MAX	(PATH_MAX + 1)
+#elif defined (_POSIX_PATH_MAX)
+#define OSM_PATH_MAX	(_POSIX_PATH_MAX + 1)
+#else
+#define OSM_PATH_MAX	256
+#endif
 
 /**********************************************************************
  **********************************************************************/
@@ -737,7 +746,7 @@ osm_subn_rescan_conf_file(
   IN osm_subn_opt_t* const p_opts )
 {
   char *p_cache_dir = getenv("OSM_CACHE_DIR");
-  char file_name[256];
+  char file_name[OSM_PATH_MAX];
   FILE *opts_file;
   char line[1024];
   char *p_key, *p_val ,*p_last;
@@ -832,7 +841,7 @@ osm_subn_parse_conf_file(
   IN osm_subn_opt_t* const p_opts )
 {
   char *p_cache_dir = getenv("OSM_CACHE_DIR");
-  char file_name[256];
+  char file_name[OSM_PATH_MAX];
   FILE *opts_file;
   char line[1024];
   char *p_key, *p_val ,*p_last;
@@ -1103,7 +1112,7 @@ osm_subn_write_conf_file(
   IN osm_subn_opt_t* const p_opts )
 {
   char *p_cache_dir = getenv("OSM_CACHE_DIR");
-  char file_name[256];
+  char file_name[OSM_PATH_MAX];
   FILE *opts_file;
   
   /* try to open the options file from the cache dir */

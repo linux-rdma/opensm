@@ -51,7 +51,8 @@ This document includes the following sections:
 
 * Modular routing for multicast
   In conjunction was SA database dump/restore, there is the ability to
-  load multicast routes.
+  dump and load switch lid matrices (min hops tables) which are used
+  for multicast route calculation.
 
 * IB router enablement
   OpenSM now supports router ports properly (in terms of PortInfo handling).
@@ -129,8 +130,9 @@ are listed in Table 3.
   get the corresponding change event it might mistakenly report this case
   as a "duplicated GUID" case and abort. It is advisable to double-check
   the syslog after each such change in connectivity and restart
-  OpenSM if it has exited.
-  
+  OpenSM if it has exited. The same error ("duplicated GUID") will 
+  also appear with a loopback plug.
+
 3 Unsupported IB Compliance Statements
 --------------------------------------
 The following section lists all the IB compliance statements which
@@ -199,6 +201,9 @@ information regarding each compliance statement.
 
 The following is a list of bugs that were fixed. Note that other less critical
 or visible bugs were also fixed.
+
+* osm_port_info_rcv.c: In __osm_pi_rcv_process_endport,
+  isSMdisabled also indicates that an SM is present so poll SMInfo 
 
 * osm_sm_state_mgr.c: In __osm_sm_state_mgr_send_master_sm_info_req, 
   handle master GUID port not found properly
