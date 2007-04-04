@@ -1,0 +1,37 @@
+2007-03-29  Hal Rosenstock <halr@voltaire.com>
+
+	* configure.in: Bump to version 2.1.1
+
+2007-01-08  Sasha Khapyorsky <sashak@voltaire.com>
+
+	* cl_log.c: SIGUSR1 fixes 
+
+2007-01-08  Ira Weiny <weiny2@llnl.gov>
+
+	* cl_log.c: Add SIGUSR1 handling to reopen osm.log
+
+2006-10-31  Hal Rosenstock <halr@voltaire.com>
+
+	* configure.in: Bumped to version version 2.1.0
+
+2006-09-05  Sasha Khapyorsky <sashak@voltaire.com>
+
+	* cl_event_wheel.c: Changes to support new osm_log
+	  initializer osm_log_init_v2()
+
+2006-08-29  Sasha Khapyorsky <sashak@voltaire.com>
+
+	* cl_event_wheel.c: Support option to limit size of OpenSM
+	  log file
+
+2006-07-20  Sasha Khapyorsky <sashak@voltaire.com>
+
+	* cl_pool.c: Fix memory corruption in cl_qcpool_init
+
+2006-07-19  Hal Rosenstock <halr@voltaire.com>
+
+	* Makefile.am: Eliminate deprecated warnings
+
+2006-06-11  Hal Rosenstock <halr@voltaire.com>
+
+	* configure.in: Released version 1.2.1 (OFED 1.1) 
