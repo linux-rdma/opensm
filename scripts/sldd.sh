@@ -40,19 +40,19 @@
 
 # config: /etc/opensm.conf
 
-CONFIG=/etc/opensm.conf
+[ -f /etc/sysconfig/opensm.conf ] && CONFIG=/etc/sysconfig/opensm.conf
+[ -f /etc/ofa/opensm.conf ] && CONFIG=/etc/sysconfig/opensm.conf
 
 SLDD_DEBUG=${SLDD_DEBUG:-0}
 
-if [ ! -f ${CONFIG} ]; then
-	[ $SLDD_DEBUG -eq 1 ] && 
-	echo "${CONFIG} not found."
+if [ -z "$CONFIG" ]; then
+	[ $SLDD_DEBUG -eq 1 ] && echo "Config file not found."
     	exit 0
 fi
 
 . ${CONFIG}
 
-CACHE_FILE=${CACHE_FILE:-/var/cache/osm/guid2lid}
+CACHE_FILE=${CACHE_FILE:-/var/cache/opensm/guid2lid}
 CACHE_DIR=$(dirname ${CACHE_FILE})
 tmp_cache=${CACHE_FILE}.tmp
 
