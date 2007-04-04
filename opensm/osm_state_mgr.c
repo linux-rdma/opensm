@@ -69,7 +69,7 @@
 #include <opensm/osm_inform.h>
 #include <opensm/osm_opensm.h>
 
-#define SUBNET_LIST_FILENAME "/osm-subnet.lst"
+#define SUBNET_LIST_FILENAME "/opensm-subnet.lst"
 
 osm_signal_t osm_qos_setup(IN osm_opensm_t * p_osm);
 

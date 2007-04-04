@@ -201,7 +201,7 @@ BEGIN_C_DECLS
 #ifdef __WIN__
 #define OSM_DEFAULT_CACHE_DIR GetOsmCachePath()
 #else
-#define OSM_DEFAULT_CACHE_DIR "/var/cache/osm/"
+#define OSM_DEFAULT_CACHE_DIR "/var/cache/opensm/"
 #endif
 /***********/
 
@@ -217,7 +217,7 @@ BEGIN_C_DECLS
 #ifdef __WIN__
 #define OSM_DEFAULT_LOG_FILE strcat(GetOsmTempPath(), "osm.log")
 #else
-#define OSM_DEFAULT_LOG_FILE "/var/log/osm.log"
+#define OSM_DEFAULT_LOG_FILE "/var/log/opensm.log"
 #endif
 /***********/
 
@@ -233,7 +233,7 @@ BEGIN_C_DECLS
 #ifdef __WIN__
 #define OSM_DEFAULT_PARTITION_CONFIG_FILE strcat(GetOsmCachePath(), "osm-partitions.conf")
 #else
-#define OSM_DEFAULT_PARTITION_CONFIG_FILE "/etc/osm-partitions.conf"
+#define OSM_DEFAULT_PARTITION_CONFIG_FILE "/etc/ofa/opensm-partitions.conf"
 #endif
 /***********/
 
