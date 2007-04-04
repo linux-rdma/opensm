@@ -6,17 +6,6 @@
 %if %{?_without_console_socket:1}%{!?_without_console_socket:0}
 %define _disable_console_socket --disable-console-socket
 %endif
-%if %{?fedora:0}%{?rhel:0}
-# It's neither Fedora nor RHEL, use regular defaults
-%define confdir sysconfig
-%define opensminit opensm.init
-%define opensmconf opensm.conf
-%else
-# It's Fedora or RHEL, use Red Hat specific scripts, etc.
-%define confdir ofa
-%define opensminit redhat-opensm.init
-%define opensmconf redhat-opensm.conf
-%endif
 
 
 Summary: InfiniBand subnet manager and administration
@@ -82,9 +71,14 @@ make DESTDIR=$RPM_BUILD_ROOT install
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
 etc=$RPM_BUILD_ROOT%{_sysconfdir}
 mkdir -p ${RPM_BUILD_ROOT}/var/cache/opensm
-mkdir -p $etc/{init.d,%{confdir},logrotate.d}
-install -m 755 scripts/%{opensminit} $etc/init.d/opensm
-install -m 644 scripts/%{opensmconf} $etc/%{confdir}/opensm.conf
+if [ -f /etc/redhat-release -o -s /etc/redhat-release ]; then
+    REDHAT="redhat-"
+else
+    REDHAT=""
+fi
+mkdir -p $etc/{init.d,ofa,logrotate.d}
+install -m 755 scripts/${REDHAT}opensm.init $etc/init.d/opensm
+install -m 644 scripts/${REDHAT}opensm.conf $etc/ofa/opensm.conf
 install -m 644 scripts/opensm.logrotate $etc/logrotate.d/opensm
 
 %clean
@@ -114,7 +108,7 @@ fi
 %{_mandir}/man8/*
 %doc AUTHORS COPYING README
 %{_sysconfdir}/init.d/opensm
-%config(noreplace) %{_sysconfdir}/%{confdir}/opensm.conf
+%config(noreplace) %{_sysconfdir}/ofa/opensm.conf
 %config(noreplace) %{_sysconfdir}/logrotate.d/opensm
 %dir /var/cache/opensm
 
