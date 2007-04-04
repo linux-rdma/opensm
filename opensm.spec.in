@@ -80,7 +80,8 @@ make %{?_smp_mflags}
 rm -rf $RPM_BUILD_ROOT
 make DESTDIR=$RPM_BUILD_ROOT install
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
-etc=$RPM_BUILD_ROOT/%{_sysconfdir}
+etc=$RPM_BUILD_ROOT%{_sysconfdir}
+mkdir -p ${RPM_BUILD_ROOT}/var/cache/opensm
 mkdir -p $etc/{init.d,%{confdir},logrotate.d}
 install -m 755 scripts/%{opensminit} $etc/init.d/opensm
 install -m 644 scripts/%{opensmconf} $etc/%{confdir}/opensm

@@ -26,7 +26,7 @@ libopensm_la_LDFLAGS = -version-info $(opensm_api_version) \
 	-export-dynamic $(libopensm_version_script)
 libopensm_la_DEPENDENCIES = $(srcdir)/libopensm.map
 
-bin_PROGRAMS = opensm
+sbin_PROGRAMS = opensm
 opensm_SOURCES = main.c osm_console.c osm_db_files.c \
 		 osm_db_pack.c osm_drop_mgr.c osm_fwd_tbl.c \
 		 osm_inform.c osm_lid_mgr.c osm_lin_fwd_rcv.c \
