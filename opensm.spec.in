@@ -84,7 +84,7 @@ etc=$RPM_BUILD_ROOT%{_sysconfdir}
 mkdir -p ${RPM_BUILD_ROOT}/var/cache/opensm
 mkdir -p $etc/{init.d,%{confdir},logrotate.d}
 install -m 755 scripts/%{opensminit} $etc/init.d/opensm
-install -m 644 scripts/%{opensmconf} $etc/%{confdir}/opensm
+install -m 644 scripts/%{opensmconf} $etc/%{confdir}/opensm.conf
 install -m 644 scripts/opensm.logrotate $etc/logrotate.d/opensm
 
 %clean
@@ -114,7 +114,7 @@ fi
 %{_mandir}/man8/*
 %doc AUTHORS COPYING README
 %{_sysconfdir}/init.d/opensm
-%config(noreplace) %{_sysconfdir}/%{confdir}/opensm
+%config(noreplace) %{_sysconfdir}/%{confdir}/opensm.conf
 %config(noreplace) %{_sysconfdir}/logrotate.d/opensm
 %dir /var/cache/opensm
 
