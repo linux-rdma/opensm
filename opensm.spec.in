@@ -9,13 +9,13 @@
 %if %{?fedora:0}%{?rhel:0}
 # It's neither Fedora nor RHEL, use regular defaults
 %define confdir sysconfig
-%define opensm.init opensm.init
-%define opensm.conf opensm.conf
+%define opensminit opensm.init
+%define opensmconf opensm.conf
 %else
 # It's Fedora or RHEL, use Red Hat specific scripts, etc.
 %define confdir ofa
-%define opensm.init redhat-opensm.init
-%define opensm.conf redhat-opensm.conf
+%define opensminit redhat-opensm.init
+%define opensmconf redhat-opensm.conf
 %endif
 
 
@@ -82,8 +82,8 @@ make DESTDIR=$RPM_BUILD_ROOT install
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
 etc=$RPM_BUILD_ROOT/%{_sysconfdir}
 mkdir -p $etc/{init.d,%{confdir},logrotate.d}
-install -m 755 scripts/%{opensm.init} $etc/init.d/opensm
-install -m 644 scripts/%{opensm.conf} $etc/%{confdir}/opensm
+install -m 755 scripts/%{opensminit} $etc/init.d/opensm
+install -m 644 scripts/%{opensmconf} $etc/%{confdir}/opensm
 install -m 644 scripts/opensm.logrotate $etc/logrotate.d/opensm
 
 %clean
