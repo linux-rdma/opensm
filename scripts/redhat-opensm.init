@@ -205,7 +205,9 @@ stop_sldd()
 start()
 {
     local OSM_PID=
-    
+   
+    pid=""
+ 
     if [ -f $PID_FILE ]; then
             local line p
             read line < $PID_FILE
@@ -279,7 +281,7 @@ stop()
 		echo -n ".";
 		alive=0
 		for p in $pid; do 
-			if checkpid $p ; then alive=1; fi
+			if checkpid $p ; then alive=1; echo -n "-"; fi
 		done
 		let cnt++;
 		sleep $alive
@@ -289,7 +291,7 @@ stop()
         do
             while checkpid $p ; do
                 kill -KILL $p > /dev/null 2>&1
-                echo -n "."
+                echo -n "+"
                 sleep 1
             done    
         done
@@ -308,7 +310,7 @@ stop()
     # Remove pid file if any.
     rm -f $PID_FILE
     rm -f /var/lock/subsys/opensm
-return $RC    
+    return $RC    
 }
 
 status()
@@ -354,6 +356,7 @@ case $ACTION in
 		pid=`pidof -o $$ -o $PPID -o %PPID -x $bin`
 		if [ -n "$pid" ]; then
 			stop
+			sleep 1
 			start
 		fi
 		;;
