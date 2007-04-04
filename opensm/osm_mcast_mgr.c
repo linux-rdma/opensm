@@ -1455,7 +1455,7 @@ mcast_mgr_dump_mcast_routes(osm_mcast_mgr_t *p_mgr)
 		return;
 
 	snprintf(file_name, sizeof(file_name), "%s/%s",
-		 p_mgr->p_subn->opt.dump_files_dir, "osm.mcfdbs");
+		 p_mgr->p_subn->opt.dump_files_dir, "opensm.mcfdbs");
  
  	file = fopen(file_name, "w");
 	if (!file) {

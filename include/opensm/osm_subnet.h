@@ -388,8 +388,9 @@ typedef struct _osm_subn_opt
 *		The value is send to all switches as SubnSet(SwitchInfo.life_state)
 *
 *	dump_files_dir
-*		The directory to be used for subnet.lst osm.fdbs, osm.mcfdbs
-*		and default log file (the latter for Windows, not Linux).
+*		The directory to be used for opensm-subnet.lst, opensm.fdbs,
+*		opensm.mcfdbs, and default log file (the latter for Windows,
+*		not Linux).
 *
 *	log_file
 *		Name of the log file (or NULL) for stdout.

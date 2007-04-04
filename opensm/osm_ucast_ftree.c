@@ -1249,7 +1249,7 @@ __osm_ftree_fabric_dump_hca_ordering(
 
    char path[1024];
    FILE * p_hca_ordering_file;
-   char * filename = "osm-ftree-ca-order.dump";
+   char * filename = "opensm-ftree-ca-order.dump";
 
    snprintf(path, sizeof(path), "%s/%s", 
             p_ftree->p_osm->subn.opt.dump_files_dir, filename);

@@ -131,7 +131,7 @@ show_usage(void)
   printf( "-c\n"
           "--cache-options\n"
           "          Cache the given command line options into the file\n"
-          "          /var/cache/osm/opensm.opts for use on next invocation.\n"
+          "          /var/cache/opensm/opensm.opts for use on next invocation.\n"
           "          The cache directory can be changed by the environment\n"
           "          variable OSM_CACHE_DIR\n\n");
   printf( "-g[=]<GUID in hex>\n"

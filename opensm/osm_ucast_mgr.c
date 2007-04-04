@@ -435,7 +435,7 @@ static void __osm_ucast_mgr_dump_tables(osm_ucast_mgr_t *p_mgr)
   ucast_mgr_dump_to_file(p_mgr, "opensm-lfts.dump", ucast_mgr_dump_lfts);
   if( osm_log_is_active( p_mgr->p_log, OSM_LOG_DEBUG ) )
     ucast_mgr_dump(p_mgr, NULL, __osm_ucast_mgr_dump_path_distribution);
-  ucast_mgr_dump_to_file(p_mgr, "osm.fdbs", __osm_ucast_mgr_dump_ucast_routes);
+  ucast_mgr_dump_to_file(p_mgr, "opensm.fdbs", __osm_ucast_mgr_dump_ucast_routes);
 }
 
 /**********************************************************************

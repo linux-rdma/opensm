@@ -198,7 +198,7 @@ In addition to this, although the algorithm allows leaf switches to have any
 number of CAs, the closer the tree is to be fully populated, the more effective
 the "shift" communication pattern will be.
 
-The algorithm also dumps CA ordering file (osm-ftree-ca-order.dump) in the
+The algorithm also dumps CA ordering file (opensm-ftree-ca-order.dump) in the
 same directory where the OpenSM log resides. This ordering file provides the 
 CA order that may be used to create efficient communication pattern, that
 will match the routing tables.
