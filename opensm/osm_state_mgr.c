@@ -2067,7 +2067,7 @@ osm_state_mgr_process(
          case OSM_SIGNAL_CHANGE_DETECTED:
             /*
              * Nothing to do here. One subnet change typcially
-             * begets another.... But needs to wait for all transactions to
+             * begets another.... But need to wait for all transactions to
              * complete
              */
             break;
