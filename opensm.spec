@@ -1,5 +1,12 @@
-%define RELEASE 0.6.20070403git
+%define RELEASE 0.1.20070409git
 %define rel %{?CUSTOM_RELEASE} %{!?CUSTOM_RELEASE:%RELEASE}
+%if %{?_with_console_socket:1}%{!?_with_console_socket:0}
+%define _enable_console_socket --enable-console-socket
+%endif
+%if %{?_without_console_socket:1}%{!?_without_console_socket:0}
+%define _disable_console_socket --disable-console-socket
+%endif
+
 
 Summary: InfiniBand subnet manager and administration
 Name: opensm
@@ -11,10 +18,9 @@ URL: http://openfabrics.org/
 Source: git://git.openfabrics.org/~halr/management/opensm-git.tgz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: libibumad-devel, autoconf, libtool, automake
-Requires: %{name}-libs = %{version}-%{release}
+Requires: %{name}-libs = %{version}-%{release}, logrotate
 Requires(post): /sbin/service, /sbin/chkconfig
-Requires(preun): /sbin/chkconfig
-Requires(postun): /sbin/service
+Requires(preun): /sbin/chkconfig, /sbin/service
 
 %description
 OpenSM provides an implementation of an InfiniBand Subnet Manager and
@@ -52,13 +58,6 @@ Static version of the opensm libraries
 %prep
 %setup -q
 
-%if %{?_with_console_socket:1}%{!?_with_console_socket:0}
-%define _enable_console_socket --enable-console-socket
-%endif
-%if %{?_without_console_socket:1}%{!?_without_console_socket:0}
-%define _disable_console_socket --disable-console-socket
-%endif
-
 %build
 ./autogen.sh
 %configure \
@@ -70,10 +69,17 @@ make %{?_smp_mflags}
 rm -rf $RPM_BUILD_ROOT
 make DESTDIR=$RPM_BUILD_ROOT install
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
-etc=$RPM_BUILD_ROOT/%{_sysconfdir}
-mkdir -p $etc/{init.d,sysconfig}
-install -m 755 scripts/opensm.init $etc/init.d/opensm
-install -m 755 scripts/opensm.sysconfig $etc/sysconfig/opensm
+etc=$RPM_BUILD_ROOT%{_sysconfdir}
+mkdir -p ${RPM_BUILD_ROOT}/var/cache/opensm
+if [ -f /etc/redhat-release -o -s /etc/redhat-release ]; then
+    REDHAT="redhat-"
+else
+    REDHAT=""
+fi
+mkdir -p $etc/{init.d,ofa,logrotate.d}
+install -m 755 scripts/${REDHAT}opensm.init $etc/init.d/opensm
+install -m 644 scripts/${REDHAT}opensm.conf $etc/ofa/opensm.conf
+install -m 644 scripts/opensm.logrotate $etc/logrotate.d/opensm
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -87,8 +93,9 @@ fi
 
 %preun
 if [ $1 = 0 ]; then
+    /sbin/service opensm stop
     /sbin/chkconfig --delete opensm
-    rm -f /var/cache/osm/*
+    rm -f /var/cache/opensm/*
 fi
 
 %post libs -p /sbin/ldconfig
@@ -96,12 +103,14 @@ fi
 
 %files
 %defattr(-,root,root,-)
-%{_bindir}/opensm
+%{_sbindir}/opensm
 %{_bindir}/osmtest
 %{_mandir}/man8/*
 %doc AUTHORS COPYING README
-%config %{_sysconfdir}/init.d/opensm
-%config(noreplace) %{_sysconfdir}/sysconfig/opensm
+%{_sysconfdir}/init.d/opensm
+%config(noreplace) %{_sysconfdir}/ofa/opensm.conf
+%config(noreplace) %{_sysconfdir}/logrotate.d/opensm
+%dir /var/cache/opensm
 
 %files libs
 %defattr(-,root,root,-)
