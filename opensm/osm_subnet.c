@@ -52,6 +52,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <limits.h>
+#include <errno.h>
 #include <complib/cl_debug.h>
 #include <complib/cl_log.h>
 #include <opensm/osm_subnet.h>
@@ -758,7 +759,7 @@ osm_subn_rescan_conf_file(
   
   opts_file = fopen(file_name, "r");
   if (!opts_file)
-    return IB_ERROR;
+    return (errno == ENOENT) ? IB_SUCCESS : IB_ERROR;
 
   while (fgets(line, 1023, opts_file) != NULL)
   {
@@ -856,7 +857,7 @@ osm_subn_parse_conf_file(
   
   opts_file = fopen(file_name, "r");
   if (!opts_file)
-    return IB_ERROR;
+    return (errno == ENOENT) ? IB_SUCCESS : IB_ERROR;
 
   while (fgets(line, 1023, opts_file) != NULL)
   {
