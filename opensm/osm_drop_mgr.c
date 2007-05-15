@@ -237,10 +237,10 @@ __osm_drop_mgr_remove_port(
     Re-initialize each Physical Port.
   */
 
-  num_physp = osm_port_get_num_physp( p_port );
+  num_physp = osm_node_get_num_physp( p_port->p_node );
   for( port_num = 0; port_num < num_physp; port_num++ )
   {
-    p_physp = osm_port_get_phys_ptr( p_port, (uint8_t)port_num );
+    p_physp = osm_node_get_physp_ptr( p_port->p_node, (uint8_t)port_num );
 
     if( p_physp )
     {

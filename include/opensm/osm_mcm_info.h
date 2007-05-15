@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -79,9 +79,8 @@ BEGIN_C_DECLS
 */
 typedef struct _osm_mcm_info
 {
-	cl_list_item_t				list_item;
-	ib_net16_t					mlid;
-
+	cl_list_item_t	list_item;
+	ib_net16_t	mlid;
 } osm_mcm_info_t;
 /*
 * FIELDS
@@ -90,94 +89,6 @@ typedef struct _osm_mcm_info
 *
 *	mlid
 *		MLID of this multicast group.
-*
-* SEE ALSO
-*********/
-
-/****f* OpenSM: Multicast Member Info/osm_mcm_info_construct
-* NAME
-*	osm_mcm_info_construct
-*
-* DESCRIPTION
-*	This function constructs a Multicast Member Info object.
-*
-* SYNOPSIS
-*/
-static inline void
-osm_mcm_info_construct(
-	IN osm_mcm_info_t* const p_mcm )
-{
-	memset( p_mcm, 0, sizeof(*p_mcm) );
-}
-/*
-* PARAMETERS
-*	p_mcm
-*		[in] Pointer to a Multicast Member Info object to construct.
-*
-* RETURN VALUE
-*	This function does not return a value.
-*
-* NOTES
-*
-* SEE ALSO
-*********/
-
-/****f* OpenSM: Multicast Member Info/osm_mcm_info_destroy
-* NAME
-*	osm_mcm_info_destroy
-*
-* DESCRIPTION
-*	The osm_mcm_info_destroy function destroys the object, releasing
-*	all resources.
-*
-* SYNOPSIS
-*/
-void
-osm_mcm_info_destroy(
-	IN osm_mcm_info_t* const p_mcm );
-/*
-* PARAMETERS
-*	p_mcm
-*		[in] Pointer to a Multicast Member Info object to destroy.
-*
-* RETURN VALUE
-*	This function does not return a value.
-*
-* NOTES
-*	Performs any necessary cleanup of the specified Multicast Member Info object.
-*	Further operations should not be attempted on the destroyed object.
-*	This function should only be called after a call to osm_mtree_construct or
-*	osm_mtree_init.
-*
-* SEE ALSO
-*	Multicast Member Info object, osm_mtree_construct, osm_mtree_init
-*********/
-
-/****f* OpenSM: Multicast Member Info/osm_mcm_info_init
-* NAME
-*	osm_mcm_info_init
-*
-* DESCRIPTION
-*	Initializes a Multicast Member Info object for use.
-*
-* SYNOPSIS
-*/
-void
-osm_mcm_info_init(
-	IN osm_mcm_info_t* const p_mcm,
-	IN const ib_net16_t mlid );
-/*
-* PARAMETERS
-*	p_mcm
-*		[in] Pointer to an osm_mcm_info_t object to initialize.
-*
-*	mlid
-*		[in] MLID value for this multicast group.
-*
-* RETURN VALUES
-*	None.
-*
-* NOTES
 *
 * SEE ALSO
 *********/

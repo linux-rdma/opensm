@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004, 2005 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -121,7 +121,6 @@ typedef struct _osm_svcr_t
 * SEE ALSO
 *********/
 
-
 /****f* OpenSM: Service Record/osm_svcr_new
 * NAME
 *	osm_svcr_new
@@ -146,13 +145,12 @@ osm_svcr_new(
 *	Allows calling other service record methods.
 *
 * SEE ALSO
-*	Service Record, osm_svcr_construct, osm_svcr_destroy
+*	Service Record, osm_svcr_delete
 *********/
-
 
 /****f* OpenSM: Service Record/osm_svcr_init
 * NAME
-*	osm_svcr_new
+*	osm_svcr_init
 *
 * DESCRIPTION
 *	Initializes the osm_svcr_t structure.
@@ -171,20 +169,20 @@ osm_svcr_init(
 *		[in] Pointer to the ib_service_record_t
 *
 * SEE ALSO
-*	Service Record, osm_svcr_construct, osm_svcr_destroy
+*	Service Record
 *********/
 
-/****f* OpenSM: Service Record/osm_svcr_construct
+/****f* OpenSM: Service Record/osm_svcr_delete
 * NAME
-*	osm_svcr_construct
+*	osm_svcr_delete
 *
 * DESCRIPTION
-*	Constructs the osm_svcr_t structure.
+*	Deallocates the osm_svcr_t structure.
 *
 * SYNOPSIS
 */
 void
-osm_svcr_construct(
+osm_svcr_delete(
 	IN osm_svcr_t* const p_svcr );
 /*
 * PARAMETERS
@@ -192,31 +190,8 @@ osm_svcr_construct(
 *		[in] Pointer to osm_svcr_t structure
 *
 * SEE ALSO
-*	Service Record, osm_svcr_construct, osm_svcr_destroy
+*	Service Record, osm_svcr_new
 *********/
-
-/****f* OpenSM: Service Record/osm_svcr_destroy
-* NAME
-*	osm_svcr_destroy
-*
-* DESCRIPTION
-*	Constructs the osm_svcr_t structure.
-*
-* SYNOPSIS
-*/
-void
-osm_svcr_destroy(
-	IN osm_svcr_t* const p_svcr );
-/*
-* PARAMETERS
-*	p_svc_rec
-*		[in] Pointer to osm_svcr_t structure
-*
-* SEE ALSO
-*	Service Record, osm_svcr_construct, osm_svcr_destroy
-*********/
-
-
 
 osm_svcr_t*
 osm_svcr_get_by_rid(
@@ -234,7 +209,6 @@ osm_svcr_remove_from_db(
 	IN osm_subn_t	*p_subn,
 	IN osm_log_t	*p_log,
 	IN osm_svcr_t	*p_svcr);
-
 
 END_C_DECLS
 

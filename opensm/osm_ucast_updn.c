@@ -413,7 +413,7 @@ updn_subn_rank(
   IN updn_t* p_updn )
 {
   osm_switch_t *p_sw;
-  uint8_t rank = base_rank;
+  uint32_t rank = base_rank;
   osm_physp_t *p_physp, *p_remote_physp;
   cl_qlist_t list;
   cl_status_t did_cause_update;
@@ -566,7 +566,7 @@ __osm_subn_calc_up_down_min_hop_table(
   IN uint64_t* guid_list,
   IN updn_t* p_updn )
 {
-  uint8_t idx = 0;
+  uint32_t idx = 0;
   int status;
 
   OSM_LOG_ENTER( &p_updn->p_osm->log, osm_subn_calc_up_down_min_hop_table );
@@ -792,7 +792,7 @@ __osm_updn_find_root_nodes_by_min_hop(
     p_next_port = (osm_port_t*)cl_qmap_next( &p_next_port->map_item );
     if ( osm_node_get_type(p_port->p_node) != IB_NODE_TYPE_SWITCH )
     {
-      p_physp = osm_port_get_default_phys_ptr(p_port);
+      p_physp = p_port->p_physp;
       self_lid_ho = cl_ntoh16( osm_physp_get_base_lid(p_physp) );
       numCas++;
       /* EZ:

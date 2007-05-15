@@ -213,7 +213,7 @@ __osm_sa_slvl_by_comp_mask(
 
   p_rcvd_rec = p_ctxt->p_rcvd_rec;
   comp_mask = p_ctxt->comp_mask;
-  num_ports = osm_port_get_num_physp( p_port );
+  num_ports = osm_node_get_num_physp( p_port->p_node );
   in_port_start = 0;
   in_port_end = num_ports;
   out_port_start = 0;
@@ -225,8 +225,8 @@ __osm_sa_slvl_by_comp_mask(
     osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
              "__osm_sa_slvl_by_comp_mask:  "
              "Using Physical Default Port Number: 0x%X (for End Node)\n",
-             p_port->default_port_num );
-    p_out_physp = osm_port_get_phys_ptr( p_port, p_port->default_port_num );
+             p_port->p_physp->port_num );
+    p_out_physp = p_port->p_physp;
     /* check that the p_out_physp and the p_req_physp share a pkey */
     if (osm_physp_share_pkey( p_rcv->p_log, p_req_physp, p_out_physp ))
     __osm_sa_slvl_create( p_rcv, p_out_physp, p_ctxt, 0 );
@@ -243,7 +243,7 @@ __osm_sa_slvl_by_comp_mask(
     }
 
     for( out_port_num = out_port_start; out_port_num <= out_port_end; out_port_num++ ) {
-      p_out_physp = osm_port_get_phys_ptr( p_port, out_port_num );
+      p_out_physp = osm_node_get_physp_ptr( p_port->p_node, out_port_num );
       if( p_out_physp == NULL )
         continue;
 
@@ -256,7 +256,7 @@ __osm_sa_slvl_by_comp_mask(
           continue;
 #endif
 
-        p_in_physp = osm_port_get_phys_ptr( p_port, in_port_num );
+        p_in_physp = osm_node_get_physp_ptr( p_port->p_node, in_port_num );
         if( p_in_physp == NULL )
           continue;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -151,47 +151,23 @@ osm_infr_new(
 *	pointer to osm_infr_t structure.
 *
 * NOTES
-*	Allows calling other service record methods.
+*	Allows calling other inform record methods.
 *
 * SEE ALSO
-*	Inform Record, osm_infr_construct, osm_infr_destroy
+*	Inform Record, osm_infr_delete
 *********/
 
-/****f* OpenSM: Inform Record/osm_infr_init
+/****f* OpenSM: Inform Record/osm_infr_delete
 * NAME
-*	osm_infr_new
+*	osm_infr_delete
 *
 * DESCRIPTION
-*	Initializes the osm_infr_t structure.
+*	Destroys and deallocates the osm_infr_t structure.
 *
 * SYNOPSIS
 */
 void
-osm_infr_init(
-	IN osm_infr_t* const p_infr,
-	IN const osm_infr_t *p_infr_rec );
-/*
-* PARAMETERS
-*	p_infr
-*		[in] Pointer to osm_infr_t structure
-*	p_inf_rec
-*		[in] Pointer to the ib_inform_info_record_t
-*
-* SEE ALSO
-*	Inform Record, osm_infr_construct, osm_infr_destroy
-*********/
-
-/****f* OpenSM: Inform Record/osm_infr_construct
-* NAME
-*	osm_infr_construct
-*
-* DESCRIPTION
-*	Constructs the osm_infr_t structure.
-*
-* SYNOPSIS
-*/
-void
-osm_infr_construct(
+osm_infr_delete(
 	IN osm_infr_t* const p_infr );
 /*
 * PARAMETERS
@@ -199,28 +175,7 @@ osm_infr_construct(
 *		[in] Pointer to osm_infr_t structure
 *
 * SEE ALSO
-*	Inform Record, osm_infr_construct, osm_infr_destroy
-*********/
-
-/****f* OpenSM: Inform Record/osm_infr_destroy
-* NAME
-*	osm_infr_destroy
-*
-* DESCRIPTION
-*	Constructs the osm_infr_t structure.
-*
-* SYNOPSIS
-*/
-void
-osm_infr_destroy(
-	IN osm_infr_t* const p_infr );
-/*
-* PARAMETERS
-*	p_infr
-*		[in] Pointer to osm_infr_t structure
-*
-* SEE ALSO
-*	Inform Record, osm_infr_construct, osm_infr_destroy
+*	Inform Record, osm_infr_new
 *********/
 
 /****f* OpenSM: Inform Record/osm_infr_get_by_rec
@@ -251,7 +206,7 @@ osm_infr_get_by_rec(
 * RETURN
 *	The matching osm_infr_t
 * SEE ALSO
-*	Inform Record, osm_infr_construct, osm_infr_destroy
+*	Inform Record, osm_infr_new, osm_infr_delete
 *********/
 
 void

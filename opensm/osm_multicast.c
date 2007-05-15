@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -77,17 +77,7 @@ osm_get_mcast_req_type_str(
 /**********************************************************************
  **********************************************************************/
 void
-osm_mgrp_construct(
-  IN osm_mgrp_t* const p_mgrp )
-{
-  memset( p_mgrp, 0, sizeof(*p_mgrp) );
-  cl_qmap_init( &p_mgrp->mcm_port_tbl );
-}
-
-/**********************************************************************
- **********************************************************************/
-void
-osm_mgrp_destroy(
+osm_mgrp_delete(
   IN osm_mgrp_t* const p_mgrp )
 {
   osm_mcm_port_t *p_mcm_port;
@@ -110,15 +100,15 @@ osm_mgrp_destroy(
 
 /**********************************************************************
  **********************************************************************/
-void
+static void
 osm_mgrp_init(
   IN osm_mgrp_t* const p_mgrp,
   IN const ib_net16_t mlid )
 {
-  CL_ASSERT( p_mgrp );
   CL_ASSERT( cl_ntoh16( mlid ) >= IB_LID_MCAST_START_HO );
 
-  osm_mgrp_construct( p_mgrp );
+  memset( p_mgrp, 0, sizeof(*p_mgrp) );
+  cl_qmap_init( &p_mgrp->mcm_port_tbl );
   p_mgrp->mlid = mlid;
   p_mgrp->last_change_id = 0;
   p_mgrp->last_tree_id = 0;

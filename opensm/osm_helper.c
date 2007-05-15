@@ -1145,22 +1145,22 @@ osm_dump_multipath_record(
   IN const ib_multipath_rec_t* const p_mpr,
   IN const osm_log_level_t log_level )
 {
-  int i;
   char buf_line[1024];
   ib_gid_t const *p_gid;
+  int i, n;
 
   if( osm_log_is_active( p_log, log_level ) )
   {
-    memset(buf_line, 0, sizeof(buf_line));
+    n = 0;
     p_gid = p_mpr->gids;
     if ( p_mpr->sgid_count )
     {
       for (i = 0; i < p_mpr->sgid_count; i++)
       {
-        sprintf( buf_line, "%s\t\t\t\tsgid%02d.................."
-                 "0x%016" PRIx64 " : 0x%016" PRIx64 "\n",
-                 buf_line, i + 1, cl_ntoh64( p_gid->unicast.prefix ),
-                 cl_ntoh64( p_gid->unicast.interface_id ) );
+        n += sprintf( buf_line + n, "\t\t\t\tsgid%02d.................."
+                      "0x%016" PRIx64 " : 0x%016" PRIx64 "\n",
+                      i + 1, cl_ntoh64( p_gid->unicast.prefix ),
+                      cl_ntoh64( p_gid->unicast.interface_id ) );
         p_gid++;
       }
     }
@@ -1168,10 +1168,10 @@ osm_dump_multipath_record(
     {
       for (i = 0; i < p_mpr->dgid_count; i++)
       {
-        sprintf( buf_line, "%s\t\t\t\tdgid%02d.................."
-                 "0x%016" PRIx64 " : 0x%016" PRIx64 "\n",
-                 buf_line, i + 1, cl_ntoh64( p_gid->unicast.prefix ),
-                 cl_ntoh64( p_gid->unicast.interface_id ) );
+        n += sprintf( buf_line + n, "\t\t\t\tdgid%02d.................."
+                      "0x%016" PRIx64 " : 0x%016" PRIx64 "\n",
+                      i + 1, cl_ntoh64( p_gid->unicast.prefix ),
+                      cl_ntoh64( p_gid->unicast.interface_id ) );
         p_gid++;
       }
     }
@@ -1405,7 +1405,7 @@ osm_dump_inform_info(
                cl_ntoh16( p_ii->g_or_v.generic.trap_num ),
                cl_ntoh32( qpn ),
                resp_time_val,
-               cl_ntoh32(ib_inform_info_get_node_type( p_ii ))
+               cl_ntoh32(ib_inform_info_get_prod_type( p_ii ))
                );
     }
     else
@@ -1433,7 +1433,7 @@ osm_dump_inform_info(
                cl_ntoh16( p_ii->g_or_v.vend.dev_id ),
                cl_ntoh32( qpn ),
                resp_time_val,
-               cl_ntoh32(ib_inform_info_get_node_type( p_ii ))
+               cl_ntoh32(ib_inform_info_get_prod_type( p_ii ))
                );
     }
   }
@@ -1489,7 +1489,7 @@ osm_dump_inform_info_record(
                cl_ntoh16( p_iir->inform_info.g_or_v.generic.trap_num ),
                cl_ntoh32( qpn ),
                resp_time_val,
-               cl_ntoh32(ib_inform_info_get_node_type( &p_iir->inform_info ))
+               cl_ntoh32(ib_inform_info_get_prod_type( &p_iir->inform_info ))
                );
     }
     else
@@ -1525,7 +1525,7 @@ osm_dump_inform_info_record(
                cl_ntoh16( p_iir->inform_info.g_or_v.vend.dev_id ),
                cl_ntoh32( qpn ),
                resp_time_val,
-               cl_ntoh32(ib_inform_info_get_node_type( &p_iir->inform_info ))
+               cl_ntoh32(ib_inform_info_get_prod_type( &p_iir->inform_info ))
                );
     }
   }
@@ -1650,15 +1650,14 @@ osm_dump_pkey_block(
   IN const ib_pkey_table_t* const p_pkey_tbl,
   IN const osm_log_level_t log_level )
 {
-  int i;
   char buf_line[1024];
+  int i, n;
 
   if( osm_log_is_active( p_log, log_level ) )
   {
-    buf_line[0] = '\0';
-    for (i = 0; i < 32; i++)
-      sprintf( buf_line,"%s 0x%04x |",
-               buf_line, cl_ntoh16(p_pkey_tbl->pkey_entry[i]));
+    for (i = 0, n = 0; i < 32; i++)
+      n += sprintf( buf_line + n," 0x%04x |",
+                    cl_ntoh16(p_pkey_tbl->pkey_entry[i]));
 
     osm_log( p_log, log_level,
              "P_Key table dump:\n"
@@ -1684,19 +1683,18 @@ osm_dump_slvl_map_table(
   IN const ib_slvl_table_t* const p_slvl_tbl,
   IN const osm_log_level_t log_level )
 {
-  uint8_t i;
   char buf_line1[1024];
   char buf_line2[1024];
+  int n;
+  uint8_t i;
 
   if( osm_log_is_active( p_log, log_level ) )
   {
-    buf_line1[0] = '\0';
-    buf_line2[0] = '\0';
-    for (i = 0; i < 16; i++)
-      sprintf( buf_line1,"%s %-2u |", buf_line1, i);
-    for (i = 0; i < 16; i++)
-      sprintf( buf_line2,"%s0x%01X |",
-               buf_line2, ib_slvl_table_get(p_slvl_tbl, i));
+    for (i = 0, n = 0; i < 16; i++)
+      n += sprintf( buf_line1 + n," %-2u |", i);
+    for (i = 0, n = 0; i < 16; i++)
+      n += sprintf( buf_line2 + n,"0x%01X |",
+               ib_slvl_table_get(p_slvl_tbl, i));
     osm_log( p_log, log_level,
              "SLtoVL dump:\n"
              "\t\t\tport_guid............0x%016" PRIx64 "\n"
@@ -1721,22 +1719,18 @@ osm_dump_vl_arb_table(
   IN const ib_vl_arb_table_t* const p_vla_tbl,
   IN const osm_log_level_t log_level )
 {
-  int i;
   char buf_line1[1024];
   char buf_line2[1024];
+  int i, n;
 
   if( osm_log_is_active( p_log, log_level ) )
   {
-    buf_line1[0] = '\0';
-    buf_line2[0] = '\0';
-    for (i = 0; i < 32; i++)
-      sprintf( buf_line1,"%s 0x%01X |",
-               buf_line1, p_vla_tbl->vl_entry[i].vl);
-    for (i = 0; i < 32; i++)
-      sprintf( buf_line2,"%s 0x%01X |",
-               buf_line2, p_vla_tbl->vl_entry[i].weight);
+    for (i = 0, n = 0; i < 32; i++)
+      n += sprintf( buf_line1 + n," 0x%01X |", p_vla_tbl->vl_entry[i].vl);
+    for (i = 0, n = 0; i < 32; i++)
+      n += sprintf( buf_line2 + n," 0x%01X |", p_vla_tbl->vl_entry[i].weight);
     osm_log( p_log, log_level,
-             "VlArb dump:\n"
+             "VLArb dump:\n"
              "\t\t\tport_guid...........0x%016" PRIx64 "\n"
              "\t\t\tblock_num...........0x%X\n"
              "\t\t\tport_num............0x%X\n\tVL    : | %s\n\tWEIGHT:| %s\n",
@@ -1868,11 +1862,12 @@ osm_dump_notice(
       osm_log( p_log, log_level,
                "Generic Notice dump:\n"
                "\t\t\t\ttype.....................0x%02X\n"
-               "\t\t\t\tprod_type................%u\n"
+               "\t\t\t\tprod_type................%u (%s)\n"
                "\t\t\t\ttrap_num.................%u\n%s"
                "",
                ib_notice_get_type(p_ntci),
                cl_ntoh32(ib_notice_get_prod_type(p_ntci)),
+               ib_get_producer_type_str(ib_notice_get_prod_type(p_ntci)),
                cl_ntoh16(p_ntci->g_or_v.generic.trap_num),
                buff
                );
@@ -2338,9 +2333,9 @@ static const char* const __osm_node_type_str_fixed_width[] =
  **********************************************************************/
 const char*
 osm_get_node_type_str_fixed_width(
-  IN uint32_t node_type )
+  IN uint8_t node_type )
 {
-  if( node_type >= IB_NOTICE_NODE_TYPE_ROUTER )
+  if( node_type > IB_NODE_TYPE_ROUTER )
     node_type = 0;
   return( __osm_node_type_str_fixed_width[node_type] );
 }

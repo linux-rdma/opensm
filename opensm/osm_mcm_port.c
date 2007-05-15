@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -33,7 +33,6 @@
  *
  */
 
-
 /*
  * Abstract:
  *    Implementation of osm_mcm_port_t.
@@ -56,39 +55,16 @@
 
 /**********************************************************************
  **********************************************************************/
-void
-osm_mcm_port_construct(
-  IN osm_mcm_port_t* const p_mcm )
-{
-  memset( p_mcm, 0, sizeof(*p_mcm) );
-}
-
-/**********************************************************************
- **********************************************************************/
-void
-osm_mcm_port_destroy(
-  IN osm_mcm_port_t* const p_mcm )
-{
-  /*
-    Nothing to do?
-  */
-  UNUSED_PARAM( p_mcm );
-}
-
-/**********************************************************************
- **********************************************************************/
-void
+static void
 osm_mcm_port_init(
   IN osm_mcm_port_t* const p_mcm,
   IN const ib_gid_t* const p_port_gid,
   IN const uint8_t   scope_state,
   IN const boolean_t proxy_join )
 {
-  CL_ASSERT( p_mcm );
   CL_ASSERT( p_port_gid );
   CL_ASSERT( scope_state );
 
-  osm_mcm_port_construct( p_mcm );
   p_mcm->port_gid = *p_port_gid;
   p_mcm->scope_state = scope_state;
   p_mcm->proxy_join = proxy_join;
@@ -107,6 +83,7 @@ osm_mcm_port_new(
   p_mcm = malloc( sizeof(*p_mcm) );
   if( p_mcm )
   {
+    memset( p_mcm, 0, sizeof(*p_mcm) );
     osm_mcm_port_init( p_mcm, p_port_gid,
                        scope_state, proxy_join );
   }
@@ -121,7 +98,5 @@ osm_mcm_port_delete(
   IN osm_mcm_port_t* const p_mcm )
 {
   CL_ASSERT( p_mcm );
-
-  osm_mcm_port_destroy( p_mcm );
   free( p_mcm );
 }

@@ -74,8 +74,7 @@
 static void
 __osm_pi_rcv_set_sm(
   IN const osm_pi_rcv_t* const p_rcv,
-  IN osm_physp_t* const p_physp,
-  IN boolean_t const is_smdis )
+  IN osm_physp_t* const p_physp )
 {
   osm_bind_handle_t h_bind;
   osm_dr_path_t *p_dr_path;
@@ -86,27 +85,16 @@ __osm_pi_rcv_set_sm(
   {
     osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
              "__osm_pi_rcv_set_sm: "
-             "Setting '%s' bit in port attributes\n",
-             is_smdis ? "SM_DISAB" : "IS_SM");
+             "Setting IS_SM bit in port attributes\n");
   }
 
   p_dr_path = osm_physp_get_dr_path_ptr( p_physp );
   h_bind = osm_dr_path_get_bind_handle( p_dr_path );
 
-  if (is_smdis)
-  {
-    /*
-      The 'SM_DISAB' bit isn't already set, so set it.
-    */
-    osm_vendor_set_sm( h_bind, FALSE );
-  }
-  else
-  {
-    /*
-      The 'IS_SM' bit isn't already set, so set it.
-    */
-    osm_vendor_set_sm( h_bind, TRUE );
-  }
+  /*
+    The 'IS_SM' bit isn't already set, so set it.
+  */
+  osm_vendor_set_sm( h_bind, TRUE );
 
   OSM_LOG_EXIT( p_rcv->p_log );
 }
@@ -125,7 +113,6 @@ __osm_pi_rcv_process_endport(
   uint8_t            rate, mtu;
   cl_qmap_t*         p_sm_tbl;
   osm_remote_sm_t*   p_sm;
-  boolean_t          is_smdis;
 
   OSM_LOG_ENTER( p_rcv->p_log, __osm_pi_rcv_process_endport );
 
@@ -162,17 +149,15 @@ __osm_pi_rcv_process_endport(
 
   if( port_guid == p_rcv->p_subn->sm_port_guid )
   {
-    is_smdis = (p_rcv->p_subn->sm_state == IB_SMINFO_STATE_NOTACTIVE);
     /*
       We received the PortInfo for our own port.
     */
-    if( (!is_smdis && !(p_pi->capability_mask & IB_PORT_CAP_IS_SM ) ) ||
-        ( is_smdis && !(p_pi->capability_mask & IB_PORT_CAP_SM_DISAB ) ) )
+    if( !( p_pi->capability_mask & IB_PORT_CAP_IS_SM ) ) 
     {
       /*
-        Set the IS_SM or SM_DISAB bit to indicate our port hosts an SM.
+        Set the IS_SM bit to indicate our port hosts an SM.
       */
-      __osm_pi_rcv_set_sm( p_rcv, p_physp, is_smdis );
+      __osm_pi_rcv_set_sm( p_rcv, p_physp );
     }
   }
   else
@@ -189,7 +174,7 @@ __osm_pi_rcv_process_endport(
       p_sm->smi.pri_state = 0xF0 & p_sm->smi.pri_state;
     }
 
-    if( p_pi->capability_mask & ( IB_PORT_CAP_IS_SM | IB_PORT_CAP_SM_DISAB ) )
+    if( p_pi->capability_mask & IB_PORT_CAP_IS_SM )
     {
       if( p_rcv->p_subn->opt.ignore_other_sm )
       {
@@ -381,7 +366,7 @@ __osm_pi_rcv_process_switch_port(
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_pi_rcv_process_ca_port(
+__osm_pi_rcv_process_ca_or_router_port(
   IN const osm_pi_rcv_t* const p_rcv,
   IN osm_node_t* const p_node,
   IN osm_physp_t* const p_physp,
@@ -389,7 +374,7 @@ __osm_pi_rcv_process_ca_port(
 {
   ib_net16_t orig_lid;
 
-  OSM_LOG_ENTER( p_rcv->p_log, __osm_pi_rcv_process_ca_port );
+  OSM_LOG_ENTER( p_rcv->p_log, __osm_pi_rcv_process_ca_or_router_port );
 
   UNUSED_PARAM( p_node );
 
@@ -397,40 +382,9 @@ __osm_pi_rcv_process_ca_port(
 
   if ( (orig_lid = osm_physp_trim_base_lid_to_valid_range( p_physp ) ) )
     osm_log( p_rcv->p_log, OSM_LOG_ERROR,
-	     "__osm_pi_rcv_process_ca_port: ERR 0F08: "
+	     "__osm_pi_rcv_process_ca_or_router_port: ERR 0F08: "
 	     "Invalid base LID 0x%x corrected\n",
 	     cl_ntoh16 ( orig_lid ) );
-
-  __osm_pi_rcv_process_endport(p_rcv, p_physp, p_pi);
-
-  OSM_LOG_EXIT( p_rcv->p_log );
-}
-
-/**********************************************************************
- **********************************************************************/
-static void
-__osm_pi_rcv_process_router_port(
-  IN const osm_pi_rcv_t* const p_rcv,
-  IN osm_node_t* const p_node,
-  IN osm_physp_t* const p_physp,
-  IN const ib_port_info_t* const p_pi )
-{
-  ib_net16_t orig_lid;
-
-  OSM_LOG_ENTER( p_rcv->p_log, __osm_pi_rcv_process_router_port );
-
-  UNUSED_PARAM( p_node );
-
-  /*
-    Update the PortInfo attribute.
-  */
-  osm_physp_set_port_info( p_physp, p_pi );
-
-  if ( (orig_lid = osm_physp_trim_base_lid_to_valid_range( p_physp ) ) )
-    osm_log( p_rcv->p_log, OSM_LOG_ERROR,
-	     "__osm_pi_rcv_process_router_port: ERR 0F09: "
-	     "Invalid base LID 0x%x corrected\n",
-	     cl_ntoh16 ( orig_lid) );
 
   __osm_pi_rcv_process_endport(p_rcv, p_physp, p_pi);
 
@@ -601,13 +555,13 @@ osm_pi_rcv_process_set(
 
   p_context = osm_madw_get_pi_context_ptr( p_madw );
 
-  p_physp = osm_port_get_phys_ptr( p_port, port_num );
-  CL_ASSERT( p_physp );
-  CL_ASSERT( osm_physp_is_valid( p_physp ) );
+  p_node = p_port->p_node;
+  CL_ASSERT( p_node );
+
+  p_physp = osm_node_get_physp_ptr( p_node, port_num );
+  CL_ASSERT( p_physp && osm_physp_is_valid( p_physp ) );
 
   port_guid = osm_physp_get_port_guid( p_physp );
-  p_node = osm_port_get_parent_node( p_port );
-  CL_ASSERT( p_node );
 
   p_smp = osm_madw_get_smp_ptr( p_madw );
   p_pi = (ib_port_info_t*)ib_smp_get_payload_ptr( p_smp );
@@ -789,7 +743,7 @@ osm_pi_rcv_process(
                cl_ntoh64( p_smp->trans_id ) );
     }
 
-    p_node = osm_port_get_parent_node( p_port );
+    p_node = p_port->p_node;
     p_physp = osm_node_get_physp_ptr( p_node, port_num );
 
     CL_ASSERT( p_node );
@@ -851,12 +805,9 @@ osm_pi_rcv_process(
     switch( osm_node_get_type( p_node ) )
     {
     case IB_NODE_TYPE_CA:
-      __osm_pi_rcv_process_ca_port( p_rcv,
-                                    p_node, p_physp, p_pi );
-      break;
     case IB_NODE_TYPE_ROUTER:
-      __osm_pi_rcv_process_router_port( p_rcv,
-                                        p_node, p_physp, p_pi );
+      __osm_pi_rcv_process_ca_or_router_port( p_rcv,
+                                              p_node, p_physp, p_pi );
       break;
     case IB_NODE_TYPE_SWITCH:
       __osm_pi_rcv_process_switch_port( p_rcv,

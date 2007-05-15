@@ -192,9 +192,9 @@ __osm_sm_state_mgr_send_local_port_info_req(
 
    status = osm_req_get( p_sm_mgr->p_req,
                          osm_physp_get_dr_path_ptr
-                         ( osm_port_get_default_phys_ptr( p_port ) ),
+                         ( p_port->p_physp ),
                          IB_MAD_ATTR_PORT_INFO,
-                         cl_hton32( p_port->default_port_num ),
+                         cl_hton32( p_port->p_physp->port_num ),
                          CL_DISP_MSGID_NONE, &context );
 
    if( status != IB_SUCCESS )
@@ -261,8 +261,7 @@ __osm_sm_state_mgr_send_master_sm_info_req(
    context.smi_context.set_method = FALSE;
 
    status = osm_req_get( p_sm_mgr->p_req,
-                         osm_physp_get_dr_path_ptr
-                         ( osm_port_get_default_phys_ptr( p_port ) ),
+                         osm_physp_get_dr_path_ptr(p_port->p_physp),
                          IB_MAD_ATTR_SM_INFO, 0, CL_DISP_MSGID_NONE,
                          &context );
 
@@ -569,7 +568,6 @@ osm_sm_state_mgr_process(
          /* Turn on the first_time_master_sweep flag */
          if( p_sm_mgr->p_subn->first_time_master_sweep == FALSE )
             p_sm_mgr->p_subn->first_time_master_sweep = TRUE;
-
          p_sm_mgr->p_subn->sm_state = IB_SMINFO_STATE_MASTER;
          /*
           * Make sure to set the subnet master_sm_base_lid
@@ -621,9 +619,9 @@ osm_sm_state_mgr_process(
       case OSM_SM_SIGNAL_DISCOVER:
          /*
           * case 1: Polling timeout occured - this means that the Master SM
-          * no longer alive.
+          * is no longer alive.
           * case 2: Got a signal to move to DISCOVERING
-          * Move to DISCOVERING state, and start sweeping
+          * Move to DISCOVERING state and start sweeping
           */
          __osm_sm_state_mgr_discovering_msg( p_sm_mgr );
          p_sm_mgr->p_subn->sm_state = IB_SMINFO_STATE_DISCOVERING;
@@ -639,7 +637,7 @@ osm_sm_state_mgr_process(
          break;
       case OSM_SM_SIGNAL_HANDOVER:
          /*
-          * Update state to MASTER, and start sweeping
+          * Update the state to MASTER, and start sweeping
           * OPTIONAL: send ACKNOWLEDGE
           */
          __osm_sm_state_mgr_master_msg( p_sm_mgr );

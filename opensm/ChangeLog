@@ -1,3 +1,28 @@
+2007-05-07 Sasha Khapyorsky <sashak@voltaire.com>
+
+	* osm_helper.c: Remove repeated strlen() calls
+
+2007-04-27 Ira K. Weiny <weiny2@llnl.gov> 
+
+	* osm_helper.c: In osm_dump_notice, use ib_get_producer_type_str
+	  for printing producer type 
+
+2007-04-26 Hal Rosenstock <halr@voltaire.com>
+
+	* osm_helper.c: Clarify the proper usage of
+	  osm_get_node_type_str_fixed_width to take uint8_t rather
+	  than uint32_t for node_type argument
+
+2007-04-25 Yevgeny Kliteynik <kliteyn@dev.mellanox.co.il>
+
+	* osm_helper.c: Fix problematic usage of sprintf() when 
+	  source and destination strings overlap.
+
+2007-04-24 Albert L. Chu <chu11@llnl.gov>
+
+	* osm_helper.c: In osm_get_node_type_str_fixed_width, fix
+	  both range limit and endian of node type check
+
 2007-03-29 Hal Rosenstock <halr@voltaire.com>
 
 	* configure.in: Bump version to 2.2.0

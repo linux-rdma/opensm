@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -289,7 +289,7 @@ osm_physp_destroy(
 *	osm_physp_init.
 *
 * SEE ALSO
-*	Port, osm_port_init, osm_port_destroy
+*	Port
 *********/
 
 /****f* OpenSM: Physical Port/osm_physp_is_valid
@@ -1274,10 +1274,8 @@ typedef struct _osm_port
 	struct _osm_node		*p_node;
 	ib_net64_t			guid;
 	uint32_t			discovery_count;
-	uint8_t				default_port_num;
-	uint8_t				physp_tbl_size;
+	osm_physp_t			*p_physp;
 	cl_qlist_t			mcm_list;
-	osm_physp_t			*tbl[1];
 } osm_port_t;
 /*
 * FIELDS
@@ -1295,86 +1293,15 @@ typedef struct _osm_port
 *		during the current fabric sweep.  This number is reset
 *		to zero at the start of a sweep.
 *
-*	default_port_num
-*		Index of the physical port used when physical characteristics
-*		contained in the Physical Port are needed.
-*
-*	physp_tbl_size
-*		Number of physical ports associated with this logical port.
+*	p_physp
+*		The pointer to physical port used when physical
+*		characteristics contained in the Physical Port are needed.
 *
 *	mcm_list
 *		Multicast member list
 *
-*	tbl
-*		Array of pointers to Physical Port objects contained by this node.
-*     MUST BE LAST ELEMENT SINCE IT CAN GROW !!!
-*
 * SEE ALSO
 *	Port, Physical Port, Physical Port Table
-*********/
-
-/****f* OpenSM: Port/osm_port_construct
-* NAME
-*	osm_port_construct
-*
-* DESCRIPTION
-*	This function constructs a Port object.
-*
-* SYNOPSIS
-*/
-static inline void
-osm_port_construct(
-	IN osm_port_t* const p_port )
-{
-	memset( p_port, 0, sizeof(*p_port) );
-	cl_qlist_init( &p_port->mcm_list );
-}
-/*
-* PARAMETERS
-*	p_port
-*		[in] Pointer to a Port object to construct.
-*
-* RETURN VALUE
-*	This function does not return a value.
-*
-* NOTES
-*	Allows calling osm_port_init, and osm_port_destroy.
-*
-*	Calling osm_port_construct is a prerequisite to calling any other
-*	method except osm_port_init.
-*
-* SEE ALSO
-*	Port, osm_port_init, osm_port_destroy
-*********/
-
-/****f* OpenSM: Port/osm_port_destroy
-* NAME
-*	osm_port_destroy
-*
-* DESCRIPTION
-*	This function destroys a Port object.
-*
-* SYNOPSIS
-*/
-void
-osm_port_destroy(
-  IN osm_port_t* const p_port );
-/*
-* PARAMETERS
-*	p_port
-*		[in] Pointer to a Port object to construct.
-*
-* RETURN VALUE
-*	This function does not return a value.
-*
-* NOTES
-*	Performs any necessary cleanup of the specified Port object.
-*	Further operations should not be attempted on the destroyed object.
-*	This function should only be called after a call to osm_port_construct
-*	or osm_port_init.
-*
-* SEE ALSO
-*	Port, osm_port_init, osm_port_destroy
 *********/
 
 /****f* OpenSM: Port/osm_port_delete
@@ -1386,14 +1313,9 @@ osm_port_destroy(
 *
 * SYNOPSIS
 */
-inline static void
+void
 osm_port_delete(
-	IN OUT osm_port_t** const pp_port )
-{
-	osm_port_destroy( *pp_port );
-	free( *pp_port );
-	*pp_port = NULL;
-}
+	IN OUT osm_port_t** const pp_port );
 /*
 * PARAMETERS
 *	pp_port
@@ -1405,42 +1327,6 @@ osm_port_delete(
 *
 * NOTES
 *	Performs any necessary cleanup of the specified Port object.
-*
-* SEE ALSO
-*	Port, osm_port_init, osm_port_destroy
-*********/
-
-/****f* OpenSM: Port/osm_port_init
-* NAME
-*	osm_port_init
-*
-* DESCRIPTION
-*	This function initializes a Port object.
-*
-* SYNOPSIS
-*/
-void
-osm_port_init(
-	IN osm_port_t* const p_port,
-	IN const ib_node_info_t* p_ni,
-	IN const struct _osm_node* const p_parent_node );
-/*
-* PARAMETERS
-*	p_port
-*		[in] Pointer to a Port object to initialize.
-*
-*	p_ni
-*		[in] Pointer to the NodeInfo attribute relavent for this port.
-*
-*	p_parent_node
-*		[in] Pointer to the initialized parent osm_node_t object
-*		that owns this port.
-*
-* RETURN VALUE
-*	None.
-*
-* NOTES
-*	Allows calling other port methods.
 *
 * SEE ALSO
 *	Port
@@ -1491,10 +1377,8 @@ static inline ib_net16_t
 osm_port_get_base_lid(
 	IN const osm_port_t* const p_port )
 {
-	const osm_physp_t* const p_physp = p_port->tbl[p_port->default_port_num];
-	CL_ASSERT( p_physp );
-	CL_ASSERT( osm_physp_is_valid( p_physp ) );
-	return( osm_physp_get_base_lid( p_physp ));
+	CL_ASSERT( p_port->p_physp && osm_physp_is_valid( p_port->p_physp ) );
+	return( osm_physp_get_base_lid( p_port->p_physp ));
 }
 /*
 * PARAMETERS
@@ -1524,10 +1408,8 @@ static inline uint8_t
 osm_port_get_lmc(
 	IN const osm_port_t* const p_port )
 {
-	const osm_physp_t* const p_physp = p_port->tbl[p_port->default_port_num];
-	CL_ASSERT( p_physp );
-	CL_ASSERT( osm_physp_is_valid( p_physp ) );
-	return( osm_physp_get_lmc( p_physp ));
+	CL_ASSERT( p_port->p_physp && osm_physp_is_valid( p_port->p_physp ) );
+	return( osm_physp_get_lmc( p_port->p_physp ));
 }
 /*
 * PARAMETERS
@@ -1565,138 +1447,6 @@ osm_port_get_guid(
 *
 * RETURN VALUE
 *	Manufacturer assigned GUID of the port.
-*
-* NOTES
-*
-* SEE ALSO
-*	Port
-*********/
-
-/****f* OpenSM: Port/osm_port_get_num_physp
-* NAME
-*	osm_port_get_num_physp
-*
-* DESCRIPTION
-*	Returns the number of Physical Port objects associated with this port.
-*
-* SYNOPSIS
-*/
-static inline uint8_t
-osm_port_get_num_physp(
-	IN const osm_port_t* const p_port )
-{
-	return( p_port->physp_tbl_size );
-}
-/*
-* PARAMETERS
-*	p_port
-*		[in] Pointer to a Port object.
-*
-* RETURN VALUE
-*	Returns the number of Physical Port objects associated with this port.
-*
-* NOTES
-*
-* SEE ALSO
-*	Port
-*********/
-
-/****f* OpenSM: Port/osm_port_get_phys_ptr
-* NAME
-*	osm_port_get_phys_ptr
-*
-* DESCRIPTION
-*	Gets the pointer to the specified Physical Port object.
-*
-* SYNOPSIS
-*/
-static inline osm_physp_t*
-osm_port_get_phys_ptr(
-	IN const osm_port_t* const p_port,
-	IN const uint8_t port_num )
-{
-	CL_ASSERT( port_num < p_port->physp_tbl_size );
-	return( p_port->tbl[port_num] );
-}
-/*
-* PARAMETERS
-*	p_port
-*		[in] Pointer to a Port object.
-*
-*	port_num
-*		[in] Number of physical port for which to return the
-*		osm_physp_t object.  If this port is on an HCA, then
-*		this value is ignored.
-*
-* RETURN VALUE
-*	Pointer to the Physical Port object.
-*
-* NOTES
-*
-* SEE ALSO
-*	Port
-*********/
-
-/****f* OpenSM: Port/osm_port_get_default_phys_ptr
-* NAME
-*	osm_port_get_default_phys_ptr
-*
-* DESCRIPTION
-*	Gets the pointer to the default Physical Port object.
-*	This call should only be used for non-switch ports in which there
-*	is a one-for-one mapping of port to physp.
-*
-* SYNOPSIS
-*/
-static inline
-osm_physp_t*
-osm_port_get_default_phys_ptr(
-	IN const osm_port_t* const p_port )
-{
-	CL_ASSERT( p_port->tbl[p_port->default_port_num] );
-	CL_ASSERT( osm_physp_is_valid( p_port->tbl[p_port->default_port_num] ) );
-	return( p_port->tbl[p_port->default_port_num] );
-}
-/*
-* PARAMETERS
-*	p_port
-*		[in] Pointer to a Port object.
-*
-* RETURN VALUE
-*	Pointer to the Physical Port object.
-*
-* NOTES
-*
-* SEE ALSO
-*	Port
-*********/
-
-/****f* OpenSM: Port/osm_port_get_parent_node
-* NAME
-*	osm_port_get_parent_node
-*
-* DESCRIPTION
-*	Gets the pointer to the this port's Node object.
-*
-* SYNOPSIS
-*/
-static inline struct _osm_node*
-osm_port_get_parent_node(
-	IN const osm_port_t* const p_port )
-{
-	return( p_port->p_node );
-}
-/*
-* PARAMETERS
-*	p_port
-*		[in] Pointer to a Port object.
-*
-*	port_num
-*		[in] Number of physical port for which to return the
-*		osm_physp_t object.
-*
-* RETURN VALUE
-*	Pointer to the Physical Port object.
 *
 * NOTES
 *

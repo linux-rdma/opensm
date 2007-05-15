@@ -100,8 +100,8 @@ BEGIN_C_DECLS
 */
 typedef struct _osm_router
 {
-	cl_map_item_t				map_item;
-	osm_port_t				*p_port;
+	cl_map_item_t	map_item;
+	osm_port_t	*p_port;
 } osm_router_t;
 /*
 * FIELDS
@@ -115,70 +115,9 @@ typedef struct _osm_router
 *	Router object
 *********/
 
-/****f* OpenSM: Router/osm_router_construct
+/****f* OpenSM: Router/osm_router_delete
 * NAME
-*	osm_router_construct
-*
-* DESCRIPTION
-*	This function constructs a Router object.
-*
-* SYNOPSIS
-*/
-void
-osm_router_construct(
-	IN osm_router_t* const p_rtr );
-/*
-* PARAMETERS
-*	p_rtr
-*		[in] Pointer to a Router object to construct.
-*
-* RETURN VALUE
-*	This function does not return a value.
-*
-* NOTES
-*	Allows calling osm_router_init, and osm_router_destroy.
-*
-*	Calling osm_router_construct is a prerequisite to calling any other
-*	method except osm_router_init.
-*
-* SEE ALSO
-*	Router object, osm_router_init, osm_router_destroy
-*********/
-
-/****f* OpenSM: Router/osm_router_destroy
-* NAME
-*	osm_router_destroy
-*
-* DESCRIPTION
-*	The osm_router_destroy function destroys the object, releasing
-*	all resources.
-*
-* SYNOPSIS
-*/
-void
-osm_router_destroy(
-	IN osm_router_t* const p_rtr );
-/*
-* PARAMETERS
-*	p_rtr
-*		[in] Pointer to the object to destroy.
-*
-* RETURN VALUE
-*	None.
-*
-* NOTES
-*	Performs any necessary cleanup of the specified object.
-*	Further operations should not be attempted on the destroyed object.
-*	This function should only be called after a call to osm_router_construct
-*	or osm_router_init.
-*
-* SEE ALSO
-*	Router object, osm_router_construct, osm_router_init
-*********/
-
-/****f* OpenSM: Router/osm_router_destroy
-* NAME
-*	osm_router_destroy
+*	osm_router_delete
 *
 * DESCRIPTION
 *	Destroys and deallocates the object.
@@ -199,38 +138,7 @@ osm_router_delete(
 * NOTES
 *
 * SEE ALSO
-*	Router object, osm_router_construct, osm_router_init
-*********/
-
-/****f* OpenSM: Router/osm_router_init
-* NAME
-*	osm_router_init
-*
-* DESCRIPTION
-*	The osm_router_init function initializes a Router object for use.
-*
-* SYNOPSIS
-*/
-ib_api_status_t
-osm_router_init(
-	IN osm_router_t* const p_rtr,
-	IN osm_port_t* const p_port );
-/*
-* PARAMETERS
-*	p_rtr
-*		[in] Pointer to an osm_router_t object to initialize.
-*
-*	p_port
-*		[in] Pointer to the port object of this router 
-*
-* RETURN VALUES
-*	IB_SUCCESS if the Router object was initialized successfully.
-*
-* NOTES
-*	Allows calling other node methods.
-*
-* SEE ALSO
-*	Router object, osm_router_construct, osm_router_destroy
+*	Router object, osm_router_new
 *********/
 
 /****f* OpenSM: Router/osm_router_new
@@ -238,7 +146,7 @@ osm_router_init(
 *	osm_router_new
 *
 * DESCRIPTION
-*	The osm_router_init function initializes a Router object for use.
+*	The osm_router_new function initializes a Router object for use.
 *
 * SYNOPSIS
 */
@@ -256,7 +164,7 @@ osm_router_new(
 * NOTES
 *
 * SEE ALSO
-*	Router object, osm_router_construct, osm_router_destroy,
+*	Router object, osm_router_new
 *********/
 
 /****f* OpenSM: Router/osm_router_get_port_ptr

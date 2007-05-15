@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -538,7 +538,7 @@ osm_get_port_state_str_fixed_width(
 
 const char*
 osm_get_node_type_str_fixed_width(
-	IN uint32_t node_type );
+	IN uint8_t node_type );
 
 const char*
 osm_get_manufacturer_str(

@@ -180,3 +180,26 @@ if test "$disable_libcheck" != "yes"; then
 fi
 # --- END OPENIB_APP_OSMV_CHECK_HEADER ---
 ]) dnl OPENIB_APP_OSMV_CHECK_HEADER
+
+dnl Check if they want the socket console
+AC_DEFUN([OPENIB_OSM_CONSOLE_SOCKET_SEL], [
+# --- BEGIN OPENIB_OSM_CONSOLE_SOCKET_SEL ---
+
+dnl Console over a socket connection
+AC_ARG_ENABLE(console-socket,
+[  --enable-console-socket Enable a console socket, requires tcp_wrappers (default no)],
+[case $enableval in
+     yes) console_socket=yes ;;
+     no)  console_socket=no ;;
+   esac],
+   console_socket=no)
+if test $console_socket = yes; then
+  AC_CHECK_LIB(wrap, request_init, [],
+ 	AC_MSG_ERROR([request_init() not found. console-socket requires libwrap.]))
+  AC_DEFINE(ENABLE_OSM_CONSOLE_SOCKET,
+	    1,
+	    [Define as 1 if you want to enable a console on a socket connection])
+fi
+# --- END OPENIB_OSM_CONSOLE_SOCKET_SEL ---
+]) dnl OPENIB_OSM_CONSOLE_SOCKET_SEL
+

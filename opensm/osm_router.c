@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -50,46 +50,8 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <complib/cl_math.h>
 #include <iba/ib_types.h>
 #include <opensm/osm_router.h>
-
-/**********************************************************************
- **********************************************************************/
-void
-osm_router_construct(
-  IN osm_router_t* const p_rtr )
-{
-  CL_ASSERT( p_rtr );
-  memset( p_rtr, 0, sizeof(*p_rtr) );
-}
-
-/**********************************************************************
- **********************************************************************/
-ib_api_status_t
-osm_router_init(
-  IN osm_router_t* const p_rtr,
-  IN osm_port_t*   const p_port )
-{
-  ib_api_status_t  status = IB_SUCCESS;
-
-  CL_ASSERT( p_rtr );
-  CL_ASSERT( p_port );
-
-  osm_router_construct( p_rtr );
-
-  p_rtr->p_port = p_port;
-
-  return( status );
-}
-
-/**********************************************************************
- **********************************************************************/
-void
-osm_router_destroy(
-  IN osm_router_t* const p_rtr )
-{
-}
 
 /**********************************************************************
  **********************************************************************/
@@ -97,7 +59,6 @@ void
 osm_router_delete(
   IN OUT osm_router_t** const pp_rtr )
 {
-  osm_router_destroy( *pp_rtr );
   free( *pp_rtr );
   *pp_rtr = NULL;
 }
@@ -108,16 +69,15 @@ osm_router_t*
 osm_router_new(
   IN osm_port_t* const p_port )
 {
-  ib_api_status_t status;
   osm_router_t *p_rtr;
+
+  CL_ASSERT( p_port );
 
   p_rtr = (osm_router_t*)malloc( sizeof(*p_rtr) );
   if( p_rtr )
   {
     memset( p_rtr, 0, sizeof(*p_rtr) );
-    status = osm_router_init( p_rtr, p_port );
-    if( status != IB_SUCCESS )
-      osm_router_delete( &p_rtr );
+    p_rtr->p_port = p_port;
   }
 
   return( p_rtr );

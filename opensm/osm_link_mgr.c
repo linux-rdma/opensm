@@ -33,7 +33,6 @@
  *
  */
 
-
 /*
  * Abstract:
  *    Implementation of osm_link_mgr_t.
@@ -427,7 +426,7 @@ __osm_link_mgr_process_port(
     with this Port.  Start iterating with port 1, since the linkstate
     is not applicable to the management port on switches.
   */
-  num_physp = osm_port_get_num_physp( p_port );
+  num_physp = osm_node_get_num_physp( p_port->p_node );
   for( i = 0; i < num_physp; i ++ )
   {
     /*
@@ -435,7 +434,7 @@ __osm_link_mgr_process_port(
       or if the state of the port is already better then the
       specified state.
     */
-    p_physp = osm_port_get_phys_ptr( p_port, (uint8_t)i );
+    p_physp = osm_node_get_physp_ptr( p_port->p_node, (uint8_t)i );
     if( p_physp && osm_physp_is_valid( p_physp ) )
     {
       current_state = osm_physp_get_port_state( p_physp );

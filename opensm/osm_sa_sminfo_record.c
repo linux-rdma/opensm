@@ -374,7 +374,7 @@ osm_smir_rcv_process(
     {
       if (FALSE ==
           osm_physp_share_pkey( p_rcv->p_log, p_req_physp,
-                                osm_port_get_default_phys_ptr( local_port ) ) )
+                                local_port->p_physp ) )
       {
         cl_plock_release( p_rcv->p_lock );
         osm_log( p_rcv->p_log, OSM_LOG_ERROR,

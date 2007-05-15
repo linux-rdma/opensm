@@ -171,7 +171,7 @@ osm_vla_rcv_process(
     goto Exit;
   }
 
-  p_node = osm_port_get_parent_node( p_port );
+  p_node = p_port->p_node;
   CL_ASSERT( p_node );
 
   block_num = (uint8_t)(cl_ntoh32(p_smp->attr_mod) >> 16);
@@ -183,8 +183,8 @@ osm_vla_rcv_process(
   }
   else
   {
-    p_physp = osm_port_get_default_phys_ptr(p_port);
-    port_num = p_port->default_port_num;
+    p_physp = p_port->p_physp;
+    port_num = p_physp->port_num;
   }
 
   CL_ASSERT( p_physp );
@@ -239,4 +239,3 @@ osm_vla_rcv_process(
 
   OSM_LOG_EXIT( p_rcv->p_log );
 }
-

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004, 2005 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -126,9 +126,9 @@ osm_get_mcast_req_type_str(
 */
 typedef struct osm_mcast_mgr_ctxt
 {
-  ib_net16_t						mlid;
-  osm_mcast_req_type_t        req_type;
-  ib_net64_t                  port_guid;
+	ib_net16_t		mlid;
+	osm_mcast_req_type_t	req_type;
+	ib_net64_t		port_guid;
 } osm_mcast_mgr_ctxt_t;
 /*
 * FIELDS
@@ -246,98 +246,6 @@ typedef	void (*osm_mgrp_func_t)(
 * SEE ALSO
 *********/
 
-/****f* OpenSM: Multicast Group/osm_mgrp_construct
-* NAME
-*	osm_mgrp_construct
-*
-* DESCRIPTION
-*	This function constructs a Multicast Group.
-*
-* SYNOPSIS
-*/
-void
-osm_mgrp_construct(
-	IN osm_mgrp_t* const p_mgrp );
-/*
-* PARAMETERS
-*	p_mgrp
-*		[in] Pointer to a Multicast Group to construct.
-*
-* RETURN VALUE
-*	This function does not return a value.
-*
-* NOTES
-*	Allows calling osm_mgrp_init, osm_mgrp_destroy.
-*
-*	Calling osm_mgrp_construct is a prerequisite to calling any other
-*	method except osm_mgrp_init.
-*
-* SEE ALSO
-*	Multicast Group, osm_mgrp_init, osm_mgrp_destroy
-*********/
-
-/****f* OpenSM: Multicast Group/osm_mgrp_destroy
-* NAME
-*	osm_mgrp_destroy
-*
-* DESCRIPTION
-*	The osm_mgrp_destroy function destroys a Multicast Group, releasing
-*	all resources.
-*
-* SYNOPSIS
-*/
-void
-osm_mgrp_destroy(
-	IN osm_mgrp_t* const p_mgrp );
-/*
-* PARAMETERS
-*	p_mgrp
-*		[in] Pointer to a Muticast Group to destroy.
-*
-* RETURN VALUE
-*	This function does not return a value.
-*
-* NOTES
-*	Performs any necessary cleanup of the specified Multicast Group.
-*	Further operations should not be attempted on the destroyed object.
-*	This function should only be called after a call to osm_mgrp_construct or
-*	osm_mgrp_init.
-*
-* SEE ALSO
-*	Multicast Group, osm_mgrp_construct, osm_mgrp_init
-*********/
-
-/****f* OpenSM: Multicast Group/osm_mgrp_init
-* NAME
-*	osm_mgrp_init
-*
-* DESCRIPTION
-*	The osm_mgrp_init function initializes a Multicast Group for use.
-*
-* SYNOPSIS
-*/
-void
-osm_mgrp_init(
-	IN osm_mgrp_t* const p_mgrp,
-	IN const ib_net16_t mlid );
-/*
-* PARAMETERS
-*	p_mgrp
-*		[in] Pointer to an osm_mgrp_t object to initialize.
-*
-*	mlid
-*		[in] Multicast LID for this multicast group.
-*
-* RETURN VALUES
-*	None.
-*
-* NOTES
-*	Allows calling other Multicast Group methods.
-*
-* SEE ALSO
-*	Multicast Group, osm_mgrp_construct, osm_mgrp_destroy,
-*********/
-
 /****f* OpenSM: Multicast Group/osm_mgrp_new
 * NAME
 *	osm_mgrp_new
@@ -362,7 +270,7 @@ osm_mgrp_new(
 *	Allows calling other Multicast Group methods.
 *
 * SEE ALSO
-*	Multicast Group, osm_mgrp_construct, osm_mgrp_destroy,
+*	Multicast Group, osm_mgrp_delete
 *********/
 
 /****f* OpenSM: Multicast Group/osm_mgrp_delete
@@ -370,7 +278,7 @@ osm_mgrp_new(
 *	osm_mgrp_delete
 *
 * DESCRIPTION
-*	Destroys and de-allocates a Multicast Group.
+*	Destroys and deallocates a Multicast Group.
 *
 * SYNOPSIS
 */
@@ -388,7 +296,7 @@ osm_mgrp_delete(
 * NOTES
 *
 * SEE ALSO
-*	Multicast Group, osm_mgrp_construct, osm_mgrp_destroy,
+*	Multicast Group, osm_mgrp_new
 *********/
 
 /****f* OpenSM: Multicast Group/osm_mgrp_is_guid
@@ -568,7 +476,7 @@ osm_mgrp_is_port_present(
 void
 osm_mgrp_remove_port(
 	IN osm_subn_t* const p_subn,
-   IN osm_log_t* const p_log,
+	IN osm_log_t* const p_log,
 	IN osm_mgrp_t* const p_mgrp,
 	IN const ib_net64_t port_guid );
 /*

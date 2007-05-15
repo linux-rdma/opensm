@@ -247,6 +247,7 @@ __osm_lid_mgr_validate_db(
           cl_ptr_vector_set( &p_mgr->used_lids, lid, (void *)1);
       }
     } /* got a lid */
+    free(p_item);
     p_item = (osm_db_guid_elem_t*)cl_qlist_remove_head(&guids);
   } /* all guids */
  Exit:
@@ -974,10 +975,7 @@ __osm_lid_mgr_set_physp_pi(
     Don't bother doing anything if this Physical Port is not valid.
     This allows simplified code in the caller.
   */
-  if( p_physp == NULL )
-    goto Exit;
-
-  if( !osm_physp_is_valid( p_physp ) )
+  if( p_physp == NULL || !osm_physp_is_valid( p_physp ) )
     goto Exit;
 
   port_num = osm_physp_get_port_num( p_physp );
@@ -1282,7 +1280,6 @@ __osm_lid_mgr_process_our_sm_node(
   osm_port_t     *p_port;
   uint16_t        min_lid_ho;
   uint16_t        max_lid_ho;
-  osm_physp_t    *p_physp;
   boolean_t       res = TRUE;
 
   OSM_LOG_ENTER( p_mgr->p_log, __osm_lid_mgr_process_our_sm_node );
@@ -1335,9 +1332,7 @@ __osm_lid_mgr_process_our_sm_node(
     Set the PortInfo the Physical Port associated
     with this Port.
   */
-  p_physp = osm_port_get_default_phys_ptr( p_port );
-
-  __osm_lid_mgr_set_physp_pi( p_mgr, p_port, p_physp, cl_hton16( min_lid_ho ) );
+  __osm_lid_mgr_set_physp_pi( p_mgr, p_port, p_port->p_physp, cl_hton16( min_lid_ho ) );
 
  Exit:
   OSM_LOG_EXIT( p_mgr->p_log );
@@ -1403,7 +1398,6 @@ osm_lid_mgr_process_subnet(
   osm_port_t     *p_port;
   ib_net64_t      port_guid;
   uint16_t        min_lid_ho, max_lid_ho;
-  osm_physp_t    *p_physp;
   int             lid_changed;
 
   CL_ASSERT( p_mgr );
@@ -1459,9 +1453,8 @@ osm_lid_mgr_process_subnet(
                ", LID [0x%X,0x%X]\n", cl_ntoh64( port_guid ),
                min_lid_ho, max_lid_ho );
       
-      p_physp = osm_port_get_default_phys_ptr( p_port );
       /* the proc returns the fact it sent a set port info */
-      if (__osm_lid_mgr_set_physp_pi( p_mgr, p_port, p_physp, cl_hton16( min_lid_ho )))
+      if (__osm_lid_mgr_set_physp_pi( p_mgr, p_port, p_port->p_physp, cl_hton16( min_lid_ho )))
         p_mgr->send_set_reqs = TRUE;
     }
   } /* all ports */

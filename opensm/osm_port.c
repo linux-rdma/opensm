@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -154,16 +154,18 @@ osm_physp_init(
 /**********************************************************************
  **********************************************************************/
 void
-osm_port_destroy(
-  IN osm_port_t* const p_port )
+osm_port_delete(
+  IN OUT osm_port_t** const pp_port )
 {
   /* cleanup all mcm recs attached */
-  osm_port_remove_all_mgrp( p_port );
+  osm_port_remove_all_mgrp( *pp_port );
+  free( *pp_port );
+  *pp_port = NULL;
 }
 
 /**********************************************************************
  **********************************************************************/
-void
+static void
 osm_port_init(
   IN osm_port_t* const p_port,
   IN const ib_node_info_t* p_ni,
@@ -172,24 +174,16 @@ osm_port_init(
   uint32_t port_index;
   ib_net64_t port_guid;
   osm_physp_t *p_physp;
-  uint32_t size;
 
   CL_ASSERT( p_port );
   CL_ASSERT( p_ni );
   CL_ASSERT( p_parent_node );
 
-  osm_port_construct( p_port );
-
+  memset( p_port, 0, sizeof(*p_port) );
+  cl_qlist_init( &p_port->mcm_list );
   p_port->p_node = (struct _osm_node *)p_parent_node;
   port_guid = p_ni->port_guid;
   p_port->guid = port_guid;
-
-  /*
-    See comment in port_new for info about this...
-  */
-  size = p_ni->num_ports;
-
-  p_port->physp_tbl_size = (uint8_t)(size + 1);
 
   /*
     Get the pointers to the physical node objects "owned" by this
@@ -197,27 +191,20 @@ osm_port_init(
     For switches, all the ports are owned; for HCA's and routers,
     only the singular part that has this GUID is owned.
   */
-  p_port->default_port_num = 0xFF;
-  for( port_index = 0; port_index < p_port->physp_tbl_size; port_index++ )
+  for( port_index = 0; port_index < p_parent_node->physp_tbl_size; port_index++ )
   {
     p_physp = osm_node_get_physp_ptr( p_parent_node, port_index );
+    /*
+      Because much of the PortInfo data is only valid
+      for port 0 on switches, try to keep the lowest
+      possible value of default_port_num.
+    */
     if( osm_physp_is_valid( p_physp ) &&
-        port_guid == osm_physp_get_port_guid( p_physp ) )
-    {
-      p_port->tbl[port_index] = p_physp;
-      /*
-        Because much of the PortInfo data is only valid
-        for port 0 on switches, try to keep the lowest
-        possible value of default_port_num.
-      */
-      if( port_index < p_port->default_port_num )
-        p_port->default_port_num = (uint8_t)port_index;
+        port_guid == osm_physp_get_port_guid( p_physp ) ) {
+      p_port->p_physp = p_physp;
+      break;
     }
-    else
-      p_port->tbl[port_index] = NULL;
   }
-
-  CL_ASSERT( p_port->default_port_num < 0xFF );
 }
 
 /**********************************************************************
@@ -228,21 +215,11 @@ osm_port_new(
   IN const osm_node_t* const p_parent_node )
 {
   osm_port_t*  p_port;
-  uint32_t size;
 
-  /*
-    The port object already contains one physical port object pointer.
-    Therefore, subtract 1 from the number of physical ports
-    used by the switch.  This is not done for CA's since they
-    need to occupy 1 more physp pointer than they physically have since
-    we still reserve room for a "port 0".
-  */
-  size = p_ni->num_ports;
-
-  p_port = malloc( sizeof(*p_port) + sizeof(void *) * size );
+  p_port = malloc( sizeof(*p_port) );
   if( p_port != NULL )
   {
-    memset( p_port, 0, sizeof(*p_port) + sizeof(void *) * size );
+    memset( p_port, 0, sizeof(*p_port) );
     osm_port_init( p_port, p_ni, p_parent_node );
   }
 
@@ -313,18 +290,11 @@ osm_port_add_new_physp(
   IN osm_port_t* const p_port,
   IN const uint8_t port_num )
 {
-  osm_node_t *p_node;
   osm_physp_t *p_physp;
 
-  CL_ASSERT( port_num < p_port->physp_tbl_size );
-
-  p_node = p_port->p_node;
-  CL_ASSERT( p_node );
-
-  p_physp = osm_node_get_physp_ptr( p_node, port_num );
+  p_physp = osm_node_get_physp_ptr( p_port->p_node, port_num );
   CL_ASSERT( osm_physp_is_valid( p_physp ) );
   CL_ASSERT( osm_physp_get_port_guid( p_physp ) == p_port->guid );
-  p_port->tbl[port_num] = p_physp;
 
   /*
     For switches, we generally want to use Port 0, which is
@@ -332,17 +302,9 @@ osm_port_add_new_physp(
     The LID value in the PortInfo for example, is only valid
     for port 0 on switches.
   */
-  if( !osm_physp_is_valid( p_port->tbl[p_port->default_port_num] ) )
-  {
-    p_port->default_port_num = port_num;
-  }
-  else
-  {
-    if(  port_num < p_port->default_port_num )
-    {
-      p_port->default_port_num = port_num;
-    }
-  }
+  if( !osm_physp_is_valid( p_port->p_physp ) ||
+      port_num < p_port->p_physp->port_num )
+    p_port->p_physp = p_physp;
 }
 
 /**********************************************************************
@@ -603,7 +565,7 @@ __osm_physp_get_dr_physp_set(
   }
 
   /* get the node of the SM */
-  p_node = osm_port_get_parent_node(p_port);
+  p_node = p_port->p_node;
   
   /* 
      traverse the path adding the nodes to the table 
@@ -770,7 +732,7 @@ osm_physp_replace_dr_path_with_alternate_dr_path(
      port we'll get the port connected to the rest of the subnet. If SM is
      running on SWITCH - we should try to get a dr path from all switch ports.
   */
-  p_physp = osm_port_get_default_phys_ptr( p_port );
+  p_physp = p_port->p_physp;
 
   CL_ASSERT( p_physp );
   CL_ASSERT( osm_physp_is_valid( p_physp ) );

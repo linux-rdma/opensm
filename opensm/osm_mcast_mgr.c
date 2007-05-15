@@ -107,8 +107,8 @@ __osm_mcast_work_obj_delete(
 }
 
 /**********************************************************************
-   Recursively remove nodes from the tree
-**********************************************************************/
+ Recursively remove nodes from the tree
+ *********************************************************************/
 static void
 __osm_mcast_mgr_purge_tree_node(
   IN osm_mtree_node_t*     p_mtn )
@@ -1127,7 +1127,7 @@ osm_mcast_mgr_process_single(
     goto Exit;
   }
 
-  p_physp = osm_port_get_default_phys_ptr( p_port );
+  p_physp = p_port->p_physp;
   if( p_physp == NULL )
   {
     osm_log( p_mgr->p_log, OSM_LOG_ERROR,
@@ -1697,7 +1697,7 @@ osm_mcast_mgr_process_mgrp_cb(
       cl_qmap_remove_item(&p_mgr->p_subn->mgrp_mlid_tbl,
                           (cl_map_item_t *)p_mgrp );
 
-      osm_mgrp_destroy(p_mgrp);
+      osm_mgrp_delete(p_mgrp);
     }
   }
 

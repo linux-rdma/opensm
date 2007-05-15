@@ -168,7 +168,7 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-#define OSM_DEFAULT_SM_PRIORITY 1
+#define OSM_DEFAULT_SM_PRIORITY 0
 /********/
 
 /****d* OpenSM: Base/OSM_DEFAULT_TMP_DIR

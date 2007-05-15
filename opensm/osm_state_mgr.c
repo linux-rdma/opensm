@@ -849,7 +849,7 @@ __osm_state_mgr_is_sm_port_down(
       goto Exit;
    }
 
-   p_physp = osm_port_get_default_phys_ptr( p_port );
+   p_physp = p_port->p_physp;
 
    CL_ASSERT( p_physp );
    CL_ASSERT( osm_physp_is_valid( p_physp ) );
@@ -914,7 +914,7 @@ __osm_state_mgr_sweep_hop_1(
       goto Exit;
    }
 
-   p_node = osm_port_get_parent_node( p_port );
+   p_node = p_port->p_node;
    CL_ASSERT( p_node );
 
    port_num = ib_node_info_get_local_port_num( &p_node->node_info );
@@ -1277,17 +1277,17 @@ __osm_state_mgr_report(
                   cl_ntoh64( osm_port_get_guid( p_port ) ) );
       }
 
-      p_node = osm_port_get_parent_node( p_port );
+      p_node = p_port->p_node;
       node_type = osm_node_get_type( p_node );
       if( node_type == IB_NODE_TYPE_SWITCH )
          start_port = 0;
       else
          start_port = 1;
 
-      num_ports = osm_port_get_num_physp( p_port );
+      num_ports = osm_node_get_num_physp( p_node );
       for( port_num = start_port; port_num < num_ports; port_num++ )
       {
-         p_physp = osm_port_get_phys_ptr( p_port, port_num );
+         p_physp = osm_node_get_physp_ptr( p_node, port_num );
          if( ( p_physp == NULL ) || ( !osm_physp_is_valid( p_physp ) ) )
             continue;
 
@@ -1622,9 +1622,8 @@ __osm_state_mgr_send_handover(
    }
 
    status = osm_req_set( p_mgr->p_req,
-                         osm_physp_get_dr_path_ptr
-                         ( osm_port_get_default_phys_ptr( p_port ) ), payload,
-                         sizeof(payload),
+                         osm_physp_get_dr_path_ptr(p_port->p_physp),
+                         payload, sizeof(payload),
                          IB_MAD_ATTR_SM_INFO, IB_SMINFO_ATTR_MOD_HANDOVER,
                          CL_DISP_MSGID_NONE, &context );
 
@@ -1888,6 +1887,16 @@ osm_state_mgr_process(
          {
          case OSM_SIGNAL_SWEEP:
             /*
+             * If the osm_sm_state_mgr is in NOT-ACTIVE state -
+             * stay in IDLE 
+             */
+            if( p_mgr->p_subn->sm_state == IB_SMINFO_STATE_NOTACTIVE)
+            {
+              osm_vendor_set_sm( p_mgr->p_mad_ctrl->h_bind, FALSE );
+              goto Idle;
+            }
+
+            /*
              * If the osm_sm_state_mgr is in INIT state - signal
              * it with a INIT signal to move it to DISCOVERY state.
              */
@@ -1944,6 +1953,7 @@ osm_state_mgr_process(
                   p_mgr->state = OSM_SM_STATE_SWEEP_HEAVY_SELF;
                }
             }
+Idle:
             signal = OSM_SIGNAL_NONE;
             break;
 
@@ -2096,7 +2106,7 @@ osm_state_mgr_process(
          case OSM_SIGNAL_CHANGE_DETECTED:
             /*
              * Nothing to do here. One subnet change typcially
-             * begets another.... But needs to wait for all transactions
+             * begets another.... But need to wait for all transactions
              */
             signal = OSM_SIGNAL_NONE;
             break;
@@ -2272,7 +2282,7 @@ osm_state_mgr_process(
         {
         case OSM_SIGNAL_NO_PENDING_TRANSACTIONS:
         case OSM_SIGNAL_DONE:
-          p_mgr->state = OSM_SM_STATE_SET_SM_UCAST_LID;
+            p_mgr->state = OSM_SM_STATE_SET_SM_UCAST_LID;
             signal = osm_lid_mgr_process_sm( p_mgr->p_lid_mgr );
             break;
 
@@ -2350,7 +2360,6 @@ osm_state_mgr_process(
             break;
          }
          break;
-
 
       case OSM_SM_STATE_SET_SUBNET_UCAST_LIDS:
          switch ( signal )
@@ -2444,7 +2453,6 @@ osm_state_mgr_process(
                p_mgr->next_stage_signal = signal;
                signal = OSM_SIGNAL_NONE;
             }
-
             break;
 
          default:

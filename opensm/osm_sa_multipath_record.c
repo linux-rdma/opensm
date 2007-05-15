@@ -154,7 +154,7 @@ __osm_sa_multipath_rec_is_tavor_port(
   osm_node_t const* p_node;
   ib_net32_t vend_id;
 
-  p_node = osm_port_get_parent_node( p_port );
+  p_node = p_port->p_node;
   vend_id = ib_node_info_get_vendor_id( &p_node->node_info );
 
   return( (p_node->node_info.device_id == CL_HTON16(23108)) &&
@@ -255,8 +255,8 @@ __osm_mpr_rcv_get_path_parms(
 
   dest_lid = cl_hton16( dest_lid_ho );
 
-  p_dest_physp = osm_port_get_default_phys_ptr( p_dest_port );
-  p_physp = osm_port_get_default_phys_ptr( p_src_port );
+  p_dest_physp = p_dest_port->p_physp;
+  p_physp = p_src_port->p_physp;
   p_pi = &p_physp->port_info;
 
   mtu = ib_port_info_get_mtu_cap( p_pi );
@@ -744,8 +744,8 @@ __osm_mpr_rcv_build_pr(
 
   OSM_LOG_ENTER( p_rcv->p_log, __osm_mpr_rcv_build_pr );
 
-  p_src_physp = osm_port_get_default_phys_ptr( p_src_port );
-  p_dest_physp = osm_port_get_default_phys_ptr( p_dest_port );
+  p_src_physp = p_src_port->p_physp;
+  p_dest_physp = p_dest_port->p_physp;
 
   p_pr->dgid.unicast.prefix = osm_physp_get_subnet_prefix( p_dest_physp );
   p_pr->dgid.unicast.interface_id = osm_physp_get_port_guid( p_dest_physp );

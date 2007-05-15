@@ -14,6 +14,7 @@
                  match (PKey, etc.)                  
 9	070329 - Add ssh support into remote socket/console support
 10	070329 - Add authentication for (at least remote) console
+11	070413 - Add dynamic rate adjustment for multicast groups
 
 
 Futures

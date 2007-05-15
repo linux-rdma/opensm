@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2006 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -32,7 +32,6 @@
  * SOFTWARE.
  *
  */
-
 
 /*
  * Abstract:
@@ -294,6 +293,7 @@ osm_db_restore(
   char                *p_first_word, *p_rest_of_line, *p_last;
   char                *p_key = NULL;
   char                *p_prev_val, *p_accum_val = NULL;
+  char                *endptr = NULL;
   unsigned int         line_num;
 
   OSM_LOG_ENTER( p_log, osm_db_restore );
@@ -415,12 +415,24 @@ osm_db_restore(
           p_prev_val = NULL;
         }
 
-        /* store our key and value */
-        st_insert(p_domain_imp->p_hash,
-                  (st_data_t)p_key, (st_data_t)p_accum_val);
         osm_log( p_log, OSM_LOG_DEBUG,
                  "osm_db_restore: "
                  "Got key:%s value:%s\n", p_key, p_accum_val);
+
+        /* check that the key is a number */
+        if (!strtouq(p_key, &endptr, 0) && *endptr != '\0')
+        {
+          osm_log( p_log, OSM_LOG_ERROR,
+                   "osm_db_restore: ERR 610B: "
+                   "Key:%s is invalid\n",
+                   p_key);
+        }
+        else
+        {
+          /* store our key and value */
+          st_insert(p_domain_imp->p_hash,
+                    (st_data_t)p_key, (st_data_t)p_accum_val);
+        }
       }
       else
       {

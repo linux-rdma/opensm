@@ -791,12 +791,10 @@ __osm_ni_rcv_process_new(
              "Duplicate Port GUID 0x%" PRIx64 "! Found by the two directed routes:\n",
              cl_ntoh64( p_ni->port_guid ) );
     osm_dump_dr_path(p_rcv->p_log,
-                     osm_physp_get_dr_path_ptr(
-                       osm_port_get_default_phys_ptr ( p_port) ),
+                     osm_physp_get_dr_path_ptr(p_port->p_physp),
                      OSM_LOG_ERROR);
     osm_dump_dr_path(p_rcv->p_log,
-                     osm_physp_get_dr_path_ptr(
-                       osm_port_get_default_phys_ptr ( p_port_check) ),
+                     osm_physp_get_dr_path_ptr(p_port_check->p_physp),
                      OSM_LOG_ERROR);
     if ( p_rtr )
       osm_router_delete( &p_rtr );

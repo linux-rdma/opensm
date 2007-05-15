@@ -36,7 +36,7 @@ Performance Manager Components
    to be supported on one IB device currently). Also, one congestion 
    counter (PortXmitWait) will also be monitored (on switch ports) initially.
 
-   Polling rather than samples will be used as the monitoring technique. The
+   Polling rather than sampling will be used as the monitoring technique. The
    polling rate configurable from 1-65535 seconds (default TBD)
    Note that with 32 bit counters, on 4x SDR links, byte counts can max out in
    16 seconds and on 4x DDR links in 8 seconds. The polling rate needs to

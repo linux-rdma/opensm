@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -67,34 +67,10 @@ typedef struct _osm_infr_match_ctxt
 /**********************************************************************
  **********************************************************************/
 void
-osm_infr_construct(
-  IN osm_infr_t* const p_infr )
-{
-  memset( p_infr, 0, sizeof(osm_infr_t) );
-}
-
-/**********************************************************************
- **********************************************************************/
-void
-osm_infr_destroy(
+osm_infr_delete(
   IN osm_infr_t* const p_infr )
 {
   free( p_infr );
-}
-
-/**********************************************************************
- **********************************************************************/
-void
-osm_infr_init(
-  IN osm_infr_t* const p_infr,
-  IN const osm_infr_t *p_infr_rec  )
-{
-  CL_ASSERT( p_infr );
-
-  /* what else do we need in the inform_record ??? */
-
-  /* copy the contents of the provided informinfo */
-  memcpy( p_infr, p_infr_rec, sizeof(osm_infr_t) );
 }
 
 /**********************************************************************
@@ -109,9 +85,7 @@ osm_infr_new(
 
   p_infr = (osm_infr_t*)malloc( sizeof(osm_infr_t) );
   if( p_infr )
-  {
-    osm_infr_init( p_infr, p_infr_rec );
-  }
+    memcpy( p_infr, p_infr_rec, sizeof(osm_infr_t) );
 
   return( p_infr );
 }
@@ -369,7 +343,7 @@ osm_infr_remove_from_db(
   cl_qlist_remove_item( &p_subn->sa_infr_list,
                         &p_infr->list_item );
 
-  osm_infr_destroy( p_infr );
+  osm_infr_delete( p_infr );
 
   OSM_LOG_EXIT( p_log );
 }
@@ -561,14 +535,16 @@ __match_notice_to_inf_rec(
     }
 
     /* ProducerType ProducerType match or 0xFFFFFF  */
-    if ( (cl_ntoh32(ib_inform_info_get_node_type(p_ii)) != 0xFFFFFF) &&
-         (ib_inform_info_get_node_type(p_ii) != ib_notice_get_prod_type(p_ntc)) )
+    if ( (cl_ntoh32(ib_inform_info_get_prod_type(p_ii)) != 0xFFFFFF) &&
+         (ib_inform_info_get_prod_type(p_ii) != ib_notice_get_prod_type(p_ntc)) )
     {
       osm_log( p_log, OSM_LOG_DEBUG,
                "__match_notice_to_inf_rec: "
-               "Mismatch by Node Type: II=0x%06X Trap=0x%06X\n",
-               cl_ntoh32(ib_inform_info_get_node_type(p_ii)),
-               cl_ntoh32(ib_notice_get_prod_type(p_ntc))
+               "Mismatch by Node Type: II=0x%06X (%s) Trap=0x%06X (%s)\n",
+               cl_ntoh32(ib_inform_info_get_prod_type(p_ii)),
+               ib_get_producer_type_str(ib_inform_info_get_prod_type(p_ii)),
+               cl_ntoh32(ib_notice_get_prod_type(p_ntc)),
+               ib_get_producer_type_str(ib_notice_get_prod_type(p_ntc))
                );
       goto Exit;
     }

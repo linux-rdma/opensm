@@ -158,7 +158,7 @@ osm_subn_destroy(
   {
     p_mgrp = p_next_mgrp;
     p_next_mgrp = (osm_mgrp_t*)cl_qmap_next( &p_mgrp->map_item );
-    osm_mgrp_destroy( p_mgrp );
+    osm_mgrp_delete( p_mgrp );
   }
 
   p_next_infr = (osm_infr_t*)cl_qlist_head( &p_subn->sa_infr_list );
@@ -166,7 +166,7 @@ osm_subn_destroy(
   {
     p_infr = p_next_infr;
     p_next_infr = (osm_infr_t*)cl_qlist_next( &p_infr->list_item );
-    osm_infr_destroy( p_infr );
+    osm_infr_delete( p_infr );
   }
 
   cl_list_remove_all( &p_subn->new_ports_list );
@@ -238,7 +238,6 @@ osm_get_gid_by_mad_addr(
 {
   const cl_ptr_vector_t*  p_tbl;
   const osm_port_t*       p_port = NULL;
-  const osm_physp_t*      p_physp = NULL;
 
   if ( p_gid == NULL ) 
   {
@@ -266,8 +265,7 @@ osm_get_gid_by_mad_addr(
                );
       return(IB_INVALID_PARAMETER);
     }
-    p_physp = osm_port_get_phys_ptr( p_port, p_port->default_port_num);
-    p_gid->unicast.interface_id = p_physp->port_guid;
+    p_gid->unicast.interface_id = p_port->p_physp->port_guid;
     p_gid->unicast.prefix = p_subn->opt.subnet_prefix;
   }
   else
@@ -316,7 +314,7 @@ osm_get_physp_by_mad_addr(
     
       goto Exit;
     }
-    p_physp = osm_port_get_phys_ptr( p_port, p_port->default_port_num);
+    p_physp = p_port->p_physp;
   }
   else
   {
@@ -467,7 +465,7 @@ osm_subn_set_default_opt(
   p_opt->sminfo_polling_timeout = OSM_SM_DEFAULT_POLLING_TIMEOUT_MILLISECS;
   p_opt->polling_retry_number = OSM_SM_DEFAULT_POLLING_RETRY_NUMBER;
   p_opt->force_heavy_sweep = FALSE;
-  p_opt->log_flags = 0;
+  p_opt->log_flags = OSM_LOG_DEFAULT_LEVEL;
   p_opt->honor_guid2lid_file = FALSE;
   p_opt->daemon = FALSE;
   p_opt->sm_inactive = FALSE;
@@ -803,8 +801,9 @@ osm_subn_verify_conf_file(
 
   if (p_opts->lmc > 7)
   {
-    sprintf(buff, " Invalid Cached Option Value:lmc = %u\n",
-            p_opts->lmc);
+    sprintf(buff, " Invalid Cached Option Value:lmc = %u:"
+            "Using Default:%u\n",
+            p_opts->lmc, OSM_DEFAULT_LMC);
     printf(buff);
     cl_log_event("OpenSM", CL_LOG_INFO, buff, NULL, 0);
     p_opts->lmc = OSM_DEFAULT_LMC;
@@ -812,8 +811,9 @@ osm_subn_verify_conf_file(
 
   if (15 < p_opts->sm_priority)
   {
-    sprintf(buff, " Invalid Cached Option Value:sm_priority = %u\n",
-            p_opts->sm_priority);
+    sprintf(buff, " Invalid Cached Option Value:sm_priority = %u:"
+            "Using Default:%u\n",
+            p_opts->sm_priority, OSM_DEFAULT_SM_PRIORITY);
     printf(buff);
     cl_log_event("OpenSM", CL_LOG_INFO, buff, NULL, 0);
     p_opts->sm_priority = OSM_DEFAULT_SM_PRIORITY;
@@ -826,8 +826,9 @@ osm_subn_verify_conf_file(
 #endif
       )
   {
-    sprintf(buff, " Invalid Cached Option Value:console = %s\n",
-            p_opts->console);
+    sprintf(buff, " Invalid Cached Option Value:console = %s"
+            "Using Default:%s\n",
+            p_opts->console, OSM_DEFAULT_CONSOLE);
     printf(buff);
     cl_log_event("OpenSM", CL_LOG_INFO, buff, NULL, 0);
     p_opts->console = OSM_DEFAULT_CONSOLE;

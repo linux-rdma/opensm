@@ -195,7 +195,7 @@ static ib_api_status_t sl2vl_update(osm_req_t * p_req, osm_port_t * p_port,
 	if (osm_node_get_type(osm_physp_get_node_ptr(p)) == IB_NODE_TYPE_SWITCH) {
 		if (ib_port_info_get_vl_cap(&p->port_info) == 1) {
 			/* Check port 0's capability mask */
-			p_physp = osm_port_get_default_phys_ptr(p_port);
+			p_physp = p_port->p_physp;
 			if (!(p_physp->port_info.capability_mask & IB_PORT_CAP_HAS_SL_MAP))
 				return IB_SUCCESS;
 		}
@@ -334,9 +334,9 @@ osm_signal_t osm_qos_setup(osm_opensm_t * p_osm)
 
 		p_node = p_port->p_node;
 		if (p_node->sw) {
-			num_physp = osm_port_get_num_physp(p_port);
+			num_physp = osm_node_get_num_physp(p_node);
 			for (i = 1; i < num_physp; i++) {
-				p_physp = osm_port_get_phys_ptr(p_port, i);
+				p_physp = osm_node_get_physp_ptr(p_node, i);
 				if (!p_physp || !osm_physp_is_valid(p_physp))
 					continue;
 				status =
@@ -353,7 +353,7 @@ osm_signal_t osm_qos_setup(osm_opensm_t * p_osm)
 		else
 			cfg = &ca_config;
 
-		p_physp = osm_port_get_default_phys_ptr(p_port);
+		p_physp = p_port->p_physp;
 		if (!osm_physp_is_valid(p_physp))
 			continue;
 

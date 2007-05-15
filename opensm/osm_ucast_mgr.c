@@ -306,7 +306,7 @@ __osm_ucast_mgr_dump_ucast_routes(
     }
     else
     {
-      osm_physp_t *p_physp = osm_port_get_default_phys_ptr(p_port);
+      osm_physp_t *p_physp = p_port->p_physp;
       if( !p_physp || !p_physp->p_remote_physp ||
           !p_physp->p_remote_physp->p_node->sw )
         num_hops = OSM_NO_PATH;
@@ -413,7 +413,7 @@ ucast_mgr_dump_lfts(cl_map_item_t *p_map_item, void *cxt)
 
 		p_port = cl_ptr_vector_get(&p_mgr->p_subn->port_lid_tbl, lid);
 		if (p_port) {
-			p_node = osm_port_get_parent_node(p_port);
+			p_node = p_port->p_node;
 			fprintf(file, "%s portguid 0x016%" PRIx64 ": \'%s\'",
 				ib_get_node_type_str(osm_node_get_type(p_node)),
 				cl_ntoh64(osm_port_get_guid(p_port)),
@@ -671,8 +671,7 @@ __osm_ucast_mgr_process_port(
       if (!p_mgr->p_subn->opt.port_profile_switch_nodes)
       {
 	is_ignored_by_port_prof |=
-	  (osm_node_get_type(osm_port_get_parent_node(p_port)) ==
-	   IB_NODE_TYPE_SWITCH);
+	  (osm_node_get_type(p_port->p_node) == IB_NODE_TYPE_SWITCH);
       }
     }
 

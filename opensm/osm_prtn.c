@@ -119,7 +119,7 @@ ib_api_status_t osm_prtn_add_port(osm_log_t *p_log, osm_subn_t *p_subn,
 		return status;
 	}
 
-	p_physp = osm_port_get_default_phys_ptr(p_port);
+	p_physp = p_port->p_physp;
 	if (!p_physp) {
 		osm_log(p_log, OSM_LOG_VERBOSE, "osm_prtn_add_port: "
 			"no physical for port 0x%" PRIx64 "\n",

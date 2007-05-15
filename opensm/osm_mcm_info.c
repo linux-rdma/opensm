@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -55,26 +55,6 @@
 
 /**********************************************************************
  **********************************************************************/
-void
-osm_mcm_info_destroy(
-  IN osm_mcm_info_t* const p_mcm )
-{
-  CL_ASSERT( p_mcm );
-}
-
-/**********************************************************************
- **********************************************************************/
-void
-osm_mcm_info_init(
-  IN osm_mcm_info_t* const p_mcm,
-  IN const ib_net16_t mlid )
-{
-  CL_ASSERT( p_mcm );
-  p_mcm->mlid = mlid;
-}
-
-/**********************************************************************
- **********************************************************************/
 osm_mcm_info_t*
 osm_mcm_info_new(
   IN const ib_net16_t mlid )
@@ -85,7 +65,7 @@ osm_mcm_info_new(
   if( p_mcm )
   {
     memset(p_mcm, 0, sizeof(*p_mcm) );
-    osm_mcm_info_init( p_mcm, mlid );
+    p_mcm->mlid = mlid;
   }
 
   return( p_mcm );
@@ -97,6 +77,5 @@ void
 osm_mcm_info_delete(
   IN osm_mcm_info_t* const p_mcm )
 {
-  osm_mcm_info_destroy( p_mcm );
   free( p_mcm );
 }

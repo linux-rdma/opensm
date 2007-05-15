@@ -49,6 +49,7 @@
 #include <netinet/in.h>
 #include <unistd.h>
 #include <errno.h>
+#include <ctype.h>
 #include <opensm/osm_console.h>
 #include <opensm/osm_version.h>
 
@@ -388,15 +389,19 @@ static void status_parse(char **p_last, osm_opensm_t *p_osm, FILE *out)
 	char *p_cmd;
 
 	p_cmd = next_token(p_last);
-	if (p_cmd && strcmp(p_cmd, "loop") == 0 ) {
-		fprintf(out, "Looping on status command...\n");
-		fflush(out);
-		loop_command.on = 1;
-		loop_command.previous = time(NULL);
-		loop_command.loop_function = print_status;
-	} else {
-		print_status(p_osm, out);
+	if (p_cmd) {
+		if (strcmp(p_cmd, "loop") == 0) {
+			fprintf(out, "Looping on status command...\n");
+			fflush(out);
+			loop_command.on = 1;
+			loop_command.previous = time(NULL);
+			loop_command.loop_function = print_status;
+		} else {
+			help_status(out, 1);
+			return;
+		}
 	}
+	print_status(p_osm, out);
 }
 
 static void resweep_parse(char **p_last, osm_opensm_t *p_osm, FILE *out)
@@ -460,6 +465,10 @@ static void parse_cmd_line(char *line, osm_opensm_t *p_osm)
 	int i, found = 0;
 	FILE *out = p_osm->console.out;
 
+	while (isspace(*line))
+		line++;
+	if (!*line)
+		return;
 
 	/* find first token which is the command */
 	p_cmd = strtok_r(line, " \t\n\r", &p_last);
@@ -483,7 +492,7 @@ static void parse_cmd_line(char *line, osm_opensm_t *p_osm)
 			help_command(out, 0);
 		}
 	} else {
-		fprintf(out, "Error parsing command line: %s\n", line);
+		fprintf(out, "Error parsing command line: `%s'\n", line);
 	}
 	if (loop_command.on) {
 		fprintf(out, "use \"q<ret>\" to quit loop\n");

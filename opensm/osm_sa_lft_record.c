@@ -244,7 +244,7 @@ __osm_lftr_rcv_by_comp_mask(
 
   /* check that the requester physp and the current physp are under
      the same partition. */
-  p_physp = osm_port_get_default_phys_ptr( p_port );
+  p_physp = p_port->p_physp;
   if (! p_physp)
   {
     osm_log( p_rcv->p_log, OSM_LOG_ERROR,

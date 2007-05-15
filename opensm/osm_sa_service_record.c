@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2006 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -213,7 +213,7 @@ __match_service_pkey_with_ports_pkey(
       /* check on the table of the default physical port of the service port */
       if ( !osm_physp_has_pkey( p_rcv->p_log,
                                 p_service_rec->service_pkey,
-                                osm_port_get_default_phys_ptr(service_port) ) )
+                                service_port->p_physp ) )
       {
         valid = FALSE;
         goto Exit;
@@ -1038,7 +1038,7 @@ osm_sr_rcv_process_delete_method(
   cl_qlist_insert_tail( &sr_list, (cl_list_item_t*)&p_sr_item->pool_item );
 
   if(p_svcr)
-    osm_svcr_destroy(p_svcr);
+    osm_svcr_delete(p_svcr);
 
   __osm_sr_rcv_respond( p_rcv, p_madw, &sr_list );
 
@@ -1186,7 +1186,7 @@ osm_sr_rcv_lease_cb(
                               p_rcv->p_log,
                               p_svcr);
 
-      osm_svcr_destroy(p_svcr);
+      osm_svcr_delete(p_svcr);
 
       p_list_item = p_next_list_item;
       continue;

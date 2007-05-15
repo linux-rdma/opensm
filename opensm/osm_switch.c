@@ -291,7 +291,7 @@ osm_switch_recommend_path(
   }
   else
   {
-    p_physp = osm_port_get_default_phys_ptr(p_port);
+    p_physp = p_port->p_physp;
     if (!p_physp || !p_physp->p_remote_physp ||
         !p_physp->p_remote_physp->p_node->sw)
       return OSM_NO_PATH;
@@ -566,7 +566,7 @@ osm_switch_get_port_least_hops(
   }
   else
   {
-    osm_physp_t *p = osm_port_get_default_phys_ptr(p_port);
+    osm_physp_t *p = p_port->p_physp;
     uint8_t hops;
 
     if (!p || !p->p_remote_physp || !p->p_remote_physp->p_node->sw)
@@ -604,7 +604,7 @@ osm_switch_recommend_mcast_path(
   }
   else
   {
-    osm_physp_t *p_physp = osm_port_get_default_phys_ptr(p_port);
+    osm_physp_t *p_physp = p_port->p_physp;
     if (!p_physp || !p_physp->p_remote_physp ||
         !p_physp->p_remote_physp->p_node->sw)
       return OSM_NO_PATH;

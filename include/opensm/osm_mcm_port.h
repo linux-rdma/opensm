@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004, 2005 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -103,112 +103,13 @@ typedef struct _osm_mcm_port
 *	MCM Port Object
 *********/
 
-/****f* OpenSM: MCM Port Object/osm_mcm_port_construct
+/****f* OpenSM: MCM Port Object/osm_mcm_port_new
 * NAME
-*	osm_mcm_port_construct
+*	osm_mcm_port_new
 *
 * DESCRIPTION
-*	This function constructs a MCM Port object.
-*
-* SYNOPSIS
-*/
-void
-osm_mcm_port_construct(
-	IN osm_mcm_port_t* const p_mcm );
-/*
-* PARAMETERS
-*	p_mcm
-*		[in] Pointer to a MCM Port Object to construct.
-*
-* RETURN VALUE
-*	This function does not return a value.
-*
-* NOTES
-*	Allows calling osm_mcm_port_init, osm_mcm_port_destroy.
-*
-*	Calling osm_mcm_port_construct is a prerequisite to calling any other
-*	method except osm_mcm_port_init.
-*
-* SEE ALSO
-*	MCM Port Object, osm_mcm_port_init, osm_mcm_port_destroy
-*********/
-
-/****f* OpenSM: MCM Port Object/osm_mcm_port_destroy
-* NAME
-*	osm_mcm_port_destroy
-*
-* DESCRIPTION
-*	The osm_mcm_port_destroy function destroys a MCM Port Object, releasing
-*	all resources.
-*
-* SYNOPSIS
-*/
-void
-osm_mcm_port_destroy(
-	IN osm_mcm_port_t* const p_mcm );
-/*
-* PARAMETERS
-*	p_mcm
-*		[in] Pointer to a MCM Port Object to destroy.
-*
-* RETURN VALUE
-*	This function does not return a value.
-*
-* NOTES
-*	Performs any necessary cleanup of the specified MCM Port Object.
-*	Further operations should not be attempted on the destroyed object.
-*	This function should only be called after a call to
-*	osm_mcm_port_construct or osm_mcm_port_init.
-*
-* SEE ALSO
-*	MCM Port Object, osm_mcm_port_construct, osm_mcm_port_init
-*********/
-
-/****f* OpenSM: MCM Port Object/osm_mcm_port_init
-* NAME
-*	osm_mcm_port_init
-*
-* DESCRIPTION
-*	The osm_mcm_port_init function initializes a MCM Port Object for use.
-*
-* SYNOPSIS
-*/
-void
-osm_mcm_port_init(
-	IN osm_mcm_port_t* const p_mcm,
-	IN const ib_gid_t* const p_port_gid,
-	IN const uint8_t   scope_state,
-   IN const boolean_t proxy_join );
-/*
-* PARAMETERS
-*	p_mcm
-*		[in] Pointer to an osm_mcm_port_t object to initialize.
-*
-*	p_port_gid
-*		[in] Pointer to the GID of the port to add to the multicast group.
-*
-*	scope_state
-*		[in] scope state of the join request
-*
-*  proxy_join
-*     [in] proxy_join state analyzed from the request
-*
-* RETURN VALUES
-*	None.
-*
-* NOTES
-*	Allows calling other MCM Port Object methods.
-*
-* SEE ALSO
-*	MCM Port Object, osm_mcm_port_construct, osm_mcm_port_destroy,
-*********/
-
-/****f* OpenSM: MCM Port Object/osm_mcm_port_init
-* NAME
-*	osm_mcm_port_init
-*
-* DESCRIPTION
-*	The osm_mcm_port_init function initializes a MCM Port Object for use.
+*	The osm_mcm_port_new function allocates and initializes a
+*	MCM Port Object for use.
 *
 * SYNOPSIS
 */
@@ -216,7 +117,7 @@ osm_mcm_port_t*
 osm_mcm_port_new(
 	IN const ib_gid_t* const p_port_gid,
 	IN const uint8_t   scope_state,
-   IN const boolean_t proxy_join );
+	IN const boolean_t proxy_join );
 /*
 * PARAMETERS
 *	p_port_gid
@@ -234,15 +135,15 @@ osm_mcm_port_new(
 * NOTES
 *
 * SEE ALSO
-*	MCM Port Object, osm_mcm_port_construct, osm_mcm_port_destroy,
+*	MCM Port Object, osm_mcm_port_delete,
 *********/
 
-/****f* OpenSM: MCM Port Object/osm_mcm_port_destroy
+/****f* OpenSM: MCM Port Object/osm_mcm_port_delete
 * NAME
-*	osm_mcm_port_destroy
+*	osm_mcm_port_delete
 *
 * DESCRIPTION
-*	The osm_mcm_port_destroy function destroys and dellallocates an
+*	The osm_mcm_port_delete function destroys and dellallocates an
 *	MCM Port Object, releasing all resources.
 *
 * SYNOPSIS
@@ -261,7 +162,7 @@ osm_mcm_port_delete(
 * NOTES
 *
 * SEE ALSO
-*	MCM Port Object, osm_mcm_port_construct, osm_mcm_port_init
+*	MCM Port Object, osm_mcm_port_new
 *********/
 
 END_C_DECLS

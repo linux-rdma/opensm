@@ -647,7 +647,7 @@ sa_dump_one_inform(cl_list_item_t *p_list_item, void *cxt)
 		cl_ntoh16(p_iir->inform_info.trap_type),
 		cl_ntoh16(p_iir->inform_info.g_or_v.generic.trap_num),
 		cl_ntoh32(p_iir->inform_info.g_or_v.generic.qpn_resp_time_val),
-		cl_ntoh32(ib_inform_info_get_node_type(&p_iir->inform_info)),
+		cl_ntoh32(ib_inform_info_get_prod_type(&p_iir->inform_info)),
 		cl_ntoh16(p_infr->report_addr.dest_lid),
 		p_infr->report_addr.path_bits,
 		p_infr->report_addr.static_rate,

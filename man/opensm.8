@@ -1,4 +1,4 @@
-.TH OPENSM 8 "March 29, 2007" "OpenIB" "OpenIB Management"
+.TH OPENSM 8 "May 4, 2007" "OpenIB" "OpenIB Management"
 
 .SH NAME
 opensm \- InfiniBand subnet manager and administration (SM/SA) 
@@ -90,7 +90,6 @@ LID assignments resolving multiple use of same LID.
 This option chooses routing engine instead of Min Hop
 algorithm (default).
 Supported engines: updn, file, ftree, lash
-Note that lash is currently experimental.
 .TP
 \fB\-M\fR, \fB\-\-lid_matrix_file\fR
 This option specifies the name of the lid matrix dump file
@@ -376,9 +375,9 @@ list of these parameters:
  qos_max_vls    - The maximum number of VLs that will be on the subnet
  qos_high_limit - The limit of High Priority component of VL
                   Arbitration table (IBA 7.6.9)
- qos_vlarb_low  - High priority VL Arbitration table (IBA 7.6.9)
+ qos_vlarb_low  - Low priority VL Arbitration table (IBA 7.6.9)
                   template
- qos_vlarb_high - Low priority VL Arbitration table (IBA 7.6.9)
+ qos_vlarb_high - High priority VL Arbitration table (IBA 7.6.9)
                   template
                   Both VL arbitration templates are pairs of
                   VL and weight
@@ -587,7 +586,8 @@ It should be chosen if a subnet is a symmetrical fat-tree of various types.
 It supports not just K-ary-N-Trees, by handling for non-constant K,
 cases where not all leafs (CAs) are present, any CBB ratio.
 As in UPDN, fat-tree also prevents credit-loop-deadlocks.
-Fat-tree algorithm supports topologies that comply with the following rules:
+
+The Fat-tree algorithm supports topologies that comply with the following rules:
   - Tree rank should be between two and eight (inclusively)
   - Switches of the same rank should have the same number
     of UP-going port groups*, unless they are root switches,
@@ -601,6 +601,10 @@ Fat-tree algorithm supports topologies that comply with the following rules:
 
 Note: ports that are connected to the same remote switch are referenced as
 \'port group\'.
+
+Topologies that do not comply cause a fallback to min hop routing.
+Note that this can also occur on link failures which cause the topology
+to no longer be "pure" fat-tree.
 
 Note that although fat-tree algorithm supports trees with non-integer CBB
 ratio, the routing will not be as balanced as in case of integer CBB ratio.

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -271,7 +271,7 @@ __copy_from_create_mc_rec(
 
 /*********************************************************************
 Return an mlid to the pool of free mlids.
-But this implementation is not a pool - it is simply scanning through
+But this implementation is not a pool - it simply scans through
 the MGRP database for unused mlids...
 *********************************************************************/
 static void
@@ -419,7 +419,7 @@ __cleanup_mgrp(
     {
       cl_qmap_remove_item(&p_rcv->p_subn->mgrp_mlid_tbl,
                           (cl_map_item_t *)p_mgrp );
-      osm_mgrp_destroy(p_mgrp);
+      osm_mgrp_delete(p_mgrp);
     }
   }
 }
@@ -619,7 +619,7 @@ __validate_more_comp_fields(
       {
         osm_log( p_log, OSM_LOG_DEBUG,
                  "__validate_more_comp_fields: "
-                 "Requested MTU %x is not greater than %x\n",
+                 "Requested mcast group has MTU %x, which is not greater than %x\n",
                  mtu_mgrp, mtu_required );
         return FALSE;
       }
@@ -629,7 +629,7 @@ __validate_more_comp_fields(
       {
         osm_log( p_log, OSM_LOG_DEBUG,
                  "__validate_more_comp_fields: "
-                 "Requested MTU %x is not less than %x\n",
+                 "Requested mcast group has MTU %x, which is not less than %x\n",
                  mtu_mgrp, mtu_required );
         return FALSE;
       }
@@ -639,7 +639,7 @@ __validate_more_comp_fields(
       {
         osm_log( p_log, OSM_LOG_DEBUG,
                  "__validate_more_comp_fields: "
-                 "Requested MTU %x is not equal to %x\n",
+                 "Requested mcast group has MTU %x, which is not equal to %x\n",
                  mtu_mgrp, mtu_required );
         return FALSE;
       }
@@ -663,7 +663,7 @@ __validate_more_comp_fields(
       {
         osm_log( p_log, OSM_LOG_DEBUG,
                  "__validate_more_comp_fields: "
-                 "Requested RATE %x is not greater than %x\n",
+                 "Requested mcast group has RATE %x, which is not greater than %x\n",
                  rate_mgrp, rate_required );
         return FALSE;
       }
@@ -673,7 +673,7 @@ __validate_more_comp_fields(
       {
         osm_log( p_log, OSM_LOG_DEBUG,
                  "__validate_more_comp_fields: "
-                 "Requested RATE %x is not less than %x\n",
+                 "Requested mcast group has RATE %x, which is not less than %x\n",
                  rate_mgrp, rate_required );
         return FALSE;
       }
@@ -683,7 +683,7 @@ __validate_more_comp_fields(
       {
         osm_log( p_log, OSM_LOG_DEBUG,
                  "__validate_more_comp_fields: "
-                 "Requested RATE %x is not equal to %x\n",
+                 "Requested mcast group has RATE %x, which is not equal to %x\n",
                  rate_mgrp, rate_required );
         return FALSE;
       }
@@ -1358,7 +1358,7 @@ osm_mcmr_rcv_create_new_mgrp(
              cl_ntoh16(mlid) );
     cl_qmap_remove_item(&p_rcv->p_subn->mgrp_mlid_tbl,
                         (cl_map_item_t *)p_prev_mgrp );
-    osm_mgrp_destroy( p_prev_mgrp );
+    osm_mgrp_delete( p_prev_mgrp );
   }
 
   cl_qmap_insert(&p_rcv->p_subn->mgrp_mlid_tbl,
@@ -1570,7 +1570,7 @@ __osm_mcmr_rcv_join_mgrp(
     goto Exit;
   }
 
-  p_physp = osm_port_get_default_phys_ptr(p_port);
+  p_physp = p_port->p_physp;
   /* Check that the p_physp and the requester physp are in the same
      partition. */
   p_request_physp =

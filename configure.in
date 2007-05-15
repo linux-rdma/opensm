@@ -27,6 +27,9 @@ AC_ARG_ENABLE(debug,
 esac],[debug=false])
 AM_CONDITIONAL(DEBUG, test x$debug = xtrue)
 
+dnl check if they want the socket console
+OPENIB_OSM_CONSOLE_SOCKET_SEL
+
 dnl Provide user option to select vendor
 OPENIB_APP_OSMV_SEL
 

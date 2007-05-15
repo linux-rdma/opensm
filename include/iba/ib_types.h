@@ -1557,54 +1557,52 @@ ib_class_is_rmpp(
 #define IB_NODE_TYPE_ROUTER					0x03
 /**********/
 
-/****d* IBA Base: Constants/IB_NOTICE_NODE_TYPE_CA
+/****d* IBA Base: Constants/IB_NOTICE_PRODUCER_TYPE_CA
 * NAME
-*	IB_NOTICE_NODE_TYPE_CA
+*	IB_NOTICE_PRODUCER_TYPE_CA
 *
 * DESCRIPTION
-*	Encoded generic node type used in MAD attributes (13.4.8.2)
+*	Encoded generic producer type used in Notice attribute (13.4.8.2)
 *
 * SOURCE
 */
-#define IB_NOTICE_NODE_TYPE_CA				(CL_NTOH32(0x000001))
+#define IB_NOTICE_PRODUCER_TYPE_CA			(CL_NTOH32(0x000001))
 /**********/
 
-/****d* IBA Base: Constants/IB_NOTICE_NODE_TYPE_SWITCH
+/****d* IBA Base: Constants/IB_NOTICE_PRODUCER_TYPE_SWITCH
 * NAME
-*	IB_NOTICE_NODE_TYPE_SWITCH
+*	IB_NOTICE_PRODUCER_TYPE_SWITCH
 *
 * DESCRIPTION
-*	Encoded generic node type used in MAD attributes (13.4.8.2)
+*	Encoded generic producer type used in Notice attribute (13.4.8.2)
 *
 * SOURCE
 */
-#define IB_NOTICE_NODE_TYPE_SWITCH			(CL_NTOH32(0x000002))
+#define IB_NOTICE_PRODUCER_TYPE_SWITCH			(CL_NTOH32(0x000002))
 /**********/
 
-/****d* IBA Base: Constants/IB_NOTICE_NODE_TYPE_ROUTER
+/****d* IBA Base: Constants/IB_NOTICE_PRODUCER_TYPE_ROUTER
 * NAME
-*	IB_NOTICE_NODE_TYPE_ROUTER
+*	IB_NOTICE_PRODUCER_TYPE_ROUTER
 *
 * DESCRIPTION
-*	Encoded generic node type used in MAD attributes (13.4.8.2)
+*	Encoded generic producer type used in Notice attribute (13.4.8.2)
 *
 * SOURCE
 */
-#define IB_NOTICE_NODE_TYPE_ROUTER			(CL_NTOH32(0x000003))
+#define IB_NOTICE_PRODUCER_TYPE_ROUTER			(CL_NTOH32(0x000003))
 /**********/
 
-/****d* IBA Base: Constants/IB_NOTICE_NODE_TYPE_SUBN_MGMT
+/****d* IBA Base: Constants/IB_NOTICE_PRODUCER_TYPE_CLASS_MGR
 * NAME
-*	IB_NOTICE_NODE_TYPE_SUBN_MGMT
+*	IB_NOTICE_PRODUCER_TYPE_CLASS_MGR
 *
 * DESCRIPTION
-*	Encoded generic node type used in MAD attributes (13.4.8.2).
-*	Note that this value is not defined for the NodeType field
-*	of the NodeInfo attribute (14.2.5.3).
+*	Encoded generic producer type used in Notice attribute (13.4.8.2)
 *
 * SOURCE
 */
-#define IB_NOTICE_NODE_TYPE_SUBN_MGMT		(CL_NTOH32(0x000004))
+#define IB_NOTICE_PRODUCER_TYPE_CLASS_MGR			(CL_NTOH32(0x000004))
 /**********/
 
 /****d* IBA Base: Constants/IB_MTU_LEN_TYPE
@@ -1829,8 +1827,7 @@ static const char* const __ib_node_type_str[] =
 	"UNKNOWN",
 	"Channel Adapter",
 	"Switch",
-	"Router",
-	"Subnet Management"
+	"Router"
 };
 
 /****f* IBA Base: Types/ib_get_node_type_str
@@ -1839,14 +1836,15 @@ static const char* const __ib_node_type_str[] =
 *
 * DESCRIPTION
 *	Returns a string for the specified node type.
+*	14.2.5.3 NodeInfo
 *
 * SYNOPSIS
 */
 static inline const char*	OSM_API
 ib_get_node_type_str(
-	IN uint32_t node_type )
+	IN uint8_t node_type )
 {
-	if( node_type >= IB_NOTICE_NODE_TYPE_ROUTER )
+	if( node_type > IB_NODE_TYPE_ROUTER )
 		node_type = 0;
 	return( __ib_node_type_str[node_type] );
 }
@@ -1862,6 +1860,47 @@ ib_get_node_type_str(
 *
 * SEE ALSO
 * ib_node_info_t
+*********/
+
+static const char* const __ib_producer_type_str[] =
+{
+	"UNKNOWN",
+	"Channel Adapter",
+	"Switch",
+	"Router",
+	"Class Manager"
+};
+/****f* IBA Base: Types/ib_get_producer_type_str
+* NAME
+*	ib_get_producer_type_str
+*
+* DESCRIPTION
+*	Returns a string for the specified producer type
+*	13.4.8.2 Notice
+*	13.4.8.3 InformInfo
+*
+* SYNOPSIS
+*/
+static inline const char*	OSM_API
+ib_get_producer_type_str(
+	IN ib_net32_t producer_type )
+{
+	if(cl_ntoh32(producer_type) > CL_NTOH32(IB_NOTICE_PRODUCER_TYPE_CLASS_MGR))
+		producer_type = 0;
+	return( __ib_producer_type_str[cl_ntoh32(producer_type)] );
+}
+/*
+* PARAMETERS
+*	producer_type
+*		[in] Encoded producer type from the Notice attribute
+
+* RETURN VALUES
+*	Pointer to the producer type string.
+*
+* NOTES
+*
+* SEE ALSO
+* ib_notice_get_prod_type
 *********/
 
 static const char* const __ib_port_state_str[] =
@@ -1894,7 +1933,7 @@ ib_get_port_state_str(
 }
 /*
 * PARAMETERS
-*	node_type
+*	port_state
 *		[in] Encoded port state as returned in the PortInfo attribute.
 
 * RETURN VALUES
@@ -4199,6 +4238,13 @@ typedef struct _ib_port_info
 #define IB_PORT_LINK_SPEED_ENABLED_MASK		0x0F
 #define IB_PORT_PHYS_STATE_MASK			0xF0
 #define IB_PORT_PHYS_STATE_SHIFT		4
+#define IB_PORT_PHYS_STATE_SLEEP		1
+#define IB_PORT_PHYS_STATE_POLLING		2
+#define IB_PORT_PHYS_STATE_DISABLED		3
+#define IB_PORT_PHYS_STATE_PORTCONFTRAIN	4
+#define IB_PORT_PHYS_STATE_LINKUP	        5
+#define IB_PORT_PHYS_STATE_LINKERRRECOVER	6
+#define IB_PORT_PHYS_STATE_PHYTEST	        7
 #define IB_PORT_LNKDWNDFTSTATE_MASK		0x0F
 
 #define IB_PORT_CAP_RESV0         (CL_NTOH32(0x00000001))
@@ -4663,6 +4709,7 @@ ib_port_info_get_link_speed_active(
 
 #define IB_LINK_WIDTH_ACTIVE_1X			1
 #define IB_LINK_WIDTH_ACTIVE_4X			2
+#define IB_LINK_WIDTH_ACTIVE_8X			4
 #define IB_LINK_WIDTH_ACTIVE_12X 		8
 #define IB_LINK_SPEED_ACTIVE_2_5		1
 #define IB_LINK_SPEED_ACTIVE_5			2
@@ -4710,6 +4757,10 @@ ib_port_info_compute_rate(
       rate = IB_PATH_RECORD_RATE_10_GBS;
       break;
 
+    case IB_LINK_WIDTH_ACTIVE_8X:
+      rate = IB_PATH_RECORD_RATE_20_GBS;
+      break;
+
     case IB_LINK_WIDTH_ACTIVE_12X:
       rate = IB_PATH_RECORD_RATE_30_GBS;
       break;
@@ -4730,6 +4781,10 @@ ib_port_info_compute_rate(
       rate = IB_PATH_RECORD_RATE_20_GBS;
       break;
 
+    case IB_LINK_WIDTH_ACTIVE_8X:
+      rate = IB_PATH_RECORD_RATE_40_GBS;
+      break;
+
     case IB_LINK_WIDTH_ACTIVE_12X:
       rate = IB_PATH_RECORD_RATE_60_GBS;
       break;
@@ -4748,6 +4803,10 @@ ib_port_info_compute_rate(
 
     case IB_LINK_WIDTH_ACTIVE_4X:
       rate = IB_PATH_RECORD_RATE_40_GBS;
+      break;
+
+    case IB_LINK_WIDTH_ACTIVE_8X:
+      rate = IB_PATH_RECORD_RATE_80_GBS;
       break;
 
     case IB_LINK_WIDTH_ACTIVE_12X:
@@ -7207,17 +7266,18 @@ ib_inform_info_set_qpn(
 *	ib_inform_info_t
 *********/
 
-/****f* IBA Base: Types/ib_inform_info_get_node_type
+/****f* IBA Base: Types/ib_inform_info_get_prod_type
 * NAME
-*	ib_inform_info_get_node_type
+*	ib_inform_info_get_prod_type
 *
 * DESCRIPTION
-*	Get Node Type of the Inform Info
+*	Get Producer Type of the Inform Info
+*	13.4.8.3 InformInfo
 *
 * SYNOPSIS
 */
 static inline ib_net32_t	OSM_API
-ib_inform_info_get_node_type(
+ib_inform_info_get_prod_type(
   IN		const	ib_inform_info_t  *p_inf)
 {
   uint32_t nt;
@@ -7232,7 +7292,7 @@ ib_inform_info_get_node_type(
 *		[in] pointer to an inform info
 *
 * RETURN VALUES
-*     The node type
+*     The producer type
 *
 * NOTES
 *

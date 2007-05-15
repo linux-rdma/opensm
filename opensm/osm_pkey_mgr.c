@@ -310,7 +310,7 @@ static boolean_t pkey_mgr_update_port(
 
   memset(&empty_block, 0, sizeof(ib_pkey_table_t));
 
-  p_physp = osm_port_get_default_phys_ptr( p_port );
+  p_physp = p_port->p_physp;
   if ( !osm_physp_is_valid( p_physp ) )
     return FALSE;
 
@@ -449,7 +449,7 @@ pkey_mgr_update_peer_port(
 
   memset(&empty_block, 0, sizeof(ib_pkey_table_t));
 
-  p_physp = osm_port_get_default_phys_ptr( p_port );
+  p_physp = p_port->p_physp;
   if (!osm_physp_is_valid( p_physp ))
     return FALSE;
   peer = osm_physp_get_remote( p_physp );
@@ -532,7 +532,6 @@ osm_pkey_mgr_process(
   osm_prtn_t *p_prtn;
   osm_port_t *p_port;
   osm_signal_t signal = OSM_SIGNAL_DONE;
-  osm_node_t *p_node;
 
   CL_ASSERT( p_osm );
 
@@ -570,8 +569,7 @@ osm_pkey_mgr_process(
     p_next = cl_qmap_next( p_next );
     if ( pkey_mgr_update_port( &p_osm->log, &p_osm->sm.req, p_port ) )
       signal = OSM_SIGNAL_DONE_PENDING;
-    p_node = osm_port_get_parent_node( p_port );
-    if ( ( osm_node_get_type( p_node ) != IB_NODE_TYPE_SWITCH ) &&
+    if ( ( osm_node_get_type( p_port->p_node ) != IB_NODE_TYPE_SWITCH ) &&
 	 pkey_mgr_update_peer_port( &p_osm->log, &p_osm->sm.req, 
 				    &p_osm->subn, p_port,
 				    !p_osm->subn.opt.no_partition_enforcement ) )

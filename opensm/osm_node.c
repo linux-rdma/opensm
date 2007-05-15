@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -143,24 +143,21 @@ osm_node_new(
 
 /**********************************************************************
  **********************************************************************/
-void
+static void
 osm_node_destroy(
   IN osm_node_t *p_node )
 {
+  osm_physp_t *p_physp;
   uint16_t i;
 
-  /* Cleanup all PhysPorts */
-  if( p_node != NULL )
+  /*
+    Cleanup all physports 
+  */
+  for( i = 0; i < p_node->physp_tbl_size; i++ )
   {
-    /*
-      Cleanup all physports 
-    */
-    for( i = 0; i < p_node->physp_tbl_size; i++ )
-    {
-      osm_physp_t *p_physp = osm_node_get_physp_ptr( p_node, i );
-      if (p_physp) 
-        osm_physp_destroy( p_physp );
-    }
+    p_physp = osm_node_get_physp_ptr( p_node, i );
+    if (p_physp) 
+      osm_physp_destroy( p_physp );
   }
 }
 
@@ -170,6 +167,7 @@ void
 osm_node_delete(
   IN OUT osm_node_t** const p_node )
 {
+  CL_ASSERT(p_node && *p_node);
   osm_node_destroy( *p_node );
   free( *p_node );
   *p_node = NULL;

@@ -239,7 +239,7 @@ __osm_sa_pkey_by_comp_mask(
   if ( p_port->p_node->node_info.node_type != IB_NODE_TYPE_SWITCH )
   {
     /* we put it in the comp mask and port num */
-    port_num = p_port->default_port_num;
+    port_num = p_port->p_physp->port_num;
     osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
              "__osm_sa_pkey_by_comp_mask:  "
              "Using Physical Default Port Number: 0x%X (for End Node)\n",
@@ -249,9 +249,9 @@ __osm_sa_pkey_by_comp_mask(
 
   if( comp_mask & IB_PKEY_COMPMASK_PORT )
   {
-    if (port_num < osm_port_get_num_physp( p_port ))
+    if (port_num < osm_node_get_num_physp( p_port->p_node ))
     {
-      p_physp = osm_port_get_phys_ptr( p_port, port_num );
+      p_physp = osm_node_get_physp_ptr( p_port->p_node, port_num );
       /* Check that the p_physp is valid, and that is shares a pkey
          with the p_req_physp. */
       if( p_physp && osm_physp_is_valid( p_physp ) &&
@@ -263,16 +263,16 @@ __osm_sa_pkey_by_comp_mask(
       osm_log( p_rcv->p_log, OSM_LOG_ERROR,
                "__osm_sa_pkey_by_comp_mask: ERR 4603: "
                "Given Physical Port Number: 0x%X is out of range should be < 0x%X\n",
-               port_num, osm_port_get_num_physp( p_port ));
+               port_num, osm_node_get_num_physp( p_port->p_node ));
       goto Exit;
     }
   }
   else
   {
-    num_ports = osm_port_get_num_physp( p_port );
+    num_ports = osm_node_get_num_physp( p_port->p_node );
     for( port_num = 0; port_num < num_ports; port_num++ )
     {
-      p_physp = osm_port_get_phys_ptr( p_port, port_num );
+      p_physp = osm_node_get_physp_ptr( p_port->p_node, port_num );
       if( p_physp == NULL )
         continue;
 

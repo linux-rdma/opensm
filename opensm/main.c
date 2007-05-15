@@ -574,7 +574,6 @@ main(
   osm_subn_opt_t        opt;
   ib_net64_t            sm_key = 0;
   ib_api_status_t       status;
-  uint32_t              log_flags = OSM_LOG_DEFAULT_LEVEL;
   uint32_t              temp, dbg_lvl;
   boolean_t             run_once_flag = FALSE;
   int32_t               vendor_debug = 0;
@@ -798,8 +797,8 @@ main(
       break;
 
     case 'D':
-      log_flags = strtol(optarg, NULL, 0);
-      printf(" verbose option -D = 0x%x\n", log_flags);
+      opt.log_flags = strtol(optarg, NULL, 0);
+      printf(" verbose option -D = 0x%x\n", opt.log_flags);
       break;
 
     case 'f':
@@ -834,12 +833,12 @@ main(
       break;
 
     case 'v':
-      log_flags = (log_flags <<1 )|1;
-      printf(" Verbose option -v (log flags = 0x%X)\n", log_flags );
+      opt.log_flags = (opt.log_flags <<1 )|1;
+      printf(" Verbose option -v (log flags = 0x%X)\n", opt.log_flags );
       break;
 
     case 'V':
-      log_flags = 0xFFFFFFFF;
+      opt.log_flags = 0xFF;
       opt.force_log_flush = TRUE;
       printf(" Big V selected\n");
       break;
@@ -926,8 +925,6 @@ main(
     printf(" Log File: %s\n", opt.log_file );
   /* Done with options description */
   printf("-------------------------------------------------\n");
-
-  opt.log_flags = log_flags;
 
   if (vendor_debug)
     osm_vendor_set_debug( osm.p_vendor, vendor_debug );

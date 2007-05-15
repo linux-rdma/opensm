@@ -108,10 +108,10 @@ __get_physp_by_lid_and_num(
   if (! p_port)
     return NULL;
 
-  if (osm_port_get_num_physp(p_port) < num)
+  if (osm_node_get_num_physp(p_port->p_node) < num)
     return NULL;
 
-  return( osm_port_get_phys_ptr(p_port, num) );
+  return( osm_node_get_physp_ptr(p_port->p_node, num) );
 }
 
 /**********************************************************************
@@ -424,11 +424,12 @@ __osm_trap_rcv_process_request(
       {
         osm_log( p_rcv->p_log, OSM_LOG_ERROR,
                  "__osm_trap_rcv_process_request: "
-                 "Received Generic Notice type:0x%02X num:%u Producer:%u "
+                 "Received Generic Notice type:0x%02X num:%u Producer:%u (%s) "
                  "from LID:0x%04X Port %d TID:0x%016" PRIx64 "\n",
                  ib_notice_get_type(p_ntci),
                  cl_ntoh16(p_ntci->g_or_v.generic.trap_num),
                  cl_ntoh32(ib_notice_get_prod_type(p_ntci)),
+                 ib_get_producer_type_str(ib_notice_get_prod_type(p_ntci)),
                  cl_hton16(source_lid),
                  p_ntci->data_details.ntc_129_131.port_num,
                  cl_ntoh64(p_smp->trans_id)
@@ -438,11 +439,12 @@ __osm_trap_rcv_process_request(
       {
         osm_log( p_rcv->p_log, OSM_LOG_ERROR,
                  "__osm_trap_rcv_process_request: "
-                 "Received Generic Notice type:0x%02X num:%u Producer:%u "
+                 "Received Generic Notice type:0x%02X num:%u Producer:%u (%s) "
                  "from LID:0x%04X TID:0x%016" PRIx64 "\n",
                  ib_notice_get_type(p_ntci),
                  cl_ntoh16(p_ntci->g_or_v.generic.trap_num),
                  cl_ntoh32(ib_notice_get_prod_type(p_ntci)),
+                 ib_get_producer_type_str(ib_notice_get_prod_type(p_ntci)),
                  cl_hton16(source_lid),
                  cl_ntoh64(p_smp->trans_id)
                  );

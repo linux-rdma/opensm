@@ -149,34 +149,6 @@ typedef struct _osm_node
 *	Node object
 *********/
 
-/****f* OpenSM: Node/osm_node_destroy
-* NAME
-*	osm_node_destroy
-*
-* DESCRIPTION
-*	The osm_node_destroy function destroys a node, releasing
-*	all resources.
-*
-* SYNOPSIS
-*/void
-osm_node_destroy(
-  IN osm_node_t *p_node );
-/*
-* PARAMETERS
-*	p_node
-*		[in] Pointer a Node object to destroy.
-*
-* RETURN VALUE
-*	This function does not return a value.
-*
-* NOTES
-*	Performs any necessary cleanup of the specified Node object.
-*	This function should only be called after a call to osm_node_new.
-*
-* SEE ALSO
-*	Node object, osm_node_new
-*********/
-
 /****f* OpenSM: Node/osm_node_delete
 * NAME
 *	osm_node_delete

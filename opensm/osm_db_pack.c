@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2006 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -102,7 +102,7 @@ osm_db_guid2lid_guids(
   osm_db_guid_elem_t *p_guid_elem;
 
   cl_list_construct( &keys );
-  cl_list_init( &keys, 10);
+  cl_list_init( &keys, 10 );
   
   if (osm_db_keys(p_g2l, &keys))
     return 1;

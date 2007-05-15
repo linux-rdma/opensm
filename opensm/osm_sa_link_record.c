@@ -346,16 +346,16 @@ __osm_lr_rcv_get_port_links(
         that do not actually connect.  Don't bother screening
         for that here.
       */
-      num_ports = osm_port_get_num_physp( p_src_port );
-      dest_num_ports = osm_port_get_num_physp( p_dest_port );
+      num_ports = osm_node_get_num_physp( p_src_port->p_node );
+      dest_num_ports = osm_node_get_num_physp( p_dest_port->p_node );
       for( port_num = 1; port_num < num_ports; port_num++ )
       {
-        p_src_physp = osm_port_get_phys_ptr( p_src_port, port_num );
+        p_src_physp = osm_node_get_physp_ptr( p_src_port->p_node, port_num );
         for( dest_port_num = 1; dest_port_num < dest_num_ports;
              dest_port_num++ )
         {
-          p_dest_physp = osm_port_get_phys_ptr( p_dest_port,
-                                                dest_port_num );
+          p_dest_physp = osm_node_get_physp_ptr( p_dest_port->p_node,
+                                                 dest_port_num );
           /* both physical ports should be with data */
           if (p_src_physp && p_dest_physp)
             __osm_lr_rcv_get_physp_link( p_rcv, p_lr, p_src_physp,
@@ -374,9 +374,9 @@ __osm_lr_rcv_get_port_links(
         port_num = p_lr->from_port_num;
         /* If the port number is out of the range of the p_src_port, then
            this couldn't be a relevant record. */
-        if (port_num < p_src_port->physp_tbl_size) 
+        if (port_num < p_src_port->p_node->physp_tbl_size)
         {          
-          p_src_physp = osm_port_get_phys_ptr( p_src_port, port_num );
+          p_src_physp = osm_node_get_physp_ptr( p_src_port->p_node, port_num );
           if (p_src_physp)
             __osm_lr_rcv_get_physp_link( p_rcv, p_lr, p_src_physp,
                                          NULL, comp_mask, p_list,
@@ -385,10 +385,10 @@ __osm_lr_rcv_get_port_links(
       }
       else
       {
-        num_ports = osm_port_get_num_physp( p_src_port );
+        num_ports = osm_node_get_num_physp( p_src_port->p_node );
         for( port_num = 1; port_num < num_ports; port_num++ )
         {
-          p_src_physp = osm_port_get_phys_ptr( p_src_port, port_num );
+          p_src_physp = osm_node_get_physp_ptr( p_src_port->p_node, port_num );
           if (p_src_physp)
             __osm_lr_rcv_get_physp_link( p_rcv, p_lr, p_src_physp,
                                          NULL, comp_mask, p_list,
@@ -409,10 +409,10 @@ __osm_lr_rcv_get_port_links(
         port_num = p_lr->to_port_num;
         /* If the port number is out of the range of the p_dest_port, then
            this couldn't be a relevant record. */
-        if (port_num < p_dest_port->physp_tbl_size ) 
+        if (port_num < p_dest_port->p_node->physp_tbl_size )
         {
-          p_dest_physp = osm_port_get_phys_ptr(
-            p_dest_port, port_num );
+          p_dest_physp = osm_node_get_physp_ptr(
+            p_dest_port->p_node, port_num );
           if (p_dest_physp)
             __osm_lr_rcv_get_physp_link( p_rcv, p_lr, NULL,
                                          p_dest_physp, comp_mask,
@@ -421,11 +421,11 @@ __osm_lr_rcv_get_port_links(
       }
       else
       {
-        num_ports = osm_port_get_num_physp( p_dest_port );
+        num_ports = osm_node_get_num_physp( p_dest_port->p_node );
         for( port_num = 1; port_num < num_ports; port_num++ )
         {
-          p_dest_physp = osm_port_get_phys_ptr(
-            p_dest_port, port_num );
+          p_dest_physp = osm_node_get_physp_ptr(
+            p_dest_port->p_node, port_num );
           if (p_dest_physp)
             __osm_lr_rcv_get_physp_link( p_rcv, p_lr, NULL,
                                          p_dest_physp, comp_mask,

@@ -194,7 +194,7 @@ __validate_ports_access_rights(
     }
 
     /* get the destination InformInfo physical port */
-    p_physp = osm_port_get_default_phys_ptr(p_port);
+    p_physp = p_port->p_physp;
 
     /* make sure that the requester and destination port can access each other 
        according to the current partitioning. */
@@ -244,7 +244,7 @@ __validate_ports_access_rights(
       if ( p_port == NULL )
         continue;
 
-      p_physp = osm_port_get_default_phys_ptr(p_port);
+      p_physp = p_port->p_physp;
       /* make sure that the requester and destination port can access 
          each other according to the current partitioning. */
       if (! osm_physp_share_pkey( p_rcv->p_log, p_physp, p_requester_physp))
@@ -405,7 +405,7 @@ __osm_sa_inform_info_rec_by_comp_mask(
   }
 
   /* get the subscriber InformInfo physical port */
-  p_subscriber_physp = osm_port_get_default_phys_ptr(p_subscriber_port);
+  p_subscriber_physp = p_subscriber_port->p_physp;
   /* make sure that the requester and subscriber port can access each other 
      according to the current partitioning. */
   if (! osm_physp_share_pkey( p_rcv->p_log, p_req_physp, p_subscriber_physp ))

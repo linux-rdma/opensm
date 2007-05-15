@@ -1,3 +1,8 @@
+
+2007-05-07  Hal Rosenstock <halr@voltaire.com>
+
+	* osm_vendor_ibumad.(h c): Remove support for issmdisabled
+
 2007-03-29  Hal Rosenstock <halr@voltaire.com>
 
 	* configure.in: Bump version to 2.2.0

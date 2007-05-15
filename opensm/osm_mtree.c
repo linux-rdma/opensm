@@ -33,7 +33,6 @@
  *
  */
 
-
 /*
  * Abstract:
  *    Implementation of osm_mtree_node_t.
@@ -55,7 +54,7 @@
 
 /**********************************************************************
  **********************************************************************/
-void
+static void
 osm_mtree_node_init(
   IN osm_mtree_node_t*     const p_mtn,
   IN const osm_switch_t*      const p_sw )
@@ -65,7 +64,7 @@ osm_mtree_node_init(
   CL_ASSERT( p_mtn );
   CL_ASSERT( p_sw );
 
-  osm_mtree_node_construct( p_mtn );
+  memset( p_mtn, 0, sizeof(*p_mtn) );
 
   p_mtn->p_sw = (osm_switch_t*)p_sw;
   p_mtn->max_children = p_sw->num_ports;

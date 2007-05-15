@@ -432,8 +432,8 @@ osm_port_share_pkey(
     goto Exit;
   }
 
-  p_physp1 = osm_port_get_default_phys_ptr(p_port_1);
-  p_physp2 = osm_port_get_default_phys_ptr(p_port_2);
+  p_physp1 = p_port_1->p_physp;
+  p_physp2 = p_port_2->p_physp;
 
   if (!p_physp1 || !p_physp2)
   {
@@ -478,7 +478,7 @@ osm_lid_share_pkey(
   }
   else
   {
-    p_physp1 = osm_port_get_default_phys_ptr(p_port1);
+    p_physp1 = p_port1->p_physp;
   }
 
   if  (osm_node_get_type( p_node2 ) == IB_NODE_TYPE_SWITCH)
@@ -487,7 +487,7 @@ osm_lid_share_pkey(
   }
   else
   {
-    p_physp2 = osm_port_get_default_phys_ptr(p_port2);
+    p_physp2 = p_port2->p_physp;
   }
 
   return(osm_physp_share_pkey(p_log, p_physp1, p_physp2));

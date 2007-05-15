@@ -538,13 +538,13 @@ __osm_sa_pir_by_comp_mask(
   comp_mask = p_ctxt->comp_mask;
   p_req_physp = p_ctxt->p_req_physp;
 
-  num_ports = osm_port_get_num_physp( p_port );
+  num_ports = osm_node_get_num_physp( p_port->p_node );
 
   if( comp_mask & IB_PIR_COMPMASK_PORTNUM )
   {
     if (p_rcvd_rec->port_num < num_ports)
     {
-      p_physp = osm_port_get_phys_ptr( p_port, p_rcvd_rec->port_num );
+      p_physp = osm_node_get_physp_ptr( p_port->p_node, p_rcvd_rec->port_num );
       /* Check that the p_physp is valid, and that the p_physp and the
          p_req_physp share a pkey. */
       if( p_physp && osm_physp_is_valid( p_physp ) &&
@@ -556,7 +556,7 @@ __osm_sa_pir_by_comp_mask(
   {
     for( port_num = 0; port_num < num_ports; port_num++ )
     {
-      p_physp = osm_port_get_phys_ptr( p_port, port_num );
+      p_physp = osm_node_get_physp_ptr( p_port->p_node, port_num );
       if( p_physp == NULL )
         continue;
 

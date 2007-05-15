@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -33,7 +33,6 @@
  *
  */
 
-
 /*
  * Abstract:
  *    Implementation of service record functions.
@@ -56,16 +55,7 @@
 /**********************************************************************
  **********************************************************************/
 void
-osm_svcr_construct(
-  IN osm_svcr_t* const p_svcr )
-{
-  memset( p_svcr, 0, sizeof(*p_svcr) );
-}
-
-/**********************************************************************
- **********************************************************************/
-void
-osm_svcr_destroy(
+osm_svcr_delete(
   IN osm_svcr_t* const p_svcr )
 {
   free( p_svcr);
@@ -102,7 +92,7 @@ osm_svcr_new(
   p_svcr = (osm_svcr_t*)malloc( sizeof(*p_svcr) );
   if( p_svcr )
   {
-    osm_svcr_construct( p_svcr );
+    memset( p_svcr, 0, sizeof(*p_svcr) );
     osm_svcr_init( p_svcr, p_svc_rec );
   }
 

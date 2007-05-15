@@ -170,7 +170,7 @@ static uint64_t osm_lash_get_switch_guid(IN const osm_switch_t *p_sw)
 
 static osm_switch_t *get_osm_switch_from_port(osm_port_t *port)
 {
-	osm_physp_t *p = osm_port_get_default_phys_ptr(port);
+	osm_physp_t *p = port->p_physp;
 	if (p->p_node->sw)
 		return p->p_node->sw;
 	else if (p->p_remote_physp->p_node->sw)

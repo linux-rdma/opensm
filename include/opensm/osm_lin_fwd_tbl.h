@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -93,9 +93,8 @@ BEGIN_C_DECLS
 */
 typedef struct _osm_lin_fwd_tbl
 {
-	uint16_t				size;
-	uint8_t					port_tbl[1];
-
+	uint16_t	size;
+	uint8_t		port_tbl[1];
 } osm_lin_fwd_tbl_t;
 /*
 * FIELDS
