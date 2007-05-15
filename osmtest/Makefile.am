@@ -7,7 +7,7 @@ endif
 
 INCLUDES = -I$(srcdir)/include $(OSMV_INCLUDES)
 
-bin_PROGRAMS = osmtest 
+sbin_PROGRAMS = osmtest 
 osmtest_SOURCES = main.c osmtest.c osmt_service.c osmt_slvl_vl_arb.c \
 		 osmt_multicast.c osmt_inform.c
 if OSMV_VAPI
