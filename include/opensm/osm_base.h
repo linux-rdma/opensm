@@ -475,6 +475,66 @@ BEGIN_C_DECLS
 #define OSM_SM_DEFAULT_POLLING_RETRY_NUMBER 4
 /**********/
 
+/****d* OpenSM: Base/OSM_DEFAULT_QOS_MAX_VLS
+ * Name
+ *       OSM_DEFAULT_QOS_MAX_VLS
+ *
+ * DESCRIPTION
+ *       Default Maximum VLs used by the OpenSM.
+ *
+ * SYNOPSIS
+ */
+#define OSM_DEFAULT_QOS_MAX_VLS 15
+/***********/
+
+/****d* OpenSM: Base/OSM_DEFAULT_QOS_HIGH_LIMIT
+ * Name
+ *       OSM_DEFAULT_QOS_HIGH_LIMIT
+ *
+ * DESCRIPTION
+ *       Default Limit of High Priority in VL Arbitration used by OpenSM.
+ *
+ * SYNOPSIS
+ */
+#define OSM_DEFAULT_QOS_HIGH_LIMIT 0
+/***********/
+
+/****d* OpenSM: Base/OSM_DEFAULT_QOS_VLARB_HIGH
+ * Name
+ *       OSM_DEFAULT_QOS_VLARB_HIGH
+ *
+ * DESCRIPTION
+ *       Default High Priority VL Arbitration table used by the OpenSM.
+ *
+ * SYNOPSIS
+ */
+#define OSM_DEFAULT_QOS_VLARB_HIGH "0:4,1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0,12:0,13:0,14:0"
+/***********/
+
+/****d* OpenSM: Base/OSM_DEFAULT_QOS_VLARB_LOW
+ * Name
+ *       OSM_DEFAULT_QOS_VLARB_LOW
+ *
+ * DESCRIPTION
+ *       Default Low Priority VL Arbitration table used by the OpenSM.
+ *
+ * SYNOPSIS
+ */
+#define OSM_DEFAULT_QOS_VLARB_LOW "0:0,1:4,2:4,3:4,4:4,5:4,6:4,7:4,8:4,9:4,10:4,11:4,12:4,13:4,14:4"
+/***********/
+
+/****d* OpenSM: Base/OSM_DEFAULT_QOS_SL2VL
+ * Name
+ *       OSM_DEFAULT_QOS_SL2VL
+ *
+ * DESCRIPTION
+ *       Default QoS SL2VL Mapping Table used by the OpenSM.
+ *
+ * SYNOPSIS
+ */
+#define OSM_DEFAULT_QOS_SL2VL "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,7"
+/***********/
+
 /****d* OpenSM: Base/OSM_NO_PATH
 * NAME
 *	OSM_NO_PATH

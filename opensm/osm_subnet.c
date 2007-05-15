@@ -417,11 +417,11 @@ static void
 subn_set_default_qos_options(
   IN osm_qos_options_t *opt)
 {
-  opt->max_vls = 15;
-  opt->high_limit = 0;
-  opt->vlarb_high = "0:4,1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0,12:0,13:0,14:0";
-  opt->vlarb_low = "0:0,1:4,2:4,3:4,4:4,5:4,6:4,7:4,8:4,9:4,10:4,11:4,12:4,13:4,14:4";
-  opt->sl2vl = "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,7";
+  opt->max_vls = OSM_DEFAULT_QOS_MAX_VLS;
+  opt->high_limit = OSM_DEFAULT_QOS_HIGH_LIMIT;
+  opt->vlarb_high = OSM_DEFAULT_QOS_VLARB_HIGH;
+  opt->vlarb_low = OSM_DEFAULT_QOS_VLARB_LOW;
+  opt->sl2vl = OSM_DEFAULT_QOS_SL2VL;
 }
 
 /**********************************************************************
