@@ -1,4 +1,4 @@
-                        OpenSM Release Notes 3.0.11
+                        OpenSM Release Notes 3.0.12
                        =============================
 
 Version: OpenFabrics Enterprise Distribution (OFED) 1.2
@@ -11,7 +11,7 @@ Date:    May 2007
 This document describes the contents of the OpenSM OFED 1.2 release. 
 OpenSM is an InfiniBand compliant Subnet Manager and Administration,
 and runs on top of OpenIB. The OpenSM version for this release 
-is openib-3.0.11
+is openib-3.0.12
 
 This document includes the following sections:
 1 This Overview section (describing new features and software
@@ -194,6 +194,12 @@ information regarding each compliance statement.
 
 The following is a list of bugs that were fixed. Note that other less critical
 or visible bugs were also fixed.
+
+* osm_ucast_updn.c: Two similar bugs in up/down routing fixed.
+  8-bit integers were used as indexes when scanning subnet, which
+  in one case caused OpenSM to crash when ranking "path" is longer
+  than 256 switches, and in the other case, caused OpenSM to go into 
+  an infinite loop when fabric has more than 256 roots.
 
 * osm_port_info_rcv.c: In __osm_pi_rcv_process_endport,
   isSMdisabled also indicates that an SM is present so poll SMInfo
