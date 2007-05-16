@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2006-2007 Voltaire, Inc. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -38,7 +38,6 @@
  * Environment:
  *    Linux User Mode
  *
- * $Revision$
  */
 
 #if HAVE_CONFIG_H
@@ -70,6 +69,7 @@ struct part_conf {
 	osm_subn_t *p_subn;
 	osm_prtn_t *p_prtn;
 	unsigned    is_ipoib, mtu, rate, sl, scope;
+	boolean_t   full;
 };
 
 extern osm_prtn_t *osm_prtn_make_new(osm_log_t *p_log, osm_subn_t *p_subn,
@@ -163,6 +163,14 @@ static int partition_add_flag(unsigned lineno, struct part_conf *conf,
 				" - skipped\n", lineno);
 		else
 			conf->sl = sl;
+	} else if (!strncmp(flag, "defmember", len)) {
+		if (!val || (strncmp(val, "limited", strlen(val)) && strncmp(val, "full", strlen(val))))
+			osm_log(conf->p_log, OSM_LOG_VERBOSE,
+				"PARSE WARN: line %d: "
+				"flag \'defmember\' requires valid value (limited or full)"
+				" - skipped\n", lineno);
+		else
+			conf->full = strncmp(val, "full", strlen(val)) == 0;
 	} else {
 			osm_log(conf->p_log, OSM_LOG_VERBOSE,
 					  "PARSE WARN: line %d: "
@@ -177,12 +185,14 @@ static int partition_add_port(unsigned lineno, struct part_conf *conf,
 {
 	osm_prtn_t *p = conf->p_prtn;
 	ib_net64_t guid;
-	boolean_t full = FALSE;
+	boolean_t full = conf->full;
 
 	if (!name || !*name || !strncmp(name, "NONE", strlen(name)))
 		return 0;
 
 	if (flag) {
+		/* reset default membership to limited */
+		full = FALSE;
 		if (!strncmp(flag, "full", strlen(flag)))
 			full = TRUE;
 		else if (strncmp(flag, "limited", strlen(flag))) {
@@ -275,6 +285,7 @@ static struct part_conf *new_part_conf(osm_log_t *p_log, osm_subn_t *p_subn)
 	conf->p_prtn = NULL;
 	conf->is_ipoib = 0;
 	conf->sl = OSM_DEFAULT_SL;
+	conf->full = FALSE;
 	return conf;
 }
 
