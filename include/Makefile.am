@@ -1,7 +1,7 @@
 
 SUBDIRS = .
 
-nobase_pkginclude_HEADERS = iba/ib_types.h
+nobase_pkginclude_HEADERS = iba/ib_types.h iba/ib_cm_types.h
 
 EXTRA_DIST = \
 	$(srcdir)/opensm/osm_version.h \
@@ -128,6 +128,7 @@ EXTRA_DIST = \
 	$(srcdir)/complib/cl_fleximap.h \
 	$(srcdir)/complib/cl_qcomppool.h \
 	$(srcdir)/iba/ib_types.h \
+	$(srcdir)/iba/ib_cm_types.h \
 	$(srcdir)/vendor/osm_vendor_mlx_transport_anafa.h \
 	$(srcdir)/vendor/osm_vendor_mlx.h \
 	$(srcdir)/vendor/osm_vendor_mlx_sender.h \
