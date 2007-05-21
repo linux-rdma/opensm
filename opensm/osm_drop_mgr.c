@@ -242,7 +242,7 @@ __osm_drop_mgr_remove_port(
   {
     p_physp = osm_node_get_physp_ptr( p_port->p_node, (uint8_t)port_num );
 
-    if( p_physp )
+    if( p_physp && osm_physp_is_valid(p_physp) )
     {
       p_remote_physp = osm_physp_get_remote( p_physp );
       if( p_remote_physp && osm_physp_is_valid( p_remote_physp ) )
