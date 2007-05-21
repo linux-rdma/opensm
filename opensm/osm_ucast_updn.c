@@ -93,7 +93,6 @@ struct updn_node {
   osm_switch_t *sw;
   updn_switch_dir_t dir;
   unsigned rank;
-  unsigned is_root;
   unsigned visited;
 };
 
@@ -111,15 +110,13 @@ __updn_get_dir(
   IN unsigned cur_rank,
   IN unsigned rem_rank,
   IN uint64_t cur_guid,
-  IN uint64_t rem_guid,
-  IN unsigned cur_is_root,
-  IN unsigned rem_is_root )
+  IN uint64_t rem_guid )
 {
   /* HACK: comes to solve root nodes connection, in a classic subnet root nodes do not connect
      directly, but in case they are we assign to root node an UP direction to allow UPDN to discover
      the subnet correctly (and not from the point of view of the last root node).
   */
-  if (cur_is_root && rem_is_root)
+  if (!cur_rank && !rem_rank)
     return UP;
 
   if (cur_rank < rem_rank)
@@ -215,8 +212,7 @@ __updn_bfs_by_node(
       rem_u = p_remote_sw->priv;
       /* Decide which direction to mark it (UP/DOWN) */
       next_dir = __updn_get_dir(u->rank, rem_u->rank,
-                                current_guid, remote_guid,
-                                u->is_root, rem_u->is_root);
+                                current_guid, remote_guid);
 
       /* Check if this is a legal step : the only illegal step is going
          from DOWN to UP */
@@ -408,53 +404,48 @@ Exit :
 /*        rank is a SWITCH for BFS purpose */
 static int
 updn_subn_rank(
-  IN uint64_t root_guid,
-  IN uint8_t base_rank,
+  IN unsigned num_guids,
+  IN uint64_t* guid_list,
   IN updn_t* p_updn )
 {
   osm_switch_t *p_sw;
-  uint32_t rank = base_rank;
   osm_physp_t *p_physp, *p_remote_physp;
   cl_qlist_t list;
   cl_status_t did_cause_update;
   struct updn_node *u, *remote_u;
   uint8_t num_ports, port_num;
   osm_log_t *p_log = &p_updn->p_osm->log;
+  unsigned idx = 0;
+  unsigned max_rank = 0;
 
   OSM_LOG_ENTER( p_log, updn_subn_rank );
-
-  p_sw = osm_get_switch_by_guid(&p_updn->p_osm->subn, cl_hton64(root_guid));
-  if(!p_sw)
-  {
-    osm_log( p_log, OSM_LOG_ERROR,
-             "updn_subn_rank: ERR AA05: "
-             "Root switch GUID 0x%" PRIx64 " not found\n", root_guid );
-    OSM_LOG_EXIT( p_log );
-    return 1;
-  }
-
-  osm_log( p_log, OSM_LOG_VERBOSE,
-           "updn_subn_rank: "
-           "Ranking starts from GUID 0x%" PRIx64 "\n", root_guid );
-
-  u = p_sw->priv;
-  u->is_root = 1;
-
-  /* Rank the first guid chosen anyway since it's the base rank */
-  osm_log( p_log, OSM_LOG_DEBUG,
-           "updn_subn_rank: "
-           "Ranking port GUID 0x%" PRIx64 "\n", root_guid );
-
-  __updn_update_rank(u, rank);
-
   cl_qlist_init(&list);
-  cl_qlist_insert_tail(&list, &u->list);
+
+  /* Rank all the roots and add them to list */
+
+  for (idx = 0; idx < num_guids; idx++)
+  {
+    /* Apply the ranking for each guid given by user - bypass illegal ones */
+    p_sw = osm_get_switch_by_guid(&p_updn->p_osm->subn, cl_hton64(guid_list[idx]));
+    if(!p_sw)
+    {
+      osm_log( p_log, OSM_LOG_ERROR,
+               "updn_subn_rank: ERR AA05: "
+               "Root switch GUID 0x%" PRIx64 " not found\n", guid_list[idx] );
+      continue;
+    }
+
+    u = p_sw->priv;
+    osm_log( p_log, OSM_LOG_DEBUG,
+             "updn_subn_rank: "
+             "Ranking root port GUID 0x%" PRIx64 "\n", guid_list[idx] );
+    __updn_update_rank(u, 0);
+    cl_qlist_insert_tail(&list, &u->list);
+  }
 
   /* BFS the list till it's empty */
   while (!cl_is_qlist_empty(&list))
   {
-    rank++;
-
     u = (struct updn_node *)cl_qlist_remove_head(&list);
     /* Go over all remote nodes and rank them (if not already visited) */
     p_sw = u->sw;
@@ -483,7 +474,7 @@ updn_subn_rank(
       {
         remote_u = p_remote_physp->p_node->sw->priv;
         port_guid = p_remote_physp->port_guid;
-        did_cause_update = __updn_update_rank(remote_u, rank);
+        did_cause_update = __updn_update_rank(remote_u, u->rank+1);
 
         osm_log( p_log, OSM_LOG_DEBUG,
                  "updn_subn_rank: "
@@ -492,7 +483,10 @@ updn_subn_rank(
                  remote_u->rank );
 
         if (did_cause_update)
+        {
           cl_qlist_insert_tail(&list, &remote_u->list);
+          max_rank = remote_u->rank;
+        }
       }
     }
   }
@@ -500,8 +494,8 @@ updn_subn_rank(
   /* Print Summary of ranking */
   osm_log( p_log, OSM_LOG_VERBOSE,
            "updn_subn_rank: "
-           "Rank Info :\n\t Root Guid = 0x%" PRIx64 "\n\t Max Node Rank = %d\n",
-           root_guid, rank );
+           "Subnet ranking completed. Max Node Rank = %d\n",
+           max_rank );
   OSM_LOG_EXIT( p_log );
   return 0;
 }
@@ -566,7 +560,6 @@ __osm_subn_calc_up_down_min_hop_table(
   IN uint64_t* guid_list,
   IN updn_t* p_updn )
 {
-  uint32_t idx = 0;
   int status;
 
   OSM_LOG_ENTER( &p_updn->p_osm->log, osm_subn_calc_up_down_min_hop_table );
@@ -593,11 +586,8 @@ __osm_subn_calc_up_down_min_hop_table(
     goto _exit;
   }
 
-  for (idx = 0; idx < num_guids; idx++)
-  {
-    /* Apply the ranking for each guid given by user - bypass illegal ones */
-    updn_subn_rank(guid_list[idx], 0, p_updn);
-  }
+  /* Rank the subnet switches */
+  updn_subn_rank(num_guids, guid_list, p_updn);
 
   /* After multiple ranking need to set Min Hop Table by UpDn algorithm  */
   osm_log( &p_updn->p_osm->log, OSM_LOG_VERBOSE,
