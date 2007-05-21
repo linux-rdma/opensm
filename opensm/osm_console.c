@@ -50,8 +50,10 @@
 #include <unistd.h>
 #include <errno.h>
 #include <ctype.h>
+#include <sys/time.h>
 #include <opensm/osm_console.h>
 #include <opensm/osm_version.h>
+#include <complib/cl_passivelock.h>
 
 struct command {
 	char *name;
@@ -140,6 +142,16 @@ static void help_querylid(FILE *out, int detail)
 {
 	fprintf(out,
 	"querylid lid -- print internal information about the lid specified\n");
+}
+
+static void help_portstatus(FILE *out, int detail)
+{
+	fprintf(out, "portstatus [ca|switch|router]\n");
+	if (detail) {
+		fprintf(out, "summarize port status\n");
+		fprintf(out, "   [ca|switch|router] -- limit the results to the node type specified\n");
+	}
+
 }
 
 /* more help routines go here */
@@ -482,6 +494,242 @@ invalid_lid:
 	return;
 }
 
+/**
+ * Data structures for the portstatus command
+ */
+typedef struct _port_report {
+	struct _port_report *next;
+	uint64_t             node_guid;
+	uint8_t              port_num;
+	char		     print_desc[IB_NODE_DESCRIPTION_SIZE+1];
+} port_report_t;
+
+static void
+__tag_port_report(port_report_t **head, uint64_t node_guid,
+		  uint8_t port_num, char *print_desc)
+{
+	port_report_t *rep = malloc(sizeof(*rep));
+	if (!rep)
+		return;
+
+	rep->node_guid = node_guid;
+	rep->port_num = port_num;
+	memcpy(rep->print_desc, print_desc, IB_NODE_DESCRIPTION_SIZE+1);
+	rep->next = NULL;
+	if (*head) {
+		rep->next = *head;
+		*head = rep;
+	} else
+		*head = rep;
+}
+
+static void
+__print_port_report(FILE *out, port_report_t *head)
+{
+	port_report_t  *item = head;
+	while (item != NULL) {
+		fprintf(out, "      0x%016"PRIx64" %d (%s)\n",
+			item->node_guid, item->port_num, item->print_desc);
+		port_report_t *next = item->next;
+		free(item);
+		item = next;
+	}
+}
+
+typedef struct {
+	uint8_t        node_type_lim; /* limit the results; 0 == ALL */
+	uint64_t       total_nodes;
+	uint64_t       total_ports;
+	uint64_t       ports_down;
+	uint64_t       ports_active;
+	uint64_t       ports_disabled;
+	port_report_t *disabled_ports;
+	uint64_t       ports_1X;
+	uint64_t       ports_4X;
+	uint64_t       ports_8X;
+	uint64_t       ports_12X;
+	uint64_t       ports_unknown_width;
+	uint64_t       ports_reduced_width;
+	port_report_t *reduced_width_ports;
+	uint64_t       ports_sdr;
+	uint64_t       ports_ddr;
+	uint64_t       ports_qdr;
+	uint64_t       ports_unknown_speed;
+	uint64_t       ports_reduced_speed;
+	port_report_t *reduced_speed_ports;
+} fabric_stats_t;
+
+/**
+ * iterator function to get portstatus on each node
+ */
+static void
+__get_stats(cl_map_item_t * const p_map_item, void *context)
+{
+	fabric_stats_t *fs = (fabric_stats_t *)context;
+	osm_node_t     *node = (osm_node_t *)p_map_item;
+	uint8_t         num_ports = osm_node_get_num_physp(node);
+	uint8_t         port = 0;
+
+	/* Skip nodes we are not interested in */
+	if (fs->node_type_lim != 0
+		&& fs->node_type_lim != node->node_info.node_type)
+		return;
+
+	fs->total_nodes++;
+
+	for (port = 1; port < num_ports; port++) {
+		osm_physp_t    *phys = osm_node_get_physp_ptr(node, port);
+		ib_port_info_t *pi = &(phys->port_info);
+
+		uint8_t         active_speed = ib_port_info_get_link_speed_active(pi);
+		uint8_t         enabled_speed = ib_port_info_get_link_speed_enabled(pi);
+		uint8_t         active_width = pi->link_width_active;
+		uint8_t         enabled_width = pi->link_width_enabled;
+		uint8_t         port_state = ib_port_info_get_port_state(pi);
+		uint8_t         port_phys_state = ib_port_info_get_port_phys_state(pi);
+
+		if ((enabled_width ^ active_width) > active_width) {
+			__tag_port_report(&(fs->reduced_width_ports),
+					  cl_ntoh64(node->node_info.node_guid),
+					  port,
+					  node->print_desc);
+			fs->ports_reduced_width++;
+		}
+
+		if ((enabled_speed ^ active_speed) > active_speed) {
+			__tag_port_report(&(fs->reduced_speed_ports),
+					  cl_ntoh64(node->node_info.node_guid),
+					  port,
+					  node->print_desc);
+			fs->ports_reduced_speed++;
+		}
+
+		switch(active_speed) {
+			case IB_LINK_SPEED_ACTIVE_2_5:
+				fs->ports_sdr++;
+				break;
+			case IB_LINK_SPEED_ACTIVE_5:
+				fs->ports_ddr++;
+				break;
+			case IB_LINK_SPEED_ACTIVE_10:
+				fs->ports_qdr++;
+				break;
+			default:
+				fs->ports_unknown_speed++;
+				break;
+		}
+		switch(active_width) {
+			case IB_LINK_WIDTH_ACTIVE_1X:
+				fs->ports_1X++;
+				break;
+			case IB_LINK_WIDTH_ACTIVE_4X:
+				fs->ports_4X++;
+				break;
+			case IB_LINK_WIDTH_ACTIVE_8X:
+				fs->ports_8X++;
+				break;
+			case IB_LINK_WIDTH_ACTIVE_12X:
+				fs->ports_12X++;
+				break;
+			default:
+				fs->ports_unknown_width++;
+				break;
+		}
+		if (port_state == IB_LINK_DOWN)
+			fs->ports_down++;
+		else if (port_state == IB_LINK_ACTIVE)
+			fs->ports_active++;
+		if (port_phys_state == IB_PORT_PHYS_STATE_DISABLED) {
+			__tag_port_report(&(fs->disabled_ports),
+					  cl_ntoh64(node->node_info.node_guid),
+					  port,
+					  node->print_desc);
+			fs->ports_disabled++;
+		}
+
+		fs->total_ports++;
+	}
+}
+
+static void portstatus_parse(char **p_last, osm_opensm_t *p_osm, FILE *out)
+{
+	fabric_stats_t  fs;
+	struct timeval  before, after;
+	char           *p_cmd;
+
+	memset(&fs, 0, sizeof(fs));
+
+	p_cmd = next_token(p_last);
+	if (p_cmd) {
+		if (strcmp(p_cmd, "ca") == 0) {
+			fs.node_type_lim = IB_NODE_TYPE_CA;
+		} else if (strcmp(p_cmd, "switch") == 0) {
+			fs.node_type_lim = IB_NODE_TYPE_SWITCH;
+		} else if (strcmp(p_cmd, "router") == 0) {
+			fs.node_type_lim = IB_NODE_TYPE_ROUTER;
+		} else {
+			fprintf(out, "Node type not understood\n");
+			help_portstatus(out, 1);
+			return;
+		}
+	}
+
+	gettimeofday(&before, NULL);
+
+	/* for each node in the system gather the stats */
+	cl_plock_acquire(&p_osm->lock);
+	cl_qmap_apply_func(&(p_osm->subn.node_guid_tbl), __get_stats, (void *)&fs);
+	cl_plock_release(&p_osm->lock);
+
+	gettimeofday(&after, NULL);
+
+	/* report the stats */
+	fprintf(out, "\"%s\" port status:\n",
+		fs.node_type_lim ?  ib_get_node_type_str(fs.node_type_lim) : "ALL");
+	fprintf(out, "   %"PRIu64" port(s) scanned on %"PRIu64" nodes in %lu us\n",
+		fs.total_ports, fs.total_nodes, after.tv_usec - before.tv_usec);
+
+	if (fs.ports_down)
+		fprintf(out, "   %"PRIu64" down\n", fs.ports_down);
+	if (fs.ports_active)
+		fprintf(out, "   %"PRIu64" active\n", fs.ports_active);
+	if (fs.ports_1X)
+		fprintf(out, "   %"PRIu64" at 1X\n", fs.ports_1X);
+	if (fs.ports_4X)
+		fprintf(out, "   %"PRIu64" at 4X\n", fs.ports_4X);
+	if (fs.ports_8X)
+		fprintf(out, "   %"PRIu64" at 8X\n", fs.ports_8X);
+	if (fs.ports_12X)
+		fprintf(out, "   %"PRIu64" at 12X\n", fs.ports_12X);
+
+	if (fs.ports_sdr)
+		fprintf(out, "   %"PRIu64" at 2.5 Gbps\n", fs.ports_sdr);
+	if (fs.ports_ddr)
+		fprintf(out, "   %"PRIu64" at 5.0 Gbps\n", fs.ports_ddr);
+	if (fs.ports_qdr)
+		fprintf(out, "   %"PRIu64" at 10.0 Gbps\n", fs.ports_qdr);
+
+	if (fs.ports_disabled + fs.ports_reduced_speed + fs.ports_reduced_width
+			> 0) {
+		fprintf(out, "\nPossible issues:\n");
+	}
+	if (fs.ports_disabled) {
+		fprintf(out, "   %"PRIu64" disabled\n", fs.ports_disabled);
+		__print_port_report(out, fs.disabled_ports);
+	}
+	if (fs.ports_reduced_speed) {
+		fprintf(out, "   %"PRIu64" with reduced speed\n",
+			fs.ports_reduced_speed);
+		__print_port_report(out, fs.reduced_speed_ports);
+	}
+	if (fs.ports_reduced_width) {
+		fprintf(out, "   %"PRIu64" with reduced width\n",
+			fs.ports_reduced_width);
+		__print_port_report(out, fs.reduced_width_ports);
+	}
+	fprintf(out, "\n");
+}
+
 /* This is public to be able to close it on exit */
 void osm_console_close_socket(osm_opensm_t *p_osm)
 {
@@ -512,6 +760,7 @@ static const struct command console_cmds[] =
 	{ "status",	&help_status,		&status_parse},
 	{ "logflush",	&help_logflush,		&logflush_parse},
 	{ "querylid",   &help_querylid,         &querylid_parse},
+	{ "portstatus", &help_portstatus,       &portstatus_parse},
 	{ NULL,		NULL,			NULL}	/* end of array */
 };
 
