@@ -457,7 +457,9 @@ static void querylid_parse(char **p_last, osm_opensm_t *p_osm, FILE *out)
 		help_querylid(out, 1);
 		return;
 	}
+
 	lid = (uint16_t)strtoul(p_cmd, NULL, 0);
+	cl_plock_acquire(&p_osm->lock);
 	if (lid > cl_ptr_vector_get_capacity(&(p_osm->subn.port_lid_tbl)))
 		goto invalid_lid;
 	p_port = cl_ptr_vector_get(&(p_osm->subn.port_lid_tbl), lid);
@@ -487,9 +489,12 @@ static void querylid_parse(char **p_last, osm_opensm_t *p_osm, FILE *out)
 			p_port->p_node->physp_table[p].healthy ? "OK" : "ERROR"
 		       );
 	}
+
+	cl_plock_release(&p_osm->lock);
 	return;
 
 invalid_lid:
+	cl_plock_release(&p_osm->lock);
 	fprintf(out, "Invalid lid %d\n", lid);
 	return;
 }
