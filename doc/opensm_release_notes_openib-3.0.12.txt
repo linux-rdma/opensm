@@ -201,9 +201,6 @@ or visible bugs were also fixed.
   than 256 switches, and in the other case, caused OpenSM to go into 
   an infinite loop when fabric has more than 256 roots.
 
-* osm_port_info_rcv.c: In __osm_pi_rcv_process_endport,
-  isSMdisabled also indicates that an SM is present so poll SMInfo
-
 * osm_sm_state_mgr.c: In __osm_sm_state_mgr_send_master_sm_info_req, 
   handle master GUID port not found properly
 
