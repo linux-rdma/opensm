@@ -33,7 +33,6 @@
  *
  */
 
-
 /*
  * Abstract:
  * Implementation of the P_Key Manager (Partititon Manager).

@@ -33,7 +33,6 @@
  *
  */
 
-
 /*
  * Abstract:
  *    Implementation of opensm pkey manipulation functions.
