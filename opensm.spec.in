@@ -104,7 +104,7 @@ fi
 %files
 %defattr(-,root,root,-)
 %{_sbindir}/opensm
-%{_bindir}/osmtest
+%{_sbindir}/osmtest
 %{_mandir}/man8/*
 %doc AUTHORS COPYING README
 %{_sysconfdir}/init.d/opensm
