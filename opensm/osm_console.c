@@ -374,18 +374,18 @@ static void print_status(osm_opensm_t *p_osm, FILE *out)
 			     "   QP0 MADS rcvd                  : %d\n"
 			     "   QP0 MADS sent                  : %d\n"
 			     "   QP0 unicasts sent              : %d\n"
-			     "   QP1 MADS outstanding           : %d\n"
-			     "   QP1 MADS rcvd                  : %d\n"
-			     "   QP1 MADS sent                  : %d\n"
+			     "   SA MADS outstanding            : %d\n"
+			     "   SA MADS rcvd                   : %d\n"
+			     "   SA MADS sent                   : %d\n"
 			     ,
 			p_osm->stats.qp0_mads_outstanding,
 			p_osm->stats.qp0_mads_outstanding_on_wire,
 			p_osm->stats.qp0_mads_rcvd,
 			p_osm->stats.qp0_mads_sent,
 			p_osm->stats.qp0_unicasts_sent,
-			p_osm->stats.qp1_mads_outstanding,
-			p_osm->stats.qp1_mads_rcvd,
-			p_osm->stats.qp1_mads_sent
+			p_osm->stats.sa_mads_outstanding,
+			p_osm->stats.sa_mads_rcvd,
+			p_osm->stats.sa_mads_sent
 			);
 		fprintf(out, "\n   Subnet flags\n"
 			     "   ------------\n"

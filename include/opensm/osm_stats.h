@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004, 2005 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -90,9 +90,9 @@ typedef struct _osm_stats
 	atomic32_t					qp0_mads_rcvd;
 	atomic32_t					qp0_mads_sent;
 	atomic32_t					qp0_unicasts_sent;
-	atomic32_t					qp1_mads_outstanding;
-	atomic32_t					qp1_mads_rcvd;
-	atomic32_t					qp1_mads_sent;
+	atomic32_t					sa_mads_outstanding;
+	atomic32_t					sa_mads_rcvd;
+	atomic32_t					sa_mads_sent;
 
 } osm_stats_t;
 /*

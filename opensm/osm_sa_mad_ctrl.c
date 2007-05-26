@@ -310,14 +310,14 @@ __osm_sa_mad_ctrl_rcv_callback(
   /*
     A MAD was received from the wire, possibly in response to a request.
   */
-  cl_atomic_inc( &p_ctrl->p_stats->qp1_mads_rcvd );
+  cl_atomic_inc( &p_ctrl->p_stats->sa_mads_rcvd );
 
   if( osm_log_is_active( p_ctrl->p_log, OSM_LOG_DEBUG ) )
   {
     osm_log( p_ctrl->p_log, OSM_LOG_DEBUG,
              "__osm_sa_mad_ctrl_rcv_callback: "
-             "%u QP1 MADs received\n",
-             p_ctrl->p_stats->qp1_mads_rcvd );
+             "%u SA MADs received\n",
+             p_ctrl->p_stats->sa_mads_rcvd );
   }
 
   /*
