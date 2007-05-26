@@ -30,11 +30,14 @@ AM_CONDITIONAL(DEBUG, test x$debug = xtrue)
 dnl check if they want the socket console
 OPENIB_OSM_CONSOLE_SOCKET_SEL
 
+dnl select performance manager or not
+OPENIB_OSM_PERF_MGR_SEL
+
 dnl Provide user option to select vendor
 OPENIB_APP_OSMV_SEL
 
 dnl Configure the following subdirs
-AC_CONFIG_SUBDIRS(complib libvendor opensm osmtest include)
+AC_CONFIG_SUBDIRS(complib libvendor opensm osmtest include eventdb)
 
 dnl Create the following Makefiles
 AC_OUTPUT(Makefile)

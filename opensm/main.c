@@ -59,6 +59,7 @@
 #include <opensm/osm_version.h>
 #include <opensm/osm_opensm.h>
 #include <opensm/osm_console.h>
+#include <opensm/osm_perfmgr.h>
 
 volatile unsigned int osm_exit_flag = 0;
 
@@ -906,6 +907,15 @@ main(
       opt.sm_inactive = TRUE;
       printf(" SM started in inactive state\n");
       break;
+
+#ifdef ENABLE_OSM_PERF_MGR
+    case 1:
+      opt.perfmgr = TRUE;
+      break;
+    case 2:
+      opt.perfmgr_sweep_time_s = atoi(optarg);
+      break;
+#endif /* ENABLE_OSM_PERF_MGR */
 
     case 'h':
     case '?':

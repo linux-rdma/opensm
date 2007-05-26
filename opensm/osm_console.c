@@ -54,6 +54,7 @@
 #include <opensm/osm_console.h>
 #include <opensm/osm_version.h>
 #include <complib/cl_passivelock.h>
+#include <opensm/osm_perfmgr.h>
 
 struct command {
 	char *name;
@@ -153,6 +154,20 @@ static void help_portstatus(FILE *out, int detail)
 	}
 
 }
+
+#ifdef ENABLE_OSM_PERF_MGR
+static void help_perfmgr(FILE *out, int detail)
+{
+	fprintf(out, "perfmgr [enable|disable|clear_counters|dump_counters|sweep_time][seconds]\n");
+	if (detail) {
+		fprintf(out, "perfmgr -- print the performance manager state\n");
+		fprintf(out, "   [enable|disable] -- change the perfmgr state\n");
+		fprintf(out, "   [sweep_time] -- change the perfmgr sweep time (requires [seconds] option)\n");
+		fprintf(out, "   [clear_counters] -- clear the counters stored\n");
+		fprintf(out, "   [dump_counters [mach]] -- dump the counters\n");
+	}
+}
+#endif /* ENABLE_OSM_PERF_MGR */
 
 /* more help routines go here */
 
@@ -735,6 +750,66 @@ static void portstatus_parse(char **p_last, osm_opensm_t *p_osm, FILE *out)
 	fprintf(out, "\n");
 }
 
+#ifdef ENABLE_OSM_PERF_MGR
+static void perfmgr_parse(char **p_last, osm_opensm_t *p_osm, FILE *out)
+{
+	char *p_cmd;
+
+	p_cmd = next_token(p_last);
+	if (p_cmd)
+	{
+	   if (strcmp(p_cmd, "enable") == 0)
+	   {
+		   osm_perfmgr_set_state(&(p_osm->perfmgr), PERFMGR_STATE_ENABLED);
+	   }
+	   else if (strcmp(p_cmd, "disable") == 0)
+	   {
+		   osm_perfmgr_set_state(&(p_osm->perfmgr), PERFMGR_STATE_DISABLE);
+	   }
+	   else if (strcmp(p_cmd, "clear_counters") == 0)
+	   {
+		   osm_perfmgr_clear_counters(&(p_osm->perfmgr));
+	   }
+	   else if (strcmp(p_cmd, "dump_counters") == 0)
+	   {
+		p_cmd = next_token(p_last);
+		if (p_cmd && (strcmp(p_cmd, "mach") == 0)) {
+			osm_perfmgr_dump_counters(&(p_osm->perfmgr),
+					PERFMGR_EVENT_DB_DUMP_MR);
+		} else {
+			osm_perfmgr_dump_counters(&(p_osm->perfmgr),
+					PERFMGR_EVENT_DB_DUMP_HR);
+		}
+	   }
+	   else if (strcmp(p_cmd, "sweep_time") == 0)
+	   {
+		p_cmd = next_token(p_last);
+		if (p_cmd)
+		{
+			uint16_t time_s = atoi(p_cmd);
+			osm_perfmgr_set_sweep_time_s(&(p_osm->perfmgr), time_s);
+		}
+		else
+		{
+			fprintf(out, "sweep_time requires a time period (in seconds) to be specified\n");
+		}
+	   }
+	   else
+	   {
+		fprintf(out, "\"%s\" option not found\n", p_cmd);
+	   }
+	} else {
+		fprintf(out, "Performance Manager status:\n"
+			     "state      : %s\n"
+		             "sweep time : %us\n"
+		        ,
+			osm_perfmgr_get_state_str(&(p_osm->perfmgr)),
+			osm_perfmgr_get_sweep_time_s(&(p_osm->perfmgr))
+			);
+	}
+}
+#endif /* ENABLE_OSM_PERF_MGR */
+
 /* This is public to be able to close it on exit */
 void osm_console_close_socket(osm_opensm_t *p_osm)
 {
@@ -766,6 +841,9 @@ static const struct command console_cmds[] =
 	{ "logflush",	&help_logflush,		&logflush_parse},
 	{ "querylid",   &help_querylid,         &querylid_parse},
 	{ "portstatus", &help_portstatus,       &portstatus_parse},
+#ifdef ENABLE_OSM_PERF_MGR
+	{ "perfmgr",    &help_perfmgr,          &perfmgr_parse},
+#endif /* ENABLE_OSM_PERF_MGR */	
 	{ NULL,		NULL,			NULL}	/* end of array */
 };
 

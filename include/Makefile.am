@@ -87,6 +87,8 @@ EXTRA_DIST = \
 	$(srcdir)/opensm/osm_drop_mgr.h \
 	$(srcdir)/opensm/osm_port_info_rcv.h \
 	$(srcdir)/opensm/osm_state_mgr_ctrl.h \
+	$(srcdir)/opensm/osm_perfmgr.h \
+	$(srcdir)/opensm/osm_event_db.h \
 	$(srcdir)/complib/cl_thread_osd.h \
 	$(srcdir)/complib/cl_packon.h \
 	$(srcdir)/complib/cl_atomic_osd.h \

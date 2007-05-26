@@ -1,6 +1,7 @@
 
 # note that order matters: make the libs first then use them 
-SUBDIRS 		= complib libvendor opensm osmtest include
+SUBDIRS 		= complib libvendor opensm osmtest include $(EVENTDB)
+DIST_SUBDIRS = complib libvendor opensm osmtest include eventdb
 
 # this will control the update of the files in order
 MAINTAINERCLEANFILES = Makefile.in aclocal.m4 configure config-h.in 

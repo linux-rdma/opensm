@@ -448,6 +448,29 @@ BEGIN_C_DECLS
 */
 #define OSM_SM_DEFAULT_QP1_SEND_SIZE 256
 
+/****d* OpenSM: Base/OSM_PM_DEFAULT_QP1_RCV_SIZE
+* NAME
+*   OSM_PM_DEFAULT_QP1_RCV_SIZE
+*
+* DESCRIPTION
+*   Specifies the default size (in MADs) of the QP1 receive queue
+*
+* SYNOPSIS
+*/
+#define OSM_PM_DEFAULT_QP1_RCV_SIZE 256
+/***********/
+
+/****d* OpenSM: Base/OSM_PM_DEFAULT_QP1_SEND_SIZE
+* NAME
+*   OSM_PM_DEFAULT_QP1_SEND_SIZE
+*
+* DESCRIPTION
+*   Specifies the default size (in MADs) of the QP1 send queue
+*
+* SYNOPSIS
+*/
+#define OSM_PM_DEFAULT_QP1_SEND_SIZE 256
+
 
 /****d* OpenSM: Base/OSM_SM_DEFAULT_POLLING_TIMEOUT_MILLISECS
 * NAME

@@ -1,0 +1,5 @@
+OSMPMDB_1.0 {
+	global:
+	perfmgr_event_db;
+	local: *;
+};

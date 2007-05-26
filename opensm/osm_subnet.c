@@ -67,6 +67,7 @@
 #include <opensm/osm_multicast.h>
 #include <opensm/osm_inform.h>
 #include <opensm/osm_console.h>
+#include <opensm/osm_perfmgr.h>
 
 #if defined(PATH_MAX)
 #define OSM_PATH_MAX	(PATH_MAX + 1)
@@ -470,6 +471,12 @@ osm_subn_set_default_opt(
   p_opt->honor_guid2lid_file = FALSE;
   p_opt->daemon = FALSE;
   p_opt->sm_inactive = FALSE;
+#ifdef ENABLE_OSM_PERF_MGR
+  p_opt->perfmgr = FALSE;
+  p_opt->perfmgr_sweep_time_s = OSM_PERFMGR_DEFAULT_SWEEP_TIME_S;
+  p_opt->event_db_dump_file = OSM_PERFMGR_DEFAULT_DUMP_FILE;
+  p_opt->event_db_plugin = OSM_DEFAULT_EVENT_PLUGIN;
+#endif /* ENABLE_OSM_PERF_MGR */
 
   p_opt->dump_files_dir = getenv("OSM_TMP_DIR");
   if (!p_opt->dump_files_dir || !(*p_opt->dump_files_dir))
@@ -1074,6 +1081,17 @@ osm_subn_verify_conf_file(
     osm_subn_verify_sl2vl(p_opts->qos_rtr_options.sl2vl, 
                           "qos_rtr_sl2vl");
   }
+#ifdef ENABLE_OSM_PERF_MGR
+  if (p_opts->perfmgr_sweep_time_s < 1)
+  {
+    sprintf(buff, " Invalid Cached Option Value:perfmgr_sweep_time_s = %u"
+            "Using Default:%u\n",
+            p_opts->perfmgr_sweep_time_s, OSM_PERFMGR_DEFAULT_SWEEP_TIME_S);
+    printf(buff);
+    cl_log_event("OpenSM", CL_LOG_INFO, buff, NULL, 0);
+    p_opts->perfmgr_sweep_time_s = OSM_PERFMGR_DEFAULT_SWEEP_TIME_S;
+  }
+#endif
 }
 
 /**********************************************************************
@@ -1314,6 +1332,24 @@ osm_subn_parse_conf_file(
       __osm_subn_opts_unpack_boolean(
         "sm_inactive",
         p_key, p_val, &p_opts->sm_inactive);
+
+#ifdef ENABLE_OSM_PERF_MGR
+      __osm_subn_opts_unpack_boolean(
+        "perfmgr",
+        p_key, p_val, &p_opts->perfmgr);
+
+      __osm_subn_opts_unpack_uint16(
+        "perfmgr_sweep_time_s",
+        p_key, p_val, &p_opts->perfmgr_sweep_time_s);
+
+      __osm_subn_opts_unpack_charp(
+        "event_db_dump_file",
+        p_key, p_val, &p_opts->event_db_dump_file);
+
+      __osm_subn_opts_unpack_charp(
+        "event_db_plugin",
+        p_key, p_val, &p_opts->event_db_plugin);
+#endif /* ENABLE_OSM_PERF_MGR */
 
       subn_parse_qos_options("qos",
         p_key, p_val, &p_opts->qos_options);
@@ -1559,6 +1595,32 @@ osm_subn_write_conf_file(
     p_opts->daemon ? "TRUE" : "FALSE",
     p_opts->sm_inactive ? "TRUE" : "FALSE"
     );
+
+#ifdef ENABLE_OSM_PERF_MGR
+  fprintf(
+    opts_file,
+    "#\n# Performance Manager Options\n#\n"
+    "# perfmgr enable\n"
+    "perfmgr %s\n\n"
+    "# sweep time in seconds\n"
+    "perfmgr_sweep_time_s %d\n\n"
+    ,
+    p_opts->perfmgr ? "TRUE" : "FALSE",
+    p_opts->perfmgr_sweep_time_s
+    );
+
+  fprintf(
+    opts_file,
+    "#\n# Event DB Options\n#\n"
+    "# Dump file to dump the events to\n"
+    "event_db_dump_file %s\n\n"
+    "# Event db plugin\n"
+    "event_db_plugin %s\n\n"
+    ,
+    p_opts->event_db_dump_file,
+    p_opts->event_db_plugin
+    );
+#endif /* ENABLE_OSM_PERF_MGR */
 
   fprintf( 
     opts_file,

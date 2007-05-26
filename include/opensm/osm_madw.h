@@ -315,6 +315,19 @@ typedef struct _osm_vla_context
 } osm_vla_context_t;
 /*********/
 
+/****s* OpenSM: MAD Wrapper/osm_perfmgr_context_t
+* DESCRIPTION
+*	Context for Performance manager queries
+*/
+typedef struct _osm_perfmgr_context {
+  uint64_t node_guid;
+  uint16_t port;
+  uint8_t num_ports;
+  uint8_t mad_method; /* was this a get or a set */
+  struct timeval query_start;
+} osm_perfmgr_context_t;
+/*********/
+
 #ifndef OSM_VENDOR_INTF_OPENIB
 /****s* OpenSM: MAD Wrapper/osm_arbitrary_context_t
 * NAME
@@ -354,6 +367,7 @@ typedef union _osm_madw_context
 	osm_slvl_context_t	slvl_context;
 	osm_pkey_context_t	pkey_context;
 	osm_vla_context_t	vla_context;
+	osm_perfmgr_context_t	perfmgr_context;
 #ifndef OSM_VENDOR_INTF_OPENIB
 	osm_arbitrary_context_t arb_context;
 #endif
@@ -632,6 +646,32 @@ osm_madw_get_sa_mad_ptr(
 *
 * RETURN VALUES
 *	Pointer to the start of the SA MAD.
+*
+* NOTES
+*
+* SEE ALSO
+*	MAD Wrapper object, osm_madw_construct, osm_madw_destroy
+*********/
+
+/****f* OpenSM: MAD Wrapper/osm_madw_get_perfmgr_mad_ptr
+* DESCRIPTION
+*	Gets a pointer to the PerfMgr MAD in this MAD wrapper.
+*
+* SYNOPSIS
+*/
+static inline ib_perfmgr_mad_t*
+osm_madw_get_perfmgr_mad_ptr(
+	IN const osm_madw_t* const p_madw )
+{
+	return((ib_perfmgr_mad_t*)p_madw->p_mad);
+}
+/*
+* PARAMETERS
+*	p_madw
+*		[in] Pointer to an osm_madw_t object.
+*
+* RETURN VALUES
+*	Pointer to the start of the PM MAD.
 *
 * NOTES
 *

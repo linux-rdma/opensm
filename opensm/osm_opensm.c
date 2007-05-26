@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2006 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -147,6 +147,11 @@ osm_opensm_destroy(
    if( p_osm->sm.mad_ctrl.h_bind )
       osm_vendor_set_sm( p_osm->sm.mad_ctrl.h_bind, FALSE );
 
+#ifdef ENABLE_OSM_PERF_MGR
+   /* Shutdown the PerfMgr */
+   osm_perfmgr_shutdown(&p_osm->perfmgr);
+#endif /* ENABLE_OSM_PERF_MGR */
+
    /* shut down the SA
     * - unbind from QP1 messages
     */
@@ -172,6 +177,9 @@ osm_opensm_destroy(
      p_osm->routing_engine.delete(p_osm->routing_engine.context);
    osm_sa_destroy( &p_osm->sa );
    osm_sm_destroy( &p_osm->sm );
+#ifdef ENABLE_OSM_PERF_MGR
+   osm_perfmgr_destroy( &p_osm->perfmgr );
+#endif /* ENABLE_OSM_PERF_MGR */
    osm_db_destroy( &p_osm->db );
    osm_vl15_destroy( &p_osm->vl15, &p_osm->mad_pool );
    osm_mad_pool_destroy( &p_osm->mad_pool );
@@ -286,6 +294,21 @@ osm_opensm_init(
    if( status != IB_SUCCESS )
       goto Exit;
 
+#ifdef ENABLE_OSM_PERF_MGR
+   status = osm_perfmgr_init( &p_osm->perfmgr,
+                         &p_osm->subn,
+			 &p_osm->sm,
+                         &p_osm->log,
+			 &p_osm->mad_pool,
+			 p_osm->p_vendor,
+			 &p_osm->disp,
+			 &p_osm->lock,
+			 p_opt);
+
+   if( status != IB_SUCCESS )
+      goto Exit;
+#endif /* ENABLE_OSM_PERF_MGR */
+
    if( p_opt->routing_engine_name &&
        setup_routing_engine(p_osm, p_opt->routing_engine_name)) {
       osm_log( &p_osm->log, OSM_LOG_VERBOSE,
@@ -318,6 +341,12 @@ osm_opensm_bind(
    status = osm_sa_bind( &p_osm->sa, guid );
    if( status != IB_SUCCESS )
       goto Exit;
+
+#ifdef ENABLE_OSM_PERF_MGR
+   status = osm_perfmgr_bind( &p_osm->perfmgr, guid );
+   if( status != IB_SUCCESS )
+      goto Exit;
+#endif /* ENABLE_OSM_PERF_MGR */
 
  Exit:
    OSM_LOG_EXIT( &p_osm->log );

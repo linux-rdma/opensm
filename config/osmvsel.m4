@@ -203,3 +203,28 @@ fi
 # --- END OPENIB_OSM_CONSOLE_SOCKET_SEL ---
 ]) dnl OPENIB_OSM_CONSOLE_SOCKET_SEL
 
+dnl Check if they want the PerfMgr
+AC_DEFUN([OPENIB_OSM_PERF_MGR_SEL], [
+# --- BEGIN OPENIB_OSM_PERF_MGR_SEL ---
+
+dnl enable the perf-mgr
+AC_ARG_ENABLE(perf-mgr,
+[  --enable-perf-mgr Enable the performance manager (default no)],
+   [case $enableval in
+     yes) perf_mgr=yes ;;
+     no)  perf_mgr=no ;;
+   esac],
+   perf_mgr=no)
+if test $perf_mgr = yes; then
+  AC_DEFINE(ENABLE_OSM_PERF_MGR,
+	    1,
+	    [Define as 1 if you want to enable the performance manager])
+  EVENTDB=eventdb
+else
+  EVENTDB=
+fi
+AC_SUBST([EVENTDB])
+
+# --- END OPENIB_OSM_PERF_MGR_SEL ---
+]) dnl OPENIB_OSM_PERF_MGR_SEL
+

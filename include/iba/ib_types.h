@@ -7352,6 +7352,199 @@ typedef struct _ib_inform_info_record
 }	PACK_SUFFIX ib_inform_info_record_t;
 #include <complib/cl_packoff.h>
 
+/****s* IBA Base: Types/ib_perfmgr_mad_t
+* NAME
+*	ib_perfmgr_mad_t
+*
+* DESCRIPTION
+*	IBA defined Perf Management MAD (16.3.1)
+*
+* SYNOPSIS
+*/
+#include <complib/cl_packon.h>
+typedef struct _ib_perfmgr_mad
+{
+	ib_mad_t		header;
+	uint8_t			resv[40];
+
+#define	IB_PM_DATA_SIZE		192
+	uint8_t			data[IB_PM_DATA_SIZE];
+
+}	PACK_SUFFIX ib_perfmgr_mad_t;
+#include <complib/cl_packoff.h>
+/*
+* FIELDS
+*	header
+*		Common MAD header.
+*
+*	resv
+*		Reserved.
+*
+*	data
+*		Performance Management payload.  The structure and content of this field
+*		depend upon the method, attr_id, and attr_mod fields in the header.
+*
+* SEE ALSO
+* ib_mad_t
+*********/
+
+/****s* IBA Base: Types/ib_port_counters
+* NAME
+*	ib_port_counters_t
+*
+* DESCRIPTION
+*	IBA defined PortCounters Attribute. (16.1.3.5)
+*
+* SYNOPSIS
+*/
+#include <complib/cl_packon.h>
+typedef struct _ib_port_counters
+{
+	uint8_t 			reserved;
+	uint8_t                         port_select;
+	ib_net16_t                      counter_select;
+	ib_net16_t                      symbol_err_cnt;
+	uint8_t                         link_err_recover;
+	uint8_t                         link_downed;
+	ib_net16_t                      rcv_err;
+	ib_net16_t                      rcv_rem_phys_err;
+	ib_net16_t                      rcv_switch_relay_err;
+	ib_net16_t                      xmit_discards;
+	uint8_t                         xmit_constraint_err;
+	uint8_t                         rcv_constraint_err;
+	uint8_t                         res1;
+	uint8_t                         link_int_buffer_overrun;
+	ib_net16_t                      res2;
+	ib_net16_t                      vl15_dropped;
+	ib_net32_t                      xmit_data;
+	ib_net32_t                      rcv_data;
+	ib_net32_t                      xmit_pkts;
+	ib_net32_t                      rcv_pkts;
+}	PACK_SUFFIX ib_port_counters_t;
+#include <complib/cl_packoff.h>
+
+#define PC_LINK_INT(integ_buf_over) ((integ_buf_over & 0xF0) >> 4)
+#define PC_BUF_OVERRUN(integ_buf_over) (integ_buf_over & 0x0F)
+
+/****s* IBA Base: Types/ib_port_counters_ext
+* NAME
+*	ib_port_counters_ext_t
+*
+* DESCRIPTION
+*	IBA defined PortCounters Extended Attribute. (16.1.4.11)
+*
+* SYNOPSIS
+*/
+#include <complib/cl_packon.h>
+typedef struct _ib_port_counters_ext
+{
+	uint8_t     reserved;
+	uint8_t     port_select;
+	ib_net16_t  counter_select;
+	ib_net32_t  reserved2;
+	ib_net64_t  xmit_data;
+	ib_net64_t  rcv_data;
+	ib_net64_t  xmit_pkts;
+	ib_net64_t  rcv_pkts;
+	ib_net64_t  unicast_xmit_pkts;
+	ib_net64_t  unicast_rcv_pkts;
+	ib_net64_t  multicast_xmit_pkts;
+	ib_net64_t  multicast_rcv_pkts;
+}	PACK_SUFFIX ib_port_counters_ext_t;
+#include <complib/cl_packoff.h>
+
+/****s* IBA Base: Types/ib_port_samples_control
+* NAME
+*	ib_port_samples_control_t
+*
+* DESCRIPTION
+*	IBA defined PortSamplesControl Attribute. (16.1.3.2)
+*
+* SYNOPSIS
+*/
+#include <complib/cl_packon.h>
+typedef struct _ib_port_samples_control
+{
+	uint8_t    op_code;
+	uint8_t    port_select;
+	uint8_t    tick;
+	uint8_t    counter_width;       /* 5 bits res : 3bits counter_width */
+	ib_net32_t counter_mask;        /* 2 bits res : 3 bits counter_mask : 27 bits counter_masks_1to9 */
+	ib_net16_t counter_mask_10to14; /* 1 bits res : 15 bits counter_masks_10to14 */
+	uint8_t    sample_mech;
+	uint8_t    sample_status;       /* 6 bits res : 2 bits sample_status */
+	ib_net64_t option_mask;
+	ib_net64_t vendor_mask;
+	ib_net32_t sample_start;
+	ib_net32_t sample_interval;
+	ib_net16_t tag;
+	ib_net16_t counter_select0;
+	ib_net16_t counter_select1;
+	ib_net16_t counter_select2;
+	ib_net16_t counter_select3;
+	ib_net16_t counter_select4;
+	ib_net16_t counter_select5;
+	ib_net16_t counter_select6;
+	ib_net16_t counter_select7;
+	ib_net16_t counter_select8;
+	ib_net16_t counter_select9;
+	ib_net16_t counter_select10;
+	ib_net16_t counter_select11;
+	ib_net16_t counter_select12;
+	ib_net16_t counter_select13;
+	ib_net16_t counter_select14;
+} PACK_SUFFIX ib_port_samples_control_t;
+#include <complib/cl_packoff.h>
+
+/****d* IBA Base: Types/CounterSelect values
+* NAME
+*       Counter select values
+*
+* DESCRIPTION
+*	Mandatory counter select values (16.1.3.3)
+*
+* SYNOPSIS
+*/
+#define IB_CS_PORT_XMIT_DATA (CL_HTON16(0x0001))
+#define IB_CS_PORT_RCV_DATA  (CL_HTON16(0x0002))
+#define IB_CS_PORT_XMIT_PKTS (CL_HTON16(0x0003))
+#define IB_CS_PORT_RCV_PKTS  (CL_HTON16(0x0004))
+#define IB_CS_PORT_XMIT_WAIT (CL_HTON16(0x0005))
+
+/****s* IBA Base: Types/ib_port_samples_result
+* NAME
+*	ib_port_samples_result_t
+*
+* DESCRIPTION
+*	IBA defined PortSamplesControl Attribute. (16.1.3.2)
+*
+* SYNOPSIS
+*/
+#include <complib/cl_packon.h>
+typedef struct _ib_port_samples_result
+{
+	ib_net16_t tag;
+	ib_net16_t sample_status; /* 14 bits res : 2 bits sample_status */
+	ib_net32_t counter0;
+	ib_net32_t counter1;
+	ib_net32_t counter2;
+	ib_net32_t counter3;
+	ib_net32_t counter4;
+	ib_net32_t counter5;
+	ib_net32_t counter6;
+	ib_net32_t counter7;
+	ib_net32_t counter8;
+	ib_net32_t counter9;
+	ib_net32_t counter10;
+	ib_net32_t counter11;
+	ib_net32_t counter12;
+	ib_net32_t counter13;
+	ib_net32_t counter14;
+} PACK_SUFFIX ib_port_samples_result_t;
+#include <complib/cl_packoff.h>
+
+
+
 /****d* IBA Base: Types/DM_SVC_NAME
 * NAME
 *	DM_SVC_NAME

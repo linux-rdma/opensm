@@ -291,6 +291,12 @@ typedef struct _osm_subn_opt
   osm_qos_options_t        qos_rtr_options;
   boolean_t                enable_quirks;
   boolean_t                no_clients_rereg;
+#ifdef ENABLE_OSM_PERF_MGR
+  boolean_t                perfmgr;
+  uint16_t                 perfmgr_sweep_time_s;
+  char *                   event_db_dump_file;
+  char *                   event_db_plugin;
+#endif /* ENABLE_OSM_PERF_MGR */
 } osm_subn_opt_t;
 /*
 * FIELDS
@@ -469,6 +475,18 @@ typedef struct _osm_subn_opt
 *	sm_inactive
 *		OpenSM will start with SM in not active state.
 *	
+*	perfmgr
+*		Enable or disable the performance manager
+*
+*	perfmgr_sweep_time_s
+*		Define the period (in seconds) of PM sweeps.
+*
+*       event_db_dump_file
+*               File to dump the event database to
+*
+*       event_db_plugin
+*               Specify the name of the event plugin
+*
 *	qos_options
 *		Default set of QoS options
 *
