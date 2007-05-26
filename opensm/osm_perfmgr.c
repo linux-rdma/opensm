@@ -31,7 +31,6 @@
  *
  */
 
-
 /*
  * Abstract:
  *    Implementation of osm_perfmgr_t.
@@ -338,11 +337,17 @@ __collect_guids(cl_map_item_t * const p_map_item, void *context)
 			== cl_qmap_end(&(pm->monitored_map))) {
 		/* if not already in our map add it */
 		mon_node = malloc(sizeof(*mon_node));
+		if (!mon_node) {
+			osm_log(pm->log, OSM_LOG_ERROR,
+				"PerfMgr: __collect_guids malloc failed so not handling node GUID 0x%" PRIx64 "\n", node_guid);
+			goto Exit;
+		}
 		mon_node->guid = node_guid;
 		cl_qmap_insert(&(pm->monitored_map), node_guid,
 				(cl_map_item_t *)mon_node);
 	}
 
+Exit:
 	OSM_LOG_EXIT( pm->log );
 }
 
