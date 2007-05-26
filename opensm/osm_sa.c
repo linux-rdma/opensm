@@ -743,9 +743,7 @@ int osm_sa_db_file_dump(osm_opensm_t *p_osm)
 
 /*
  *  SA DB Loader
- *
  */
-
 osm_mgrp_t *load_mcgroup(osm_opensm_t *p_osm, ib_net16_t mlid,
 			 ib_member_rec_t *p_mcm_rec, unsigned well_known)
 {

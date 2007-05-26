@@ -33,7 +33,6 @@
  *
  */
 
-
 /*
  * Abstract:
  *    Implementation of osm_vl15_t.
