@@ -99,15 +99,15 @@ __remove_marked_nodes(osm_perfmgr_t *pm)
 }
 
 static inline void
-__decriment_outstanding_queries(osm_perfmgr_t *pm)
+__decrement_outstanding_queries(osm_perfmgr_t *pm)
 {
 	cl_atomic_dec(&(pm->outstanding_queries));
 	cl_event_signal(&(pm->sig_query));
 }
 
 /**********************************************************************
- * Recieve the MAD from the vendor layer and post it for processing by the
- * dispatcher.
+ * Receive the MAD from the vendor layer and post it for processing by
+ * the dispatcher.
  **********************************************************************/
 static void
 osm_perfmgr_mad_recv_callback(osm_madw_t *p_madw, void* bind_context,
@@ -120,7 +120,7 @@ osm_perfmgr_mad_recv_callback(osm_madw_t *p_madw, void* bind_context,
 	osm_madw_copy_context( p_madw, p_req_madw );
 	osm_mad_pool_put( pm->mad_pool, p_req_madw );
 
-	__decriment_outstanding_queries(pm);
+	__decrement_outstanding_queries(pm);
 
 	/* post this message for later processing. */
 	if (cl_disp_post(pm->pc_disp_h, OSM_MSG_MAD_PORT_COUNTERS,
@@ -160,7 +160,7 @@ osm_perfmgr_mad_send_err_callback(void* bind_context, osm_madw_t *p_madw)
 
 	osm_mad_pool_put( pm->mad_pool, p_madw );
 
-	__decriment_outstanding_queries(pm);
+	__decrement_outstanding_queries(pm);
 
 	OSM_LOG_EXIT( pm->log );
 }
@@ -199,10 +199,10 @@ osm_perfmgr_bind(osm_perfmgr_t * const pm, const ib_net64_t port_guid)
 
 	pm->bind_handle = osm_vendor_bind( pm->vendor,
 	                                  &bind_info,
-	                                  pm->mad_pool,
-	                                  osm_perfmgr_mad_recv_callback,
-	                                  osm_perfmgr_mad_send_err_callback,
-	                                  pm );
+	                                   pm->mad_pool,
+	                                   osm_perfmgr_mad_recv_callback,
+	                                   osm_perfmgr_mad_send_err_callback,
+	                                   pm );
 
 	if( pm->bind_handle == OSM_BIND_INVALID_HANDLE ) {
 		status = IB_ERROR;
@@ -367,7 +367,6 @@ __osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context )
 	uint64_t            node_guid = 0;
 
 	OSM_LOG_ENTER( pm->log, __osm_pm_query_counters );
-
 
 	cl_plock_acquire(pm->lock);
 	node = (osm_node_t *)cl_qmap_get(&(pm->subn->node_guid_tbl),
@@ -850,7 +849,7 @@ osm_perfmgr_clear_counters(osm_perfmgr_t *pm)
 }
 
 /*******************************************************************
- * Have the DB dump it's information to the file specified.
+ * Have the DB dump it's information to the file specified
  *******************************************************************/
 void
 osm_perfmgr_dump_counters(osm_perfmgr_t *pm, perfmgr_edb_dump_t dump_type)
@@ -882,4 +881,3 @@ osm_report_notice_to_perfmgr(osm_log_t* const log, osm_subn_t*  subn,
 #endif
 
 #endif /* ENABLE_OSM_PERF_MGR */
-
