@@ -96,8 +96,8 @@ struct _osm_opensm_t;
 *	osm_pfn_ui_extension
 *
 * DESCRIPTION
-*	This typedef defines the prototype for UI extension functions
-*	The might be registered in the subnet options to handle pre_lid_assign,
+*	This typedef defines the prototype for UI extension functions.
+*	They might be registered in the subnet options to handle pre_lid_assign,
 *  and ui_ucast_fwd_assign.
 *
 * SYNOPSIS
@@ -124,7 +124,7 @@ typedef int
 *	osm_pfn_ui_mcast_extension
 *
 * DESCRIPTION
-*	This typedef defines the prototype for UI extension functions
+*	This typedef defines the prototype for UI extension functions.
 *	They might be registered in the subnet options to handle ui_mcast_fwd_assign
 *
 * SYNOPSIS
