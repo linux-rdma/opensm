@@ -396,7 +396,12 @@ __osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context )
 	/* issue the queries for each port */
 	for (port = 1; port < num_ports; port++)
 	{
-		ib_net16_t lid = get_lid(node, port);
+		ib_net16_t lid;
+
+		if (!osm_physp_is_valid(osm_node_get_physp_ptr(node, port)))
+			continue;
+
+		lid = get_lid(node, port);
 		if (lid == 0)
 		{
 			osm_log(pm->log, OSM_LOG_DEBUG,
