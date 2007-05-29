@@ -71,7 +71,7 @@ extern "C" {
 *********/
 
 #define OSM_PERFMGR_DEFAULT_SWEEP_TIME_S 180
-#define OSM_PERFMGR_DEFAULT_DUMP_FILE OSM_DEFAULT_TMP_DIR "/osm_port_counters.log"
+#define OSM_PERFMGR_DEFAULT_DUMP_FILE OSM_DEFAULT_TMP_DIR "/opensm_port_counters.log"
 #define OSM_DEFAULT_EVENT_PLUGIN "ibeventdb"
 
 /****s* OpenSM: PerfMgr/osm_perfmgr_state_t */
