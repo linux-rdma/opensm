@@ -1,4 +1,4 @@
-.TH OPENSM 8 "May 16, 2007" "OpenIB" "OpenIB Management"
+.TH OPENSM 8 "May 29, 2007" "OpenIB" "OpenIB Management"
 
 .SH NAME
 opensm \- InfiniBand subnet manager and administration (SM/SA) 
@@ -16,6 +16,9 @@ opensm provides an implementation of an InfiniBand Subnet Manager and
 Administration. Such a software entity is required to run for in order
 to initialize the InfiniBand hardware (at least one per each
 InfiniBand subnet).
+
+opensm also now contains an experimental version of a performance
+manager as well.
 
 opensm defaults were designed to meet the common case usage on clusters with up to a few hundred nodes. Thus, in this default mode, opensm will scan the IB 
 fabric, initialize it, and sweep occasionally for changes.
