@@ -150,8 +150,7 @@ shall, upon receiving a Set(InformInfo), verify that the requester
 originating the Set(InformInfo) and a Trap() source identified by Inform-
 can access each other - can use path record to verify that.
 **********************************************************************/
-static
-boolean_t
+static boolean_t
 __validate_ports_access_rights(
   IN osm_infr_rcv_t*   const p_rcv,
   IN osm_infr_t*       p_infr_rec )
@@ -265,8 +264,7 @@ __validate_ports_access_rights(
 
 /**********************************************************************
  **********************************************************************/
-static
-boolean_t
+static boolean_t
 __validate_infr(
   IN osm_infr_rcv_t*    const p_rcv,
   IN osm_infr_t*        p_infr_rec )
