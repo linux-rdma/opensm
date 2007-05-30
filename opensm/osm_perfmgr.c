@@ -313,7 +313,7 @@ osm_perfmgr_send_pc_mad(osm_perfmgr_t *perfmgr, ib_net16_t dest_lid, uint8_t por
 		cl_atomic_inc(&(perfmgr->outstanding_queries));
 		if (perfmgr->outstanding_queries > PERFMGR_MAX_OUTSTANDING_QUERIES) {
 			perfmgr->sweep_state = PERFMGR_SWEEP_SUSPENDED;
-			cl_event_wait_on( &perfmgr->sig_query, 10 * 1000000, TRUE );
+			cl_event_wait_on( &perfmgr->sig_query, EVENT_NO_TIMEOUT, TRUE );
 			perfmgr->sweep_state = PERFMGR_SWEEP_ACTIVE;
 		}
 	}
