@@ -157,13 +157,13 @@ BEGIN_C_DECLS
 *
 * SOURCE
 */
-#define IB_QP1_WELL_KNOWN_Q_KEY				CL_NTOH32(0x80010000)
+#define IB_QP1_WELL_KNOWN_Q_KEY				CL_HTON32(0x80010000)
 /*********/
 
 #define IB_QP0								0
-#define IB_QP1								CL_NTOH32(1)
+#define IB_QP1								CL_HTON32(1)
 
-#define IB_QP_PRIVILEGED_Q_KEY				CL_NTOH32(0x80000000)
+#define IB_QP_PRIVILEGED_Q_KEY				CL_HTON32(0x80000000)
 
 /****d* IBA Base: Constants/IB_LID_UCAST_START
 * NAME
@@ -405,7 +405,7 @@ BEGIN_C_DECLS
 *
 * SOURCE
 */
-#define IB_PKEY_TYPE_MASK					(CL_NTOH16(0x8000))
+#define IB_PKEY_TYPE_MASK					(CL_HTON16(0x8000))
 /*********/
 
 /****d* IBA Base: Constants/IB_DEFAULT_PARTIAL_PKEY
@@ -967,7 +967,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_MAD_ATTR_CLASS_PORT_INFO			(CL_NTOH16(0x0001))
+#define IB_MAD_ATTR_CLASS_PORT_INFO			(CL_HTON16(0x0001))
 /**********/
 
 /****d* IBA Base: Constants/IB_MAD_ATTR_NOTICE
@@ -979,7 +979,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_MAD_ATTR_NOTICE					(CL_NTOH16(0x0002))
+#define IB_MAD_ATTR_NOTICE					(CL_HTON16(0x0002))
 /**********/
 
 /****d* IBA Base: Constants/IB_MAD_ATTR_INFORM_INFO
@@ -991,7 +991,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_MAD_ATTR_INFORM_INFO				(CL_NTOH16(0x0003))
+#define IB_MAD_ATTR_INFORM_INFO				(CL_HTON16(0x0003))
 /**********/
 
 /****d* IBA Base: Constants/IB_MAD_ATTR_NODE_DESC
@@ -1003,7 +1003,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_MAD_ATTR_NODE_DESC				(CL_NTOH16(0x0010))
+#define IB_MAD_ATTR_NODE_DESC				(CL_HTON16(0x0010))
 
 /****d* IBA Base: Constants/IB_MAD_ATTR_PORT_SMPL_CTRL
 * NAME
@@ -1014,7 +1014,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_MAD_ATTR_PORT_SMPL_CTRL			(CL_NTOH16(0x0010))
+#define IB_MAD_ATTR_PORT_SMPL_CTRL			(CL_HTON16(0x0010))
 /**********/
 
 /****d* IBA Base: Constants/IB_MAD_ATTR_NODE_INFO
@@ -1026,7 +1026,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_MAD_ATTR_NODE_INFO				(CL_NTOH16(0x0011))
+#define IB_MAD_ATTR_NODE_INFO				(CL_HTON16(0x0011))
 /**********/
 
 /****d* IBA Base: Constants/IB_MAD_ATTR_PORT_SMPL_RSLT
@@ -1038,7 +1038,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_MAD_ATTR_PORT_SMPL_RSLT			(CL_NTOH16(0x0011))
+#define IB_MAD_ATTR_PORT_SMPL_RSLT			(CL_HTON16(0x0011))
 /**********/
 
 /****d* IBA Base: Constants/IB_MAD_ATTR_SWITCH_INFO
@@ -1050,7 +1050,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_MAD_ATTR_SWITCH_INFO				(CL_NTOH16(0x0012))
+#define IB_MAD_ATTR_SWITCH_INFO				(CL_HTON16(0x0012))
 /**********/
 
 /****d* IBA Base: Constants/IB_MAD_ATTR_PORT_CNTRS
@@ -1062,7 +1062,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_MAD_ATTR_PORT_CNTRS				(CL_NTOH16(0x0012))
+#define IB_MAD_ATTR_PORT_CNTRS				(CL_HTON16(0x0012))
 /**********/
 
 /****d* IBA Base: Constants/IB_MAD_ATTR_GUID_INFO
@@ -1074,7 +1074,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_MAD_ATTR_GUID_INFO				(CL_NTOH16(0x0014))
+#define IB_MAD_ATTR_GUID_INFO				(CL_HTON16(0x0014))
 /**********/
 
 /****d* IBA Base: Constants/IB_MAD_ATTR_PORT_INFO
@@ -1086,7 +1086,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_MAD_ATTR_PORT_INFO				(CL_NTOH16(0x0015))
+#define IB_MAD_ATTR_PORT_INFO				(CL_HTON16(0x0015))
 /**********/
 
 /****d* IBA Base: Constants/IB_MAD_ATTR_P_KEY_TABLE
@@ -1098,7 +1098,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_MAD_ATTR_P_KEY_TABLE				(CL_NTOH16(0x0016))
+#define IB_MAD_ATTR_P_KEY_TABLE				(CL_HTON16(0x0016))
 /**********/
 
 /****d* IBA Base: Constants/IB_MAD_ATTR_SLVL_TABLE
@@ -1110,7 +1110,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_MAD_ATTR_SLVL_TABLE				(CL_NTOH16(0x0017))
+#define IB_MAD_ATTR_SLVL_TABLE				(CL_HTON16(0x0017))
 /**********/
 
 /****d* IBA Base: Constants/IB_MAD_ATTR_VL_ARBITRATION
@@ -1122,7 +1122,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_MAD_ATTR_VL_ARBITRATION			(CL_NTOH16(0x0018))
+#define IB_MAD_ATTR_VL_ARBITRATION			(CL_HTON16(0x0018))
 /**********/
 
 /****d* IBA Base: Constants/IB_MAD_ATTR_LIN_FWD_TBL
@@ -1134,7 +1134,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_MAD_ATTR_LIN_FWD_TBL				(CL_NTOH16(0x0019))
+#define IB_MAD_ATTR_LIN_FWD_TBL				(CL_HTON16(0x0019))
 /**********/
 
 /****d* IBA Base: Constants/IB_MAD_ATTR_RND_FWD_TBL
@@ -1146,7 +1146,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_MAD_ATTR_RND_FWD_TBL				(CL_NTOH16(0x001A))
+#define IB_MAD_ATTR_RND_FWD_TBL				(CL_HTON16(0x001A))
 /**********/
 
 /****d* IBA Base: Constants/IB_MAD_ATTR_MCAST_FWD_TBL
@@ -1158,7 +1158,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_MAD_ATTR_MCAST_FWD_TBL			(CL_NTOH16(0x001B))
+#define IB_MAD_ATTR_MCAST_FWD_TBL			(CL_HTON16(0x001B))
 /**********/
 
 /****d* IBA Base: Constants/IB_MAD_ATTR_NODE_RECORD
@@ -1170,7 +1170,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_MAD_ATTR_NODE_RECORD				(CL_NTOH16(0x0011))
+#define IB_MAD_ATTR_NODE_RECORD				(CL_HTON16(0x0011))
 /**********/
 
 /****d* IBA Base: Constants/IB_MAD_ATTR_PORTINFO_RECORD
@@ -1182,7 +1182,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_MAD_ATTR_PORTINFO_RECORD			(CL_NTOH16(0x0012))
+#define IB_MAD_ATTR_PORTINFO_RECORD			(CL_HTON16(0x0012))
 /**********/
 
 /****d* IBA Base: Constants/IB_MAD_ATTR_SWITCH_INFO_RECORD
@@ -1194,7 +1194,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_MAD_ATTR_SWITCH_INFO_RECORD			(CL_NTOH16(0x0014))
+#define IB_MAD_ATTR_SWITCH_INFO_RECORD			(CL_HTON16(0x0014))
 /**********/
 
 /****d* IBA Base: Constants/IB_MAD_ATTR_LINK_RECORD
@@ -1206,7 +1206,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_MAD_ATTR_LINK_RECORD				(CL_NTOH16(0x0020))
+#define IB_MAD_ATTR_LINK_RECORD				(CL_HTON16(0x0020))
 /**********/
 
 /****d* IBA Base: Constants/IB_MAD_ATTR_SM_INFO
@@ -1218,7 +1218,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_MAD_ATTR_SM_INFO				(CL_NTOH16(0x0020))
+#define IB_MAD_ATTR_SM_INFO				(CL_HTON16(0x0020))
 /**********/
 
 /****d* IBA Base: Constants/IB_MAD_ATTR_SMINFO_RECORD
@@ -1230,7 +1230,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_MAD_ATTR_SMINFO_RECORD			(CL_NTOH16(0x0018))
+#define IB_MAD_ATTR_SMINFO_RECORD			(CL_HTON16(0x0018))
 /**********/
 
 /****d* IBA Base: Constants/IB_MAD_ATTR_GUIDINFO_RECORD
@@ -1242,7 +1242,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_MAD_ATTR_GUIDINFO_RECORD			(CL_NTOH16(0x0030))
+#define IB_MAD_ATTR_GUIDINFO_RECORD			(CL_HTON16(0x0030))
 /**********/
 
 /****d* IBA Base: Constants/IB_MAD_ATTR_VENDOR_DIAG
@@ -1254,7 +1254,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_MAD_ATTR_VENDOR_DIAG				(CL_NTOH16(0x0030))
+#define IB_MAD_ATTR_VENDOR_DIAG				(CL_HTON16(0x0030))
 /**********/
 
 /****d* IBA Base: Constants/IB_MAD_ATTR_LED_INFO
@@ -1266,7 +1266,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_MAD_ATTR_LED_INFO				(CL_NTOH16(0x0031))
+#define IB_MAD_ATTR_LED_INFO				(CL_HTON16(0x0031))
 /**********/
 
 /****d* IBA Base: Constants/IB_MAD_ATTR_SERVICE_RECORD
@@ -1278,7 +1278,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_MAD_ATTR_SERVICE_RECORD			(CL_NTOH16(0x0031))
+#define IB_MAD_ATTR_SERVICE_RECORD			(CL_HTON16(0x0031))
 /**********/
 
 /****d* IBA Base: Constants/IB_MAD_ATTR_LFT_RECORD
@@ -1290,7 +1290,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_MAD_ATTR_LFT_RECORD				(CL_NTOH16(0x0015))
+#define IB_MAD_ATTR_LFT_RECORD				(CL_HTON16(0x0015))
 /**********/
 
 /****d* IBA Base: Constants/IB_MAD_ATTR_MFT_RECORD
@@ -1302,7 +1302,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_MAD_ATTR_MFT_RECORD				(CL_NTOH16(0x0017))
+#define IB_MAD_ATTR_MFT_RECORD				(CL_HTON16(0x0017))
 /**********/
 
 /****d* IBA Base: Constants/IB_MAD_ATTR_PKEYTBL_RECORD
@@ -1314,7 +1314,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_MAD_ATTR_PKEY_TBL_RECORD			(CL_NTOH16(0x0033))
+#define IB_MAD_ATTR_PKEY_TBL_RECORD			(CL_HTON16(0x0033))
 /**********/
 
 /****d* IBA Base: Constants/IB_MAD_ATTR_PATH_RECORD
@@ -1326,7 +1326,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_MAD_ATTR_PATH_RECORD				(CL_NTOH16(0x0035))
+#define IB_MAD_ATTR_PATH_RECORD				(CL_HTON16(0x0035))
 /**********/
 
 /****d* IBA Base: Constants/IB_MAD_ATTR_VLARB_RECORD
@@ -1338,7 +1338,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_MAD_ATTR_VLARB_RECORD			(CL_NTOH16(0x0036))
+#define IB_MAD_ATTR_VLARB_RECORD			(CL_HTON16(0x0036))
 /**********/
 
 /****d* IBA Base: Constants/IB_MAD_ATTR_SLVL_RECORD
@@ -1350,7 +1350,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_MAD_ATTR_SLVL_RECORD				(CL_NTOH16(0x0013))
+#define IB_MAD_ATTR_SLVL_RECORD				(CL_HTON16(0x0013))
 /**********/
 
 /****d* IBA Base: Constants/IB_MAD_ATTR_MCMEMBER_RECORD
@@ -1362,7 +1362,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_MAD_ATTR_MCMEMBER_RECORD			(CL_NTOH16(0x0038))
+#define IB_MAD_ATTR_MCMEMBER_RECORD			(CL_HTON16(0x0038))
 /**********/
 
 /****d* IBA Base: Constants/IB_MAD_ATTR_TRACE_RECORD
@@ -1374,7 +1374,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_MAD_ATTR_TRACE_RECORD			(CL_NTOH16(0x0039))
+#define IB_MAD_ATTR_TRACE_RECORD			(CL_HTON16(0x0039))
 /**********/
 
 /****d* IBA Base: Constants/IB_MAD_ATTR_MULTIPATH_RECORD
@@ -1386,7 +1386,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_MAD_ATTR_MULTIPATH_RECORD			(CL_NTOH16(0x003A))
+#define IB_MAD_ATTR_MULTIPATH_RECORD			(CL_HTON16(0x003A))
 /**********/
 
 /****d* IBA Base: Constants/IB_MAD_ATTR_SVC_ASSOCIATION_RECORD
@@ -1398,7 +1398,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_MAD_ATTR_SVC_ASSOCIATION_RECORD		(CL_NTOH16(0x003B))
+#define IB_MAD_ATTR_SVC_ASSOCIATION_RECORD		(CL_HTON16(0x003B))
 /**********/
 
 /****d* IBA Base: Constants/IB_MAD_ATTR_INFORM_INFO_RECORD
@@ -1410,7 +1410,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_MAD_ATTR_INFORM_INFO_RECORD			(CL_NTOH16(0x00F3))
+#define IB_MAD_ATTR_INFORM_INFO_RECORD			(CL_HTON16(0x00F3))
 
 /****d* IBA Base: Constants/IB_MAD_ATTR_IO_UNIT_INFO
 * NAME
@@ -1421,7 +1421,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_MAD_ATTR_IO_UNIT_INFO			(CL_NTOH16(0x0010))
+#define IB_MAD_ATTR_IO_UNIT_INFO			(CL_HTON16(0x0010))
 /**********/
 
 /****d* IBA Base: Constants/IB_MAD_ATTR_IO_CONTROLLER_PROFILE
@@ -1433,7 +1433,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_MAD_ATTR_IO_CONTROLLER_PROFILE	(CL_NTOH16(0x0011))
+#define IB_MAD_ATTR_IO_CONTROLLER_PROFILE	(CL_HTON16(0x0011))
 /**********/
 
 /****d* IBA Base: Constants/IB_MAD_ATTR_SERVICE_ENTRIES
@@ -1445,7 +1445,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_MAD_ATTR_SERVICE_ENTRIES			(CL_NTOH16(0x0012))
+#define IB_MAD_ATTR_SERVICE_ENTRIES			(CL_HTON16(0x0012))
 /**********/
 
 /****d* IBA Base: Constants/IB_MAD_ATTR_DIAGNOSTIC_TIMEOUT
@@ -1457,7 +1457,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_MAD_ATTR_DIAGNOSTIC_TIMEOUT		(CL_NTOH16(0x0020))
+#define IB_MAD_ATTR_DIAGNOSTIC_TIMEOUT		(CL_HTON16(0x0020))
 /**********/
 
 /****d* IBA Base: Constants/IB_MAD_ATTR_PREPARE_TO_TEST
@@ -1469,7 +1469,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_MAD_ATTR_PREPARE_TO_TEST			(CL_NTOH16(0x0021))
+#define IB_MAD_ATTR_PREPARE_TO_TEST			(CL_HTON16(0x0021))
 /**********/
 
 /****d* IBA Base: Constants/IB_MAD_ATTR_TEST_DEVICE_ONCE
@@ -1481,7 +1481,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_MAD_ATTR_TEST_DEVICE_ONCE		(CL_NTOH16(0x0022))
+#define IB_MAD_ATTR_TEST_DEVICE_ONCE		(CL_HTON16(0x0022))
 /**********/
 
 /****d* IBA Base: Constants/IB_MAD_ATTR_TEST_DEVICE_LOOP
@@ -1493,7 +1493,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_MAD_ATTR_TEST_DEVICE_LOOP		(CL_NTOH16(0x0023))
+#define IB_MAD_ATTR_TEST_DEVICE_LOOP		(CL_HTON16(0x0023))
 /**********/
 
 /****d* IBA Base: Constants/IB_MAD_ATTR_DIAG_CODE
@@ -1505,7 +1505,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_MAD_ATTR_DIAG_CODE				(CL_NTOH16(0x0024))
+#define IB_MAD_ATTR_DIAG_CODE				(CL_HTON16(0x0024))
 /**********/
 
 /****d* IBA Base: Constants/IB_MAD_ATTR_SVC_ASSOCIATION_RECORD
@@ -1517,7 +1517,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_MAD_ATTR_SVC_ASSOCIATION_RECORD	(CL_NTOH16(0x003B))
+#define IB_MAD_ATTR_SVC_ASSOCIATION_RECORD	(CL_HTON16(0x003B))
 /**********/
 
 /****d* IBA Base: Constants/IB_NODE_TYPE_CA
@@ -4084,8 +4084,8 @@ ib_sa_mad_get_payload_ptr(
 *	ib_mad_t
 *********/
 
-#define IB_NODE_INFO_PORT_NUM_MASK		(CL_NTOH32(0xFF000000))
-#define IB_NODE_INFO_VEND_ID_MASK		(CL_NTOH32(0x00FFFFFF))
+#define IB_NODE_INFO_PORT_NUM_MASK		(CL_HTON32(0xFF000000))
+#define IB_NODE_INFO_VEND_ID_MASK		(CL_HTON32(0x00FFFFFF))
 #if CPU_LE
 	#define IB_NODE_INFO_PORT_NUM_SHIFT 0
 #else
@@ -4246,38 +4246,38 @@ typedef struct _ib_port_info
 #define IB_PORT_PHYS_STATE_PHYTEST	        7
 #define IB_PORT_LNKDWNDFTSTATE_MASK		0x0F
 
-#define IB_PORT_CAP_RESV0         (CL_NTOH32(0x00000001))
-#define IB_PORT_CAP_IS_SM         (CL_NTOH32(0x00000002))
-#define IB_PORT_CAP_HAS_NOTICE    (CL_NTOH32(0x00000004))
-#define IB_PORT_CAP_HAS_TRAP      (CL_NTOH32(0x00000008))
-#define IB_PORT_CAP_HAS_IPD       (CL_NTOH32(0x00000010))
-#define IB_PORT_CAP_HAS_AUTO_MIG  (CL_NTOH32(0x00000020))
-#define IB_PORT_CAP_HAS_SL_MAP    (CL_NTOH32(0x00000040))
-#define IB_PORT_CAP_HAS_NV_MKEY   (CL_NTOH32(0x00000080))
-#define IB_PORT_CAP_HAS_NV_PKEY   (CL_NTOH32(0x00000100))
-#define IB_PORT_CAP_HAS_LED_INFO  (CL_NTOH32(0x00000200))
-#define IB_PORT_CAP_SM_DISAB      (CL_NTOH32(0x00000400))
-#define IB_PORT_CAP_HAS_SYS_IMG_GUID  (CL_NTOH32(0x00000800))
-#define IB_PORT_CAP_HAS_PKEY_SW_EXT_PORT_TRAP (CL_NTOH32(0x00001000))
-#define IB_PORT_CAP_RESV13        (CL_NTOH32(0x00002000))
-#define IB_PORT_CAP_RESV14        (CL_NTOH32(0x00004000))
-#define IB_PORT_CAP_RESV15        (CL_NTOH32(0x00008000))
-#define IB_PORT_CAP_HAS_COM_MGT   (CL_NTOH32(0x00010000))
-#define IB_PORT_CAP_HAS_SNMP      (CL_NTOH32(0x00020000))
-#define IB_PORT_CAP_REINIT        (CL_NTOH32(0x00040000))
-#define IB_PORT_CAP_HAS_DEV_MGT   (CL_NTOH32(0x00080000))
-#define IB_PORT_CAP_HAS_VEND_CLS  (CL_NTOH32(0x00100000))
-#define IB_PORT_CAP_HAS_DR_NTC    (CL_NTOH32(0x00200000))
-#define IB_PORT_CAP_HAS_CAP_NTC   (CL_NTOH32(0x00400000))
-#define IB_PORT_CAP_HAS_BM        (CL_NTOH32(0x00800000))
-#define IB_PORT_CAP_HAS_LINK_RT_LATENCY (CL_NTOH32(0x01000000))
-#define IB_PORT_CAP_HAS_CLIENT_REREG (CL_NTOH32(0x02000000))
-#define IB_PORT_CAP_RESV26        (CL_NTOH32(0x04000000))
-#define IB_PORT_CAP_RESV27        (CL_NTOH32(0x08000000))
-#define IB_PORT_CAP_RESV28        (CL_NTOH32(0x10000000))
-#define IB_PORT_CAP_RESV29        (CL_NTOH32(0x20000000))
-#define IB_PORT_CAP_RESV30        (CL_NTOH32(0x40000000))
-#define IB_PORT_CAP_RESV31        (CL_NTOH32(0x80000000))
+#define IB_PORT_CAP_RESV0         (CL_HTON32(0x00000001))
+#define IB_PORT_CAP_IS_SM         (CL_HTON32(0x00000002))
+#define IB_PORT_CAP_HAS_NOTICE    (CL_HTON32(0x00000004))
+#define IB_PORT_CAP_HAS_TRAP      (CL_HTON32(0x00000008))
+#define IB_PORT_CAP_HAS_IPD       (CL_HTON32(0x00000010))
+#define IB_PORT_CAP_HAS_AUTO_MIG  (CL_HTON32(0x00000020))
+#define IB_PORT_CAP_HAS_SL_MAP    (CL_HTON32(0x00000040))
+#define IB_PORT_CAP_HAS_NV_MKEY   (CL_HTON32(0x00000080))
+#define IB_PORT_CAP_HAS_NV_PKEY   (CL_HTON32(0x00000100))
+#define IB_PORT_CAP_HAS_LED_INFO  (CL_HTON32(0x00000200))
+#define IB_PORT_CAP_SM_DISAB      (CL_HTON32(0x00000400))
+#define IB_PORT_CAP_HAS_SYS_IMG_GUID  (CL_HTON32(0x00000800))
+#define IB_PORT_CAP_HAS_PKEY_SW_EXT_PORT_TRAP (CL_HTON32(0x00001000))
+#define IB_PORT_CAP_RESV13        (CL_HTON32(0x00002000))
+#define IB_PORT_CAP_RESV14        (CL_HTON32(0x00004000))
+#define IB_PORT_CAP_RESV15        (CL_HTON32(0x00008000))
+#define IB_PORT_CAP_HAS_COM_MGT   (CL_HTON32(0x00010000))
+#define IB_PORT_CAP_HAS_SNMP      (CL_HTON32(0x00020000))
+#define IB_PORT_CAP_REINIT        (CL_HTON32(0x00040000))
+#define IB_PORT_CAP_HAS_DEV_MGT   (CL_HTON32(0x00080000))
+#define IB_PORT_CAP_HAS_VEND_CLS  (CL_HTON32(0x00100000))
+#define IB_PORT_CAP_HAS_DR_NTC    (CL_HTON32(0x00200000))
+#define IB_PORT_CAP_HAS_CAP_NTC   (CL_HTON32(0x00400000))
+#define IB_PORT_CAP_HAS_BM        (CL_HTON32(0x00800000))
+#define IB_PORT_CAP_HAS_LINK_RT_LATENCY (CL_HTON32(0x01000000))
+#define IB_PORT_CAP_HAS_CLIENT_REREG (CL_HTON32(0x02000000))
+#define IB_PORT_CAP_RESV26        (CL_HTON32(0x04000000))
+#define IB_PORT_CAP_RESV27        (CL_HTON32(0x08000000))
+#define IB_PORT_CAP_RESV28        (CL_HTON32(0x10000000))
+#define IB_PORT_CAP_RESV29        (CL_HTON32(0x20000000))
+#define IB_PORT_CAP_RESV30        (CL_HTON32(0x40000000))
+#define IB_PORT_CAP_RESV31        (CL_HTON32(0x80000000))
 
 /****f* IBA Base: Types/ib_port_info_get_port_state
 * NAME
@@ -10401,7 +10401,7 @@ typedef uint32_t						ib_mr_mod_t;
 *
 * SOURCE
 */
-#define IB_SMINFO_ATTR_MOD_HANDOVER		(CL_NTOH32(0x000001))
+#define IB_SMINFO_ATTR_MOD_HANDOVER		(CL_HTON32(0x000001))
 /**********/
 
 /****d* IBA Base: Constants/IB_SMINFO_ATTR_MOD_ACKNOWLEDGE
@@ -10413,7 +10413,7 @@ typedef uint32_t						ib_mr_mod_t;
 *
 * SOURCE
 */
-#define IB_SMINFO_ATTR_MOD_ACKNOWLEDGE		(CL_NTOH32(0x000002))
+#define IB_SMINFO_ATTR_MOD_ACKNOWLEDGE		(CL_HTON32(0x000002))
 /**********/
 
 /****d* IBA Base: Constants/IB_SMINFO_ATTR_MOD_DISABLE
@@ -10425,7 +10425,7 @@ typedef uint32_t						ib_mr_mod_t;
 *
 * SOURCE
 */
-#define IB_SMINFO_ATTR_MOD_DISABLE			(CL_NTOH32(0x000003))
+#define IB_SMINFO_ATTR_MOD_DISABLE			(CL_HTON32(0x000003))
 /**********/
 
 /****d* IBA Base: Constants/IB_SMINFO_ATTR_MOD_STANDBY
@@ -10437,7 +10437,7 @@ typedef uint32_t						ib_mr_mod_t;
 *
 * SOURCE
 */
-#define IB_SMINFO_ATTR_MOD_STANDBY			(CL_NTOH32(0x000004))
+#define IB_SMINFO_ATTR_MOD_STANDBY			(CL_HTON32(0x000004))
 /**********/
 
 /****d* IBA Base: Constants/IB_SMINFO_ATTR_MOD_DISCOVER
@@ -10449,7 +10449,7 @@ typedef uint32_t						ib_mr_mod_t;
 *
 * SOURCE
 */
-#define IB_SMINFO_ATTR_MOD_DISCOVER			(CL_NTOH32(0x000005))
+#define IB_SMINFO_ATTR_MOD_DISCOVER			(CL_HTON32(0x000005))
 /**********/
 
 /****s* Access Layer/ib_ci_op_t
