@@ -1565,7 +1565,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_NOTICE_PRODUCER_TYPE_CA			(CL_NTOH32(0x000001))
+#define IB_NOTICE_PRODUCER_TYPE_CA			(CL_HTON32(0x000001))
 /**********/
 
 /****d* IBA Base: Constants/IB_NOTICE_PRODUCER_TYPE_SWITCH
@@ -1577,7 +1577,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_NOTICE_PRODUCER_TYPE_SWITCH			(CL_NTOH32(0x000002))
+#define IB_NOTICE_PRODUCER_TYPE_SWITCH			(CL_HTON32(0x000002))
 /**********/
 
 /****d* IBA Base: Constants/IB_NOTICE_PRODUCER_TYPE_ROUTER
@@ -1589,7 +1589,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_NOTICE_PRODUCER_TYPE_ROUTER			(CL_NTOH32(0x000003))
+#define IB_NOTICE_PRODUCER_TYPE_ROUTER			(CL_HTON32(0x000003))
 /**********/
 
 /****d* IBA Base: Constants/IB_NOTICE_PRODUCER_TYPE_CLASS_MGR
@@ -1601,7 +1601,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-#define IB_NOTICE_PRODUCER_TYPE_CLASS_MGR			(CL_NTOH32(0x000004))
+#define IB_NOTICE_PRODUCER_TYPE_CLASS_MGR			(CL_HTON32(0x000004))
 /**********/
 
 /****d* IBA Base: Constants/IB_MTU_LEN_TYPE
