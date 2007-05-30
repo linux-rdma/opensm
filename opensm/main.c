@@ -632,6 +632,10 @@ main(
 #endif
       {  "daemon",        0, NULL, 'B'},
       {  "inactive",      0, NULL, 'I'},
+#ifdef ENABLE_OSM_PERF_MGR
+      {  "perfmgr",       0, NULL,  1 },
+      {  "perfmgr_sweep_time_s", 1, NULL, 2 },
+#endif
       {  NULL,            0, NULL,  0 }  /* Required at the end of the array */
     };
 
