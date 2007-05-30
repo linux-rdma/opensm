@@ -105,29 +105,29 @@ typedef struct _monitored_node {
 */
 typedef struct _osm_perfmgr
 {
-  osm_thread_state_t    thread_state;
-  cl_event_t            sig_sweep;
-  cl_thread_t           sweeper;
-  osm_subn_t           *subn;
-  osm_sm_t             *sm;
-  cl_plock_t           *lock;
-  osm_log_t            *log;
-  osm_mad_pool_t       *mad_pool;
-  atomic32_t            trans_id;
-  osm_vendor_t         *vendor;
-  osm_bind_handle_t     bind_handle;
-  cl_disp_reg_handle_t  pc_disp_h;
-  osm_perfmgr_state_t   state;
+  osm_thread_state_t         thread_state;
+  cl_event_t                 sig_sweep;
+  cl_thread_t                sweeper;
+  osm_subn_t                *subn;
+  osm_sm_t                  *sm;
+  cl_plock_t                *lock;
+  osm_log_t                 *log;
+  osm_mad_pool_t            *mad_pool;
+  atomic32_t                 trans_id;
+  osm_vendor_t              *vendor;
+  osm_bind_handle_t          bind_handle;
+  cl_disp_reg_handle_t       pc_disp_h;
+  osm_perfmgr_state_t        state;
   osm_perfmgr_sweep_state_t  sweep_state;
-  uint16_t              sweep_time_s;
-  char                 *db_file;
-  char                 *event_db_dump_file;
-  char                 *event_db_plugin;
-  perfmgr_event_db_t   *db;
-  atomic32_t            outstanding_queries; /* this along with sig_query */
-  cl_event_t            sig_query;           /* will throttle our querys */
-  cl_qmap_t             monitored_map;       /* map the nodes we are tracking */
-  __monitored_node_t   *remove_list;
+  uint16_t                   sweep_time_s;
+  char                      *db_file;
+  char                      *event_db_dump_file;
+  char                      *event_db_plugin;
+  perfmgr_event_db_t        *db;
+  atomic32_t                 outstanding_queries; /* this along with sig_query */
+  cl_event_t                 sig_query;           /* will throttle our querys */
+  cl_qmap_t                  monitored_map;       /* map the nodes we are tracking */
+  __monitored_node_t        *remove_list;
 } osm_perfmgr_t;
 /*
 * FIELDS
