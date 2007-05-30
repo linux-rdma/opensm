@@ -367,6 +367,11 @@ static void print_status(osm_opensm_t *p_osm, FILE *out)
 			sa_state_str(p_osm->sa.state));
 		fprintf(out, "   Routing Engine     : %s\n",
 			p_osm->routing_engine.name ? p_osm->routing_engine.name : "null (min-hop)");
+#ifdef ENABLE_OSM_PERF_MGR
+		fprintf(out, "\n   PerfMgr state/sweep state : %s/%s\n",
+			osm_perfmgr_get_state_str(&(p_osm->perfmgr)),
+			osm_perfmgr_get_sweep_state_str(&(p_osm->perfmgr)));
+#endif
 		fprintf(out, "\n   MAD stats\n"
 			     "   ---------\n"
 			     "   QP0 MADS outstanding           : %d\n"
