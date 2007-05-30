@@ -158,7 +158,7 @@ static void help_portstatus(FILE *out, int detail)
 #ifdef ENABLE_OSM_PERF_MGR
 static void help_perfmgr(FILE *out, int detail)
 {
-	fprintf(out, "perfmgr [enable|disable|clear_counters|dump_counters|sweep_time][seconds]\n");
+	fprintf(out, "perfmgr [enable|disable|clear_counters|dump_counters|sweep_time[seconds]]\n");
 	if (detail) {
 		fprintf(out, "perfmgr -- print the performance manager state\n");
 		fprintf(out, "   [enable|disable] -- change the perfmgr state\n");
