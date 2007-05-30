@@ -802,10 +802,12 @@ static void perfmgr_parse(char **p_last, osm_opensm_t *p_osm, FILE *out)
 	   }
 	} else {
 		fprintf(out, "Performance Manager status:\n"
-			     "state      : %s\n"
-		             "sweep time : %us\n"
+			     "state       : %s\n"
+			     "sweep state : %s\n"
+		             "sweep time  : %us\n"
 		        ,
 			osm_perfmgr_get_state_str(&(p_osm->perfmgr)),
+			osm_perfmgr_get_sweep_state_str(&(p_osm->perfmgr)),
 			osm_perfmgr_get_sweep_time_s(&(p_osm->perfmgr))
 			);
 	}

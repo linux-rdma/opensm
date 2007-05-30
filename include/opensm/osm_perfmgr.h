@@ -82,6 +82,14 @@ typedef enum
   PERFMGR_STATE_NO_DB
 } osm_perfmgr_state_t;
 
+/****s* OpenSM: PerfMgr/osm_perfmgr_state_t */
+typedef enum
+{
+  PERFMGR_SWEEP_SLEEP,
+  PERFMGR_SWEEP_ACTIVE,
+  PERFMGR_SWEEP_SUSPENDED
+} osm_perfmgr_sweep_state_t;
+
 #define PERFMGR_MAX_OUTSTANDING_QUERIES 500
 
 /* Node to store information about which nodes we are monitoring */
@@ -110,6 +118,7 @@ typedef struct _osm_perfmgr
   osm_bind_handle_t     bind_handle;
   cl_disp_reg_handle_t  pc_disp_h;
   osm_perfmgr_state_t   state;
+  osm_perfmgr_sweep_state_t  sweep_state;
   uint16_t              sweep_time_s;
   char                 *db_file;
   char                 *event_db_dump_file;
@@ -162,6 +171,22 @@ inline static char *osm_perfmgr_get_state_str(osm_perfmgr_t *p_perfmgr)
 			break;
 		case PERFMGR_STATE_NO_DB:
 			return ("No Database");
+			break;
+	}
+	return ("UNKNOWN");
+}
+inline static char *osm_perfmgr_get_sweep_state_str(osm_perfmgr_t *perfmgr)
+{
+	switch (perfmgr->sweep_state)
+	{
+		case PERFMGR_SWEEP_SLEEP:
+			return ("Sleeping");
+			break;
+		case PERFMGR_SWEEP_ACTIVE:
+			return ("Active");
+			break;
+		case PERFMGR_SWEEP_SUSPENDED:
+			return ("Suspended");
 			break;
 	}
 	return ("UNKNOWN");

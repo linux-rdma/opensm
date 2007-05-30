@@ -312,7 +312,9 @@ osm_perfmgr_send_pc_mad(osm_perfmgr_t *perfmgr, ib_net16_t dest_lid, uint8_t por
 		/* pause this thread if we have too many outstanding requests */
 		cl_atomic_inc(&(perfmgr->outstanding_queries));
 		if (perfmgr->outstanding_queries > PERFMGR_MAX_OUTSTANDING_QUERIES) {
+			perfmgr->sweep_state = PERFMGR_SWEEP_SUSPENDED;
 			cl_event_wait_on( &perfmgr->sig_query, 10 * 1000000, TRUE );
+			perfmgr->sweep_state = PERFMGR_SWEEP_ACTIVE;
 		}
 	}
 
@@ -466,6 +468,7 @@ __osm_perfmgr_sweeper(void *p_ptr)
 			struct timeval before, after;
 			gettimeofday(&before, NULL);
 #endif
+			pm->sweep_state = PERFMGR_SWEEP_ACTIVE;
 			/* With the global lock held collect the node guids */
 			/* FIXME we should be able to track trap messages here
 			 * and not have to sweep the node_guid_tbl each pass
@@ -490,6 +493,8 @@ __osm_perfmgr_sweeper(void *p_ptr)
 				"total sweep time : %ld us\n", after.tv_usec - before.tv_usec);
 #endif
 		}
+
+		pm->sweep_state = PERFMGR_SWEEP_SLEEP;
 
 		/* Wait for a forced sweep or period timeout. */
 		status = cl_event_wait_on( &pm->sig_sweep, pm->sweep_time_s * 1000000, TRUE );
