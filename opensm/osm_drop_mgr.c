@@ -137,6 +137,78 @@ __osm_drop_mgr_remove_router(
   }
 }
 
+
+/**********************************************************************
+ **********************************************************************/
+static void
+drop_mgr_clean_physp(
+  IN const osm_drop_mgr_t* const p_mgr,
+  IN osm_physp_t *p_physp)
+{
+  cl_qmap_t *p_port_guid_tbl = &p_mgr->p_subn->port_guid_tbl;
+  osm_physp_t *p_remote_physp;
+  osm_port_t* p_remote_port;
+
+  p_remote_physp = osm_physp_get_remote( p_physp );
+  if( p_remote_physp && osm_physp_is_valid( p_remote_physp ) )
+  {
+    p_remote_port = (osm_port_t*)cl_qmap_get( p_port_guid_tbl,
+                                              p_remote_physp->port_guid );
+
+    if ( p_remote_port != (osm_port_t*)cl_qmap_end( p_port_guid_tbl ) )
+    {
+      /* Let's check if this is a case of link that is lost (both ports
+         weren't recognized), or a "hiccup" in the subnet - in which case
+         the remote port was recognized, and its state is ACTIVE.
+         If this is just a "hiccup" - force a heavy sweep in the next sweep.
+         We don't want to lose that part of the subnet. */
+      if (osm_port_discovery_count_get( p_remote_port ) &&
+          osm_physp_get_port_state( p_remote_physp ) == IB_LINK_ACTIVE )
+      {
+        osm_log( p_mgr->p_log, OSM_LOG_VERBOSE,
+                 "drop_mgr_clean_physp: "
+                 "Forcing delayed heavy sweep. Remote "
+                 "port 0x%016" PRIx64 " port num: 0x%X "
+                 "was recognized in ACTIVE state\n",
+                 cl_ntoh64( p_remote_physp->port_guid ),
+                 p_remote_physp->port_num );
+        p_mgr->p_subn->force_delayed_heavy_sweep = TRUE;
+      }
+
+      /* If the remote node is ca or router - need to remove the remote port,
+         since it is no longer reachable. This can be done if we reset the
+         discovery count of the remote port. */
+      if ( !p_remote_physp->p_node->sw )
+      {
+        osm_port_discovery_count_reset( p_remote_port );
+        osm_log( p_mgr->p_log, OSM_LOG_DEBUG,
+                 "drop_mgr_clean_physp: Resetting discovery count of node: "
+                 "0x%016" PRIx64 " port num:0x%X\n",
+                 cl_ntoh64( osm_node_get_node_guid( p_remote_physp->p_node ) ),
+                 p_remote_physp->port_num );
+      }
+    }
+
+    osm_log( p_mgr->p_log, OSM_LOG_VERBOSE,
+             "drop_mgr_clean_physp: "
+             "Unlinking local node 0x%016" PRIx64 ", port 0x%X"
+             "\n\t\t\t\tand remote node 0x%016" PRIx64 ", port 0x%X\n",
+             cl_ntoh64( osm_node_get_node_guid( p_physp->p_node ) ),
+             p_physp->port_num,
+             cl_ntoh64( osm_node_get_node_guid( p_remote_physp->p_node ) ),
+             p_remote_physp->port_num );
+
+    osm_physp_unlink( p_physp, p_remote_physp );
+
+  }
+
+  osm_log( p_mgr->p_log, OSM_LOG_DEBUG,
+           "drop_mgr_clean_physp: Clearing physical port number 0x%X\n",
+           p_physp->port_num );
+
+  osm_physp_destroy( p_physp );
+}
+
 /**********************************************************************
  **********************************************************************/
 static void
@@ -156,17 +228,11 @@ __osm_drop_mgr_remove_port(
   uint16_t min_lid_ho;
   uint16_t max_lid_ho;
   uint16_t lid_ho;
-  uint32_t port_num;
-  uint32_t remote_port_num;
-  uint32_t num_physp;
   osm_node_t *p_node;
-  osm_node_t *p_remote_node;
-  osm_physp_t *p_physp;
-  osm_physp_t *p_remote_physp;
   osm_remote_sm_t *p_sm;
   ib_gid_t port_gid;
-  ib_mad_notice_attr_t    notice;
-  ib_api_status_t         status;
+  ib_mad_notice_attr_t notice;
+  ib_api_status_t status;
 
   OSM_LOG_ENTER( p_mgr->p_log, __osm_drop_mgr_remove_port );
 
@@ -231,89 +297,7 @@ __osm_drop_mgr_remove_port(
   for( lid_ho = min_lid_ho; lid_ho <= max_lid_ho; lid_ho++ )
     cl_ptr_vector_set( p_port_lid_tbl, lid_ho, NULL );
 
-  /*
-    For each Physical Port associated with this port:
-    Unlink the remote Physical Port, if any
-    Re-initialize each Physical Port.
-  */
-
-  num_physp = osm_node_get_num_physp( p_port->p_node );
-  for( port_num = 0; port_num < num_physp; port_num++ )
-  {
-    p_physp = osm_node_get_physp_ptr( p_port->p_node, (uint8_t)port_num );
-
-    if( p_physp && osm_physp_is_valid(p_physp) )
-    {
-      p_remote_physp = osm_physp_get_remote( p_physp );
-      if( p_remote_physp && osm_physp_is_valid( p_remote_physp ) )
-      {
-        osm_port_t* p_remote_port;
-
-        p_node = osm_physp_get_node_ptr( p_physp );
-        p_remote_node = osm_physp_get_node_ptr( p_remote_physp );
-        remote_port_num = osm_physp_get_port_num( p_remote_physp );
-        p_remote_port = (osm_port_t*)cl_qmap_get( p_port_guid_tbl, p_remote_physp->port_guid );
-
-        if ( p_remote_port != (osm_port_t*)cl_qmap_end( p_port_guid_tbl ) )
-        {
-          /* Let's check if this is a case of link that is lost (both ports
-             weren't recognized), or a "hiccup" in the subnet - in which case
-             the remote port was recognized, and its state is ACTIVE. 
-             If this is just a "hiccup" - force a heavy sweep in the next sweep.
-             We don't want to lose that part of the subnet. */
-          if (osm_port_discovery_count_get( p_remote_port ) &&
-              osm_physp_get_port_state( p_remote_physp ) == IB_LINK_ACTIVE )
-          {
-            osm_log( p_mgr->p_log, OSM_LOG_VERBOSE,
-                     "__osm_drop_mgr_remove_port: "
-                     "Forcing delayed heavy sweep. Remote "
-                     "port 0x%016" PRIx64 " port num: 0x%X "
-                     "was recognized in ACTIVE state\n",
-                     cl_ntoh64( p_remote_physp->port_guid ),
-                     remote_port_num );
-            p_mgr->p_subn->force_delayed_heavy_sweep = TRUE;
-          }
-        }
-
-        osm_log( p_mgr->p_log, OSM_LOG_VERBOSE,
-                 "__osm_drop_mgr_remove_port: "
-                 "Unlinking local node 0x%016" PRIx64 ", port 0x%X"
-                 "\n\t\t\t\tand remote node 0x%016" PRIx64
-                 ", port 0x%X\n",
-                 cl_ntoh64( osm_node_get_node_guid( p_node ) ),
-                 port_num,
-                 cl_ntoh64( osm_node_get_node_guid( p_remote_node ) ),
-                 remote_port_num );
-
-        osm_node_unlink( p_node, (uint8_t)port_num,
-                         p_remote_node, (uint8_t)remote_port_num );
-
-        /* If the remote node is ca or router - need to remove the remote port,
-           since it is no longer reachable. This can be done if we reset the
-           discovery count of the remote port. */
-        if ( osm_node_get_type( p_remote_node ) != IB_NODE_TYPE_SWITCH )
-        {
-          if ( p_remote_port != (osm_port_t*)cl_qmap_end( p_port_guid_tbl ) )
-          {
-            osm_port_discovery_count_reset( p_remote_port );
-            osm_log( p_mgr->p_log, OSM_LOG_DEBUG,
-                     "__osm_drop_mgr_remove_port: "
-                     "Resetting discovery count of node: "
-                     "0x%016" PRIx64 " port num:0x%X\n",
-                     cl_ntoh64( osm_node_get_node_guid( p_remote_node ) ),
-                     remote_port_num );
-          }
-        }
-      }
-
-      osm_log( p_mgr->p_log, OSM_LOG_DEBUG,
-               "__osm_drop_mgr_remove_port: "
-               "Clearing physical port number 0x%X\n",
-               port_num );
-
-      osm_physp_destroy( p_physp );
-    }
-  }
+  drop_mgr_clean_physp(p_mgr, p_port->p_physp);
 
   p_mcm = (osm_mcm_info_t*)cl_qlist_remove_head( &p_port->mcm_list );
   while( p_mcm != (osm_mcm_info_t *)cl_qlist_end( &p_port->mcm_list ) )
@@ -454,6 +438,8 @@ __osm_drop_mgr_process_node(
 
       if( p_port != (osm_port_t*)cl_qmap_end( p_port_guid_tbl ) )
         __osm_drop_mgr_remove_port( p_mgr, p_port );
+      else
+        drop_mgr_clean_physp( p_mgr, p_physp );
     }
   }
 
@@ -535,8 +521,7 @@ __osm_drop_mgr_check_node(
    
   port_guid = osm_physp_get_port_guid( p_physp );
 
-  p_port = (osm_port_t*)cl_qmap_get(
-    p_port_guid_tbl, port_guid );
+  p_port = (osm_port_t*)cl_qmap_get( p_port_guid_tbl, port_guid );
 
   if( p_port == (osm_port_t*)cl_qmap_end( p_port_guid_tbl ) )
   {
