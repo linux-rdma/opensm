@@ -202,7 +202,8 @@ drop_mgr_clean_physp(
   }
 
   osm_log( p_mgr->p_log, OSM_LOG_DEBUG,
-           "drop_mgr_clean_physp: Clearing physical port number 0x%X\n",
+           "drop_mgr_clean_physp: Clearing node 0x%016" PRIx64 " physical port number 0x%X\n",
+           cl_ntoh64( osm_node_get_node_guid( p_physp->p_node ) ),
            p_physp->port_num );
 
   osm_physp_destroy( p_physp );
