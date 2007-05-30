@@ -585,7 +585,8 @@ main(
   boolean_t             cache_options = FALSE;
   char                 *ignore_guids_file_name = NULL;
   uint32_t              val;
-  const char * const    short_option = "i:f:ed:g:l:L:s:t:a:R:M:U:S:P:NBIQvVhorcyx";
+  const char * const    short_option =
+	  "i:f:ed:g:l:L:s:t:a:R:M:U:S:P:NBIQvVhorcyxp:n:q:k:C:";
 
   /*
     In the array below, the 2nd parameter specifies the number
