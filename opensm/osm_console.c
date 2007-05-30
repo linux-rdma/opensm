@@ -598,15 +598,17 @@ __get_stats(cl_map_item_t * const p_map_item, void *context)
 	fs->total_nodes++;
 
 	for (port = 1; port < num_ports; port++) {
-		osm_physp_t    *phys = osm_node_get_physp_ptr(node, port);
+		osm_physp_t *phys = osm_node_get_physp_ptr(node, port);
 		ib_port_info_t *pi = &(phys->port_info);
+		uint8_t active_speed = ib_port_info_get_link_speed_active(pi);
+		uint8_t enabled_speed = ib_port_info_get_link_speed_enabled(pi);
+		uint8_t active_width = pi->link_width_active;
+		uint8_t enabled_width = pi->link_width_enabled;
+		uint8_t port_state = ib_port_info_get_port_state(pi);
+		uint8_t port_phys_state = ib_port_info_get_port_phys_state(pi);
 
-		uint8_t         active_speed = ib_port_info_get_link_speed_active(pi);
-		uint8_t         enabled_speed = ib_port_info_get_link_speed_enabled(pi);
-		uint8_t         active_width = pi->link_width_active;
-		uint8_t         enabled_width = pi->link_width_enabled;
-		uint8_t         port_state = ib_port_info_get_port_state(pi);
-		uint8_t         port_phys_state = ib_port_info_get_port_phys_state(pi);
+		if (!osm_physp_is_valid(phys))
+			continue;
 
 		if ((enabled_width ^ active_width) > active_width) {
 			__tag_port_report(&(fs->reduced_width_ports),
