@@ -1,4 +1,4 @@
-%define RELEASE 0.1.20070409git
+%define RELEASE 0.1.20070531git
 %define rel %{?CUSTOM_RELEASE} %{!?CUSTOM_RELEASE:%RELEASE}
 %if %{?_with_console_socket:1}%{!?_with_console_socket:0}
 %define _enable_console_socket --enable-console-socket
@@ -7,6 +7,12 @@
 %define _disable_console_socket --disable-console-socket
 %endif
 
+%if %{?_with_perf_mgr:1}%{!?_with_perf_mgr:0}
+%define _enable_perf_mgr --enable-perf-mgr
+%endif
+%if %{?_without_perf_mgr:1}%{!?_without_perf_mgr:0}
+%define _disable_perf_mgr --disable-perf-mgr
+%endif
 
 Summary: InfiniBand subnet manager and administration
 Name: opensm
@@ -62,7 +68,9 @@ Static version of the opensm libraries
 ./autogen.sh
 %configure \
         %{?_enable_console_socket} \
-        %{?_disable_console_socket}
+        %{?_disable_console_socket} \
+        %{?_enable_perf_mgr} \
+        %{?_disable_perf_mgr}
 make %{?_smp_mflags}
 
 %install
@@ -104,7 +112,7 @@ fi
 %files
 %defattr(-,root,root,-)
 %{_sbindir}/opensm
-%{_bindir}/osmtest
+%{_sbindir}/osmtest
 %{_mandir}/man8/*
 %doc AUTHORS COPYING README
 %{_sysconfdir}/init.d/opensm
