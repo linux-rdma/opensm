@@ -589,7 +589,7 @@ __osm_physp_get_dr_physp_set(
              p_path->path[hop]);
 
     /* make sure we got a valid port and it has a remote port */
-    if (!(p_physp && osm_physp_is_valid( p_physp )))
+    if (!osm_physp_is_valid( p_physp ))
     {
       osm_log( p_log, OSM_LOG_ERROR,
                "__osm_physp_get_dr_nodes_set: ERR 4104: "
@@ -770,8 +770,7 @@ osm_physp_replace_dr_path_with_alternate_dr_path(
            4. The port is not in the physp_map
            5. This port haven't been visited before
         */
-        if ( p_remote_physp &&
-             osm_physp_is_valid ( p_remote_physp ) &&
+        if ( osm_physp_is_valid ( p_remote_physp ) &&
              p_remote_physp != p_physp &&
              cl_map_get( &physp_map, __osm_ptr_to_key(p_remote_physp)) == NULL &&
              cl_map_get( &visited_map, __osm_ptr_to_key(p_remote_physp)) == NULL )

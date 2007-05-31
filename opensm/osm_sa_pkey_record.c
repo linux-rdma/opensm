@@ -254,7 +254,7 @@ __osm_sa_pkey_by_comp_mask(
       p_physp = osm_node_get_physp_ptr( p_port->p_node, port_num );
       /* Check that the p_physp is valid, and that is shares a pkey
          with the p_req_physp. */
-      if( p_physp && osm_physp_is_valid( p_physp ) &&
+      if( osm_physp_is_valid( p_physp ) &&
           (osm_physp_share_pkey(p_rcv->p_log, p_req_physp, p_physp)) )
         __osm_sa_pkey_check_physp( p_rcv, p_physp, p_ctxt );
     }
@@ -273,9 +273,6 @@ __osm_sa_pkey_by_comp_mask(
     for( port_num = 0; port_num < num_ports; port_num++ )
     {
       p_physp = osm_node_get_physp_ptr( p_port->p_node, port_num );
-      if( p_physp == NULL )
-        continue;
-
       if( !osm_physp_is_valid( p_physp ) )
         continue;
 

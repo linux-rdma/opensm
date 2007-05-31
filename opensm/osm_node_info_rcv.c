@@ -144,17 +144,14 @@ __osm_ni_rcv_set_links(
 
             p_physp = osm_node_get_physp_ptr( p_node, port_num );
             sprintf( dr_new_path, "no_path_available" );
-            if (p_physp)
+            p_path = osm_physp_get_dr_path_ptr( p_physp );
+            if ( p_path )
             {
-              p_path = osm_physp_get_dr_path_ptr( p_physp );
-              if ( p_path )
+              sprintf( dr_new_path, "new path:" );
+              for (i = 0; i <= p_path->hop_count; i++ )
               {
-                sprintf( dr_new_path, "new path:" );
-                for (i = 0; i <= p_path->hop_count; i++ )
-                {
-                  sprintf( line, "[%X]", p_path->path[i] );
-                  strcat( dr_new_path, line );
-                }
+                sprintf( line, "[%X]", p_path->path[i] );
+                strcat( dr_new_path, line );
               }
             }
 
@@ -164,17 +161,14 @@ __osm_ni_rcv_set_links(
               p_old_neighbor_node,
               old_neighbor_port_num);
             sprintf( dr_old_path, "no_path_available" );
-            if (p_old_physp)
+            p_old_path = osm_physp_get_dr_path_ptr( p_old_physp );
+            if ( p_old_path )
             {
-              p_old_path = osm_physp_get_dr_path_ptr( p_old_physp );
-              if ( p_old_path )
+              sprintf( dr_old_path, "old_path:" );
+              for (i = 0; i <= p_old_path->hop_count; i++ )
               {
-                sprintf( dr_old_path, "old_path:" );
-                for (i = 0; i <= p_old_path->hop_count; i++ )
-                {
-                  sprintf( line, "[%X]", p_old_path->path[i] );
-                  strcat( dr_old_path, line );
-                }
+                sprintf( line, "[%X]", p_old_path->path[i] );
+                strcat( dr_old_path, line );
               }
             }
 
@@ -226,10 +220,9 @@ __osm_ni_rcv_set_links(
                      cl_ntoh64( osm_node_get_node_guid( p_node ) ),
                      port_num );
             p_physp = osm_node_get_physp_ptr( p_node, port_num );
-            if (p_physp)
-              osm_dump_dr_path(p_rcv->p_log,
-                               osm_physp_get_dr_path_ptr(p_physp),
-                               OSM_LOG_ERROR);
+            osm_dump_dr_path(p_rcv->p_log,
+                             osm_physp_get_dr_path_ptr(p_physp),
+                             OSM_LOG_ERROR);
 
             osm_log( p_rcv->p_log, OSM_LOG_SYS,
                      "Errors on subnet. Duplicate GUID found "
@@ -313,7 +306,6 @@ __osm_ni_rcv_process_new_node(
   */
   p_physp = osm_node_get_physp_ptr( p_node, port_num );
 
-  CL_ASSERT( p_physp );
   CL_ASSERT( osm_physp_is_valid( p_physp ) );
   CL_ASSERT( osm_madw_get_bind_handle( p_madw ) ==
              osm_dr_path_get_bind_handle(
@@ -379,7 +371,6 @@ __osm_ni_rcv_get_node_desc(
   */
   p_physp = osm_node_get_physp_ptr( p_node, port_num );
 
-  CL_ASSERT( p_physp );
   CL_ASSERT( osm_physp_is_valid( p_physp ) );
   CL_ASSERT( osm_madw_get_bind_handle( p_madw ) ==
              osm_dr_path_get_bind_handle(
@@ -538,8 +529,6 @@ __osm_ni_rcv_process_existing_ca_or_router(
   else
   {
     p_physp = osm_node_get_physp_ptr( p_node, port_num );
-
-    CL_ASSERT( p_physp );
 
     if ( !osm_physp_is_valid( p_physp ) )
     {

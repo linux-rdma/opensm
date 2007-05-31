@@ -321,14 +321,15 @@ osm_switch_recommend_path(
 
     if (port_num != OSM_NO_PATH)
     {
+      CL_ASSERT(port_num < num_ports);
+
       p_physp = osm_node_get_physp_ptr(p_sw->p_node, port_num);
       /*
         Don't be too trusting of the current forwarding table!
         Verify that the port number is legal and that the
         LID is reachable through this port.
       */
-      if( (port_num < num_ports )  &&
-          osm_physp_is_valid(p_physp) &&
+      if( osm_physp_is_valid(p_physp) &&
           osm_physp_is_healthy(p_physp) &&
           osm_physp_get_remote(p_physp) )
       {

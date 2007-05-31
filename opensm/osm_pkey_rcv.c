@@ -174,8 +174,6 @@ osm_pkey_rcv_process(
     port_num = p_physp->port_num;
   }
 
-  CL_ASSERT( p_physp );
-
   /*
     We do not mind if this is a result of a set or get - all we want is to
     update the subnet.

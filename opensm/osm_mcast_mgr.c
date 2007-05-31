@@ -818,7 +818,6 @@ __osm_mcast_mgr_branch(
       CL_ASSERT( p_remote_node->sw );
 
       p_physp = osm_node_get_physp_ptr( p_node, i );
-      CL_ASSERT( p_physp );
       CL_ASSERT( osm_physp_is_valid( p_physp ) );
 
       p_remote_physp = osm_physp_get_remote( p_physp );

@@ -100,6 +100,7 @@ __get_physp_by_lid_and_num(
 {
   cl_ptr_vector_t *p_vec = &(p_rcv->p_subn->port_lid_tbl);
   osm_port_t *p_port;
+  osm_physp_t *p_physp;
 
   if (lid > cl_ptr_vector_get_size(p_vec))
     return NULL;
@@ -111,7 +112,9 @@ __get_physp_by_lid_and_num(
   if (osm_node_get_num_physp(p_port->p_node) < num)
     return NULL;
 
-  return( osm_node_get_physp_ptr(p_port->p_node, num) );
+  p_physp = osm_node_get_physp_ptr(p_port->p_node, num);
+
+  return osm_physp_is_valid(p_physp) ? p_physp : NULL;
 }
 
 /**********************************************************************

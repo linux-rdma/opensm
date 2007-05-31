@@ -925,7 +925,6 @@ __osm_state_mgr_sweep_hop_1(
 
    p_physp = osm_node_get_physp_ptr( p_node, port_num );
 
-   CL_ASSERT( p_physp );
    CL_ASSERT( osm_physp_is_valid( p_physp ) );
 
    p_dr_path = osm_physp_get_dr_path_ptr( p_physp );
@@ -972,9 +971,6 @@ __osm_state_mgr_sweep_hop_1(
       {
          /* go through the port only if the port is not DOWN */
          p_ext_physp = osm_node_get_physp_ptr( p_node, port_num );
-         /* Make sure the physp object exists */
-         if( !p_ext_physp )
-            continue;
          if( ib_port_info_get_port_state( &( p_ext_physp->port_info ) ) >
              IB_LINK_DOWN )
          {
@@ -1119,7 +1115,7 @@ __osm_topology_file_create(
 
             p_physp = osm_node_get_physp_ptr( p_node, cPort );
 
-            if( ( p_physp == NULL ) || ( !osm_physp_is_valid( p_physp ) ) )
+            if( !osm_physp_is_valid( p_physp ) )
                continue;
 
             p_rphysp = p_physp->p_remote_physp;
@@ -1288,7 +1284,7 @@ __osm_state_mgr_report(
       for( port_num = start_port; port_num < num_ports; port_num++ )
       {
          p_physp = osm_node_get_physp_ptr( p_node, port_num );
-         if( ( p_physp == NULL ) || ( !osm_physp_is_valid( p_physp ) ) )
+         if( !osm_physp_is_valid( p_physp ) )
             continue;
 
          osm_log_printf( p_mgr->p_log, OSM_LOG_VERBOSE, "%s : %s : %02X :",

@@ -61,7 +61,6 @@ osm_node_init_physp(
   IN osm_node_t* const p_node,
   IN const osm_madw_t* const p_madw )
 {
-  osm_physp_t        *p_physp;
   ib_net64_t         port_guid;
   ib_smp_t           *p_smp;
   ib_node_info_t     *p_ni;
@@ -80,9 +79,8 @@ osm_node_init_physp(
 
   CL_ASSERT( port_num < p_node->physp_tbl_size );
 
-  p_physp = osm_node_get_physp_ptr( p_node, port_num );
-
-  osm_physp_init( p_physp, port_guid, port_num, p_node,
+  osm_physp_init( &p_node->physp_table[port_num],
+                  port_guid, port_num, p_node,
                   osm_madw_get_bind_handle( p_madw ),
                   p_smp->hop_count, p_smp->initial_path );
 }
@@ -133,7 +131,7 @@ osm_node_new(
       Get(NodeInfo).
     */
     for( i = 0; i < p_node->physp_tbl_size; i++ )
-      osm_physp_construct( osm_node_get_physp_ptr( p_node, i ) );
+      osm_physp_construct( &p_node->physp_table[i] );
 
     osm_node_init_physp( p_node, p_madw );
   }
@@ -147,18 +145,13 @@ static void
 osm_node_destroy(
   IN osm_node_t *p_node )
 {
-  osm_physp_t *p_physp;
   uint16_t i;
 
   /*
     Cleanup all physports 
   */
   for( i = 0; i < p_node->physp_tbl_size; i++ )
-  {
-    p_physp = osm_node_get_physp_ptr( p_node, i );
-    if (p_physp) 
-      osm_physp_destroy( p_physp );
-  }
+    osm_physp_destroy( &p_node->physp_table[i] );
 }
 
 /**********************************************************************
@@ -189,8 +182,7 @@ osm_node_link(
   CL_ASSERT( remote_port_num < p_remote_node->physp_tbl_size );
 
   p_physp = osm_node_get_physp_ptr( p_node, port_num );
-  p_remote_physp =  osm_node_get_physp_ptr( p_remote_node,
-                                            remote_port_num );
+  p_remote_physp =  osm_node_get_physp_ptr( p_remote_node, remote_port_num );
 
   if (p_physp->p_remote_physp)
     p_physp->p_remote_physp->p_remote_physp = NULL;
@@ -220,8 +212,7 @@ osm_node_unlink(
   {
 
     p_physp = osm_node_get_physp_ptr( p_node, port_num );
-    p_remote_physp =  osm_node_get_physp_ptr( p_remote_node,
-                                              remote_port_num );
+    p_remote_physp =  osm_node_get_physp_ptr( p_remote_node, remote_port_num );
 
     osm_physp_unlink( p_physp, p_remote_physp );
   }
@@ -243,8 +234,7 @@ osm_node_link_exists(
   CL_ASSERT( remote_port_num < p_remote_node->physp_tbl_size );
 
   p_physp = osm_node_get_physp_ptr( p_node, port_num );
-  p_remote_physp =  osm_node_get_physp_ptr( p_remote_node,
-                                            remote_port_num );
+  p_remote_physp =  osm_node_get_physp_ptr( p_remote_node, remote_port_num );
 
   return( osm_physp_link_exists( p_physp, p_remote_physp ) );
 }
@@ -265,8 +255,7 @@ osm_node_link_has_valid_ports(
   CL_ASSERT( remote_port_num < p_remote_node->physp_tbl_size );
 
   p_physp = osm_node_get_physp_ptr( p_node, port_num );
-  p_remote_physp =  osm_node_get_physp_ptr( p_remote_node,
-                                            remote_port_num );
+  p_remote_physp =  osm_node_get_physp_ptr( p_remote_node, remote_port_num );
 
   return( osm_physp_is_valid( p_physp ) &&
           osm_physp_is_valid( p_remote_physp ) );
@@ -329,4 +318,3 @@ osm_node_get_remote_base_lid(
 
   return( 0 );
 }
-

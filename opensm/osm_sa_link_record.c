@@ -357,7 +357,8 @@ __osm_lr_rcv_get_port_links(
           p_dest_physp = osm_node_get_physp_ptr( p_dest_port->p_node,
                                                  dest_port_num );
           /* both physical ports should be with data */
-          if (p_src_physp && p_dest_physp)
+          if (osm_physp_is_valid(p_src_physp) &&
+              osm_physp_is_valid(p_dest_physp))
             __osm_lr_rcv_get_physp_link( p_rcv, p_lr, p_src_physp,
                                          p_dest_physp, comp_mask,
                                          p_list, p_req_physp );
@@ -377,7 +378,7 @@ __osm_lr_rcv_get_port_links(
         if (port_num < p_src_port->p_node->physp_tbl_size)
         {          
           p_src_physp = osm_node_get_physp_ptr( p_src_port->p_node, port_num );
-          if (p_src_physp)
+          if (osm_physp_is_valid(p_src_physp))
             __osm_lr_rcv_get_physp_link( p_rcv, p_lr, p_src_physp,
                                          NULL, comp_mask, p_list,
                                          p_req_physp );
@@ -389,7 +390,7 @@ __osm_lr_rcv_get_port_links(
         for( port_num = 1; port_num < num_ports; port_num++ )
         {
           p_src_physp = osm_node_get_physp_ptr( p_src_port->p_node, port_num );
-          if (p_src_physp)
+          if (osm_physp_is_valid(p_src_physp))
             __osm_lr_rcv_get_physp_link( p_rcv, p_lr, p_src_physp,
                                          NULL, comp_mask, p_list,
                                          p_req_physp );
@@ -411,9 +412,9 @@ __osm_lr_rcv_get_port_links(
            this couldn't be a relevant record. */
         if (port_num < p_dest_port->p_node->physp_tbl_size )
         {
-          p_dest_physp = osm_node_get_physp_ptr(
-            p_dest_port->p_node, port_num );
-          if (p_dest_physp)
+          p_dest_physp = osm_node_get_physp_ptr( p_dest_port->p_node,
+                                                 port_num );
+          if (osm_physp_is_valid(p_dest_physp))
             __osm_lr_rcv_get_physp_link( p_rcv, p_lr, NULL,
                                          p_dest_physp, comp_mask,
                                          p_list, p_req_physp );
@@ -424,9 +425,9 @@ __osm_lr_rcv_get_port_links(
         num_ports = osm_node_get_num_physp( p_dest_port->p_node );
         for( port_num = 1; port_num < num_ports; port_num++ )
         {
-          p_dest_physp = osm_node_get_physp_ptr(
-            p_dest_port->p_node, port_num );
-          if (p_dest_physp)
+          p_dest_physp = osm_node_get_physp_ptr( p_dest_port->p_node,
+                                                 port_num );
+          if (osm_physp_is_valid(p_dest_physp))
             __osm_lr_rcv_get_physp_link( p_rcv, p_lr, NULL,
                                          p_dest_physp, comp_mask,
                                          p_list, p_req_physp );

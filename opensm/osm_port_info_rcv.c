@@ -559,7 +559,7 @@ osm_pi_rcv_process_set(
   CL_ASSERT( p_node );
 
   p_physp = osm_node_get_physp_ptr( p_node, port_num );
-  CL_ASSERT( p_physp && osm_physp_is_valid( p_physp ) );
+  CL_ASSERT( osm_physp_is_valid( p_physp ) );
 
   port_guid = osm_physp_get_port_guid( p_physp );
 
@@ -744,10 +744,9 @@ osm_pi_rcv_process(
     }
 
     p_node = p_port->p_node;
-    p_physp = osm_node_get_physp_ptr( p_node, port_num );
-
     CL_ASSERT( p_node );
-    CL_ASSERT( p_physp );
+
+    p_physp = osm_node_get_physp_ptr( p_node, port_num );
 
     /*
       Determine if we encountered a new Physical Port.

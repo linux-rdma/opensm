@@ -337,7 +337,7 @@ osm_signal_t osm_qos_setup(osm_opensm_t * p_osm)
 			num_physp = osm_node_get_num_physp(p_node);
 			for (i = 1; i < num_physp; i++) {
 				p_physp = osm_node_get_physp_ptr(p_node, i);
-				if (!p_physp || !osm_physp_is_valid(p_physp))
+				if (!osm_physp_is_valid(p_physp))
 					continue;
 				status =
 				    qos_physp_setup(&p_osm->log, &p_osm->sm.req,

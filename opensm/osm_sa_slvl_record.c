@@ -244,9 +244,6 @@ __osm_sa_slvl_by_comp_mask(
 
     for( out_port_num = out_port_start; out_port_num <= out_port_end; out_port_num++ ) {
       p_out_physp = osm_node_get_physp_ptr( p_port->p_node, out_port_num );
-      if( p_out_physp == NULL )
-        continue;
-
       if( !osm_physp_is_valid( p_out_physp ) )
         continue;
 
@@ -257,9 +254,6 @@ __osm_sa_slvl_by_comp_mask(
 #endif
 
         p_in_physp = osm_node_get_physp_ptr( p_port->p_node, in_port_num );
-        if( p_in_physp == NULL )
-          continue;
-
         if( !osm_physp_is_valid( p_in_physp ) )
           continue;
 

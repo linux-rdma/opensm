@@ -435,7 +435,7 @@ __osm_link_mgr_process_port(
       specified state.
     */
     p_physp = osm_node_get_physp_ptr( p_port->p_node, (uint8_t)i );
-    if( p_physp && osm_physp_is_valid( p_physp ) )
+    if( osm_physp_is_valid( p_physp ) )
     {
       current_state = osm_physp_get_port_state( p_physp );
 
