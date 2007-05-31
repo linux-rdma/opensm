@@ -11,7 +11,7 @@ provided in the doc sub directory.
 
 The installation of OpenSM includes:
 
-bin/
+sbin/
    opensm - the SM/SA executable
    osmtest - a test program for the SM/SA
 lib/
