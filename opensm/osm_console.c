@@ -927,7 +927,7 @@ void osm_console_init(osm_subn_opt_t *opt, osm_opensm_t *p_osm)
 		if ((p_osm->console.socket = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 		{
 			osm_log(&(p_osm->log), OSM_LOG_ERROR,
-				"osm_console_init: Failed to open console socket: %s\n",
+				"osm_console_init: ERR 4B01: Failed to open console socket: %s\n",
 				strerror(errno));
 			return;
 		}
@@ -938,14 +938,14 @@ void osm_console_init(osm_subn_opt_t *opt, osm_opensm_t *p_osm)
 		if (bind(p_osm->console.socket, &sin, sizeof(sin)) < 0)
 		{
 			osm_log(&(p_osm->log), OSM_LOG_ERROR,
-				"osm_console_init: Failed to bind console socket: %s\n",
+				"osm_console_init: ERR 4B02: Failed to bind console socket: %s\n",
 				strerror(errno));
 			return;
 		}
 		if (listen(p_osm->console.socket, 1) < 0)
 		{
 			osm_log(&(p_osm->log), OSM_LOG_ERROR,
-				"osm_console_init: Failed to listen on socket: %s\n",
+				"osm_console_init: ERR 4B03: Failed to listen on socket: %s\n",
 				strerror(errno));
 			return;
 		}
@@ -1046,7 +1046,7 @@ void osm_console(osm_opensm_t *p_osm)
 		struct hostent *hent;
 		if ((new_fd = accept(p_osm->console.socket, &sin, &len)) < 0) {
 			osm_log(&(p_osm->log), OSM_LOG_ERROR,
-				"osm_console: Failed to accept console socket: %s\n",
+				"osm_console: ERR 4B04: Failed to accept console socket: %s\n",
 				strerror(errno));
 			p_osm->console.in_fd = -1;
 			return;
@@ -1064,7 +1064,7 @@ void osm_console(osm_opensm_t *p_osm)
 			handle_osm_connection(p_osm, new_fd, client_ip, client_hn);
 		} else {
 			osm_log(&(p_osm->log), OSM_LOG_ERROR,
-				"osm_console: Console connection denied: %s (%s)\n",
+				"osm_console: ERR 4B05: Console connection denied: %s (%s)\n",
 				client_hn, client_ip);
 			close(new_fd);
 		}
