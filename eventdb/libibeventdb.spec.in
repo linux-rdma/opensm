@@ -10,8 +10,8 @@ Release: %rel%{?dist}
 License: GPL/BSD
 Group: System Environment/Libraries
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
-Source: http://openib.org/downloads/%{name}-%{version}.tar.gz
-Url: http://openib.org/
+Source: http://openfabrics.org/~halr/management/%{name}-%{version}.tar.gz
+Url: http://openfabrics.org/
 Requires: opensm
 
 %description
