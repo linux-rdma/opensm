@@ -632,6 +632,15 @@ __osm_sminfo_rcv_process_get_response(
     goto Exit;
   }
 
+  if( port_guid == p_rcv->p_subn->sm_port_guid )
+  {
+    osm_log( p_rcv->p_log, OSM_LOG_VERBOSE,
+             "__osm_sminfo_rcv_process_get_response: "
+             "Self query response received - SM port 0x%016" PRIx64 "\n",
+             cl_ntoh64( port_guid ) );
+    goto Exit;
+  }
+
   p_sm = (osm_remote_sm_t*)cl_qmap_get( p_sm_tbl, port_guid );
   if( p_sm == (osm_remote_sm_t*)cl_qmap_end( p_sm_tbl ) )
   {
