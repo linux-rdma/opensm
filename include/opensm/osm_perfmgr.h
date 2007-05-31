@@ -73,6 +73,8 @@ extern "C" {
 #define OSM_PERFMGR_DEFAULT_SWEEP_TIME_S 180
 #define OSM_PERFMGR_DEFAULT_DUMP_FILE OSM_DEFAULT_TMP_DIR "/opensm_port_counters.log"
 #define OSM_DEFAULT_EVENT_PLUGIN "ibeventdb"
+#define OSM_PERFMGR_DEFAULT_MAX_OUTSTANDING_QUERIES 500
+
 
 /****s* OpenSM: PerfMgr/osm_perfmgr_state_t */
 typedef enum
@@ -89,8 +91,6 @@ typedef enum
   PERFMGR_SWEEP_ACTIVE,
   PERFMGR_SWEEP_SUSPENDED
 } osm_perfmgr_sweep_state_t;
-
-#define PERFMGR_MAX_OUTSTANDING_QUERIES 500
 
 /* Node to store information about which nodes we are monitoring */
 typedef struct _monitored_node {
@@ -126,6 +126,7 @@ typedef struct _osm_perfmgr
   perfmgr_event_db_t        *db;
   atomic32_t                 outstanding_queries; /* this along with sig_query */
   cl_event_t                 sig_query;           /* will throttle our querys */
+  uint32_t                   max_outstanding_queries;
   cl_qmap_t                  monitored_map;       /* map the nodes we are tracking */
   __monitored_node_t        *remove_list;
 } osm_perfmgr_t;

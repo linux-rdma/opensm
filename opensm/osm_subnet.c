@@ -474,6 +474,8 @@ osm_subn_set_default_opt(
 #ifdef ENABLE_OSM_PERF_MGR
   p_opt->perfmgr = FALSE;
   p_opt->perfmgr_sweep_time_s = OSM_PERFMGR_DEFAULT_SWEEP_TIME_S;
+  p_opt->perfmgr_max_outstanding_queries =
+	  OSM_PERFMGR_DEFAULT_MAX_OUTSTANDING_QUERIES;
   p_opt->event_db_dump_file = OSM_PERFMGR_DEFAULT_DUMP_FILE;
   p_opt->event_db_plugin = OSM_DEFAULT_EVENT_PLUGIN;
 #endif /* ENABLE_OSM_PERF_MGR */
@@ -1091,6 +1093,17 @@ osm_subn_verify_conf_file(
     cl_log_event("OpenSM", CL_LOG_INFO, buff, NULL, 0);
     p_opts->perfmgr_sweep_time_s = OSM_PERFMGR_DEFAULT_SWEEP_TIME_S;
   }
+  if (p_opts->perfmgr_max_outstanding_queries < 1)
+  {
+    sprintf(buff, " Invalid Cached Option Value:perfmgr_max_outstanding_queries = %u"
+            "Using Default:%u\n",
+            p_opts->perfmgr_max_outstanding_queries,
+	    OSM_PERFMGR_DEFAULT_MAX_OUTSTANDING_QUERIES);
+    printf(buff);
+    cl_log_event("OpenSM", CL_LOG_INFO, buff, NULL, 0);
+    p_opts->perfmgr_max_outstanding_queries =
+	    OSM_PERFMGR_DEFAULT_MAX_OUTSTANDING_QUERIES;
+  }
 #endif
 }
 
@@ -1341,6 +1354,10 @@ osm_subn_parse_conf_file(
       __osm_subn_opts_unpack_uint16(
         "perfmgr_sweep_time_s",
         p_key, p_val, &p_opts->perfmgr_sweep_time_s);
+
+      __osm_subn_opts_unpack_uint32(
+        "perfmgr_max_outstanding_queries",
+        p_key, p_val, &p_opts->perfmgr_max_outstanding_queries);
 
       __osm_subn_opts_unpack_charp(
         "event_db_dump_file",
@@ -1603,10 +1620,13 @@ osm_subn_write_conf_file(
     "# perfmgr enable\n"
     "perfmgr %s\n\n"
     "# sweep time in seconds\n"
-    "perfmgr_sweep_time_s %d\n\n"
+    "perfmgr_sweep_time_s %u\n\n"
+    "# Max outstanding queries\n"
+    "perfmgr_max_outstanding_queries %u\n\n"
     ,
     p_opts->perfmgr ? "TRUE" : "FALSE",
-    p_opts->perfmgr_sweep_time_s
+    p_opts->perfmgr_sweep_time_s,
+    p_opts->perfmgr_max_outstanding_queries
     );
 
   fprintf(

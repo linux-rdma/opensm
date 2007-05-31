@@ -311,7 +311,8 @@ osm_perfmgr_send_pc_mad(osm_perfmgr_t *perfmgr, ib_net16_t dest_lid, uint8_t por
 	if (status == IB_SUCCESS) {
 		/* pause this thread if we have too many outstanding requests */
 		cl_atomic_inc(&(perfmgr->outstanding_queries));
-		if (perfmgr->outstanding_queries > PERFMGR_MAX_OUTSTANDING_QUERIES) {
+		if (perfmgr->outstanding_queries >
+				perfmgr->max_outstanding_queries) {
 			perfmgr->sweep_state = PERFMGR_SWEEP_SUSPENDED;
 			cl_event_wait_on( &perfmgr->sig_query, EVENT_NO_TIMEOUT, TRUE );
 			perfmgr->sweep_state = PERFMGR_SWEEP_ACTIVE;
@@ -821,6 +822,7 @@ osm_perfmgr_init(
 	pm->sweep_time_s = p_opt->perfmgr_sweep_time_s;
 	pm->event_db_dump_file = strdup(p_opt->event_db_dump_file);
 	pm->event_db_plugin = strdup(p_opt->event_db_plugin);
+	pm->max_outstanding_queries = p_opt->perfmgr_max_outstanding_queries;
 
 	pm->db = perfmgr_edb_construct(pm->log, pm->event_db_plugin);
 	if (!pm->db)
