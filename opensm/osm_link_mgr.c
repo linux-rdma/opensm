@@ -399,9 +399,9 @@ __osm_link_mgr_set_physp_pi(
 /**********************************************************************
  **********************************************************************/
 static osm_signal_t
-__osm_link_mgr_process_port(
+__osm_link_mgr_process_node(
   IN osm_link_mgr_t* const p_mgr,
-  IN osm_port_t* const p_port,
+  IN osm_node_t* const p_node,
   IN const uint8_t link_state )
 {
   uint32_t i;
@@ -410,14 +410,14 @@ __osm_link_mgr_process_port(
   uint8_t current_state;
   osm_signal_t signal = OSM_SIGNAL_DONE;
 
-  OSM_LOG_ENTER( p_mgr->p_log, __osm_link_mgr_process_port );
+  OSM_LOG_ENTER( p_mgr->p_log, __osm_link_mgr_process_node );
 
   if( osm_log_is_active( p_mgr->p_log, OSM_LOG_DEBUG ) )
   {
     osm_log( p_mgr->p_log, OSM_LOG_DEBUG,
-             "__osm_link_mgr_process_port: "
-             "Port 0x%" PRIx64 " going to %s\n",
-             cl_ntoh64( osm_port_get_guid( p_port ) ),
+             "__osm_link_mgr_process_node: "
+             "Node 0x%" PRIx64 " going to %s\n",
+             cl_ntoh64( osm_node_get_node_guid( p_node ) ),
              ib_get_port_state_str( link_state ) );
   }
 
@@ -426,7 +426,7 @@ __osm_link_mgr_process_port(
     with this Port.  Start iterating with port 1, since the linkstate
     is not applicable to the management port on switches.
   */
-  num_physp = osm_node_get_num_physp( p_port->p_node );
+  num_physp = osm_node_get_num_physp( p_node );
   for( i = 0; i < num_physp; i ++ )
   {
     /*
@@ -434,7 +434,7 @@ __osm_link_mgr_process_port(
       or if the state of the port is already better then the
       specified state.
     */
-    p_physp = osm_node_get_physp_ptr( p_port->p_node, (uint8_t)i );
+    p_physp = osm_node_get_physp_ptr( p_node, (uint8_t)i );
     if( osm_physp_is_valid( p_physp ) )
     {
       current_state = osm_physp_get_port_state( p_physp );
@@ -464,9 +464,9 @@ __osm_link_mgr_process_port(
         if( osm_log_is_active( p_mgr->p_log, OSM_LOG_DEBUG ) )
         {
           osm_log( p_mgr->p_log, OSM_LOG_DEBUG,
-                   "__osm_link_mgr_process_port: "
+                   "__osm_link_mgr_process_node: "
                    "Physical port 0x%X already %s. Skipping\n",
-                   osm_physp_get_port_num( p_physp ),
+                   p_physp->port_num,
                    ib_get_port_state_str( current_state ) );
         }
       }
@@ -484,21 +484,21 @@ osm_link_mgr_process(
   IN osm_link_mgr_t* const p_mgr,
   IN const uint8_t link_state )
 {
-  cl_qmap_t *p_port_guid_tbl;
-  osm_port_t *p_port;
+  cl_qmap_t *p_node_guid_tbl;
+  osm_node_t *p_node;
   osm_signal_t signal = OSM_SIGNAL_DONE;
 
   OSM_LOG_ENTER( p_mgr->p_log, osm_link_mgr_process );
 
-  p_port_guid_tbl = &p_mgr->p_subn->port_guid_tbl;
+  p_node_guid_tbl = &p_mgr->p_subn->node_guid_tbl;
 
   CL_PLOCK_EXCL_ACQUIRE( p_mgr->p_lock );
 
-  for( p_port = (osm_port_t*)cl_qmap_head( p_port_guid_tbl );
-       p_port != (osm_port_t*)cl_qmap_end( p_port_guid_tbl );
-       p_port = (osm_port_t*)cl_qmap_next( &p_port->map_item ) )
+  for( p_node = (osm_node_t*)cl_qmap_head( p_node_guid_tbl );
+       p_node != (osm_node_t*)cl_qmap_end( p_node_guid_tbl );
+       p_node = (osm_node_t*)cl_qmap_next( &p_node->map_item ) )
   {
-    if( __osm_link_mgr_process_port( p_mgr, p_port, link_state ) ==
+    if( __osm_link_mgr_process_node( p_mgr, p_node, link_state ) ==
         OSM_SIGNAL_DONE_PENDING )
       signal = OSM_SIGNAL_DONE_PENDING;
   }
