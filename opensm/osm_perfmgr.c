@@ -126,6 +126,7 @@ osm_perfmgr_mad_recv_callback(osm_madw_t *p_madw, void* bind_context,
 	if (cl_disp_post(pm->pc_disp_h, OSM_MSG_MAD_PORT_COUNTERS,
 			(void *)p_madw, NULL, NULL) != CL_SUCCESS) {
 		osm_log(pm->log, OSM_LOG_ERROR,
+			"osm_perfmgr_mad_recv_callback: ERR 4C01: "
 			"PerfMgr Dispatcher post failed\n");
 		osm_mad_pool_put(pm->mad_pool, p_madw);
 	}
@@ -154,7 +155,7 @@ osm_perfmgr_mad_send_err_callback(void* bind_context, osm_madw_t *p_madw)
 	OSM_LOG_ENTER( pm->log, osm_pm_mad_send_err_callback );
 
 	osm_log( pm->log, OSM_LOG_ERROR,
-		"osm_pm_mad_send_err_callback: 0x%" PRIx64 " port %d\n",
+		"osm_pm_mad_send_err_callback: ERR 4C02: 0x%" PRIx64 " port %d\n",
 		context->perfmgr_context.node_guid,
 		context->perfmgr_context.port);
 
@@ -178,7 +179,7 @@ osm_perfmgr_bind(osm_perfmgr_t * const pm, const ib_net64_t port_guid)
 
 	if( pm->bind_handle != OSM_BIND_INVALID_HANDLE ) {
 		osm_log( pm->log, OSM_LOG_ERROR,
-		         "osm_pm_mad_ctrl_bind: Multiple binds not allowed\n" );
+		         "osm_pm_mad_ctrl_bind: ERR 4C03: Multiple binds not allowed\n" );
 		status = IB_ERROR;
 		goto Exit;
 	}
@@ -207,7 +208,7 @@ osm_perfmgr_bind(osm_perfmgr_t * const pm, const ib_net64_t port_guid)
 	if( pm->bind_handle == OSM_BIND_INVALID_HANDLE ) {
 		status = IB_ERROR;
 		osm_log( pm->log, OSM_LOG_ERROR,
-		         "osm_pm_mad_bind: Vendor specific bind failed (%s)\n",
+		         "osm_pm_mad_bind: ERR 4C04: Vendor specific bind failed (%s)\n",
 		         ib_get_err_str(status) );
 		goto Exit;
 	}
@@ -226,7 +227,7 @@ osm_perfmgr_mad_unbind(osm_perfmgr_t * const pm)
 	OSM_LOG_ENTER( pm->log, osm_sa_mad_ctrl_unbind );
 	if( pm->bind_handle == OSM_BIND_INVALID_HANDLE ) {
 		osm_log( pm->log, OSM_LOG_ERROR,
-		         "osm_pm_mad_unbind: No previous bind\n" );
+		         "osm_pm_mad_unbind: ERR 4C05: No previous bind\n" );
 		goto Exit;
 	}
 	osm_vendor_unbind( pm->bind_handle );
@@ -342,7 +343,7 @@ __collect_guids(cl_map_item_t * const p_map_item, void *context)
 		mon_node = malloc(sizeof(*mon_node));
 		if (!mon_node) {
 			osm_log(pm->log, OSM_LOG_ERROR,
-				"PerfMgr: __collect_guids malloc failed so not handling node GUID 0x%" PRIx64 "\n", node_guid);
+				"PerfMgr: __collect_guids ERR 4C06: malloc failed so not handling node GUID 0x%" PRIx64 "\n", node_guid);
 			goto Exit;
 		}
 		mon_node->guid = node_guid;
@@ -376,7 +377,7 @@ __osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context )
 			cl_hton64(mon_node->guid));
 	if (node == (osm_node_t *)cl_qmap_end(&(pm->subn->node_guid_tbl))) {
 		osm_log(pm->log, OSM_LOG_ERROR,
-			"Node guid 0x%" PRIx64 " no longer exists so removing from PerfMgr monitoring\n",
+			"__osm_pm_query_counters: ERR 4C07: Node guid 0x%" PRIx64 " no longer exists so removing from PerfMgr monitoring\n",
 			mon_node->guid);
 		__mark_for_removal(pm, mon_node);
 		goto Exit;
@@ -391,7 +392,7 @@ __osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context )
 		PERFMGR_EVENT_DB_SUCCESS)
 	{
 		osm_log(pm->log, OSM_LOG_ERROR,
-			"PerfMgr: DB create entry failed for 0x%" PRIx64 " (%s) : %s\n",
+			"PerfMgr: ERR 4C08: DB create entry failed for 0x%" PRIx64 " (%s) : %s\n",
 			node_guid, node->print_desc, strerror(errno));
 		goto Exit;
 	}
@@ -429,7 +430,7 @@ __osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context )
 		if (status != IB_SUCCESS)
 		{
 		      osm_log(pm->log, OSM_LOG_ERROR,
-				"PerfMgr: Failed to issue port counter query for node 0x%" PRIx64 " port %d (%s)\n",
+				"PerfMgr: ERR 4C09: Failed to issue port counter query for node 0x%" PRIx64 " port %d (%s)\n",
 				node->node_info.node_guid, port,
 				node->print_desc);
 		}
@@ -567,7 +568,7 @@ osm_perfmgr_check_oob_clear(osm_perfmgr_t *pm, uint64_t node_guid, uint8_t port,
 	   )
 	{
 		osm_log(pm->log, OSM_LOG_ERROR,
-			"PerfMgr: Detected an out of band error clear on node 0x%" PRIx64 " port %u\n",
+			"PerfMgr: ERR 4C0A: Detected an out of band error clear on node 0x%" PRIx64 " port %u\n",
 			node_guid, port
 			);
 		perfmgr_edb_clear_prev_err(pm->db, node_guid, port);
@@ -590,7 +591,7 @@ osm_perfmgr_check_oob_clear(osm_perfmgr_t *pm, uint64_t node_guid, uint8_t port,
 		)
 	{
 		osm_log(pm->log, OSM_LOG_ERROR,
-			"PerfMgr: Detected an out of band data counter clear on node 0x%" PRIx64 " port %u\n",
+			"PerfMgr: ERR 4C0B: Detected an out of band data counter clear on node 0x%" PRIx64 " port %u\n",
 			node_guid, port
 			);
 		perfmgr_edb_clear_prev_dc(pm->db, node_guid, port);
@@ -659,7 +660,7 @@ osm_perfmgr_check_overflow(osm_perfmgr_t *pm, uint64_t node_guid,
 		if (lid == 0)
 		{
 			osm_log(pm->log, OSM_LOG_ERROR,
-				"PerfMgr: Failed to clear counters for node 0x%" PRIx64 " port %d; failed to get lid\n",
+				"PerfMgr: ERR 4C0C: Failed to clear counters for node 0x%" PRIx64 " port %d; failed to get lid\n",
 				node_guid, port);
 			goto Exit;
 		}
@@ -698,6 +699,7 @@ osm_perfmgr_log_events(osm_perfmgr_t *pm, uint64_t node_guid, uint8_t port,
 	 * file somewhere. */
 	if (reading->symbol_err_cnt > prev_read.symbol_err_cnt) {
 		osm_log(pm->log, OSM_LOG_ERROR,
+			"osm_perfmgr_log_events: ERR 4C0D: "
 			"Found %"PRIu64" Symbol errors in %lu sec on node 0x%" PRIx64 " port %u\n",
 			(reading->symbol_err_cnt - prev_read.symbol_err_cnt),
 			time_diff,
@@ -706,6 +708,7 @@ osm_perfmgr_log_events(osm_perfmgr_t *pm, uint64_t node_guid, uint8_t port,
 	}
 	if (reading->rcv_err > prev_read.rcv_err) {
 		osm_log(pm->log, OSM_LOG_ERROR,
+			"osm_perfmgr_log_events: ERR 4C0E: "
 			"Found %"PRIu64" Recieve errors in %lu sec on node 0x%" PRIx64 " port %u\n",
 			(reading->rcv_err - prev_read.rcv_err),
 			time_diff,
@@ -714,6 +717,7 @@ osm_perfmgr_log_events(osm_perfmgr_t *pm, uint64_t node_guid, uint8_t port,
 	}
 	if (reading->xmit_discards > prev_read.xmit_discards) {
 		osm_log(pm->log, OSM_LOG_ERROR,
+			"osm_perfmgr_log_events: ERR 4C0F: "
 			"Found %"PRIu64" XMIT Discards in %lu sec on node 0x%" PRIx64 " port %u\n",
 			(reading->xmit_discards - prev_read.xmit_discards),
 			time_diff,
@@ -869,7 +873,7 @@ osm_perfmgr_dump_counters(osm_perfmgr_t *pm, perfmgr_edb_dump_t dump_type)
 	if (perfmgr_edb_dump(pm->db, pm->event_db_dump_file, dump_type) != 0)
 	{
 		osm_log( pm->log, OSM_LOG_ERROR,
-			"PB dump port counters: Failed to file %s : %s",
+			"PB dump port counters: ERR 4C10: Failed to dump file %s : %s",
 			pm->event_db_dump_file, strerror(errno));
 	}
 }
