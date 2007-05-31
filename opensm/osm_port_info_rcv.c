@@ -33,7 +33,6 @@
  *
  */
 
-
 /*
  * Abstract:
  *    Implementation of osm_pi_rcv_t.
@@ -724,7 +723,7 @@ osm_pi_rcv_process(
   }
   else
   {
-    osm_port_discovery_count_inc( p_port );
+    p_port->discovery_count++;
 
     /*
       This PortInfo arrived because we did a Get() method,

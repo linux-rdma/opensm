@@ -524,7 +524,7 @@ __osm_state_mgr_reset_node_count(
                cl_ntoh64( osm_node_get_node_guid( p_node ) ) );
    }
 
-   osm_node_discovery_count_reset( p_node );
+   p_node->discovery_count = 0;
 }
 
 /**********************************************************************
@@ -545,7 +545,7 @@ __osm_state_mgr_reset_port_count(
                cl_ntoh64( osm_port_get_guid( p_port ) ) );
    }
 
-   osm_port_discovery_count_reset( p_port );
+   p_port->discovery_count = 0;
 }
 
 /**********************************************************************

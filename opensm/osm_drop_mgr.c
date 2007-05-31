@@ -161,7 +161,7 @@ drop_mgr_clean_physp(
          the remote port was recognized, and its state is ACTIVE.
          If this is just a "hiccup" - force a heavy sweep in the next sweep.
          We don't want to lose that part of the subnet. */
-      if (osm_port_discovery_count_get( p_remote_port ) &&
+      if (p_remote_port->discovery_count &&
           osm_physp_get_port_state( p_remote_physp ) == IB_LINK_ACTIVE )
       {
         osm_log( p_mgr->p_log, OSM_LOG_VERBOSE,
@@ -179,7 +179,7 @@ drop_mgr_clean_physp(
          discovery count of the remote port. */
       if ( !p_remote_physp->p_node->sw )
       {
-        osm_port_discovery_count_reset( p_remote_port );
+        p_remote_port->discovery_count = 0;
         osm_log( p_mgr->p_log, OSM_LOG_DEBUG,
                  "drop_mgr_clean_physp: Resetting discovery count of node: "
                  "0x%016" PRIx64 " port num:0x%X\n",
@@ -534,7 +534,7 @@ __osm_drop_mgr_check_node(
     goto Exit;
   }
 
-  if ( osm_port_discovery_count_get( p_port ) == 0 )
+  if ( p_port->discovery_count == 0 )
   {
     osm_log( p_mgr->p_log, OSM_LOG_VERBOSE,
              "__osm_drop_mgr_check_node: "
@@ -601,7 +601,7 @@ osm_drop_mgr_process(
       If not, it is unreachable in the current subnet, and
       should therefore be removed from the subnet object.
     */
-    if( osm_node_discovery_count_get( p_node ) == 0 )
+    if( p_node->discovery_count == 0 )
       __osm_drop_mgr_process_node( p_mgr, p_node );
   }
 
@@ -655,7 +655,7 @@ osm_drop_mgr_process(
     /*
       If the port is unreachable, remove it from the guid table.
     */
-    if( osm_port_discovery_count_get( p_port ) == 0 )
+    if( p_port->discovery_count == 0 )
       __osm_drop_mgr_remove_port( p_mgr, p_port );
   }
 

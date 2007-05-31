@@ -641,7 +641,7 @@ __osm_ni_rcv_process_existing_switch(
     if the SwitchInfo mad didn't reach the SM) then we want
     to retry to probe the switch.
   */
-  if( osm_node_discovery_count_get( p_node ) == 1 )
+  if( p_node->discovery_count == 1 )
     __osm_ni_rcv_process_switch( p_rcv, p_node, p_madw );
   else
   {
@@ -862,7 +862,7 @@ __osm_ni_rcv_process_new(
   else
     __osm_ni_rcv_set_links( p_rcv, p_node, port_num, p_ni_context );
 
-  osm_node_discovery_count_inc( p_node );
+  p_node->discovery_count++;
   __osm_ni_rcv_get_node_desc( p_rcv, p_node, p_madw );
 
   switch( p_ni->node_type )
@@ -916,14 +916,14 @@ __osm_ni_rcv_process_existing(
              ib_get_node_type_str(p_ni->node_type),
              cl_ntoh64( p_ni->node_guid ),
              cl_ntoh64( p_smp->trans_id ),
-             osm_node_discovery_count_get( p_node ) );
+             p_node->discovery_count );
   }
 
   /*
     If we haven't already encountered this existing node
     on this particular sweep, then process further.
   */
-  osm_node_discovery_count_inc( p_node );
+  p_node->discovery_count++;
 
   switch( p_ni->node_type )
   {
