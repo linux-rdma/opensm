@@ -617,7 +617,7 @@ __osm_sminfo_rcv_process_get_response(
     osm_log( p_rcv->p_log, OSM_LOG_ERROR,
              "__osm_sminfo_rcv_process_get_response: ERR 2F12: "
              "No port object for this SM\n" );
-    goto Exit;
+    goto _unlock_and_exit;
   }
 
   if( osm_port_get_guid( p_port ) != p_smi->guid )
@@ -629,7 +629,7 @@ __osm_sminfo_rcv_process_get_response(
              ", Received 0x%016" PRIx64 "\n",
              cl_ntoh64( osm_port_get_guid( p_port ) ),
              cl_ntoh64( p_smi->guid ) );
-    goto Exit;
+    goto _unlock_and_exit;
   }
 
   if( port_guid == p_rcv->p_subn->sm_port_guid )
@@ -638,7 +638,7 @@ __osm_sminfo_rcv_process_get_response(
              "__osm_sminfo_rcv_process_get_response: "
              "Self query response received - SM port 0x%016" PRIx64 "\n",
              cl_ntoh64( port_guid ) );
-    goto Exit;
+    goto _unlock_and_exit;
   }
 
   p_sm = (osm_remote_sm_t*)cl_qmap_get( p_sm_tbl, port_guid );
@@ -650,7 +650,7 @@ __osm_sminfo_rcv_process_get_response(
       osm_log( p_rcv->p_log, OSM_LOG_ERROR,
                "__osm_sminfo_rcv_process_get_response: ERR 2F14: "
                "Unable to allocate SM object\n" );
-      goto Exit;
+      goto _unlock_and_exit;
     }
 
     osm_remote_sm_init( p_sm, p_port, p_smi );
@@ -668,7 +668,7 @@ __osm_sminfo_rcv_process_get_response(
 
   process_get_sm_ret_val = __osm_sminfo_rcv_process_get_sm( p_rcv, p_sm );
 
- Exit:
+ _unlock_and_exit:
   CL_PLOCK_RELEASE( p_rcv->p_lock );
   
   /* If process_get_sm_ret_val != OSM_SIGNAL_NONE then we have to signal
@@ -676,6 +676,8 @@ __osm_sminfo_rcv_process_get_response(
   if (process_get_sm_ret_val != OSM_SIGNAL_NONE)
     osm_state_mgr_process( p_rcv->p_state_mgr,
                            process_get_sm_ret_val );
+
+ Exit:
   OSM_LOG_EXIT( p_rcv->p_log );
 }
 
