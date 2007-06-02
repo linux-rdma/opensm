@@ -1,17 +1,17 @@
-                        OpenSM Release Notes 3.0.12
+                        OpenSM Release Notes 3.0.13
                        =============================
 
 Version: OpenFabrics Enterprise Distribution (OFED) 1.2
 Repo:    git://git.openfabrics.org/~ofed_1_2/management.git (release)
          git://git.openfabrics.org/~halr/management.git (development)
-Date:    May 2007
+Date:    June 2007
 
 1 Overview
 ----------
 This document describes the contents of the OpenSM OFED 1.2 release. 
 OpenSM is an InfiniBand compliant Subnet Manager and Administration,
 and runs on top of OpenIB. The OpenSM version for this release 
-is openib-3.0.12
+is openib-3.0.13
 
 This document includes the following sections:
 1 This Overview section (describing new features and software
@@ -195,6 +195,11 @@ information regarding each compliance statement.
 The following is a list of bugs that were fixed. Note that other less critical
 or visible bugs were also fixed.
 
+* osm_sminfo_rcv.c: Add SMInfo self query check. OpenSM can query
+  itself for SMInfo occassionally due to port moving during subnet
+  discovery process. Don't create remote SM entry in this case to
+  prevent deadlocks. 
+    
 * osm_ucast_updn.c: Two similar bugs in up/down routing fixed.
   8-bit integers were used as indexes when scanning subnet, which
   in one case caused OpenSM to crash when ranking "path" is longer
