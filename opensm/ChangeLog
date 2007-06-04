@@ -1,3 +1,7 @@
+2007-06-04 Hal Rosenstock <halr@voltaire.com>
+
+	* osm_helper.c: Add 8x to __osm_lwa_str_fixed_width
+
 2007-05-07 Sasha Khapyorsky <sashak@voltaire.com>
 
 	* osm_helper.c: Remove repeated strlen() calls
