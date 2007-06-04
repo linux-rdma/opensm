@@ -2444,7 +2444,7 @@ static const char* const __osm_lwa_str_fixed_width[] =
   "1x ",
   "4x ",
   "???",
-  "???",
+  "8x ",
   "???",
   "???",
   "???",
