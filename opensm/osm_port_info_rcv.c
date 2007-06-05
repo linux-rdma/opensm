@@ -199,6 +199,7 @@ __osm_pi_rcv_process_endport(
         */
         memset( &context, 0, sizeof(context) );
         context.smi_context.set_method = FALSE;
+        context.smi_context.port_guid = port_guid;
         status = osm_req_get( p_rcv->p_req,
                               osm_physp_get_dr_path_ptr( p_physp ),
                               IB_MAD_ATTR_SM_INFO,

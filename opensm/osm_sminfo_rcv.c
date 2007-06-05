@@ -749,8 +749,27 @@ osm_sminfo_rcv_process(
   */
   if( ib_smp_is_response( p_smp ) )
   {
+    const ib_sm_info_t *p_smi = ib_smp_get_payload_ptr( p_smp );
+
     /* Get the context - to see if this is a response to a Get or Set method */
     p_smi_context = osm_madw_get_smi_context_ptr( p_madw );
+
+    /*
+      Verify that response is from expected port and there is no port
+      moving issue.
+    */
+    if ( p_smi_context->port_guid != p_smi->guid )
+    {
+      osm_log( p_rcv->p_log, OSM_LOG_ERROR,
+               "osm_sminfo_rcv_process: ERR 2F19: "
+               "Unexpected SM port GUID in response"
+               "\n\t\t\t\tExpected 0x%016" PRIx64
+               ", Received 0x%016" PRIx64 "\n",
+               cl_ntoh64( p_smi_context->port_guid ),
+               cl_ntoh64( p_smi->guid ) );
+      goto Exit;
+    }
+
     if ( p_smi_context->set_method == FALSE )
     {
       /* this is a response to a Get method */
@@ -777,5 +796,6 @@ osm_sminfo_rcv_process(
     }
   }
 
+ Exit:
   OSM_LOG_EXIT( p_rcv->p_log );
 }
