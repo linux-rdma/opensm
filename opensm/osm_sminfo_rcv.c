@@ -167,7 +167,7 @@ __osm_sminfo_rcv_process_get_request(
   p_smi->pri_state = (uint8_t)(p_rcv->p_subn->sm_state |
                                p_rcv->p_subn->opt.sm_priority << 4);
   /*
-    p.750 row 11 - Return 0 for the SM key unless we authenticate the 
+    p.840 line 20 - Return 0 for the SM key unless we authenticate the 
     requester as the master SM.
   */
   p_remote_smi = ib_smp_get_payload_ptr ( osm_madw_get_smp_ptr (p_madw) );
@@ -285,7 +285,7 @@ __osm_sminfo_rcv_process_set_request(
   p_smi->pri_state = (uint8_t)(p_rcv->p_subn->sm_state |
                                p_rcv->p_subn->opt.sm_priority << 4);
   /*
-    p.750 row 11 - Return 0 for the SM key unless we authenticate the 
+    p.840 line 20 - Return 0 for the SM key unless we authenticate the 
     requester as the master SM.
   */
   p_remote_smi = ib_smp_get_payload_ptr ( osm_madw_get_smp_ptr (p_madw) );
