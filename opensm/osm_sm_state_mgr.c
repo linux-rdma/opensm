@@ -269,7 +269,7 @@ __osm_sm_state_mgr_send_master_sm_info_req(
    {
       osm_log( p_sm_mgr->p_log, OSM_LOG_ERROR,
                "__osm_sm_state_mgr_send_master_sm_info_req: ERR 3204: "
-               "Failure rquesting SMInfo (%s)\n", ib_get_err_str( status ) );
+               "Failure requesting SMInfo (%s)\n", ib_get_err_str( status ) );
    }
 
  Exit:
