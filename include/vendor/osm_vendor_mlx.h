@@ -36,6 +36,7 @@
 #ifndef _OSMV_H_
 #define _OSMV_H_
 
+#include <sys/types.h>
 #include <opensm/osm_log.h>
 #include <complib/cl_qlist.h>
 
