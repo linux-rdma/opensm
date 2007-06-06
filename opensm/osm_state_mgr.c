@@ -95,7 +95,7 @@ osm_state_mgr_destroy(
 
    OSM_LOG_ENTER( p_mgr->p_log, osm_state_mgr_destroy );
 
-   /*  destroy the locks */
+   /* destroy the locks */
    cl_spinlock_destroy( &p_mgr->state_lock );
    cl_spinlock_destroy( &p_mgr->idle_lock );
 
@@ -603,7 +603,7 @@ __osm_state_mgr_get_sw_info(
    {
       osm_log( p_mgr->p_log, OSM_LOG_ERROR,
                "__osm_state_mgr_get_sw_info: ERR 3304: "
-               "Request SwitchInfo failed\n" );
+               "Request for SwitchInfo failed\n" );
    }
 
    OSM_LOG_EXIT( p_mgr->p_log );
@@ -720,7 +720,7 @@ __osm_state_mgr_sweep_hop_0(
       {
          osm_log( p_mgr->p_log, OSM_LOG_ERROR,
                   "__osm_state_mgr_sweep_hop_0: ERR 3305: "
-                  "Request NodeInfo failed\n" );
+                  "Request for NodeInfo failed\n" );
       }
    }
    else
@@ -954,7 +954,7 @@ __osm_state_mgr_sweep_hop_1(
       {
          osm_log( p_mgr->p_log, OSM_LOG_ERROR,
                   "__osm_state_mgr_sweep_hop_1: ERR 3311: "
-                  "Request NodeInfo failed\n" );
+                  "Request for NodeInfo failed\n" );
       }
       break;
 
@@ -989,7 +989,7 @@ __osm_state_mgr_sweep_hop_1(
             {
                osm_log( p_mgr->p_log, OSM_LOG_ERROR,
                         "__osm_state_mgr_sweep_hop_1: ERR 3312: "
-                        "Request NodeInfo failed\n" );
+                        "Request for NodeInfo failed\n" );
             }
          }
       }
@@ -1445,7 +1445,8 @@ __process_idle_time_queue_start(
 /**********************************************************************
  * Go over all the remote SMs (as updated in the sm_guid_tbl).
  * Find if there is a remote sm that is a master SM.
- * If there is a remote master SM - return TRUE, else - return FALSE.
+ * If there is a remote master SM - return a pointer to it,
+ * else - return NULL.
  **********************************************************************/
 static osm_remote_sm_t *
 __osm_state_mgr_exists_other_master_sm(
@@ -1459,12 +1460,12 @@ __osm_state_mgr_exists_other_master_sm(
 
    p_sm_tbl = &p_mgr->p_subn->sm_guid_tbl;
 
-   /*  go over all the remote SMs */
+   /* go over all the remote SMs */
    for( p_sm = ( osm_remote_sm_t * ) cl_qmap_head( p_sm_tbl );
         p_sm != ( osm_remote_sm_t * ) cl_qmap_end( p_sm_tbl );
         p_sm = ( osm_remote_sm_t * ) cl_qmap_next( &p_sm->map_item ) )
    {
-      /* If the sm is in MASTER state - return TRUE */
+      /* If the sm is in MASTER state - return a pointer to it */
       if( ib_sminfo_get_state( &p_sm->smi ) == IB_SMINFO_STATE_MASTER )
       {
          osm_log( p_mgr->p_log, OSM_LOG_VERBOSE,
@@ -1667,7 +1668,7 @@ __osm_state_mgr_report_new_ports(
       notice.g_or_v.generic.trap_num = CL_HTON16( 64 );
       /* The sm_base_lid is saved in network order already. */
       notice.issuer_lid = p_mgr->p_subn->sm_base_lid;
-      /* following C14-72.1.1 and table 119 p725 */
+      /* following C14-72.1.1 and table 119 p739 */
       /* we need to provide the GID */
       port_gid.unicast.prefix = p_mgr->p_subn->opt.subnet_prefix;
       port_gid.unicast.interface_id = port_guid;
@@ -2169,7 +2170,7 @@ Idle:
                p_remote_sm = __osm_state_mgr_get_highest_sm( p_mgr );
                if( p_remote_sm != NULL )
                {
-                  /*  need to handover the mastership 
+                  /* need to handover the mastership 
                    * to the remote sm, and move to standby */
                   __osm_state_mgr_send_handover( p_mgr, p_remote_sm );
                   osm_sm_state_mgr_process( p_mgr->p_sm_state_mgr,
