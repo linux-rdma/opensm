@@ -2188,7 +2188,7 @@ Idle:
                   {
                      /* There is a remote SM that is master. 
                       * need to wait for that SM to relinquish control 
-                      * of its portion of the subnet. C14-60.
+                      * of its portion of the subnet. C14-60.2.1.
                       * Also - need to start polling on that SM. */
                      p_mgr->p_sm_state_mgr->p_polling_sm = p_remote_sm;
                      osm_sm_state_mgr_process( p_mgr->p_sm_state_mgr,
