@@ -2346,28 +2346,28 @@ const char*
 osm_get_manufacturer_str(
   IN uint64_t              const guid_ho )
 {
-  static const char* intel_str         = "Intel      ";
-  static const char* mellanox_str      = "Mellanox   ";
-  static const char* redswitch_str     = "Redswitch  ";
+  static const char* intel_str         = "Intel";
+  static const char* mellanox_str      = "Mellanox";
+  static const char* redswitch_str     = "Redswitch";
   static const char* silverstorm_str   = "SilverStorm";
-  static const char* topspin_str       = "Topspin    ";
-  static const char* fujitsu_str       = "Fujitsu    ";
-  static const char* voltaire_str      = "Voltaire   ";
-  static const char* yotta_str         = "YottaYotta ";
-  static const char* pathscale_str     = "PathScale  ";
-  static const char* ibm_str           = "IBM        ";
-  static const char* divergenet_str    = "DivergeNet ";
+  static const char* topspin_str       = "Topspin";
+  static const char* fujitsu_str       = "Fujitsu";
+  static const char* voltaire_str      = "Voltaire";
+  static const char* yotta_str         = "YottaYotta";
+  static const char* pathscale_str     = "PathScale";
+  static const char* ibm_str           = "IBM";
+  static const char* divergenet_str    = "DivergeNet";
   static const char* flextronics_str   = "Flextronics";
-  static const char* agilent_str       = "Agilent    ";
-  static const char* obsidian_str      = "Obsidian   ";
-  static const char* baymicro_str      = "BayMicro   ";
-  static const char* lsilogic_str      = "LSILogic   ";
-  static const char* ddn_str           = "DataDirect ";
-  static const char* panta_str         = "Panta      ";
-  static const char* hp_str            = "HP         ";
-  static const char* rioworks_str      = "Rioworks   ";
-  static const char* sun_str           = "Sun        ";
-  static const char* unknown_str       = "Unknown    ";
+  static const char* agilent_str       = "Agilent";
+  static const char* obsidian_str      = "Obsidian";
+  static const char* baymicro_str      = "BayMicro";
+  static const char* lsilogic_str      = "LSILogic";
+  static const char* ddn_str           = "DataDirect";
+  static const char* panta_str         = "Panta";
+  static const char* hp_str            = "HP";
+  static const char* rioworks_str      = "Rioworks";
+  static const char* sun_str           = "Sun";
+  static const char* unknown_str       = "Unknown";
 
   switch( (uint32_t)(guid_ho >> (5 * 8)) )
   {

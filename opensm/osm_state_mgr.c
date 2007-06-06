@@ -1287,7 +1287,7 @@ __osm_state_mgr_report(
          if( !osm_physp_is_valid( p_physp ) )
             continue;
 
-         osm_log_printf( p_mgr->p_log, OSM_LOG_VERBOSE, "%s : %s : %02X :",
+         osm_log_printf( p_mgr->p_log, OSM_LOG_VERBOSE, "%-11s : %s : %02X :",
                          osm_get_manufacturer_str( cl_ntoh64
                                                    ( osm_node_get_node_guid
                                                    ( p_node ) ) ),
