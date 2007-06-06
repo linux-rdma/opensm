@@ -2366,6 +2366,7 @@ osm_get_manufacturer_str(
   static const char* panta_str         = "Panta      ";
   static const char* hp_str            = "HP         ";
   static const char* rioworks_str      = "Rioworks   ";
+  static const char* sun_str           = "Sun        ";
   static const char* unknown_str       = "Unknown    ";
 
   switch( (uint32_t)(guid_ho >> (5 * 8)) )
@@ -2411,6 +2412,8 @@ osm_get_manufacturer_str(
     return( hp_str );
   case OSM_VENDOR_ID_RIOWORKS:
     return( rioworks_str );
+  case OSM_VENDOR_ID_SUN:
+    return( sun_str );
   default:
     return( unknown_str );
   }
