@@ -458,14 +458,14 @@ __osm_perfmgr_sweeper(void *p_ptr)
 	__init_monitored_nodes(pm);
 
 	while( pm->thread_state == OSM_THREAD_STATE_RUN ) {
-		/*  do the sweep only if we are in MASTER state
+		/*  do the sweep only if in MASTER state
 		 *  AND we have been activated.
 		 *  FIXME put something in here to try and reduce the load on the system
 		 *  when it is not IDLE.
 		if (pm->sm->state_mgr.state != OSM_SM_STATE_IDLE)
 		 */
-		if( pm->subn->sm_state == IB_SMINFO_STATE_MASTER
-		    && pm->state == PERFMGR_STATE_ENABLED) {
+		if (pm->subn->sm_state == IB_SMINFO_STATE_MASTER &&
+		    pm->state == PERFMGR_STATE_ENABLED) {
 #if 0
 			struct timeval before, after;
 			gettimeofday(&before, NULL);
