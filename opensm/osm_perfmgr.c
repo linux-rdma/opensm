@@ -809,7 +809,7 @@ osm_perfmgr_init(
 
 	OSM_LOG_ENTER( log, osm_pm_init );
 
-	osm_log(log, OSM_LOG_VERBOSE, "initing PM\n");
+	osm_log(log, OSM_LOG_VERBOSE, "Initializing PerfMgr\n");
 
 	memset( pm, 0, sizeof( *pm ) );
 
@@ -842,7 +842,7 @@ osm_perfmgr_init(
 
 	pm->thread_state = OSM_THREAD_STATE_INIT;
 	status = cl_thread_init( &pm->sweeper, __osm_perfmgr_sweeper, pm,
-	                       "PerfMgr sweeper" );
+				 "PerfMgr sweeper" );
 	if( status != IB_SUCCESS )
 		goto Exit;
 
