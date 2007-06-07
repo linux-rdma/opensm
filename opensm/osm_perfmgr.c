@@ -34,6 +34,7 @@
 /*
  * Abstract:
  *    Implementation of osm_perfmgr_t.
+ * This object implements an IBA performance manager.
  *
  * Author:
  *    Ira Weiny, LLNL
@@ -144,7 +145,7 @@ osm_perfmgr_mad_recv_callback(osm_madw_t *p_madw, void* bind_context,
 }
 
 /**********************************************************************
- * Process errors from the MAD send.
+ * Process MAD send errors.
  **********************************************************************/
 static void
 osm_perfmgr_mad_send_err_callback(void* bind_context, osm_madw_t *p_madw)
@@ -219,7 +220,7 @@ Exit:
 }
 
 /**********************************************************************
- * Unbind the PM to the vendor layer for MAD sends/receives
+ * Unbind the PM from the vendor layer for MAD sends/receives
  **********************************************************************/
 static void
 osm_perfmgr_mad_unbind(osm_perfmgr_t * const pm)
@@ -442,7 +443,7 @@ Exit:
 
 /**********************************************************************
  * Main PerfMgr Thread.
- * Loop continueously and query the performance counters.
+ * Loop continuously and query the performance counters.
  **********************************************************************/
 void
 __osm_perfmgr_sweeper(void *p_ptr)
@@ -548,7 +549,7 @@ osm_perfmgr_check_oob_clear(osm_perfmgr_t *pm, uint64_t node_guid, uint8_t port,
 			!= PERFMGR_EVENT_DB_SUCCESS)
 	{
 		osm_log(pm->log, OSM_LOG_VERBOSE,
-			"failed to find previous error reading for 0x%" PRIx64 " port %u\n",
+			"osm_perfmgr_check_oob_clear: Failed to find previous error reading for 0x%" PRIx64 " port %u\n",
 			node_guid, port);
 		return;
 	}
@@ -579,7 +580,7 @@ osm_perfmgr_check_oob_clear(osm_perfmgr_t *pm, uint64_t node_guid, uint8_t port,
 			!= PERFMGR_EVENT_DB_SUCCESS)
 	{
 		osm_log(pm->log, OSM_LOG_VERBOSE,
-			"failed to find previous data count reading for 0x%" PRIx64 " port %u\n",
+			"osm_perfmgr_check_oob_clear: Failed to find previous data count reading for 0x%" PRIx64 " port %u\n",
 			node_guid, port);
 		return;
 	}
@@ -727,8 +728,8 @@ osm_perfmgr_log_events(osm_perfmgr_t *pm, uint64_t node_guid, uint8_t port,
 }
 
 /**********************************************************************
- * The dispatcher uses a thread pool which will call this function when we have
- * a thread available to process our mad recieved from the wire.
+ * The dispatcher uses a thread pool which will call this function when
+ * we have a thread available to process our mad recieved from the wire.
  **********************************************************************/
 static void
 osm_pc_rcv_process(void *context, void *data)
@@ -747,7 +748,7 @@ osm_pc_rcv_process(void *context, void *data)
 	OSM_LOG_ENTER( pm->log, osm_pc_rcv_process );
 
 	osm_log(pm->log, OSM_LOG_VERBOSE,
-		"Processing recieved MAD context 0x%" PRIx64 " port %u/%d\n",
+		"osm_pc_rcv_process: Processing received MAD context 0x%" PRIx64 " port %u/%d\n",
 		node_guid, port_num, num_ports);
 
 	perfmgr_edb_fill_err_read(wire_read, &err_reading);
