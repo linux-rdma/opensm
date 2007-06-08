@@ -192,11 +192,10 @@ By default, the SM will exit on these errors.
 Run in daemon mode - OpenSM will run in the background.
 .TP
 \fB\-I\fR, \fB\-\-inactive\fR
-Start SM in inactive rather than init SM state and without
-the PortInfo:CapabilityMask IsSM bit set.  This
+Start SM in inactive rather than init SM state.  This
 option can be used in conjunction with the perfmgr so as to
 run a standalone performance manager without SM/SA.  However,
-this is not currently implemented in the performance manager.
+this is NOT currently implemented in the performance manager.
 .TP
 \fB\-perfmgr\fR
 Enable the perfmgr.  Only takes effect if --enable-perfmgr was specified at

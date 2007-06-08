@@ -151,8 +151,7 @@ __osm_pi_rcv_process_endport(
     /*
       We received the PortInfo for our own port.
     */
-    if( !( p_pi->capability_mask & IB_PORT_CAP_IS_SM ) &&
-        !p_rcv->p_subn->opt.sm_inactive ) 
+    if( !( p_pi->capability_mask & IB_PORT_CAP_IS_SM ) )
     {
       /*
         Set the IS_SM bit to indicate our port hosts an SM.
