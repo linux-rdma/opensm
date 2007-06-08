@@ -144,7 +144,7 @@ osm_opensm_destroy(
    /* 
     * First of all, clear the is_sm bit.
     */
-   if( p_osm->sm.mad_ctrl.h_bind )
+   if( p_osm->sm.mad_ctrl.h_bind && !p_osm->subn.opt.sm_inactive )
       osm_vendor_set_sm( p_osm->sm.mad_ctrl.h_bind, FALSE );
 
 #ifdef ENABLE_OSM_PERF_MGR
