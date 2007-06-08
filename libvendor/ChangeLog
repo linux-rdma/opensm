@@ -1,4 +1,3 @@
-
 2007-05-07  Hal Rosenstock <halr@voltaire.com>
 
 	* osm_vendor_ibumad.(h c): Remove support for issmdisabled
