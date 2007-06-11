@@ -118,8 +118,6 @@ typedef struct _osm_state_mgr
   cl_plock_t					*p_lock;
   cl_event_t					*p_subnet_up_event;
   osm_sm_state_t				state;
-  osm_state_mgr_mode_t     state_step_mode;
-  osm_signal_t             next_stage_signal;
 } osm_state_mgr_t;
 /*
 * FIELDS

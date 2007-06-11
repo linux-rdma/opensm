@@ -768,35 +768,6 @@ typedef enum _osm_sm_state
 typedef uintn_t osm_signal_t;
 /***********/
 
-/****d* OpenSM: Base/osm_state_mgr_mode_t
-* NAME
-*	 osm_state_mgr_mode_t
-*
-* DESCRIPTION
-*	Enumerates the possible state progressing codes used by the OSM 
-*	state manager.
-*
-* SYNOPSIS
-*/
-typedef enum _osm_state_mgr_mode
-{
-  OSM_STATE_STEP_CONTINUOUS = 0,
-  OSM_STATE_STEP_TAKE_ONE,
-  OSM_STATE_STEP_BREAK
-} osm_state_mgr_mode_t;
-/*
-* OSM_STATE_STEP_CONTINUOUS 
-*    normal automatic progress mode
-*
-* OSM_STATE_STEP_TAKE_ONE 
-*    Do one step 
-*
-* OSM_STATE_STEP_BREAK
-*    Stop before taking next step (the while loop in the state 
-*    manager automatically change to this state).
-*
-**********/
-
 /****d* OpenSM: Base/osm_sm_signal_t
 * NAME
 *	osm_sm_signal_t

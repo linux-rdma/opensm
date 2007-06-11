@@ -153,8 +153,6 @@ osm_state_mgr_init(
    p_mgr->state = OSM_SM_STATE_IDLE;
    p_mgr->p_lock = p_lock;
    p_mgr->p_subnet_up_event = p_subnet_up_event;
-   p_mgr->state_step_mode = OSM_STATE_STEP_CONTINUOUS;
-   p_mgr->next_stage_signal = OSM_SIGNAL_NONE;
 
    status = cl_spinlock_init( &p_mgr->state_lock );
    if( status != CL_SUCCESS )
@@ -2332,21 +2330,8 @@ Idle:
          {
          case OSM_SIGNAL_NO_PENDING_TRANSACTIONS:
          case OSM_SIGNAL_DONE:
-            /* If we run single step we have already done this */
-            if( p_mgr->state_step_mode != OSM_STATE_STEP_TAKE_ONE )
-            {
-               __osm_state_mgr_set_sm_lid_done_msg( p_mgr );
-               __osm_state_mgr_notify_lid_change( p_mgr );
-            }
-
-            /* Break on single step mode - if not continuous */
-            if( p_mgr->state_step_mode == OSM_STATE_STEP_BREAK )
-            {
-               p_mgr->next_stage_signal = signal;
-               signal = OSM_SIGNAL_NONE;
-               break;
-            }
-
+            __osm_state_mgr_set_sm_lid_done_msg( p_mgr );
+            __osm_state_mgr_notify_lid_change( p_mgr );
             p_mgr->state = OSM_SM_STATE_SET_SUBNET_UCAST_LIDS;
             signal = osm_lid_mgr_process_subnet( p_mgr->p_lid_mgr );
             break;
@@ -2422,17 +2407,7 @@ Idle:
              * their destination. */
             __osm_state_mgr_check_tbl_consistency( p_mgr );
 
-            /* If we run single step we have already done this */
-            if( p_mgr->state_step_mode != OSM_STATE_STEP_TAKE_ONE )
-               __osm_state_mgr_lid_assign_msg( p_mgr );
-
-            /* Break on single step mode - just before taking next step */
-            if( p_mgr->state_step_mode == OSM_STATE_STEP_BREAK )
-            {
-               p_mgr->next_stage_signal = signal;
-               signal = OSM_SIGNAL_NONE;
-               break;
-            }
+            __osm_state_mgr_lid_assign_msg( p_mgr );
 
             /*
              * OK, the wire is clear, so proceed with
@@ -2444,12 +2419,6 @@ Idle:
             p_mgr->state = OSM_SM_STATE_SET_UCAST_TABLES;
             signal = osm_ucast_mgr_process( p_mgr->p_ucast_mgr );
 
-            /* Break on single step mode */
-            if( p_mgr->state_step_mode != OSM_STATE_STEP_CONTINUOUS )
-            {
-               p_mgr->next_stage_signal = signal;
-               signal = OSM_SIGNAL_NONE;
-            }
             break;
 
          default:
@@ -2507,17 +2476,7 @@ Idle:
              * take into account these lfts. */
             p_mgr->p_subn->ignore_existing_lfts = FALSE;
 
-            /* If we run single step we have already done this */
-            if( p_mgr->state_step_mode != OSM_STATE_STEP_TAKE_ONE )
-               __osm_state_mgr_switch_config_msg( p_mgr );
-
-            /* Break on single step mode - just before taking next step */
-            if( p_mgr->state_step_mode == OSM_STATE_STEP_BREAK )
-            {
-               p_mgr->next_stage_signal = signal;
-               signal = OSM_SIGNAL_NONE;
-               break;
-            }
+            __osm_state_mgr_switch_config_msg( p_mgr );
 
             if( !p_mgr->p_subn->opt.disable_multicast )
             {
@@ -2582,17 +2541,7 @@ Idle:
          {
          case OSM_SIGNAL_NO_PENDING_TRANSACTIONS:
          case OSM_SIGNAL_DONE:
-            /* If we run single step we have already done this */
-            if( p_mgr->state_step_mode != OSM_STATE_STEP_TAKE_ONE )
-               __osm_state_mgr_multicast_config_msg( p_mgr );
-
-            /* Break on single step mode - just before taking next step */
-            if( p_mgr->state_step_mode == OSM_STATE_STEP_BREAK )
-            {
-               p_mgr->next_stage_signal = signal;
-               signal = OSM_SIGNAL_NONE;
-               break;
-            }
+            __osm_state_mgr_multicast_config_msg( p_mgr );
 
             p_mgr->state = OSM_SM_STATE_SET_LINK_PORTS;
             signal = osm_link_mgr_process( p_mgr->p_link_mgr,
@@ -2714,17 +2663,7 @@ Idle:
          case OSM_SIGNAL_NO_PENDING_TRANSACTIONS:
          case OSM_SIGNAL_DONE:
 
-            /* If we run single step we have already done this */
-            if( p_mgr->state_step_mode != OSM_STATE_STEP_TAKE_ONE )
-               __osm_state_mgr_links_armed_msg( p_mgr );
-
-            /* Break on single step mode - just before taking next step */
-            if( p_mgr->state_step_mode == OSM_STATE_STEP_BREAK )
-            {
-               p_mgr->next_stage_signal = signal;
-               signal = OSM_SIGNAL_NONE;
-               break;
-            }
+            __osm_state_mgr_links_armed_msg( p_mgr );
 
             p_mgr->state = OSM_SM_STATE_SET_ACTIVE;
             signal = osm_link_mgr_process( p_mgr->p_link_mgr,
@@ -2925,14 +2864,6 @@ Idle:
          signal = OSM_SIGNAL_SWEEP;
       }
 
-      /*
-       * for single step mode - some stages need to break only
-       * after evaluating a single step.
-       * For those we track the fact we have already performed
-       * a single loop
-       */
-      if( p_mgr->state_step_mode == OSM_STATE_STEP_TAKE_ONE )
-         p_mgr->state_step_mode = OSM_STATE_STEP_BREAK;
    }
 
    cl_spinlock_release( &p_mgr->state_lock );
