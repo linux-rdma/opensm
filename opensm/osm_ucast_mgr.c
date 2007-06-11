@@ -1112,6 +1112,8 @@ osm_ucast_mgr_read_guid_file(
   }
 
 Exit :
+  if (guid_file)
+    fclose(guid_file);
   OSM_LOG_EXIT( p_mgr->p_log );
   return (status);
 }
