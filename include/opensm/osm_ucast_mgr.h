@@ -293,6 +293,42 @@ osm_ucast_mgr_build_lid_matrices(
 *	Unicast Manager
 *********/
 
+/****f* OpenSM: Unicast Manager/osm_ucast_mgr_read_guid_file
+* NAME
+*	osm_ucast_mgr_read_guid_file
+*
+* DESCRIPTION
+*	Read guid list from file.
+*
+* SYNOPSIS
+*/
+cl_status_t
+osm_ucast_mgr_read_guid_file(
+	IN  osm_ucast_mgr_t * const p_mgr,
+	IN  const char      * guid_file_name,
+	IN  cl_list_t       * p_list );
+/*
+* PARAMETERS
+*	p_mgr
+*		[in] Pointer to an osm_ucast_mgr_t object.
+*
+*	guid_file_name
+*		[in] Name of the file to read.
+*
+*	p_list
+*		[in] Pointer to the list that will be filled with guids.
+*
+* RETURN VALUES
+*	IB_SUCCESS if the file was read successfully.
+*
+* NOTES
+*	This function reads guids from a file and inserts them
+*	into a list.
+*
+* SEE ALSO
+*	Unicast Manager
+*********/
+
 /****f* OpenSM: Unicast Manager/osm_ucast_mgr_process
 * NAME
 *	osm_ucast_mgr_process

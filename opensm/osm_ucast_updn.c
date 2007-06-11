@@ -53,6 +53,7 @@
 #include <complib/cl_qmap.h>
 #include <opensm/osm_switch.h>
 #include <opensm/osm_opensm.h>
+#include <opensm/osm_ucast_mgr.h>
 
 /* //////////////////////////// */
 /*  Local types                 */
@@ -303,9 +304,6 @@ updn_init(
   IN osm_opensm_t *p_osm )
 {
   cl_list_t * p_list;
-  FILE*       p_updn_guid_file;
-  char        line[MAX_UPDN_GUID_FILE_LINE_LENGTH];
-  uint64_t *  p_tmp;
   cl_list_iterator_t guid_iterator;
   ib_api_status_t status = IB_SUCCESS;
 
@@ -332,45 +330,11 @@ updn_init(
   */
   if (p_osm->subn.opt.updn_guid_file)
   {
-    /* Now parse guid from file */
-    p_updn_guid_file = fopen(p_osm->subn.opt.updn_guid_file, "r");
-    if (p_updn_guid_file == NULL)
-    {
-      osm_log( &p_osm->log, OSM_LOG_ERROR,
-               "updn_init: ERR AA02: "
-               "Failed to open guid list file (%s)\n",
-               p_osm->subn.opt.updn_guid_file );
-      status = IB_NOT_FOUND;
-      goto Exit;
-    }
-
-    while ( fgets(line, MAX_UPDN_GUID_FILE_LINE_LENGTH, p_updn_guid_file) )
-    {
-      if (strcspn(line, " ,;.") == strlen(line))
-      {
-        /* Skip empty lines anywhere in the file - only one char means the Null termination */
-        if (strlen(line) > 1)
-        {
-          p_tmp = malloc(sizeof(uint64_t));
-          if (!p_tmp)
-          {
-            status = IB_ERROR;
-            goto Exit;
-          }
-          *p_tmp = strtoull(line, NULL, 16);
-          cl_list_insert_tail(p_updn->p_root_nodes, p_tmp);
-        }
-      }
-      else
-      {
-        osm_log( &p_osm->log, OSM_LOG_ERROR,
-                 "updn_init: ERR AA03: "
-                 "Bad formatted guid in file (%s): %s\n",
-                 p_osm->subn.opt.updn_guid_file, line );
-        status = IB_NOT_FOUND;
-        break;
-      }
-    }
+    status = osm_ucast_mgr_read_guid_file( &p_osm->sm.ucast_mgr,
+                                           p_osm->subn.opt.updn_guid_file,
+                                           p_updn->p_root_nodes );
+    if (status != IB_SUCCESS)
+       goto Exit;
 
     /* For Debug Purposes ... */
     osm_log( &p_osm->log, OSM_LOG_DEBUG,

@@ -844,16 +844,16 @@ typedef enum _osm_mcast_req_type
 }	osm_mcast_req_type_t;
 /***********/
 
-/****s* OpenSM: Base/MAX_UPDN_GUID_FILE_LINE_LENGTH
+/****s* OpenSM: Base/MAX_GUID_FILE_LINE_LENGTH
 * NAME
-*	MAX_UPDN_GUID_FILE_LINE_LENGTH
+*	MAX_GUID_FILE_LINE_LENGTH
 *
 * DESCRIPTION
-*	The maximum line number when reading updn guid file
+*	The maximum line number when reading guid file
 *
 * SYNOPSIS
 */
-#define MAX_UPDN_GUID_FILE_LINE_LENGTH 120
+#define MAX_GUID_FILE_LINE_LENGTH 120
 /**********/
 
 /****s* OpenSM: Base/VendorOUIs
