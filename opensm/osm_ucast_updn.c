@@ -135,23 +135,6 @@ __updn_get_dir(
 }
 
 /**********************************************************************
- **********************************************************************/
-/* This function updates rank value for a node */
-/* Return 0 if no need to further update 1 if determined a new value */
-static int
-__updn_update_rank(
-  IN struct updn_node *u,
-  IN unsigned rank )
-{
-  if (u->rank > rank)
-  {
-    u->rank = rank;
-    return 1;
-  }
-  return 0;
-}
-
-/**********************************************************************
  * This function does the bfs of min hop table calculation by guid index
  * as a starting point.
  **********************************************************************/
@@ -375,7 +358,6 @@ updn_subn_rank(
   osm_switch_t *p_sw;
   osm_physp_t *p_physp, *p_remote_physp;
   cl_qlist_t list;
-  cl_status_t did_cause_update;
   struct updn_node *u, *remote_u;
   uint8_t num_ports, port_num;
   osm_log_t *p_log = &p_updn->p_osm->log;
@@ -403,7 +385,7 @@ updn_subn_rank(
     osm_log( p_log, OSM_LOG_DEBUG,
              "updn_subn_rank: "
              "Ranking root port GUID 0x%" PRIx64 "\n", guid_list[idx] );
-    __updn_update_rank(u, 0);
+    u->rank = 0;
     cl_qlist_insert_tail(&list, &u->list);
   }
 
@@ -438,7 +420,13 @@ updn_subn_rank(
       {
         remote_u = p_remote_physp->p_node->sw->priv;
         port_guid = p_remote_physp->port_guid;
-        did_cause_update = __updn_update_rank(remote_u, u->rank+1);
+
+        if (remote_u->rank > u->rank+1)
+        {
+           remote_u->rank = u->rank + 1;
+           max_rank = remote_u->rank;
+           cl_qlist_insert_tail(&list, &remote_u->list);
+        }
 
         osm_log( p_log, OSM_LOG_DEBUG,
                  "updn_subn_rank: "
@@ -446,11 +434,6 @@ updn_subn_rank(
                  cl_ntoh64(port_guid),
                  remote_u->rank );
 
-        if (did_cause_update)
-        {
-          cl_qlist_insert_tail(&list, &remote_u->list);
-          max_rank = remote_u->rank;
-        }
       }
     }
   }
