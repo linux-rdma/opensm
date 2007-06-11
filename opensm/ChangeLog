@@ -1,3 +1,12 @@
+2007-06-11 Sasha Khapyorsky <sashak@voltaire.com>
+
+	* osm_helper.c: Remove OSM_SM_SIGNAL_MASTER_OR_HIGHER_SM_DETECTED
+	  from __osm_sm_mgr_signal_str 
+
+2007-06-06 Sasha Khapyorsky <sashak@voltaire.com>
+
+	* osm_helper.c: More optimally deal with manufacturer strings
+
 2007-06-06 Hal Rosenstock <halr@voltaire.com>
 
 	* osm_helper.c: Add Sun to osm_get_manufacturer_str 
