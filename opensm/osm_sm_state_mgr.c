@@ -575,13 +575,6 @@ osm_sm_state_mgr_process(
           */
          p_sm_mgr->p_subn->master_sm_base_lid = p_sm_mgr->p_subn->sm_base_lid;
          break;
-      case OSM_SM_SIGNAL_MASTER_OR_HIGHER_SM_DETECTED:
-         /*
-          * Stop the discovering
-          */
-         osm_state_mgr_process( p_sm_mgr->p_state_mgr,
-                                OSM_SIGNAL_MASTER_OR_HIGHER_SM_DETECTED );
-         break;
       case OSM_SM_SIGNAL_MASTER_OR_HIGHER_SM_DETECTED_DONE:
          /*
           * Finished all discovery actions - move to STANDBY
@@ -813,7 +806,6 @@ osm_sm_state_mgr_check_legality(
       switch ( signal )
       {
       case OSM_SM_SIGNAL_DISCOVERY_COMPLETED:
-      case OSM_SM_SIGNAL_MASTER_OR_HIGHER_SM_DETECTED:
       case OSM_SM_SIGNAL_MASTER_OR_HIGHER_SM_DETECTED_DONE:
       case OSM_SM_SIGNAL_HANDOVER:
          status = IB_SUCCESS;

@@ -2501,10 +2501,9 @@ const char* const __osm_sm_mgr_signal_str[] =
   "OSM_SM_SIGNAL_HANDOVER_SENT",         /* 7 */
   "OSM_SM_SIGNAL_ACKNOWLEDGE",           /* 8 */
   "OSM_SM_SIGNAL_STANDBY",               /* 9 */
-  "OSM_SM_SIGNAL_MASTER_OR_HIGHER_SM_DETECTED",        /* 10 */
-  "OSM_SM_SIGNAL_MASTER_OR_HIGHER_SM_DETECTED_DONE",    /* 11 */
-  "OSM_SM_SIGNAL_WAIT_FOR_HANDOVER",     /* 12 */
-  "UNKNOWN STATE!!"                      /* 13 */
+  "OSM_SM_SIGNAL_MASTER_OR_HIGHER_SM_DETECTED_DONE",    /* 10 */
+  "OSM_SM_SIGNAL_WAIT_FOR_HANDOVER",     /* 11 */
+  "UNKNOWN STATE!!"                      /* 12 */
 
 };
 
