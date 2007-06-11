@@ -638,8 +638,8 @@ to no longer be "pure" fat-tree.
 Note that although fat-tree algorithm supports trees with non-integer CBB
 ratio, the routing will not be as balanced as in case of integer CBB ratio.
 In addition to this, although the algorithm allows leaf switches to have any
-number of CAs, the closer the tree is to be fully populated, the more effective
-the "shift" communication pattern will be.
+number of CAs, the closer the tree is to be fully populated, the more
+effective the "shift" communication pattern will be.
 
 The algorithm also dumps CA ordering file (opensm-ftree-ca-order.dump) in the
 same directory where the OpenSM log resides. This ordering file provides the
@@ -718,6 +718,11 @@ Routing References
 To learn more about deadlock-free routing, see the article
 "Deadlock Free Message Routing in Multiprocessor Interconnection Networks"
 by William J Dally and Charles L Seitz (1985).
+
+To learn more about the up/down algorithm, see the article 
+"Effective Strategy to Compute Forwarding Tables for InfiniBand Networks"
+by Jose Carlos Sancho, Antonio Robles, and Jose Duato at the
+Universidad Politécnica de Valencia.
 
 To learn more about LASH and the flexibility behind it, the requirement
 for layers, performance comparisons to other algorithms, see the
