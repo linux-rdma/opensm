@@ -522,7 +522,6 @@ parse_ignore_guids_file(IN char *guids_file_name,
  Exit:
   OSM_LOG_EXIT( &p_osm->log );
   return ( status );
-
 }
 
 /**********************************************************************
