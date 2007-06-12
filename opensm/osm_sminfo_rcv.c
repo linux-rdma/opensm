@@ -204,12 +204,12 @@ __osm_sminfo_rcv_process_get_request(
 /**********************************************************************
  * Check if the p_smp received is legal.
  * Current checks:
- *   MADHeader:AttributeModifiers of ACKNOWLEDGE that was not sent by a
+ *   MADHeader:AttributeModifier of ACKNOWLEDGE that was not sent by a
  *             Standby SM.
  *   MADHeader:AttributeModifiers of HANDOVER/DISABLE/STANDBY/DISCOVER
  *             that was not sent by a Master SM.
  * FUTURE - TO DO:
- *   Check that the SM_Key is matching.
+ *   Check that the SM_Key matches.
  **********************************************************************/
 static ib_api_status_t
 __osm_sminfo_rcv_check_set_req_legality(
