@@ -393,7 +393,7 @@ __osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context )
 		PERFMGR_EVENT_DB_SUCCESS)
 	{
 		osm_log(pm->log, OSM_LOG_ERROR,
-			"PerfMgr: ERR 4C08: DB create entry failed for 0x%" PRIx64 " (%s) : %s\n",
+			"__osm_pm_query_counters: ERR 4C08: DB create entry failed for 0x%" PRIx64 " (%s) : %s\n",
 			node_guid, node->print_desc, strerror(errno));
 		goto Exit;
 	}
@@ -410,7 +410,7 @@ __osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context )
 		if (lid == 0)
 		{
 			osm_log(pm->log, OSM_LOG_DEBUG,
-				"WARN: node 0x%" PRIx64 " port %d (%s): port out of range, skipping\n",
+				"__osm_pm_query_counters: WARN: node 0x%" PRIx64 " port %d (%s): port out of range, skipping\n",
 				cl_ntoh64(node->node_info.node_guid), port,
 				node->print_desc);
 			continue;
@@ -424,14 +424,14 @@ __osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context )
 		gettimeofday(&(mad_context.perfmgr_context.query_start), NULL);
 #endif
 		osm_log(pm->log, OSM_LOG_VERBOSE,
-				"   Getting stats for node 0x%" PRIx64 " port %d (lid %X) (%s)\n",
+				"__osm_pm_query_counters: Getting stats for node 0x%" PRIx64 " port %d (lid %X) (%s)\n",
 				node_guid, port, cl_ntoh16(lid),
 				node->print_desc);
 		status = osm_perfmgr_send_pc_mad(pm, lid, port, IB_MAD_METHOD_GET, &mad_context);
 		if (status != IB_SUCCESS)
 		{
 		      osm_log(pm->log, OSM_LOG_ERROR,
-				"PerfMgr: ERR 4C09: Failed to issue port counter query for node 0x%" PRIx64 " port %d (%s)\n",
+				"__osm_pm_query_counters: ERR 4C09: Failed to issue port counter query for node 0x%" PRIx64 " port %d (%s)\n",
 				node->node_info.node_guid, port,
 				node->print_desc);
 		}
