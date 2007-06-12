@@ -191,7 +191,7 @@ __osm_cpi_rcv_respond(
   p_resp_cpi->trap_qkey = IB_QP1_WELL_KNOWN_Q_KEY;
 
   /* set specific capability mask bits */
-  /* we do not support the following optional records:
+  /* we do not support the following options/optional records:
      OSM_CAP_IS_SUBN_OPT_RECS_SUP :
      RandomForwardingTableRecord,
      ServiceAssociationRecord
