@@ -1861,7 +1861,7 @@ __osm_mcmr_rcv_new_mcmr(
 
   memset( &p_rec_item->rec, 0, sizeof( p_rec_item->rec ) );
 
-  /* HACK: Not trusted requesters should result with 0 Join
+  /* HACK: Untrusted requesters should result with 0 Join
      State, Port Guid, and Proxy */
   p_rec_item->rec = *p_rcvd_rec;
   cl_qlist_insert_tail( p_list, (cl_list_item_t*)&p_rec_item->pool_item );
