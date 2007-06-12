@@ -738,6 +738,7 @@ osm_pc_rcv_process(void *context, void *data)
 	osm_madw_t         *p_madw = (osm_madw_t *)data;
 	osm_madw_context_t *mad_context = &(p_madw->context);
 	ib_port_counters_t *wire_read = (ib_port_counters_t *)&(osm_madw_get_perfmgr_mad_ptr(p_madw)->data);
+	ib_mad_t           *p_mad = osm_madw_get_mad_ptr(p_madw);
 	uint64_t            node_guid = mad_context->perfmgr_context.node_guid;
 	uint8_t             port_num = mad_context->perfmgr_context.port;
 	int                 num_ports = mad_context->perfmgr_context.num_ports;
@@ -750,6 +751,15 @@ osm_pc_rcv_process(void *context, void *data)
 	osm_log(pm->log, OSM_LOG_VERBOSE,
 		"osm_pc_rcv_process: Processing received MAD context 0x%" PRIx64 " port %u/%d\n",
 		node_guid, port_num, num_ports);
+
+	/* Might be redirection (IBM eHCA PMA does this) */
+	if (p_mad->attr_id == IB_MAD_ATTR_CLASS_PORT_INFO) {
+		osm_log(pm->log, OSM_LOG_VERBOSE,
+		        "osm_pc_rcv_process: Redirection received. Not currently handled!\n");
+		goto Exit;
+	}
+
+	CL_ASSERT( p_mad->attr_id == IB_MAD_ATTR_PORT_CNTRS );
 
 	perfmgr_edb_fill_err_read(wire_read, &err_reading);
 	/* FIXME query for extended counters separate if they are supported
@@ -786,6 +796,7 @@ osm_pc_rcv_process(void *context, void *data)
 	} while (0);
 #endif
 
+ Exit:
 	osm_mad_pool_put( pm->mad_pool, p_madw );
 
 	OSM_LOG_EXIT( pm->log );
