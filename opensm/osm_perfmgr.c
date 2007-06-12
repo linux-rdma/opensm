@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2007 The Regents of the University of California.
+ * Copyright (c) 2007 Voltaire, Inc. All rights reserved. 
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -112,7 +113,7 @@ __decrement_outstanding_queries(osm_perfmgr_t *pm)
  **********************************************************************/
 static void
 osm_perfmgr_mad_recv_callback(osm_madw_t *p_madw, void* bind_context,
-				osm_madw_t *p_req_madw )
+			      osm_madw_t *p_req_madw )
 {
 	osm_perfmgr_t      *pm = (osm_perfmgr_t *)bind_context;
 
