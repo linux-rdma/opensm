@@ -837,7 +837,7 @@ osm_perfmgr_init(
 	}
 
 	pm->pc_disp_h = cl_disp_register(disp, OSM_MSG_MAD_PORT_COUNTERS,
-	                              osm_pc_rcv_process, pm);
+	                                 osm_pc_rcv_process, pm);
 	if( pm->pc_disp_h == CL_DISP_INVALID_HANDLE )
 		goto Exit;
 
