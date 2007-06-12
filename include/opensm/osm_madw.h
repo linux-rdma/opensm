@@ -89,7 +89,7 @@ typedef struct _osm_bind_info
 *	portguid
 *		PortGuid of local port 
 *
-*	class
+*	mad_class
 *		Mgmt Class ID 
 *
 *	class_version
