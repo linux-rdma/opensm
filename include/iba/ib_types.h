@@ -3153,6 +3153,7 @@ ib_path_rec_hop_limit(
 */
 #define IB_CLASS_RESP_TIME_MASK				0x1F
 /*********/
+
 /****s* IBA Base: Types/ib_class_port_info_t
 * NAME
 *	ib_class_port_info_t
