@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -32,7 +32,6 @@
  * SOFTWARE.
  *
  */
-
 
 /*
  * Abstract:
@@ -247,7 +246,6 @@ osm_cpi_rcv_process(
 {
   osm_cpi_rcv_t *p_rcv = context;
   osm_madw_t *p_madw = data;
-  const ib_path_rec_t*     p_pr;
   const ib_sa_mad_t*    p_sa_mad;
 
   OSM_LOG_ENTER( p_rcv->p_log, osm_cpi_rcv_process );
@@ -266,8 +264,6 @@ osm_cpi_rcv_process(
     osm_sa_send_error( p_rcv->p_resp, p_madw, IB_SA_MAD_STATUS_REQ_INVALID);
     goto Exit;
   }
-
-  p_pr = (ib_path_rec_t*)ib_sa_mad_get_payload_ptr( p_sa_mad );
 
   CL_ASSERT( p_sa_mad->attr_id == IB_MAD_ATTR_CLASS_PORT_INFO );
 
