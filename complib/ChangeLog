@@ -6,8 +6,8 @@
 	  previous API removals 
 
 	* include/complib/cl_memory.h, include/complib/cl_memtrack.h,
-	  complib/cl_memory.c, complib/cl_memtrack.c: Remove
-	  deprecated memory allocation related routines
+	  complib/cl_memory.c, complib/cl_memtrack.c, include/Makefile.am: 
+	  Remove deprecated memory allocation related routines
 
 2007-06-13  Yevgeny Kliteynik <kliteyn@dev.mellanox.co.il>
 
