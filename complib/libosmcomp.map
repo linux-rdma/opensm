@@ -1,9 +1,5 @@
 OSMCOMP_1.1 {
 	global:
-		cl_async_proc_construct;
-		cl_async_proc_init;
-		cl_async_proc_destroy;
-		cl_async_proc_queue;
 		complib_init;
 		complib_exit;
 		cl_is_debug;
@@ -90,13 +86,6 @@ OSMCOMP_1.1 {
 		cl_memset;
 		cl_memcpy;
 		cl_memcmp;
-		__cl_perf_run_calibration;
-		__cl_perf_construct;
-		__cl_perf_init;
-		__cl_perf_run_calibration;
-		__cl_perf_destroy;
-		__cl_perf_reset;
-		__cl_perf_display;
 		cl_qcpool_construct;
 		cl_qcpool_init;
 		cl_qcpool_destroy;
@@ -174,11 +163,6 @@ OSMCOMP_1.1 {
 		cl_atomic_dec;
 		cl_free;
 		cl_malloc;
-		cl_perf_construct;
-		cl_perf_destroy;
-		cl_perf_display;
-		cl_perf_init;
-		cl_perf_reset;
 		cl_zalloc;
 		ib_error_str;
 		ib_async_event_str;

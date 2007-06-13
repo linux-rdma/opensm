@@ -17,11 +17,10 @@ else
     libosmcomp_version_script =
 endif
 
-libosmcomp_la_SOURCES = cl_async_proc.c cl_complib.c \
-			cl_dispatcher.c cl_event.c cl_event_wheel.c \
+libosmcomp_la_SOURCES = cl_complib.c cl_dispatcher.c \
+			cl_event.c cl_event_wheel.c \
 			cl_list.c cl_log.c cl_map.c cl_memory.c \
-			cl_memory_osd.c cl_perf.c cl_pool.c \
-			cl_ptr_vector.c \
+			cl_memory_osd.c cl_pool.c cl_ptr_vector.c \
 			cl_spinlock.c cl_statustext.c \
 			cl_thread.c cl_threadpool.c \
 			cl_timer.c cl_vector.c \
@@ -32,8 +31,7 @@ libosmcomp_la_DEPENDENCIES = $(srcdir)/libosmcomp.map
 
 libosmcompincludedir = $(includedir)/infiniband/complib
 
-libosmcompinclude_HEADERS = $(srcdir)/../include/complib/cl_async_proc.h \
-	$(srcdir)/../include/complib/cl_atomic.h \
+libosmcompinclude_HEADERS = $(srcdir)/../include/complib/cl_atomic.h \
 	$(srcdir)/../include/complib/cl_atomic_osd.h \
 	$(srcdir)/../include/complib/cl_byteswap.h \
 	$(srcdir)/../include/complib/cl_byteswap_osd.h \
@@ -54,7 +52,6 @@ libosmcompinclude_HEADERS = $(srcdir)/../include/complib/cl_async_proc.h \
 	$(srcdir)/../include/complib/cl_packoff.h \
 	$(srcdir)/../include/complib/cl_packon.h \
 	$(srcdir)/../include/complib/cl_passivelock.h \
-	$(srcdir)/../include/complib/cl_perf.h \
 	$(srcdir)/../include/complib/cl_pool.h \
 	$(srcdir)/../include/complib/cl_ptr_vector.h \
 	$(srcdir)/../include/complib/cl_qcomppool.h \
