@@ -146,9 +146,6 @@ OSMCOMP_2.0 {
 		cl_vector_find_from_end;
 		cl_atomic_spinlock;
 		cl_atomic_dec;
-		cl_free;
-		cl_malloc;
-		cl_zalloc;
 		ib_error_str;
 		ib_async_event_str;
 		ib_wc_status_str;

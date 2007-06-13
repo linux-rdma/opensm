@@ -107,7 +107,6 @@ EXTRA_DIST = \
 	$(srcdir)/complib/cl_qlockpool.h \
 	$(srcdir)/complib/cl_event_wheel.h \
 	$(srcdir)/complib/cl_thread.h \
-	$(srcdir)/complib/cl_memory.h \
 	$(srcdir)/complib/cl_packoff.h \
 	$(srcdir)/complib/cl_pool.h \
 	$(srcdir)/complib/cl_types_osd.h \
@@ -120,12 +119,9 @@ EXTRA_DIST = \
 	$(srcdir)/complib/cl_dispatcher.h \
 	$(srcdir)/complib/cl_spinlock_osd.h \
 	$(srcdir)/complib/cl_debug_osd.h \
-	$(srcdir)/complib/cl_perf.h \
 	$(srcdir)/complib/cl_qmap.h \
 	$(srcdir)/complib/cl_byteswap.h \
-	$(srcdir)/complib/cl_async_proc.h \
 	$(srcdir)/complib/cl_threadpool.h \
-	$(srcdir)/complib/cl_memtrack.h \
 	$(srcdir)/complib/cl_types.h \
 	$(srcdir)/complib/cl_fleximap.h \
 	$(srcdir)/complib/cl_qcomppool.h \
