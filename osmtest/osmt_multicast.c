@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2006-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -51,6 +51,7 @@
 #include <string.h>
 #include <complib/cl_debug.h>
 #include <complib/cl_map.h>
+#include <complib/cl_list.h>
 #include "osmtest.h"
 
 /**********************************************************************
