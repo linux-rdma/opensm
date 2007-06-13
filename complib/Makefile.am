@@ -19,8 +19,8 @@ endif
 
 libosmcomp_la_SOURCES = cl_complib.c cl_dispatcher.c \
 			cl_event.c cl_event_wheel.c \
-			cl_list.c cl_log.c cl_map.c cl_memory.c \
-			cl_memory_osd.c cl_pool.c cl_ptr_vector.c \
+			cl_list.c cl_log.c cl_map.c \
+			cl_pool.c cl_ptr_vector.c \
 			cl_spinlock.c cl_statustext.c \
 			cl_thread.c cl_threadpool.c \
 			cl_timer.c cl_vector.c \
@@ -47,8 +47,6 @@ libosmcompinclude_HEADERS = $(srcdir)/../include/complib/cl_atomic.h \
 	$(srcdir)/../include/complib/cl_log.h \
 	$(srcdir)/../include/complib/cl_map.h \
 	$(srcdir)/../include/complib/cl_math.h \
-	$(srcdir)/../include/complib/cl_memory.h \
-	$(srcdir)/../include/complib/cl_memtrack.h \
 	$(srcdir)/../include/complib/cl_packoff.h \
 	$(srcdir)/../include/complib/cl_packon.h \
 	$(srcdir)/../include/complib/cl_passivelock.h \
