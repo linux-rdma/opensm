@@ -164,7 +164,7 @@ static void help_perfmgr(FILE *out, int detail)
 		fprintf(out, "   [enable|disable] -- change the perfmgr state\n");
 		fprintf(out, "   [sweep_time] -- change the perfmgr sweep time (requires [seconds] option)\n");
 		fprintf(out, "   [clear_counters] -- clear the counters stored\n");
-		fprintf(out, "   [dump_counters [mach]] -- dump the counters\n");
+		fprintf(out, "   [dump_counters [mach]] -- dump the counters (optionally in [mach]ine readable format)\n");
 	}
 }
 #endif /* ENABLE_OSM_PERF_MGR */
