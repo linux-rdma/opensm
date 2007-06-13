@@ -477,8 +477,8 @@ __osm_perfmgr_sweeper(void *p_ptr)
 			/* FIXME we should be able to track trap messages here
 			 * and not have to sweep the node_guid_tbl each pass
 			 */
-			cl_plock_acquire(pm->lock);
 			osm_log(pm->log, OSM_LOG_VERBOSE, "Gathering PerfMgr stats\n");
+			cl_plock_acquire(pm->lock);
 			cl_qmap_apply_func(&(pm->subn->node_guid_tbl),
 					__collect_guids, (void *)pm);
 			cl_plock_release(pm->lock);
