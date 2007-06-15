@@ -546,9 +546,6 @@ osm_dbg_get_capabilities_str(
   uint32_t total_len = 0;
   char *p_local = p_buf;
 
-  if( !p_pi->capability_mask )
-    return;
-
   strcpy( p_local, "Capability Mask:\n" );
   p_local += strlen( p_local );
 
@@ -839,9 +836,11 @@ osm_dump_port_info(
              );
 
     /*  show the capabilities mask */
-    osm_dbg_get_capabilities_str( buf, BUF_SIZE, "\t\t\t\t", p_pi );
-
-    osm_log( p_log, log_level, "%s", buf );
+    if( p_pi->capability_mask )
+    {
+      osm_dbg_get_capabilities_str( buf, BUF_SIZE, "\t\t\t\t", p_pi );
+      osm_log( p_log, log_level, "%s", buf );
+    }
   }
 }
 
@@ -936,9 +935,11 @@ osm_dump_portinfo_record(
              );
 
     /*  show the capabilities mask */
-    osm_dbg_get_capabilities_str( buf, BUF_SIZE, "\t\t\t\t", p_pi );
-
-    osm_log( p_log, log_level, "%s", buf );
+    if( p_pi->capability_mask )
+    {
+      osm_dbg_get_capabilities_str( buf, BUF_SIZE, "\t\t\t\t", p_pi );
+      osm_log( p_log, log_level, "%s", buf );
+    }
   }
 }
 
