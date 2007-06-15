@@ -1,3 +1,7 @@
+2007-06-15 Sasha Khapyorsky <sashak@voltaire.com>
+
+	* osm_helper.c: Fix PortInfo:CapMask printing when CapMask is 0
+
 2007-06-11 Sasha Khapyorsky <sashak@voltaire.com>
 
 	* osm_helper.c: Remove OSM_SM_SIGNAL_MASTER_OR_HIGHER_SM_DETECTED
