@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -49,134 +49,76 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <pthread.h>
 #include <complib/cl_threadpool.h>
-#include <complib/cl_atomic.h>
 
-void
-__cl_thread_pool_routine(
-	IN	void* const	context )
+static void cleanup_mutex(void *arg)
 {
-	cl_status_t			status = CL_SUCCESS;
-	cl_thread_pool_t	*p_thread_pool = (cl_thread_pool_t*)context;
-
-	/* Continue looping until signalled to end. */
-	while( !p_thread_pool->exit )
-	{
-		/* Wait for the specified event to occur. */
-		status = cl_event_wait_on( &p_thread_pool->wakeup_event, 
-							EVENT_NO_TIMEOUT, TRUE );
-
-		/* See if we've been signalled to end execution. */
-		if( (p_thread_pool->exit) || (status == CL_NOT_DONE) )
-			break;
-
-		/* The event has been signalled.  Invoke the callback. */
-		(*p_thread_pool->pfn_callback)( (void*)p_thread_pool->context );
-	}
-
-	/*
-	 * Decrement the running count to notify the destroying thread
-	 * that the event was received and processed.
-	 */
-	cl_atomic_dec( &p_thread_pool->running_count );
-	cl_event_signal( &p_thread_pool->destroy_event );
+	pthread_mutex_unlock(&((cl_thread_pool_t *)arg)->mutex);
 }
 
-void
-cl_thread_pool_construct(
-	IN	cl_thread_pool_t* const	p_thread_pool )
+static void *thread_pool_routine(void* context)
 {
-	CL_ASSERT( p_thread_pool);
+	cl_thread_pool_t *p_thread_pool = (cl_thread_pool_t*)context;
 
-	memset( p_thread_pool, 0, sizeof(cl_thread_pool_t) );
-	cl_event_construct( &p_thread_pool->wakeup_event );
-	cl_event_construct( &p_thread_pool->destroy_event );
-	cl_list_construct( &p_thread_pool->thread_list );
-	p_thread_pool->state = CL_UNINITIALIZED;
+	do {
+		pthread_mutex_lock(&p_thread_pool->mutex);
+		pthread_cleanup_push(cleanup_mutex, p_thread_pool);
+		while(!p_thread_pool->events)
+			pthread_cond_wait(&p_thread_pool->cond,
+					  &p_thread_pool->mutex);
+		p_thread_pool->events--;
+		pthread_cleanup_pop(1);
+		/* The event has been signalled.  Invoke the callback. */
+		(*p_thread_pool->pfn_callback)(p_thread_pool->context);
+	} while (1);
+
+	return NULL;
 }
 
 cl_status_t
 cl_thread_pool_init(
-	IN	cl_thread_pool_t* const		p_thread_pool,
-	IN	uint32_t					count,
-	IN	cl_pfn_thread_callback_t	pfn_callback,
-	IN	const void* const			context,
-	IN	const char* const			name )
+	IN cl_thread_pool_t* const p_thread_pool,
+	IN unsigned count,
+	IN void	(*pfn_callback)(void*),
+	IN void *context,
+	IN const char* const name )
 {
-	cl_status_t	status;
-	cl_thread_t	*p_thread;
-	uint32_t	i;
+	int i;
 
 	CL_ASSERT( p_thread_pool );
 	CL_ASSERT( pfn_callback );
 
-	cl_thread_pool_construct( p_thread_pool );
+	memset(p_thread_pool, 0, sizeof(*p_thread_pool));
 
-	if( !count )
+	if(!count)
 		count = cl_proc_count();
 
-	status = cl_list_init( &p_thread_pool->thread_list, count );
-	if( status != CL_SUCCESS )
-	{
-		cl_thread_pool_destroy( p_thread_pool );
-		return( status );
-	}
+	pthread_mutex_init(&p_thread_pool->mutex, NULL);
+	pthread_cond_init(&p_thread_pool->cond, NULL);
 
-	/* Initialize the event that the threads wait on. */
-	status = cl_event_init( &p_thread_pool->wakeup_event, FALSE );
-	if( status != CL_SUCCESS )
-	{
-		cl_thread_pool_destroy( p_thread_pool );
-		return( status );
-	}
-
-	/* Initialize the event used to destroy the threadpool. */
-	status = cl_event_init( &p_thread_pool->destroy_event, FALSE );
-	if( status != CL_SUCCESS )
-	{
-		cl_thread_pool_destroy( p_thread_pool );
-		return( status );
-	}
+	p_thread_pool->events = 0;
 
 	p_thread_pool->pfn_callback = pfn_callback;
 	p_thread_pool->context = context;
 
+	p_thread_pool->tid = calloc(count, sizeof(*p_thread_pool->tid));
+	if (!p_thread_pool->tid) {
+		cl_thread_pool_destroy( p_thread_pool );
+		return CL_INSUFFICIENT_MEMORY;
+	}
+
+	p_thread_pool->running_count = count;
+
 	for( i = 0; i < count; i++ )
 	{
-		/* Create a new thread. */
-		p_thread = (cl_thread_t*)malloc( sizeof(cl_thread_t) );
-		if( !p_thread )
-		{
+		if (pthread_create(&p_thread_pool->tid[i], NULL,
+				   thread_pool_routine, p_thread_pool) < 0) {
 			cl_thread_pool_destroy( p_thread_pool );
-			return( CL_INSUFFICIENT_MEMORY );
+			return CL_INSUFFICIENT_RESOURCES;
 		}
-
-		cl_thread_construct( p_thread );
-
-		/*
-		 * Add it to the list.  This is guaranteed to work since we
-		 * initialized the list to hold at least the number of threads we want
-		 * to store there.
-		 */
-		status = cl_list_insert_head( &p_thread_pool->thread_list, p_thread );
-		CL_ASSERT( status == CL_SUCCESS );
-
-		/* Start the thread. */
-		status = cl_thread_init( p_thread, __cl_thread_pool_routine,
-			p_thread_pool, name );
-		if( status != CL_SUCCESS )
-		{
-			cl_thread_pool_destroy( p_thread_pool );
-			return( status );
-		}
-
-		/*
-		 * Increment the running count to insure that a destroying thread
-		 * will signal all the threads.
-		 */
-		cl_atomic_inc( &p_thread_pool->running_count );
 	}
-	p_thread_pool->state = CL_INITIALIZED;
+
 	return( CL_SUCCESS );
 }
 
@@ -184,59 +126,34 @@ void
 cl_thread_pool_destroy(
 	IN	cl_thread_pool_t* const	p_thread_pool )
 {
-	cl_thread_t		*p_thread;
+	int i;
 
 	CL_ASSERT( p_thread_pool );
-	CL_ASSERT( cl_is_state_valid( p_thread_pool->state ) );
 
-	/* Indicate to all threads that they need to exit. */
-	p_thread_pool->exit = TRUE;
+	for (i = 0 ; i < p_thread_pool->running_count; i++)
+		if (p_thread_pool->tid[i])
+			pthread_cancel(p_thread_pool->tid[i]);
 
-	/*
-	 * Signal the threads until they have all exited.  Signalling
-	 * once for each thread is not guaranteed to work since two events
-	 * could release only a single thread, depending on the rate at which
-	 * the events are set and how the thread scheduler processes notifications.
-	 */
+	for (i = 0 ; i < p_thread_pool->running_count; i++)
+		if (p_thread_pool->tid[i])
+			pthread_join(p_thread_pool->tid[i], NULL);
 
-	while( p_thread_pool->running_count )
-	{
-     cl_event_signal( &p_thread_pool->wakeup_event );
-     /*
-      * Wait for the destroy event to occur, indicating that the thread
-      * has exited.
-      */
-     cl_event_wait_on( &p_thread_pool->destroy_event,
-                       EVENT_NO_TIMEOUT, TRUE );
-   }
+	p_thread_pool->running_count = 0;
+	pthread_cond_destroy(&p_thread_pool->cond);
+	pthread_mutex_destroy(&p_thread_pool->mutex);
 
-	/*
-	 * Stop each thread one at a time.  Note that this cannot be done in the
-	 * above for loop because signal will wake up an unknown thread.
-	 */
-	if( cl_is_list_inited( &p_thread_pool->thread_list ) )
-	{
-		while( !cl_is_list_empty( &p_thread_pool->thread_list ) )
-		{
-			p_thread =
-				(cl_thread_t*)cl_list_remove_head( &p_thread_pool->thread_list );
-			cl_thread_destroy( p_thread );
-			free( p_thread );
-		}
-	}
-
-	cl_event_destroy( &p_thread_pool->destroy_event );
-	cl_event_destroy( &p_thread_pool->wakeup_event );
-	cl_list_destroy( &p_thread_pool->thread_list );
-	p_thread_pool->state = CL_UNINITIALIZED;
+	p_thread_pool->events = 0;
 }
 
 cl_status_t
 cl_thread_pool_signal(
 	IN	cl_thread_pool_t* const	p_thread_pool )
 {
+	int ret;
 	CL_ASSERT( p_thread_pool );
-	CL_ASSERT( p_thread_pool->state == CL_INITIALIZED );
-
-	return( cl_event_signal( &p_thread_pool->wakeup_event ) );
+	pthread_mutex_lock(&p_thread_pool->mutex);
+	p_thread_pool->events++;
+	ret = pthread_cond_signal(&p_thread_pool->cond);
+	pthread_mutex_unlock(&p_thread_pool->mutex);
+	return ret;
 }

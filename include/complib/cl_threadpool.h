@@ -46,9 +46,8 @@
 #ifndef _CL_THREAD_POOL_H_
 #define _CL_THREAD_POOL_H_
 
-#include <complib/cl_list.h>
-#include <complib/cl_thread.h>
-#include <complib/cl_event.h>
+#include <pthread.h>
+#include <complib/cl_types.h>
 
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
@@ -100,15 +99,13 @@ BEGIN_C_DECLS
 */
 typedef struct _cl_thread_pool
 {
-	cl_pfn_thread_callback_t	pfn_callback;
-	const void					*context;
-	cl_list_t					thread_list;
-	cl_event_t					wakeup_event;
-	cl_event_t					destroy_event;
-	boolean_t					exit;
-	cl_state_t					state;
-	atomic32_t					running_count;
-
+	void (*pfn_callback)(void*);
+	void *context;
+	unsigned running_count;
+	unsigned events;
+	pthread_cond_t cond;
+	pthread_mutex_t mutex;
+	pthread_t *tid;
 } cl_thread_pool_t;
 /*
 * FIELDS
@@ -118,58 +115,23 @@ typedef struct _cl_thread_pool
 *	context
 *		Context to pass to the thread callback function.
 *
-*	thread_list
-*		List of threads managed by the thread pool.
-*
-*	event
-*		Event used to signal threads to wake up and do work.
-*
-*	destroy_event
-*		Event used to signal threads to exit.
-*
-*	exit
-*		Flag used to indicates threads to exit.
-*
-*	state
-*		State of the thread pool.
-*
 *	running_count
 *		Number of threads running.
 *
+*	events
+*		events counter
+*
+*	mutex
+*		mutex for cond variable protection
+*
+*	cond
+*		conditional variable to signal an event to thread
+*
+*	tid
+*		array of allocated thread ids.
+*
 * SEE ALSO
 *	Thread Pool
-*********/
-
-/****f* Component Library: Thread Pool/cl_thread_pool_construct
-* NAME
-*	cl_thread_pool_construct
-*
-* DESCRIPTION
-*	The cl_thread_pool_construct function initializes the state of a
-*	thread pool.
-*
-* SYNOPSIS
-*/
-void
-cl_thread_pool_construct(
-	IN	cl_thread_pool_t* const	p_thread_pool );
-/*
-* PARAMETERS
-*	p_thread_pool
-*		[in] Pointer to a thread pool structure.
-*
-* RETURN VALUE
-*	This function does not return a value.
-*
-* NOTES
-*	Allows calling cl_thread_pool_destroy without first calling
-*	cl_thread_pool_init.
-*
-*	Calling cl_thread_pool_construct is a prerequisite to calling any other
-*	thread pool function except cl_thread_pool_init.
-*
-* SEE ALSO
-*	Thread Pool, cl_thread_pool_init, cl_thread_pool_destroy
 *********/
 
 /****f* Component Library: Thread Pool/cl_thread_pool_init
@@ -184,11 +146,11 @@ cl_thread_pool_construct(
 */
 cl_status_t
 cl_thread_pool_init(
-	IN	cl_thread_pool_t* const		p_thread_pool,
-	IN	uint32_t					thread_count,
-	IN	cl_pfn_thread_callback_t	pfn_callback,
-	IN	const void* const			context,
-	IN	const char* const			name );
+	IN cl_thread_pool_t* const p_thread_pool,
+	IN unsigned count,
+	IN void	(*pfn_callback)(void*),
+	IN void *context,
+	IN const char* const name );
 /*
 * PARAMETERS
 *	p_thread_pool

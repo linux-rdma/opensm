@@ -321,7 +321,7 @@ cl_thread_stall(
 *
 * SYNOPSIS
 */
-uint32_t
+int
 cl_proc_count( void );
 /*
 * RETURN VALUE

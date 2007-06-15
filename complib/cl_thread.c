@@ -129,7 +129,7 @@ cl_thread_stall(
 	usleep( pause_us );
 }
 
-uint32_t
+int
 cl_proc_count( void )
 {
 	uint32_t ret;

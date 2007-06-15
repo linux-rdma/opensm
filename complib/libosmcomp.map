@@ -114,7 +114,6 @@ OSMCOMP_2.0 {
 		cl_thread_stall;
 		cl_proc_count;
 		cl_is_current_thread;
-		__cl_thread_pool_routine;
 		cl_thread_pool_construct;
 		cl_thread_pool_init;
 		cl_thread_pool_destroy;

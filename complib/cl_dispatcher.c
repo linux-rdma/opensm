@@ -49,6 +49,7 @@
 
 #include <stdlib.h>
 #include <complib/cl_dispatcher.h>
+#include <complib/cl_thread.h>
 #include <complib/cl_timer.h>
 
 /* give some guidance when we build our cl_pool of messages */
@@ -132,7 +133,6 @@ cl_disp_construct(
 
   cl_qlist_init( &p_disp->reg_list );
   cl_ptr_vector_construct( &p_disp->reg_vec );
-  cl_thread_pool_construct( &p_disp->worker_threads );
   cl_qlist_init( &p_disp->msg_fifo );
   cl_spinlock_construct( &p_disp->lock );
   cl_qpool_construct( &p_disp->msg_pool );
