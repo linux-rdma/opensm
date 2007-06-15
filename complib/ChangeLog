@@ -1,3 +1,9 @@
+2007-06-13  Sasha Khapyorsky <sashak@voltaire.com>
+
+	* include/complib/cl_threadpool.h, complib/cl_threadpool.c,
+	  complib/cl_dispatcher.c, complib/libosmcomp.map: Thread
+	  pool rework
+
 2007-06-13  Hal Rosenstock <halr@voltaire.com>
 
 	* configure.in: Bump to version 2.2.0
