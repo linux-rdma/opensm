@@ -3066,11 +3066,15 @@ __osm_ftree_do_routing(
    IN  void * context)
 {
    ftree_fabric_t * p_ftree = context;
+   int status = 0;
 
    OSM_LOG_ENTER(&p_ftree->p_osm->log, __osm_ftree_do_routing);
 
    if (!p_ftree->fabric_built)
+   {
+      status = -1;
       goto Exit;
+   }
 
    osm_log(&p_ftree->p_osm->log, OSM_LOG_VERBOSE,"__osm_ftree_do_routing: "
            "Starting FatTree routing\n");
@@ -3094,7 +3098,7 @@ __osm_ftree_do_routing(
 
  Exit:
    OSM_LOG_EXIT(&p_ftree->p_osm->log);
-   return 0;
+   return status;
 }
 
 /***************************************************
