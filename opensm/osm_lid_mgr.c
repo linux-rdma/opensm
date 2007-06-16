@@ -1329,8 +1329,7 @@ __osm_lid_mgr_process_our_sm_node(
   }
 
   /*
-    Set the PortInfo the Physical Port associated
-    with this Port.
+    Set the PortInfo the Physical Port associated with this Port.
   */
   __osm_lid_mgr_set_physp_pi( p_mgr, p_port, p_port->p_physp, cl_hton16( min_lid_ho ) );
 
