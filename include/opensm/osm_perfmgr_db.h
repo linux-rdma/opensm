@@ -39,6 +39,7 @@
 #include <iba/ib_types.h>
 #include <complib/cl_qmap.h>
 #include <complib/cl_passivelock.h>
+#include <opensm/osm_event_plugin.h>
 
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
@@ -148,16 +149,18 @@ typedef struct _db_node {
  * all nodes in the system.
  */
 typedef struct _db {
-	cl_qmap_t   pc_data; /* stores type (_db_node_t *) */
-	cl_plock_t  lock;
-	osm_log_t  *osm_log;
+	cl_qmap_t         pc_data; /* stores type (_db_node_t *) */
+	cl_plock_t        lock;
+	osm_log_t        *osm_log;
+	osm_epi_plugin_t *event_plugin;
 } perfmgr_db_t;
 
 
 /**
  * functions
  */
-perfmgr_db_t *perfmgr_db_construct(osm_log_t *p_log, char *type);
+perfmgr_db_t *perfmgr_db_construct(osm_log_t *p_log,
+				osm_epi_plugin_t *event_plugin);
 void                perfmgr_db_destroy(perfmgr_db_t *db);
 
 perfmgr_db_err_t   perfmgr_db_create_entry(perfmgr_db_t *db, uint64_t guid,

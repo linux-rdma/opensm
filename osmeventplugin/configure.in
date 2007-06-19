@@ -1,48 +1,45 @@
 dnl Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.57)
-AC_INIT(opensm, 2.2.0, general@lists.openfabrics.org)
-AC_CONFIG_SRCDIR([osm_opensm.c])
+AC_INIT(libosmeventplugin, 1.0.0, general@lists.openfabrics.org)
 AC_CONFIG_AUX_DIR(config)
 AM_CONFIG_HEADER(config.h)
 AM_INIT_AUTOMAKE
 
-dnl the library version info is available in the file: libopensm.ver
-opensm_api_version=`grep LIBVERSION $srcdir/libopensm.ver | sed 's/LIBVERSION=//'`
-if test -z $opensm_api_version; then
-   opensm_api_version=1:0:0
+dnl the library version info is available in the file: libosmeventplugin.ver
+osmeventplugin_api_version=`grep LIBVERSION $srcdir/libosmeventplugin.ver | sed 's/LIBVERSION=//'`
+if test -z $osmeventplugin_api_version; then
+   osmeventplugin_api_version=1:0:0
 fi
-AC_SUBST(opensm_api_version)
+AC_SUBST(osmeventplugin_api_version)
 
 dnl Checks for programs
-AC_PROG_CXX
 AC_PROG_CC
-AC_PROG_CPP
-AC_PROG_INSTALL
-AC_PROG_LN_S
-AC_PROG_MAKE_SET
+AC_PROG_GCC_TRADITIONAL
 AC_PROG_LIBTOOL
 
 dnl Checks for libraries
+AC_CHECK_LIB(pthread, pthread_mutex_init, [],
+	AC_MSG_ERROR([pthread_mutex_init() not found.  libosmeventplugin requires libpthread.]))
 
 dnl Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([fcntl.h stdlib.h sys/time.h unistd.h])
+AC_CHECK_HEADERS([fcntl.h stdlib.h string.h sys/ioctl.h sys/time.h syslog.h unistd.h])
 
 dnl Checks for library functions
-#AC_FUNC_MALLOC
-AC_FUNC_VPRINTF
-AC_CHECK_FUNCS([gettimeofday localtime_r strcspn strtol strtoull])
+AC_FUNC_MALLOC
+AC_FUNC_MEMCMP
+AC_CHECK_FUNC([time])
+dnl AC_CHECK_FUNC([cl_plock_excl_acquire], [],
+dnl AC_MSG_ERROR([cl_plock_excl_acquire not found, libosmeventplugin requires libosmcomp]))
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
 AC_C_INLINE
-AC_TYPE_PID_T
 AC_TYPE_SIZE_T
 AC_HEADER_TIME
-AC_STRUCT_TM
-AC_C_VOLATILE
 
+dnl We use --version-script with ld if possible
 AC_CACHE_CHECK(whether ld accepts --version-script, ac_cv_version_script,
     if test -n "`$LD --help < /dev/null 2>/dev/null | grep version-script`"; then
         ac_cv_version_script=yes
@@ -52,7 +49,7 @@ AC_CACHE_CHECK(whether ld accepts --version-script, ac_cv_version_script,
 
 AM_CONDITIONAL(HAVE_LD_VERSION_SCRIPT, test "$ac_cv_version_script" = "yes")
 
-dnl support debug mode
+dnl Support debug mode build - if enable-debug provided the DEBUG variable is set
 AC_ARG_ENABLE(debug,
 [  --enable-debug Turn on debug mode],
 [case "${enableval}" in
@@ -62,23 +59,12 @@ AC_ARG_ENABLE(debug,
 esac],[debug=false])
 AM_CONDITIONAL(DEBUG, test x$debug = xtrue)
 
-dnl check if they want the socket console
-OPENIB_OSM_CONSOLE_SOCKET_SEL
-
-dnl select performance manager or not
-OPENIB_OSM_PERF_MGR_SEL
-
-dnl select example event plugin or not
-OPENIB_OSM_DEFAULT_EVENT_PLUGIN_SEL
-
-dnl Provide user option to select vendor
-OPENIB_APP_OSMV_SEL
-
-# we have to revive the env CFALGS as some how they are being overwritten...
+# we have to revive the env CFLAGS as some how they are being overwritten...
 # see http://sources.redhat.com/automake/automake.html#Flag-Variables-Ordering
 # for why they should NEVER be modified by the configure to allow for user
 # overrides.
 CFLAGS=$ac_env_CFLAGS_value
 
-AC_CONFIG_FILES([Makefile])
+
+AC_CONFIG_FILES([Makefile libosmeventplugin.spec])
 AC_OUTPUT

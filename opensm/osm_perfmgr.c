@@ -524,7 +524,6 @@ osm_perfmgr_destroy(osm_perfmgr_t * const pm)
 {
 	OSM_LOG_ENTER( pm->log, osm_perfmgr_destroy );
 	free(pm->event_db_dump_file);
-	free(pm->event_db_plugin);
 	perfmgr_db_destroy(pm->db);
 	OSM_LOG_EXIT( pm->log );
 }
@@ -780,6 +779,7 @@ osm_pc_rcv_process(void *context, void *data)
 	if (mad_context->perfmgr_context.mad_method == IB_MAD_METHOD_GET) {
 		perfmgr_db_add_err_reading(pm->db, node_guid, port_num, &err_reading);
 		perfmgr_db_add_dc_reading(pm->db, node_guid, port_num, &data_reading);
+
 	} else {
 		perfmgr_db_clear_prev_err(pm->db, node_guid, port_num);
 		perfmgr_db_clear_prev_dc(pm->db, node_guid, port_num);
@@ -816,7 +816,9 @@ osm_perfmgr_init(
 	osm_vendor_t * const vendor,
 	cl_dispatcher_t* const disp,
 	cl_plock_t* const lock,
-	const osm_subn_opt_t * const p_opt )
+	const osm_subn_opt_t * const p_opt,
+	osm_epi_plugin_t     *event_plugin
+	)
 {
 	ib_api_status_t    status = IB_SUCCESS;
 
@@ -838,10 +840,10 @@ osm_perfmgr_init(
 	pm->state = p_opt->perfmgr ? PERFMGR_STATE_ENABLED : PERFMGR_STATE_DISABLE;
 	pm->sweep_time_s = p_opt->perfmgr_sweep_time_s;
 	pm->event_db_dump_file = strdup(p_opt->event_db_dump_file);
-	pm->event_db_plugin = strdup(p_opt->event_db_plugin);
 	pm->max_outstanding_queries = p_opt->perfmgr_max_outstanding_queries;
+	pm->event_plugin = event_plugin;
 
-	pm->db = perfmgr_db_construct(pm->log, pm->event_db_plugin);
+	pm->db = perfmgr_db_construct(pm->log, pm->event_plugin);
 	if (!pm->db)
 	{
 	      pm->state = PERFMGR_STATE_NO_DB;

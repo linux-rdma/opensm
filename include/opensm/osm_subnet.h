@@ -296,8 +296,8 @@ typedef struct _osm_subn_opt
   uint16_t                 perfmgr_sweep_time_s;
   uint32_t                 perfmgr_max_outstanding_queries;
   char *                   event_db_dump_file;
-  char *                   event_db_plugin;
 #endif /* ENABLE_OSM_PERF_MGR */
+  char *                   event_plugin_name;
 } osm_subn_opt_t;
 /*
 * FIELDS

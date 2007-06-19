@@ -59,20 +59,22 @@ BEGIN_C_DECLS
 *
 *********/
 
-typedef enum {
-	OSM_EVENT_PLUGIN_SUCCESS = 0,
-	OSM_EVENT_PLUGIN_FAIL
-} osm_epi_err_t;
+#ifdef ENABLE_OSM_DEFAULT_EVENT_PLUGIN
+#define OSM_DEFAULT_EVENT_PLUGIN_NAME "osmeventplugin"
+#else /* !ENABLE_OSM_DEFAULT_EVENT_PLUGIN */
+#define OSM_DEFAULT_EVENT_PLUGIN_NAME "NONE"
+#endif /* ENABLE_OSM_DEFAULT_EVENT_PLUGIN */
 
 #define OSM_EPI_NODE_NAME_LEN (128)
 /** =========================================================================
  * Event types
  */
 typedef enum {
-	OSM_EVENT_ID_PORT_COUNTER = 0,
-	OSM_EVENT_ID_PORT_COUNTER_EXT,
+	OSM_EVENT_ID_PORT_ERRORS = 0,
+	OSM_EVENT_ID_PORT_DATA_COUNTERS,
 	OSM_EVENT_ID_PORT_SELECT,
-	OSM_EVENT_ID_TRAP
+	OSM_EVENT_ID_TRAP,
+	OSM_EVENT_ID_MAX
 } osm_epi_event_id_t;
 
 typedef struct {
@@ -82,10 +84,12 @@ typedef struct {
 } osm_epi_node_id_t;
 
 /** =========================================================================
- * Port counter event
+ * Port error event
  * OSM_EVENT_ID_PORT_COUNTER
+ * This is a difference from the last reading.  NOT an absolute reading.
  */
 typedef struct {
+	osm_epi_node_id_t node_id;
 	uint64_t          symbol_err_cnt;
 	uint64_t          link_err_recover;
 	uint64_t          link_downed;
@@ -98,18 +102,15 @@ typedef struct {
 	uint64_t          link_integrity;
 	uint64_t          buffer_overrun;
 	uint64_t          vl15_dropped;
-	uint64_t          xmit_data;
-	uint64_t          rcv_data;
-	uint64_t          xmit_pkts;
-	uint64_t          rcv_pkts;
 	time_t            time_diff_s;
-	osm_epi_node_id_t node_id;
-} osm_epi_pc_event_t;
+} osm_epi_pe_event_t;
 
 /** =========================================================================
- * Port counter extended event
+ * Port data counter event
+ * This is a difference from the last reading.  NOT an absolute reading.
  */
 typedef struct {
+	osm_epi_node_id_t node_id;
 	uint64_t          xmit_data;
 	uint64_t          rcv_data;
 	uint64_t          xmit_pkts;
@@ -119,47 +120,46 @@ typedef struct {
 	uint64_t          multicast_xmit_pkts;
 	uint64_t          multicast_rcv_pkts;
 	time_t            time_diff_s;
-	osm_epi_node_id_t node_id;
-} osm_epi_pc_ext_event_t;
+} osm_epi_dc_event_t;
 
 /** =========================================================================
  * Port select event
+ * This is a difference from the last reading.  NOT an absolute reading.
  */
 typedef struct {
-	uint64_t          xmit_data;
-	uint64_t          rcv_data;
-	uint64_t          xmit_pkts;
-	uint64_t          rcv_pkts;
+	osm_epi_node_id_t node_id;
 	uint64_t          xmit_wait;
 	time_t            time_diff_s;
-	osm_epi_node_id_t node_id;
 } osm_epi_ps_event_t;
 
 /** =========================================================================
  * Trap events
  */
 typedef struct {
+	osm_epi_node_id_t node_id;
 	uint8_t           type;
 	uint32_t          prod_type;
 	uint16_t          trap_num;
 	uint16_t          issuer_lid;
 	time_t            time;
-	osm_epi_node_id_t node_id;
 } osm_epi_trap_event_t;
 
 /** =========================================================================
  * Plugin creators should allocate an object of this type
- *    (name osm_event_plugin)
+ *    (named OSM_EVENT_PLUGIN_IMPL_NAME)
  * The version should be set to OSM_EVENT_PLUGIN_INTERFACE_VER
  */
+#define OSM_EVENT_PLUGIN_IMPL_NAME "osm_event_plugin"
 #define OSM_EVENT_PLUGIN_INTERFACE_VER (1)
 typedef struct
 {
-	int            interface_version;
-	void          *(*construct)(osm_log_t *osm_log);
-	void           (*destroy)(void *db);
+	int   interface_version;
+	void *(*construct)(osm_log_t *osm_log);
+	void  (*destroy)(void *plugin_data);
 
-	osm_epi_err_t  (*report)(void *db, osm_epi_event_id_t id, void *data);
+	void  (*report)(void *plugin_data,
+			osm_epi_event_id_t event_id,
+			void *event_data);
 
 } __osm_epi_plugin_t;
 
@@ -168,8 +168,8 @@ typedef struct
  */
 typedef struct {
 	void                *handle;
-	__osm_epi_plugin_t  *db_impl;
-	void                *db_data;
+	__osm_epi_plugin_t  *impl;
+	void                *plugin_data;
 	osm_log_t           *p_log;
 } osm_epi_plugin_t;
 
@@ -177,21 +177,24 @@ typedef struct {
 /**
  * functions
  */
-osm_epi_plugin_t *osm_epi_construct(osm_log_t *p_log, char *type);
-void              osm_epi_destroy(osm_epi_plugin_t *db);
-osm_epi_err_t     osm_epi_report(void *db, osm_epi_event_id_t id, void *data);
+osm_epi_plugin_t *osm_epi_construct(osm_log_t *p_log, char *plugin_name);
+void              osm_epi_destroy(osm_epi_plugin_t *plugin);
+void              osm_epi_report(osm_epi_plugin_t *plugin,
+				osm_epi_event_id_t event_id,
+				void *event_data);
 
 /** =========================================================================
- * helper functions to fill in the various db objects from wire objects
+ * Helper functions
  */
-
-void osm_epi_fill_pc_event(ib_port_counters_t *wire_read,
-				osm_epi_pc_event_t *event);
-void osm_epi_fill_pc_ext_event(ib_port_counters_t *wire_read,
-				osm_epi_pc_ext_event_t *event);
-void osm_epi_fill_ps_event(ib_port_counters_ext_t *wire_read,
-				osm_epi_ps_event_t *event);
-
+static inline void
+osm_epi_create_node_id(osm_epi_node_id_t *node_id, uint64_t node_guid,
+			uint8_t port_num, char *node_name)
+{
+	node_id->node_guid = node_guid;
+	node_id->port_num = port_num;
+	strncpy(node_id->node_name, node_name, OSM_EPI_NODE_NAME_LEN);
+	node_id->node_name[OSM_EPI_NODE_NAME_LEN-1] = '\0';
+}
 
 END_C_DECLS
 

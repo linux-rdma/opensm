@@ -68,6 +68,7 @@
 #include <opensm/osm_inform.h>
 #include <opensm/osm_console.h>
 #include <opensm/osm_perfmgr.h>
+#include <opensm/osm_event_plugin.h>
 
 #if defined(PATH_MAX)
 #define OSM_PATH_MAX	(PATH_MAX + 1)
@@ -477,8 +478,9 @@ osm_subn_set_default_opt(
   p_opt->perfmgr_max_outstanding_queries =
 	  OSM_PERFMGR_DEFAULT_MAX_OUTSTANDING_QUERIES;
   p_opt->event_db_dump_file = OSM_PERFMGR_DEFAULT_DUMP_FILE;
-  p_opt->event_db_plugin = OSM_DEFAULT_EVENT_PLUGIN;
 #endif /* ENABLE_OSM_PERF_MGR */
+
+  p_opt->event_plugin_name = OSM_DEFAULT_EVENT_PLUGIN_NAME;
 
   p_opt->dump_files_dir = getenv("OSM_TMP_DIR");
   if (!p_opt->dump_files_dir || !(*p_opt->dump_files_dir))
@@ -1362,11 +1364,11 @@ osm_subn_parse_conf_file(
       __osm_subn_opts_unpack_charp(
         "event_db_dump_file",
         p_key, p_val, &p_opts->event_db_dump_file);
+#endif /* ENABLE_OSM_PERF_MGR */
 
       __osm_subn_opts_unpack_charp(
-        "event_db_plugin",
-        p_key, p_val, &p_opts->event_db_plugin);
-#endif /* ENABLE_OSM_PERF_MGR */
+        "event_plugin_name",
+        p_key, p_val, &p_opts->event_plugin_name);
 
       subn_parse_qos_options("qos",
         p_key, p_val, &p_opts->qos_options);
@@ -1634,13 +1636,18 @@ osm_subn_write_conf_file(
     "#\n# Event DB Options\n#\n"
     "# Dump file to dump the events to\n"
     "event_db_dump_file %s\n\n"
-    "# Event db plugin\n"
-    "event_db_plugin %s\n\n"
     ,
-    p_opts->event_db_dump_file,
-    p_opts->event_db_plugin
+    p_opts->event_db_dump_file
     );
 #endif /* ENABLE_OSM_PERF_MGR */
+
+  fprintf(
+    opts_file,
+    "#\n# Event Plugin Options\n#\n"
+    "event_plugin_name %s\n\n"
+    ,
+    p_opts->event_plugin_name
+    );
 
   fprintf( 
     opts_file,

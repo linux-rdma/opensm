@@ -50,6 +50,7 @@
 #include <opensm/osm_perfmgr_db.h>
 #include <opensm/osm_sm.h>
 #include <opensm/osm_base.h>
+#include <opensm/osm_event_plugin.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -72,7 +73,6 @@ extern "C" {
 
 #define OSM_PERFMGR_DEFAULT_SWEEP_TIME_S 180
 #define OSM_PERFMGR_DEFAULT_DUMP_FILE OSM_DEFAULT_TMP_DIR "/opensm_port_counters.log"
-#define OSM_DEFAULT_EVENT_PLUGIN "ibeventdb"
 #define OSM_PERFMGR_DEFAULT_MAX_OUTSTANDING_QUERIES 500
 
 
@@ -122,13 +122,13 @@ typedef struct _osm_perfmgr
   uint16_t                   sweep_time_s;
   char                      *db_file;
   char                      *event_db_dump_file;
-  char                      *event_db_plugin;
   perfmgr_db_t              *db;
   atomic32_t                 outstanding_queries; /* this along with sig_query */
   cl_event_t                 sig_query;           /* will throttle our querys */
   uint32_t                   max_outstanding_queries;
   cl_qmap_t                  monitored_map;       /* map the nodes we are tracking */
   __monitored_node_t        *remove_list;
+  osm_epi_plugin_t          *event_plugin;
 } osm_perfmgr_t;
 /*
 * FIELDS
@@ -225,7 +225,8 @@ osm_perfmgr_init(
 	osm_vendor_t * const vendor,
 	cl_dispatcher_t* const disp,
 	cl_plock_t* const lock,
-	const osm_subn_opt_t * const p_opt);
+	const osm_subn_opt_t * const p_opt,
+	osm_epi_plugin_t     *event_plugin);
 /*
 * PARAMETERS
 *	perfmgr
@@ -254,6 +255,9 @@ osm_perfmgr_init(
 *
 *	p_opt
 *		[in] Starting options
+*
+*	event_plugin
+*		[in] Event plugin (Can be NULL if not available)
 *
 * RETURN VALUES
 *	IB_SUCCESS if the PerfMgr object was initialized successfully.

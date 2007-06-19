@@ -53,6 +53,7 @@ EXTRA_DIST = \
 	$(srcdir)/opensm/osm_sa_sminfo_record.h \
 	$(srcdir)/opensm/osm_mcast_mgr.h \
 	$(srcdir)/opensm/osm_errors.h \
+	$(srcdir)/opensm/osm_event_plugin.h \
 	$(srcdir)/opensm/osm_mtree.h \
 	$(srcdir)/opensm/osm_sm.h \
 	$(srcdir)/opensm/osm_trap_rcv.h \

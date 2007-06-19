@@ -55,7 +55,8 @@ opensm_SOURCES = main.c osm_console.c osm_db_files.c \
 		 osm_trap_rcv.c osm_ucast_mgr.c osm_ucast_updn.c \
 		 osm_ucast_lash.c osm_ucast_file.c osm_ucast_ftree.c \
 		 osm_vl15intf.c osm_vl_arb_rcv.c \
-		 st.c osm_perfmgr.c osm_perfmgr_db.c
+		 st.c osm_perfmgr.c osm_perfmgr_db.c \
+		 osm_event_plugin.c
 if OSMV_OPENIB
 opensm_CFLAGS = -Wall $(OSMV_CFLAGS) -fno-strict-aliasing -DVENDOR_RMPP_SUPPORT -DDUAL_SIDED_RMPP $(DBGFLAGS) -D_XOPEN_SOURCE=600 -D_BSD_SOURCE=1
 opensm_CXXFLAGS = -Wall $(OSMV_CFLAGS) -DVENDOR_RMPP_SUPPORT -DDUAL_SIDED_RMPP $(DBGFLAGS) -D_XOPEN_SOURCE=600 -D_BSD_SOURCE=1

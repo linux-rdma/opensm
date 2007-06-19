@@ -294,6 +294,9 @@ osm_opensm_init(
    if( status != IB_SUCCESS )
       goto Exit;
 
+   p_osm->event_plugin = osm_epi_construct(&p_osm->log,
+					p_opt->event_plugin_name);
+
 #ifdef ENABLE_OSM_PERF_MGR
    status = osm_perfmgr_init( &p_osm->perfmgr,
                          &p_osm->subn,
@@ -303,7 +306,8 @@ osm_opensm_init(
 			 p_osm->p_vendor,
 			 &p_osm->disp,
 			 &p_osm->lock,
-			 p_opt);
+			 p_opt,
+			 p_osm->event_plugin);
 
    if( status != IB_SUCCESS )
       goto Exit;

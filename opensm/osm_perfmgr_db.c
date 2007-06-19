@@ -47,7 +47,8 @@
 /** =========================================================================
  */
 perfmgr_db_t *
-perfmgr_db_construct(osm_log_t *p_log, char *type)
+perfmgr_db_construct(osm_log_t *p_log,
+		osm_epi_plugin_t *event_plugin)
 {
 	perfmgr_db_t *db = malloc(sizeof(*db));
 	if (!db)
@@ -57,6 +58,7 @@ perfmgr_db_construct(osm_log_t *p_log, char *type)
 	cl_plock_construct(&(db->lock));
 	cl_plock_init(&(db->lock));
 	db->osm_log = p_log;
+	db->event_plugin = event_plugin;
 	return ((void *)db);
 }
 
@@ -238,6 +240,7 @@ perfmgr_db_add_err_reading(perfmgr_db_t *db, uint64_t guid,
 	_db_node_t                 *node = NULL;
 	perfmgr_db_err_reading_t  *previous = NULL;
 	perfmgr_db_err_t           rc = PERFMGR_EVENT_DB_SUCCESS;
+	osm_epi_pe_event_t         epi_pe_data;
 
 	cl_plock_excl_acquire(&(db->lock));
 	node = _get(db, guid);
@@ -249,21 +252,39 @@ perfmgr_db_add_err_reading(perfmgr_db_t *db, uint64_t guid,
 
 	debug_dump_err_reading(db, guid, port, p_port, reading);
 
+	epi_pe_data.time_diff_s = (reading->time - previous->time);
+	osm_epi_create_node_id(&(epi_pe_data.node_id), guid, port, node->node_name);
+
 	/* calculate changes from previous reading */
-	p_port->err_total.symbol_err_cnt       += (reading->symbol_err_cnt - previous->symbol_err_cnt);
-	p_port->err_total.link_err_recover     += (reading->link_err_recover - previous->link_err_recover);
-	p_port->err_total.link_downed          += (reading->link_downed - previous->link_downed);
-	p_port->err_total.rcv_err              += (reading->rcv_err - previous->rcv_err);
-	p_port->err_total.rcv_rem_phys_err     += (reading->rcv_rem_phys_err - previous->rcv_rem_phys_err);
-	p_port->err_total.rcv_switch_relay_err += (reading->rcv_switch_relay_err - previous->rcv_switch_relay_err);
-	p_port->err_total.xmit_discards        += (reading->xmit_discards - previous->xmit_discards);
-	p_port->err_total.xmit_constraint_err  += (reading->xmit_constraint_err - previous->xmit_constraint_err);
-	p_port->err_total.rcv_constraint_err   += (reading->rcv_constraint_err - previous->rcv_constraint_err);
-	p_port->err_total.link_integrity       += reading->link_integrity - previous->link_integrity;
-	p_port->err_total.buffer_overrun       += reading->buffer_overrun - previous->buffer_overrun;
-	p_port->err_total.vl15_dropped         += (reading->vl15_dropped - previous->vl15_dropped);
+	epi_pe_data.symbol_err_cnt = (reading->symbol_err_cnt - previous->symbol_err_cnt);
+	p_port->err_total.symbol_err_cnt       += epi_pe_data.symbol_err_cnt;
+	epi_pe_data.link_err_recover = (reading->link_err_recover - previous->link_err_recover);
+	p_port->err_total.link_err_recover     += epi_pe_data.link_err_recover;
+	epi_pe_data.link_downed = (reading->link_downed - previous->link_downed);
+	p_port->err_total.link_downed          += epi_pe_data.link_downed;
+	epi_pe_data.rcv_err = (reading->rcv_err - previous->rcv_err);
+	p_port->err_total.rcv_err              += epi_pe_data.rcv_err;
+	epi_pe_data.rcv_rem_phys_err = (reading->rcv_rem_phys_err - previous->rcv_rem_phys_err);
+	p_port->err_total.rcv_rem_phys_err     += epi_pe_data.rcv_rem_phys_err;
+	epi_pe_data.rcv_switch_relay_err = (reading->rcv_switch_relay_err - previous->rcv_switch_relay_err);
+	p_port->err_total.rcv_switch_relay_err += epi_pe_data.rcv_switch_relay_err;
+	epi_pe_data.xmit_discards = (reading->xmit_discards - previous->xmit_discards);
+	p_port->err_total.xmit_discards        += epi_pe_data.xmit_discards;
+	epi_pe_data.xmit_constraint_err = (reading->xmit_constraint_err - previous->xmit_constraint_err);
+	p_port->err_total.xmit_constraint_err  += epi_pe_data.xmit_constraint_err;
+	epi_pe_data.rcv_constraint_err = (reading->rcv_constraint_err - previous->rcv_constraint_err);
+	p_port->err_total.rcv_constraint_err   += epi_pe_data.rcv_constraint_err;
+	epi_pe_data.link_integrity = (reading->link_integrity - previous->link_integrity);
+	p_port->err_total.link_integrity       += epi_pe_data.link_integrity;
+	epi_pe_data.buffer_overrun = (reading->buffer_overrun - previous->buffer_overrun);
+	p_port->err_total.buffer_overrun       += epi_pe_data.buffer_overrun;
+	epi_pe_data.vl15_dropped = (reading->vl15_dropped - previous->vl15_dropped);
+	p_port->err_total.vl15_dropped         += epi_pe_data.vl15_dropped;
 
 	p_port->err_previous = *reading;
+
+	osm_epi_report(db->event_plugin, OSM_EVENT_ID_PORT_ERRORS,
+			(void *)&epi_pe_data);
 
 Exit:
 	cl_plock_release(&(db->lock));
@@ -343,6 +364,7 @@ perfmgr_db_add_dc_reading(perfmgr_db_t *db, uint64_t guid,
 	_db_node_t                      *node = NULL;
 	perfmgr_db_data_cnt_reading_t  *previous = NULL;
 	perfmgr_db_err_t                rc = PERFMGR_EVENT_DB_SUCCESS;
+	osm_epi_dc_event_t              epi_dc_data;
 
 	cl_plock_excl_acquire(&(db->lock));
 	node = _get(db, guid);
@@ -354,17 +376,31 @@ perfmgr_db_add_dc_reading(perfmgr_db_t *db, uint64_t guid,
 
 	debug_dump_dc_reading(db, guid, port, p_port, reading);
 
+	epi_dc_data.time_diff_s = (reading->time - previous->time);
+	osm_epi_create_node_id(&(epi_dc_data.node_id), guid, port, node->node_name);
+
 	/* calculate changes from previous reading */
-	p_port->dc_total.xmit_data           += (reading->xmit_data - previous->xmit_data);
-	p_port->dc_total.rcv_data            += (reading->rcv_data - previous->rcv_data);
-	p_port->dc_total.xmit_pkts           += (reading->xmit_pkts - previous->xmit_pkts);
-	p_port->dc_total.rcv_pkts            += (reading->rcv_pkts - previous->rcv_pkts);
-	p_port->dc_total.unicast_xmit_pkts   += (reading->unicast_xmit_pkts - previous->unicast_xmit_pkts);
-	p_port->dc_total.unicast_rcv_pkts    += (reading->unicast_rcv_pkts - previous->unicast_rcv_pkts);
-	p_port->dc_total.multicast_xmit_pkts += (reading->multicast_xmit_pkts - previous->multicast_xmit_pkts);
-	p_port->dc_total.multicast_rcv_pkts  += (reading->multicast_rcv_pkts - previous->multicast_rcv_pkts);
+	epi_dc_data.xmit_data = (reading->xmit_data - previous->xmit_data);
+	p_port->dc_total.xmit_data           += epi_dc_data.xmit_data;
+	epi_dc_data.rcv_data = (reading->rcv_data - previous->rcv_data);
+	p_port->dc_total.rcv_data            += epi_dc_data.rcv_data;
+	epi_dc_data.xmit_pkts = (reading->xmit_pkts - previous->xmit_pkts);
+	p_port->dc_total.xmit_pkts           += epi_dc_data.xmit_pkts;
+	epi_dc_data.rcv_pkts = (reading->rcv_pkts - previous->rcv_pkts);
+	p_port->dc_total.rcv_pkts            += epi_dc_data.rcv_pkts;
+	epi_dc_data.unicast_xmit_pkts = (reading->unicast_xmit_pkts - previous->unicast_xmit_pkts);
+	p_port->dc_total.unicast_xmit_pkts   += epi_dc_data.unicast_xmit_pkts;
+	epi_dc_data.unicast_rcv_pkts = (reading->unicast_rcv_pkts - previous->unicast_rcv_pkts);
+	p_port->dc_total.unicast_rcv_pkts    += epi_dc_data.unicast_rcv_pkts;
+	epi_dc_data.multicast_xmit_pkts = (reading->multicast_xmit_pkts - previous->multicast_xmit_pkts);
+	p_port->dc_total.multicast_xmit_pkts += epi_dc_data.multicast_xmit_pkts;
+	epi_dc_data.multicast_rcv_pkts = (reading->multicast_rcv_pkts - previous->multicast_rcv_pkts);
+	p_port->dc_total.multicast_rcv_pkts  += epi_dc_data.multicast_rcv_pkts;
 
 	p_port->dc_previous = *reading;
+
+	osm_epi_report(db->event_plugin, OSM_EVENT_ID_PORT_DATA_COUNTERS,
+			(void *)&epi_dc_data);
 
 Exit:
 	cl_plock_release(&(db->lock));

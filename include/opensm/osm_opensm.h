@@ -58,6 +58,7 @@
 #include <opensm/osm_sm.h>
 #include <opensm/osm_sa.h>
 #include <opensm/osm_perfmgr.h>
+#include <opensm/osm_event_plugin.h>
 #include <opensm/osm_db.h>
 #include <opensm/osm_subnet.h>
 #include <opensm/osm_mad_pool.h>
@@ -161,6 +162,7 @@ typedef struct _osm_opensm_t
 #ifdef ENABLE_OSM_PERF_MGR
   osm_perfmgr_t         perfmgr;
 #endif /* ENABLE_OSM_PERF_MGR */
+  osm_epi_plugin_t     *event_plugin;
   osm_db_t		db;
   osm_mad_pool_t	mad_pool;
   osm_vendor_t		*p_vendor;

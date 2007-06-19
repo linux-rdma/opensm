@@ -14,6 +14,13 @@
 %define _disable_perf_mgr --disable-perf-mgr
 %endif
 
+%if %{?_with_event_plugin:1}%{!?_with_event_plugin:0}
+%define _enable_event_plugin --enable-event-plugin
+%endif
+%if %{?_without_event_plugin:1}%{!?_without_event_plugin:0}
+%define _disable_event_plugin --disable-event-plugin
+%endif
+
 Summary: InfiniBand subnet manager and administration
 Name: opensm
 Version: @VERSION@
@@ -69,8 +76,8 @@ Static version of the opensm libraries
 %configure \
         %{?_enable_console_socket} \
         %{?_disable_console_socket} \
-        %{?_enable_perf_mgr} \
-        %{?_disable_perf_mgr}
+        %{?_enable_event_plugin} \
+        %{?_disable_event_plugin}
 make %{?_smp_mflags}
 
 %install

@@ -219,12 +219,33 @@ if test $perf_mgr = yes; then
   AC_DEFINE(ENABLE_OSM_PERF_MGR,
 	    1,
 	    [Define as 1 if you want to enable the performance manager])
-  EVENTDB=eventdb
-else
-  EVENTDB=
 fi
-AC_SUBST([EVENTDB])
-
 # --- END OPENIB_OSM_PERF_MGR_SEL ---
 ]) dnl OPENIB_OSM_PERF_MGR_SEL
+
+
+dnl Check if they want the event plugin
+AC_DEFUN([OPENIB_OSM_DEFAULT_EVENT_PLUGIN_SEL], [
+# --- BEGIN OPENIB_OSM_DEFAULT_EVENT_PLUGIN_SEL ---
+
+dnl enable the default-event-plugin
+AC_ARG_ENABLE(default-event-plugin,
+[  --enable-default-event-plugin  Enable a default event plugin "osmeventplugin" (default no)],
+   [case $enableval in
+     yes) default_event_plugin=yes ;;
+     no)  default_event_plugin=no ;;
+   esac],
+   default_event_plugin=no)
+if test $default_event_plugin = yes; then
+  AC_DEFINE(ENABLE_OSM_DEFAULT_EVENT_PLUGIN,
+	    1,
+	    [Define as 1 if you want to enable the event plugin])
+  DEFAULT_EVENT_PLUGIN=osmeventplugin
+else
+  DEFAULT_EVENT_PLUGIN=
+fi
+AC_SUBST([DEFAULT_EVENT_PLUGIN])
+
+# --- END OPENIB_OSM_DEFAULT_EVENT_PLUGIN_SEL ---
+]) dnl OPENIB_OSM_DEFAULT_EVENT_PLUGIN_SEL
 
