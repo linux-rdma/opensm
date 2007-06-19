@@ -600,7 +600,7 @@ osm_perfmgr_check_oob_clear(osm_perfmgr_t *pm, uint64_t node_guid, uint8_t port,
 }
 
 /**********************************************************************
- * Return 1 if the value is close to overflowing
+ * Return 1 if the value is "close" to overflowing
  **********************************************************************/
 int counter_overflow_4(uint8_t val)
 {
@@ -620,8 +620,8 @@ int counter_overflow_32(ib_net32_t val)
 }
 
 /**********************************************************************
- * Check if the port counters have overflowed and if so issue a clear MAD to
- * the port.
+ * Check if the port counters have overflowed and if so issue a clear
+ * MAD to the port.
  **********************************************************************/
 static void
 osm_perfmgr_check_overflow(osm_perfmgr_t *pm, uint64_t node_guid,
@@ -762,16 +762,15 @@ osm_pc_rcv_process(void *context, void *data)
 	CL_ASSERT( p_mad->attr_id == IB_MAD_ATTR_PORT_CNTRS );
 
 	perfmgr_db_fill_err_read(wire_read, &err_reading);
-	/* FIXME query for extended counters separate if they are supported
+	/* FIXME separate query for extended counters if they are supported
 	 * on the port.
 	 */
 	perfmgr_db_fill_data_cnt_read_pc(wire_read, &data_reading);
 
 	/* detect an out of band clear on the port */
-	if (mad_context->perfmgr_context.mad_method != IB_MAD_METHOD_SET) {
+	if (mad_context->perfmgr_context.mad_method != IB_MAD_METHOD_SET)
 		osm_perfmgr_check_oob_clear(pm, node_guid, port_num,
 				&err_reading, &data_reading);
-	}
 
 	/* log any critical events from this reading */
 	osm_perfmgr_log_events(pm, node_guid, port_num, &err_reading);
