@@ -41,7 +41,7 @@
 #include <time.h>
 #include <dlfcn.h>
 #include <stdint.h>
-#include <opensm/osm_event_db.h>
+#include <opensm/osm_perfmgr_db.h>
 #include <complib/cl_qmap.h>
 #include <complib/cl_passivelock.h>
 
