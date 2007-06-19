@@ -837,6 +837,7 @@ cl_qmap_remove_all(
 	p_map->root.p_left = &p_map->nil;
 	p_map->nil.pool_item.list_item.p_next = &p_map->nil.pool_item.list_item;
 	p_map->nil.pool_item.list_item.p_prev = &p_map->nil.pool_item.list_item;
+	p_map->count = 0;
 }
 /*
 * PARAMETERS
