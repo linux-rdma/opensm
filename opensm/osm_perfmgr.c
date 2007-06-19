@@ -684,7 +684,7 @@ osm_perfmgr_log_events(osm_perfmgr_t *pm, uint64_t node_guid, uint8_t port,
 			perfmgr_db_err_reading_t *reading)
 {
 	perfmgr_db_err_reading_t  prev_read;
-	time_t                     time_diff = 0;
+	time_t                    time_diff = 0;
 	perfmgr_db_err_t          err = perfmgr_db_get_prev_err(pm->db, node_guid, port, &prev_read);
 
 	if (err != PERFMGR_EVENT_DB_SUCCESS)
