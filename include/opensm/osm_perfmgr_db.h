@@ -37,6 +37,8 @@
 #include <time.h>
 #include <opensm/osm_log.h>
 #include <iba/ib_types.h>
+#include <complib/cl_qmap.h>
+#include <complib/cl_passivelock.h>
 
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
@@ -111,17 +113,6 @@ typedef struct {
 } perfmgr_db_ps_reading_t;
 
 /** =========================================================================
- * Trap readings
- */
-typedef struct {
-	uint8_t    type;
-	uint32_t   prod_type;
-	uint16_t   trap_num;
-	uint16_t   issuer_lid;
-	time_t     time;
-} perfmgr_db_trap_reading_t;
-
-/** =========================================================================
  * Dump output options
  */
 typedef enum {
@@ -130,76 +121,66 @@ typedef enum {
 } perfmgr_db_dump_t;
 
 /** =========================================================================
- * Plugin creators should allocate an object of this type
- *    (name perfmgr_event_db)
- * The version should be set to PERFMGR_EVENT_DB_INTERFACE_VER
+ * Port counter object.
+ * Store all the port counters for a single port.
  */
-#define PERFMGR_EVENT_DB_INTERFACE_VER (1)
-typedef struct
-{
-	int                interface_version;
-	void              *(*construct)(osm_log_t *osm_log);
-	void               (*destroy)(void *db);
-
-	perfmgr_db_err_t  (*create_entry)(void *db, uint64_t guid,
-					uint8_t num_ports, char *name);
-
-	/* perfmgr_db_err_reading_t functions */
-	perfmgr_db_err_t  (*add_err_reading)(void *db, uint64_t guid,
-				uint8_t port, perfmgr_db_err_reading_t *reading);
-	perfmgr_db_err_t  (*get_prev_err_reading)(void *db, uint64_t guid,
-				uint8_t port, perfmgr_db_err_reading_t *reading);
-	perfmgr_db_err_t  (*clear_prev_err)(void *db, uint64_t guid, uint8_t port);
-
-	/* perfmgr_db_data_cnt_reading_t functions */
-	perfmgr_db_err_t  (*add_dc_reading)(void *db, uint64_t guid,
-				uint8_t port, perfmgr_db_data_cnt_reading_t *reading);
-	perfmgr_db_err_t  (*get_prev_dc_reading)(void *db, uint64_t guid,
-				uint8_t port, perfmgr_db_data_cnt_reading_t *reading);
-	perfmgr_db_err_t  (*clear_prev_dc)(void *db, uint64_t guid, uint8_t port);
-
-	void               (*clear_counters)(void *db);
-	perfmgr_db_err_t  (*dump)(void *db, char *file, perfmgr_db_dump_t dump_type);
-} __perfmgr_event_db_t;
+typedef struct _db_port {
+	perfmgr_db_err_reading_t err_total;
+	perfmgr_db_err_reading_t err_previous;
+	perfmgr_db_data_cnt_reading_t dc_total;
+	perfmgr_db_data_cnt_reading_t dc_previous;
+	time_t   last_reset;
+} _db_port_t;
 
 /** =========================================================================
- * The database structure which should be considered opaque
+ * group port counters for ports into the nodes
  */
-typedef struct {
-	void                 *handle;
-	__perfmgr_event_db_t *db_impl;
-	void                 *db_data;
-	osm_log_t            *p_log;
-} perfmgr_event_db_t;
+#define NODE_NAME_SIZE (IB_NODE_DESCRIPTION_SIZE << 1)
+typedef struct _db_node {
+	cl_map_item_t   map_item; /* must be first */
+	uint64_t        node_guid;
+	_db_port_t     *ports;
+	uint8_t         num_ports;
+	char            node_name[NODE_NAME_SIZE];
+} _db_node_t;
+
+/** =========================================================================
+ * all nodes in the system.
+ */
+typedef struct _db {
+	cl_qmap_t   pc_data; /* stores type (_db_node_t *) */
+	cl_plock_t  lock;
+	osm_log_t  *osm_log;
+} perfmgr_db_t;
 
 
 /**
  * functions
  */
-perfmgr_event_db_t *perfmgr_db_construct(osm_log_t *p_log, char *type);
-void                perfmgr_db_destroy(perfmgr_event_db_t *db);
+perfmgr_db_t *perfmgr_db_construct(osm_log_t *p_log, char *type);
+void                perfmgr_db_destroy(perfmgr_db_t *db);
 
-perfmgr_db_err_t   perfmgr_db_create_entry(perfmgr_event_db_t *db, uint64_t guid,
+perfmgr_db_err_t   perfmgr_db_create_entry(perfmgr_db_t *db, uint64_t guid,
 					uint8_t num_ports, char *node_name);
 
-perfmgr_db_err_t   perfmgr_db_add_err_reading(perfmgr_event_db_t *db, uint64_t guid,
+perfmgr_db_err_t   perfmgr_db_add_err_reading(perfmgr_db_t *db, uint64_t guid,
 					uint8_t port, perfmgr_db_err_reading_t *reading);
-perfmgr_db_err_t   perfmgr_db_get_prev_err(perfmgr_event_db_t *db,
+perfmgr_db_err_t   perfmgr_db_get_prev_err(perfmgr_db_t *db,
 					uint64_t guid, uint8_t port,
 					perfmgr_db_err_reading_t *reading);
-perfmgr_db_err_t   perfmgr_db_clear_prev_err(perfmgr_event_db_t *db, uint64_t guid,
+perfmgr_db_err_t   perfmgr_db_clear_prev_err(perfmgr_db_t *db, uint64_t guid,
 					uint8_t port);
 
-perfmgr_db_err_t   perfmgr_db_add_dc_reading(perfmgr_event_db_t *db, uint64_t guid,
+perfmgr_db_err_t   perfmgr_db_add_dc_reading(perfmgr_db_t *db, uint64_t guid,
 					uint8_t port, perfmgr_db_data_cnt_reading_t *reading);
-perfmgr_db_err_t   perfmgr_db_get_prev_dc(perfmgr_event_db_t *db,
+perfmgr_db_err_t   perfmgr_db_get_prev_dc(perfmgr_db_t *db,
 					uint64_t guid, uint8_t port,
 					perfmgr_db_data_cnt_reading_t *reading);
-perfmgr_db_err_t   perfmgr_db_clear_prev_dc(perfmgr_event_db_t *db, uint64_t guid,
+perfmgr_db_err_t   perfmgr_db_clear_prev_dc(perfmgr_db_t *db, uint64_t guid,
 					uint8_t port);
 
-void                perfmgr_db_clear_counters(perfmgr_event_db_t *db);
-perfmgr_db_err_t   perfmgr_db_dump(perfmgr_event_db_t *db, char *file,
+void                perfmgr_db_clear_counters(perfmgr_db_t *db);
+perfmgr_db_err_t   perfmgr_db_dump(perfmgr_db_t *db, char *file,
 					perfmgr_db_dump_t dump_type);
 
 /** =========================================================================

@@ -18,7 +18,7 @@ else
     libibeventdb_version_script =
 endif
 
-libibeventdb_la_SOURCES = src/ibeventdb.c
+libibeventdb_la_SOURCES =
 libibeventdb_la_LDFLAGS = -version-info $(ibeventdb_api_version) \
 	 -export-dynamic $(libibeventdb_version_script)
 libibeventdb_la_LIBADD = -L../complib $(OSMV_LDADD) -losmcomp

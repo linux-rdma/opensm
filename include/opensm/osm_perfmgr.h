@@ -123,7 +123,7 @@ typedef struct _osm_perfmgr
   char                      *db_file;
   char                      *event_db_dump_file;
   char                      *event_db_plugin;
-  perfmgr_event_db_t        *db;
+  perfmgr_db_t              *db;
   atomic32_t                 outstanding_queries; /* this along with sig_query */
   cl_event_t                 sig_query;           /* will throttle our querys */
   uint32_t                   max_outstanding_queries;
