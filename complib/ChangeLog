@@ -1,3 +1,8 @@
+2007-06-19  Hal Rosenstock <halr@voltaire.com>
+
+	* include/complib/cl_threadpool.h: Eliminate compile warning
+	  with cl_threadpool.c introduced by previous change 
+
 2007-06-13  Sasha Khapyorsky <sashak@voltaire.com>
 
 	* include/complib/cl_threadpool.h, complib/cl_threadpool.c,

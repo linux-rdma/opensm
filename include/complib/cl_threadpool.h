@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004, 2005 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -48,6 +48,7 @@
 
 #include <pthread.h>
 #include <complib/cl_types.h>
+#include <complib/cl_thread.h>
 
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
