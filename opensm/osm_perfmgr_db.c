@@ -190,7 +190,7 @@ debug_dump_err_reading(perfmgr_db_t *db, uint64_t guid, uint8_t port_num,
 		return; /* optimize this a bit */
 
 	osm_log(db->osm_log, OSM_LOG_DEBUG,
-			"\nGUID %" PRIx64 " Port %u :\n", guid, port_num);
+			"GUID 0x%" PRIx64 " Port %u:\n", guid, port_num);
 	osm_log(db->osm_log, OSM_LOG_DEBUG,
 			"sym %"PRIu64" <-- %"PRIu64" (%" PRIu64 ")\n", cur->symbol_err_cnt,
 			port->err_previous.symbol_err_cnt, port->err_total.symbol_err_cnt);

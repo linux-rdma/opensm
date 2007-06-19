@@ -690,7 +690,7 @@ osm_perfmgr_log_events(osm_perfmgr_t *pm, uint64_t node_guid, uint8_t port,
 	if (err != PERFMGR_EVENT_DB_SUCCESS)
 	{
 		osm_log(pm->log, OSM_LOG_VERBOSE,
-			"failed to find previous reading for 0x%" PRIx64 " port %u\n",
+			"osm_perfmgr_log_events: Failed to find previous reading for 0x%" PRIx64 " port %u\n",
 			node_guid, port);
 		return;
 	}
@@ -710,7 +710,7 @@ osm_perfmgr_log_events(osm_perfmgr_t *pm, uint64_t node_guid, uint8_t port,
 	if (reading->rcv_err > prev_read.rcv_err) {
 		osm_log(pm->log, OSM_LOG_ERROR,
 			"osm_perfmgr_log_events: ERR 4C0E: "
-			"Found %"PRIu64" Recieve errors in %lu sec on node 0x%" PRIx64 " port %u\n",
+			"Found %"PRIu64" Receive errors in %lu sec on node 0x%" PRIx64 " port %u\n",
 			(reading->rcv_err - prev_read.rcv_err),
 			time_diff,
 			node_guid,
@@ -719,7 +719,7 @@ osm_perfmgr_log_events(osm_perfmgr_t *pm, uint64_t node_guid, uint8_t port,
 	if (reading->xmit_discards > prev_read.xmit_discards) {
 		osm_log(pm->log, OSM_LOG_ERROR,
 			"osm_perfmgr_log_events: ERR 4C0F: "
-			"Found %"PRIu64" XMIT Discards in %lu sec on node 0x%" PRIx64 " port %u\n",
+			"Found %"PRIu64" Xmit Discards in %lu sec on node 0x%" PRIx64 " port %u\n",
 			(reading->xmit_discards - prev_read.xmit_discards),
 			time_diff,
 			node_guid,
