@@ -669,8 +669,9 @@ osm_perfmgr_check_overflow(osm_perfmgr_t *pm, uint64_t node_guid,
 		mad_context.perfmgr_context.port = port;
 		mad_context.perfmgr_context.num_ports = num_ports;
 		mad_context.perfmgr_context.mad_method = IB_MAD_METHOD_SET;
-		/* clear port counter */
+		/* clear port counters */
 		osm_perfmgr_send_pc_mad(pm, lid, port, IB_MAD_METHOD_SET, &mad_context);
+		perfmgr_db_clear_prev_dc(pm->db, node_guid, port);
 	}
 Exit:
 	OSM_LOG_EXIT( pm->log );
