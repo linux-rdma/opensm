@@ -47,7 +47,7 @@
 /** =========================================================================
  */
 perfmgr_event_db_t *
-perfmgr_edb_construct(osm_log_t *p_log, char *type)
+perfmgr_db_construct(osm_log_t *p_log, char *type)
 {
 	char                lib_name[PATH_MAX];
 	perfmgr_event_db_t *rc = NULL;
@@ -115,7 +115,7 @@ DLOPENFAIL:
 /** =========================================================================
  */
 void
-perfmgr_edb_destroy(perfmgr_event_db_t *db)
+perfmgr_db_destroy(perfmgr_event_db_t *db)
 {
 	if (db)
 	{
@@ -130,8 +130,8 @@ perfmgr_edb_destroy(perfmgr_event_db_t *db)
 
 /**********************************************************************
  **********************************************************************/
-perfmgr_edb_err_t
-perfmgr_edb_create_entry(perfmgr_event_db_t *db, uint64_t guid,
+perfmgr_db_err_t
+perfmgr_db_create_entry(perfmgr_event_db_t *db, uint64_t guid,
 		uint8_t num_ports, char *name)
 {
 	CHECK_FUNC (db->db_impl->create_entry);
@@ -139,51 +139,51 @@ perfmgr_edb_create_entry(perfmgr_event_db_t *db, uint64_t guid,
 }
 
 /**********************************************************************
- * perfmgr_edb_err_reading_t functions
+ * perfmgr_db_err_reading_t functions
  **********************************************************************/
-perfmgr_edb_err_t
-perfmgr_edb_add_err_reading(perfmgr_event_db_t *db, uint64_t guid,
-                   uint8_t port, perfmgr_edb_err_reading_t *reading)
+perfmgr_db_err_t
+perfmgr_db_add_err_reading(perfmgr_event_db_t *db, uint64_t guid,
+                   uint8_t port, perfmgr_db_err_reading_t *reading)
 {
 	CHECK_FUNC (db->db_impl->add_err_reading);
 	return (db->db_impl->add_err_reading(db->db_data, guid,
 				port, reading));
 }
 
-perfmgr_edb_err_t perfmgr_edb_get_prev_err(perfmgr_event_db_t *db, uint64_t guid,
-		uint8_t port, perfmgr_edb_err_reading_t *reading)
+perfmgr_db_err_t perfmgr_db_get_prev_err(perfmgr_event_db_t *db, uint64_t guid,
+		uint8_t port, perfmgr_db_err_reading_t *reading)
 {
 	CHECK_FUNC (db->db_impl->get_prev_err_reading);
 	return (db->db_impl->get_prev_err_reading(db->db_data, guid, port, reading));
 }
 
-perfmgr_edb_err_t
-perfmgr_edb_clear_prev_err(perfmgr_event_db_t *db, uint64_t guid, uint8_t port)
+perfmgr_db_err_t
+perfmgr_db_clear_prev_err(perfmgr_event_db_t *db, uint64_t guid, uint8_t port)
 {
 	CHECK_FUNC (db->db_impl->clear_prev_err);
 	return (db->db_impl->clear_prev_err(db->db_data, guid, port));
 }
 
 /**********************************************************************
- * perfmgr_edb_data_cnt_reading_t functions
+ * perfmgr_db_data_cnt_reading_t functions
  **********************************************************************/
-perfmgr_edb_err_t
-perfmgr_edb_add_dc_reading(perfmgr_event_db_t *db, uint64_t guid,
-                   uint8_t port, perfmgr_edb_data_cnt_reading_t *reading)
+perfmgr_db_err_t
+perfmgr_db_add_dc_reading(perfmgr_event_db_t *db, uint64_t guid,
+                   uint8_t port, perfmgr_db_data_cnt_reading_t *reading)
 {
 	CHECK_FUNC (db->db_impl->add_dc_reading);
 	return (db->db_impl->add_dc_reading(db->db_data, guid, port, reading));
 }
 
-perfmgr_edb_err_t perfmgr_edb_get_prev_dc(perfmgr_event_db_t *db, uint64_t guid,
-		uint8_t port, perfmgr_edb_data_cnt_reading_t *reading)
+perfmgr_db_err_t perfmgr_db_get_prev_dc(perfmgr_event_db_t *db, uint64_t guid,
+		uint8_t port, perfmgr_db_data_cnt_reading_t *reading)
 {
 	CHECK_FUNC (db->db_impl->get_prev_dc_reading);
 	return (db->db_impl->get_prev_dc_reading(db->db_data, guid, port, reading));
 }
 
-perfmgr_edb_err_t
-perfmgr_edb_clear_prev_dc(perfmgr_event_db_t *db, uint64_t guid, uint8_t port)
+perfmgr_db_err_t
+perfmgr_db_clear_prev_dc(perfmgr_event_db_t *db, uint64_t guid, uint8_t port)
 {
 	CHECK_FUNC (db->db_impl->clear_prev_dc);
 	return (db->db_impl->clear_prev_dc(db->db_data, guid, port));
@@ -192,7 +192,7 @@ perfmgr_edb_clear_prev_dc(perfmgr_event_db_t *db, uint64_t guid, uint8_t port)
 /**********************************************************************
  * Clear all the counters from the db
  **********************************************************************/
-void perfmgr_edb_clear_counters(perfmgr_event_db_t *db)
+void perfmgr_db_clear_counters(perfmgr_event_db_t *db)
 {
 	if (db->db_impl->clear_counters)
 		db->db_impl->clear_counters(db->db_data);
@@ -201,8 +201,8 @@ void perfmgr_edb_clear_counters(perfmgr_event_db_t *db)
 /**********************************************************************
  * dump the data to the file "file"
  **********************************************************************/
-perfmgr_edb_err_t
-perfmgr_edb_dump(perfmgr_event_db_t *db, char *file, perfmgr_edb_dump_t dump_type)
+perfmgr_db_err_t
+perfmgr_db_dump(perfmgr_event_db_t *db, char *file, perfmgr_db_dump_t dump_type)
 {
 	CHECK_FUNC (db->db_impl->dump);
 	return (db->db_impl->dump(db->db_data, file, dump_type));
@@ -212,8 +212,8 @@ perfmgr_edb_dump(perfmgr_event_db_t *db, char *file, perfmgr_edb_dump_t dump_typ
  * Fill in the various DB objects from their wire counter parts
  **********************************************************************/
 void
-perfmgr_edb_fill_err_read(ib_port_counters_t *wire_read,
-			perfmgr_edb_err_reading_t *reading)
+perfmgr_db_fill_err_read(ib_port_counters_t *wire_read,
+			perfmgr_db_err_reading_t *reading)
 {
 	reading->symbol_err_cnt = cl_ntoh16(wire_read->symbol_err_cnt);
 	reading->link_err_recover = cl_ntoh16(wire_read->link_err_recover);
@@ -231,8 +231,8 @@ perfmgr_edb_fill_err_read(ib_port_counters_t *wire_read,
 }
 
 void
-perfmgr_edb_fill_data_cnt_read_pc(ib_port_counters_t *wire_read,
-				perfmgr_edb_data_cnt_reading_t *reading)
+perfmgr_db_fill_data_cnt_read_pc(ib_port_counters_t *wire_read,
+				perfmgr_db_data_cnt_reading_t *reading)
 {
 	reading->xmit_data = cl_ntoh32(wire_read->xmit_data);
 	reading->rcv_data = cl_ntoh32(wire_read->rcv_data);
@@ -246,8 +246,8 @@ perfmgr_edb_fill_data_cnt_read_pc(ib_port_counters_t *wire_read,
 }
 
 void
-perfmgr_edb_fill_data_cnt_read_epc(ib_port_counters_ext_t *wire_read,
-				perfmgr_edb_data_cnt_reading_t *reading)
+perfmgr_db_fill_data_cnt_read_epc(ib_port_counters_ext_t *wire_read,
+				perfmgr_db_data_cnt_reading_t *reading)
 {
 	reading->xmit_data = cl_ntoh64(wire_read->xmit_data);
 	reading->rcv_data = cl_ntoh64(wire_read->rcv_data);

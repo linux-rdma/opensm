@@ -66,7 +66,7 @@ typedef enum {
 	PERFMGR_EVENT_DB_GUIDNOTFOUND,
 	PERFMGR_EVENT_DB_PORTNOTFOUND,
 	PERFMGR_EVENT_DB_NOT_IMPL
-} perfmgr_edb_err_t;
+} perfmgr_db_err_t;
 
 /** =========================================================================
  * Port error reading
@@ -85,7 +85,7 @@ typedef struct {
 	uint64_t   buffer_overrun;
 	uint64_t   vl15_dropped;
 	time_t     time;
-} perfmgr_edb_err_reading_t;
+} perfmgr_db_err_reading_t;
 
 /** =========================================================================
  * Port data count reading
@@ -100,7 +100,7 @@ typedef struct {
 	uint64_t   multicast_xmit_pkts;
 	uint64_t   multicast_rcv_pkts;
 	time_t     time;
-} perfmgr_edb_data_cnt_reading_t;
+} perfmgr_db_data_cnt_reading_t;
 
 /** =========================================================================
  * Port select errors
@@ -108,7 +108,7 @@ typedef struct {
 typedef struct {
 	uint64_t   xmit_wait;
 	time_t     time;
-} perfmgr_edb_ps_reading_t;
+} perfmgr_db_ps_reading_t;
 
 /** =========================================================================
  * Trap readings
@@ -119,7 +119,7 @@ typedef struct {
 	uint16_t   trap_num;
 	uint16_t   issuer_lid;
 	time_t     time;
-} perfmgr_edb_trap_reading_t;
+} perfmgr_db_trap_reading_t;
 
 /** =========================================================================
  * Dump output options
@@ -127,7 +127,7 @@ typedef struct {
 typedef enum {
 	PERFMGR_EVENT_DB_DUMP_HR = 0, /* Human readable */
 	PERFMGR_EVENT_DB_DUMP_MR      /* Machine readable */
-} perfmgr_edb_dump_t;
+} perfmgr_db_dump_t;
 
 /** =========================================================================
  * Plugin creators should allocate an object of this type
@@ -141,25 +141,25 @@ typedef struct
 	void              *(*construct)(osm_log_t *osm_log);
 	void               (*destroy)(void *db);
 
-	perfmgr_edb_err_t  (*create_entry)(void *db, uint64_t guid,
+	perfmgr_db_err_t  (*create_entry)(void *db, uint64_t guid,
 					uint8_t num_ports, char *name);
 
-	/* perfmgr_edb_err_reading_t functions */
-	perfmgr_edb_err_t  (*add_err_reading)(void *db, uint64_t guid,
-				uint8_t port, perfmgr_edb_err_reading_t *reading);
-	perfmgr_edb_err_t  (*get_prev_err_reading)(void *db, uint64_t guid,
-				uint8_t port, perfmgr_edb_err_reading_t *reading);
-	perfmgr_edb_err_t  (*clear_prev_err)(void *db, uint64_t guid, uint8_t port);
+	/* perfmgr_db_err_reading_t functions */
+	perfmgr_db_err_t  (*add_err_reading)(void *db, uint64_t guid,
+				uint8_t port, perfmgr_db_err_reading_t *reading);
+	perfmgr_db_err_t  (*get_prev_err_reading)(void *db, uint64_t guid,
+				uint8_t port, perfmgr_db_err_reading_t *reading);
+	perfmgr_db_err_t  (*clear_prev_err)(void *db, uint64_t guid, uint8_t port);
 
-	/* perfmgr_edb_data_cnt_reading_t functions */
-	perfmgr_edb_err_t  (*add_dc_reading)(void *db, uint64_t guid,
-				uint8_t port, perfmgr_edb_data_cnt_reading_t *reading);
-	perfmgr_edb_err_t  (*get_prev_dc_reading)(void *db, uint64_t guid,
-				uint8_t port, perfmgr_edb_data_cnt_reading_t *reading);
-	perfmgr_edb_err_t  (*clear_prev_dc)(void *db, uint64_t guid, uint8_t port);
+	/* perfmgr_db_data_cnt_reading_t functions */
+	perfmgr_db_err_t  (*add_dc_reading)(void *db, uint64_t guid,
+				uint8_t port, perfmgr_db_data_cnt_reading_t *reading);
+	perfmgr_db_err_t  (*get_prev_dc_reading)(void *db, uint64_t guid,
+				uint8_t port, perfmgr_db_data_cnt_reading_t *reading);
+	perfmgr_db_err_t  (*clear_prev_dc)(void *db, uint64_t guid, uint8_t port);
 
 	void               (*clear_counters)(void *db);
-	perfmgr_edb_err_t  (*dump)(void *db, char *file, perfmgr_edb_dump_t dump_type);
+	perfmgr_db_err_t  (*dump)(void *db, char *file, perfmgr_db_dump_t dump_type);
 } __perfmgr_event_db_t;
 
 /** =========================================================================
@@ -176,68 +176,42 @@ typedef struct {
 /**
  * functions
  */
-perfmgr_event_db_t *perfmgr_edb_construct(osm_log_t *p_log, char *type);
-void                perfmgr_edb_destroy(perfmgr_event_db_t *db);
+perfmgr_event_db_t *perfmgr_db_construct(osm_log_t *p_log, char *type);
+void                perfmgr_db_destroy(perfmgr_event_db_t *db);
 
-perfmgr_edb_err_t   perfmgr_edb_create_entry(perfmgr_event_db_t *db, uint64_t guid,
+perfmgr_db_err_t   perfmgr_db_create_entry(perfmgr_event_db_t *db, uint64_t guid,
 					uint8_t num_ports, char *node_name);
 
-perfmgr_edb_err_t   perfmgr_edb_add_err_reading(perfmgr_event_db_t *db, uint64_t guid,
-					uint8_t port, perfmgr_edb_err_reading_t *reading);
-perfmgr_edb_err_t   perfmgr_edb_get_prev_err(perfmgr_event_db_t *db,
+perfmgr_db_err_t   perfmgr_db_add_err_reading(perfmgr_event_db_t *db, uint64_t guid,
+					uint8_t port, perfmgr_db_err_reading_t *reading);
+perfmgr_db_err_t   perfmgr_db_get_prev_err(perfmgr_event_db_t *db,
 					uint64_t guid, uint8_t port,
-					perfmgr_edb_err_reading_t *reading);
-perfmgr_edb_err_t   perfmgr_edb_clear_prev_err(perfmgr_event_db_t *db, uint64_t guid,
+					perfmgr_db_err_reading_t *reading);
+perfmgr_db_err_t   perfmgr_db_clear_prev_err(perfmgr_event_db_t *db, uint64_t guid,
 					uint8_t port);
 
-perfmgr_edb_err_t   perfmgr_edb_add_dc_reading(perfmgr_event_db_t *db, uint64_t guid,
-					uint8_t port, perfmgr_edb_data_cnt_reading_t *reading);
-perfmgr_edb_err_t   perfmgr_edb_get_prev_dc(perfmgr_event_db_t *db,
+perfmgr_db_err_t   perfmgr_db_add_dc_reading(perfmgr_event_db_t *db, uint64_t guid,
+					uint8_t port, perfmgr_db_data_cnt_reading_t *reading);
+perfmgr_db_err_t   perfmgr_db_get_prev_dc(perfmgr_event_db_t *db,
 					uint64_t guid, uint8_t port,
-					perfmgr_edb_data_cnt_reading_t *reading);
-perfmgr_edb_err_t   perfmgr_edb_clear_prev_dc(perfmgr_event_db_t *db, uint64_t guid,
+					perfmgr_db_data_cnt_reading_t *reading);
+perfmgr_db_err_t   perfmgr_db_clear_prev_dc(perfmgr_event_db_t *db, uint64_t guid,
 					uint8_t port);
 
-void                perfmgr_edb_clear_counters(perfmgr_event_db_t *db);
-perfmgr_edb_err_t   perfmgr_edb_dump(perfmgr_event_db_t *db, char *file,
-					perfmgr_edb_dump_t dump_type);
+void                perfmgr_db_clear_counters(perfmgr_event_db_t *db);
+perfmgr_db_err_t   perfmgr_db_dump(perfmgr_event_db_t *db, char *file,
+					perfmgr_db_dump_t dump_type);
 
 /** =========================================================================
  * helper functions to fill in the various db objects from wire objects
  */
 
-void perfmgr_edb_fill_err_read(ib_port_counters_t *wire_read,
-				perfmgr_edb_err_reading_t *reading);
-void perfmgr_edb_fill_data_cnt_read_pc(ib_port_counters_t *wire_read,
-				perfmgr_edb_data_cnt_reading_t *reading);
-void perfmgr_edb_fill_data_cnt_read_epc(ib_port_counters_ext_t *wire_read,
-				perfmgr_edb_data_cnt_reading_t *reading);
-
-#if 0
-static void
-dump_reading(char *prompt, uint64_t guid, uint8_t port_num,
-		perfmgr_edb_err_t *cur)
-{
-	printf("\n%s GUID %" PRIx64 " Port %u :\n", prompt, guid, port_num);
-	printf("SymbolErrorCounter %u\n", cur->symbol_err_cnt);
-	printf("LinkErrorRecoveryCounter %u\n", cur->link_err_recover);
-	printf("LinkDownedCounter %u\n", cur->link_downed);
-	printf("PortRcvErrors %u\n", cur->rcv_err);
-	printf("PortRcvRemotePhysicalErrors %u\n", cur->rcv_rem_phys_err);
-	printf("PortRcvSwitchRelayErrors %u\n", cur->rcv_switch_relay_err);
-	printf("PortXmitDiscards %u\n", cur->xmit_discards);
-	printf("PortXmitConstraintErrors %u\n", cur->xmit_constraint_err);
-	printf("PortRcvConstraintErrors %u\n", cur->rcv_constraint_err);
-	printf("LocalLinkIntegrityErrors %x\n", cur->link_integrity);
-	printf("ExcessiveBufferOverrunErrors %x\n", cur->buffer_overrun);
-	printf("VL15Dropped %u\n", cur->vl15_dropped);
-
-	printf("PortXmitData %u\n", cur->xmit_data);
-	printf("PortRcvData %u\n", cur->rcv_data);
-	printf("PortXmitPkts %u\n", cur->xmit_pkts);
-	printf("PortRcvPkts %u\n", cur->rcv_pkts);
-}
-#endif
+void perfmgr_db_fill_err_read(ib_port_counters_t *wire_read,
+				perfmgr_db_err_reading_t *reading);
+void perfmgr_db_fill_data_cnt_read_pc(ib_port_counters_t *wire_read,
+				perfmgr_db_data_cnt_reading_t *reading);
+void perfmgr_db_fill_data_cnt_read_epc(ib_port_counters_ext_t *wire_read,
+				perfmgr_db_data_cnt_reading_t *reading);
 
 END_C_DECLS
 

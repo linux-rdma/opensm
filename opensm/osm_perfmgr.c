@@ -389,7 +389,7 @@ __osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context )
 	node_guid = cl_ntoh64(node->node_info.node_guid);
 
 	/* make sure we have a database object ready to store this information */
-	if (perfmgr_edb_create_entry(pm->db, node_guid, num_ports,
+	if (perfmgr_db_create_entry(pm->db, node_guid, num_ports,
 				node->print_desc) !=
 		PERFMGR_EVENT_DB_SUCCESS)
 	{
@@ -525,7 +525,7 @@ osm_perfmgr_destroy(osm_perfmgr_t * const pm)
 	OSM_LOG_ENTER( pm->log, osm_perfmgr_destroy );
 	free(pm->event_db_dump_file);
 	free(pm->event_db_plugin);
-	perfmgr_edb_destroy(pm->db);
+	perfmgr_db_destroy(pm->db);
 	OSM_LOG_EXIT( pm->log );
 }
 
@@ -540,13 +540,13 @@ osm_perfmgr_destroy(osm_perfmgr_t * const pm)
  **********************************************************************/
 static void
 osm_perfmgr_check_oob_clear(osm_perfmgr_t *pm, uint64_t node_guid, uint8_t port,
-				perfmgr_edb_err_reading_t *cr,
-				perfmgr_edb_data_cnt_reading_t *dc)
+				perfmgr_db_err_reading_t *cr,
+				perfmgr_db_data_cnt_reading_t *dc)
 {
-	perfmgr_edb_err_reading_t       prev_err;
-	perfmgr_edb_data_cnt_reading_t  prev_dc;
+	perfmgr_db_err_reading_t       prev_err;
+	perfmgr_db_data_cnt_reading_t  prev_dc;
 
-	if (perfmgr_edb_get_prev_err(pm->db, node_guid, port, &prev_err)
+	if (perfmgr_db_get_prev_err(pm->db, node_guid, port, &prev_err)
 			!= PERFMGR_EVENT_DB_SUCCESS)
 	{
 		osm_log(pm->log, OSM_LOG_VERBOSE,
@@ -573,11 +573,11 @@ osm_perfmgr_check_oob_clear(osm_perfmgr_t *pm, uint64_t node_guid, uint8_t port,
 			"PerfMgr: ERR 4C0A: Detected an out of band error clear on node 0x%" PRIx64 " port %u\n",
 			node_guid, port
 			);
-		perfmgr_edb_clear_prev_err(pm->db, node_guid, port);
+		perfmgr_db_clear_prev_err(pm->db, node_guid, port);
 	}
 
 	/* FIXME handle extended counters */
-	if (perfmgr_edb_get_prev_dc(pm->db, node_guid, port, &prev_dc)
+	if (perfmgr_db_get_prev_dc(pm->db, node_guid, port, &prev_dc)
 			!= PERFMGR_EVENT_DB_SUCCESS)
 	{
 		osm_log(pm->log, OSM_LOG_VERBOSE,
@@ -596,7 +596,7 @@ osm_perfmgr_check_oob_clear(osm_perfmgr_t *pm, uint64_t node_guid, uint8_t port,
 			"PerfMgr: ERR 4C0B: Detected an out of band data counter clear on node 0x%" PRIx64 " port %u\n",
 			node_guid, port
 			);
-		perfmgr_edb_clear_prev_dc(pm->db, node_guid, port);
+		perfmgr_db_clear_prev_dc(pm->db, node_guid, port);
 	}
 }
 
@@ -682,11 +682,11 @@ Exit:
  **********************************************************************/
 static void
 osm_perfmgr_log_events(osm_perfmgr_t *pm, uint64_t node_guid, uint8_t port,
-			perfmgr_edb_err_reading_t *reading)
+			perfmgr_db_err_reading_t *reading)
 {
-	perfmgr_edb_err_reading_t  prev_read;
+	perfmgr_db_err_reading_t  prev_read;
 	time_t                     time_diff = 0;
-	perfmgr_edb_err_t          err = perfmgr_edb_get_prev_err(pm->db, node_guid, port, &prev_read);
+	perfmgr_db_err_t          err = perfmgr_db_get_prev_err(pm->db, node_guid, port, &prev_read);
 
 	if (err != PERFMGR_EVENT_DB_SUCCESS)
 	{
@@ -744,8 +744,8 @@ osm_pc_rcv_process(void *context, void *data)
 	uint8_t             port_num = mad_context->perfmgr_context.port;
 	int                 num_ports = mad_context->perfmgr_context.num_ports;
 
-	perfmgr_edb_err_reading_t      err_reading;
-	perfmgr_edb_data_cnt_reading_t data_reading;
+	perfmgr_db_err_reading_t      err_reading;
+	perfmgr_db_data_cnt_reading_t data_reading;
 
 	OSM_LOG_ENTER( pm->log, osm_pc_rcv_process );
 
@@ -762,11 +762,11 @@ osm_pc_rcv_process(void *context, void *data)
 
 	CL_ASSERT( p_mad->attr_id == IB_MAD_ATTR_PORT_CNTRS );
 
-	perfmgr_edb_fill_err_read(wire_read, &err_reading);
+	perfmgr_db_fill_err_read(wire_read, &err_reading);
 	/* FIXME query for extended counters separate if they are supported
 	 * on the port.
 	 */
-	perfmgr_edb_fill_data_cnt_read_pc(wire_read, &data_reading);
+	perfmgr_db_fill_data_cnt_read_pc(wire_read, &data_reading);
 
 	/* detect an out of band clear on the port */
 	if (mad_context->perfmgr_context.mad_method != IB_MAD_METHOD_SET) {
@@ -778,11 +778,11 @@ osm_pc_rcv_process(void *context, void *data)
 	osm_perfmgr_log_events(pm, node_guid, port_num, &err_reading);
 
 	if (mad_context->perfmgr_context.mad_method == IB_MAD_METHOD_GET) {
-		perfmgr_edb_add_err_reading(pm->db, node_guid, port_num, &err_reading);
-		perfmgr_edb_add_dc_reading(pm->db, node_guid, port_num, &data_reading);
+		perfmgr_db_add_err_reading(pm->db, node_guid, port_num, &err_reading);
+		perfmgr_db_add_dc_reading(pm->db, node_guid, port_num, &data_reading);
 	} else {
-		perfmgr_edb_clear_prev_err(pm->db, node_guid, port_num);
-		perfmgr_edb_clear_prev_dc(pm->db, node_guid, port_num);
+		perfmgr_db_clear_prev_err(pm->db, node_guid, port_num);
+		perfmgr_db_clear_prev_dc(pm->db, node_guid, port_num);
 	}
 	osm_perfmgr_check_overflow(pm, node_guid, port_num, num_ports, wire_read);
 
@@ -841,7 +841,7 @@ osm_perfmgr_init(
 	pm->event_db_plugin = strdup(p_opt->event_db_plugin);
 	pm->max_outstanding_queries = p_opt->perfmgr_max_outstanding_queries;
 
-	pm->db = perfmgr_edb_construct(pm->log, pm->event_db_plugin);
+	pm->db = perfmgr_db_construct(pm->log, pm->event_db_plugin);
 	if (!pm->db)
 	{
 	      pm->state = PERFMGR_STATE_NO_DB;
@@ -873,7 +873,7 @@ osm_perfmgr_clear_counters(osm_perfmgr_t *pm)
 	/**
 	 * FIXME todo issue clear on the fabric?
 	 */
-	perfmgr_edb_clear_counters(pm->db);
+	perfmgr_db_clear_counters(pm->db);
 	osm_log( pm->log, OSM_LOG_INFO, "PerfMgr counters cleared\n");
 }
 
@@ -881,9 +881,9 @@ osm_perfmgr_clear_counters(osm_perfmgr_t *pm)
  * Have the DB dump it's information to the file specified
  *******************************************************************/
 void
-osm_perfmgr_dump_counters(osm_perfmgr_t *pm, perfmgr_edb_dump_t dump_type)
+osm_perfmgr_dump_counters(osm_perfmgr_t *pm, perfmgr_db_dump_t dump_type)
 {
-	if (perfmgr_edb_dump(pm->db, pm->event_db_dump_file, dump_type) != 0)
+	if (perfmgr_db_dump(pm->db, pm->event_db_dump_file, dump_type) != 0)
 	{
 		osm_log( pm->log, OSM_LOG_ERROR,
 			"PB dump port counters: ERR 4C10: Failed to dump file %s : %s",

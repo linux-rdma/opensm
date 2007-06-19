@@ -204,7 +204,7 @@ inline static uint16_t osm_perfmgr_get_sweep_time_s(osm_perfmgr_t *p_perfmgr)
 	return (p_perfmgr->sweep_time_s);
 }
 void osm_perfmgr_clear_counters(osm_perfmgr_t *p_perfmgr);
-void osm_perfmgr_dump_counters(osm_perfmgr_t *p_perfmgr, perfmgr_edb_dump_t dump_type);
+void osm_perfmgr_dump_counters(osm_perfmgr_t *p_perfmgr, perfmgr_db_dump_t dump_type);
 
 ib_api_status_t osm_perfmgr_bind(osm_perfmgr_t * const p_perfmgr, const ib_net64_t port_guid);
 

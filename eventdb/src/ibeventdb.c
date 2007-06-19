@@ -50,10 +50,10 @@
  * Store all the port counters for a single port.
  */
 typedef struct _db_port {
-	perfmgr_edb_err_reading_t err_total;
-	perfmgr_edb_err_reading_t err_previous;
-	perfmgr_edb_data_cnt_reading_t dc_total;
-	perfmgr_edb_data_cnt_reading_t dc_previous;
+	perfmgr_db_err_reading_t err_total;
+	perfmgr_db_err_reading_t err_previous;
+	perfmgr_db_data_cnt_reading_t dc_total;
+	perfmgr_db_data_cnt_reading_t dc_previous;
 	time_t   last_reset;
 } _db_port_t;
 
@@ -159,7 +159,7 @@ __free_node(_db_node_t *node)
 }
 
 /* insert nodes to the database */
-static perfmgr_edb_err_t
+static perfmgr_db_err_t
 __insert(void *_db, _db_node_t *node)
 {
 	_db_t         *db = (_db_t *)_db;
@@ -185,7 +185,7 @@ _get(void *_db, uint64_t guid)
 	return ((_db_node_t *)rc);
 }
 
-static inline perfmgr_edb_err_t
+static inline perfmgr_db_err_t
 bad_node_port(_db_node_t *node, uint8_t port)
 {
 	if (!node)
@@ -197,11 +197,11 @@ bad_node_port(_db_node_t *node, uint8_t port)
 
 /** =========================================================================
  */
-static perfmgr_edb_err_t
+static perfmgr_db_err_t
 db_create_entry(void *_db, uint64_t guid, uint8_t num_ports, char *name)
 {
 	_db_t              *db = (_db_t *)_db;
-	perfmgr_edb_err_t   rc = PERFMGR_EVENT_DB_SUCCESS;
+	perfmgr_db_err_t   rc = PERFMGR_EVENT_DB_SUCCESS;
 
 	cl_plock_excl_acquire(&(db->lock));
 	if (!_get(db, guid)) {
@@ -223,13 +223,13 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-static perfmgr_edb_err_t
+static perfmgr_db_err_t
 db_get_prev_err(void *_db, uint64_t guid,
-		uint8_t port, perfmgr_edb_err_reading_t *reading)
+		uint8_t port, perfmgr_db_err_reading_t *reading)
 {
 	_db_t               *db = (_db_t *)_db;
 	_db_node_t          *node = NULL;
-	perfmgr_edb_err_t    rc = PERFMGR_EVENT_DB_SUCCESS;
+	perfmgr_db_err_t    rc = PERFMGR_EVENT_DB_SUCCESS;
 
 	cl_plock_acquire(&(db->lock));
 
@@ -244,13 +244,13 @@ Exit:
 	return (rc);
 }
 
-static perfmgr_edb_err_t
+static perfmgr_db_err_t
 db_clear_prev_err(void *_db, uint64_t guid, uint8_t port)
 {
 	_db_t                      *db = (_db_t *)_db;
 	_db_node_t                 *node = NULL;
-	perfmgr_edb_err_reading_t  *previous = NULL;
-	perfmgr_edb_err_t           rc = PERFMGR_EVENT_DB_SUCCESS;
+	perfmgr_db_err_reading_t  *previous = NULL;
+	perfmgr_db_err_t           rc = PERFMGR_EVENT_DB_SUCCESS;
 
 	cl_plock_excl_acquire(&(db->lock));
 	node = _get(db, guid);
@@ -273,7 +273,7 @@ Exit:
  **********************************************************************/
 static void
 dump_reading(uint64_t guid, uint8_t port_num, _db_port_t *port,
-		perfmgr_edb_err_reading_t *cur)
+		perfmgr_db_err_reading_t *cur)
 {
 	printf("\nGUID %" PRIx64 " Port %u :\n", guid, port_num);
 	printf("sym %u <-- %u (%" PRIx64 ")\n", cur->symbol_err_cnt,
@@ -312,15 +312,15 @@ dump_reading(uint64_t guid, uint8_t port_num, _db_port_t *port,
 }
 #endif
 
-static perfmgr_edb_err_t
+static perfmgr_db_err_t
 db_add_err_reading(void *_db, uint64_t guid,
-                   uint8_t port, perfmgr_edb_err_reading_t *reading)
+                   uint8_t port, perfmgr_db_err_reading_t *reading)
 {
 	_db_t                      *db = (_db_t *)_db;
 	_db_port_t                 *p_port = NULL;
 	_db_node_t                 *node = NULL;
-	perfmgr_edb_err_reading_t  *previous = NULL;
-	perfmgr_edb_err_t           rc = PERFMGR_EVENT_DB_SUCCESS;
+	perfmgr_db_err_reading_t  *previous = NULL;
+	perfmgr_db_err_t           rc = PERFMGR_EVENT_DB_SUCCESS;
 
 	cl_plock_excl_acquire(&(db->lock));
 	node = _get(db, guid);
@@ -355,15 +355,15 @@ Exit:
 	return (rc);
 }
 
-static perfmgr_edb_err_t
+static perfmgr_db_err_t
 db_add_dc_reading(void *_db, uint64_t guid,
-			uint8_t port, perfmgr_edb_data_cnt_reading_t *reading)
+			uint8_t port, perfmgr_db_data_cnt_reading_t *reading)
 {
 	_db_t                           *db = (_db_t *)_db;
 	_db_port_t                      *p_port = NULL;
 	_db_node_t                      *node = NULL;
-	perfmgr_edb_data_cnt_reading_t  *previous = NULL;
-	perfmgr_edb_err_t                rc = PERFMGR_EVENT_DB_SUCCESS;
+	perfmgr_db_data_cnt_reading_t  *previous = NULL;
+	perfmgr_db_err_t                rc = PERFMGR_EVENT_DB_SUCCESS;
 
 	cl_plock_excl_acquire(&(db->lock));
 	node = _get(db, guid);
@@ -390,13 +390,13 @@ Exit:
 	return (rc);
 }
 
-static perfmgr_edb_err_t
+static perfmgr_db_err_t
 db_clear_prev_dc(void *_db, uint64_t guid, uint8_t port)
 {
 	_db_t                           *db = (_db_t *)_db;
 	_db_node_t                      *node = NULL;
-	perfmgr_edb_data_cnt_reading_t  *previous = NULL;
-	perfmgr_edb_err_t                rc = PERFMGR_EVENT_DB_SUCCESS;
+	perfmgr_db_data_cnt_reading_t  *previous = NULL;
+	perfmgr_db_err_t                rc = PERFMGR_EVENT_DB_SUCCESS;
 
 	cl_plock_excl_acquire(&(db->lock));
 	node = _get(db, guid);
@@ -413,13 +413,13 @@ Exit:
 	return (rc);
 }
 
-static perfmgr_edb_err_t
+static perfmgr_db_err_t
 db_get_prev_dc(void *_db, uint64_t guid,
-		uint8_t port, perfmgr_edb_data_cnt_reading_t *reading)
+		uint8_t port, perfmgr_db_data_cnt_reading_t *reading)
 {
 	_db_t               *db = (_db_t *)_db;
 	_db_node_t          *node = NULL;
-	perfmgr_edb_err_t    rc = PERFMGR_EVENT_DB_SUCCESS;
+	perfmgr_db_err_t    rc = PERFMGR_EVENT_DB_SUCCESS;
 
 	cl_plock_acquire(&(db->lock));
 
@@ -578,7 +578,7 @@ __dump_node_hr(_db_node_t *node, FILE *fp)
 /* Define a context for the __db_dump callback */
 typedef struct {
 	FILE                *fp;
-	perfmgr_edb_dump_t   dump_type;
+	perfmgr_db_dump_t   dump_type;
 } dump_context_t;
 
 /**********************************************************************
@@ -605,8 +605,8 @@ __db_dump(cl_map_item_t * const p_map_item, void *context )
 /**********************************************************************
  * dump the data to the file "file"
  **********************************************************************/
-static perfmgr_edb_err_t
-db_dump(void *_db, char *file, perfmgr_edb_dump_t dump_type)
+static perfmgr_db_err_t
+db_dump(void *_db, char *file, perfmgr_db_dump_t dump_type)
 {
 	_db_t    *db = (_db_t *)_db;
 	dump_context_t  context;
