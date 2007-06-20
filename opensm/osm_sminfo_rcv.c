@@ -791,7 +791,7 @@ osm_sminfo_rcv_process(
     }
     else
     {
-      /* This is a SubnSet request */
+      /* This should be a SubnSet request */
       __osm_sminfo_rcv_process_set_request( p_rcv, p_madw );
     }
   }
