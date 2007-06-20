@@ -689,6 +689,7 @@ __osm_sminfo_rcv_process_set_response(
   IN const osm_madw_t*     const p_madw )
 {
   const ib_smp_t*          p_smp;
+  const ib_sm_info_t*      p_smi;
 
   OSM_LOG_ENTER( p_rcv->p_log, __osm_sminfo_rcv_process_set_response );
 
@@ -704,6 +705,9 @@ __osm_sminfo_rcv_process_set_response(
              p_smp->method );
     goto Exit;
   }
+
+  p_smi = ib_smp_get_payload_ptr( p_smp );
+  osm_dump_sm_info( p_rcv->p_log, p_smi, OSM_LOG_DEBUG );
 
   /* Check the AttributeModifier */
   if ( p_smp->attr_mod != IB_SMINFO_ATTR_MOD_HANDOVER )
