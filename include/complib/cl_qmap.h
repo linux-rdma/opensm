@@ -184,8 +184,9 @@ typedef struct _cl_map_item
 *		Indicates whether a node is red or black in the map.
 *
 *	key
-*		Value that uniquely represents a node in a map.  This value is set by
-*		calling cl_qmap_insert and can be retrieved by calling cl_qmap_key.
+*		Value that uniquely represents a node in a map.  This value is
+*		set by calling cl_qmap_insert and can be retrieved by calling
+*		cl_qmap_key.
 *
 * NOTES
 *	None of the fields of this structure should be manipulated by users, as
@@ -194,10 +195,10 @@ typedef struct _cl_map_item
 *
 *	To allow storing items in either a quick list, a quick pool, or a quick
 *	map, the map implementation guarantees that the map item can be safely
-*	cast to a pool item used for storing an object in a quick pool, or cast to
-*	a list item used for storing an object in a quick list.  This removes the
-*	need to embed a map item, a list item, and a pool item in objects that need
-*	to be stored in a quick list, a quick pool, and a quick map.
+*	cast to a pool item used for storing an object in a quick pool, or cast
+*	to a list item used for storing an object in a quick list.  This removes
+*	the need to embed a map item, a list item, and a pool item in objects
+*	that need to be stored in a quick list, a quick pool, and a quick map.
 *
 * SEE ALSO
 *	Quick Map, cl_qmap_insert, cl_qmap_key, cl_pool_item_t, cl_list_item_t
@@ -267,13 +268,13 @@ typedef struct _cl_qmap
 * PARAMETERS
 *	root
 *		Map item that serves as root of the map.  The root is set up to
-*		always have itself as parent.  The left pointer is set to point to
-*		the item at the root.
+*		always have itself as parent.  The left pointer is set to point
+*		to the item at the root.
 *
 *	nil
-*		Map item that serves as terminator for all leaves, as well as providing
-*		the list item used as quick list for storing map items in a list for
-*		faster traversal.
+*		Map item that serves as terminator for all leaves, as well as
+*		providing the list item used as quick list for storing map items
+*		in a list for faster traversal.
 *
 *	state
 *		State of the map, used to verify that operations are permitted.
@@ -290,8 +291,8 @@ typedef struct _cl_qmap
 *	cl_pfn_qmap_apply_t
 *
 * DESCRIPTION
-*	The cl_pfn_qmap_apply_t function type defines the prototype for functions
-*	used to iterate items in a quick map.
+*	The cl_pfn_qmap_apply_t function type defines the prototype for
+*	functions used to iterate items in a quick map.
 *
 * SYNOPSIS
 */
@@ -528,9 +529,9 @@ cl_qmap_end(
 *
 * NOTES
 *	cl_qmap_end is useful for determining the validity of map items returned
-*	by cl_qmap_head, cl_qmap_tail, cl_qmap_next, or cl_qmap_prev.  If the map
-*	item pointer returned by any of these functions compares to the end, the
-*	end of the map was encoutered.
+*	by cl_qmap_head, cl_qmap_tail, cl_qmap_next, or cl_qmap_prev.  If the
+*	map item pointer returned by any of these functions compares to the end,
+*	the end of the map was encoutered.
 *	When using cl_qmap_head or cl_qmap_tail, this condition indicates that
 *	the map is empty.
 *
@@ -559,8 +560,8 @@ cl_qmap_head(
 /*
 * PARAMETERS
 *	p_map
-*		[in] Pointer to a cl_qmap_t structure whose item with the lowest key
-*		is returned.
+*		[in] Pointer to a cl_qmap_t structure whose item with the lowest
+*		key is returned.
 *
 * RETURN VALUES
 *	Pointer to the map item with the lowest key in the quick map.
@@ -596,8 +597,8 @@ cl_qmap_tail(
 /*
 * PARAMETERS
 *	p_map
-*		[in] Pointer to a cl_qmap_t structure whose item with the highest key
-*		is returned.
+*		[in] Pointer to a cl_qmap_t structure whose item with the
+*		highest key is returned.
 *
 * RETURN VALUES
 *	Pointer to the map item with the highest key in the quick map.
@@ -913,12 +914,12 @@ cl_qmap_delta(
 *		differences to compute.
 *
 *	p_new
-*		[out] Pointer to an empty cl_qmap_t structure that contains the items
-*		unique to p_map2 upon return from the function.
+*		[out] Pointer to an empty cl_qmap_t structure that contains the
+*		items unique to p_map2 upon return from the function.
 *
 *	p_old
-*		[out] Pointer to an empty cl_qmap_t structure that contains the items
-*		unique to p_map1 upon return from the function.
+*		[out] Pointer to an empty cl_qmap_t structure that contains the
+*		items unique to p_map1 upon return from the function.
 *
 * RETURN VALUES
 *	This function does not return a value.
@@ -927,7 +928,7 @@ cl_qmap_delta(
 *	Items are evaluated based on their keys.  Items that exist in both
 *	p_map1 and p_map2 remain in their respective maps.  Items that
 *	exist only p_map1 are moved to p_old.  Likewise, items that exist only
-*	in p_map2 are moved to p_new.  This function can be usefull in evaluating
+*	in p_map2 are moved to p_new.  This function can be useful in evaluating
 *	changes between two maps.
 *
 *	Both maps pointed to by p_new and p_old must be empty on input.  This
@@ -959,8 +960,8 @@ cl_qmap_apply_func(
 *
 *	pfn_func
 *		[in] Function invoked for every item in the quick map.
-*		See the cl_pfn_qmap_apply_t function type declaration for details
-*		about the callback function.
+*		See the cl_pfn_qmap_apply_t function type declaration for
+*		details about the callback function.
 *
 *	context
 *		[in] Value to pass to the callback functions to provide context.

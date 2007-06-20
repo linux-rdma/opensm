@@ -65,11 +65,12 @@ BEGIN_C_DECLS
 *
 * DESCRIPTION
 *	Flexi map implements a binary tree that stores user provided cl_fmap_item_t
-*	structures.  Each item stored in a flexi map has a unique user defined key
-*	(duplicates are not allowed).  Flexi map provides the ability to
-*	efficiently search for an item given a key.  Flexi map allows user defined
-*	keys of any size.  Storage for keys and a comparison function are provided
-*	by users to allow flexi map to store items with arbitrary key values.
+*	structures.  Each item stored in a flexi map has a unique user defined 
+*	key (duplicates are not allowed).  Flexi map provides the ability to
+*	efficiently search for an item given a key.  Flexi map allows user
+*	defined keys of any size.  Storage for keys and a comparison function
+*	are provided by users to allow flexi map to store items with arbitrary
+*	key values.
 *
 *	Flexi map does not allocate any memory, and can therefore not fail
 *	any operations due to insufficient memory.  Flexi map can thus be useful
@@ -124,14 +125,14 @@ BEGIN_C_DECLS
 typedef struct _cl_fmap_item
 {
 	/* Must be first to allow casting. */
-	cl_pool_item_t			pool_item;
+	cl_pool_item_t		pool_item;
 	struct _cl_fmap_item	*p_left;
 	struct _cl_fmap_item	*p_right;
 	struct _cl_fmap_item	*p_up;
-	cl_map_color_t			color;
-	const void				*p_key;
+	cl_map_color_t		color;
+	const void		*p_key;
 #ifdef _DEBUG_
-	struct _cl_fmap			*p_map;
+	struct _cl_fmap		*p_map;
 #endif
 
 } cl_fmap_item_t;
@@ -169,10 +170,11 @@ typedef struct _cl_fmap_item
 *
 *	To allow storing items in either a quick list, a quick pool, or a flexi
 *	map, the map implementation guarantees that the map item can be safely
-*	cast to a pool item used for storing an object in a quick pool, or cast to
-*	a list item used for storing an object in a quick list.  This removes the
-*	need to embed a flexi map item, a list item, and a pool item in objects
-*	that need to be stored in a quick list, a quick pool, and a flexi map.
+*	cast to a pool item used for storing an object in a quick pool, or cast
+*	to a list item used for storing an object in a quick list.  This removes
+*	the need to embed a flexi map item, a list item, and a pool item in
+*	objects that need to be stored in a quick list, a quick pool, and a
+*	flexi map.
 *
 * SEE ALSO
 *	Flexi Map, cl_fmap_insert, cl_fmap_key, cl_pool_item_t, cl_list_item_t
@@ -229,8 +231,8 @@ typedef struct _cl_fmap
 {
 	cl_fmap_item_t		root;
 	cl_fmap_item_t		nil;
-	cl_state_t			state;
-	size_t				count;
+	cl_state_t		state;
+	size_t			count;
 	cl_pfn_fmap_cmp_t	pfn_compare;
 
 } cl_fmap_t;
@@ -238,13 +240,13 @@ typedef struct _cl_fmap
 * PARAMETERS
 *	root
 *		Map item that serves as root of the map.  The root is set up to
-*		always have itself as parent.  The left pointer is set to point to
-*		the item at the root.
+*		always have itself as parent.  The left pointer is set to point
+*		to the item at the root.
 *
 *	nil
-*		Map item that serves as terminator for all leaves, as well as providing
-*		the list item used as quick list for storing map items in a list for
-*		faster traversal.
+*		Map item that serves as terminator for all leaves, as well as
+*		providing the list item used as quick list for storing map items
+*		in a list for faster traversal.
 *
 *	state
 *		State of the map, used to verify that operations are permitted.
@@ -265,8 +267,8 @@ typedef struct _cl_fmap
 *	cl_pfn_fmap_apply_t
 *
 * DESCRIPTION
-*	The cl_pfn_fmap_apply_t function type defines the prototype for functions
-*	used to iterate items in a flexi map.
+*	The cl_pfn_fmap_apply_t function type defines the prototype for
+*	functions used to iterate items in a flexi map.
 *
 * SYNOPSIS
 */
@@ -449,9 +451,9 @@ cl_fmap_end(
 *
 * NOTES
 *	cl_fmap_end is useful for determining the validity of map items returned
-*	by cl_fmap_head, cl_fmap_tail, cl_fmap_next, or cl_fmap_prev.  If the map
-*	item pointer returned by any of these functions compares to the end, the
-*	end of the map was encoutered.
+*	by cl_fmap_head, cl_fmap_tail, cl_fmap_next, or cl_fmap_prev.  If the
+*	map item pointer returned by any of these functions compares to the end,
+*	the end of the map was encoutered.
 *	When using cl_fmap_head or cl_fmap_tail, this condition indicates that
 *	the map is empty.
 *
@@ -619,10 +621,10 @@ cl_fmap_insert(
 *		[in] Pointer to a cl_fmap_t structure into which to add the item.
 *
 *	p_key
-*		[in] Pointer to the key value to assign to the item.  Storage for
-*		the key must be persistant, as only the pointer is stored.  Users
-*		are responsible for maintaining the validity of key pointers while
-*		they are in use.
+*		[in] Pointer to the key value to assign to the item.  Storage
+*		for the key must be persistant, as only the pointer is stored.
+*		Users are responsible for maintaining the validity of key
+*		 pointers while they are in use.
 *
 *	p_item
 *		[in] Pointer to a cl_fmap_item_t stucture to insert into the flexi map.
@@ -697,8 +699,8 @@ cl_fmap_remove_item(
 * RETURN VALUES
 *	This function does not return a value.
 *
-*	In a debug build, cl_fmap_remove_item asserts that the item being removed
-*	is in the specified map.
+*	In a debug build, cl_fmap_remove_item asserts that the item being
+*	removed es in the specified map.
 *
 * NOTES
 *	Removes the map item pointed to by p_item from its flexi map.
@@ -724,8 +726,8 @@ cl_fmap_remove(
 /*
 * PARAMETERS
 *	p_map
-*		[in] Pointer to a cl_fmap_t structure from which to remove the item
-*		with the specified key.
+*		[in] Pointer to a cl_fmap_t structure from which to remove the
+*		item with the specified key.
 *
 *	p_key
 *		[in] Pointer to the key value used to search for the map item
@@ -836,12 +838,12 @@ cl_fmap_delta(
 *		differences to compute.
 *
 *	p_new
-*		[out] Pointer to an empty cl_fmap_t structure that contains the items
-*		unique to p_map2 upon return from the function.
+*		[out] Pointer to an empty cl_fmap_t structure that contains the
+*		items unique to p_map2 upon return from the function.
 *
 *	p_old
-*		[out] Pointer to an empty cl_fmap_t structure that contains the items
-*		unique to p_map1 upon return from the function.
+*		[out] Pointer to an empty cl_fmap_t structure that contains the
+*		items unique to p_map1 upon return from the function.
 *
 * RETURN VALUES
 *	This function does not return a value.
@@ -850,7 +852,7 @@ cl_fmap_delta(
 *	Items are evaluated based on their keys.  Items that exist in both
 *	p_map1 and p_map2 remain in their respective maps.  Items that
 *	exist only p_map1 are moved to p_old.  Likewise, items that exist only
-*	in p_map2 are moved to p_new.  This function can be usefull in evaluating
+*	in p_map2 are moved to p_new.  This function can be useful in evaluating
 *	changes between two maps.
 *
 *	Both maps pointed to by p_new and p_old must be empty on input.  This
@@ -882,8 +884,8 @@ cl_fmap_apply_func(
 *
 *	pfn_func
 *		[in] Function invoked for every item in the flexi map.
-*		See the cl_pfn_fmap_apply_t function type declaration for details
-*		about the callback function.
+*		See the cl_pfn_fmap_apply_t function type declaration for
+*		details about the callback function.
 *
 *	context
 *		[in] Value to pass to the callback functions to provide context.

@@ -69,8 +69,8 @@ BEGIN_C_DECLS
 *	provides the ability to efficiently search for an item given a key.
 *
 *	Map may allocate memory when inserting objects, and can therefore fail
-*	operations due to insufficient memory.  Use quick map in situations where
-*	such insertion failures cannot be tolerated.
+*	operations due to insufficient memory.  Use quick map in situations
+*	where such insertion failures cannot be tolerated.
 *
 *	Map is not thread safe, and users must provide serialization when adding
 *	and removing items from the map.
@@ -332,8 +332,8 @@ cl_map_init(
 *
 *	min_items
 *		[in] Minimum number of items that can be stored.  All necessary
-*		allocations to allow storing the minimum number of items is performed
-*		at initialization time.
+*		allocations to allow storing the minimum number of items is
+*		performed at initialization time.
 *
 * RETURN VALUES
 *	CL_SUCCESS if the map was initialized successfully.
@@ -648,8 +648,8 @@ cl_map_remove_item(
 /*
 * PARAMETERS
 *	p_map
-*		[in] Pointer to a map from which to remove the object associated with
-*		the specified iterator.
+*		[in] Pointer to a map from which to remove the object associated
+*		with the specified iterator.
 *
 *	itor
 *		[in] Iterator for an object to remove from its map.
@@ -687,8 +687,8 @@ cl_map_remove(
 /*
 * PARAMETERS
 *	p_map
-*		[in] Pointer to a cl_map_t structure from which to remove the item
-*		with the specified key.
+*		[in] Pointer to a cl_map_t structure from which to remove the
+*		item with the specified key.
 *
 *	key
 *		[in] Key value used to search for the object to remove.
@@ -823,12 +823,12 @@ cl_map_delta(
 *		differences to compute.
 *
 *	p_new
-*		[out] Pointer to an empty cl_map_t structure that contains the items
-*		unique to p_map2 upon return from the function.
+*		[out] Pointer to an empty cl_map_t structure that contains the
+*		items unique to p_map2 upon return from the function.
 *
 *	p_old
-*		[out] Pointer to an empty cl_map_t structure that contains the items
-*		unique to p_map1 upon return from the function.
+*		[out] Pointer to an empty cl_map_t structure that contains the
+*		items unique to p_map1 upon return from the function.
 *
 * RETURN VALUES
 *	CL_SUCCESS if the operation succeeded.
@@ -840,7 +840,7 @@ cl_map_delta(
 *	Items are evaluated based on their keys.  Items that exist in both
 *	p_map1 and p_map2 remain in their respective maps.  Items that
 *	exist only p_map1 are moved to p_old.  Likewise, items that exist only
-*	in p_map2 are moved to p_new.  This function can be usefull in evaluating
+*	in p_map2 are moved to p_new.  This function can be useful in evaluating
 *	changes between two maps.
 *
 *	Both maps pointed to by p_new and p_old must be empty on input.
