@@ -1,5 +1,9 @@
 2007-06-20  Todd Rimmer <todd.rimmer@qlogic.com>
 
+	* include/complib/cl_map.h, include/complib/cl_qmap.h,
+	  include/complib/cl_fleximap.h, cl_map.c:
+	  Add get_next functions to the various maps
+
 	* include/complib/cl_fleximap.h: In cl_fmap_remove_all, make
 	  sure the count field is properly maintained.
 
