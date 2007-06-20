@@ -268,6 +268,33 @@ cl_qmap_get(
 	return( p_item );
 }
 
+cl_map_item_t*
+cl_qmap_get_next(
+	IN	const cl_qmap_t* const	p_map,
+	IN	const uint64_t			key )
+{
+	cl_map_item_t	*p_item;
+	cl_map_item_t	*p_item_found;
+
+	CL_ASSERT( p_map );
+	CL_ASSERT( p_map->state == CL_INITIALIZED );
+
+	p_item = __cl_map_root( p_map );
+	p_item_found = (cl_map_item_t*)&p_map->nil;
+
+	while( p_item != &p_map->nil )
+	{
+		if( key < p_item->key ){
+			p_item_found = p_item;
+			p_item = p_item->p_left;
+		}else{
+			p_item = p_item->p_right;
+		}
+	}
+    
+	return( p_item_found );
+}
+
 void
 cl_qmap_apply_func(
 	IN	const cl_qmap_t* const	p_map,
@@ -832,6 +859,23 @@ cl_map_get(
 	return( cl_qmap_obj( PARENT_STRUCT( p_item, cl_map_obj_t, item ) ) );
 }
 
+void*
+cl_map_get_next(
+	IN	const cl_map_t* const	p_map,
+	IN	const uint64_t			key )
+{
+	cl_map_item_t	*p_item;
+
+	CL_ASSERT( p_map );
+
+	p_item = cl_qmap_get_next( &p_map->qmap, key );
+
+	if( p_item == cl_qmap_end( &p_map->qmap ) )
+		return( NULL );
+
+	return( cl_qmap_obj( PARENT_STRUCT( p_item, cl_map_obj_t, item ) ) );
+}
+
 void
 cl_map_remove_item(
 	IN	cl_map_t* const			p_map,
@@ -1277,6 +1321,36 @@ cl_fmap_get(
 	}
 
 	return( p_item );
+}
+
+cl_fmap_item_t*
+cl_fmap_get_next(
+	IN	const cl_fmap_t* const	p_map,
+	IN	const void* const		p_key )
+{
+	cl_fmap_item_t	*p_item;
+	cl_fmap_item_t	*p_item_found;
+	intn_t			cmp;
+
+	CL_ASSERT( p_map );
+	CL_ASSERT( p_map->state == CL_INITIALIZED );
+
+	p_item = __cl_fmap_root( p_map );
+	p_item_found = (cl_fmap_item_t*)&p_map->nil;
+
+	while( p_item != &p_map->nil )
+	{
+		cmp = p_map->pfn_compare( p_key, p_item->p_key );
+
+		if( cmp < 0 ){
+			p_item_found = p_item;
+			p_item = p_item->p_left;	/* too small */
+		}else{
+			p_item = p_item->p_right;	/* too big or match */
+		}
+	}
+
+	return( p_item_found );
 }
 
 void

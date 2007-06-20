@@ -101,7 +101,7 @@ BEGIN_C_DECLS
 *
 *	Manipulation:
 *		cl_fmap_insert, cl_fmap_get, cl_fmap_remove_item, cl_fmap_remove,
-*		cl_fmap_remove_all, cl_fmap_merge, cl_fmap_delta
+*		cl_fmap_remove_all, cl_fmap_merge, cl_fmap_delta, cl_fmap_get_next
 *
 *	Search:
 *		cl_fmap_apply_func
@@ -674,7 +674,43 @@ cl_fmap_get(
 *	cl_fmap_get does not remove the item from the flexi map.
 *
 * SEE ALSO
-*	Flexi Map, cl_fmap_remove
+*	Flexi Map, cl_fmap_remove, cl_fmap_get_next
+*********/
+
+/****f* Component Library: Flexi Map/cl_fmap_get_next
+* NAME
+*	cl_fmap_get_next
+*
+* DESCRIPTION
+*	The cl_fmap_get_next function returns the first map item associated with a
+*	key > the key specified.
+*
+* SYNOPSIS
+*/
+cl_fmap_item_t*
+cl_fmap_get_next(
+	IN	const cl_fmap_t* const	p_map,
+	IN	const void* const		p_key );
+/*
+* PARAMETERS
+*	p_map
+*		[in] Pointer to a cl_fmap_t structure from which to retrieve the
+*		item with the specified key.
+*
+*	p_key
+*		[in] Pointer to a key value used to search for the desired map item.
+*
+* RETURN VALUES
+*	Pointer to the first map item with a key > the  desired key value.
+*
+*	Pointer to the map end if there was no item with a key > the desired key
+*	value stored in the flexi map.
+*
+* NOTES
+*	cl_fmap_get_next does not remove the item from the flexi map.
+*
+* SEE ALSO
+*	Flexi Map, cl_fmap_remove, cl_fmap_get
 *********/
 
 /****f* Component Library: Flexi Map/cl_fmap_remove_item

@@ -98,7 +98,7 @@ BEGIN_C_DECLS
 *
 *	Manipulation:
 *		cl_qmap_insert, cl_qmap_get, cl_qmap_remove_item, cl_qmap_remove,
-*		cl_qmap_remove_all, cl_qmap_merge, cl_qmap_delta
+*		cl_qmap_remove_all, cl_qmap_merge, cl_qmap_delta, cl_qmap_get_next
 *
 *	Search:
 *		cl_qmap_apply_func
@@ -750,7 +750,43 @@ cl_qmap_get(
 *	cl_qmap_get does not remove the item from the quick map.
 *
 * SEE ALSO
-*	Quick Map, cl_qmap_remove
+*	Quick Map, cl_qmap_get_next, cl_qmap_remove
+*********/
+
+/****f* Component Library: Quick Map/cl_qmap_get_next
+* NAME
+*	cl_qmap_get_next
+*
+* DESCRIPTION
+*	The cl_qmap_get_next function returns the first map item associated with a
+*	key > the key specified.
+*
+* SYNOPSIS
+*/
+cl_map_item_t*
+cl_qmap_get_next(
+	IN	const cl_qmap_t* const	p_map,
+	IN	const uint64_t			key );
+/*
+* PARAMETERS
+*	p_map
+*		[in] Pointer to a cl_qmap_t structure from which to retrieve the
+*		first item with a key > the specified key.
+*
+*	key
+*		[in] Key value used to search for the desired map item.
+*
+* RETURN VALUES
+*	Pointer to the first map item with a key > the desired key value.
+*
+*	Pointer to the map end if there was no item with a key > the desired key
+*	value stored in the quick map.
+*
+* NOTES
+*	cl_qmap_get_next does not remove the item from the quick map.
+*
+* SEE ALSO
+*	Quick Map, cl_qmap_get, cl_qmap_remove
 *********/
 
 /****f* Component Library: Quick Map/cl_qmap_remove_item

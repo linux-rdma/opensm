@@ -96,7 +96,7 @@ BEGIN_C_DECLS
 *
 *	Manipulation
 *		cl_map_insert, cl_map_get, cl_map_remove_item, cl_map_remove,
-*		cl_map_remove_all, cl_map_merge, cl_map_delta
+*		cl_map_remove_all, cl_map_merge, cl_map_delta, cl_map_get_next
 *
 *	Attributes:
 *		cl_map_count, cl_is_map_empty, cl_is_map_inited
@@ -628,7 +628,43 @@ cl_map_get(
 *	cl_map_get does not remove the item from the map.
 *
 * SEE ALSO
-*	Map, cl_map_remove
+*	Map, cl_map_remove, cl_map_get_next
+*********/
+
+/****f* Component Library: Map/cl_map_get_next
+* NAME
+*	cl_map_get_next
+*
+* DESCRIPTION
+*	The cl_qmap_get_next function returns the first object associated with a
+*	key > the key specified.
+*
+* SYNOPSIS
+*/
+void*
+cl_map_get_next(
+	IN	const cl_map_t* const	p_map,
+	IN	const uint64_t			key );
+/*
+* PARAMETERS
+*	p_map
+*		[in] Pointer to a map from which to retrieve the object with
+*		the specified key.
+*
+*	key
+*		[in] Key value used to search for the desired object.
+*
+* RETURN VALUES
+*	Pointer to the first object with a key > the desired key value.
+*
+*	NULL if there was no item with a key > the desired key
+*	value stored in the map.
+*
+* NOTES
+*	cl_map_get does not remove the item from the map.
+*
+* SEE ALSO
+*	Map, cl_map_remove, cl_map_get
 *********/
 
 /****f* Component Library: Map/cl_map_remove_item
