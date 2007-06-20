@@ -48,7 +48,7 @@
  */
 perfmgr_db_t *
 perfmgr_db_construct(osm_log_t *p_log,
-		osm_epi_plugin_t *event_plugin)
+		     osm_epi_plugin_t *event_plugin)
 {
 	perfmgr_db_t *db = malloc(sizeof(*db));
 	if (!db)
@@ -157,7 +157,7 @@ __insert(perfmgr_db_t *db, _db_node_t *node)
  **********************************************************************/
 perfmgr_db_err_t
 perfmgr_db_create_entry(perfmgr_db_t *db, uint64_t guid,
-		uint8_t num_ports, char *name)
+			uint8_t num_ports, char *name)
 {
 	perfmgr_db_err_t   rc = PERFMGR_EVENT_DB_SUCCESS;
 
@@ -184,7 +184,7 @@ Exit:
  **********************************************************************/
 static inline void
 debug_dump_err_reading(perfmgr_db_t *db, uint64_t guid, uint8_t port_num,
-		_db_port_t *port, perfmgr_db_err_reading_t *cur)
+		       _db_port_t *port, perfmgr_db_err_reading_t *cur)
 {
 	if (!osm_log_is_active(db->osm_log, OSM_LOG_DEBUG))
 		return; /* optimize this a bit */
@@ -234,10 +234,10 @@ debug_dump_err_reading(perfmgr_db_t *db, uint64_t guid, uint8_t port_num,
  **********************************************************************/
 perfmgr_db_err_t
 perfmgr_db_add_err_reading(perfmgr_db_t *db, uint64_t guid,
-                   uint8_t port, perfmgr_db_err_reading_t *reading)
+                   	   uint8_t port, perfmgr_db_err_reading_t *reading)
 {
-	_db_port_t                 *p_port = NULL;
-	_db_node_t                 *node = NULL;
+	_db_port_t                *p_port = NULL;
+	_db_node_t                *node = NULL;
 	perfmgr_db_err_reading_t  *previous = NULL;
 	perfmgr_db_err_t           rc = PERFMGR_EVENT_DB_SUCCESS;
 	osm_epi_pe_event_t         epi_pe_data;
@@ -292,9 +292,10 @@ Exit:
 }
 
 perfmgr_db_err_t perfmgr_db_get_prev_err(perfmgr_db_t *db, uint64_t guid,
-		uint8_t port, perfmgr_db_err_reading_t *reading)
+					 uint8_t port,
+					 perfmgr_db_err_reading_t *reading)
 {
-	_db_node_t          *node = NULL;
+	_db_node_t         *node = NULL;
 	perfmgr_db_err_t    rc = PERFMGR_EVENT_DB_SUCCESS;
 
 	cl_plock_acquire(&(db->lock));
@@ -313,7 +314,7 @@ Exit:
 perfmgr_db_err_t
 perfmgr_db_clear_prev_err(perfmgr_db_t *db, uint64_t guid, uint8_t port)
 {
-	_db_node_t                      *node = NULL;
+	_db_node_t                     *node = NULL;
 	perfmgr_db_data_cnt_reading_t  *previous = NULL;
 	perfmgr_db_err_t                rc = PERFMGR_EVENT_DB_SUCCESS;
 
@@ -334,7 +335,7 @@ Exit:
 
 static inline void
 debug_dump_dc_reading(perfmgr_db_t *db, uint64_t guid, uint8_t port_num,
-		_db_port_t *port, perfmgr_db_data_cnt_reading_t *cur)
+		      _db_port_t *port, perfmgr_db_data_cnt_reading_t *cur)
 {
 	if (!osm_log_is_active(db->osm_log, OSM_LOG_DEBUG))
 		return; /* optimize this a big */
@@ -358,10 +359,10 @@ debug_dump_dc_reading(perfmgr_db_t *db, uint64_t guid, uint8_t port_num,
  **********************************************************************/
 perfmgr_db_err_t
 perfmgr_db_add_dc_reading(perfmgr_db_t *db, uint64_t guid,
-                   uint8_t port, perfmgr_db_data_cnt_reading_t *reading)
+                   	  uint8_t port, perfmgr_db_data_cnt_reading_t *reading)
 {
-	_db_port_t                      *p_port = NULL;
-	_db_node_t                      *node = NULL;
+	_db_port_t                     *p_port = NULL;
+	_db_node_t                     *node = NULL;
 	perfmgr_db_data_cnt_reading_t  *previous = NULL;
 	perfmgr_db_err_t                rc = PERFMGR_EVENT_DB_SUCCESS;
 	osm_epi_dc_event_t              epi_dc_data;
@@ -408,9 +409,10 @@ Exit:
 }
 
 perfmgr_db_err_t perfmgr_db_get_prev_dc(perfmgr_db_t *db, uint64_t guid,
-		uint8_t port, perfmgr_db_data_cnt_reading_t *reading)
+					uint8_t port,
+					perfmgr_db_data_cnt_reading_t *reading)
 {
-	_db_node_t          *node = NULL;
+	_db_node_t         *node = NULL;
 	perfmgr_db_err_t    rc = PERFMGR_EVENT_DB_SUCCESS;
 
 	cl_plock_acquire(&(db->lock));
@@ -429,7 +431,7 @@ Exit:
 perfmgr_db_err_t
 perfmgr_db_clear_prev_dc(perfmgr_db_t *db, uint64_t guid, uint8_t port)
 {
-	_db_node_t                      *node = NULL;
+	_db_node_t                     *node = NULL;
 	perfmgr_db_data_cnt_reading_t  *previous = NULL;
 	perfmgr_db_err_t                rc = PERFMGR_EVENT_DB_SUCCESS;
 
@@ -499,7 +501,7 @@ void perfmgr_db_clear_counters(perfmgr_db_t *db)
 }
 
 /**********************************************************************
- * Output a tab deliminated output of the port counters
+ * Output a tab delimited output of the port counters
  **********************************************************************/
 static void
 __dump_node_mr(_db_node_t *node, FILE *fp)
@@ -691,7 +693,7 @@ perfmgr_db_dump(perfmgr_db_t *db, char *file, perfmgr_db_dump_t dump_type)
  **********************************************************************/
 void
 perfmgr_db_fill_err_read(ib_port_counters_t *wire_read,
-			perfmgr_db_err_reading_t *reading)
+			 perfmgr_db_err_reading_t *reading)
 {
 	reading->symbol_err_cnt = cl_ntoh16(wire_read->symbol_err_cnt);
 	reading->link_err_recover = cl_ntoh16(wire_read->link_err_recover);
@@ -710,7 +712,7 @@ perfmgr_db_fill_err_read(ib_port_counters_t *wire_read,
 
 void
 perfmgr_db_fill_data_cnt_read_pc(ib_port_counters_t *wire_read,
-				perfmgr_db_data_cnt_reading_t *reading)
+				 perfmgr_db_data_cnt_reading_t *reading)
 {
 	reading->xmit_data = cl_ntoh32(wire_read->xmit_data);
 	reading->rcv_data = cl_ntoh32(wire_read->rcv_data);
@@ -725,7 +727,7 @@ perfmgr_db_fill_data_cnt_read_pc(ib_port_counters_t *wire_read,
 
 void
 perfmgr_db_fill_data_cnt_read_epc(ib_port_counters_ext_t *wire_read,
-				perfmgr_db_data_cnt_reading_t *reading)
+				  perfmgr_db_data_cnt_reading_t *reading)
 {
 	reading->xmit_data = cl_ntoh64(wire_read->xmit_data);
 	reading->rcv_data = cl_ntoh64(wire_read->rcv_data);
@@ -737,4 +739,3 @@ perfmgr_db_fill_data_cnt_read_epc(ib_port_counters_ext_t *wire_read,
 	reading->multicast_rcv_pkts = cl_ntoh64(wire_read->multicast_rcv_pkts);
 	reading->time = time(NULL);
 }
-
