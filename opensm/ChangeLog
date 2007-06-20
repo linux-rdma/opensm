@@ -1,3 +1,7 @@
+2007-06-20 Hal Rosenstock <halr@voltaire.com>
+
+	* osm_helper.c: Add 3LeafNetworks and Xsigo to osm_get_manufacturer_str
+
 2007-06-15 Sasha Khapyorsky <sashak@voltaire.com>
 
 	* osm_helper.c: Fix PortInfo:CapMask printing when CapMask is 0

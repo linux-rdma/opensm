@@ -2347,6 +2347,7 @@ const char*
 osm_get_manufacturer_str(
   IN uint64_t              const guid_ho )
 {
+  /* note that the max vendor string length is 11 */
   static const char* intel_str         = "Intel";
   static const char* mellanox_str      = "Mellanox";
   static const char* redswitch_str     = "Redswitch";
@@ -2368,6 +2369,8 @@ osm_get_manufacturer_str(
   static const char* hp_str            = "HP";
   static const char* rioworks_str      = "Rioworks";
   static const char* sun_str           = "Sun";
+  static const char* leafntwks_str     = "3LeafNtwks";
+  static const char* xsigo_str         = "Xsigo";
   static const char* unknown_str       = "Unknown";
 
   switch( (uint32_t)(guid_ho >> (5 * 8)) )
@@ -2415,6 +2418,10 @@ osm_get_manufacturer_str(
     return( rioworks_str );
   case OSM_VENDOR_ID_SUN:
     return( sun_str );
+  case OSM_VENDOR_ID_3LEAFNTWKS:
+    return( leafntwks_str );
+  case OSM_VENDOR_ID_XSIGO:
+    return( xsigo_str );
   default:
     return( unknown_str );
   }
