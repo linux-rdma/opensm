@@ -1,3 +1,8 @@
+2007-06-20  Todd Rimmer <todd.rimmer@qlogic.com>
+
+	* include/complib/cl_fleximap.h: In cl_fmap_remove_all, make
+	  sure the count field is properly maintained.
+
 2007-06-19  Todd Rimmer <todd.rimmer@qlogic.com>
 
 	* include/complib/cl_qmap.h: In cl_qmap_remove_all, make
