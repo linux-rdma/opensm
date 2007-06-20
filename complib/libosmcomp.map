@@ -47,6 +47,7 @@ OSMCOMP_2.0 {
 		cl_log_event;
 		cl_qmap_init;
 		cl_qmap_get;
+		cl_qmap_get_next;
 		cl_qmap_apply_func;
 		cl_qmap_insert;
 		cl_qmap_remove_item;
@@ -58,6 +59,7 @@ OSMCOMP_2.0 {
 		cl_map_destroy;
 		cl_map_insert;
 		cl_map_get;
+		cl_map_get_next;
 		cl_map_remove_item;
 		cl_map_remove;
 		cl_map_remove_all;
@@ -65,6 +67,7 @@ OSMCOMP_2.0 {
 		cl_map_delta;
 		cl_fmap_init;
 		cl_fmap_get;
+		cl_fmap_get_next;
 		cl_fmap_apply_func;
 		cl_fmap_insert;
 		cl_fmap_remove_item;
