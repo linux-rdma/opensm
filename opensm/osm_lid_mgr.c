@@ -1164,8 +1164,9 @@ __osm_lid_mgr_set_physp_pi(
       {
         osm_log( p_mgr->p_log, OSM_LOG_DEBUG,
                  "__osm_lid_mgr_set_physp_pi: "
-                 "Sending Link Down due to op_vls or mtu change. MTU:%u,%u VL_CAP:%u,%u\n",
-                 mtu, ib_port_info_get_neighbor_mtu(p_old_pi),
+                 "Sending Link Down to GUID 0x%016" PRIx64 "port %d due to op_vls or mtu change. MTU:%u,%u VL_CAP:%u,%u\n",
+                 cl_ntoh64( osm_physp_get_port_guid( p_physp ) ),
+                 port_num, mtu, ib_port_info_get_neighbor_mtu(p_old_pi),
                  op_vls, ib_port_info_get_op_vls(p_old_pi)
                  );
       }
@@ -1195,7 +1196,8 @@ __osm_lid_mgr_set_physp_pi(
 
     osm_log( p_mgr->p_log, OSM_LOG_DEBUG,
              "__osm_lid_mgr_set_physp_pi: "
-             "Updating neighbor_mtu on switch port 0 to:%u\n",
+             "Updating neighbor_mtu on switch GUID 0x%016" PRIx64 " port 0 to:%u\n",
+             cl_ntoh64( osm_physp_get_port_guid( p_physp ) ),
              ib_port_info_get_neighbor_mtu( p_pi ) );
 
     /* Determine if enhanced switch port 0 and if so set LMC */
