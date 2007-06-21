@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2004, 2005 Voltaire, Inc. All rights reserved.
+# Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
 # Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
 # Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
 #
@@ -40,56 +40,7 @@
 #  Environment:
 #  	Linux User Mode
 # 
-#  $Revision: 1.4 $
-# 
-#
-# This is the indent format used for OpenSM.
-#
-# format the source code according to the ACD standard
-# -bad	Blank line after declarations
-# -bap	Blank line after Procedures
-# -bbb	Blank line before block comments
-# -nbbo	Break after Boolean operator
-# -bl	Break after if line
-# -bli0 Indent for braces is 0
-# -bls	Break after struct declarations
-# -cbi0	Case break indent 0
-# -ci3	Continue indent 3 spaces
-# -cli0	Case label indent 0 spaces
-# -ncs	No space after cast operator
-# -hnl	Honor existing newlines on long lines
-# -i3	Substitute indent with 3 spaces
-# -npcs	No space after procedure calls
-# -prs	Space after parenthesis
-# -nsai	No space after if keyword - removed
-# -nsaw	No space after while keyword - removed
-# -sc	Put * at left of comments in a block comment style
-# -nsob	Don't swallow unnecessary blank lines
-# -ts3	Tab size is 3
-# -psl	Type of procedure return in a separate line
-# -bfda	Function declaration arguments in a separate line.
-# -nut   No tabs as we allow spaces
-#
-#########################################################################
+# This is the indent format used for OpenSM (similar to one used in
+# linux/scripts/Lindent).
 
-# indent the world
-for sourcefile in $*; do
-    if test -f "$sourcefile"; then
-        # first, string DOS style linefeeds
-        perl -piW -e's/\x0D//' "$sourcefile"
-        echo Processing $sourcefile
-        indent -bad -bap -bbb -nbbo -bl -bli0 -bls -cbi0 -ci3 -cli0 -ncs \
-                -hnl -i3 -npcs -prs -sc -nsob -ts3 -psl -bfda -nut $sourcefile
-
-        rm ${sourcefile}W
-
-        # the -bb also affect the first line in each file - so clean it up
-        if test `head -1 $sourcefile | egrep -v '^$' | wc -l` = 0; then
-            echo Cleaning up first empty line of $sourcefile
-            awk '{if(n){print};n++}' $sourcefile > ${sourcefile}W
-            mv -f ${sourcefile}W $sourcefile
-        fi
-    else
-        echo Could not find file:$sourcefile
-    fi
-done
+indent -npro -kr -i8 -ts8 -sob -l80 -ss -ncs "$@"
