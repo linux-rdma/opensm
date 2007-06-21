@@ -1,11 +1,11 @@
-.TH OPENSM 8 "June 11, 2007" "OpenIB" "OpenIB Management"
+.TH OPENSM 8 "June 21, 2007" "OpenIB" "OpenIB Management"
 
 .SH NAME
 opensm \- InfiniBand subnet manager and administration (SM/SA) 
 
 .SH SYNOPSIS
 .B opensm
-[\-c(ache-options)] [\-g(uid)[=]<GUID in hex>] [\-l(mc) <LMC>] [\-p(riority) <PRIORITY>] [\-smkey <SM_Key>] [\-r(eassign_lids)] [\-R <engine name> | \-routing_engine <engine name>] [\-M <file name> | \-lid_matrix_file <file name>] [\-U <file name> | \-ucast_file <file name>] [\-S | \-\-sadb_file <file name>] [\-a(dd_guid_file) <path to file>] [\-o(nce)] [\-s(weep) <interval>] [\-t(imeout) <milliseconds>] [\-maxsmps <number>] [\-console [off | local | socket]] [\-console-port <port>] [\-i(gnore-guids) <equalize-ignore-guids-file>] [\-f | \-\-log_file] [\-L | \-\-log_limit <size in MB>] [\-e(rase_log_file)] [\-P(config)] [\-Q | \-qos] [\-N | \-no_part_enforce] [\-y | \-stay_on_fatal] [\-B | \-daemon] [\-I | \-inactive] [\-perfmgr] [\-perfmgr_sweep_time_s <seconds>] [\-v(erbose)] [\-V] [\-D <flags>] [\-d(ebug) <number>] [\-h(elp)] [\-?]
+[\-c(ache-options)] [\-g(uid)[=]<GUID in hex>] [\-l(mc) <LMC>] [\-p(riority) <PRIORITY>] [\-smkey <SM_Key>] [\-r(eassign_lids)] [\-R <engine name> | \-\-routing_engine <engine name>] [\-M <file name> | \-\-lid_matrix_file <file name>] [\-U <file name> | \-ucast_file <file name>] [\-S | \-\-sadb_file <file name>] [\-a | \-\-root_guid_file <path to file>] [\-u | \-\-cn_guid_file <path to file>] [\-o(nce)] [\-s(weep) <interval>] [\-t(imeout) <milliseconds>] [\-maxsmps <number>] [\-console [off | local | socket]] [\-console-port <port>] [\-i(gnore-guids) <equalize-ignore-guids-file>] [\-f | \-\-log_file] [\-L | \-\-log_limit <size in MB>] [\-e(rase_log_file)] [\-P(config)] [\-Q | \-qos] [\-N | \-no_part_enforce] [\-y | \-stay_on_fatal] [\-B | \-daemon] [\-I | \-inactive] [\-perfmgr] [\-perfmgr_sweep_time_s <seconds>] [\-v(erbose)] [\-V] [\-D <flags>] [\-d(ebug) <number>] [\-h(elp)] [\-?]
 
 .SH DESCRIPTION
 .PP
@@ -107,8 +107,12 @@ from where switch forwarding tables will be loaded.
 This option specifies the name of the SA DB dump file
 from where SA database will be loaded.
 .TP
-\fB\-a\fR, \fB\-\-add_guid_file\fR
-Set the root nodes for the Up/Down routing algorithm
+\fB\-a\fR, \fB\-\-root_guid_file\fR
+Set the root nodes for the Up/Down or Fat-Tree routing
+algorithm to the guids provided in the given file (one to a line).
+.TP
+\fB\-u\fR, \fB\-\-cn_guid_file\fR
+Set the compute nodes for the Fat-Tree routing algorithm
 to the guids provided in the given file (one to a line).
 .TP
 \fB\-o\fR, \fB\-\-once\fR
