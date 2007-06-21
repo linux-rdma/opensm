@@ -278,7 +278,8 @@ typedef struct _osm_subn_opt
   char *                   routing_engine_name;
   char *                   lid_matrix_dump_file;
   char *                   ucast_dump_file;
-  char *                   updn_guid_file;
+  char *                   root_guid_file;
+  char *                   cn_guid_file;
   char *                   sa_db_file;
   boolean_t                exit_on_fatal;
   boolean_t                honor_guid2lid_file;
@@ -452,8 +453,13 @@ typedef struct _osm_subn_opt
 *		Name of the unicast routing dump file from where switch
 *		forwarding tables will be loaded
 *
-*	updn_guid_file
-*		Pointer to name of the UPDN guid file given by User
+*	root_guid_file
+*		Name of the file that contains list of root guids that
+*		will be used by fat-tree or up/dn routing (provided by User)
+*
+*	cn_guid_file
+*		Name of the file that contains list of compute node guids that
+*		will be used by fat-tree routing (provided by User)
 *
 *	sa_db_file
 *		Name of the SA database file.

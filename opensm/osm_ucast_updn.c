@@ -311,10 +311,10 @@ updn_init(
      Check the source for root node list, if file parse it, otherwise
      wait for a callback to activate auto detection
   */
-  if (p_osm->subn.opt.updn_guid_file)
+  if (p_osm->subn.opt.root_guid_file)
   {
     status = osm_ucast_mgr_read_guid_file( &p_osm->sm.ucast_mgr,
-                                           p_osm->subn.opt.updn_guid_file,
+                                           p_osm->subn.opt.root_guid_file,
                                            p_updn->p_root_nodes );
     if (status != IB_SUCCESS)
        goto Exit;
@@ -323,7 +323,7 @@ updn_init(
     osm_log( &p_osm->log, OSM_LOG_DEBUG,
              "updn_init: "
              "UPDN - Fetching root nodes from file %s\n",
-             p_osm->subn.opt.updn_guid_file );
+             p_osm->subn.opt.root_guid_file );
     guid_iterator = cl_list_head(p_updn->p_root_nodes);
     while( guid_iterator != cl_list_end(p_updn->p_root_nodes) )
     {

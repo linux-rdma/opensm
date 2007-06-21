@@ -189,9 +189,15 @@ show_usage(void)
           "          This option specifies the name of the SA DB dump file\n"
           "          from where SA database will be loaded.\n\n");
   printf ("-a\n"
-          "--add_guid_file <path to file>\n"
-          "          Set the root nodes for the Up/Down routing algorithm\n"
-          "          to the guids provided in the given file (one to a line)\n"
+          "--root_guid_file <path to file>\n"
+          "          Set the root nodes for the Up/Down or Fat-Tree routing\n"
+          "          algorithm to the guids provided in the given file (one\n"
+          "          to a line)\n"
+          "\n");
+  printf ("-u\n"
+          "--cn_guid_file <path to file>\n"
+          "          Set the compute nodes for the Fat-Tree routing algorithm\n"
+          "          to the guids provided in the given file (one to a line)\n" 
           "\n");
   printf( "-o\n"
           "--once\n"
@@ -585,7 +591,7 @@ main(
   char                 *ignore_guids_file_name = NULL;
   uint32_t              val;
   const char * const    short_option =
-	  "i:f:ed:g:l:L:s:t:a:R:M:U:S:P:NBIQvVhorcyxp:n:q:k:C:";
+	  "i:f:ed:g:l:L:s:t:a:u:R:M:U:S:P:NBIQvVhorcyxp:n:q:k:C:";
 
   /*
     In the array below, the 2nd parameter specifies the number
@@ -622,7 +628,8 @@ main(
       {  "lid_matrix_file",1, NULL, 'M'},
       {  "ucast_file",    1, NULL, 'U'},
       {  "sadb_file",     1, NULL, 'S'},
-      {  "add_guid_file", 1, NULL, 'a'},
+      {  "root_guid_file", 1, NULL, 'a'},
+      {  "cn_guid_file",  1, NULL, 'u'},
       {  "cache-options", 0, NULL, 'c'},
       {  "stay_on_fatal", 0, NULL, 'y'},
       {  "honor_guid2lid",0, NULL, 'x'},
@@ -886,10 +893,18 @@ main(
 
     case 'a':
       /*
-        Specifies port guids file
+        Specifies root guids file
       */
-      opt.updn_guid_file = optarg;
-      printf (" UPDN Guid File: %s\n", opt.updn_guid_file );
+      opt.root_guid_file = optarg;
+      printf (" Root Guid File: %s\n", opt.root_guid_file );
+      break;
+
+    case 'u':
+      /*
+        Specifies compute node guids file
+      */
+      opt.cn_guid_file = optarg;
+      printf (" Compute Node Guid File: %s\n", opt.cn_guid_file );
       break;
 
     case 'c':

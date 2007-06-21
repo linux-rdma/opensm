@@ -502,7 +502,8 @@ osm_subn_set_default_opt(
   p_opt->routing_engine_name = NULL;
   p_opt->lid_matrix_dump_file = NULL;
   p_opt->ucast_dump_file = NULL;
-  p_opt->updn_guid_file = NULL;
+  p_opt->root_guid_file = NULL;
+  p_opt->cn_guid_file = NULL;
   p_opt->sa_db_file = NULL;
   p_opt->exit_on_fatal = TRUE;
   p_opt->enable_quirks = FALSE;
@@ -1325,8 +1326,12 @@ osm_subn_parse_conf_file(
         p_key, p_val, &p_opts->ucast_dump_file);
 
       __osm_subn_opts_unpack_charp( 
-        "updn_guid_file",
-        p_key, p_val, &p_opts->updn_guid_file);
+        "root_guid_file",
+        p_key, p_val, &p_opts->root_guid_file);
+
+      __osm_subn_opts_unpack_charp(
+        "cn_guid_file",
+        p_key, p_val, &p_opts->cn_guid_file);
 
       __osm_subn_opts_unpack_charp(
         "sa_db_file",
@@ -1550,12 +1555,18 @@ osm_subn_write_conf_file(
              "# Ucast dump file name\n"
              "ucast_dump_file %s\n\n",
              p_opts->ucast_dump_file);
-  if (p_opts->updn_guid_file)
+  if (p_opts->root_guid_file)
     fprintf( opts_file,
-             "# The file holding the Up/Down root node guids\n"
+             "# The file holding the root node guids (for fat-tree or Up/Down)\n"
              "# One guid in each line\n"
-             "updn_guid_file %s\n\n",
-             p_opts->updn_guid_file);
+             "root_guid_file %s\n\n",
+             p_opts->root_guid_file);
+  if (p_opts->cn_guid_file)
+    fprintf( opts_file,
+             "# The file holding the fat-tree compute node guids\n"
+             "# One guid in each line\n"
+             "cn_guid_file %s\n\n",
+             p_opts->cn_guid_file);
   if (p_opts->sa_db_file)
     fprintf( opts_file,
              "# SA database file name\n"
