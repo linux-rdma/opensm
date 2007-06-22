@@ -500,6 +500,7 @@ osm_subn_set_default_opt(
   p_opt->sweep_on_trap = TRUE;
   p_opt->testability_mode = OSM_TEST_MODE_NONE;
   p_opt->routing_engine_name = NULL;
+  p_opt->connect_roots = FALSE;
   p_opt->lid_matrix_dump_file = NULL;
   p_opt->ucast_dump_file = NULL;
   p_opt->root_guid_file = NULL;
@@ -1290,6 +1291,10 @@ osm_subn_parse_conf_file(
         "routing_engine",
         p_key, p_val, &p_opts->routing_engine_name);
 
+      __osm_subn_opts_unpack_boolean(
+        "connect_roots",
+        p_key, p_val, &p_opts->connect_roots);
+
       __osm_subn_opts_unpack_charp(
         "log_file", p_key, p_val, &p_opts->log_file);
 
@@ -1545,6 +1550,11 @@ osm_subn_write_conf_file(
              "# Routing engine\n"
              "routing_engine %s\n\n",
              p_opts->routing_engine_name);
+  if (p_opts->connect_roots)
+    fprintf( opts_file,
+             "# Connect roots (use FALSE if unsure)\n"
+             "connect_roots %s\n\n",
+             p_opts->connect_roots ? "TRUE" : "FALSE");
   if (p_opts->lid_matrix_dump_file)
     fprintf( opts_file,
              "# Lid matrix dump file name\n"

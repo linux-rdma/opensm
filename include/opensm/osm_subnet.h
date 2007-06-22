@@ -276,6 +276,7 @@ typedef struct _osm_subn_opt
   boolean_t                sweep_on_trap;
   osm_testability_modes_t  testability_mode;
   char *                   routing_engine_name;
+  boolean_t                connect_roots;
   char *                   lid_matrix_dump_file;
   char *                   ucast_dump_file;
   char *                   root_guid_file;
@@ -444,6 +445,11 @@ typedef struct _osm_subn_opt
 *	routing_engine_name
 *		Name of used routing engine
 *		(other than default Min Hop Algorithm)
+*
+*	connect_roots
+*		The option which will enforce root to root connectivity with
+*		up/down routing engine (even if this violates "pure" deadlock
+*		free up/down algorithm)
 *
 *	lid_matrix_dump_file
 *		Name of the lid matrix dump file from where switch

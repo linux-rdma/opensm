@@ -174,7 +174,14 @@ show_usage(void)
           "--routing_engine <engine name>\n"
           "          This option chooses routing engine instead of Min Hop\n"
           "          algorithm (default).\n"
-          "          Supported engines: updn, file, ftree\n\n");
+          "          Supported engines: updn, file, ftree, lash\n\n");
+  printf( "-z\n"
+          "--connect_roots\n"
+          "          This option enforces a routing engine (currently\n"
+          "          up/down only) to make connectivity between root switches\n"
+          "          and in this way be IBA compliant. In many cases,\n"
+          "          this can violate \"pure\" deadlock free algorithm, so\n"
+          "          use it carefully.\n\n");
   printf( "-M\n"
           "--lid_matrix_file <file name>\n"
           "          This option specifies the name of the lid matrix dump file\n"
@@ -591,7 +598,7 @@ main(
   char                 *ignore_guids_file_name = NULL;
   uint32_t              val;
   const char * const    short_option =
-	  "i:f:ed:g:l:L:s:t:a:u:R:M:U:S:P:NBIQvVhorcyxp:n:q:k:C:";
+	  "i:f:ed:g:l:L:s:t:a:u:R:zM:U:S:P:NBIQvVhorcyxp:n:q:k:C:";
 
   /*
     In the array below, the 2nd parameter specifies the number
@@ -625,6 +632,7 @@ main(
       {  "priority",      1, NULL, 'p'},
       {  "smkey",         1, NULL, 'k'},
       {  "routing_engine",1, NULL, 'R'},
+      {  "connect_roots", 0, NULL, 'z'},
       {  "lid_matrix_file",1, NULL, 'M'},
       {  "ucast_file",    1, NULL, 'U'},
       {  "sadb_file",     1, NULL, 'S'},
@@ -874,6 +882,11 @@ main(
     case 'R':
       opt.routing_engine_name = optarg;
       printf(" Activate \'%s\' routing engine\n", optarg);
+      break;
+
+    case 'z':
+      opt.connect_roots = TRUE;
+      printf(" Connect roots option is on\n");
       break;
 
     case 'M':

@@ -449,6 +449,24 @@ updn_subn_rank(
 
 /**********************************************************************
  **********************************************************************/
+/* hack: preserve min hops entries to any other root switches */
+static void
+updn_clear_root_hops(updn_t *p_updn, osm_switch_t *p_sw)
+{
+  osm_port_t *p_port;
+  unsigned i;
+
+  for ( i = 0 ; i < p_sw->num_hops ; i++ )
+    if (p_sw->hops[i]) {
+      p_port = cl_ptr_vector_get(&p_updn->p_osm->subn.port_lid_tbl, i);
+      if (!p_port || !p_port->p_node->sw ||
+          ((struct updn_node *)p_port->p_node->sw->priv)->rank != 0)
+        memset(p_sw->hops[i], 0xff, p_sw->num_ports);
+    }
+}
+
+/**********************************************************************
+ **********************************************************************/
 static int
 __osm_subn_set_up_down_min_hop_table(
   IN updn_t* p_updn )
@@ -471,7 +489,10 @@ __osm_subn_set_up_down_min_hop_table(
     p_sw = p_next_sw;
     p_next_sw = (osm_switch_t*)cl_qmap_next( &p_sw->map_item );
     /* Clear Min Hop Table */
-    osm_switch_clear_hops(p_sw);
+    if (p_subn->opt.connect_roots && !((struct updn_node *)p_sw->priv)->rank)
+      updn_clear_root_hops(p_updn, p_sw);
+    else
+      osm_switch_clear_hops(p_sw);
   }
 
   osm_log( p_log, OSM_LOG_VERBOSE,
@@ -607,6 +628,10 @@ __osm_updn_call(
     osm_ucast_mgr_build_lid_matrices( &p_updn->p_osm->sm.ucast_mgr );
     __osm_updn_find_root_nodes_by_min_hop( p_updn );
   }
+  else if (p_updn->p_osm->subn.opt.connect_roots &&
+           p_updn->updn_ucast_reg_inputs.num_guids > 1)
+    osm_ucast_mgr_build_lid_matrices( &p_updn->p_osm->sm.ucast_mgr );
+
   /* printf ("-V- after osm_updn_find_root_nodes_by_min_hop\n"); */
   /* Only if there are assigned root nodes do the algorithm, otherwise perform do nothing */
   if ( p_updn->updn_ucast_reg_inputs.num_guids > 0)
