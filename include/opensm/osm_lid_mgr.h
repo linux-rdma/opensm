@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004, 2005 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -126,6 +126,9 @@ typedef struct _osm_lid_mgr
 *
 *	p_lock
 *		Pointer to the serializing lock.
+*
+*	send_set_reqs
+*		Boolean to indicate whether any set requests sent.
 *
 *	p_g2l
 *		Pointer to the database domain storing guid to lid mapping.
