@@ -1033,7 +1033,7 @@ __osm_lid_mgr_set_physp_pi(
     link down default state = polling
     port state - no change
   */
-  /* these values can be set only for hca ports, so if we are
+  /* these values can be set only for ca ports, so if we are
      on a switch node, set these values to zero */
   if ( osm_node_get_type( p_node ) == IB_NODE_TYPE_SWITCH )
     p_pi->state_info2 = 0x0;
@@ -1086,7 +1086,7 @@ __osm_lid_mgr_set_physp_pi(
 
   /*
     we want to set the timeout for both the switch port 0
-    and the HCA ports
+    and the CA ports
   */
   ib_port_info_set_timeout( p_pi, p_mgr->p_subn->opt.subnet_timeout );
   /* Check to see if the value we are setting is different than
@@ -1097,7 +1097,7 @@ __osm_lid_mgr_set_physp_pi(
   if( port_num != 0 )
   {
     /*
-      HCA's don't have a port 0, and for switch port 0,
+      CAs don't have a port 0, and for switch port 0,
       the state bits are ignored.
       This is not the switch management port
     */
