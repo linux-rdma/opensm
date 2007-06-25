@@ -825,6 +825,7 @@ osm_link_is_healthy(
   IN const osm_physp_t* const p_physp )
 {
   osm_physp_t* p_remote_physp;
+
   CL_ASSERT( p_physp );
   p_remote_physp = p_physp->p_remote_physp;
   if (p_remote_physp != NULL && osm_physp_is_valid(p_remote_physp) )
