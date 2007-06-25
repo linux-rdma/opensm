@@ -266,7 +266,7 @@ BEGIN_C_DECLS
 *	OSM_DEFAULT_SUBNET_TIMEOUT
 *
 * DESCRIPTION
-*	Specifies the default transaction timeout.
+*	Specifies the default subnet timeout.
 *	timeout time = 4us * 2^timeout.
 *  We use here ~1sec.
 *
