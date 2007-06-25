@@ -295,6 +295,7 @@ osm_switch_recommend_path(
     if (!p_physp || !p_physp->p_remote_physp ||
         !p_physp->p_remote_physp->p_node->sw)
       return OSM_NO_PATH;
+
     if (p_physp->p_remote_physp->p_node->sw == p_sw)
       return p_physp->p_remote_physp->port_num;
     base_lid = osm_node_get_base_lid(p_physp->p_remote_physp->p_node, 0);
