@@ -1483,7 +1483,7 @@ osm_subn_write_conf_file(
     "subnet_timeout %u\n\n"
     "# Threshold of local phy errors for sending Trap 129\n"
     "local_phy_errors_threshold 0x%02x\n\n"
-    "# Threshold of credits over-run errors for sending Trap 129\n"
+    "# Threshold of credits overrun errors for sending Trap 130\n"
     "overrun_errors_threshold 0x%02x\n\n",
     cl_ntoh64(p_opts->guid),
     cl_ntoh64(p_opts->m_key),
