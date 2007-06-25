@@ -709,7 +709,7 @@ __osm_trap_rcv_process_request(
   if( status != IB_SUCCESS )
   {
     osm_log( p_rcv->p_log, OSM_LOG_ERROR,
-             "__osm_trap_rcv_process_request: ERR 3803: "
+             "__osm_trap_rcv_process_request: ERR 38xx: "
              "Error sending trap reports (%s)\n",
              ib_get_err_str( status ) );
     goto Exit;
