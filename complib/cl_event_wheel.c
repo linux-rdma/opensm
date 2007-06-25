@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -650,8 +650,8 @@ main ()
                         3); /*  key */
 
   /* get the number of registrations for the keys */
-  printf("Event 1 Registred: %u\n", cl_event_wheel_num_regs(&event_wheel, 1));
-  printf("Event 2 Registred: %u\n", cl_event_wheel_num_regs(&event_wheel, 2));
+  printf("Event 1 Registered: %u\n", cl_event_wheel_num_regs(&event_wheel, 1));
+  printf("Event 2 Registered: %u\n", cl_event_wheel_num_regs(&event_wheel, 2));
 
   sleep(5);
   /* destroy */
