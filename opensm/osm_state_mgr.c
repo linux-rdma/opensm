@@ -2198,7 +2198,7 @@ Idle:
                }
             }
             
-            /*  Need to continue with lid assignment */
+            /* Need to continue with lid assignment */
             osm_drop_mgr_process( p_mgr->p_drop_mgr );
             
             p_mgr->state = OSM_SM_STATE_SET_PKEY;
