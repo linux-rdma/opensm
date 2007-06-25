@@ -313,6 +313,7 @@ __print_num_received(
       break;
     i = i / 10;
   }
+
   if (i == 1 || i == 2 || i == 5)
     return 1;
   else
@@ -597,7 +598,7 @@ __osm_trap_rcv_process_request(
       if (__print_num_received(num_received))
         osm_log( p_rcv->p_log, OSM_LOG_VERBOSE,
                  "__osm_trap_rcv_process_request: "
-                 "Continuously received this trap %u times. Ignoring it\n",
+                 "Continuously received this trap %u times. Ignoring\n",
                  num_received);
       goto Exit;
     }
@@ -637,7 +638,7 @@ __osm_trap_rcv_process_request(
 
   /* Add a call to osm_report_notice */
   /* We are going to report the notice - so need to fix the IssuerGID
-     accordingly. See IBA 1.1 P.653 or IBA 1.2 P.739 for details. */
+     accordingly. See IBA 1.2 p.739 or IBA 1.1 p.653 for details. */
   if (is_gsi)
   {
     if (tmp_madw.mad_addr.addr_type.gsi.global_route)
@@ -678,7 +679,7 @@ __osm_trap_rcv_process_request(
       /* We have the lid - but no corresponding port */
       osm_log( p_rcv->p_log, OSM_LOG_VERBOSE,
                "__osm_trap_rcv_process_request: "
-               "Cannot find port according to lid:0x%X\n",
+               "Cannot find port corresponding to lid:0x%X\n",
                cl_ntoh16(source_lid) );
 
       goto Exit;
@@ -729,7 +730,8 @@ __osm_trap_rcv_process_sm(
   IN const osm_trap_rcv_t* const p_rcv,
   IN const osm_remote_sm_t*   const p_sm )
 {
-  /*   const ib_sm_info_t*        p_smi; */
+  /* const ib_sm_info_t*        p_smi; */
+
   OSM_LOG_ENTER( p_rcv->p_log, __osm_trap_rcv_process_sm );
 
   osm_log( p_rcv->p_log, OSM_LOG_ERROR,
