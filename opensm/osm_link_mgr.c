@@ -140,9 +140,9 @@ __osm_link_mgr_set_physp_pi(
   if( port_num == 0 )
   {
     /*
-      HCA's don't have a port 0, and for switch port 0,
-      we need to check if this is enhanced port 0 or base port 0.
-      For base port 0 the following parameters are not valid. (p824, table 145)
+      CAs don't have a port 0, and for switch port 0,
+      we need to check if this is enhanced or base port 0.
+      For base port 0 the following parameters are not valid (p822, table 145).
     */
     if (!p_node->sw)
     {
@@ -155,7 +155,7 @@ __osm_link_mgr_set_physp_pi(
      
     if (ib_switch_info_is_enhanced_port0( &p_node->sw->switch_info ) == FALSE)
     {
-      /* This means the switch doesn't support enhanced port zero. 
+      /* This means the switch doesn't support enhanced port 0. 
          Can skip it. */
       if( osm_log_is_active( p_mgr->p_log, OSM_LOG_DEBUG ) )
       {
@@ -363,7 +363,7 @@ __osm_link_mgr_set_physp_pi(
   /* We need to send the PortInfoSet request with the new sm_lid
      in the following cases:
      1. There is a change in the values (send_set == TRUE)
-     2. This is an hca port or a switch port zero and got_set_resp is FALSE 
+     2. This is an ca port or a switch port 0 and got_set_resp is FALSE 
         (in this case we sent a PortInfoSet in the osm_lid_mgr, but for some
         reason we didn't get a response) - try and re-send.
      3. This is a switch port and:
