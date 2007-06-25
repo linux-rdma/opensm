@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004, 2005 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -36,7 +36,7 @@
 /*
  * Abstract:
  * 	Declaration of osm_resp_t.
- *	This object represents an object that genericly requests
+ *	This object represents an object that generically requests
  *	attributes from a node.
  *	This object is part of the OpenSM family of objects.
  *
@@ -102,9 +102,9 @@ BEGIN_C_DECLS
 typedef struct _osm_resp
 {
 	osm_mad_pool_t				*p_pool;
-	osm_vl15_t					*p_vl15;
-	osm_log_t					*p_log;
-	osm_subn_t					*p_subn;
+	osm_vl15_t				*p_vl15;
+	osm_log_t				*p_log;
+	osm_subn_t				*p_subn;
 
 } osm_resp_t;
 /*
