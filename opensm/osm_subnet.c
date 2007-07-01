@@ -402,7 +402,7 @@ osm_get_node_by_guid(
  **********************************************************************/
 osm_port_t *
 osm_get_port_by_guid(
-	IN osm_subn_t const *p_subn,
+   IN osm_subn_t const *p_subn,
    IN uint64_t          guid)
 {
   osm_port_t *p_port;
