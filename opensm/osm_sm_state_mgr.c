@@ -168,10 +168,8 @@ __osm_sm_state_mgr_send_local_port_info_req(
     * update the master_sm_base_lid of the subnet.
     */
    memset( &context, 0, sizeof( context ) );
-   p_port = ( osm_port_t * ) cl_qmap_get( &p_sm_mgr->p_subn->port_guid_tbl,
-                                          port_guid );
-   if( p_port ==
-       ( osm_port_t * ) cl_qmap_end( &p_sm_mgr->p_subn->port_guid_tbl ) )
+   p_port = osm_get_port_by_guid( p_sm_mgr->p_subn, port_guid );
+   if( !p_port )
    {
       osm_log( p_sm_mgr->p_log, OSM_LOG_ERROR,
                "__osm_sm_state_mgr_send_local_port_info_req: ERR 3205: "
@@ -231,13 +229,7 @@ __osm_sm_state_mgr_send_master_sm_info_req(
        * SM (according to master_guid)
        * Send a query of SubnGet(SMInfo) to the subn master_sm_base_lid object.
        */
-      p_port = ( osm_port_t * ) cl_qmap_get( &p_sm_mgr->p_subn->port_guid_tbl,
-                                             p_sm_mgr->master_guid );
-      if( p_port ==
-           ( osm_port_t * ) cl_qmap_end( &p_sm_mgr->p_subn->port_guid_tbl ) )
-      {
-        p_port = NULL;
-      }
+      p_port = osm_get_port_by_guid( p_sm_mgr->p_subn, p_sm_mgr->master_guid );
    }
    else
    {

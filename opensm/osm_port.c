@@ -686,7 +686,6 @@ osm_physp_replace_dr_path_with_alternate_dr_path(
   osm_dr_path_t * p_dr_path;
   cl_list_t     *p_currPortsList;
   cl_list_t     *p_nextPortsList;
-  cl_qmap_t const     *p_port_tbl;
   osm_port_t    *p_port;
   osm_physp_t   *p_physp, *p_remote_physp;
   ib_net64_t    port_guid;
@@ -712,14 +711,12 @@ osm_physp_replace_dr_path_with_alternate_dr_path(
   cl_list_construct( p_nextPortsList );
   cl_list_init( p_nextPortsList, 10 );
 
-  p_port_tbl = &p_subn->port_guid_tbl;
   port_guid = p_subn->sm_port_guid;
 
   CL_ASSERT( port_guid );
 
-  p_port = (osm_port_t*)cl_qmap_get( p_port_tbl, port_guid );
-
-  if( p_port == (osm_port_t*)cl_qmap_end( p_port_tbl ) )
+  p_port = osm_get_port_by_guid( p_subn, port_guid );
+  if( !p_port )
   {
     osm_log( p_log, OSM_LOG_ERROR,
              "osm_physp_replace_dr_path_with_alternate_dr_path: ERR 4105: "

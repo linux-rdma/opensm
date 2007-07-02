@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -637,10 +637,8 @@ osm_sm_mcgrp_join(
     * Acquire the port object for the port joining this group.
     */
    CL_PLOCK_EXCL_ACQUIRE( p_sm->p_lock );
-   p_port = ( osm_port_t * ) cl_qmap_get( &p_sm->p_subn->port_guid_tbl,
-                                          port_guid );
-   if( p_port ==
-       ( osm_port_t * ) cl_qmap_end( &p_sm->p_subn->port_guid_tbl ) )
+   p_port = osm_get_port_by_guid( p_sm->p_subn, port_guid );
+   if( !p_port )
    {
       CL_PLOCK_RELEASE( p_sm->p_lock );
       osm_log( p_sm->p_log, OSM_LOG_ERROR,
@@ -761,10 +759,8 @@ osm_sm_mcgrp_leave(
     */
    /* note: p_sm->p_lock is locked by caller, but will be released later
       this function */
-   p_port = ( osm_port_t * ) cl_qmap_get( &p_sm->p_subn->port_guid_tbl,
-                                          port_guid );
-   if( p_port ==
-       ( osm_port_t * ) cl_qmap_end( &p_sm->p_subn->port_guid_tbl ) )
+   p_port = osm_get_port_by_guid( p_sm->p_subn, port_guid );
+   if( !p_port )
    {
       CL_PLOCK_RELEASE( p_sm->p_lock );
       osm_log( p_sm->p_log, OSM_LOG_ERROR,

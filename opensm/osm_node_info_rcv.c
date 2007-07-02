@@ -76,7 +76,6 @@ __osm_ni_rcv_set_links(
   const uint8_t port_num,
   const osm_ni_context_t* const p_ni_context )
 {
-  cl_qmap_t *p_guid_tbl;
   osm_node_t *p_neighbor_node;
   osm_node_t *p_old_neighbor_node;
   uint8_t old_neighbor_port_num;
@@ -91,10 +90,9 @@ __osm_ni_rcv_set_links(
   */
   if( p_ni_context->node_guid != 0 )
   {
-    p_guid_tbl = &p_rcv->p_subn->node_guid_tbl;
-    p_neighbor_node = (osm_node_t*)cl_qmap_get( p_guid_tbl,
-                                                p_ni_context->node_guid );
-    if( p_neighbor_node == (osm_node_t*)cl_qmap_end( p_guid_tbl ) )
+    p_neighbor_node = osm_get_node_by_guid( p_rcv->p_subn,
+                                            p_ni_context->node_guid );
+    if( !p_neighbor_node )
     {
       osm_log( p_rcv->p_log, OSM_LOG_ERROR,
                "__osm_ni_rcv_set_links: ERR 0D10: "
@@ -434,7 +432,6 @@ __osm_ni_rcv_process_existing_ca_or_router(
   ib_smp_t *p_smp;
   osm_port_t *p_port;
   osm_port_t *p_port_check;
-  cl_qmap_t *p_guid_tbl;
   osm_madw_context_t context;
   uint8_t port_num;
   osm_physp_t *p_physp;
@@ -448,7 +445,6 @@ __osm_ni_rcv_process_existing_ca_or_router(
   p_smp = osm_madw_get_smp_ptr( p_madw );
   p_ni = (ib_node_info_t*)ib_smp_get_payload_ptr( p_smp );
   port_num = ib_node_info_get_local_port_num( p_ni );
-  p_guid_tbl = &p_rcv->p_subn->port_guid_tbl;
   h_bind = osm_madw_get_bind_handle( p_madw );
 
   /*
@@ -456,9 +452,8 @@ __osm_ni_rcv_process_existing_ca_or_router(
     previously undiscovered port.  If so, build the new
     port object.
   */
-  p_port = (osm_port_t*)cl_qmap_get( p_guid_tbl, p_ni->port_guid );
-
-  if( p_port == (osm_port_t*)cl_qmap_end( p_guid_tbl ) )
+  p_port = osm_get_port_by_guid( p_rcv->p_subn, p_ni->port_guid );
+  if( !p_port )
   {
     osm_log( p_rcv->p_log, OSM_LOG_VERBOSE,
              "__osm_ni_rcv_process_existing_ca_or_router: "
@@ -479,7 +474,7 @@ __osm_ni_rcv_process_existing_ca_or_router(
     /*
       Add the new port object to the database.
     */
-    p_port_check = (osm_port_t*)cl_qmap_insert( p_guid_tbl,
+    p_port_check = (osm_port_t*)cl_qmap_insert( &p_rcv->p_subn->port_guid_tbl,
                                                 p_ni->port_guid, &p_port->map_item );
     if( p_port_check != p_port )
     {
@@ -700,8 +695,6 @@ __osm_ni_rcv_process_new(
   osm_port_t *p_port_check;
   osm_router_t *p_rtr = NULL;
   osm_router_t *p_rtr_check;
-  cl_qmap_t *p_node_guid_tbl;
-  cl_qmap_t *p_port_guid_tbl;
   cl_qmap_t *p_rtr_guid_tbl;
   ib_node_info_t *p_ni;
   ib_smp_t *p_smp;
@@ -765,8 +758,7 @@ __osm_ni_rcv_process_new(
   /*
     Add the new port object to the database.
   */
-  p_port_guid_tbl = &p_rcv->p_subn->port_guid_tbl;
-  p_port_check = (osm_port_t*)cl_qmap_insert( p_port_guid_tbl,
+  p_port_check = (osm_port_t*)cl_qmap_insert( &p_rcv->p_subn->port_guid_tbl,
                                               p_ni->port_guid,
                                               &p_port->map_item );
   if( p_port_check != p_port )
@@ -838,8 +830,7 @@ __osm_ni_rcv_process_new(
     }
   }
 
-  p_node_guid_tbl = &p_rcv->p_subn->node_guid_tbl;
-  p_node_check = (osm_node_t*)cl_qmap_insert( p_node_guid_tbl,
+  p_node_check = (osm_node_t*)cl_qmap_insert( &p_rcv->p_subn->node_guid_tbl,
                                               p_ni->node_guid,
                                               &p_node->map_item );
   if( p_node_check != p_node )
@@ -1007,7 +998,6 @@ osm_ni_rcv_process(
 {
   osm_ni_rcv_t *p_rcv = context;
   osm_madw_t *p_madw = data;
-  cl_qmap_t *p_guid_tbl;
   ib_node_info_t *p_ni;
   ib_smp_t *p_smp;
   osm_node_t *p_node;
@@ -1042,8 +1032,6 @@ osm_ni_rcv_process(
     goto Exit;
   }
 
-  p_guid_tbl = &p_rcv->p_subn->node_guid_tbl;
-
   /*
     Determine if this node has already been discovered,
     and process accordingly.
@@ -1051,11 +1039,11 @@ osm_ni_rcv_process(
   */
 
   CL_PLOCK_EXCL_ACQUIRE( p_rcv->p_lock );
-  p_node = (osm_node_t*)cl_qmap_get( p_guid_tbl, p_ni->node_guid );
+  p_node = osm_get_node_by_guid( p_rcv->p_subn, p_ni->node_guid );
 
   osm_dump_node_info( p_rcv->p_log, p_ni, OSM_LOG_DEBUG );
 
-  if( p_node == (osm_node_t*)cl_qmap_end(p_guid_tbl) )
+  if( !p_node )
   {
     __osm_ni_rcv_process_new( p_rcv, p_madw );
     process_new_flag = TRUE;

@@ -200,8 +200,8 @@ __match_service_pkey_with_ports_pkey(
     if((comp_mask & IB_SR_COMPMASK_SGID) == IB_SR_COMPMASK_SGID)
     {
       service_guid = p_service_rec->service_gid.unicast.interface_id;
-      service_port = (osm_port_t*)cl_qmap_get( &p_rcv->p_subn->port_guid_tbl, service_guid );
-      if (service_port == (osm_port_t*)cl_qmap_end( &p_rcv->p_subn->port_guid_tbl ))
+      service_port = osm_get_port_by_guid(p_rcv->p_subn, service_guid);
+      if (!service_port)
       {
         osm_log( p_rcv->p_log, OSM_LOG_ERROR,
                  "__match_service_pkey_with_ports_pkey: ERR 2405: "

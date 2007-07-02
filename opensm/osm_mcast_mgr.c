@@ -159,12 +159,10 @@ osm_mcast_mgr_compute_avg_hops(
   const osm_port_t* p_port;
   const osm_mcm_port_t* p_mcm_port;
   const cl_qmap_t* p_mcm_tbl;
-  const cl_qmap_t* p_port_tbl;
 
   OSM_LOG_ENTER( p_mgr->p_log, osm_mcast_mgr_compute_avg_hops );
 
   p_mcm_tbl = &p_mgrp->mcm_port_tbl;
-  p_port_tbl = &p_mgr->p_subn->port_guid_tbl;
 
   /*
     For each member of the multicast group, compute the
@@ -178,10 +176,10 @@ osm_mcast_mgr_compute_avg_hops(
       Acquire the port object for this port guid, then create
       the new worker object to build the list.
     */
-    p_port = (osm_port_t*)cl_qmap_get( p_port_tbl,
-                                       ib_gid_get_guid( &p_mcm_port->port_gid ) );
+    p_port = osm_get_port_by_guid( p_mgr->p_subn,
+                                   ib_gid_get_guid( &p_mcm_port->port_gid ) );
 
-    if( p_port == (osm_port_t*)cl_qmap_end( p_port_tbl ) )
+    if( !p_port )
     {
       osm_log( p_mgr->p_log, OSM_LOG_ERROR,
                "osm_mcast_mgr_compute_avg_hops: ERR 0A18: "
@@ -221,12 +219,10 @@ osm_mcast_mgr_compute_max_hops(
   const osm_port_t* p_port;
   const osm_mcm_port_t* p_mcm_port;
   const cl_qmap_t* p_mcm_tbl;
-  const cl_qmap_t* p_port_tbl;
 
   OSM_LOG_ENTER( p_mgr->p_log, osm_mcast_mgr_compute_max_hops );
 
   p_mcm_tbl = &p_mgrp->mcm_port_tbl;
-  p_port_tbl = &p_mgr->p_subn->port_guid_tbl;
 
   /*
     For each member of the multicast group, compute the
@@ -240,11 +236,10 @@ osm_mcast_mgr_compute_max_hops(
       Acquire the port object for this port guid, then create
       the new worker object to build the list.
     */
-    p_port = (osm_port_t*)cl_qmap_get(
-      p_port_tbl,
-      ib_gid_get_guid( &p_mcm_port->port_gid ) );
+    p_port = osm_get_port_by_guid( p_mgr->p_subn,
+                                   ib_gid_get_guid( &p_mcm_port->port_gid ) );
 
-    if( p_port == (osm_port_t*)cl_qmap_end( p_port_tbl ) )
+    if( !p_port )
     {
       osm_log( p_mgr->p_log, OSM_LOG_ERROR,
                "osm_mcast_mgr_compute_max_hops: ERR 0A1A: "
@@ -871,7 +866,6 @@ __osm_mcast_mgr_build_spanning_tree(
   osm_mgrp_t*              const p_mgrp )
 {
   const cl_qmap_t*         p_mcm_tbl;
-  const cl_qmap_t*         p_port_tbl;
   const osm_port_t*        p_port;
   const osm_mcm_port_t*    p_mcm_port;
   uint32_t                 num_ports;
@@ -895,7 +889,6 @@ __osm_mcast_mgr_build_spanning_tree(
   __osm_mcast_mgr_purge_tree( p_mgr, p_mgrp );
 
   p_mcm_tbl = &p_mgrp->mcm_port_tbl;
-  p_port_tbl = &p_mgr->p_subn->port_guid_tbl;
   num_ports = cl_qmap_count( p_mcm_tbl );
   if( num_ports == 0 )
   {
@@ -947,10 +940,9 @@ __osm_mcast_mgr_build_spanning_tree(
       Acquire the port object for this port guid, then create
       the new worker object to build the list.
     */
-    p_port = (osm_port_t*)cl_qmap_get( p_port_tbl,
-                                       ib_gid_get_guid( &p_mcm_port->port_gid ) );
-
-    if( p_port == (osm_port_t*)cl_qmap_end( p_port_tbl ) )
+    p_port = osm_get_port_by_guid( p_mgr->p_subn,
+                                   ib_gid_get_guid( &p_mcm_port->port_gid ) );
+    if( !p_port )
     {
       osm_log( p_mgr->p_log, OSM_LOG_ERROR,
                "__osm_mcast_mgr_build_spanning_tree: ERR 0A09: "
@@ -1091,7 +1083,6 @@ osm_mcast_mgr_process_single(
   osm_physp_t*             p_physp;
   osm_physp_t*             p_remote_physp;
   osm_node_t*              p_remote_node;
-  cl_qmap_t*               p_port_tbl;
   osm_mcast_tbl_t*         p_mcast_tbl;
   ib_api_status_t          status = IB_SUCCESS;
 
@@ -1100,7 +1091,6 @@ osm_mcast_mgr_process_single(
   CL_ASSERT( mlid );
   CL_ASSERT( port_guid );
 
-  p_port_tbl = &p_mgr->p_subn->port_guid_tbl;
   mlid_ho = cl_ntoh16( mlid );
 
   if( osm_log_is_active( p_mgr->p_log, OSM_LOG_DEBUG ) )
@@ -1115,8 +1105,8 @@ osm_mcast_mgr_process_single(
   /*
     Acquire the Port object.
   */
-  p_port = (osm_port_t*)cl_qmap_get( p_port_tbl, port_guid );
-  if( p_port == (osm_port_t*)cl_qmap_end( p_port_tbl ) )
+  p_port = osm_get_port_by_guid( p_mgr->p_subn, port_guid );
+  if( !p_port )
   {
     osm_log( p_mgr->p_log, OSM_LOG_ERROR,
              "osm_mcast_mgr_process_single: ERR 0A01: "

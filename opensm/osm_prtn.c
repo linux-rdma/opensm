@@ -105,14 +105,13 @@ void osm_prtn_delete(
 ib_api_status_t osm_prtn_add_port(osm_log_t *p_log, osm_subn_t *p_subn,
 				  osm_prtn_t *p, ib_net64_t guid, boolean_t full)
 {
-	cl_qmap_t *p_port_tbl = &p_subn->port_guid_tbl;
 	ib_api_status_t status = IB_SUCCESS;
 	cl_map_t *p_tbl;
 	osm_port_t *p_port;
 	osm_physp_t *p_physp;
 
-	p_port = (osm_port_t *)cl_qmap_get(p_port_tbl, guid);
-	if (!p_port || p_port == (osm_port_t *)cl_qmap_end(p_port_tbl)) {
+	p_port = osm_get_port_by_guid(p_subn, guid);
+	if (!p_port) {
 		osm_log(p_log, OSM_LOG_VERBOSE, "osm_prtn_add_port: "
 			"port 0x%" PRIx64 " not found\n",
 			cl_ntoh64(guid));

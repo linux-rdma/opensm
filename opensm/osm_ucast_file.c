@@ -63,9 +63,8 @@ static uint16_t remap_lid(osm_opensm_t *p_osm, uint16_t lid, ib_net64_t guid)
 	uint16_t min_lid, max_lid;
 	uint8_t lmc;
 
-	p_port = (osm_port_t *)cl_qmap_get(&p_osm->subn.port_guid_tbl, guid);
-	if (!p_port ||
-	    p_port == (osm_port_t *)cl_qmap_end(&p_osm->subn.port_guid_tbl)) {
+	p_port = osm_get_port_by_guid(&p_osm->subn, guid);
+	if (!p_port) {
 		osm_log(&p_osm->log, OSM_LOG_VERBOSE,
 			"remap_lid: cannot find port guid 0x%016" PRIx64
 			" , will use the same lid\n", cl_ntoh64(guid));

@@ -627,7 +627,6 @@ osm_pi_rcv_process(
 {
   osm_pi_rcv_t *p_rcv = context;
   osm_madw_t *p_madw = data;
-  cl_qmap_t *p_guid_tbl;
   ib_port_info_t *p_pi;
   ib_smp_t *p_smp;
   osm_port_t *p_port;
@@ -689,11 +688,9 @@ osm_pi_rcv_process(
     goto Exit;
   }
   
-  p_guid_tbl = &p_rcv->p_subn->port_guid_tbl;
   CL_PLOCK_EXCL_ACQUIRE( p_rcv->p_lock );
-  p_port = (osm_port_t*)cl_qmap_get( p_guid_tbl, port_guid );
-
-  if( p_port == (osm_port_t*)cl_qmap_end( p_guid_tbl) )
+  p_port = osm_get_port_by_guid( p_rcv->p_subn, port_guid );
+  if (!p_port)
   {
     CL_PLOCK_RELEASE( p_rcv->p_lock );
     osm_log( p_rcv->p_log, OSM_LOG_ERROR,

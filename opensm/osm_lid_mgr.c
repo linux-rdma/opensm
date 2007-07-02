@@ -1289,10 +1289,8 @@ __osm_lid_mgr_process_our_sm_node(
   /*
     Acquire our own port object.
   */
-  p_port = (osm_port_t*)cl_qmap_get( &p_mgr->p_subn->port_guid_tbl,
-                                     p_mgr->p_subn->sm_port_guid );
-
-  if( p_port == (osm_port_t*)cl_qmap_end( &p_mgr->p_subn->port_guid_tbl ) )
+  p_port = osm_get_port_by_guid( p_mgr->p_subn, p_mgr->p_subn->sm_port_guid );
+  if( !p_port )
   {
     osm_log( p_mgr->p_log, OSM_LOG_ERROR,
              "__osm_lid_mgr_process_our_sm_node: ERR 0308: "

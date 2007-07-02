@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -198,15 +198,13 @@ __osm_mftr_get_port_by_guid(
 
   CL_PLOCK_ACQUIRE(p_rcv->p_lock);
 
-  p_port = (osm_port_t *)cl_qmap_get(&p_rcv->p_subn->port_guid_tbl,
-                                     port_guid);
-  if (p_port == (osm_port_t *)cl_qmap_end(&p_rcv->p_subn->port_guid_tbl))
+  p_port = osm_get_port_by_guid(p_rcv->p_subn, port_guid);
+  if (!p_port)
   {
     osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
              "__osm_mftr_get_port_by_guid ERR 4A04: "
              "Invalid port GUID 0x%016" PRIx64 "\n",
              port_guid );
-    p_port = NULL;
   }
 
   CL_PLOCK_RELEASE(p_rcv->p_lock);

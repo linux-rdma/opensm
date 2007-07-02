@@ -1195,10 +1195,9 @@ __osm_mpr_rcv_get_gids(
       }
     }
 
-    p_port = (osm_port_t *)cl_qmap_get( &p_rcv->p_subn->port_guid_tbl,
-					 gids->unicast.interface_id );
-    if ( !p_port ||
-         p_port == (osm_port_t *)cl_qmap_end( &p_rcv->p_subn->port_guid_tbl ) ) {
+    p_port = osm_get_port_by_guid( p_rcv->p_subn, gids->unicast.interface_id );
+    if ( !p_port )
+    {
       /*
         This 'error' is the client's fault (bad gid) so
         don't enter it as an error in our own log.

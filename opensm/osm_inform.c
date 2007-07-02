@@ -589,10 +589,9 @@ __match_notice_to_inf_rec(
   {
     source_gid = p_ntc->issuer_gid;
   }
-  p_src_port = (osm_port_t*)cl_qmap_get( &p_subn->port_guid_tbl,
-                                         source_gid.unicast.interface_id );
 
-  if( p_src_port == (osm_port_t*)cl_qmap_end( &(p_subn->port_guid_tbl)) )
+  p_src_port = osm_get_port_by_guid( p_subn, source_gid.unicast.interface_id );
+  if( !p_src_port )
   {
     osm_log( p_log, OSM_LOG_INFO,
              "__match_notice_to_inf_rec: "

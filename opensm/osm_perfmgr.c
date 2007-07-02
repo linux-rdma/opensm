@@ -375,9 +375,8 @@ __osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context )
 	OSM_LOG_ENTER( pm->log, __osm_pm_query_counters );
 
 	cl_plock_acquire(pm->lock);
-	node = (osm_node_t *)cl_qmap_get(&(pm->subn->node_guid_tbl),
-			cl_hton64(mon_node->guid));
-	if (node == (osm_node_t *)cl_qmap_end(&(pm->subn->node_guid_tbl))) {
+	node = osm_get_node_by_guid(pm->subn, cl_hton64(mon_node->guid));
+	if (!node) {
 		osm_log(pm->log, OSM_LOG_ERROR,
 			"__osm_pm_query_counters: ERR 4C07: Node guid 0x%" PRIx64 " no longer exists so removing from PerfMgr monitoring\n",
 			mon_node->guid);
@@ -654,8 +653,7 @@ osm_perfmgr_check_overflow(osm_perfmgr_t *pm, uint64_t node_guid,
 		osm_node_t *p_node = NULL;
 		ib_net16_t  lid = 0;
 		cl_plock_acquire(pm->lock);
-		p_node = (osm_node_t *)cl_qmap_get(&(pm->subn->node_guid_tbl),
-						cl_hton64(node_guid));
+		p_node = osm_get_node_by_guid(pm->subn, cl_hton64(node_guid));
 		lid = get_lid(p_node, port);
 		cl_plock_release(pm->lock);
 		if (lid == 0)

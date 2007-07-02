@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -126,7 +126,6 @@ osm_vla_rcv_process(
 {
   osm_vla_rcv_t *p_rcv = context;
   osm_madw_t *p_madw = data;
-  cl_qmap_t *p_guid_tbl;
   ib_vl_arb_table_t *p_vla_tbl;
   ib_smp_t *p_smp;
   osm_port_t *p_port;
@@ -153,11 +152,9 @@ osm_vla_rcv_process(
 
   CL_ASSERT( p_smp->attr_id == IB_MAD_ATTR_VL_ARBITRATION );
 
-  p_guid_tbl = &p_rcv->p_subn->port_guid_tbl;
   cl_plock_excl_acquire( p_rcv->p_lock );
-  p_port = (osm_port_t*)cl_qmap_get( p_guid_tbl, port_guid );
-
-  if( p_port == (osm_port_t*)cl_qmap_end( p_guid_tbl ) )
+  p_port = osm_get_port_by_guid( p_rcv->p_subn, port_guid );
+  if( !p_port )
   {
     cl_plock_release( p_rcv->p_lock );
     osm_log( p_rcv->p_log, OSM_LOG_ERROR,

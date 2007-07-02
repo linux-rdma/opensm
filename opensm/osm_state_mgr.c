@@ -811,7 +811,6 @@ __osm_state_mgr_is_sm_port_down(
    ib_net64_t port_guid;
    osm_port_t *p_port;
    osm_physp_t *p_physp;
-   cl_qmap_t *p_tbl;
    uint8_t state;
 
    OSM_LOG_ENTER( p_mgr->p_log, __osm_state_mgr_is_sm_port_down );
@@ -830,13 +829,11 @@ __osm_state_mgr_is_sm_port_down(
       goto Exit;
    }
 
-   p_tbl = &p_mgr->p_subn->port_guid_tbl;
-
    CL_ASSERT( port_guid );
 
    CL_PLOCK_ACQUIRE( p_mgr->p_lock );
-   p_port = ( osm_port_t * ) cl_qmap_get( p_tbl, port_guid );
-   if( p_port == ( osm_port_t * ) cl_qmap_end( p_tbl ) )
+   p_port = osm_get_port_by_guid( p_mgr->p_subn, port_guid );
+   if( !p_port )
    {
       osm_log( p_mgr->p_log, OSM_LOG_ERROR,
                "__osm_state_mgr_is_sm_port_down: ERR 3309: "
@@ -879,7 +876,6 @@ __osm_state_mgr_sweep_hop_1(
    osm_dr_path_t hop_1_path;
    ib_net64_t port_guid;
    uint8_t port_num;
-   cl_qmap_t *p_port_tbl;
    uint8_t path_array[IB_SUBNET_PATH_HOPS_MAX];
    uint8_t num_ports;
    osm_physp_t *p_ext_physp;
@@ -889,7 +885,6 @@ __osm_state_mgr_sweep_hop_1(
    /*
     * First, get our own port and node objects.
     */
-   p_port_tbl = &p_mgr->p_subn->port_guid_tbl;
    port_guid = p_mgr->p_subn->sm_port_guid;
 
    CL_ASSERT( port_guid );
@@ -902,8 +897,8 @@ __osm_state_mgr_sweep_hop_1(
     * continue through the switch. */
    p_mgr->p_subn->in_sweep_hop_0 = FALSE;
 
-   p_port = ( osm_port_t * ) cl_qmap_get( p_port_tbl, port_guid );
-   if( p_port == ( osm_port_t * ) cl_qmap_end( p_port_tbl ) )
+   p_port = osm_get_port_by_guid( p_mgr->p_subn, port_guid );
+   if( !p_port )
    {
       osm_log( p_mgr->p_log, OSM_LOG_ERROR,
                "__osm_state_mgr_sweep_hop_1: ERR 3310: "

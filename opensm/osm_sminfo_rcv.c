@@ -562,7 +562,6 @@ __osm_sminfo_rcv_process_get_response(
   const ib_smp_t*          p_smp;
   const ib_sm_info_t*      p_smi;
   cl_qmap_t*               p_sm_tbl;
-  cl_qmap_t*               p_port_tbl;
   osm_port_t*              p_port;
   ib_net64_t               port_guid;
   osm_remote_sm_t*         p_sm;
@@ -585,7 +584,6 @@ __osm_sminfo_rcv_process_get_response(
 
   p_smi = ib_smp_get_payload_ptr( p_smp );
   p_sm_tbl = &p_rcv->p_subn->sm_guid_tbl;
-  p_port_tbl = &p_rcv->p_subn->port_guid_tbl;
   port_guid = p_smi->guid;
 
   osm_dump_sm_info( p_rcv->p_log, p_smi, OSM_LOG_DEBUG );
@@ -611,8 +609,8 @@ __osm_sminfo_rcv_process_get_response(
   */
   CL_PLOCK_EXCL_ACQUIRE( p_rcv->p_lock );
 
-  p_port = (osm_port_t*)cl_qmap_get( p_port_tbl, port_guid );
-  if( p_port == (osm_port_t*)cl_qmap_end( p_port_tbl ) )
+  p_port = osm_get_port_by_guid( p_rcv->p_subn, port_guid );
+  if( !p_port )
   {
     osm_log( p_rcv->p_log, OSM_LOG_ERROR,
              "__osm_sminfo_rcv_process_get_response: ERR 2F12: "

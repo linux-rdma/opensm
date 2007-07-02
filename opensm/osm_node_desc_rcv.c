@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -143,7 +143,6 @@ osm_nd_rcv_process(
 {
   osm_nd_rcv_t *p_rcv = context;
   osm_madw_t *p_madw = data;
-  cl_qmap_t *p_guid_tbl;
   ib_node_desc_t *p_nd;
   ib_smp_t *p_smp;
   osm_node_t *p_node;
@@ -155,7 +154,6 @@ osm_nd_rcv_process(
 
   CL_ASSERT( p_madw );
 
-  p_guid_tbl = &p_rcv->p_subn->node_guid_tbl;
   p_smp = osm_madw_get_smp_ptr( p_madw );
   p_nd = (ib_node_desc_t*)ib_smp_get_payload_ptr( p_smp );
 
@@ -165,9 +163,8 @@ osm_nd_rcv_process(
 
   node_guid = osm_madw_get_nd_context_ptr( p_madw )->node_guid;
   CL_PLOCK_EXCL_ACQUIRE( p_rcv->p_lock );
-  p_node = (osm_node_t*)cl_qmap_get( p_guid_tbl, node_guid );
-
-  if( p_node == (osm_node_t*)cl_qmap_end( p_guid_tbl) )
+  p_node = osm_get_node_by_guid( p_rcv->p_subn, node_guid );
+  if( !p_node )
   {
     osm_log( p_rcv->p_log, OSM_LOG_ERROR,
              "osm_nd_rcv_process: ERR 0B01: "

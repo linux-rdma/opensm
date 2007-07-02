@@ -1214,12 +1214,9 @@ __osm_pr_rcv_get_end_points(
       }
     }
 
-    *pp_src_port = (osm_port_t*)cl_qmap_get(
-      &p_rcv->p_subn->port_guid_tbl,
-      p_pr->sgid.unicast.interface_id );
-
-    if( *pp_src_port == (osm_port_t*)cl_qmap_end(
-          &p_rcv->p_subn->port_guid_tbl ) )
+    *pp_src_port = osm_get_port_by_guid( p_rcv->p_subn,
+                                         p_pr->sgid.unicast.interface_id );
+    if( !*pp_src_port )
     {
       /*
         This 'error' is the client's fault (bad gid) so
@@ -1304,12 +1301,8 @@ __osm_pr_rcv_get_end_points(
       }
     }
 
-    *pp_dest_port = (osm_port_t*)cl_qmap_get(
-      &p_rcv->p_subn->port_guid_tbl,
-      dest_guid );
-
-    if( *pp_dest_port == (osm_port_t*)cl_qmap_end(
-          &p_rcv->p_subn->port_guid_tbl ) )
+    *pp_dest_port = osm_get_port_by_guid( p_rcv->p_subn, dest_guid );
+    if( !*pp_dest_port )
     {
       /*
         This 'error' is the client's fault (bad gid) so

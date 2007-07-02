@@ -1554,10 +1554,8 @@ __osm_mcmr_rcv_join_mgrp(
   CL_PLOCK_EXCL_ACQUIRE(p_rcv->p_lock);
 
   /* make sure the requested port guid is known to the SM */
-  p_port = (osm_port_t *)cl_qmap_get(&p_rcv->p_subn->port_guid_tbl,
-                                     portguid);
-
-  if (p_port == (osm_port_t *)cl_qmap_end(&p_rcv->p_subn->port_guid_tbl))
+  p_port = osm_get_port_by_guid(p_rcv->p_subn, portguid);
+  if (!p_port)
   {
     CL_PLOCK_RELEASE( p_rcv->p_lock );
 

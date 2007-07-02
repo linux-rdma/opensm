@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -187,9 +187,8 @@ __osm_sir_get_port_by_guid(
 
   CL_PLOCK_ACQUIRE(p_rcv->p_lock);
 
-  p_port = (osm_port_t *)cl_qmap_get(&p_rcv->p_subn->port_guid_tbl,
-                                     port_guid);
-  if (p_port == (osm_port_t *)cl_qmap_end(&p_rcv->p_subn->port_guid_tbl))
+  p_port = osm_get_port_by_guid(p_rcv->p_subn, port_guid);
+  if (!p_port)
   {
     osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
              "__osm_sir_get_port_by_guid ERR 5309: "

@@ -586,7 +586,6 @@ osm_si_rcv_process(
 {
   osm_si_rcv_t *p_rcv = context;
   osm_madw_t *p_madw = data;
-  cl_qmap_t *p_node_guid_tbl;
   ib_switch_info_t *p_si;
   ib_smp_t *p_smp;
   osm_node_t *p_node;
@@ -599,7 +598,6 @@ osm_si_rcv_process(
 
   CL_ASSERT( p_madw );
 
-  p_node_guid_tbl = &p_rcv->p_subn->node_guid_tbl;
   p_smp = osm_madw_get_smp_ptr( p_madw );
   p_si = (ib_switch_info_t*)ib_smp_get_payload_ptr( p_smp );
 
@@ -623,8 +621,8 @@ osm_si_rcv_process(
 
   CL_PLOCK_EXCL_ACQUIRE( p_rcv->p_lock );
 
-  p_node = (osm_node_t*)cl_qmap_get( p_node_guid_tbl, node_guid );
-  if( p_node == (osm_node_t*)cl_qmap_end( p_node_guid_tbl ) )
+  p_node = osm_get_node_by_guid( p_rcv->p_subn, node_guid );
+  if( !p_node )
   {
     osm_log( p_rcv->p_log, OSM_LOG_ERROR,
              "osm_si_rcv_process: ERR 3606: "

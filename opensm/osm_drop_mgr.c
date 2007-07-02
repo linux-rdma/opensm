@@ -144,17 +144,16 @@ drop_mgr_clean_physp(
   IN const osm_drop_mgr_t* const p_mgr,
   IN osm_physp_t *p_physp)
 {
-  cl_qmap_t *p_port_guid_tbl = &p_mgr->p_subn->port_guid_tbl;
   osm_physp_t *p_remote_physp;
   osm_port_t* p_remote_port;
 
   p_remote_physp = osm_physp_get_remote( p_physp );
   if( p_remote_physp && osm_physp_is_valid( p_remote_physp ) )
   {
-    p_remote_port = (osm_port_t*)cl_qmap_get( p_port_guid_tbl,
-                                              p_remote_physp->port_guid );
+    p_remote_port = osm_get_port_by_guid( p_mgr->p_subn,
+                                          p_remote_physp->port_guid );
 
-    if ( p_remote_port != (osm_port_t*)cl_qmap_end( p_port_guid_tbl ) )
+    if ( p_remote_port )
     {
       /* Let's check if this is a case of link that is lost (both ports
          weren't recognized), or a "hiccup" in the subnet - in which case
@@ -220,7 +219,6 @@ __osm_drop_mgr_remove_port(
   osm_port_t *p_port_check;
   cl_list_t* p_new_ports_list;
   cl_list_iterator_t cl_list_item;
-  cl_qmap_t* p_port_guid_tbl;
   cl_qmap_t* p_sm_guid_tbl;
   osm_mcm_info_t* p_mcm;
   osm_mgrp_t*  p_mgrp;
@@ -261,8 +259,8 @@ __osm_drop_mgr_remove_port(
     cl_list_item = cl_list_next(cl_list_item);
   }
 
-  p_port_guid_tbl = &p_mgr->p_subn->port_guid_tbl;
-  p_port_check = (osm_port_t*)cl_qmap_remove( p_port_guid_tbl, port_guid );
+  p_port_check = (osm_port_t*)cl_qmap_remove( &p_mgr->p_subn->port_guid_tbl,
+                                              port_guid );
   if( p_port_check != p_port )
   {
     osm_log( p_mgr->p_log, OSM_LOG_ERROR,
@@ -406,11 +404,9 @@ __osm_drop_mgr_process_node(
   osm_physp_t *p_physp;
   osm_port_t *p_port;
   osm_node_t *p_node_check;
-  cl_qmap_t *p_node_guid_tbl;
   uint32_t port_num;
   uint32_t max_ports;
   ib_net64_t port_guid;
-  cl_qmap_t* p_port_guid_tbl;
   boolean_t return_val = FALSE;
 
   OSM_LOG_ENTER( p_mgr->p_log, __osm_drop_mgr_process_node );
@@ -424,8 +420,6 @@ __osm_drop_mgr_process_node(
     Delete all the logical and physical port objects
     associated with this node.
   */
-  p_port_guid_tbl = &p_mgr->p_subn->port_guid_tbl;
-
   max_ports = osm_node_get_num_physp( p_node );
   for( port_num = 0; port_num < max_ports; port_num++ )
   {
@@ -434,9 +428,9 @@ __osm_drop_mgr_process_node(
     {
       port_guid = osm_physp_get_port_guid( p_physp );
 
-      p_port = (osm_port_t*)cl_qmap_get( p_port_guid_tbl, port_guid );
+      p_port = osm_get_port_by_guid( p_mgr->p_subn, port_guid );
 
-      if( p_port != (osm_port_t*)cl_qmap_end( p_port_guid_tbl ) )
+      if( p_port )
         __osm_drop_mgr_remove_port( p_mgr, p_port );
       else
         drop_mgr_clean_physp( p_mgr, p_physp );
@@ -448,8 +442,7 @@ __osm_drop_mgr_process_node(
   if (p_node->sw)
     __osm_drop_mgr_remove_switch( p_mgr, p_node );
 
-  p_node_guid_tbl = &p_mgr->p_subn->node_guid_tbl;
-  p_node_check = (osm_node_t*)cl_qmap_remove( p_node_guid_tbl,
+  p_node_check = (osm_node_t*)cl_qmap_remove( &p_mgr->p_subn->node_guid_tbl,
                                               osm_node_get_node_guid( p_node ) );
   if( p_node_check != p_node )
   {
@@ -476,7 +469,6 @@ __osm_drop_mgr_check_node(
   ib_net64_t node_guid;
   osm_physp_t *p_physp;
   osm_port_t *p_port;
-  cl_qmap_t* p_port_guid_tbl;
   ib_net64_t port_guid;
 
   OSM_LOG_ENTER( p_mgr->p_log, __osm_drop_mgr_check_node );
@@ -506,7 +498,6 @@ __osm_drop_mgr_check_node(
   }
 
   /* Make sure we have a port object for port zero */
-  p_port_guid_tbl = &p_mgr->p_subn->port_guid_tbl;
   p_physp = osm_node_get_physp_ptr( p_node, 0 );
   if ( !osm_physp_is_valid( p_physp ) )
   {
@@ -521,9 +512,9 @@ __osm_drop_mgr_check_node(
    
   port_guid = osm_physp_get_port_guid( p_physp );
 
-  p_port = (osm_port_t*)cl_qmap_get( p_port_guid_tbl, port_guid );
+  p_port = osm_get_port_by_guid( p_mgr->p_subn, port_guid );
 
-  if( p_port == (osm_port_t*)cl_qmap_end( p_port_guid_tbl ) )
+  if( !p_port )
   {
     osm_log( p_mgr->p_log, OSM_LOG_VERBOSE,
              "__osm_drop_mgr_check_node: "
