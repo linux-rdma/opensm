@@ -751,10 +751,10 @@ osm_pc_rcv_process(void *context, void *data)
 		"osm_pc_rcv_process: Processing received MAD context 0x%" PRIx64 " port %u/%d\n",
 		node_guid, port_num, num_ports);
 
-	/* Might be redirection (IBM eHCA PMA does this) */
+	/* Could also be redirection (IBM eHCA PMA does this) */
 	if (p_mad->attr_id == IB_MAD_ATTR_CLASS_PORT_INFO) {
 		osm_log(pm->log, OSM_LOG_VERBOSE,
-		        "osm_pc_rcv_process: Redirection received. Not currently handled!\n");
+		        "osm_pc_rcv_process: Redirection received. Not currently implemented!\n");
 		goto Exit;
 	}
 
