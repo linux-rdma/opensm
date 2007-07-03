@@ -670,7 +670,7 @@ osm_madw_get_perfmgr_mad_ptr(
 *		[in] Pointer to an osm_madw_t object.
 *
 * RETURN VALUES
-*	Pointer to the start of the PM MAD.
+*	Pointer to the start of the PerfMgt MAD.
 *
 * NOTES
 *
