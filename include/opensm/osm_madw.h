@@ -652,17 +652,17 @@ osm_madw_get_sa_mad_ptr(
 *	MAD Wrapper object, osm_madw_construct, osm_madw_destroy
 *********/
 
-/****f* OpenSM: MAD Wrapper/osm_madw_get_perfmgr_mad_ptr
+/****f* OpenSM: MAD Wrapper/osm_madw_get_perfmgt_mad_ptr
 * DESCRIPTION
-*	Gets a pointer to the PerfMgr MAD in this MAD wrapper.
+*	Gets a pointer to the PerfMgt MAD in this MAD wrapper.
 *
 * SYNOPSIS
 */
-static inline ib_perfmgr_mad_t*
-osm_madw_get_perfmgr_mad_ptr(
+static inline ib_perfmgt_mad_t*
+osm_madw_get_perfmgt_mad_ptr(
 	IN const osm_madw_t* const p_madw )
 {
-	return((ib_perfmgr_mad_t*)p_madw->p_mad);
+	return((ib_perfmgt_mad_t*)p_madw->p_mad);
 }
 /*
 * PARAMETERS

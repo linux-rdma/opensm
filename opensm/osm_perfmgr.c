@@ -269,7 +269,7 @@ osm_perfmgr_send_pc_mad(osm_perfmgr_t *perfmgr, ib_net16_t dest_lid, uint8_t por
 {
 	ib_api_status_t     status = IB_SUCCESS;
 	ib_port_counters_t *port_counter = NULL;
-	ib_perfmgr_mad_t   *pm_mad = NULL;
+	ib_perfmgt_mad_t   *pm_mad = NULL;
 	osm_madw_t         *p_madw = NULL;
 
 	OSM_LOG_ENTER(perfmgr->log, osm_perfmgr_send_pc_mad);
@@ -278,7 +278,7 @@ osm_perfmgr_send_pc_mad(osm_perfmgr_t *perfmgr, ib_net16_t dest_lid, uint8_t por
 	if (p_madw == NULL)
 		return (IB_INSUFFICIENT_MEMORY);
 
-	pm_mad = osm_madw_get_perfmgr_mad_ptr(p_madw);
+	pm_mad = osm_madw_get_perfmgt_mad_ptr(p_madw);
 
 	/* build the mad */
 	pm_mad->header.base_ver = 1;
@@ -732,7 +732,7 @@ osm_pc_rcv_process(void *context, void *data)
 	osm_perfmgr_t      *const pm = (osm_perfmgr_t *)context;
 	osm_madw_t         *p_madw = (osm_madw_t *)data;
 	osm_madw_context_t *mad_context = &(p_madw->context);
-	ib_port_counters_t *wire_read = (ib_port_counters_t *)&(osm_madw_get_perfmgr_mad_ptr(p_madw)->data);
+	ib_port_counters_t *wire_read = (ib_port_counters_t *)&(osm_madw_get_perfmgt_mad_ptr(p_madw)->data);
 	ib_mad_t           *p_mad = osm_madw_get_mad_ptr(p_madw);
 	uint64_t            node_guid = mad_context->perfmgr_context.node_guid;
 	uint8_t             port_num = mad_context->perfmgr_context.port;

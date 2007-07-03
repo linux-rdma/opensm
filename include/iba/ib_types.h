@@ -7353,9 +7353,9 @@ typedef struct _ib_inform_info_record
 }	PACK_SUFFIX ib_inform_info_record_t;
 #include <complib/cl_packoff.h>
 
-/****s* IBA Base: Types/ib_perfmgr_mad_t
+/****s* IBA Base: Types/ib_perfmgt_mad_t
 * NAME
-*	ib_perfmgr_mad_t
+*	ib_perfmgt_mad_t
 *
 * DESCRIPTION
 *	IBA defined Perf Management MAD (16.3.1)
@@ -7363,7 +7363,7 @@ typedef struct _ib_inform_info_record
 * SYNOPSIS
 */
 #include <complib/cl_packon.h>
-typedef struct _ib_perfmgr_mad
+typedef struct _ib_perfmgt_mad
 {
 	ib_mad_t		header;
 	uint8_t			resv[40];
@@ -7371,7 +7371,7 @@ typedef struct _ib_perfmgr_mad
 #define	IB_PM_DATA_SIZE		192
 	uint8_t			data[IB_PM_DATA_SIZE];
 
-}	PACK_SUFFIX ib_perfmgr_mad_t;
+}	PACK_SUFFIX ib_perfmgt_mad_t;
 #include <complib/cl_packoff.h>
 /*
 * FIELDS
