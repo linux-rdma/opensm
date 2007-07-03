@@ -646,11 +646,12 @@ osm_perfmgr_check_overflow(osm_perfmgr_t *pm, uint64_t node_guid,
 		|| counter_overflow_32(pc->rcv_pkts)
 		)
 	{
+		osm_node_t *p_node = NULL;
+		ib_net16_t  lid = 0;
+
 		osm_log(pm->log, OSM_LOG_INFO,
 			"PerfMgr: Counter overflow: 0x%" PRIx64 " port %d; clearing counters\n",
 			node_guid, port);
-		osm_node_t *p_node = NULL;
-		ib_net16_t  lid = 0;
 		cl_plock_acquire(pm->lock);
 		p_node = osm_get_node_by_guid(pm->subn, cl_hton64(node_guid));
 		lid = get_lid(p_node, port);
