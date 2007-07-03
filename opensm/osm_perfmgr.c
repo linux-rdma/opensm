@@ -389,7 +389,7 @@ __osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context )
 
 	/* make sure we have a database object ready to store this information */
 	if (perfmgr_db_create_entry(pm->db, node_guid, num_ports,
-				node->print_desc) !=
+				    node->print_desc) !=
 		PERFMGR_EVENT_DB_SUCCESS)
 	{
 		osm_log(pm->log, OSM_LOG_ERROR,
@@ -624,7 +624,7 @@ int counter_overflow_32(ib_net32_t val)
  **********************************************************************/
 static void
 osm_perfmgr_check_overflow(osm_perfmgr_t *pm, uint64_t node_guid,
-	     uint8_t port, int num_ports, ib_port_counters_t *pc)
+			   uint8_t port, int num_ports, ib_port_counters_t *pc)
 {
 	osm_madw_context_t  mad_context;
 
