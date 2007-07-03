@@ -752,11 +752,11 @@ osm_pc_rcv_process(void *context, void *data)
 		ib_class_port_info_t *cpi = (ib_class_port_info_t *)&(osm_madw_get_perfmgt_mad_ptr(p_madw)->data);
 
 		osm_log(pm->log, OSM_LOG_VERBOSE,
-		        "osm_pc_rcv_process: Redirection LID 0x%x "
+		        "osm_pc_rcv_process: Redirection to LID 0x%x "
 			"GID 0x%016" PRIx64 " : 0x%016" PRIx64
-			" received\n",
+			" QP 0x%x received\n",
 			cpi->redir_lid, cpi->redir_gid.unicast.prefix,
-			cpi->redir_gid.unicast.interface_id);
+			cpi->redir_gid.unicast.interface_id, cpi->redir_qp);
 
 		/* LID or GID redirection ? */
 		/* For GID redirection, need to get PathRecord from SA */
