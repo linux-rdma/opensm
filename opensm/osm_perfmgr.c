@@ -749,7 +749,10 @@ osm_pc_rcv_process(void *context, void *data)
 	/* Could also be redirection (IBM eHCA PMA does this) */
 	if (p_mad->attr_id == IB_MAD_ATTR_CLASS_PORT_INFO) {
 		osm_log(pm->log, OSM_LOG_VERBOSE,
-		        "osm_pc_rcv_process: Redirection received. Not currently implemented!\n");
+		        "osm_pc_rcv_process: Redirection received (status 0x%x). Not currently implemented!\n",
+			p_mad->status);
+		/* LID or GID redirection ? */
+		/* For GID redirection, need to get PathRecord from SA */
 		goto Exit;
 	}
 
