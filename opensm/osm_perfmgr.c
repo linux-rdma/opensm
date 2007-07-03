@@ -552,19 +552,18 @@ osm_perfmgr_check_oob_clear(osm_perfmgr_t *pm, uint64_t node_guid, uint8_t port,
 		return;
 	}
 
-	if (cr->symbol_err_cnt < prev_err.symbol_err_cnt
-		|| cr->link_err_recover < prev_err.link_err_recover
-		|| cr->link_downed < prev_err.link_downed
-		|| cr->rcv_err < prev_err.rcv_err
-		|| cr->rcv_rem_phys_err < prev_err.rcv_rem_phys_err
-		|| cr->rcv_switch_relay_err < prev_err.rcv_switch_relay_err
-		|| cr->xmit_discards < prev_err.xmit_discards
-		|| cr->xmit_constraint_err < prev_err.xmit_constraint_err
-		|| cr->rcv_constraint_err < prev_err.rcv_constraint_err
-		|| cr->link_integrity < prev_err.link_integrity
-		|| cr->buffer_overrun < prev_err.buffer_overrun
-		|| cr->vl15_dropped < prev_err.vl15_dropped
-	   )
+	if (cr->symbol_err_cnt < prev_err.symbol_err_cnt ||
+	    cr->link_err_recover < prev_err.link_err_recover ||
+	    cr->link_downed < prev_err.link_downed ||
+	    cr->rcv_err < prev_err.rcv_err ||
+	    cr->rcv_rem_phys_err < prev_err.rcv_rem_phys_err ||
+	    cr->rcv_switch_relay_err < prev_err.rcv_switch_relay_err ||
+	    cr->xmit_discards < prev_err.xmit_discards ||
+	    cr->xmit_constraint_err < prev_err.xmit_constraint_err ||
+	    cr->rcv_constraint_err < prev_err.rcv_constraint_err ||
+	    cr->link_integrity < prev_err.link_integrity ||
+	    cr->buffer_overrun < prev_err.buffer_overrun ||
+	    cr->vl15_dropped < prev_err.vl15_dropped)
 	{
 		osm_log(pm->log, OSM_LOG_ERROR,
 			"PerfMgr: ERR 4C0A: Detected an out of band error clear on node 0x%" PRIx64 " port %u\n",
@@ -583,11 +582,10 @@ osm_perfmgr_check_oob_clear(osm_perfmgr_t *pm, uint64_t node_guid, uint8_t port,
 		return;
 	}
 
-	if (dc->xmit_data < prev_dc.xmit_data
-		|| dc->rcv_data < prev_dc.rcv_data
-		|| dc->xmit_pkts < prev_dc.xmit_pkts
-		|| dc->rcv_pkts < prev_dc.rcv_pkts
-		)
+	if (dc->xmit_data < prev_dc.xmit_data ||
+	    dc->rcv_data < prev_dc.rcv_data ||
+	    dc->xmit_pkts < prev_dc.xmit_pkts ||
+	    dc->rcv_pkts < prev_dc.rcv_pkts)
 	{
 		osm_log(pm->log, OSM_LOG_ERROR,
 			"PerfMgr: ERR 4C0B: Detected an out of band data counter clear on node 0x%" PRIx64 " port %u\n",
@@ -625,26 +623,25 @@ static void
 osm_perfmgr_check_overflow(osm_perfmgr_t *pm, uint64_t node_guid,
 			   uint8_t port, ib_port_counters_t *pc)
 {
-	osm_madw_context_t  mad_context;
+	osm_madw_context_t mad_context;
 
 	OSM_LOG_ENTER( pm->log, osm_perfmgr_check_overflow );
-	if (counter_overflow_16(pc->symbol_err_cnt)
-		|| counter_overflow_8(pc->link_err_recover)
-		|| counter_overflow_8(pc->link_downed)
-		|| counter_overflow_16(pc->rcv_err)
-		|| counter_overflow_16(pc->rcv_rem_phys_err)
-		|| counter_overflow_16(pc->rcv_switch_relay_err)
-		|| counter_overflow_16(pc->xmit_discards)
-		|| counter_overflow_8(pc->xmit_constraint_err)
-		|| counter_overflow_8(pc->rcv_constraint_err)
-		|| counter_overflow_4(PC_LINK_INT(pc->link_int_buffer_overrun))
-		|| counter_overflow_4(PC_BUF_OVERRUN(pc->link_int_buffer_overrun))
-		|| counter_overflow_16(pc->vl15_dropped)
-		|| counter_overflow_32(pc->xmit_data)
-		|| counter_overflow_32(pc->rcv_data)
-		|| counter_overflow_32(pc->xmit_pkts)
-		|| counter_overflow_32(pc->rcv_pkts)
-		)
+	if (counter_overflow_16(pc->symbol_err_cnt) ||
+	    counter_overflow_8(pc->link_err_recover) ||
+	    counter_overflow_8(pc->link_downed) ||
+	    counter_overflow_16(pc->rcv_err) ||
+	    counter_overflow_16(pc->rcv_rem_phys_err) ||
+	    counter_overflow_16(pc->rcv_switch_relay_err) ||
+	    counter_overflow_16(pc->xmit_discards) ||
+	    counter_overflow_8(pc->xmit_constraint_err) ||
+	    counter_overflow_8(pc->rcv_constraint_err) ||
+	    counter_overflow_4(PC_LINK_INT(pc->link_int_buffer_overrun)) ||
+	    counter_overflow_4(PC_BUF_OVERRUN(pc->link_int_buffer_overrun)) ||
+	    counter_overflow_16(pc->vl15_dropped) ||
+	    counter_overflow_32(pc->xmit_data) ||
+	    counter_overflow_32(pc->rcv_data) ||
+	    counter_overflow_32(pc->xmit_pkts) ||
+	    counter_overflow_32(pc->rcv_pkts))
 	{
 		osm_node_t *p_node = NULL;
 		ib_net16_t  lid = 0;
