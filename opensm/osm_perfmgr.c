@@ -755,8 +755,10 @@ osm_pc_rcv_process(void *context, void *data)
 		        "osm_pc_rcv_process: Redirection to LID 0x%x "
 			"GID 0x%016" PRIx64 " : 0x%016" PRIx64
 			" QP 0x%x received\n",
-			cpi->redir_lid, cpi->redir_gid.unicast.prefix,
-			cpi->redir_gid.unicast.interface_id, cpi->redir_qp);
+			cl_ntoh16(cpi->redir_lid),
+			cl_ntoh64(cpi->redir_gid.unicast.prefix),
+			cl_ntoh64(cpi->redir_gid.unicast.interface_id),
+			cl_ntoh32(cpi->redir_qp));
 
 		/* LID or GID redirection ? */
 		/* For GID redirection, need to get PathRecord from SA */
