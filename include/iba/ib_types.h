@@ -7383,7 +7383,7 @@ typedef struct _ib_perfmgr_mad
 *
 *	data
 *		Performance Management payload.  The structure and content of this field
-*		depend upon the method, attr_id, and attr_mod fields in the header.
+*		depends upon the method, attr_id, and attr_mod fields in the header.
 *
 * SEE ALSO
 * ib_mad_t
