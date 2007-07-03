@@ -169,7 +169,7 @@ osm_perfmgr_mad_send_err_callback(void* bind_context, osm_madw_t *p_madw)
 }
 
 /**********************************************************************
- * Bind the PM to the vendor layer for MAD sends/receives
+ * Bind the PerfMgr to the vendor layer for MAD sends/receives
  **********************************************************************/
 ib_api_status_t
 osm_perfmgr_bind(osm_perfmgr_t * const pm, const ib_net64_t port_guid)
@@ -221,7 +221,7 @@ Exit:
 }
 
 /**********************************************************************
- * Unbind the PM from the vendor layer for MAD sends/receives
+ * Unbind the PerfMgr from the vendor layer for MAD sends/receives
  **********************************************************************/
 static void
 osm_perfmgr_mad_unbind(osm_perfmgr_t * const pm)
@@ -873,7 +873,7 @@ osm_perfmgr_clear_counters(osm_perfmgr_t *pm)
 }
 
 /*******************************************************************
- * Have the DB dump it's information to the file specified
+ * Have the DB dump its information to the file specified
  *******************************************************************/
 void
 osm_perfmgr_dump_counters(osm_perfmgr_t *pm, perfmgr_db_dump_t dump_type)
