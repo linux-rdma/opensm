@@ -261,7 +261,7 @@ get_lid(osm_node_t *p_node, uint8_t port)
 }
 
 /**********************************************************************
- * Form the Port Counter MAD for a single port and send the MAD.
+ * Form and send the Port Counters MAD for a single port.
  **********************************************************************/
 static ib_api_status_t
 osm_perfmgr_send_pc_mad(osm_perfmgr_t *perfmgr, ib_net16_t dest_lid, uint8_t port,
@@ -398,7 +398,7 @@ __osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context )
 		goto Exit;
 	}
 
-	/* issue the queries for each port */
+	/* issue the query for each port */
 	for (port = 1; port < num_ports; port++)
 	{
 		ib_net16_t lid;
