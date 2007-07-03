@@ -418,7 +418,6 @@ __osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context )
 
 		mad_context.perfmgr_context.node_guid = node_guid;
 		mad_context.perfmgr_context.port = port;
-		mad_context.perfmgr_context.num_ports = num_ports;
 		mad_context.perfmgr_context.mad_method = IB_MAD_METHOD_GET;
 #if 0
 		gettimeofday(&(mad_context.perfmgr_context.query_start), NULL);
@@ -624,7 +623,7 @@ int counter_overflow_32(ib_net32_t val)
  **********************************************************************/
 static void
 osm_perfmgr_check_overflow(osm_perfmgr_t *pm, uint64_t node_guid,
-			   uint8_t port, int num_ports, ib_port_counters_t *pc)
+			   uint8_t port, ib_port_counters_t *pc)
 {
 	osm_madw_context_t  mad_context;
 
@@ -665,7 +664,6 @@ osm_perfmgr_check_overflow(osm_perfmgr_t *pm, uint64_t node_guid,
 		}
 		mad_context.perfmgr_context.node_guid = node_guid;
 		mad_context.perfmgr_context.port = port;
-		mad_context.perfmgr_context.num_ports = num_ports;
 		mad_context.perfmgr_context.mad_method = IB_MAD_METHOD_SET;
 		/* clear port counters */
 		osm_perfmgr_send_pc_mad(pm, lid, port, IB_MAD_METHOD_SET, &mad_context);
@@ -740,7 +738,6 @@ osm_pc_rcv_process(void *context, void *data)
 	ib_mad_t           *p_mad = osm_madw_get_mad_ptr(p_madw);
 	uint64_t            node_guid = mad_context->perfmgr_context.node_guid;
 	uint8_t             port_num = mad_context->perfmgr_context.port;
-	int                 num_ports = mad_context->perfmgr_context.num_ports;
 
 	perfmgr_db_err_reading_t      err_reading;
 	perfmgr_db_data_cnt_reading_t data_reading;
@@ -748,8 +745,8 @@ osm_pc_rcv_process(void *context, void *data)
 	OSM_LOG_ENTER( pm->log, osm_pc_rcv_process );
 
 	osm_log(pm->log, OSM_LOG_VERBOSE,
-		"osm_pc_rcv_process: Processing received MAD context 0x%" PRIx64 " port %u/%d\n",
-		node_guid, port_num, num_ports);
+		"osm_pc_rcv_process: Processing received MAD context 0x%" PRIx64 " port %u\n",
+		node_guid, port_num);
 
 	/* Could also be redirection (IBM eHCA PMA does this) */
 	if (p_mad->attr_id == IB_MAD_ATTR_CLASS_PORT_INFO) {
@@ -782,7 +779,7 @@ osm_pc_rcv_process(void *context, void *data)
 		perfmgr_db_clear_prev_err(pm->db, node_guid, port_num);
 		perfmgr_db_clear_prev_dc(pm->db, node_guid, port_num);
 	}
-	osm_perfmgr_check_overflow(pm, node_guid, port_num, num_ports, wire_read);
+	osm_perfmgr_check_overflow(pm, node_guid, port_num, wire_read);
 
 #if 0
 	do {
