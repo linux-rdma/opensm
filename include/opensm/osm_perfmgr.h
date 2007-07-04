@@ -84,7 +84,7 @@ typedef enum
   PERFMGR_STATE_NO_DB
 } osm_perfmgr_state_t;
 
-/****s* OpenSM: PerfMgr/osm_perfmgr_state_t */
+/****s* OpenSM: PerfMgr/osm_perfmgr_sweep_state_t */
 typedef enum
 {
   PERFMGR_SWEEP_SLEEP,
@@ -154,7 +154,7 @@ void osm_perfmgr_destroy(osm_perfmgr_t * const p_perfmgr );
 
 /****f* OpenSM: Inline accessor functions */
 inline static void osm_perfmgr_set_state(osm_perfmgr_t *p_perfmgr,
-		osm_perfmgr_state_t state)
+					 osm_perfmgr_state_t state)
 {
 	p_perfmgr->state = state;
 	if (state == PERFMGR_STATE_ENABLED)
