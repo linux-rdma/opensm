@@ -113,7 +113,7 @@ __decrement_outstanding_queries(osm_perfmgr_t *pm)
  **********************************************************************/
 static void
 osm_perfmgr_mad_recv_callback(osm_madw_t *p_madw, void* bind_context,
-			      osm_madw_t *p_req_madw )
+			      osm_madw_t *p_req_madw)
 {
 	osm_perfmgr_t      *pm = (osm_perfmgr_t *)bind_context;
 
@@ -265,7 +265,7 @@ get_lid(osm_node_t *p_node, uint8_t port)
  **********************************************************************/
 static ib_api_status_t
 osm_perfmgr_send_pc_mad(osm_perfmgr_t *perfmgr, ib_net16_t dest_lid, uint8_t port,
-			uint8_t mad_method, osm_madw_context_t* const p_context )
+			uint8_t mad_method, osm_madw_context_t* const p_context)
 {
 	ib_api_status_t     status = IB_SUCCESS;
 	ib_port_counters_t *port_counter = NULL;
@@ -913,7 +913,7 @@ osm_perfmgr_dump_counters(osm_perfmgr_t *pm, perfmgr_db_dump_t dump_type)
  **********************************************************************/
 ib_api_status_t
 osm_report_notice_to_perfmgr(osm_log_t* const log, osm_subn_t*  subn,
-			ib_mad_notice_attr_t *p_ntc )
+			ib_mad_notice_attr_t *p_ntc)
 {
   OSM_LOG_ENTER( log, osm_report_trap_to_pm );
   if ((p_ntc->generic_type & 0x80)
