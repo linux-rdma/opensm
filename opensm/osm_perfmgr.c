@@ -908,16 +908,16 @@ osm_perfmgr_dump_counters(osm_perfmgr_t *pm, perfmgr_db_dump_t dump_type)
 }
 
 #if 0
-/*******************************************************************
+/**********************************************************************
  * Use this later to track events on the fabric
  **********************************************************************/
 ib_api_status_t
-osm_report_notice_to_perfmgr(osm_log_t* const log, osm_subn_t*  subn,
-			ib_mad_notice_attr_t *p_ntc)
+osm_report_notice_to_perfmgr(osm_log_t* const log, osm_subn_t* subn,
+			     ib_mad_notice_attr_t *p_ntc)
 {
   OSM_LOG_ENTER( log, osm_report_trap_to_pm );
-  if ((p_ntc->generic_type & 0x80)
-	  && (cl_ntoh16(p_ntc->g_or_v.generic.trap_num) == 128)) {
+  if ((p_ntc->generic_type & 0x80) &&
+      (cl_ntoh16(p_ntc->g_or_v.generic.trap_num) == 128)) {
 	  osm_log( log, OSM_LOG_INFO, "PerfMgr notified of trap 128\n");
   }
   OSM_LOG_EXIT( log );
