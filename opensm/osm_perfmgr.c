@@ -94,7 +94,7 @@ __remove_marked_nodes(osm_perfmgr_t *pm)
 	while (pm->remove_list) {
 		__monitored_node_t *next = pm->remove_list->next;
 		cl_qmap_remove_item(&(pm->monitored_map),
-				(cl_map_item_t *)(pm->remove_list));
+				    (cl_map_item_t *)(pm->remove_list));
 		free(pm->remove_list);
 		pm->remove_list = next;
 	}
@@ -327,7 +327,7 @@ osm_perfmgr_send_pc_mad(osm_perfmgr_t *perfmgr, ib_net16_t dest_lid, uint8_t por
 }
 
 /**********************************************************************
- * sweep the node_guid_tbl and collect the node_guids to be tracked
+ * sweep the node_guid_tbl and collect the node guids to be tracked
  **********************************************************************/
 static void
 __collect_guids(cl_map_item_t * const p_map_item, void *context)
@@ -361,7 +361,7 @@ Exit:
  * query the Port Counters of all the nodes in the subnet.
  **********************************************************************/
 static void
-__osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context )
+__osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context)
 {
 	ib_api_status_t     status = IB_SUCCESS;
 	uint8_t             port = 0;
@@ -478,12 +478,13 @@ __osm_perfmgr_sweeper(void *p_ptr)
 			osm_log(pm->log, OSM_LOG_VERBOSE, "Gathering PerfMgr stats\n");
 			cl_plock_acquire(pm->lock);
 			cl_qmap_apply_func(&(pm->subn->node_guid_tbl),
-					__collect_guids, (void *)pm);
+					   __collect_guids, (void *)pm);
 			cl_plock_release(pm->lock);
 
 			/* then for each node query their counters */
 			cl_qmap_apply_func(&(pm->monitored_map),
-					__osm_perfmgr_query_counters, (void *)pm);
+					   __osm_perfmgr_query_counters,
+					   (void *)pm);
 
 			/* Clean out any nodes found to be removed during the
 			 * sweep
