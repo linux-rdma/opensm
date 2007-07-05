@@ -126,7 +126,7 @@ osm_node_new(
       Then, initialize the Physical Port through with we
       discovered this port.
       For switches, all ports have the same GUID.
-      For HCA's each port has a different GUID, so we only
+      For CAs and routers, each port has a different GUID, so we only
       know the GUID for the port that responded to our
       Get(NodeInfo).
     */
