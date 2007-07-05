@@ -255,6 +255,7 @@ __osm_ucast_mgr_dump_ucast_routes(
   uint8_t                  best_port;
   uint16_t                 max_lid_ho;
   uint16_t                 lid_ho, base_lid;
+  boolean_t                direct_route_exists = FALSE;
   osm_switch_t* p_sw = (osm_switch_t *)p_map_item;
   osm_ucast_mgr_t* p_mgr = ((struct ucast_mgr_dump_context *)cxt)->p_mgr;
   FILE *file = ((struct ucast_mgr_dump_context *)cxt)->file;
@@ -300,22 +301,36 @@ __osm_ucast_mgr_dump_ucast_routes(
     */
     if( p_port->p_node->sw )
     {
+      /* Target LID is switch.
+         Get its base lid and check hop count for this base LID only. */
       base_lid = osm_node_get_base_lid(p_port->p_node, 0);
       base_lid = cl_ntoh16(base_lid);
       num_hops = osm_switch_get_hop_count( p_sw, base_lid, port_num );
     }
     else
     {
-      osm_physp_t *p_physp = p_port->p_physp;
-      if( !p_physp || !p_physp->p_remote_physp ||
-          !p_physp->p_remote_physp->p_node->sw )
-        num_hops = OSM_NO_PATH;
+      /* Target LID is not switch (CA or router).
+         Check if we have route to this target from current switch. */
+      num_hops = osm_switch_get_hop_count( p_sw, lid_ho, port_num );
+      if (num_hops != OSM_NO_PATH)
+      {
+         direct_route_exists = TRUE;
+         base_lid = lid_ho;
+      }
       else
       {
-        base_lid = osm_node_get_base_lid(p_physp->p_remote_physp->p_node, 0);
-        base_lid = cl_ntoh16(base_lid);
-        num_hops = p_physp->p_remote_physp->p_node->sw == p_sw ?
-                   0 : osm_switch_get_hop_count( p_sw, base_lid, port_num );
+        osm_physp_t *p_physp = p_port->p_physp;
+
+        if( !p_physp || !p_physp->p_remote_physp ||
+            !p_physp->p_remote_physp->p_node->sw )
+          num_hops = OSM_NO_PATH;
+        else
+        {
+          base_lid = osm_node_get_base_lid(p_physp->p_remote_physp->p_node, 0);
+          base_lid = cl_ntoh16(base_lid);
+          num_hops = p_physp->p_remote_physp->p_node->sw == p_sw ?
+                     0 : osm_switch_get_hop_count( p_sw, base_lid, port_num );
+        }
       }
     }
 
@@ -326,7 +341,7 @@ __osm_ucast_mgr_dump_ucast_routes(
     }
 
     best_hops = osm_switch_get_least_hops( p_sw, base_lid );
-    if (!p_port->p_node->sw)
+    if (!p_port->p_node->sw && !direct_route_exists)
     {
       best_hops++;
       num_hops++;
