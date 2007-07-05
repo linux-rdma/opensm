@@ -323,7 +323,9 @@ typedef struct _osm_perfmgr_context {
   uint64_t node_guid;
   uint16_t port;
   uint8_t mad_method; /* was this a get or a set */
+#if 0
   struct timeval query_start;
+#endif
 } osm_perfmgr_context_t;
 /*********/
 
