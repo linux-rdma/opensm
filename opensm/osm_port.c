@@ -80,7 +80,7 @@ osm_physp_destroy(
 {
   size_t num_slvl, i;
 
-  /* the physp might be un-initialized */
+  /* the physp might be uninitialized */
   if (p_physp->port_guid)
   {
     /* free the SL2VL Tables */
