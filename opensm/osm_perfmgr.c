@@ -265,8 +265,9 @@ get_lid(osm_node_t *p_node, uint8_t port)
  * Form and send the Port Counters MAD for a single port.
  **********************************************************************/
 static ib_api_status_t
-osm_perfmgr_send_pc_mad(osm_perfmgr_t *perfmgr, ib_net16_t dest_lid, uint8_t port,
-			uint8_t mad_method, osm_madw_context_t* const p_context)
+osm_perfmgr_send_pc_mad(osm_perfmgr_t *perfmgr, ib_net16_t dest_lid,
+			ib_net32_t dest_qp, uint8_t port, uint8_t mad_method,
+			osm_madw_context_t* const p_context)
 {
 	ib_api_status_t     status = IB_SUCCESS;
 	ib_port_counters_t *port_counter = NULL;
@@ -299,7 +300,7 @@ osm_perfmgr_send_pc_mad(osm_perfmgr_t *perfmgr, ib_net16_t dest_lid, uint8_t por
 	port_counter->counter_select = 0xFFFF;
 
 	p_madw->mad_addr.dest_lid = dest_lid;
-	p_madw->mad_addr.addr_type.gsi.remote_qp = cl_hton32(1);
+	p_madw->mad_addr.addr_type.gsi.remote_qp = dest_qp;
 	p_madw->mad_addr.addr_type.gsi.remote_qkey = cl_hton32(IB_QP1_WELL_KNOWN_Q_KEY);
 	/* FIXME what about other partitions */
 	p_madw->mad_addr.addr_type.gsi.pkey = cl_hton16(0xFFFF);
@@ -427,7 +428,7 @@ __osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context)
 				"__osm_pm_query_counters: Getting stats for node 0x%" PRIx64 " port %d (lid %X) (%s)\n",
 				node_guid, port, cl_ntoh16(lid),
 				node->print_desc);
-		status = osm_perfmgr_send_pc_mad(pm, lid, port, IB_MAD_METHOD_GET, &mad_context);
+		status = osm_perfmgr_send_pc_mad(pm, lid, cl_hton32(1), port, IB_MAD_METHOD_GET, &mad_context);
 		if (status != IB_SUCCESS)
 		{
 		      osm_log(pm->log, OSM_LOG_ERROR,
@@ -628,6 +629,7 @@ osm_perfmgr_check_overflow(osm_perfmgr_t *pm, uint64_t node_guid,
 			   uint8_t port, ib_port_counters_t *pc)
 {
 	osm_madw_context_t mad_context;
+	ib_api_status_t status;
 
 	OSM_LOG_ENTER( pm->log, osm_perfmgr_check_overflow );
 
@@ -671,7 +673,14 @@ osm_perfmgr_check_overflow(osm_perfmgr_t *pm, uint64_t node_guid,
 		mad_context.perfmgr_context.port = port;
 		mad_context.perfmgr_context.mad_method = IB_MAD_METHOD_SET;
 		/* clear port counters */
-		osm_perfmgr_send_pc_mad(pm, lid, port, IB_MAD_METHOD_SET, &mad_context);
+		status = osm_perfmgr_send_pc_mad(pm, lid, cl_hton32(1), port, IB_MAD_METHOD_SET, &mad_context);
+		if (status != IB_SUCCESS)
+		{
+			osm_log(pm->log, OSM_LOG_ERROR,
+				"PerfMgr: ERR 4C11: Failed to send clear counters MAD for node 0x%" PRIx64 " port %d\n",
+				node_guid, port);
+		}
+
 		perfmgr_db_clear_prev_dc(pm->db, node_guid, port);
 	}
 
