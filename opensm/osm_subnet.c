@@ -472,6 +472,7 @@ osm_subn_set_default_opt(
   p_opt->honor_guid2lid_file = FALSE;
   p_opt->daemon = FALSE;
   p_opt->sm_inactive = FALSE;
+  p_opt->babbling_port_policy = FALSE;
 #ifdef ENABLE_OSM_PERF_MGR
   p_opt->perfmgr = FALSE;
   p_opt->perfmgr_sweep_time_s = OSM_PERFMGR_DEFAULT_SWEEP_TIME_S;
@@ -1358,6 +1359,10 @@ osm_subn_parse_conf_file(
         "sm_inactive",
         p_key, p_val, &p_opts->sm_inactive);
 
+      __osm_subn_opts_unpack_boolean(
+        "babbling_port_policy",
+        p_key, p_val, &p_opts->babbling_port_policy);
+
 #ifdef ENABLE_OSM_PERF_MGR
       __osm_subn_opts_unpack_boolean(
         "perfmgr",
@@ -1631,9 +1636,12 @@ osm_subn_write_conf_file(
     "# Daemon mode\n"
     "daemon %s\n\n"
     "# SM Inactive\n"
-    "sm_inactive %s\n\n",
+    "sm_inactive %s\n\n"
+    "# Babbling Port Policy\n"
+    "babbling_port_policy %s\n\n",
     p_opts->daemon ? "TRUE" : "FALSE",
-    p_opts->sm_inactive ? "TRUE" : "FALSE"
+    p_opts->sm_inactive ? "TRUE" : "FALSE",
+    p_opts->babbling_port_policy ? "TRUE" : "FALSE"
     );
 
 #ifdef ENABLE_OSM_PERF_MGR

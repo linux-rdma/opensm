@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2006 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -548,6 +548,61 @@ __osm_trap_rcv_process_request(
         }
         else
         {
+          /* When babbling port policy option is enabled and
+             Threshold for disabling a "babbling" port is exceeded */
+          if ( p_rcv->p_subn->opt.babbling_port_policy &&
+               num_received >= 250 )
+          {
+            uint8_t               payload[IB_SMP_DATA_SIZE];
+            ib_port_info_t*       p_pi = (ib_port_info_t*)payload;
+            const ib_port_info_t* p_old_pi;
+            osm_madw_context_t    context;
+
+            /* If trap 131, might want to disable peer port if available */
+            /* but peer port has been observed not to respond to SM requests */
+
+            osm_log( p_rcv->p_log, OSM_LOG_ERROR,
+                     "__osm_trap_rcv_process_request: ERR 3810: "
+                     " Disabling physical port lid:0x%02X num:%u\n",
+                     cl_ntoh16(p_ntci->data_details.ntc_129_131.lid),
+                     p_ntci->data_details.ntc_129_131.port_num
+                     );
+
+            p_old_pi = &p_physp->port_info;
+            memcpy( payload, p_old_pi, sizeof(ib_port_info_t) );
+
+            /* Set port to disabled/down */
+            ib_port_info_set_port_state( p_pi, IB_LINK_DOWN );
+            ib_port_info_set_port_phys_state( IB_PORT_PHYS_STATE_DISABLED, p_pi );
+
+            context.pi_context.node_guid = osm_node_get_node_guid( osm_physp_get_node_ptr( p_physp ) );
+            context.pi_context.port_guid = osm_physp_get_port_guid( p_physp );
+            context.pi_context.set_method = TRUE;
+            context.pi_context.update_master_sm_base_lid = FALSE;
+            context.pi_context.light_sweep = FALSE;
+            context.pi_context.active_transition = FALSE;
+
+            status = osm_req_set( &p_rcv->p_subn->p_osm->sm.req,
+                                   osm_physp_get_dr_path_ptr( p_physp ),
+                                   payload,
+                                   sizeof(payload),
+                                   IB_MAD_ATTR_PORT_INFO,
+                                   cl_hton32(osm_physp_get_port_num( p_physp )),
+                                   CL_DISP_MSGID_NONE,
+                                  &context );
+
+            if( status == IB_SUCCESS )
+            {
+               goto Exit;
+            }
+            else
+            {
+               osm_log( p_rcv->p_log, OSM_LOG_ERROR,
+                        "__osm_trap_rcv_process_request: ERR 3811: "
+                        "Request to set PortInfo failed\n" );
+            }
+          }
+
           osm_log( p_rcv->p_log, OSM_LOG_VERBOSE,
                    "__osm_trap_rcv_process_request: "
                    "Marking unhealthy physical port by lid:0x%02X num:%u\n",

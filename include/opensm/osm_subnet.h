@@ -286,6 +286,7 @@ typedef struct _osm_subn_opt
   boolean_t                honor_guid2lid_file;
   boolean_t                daemon;
   boolean_t                sm_inactive;
+  boolean_t                babbling_port_policy;
   osm_qos_options_t        qos_options;
   osm_qos_options_t        qos_ca_options;
   osm_qos_options_t        qos_sw0_options;
@@ -487,6 +488,9 @@ typedef struct _osm_subn_opt
 *
 *	sm_inactive
 *		OpenSM will start with SM in not active state.
+*
+*	babbling_port_policy
+*		OpenSM will enforce its "babbling" port policy.
 *	
 *	perfmgr
 *		Enable or disable the performance manager
