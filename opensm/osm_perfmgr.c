@@ -93,6 +93,7 @@ __remove_marked_nodes(osm_perfmgr_t *pm)
 {
 	while (pm->remove_list) {
 		__monitored_node_t *next = pm->remove_list->next;
+
 		cl_qmap_remove_item(&(pm->monitored_map),
 				    (cl_map_item_t *)(pm->remove_list));
 		free(pm->remove_list);
@@ -472,7 +473,7 @@ __osm_perfmgr_sweeper(void *p_ptr)
 #endif
 			pm->sweep_state = PERFMGR_SWEEP_ACTIVE;
 			/* With the global lock held collect the node guids */
-			/* FIXME we should be able to track trap messages here
+			/* FIXME we should be able to track SA notices
 			 * and not have to sweep the node_guid_tbl each pass
 			 */
 			osm_log(pm->log, OSM_LOG_VERBOSE, "Gathering PerfMgr stats\n");
@@ -493,14 +494,16 @@ __osm_perfmgr_sweeper(void *p_ptr)
 #if 0
 			gettimeofday(&after, NULL);
 			osm_log(pm->log, OSM_LOG_INFO,
-				"total sweep time : %ld us\n", after.tv_usec - before.tv_usec);
+				"total sweep time : %ld us\n",
+				after.tv_usec - before.tv_usec);
 #endif
 		}
 
 		pm->sweep_state = PERFMGR_SWEEP_SLEEP;
 
 		/* Wait for a forced sweep or period timeout. */
-		status = cl_event_wait_on( &pm->sig_sweep, pm->sweep_time_s * 1000000, TRUE );
+		status = cl_event_wait_on( &pm->sig_sweep,
+					    pm->sweep_time_s * 1000000, TRUE );
 	}
 
 	OSM_LOG_EXIT( pm->log );
@@ -538,8 +541,8 @@ osm_perfmgr_destroy(osm_perfmgr_t * const pm)
  **********************************************************************/
 static void
 osm_perfmgr_check_oob_clear(osm_perfmgr_t *pm, uint64_t node_guid, uint8_t port,
-				perfmgr_db_err_reading_t *cr,
-				perfmgr_db_data_cnt_reading_t *dc)
+			    perfmgr_db_err_reading_t *cr,
+			    perfmgr_db_data_cnt_reading_t *dc)
 {
 	perfmgr_db_err_reading_t       prev_err;
 	perfmgr_db_data_cnt_reading_t  prev_dc;
@@ -627,6 +630,7 @@ osm_perfmgr_check_overflow(osm_perfmgr_t *pm, uint64_t node_guid,
 	osm_madw_context_t mad_context;
 
 	OSM_LOG_ENTER( pm->log, osm_perfmgr_check_overflow );
+
 	if (counter_overflow_16(pc->symbol_err_cnt) ||
 	    counter_overflow_8(pc->link_err_recover) ||
 	    counter_overflow_8(pc->link_downed) ||
@@ -650,6 +654,7 @@ osm_perfmgr_check_overflow(osm_perfmgr_t *pm, uint64_t node_guid,
 		osm_log(pm->log, OSM_LOG_INFO,
 			"PerfMgr: Counter overflow: 0x%" PRIx64 " port %d; clearing counters\n",
 			node_guid, port);
+
 		cl_plock_acquire(pm->lock);
 		p_node = osm_get_node_by_guid(pm->subn, cl_hton64(node_guid));
 		lid = get_lid(p_node, port);
@@ -661,6 +666,7 @@ osm_perfmgr_check_overflow(osm_perfmgr_t *pm, uint64_t node_guid,
 				node_guid, port);
 			goto Exit;
 		}
+
 		mad_context.perfmgr_context.node_guid = node_guid;
 		mad_context.perfmgr_context.port = port;
 		mad_context.perfmgr_context.mad_method = IB_MAD_METHOD_SET;
@@ -668,6 +674,7 @@ osm_perfmgr_check_overflow(osm_perfmgr_t *pm, uint64_t node_guid,
 		osm_perfmgr_send_pc_mad(pm, lid, port, IB_MAD_METHOD_SET, &mad_context);
 		perfmgr_db_clear_prev_dc(pm->db, node_guid, port);
 	}
+
 Exit:
 	OSM_LOG_EXIT( pm->log );
 }
@@ -725,7 +732,7 @@ osm_perfmgr_log_events(osm_perfmgr_t *pm, uint64_t node_guid, uint8_t port,
 
 /**********************************************************************
  * The dispatcher uses a thread pool which will call this function when
- * we have a thread available to process our mad recieved from the wire.
+ * we have a thread available to process our mad received from the wire.
  **********************************************************************/
 static void
 osm_pc_rcv_process(void *context, void *data)
@@ -737,7 +744,6 @@ osm_pc_rcv_process(void *context, void *data)
 	ib_mad_t           *p_mad = osm_madw_get_mad_ptr(p_madw);
 	uint64_t            node_guid = mad_context->perfmgr_context.node_guid;
 	uint8_t             port_num = mad_context->perfmgr_context.port;
-
 	perfmgr_db_err_reading_t      err_reading;
 	perfmgr_db_data_cnt_reading_t data_reading;
 
@@ -785,7 +791,7 @@ osm_pc_rcv_process(void *context, void *data)
 	/* detect an out of band clear on the port */
 	if (mad_context->perfmgr_context.mad_method != IB_MAD_METHOD_SET)
 		osm_perfmgr_check_oob_clear(pm, node_guid, port_num,
-				&err_reading, &data_reading);
+					    &err_reading, &data_reading);
 
 	/* log any critical events from this reading */
 	osm_perfmgr_log_events(pm, node_guid, port_num, &err_reading);
@@ -793,7 +799,6 @@ osm_pc_rcv_process(void *context, void *data)
 	if (mad_context->perfmgr_context.mad_method == IB_MAD_METHOD_GET) {
 		perfmgr_db_add_err_reading(pm->db, node_guid, port_num, &err_reading);
 		perfmgr_db_add_dc_reading(pm->db, node_guid, port_num, &data_reading);
-
 	} else {
 		perfmgr_db_clear_prev_err(pm->db, node_guid, port_num);
 		perfmgr_db_clear_prev_dc(pm->db, node_guid, port_num);
@@ -805,7 +810,7 @@ osm_pc_rcv_process(void *context, void *data)
 		struct timeval      proc_time;
 		gettimeofday(&proc_time, NULL);
 		osm_log(pm->log, OSM_LOG_INFO,
-			"perfmgr done processing time %ld\n",
+			"PerfMgr done: processing time %ld\n",
 			proc_time.tv_usec -
 			p_madw->context.perfmgr_context.query_start.tv_usec);
 	} while (0);
