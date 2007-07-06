@@ -494,7 +494,7 @@ __osm_perfmgr_sweeper(void *p_ptr)
 #if 0
 			gettimeofday(&after, NULL);
 			osm_log(pm->log, OSM_LOG_INFO,
-				"total sweep time : %ld us\n",
+				"PerfMgr total sweep time : %ld us\n",
 				after.tv_usec - before.tv_usec);
 #endif
 		}
@@ -710,6 +710,7 @@ osm_perfmgr_log_events(osm_perfmgr_t *pm, uint64_t node_guid, uint8_t port,
 			node_guid,
 			port);
 	}
+
 	if (reading->rcv_err > prev_read.rcv_err) {
 		osm_log(pm->log, OSM_LOG_ERROR,
 			"osm_perfmgr_log_events: ERR 4C0E: "
@@ -719,6 +720,7 @@ osm_perfmgr_log_events(osm_perfmgr_t *pm, uint64_t node_guid, uint8_t port,
 			node_guid,
 			port);
 	}
+
 	if (reading->xmit_discards > prev_read.xmit_discards) {
 		osm_log(pm->log, OSM_LOG_ERROR,
 			"osm_perfmgr_log_events: ERR 4C0F: "
@@ -743,7 +745,7 @@ osm_pc_rcv_process(void *context, void *data)
 	ib_port_counters_t *wire_read = (ib_port_counters_t *)&(osm_madw_get_perfmgt_mad_ptr(p_madw)->data);
 	ib_mad_t           *p_mad = osm_madw_get_mad_ptr(p_madw);
 	uint64_t            node_guid = mad_context->perfmgr_context.node_guid;
-	uint8_t             port_num = mad_context->perfmgr_context.port;
+	uint8_t             port = mad_context->perfmgr_context.port;
 	perfmgr_db_err_reading_t      err_reading;
 	perfmgr_db_data_cnt_reading_t data_reading;
 
@@ -751,7 +753,7 @@ osm_pc_rcv_process(void *context, void *data)
 
 	osm_log(pm->log, OSM_LOG_VERBOSE,
 		"osm_pc_rcv_process: Processing received MAD status 0x%x context 0x%" PRIx64 " port %u\n",
-		p_mad->status, node_guid, port_num);
+		p_mad->status, node_guid, port);
 
 	/* Could also be redirection (IBM eHCA PMA does this) */
 	if (p_mad->attr_id == IB_MAD_ATTR_CLASS_PORT_INFO) {
@@ -790,20 +792,21 @@ osm_pc_rcv_process(void *context, void *data)
 
 	/* detect an out of band clear on the port */
 	if (mad_context->perfmgr_context.mad_method != IB_MAD_METHOD_SET)
-		osm_perfmgr_check_oob_clear(pm, node_guid, port_num,
+		osm_perfmgr_check_oob_clear(pm, node_guid, port,
 					    &err_reading, &data_reading);
 
 	/* log any critical events from this reading */
-	osm_perfmgr_log_events(pm, node_guid, port_num, &err_reading);
+	osm_perfmgr_log_events(pm, node_guid, port, &err_reading);
 
 	if (mad_context->perfmgr_context.mad_method == IB_MAD_METHOD_GET) {
-		perfmgr_db_add_err_reading(pm->db, node_guid, port_num, &err_reading);
-		perfmgr_db_add_dc_reading(pm->db, node_guid, port_num, &data_reading);
+		perfmgr_db_add_err_reading(pm->db, node_guid, port, &err_reading);
+		perfmgr_db_add_dc_reading(pm->db, node_guid, port, &data_reading);
 	} else {
-		perfmgr_db_clear_prev_err(pm->db, node_guid, port_num);
-		perfmgr_db_clear_prev_dc(pm->db, node_guid, port_num);
+		perfmgr_db_clear_prev_err(pm->db, node_guid, port);
+		perfmgr_db_clear_prev_dc(pm->db, node_guid, port);
 	}
-	osm_perfmgr_check_overflow(pm, node_guid, port_num, wire_read);
+
+	osm_perfmgr_check_overflow(pm, node_guid, port, wire_read);
 
 #if 0
 	do {
