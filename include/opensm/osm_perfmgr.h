@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2007 The Regents of the University of California.
+ * Copyright (c) 2007 Voltaire, Inc. All rights reserved. 
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -92,11 +93,19 @@ typedef enum
   PERFMGR_SWEEP_SUSPENDED
 } osm_perfmgr_sweep_state_t;
 
+/* Redirection information */
+typedef struct redir {
+	ib_net16_t		redir_lid;
+	ib_net32_t		redir_qp;
+} redir_t;
+
 /* Node to store information about which nodes we are monitoring */
 typedef struct _monitored_node {
 	cl_map_item_t	        map_item;
 	struct _monitored_node *next;
 	uint64_t                guid;
+	uint32_t		redir_tbl_size;
+	redir_t			redir_port[1];	/* redirection on a per port basis */
 } __monitored_node_t;
 
 /****s* OpenSM: PerfMgr/osm_perfmgr_t

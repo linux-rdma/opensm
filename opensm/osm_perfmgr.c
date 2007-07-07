@@ -239,12 +239,56 @@ Exit:
 }
 
 /**********************************************************************
- * Given a node and a port return the appropriate lid to query that port
+ * Given a monitored node and a port, return the qp 
+ **********************************************************************/
+static ib_net32_t
+get_qp(__monitored_node_t *mon_node, uint8_t port)
+{
+	ib_net32_t qp = cl_ntoh32(1);
+
+        if (mon_node)
+        {
+                if (mon_node->redir_tbl_size)
+                {
+                        if (port < mon_node->redir_tbl_size)
+                        {
+                                if (mon_node->redir_port[port].redir_lid)
+				{
+					if (mon_node->redir_port[port].redir_qp)
+					{
+						qp = mon_node->redir_port[port].redir_qp;
+					}
+				}
+			}
+		}
+	}
+
+	return qp;
+}
+
+/**********************************************************************
+ * Given a node, a port, and an optional monitored node,
+ * return the appropriate lid to query that port
  **********************************************************************/
 static ib_net16_t
-get_lid(osm_node_t *p_node, uint8_t port)
+get_lid(osm_node_t *p_node, uint8_t port, __monitored_node_t *mon_node)
 {
 	ib_net16_t lid = 0;
+
+	if (mon_node)
+	{
+		if (mon_node->redir_tbl_size)
+		{
+			if (port < mon_node->redir_tbl_size)
+			{
+				lid = mon_node->redir_port[port].redir_lid;
+				if (lid)
+				{
+					return lid;
+				}
+			}
+		}
+	}
 
 	switch (p_node->node_info.node_type)
 	{
@@ -338,19 +382,23 @@ __collect_guids(cl_map_item_t * const p_map_item, void *context)
 	uint64_t            node_guid = cl_ntoh64(node->node_info.node_guid);
 	osm_perfmgr_t      *pm = (osm_perfmgr_t *)context;
 	__monitored_node_t *mon_node = NULL;
+	uint32_t            size;
 
 	OSM_LOG_ENTER( pm->log, __collect_guids );
 
 	if (cl_qmap_get(&(pm->monitored_map), node_guid)
 			== cl_qmap_end(&(pm->monitored_map))) {
 		/* if not already in our map add it */
-		mon_node = malloc(sizeof(*mon_node));
+		size = node->node_info.num_ports;
+		mon_node = malloc(sizeof(*mon_node) + sizeof(redir_t) * size);
 		if (!mon_node) {
 			osm_log(pm->log, OSM_LOG_ERROR,
 				"PerfMgr: __collect_guids ERR 4C06: malloc failed so not handling node GUID 0x%" PRIx64 "\n", node_guid);
 			goto Exit;
 		}
+		memset(mon_node, 0, sizeof(*mon_node) + sizeof(redir_t) * size);
 		mon_node->guid = node_guid;
+		mon_node->redir_tbl_size = size + 1;
 		cl_qmap_insert(&(pm->monitored_map), node_guid,
 				(cl_map_item_t *)mon_node);
 	}
@@ -373,6 +421,7 @@ __osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context)
 	osm_madw_context_t  mad_context;
 	uint8_t             num_ports = 0;
 	uint64_t            node_guid = 0;
+	ib_net32_t          remote_qp; 
 
 	OSM_LOG_ENTER( pm->log, __osm_pm_query_counters );
 
@@ -408,7 +457,7 @@ __osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context)
 		if (!osm_physp_is_valid(osm_node_get_physp_ptr(node, port)))
 			continue;
 
-		lid = get_lid(node, port);
+		lid = get_lid(node, port, mon_node);
 		if (lid == 0)
 		{
 			osm_log(pm->log, OSM_LOG_DEBUG,
@@ -417,6 +466,8 @@ __osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context)
 				node->print_desc);
 			continue;
 		}
+
+		remote_qp = get_qp(mon_node, port);
 
 		mad_context.perfmgr_context.node_guid = node_guid;
 		mad_context.perfmgr_context.port = port;
@@ -428,7 +479,7 @@ __osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context)
 				"__osm_pm_query_counters: Getting stats for node 0x%" PRIx64 " port %d (lid %X) (%s)\n",
 				node_guid, port, cl_ntoh16(lid),
 				node->print_desc);
-		status = osm_perfmgr_send_pc_mad(pm, lid, cl_hton32(1), port, IB_MAD_METHOD_GET, &mad_context);
+		status = osm_perfmgr_send_pc_mad(pm, lid, remote_qp, port, IB_MAD_METHOD_GET, &mad_context);
 		if (status != IB_SUCCESS)
 		{
 		      osm_log(pm->log, OSM_LOG_ERROR,
@@ -630,6 +681,7 @@ osm_perfmgr_check_overflow(osm_perfmgr_t *pm, uint64_t node_guid,
 {
 	osm_madw_context_t mad_context;
 	ib_api_status_t status;
+	ib_net32_t remote_qp;
 
 	OSM_LOG_ENTER( pm->log, osm_perfmgr_check_overflow );
 
@@ -659,7 +711,9 @@ osm_perfmgr_check_overflow(osm_perfmgr_t *pm, uint64_t node_guid,
 
 		cl_plock_acquire(pm->lock);
 		p_node = osm_get_node_by_guid(pm->subn, cl_hton64(node_guid));
-		lid = get_lid(p_node, port);
+		/* Could find monitored node for this rather than */
+		/* potentially redoing redirection */
+		lid = get_lid(p_node, port, NULL);
 		cl_plock_release(pm->lock);
 		if (lid == 0)
 		{
@@ -669,11 +723,13 @@ osm_perfmgr_check_overflow(osm_perfmgr_t *pm, uint64_t node_guid,
 			goto Exit;
 		}
 
+		remote_qp = get_qp(NULL, port);
+
 		mad_context.perfmgr_context.node_guid = node_guid;
 		mad_context.perfmgr_context.port = port;
 		mad_context.perfmgr_context.mad_method = IB_MAD_METHOD_SET;
 		/* clear port counters */
-		status = osm_perfmgr_send_pc_mad(pm, lid, cl_hton32(1), port, IB_MAD_METHOD_SET, &mad_context);
+		status = osm_perfmgr_send_pc_mad(pm, lid, remote_qp, port, IB_MAD_METHOD_SET, &mad_context);
 		if (status != IB_SUCCESS)
 		{
 			osm_log(pm->log, OSM_LOG_ERROR,
@@ -768,6 +824,9 @@ osm_pc_rcv_process(void *context, void *data)
 	if (p_mad->attr_id == IB_MAD_ATTR_CLASS_PORT_INFO) {
 		
 		ib_class_port_info_t *cpi = (ib_class_port_info_t *)&(osm_madw_get_perfmgt_mad_ptr(p_madw)->data);
+		cl_map_item_t *p_node;
+		__monitored_node_t *p_mon_node;
+		ib_api_status_t status;
 
 		osm_log(pm->log, OSM_LOG_VERBOSE,
 		        "osm_pc_rcv_process: Redirection to LID 0x%x "
@@ -787,7 +846,39 @@ osm_pc_rcv_process(void *context, void *data)
 		}
 
 		/* LID redirection support (easier than GID redirection) */
+		/* First, find the node in the monitored map */
+		cl_plock_acquire(pm->lock);
+		if ((p_node = cl_qmap_get(&(pm->monitored_map), node_guid)) ==
+		    cl_qmap_end(&(pm->monitored_map))) {
+			cl_plock_release(pm->lock);
+			osm_log(pm->log, OSM_LOG_ERROR,
+				"osm_pc_rcv_process: ERR 4C12: GUID 0x%016" PRIx64
+				" not found in monitored map\n",
+				node_guid);
+			goto Exit;
+		}
+		p_mon_node = (__monitored_node_t *)p_node;
+		/* Now, validate port number */
+		if (port > p_mon_node->redir_tbl_size) {
+			cl_plock_release(pm->lock);
+			osm_log(pm->log, OSM_LOG_ERROR,
+				"osm_pc_rcv_process: ERR 4C13: Invalid port num %d for GUID 0x%016" PRIx64
+				" num ports %d\n",
+				port, node_guid, p_mon_node->redir_tbl_size);
+			goto Exit;
+		}
+		p_mon_node->redir_port[port].redir_lid = cpi->redir_lid;
+		p_mon_node->redir_port[port].redir_qp = cpi->redir_qp;
+		cl_plock_release(pm->lock);
 
+		/* Finally, reissue the query to the redirected location */
+		status = osm_perfmgr_send_pc_mad(pm, cpi->redir_lid, cpi->redir_qp, port, mad_context->perfmgr_context.mad_method, mad_context);
+		if (status != IB_SUCCESS)
+		{
+			osm_log(pm->log, OSM_LOG_ERROR,
+				"osm_pc_rcv_process: ERR 4C14: Failed to send redirected MAD with method 0x%x for node 0x%" PRIx64 " port %d\n",
+				mad_context->perfmgr_context.mad_method, node_guid, port);
+		}
 		goto Exit;
 	}
 
