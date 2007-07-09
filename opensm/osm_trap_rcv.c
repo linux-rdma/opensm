@@ -496,7 +496,8 @@ __osm_trap_rcv_process_request(
          (p_ntci->g_or_v.generic.trap_num == CL_HTON16(131))) )
     {
       /* If this is a trap 129, 130, or 131 - then this is a trap
-         signaling a change on a physical port. Mark the flag physp_change_trap as TRUE. */
+         signaling a change on a physical port.
+         Mark the physp_change_trap flag as TRUE. */
       physp_change_trap = TRUE;
       /* The source_lid should be based on the source_lid from the trap */
       source_lid = p_ntci->data_details.ntc_129_131.lid;
