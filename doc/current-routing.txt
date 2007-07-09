@@ -174,11 +174,14 @@ Fat-tree Routing Algorithm
 Purpose:
 
 The fat-tree algorithm optimizes routing for "shift" communication pattern.
-It should be chosen if a subnet is a symmetrical fat-tree of various types.
+It should be chosen if a subnet is a symmetrical or almost symmetrical
+fat-tree of various types.
 It supports not just K-ary-N-Trees, by handling for non-constant K,
 cases where not all leafs (CAs) are present, any CBB ratio.
 As in UPDN, fat-tree also prevents credit-loop-deadlocks.
-Fat-tree algorithm supports topologies that comply with the following rules:
+
+If the root guid file is not provided ('-a' or '--root_guid_file' options),
+the topology has to be pure fat-tree that complies with the following rules:
   - Tree rank should be between two and eight (inclusively)
   - Switches of the same rank should have the same number
     of UP-going port groups*, unless they are root switches,
@@ -189,18 +192,31 @@ Fat-tree algorithm supports topologies that comply with the following rules:
     of ports in each UP-going port group.
   - Switches of the same rank should have the same number
     of ports in each DOWN-going port group.
-*ports that are connected to the same remote switch are referenced as
+  - All the CAs have to be at the same tree level (rank).
+
+If the root guid file is provided, the topology doesn't have to be pure
+fat-tree, and it should only comply with the following rules:
+  - Tree rank should be between two and eight (inclusively)
+  - All the Compute Nodes** have to be at the same tree level (rank).
+    Note that non-compute node CAs are allowed here to be at different
+    tree ranks.
+
+* ports that are connected to the same remote switch are referenced as
 'port group'.
+** list of compute nodes (CNs) can be specified by '-u' or '--cn_guid_file'
+OpenSM options.
 
 Note that although fat-tree algorithm supports trees with non-integer CBB
 ratio, the routing will not be as balanced as in case of integer CBB ratio.
 In addition to this, although the algorithm allows leaf switches to have any
 number of CAs, the closer the tree is to be fully populated, the more effective
 the "shift" communication pattern will be.
+In general, even if the root list is provided, the closer the topology to a
+pure and symmetrical fat-tree, the more optimal the routing will be.
 
-The algorithm also dumps CA ordering file (opensm-ftree-ca-order.dump) in the
-same directory where the OpenSM log resides. This ordering file provides the
-CA order that may be used to create efficient communication pattern, that
+The algorithm also dumps compute node ordering file (opensm-ftree-ca-order.dump)
+in the same directory where the OpenSM log resides. This ordering file provides
+the CN order that may be used to create efficient communication pattern, that
 will match the routing tables.
 
 
