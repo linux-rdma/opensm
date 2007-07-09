@@ -448,9 +448,9 @@ osm_physp_calc_link_op_vls(
   IN const osm_subn_t*    p_subn,
   IN const osm_physp_t*   p_physp )
 {
-  const osm_physp_t*    p_remote_physp;
-  uint8_t                  op_vls;
-  uint8_t                  remote_op_vls;
+  const osm_physp_t*      p_remote_physp;
+  uint8_t                 op_vls;
+  uint8_t                 remote_op_vls;
 
   OSM_LOG_ENTER( p_log, osm_physp_calc_link_op_vls );
 
