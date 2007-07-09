@@ -217,12 +217,6 @@ void osm_perfmgr_dump_counters(osm_perfmgr_t *p_perfmgr, perfmgr_db_dump_t dump_
 
 ib_api_status_t osm_perfmgr_bind(osm_perfmgr_t * const p_perfmgr, const ib_net64_t port_guid);
 
-#if 0
-/* Work out the tracking of notice events */
-ib_api_status_t osm_report_notice_to_perfmgr(osm_log_t *const p_log, osm_subn_t *p_subn,
-					ib_mad_notice_attr_t *p_ntc )
-#endif
-
 /****f* OpenSM: PerfMgr/osm_perfmgr_init */
 ib_api_status_t
 osm_perfmgr_init(

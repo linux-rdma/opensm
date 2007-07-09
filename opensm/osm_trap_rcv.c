@@ -759,21 +759,6 @@ __osm_trap_rcv_process_request(
     goto Exit;
   }
 
-#ifdef ENABLE_OSM_PERF_MGR
-#if 0
-  /* we still need to work out how this will work */
-  status = osm_report_notice_to_perfmgr(p_rcv->p_log, p_rcv->p_subn, p_ntci);
-  if( status != IB_SUCCESS )
-  {
-    osm_log( p_rcv->p_log, OSM_LOG_ERROR,
-             "__osm_trap_rcv_process_request: ERR 38xx: "
-             "Error sending trap reports (%s)\n",
-             ib_get_err_str( status ) );
-    goto Exit;
-  }
-#endif
-#endif /* ENABLE_OSM_PERF_MGR */
-
  Exit:
   OSM_LOG_EXIT( p_rcv->p_log );
 }
