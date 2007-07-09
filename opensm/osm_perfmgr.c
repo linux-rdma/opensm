@@ -820,7 +820,7 @@ osm_pc_rcv_process(void *context, void *data)
 		"osm_pc_rcv_process: Processing received MAD status 0x%x context 0x%" PRIx64 " port %u\n",
 		p_mad->status, node_guid, port);
 
-	/* Could also be redirection (IBM eHCA PMA does this) */
+	/* Response could also be redirection (IBM eHCA PMA does this) */
 	if (p_mad->attr_id == IB_MAD_ATTR_CLASS_PORT_INFO) {
 		
 		ib_class_port_info_t *cpi = (ib_class_port_info_t *)&(osm_madw_get_perfmgt_mad_ptr(p_madw)->data);
