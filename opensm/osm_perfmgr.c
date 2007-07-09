@@ -414,7 +414,7 @@ static void
 __osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context)
 {
 	ib_api_status_t     status = IB_SUCCESS;
-	uint8_t             port = 0;
+	uint8_t             port = 0, startport = 1;
 	osm_perfmgr_t      *pm = (osm_perfmgr_t *)context;
 	osm_node_t         *node = NULL;
 	__monitored_node_t *mon_node = (__monitored_node_t *)p_map_item;
@@ -439,7 +439,7 @@ __osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context)
 	node_guid = cl_ntoh64(node->node_info.node_guid);
 
 	/* make sure we have a database object ready to store this information */
-	if (perfmgr_db_create_entry(pm->db, node_guid, num_ports,
+	if (perfmgr_db_create_entry(pm->db, node_guid, num_ports + 1,
 				    node->print_desc) !=
 		PERFMGR_EVENT_DB_SUCCESS)
 	{
@@ -449,8 +449,20 @@ __osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context)
 		goto Exit;
 	}
 
+	/* if switch, check for enhanced port 0 */
+	if (osm_node_get_type(node) == IB_NODE_TYPE_SWITCH)
+	{
+		if (node->sw)
+		{
+			if (ib_switch_info_is_enhanced_port0(&node->sw->switch_info))
+			{
+				startport = 0;
+			}
+		}
+	}
+
 	/* issue the query for each port */
-	for (port = 1; port < num_ports; port++)
+	for (port = startport; port < num_ports; port++)
 	{
 		ib_net16_t lid;
 
