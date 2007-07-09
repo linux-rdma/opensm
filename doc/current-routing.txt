@@ -1,19 +1,19 @@
 Current OpenSM Routing
-3/12/07
+7/9/07
 
 OpenSM offers four routing engines:
 
-1.  Min Hop Algorithm - based on the minimum hops to each node where the 
+1.  Min Hop Algorithm - based on the minimum hops to each node where the
 path length is optimized.
 
-2.  UPDN Unicast routing algorithm - also based on the minimum hops to each 
-node, but it is constrained to ranking rules. This algorithm should be chosen 
-if the subnet is not a pure Fat Tree, and deadlock may occur due to a 
+2.  UPDN Unicast routing algorithm - also based on the minimum hops to each
+node, but it is constrained to ranking rules. This algorithm should be chosen
+if the subnet is not a pure Fat Tree, and deadlock may occur due to a
 loop in the subnet.
 
 3.  Fat-tree Unicast routing algorithm - this algorithm optimizes routing
-of fat-trees for congestion-free "shift" communication pattern. 
-It should be chosen if a subnet is a symmetrical fat-tree. 
+of fat-trees for congestion-free "shift" communication pattern.
+It should be chosen if a subnet is a symmetrical fat-tree.
 Similar to UPDN routing, Fat-tree routing is credit-loop-free.
 
 4. LASH unicast routing algorithm - uses Infiniband virtual layers
@@ -22,7 +22,7 @@ distributing the paths between layers. LASH is an alternative
 deadlock-free topology-agnostic routing algorithm to the non-minimal
 UPDN algorithm avoiding the use of a potentially congested root node.
 
-OpenSM also supports a file method which can load routes from a table. See 
+OpenSM also supports a file method which can load routes from a table. See
 modular-routing.txt for more information on this.
 
 The basic routing algorithm is comprised of two stages:
@@ -41,10 +41,10 @@ a decision is made as to what port should be used to get to that LID.
    This step is common to standard and Up/Down routing. Each port has a
 counter counting the number of target LIDs going through it.
    When there are multiple alternative ports with same MinHop to a LID,
-the one with less previously assigned ports is selected. 
-   If LMC > 0, more checks are added: Within each group of LIDs assigned to 
-same target port, 
-   a. use only ports which have same MinHop 
+the one with less previously assigned ports is selected.
+   If LMC > 0, more checks are added: Within each group of LIDs assigned to
+same target port,
+   a. use only ports which have same MinHop
    b. first prefer the ones that go to different systemImageGuid (then
 the previous LID of the same LMC group)
    c. if none - prefer those which go through another NodeGuid
@@ -65,15 +65,15 @@ the fabric switches unless the -r (--reassign_lids) option is specified.
           LID assignments resolving multiple use of same LID.
 
 If a link is added or removed, OpenSM does not recalculate
-the routes that do not have to change. A route has to change 
-if the port is no longer UP or no longer the MinHop. When routing changes 
+the routes that do not have to change. A route has to change
+if the port is no longer UP or no longer the MinHop. When routing changes
 are performed, the same algorithm for balancing the routes is invoked.
 
 In the case of using the file based routing, any topology changes are
-currently ignored The 'file' routing engine just loads the LFTs from the file 
-specified, with no reaction to real topology. Obviously, this will not be able 
-to recheck LIDs (by GUID) for disconnected nodes, and LFTs for non-existent 
-switches will be skipped. Multicast is not affected by 'file' routing engine 
+currently ignored The 'file' routing engine just loads the LFTs from the file
+specified, with no reaction to real topology. Obviously, this will not be able
+to recheck LIDs (by GUID) for disconnected nodes, and LFTs for non-existent
+switches will be skipped. Multicast is not affected by 'file' routing engine
 (this uses min hop tables).
 
 
@@ -82,7 +82,7 @@ Min Hop Algorithm
 
 The Min Hop algorithm is invoked when neither UPDN or the file method are
 specified.
- 
+
 The Min Hop algorithm is divided into two stages: computation of
 min-hop tables on every switch and LFT output port assignment. Link
 subscription is also equalized with the ability to override based on
@@ -102,39 +102,39 @@ UPDN Routing Algorithm
 
 Purpose of UPDN Algorithm
 
-The UPDN algorithm is designed to prevent deadlocks from occurring in loops 
-of the subnet. A loop-deadlock is a situation in which it is no longer 
-possible to send data between any two hosts connected through the loop. As 
-such, the UPDN routing algorithm should be used if the subnet is not a pure 
-Fat Tree, and one of its loops may experience a deadlock (due, for example, 
+The UPDN algorithm is designed to prevent deadlocks from occurring in loops
+of the subnet. A loop-deadlock is a situation in which it is no longer
+possible to send data between any two hosts connected through the loop. As
+such, the UPDN routing algorithm should be used if the subnet is not a pure
+Fat Tree, and one of its loops may experience a deadlock (due, for example,
 to high pressure).
 
 The UPDN algorithm is based on the following main stages:
 
-1.  Auto-detect root nodes - based on the CA hop length from any switch in 
-the subnet, a statistical histogram is built for each switch (hop num vs 
+1.  Auto-detect root nodes - based on the CA hop length from any switch in
+the subnet, a statistical histogram is built for each switch (hop num vs
 number of occurrences). If the histogram reflects a specific column (higher
-than others) for a certain node, then it is marked as a root node. Since 
-the algorithm is statistical, it may not find any root nodes. The list of 
-the root nodes found by this auto-detect stage is used by the ranking 
+than others) for a certain node, then it is marked as a root node. Since
+the algorithm is statistical, it may not find any root nodes. The list of
+the root nodes found by this auto-detect stage is used by the ranking
 process stage.
 
     Note 1: The user can override the node list manually.
-    Note 2: If this stage cannot find any root nodes, and the user did not 
-            specify a guid list file, OpenSM defaults back to the Min Hop 
+    Note 2: If this stage cannot find any root nodes, and the user did not
+            specify a guid list file, OpenSM defaults back to the Min Hop
             routing algorithm.
 
-2.  Ranking process - All root switch nodes (found in stage 1) are assigned 
-a rank of 0. Using the BFS algorithm, the rest of the switch nodes in the 
-subnet are ranked incrementally. This ranking aids in the process of enforcing 
+2.  Ranking process - All root switch nodes (found in stage 1) are assigned
+a rank of 0. Using the BFS algorithm, the rest of the switch nodes in the
+subnet are ranked incrementally. This ranking aids in the process of enforcing
 rules that ensure loop-free paths.
 
-3.  Min Hop Table setting - after ranking is done, a BFS algorithm is run from 
-each (CA or switch) node in the subnet. During the BFS process, the FDB table 
-of each switch node traversed by BFS is updated, in reference to the starting 
+3.  Min Hop Table setting - after ranking is done, a BFS algorithm is run from
+each (CA or switch) node in the subnet. During the BFS process, the FDB table
+of each switch node traversed by BFS is updated, in reference to the starting
 node, based on the ranking rules and guid values.
 
-At the end of the process, the updated FDB tables ensure loop-free paths 
+At the end of the process, the updated FDB tables ensure loop-free paths
 through the subnet.
 
 Note: Up/Down routing does not allow LID routing communication between
@@ -150,21 +150,21 @@ UPDN Algorithm Usage
 Activation through OpenSM
 
 Use '-R updn' option (instead of old '-u') to activate the UPDN algorithm.
-Use `-a <guid_list_file>' for adding an UPDN guid file that contains the 
+Use `-a <guid_list_file>' for adding an UPDN guid file that contains the
 root nodes for ranking.
-If the `-a' option is not used, OpenSM uses its auto-detect root nodes 
+If the `-a' option is not used, OpenSM uses its auto-detect root nodes
 algorithm.
 
 Notes on the guid list file:
-1.   A valid guid file specifies one guid in each line. Lines with an invalid 
+1.   A valid guid file specifies one guid in each line. Lines with an invalid
 format will be discarded.
-2.   The user should specify the root switch guids. However, it is also 
-possible to specify CA guids; OpenSM will use the guid of the switch (if 
+2.   The user should specify the root switch guids. However, it is also
+possible to specify CA guids; OpenSM will use the guid of the switch (if
 it exists) that connects the CA to the subnet as a root node.
 
 
-To learn more about deadlock-free routing, see the article 
-"Deadlock Free Message Routing in Multiprocessor Interconnection Networks" 
+To learn more about deadlock-free routing, see the article
+"Deadlock Free Message Routing in Multiprocessor Interconnection Networks"
 by William J Dally and Charles L Seitz (1985).
 
 
@@ -173,9 +173,9 @@ Fat-tree Routing Algorithm
 
 Purpose:
 
-The fat-tree algorithm optimizes routing for "shift" communication pattern. 
+The fat-tree algorithm optimizes routing for "shift" communication pattern.
 It should be chosen if a subnet is a symmetrical fat-tree of various types.
-It supports not just K-ary-N-Trees, by handling for non-constant K, 
+It supports not just K-ary-N-Trees, by handling for non-constant K,
 cases where not all leafs (CAs) are present, any CBB ratio.
 As in UPDN, fat-tree also prevents credit-loop-deadlocks.
 Fat-tree algorithm supports topologies that comply with the following rules:
@@ -190,16 +190,16 @@ Fat-tree algorithm supports topologies that comply with the following rules:
   - Switches of the same rank should have the same number
     of ports in each DOWN-going port group.
 *ports that are connected to the same remote switch are referenced as
-'port group'. 
+'port group'.
 
-Note that although fat-tree algorithm supports trees with non-integer CBB 
+Note that although fat-tree algorithm supports trees with non-integer CBB
 ratio, the routing will not be as balanced as in case of integer CBB ratio.
-In addition to this, although the algorithm allows leaf switches to have any 
+In addition to this, although the algorithm allows leaf switches to have any
 number of CAs, the closer the tree is to be fully populated, the more effective
 the "shift" communication pattern will be.
 
 The algorithm also dumps CA ordering file (opensm-ftree-ca-order.dump) in the
-same directory where the OpenSM log resides. This ordering file provides the 
+same directory where the OpenSM log resides. This ordering file provides the
 CA order that may be used to create efficient communication pattern, that
 will match the routing tables.
 
@@ -223,7 +223,7 @@ agnostic deadlock-free routing within communication networks.
 When computing the routing function, LASH analyzes the network
 topology for the shortest-path routes between all pairs of sources /
 destinations and groups these paths into virtual layers in such a way
-as to avoid deadlock. 
+as to avoid deadlock.
 
 Note LASH analyzes routes and ensures deadlock freedom between switch
 pairs. The link from HCA between and switch does not need virtual
@@ -254,7 +254,7 @@ available.
 
 In general LASH is a very flexible algorithm. It can, for example,
 reduce to Dimension Order Routing in certain topologies, it is topology
-agnostic and fares well in the face of faults. 
+agnostic and fares well in the face of faults.
 
 It has been shown that for both regular and irregular topologies, LASH
 outperforms Up/Down. The reason for this is that LASH distributes the
