@@ -1086,7 +1086,8 @@ osm_vendor_send(
 			  p_mad_addr->addr_type.gsi.service_level,
 			  IB_QP1_WELL_KNOWN_Q_KEY);
 	umad_set_grh(p_vw->umad, 0);	/* FIXME: GRH support */
-	umad_set_pkey(p_vw->umad, p_mad_addr->addr_type.gsi.pkey);
+	umad_set_pkey(p_vw->umad, 0);
+		/* FIXME: p_mad_addr->addr_type.gsi.pkey to index */
 	if (ib_class_is_rmpp(p_mad->mgmt_class)) {	/* RMPP GSI classes	FIXME: no GRH */
 		if (!ib_rmpp_is_flag_set((ib_rmpp_mad_t *)p_sa,
 					 IB_RMPP_FLAG_ACTIVE)) {
