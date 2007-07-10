@@ -577,6 +577,7 @@ __osm_trap_rcv_process_request(
             ib_port_info_set_port_state( p_pi, IB_LINK_DOWN );
             ib_port_info_set_port_phys_state( IB_PORT_PHYS_STATE_DISABLED, p_pi );
 
+            /* Issue set of PortInfo */
             context.pi_context.node_guid = osm_node_get_node_guid( osm_physp_get_node_ptr( p_physp ) );
             context.pi_context.port_guid = osm_physp_get_port_guid( p_physp );
             context.pi_context.set_method = TRUE;
