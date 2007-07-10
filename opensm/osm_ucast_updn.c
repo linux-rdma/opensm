@@ -718,8 +718,8 @@ __osm_updn_find_root_nodes_by_min_hop(
   uint8_t       maxHops = 0; /* contain the max histogram index */
   uint64_t     *p_guid;
   cl_list_t    *p_root_nodes_list = p_updn->p_root_nodes;
-  cl_map_t      ca_by_lid_map; /* map holding all CA lids  */
-  uint16_t self_lid_ho;
+  unsigned *cas_per_sw;
+  uint16_t sw_lid_ho;
 
   OSM_LOG_ENTER( &p_osm->log, osm_updn_find_root_nodes_by_min_hop );
 
@@ -729,8 +729,15 @@ __osm_updn_find_root_nodes_by_min_hop(
            cl_qmap_count(&p_osm->subn.port_guid_tbl) );
   /* Init the required vars */
   cl_qmap_init( &min_hop_hist );
-  cl_map_construct( &ca_by_lid_map );
-  cl_map_init( &ca_by_lid_map, 10 );
+
+  cas_per_sw = malloc((IB_LID_UCAST_END_HO + 1)*sizeof(*cas_per_sw));
+  if (!cas_per_sw) {
+    osm_log( &p_osm->log, OSM_LOG_ERROR,
+             "__osm_updn_find_root_nodes_by_min_hop: "
+             "cannot alloc mem for CAs per switch counter array.\n");
+    goto _exit;
+  }
+  memset(cas_per_sw, 0, (IB_LID_UCAST_END_HO + 1)*sizeof(*cas_per_sw));
 
   /* EZ:
      p_ca_list = (cl_list_t*)malloc(sizeof(cl_list_t)); 
@@ -752,21 +759,19 @@ __osm_updn_find_root_nodes_by_min_hop(
   while( p_next_port != (osm_port_t*)cl_qmap_end( &p_osm->subn.port_guid_tbl ) ) {
     p_port = p_next_port;
     p_next_port = (osm_port_t*)cl_qmap_next( &p_next_port->map_item );
-    if ( osm_node_get_type(p_port->p_node) != IB_NODE_TYPE_SWITCH )
+    if ( !p_port->p_node->sw )
     {
-      p_physp = p_port->p_physp;
-      self_lid_ho = cl_ntoh16( osm_physp_get_base_lid(p_physp) );
-      numCas++;
-      /* EZ:
-         self = malloc(sizeof(uint16_t));
-         *self = self_lid_ho;
-         cl_list_insert_tail(p_ca_list, self);
-      */
-      cl_map_insert( &ca_by_lid_map, self_lid_ho, (void *)0x1);
+      p_physp = p_port->p_physp->p_remote_physp;
+      if (!p_physp || !p_physp->p_node->sw)
+        continue;
+      sw_lid_ho = osm_node_get_base_lid(p_physp->p_node, 0);
+      sw_lid_ho = cl_ntoh16(sw_lid_ho);
       osm_log( &p_osm->log, OSM_LOG_DEBUG,
                "__osm_updn_find_root_nodes_by_min_hop: "
-               "Inserting GUID 0x%" PRIx64 ", Lid: 0x%X into array\n",
-               cl_ntoh64(osm_port_get_guid(p_port)), self_lid_ho );
+               "Inserting GUID 0x%" PRIx64 ", sw lid: 0x%X into array\n",
+               cl_ntoh64(osm_port_get_guid(p_port)), sw_lid_ho );
+      cas_per_sw[sw_lid_ho]++;
+      numCas++;
     }
   }
   osm_log( &p_osm->log, OSM_LOG_DEBUG,
@@ -792,10 +797,10 @@ __osm_updn_find_root_nodes_by_min_hop(
        rebuild its FWD tables, post setting Min Hop Tables */
     max_lid_ho = p_sw->max_lid_ho;
     /* Get base lid of switch by retrieving port 0 lid of node pointer */
-    self_lid_ho = cl_ntoh16( osm_node_get_base_lid( p_sw->p_node, 0 ) );
+    sw_lid_ho = cl_ntoh16( osm_node_get_base_lid( p_sw->p_node, 0 ) );
     osm_log( &p_osm->log, OSM_LOG_DEBUG,
              "__osm_updn_find_root_nodes_by_min_hop: "
-             "Passing through switch lid 0x%X\n", self_lid_ho );
+             "Passing through switch lid 0x%X\n", sw_lid_ho );
     for (lid_ho = 1; lid_ho <= max_lid_ho; lid_ho++)
     {
       /* Skip lids which are not CAs or RTRs - 
@@ -816,7 +821,7 @@ __osm_updn_find_root_nodes_by_min_hop(
          }
          if ( LidFound )
       */
-      if (cl_map_get( &ca_by_lid_map, lid_ho ))
+      if (cas_per_sw[lid_ho])
       {
         hop_val = osm_switch_get_least_hops( p_sw, lid_ho );
         if (hop_val > maxHops)
@@ -828,22 +833,19 @@ __osm_updn_find_root_nodes_by_min_hop(
           /* New entry in the histogram, first create it */
           p_updn_hist = (updn_hist_t*) malloc(sizeof(updn_hist_t));
           CL_ASSERT(p_updn_hist);
-          p_updn_hist->bar_value = 1;
+          p_updn_hist->bar_value = 0;
           cl_qmap_insert(&min_hop_hist, (uint64_t)hop_val, &p_updn_hist->map_item);
           osm_log( &p_osm->log, OSM_LOG_DEBUG,
                    "__osm_updn_find_root_nodes_by_min_hop: "
-                   "Creating new entry in histogram %u with bar value 1\n",
+                   "Creating new entry in histogram %u\n",
                    hop_val );
         }
-        else
-        {
-          /* Entry exists in the table, just increment the value */
-          p_updn_hist->bar_value++;
-          osm_log( &p_osm->log, OSM_LOG_DEBUG,
-                   "__osm_updn_find_root_nodes_by_min_hop: "
-                   "Updating entry in histogram %u with bar value %d\n",
-                   hop_val, p_updn_hist->bar_value );
-        }
+        /* Entry exists in the table, just increment the value */
+        p_updn_hist->bar_value += cas_per_sw[lid_ho];
+        osm_log( &p_osm->log, OSM_LOG_DEBUG,
+                 "__osm_updn_find_root_nodes_by_min_hop: "
+                 "Updating entry in histogram %u with bar value %d\n",
+                 hop_val, p_updn_hist->bar_value );
       }
     }
 
@@ -908,13 +910,11 @@ __osm_updn_find_root_nodes_by_min_hop(
     }
   }
 
-  /* destroy the map of CA and RTR lids */
-  cl_map_remove_all( &ca_by_lid_map );
-  cl_map_destroy( &ca_by_lid_map );
-
+  free(cas_per_sw);
   /* Now convert the cl_list to array */
   __osm_updn_convert_list2array(p_updn);
- 
+
+ _exit:
   OSM_LOG_EXIT( &p_osm->log );
   return;
 }
