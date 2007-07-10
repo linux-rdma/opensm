@@ -248,7 +248,7 @@ __osm_pi_rcv_process_switch_port(
     then ask for NodeInfo.  Ignore the switch management port.
   */
   port_num = osm_physp_get_port_num( p_physp );
-  /* if in_sweep_hop_0 is TRUE, then this means the SM in on the switch,
+  /* if in_sweep_hop_0 is TRUE, then this means the SM is on the switch,
      and we got switchInfo of our local switch. Do not continue
      probing through the switch. */
   if( port_num != 0 && p_rcv->p_subn->in_sweep_hop_0 == FALSE)
