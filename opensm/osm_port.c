@@ -467,7 +467,7 @@ osm_physp_calc_link_op_vls(
       osm_log( p_log, OSM_LOG_DEBUG,
                "osm_physp_calc_link_op_vls: "
                "Remote port 0x%016" PRIx64 " port = 0x%X : "
-               "VL_CAP = %u. This port VL_CAP:%u\n",
+               "VL_CAP = %u. This port VL_CAP = %u\n",
                cl_ntoh64( osm_physp_get_port_guid( p_remote_physp ) ),
                osm_physp_get_port_num( p_remote_physp ),
                remote_op_vls,
