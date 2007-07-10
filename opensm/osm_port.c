@@ -399,7 +399,7 @@ osm_physp_calc_link_mtu(
     {
       osm_log( p_log, OSM_LOG_DEBUG,
                "osm_physp_calc_link_mtu: "
-               "Remote port 0x%016" PRIx64 " port# = 0x%X : "
+               "Remote port 0x%016" PRIx64 " port = 0x%X : "
                "MTU = %u. This Port MTU: %u\n",
                cl_ntoh64( osm_physp_get_port_guid( p_remote_physp ) ),
                osm_physp_get_port_num( p_remote_physp ),
@@ -416,8 +416,8 @@ osm_physp_calc_link_mtu(
         osm_log( p_log, OSM_LOG_VERBOSE,
                  "osm_physp_calc_link_mtu: "
                  "MTU mismatch between ports."
-                 "\n\t\t\t\tPort 0x%016" PRIx64 ", port# 0x%X"
-                 " and port 0x%016" PRIx64 ", port# 0x%X."
+                 "\n\t\t\t\tPort 0x%016" PRIx64 ", port 0x%X"
+                 " and port 0x%016" PRIx64 ", port 0x%X."
                  "\n\t\t\t\tUsing lower MTU of %u\n",
                  cl_ntoh64( osm_physp_get_port_guid( p_physp ) ),
                  osm_physp_get_port_num( p_physp ),
@@ -466,7 +466,7 @@ osm_physp_calc_link_op_vls(
     {
       osm_log( p_log, OSM_LOG_DEBUG,
                "osm_physp_calc_link_op_vls: "
-               "Remote port 0x%016" PRIx64 " port# = 0x%X : "
+               "Remote port 0x%016" PRIx64 " port = 0x%X : "
                "VL_CAP = %u. This port VL_CAP:%u\n",
                cl_ntoh64( osm_physp_get_port_guid( p_remote_physp ) ),
                osm_physp_get_port_num( p_remote_physp ),
@@ -485,8 +485,8 @@ osm_physp_calc_link_op_vls(
         osm_log( p_log, OSM_LOG_VERBOSE,
                  "osm_physp_calc_link_op_vls: "
                  "OP_VLS mismatch between ports."
-                 "\n\t\t\t\tPort 0x%016" PRIx64 ", port# 0x%X"
-                 " and port 0x%016" PRIx64 ", port# 0x%X."
+                 "\n\t\t\t\tPort 0x%016" PRIx64 ", port 0x%X"
+                 " and port 0x%016" PRIx64 ", port 0x%X."
                  "\n\t\t\t\tUsing lower OP_VLS of %u\n",
                  cl_ntoh64( osm_physp_get_port_guid( p_physp ) ),
                  osm_physp_get_port_num( p_physp ),

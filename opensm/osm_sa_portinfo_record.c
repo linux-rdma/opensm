@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -167,7 +167,7 @@ __osm_pir_rcv_new_pir(
     osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
              "__osm_pir_rcv_new_pir: "
              "New PortInfoRecord: port 0x%016" PRIx64
-             ", lid 0x%X, port# 0x%X\n",
+             ", lid 0x%X, port 0x%X\n",
              cl_ntoh64( osm_physp_get_port_guid( p_physp ) ),
              cl_ntoh16( lid ), osm_physp_get_port_num( p_physp ) );
   }
