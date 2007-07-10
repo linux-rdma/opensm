@@ -154,14 +154,48 @@ osm_perfmgr_mad_send_err_callback(void* bind_context, osm_madw_t *p_madw)
 {
 	osm_perfmgr_t *pm = (osm_perfmgr_t *)bind_context;
 	osm_madw_context_t *context = &(p_madw->context);
+	uint64_t            node_guid = context->perfmgr_context.node_guid;
+	uint8_t             port = context->perfmgr_context.port;
 
 	OSM_LOG_ENTER( pm->log, osm_pm_mad_send_err_callback );
 
 	osm_log( pm->log, OSM_LOG_ERROR,
 		"osm_perfmgr_mad_send_err_callback: ERR 4C02: 0x%" PRIx64 " port %d\n",
-		context->perfmgr_context.node_guid,
-		context->perfmgr_context.port);
+		node_guid, port);
 
+	if (p_madw->status == IB_TIMEOUT)
+	{
+		cl_map_item_t *p_node;
+		__monitored_node_t *p_mon_node;
+
+		/* First, find the node in the monitored map */
+		cl_plock_acquire(pm->lock);
+		if ((p_node = cl_qmap_get(&(pm->monitored_map), node_guid)) ==
+		    cl_qmap_end(&(pm->monitored_map))) {
+			cl_plock_release(pm->lock);
+			osm_log(pm->log, OSM_LOG_ERROR,
+				"osm_perfmgr_mad_send_err_callback: ERR 4C15: GUID 0x%016" PRIx64
+				" not found in monitored map\n",
+				node_guid);
+			goto Exit;
+		}
+		p_mon_node = (__monitored_node_t *)p_node;
+		/* Now, validate port number */
+		if (port > p_mon_node->redir_tbl_size) {
+			cl_plock_release(pm->lock);
+			osm_log(pm->log, OSM_LOG_ERROR,
+				"osm_perfmgr_mad_send_err_callback: ERR 4C16: Invalid port num %d for GUID 0x%016" PRIx64
+				" num ports %d\n",
+				port, node_guid, p_mon_node->redir_tbl_size);
+			goto Exit;
+		}
+		/* Clear redirection info */
+		p_mon_node->redir_port[port].redir_lid = 0;
+		p_mon_node->redir_port[port].redir_qp = 0;
+		cl_plock_release(pm->lock);
+	}
+
+ Exit:
 	osm_mad_pool_put( pm->mad_pool, p_madw );
 
 	__decrement_outstanding_queries(pm);
