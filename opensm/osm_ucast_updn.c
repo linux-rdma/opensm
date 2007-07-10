@@ -733,8 +733,8 @@ __osm_updn_find_root_nodes_by_min_hop(
   cas_per_sw = malloc((IB_LID_UCAST_END_HO + 1)*sizeof(*cas_per_sw));
   if (!cas_per_sw) {
     osm_log( &p_osm->log, OSM_LOG_ERROR,
-             "__osm_updn_find_root_nodes_by_min_hop: "
-             "cannot alloc mem for CAs per switch counter array.\n");
+             "__osm_updn_find_root_nodes_by_min_hop: ERR AA14: "
+             "cannot alloc mem for CAs per switch counter array\n");
     goto _exit;
   }
   memset(cas_per_sw, 0, (IB_LID_UCAST_END_HO + 1)*sizeof(*cas_per_sw));
