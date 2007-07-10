@@ -296,6 +296,7 @@ typedef struct _osm_subn_opt
   boolean_t                no_clients_rereg;
 #ifdef ENABLE_OSM_PERF_MGR
   boolean_t                perfmgr;
+  boolean_t                perfmgr_redir;
   uint16_t                 perfmgr_sweep_time_s;
   uint32_t                 perfmgr_max_outstanding_queries;
   char *                   event_db_dump_file;
@@ -495,8 +496,11 @@ typedef struct _osm_subn_opt
 *	perfmgr
 *		Enable or disable the performance manager
 *
+*	perfmgr_redir
+*		Enable or disable the saving of redirection by PerfMgr
+*
 *	perfmgr_sweep_time_s
-*		Define the period (in seconds) of PM sweeps.
+*		Define the period (in seconds) of PerfMgr sweeps
 *
 *       event_db_dump_file
 *               File to dump the event database to

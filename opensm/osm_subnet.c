@@ -475,6 +475,7 @@ osm_subn_set_default_opt(
   p_opt->babbling_port_policy = FALSE;
 #ifdef ENABLE_OSM_PERF_MGR
   p_opt->perfmgr = FALSE;
+  p_opt->perfmgr_redir = TRUE;
   p_opt->perfmgr_sweep_time_s = OSM_PERFMGR_DEFAULT_SWEEP_TIME_S;
   p_opt->perfmgr_max_outstanding_queries =
 	  OSM_PERFMGR_DEFAULT_MAX_OUTSTANDING_QUERIES;
@@ -1368,6 +1369,10 @@ osm_subn_parse_conf_file(
         "perfmgr",
         p_key, p_val, &p_opts->perfmgr);
 
+      __osm_subn_opts_unpack_boolean(
+        "perfmgr_redir",
+        p_key, p_val, &p_opts->perfmgr_redir);
+
       __osm_subn_opts_unpack_uint16(
         "perfmgr_sweep_time_s",
         p_key, p_val, &p_opts->perfmgr_sweep_time_s);
@@ -1650,12 +1655,15 @@ osm_subn_write_conf_file(
     "#\n# Performance Manager Options\n#\n"
     "# perfmgr enable\n"
     "perfmgr %s\n\n"
+    "# perfmgr_redir enable\n"
+    "perfmgr_redir %s\n\n"
     "# sweep time in seconds\n"
     "perfmgr_sweep_time_s %u\n\n"
     "# Max outstanding queries\n"
     "perfmgr_max_outstanding_queries %u\n\n"
     ,
     p_opts->perfmgr ? "TRUE" : "FALSE",
+    p_opts->perfmgr_redir ? "TRUE" : "FALSE",
     p_opts->perfmgr_sweep_time_s,
     p_opts->perfmgr_max_outstanding_queries
     );

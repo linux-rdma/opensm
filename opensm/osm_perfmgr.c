@@ -163,7 +163,7 @@ osm_perfmgr_mad_send_err_callback(void* bind_context, osm_madw_t *p_madw)
 		"osm_perfmgr_mad_send_err_callback: ERR 4C02: 0x%" PRIx64 " port %d\n",
 		node_guid, port);
 
-	if (p_madw->status == IB_TIMEOUT)
+	if (pm->subn->opt.perfmgr_redir && p_madw->status == IB_TIMEOUT)
 	{
 		cl_map_item_t *p_node;
 		__monitored_node_t *p_mon_node;
@@ -891,6 +891,9 @@ osm_pc_rcv_process(void *context, void *data)
 			goto Exit;
 		}
 
+		if (!pm->subn->opt.perfmgr_redir)
+			goto ReIssue;
+
 		/* LID redirection support (easier than GID redirection) */
 		/* First, find the node in the monitored map */
 		cl_plock_acquire(pm->lock);
@@ -917,6 +920,7 @@ osm_pc_rcv_process(void *context, void *data)
 		p_mon_node->redir_port[port].redir_qp = cpi->redir_qp;
 		cl_plock_release(pm->lock);
 
+ ReIssue:
 		/* Finally, reissue the query to the redirected location */
 		status = osm_perfmgr_send_pc_mad(pm, cpi->redir_lid, cpi->redir_qp, port, mad_context->perfmgr_context.mad_method, mad_context);
 		if (status != IB_SUCCESS)
