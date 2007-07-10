@@ -158,7 +158,7 @@ osm_perfmgr_mad_send_err_callback(void* bind_context, osm_madw_t *p_madw)
 	OSM_LOG_ENTER( pm->log, osm_pm_mad_send_err_callback );
 
 	osm_log( pm->log, OSM_LOG_ERROR,
-		"osm_pm_mad_send_err_callback: ERR 4C02: 0x%" PRIx64 " port %d\n",
+		"osm_perfmgr_mad_send_err_callback: ERR 4C02: 0x%" PRIx64 " port %d\n",
 		context->perfmgr_context.node_guid,
 		context->perfmgr_context.port);
 
