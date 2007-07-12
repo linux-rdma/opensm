@@ -66,13 +66,6 @@ typedef enum _updn_switch_dir
   DOWN
 } updn_switch_dir_t;
 
-/* Histogram element - the number of occurences of the same hop value */
-typedef struct _updn_hist
-{
-  cl_map_item_t map_item;
-  uint32_t bar_value;
-} updn_hist_t;
-
 /* guids list */
 typedef struct _updn_input
 {
@@ -711,15 +704,12 @@ __osm_updn_find_root_nodes_by_min_hop(
   osm_switch_t *p_next_sw, *p_sw;
   osm_port_t   *p_next_port, *p_port;
   osm_physp_t  *p_physp;
-  uint32_t      numCas = 0;
-  uint32_t      numSws = cl_qmap_count(&p_osm->subn.sw_guid_tbl);
-  cl_qmap_t     min_hop_hist; /* Histogram container */
-  updn_hist_t  *p_updn_hist, *p_up_ht;
-  uint8_t       maxHops = 0; /* contain the max histogram index */
   uint64_t     *p_guid;
   cl_list_t    *p_root_nodes_list = p_updn->p_root_nodes;
+  double thd1, thd2;
+  unsigned i, cas_num = 0;
   unsigned *cas_per_sw;
-  uint16_t sw_lid_ho;
+  uint16_t lid_ho;
 
   OSM_LOG_ENTER( &p_osm->log, osm_updn_find_root_nodes_by_min_hop );
 
@@ -727,8 +717,6 @@ __osm_updn_find_root_nodes_by_min_hop(
            "__osm_updn_find_root_nodes_by_min_hop: "
            "Current number of ports in the subnet is %d\n",
            cl_qmap_count(&p_osm->subn.port_guid_tbl) );
-  /* Init the required vars */
-  cl_qmap_init( &min_hop_hist );
 
   cas_per_sw = malloc((IB_LID_UCAST_END_HO + 1)*sizeof(*cas_per_sw));
   if (!cas_per_sw) {
@@ -738,18 +726,6 @@ __osm_updn_find_root_nodes_by_min_hop(
     goto _exit;
   }
   memset(cas_per_sw, 0, (IB_LID_UCAST_END_HO + 1)*sizeof(*cas_per_sw));
-
-  /* EZ:
-     p_ca_list = (cl_list_t*)malloc(sizeof(cl_list_t)); 
-#if 0
-     if (!p_ca_list)
-     {
-
-     }
-#endif
-     cl_list_construct( p_ca_list ); 
-     cl_list_init( p_ca_list, 10 );
-  */
 
   /* Find the Maximum number of CAs (and routers) for histogram normalization */
   osm_log( &p_osm->log, OSM_LOG_VERBOSE,
@@ -764,128 +740,66 @@ __osm_updn_find_root_nodes_by_min_hop(
       p_physp = p_port->p_physp->p_remote_physp;
       if (!p_physp || !p_physp->p_node->sw)
         continue;
-      sw_lid_ho = osm_node_get_base_lid(p_physp->p_node, 0);
-      sw_lid_ho = cl_ntoh16(sw_lid_ho);
+      lid_ho = osm_node_get_base_lid(p_physp->p_node, 0);
+      lid_ho = cl_ntoh16(lid_ho);
       osm_log( &p_osm->log, OSM_LOG_DEBUG,
                "__osm_updn_find_root_nodes_by_min_hop: "
                "Inserting GUID 0x%" PRIx64 ", sw lid: 0x%X into array\n",
-               cl_ntoh64(osm_port_get_guid(p_port)), sw_lid_ho );
-      cas_per_sw[sw_lid_ho]++;
-      numCas++;
+               cl_ntoh64(osm_port_get_guid(p_port)), lid_ho );
+      cas_per_sw[lid_ho]++;
+      cas_num++;
     }
   }
+
+  thd1 = cas_num * 0.9;
+  thd2 = cas_num * 0.05;
   osm_log( &p_osm->log, OSM_LOG_DEBUG,
            "__osm_updn_find_root_nodes_by_min_hop: "
-           "Found %u CAs and RTRs, %u SWs in the subnet\n", numCas, numSws );
+           "Found %u CAs and RTRs, %u SWs in the subnet. "
+           "Thresholds are thd1 = %f && thd2 = %f\n",
+           cas_num, cl_qmap_count(&p_osm->subn.sw_guid_tbl), thd1, thd2);
+
   p_next_sw = (osm_switch_t*)cl_qmap_head( &p_osm->subn.sw_guid_tbl );
   osm_log( &p_osm->log, OSM_LOG_VERBOSE,
            "__osm_updn_find_root_nodes_by_min_hop: "
            "Passing through all switches to collect Min Hop info\n" );
   while( p_next_sw != (osm_switch_t*)cl_qmap_end( &p_osm->subn.sw_guid_tbl ) )
   {
-    uint16_t max_lid_ho, lid_ho;
+    unsigned hop_hist[IB_SUBNET_PATH_HOPS_MAX];
+    uint16_t max_lid_ho;
     uint8_t hop_val;
     uint16_t numHopBarsOverThd1 = 0;
     uint16_t numHopBarsOverThd2 = 0;
-    double thd1, thd2;
 
     p_sw = p_next_sw;
     /* Roll to the next switch */
     p_next_sw = (osm_switch_t*)cl_qmap_next( &p_sw->map_item );
 
-    /* Clear Min Hop Table && FWD Tbls - This should cause opensm to
-       rebuild its FWD tables, post setting Min Hop Tables */
+    memset(hop_hist, 0, sizeof(hop_hist));
+
     max_lid_ho = p_sw->max_lid_ho;
     /* Get base lid of switch by retrieving port 0 lid of node pointer */
-    sw_lid_ho = cl_ntoh16( osm_node_get_base_lid( p_sw->p_node, 0 ) );
     osm_log( &p_osm->log, OSM_LOG_DEBUG,
              "__osm_updn_find_root_nodes_by_min_hop: "
-             "Passing through switch lid 0x%X\n", sw_lid_ho );
+             "Passing through switch lid 0x%X\n",
+	     cl_ntoh16( osm_node_get_base_lid( p_sw->p_node, 0 ) ) );
     for (lid_ho = 1; lid_ho <= max_lid_ho; lid_ho++)
-    {
-      /* Skip lids which are not CAs or RTRs - 
-         for histogram purposes we only care about CAs and RTRs */
-      
-      /* EZ:
-         boolean_t LidFound = FALSE;
-         cl_list_iterator_t ca_lid_iterator= cl_list_head(p_ca_list);
-         while( (ca_lid_iterator != cl_list_end(p_ca_list)) && !LidFound )
-         {
-         uint16_t *p_lid;
-         
-         p_lid = (uint16_t*)cl_list_obj(ca_lid_iterator);
-         if ( *p_lid == lid_ho )
-         LidFound = TRUE;
-         ca_lid_iterator = cl_list_next(ca_lid_iterator);
-         
-         }
-         if ( LidFound )
-      */
       if (cas_per_sw[lid_ho])
       {
         hop_val = osm_switch_get_least_hops( p_sw, lid_ho );
-        if (hop_val > maxHops)
-          maxHops = hop_val;
-        p_updn_hist = 
-          (updn_hist_t*)cl_qmap_get( &min_hop_hist, (uint64_t)hop_val );
-        if ( p_updn_hist == (updn_hist_t*)cl_qmap_end( &min_hop_hist ))
-        {
-          /* New entry in the histogram, first create it */
-          p_updn_hist = (updn_hist_t*) malloc(sizeof(updn_hist_t));
-          CL_ASSERT(p_updn_hist);
-          p_updn_hist->bar_value = 0;
-          cl_qmap_insert(&min_hop_hist, (uint64_t)hop_val, &p_updn_hist->map_item);
-          osm_log( &p_osm->log, OSM_LOG_DEBUG,
-                   "__osm_updn_find_root_nodes_by_min_hop: "
-                   "Creating new entry in histogram %u\n",
-                   hop_val );
-        }
-        /* Entry exists in the table, just increment the value */
-        p_updn_hist->bar_value += cas_per_sw[lid_ho];
-        osm_log( &p_osm->log, OSM_LOG_DEBUG,
-                 "__osm_updn_find_root_nodes_by_min_hop: "
-                 "Updating entry in histogram %u with bar value %d\n",
-                 hop_val, p_updn_hist->bar_value );
+        if (hop_val >= IB_SUBNET_PATH_HOPS_MAX)
+          continue;
+
+        hop_hist[hop_val] += cas_per_sw[lid_ho];
       }
-    }
 
     /* Now recognize the spines by requiring one bar to be above 90% of the
        number of CAs and RTRs */
-    thd1 = numCas * 0.9;
-    thd2 = numCas * 0.05;
-    osm_log( &p_osm->log, OSM_LOG_DEBUG,
-             "__osm_updn_find_root_nodes_by_min_hop: "
-             "Pass over the histogram value and found only one root node above "
-             "thd1 = %f && thd2 = %f\n", thd1, thd2 );
-
-    p_updn_hist = (updn_hist_t*) cl_qmap_head( &min_hop_hist );
-    while( p_updn_hist != (updn_hist_t*)cl_qmap_end( &min_hop_hist ) )
-    {
-      p_up_ht = p_updn_hist;
-      p_updn_hist = (updn_hist_t*)cl_qmap_next( &p_updn_hist->map_item ) ;
-      if ( p_up_ht->bar_value > thd1 )
+    for (i = 0 ; i < IB_SUBNET_PATH_HOPS_MAX; i++) {
+      if (hop_hist[i] > thd1)
         numHopBarsOverThd1++;
-      if ( p_up_ht->bar_value > thd2 )
+      if (hop_hist[i] > thd2)
         numHopBarsOverThd2++;
-      osm_log( &p_osm->log, OSM_LOG_DEBUG,
-               "__osm_updn_find_root_nodes_by_min_hop: "
-               "Passing through histogram - Hop Index %u: "
-               "numHopBarsOverThd1 = %u, numHopBarsOverThd2 = %u\n",
-               (uint16_t)cl_qmap_key((cl_map_item_t*)p_up_ht),
-               numHopBarsOverThd1, numHopBarsOverThd2 );
-    }
-
-    /* destroy the qmap table and all its content - no longer needed */
-    osm_log( &p_osm->log, OSM_LOG_DEBUG,
-             "__osm_updn_find_root_nodes_by_min_hop: "
-             "Cleanup: delete histogram "
-             "UPDN - Root nodes fetching by auto detect\n" );
-    p_updn_hist = (updn_hist_t*) cl_qmap_head( &min_hop_hist );
-    while ( p_updn_hist != (updn_hist_t*)cl_qmap_end( &min_hop_hist ) )
-    {
-      cl_qmap_remove_item( &min_hop_hist, (cl_map_item_t*)p_updn_hist );
-      free( p_updn_hist );
-      p_updn_hist = (updn_hist_t*) cl_qmap_head( &min_hop_hist );
     }
 
     /* If thd conditions are valid insert the root node to the list */
