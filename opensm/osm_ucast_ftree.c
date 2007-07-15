@@ -179,6 +179,7 @@ typedef struct ftree_port_group_t_
    ftree_hca_or_sw remote_hca_or_sw;  /* pointer to remote hca/switch */
    cl_ptr_vector_t ports;             /* vector of ports to the same lid */
    boolean_t       is_cn;             /* whether this port is a compute node */
+   uint32_t        counter_down;      /* number of allocated routs downwards */
 } ftree_port_group_t;
 
 /***************************************************
@@ -200,6 +201,7 @@ typedef struct ftree_sw_t_
    uint8_t                up_port_groups_num;
    ftree_fwd_tbl_t        lft_buf;
    boolean_t              is_leaf;
+   int                    down_port_groups_idx;
 } ftree_sw_t;
 
 /***************************************************
@@ -680,6 +682,8 @@ __osm_ftree_sw_create(
    /* initialize lft buffer */
    p_sw->lft_buf = (ftree_fwd_tbl_t)cl_pool_get(&p_ftree->sw_fwd_tbl_pool);
    memset(p_sw->lft_buf, OSM_NO_PATH, FTREE_FWD_TBL_LEN);
+
+   p_sw->down_port_groups_idx = -1;
 
    return p_sw;
 } /* __osm_ftree_sw_create() */
@@ -2145,6 +2149,7 @@ __osm_ftree_fabric_route_upgoing_by_going_down(
    ftree_port_t        * p_min_port;
    uint16_t              i;
    uint16_t              j;
+   uint16_t              k;
 
    /* we shouldn't enter here if both real_lid and main_path are false */
    CL_ASSERT(is_real_lid || is_main_path);
@@ -2153,9 +2158,23 @@ __osm_ftree_fabric_route_upgoing_by_going_down(
    if (p_sw->down_port_groups_num == 0)
        return;
 
-   /* foreach down-going port group (in indexing order) */
-   for (i = 0; i < p_sw->down_port_groups_num; i++)
+   /* promote the index that indicates which group should we
+      start with when going through all the downgoing groups */
+   if (p_sw->down_port_groups_idx == -1)
+      p_sw->down_port_groups_idx = 0;
+   else
+      p_sw->down_port_groups_idx =
+            (p_sw->down_port_groups_idx + 1) % p_sw->down_port_groups_num;
+
+   /* foreach down-going port group (in indexing order)
+      starting with the least loaded group */
+   for ( k = 0; k < p_sw->down_port_groups_num; k++ )
    {
+      if ( k == 0 )
+         i = p_sw->down_port_groups_idx;
+      else
+         i = (i+1) % p_sw->down_port_groups_num;
+
       p_group = p_sw->down_port_groups[i];
 
       /* Skip this port group unless it points to a switch */
@@ -2352,34 +2371,40 @@ __osm_ftree_fabric_route_downgoing_by_going_up(
    if (p_sw->rank == 0)
       return;
 
-   /* Find the least loaded port of all the upgoing port groups
-      (in indexing order of the remote switches). */
+   /* Find the least loaded upgoing port group */
    p_min_group = NULL;
-   p_min_port = NULL;
    for (i = 0; i < p_sw->up_port_groups_num; i++)
    {
       p_group = p_sw->up_port_groups[i];
-
-      ports_num = (uint16_t)cl_ptr_vector_get_size(&p_group->ports);
-      for (j = 0; j < ports_num; j++)
+      if (!p_min_group)
       {
-         cl_ptr_vector_at(&p_group->ports, j, (void **)&p_port);
-         if (!p_min_group)
-         {
-            /* first port that we're checking - use
-               it as a port with the lowest load */
-            p_min_group = p_group;
-            p_min_port = p_port;
-         }
-         else
-         {
-            if ( p_port->counter_down < p_min_port->counter_down  )
-            {
-               /* this port is less loaded - use it as min */
-               p_min_group = p_group;
-               p_min_port = p_port;
-            }
-         }
+         /* first group that we're checking - use
+            it as a group with the lowest load */
+         p_min_group = p_group;
+      }
+      else if ( p_group->counter_down < p_min_group->counter_down  )
+      {
+         /* this group is less loaded - use it as min */
+         p_min_group = p_group;
+      }
+   }
+
+   /* Find the least loaded upgoing port in the selected group */
+   p_min_port = NULL;
+   ports_num = (uint16_t)cl_ptr_vector_get_size(&p_min_group->ports);
+   for (j = 0; j < ports_num; j++)
+   {
+      cl_ptr_vector_at(&p_min_group->ports, j, (void **)&p_port);
+      if (!p_min_port)
+      {
+         /* first port that we're checking - use
+            it as a port with the lowest load */
+         p_min_port = p_port;
+      }
+      else if ( p_port->counter_down < p_min_port->counter_down  )
+      {
+         /* this port is less loaded - use it as min */
+         p_min_port = p_port;
       }
    }
 
@@ -2435,8 +2460,10 @@ __osm_ftree_fabric_route_downgoing_by_going_up(
                  __osm_ftree_tuple_to_str(p_remote_sw->tuple));
       }
       /* The number of downgoing routes is tracked in the
-         p_port->counter_down counter of the port that belongs to
-         the lower side of the link (on switch with higher rank) */
+         p_group->counter_down p_port->counter_down counters of the
+         group and port that belong to the lower side of the link
+         (on switch with higher rank) */
+      p_min_group->counter_down++;
       p_min_port->counter_down++;
       if (is_real_lid)
       {
