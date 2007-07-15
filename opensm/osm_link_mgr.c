@@ -304,14 +304,20 @@ __osm_link_mgr_set_physp_pi(
       send_set = TRUE;
 
     if ( p_mgr->p_subn->opt.force_link_speed )
-      ib_port_info_set_link_speed_enabled( p_pi, IB_LINK_SPEED_ACTIVE_2_5 );
-    else if (ib_port_info_get_link_speed_enabled( p_old_pi ) != ib_port_info_get_link_speed_sup( p_pi ))
-      ib_port_info_set_link_speed_enabled( p_pi, IB_PORT_LINK_SPEED_ENABLED_MASK );
-    else
-      ib_port_info_set_link_speed_enabled( p_pi, ib_port_info_get_link_speed_enabled( p_old_pi ));
-    if (memcmp( &p_pi->link_speed, &p_old_pi->link_speed,
-                sizeof(p_pi->link_speed) ))
-      send_set = TRUE;
+    {
+      if ( p_mgr->p_subn->opt.force_link_speed == 15 )	/* LinkSpeedSupported */
+      {
+        if (ib_port_info_get_link_speed_enabled( p_old_pi ) != ib_port_info_get_link_speed_sup( p_pi ))
+          ib_port_info_set_link_speed_enabled( p_pi, IB_PORT_LINK_SPEED_ENABLED_MASK );
+        else
+          ib_port_info_set_link_speed_enabled( p_pi, ib_port_info_get_link_speed_enabled( p_old_pi ));
+      }
+      else
+        ib_port_info_set_link_speed_enabled( p_pi, p_mgr->p_subn->opt.force_link_speed );
+      if (memcmp( &p_pi->link_speed, &p_old_pi->link_speed,
+                  sizeof(p_pi->link_speed) ))
+        send_set = TRUE;
+    }
 
     /* calc new op_vls and mtu */
     op_vls =

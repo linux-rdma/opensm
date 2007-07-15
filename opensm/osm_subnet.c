@@ -449,7 +449,7 @@ osm_subn_set_default_opt(
   p_opt->lmc = OSM_DEFAULT_LMC;
   p_opt->lmc_esp0 = FALSE;
   p_opt->max_op_vls = OSM_DEFAULT_MAX_OP_VLS;
-  p_opt->force_link_speed = 0;
+  p_opt->force_link_speed = 15;
   p_opt->reassign_lids = FALSE;
   p_opt->reassign_lfts = TRUE;
   p_opt->ignore_other_sm = FALSE;
@@ -1017,6 +1017,17 @@ osm_subn_verify_conf_file(
     p_opts->sm_priority = OSM_DEFAULT_SM_PRIORITY;
   }
 
+  if ((15 < p_opts->force_link_speed) ||
+      (p_opts->force_link_speed > 7 && p_opts->force_link_speed < 15))
+  {
+    sprintf(buff, " Invalid Cached Option Value:force_link_speed = %u:"
+            "Using Default:%u\n",
+            p_opts->force_link_speed, IB_PORT_LINK_SPEED_ENABLED_MASK);
+    printf(buff);
+    cl_log_event("OpenSM", CL_LOG_INFO, buff, NULL, 0);
+    p_opts->force_link_speed = IB_PORT_LINK_SPEED_ENABLED_MASK;
+  }
+
   if (strcmp(p_opts->console, "off")
       && strcmp(p_opts->console, "local")
 #ifdef ENABLE_OSM_CONSOLE_SOCKET
@@ -1476,17 +1487,19 @@ osm_subn_write_conf_file(
     "# to zero is undefined.\n"
     "leaf_vl_stall_count 0x%02x\n\n"
     "# The code of maximal time a packet can wait at the head of\n"
-    "# transmission queue. \n"
+    "# transmission queue.\n"
     "# The actual time is 4.096usec * 2^<head_of_queue_lifetime>\n"
     "# The value 0x14 disables this mechanism\n"          
     "head_of_queue_lifetime 0x%02x\n\n"
-    "# The maximal time a packet can wait at the head of queue on \n"
+    "# The maximal time a packet can wait at the head of queue on\n"
     "# switch port connected to a CA or router port\n"
     "leaf_head_of_queue_lifetime 0x%02x\n\n"
     "# Limit the maximal operational VLs\n"
     "max_op_vls %u\n\n"
-    "# Force switch links which are more than SDR capable to \n"
-    "# operate at SDR speed\n\n"
+    "# Force link speed enable on switch links\n"
+    "# If 0, don't modify PortInfo:LinkSpeedEnabled on switch port\n"
+    "# Otherwise, use value for PortInfo:LinkSpeedEnabled on switch port\n"
+    "# Default is 15 (to set to PortInfo:LinkSpeedSupported\n\n"
     "force_link_speed %u\n\n"
     "# The subnet_timeout code that will be set for all the ports\n"
     "# The actual timeout is 4.096usec * 2^<subnet_timeout>\n"
