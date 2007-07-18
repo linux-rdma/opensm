@@ -360,6 +360,15 @@ __osm_link_mgr_set_physp_pi(
       context.pi_context.active_transition = FALSE;
   }
 
+  /* provide the vl_high_limit from the qos mgr */
+  if (p_mgr->p_subn->opt.no_qos == FALSE)
+	  if (p_physp->vl_high_limit != p_old_pi->vl_high_limit)
+	  {
+		  send_set = TRUE;
+		  p_pi->vl_high_limit = p_physp->vl_high_limit;
+	  }
+
+
   context.pi_context.node_guid = osm_node_get_node_guid( p_node );
   context.pi_context.port_guid = osm_physp_get_port_guid( p_physp );
   context.pi_context.set_method = TRUE;

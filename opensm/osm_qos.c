@@ -216,42 +216,6 @@ static ib_api_status_t sl2vl_update(osm_req_t * p_req, osm_port_t * p_port,
 	return IB_SUCCESS;
 }
 
-static ib_api_status_t vl_high_limit_update(osm_req_t * p_req,
-					    osm_physp_t * p,
-					    const struct qos_config *qcfg)
-{
-	uint8_t payload[IB_SMP_DATA_SIZE];
-	osm_madw_context_t context;
-	ib_port_info_t *p_pi;
-
-	p_pi = &p->port_info;
-
-	if (p_pi->vl_high_limit == qcfg->vl_high_limit)
-		return IB_SUCCESS;
-
-	memset(payload, 0, IB_SMP_DATA_SIZE);
-	memcpy(payload, p_pi, sizeof(ib_port_info_t));
-
-	p_pi = (ib_port_info_t *) payload;
-	ib_port_info_set_state_no_change(p_pi);
-
-	p_pi->vl_high_limit = qcfg->vl_high_limit;
-
-	context.pi_context.node_guid =
-	    osm_node_get_node_guid(osm_physp_get_node_ptr(p));
-	context.pi_context.port_guid = osm_physp_get_port_guid(p);
-	context.pi_context.set_method = TRUE;
-	context.pi_context.update_master_sm_base_lid = FALSE;
-	context.pi_context.ignore_errors = FALSE;
-	context.pi_context.light_sweep = FALSE;
-	context.pi_context.active_transition = FALSE;
-
-	return osm_req_set(p_req, osm_physp_get_dr_path_ptr(p),
-			   payload, sizeof(payload), IB_MAD_ATTR_PORT_INFO,
-			   cl_hton32(osm_physp_get_port_num(p)),
-			   CL_DISP_MSGID_NONE, &context);
-}
-
 static ib_api_status_t qos_physp_setup(osm_log_t * p_log, osm_req_t * p_req,
 				       osm_port_t * p_port, osm_physp_t * p,
 				       uint8_t port_num,
@@ -261,16 +225,8 @@ static ib_api_status_t qos_physp_setup(osm_log_t * p_log, osm_req_t * p_req,
 
 	/* OpVLs should be ok at this moment - just use it */
 
-	/* setup VL high limit */
-	status = vl_high_limit_update(p_req, p, qcfg);
-	if (status != IB_SUCCESS) {
-		osm_log(p_log, OSM_LOG_ERROR,
-			"qos_physp_setup: ERR 6201 : "
-			"failed to update VLHighLimit "
-			"for port %" PRIx64 " #%d\n",
-			cl_ntoh64(p->port_guid), port_num);
-		return status;
-	}
+	/* setup VL high limit on the physp later to be updated by link mgr */
+	p->vl_high_limit = qcfg->vl_high_limit;
 
 	/* setup VLArbitration */
 	status = vlarb_update(p_req, p, port_num, qcfg);

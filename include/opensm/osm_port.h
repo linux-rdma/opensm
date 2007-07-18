@@ -117,6 +117,7 @@ typedef struct _osm_physp
   struct _osm_node		*p_node;
   struct _osm_physp		*p_remote_physp;
   boolean_t                      healthy;
+  uint8_t                vl_high_limit;
   osm_dr_path_t			 dr_path;
   osm_pkey_tbl_t                 pkeys;
   ib_vl_arb_table_t              vl_arb[4];
