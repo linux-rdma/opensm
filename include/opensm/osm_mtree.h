@@ -246,7 +246,7 @@ osm_mtree_node_get_child(
 *
 * RETURN VALUES
 *	Returns the specified child node of this node.
-*	
+*
 *
 * NOTES
 *
@@ -278,7 +278,7 @@ osm_mtree_node_get_switch_ptr(
 *
 * RETURN VALUES
 *	Returns a pointer to the switch object represented by this tree node.
-*	
+*
 *
 * NOTES
 *

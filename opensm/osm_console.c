@@ -204,13 +204,13 @@ static void loglevel_parse(char **p_last, osm_opensm_t *p_osm, FILE *out)
 		fprintf(out, "Current log level is 0x%x\n", osm_log_get_level(&p_osm->log));
 	else {
 		/* Handle x, 0x, and decimal specification of log level */
-		if (!strncmp(p_cmd, "x", 1)) { 
+		if (!strncmp(p_cmd, "x", 1)) {
 			p_cmd++;
-			level = strtoul(p_cmd, NULL, 16); 
+			level = strtoul(p_cmd, NULL, 16);
 		} else {
 			if (!strncmp(p_cmd, "0x", 2)) {
 				p_cmd += 2;
-				level = strtoul(p_cmd, NULL, 16); 
+				level = strtoul(p_cmd, NULL, 16);
 			} else
 				level = strtol(p_cmd, NULL, 10);
 		}
@@ -448,7 +448,7 @@ static void resweep_parse(char **p_last, osm_opensm_t *p_osm, FILE *out)
 
 	p_cmd = next_token(p_last);
 	if (!p_cmd ||
-	    (strcmp(p_cmd, "heavy") != 0 && 
+	    (strcmp(p_cmd, "heavy") != 0 &&
 	     strcmp(p_cmd, "light") != 0)) {
 		fprintf(out, "Invalid resweep command\n");
 		help_resweep(out, 1);
@@ -846,7 +846,7 @@ static const struct command console_cmds[] =
 {
 	{ "help",	&help_command,		&help_parse},
 	{ "quit",	&help_quit,		&quit_parse},
-	{ "loglevel",	&help_loglevel,		&loglevel_parse},	
+	{ "loglevel",	&help_loglevel,		&loglevel_parse},
 	{ "priority",	&help_priority,		&priority_parse},
 	{ "resweep",	&help_resweep,		&resweep_parse},
 	{ "status",	&help_status,		&status_parse},
@@ -855,7 +855,7 @@ static const struct command console_cmds[] =
 	{ "portstatus", &help_portstatus,       &portstatus_parse},
 #ifdef ENABLE_OSM_PERF_MGR
 	{ "perfmgr",    &help_perfmgr,          &perfmgr_parse},
-#endif /* ENABLE_OSM_PERF_MGR */	
+#endif /* ENABLE_OSM_PERF_MGR */
 	{ NULL,		NULL,			NULL}	/* end of array */
 };
 

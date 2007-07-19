@@ -258,7 +258,7 @@ void osm_slvl_rcv_process(
 * SEE ALSO
 *	Slvl Map Receiver, Slvl Map Response Controller
 *********/
-	
+
 END_C_DECLS
 
 #endif	/* _OSM_SLVL_RCV_H_ */

@@ -248,7 +248,7 @@ __osm_sa_gir_create_gir(
        Note: the following check is a temporary workaround
        Since 1. GUIDCap should never be 0 on ports where this applies
        and   2. GUIDCap should not be used on ports where it doesn't apply
-       So this should really be a check for whether the port is a 
+       So this should really be a check for whether the port is a
        switch external port or not!
      */
     if ( p_physp->port_info.guid_cap == 0 )

@@ -122,7 +122,7 @@ __osm_ni_rcv_set_links(
         }
         else
         {
-          if( osm_node_has_any_link( p_node, port_num ) && 
+          if( osm_node_has_any_link( p_node, port_num ) &&
               p_rcv->p_subn->force_immediate_heavy_sweep == FALSE )
           {
             /*
@@ -130,8 +130,8 @@ __osm_ni_rcv_set_links(
               This means that we found 2 nodes with the same guid,
               or a 12x link with lane reversal that is not configured correctly.
               If the force_immediate_heavy_sweep == TRUE, then this might be a case
-              of port being moved (causing trap 128), and thus rediscovered. 
-              In this case, just continue. There will be another heavy sweep 
+              of port being moved (causing trap 128), and thus rediscovered.
+              In this case, just continue. There will be another heavy sweep
               immediately after, when the subnet is stable again.
             */
             char line[BUF_SIZE];
@@ -201,7 +201,7 @@ __osm_ni_rcv_set_links(
 	    }
           }
 
-          /* 
+          /*
              When there are only two nodes with exact same guids (connected back
              to back) - the previous check for duplicated guid will not catch
              them. But the link will be from the port to itself...
@@ -232,7 +232,7 @@ __osm_ni_rcv_set_links(
           }
           else
           {
-            
+
             if( osm_log_is_active( p_rcv->p_log, OSM_LOG_DEBUG ) )
             {
               osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
@@ -247,10 +247,10 @@ __osm_ni_rcv_set_links(
                        cl_ntoh64( p_ni_context->node_guid ),
                        p_ni_context->port_num );
             }
-            
+
             CL_ASSERT( osm_node_get_node_guid( p_neighbor_node ) ==
                        p_ni_context->node_guid );
-            
+
             osm_node_link( p_node, port_num, p_neighbor_node,
                            p_ni_context->port_num );
           }
@@ -1052,8 +1052,8 @@ osm_ni_rcv_process(
     __osm_ni_rcv_process_existing( p_rcv, p_node, p_madw );
 
   CL_PLOCK_RELEASE( p_rcv->p_lock );
-  
-  /* 
+
+  /*
    * If we processed a new node - need to signal to the state_mgr that
    * change detected. BUT - we cannot call the osm_state_mgr_process
    * from within the lock of p_rcv->p_lock (can cause a deadlock).

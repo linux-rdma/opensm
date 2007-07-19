@@ -119,7 +119,7 @@ typedef struct _osm_pi_rcv
 *
 *	p_state_mgr
 *		Pointer to the State Manager object.
-*     
+*
 *	p_lock
 *		Pointer to the serializing lock.
 *
@@ -268,7 +268,7 @@ void osm_pi_rcv_process(
 * SEE ALSO
 *	Port Info Receiver, Port Info Response Controller
 *********/
-	
+
 END_C_DECLS
 
 #endif	/* _OSM_PI_RCV_H_ */

@@ -173,11 +173,11 @@ __osm_sa_path_rec_is_tavor_port(
 
   p_node = p_port->p_node;
   vend_id = ib_node_info_get_vendor_id( &p_node->node_info );
-	
+
   return( (p_node->node_info.device_id == CL_HTON16(23108)) &&
-	  ((vend_id == CL_HTON32(OSM_VENDOR_ID_MELLANOX)) || 
-	   (vend_id == CL_HTON32(OSM_VENDOR_ID_TOPSPIN)) || 
-	   (vend_id == CL_HTON32(OSM_VENDOR_ID_SILVERSTORM)) || 
+	  ((vend_id == CL_HTON32(OSM_VENDOR_ID_MELLANOX)) ||
+	   (vend_id == CL_HTON32(OSM_VENDOR_ID_TOPSPIN)) ||
+	   (vend_id == CL_HTON32(OSM_VENDOR_ID_SILVERSTORM)) ||
 	   (vend_id == CL_HTON32(OSM_VENDOR_ID_VOLTAIRE))) );
 }
 
@@ -191,16 +191,16 @@ static boolean_t
   IN const ib_net64_t      comp_mask)
 {
   uint8_t required_mtu;
-	
+
   /* only if at least one of the ports is a Tavor device */
-  if (! __osm_sa_path_rec_is_tavor_port(p_src_port) && 
+  if (! __osm_sa_path_rec_is_tavor_port(p_src_port) &&
       ! __osm_sa_path_rec_is_tavor_port(p_dest_port) )
     return( FALSE );
 
   /*
     we can apply the patch if either:
     1. No MTU required
-    2. Required MTU < 
+    2. Required MTU <
     3. Required MTU = 1K or 512 or 256
     4. Required MTU > 256 or 512
   */
@@ -225,7 +225,7 @@ static boolean_t
                /* the largest MTU possible */
       return(FALSE);
       break;
-			
+
     default:
       /* if we're here, there's a bug in ib_path_rec_mtu_sel() */
       CL_ASSERT( FALSE );
@@ -275,16 +275,16 @@ __osm_pr_rcv_get_path_parms(
   mtu = ib_port_info_get_mtu_cap( p_pi );
   rate = ib_port_info_compute_rate( p_pi );
 
-  /* 
+  /*
     Mellanox Tavor device performance is better using 1K MTU.
-    If required MTU and MTU selector are such that 1K is OK 
+    If required MTU and MTU selector are such that 1K is OK
     and at least one end of the path is Tavor we override the
     port MTU with 1K.
   */
   if ( p_rcv->p_subn->opt.enable_quirks &&
        __osm_sa_path_rec_apply_tavor_mtu_limit(
 		p_pr, p_src_port, p_dest_port, comp_mask) )
-    if (mtu > IB_MTU_LEN_1024) 
+    if (mtu > IB_MTU_LEN_1024)
     {
       mtu = IB_MTU_LEN_1024;
       osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
@@ -867,9 +867,9 @@ __osm_pr_rcv_get_lid_pair_path(
   path_parms.reversible = ( rev_path_status == IB_SUCCESS );
 
   /* did we get a Reversible Path compmask ? */
-  /* 
+  /*
      NOTE that if the reversible component = 0, it is a don't care
-     rather then requiring non-reversible paths ... 
+     rather then requiring non-reversible paths ...
      see Vol1 Ver1.2 p900 l16
   */
   if( comp_mask & IB_PR_COMPMASK_REVERSIBLE )
@@ -990,7 +990,7 @@ __osm_pr_rcv_get_port_pair_paths(
     may not actually be physically redundant depending on the topology
     of the subnet, but the point of LMC > 0 is to offer redundancy,
     so it is assumed that the subnet is physically appropriate for the
-    specified LMC value.  A more advanced implementation would inspect for 
+    specified LMC value.  A more advanced implementation would inspect for
     physical redundancy, but I'm not going to bother with that now.
   */
 
@@ -1294,7 +1294,7 @@ __osm_pr_rcv_get_end_points(
         }
 
         p_rtr_port = osm_router_get_port_ptr( p_rtr );
-        dest_guid = osm_port_get_guid( p_rtr_port ); 
+        dest_guid = osm_port_get_guid( p_rtr_port );
         if ( p_dgid )
           *p_dgid = p_pr->dgid;
 #endif
@@ -1931,7 +1931,7 @@ osm_pr_rcv_process(
   if ((p_sa_mad->method != IB_MAD_METHOD_GET) &&
       (p_sa_mad->method != IB_MAD_METHOD_GETTABLE)) {
     osm_log( p_rcv->p_log, OSM_LOG_ERROR,
-             "osm_pr_rcv_process: ERR 1F17: " 
+             "osm_pr_rcv_process: ERR 1F17: "
              "Unsupported Method (%s)\n",
              ib_get_sa_method_str( p_sa_mad->method ) );
     osm_sa_send_error( p_rcv->p_resp, p_madw, IB_MAD_STATUS_UNSUP_METHOD_ATTR );
@@ -2048,7 +2048,7 @@ osm_pr_rcv_process(
           p_pr = (ib_path_rec_t*)ib_sa_mad_get_payload_ptr( p_sa_mad );
           p_pr_item->path_rec = *p_pr;
 
-          /* Now, use the MC info to cruft up the PathRecord response */        
+          /* Now, use the MC info to cruft up the PathRecord response */
           p_pr_item->path_rec.dgid = p_mgrp->mcmember_rec.mgid;
           p_pr_item->path_rec.dlid = p_mgrp->mcmember_rec.mlid;
 	  p_pr_item->path_rec.tclass = p_mgrp->mcmember_rec.tclass;

@@ -370,7 +370,7 @@ __osm_sr_rcv_respond(
   /*
     Get a MAD to reply. Address of Mad is in the received mad_wrapper
   */
-  p_resp_madw = osm_mad_pool_get( p_rcv->p_mad_pool, 
+  p_resp_madw = osm_mad_pool_get( p_rcv->p_mad_pool,
                                   p_madw->h_bind,
                                   num_rec * sizeof(ib_service_record_t) + IB_SA_MAD_HDR_SIZE,
                                   &p_madw->mad_addr );
@@ -433,11 +433,11 @@ __osm_sr_rcv_respond(
   else
   {
     /*
-      p923 - The ServiceKey shall be set to 0, except in the case of a trusted 
-      request. 
+      p923 - The ServiceKey shall be set to 0, except in the case of a trusted
+      request.
       Note: In the mad controller we check that the SM_Key received on
       the mad is valid. Meaning - is either zero or equal to the local
-      sm_key. 
+      sm_key.
     */
     if (p_sa_mad->sm_key == 0)
       trusted_req = FALSE;
@@ -863,7 +863,7 @@ osm_sr_rcv_process_set_method(
                              OSM_LOG_DEBUG );
   }
 
-  if( (comp_mask & ( IB_SR_COMPMASK_SID | IB_SR_COMPMASK_SGID )) !=  
+  if( (comp_mask & ( IB_SR_COMPMASK_SID | IB_SR_COMPMASK_SGID )) !=
       (IB_SR_COMPMASK_SID | IB_SR_COMPMASK_SGID ))
   {
     osm_log( p_rcv->p_log, OSM_LOG_VERBOSE,

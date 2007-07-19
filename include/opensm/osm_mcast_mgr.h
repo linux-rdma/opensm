@@ -333,7 +333,7 @@ osm_mcast_mgr_process_single(
 *
 * SEE ALSO
 *********/
-	
+
 END_C_DECLS
 
 #endif	/* _OSM_MCAST_MGR_H_ */

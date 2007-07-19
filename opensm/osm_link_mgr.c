@@ -152,10 +152,10 @@ __osm_link_mgr_set_physp_pi(
                cl_ntoh64( p_node->node_info.node_guid ) );
       goto Exit;
     }
-     
+
     if (ib_switch_info_is_enhanced_port0( &p_node->sw->switch_info ) == FALSE)
     {
-      /* This means the switch doesn't support enhanced port 0. 
+      /* This means the switch doesn't support enhanced port 0.
          Can skip it. */
       if( osm_log_is_active( p_mgr->p_log, OSM_LOG_DEBUG ) )
       {
@@ -194,7 +194,7 @@ __osm_link_mgr_set_physp_pi(
   */
   p_pi->state_info2 = 0x02;
   ib_port_info_set_port_state( p_pi, IB_LINK_NO_CHANGE );
-  if ( ib_port_info_get_link_down_def_state(p_pi) != 
+  if ( ib_port_info_get_link_down_def_state(p_pi) !=
        ib_port_info_get_link_down_def_state(p_old_pi) )
     send_set = TRUE;
 
@@ -210,23 +210,23 @@ __osm_link_mgr_set_physp_pi(
         send_set = TRUE;
 
       p_pi->subnet_prefix = p_mgr->p_subn->opt.subnet_prefix;
-      if (memcmp( &p_pi->subnet_prefix, &p_old_pi->subnet_prefix, 
+      if (memcmp( &p_pi->subnet_prefix, &p_old_pi->subnet_prefix,
                   sizeof(p_pi->subnet_prefix) ))
         send_set = TRUE;
 
       p_pi->base_lid = osm_physp_get_base_lid( p_physp );
-      if (memcmp( &p_pi->base_lid, &p_old_pi->base_lid, 
+      if (memcmp( &p_pi->base_lid, &p_old_pi->base_lid,
                   sizeof(p_pi->base_lid) ))
         send_set = TRUE;
 
       /* we are initializing the ports with our local sm_base_lid */
       p_pi->master_sm_base_lid = p_mgr->p_subn->sm_base_lid;
-      if (memcmp( &p_pi->master_sm_base_lid, &p_old_pi->master_sm_base_lid, 
+      if (memcmp( &p_pi->master_sm_base_lid, &p_old_pi->master_sm_base_lid,
                   sizeof(p_pi->master_sm_base_lid) ))
         send_set = TRUE;
 
       p_pi->m_key_lease_period = p_mgr->p_subn->opt.m_key_lease_period;
-      if (memcmp( &p_pi->m_key_lease_period, &p_old_pi->m_key_lease_period, 
+      if (memcmp( &p_pi->m_key_lease_period, &p_old_pi->m_key_lease_period,
                   sizeof(p_pi->m_key_lease_period) ))
         send_set = TRUE;
 
@@ -251,7 +251,7 @@ __osm_link_mgr_set_physp_pi(
       Several timeout mechanisms:
     */
     p_remote_physp = osm_physp_get_remote( p_physp );
-    if (port_num != 0 && p_remote_physp && 
+    if (port_num != 0 && p_remote_physp &&
         osm_physp_is_valid(p_remote_physp)) {
       if (osm_node_get_type(osm_physp_get_node_ptr(p_physp)) ==
           IB_NODE_TYPE_ROUTER)
@@ -263,7 +263,7 @@ __osm_link_mgr_set_physp_pi(
                IB_NODE_TYPE_SWITCH)
      {
        /* Is remote end CA or router (a leaf port) ? */
-       if (osm_node_get_type(osm_physp_get_node_ptr(p_remote_physp)) != 
+       if (osm_node_get_type(osm_physp_get_node_ptr(p_remote_physp)) !=
             IB_NODE_TYPE_SWITCH)
        {
          ib_port_info_set_hoq_lifetime(
@@ -290,7 +290,7 @@ __osm_link_mgr_set_physp_pi(
       p_pi,
       p_mgr->p_subn->opt.local_phy_errors_threshold,
       p_mgr->p_subn->opt.overrun_errors_threshold);
-    if (memcmp( &p_pi->error_threshold, &p_old_pi->error_threshold, 
+    if (memcmp( &p_pi->error_threshold, &p_old_pi->error_threshold,
                 sizeof(p_pi->error_threshold) ))
       send_set = TRUE;
 
@@ -299,7 +299,7 @@ __osm_link_mgr_set_physp_pi(
       then determine the neighbor MTU.
     */
     p_pi->link_width_enabled = p_old_pi->link_width_supported;
-    if (memcmp( &p_pi->link_width_enabled, &p_old_pi->link_width_enabled, 
+    if (memcmp( &p_pi->link_width_enabled, &p_old_pi->link_width_enabled,
                 sizeof(p_pi->link_width_enabled) ))
       send_set = TRUE;
 
@@ -330,7 +330,7 @@ __osm_link_mgr_set_physp_pi(
       send_set = TRUE;
 
     ib_port_info_set_op_vls( p_pi, op_vls );
-    if ( ib_port_info_get_op_vls(p_pi) != 
+    if ( ib_port_info_get_op_vls(p_pi) !=
          ib_port_info_get_op_vls(p_old_pi) )
       send_set = TRUE;
 
@@ -350,7 +350,7 @@ __osm_link_mgr_set_physp_pi(
 
   ib_port_info_set_port_state( p_pi, port_state );
   if (port_state != IB_LINK_NO_CHANGE &&
-      ib_port_info_get_port_state(p_pi) != 
+      ib_port_info_get_port_state(p_pi) !=
       ib_port_info_get_port_state(p_old_pi) )
   {
     send_set = TRUE;
@@ -369,7 +369,7 @@ __osm_link_mgr_set_physp_pi(
   /* We need to send the PortInfoSet request with the new sm_lid
      in the following cases:
      1. There is a change in the values (send_set == TRUE)
-     2. This is an ca port or a switch port 0 and got_set_resp is FALSE 
+     2. This is an ca port or a switch port 0 and got_set_resp is FALSE
         (in this case we sent a PortInfoSet in the osm_lid_mgr, but for some
         reason we didn't get a response) - try and re-send.
      3. This is a switch port and:
@@ -380,9 +380,9 @@ __osm_link_mgr_set_physp_pi(
         b. got_set_resp on the physical port is FALSE. This means we haven't
            seen this port before - need to send PortInfoSet to it.
   */
-  if (send_set || 
+  if (send_set ||
       (osm_node_get_type(p_node) != IB_NODE_TYPE_SWITCH && p_physp->got_set_resp == FALSE) ||
-      (osm_node_get_type(p_node) == IB_NODE_TYPE_SWITCH && port_num == 0 && 
+      (osm_node_get_type(p_node) == IB_NODE_TYPE_SWITCH && port_num == 0 &&
        p_physp->got_set_resp == FALSE) ||
       (osm_node_get_type(p_node) == IB_NODE_TYPE_SWITCH && port_num != 0 &&
        (p_mgr->p_subn->first_time_master_sweep == TRUE || p_physp->got_set_resp == FALSE)))

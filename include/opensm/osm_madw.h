@@ -87,10 +87,10 @@ typedef struct _osm_bind_info
 /*
 * FIELDS
 *	portguid
-*		PortGuid of local port 
+*		PortGuid of local port
 *
 *	mad_class
-*		Mgmt Class ID 
+*		Mgmt Class ID
 *
 *	class_version
 *		Mgmt Class version
@@ -100,7 +100,7 @@ typedef struct _osm_bind_info
 *
 *	is_trap_processor
 *		True if GSI Trap msgs are handled
-*	
+*
 *	is_report_processor
 *		True if GSI Report msgs are handled
 *
@@ -109,7 +109,7 @@ typedef struct _osm_bind_info
 *
 *	recv_q_size
 *		Receive Queue Size
-* 
+*
 * SEE ALSO
 *********/
 
@@ -159,7 +159,7 @@ typedef struct _osm_ni_context
 *	port_num
 *		Port number on the node or switch thru which we got
 *		to this node.
-* 
+*
 * SEE ALSO
 *********/
 
@@ -393,16 +393,16 @@ typedef struct _osm_mad_addr
     {
         struct _smi
 		{
-		  ib_net16_t		source_lid;    
-		  uint8_t		port_num;       
+		  ib_net16_t		source_lid;
+		  uint8_t		port_num;
         } smi;
 
         struct _gsi
 		{
-            ib_net32_t    		remote_qp;          
-            ib_net32_t			remote_qkey;       
+            ib_net32_t    		remote_qp;
+            ib_net32_t			remote_qkey;
             ib_net16_t   		pkey;
-            uint8_t       		service_level;          
+            uint8_t       		service_level;
             boolean_t			global_route;
             ib_grh_t		   	grh_info;
         } gsi;

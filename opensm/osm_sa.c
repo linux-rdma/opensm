@@ -282,7 +282,7 @@ osm_sa_init(
   status = osm_mpr_rcv_init(
     &p_sa->mpr_rcv,
     &p_sa->resp,
-    p_sa->p_mad_pool, 
+    p_sa->p_mad_pool,
     p_subn,
     p_log,
     p_lock );

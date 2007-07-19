@@ -294,7 +294,7 @@ __osm_nr_rcv_by_comp_mask(
   osm_dump_node_info(
     p_ctxt->p_rcv->p_log,
     &p_node->node_info,
-    OSM_LOG_VERBOSE );    
+    OSM_LOG_VERBOSE );
 
   if( comp_mask & IB_NR_COMPMASK_LID )
     match_lid = p_rcvd_rec->lid;
@@ -517,7 +517,7 @@ osm_nr_rcv_process(
     goto Exit;
   }
 
-  /* 
+  /*
    * Get a MAD to reply. Address of Mad is in the received mad_wrapper
    */
   p_resp_madw = osm_mad_pool_get( p_rcv->p_mad_pool,

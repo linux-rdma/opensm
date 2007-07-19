@@ -162,7 +162,7 @@ void osm_lftr_rcv_construct(
 *	method except osm_lftr_rcv_init.
 *
 * SEE ALSO
-*	Linear Forwarding Table Receiver object, osm_lftr_rcv_init, 
+*	Linear Forwarding Table Receiver object, osm_lftr_rcv_init,
 *  osm_lftr_rcv_destroy
 *********/
 
@@ -240,7 +240,7 @@ ib_api_status_t osm_lftr_rcv_init(
 *	Allows calling other Linear Forwarding Table Receiver methods.
 *
 * SEE ALSO
-*	Linear Forwarding Table Receiver object, osm_lftr_rcv_construct, 
+*	Linear Forwarding Table Receiver object, osm_lftr_rcv_construct,
 *  osm_lftr_rcv_destroy
 *********/
 

@@ -280,27 +280,27 @@ osm_dump_sm_info_record(
 	IN const osm_log_level_t log_level );
 
 void
-osm_dump_pkey_block( 
+osm_dump_pkey_block(
 	IN osm_log_t* const p_log,
-	IN uint64_t port_guid, 
+	IN uint64_t port_guid,
 	IN uint16_t block_num,
 	IN uint8_t port_num,
 	IN const ib_pkey_table_t* const p_pkey_tbl,
 	IN const osm_log_level_t log_level );
 
 void
-osm_dump_slvl_map_table( 
+osm_dump_slvl_map_table(
 	IN osm_log_t* const p_log,
-	IN uint64_t port_guid, 
+	IN uint64_t port_guid,
 	IN uint8_t in_port_num,
 	IN uint8_t out_port_num,
 	IN const ib_slvl_table_t* const p_slvl_tbl,
 	IN const osm_log_level_t log_level );
 
 void
-osm_dump_vl_arb_table( 
+osm_dump_vl_arb_table(
 	IN osm_log_t* const p_log,
-	IN uint64_t port_guid, 
+	IN uint64_t port_guid,
 	IN uint8_t block_num,
 	IN uint8_t port_num,
 	IN const ib_vl_arb_table_t* const p_vla_tbl,
@@ -464,12 +464,12 @@ osm_get_disp_msg_str(
 
 void osm_dump_dr_path(
 	IN osm_log_t* const p_log,
-	IN const osm_dr_path_t* const p_path, 
+	IN const osm_dr_path_t* const p_path,
 	IN const osm_log_level_t level );
 
 void osm_dump_smp_dr_path(
 	IN osm_log_t* const p_log,
-	IN const ib_smp_t* const p_smp, 
+	IN const ib_smp_t* const p_smp,
 	IN const osm_log_level_t level );
 
 void osm_dump_dr_smp(

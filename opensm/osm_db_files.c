@@ -188,7 +188,7 @@ osm_db_init(
 #ifdef __WIN__
   /* Check if the directory exists. If not - create it. */
   CreateDirectory(p_db_imp->db_dir_name, NULL);
-#else /* __WIN__ */  
+#else /* __WIN__ */
   /* make sure the directory exists */
   if (lstat(p_db_imp->db_dir_name, &dstat))
   {
@@ -600,7 +600,7 @@ osm_db_lookup(
     p_val = NULL;
 
   cl_spinlock_release( &p_domain_imp->lock );
- 
+
   return p_val;
 }
 

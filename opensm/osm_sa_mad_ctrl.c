@@ -108,12 +108,12 @@ __osm_sa_mad_ctrl_process(
 
   OSM_LOG_ENTER( p_ctrl->p_log, __osm_sa_mad_ctrl_process );
 
-  /* 
+  /*
      If the dispatcher is showing us that it is overloaded
-     there is no point in placing the request in. We should instead provide 
+     there is no point in placing the request in. We should instead provide
      immediate response - IB_RESOURCE_BUSY
-     But how do we know? 
-     The dispatcher reports back the number of outstanding messages and the 
+     But how do we know?
+     The dispatcher reports back the number of outstanding messages and the
      time the last message stayed in the queue.
      HACK: Actually, we cannot send a mad from within the receive callback;
      thus - we will just drop it.
@@ -121,9 +121,9 @@ __osm_sa_mad_ctrl_process(
   cl_disp_get_queue_status(p_ctrl->h_disp,
 			   &num_messages,
 			   &last_dispatched_msg_queue_time_msec);
-  if ((num_messages > 1) && 
+  if ((num_messages > 1) &&
       (p_ctrl->p_subn->opt.max_msg_fifo_timeout) &&
-      (last_dispatched_msg_queue_time_msec > 
+      (last_dispatched_msg_queue_time_msec >
        p_ctrl->p_subn->opt.max_msg_fifo_timeout))
   {
     osm_log( p_ctrl->p_log, OSM_LOG_INFO,
@@ -136,13 +136,13 @@ __osm_sa_mad_ctrl_process(
 
     /* send a busy response */
     /*    osm_sa_send_error( p_ctrl->p_resp, p_madw, IB_RESOURCE_BUSY ); */
-    
+
     /* return the request to the pool */
     osm_mad_pool_put( p_ctrl->p_mad_pool, p_madw );
-    
+
     goto Exit;
   }
-  
+
   p_sa_mad = osm_madw_get_sa_mad_ptr( p_madw );
 
   /*
@@ -239,7 +239,7 @@ __osm_sa_mad_ctrl_process(
       Post this MAD to the dispatcher for asynchronous
       processing by the appropriate controller.
     */
- 
+
     osm_log( p_ctrl->p_log, OSM_LOG_DEBUG,
              "__osm_sa_mad_ctrl_process: "
              "Posting Dispatcher message %s\n",
@@ -323,9 +323,9 @@ __osm_sa_mad_ctrl_rcv_callback(
   /*
    * C15-0.1.3 requires not responding to any MAD if the SM is
    * not in active state!
-   * We will not respond if the sm_state is not MASTER, or if the 
-   * first_time_master_sweep flag (of the subnet) is TRUE - this 
-   * flag indicates that the master still didn't finish its first 
+   * We will not respond if the sm_state is not MASTER, or if the
+   * first_time_master_sweep flag (of the subnet) is TRUE - this
+   * flag indicates that the master still didn't finish its first
    * sweep, so the subnet is not up and stable yet.
    */
   if ( p_ctrl->p_subn->sm_state != IB_SMINFO_STATE_MASTER )
@@ -642,7 +642,7 @@ osm_sa_mad_ctrl_unbind(
     status = IB_ERROR;
     goto Exit;
   }
-  
+
   osm_vendor_unbind( p_ctrl->h_bind );
  Exit:
   OSM_LOG_EXIT( p_ctrl->p_log );

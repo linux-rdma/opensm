@@ -195,7 +195,7 @@ __validate_ports_access_rights(
     /* get the destination InformInfo physical port */
     p_physp = p_port->p_physp;
 
-    /* make sure that the requester and destination port can access each other 
+    /* make sure that the requester and destination port can access each other
        according to the current partitioning. */
     if (! osm_physp_share_pkey( p_rcv->p_log, p_physp, p_requester_physp))
     {
@@ -216,12 +216,12 @@ __validate_ports_access_rights(
 
     lid_range_end = cl_ntoh16(p_infr_rec->inform_record.inform_info.lid_range_end);
 
-    /* lid_range_end is set to zero if no range desired. In this case - 
+    /* lid_range_end is set to zero if no range desired. In this case -
        just make it equal to the lid_range_begin. */
     if (lid_range_end == 0)
       lid_range_end = lid_range_begin;
 
-    /* go over all defined lids within the range and make sure that the 
+    /* go over all defined lids within the range and make sure that the
        requester port can access them according to current partitioning. */
     for ( lid = lid_range_begin; lid <= lid_range_end; lid++ )
     {
@@ -244,7 +244,7 @@ __validate_ports_access_rights(
         continue;
 
       p_physp = p_port->p_physp;
-      /* make sure that the requester and destination port can access 
+      /* make sure that the requester and destination port can access
          each other according to the current partitioning. */
       if (! osm_physp_share_pkey( p_rcv->p_log, p_physp, p_requester_physp))
       {
@@ -314,14 +314,14 @@ __osm_infr_rcv_respond(
   /*
     Get a MAD to reply. Address of Mad is in the received mad_wrapper
   */
-  p_resp_madw = osm_mad_pool_get( p_rcv->p_mad_pool, 
+  p_resp_madw = osm_mad_pool_get( p_rcv->p_mad_pool,
                                   p_madw->h_bind,
                                   MAD_BLOCK_SIZE,
                                   &p_madw->mad_addr );
   if ( !p_resp_madw )
   {
     osm_log( p_rcv->p_log, OSM_LOG_ERROR,
-             "__osm_infr_rcv_respond: ERR 4303: " 
+             "__osm_infr_rcv_respond: ERR 4303: "
              "Unable to allocate MAD\n" );
     goto Exit;
   }
@@ -342,7 +342,7 @@ __osm_infr_rcv_respond(
   if ( status != IB_SUCCESS )
   {
     osm_log( p_rcv->p_log, OSM_LOG_ERROR,
-             "__osm_infr_rcv_respond: ERR 4304: " 
+             "__osm_infr_rcv_respond: ERR 4304: "
              "Unable to send MAD (%s)\n", ib_get_err_str( status ) );
     /* osm_mad_pool_put( p_rcv->p_mad_pool, p_resp_madw ); */
     goto Exit;
@@ -360,7 +360,7 @@ __osm_sa_inform_info_rec_by_comp_mask(
   IN const osm_infr_t*     const p_infr,
   osm_iir_search_ctxt_t*   const p_ctxt )
 {
-  const ib_inform_info_record_t* p_rcvd_rec = NULL; 
+  const ib_inform_info_record_t* p_rcvd_rec = NULL;
   ib_net64_t               comp_mask;
   ib_net64_t               portguid;
   osm_port_t *             p_subscriber_port;
@@ -379,7 +379,7 @@ __osm_sa_inform_info_rec_by_comp_mask(
     if (memcmp(&p_infr->inform_record.subscriber_gid,
 	       &p_ctxt->subscriber_gid,
 	       sizeof(p_infr->inform_record.subscriber_gid)))
-      goto Exit; 
+      goto Exit;
   }
 
   if (comp_mask & IB_IIR_COMPMASK_ENUM)
@@ -404,7 +404,7 @@ __osm_sa_inform_info_rec_by_comp_mask(
 
   /* get the subscriber InformInfo physical port */
   p_subscriber_physp = p_subscriber_port->p_physp;
-  /* make sure that the requester and subscriber port can access each other 
+  /* make sure that the requester and subscriber port can access each other
      according to the current partitioning. */
   if (! osm_physp_share_pkey( p_rcv->p_log, p_req_physp, p_subscriber_physp ))
   {
@@ -413,7 +413,7 @@ __osm_sa_inform_info_rec_by_comp_mask(
              "requester and subscriber ports don't share pkey\n" );
     goto Exit;
   }
- 
+
   p_rec_item = (osm_iir_item_t*)cl_qlock_pool_get( &p_rcv->pool );
   if( p_rec_item == NULL )
   {
@@ -568,7 +568,7 @@ osm_infr_rcv_process_get_method(
            "osm_infr_rcv_process_get_method: "
            "Returning %u records\n", num_rec );
 
-  /* 
+  /*
    * Get a MAD to reply. Address of Mad is in the received mad_wrapper
    */
   p_resp_madw = osm_mad_pool_get( p_rcv->p_mad_pool,
@@ -703,12 +703,12 @@ osm_infr_rcv_process_set_method(
 
   /* update the subscriber GID according to mad address */
   res = osm_get_gid_by_mad_addr(
-    p_rcv->p_log, 
-    p_rcv->p_subn, 
+    p_rcv->p_log,
+    p_rcv->p_subn,
     &p_madw->mad_addr,
     &inform_info_rec.inform_record.subscriber_gid );
   if ( res != IB_SUCCESS )
-  {    
+  {
     cl_plock_release( p_rcv->p_lock );
 
     osm_log( p_rcv->p_log, OSM_LOG_ERROR,
@@ -897,7 +897,7 @@ osm_infir_rcv_process(
   osm_infr_rcv_t *p_rcv = context;
   osm_madw_t *p_madw = data;
   ib_sa_mad_t *p_sa_mad;
-    
+
   OSM_LOG_ENTER( p_rcv->p_log, osm_infr_rcv_process );
 
   CL_ASSERT( p_madw );

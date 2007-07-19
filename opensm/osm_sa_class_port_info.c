@@ -65,7 +65,7 @@
 /* 4.096 usec * 2 ** n (where n = 8 - 31) */
 static uint32_t __msecs_to_rtv_table[MAX_MSECS_TO_RTV] =
 					{ 1, 2, 4, 8,
-					  16, 33, 67, 134, 
+					  16, 33, 67, 134,
 					  268, 536, 1073, 2147,
 					  4294, 8589, 17179, 34359,
 					  68719, 137438, 274877, 549755,
@@ -139,7 +139,7 @@ __osm_cpi_rcv_respond(
   /*
     Get a MAD to reply. Address of Mad is in the received mad_wrapper
   */
-  p_resp_madw = osm_mad_pool_get( p_rcv->p_mad_pool, 
+  p_resp_madw = osm_mad_pool_get( p_rcv->p_mad_pool,
                                   p_madw->h_bind,
                                   MAD_BLOCK_SIZE,
                                   &p_madw->mad_addr );

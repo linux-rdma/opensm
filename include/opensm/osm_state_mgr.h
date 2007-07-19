@@ -184,7 +184,7 @@ typedef struct _osm_state_mgr
 *	_osm_idle_item
 *
 * DESCRIPTION
-*	Idle item.  
+*	Idle item.
 *
 * SYNOPSIS
 */
@@ -205,7 +205,7 @@ typedef struct _osm_idle_item
 	void*			context1;
 	void*			context2;
 	osm_pfn_start_t	pfn_start;
-	osm_pfn_done_t	pfn_done;	
+	osm_pfn_done_t	pfn_done;
 }osm_idle_item_t;
 
 /*
@@ -233,7 +233,7 @@ typedef struct _osm_idle_item
 *	osm_state_mgr_process_idle
 *
 * DESCRIPTION
-*	Formulates the osm_idle_item and inserts it into the queue and 
+*	Formulates the osm_idle_item and inserts it into the queue and
 *	signals the state manager.
 *
 * SYNOPSIS
@@ -262,10 +262,10 @@ osm_state_mgr_process_idle(
 *			when outstanding smps is zero
 *
 *	context1
-*		[in] Pointer to void 
-*	
+*		[in] Pointer to void
+*
 *	context2
-*		[in] Pointer to void 
+*		[in] Pointer to void
 *
 * RETURN VALUE
 *	IB_SUCCESS or IB_ERROR
@@ -510,7 +510,7 @@ osm_state_mgr_process(
 * SEE ALSO
 *	State Manager
 *********/
-	
+
 END_C_DECLS
 
 #endif	/* _OSM_STATE_MGR_H_ */

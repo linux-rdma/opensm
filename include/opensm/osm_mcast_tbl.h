@@ -384,7 +384,7 @@ osm_mcast_tbl_get_block(
 *		forwarding table clock specified by block_id.
 *
 * RETURN VALUES
-*	Returns true if there are more blocks necessary to 
+*	Returns true if there are more blocks necessary to
 *	configure all the MLIDs reachable from this switch.
 *	FALSE otherwise.
 *

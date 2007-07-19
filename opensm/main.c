@@ -204,7 +204,7 @@ show_usage(void)
   printf ("-u\n"
           "--cn_guid_file <path to file>\n"
           "          Set the compute nodes for the Fat-Tree routing algorithm\n"
-          "          to the guids provided in the given file (one to a line)\n" 
+          "          to the guids provided in the given file (one to a line)\n"
           "\n");
   printf( "-o\n"
           "--once\n"
@@ -394,7 +394,7 @@ get_port_guid(
   while( done_flag == FALSE )
   {
     printf( "\nChoose a local port number with which to bind:\n\n" );
-    /* If this is gen2 code - then port 0 has details of the default port used. 
+    /* If this is gen2 code - then port 0 has details of the default port used.
        no need to print it.
        If this is not gen2 code - need to print details of all ports. */
 #if defined ( OSM_VENDOR_INTF_OPENIB )
@@ -445,12 +445,12 @@ get_port_guid(
     {
       /* get rid of the junk in the selection line */
       scanf( "%s", junk );
-      printf("\nError: Lame choice!\n"); 
+      printf("\nError: Lame choice!\n");
       fflush( stdin );
     }
   }
 #if defined ( OSM_VENDOR_INTF_OPENIB )
-  printf("Choice guid=0x%8" PRIx64 "\n", cl_ntoh64( attr_array[choice].port_guid ));       
+  printf("Choice guid=0x%8" PRIx64 "\n", cl_ntoh64( attr_array[choice].port_guid ));
   return( attr_array[choice].port_guid );
 # else
   return( attr_array[choice - 1].port_guid );
@@ -653,7 +653,7 @@ main(
       {  NULL,            0, NULL,  0 }  /* Required at the end of the array */
     };
 
-  /* Make sure that the opensm and complib were compiled using 
+  /* Make sure that the opensm and complib were compiled using
      same modes (debug/free) */
   if ( osm_is_debug() != cl_is_debug() )
   {
@@ -663,7 +663,7 @@ main(
   }
 
 #if defined (_DEBUG_) && defined (OSM_VENDOR_INTF_OPENIB)
-  enable_stack_dump(1); 
+  enable_stack_dump(1);
 #endif
 
   printf("-------------------------------------------------\n");
@@ -1088,19 +1088,19 @@ main(
 
 #if 0
   /* wait for all transactions to end */
-  CL_ASSERT( ((opt.polling_retry_number + 1) * opt.transaction_timeout / 1000.0) < 0x100000000ULL ); 
-  exitTimeout = 
+  CL_ASSERT( ((opt.polling_retry_number + 1) * opt.transaction_timeout / 1000.0) < 0x100000000ULL );
+  exitTimeout =
      (uint32_t) ((opt.polling_retry_number + 1) * opt.transaction_timeout / 1000.0);
 
   if (exitTimeout < 3) exitTimeout = 3;
 
   printf( "\n------- OpenSM Exiting (in %u seconds) -------\n",
   exitTimeout);
-  sleep(exitTimeout); 
+  sleep(exitTimeout);
 #endif
 
   if (osm.mad_pool.mads_out)
-    fprintf(stdout, 
+    fprintf(stdout,
             "There are still %u MADs out. Forcing the exit of the OpenSM application...\n",
             osm.mad_pool.mads_out);
 

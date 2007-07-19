@@ -270,7 +270,7 @@ __osm_drop_mgr_remove_port(
     goto Exit;
   }
 
-  p_sm_guid_tbl = &p_mgr->p_subn->sm_guid_tbl;  
+  p_sm_guid_tbl = &p_mgr->p_subn->sm_guid_tbl;
   p_sm = (osm_remote_sm_t*)cl_qmap_remove( p_sm_guid_tbl, port_guid );
   if( p_sm != (osm_remote_sm_t*)cl_qmap_end( p_sm_guid_tbl ) )
   {
@@ -278,7 +278,7 @@ __osm_drop_mgr_remove_port(
     osm_log( p_mgr->p_log, OSM_LOG_VERBOSE,
              "__osm_drop_mgr_remove_port: "
              "Cleaned SM for port guid\n" );
-    
+
     free(p_sm);
   }
 
@@ -316,12 +316,12 @@ __osm_drop_mgr_remove_port(
   osm_port_delete( &p_port );
 
   /* issue a notice - trap 65 */
-  
+
   /* details of the notice */
   notice.generic_type = 0x83; /* is generic subn mgt type */
   ib_notice_set_prod_type_ho(&notice, 4); /* A class manager generator */
   /* endport ceases to be reachable */
-  notice.g_or_v.generic.trap_num = CL_HTON16(65); 
+  notice.g_or_v.generic.trap_num = CL_HTON16(65);
   /* The sm_base_lid is saved in network order already. */
   notice.issuer_lid = p_mgr->p_subn->sm_base_lid;
   /* following C14-72.1.2 and table 119 p725 */
@@ -331,7 +331,7 @@ __osm_drop_mgr_remove_port(
   memcpy(&(notice.data_details.ntc_64_67.gid),
          &(port_gid),
          sizeof(ib_gid_t));
- 
+
   /* According to page 653 - the issuer gid in this case of trap
      is the SM gid, since the SM is the initiator of this trap. */
   notice.issuer_gid.unicast.prefix = p_mgr->p_subn->opt.subnet_prefix;
@@ -492,7 +492,7 @@ __osm_drop_mgr_check_node(
              "__osm_drop_mgr_check_node: "
              "Node 0x%016" PRIx64 " no switch in table\n",
              cl_ntoh64( node_guid ) );
-    
+
     __osm_drop_mgr_process_node( p_mgr, p_node );
     goto Exit;
   }
@@ -505,11 +505,11 @@ __osm_drop_mgr_check_node(
              "__osm_drop_mgr_check_node: "
              "Node 0x%016" PRIx64 " no valid physical port 0\n",
              cl_ntoh64( node_guid ) );
-    
+
     __osm_drop_mgr_process_node( p_mgr, p_node );
     goto Exit;
   }
-   
+
   port_guid = osm_physp_get_port_guid( p_physp );
 
   p_port = osm_get_port_by_guid( p_mgr->p_subn, port_guid );
@@ -520,7 +520,7 @@ __osm_drop_mgr_check_node(
              "__osm_drop_mgr_check_node: "
              "Node 0x%016" PRIx64 " has no port object\n",
              cl_ntoh64( node_guid ) );
-    
+
     __osm_drop_mgr_process_node( p_mgr, p_node );
     goto Exit;
   }
@@ -531,7 +531,7 @@ __osm_drop_mgr_check_node(
              "__osm_drop_mgr_check_node: "
              "Node 0x%016" PRIx64 " port has discovery count zero\n",
              cl_ntoh64( node_guid ) );
-    
+
     __osm_drop_mgr_process_node( p_mgr, p_node );
     goto Exit;
   }
@@ -603,7 +603,7 @@ osm_drop_mgr_process(
     If not - this means that there was some error in getting the data
     of this node. Drop the node.
   */
-  p_next_node = (osm_node_t*)cl_qmap_head( p_node_guid_tbl );  
+  p_next_node = (osm_node_t*)cl_qmap_head( p_node_guid_tbl );
   while( p_next_node != (osm_node_t*)cl_qmap_end( p_node_guid_tbl ) )
   {
     p_node = p_next_node;
@@ -624,7 +624,7 @@ osm_drop_mgr_process(
     /* We are handling a switch node */
     __osm_drop_mgr_check_node( p_mgr, p_node );
   }
-    
+
   p_next_port = (osm_port_t*)cl_qmap_head( p_port_guid_tbl );
   while( p_next_port != (osm_port_t*)cl_qmap_end( p_port_guid_tbl ) )
   {
@@ -650,9 +650,9 @@ osm_drop_mgr_process(
       __osm_drop_mgr_remove_port( p_mgr, p_port );
   }
 
-  /* 
-     scan through all the ports left - if the port is not DOWN and 
-     it does not have a valid remote port - we need to track it for 
+  /*
+     scan through all the ports left - if the port is not DOWN and
+     it does not have a valid remote port - we need to track it for
      next light sweep scan...
   */
   cl_list_remove_all( p_lsweep_ports );
@@ -661,30 +661,30 @@ osm_drop_mgr_process(
   {
     p_node = p_next_node;
     p_next_node = (osm_node_t*)cl_qmap_next( &p_next_node->map_item );
-    
+
     for (port_num = 1; port_num < osm_node_get_num_physp(p_node); port_num++)
     {
       p_physp = osm_node_get_physp_ptr(p_node, port_num);
-      if (osm_physp_is_valid(p_physp) && 
+      if (osm_physp_is_valid(p_physp) &&
           (osm_physp_get_port_state(p_physp) != IB_LINK_DOWN) &&
           ! osm_physp_get_remote(p_physp))
       {
         osm_log( p_mgr->p_log, OSM_LOG_ERROR,
                  "osm_drop_mgr_process: ERR 0108: "
-                 "Unknown remote side for node 0x%016" PRIx64 
+                 "Unknown remote side for node 0x%016" PRIx64
                  " port %u. Adding to light sweep sampling list\n",
                  cl_ntoh64( osm_node_get_node_guid( p_node )),
                  port_num);
-        
-        osm_dump_dr_path(p_mgr->p_log, 
+
+        osm_dump_dr_path(p_mgr->p_log,
                          osm_physp_get_dr_path_ptr( p_physp ),
                          OSM_LOG_ERROR);
-        
+
         cl_list_insert_head( p_lsweep_ports, p_physp );
       }
     }
   }
- 
+
   CL_PLOCK_RELEASE( p_mgr->p_lock );
   OSM_LOG_EXIT( p_mgr->p_log );
 }

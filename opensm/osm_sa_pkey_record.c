@@ -202,7 +202,7 @@ __osm_sa_pkey_check_physp(
   }
   else
   {
-    num_blocks = 
+    num_blocks =
       osm_pkey_tbl_get_num_blocks( osm_physp_get_pkey_tbl( p_physp ));
     for (block = 0; block < num_blocks; block++) {
       __osm_sa_pkey_create( p_rcv, p_physp, p_ctxt, block );
@@ -500,7 +500,7 @@ osm_pkey_rec_rcv_process(
 
   /*
    * Get a MAD to reply. Address of Mad is in the received mad_wrapper
-   */ 
+   */
   p_resp_madw = osm_mad_pool_get( p_rcv->p_mad_pool,
                                   p_madw->h_bind,
                                   num_rec * sizeof(ib_pkey_table_record_t) + IB_SA_MAD_HDR_SIZE,

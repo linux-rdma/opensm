@@ -129,7 +129,7 @@ typedef struct _osm_pir_rcv
 *		the query response.
 *
 * SEE ALSO
-*	
+*
 *********/
 
 /****f* OpenSM: PortInfo Record Receiver/osm_pir_rcv_construct

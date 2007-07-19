@@ -127,7 +127,7 @@
 
 	Linear Forwarding Receiver
 	2700 - 27FF
-	
+
 	SA MAD controller
 	2800 - 28FF
 
@@ -142,10 +142,10 @@
 
 	Path Record Controller
 	3200 - 32FF
-	
+
 	SMInfo Record Controller
 	3300 - 33FF
-	
+
 	Multicast Record Controller
 	3400 - 34FF
 

@@ -258,7 +258,7 @@ void osm_vla_rcv_process(
 * SEE ALSO
 *	VL Arbitration Receiver, VL Arbitration Response Controller
 *********/
-	
+
 END_C_DECLS
 
 #endif	/* _OSM_VLA_RCV_H_ */

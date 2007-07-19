@@ -376,7 +376,7 @@ __osm_lr_rcv_get_port_links(
         /* If the port number is out of the range of the p_src_port, then
            this couldn't be a relevant record. */
         if (port_num < p_src_port->p_node->physp_tbl_size)
-        {          
+        {
           p_src_physp = osm_node_get_physp_ptr( p_src_port->p_node, port_num );
           if (osm_physp_is_valid(p_src_physp))
             __osm_lr_rcv_get_physp_link( p_rcv, p_lr, p_src_physp,
@@ -606,7 +606,7 @@ __osm_lr_rcv_respond(
   /*
     Get a MAD to reply. Address of Mad is in the received mad_wrapper
   */
-  p_resp_madw = osm_mad_pool_get( p_rcv->p_mad_pool, 
+  p_resp_madw = osm_mad_pool_get( p_rcv->p_mad_pool,
                                   p_madw->h_bind,
                                   num_rec * sizeof(ib_link_record_t) + IB_SA_MAD_HDR_SIZE,
                                   &p_madw->mad_addr );

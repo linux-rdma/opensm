@@ -81,7 +81,7 @@ BEGIN_C_DECLS
 *	manipulated only through the provided functions.
 *
 * AUTHOR
-*	Hal Rosenstock, Voltaire 
+*	Hal Rosenstock, Voltaire
 *
 *********/
 

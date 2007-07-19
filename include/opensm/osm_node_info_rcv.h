@@ -298,7 +298,7 @@ void osm_ni_rcv_process(
 * SEE ALSO
 *	Node Info Receiver, Node Info Response Controller
 *********/
-	
+
 END_C_DECLS
 
 #endif	/* _OSM_NI_RCV_H_ */

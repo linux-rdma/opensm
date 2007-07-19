@@ -112,7 +112,7 @@ typedef int
 *          Same prefix as the UI function (suffixed by ctx)
 *
 * RETURN VALUE
-*	This function returns an int (the semantic is different between 
+*	This function returns an int (the semantic is different between
 *  the different calls)
 *
 * SEE ALSO
@@ -237,7 +237,7 @@ typedef struct _osm_subn_opt
   uint8_t		   lmc;
   boolean_t		   lmc_esp0;
   uint8_t		   max_op_vls;
-  uint8_t		   force_link_speed;	
+  uint8_t		   force_link_speed;
   boolean_t		   reassign_lids;
   boolean_t		   reassign_lfts;
   boolean_t		   ignore_other_sm;
@@ -361,7 +361,7 @@ typedef struct _osm_subn_opt
 *		The maximal time a message can stay in the incoming message queue.
 *		If there is more than one message in the queue and the last
 *		message stayed in the queue more than this value the SA request
-*		will be immediately returned with a BUSY status. 
+*		will be immediately returned with a BUSY status.
 *
 *	subnet_timeout
 *		The subnet_timeout that will be set for all the ports in the
@@ -482,7 +482,7 @@ typedef struct _osm_subn_opt
 *	honor_guid2lid_file
 *		Always honor the guid2lid file if it exists and is valid. This
 *		means that the file will be honored when SM is coming out of
-*		STANDBY. By default this is FALSE. 
+*		STANDBY. By default this is FALSE.
 *
 *	daemon
 *		OpenSM will run in daemon mode.
@@ -492,7 +492,7 @@ typedef struct _osm_subn_opt
 *
 *	babbling_port_policy
 *		OpenSM will enforce its "babbling" port policy.
-*	
+*
 *	perfmgr
 *		Enable or disable the performance manager
 *
@@ -524,7 +524,7 @@ typedef struct _osm_subn_opt
 *		QoS options for router ports
 *
 *	enable_quirks
-*		Enable high risk new features and not fully qualified 
+*		Enable high risk new features and not fully qualified
 *		hardware specific work arounds
 *
 *	no_clients_rereg
@@ -612,7 +612,7 @@ typedef struct _osm_subn
 *
 *	light_sweep_physp_list
 *		A list of all phys ports to scan for a change in remote
-*		side state in next light sweep. These ports are not down 
+*		side state in next light sweep. These ports are not down
 *		but for some reason the remote side did not answer.
 *
 *	node_lid_tbl
@@ -705,10 +705,10 @@ typedef struct _osm_subn
 *     a PortInfoSet to all ports. After that - we want to minimize the number of
 *     PortInfoSet requests sent, and to send only requests that change the value
 *     from what is updated in the port (or send a first request if this is a new
-*     port). We will set this flag to TRUE when entering the master state, and 
+*     port). We will set this flag to TRUE when entering the master state, and
 *     set it back to FALSE at the end of the drop manager. This is done since at
-*     the end of the drop manager we have updated all the ports that are 
-*     reachable, and from now on these are the only ports we have data of. We 
+*     the end of the drop manager we have updated all the ports that are
+*     reachable, and from now on these are the only ports we have data of. We
 *     don't want to send extra set requests to these ports anymore.
 *
 *  coming_out_of_standby
@@ -854,7 +854,7 @@ osm_get_gid_by_mad_addr(
 *
 *  p_gid
 *     [out] Pointer to the GID structure to fill in.
-* 
+*
 * RETURN VALUES
 *     IB_SUCCESS if able to find the GID by address given.
 *

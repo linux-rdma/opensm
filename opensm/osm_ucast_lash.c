@@ -408,12 +408,12 @@ static void shortest_path(lash_t *p_lash, int ir)
   switch_t **switches = p_lash->switches, *sw, *swi;
   unsigned int i;
   cl_list_t bfsq;
-  
+
   cl_list_construct(&bfsq);
   cl_list_init(&bfsq, 20);
-  
+
   enqueue(&bfsq, switches[ir], 0);
-  
+
   while(!cl_is_list_empty(&bfsq)) {
     dequeue(&bfsq, &sw);
     for(i=0; i<sw->num_connections; i++) {
@@ -424,7 +424,7 @@ static void shortest_path(lash_t *p_lash, int ir)
       }
      }
   }
-  
+
   cl_list_destroy(&bfsq);
 }
 
@@ -700,7 +700,7 @@ static void balance_virtual_lanes(lash_t *p_lash, unsigned lanes_needed)
 	  cdg_vertex_matrix[min_filled_lane][i][j]->visiting_number = 0;
 	  cdg_vertex_matrix[min_filled_lane][i][j]->seen = 0;
 	}
-    
+
     if(cycle_found == 1 || cycle_found2 == 1) {
       remove_temp_depend_for_sp(p_lash, src, dest, min_filled_lane);
       remove_temp_depend_for_sp(p_lash, dest, src, min_filled_lane);
@@ -1000,17 +1000,17 @@ static int lash_core(lash_t *p_lash)
   }
 
   for(i=0; i<num_switches; i++) {
-    
+
     shortest_path(p_lash, i);
     generate_routing_func_for_mst(p_lash, i, &dests);
-    
+
     idest = dests;
     while(idest != NULL) {
       dests = dests->next;
       free(idest);
       idest = dests;
     }
-   
+
     for(j=0; j<num_switches; j++) {
       for(k=0; k<num_switches; k++) {
 	switch_bitmap[j * num_switches + k] = 0;
@@ -1019,7 +1019,7 @@ static int lash_core(lash_t *p_lash)
       switches[j]->q_state = UNQUEUED;
     }
   }
-  
+
   for(i=0; i<num_switches; i++) {
     for(dest_switch=0; dest_switch<num_switches; dest_switch++)
       if(dest_switch != i && switch_bitmap[i * num_switches + dest_switch] == 0) {
@@ -1463,7 +1463,7 @@ uint8_t osm_get_lash_sl(osm_opensm_t *p_osm,
 		return OSM_DEFAULT_SL;
 
 	src_id = get_lash_id(p_sw);
-	if (src_id == dst_id) 
+	if (src_id == dst_id)
 		return OSM_DEFAULT_SL;
 
 	return (uint8_t)((switch_t *)p_sw->priv)->routing_table[dst_id].lane;

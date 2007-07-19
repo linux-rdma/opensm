@@ -161,7 +161,7 @@ void osm_mftr_rcv_construct(
 *	method except osm_mftr_rcv_init.
 *
 * SEE ALSO
-*	Multicast Forwarding Table Receiver object, osm_mftr_rcv_init, 
+*	Multicast Forwarding Table Receiver object, osm_mftr_rcv_init,
 *  osm_mftr_rcv_destroy
 *********/
 
@@ -239,7 +239,7 @@ ib_api_status_t osm_mftr_rcv_init(
 *	Allows calling other Multicast Forwarding Table Receiver methods.
 *
 * SEE ALSO
-*	Multicast Forwarding Table Receiver object, osm_mftr_rcv_construct, 
+*	Multicast Forwarding Table Receiver object, osm_mftr_rcv_construct,
 *  osm_mftr_rcv_destroy
 *********/
 

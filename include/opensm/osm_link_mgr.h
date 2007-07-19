@@ -117,9 +117,9 @@ typedef struct _osm_link_mgr
 *
 *	p_lock
 *		Pointer to the serializing lock.
-*	
+*
 *	send_set_reqs
-*		Boolean to indicate whether any set requests sent.	
+*		Boolean to indicate whether any set requests sent.
 *
 * SEE ALSO
 *	Link Manager object
@@ -268,7 +268,7 @@ osm_link_mgr_process(
 * SEE ALSO
 *	Link Manager, Node Info Response Controller
 *********/
-	
+
 END_C_DECLS
 
 #endif	/* _OSM_LINK_MGR_H_ */

@@ -110,7 +110,7 @@ osm_subn_destroy(
   osm_node_t      *p_node, *p_next_node;
   osm_port_t      *p_port, *p_next_port;
   osm_switch_t    *p_sw,   *p_next_sw;
-  osm_remote_sm_t *p_rsm,  *p_next_rsm;  
+  osm_remote_sm_t *p_rsm,  *p_next_rsm;
   osm_prtn_t      *p_prtn, *p_next_prtn;
   osm_mgrp_t      *p_mgrp, *p_next_mgrp;
   osm_infr_t      *p_infr, *p_next_infr;
@@ -242,7 +242,7 @@ osm_get_gid_by_mad_addr(
   const cl_ptr_vector_t*  p_tbl;
   const osm_port_t*       p_port = NULL;
 
-  if ( p_gid == NULL ) 
+  if ( p_gid == NULL )
   {
     osm_log( p_log, OSM_LOG_ERROR,
              "osm_get_gid_by_mad_addr: ERR 7505: "
@@ -255,7 +255,7 @@ osm_get_gid_by_mad_addr(
 
   CL_ASSERT( cl_ptr_vector_get_size(p_tbl) < 0x10000 );
 
-  if ((uint16_t)cl_ptr_vector_get_size(p_tbl) > 
+  if ((uint16_t)cl_ptr_vector_get_size(p_tbl) >
       cl_ntoh16(p_mad_addr->dest_lid))
   {
     p_port = cl_ptr_vector_get( p_tbl, cl_ntoh16(p_mad_addr->dest_lid) );
@@ -314,7 +314,7 @@ osm_get_physp_by_mad_addr(
                "Cannot locate port object by lid: 0x%X\n",
                cl_ntoh16(p_mad_addr->dest_lid)
                );
-    
+
       goto Exit;
     }
     p_physp = p_port->p_physp;
@@ -349,10 +349,10 @@ osm_get_port_by_mad_addr(
 
   CL_ASSERT( cl_ptr_vector_get_size(p_port_lid_tbl) < 0x10000 );
 
-  if ((uint16_t)cl_ptr_vector_get_size(p_port_lid_tbl) > 
+  if ((uint16_t)cl_ptr_vector_get_size(p_port_lid_tbl) >
       cl_ntoh16(p_mad_addr->dest_lid))
   {
-    p_port = 
+    p_port =
       cl_ptr_vector_get( p_port_lid_tbl, cl_ntoh16(p_mad_addr->dest_lid) );
   }
   else
@@ -614,7 +614,7 @@ __osm_subn_opts_unpack_net16(
     uint32_t val;
     val = strtoul(p_val_str, NULL, 0);
     CL_ASSERT( val < 0x10000 );
-    if (cl_hton32(val) != *p_val) 
+    if (cl_hton32(val) != *p_val)
     {
       char buff[128];
       sprintf(buff, " Loading Cached Option:%s = 0x%04x\n",
@@ -640,7 +640,7 @@ __osm_subn_opts_unpack_uint8(
     uint32_t val;
     val = strtoul(p_val_str, NULL, 0);
     CL_ASSERT( val < 0x100 );
-    if (val != *p_val) 
+    if (val != *p_val)
     {
       char buff[128];
       sprintf(buff, " Loading Cached Option:%s = %u\n",
@@ -668,7 +668,7 @@ __osm_subn_opts_unpack_boolean(
       val = FALSE;
     else
       val = TRUE;
-    
+
     if (val != *p_val) {
       char buff[128];
       sprintf(buff, " Loading Cached Option:%s = %s\n",
@@ -686,7 +686,7 @@ static inline void
 __osm_subn_opts_unpack_charp(
   IN char *p_req_key,
   IN char *p_key,
-  IN char *p_val_str,  
+  IN char *p_val_str,
   IN char **p_val)
 {
   if (!strcmp(p_req_key, p_key) && p_val_str)
@@ -764,14 +764,14 @@ osm_subn_rescan_conf_file(
   FILE *opts_file;
   char line[1024];
   char *p_key, *p_val ,*p_last;
-  
+
   /* try to open the options file from the cache dir */
   if (!p_cache_dir || !(*p_cache_dir))
     p_cache_dir = OSM_DEFAULT_CACHE_DIR;
 
   strcpy(file_name, p_cache_dir);
   strcat(file_name, "/opensm.opts");
-  
+
   opts_file = fopen(file_name, "r");
   if (!opts_file)
     return (errno == ENOENT) ? IB_SUCCESS : IB_ERROR;
@@ -816,7 +816,7 @@ osm_subn_verify_max_vls(
 {
   char buff[128];
 
-  if (*max_vls > 15) 
+  if (*max_vls > 15)
   {
     sprintf(buff, " Invalid Cached Option:%s=%u:"
             "Using Default:%u\n",
@@ -834,9 +834,9 @@ osm_subn_verify_high_limit(
 {
   char buff[128];
 
-  if (*high_limit > 255) 
+  if (*high_limit > 255)
   {
-    sprintf(buff, " Invalid Cached Option:%s=%u:" 
+    sprintf(buff, " Invalid Cached Option:%s=%u:"
             "Using Default:%u\n",
             key, *high_limit, OSM_DEFAULT_QOS_HIGH_LIMIT);
     printf(buff);
@@ -850,7 +850,7 @@ osm_subn_verify_vlarb(
   IN char *vlarb,
   IN char *key)
 {
-  if (vlarb) 
+  if (vlarb)
   {
     char buff[128];
     char *str, *tok, *end, *ptr;
@@ -858,9 +858,9 @@ osm_subn_verify_vlarb(
 
     str = (char *)malloc(strlen(vlarb)+1);
     strcpy(str, vlarb);
-    
+
     tok = strtok_r(str, ",\n", &ptr);
-    while (tok) 
+    while (tok)
     {
       char *vl_str, *weight_str;
 
@@ -878,14 +878,14 @@ osm_subn_verify_vlarb(
 
         if (*end)
         {
-          sprintf(buff, " Warning: Cached Option %s:vl=%s improperly formatted\n", 
+          sprintf(buff, " Warning: Cached Option %s:vl=%s improperly formatted\n",
                   key, vl_str);
           printf(buff);
           cl_log_event("OpenSM", CL_LOG_INFO, buff, NULL, 0);
         }
-        else if (vl < 0 || vl > 14) 
+        else if (vl < 0 || vl > 14)
         {
-          sprintf(buff, " Warning: Cached Option %s:vl=%ld out of range\n", 
+          sprintf(buff, " Warning: Cached Option %s:vl=%ld out of range\n",
                   key, vl);
           printf(buff);
           cl_log_event("OpenSM", CL_LOG_INFO, buff, NULL, 0);
@@ -895,14 +895,14 @@ osm_subn_verify_vlarb(
 
         if (*end)
         {
-          sprintf(buff, " Warning: Cached Option %s:weight=%s improperly formatted\n", 
+          sprintf(buff, " Warning: Cached Option %s:weight=%s improperly formatted\n",
                   key, weight_str);
           printf(buff);
           cl_log_event("OpenSM", CL_LOG_INFO, buff, NULL, 0);
         }
-        else if (weight < 0 || weight > 255) 
+        else if (weight < 0 || weight > 255)
         {
-          sprintf(buff, " Warning: Cached Option %s:weight=%ld out of range\n", 
+          sprintf(buff, " Warning: Cached Option %s:weight=%ld out of range\n",
                   key, weight);
           printf(buff);
           cl_log_event("OpenSM", CL_LOG_INFO, buff, NULL, 0);
@@ -910,7 +910,7 @@ osm_subn_verify_vlarb(
       }
       else
       {
-        sprintf(buff, " Warning: Cached Option %s:vl:weight=%s improperly formatted\n", 
+        sprintf(buff, " Warning: Cached Option %s:vl:weight=%s improperly formatted\n",
                 key, tok);
         printf(buff);
         cl_log_event("OpenSM", CL_LOG_INFO, buff, NULL, 0);
@@ -923,7 +923,7 @@ osm_subn_verify_vlarb(
     if (count > 64)
     {
       sprintf(buff, " Warning: Cached Option %s: > 64 listed: "
-              "excess vl:weight pairs will be dropped\n", 
+              "excess vl:weight pairs will be dropped\n",
               key);
       printf(buff);
       cl_log_event("OpenSM", CL_LOG_INFO, buff, NULL, 0);
@@ -946,22 +946,22 @@ osm_subn_verify_sl2vl(
 
     str = (char *)malloc(strlen(sl2vl)+1);
     strcpy(str, sl2vl);
-    
+
     tok = strtok_r(str, ",\n", &ptr);
-    while (tok) 
+    while (tok)
     {
       long vl = strtol(tok, &end, 0);
-      
+
       if (*end)
       {
-        sprintf(buff, " Warning: Cached Option %s:vl=%s improperly formatted\n", 
+        sprintf(buff, " Warning: Cached Option %s:vl=%s improperly formatted\n",
                 key, tok);
         printf(buff);
         cl_log_event("OpenSM", CL_LOG_INFO, buff, NULL, 0);
       }
-      else if (vl < 0 || vl > 15) 
+      else if (vl < 0 || vl > 15)
       {
-        sprintf(buff, " Warning: Cached Option %s:vl=%ld out of range\n", 
+        sprintf(buff, " Warning: Cached Option %s:vl=%ld out of range\n",
                 key, vl);
         printf(buff);
         cl_log_event("OpenSM", CL_LOG_INFO, buff, NULL, 0);
@@ -971,9 +971,9 @@ osm_subn_verify_sl2vl(
       tok = strtok_r(NULL, ",\n", &ptr);
     }
 
-    if (count < 16) 
+    if (count < 16)
     {
-      sprintf(buff, " Warning: Cached Option %s: < 16 VLs listed\n", 
+      sprintf(buff, " Warning: Cached Option %s: < 16 VLs listed\n",
               key);
       printf(buff);
       cl_log_event("OpenSM", CL_LOG_INFO, buff, NULL, 0);
@@ -981,7 +981,7 @@ osm_subn_verify_sl2vl(
     if (count > 16)
     {
       sprintf(buff, " Warning: Cached Option %s: > 16 listed: "
-              "excess VLs will be dropped\n", 
+              "excess VLs will be dropped\n",
               key);
       printf(buff);
       cl_log_event("OpenSM", CL_LOG_INFO, buff, NULL, 0);
@@ -1043,61 +1043,61 @@ osm_subn_verify_conf_file(
     p_opts->console = OSM_DEFAULT_CONSOLE;
   }
 
-  if (p_opts->no_qos == FALSE) 
+  if (p_opts->no_qos == FALSE)
   {
-    osm_subn_verify_max_vls(&(p_opts->qos_options.max_vls), 
-                            "qos_max_vls"); 
-    osm_subn_verify_max_vls(&(p_opts->qos_ca_options.max_vls), 
+    osm_subn_verify_max_vls(&(p_opts->qos_options.max_vls),
+                            "qos_max_vls");
+    osm_subn_verify_max_vls(&(p_opts->qos_ca_options.max_vls),
                             "qos_ca_max_vls");
-    osm_subn_verify_max_vls(&(p_opts->qos_sw0_options.max_vls), 
+    osm_subn_verify_max_vls(&(p_opts->qos_sw0_options.max_vls),
                             "qos_sw0_max_vls");
-    osm_subn_verify_max_vls(&(p_opts->qos_swe_options.max_vls), 
+    osm_subn_verify_max_vls(&(p_opts->qos_swe_options.max_vls),
                             "qos_swe_max_vls");
-    osm_subn_verify_max_vls(&(p_opts->qos_rtr_options.max_vls), 
+    osm_subn_verify_max_vls(&(p_opts->qos_rtr_options.max_vls),
                             "qos_rtr_max_vls");
 
-    osm_subn_verify_high_limit(&(p_opts->qos_options.high_limit), 
-                               "qos_high_limit"); 
-    osm_subn_verify_high_limit(&(p_opts->qos_ca_options.high_limit), 
+    osm_subn_verify_high_limit(&(p_opts->qos_options.high_limit),
+                               "qos_high_limit");
+    osm_subn_verify_high_limit(&(p_opts->qos_ca_options.high_limit),
                                "qos_ca_high_limit");
-    osm_subn_verify_high_limit(&(p_opts->qos_sw0_options.high_limit), 
+    osm_subn_verify_high_limit(&(p_opts->qos_sw0_options.high_limit),
                                "qos_sw0_high_limit");
-    osm_subn_verify_high_limit(&(p_opts->qos_swe_options.high_limit), 
+    osm_subn_verify_high_limit(&(p_opts->qos_swe_options.high_limit),
                                "qos_swe_high_limit");
-    osm_subn_verify_high_limit(&(p_opts->qos_rtr_options.high_limit), 
+    osm_subn_verify_high_limit(&(p_opts->qos_rtr_options.high_limit),
                                "qos_rtr_high_limit");
-    
-    osm_subn_verify_vlarb(p_opts->qos_options.vlarb_low, 
-                          "qos_vlarb_low"); 
-    osm_subn_verify_vlarb(p_opts->qos_ca_options.vlarb_low, 
+
+    osm_subn_verify_vlarb(p_opts->qos_options.vlarb_low,
+                          "qos_vlarb_low");
+    osm_subn_verify_vlarb(p_opts->qos_ca_options.vlarb_low,
                           "qos_ca_vlarb_low");
-    osm_subn_verify_vlarb(p_opts->qos_sw0_options.vlarb_low, 
+    osm_subn_verify_vlarb(p_opts->qos_sw0_options.vlarb_low,
                           "qos_sw0_vlarb_low");
-    osm_subn_verify_vlarb(p_opts->qos_swe_options.vlarb_low, 
+    osm_subn_verify_vlarb(p_opts->qos_swe_options.vlarb_low,
                           "qos_swe_vlarb_low");
-    osm_subn_verify_vlarb(p_opts->qos_rtr_options.vlarb_low, 
+    osm_subn_verify_vlarb(p_opts->qos_rtr_options.vlarb_low,
                           "qos_rtr_vlarb_low");
 
-    osm_subn_verify_vlarb(p_opts->qos_options.vlarb_high, 
-                          "qos_vlarb_high"); 
-    osm_subn_verify_vlarb(p_opts->qos_ca_options.vlarb_high, 
+    osm_subn_verify_vlarb(p_opts->qos_options.vlarb_high,
+                          "qos_vlarb_high");
+    osm_subn_verify_vlarb(p_opts->qos_ca_options.vlarb_high,
                           "qos_ca_vlarb_high");
-    osm_subn_verify_vlarb(p_opts->qos_sw0_options.vlarb_high, 
+    osm_subn_verify_vlarb(p_opts->qos_sw0_options.vlarb_high,
                           "qos_sw0_vlarb_high");
-    osm_subn_verify_vlarb(p_opts->qos_swe_options.vlarb_high, 
+    osm_subn_verify_vlarb(p_opts->qos_swe_options.vlarb_high,
                           "qos_swe_vlarb_high");
-    osm_subn_verify_vlarb(p_opts->qos_rtr_options.vlarb_high, 
+    osm_subn_verify_vlarb(p_opts->qos_rtr_options.vlarb_high,
                           "qos_rtr_vlarb_high");
 
-    osm_subn_verify_sl2vl(p_opts->qos_options.sl2vl, 
-                          "qos_sl2vl"); 
-    osm_subn_verify_sl2vl(p_opts->qos_ca_options.sl2vl, 
+    osm_subn_verify_sl2vl(p_opts->qos_options.sl2vl,
+                          "qos_sl2vl");
+    osm_subn_verify_sl2vl(p_opts->qos_ca_options.sl2vl,
                           "qos_ca_sl2vl");
-    osm_subn_verify_sl2vl(p_opts->qos_sw0_options.sl2vl, 
+    osm_subn_verify_sl2vl(p_opts->qos_sw0_options.sl2vl,
                           "qos_sw0_sl2vl");
-    osm_subn_verify_sl2vl(p_opts->qos_swe_options.sl2vl, 
+    osm_subn_verify_sl2vl(p_opts->qos_swe_options.sl2vl,
                           "qos_swe_sl2vl");
-    osm_subn_verify_sl2vl(p_opts->qos_rtr_options.sl2vl, 
+    osm_subn_verify_sl2vl(p_opts->qos_rtr_options.sl2vl,
                           "qos_rtr_sl2vl");
   }
 #ifdef ENABLE_OSM_PERF_MGR
@@ -1135,14 +1135,14 @@ osm_subn_parse_conf_file(
   FILE *opts_file;
   char line[1024];
   char *p_key, *p_val ,*p_last;
-  
+
   /* try to open the options file from the cache dir */
   if (!p_cache_dir || !(*p_cache_dir))
     p_cache_dir = OSM_DEFAULT_CACHE_DIR;
 
   strcpy(file_name, p_cache_dir);
   strcat(file_name, "/opensm.opts");
-  
+
   opts_file = fopen(file_name, "r");
   if (!opts_file)
     return (errno == ENOENT) ? IB_SUCCESS : IB_ERROR;
@@ -1154,13 +1154,13 @@ osm_subn_parse_conf_file(
     if (p_key)
     {
       p_val = strtok_r(NULL, " \t\n", &p_last);
-      
+
       __osm_subn_opts_unpack_net64(
         "guid", p_key, p_val, &p_opts->guid);
 
       __osm_subn_opts_unpack_net64(
         "m_key", p_key, p_val, &p_opts->m_key);
-  
+
       __osm_subn_opts_unpack_net64(
         "sm_key", p_key, p_val, &p_opts->sm_key);
 
@@ -1176,7 +1176,7 @@ osm_subn_parse_conf_file(
         "sweep_interval",
         p_key, p_val, &p_opts->sweep_interval);
 
-      __osm_subn_opts_unpack_uint32( 
+      __osm_subn_opts_unpack_uint32(
         "max_wire_smps",
         p_key, p_val, &p_opts->max_wire_smps);
 
@@ -1196,7 +1196,7 @@ osm_subn_parse_conf_file(
         "max_msg_fifo_timeout",
         p_key, p_val, &p_opts->max_msg_fifo_timeout);
 
-      __osm_subn_opts_unpack_uint8( 
+      __osm_subn_opts_unpack_uint8(
         "sm_priority",
         p_key, p_val, &p_opts->sm_priority);
 
@@ -1223,47 +1223,47 @@ osm_subn_parse_conf_file(
       __osm_subn_opts_unpack_boolean(
         "reassign_lfts",
         p_key, p_val, &p_opts->reassign_lfts);
-      
-      __osm_subn_opts_unpack_boolean( 
+
+      __osm_subn_opts_unpack_boolean(
         "ignore_other_sm",
         p_key, p_val, &p_opts->ignore_other_sm);
-      
-      __osm_subn_opts_unpack_boolean( 
+
+      __osm_subn_opts_unpack_boolean(
         "single_thread",
         p_key, p_val, &p_opts->single_thread);
 
-      __osm_subn_opts_unpack_boolean( 
+      __osm_subn_opts_unpack_boolean(
         "no_multicast_option",
         p_key, p_val, &p_opts->no_multicast_option);
-      
-      __osm_subn_opts_unpack_boolean( 
+
+      __osm_subn_opts_unpack_boolean(
         "disable_multicast",
         p_key, p_val, &p_opts->disable_multicast);
-      
-      __osm_subn_opts_unpack_boolean( 
+
+      __osm_subn_opts_unpack_boolean(
         "force_log_flush",
         p_key, p_val, &p_opts->force_log_flush);
 
-      __osm_subn_opts_unpack_uint8( 
+      __osm_subn_opts_unpack_uint8(
         "subnet_timeout",
         p_key, p_val, &p_opts->subnet_timeout);
-      
+
       __osm_subn_opts_unpack_uint8(
         "packet_life_time",
         p_key, p_val, &p_opts->packet_life_time);
-      
+
       __osm_subn_opts_unpack_uint8(
         "vl_stall_count",
         p_key, p_val, &p_opts->vl_stall_count);
-      
+
       __osm_subn_opts_unpack_uint8(
         "leaf_vl_stall_count",
         p_key, p_val, &p_opts->leaf_vl_stall_count);
-      
+
       __osm_subn_opts_unpack_uint8(
         "head_of_queue_lifetime",
         p_key, p_val, &p_opts->head_of_queue_lifetime);
-      
+
       __osm_subn_opts_unpack_uint8(
         "leaf_head_of_queue_lifetime",
         p_key, p_val, &p_opts->leaf_head_of_queue_lifetime);
@@ -1275,27 +1275,27 @@ osm_subn_parse_conf_file(
       __osm_subn_opts_unpack_uint8(
         "overrun_errors_threshold",
         p_key, p_val, &p_opts->overrun_errors_threshold);
-      
+
       __osm_subn_opts_unpack_uint32(
         "sminfo_polling_timeout",
         p_key, p_val, &p_opts->sminfo_polling_timeout);
-      
-      __osm_subn_opts_unpack_uint32( 
+
+      __osm_subn_opts_unpack_uint32(
         "polling_retry_number",
         p_key, p_val, &p_opts->polling_retry_number);
-      
+
       __osm_subn_opts_unpack_boolean(
         "force_heavy_sweep",
         p_key, p_val, &p_opts->force_heavy_sweep);
 
-      __osm_subn_opts_unpack_uint8( 
+      __osm_subn_opts_unpack_uint8(
         "log_flags",
         p_key, p_val, &p_opts->log_flags);
 
       __osm_subn_opts_unpack_boolean(
         "port_profile_switch_nodes",
         p_key, p_val, &p_opts->port_profile_switch_nodes);
-      
+
       __osm_subn_opts_unpack_boolean(
         "sweep_on_trap",
         p_key, p_val, &p_opts->sweep_on_trap);
@@ -1314,7 +1314,7 @@ osm_subn_parse_conf_file(
       __osm_subn_opts_unpack_uint32(
         "log_max_size",
         p_key, p_val, (uint32_t *)&p_opts->log_max_size);
-      
+
       __osm_subn_opts_unpack_charp(
         "partition_config_file",
 	p_key, p_val, &p_opts->partition_config_file);
@@ -1339,11 +1339,11 @@ osm_subn_parse_conf_file(
         "lid_matrix_dump_file",
         p_key, p_val, &p_opts->lid_matrix_dump_file);
 
-      __osm_subn_opts_unpack_charp( 
+      __osm_subn_opts_unpack_charp(
         "ucast_dump_file",
         p_key, p_val, &p_opts->ucast_dump_file);
 
-      __osm_subn_opts_unpack_charp( 
+      __osm_subn_opts_unpack_charp(
         "root_guid_file",
         p_key, p_val, &p_opts->root_guid_file);
 
@@ -1359,7 +1359,7 @@ osm_subn_parse_conf_file(
         "exit_on_fatal",
         p_key, p_val, &p_opts->exit_on_fatal);
 
-      __osm_subn_opts_unpack_boolean( 
+      __osm_subn_opts_unpack_boolean(
         "honor_guid2lid_file",
         p_key, p_val, &p_opts->honor_guid2lid_file);
 
@@ -1442,19 +1442,19 @@ osm_subn_write_conf_file(
   char *p_cache_dir = getenv("OSM_CACHE_DIR");
   char file_name[OSM_PATH_MAX];
   FILE *opts_file;
-  
+
   /* try to open the options file from the cache dir */
   if (!p_cache_dir || !(*p_cache_dir))
     p_cache_dir = OSM_DEFAULT_CACHE_DIR;
 
   strcpy(file_name, p_cache_dir);
   strcat(file_name, "/opensm.opts");
-  
+
   opts_file = fopen(file_name, "w");
   if (!opts_file)
     return IB_ERROR;
 
-  fprintf( 
+  fprintf(
     opts_file,
     "#\n# DEVICE ATTRIBUTES OPTIONS\n#\n"
     "# The port GUID on which the OpenSM is running\n"
@@ -1489,7 +1489,7 @@ osm_subn_write_conf_file(
     "# The code of maximal time a packet can wait at the head of\n"
     "# transmission queue.\n"
     "# The actual time is 4.096usec * 2^<head_of_queue_lifetime>\n"
-    "# The value 0x14 disables this mechanism\n"          
+    "# The value 0x14 disables this mechanism\n"
     "head_of_queue_lifetime 0x%02x\n\n"
     "# The maximal time a packet can wait at the head of queue on\n"
     "# switch port connected to a CA or router port\n"
@@ -1527,17 +1527,17 @@ osm_subn_write_conf_file(
     p_opts->overrun_errors_threshold
     );
 
-  fprintf( 
+  fprintf(
     opts_file,
     "#\n# PARTITIONING OPTIONS\n#\n"
     "# Partition configuration file to be used\n"
-    "partition_config_file %s\n\n" 
+    "partition_config_file %s\n\n"
     "# Disable partition enforcement by switches\n"
     "no_partition_enforcement %s\n\n",
     p_opts->partition_config_file,
     p_opts->no_partition_enforcement ? "TRUE" : "FALSE");
 
-  fprintf( 
+  fprintf(
     opts_file,
     "#\n# SWEEP OPTIONS\n#\n"
     "# The number of seconds between subnet sweeps (0 disables it)\n"
@@ -1558,10 +1558,10 @@ osm_subn_write_conf_file(
     p_opts->reassign_lids ? "TRUE" : "FALSE",
     p_opts->reassign_lfts ? "TRUE" : "FALSE",
     p_opts->force_heavy_sweep ? "TRUE" : "FALSE",
-    p_opts->sweep_on_trap ? "TRUE" : "FALSE"    
+    p_opts->sweep_on_trap ? "TRUE" : "FALSE"
     );
-  
-  fprintf( 
+
+  fprintf(
     opts_file,
     "#\n# ROUTING OPTIONS\n#\n"
     "# If TRUE count switches as link subscriptions\n"
@@ -1605,9 +1605,9 @@ osm_subn_write_conf_file(
              "# SA database file name\n"
              "sa_db_file %s\n\n",
              p_opts->sa_db_file);
-  
-  fprintf( 
-    opts_file,    
+
+  fprintf(
+    opts_file,
     "#\n# HANDOVER - MULTIPLE SMs OPTIONS\n#\n"
     "# SM priority used for deciding who is the master\n"
     "# Range goes from 0 (lowest priority) to 15 (highest).\n"
@@ -1627,7 +1627,7 @@ osm_subn_write_conf_file(
     p_opts->polling_retry_number,
     p_opts->honor_guid2lid_file ? "TRUE" : "FALSE"
     );
-    
+
   fprintf(
     opts_file,
     "#\n# TIMING AND THREADING OPTIONS\n#\n"
@@ -1647,7 +1647,7 @@ osm_subn_write_conf_file(
     p_opts->max_msg_fifo_timeout,
     p_opts->single_thread ? "TRUE" : "FALSE"
     );
-  
+
   fprintf(
     opts_file,
     "#\n# MISC OPTIONS\n#\n"
@@ -1699,7 +1699,7 @@ osm_subn_write_conf_file(
     p_opts->event_plugin_name
     );
 
-  fprintf( 
+  fprintf(
     opts_file,
     "#\n# DEBUG FEATURES\n#\n"
     "# The log flags used\n"
@@ -1718,7 +1718,7 @@ osm_subn_write_conf_file(
     "enable_quirks %s\n\n"
     "# If TRUE disables client reregistration\n"
     "no_clients_rereg %s\n\n"
-    "# If TRUE OpenSM should disable multicast support\n"  
+    "# If TRUE OpenSM should disable multicast support\n"
     "no_multicast_option %s\n\n"
     "# No multicast routing is performed if TRUE\n"
     "disable_multicast %s\n\n"
@@ -1732,7 +1732,7 @@ osm_subn_write_conf_file(
 #endif
     "console %s\n\n"
     "# Telnet port for console (default %d)\n"
-    "console_port %d\n\n", 
+    "console_port %d\n\n",
     p_opts->log_flags,
     p_opts->force_log_flush ? "TRUE" : "FALSE",
     p_opts->log_file,
@@ -1747,7 +1747,7 @@ osm_subn_write_conf_file(
     p_opts->console,
     OSM_DEFAULT_CONSOLE_PORT, p_opts->console_port
     );
-  
+
   fprintf(
     opts_file,
     "#\n# QoS OPTIONS\n#\n"
@@ -1771,7 +1771,7 @@ osm_subn_write_conf_file(
     "QoS Router ports options", "qos_rtr", &p_opts->qos_rtr_options);
 
   /* optional string attributes ... */
-  
+
   fclose(opts_file);
 
   return IB_SUCCESS;

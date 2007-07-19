@@ -182,7 +182,7 @@ __search_mgrp_by_mgid(
   /* ignore groups marked for deletion */
   if (p_mgrp->to_be_deleted)
     return;
- 
+
   /* compare entire MGID so different scope will not sneak in for
      the same MGID */
   if (memcmp(&p_mgrp->mcmember_rec.mgid,
@@ -321,10 +321,10 @@ __get_new_mlid(
              mlid );
     goto Exit;
   }
- 
+
   max_num_mlids =
     p_rcv->p_subn->max_multicast_lid_ho - IB_LID_MCAST_START_HO;
- 
+
   /* track all used mlids in the array (by mlid index) */
   used_mlids_array =
     (uint8_t *)malloc(sizeof(uint8_t)*max_num_mlids);
@@ -332,7 +332,7 @@ __get_new_mlid(
     memset(used_mlids_array, 0, sizeof(uint8_t)*max_num_mlids);
   if (!used_mlids_array)
     return 0;
- 
+
   /* scan all available multicast groups in the DB and fill in the table */
   while( p_mgrp != (osm_mgrp_t*)cl_qmap_end( &p_subn->mgrp_mlid_tbl ) )
   {
@@ -346,14 +346,14 @@ __get_new_mlid(
                cl_ntoh16( p_mgrp->mlid),
                cl_ntoh64( p_mgrp->mcmember_rec.mgid.unicast.prefix ),
                cl_ntoh64( p_mgrp->mcmember_rec.mgid.unicast.interface_id ) );
-      
+
       /* Map in table */
       if (cl_ntoh16(p_mgrp->mlid) > p_rcv->p_subn->max_multicast_lid_ho)
       {
         osm_log( p_rcv->p_log, OSM_LOG_ERROR,
                  "__get_new_mlid: ERR 1B27: "
                  "Found mgrp with mlid:0x%04X > max allowed mlid:0x%04X\n",
-                 cl_ntoh16(p_mgrp->mlid), 
+                 cl_ntoh16(p_mgrp->mlid),
                  max_num_mlids + IB_LID_MCAST_START_HO );
       }
       else
@@ -363,12 +363,12 @@ __get_new_mlid(
     }
     p_mgrp = (osm_mgrp_t*)cl_qmap_next( &p_mgrp->map_item );
   }
- 
-  /* Find "mlid holes" in the mgrp table */ 
+
+  /* Find "mlid holes" in the mgrp table */
   for (idx = 0;
        (idx < max_num_mlids) && (used_mlids_array[idx] == 1);
        idx++);
- 
+
   /* did it go above the maximal mlid allowed */
   if ( idx < max_num_mlids )
   {
@@ -383,12 +383,12 @@ __get_new_mlid(
     osm_log( p_rcv->p_log, OSM_LOG_ERROR,
              "__get_new_mlid: ERR 1B23: "
              "All available:%u mlids are taken\n",
-             max_num_mlids );   
+             max_num_mlids );
     mlid = 0;
   }
- 
+
   free(used_mlids_array);
- 
+
  Exit:
   OSM_LOG_EXIT(p_rcv->p_log);
   return cl_hton16(mlid);
@@ -450,7 +450,7 @@ __add_new_mgrp_port(
     osm_log( p_rcv->p_log, OSM_LOG_ERROR,
              "__add_new_mgrp_port: ERR 1B29: "
              "Could not find GID for requester\n" );
-    
+
     return IB_INVALID_PARAMETER;
   }
 
@@ -524,7 +524,7 @@ __osm_mcmr_rcv_respond(
 
   OSM_LOG_ENTER( p_rcv->p_log, __osm_mcmr_rcv_respond );
 
-  /* 
+  /*
    *  Get a MAD to reply. Address of Mad is in the received mad_wrapper
    */
   p_resp_madw = osm_mad_pool_get(p_rcv->p_mad_pool,
@@ -771,7 +771,7 @@ __validate_modify(IN osm_mcmr_recv_t* const p_rcv,
              "This is a new port in the MC group\n" );
     return TRUE;
   }
- 
+
   /* We validate the request according the the proxy_join.
      Check if the proxy_join is set or not */
   if ( (*pp_mcm_port)->proxy_join == FALSE )
@@ -1187,7 +1187,7 @@ __mgrp_request_is_realizable(
   OSM_LOG_EXIT( p_rcv->p_log );
   return TRUE;
 }
-  
+
 /**********************************************************************
  Call this function to find or create a new mgrp.
 **********************************************************************/
@@ -1345,7 +1345,7 @@ osm_mcmr_rcv_create_new_mgrp(
   (*pp_mgrp)->mcmember_rec.pkt_life |= 2<<6; /* exactly */
 
   /* Insert the new group in the data base */
-  
+
   /* since we might have an old group by that mlid
      one whose deletion was delayed for an idle time
      we need to deallocate it first */
@@ -1395,7 +1395,7 @@ __osm_mcmr_rcv_leave_mgrp(
   osm_mcm_port_t *p_mcm_port;
   uint8_t port_join_state;
   uint8_t new_join_state;
- 
+
   OSM_LOG_ENTER( p_rcv->p_log, __osm_mcmr_rcv_leave_mgrp );
 
   p_mgrp = NULL;
@@ -1592,7 +1592,7 @@ __osm_mcmr_rcv_join_mgrp(
     osm_sa_send_error( p_rcv->p_resp, p_madw, sa_status );
     goto Exit;
   }
- 
+
   ib_member_get_scope_state(
     p_recvd_mcmember_rec->scope_state, NULL, &join_state);
 
@@ -1703,7 +1703,7 @@ __osm_mcmr_rcv_join_mgrp(
     p_rcv->p_log,
     p_mgrp,
     p_physp) && (join_state != 0);
- 
+
   if (!valid)
   {
     /* since we might have created the new group we need to cleanup */
@@ -1769,7 +1769,7 @@ __osm_mcmr_rcv_join_mgrp(
     __cleanup_mgrp(p_rcv, mlid);
 
     CL_PLOCK_RELEASE( p_rcv->p_lock );
-    if (status == IB_INVALID_PARAMETER) 
+    if (status == IB_INVALID_PARAMETER)
       sa_status = IB_SA_MAD_STATUS_REQ_INVALID;
     else
       sa_status = IB_SA_MAD_STATUS_NO_RESOURCES;
@@ -1890,7 +1890,7 @@ __osm_sa_mcm_by_comp_mask_cb(
   osm_mcm_port_t*             p_mcm_port;
   ib_net64_t portguid = p_rcvd_rec->port_gid.unicast.interface_id;
   /* will be used for group or port info */
-  uint8_t scope_state; 
+  uint8_t scope_state;
   uint8_t scope_state_mask = 0;
   cl_map_item_t *p_item;
   ib_gid_t	port_gid;
@@ -1940,7 +1940,7 @@ __osm_sa_mcm_by_comp_mask_cb(
   if ((IB_MCR_COMPMASK_TCLASS & comp_mask) &&
       (p_rcvd_rec->tclass != p_mgrp->mcmember_rec.tclass))
     goto Exit;
- 
+
   /* check SL, Flow, and Hop limit */
   {
     uint8_t mgrp_sl, query_sl;
@@ -2020,7 +2020,7 @@ __osm_sa_mcm_by_comp_mask_cb(
         p_mcm_port=(osm_mcm_port_t *)p_item;
 
         if ((scope_state_mask & p_rcvd_rec->scope_state) ==
-            (scope_state_mask & p_mcm_port->scope_state)) 
+            (scope_state_mask & p_mcm_port->scope_state))
 	{
            /* add to the list */
            match_rec = p_mgrp->mcmember_rec;
@@ -2029,7 +2029,7 @@ __osm_sa_mcm_by_comp_mask_cb(
                       sizeof(ib_gid_t));
            osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
                    "__osm_sa_mcm_by_comp_mask_cb: "
-                   "Record of port_gid: 0x%016" PRIx64 "0x%016" PRIx64 
+                   "Record of port_gid: 0x%016" PRIx64 "0x%016" PRIx64
                    " in multicast_lid: 0x%X is returned\n",
                    cl_ntoh64(match_rec.port_gid.unicast.prefix),
                    cl_ntoh64(match_rec.port_gid.unicast.interface_id),

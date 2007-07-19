@@ -131,7 +131,7 @@ typedef struct _osm_trap_rcv
 *
 *	trap_aging_tracker
 *		An event wheel tracking erceived traps and their aging.
-*		Basically we can start a timer every time we receive a specific 
+*		Basically we can start a timer every time we receive a specific
 *		trap and check to seee if not expired next time it is received.
 *
 * SEE ALSO

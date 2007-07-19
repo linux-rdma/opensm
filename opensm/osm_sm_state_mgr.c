@@ -585,7 +585,7 @@ osm_sm_state_mgr_process(
       case OSM_SM_SIGNAL_HANDOVER:
         /*
          * Do nothing. We will discover it later on. If we already discovered
-         * this SM, and got the HANDOVER - this means the remote SM is of 
+         * this SM, and got the HANDOVER - this means the remote SM is of
          * lower priority. In this case we will stop polling it (since it is
          * a lower priority SM in STANDBY state).
          */

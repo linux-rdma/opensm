@@ -134,13 +134,13 @@ typedef struct _osm_lid_mgr
 *		Pointer to the database domain storing guid to lid mapping.
 *
 *	used_lids
-*		A vector the maps from the lid to its guid. keeps track of 
-*		existing and non existing mapping of guid->lid 
-* 
+*		A vector the maps from the lid to its guid. keeps track of
+*		existing and non existing mapping of guid->lid
+*
 *	free_ranges
-*		A list of available free lid ranges. The list is initialized 
-*		by the code that initializes the lid assignment and is consumed 
-*		by the procedure that finds a free range. It holds elements of 
+*		A list of available free lid ranges. The list is initialized
+*		by the code that initializes the lid assignment and is consumed
+*		by the procedure that finds a free range. It holds elements of
 *		type osm_lid_mgr_range_t
 *
 * SEE ALSO
@@ -289,7 +289,7 @@ osm_lid_mgr_process_sm(
 * SEE ALSO
 *	LID Manager
 *********/
-	
+
 /****f* OpenSM: LID Manager/osm_lid_mgr_process_subnet
 * NAME
 *	osm_lid_mgr_process_subnet

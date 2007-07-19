@@ -158,7 +158,7 @@ ucast_mgr_dump_to_file(osm_ucast_mgr_t *p_mgr, const char *file_name,
 
 	snprintf(path, sizeof(path), "%s/%s",
 		 p_mgr->p_subn->opt.dump_files_dir, file_name);
-  
+
 	file = fopen(path, "w");
 	if (!file) {
 		osm_log( p_mgr->p_log, OSM_LOG_ERROR,
@@ -529,7 +529,7 @@ __osm_ucast_mgr_process_neighbor(
         osm_log( p_mgr->p_log, OSM_LOG_ERROR,
                  "__osm_ucast_mgr_process_neighbor: "
                  "cannot set hops for lid %u at switch 0x%" PRIx64 "\n",
-                 lid_ho, 
+                 lid_ho,
                  cl_ntoh64(osm_node_get_node_guid(p_this_sw->p_node)));
       __some_hop_count_set = TRUE;
     }
@@ -644,10 +644,10 @@ __osm_ucast_mgr_process_port(
     */
     if (port == OSM_NO_PATH)
     {
-      /* do not try to overwrite the ppro of non existing port ... */ 
+      /* do not try to overwrite the ppro of non existing port ... */
       is_ignored_by_port_prof = TRUE;
 
-      /* Up/Down routing can cause unreachable routes between some 
+      /* Up/Down routing can cause unreachable routes between some
          switches so we do not report that as an error in that case */
       if (!p_mgr->p_subn->p_osm->routing_engine.build_lid_matrices)
       {
@@ -658,7 +658,7 @@ __osm_ucast_mgr_process_port(
         /* trigger a new sweep - try again ... */
         p_mgr->p_subn->subnet_initialization_error = TRUE;
       }
-      else 
+      else
         osm_log( p_mgr->p_log, OSM_LOG_DEBUG,
                  "__osm_ucast_mgr_process_port: "
                  "No path to get to LID 0x%X from switch 0x%" PRIx64 "\n",
@@ -763,7 +763,7 @@ osm_ucast_mgr_set_fwd_table(
     set_swinfo_require = TRUE;
     si.life_state = life_state;
   }
- 
+
   if ( set_swinfo_require )
   {
     if ( osm_log_is_active( p_mgr->p_log, OSM_LOG_DEBUG ) )
@@ -773,11 +773,11 @@ osm_ucast_mgr_set_fwd_table(
                "Setting switch FT top to LID 0x%X\n",
                p_sw->max_lid_ho );
     }
-    
+
     context.si_context.light_sweep = FALSE;
     context.si_context.node_guid = osm_node_get_node_guid( p_node );
     context.si_context.set_method = TRUE;
-    
+
     status = osm_req_set( p_mgr->p_req,
                           p_path,
                           (uint8_t*)&si,
@@ -786,7 +786,7 @@ osm_ucast_mgr_set_fwd_table(
                           0,
                           CL_DISP_MSGID_NONE,
                           &context );
-    
+
     if( status != IB_SUCCESS )
     {
       osm_log( p_mgr->p_log, OSM_LOG_ERROR,
@@ -946,7 +946,7 @@ __osm_ucast_mgr_process_neighbors(
 
     if( p_remote_node && p_remote_node->sw && (p_remote_node != p_node ) )
     {
-      /* make sure the link is healthy. If it is not - don't 
+      /* make sure the link is healthy. If it is not - don't
          propagate through it. */
       p_physp = osm_node_get_physp_ptr( p_node, port_num );
       if (!osm_link_is_healthy( p_physp ) )
@@ -976,7 +976,7 @@ osm_ucast_mgr_build_lid_matrices(
   osm_log( p_mgr->p_log, OSM_LOG_VERBOSE,
            "osm_ucast_mgr_build_lid_matrices: "
            "Starting switches' Min Hop Table Assignment\n" );
-  
+
   /*
     Set the switch matrices for each switch's own port 0 LID(s)
     then set the lid matrices for the each switch's leaf nodes.
@@ -1097,7 +1097,7 @@ osm_ucast_mgr_read_guid_file(
       break;
     }
 
-    /* Skip empty lines anywhere in the file - only one 
+    /* Skip empty lines anywhere in the file - only one
        char means the null termination */
     if (strlen(line) <= 1)
       continue;
@@ -1173,7 +1173,7 @@ osm_ucast_mgr_process(
     Now that the lid matrices have been built, we can
     build and download the switch forwarding tables.
   */
-  if ( p_routing_eng->ucast_build_fwd_tables && 
+  if ( p_routing_eng->ucast_build_fwd_tables &&
        (p_routing_eng->ucast_build_fwd_tables(p_routing_eng->context) == 0) )
      default_routing = FALSE;
   else

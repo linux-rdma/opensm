@@ -290,7 +290,7 @@ osm_sm_state_mgr_process(
 * SEE ALSO
 *	State Manager
 *********/
-	
+
 
 /****f* OpenSM: SM State Manager/osm_sm_state_mgr_signal_master_is_alive
 * NAME
@@ -324,7 +324,7 @@ osm_sm_state_mgr_signal_master_is_alive(
 *	osm_sm_state_mgr_check_legality
 *
 * DESCRIPTION
-*	Checks the legality of the signal received, according to the 
+*	Checks the legality of the signal received, according to the
 *  current state of the SM state machine.
 *
 * SYNOPSIS

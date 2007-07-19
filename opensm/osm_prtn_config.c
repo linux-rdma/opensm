@@ -198,7 +198,7 @@ static int partition_add_port(unsigned lineno, struct part_conf *conf,
 		else if (strncmp(flag, "limited", strlen(flag))) {
 			osm_log(conf->p_log, OSM_LOG_VERBOSE,
 				"PARSE WARN: line %d: "
-				"unrecognized port flag \'%s\'." 
+				"unrecognized port flag \'%s\'."
 				" Assume \'limited\'\n", lineno, flag);
 		}
 	}
@@ -356,7 +356,7 @@ static int parse_part_conf(struct part_conf *conf, char *str, int lineno)
 	if (p != str || (partition_create(lineno, conf,
 					name, id, flag, flval) < 0)) {
 		osm_log(conf->p_log, OSM_LOG_ERROR,
-			"PARSE ERROR: line %d: "	
+			"PARSE ERROR: line %d: "
 			"bad partition definition\n", lineno);
 		fprintf(stderr, "\nPARSE ERROR: line %d: "
 			"bad partition definition\n", lineno);

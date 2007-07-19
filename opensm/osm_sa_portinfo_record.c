@@ -269,9 +269,9 @@ __osm_sa_pir_check_physp(
     p_physp->port_num,
     &p_physp->port_info,
     OSM_LOG_DEBUG );
-    
+
   /* We have to re-check the base_lid, since if the given
-     base_lid in p_pi is zero - we are comparing on all ports. */     
+     base_lid in p_pi is zero - we are comparing on all ports. */
   if( comp_mask & IB_PIR_COMPMASK_BASELID )
   {
     if( p_comp_pi->base_lid != p_pi->base_lid )
@@ -292,15 +292,15 @@ __osm_sa_pir_check_physp(
     if( p_comp_pi->master_sm_base_lid != p_pi->master_sm_base_lid )
       goto Exit;
   }
-  
-  /* IBTA 1.2 errata provides support for bitwise compare if the bit 31 
+
+  /* IBTA 1.2 errata provides support for bitwise compare if the bit 31
      of the attribute modifier of the Get/GetTable is set */
   if( comp_mask & IB_PIR_COMPMASK_CAPMASK )
   {
     if (p_ctxt->is_enhanced_comp_mask)
     {
       if ( ( ( p_comp_pi->capability_mask & p_pi->capability_mask ) != p_comp_pi->capability_mask) )
-        goto Exit; 
+        goto Exit;
     }
     else
     {
@@ -837,8 +837,8 @@ osm_pir_rcv_process(
 #endif
 
   /*
-    p922 - The M_Key returned shall be zero, except in the case of a 
-    trusted request. 
+    p922 - The M_Key returned shall be zero, except in the case of a
+    trusted request.
     Note: In the mad controller we check that the SM_Key received on
     the mad is valid. Meaning - is either zero or equal to the local
     sm_key.

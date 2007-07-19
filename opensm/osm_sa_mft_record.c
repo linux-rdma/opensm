@@ -307,7 +307,7 @@ __osm_mftr_rcv_by_comp_mask(
   {
     min_position = max_position = (position_block_num_ho & 0xF000) >> 12;
     if (max_position > osm_switch_get_mft_max_position( p_sw ) )
-      return; 
+      return;
   }
   else
   {
@@ -460,7 +460,7 @@ osm_mftr_rcv_process(
     goto Exit;
   }
 
-  /* 
+  /*
    * Get a MAD to reply. Address of Mad is in the received mad_wrapper
    */
   p_resp_madw = osm_mad_pool_get( p_rcv->p_mad_pool,

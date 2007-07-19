@@ -82,7 +82,7 @@ BEGIN_C_DECLS
 *	manipulated only through the provided functions.
 *
 * AUTHOR
-*	Hal Rosenstock, Voltaire 
+*	Hal Rosenstock, Voltaire
 *
 *********/
 
@@ -189,7 +189,7 @@ osm_router_get_port_ptr(
 *
 * RETURN VALUES
 *	Returns a pointer to the Port object for this router.
-*       
+*
 * NOTES
 *
 * SEE ALSO
@@ -218,7 +218,7 @@ osm_router_get_node_ptr(
 *
 * RETURN VALUES
 *	Returns a pointer to the Node object for this router.
-*	
+*
 * NOTES
 *
 * SEE ALSO

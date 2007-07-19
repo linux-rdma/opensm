@@ -100,7 +100,7 @@ typedef struct _osm_prtn
 {
 	cl_map_item_t	map_item;
 	uint16_t	pkey;
-	uint8_t		sl; 
+	uint8_t		sl;
 	cl_map_t	full_guid_tbl;
 	cl_map_t	part_guid_tbl;
 	char		name[32];

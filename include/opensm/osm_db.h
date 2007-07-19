@@ -64,7 +64,7 @@ BEGIN_C_DECLS
 * DESCRIPTION
 *	The OpenSM database interface provide the means to restore persistat
 *  data, query, modify, delete and evemtually commit it back to the
-*  persistent media. 
+*  persistent media.
 *
 *  The interface is defined such that it can is not "data dependant":
 *  All keys and data items are texts.
@@ -102,7 +102,7 @@ typedef struct _osm_db_domain {
 *		Pointer to the parent database object.
 *
 *	p_domain_imp
-*		Pointer to the db implementation object 
+*		Pointer to the db implementation object
 *
 * SEE ALSO
 * osm_db_t
@@ -123,7 +123,7 @@ typedef struct _osm_db_domain {
 typedef struct _osm_db
 {
   void        *p_db_imp;
-  osm_log_t   *p_log;	
+  osm_log_t   *p_log;
   cl_list_t    domains;
 } osm_db_t;
 /*
@@ -131,7 +131,7 @@ typedef struct _osm_db
 *	p_db_imp
 *		Pointer to the database implementation object
 *
-*	p_log 
+*	p_log
 *		Pointer to the OSM logging facility
 *
 *  domains
@@ -204,7 +204,7 @@ osm_db_init(
 *	p_db
 *		[in] Pointer to the database object to initialize
 *
-*	p_log 
+*	p_log
 *		[in] Pointer to the OSM logging facility
 *
 * RETURN VALUES
@@ -253,7 +253,7 @@ osm_db_domain_init(
 *
 * SYNOPSIS
 */
-int 
+int
 osm_db_restore(
   IN osm_db_domain_t *p_domain);
 /*
@@ -266,10 +266,10 @@ osm_db_restore(
 *	0 if successful 1 otherwize
 *
 * SEE ALSO
-*	Database, osm_db_domain_init, osm_db_clear, osm_db_store, 
+*	Database, osm_db_domain_init, osm_db_clear, osm_db_store,
 *  osm_db_keys, osm_db_lookup, osm_db_update, osm_db_delete
 *********/
-   
+
 /****f* OpenSM: Database/osm_db_clear
 * NAME
 *	osm_db_clear
@@ -279,7 +279,7 @@ osm_db_restore(
 *
 * SYNOPSIS
 */
-int 
+int
 osm_db_clear(
   IN osm_db_domain_t *p_domain);
 /*
@@ -292,7 +292,7 @@ osm_db_clear(
 *	0 if successful 1 otherwize
 *
 * SEE ALSO
-*	Database, osm_db_domain_init, osm_db_restore, osm_db_store, 
+*	Database, osm_db_domain_init, osm_db_restore, osm_db_store,
 *  osm_db_keys, osm_db_lookup, osm_db_update, osm_db_delete
 *********/
 
@@ -330,7 +330,7 @@ int osm_db_store(
 *
 * SYNOPSIS
 */
-int 
+int
 osm_db_keys(
   IN osm_db_domain_t *p_domain,
   OUT cl_list_t* p_key_list);
@@ -338,7 +338,7 @@ osm_db_keys(
 * PARAMETERS
 *
 * p_domain
-*    [in] Pointer to the database domain object 
+*    [in] Pointer to the database domain object
 *
 * p_key_list
 *    [out] List of key values. It should be PRE constructed and initialized.
@@ -346,11 +346,11 @@ osm_db_keys(
 * RETURN VALUES
 *	0 if successful 1 otherwize
 *
-* NOTE: the caller needs to free and destruct the list, 
+* NOTE: the caller needs to free and destruct the list,
 *       the keys returned are intrnal to the hash and should NOT be free'ed
 *
 * SEE ALSO
-*	Database, osm_db_domain_init, osm_db_restore, osm_db_clear, osm_db_store, 
+*	Database, osm_db_domain_init, osm_db_restore, osm_db_clear, osm_db_store,
 *  osm_db_lookup, osm_db_update, osm_db_delete
 *********/
 
@@ -365,13 +365,13 @@ osm_db_keys(
 */
 /* lookup value by key */
 char *osm_db_lookup(
-   IN osm_db_domain_t *p_domain, 
+   IN osm_db_domain_t *p_domain,
    IN char *const p_key);
 /*
 * PARAMETERS
 *
 *  p_domain
-*    [in] Pointer to the database domain object 
+*    [in] Pointer to the database domain object
 *
 *	key
 *		[in] The key to look for
@@ -380,7 +380,7 @@ char *osm_db_lookup(
 *  the value as char * or NULL if not found
 *
 * SEE ALSO
-*	Database, osm_db_domain_init, osm_db_restore, osm_db_clear, osm_db_store, 
+*	Database, osm_db_domain_init, osm_db_restore, osm_db_clear, osm_db_store,
 *  osm_db_keys, osm_db_update, osm_db_delete
 *********/
 
@@ -393,16 +393,16 @@ char *osm_db_lookup(
 *
 * SYNOPSIS
 */
-int 
+int
 osm_db_update(
-  IN osm_db_domain_t *p_domain, 
+  IN osm_db_domain_t *p_domain,
   IN char *const p_key,
   IN char *const p_val);
 /*
 * PARAMETERS
 *
 *  p_domain
-*    [in] Pointer to the database domain object 
+*    [in] Pointer to the database domain object
 *
 *	p_key
 *		[in] The key to update
@@ -413,10 +413,10 @@ osm_db_update(
 * RETURN VALUES
 *  0 on success
 *
-* NOTE: the value will be duplicated so can be free'ed 
+* NOTE: the value will be duplicated so can be free'ed
 *
 * SEE ALSO
-*	Database, osm_db_domain_init, osm_db_restore, osm_db_clear, osm_db_store, 
+*	Database, osm_db_domain_init, osm_db_restore, osm_db_clear, osm_db_store,
 *  osm_db_keys, osm_db_lookup, osm_db_delete
 *********/
 
@@ -429,15 +429,15 @@ osm_db_update(
 *
 * SYNOPSIS
 */
-int 
+int
 osm_db_delete(
-  IN osm_db_domain_t *p_domain, 
+  IN osm_db_domain_t *p_domain,
   IN char *const p_key);
 /*
 * PARAMETERS
 *
 *  p_domain
-*    [in] Pointer to the database domain object 
+*    [in] Pointer to the database domain object
 *
 *	p_key
 *		[in] The key to look for
@@ -446,7 +446,7 @@ osm_db_delete(
 *  0 on success
 *
 * SEE ALSO
-*	Database, osm_db_domain_init, osm_db_restore, osm_db_clear, osm_db_store, 
+*	Database, osm_db_domain_init, osm_db_restore, osm_db_clear, osm_db_store,
 *  osm_db_keys, osm_db_lookup, osm_db_update
 *********/
 

@@ -150,7 +150,7 @@ osm_sa_send_error(
 
   /*
    * o15-0.2.7 - The PathRecord Attribute ID shall be used in
-   * the response (to a SubnAdmGetMulti(MultiPathRecord) 
+   * the response (to a SubnAdmGetMulti(MultiPathRecord)
    */
   if( p_resp_sa_mad->attr_id == IB_MAD_ATTR_MULTIPATH_RECORD )
     p_resp_sa_mad->attr_id = IB_MAD_ATTR_PATH_RECORD;

@@ -290,7 +290,7 @@ ib_api_status_t
 osm_mcmr_rcv_create_new_mgrp(
 									  IN osm_mcmr_recv_t* const p_mcmr,
 									  IN uint64_t comp_mask,
-									  IN const ib_member_rec_t* const p_recvd_mcmember_rec, 
+									  IN const ib_member_rec_t* const p_recvd_mcmember_rec,
                              IN const osm_physp_t* const p_req_physp,
 									  OUT osm_mgrp_t **pp_mgrp);
 /*
@@ -301,12 +301,12 @@ osm_mcmr_rcv_create_new_mgrp(
 *		[in] Received Multicast member record
 *
 *  p_req_physp
-*     [in] The requesting osm_physp_t object. 
+*     [in] The requesting osm_physp_t object.
 *     NULL if the creation is without a requesting port (e.g - ipoib known mcgroups)
 *
 *	pp_mgrp
 *		[out] pointer the osm_mgrp_t object
-*		
+*
 * RETURN VALUES
 *	IB_SUCCESS, IB_ERROR
 *
@@ -314,7 +314,7 @@ osm_mcmr_rcv_create_new_mgrp(
 *
 *
 * SEE ALSO
-*	
+*
 *********/
 
 /****f* OpenSM: MC Member Record Receiver/osm_mcmr_rcv_find_or_create_new_mgrp
@@ -364,7 +364,7 @@ osm_mcmr_rcv_find_or_create_new_mgrp(
 										IB_MCR_COMPMASK_TCLASS		| \
 										IB_MCR_COMPMASK_PKEY		| \
 										IB_MCR_COMPMASK_FLOW		| \
-										IB_MCR_COMPMASK_SL) 
+										IB_MCR_COMPMASK_SL)
 
 /****d* OpenSM: MC Member Record Receiver/OSM_DEFAULT_MGRP_MTU
 * Name

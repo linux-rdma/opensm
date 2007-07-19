@@ -252,7 +252,7 @@ osm_node_get_physp_ptr(
 * DESCRIPTION
 *	Returns a pointer to any valid physical port object associated
 *	with this node.  This operation is mostly meaningful for switches,
-*	in which case all the Physical Ports share the same GUID. 
+*	in which case all the Physical Ports share the same GUID.
 *
 * SYNOPSIS
 */
@@ -272,7 +272,7 @@ osm_node_get_any_physp_ptr(
 * RETURN VALUES
 *	Returns a pointer to any valid physical port object associated
 *	with this node.  This operation is mostly meaningful for switches,
-*	in which case all the Physical Ports share the same GUID. 
+*	in which case all the Physical Ports share the same GUID.
 *
 * NOTES
 *

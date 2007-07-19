@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2007 The Regents of the University of California.
- * Copyright (c) 2007 Voltaire, Inc. All rights reserved. 
+ * Copyright (c) 2007 Voltaire, Inc. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -273,7 +273,7 @@ Exit:
 }
 
 /**********************************************************************
- * Given a monitored node and a port, return the qp 
+ * Given a monitored node and a port, return the qp
  **********************************************************************/
 static ib_net32_t
 get_qp(__monitored_node_t *mon_node, uint8_t port)
@@ -455,7 +455,7 @@ __osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context)
 	osm_madw_context_t  mad_context;
 	uint8_t             num_ports = 0;
 	uint64_t            node_guid = 0;
-	ib_net32_t          remote_qp; 
+	ib_net32_t          remote_qp;
 
 	OSM_LOG_ENTER( pm->log, __osm_pm_query_counters );
 
@@ -868,7 +868,7 @@ osm_pc_rcv_process(void *context, void *data)
 
 	/* Response could also be redirection (IBM eHCA PMA does this) */
 	if (p_mad->attr_id == IB_MAD_ATTR_CLASS_PORT_INFO) {
-		
+
 		ib_class_port_info_t *cpi = (ib_class_port_info_t *)&(osm_madw_get_perfmgt_mad_ptr(p_madw)->data);
 		cl_map_item_t *p_node;
 		__monitored_node_t *p_mon_node;

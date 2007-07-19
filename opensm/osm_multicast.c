@@ -56,7 +56,7 @@
 
 /**********************************************************************
  **********************************************************************/
-/* osm_mcast_req_type_t values converted to test for easier printing. */ 
+/* osm_mcast_req_type_t values converted to test for easier printing. */
 const char* osm_mcast_req_type_str[] =
 {
   "OSM_MCAST_REQ_TYPE_CREATE",
@@ -212,16 +212,16 @@ osm_mgrp_remove_port(
     p_mgrp->last_change_id++;
   }
 
-  /* 
-     no more ports so the group will be deleted after re-route 
+  /*
+     no more ports so the group will be deleted after re-route
      but only if it is not a well known group and not already deleted
    */
-  if ((cl_is_qmap_empty( &p_mgrp->mcm_port_tbl )) && 
+  if ((cl_is_qmap_empty( &p_mgrp->mcm_port_tbl )) &&
       (p_mgrp->well_known == FALSE) &&
       (p_mgrp->to_be_deleted  == FALSE))
   {
     p_mgrp->to_be_deleted = TRUE;
-    
+
     /* Send a Report to any InformInfo registered for
        Trap 67 : MCGroup delete */
     osm_mgrp_send_delete_notice( p_subn, p_log, p_mgrp );
@@ -387,7 +387,7 @@ osm_mgrp_send_create_notice(
              ib_get_err_str( status ) );
     goto Exit;
   }
-  
+
  Exit:
   OSM_LOG_EXIT( p_log );
 }

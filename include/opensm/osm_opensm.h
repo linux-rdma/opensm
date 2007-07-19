@@ -115,7 +115,7 @@ struct osm_routing_engine {
 *	name
 *		The routing engine name (will be used in logs).
 *
-*	context	
+*	context
 *		The routing engine context. Will be passed as parameter
 *		to the callback functions.
 *
@@ -185,7 +185,7 @@ typedef struct _osm_opensm_t
 *	sa
 *		The Subnet Administration (SA) object for this subnet.
 *
-*	db 
+*	db
 *		Persistant storage of some data required between sessions.
 *
 *	mad_pool
@@ -325,7 +325,7 @@ osm_opensm_sweep(
 /*
 * PARAMETERS
 *	p_osm
-*		[in] Pointer to an osm_opensm_t object on which to 
+*		[in] Pointer to an osm_opensm_t object on which to
 *		initiate a sweep.
 *
 * RETURN VALUES
@@ -422,7 +422,7 @@ osm_opensm_wait_for_subnet_up(
 *	p_osm
 *		[in] Pointer to an osm_opensm_t object.
 *
-*	wait_us 
+*	wait_us
 *		[in] Number of microseconds to wait.
 *
 *	interruptible
@@ -430,7 +430,7 @@ osm_opensm_wait_for_subnet_up(
 *		by external signals.
 *
 * RETURN VALUES
-*	CL_SUCCESS if the wait operation succeeded in response to the event 
+*	CL_SUCCESS if the wait operation succeeded in response to the event
 *	being set.
 *
 *	CL_TIMEOUT if the specified time period elapses.
@@ -444,12 +444,12 @@ osm_opensm_wait_for_subnet_up(
 * SEE ALSO
 *********/
 
-/****v* OpenSM/osm_exit_flag 
+/****v* OpenSM/osm_exit_flag
 */
 extern volatile unsigned int osm_exit_flag;
-/* 
-* DESCRIPTION 
-*  Set to one to cause all threads to leave 
+/*
+* DESCRIPTION
+*  Set to one to cause all threads to leave
 *********/
 
 END_C_DECLS

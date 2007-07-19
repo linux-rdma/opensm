@@ -429,7 +429,7 @@ osm_lftr_rcv_process(
     goto Exit;
   }
 
-  /* 
+  /*
    * Get a MAD to reply. Address of Mad is in the received mad_wrapper
    */
   p_resp_madw = osm_mad_pool_get( p_rcv->p_mad_pool,

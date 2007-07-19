@@ -105,7 +105,7 @@ BEGIN_C_DECLS
 *
 * AUTHOR
 *	Ranjit Pandit, Intel
-*	Anil Keshavamurthy, Intel	
+*	Anil Keshavamurthy, Intel
 *
 *********/
 
@@ -171,7 +171,7 @@ typedef struct _osm_sa
 
 	/* SLtoVL Map Query */
 	osm_slvl_rec_rcv_t			slvl_rec_rcv;
-  
+
 	/* P_Key table Query */
 	osm_pkey_rec_rcv_t			pkey_rec_rcv;
 
@@ -285,7 +285,7 @@ void osm_sa_construct(
 *
 * DESCRIPTION
 *	The osm_sa_shutdown function shutdowns an SA, unregistering from all
-*  dispatcher messages and unbinding the QP1 mad service 
+*  dispatcher messages and unbinding the QP1 mad service
 *
 * SYNOPSIS
 */

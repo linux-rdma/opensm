@@ -80,7 +80,7 @@ BEGIN_C_DECLS
 *	manipulated only through the provided functions.
 *
 * AUTHOR
-*	Hal Rosenstock, Voltaire 
+*	Hal Rosenstock, Voltaire
 *
 *********/
 
@@ -127,7 +127,7 @@ typedef struct _osm_gir_rcv
 *		the query response.
 *
 * SEE ALSO
-*	
+*
 *********/
 
 /****f* OpenSM: GUIDInfo Record Receiver/osm_gir_rcv_construct

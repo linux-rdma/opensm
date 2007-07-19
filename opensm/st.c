@@ -77,7 +77,7 @@ static struct st_hash_type type_numhash = {
 };
 
 
-/* extern int strcmp(const char *, const char *); */ 
+/* extern int strcmp(const char *, const char *); */
 static int strhash(const char *);
 
 static inline st_ptr_t st_strhash(void *key)
@@ -87,9 +87,9 @@ static inline st_ptr_t st_strhash(void *key)
 
 static inline int st_strcmp(void *key1, void *key2)
 {
-   return strcmp((const char *)key1, (const char *)key2); 
+   return strcmp((const char *)key1, (const char *)key2);
 }
-     
+
 static struct st_hash_type type_strhash = {
   st_strcmp,
   st_strhash

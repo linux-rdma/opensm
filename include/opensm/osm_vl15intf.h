@@ -172,7 +172,7 @@ typedef struct _osm_vl15
 *
 *	p_vend
 *		Pointer to the vendor transport object.
-*		
+*
 *	p_log
 *		Pointer to the log object.
 *

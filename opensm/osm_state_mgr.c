@@ -182,10 +182,10 @@ static void
 __osm_state_mgr_up_msg(
    IN const osm_state_mgr_t * p_mgr )
 {
-   /* 
-    * This message should be written only once - when the 
+   /*
+    * This message should be written only once - when the
     * SM moves to Master state and the subnet is up for
-    * the first time. The change of state is marked with 
+    * the first time. The change of state is marked with
     * the subnet flag moved_to_master_state
     */
    if( p_mgr->p_subn->moved_to_master_state == TRUE )
@@ -697,11 +697,11 @@ __osm_state_mgr_sweep_hop_0(
       cl_qmap_apply_func( &p_mgr->p_subn->sw_guid_tbl,
                           __osm_state_mgr_reset_switch_count, p_mgr );
 
-      /* Set the in_sweep_hop_0 flag in subn to be TRUE. 
-       * This will indicate the sweeping not to continue beyond the 
-       * the current node. 
+      /* Set the in_sweep_hop_0 flag in subn to be TRUE.
+       * This will indicate the sweeping not to continue beyond the
+       * the current node.
        * This is relevant for the case of SM on switch, since in the
-       * switch info we need to signal somehow not to continue 
+       * switch info we need to signal somehow not to continue
        * the sweeping. */
       p_mgr->p_subn->in_sweep_hop_0 = TRUE;
 
@@ -890,10 +890,10 @@ __osm_state_mgr_sweep_hop_1(
    CL_ASSERT( port_guid );
 
    /* Set the in_sweep_hop_0 flag in subn to be FALSE.
-    * This will indicate the sweeping to continue beyond the 
-    * the current node. 
+    * This will indicate the sweeping to continue beyond the
+    * the current node.
     * This is relevant for the case of SM on switch, since in the
-    * switch info we need to signal that the sweeping should 
+    * switch info we need to signal that the sweeping should
     * continue through the switch. */
    p_mgr->p_subn->in_sweep_hop_0 = FALSE;
 
@@ -953,8 +953,8 @@ __osm_state_mgr_sweep_hop_1(
 
    case IB_NODE_TYPE_SWITCH:
       /* Need to go over all the ports of the switch, and send a node_info
-       * from them. This doesn't include the port 0 of the switch, which 
-       * hosts the SM. 
+       * from them. This doesn't include the port 0 of the switch, which
+       * hosts the SM.
        * Note: We'll send another switchInfo on port 0, since if no ports
        * are connected, we still want to get some response, and have the
        * subnet come up.
@@ -1701,13 +1701,13 @@ __osm_state_mgr_report_new_ports(
 }
 
 /**********************************************************************
- * Make sure that the lid_port_tbl of the subnet has only the ports 
+ * Make sure that the lid_port_tbl of the subnet has only the ports
  * that are recognized, and in the correct lid place. There could be
- * errors if we wanted to assign a certain port with lid X, but that 
+ * errors if we wanted to assign a certain port with lid X, but that
  * request didn't reach the port. In this case port_lid_tbl will have
  * the port under lid X, though the port isn't updated with this lid.
- * We will run a new heavy sweep (since there were errors in the 
- * initialization), but here we'll clean the database from incorrect 
+ * We will run a new heavy sweep (since there were errors in the
+ * initialization), but here we'll clean the database from incorrect
  * information.
  **********************************************************************/
 static void
@@ -1762,17 +1762,17 @@ __osm_state_mgr_check_tbl_consistency(
       cl_ptr_vector_at( &ref_port_lid_tbl, lid, ( void * )&p_port_ref );
 
       if( p_port_stored == p_port_ref )
-         /* This is the "good" case - both entries are the same for this lid. 
+         /* This is the "good" case - both entries are the same for this lid.
           * Nothing to do. */
          continue;
 
       if( p_port_ref == NULL )
       {
          /* There is an object in the subnet database for this lid,
-          * but no such object exists in the reference port_list_tbl. 
+          * but no such object exists in the reference port_list_tbl.
           * This can occur if we wanted to assign a certain port with some
-          * lid (different than the one pre-assigned to it), and the port 
-          * didn't get the PortInfo Set request. Due to this, the port 
+          * lid (different than the one pre-assigned to it), and the port
+          * didn't get the PortInfo Set request. Due to this, the port
           * is updated with its original lid in our database, but with the
           * new lid we wanted to give it in our port_lid_tbl. */
          osm_log( p_mgr->p_log, OSM_LOG_ERROR,
@@ -1797,7 +1797,7 @@ __osm_state_mgr_check_tbl_consistency(
          else
          {
 
-            /* if we reached here then p_port_stored != p_port_ref. 
+            /* if we reached here then p_port_stored != p_port_ref.
              * We were trying to set a lid to p_port_stored, but it didn't reach it,
              * and p_port_ref also didn't get the lid update. */
             osm_log( p_mgr->p_log, OSM_LOG_ERROR,
@@ -1878,7 +1878,7 @@ osm_state_mgr_process(
          case OSM_SIGNAL_SWEEP:
             /*
              * If the osm_sm_state_mgr is in NOT-ACTIVE state -
-             * stay in IDLE 
+             * stay in IDLE
              */
             if( p_mgr->p_subn->sm_state == IB_SMINFO_STATE_NOTACTIVE)
             {
@@ -1897,13 +1897,13 @@ osm_state_mgr_process(
             /*
              * If we already have switches, then try a light sweep.
              * Otherwise, this is probably our first discovery pass
-             * or we are connected in loopback. In both cases do a 
+             * or we are connected in loopback. In both cases do a
              * heavy sweep.
-             * Note: If we are connected in loopback we want a heavy 
+             * Note: If we are connected in loopback we want a heavy
              * sweep, since we will not be getting any traps if there is
              * a lost connection.
              */
-            /*  if we are in DISCOVERING state - this means it is either in 
+            /*  if we are in DISCOVERING state - this means it is either in
              *  initializing or wake up from STANDBY - run the heavy sweep */
             if( cl_qmap_count( &p_mgr->p_subn->sw_guid_tbl ) &&
                 p_mgr->p_subn->sm_state != IB_SMINFO_STATE_DISCOVERING &&
@@ -2163,7 +2163,7 @@ Idle:
                p_remote_sm = __osm_state_mgr_get_highest_sm( p_mgr );
                if( p_remote_sm != NULL )
                {
-                  /* need to handover the mastership 
+                  /* need to handover the mastership
                    * to the remote sm, and move to standby */
                   __osm_state_mgr_send_handover( p_mgr, p_remote_sm );
                   osm_sm_state_mgr_process( p_mgr->p_sm_state_mgr,
@@ -2179,8 +2179,8 @@ Idle:
                   p_remote_sm = __osm_state_mgr_exists_other_master_sm( p_mgr );
                   if( p_remote_sm != NULL )
                   {
-                     /* There is a remote SM that is master. 
-                      * need to wait for that SM to relinquish control 
+                     /* There is a remote SM that is master.
+                      * need to wait for that SM to relinquish control
                       * of its portion of the subnet. C14-60.2.1.
                       * Also - need to start polling on that SM. */
                      p_mgr->p_sm_state_mgr->p_polling_sm = p_remote_sm;
@@ -2192,10 +2192,10 @@ Idle:
                   }
                }
             }
-            
+
             /* Need to continue with lid assignment */
             osm_drop_mgr_process( p_mgr->p_drop_mgr );
-            
+
             p_mgr->state = OSM_SM_STATE_SET_PKEY;
 
             /*
@@ -2245,28 +2245,28 @@ Idle:
           p_mgr->state = OSM_SM_STATE_SET_PKEY_WAIT;
           signal = OSM_SIGNAL_NONE;
           break;
-          
+
         default:
           __osm_state_mgr_signal_error( p_mgr, signal );
           signal = OSM_SIGNAL_NONE;
           break;
         }
         break;
-        
+
       case OSM_SM_STATE_SET_PKEY_WAIT:
         switch ( signal )
         {
         case OSM_SIGNAL_NO_PENDING_TRANSACTIONS:
           p_mgr->state = OSM_SM_STATE_SET_PKEY_DONE;
           break;
-          
+
         default:
           __osm_state_mgr_signal_error( p_mgr, signal );
           signal = OSM_SIGNAL_NONE;
           break;
         }
         break;
-        
+
       case OSM_SM_STATE_SET_PKEY_DONE:
         switch ( signal )
         {
@@ -2396,9 +2396,9 @@ Idle:
          {
          case OSM_SIGNAL_DONE:
          case OSM_SIGNAL_NO_PENDING_TRANSACTIONS:
-            /* At this point we need to check the consistency of 
+            /* At this point we need to check the consistency of
              * the port_lid_tbl under the subnet. There might be
-             * errors in it if PortInfo Set reqeusts didn't reach 
+             * errors in it if PortInfo Set reqeusts didn't reach
              * their destination. */
             __osm_state_mgr_check_tbl_consistency( p_mgr );
 
@@ -2467,7 +2467,7 @@ Idle:
          case OSM_SIGNAL_NO_PENDING_TRANSACTIONS:
          case OSM_SIGNAL_DONE:
             /* We are done setting all LFTs so clear the ignore existing.
-             * From now on, as long as we are still master, we want to 
+             * From now on, as long as we are still master, we want to
              * take into account these lfts. */
             p_mgr->p_subn->ignore_existing_lfts = FALSE;
 
@@ -2735,7 +2735,7 @@ Idle:
             }
             else
             {
-               /* The subnet is up correctly - set the first_time_master_sweep flag 
+               /* The subnet is up correctly - set the first_time_master_sweep flag
                 * (if it is on) to FALSE. */
                if( p_mgr->p_subn->first_time_master_sweep == TRUE )
                {

@@ -88,10 +88,10 @@ osm_physp_destroy(
     for (i = 0; i < num_slvl; i++)
       free(cl_ptr_vector_get(&p_physp->slvl_by_port, i));
     cl_ptr_vector_destroy(&p_physp->slvl_by_port);
-    
+
     /* free the P_Key Tables */
     osm_pkey_tbl_destroy( &p_physp->pkeys );
-    
+
     memset( p_physp, 0, sizeof(*p_physp) );
     osm_dr_path_construct( &p_physp->dr_path ); /* clear dr_path */
   }
@@ -250,7 +250,7 @@ osm_get_port_by_base_lid(
   IN OUT const osm_port_t** const pp_port )
 {
   ib_api_status_t           status;
-  uint16_t                  base_lid; 
+  uint16_t                  base_lid;
   uint8_t                   lmc;
 
   *pp_port = NULL;
@@ -513,8 +513,8 @@ osm_physp_calc_link_op_vls(
   return(op_vls);
 }
 
-inline 
-uint64_t 
+inline
+uint64_t
 __osm_ptr_to_key(void const *p)
 {
   uint64_t k = 0;
@@ -523,7 +523,7 @@ __osm_ptr_to_key(void const *p)
   return k;
 }
 
-inline 
+inline
 void *
 __osm_key_to_ptr(uint64_t k)
 {
@@ -555,7 +555,7 @@ __osm_physp_get_dr_physp_set(
 
   /* find the OSM node */
   p_port = osm_get_port_by_guid(p_subn, p_subn->sm_port_guid);
-  if (! p_port) 
+  if (! p_port)
   {
     osm_log( p_log, OSM_LOG_ERROR,
              "__osm_physp_get_dr_nodes_set: ERR 4103: "
@@ -566,17 +566,17 @@ __osm_physp_get_dr_physp_set(
 
   /* get the node of the SM */
   p_node = p_port->p_node;
-  
-  /* 
-     traverse the path adding the nodes to the table 
+
+  /*
+     traverse the path adding the nodes to the table
      start after the first dummy hop and stop just before the
      last one
   */
-  for (hop = 1; hop < p_path->hop_count - 1; hop++) 
+  for (hop = 1; hop < p_path->hop_count - 1; hop++)
   {
     /* go out using the phys port of the path */
     p_physp = osm_node_get_physp_ptr(p_node, p_path->path[hop]);
-    
+
     /* we track the ports we go out along the path */
     if (hop > 1)
       cl_map_insert(p_physp_map, __osm_ptr_to_key(p_physp), NULL);
@@ -599,7 +599,7 @@ __osm_physp_get_dr_physp_set(
       goto Exit;
     }
 
-    if (! (p_physp = osm_physp_get_remote(p_physp))) 
+    if (! (p_physp = osm_physp_get_remote(p_physp)))
     {
       osm_log( p_log, OSM_LOG_ERROR,
                "__osm_physp_get_dr_nodes_set: ERR 4106: "
@@ -636,24 +636,24 @@ __osm_physp_update_new_dr_path(
 
   cl_list_insert_head( &tmpPortsList, p_dest_physp );
   /* get the output port where we need to come from */
-  p_physp = (osm_physp_t*)cl_map_get( p_visited_map, 
+  p_physp = (osm_physp_t*)cl_map_get( p_visited_map,
                                       __osm_ptr_to_key(p_dest_physp) );
   while ( p_physp != NULL )
   {
     cl_list_insert_head( &tmpPortsList, p_physp );
     /* get the input port through where we reached the output port */
     p_src_physp = p_physp;
-    p_physp = (osm_physp_t*)cl_map_get( p_visited_map, 
+    p_physp = (osm_physp_t*)cl_map_get( p_visited_map,
                                         __osm_ptr_to_key(p_physp) );
     /* if we reached a null p_physp - this means we are at the begining
        of the path. Break. */
     if ( p_physp == NULL )
       break;
     /* get the output port */
-    p_physp = (osm_physp_t*)cl_map_get( p_visited_map, 
+    p_physp = (osm_physp_t*)cl_map_get( p_visited_map,
                                         __osm_ptr_to_key(p_physp) );
   }
-  
+
   memset( path_array, 0, sizeof(path_array) );
   p_physp = (osm_physp_t*)cl_list_remove_head( &tmpPortsList );
   while ( p_physp != NULL )
@@ -692,7 +692,7 @@ osm_physp_replace_dr_path_with_alternate_dr_path(
   boolean_t     next_list_is_full = TRUE, reached_dest = FALSE;
   uint8_t       num_ports, port_num;
 
-  /* 
+  /*
      initialize the map of all port participating in current dr path
      not including first and last switches
    */
@@ -703,8 +703,8 @@ osm_physp_replace_dr_path_with_alternate_dr_path(
   p_dr_path = osm_physp_get_dr_path_ptr( p_dest_physp );
   __osm_physp_get_dr_physp_set(p_log, p_subn, p_dr_path, &physp_map);
 
-  /* 
-     BFS from OSM port until we find the target physp but avoid 
+  /*
+     BFS from OSM port until we find the target physp but avoid
      going through mapped ports
   */
   p_nextPortsList = (cl_list_t*)malloc(sizeof(cl_list_t));
@@ -723,8 +723,8 @@ osm_physp_replace_dr_path_with_alternate_dr_path(
              "No SM port object\n" );
     goto Exit;
   }
-  
-  /* 
+
+  /*
      HACK: We are assuming SM is running on HCA, so when getting the default
      port we'll get the port connected to the rest of the subnet. If SM is
      running on SWITCH - we should try to get a dr path from all switch ports.
@@ -735,8 +735,8 @@ osm_physp_replace_dr_path_with_alternate_dr_path(
   CL_ASSERT( osm_physp_is_valid( p_physp ) );
 
   cl_list_insert_tail( p_nextPortsList, p_physp );
-  
-  while (next_list_is_full == TRUE) 
+
+  while (next_list_is_full == TRUE)
   {
     next_list_is_full = FALSE;
     p_currPortsList = p_nextPortsList;
@@ -749,7 +749,7 @@ osm_physp_replace_dr_path_with_alternate_dr_path(
       /* If we are in a switch - need to go out through all the other
          physical ports of the switch */
       num_ports = osm_node_get_num_physp( p_physp->p_node );
-      
+
       for (port_num = 1 ; port_num < num_ports ; port_num++)
       {
         if (osm_node_get_type( p_physp->p_node ) == IB_NODE_TYPE_SWITCH)
@@ -759,7 +759,7 @@ osm_physp_replace_dr_path_with_alternate_dr_path(
              on the other side */
           p_remote_physp = p_physp->p_remote_physp;
 
-        /* 
+        /*
            make sure that all of the following occurred:
            1. The port isn't NULL
            2. The port is a valid port
@@ -774,7 +774,7 @@ osm_physp_replace_dr_path_with_alternate_dr_path(
         {
           /* Insert the port into the visited_map, and save its source port */
           cl_map_insert( &visited_map, __osm_ptr_to_key(p_remote_physp), p_physp );
-          
+
           /* Is this the p_dest_physp? */
           if ( p_remote_physp == p_dest_physp )
           {
@@ -783,7 +783,7 @@ osm_physp_replace_dr_path_with_alternate_dr_path(
             reached_dest = TRUE;
             break;
           }
-          
+
           /* add the p_remote_physp to the nextPortsList */
           cl_list_insert_tail( p_nextPortsList, p_remote_physp );
           next_list_is_full = TRUE;
@@ -839,7 +839,7 @@ osm_physp_set_pkey_tbl(
   IN const osm_subn_t* p_subn,
   IN osm_physp_t* const p_physp,
   IN ib_pkey_table_t *p_pkey_tbl,
-  IN uint16_t block_num ) 
+  IN uint16_t block_num )
 {
   uint16_t max_blocks;
 
@@ -847,17 +847,17 @@ osm_physp_set_pkey_tbl(
   CL_ASSERT( osm_physp_is_valid( p_physp ) );
   /*
     (14.2.5.7) - the block number valid values are 0-2047, and are further
-    limited by the size of the P_Key table specified by the PartitionCap on the 
+    limited by the size of the P_Key table specified by the PartitionCap on the
     node.
   */
   if (!p_physp->p_node->sw || p_physp->port_num == 0 )
   {
-    /* 
+    /*
        The maximum blocks is defined in the node info: partition cap for CA,
        routers and switch management ports.
     */
     max_blocks = (cl_ntoh16(p_physp->p_node->node_info.partition_cap) +
-                  IB_NUM_PKEY_ELEMENTS_IN_BLOCK - 1) 
+                  IB_NUM_PKEY_ELEMENTS_IN_BLOCK - 1)
       / IB_NUM_PKEY_ELEMENTS_IN_BLOCK;
   }
   else
@@ -866,7 +866,7 @@ osm_physp_set_pkey_tbl(
       This is a switch, and not a management port. The maximum blocks is defined
       in the switch info: partition enforcement cap.
     */
-    max_blocks = 
+    max_blocks =
       (cl_ntoh16(p_physp->p_node->sw->switch_info.enforce_cap) +
        IB_NUM_PKEY_ELEMENTS_IN_BLOCK - 1) / IB_NUM_PKEY_ELEMENTS_IN_BLOCK;
   }
@@ -882,6 +882,6 @@ osm_physp_set_pkey_tbl(
              p_physp->port_num );
     return;
   }
-  
+
   osm_pkey_tbl_set( &p_physp->pkeys, block_num, p_pkey_tbl);
 }

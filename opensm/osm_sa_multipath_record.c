@@ -158,9 +158,9 @@ __osm_sa_multipath_rec_is_tavor_port(
   vend_id = ib_node_info_get_vendor_id( &p_node->node_info );
 
   return( (p_node->node_info.device_id == CL_HTON16(23108)) &&
-	  ((vend_id == CL_HTON32(OSM_VENDOR_ID_MELLANOX)) || 
-	   (vend_id == CL_HTON32(OSM_VENDOR_ID_TOPSPIN)) || 
-	   (vend_id == CL_HTON32(OSM_VENDOR_ID_SILVERSTORM)) || 
+	  ((vend_id == CL_HTON32(OSM_VENDOR_ID_MELLANOX)) ||
+	   (vend_id == CL_HTON32(OSM_VENDOR_ID_TOPSPIN)) ||
+	   (vend_id == CL_HTON32(OSM_VENDOR_ID_SILVERSTORM)) ||
 	   (vend_id == CL_HTON32(OSM_VENDOR_ID_VOLTAIRE))) );
 }
 
@@ -174,16 +174,16 @@ boolean_t
   IN const ib_net64_t           comp_mask)
 {
   uint8_t   required_mtu;
-	
+
   /* only if at least one of the ports is a Tavor device */
-  if (! __osm_sa_multipath_rec_is_tavor_port(p_src_port) && 
+  if (! __osm_sa_multipath_rec_is_tavor_port(p_src_port) &&
       ! __osm_sa_multipath_rec_is_tavor_port(p_dest_port) )
     return( FALSE );
-	
+
   /*
     we can apply the patch if either:
     1. No MTU required
-    2. Required MTU < 
+    2. Required MTU <
     3. Required MTU = 1K or 512 or 256
     4. Required MTU > 256 or 512
   */
@@ -208,7 +208,7 @@ boolean_t
                /* the largest MTU possible */
       return(FALSE);
       break;
-			
+
     default:
       /* if we're here, there's a bug in ib_multipath_rec_mtu_sel() */
       CL_ASSERT( FALSE );
@@ -262,16 +262,16 @@ __osm_mpr_rcv_get_path_parms(
   mtu = ib_port_info_get_mtu_cap( p_pi );
   rate = ib_port_info_compute_rate( p_pi );
 
-  /* 
+  /*
     Mellanox Tavor device performance is better using 1K MTU.
-    If required MTU and MTU selector are such that 1K is OK 
+    If required MTU and MTU selector are such that 1K is OK
     and at least one end of the path is Tavor we override the
     port MTU with 1K.
   */
   if ( p_rcv->p_subn->opt.enable_quirks &&
        __osm_sa_multipath_rec_apply_tavor_mtu_limit(
 		p_mpr, p_src_port, p_dest_port, comp_mask) )
-    if (mtu > IB_MTU_LEN_1024) 
+    if (mtu > IB_MTU_LEN_1024)
     {
       mtu = IB_MTU_LEN_1024;
       osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
@@ -371,7 +371,7 @@ __osm_mpr_rcv_get_path_parms(
    * Same as above
    */
   p_node = osm_physp_get_node_ptr( p_dest_physp );
-	
+
   if ( p_node->sw )
   {
 
@@ -834,9 +834,9 @@ __osm_mpr_rcv_get_lid_pair_path(
   path_parms.reversible = ( rev_path_status == IB_SUCCESS );
 
   /* did we get a Reversible Path compmask ? */
-  /* 
+  /*
      NOTE that if the reversible component = 0, it is a don't care
-     rather then requiring non-reversible paths ... 
+     rather then requiring non-reversible paths ...
      see Vol1 Ver1.2 p900 l16
   */
   if ( comp_mask & IB_MPR_COMPMASK_REVERSIBLE )
@@ -868,7 +868,7 @@ __osm_mpr_rcv_get_lid_pair_path(
 
 /**********************************************************************
  **********************************************************************/
-static uint32_t 
+static uint32_t
 __osm_mpr_rcv_get_port_pair_paths(
   IN osm_mpr_rcv_t*		const p_rcv,
   IN const ib_multipath_rec_t*  const p_mpr,
@@ -1096,7 +1096,7 @@ __osm_mpr_rcv_get_apm_port_pair_paths(
   int				src_lids, dest_lids;
 
   OSM_LOG_ENTER( p_rcv->p_log, __osm_mpr_rcv_get_apm_port_pair_paths );
- 
+
   if ( osm_log_is_active( p_rcv->p_log, OSM_LOG_DEBUG ) )
   {
     osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
@@ -1177,7 +1177,7 @@ __osm_mpr_rcv_get_gids(
 
   for ( i = 0; i < ngids; i++, gids++ ) {
     if ( !ib_gid_is_link_local ( gids ) ) {
-      if ( ( is_sgid && ib_gid_is_multicast( gids ) ) || 
+      if ( ( is_sgid && ib_gid_is_multicast( gids ) ) ||
            ( ib_gid_get_subnet_prefix ( gids ) != p_rcv->p_subn->opt.subnet_prefix ) ) {
         /*
           This 'error' is the client's fault (bad gid) so
@@ -1608,7 +1608,7 @@ osm_mpr_rcv_process(
   if ( osm_log_is_active( p_rcv->p_log, OSM_LOG_DEBUG ) )
     osm_dump_multipath_record( p_rcv->p_log, p_mpr, OSM_LOG_DEBUG );
 
-  cl_qlist_init( &pr_list ); 
+  cl_qlist_init( &pr_list );
 
   /*
     Most SA functions (including this one) are read-only on the
@@ -1618,7 +1618,7 @@ osm_mpr_rcv_process(
 
   sa_status = __osm_mpr_rcv_get_end_points( p_rcv, p_madw, pp_ports,
                                             &nsrc, &ndest );
-    
+
   if ( sa_status != IB_SA_MAD_STATUS_SUCCESS || !nsrc || !ndest )
   {
     if ( sa_status == IB_SA_MAD_STATUS_SUCCESS && ( !nsrc || !ndest ) )

@@ -808,22 +808,22 @@ __osm_sm_mad_ctrl_send_err_cb(
 
   OSM_LOG_ENTER( p_ctrl->p_log, __osm_sm_mad_ctrl_send_err_cb );
 
-  CL_ASSERT( p_madw ); 
+  CL_ASSERT( p_madw );
 
   osm_log( p_ctrl->p_log, OSM_LOG_ERROR,
            "__osm_sm_mad_ctrl_send_err_cb: ERR 3113: "
            "MAD completed in error (%s)\n",
            ib_get_err_str( p_madw->status ) );
 
-  /* 
+  /*
      If this was a SubnSet MAD, then this error might indicate a problem
      in configuring the subnet. In this case - need to mark that there was
      such a problem. The subnet will not be up, and the next sweep should
      be a heavy sweep as well.
   */
   p_smp = osm_madw_get_smp_ptr( p_madw );
-  if (p_smp->method == IB_MAD_METHOD_SET && 
-      ( p_smp->attr_id == IB_MAD_ATTR_PORT_INFO || 
+  if (p_smp->method == IB_MAD_METHOD_SET &&
+      ( p_smp->attr_id == IB_MAD_ATTR_PORT_INFO ||
         p_smp->attr_id == IB_MAD_ATTR_MCAST_FWD_TBL ||
         p_smp->attr_id == IB_MAD_ATTR_SWITCH_INFO ||
         p_smp->attr_id == IB_MAD_ATTR_LIN_FWD_TBL ) )
@@ -835,8 +835,8 @@ __osm_sm_mad_ctrl_send_err_cb(
   }
 
   /*
-     Since we did not get any response we suspect the DR path 
-     used for the target port. 
+     Since we did not get any response we suspect the DR path
+     used for the target port.
      Find it and replace it with an alternate path.
      This is true only if the destination lid is not 0xFFFF, since
      then we are aiming for a specific path and not specific destination
@@ -935,7 +935,7 @@ osm_sm_mad_ctrl_destroy(
   IN osm_sm_mad_ctrl_t* const p_ctrl )
 {
   CL_ASSERT( p_ctrl );
-  
+
   if (p_ctrl->h_bind != CL_DISP_INVALID_HANDLE)
   {
     osm_vendor_unbind( p_ctrl->h_bind );

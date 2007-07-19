@@ -48,7 +48,7 @@ __osm_pack_guid(uint64_t guid, char *p_guid_str)
   sprintf(p_guid_str, "0x%016" PRIx64, guid);
 }
 
-static inline uint64_t 
+static inline uint64_t
 __osm_unpack_guid(char *p_guid_str)
 {
 #if __WORDSIZE == 64
@@ -74,7 +74,7 @@ __osm_unpack_lids(
   char *p_next;
   char *p_num;
   char lids_str[24];
-  
+
   strncpy(lids_str, p_lid_str, 23);
   lids_str[23] = '\0';
   p_num = strtok_r(lids_str, " \t", &p_next);
@@ -88,7 +88,7 @@ __osm_unpack_lids(
   tmp = strtoul(p_num, NULL, 0);
   CL_ASSERT( tmp < 0x10000 );
   *p_max_lid = (uint16_t)tmp;
-  
+
   return 0;
 }
 
@@ -103,10 +103,10 @@ osm_db_guid2lid_guids(
 
   cl_list_construct( &keys );
   cl_list_init( &keys, 10 );
-  
+
   if (osm_db_keys(p_g2l, &keys))
     return 1;
-  
+
   while ( (p_key = cl_list_remove_head( &keys )) != NULL )
   {
     p_guid_elem = (osm_db_guid_elem_t*)malloc(sizeof(osm_db_guid_elem_t));
@@ -124,23 +124,23 @@ int
 osm_db_guid2lid_get(
   IN osm_db_domain_t* const p_g2l,
   IN uint64_t guid,
-  OUT uint16_t *p_min_lid, 
+  OUT uint16_t *p_min_lid,
   OUT uint16_t *p_max_lid)
 {
   char guid_str[20];
   char *p_lid_str;
   uint16_t min_lid, max_lid;
-  
+
   __osm_pack_guid(guid, guid_str);
   p_lid_str = osm_db_lookup(p_g2l, guid_str);
   if (! p_lid_str)
     return 1;
   if (__osm_unpack_lids(p_lid_str, &min_lid, &max_lid))
     return 1;
-  
+
   if (p_min_lid) *p_min_lid = min_lid;
   if (p_max_lid) *p_max_lid = max_lid;
-  
+
   return 0;
 }
 
@@ -156,7 +156,7 @@ osm_db_guid2lid_set(
 
   __osm_pack_guid(guid, guid_str);
   __osm_pack_lids(min_lid, max_lid, lid_str);
-  
+
   return( osm_db_update( p_g2l, guid_str, lid_str) );
 }
 

@@ -324,7 +324,7 @@ osm_vlarb_rec_rcv_process(
   ib_sa_mad_t*             p_resp_sa_mad;
   ib_vl_arb_table_record_t*    p_resp_rec;
   uint32_t                 num_rec, pre_trim_num_rec;
-#ifndef VENDOR_RMPP_SUPPORT 
+#ifndef VENDOR_RMPP_SUPPORT
   uint32_t		   trim_num_rec;
 #endif
   uint32_t                 i;

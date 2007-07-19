@@ -65,7 +65,7 @@
   a different place for switch external ports (SwitchInfo) and the
   rest of the ports (NodeInfo).
 */
-static uint16_t 
+static uint16_t
 pkey_mgr_get_physp_max_blocks(
   IN const osm_subn_t *p_subn,
   IN const osm_physp_t *p_physp )
@@ -87,7 +87,7 @@ pkey_mgr_get_physp_max_blocks(
  * Insert new pending pkey entry to the specific port pkey table
  * pending pkeys. New entries are inserted at the back.
  */
-static void 
+static void
 pkey_mgr_process_physical_port(
   IN osm_log_t *p_log,
   IN const osm_req_t *p_req,
@@ -160,7 +160,7 @@ pkey_mgr_process_partition_table(
   const boolean_t full )
 {
   const cl_map_t *p_tbl =
-    full ? &p_prtn->full_guid_tbl : &p_prtn->part_guid_tbl; 
+    full ? &p_prtn->full_guid_tbl : &p_prtn->part_guid_tbl;
   cl_map_iterator_t i, i_next;
   ib_net16_t pkey = p_prtn->pkey;
   osm_physp_t *p_physp;
@@ -220,14 +220,14 @@ pkey_mgr_enforce_partition(
 
   p_pi = &p_physp->port_info;
 
-  if ((p_pi->vl_enforce & 0xc) == (0xc)*(enforce == TRUE)) 
+  if ((p_pi->vl_enforce & 0xc) == (0xc)*(enforce == TRUE))
   {
     osm_log( p_log, OSM_LOG_DEBUG,
              "pkey_mgr_enforce_partition: "
              "No need to update PortInfo for "
              "node 0x%016" PRIx64 " port %u\n",
              cl_ntoh64(
-               osm_node_get_node_guid( 
+               osm_node_get_node_guid(
                   osm_physp_get_node_ptr( p_physp ))),
              osm_physp_get_port_num( p_physp ) );
     return FALSE;
@@ -258,14 +258,14 @@ pkey_mgr_enforce_partition(
 			IB_MAD_ATTR_PORT_INFO,
 			cl_hton32( osm_physp_get_port_num( p_physp ) ),
 			CL_DISP_MSGID_NONE, &context );
-  if (status != IB_SUCCESS) 
+  if (status != IB_SUCCESS)
   {
     osm_log( p_log, OSM_LOG_ERROR,
              "pkey_mgr_enforce_partition: ERR 0511: "
              "Failed to set PortInfo for "
              "node 0x%016" PRIx64 " port %u\n",
              cl_ntoh64(
-               osm_node_get_node_guid( 
+               osm_node_get_node_guid(
                   osm_physp_get_node_ptr( p_physp ))),
              osm_physp_get_port_num( p_physp ) );
     return FALSE;
@@ -277,7 +277,7 @@ pkey_mgr_enforce_partition(
              "Set PortInfo for "
              "node 0x%016" PRIx64 " port %u\n",
              cl_ntoh64(
-               osm_node_get_node_guid( 
+               osm_node_get_node_guid(
                   osm_physp_get_node_ptr( p_physp ))),
              osm_physp_get_port_num( p_physp ) );
     return TRUE;
@@ -321,22 +321,22 @@ static boolean_t pkey_mgr_update_port(
   {
     osm_log( p_log, OSM_LOG_INFO,
 	     "pkey_mgr_update_port: "
-	     "Max number of blocks reduced from %u to %u " 
+	     "Max number of blocks reduced from %u to %u "
 	     "for node 0x%016" PRIx64 " port %u\n",
 	     p_pkey_tbl->max_blocks, max_num_of_blocks,
 	     cl_ntoh64( osm_node_get_node_guid( p_node ) ),
-	     osm_physp_get_port_num( p_physp ) );				
+	     osm_physp_get_port_num( p_physp ) );
   }
   p_pkey_tbl->max_blocks = max_num_of_blocks;
 
   osm_pkey_tbl_init_new_blocks( p_pkey_tbl );
   p_pkey_tbl->used_blocks = 0;
 
-  /* 
-    process every pending pkey in order - 
-    first must be "updated" last are "new" 
+  /*
+    process every pending pkey in order -
+    first must be "updated" last are "new"
    */
-  p_pending = (osm_pending_pkey_t *)cl_qlist_remove_head( &p_pkey_tbl->pending ); 
+  p_pending = (osm_pending_pkey_t *)cl_qlist_remove_head( &p_pkey_tbl->pending );
   while ( p_pending != (osm_pending_pkey_t *)cl_qlist_end( &p_pkey_tbl->pending ))
   {
     if (p_pending->is_new == FALSE)
@@ -344,10 +344,10 @@ static boolean_t pkey_mgr_update_port(
 	block_index = p_pending->block;
 	pkey_index = p_pending->index;
 	found = TRUE;
-    } 
+    }
     else
     {
-	found = osm_pkey_find_next_free_entry( p_pkey_tbl, 
+	found = osm_pkey_find_next_free_entry( p_pkey_tbl,
 					       &last_free_block_index,
 					       &last_free_pkey_index );
 	if (!found)
@@ -367,9 +367,9 @@ static boolean_t pkey_mgr_update_port(
 	}
     }
 
-   if (found) 
+   if (found)
    {
-	if (IB_SUCCESS != osm_pkey_tbl_set_new_entry( p_pkey_tbl, block_index, 
+	if (IB_SUCCESS != osm_pkey_tbl_set_new_entry( p_pkey_tbl, block_index,
 						       pkey_index, p_pending->pkey ))
 	{
 	  osm_log( p_log, OSM_LOG_ERROR,
@@ -569,7 +569,7 @@ osm_pkey_mgr_process(
     if ( pkey_mgr_update_port( &p_osm->log, &p_osm->sm.req, p_port ) )
       signal = OSM_SIGNAL_DONE_PENDING;
     if ( ( osm_node_get_type( p_port->p_node ) != IB_NODE_TYPE_SWITCH ) &&
-	 pkey_mgr_update_peer_port( &p_osm->log, &p_osm->sm.req, 
+	 pkey_mgr_update_peer_port( &p_osm->log, &p_osm->sm.req,
 				    &p_osm->subn, p_port,
 				    !p_osm->subn.opt.no_partition_enforcement ) )
       signal = OSM_SIGNAL_DONE_PENDING;

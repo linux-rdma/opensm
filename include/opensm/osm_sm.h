@@ -465,7 +465,7 @@ osm_sm_mcgrp_join(
 *		[in] Port GUID to add to the group.
 *
 *  req_type
-*     [in] Type of the MC request that caused this join 
+*     [in] Type of the MC request that caused this join
 *          (MC create/join).
 *
 * RETURN VALUES
@@ -534,7 +534,7 @@ osm_sm_wait_for_subnet_up(
 *	p_sm
 *		[in] Pointer to an osm_sm_t object.
 *
-*	wait_us 
+*	wait_us
 *		[in] Number of microseconds to wait.
 *
 *	interruptible
@@ -542,7 +542,7 @@ osm_sm_wait_for_subnet_up(
 *		by external signals.
 *
 * RETURN VALUES
-*	CL_SUCCESS if the wait operation succeeded in response to the event 
+*	CL_SUCCESS if the wait operation succeeded in response to the event
 *	being set.
 *
 *	CL_TIMEOUT if the specified time period elapses.

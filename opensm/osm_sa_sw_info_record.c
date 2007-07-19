@@ -307,7 +307,7 @@ __osm_sir_rcv_by_comp_mask(
   osm_dump_switch_info(
     p_ctxt->p_rcv->p_log,
     &p_sw->switch_info,
-    OSM_LOG_VERBOSE );    
+    OSM_LOG_VERBOSE );
 
   if( comp_mask & IB_SWIR_COMPMASK_LID )
   {
@@ -451,7 +451,7 @@ osm_sir_rcv_process(
     goto Exit;
   }
 
-  /* 
+  /*
    * Get a MAD to reply. Address of Mad is in the received mad_wrapper
    */
   p_resp_madw = osm_mad_pool_get( p_rcv->p_mad_pool,

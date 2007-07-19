@@ -129,7 +129,7 @@ typedef struct _osm_vlarb_rec_rcv
 *		the query response.
 *
 * SEE ALSO
-*	
+*
 *********/
 
 /****f* OpenSM: VLArbitration Record Receiver/osm_vlarb_rec_rcv_construct

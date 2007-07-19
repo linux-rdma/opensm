@@ -129,7 +129,7 @@ typedef struct _osm_slvl_rec_rcv
 *		the query response.
 *
 * SEE ALSO
-*	
+*
 *********/
 
 /****f* OpenSM: SLtoVL Mapping Record Receiver/osm_slvl_rec_rcv_construct

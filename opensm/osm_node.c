@@ -148,7 +148,7 @@ osm_node_destroy(
   uint16_t i;
 
   /*
-    Cleanup all physports 
+    Cleanup all physports
   */
   for( i = 0; i < p_node->physp_tbl_size; i++ )
     osm_physp_destroy( &p_node->physp_table[i] );

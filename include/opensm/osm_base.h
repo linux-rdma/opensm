@@ -137,7 +137,7 @@ BEGIN_C_DECLS
 *	OSM_DEFAULT_MAX_OP_VLS
 *
 * DESCRIPTION
-*	Default Maximal Operational VLs to be initialized on 
+*	Default Maximal Operational VLs to be initialized on
 *  the link ports PortInfo by the OpenSM.
 *  Default value provides backward compatibility.
 *
@@ -323,9 +323,9 @@ BEGIN_C_DECLS
 *	OSM_DEFAULT_LEAF_VL_COUNT
 *
 * DESCRIPTION
-*	Sets the number of consecutive head of queue life time drops that 
+*	Sets the number of consecutive head of queue life time drops that
 *  puts the VL into stalled state. In stalled state, the port is supposed
-*  to drop everything for 8*(head of queue lifetime) 
+*  to drop everything for 8*(head of queue lifetime)
 *
 * SYNOPSIS
 */
@@ -337,7 +337,7 @@ BEGIN_C_DECLS
 *	OSM_DEFAULT_LEAF_VL_STALL_COUNT
 *
 * DESCRIPTION
-*	Sets the number of consecutive head of queue life time drops that 
+*	Sets the number of consecutive head of queue life time drops that
 *  puts the VL into stalled state. In stalled state, the port is supposed
 *  to drop everything for 8*(head of queue lifetime). This value is for
 *  switch ports driving a CA port.
@@ -393,7 +393,7 @@ BEGIN_C_DECLS
 *	OSM_DEFAULT_SMP_MAX_ON_WIRE
 *
 * DESCRIPTION
-*	Specifies the default number of VL15 SMP MADs allowed on 
+*	Specifies the default number of VL15 SMP MADs allowed on
 *	the wire at any one time.
 *
 * SYNOPSIS
@@ -636,7 +636,7 @@ typedef enum _osm_thread_state
 *	OSM_CAP_IS_UD_MCAST_SUP
 *
 * DESCRIPTION
-*	Multicast is supported 
+*	Multicast is supported
 *
 * SYNOPSIS
 */
@@ -673,14 +673,14 @@ typedef enum _osm_thread_state
 *
 * DESCRIPTION
 *	SM/SA supports enhanced SA PortInfoRecord searches per 1.2 Errata:
-*  ClassPortInfo:CapabilityMask.IsPortInfoCapMaskMatchSupported is 1, 
-*  then the AttributeModifier of the SubnAdmGet() and SubnAdmGetTable() 
-*  methods affects the matching behavior on the PortInfo:CapabilityMask 
-*  component. If the high-order bit (bit 31) of the AttributeModifier 
-*  is set to 1, matching on the CapabilityMask component will not be an 
-*  exact bitwise match as described in <ref to 15.4.4>.  Instead, 
-*  matching will only be performed on those bits which are set to 1 in 
-*  the PortInfo:CapabilityMask embedded in the query. 
+*  ClassPortInfo:CapabilityMask.IsPortInfoCapMaskMatchSupported is 1,
+*  then the AttributeModifier of the SubnAdmGet() and SubnAdmGetTable()
+*  methods affects the matching behavior on the PortInfo:CapabilityMask
+*  component. If the high-order bit (bit 31) of the AttributeModifier
+*  is set to 1, matching on the CapabilityMask component will not be an
+*  exact bitwise match as described in <ref to 15.4.4>.  Instead,
+*  matching will only be performed on those bits which are set to 1 in
+*  the PortInfo:CapabilityMask embedded in the query.
 *
 * SYNOPSIS
 */

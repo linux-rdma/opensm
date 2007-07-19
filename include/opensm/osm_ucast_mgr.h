@@ -123,7 +123,7 @@ typedef struct _osm_ucast_mgr
 *
 *	any_change
 *		Initialized to FALSE at the beginning of the algorithm,
-*		set to TRUE by osm_ucast_mgr_set_fwd_table() if any mad 
+*		set to TRUE by osm_ucast_mgr_set_fwd_table() if any mad
 *		was sent.
 *
 *	lft_buf

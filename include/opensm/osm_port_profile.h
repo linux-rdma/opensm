@@ -113,7 +113,7 @@ typedef struct _osm_port_profile
 *	osm_port_prof_construct
 *
 * DESCRIPTION
-*	
+*
 *
 * SYNOPSIS
 */
@@ -143,7 +143,7 @@ osm_port_prof_construct(
 *
 * DESCRIPTION
 *	Increments the count of the number of paths going through this port.
-*	
+*
 *
 * SYNOPSIS
 */
@@ -207,7 +207,7 @@ osm_port_prof_path_count_get(
 */
 static inline boolean_t
 osm_port_prof_is_ignored_port(
-	IN const osm_subn_t *p_subn, 
+	IN const osm_subn_t *p_subn,
 	IN ib_net64_t port_guid,
 	IN uint8_t port_num )
 {
@@ -227,8 +227,8 @@ osm_port_prof_is_ignored_port(
 *	p_subn
 *		[in] Pointer to the OSM Subnet object.
 *
-*  port_guid 
-*     [in] The port guid 
+*  port_guid
+*     [in] The port guid
 *
 * RETURN VALUE
 *	None.
@@ -249,7 +249,7 @@ osm_port_prof_is_ignored_port(
 */
 static inline void
 osm_port_prof_set_ignored_port(
-	IN osm_subn_t *p_subn, 
+	IN osm_subn_t *p_subn,
 	IN ib_net64_t port_guid,
 	IN uint8_t port_num )
 {
@@ -259,12 +259,12 @@ osm_port_prof_set_ignored_port(
 
   // HACK: we currently support ignoring ports 0 - 31
   CL_ASSERT(port_num < 32);
-  
+
   if (p_obj != NULL) {
 	 value = (size_t)p_obj;
 	 cl_map_remove(p_map, port_guid);
-  } 
-  
+  }
+
   value = value | (1 << port_num);
   cl_map_insert(&(p_subn->opt.port_prof_ignore_guids),
 					 port_guid,
@@ -275,8 +275,8 @@ osm_port_prof_set_ignored_port(
 *	p_subn
 *		[in] Pointer to the OSM Subnet object.
 *
-*  port_guid 
-*     [in] The port guid 
+*  port_guid
+*     [in] The port guid
 *
 * RETURN VALUE
 *	None.

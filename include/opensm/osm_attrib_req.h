@@ -66,7 +66,7 @@ BEGIN_C_DECLS
 *	Attribute Request
 *
 * DESCRIPTION
-*	The Attribute Request structure encapsulates 
+*	The Attribute Request structure encapsulates
 *   encapsulates information needed by the generic request controller
 *   to request an attribute from a node.
 *

@@ -88,7 +88,7 @@ BEGIN_C_DECLS
 *	Sent by:			osm_mad_ctrl_t
 *	Received by:			osm_ni_rcv_ctrl_t
 *	Delivery notice:		yes
-* 
+*
 *
 ***********/
 
@@ -103,7 +103,7 @@ BEGIN_C_DECLS
 *	Sent by:			osm_mad_ctrl_t
 *	Received by:			osm_pi_rcv_ctrl_t
 *	Delivery notice:		yes
-* 
+*
 *
 ***********/
 
@@ -118,7 +118,7 @@ BEGIN_C_DECLS
 *	Sent by:			osm_mad_ctrl_t
 *	Received by:			osm_si_rcv_ctrl_t
 *	Delivery notice:		yes
-* 
+*
 ***********/
 
 /****s* OpenSM: Dispatcher Messages/OSM_MSG_MAD_NODE_DESC
@@ -132,7 +132,7 @@ BEGIN_C_DECLS
 *	Sent by:			osm_mad_ctrl_t
 *	Received by:			osm_nd_rcv_ctrl_t
 *	Delivery notice:		yes
-* 
+*
 * SOURCE
 ***********/
 
@@ -154,7 +154,7 @@ enum
 {
 	OSM_MSG_NONE = 0,
 	OSM_MSG_MAD_NODE_INFO,
-	OSM_MSG_MAD_PORT_INFO,	
+	OSM_MSG_MAD_PORT_INFO,
 	OSM_MSG_MAD_SWITCH_INFO,
 	OSM_MSG_MAD_NODE_DESC,
 	OSM_MSG_NO_SMPS_OUTSTANDING,

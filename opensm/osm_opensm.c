@@ -141,7 +141,7 @@ osm_opensm_destroy(
    /* in case of shutdown through exit proc - no ^C */
    osm_exit_flag = TRUE;
 
-   /* 
+   /*
     * First of all, clear the is_sm bit.
     */
    if( p_osm->sm.mad_ctrl.h_bind )
@@ -157,7 +157,7 @@ osm_opensm_destroy(
     */
    osm_sa_shutdown( &p_osm->sa );
 
-   /* shut down the SM 
+   /* shut down the SM
     * - make sure the SM sweeper thread exited
     * - unbind from QP0 messages
     */

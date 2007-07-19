@@ -38,7 +38,7 @@
 *	Database Types
 *
 * DESCRIPTION
-*	This module provides packing and unpacking of the database 
+*	This module provides packing and unpacking of the database
 *  storage into specific types.
 *
 *  The following domains/conversions are supported:
@@ -135,15 +135,15 @@ osm_db_guid2lid_guids(
 *
 *  p_guid_list
 *     [out] A quick list of guid elements of type osm_db_guid_elem_t
-*   
+*
 * RETURN VALUES
-*	0 if successful 
+*	0 if successful
 *
 * NOTE: the output qlist should be initialized and each item freed
 *       by the caller, then destroyed.
 *
 * SEE ALSO
-* osm_db_guid2lid_init, osm_db_guid2lid_guids, osm_db_guid2lid_get 
+* osm_db_guid2lid_init, osm_db_guid2lid_guids, osm_db_guid2lid_get
 * osm_db_guid2lid_set, osm_db_guid2lid_delete
 *********/
 
@@ -169,7 +169,7 @@ osm_db_guid2lid_get(
 *
 *  guid
 *     [in] The guid to look for
-*   
+*
 *  p_min_lid
 *     [out] Pointer to the resulting min lid in host order.
 *
@@ -180,7 +180,7 @@ osm_db_guid2lid_get(
 *	0 if successful. The lid will be set to 0 if not found.
 *
 * SEE ALSO
-* osm_db_guid2lid_init, osm_db_guid2lid_guids 
+* osm_db_guid2lid_init, osm_db_guid2lid_guids
 * osm_db_guid2lid_set, osm_db_guid2lid_delete
 *********/
 
@@ -209,15 +209,15 @@ osm_db_guid2lid_set(
 *
 *  min_lid
 *     [in] The min lid value to set
-*   
+*
 *  max_lid
 *     [in] The max lid value to set
-*   
+*
 * RETURN VALUES
-*	0 if successful 
+*	0 if successful
 *
 * SEE ALSO
-* osm_db_guid2lid_init, osm_db_guid2lid_guids 
+* osm_db_guid2lid_init, osm_db_guid2lid_guids
 * osm_db_guid2lid_get, osm_db_guid2lid_delete
 *********/
 
@@ -241,12 +241,12 @@ osm_db_guid2lid_delete(
 *
 *  guid
 *     [in] The guid to look for
-*   
+*
 * RETURN VALUES
 *	0 if successful otherwise 1
 *
 * SEE ALSO
-* osm_db_guid2lid_init, osm_db_guid2lid_guids 
+* osm_db_guid2lid_init, osm_db_guid2lid_guids
 * osm_db_guid2lid_get, osm_db_guid2lid_set
 *********/
 

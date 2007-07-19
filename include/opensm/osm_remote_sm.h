@@ -193,7 +193,7 @@ osm_remote_sm_init(
 *
 *	p_port
 *		[in] Pointer to the Remote SM's port object.
-*	
+*
 *	p_smi
 *		[in] Pointer to the SMInfo attribute for this SM.
 *

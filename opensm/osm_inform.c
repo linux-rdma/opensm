@@ -204,12 +204,12 @@ __match_inf_rec(
         osm_log( p_log, OSM_LOG_DEBUG,
                  "__match_inf_rec: "
                  "Differ by InformInfo.Generic.QPNRespTimeVal\n" );
-     else if ( p_infr->inform_record.inform_info.g_or_v.generic.node_type_msb != 
+     else if ( p_infr->inform_record.inform_info.g_or_v.generic.node_type_msb !=
                p_infr_rec->inform_record.inform_info.g_or_v.generic.node_type_msb )
         osm_log( p_log, OSM_LOG_DEBUG,
                  "__match_inf_rec: "
                  "Differ by InformInfo.Generic.NodeTypeMSB\n" );
-     else if ( p_infr->inform_record.inform_info.g_or_v.generic.node_type_lsb != 
+     else if ( p_infr->inform_record.inform_info.g_or_v.generic.node_type_lsb !=
                p_infr_rec->inform_record.inform_info.g_or_v.generic.node_type_lsb )
         osm_log( p_log, OSM_LOG_DEBUG,
                  "__match_inf_rec: "
@@ -224,7 +224,7 @@ __match_inf_rec(
         osm_log( p_log, OSM_LOG_DEBUG,
                  "__match_inf_rec: "
                  "Differ by InformInfo.Vendor.DeviceID\n" );
-     else if ( p_infr->inform_record.inform_info.g_or_v.vend.qpn_resp_time_val != 
+     else if ( p_infr->inform_record.inform_info.g_or_v.vend.qpn_resp_time_val !=
                p_infr_rec->inform_record.inform_info.g_or_v.vend.qpn_resp_time_val )
         osm_log( p_log, OSM_LOG_DEBUG,
                  "__match_inf_rec: "
@@ -304,7 +304,7 @@ osm_infr_insert_to_db(
   __dump_all_informs( p_subn, p_log );
 
 #if 0
-  osm_dump_inform_info( p_log, 
+  osm_dump_inform_info( p_log,
     &(p_infr->inform_record.inform_info), OSM_LOG_DEBUG );
 #endif
 
@@ -363,7 +363,7 @@ __osm_send_report(
   ib_mad_notice_attr_t*    p_report_ntc;
   ib_mad_t*                p_mad;
   ib_sa_mad_t*             p_sa_mad;
-  static atomic32_t        trap_fwd_trans_id = 0x02DAB000; 
+  static atomic32_t        trap_fwd_trans_id = 0x02DAB000;
   ib_api_status_t          status;
   osm_log_t *              p_log = p_infr_rec->p_infr_rcv->p_log;
 
@@ -571,21 +571,21 @@ __match_notice_to_inf_rec(
       goto Exit;
     }
   }
-  
+
   /* Check if there is a pkey match. o13-17.1.1 */
   /* Check if the issuer of the trap is the SM. If it is, then the gid
-     comparison should be done on the trap source (saved as the gid in the 
+     comparison should be done on the trap source (saved as the gid in the
      data details field).
      If the issuer gid is not the SM - then it is the guid of the trap
      source */
-  if ( (cl_ntoh64(p_ntc->issuer_gid.unicast.prefix) == p_subn->opt.subnet_prefix) && 
+  if ( (cl_ntoh64(p_ntc->issuer_gid.unicast.prefix) == p_subn->opt.subnet_prefix) &&
        (cl_ntoh64(p_ntc->issuer_gid.unicast.interface_id) == p_subn->sm_port_guid) )
   {
     /* The issuer is the SM then this is trap 64-67 - compare the gid
        with the gid saved on the data details */
     source_gid = p_ntc->data_details.ntc_64_67.gid;
   }
-  else 
+  else
   {
     source_gid = p_ntc->issuer_gid;
   }
@@ -600,7 +600,7 @@ __match_notice_to_inf_rec(
     goto Exit;
   }
 
-  p_dest_port = 
+  p_dest_port =
     cl_ptr_vector_get( &p_subn->port_lid_tbl,
                        cl_ntoh16(p_infr_rec->report_addr.dest_lid) );
   if( !p_dest_port )
@@ -617,8 +617,8 @@ __match_notice_to_inf_rec(
     osm_log( p_log, OSM_LOG_DEBUG,
              "__match_notice_to_inf_rec: "
              "Mismatch by Pkey\n" );
-    /* According to o13-17.1.2 - If this informInfo does not have 
-       lid_range_begin of 0xFFFF, then this informInfo request 
+    /* According to o13-17.1.2 - If this informInfo does not have
+       lid_range_begin of 0xFFFF, then this informInfo request
        should be removed from database */
     if ( p_ii->lid_range_begin != 0xFFFF )
     {
@@ -644,7 +644,7 @@ __match_notice_to_inf_rec(
 }
 
 /**********************************************************************
- * Once a Trap was received by osm_trap_rcv, or a Trap sourced by 
+ * Once a Trap was received by osm_trap_rcv, or a Trap sourced by
  * the SM was sent (Traps 64-67), this routine is called with a copy of
  * the notice data.
  * Given a notice attribute - compare and see if it matches the InformInfo
@@ -724,7 +724,7 @@ osm_report_notice(
   /* If we inserted items into the infr_to_remove_list - we need to
      remove them */
   p_infr_rec = (osm_infr_t*)cl_list_remove_head(&infr_to_remove_list);
-  while ( p_infr_rec != NULL ) 
+  while ( p_infr_rec != NULL )
   {
     p_next_infr_rec = (osm_infr_t*)cl_list_remove_head(&infr_to_remove_list);
     osm_infr_remove_from_db ( p_subn, p_log, p_infr_rec );

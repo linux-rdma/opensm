@@ -148,7 +148,7 @@ __osm_sminfo_rcv_process_get_request(
   ib_sm_info_t*            p_smi = (ib_sm_info_t*)payload;
   ib_api_status_t          status;
   ib_sm_info_t*            p_remote_smi;
-  
+
   OSM_LOG_ENTER( p_rcv->p_log, __osm_sminfo_rcv_process_get_request );
 
   CL_ASSERT( p_madw );
@@ -167,7 +167,7 @@ __osm_sminfo_rcv_process_get_request(
   p_smi->pri_state = (uint8_t)(p_rcv->p_subn->sm_state |
                                p_rcv->p_subn->opt.sm_priority << 4);
   /*
-    p.840 line 20 - Return 0 for the SM key unless we authenticate the 
+    p.840 line 20 - Return 0 for the SM key unless we authenticate the
     requester as the master SM.
   */
   p_remote_smi = ib_smp_get_payload_ptr ( osm_madw_get_smp_ptr (p_madw) );
@@ -178,7 +178,7 @@ __osm_sminfo_rcv_process_get_request(
              "Responding to master SM with real sm_key\n" );
     p_smi->sm_key = p_rcv->p_subn->opt.sm_key;
   }
-  else 
+  else
   {
     /* The requester is not authenticated as master - set sm_key to zero. */
     osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
@@ -285,7 +285,7 @@ __osm_sminfo_rcv_process_set_request(
   p_smi->pri_state = (uint8_t)(p_rcv->p_subn->sm_state |
                                p_rcv->p_subn->opt.sm_priority << 4);
   /*
-    p.840 line 20 - Return 0 for the SM key unless we authenticate the 
+    p.840 line 20 - Return 0 for the SM key unless we authenticate the
     requester as the master SM.
   */
   p_remote_smi = ib_smp_get_payload_ptr ( osm_madw_get_smp_ptr (p_madw) );
@@ -296,7 +296,7 @@ __osm_sminfo_rcv_process_set_request(
              "Responding to master SM with real sm_key\n" );
     p_smi->sm_key = p_rcv->p_subn->opt.sm_key;
   }
-  else 
+  else
   {
     /* The requester is not authenticated as master - set sm_key to zero. */
     osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
@@ -424,7 +424,7 @@ __osm_sminfo_rcv_process_set_request(
 
 /**********************************************************************
  * Return a signal with which to call the osm_state_mgr_process.
- * This is done since we are locked by p_rcv->p_lock in this function, 
+ * This is done since we are locked by p_rcv->p_lock in this function,
  * and thus cannot call osm_state_mgr_process (that locks the state_lock).
  * If return OSM_SIGNAL_NONE - do not call osm_state_mgr_process.
  **********************************************************************/
@@ -504,7 +504,7 @@ __osm_sminfo_rcv_process_get_sm(
     case IB_SMINFO_STATE_STANDBY:
       /* This should be the response from the sm we are polling. */
       /* If it is - then signal master is alive */
-      if (p_rcv->p_sm_state_mgr->master_guid == p_sm->p_port->guid) 
+      if (p_rcv->p_sm_state_mgr->master_guid == p_sm->p_port->guid)
       {
         /* Make sure that it is an SM with higher priority than us.
            If we started polling it when it was master, and it moved
@@ -525,7 +525,7 @@ __osm_sminfo_rcv_process_get_sm(
     {
     case IB_SMINFO_STATE_MASTER:
       /* If this is a response due to our polling, this means that we are
-         waiting for a handover from this SM, and it is still alive - 
+         waiting for a handover from this SM, and it is still alive -
          signal that. */
       if ( p_rcv->p_sm_state_mgr->p_polling_sm != NULL )
       {
@@ -533,11 +533,11 @@ __osm_sminfo_rcv_process_get_sm(
       }
       else
       {
-        /* This is a response we got while sweeping the subnet. 
+        /* This is a response we got while sweeping the subnet.
            We will handle a case of handover needed later on, when the sweep
            is done and all SMs are recongnized. */
       }
-      break; 
+      break;
     default:
       /* any other state - do nothing */
       break;
@@ -588,10 +588,10 @@ __osm_sminfo_rcv_process_get_response(
 
   osm_dump_sm_info( p_rcv->p_log, p_smi, OSM_LOG_DEBUG );
 
-  /* 
+  /*
      Check that the sm_key of the found SM is the same as ours,
      or is zero. If not - OpenSM cannot continue with configuration!. */
-  if ( p_smi->sm_key != 0 && 
+  if ( p_smi->sm_key != 0 &&
        p_smi->sm_key != p_rcv->p_subn->opt.sm_key )
   {
     osm_log( p_rcv->p_log, OSM_LOG_ERROR,
@@ -668,7 +668,7 @@ __osm_sminfo_rcv_process_get_response(
 
  _unlock_and_exit:
   CL_PLOCK_RELEASE( p_rcv->p_lock );
-  
+
   /* If process_get_sm_ret_val != OSM_SIGNAL_NONE then we have to signal
    * to the state_mgr with that signal. */
   if (process_get_sm_ret_val != OSM_SIGNAL_NONE)

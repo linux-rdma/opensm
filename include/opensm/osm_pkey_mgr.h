@@ -68,7 +68,7 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-osm_signal_t 
+osm_signal_t
 osm_pkey_mgr_process(
 	IN osm_opensm_t *p_osm );
 /*

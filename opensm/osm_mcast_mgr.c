@@ -282,7 +282,7 @@ __osm_mcast_mgr_find_optimal_switch(
   float                    hops = 0;
   float                    best_hops = 10000;   /* any big # will do */
   uint64_t                 sw_guid_ho;
-#ifdef OSM_VENDOR_INTF_ANAFA  
+#ifdef OSM_VENDOR_INTF_ANAFA
   boolean_t                use_avg_hops = TRUE; /* anafa2 - bug hca on switch */ /* use max hops for root */
 #else
   boolean_t                use_avg_hops = FALSE;  /* use max hops for root */
@@ -301,7 +301,7 @@ __osm_mcast_mgr_find_optimal_switch(
     if( !osm_switch_supports_mcast( p_sw ) )
       continue;
 
-    if (use_avg_hops) 
+    if (use_avg_hops)
       hops = osm_mcast_mgr_compute_avg_hops( p_mgr, p_mgrp, p_sw );
     else
       hops = osm_mcast_mgr_compute_max_hops( p_mgr, p_mgrp, p_sw );
@@ -529,9 +529,9 @@ __osm_mcast_mgr_subdivide(
 
   mlid_ho = cl_ntoh16( osm_mgrp_get_mlid( p_mgrp ) );
 
-  /* 
-     For Multicast Groups, we want not to count on previous 
-     configurations - since we can easily generate a storm 
+  /*
+     For Multicast Groups, we want not to count on previous
+     configurations - since we can easily generate a storm
      by loops.
   */
   ignore_existing = TRUE;
@@ -796,9 +796,9 @@ __osm_mcast_mgr_branch(
       table for this switch.
     */
     osm_mcast_tbl_set( p_tbl, mlid_ho, i );
-    if (i == 0) 
+    if (i == 0)
       /* This means we are adding the switch to the MC group.
-         We do not need to continue looking at the remote port, just 
+         We do not need to continue looking at the remote port, just
          needed to add the port to the table */
       continue;
 
@@ -1299,10 +1299,10 @@ osm_mcast_mgr_process_tree(
     multicast group - clean all old data.
   */
   if ( ui_mcast_fdb_assign_func_defined == FALSE ||
-       req_type == OSM_MCAST_REQ_TYPE_CREATE ) 
+       req_type == OSM_MCAST_REQ_TYPE_CREATE )
     __osm_mcast_mgr_clear( p_mgr, p_mgrp );
 
-  /* If a UI function is defined, then we will call it here. 
+  /* If a UI function is defined, then we will call it here.
      If not - the use the regular build spanning tree function */
   if ( ui_mcast_fdb_assign_func_defined == FALSE )
   {
@@ -1324,12 +1324,12 @@ osm_mcast_mgr_process_tree(
                "osm_mcast_mgr_process_tree: "
                "Invoking UI function pfn_ui_mcast_fdb_assign\n");
     }
-    
+
     p_mgr->p_subn->opt.pfn_ui_mcast_fdb_assign(
       p_mgr->p_subn->opt.ui_mcast_fdb_assign_ctx,
       mlid, req_type, port_guid );
-  }    
-  
+  }
+
  Exit:
   OSM_LOG_EXIT( p_mgr->p_log );
   return( status );
@@ -1357,7 +1357,7 @@ mcast_mgr_dump_sw_routes(
   char                  mlid_hdr[32];
 
   OSM_LOG_ENTER( p_mgr->p_log, mcast_mgr_dump_sw_routes );
-  
+
   if( !osm_log_is_active( p_mgr->p_log, OSM_LOG_ROUTING ) )
     goto Exit;
 
@@ -1445,7 +1445,7 @@ mcast_mgr_dump_mcast_routes(osm_mcast_mgr_t *p_mgr)
 
 	snprintf(file_name, sizeof(file_name), "%s/%s",
 		 p_mgr->p_subn->opt.dump_files_dir, "opensm.mcfdbs");
- 
+
  	file = fopen(file_name, "w");
 	if (!file) {
 		osm_log(p_mgr->p_log, OSM_LOG_ERROR,
@@ -1611,7 +1611,7 @@ __get_mgrp_by_mlid(
 }
 
 /**********************************************************************
-  This is the function that is invoked during idle time to handle the 
+  This is the function that is invoked during idle time to handle the
   process request. Context1 is simply the osm_mcast_mgr_t*, Context2
   hold the mlid, port guid and action (join/leave/delete) required.
  **********************************************************************/
@@ -1629,7 +1629,7 @@ osm_mcast_mgr_process_mgrp_cb(
   ib_net64_t port_guid = p_ctxt->port_guid;
 
   OSM_LOG_ENTER( p_mgr->p_log, osm_mcast_mgr_process_mgrp_cb );
- 
+
   /* nice copy no warning on size diff */
   memcpy(&mlid, &p_ctxt->mlid, sizeof(mlid));
 

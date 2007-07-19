@@ -301,7 +301,7 @@ osm_lid_mgr_init(
   {
     if (osm_db_restore(p_mgr->p_g2l))
     {
-      if (p_subn->opt.exit_on_fatal) 
+      if (p_subn->opt.exit_on_fatal)
       {
         osm_log( p_mgr->p_log, OSM_LOG_SYS,
                  "FATAL: Error restoring Guid-to-Lid persistent database\n" );
@@ -374,7 +374,7 @@ __osm_lid_mgr_init_sweep(
     lmc_mask = 0xffff;
 
   /* if we came out of standby we need to discard any previous guid2lid
-     info we might have. 
+     info we might have.
      Do this only if the honor_guid2lid_file option is FALSE. If not, then
      need to honor this file. */
   if ( p_mgr->p_subn->coming_out_of_standby == TRUE )
@@ -396,7 +396,7 @@ __osm_lid_mgr_init_sweep(
       osm_db_clear( p_mgr->p_g2l );
       if (osm_db_restore(p_mgr->p_g2l))
         osm_log( p_mgr->p_log, OSM_LOG_ERROR,
-                 "osm_lid_mgr_init_sweep: ERR 0306: " 
+                 "osm_lid_mgr_init_sweep: ERR 0306: "
                  "Error restoring Guid-to-Lid persistent database. Ignoring it\n");
     }
   }
@@ -470,17 +470,17 @@ __osm_lid_mgr_init_sweep(
     }
   }
 
-  /* 
+  /*
      Our task is to find free lid ranges.
      A lid can be used if
      1. a persistent assignment exists
      2. the lid is used by a discovered port that does not have a persistent
         assignment.
-     
+
      scan through all lid values of both the persistent table and
-     discovered table. 
+     discovered table.
      If the lid has an assigned port in the discovered table:
-     * make sure the lid matches the persistent table, or 
+     * make sure the lid matches the persistent table, or
      * there is no other persistent assignment for that lid.
      * else cleanup the port_by_lid_tbl, mark this as empty range.
      Else if the lid does not have an entry in the persistent table
@@ -526,7 +526,7 @@ __osm_lid_mgr_init_sweep(
               b. Make sure all needed lids (for the lmc) are free according
                  to persistency table.
         */
-      /* qualify the guid of the port is not persistently mapped to 
+      /* qualify the guid of the port is not persistently mapped to
          another range */
       if (!osm_db_guid2lid_get( p_mgr->p_g2l,
                                 cl_ntoh64(osm_port_get_guid(p_port)),
@@ -585,7 +585,7 @@ __osm_lid_mgr_init_sweep(
             {
               /* This port will use its local lid, and consume the entire required lid range.
                  Thus we can skip that range. */
-              /* If the disc_max_lid is greater then lid, we can skip right to it, 
+              /* If the disc_max_lid is greater then lid, we can skip right to it,
                  since we've done all neccessary checks on the lids in between. */
               if (disc_max_lid > lid)
                 lid = disc_max_lid;
@@ -625,17 +625,17 @@ __osm_lid_mgr_init_sweep(
   }
 
  AfterScanningLids:
-  /* after scanning all known lids we need to extend the last range 
+  /* after scanning all known lids we need to extend the last range
      to the max allowed lid */
   if (!p_range)
   {
     p_range =
       (osm_lid_mgr_range_t *)malloc(sizeof(osm_lid_mgr_range_t));
-    /* 
+    /*
        The p_range can be NULL in one of 2 cases:
        1. If max_defined_lid == 0. In this case, we want the entire range.
        2. If all lids discovered in the loop where mapped. In this case,
-          no free range exists and we want to define it after the last 
+          no free range exists and we want to define it after the last
           mapped lid.
     */
     p_range->min_lid = lid;
@@ -652,7 +652,7 @@ __osm_lid_mgr_init_sweep(
 }
 
 /**********************************************************************
- check if the given range of lids is free 
+ check if the given range of lids is free
 **********************************************************************/
 static boolean_t
 __osm_lid_mgr_is_range_not_persistent(
@@ -864,7 +864,7 @@ __osm_lid_mgr_get_port_lid(
   /* if the port info carries a lid it must be lmc aligned and not mapped
      by the pesistent storage  */
   min_lid = cl_ntoh16(osm_port_get_base_lid(p_port));
-  
+
   /* we want to ignore the discovered lid if we are also on first sweep of
      reassign lids flow */
   if (min_lid &&
@@ -1177,7 +1177,7 @@ __osm_lid_mgr_set_physp_pi(
                  );
       }
 
-      /* 
+      /*
          we need to make sure the internal DB will follow the fact the remote
          port is also going through "down" state into "init"...
       */
@@ -1230,7 +1230,7 @@ __osm_lid_mgr_set_physp_pi(
     We need to set the cli_rereg bit when we are in first_time_master_sweep for
     ports supporting the ClientReregistration Vol1 (v1.2) p811 14.4.11
     Also, if this port was just now discovered, then we should also set the
-    cli_rereg bit. We know that the port was just discovered if it is in 
+    cli_rereg bit. We know that the port was just discovered if it is in
     the p_subn->new_ports_list list.
   */
   if ( cl_is_object_in_list(&p_mgr->p_subn->new_ports_list, p_port) )
@@ -1239,7 +1239,7 @@ __osm_lid_mgr_set_physp_pi(
     new_port = TRUE;
   }
 
-  if ( ( p_mgr->p_subn->first_time_master_sweep == TRUE || 
+  if ( ( p_mgr->p_subn->first_time_master_sweep == TRUE ||
          new_port == TRUE ) &&
        !p_mgr->p_subn->opt.no_clients_rereg &&
        ( (p_old_pi->capability_mask & IB_PORT_CAP_HAS_CLIENT_REREG) != 0 ) )
@@ -1450,14 +1450,14 @@ osm_lid_mgr_process_subnet(
       lid_changed =
         __osm_lid_mgr_get_port_lid(p_mgr, p_port, &min_lid_ho, &max_lid_ho);
 
-      /* we can call the function to update the port info as it known to 
+      /* we can call the function to update the port info as it known to
          look for any field change and will only send an updated if required */
       osm_log( p_mgr->p_log, OSM_LOG_VERBOSE,
                "osm_lid_mgr_process_subnet: "
                "Assigned port 0x%016" PRIx64
                ", LID [0x%X,0x%X]\n", cl_ntoh64( port_guid ),
                min_lid_ho, max_lid_ho );
-      
+
       /* the proc returns the fact it sent a set port info */
       if (__osm_lid_mgr_set_physp_pi( p_mgr, p_port, p_port->p_physp, cl_hton16( min_lid_ho )))
         p_mgr->send_set_reqs = TRUE;

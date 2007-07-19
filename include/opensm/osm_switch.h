@@ -133,7 +133,7 @@ typedef struct _osm_switch
 *
 *	num_hops
 *		Size of hops table for this switch.
-* 
+*
 *	hops
 *		LID Matrix for this switch containing the hop count
 *		to every LID from every port.
@@ -464,7 +464,7 @@ osm_switch_get_physp_ptr(
 *	Returns a pointer to the Physical Port Object object at the specified
 *	port number.
 *	A return value of zero means the port number was out of range.
-*	
+*
 *
 * NOTES
 *
@@ -518,7 +518,7 @@ osm_switch_get_route_by_lid(
 *	routes the specified LID.  A return value of zero means
 *	there is no route for the lid through this switch.
 *	The lid value must be a unicast LID.
-*	
+*
 * NOTES
 *
 * SEE ALSO
@@ -551,7 +551,7 @@ osm_switch_sp0_is_lmc_capable(
 *
 * RETURN VALUES
 *	TRUE if SP0 is enhanced and globally enabled. FALSE otherwise.
-*       
+*
 * NOTES
 *	This is workaround function, it takes into account user defined
 *	p_subn->opt.lmc_esp0 parameter.
@@ -582,7 +582,7 @@ osm_switch_get_max_block_id(
 *
 * RETURN VALUES
 *	Returns the maximum block ID (host order) of this switch.
-*	
+*
 * NOTES
 *
 * SEE ALSO
@@ -613,7 +613,7 @@ osm_switch_get_max_block_id_in_use(
 *
 * RETURN VALUES
 *	Returns the maximum block ID (host order) of this switch.
-*	
+*
 * NOTES
 *
 * SEE ALSO
@@ -647,7 +647,7 @@ osm_switch_get_fwd_tbl_block(
 *		forwarding table clock specified by block_id.
 *
 * RETURN VALUES
-*	Returns true if there are more blocks necessary to 
+*	Returns true if there are more blocks necessary to
 *	configure all the LIDs reachable from this switch.
 *	FALSE otherwise.
 *
@@ -865,7 +865,7 @@ osm_switch_get_mft_block(
 *		[out] Pointer to the block of port masks stored.
 *
 * RETURN VALUES
-*	Returns true if there are more blocks necessary to 
+*	Returns true if there are more blocks necessary to
 *	configure all the MLIDs reachable from this switch.
 *	FALSE otherwise.
 *
@@ -996,7 +996,7 @@ osm_switch_recommend_path(
 *	remote_sys_guids
 *		[in out] The array of remote system guids already used to
 *		route the other lids of the same target port (if LMC > 0).
-*  
+*
 *	p_num_used_sys
 *		[in out] The number of remote systems used for routing to
 *		the port.
@@ -1004,7 +1004,7 @@ osm_switch_recommend_path(
 *	remote_node_guids
 *		[in out] The array of remote node guids already used to route
 *		the other lids of the same target port (if LMC > 0).
-*  
+*
 *	p_num_used_nodes
 *		[in out] The number of remote nodes used for routing to
 *		the port.

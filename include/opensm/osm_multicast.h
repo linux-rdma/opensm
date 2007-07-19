@@ -485,7 +485,7 @@ osm_mgrp_remove_port(
 *  p_subn
 *     [in] Pointer to the subnet object
 *
-*  p_log 
+*  p_log
 *     [in] The log object pointer
 *
 *	p_mgrp

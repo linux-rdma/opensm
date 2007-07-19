@@ -101,12 +101,12 @@ osm_mtree_destroy(
   if (p_mtn == NULL)
     return;
 
-  if ( p_mtn->child_array != NULL ) 
+  if ( p_mtn->child_array != NULL )
     for (i = 0 ; i< p_mtn->max_children; i++ )
-      if ( (p_mtn->child_array[i] != NULL) && 
+      if ( (p_mtn->child_array[i] != NULL) &&
            (p_mtn->child_array[i] != OSM_MTREE_LEAF) )
         osm_mtree_destroy(p_mtn->child_array[i]);
-  
+
   free( p_mtn );
 }
 
@@ -124,7 +124,7 @@ __osm_mtree_dump(
   printf("GUID:0x%016" PRIx64 " max_children:%u\n",
          cl_ntoh64(p_mtn->p_sw->p_node->node_info.node_guid),
          p_mtn->max_children );
-  if ( p_mtn->child_array != NULL ) 
+  if ( p_mtn->child_array != NULL )
   {
     for (i = 0 ; i< p_mtn->max_children; i++ )
     {

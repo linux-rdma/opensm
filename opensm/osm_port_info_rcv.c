@@ -126,19 +126,19 @@ __osm_pi_rcv_process_endport(
     {
       osm_log( p_rcv->p_log, OSM_LOG_VERBOSE,
                "__osm_pi_rcv_process_endport: "
-               "Setting endport minimal MTU to:%u defined by port:0x%" 
+               "Setting endport minimal MTU to:%u defined by port:0x%"
                PRIx64 "\n",
                mtu,
                cl_ntoh64( port_guid ) );
       p_rcv->p_subn->min_ca_mtu = mtu;
     }
-    
+
     rate = ib_port_info_compute_rate( p_pi );
     if (rate < p_rcv->p_subn->min_ca_rate)
     {
       osm_log( p_rcv->p_log, OSM_LOG_VERBOSE,
                "__osm_pi_rcv_process_endport: "
-               "Setting endport minimal rate to:%u defined by port:0x%" 
+               "Setting endport minimal rate to:%u defined by port:0x%"
                PRIx64 "\n",
                rate,
                cl_ntoh64( port_guid ) );
@@ -289,7 +289,7 @@ __osm_pi_rcv_process_switch_port(
         1) Copy the current path from the parent node.
         2) Extend the path to the next hop thru this port.
         3) Request node info with the new path
-        
+
       */
       if( p_pi->local_port_num != osm_physp_get_port_num( p_physp ) )
       {
@@ -668,13 +668,13 @@ osm_pi_rcv_process(
         ib_port_info_set_client_rereg( p_pi, 0 );
   }
 
-  /* 
-     we might get a response during a light sweep looking for a change in 
+  /*
+     we might get a response during a light sweep looking for a change in
      the status of a remote port that did not respond in earlier sweeps.
-     So if the context of the Get was light_sweep - we do not need to 
+     So if the context of the Get was light_sweep - we do not need to
      do anything with the response - just flag that we need a heavy sweep
   */
-  if (p_context->light_sweep == TRUE) 
+  if (p_context->light_sweep == TRUE)
   {
     osm_log( p_rcv->p_log, OSM_LOG_VERBOSE,
              "osm_pi_rcv_process: "
@@ -687,7 +687,7 @@ osm_pi_rcv_process(
                            OSM_SIGNAL_CHANGE_DETECTED );
     goto Exit;
   }
-  
+
   CL_PLOCK_EXCL_ACQUIRE( p_rcv->p_lock );
   p_port = osm_get_port_by_guid( p_rcv->p_subn, port_guid );
   if (!p_port)

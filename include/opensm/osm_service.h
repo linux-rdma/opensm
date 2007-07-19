@@ -70,7 +70,7 @@ BEGIN_C_DECLS
 *
 * DESCRIPTION
 *	The service record encapsulates the information needed by the
-*	SA to manage service registrations.  
+*	SA to manage service registrations.
 *
 *	The service records is not thread safe, thus callers must provide
 *	serialization.
@@ -116,7 +116,7 @@ typedef struct _osm_svcr_t
 *
 *	lease_period
 *		Remaining lease period for this record
-*		
+*
 *
 * SEE ALSO
 *********/

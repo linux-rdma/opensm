@@ -80,7 +80,7 @@ static char *month_str[] = {
   "Dec"
 };
 #else
-void 
+void
 OsmReportState(
     IN const char *p_str);
 #endif /* ndef WIN32 */
@@ -201,9 +201,9 @@ osm_log(
                    result.tm_min, result.tm_sec,
                    usecs, pid, buffer );
 #endif
- 
+
     /*  flush log */
-    if ( ret > 0 && 
+    if ( ret > 0 &&
          (p_log->flush || (verbosity & (OSM_LOG_ERROR | OSM_LOG_SYS))) &&
          fflush( p_log->out_port ) < 0 )
       ret = -1;
@@ -335,7 +335,7 @@ osm_log_init_v2(
   else if (open_out_port(p_log))
     return (IB_UNKNOWN_ERROR);
 
-  if (cl_spinlock_init( &p_log->lock ) == CL_SUCCESS) 
+  if (cl_spinlock_init( &p_log->lock ) == CL_SUCCESS)
     return IB_SUCCESS;
   else
     return IB_ERROR;

@@ -51,7 +51,7 @@ BEGIN_C_DECLS
 *	OSM_VERSION
 *
 * DESCRIPTION
-*	The version string for OpenSM 
+*	The version string for OpenSM
 *
 * SYNOPSIS
 */

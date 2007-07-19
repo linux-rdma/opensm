@@ -148,7 +148,7 @@ typedef struct _osm_physp
 *		If this pointer is NULL no link exists at this port.
 *
 *	healthy
-*		Tracks the health of the port. Normally should be TRUE but 
+*		Tracks the health of the port. Normally should be TRUE but
 *		might change as a result of incoming traps indicating the port
 *		healthy is questionable.
 *
@@ -349,7 +349,7 @@ osm_physp_is_healthy(
 * RETURN VALUES
 *	Returns TRUE if the Physical Port has been maked as healthy
 *	FALSE otherwise.
-*  All physical ports are initialized as "healthy" but may be marked 
+*  All physical ports are initialized as "healthy" but may be marked
 *  otherwise if a received trap claims otherwise.
 *
 * NOTES
@@ -364,7 +364,7 @@ osm_physp_is_healthy(
 *
 * DESCRIPTION
 *	Returns TRUE if the link given by the physical port is health,
-*  and FALSE otherwise. Link is healthy if both its physical ports are 
+*  and FALSE otherwise. Link is healthy if both its physical ports are
 *  healthy
 *
 * SYNOPSIS
@@ -379,7 +379,7 @@ osm_link_is_healthy(
 *
 * RETURN VALUES
 *	TRUE if both physical ports on the link are healthy, and FALSE otherwise.
-*  All physical ports are initialized as "healthy" but may be marked 
+*  All physical ports are initialized as "healthy" but may be marked
 *  otherwise if a received trap claiming otherwise.
 *
 * NOTES
@@ -393,12 +393,12 @@ osm_link_is_healthy(
 *	osm_physp_set_health
 *
 * DESCRIPTION
-*	Sets the port health flag. TRUE means the port is healthy and 
+*	Sets the port health flag. TRUE means the port is healthy and
 *  should be used for packet routing. FALSE means it should be avoided.
 *
 * SYNOPSIS
 */
-static inline void 
+static inline void
 osm_physp_set_health(
   IN osm_physp_t* const p_physp,
   IN boolean_t is_healthy )
@@ -417,7 +417,7 @@ osm_physp_set_health(
 *		     FALSE otherwise.
 *
 * RETURN VALUES
-*  NONE 
+*  NONE
 *
 * NOTES
 *
@@ -475,7 +475,7 @@ osm_physp_set_port_info(
 
 /****f* OpenSM: Physical Port/osm_physp_trim_base_lid_to_valid_range
 * NAME
-*  osm_physp_trim_base_lid_to_valid_range 
+*  osm_physp_trim_base_lid_to_valid_range
 *
 * DESCRIPTION
 *  Validates the base LID in the Physical Port object
@@ -483,7 +483,7 @@ osm_physp_set_port_info(
 *
 * SYNOPSIS
 */
-static inline ib_net16_t 
+static inline ib_net16_t
 osm_physp_trim_base_lid_to_valid_range(
 	IN osm_physp_t* const p_physp )
 {
@@ -522,7 +522,7 @@ osm_physp_trim_base_lid_to_valid_range(
 *
 * SYNOPSIS
 */
-void 
+void
 osm_physp_set_pkey_tbl( IN osm_log_t* p_log,
                         IN const osm_subn_t* p_subn,
                         IN osm_physp_t* const p_physp,
@@ -572,7 +572,7 @@ osm_physp_get_pkey_tbl( IN const osm_physp_t* const p_physp )
   CL_ASSERT( osm_physp_is_valid( p_physp ) );
   /*
     (14.2.5.7) - the block number valid values are 0-2047, and are further
-    limited by the size of the P_Key table specified by the PartitionCap on the node. 
+    limited by the size of the P_Key table specified by the PartitionCap on the node.
   */
   return( &p_physp->pkeys );
 };
@@ -605,7 +605,7 @@ osm_physp_get_mod_pkey_tbl( IN osm_physp_t* const p_physp )
   CL_ASSERT( osm_physp_is_valid( p_physp ) );
   /*
     (14.2.5.7) - the block number valid values are 0-2047, and are further
-    limited by the size of the P_Key table specified by the PartitionCap on the node. 
+    limited by the size of the P_Key table specified by the PartitionCap on the node.
   */
   return( &p_physp->pkeys );
 };
@@ -634,7 +634,7 @@ osm_physp_get_mod_pkey_tbl( IN osm_physp_t* const p_physp )
 */
 static inline void
 osm_physp_set_slvl_tbl( IN osm_physp_t* const p_physp,
-			IN ib_slvl_table_t *p_slvl_tbl, 
+			IN ib_slvl_table_t *p_slvl_tbl,
 			IN uint8_t in_port_num )
 {
   ib_slvl_table_t *p_tbl;
@@ -711,7 +711,7 @@ osm_physp_get_slvl_tbl( IN const osm_physp_t* const p_physp,
 */
 static inline void
 osm_physp_set_vla_tbl( IN osm_physp_t* const p_physp,
-		       IN ib_vl_arb_table_t *p_vla_tbl, 
+		       IN ib_vl_arb_table_t *p_vla_tbl,
 		       IN uint8_t block_num )
 {
   CL_ASSERT( p_vla_tbl );
@@ -1494,7 +1494,7 @@ osm_port_get_lid_range_ho(
 *	osm_get_port_by_base_lid
 *
 * DESCRIPTION
-*	Returns a status on whether a Port was able to be 
+*	Returns a status on whether a Port was able to be
 *	determined based on the LID supplied and if so, return the Port.
 *
 * SYNOPSIS
@@ -1517,7 +1517,7 @@ osm_get_port_by_base_lid(
 *
 * RETURN VALUES
 *	IB_SUCCESS
-*	IB_NOT_FOUND 
+*	IB_NOT_FOUND
 *
 * NOTES
 *
@@ -1648,7 +1648,7 @@ osm_port_remove_all_mgrp(
 *	osm_physp_calc_link_mtu
 *
 * DESCRIPTION
-*	Calculate the Port MTU based on current and remote 
+*	Calculate the Port MTU based on current and remote
 *  physical ports MTU CAP values.
 *
 * SYNOPSIS
@@ -1679,7 +1679,7 @@ osm_physp_calc_link_mtu(
 *	osm_physp_calc_link_op_vls
 *
 * DESCRIPTION
-*	Calculate the Port OP_VLS based on current and remote 
+*	Calculate the Port OP_VLS based on current and remote
 *  physical ports VL CAP values. Allowing user option for a max limit.
 *
 * SYNOPSIS

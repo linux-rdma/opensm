@@ -128,7 +128,7 @@ typedef struct _osm_nr_recv
 *		the query response.
 *
 * SEE ALSO
-*	
+*
 *********/
 
 /****f* OpenSM: Node Record Receiver/osm_nr_rcv_construct

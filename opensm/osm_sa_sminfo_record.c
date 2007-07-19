@@ -403,7 +403,7 @@ osm_smir_rcv_process(
       /* Now, add local SMInfo to list */
       pri_state = p_rcv->p_subn->sm_state & 0x0F;
       pri_state |= (p_rcv->p_subn->opt.sm_priority & 0x0F) << 4;
-      __osm_smir_rcv_new_smir( p_rcv, local_port, context.p_list, 
+      __osm_smir_rcv_new_smir( p_rcv, local_port, context.p_list,
                                p_rcv->p_subn->sm_port_guid,
                                cl_ntoh32( p_rcv->p_stats->qp0_mads_sent ),
                                pri_state,

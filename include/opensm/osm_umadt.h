@@ -94,12 +94,12 @@ typedef struct _mad_bind_info_t{
     osm_vend_mad_recv_callback_t    mad_recv_callback;
     void                        *client_context;
     cl_thread_t                 recv_processor_thread;
-	cl_spinlock_t				trans_ctxt_lock;	
-	cl_qlist_t					trans_ctxt_list;	
+	cl_spinlock_t				trans_ctxt_lock;
+	cl_qlist_t					trans_ctxt_list;
 	cl_timer_t					timeout_timer;
 	cl_spinlock_t				timeout_list_lock;
-	cl_qlist_t					timeout_list;	
-    RegisterClassStruct         umadt_reg_class;    
+	cl_qlist_t					timeout_list;
+    RegisterClassStruct         umadt_reg_class;
     MADT_HANDLE                 umadt_handle;       /* Umadt type */
 
 }mad_bind_info_t;
@@ -117,7 +117,7 @@ typedef struct _trans_context_t {
 *		List linkage for pools and lists.  MUST BE FIRST MEMBER!
 *
 *	p_mad_pool
-*		Pointer to the MAD pool to be used by mads with this bind handle.	
+*		Pointer to the MAD pool to be used by mads with this bind handle.
 *
 *	mad_recv_callback
 *		Callback function called by the mad receive processor.

@@ -61,7 +61,7 @@
 
 /**********************************************************************
  **********************************************************************/
-void osm_pkey_tbl_construct( 
+void osm_pkey_tbl_construct(
   IN osm_pkey_tbl_t *p_pkey_tbl)
 {
   cl_ptr_vector_construct( &p_pkey_tbl->blocks );
@@ -71,7 +71,7 @@ void osm_pkey_tbl_construct(
 
 /**********************************************************************
  **********************************************************************/
-void osm_pkey_tbl_destroy( 
+void osm_pkey_tbl_destroy(
   IN osm_pkey_tbl_t *p_pkey_tbl)
 {
   ib_pkey_table_t *p_block;
@@ -140,7 +140,7 @@ void osm_pkey_tbl_cleanup_pending(
 ib_api_status_t
 osm_pkey_tbl_set(
   IN osm_pkey_tbl_t *p_pkey_tbl,
-  IN uint16_t block, 
+  IN uint16_t block,
   IN ib_pkey_table_t *p_tbl)
 {
   uint16_t b, i;
@@ -150,11 +150,11 @@ osm_pkey_tbl_set(
 
   /* make sure the block is allocated */
   if (cl_ptr_vector_get_size( &p_pkey_tbl->blocks ) > block)
-    p_pkey_block = 
+    p_pkey_block =
       (ib_pkey_table_t *)cl_ptr_vector_get( &p_pkey_tbl->blocks, block );
   else
     p_pkey_block = NULL;
-    
+
   if ( !p_pkey_block )
   {
     p_pkey_block = (ib_pkey_table_t *)malloc(sizeof(ib_pkey_table_t));
@@ -188,17 +188,17 @@ osm_pkey_tbl_set(
       if (ib_pkey_is_invalid(pkey))
         continue;
 
-      /* 
-         ignore the PKey Full Member bit in the key but store 
+      /*
+         ignore the PKey Full Member bit in the key but store
          the pointer to the table element as the map value
       */
-      p_prev_pkey = 
+      p_prev_pkey =
         cl_map_get( &p_pkey_tbl->keys, ib_pkey_get_base(pkey));
 
       /* we only insert if no previous or it is not full member */
-      if ((p_prev_pkey == NULL) || 
+      if ((p_prev_pkey == NULL) ||
           (cl_ntoh16(*p_prev_pkey) < cl_ntoh16(pkey)))
-        cl_map_insert( &p_pkey_tbl->keys, 
+        cl_map_insert( &p_pkey_tbl->keys,
                        ib_pkey_get_base(pkey),
                        &(p_pkey_block->pkey_entry[i])
                        );
@@ -210,16 +210,16 @@ osm_pkey_tbl_set(
 /**********************************************************************
  **********************************************************************/
 /*
-  Store the given pkey in the "new" blocks array. 
+  Store the given pkey in the "new" blocks array.
   Also, make sure the regular block exists.
 */
 ib_api_status_t
-osm_pkey_tbl_set_new_entry( 
+osm_pkey_tbl_set_new_entry(
   IN osm_pkey_tbl_t *p_pkey_tbl,
   IN uint16_t        block_idx,
   IN uint8_t         pkey_idx,
   IN uint16_t        pkey)
-{  
+{
   ib_pkey_table_t *p_block;
 
   if (!(p_block = osm_pkey_tbl_new_block_get(p_pkey_tbl, block_idx))) {
@@ -241,7 +241,7 @@ osm_pkey_tbl_set_new_entry(
  **********************************************************************/
 boolean_t
 osm_pkey_find_next_free_entry(
-  IN osm_pkey_tbl_t *p_pkey_tbl, 
+  IN osm_pkey_tbl_t *p_pkey_tbl,
   OUT uint16_t      *p_block_idx,
   OUT uint8_t       *p_pkey_idx)
 {
@@ -256,7 +256,7 @@ osm_pkey_find_next_free_entry(
     {
 	*p_pkey_idx = 0;
 	(*p_block_idx)++;
-	if (*p_block_idx >= p_pkey_tbl->max_blocks) 
+	if (*p_block_idx >= p_pkey_tbl->max_blocks)
 	  return FALSE;
     }
 
@@ -286,7 +286,7 @@ osm_pkey_tbl_get_block_and_idx(
 
   CL_ASSERT( p_block_idx != NULL );
   CL_ASSERT( p_pkey_idx != NULL );
- 
+
   num_of_blocks = (uint16_t)cl_ptr_vector_get_size( &p_pkey_tbl->blocks );
   for (block_index = 0; block_index < num_of_blocks; block_index++)
   {
@@ -304,7 +304,7 @@ osm_pkey_tbl_get_block_and_idx(
 
 /**********************************************************************
  **********************************************************************/
-static boolean_t 
+static boolean_t
 __osm_match_pkey (
   IN const ib_net16_t *pkey1,
   IN const ib_net16_t *pkey2 )
@@ -358,7 +358,7 @@ osm_physp_find_common_pkey(
   map_iter2 = cl_map_head(&pkey_tbl2->keys);
 
   /* we rely on the fact the map are sorted by pkey */
-  while ( (map_iter1 != cl_map_end( &pkey_tbl1->keys )) && 
+  while ( (map_iter1 != cl_map_end( &pkey_tbl1->keys )) &&
           (map_iter2 != cl_map_end( &pkey_tbl2->keys )))
   {
     pkey1 = (ib_net16_t *)cl_map_obj( map_iter1 );
@@ -374,13 +374,13 @@ osm_physp_find_common_pkey(
     {
       map_iter1 = cl_map_next( map_iter1 );
       map_iter2 = cl_map_next( map_iter2 );
-    } 
+    }
     else if (pkey2_base < pkey1_base)
       map_iter2 = cl_map_next( map_iter2 );
     else
       map_iter1 = cl_map_next( map_iter1 );
   }
-    
+
   return 0;
 }
 
@@ -393,14 +393,14 @@ osm_physp_share_pkey(
   IN const osm_physp_t*  const p_physp_2 )
 {
   const osm_pkey_tbl_t *pkey_tbl1, *pkey_tbl2;
-  
+
   if (p_physp_1 == p_physp_2)
     return TRUE;
 
   pkey_tbl1 = osm_physp_get_pkey_tbl(p_physp_1);
   pkey_tbl2 = osm_physp_get_pkey_tbl(p_physp_2);
 
-  /* 
+  /*
      The spec: 10.9.2 does not require each phys port to have PKey Table.
      So actually if it does not, we need to use the default port instead.
 
@@ -503,9 +503,9 @@ osm_physp_has_pkey(
   ib_net16_t *p_pkey, pkey_base;
   const osm_pkey_tbl_t *pkey_tbl;
   boolean_t res = FALSE;
-  
+
   OSM_LOG_ENTER( p_log, osm_physp_has_pkey );
-  
+
   osm_log( p_log, OSM_LOG_DEBUG,
            "osm_physp_has_pkey: "
            "Search for PKey: 0x%4x\n",
@@ -524,16 +524,16 @@ osm_physp_has_pkey(
   pkey_base = ib_pkey_get_base(pkey);
 
   pkey_tbl = osm_physp_get_pkey_tbl(p_physp);
-  
+
   p_pkey = cl_map_get( &pkey_tbl->keys, pkey_base );
-  if (p_pkey) 
+  if (p_pkey)
   {
     res = TRUE;
     osm_log( p_log, OSM_LOG_DEBUG,
              "osm_physp_has_pkey: "
              "PKey 0x%04x was found\n", cl_ntoh16(pkey));
   }
-  else 
+  else
   {
     osm_log( p_log, OSM_LOG_DEBUG,
              "osm_physp_has_pkey: "

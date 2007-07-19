@@ -640,7 +640,7 @@ __osm_updn_call(
     osm_log( &p_updn->p_osm->log, OSM_LOG_INFO,
              "__osm_updn_call: "
              "disabling UPDN algorithm, no root nodes were found\n" );
-  
+
   p_item = cl_qmap_head(&p_updn->p_osm->subn.sw_guid_tbl);
   while(p_item != cl_qmap_end(&p_updn->p_osm->subn.sw_guid_tbl))
   {

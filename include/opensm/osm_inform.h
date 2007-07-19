@@ -194,7 +194,7 @@ osm_infr_get_by_rec(
 	IN osm_infr_t*	const	p_infr_rec );
 /*
 * PARAMETERS
-*	p_subn 
+*	p_subn
 *		[in] Pointer to the subnet object
 *
 *	p_log
@@ -226,13 +226,13 @@ osm_infr_remove_from_db(
 *	osm_report_notice
 *
 * DESCRIPTION
-* Once a Trap was received by the osm_trap_rcv, or a Trap sourced in 
+* Once a Trap was received by the osm_trap_rcv, or a Trap sourced in
 * the SM was sent (Traps 64-67) this routine is called with a copy of
 * the notice data.
 * Given a notice attribute - compare and see if it matches the InformInfo
 * Element and if it does - call the Report(Notice) for the
 * target QP registered by the address stored in the InformInfo element
-*	
+*
 * SYNOPSIS
 */
 ib_api_status_t

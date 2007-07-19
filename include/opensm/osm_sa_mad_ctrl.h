@@ -36,7 +36,7 @@
 /*
  * Abstract:
  * 	Declaration of osm_sa_mad_ctrl_t.
- *	This object represents a controller that receives the IBA SA 
+ *	This object represents a controller that receives the IBA SA
  *	attributes from a node.
  *	This object is part of the OpenSM family of objects.
  *
@@ -107,7 +107,7 @@ typedef struct _osm_sa_mad_ctrl
   cl_disp_reg_handle_t   h_disp;
   osm_stats_t           *p_stats;
   osm_subn_t            *p_subn;
-  osm_sa_resp_t         *p_resp;  
+  osm_sa_resp_t         *p_resp;
 } osm_sa_mad_ctrl_t;
 /*
 * FIELDS

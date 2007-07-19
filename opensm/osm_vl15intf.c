@@ -175,21 +175,21 @@ __osm_vl15_poller(
            the cl_disp_post with OSM_SIGNAL_NO_PENDING_TRANSACTION (in order
            to wake up the state mgr).
            There is one difference from the code in __osm_sm_mad_ctrl_retire_trans_mad.
-           This code is called for all (vl15) mads, if osm_vendor_send() failed, unlike 
-           __osm_sm_mad_ctrl_retire_trans_mad which is called only on mads where 
-           resp_expected == TRUE. As a result, the qp0_mads_outstanding counter 
-           should be decremented and handled accordingly only if this is a mad 
+           This code is called for all (vl15) mads, if osm_vendor_send() failed, unlike
+           __osm_sm_mad_ctrl_retire_trans_mad which is called only on mads where
+           resp_expected == TRUE. As a result, the qp0_mads_outstanding counter
+           should be decremented and handled accordingly only if this is a mad
            with resp_expected == TRUE.
         */
         if ( p_madw->resp_expected == TRUE )
         {
           outstanding = cl_atomic_dec( &p_vl->p_stats->qp0_mads_outstanding );
-        
+
           osm_log( p_vl->p_log, OSM_LOG_DEBUG,
                    "__osm_vl15_poller: "
                    "%u QP0 MADs outstanding\n",
                    p_vl->p_stats->qp0_mads_outstanding );
-        
+
           if( outstanding == 0 )
           {
             /*
@@ -260,9 +260,9 @@ __osm_vl15_poller(
                CL_STATUS_MSG( status ) );
     }
   }
-  
+
   /*
-    since we abort immediately when the state != OSM_THREAD_STATE_RUN 
+    since we abort immediately when the state != OSM_THREAD_STATE_RUN
     we might have some mads on the queues. After the thread exits
     the vl15 destroy routine should put these mads back...
   */
@@ -313,9 +313,9 @@ osm_vl15_destroy(
   cl_thread_destroy( &p_vl->poller );
 
   /*
-    Return the outstanding messages to the pool 
-  */ 
-  
+    Return the outstanding messages to the pool
+  */
+
   cl_spinlock_acquire( &p_vl->lock );
 
   while (!cl_is_qlist_empty( &p_vl->rfifo))

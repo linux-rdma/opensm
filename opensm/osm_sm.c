@@ -83,7 +83,7 @@ __osm_sm_sweeper(
       p_sm->thread_state = OSM_THREAD_STATE_RUN;
    }
 
-   /* If the sweep interval was updated before - then run only if 
+   /* If the sweep interval was updated before - then run only if
     * it is not zero. */
    while( p_sm->thread_state == OSM_THREAD_STATE_RUN &&
           p_sm->p_subn->opt.sweep_interval != 0 )
@@ -693,9 +693,9 @@ osm_sm_mcgrp_join(
       }
    }
 
-   /* 
+   /*
     * Check if the object (according to mlid) already exists on this port.
-    * If it does - then no need to update it again, and no need to 
+    * If it does - then no need to update it again, and no need to
     * create the mc tree again. Just goto Exit.
     */
    p_mcm = ( osm_mcm_info_t * ) cl_qlist_head( &p_port->mcm_list );

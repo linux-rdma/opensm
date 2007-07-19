@@ -173,7 +173,7 @@ typedef struct _osm_pending_pkey {
 *
 * SYNOPSIS
 */
-void osm_pkey_tbl_construct( 
+void osm_pkey_tbl_construct(
   IN osm_pkey_tbl_t *p_pkey_tbl);
 /*
 *  p_pkey_tbl
@@ -192,8 +192,8 @@ void osm_pkey_tbl_construct(
 *
 * SYNOPSIS
 */
-ib_api_status_t 
-osm_pkey_tbl_init( 
+ib_api_status_t
+osm_pkey_tbl_init(
   IN osm_pkey_tbl_t *p_pkey_tbl);
 /*
 *  p_pkey_tbl
@@ -212,7 +212,7 @@ osm_pkey_tbl_init(
 *
 * SYNOPSIS
 */
-void osm_pkey_tbl_destroy( 
+void osm_pkey_tbl_destroy(
   IN osm_pkey_tbl_t *p_pkey_tbl);
 /*
 *  p_pkey_tbl
@@ -227,12 +227,12 @@ void osm_pkey_tbl_destroy(
 *  osm_pkey_get_num_blocks
 *
 * DESCRIPTION
-*  Obtain the number of blocks in IB PKey table 
+*  Obtain the number of blocks in IB PKey table
 *
 * SYNOPSIS
 */
 static inline uint16_t
-osm_pkey_tbl_get_num_blocks( 
+osm_pkey_tbl_get_num_blocks(
   IN const osm_pkey_tbl_t *p_pkey_tbl )
 {
   return((uint16_t)(cl_ptr_vector_get_size( &p_pkey_tbl->blocks )));
@@ -257,7 +257,7 @@ osm_pkey_tbl_get_num_blocks(
 *
 * SYNOPSIS
 */
-static inline ib_pkey_table_t *osm_pkey_tbl_block_get( 
+static inline ib_pkey_table_t *osm_pkey_tbl_block_get(
   const osm_pkey_tbl_t *p_pkey_tbl, uint16_t block)
 {
   return( (block < cl_ptr_vector_get_size(&p_pkey_tbl->blocks)) ?
@@ -267,7 +267,7 @@ static inline ib_pkey_table_t *osm_pkey_tbl_block_get(
 *  p_pkey_tbl
 *     [in] Pointer to osm_pkey_tbl_t object.
 *
-*  block 
+*  block
 *     [in] The lock number to get
 *
 * RETURN VALUES
@@ -286,7 +286,7 @@ static inline ib_pkey_table_t *osm_pkey_tbl_block_get(
 *
 * SYNOPSIS
 */
-static inline ib_pkey_table_t *osm_pkey_tbl_new_block_get( 
+static inline ib_pkey_table_t *osm_pkey_tbl_new_block_get(
   const osm_pkey_tbl_t *p_pkey_tbl, uint16_t block)
 {
   return (block < cl_ptr_vector_get_size(&p_pkey_tbl->new_blocks)) ?
@@ -304,14 +304,14 @@ static inline ib_pkey_table_t *osm_pkey_tbl_new_block_get(
 * SYNOPSIS
 */
 ib_api_status_t
-osm_pkey_tbl_set_new_entry( 
+osm_pkey_tbl_set_new_entry(
 	IN osm_pkey_tbl_t *p_pkey_tbl,
 	IN uint16_t        block_idx,
 	IN uint8_t         pkey_idx,
 	IN uint16_t        pkey);
 /*
 * p_pkey_tbl
-*   [in] Pointer to the PKey table 
+*   [in] Pointer to the PKey table
 *
 * block_idx
 *   [in] The block index to use
@@ -325,7 +325,7 @@ osm_pkey_tbl_set_new_entry(
 * RETURN VALUES
 *   IB_SUCCESS if OK
 *   IB_ERROR if failed
-* 
+*
 *********/
 
 /****f* OpenSM: osm_pkey_find_next_free_entry
@@ -334,7 +334,7 @@ osm_pkey_tbl_set_new_entry(
 *
 * DESCRIPTION
 *  Find the next free entry in the PKey table starting at the given
-*  index and block number. The user should increment pkey_idx before 
+*  index and block number. The user should increment pkey_idx before
 *  next call
 *  Inspect the "new" blocks array for empty space.
 *
@@ -342,12 +342,12 @@ osm_pkey_tbl_set_new_entry(
 */
 boolean_t
 osm_pkey_find_next_free_entry(
-	IN osm_pkey_tbl_t *p_pkey_tbl, 
+	IN osm_pkey_tbl_t *p_pkey_tbl,
 	OUT uint16_t      *p_block_idx,
 	OUT uint8_t       *p_pkey_idx);
 /*
 * p_pkey_tbl
-*   [in] Pointer to the PKey table 
+*   [in] Pointer to the PKey table
 *
 * p_block_idx
 *   [out] The block index to use
@@ -358,7 +358,7 @@ osm_pkey_find_next_free_entry(
 * RETURN VALUES
 *   TRUE if found
 *   FALSE if did not find
-* 
+*
 *********/
 
 /****f* OpenSM: osm_pkey_tbl_init_new_blocks
@@ -370,7 +370,7 @@ osm_pkey_find_next_free_entry(
 *
 * SYNOPSIS
 */
-void osm_pkey_tbl_init_new_blocks( 
+void osm_pkey_tbl_init_new_blocks(
   const osm_pkey_tbl_t *p_pkey_tbl);
 /*
 *  p_pkey_tbl
@@ -393,21 +393,21 @@ void osm_pkey_tbl_init_new_blocks(
 */
 ib_api_status_t
 osm_pkey_tbl_get_block_and_idx(
-  IN  osm_pkey_tbl_t *p_pkey_tbl, 
+  IN  osm_pkey_tbl_t *p_pkey_tbl,
   IN  uint16_t       *p_pkey,
   OUT uint16_t       *block_idx,
   OUT uint8_t        *pkey_index);
 /*
 *  p_pkey_tbl
 *     [in] Pointer to osm_pkey_tbl_t object.
-*  
+*
 *  p_pkey
 *     [in] Pointer to the P_Key entry searched
 *
 *  p_block_idx
 *     [out] Pointer to the block index to be updated
 *
-*  p_pkey_idx 
+*  p_pkey_idx
 *     [out] Pointer to the pkey index (in the block) to be updated
 *
 * NOTES
@@ -424,15 +424,15 @@ osm_pkey_tbl_get_block_and_idx(
 * SYNOPSIS
 */
 ib_api_status_t
-osm_pkey_tbl_set( 
+osm_pkey_tbl_set(
   IN osm_pkey_tbl_t *p_pkey_tbl,
-  IN uint16_t block, 
+  IN uint16_t block,
   IN ib_pkey_table_t *p_tbl);
 /*
 *  p_pkey_tbl
 *     [in] Pointer to osm_pkey_tbl_t object.
-*  
-*  block 
+*
+*  block
 *     [in] The block number to set
 *
 *  p_tbl
@@ -515,7 +515,7 @@ ib_net16_t osm_physp_find_common_pkey(
 *  Checks if the given physical ports share a pkey.
 *  The meaning P_Key matching:
 *  10.9.3 :
-*   In the following, let M_P_Key(Message P_Key) be the P_Key in the incoming 
+*   In the following, let M_P_Key(Message P_Key) be the P_Key in the incoming
 *   packet and E_P_Key(Endnode P_Key) be the P_Key it is being compared against
 *   in the packet's destination endnode.
 *
@@ -527,7 +527,7 @@ ib_net16_t osm_physp_find_common_pkey(
 *      E_P_Key are not both 0 (i.e., both are not Limited members of
 *      the partition)
 *
-*    then the P_Keys are said to match. 
+*    then the P_Keys are said to match.
 *
 * SYNOPSIS
 */
@@ -563,7 +563,7 @@ boolean_t osm_physp_share_pkey(
 *  Checks if the given ports (on their default physical port) share a pkey.
 *  The meaning P_Key matching:
 *  10.9.3 :
-*   In the following, let M_P_Key(Message P_Key) be the P_Key in the incoming 
+*   In the following, let M_P_Key(Message P_Key) be the P_Key in the incoming
 *   packet and E_P_Key(Endnode P_Key) be the P_Key it is being compared against
 *   in the packet's destination endnode.
 *
@@ -575,7 +575,7 @@ boolean_t osm_physp_share_pkey(
 *      E_P_Key are not both 0 (i.e., both are not Limited members of
 *      the partition)
 *
-*    then the P_Keys are said to match. 
+*    then the P_Keys are said to match.
 *
 * SYNOPSIS
 */
@@ -611,7 +611,7 @@ boolean_t osm_port_share_pkey(
 *  Checks if the given lids and port_numbers share a pkey.
 *  The meaning P_Key matching:
 *  10.9.3 :
-*   In the following, let M_P_Key(Message P_Key) be the P_Key in the incoming 
+*   In the following, let M_P_Key(Message P_Key) be the P_Key in the incoming
 *   packet and E_P_Key(Endnode P_Key) be the P_Key it is being compared against
 *   in the packet's destination endnode.
 *
@@ -623,7 +623,7 @@ boolean_t osm_port_share_pkey(
 *      E_P_Key are not both 0 (i.e., both are not Limited members of
 *      the partition)
 *
-*    then the P_Keys are said to match. 
+*    then the P_Keys are said to match.
 *
 * SYNOPSIS
 */
@@ -671,7 +671,7 @@ boolean_t osm_lid_share_pkey(
 *  Checks if the given lids and port_numbers share a pkey.
 *  The meaning P_Key matching:
 *  10.9.3 :
-*   In the following, let M_P_Key(Message P_Key) be the P_Key in the incoming 
+*   In the following, let M_P_Key(Message P_Key) be the P_Key in the incoming
 *   packet and E_P_Key(Endnode P_Key) be the P_Key it is being compared against
 *   in the packet's destination endnode.
 *
@@ -683,7 +683,7 @@ boolean_t osm_lid_share_pkey(
 *      E_P_Key are not both 0 (i.e., both are not Limited members of
 *      the partition)
 *
-*    then the P_Keys are said to match. 
+*    then the P_Keys are said to match.
 *
 * SYNOPSIS
 */
@@ -720,8 +720,8 @@ boolean_t osm_physp_has_pkey(
 * SYNOPSIS
 */
 void osm_pkey_get_tables(
-  IN osm_log_t			  *p_log, 
-  IN osm_req_t			  *p_req, 
+  IN osm_log_t			  *p_log,
+  IN osm_req_t			  *p_req,
   IN osm_subn_t* const  p_subn,
   IN struct _osm_node* const  p_node,
   IN struct _osm_physp* const p_physp );
