@@ -334,6 +334,14 @@ __osm_link_mgr_set_physp_pi(
          ib_port_info_get_op_vls(p_old_pi) )
       send_set = TRUE;
 
+    /* provide the vl_high_limit from the qos mgr */
+    if (p_mgr->p_subn->opt.no_qos == FALSE &&
+        p_physp->vl_high_limit != p_old_pi->vl_high_limit)
+    {
+      send_set = TRUE;
+      p_pi->vl_high_limit = p_physp->vl_high_limit;
+    }
+
     /* also the context can flag the need to check for errors. */
     context.pi_context.ignore_errors = FALSE;
   }
@@ -359,15 +367,6 @@ __osm_link_mgr_set_physp_pi(
     else
       context.pi_context.active_transition = FALSE;
   }
-
-  /* provide the vl_high_limit from the qos mgr */
-  if (p_mgr->p_subn->opt.no_qos == FALSE)
-	  if (p_physp->vl_high_limit != p_old_pi->vl_high_limit)
-	  {
-		  send_set = TRUE;
-		  p_pi->vl_high_limit = p_physp->vl_high_limit;
-	  }
-
 
   context.pi_context.node_guid = osm_node_get_node_guid( p_node );
   context.pi_context.port_guid = osm_physp_get_port_guid( p_physp );
