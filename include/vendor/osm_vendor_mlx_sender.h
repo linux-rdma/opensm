@@ -59,7 +59,7 @@ BEGIN_C_DECLS
  *
  *   If this MAD requires a response, set the timeout event.
  *   The function call returns when the MAD's send completion is received.
- *   
+ *
  */
 ib_api_status_t
 osmv_simple_send_madw(
@@ -114,7 +114,7 @@ osmv_rmpp_send_nak(IN osm_bind_handle_t     h_bind,
                    IN uint8_t               status);
 
 /*
- *  NAME           osmv_rmpp_snd_error     
+ *  NAME           osmv_rmpp_snd_error
  *
  *  DESCRIPTION    Mark an error status and signal the sender thread to handle it
  */

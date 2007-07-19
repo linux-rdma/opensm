@@ -568,7 +568,7 @@ osm_vendor_put (IN osm_bind_handle_t h_bind,
  *  NAME            osm_vendor_local_lid_change
  *
  *  DESCRIPTION     Notifies the vendor transport layer that the local address
- *                  has changed.  This allows the vendor layer to perform 
+ *                  has changed.  This allows the vendor layer to perform
  *                  housekeeping functions such as address vector updates.
  */
 
@@ -663,8 +663,8 @@ __osm_vendor_internal_unbind (osm_bind_handle_t h_bind)
 
    osmv_txn_unlock(p_bo);
    /*
-    we intentionally let the p_bo and its lock leak - 
-    as we did not implement a way to track active bind handles provided to 
+    we intentionally let the p_bo and its lock leak -
+    as we did not implement a way to track active bind handles provided to
     the client - and the client might use them
 
     cl_spinlock_destroy(&p_bo->lock);

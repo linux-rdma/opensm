@@ -106,14 +106,14 @@ typedef struct _osm_madw_req
 *     List item for qlist linkage. Must be first element!!
 *
 *  map_item
-*     Map item for qmap linkage. 
+*     Map item for qmap linkage.
 *
-*  p_madw 
+*  p_madw
 *     pointer to mad wrapper that is expecting to get a response.
 *
 *  waking_time
-*     Time stamp (in microseconds) when the p_madw needs to wake up. 
-*     This value is 
+*     Time stamp (in microseconds) when the p_madw needs to wake up.
+*     This value is
 *      cl_get_time_stamp() + timeout  during the sending of the mad.
 *      where timeout should be given in microseconds.
 *
@@ -127,7 +127,7 @@ typedef struct _osm_madw_req
 *
 * DESCRIPTION
 *  This structure defines the transaction manager.
-*  It holds a qlist and a qmap, a lock on the transaction manager, and 
+*  It holds a qlist and a qmap, a lock on the transaction manager, and
 *  a timer used for the list.
 *  The manager is responsible for keeping track of every request mad that was
 *  sent. It is used for finding mads according to their transaction id, and for
@@ -135,7 +135,7 @@ typedef struct _osm_madw_req
 *  a response and didn't get one by the timeout time expected.
 *
 *  Both the list and the map hold the osm_madw_req_t objects - one for every madw.
-*  
+*
 *  Managing of the list:
 *  The timer wakes on the timeout of the first madw. If the waking_time is greater than
 *  the current time - then the mad received a response. If not - the mad didn't get
@@ -159,7 +159,7 @@ osm_transaction_mgr_t;
 *
 *  madw_reqs_list_p
 *     A qlist of all the madw with their waking time.
-* 
+*
 *  transaction_mgr_lock
 *     Lock used on the transaction manager - make sure changes on it are serial.
 *
@@ -172,7 +172,7 @@ osm_transaction_mgr_t;
 *	osm_transaction_mgr_init
 *
 * DESCRIPTION
-*	Initialize the transaction manager. 
+*	Initialize the transaction manager.
 *  Will update the p_transaction_mgr in the vendor object with
 *  the new Transaction Manager created.*
 *
@@ -194,8 +194,8 @@ osm_transaction_mgr_init( IN osm_vendor_t * const p_vend );
 *	osm_transaction_mgr_destroy
 *
 * DESCRIPTION
-*	Destroy the transaction manager. 
-*  Will de-allocate all memory allocated by the Transaction 
+*	Destroy the transaction manager.
+*  Will de-allocate all memory allocated by the Transaction
 *  Manager up to now.
 *
 * SYNOPSIS
@@ -242,9 +242,9 @@ osm_transaction_mgr_insert_madw( IN osm_bind_handle_t *p_bind,
 *	osm_transaction_mgr_erase_madw
 *
 * DESCRIPTION
-*	Erase a madw object from the manager. 
+*	Erase a madw object from the manager.
 *  The removal is done using the transaction id of the mad - using
-*  it the madw_p is allocated (in the qmap) and removed from the 
+*  it the madw_p is allocated (in the qmap) and removed from the
 *  qmap and qlist.
 *
 * SYNOPSIS
@@ -258,7 +258,7 @@ osm_transaction_mgr_erase_madw( IN osm_vendor_t * const p_vend,
 *		[in] Pointer to a Osm Vendor object.
 *
 *  p_mad
-*      [in] Pointer to the Mad to be removed. 
+*      [in] Pointer to the Mad to be removed.
 *
 *********/
 
@@ -284,7 +284,7 @@ osm_transaction_mgr_get_madw_for_tid( IN osm_vendor_t * const p_vend,
 *      [in] Pointer to the Mad to be located.
 *
 * req_madw_p
-*      [out] Pointer to the mad Wrapper to be found. 
+*      [out] Pointer to the mad Wrapper to be found.
 *
 *********/
 

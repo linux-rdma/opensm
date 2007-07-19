@@ -129,7 +129,7 @@ osm_mtl_bind_info_t;
 *     OSM Callback to be called on send error.
 *
 *  p_osm_pool
-*     Points to the MAD pool used by OSM 
+*     Points to the MAD pool used by OSM
 *
 *
 * SEE ALSO

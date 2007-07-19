@@ -84,7 +84,7 @@ BEGIN_C_DECLS
 *
 *
 * AUTHOR
-*	
+*
 *
 *********/
 
@@ -287,7 +287,7 @@ typedef	struct _osm_vendor
 /*
 * FIELDS
 *	h_al
-*		Handle returned by AL open call (ib_open_al).	
+*		Handle returned by AL open call (ib_open_al).
 *
 *	p_log
 *		Pointer to the log object.

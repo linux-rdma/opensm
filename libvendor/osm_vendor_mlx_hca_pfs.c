@@ -165,8 +165,8 @@ __parse_ca_info_file(
   close(info_file);
   file_buffer[len] = '\0';
 
-  /* 
-    parse the file ... 
+  /*
+    parse the file ...
     name:          InfiniHost0
     provider:      tavor
     node GUID:     0002:c900:0120:3470
@@ -195,14 +195,14 @@ __parse_ca_info_file(
   if (!(p_ch = strstr(file_buffer, "node GUID:")))
   {
     osm_log( p_vend->p_log, OSM_LOG_ERROR,
-             "__parse_ca_info_file: ERR 5208: " 
+             "__parse_ca_info_file: ERR 5208: "
              "Fail to obtain GUID in info file:(%s).\n", file_buffer);
     goto Exit;
   }
   if (sscanf(p_ch, "node GUID: %x:%x:%x:%x", &g1,&g2,&g3,&g4) != 4)
   {
     osm_log( p_vend->p_log, OSM_LOG_ERROR,
-             "__parse_ca_info_file: ERR 5209: " 
+             "__parse_ca_info_file: ERR 5209: "
              "Fail to parse GUID in info file:(%s).\n", p_ch);
     goto Exit;
   }
@@ -213,14 +213,14 @@ __parse_ca_info_file(
   if (!(p_ch = strstr(file_buffer, "ports:")))
   {
     osm_log( p_vend->p_log, OSM_LOG_ERROR,
-             "__parse_ca_info_file: ERR 5210: " 
+             "__parse_ca_info_file: ERR 5210: "
              "Fail to obtain number of ports in info file:(%s).\n", file_buffer);
     goto Exit;
   }
   if (sscanf(p_ch, "ports: %d", &num_ports) != 1)
   {
     osm_log( p_vend->p_log, OSM_LOG_ERROR,
-             "__parse_ca_info_file: ERR 5211: " 
+             "__parse_ca_info_file: ERR 5211: "
              "Fail to parse num ports in info file:(%s).\n", p_ch);
     goto Exit;
   }
@@ -293,7 +293,7 @@ __parse_port_info_file(
   if (! info_file)
   {
     osm_log( p_vend->p_log, OSM_LOG_ERROR,
-             "__parse_port_info_file: ERR 5212: " 
+             "__parse_port_info_file: ERR 5212: "
              "Fail to open HCA:%d Port:%d info file:(%s).\n", hca_idx, port_num,
              file_name);
     goto Exit;
@@ -316,14 +316,14 @@ __parse_port_info_file(
   if (!(p_ch = strstr(file_buffer, "state:")))
   {
     osm_log( p_vend->p_log, OSM_LOG_ERROR,
-             "__parse_port_info_file: ERR 5213: " 
+             "__parse_port_info_file: ERR 5213: "
              "Fail to obtain port state. In info file:(%s).\n", file_buffer);
     goto Exit;
   }
   if (sscanf(p_ch,"state: %s", state) != 1)
   {
     osm_log( p_vend->p_log, OSM_LOG_ERROR,
-             "__parse_port_info_file: ERR 5214: " 
+             "__parse_port_info_file: ERR 5214: "
              "Fail to parse state from info file:(%s).\n", p_ch);
     goto Exit;
   }
@@ -343,14 +343,14 @@ __parse_port_info_file(
   if (!(p_ch = strstr(file_buffer, "LID:")))
   {
     osm_log( p_vend->p_log, OSM_LOG_ERROR,
-             "__parse_port_info_file: ERR 5215: " 
+             "__parse_port_info_file: ERR 5215: "
              "Fail to obtain port lid. In info file:(%s).\n", file_buffer);
     goto Exit;
   }
   if (sscanf(p_ch,"LID: %x", &lid) != 1)
   {
     osm_log( p_vend->p_log, OSM_LOG_ERROR,
-             "__parse_port_info_file: ERR 5216: " 
+             "__parse_port_info_file: ERR 5216: "
              "Fail to parse lid from info file:(%s).\n", p_ch);
     goto Exit;
   }
@@ -359,14 +359,14 @@ __parse_port_info_file(
   if (!(p_ch = strstr(file_buffer, "LMC:")))
   {
     osm_log( p_vend->p_log, OSM_LOG_ERROR,
-             "__parse_port_info_file: ERR 5217: " 
+             "__parse_port_info_file: ERR 5217: "
              "Fail to obtain port LMC. In info file:(%s).\n", file_buffer);
     goto Exit;
   }
   if (sscanf(p_ch,"LMC: %x", &lmc) != 1)
   {
     osm_log( p_vend->p_log, OSM_LOG_ERROR,
-             "__parse_port_info_file: ERR 5218: " 
+             "__parse_port_info_file: ERR 5218: "
              "Fail to parse LMC from info file:(%s).\n", p_ch);
     goto Exit;
   }
@@ -376,14 +376,14 @@ __parse_port_info_file(
   if (!(p_ch = strstr(file_buffer, "SM LID:")))
   {
     osm_log( p_vend->p_log, OSM_LOG_ERROR,
-             "__parse_port_info_file: ERR 5219: " 
+             "__parse_port_info_file: ERR 5219: "
              "Fail to obtain port SM LID. In info file:(%s).\n", file_buffer);
     goto Exit;
   }
   if (sscanf(p_ch,"SM LID: %x", &sm_lid) != 1)
   {
     osm_log( p_vend->p_log, OSM_LOG_ERROR,
-             "__parse_port_info_file: ERR 5220: " 
+             "__parse_port_info_file: ERR 5220: "
              "Fail to parse SM LID from info file:(%s).\n", p_ch);
     goto Exit;
   }
@@ -393,14 +393,14 @@ __parse_port_info_file(
   if (!(p_ch = strstr(file_buffer, "SM SL:")))
   {
     osm_log( p_vend->p_log, OSM_LOG_ERROR,
-             "__parse_port_info_file: ERR 5221: " 
+             "__parse_port_info_file: ERR 5221: "
              "Fail to obtain port SM SL. In info file:(%s).\n", file_buffer);
     goto Exit;
   }
   if (sscanf(p_ch,"SM SL: %x", &sm_sl) != 1)
   {
     osm_log( p_vend->p_log, OSM_LOG_ERROR,
-             "__parse_port_info_file: ERR 5222: " 
+             "__parse_port_info_file: ERR 5222: "
              "Fail to parse SM SL from info file:(%s).\n", p_ch);
     goto Exit;
   }
@@ -452,7 +452,7 @@ __get_port_guid_from_port_gid_tbl(
   if (! info_file)
   {
     osm_log( p_vend->p_log, OSM_LOG_ERROR,
-             "__get_port_guid_from_port_gid_tbl: ERR 5223: " 
+             "__get_port_guid_from_port_gid_tbl: ERR 5223: "
              "Fail to open HCA:%d Port:%d gid_table file:(%s).\n", hca_idx, port_num,
              file_name);
     goto Exit;
@@ -471,7 +471,7 @@ __get_port_guid_from_port_gid_tbl(
   if (!(p_ch = strstr(file_buffer, "[  0]")))
   {
     osm_log( p_vend->p_log, OSM_LOG_ERROR,
-             "__get_port_guid_from_port_gid_tbl: ERR 5224: " 
+             "__get_port_guid_from_port_gid_tbl: ERR 5224: "
              "Fail to obtain first gid index. In gid_table file:(%s).\n", file_buffer);
     goto Exit;
   }
@@ -479,7 +479,7 @@ __get_port_guid_from_port_gid_tbl(
              &g[7],&g[6],&g[5],&g[4],&g[3],&g[2],&g[1],&g[0]) != 8)
   {
     osm_log( p_vend->p_log, OSM_LOG_ERROR,
-             "__get_port_guid_from_port_gid_tbl: ERR 5225: " 
+             "__get_port_guid_from_port_gid_tbl: ERR 5225: "
              "Fail to parse gid from gid_table file:(%s).\n", p_ch);
     goto Exit;
   }
@@ -532,7 +532,7 @@ __osm_ca_info_init( IN osm_vendor_t * const p_vend,
     if (__parse_port_info_file(p_vend, idx, port_num, &pfs_port_info))
     {
       osm_log( p_vend->p_log, OSM_LOG_ERROR,
-               "__osm_ca_info_init: ERR 5226: " 
+               "__osm_ca_info_init: ERR 5226: "
                "Fail to get HCA:%d Port:%d Attributes.\n", idx, port_num );
       goto Exit;
     }
@@ -543,11 +543,11 @@ __osm_ca_info_init( IN osm_vendor_t * const p_vend,
     p_ca_info->p_attr->p_port_attr[port_num-1].link_state = pfs_port_info.state;
     p_ca_info->p_attr->p_port_attr[port_num-1].sm_lid = pfs_port_info.sm_lid;
 
-    /* get the port guid */ 
+    /* get the port guid */
     if (__get_port_guid_from_port_gid_tbl(p_vend, idx, port_num, &port_guid))
     {
       osm_log( p_vend->p_log, OSM_LOG_ERROR,
-               "__osm_ca_info_init: ERR 5227: " 
+               "__osm_ca_info_init: ERR 5227: "
                "Fail to get HCA:%d Port:%d Guid.\n", idx, port_num );
       goto Exit;
     }
@@ -621,7 +621,7 @@ osm_vendor_get_all_port_attr( IN osm_vendor_t * const p_vend,
   if (! ca_count)
   {
     osm_log( p_vend->p_log, OSM_LOG_ERROR,
-             "osm_vendor_get_all_port_attr: ERR 5228: " 
+             "osm_vendor_get_all_port_attr: ERR 5228: "
              "Fail to get Any CA Ids.\n" );
     goto Exit;
   }
@@ -631,7 +631,7 @@ osm_vendor_get_all_port_attr( IN osm_vendor_t * const p_vend,
   if( p_ca_infos == NULL )
   {
     osm_log( p_vend->p_log, OSM_LOG_ERROR,
-             "osm_vendor_get_all_port_attr: ERR 5229: " 
+             "osm_vendor_get_all_port_attr: ERR 5229: "
              "Unable to allocate CA information array.\n" );
     goto Exit;
   }
@@ -647,7 +647,7 @@ osm_vendor_get_all_port_attr( IN osm_vendor_t * const p_vend,
     if( status != IB_SUCCESS )
     {
       osm_log( p_vend->p_log, OSM_LOG_ERROR,
-               "osm_vendor_get_all_port_attr: ERR 5230: " 
+               "osm_vendor_get_all_port_attr: ERR 5230: "
                "Unable to initialize CA Info object (%s).\n",
                ib_get_err_str( status ) );
       goto Exit;
@@ -726,7 +726,7 @@ osm_vendor_get_guid_ca_and_port(
   if (! ca_count)
   {
     osm_log( p_vend->p_log, OSM_LOG_ERROR,
-             "osm_vendor_get_guid_ca_and_port: ERR 5231: " 
+             "osm_vendor_get_guid_ca_and_port: ERR 5231: "
              "Fail to get Any CA Ids.\n" );
     goto Exit;
   }
@@ -763,7 +763,7 @@ osm_vendor_get_guid_ca_and_port(
   }
 
   osm_log( p_vend->p_log, OSM_LOG_ERROR,
-           "osm_vendor_get_guid_ca_and_port: ERR 5232: " 
+           "osm_vendor_get_guid_ca_and_port: ERR 5232: "
            "Fail to find HCA and Port for Port Guid 0x%" PRIx64 "\n",
            cl_ntoh64(guid) );
   status = IB_INVALID_GUID;

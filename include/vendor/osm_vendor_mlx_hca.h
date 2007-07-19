@@ -56,7 +56,7 @@ BEGIN_C_DECLS
 
 ib_api_status_t
 osm_vendor_get_guid_ca_and_port( IN osm_vendor_t const *p_vend,
-                                 IN ib_net64_t const guid,	
+                                 IN ib_net64_t const guid,
                                  OUT uint32_t *p_hca_hndl,
                                  OUT char     *p_hca_id,
                                  OUT uint8_t  *p_hca_idx,

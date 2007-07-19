@@ -81,7 +81,7 @@ __osmv_ibms_osm_addr_to_mad_addr(
   IN uint8_t is_smi,
   OUT struct _ibms_mad_addr *p_ibms_addr);
 
-/* this is the callback function the "server" will call on incoming 
+/* this is the callback function the "server" will call on incoming
    messages */
 void
 __osmv_ibms_receiver_callback(void* p_ctx, ibms_mad_msg_t *p_mad)
@@ -89,15 +89,15 @@ __osmv_ibms_receiver_callback(void* p_ctx, ibms_mad_msg_t *p_mad)
   osm_mad_addr_t    mad_addr;
   osmv_bind_obj_t * const p_bo = (osmv_bind_obj_t *)p_ctx;
   ib_api_status_t   status = IB_SUCCESS;
-  
+
   /* Make sure the p_bo object is still relevant */
   if ( (p_bo->magic_ptr != p_bo) || p_bo->is_closing )
     return;
-  
+
   {
     OSM_LOG_ENTER( p_bo->p_vendor->p_log, __osmv_ibms_receiver_callback );
-    
-    
+
+
     /* some logging */
     osm_log( p_bo->p_vendor->p_log, OSM_LOG_DEBUG,
              "__osmv_ibms_receiver_callback: "
@@ -111,7 +111,7 @@ __osmv_ibms_receiver_callback(void* p_ctx, ibms_mad_msg_t *p_mad)
              cl_ntoh16(p_mad->header.attr_id),
              cl_ntoh16(p_mad->header.status),
              cl_ntoh64(p_mad->header.trans_id));
-    
+
     /* first arrange an address */
     __osmv_ibms_mad_addr_to_osm_addr(
       p_bo->p_vendor,
@@ -119,11 +119,11 @@ __osmv_ibms_receiver_callback(void* p_ctx, ibms_mad_msg_t *p_mad)
       ( ((ib_mad_t*)&p_mad->header)->mgmt_class == IB_MCLASS_SUBN_LID ) ||
       ( ((ib_mad_t*)&p_mad->header)->mgmt_class == IB_MCLASS_SUBN_DIR ),
       &mad_addr);
-    
+
     /* call the receiver callback */
-    
+
     status = osmv_dispatch_mad((osm_bind_handle_t)p_bo,(void*)&p_mad->header, &mad_addr);
-    
+
     OSM_LOG_EXIT( p_bo->p_vendor->p_log );
   }
 }
@@ -162,17 +162,17 @@ osmv_transport_init(IN osm_bind_info_t *p_info,
   memset(p_mgr, 0, sizeof(osmv_ibms_transport_mgr_t));
 
   /* create the client socket connected to the simulator */
-  /* also perform the "connect" message - such that we 
+  /* also perform the "connect" message - such that we
      validate the target guid */
   if (osm_vendor_get_guid_by_ca_and_port(
         p_bo->p_vendor, hca_id, p_bo->port_num, &port_guid))
   {
     return  IB_INVALID_GUID;
   }
-  
-  conHdl = 
+
+  conHdl =
     ibms_connect(port_guid, __osmv_ibms_receiver_callback, (void*)p_bo);
-  if (!conHdl) 
+  if (!conHdl)
   {
     printf("fail to connect to the server.\n");
     exit(1);
@@ -181,7 +181,7 @@ osmv_transport_init(IN osm_bind_info_t *p_info,
   /*
    * Create the MAD filter on this file handle.
    */
-  
+
   p_mgr->filter.port = p_bo->port_num;
   p_mgr->filter.only_input = 1;
   p_mgr->filter.mask =
@@ -202,7 +202,7 @@ osmv_transport_init(IN osm_bind_info_t *p_info,
     {
       return IB_ERROR;
     }
-    
+
     p_mgr->filter.mgt_class = IB_MCLASS_SUBN_DIR;
     ibms_status = ibms_bind(conHdl, &p_mgr->filter);
     if (ibms_status)
@@ -226,7 +226,7 @@ osmv_transport_init(IN osm_bind_info_t *p_info,
   }
 
   p_mgr->conHdl = conHdl;
-  
+
   p_bo->p_transp_mgr = p_mgr ;
 
   /* Initialize the magic_ptr to the pointer of the p_bo info.
@@ -262,11 +262,11 @@ osmv_transport_mad_send(IN const osm_bind_handle_t  h_bind,
   OSM_LOG_ENTER( p_vend->p_log, osmv_transport_mad_send);
 
   memset(&mad_msg, 0, sizeof(mad_msg));
-  
+
   /* Make sure the p_bo object is still relevant */
   if (( p_bo->magic_ptr != p_bo) || p_bo->is_closing )
     return IB_INVALID_CALLBACK;
-  
+
   /*
    * Copy the MAD over to the sent mad
    */
@@ -293,7 +293,7 @@ osmv_transport_mad_send(IN const osm_bind_handle_t  h_bind,
     mad_msg.addr.sqpn = 0;
     mad_msg.addr.dqpn = 0;
   }
-  
+
   osm_log( p_bo->p_vendor->p_log, OSM_LOG_DEBUG,
            "osmv_transport_mad_send: "
            "Sending QPN:%d DLID:0x%04x class:0x%02x "
@@ -307,7 +307,7 @@ osmv_transport_mad_send(IN const osm_bind_handle_t  h_bind,
            cl_ntoh16(mad_msg.header.status),
            cl_ntoh64(mad_msg.header.trans_id)
            );
-  
+
   /* send it */
   ret = ibms_send(((osmv_ibms_transport_mgr_t*)(p_bo->p_transp_mgr))->conHdl,
                   &mad_msg);
@@ -331,12 +331,12 @@ void
 osmv_transport_done(IN const osm_bind_handle_t h_bind)
 {
   osmv_bind_obj_t* p_bo = (osmv_bind_obj_t*)h_bind;
-  osmv_ibms_transport_mgr_t* p_tpot_mgr = 
+  osmv_ibms_transport_mgr_t* p_tpot_mgr =
     (osmv_ibms_transport_mgr_t*)(p_bo->p_transp_mgr);
-  
+
   CL_ASSERT(p_bo);
 
-  /* First of all - zero out the magic_ptr, so if a callback is called - 
+  /* First of all - zero out the magic_ptr, so if a callback is called -
      it'll know that we are currently closing down, and will not handle the
      mad. */
   p_bo->magic_ptr = 0;
@@ -368,8 +368,8 @@ __osmv_ibms_osm_addr_to_mad_addr(
     p_ibms_addr->sqpn = 1;
     p_ibms_addr->dqpn = cl_ntoh32(p_osm_addr->addr_type.gsi.remote_qp);
   }
-  /* 
-     HACK we limit to the first PKey Index assuming it will 
+  /*
+     HACK we limit to the first PKey Index assuming it will
      always be the default PKey
   */
   p_ibms_addr->pkey_index = 0;

@@ -230,11 +230,11 @@ __osmv_sa_mad_err_cb(
 }
 
 /*****************************************************************************
- This routine needs to be invoked on every send - since the SM LID and Local 
- lid might change. To do that without any major performance impact we cache 
- the results and time that they were obtained. Refresh only twice a minute. 
+ This routine needs to be invoked on every send - since the SM LID and Local
+ lid might change. To do that without any major performance impact we cache
+ the results and time that they were obtained. Refresh only twice a minute.
  To avoid the need to use statics and risk a race - we require the refresh time
- to be stored in the context of the results. Also this covers cases where 
+ to be stored in the context of the results. Also this covers cases where
  we query for multiple guids.
  *****************************************************************************/
 ib_api_status_t
@@ -496,7 +496,7 @@ __osmv_send_sa_req(
 
   /*
     since the sm_lid might change we obtain it every send
-    (actually it is cached in the bind object and refreshed 
+    (actually it is cached in the bind object and refreshed
     every 30sec by this proc )
   */
   status =
@@ -523,7 +523,7 @@ __osmv_send_sa_req(
   if( p_madw == NULL )
   {
     osm_log( p_log, OSM_LOG_ERROR,
-             "__osmv_send_sa_req: ERR 5510: " 
+             "__osmv_send_sa_req: ERR 5510: "
              "Unable to acquire MAD\n" );
     status = IB_INSUFFICIENT_RESOURCES;
     goto Exit;
@@ -556,7 +556,7 @@ __osmv_send_sa_req(
   p_sa_mad->sm_key = p_query_req->sm_key;
   p_sa_mad->attr_offset = 0;
   p_sa_mad->comp_mask = p_sa_mad_data->comp_mask;
-#ifdef DUAL_SIDED_RMPP 
+#ifdef DUAL_SIDED_RMPP
   if( p_sa_mad->method == IB_MAD_METHOD_GETMULTI )
     p_sa_mad->rmpp_flags = IB_RMPP_FLAG_ACTIVE;
 #endif

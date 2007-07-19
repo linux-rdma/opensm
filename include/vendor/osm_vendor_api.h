@@ -102,7 +102,7 @@ typedef void (*osm_vend_mad_recv_callback_t)(
 * DESCRIPTION
 *  Function prototype for the vendor send failure callback.
 *  The vendor layer calls this function when MADs expecting
-*  a response are completed in error, most likely due to a 
+*  a response are completed in error, most likely due to a
 *  timeout.
 *
 * SYNOPSIS
@@ -165,7 +165,7 @@ osm_vendor_new(
 *
 * DESCRIPTION
 *  Dealocate the vendor object.
-*  
+*
 * SYNOPSIS
 */
 void
@@ -250,7 +250,7 @@ osm_vendor_init(
 *     A value of 0 disables timeouts.
 *
 * RETURN VALUE
-* 
+*
 * NOTES
 *
 * SEE ALSO
@@ -283,7 +283,7 @@ osm_vendor_bind(
 *    [in] pointer to a struct defining the type of bind to perform.
 *
 *  p_mad_pool
-*    [in] pointer to a mad wrappers pool to be used for allocating 
+*    [in] pointer to a mad wrappers pool to be used for allocating
 *    mad wrappers on send and receive.
 *
 *  mad_recv_callback
@@ -334,7 +334,7 @@ osm_vendor_unbind(
 *   osm_vendor_get
 *
 * DESCRIPTION
-*   Obtain a mad wrapper holding actual mad buffer to be sent via 
+*   Obtain a mad wrapper holding actual mad buffer to be sent via
 *   the transport.
 *
 * SYNOPSIS
@@ -386,10 +386,10 @@ osm_vendor_send(
 *
 *   resp_expected
 *      [in] boolean value declaring the mad as a request (expecting a response).
-*  
+*
 * RETURN VALUE
 *   IB_SUCCESS on succesful completion.
-* 
+*
 * NOTES
 *   1. Only mads that expect a response are tracked for transaction competion.
 *   2. A mad that does not expect a response is being put back immediatly after
@@ -474,7 +474,7 @@ osm_vendor_set_sm(
 *     [in] bind handle for this port.
 *
 *   is_sm_val
-*     [in] If TRUE - will set the is_sm to TRUE, if FALSE - will set the 
+*     [in] If TRUE - will set the is_sm to TRUE, if FALSE - will set the
 *          the is_sm to FALSE.
 *
 * RETURN VALUE

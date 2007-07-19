@@ -134,7 +134,7 @@ typedef struct _osm_ts_bind_info
  *     OSM Callback to be called on send error.
  *
  *  p_osm_pool
- *     Points to the MAD pool used by OSM 
+ *     Points to the MAD pool used by OSM
  *
  *  poller
  *     A thread reading from the device file handle
@@ -155,7 +155,7 @@ typedef struct _osm_ts_bind_info
  *
  *
  * AUTHOR
- *	
+ *
  *
  *********/
 
@@ -215,7 +215,7 @@ typedef struct _osm_vendor
 /*
  * FIELDS
  *	h_al
- *		Handle returned by TS open call .	
+ *		Handle returned by TS open call .
  *
  *	p_log
  *		Pointer to the log object.
@@ -309,7 +309,7 @@ osm_ca_info_get_num_ports( IN const osm_ca_info_t * const p_ca_info )
  *	osm_vendor_get_guid_ca_and_port
  *
  * DESCRIPTION
- * Given the vendor obj and a guid 
+ * Given the vendor obj and a guid
  * return the ca id and port number that have that guid
  *
  * SYNOPSIS
@@ -349,9 +349,9 @@ osm_vendor_get_guid_ca_and_port( IN osm_vendor_t * const p_vend,
  *	osm_vendor_get_all_port_attr
  *
  * DESCRIPTION
- * Fill in the array of port_attr with all available ports on ALL the 
+ * Fill in the array of port_attr with all available ports on ALL the
  * avilable CAs on this machine.
- * ALSO - 
+ * ALSO -
  * UPDATE THE VENDOR OBJECT LIST OF CA_INFO STRUCTS
  *
  * SYNOPSIS

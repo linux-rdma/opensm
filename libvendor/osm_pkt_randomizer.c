@@ -63,7 +63,7 @@
  * paths that the given path includes it.
  * E.g: if there is a fault path: 0,1,4
  * For the given path: 0,1,4,7 the return value will be TRUE, also for
- * the given path: 0,1,4 the return value will be TRUE, but for 
+ * the given path: 0,1,4 the return value will be TRUE, but for
  * the given paths: 0,1 or 0,3,1,4 - the return value will be FALSE.
  **********************************************************************/
 boolean_t
@@ -114,7 +114,7 @@ __osm_pkt_randomizer_is_path_in_fault_paths(
  * return FALSE otherwise.
  * The check uses random criteria in order to determine whether or not
  * the path should be dropped.
- * First - if not all paths are initialized, it randomally chooses if 
+ * First - if not all paths are initialized, it randomally chooses if
  * to use this path as a fault path or not.
  * Second - if the path is in the fault paths (meaning - it is equal
  * to or includes one of the fault paths) - then it randomally chooses
@@ -155,7 +155,7 @@ __osm_pkt_randomizer_process_path(
 #else
       gettimeofday( &tv, &tz );
       seed = tv.tv_usec;
-#endif /*  WIN32 */    
+#endif /*  WIN32 */
 
       srand(seed);
   }

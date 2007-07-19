@@ -88,7 +88,7 @@ osmv_simple_send_madw(IN osm_bind_handle_t h_bind,
   }
 
   /*
-    Add call for packet drop randomizer. 
+    Add call for packet drop randomizer.
     This is a testing feature. If run_randomizer flag is set to TRUE,
     the randomizer will be called, and randomally will drop
     a packet. This is used for simulating unstable fabric.
@@ -359,7 +359,7 @@ __osmv_rmpp_send_segment(IN osm_bind_handle_t       h_bind,
             seg_num, p_mad->trans_id);
 
     /*
-      Add call for packet drop randomizer. 
+      Add call for packet drop randomizer.
       This is a testing feature. If run_randomizer flag is set to TRUE,
       the randomizer will be called, and randomally will drop
       a packet. This is used for simulating unstable fabric.

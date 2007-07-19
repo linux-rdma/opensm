@@ -62,7 +62,7 @@ BEGIN_C_DECLS
 *	This file is the vendor specific file for the UMAD Infiniband API.
 *
 * AUTHOR
-*	
+*
 *
 *********/
 

@@ -70,7 +70,7 @@ BEGIN_C_DECLS
 *	MAD Wrapper
 *
 * DESCRIPTION
-*	
+*
 *
 * AUTHOR
 *	Ranjit Pandit, Intel
@@ -99,7 +99,7 @@ typedef	void*	osm_bind_handle_t;
 * DESCRIPTION
 *	Tags for mad wrapper to indicate the direction of mads.
 *	Umadt vendor transport layer uses this tag to call the appropriate
-* 	Umadt APIs.	
+* 	Umadt APIs.
 *
 * SYNOPSIS
 */
@@ -126,7 +126,7 @@ typedef struct _osm_vend_wrap_t {
 /*
 * FIELDS
 *	p_madt_struct
-*		Umadt mad structure to identify a mad.	
+*		Umadt mad structure to identify a mad.
 *
 *	direction
 *		Used to identify a mad with it's direction.

@@ -348,7 +348,7 @@ osmv_transport_done (IN const osm_bind_handle_t h_bind)
 
 	CL_ASSERT (p_bo);
 
-	/* First of all - zero out the magic_ptr, so if a callback is called - 
+	/* First of all - zero out the magic_ptr, so if a callback is called -
 	   it'll know that we are currently closing down, and will not handle the
 	   mad. */
 	p_bo->magic_ptr = 0;
@@ -376,8 +376,8 @@ __osmv_TOPSPIN_ANAFA_osm_addr_to_mad_addr (IN const osm_mad_addr_t * p_mad_addr,
 		p_mad->sqpn = 1;
 		p_mad->dqpn = p_mad_addr->addr_type.gsi.remote_qp;
 	}
-	/* 
-	   HACK we limit to the first PKey Index assuming it will 
+	/*
+	   HACK we limit to the first PKey Index assuming it will
 	   always be the default PKey
 	 */
 	p_mad->pkey_index = 0;

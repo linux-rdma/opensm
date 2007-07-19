@@ -102,7 +102,7 @@ typedef struct _osmv_txn_mgr {
     /* The timeouts DB */
     cl_event_wheel_t   *p_event_wheel;
 
-    /* Reference to a log to enable tracing */    
+    /* Reference to a log to enable tracing */
     osm_log_t          *p_log;
 
 } osmv_txn_mgr_t;
@@ -114,9 +114,9 @@ typedef struct _osmv_txn_mgr {
  *   osmv_txn_init
  *
  * DESCRIPTION
- *   allocs & inits the osmv_txn_ctx obj and insert it into the db 
+ *   allocs & inits the osmv_txn_ctx obj and insert it into the db
  * SEE ALSO
- *   
+ *
  */
 ib_api_status_t
 osmv_txn_init(  IN  osm_bind_handle_t      h_bind,
@@ -130,7 +130,7 @@ osmv_txn_init(  IN  osm_bind_handle_t      h_bind,
  *   osmv_rmpp_txfr_init_sender
  *
  * DESCRIPTION
- *   init the rmpp send ctx in the transaction 
+ *   init the rmpp send ctx in the transaction
  *
  * SEE ALSO
  *
@@ -146,7 +146,7 @@ osmv_txn_init_rmpp_sender(IN osm_bind_handle_t  h_bind,
  *   osmv_rmpp_txfr_init_receiver
  *
  * DESCRIPTION
- *   init the rmpp recv ctx in the transaction 
+ *   init the rmpp recv ctx in the transaction
  *
  * SEE ALSO
  *
@@ -161,7 +161,7 @@ osmv_txn_init_rmpp_receiver(IN osm_bind_handle_t  h_bind,
  *   osmv_txn_done
  *
  * DESCRIPTION
- *   destroys txn object and removes it from the db 
+ *   destroys txn object and removes it from the db
  *
  * SEE ALSO
  *
@@ -175,9 +175,9 @@ osmv_txn_done(IN osm_bind_handle_t  h_bind,
  *   osmv_txn_get_tid
  *
  * DESCRIPTION
- *   returns tid of the transaction 
+ *   returns tid of the transaction
  * SEE ALSO
- *   
+ *
  */
 static inline uint64_t
 osmv_txn_get_tid(IN osmv_txn_ctx_t* p_txn)
@@ -191,9 +191,9 @@ osmv_txn_get_tid(IN osmv_txn_ctx_t* p_txn)
  *   osmv_txn_get_key
  *
  * DESCRIPTION
- *   returns key of the transaction 
+ *   returns key of the transaction
  * SEE ALSO
- *   
+ *
  */
 
 static inline uint64_t
@@ -207,7 +207,7 @@ osmv_txn_get_key(IN osmv_txn_ctx_t* p_txn)
  *   osmv_txn_is_rmpp_init_by_peer
  *
  * DESCRIPTION
- *   returns whether the rmpp txfr was init by the peer 
+ *   returns whether the rmpp txfr was init by the peer
  *
  * SEE ALSO
  *
@@ -224,9 +224,9 @@ osmv_txn_is_rmpp_init_by_peer(IN osmv_txn_ctx_t* p_txn)
  *   osmv_txn_get_rmpp_send_ctx
  *
  * DESCRIPTION
- *   returns osmv_rmpp_send_ctx obj  
+ *   returns osmv_rmpp_send_ctx obj
  * SEE ALSO
- *   
+ *
  */
 static inline osmv_rmpp_send_ctx_t*
 osmv_txn_get_rmpp_send_ctx(IN osmv_txn_ctx_t* p_txn)
@@ -240,9 +240,9 @@ osmv_txn_get_rmpp_send_ctx(IN osmv_txn_ctx_t* p_txn)
  *   osmv_txn_get_rmpp_recv_ctx
  *
  * DESCRIPTION
- *   returns osmv_rmpp_recv_ctx obj  
+ *   returns osmv_rmpp_recv_ctx obj
  * SEE ALSO
- *   
+ *
  */
 static inline osmv_rmpp_recv_ctx_t*
 osmv_txn_get_rmpp_recv_ctx(IN osmv_txn_ctx_t* p_txn)
@@ -256,9 +256,9 @@ osmv_txn_get_rmpp_recv_ctx(IN osmv_txn_ctx_t* p_txn)
  *   osmv_txn_get_rmpp_state
  *
  * DESCRIPTION
- *   returns the rmpp role of the transactino ( send/ recv)  
+ *   returns the rmpp role of the transactino ( send/ recv)
  * SEE ALSO
- *   
+ *
  */
 static inline osmv_txn_rmpp_state_t
 osmv_txn_get_rmpp_state(IN osmv_txn_ctx_t *p_txn)
@@ -272,9 +272,9 @@ osmv_txn_get_rmpp_state(IN osmv_txn_ctx_t *p_txn)
  *   osmv_txn_set_rmpp_state
  *
  * DESCRIPTION
- *   sets the rmpp role of the transaction (send/ recv)  
+ *   sets the rmpp role of the transaction (send/ recv)
  * SEE ALSO
- *   
+ *
  */
 static inline void
 osmv_txn_set_rmpp_state(IN osmv_txn_ctx_t        *p_txn,
@@ -291,7 +291,7 @@ osmv_txn_set_rmpp_state(IN osmv_txn_ctx_t        *p_txn,
  * DESCRIPTION
  *   returns the requester madw
  * SEE ALSO
- *   
+ *
  */
 static inline osm_madw_t*
 osmv_txn_get_madw(IN osmv_txn_ctx_t *p_txn)
@@ -307,7 +307,7 @@ osmv_txn_get_madw(IN osmv_txn_ctx_t *p_txn)
  * DESCRIPTION
  *   sets the requester madw
  * SEE ALSO
- *   
+ *
  */
 static inline void
 osmv_txn_set_madw(IN osmv_txn_ctx_t *p_txn,
@@ -319,12 +319,12 @@ osmv_txn_set_madw(IN osmv_txn_ctx_t *p_txn,
 
 /*
  * NAME
- *  osmv_txn_set_timeout_ev  
+ *  osmv_txn_set_timeout_ev
  *
  * DESCRIPTION
  *
  * SEE ALSO
- *   
+ *
  */
 ib_api_status_t
 osmv_txn_set_timeout_ev(IN osm_bind_handle_t    h_bind,
@@ -332,25 +332,25 @@ osmv_txn_set_timeout_ev(IN osm_bind_handle_t    h_bind,
 			IN uint64_t             msec);
 /*
  * NAME
- *  osmv_txn_remove_timeout_ev  
+ *  osmv_txn_remove_timeout_ev
  *
  * DESCRIPTION
 
  * SEE ALSO
- *   
+ *
  */
 void
 osmv_txn_remove_timeout_ev(IN osm_bind_handle_t      h_bind,
 			   IN uint64_t               key);
 /*
  * NAME
- *  osmv_txn_lookup  
+ *  osmv_txn_lookup
  *
  * DESCRIPTION
  *   get a transaction by its key
  *
  * SEE ALSO
- *   
+ *
  */
 ib_api_status_t
 osmv_txn_lookup(IN osm_bind_handle_t      h_bind,
@@ -365,12 +365,12 @@ osmv_txn_abort_rmpp_txns(IN osm_bind_handle_t h_bind);
 /*      *       *       *       *       *       *       *       *       *       *       *       */
 /*
  * NAME
- *  osmv_txnmgr_init  
+ *  osmv_txnmgr_init
  *
  * DESCRIPTION
- *  c'tor for txn mgr obj  
+ *  c'tor for txn mgr obj
  * SEE ALSO
- *   
+ *
  */
 ib_api_status_t
 osmv_txnmgr_init(IN osmv_txn_mgr_t *p_tx_mgr,
@@ -379,12 +379,12 @@ osmv_txnmgr_init(IN osmv_txn_mgr_t *p_tx_mgr,
 
 /*
  * NAME
- *  osmv_txnmgr_done  
+ *  osmv_txnmgr_done
  *
  * DESCRIPTION
- *  c'tor for txn mgr obj  
+ *  c'tor for txn mgr obj
  * SEE ALSO
- *   
+ *
  */
 void
 osmv_txnmgr_done(IN osm_bind_handle_t      h_bind);

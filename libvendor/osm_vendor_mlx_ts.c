@@ -229,7 +229,7 @@ osmv_transport_init(IN osm_bind_info_t *p_info,
     {
       return IB_ERROR;
     }
-    
+
     p_mgr->filter.mgmt_class = IB_MCLASS_SUBN_DIR;
     ts_ioctl_ret = ioctl(device_fd, TS_IB_IOCSMADFILTADD, &p_mgr->filter);
     if (ts_ioctl_ret < 0)
@@ -326,7 +326,7 @@ osmv_transport_mad_send(IN const osm_bind_handle_t  h_bind,
     ts_mad.sqpn = 0;
     ts_mad.dqpn = 0;
   }
-  
+
   ts_mad.port = p_bo->port_num;
 
   osm_log( p_bo->p_vendor->p_log, OSM_LOG_DEBUG,
@@ -342,9 +342,9 @@ osmv_transport_mad_send(IN const osm_bind_handle_t  h_bind,
            cl_ntoh16(ts_mad.status),
            cl_ntoh64(ts_mad.transaction_id)
            );
-  
+
     /* send it */
-  ret = write(((osmv_TOPSPIN_transport_mgr_t*)(p_bo->p_transp_mgr))->device_fd, 
+  ret = write(((osmv_TOPSPIN_transport_mgr_t*)(p_bo->p_transp_mgr))->device_fd,
               &ts_mad, sizeof(ts_mad));
 
   if( ret != sizeof(ts_mad) )
@@ -363,20 +363,20 @@ osmv_transport_mad_send(IN const osm_bind_handle_t  h_bind,
   return(status);
 }
 
-/* 
-   register a new mad type to the opened device file 
-   and send a mad through - the main idea is to make 
+/*
+   register a new mad type to the opened device file
+   and send a mad through - the main idea is to make
    the filter catch it such that the read unblocks
 */
 void
 __osm_transport_gen_dummy_mad(osmv_bind_obj_t* p_bo)
 {
   struct ib_mad ts_mad;
-  osmv_TOPSPIN_transport_mgr_t* p_mgr = 
+  osmv_TOPSPIN_transport_mgr_t* p_mgr =
     (osmv_TOPSPIN_transport_mgr_t*)(p_bo->p_transp_mgr);
   struct ib_get_port_info_ioctl port_data;
   int ts_ioctl_ret;
-  
+
   /* prepare the mad fields following the stored filter on the bind */
   memset(&ts_mad, 0, sizeof(ts_mad));
   ts_mad.format_version = 1;
@@ -400,12 +400,12 @@ void
 osmv_transport_done(IN const osm_bind_handle_t h_bind)
 {
   osmv_bind_obj_t* p_bo = (osmv_bind_obj_t*)h_bind;
-  osmv_TOPSPIN_transport_mgr_t* p_tpot_mgr = 
+  osmv_TOPSPIN_transport_mgr_t* p_tpot_mgr =
     (osmv_TOPSPIN_transport_mgr_t*)(p_bo->p_transp_mgr);
 
   CL_ASSERT(p_bo);
 
-  /* First of all - zero out the magic_ptr, so if a callback is called - 
+  /* First of all - zero out the magic_ptr, so if a callback is called -
      it'll know that we are currently closing down, and will not handle the
      mad. */
   p_bo->magic_ptr = 0;
@@ -437,8 +437,8 @@ __osmv_TOPSPIN_osm_addr_to_mad_addr(
     p_mad->sqpn = 1;
     p_mad->dqpn = cl_ntoh32(p_mad_addr->addr_type.gsi.remote_qp);
   }
-  /* 
-     HACK we limit to the first PKey Index assuming it will 
+  /*
+     HACK we limit to the first PKey Index assuming it will
      always be the default PKey
   */
   p_mad->pkey_index = 0;
@@ -511,7 +511,7 @@ osm_vendor_set_sm(
   int ts_ioctl_ret;
   int device_fd = ((osmv_TOPSPIN_transport_mgr_t*)(p_bo->p_transp_mgr))->device_fd;
   struct ib_set_port_info_ioctl set_port_data;
-  
+
   OSM_LOG_ENTER( p_vend->p_log, osm_vendor_set_sm );
 
   memset(&set_port_data, 0, sizeof(set_port_data));

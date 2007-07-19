@@ -398,7 +398,7 @@ typedef struct _osmv_query_res
 *	may call osmv_get_query_result().
 *
 * SEE ALSO
-*	osmv_query_sa, osmv_pfn_query_cb_t, ib_api_status_t, 
+*	osmv_query_sa, osmv_pfn_query_cb_t, ib_api_status_t,
 *	osmv_query_status_t, osmv_query_type_t,
 *	osmv_get_query_result
 *****/
@@ -409,7 +409,7 @@ typedef struct _osmv_query_res
 *
 * DESCRIPTION
 *	Retrieves a result structure from a MADW returned by a call to
-*	osmv_query_sa(). 
+*	osmv_query_sa().
 *
 * SYNOPSIS
 */
@@ -811,11 +811,11 @@ typedef struct _osmv_query_req
 * DESCRIPTION
 *	Bind to the SA service and return a handle to be used for later
 *  queries.
-*	
+*
 *
 * SYNOPSIS
 */
-osm_bind_handle_t 
+osm_bind_handle_t
 osmv_bind_sa(
   IN osm_vendor_t    * const p_vend,
   IN osm_mad_pool_t  * const p_mad_pool,
@@ -831,7 +831,7 @@ osmv_bind_sa(
 *
 *   port_guid
 *	[in] the port guid to attach to.
-*   
+*
 * RETURN VALUE
 *	Bind handle to be used for later SA queries or OSM_BIND_INVALID_HANDLE
 *
@@ -851,21 +851,21 @@ osmv_bind_sa(
 * SYNOPSIS
 */
 ib_api_status_t
-osmv_query_sa( 
+osmv_query_sa(
   IN osm_bind_handle_t         h_bind,
-  IN const osmv_query_req_t * const p_query_req 
+  IN const osmv_query_req_t * const p_query_req
   );
 /*
 * PARAMETERS
 *   h_bind
-*	[in] bind handle for this port. Should be previously 
+*	[in] bind handle for this port. Should be previously
 *       obtained by calling osmv_bind_sa
 *
 *   p_query_req
 *	[in] an SA query request structure.
-*   
+*
 * RETURN VALUE
-*	IB_SUCCESS if completed successfuly (or in ASYNC mode 
+*	IB_SUCCESS if completed successfuly (or in ASYNC mode
 *	if the request was sent).
 *
 * NOTES

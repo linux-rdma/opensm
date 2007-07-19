@@ -95,7 +95,7 @@ typedef struct _osmv_rmpp_recv_ctx {
  *  c'tor for rmpp_send_ctx obj
  *
  * SEE ALSO
- *   
+ *
  */
 ib_api_status_t
 osmv_rmpp_send_ctx_init(osmv_rmpp_send_ctx_t* p_ctx, void* arbt_mad, uint32_t mad_sz,
@@ -110,7 +110,7 @@ osmv_rmpp_send_ctx_init(osmv_rmpp_send_ctx_t* p_ctx, void* arbt_mad, uint32_t ma
  *  d'tor for rmpp_send_ctx obj
  *
  * SEE ALSO
- *   
+ *
  */
 void
 osmv_rmpp_send_ctx_done(IN osmv_rmpp_send_ctx_t *ctx);
@@ -123,7 +123,7 @@ osmv_rmpp_send_ctx_done(IN osmv_rmpp_send_ctx_t *ctx);
  * DESCRIPTION
  *  returns number of first segment in current window
  * SEE ALSO
- *   
+ *
  */
 static inline uint32_t
 osmv_rmpp_send_ctx_get_wf(IN const osmv_rmpp_send_ctx_t *p_ctx)
@@ -139,7 +139,7 @@ osmv_rmpp_send_ctx_get_wf(IN const osmv_rmpp_send_ctx_t *p_ctx)
  * DESCRIPTION
  *  sets number of first segment in current window
  * SEE ALSO
- *   
+ *
  */
 static inline void
 osmv_rmpp_send_ctx_set_wf(IN osmv_rmpp_send_ctx_t *p_ctx, IN uint32_t val)
@@ -155,7 +155,7 @@ osmv_rmpp_send_ctx_set_wf(IN osmv_rmpp_send_ctx_t *p_ctx, IN uint32_t val)
  * DESCRIPTION
  *  returns number of last segment in current window
  * SEE ALSO
- *   
+ *
  */
 static inline uint32_t
 osmv_rmpp_send_ctx_get_wl(IN const osmv_rmpp_send_ctx_t *p_send_ctx)
@@ -171,7 +171,7 @@ osmv_rmpp_send_ctx_get_wl(IN const osmv_rmpp_send_ctx_t *p_send_ctx)
  * DESCRIPTION
  *  sets number of last segment in current window
  * SEE ALSO
- *   
+ *
  */
 static inline void
 osmv_rmpp_send_ctx_set_wl(IN osmv_rmpp_send_ctx_t *p_ctx, IN uint32_t val)
@@ -185,9 +185,9 @@ osmv_rmpp_send_ctx_set_wl(IN osmv_rmpp_send_ctx_t *p_ctx, IN uint32_t val)
  *   osmv_rmpp_send_ctx_get_num_segs
  *
  * DESCRIPTION
- *   returns the total number of mad segments to send 
+ *   returns the total number of mad segments to send
  * SEE ALSO
- *   
+ *
  */
 uint32_t
 osmv_rmpp_send_ctx_get_num_segs(IN osmv_rmpp_send_ctx_t *p_send_ctx);
@@ -197,9 +197,9 @@ osmv_rmpp_send_ctx_get_num_segs(IN osmv_rmpp_send_ctx_t *p_send_ctx);
  *   osmv_rmpp_send_ctx_get_seg
  *
  * DESCRIPTION
- *   Retrieves the mad segment by seg number (including setting the mad relevant bits & hdrs) 
+ *   Retrieves the mad segment by seg number (including setting the mad relevant bits & hdrs)
  * SEE ALSO
- *   
+ *
  */
 ib_api_status_t
 osmv_rmpp_send_ctx_get_seg(IN osmv_rmpp_send_ctx_t *p_send_ctx,IN uint32_t seg_idx,
@@ -212,7 +212,7 @@ osmv_rmpp_send_ctx_get_seg(IN osmv_rmpp_send_ctx_t *p_send_ctx,IN uint32_t seg_i
  * DESCRIPTION
  *   c'tor for rmpp_recv_ctx obj
  * SEE ALSO
- *   
+ *
  */
 ib_api_status_t
 osmv_rmpp_recv_ctx_init(osmv_rmpp_recv_ctx_t *p_ctx,osm_log_t* p_log );
@@ -224,7 +224,7 @@ osmv_rmpp_recv_ctx_init(osmv_rmpp_recv_ctx_t *p_ctx,osm_log_t* p_log );
  * DESCRIPTION
  *   d'tor for rmpp_recv_ctx obj
  * SEE ALSO
- *   
+ *
  */
 void
 osmv_rmpp_recv_ctx_done(IN osmv_rmpp_recv_ctx_t *p_ctx);
@@ -235,7 +235,7 @@ osmv_rmpp_recv_ctx_done(IN osmv_rmpp_recv_ctx_t *p_ctx);
  *
  * DESCRIPTION
  *   retrunes index of expected segement in the curr window
- *   
+ *
  */
 static inline uint32_t
 osmv_rmpp_recv_ctx_get_es(IN const osmv_rmpp_recv_ctx_t *p_recv_ctx)
@@ -250,7 +250,7 @@ osmv_rmpp_recv_ctx_get_es(IN const osmv_rmpp_recv_ctx_t *p_recv_ctx)
  *
  * DESCRIPTION
  *   sets index of expected segement in the curr window
- *   
+ *
  */
 static inline void
 osmv_rmpp_recv_ctx_set_es(IN osmv_rmpp_recv_ctx_t *p_recv_ctx,
@@ -266,7 +266,7 @@ osmv_rmpp_recv_ctx_set_es(IN osmv_rmpp_recv_ctx_t *p_recv_ctx,
  *
  * DESCRIPTION
  *  stores rmpp mad in the list
- *   
+ *
  */
 ib_api_status_t
 osmv_rmpp_recv_ctx_store_mad_seg(IN osmv_rmpp_recv_ctx_t *p_recv_ctx,
@@ -289,7 +289,7 @@ osmv_rmpp_recv_ctx_get_byte_num_from_last(IN osmv_rmpp_recv_ctx_t *p_recv_ctx);
  *   osmv_rmpp_recv_ctx_reassemble_arbt_mad
  *
  * DESCRIPTION
- *  reassembles all rmpp buffs to one big arbitrary mad    
+ *  reassembles all rmpp buffs to one big arbitrary mad
  */
 ib_api_status_t
 osmv_rmpp_recv_ctx_reassemble_arbt_mad( IN osmv_rmpp_recv_ctx_t *p_recv_ctx,

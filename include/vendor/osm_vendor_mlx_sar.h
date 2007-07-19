@@ -54,7 +54,7 @@ typedef struct _osmv_rmpp_sar{
     uint32_t    data_len;  /* total data len in all the mads */
     /* these data members contain only constants */
     uint32_t    hdr_sz;
-    uint32_t    data_sz;   /*typical data sz for this kind of mad (sa or regular */  
+    uint32_t    data_sz;   /*typical data sz for this kind of mad (sa or regular */
 
 }osmv_rmpp_sar_t;
 
@@ -67,7 +67,7 @@ typedef struct _osmv_rmpp_sar{
  *   c'tor for rmpp_sar object
  *
  * SEE ALSO
- *   
+ *
  */
 ib_api_status_t
 osmv_rmpp_sar_init(osmv_rmpp_sar_t* p_sar, void* p_arbt_mad,
@@ -81,7 +81,7 @@ osmv_rmpp_sar_init(osmv_rmpp_sar_t* p_sar, void* p_arbt_mad,
  *   d'tor for rmpp_sar object
  *
  * SEE ALSO
- *   
+ *
  */
 void
 osmv_rmpp_sar_done(osmv_rmpp_sar_t* p_sar);
@@ -91,10 +91,10 @@ osmv_rmpp_sar_done(osmv_rmpp_sar_t* p_sar);
  *   osmv_rmpp_sar_get_mad_seg
  *
  * DESCRIPTION
- *  segments the original mad buffer . returnes a mad with the data of the i-th segment 
+ *  segments the original mad buffer . returnes a mad with the data of the i-th segment
  *
  * SEE ALSO
- *   
+ *
  */
 ib_api_status_t
 osmv_rmpp_sar_get_mad_seg(osmv_rmpp_sar_t* p_sar,uint32_t seg_idx,void* p_buf);
@@ -104,11 +104,11 @@ osmv_rmpp_sar_get_mad_seg(osmv_rmpp_sar_t* p_sar,uint32_t seg_idx,void* p_buf);
  *   osmv_rmpp_sar_reassemble_arbt_mad
  *
  * DESCRIPTION
- *  gets a qlist of mads and reassmbles to one big mad buffer 
+ *  gets a qlist of mads and reassmbles to one big mad buffer
  *  ALSO - deallocates the mad list
  *
  * SEE ALSO
- *   
+ *
  */
 ib_api_status_t
 osmv_rmpp_sar_reassemble_arbt_mad(osmv_rmpp_sar_t* p_sar,cl_qlist_t* p_bufs);

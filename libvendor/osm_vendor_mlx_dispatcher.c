@@ -142,7 +142,7 @@ osmv_dispatch_mad(IN osm_bind_handle_t     h_bind,
   }
 
   /*
-    Add call for packet drop randomizer. 
+    Add call for packet drop randomizer.
     This is a testing feature. If run_randomizer flag is set to TRUE,
     the randomizer will be called, and randomally will drop
     a packet. This is used for simulating unstable fabric.
@@ -660,7 +660,7 @@ __osmv_dispatch_rmpp_rcv(IN osm_bind_handle_t     h_bind,
 }
 
 /*
- *  NAME            __osmv_dispatch_accept_seg()   
+ *  NAME            __osmv_dispatch_accept_seg()
  *
  *  DESCRIPTION     Store a DATA segment at the RMPP receiver side,
  *                  if one is received in order.

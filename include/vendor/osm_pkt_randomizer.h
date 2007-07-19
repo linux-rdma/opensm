@@ -74,7 +74,7 @@ BEGIN_C_DECLS
 *	Packet Randomizer
 *
 * DESCRIPTION
-*	The Packet Randomizer object encapsulates the information needed for 
+*	The Packet Randomizer object encapsulates the information needed for
 *	randomly dropping packets for debug.
 *
 *	The Packet Randomizer object is not thread safe, thus callers must
@@ -90,7 +90,7 @@ BEGIN_C_DECLS
 *	osm_pkt_randomizer_t
 *
 * DESCRIPTION
-*	Packet randomizer structure. This structure contains the various 
+*	Packet randomizer structure. This structure contains the various
 *  parameters needed by the packet randomizer.
 *
 * SYNOPSIS
@@ -113,7 +113,7 @@ typedef struct _osm_pkt_randomizer
 *     if set to zero, the randomizer will not run.
 *
 *  osm_pkt_num_unstable_links
-*     The number of unstable links to be drawn. 
+*     The number of unstable links to be drawn.
 *     Taken from the global variable OSM_PKT_NUM_UNSTABLE_LINKS. default = 1.
 *
 *  osm_pkt_unstable_link_rate
@@ -122,11 +122,11 @@ typedef struct _osm_pkt_randomizer
 *     default = 20.
 *
 *	fault_dr_path
-*		Array of osm_dr_path_t objects, that includes all the dr_paths 
+*		Array of osm_dr_path_t objects, that includes all the dr_paths
 *     that are marked as errored.
 *
 *  num_paths_initialized
-*     Describes the number of paths from the fault_dr_paths array that 
+*     Describes the number of paths from the fault_dr_paths array that
 *     have already been initialized.
 *
 * SEE ALSO
@@ -200,7 +200,7 @@ osm_pkt_randomizer_destroy(
 *
 * DESCRIPTION
 *	The osm_pkt_randomizer_madw_drop is base function of the packet
-*  randomizer. 
+*  randomizer.
 *  It decides according to different random criteria whether or not
 *  the packet received should be dropped (according to its dr_path).
 *  This function is relevant both for mads sent by the SM and mads

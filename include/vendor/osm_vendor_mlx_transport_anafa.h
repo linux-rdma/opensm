@@ -36,11 +36,11 @@
 /**
  *  FILE                   osmv_transport.h
  *  AUTHOR                 Edward Bortnikov
- * 
+ *
  *  DESCRIPTION
  *     The lower-level MAD transport interface implementation
- *     that allows sending a single MAD/receiving a callback 
- *     when a single MAD is received.                      
+ *     that allows sending a single MAD/receiving a callback
+ *     when a single MAD is received.
 */
 
 #ifndef _OSMV_TRANSPORT_ANAFA_H_

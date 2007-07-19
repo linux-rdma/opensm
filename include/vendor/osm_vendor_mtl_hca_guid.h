@@ -36,7 +36,7 @@
 
 /*
  * Abstract:
- * 	Provides interface over VAPI for obtaining the local ports guids or from guid 
+ * 	Provides interface over VAPI for obtaining the local ports guids or from guid
  *    obtaining the HCA and port number.
  *
  * Environment:
@@ -130,7 +130,7 @@ osm_ca_info_get_port_guid( IN const osm_ca_info_t * const p_ca_info,
  *	osm_vendor_get_guid_ca_and_port
  *
  * DESCRIPTION
- * Given the vendor obj and a guid 
+ * Given the vendor obj and a guid
  * return the ca id and port number that have that guid
  *
  * SYNOPSIS
@@ -169,9 +169,9 @@ osm_vendor_get_guid_ca_and_port( IN osm_vendor_t * const p_vend,
  *	osm_vendor_get_all_port_attr
  *
  * DESCRIPTION
- * Fill in the array of port_attr with all available ports on ALL the 
+ * Fill in the array of port_attr with all available ports on ALL the
  * avilable CAs on this machine.
- * ALSO - 
+ * ALSO -
  * UPDATE THE VENDOR OBJECT LIST OF CA_INFO STRUCTS
  *
  * SYNOPSIS

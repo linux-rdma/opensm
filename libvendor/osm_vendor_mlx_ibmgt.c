@@ -197,7 +197,7 @@ osmv_transport_init(IN osm_bind_info_t *p_info,
       if ( IB_MGT_OK != ret )
       {
         osm_log(p_log, OSM_LOG_ERROR,
-                "osmv_transport_init: ERR 7202: " 
+                "osmv_transport_init: ERR 7202: "
                 "IB_MGT_get_handle for smi failed \n");
         st = IB_ERROR;
         free(p_mgr);
@@ -212,7 +212,7 @@ osmv_transport_init(IN osm_bind_info_t *p_info,
       if ( IB_MGT_OK != ret )
       {
         osm_log(p_log, OSM_LOG_ERROR,
-                "osmv_transport_init: ERR 7203: " 
+                "osmv_transport_init: ERR 7203: "
                 "IB_MGT_bind_sm failed \n");
         st = IB_ERROR;
         free( p_mgr);
@@ -224,7 +224,7 @@ osmv_transport_init(IN osm_bind_info_t *p_info,
       if (NULL == p_tpot_info->p_smi_list)
       {
         osm_log(p_bo->p_vendor->p_log, OSM_LOG_ERROR,
-                "osmv_transport_init: ERR 7204: " 
+                "osmv_transport_init: ERR 7204: "
                 "alloc failed \n");
         IB_MGT_unbind_sm(p_tpot_info->smi_h);
         IB_MGT_release_handle(p_tpot_info->smi_h);
@@ -245,7 +245,7 @@ osmv_transport_init(IN osm_bind_info_t *p_info,
       if (ret != IB_SUCCESS)
       {
         osm_log(p_bo->p_vendor->p_log, OSM_LOG_ERROR,
-                "osmv_transport_init: ERR 7205: " 
+                "osmv_transport_init: ERR 7205: "
                 "reg_cb failed with return code:%x \n",
                 ret
                 );
@@ -280,7 +280,7 @@ osmv_transport_init(IN osm_bind_info_t *p_info,
       if ( IB_MGT_OK != ret )
       {
         osm_log(p_log, OSM_LOG_ERROR,
-                "osmv_transport_init: ERR 7207: " 
+                "osmv_transport_init: ERR 7207: "
                 "IB_MGT_get_handle for gsi failed \n");
         st = IB_ERROR;
         free(p_mgr);
@@ -295,7 +295,7 @@ osmv_transport_init(IN osm_bind_info_t *p_info,
       if ( IB_MGT_OK != ret )
       {
         osm_log(p_log, OSM_LOG_ERROR,
-                "osmv_transport_init: ERR 7208: " 
+                "osmv_transport_init: ERR 7208: "
                 "IB_MGT_bind_gsi_class failed \n");
         st = IB_ERROR;
         free( p_mgr);
@@ -449,7 +449,7 @@ osmv_transport_mad_send(IN const osm_bind_handle_t h_bind,
   if ( ret != IB_MGT_OK )
   {
     osm_log( p_vend->p_log, OSM_LOG_ERROR,
-             "osmv_transport_mad_send: ERR 7210: " 
+             "osmv_transport_mad_send: ERR 7210: "
              "Error sending mad (%d).\n", ret );
     status = IB_ERROR;
   }
@@ -470,7 +470,7 @@ osmv_transport_mad_send(IN const osm_bind_handle_t h_bind,
     {
 
       osm_log(p_vend->p_log, OSM_LOG_ERROR,
-              "osmv_transport_mad_send: ERR 7211: " 
+              "osmv_transport_mad_send: ERR 7211: "
               "The handle %p is being unbound, cannot send.\n", h_bind);
       status = IB_ERROR;
     }
@@ -503,7 +503,7 @@ osmv_transport_done(IN const osm_bind_handle_t h_bind){
 
   CL_ASSERT(p_bo);
 
-  /* First of all - zero out the magic_ptr, so if a callback is called - 
+  /* First of all - zero out the magic_ptr, so if a callback is called -
      it'll know that we are currently closing down, and will not handle the
      mad. */
   p_bo->magic_ptr = 0;
@@ -543,7 +543,7 @@ osmv_transport_done(IN const osm_bind_handle_t h_bind){
       if ( ret != IB_MGT_OK )
       {
         osm_log( p_bo->p_vendor->p_log, OSM_LOG_ERROR,
-                 "osmv_transport_done: ERR 7212: " 
+                 "osmv_transport_done: ERR 7212: "
                  "Failed to unbind sm\n" );
       }
 
@@ -551,7 +551,7 @@ osmv_transport_done(IN const osm_bind_handle_t h_bind){
       if ( ret != IB_MGT_OK )
       {
         osm_log( p_bo->p_vendor->p_log, OSM_LOG_ERROR,
-                 "osmv_transport_done: ERR 7213: " 
+                 "osmv_transport_done: ERR 7213: "
                  "Failed to release smi handle\n" );
       }
       p_tpot_info->smi_h = 0xffffffff;
@@ -586,7 +586,7 @@ osmv_transport_done(IN const osm_bind_handle_t h_bind){
       if ( ret != IB_MGT_OK )
       {
         osm_log( p_bo->p_vendor->p_log, OSM_LOG_ERROR,
-                 "osmv_transport_done: ERR 7214: " 
+                 "osmv_transport_done: ERR 7214: "
                  "Failed to unbind gsi class\n" );
       }
     }
@@ -605,7 +605,7 @@ osmv_transport_done(IN const osm_bind_handle_t h_bind){
       if ( ret != IB_MGT_OK )
       {
         osm_log( p_bo->p_vendor->p_log, OSM_LOG_ERROR,
-                 "osmv_transport_done: ERR 7215: " 
+                 "osmv_transport_done: ERR 7215: "
                  "Failed to release gsi handle\n" );
       }
       p_tpot_info->gsi_h = 0xffffffff;

@@ -233,11 +233,11 @@ __osmv_sa_mad_err_cb(
 }
 
 /*****************************************************************************
- This routine needs to be invoked on every send - since the SM LID and Local 
- lid might change. To do that without any major perfoermance impact we cache 
- the results and time they were obtained. Refresh only twice a minute. 
+ This routine needs to be invoked on every send - since the SM LID and Local
+ lid might change. To do that without any major perfoermance impact we cache
+ the results and time they were obtained. Refresh only twice a minute.
  To avoid the need to use statics and risk a race - we require the refresh time
- to be stored in the context of the results. Also this coveres cases were 
+ to be stored in the context of the results. Also this coveres cases were
  we query for multiple guids.
  *****************************************************************************/
 ib_api_status_t
@@ -500,7 +500,7 @@ __osmv_send_sa_req(
 
   /*
     since the sm_lid might change we obtain it every send
-    (actually it is cached in the bind object and refreshed 
+    (actually it is cached in the bind object and refreshed
     every 30sec by this proc )
   */
   status =
@@ -527,7 +527,7 @@ __osmv_send_sa_req(
   if( p_madw == NULL )
   {
     osm_log( p_log, OSM_LOG_ERROR,
-             "__osmv_send_sa_req: ERR 0510: " 
+             "__osmv_send_sa_req: ERR 0510: "
              "Unable to acquire MAD.\n" );
     status = IB_INSUFFICIENT_RESOURCES;
     goto Exit;

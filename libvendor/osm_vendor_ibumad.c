@@ -341,7 +341,7 @@ umad_receiver(void *p_ptr)
 					"umad_receiver: ERR 5410: "
 					"class 0x%x LID 0x%x\n",
 					mad->mgmt_class,
-					cl_ntoh16(ib_mad_addr->lid)); 
+					cl_ntoh16(ib_mad_addr->lid));
 			} else {
 				ib_smp_t *smp;
 
@@ -385,7 +385,7 @@ umad_receiver(void *p_ptr)
 
 #ifndef VENDOR_RMPP_SUPPORT
 		if ((mad->mgmt_class != IB_MCLASS_SUBN_DIR) &&
-		    (mad->mgmt_class != IB_MCLASS_SUBN_LID) && 
+		    (mad->mgmt_class != IB_MCLASS_SUBN_LID) &&
 		    (ib_rmpp_is_flag_set((ib_rmpp_mad_t *)mad,
 						IB_RMPP_FLAG_ACTIVE))) {
 			osm_log( p_vend->p_log, OSM_LOG_ERROR,
@@ -588,8 +588,8 @@ osm_vendor_get_all_port_attr(
 		if ((r = umad_get_ca(p_vend->ca_names[i], &ca)) == 0) {
 			for (j = 0; j <= ca.numports; j++) {
 				if (ca.ports[j]) {
-					*p_lid = ca.ports[j]->base_lid; 
-					*p_linkstates = ca.ports[j]->state; 
+					*p_lid = ca.ports[j]->base_lid;
+					*p_linkstates = ca.ports[j]->state;
 					*p_portnum = ca.ports[j]->portnum;
 					free(ca.ports[j]);
 				}
@@ -860,7 +860,7 @@ osm_vendor_bind(
 			/* Add in IB_MAD_METHOD_GETTRACETABLE */
 			/* when supported by OpenSM */
 		}
-	} 
+	}
 	if (p_user_bind->is_report_processor)
 		set_bit(IB_MAD_METHOD_REPORT, &method_mask);
 	if (p_user_bind->is_trap_processor) {
@@ -1127,7 +1127,7 @@ Resp:
 	sent_mad_size = is_rmpp ? p_madw->mad_size - IB_SA_MAD_HDR_SIZE :
 				  p_madw->mad_size,
 #endif
-      
+
 	if ((ret = umad_send(p_bind->port_id, p_bind->agent_id, p_vw->umad,
 			     sent_mad_size,
 			     resp_expected ? p_vend->timeout : 0,
@@ -1136,7 +1136,7 @@ Resp:
 			get_madw(p_vend, &p_mad->trans_id);	/* remove from aging table */
 		osm_log(p_vend->p_log, OSM_LOG_ERROR,
 			"osm_vendor_send: ERR 5430: "
-			"Send p_madw = %p of size %d failed %d (%m)\n", 
+			"Send p_madw = %p of size %d failed %d (%m)\n",
 			p_madw, sent_mad_size, ret);
 		p_madw->status = IB_ERROR;
 		pthread_mutex_lock(&p_vend->cb_mutex);
