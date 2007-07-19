@@ -49,7 +49,7 @@ typedef struct _osmt_qp_ctx
   uint8_t *p_send_buf;
   uint8_t *p_recv_buf;
 #ifdef OSM_VENDOR_INTF_MTL
-  IB_MGT_mad_hndl_t ib_mgt_qp0_handle; 
+  IB_MGT_mad_hndl_t ib_mgt_qp0_handle;
 #endif
 }
 osmt_qp_ctx_t;

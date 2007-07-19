@@ -565,11 +565,11 @@ osmt_get_service_by_id_and_name ( IN osmtest_t * const p_osmt,
     /* If the failure is due to IB_SA_MAD_STATUS_NO_RECORDS and rec_num is 0,
         then this is fine */
     if( status == IB_REMOTE_ERROR )
-      strcpy(mad_stat_err, ib_get_mad_status_str( 
+      strcpy(mad_stat_err, ib_get_mad_status_str(
              osm_madw_get_mad_ptr(context.result.p_result_madw) ) );
     else
       strcpy(mad_stat_err, ib_get_err_str(status) );
-    if( status == IB_REMOTE_ERROR && 
+    if( status == IB_REMOTE_ERROR &&
         !strcmp(mad_stat_err, "IB_SA_MAD_STATUS_NO_RECORDS") &&
         rec_num == 0 )
     {
@@ -704,12 +704,12 @@ osmt_get_service_by_id ( IN osmtest_t * const p_osmt,
     /* If the failure is due to IB_SA_MAD_STATUS_NO_RECORDS and rec_num is 0,
         then this is fine */
     if( status == IB_REMOTE_ERROR )
-      strcpy(mad_stat_err, ib_get_mad_status_str( 
+      strcpy(mad_stat_err, ib_get_mad_status_str(
              osm_madw_get_mad_ptr(context.result.p_result_madw) ) );
     else
       strcpy(mad_stat_err, ib_get_err_str(status) );
 
-    if( status == IB_REMOTE_ERROR && 
+    if( status == IB_REMOTE_ERROR &&
         !strcmp(mad_stat_err, "IB_SA_MAD_STATUS_NO_RECORDS") &&
         rec_num == 0 )
     {
@@ -790,13 +790,13 @@ osmt_get_service_by_name_and_key ( IN osmtest_t * const p_osmt,
   if( osm_log_is_active( &p_osmt->log, OSM_LOG_VERBOSE ) )
   {
     char buf_service_key[33];
-    
+
     sprintf(buf_service_key,
             "0x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
             skey[0], skey[1], skey[2], skey[3], skey[4], skey[5], skey[6], skey[7],
             skey[8], skey[9], skey[10], skey[11], skey[12], skey[13], skey[14],
             skey[15]);
-    
+
     osm_log( &p_osmt->log, OSM_LOG_VERBOSE,
              "osmt_get_service_by_name_and_key: "
              "Getting service record: name: %s and key: %s\n",
@@ -859,12 +859,12 @@ osmt_get_service_by_name_and_key ( IN osmtest_t * const p_osmt,
     /* If the failure is due to IB_SA_MAD_STATUS_NO_RECORDS and rec_num is 0,
         then this is fine */
     if( status == IB_REMOTE_ERROR )
-      strcpy(mad_stat_err, ib_get_mad_status_str( 
+      strcpy(mad_stat_err, ib_get_mad_status_str(
              osm_madw_get_mad_ptr(context.result.p_result_madw) ) );
     else
       strcpy(mad_stat_err, ib_get_err_str(status) );
 
-    if( status == IB_REMOTE_ERROR && 
+    if( status == IB_REMOTE_ERROR &&
         !strcmp(mad_stat_err, "IB_SA_MAD_STATUS_NO_RECORDS") &&
         rec_num == 0 )
     {
@@ -991,12 +991,12 @@ osmt_get_service_by_name( IN osmtest_t * const p_osmt,
     /*  If the failure is due to IB_SA_MAD_STATUS_NO_RECORDS and rec_num is 0,
         then this is fine */
     if( status == IB_REMOTE_ERROR )
-      strcpy(mad_stat_err, ib_get_mad_status_str( 
+      strcpy(mad_stat_err, ib_get_mad_status_str(
              osm_madw_get_mad_ptr(context.result.p_result_madw) ) );
     else
       strcpy(mad_stat_err, ib_get_err_str(status) );
 
-    if( status == IB_REMOTE_ERROR && 
+    if( status == IB_REMOTE_ERROR &&
         !strcmp(mad_stat_err, "IB_SA_MAD_STATUS_NO_RECORDS") &&
         rec_num == 0 )
     {
@@ -1075,7 +1075,7 @@ osmt_get_all_services_and_check_names( IN osmtest_t * const p_osmt,
 
   /* Prepare tracker for the checked names */
   p_checked_names = (uint8_t*)malloc(sizeof(uint8_t)*num_of_valid_names);
-  for (j = 0 ; j < num_of_valid_names ; j++) 
+  for (j = 0 ; j < num_of_valid_names ; j++)
   {
       p_checked_names[j] = 0;
   }
@@ -1141,7 +1141,7 @@ osmt_get_all_services_and_check_names( IN osmtest_t * const p_osmt,
   osm_log( &p_osmt->log, OSM_LOG_VERBOSE,
              "osmt_get_all_services_and_check_names: "
              "Received %u records\n", num_recs );
-    
+
   for( i = 0; i < num_recs; i++ )
     {
       p_rec = osmv_get_query_svc_rec( context.result.p_result_madw, i );
@@ -1150,13 +1150,13 @@ osmt_get_all_services_and_check_names( IN osmtest_t * const p_osmt,
                "Found service record: name: %s id: 0x%016" PRIx64 "\n",
                p_rec->service_name, cl_ntoh64(p_rec->service_id));
       osm_dump_service_record(&p_osmt->log, p_rec, OSM_LOG_VERBOSE);
-      for ( j = 0; j < num_of_valid_names; j++) 
+      for ( j = 0; j < num_of_valid_names; j++)
       {
           /* If the service names exist in the record, mark it as checked (1) */
           osm_log( &p_osmt->log, OSM_LOG_VERBOSE,
                    "osmt_get_all_services_and_check_names: "
                    "-I- Comparing source name : >%s<, with record name : >%s<, idx : %d\n",
-                   p_valid_service_names_arr[j], p_rec->service_name, p_checked_names[j]);     
+                   p_valid_service_names_arr[j], p_rec->service_name, p_checked_names[j]);
           if ( strcmp((char *)p_valid_service_names_arr[j],
                       (char *)p_rec->service_name) == 0 )
           {
@@ -1169,8 +1169,8 @@ osmt_get_all_services_and_check_names( IN osmtest_t * const p_osmt,
       }
     }
   /* Check that all service names have been identified */
-  for ( j = 0; j < num_of_valid_names; j++) 
-      if (p_checked_names[j] == 0) 
+  for ( j = 0; j < num_of_valid_names; j++)
+      if (p_checked_names[j] == 0)
       {
           osm_log( &p_osmt->log, OSM_LOG_ERROR,
                    "osmt_get_all_services_and_check_names: ERR 4A14: "
@@ -1287,7 +1287,7 @@ osmt_delete_service_by_name(IN osmtest_t * const p_osmt,
       osm_log( &p_osmt->log, OSM_LOG_ERROR,
                "osmt_delete_service_by_name: ERR 4A19: "
                "Succeeded to delete service: %s which "
-               "shouldn't exist", 
+               "shouldn't exist",
                sr_name );
       status = IB_ERROR;
     }
@@ -1303,7 +1303,7 @@ osmt_delete_service_by_name(IN osmtest_t * const p_osmt,
                "Failed to delete service_name: %s\n",
                sr_name );
       status = IB_SUCCESS;
-    }      
+    }
   }
 
  Exit:
@@ -1579,7 +1579,7 @@ osmt_run_service_records_flow( IN osmtest_t * const p_osmt ) {
     status = IB_ERROR;
     goto Exit;
   }
-  
+
   /*  Check by both id and service name: id[5], service_name[6] */
   status = osmt_get_service_by_id_and_name(p_osmt, 1, cl_ntoh64(id[5]),
                                            (char*)service_name[6], &srv_rec);
@@ -1674,7 +1674,7 @@ osmt_run_service_records_flow( IN osmtest_t * const p_osmt ) {
      exist with this name. */
   status = osmt_get_service_by_name_and_key (p_osmt,
                                              (char*)service_name[5],
-                                             0, service_key,&srv_rec);  
+                                             0, service_key,&srv_rec);
   if (status != IB_SUCCESS)
   {
     osm_log( &p_osmt->log, OSM_LOG_ERROR,
@@ -1701,9 +1701,9 @@ osmt_run_service_records_flow( IN osmtest_t * const p_osmt ) {
     status = IB_ERROR;
     goto Exit;
   }
-      
+
   /* check for service_name[6] with the correct service_key */
-  for (i = 0; i <= 15; i++) 
+  for (i = 0; i <= 15; i++)
     service_key[i]=i + 1;
   status = osmt_get_service_by_name_and_key (p_osmt,
                                              (char*)service_name[6],
@@ -1736,7 +1736,7 @@ osmt_run_service_records_flow( IN osmtest_t * const p_osmt ) {
   }
 #endif
 
-  /* Delete service_name[0] */ 
+  /* Delete service_name[0] */
   status = osmt_delete_service_by_name(p_osmt, 1,
                                        (char*)service_name[0], 1);
   if (status != IB_SUCCESS)

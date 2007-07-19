@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Voltaire, Inc. All rights reserved. 
+ * Copyright (c) 2006 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -857,7 +857,7 @@ osmt_run_trap64_65_flow( IN osmtest_t * const p_osmt) {
   }
 
   /* init the inform info */
-  osmt_init_inform_info_by_trap(p_osmt, 
+  osmt_init_inform_info_by_trap(p_osmt,
                                 cl_hton16(64),
                                 &inform_info);
 
@@ -890,8 +890,8 @@ osmt_run_trap64_65_flow( IN osmtest_t * const p_osmt) {
            "Posted recv bufs for trap 64\n");
 
   /* init the inform info */
-  osmt_init_inform_info_by_trap(p_osmt, 
-                                cl_hton16(65), 
+  osmt_init_inform_info_by_trap(p_osmt,
+                                cl_hton16(65),
                                 &inform_info);
 
   /* send the inform info registration */

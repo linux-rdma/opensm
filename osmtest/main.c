@@ -323,7 +323,7 @@ main( int argc,
 		{NULL, 0, NULL, 0}		/* Required at end of array */
 	};
 
-  /* Make sure that the opensm, complib and osmtest were compiled using 
+  /* Make sure that the opensm, complib and osmtest were compiled using
      same modes (debug/free) */
   if ( osm_is_debug() != cl_is_debug() || osm_is_debug() != osmt_is_debug() ||
        osmt_is_debug() != cl_is_debug() )

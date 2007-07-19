@@ -38,7 +38,7 @@
  *    Implementation of SLtoVL and VL Arbitration testing flow..
  *    Top level is osmt_run_slvl_and_vlarb_records_flow:
  *     osmt_query_all_ports_vl_arb
- *     osmt_query_all_ports_slvl_map 
+ *     osmt_query_all_ports_slvl_map
  *
  * Environment:
  *    Linux User Mode
@@ -216,7 +216,7 @@ osmt_query_all_ports_vl_arb( IN osmtest_t * const p_osmt,
 
   /*
    * Go over all ports that exist in the subnet
-   * get the relevant VLarbs 
+   * get the relevant VLarbs
    */
 
   p_tbl = &p_osmt->exp_subn.port_key_tbl;
@@ -303,7 +303,7 @@ osmtest_write_slvl_map_table( IN osmtest_t * const p_osmt,
     fprintf( fh,"| %-2u  ", i);
   fprintf( fh, "|\nVL:");
 
-  for (i = 0; i < 16; i++) 
+  for (i = 0; i < 16; i++)
     fprintf( fh,"| 0x%01X ", ib_slvl_table_get( &p_rec->slvl_tbl, (uint8_t)i));
   fprintf( fh,"|\nEND\n\n");
 

@@ -59,9 +59,9 @@
 #endif
 
 #define STRESS_SMALL_RMPP_THR 100000
-/* 
+/*
     Take long times when quering big clusters (over 40 nodes) , an average of : 0.25 sec for query
-    each query receives 1000 records 
+    each query receives 1000 records
 */
 #define STRESS_LARGE_RMPP_THR 4000
 #define STRESS_LARGE_PR_RMPP_THR 20000

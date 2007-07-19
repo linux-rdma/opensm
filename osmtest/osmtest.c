@@ -1787,7 +1787,7 @@ osmtest_wrong_sm_key_ignored( IN osmtest_t * const p_osmt)
     osm_log( &p_osmt->log, OSM_LOG_INFO,
              "osmtest_wrong_sm_key_ignored: "
              "Trying PortInfoRecord for port with LID 0x%X Num:0x%X\n",
-             p_osmt->local_port.sm_lid, 
+             p_osmt->local_port.sm_lid,
              port_num );
   }
 
@@ -3289,7 +3289,7 @@ osmtest_validate_path_data( IN osmtest_t * const p_osmt,
   if (status != IB_SUCCESS)
     goto Exit;
 
-  /* HACK: Assume uniform LMC across endports in the subnet */ 
+  /* HACK: Assume uniform LMC across endports in the subnet */
   /* This is the only LMC mode which OpenSM currently supports */
   /* In absence of this assumption, validation of this is much more complicated */
   if ( lmc == 0 )
@@ -4281,7 +4281,7 @@ osmtest_validate_all_node_recs( IN osmtest_t * const p_osmt )
  **********************************************************************/
 static ib_api_status_t
 osmtest_validate_all_guidinfo_recs( IN osmtest_t * const p_osmt )
-{   
+{
   osmtest_req_context_t context;
   const ib_guidinfo_record_t *p_rec;
   cl_status_t status;
@@ -4512,7 +4512,7 @@ ib_api_status_t
 osmtest_get_guidinfo_rec_by_lid( IN osmtest_t * const p_osmt,
                                  IN ib_net16_t const  lid,
                                  IN OUT osmtest_req_context_t * const p_context )
-{   
+{
   ib_api_status_t status = IB_SUCCESS;
   osmv_user_query_t user;
   osmv_query_req_t req;
@@ -4898,10 +4898,10 @@ osmtest_get_mft_rec_by_lid( IN osmtest_t * const p_osmt,
   req.query_type = OSMV_QUERY_USER_DEFINED;
   req.timeout_ms = p_osmt->opt.transaction_timeout;
   req.retry_cnt = p_osmt->opt.retry_count;
-    
+
   req.flags = OSM_SA_FLAGS_SYNC;
   req.query_context = p_context;
-  req.pfn_query_cb = osmtest_query_res_cb; 
+  req.pfn_query_cb = osmtest_query_res_cb;
   req.p_query_input = &user;
   req.sm_key = 0;
 
@@ -5537,7 +5537,7 @@ osmtest_validate_single_path_recs( IN osmtest_t * const p_osmt )
   path_t *p_path;
   cl_status_t status = IB_SUCCESS;
   const cl_qmap_t *p_path_tbl;
-/* We skip node to node path record validation since it might contains 
+/* We skip node to node path record validation since it might contains
    NONEXISTENT PATHS, i.e. when using UPDN */
   osmv_guid_pair_t guid_pair;
   uint16_t cnt;
@@ -5778,7 +5778,7 @@ osmtest_validate_against_db( IN osmtest_t * const p_osmt )
 #ifdef DUAL_SIDED_RMPP
   osmv_multipath_req_t request;
 #endif
-  uint8_t i; 
+  uint8_t i;
 #endif
 
   OSM_LOG_ENTER( &p_osmt->log, osmtest_validate_against_db );
@@ -5980,7 +5980,7 @@ osmtest_validate_against_db( IN osmtest_t * const p_osmt )
   test_lid = cl_ntoh16( p_osmt->local_port.lid );
 
   /* More GUIDInfo Record tests */
-  memset( &context, 0, sizeof( context ) ); 
+  memset( &context, 0, sizeof( context ) );
   status = osmtest_get_guidinfo_rec_by_lid( p_osmt, test_lid, &context );
   if ( status != IB_SUCCESS )
     goto Exit;
@@ -6049,7 +6049,7 @@ osmtest_validate_against_db( IN osmtest_t * const p_osmt )
   status = osmtest_get_mft_rec_by_lid( p_osmt, 0, &context );
   if ( status != IB_SUCCESS )
     goto Exit;
-  
+
   memset( &context, 0, sizeof( context ) );
   status = osmtest_get_mft_rec_by_lid( p_osmt, test_lid, &context );
   if ( status != IB_SUCCESS )
@@ -6200,7 +6200,7 @@ osmtest_validate_against_db( IN osmtest_t * const p_osmt )
 
   osm_log( &p_osmt->log, OSM_LOG_VERBOSE,
            "osmtest_informinfo_request: InformInfo "
-           "Sending a BAD - Set Unsubscribe request\n"); 
+           "Sending a BAD - Set Unsubscribe request\n");
   memset( &context, 0, sizeof( context ) );
   status = osmtest_informinfo_request( p_osmt, IB_MAD_ATTR_INFORM_INFO,
                                        IB_MAD_METHOD_SET, &inform_info_opt,
@@ -7562,7 +7562,7 @@ osmtest_parse_path( IN osmtest_t * const p_osmt,
     }
   }
 
-  if( got_error ) 
+  if( got_error )
   {
     status = IB_ERROR;
     goto Exit;
@@ -8035,7 +8035,7 @@ osmtest_run( IN osmtest_t * const p_osmt )
        {
          /*
           * Only validate the given inventory file
-          */ 
+          */
          status = osmtest_create_db( p_osmt );
          if( status != IB_SUCCESS )
          {
@@ -8090,7 +8090,7 @@ osmtest_run( IN osmtest_t * const p_osmt )
        if (p_osmt->opt.flow == OSMT_FLOW_ALL ||
            p_osmt->opt.flow == OSMT_FLOW_EVENT_FORWARDING)
        {
-          /* 
+          /*
            * Run event forwarding test
            */
 #ifdef OSM_VENDOR_INTF_MTL
@@ -8115,7 +8115,7 @@ osmtest_run( IN osmtest_t * const p_osmt )
 
         if (p_osmt->opt.flow == OSMT_FLOW_QOS)
         {
-          /* 
+          /*
            * QoS info: dump VLArb and SLtoVL tables.
            * Since it generates a huge file, we run it only
            * if explicitly required to
@@ -8170,7 +8170,7 @@ osmtest_run( IN osmtest_t * const p_osmt )
         {
           /*
            * Multicast flow
-           */ 
+           */
           status = osmt_run_mcast_flow( p_osmt );
           if( status != IB_SUCCESS )
           {

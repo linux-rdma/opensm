@@ -87,12 +87,12 @@ __osmt_print_all_multicast_records(
    /* UnTrusted (SMKey of 0)  - get the multicast groups */
    status = osmv_query_sa(p_osmt->h_bind, &req);
 
-   if (status != IB_SUCCESS || context.result.status != IB_SUCCESS) 
+   if (status != IB_SUCCESS || context.result.status != IB_SUCCESS)
    {
       osm_log( &p_osmt->log, OSM_LOG_ERROR,
                "__osmt_print_all_multicast_records: ERR 02B5: "
-               "Failed getting the multicast groups records - %s/%s\n", 
-               ib_get_err_str(status), 
+               "Failed getting the multicast groups records - %s/%s\n",
+               ib_get_err_str(status),
                ib_get_err_str(context.result.status) );
       return;
    }
@@ -111,12 +111,12 @@ __osmt_print_all_multicast_records(
    req.sm_key = OSM_DEFAULT_SM_KEY;
    status = osmv_query_sa(p_osmt->h_bind, &req);
 
-   if (status != IB_SUCCESS || context.result.status != IB_SUCCESS) 
+   if (status != IB_SUCCESS || context.result.status != IB_SUCCESS)
    {
       osm_log( &p_osmt->log, OSM_LOG_ERROR,
                "__osmt_print_all_multicast_records: ERR 02B6: "
-               "Failed getting the multicast group members records - %s/%s\n", 
-               ib_get_err_str(status), 
+               "Failed getting the multicast group members records - %s/%s\n",
+               ib_get_err_str(status),
                ib_get_err_str(context.result.status) );
       return;
    }
@@ -558,7 +558,7 @@ osmt_run_mcast_flow( IN osmtest_t * const p_osmt ) {
   };
   static ib_gid_t osm_link_local_mgid = {
     {
-      0xFF, 0x02, 0x00, 0x00, 
+      0xFF, 0x02, 0x00, 0x00,
       0x00, 0x00, 0x00, 0x00,
       0x00, 0x00, 0x00, 0x00,
       0x00, 0x00, 0x00, 0x01
@@ -696,7 +696,7 @@ osmt_run_mcast_flow( IN osmtest_t * const p_osmt ) {
 
     mc_req_rec.mtu = p_mc_res->mtu;
     mc_req_rec.rate = p_mc_res->rate;
-    /* Set feasible mtu & rate that will allow check the 
+    /* Set feasible mtu & rate that will allow check the
         exact statement of OpenSM */
     mtu_phys = p_mc_res->mtu;
     rate_phys = p_mc_res->rate;
@@ -841,7 +841,7 @@ osmt_run_mcast_flow( IN osmtest_t * const p_osmt ) {
                                     &res_sa_mad );
   osm_log( &p_osmt->log, OSM_LOG_ERROR,
            "osmt_run_mcast_flow: " EXPECTING_ERRORS_END "\n" );
-           
+
   if (status != IB_REMOTE_ERROR ||
       (( ib_net16_t ) (res_sa_mad.status & IB_SMP_STATUS_MASK )) !=
       IB_SA_MAD_STATUS_INSUF_COMPS) {
@@ -885,7 +885,7 @@ osmt_run_mcast_flow( IN osmtest_t * const p_osmt ) {
                                     &res_sa_mad );
   osm_log( &p_osmt->log, OSM_LOG_ERROR,
            "osmt_run_mcast_flow: " EXPECTING_ERRORS_END "\n" );
-           
+
   if (status != IB_REMOTE_ERROR ||
       (( ib_net16_t ) (res_sa_mad.status & IB_SMP_STATUS_MASK )) !=
       IB_SA_MAD_STATUS_INSUF_COMPS) {
@@ -2061,7 +2061,7 @@ osmt_run_mcast_flow( IN osmtest_t * const p_osmt ) {
 
   osm_log( &p_osmt->log, OSM_LOG_ERROR,
            "osmt_run_mcast_flow: " EXPECTING_ERRORS_START "\n" );
-  
+
   mc_req_rec.mgid.raw[0] = 0xFA;
   status = osmt_send_mcast_request( p_osmt, 1,
                                     &mc_req_rec,
@@ -2100,7 +2100,7 @@ osmt_run_mcast_flow( IN osmtest_t * const p_osmt ) {
                                     &res_sa_mad );
   osm_log( &p_osmt->log, OSM_LOG_ERROR,
            "osmt_run_mcast_flow: " EXPECTING_ERRORS_END "\n" );
-  
+
   if ((status != IB_REMOTE_ERROR) ||
       (res_sa_mad.status != IB_SA_MAD_STATUS_REQ_INVALID)) {
     osm_log( &p_osmt->log, OSM_LOG_ERROR,
@@ -2132,7 +2132,7 @@ osmt_run_mcast_flow( IN osmtest_t * const p_osmt ) {
                                     &res_sa_mad );
   osm_log( &p_osmt->log, OSM_LOG_ERROR,
            "osmt_run_mcast_flow: " EXPECTING_ERRORS_END "\n" );
-           
+
   if ((status != IB_REMOTE_ERROR) ||
       (res_sa_mad.status != IB_SA_MAD_STATUS_REQ_INVALID)) {
     osm_log( &p_osmt->log, OSM_LOG_ERROR,
@@ -2281,7 +2281,7 @@ osmt_run_mcast_flow( IN osmtest_t * const p_osmt ) {
                                     &res_sa_mad );
   osm_log( &p_osmt->log, OSM_LOG_ERROR,
            "osmt_run_mcast_flow: " EXPECTING_ERRORS_END "\n" );
-           
+
   if ((status != IB_REMOTE_ERROR) ||
       (res_sa_mad.status != IB_SA_MAD_STATUS_REQ_INVALID)) {
     osm_log( &p_osmt->log, OSM_LOG_ERROR,
@@ -2352,7 +2352,7 @@ osmt_run_mcast_flow( IN osmtest_t * const p_osmt ) {
                                     &res_sa_mad );
   osm_log( &p_osmt->log, OSM_LOG_ERROR,
            "osmt_run_mcast_flow: " EXPECTING_ERRORS_END "\n" );
-           
+
   if ((status != IB_REMOTE_ERROR) ||
       (res_sa_mad.status != IB_SA_MAD_STATUS_REQ_INVALID)) {
     osm_log( &p_osmt->log, OSM_LOG_ERROR,
@@ -2651,7 +2651,7 @@ osmt_run_mcast_flow( IN osmtest_t * const p_osmt ) {
                                     &res_sa_mad );
   osm_log( &p_osmt->log, OSM_LOG_ERROR,
            "osmt_run_mcast_flow: " EXPECTING_ERRORS_END "\n" );
-           
+
   if ((status != IB_REMOTE_ERROR) ||
       (res_sa_mad.status != IB_SA_MAD_STATUS_REQ_INVALID)) {
     osm_log( &p_osmt->log, OSM_LOG_ERROR,
@@ -2695,7 +2695,7 @@ osmt_run_mcast_flow( IN osmtest_t * const p_osmt ) {
                                     &res_sa_mad );
   osm_log( &p_osmt->log, OSM_LOG_ERROR,
            "osmt_run_mcast_flow: " EXPECTING_ERRORS_END "\n" );
-           
+
   if ((status != IB_REMOTE_ERROR) ||
       (res_sa_mad.status != IB_SA_MAD_STATUS_REQ_INVALID)) {
     osm_log( &p_osmt->log, OSM_LOG_ERROR,
@@ -2739,7 +2739,7 @@ osmt_run_mcast_flow( IN osmtest_t * const p_osmt ) {
                                     &res_sa_mad );
   osm_log( &p_osmt->log, OSM_LOG_ERROR,
            "osmt_run_mcast_flow: " EXPECTING_ERRORS_END "\n" );
-           
+
   if ((status != IB_REMOTE_ERROR) ||
       (res_sa_mad.status != IB_SA_MAD_STATUS_REQ_INVALID)) {
     osm_log( &p_osmt->log, OSM_LOG_ERROR,
@@ -2863,7 +2863,7 @@ osmt_run_mcast_flow( IN osmtest_t * const p_osmt ) {
                                     &res_sa_mad );
   osm_log( &p_osmt->log, OSM_LOG_ERROR,
            "osmt_run_mcast_flow: " EXPECTING_ERRORS_END "\n" );
-  
+
   if (status != IB_REMOTE_ERROR)
   {
     osm_log( &p_osmt->log, OSM_LOG_ERROR,
@@ -2896,7 +2896,7 @@ osmt_run_mcast_flow( IN osmtest_t * const p_osmt ) {
                                     &res_sa_mad );
   osm_log( &p_osmt->log, OSM_LOG_ERROR,
            "osmt_run_mcast_flow: " EXPECTING_ERRORS_END "\n" );
-           
+
   if ((status != IB_REMOTE_ERROR) ||
       (res_sa_mad.status != IB_SA_MAD_STATUS_REQ_INVALID)) {
     osm_log( &p_osmt->log, OSM_LOG_ERROR,
@@ -3062,7 +3062,7 @@ osmt_run_mcast_flow( IN osmtest_t * const p_osmt ) {
                                     &res_sa_mad );
   osm_log( &p_osmt->log, OSM_LOG_ERROR,
            "osmt_run_mcast_flow: " EXPECTING_ERRORS_END "\n" );
-           
+
   if (status == IB_SUCCESS)
   {
     osm_log( &p_osmt->log, OSM_LOG_ERROR,
@@ -3416,7 +3416,7 @@ osmt_run_mcast_flow( IN osmtest_t * const p_osmt ) {
     goto Exit;
   }
 
-  /* If we are in single mode check flow - need to make sure all the multicast groups 
+  /* If we are in single mode check flow - need to make sure all the multicast groups
      that are left are not ones created during the flow.
   */
   if (p_osmt->opt.mmode == 1 || p_osmt->opt.mmode == 3)
@@ -3439,7 +3439,7 @@ osmt_run_mcast_flow( IN osmtest_t * const p_osmt ) {
                start_cnt,            /* Total: IPoIB and MC Records unrelated to the test */
                fail_to_delete_mcg,   /* Failed to delete at the end */
                end_ipoib_cnt,        /* IPoIB records */
-               end_cnt);             /* Total MC Records at the end */   
+               end_cnt);             /* Total MC Records at the end */
 
       /* when we compare num of MCG we should consider an outside source which create other MCGs */
       if ((end_cnt - fail_to_delete_mcg-end_ipoib_cnt) != (start_cnt - mcg_outside_test_cnt - start_ipoib_cnt))

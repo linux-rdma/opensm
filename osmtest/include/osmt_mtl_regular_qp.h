@@ -42,9 +42,9 @@
  *
  *  Authors:
  *    Elazar Raab
- * 
+ *
  *  Changes:
- */           
+ */
 
 #ifndef H_MAD_H
 #define H_MAD_H
@@ -56,15 +56,15 @@
 
 
 #if defined(MAD_IN) || defined(MAD_OUT)
-#error MACROS MAD_IN and MAD_OUT are in use, do not override 
+#error MACROS MAD_IN and MAD_OUT are in use, do not override
 #endif
 #define MAD_IN
 #define MAD_OUT
-   
+
 
 
 /* HCA Constants */
-#define HCA_ID     "mt21108_pci0" 
+#define HCA_ID     "mt21108_pci0"
 #define GRH_LEN 40
 #define KNOWN_QP1_QKEY 0x80010000
 
@@ -84,7 +84,7 @@
 
 /* Verbs SQP resources handles */
 typedef struct {
-  VAPI_hca_id_t       hca_id;                   /*id of HCA*/             
+  VAPI_hca_id_t       hca_id;                   /*id of HCA*/
   u_int8_t            port_num;                 /* the port num to use */
   VAPI_hca_hndl_t     hca_hndl;                 /*handle of HCA*/
   VAPI_qp_hndl_t      qp_hndl;                  /*handle of QP I use*/
@@ -92,18 +92,18 @@ typedef struct {
   VAPI_cq_hndl_t      rq_cq_hndl, sq_cq_hndl;  /*handle of send & receive completion Queues*/
   VAPI_pd_hndl_t      pd_hndl;                 /*handle of Partition Domain*/
  /* VAPI_ud_av_hndl_t   av_hndl;*/
-  IB_lid_t            slid;                   /*LID*/ 
-  void               *buf_ptr;                /*mem buffer for outstanding pkts*/ 
+  IB_lid_t            slid;                   /*LID*/
+  void               *buf_ptr;                /*mem buffer for outstanding pkts*/
   MT_size_t           buf_size;               /*size of mem buffer for outstanding pkts*/
-  
-  u_int32_t           max_outs_sq;            /*max # of outstanding pkts in send queue*/ 
-  u_int32_t           max_outs_rq;            /*max # of outstanding pkts in receive queue*/ 
+
+  u_int32_t           max_outs_sq;            /*max # of outstanding pkts in send queue*/
+  u_int32_t           max_outs_rq;            /*max # of outstanding pkts in receive queue*/
 
   IB_rkey_t           l_key;                /*my l_key for memory regions*/
   VAPI_qkey_t         qkey;                 /*my qkey*/
 
   EVAPI_compl_handler_hndl_t  rq_cq_eventh, sq_cq_eventh; /* event handlers for polling */
-  
+
   bool is_sqp;                              /* relate to union below - my QP*/
   union {
     VAPI_special_qp_t sqp_type;
@@ -116,10 +116,10 @@ typedef struct {
 /* init an osmt_mtl_mad_res_t with all resources initialized (use functions below) */
 VAPI_ret_t osmt_mtl_init(
       osmt_mtl_mad_res_t* res          /*pointer to res (resources) struct*/
-    ); 
+    );
 VAPI_ret_t osmt_mtl_init_opened_hca(
       osmt_mtl_mad_res_t* res          /*pointer to res (resources) struct*/
-    ); 
+    );
 
 /* Cleanup all resources of (which are valid) in res */
 VAPI_ret_t osmt_mtl_mad_cleanup(
@@ -159,7 +159,7 @@ VAPI_ret_t osmt_mtl_mad_send(
     IB_sl_t sl,             /*Service Level*/
     u_int32_t dest_qkey,     /*Destination QP KEY*/
 	 VAPI_ud_av_hndl_t avh   /* address vectr handle to use */
-);   
+);
 
 
 /* post buffers to RQ. returns num of buffers actually posted */
@@ -175,8 +175,8 @@ int osmt_mtl_mad_post_recv_bufs(
 /* Poll given CQ for completion max_poll times (POLL_SLEEP [usec] delays). result in wc_desc_p. */
 VAPI_ret_t osmt_mtl_mad_poll4cqe(
     VAPI_hca_hndl_t hca,        /*handle for HCA*/
-    VAPI_cq_hndl_t cq,          /*handle for Completion Queue - Rcv/Send  */ 
-    VAPI_wc_desc_t *wc_desc_p,  /*handle of cqe */                  
+    VAPI_cq_hndl_t cq,          /*handle for Completion Queue - Rcv/Send  */
+    VAPI_wc_desc_t *wc_desc_p,  /*handle of cqe */
     u_int32_t max_poll,         /*number of polling iterations*/
     u_int32_t poll_sleep,        /*timeout for each polling    */
 	 VAPI_ud_av_hndl_t *avh_p   /* address vectopr handle to cleanup */

@@ -147,7 +147,7 @@ typedef struct _port
 {
   cl_map_item_t map_item;		/* must be first element! */
   uint32_t count;				/* must be second element! */
-  /* Since there is no unique identifier for all ports we 
+  /* Since there is no unique identifier for all ports we
 	  must be able to have such a key by the lid and port num */
   uint64_t port_id;
   ib_portinfo_record_t rec;
@@ -194,7 +194,7 @@ port_delete( IN port_t * p_obj )
 }
 
 static inline uint64_t
-port_gen_id( 
+port_gen_id(
 				 IN ib_net16_t const lid,
 				 IN uint8_t const port_num)
 {

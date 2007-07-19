@@ -47,7 +47,7 @@
  *
  *  End of legal section ......................................................
  *
- *  osmt_mtl_regular_qp.c - 
+ *  osmt_mtl_regular_qp.c -
  *    Provide Simple Interface for Sending and Receiving MADS through a regular QP
  *
  *  Creation date:
@@ -56,9 +56,9 @@
  *
  *  Authors:
  *    Eitan Zahavi
- * 
+ *
  *  Changes:
- */           
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -137,7 +137,7 @@ VAPI_ret_t osmt_mtl_qp_init(osmt_mtl_mad_res_t *res)
   VAPI_qp_cap_t       qp_cap;
 
 
-  /* 
+  /*
    * Change QP to INIT
    *
    */
@@ -178,7 +178,7 @@ VAPI_ret_t osmt_mtl_qp_2_rtr_rts(osmt_mtl_mad_res_t *res)
 
   ret = VAPI_modify_qp(res->hca_hndl, res->qp_hndl, &qp_attr, &qp_attr_mask, &qp_cap); VAPI_CHECK_RET;
 
-  /* 
+  /*
    * Change QP to RTS
    *
    */
