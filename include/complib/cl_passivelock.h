@@ -37,7 +37,7 @@
  * Abstract:
  *	This file contains the passive lock, which synchronizes passive threads.
  *	The passive lock allows multiple readers to access a resource
- *	simultaneously, exclusive from a single thread allowed writing.  
+ *	simultaneously, exclusive from a single thread allowed writing.
  * Several writer threads are allowed - but only one can write at a given time
  *
  * Environment:
@@ -249,7 +249,7 @@ cl_plock_acquire(
 	cl_status_t	status;
 	CL_ASSERT( p_lock );
    CL_ASSERT( p_lock->state == CL_INITIALIZED );
-   
+
    status = (cl_status_t)pthread_rwlock_rdlock(&p_lock->lock);
    CL_ASSERT( status == 0 );
 }
@@ -283,9 +283,9 @@ cl_plock_excl_acquire(
 
 	CL_ASSERT( p_lock );
    CL_ASSERT( p_lock->state == CL_INITIALIZED );
-   
+
    status = (cl_status_t)pthread_rwlock_wrlock(&p_lock->lock);
-   CL_ASSERT( status == 0 );   
+   CL_ASSERT( status == 0 );
 }
 /*
 * PARAMETERS
@@ -316,7 +316,7 @@ cl_plock_release(
 	cl_status_t	status;
 	CL_ASSERT( p_lock );
    CL_ASSERT( p_lock->state == CL_INITIALIZED );
-   
+
    status = (cl_status_t)pthread_rwlock_unlock(&p_lock->lock);
    CL_ASSERT( status == 0 );
 }

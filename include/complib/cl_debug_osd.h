@@ -73,7 +73,7 @@ BEGIN_C_DECLS
 #define PRIdSIZE_T	"ld"
 #else
 #define PRIdSIZE_T	"d"
-#endif 
+#endif
 
 #include <inttypes.h>
 #include <stdio.h>

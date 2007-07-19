@@ -110,14 +110,14 @@ __cl_timer_prov_destroy( void )
 
   if( !gp_timer_prov )
     return;
- 
+
   tid = gp_timer_prov->thread;
   pthread_mutex_lock( &gp_timer_prov->mutex );
   gp_timer_prov->exit = TRUE;
   pthread_cond_broadcast( &gp_timer_prov->cond );
   pthread_mutex_unlock( &gp_timer_prov->mutex );
   pthread_join( tid , NULL );
- 
+
   /* Destroy the mutex and condition variable. */
   pthread_mutex_destroy( &gp_timer_prov->mutex );
   pthread_cond_destroy( &gp_timer_prov->cond );
@@ -151,7 +151,7 @@ __cl_timer_prov_cb(
        * signaled. The mutex must be locked by the calling thread on
        * entrance to pthread_cond_wait. Before RETURNING TO THE
        * CALLING THREAD, PTHREAD_COND_WAIT RE-ACQUIRES MUTEX (as per
-       * pthread_lock_mutex). 
+       * pthread_lock_mutex).
        */
       ret = pthread_cond_wait( &gp_timer_prov->cond,
                                &gp_timer_prov->mutex );
@@ -265,7 +265,7 @@ cl_timer_destroy(
 
   if( p_timer->state == CL_INITIALIZED )
     cl_timer_stop( p_timer );
-  
+
   p_timer->state = CL_UNINITIALIZED;
 
   /* is it possible we have some threads waiting on the cond now? */

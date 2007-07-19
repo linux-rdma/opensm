@@ -291,7 +291,7 @@ cl_qmap_get_next(
 			p_item = p_item->p_right;
 		}
 	}
-    
+
 	return( p_item_found );
 }
 
@@ -907,7 +907,7 @@ cl_map_remove(
 
    p_obj = cl_qmap_obj( (cl_map_obj_t*)p_item );
 	cl_qpool_put( &p_map->pool, &p_item->pool_item );
-   
+
 	return( p_obj );
 }
 

@@ -65,7 +65,7 @@ BEGIN_C_DECLS
 *
 * DESCRIPTION
 *	Flexi map implements a binary tree that stores user provided cl_fmap_item_t
-*	structures.  Each item stored in a flexi map has a unique user defined 
+*	structures.  Each item stored in a flexi map has a unique user defined
 *	key (duplicates are not allowed).  Flexi map provides the ability to
 *	efficiently search for an item given a key.  Flexi map allows user
 *	defined keys of any size.  Storage for keys and a comparison function

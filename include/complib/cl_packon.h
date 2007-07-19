@@ -82,7 +82,7 @@
 #ifndef PACK_SUFFIX
 #define PACK_SUFFIX __attribute__((packed))
 #endif
-  
+
 #ifdef _MSC_VER
 #pragma pack (push, 1)
 #endif

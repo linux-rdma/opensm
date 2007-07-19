@@ -36,7 +36,7 @@
 /*
  * Abstract:
  * 	Declaration of dispatcher abstraction.
- * 
+ *
  * Environment:
  * 	All
  *
@@ -140,7 +140,7 @@ typedef uint32_t cl_disp_msgid_t;
 *
 * SYNOPSIS
 */
-typedef void 
+typedef void
 (*cl_pfn_msgrcv_cb_t)(
 	IN	void*				context,
 	IN	void*				p_data );
@@ -180,7 +180,7 @@ typedef void
 *
 * SYNOPSIS
 */
-typedef void 
+typedef void
 (*cl_pfn_msgdone_cb_t)(
 	IN	void*				context,
 	IN	void*				p_data );
@@ -254,10 +254,10 @@ typedef struct _cl_dispatcher
 *
 *	state
 *		Indicates the state of the object.
-* 
+*
 *       last_msg_queue_time_us
 *               The time that the last message spent in the Q in usec
-*	
+*
 * SEE ALSO
 *	Dispatcher
 *********/
@@ -353,12 +353,12 @@ typedef struct _cl_disp_msg
 *	pfn_xmt_callback
 *		Client's message done callback.
 *
-*       in_time 
+*       in_time
 *               The absolute time the message was inserted into the queue
 *
 *	context
 *		Client's message done callback context.
-*		
+*
 * SEE ALSO
 *********/
 
@@ -438,7 +438,7 @@ cl_disp_init(
 *	CL_SUCCESS if the operation is successful.
 *
 * SEE ALSO
-*	Dispatcher, cl_disp_destoy, cl_disp_register, cl_disp_unregister, 
+*	Dispatcher, cl_disp_destoy, cl_disp_register, cl_disp_unregister,
 *	cl_disp_post
 *********/
 
@@ -607,7 +607,7 @@ cl_disp_post(
 *	context
 *		[in] Client context value passed to the cl_pfn_msgdone_cb_t
 *		function.
-*	
+*
 * RETURN VALUE
 *	CL_SUCCESS if the message was successfully queued in the Dispatcher.
 *
@@ -639,8 +639,8 @@ cl_disp_get_queue_status(
 *     [in] cl_disp_reg_handle_t value return by cl_disp_register.
 *
 *   p_last_msg_queue_time_ms
-*     [out] pointer to a variable to hold the time the last popped up message 
-*           spent in the queue 
+*     [out] pointer to a variable to hold the time the last popped up message
+*           spent in the queue
 *
 *   p_num_queued_msgs
 *     [out] number of messages in the queue

@@ -510,7 +510,7 @@ cl_qmap_init(
 *
 * SYNOPSIS
 */
-static inline const cl_map_item_t* 
+static inline const cl_map_item_t*
 cl_qmap_end(
 	IN	const cl_qmap_t* const p_map )
 {

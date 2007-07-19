@@ -71,11 +71,11 @@ cl_spinlock_destroy(
 	CL_ASSERT( p_spinlock );
 	CL_ASSERT( cl_is_state_valid( p_spinlock->state ) );
 
-	if( p_spinlock->state == CL_INITIALIZED ) 
+	if( p_spinlock->state == CL_INITIALIZED )
    {
       p_spinlock->state = CL_UNINITIALIZED;
      	pthread_mutex_lock( &p_spinlock->mutex );
-      pthread_mutex_unlock( &p_spinlock->mutex );     
+      pthread_mutex_unlock( &p_spinlock->mutex );
       pthread_mutex_destroy( &p_spinlock->mutex );
    }
    p_spinlock->state = CL_UNINITIALIZED;

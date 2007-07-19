@@ -370,7 +370,7 @@ cl_ptr_vector_get_size(
 	CL_ASSERT( p_vector );
 	CL_ASSERT( p_vector->state == CL_INITIALIZED );
 	return( (uint32_t)p_vector->size );
-	
+
 }
 /*
 * PARAMETERS

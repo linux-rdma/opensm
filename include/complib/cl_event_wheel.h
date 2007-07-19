@@ -36,7 +36,7 @@
 /*
  * Abstract:
  * 	Declaration of event wheel abstraction.
- * 
+ *
  * Environment:
  * 	All
  *
@@ -148,7 +148,7 @@ typedef struct _cl_event_wheel
 {
   cl_spinlock_t		   lock;
   cl_spinlock_t           *p_external_lock;
-    
+
   cl_qmap_t                events_map;
   boolean_t                closing;
   cl_qlist_t               events_wheel;
@@ -167,7 +167,7 @@ typedef struct _cl_event_wheel
 *	events_map
 *		A Map holding all registered event items by their key.
 *
-*  closing 
+*  closing
 *     A flag indicating the event wheel is closing. This means that
 *     callbacks that are called when closing == TRUE should just be ignored.
 *
@@ -209,8 +209,8 @@ typedef struct _cl_event_wheel_reg_info
 } cl_event_wheel_reg_info_t;
 /*
 * FIELDS
-*  map_item 
-*     The map item of this event 
+*  map_item
+*     The map item of this event
 *
 *  list_item
 *     The sorted by aging time list item
@@ -290,7 +290,7 @@ cl_event_wheel_init(
 *
 * SEE ALSO
 *	Event_Wheel, cl_event_wheel_destoy, cl_event_wheel_reg, cl_event_wheel_unreg
-*	
+*
 *********/
 
 /****f* Component Library: Event_Wheel/cl_event_wheel_init
@@ -325,7 +325,7 @@ cl_event_wheel_init_ex(
 *
 * SEE ALSO
 *	Event_Wheel, cl_event_wheel_destoy, cl_event_wheel_reg, cl_event_wheel_unreg
-*	
+*
 *********/
 
 /****f* Component Library: Event_Wheel/cl_event_wheel_destroy
@@ -378,7 +378,7 @@ cl_event_wheel_dump(
 *
 * NOTES
 *	Note that this function should be called inside a lock of the event wheel!
-*  It doesn't aquire the lock by itself. 
+*  It doesn't aquire the lock by itself.
 *
 * SEE ALSO
 *	Event_Wheel, cl_event_wheel_construct, cl_event_wheel_init
@@ -451,7 +451,7 @@ cl_event_wheel_unreg(
 *	This function does not return a value.
 *
 * NOTES
-*  After the event has aged it is automatically removed from 
+*  After the event has aged it is automatically removed from
 *  the event wheel. So it should only be invoked when the need arises
 *  to remove existing events before they age.
 *
@@ -468,7 +468,7 @@ cl_event_wheel_unreg(
 *
 * SYNOPSIS
 */
-uint32_t 
+uint32_t
 cl_event_wheel_num_regs(
   IN cl_event_wheel_t* const p_event_wheel,
   IN uint64_t key );

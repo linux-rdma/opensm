@@ -495,7 +495,7 @@ cl_qlist_count(
 	/* CL_ASSERT that the list was initialized. */
 	CL_ASSERT( p_list->state == CL_INITIALIZED );
 	return( (uint32_t)p_list->count );
-    
+
 }
 /*
 * PARAMETERS
@@ -707,7 +707,7 @@ cl_qlist_tail(
 *
 * SYNOPSIS
 */
-static inline const cl_list_item_t* 
+static inline const cl_list_item_t*
 cl_qlist_end(
 	IN	const cl_qlist_t* const	p_list )
 {
