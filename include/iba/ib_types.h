@@ -410,7 +410,7 @@ BEGIN_C_DECLS
 
 /****d* IBA Base: Constants/IB_DEFAULT_PARTIAL_PKEY
 * NAME
-*	IB_DEFAULT_PARTIAL_PKEY 
+*	IB_DEFAULT_PARTIAL_PKEY
 *
 * DESCRIPTION
 *	0x7FFF in network order
@@ -593,7 +593,7 @@ BEGIN_C_DECLS
 *	ib_class_is_vendor_specific_low
 *
 * DESCRIPTION
-*	Indicates if the Class Code if a vendor specific class from 
+*	Indicates if the Class Code if a vendor specific class from
 *  the low range
 *
 * SYNOPSIS
@@ -611,7 +611,7 @@ ib_class_is_vendor_specific_low(
 *		[in] The Management Datagram Class Code
 *
 * RETURN VALUE
-*	TRUE if the class is in the Low range of Vendor Specific MADs 
+*	TRUE if the class is in the Low range of Vendor Specific MADs
 *	FALSE otherwise.
 *
 * NOTES
@@ -625,7 +625,7 @@ ib_class_is_vendor_specific_low(
 *	ib_class_is_vendor_specific_high
 *
 * DESCRIPTION
-*	Indicates if the Class Code if a vendor specific class from 
+*	Indicates if the Class Code if a vendor specific class from
 *  the high range
 *
 * SYNOPSIS
@@ -643,7 +643,7 @@ ib_class_is_vendor_specific_high(
 *		[in] The Management Datagram Class Code
 *
 * RETURN VALUE
-*	TRUE if the class is in the High range of Vendor Specific MADs 
+*	TRUE if the class is in the High range of Vendor Specific MADs
 *	FALSE otherwise.
 *
 * NOTES
@@ -701,7 +701,7 @@ ib_class_is_rmpp(
 		(class_code == IB_MCLASS_DEV_MGMT) ||
 		(class_code == IB_MCLASS_DEV_ADM) ||
 		(class_code == IB_MCLASS_BIS) ||
-		ib_class_is_vendor_specific_high( class_code ) ); 
+		ib_class_is_vendor_specific_high( class_code ) );
 }
 /*
 * PARAMETERS
@@ -2359,7 +2359,7 @@ typedef struct _ib_path_rec
 	ib_net16_t				slid;
 	ib_net32_t				hop_flow_raw;
 	uint8_t					tclass;
-	uint8_t					num_path; 
+	uint8_t					num_path;
 	ib_net16_t				pkey;
 	ib_net16_t				sl;
 	uint8_t					mtu;
@@ -4728,7 +4728,7 @@ ib_port_info_get_link_speed_active(
 #define IB_PATH_RECORD_RATE_120_GBS		10
 
 #define IB_MIN_RATE    IB_PATH_RECORD_RATE_2_5_GBS
-#define IB_MAX_RATE    IB_PATH_RECORD_RATE_120_GBS 
+#define IB_MAX_RATE    IB_PATH_RECORD_RATE_120_GBS
 
 /****f* IBA Base: Types/ib_port_info_compute_rate
 * NAME
@@ -4753,7 +4753,7 @@ ib_port_info_compute_rate(
     case IB_LINK_WIDTH_ACTIVE_1X:
       rate = IB_PATH_RECORD_RATE_2_5_GBS;
       break;
-      
+
     case IB_LINK_WIDTH_ACTIVE_4X:
       rate = IB_PATH_RECORD_RATE_10_GBS;
       break;
@@ -5013,7 +5013,7 @@ static inline uint8_t	OSM_API
 ib_port_info_get_master_smsl(
 	IN const ib_port_info_t* const p_pi )
 {
-  return (uint8_t) (p_pi->mtu_smsl & 0x0F); 
+  return (uint8_t) (p_pi->mtu_smsl & 0x0F);
 }
 /*
 * PARAMETERS
@@ -5191,7 +5191,7 @@ ib_port_info_get_client_rereg(
 *	ib_port_info_set_hoq_lifetime
 *
 * DESCRIPTION
-*	Sets the Head of Queue Lifetime for which a packet can live in the head 
+*	Sets the Head of Queue Lifetime for which a packet can live in the head
 *  of VL queue
 *
 * SYNOPSIS
@@ -5225,7 +5225,7 @@ ib_port_info_set_hoq_lifetime(
 *	ib_port_info_get_hoq_lifetime
 *
 * DESCRIPTION
-*	Gets the Head of Queue Lifetime for which a packet can live in the head 
+*	Gets the Head of Queue Lifetime for which a packet can live in the head
 *  of VL queue
 *
 * SYNOPSIS
@@ -5255,7 +5255,7 @@ ib_port_info_get_hoq_lifetime(
 *	ib_port_info_set_vl_stall_count
 *
 * DESCRIPTION
-*	Sets the VL Stall Count which define the number of contiguous 
+*	Sets the VL Stall Count which define the number of contiguous
 *  HLL (hoq) drops that will put the VL into stalled mode.
 *
 * SYNOPSIS
@@ -5273,7 +5273,7 @@ ib_port_info_set_vl_stall_count(
 *	p_pi
 *		[in] Pointer to a PortInfo attribute.
 *
-*	vl_stall_count 
+*	vl_stall_count
 *		[in] value to set
 *
 * RETURN VALUES
@@ -5289,7 +5289,7 @@ ib_port_info_set_vl_stall_count(
 *	ib_port_info_get_vl_stall_count
 *
 * DESCRIPTION
-*	Gets the VL Stall Count which define the number of contiguous 
+*	Gets the VL Stall Count which define the number of contiguous
 *  HLL (hoq) drops that will put the VL into stalled mode
 *
 * SYNOPSIS
@@ -5567,7 +5567,7 @@ ib_port_info_set_phy_and_overrun_err_thd(
   IN		uint8_t			phy_threshold,
   IN		uint8_t			overrun_threshold )
 {
-  p_pi->error_threshold = 
+  p_pi->error_threshold =
 	 (uint8_t)( ((phy_threshold & 0x0F) << 4) | (overrun_threshold & 0x0F) );
 }
 /*
@@ -5576,10 +5576,10 @@ ib_port_info_set_phy_and_overrun_err_thd(
 *		[in] Pointer to a PortInfo attribute.
 *
 *	phy_threshold
-*		[in] Physical Link Errors Threshold above which Trap 129 is generated 
+*		[in] Physical Link Errors Threshold above which Trap 129 is generated
 *
 *  overrun_threshold
-*     [in] Credits overrun Errors Threshold above which Trap 129 is generated 
+*     [in] Credits overrun Errors Threshold above which Trap 129 is generated
 *
 * RETURN VALUES
 *	None.
@@ -6802,7 +6802,7 @@ ib_member_set_join_state(
 typedef struct _ib_mad_notice_attr    // Total Size calc  Accumulated
 {
   uint8_t			generic_type;    // 1                1
-  
+
   union _notice_g_or_v
   {
 	 struct _notice_generic            // 5                6
@@ -6811,7 +6811,7 @@ typedef struct _ib_mad_notice_attr    // Total Size calc  Accumulated
 		ib_net16_t	prod_type_lsb;
 		ib_net16_t	trap_num;
 	 }	PACK_SUFFIX generic;
-	 
+
 	 struct _notice_vend
 	 {
 		uint8_t		vend_id_msb;
@@ -6819,10 +6819,10 @@ typedef struct _ib_mad_notice_attr    // Total Size calc  Accumulated
 		ib_net16_t	dev_id;
 	 }	PACK_SUFFIX vend;
   } g_or_v;
-  
+
   ib_net16_t			issuer_lid;    // 2                 8
   ib_net16_t			toggle_count;  // 2                 10
-  
+
   union _data_details               // 54                64
 	{
 	  struct _raw_data
@@ -6839,13 +6839,13 @@ typedef struct _ib_mad_notice_attr    // Total Size calc  Accumulated
 	  struct _ntc_128 {
 		 ib_net16_t sw_lid; // the sw lid of which link state changed
 	  } PACK_SUFFIX ntc_128;
-	  
+
 	  struct _ntc_129_131 {
 		 ib_net16_t    pad;
 		 ib_net16_t    lid;		// lid and port number of the violation
 		 uint8_t     port_num;
 	  } PACK_SUFFIX ntc_129_131;
-	  
+
 	  struct _ntc_144 {
 		 ib_net16_t    pad1;
 		 ib_net16_t    lid;		// lid where capability mask changed
@@ -7042,9 +7042,9 @@ ib_notice_set_prod_type_ho(
   IN ib_mad_notice_attr_t *p_ntc,
   IN uint32_t prod_type_val_ho )
 {
-  p_ntc->g_or_v.generic.prod_type_lsb = 
+  p_ntc->g_or_v.generic.prod_type_lsb =
 	  cl_hton16( (uint16_t)(prod_type_val_ho & 0x0000ffff) );
-  p_ntc->g_or_v.generic.prod_type_msb = 
+  p_ntc->g_or_v.generic.prod_type_msb =
 	  (uint8_t)( (prod_type_val_ho & 0x00ff0000) >> 16);
 }
 /*
@@ -7140,7 +7140,7 @@ ib_notice_set_vend_id_ho(
   IN ib_mad_notice_attr_t *p_ntc,
   IN uint32_t vend_id_ho )
 {
-  p_ntc->g_or_v.vend.vend_id_lsb = 
+  p_ntc->g_or_v.vend.vend_id_lsb =
 	  cl_hton16((uint16_t)(vend_id_ho & 0x0000ffff));
   p_ntc->g_or_v.vend.vend_id_msb =
 	  (uint8_t)((vend_id_ho & 0x00ff0000) >> 16);
@@ -7180,7 +7180,7 @@ typedef struct _ib_inform_info
 		uint8_t			node_type_msb;
 		ib_net16_t		node_type_lsb;
 	 } PACK_SUFFIX generic;
-	 
+
 	 struct _inform_vend
 	 {
 		ib_net16_t		dev_id;
@@ -7189,9 +7189,9 @@ typedef struct _ib_inform_info
 		uint8_t			vendor_id_msb;
 		ib_net16_t		vendor_id_lsb;
 	 } PACK_SUFFIX vend;
-	 
+
   }	PACK_SUFFIX g_or_v;
-  
+
 }	PACK_SUFFIX ib_inform_info_t;
 #include <complib/cl_packoff.h>
 
@@ -7214,7 +7214,7 @@ ib_inform_info_get_qpn_resp_time(
 
   if (p_qpn)
     *p_qpn = cl_hton32((tmp & 0xffffff00) >> 8);
-	
+
 	if (p_resp_time_val)
 		*p_resp_time_val = (uint8_t)(tmp & 0x0000001f);
 }
@@ -7252,7 +7252,7 @@ ib_inform_info_set_qpn(
 {
   uint32_t tmp = cl_ntoh32(p_ii->g_or_v.generic.qpn_resp_time_val);
 
-  p_ii->g_or_v.generic.qpn_resp_time_val = 
+  p_ii->g_or_v.generic.qpn_resp_time_val =
     cl_hton32(
       (tmp & 0x000000ff) |
       ((cl_ntoh32(qpn) << 8) & 0xffffff00)
@@ -7980,8 +7980,8 @@ typedef struct _ib_cq* __ptr64			ib_cq_handle_t;
 typedef struct _ib_av* __ptr64			ib_av_handle_t;
 typedef struct _ib_mcast* __ptr64		ib_mcast_handle_t;
 
-/* Currently for windows branch, use the extended version of ib special verbs struct 
-	in order to be compliant with Infinicon ib_types; later we'll change it to support 
+/* Currently for windows branch, use the extended version of ib special verbs struct
+	in order to be compliant with Infinicon ib_types; later we'll change it to support
 	OpenSM ib_types.h */
 
 #ifndef WIN32
