@@ -1108,22 +1108,6 @@ __osm_lid_mgr_set_physp_pi(
                 sizeof(p_pi->link_width_enabled) ))
       send_set = TRUE;
 
-    if ( p_mgr->p_subn->opt.force_link_speed )
-    {
-      if ( p_mgr->p_subn->opt.force_link_speed == 15 )  /* LinkSpeedSupported */
-      {
-        if (ib_port_info_get_link_speed_enabled( p_old_pi ) != ib_port_info_get_link_speed_sup( p_pi ))
-          ib_port_info_set_link_speed_enabled( p_pi, IB_PORT_LINK_SPEED_ENABLED_MASK );
-        else
-          ib_port_info_set_link_speed_enabled( p_pi, ib_port_info_get_link_speed_enabled( p_old_pi ));
-      }
-      else
-        ib_port_info_set_link_speed_enabled( p_pi, p_mgr->p_subn->opt.force_link_speed );
-      if (memcmp( &p_pi->link_speed, &p_old_pi->link_speed,
-                  sizeof(p_pi->link_speed) ))
-        send_set = TRUE;
-    }
-
     /* M_KeyProtectBits are always zero */
     p_pi->mkey_lmc = p_mgr->p_subn->opt.lmc;
     /* Check to see if the value we are setting is different than
