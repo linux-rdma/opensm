@@ -811,7 +811,8 @@ osm_ucast_mgr_set_fwd_table(
        osm_switch_get_fwd_tbl_block( p_sw, block_id_ho, block ) ;
        block_id_ho++ )
   {
-    if (!memcmp(block, p_mgr->lft_buf + block_id_ho * 64, 64))
+    if (!p_sw->need_update &&
+        !memcmp(block, p_mgr->lft_buf + block_id_ho * 64, 64))
       continue;
 
     if( osm_log_is_active( p_mgr->p_log, OSM_LOG_DEBUG ) )

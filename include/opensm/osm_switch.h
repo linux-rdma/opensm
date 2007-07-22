@@ -112,6 +112,7 @@ typedef struct _osm_switch
 	osm_fwd_tbl_t				fwd_tbl;
 	osm_mcast_tbl_t				mcast_tbl;
 	uint32_t				discovery_count;
+	unsigned				need_update;
 	void					*priv;
 } osm_switch_t;
 /*
@@ -151,6 +152,10 @@ typedef struct _osm_switch
 *		The number of times this switch has been discovered
 *		during the current fabric sweep.  This number is reset
 *		to zero at the start of a sweep.
+*
+*	need_update
+*		When set indicates that switch was probably reset, so
+*		fwd tables and rest cached data should be flushed
 *
 * SEE ALSO
 *	Switch object

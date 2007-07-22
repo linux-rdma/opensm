@@ -337,6 +337,9 @@ __osm_pi_rcv_process_switch_port(
     }
   }
 
+  if (ib_port_info_get_port_state(p_pi) > IB_LINK_INIT && p_node->sw)
+    p_node->sw->need_update = 0;
+
   /*
     Update the PortInfo attribute.
   */

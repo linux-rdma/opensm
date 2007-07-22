@@ -565,6 +565,7 @@ __osm_state_mgr_reset_switch_count(
    }
 
    p_sw->discovery_count = 0;
+   p_sw->need_update = 1;
 }
 
 /**********************************************************************
