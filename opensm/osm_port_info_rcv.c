@@ -801,6 +801,12 @@ osm_pi_rcv_process(
       p_rcv->p_subn->master_sm_base_lid = p_pi->master_sm_base_lid;
     }
 
+    /* if port just inited or reached INIT state (external reset)
+       request update for port related tables */
+    p_physp->need_update =
+      (ib_port_info_get_port_state(p_pi) == IB_LINK_INIT ||
+       p_physp->need_update > 1 ) ? 1 : 0;
+
     switch( osm_node_get_type( p_node ) )
     {
     case IB_NODE_TYPE_CA:
@@ -824,7 +830,8 @@ osm_pi_rcv_process(
     /*
       Get the tables on the physp.
     */
-    __osm_pi_rcv_get_pkey_slvl_vla_tables( p_rcv, p_node, p_physp );
+    if (p_physp->need_update)
+      __osm_pi_rcv_get_pkey_slvl_vla_tables( p_rcv, p_node, p_physp );
 
   }
 

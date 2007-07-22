@@ -118,6 +118,7 @@ typedef struct _osm_physp
 	struct _osm_physp	*p_remote_physp;
 	boolean_t		healthy;
 	uint8_t			vl_high_limit;
+	unsigned		need_update;
 	osm_dr_path_t		dr_path;
 	osm_pkey_tbl_t		pkeys;
 	ib_vl_arb_table_t	vl_arb[4];
@@ -156,6 +157,10 @@ typedef struct _osm_physp
 *	vl_high_limit
 *		PortInfo:VLHighLimit value which installed by QoS manager
 *		and should be uploaded to port's PortInfo
+*
+*	need_update
+*		When set indicates that port was probably reset and port
+*		related tables (PKey, SL2VL, VLArb) require refreshing.
 *
 *	dr_path
 *		The directed route path to this port.

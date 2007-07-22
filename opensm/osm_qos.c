@@ -87,8 +87,9 @@ static ib_api_status_t vlarb_update_table_block(osm_req_t * p_req,
 	for (i = 0; i < block_length; i++)
 		block.vl_entry[i].vl &= vl_mask;
 
-	if (!memcmp(&p->vl_arb[block_num], &block,
-		     block_length * sizeof(block.vl_entry[0])))
+	if (!p->need_update &&
+	    !memcmp(&p->vl_arb[block_num], &block,
+		    block_length * sizeof(block.vl_entry[0])))
 		return IB_SUCCESS;
 
 	context.vla_context.node_guid =
@@ -170,8 +171,8 @@ static ib_api_status_t sl2vl_update_table(osm_req_t * p_req,
 		tbl.raw_vl_by_sl[i] = (vl1 << 4 ) | vl2 ;
 	}
 
-	p_tbl = osm_physp_get_slvl_tbl(p, in_port);
-	if (p_tbl && !memcmp(p_tbl, &tbl, sizeof(tbl)))
+	if (!p->need_update && (p_tbl = osm_physp_get_slvl_tbl(p, in_port)) &&
+	    !memcmp(p_tbl, &tbl, sizeof(tbl)))
 		return IB_SUCCESS;
 
 	context.slvl_context.node_guid = osm_node_get_node_guid(p_node);

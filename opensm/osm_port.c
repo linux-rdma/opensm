@@ -118,6 +118,7 @@ osm_physp_init(
   p_physp->port_guid = port_guid;
   p_physp->port_num = port_num;
   p_physp->healthy = TRUE;
+  p_physp->need_update = 2;
   p_physp->p_node = (struct _osm_node*)p_node;
 
   osm_dr_path_init(
