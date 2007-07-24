@@ -66,7 +66,8 @@ osm_epi_construct(osm_log_t *p_log, char *plugin_name)
 	char              lib_name[OSM_PATH_MAX];
 	osm_epi_plugin_t *rc = NULL;
 
-	if (!plugin_name)
+	if (!plugin_name ||
+			strcmp(plugin_name, OSM_EVENT_PLUGIN_NAME_NONE) == 0)
 		return (NULL);
 
 	/* find the plugin */
