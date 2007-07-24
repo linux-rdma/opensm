@@ -830,7 +830,7 @@ osm_pi_rcv_process(
     /*
       Get the tables on the physp.
     */
-    if (p_physp->need_update)
+    if (p_physp->need_update || p_rcv->p_subn->need_update)
       __osm_pi_rcv_get_pkey_slvl_vla_tables( p_rcv, p_node, p_physp );
 
   }

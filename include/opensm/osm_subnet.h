@@ -579,6 +579,7 @@ typedef struct _osm_subn
   boolean_t                moved_to_master_state;
   boolean_t                first_time_master_sweep;
   boolean_t                coming_out_of_standby;
+  unsigned                 need_update;
 } osm_subn_t;
 /*
 * FIELDS
@@ -716,6 +717,10 @@ typedef struct _osm_subn
 *     Used for nulling any cache of LID and Routing.
 *     The flag is set true if the SM state was standby and now changed to MASTER
 *     it is reset at the end of the sweep.
+*
+*  need_update
+*     This flag should be on during first non-master heavy (including
+*     pre-master discovery stage)
 *
 * SEE ALSO
 *	Subnet object

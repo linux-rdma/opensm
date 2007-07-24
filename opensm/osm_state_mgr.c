@@ -1938,6 +1938,10 @@ osm_state_mgr_process(
                          "osm_state_mgr_process: ERR 331A: "
                          "osm_subn_rescan_conf_file failed\n" );
                }
+
+	       if (p_mgr->p_subn->sm_state != IB_SMINFO_STATE_MASTER)
+	          p_mgr->p_subn->need_update = 1;
+
                status = __osm_state_mgr_sweep_hop_0( p_mgr );
                if( status == IB_SUCCESS )
                {
@@ -2742,6 +2746,7 @@ Idle:
                {
                   p_mgr->p_subn->first_time_master_sweep = FALSE;
                }
+               p_mgr->p_subn->need_update = 0;
 
                __osm_topology_file_create( p_mgr );
                __osm_state_mgr_report( p_mgr );
