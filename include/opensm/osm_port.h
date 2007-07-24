@@ -111,18 +111,18 @@ struct _osm_node;
 */
 typedef struct _osm_physp
 {
-  ib_port_info_t		 port_info;
-  ib_net64_t			 port_guid;
-  uint8_t			 port_num;
-  struct _osm_node		*p_node;
-  struct _osm_physp		*p_remote_physp;
-  boolean_t                      healthy;
-  uint8_t                vl_high_limit;
-  osm_dr_path_t			 dr_path;
-  osm_pkey_tbl_t                 pkeys;
-  ib_vl_arb_table_t              vl_arb[4];
-  cl_ptr_vector_t                slvl_by_port;
-  boolean_t                      got_set_resp;
+	ib_port_info_t		port_info;
+	ib_net64_t		port_guid;
+	uint8_t			port_num;
+	struct _osm_node	*p_node;
+	struct _osm_physp	*p_remote_physp;
+	boolean_t		healthy;
+	uint8_t			vl_high_limit;
+	osm_dr_path_t		dr_path;
+	osm_pkey_tbl_t		pkeys;
+	ib_vl_arb_table_t	vl_arb[4];
+	cl_ptr_vector_t		slvl_by_port;
+	boolean_t		got_set_resp;
 } osm_physp_t;
 /*
 * FIELDS
@@ -152,6 +152,10 @@ typedef struct _osm_physp
 *		Tracks the health of the port. Normally should be TRUE but
 *		might change as a result of incoming traps indicating the port
 *		healthy is questionable.
+*
+*	vl_high_limit
+*		PortInfo:VLHighLimit value which installed by QoS manager
+*		and should be uploaded to port's PortInfo
 *
 *	dr_path
 *		The directed route path to this port.
@@ -1719,7 +1723,8 @@ osm_physp_calc_link_op_vls(
 *  alternate path going through forien set of phys port.
 *
 * SYNOPSIS
-*/void
+*/
+void
 osm_physp_replace_dr_path_with_alternate_dr_path(
   IN osm_log_t           *p_log,
   IN osm_subn_t  const   *p_subn,
