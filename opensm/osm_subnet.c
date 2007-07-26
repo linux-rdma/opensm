@@ -221,8 +221,7 @@ osm_subn_init(
   /* note that insert and remove are part of the port_profile thing */
   cl_map_init(&(p_subn->opt.port_prof_ignore_guids), 10);
 
-  /* ignore_existing_lfts follows reassign_lfts on first sweep */
-  p_subn->ignore_existing_lfts = p_subn->opt.reassign_lfts;
+  p_subn->ignore_existing_lfts = TRUE;
 
   /* we assume master by default - so we only need to set it true if STANDBY */
   p_subn->coming_out_of_standby = FALSE;
@@ -451,7 +450,6 @@ osm_subn_set_default_opt(
   p_opt->max_op_vls = OSM_DEFAULT_MAX_OP_VLS;
   p_opt->force_link_speed = 15;
   p_opt->reassign_lids = FALSE;
-  p_opt->reassign_lfts = TRUE;
   p_opt->ignore_other_sm = FALSE;
   p_opt->single_thread = FALSE;
   p_opt->no_multicast_option = FALSE;
@@ -1221,10 +1219,6 @@ osm_subn_parse_conf_file(
         p_key, p_val, &p_opts->reassign_lids);
 
       __osm_subn_opts_unpack_boolean(
-        "reassign_lfts",
-        p_key, p_val, &p_opts->reassign_lfts);
-
-      __osm_subn_opts_unpack_boolean(
         "ignore_other_sm",
         p_key, p_val, &p_opts->ignore_other_sm);
 
@@ -1544,11 +1538,6 @@ osm_subn_write_conf_file(
     "sweep_interval %u\n\n"
     "# If TRUE cause all lids to be reassigned\n"
     "reassign_lids %s\n\n"
-    "# If TRUE ignore existing LFT entries on first sweep (default).\n"
-    "# Otherwise only non minimal hop cases are modified.\n"
-    "# NOTE: A standby SM clears its first sweep flag - since the\n"
-    "# master SM already sweeps...\n"
-    "reassign_lfts %s\n\n"
     "# If TRUE forces every sweep to be a heavy sweep\n"
     "force_heavy_sweep %s\n\n"
     "# If TRUE every trap will cause a heavy sweep.\n"
@@ -1556,7 +1545,6 @@ osm_subn_write_conf_file(
     "sweep_on_trap %s\n\n",
     p_opts->sweep_interval,
     p_opts->reassign_lids ? "TRUE" : "FALSE",
-    p_opts->reassign_lfts ? "TRUE" : "FALSE",
     p_opts->force_heavy_sweep ? "TRUE" : "FALSE",
     p_opts->sweep_on_trap ? "TRUE" : "FALSE"
     );

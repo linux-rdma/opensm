@@ -239,7 +239,6 @@ typedef struct _osm_subn_opt
   uint8_t		   max_op_vls;
   uint8_t		   force_link_speed;
   boolean_t		   reassign_lids;
-  boolean_t		   reassign_lfts;
   boolean_t		   ignore_other_sm;
   boolean_t		   single_thread;
   boolean_t		   no_multicast_option;
@@ -344,12 +343,6 @@ typedef struct _osm_subn_opt
 *		If TRUE cause all lids to be re-assigend.
 *		Otherwise (the default),
 *		OpenSM always tries to preserve as LIDs as much as possible.
-*
-*	reassign_lfts
-*		If TRUE ignore existing LFT entries on first sweep (default).
-*		Otherwise only non minimal hop cases are modified.
-*		NOTE: A standby SM clears its first sweep flag - since the
-*		master SM already sweeps...
 *
 *	ignore_other_sm_option
 *		This flag is TRUE if other SMs on the subnet should be ignored.
@@ -656,9 +649,8 @@ typedef struct _osm_subn
 *     This flag is a dynamic flag to instruct the LFT assignment to
 *     ignore existing legal LFT settings.
 *     The value will be set according to :
-*     - During SM init set to the reassign_lfts flag value
-*     - Coming out of STANDBY it will be cleared (other SM worked)
 *     - Any change to the list of switches will set it to high
+*     - Coming out of STANDBY it will be cleared (other SM worked)
 *     - Set to FALSE upon end of all lft assignments.
 *
 *  subnet_initalization_error
