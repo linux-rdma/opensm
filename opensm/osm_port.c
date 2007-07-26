@@ -387,12 +387,12 @@ osm_physp_calc_link_mtu(
 
   OSM_LOG_ENTER( p_log, osm_physp_calc_link_mtu );
 
-  /* use the available MTU */
-  mtu = ib_port_info_get_mtu_cap( &p_physp->port_info );
-
   p_remote_physp = osm_physp_get_remote( p_physp );
   if( p_remote_physp && osm_physp_is_valid( p_remote_physp ) )
   {
+    /* use the available MTU */
+    mtu = ib_port_info_get_mtu_cap( &p_physp->port_info );
+
     remote_mtu = ib_port_info_get_mtu_cap( &p_remote_physp->port_info );
 
     if( osm_log_is_active( p_log, OSM_LOG_DEBUG ) )
@@ -427,6 +427,8 @@ osm_physp_calc_link_mtu(
       }
     }
   }
+  else
+    mtu = ib_port_info_get_neighbor_mtu( &p_physp->port_info );
 
   if( mtu == 0 )
   {
@@ -454,12 +456,12 @@ osm_physp_calc_link_op_vls(
 
   OSM_LOG_ENTER( p_log, osm_physp_calc_link_op_vls );
 
-  /* use the available VLCap */
-  op_vls = ib_port_info_get_vl_cap( &p_physp->port_info );
-
   p_remote_physp = osm_physp_get_remote( p_physp );
   if( p_remote_physp && osm_physp_is_valid( p_remote_physp ) )
   {
+    /* use the available VLCap */
+    op_vls = ib_port_info_get_vl_cap( &p_physp->port_info );
+
     remote_op_vls = ib_port_info_get_vl_cap( &p_remote_physp->port_info );
 
     if( osm_log_is_active( p_log, OSM_LOG_DEBUG ) )
@@ -496,6 +498,8 @@ osm_physp_calc_link_op_vls(
       }
     }
   }
+  else
+    op_vls = ib_port_info_get_op_vls( &p_physp->port_info );
 
   /* support user limitation of max_op_vls */
   if (op_vls > p_subn->opt.max_op_vls)
