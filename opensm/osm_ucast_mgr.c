@@ -66,14 +66,6 @@
 
 /**********************************************************************
  **********************************************************************/
-/*
- * This flag is used for stopping the relaxation algorithm if no
- * change detected during the fabric scan
- */
-static boolean_t __some_hop_count_set;
-
-/**********************************************************************
- **********************************************************************/
 void
 osm_ucast_mgr_construct(
   IN osm_ucast_mgr_t* const p_mgr )
@@ -531,7 +523,7 @@ __osm_ucast_mgr_process_neighbor(
                  "cannot set hops for lid %u at switch 0x%" PRIx64 "\n",
                  lid_ho,
                  cl_ntoh64(osm_node_get_node_guid(p_this_sw->p_node)));
-      __some_hop_count_set = TRUE;
+      p_mgr->some_hop_count_set = TRUE;
     }
   }
 
@@ -1020,10 +1012,10 @@ osm_ucast_mgr_build_lid_matrices(
       if non of the switches was set will exit the
       while loop
     */
-    __some_hop_count_set = TRUE;
-    for( i = 0; (i < iteration_max) && __some_hop_count_set; i++ )
+    p_mgr->some_hop_count_set = TRUE;
+    for( i = 0; (i < iteration_max) && p_mgr->some_hop_count_set; i++ )
     {
-      __some_hop_count_set = FALSE;
+      p_mgr->some_hop_count_set = FALSE;
       cl_qmap_apply_func( p_sw_guid_tbl,
                           __osm_ucast_mgr_process_neighbors, p_mgr );
     }

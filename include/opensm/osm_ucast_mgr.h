@@ -105,6 +105,7 @@ typedef struct _osm_ucast_mgr
 	osm_log_t	*p_log;
 	cl_plock_t	*p_lock;
 	boolean_t	 any_change;
+	boolean_t	some_hop_count_set;
 	uint8_t		*lft_buf;
 } osm_ucast_mgr_t;
 /*
@@ -125,6 +126,11 @@ typedef struct _osm_ucast_mgr
 *		Initialized to FALSE at the beginning of the algorithm,
 *		set to TRUE by osm_ucast_mgr_set_fwd_table() if any mad
 *		was sent.
+*
+*	some_hop_count_set
+*		Initialized to FALSE at the beginning of each the min hop
+*		tables calculation iteration cycle, set to TRUE to indicate
+*		that some hop count changes were done.
 *
 *	lft_buf
 *		LFT buffer - used during LFT calculation/setup.
