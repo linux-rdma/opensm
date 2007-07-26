@@ -4943,7 +4943,7 @@ ib_port_info_get_mtu_cap(
 *	ib_port_info_get_neighbor_mtu
 *
 * DESCRIPTION
-*	Returns the encoded value for the neighbor MTU at this port.
+*	Returns the encoded value for the maximum MTU supported by this port.
 *
 * SYNOPSIS
 */
