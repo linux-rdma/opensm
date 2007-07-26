@@ -2749,6 +2749,7 @@ Idle:
                p_mgr->p_subn->need_update = 0;
 
                __osm_topology_file_create( p_mgr );
+               osm_dump_all(p_mgr->p_subn->p_osm);
                __osm_state_mgr_report( p_mgr );
                __osm_state_mgr_up_msg( p_mgr );
 

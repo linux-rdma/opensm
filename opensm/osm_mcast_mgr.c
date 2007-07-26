@@ -48,20 +48,17 @@
 #  include <config.h>
 #endif /* HAVE_CONFIG_H */
 
-#include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
 #include <iba/ib_types.h>
 #include <complib/cl_debug.h>
+#include <opensm/osm_opensm.h>
 #include <opensm/osm_mcast_mgr.h>
 #include <opensm/osm_multicast.h>
 #include <opensm/osm_node.h>
 #include <opensm/osm_switch.h>
 #include <opensm/osm_helper.h>
 #include <opensm/osm_msgdef.h>
-
-#define LINE_LENGTH 256
 
 /**********************************************************************
  **********************************************************************/
@@ -1336,135 +1333,6 @@ osm_mcast_mgr_process_tree(
 }
 
 /**********************************************************************
- **********************************************************************/
-static void
-mcast_mgr_dump_sw_routes(
-  IN const osm_mcast_mgr_t*   const p_mgr,
-  IN const osm_switch_t*      const p_sw,
-  IN FILE *file )
-{
-  osm_mcast_tbl_t*      p_tbl;
-  int16_t               mlid_ho = 0;
-  int16_t               mlid_start_ho;
-  uint8_t               position = 0;
-  int16_t               block_num = 0;
-  boolean_t             first_mlid;
-  boolean_t             first_port;
-  const osm_node_t*     p_node;
-  uint16_t              i, j;
-  uint16_t              mask_entry;
-  char                  sw_hdr[256];
-  char                  mlid_hdr[32];
-
-  OSM_LOG_ENTER( p_mgr->p_log, mcast_mgr_dump_sw_routes );
-
-  if( !osm_log_is_active( p_mgr->p_log, OSM_LOG_ROUTING ) )
-    goto Exit;
-
-  p_node = p_sw->p_node;
-
-  p_tbl = osm_switch_get_mcast_tbl_ptr( p_sw );
-
-  sprintf( sw_hdr, "\nSwitch 0x%016" PRIx64 "\n"
-           "LID    : Out Port(s)\n",
-           cl_ntoh64( osm_node_get_node_guid( p_node ) ) );
-  first_mlid = TRUE;
-  while ( block_num <= p_tbl->max_block_in_use )
-  {
-    mlid_start_ho = (uint16_t)(block_num * IB_MCAST_BLOCK_SIZE);
-    for (i = 0 ; i < IB_MCAST_BLOCK_SIZE ; i++)
-    {
-      mlid_ho = mlid_start_ho + i;
-      position = 0;
-      first_port = TRUE;
-      sprintf( mlid_hdr, "0x%04X :", mlid_ho + IB_LID_MCAST_START_HO );
-      while ( position <= p_tbl->max_position )
-      {
-        mask_entry = cl_ntoh16((*p_tbl->p_mask_tbl)[mlid_ho][position]);
-        if (mask_entry == 0)
-        {
-          position++;
-          continue;
-        }
-        for (j = 0 ; j < 16 ; j++)
-        {
-          if ( (1 << j) & mask_entry )
-          {
-            if (first_mlid)
-            {
-              fprintf( file,"%s", sw_hdr );
-              first_mlid = FALSE;
-            }
-            if (first_port)
-            {
-              fprintf( file,"%s", mlid_hdr );
-              first_port = FALSE;
-            }
-            fprintf( file, " 0x%03X ", j+(position*16) );
-          }
-        }
-        position++;
-      }
-      if (first_port == FALSE)
-      {
-        fprintf( file, "\n" );
-      }
-    }
-    block_num++;
-  }
-
- Exit:
-  OSM_LOG_EXIT( p_mgr->p_log );
-}
-
-/**********************************************************************
- **********************************************************************/
-struct mcast_mgr_dump_context {
-	osm_mcast_mgr_t *p_mgr;
-	FILE *file;
-};
-
-static void
-mcast_mgr_dump_table(cl_map_item_t *p_map_item, void *context)
-{
-	osm_switch_t *p_sw = (osm_switch_t *)p_map_item;
-	struct mcast_mgr_dump_context *cxt = context;
-
-	mcast_mgr_dump_sw_routes(cxt->p_mgr, p_sw, cxt->file);
-}
-
-static void
-mcast_mgr_dump_mcast_routes(osm_mcast_mgr_t *p_mgr)
-{
-	char file_name[1024];
-	struct mcast_mgr_dump_context dump_context;
-	FILE  *file;
-
-	if (!osm_log_is_active(p_mgr->p_log, OSM_LOG_ROUTING))
-		return;
-
-	snprintf(file_name, sizeof(file_name), "%s/%s",
-		 p_mgr->p_subn->opt.dump_files_dir, "opensm.mcfdbs");
-
- 	file = fopen(file_name, "w");
-	if (!file) {
-		osm_log(p_mgr->p_log, OSM_LOG_ERROR,
-			"mcast_dump_mcast_routes: ERR 0A18: "
-			"cannot create mcfdb file \'%s\': %s\n",
-			file_name, strerror(errno));
-		return;
-	}
-
-	dump_context.p_mgr = p_mgr;
-	dump_context.file = file;
-
-	cl_qmap_apply_func(&p_mgr->p_subn->sw_guid_tbl,
-			   mcast_mgr_dump_table, &dump_context);
-
-	fclose(file);
-}
-
-/**********************************************************************
  Process the entire group.
 
  NOTE : The lock should be held externally!
@@ -1510,7 +1378,7 @@ osm_mcast_mgr_process_mgrp(
     p_sw = (osm_switch_t*)cl_qmap_next( &p_sw->map_item );
   }
 
-  mcast_mgr_dump_mcast_routes( p_mgr );
+  osm_dump_mcast_routes( p_mgr->p_subn->p_osm );
 
  Exit:
   OSM_LOG_EXIT( p_mgr->p_log );
@@ -1579,8 +1447,6 @@ osm_mcast_mgr_process(
 
     p_sw = (osm_switch_t*)cl_qmap_next( &p_sw->map_item );
   }
-
-  mcast_mgr_dump_mcast_routes( p_mgr );
 
   CL_PLOCK_RELEASE( p_mgr->p_lock );
 

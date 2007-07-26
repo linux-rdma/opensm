@@ -444,6 +444,10 @@ osm_opensm_wait_for_subnet_up(
 * SEE ALSO
 *********/
 
+/* dump helpers */
+void osm_dump_mcast_routes(osm_opensm_t *osm);
+void osm_dump_all(osm_opensm_t *osm);
+
 /****v* OpenSM/osm_exit_flag
 */
 extern volatile unsigned int osm_exit_flag;
