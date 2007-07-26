@@ -134,6 +134,7 @@ __osm_si_rcv_get_port_info(
   OSM_LOG_EXIT( p_rcv->p_log );
 }
 
+#if 0
 /**********************************************************************
  The plock must be held before calling this function.
 **********************************************************************/
@@ -198,7 +199,6 @@ __osm_si_rcv_get_fwd_tbl(
   OSM_LOG_EXIT( p_rcv->p_log );
 }
 
-#if 0
 /**********************************************************************
  The plock must be held before calling this function.
 **********************************************************************/
@@ -399,10 +399,9 @@ __osm_si_rcv_process_new(
     Get the PortInfo attribute for every port.
   */
   __osm_si_rcv_get_port_info( p_rcv, p_sw, p_madw );
-  __osm_si_rcv_get_fwd_tbl( p_rcv, p_sw );
 
   /*
-    Don't bother retrieving the current multicast tables
+    Don't bother retrieving the current unicast and multicast tables
     from the switches.  The current version of SM does
     not support silent take-over of an existing multicast
     configuration.
@@ -413,6 +412,7 @@ __osm_si_rcv_process_new(
     The code to retrieve the tables was fully debugged.
   */
 #if 0
+  __osm_si_rcv_get_fwd_tbl( p_rcv, p_sw );
   if( !p_rcv->p_subn->opt.disable_multicast )
     __osm_si_rcv_get_mcast_fwd_tbl( p_rcv, p_sw );
 #endif
