@@ -225,7 +225,7 @@ __osm_ni_rcv_set_links(
             osm_log( p_rcv->p_log, OSM_LOG_SYS,
                      "Errors on subnet. Duplicate GUID found "
                      "by link from a port to itself. "
-                     "See osm log for more details\n");
+                     "See opensm.log for more details\n");
 
             if ( p_rcv->p_subn->opt.exit_on_fatal == TRUE )
               exit( 1 );

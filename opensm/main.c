@@ -253,7 +253,7 @@ show_usage(void)
   printf( "-f\n"
           "--log_file\n"
           "          This option defines the log to be the given file.\n"
-          "          By default, the log goes to /var/log/osm.log.\n"
+          "          By default, the log goes to /var/log/opensm.log.\n"
           "          For the log to go to standard output use -f stdout.\n\n");
   printf( "-L <size in MB>\n"
           "--log_limit <size in MB>\n"

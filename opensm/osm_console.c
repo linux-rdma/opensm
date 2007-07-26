@@ -136,7 +136,7 @@ static void help_status(FILE *out, int detail)
 
 static void help_logflush(FILE *out, int detail)
 {
-	fprintf(out, "logflush -- flush the osm.log file\n");
+	fprintf(out, "logflush -- flush the opensm.log file\n");
 }
 
 static void help_querylid(FILE *out, int detail)
