@@ -742,19 +742,6 @@ __osm_ni_rcv_process_new(
     goto Exit;
   }
 
-  /* If there were RouterInfo or other router attribute,
-     this would be elsewhere */
-  if ( p_ni->node_type == IB_NODE_TYPE_ROUTER )
-  {
-    p_rtr = osm_router_new( p_port );
-    if ( p_rtr == NULL )
-    {
-      osm_log( p_rcv->p_log, OSM_LOG_ERROR,
-               "__osm_ni_rcv_process_new: ERR 0D1A: "
-               "Unable to create new router object\n" );
-    }
-  }
-
   /*
     Add the new port object to the database.
   */
@@ -777,8 +764,6 @@ __osm_ni_rcv_process_new(
     osm_dump_dr_path(p_rcv->p_log,
                      osm_physp_get_dr_path_ptr(p_port_check->p_physp),
                      OSM_LOG_ERROR);
-    if ( p_rtr )
-      osm_router_delete( &p_rtr );
     osm_port_delete( &p_port );
     osm_node_delete( &p_node );
     goto Exit;
@@ -800,8 +785,6 @@ __osm_ni_rcv_process_new(
                "__osm_ni_rcv_process_new: ERR 0D05: "
                "Error %s adding to new_ports_list\n",
                CL_STATUS_MSG( status ) );
-      if ( p_rtr )
-        osm_router_delete( &p_rtr );
       osm_port_delete( &p_port );
       osm_node_delete( &p_node );
       goto Exit;
@@ -815,18 +798,25 @@ __osm_ni_rcv_process_new(
     }
   }
 
-  if ( p_rtr && p_ni->node_type == IB_NODE_TYPE_ROUTER )
+  /* If there were RouterInfo or other router attribute,
+     this would be elsewhere */
+  if ( p_ni->node_type == IB_NODE_TYPE_ROUTER )
   {
-    p_rtr_guid_tbl = &p_rcv->p_subn->rtr_guid_tbl;
-    p_rtr_check = (osm_router_t*)cl_qmap_insert( p_rtr_guid_tbl,
-                                                 p_ni->port_guid,
-                                                 &p_rtr->map_item );
-    if( p_rtr_check != p_rtr )
-    {
+    if ((p_rtr = osm_router_new(p_port)) == NULL)
       osm_log( p_rcv->p_log, OSM_LOG_ERROR,
-               "__osm_ni_rcv_process_new: ERR 0D1B: "
-               "Unable to add port GUID:0x%016" PRIx64 " to router table\n",
-               cl_ntoh64( p_ni->port_guid ) );
+               "__osm_ni_rcv_process_new: ERR 0D1A: "
+               "Unable to create new router object\n" );
+    else
+    {
+      p_rtr_guid_tbl = &p_rcv->p_subn->rtr_guid_tbl;
+      p_rtr_check = (osm_router_t*)cl_qmap_insert( p_rtr_guid_tbl,
+                                                   p_ni->port_guid,
+                                                   &p_rtr->map_item );
+      if( p_rtr_check != p_rtr )
+        osm_log( p_rcv->p_log, OSM_LOG_ERROR,
+                 "__osm_ni_rcv_process_new: ERR 0D1B: "
+                 "Unable to add port GUID:0x%016" PRIx64 " to router table\n",
+                 cl_ntoh64( p_ni->port_guid ) );
     }
   }
 
