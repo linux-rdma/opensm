@@ -88,184 +88,182 @@ __osm_ni_rcv_set_links(
     link is our own node.  In this case, the guid value in
     the ni_context will be zero.
   */
-  if( p_ni_context->node_guid != 0 )
-  {
-    p_neighbor_node = osm_get_node_by_guid( p_rcv->p_subn,
-                                            p_ni_context->node_guid );
-    if( !p_neighbor_node )
-    {
-      osm_log( p_rcv->p_log, OSM_LOG_ERROR,
-               "__osm_ni_rcv_set_links: ERR 0D10: "
-               "Unexpected removal of neighbor node "
-               "0x%" PRIx64 "\n",
-               cl_ntoh64( p_ni_context->node_guid ) );
-    }
-    else
-    {
-      /*
-        We have seen this neighbor node before, but we might
-        not have seen this port on the neighbor node before.
-        We should not set links to an uninitialized port on the
-        neighbor, so check validity up front.  If it's not
-        valid, do nothing, since we'll see this link again
-        when we probe the neighbor.
-      */
-      if( osm_node_link_has_valid_ports( p_node, port_num,
-                                         p_neighbor_node, p_ni_context->port_num ) )
-      {
-        if( osm_node_link_exists( p_node, port_num,
-                                  p_neighbor_node, p_ni_context->port_num ) )
-        {
-          osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
-                   "__osm_ni_rcv_set_links: "
-                   "Link already exists\n" );
-        }
-        else
-        {
-          if( osm_node_has_any_link( p_node, port_num ) &&
-              p_rcv->p_subn->force_immediate_heavy_sweep == FALSE )
-          {
-            /*
-              Uh oh...
-              This means that we found 2 nodes with the same guid,
-              or a 12x link with lane reversal that is not configured correctly.
-              If the force_immediate_heavy_sweep == TRUE, then this might be a case
-              of port being moved (causing trap 128), and thus rediscovered.
-              In this case, just continue. There will be another heavy sweep
-              immediately after, when the subnet is stable again.
-            */
-            char line[BUF_SIZE];
-            char dr_new_path[BUF_SIZE];
-            char dr_old_path[BUF_SIZE];
-            uint32_t i;
-            osm_dr_path_t *p_path = NULL, *p_old_path = NULL;
-
-            p_physp = osm_node_get_physp_ptr( p_node, port_num );
-            sprintf( dr_new_path, "no_path_available" );
-            p_path = osm_physp_get_dr_path_ptr( p_physp );
-            if ( p_path )
-            {
-              sprintf( dr_new_path, "new path:" );
-              for (i = 0; i <= p_path->hop_count; i++ )
-              {
-                sprintf( line, "[%X]", p_path->path[i] );
-                strcat( dr_new_path, line );
-              }
-            }
-
-            p_old_neighbor_node = osm_node_get_remote_node(
-              p_node, port_num, &old_neighbor_port_num );
-            p_old_physp = osm_node_get_physp_ptr(
-              p_old_neighbor_node,
-              old_neighbor_port_num);
-            sprintf( dr_old_path, "no_path_available" );
-            p_old_path = osm_physp_get_dr_path_ptr( p_old_physp );
-            if ( p_old_path )
-            {
-              sprintf( dr_old_path, "old_path:" );
-              for (i = 0; i <= p_old_path->hop_count; i++ )
-              {
-                sprintf( line, "[%X]", p_old_path->path[i] );
-                strcat( dr_old_path, line );
-              }
-            }
-
-            osm_log( p_rcv->p_log, OSM_LOG_ERROR,
-                     "__osm_ni_rcv_set_links: ERR 0D01: "
-                     "Found duplicated guids or 12x link "
-                     "with lane reversal badly configured.\n"
-                     "Overriding existing link to:"
-                     "node 0x%" PRIx64 ", port number 0x%X connected to:\n"
-                     "\t\t\t\told node 0x%" PRIx64 ", "
-                     "port number 0x%X %s\n"
-                     "\t\t\t\tnew node 0x%" PRIx64 ", "
-                     "port number 0x%X %s\n",
-                     cl_ntoh64( osm_node_get_node_guid( p_node ) ),
-                     port_num,
-                     cl_ntoh64( osm_node_get_node_guid(
-                                  p_old_neighbor_node ) ),
-                     old_neighbor_port_num ,
-                     dr_old_path,
-                     cl_ntoh64( p_ni_context->node_guid ),
-                     p_ni_context->port_num,
-                     dr_new_path
-                     );
-
-            osm_log( p_rcv->p_log, OSM_LOG_SYS,
-                     "FATAL: duplicated guids or 12x lane reversal\n");
-
-            if ( p_rcv->p_subn->opt.exit_on_fatal == TRUE )
-	    {
-		osm_log( p_rcv->p_log, OSM_LOG_SYS, "Exiting\n");
-		exit( 1 );
-	    }
-          }
-
-          /*
-             When there are only two nodes with exact same guids (connected back
-             to back) - the previous check for duplicated guid will not catch
-             them. But the link will be from the port to itself...
-             Enhanced Port 0 is an exception to this
-          */
-          if ((osm_node_get_node_guid( p_node ) == p_ni_context->node_guid) &&
-              (port_num == p_ni_context->port_num) &&
-              (port_num != 0))
-          {
-            osm_log( p_rcv->p_log, OSM_LOG_ERROR,
-                     "__osm_ni_rcv_set_links: ERR 0D18: "
-                     "Duplicate GUID found by link from a port to itself:"
-                     "node 0x%" PRIx64 ", port number 0x%X\n",
-                     cl_ntoh64( osm_node_get_node_guid( p_node ) ),
-                     port_num );
-            p_physp = osm_node_get_physp_ptr( p_node, port_num );
-            osm_dump_dr_path(p_rcv->p_log,
-                             osm_physp_get_dr_path_ptr(p_physp),
-                             OSM_LOG_ERROR);
-
-            osm_log( p_rcv->p_log, OSM_LOG_SYS,
-                     "Errors on subnet. Duplicate GUID found "
-                     "by link from a port to itself. "
-                     "See opensm.log for more details\n");
-
-            if ( p_rcv->p_subn->opt.exit_on_fatal == TRUE )
-              exit( 1 );
-          }
-          else
-          {
-
-            if( osm_log_is_active( p_rcv->p_log, OSM_LOG_DEBUG ) )
-            {
-              osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
-                       "__osm_ni_rcv_set_links: "
-                       "Creating new link between: "
-                       "\n\t\t\t\tnode 0x%" PRIx64 ", "
-                       "port number 0x%X and"
-                       "\n\t\t\t\tnode 0x%" PRIx64 ", "
-                       "port number 0x%X\n",
-                       cl_ntoh64( osm_node_get_node_guid( p_node ) ),
-                       port_num,
-                       cl_ntoh64( p_ni_context->node_guid ),
-                       p_ni_context->port_num );
-            }
-
-            CL_ASSERT( osm_node_get_node_guid( p_neighbor_node ) ==
-                       p_ni_context->node_guid );
-
-            osm_node_link( p_node, port_num, p_neighbor_node,
-                           p_ni_context->port_num );
-          }
-        }
-      }
-    }
-  }
-  else
+  if( p_ni_context->node_guid == 0 )
   {
     osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
              "__osm_ni_rcv_set_links: "
              "Nothing to link for our own node 0x%" PRIx64 "\n",
              cl_ntoh64( osm_node_get_node_guid( p_node ) ) );
+    goto _exit;
   }
 
+  p_neighbor_node = osm_get_node_by_guid( p_rcv->p_subn,
+                                          p_ni_context->node_guid );
+  if( !p_neighbor_node )
+  {
+    osm_log( p_rcv->p_log, OSM_LOG_ERROR,
+             "__osm_ni_rcv_set_links: ERR 0D10: "
+             "Unexpected removal of neighbor node "
+             "0x%" PRIx64 "\n",
+             cl_ntoh64( p_ni_context->node_guid ) );
+    goto _exit;
+  }
+
+    /*
+      We have seen this neighbor node before, but we might
+      not have seen this port on the neighbor node before.
+      We should not set links to an uninitialized port on the
+      neighbor, so check validity up front.  If it's not
+      valid, do nothing, since we'll see this link again
+      when we probe the neighbor.
+    */
+  if( !osm_node_link_has_valid_ports( p_node, port_num,
+                                     p_neighbor_node, p_ni_context->port_num ) )
+    goto _exit;
+
+  if( osm_node_link_exists( p_node, port_num,
+                            p_neighbor_node, p_ni_context->port_num ) )
+  {
+    osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
+             "__osm_ni_rcv_set_links: "
+             "Link already exists\n" );
+    goto _exit;
+  }
+
+  if( osm_node_has_any_link( p_node, port_num ) &&
+      p_rcv->p_subn->force_immediate_heavy_sweep == FALSE )
+  {
+    /*
+      Uh oh...
+      This means that we found 2 nodes with the same guid,
+      or a 12x link with lane reversal that is not configured correctly.
+      If the force_immediate_heavy_sweep == TRUE, then this might be a case
+      of port being moved (causing trap 128), and thus rediscovered.
+      In this case, just continue. There will be another heavy sweep
+      immediately after, when the subnet is stable again.
+    */
+    char line[BUF_SIZE];
+    char dr_new_path[BUF_SIZE];
+    char dr_old_path[BUF_SIZE];
+    uint32_t i;
+    osm_dr_path_t *p_path = NULL, *p_old_path = NULL;
+
+    p_physp = osm_node_get_physp_ptr( p_node, port_num );
+    sprintf( dr_new_path, "no_path_available" );
+    p_path = osm_physp_get_dr_path_ptr( p_physp );
+    if ( p_path )
+    {
+      sprintf( dr_new_path, "new path:" );
+      for (i = 0; i <= p_path->hop_count; i++ )
+      {
+        sprintf( line, "[%X]", p_path->path[i] );
+        strcat( dr_new_path, line );
+      }
+    }
+
+    p_old_neighbor_node = osm_node_get_remote_node(
+      p_node, port_num, &old_neighbor_port_num );
+    p_old_physp = osm_node_get_physp_ptr(
+      p_old_neighbor_node,
+      old_neighbor_port_num);
+    sprintf( dr_old_path, "no_path_available" );
+    p_old_path = osm_physp_get_dr_path_ptr( p_old_physp );
+    if ( p_old_path )
+    {
+      sprintf( dr_old_path, "old_path:" );
+      for (i = 0; i <= p_old_path->hop_count; i++ )
+      {
+        sprintf( line, "[%X]", p_old_path->path[i] );
+        strcat( dr_old_path, line );
+      }
+    }
+
+    osm_log( p_rcv->p_log, OSM_LOG_ERROR,
+             "__osm_ni_rcv_set_links: ERR 0D01: "
+             "Found duplicated guids or 12x link "
+             "with lane reversal badly configured.\n"
+             "Overriding existing link to:"
+             "node 0x%" PRIx64 ", port number 0x%X connected to:\n"
+             "\t\t\t\told node 0x%" PRIx64 ", "
+             "port number 0x%X %s\n"
+             "\t\t\t\tnew node 0x%" PRIx64 ", "
+             "port number 0x%X %s\n",
+             cl_ntoh64( osm_node_get_node_guid( p_node ) ),
+             port_num,
+             cl_ntoh64( osm_node_get_node_guid(
+                          p_old_neighbor_node ) ),
+             old_neighbor_port_num ,
+             dr_old_path,
+             cl_ntoh64( p_ni_context->node_guid ),
+             p_ni_context->port_num,
+             dr_new_path
+             );
+
+    osm_log( p_rcv->p_log, OSM_LOG_SYS,
+             "FATAL: duplicated guids or 12x lane reversal\n");
+
+    if ( p_rcv->p_subn->opt.exit_on_fatal == TRUE )
+    {
+      osm_log( p_rcv->p_log, OSM_LOG_SYS, "Exiting\n");
+      exit( 1 );
+    }
+  }
+
+  /*
+     When there are only two nodes with exact same guids (connected back
+     to back) - the previous check for duplicated guid will not catch
+     them. But the link will be from the port to itself...
+     Enhanced Port 0 is an exception to this
+  */
+  if ((osm_node_get_node_guid( p_node ) == p_ni_context->node_guid) &&
+      (port_num == p_ni_context->port_num) &&
+      (port_num != 0))
+  {
+    osm_log( p_rcv->p_log, OSM_LOG_ERROR,
+             "__osm_ni_rcv_set_links: ERR 0D18: "
+             "Duplicate GUID found by link from a port to itself:"
+             "node 0x%" PRIx64 ", port number 0x%X\n",
+             cl_ntoh64( osm_node_get_node_guid( p_node ) ),
+             port_num );
+    p_physp = osm_node_get_physp_ptr( p_node, port_num );
+    osm_dump_dr_path(p_rcv->p_log,
+                     osm_physp_get_dr_path_ptr(p_physp),
+                     OSM_LOG_ERROR);
+
+    osm_log( p_rcv->p_log, OSM_LOG_SYS,
+             "Errors on subnet. Duplicate GUID found "
+             "by link from a port to itself. "
+             "See opensm.log for more details\n");
+
+    if ( p_rcv->p_subn->opt.exit_on_fatal == TRUE )
+      exit( 1 );
+  }
+  else
+  {
+
+    if( osm_log_is_active( p_rcv->p_log, OSM_LOG_DEBUG ) )
+    {
+      osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
+               "__osm_ni_rcv_set_links: "
+               "Creating new link between: "
+               "\n\t\t\t\tnode 0x%" PRIx64 ", "
+               "port number 0x%X and"
+               "\n\t\t\t\tnode 0x%" PRIx64 ", "
+               "port number 0x%X\n",
+               cl_ntoh64( osm_node_get_node_guid( p_node ) ),
+               port_num,
+               cl_ntoh64( p_ni_context->node_guid ),
+               p_ni_context->port_num );
+    }
+
+    CL_ASSERT( osm_node_get_node_guid( p_neighbor_node ) ==
+               p_ni_context->node_guid );
+
+    osm_node_link( p_node, port_num, p_neighbor_node,
+                   p_ni_context->port_num );
+  }
+
+ _exit:
   OSM_LOG_EXIT( p_rcv->p_log );
 }
 
