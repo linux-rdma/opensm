@@ -4931,7 +4931,7 @@ ib_port_info_get_mtu_cap(
 *		[in] Pointer to a PortInfo attribute.
 *
 * RETURN VALUES
-*	Returns the LMC value assigned to this port.
+*	Returns the encooded value for the maximum MTU supported by this port.
 *
 * NOTES
 *
@@ -4943,7 +4943,7 @@ ib_port_info_get_mtu_cap(
 *	ib_port_info_get_neighbor_mtu
 *
 * DESCRIPTION
-*	Returns the encoded value for the maximum MTU supported by this port.
+*	Returns the encoded value for the neighbor MTU supported by this port.
 *
 * SYNOPSIS
 */
