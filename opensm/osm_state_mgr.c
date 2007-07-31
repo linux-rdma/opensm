@@ -2168,6 +2168,9 @@ Idle:
                p_remote_sm = __osm_state_mgr_get_highest_sm( p_mgr );
                if( p_remote_sm != NULL )
                {
+                  /* report new ports (trap 64) before leaving MASTER */
+                  __osm_state_mgr_report_new_ports( p_mgr );
+
                   /* need to handover the mastership
                    * to the remote sm, and move to standby */
                   __osm_state_mgr_send_handover( p_mgr, p_remote_sm );
