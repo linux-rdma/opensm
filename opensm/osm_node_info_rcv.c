@@ -256,9 +256,6 @@ __osm_ni_rcv_set_links(
                p_ni_context->port_num );
     }
 
-    CL_ASSERT( osm_node_get_node_guid( p_neighbor_node ) ==
-               p_ni_context->node_guid );
-
     osm_node_link( p_node, port_num, p_neighbor_node,
                    p_ni_context->port_num );
   }
