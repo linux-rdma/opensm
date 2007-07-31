@@ -508,13 +508,6 @@ osm_ucast_mgr_set_fwd_table(
     else
     {
       p_mgr->any_change = TRUE;
-      /*
-        HACK: for now we will assume we succeeded to send
-        and set the local DB based on it. This should allow
-        us to immediatly dump out our routing.
-      */
-      osm_switch_set_ft_block(
-        p_sw, p_mgr->lft_buf + block_id_ho * 64, block_id_ho );
     }
   }
 
