@@ -215,12 +215,11 @@ __osm_ni_rcv_set_links(
      them. But the link will be from the port to itself...
      Enhanced Port 0 is an exception to this
   */
-  if ((osm_node_get_node_guid( p_node ) == p_ni_context->node_guid) &&
+  if ((osm_node_get_node_guid(p_node) == p_ni_context->node_guid) &&
       (port_num == p_ni_context->port_num) &&
-      (port_num != 0))
+      port_num != 0 && cl_qmap_count(&p_rcv->p_subn->sw_guid_tbl) == 0)
   {
-    osm_log( p_rcv->p_log, OSM_LOG_ERROR,
-             "__osm_ni_rcv_set_links: ERR 0D18: "
+    osm_log( p_rcv->p_log, OSM_LOG_VERBOSE, "__osm_ni_rcv_set_links: "
              "Duplicate GUID found by link from a port to itself:"
              "node 0x%" PRIx64 ", port number 0x%X\n",
              cl_ntoh64( osm_node_get_node_guid( p_node ) ),
@@ -228,37 +227,33 @@ __osm_ni_rcv_set_links(
     p_physp = osm_node_get_physp_ptr( p_node, port_num );
     osm_dump_dr_path(p_rcv->p_log,
                      osm_physp_get_dr_path_ptr(p_physp),
-                     OSM_LOG_ERROR);
-
-    osm_log( p_rcv->p_log, OSM_LOG_SYS,
-             "Errors on subnet. Duplicate GUID found "
-             "by link from a port to itself. "
-             "See opensm.log for more details\n");
+                     OSM_LOG_VERBOSE);
 
     if ( p_rcv->p_subn->opt.exit_on_fatal == TRUE )
-      exit( 1 );
-  }
-  else
-  {
-
-    if( osm_log_is_active( p_rcv->p_log, OSM_LOG_DEBUG ) )
     {
-      osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
-               "__osm_ni_rcv_set_links: "
-               "Creating new link between: "
-               "\n\t\t\t\tnode 0x%" PRIx64 ", "
-               "port number 0x%X and"
-               "\n\t\t\t\tnode 0x%" PRIx64 ", "
-               "port number 0x%X\n",
-               cl_ntoh64( osm_node_get_node_guid( p_node ) ),
-               port_num,
-               cl_ntoh64( p_ni_context->node_guid ),
-               p_ni_context->port_num );
+      osm_log( p_rcv->p_log, OSM_LOG_SYS,
+               "Errors on subnet. Duplicate GUID found "
+               "by link from a port to itself. "
+               "See verbose opensm.log for more details\n");
+      exit( 1 );
     }
-
-    osm_node_link( p_node, port_num, p_neighbor_node,
-                   p_ni_context->port_num );
   }
+
+  if( osm_log_is_active( p_rcv->p_log, OSM_LOG_DEBUG ) )
+    osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
+             "__osm_ni_rcv_set_links: "
+             "Creating new link between: "
+             "\n\t\t\t\tnode 0x%" PRIx64 ", "
+             "port number 0x%X and"
+             "\n\t\t\t\tnode 0x%" PRIx64 ", "
+             "port number 0x%X\n",
+             cl_ntoh64( osm_node_get_node_guid( p_node ) ),
+             port_num,
+             cl_ntoh64( p_ni_context->node_guid ),
+             p_ni_context->port_num );
+
+  osm_node_link( p_node, port_num, p_neighbor_node,
+                 p_ni_context->port_num );
 
  _exit:
   OSM_LOG_EXIT( p_rcv->p_log );
