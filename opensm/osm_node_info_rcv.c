@@ -314,12 +314,10 @@ __osm_ni_rcv_process_new_node(
                         CL_DISP_MSGID_NONE,
                         &context );
   if( status != IB_SUCCESS )
-  {
     osm_log( p_rcv->p_log, OSM_LOG_ERROR,
              "__osm_ni_rcv_process_new_node: ERR 0D02: "
              "Failure initiating PortInfo request (%s)\n",
              ib_get_err_str(status));
-  }
 
   OSM_LOG_EXIT( p_rcv->p_log );
 }
@@ -373,12 +371,10 @@ __osm_ni_rcv_get_node_desc(
                         CL_DISP_MSGID_NONE,
                         &context );
   if( status != IB_SUCCESS )
-  {
     osm_log( p_rcv->p_log, OSM_LOG_ERROR,
              "__osm_ni_rcv_get_node_desc: ERR 0D03: "
              "Failure initiating NodeDescription request (%s)\n",
              ib_get_err_str(status));
-  }
 
   OSM_LOG_EXIT( p_rcv->p_log );
 }
@@ -402,9 +398,7 @@ __osm_ni_rcv_process_new_ca_or_router(
     object with the SM's own port guid.
   */
   if( osm_madw_get_ni_context_ptr( p_madw )->node_guid == 0 )
-  {
     p_rcv->p_subn->sm_port_guid = p_node->node_info.port_guid;
-  }
 
   OSM_LOG_EXIT( p_rcv->p_log );
 }
@@ -500,13 +494,10 @@ __osm_ni_rcv_process_existing_ca_or_router(
         osm_port_delete( &p_port );
         goto Exit;
       }
-      else
-      {
-        osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
-                 "__osm_ni_rcv_process_existing_ca_or_router: "
-                 "Adding port GUID:0x%016" PRIx64 " to new_ports_list\n",
-                 cl_ntoh64(osm_node_get_node_guid( p_port->p_node )) );
-      }
+      osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
+               "__osm_ni_rcv_process_existing_ca_or_router: "
+               "Adding port GUID:0x%016" PRIx64 " to new_ports_list\n",
+               cl_ntoh64(osm_node_get_node_guid( p_port->p_node )) );
     }
 
     p_physp = osm_node_get_physp_ptr( p_node, port_num );
@@ -548,12 +539,10 @@ __osm_ni_rcv_process_existing_ca_or_router(
                         &context );
 
   if( status != IB_SUCCESS )
-  {
     osm_log( p_rcv->p_log, OSM_LOG_ERROR,
              "__osm_ni_rcv_process_existing_ca_or_router: ERR 0D13: "
              "Failure initiating PortInfo request (%s)\n",
              ib_get_err_str(status));
-  }
 
  Exit:
   OSM_LOG_EXIT( p_rcv->p_log );
@@ -596,13 +585,11 @@ __osm_ni_rcv_process_switch(
                         CL_DISP_MSGID_NONE,
                         &context );
   if( status != IB_SUCCESS )
-  {
     /* continue despite error */
     osm_log( p_rcv->p_log, OSM_LOG_ERROR,
              "__osm_ni_rcv_process_switch: ERR 0D06: "
              "Failure initiating SwitchInfo request (%s)\n",
              ib_get_err_str( status ) );
-  }
 
   OSM_LOG_EXIT( p_rcv->p_log );
 }
@@ -628,18 +615,14 @@ __osm_ni_rcv_process_existing_switch(
   */
   if( p_node->discovery_count == 1 )
     __osm_ni_rcv_process_switch( p_rcv, p_node, p_madw );
-  else
+  else if( !p_node->sw || p_node->sw->discovery_count == 0 )
   {
-    /* Make sure we have SwitchInfo on this node */
-    if( !p_node->sw || p_node->sw->discovery_count == 0 )
-    {
-      /* we don't have the SwitchInfo - retry to get it */
-      osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
-               "__osm_ni_rcv_process_existing_switch: "
-               "Retry to get SwitchInfo on node GUID:0x%"
-               PRIx64 "\n", cl_ntoh64(osm_node_get_node_guid(p_node)) );
-      __osm_ni_rcv_process_switch( p_rcv, p_node, p_madw );
-    }
+    /* we don't have the SwitchInfo - retry to get it */
+    osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
+             "__osm_ni_rcv_process_existing_switch: "
+             "Retry to get SwitchInfo on node GUID:0x%"
+             PRIx64 "\n", cl_ntoh64(osm_node_get_node_guid(p_node)) );
+    __osm_ni_rcv_process_switch( p_rcv, p_node, p_madw );
   }
 
   OSM_LOG_EXIT( p_rcv->p_log );
@@ -664,9 +647,7 @@ __osm_ni_rcv_process_new_switch(
     object with the SM's own port guid.
   */
   if( osm_madw_get_ni_context_ptr( p_madw )->node_guid == 0 )
-  {
     p_rcv->p_subn->sm_port_guid = p_node->node_info.port_guid;
-  }
 
   OSM_LOG_EXIT( p_rcv->p_log );
 }
@@ -779,13 +760,10 @@ __osm_ni_rcv_process_new(
       osm_node_delete( &p_node );
       goto Exit;
     }
-    else
-    {
-      osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
-               "__osm_ni_rcv_process_new: "
-               "Adding port GUID:0x%016" PRIx64 " to new_ports_list\n",
-               cl_ntoh64( osm_node_get_node_guid( p_port->p_node ) ) );
-    }
+    osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
+             "__osm_ni_rcv_process_new: "
+             "Adding port GUID:0x%016" PRIx64 " to new_ports_list\n",
+             cl_ntoh64( osm_node_get_node_guid( p_port->p_node ) ) );
   }
 
   /* If there were RouterInfo or other router attribute,
@@ -879,7 +857,6 @@ __osm_ni_rcv_process_existing(
   port_num = ib_node_info_get_local_port_num( p_ni );
 
   if( osm_log_is_active( p_rcv->p_log, OSM_LOG_VERBOSE ) )
-  {
     osm_log( p_rcv->p_log, OSM_LOG_VERBOSE,
              "__osm_ni_rcv_process_existing: "
              "Rediscovered %s node 0x%" PRIx64
@@ -888,7 +865,6 @@ __osm_ni_rcv_process_existing(
              cl_ntoh64( p_ni->node_guid ),
              cl_ntoh64( p_smp->trans_id ),
              p_node->discovery_count );
-  }
 
   /*
     If we haven't already encountered this existing node
