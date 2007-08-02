@@ -89,10 +89,10 @@ EXTRA_DIST = libosmvendor.spec.in $(srcdir)/libosmvendor.map $(srcdir)/libosmven
 dist-hook: libosmvendor.spec
 	cp libosmvendor.spec $(distdir)
 
-# as we can not use libtool -release since it actually changes the SONAME 
+# as we can not use libtool -release since it actually changes the SONAME
 # to the full release name instead of keeping it to the original
 # name. What we can do it create a link to the installed file such
-# that it will mark it with an alias... 
+# that it will mark it with an alias...
 # we find the new lib by traversing the links
 install-exec-hook:
 	if test -L $(DESTDIR)/$(libdir)/libosmvendor-$(VERSION).so; then rm $(DESTDIR)/$(libdir)/libosmvendor-$(VERSION).so; fi; \

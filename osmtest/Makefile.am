@@ -7,7 +7,7 @@ endif
 
 INCLUDES = -I$(srcdir)/include $(OSMV_INCLUDES)
 
-sbin_PROGRAMS = osmtest 
+sbin_PROGRAMS = osmtest
 osmtest_SOURCES = main.c osmtest.c osmt_service.c osmt_slvl_vl_arb.c \
 		 osmt_multicast.c osmt_inform.c
 if OSMV_VAPI
@@ -24,8 +24,8 @@ osmtest_LDADD = -L../complib -L../libvendor -L../opensm -L$(libdir) -L. \
 osmtest_LDFLAGS = -Wl,--rpath -Wl,$(libdir) -lpthread  -L../opensm
 # for linking with the simulator client library we have to use g++:
 if OSMV_SIM
-USEGPPLINK = $(LIBTOOL) --mode=link g++ $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@ 
-osmtest$(EXEEXT): $(osmtest_OBJECTS) $(osmtest_DEPENDENCIES) 
+USEGPPLINK = $(LIBTOOL) --mode=link g++ $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+osmtest$(EXEEXT): $(osmtest_OBJECTS) $(osmtest_DEPENDENCIES)
 	@rm -f osmtest$(EXEEXT)
 	$(USEGPPLINK) $(osmtest_LDFLAGS) $(osmtest_OBJECTS) $(osmtest_LDADD) $(LIBS)
 endif

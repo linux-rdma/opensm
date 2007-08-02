@@ -67,10 +67,10 @@ endif
 
 # for linking with the simulator client library we have to use g++:
 if OSMV_SIM
-USEGPPLINK = $(LIBTOOL) --mode=link g++ $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@ 
-libopensm.la: $(libopensm_la_OBJECTS) $(libopensm_la_DEPENDENCIES) 
+USEGPPLINK = $(LIBTOOL) --mode=link g++ $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+libopensm.la: $(libopensm_la_OBJECTS) $(libopensm_la_DEPENDENCIES)
 	$(USEGPPLINK) -rpath $(libdir) $(libopensm_la_LDFLAGS) $(libopensm_la_OBJECTS) $(libopensm_la_LIBADD) $(LIBS)
-opensm$(EXEEXT): $(opensm_OBJECTS) $(opensm_DEPENDENCIES) 
+opensm$(EXEEXT): $(opensm_OBJECTS) $(opensm_DEPENDENCIES)
 	@rm -f opensm$(EXEEXT)
 	$(USEGPPLINK) $(opensm_LDFLAGS) $(opensm_OBJECTS) $(opensm_LDADD) $(LIBS)
 endif
@@ -95,10 +95,10 @@ opensminclude_HEADERS = $(srcdir)/../include/opensm/osm_base.h \
 EXTRA_DIST = $(srcdir)/libopensm.map $(srcdir)/libopensm.ver \
 	     $(srcdir)/ChangeLog
 
-# as we can not use libtool -release since it actually changes the SONAME 
+# as we can not use libtool -release since it actually changes the SONAME
 # to the full release name instead of keeping it to the original
 # name. What we can do it create a link to the installed file such
-# that it will mark it with an alias... 
+# that it will mark it with an alias...
 # we find the new lib by traversing the links
 install-exec-hook:
 	if test -L $(DESTDIR)/$(libdir)/libopensm-$(VERSION).so; then rm $(DESTDIR)/$(libdir)/libopensm-$(VERSION).so; fi; \

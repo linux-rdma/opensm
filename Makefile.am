@@ -1,10 +1,10 @@
 
-# note that order matters: make the libs first then use them 
+# note that order matters: make the libs first then use them
 SUBDIRS 		= complib libvendor opensm osmtest include $(DEFAULT_EVENT_PLUGIN)
 DIST_SUBDIRS = complib libvendor opensm osmtest include osmeventplugin
 
 # this will control the update of the files in order
-MAINTAINERCLEANFILES = Makefile.in aclocal.m4 configure config-h.in 
+MAINTAINERCLEANFILES = Makefile.in aclocal.m4 configure config-h.in
 
 ACLOCAL			= aclocal -I $(ac_aux_dir)
 
