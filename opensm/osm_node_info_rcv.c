@@ -142,23 +142,21 @@ __osm_ni_rcv_set_links(
       In this case, just continue. There will be another heavy sweep
       immediately after, when the subnet is stable again.
     */
-    char line[BUF_SIZE];
     char dr_new_path[BUF_SIZE];
     char dr_old_path[BUF_SIZE];
+    int n;
     uint32_t i;
-    osm_dr_path_t *p_path = NULL, *p_old_path = NULL;
+    osm_dr_path_t *p_path;
 
     p_physp = osm_node_get_physp_ptr( p_node, port_num );
     sprintf( dr_new_path, "no_path_available" );
     p_path = osm_physp_get_dr_path_ptr( p_physp );
     if ( p_path )
     {
-      sprintf( dr_new_path, "new path:" );
+      n = sprintf( dr_new_path, "new path:" );
       for (i = 0; i <= p_path->hop_count; i++ )
-      {
-        sprintf( line, "[%X]", p_path->path[i] );
-        strcat( dr_new_path, line );
-      }
+        n += snprintf(dr_new_path + n, sizeof(dr_new_path) - n, "[%X]",
+                      p_path->path[i]);
     }
 
     p_old_neighbor_node = osm_node_get_remote_node(
@@ -167,15 +165,13 @@ __osm_ni_rcv_set_links(
       p_old_neighbor_node,
       old_neighbor_port_num);
     sprintf( dr_old_path, "no_path_available" );
-    p_old_path = osm_physp_get_dr_path_ptr( p_old_physp );
-    if ( p_old_path )
+    p_path = osm_physp_get_dr_path_ptr( p_old_physp );
+    if ( p_path )
     {
-      sprintf( dr_old_path, "old_path:" );
-      for (i = 0; i <= p_old_path->hop_count; i++ )
-      {
-        sprintf( line, "[%X]", p_old_path->path[i] );
-        strcat( dr_old_path, line );
-      }
+      n = sprintf( dr_old_path, "old_path:" );
+      for (i = 0; i <= p_path->hop_count; i++ )
+        n += snprintf(dr_old_path, sizeof(dr_old_path) - n, "[%X]",
+                      p_path->path[i]);
     }
 
     osm_log( p_rcv->p_log, OSM_LOG_ERROR,
