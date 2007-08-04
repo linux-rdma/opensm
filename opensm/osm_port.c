@@ -543,7 +543,7 @@ __osm_key_to_ptr(uint64_t k)
  add every phys port traversed to the map. Avoid tracking the first and
  last phys ports (going into the first switch and into the target port).
  **********************************************************************/
-cl_status_t
+static cl_status_t
 __osm_physp_get_dr_physp_set(
   IN osm_log_t*           p_log,
   IN osm_subn_t    const *p_subn,
@@ -624,7 +624,7 @@ __osm_physp_get_dr_physp_set(
 
 /**********************************************************************
  **********************************************************************/
-void
+static void
 __osm_physp_update_new_dr_path(
   IN osm_physp_t const   *p_dest_physp,
   IN cl_map_t            *p_visited_map,
