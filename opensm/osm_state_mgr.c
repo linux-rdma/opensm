@@ -587,7 +587,7 @@ __osm_state_mgr_get_sw_info(
    p_node = p_sw->p_node;
    p_dr_path = osm_node_get_any_dr_path_ptr( p_node );
 
-   memset( &context, 0, sizeof( context ) );
+   memset( &mad_context, 0, sizeof( mad_context ) );
 
    mad_context.si_context.node_guid = osm_node_get_node_guid( p_node );
    mad_context.si_context.set_method = FALSE;
