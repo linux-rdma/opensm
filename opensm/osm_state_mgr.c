@@ -668,7 +668,6 @@ __osm_state_mgr_sweep_hop_0(
    ib_api_status_t status;
    osm_dr_path_t dr_path;
    osm_bind_handle_t h_bind;
-   osm_ni_context_t ni_context;
    uint8_t path_array[IB_SUBNET_PATH_HOPS_MAX];
 
    OSM_LOG_ENTER( p_mgr->p_log, __osm_state_mgr_sweep_hop_0 );
@@ -708,7 +707,6 @@ __osm_state_mgr_sweep_hop_0(
 
       CL_PLOCK_RELEASE( p_mgr->p_lock );
 
-      memset( &ni_context, 0, sizeof( ni_context ) );
       osm_dr_path_init( &dr_path, h_bind, 0, path_array );
       status = osm_req_get( p_mgr->p_req,
                             &dr_path,
