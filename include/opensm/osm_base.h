@@ -311,11 +311,11 @@ BEGIN_C_DECLS
 * DESCRIPTION
 *	Sets the time a packet can live in the head of the VL Queue
 *  of a port that drives a CA port.
-*  We use here the value of ~130usec
+*  We use here the value of ~1sec
 *
 * SYNOPSIS
 */
-#define OSM_DEFAULT_LEAF_HEAD_OF_QUEUE_LIFE 0xC
+#define OSM_DEFAULT_LEAF_HEAD_OF_QUEUE_LIFE 0x12
 /***********/
 
 /****d* OpenSM: Base/OSM_DEFAULT_VL_STALL_COUNT
@@ -341,11 +341,10 @@ BEGIN_C_DECLS
 *  puts the VL into stalled state. In stalled state, the port is supposed
 *  to drop everything for 8*(head of queue lifetime). This value is for
 *  switch ports driving a CA port.
-*  We use the value of 1 here - so any drop due to HOQ means stalling the VL
 *
 * SYNOPSIS
 */
-#define OSM_DEFAULT_LEAF_VL_STALL_COUNT 0x1
+#define OSM_DEFAULT_LEAF_VL_STALL_COUNT 0x7
 /***********/
 
 /****d* OpenSM: Base/OSM_DEFAULT_TRAP_SUPRESSION_TIMEOUT
