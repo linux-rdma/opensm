@@ -311,11 +311,11 @@ BEGIN_C_DECLS
 * DESCRIPTION
 *	Sets the time a packet can live in the head of the VL Queue
 *  of a port that drives a CA port.
-*  We use here the value of ~1sec
+*  We use here the value of ~256msec
 *
 * SYNOPSIS
 */
-#define OSM_DEFAULT_LEAF_HEAD_OF_QUEUE_LIFE 0x12
+#define OSM_DEFAULT_LEAF_HEAD_OF_QUEUE_LIFE 0x10
 /***********/
 
 /****d* OpenSM: Base/OSM_DEFAULT_VL_STALL_COUNT
