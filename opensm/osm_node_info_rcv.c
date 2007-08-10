@@ -66,6 +66,77 @@
 #include <opensm/osm_helper.h>
 #include <opensm/osm_msgdef.h>
 
+static void
+report_duplicated_guid(
+  IN const osm_ni_rcv_t* const p_rcv,
+  osm_node_t* p_node,
+  const uint8_t port_num,
+  const osm_ni_context_t* const p_ni_context )
+{
+  char dr_new_path[BUF_SIZE];
+  char dr_old_path[BUF_SIZE];
+  osm_node_t *p_old_neighbor_node;
+  uint8_t old_neighbor_port_num;
+  osm_physp_t *p_physp, *p_old_physp;
+  int n;
+  uint32_t i;
+  osm_dr_path_t *p_path;
+
+  p_physp = osm_node_get_physp_ptr( p_node, port_num );
+  sprintf( dr_new_path, "no_path_available" );
+  p_path = osm_physp_get_dr_path_ptr( p_physp );
+  if ( p_path )
+  {
+    n = sprintf( dr_new_path, "new path:" );
+    for (i = 0; i <= p_path->hop_count; i++ )
+      n += snprintf(dr_new_path + n, sizeof(dr_new_path) - n, "[%X]",
+                    p_path->path[i]);
+  }
+
+  p_old_neighbor_node = osm_node_get_remote_node(p_node, port_num,
+                                                 &old_neighbor_port_num);
+  p_old_physp = osm_node_get_physp_ptr(p_old_neighbor_node,
+                                       old_neighbor_port_num);
+  sprintf( dr_old_path, "no_path_available" );
+  p_path = osm_physp_get_dr_path_ptr( p_old_physp );
+  if ( p_path )
+  {
+    n = sprintf( dr_old_path, "old_path:" );
+    for (i = 0; i <= p_path->hop_count; i++ )
+      n += snprintf(dr_old_path + n, sizeof(dr_old_path) - n, "[%X]",
+                    p_path->path[i]);
+  }
+
+  osm_log( p_rcv->p_log, OSM_LOG_ERROR,
+           "__osm_ni_rcv_set_links: ERR 0D01: "
+           "Found duplicated guids or 12x link "
+           "with lane reversal badly configured.\n"
+           "Overriding existing link to:"
+           "node 0x%" PRIx64 ", port number 0x%X connected to:\n"
+           "\t\t\t\told node 0x%" PRIx64 ", "
+           "port number 0x%X %s\n"
+           "\t\t\t\tnew node 0x%" PRIx64 ", "
+           "port number 0x%X %s\n",
+           cl_ntoh64( osm_node_get_node_guid( p_node ) ),
+           port_num,
+           cl_ntoh64( osm_node_get_node_guid( p_old_neighbor_node ) ),
+           old_neighbor_port_num ,
+           dr_old_path,
+           cl_ntoh64( p_ni_context->node_guid ),
+           p_ni_context->port_num,
+           dr_new_path
+           );
+
+  osm_log( p_rcv->p_log, OSM_LOG_SYS,
+           "FATAL: duplicated guids or 12x lane reversal\n");
+
+  if ( p_rcv->p_subn->opt.exit_on_fatal == TRUE )
+  {
+    osm_log( p_rcv->p_log, OSM_LOG_SYS, "Exiting\n");
+    exit( 1 );
+  }
+}
+
 /**********************************************************************
  The plock must be held before calling this function.
 **********************************************************************/
@@ -77,9 +148,7 @@ __osm_ni_rcv_set_links(
   const osm_ni_context_t* const p_ni_context )
 {
   osm_node_t *p_neighbor_node;
-  osm_node_t *p_old_neighbor_node;
-  uint8_t old_neighbor_port_num;
-  osm_physp_t *p_physp, *p_old_physp;
+  osm_physp_t *p_physp;
 
   OSM_LOG_ENTER( p_rcv->p_log, __osm_ni_rcv_set_links );
 
@@ -142,67 +211,8 @@ __osm_ni_rcv_set_links(
       In this case, just continue. There will be another heavy sweep
       immediately after, when the subnet is stable again.
     */
-    char dr_new_path[BUF_SIZE];
-    char dr_old_path[BUF_SIZE];
-    int n;
-    uint32_t i;
-    osm_dr_path_t *p_path;
 
-    p_physp = osm_node_get_physp_ptr( p_node, port_num );
-    sprintf( dr_new_path, "no_path_available" );
-    p_path = osm_physp_get_dr_path_ptr( p_physp );
-    if ( p_path )
-    {
-      n = sprintf( dr_new_path, "new path:" );
-      for (i = 0; i <= p_path->hop_count; i++ )
-        n += snprintf(dr_new_path + n, sizeof(dr_new_path) - n, "[%X]",
-                      p_path->path[i]);
-    }
-
-    p_old_neighbor_node = osm_node_get_remote_node(
-      p_node, port_num, &old_neighbor_port_num );
-    p_old_physp = osm_node_get_physp_ptr(
-      p_old_neighbor_node,
-      old_neighbor_port_num);
-    sprintf( dr_old_path, "no_path_available" );
-    p_path = osm_physp_get_dr_path_ptr( p_old_physp );
-    if ( p_path )
-    {
-      n = sprintf( dr_old_path, "old_path:" );
-      for (i = 0; i <= p_path->hop_count; i++ )
-        n += snprintf(dr_old_path + n, sizeof(dr_old_path) - n, "[%X]",
-                      p_path->path[i]);
-    }
-
-    osm_log( p_rcv->p_log, OSM_LOG_ERROR,
-             "__osm_ni_rcv_set_links: ERR 0D01: "
-             "Found duplicated guids or 12x link "
-             "with lane reversal badly configured.\n"
-             "Overriding existing link to:"
-             "node 0x%" PRIx64 ", port number 0x%X connected to:\n"
-             "\t\t\t\told node 0x%" PRIx64 ", "
-             "port number 0x%X %s\n"
-             "\t\t\t\tnew node 0x%" PRIx64 ", "
-             "port number 0x%X %s\n",
-             cl_ntoh64( osm_node_get_node_guid( p_node ) ),
-             port_num,
-             cl_ntoh64( osm_node_get_node_guid(
-                          p_old_neighbor_node ) ),
-             old_neighbor_port_num ,
-             dr_old_path,
-             cl_ntoh64( p_ni_context->node_guid ),
-             p_ni_context->port_num,
-             dr_new_path
-             );
-
-    osm_log( p_rcv->p_log, OSM_LOG_SYS,
-             "FATAL: duplicated guids or 12x lane reversal\n");
-
-    if ( p_rcv->p_subn->opt.exit_on_fatal == TRUE )
-    {
-      osm_log( p_rcv->p_log, OSM_LOG_SYS, "Exiting\n");
-      exit( 1 );
-    }
+    report_duplicated_guid(p_rcv, p_node, port_num, p_ni_context);
   }
 
   /*
