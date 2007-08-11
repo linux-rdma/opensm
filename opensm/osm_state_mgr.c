@@ -2159,6 +2159,13 @@ Idle:
             break;
 
          case OSM_SIGNAL_NO_PENDING_TRANSACTIONS:
+            /* if new sweep requiested - don't bother with the rest */
+            if( p_mgr->p_subn->force_immediate_heavy_sweep ) {
+               p_mgr->state = OSM_SM_STATE_IDLE;
+               signal = OSM_SIGNAL_SWEEP;
+               break;
+            }
+
             __osm_state_mgr_sweep_heavy_done_msg( p_mgr );
 
             /* If we are MASTER - get the highest remote_sm, and
