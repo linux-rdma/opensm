@@ -129,12 +129,6 @@ report_duplicated_guid(
 
   osm_log( p_rcv->p_log, OSM_LOG_SYS,
            "FATAL: duplicated guids or 12x lane reversal\n");
-
-  if ( p_rcv->p_subn->opt.exit_on_fatal == TRUE )
-  {
-    osm_log( p_rcv->p_log, OSM_LOG_SYS, "Exiting\n");
-    exit( 1 );
-  }
 }
 
 static void requery_dup_node_info(
