@@ -967,7 +967,6 @@ __osm_lid_mgr_set_physp_pi(
   uint8_t               op_vls;
   uint8_t               port_num;
   boolean_t             send_set = FALSE;
-  boolean_t             new_port = FALSE;
 
   OSM_LOG_ENTER( p_mgr->p_log, __osm_lid_mgr_set_physp_pi );
 
@@ -1214,17 +1213,10 @@ __osm_lid_mgr_set_physp_pi(
     We need to set the cli_rereg bit when we are in first_time_master_sweep for
     ports supporting the ClientReregistration Vol1 (v1.2) p811 14.4.11
     Also, if this port was just now discovered, then we should also set the
-    cli_rereg bit. We know that the port was just discovered if it is in
-    the p_subn->new_ports_list list.
+    cli_rereg bit. We know that the port was just discovered if its is_new
+    field is set.
   */
-  if ( cl_is_object_in_list(&p_mgr->p_subn->new_ports_list, p_port) )
-  {
-    /* p_port is in new_ports_list, mark new_port as TRUE */
-    new_port = TRUE;
-  }
-
-  if ( ( p_mgr->p_subn->first_time_master_sweep == TRUE ||
-         new_port == TRUE ) &&
+  if ( ( p_mgr->p_subn->first_time_master_sweep == TRUE || p_port->is_new ) &&
        !p_mgr->p_subn->opt.no_clients_rereg &&
        ( (p_old_pi->capability_mask & IB_PORT_CAP_HAS_CLIENT_REREG) != 0 ) )
     ib_port_info_set_client_rereg( p_pi, 1 );

@@ -1284,6 +1284,7 @@ typedef struct _osm_port
 	struct _osm_node		*p_node;
 	ib_net64_t			guid;
 	uint32_t			discovery_count;
+	unsigned			is_new;
 	osm_physp_t			*p_physp;
 	cl_qlist_t			mcm_list;
 } osm_port_t;

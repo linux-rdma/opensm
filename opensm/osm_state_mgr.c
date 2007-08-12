@@ -1628,28 +1628,33 @@ __osm_state_mgr_send_handover(
 }
 
 /**********************************************************************
- * Send Trap 64 on all ports in new_ports_list.
+ * Send Trap 64 on all new ports.
  **********************************************************************/
 static void
 __osm_state_mgr_report_new_ports(
    IN osm_state_mgr_t * const p_mgr )
 {
-   osm_port_t *p_port;
    ib_gid_t port_gid;
    ib_mad_notice_attr_t notice;
    ib_api_status_t status;
    ib_net64_t port_guid;
+   cl_map_item_t *p_next;
+   osm_port_t *p_port;
    uint16_t min_lid_ho;
    uint16_t max_lid_ho;
 
    OSM_LOG_ENTER( p_mgr->p_log, __osm_state_mgr_report_new_ports );
 
    CL_PLOCK_ACQUIRE( p_mgr->p_lock );
-   p_port =
-      ( osm_port_t
-        * ) ( cl_list_remove_head( &p_mgr->p_subn->new_ports_list ) );
-   while( p_port != NULL )
+   p_next = cl_qmap_head(&p_mgr->p_subn->port_guid_tbl);
+   while (p_next != cl_qmap_end(&p_mgr->p_subn->port_guid_tbl))
    {
+      p_port = (osm_port_t *)p_next;
+      p_next = cl_qmap_next(p_next);
+
+      if (!p_port->is_new)
+         continue;
+
       port_guid = osm_port_get_guid( p_port );
       /* issue a notice - trap 64 */
 
@@ -1690,9 +1695,7 @@ __osm_state_mgr_report_new_ports(
                min_lid_ho, max_lid_ho,
                p_port->p_node ? p_port->p_node->print_desc : "UNKNOWN" );
 
-      p_port =
-         ( osm_port_t
-           * ) ( cl_list_remove_head( &p_mgr->p_subn->new_ports_list ) );
+      p_port->is_new = 0;
    }
    CL_PLOCK_RELEASE( p_mgr->p_lock );
 

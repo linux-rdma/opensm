@@ -567,7 +567,6 @@ typedef struct _osm_subn
   boolean_t                subnet_initialization_error;
   boolean_t                force_immediate_heavy_sweep;
   boolean_t                force_delayed_heavy_sweep;
-  cl_list_t		   new_ports_list;
   boolean_t                in_sweep_hop_0;
   boolean_t                moved_to_master_state;
   boolean_t                first_time_master_sweep;
@@ -674,10 +673,6 @@ typedef struct _osm_subn
 *     will not occur.
 *     If we had some trouble on the subnet, that caused a strange dropping
 *     of ports - we will try to do another heavy sweep on our next sweep.
-*
-*  new_ports_list
-*     Container of pointers to port objects that were discovered for
-*     the first time during a current sweep.
 *
 *  in_sweep_hop_0
 *     When in_sweep_hop_0 flag is set to TRUE - this means we are

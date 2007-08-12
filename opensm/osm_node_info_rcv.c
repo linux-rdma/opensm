@@ -418,7 +418,6 @@ __osm_ni_rcv_process_existing_ca_or_router(
   ib_api_status_t status;
   osm_dr_path_t *p_dr_path;
   osm_bind_handle_t h_bind;
-  cl_status_t cl_status;
 
   OSM_LOG_ENTER( p_rcv->p_log, __osm_ni_rcv_process_existing_ca_or_router );
 
@@ -472,29 +471,14 @@ __osm_ni_rcv_process_existing_ca_or_router(
     }
 
     /* If we are a master, then this means the port is new on the subnet.
-       Add it to the new_ports_list - need to send trap 64 on these ports.
+       Mark it as new - need to send trap 64 on these ports.
        The condition that we are master is true, since if we are in discovering
        state (meaning we woke up from standby or we are just initializing),
        then these ports may be new to us, but are not new on the subnet.
        If we are master, then the subnet as we know it is the updated one,
        and any new ports we encounter should cause trap 64. C14-72.1.1 */
     if ( p_rcv->p_subn->sm_state == IB_SMINFO_STATE_MASTER )
-    {
-      cl_status = cl_list_insert_tail( &p_rcv->p_subn->new_ports_list, p_port );
-      if( cl_status != CL_SUCCESS )
-      {
-        osm_log( p_rcv->p_log, OSM_LOG_ERROR,
-                 "__osm_ni_rcv_process_existing_ca_or_router: ERR 0D08: "
-                 "Error %s adding to list\n",
-                 CL_STATUS_MSG( cl_status ) );
-        osm_port_delete( &p_port );
-        goto Exit;
-      }
-      osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
-               "__osm_ni_rcv_process_existing_ca_or_router: "
-               "Adding port GUID:0x%016" PRIx64 " to new_ports_list\n",
-               cl_ntoh64(osm_node_get_node_guid( p_port->p_node )) );
-    }
+      p_port->is_new = 1;
 
     p_physp = osm_node_get_physp_ptr( p_node, port_num );
   }
@@ -667,7 +651,6 @@ __osm_ni_rcv_process_new(
   ib_smp_t *p_smp;
   osm_ni_context_t *p_ni_context;
   uint8_t port_num;
-  cl_status_t status;
 
   OSM_LOG_ENTER( p_rcv->p_log, __osm_ni_rcv_process_new );
 
@@ -737,30 +720,14 @@ __osm_ni_rcv_process_new(
   }
 
   /* If we are a master, then this means the port is new on the subnet.
-     Add it to the new_ports_list - need to send trap 64 on these ports.
+     Mark it as new - need to send trap 64 on these ports.
      The condition that we are master is true, since if we are in discovering
      state (meaning we woke up from standby or we are just initializing),
      then these ports may be new to us, but are not new on the subnet.
      If we are master, then the subnet as we know it is the updated one,
      and any new ports we encounter should cause trap 64. C14-72.1.1 */
   if ( p_rcv->p_subn->sm_state == IB_SMINFO_STATE_MASTER )
-  {
-    status = cl_list_insert_tail( &p_rcv->p_subn->new_ports_list, p_port );
-    if( status != CL_SUCCESS )
-    {
-      osm_log( p_rcv->p_log, OSM_LOG_ERROR,
-               "__osm_ni_rcv_process_new: ERR 0D05: "
-               "Error %s adding to new_ports_list\n",
-               CL_STATUS_MSG( status ) );
-      osm_port_delete( &p_port );
-      osm_node_delete( &p_node );
-      goto Exit;
-    }
-    osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
-             "__osm_ni_rcv_process_new: "
-             "Adding port GUID:0x%016" PRIx64 " to new_ports_list\n",
-             cl_ntoh64( osm_node_get_node_guid( p_port->p_node ) ) );
-  }
+    p_port->is_new = 1;
 
   /* If there were RouterInfo or other router attribute,
      this would be elsewhere */

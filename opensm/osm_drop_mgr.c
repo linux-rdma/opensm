@@ -217,8 +217,6 @@ __osm_drop_mgr_remove_port(
 {
   ib_net64_t port_guid;
   osm_port_t *p_port_check;
-  cl_list_t* p_new_ports_list;
-  cl_list_iterator_t cl_list_item;
   cl_qmap_t* p_sm_guid_tbl;
   osm_mcm_info_t* p_mcm;
   osm_mgrp_t*  p_mgrp;
@@ -239,25 +237,6 @@ __osm_drop_mgr_remove_port(
            "__osm_drop_mgr_remove_port: "
            "Unreachable port 0x%016" PRIx64 "\n",
            cl_ntoh64( port_guid ) );
-
-  /*
-    Remove this port from the new_ports_list, if it exists there.
-    Remove this port from the guid and LID tables.
-    Remove also from the sm guid table - if the object
-    exists there.
-  */
-  p_new_ports_list = &p_mgr->p_subn->new_ports_list;
-  cl_list_item = cl_list_head(p_new_ports_list);
-  while( cl_list_item != cl_list_end(p_new_ports_list) )
-  {
-    if ( (osm_port_t*)(cl_list_obj(cl_list_item)) == p_port )
-    {
-      /* Found the port in the new_ports_list. Remove it from there. */
-      cl_list_remove_item(p_new_ports_list, cl_list_item);
-      break;
-    }
-    cl_list_item = cl_list_next(cl_list_item);
-  }
 
   p_port_check = (osm_port_t*)cl_qmap_remove( &p_mgr->p_subn->port_guid_tbl,
                                               port_guid );
