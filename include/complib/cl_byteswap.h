@@ -53,13 +53,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* Component Library/Byte Swapping
 * NAME
 *	Byte Swapping
@@ -80,7 +79,6 @@ BEGIN_C_DECLS
 *	Macros:
 *		CL_NTOH16, CL_HTON16, CL_NTOH32, CL_HTON32, CL_NTOH64, CL_HTON64
 *********/
-
 /*
  * The byteswap_osd.h provides the following macros.
  *		__LITTLE_ENDIAN
@@ -93,11 +91,9 @@ BEGIN_C_DECLS
  *		ntoh32, hton32
  *		ntoh64, hton64
  */
-
 #ifndef __BYTE_ORDER
 #error "__BYTE_ORDER macro undefined. Missing in endian.h?"
 #endif
-
 #if __BYTE_ORDER == __LITTLE_ENDIAN
 #define CPU_LE		1
 #define CPU_BE		0
@@ -105,7 +101,6 @@ BEGIN_C_DECLS
 #define CPU_LE		0
 #define CPU_BE		1
 #endif
-
 /****d* Component Library: Byte Swapping/CL_NTOH16
 * NAME
 *	CL_NTOH16
@@ -133,7 +128,6 @@ BEGIN_C_DECLS
 *	Byte Swapping, CL_HTON16, CL_NTOH32, CL_NTOH64,
 *	cl_ntoh16, cl_ntoh32, cl_ntoh64, cl_ntoh
 *********/
-
 /****d* Component Library: Byte Swapping/CL_HTON16
 * NAME
 *	CL_HTON16
@@ -162,14 +156,13 @@ BEGIN_C_DECLS
 *	cl_hton16, cl_hton32, cl_hton64, cl_ntoh
 *********/
 #if CPU_LE
-	#define CL_NTOH16( x )		(uint16_t)(		\
+#define CL_NTOH16( x )		(uint16_t)(		\
 			(((uint16_t)(x) & 0x00FF) << 8) |		\
 			(((uint16_t)(x) & 0xFF00) >> 8) )
 #else
-	#define CL_NTOH16( x )	(x)
+#define CL_NTOH16( x )	(x)
 #endif
 #define CL_HTON16				CL_NTOH16
-
 /****f* Component Library: Byte Swapping/cl_ntoh16
 * NAME
 *	cl_ntoh16
@@ -196,7 +189,6 @@ BEGIN_C_DECLS
 * SEE ALSO
 *	Byte Swapping, cl_hton16, cl_ntoh32, cl_ntoh64, cl_ntoh
 *********/
-
 /****f* Component Library: Byte Swapping/cl_hton16
 * NAME
 *	cl_hton16
@@ -224,10 +216,9 @@ BEGIN_C_DECLS
 *	Byte Swapping, cl_ntoh16, cl_hton32, cl_hton64, cl_ntoh
 *********/
 #ifndef cl_ntoh16
-	#define cl_ntoh16	CL_NTOH16
-	#define cl_hton16	CL_HTON16
+#define cl_ntoh16	CL_NTOH16
+#define cl_hton16	CL_HTON16
 #endif
-
 /****d* Component Library: Byte Swapping/CL_NTOH32
 * NAME
 *	CL_NTOH32
@@ -255,7 +246,6 @@ BEGIN_C_DECLS
 *	Byte Swapping, CL_HTON32, CL_NTOH16, CL_NTOH64,
 *	cl_ntoh16, cl_ntoh32, cl_ntoh64, cl_ntoh
 *********/
-
 /****d* Component Library: Byte Swapping/CL_HTON32
 * NAME
 *	CL_HTON32
@@ -284,16 +274,15 @@ BEGIN_C_DECLS
 *	cl_hton16, cl_hton32, cl_hton64, cl_ntoh
 *********/
 #if CPU_LE
-	#define CL_NTOH32( x )		(uint32_t)(			\
+#define CL_NTOH32( x )		(uint32_t)(			\
 			(((uint32_t)(x) & 0x000000FF) << 24) |	\
 			(((uint32_t)(x) & 0x0000FF00) << 8) |	\
 			(((uint32_t)(x) & 0x00FF0000) >> 8) |	\
 			(((uint32_t)(x) & 0xFF000000) >> 24) )
 #else
-	#define CL_NTOH32( x )		(x)
+#define CL_NTOH32( x )		(x)
 #endif
 #define CL_HTON32	CL_NTOH32
-
 /****f* Component Library: Byte Swapping/cl_ntoh32
 * NAME
 *	cl_ntoh32
@@ -320,7 +309,6 @@ BEGIN_C_DECLS
 * SEE ALSO
 *	Byte Swapping, cl_hton32, cl_ntoh16, cl_ntoh64, cl_ntoh
 *********/
-
 /****f* Component Library: Byte Swapping/cl_hton32
 * NAME
 *	cl_hton32
@@ -348,10 +336,9 @@ BEGIN_C_DECLS
 *	Byte Swapping, cl_ntoh32, cl_hton16, cl_hton64, cl_ntoh
 *********/
 #ifndef cl_ntoh32
-	#define cl_ntoh32	CL_NTOH32
-	#define cl_hton32	CL_HTON32
+#define cl_ntoh32	CL_NTOH32
+#define cl_hton32	CL_HTON32
 #endif
-
 /****d* Component Library: Byte Swapping/CL_NTOH64
 * NAME
 *	CL_NTOH64
@@ -379,7 +366,6 @@ BEGIN_C_DECLS
 *	Byte Swapping, CL_HTON64, CL_NTOH16, CL_NTOH32,
 *	cl_ntoh16, cl_ntoh32, cl_ntoh64, cl_ntoh
 *********/
-
 /****d* Component Library: Byte Swapping/CL_HTON64
 * NAME
 *	CL_HTON64
@@ -408,7 +394,7 @@ BEGIN_C_DECLS
 *	cl_hton16, cl_hton32, cl_hton64, cl_ntoh
 *********/
 #if CPU_LE
-	#define CL_NTOH64( x )		(uint64_t)(					\
+#define CL_NTOH64( x )		(uint64_t)(					\
 			(((uint64_t)(x) & 0x00000000000000FFULL) << 56) |	\
 			(((uint64_t)(x) & 0x000000000000FF00ULL) << 40) |	\
 			(((uint64_t)(x) & 0x0000000000FF0000ULL) << 24) |	\
@@ -418,10 +404,9 @@ BEGIN_C_DECLS
 			(((uint64_t)(x) & 0x00FF000000000000ULL) >> 40) |	\
 			(((uint64_t)(x) & 0xFF00000000000000ULL) >> 56) )
 #else
-	#define CL_NTOH64( x )		(x)
+#define CL_NTOH64( x )		(x)
 #endif
 #define CL_HTON64				CL_NTOH64
-
 /****f* Component Library: Byte Swapping/cl_ntoh64
 * NAME
 *	cl_ntoh64
@@ -448,7 +433,6 @@ BEGIN_C_DECLS
 * SEE ALSO
 *	Byte Swapping, cl_hton64, cl_ntoh16, cl_ntoh32, cl_ntoh
 *********/
-
 /****f* Component Library: Byte Swapping/cl_hton64
 * NAME
 *	cl_hton64
@@ -476,10 +460,9 @@ BEGIN_C_DECLS
 *	Byte Swapping, cl_ntoh64, cl_hton16, cl_hton32, cl_ntoh
 *********/
 #ifndef cl_ntoh64
-	#define cl_ntoh64	CL_NTOH64
-	#define cl_hton64	CL_HTON64
+#define cl_ntoh64	CL_NTOH64
+#define cl_hton64	CL_HTON64
 #endif
-
 /****f* Component Library: Byte Swapping/cl_ntoh
 * NAME
 *	cl_ntoh
@@ -491,28 +474,22 @@ BEGIN_C_DECLS
 * SYNOPSIS
 */
 static inline void
-cl_ntoh(
-	OUT	char* const			p_dest,
-	IN	const char* const	p_src,
-	IN	const uint8_t		size )
+cl_ntoh(OUT char *const p_dest,
+	IN const char *const p_src, IN const uint8_t size)
 {
 #if CPU_LE
-	uint8_t	i;
-	char	temp;
+	uint8_t i;
+	char temp;
 
-	if( p_src == p_dest )
-	{
+	if (p_src == p_dest) {
 		/* Swap in place if source and destination are the same. */
-		for( i = 0; i < size / 2; i++ )
-		{
+		for (i = 0; i < size / 2; i++) {
 			temp = p_dest[i];
 			p_dest[i] = p_src[size - 1 - i];
 			p_dest[size - 1 - i] = temp;
 		}
-	}
-	else
-	{
-		for( i = 0; i < size; i++ )
+	} else {
+		for (i = 0; i < size; i++)
 			p_dest[i] = p_src[size - 1 - i];
 	}
 #else
@@ -520,10 +497,11 @@ cl_ntoh(
 	 * If the source and destination are not the same, copy the source to
 	 * the destination.
 	 */
-	if( p_src != p_dest )
-		memcpy( p_dest, p_src, size );
+	if (p_src != p_dest)
+		memcpy(p_dest, p_src, size);
 #endif
 }
+
 /*
 * PARAMETERS
 *	p_dest
@@ -548,5 +526,4 @@ cl_ntoh(
 *********/
 
 END_C_DECLS
-
-#endif /* _CL_BYTESWAP_H_ */
+#endif				/* _CL_BYTESWAP_H_ */

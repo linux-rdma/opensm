@@ -54,13 +54,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* Component Library/Composite Pool
 * NAME
 *	Composite Pool
@@ -103,7 +102,6 @@ BEGIN_C_DECLS
 *	Attributes:
 *		cl_is_cpool_inited, cl_cpool_count
 *********/
-
 /****d* Component Library: Composite Pool/cl_pfn_cpool_init_t
 * NAME
 *	cl_pfn_cpool_init_t
@@ -116,10 +114,8 @@ BEGIN_C_DECLS
 * SYNOPSIS
 */
 typedef cl_status_t
-(*cl_pfn_cpool_init_t)(
-	IN	void** const		p_comp_array,
-	IN	const uint32_t		num_components,
-	IN	void*				context );
+    (*cl_pfn_cpool_init_t) (IN void **const p_comp_array,
+			    IN const uint32_t num_components, IN void *context);
 /*
 * PARAMETERS
 *	p_object
@@ -168,9 +164,7 @@ typedef cl_status_t
 * SYNOPSIS
 */
 typedef void
-(*cl_pfn_cpool_dtor_t)(
-	IN	void* const			p_object,
-	IN	void*				context );
+ (*cl_pfn_cpool_dtor_t) (IN void *const p_object, IN void *context);
 /*
 * PARAMETERS
 *	p_object
@@ -208,12 +202,11 @@ typedef void
 *
 * SYNOPSIS
 */
-typedef struct _cl_cpool
-{
-	cl_qcpool_t				qcpool;
-	cl_pfn_cpool_init_t		pfn_init;
-	cl_pfn_cpool_dtor_t		pfn_dtor;
-	const void				*context;
+typedef struct _cl_cpool {
+	cl_qcpool_t qcpool;
+	cl_pfn_cpool_init_t pfn_init;
+	cl_pfn_cpool_dtor_t pfn_dtor;
+	const void *context;
 
 } cl_cpool_t;
 /*
@@ -248,9 +241,7 @@ typedef struct _cl_cpool
 *
 * SYNOPSIS
 */
-void
-cl_cpool_construct(
-	IN	cl_cpool_t* const	p_pool );
+void cl_cpool_construct(IN cl_cpool_t * const p_pool);
 /*
 * PARAMETERS
 *	p_pool
@@ -279,14 +270,13 @@ cl_cpool_construct(
 *
 * SYNOPSIS
 */
-static inline boolean_t
-cl_is_cpool_inited(
-	IN	const cl_cpool_t* const	p_pool )
+static inline boolean_t cl_is_cpool_inited(IN const cl_cpool_t * const p_pool)
 {
 	/* CL_ASSERT that a non-null pointer is provided. */
-	CL_ASSERT( p_pool );
-	return( cl_is_qcpool_inited( &p_pool->qcpool ) );
+	CL_ASSERT(p_pool);
+	return (cl_is_qcpool_inited(&p_pool->qcpool));
 }
+
 /*
 * PARAMETERS
 *	p_pool
@@ -316,16 +306,15 @@ cl_is_cpool_inited(
 * SYNOPSIS
 */
 cl_status_t
-cl_cpool_init(
-	IN	cl_cpool_t* const		p_pool,
-	IN	const size_t			min_size,
-	IN	const size_t			max_size,
-	IN	const size_t			grow_size,
-	IN	size_t* const			component_sizes,
-	IN	const uint32_t			num_components,
-	IN	cl_pfn_cpool_init_t		pfn_initializer OPTIONAL,
-	IN	cl_pfn_cpool_dtor_t		pfn_destructor OPTIONAL,
-	IN	const void* const		context );
+cl_cpool_init(IN cl_cpool_t * const p_pool,
+	      IN const size_t min_size,
+	      IN const size_t max_size,
+	      IN const size_t grow_size,
+	      IN size_t * const component_sizes,
+	      IN const uint32_t num_components,
+	      IN cl_pfn_cpool_init_t pfn_initializer OPTIONAL,
+	      IN cl_pfn_cpool_dtor_t pfn_destructor OPTIONAL,
+	      IN const void *const context);
 /*
 * PARAMETERS
 *	p_pool
@@ -401,14 +390,13 @@ cl_cpool_init(
 *
 * SYNOPSIS
 */
-static inline void
-cl_cpool_destroy(
-	IN	cl_cpool_t* const	p_pool )
+static inline void cl_cpool_destroy(IN cl_cpool_t * const p_pool)
 {
-	CL_ASSERT( p_pool );
+	CL_ASSERT(p_pool);
 
-	cl_qcpool_destroy( &p_pool->qcpool );
+	cl_qcpool_destroy(&p_pool->qcpool);
 }
+
 /*
 * PARAMETERS
 *	p_pool
@@ -442,13 +430,12 @@ cl_cpool_destroy(
 *
 * SYNOPSIS
 */
-static inline size_t
-cl_cpool_count(
-	IN	cl_cpool_t* const	p_pool )
+static inline size_t cl_cpool_count(IN cl_cpool_t * const p_pool)
 {
-	CL_ASSERT( p_pool );
-	return( cl_qcpool_count( &p_pool->qcpool ) );
+	CL_ASSERT(p_pool);
+	return (cl_qcpool_count(&p_pool->qcpool));
 }
+
 /*
 * PARAMETERS
 *	p_pool
@@ -473,21 +460,20 @@ cl_cpool_count(
 *
 * SYNOPSIS
 */
-static inline void*
-cl_cpool_get(
-	IN	cl_cpool_t* const	p_pool )
+static inline void *cl_cpool_get(IN cl_cpool_t * const p_pool)
 {
-	cl_pool_obj_t	*p_pool_obj;
+	cl_pool_obj_t *p_pool_obj;
 
-	CL_ASSERT( p_pool );
+	CL_ASSERT(p_pool);
 
-	p_pool_obj = (cl_pool_obj_t*)cl_qcpool_get( &p_pool->qcpool );
-	if( !p_pool_obj )
-		return( NULL );
+	p_pool_obj = (cl_pool_obj_t *) cl_qcpool_get(&p_pool->qcpool);
+	if (!p_pool_obj)
+		return (NULL);
 
-	CL_ASSERT( p_pool_obj->p_object );
-	return( (void*)p_pool_obj->p_object );
+	CL_ASSERT(p_pool_obj->p_object);
+	return ((void *)p_pool_obj->p_object);
 }
+
 /*
 * PARAMETERS
 *	p_pool
@@ -519,24 +505,23 @@ cl_cpool_get(
 * SYNOPSIS
 */
 static inline void
-cl_cpool_put(
-	IN	cl_cpool_t* const	p_pool,
-	IN	void* const			p_object )
+cl_cpool_put(IN cl_cpool_t * const p_pool, IN void *const p_object)
 {
-	cl_pool_obj_t	*p_pool_obj;
+	cl_pool_obj_t *p_pool_obj;
 
-	CL_ASSERT( p_pool );
-	CL_ASSERT( p_object );
+	CL_ASSERT(p_pool);
+	CL_ASSERT(p_object);
 
 	/* Calculate the offset to the list object representing this object. */
-	p_pool_obj = (cl_pool_obj_t*)
-		(((uint8_t*)p_object) - sizeof(cl_pool_obj_t));
+	p_pool_obj = (cl_pool_obj_t *)
+	    (((uint8_t *) p_object) - sizeof(cl_pool_obj_t));
 
 	/* good sanity check */
-	CL_ASSERT( p_pool_obj->p_object == p_object );
+	CL_ASSERT(p_pool_obj->p_object == p_object);
 
-	cl_qcpool_put( &p_pool->qcpool, &p_pool_obj->pool_item );
+	cl_qcpool_put(&p_pool->qcpool, &p_pool_obj->pool_item);
 }
+
 /*
 * PARAMETERS
 *	p_pool
@@ -570,13 +555,12 @@ cl_cpool_put(
 * SYNOPSIS
 */
 static inline cl_status_t
-cl_cpool_grow(
-	IN	cl_cpool_t* const	p_pool,
-	IN	const uint32_t			obj_count )
+cl_cpool_grow(IN cl_cpool_t * const p_pool, IN const uint32_t obj_count)
 {
-	CL_ASSERT( p_pool );
-	return( cl_qcpool_grow( &p_pool->qcpool, obj_count ) );
+	CL_ASSERT(p_pool);
+	return (cl_qcpool_grow(&p_pool->qcpool, obj_count));
 }
+
 /*
 * PARAMETERS
 *	p_pool
@@ -604,5 +588,4 @@ cl_cpool_grow(
 *********/
 
 END_C_DECLS
-
-#endif	/* _CL_COMP_POOL_H_ */
+#endif				/* _CL_COMP_POOL_H_ */

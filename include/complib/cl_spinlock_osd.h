@@ -49,23 +49,19 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 #include <complib/cl_types.h>
-#include <pthread.h>			/* usr/include/ */
-
-typedef struct _cl_spinlock_t
-{
-	pthread_mutex_t		mutex;
-	cl_state_t		state;
+#include <pthread.h>		/* usr/include/ */
+    typedef struct _cl_spinlock_t {
+	pthread_mutex_t mutex;
+	cl_state_t state;
 
 } cl_spinlock_t;
 
 END_C_DECLS
-
-#endif /* _CL_SPINLOCK_OSD_H_ */
+#endif				/* _CL_SPINLOCK_OSD_H_ */

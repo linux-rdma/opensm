@@ -56,13 +56,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* Component Library/Event_Wheel
 * NAME
 *	Event_Wheel
@@ -86,7 +85,6 @@ BEGIN_C_DECLS
 *		cl_event_wheel_reg, cl_event_wheel_unreg
 *
 *********/
-
 /****f* Component Library: Event_Wheel/cl_pfn_event_aged_cb_t
 * NAME
 *	cl_pfn_event_aged_cb_t
@@ -99,10 +97,8 @@ BEGIN_C_DECLS
 * SYNOPSIS
 */
 typedef uint64_t
-(*cl_pfn_event_aged_cb_t)(
-  IN  uint64_t       key,
-  IN  uint32_t       num_regs,
-  IN	void*				context);
+    (*cl_pfn_event_aged_cb_t) (IN uint64_t key,
+			       IN uint32_t num_regs, IN void *context);
 /*
 * PARAMETERS
 *  key
@@ -144,16 +140,15 @@ typedef uint64_t
 *
 * SYNOPSIS
 */
-typedef struct _cl_event_wheel
-{
-  cl_spinlock_t		   lock;
-  cl_spinlock_t           *p_external_lock;
+typedef struct _cl_event_wheel {
+	cl_spinlock_t lock;
+	cl_spinlock_t *p_external_lock;
 
-  cl_qmap_t                events_map;
-  boolean_t                closing;
-  cl_qlist_t               events_wheel;
-  cl_timer_t               timer;
-  osm_log_t                *p_log;
+	cl_qmap_t events_map;
+	boolean_t closing;
+	cl_qlist_t events_wheel;
+	cl_timer_t timer;
+	osm_log_t *p_log;
 } cl_event_wheel_t;
 /*
 * FIELDS
@@ -196,16 +191,15 @@ typedef struct _cl_event_wheel
 *
 * SYNOPSIS
 */
-typedef struct _cl_event_wheel_reg_info
-{
-  cl_map_item_t          map_item;
-  cl_list_item_t			 list_item;
-  uint64_t               key;
-  cl_pfn_event_aged_cb_t pfn_aged_callback;
-  uint64_t               aging_time;
-  uint32_t               num_regs;
-  void				       *context;
-  cl_event_wheel_t		 *p_event_wheel;
+typedef struct _cl_event_wheel_reg_info {
+	cl_map_item_t map_item;
+	cl_list_item_t list_item;
+	uint64_t key;
+	cl_pfn_event_aged_cb_t pfn_aged_callback;
+	uint64_t aging_time;
+	uint32_t num_regs;
+	void *context;
+	cl_event_wheel_t *p_event_wheel;
 } cl_event_wheel_reg_info_t;
 /*
 * FIELDS
@@ -245,9 +239,7 @@ typedef struct _cl_event_wheel_reg_info
 *
 * SYNOPSIS
 */
-void
-cl_event_wheel_construct(
-	IN	cl_event_wheel_t* const p_event_wheel );
+void cl_event_wheel_construct(IN cl_event_wheel_t * const p_event_wheel);
 /*
 * PARAMETERS
 *	p_event_wheel
@@ -273,9 +265,8 @@ cl_event_wheel_construct(
 * SYNOPSIS
 */
 cl_status_t
-cl_event_wheel_init(
-  IN	cl_event_wheel_t* const	p_event_wheel,
-  IN    osm_log_t               *p_log);
+cl_event_wheel_init(IN cl_event_wheel_t * const p_event_wheel,
+		    IN osm_log_t * p_log);
 
 /*
 * PARAMETERS
@@ -303,10 +294,9 @@ cl_event_wheel_init(
 * SYNOPSIS
 */
 cl_status_t
-cl_event_wheel_init_ex(
-  IN	cl_event_wheel_t* const	p_event_wheel,
-  IN    osm_log_t               *p_log,
-  IN    cl_spinlock_t           *p_external_lock);
+cl_event_wheel_init_ex(IN cl_event_wheel_t * const p_event_wheel,
+		       IN osm_log_t * p_log,
+		       IN cl_spinlock_t * p_external_lock);
 
 /*
 * PARAMETERS
@@ -337,9 +327,7 @@ cl_event_wheel_init_ex(
 *
 * SYNOPSIS
 */
-void
-cl_event_wheel_destroy(
-	IN cl_event_wheel_t* const p_event_wheel );
+void cl_event_wheel_destroy(IN cl_event_wheel_t * const p_event_wheel);
 /*
 * PARAMETERS
 *	p_event_wheel
@@ -365,9 +353,7 @@ cl_event_wheel_destroy(
 *
 * SYNOPSIS
 */
-void
-cl_event_wheel_dump(
-	IN cl_event_wheel_t* const p_event_wheel );
+void cl_event_wheel_dump(IN cl_event_wheel_t * const p_event_wheel);
 /*
 * PARAMETERS
 *	p_event_wheel
@@ -394,12 +380,11 @@ cl_event_wheel_dump(
 * SYNOPSIS
 */
 cl_status_t
-cl_event_wheel_reg(
-	IN cl_event_wheel_t* const p_event_wheel,
-	IN const uint64_t          key,
-	IN const uint64_t          aging_time_usec,
-	IN cl_pfn_event_aged_cb_t  pfn_callback,
-	IN void* const context );
+cl_event_wheel_reg(IN cl_event_wheel_t * const p_event_wheel,
+		   IN const uint64_t key,
+		   IN const uint64_t aging_time_usec,
+		   IN cl_pfn_event_aged_cb_t pfn_callback,
+		   IN void *const context);
 /*
 * PARAMETERS
 *	p_event_wheel
@@ -436,9 +421,8 @@ cl_event_wheel_reg(
 * SYNOPSIS
 */
 void
-cl_event_wheel_unreg(
-  IN cl_event_wheel_t* const p_event_wheel,
-  IN uint64_t key );
+cl_event_wheel_unreg(IN cl_event_wheel_t * const p_event_wheel,
+		     IN uint64_t key);
 /*
 * PARAMETERS
 *	p_event_wheel
@@ -469,9 +453,8 @@ cl_event_wheel_unreg(
 * SYNOPSIS
 */
 uint32_t
-cl_event_wheel_num_regs(
-  IN cl_event_wheel_t* const p_event_wheel,
-  IN uint64_t key );
+cl_event_wheel_num_regs(IN cl_event_wheel_t * const p_event_wheel,
+			IN uint64_t key);
 /*
 * PARAMETERS
 *	p_event_wheel
@@ -489,5 +472,4 @@ cl_event_wheel_num_regs(
 *********/
 
 END_C_DECLS
-
-#endif /* !defined(_CL_EVENT_WHEEL_H_) */
+#endif				/* !defined(_CL_EVENT_WHEEL_H_) */

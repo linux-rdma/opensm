@@ -51,13 +51,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* Component Library/Log Provider
 * NAME
 *	Log Provider
@@ -66,7 +65,6 @@ BEGIN_C_DECLS
 *	The log provider allows users to log information in a system log instead of
 *	the console or debugger target.
 **********/
-
 /****d* Component Library: Log Provider/cl_log_type_t
 * NAME
 *	cl_log_type_t
@@ -77,12 +75,10 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef enum _cl_log_type
-{
+    typedef enum _cl_log_type {
 	CL_LOG_INFO,
 	CL_LOG_WARN,
 	CL_LOG_ERROR
-
 } cl_log_type_t;
 /*
 * VALUES
@@ -109,12 +105,10 @@ typedef enum _cl_log_type
 * SYNOPSIS
 */
 void
-cl_log_event(
-	IN	const char* const	name,
-	IN	const cl_log_type_t	type,
-	IN	const char* const	message,
-	IN	const void* const	p_data OPTIONAL,
-	IN	const uint32_t		data_len );
+cl_log_event(IN const char *const name,
+	     IN const cl_log_type_t type,
+	     IN const char *const message,
+	     IN const void *const p_data OPTIONAL, IN const uint32_t data_len);
 /*
 * PARAMETERS
 *	name
@@ -150,5 +144,4 @@ cl_log_event(
 *********/
 
 END_C_DECLS
-
-#endif	/* _CL_LOG_H_ */
+#endif				/* _CL_LOG_H_ */

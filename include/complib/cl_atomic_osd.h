@@ -52,69 +52,58 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
-BEGIN_C_DECLS
+BEGIN_C_DECLS extern cl_spinlock_t cl_atomic_spinlock;
 
-extern cl_spinlock_t cl_atomic_spinlock;
-
-static inline int32_t
-cl_atomic_inc(
-	IN	atomic32_t* const p_value )
+static inline int32_t cl_atomic_inc(IN atomic32_t * const p_value)
 {
-	int32_t		new_val;
+	int32_t new_val;
 
 	cl_spinlock_acquire(&cl_atomic_spinlock);
 	new_val = *p_value + 1;
 	*p_value = new_val;
 	cl_spinlock_release(&cl_atomic_spinlock);
-	return( new_val );
+	return (new_val);
 }
 
-static inline int32_t
-cl_atomic_dec(
-	IN	atomic32_t* const	p_value )
+static inline int32_t cl_atomic_dec(IN atomic32_t * const p_value)
 {
-	int32_t		new_val;
+	int32_t new_val;
 
 	cl_spinlock_acquire(&cl_atomic_spinlock);
 	new_val = *p_value - 1;
 	*p_value = new_val;
 	cl_spinlock_release(&cl_atomic_spinlock);
-	return( new_val );
+	return (new_val);
 }
 
 static inline int32_t
-cl_atomic_add(
-	IN	atomic32_t* const	p_value,
-	IN	const int32_t		increment )
+cl_atomic_add(IN atomic32_t * const p_value, IN const int32_t increment)
 {
-	int32_t		new_val;
+	int32_t new_val;
 
 	cl_spinlock_acquire(&cl_atomic_spinlock);
 	new_val = *p_value + increment;
 	*p_value = new_val;
 	cl_spinlock_release(&cl_atomic_spinlock);
-	return( new_val );
+	return (new_val);
 }
 
 static inline int32_t
-cl_atomic_sub(
-	IN	atomic32_t* const	p_value,
-	IN	const int32_t		decrement )
+cl_atomic_sub(IN atomic32_t * const p_value, IN const int32_t decrement)
 {
-	int32_t		new_val;
+	int32_t new_val;
 
 	cl_spinlock_acquire(&cl_atomic_spinlock);
 	new_val = *p_value + decrement;
 	*p_value = new_val;
 	cl_spinlock_release(&cl_atomic_spinlock);
-	return( new_val );
+	return (new_val);
 }
 
 END_C_DECLS
-
-#endif /* _CL_ATOMIC_OSD_H_ */
+#endif				/* _CL_ATOMIC_OSD_H_ */

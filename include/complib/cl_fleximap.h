@@ -52,13 +52,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* Component Library/Flexi Map
 * NAME
 *	Flexi Map
@@ -109,7 +108,6 @@ BEGIN_C_DECLS
 *	Attributes:
 *		cl_fmap_count, cl_is_fmap_empty,
 *********/
-
 /****s* Component Library: Flexi Map/cl_fmap_item_t
 * NAME
 *	cl_fmap_item_t
@@ -122,17 +120,16 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _cl_fmap_item
-{
+    typedef struct _cl_fmap_item {
 	/* Must be first to allow casting. */
-	cl_pool_item_t		pool_item;
-	struct _cl_fmap_item	*p_left;
-	struct _cl_fmap_item	*p_right;
-	struct _cl_fmap_item	*p_up;
-	cl_map_color_t		color;
-	const void		*p_key;
+	cl_pool_item_t pool_item;
+	struct _cl_fmap_item *p_left;
+	struct _cl_fmap_item *p_right;
+	struct _cl_fmap_item *p_up;
+	cl_map_color_t color;
+	const void *p_key;
 #ifdef _DEBUG_
-	struct _cl_fmap		*p_map;
+	struct _cl_fmap *p_map;
 #endif
 
 } cl_fmap_item_t;
@@ -191,9 +188,8 @@ typedef struct _cl_fmap_item
 * SYNOPSIS
 */
 typedef intn_t
-(*cl_pfn_fmap_cmp_t)(
-	IN	const void* const		p_key1,
-	IN	const void*	const		p_key2 );
+    (*cl_pfn_fmap_cmp_t) (IN const void *const p_key1,
+			  IN const void *const p_key2);
 /*
 * PARAMETERS
 *	p_key1
@@ -227,13 +223,12 @@ typedef intn_t
 *
 * SYNOPSIS
 */
-typedef struct _cl_fmap
-{
-	cl_fmap_item_t		root;
-	cl_fmap_item_t		nil;
-	cl_state_t		state;
-	size_t			count;
-	cl_pfn_fmap_cmp_t	pfn_compare;
+typedef struct _cl_fmap {
+	cl_fmap_item_t root;
+	cl_fmap_item_t nil;
+	cl_state_t state;
+	size_t count;
+	cl_pfn_fmap_cmp_t pfn_compare;
 
 } cl_fmap_t;
 /*
@@ -273,9 +268,8 @@ typedef struct _cl_fmap
 * SYNOPSIS
 */
 typedef void
-(*cl_pfn_fmap_apply_t)(
-	IN	cl_fmap_item_t* const	p_map_item,
-	IN	void*					context );
+ (*cl_pfn_fmap_apply_t) (IN cl_fmap_item_t * const p_map_item,
+			 IN void *context);
 /*
 * PARAMETERS
 *	p_map_item
@@ -306,14 +300,13 @@ typedef void
 *
 * SYNOPSIS
 */
-static inline size_t
-cl_fmap_count(
-	IN	const cl_fmap_t* const	p_map )
+static inline size_t cl_fmap_count(IN const cl_fmap_t * const p_map)
 {
-	CL_ASSERT( p_map );
-	CL_ASSERT( p_map->state == CL_INITIALIZED );
-	return( p_map->count );
+	CL_ASSERT(p_map);
+	CL_ASSERT(p_map->state == CL_INITIALIZED);
+	return (p_map->count);
 }
+
 /*
 * PARAMETERS
 *	p_map
@@ -335,15 +328,14 @@ cl_fmap_count(
 *
 * SYNOPSIS
 */
-static inline boolean_t
-cl_is_fmap_empty(
-	IN	const cl_fmap_t* const	p_map )
+static inline boolean_t cl_is_fmap_empty(IN const cl_fmap_t * const p_map)
 {
-	CL_ASSERT( p_map );
-	CL_ASSERT( p_map->state == CL_INITIALIZED );
+	CL_ASSERT(p_map);
+	CL_ASSERT(p_map->state == CL_INITIALIZED);
 
-	return( p_map->count == 0 );
+	return (p_map->count == 0);
 }
+
 /*
 * PARAMETERS
 *	p_map
@@ -367,13 +359,12 @@ cl_is_fmap_empty(
 *
 * SYNOPSIS
 */
-static inline const void*
-cl_fmap_key(
-	IN	const cl_fmap_item_t* const	p_item )
+static inline const void *cl_fmap_key(IN const cl_fmap_item_t * const p_item)
 {
-	CL_ASSERT( p_item );
-	return( p_item->p_key );
+	CL_ASSERT(p_item);
+	return (p_item->p_key);
 }
+
 /*
 * PARAMETERS
 *	p_item
@@ -399,10 +390,7 @@ cl_fmap_key(
 *
 * SYNOPSIS
 */
-void
-cl_fmap_init(
-	IN	cl_fmap_t* const	p_map,
-	IN	cl_pfn_fmap_cmp_t	pfn_compare );
+void cl_fmap_init(IN cl_fmap_t * const p_map, IN cl_pfn_fmap_cmp_t pfn_compare);
 /*
 * PARAMETERS
 *	p_map
@@ -432,15 +420,15 @@ cl_fmap_init(
 *
 * SYNOPSIS
 */
-static inline const cl_fmap_item_t*
-cl_fmap_end(
-	IN	const cl_fmap_t* const p_map )
+static inline const cl_fmap_item_t *cl_fmap_end(IN const cl_fmap_t *
+						const p_map)
 {
-	CL_ASSERT( p_map );
-	CL_ASSERT( p_map->state == CL_INITIALIZED );
+	CL_ASSERT(p_map);
+	CL_ASSERT(p_map->state == CL_INITIALIZED);
 	/* Nil is the end of the map. */
-	return( &p_map->nil );
+	return (&p_map->nil);
 }
+
 /*
 * PARAMETERS
 *	p_map
@@ -471,14 +459,13 @@ cl_fmap_end(
 *
 * SYNOPSIS
 */
-static inline cl_fmap_item_t*
-cl_fmap_head(
-	IN	const cl_fmap_t* const	p_map )
+static inline cl_fmap_item_t *cl_fmap_head(IN const cl_fmap_t * const p_map)
 {
-	CL_ASSERT( p_map );
-	CL_ASSERT( p_map->state == CL_INITIALIZED );
-	return( (cl_fmap_item_t*)p_map->nil.pool_item.list_item.p_next );
+	CL_ASSERT(p_map);
+	CL_ASSERT(p_map->state == CL_INITIALIZED);
+	return ((cl_fmap_item_t *) p_map->nil.pool_item.list_item.p_next);
 }
+
 /*
 * PARAMETERS
 *	p_map
@@ -508,14 +495,13 @@ cl_fmap_head(
 *
 * SYNOPSIS
 */
-static inline cl_fmap_item_t*
-cl_fmap_tail(
-	IN	const cl_fmap_t* const	p_map )
+static inline cl_fmap_item_t *cl_fmap_tail(IN const cl_fmap_t * const p_map)
 {
-	CL_ASSERT( p_map );
-	CL_ASSERT( p_map->state == CL_INITIALIZED );
-	return( (cl_fmap_item_t*)p_map->nil.pool_item.list_item.p_prev );
+	CL_ASSERT(p_map);
+	CL_ASSERT(p_map->state == CL_INITIALIZED);
+	return ((cl_fmap_item_t *) p_map->nil.pool_item.list_item.p_prev);
 }
+
 /*
 * PARAMETERS
 *	p_map
@@ -545,13 +531,13 @@ cl_fmap_tail(
 *
 * SYNOPSIS
 */
-static inline cl_fmap_item_t*
-cl_fmap_next(
-	IN	const cl_fmap_item_t* const	p_item )
+static inline cl_fmap_item_t *cl_fmap_next(IN const cl_fmap_item_t *
+					   const p_item)
 {
-	CL_ASSERT( p_item );
-	return( (cl_fmap_item_t*)p_item->pool_item.list_item.p_next );
+	CL_ASSERT(p_item);
+	return ((cl_fmap_item_t *) p_item->pool_item.list_item.p_next);
 }
+
 /*
 * PARAMETERS
 *	p_item
@@ -578,13 +564,13 @@ cl_fmap_next(
 *
 * SYNOPSIS
 */
-static inline cl_fmap_item_t*
-cl_fmap_prev(
-	IN	const cl_fmap_item_t* const	p_item )
+static inline cl_fmap_item_t *cl_fmap_prev(IN const cl_fmap_item_t *
+					   const p_item)
 {
-	CL_ASSERT( p_item );
-	return( (cl_fmap_item_t*)p_item->pool_item.list_item.p_prev );
+	CL_ASSERT(p_item);
+	return ((cl_fmap_item_t *) p_item->pool_item.list_item.p_prev);
 }
+
 /*
 * PARAMETERS
 *	p_item
@@ -610,11 +596,9 @@ cl_fmap_prev(
 *
 * SYNOPSIS
 */
-cl_fmap_item_t*
-cl_fmap_insert(
-	IN	cl_fmap_t* const		p_map,
-	IN	const void* const		p_key,
-	IN	cl_fmap_item_t* const	p_item );
+cl_fmap_item_t *cl_fmap_insert(IN cl_fmap_t * const p_map,
+			       IN const void *const p_key,
+			       IN cl_fmap_item_t * const p_item);
 /*
 * PARAMETERS
 *	p_map
@@ -651,10 +635,8 @@ cl_fmap_insert(
 *
 * SYNOPSIS
 */
-cl_fmap_item_t*
-cl_fmap_get(
-	IN	const cl_fmap_t* const	p_map,
-	IN	const void* const		p_key );
+cl_fmap_item_t *cl_fmap_get(IN const cl_fmap_t * const p_map,
+			    IN const void *const p_key);
 /*
 * PARAMETERS
 *	p_map
@@ -687,10 +669,8 @@ cl_fmap_get(
 *
 * SYNOPSIS
 */
-cl_fmap_item_t*
-cl_fmap_get_next(
-	IN	const cl_fmap_t* const	p_map,
-	IN	const void* const		p_key );
+cl_fmap_item_t *cl_fmap_get_next(IN const cl_fmap_t * const p_map,
+				 IN const void *const p_key);
 /*
 * PARAMETERS
 *	p_map
@@ -724,9 +704,8 @@ cl_fmap_get_next(
 * SYNOPSIS
 */
 void
-cl_fmap_remove_item(
-	IN	cl_fmap_t* const		p_map,
-	IN	cl_fmap_item_t* const	p_item );
+cl_fmap_remove_item(IN cl_fmap_t * const p_map,
+		    IN cl_fmap_item_t * const p_item);
 /*
 * PARAMETERS
 *	p_item
@@ -755,10 +734,8 @@ cl_fmap_remove_item(
 *
 * SYNOPSIS
 */
-cl_fmap_item_t*
-cl_fmap_remove(
-	IN	cl_fmap_t* const	p_map,
-	IN	const void* const	p_key );
+cl_fmap_item_t *cl_fmap_remove(IN cl_fmap_t * const p_map,
+			       IN const void *const p_key);
 /*
 * PARAMETERS
 *	p_map
@@ -789,18 +766,17 @@ cl_fmap_remove(
 *
 * SYNOPSIS
 */
-static inline void
-cl_fmap_remove_all(
-	IN	cl_fmap_t* const	p_map )
+static inline void cl_fmap_remove_all(IN cl_fmap_t * const p_map)
 {
-	CL_ASSERT( p_map );
-	CL_ASSERT( p_map->state == CL_INITIALIZED );
+	CL_ASSERT(p_map);
+	CL_ASSERT(p_map->state == CL_INITIALIZED);
 
 	p_map->root.p_left = &p_map->nil;
 	p_map->nil.pool_item.list_item.p_next = &p_map->nil.pool_item.list_item;
 	p_map->nil.pool_item.list_item.p_prev = &p_map->nil.pool_item.list_item;
 	p_map->count = 0;
 }
+
 /*
 * PARAMETERS
 *	p_map
@@ -824,9 +800,8 @@ cl_fmap_remove_all(
 * SYNOPSIS
 */
 void
-cl_fmap_merge(
-	OUT		cl_fmap_t* const	p_dest_map,
-	IN OUT	cl_fmap_t* const	p_src_map );
+cl_fmap_merge(OUT cl_fmap_t * const p_dest_map,
+	      IN OUT cl_fmap_t * const p_src_map);
 /*
 * PARAMETERS
 *	p_dest_map
@@ -859,11 +834,9 @@ cl_fmap_merge(
 * SYNOPSIS
 */
 void
-cl_fmap_delta(
-	IN OUT	cl_fmap_t* const	p_map1,
-	IN OUT	cl_fmap_t* const	p_map2,
-	OUT		cl_fmap_t* const	p_new,
-	OUT		cl_fmap_t* const	p_old );
+cl_fmap_delta(IN OUT cl_fmap_t * const p_map1,
+	      IN OUT cl_fmap_t * const p_map2,
+	      OUT cl_fmap_t * const p_new, OUT cl_fmap_t * const p_old);
 /*
 * PARAMETERS
 *	p_map1
@@ -910,10 +883,9 @@ cl_fmap_delta(
 * SYNOPSIS
 */
 void
-cl_fmap_apply_func(
-	IN	const cl_fmap_t* const	p_map,
-	IN	cl_pfn_fmap_apply_t		pfn_func,
-	IN	const void* const		context );
+cl_fmap_apply_func(IN const cl_fmap_t * const p_map,
+		   IN cl_pfn_fmap_apply_t pfn_func,
+		   IN const void *const context);
 /*
 * PARAMETERS
 *	p_map
@@ -939,5 +911,4 @@ cl_fmap_apply_func(
 *********/
 
 END_C_DECLS
-
-#endif	/* _CL_FLEXIMAP_H_ */
+#endif				/* _CL_FLEXIMAP_H_ */

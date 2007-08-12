@@ -51,13 +51,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* Public/Spinlock
 * NAME
 *	Spinlock
@@ -81,7 +80,6 @@ BEGIN_C_DECLS
 *		cl_spinlock_acquire, cl_spinlock_release
 *		cl_spinlock_acquire_irq, cl_spinlock_release_irq
 *********/
-
 /****f* Component Library: Spinlock/cl_spinlock_construct
 * NAME
 *	cl_spinlock_construct
@@ -92,9 +90,7 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-void
-cl_spinlock_construct(
-	IN	cl_spinlock_t* const	p_spinlock );
+void cl_spinlock_construct(IN cl_spinlock_t * const p_spinlock);
 /*
 * PARAMETERS
 *	p_spin_lock
@@ -123,9 +119,7 @@ cl_spinlock_construct(
 *
 * SYNOPSIS
 */
-cl_status_t
-cl_spinlock_init(
-	IN	cl_spinlock_t* const	p_spinlock );
+cl_status_t cl_spinlock_init(IN cl_spinlock_t * const p_spinlock);
 /*
 * PARAMETERS
 *	p_spin_lock
@@ -159,9 +153,7 @@ cl_spinlock_init(
 *
 * SYNOPSIS
 */
-void
-cl_spinlock_destroy(
-	IN	cl_spinlock_t* const	p_spinlock );
+void cl_spinlock_destroy(IN cl_spinlock_t * const p_spinlock);
 /*
 * PARAMETERS
 *	p_spin_lock
@@ -192,9 +184,7 @@ cl_spinlock_destroy(
 *
 * SYNOPSIS
 */
-void
-cl_spinlock_acquire(
-	IN	cl_spinlock_t* const	p_spinlock );
+void cl_spinlock_acquire(IN cl_spinlock_t * const p_spinlock);
 /*
 * PARAMETERS
 *	p_spin_lock
@@ -220,9 +210,7 @@ cl_spinlock_acquire(
 *
 * SYNOPSIS
 */
-void
-cl_spinlock_acquire_irq(
-	IN	cl_spinlock_t* const	p_spinlock );
+void cl_spinlock_acquire_irq(IN cl_spinlock_t * const p_spinlock);
 /*
 * PARAMETERS
 *	p_spin_lock
@@ -244,9 +232,7 @@ cl_spinlock_acquire_irq(
 *
 * SYNOPSIS
 */
-void
-cl_spinlock_release(
-	IN	cl_spinlock_t* const	p_spinlock );
+void cl_spinlock_release(IN cl_spinlock_t * const p_spinlock);
 /*
 * PARAMETERS
 *	p_spin_lock
@@ -271,9 +257,7 @@ cl_spinlock_release(
 *
 * SYNOPSIS
 */
-void
-cl_spinlock_release_irq(
-	IN	cl_spinlock_t* const	p_spinlock );
+void cl_spinlock_release_irq(IN cl_spinlock_t * const p_spinlock);
 /*
 * PARAMETERS
 *	p_spin_lock
@@ -290,5 +274,4 @@ cl_spinlock_release_irq(
 *********/
 
 END_C_DECLS
-
-#endif /* _CL_SPINLOCK_H_ */
+#endif				/* _CL_SPINLOCK_H_ */

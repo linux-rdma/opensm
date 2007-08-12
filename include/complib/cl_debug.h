@@ -51,13 +51,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* Component Library/Debug Output
 * NAME
 *	Debug Output
@@ -66,7 +65,6 @@ BEGIN_C_DECLS
 *	The debug output functions and macros send debug messages to the current
 *	debug target.
 *********/
-
 /****f* Component Library: Debug Output/cl_break
 * NAME
 *	cl_break
@@ -84,7 +82,6 @@ BEGIN_C_DECLS
 * NOTES
 *	In a release build, cl_break has no effect.
 *********/
-
 /****f* Component Library: Debug Output/cl_is_debug
 * NAME
 *	cl_is_debug
@@ -95,8 +92,7 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-boolean_t
-cl_is_debug(void);
+boolean_t cl_is_debug(void);
 /*
 * PARAMETERS
 *    None
@@ -120,10 +116,7 @@ cl_is_debug(void);
 *
 * SYNOPSIS
 */
-void
-cl_dbg_out(
-	IN	const char* const	debug_message,
-	IN	... );
+void cl_dbg_out(IN const char *const debug_message, IN ...);
 /*
 * PARAMETERS
 *	debug_message
@@ -149,14 +142,11 @@ cl_dbg_out(
 *********/
 #endif
 #else
-static inline void
-cl_dbg_out(
-	IN	const char* const	debug_message,
-	IN	... )
+static inline void cl_dbg_out(IN const char *const debug_message, IN ...)
 {
-	UNUSED_PARAM( debug_message );
+	UNUSED_PARAM(debug_message);
 }
-#endif	/* defined( _DEBUG_ ) */
+#endif				/* defined( _DEBUG_ ) */
 
 #ifndef cl_msg_out
 /****f* Component Library: Debug Output/cl_msg_out
@@ -168,10 +158,7 @@ cl_dbg_out(
 *
 * SYNOPSIS
 */
-void
-cl_msg_out(
-	IN	const char* const	message,
-	IN	... );
+void cl_msg_out(IN const char *const message, IN ...);
 /*
 * PARAMETERS
 *	message
@@ -559,7 +546,7 @@ CL_PRINT( DBG_LVL, CHK_LVL, STRING );										\
 	CL_TRACE( DBG_LVL, CHK_LVL, STRING );									\
 	CL_EXIT( DBG_LVL, CHK_LVL );
 
-#else	/* defined(_DEBUG_) */
+#else				/* defined(_DEBUG_) */
 
 /* Define as NULL macros in a free build. */
 #define CL_PRINT( DBG_LVL, CHK_LVL, STRING );
@@ -568,7 +555,7 @@ CL_PRINT( DBG_LVL, CHK_LVL, STRING );										\
 #define CL_TRACE( DBG_LVL, CHK_LVL, STRING );
 #define CL_TRACE_EXIT( DBG_LVL, CHK_LVL, STRING );
 
-#endif	/* defined(_DEBUG_) */
+#endif				/* defined(_DEBUG_) */
 
 /****d* Component Library: Debug Output/64-bit Print Format
 * NAME
@@ -604,12 +591,9 @@ CL_PRINT( DBG_LVL, CHK_LVL, STRING );										\
 *	The above keywords are strings and make use of compilers' string
 *	concatenation ability.
 *********/
-void
-complib_init( void );
+void complib_init(void);
 
-void
-complib_exit( void );
+void complib_exit(void);
 
 END_C_DECLS
-
-#endif /* _CL_DEBUG_H_ */
+#endif				/* _CL_DEBUG_H_ */

@@ -52,40 +52,36 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 #if defined (_DEBUG_)
 #ifdef __IA64__
 #define cl_break() asm("   break 0")
-#else	/* __IA64__ */
+#else				/* __IA64__ */
 #define cl_break() asm("   int $3")
-#endif	/* __IA64__ */
-#else	/* _DEBUG_ */
+#endif				/* __IA64__ */
+#else				/* _DEBUG_ */
 #define cl_break
 #endif
-
 #include <inttypes.h>
 #include <assert.h>
 #include <string.h>
-
 #if defined (_DEBUG_)
 #define CL_ASSERT	assert
-#else	/* _DEBUG_ */
+#else				/* _DEBUG_ */
 #define CL_ASSERT( __exp__ )
-#endif	/* _DEBUG_ */
-
+#endif				/* _DEBUG_ */
 /*
  * Types not explicitly defined are native to the platform.
  */
-typedef unsigned long		uintn_t;
-typedef long			intn_t;
-typedef int			boolean_t;
-typedef volatile int32_t	atomic32_t;
+typedef unsigned long uintn_t;
+typedef long intn_t;
+typedef int boolean_t;
+typedef volatile int32_t atomic32_t;
 
 #ifndef NULL
 #define NULL	(void*)0
@@ -94,5 +90,4 @@ typedef volatile int32_t	atomic32_t;
 #define UNUSED_PARAM( P )
 
 END_C_DECLS
-
-#endif	/* _CL_TYPES_OSD_H_ */
+#endif				/* _CL_TYPES_OSD_H_ */

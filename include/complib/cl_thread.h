@@ -51,13 +51,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****i* Component Library/Thread
 * NAME
 *	Thread
@@ -68,7 +67,6 @@ BEGIN_C_DECLS
 *	The cl_thread_t structure should be treated as opaque and should be
 *	manipulated only through the provided functions.
 *********/
-
 /****d* Component Library: Thread/cl_pfn_thread_callback_t
 * NAME
 *	cl_pfn_thread_callback_t
@@ -79,9 +77,8 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef void
-(*cl_pfn_thread_callback_t)(
-	IN	void*	context );
+    typedef void
+ (*cl_pfn_thread_callback_t) (IN void *context);
 /*
 * PARAMETERS
 *	context
@@ -110,12 +107,11 @@ typedef void
 *
 * SYNOPSIS
 */
-typedef struct _cl_thread
-{
-	cl_thread_osd_t				osd;
-	cl_pfn_thread_callback_t	pfn_callback;
-	const void					*context;
-	char						name[16];
+typedef struct _cl_thread {
+	cl_thread_osd_t osd;
+	cl_pfn_thread_callback_t pfn_callback;
+	const void *context;
+	char name[16];
 
 } cl_thread_t;
 /*
@@ -145,9 +141,7 @@ typedef struct _cl_thread
 *
 * SYNOPSIS
 */
-void
-cl_thread_construct(
-	IN	cl_thread_t* const	p_thread );
+void cl_thread_construct(IN cl_thread_t * const p_thread);
 /*
 * PARAMETERS
 *	p_thread
@@ -176,11 +170,9 @@ cl_thread_construct(
 * SYNOPSIS
 */
 cl_status_t
-cl_thread_init(
-	IN	cl_thread_t* const			p_thread,
-	IN	cl_pfn_thread_callback_t	pfn_callback,
-	IN	const void* const			context,
-	IN	const char* const			name );
+cl_thread_init(IN cl_thread_t * const p_thread,
+	       IN cl_pfn_thread_callback_t pfn_callback,
+	       IN const void *const context, IN const char *const name);
 /*
 * PARAMETERS
 *	p_thread
@@ -228,9 +220,7 @@ cl_thread_init(
 *
 * SYNOPSIS
 */
-void
-cl_thread_destroy(
-	IN	cl_thread_t* const	p_thread );
+void cl_thread_destroy(IN cl_thread_t * const p_thread);
 /*
 * PARAMETERS
 *	p_thread
@@ -261,9 +251,7 @@ cl_thread_destroy(
 *
 * SYNOPSIS
 */
-void
-cl_thread_suspend(
-	IN	const uint32_t	pause_ms );
+void cl_thread_suspend(IN const uint32_t pause_ms);
 /*
 * PARAMETERS
 *	pause_ms
@@ -291,9 +279,7 @@ cl_thread_suspend(
 *
 * SYNOPSIS
 */
-void
-cl_thread_stall(
-	IN	const uint32_t	pause_us );
+void cl_thread_stall(IN const uint32_t pause_us);
 /*
 * PARAMETERS
 *	pause_us
@@ -321,8 +307,7 @@ cl_thread_stall(
 *
 * SYNOPSIS
 */
-int
-cl_proc_count( void );
+int cl_proc_count(void);
 /*
 * RETURN VALUE
 *	Returns the number of processors in the system.
@@ -338,9 +323,7 @@ cl_proc_count( void );
 *
 * SYNOPSIS
 */
-boolean_t
-cl_is_current_thread(
-	IN	const cl_thread_t* const	p_thread );
+boolean_t cl_is_current_thread(IN const cl_thread_t * const p_thread);
 /*
 * PARAMETERS
 *	p_thread
@@ -367,8 +350,7 @@ cl_is_current_thread(
 *
 * SYNOPSIS
 */
-boolean_t
-cl_is_blockable( void );
+boolean_t cl_is_blockable(void);
 /*
 * RETURN VALUE
 *	TRUE
@@ -378,5 +360,4 @@ cl_is_blockable( void );
 *********/
 
 END_C_DECLS
-
-#endif /* _CL_THREAD_H_ */
+#endif				/* _CL_THREAD_H_ */

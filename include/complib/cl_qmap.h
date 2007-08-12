@@ -52,13 +52,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* Component Library/Quick Map
 * NAME
 *	Quick Map
@@ -106,7 +105,6 @@ BEGIN_C_DECLS
 *	Attributes:
 *		cl_qmap_count, cl_is_qmap_empty,
 *********/
-
 /****i* Component Library: Quick Map/cl_map_color_t
 * NAME
 *	cl_map_color_t
@@ -117,11 +115,9 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef enum _cl_map_color
-{
+    typedef enum _cl_map_color {
 	CL_MAP_RED,
 	CL_MAP_BLACK
-
 } cl_map_color_t;
 /*
 * VALUES
@@ -147,17 +143,16 @@ typedef enum _cl_map_color
 *
 * SYNOPSIS
 */
-typedef struct _cl_map_item
-{
+typedef struct _cl_map_item {
 	/* Must be first to allow casting. */
-	cl_pool_item_t			pool_item;
-	struct _cl_map_item		*p_left;
-	struct _cl_map_item		*p_right;
-	struct _cl_map_item		*p_up;
-	cl_map_color_t			color;
-	uint64_t				key;
+	cl_pool_item_t pool_item;
+	struct _cl_map_item *p_left;
+	struct _cl_map_item *p_right;
+	struct _cl_map_item *p_up;
+	cl_map_color_t color;
+	uint64_t key;
 #ifdef _DEBUG_
-	struct _cl_qmap			*p_map;
+	struct _cl_qmap *p_map;
 #endif
 
 } cl_map_item_t;
@@ -216,10 +211,9 @@ typedef struct _cl_map_item
 *
 * SYNOPSIS
 */
-typedef struct _cl_map_obj
-{
-	cl_map_item_t			item;
-	const void				*p_object;
+typedef struct _cl_map_obj {
+	cl_map_item_t item;
+	const void *p_object;
 
 } cl_map_obj_t;
 /*
@@ -256,12 +250,11 @@ typedef struct _cl_map_obj
 *
 * SYNOPSIS
 */
-typedef struct _cl_qmap
-{
-	cl_map_item_t	root;
-	cl_map_item_t	nil;
-	cl_state_t		state;
-	size_t			count;
+typedef struct _cl_qmap {
+	cl_map_item_t root;
+	cl_map_item_t nil;
+	cl_state_t state;
+	size_t count;
 
 } cl_qmap_t;
 /*
@@ -297,9 +290,7 @@ typedef struct _cl_qmap
 * SYNOPSIS
 */
 typedef void
-(*cl_pfn_qmap_apply_t)(
-	IN	cl_map_item_t* const	p_map_item,
-	IN	void*					context );
+ (*cl_pfn_qmap_apply_t) (IN cl_map_item_t * const p_map_item, IN void *context);
 /*
 * PARAMETERS
 *	p_map_item
@@ -330,14 +321,13 @@ typedef void
 *
 * SYNOPSIS
 */
-static inline uint32_t
-cl_qmap_count(
-	IN	const cl_qmap_t* const	p_map )
+static inline uint32_t cl_qmap_count(IN const cl_qmap_t * const p_map)
 {
-	CL_ASSERT( p_map );
-	CL_ASSERT( p_map->state == CL_INITIALIZED );
-   return( (uint32_t)p_map->count );
+	CL_ASSERT(p_map);
+	CL_ASSERT(p_map->state == CL_INITIALIZED);
+	return ((uint32_t) p_map->count);
 }
+
 /*
 * PARAMETERS
 *	p_map
@@ -359,15 +349,14 @@ cl_qmap_count(
 *
 * SYNOPSIS
 */
-static inline boolean_t
-cl_is_qmap_empty(
-	IN	const cl_qmap_t* const	p_map )
+static inline boolean_t cl_is_qmap_empty(IN const cl_qmap_t * const p_map)
 {
-	CL_ASSERT( p_map );
-	CL_ASSERT( p_map->state == CL_INITIALIZED );
+	CL_ASSERT(p_map);
+	CL_ASSERT(p_map->state == CL_INITIALIZED);
 
-	return( p_map->count == 0 );
+	return (p_map->count == 0);
 }
+
 /*
 * PARAMETERS
 *	p_map
@@ -392,13 +381,13 @@ cl_is_qmap_empty(
 * SYNOPSIS
 */
 static inline void
-cl_qmap_set_obj(
-	IN	cl_map_obj_t* const	p_map_obj,
-	IN	const void* const	p_object )
+cl_qmap_set_obj(IN cl_map_obj_t * const p_map_obj,
+		IN const void *const p_object)
 {
-	CL_ASSERT( p_map_obj );
+	CL_ASSERT(p_map_obj);
 	p_map_obj->p_object = p_object;
 }
+
 /*
 * PARAMETERS
 *	p_map_obj
@@ -424,13 +413,12 @@ cl_qmap_set_obj(
 *
 * SYNOPSIS
 */
-static inline void*
-cl_qmap_obj(
-	IN	const cl_map_obj_t* const	p_map_obj )
+static inline void *cl_qmap_obj(IN const cl_map_obj_t * const p_map_obj)
 {
-	CL_ASSERT( p_map_obj );
-	return( (void*)p_map_obj->p_object );
+	CL_ASSERT(p_map_obj);
+	return ((void *)p_map_obj->p_object);
 }
+
 /*
 * PARAMETERS
 *	p_map_obj
@@ -452,13 +440,12 @@ cl_qmap_obj(
 *
 * SYNOPSIS
 */
-static inline uint64_t
-cl_qmap_key(
-	IN	const cl_map_item_t* const	p_item )
+static inline uint64_t cl_qmap_key(IN const cl_map_item_t * const p_item)
 {
-	CL_ASSERT( p_item );
-	return( p_item->key );
+	CL_ASSERT(p_item);
+	return (p_item->key);
 }
+
 /*
 * PARAMETERS
 *	p_item
@@ -483,9 +470,7 @@ cl_qmap_key(
 *
 * SYNOPSIS
 */
-void
-cl_qmap_init(
-	IN	cl_qmap_t* const	p_map );
+void cl_qmap_init(IN cl_qmap_t * const p_map);
 /*
 * PARAMETERS
 *	p_map
@@ -510,15 +495,14 @@ cl_qmap_init(
 *
 * SYNOPSIS
 */
-static inline const cl_map_item_t*
-cl_qmap_end(
-	IN	const cl_qmap_t* const p_map )
+static inline const cl_map_item_t *cl_qmap_end(IN const cl_qmap_t * const p_map)
 {
-	CL_ASSERT( p_map );
-	CL_ASSERT( p_map->state == CL_INITIALIZED );
+	CL_ASSERT(p_map);
+	CL_ASSERT(p_map->state == CL_INITIALIZED);
 	/* Nil is the end of the map. */
-	return( &p_map->nil );
+	return (&p_map->nil);
 }
+
 /*
 * PARAMETERS
 *	p_map
@@ -549,14 +533,13 @@ cl_qmap_end(
 *
 * SYNOPSIS
 */
-static inline cl_map_item_t*
-cl_qmap_head(
-	IN	const cl_qmap_t* const	p_map )
+static inline cl_map_item_t *cl_qmap_head(IN const cl_qmap_t * const p_map)
 {
-	CL_ASSERT( p_map );
-	CL_ASSERT( p_map->state == CL_INITIALIZED );
-	return( (cl_map_item_t*)p_map->nil.pool_item.list_item.p_next );
+	CL_ASSERT(p_map);
+	CL_ASSERT(p_map->state == CL_INITIALIZED);
+	return ((cl_map_item_t *) p_map->nil.pool_item.list_item.p_next);
 }
+
 /*
 * PARAMETERS
 *	p_map
@@ -586,14 +569,13 @@ cl_qmap_head(
 *
 * SYNOPSIS
 */
-static inline cl_map_item_t*
-cl_qmap_tail(
-	IN	const cl_qmap_t* const	p_map )
+static inline cl_map_item_t *cl_qmap_tail(IN const cl_qmap_t * const p_map)
 {
-	CL_ASSERT( p_map );
-	CL_ASSERT( p_map->state == CL_INITIALIZED );
-	return( (cl_map_item_t*)p_map->nil.pool_item.list_item.p_prev );
+	CL_ASSERT(p_map);
+	CL_ASSERT(p_map->state == CL_INITIALIZED);
+	return ((cl_map_item_t *) p_map->nil.pool_item.list_item.p_prev);
 }
+
 /*
 * PARAMETERS
 *	p_map
@@ -623,13 +605,12 @@ cl_qmap_tail(
 *
 * SYNOPSIS
 */
-static inline cl_map_item_t*
-cl_qmap_next(
-	IN	const cl_map_item_t* const	p_item )
+static inline cl_map_item_t *cl_qmap_next(IN const cl_map_item_t * const p_item)
 {
-	CL_ASSERT( p_item );
-	return( (cl_map_item_t*)p_item->pool_item.list_item.p_next );
+	CL_ASSERT(p_item);
+	return ((cl_map_item_t *) p_item->pool_item.list_item.p_next);
 }
+
 /*
 * PARAMETERS
 *	p_item
@@ -656,13 +637,12 @@ cl_qmap_next(
 *
 * SYNOPSIS
 */
-static inline cl_map_item_t*
-cl_qmap_prev(
-	IN	const cl_map_item_t* const	p_item )
+static inline cl_map_item_t *cl_qmap_prev(IN const cl_map_item_t * const p_item)
 {
-	CL_ASSERT( p_item );
-	return( (cl_map_item_t*)p_item->pool_item.list_item.p_prev );
+	CL_ASSERT(p_item);
+	return ((cl_map_item_t *) p_item->pool_item.list_item.p_prev);
 }
+
 /*
 * PARAMETERS
 *	p_item
@@ -689,11 +669,9 @@ cl_qmap_prev(
 *
 * SYNOPSIS
 */
-cl_map_item_t*
-cl_qmap_insert(
-	IN	cl_qmap_t* const		p_map,
-	IN	const uint64_t			key,
-	IN	cl_map_item_t* const	p_item );
+cl_map_item_t *cl_qmap_insert(IN cl_qmap_t * const p_map,
+			      IN const uint64_t key,
+			      IN cl_map_item_t * const p_item);
 /*
 * PARAMETERS
 *	p_map
@@ -727,10 +705,8 @@ cl_qmap_insert(
 *
 * SYNOPSIS
 */
-cl_map_item_t*
-cl_qmap_get(
-	IN	const cl_qmap_t* const	p_map,
-	IN	const uint64_t			key );
+cl_map_item_t *cl_qmap_get(IN const cl_qmap_t * const p_map,
+			   IN const uint64_t key);
 /*
 * PARAMETERS
 *	p_map
@@ -763,10 +739,8 @@ cl_qmap_get(
 *
 * SYNOPSIS
 */
-cl_map_item_t*
-cl_qmap_get_next(
-	IN	const cl_qmap_t* const	p_map,
-	IN	const uint64_t			key );
+cl_map_item_t *cl_qmap_get_next(IN const cl_qmap_t * const p_map,
+				IN const uint64_t key);
 /*
 * PARAMETERS
 *	p_map
@@ -800,9 +774,8 @@ cl_qmap_get_next(
 * SYNOPSIS
 */
 void
-cl_qmap_remove_item(
-	IN	cl_qmap_t* const		p_map,
-	IN	cl_map_item_t* const	p_item );
+cl_qmap_remove_item(IN cl_qmap_t * const p_map,
+		    IN cl_map_item_t * const p_item);
 /*
 * PARAMETERS
 *	p_item
@@ -831,10 +804,8 @@ cl_qmap_remove_item(
 *
 * SYNOPSIS
 */
-cl_map_item_t*
-cl_qmap_remove(
-	IN	cl_qmap_t* const	p_map,
-	IN	const uint64_t		key );
+cl_map_item_t *cl_qmap_remove(IN cl_qmap_t * const p_map,
+			      IN const uint64_t key);
 /*
 * PARAMETERS
 *	p_map
@@ -864,18 +835,17 @@ cl_qmap_remove(
 *
 * SYNOPSIS
 */
-static inline void
-cl_qmap_remove_all(
-	IN	cl_qmap_t* const	p_map )
+static inline void cl_qmap_remove_all(IN cl_qmap_t * const p_map)
 {
-	CL_ASSERT( p_map );
-	CL_ASSERT( p_map->state == CL_INITIALIZED );
+	CL_ASSERT(p_map);
+	CL_ASSERT(p_map->state == CL_INITIALIZED);
 
 	p_map->root.p_left = &p_map->nil;
 	p_map->nil.pool_item.list_item.p_next = &p_map->nil.pool_item.list_item;
 	p_map->nil.pool_item.list_item.p_prev = &p_map->nil.pool_item.list_item;
 	p_map->count = 0;
 }
+
 /*
 * PARAMETERS
 *	p_map
@@ -899,9 +869,8 @@ cl_qmap_remove_all(
 * SYNOPSIS
 */
 void
-cl_qmap_merge(
-	OUT		cl_qmap_t* const	p_dest_map,
-	IN OUT	cl_qmap_t* const	p_src_map );
+cl_qmap_merge(OUT cl_qmap_t * const p_dest_map,
+	      IN OUT cl_qmap_t * const p_src_map);
 /*
 * PARAMETERS
 *	p_dest_map
@@ -934,11 +903,9 @@ cl_qmap_merge(
 * SYNOPSIS
 */
 void
-cl_qmap_delta(
-	IN OUT	cl_qmap_t* const	p_map1,
-	IN OUT	cl_qmap_t* const	p_map2,
-	OUT		cl_qmap_t* const	p_new,
-	OUT		cl_qmap_t* const	p_old );
+cl_qmap_delta(IN OUT cl_qmap_t * const p_map1,
+	      IN OUT cl_qmap_t * const p_map2,
+	      OUT cl_qmap_t * const p_new, OUT cl_qmap_t * const p_old);
 /*
 * PARAMETERS
 *	p_map1
@@ -985,10 +952,9 @@ cl_qmap_delta(
 * SYNOPSIS
 */
 void
-cl_qmap_apply_func(
-	IN	const cl_qmap_t* const	p_map,
-	IN	cl_pfn_qmap_apply_t		pfn_func,
-	IN	const void* const		context );
+cl_qmap_apply_func(IN const cl_qmap_t * const p_map,
+		   IN cl_pfn_qmap_apply_t pfn_func,
+		   IN const void *const context);
 /*
 * PARAMETERS
 *	p_map
@@ -1014,5 +980,4 @@ cl_qmap_apply_func(
 *********/
 
 END_C_DECLS
-
-#endif	/* _CL_QMAP_H_ */
+#endif				/* _CL_QMAP_H_ */

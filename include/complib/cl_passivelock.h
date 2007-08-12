@@ -54,13 +54,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* Component Library/Passive Lock
 * NAME
 *	Passive Lock
@@ -86,7 +85,6 @@ BEGIN_C_DECLS
 *	Manipulation
 *		cl_plock_acquire, cl_plock_excl_acquire, cl_plock_release
 *********/
-
 /****s* Component Library: Passive Lock/cl_plock_t
 * NAME
 *	cl_plock_t
@@ -99,10 +97,9 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _cl_plock
-{
-  pthread_rwlock_t lock;
-  cl_state_t       state;
+    typedef struct _cl_plock {
+	pthread_rwlock_t lock;
+	cl_state_t state;
 } cl_plock_t;
 /*
 * FIELDS
@@ -127,14 +124,13 @@ typedef struct _cl_plock
 *
 * SYNOPSIS
 */
-static inline void
-cl_plock_construct(
-	IN	cl_plock_t* const	p_lock )
+static inline void cl_plock_construct(IN cl_plock_t * const p_lock)
 {
-	CL_ASSERT( p_lock );
+	CL_ASSERT(p_lock);
 
-   p_lock->state = CL_UNINITIALIZED;
+	p_lock->state = CL_UNINITIALIZED;
 }
+
 /*
 * PARAMETERS
 *	p_lock
@@ -163,15 +159,14 @@ cl_plock_construct(
 *
 * SYNOPSIS
 */
-static inline void
-cl_plock_destroy(
-	IN	cl_plock_t* const	p_lock )
+static inline void cl_plock_destroy(IN cl_plock_t * const p_lock)
 {
-	CL_ASSERT( p_lock );
-   p_lock->state = CL_DESTROYING;
-   pthread_rwlock_destroy( &p_lock->lock );
-   p_lock->state = CL_DESTROYED;
+	CL_ASSERT(p_lock);
+	p_lock->state = CL_DESTROYING;
+	pthread_rwlock_destroy(&p_lock->lock);
+	p_lock->state = CL_DESTROYED;
 }
+
 /*
 * PARAMETERS
 *	p_lock
@@ -201,18 +196,18 @@ cl_plock_destroy(
 *
 * SYNOPSIS
 */
-static inline cl_status_t
-cl_plock_init(
-	IN	cl_plock_t* const	p_lock )
+static inline cl_status_t cl_plock_init(IN cl_plock_t * const p_lock)
 {
-	cl_status_t	status;
+	cl_status_t status;
 
-	CL_ASSERT( p_lock );
-   status = (cl_status_t)pthread_rwlock_init( &p_lock->lock, NULL );
-   if (status) return CL_ERROR;
-   p_lock->state = CL_INITIALIZED;
-	return( CL_SUCCESS );
+	CL_ASSERT(p_lock);
+	status = (cl_status_t) pthread_rwlock_init(&p_lock->lock, NULL);
+	if (status)
+		return CL_ERROR;
+	p_lock->state = CL_INITIALIZED;
+	return (CL_SUCCESS);
 }
+
 /*
 * PARAMETERS
 *	p_lock
@@ -242,17 +237,16 @@ cl_plock_init(
 *
 * SYNOPSIS
 */
-static inline void
-cl_plock_acquire(
-	IN	cl_plock_t* const	p_lock )
+static inline void cl_plock_acquire(IN cl_plock_t * const p_lock)
 {
-	cl_status_t	status;
-	CL_ASSERT( p_lock );
-   CL_ASSERT( p_lock->state == CL_INITIALIZED );
+	cl_status_t status;
+	CL_ASSERT(p_lock);
+	CL_ASSERT(p_lock->state == CL_INITIALIZED);
 
-   status = (cl_status_t)pthread_rwlock_rdlock(&p_lock->lock);
-   CL_ASSERT( status == 0 );
+	status = (cl_status_t) pthread_rwlock_rdlock(&p_lock->lock);
+	CL_ASSERT(status == 0);
 }
+
 /*
 * PARAMETERS
 *	p_lock
@@ -275,18 +269,17 @@ cl_plock_acquire(
 *
 * SYNOPSIS
 */
-static inline void
-cl_plock_excl_acquire(
-	IN	cl_plock_t* const	p_lock )
+static inline void cl_plock_excl_acquire(IN cl_plock_t * const p_lock)
 {
-	cl_status_t	status;
+	cl_status_t status;
 
-	CL_ASSERT( p_lock );
-   CL_ASSERT( p_lock->state == CL_INITIALIZED );
+	CL_ASSERT(p_lock);
+	CL_ASSERT(p_lock->state == CL_INITIALIZED);
 
-   status = (cl_status_t)pthread_rwlock_wrlock(&p_lock->lock);
-   CL_ASSERT( status == 0 );
+	status = (cl_status_t) pthread_rwlock_wrlock(&p_lock->lock);
+	CL_ASSERT(status == 0);
 }
+
 /*
 * PARAMETERS
 *	p_lock
@@ -309,17 +302,16 @@ cl_plock_excl_acquire(
 *
 * SYNOPSIS
 */
-static inline void
-cl_plock_release(
-	IN	cl_plock_t* const	p_lock )
+static inline void cl_plock_release(IN cl_plock_t * const p_lock)
 {
-	cl_status_t	status;
-	CL_ASSERT( p_lock );
-   CL_ASSERT( p_lock->state == CL_INITIALIZED );
+	cl_status_t status;
+	CL_ASSERT(p_lock);
+	CL_ASSERT(p_lock->state == CL_INITIALIZED);
 
-   status = (cl_status_t)pthread_rwlock_unlock(&p_lock->lock);
-   CL_ASSERT( status == 0 );
+	status = (cl_status_t) pthread_rwlock_unlock(&p_lock->lock);
+	CL_ASSERT(status == 0);
 }
+
 /*
 * PARAMETERS
 *	p_lock
@@ -333,5 +325,4 @@ cl_plock_release(
 *********/
 
 END_C_DECLS
-
-#endif /* _CL_PASSIVE_LOCK_H_ */
+#endif				/* _CL_PASSIVE_LOCK_H_ */

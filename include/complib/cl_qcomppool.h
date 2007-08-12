@@ -55,13 +55,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* Component Library/Quick Composite Pool
 * NAME
 *	Quick Composite Pool
@@ -109,7 +108,6 @@ BEGIN_C_DECLS
 *	Attributes:
 *		cl_is_qcpool_inited, cl_qcpool_count
 *********/
-
 /****s* Component Library: Quick Composite Pool/cl_pool_item_t
 * NAME
 *	cl_pool_item_t
@@ -119,12 +117,11 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _cl_pool_item
-{
-	cl_list_item_t		list_item;
+    typedef struct _cl_pool_item {
+	cl_list_item_t list_item;
 #ifdef _DEBUG_
 	/* Pointer to the owner pool used for sanity checks. */
-	struct _cl_qcpool	*p_pool;
+	struct _cl_qcpool *p_pool;
 #endif
 
 } cl_pool_item_t;
@@ -154,11 +151,10 @@ typedef struct _cl_pool_item
 *
 * SYNOPSIS
 */
-typedef struct _cl_pool_obj
-{
+typedef struct _cl_pool_obj {
 	/* The pool item must be the first item to allow casting. */
-	cl_pool_item_t		pool_item;
-	const void			*p_object;
+	cl_pool_item_t pool_item;
+	const void *p_object;
 
 } cl_pool_obj_t;
 /*
@@ -188,11 +184,10 @@ typedef struct _cl_pool_obj
 * SYNOPSIS
 */
 typedef cl_status_t
-(*cl_pfn_qcpool_init_t)(
-	IN	void** const			p_comp_array,
-	IN	const uint32_t			num_components,
-	IN	void*					context,
-	OUT	cl_pool_item_t** const	pp_pool_item );
+    (*cl_pfn_qcpool_init_t) (IN void **const p_comp_array,
+			     IN const uint32_t num_components,
+			     IN void *context,
+			     OUT cl_pool_item_t ** const pp_pool_item);
 /*
 * PARAMETERS
 *	p_comp_array
@@ -256,9 +251,8 @@ typedef cl_status_t
 * SYNOPSIS
 */
 typedef void
-(*cl_pfn_qcpool_dtor_t)(
-	IN	const cl_pool_item_t* const	p_pool_item,
-	IN	void*						context );
+ (*cl_pfn_qcpool_dtor_t) (IN const cl_pool_item_t * const p_pool_item,
+			  IN void *context);
 /*
 * PARAMETERS
 *	p_pool_item
@@ -296,20 +290,19 @@ typedef void
 *
 * SYNOPSIS
 */
-typedef struct _cl_qcpool
-{
-	uint32_t				num_components;
-	size_t					*component_sizes;
-	void					**p_components;
-	size_t					num_objects;
-	size_t					max_objects;
-	size_t					grow_size;
-	cl_pfn_qcpool_init_t	pfn_init;
-	cl_pfn_qcpool_dtor_t	pfn_dtor;
-	const void				*context;
-	cl_qlist_t				free_list;
-	cl_qlist_t				alloc_list;
-	cl_state_t				state;
+typedef struct _cl_qcpool {
+	uint32_t num_components;
+	size_t *component_sizes;
+	void **p_components;
+	size_t num_objects;
+	size_t max_objects;
+	size_t grow_size;
+	cl_pfn_qcpool_init_t pfn_init;
+	cl_pfn_qcpool_dtor_t pfn_dtor;
+	const void *context;
+	cl_qlist_t free_list;
+	cl_qlist_t alloc_list;
+	cl_state_t state;
 
 } cl_qcpool_t;
 /*
@@ -363,9 +356,7 @@ typedef struct _cl_qcpool
 *
 * SYNOPSIS
 */
-void
-cl_qcpool_construct(
-	IN	cl_qcpool_t* const	p_pool );
+void cl_qcpool_construct(IN cl_qcpool_t * const p_pool);
 /*
 * PARAMETERS
 *	p_pool
@@ -395,17 +386,16 @@ cl_qcpool_construct(
 *
 * SYNOPSIS
 */
-static inline uint32_t
-cl_is_qcpool_inited(
-	IN	const cl_qcpool_t* const	p_pool )
+static inline uint32_t cl_is_qcpool_inited(IN const cl_qcpool_t * const p_pool)
 {
 	/* CL_ASSERT that a non-null pointer is provided. */
-	CL_ASSERT( p_pool );
+	CL_ASSERT(p_pool);
 	/* CL_ASSERT that the pool is not in some invalid state. */
-	CL_ASSERT( cl_is_state_valid( p_pool->state ) );
+	CL_ASSERT(cl_is_state_valid(p_pool->state));
 
-	return( p_pool->state == CL_INITIALIZED );
+	return (p_pool->state == CL_INITIALIZED);
 }
+
 /*
 * PARAMETERS
 *	p_pool
@@ -434,16 +424,15 @@ cl_is_qcpool_inited(
 * SYNOPSIS
 */
 cl_status_t
-cl_qcpool_init(
-	IN	cl_qcpool_t* const		p_pool,
-	IN	const size_t			min_size,
-	IN	const size_t			max_size,
-	IN	const size_t			grow_size,
-	IN	const size_t* const		component_sizes,
-	IN	const uint32_t			num_components,
-	IN	cl_pfn_qcpool_init_t	pfn_initializer OPTIONAL,
-	IN	cl_pfn_qcpool_dtor_t	pfn_destructor OPTIONAL,
-	IN	const void* const		context );
+cl_qcpool_init(IN cl_qcpool_t * const p_pool,
+	       IN const size_t min_size,
+	       IN const size_t max_size,
+	       IN const size_t grow_size,
+	       IN const size_t * const component_sizes,
+	       IN const uint32_t num_components,
+	       IN cl_pfn_qcpool_init_t pfn_initializer OPTIONAL,
+	       IN cl_pfn_qcpool_dtor_t pfn_destructor OPTIONAL,
+	       IN const void *const context);
 /*
 * PARAMETERS
 *	p_pool
@@ -522,9 +511,7 @@ cl_qcpool_init(
 *
 * SYNOPSIS
 */
-void
-cl_qcpool_destroy(
-	IN	cl_qcpool_t* const	p_pool );
+void cl_qcpool_destroy(IN cl_qcpool_t * const p_pool);
 /*
 * PARAMETERS
 *	p_pool
@@ -559,15 +546,14 @@ cl_qcpool_destroy(
 *
 * SYNOPSIS
 */
-static inline size_t
-cl_qcpool_count(
-	IN	cl_qcpool_t* const	p_pool )
+static inline size_t cl_qcpool_count(IN cl_qcpool_t * const p_pool)
 {
-	CL_ASSERT( p_pool );
-	CL_ASSERT( p_pool->state == CL_INITIALIZED );
+	CL_ASSERT(p_pool);
+	CL_ASSERT(p_pool->state == CL_INITIALIZED);
 
-	return( cl_qlist_count( &p_pool->free_list ) );
+	return (cl_qlist_count(&p_pool->free_list));
 }
+
 /*
 * PARAMETERS
 *	p_pool
@@ -592,9 +578,7 @@ cl_qcpool_count(
 *
 * SYNOPSIS
 */
-cl_pool_item_t*
-cl_qcpool_get(
-	IN	cl_qcpool_t* const	p_pool );
+cl_pool_item_t *cl_qcpool_get(IN cl_qcpool_t * const p_pool);
 /*
 * PARAMETERS
 *	p_pool
@@ -626,19 +610,19 @@ cl_qcpool_get(
 * SYNOPSIS
 */
 static inline void
-cl_qcpool_put(
-	IN	cl_qcpool_t* const		p_pool,
-	IN	cl_pool_item_t* const	p_pool_item )
+cl_qcpool_put(IN cl_qcpool_t * const p_pool,
+	      IN cl_pool_item_t * const p_pool_item)
 {
-	CL_ASSERT( p_pool );
-	CL_ASSERT( p_pool->state == CL_INITIALIZED );
-	CL_ASSERT( p_pool_item );
+	CL_ASSERT(p_pool);
+	CL_ASSERT(p_pool->state == CL_INITIALIZED);
+	CL_ASSERT(p_pool_item);
 	/* Make sure items being returned came from the specified pool. */
-	CL_ASSERT( p_pool_item->p_pool == p_pool );
+	CL_ASSERT(p_pool_item->p_pool == p_pool);
 
 	/* return this lil' doggy to the pool */
-	cl_qlist_insert_head( &p_pool->free_list, &p_pool_item->list_item );
+	cl_qlist_insert_head(&p_pool->free_list, &p_pool_item->list_item);
 }
+
 /*
 * PARAMETERS
 *	p_pool
@@ -673,31 +657,29 @@ cl_qcpool_put(
 * SYNOPSIS
 */
 static inline void
-cl_qcpool_put_list(
-	IN	cl_qcpool_t* const	p_pool,
-	IN	cl_qlist_t* const	p_list )
+cl_qcpool_put_list(IN cl_qcpool_t * const p_pool, IN cl_qlist_t * const p_list)
 {
 #ifdef _DEBUG_
-	cl_list_item_t	*p_item;
+	cl_list_item_t *p_item;
 #endif
 
-	CL_ASSERT( p_pool );
-	CL_ASSERT( p_pool->state == CL_INITIALIZED );
-	CL_ASSERT( p_list );
+	CL_ASSERT(p_pool);
+	CL_ASSERT(p_pool->state == CL_INITIALIZED);
+	CL_ASSERT(p_list);
 
 #ifdef _DEBUG_
 	/* Chech that all items in the list came from this pool. */
-	p_item = cl_qlist_head( p_list );
-	while( p_item != cl_qlist_end( p_list ) )
-	{
-		CL_ASSERT( ((cl_pool_item_t*)p_item)->p_pool == p_pool );
-		p_item = cl_qlist_next( p_item );
+	p_item = cl_qlist_head(p_list);
+	while (p_item != cl_qlist_end(p_list)) {
+		CL_ASSERT(((cl_pool_item_t *) p_item)->p_pool == p_pool);
+		p_item = cl_qlist_next(p_item);
 	}
 #endif
 
 	/* return these lil' doggies to the pool */
-	cl_qlist_insert_list_head( &p_pool->free_list, p_list );
+	cl_qlist_insert_list_head(&p_pool->free_list, p_list);
 }
+
 /*
 * PARAMETERS
 *	p_pool
@@ -731,10 +713,7 @@ cl_qcpool_put_list(
 *
 * SYNOPSIS
 */
-cl_status_t
-cl_qcpool_grow(
-	IN	cl_qcpool_t* const		p_pool,
-	IN	size_t				obj_count );
+cl_status_t cl_qcpool_grow(IN cl_qcpool_t * const p_pool, IN size_t obj_count);
 /*
 * PARAMETERS
 *	p_pool
@@ -762,5 +741,4 @@ cl_qcpool_grow(
 *********/
 
 END_C_DECLS
-
-#endif	/* _CL_QUICK_COMPOSITE_POOL_H_ */
+#endif				/* _CL_QUICK_COMPOSITE_POOL_H_ */

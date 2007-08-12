@@ -56,13 +56,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* Component Library/Dispatcher
 * NAME
 *	Dispatcher
@@ -85,7 +84,6 @@ BEGIN_C_DECLS
 *	Manipulation:
 *		cl_disp_post, cl_disp_reset, cl_disp_wait_on
 *********/
-
 /****s* Component Library: Dispatcher/cl_disp_msgid_t
 * NAME
 *	cl_disp_msgid_t
@@ -141,9 +139,7 @@ typedef uint32_t cl_disp_msgid_t;
 * SYNOPSIS
 */
 typedef void
-(*cl_pfn_msgrcv_cb_t)(
-	IN	void*				context,
-	IN	void*				p_data );
+ (*cl_pfn_msgrcv_cb_t) (IN void *context, IN void *p_data);
 /*
 * PARAMETERS
 *	context
@@ -181,9 +177,7 @@ typedef void
 * SYNOPSIS
 */
 typedef void
-(*cl_pfn_msgdone_cb_t)(
-	IN	void*				context,
-	IN	void*				p_data );
+ (*cl_pfn_msgdone_cb_t) (IN void *context, IN void *p_data);
 /*
 * PARAMETERS
 *	context
@@ -220,15 +214,14 @@ typedef void
 *
 * SYNOPSIS
 */
-typedef struct _cl_dispatcher
-{
-  cl_spinlock_t      lock;
-  cl_ptr_vector_t    reg_vec;
-  cl_qlist_t         reg_list;
-  cl_thread_pool_t   worker_threads;
-  cl_qlist_t         msg_fifo;
-  cl_qpool_t         msg_pool;
-  uint64_t           last_msg_queue_time_us;
+typedef struct _cl_dispatcher {
+	cl_spinlock_t lock;
+	cl_ptr_vector_t reg_vec;
+	cl_qlist_t reg_list;
+	cl_thread_pool_t worker_threads;
+	cl_qlist_t msg_fifo;
+	cl_qpool_t msg_pool;
+	uint64_t last_msg_queue_time_us;
 } cl_dispatcher_t;
 /*
 * FIELDS
@@ -274,14 +267,13 @@ typedef struct _cl_dispatcher
 *
 * SYNOPSIS
 */
-typedef struct _cl_disp_reg_info
-{
-	cl_list_item_t			list_item;
-	cl_pfn_msgrcv_cb_t		pfn_rcv_callback;
-	const void				*context;
-	atomic32_t				ref_cnt;
-	cl_disp_msgid_t			msg_id;
-	cl_dispatcher_t			*p_disp;
+typedef struct _cl_disp_reg_info {
+	cl_list_item_t list_item;
+	cl_pfn_msgrcv_cb_t pfn_rcv_callback;
+	const void *context;
+	atomic32_t ref_cnt;
+	cl_disp_msgid_t msg_id;
+	cl_dispatcher_t *p_disp;
 
 } cl_disp_reg_info_t;
 /*
@@ -325,15 +317,14 @@ typedef struct _cl_disp_reg_info
 *
 * SYNOPSIS
 */
-typedef struct _cl_disp_msg
-{
-  cl_pool_item_t         item;
-  const void            *p_data;
-  cl_disp_reg_info_t    *p_src_reg;
-  cl_disp_reg_info_t    *p_dest_reg;
-  cl_pfn_msgdone_cb_t    pfn_xmt_callback;
-  uint64_t               in_time;
-  const void            *context;
+typedef struct _cl_disp_msg {
+	cl_pool_item_t item;
+	const void *p_data;
+	cl_disp_reg_info_t *p_src_reg;
+	cl_disp_reg_info_t *p_dest_reg;
+	cl_pfn_msgdone_cb_t pfn_xmt_callback;
+	uint64_t in_time;
+	const void *context;
 } cl_disp_msg_t;
 /*
 * FIELDS
@@ -384,9 +375,7 @@ typedef const struct _cl_disp_reg_info *cl_disp_reg_handle_t;
 *
 * SYNOPSIS
 */
-void
-cl_disp_construct(
-	IN	cl_dispatcher_t* const p_disp );
+void cl_disp_construct(IN cl_dispatcher_t * const p_disp);
 /*
 * PARAMETERS
 *	p_disp
@@ -412,10 +401,8 @@ cl_disp_construct(
 * SYNOPSIS
 */
 cl_status_t
-cl_disp_init(
-	IN	cl_dispatcher_t* const	p_disp,
-	IN	const uint32_t			thread_count,
-    IN	const char* const		name );
+cl_disp_init(IN cl_dispatcher_t * const p_disp,
+	     IN const uint32_t thread_count, IN const char *const name);
 /*
 * PARAMETERS
 *	p_disp
@@ -452,9 +439,7 @@ cl_disp_init(
 *
 * SYNOPSIS
 */
-void
-cl_disp_shutdown(
-	IN cl_dispatcher_t* const p_disp );
+void cl_disp_shutdown(IN cl_dispatcher_t * const p_disp);
 /*
 * PARAMETERS
 *	p_disp
@@ -481,9 +466,7 @@ cl_disp_shutdown(
 *
 * SYNOPSIS
 */
-void
-cl_disp_destroy(
-	IN cl_dispatcher_t* const p_disp );
+void cl_disp_destroy(IN cl_dispatcher_t * const p_disp);
 /*
 * PARAMETERS
 *	p_disp
@@ -506,11 +489,10 @@ cl_disp_destroy(
 * SYNOPSIS
 */
 cl_disp_reg_handle_t
-cl_disp_register(
-	IN cl_dispatcher_t* const p_disp,
-	IN const cl_disp_msgid_t msg_id,
-	IN cl_pfn_msgrcv_cb_t pfn_callback OPTIONAL,
-	IN const void* const context );
+cl_disp_register(IN cl_dispatcher_t * const p_disp,
+		 IN const cl_disp_msgid_t msg_id,
+		 IN cl_pfn_msgrcv_cb_t pfn_callback OPTIONAL,
+		 IN const void *const context);
 /*
 * PARAMETERS
 *	p_disp
@@ -550,9 +532,7 @@ cl_disp_register(
 *
 * SYNOPSIS
 */
-void
-cl_disp_unregister(
-	IN const cl_disp_reg_handle_t handle );
+void cl_disp_unregister(IN const cl_disp_reg_handle_t handle);
 /*
 * PARAMETERS
 *	handle
@@ -580,12 +560,11 @@ cl_disp_unregister(
 * SYNOPSIS
 */
 cl_status_t
-cl_disp_post(
-	IN const cl_disp_reg_handle_t handle,
-	IN const cl_disp_msgid_t msg_id,
-	IN const void* const p_data,
-	IN cl_pfn_msgdone_cb_t pfn_callback OPTIONAL,
-	IN const void* const context );
+cl_disp_post(IN const cl_disp_reg_handle_t handle,
+	     IN const cl_disp_msgid_t msg_id,
+	     IN const void *const p_data,
+	     IN cl_pfn_msgdone_cb_t pfn_callback OPTIONAL,
+	     IN const void *const context);
 /*
 * PARAMETERS
 *	handle
@@ -629,10 +608,9 @@ cl_disp_post(
 * SYNOPSIS
 */
 void
-cl_disp_get_queue_status(
-  IN const cl_disp_reg_handle_t handle,
-  OUT uint32_t *p_num_queued_msgs,
-  OUT uint64_t *p_last_msg_queue_time_ms);
+cl_disp_get_queue_status(IN const cl_disp_reg_handle_t handle,
+			 OUT uint32_t * p_num_queued_msgs,
+			 OUT uint64_t * p_last_msg_queue_time_ms);
 /*
 * PARAMETERS
 *   handle
@@ -656,5 +634,4 @@ cl_disp_get_queue_status(
 *********/
 
 END_C_DECLS
-
-#endif /* !defined(_CL_DISPATCHER_H_) */
+#endif				/* !defined(_CL_DISPATCHER_H_) */

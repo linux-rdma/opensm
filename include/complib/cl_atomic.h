@@ -51,13 +51,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* Component Library/Atomic Operations
 * NAME
 *	Atomic Operations
@@ -66,7 +65,6 @@ BEGIN_C_DECLS
 *	The Atomic Operations functions allow callers to operate on
 *	32-bit signed integers in an atomic fashion.
 *********/
-
 /****f* Component Library: Atomic Operations/cl_atomic_inc
 * NAME
 *	cl_atomic_inc
@@ -77,9 +75,7 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-int32_t
-cl_atomic_inc(
-	IN	atomic32_t* const	p_value );
+int32_t cl_atomic_inc(IN atomic32_t * const p_value);
 /*
 * PARAMETERS
 *	p_value
@@ -110,9 +106,7 @@ cl_atomic_inc(
 *
 * SYNOPSIS
 */
-int32_t
-cl_atomic_dec(
-	IN	atomic32_t* const	p_value );
+int32_t cl_atomic_dec(IN atomic32_t * const p_value);
 /*
 * PARAMETERS
 *	p_value
@@ -144,9 +138,7 @@ cl_atomic_dec(
 * SYNOPSIS
 */
 int32_t
-cl_atomic_add(
-	IN	atomic32_t* const	p_value,
-	IN	const int32_t		increment );
+cl_atomic_add(IN atomic32_t * const p_value, IN const int32_t increment);
 /*
 * PARAMETERS
 *	p_value
@@ -181,9 +173,7 @@ cl_atomic_add(
 * SYNOPSIS
 */
 int32_t
-cl_atomic_sub(
-	IN	atomic32_t* const	p_value,
-	IN	const int32_t		decrement );
+cl_atomic_sub(IN atomic32_t * const p_value, IN const int32_t decrement);
 /*
 * PARAMETERS
 *	p_value
@@ -208,5 +198,4 @@ cl_atomic_sub(
 *********/
 
 END_C_DECLS
-
-#endif /* _CL_ATOMIC_H_ */
+#endif				/* _CL_ATOMIC_H_ */

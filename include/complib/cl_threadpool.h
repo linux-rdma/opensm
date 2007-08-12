@@ -53,13 +53,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* Component Library/Thread Pool
 * NAME
 *	Thread Pool
@@ -85,7 +84,6 @@ BEGIN_C_DECLS
 *	Manipulation
 *		cl_thread_pool_signal
 *********/
-
 /****s* Component Library: Thread Pool/cl_thread_pool_t
 * NAME
 *	cl_thread_pool_t
@@ -98,9 +96,8 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _cl_thread_pool
-{
-	void (*pfn_callback)(void*);
+    typedef struct _cl_thread_pool {
+	void (*pfn_callback) (void *);
 	void *context;
 	unsigned running_count;
 	unsigned events;
@@ -146,12 +143,10 @@ typedef struct _cl_thread_pool
 * SYNOPSIS
 */
 cl_status_t
-cl_thread_pool_init(
-	IN cl_thread_pool_t* const p_thread_pool,
-	IN unsigned count,
-	IN void	(*pfn_callback)(void*),
-	IN void *context,
-	IN const char* const name );
+cl_thread_pool_init(IN cl_thread_pool_t * const p_thread_pool,
+		    IN unsigned count,
+		    IN void (*pfn_callback) (void *),
+		    IN void *context, IN const char *const name);
 /*
 * PARAMETERS
 *	p_thread_pool
@@ -201,9 +196,7 @@ cl_thread_pool_init(
 *
 * SYNOPSIS
 */
-void
-cl_thread_pool_destroy(
-	IN	cl_thread_pool_t* const	p_thread_pool );
+void cl_thread_pool_destroy(IN cl_thread_pool_t * const p_thread_pool);
 /*
 * PARAMETERS
 *	p_thread_pool
@@ -235,9 +228,7 @@ cl_thread_pool_destroy(
 *
 * SYNOPSIS
 */
-cl_status_t
-cl_thread_pool_signal(
-	IN	cl_thread_pool_t* const	p_thread_pool );
+cl_status_t cl_thread_pool_signal(IN cl_thread_pool_t * const p_thread_pool);
 /*
 * PARAMETERS
 *	p_thread_pool
@@ -259,5 +250,4 @@ cl_thread_pool_signal(
 *********/
 
 END_C_DECLS
-
-#endif /* _CL_THREAD_POOL_H_ */
+#endif				/* _CL_THREAD_POOL_H_ */

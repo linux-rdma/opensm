@@ -52,29 +52,25 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
-#include <pthread.h>	/* usr/include */
-
+#include <pthread.h>		/* usr/include */
 /*
  * Linux user mode specific data structure for the event object.
  * Users should not access these variables directly.
  */
-typedef struct _cl_event_t
-{
-	pthread_cond_t		condvar;
-	boolean_t		signaled;
-	boolean_t		manual_reset;
-	cl_spinlock_t		spinlock;
-	cl_state_t		state;
+    typedef struct _cl_event_t {
+	pthread_cond_t condvar;
+	boolean_t signaled;
+	boolean_t manual_reset;
+	cl_spinlock_t spinlock;
+	cl_state_t state;
 
 } cl_event_t;
 
 END_C_DECLS
-
-#endif	/* _CL_EVENT_OSD_H_ */
+#endif				/* _CL_EVENT_OSD_H_ */

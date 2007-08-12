@@ -52,13 +52,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* Component Library/Pointer Vector
 * NAME
 *	Pointer Vector
@@ -94,7 +93,6 @@ BEGIN_C_DECLS
 *		cl_ptr_vector_find_from_start, cl_ptr_vector_find_from_end
 *		cl_ptr_vector_apply_func
 *********/
-
 /****d* Component Library: Pointer Vector/cl_pfn_ptr_vec_apply_t
 * NAME
 *	cl_pfn_ptr_vec_apply_t
@@ -105,11 +103,9 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef void
-(*cl_pfn_ptr_vec_apply_t)(
-	IN	const size_t		index,
-	IN	void* const			element,
-	IN	void*				context );
+    typedef void
+ (*cl_pfn_ptr_vec_apply_t) (IN const size_t index,
+			    IN void *const element, IN void *context);
 /*
 * PARAMETERS
 *	index
@@ -144,10 +140,8 @@ typedef void
 * SYNOPSIS
 */
 typedef cl_status_t
-(*cl_pfn_ptr_vec_find_t)(
-	IN	const size_t		index,
-	IN	const void* const	element,
-	IN	void*				context );
+    (*cl_pfn_ptr_vec_find_t) (IN const size_t index,
+			      IN const void *const element, IN void *context);
 /*
 * PARAMETERS
 *	index
@@ -188,13 +182,12 @@ typedef cl_status_t
 *
 * SYNOPSIS
 */
-typedef struct _cl_ptr_vector
-{
-	size_t				size;
-	size_t				grow_size;
-	size_t				capacity;
-	const void			**p_ptr_array;
-	cl_state_t			state;
+typedef struct _cl_ptr_vector {
+	size_t size;
+	size_t grow_size;
+	size_t capacity;
+	const void **p_ptr_array;
+	cl_state_t state;
 
 } cl_ptr_vector_t;
 /*
@@ -230,9 +223,7 @@ typedef struct _cl_ptr_vector
 *
 * SYNOPSIS
 */
-void
-cl_ptr_vector_construct(
-	IN	cl_ptr_vector_t* const	p_vector );
+void cl_ptr_vector_construct(IN cl_ptr_vector_t * const p_vector);
 /*
 * PARAMETERS
 *	p_vector
@@ -262,10 +253,8 @@ cl_ptr_vector_construct(
 * SYNOPSIS
 */
 cl_status_t
-cl_ptr_vector_init(
-	IN	cl_ptr_vector_t* const	p_vector,
-	IN	const size_t			min_size,
-	IN	const size_t			grow_size );
+cl_ptr_vector_init(IN cl_ptr_vector_t * const p_vector,
+		   IN const size_t min_size, IN const size_t grow_size);
 /*
 * PARAMETERS
 *	p_vector
@@ -297,9 +286,7 @@ cl_ptr_vector_init(
 *
 * SYNOPSIS
 */
-void
-cl_ptr_vector_destroy(
-	IN	cl_ptr_vector_t* const	p_vector );
+void cl_ptr_vector_destroy(IN cl_ptr_vector_t * const p_vector);
 /*
 * PARAMETERS
 *	p_vector
@@ -329,14 +316,14 @@ cl_ptr_vector_destroy(
 * SYNOPSIS
 */
 static inline size_t
-cl_ptr_vector_get_capacity(
-	IN	const cl_ptr_vector_t* const	p_vector )
+cl_ptr_vector_get_capacity(IN const cl_ptr_vector_t * const p_vector)
 {
-	CL_ASSERT( p_vector );
-	CL_ASSERT( p_vector->state == CL_INITIALIZED );
+	CL_ASSERT(p_vector);
+	CL_ASSERT(p_vector->state == CL_INITIALIZED);
 
-	return( p_vector->capacity );
+	return (p_vector->capacity);
 }
+
 /*
 * PARAMETERS
 *	p_vector
@@ -364,14 +351,14 @@ cl_ptr_vector_get_capacity(
 * SYNOPSIS
 */
 static inline uint32_t
-cl_ptr_vector_get_size(
-	IN	const cl_ptr_vector_t* const	p_vector )
+cl_ptr_vector_get_size(IN const cl_ptr_vector_t * const p_vector)
 {
-	CL_ASSERT( p_vector );
-	CL_ASSERT( p_vector->state == CL_INITIALIZED );
-	return( (uint32_t)p_vector->size );
+	CL_ASSERT(p_vector);
+	CL_ASSERT(p_vector->state == CL_INITIALIZED);
+	return ((uint32_t) p_vector->size);
 
 }
+
 /*
 * PARAMETERS
 *	p_vector
@@ -394,17 +381,16 @@ cl_ptr_vector_get_size(
 *
 * SYNOPSIS
 */
-static inline void*
-cl_ptr_vector_get(
-	IN	const cl_ptr_vector_t* const	p_vector,
-	IN	const size_t					index )
+static inline void *cl_ptr_vector_get(IN const cl_ptr_vector_t * const p_vector,
+				      IN const size_t index)
 {
-	CL_ASSERT( p_vector );
-	CL_ASSERT( p_vector->state == CL_INITIALIZED );
-	CL_ASSERT( p_vector->size > index );
+	CL_ASSERT(p_vector);
+	CL_ASSERT(p_vector->state == CL_INITIALIZED);
+	CL_ASSERT(p_vector->size > index);
 
-	return( (void*)p_vector->p_ptr_array[index] );
+	return ((void *)p_vector->p_ptr_array[index]);
 }
+
 /*
 * PARAMETERS
 *	p_vector
@@ -439,10 +425,8 @@ cl_ptr_vector_get(
 * SYNOPSIS
 */
 cl_status_t
-cl_ptr_vector_at(
-	IN	const cl_ptr_vector_t* const	p_vector,
-	IN	const size_t					index,
-	OUT	void** const					p_element );
+cl_ptr_vector_at(IN const cl_ptr_vector_t * const p_vector,
+		 IN const size_t index, OUT void **const p_element);
 /*
 * PARAMETERS
 *	p_vector
@@ -482,10 +466,8 @@ cl_ptr_vector_at(
 * SYNOPSIS
 */
 cl_status_t
-cl_ptr_vector_set(
-	IN	cl_ptr_vector_t* const	p_vector,
-	IN	const size_t			index,
-	IN	const void* const		element );
+cl_ptr_vector_set(IN cl_ptr_vector_t * const p_vector,
+		  IN const size_t index, IN const void *const element);
 /*
 * PARAMETERS
 *	p_vector
@@ -523,22 +505,22 @@ cl_ptr_vector_set(
 * SYNOPSIS
 */
 static inline cl_status_t
-cl_ptr_vector_insert(
-	IN	cl_ptr_vector_t* const	p_vector,
-	IN	const void* const		element,
-	OUT	size_t* const			p_index OPTIONAL )
+cl_ptr_vector_insert(IN cl_ptr_vector_t * const p_vector,
+		     IN const void *const element,
+		     OUT size_t * const p_index OPTIONAL)
 {
-	cl_status_t		status;
+	cl_status_t status;
 
-	CL_ASSERT( p_vector );
-	CL_ASSERT( p_vector->state == CL_INITIALIZED );
+	CL_ASSERT(p_vector);
+	CL_ASSERT(p_vector->state == CL_INITIALIZED);
 
-	status = cl_ptr_vector_set( p_vector, p_vector->size, element );
-	if( status == CL_SUCCESS && p_index )
+	status = cl_ptr_vector_set(p_vector, p_vector->size, element);
+	if (status == CL_SUCCESS && p_index)
 		*p_index = p_vector->size - 1;
 
-	return( status );
+	return (status);
 }
+
 /*
 * PARAMETERS
 *	p_vector
@@ -581,10 +563,8 @@ cl_ptr_vector_insert(
 *
 * SYNOPSIS
 */
-void*
-cl_ptr_vector_remove(
-	IN	cl_ptr_vector_t* const	p_vector,
-	IN	const size_t			index );
+void *cl_ptr_vector_remove(IN cl_ptr_vector_t * const p_vector,
+			   IN const size_t index);
 /*
 * PARAMETERS
 *	p_vector
@@ -617,9 +597,8 @@ cl_ptr_vector_remove(
 * SYNOPSIS
 */
 cl_status_t
-cl_ptr_vector_set_capacity(
-	IN	cl_ptr_vector_t* const	p_vector,
-	IN	const size_t			new_capacity );
+cl_ptr_vector_set_capacity(IN cl_ptr_vector_t * const p_vector,
+			   IN const size_t new_capacity);
 /*
 * PARAMETERS
 *	p_vector
@@ -657,9 +636,8 @@ cl_ptr_vector_set_capacity(
 * SYNOPSIS
 */
 cl_status_t
-cl_ptr_vector_set_size(
-	IN	cl_ptr_vector_t* const	p_vector,
-	IN	const size_t			size );
+cl_ptr_vector_set_size(IN cl_ptr_vector_t * const p_vector,
+		       IN const size_t size);
 /*
 * PARAMETERS
 *	p_vector
@@ -697,9 +675,8 @@ cl_ptr_vector_set_size(
 * SYNOPSIS
 */
 cl_status_t
-cl_ptr_vector_set_min_size(
-	IN	cl_ptr_vector_t* const	p_vector,
-	IN	const size_t			min_size );
+cl_ptr_vector_set_min_size(IN cl_ptr_vector_t * const p_vector,
+			   IN const size_t min_size);
 /*
 * PARAMETERS
 *	p_vector
@@ -738,10 +715,9 @@ cl_ptr_vector_set_min_size(
 * SYNOPSIS
 */
 void
-cl_ptr_vector_apply_func(
-	IN	const cl_ptr_vector_t* const	p_vector,
-	IN	cl_pfn_ptr_vec_apply_t			pfn_callback,
-	IN	const void* const				context );
+cl_ptr_vector_apply_func(IN const cl_ptr_vector_t * const p_vector,
+			 IN cl_pfn_ptr_vec_apply_t pfn_callback,
+			 IN const void *const context);
 /*
 * PARAMETERS
 *	p_vector
@@ -778,10 +754,9 @@ cl_ptr_vector_apply_func(
 * SYNOPSIS
 */
 size_t
-cl_ptr_vector_find_from_start(
-	IN	const cl_ptr_vector_t* const	p_vector,
-	IN	cl_pfn_ptr_vec_find_t			pfn_callback,
-	IN	const void* const				context );
+cl_ptr_vector_find_from_start(IN const cl_ptr_vector_t * const p_vector,
+			      IN cl_pfn_ptr_vec_find_t pfn_callback,
+			      IN const void *const context);
 /*
 * PARAMETERS
 *	p_vector
@@ -821,10 +796,9 @@ cl_ptr_vector_find_from_start(
 * SYNOPSIS
 */
 size_t
-cl_ptr_vector_find_from_end(
-	IN	const cl_ptr_vector_t* const	p_vector,
-	IN	cl_pfn_ptr_vec_find_t			pfn_callback,
-	IN	const void* const				context );
+cl_ptr_vector_find_from_end(IN const cl_ptr_vector_t * const p_vector,
+			    IN cl_pfn_ptr_vec_find_t pfn_callback,
+			    IN const void *const context);
 /*
 * PARAMETERS
 *	p_vector
@@ -854,5 +828,4 @@ cl_ptr_vector_find_from_end(
 *********/
 
 END_C_DECLS
-
-#endif	/* _CL_PTR_VECTOR_H_ */
+#endif				/* _CL_PTR_VECTOR_H_ */

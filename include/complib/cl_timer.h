@@ -51,13 +51,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* Component Library/Timer
 * NAME
 *	Timer
@@ -85,7 +84,6 @@ BEGIN_C_DECLS
 *	Manipulation:
 *		cl_timer_start, cl_timer_stop
 *********/
-
 /****d* Component Library: Timer/cl_pfn_timer_callback_t
 * NAME
 *	cl_pfn_timer_callback_t
@@ -96,9 +94,8 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef void
-(*cl_pfn_timer_callback_t)(
-	IN void*	context );
+    typedef void
+ (*cl_pfn_timer_callback_t) (IN void *context);
 /*
 * PARAMETERS
 *	context
@@ -130,9 +127,7 @@ typedef void
 *
 * SYNOPSIS
 */
-void
-cl_timer_construct(
-	IN	cl_timer_t* const	p_timer );
+void cl_timer_construct(IN cl_timer_t * const p_timer);
 /*
 * PARAMETERS
 *	p_timer
@@ -161,10 +156,9 @@ cl_timer_construct(
 * SYNOPSIS
 */
 cl_status_t
-cl_timer_init(
-	IN	cl_timer_t* const		p_timer,
-	IN	cl_pfn_timer_callback_t	pfn_callback,
-	IN	const void* const		context );
+cl_timer_init(IN cl_timer_t * const p_timer,
+	      IN cl_pfn_timer_callback_t pfn_callback,
+	      IN const void *const context);
 /*
 * PARAMETERS
 *	p_timer
@@ -200,9 +194,7 @@ cl_timer_init(
 *
 * SYNOPSIS
 */
-void
-cl_timer_destroy(
-	IN	cl_timer_t* const	p_timer );
+void cl_timer_destroy(IN cl_timer_t * const p_timer);
 /*
 * PARAMETERS
 *	p_timer
@@ -231,9 +223,7 @@ cl_timer_destroy(
 * SYNOPSIS
 */
 cl_status_t
-cl_timer_start(
-	IN	cl_timer_t* const	p_timer,
-	IN	const uint32_t		time_ms );
+cl_timer_start(IN cl_timer_t * const p_timer, IN const uint32_t time_ms);
 /*
 * PARAMETERS
 *	p_timer
@@ -267,9 +257,7 @@ cl_timer_start(
 *
 * SYNOPSIS
 */
-void
-cl_timer_stop(
-	IN	cl_timer_t* const	p_timer );
+void cl_timer_stop(IN cl_timer_t * const p_timer);
 /*
 * PARAMETERS
 *	p_timer
@@ -297,9 +285,7 @@ cl_timer_stop(
 * SYNOPSIS
 */
 cl_status_t
-cl_timer_trim(
-	IN	cl_timer_t* const	p_timer,
-	IN	const uint32_t		time_ms );
+cl_timer_trim(IN cl_timer_t * const p_timer, IN const uint32_t time_ms);
 /*
 * PARAMETERS
 *	p_timer
@@ -337,8 +323,7 @@ cl_timer_trim(
 *
 * SYNOPSIS
 */
-uint64_t
-cl_get_time_stamp( void );
+uint64_t cl_get_time_stamp(void);
 /*
 * RETURN VALUE
 *	Time elapsed, in microseconds, since the system was booted.
@@ -357,8 +342,7 @@ cl_get_time_stamp( void );
 *
 * SYNOPSIS
 */
-uint32_t
-cl_get_time_stamp_sec( void );
+uint32_t cl_get_time_stamp_sec(void);
 /*
 * RETURN VALUE
 *	Time elapsed, in seconds, since the system was booted.
@@ -368,5 +352,4 @@ cl_get_time_stamp_sec( void );
 *********/
 
 END_C_DECLS
-
-#endif /* _CL_TIMER_H_ */
+#endif				/* _CL_TIMER_H_ */

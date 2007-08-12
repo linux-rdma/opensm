@@ -52,13 +52,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* Component Library/List
 * NAME
 *	List
@@ -109,7 +108,6 @@ BEGIN_C_DECLS
 *	Attributes:
 *		cl_list_count, cl_is_list_empty, cl_is_list_inited
 *********/
-
 /****s* Component Library: List/cl_list_t
 * NAME
 *	cl_list_t
@@ -122,10 +120,9 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _cl_list
-{
-	cl_qlist_t			list;
-	cl_qpool_t			list_item_pool;
+    typedef struct _cl_list {
+	cl_qlist_t list;
+	cl_qpool_t list_item_pool;
 
 } cl_list_t;
 /*
@@ -170,9 +167,7 @@ typedef const cl_list_item_t *cl_list_iterator_t;
 * SYNOPSIS
 */
 typedef void
-(*cl_pfn_list_apply_t)(
-	IN	void* const			p_object,
-	IN	void*				context );
+ (*cl_pfn_list_apply_t) (IN void *const p_object, IN void *context);
 /*
 * PARAMETERS
 *	p_object
@@ -204,9 +199,7 @@ typedef void
 * SYNOPSIS
 */
 typedef cl_status_t
-(*cl_pfn_list_find_t)(
-	IN	const void* const	p_object,
-	IN	void*				context );
+    (*cl_pfn_list_find_t) (IN const void *const p_object, IN void *context);
 /*
 * PARAMETERS
 *	p_object
@@ -238,9 +231,7 @@ typedef cl_status_t
 *
 * SYNOPSIS
 */
-void
-cl_list_construct(
-	IN	cl_list_t* const	p_list );
+void cl_list_construct(IN cl_list_t * const p_list);
 /*
 * PARAMETERS
 *	p_list
@@ -269,18 +260,17 @@ cl_list_construct(
 *
 * SYNOPSIS
 */
-static inline boolean_t
-cl_is_list_inited(
-	IN	const cl_list_t* const	p_list )
+static inline boolean_t cl_is_list_inited(IN const cl_list_t * const p_list)
 {
 	/* CL_ASSERT that a non-null pointer is provided. */
-	CL_ASSERT( p_list );
+	CL_ASSERT(p_list);
 	/*
 	 * The pool is the last thing initialized.  If it is initialized, the
 	 * list is initialized too.
 	 */
-	return( cl_is_qpool_inited( &p_list->list_item_pool ) );
+	return (cl_is_qpool_inited(&p_list->list_item_pool));
 }
+
 /*
 * PARAMETERS
 *	p_list
@@ -310,9 +300,7 @@ cl_is_list_inited(
 * SYNOPSIS
 */
 cl_status_t
-cl_list_init(
-	IN	cl_list_t* const	p_list,
-	IN	const size_t		min_items );
+cl_list_init(IN cl_list_t * const p_list, IN const size_t min_items);
 /*
 * PARAMETERS
 *	p_list
@@ -346,9 +334,7 @@ cl_list_init(
 *
 * SYNOPSIS
 */
-void
-cl_list_destroy(
-	IN	cl_list_t* const	p_list );
+void cl_list_destroy(IN cl_list_t * const p_list);
 /*
 * PARAMETERS
 *	p_list
@@ -380,14 +366,13 @@ cl_list_destroy(
 *
 * SYNOPSIS
 */
-static inline boolean_t
-cl_is_list_empty(
-	IN	const cl_list_t* const	p_list )
+static inline boolean_t cl_is_list_empty(IN const cl_list_t * const p_list)
 {
-	CL_ASSERT( p_list );
-	CL_ASSERT( cl_is_qpool_inited( &p_list->list_item_pool ) );
-	return( cl_is_qlist_empty( &p_list->list ) );
+	CL_ASSERT(p_list);
+	CL_ASSERT(cl_is_qpool_inited(&p_list->list_item_pool));
+	return (cl_is_qlist_empty(&p_list->list));
 }
+
 /*
 * PARAMETERS
 *	p_list
@@ -412,24 +397,23 @@ cl_is_list_empty(
 * SYNOPSIS
 */
 static inline cl_status_t
-cl_list_insert_head(
-	IN	cl_list_t* const	p_list,
-	IN	const void* const	p_object )
+cl_list_insert_head(IN cl_list_t * const p_list, IN const void *const p_object)
 {
-	cl_pool_obj_t	*p_pool_obj;
+	cl_pool_obj_t *p_pool_obj;
 
-	CL_ASSERT( p_list );
-	CL_ASSERT( cl_is_qpool_inited( &p_list->list_item_pool ) );
+	CL_ASSERT(p_list);
+	CL_ASSERT(cl_is_qpool_inited(&p_list->list_item_pool));
 
 	/* Get a list item to add to the list. */
-	p_pool_obj = (cl_pool_obj_t*)cl_qpool_get( &p_list->list_item_pool );
-	if( !p_pool_obj )
-		return( CL_INSUFFICIENT_MEMORY );
+	p_pool_obj = (cl_pool_obj_t *) cl_qpool_get(&p_list->list_item_pool);
+	if (!p_pool_obj)
+		return (CL_INSUFFICIENT_MEMORY);
 
 	p_pool_obj->p_object = p_object;
-	cl_qlist_insert_head( &p_list->list, &p_pool_obj->pool_item.list_item );
-	return( CL_SUCCESS );
+	cl_qlist_insert_head(&p_list->list, &p_pool_obj->pool_item.list_item);
+	return (CL_SUCCESS);
 }
+
 /*
 * PARAMETERS
 *	p_list
@@ -464,24 +448,23 @@ cl_list_insert_head(
 * SYNOPSIS
 */
 static inline cl_status_t
-cl_list_insert_tail(
-	IN	cl_list_t* const	p_list,
-	IN	const void* const	p_object )
+cl_list_insert_tail(IN cl_list_t * const p_list, IN const void *const p_object)
 {
-	cl_pool_obj_t	*p_pool_obj;
+	cl_pool_obj_t *p_pool_obj;
 
-	CL_ASSERT( p_list );
-	CL_ASSERT( cl_is_qpool_inited( &p_list->list_item_pool ) );
+	CL_ASSERT(p_list);
+	CL_ASSERT(cl_is_qpool_inited(&p_list->list_item_pool));
 
 	/* Get a list item to add to the list. */
-	p_pool_obj = (cl_pool_obj_t*)cl_qpool_get( &p_list->list_item_pool );
-	if( !p_pool_obj )
-		return( CL_INSUFFICIENT_MEMORY );
+	p_pool_obj = (cl_pool_obj_t *) cl_qpool_get(&p_list->list_item_pool);
+	if (!p_pool_obj)
+		return (CL_INSUFFICIENT_MEMORY);
 
 	p_pool_obj->p_object = p_object;
-	cl_qlist_insert_tail( &p_list->list, &p_pool_obj->pool_item.list_item );
-	return( CL_SUCCESS );
+	cl_qlist_insert_tail(&p_list->list, &p_pool_obj->pool_item.list_item);
+	return (CL_SUCCESS);
 }
+
 /*
 * PARAMETERS
 *	p_list
@@ -517,11 +500,9 @@ cl_list_insert_tail(
 * SYNOPSIS
 */
 cl_status_t
-cl_list_insert_array_head(
-	IN	cl_list_t* const	p_list,
-	IN	const void* const	p_array,
-	IN	uint32_t			item_count,
-	IN	const uint32_t		item_size );
+cl_list_insert_array_head(IN cl_list_t * const p_list,
+			  IN const void *const p_array,
+			  IN uint32_t item_count, IN const uint32_t item_size);
 /*
 * PARAMETERS
 *	p_list
@@ -564,11 +545,9 @@ cl_list_insert_array_head(
 * SYNOPSIS
 */
 cl_status_t
-cl_list_insert_array_tail(
-	IN	cl_list_t* const	p_list,
-	IN	const void* const	p_array,
-	IN	uint32_t			item_count,
-	IN	const uint32_t		item_size);
+cl_list_insert_array_tail(IN cl_list_t * const p_list,
+			  IN const void *const p_array,
+			  IN uint32_t item_count, IN const uint32_t item_size);
 /*
 * PARAMETERS
 *	p_list
@@ -611,26 +590,26 @@ cl_list_insert_array_tail(
 * SYNOPSIS
 */
 static inline cl_status_t
-cl_list_insert_next(
-	IN	cl_list_t* const			p_list,
-	IN	cl_list_iterator_t	iterator,
-	IN	const void* const			p_object )
+cl_list_insert_next(IN cl_list_t * const p_list,
+		    IN cl_list_iterator_t iterator,
+		    IN const void *const p_object)
 {
-	cl_pool_obj_t	*p_pool_obj;
+	cl_pool_obj_t *p_pool_obj;
 
-	CL_ASSERT( p_list );
-	CL_ASSERT( cl_is_qpool_inited( &p_list->list_item_pool ) );
+	CL_ASSERT(p_list);
+	CL_ASSERT(cl_is_qpool_inited(&p_list->list_item_pool));
 
 	/* Get a list item to add to the list. */
-	p_pool_obj = (cl_pool_obj_t*)cl_qpool_get( &p_list->list_item_pool );
-	if( !p_pool_obj )
-		return( CL_INSUFFICIENT_MEMORY );
+	p_pool_obj = (cl_pool_obj_t *) cl_qpool_get(&p_list->list_item_pool);
+	if (!p_pool_obj)
+		return (CL_INSUFFICIENT_MEMORY);
 
 	p_pool_obj->p_object = p_object;
-	cl_qlist_insert_next( &p_list->list, (cl_list_item_t*)iterator,
-		&p_pool_obj->pool_item.list_item );
-	return( CL_SUCCESS );
+	cl_qlist_insert_next(&p_list->list, (cl_list_item_t *) iterator,
+			     &p_pool_obj->pool_item.list_item);
+	return (CL_SUCCESS);
 }
+
 /*
 * PARAMETERS
 *	p_list
@@ -664,26 +643,26 @@ cl_list_insert_next(
 * SYNOPSIS
 */
 static inline cl_status_t
-cl_list_insert_prev(
-	IN	cl_list_t* const			p_list,
-	IN	cl_list_iterator_t	iterator,
-	IN	const void* const			p_object )
+cl_list_insert_prev(IN cl_list_t * const p_list,
+		    IN cl_list_iterator_t iterator,
+		    IN const void *const p_object)
 {
-	cl_pool_obj_t	*p_pool_obj;
+	cl_pool_obj_t *p_pool_obj;
 
-	CL_ASSERT( p_list );
-	CL_ASSERT( cl_is_qpool_inited( &p_list->list_item_pool ) );
+	CL_ASSERT(p_list);
+	CL_ASSERT(cl_is_qpool_inited(&p_list->list_item_pool));
 
 	/* Get a list item to add to the list. */
-	p_pool_obj = (cl_pool_obj_t*)cl_qpool_get( &p_list->list_item_pool );
-	if( !p_pool_obj )
-		return( CL_INSUFFICIENT_MEMORY );
+	p_pool_obj = (cl_pool_obj_t *) cl_qpool_get(&p_list->list_item_pool);
+	if (!p_pool_obj)
+		return (CL_INSUFFICIENT_MEMORY);
 
 	p_pool_obj->p_object = p_object;
-	cl_qlist_insert_prev( &p_list->list, (cl_list_item_t*)iterator,
-		&p_pool_obj->pool_item.list_item );
-	return( CL_SUCCESS );
+	cl_qlist_insert_prev(&p_list->list, (cl_list_item_t *) iterator,
+			     &p_pool_obj->pool_item.list_item);
+	return (CL_SUCCESS);
 }
+
 /*
 * PARAMETERS
 *	p_list
@@ -715,29 +694,28 @@ cl_list_insert_prev(
 *
 * SYNOPSIS
 */
-static inline void*
-cl_list_remove_head(
-	IN	cl_list_t* const	p_list )
+static inline void *cl_list_remove_head(IN cl_list_t * const p_list)
 {
-	cl_pool_obj_t	*p_pool_obj;
-   void* p_obj;
+	cl_pool_obj_t *p_pool_obj;
+	void *p_obj;
 
-	CL_ASSERT( p_list );
-	CL_ASSERT( cl_is_qpool_inited( &p_list->list_item_pool ) );
+	CL_ASSERT(p_list);
+	CL_ASSERT(cl_is_qpool_inited(&p_list->list_item_pool));
 
 	/* See if the list is empty. */
-	if( cl_is_qlist_empty( &p_list->list ) )
-		return( NULL );
+	if (cl_is_qlist_empty(&p_list->list))
+		return (NULL);
 
 	/* Get the item at the head of the list. */
-	p_pool_obj = (cl_pool_obj_t*)cl_qlist_remove_head( &p_list->list );
+	p_pool_obj = (cl_pool_obj_t *) cl_qlist_remove_head(&p_list->list);
 
-   p_obj = (void*)p_pool_obj->p_object;
+	p_obj = (void *)p_pool_obj->p_object;
 	/* Place the pool item back into the pool. */
-	cl_qpool_put( &p_list->list_item_pool, &p_pool_obj->pool_item );
+	cl_qpool_put(&p_list->list_item_pool, &p_pool_obj->pool_item);
 
-	return( p_obj );
+	return (p_obj);
 }
+
 /*
 * PARAMETERS
 *	p_list
@@ -762,27 +740,26 @@ cl_list_remove_head(
 *
 * SYNOPSIS
 */
-static inline void*
-cl_list_remove_tail(
-	IN	cl_list_t* const	p_list )
+static inline void *cl_list_remove_tail(IN cl_list_t * const p_list)
 {
-	cl_pool_obj_t	*p_pool_obj;
+	cl_pool_obj_t *p_pool_obj;
 
-	CL_ASSERT( p_list );
-	CL_ASSERT( cl_is_qpool_inited( &p_list->list_item_pool ) );
+	CL_ASSERT(p_list);
+	CL_ASSERT(cl_is_qpool_inited(&p_list->list_item_pool));
 
 	/* See if the list is empty. */
-	if( cl_is_qlist_empty( &p_list->list ) )
-		return( NULL );
+	if (cl_is_qlist_empty(&p_list->list))
+		return (NULL);
 
 	/* Get the item at the head of the list. */
-	p_pool_obj = (cl_pool_obj_t*)cl_qlist_remove_tail( &p_list->list );
+	p_pool_obj = (cl_pool_obj_t *) cl_qlist_remove_tail(&p_list->list);
 
 	/* Place the list item back into the pool. */
-	cl_qpool_put( &p_list->list_item_pool, &p_pool_obj->pool_item );
+	cl_qpool_put(&p_list->list_item_pool, &p_pool_obj->pool_item);
 
-	return( (void*)p_pool_obj->p_object );
+	return ((void *)p_pool_obj->p_object);
 }
+
 /*
 * PARAMETERS
 *	p_list
@@ -808,16 +785,15 @@ cl_list_remove_tail(
 *
 * SYNOPSIS
 */
-static inline void
-cl_list_remove_all(
-	IN	cl_list_t* const	p_list )
+static inline void cl_list_remove_all(IN cl_list_t * const p_list)
 {
-	CL_ASSERT( p_list );
-	CL_ASSERT( cl_is_qpool_inited( &p_list->list_item_pool ) );
+	CL_ASSERT(p_list);
+	CL_ASSERT(cl_is_qpool_inited(&p_list->list_item_pool));
 
 	/* Return all the list items to the pool. */
-	cl_qpool_put_list( &p_list->list_item_pool, &p_list->list );
+	cl_qpool_put_list(&p_list->list_item_pool, &p_list->list);
 }
+
 /*
 * PARAMETERS
 *	p_list
@@ -841,9 +817,8 @@ cl_list_remove_all(
 * SYNOPSIS
 */
 cl_status_t
-cl_list_remove_object(
-	IN	cl_list_t* const	p_list,
-	IN	const void* const	p_object );
+cl_list_remove_object(IN cl_list_t * const p_list,
+		      IN const void *const p_object);
 /*
 * PARAMETERS
 *	p_list
@@ -875,18 +850,17 @@ cl_list_remove_object(
 * SYNOPSIS
 */
 static inline void
-cl_list_remove_item(
-	IN	cl_list_t* const			p_list,
-	IN	cl_list_iterator_t	iterator )
+cl_list_remove_item(IN cl_list_t * const p_list, IN cl_list_iterator_t iterator)
 {
-	CL_ASSERT( p_list );
-	CL_ASSERT( cl_is_qpool_inited( &p_list->list_item_pool ) );
+	CL_ASSERT(p_list);
+	CL_ASSERT(cl_is_qpool_inited(&p_list->list_item_pool));
 
-	cl_qlist_remove_item( &p_list->list, (cl_list_item_t*)iterator );
+	cl_qlist_remove_item(&p_list->list, (cl_list_item_t *) iterator);
 
 	/* Place the list item back into the pool. */
-	cl_qpool_put( &p_list->list_item_pool, (cl_pool_item_t*)iterator );
+	cl_qpool_put(&p_list->list_item_pool, (cl_pool_item_t *) iterator);
 }
+
 /*
 * PARAMETERS
 *	p_list
@@ -915,9 +889,8 @@ cl_list_remove_item(
 * SYNOPSIS
 */
 boolean_t
-cl_is_object_in_list(
-	IN	const cl_list_t* const	p_list,
-	IN	const void* const		p_object );
+cl_is_object_in_list(IN const cl_list_t * const p_list,
+		     IN const void *const p_object);
 /*
 * PARAMETERS
 *	p_list
@@ -945,15 +918,14 @@ cl_is_object_in_list(
 *
 * SYNOPSIS
 */
-static inline cl_list_iterator_t
-cl_list_end(
-	IN	const cl_list_t* const	p_list )
+static inline cl_list_iterator_t cl_list_end(IN const cl_list_t * const p_list)
 {
-	CL_ASSERT( p_list );
-	CL_ASSERT( cl_is_qpool_inited( &p_list->list_item_pool ) );
+	CL_ASSERT(p_list);
+	CL_ASSERT(cl_is_qpool_inited(&p_list->list_item_pool));
 
-	return( cl_qlist_end( &p_list->list ) );
+	return (cl_qlist_end(&p_list->list));
 }
+
 /*
 * PARAMETERS
 *	p_list
@@ -982,15 +954,14 @@ cl_list_end(
 *
 * SYNOPSIS
 */
-static inline cl_list_iterator_t
-cl_list_head(
-	IN	const cl_list_t* const	p_list )
+static inline cl_list_iterator_t cl_list_head(IN const cl_list_t * const p_list)
 {
-	CL_ASSERT( p_list );
-	CL_ASSERT( cl_is_qpool_inited( &p_list->list_item_pool ) );
+	CL_ASSERT(p_list);
+	CL_ASSERT(cl_is_qpool_inited(&p_list->list_item_pool));
 
-	return( cl_qlist_head( &p_list->list ) );
+	return (cl_qlist_head(&p_list->list));
 }
+
 /*
 * PARAMETERS
 *	p_list
@@ -1021,15 +992,14 @@ cl_list_head(
 *
 * SYNOPSIS
 */
-static inline cl_list_iterator_t
-cl_list_tail(
-	IN	const cl_list_t* const	p_list )
+static inline cl_list_iterator_t cl_list_tail(IN const cl_list_t * const p_list)
 {
-	CL_ASSERT( p_list );
-	CL_ASSERT( cl_is_qpool_inited( &p_list->list_item_pool ) );
+	CL_ASSERT(p_list);
+	CL_ASSERT(cl_is_qpool_inited(&p_list->list_item_pool));
 
-	return( cl_qlist_tail( &p_list->list ) );
+	return (cl_qlist_tail(&p_list->list));
 }
+
 /*
 * PARAMETERS
 *	p_list
@@ -1061,14 +1031,13 @@ cl_list_tail(
 *
 * SYNOPSIS
 */
-static inline cl_list_iterator_t
-cl_list_next(
-	IN	cl_list_iterator_t	iterator )
+static inline cl_list_iterator_t cl_list_next(IN cl_list_iterator_t iterator)
 {
-	CL_ASSERT( iterator );
+	CL_ASSERT(iterator);
 
-	return( cl_qlist_next( iterator ) );
+	return (cl_qlist_next(iterator));
 }
+
 /*
 * PARAMETERS
 *	p_list
@@ -1104,14 +1073,13 @@ cl_list_next(
 *
 * SYNOPSIS
 */
-static inline cl_list_iterator_t
-cl_list_prev(
-	IN	cl_list_iterator_t	iterator )
+static inline cl_list_iterator_t cl_list_prev(IN cl_list_iterator_t iterator)
 {
-	CL_ASSERT( iterator );
+	CL_ASSERT(iterator);
 
-	return( cl_qlist_prev( iterator ) );
+	return (cl_qlist_prev(iterator));
 }
+
 /*
 * PARAMETERS
 *	p_list
@@ -1147,14 +1115,13 @@ cl_list_prev(
 *
 * SYNOPSIS
 */
-static inline void*
-cl_list_obj(
-	IN	cl_list_iterator_t	iterator )
+static inline void *cl_list_obj(IN cl_list_iterator_t iterator)
 {
-	CL_ASSERT( iterator );
+	CL_ASSERT(iterator);
 
-	return( (void*)((cl_pool_obj_t*)iterator)->p_object );
+	return ((void *)((cl_pool_obj_t *) iterator)->p_object);
 }
+
 /*
 * PARAMETERS
 *	iterator
@@ -1180,10 +1147,9 @@ cl_list_obj(
 * SYNOPSIS
 */
 cl_list_iterator_t
-cl_list_find_from_head(
-	IN	const cl_list_t* const	p_list,
-	IN	cl_pfn_list_find_t		pfn_func,
-	IN	const void* const		context );
+cl_list_find_from_head(IN const cl_list_t * const p_list,
+		       IN cl_pfn_list_find_t pfn_func,
+		       IN const void *const context);
 /*
 * PARAMETERS
 *	p_list
@@ -1225,10 +1191,9 @@ cl_list_find_from_head(
 * SYNOPSIS
 */
 cl_list_iterator_t
-cl_list_find_from_tail(
-	IN	const cl_list_t* const	p_list,
-	IN	cl_pfn_list_find_t		pfn_func,
-	IN	const void* const		context );
+cl_list_find_from_tail(IN const cl_list_t * const p_list,
+		       IN cl_pfn_list_find_t pfn_func,
+		       IN const void *const context);
 /*
 * PARAMETERS
 *	p_list
@@ -1270,10 +1235,9 @@ cl_list_find_from_tail(
 * SYNOPSIS
 */
 void
-cl_list_apply_func(
-	IN	const cl_list_t* const	p_list,
-	IN	cl_pfn_list_apply_t		pfn_func,
-	IN	const void* const		context );
+cl_list_apply_func(IN const cl_list_t * const p_list,
+		   IN cl_pfn_list_apply_t pfn_func,
+		   IN const void *const context);
 /*
 * PARAMETERS
 *	p_list
@@ -1310,15 +1274,14 @@ cl_list_apply_func(
 *
 * SYNOPSIS
 */
-static inline size_t
-cl_list_count(
-	IN	const cl_list_t* const	p_list )
+static inline size_t cl_list_count(IN const cl_list_t * const p_list)
 {
-	CL_ASSERT( p_list );
-	CL_ASSERT( cl_is_qpool_inited( &p_list->list_item_pool ) );
+	CL_ASSERT(p_list);
+	CL_ASSERT(cl_is_qpool_inited(&p_list->list_item_pool));
 
-	return( cl_qlist_count( &p_list->list ) );
+	return (cl_qlist_count(&p_list->list));
 }
+
 /*
 * PARAMETERS
 *	p_list
@@ -1332,5 +1295,4 @@ cl_list_count(
 *********/
 
 END_C_DECLS
-
-#endif /* _CL_LIST_H_ */
+#endif				/* _CL_LIST_H_ */

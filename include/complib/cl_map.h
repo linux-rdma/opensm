@@ -52,13 +52,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* Component Library/Map
 * NAME
 *	Map
@@ -101,7 +100,6 @@ BEGIN_C_DECLS
 *	Attributes:
 *		cl_map_count, cl_is_map_empty, cl_is_map_inited
 *********/
-
 /****s* Component Library: Map/cl_map_t
 * NAME
 *	cl_map_t
@@ -114,10 +112,9 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _cl_map
-{
-	cl_qmap_t	qmap;
-	cl_qpool_t	pool;
+    typedef struct _cl_map {
+	cl_qmap_t qmap;
+	cl_qpool_t pool;
 
 } cl_map_t;
 /*
@@ -161,13 +158,12 @@ typedef const cl_map_item_t *cl_map_iterator_t;
 *
 * SYNOPSIS
 */
-static inline size_t
-cl_map_count(
-	IN	const cl_map_t* const	p_map )
+static inline size_t cl_map_count(IN const cl_map_t * const p_map)
 {
-	CL_ASSERT( p_map );
-	return( cl_qmap_count( &p_map->qmap ) );
+	CL_ASSERT(p_map);
+	return (cl_qmap_count(&p_map->qmap));
 }
+
 /*
 * PARAMETERS
 *	p_map
@@ -189,13 +185,12 @@ cl_map_count(
 *
 * SYNOPSIS
 */
-static inline boolean_t
-cl_is_map_empty(
-	IN	const cl_map_t* const	p_map )
+static inline boolean_t cl_is_map_empty(IN const cl_map_t * const p_map)
 {
-	CL_ASSERT( p_map );
-	return( cl_is_qmap_empty( &p_map->qmap ) );
+	CL_ASSERT(p_map);
+	return (cl_is_qmap_empty(&p_map->qmap));
 }
+
 /*
 * PARAMETERS
 *	p_map
@@ -219,12 +214,11 @@ cl_is_map_empty(
 *
 * SYNOPSIS
 */
-static inline uint64_t
-cl_map_key(
-	IN	const cl_map_iterator_t itor )
+static inline uint64_t cl_map_key(IN const cl_map_iterator_t itor)
 {
-	return( cl_qmap_key( itor ) );
+	return (cl_qmap_key(itor));
 }
+
 /*
 * PARAMETERS
 *	itor
@@ -252,9 +246,7 @@ cl_map_key(
 *
 * SYNOPSIS
 */
-void
-cl_map_construct(
-	IN	cl_map_t* const	p_map );
+void cl_map_construct(IN cl_map_t * const p_map);
 /*
 * PARAMETERS
 *	p_map
@@ -283,16 +275,15 @@ cl_map_construct(
 *
 * SYNOPSIS
 */
-static inline boolean_t
-cl_is_map_inited(
-	IN	const cl_map_t* const	p_map )
+static inline boolean_t cl_is_map_inited(IN const cl_map_t * const p_map)
 {
 	/*
 	 * The map's pool of map items is the last thing initialized.
 	 * We can therefore use it to test for initialization.
 	 */
-	return( cl_is_qpool_inited( &p_map->pool ) );
+	return (cl_is_qpool_inited(&p_map->pool));
 }
+
 /*
 * PARAMETERS
 *	p_map
@@ -321,10 +312,7 @@ cl_is_map_inited(
 *
 * SYNOPSIS
 */
-cl_status_t
-cl_map_init(
-	IN	cl_map_t* const	p_map,
-	IN	const uint32_t	min_items );
+cl_status_t cl_map_init(IN cl_map_t * const p_map, IN const uint32_t min_items);
 /*
 * PARAMETERS
 *	p_map
@@ -354,9 +342,7 @@ cl_map_init(
 *
 * SYNOPSIS
 */
-void
-cl_map_destroy(
-	IN	cl_map_t* const	p_map );
+void cl_map_destroy(IN cl_map_t * const p_map);
 /*
 * PARAMETERS
 *	p_map
@@ -386,13 +372,12 @@ cl_map_destroy(
 *
 * SYNOPSIS
 */
-static inline cl_map_iterator_t
-cl_map_end(
-	IN	const cl_map_t* const	p_map )
+static inline cl_map_iterator_t cl_map_end(IN const cl_map_t * const p_map)
 {
-	CL_ASSERT( p_map );
-	return( cl_qmap_end( &p_map->qmap ) );
+	CL_ASSERT(p_map);
+	return (cl_qmap_end(&p_map->qmap));
 }
+
 /*
 * PARAMETERS
 *	p_map
@@ -423,13 +408,12 @@ cl_map_end(
 *
 * SYNOPSIS
 */
-static inline cl_map_iterator_t
-cl_map_head(
-	IN	const cl_map_t* const	p_map )
+static inline cl_map_iterator_t cl_map_head(IN const cl_map_t * const p_map)
 {
-	CL_ASSERT( p_map );
-	return( cl_qmap_head( &p_map->qmap ) );
+	CL_ASSERT(p_map);
+	return (cl_qmap_head(&p_map->qmap));
 }
+
 /*
 * PARAMETERS
 *	p_map
@@ -457,13 +441,12 @@ cl_map_head(
 *
 * SYNOPSIS
 */
-static inline cl_map_iterator_t
-cl_map_tail(
-	IN	const cl_map_t* const	p_map )
+static inline cl_map_iterator_t cl_map_tail(IN const cl_map_t * const p_map)
 {
-	CL_ASSERT( p_map );
-	return( cl_qmap_tail( &p_map->qmap ) );
+	CL_ASSERT(p_map);
+	return (cl_qmap_tail(&p_map->qmap));
 }
+
 /*
 * PARAMETERS
 *	p_map
@@ -492,13 +475,12 @@ cl_map_tail(
 *
 * SYNOPSIS
 */
-static inline cl_map_iterator_t
-cl_map_next(
-	IN	const cl_map_iterator_t itor )
+static inline cl_map_iterator_t cl_map_next(IN const cl_map_iterator_t itor)
 {
-	CL_ASSERT( itor );
-	return( cl_qmap_next( itor ) );
+	CL_ASSERT(itor);
+	return (cl_qmap_next(itor));
 }
+
 /*
 * PARAMETERS
 *	itor
@@ -528,13 +510,12 @@ cl_map_next(
 *
 * SYNOPSIS
 */
-static inline cl_map_iterator_t
-cl_map_prev(
-	IN	const cl_map_iterator_t itor )
+static inline cl_map_iterator_t cl_map_prev(IN const cl_map_iterator_t itor)
 {
-	CL_ASSERT( itor );
-	return( cl_qmap_prev( itor ) );
+	CL_ASSERT(itor);
+	return (cl_qmap_prev(itor));
 }
+
 /*
 * PARAMETERS
 *	itor
@@ -563,11 +544,8 @@ cl_map_prev(
 *
 * SYNOPSIS
 */
-void*
-cl_map_insert(
-	IN	cl_map_t* const		p_map,
-	IN	const uint64_t		key,
-	IN	const void* const	p_object );
+void *cl_map_insert(IN cl_map_t * const p_map,
+		    IN const uint64_t key, IN const void *const p_object);
 /*
 * PARAMETERS
 *	p_map
@@ -605,10 +583,7 @@ cl_map_insert(
 *
 * SYNOPSIS
 */
-void*
-cl_map_get(
-	IN	const cl_map_t* const	p_map,
-	IN	const uint64_t			key );
+void *cl_map_get(IN const cl_map_t * const p_map, IN const uint64_t key);
 /*
 * PARAMETERS
 *	p_map
@@ -641,10 +616,7 @@ cl_map_get(
 *
 * SYNOPSIS
 */
-void*
-cl_map_get_next(
-	IN	const cl_map_t* const	p_map,
-	IN	const uint64_t			key );
+void *cl_map_get_next(IN const cl_map_t * const p_map, IN const uint64_t key);
 /*
 * PARAMETERS
 *	p_map
@@ -678,9 +650,7 @@ cl_map_get_next(
 * SYNOPSIS
 */
 void
-cl_map_remove_item(
-	IN	cl_map_t* const			p_map,
-	IN	const cl_map_iterator_t	itor );
+cl_map_remove_item(IN cl_map_t * const p_map, IN const cl_map_iterator_t itor);
 /*
 * PARAMETERS
 *	p_map
@@ -716,10 +686,7 @@ cl_map_remove_item(
 *
 * SYNOPSIS
 */
-void*
-cl_map_remove(
-	IN	cl_map_t* const	p_map,
-	IN	const uint64_t	key );
+void *cl_map_remove(IN cl_map_t * const p_map, IN const uint64_t key);
 /*
 * PARAMETERS
 *	p_map
@@ -749,9 +716,7 @@ cl_map_remove(
 *
 * SYNOPSIS
 */
-void
-cl_map_remove_all(
-	IN	cl_map_t* const	p_map );
+void cl_map_remove_all(IN cl_map_t * const p_map);
 /*
 * PARAMETERS
 *	p_map
@@ -773,12 +738,11 @@ cl_map_remove_all(
 *
 * SYNOPSIS
 */
-static inline void*
-cl_map_obj(
-	IN	const cl_map_iterator_t	itor )
+static inline void *cl_map_obj(IN const cl_map_iterator_t itor)
 {
-	return( cl_qmap_obj( PARENT_STRUCT( itor, cl_map_obj_t, item ) ) );
+	return (cl_qmap_obj(PARENT_STRUCT(itor, cl_map_obj_t, item)));
 }
+
 /*
 * PARAMETERS
 *	itor
@@ -805,9 +769,8 @@ cl_map_obj(
 * SYNOPSIS
 */
 cl_status_t
-cl_map_merge(
-	OUT		cl_map_t* const	p_dest_map,
-	IN OUT	cl_map_t* const	p_src_map );
+cl_map_merge(OUT cl_map_t * const p_dest_map,
+	     IN OUT cl_map_t * const p_src_map);
 /*
 * PARAMETERS
 *	p_dest_map
@@ -843,11 +806,9 @@ cl_map_merge(
 * SYNOPSIS
 */
 cl_status_t
-cl_map_delta(
-	IN OUT	cl_map_t* const	p_map1,
-	IN OUT	cl_map_t* const	p_map2,
-	OUT		cl_map_t* const	p_new,
-	OUT		cl_map_t* const	p_old );
+cl_map_delta(IN OUT cl_map_t * const p_map1,
+	     IN OUT cl_map_t * const p_map2,
+	     OUT cl_map_t * const p_new, OUT cl_map_t * const p_old);
 /*
 * PARAMETERS
 *	p_map1
@@ -888,5 +849,4 @@ cl_map_delta(
 *********/
 
 END_C_DECLS
-
-#endif	/* _CL_MAP_H_ */
+#endif				/* _CL_MAP_H_ */

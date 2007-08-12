@@ -53,13 +53,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* Component Library/Quick Pool
 * NAME
 *	Quick Pool
@@ -102,7 +101,6 @@ BEGIN_C_DECLS
 *	Attributes:
 *		cl_is_qpool_inited, cl_qpool_count
 *********/
-
 /****d* Component Library: Quick Pool/cl_pfn_qpool_init_t
 * NAME
 *	cl_pfn_qpool_init_t
@@ -115,10 +113,9 @@ BEGIN_C_DECLS
 * SYNOPSIS
 */
 typedef cl_status_t
-(*cl_pfn_qpool_init_t)(
-	IN	void* const				p_object,
-	IN	void*					context,
-	OUT	cl_pool_item_t** const	pp_pool_item );
+    (*cl_pfn_qpool_init_t) (IN void *const p_object,
+			    IN void *context,
+			    OUT cl_pool_item_t ** const pp_pool_item);
 /*
 * PARAMETERS
 *	p_object
@@ -172,9 +169,8 @@ typedef cl_status_t
 * SYNOPSIS
 */
 typedef void
-(*cl_pfn_qpool_dtor_t)(
-	IN	const cl_pool_item_t* const	p_pool_item,
-	IN	void*						context );
+ (*cl_pfn_qpool_dtor_t) (IN const cl_pool_item_t * const p_pool_item,
+			 IN void *context);
 /*
 * PARAMETERS
 *	p_pool_item
@@ -212,12 +208,11 @@ typedef void
 *
 * SYNOPSIS
 */
-typedef struct _cl_qpool
-{
-	cl_qcpool_t				qcpool;
-	cl_pfn_qpool_init_t		pfn_init;
-	cl_pfn_qpool_dtor_t		pfn_dtor;
-	const void				*context;
+typedef struct _cl_qpool {
+	cl_qcpool_t qcpool;
+	cl_pfn_qpool_init_t pfn_init;
+	cl_pfn_qpool_dtor_t pfn_dtor;
+	const void *context;
 
 } cl_qpool_t;
 /*
@@ -252,9 +247,7 @@ typedef struct _cl_qpool
 *
 * SYNOPSIS
 */
-void
-cl_qpool_construct(
-	IN	cl_qpool_t* const	p_pool );
+void cl_qpool_construct(IN cl_qpool_t * const p_pool);
 /*
 * PARAMETERS
 *	p_pool
@@ -283,14 +276,13 @@ cl_qpool_construct(
 *
 * SYNOPSIS
 */
-static inline uint32_t
-cl_is_qpool_inited(
-	IN	const cl_qpool_t* const	p_pool )
+static inline uint32_t cl_is_qpool_inited(IN const cl_qpool_t * const p_pool)
 {
 	/* CL_ASSERT that a non-null pointer is provided. */
-	CL_ASSERT( p_pool );
-	return( cl_is_qcpool_inited( &p_pool->qcpool ) );
+	CL_ASSERT(p_pool);
+	return (cl_is_qcpool_inited(&p_pool->qcpool));
 }
+
 /*
 * PARAMETERS
 *	p_pool
@@ -320,15 +312,14 @@ cl_is_qpool_inited(
 * SYNOPSIS
 */
 cl_status_t
-cl_qpool_init(
-	IN	cl_qpool_t* const		p_pool,
-	IN	const size_t			min_size,
-	IN	const size_t			max_size,
-	IN	const size_t			grow_size,
-	IN	const size_t			object_size,
-	IN	cl_pfn_qpool_init_t		pfn_initializer OPTIONAL,
-	IN	cl_pfn_qpool_dtor_t		pfn_destructor OPTIONAL,
-	IN	const void* const		context );
+cl_qpool_init(IN cl_qpool_t * const p_pool,
+	      IN const size_t min_size,
+	      IN const size_t max_size,
+	      IN const size_t grow_size,
+	      IN const size_t object_size,
+	      IN cl_pfn_qpool_init_t pfn_initializer OPTIONAL,
+	      IN cl_pfn_qpool_dtor_t pfn_destructor OPTIONAL,
+	      IN const void *const context);
 /*
 * PARAMETERS
 *	p_pool
@@ -399,13 +390,12 @@ cl_qpool_init(
 *
 * SYNOPSIS
 */
-static inline void
-cl_qpool_destroy(
-	IN	cl_qpool_t* const	p_pool )
+static inline void cl_qpool_destroy(IN cl_qpool_t * const p_pool)
 {
-	CL_ASSERT( p_pool );
-	cl_qcpool_destroy( &p_pool->qcpool );
+	CL_ASSERT(p_pool);
+	cl_qcpool_destroy(&p_pool->qcpool);
 }
+
 /*
 * PARAMETERS
 *	p_pool
@@ -440,13 +430,12 @@ cl_qpool_destroy(
 *
 * SYNOPSIS
 */
-static inline size_t
-cl_qpool_count(
-	IN	cl_qpool_t* const	p_pool )
+static inline size_t cl_qpool_count(IN cl_qpool_t * const p_pool)
 {
-	CL_ASSERT( p_pool );
-	return( cl_qcpool_count( &p_pool->qcpool ) );
+	CL_ASSERT(p_pool);
+	return (cl_qcpool_count(&p_pool->qcpool));
 }
+
 /*
 * PARAMETERS
 *	p_pool
@@ -470,13 +459,12 @@ cl_qpool_count(
 *
 * SYNOPSIS
 */
-static inline cl_pool_item_t*
-cl_qpool_get(
-	IN	cl_qpool_t* const	p_pool )
+static inline cl_pool_item_t *cl_qpool_get(IN cl_qpool_t * const p_pool)
 {
-	CL_ASSERT( p_pool );
-	return( cl_qcpool_get( &p_pool->qcpool ) );
+	CL_ASSERT(p_pool);
+	return (cl_qcpool_get(&p_pool->qcpool));
 }
+
 /*
 * PARAMETERS
 *	p_pool
@@ -507,13 +495,13 @@ cl_qpool_get(
 * SYNOPSIS
 */
 static inline void
-cl_qpool_put(
-	IN	cl_qpool_t* const		p_pool,
-	IN	cl_pool_item_t* const	p_pool_item )
+cl_qpool_put(IN cl_qpool_t * const p_pool,
+	     IN cl_pool_item_t * const p_pool_item)
 {
-	CL_ASSERT( p_pool );
-	cl_qcpool_put( &p_pool->qcpool, p_pool_item );
+	CL_ASSERT(p_pool);
+	cl_qcpool_put(&p_pool->qcpool, p_pool_item);
 }
+
 /*
 * PARAMETERS
 *	p_pool
@@ -548,13 +536,12 @@ cl_qpool_put(
 * SYNOPSIS
 */
 static inline void
-cl_qpool_put_list(
-	IN	cl_qpool_t* const	p_pool,
-	IN	cl_qlist_t* const	p_list )
+cl_qpool_put_list(IN cl_qpool_t * const p_pool, IN cl_qlist_t * const p_list)
 {
-	CL_ASSERT( p_pool );
-	cl_qcpool_put_list( &p_pool->qcpool, p_list );
+	CL_ASSERT(p_pool);
+	cl_qcpool_put_list(&p_pool->qcpool, p_list);
 }
+
 /*
 * PARAMETERS
 *	p_pool
@@ -589,13 +576,12 @@ cl_qpool_put_list(
 * SYNOPSIS
 */
 static inline cl_status_t
-cl_qpool_grow(
-	IN	cl_qpool_t* const	p_pool,
-	IN	const size_t		obj_count )
+cl_qpool_grow(IN cl_qpool_t * const p_pool, IN const size_t obj_count)
 {
-	CL_ASSERT( p_pool );
-	return( cl_qcpool_grow( &p_pool->qcpool, obj_count ) );
+	CL_ASSERT(p_pool);
+	return (cl_qcpool_grow(&p_pool->qcpool, obj_count));
 }
+
 /*
 * PARAMETERS
 *	p_pool
@@ -623,5 +609,4 @@ cl_qpool_grow(
 *********/
 
 END_C_DECLS
-
-#endif	/* _CL_QUICK_POOL_H_ */
+#endif				/* _CL_QUICK_POOL_H_ */

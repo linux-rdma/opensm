@@ -51,13 +51,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****d* Component Library: Math/MAX
 * NAME
 *	MAX
@@ -84,7 +83,6 @@ BEGIN_C_DECLS
 #ifndef MAX
 #define MAX(x,y)	((x) > (y) ? (x) : (y))
 #endif
-
 /****d* Component Library: Math/MIN
 * NAME
 *	MIN
@@ -111,7 +109,6 @@ BEGIN_C_DECLS
 #ifndef MIN
 #define MIN(x,y)	((x) < (y) ? (x) : (y))
 #endif
-
 /****d* Component Library: Math/ROUNDUP
 * NAME
 *	ROUNDUP
@@ -142,7 +139,5 @@ BEGIN_C_DECLS
 #define ROUNDUP(val, align)	\
 	((((val) / (align))*(align)) + (((val) % (align)) ? (align) : 0))
 #endif
-
-END_C_DECLS
-
-#endif /* _CL_MATH_H_ */
+    END_C_DECLS
+#endif				/* _CL_MATH_H_ */

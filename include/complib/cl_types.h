@@ -53,34 +53,32 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 #include <complib/cl_types_osd.h>
 #include <stddef.h>
-
-typedef uint16_t		net16_t;
-typedef uint32_t		net32_t;
-typedef uint64_t		net64_t;
+typedef uint16_t net16_t;
+typedef uint32_t net32_t;
+typedef uint64_t net64_t;
 
 /* explicit cast of void* to uint32_t */
 #ifndef ASSERT_VOIDP2UINTN
 #if __WORDSIZE == 64
 #define ASSERT_VOIDP2UINTN(var) \
         CL_ASSERT( (intptr_t)var <= 0xffffffffffffffffL )
-#else /*  __WORDSIZE == 64 */
+#else				/*  __WORDSIZE == 64 */
 #if __WORDSIZE == 32
   /* need to cast carefully to avoid the warining of un-needed check */
 #define ASSERT_VOIDP2UINTN(var) \
         CL_ASSERT( (intptr_t)var <= 0x100000000ULL )
-#else /*  __WORDSIZE == 32 */
+#else				/*  __WORDSIZE == 32 */
 #error "Need to know WORDSIZE to tell how to cast to unsigned long int"
-#endif /*  __WORDSIZE == 32 */
-#endif /*  __WORDSIZE == 64 */
+#endif				/*  __WORDSIZE == 32 */
+#endif				/*  __WORDSIZE == 64 */
 #endif
 
 /* explicit casting of void* to long */
@@ -188,10 +186,10 @@ typedef uint64_t		net64_t;
 *	keyword, if used, follows the parameter name.
 *********/
 #ifndef		IN
-#define		IN			/* Function input parameter */
+#define		IN		/* Function input parameter */
 #endif
 #ifndef		OUT
-#define		OUT			/* Function output parameter */
+#define		OUT		/* Function output parameter */
 #endif
 #ifndef		OPTIONAL
 #define		OPTIONAL	/* Optional function parameter - NULL if not used */
@@ -278,8 +276,7 @@ typedef uint64_t		net64_t;
 *
 * SYNOPSIS
 */
-typedef enum _cl_status
-{
+typedef enum _cl_status {
 	CL_SUCCESS = 0,
 	CL_ERROR,
 	CL_INVALID_STATE,
@@ -302,8 +299,7 @@ typedef enum _cl_status
 	CL_DISCONNECT,
 	CL_DUPLICATE,
 
-	CL_STATUS_COUNT			/* should be the last value */
-
+	CL_STATUS_COUNT		/* should be the last value */
 } cl_status_t;
 /*
 * SEE ALSO
@@ -311,7 +307,7 @@ typedef enum _cl_status
 *********/
 
 /* Status values above converted to text for easier printing. */
-extern const char* cl_status_text[];
+extern const char *cl_status_text[];
 
 #ifndef cl_panic
 /****f* Component Library: Error Trapping/cl_panic
@@ -324,10 +320,7 @@ extern const char* cl_status_text[];
 *
 * SYNOPSIS
 */
-void
-cl_panic(
-	IN	const char* const	message,
-	IN	... );
+void cl_panic(IN const char *const message, IN ...);
 /*
 * PARAMETERS
 *	message
@@ -346,7 +339,7 @@ cl_panic(
 *
 *	cl_panic sends the message to the current message logging target.
 *********/
-#endif	/* cl_panic */
+#endif				/* cl_panic */
 
 /****d* Component Library: Data Types/CL_STATUS_MSG
 * NAME
@@ -382,11 +375,11 @@ cl_panic(
 
 #if !defined( FALSE )
 #define FALSE	0
-#endif	/* !defined( TRUE ) */
+#endif				/* !defined( TRUE ) */
 
 #if !defined( TRUE )
 #define TRUE	(!FALSE)
-#endif	/* !defined( TRUE ) */
+#endif				/* !defined( TRUE ) */
 
 /****d* Component Library: Unreferenced Parameters/UNUSED_PARAM
 * NAME
@@ -415,13 +408,11 @@ cl_panic(
 *
 * SYNOPSIS
 */
-typedef enum _cl_state
-{
+typedef enum _cl_state {
 	CL_UNINITIALIZED = 1,
 	CL_INITIALIZED,
 	CL_DESTROYING,
 	CL_DESTROYED
-
 } cl_state_t;
 /*
 * VALUES
@@ -449,13 +440,12 @@ typedef enum _cl_state
 *
 * SYNOPSIS
 */
-static inline boolean_t
-cl_is_state_valid(
-	IN	const cl_state_t	state )
+static inline boolean_t cl_is_state_valid(IN const cl_state_t state)
 {
-	return( (state == CL_UNINITIALIZED) || (state == CL_INITIALIZED) ||
-		(state == CL_DESTROYING) || (state == CL_DESTROYED) );
+	return ((state == CL_UNINITIALIZED) || (state == CL_INITIALIZED) ||
+		(state == CL_DESTROYING) || (state == CL_DESTROYED));
 }
+
 /*
 * PARAMETERS
 *	state
@@ -476,5 +466,4 @@ cl_is_state_valid(
 *********/
 
 END_C_DECLS
-
-#endif /* _DATA_TYPES_H_ */
+#endif				/* _DATA_TYPES_H_ */

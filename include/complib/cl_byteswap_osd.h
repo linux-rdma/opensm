@@ -55,36 +55,26 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 #if __BYTE_ORDER == __LITTLE_ENDIAN
 #define cl_ntoh16(x)	bswap_16(x)
 #define cl_hton16(x)	bswap_16(x)
-
 #define cl_ntoh32(x)	bswap_32(x)
 #define cl_hton32(x)	bswap_32(x)
-
 #define cl_ntoh64(x)	(uint64_t)bswap_64(x)
 #define cl_hton64(x)	(uint64_t)bswap_64(x)
-
-#else /* Big Endian */
-
+#else				/* Big Endian */
 #define cl_ntoh16(x)	(x)
 #define cl_hton16(x)	(x)
-
 #define cl_ntoh32(x)	(x)
 #define cl_hton32(x)	(x)
-
 #define cl_ntoh64(x)	(x)
 #define cl_hton64(x)	(x)
-
 #endif
-
-END_C_DECLS
-
-#endif	/* _CL_BYTESWAP_OSD_H_ */
+    END_C_DECLS
+#endif				/* _CL_BYTESWAP_OSD_H_ */

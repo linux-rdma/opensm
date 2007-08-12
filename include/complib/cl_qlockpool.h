@@ -53,13 +53,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* Component Library/Quick Locking Pool
 * NAME
 *	Quick Locking Pool
@@ -80,7 +79,6 @@ BEGIN_C_DECLS
 *	Manipulation
 *		cl_qlock_pool_get, cl_qlock_pool_put
 *********/
-
 /****s* Component Library: Quick Locking Pool/cl_qlock_pool_t
 * NAME
 *	cl_qlock_pool_t
@@ -93,10 +91,9 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _cl_qlock_pool
-{
-	cl_spinlock_t				lock;
-	cl_qpool_t					pool;
+    typedef struct _cl_qlock_pool {
+	cl_spinlock_t lock;
+	cl_qpool_t pool;
 
 } cl_qlock_pool_t;
 /*
@@ -120,12 +117,10 @@ typedef struct _cl_qlock_pool
 *
 * SYNOPSIS
 */
-static inline void
-cl_qlock_pool_construct(
-	IN cl_qlock_pool_t* const p_pool )
+static inline void cl_qlock_pool_construct(IN cl_qlock_pool_t * const p_pool)
 {
-	cl_qpool_construct( &p_pool->pool );
-	cl_spinlock_construct( &p_pool->lock );
+	cl_qpool_construct(&p_pool->pool);
+	cl_spinlock_construct(&p_pool->lock);
 }
 
 /*
@@ -156,25 +151,22 @@ cl_qlock_pool_construct(
 *
 * SYNOPSIS
 */
-static inline void
-cl_qlock_pool_destroy(
-	IN cl_qlock_pool_t* const p_pool )
+static inline void cl_qlock_pool_destroy(IN cl_qlock_pool_t * const p_pool)
 {
 	/*
-		If the pool has already been put into use, grab the lock
-		to sync with other threads before we blow everything away.
-	*/
-	if( cl_is_qpool_inited( &p_pool->pool ) )
-	{
-		cl_spinlock_acquire( &p_pool->lock );
-		cl_qpool_destroy( &p_pool->pool );
-		cl_spinlock_release( &p_pool->lock );
-	}
-	else
-		cl_qpool_destroy( &p_pool->pool );
+	   If the pool has already been put into use, grab the lock
+	   to sync with other threads before we blow everything away.
+	 */
+	if (cl_is_qpool_inited(&p_pool->pool)) {
+		cl_spinlock_acquire(&p_pool->lock);
+		cl_qpool_destroy(&p_pool->pool);
+		cl_spinlock_release(&p_pool->lock);
+	} else
+		cl_qpool_destroy(&p_pool->pool);
 
-	cl_spinlock_destroy( &p_pool->lock );
+	cl_spinlock_destroy(&p_pool->lock);
 }
+
 /*
 * PARAMETERS
 *	p_pool
@@ -203,29 +195,30 @@ cl_qlock_pool_destroy(
 * SYNOPSIS
 */
 static inline cl_status_t
-cl_qlock_pool_init(
-	IN cl_qlock_pool_t*			const p_pool,
-	IN	const size_t			min_size,
-	IN	const size_t			max_size,
-	IN	const size_t			grow_size,
-	IN	const size_t			object_size,
-	IN	cl_pfn_qpool_init_t		pfn_initializer OPTIONAL,
-	IN	cl_pfn_qpool_dtor_t		pfn_destructor OPTIONAL,
-	IN	const void* const		context )
+cl_qlock_pool_init(IN cl_qlock_pool_t * const p_pool,
+		   IN const size_t min_size,
+		   IN const size_t max_size,
+		   IN const size_t grow_size,
+		   IN const size_t object_size,
+		   IN cl_pfn_qpool_init_t pfn_initializer OPTIONAL,
+		   IN cl_pfn_qpool_dtor_t pfn_destructor OPTIONAL,
+		   IN const void *const context)
 {
 	cl_status_t status;
 
-	cl_qlock_pool_construct( p_pool );
+	cl_qlock_pool_construct(p_pool);
 
-	status = cl_spinlock_init( &p_pool->lock );
-	if( status )
-		return( status );
+	status = cl_spinlock_init(&p_pool->lock);
+	if (status)
+		return (status);
 
-	status = cl_qpool_init( &p_pool->pool, min_size, max_size, grow_size,
-			object_size, pfn_initializer, pfn_destructor, context );
+	status = cl_qpool_init(&p_pool->pool, min_size, max_size, grow_size,
+			       object_size, pfn_initializer, pfn_destructor,
+			       context);
 
-	return( status );
+	return (status);
 }
+
 /*
 * PARAMETERS
 *	p_pool
@@ -292,15 +285,14 @@ cl_qlock_pool_init(
 *
 * SYNOPSIS
 */
-static inline cl_pool_item_t*
-cl_qlock_pool_get(
-	IN cl_qlock_pool_t* const p_pool )
+static inline cl_pool_item_t *cl_qlock_pool_get(IN cl_qlock_pool_t *
+						const p_pool)
 {
-	cl_pool_item_t* p_item;
-	cl_spinlock_acquire( &p_pool->lock );
-	p_item = cl_qpool_get( &p_pool->pool );
-	cl_spinlock_release( &p_pool->lock );
-	return( p_item );
+	cl_pool_item_t *p_item;
+	cl_spinlock_acquire(&p_pool->lock);
+	p_item = cl_qpool_get(&p_pool->pool);
+	cl_spinlock_release(&p_pool->lock);
+	return (p_item);
 }
 
 /*
@@ -332,14 +324,14 @@ cl_qlock_pool_get(
 * SYNOPSIS
 */
 static inline void
-cl_qlock_pool_put(
-	IN cl_qlock_pool_t* const p_pool,
-	IN cl_pool_item_t* const p_item )
+cl_qlock_pool_put(IN cl_qlock_pool_t * const p_pool,
+		  IN cl_pool_item_t * const p_item)
 {
-	cl_spinlock_acquire( &p_pool->lock );
-	cl_qpool_put( &p_pool->pool, p_item );
-	cl_spinlock_release( &p_pool->lock );
+	cl_spinlock_acquire(&p_pool->lock);
+	cl_qpool_put(&p_pool->pool, p_item);
+	cl_spinlock_release(&p_pool->lock);
 }
+
 /*
 * PARAMETERS
 *	p_pool
@@ -361,5 +353,4 @@ cl_qlock_pool_put(
 *********/
 
 END_C_DECLS
-
-#endif	/* _CL_QLOCKPOOL_H_ */
+#endif				/* _CL_QLOCKPOOL_H_ */

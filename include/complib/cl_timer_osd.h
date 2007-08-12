@@ -52,44 +52,36 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 #include <complib/cl_qlist.h>
 #include <pthread.h>
-
-typedef enum _cl_timer_state
-{
+    typedef enum _cl_timer_state {
 	CL_TIMER_IDLE,
 	CL_TIMER_QUEUED,
 	CL_TIMER_RUNNING
-
 } cl_timer_state_t;
 
-typedef struct _cl_timer_t
-{
-	cl_list_item_t			list_item;
-	cl_timer_state_t		timer_state;
-	cl_state_t			state;
-	cl_pfn_timer_callback_t		pfn_callback;
-	const void			*context;
-	pthread_cond_t			cond;
-	struct timespec			timeout;
+typedef struct _cl_timer_t {
+	cl_list_item_t list_item;
+	cl_timer_state_t timer_state;
+	cl_state_t state;
+	cl_pfn_timer_callback_t pfn_callback;
+	const void *context;
+	pthread_cond_t cond;
+	struct timespec timeout;
 
 } cl_timer_t;
 
 /* Internal functions to create the timer provider. */
-cl_status_t
-__cl_timer_prov_create( void );
+cl_status_t __cl_timer_prov_create(void);
 
 /* Internal function to destroy the timer provider. */
-void
-__cl_timer_prov_destroy( void );
+void __cl_timer_prov_destroy(void);
 
 END_C_DECLS
-
-#endif	/* _CL_TIMER_OSD_H_ */
+#endif				/* _CL_TIMER_OSD_H_ */

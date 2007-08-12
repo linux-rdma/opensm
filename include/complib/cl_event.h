@@ -54,13 +54,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* Component Library/Event
 * NAME
 *	Event
@@ -82,7 +81,6 @@ BEGIN_C_DECLS
 *	Manipulation:
 *		cl_event_signal, cl_event_reset, cl_event_wait_on
 *********/
-
 /****f* Component Library: Event/cl_event_construct
 * NAME
 *	cl_event_construct
@@ -92,9 +90,7 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-void
-cl_event_construct(
-	IN	cl_event_t* const	p_event );
+void cl_event_construct(IN cl_event_t * const p_event);
 /*
 * PARAMETERS
 *	p_event
@@ -123,9 +119,7 @@ cl_event_construct(
 * SYNOPSIS
 */
 cl_status_t
-cl_event_init(
-	IN	cl_event_t* const	p_event,
-	IN	const boolean_t		manual_reset );
+cl_event_init(IN cl_event_t * const p_event, IN const boolean_t manual_reset);
 /*
 * PARAMETERS
 *	p_event
@@ -161,9 +155,7 @@ cl_event_init(
 *
 * SYNOPSIS
 */
-void
-cl_event_destroy(
-	IN	cl_event_t* const	p_event );
+void cl_event_destroy(IN cl_event_t * const p_event);
 
 /*
 * PARAMETERS
@@ -191,9 +183,7 @@ cl_event_destroy(
 *
 * SYNOPSIS
 */
-cl_status_t
-cl_event_signal(
-	IN	cl_event_t* const	p_event );
+cl_status_t cl_event_signal(IN cl_event_t * const p_event);
 /*
 * PARAMETERS
 *	p_event
@@ -226,9 +216,7 @@ cl_event_signal(
 *
 * SYNOPSIS
 */
-cl_status_t
-cl_event_reset(
-	IN	cl_event_t* const	p_event );
+cl_status_t cl_event_reset(IN cl_event_t * const p_event);
 /*
 * PARAMETERS
 *	p_event
@@ -254,10 +242,8 @@ cl_event_reset(
 * SYNOPSIS
 */
 cl_status_t
-cl_event_wait_on(
-	IN	cl_event_t* const	p_event,
-	IN	const uint32_t		wait_us,
-	IN	const boolean_t		interruptible );
+cl_event_wait_on(IN cl_event_t * const p_event,
+		 IN const uint32_t wait_us, IN const boolean_t interruptible);
 /*
 * PARAMETERS
 *	p_event
@@ -295,5 +281,4 @@ cl_event_wait_on(
 *********/
 
 END_C_DECLS
-
-#endif /* _CL_EVENT_H_ */
+#endif				/* _CL_EVENT_H_ */

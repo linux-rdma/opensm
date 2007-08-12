@@ -51,13 +51,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* Component Library/Quick List
 * NAME
 *	Quick List
@@ -110,7 +109,6 @@ BEGIN_C_DECLS
 *	Attributes:
 *		cl_qlist_count, cl_is_qlist_empty
 *********/
-
 /****s* Component Library: Quick List/cl_list_item_t
 * NAME
 *	cl_list_item_t
@@ -120,12 +118,11 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _cl_list_item
-{
-	struct _cl_list_item	*p_next;
-	struct _cl_list_item	*p_prev;
+    typedef struct _cl_list_item {
+	struct _cl_list_item *p_next;
+	struct _cl_list_item *p_prev;
 #ifdef _DEBUG_
-	struct _cl_qlist		*p_list;
+	struct _cl_qlist *p_list;
 #endif
 
 } cl_list_item_t;
@@ -150,10 +147,9 @@ typedef struct _cl_list_item
 *
 * SYNOPSIS
 */
-typedef struct _cl_list_obj
-{
-	cl_list_item_t		list_item;
-	const void			*p_object;		/* User's context */
+typedef struct _cl_list_obj {
+	cl_list_item_t list_item;
+	const void *p_object;	/* User's context */
 
 } cl_list_obj_t;
 /*
@@ -186,11 +182,10 @@ typedef struct _cl_list_obj
 *
 * SYNOPSIS
 */
-typedef struct _cl_qlist
-{
-	cl_list_item_t	end;
-	size_t			count;
-	cl_state_t		state;
+typedef struct _cl_qlist {
+	cl_list_item_t end;
+	size_t count;
+	cl_state_t state;
 
 } cl_qlist_t;
 /*
@@ -219,9 +214,8 @@ typedef struct _cl_qlist
 * SYNOPSIS
 */
 typedef void
-(*cl_pfn_qlist_apply_t)(
-	IN	cl_list_item_t* const	p_list_item,
-	IN	void*					context );
+ (*cl_pfn_qlist_apply_t) (IN cl_list_item_t * const p_list_item,
+			  IN void *context);
 /*
 * PARAMETERS
 *	p_list_item
@@ -253,9 +247,8 @@ typedef void
 * SYNOPSIS
 */
 typedef cl_status_t
-(*cl_pfn_qlist_find_t)(
-	IN	const cl_list_item_t* const	p_list_item,
-	IN	void*						context );
+    (*cl_pfn_qlist_find_t) (IN const cl_list_item_t * const p_list_item,
+			    IN void *context);
 /*
 * PARAMETERS
 *	p_list_item
@@ -291,20 +284,20 @@ typedef cl_status_t
 * SYNOPSIS
 */
 static inline void
-__cl_primitive_insert(
-	IN	cl_list_item_t* const	p_list_item,
-	IN	cl_list_item_t* const	p_new_item )
+__cl_primitive_insert(IN cl_list_item_t * const p_list_item,
+		      IN cl_list_item_t * const p_new_item)
 {
 	/* CL_ASSERT that a non-null pointer is provided. */
-	CL_ASSERT( p_list_item );
+	CL_ASSERT(p_list_item);
 	/* CL_ASSERT that a non-null pointer is provided. */
-	CL_ASSERT( p_new_item );
+	CL_ASSERT(p_new_item);
 
 	p_new_item->p_next = p_list_item;
 	p_new_item->p_prev = p_list_item->p_prev;
 	p_list_item->p_prev = p_new_item;
 	p_new_item->p_prev->p_next = p_new_item;
 }
+
 /*
 * PARAMETERS
 *	p_list_item
@@ -327,27 +320,25 @@ __cl_primitive_insert(
 *
 * SYNOPSIS
 */
-static inline void
-__cl_primitive_remove(
-	IN	cl_list_item_t* const	p_list_item )
+static inline void __cl_primitive_remove(IN cl_list_item_t * const p_list_item)
 {
 	/* CL_ASSERT that a non-null pointer is provided. */
-	CL_ASSERT( p_list_item );
+	CL_ASSERT(p_list_item);
 
 	/* set the back pointer */
-	p_list_item->p_next->p_prev= p_list_item->p_prev;
+	p_list_item->p_next->p_prev = p_list_item->p_prev;
 	/* set the next pointer */
-	p_list_item->p_prev->p_next= p_list_item->p_next;
+	p_list_item->p_prev->p_next = p_list_item->p_next;
 
 	/* if we're debugging, spruce up the pointers to help find bugs */
 #if defined( _DEBUG_ )
-	if( p_list_item != p_list_item->p_next )
-	{
+	if (p_list_item != p_list_item->p_next) {
 		p_list_item->p_next = NULL;
 		p_list_item->p_prev = NULL;
 	}
-#endif	/* defined( _DEBUG_ ) */
+#endif				/* defined( _DEBUG_ ) */
 }
+
 /*
 * PARAMETERS
 *	p_list_item
@@ -371,14 +362,14 @@ __cl_primitive_remove(
 * SYNOPSIS
 */
 static inline void
-cl_qlist_set_obj(
-	IN	cl_list_obj_t* const	p_list_obj,
-	IN	const void* const		p_object )
+cl_qlist_set_obj(IN cl_list_obj_t * const p_list_obj,
+		 IN const void *const p_object)
 {
 	/* CL_ASSERT that a non-null pointer is provided. */
-	CL_ASSERT( p_list_obj );
+	CL_ASSERT(p_list_obj);
 	p_list_obj->p_object = p_object;
 }
+
 /*
 * PARAMETERS
 *	p_list_obj
@@ -403,15 +394,14 @@ cl_qlist_set_obj(
 *
 * SYNOPSIS
 */
-static inline void*
-cl_qlist_obj(
-	IN	const cl_list_obj_t* const	p_list_obj )
+static inline void *cl_qlist_obj(IN const cl_list_obj_t * const p_list_obj)
 {
 	/* CL_ASSERT that a non-null pointer is provided. */
-	CL_ASSERT( p_list_obj );
+	CL_ASSERT(p_list_obj);
 
-	return( (void*)p_list_obj->p_object );
+	return ((void *)p_list_obj->p_object);
 }
+
 /*
 * PARAMETERS
 *	p_list_obj
@@ -424,9 +414,7 @@ cl_qlist_obj(
 *	Quick List, cl_qlist_set_obj
 *********/
 
-static inline void
-__cl_qlist_reset(
-	IN	cl_qlist_t* const	p_list )
+static inline void __cl_qlist_reset(IN cl_qlist_t * const p_list)
 {
 	/* Point the end item to itself. */
 	p_list->end.p_next = &p_list->end;
@@ -448,18 +436,17 @@ __cl_qlist_reset(
 *
 * SYNOPSIS
 */
-static inline void
-cl_qlist_init(
-	IN	cl_qlist_t* const	p_list )
+static inline void cl_qlist_init(IN cl_qlist_t * const p_list)
 {
 	/* CL_ASSERT that a non-null pointer is provided. */
-	CL_ASSERT( p_list );
+	CL_ASSERT(p_list);
 
 	p_list->state = CL_INITIALIZED;
 
 	/* Reset the quick list data structure. */
-	__cl_qlist_reset( p_list );
+	__cl_qlist_reset(p_list);
 }
+
 /*
 * PARAMETERS
 *	p_list
@@ -486,17 +473,16 @@ cl_qlist_init(
 *
 * SYNOPSIS
 */
-static inline uint32_t
-cl_qlist_count(
-	IN	const cl_qlist_t* const	p_list )
+static inline uint32_t cl_qlist_count(IN const cl_qlist_t * const p_list)
 {
 	/* CL_ASSERT that a non-null pointer is provided. */
-	CL_ASSERT( p_list );
+	CL_ASSERT(p_list);
 	/* CL_ASSERT that the list was initialized. */
-	CL_ASSERT( p_list->state == CL_INITIALIZED );
-	return( (uint32_t)p_list->count );
+	CL_ASSERT(p_list->state == CL_INITIALIZED);
+	return ((uint32_t) p_list->count);
 
 }
+
 /*
 * PARAMETERS
 *	p_list
@@ -519,17 +505,16 @@ cl_qlist_count(
 *
 * SYNOPSIS
 */
-static inline boolean_t
-cl_is_qlist_empty(
-	IN	const cl_qlist_t* const	p_list )
+static inline boolean_t cl_is_qlist_empty(IN const cl_qlist_t * const p_list)
 {
 	/* CL_ASSERT that a non-null pointer is provided. */
-	CL_ASSERT( p_list );
+	CL_ASSERT(p_list);
 	/* CL_ASSERT that the list was initialized. */
-	CL_ASSERT( p_list->state == CL_INITIALIZED );
+	CL_ASSERT(p_list->state == CL_INITIALIZED);
 
-	return( !cl_qlist_count( p_list ) );
+	return (!cl_qlist_count(p_list));
 }
+
 /*
 * PARAMETERS
 *	p_list
@@ -554,18 +539,18 @@ cl_is_qlist_empty(
 *
 * SYNOPSIS
 */
-static inline cl_list_item_t*
-cl_qlist_next(
-	IN	const cl_list_item_t* const	p_list_item )
+static inline cl_list_item_t *cl_qlist_next(IN const cl_list_item_t *
+					    const p_list_item)
 {
 	/* CL_ASSERT that a non-null pointer is provided. */
-	CL_ASSERT( p_list_item );
+	CL_ASSERT(p_list_item);
 	/* CL_ASSERT that the list was initialized. */
-	CL_ASSERT( p_list_item->p_list->state == CL_INITIALIZED );
+	CL_ASSERT(p_list_item->p_list->state == CL_INITIALIZED);
 
 	/* Return the next item. */
-	return( p_list_item->p_next );
+	return (p_list_item->p_next);
 }
+
 /*
 * PARAMETERS
 *	p_list_item
@@ -592,18 +577,18 @@ cl_qlist_next(
 *
 * SYNOPSIS
 */
-static inline cl_list_item_t*
-cl_qlist_prev(
-	IN	const cl_list_item_t* const	p_list_item )
+static inline cl_list_item_t *cl_qlist_prev(IN const cl_list_item_t *
+					    const p_list_item)
 {
 	/* CL_ASSERT that a non-null pointer is provided. */
-	CL_ASSERT( p_list_item );
+	CL_ASSERT(p_list_item);
 	/* CL_ASSERT that the list was initialized. */
-	CL_ASSERT( p_list_item->p_list->state == CL_INITIALIZED );
+	CL_ASSERT(p_list_item->p_list->state == CL_INITIALIZED);
 
 	/* Return the previous item. */
-	return( p_list_item->p_prev );
+	return (p_list_item->p_prev);
 }
+
 /*
 * PARAMETERS
 *	p_list_item
@@ -630,17 +615,16 @@ cl_qlist_prev(
 *
 * SYNOPSIS
 */
-static inline cl_list_item_t*
-cl_qlist_head(
-	IN	const cl_qlist_t* const	p_list )
+static inline cl_list_item_t *cl_qlist_head(IN const cl_qlist_t * const p_list)
 {
 	/* CL_ASSERT that a non-null pointer is provided. */
-	CL_ASSERT( p_list );
+	CL_ASSERT(p_list);
 	/* CL_ASSERT that the list was initialized. */
-	CL_ASSERT( p_list->state == CL_INITIALIZED );
+	CL_ASSERT(p_list->state == CL_INITIALIZED);
 
-	return( cl_qlist_next( &p_list->end ) );
+	return (cl_qlist_next(&p_list->end));
 }
+
 /*
 * PARAMETERS
 *	p_list
@@ -669,17 +653,16 @@ cl_qlist_head(
 *
 * SYNOPSIS
 */
-static inline cl_list_item_t*
-cl_qlist_tail(
-	IN	const cl_qlist_t* const	p_list )
+static inline cl_list_item_t *cl_qlist_tail(IN const cl_qlist_t * const p_list)
 {
 	/* CL_ASSERT that a non-null pointer is provided. */
-	CL_ASSERT( p_list );
+	CL_ASSERT(p_list);
 	/* CL_ASSERT that the list was initialized. */
-	CL_ASSERT( p_list->state == CL_INITIALIZED );
+	CL_ASSERT(p_list->state == CL_INITIALIZED);
 
-	return( cl_qlist_prev( &p_list->end ) );
+	return (cl_qlist_prev(&p_list->end));
 }
+
 /*
 * PARAMETERS
 *	p_list
@@ -707,17 +690,17 @@ cl_qlist_tail(
 *
 * SYNOPSIS
 */
-static inline const cl_list_item_t*
-cl_qlist_end(
-	IN	const cl_qlist_t* const	p_list )
+static inline const cl_list_item_t *cl_qlist_end(IN const cl_qlist_t *
+						 const p_list)
 {
 	/* CL_ASSERT that a non-null pointer is provided. */
-	CL_ASSERT( p_list );
+	CL_ASSERT(p_list);
 	/* CL_ASSERT that the list was initialized. */
-	CL_ASSERT( p_list->state == CL_INITIALIZED );
+	CL_ASSERT(p_list->state == CL_INITIALIZED);
 
-	return( &p_list->end );
+	return (&p_list->end);
 }
+
 /*
 * PARAMETERS
 *	p_list
@@ -750,16 +733,15 @@ cl_qlist_end(
 * SYNOPSIS
 */
 static inline void
-cl_qlist_insert_head(
-	IN	cl_qlist_t* const		p_list,
-	IN	cl_list_item_t* const	p_list_item )
+cl_qlist_insert_head(IN cl_qlist_t * const p_list,
+		     IN cl_list_item_t * const p_list_item)
 {
 	/* CL_ASSERT that a non-null pointer is provided. */
-	CL_ASSERT( p_list );
+	CL_ASSERT(p_list);
 	/* CL_ASSERT that a non-null pointer is provided. */
-	CL_ASSERT( p_list_item );
+	CL_ASSERT(p_list_item);
 	/* CL_ASSERT that the list was initialized. */
-	CL_ASSERT( p_list->state == CL_INITIALIZED );
+	CL_ASSERT(p_list->state == CL_INITIALIZED);
 
 	/*
 	 * The list item must not already be part of the list.  Note that this
@@ -767,17 +749,18 @@ cl_qlist_insert_head(
 	 * list pointer equal to the specified list.  The chances of this
 	 * happening are acceptable in light of the value of this check.
 	 */
-	CL_ASSERT( p_list_item->p_list != p_list );
+	CL_ASSERT(p_list_item->p_list != p_list);
 
 #if defined( _DEBUG_ )
 	p_list_item->p_list = p_list;
 #endif
 
 	/* Insert before the head. */
-	__cl_primitive_insert( cl_qlist_head( p_list ), p_list_item );
+	__cl_primitive_insert(cl_qlist_head(p_list), p_list_item);
 
 	p_list->count++;
 }
+
 /*
 * PARAMETERS
 *	p_list
@@ -811,16 +794,15 @@ cl_qlist_insert_head(
 * SYNOPSIS
 */
 static inline void
-cl_qlist_insert_tail(
-	IN	cl_qlist_t* const		p_list,
-	IN	cl_list_item_t* const	p_list_item )
+cl_qlist_insert_tail(IN cl_qlist_t * const p_list,
+		     IN cl_list_item_t * const p_list_item)
 {
 	/* CL_ASSERT that a non-null pointer is provided. */
-	CL_ASSERT( p_list );
+	CL_ASSERT(p_list);
 	/* CL_ASSERT that a non-null pointer is provided. */
-	CL_ASSERT( p_list_item );
+	CL_ASSERT(p_list_item);
 	/* CL_ASSERT that the list was initialized. */
-	CL_ASSERT( p_list->state == CL_INITIALIZED );
+	CL_ASSERT(p_list->state == CL_INITIALIZED);
 
 	/*
 	 * The list item must not already be part of the list.  Note that this
@@ -828,7 +810,7 @@ cl_qlist_insert_tail(
 	 * list pointer equal to the specified list.  The chances of this
 	 * happening are acceptable in light of the value of this check.
 	 */
-	CL_ASSERT( p_list_item->p_list != p_list );
+	CL_ASSERT(p_list_item->p_list != p_list);
 
 #if defined( _DEBUG_ )
 	p_list_item->p_list = p_list;
@@ -838,10 +820,11 @@ cl_qlist_insert_tail(
 	 * Put the new element in front of the end which is the same
 	 * as being at the tail
 	 */
-	__cl_primitive_insert( &p_list->end, p_list_item );
+	__cl_primitive_insert(&p_list->end, p_list_item);
 
 	p_list->count++;
 }
+
 /*
 * PARAMETERS
 *	p_list
@@ -875,9 +858,8 @@ cl_qlist_insert_tail(
 * SYNOPSIS
 */
 void
-cl_qlist_insert_list_head(
-	IN	cl_qlist_t* const	p_dest_list,
-	IN	cl_qlist_t* const	p_src_list );
+cl_qlist_insert_list_head(IN cl_qlist_t * const p_dest_list,
+			  IN cl_qlist_t * const p_src_list);
 /*
 * PARAMETERS
 *	p_dest_list
@@ -914,9 +896,8 @@ cl_qlist_insert_list_head(
 * SYNOPSIS
 */
 void
-cl_qlist_insert_list_tail(
-	IN	cl_qlist_t* const	p_dest_list,
-	IN	cl_qlist_t* const	p_src_list );
+cl_qlist_insert_list_tail(IN cl_qlist_t * const p_dest_list,
+			  IN cl_qlist_t * const p_src_list);
 /*
 * PARAMETERS
 *	p_dest_list
@@ -953,11 +934,9 @@ cl_qlist_insert_list_tail(
 * SYNOPSIS
 */
 void
-cl_qlist_insert_array_head(
-	IN	cl_qlist_t* const		p_list,
-	IN	cl_list_item_t* const	p_array,
-	IN	uint32_t				item_count,
-	IN	const uint32_t			item_size );
+cl_qlist_insert_array_head(IN cl_qlist_t * const p_list,
+			   IN cl_list_item_t * const p_array,
+			   IN uint32_t item_count, IN const uint32_t item_size);
 /*
 * PARAMETERS
 *	p_list
@@ -1004,11 +983,9 @@ cl_qlist_insert_array_head(
 * SYNOPSIS
 */
 void
-cl_qlist_insert_array_tail(
-	IN	cl_qlist_t* const		p_list,
-	IN	cl_list_item_t* const	p_array,
-	IN	uint32_t				item_count,
-	IN	const uint32_t			item_size);
+cl_qlist_insert_array_tail(IN cl_qlist_t * const p_list,
+			   IN cl_list_item_t * const p_array,
+			   IN uint32_t item_count, IN const uint32_t item_size);
 /*
 * PARAMETERS
 *	p_list
@@ -1055,19 +1032,18 @@ cl_qlist_insert_array_tail(
 * SYNOPSIS
 */
 static inline void
-cl_qlist_insert_prev(
-	IN	cl_qlist_t* const		p_list,
-	IN	cl_list_item_t* const	p_list_item,
-	IN	cl_list_item_t* const	p_new_item )
+cl_qlist_insert_prev(IN cl_qlist_t * const p_list,
+		     IN cl_list_item_t * const p_list_item,
+		     IN cl_list_item_t * const p_new_item)
 {
 	/* CL_ASSERT that a non-null pointer is provided. */
-	CL_ASSERT( p_list );
+	CL_ASSERT(p_list);
 	/* CL_ASSERT that a non-null pointer is provided. */
-	CL_ASSERT( p_list_item );
+	CL_ASSERT(p_list_item);
 	/* CL_ASSERT that a non-null pointer is provided. */
-	CL_ASSERT( p_new_item );
+	CL_ASSERT(p_new_item);
 	/* CL_ASSERT that the list was initialized. */
-	CL_ASSERT( p_list->state == CL_INITIALIZED );
+	CL_ASSERT(p_list->state == CL_INITIALIZED);
 
 	/*
 	 * The list item must not already be part of the list.  Note that this
@@ -1075,16 +1051,17 @@ cl_qlist_insert_prev(
 	 * list pointer equal to the specified list.  The chances of this
 	 * happening are acceptable in light of the value of this check.
 	 */
-	CL_ASSERT( p_new_item->p_list != p_list );
+	CL_ASSERT(p_new_item->p_list != p_list);
 
 #if defined( _DEBUG_ )
 	p_new_item->p_list = p_list;
 #endif
 
-	__cl_primitive_insert( p_list_item, p_new_item );
+	__cl_primitive_insert(p_list_item, p_new_item);
 
 	p_list->count++;
 }
+
 /*
 * PARAMETERS
 *	p_list
@@ -1119,19 +1096,18 @@ cl_qlist_insert_prev(
 * SYNOPSIS
 */
 static inline void
-cl_qlist_insert_next(
-	IN	cl_qlist_t* const		p_list,
-	IN	cl_list_item_t* const	p_list_item,
-	IN	cl_list_item_t* const	p_new_item )
+cl_qlist_insert_next(IN cl_qlist_t * const p_list,
+		     IN cl_list_item_t * const p_list_item,
+		     IN cl_list_item_t * const p_new_item)
 {
 	/* CL_ASSERT that a non-null pointer is provided. */
-	CL_ASSERT( p_list );
+	CL_ASSERT(p_list);
 	/* CL_ASSERT that a non-null pointer is provided. */
-	CL_ASSERT( p_list_item );
+	CL_ASSERT(p_list_item);
 	/* CL_ASSERT that a non-null pointer is provided. */
-	CL_ASSERT( p_new_item );
+	CL_ASSERT(p_new_item);
 	/* CL_ASSERT that the list was initialized. */
-	CL_ASSERT( p_list->state == CL_INITIALIZED );
+	CL_ASSERT(p_list->state == CL_INITIALIZED);
 
 	/*
 	 * The list item must not already be part of the list.  Note that this
@@ -1139,16 +1115,17 @@ cl_qlist_insert_next(
 	 * list pointer equal to the specified list.  The chances of this
 	 * happening are acceptable in light of the value of this check.
 	 */
-	CL_ASSERT( p_new_item->p_list != p_list );
+	CL_ASSERT(p_new_item->p_list != p_list);
 
 #if defined( _DEBUG_ )
 	p_new_item->p_list = p_list;
 #endif
 
-	__cl_primitive_insert( cl_qlist_next( p_list_item ), p_new_item );
+	__cl_primitive_insert(cl_qlist_next(p_list_item), p_new_item);
 
 	p_list->count++;
 }
+
 /*
 * PARAMETERS
 *	p_list
@@ -1183,35 +1160,34 @@ cl_qlist_insert_next(
 *
 * SYNOPSIS
 */
-static inline cl_list_item_t*
-cl_qlist_remove_head(
-	IN	cl_qlist_t* const	p_list )
+static inline cl_list_item_t *cl_qlist_remove_head(IN cl_qlist_t * const p_list)
 {
-	cl_list_item_t	*p_item;
+	cl_list_item_t *p_item;
 
 	/* CL_ASSERT that a non-null pointer is provided. */
-	CL_ASSERT( p_list );
+	CL_ASSERT(p_list);
 	/* CL_ASSERT that the list was initialized. */
-	CL_ASSERT( p_list->state == CL_INITIALIZED );
+	CL_ASSERT(p_list->state == CL_INITIALIZED);
 
-	p_item = cl_qlist_head( p_list );
+	p_item = cl_qlist_head(p_list);
 	/* CL_ASSERT that the list item is part of the list. */
-	CL_ASSERT( p_item->p_list == p_list );
+	CL_ASSERT(p_item->p_list == p_list);
 
-	if( p_item == cl_qlist_end( p_list ) )
-		return( p_item );
+	if (p_item == cl_qlist_end(p_list))
+		return (p_item);
 
 #if defined( _DEBUG_ )
 	/* Clear the item's link to the list. */
 	p_item->p_list = NULL;
 #endif
 
-	__cl_primitive_remove( p_item );
+	__cl_primitive_remove(p_item);
 
 	p_list->count--;
 
-	return( p_item );
+	return (p_item);
 }
+
 /*
 * PARAMETERS
 *	p_list
@@ -1237,35 +1213,34 @@ cl_qlist_remove_head(
 *
 * SYNOPSIS
 */
-static inline cl_list_item_t*
-cl_qlist_remove_tail(
-	IN	cl_qlist_t* const	p_list )
+static inline cl_list_item_t *cl_qlist_remove_tail(IN cl_qlist_t * const p_list)
 {
-	cl_list_item_t	*p_item;
+	cl_list_item_t *p_item;
 
 	/* CL_ASSERT that a non-null pointer is provided. */
-	CL_ASSERT( p_list );
+	CL_ASSERT(p_list);
 	/* CL_ASSERT that the list was initialized. */
-	CL_ASSERT( p_list->state == CL_INITIALIZED );
+	CL_ASSERT(p_list->state == CL_INITIALIZED);
 
-	p_item = cl_qlist_tail( p_list );
+	p_item = cl_qlist_tail(p_list);
 	/* CL_ASSERT that the list item is part of the list. */
-	CL_ASSERT( p_item->p_list == p_list );
+	CL_ASSERT(p_item->p_list == p_list);
 
-	if( p_item == cl_qlist_end( p_list ) )
-		return( p_item );
+	if (p_item == cl_qlist_end(p_list))
+		return (p_item);
 
 #if defined( _DEBUG_ )
 	/* Clear the item's link to the list. */
 	p_item->p_list = NULL;
 #endif
 
-	__cl_primitive_remove( p_item );
+	__cl_primitive_remove(p_item);
 
 	p_list->count--;
 
-	return( p_item );
+	return (p_item);
 }
+
 /*
 * PARAMETERS
 *	p_list
@@ -1291,20 +1266,19 @@ cl_qlist_remove_tail(
 * SYNOPSIS
 */
 static inline void
-cl_qlist_remove_item(
-	IN	cl_qlist_t* const		p_list,
-	IN	cl_list_item_t* const	p_list_item )
+cl_qlist_remove_item(IN cl_qlist_t * const p_list,
+		     IN cl_list_item_t * const p_list_item)
 {
 	/* CL_ASSERT that a non-null pointer is provided. */
-	CL_ASSERT( p_list );
+	CL_ASSERT(p_list);
 	/* CL_ASSERT that a non-null pointer is provided. */
-	CL_ASSERT( p_list_item  );
+	CL_ASSERT(p_list_item);
 	/* CL_ASSERT that the list was initialized. */
-	CL_ASSERT( p_list->state == CL_INITIALIZED );
+	CL_ASSERT(p_list->state == CL_INITIALIZED);
 	/* CL_ASSERT that the list item is part of the list. */
-	CL_ASSERT( p_list_item->p_list == p_list );
+	CL_ASSERT(p_list_item->p_list == p_list);
 
-	if( p_list_item == cl_qlist_end( p_list ) )
+	if (p_list_item == cl_qlist_end(p_list))
 		return;
 
 #if defined( _DEBUG_ )
@@ -1312,10 +1286,11 @@ cl_qlist_remove_item(
 	p_list_item->p_list = NULL;
 #endif
 
-	__cl_primitive_remove( p_list_item );
+	__cl_primitive_remove(p_list_item);
 
 	p_list->count--;
 }
+
 /*
 * PARAMETERS
 *	p_list
@@ -1345,27 +1320,25 @@ cl_qlist_remove_item(
 *
 * SYNOPSIS
 */
-static inline void
-cl_qlist_remove_all(
-	IN	cl_qlist_t* const	p_list )
+static inline void cl_qlist_remove_all(IN cl_qlist_t * const p_list)
 {
 #if defined( _DEBUG_ )
-	cl_list_item_t	*p_list_item;
+	cl_list_item_t *p_list_item;
 
 	/* CL_ASSERT that a non-null pointer is provided. */
-	CL_ASSERT( p_list );
+	CL_ASSERT(p_list);
 	/* CL_ASSERT that the list was initialized. */
-	CL_ASSERT( p_list->state == CL_INITIALIZED );
-	p_list_item = cl_qlist_head( p_list );
-	while( p_list_item != cl_qlist_end( p_list ) )
-	{
-		p_list_item = cl_qlist_next( p_list_item );
-		cl_qlist_prev( p_list_item )->p_list = NULL;
+	CL_ASSERT(p_list->state == CL_INITIALIZED);
+	p_list_item = cl_qlist_head(p_list);
+	while (p_list_item != cl_qlist_end(p_list)) {
+		p_list_item = cl_qlist_next(p_list_item);
+		cl_qlist_prev(p_list_item)->p_list = NULL;
 	}
 #endif
 
-	__cl_qlist_reset( p_list );
+	__cl_qlist_reset(p_list);
 }
+
 /*
 * PARAMETERS
 *	p_list
@@ -1390,9 +1363,8 @@ cl_qlist_remove_all(
 * SYNOPSIS
 */
 boolean_t
-cl_is_item_in_qlist(
-	IN	const cl_qlist_t* const		p_list,
-	IN	const cl_list_item_t* const	p_list_item );
+cl_is_item_in_qlist(IN const cl_qlist_t * const p_list,
+		    IN const cl_list_item_t * const p_list_item);
 /*
 * PARAMETERS
 *	p_list
@@ -1420,12 +1392,10 @@ cl_is_item_in_qlist(
 *
 * SYNOPSIS
 */
-cl_list_item_t*
-cl_qlist_find_next(
-	IN	const cl_qlist_t* const		p_list,
-	IN	const cl_list_item_t* const	p_list_item,
-	IN	cl_pfn_qlist_find_t			pfn_func,
-	IN	const void* const			context );
+cl_list_item_t *cl_qlist_find_next(IN const cl_qlist_t * const p_list,
+				   IN const cl_list_item_t * const p_list_item,
+				   IN cl_pfn_qlist_find_t pfn_func,
+				   IN const void *const context);
 /*
 * PARAMETERS
 *	p_list
@@ -1474,12 +1444,10 @@ cl_qlist_find_next(
 *
 * SYNOPSIS
 */
-cl_list_item_t*
-cl_qlist_find_prev(
-	IN	const cl_qlist_t* const		p_list,
-	IN	const cl_list_item_t* const	p_list_item,
-	IN	cl_pfn_qlist_find_t			pfn_func,
-	IN	const void* const			context );
+cl_list_item_t *cl_qlist_find_prev(IN const cl_qlist_t * const p_list,
+				   IN const cl_list_item_t * const p_list_item,
+				   IN cl_pfn_qlist_find_t pfn_func,
+				   IN const void *const context);
 /*
 * PARAMETERS
 *	p_list
@@ -1528,22 +1496,24 @@ cl_qlist_find_prev(
 *
 * SYNOPSIS
 */
-static inline cl_list_item_t*
-cl_qlist_find_from_head(
-	IN	const cl_qlist_t* const	p_list,
-	IN	cl_pfn_qlist_find_t		pfn_func,
-	IN	const void* const		context )
+static inline cl_list_item_t *cl_qlist_find_from_head(IN const cl_qlist_t *
+						      const p_list,
+						      IN cl_pfn_qlist_find_t
+						      pfn_func,
+						      IN const void *const
+						      context)
 {
 	/* CL_ASSERT that a non-null pointer is provided. */
-	CL_ASSERT( p_list );
+	CL_ASSERT(p_list);
 	/* CL_ASSERT that the list was initialized. */
-	CL_ASSERT( p_list->state == CL_INITIALIZED );
+	CL_ASSERT(p_list->state == CL_INITIALIZED);
 	/* CL_ASSERT that a find function is provided. */
-	CL_ASSERT( pfn_func );
+	CL_ASSERT(pfn_func);
 
-	return( cl_qlist_find_next( p_list, cl_qlist_end( p_list ), pfn_func,
-		context ) );
+	return (cl_qlist_find_next(p_list, cl_qlist_end(p_list), pfn_func,
+				   context));
 }
+
 /*
 * PARAMETERS
 *	p_list
@@ -1588,22 +1558,24 @@ cl_qlist_find_from_head(
 *
 * SYNOPSIS
 */
-static inline cl_list_item_t*
-cl_qlist_find_from_tail(
-	IN	const cl_qlist_t* const	p_list,
-	IN	cl_pfn_qlist_find_t		pfn_func,
-	IN	const void* const		context )
+static inline cl_list_item_t *cl_qlist_find_from_tail(IN const cl_qlist_t *
+						      const p_list,
+						      IN cl_pfn_qlist_find_t
+						      pfn_func,
+						      IN const void *const
+						      context)
 {
 	/* CL_ASSERT that a non-null pointer is provided. */
-	CL_ASSERT( p_list );
+	CL_ASSERT(p_list);
 	/* CL_ASSERT that the list was initialized. */
-	CL_ASSERT( p_list->state == CL_INITIALIZED );
+	CL_ASSERT(p_list->state == CL_INITIALIZED);
 	/* CL_ASSERT that a find function is provided. */
-	CL_ASSERT( pfn_func );
+	CL_ASSERT(pfn_func);
 
-	return( cl_qlist_find_prev( p_list, cl_qlist_end( p_list ), pfn_func,
-		context ) );
+	return (cl_qlist_find_prev(p_list, cl_qlist_end(p_list), pfn_func,
+				   context));
 }
+
 /*
 * PARAMETERS
 *	p_list
@@ -1649,10 +1621,9 @@ cl_qlist_find_from_tail(
 * SYNOPSIS
 */
 void
-cl_qlist_apply_func(
-	IN	const cl_qlist_t* const	p_list,
-	IN	cl_pfn_qlist_apply_t	pfn_func,
-	IN	const void* const		context );
+cl_qlist_apply_func(IN const cl_qlist_t * const p_list,
+		    IN cl_pfn_qlist_apply_t pfn_func,
+		    IN const void *const context);
 /*
 * PARAMETERS
 *	p_list
@@ -1689,11 +1660,10 @@ cl_qlist_apply_func(
 * SYNOPSIS
 */
 void
-cl_qlist_move_items(
-	IN	cl_qlist_t* const	p_src_list,
-	IN	cl_qlist_t* const	p_dest_list,
-	IN	cl_pfn_qlist_find_t	pfn_func,
-	IN	const void* const	context );
+cl_qlist_move_items(IN cl_qlist_t * const p_src_list,
+		    IN cl_qlist_t * const p_dest_list,
+		    IN cl_pfn_qlist_find_t pfn_func,
+		    IN const void *const context);
 /*
 * PARAMETERS
 *	p_src_list
@@ -1733,5 +1703,4 @@ cl_qlist_move_items(
 *********/
 
 END_C_DECLS
-
-#endif /* _CL_QUICK_LIST_H_ */
+#endif				/* _CL_QUICK_LIST_H_ */

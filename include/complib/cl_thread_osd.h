@@ -49,31 +49,26 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 #include <complib/cl_types.h>
 #include <complib/cl_event.h>
 #include <pthread.h>
-
 /* Linux user mode thread object structure definition. */
-typedef struct _cl_thread_osd_t
-{
-	pthread_t			id;
-	cl_state_t			state;
+    typedef struct _cl_thread_osd_t {
+	pthread_t id;
+	cl_state_t state;
 
 } cl_thread_osd_t;
 
-static inline boolean_t
-cl_is_blockable ( void )
+static inline boolean_t cl_is_blockable(void)
 {
 	return TRUE;
 }
 
 END_C_DECLS
-
-#endif	/* _CL_THREAD_OSD_H_ */
+#endif				/* _CL_THREAD_OSD_H_ */
