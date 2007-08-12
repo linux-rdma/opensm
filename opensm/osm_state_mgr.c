@@ -931,6 +931,7 @@ __osm_state_mgr_sweep_hop_1(
    {
    case IB_NODE_TYPE_CA:
    case IB_NODE_TYPE_ROUTER:
+      memset(&context, 0, sizeof(context));
       context.ni_context.node_guid = osm_node_get_node_guid( p_node );
       context.ni_context.port_num = port_num;
 
@@ -966,6 +967,7 @@ __osm_state_mgr_sweep_hop_1(
          if( ib_port_info_get_port_state( &( p_ext_physp->port_info ) ) >
              IB_LINK_DOWN )
          {
+            memset(&context, 0, sizeof(context));
             context.ni_context.node_guid = osm_node_get_node_guid( p_node );
             context.ni_context.port_num = port_num;
 

@@ -146,6 +146,9 @@ typedef struct _osm_ni_context
 {
   ib_net64_t			node_guid;
   uint8_t			port_num;
+  ib_net64_t			dup_node_guid;
+  uint8_t			dup_port_num;
+  unsigned			dup_count;
 } osm_ni_context_t;
 /*
 * FIELDS

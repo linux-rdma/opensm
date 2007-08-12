@@ -297,6 +297,7 @@ __osm_pi_rcv_process_switch_port(
 
         osm_dr_path_extend( &path, osm_physp_get_port_num( p_physp ) );
 
+        memset(&context, 0, sizeof(context));
         context.ni_context.node_guid = osm_node_get_node_guid( p_node );
         context.ni_context.port_num = osm_physp_get_port_num( p_physp );
 

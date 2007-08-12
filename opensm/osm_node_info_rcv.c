@@ -137,6 +137,37 @@ report_duplicated_guid(
   }
 }
 
+static void requery_dup_node_info(
+  IN const osm_ni_rcv_t* const p_rcv,
+  osm_physp_t *p_physp, unsigned count)
+{
+    osm_madw_context_t context;
+    osm_dr_path_t path;
+    cl_status_t status;
+
+    path = *osm_physp_get_dr_path_ptr(p_physp->p_remote_physp);
+    osm_dr_path_extend(&path, p_physp->p_remote_physp->port_num);
+
+    context.ni_context.node_guid = p_physp->p_remote_physp->p_node->node_info.port_guid;
+    context.ni_context.port_num = p_physp->p_remote_physp->port_num;
+    context.ni_context.dup_node_guid = p_physp->p_node->node_info.node_guid;
+    context.ni_context.dup_port_num = p_physp->port_num;
+    context.ni_context.dup_count = count;
+
+    status = osm_req_get(p_rcv->p_gen_req,
+                         &path,
+                         IB_MAD_ATTR_NODE_INFO,
+                         0,
+                         CL_DISP_MSGID_NONE,
+                         &context);
+
+    if(status != IB_SUCCESS)
+      osm_log( p_rcv->p_log, OSM_LOG_ERROR,
+               "requery_dup_node_info: ERR 0D02: "
+               "Failure initiating NodeInfo request (%s)\n",
+               ib_get_err_str(status) );
+}
+
 /**********************************************************************
  The plock must be held before calling this function.
 **********************************************************************/
@@ -199,20 +230,39 @@ __osm_ni_rcv_set_links(
     goto _exit;
   }
 
-  if( osm_node_has_any_link( p_node, port_num ) &&
-      p_rcv->p_subn->force_immediate_heavy_sweep == FALSE )
+  if (osm_node_has_any_link(p_node, port_num) &&
+      p_rcv->p_subn->force_immediate_heavy_sweep == FALSE &&
+      (!p_ni_context->dup_count ||
+       (p_ni_context->dup_node_guid == osm_node_get_node_guid(p_node) &&
+        p_ni_context->dup_port_num == port_num)))
   {
     /*
       Uh oh...
-      This means that we found 2 nodes with the same guid,
-      or a 12x link with lane reversal that is not configured correctly.
-      If the force_immediate_heavy_sweep == TRUE, then this might be a case
-      of port being moved (causing trap 128), and thus rediscovered.
-      In this case, just continue. There will be another heavy sweep
-      immediately after, when the subnet is stable again.
+      This could be reconnected ports, but also duplicated GUID
+      (2 nodes have the same guid) or a 12x link with lane reversal
+      that is not configured correctly.
+      We will try to recover by querying NodeInfo again.
+      In order to catch even fast port moving to new location(s) and
+      back we will count up to 5.
+      Some crazy reconnections (newly created switch loop right before
+      targeted CA) will not be catched this way. So in worst case -
+      report GUID duplication and request new discovery.
+      When switch node is targeted NodeInfo querying will be done in
+      opposite order, this is much stronger check, unfortunately it is
+      impossible with CAs.
     */
-
-    report_duplicated_guid(p_rcv, p_node, port_num, p_ni_context);
+    p_physp = osm_node_get_physp_ptr(p_node, port_num);
+    if (p_ni_context->dup_count > 5)
+    {
+      report_duplicated_guid(p_rcv, p_node, port_num, p_ni_context);
+      p_rcv->p_subn->force_immediate_heavy_sweep = TRUE;
+    }
+    else if (p_node->sw)
+      requery_dup_node_info(p_rcv, p_physp->p_remote_physp,
+                            p_ni_context->dup_count + 1);
+    else
+      requery_dup_node_info(p_rcv, p_physp,
+                            p_ni_context->dup_count + 1);
   }
 
   /*
