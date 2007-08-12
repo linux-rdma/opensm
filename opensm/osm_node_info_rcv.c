@@ -69,63 +69,31 @@
 static void
 report_duplicated_guid(
   IN const osm_ni_rcv_t* const p_rcv,
-  osm_node_t* p_node,
-  const uint8_t port_num,
-  const osm_ni_context_t* const p_ni_context )
+  osm_physp_t *p_physp,
+  osm_node_t* p_neighbor_node,
+  const uint8_t port_num)
 {
-  char dr_new_path[BUF_SIZE];
-  char dr_old_path[BUF_SIZE];
-  osm_node_t *p_old_neighbor_node;
-  uint8_t old_neighbor_port_num;
-  osm_physp_t *p_physp, *p_old_physp;
-  int n;
-  uint32_t i;
-  osm_dr_path_t *p_path;
+  osm_physp_t *p_old, *p_new;
+  osm_dr_path_t path;
 
-  p_physp = osm_node_get_physp_ptr( p_node, port_num );
-  sprintf( dr_new_path, "no_path_available" );
-  p_path = osm_physp_get_dr_path_ptr( p_physp );
-  if ( p_path )
-  {
-    n = sprintf( dr_new_path, "new path:" );
-    for (i = 0; i <= p_path->hop_count; i++ )
-      n += snprintf(dr_new_path + n, sizeof(dr_new_path) - n, "[%X]",
-                    p_path->path[i]);
-  }
+  p_old = p_physp->p_remote_physp;
+  p_new = osm_node_get_physp_ptr(p_neighbor_node, port_num);
 
-  p_old_neighbor_node = osm_node_get_remote_node(p_node, port_num,
-                                                 &old_neighbor_port_num);
-  p_old_physp = osm_node_get_physp_ptr(p_old_neighbor_node,
-                                       old_neighbor_port_num);
-  sprintf( dr_old_path, "no_path_available" );
-  p_path = osm_physp_get_dr_path_ptr( p_old_physp );
-  if ( p_path )
-  {
-    n = sprintf( dr_old_path, "old_path:" );
-    for (i = 0; i <= p_path->hop_count; i++ )
-      n += snprintf(dr_old_path + n, sizeof(dr_old_path) - n, "[%X]",
-                    p_path->path[i]);
-  }
+  osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+          "report_duplicated_guid: ERR 0D01: "
+	  "Found duplicated node.\n"
+	  "Node 0x%" PRIx64 " port %u is reachable from remote node "
+          "0x%" PRIx64 " port %u and remote node 0x%" PRIx64 " port %u.\n"
+	  "Paths are:\n",
+          cl_ntoh64(p_physp->p_node->node_info.node_guid), p_physp->port_num,
+          cl_ntoh64(p_old->p_node->node_info.node_guid), p_old->port_num,
+          cl_ntoh64(p_new->p_node->node_info.node_guid), p_new->port_num);
 
-  osm_log( p_rcv->p_log, OSM_LOG_ERROR,
-           "__osm_ni_rcv_set_links: ERR 0D01: "
-           "Found duplicated guids or 12x link "
-           "with lane reversal badly configured.\n"
-           "Overriding existing link to:"
-           "node 0x%" PRIx64 ", port number 0x%X connected to:\n"
-           "\t\t\t\told node 0x%" PRIx64 ", "
-           "port number 0x%X %s\n"
-           "\t\t\t\tnew node 0x%" PRIx64 ", "
-           "port number 0x%X %s\n",
-           cl_ntoh64( osm_node_get_node_guid( p_node ) ),
-           port_num,
-           cl_ntoh64( osm_node_get_node_guid( p_old_neighbor_node ) ),
-           old_neighbor_port_num ,
-           dr_old_path,
-           cl_ntoh64( p_ni_context->node_guid ),
-           p_ni_context->port_num,
-           dr_new_path
-           );
+  osm_dump_dr_path(p_rcv->p_log, osm_physp_get_dr_path_ptr(p_physp), OSM_LOG_ERROR);
+
+  path = *osm_physp_get_dr_path_ptr(p_new);
+  osm_dr_path_extend(&path, port_num);
+  osm_dump_dr_path(p_rcv->p_log, &path, OSM_LOG_ERROR);
 
   osm_log( p_rcv->p_log, OSM_LOG_SYS,
            "FATAL: duplicated guids or 12x lane reversal\n");
@@ -248,7 +216,8 @@ __osm_ni_rcv_set_links(
     p_physp = osm_node_get_physp_ptr(p_node, port_num);
     if (p_ni_context->dup_count > 5)
     {
-      report_duplicated_guid(p_rcv, p_node, port_num, p_ni_context);
+      report_duplicated_guid(p_rcv, p_physp,
+                             p_neighbor_node, p_ni_context->port_num);
       p_rcv->p_subn->force_immediate_heavy_sweep = TRUE;
     }
     else if (p_node->sw)
