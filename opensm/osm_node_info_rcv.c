@@ -170,7 +170,7 @@ __osm_ni_rcv_set_links(
     {
       n = sprintf( dr_old_path, "old_path:" );
       for (i = 0; i <= p_path->hop_count; i++ )
-        n += snprintf(dr_old_path, sizeof(dr_old_path) - n, "[%X]",
+        n += snprintf(dr_old_path + n, sizeof(dr_old_path) - n, "[%X]",
                       p_path->path[i]);
     }
 
