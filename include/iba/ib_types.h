@@ -43,28 +43,26 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 #if defined( WIN32 ) || defined( _WIN64 )
-    #if defined( EXPORT_AL_SYMBOLS )
-         #define OSM_EXPORT	__declspec(dllexport)
-    #else
-         #define OSM_EXPORT	__declspec(dllimport)
-    #endif
-    #define OSM_API __stdcall
-    #define OSM_CDECL __cdecl
+#if defined( EXPORT_AL_SYMBOLS )
+#define OSM_EXPORT	__declspec(dllexport)
 #else
-    #define OSM_EXPORT	extern
-    #define OSM_API
-    #define OSM_CDECL
-    #define __ptr64
+#define OSM_EXPORT	__declspec(dllimport)
 #endif
-
+#define OSM_API __stdcall
+#define OSM_CDECL __cdecl
+#else
+#define OSM_EXPORT	extern
+#define OSM_API
+#define OSM_CDECL
+#define __ptr64
+#endif
 /****h* IBA Base/Constants
 * NAME
 *	Constants
@@ -75,7 +73,6 @@ BEGIN_C_DECLS
 *	Definitions are from the InfiniBand Architecture Specification v1.2
 *
 *********/
-
 /****d* IBA Base: Constants/MAD_BLOCK_SIZE
 * NAME
 *	MAD_BLOCK_SIZE
@@ -87,7 +84,6 @@ BEGIN_C_DECLS
 */
 #define MAD_BLOCK_SIZE						256
 /**********/
-
 /****d* IBA Base: Constants/MAD_RMPP_HDR_SIZE
 * NAME
 *	MAD_RMPP_HDR_SIZE
@@ -99,7 +95,6 @@ BEGIN_C_DECLS
 */
 #define MAD_RMPP_HDR_SIZE					36
 /**********/
-
 /****d* IBA Base: Constants/MAD_RMPP_DATA_SIZE
 * NAME
 *	MAD_RMPP_DATA_SIZE
@@ -111,7 +106,6 @@ BEGIN_C_DECLS
 */
 #define MAD_RMPP_DATA_SIZE		(MAD_BLOCK_SIZE - MAD_RMPP_HDR_SIZE)
 /**********/
-
 /****d* IBA Base: Constants/MAD_BLOCK_GRH_SIZE
 * NAME
 *	MAD_BLOCK_GRH_SIZE
@@ -123,7 +117,6 @@ BEGIN_C_DECLS
 */
 #define MAD_BLOCK_GRH_SIZE					296
 /**********/
-
 /****d* IBA Base: Constants/IB_LID_PERMISSIVE
 * NAME
 *	IB_LID_PERMISSIVE
@@ -135,7 +128,6 @@ BEGIN_C_DECLS
 */
 #define IB_LID_PERMISSIVE					0xFFFF
 /**********/
-
 /****d* IBA Base: Constants/IB_DEFAULT_PKEY
 * NAME
 *	IB_DEFAULT_PKEY
@@ -147,7 +139,6 @@ BEGIN_C_DECLS
 */
 #define IB_DEFAULT_PKEY						0xFFFF
 /**********/
-
 /****d* IBA Base: Constants/IB_QP1_WELL_KNOWN_Q_KEY
 * NAME
 *	IB_QP1_WELL_KNOWN_Q_KEY
@@ -159,12 +150,9 @@ BEGIN_C_DECLS
 */
 #define IB_QP1_WELL_KNOWN_Q_KEY				CL_HTON32(0x80010000)
 /*********/
-
 #define IB_QP0								0
 #define IB_QP1								CL_HTON32(1)
-
 #define IB_QP_PRIVILEGED_Q_KEY				CL_HTON32(0x80000000)
-
 /****d* IBA Base: Constants/IB_LID_UCAST_START
 * NAME
 *	IB_LID_UCAST_START
@@ -177,7 +165,6 @@ BEGIN_C_DECLS
 #define IB_LID_UCAST_START_HO				0x0001
 #define IB_LID_UCAST_START					(CL_HTON16(IB_LID_UCAST_START_HO))
 /**********/
-
 /****d* IBA Base: Constants/IB_LID_UCAST_END
 * NAME
 *	IB_LID_UCAST_END
@@ -190,7 +177,6 @@ BEGIN_C_DECLS
 #define IB_LID_UCAST_END_HO					0xBFFF
 #define IB_LID_UCAST_END					(CL_HTON16(IB_LID_UCAST_END_HO))
 /**********/
-
 /****d* IBA Base: Constants/IB_LID_MCAST_START
 * NAME
 *	IB_LID_MCAST_START
@@ -203,7 +189,6 @@ BEGIN_C_DECLS
 #define IB_LID_MCAST_START_HO				0xC000
 #define IB_LID_MCAST_START					(CL_HTON16(IB_LID_MCAST_START_HO))
 /**********/
-
 /****d* IBA Base: Constants/IB_LID_MCAST_END
 * NAME
 *	IB_LID_MCAST_END
@@ -216,7 +201,6 @@ BEGIN_C_DECLS
 #define IB_LID_MCAST_END_HO					0xFFFE
 #define IB_LID_MCAST_END					(CL_HTON16(IB_LID_MCAST_END_HO))
 /**********/
-
 /****d* IBA Base: Constants/IB_DEFAULT_SUBNET_PREFIX
 * NAME
 *	IB_DEFAULT_SUBNET_PREFIX
@@ -228,7 +212,6 @@ BEGIN_C_DECLS
 */
 #define IB_DEFAULT_SUBNET_PREFIX			(CL_HTON64(0xFE80000000000000ULL))
 /**********/
-
 /****d* IBA Base: Constants/IB_NODE_NUM_PORTS_MAX
 * NAME
 *	IB_NODE_NUM_PORTS_MAX
@@ -239,7 +222,6 @@ BEGIN_C_DECLS
 */
 #define IB_NODE_NUM_PORTS_MAX				0xFE
 /**********/
-
 /****d* IBA Base: Constants/IB_INVALID_PORT_NUM
 * NAME
 *	IB_INVALID_PORT_NUM
@@ -251,7 +233,6 @@ BEGIN_C_DECLS
 */
 #define IB_INVALID_PORT_NUM					0xFF
 /*********/
-
 /****d* IBA Base: Constants/IB_SUBNET_PATH_HOPS_MAX
 * NAME
 *	IB_SUBNET_PATH_HOPS_MAX
@@ -263,7 +244,6 @@ BEGIN_C_DECLS
 */
 #define IB_SUBNET_PATH_HOPS_MAX				64
 /*********/
-
 /****d* IBA Base: Constants/IB_HOPLIMIT_MAX
 * NAME
 *	IB_HOPLIMIT_MAX
@@ -275,7 +255,6 @@ BEGIN_C_DECLS
 */
 #define IB_HOPLIMIT_MAX					255
 /*********/
-
 /****d* IBA Base: Constants/IB_PKEY_MAX_BLOCKS
 * NAME
 *	IB_PKEY_MAX_BLOCKS
@@ -287,7 +266,6 @@ BEGIN_C_DECLS
 */
 #define IB_PKEY_MAX_BLOCKS					2048
 /*********/
-
 /****d* IBA Base: Constants/IB_MCAST_MAX_BLOCK_ID
 * NAME
 *	IB_MCAST_MAX_BLOCK_ID
@@ -299,7 +277,6 @@ BEGIN_C_DECLS
 */
 #define IB_MCAST_MAX_BLOCK_ID				511
 /*********/
-
 /****d* IBA Base: Constants/IB_MCAST_BLOCK_ID_MASK_HO
 * NAME
 *	IB_MCAST_BLOCK_ID_MASK_HO
@@ -311,7 +288,6 @@ BEGIN_C_DECLS
 */
 #define IB_MCAST_BLOCK_ID_MASK_HO			0x000001FF
 /*********/
-
 /****d* IBA Base: Constants/IB_MCAST_BLOCK_SIZE
 * NAME
 *	IB_MCAST_BLOCK_SIZE
@@ -323,7 +299,6 @@ BEGIN_C_DECLS
 */
 #define IB_MCAST_BLOCK_SIZE					32
 /*********/
-
 /****d* IBA Base: Constants/IB_MCAST_MASK_SIZE
 * NAME
 *	IB_MCAST_MASK_SIZE
@@ -335,7 +310,6 @@ BEGIN_C_DECLS
 */
 #define IB_MCAST_MASK_SIZE					16
 /*********/
-
 /****d* IBA Base: Constants/IB_MCAST_POSITION_MASK_HO
 * NAME
 *	IB_MCAST_POSITION_MASK_HO
@@ -347,7 +321,6 @@ BEGIN_C_DECLS
 */
 #define IB_MCAST_POSITION_MASK_HO				0xF0000000
 /*********/
-
 /****d* IBA Base: Constants/IB_MCAST_POSITION_MAX
 * NAME
 *	IB_MCAST_POSITION_MAX
@@ -359,7 +332,6 @@ BEGIN_C_DECLS
 */
 #define IB_MCAST_POSITION_MAX				0xF
 /*********/
-
 /****d* IBA Base: Constants/IB_MCAST_POSITION_SHIFT
 * NAME
 *	IB_MCAST_POSITION_SHIFT
@@ -371,7 +343,6 @@ BEGIN_C_DECLS
 */
 #define IB_MCAST_POSITION_SHIFT				28
 /*********/
-
 /****d* IBA Base: Constants/IB_PKEY_ENTRIES_MAX
 * NAME
 *	IB_PKEY_ENTRIES_MAX
@@ -383,7 +354,6 @@ BEGIN_C_DECLS
 */
 #define IB_PKEY_ENTRIES_MAX (IB_PKEY_MAX_BLOCKS * IB_NUM_PKEY_ELEMENTS_IN_BLOCK)
 /*********/
-
 /****d* IBA Base: Constants/IB_PKEY_BASE_MASK
 * NAME
 *	IB_PKEY_BASE_MASK
@@ -395,7 +365,6 @@ BEGIN_C_DECLS
 */
 #define IB_PKEY_BASE_MASK					(CL_HTON16(0x7FFF))
 /*********/
-
 /****d* IBA Base: Constants/IB_PKEY_TYPE_MASK
 * NAME
 *	IB_PKEY_TYPE_MASK
@@ -407,7 +376,6 @@ BEGIN_C_DECLS
 */
 #define IB_PKEY_TYPE_MASK					(CL_HTON16(0x8000))
 /*********/
-
 /****d* IBA Base: Constants/IB_DEFAULT_PARTIAL_PKEY
 * NAME
 *	IB_DEFAULT_PARTIAL_PKEY
@@ -419,7 +387,6 @@ BEGIN_C_DECLS
 */
 #define IB_DEFAULT_PARTIAL_PKEY				       (CL_HTON16(0x7FFF))
 /**********/
-
 /****d* IBA Base: Constants/IB_MCLASS_SUBN_LID
 * NAME
 *	IB_MCLASS_SUBN_LID
@@ -431,7 +398,6 @@ BEGIN_C_DECLS
 */
 #define IB_MCLASS_SUBN_LID					0x01
 /**********/
-
 /****d* IBA Base: Constants/IB_MCLASS_SUBN_DIR
 * NAME
 *	IB_MCLASS_SUBN_DIR
@@ -443,7 +409,6 @@ BEGIN_C_DECLS
 */
 #define IB_MCLASS_SUBN_DIR					0x81
 /**********/
-
 /****d* IBA Base: Constants/IB_MCLASS_SUBN_ADM
 * NAME
 *	IB_MCLASS_SUBN_ADM
@@ -455,7 +420,6 @@ BEGIN_C_DECLS
 */
 #define IB_MCLASS_SUBN_ADM					0x03
 /**********/
-
 /****d* IBA Base: Constants/IB_MCLASS_PERF
 * NAME
 *	IB_MCLASS_PERF
@@ -467,7 +431,6 @@ BEGIN_C_DECLS
 */
 #define IB_MCLASS_PERF						0x04
 /**********/
-
 /****d* IBA Base: Constants/IB_MCLASS_BM
 * NAME
 *	IB_MCLASS_BM
@@ -479,7 +442,6 @@ BEGIN_C_DECLS
 */
 #define IB_MCLASS_BM						0x05
 /**********/
-
 /****d* IBA Base: Constants/IB_MCLASS_DEV_MGMT
 * NAME
 *	IB_MCLASS_DEV_MGMT
@@ -491,7 +453,6 @@ BEGIN_C_DECLS
 */
 #define IB_MCLASS_DEV_MGMT					0x06
 /**********/
-
 /****d* IBA Base: Constants/IB_MCLASS_COMM_MGMT
 * NAME
 *	IB_MCLASS_COMM_MGMT
@@ -503,7 +464,6 @@ BEGIN_C_DECLS
 */
 #define IB_MCLASS_COMM_MGMT					0x07
 /**********/
-
 /****d* IBA Base: Constants/IB_MCLASS_SNMP
 * NAME
 *	IB_MCLASS_SNMP
@@ -515,7 +475,6 @@ BEGIN_C_DECLS
 */
 #define IB_MCLASS_SNMP						0x08
 /**********/
-
 /****d* IBA Base: Constants/IB_MCLASS_VENDOR_LOW_RANGE_MIN
 * NAME
 *	IB_MCLASS_VENDOR_LOW_RANGE_MIN
@@ -527,7 +486,6 @@ BEGIN_C_DECLS
 */
 #define IB_MCLASS_VENDOR_LOW_RANGE_MIN 0x09
 /**********/
-
 /****d* IBA Base: Constants/IB_MCLASS_VENDOR_LOW_RANGE_MAX
 * NAME
 *	IB_MCLASS_VENDOR_LOW_RANGE_MAX
@@ -539,7 +497,6 @@ BEGIN_C_DECLS
 */
 #define IB_MCLASS_VENDOR_LOW_RANGE_MAX 0x0f
 /**********/
-
 /****d* IBA Base: Constants/IB_MCLASS_DEV_ADM
 * NAME
 *	IB_MCLASS_DEV_ADM
@@ -551,7 +508,6 @@ BEGIN_C_DECLS
 */
 #define IB_MCLASS_DEV_ADM 0x10
 /**********/
-
 /****d* IBA Base: Constants/IB_MCLASS_BIS
 * NAME
 *	IB_MCLASS_BIS
@@ -563,7 +519,6 @@ BEGIN_C_DECLS
 */
 #define IB_MCLASS_BIS 0x12
 /**********/
-
 /****d* IBA Base: Constants/IB_MCLASS_VENDOR_HIGH_RANGE_MIN
 * NAME
 *	IB_MCLASS_VENDOR_HIGH_RANGE_MIN
@@ -575,7 +530,6 @@ BEGIN_C_DECLS
 */
 #define IB_MCLASS_VENDOR_HIGH_RANGE_MIN 0x30
 /**********/
-
 /****d* IBA Base: Constants/IB_MCLASS_VENDOR_HIGH_RANGE_MAX
 * NAME
 *	IB_MCLASS_VENDOR_HIGH_RANGE_MAX
@@ -587,7 +541,6 @@ BEGIN_C_DECLS
 */
 #define IB_MCLASS_VENDOR_HIGH_RANGE_MAX 0x4f
 /**********/
-
 /****f* IBA Base: Types/ib_class_is_vendor_specific_low
 * NAME
 *	ib_class_is_vendor_specific_low
@@ -598,13 +551,13 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-static inline boolean_t	OSM_API
-ib_class_is_vendor_specific_low(
-	IN		const	uint8_t class_code )
+static inline boolean_t OSM_API
+ib_class_is_vendor_specific_low(IN const uint8_t class_code)
 {
-	return( (class_code >= IB_MCLASS_VENDOR_LOW_RANGE_MIN) &&
-           (class_code <= IB_MCLASS_VENDOR_LOW_RANGE_MAX) );
+	return ((class_code >= IB_MCLASS_VENDOR_LOW_RANGE_MIN) &&
+		(class_code <= IB_MCLASS_VENDOR_LOW_RANGE_MAX));
 }
+
 /*
 * PARAMETERS
 *	class_code
@@ -630,13 +583,13 @@ ib_class_is_vendor_specific_low(
 *
 * SYNOPSIS
 */
-static inline boolean_t	OSM_API
-ib_class_is_vendor_specific_high(
-	IN		const	uint8_t class_code )
+static inline boolean_t OSM_API
+ib_class_is_vendor_specific_high(IN const uint8_t class_code)
 {
-	return( (class_code >= IB_MCLASS_VENDOR_HIGH_RANGE_MIN) &&
-           (class_code <= IB_MCLASS_VENDOR_HIGH_RANGE_MAX) );
+	return ((class_code >= IB_MCLASS_VENDOR_HIGH_RANGE_MIN) &&
+		(class_code <= IB_MCLASS_VENDOR_HIGH_RANGE_MAX));
 }
+
 /*
 * PARAMETERS
 *	class_code
@@ -652,7 +605,6 @@ ib_class_is_vendor_specific_high(
 * IB_MCLASS_VENDOR_HIGH_RANGE_MIN, IB_MCLASS_VENDOR_HIGH_RANGE_MAX
 *********/
 
-
 /****f* IBA Base: Types/ib_class_is_vendor_specific
 * NAME
 *	ib_class_is_vendor_specific
@@ -662,13 +614,13 @@ ib_class_is_vendor_specific_high(
 *
 * SYNOPSIS
 */
-static inline boolean_t	OSM_API
-ib_class_is_vendor_specific(
-	IN		const	uint8_t class_code )
+static inline boolean_t OSM_API
+ib_class_is_vendor_specific(IN const uint8_t class_code)
 {
-  return( ib_class_is_vendor_specific_low(class_code) ||
-			 ib_class_is_vendor_specific_high(class_code) );
+	return (ib_class_is_vendor_specific_low(class_code) ||
+		ib_class_is_vendor_specific_high(class_code));
 }
+
 /*
 * PARAMETERS
 *	class_code
@@ -693,16 +645,15 @@ ib_class_is_vendor_specific(
 *
 * SYNOPSIS
 */
-static inline boolean_t	OSM_API
-ib_class_is_rmpp(
-        IN              const   uint8_t class_code )
+static inline boolean_t OSM_API ib_class_is_rmpp(IN const uint8_t class_code)
 {
-	return( (class_code == IB_MCLASS_SUBN_ADM) ||
+	return ((class_code == IB_MCLASS_SUBN_ADM) ||
 		(class_code == IB_MCLASS_DEV_MGMT) ||
 		(class_code == IB_MCLASS_DEV_ADM) ||
 		(class_code == IB_MCLASS_BIS) ||
-		ib_class_is_vendor_specific_high( class_code ) );
+		ib_class_is_vendor_specific_high(class_code));
 }
+
 /*
 * PARAMETERS
 *	class_code
@@ -810,7 +761,6 @@ ib_class_is_rmpp(
 #define IB_MAD_METHOD_GETTRACETABLE			0x13
 #define IB_MAD_METHOD_GETMULTI				0x14
 #define IB_MAD_METHOD_GETMULTI_RESP			0x94
-
 
 /****d* IBA Base: Constants/IB_MAD_METHOD_SEND
 * NAME
@@ -1766,7 +1716,7 @@ ib_class_is_rmpp(
 *
 * SOURCE
 */
-typedef uint16_t	ib_net16_t;
+typedef uint16_t ib_net16_t;
 /**********/
 
 /****d* IBA Base: Types/ib_net32_t
@@ -1778,7 +1728,7 @@ typedef uint16_t	ib_net16_t;
 *
 * SOURCE
 */
-typedef uint32_t	ib_net32_t;
+typedef uint32_t ib_net32_t;
 /**********/
 
 /****d* IBA Base: Types/ib_net64_t
@@ -1790,7 +1740,7 @@ typedef uint32_t	ib_net32_t;
 *
 * SOURCE
 */
-typedef uint64_t	ib_net64_t;
+typedef uint64_t ib_net64_t;
 /**********/
 
 /****d* IBA Base: Types/ib_gid_prefix_t
@@ -1801,7 +1751,7 @@ typedef uint64_t	ib_net64_t;
 *
 * SOURCE
 */
-typedef ib_net64_t		ib_gid_prefix_t;
+typedef ib_net64_t ib_gid_prefix_t;
 /**********/
 
 /****d* IBA Base: Constants/ib_link_states_t
@@ -1821,8 +1771,7 @@ typedef ib_net64_t		ib_gid_prefix_t;
 #define IB_LINK_ACT_DEFER 5
 /**********/
 
-static const char* const __ib_node_type_str[] =
-{
+static const char *const __ib_node_type_str[] = {
 	"UNKNOWN",
 	"Channel Adapter",
 	"Switch",
@@ -1839,14 +1788,13 @@ static const char* const __ib_node_type_str[] =
 *
 * SYNOPSIS
 */
-static inline const char*	OSM_API
-ib_get_node_type_str(
-	IN uint8_t node_type )
+static inline const char *OSM_API ib_get_node_type_str(IN uint8_t node_type)
 {
-	if( node_type > IB_NODE_TYPE_ROUTER )
+	if (node_type > IB_NODE_TYPE_ROUTER)
 		node_type = 0;
-	return( __ib_node_type_str[node_type] );
+	return (__ib_node_type_str[node_type]);
 }
+
 /*
 * PARAMETERS
 *	node_type
@@ -1861,14 +1809,14 @@ ib_get_node_type_str(
 * ib_node_info_t
 *********/
 
-static const char* const __ib_producer_type_str[] =
-{
+static const char *const __ib_producer_type_str[] = {
 	"UNKNOWN",
 	"Channel Adapter",
 	"Switch",
 	"Router",
 	"Class Manager"
 };
+
 /****f* IBA Base: Types/ib_get_producer_type_str
 * NAME
 *	ib_get_producer_type_str
@@ -1880,14 +1828,15 @@ static const char* const __ib_producer_type_str[] =
 *
 * SYNOPSIS
 */
-static inline const char*	OSM_API
-ib_get_producer_type_str(
-	IN ib_net32_t producer_type )
+static inline const char *OSM_API
+ib_get_producer_type_str(IN ib_net32_t producer_type)
 {
-	if(cl_ntoh32(producer_type) > CL_NTOH32(IB_NOTICE_PRODUCER_TYPE_CLASS_MGR))
+	if (cl_ntoh32(producer_type) >
+	    CL_NTOH32(IB_NOTICE_PRODUCER_TYPE_CLASS_MGR))
 		producer_type = 0;
-	return( __ib_producer_type_str[cl_ntoh32(producer_type)] );
+	return (__ib_producer_type_str[cl_ntoh32(producer_type)]);
 }
+
 /*
 * PARAMETERS
 *	producer_type
@@ -1902,8 +1851,7 @@ ib_get_producer_type_str(
 * ib_notice_get_prod_type
 *********/
 
-static const char* const __ib_port_state_str[] =
-{
+static const char *const __ib_port_state_str[] = {
 	"No State Change (NOP)",
 	"DOWN",
 	"INIT",
@@ -1922,14 +1870,13 @@ static const char* const __ib_port_state_str[] =
 *
 * SYNOPSIS
 */
-static inline const char*	OSM_API
-ib_get_port_state_str(
-	IN				uint8_t						port_state )
+static inline const char *OSM_API ib_get_port_state_str(IN uint8_t port_state)
 {
-	if( port_state > IB_LINK_ACTIVE )
+	if (port_state > IB_LINK_ACTIVE)
 		port_state = IB_LINK_ACTIVE + 1;
-	return( __ib_port_state_str[port_state] );
+	return (__ib_port_state_str[port_state]);
 }
+
 /*
 * PARAMETERS
 *	port_state
@@ -1953,24 +1900,24 @@ ib_get_port_state_str(
 *
 * SYNOPSIS
 */
-static inline uint8_t	OSM_API
-ib_get_port_state_from_str(
-	IN				char*						p_port_state_str )
+static inline uint8_t OSM_API
+ib_get_port_state_from_str(IN char *p_port_state_str)
 {
-	if( !strncmp(p_port_state_str,"No State Change (NOP)", 12) )
-		return(0);
-	else if( !strncmp(p_port_state_str, "DOWN", 4) )
-		return(1);
-	else if( !strncmp(p_port_state_str, "INIT", 4) )
-		return(2);
-	else if( !strncmp(p_port_state_str, "ARMED" , 5) )
-		return(3);
-	else if( !strncmp(p_port_state_str, "ACTIVE", 6) )
-		return(4);
-	else if( !strncmp(p_port_state_str, "ACTDEFER", 8) )
-		return(5);
-	return(6);
+	if (!strncmp(p_port_state_str, "No State Change (NOP)", 12))
+		return (0);
+	else if (!strncmp(p_port_state_str, "DOWN", 4))
+		return (1);
+	else if (!strncmp(p_port_state_str, "INIT", 4))
+		return (2);
+	else if (!strncmp(p_port_state_str, "ARMED", 5))
+		return (3);
+	else if (!strncmp(p_port_state_str, "ACTIVE", 6))
+		return (4);
+	else if (!strncmp(p_port_state_str, "ACTDEFER", 8))
+		return (5);
+	return (6);
 }
+
 /*
 * PARAMETERS
 *	p_port_state_str
@@ -2008,12 +1955,11 @@ ib_get_port_state_from_str(
 *
 * SYNOPSIS
 */
-static inline ib_net16_t	OSM_API
-ib_pkey_get_base(
-	IN	const	ib_net16_t		pkey )
+static inline ib_net16_t OSM_API ib_pkey_get_base(IN const ib_net16_t pkey)
 {
-	return( (ib_net16_t)(pkey & IB_PKEY_BASE_MASK) );
+	return ((ib_net16_t) (pkey & IB_PKEY_BASE_MASK));
 }
+
 /*
 * PARAMETERS
 *	pkey
@@ -2036,12 +1982,11 @@ ib_pkey_get_base(
 *
 * SYNOPSIS
 */
-static inline boolean_t	OSM_API
-ib_pkey_is_full_member(
-	IN	const	ib_net16_t		pkey )
+static inline boolean_t OSM_API ib_pkey_is_full_member(IN const ib_net16_t pkey)
 {
-	return( (pkey & IB_PKEY_TYPE_MASK) == IB_PKEY_TYPE_MASK );
+	return ((pkey & IB_PKEY_TYPE_MASK) == IB_PKEY_TYPE_MASK);
 }
+
 /*
 * PARAMETERS
 *	pkey
@@ -2068,15 +2013,14 @@ ib_pkey_is_full_member(
 *
 * SYNOPSIS
 */
-static inline boolean_t	OSM_API
-ib_pkey_is_invalid(
-	IN	const	ib_net16_t		pkey )
+static inline boolean_t OSM_API ib_pkey_is_invalid(IN const ib_net16_t pkey)
 {
-  if (ib_pkey_get_base(pkey) == 0x0000)
-    return TRUE;
+	if (ib_pkey_get_base(pkey) == 0x0000)
+		return TRUE;
 
-  return FALSE;
+	return FALSE;
 }
+
 /*
 * PARAMETERS
 *	pkey
@@ -2099,24 +2043,21 @@ ib_pkey_is_invalid(
 * SYNOPSIS
 */
 #include <complib/cl_packon.h>
-typedef union _ib_gid
-{
-	uint8_t				raw[16];
-	struct _ib_gid_unicast
-	{
-		ib_gid_prefix_t		prefix;
-		ib_net64_t		interface_id;
+typedef union _ib_gid {
+	uint8_t raw[16];
+	struct _ib_gid_unicast {
+		ib_gid_prefix_t prefix;
+		ib_net64_t interface_id;
 
 	} PACK_SUFFIX unicast;
 
-	struct _ib_gid_multicast
-	{
-		uint8_t			header[2];
-		uint8_t			raw_group_id[14];
+	struct _ib_gid_multicast {
+		uint8_t header[2];
+		uint8_t raw_group_id[14];
 
 	} PACK_SUFFIX multicast;
 
-}	PACK_SUFFIX ib_gid_t;
+} PACK_SUFFIX ib_gid_t;
 #include <complib/cl_packoff.h>
 /*
 * FIELDS
@@ -2142,11 +2083,9 @@ typedef union _ib_gid
 *
 * SYNOPSIS
 */
-static inline boolean_t	OSM_API
-ib_gid_is_multicast(
-	IN	const	ib_gid_t*		p_gid )
+static inline boolean_t OSM_API ib_gid_is_multicast(IN const ib_gid_t * p_gid)
 {
-	return( p_gid->raw[0] == 0xFF );
+	return (p_gid->raw[0] == 0xFF);
 }
 
 /****f* IBA Base: Types/ib_gid_get_scope
@@ -2158,11 +2097,9 @@ ib_gid_is_multicast(
 *
 * SYNOPSIS
 */
-static inline uint8_t OSM_API
-ib_mgid_get_scope(
-	IN	const	ib_gid_t*		p_gid )
+static inline uint8_t OSM_API ib_mgid_get_scope(IN const ib_gid_t * p_gid)
 {
-	return( p_gid->raw[1] & 0x0F );
+	return (p_gid->raw[1] & 0x0F);
 }
 
 /****f* IBA Base: Types/ib_gid_set_scope
@@ -2175,9 +2112,7 @@ ib_mgid_get_scope(
 * SYNOPSIS
 */
 static inline void OSM_API
-ib_mgid_set_scope(
-        IN      	ib_gid_t* const		p_gid,
-	IN	const	uint8_t			scope )
+ib_mgid_set_scope(IN ib_gid_t * const p_gid, IN const uint8_t scope)
 {
 	p_gid->raw[1] &= 0xF0;
 	p_gid->raw[1] |= scope & 0x0F;
@@ -2192,14 +2127,13 @@ ib_mgid_set_scope(
 *
 * SYNOPSIS
 */
-static inline void	OSM_API
-ib_gid_set_default(
-	IN		ib_gid_t* const		p_gid,
-	IN	const	ib_net64_t		interface_id )
+static inline void OSM_API
+ib_gid_set_default(IN ib_gid_t * const p_gid, IN const ib_net64_t interface_id)
 {
 	p_gid->unicast.prefix = IB_DEFAULT_SUBNET_PREFIX;
 	p_gid->unicast.interface_id = interface_id;
 }
+
 /*
 * PARAMETERS
 *	p_gid
@@ -2226,12 +2160,12 @@ ib_gid_set_default(
 *
 * SYNOPSIS
 */
-static inline ib_net64_t	OSM_API
-ib_gid_get_subnet_prefix(
-	IN	const	ib_gid_t* const		p_gid )
+static inline ib_net64_t OSM_API
+ib_gid_get_subnet_prefix(IN const ib_gid_t * const p_gid)
 {
-	return( p_gid->unicast.prefix );
+	return (p_gid->unicast.prefix);
 }
+
 /*
 * PARAMETERS
 *	p_gid
@@ -2256,13 +2190,13 @@ ib_gid_get_subnet_prefix(
 *
 * SYNOPSIS
 */
-static inline boolean_t	OSM_API
-ib_gid_is_link_local(
-	IN	const	ib_gid_t* const		p_gid )
+static inline boolean_t OSM_API
+ib_gid_is_link_local(IN const ib_gid_t * const p_gid)
 {
-	return( ( ib_gid_get_subnet_prefix( p_gid ) &
-		CL_HTON64( 0xFFC0000000000000ULL ) ) == IB_DEFAULT_SUBNET_PREFIX );
+	return ((ib_gid_get_subnet_prefix(p_gid) &
+		 CL_HTON64(0xFFC0000000000000ULL)) == IB_DEFAULT_SUBNET_PREFIX);
 }
+
 /*
 * PARAMETERS
 *	p_gid
@@ -2288,13 +2222,14 @@ ib_gid_is_link_local(
 *
 * SYNOPSIS
 */
-static inline boolean_t	OSM_API
-ib_gid_is_site_local(
-	IN	const	ib_gid_t* const		p_gid )
+static inline boolean_t OSM_API
+ib_gid_is_site_local(IN const ib_gid_t * const p_gid)
 {
-	return( ( ib_gid_get_subnet_prefix( p_gid ) &
-		CL_HTON64( 0xFFFFFFFFFFFF0000ULL ) ) == CL_HTON64( 0xFEC0000000000000ULL ) );
+	return ((ib_gid_get_subnet_prefix(p_gid) &
+		 CL_HTON64(0xFFFFFFFFFFFF0000ULL)) ==
+		CL_HTON64(0xFEC0000000000000ULL));
 }
+
 /*
 * PARAMETERS
 *	p_gid
@@ -2319,12 +2254,12 @@ ib_gid_is_site_local(
 *
 * SYNOPSIS
 */
-static inline ib_net64_t	OSM_API
-ib_gid_get_guid(
-	IN	const	ib_gid_t* const		p_gid )
+static inline ib_net64_t OSM_API
+ib_gid_get_guid(IN const ib_gid_t * const p_gid)
 {
-	return( p_gid->unicast.interface_id );
+	return (p_gid->unicast.interface_id);
 }
+
 /*
 * PARAMETERS
 *	p_gid
@@ -2350,25 +2285,24 @@ ib_gid_get_guid(
 * SYNOPSIS
 */
 #include <complib/cl_packon.h>
-typedef struct _ib_path_rec
-{
-	uint8_t					resv0[8];
-	ib_gid_t				dgid;
-	ib_gid_t				sgid;
-	ib_net16_t				dlid;
-	ib_net16_t				slid;
-	ib_net32_t				hop_flow_raw;
-	uint8_t					tclass;
-	uint8_t					num_path;
-	ib_net16_t				pkey;
-	ib_net16_t				sl;
-	uint8_t					mtu;
-	uint8_t					rate;
-	uint8_t					pkt_life;
-	uint8_t					preference;
-	uint8_t					resv2[6];
+typedef struct _ib_path_rec {
+	uint8_t resv0[8];
+	ib_gid_t dgid;
+	ib_gid_t sgid;
+	ib_net16_t dlid;
+	ib_net16_t slid;
+	ib_net32_t hop_flow_raw;
+	uint8_t tclass;
+	uint8_t num_path;
+	ib_net16_t pkey;
+	ib_net16_t sl;
+	uint8_t mtu;
+	uint8_t rate;
+	uint8_t pkt_life;
+	uint8_t preference;
+	uint8_t resv2[6];
 
-}	PACK_SUFFIX ib_path_rec_t;
+} PACK_SUFFIX ib_path_rec_t;
 #include <complib/cl_packoff.h>
 /*
 * FIELDS
@@ -2687,23 +2621,21 @@ typedef struct _ib_path_rec
 *
 * SYNOPSIS
 */
-static inline void	OSM_API
-ib_path_rec_init_local(
-	IN	ib_path_rec_t* const	p_rec,
-	IN	ib_gid_t* const		p_dgid,
-	IN	ib_gid_t* const		p_sgid,
-	IN	ib_net16_t		dlid,
-	IN	ib_net16_t		slid,
-	IN	uint8_t			num_path,
-	IN	ib_net16_t		pkey,
-	IN	uint8_t			sl,
-	IN	uint8_t			mtu_selector,
-	IN	uint8_t			mtu,
-	IN	uint8_t			rate_selector,
-	IN	uint8_t			rate,
-	IN	uint8_t			pkt_life_selector,
-	IN	uint8_t			pkt_life,
-	IN	uint8_t			preference )
+static inline void OSM_API
+ib_path_rec_init_local(IN ib_path_rec_t * const p_rec,
+		       IN ib_gid_t * const p_dgid,
+		       IN ib_gid_t * const p_sgid,
+		       IN ib_net16_t dlid,
+		       IN ib_net16_t slid,
+		       IN uint8_t num_path,
+		       IN ib_net16_t pkey,
+		       IN uint8_t sl,
+		       IN uint8_t mtu_selector,
+		       IN uint8_t mtu,
+		       IN uint8_t rate_selector,
+		       IN uint8_t rate,
+		       IN uint8_t pkt_life_selector,
+		       IN uint8_t pkt_life, IN uint8_t preference)
 {
 	p_rec->dgid = *p_dgid;
 	p_rec->sgid = *p_sgid;
@@ -2712,23 +2644,24 @@ ib_path_rec_init_local(
 	p_rec->num_path = num_path;
 	p_rec->pkey = pkey;
 	/* Lower 4 bits of path rec's SL are reserved. */
-	p_rec->sl = cl_ntoh16( sl );
-	p_rec->mtu = (uint8_t)((mtu & IB_PATH_REC_BASE_MASK) |
-			(uint8_t)(mtu_selector << 6));
-	p_rec->rate = (uint8_t)((rate & IB_PATH_REC_BASE_MASK) |
-			(uint8_t)(rate_selector << 6));
-	p_rec->pkt_life = (uint8_t)((pkt_life & IB_PATH_REC_BASE_MASK) |
-			(uint8_t)(pkt_life_selector << 6));
+	p_rec->sl = cl_ntoh16(sl);
+	p_rec->mtu = (uint8_t) ((mtu & IB_PATH_REC_BASE_MASK) |
+				(uint8_t) (mtu_selector << 6));
+	p_rec->rate = (uint8_t) ((rate & IB_PATH_REC_BASE_MASK) |
+				 (uint8_t) (rate_selector << 6));
+	p_rec->pkt_life = (uint8_t) ((pkt_life & IB_PATH_REC_BASE_MASK) |
+				     (uint8_t) (pkt_life_selector << 6));
 	p_rec->preference = preference;
 
 	/* Clear global routing fields for local path records */
 	p_rec->hop_flow_raw = 0;
 	p_rec->tclass = 0;
 
-	*((uint64_t*)p_rec->resv0) = 0;
-	*((uint32_t*)p_rec->resv2) = 0;
-	*((uint16_t*)p_rec->resv2 + 2) = 0;
+	*((uint64_t *) p_rec->resv0) = 0;
+	*((uint32_t *) p_rec->resv2) = 0;
+	*((uint16_t *) p_rec->resv2 + 2) = 0;
 }
+
 /*
 * PARAMETERS
 *	p_rec
@@ -2797,12 +2730,12 @@ ib_path_rec_init_local(
 *
 * SYNOPSIS
 */
-static inline uint8_t	OSM_API
-ib_path_rec_num_path(
-	IN	const	ib_path_rec_t* const	p_rec )
+static inline uint8_t OSM_API
+ib_path_rec_num_path(IN const ib_path_rec_t * const p_rec)
 {
-	return( p_rec->num_path &0x7F );
+	return (p_rec->num_path & 0x7F);
 }
+
 /*
 * PARAMETERS
 *	p_rec
@@ -2826,12 +2759,12 @@ ib_path_rec_num_path(
 *
 * SYNOPSIS
 */
-static inline uint8_t	OSM_API
-ib_path_rec_sl(
-	IN	const	ib_path_rec_t* const	p_rec )
+static inline uint8_t OSM_API
+ib_path_rec_sl(IN const ib_path_rec_t * const p_rec)
 {
-	return( (uint8_t)((cl_ntoh16( p_rec->sl )) & 0xF) );
+	return ((uint8_t) ((cl_ntoh16(p_rec->sl)) & 0xF));
 }
+
 /*
 * PARAMETERS
 *	p_rec
@@ -2855,12 +2788,12 @@ ib_path_rec_sl(
 *
 * SYNOPSIS
 */
-static inline uint8_t	OSM_API
-ib_path_rec_mtu(
-	IN	const	ib_path_rec_t* const	p_rec )
+static inline uint8_t OSM_API
+ib_path_rec_mtu(IN const ib_path_rec_t * const p_rec)
 {
-	return( (uint8_t)(p_rec->mtu & IB_PATH_REC_BASE_MASK) );
+	return ((uint8_t) (p_rec->mtu & IB_PATH_REC_BASE_MASK));
 }
+
 /*
 * PARAMETERS
 *	p_rec
@@ -2890,12 +2823,12 @@ ib_path_rec_mtu(
 *
 * SYNOPSIS
 */
-static inline uint8_t	OSM_API
-ib_path_rec_mtu_sel(
-	IN	const	ib_path_rec_t* const	p_rec )
+static inline uint8_t OSM_API
+ib_path_rec_mtu_sel(IN const ib_path_rec_t * const p_rec)
 {
-	return( (uint8_t)((p_rec->mtu & IB_PATH_REC_SELECTOR_MASK) >> 6) );
+	return ((uint8_t) ((p_rec->mtu & IB_PATH_REC_SELECTOR_MASK) >> 6));
 }
+
 /*
 * PARAMETERS
 *	p_rec
@@ -2923,12 +2856,12 @@ ib_path_rec_mtu_sel(
 *
 * SYNOPSIS
 */
-static inline uint8_t	OSM_API
-ib_path_rec_rate(
-	IN	const	ib_path_rec_t* const	p_rec )
+static inline uint8_t OSM_API
+ib_path_rec_rate(IN const ib_path_rec_t * const p_rec)
 {
-	return( (uint8_t)(p_rec->rate & IB_PATH_REC_BASE_MASK) );
+	return ((uint8_t) (p_rec->rate & IB_PATH_REC_BASE_MASK));
 }
+
 /*
 * PARAMETERS
 *	p_rec
@@ -2962,12 +2895,12 @@ ib_path_rec_rate(
 *
 * SYNOPSIS
 */
-static inline uint8_t	OSM_API
-ib_path_rec_rate_sel(
-	IN	const	ib_path_rec_t* const	p_rec )
+static inline uint8_t OSM_API
+ib_path_rec_rate_sel(IN const ib_path_rec_t * const p_rec)
 {
-	return( (uint8_t)((p_rec->rate & IB_PATH_REC_SELECTOR_MASK) >> 6) );
+	return ((uint8_t) ((p_rec->rate & IB_PATH_REC_SELECTOR_MASK) >> 6));
 }
+
 /*
 * PARAMETERS
 *	p_rec
@@ -2995,12 +2928,12 @@ ib_path_rec_rate_sel(
 *
 * SYNOPSIS
 */
-static inline uint8_t	OSM_API
-ib_path_rec_pkt_life(
-	IN	const	ib_path_rec_t* const	p_rec )
+static inline uint8_t OSM_API
+ib_path_rec_pkt_life(IN const ib_path_rec_t * const p_rec)
 {
-	return( (uint8_t)(p_rec->pkt_life & IB_PATH_REC_BASE_MASK) );
+	return ((uint8_t) (p_rec->pkt_life & IB_PATH_REC_BASE_MASK));
 }
+
 /*
 * PARAMETERS
 *	p_rec
@@ -3024,12 +2957,12 @@ ib_path_rec_pkt_life(
 *
 * SYNOPSIS
 */
-static inline uint8_t	OSM_API
-ib_path_rec_pkt_life_sel(
-	IN	const	ib_path_rec_t* const	p_rec )
+static inline uint8_t OSM_API
+ib_path_rec_pkt_life_sel(IN const ib_path_rec_t * const p_rec)
 {
-	return( (uint8_t)((p_rec->pkt_life & IB_PATH_REC_SELECTOR_MASK) >> 6 ));
+	return ((uint8_t) ((p_rec->pkt_life & IB_PATH_REC_SELECTOR_MASK) >> 6));
 }
+
 /*
 * PARAMETERS
 *	p_rec
@@ -3057,12 +2990,12 @@ ib_path_rec_pkt_life_sel(
 *
 * SYNOPSIS
 */
-static inline uint32_t	OSM_API
-ib_path_rec_flow_lbl(
-	IN	const	ib_path_rec_t* const	p_rec )
+static inline uint32_t OSM_API
+ib_path_rec_flow_lbl(IN const ib_path_rec_t * const p_rec)
 {
-	return( ((cl_ntoh32(p_rec->hop_flow_raw) >> 8) & 0x000FFFFF) );
+	return (((cl_ntoh32(p_rec->hop_flow_raw) >> 8) & 0x000FFFFF));
 }
+
 /*
 * PARAMETERS
 *	p_rec
@@ -3086,12 +3019,12 @@ ib_path_rec_flow_lbl(
 *
 * SYNOPSIS
 */
-static inline uint8_t	OSM_API
-ib_path_rec_hop_limit(
-	IN	const	ib_path_rec_t* const	p_rec )
+static inline uint8_t OSM_API
+ib_path_rec_hop_limit(IN const ib_path_rec_t * const p_rec)
 {
-	return( (uint8_t)( cl_ntoh32(p_rec->hop_flow_raw) & 0x000000FF ) );
+	return ((uint8_t) (cl_ntoh32(p_rec->hop_flow_raw) & 0x000000FF));
 }
+
 /*
 * PARAMETERS
 *	p_rec
@@ -3165,27 +3098,26 @@ ib_path_rec_hop_limit(
 * SYNOPSIS
 */
 #include <complib/cl_packon.h>
-typedef struct _ib_class_port_info
-{
-	uint8_t					base_ver;
-	uint8_t					class_ver;
-	ib_net16_t				cap_mask;
-	uint8_t					reserved[3];
-	uint8_t					resp_time_val;
-	ib_gid_t				redir_gid;
-	ib_net32_t				redir_tc_sl_fl;
-	ib_net16_t				redir_lid;
-	ib_net16_t				redir_pkey;
-	ib_net32_t				redir_qp;
-	ib_net32_t				redir_qkey;
-	ib_gid_t				trap_gid;
-	ib_net32_t				trap_tc_sl_fl;
-	ib_net16_t				trap_lid;
-	ib_net16_t				trap_pkey;
-	ib_net32_t				trap_hop_qp;
-	ib_net32_t				trap_qkey;
+typedef struct _ib_class_port_info {
+	uint8_t base_ver;
+	uint8_t class_ver;
+	ib_net16_t cap_mask;
+	uint8_t reserved[3];
+	uint8_t resp_time_val;
+	ib_gid_t redir_gid;
+	ib_net32_t redir_tc_sl_fl;
+	ib_net16_t redir_lid;
+	ib_net16_t redir_pkey;
+	ib_net32_t redir_qp;
+	ib_net32_t redir_qkey;
+	ib_gid_t trap_gid;
+	ib_net32_t trap_tc_sl_fl;
+	ib_net16_t trap_lid;
+	ib_net16_t trap_pkey;
+	ib_net32_t trap_hop_qp;
+	ib_net32_t trap_qkey;
 
-}	PACK_SUFFIX ib_class_port_info_t;
+} PACK_SUFFIX ib_class_port_info_t;
 #include <complib/cl_packoff.h>
 /*
 * FIELDS
@@ -3255,14 +3187,13 @@ typedef struct _ib_class_port_info
 * SYNOPSIS
 */
 #include <complib/cl_packon.h>
-typedef struct _ib_sm_info
-{
-	ib_net64_t			guid;
-	ib_net64_t			sm_key;
-	ib_net32_t			act_count;
-	uint8_t				pri_state;
+typedef struct _ib_sm_info {
+	ib_net64_t guid;
+	ib_net64_t sm_key;
+	ib_net32_t act_count;
+	uint8_t pri_state;
 
-}	PACK_SUFFIX ib_sm_info_t;
+} PACK_SUFFIX ib_sm_info_t;
 #include <complib/cl_packoff.h>
 /*
 * FIELDS
@@ -3290,12 +3221,12 @@ typedef struct _ib_sm_info
 *
 * SYNOPSIS
 */
-static inline uint8_t	OSM_API
-ib_sminfo_get_priority(
-	IN	const	ib_sm_info_t* const		p_smi )
+static inline uint8_t OSM_API
+ib_sminfo_get_priority(IN const ib_sm_info_t * const p_smi)
 {
-	return( (uint8_t)((p_smi->pri_state & 0xF0)>>4) );
+	return ((uint8_t) ((p_smi->pri_state & 0xF0) >> 4));
 }
+
 /*
 * PARAMETERS
 *	p_smi
@@ -3318,12 +3249,12 @@ ib_sminfo_get_priority(
 *
 * SYNOPSIS
 */
-static inline uint8_t	OSM_API
-ib_sminfo_get_state(
-	IN	const	ib_sm_info_t* const		p_smi )
+static inline uint8_t OSM_API
+ib_sminfo_get_state(IN const ib_sm_info_t * const p_smi)
 {
-	return( (uint8_t)(p_smi->pri_state & 0x0F) );
+	return ((uint8_t) (p_smi->pri_state & 0x0F));
 }
+
 /*
 * PARAMETERS
 *	p_smi
@@ -3347,19 +3278,18 @@ ib_sminfo_get_state(
 * SYNOPSIS
 */
 #include <complib/cl_packon.h>
-typedef struct _ib_mad
-{
-	uint8_t					base_ver;
-	uint8_t					mgmt_class;
-	uint8_t					class_ver;
-	uint8_t					method;
-	ib_net16_t				status;
-	ib_net16_t				class_spec;
-	ib_net64_t				trans_id;
-	ib_net16_t				attr_id;
-	ib_net16_t				resv;
-	ib_net32_t				attr_mod;
-}	PACK_SUFFIX ib_mad_t;
+typedef struct _ib_mad {
+	uint8_t base_ver;
+	uint8_t mgmt_class;
+	uint8_t class_ver;
+	uint8_t method;
+	ib_net16_t status;
+	ib_net16_t class_spec;
+	ib_net64_t trans_id;
+	ib_net16_t attr_id;
+	ib_net16_t resv;
+	ib_net32_t attr_mod;
+} PACK_SUFFIX ib_mad_t;
 #include <complib/cl_packoff.h>
 /*
 * FIELDS
@@ -3396,7 +3326,6 @@ typedef struct _ib_mad
 * SEE ALSO
 *********/
 
-
 /****s* IBA Base: Types/ib_rmpp_mad_t
 * NAME
 *	ib_rmpp_mad_t
@@ -3407,25 +3336,23 @@ typedef struct _ib_mad
 * SYNOPSIS
 */
 #include <complib/cl_packon.h>
-typedef struct _ib_rmpp_mad
-{
-	ib_mad_t				common_hdr;
+typedef struct _ib_rmpp_mad {
+	ib_mad_t common_hdr;
 
-	uint8_t					rmpp_version;
-	uint8_t					rmpp_type;
-	uint8_t					rmpp_flags;
-	uint8_t					rmpp_status;
+	uint8_t rmpp_version;
+	uint8_t rmpp_type;
+	uint8_t rmpp_flags;
+	uint8_t rmpp_status;
 
-	ib_net32_t				seg_num;
-	ib_net32_t				paylen_newwin;
+	ib_net32_t seg_num;
+	ib_net32_t paylen_newwin;
 
-}	PACK_SUFFIX ib_rmpp_mad_t;
+} PACK_SUFFIX ib_rmpp_mad_t;
 #include <complib/cl_packoff.h>
 /*
 * SEE ALSO
 *	ib_mad_t
 *********/
-
 
 /****f* IBA Base: Types/ib_mad_init_new
 * NAME
@@ -3436,17 +3363,15 @@ typedef struct _ib_rmpp_mad
 *
 * SYNOPSIS
 */
-static inline void	OSM_API
-ib_mad_init_new(
-	IN		ib_mad_t* const		p_mad,
-	IN		const	uint8_t		mgmt_class,
-	IN		const	uint8_t		class_ver,
-	IN		const	uint8_t		method,
-	IN		const	ib_net64_t	trans_id,
-	IN		const	ib_net16_t	attr_id,
-	IN		const	ib_net32_t	attr_mod )
+static inline void OSM_API
+ib_mad_init_new(IN ib_mad_t * const p_mad,
+		IN const uint8_t mgmt_class,
+		IN const uint8_t class_ver,
+		IN const uint8_t method,
+		IN const ib_net64_t trans_id,
+		IN const ib_net16_t attr_id, IN const ib_net32_t attr_mod)
 {
-	CL_ASSERT( p_mad );
+	CL_ASSERT(p_mad);
 	p_mad->base_ver = 1;
 	p_mad->mgmt_class = mgmt_class;
 	p_mad->class_ver = class_ver;
@@ -3458,6 +3383,7 @@ ib_mad_init_new(
 	p_mad->resv = 0;
 	p_mad->attr_mod = attr_mod;
 }
+
 /*
 * PARAMETERS
 *	p_mad
@@ -3499,20 +3425,19 @@ ib_mad_init_new(
 *
 * SYNOPSIS
 */
-static inline void	OSM_API
-ib_mad_init_response(
-	IN	const	ib_mad_t* const		p_req_mad,
-	IN		ib_mad_t* const		p_mad,
-	IN	const	ib_net16_t		status )
+static inline void OSM_API
+ib_mad_init_response(IN const ib_mad_t * const p_req_mad,
+		     IN ib_mad_t * const p_mad, IN const ib_net16_t status)
 {
-	CL_ASSERT( p_req_mad );
-	CL_ASSERT( p_mad );
+	CL_ASSERT(p_req_mad);
+	CL_ASSERT(p_mad);
 	*p_mad = *p_req_mad;
 	p_mad->status = status;
-	if( p_mad->method == IB_MAD_METHOD_SET )
+	if (p_mad->method == IB_MAD_METHOD_SET)
 		p_mad->method = IB_MAD_METHOD_GET;
 	p_mad->method |= IB_MAD_METHOD_RESP_MASK;
 }
+
 /*
 * PARAMETERS
 *	p_req_mad
@@ -3544,14 +3469,14 @@ ib_mad_init_response(
 *
 * SYNOPSIS
 */
-static inline boolean_t	OSM_API
-ib_mad_is_response(
-	IN	const	ib_mad_t* const		p_mad )
+static inline boolean_t OSM_API
+ib_mad_is_response(IN const ib_mad_t * const p_mad)
 {
-	CL_ASSERT( p_mad );
-	return( (p_mad->method & IB_MAD_METHOD_RESP_MASK) ==
-			IB_MAD_METHOD_RESP_MASK );
+	CL_ASSERT(p_mad);
+	return ((p_mad->method & IB_MAD_METHOD_RESP_MASK) ==
+		IB_MAD_METHOD_RESP_MASK);
 }
+
 /*
 * PARAMETERS
 *	p_mad
@@ -3578,17 +3503,17 @@ ib_mad_is_response(
 #define IB_RMPP_FLAG_LAST		0x04
 
 #define IB_RMPP_STATUS_SUCCESS		0
-#define IB_RMPP_STATUS_RESX		1		/* resources exhausted */
-#define IB_RMPP_STATUS_T2L		118		/* time too long */
-#define IB_RMPP_STATUS_BAD_LEN		119		/* incon. last and payload len */
-#define IB_RMPP_STATUS_BAD_SEG		120		/* incon. first and segment no */
-#define IB_RMPP_STATUS_BADT		121		/* bad rmpp type */
-#define IB_RMPP_STATUS_W2S		122		/* newwindowlast too small */
-#define IB_RMPP_STATUS_S2B		123		/* segment no too big */
-#define IB_RMPP_STATUS_BAD_STATUS	124		/* illegal status */
-#define IB_RMPP_STATUS_UNV		125		/* unsupported version */
-#define IB_RMPP_STATUS_TMR		126		/* too many retries */
-#define IB_RMPP_STATUS_UNSPEC		127		/* unspecified */
+#define IB_RMPP_STATUS_RESX		1	/* resources exhausted */
+#define IB_RMPP_STATUS_T2L		118	/* time too long */
+#define IB_RMPP_STATUS_BAD_LEN		119	/* incon. last and payload len */
+#define IB_RMPP_STATUS_BAD_SEG		120	/* incon. first and segment no */
+#define IB_RMPP_STATUS_BADT		121	/* bad rmpp type */
+#define IB_RMPP_STATUS_W2S		122	/* newwindowlast too small */
+#define IB_RMPP_STATUS_S2B		123	/* segment no too big */
+#define IB_RMPP_STATUS_BAD_STATUS	124	/* illegal status */
+#define IB_RMPP_STATUS_UNV		125	/* unsupported version */
+#define IB_RMPP_STATUS_TMR		126	/* too many retries */
+#define IB_RMPP_STATUS_UNSPEC		127	/* unspecified */
 
 /****f* IBA Base: Types/ib_rmpp_is_flag_set
 * NAME
@@ -3599,14 +3524,14 @@ ib_mad_is_response(
 *
 * SYNOPSIS
 */
-static inline boolean_t	OSM_API
-ib_rmpp_is_flag_set(
-	IN	const	ib_rmpp_mad_t* const	p_rmpp_mad,
-	IN	const	uint8_t			flag )
+static inline boolean_t OSM_API
+ib_rmpp_is_flag_set(IN const ib_rmpp_mad_t * const p_rmpp_mad,
+		    IN const uint8_t flag)
 {
-	CL_ASSERT( p_rmpp_mad );
-	return( (p_rmpp_mad->rmpp_flags & flag) == flag );
+	CL_ASSERT(p_rmpp_mad);
+	return ((p_rmpp_mad->rmpp_flags & flag) == flag);
 }
+
 /*
 * PARAMETERS
 *	ib_rmpp_mad_t
@@ -3624,22 +3549,19 @@ ib_rmpp_is_flag_set(
 *	ib_mad_t, ib_rmpp_mad_t
 *********/
 
-static inline void	OSM_API
-ib_rmpp_set_resp_time(
-	IN		ib_rmpp_mad_t* const	p_rmpp_mad,
-	IN	const	uint8_t			resp_time )
+static inline void OSM_API
+ib_rmpp_set_resp_time(IN ib_rmpp_mad_t * const p_rmpp_mad,
+		      IN const uint8_t resp_time)
 {
-	CL_ASSERT( p_rmpp_mad );
+	CL_ASSERT(p_rmpp_mad);
 	p_rmpp_mad->rmpp_flags |= (resp_time << 3);
 }
 
-
-static inline uint8_t	OSM_API
-ib_rmpp_get_resp_time(
-	IN	const	ib_rmpp_mad_t* const	p_rmpp_mad )
+static inline uint8_t OSM_API
+ib_rmpp_get_resp_time(IN const ib_rmpp_mad_t * const p_rmpp_mad)
 {
-	CL_ASSERT( p_rmpp_mad );
-	return( (uint8_t)(p_rmpp_mad->rmpp_flags >> 3) );
+	CL_ASSERT(p_rmpp_mad);
+	return ((uint8_t) (p_rmpp_mad->rmpp_flags >> 3));
 }
 
 /****d* IBA Base: Constants/IB_SMP_DIRECTION
@@ -3679,28 +3601,27 @@ ib_rmpp_get_resp_time(
 */
 #define IB_SMP_DATA_SIZE 64
 #include <complib/cl_packon.h>
-typedef struct _ib_smp
-{
-	uint8_t					base_ver;
-	uint8_t					mgmt_class;
-	uint8_t					class_ver;
-	uint8_t					method;
-	ib_net16_t				status;
-	uint8_t					hop_ptr;
-	uint8_t					hop_count;
-	ib_net64_t				trans_id;
-	ib_net16_t				attr_id;
-	ib_net16_t				resv;
-	ib_net32_t				attr_mod;
-	ib_net64_t				m_key;
-	ib_net16_t				dr_slid;
-	ib_net16_t				dr_dlid;
-	uint32_t				resv1[7];
-	uint8_t					data[IB_SMP_DATA_SIZE];
-	uint8_t					initial_path[IB_SUBNET_PATH_HOPS_MAX];
-	uint8_t					return_path[IB_SUBNET_PATH_HOPS_MAX];
+typedef struct _ib_smp {
+	uint8_t base_ver;
+	uint8_t mgmt_class;
+	uint8_t class_ver;
+	uint8_t method;
+	ib_net16_t status;
+	uint8_t hop_ptr;
+	uint8_t hop_count;
+	ib_net64_t trans_id;
+	ib_net16_t attr_id;
+	ib_net16_t resv;
+	ib_net32_t attr_mod;
+	ib_net64_t m_key;
+	ib_net16_t dr_slid;
+	ib_net16_t dr_dlid;
+	uint32_t resv1[7];
+	uint8_t data[IB_SMP_DATA_SIZE];
+	uint8_t initial_path[IB_SUBNET_PATH_HOPS_MAX];
+	uint8_t return_path[IB_SUBNET_PATH_HOPS_MAX];
 
-}	PACK_SUFFIX ib_smp_t;
+} PACK_SUFFIX ib_smp_t;
 #include <complib/cl_packoff.h>
 /*
 * FIELDS
@@ -3770,12 +3691,12 @@ typedef struct _ib_smp
 *
 * SYNOPSIS
 */
-static inline ib_net16_t	OSM_API
-ib_smp_get_status(
-	IN	const	ib_smp_t* const		p_smp )
+static inline ib_net16_t OSM_API
+ib_smp_get_status(IN const ib_smp_t * const p_smp)
 {
-	return( (ib_net16_t)(p_smp->status & IB_SMP_STATUS_MASK) );
+	return ((ib_net16_t) (p_smp->status & IB_SMP_STATUS_MASK));
 }
+
 /*
 * PARAMETERS
 *	p_smp
@@ -3799,12 +3720,12 @@ ib_smp_get_status(
 *
 * SYNOPSIS
 */
-static inline boolean_t	OSM_API
-ib_smp_is_response(
-	IN	const	ib_smp_t* const		p_smp )
+static inline boolean_t OSM_API
+ib_smp_is_response(IN const ib_smp_t * const p_smp)
 {
-	return( ib_mad_is_response( (const ib_mad_t*)p_smp ) );
+	return (ib_mad_is_response((const ib_mad_t *)p_smp));
 }
+
 /*
 * PARAMETERS
 *	p_smp
@@ -3828,12 +3749,11 @@ ib_smp_is_response(
 *
 * SYNOPSIS
 */
-static inline boolean_t	OSM_API
-ib_smp_is_d(
-	IN	const	ib_smp_t* const		p_smp )
+static inline boolean_t OSM_API ib_smp_is_d(IN const ib_smp_t * const p_smp)
 {
-	return( (p_smp->status & IB_SMP_DIRECTION) == IB_SMP_DIRECTION );
+	return ((p_smp->status & IB_SMP_DIRECTION) == IB_SMP_DIRECTION);
 }
+
 /*
 * PARAMETERS
 *	p_smp
@@ -3861,21 +3781,19 @@ ib_smp_is_d(
 *
 * SYNOPSIS
 */
-static inline void	OSM_API
-ib_smp_init_new(
-	IN		ib_smp_t* const		p_smp,
-	IN	const	uint8_t			method,
-	IN	const	ib_net64_t		trans_id,
-	IN	const	ib_net16_t		attr_id,
-	IN	const	ib_net32_t		attr_mod,
-	IN	const	uint8_t			hop_count,
-	IN	const	ib_net64_t		m_key,
-	IN	const	uint8_t*		path_out,
-	IN	const	ib_net16_t		dr_slid,
-	IN	const	ib_net16_t		dr_dlid )
+static inline void OSM_API
+ib_smp_init_new(IN ib_smp_t * const p_smp,
+		IN const uint8_t method,
+		IN const ib_net64_t trans_id,
+		IN const ib_net16_t attr_id,
+		IN const ib_net32_t attr_mod,
+		IN const uint8_t hop_count,
+		IN const ib_net64_t m_key,
+		IN const uint8_t * path_out,
+		IN const ib_net16_t dr_slid, IN const ib_net16_t dr_dlid)
 {
-	CL_ASSERT( p_smp );
-	CL_ASSERT( hop_count < IB_SUBNET_PATH_HOPS_MAX );
+	CL_ASSERT(p_smp);
+	CL_ASSERT(hop_count < IB_SUBNET_PATH_HOPS_MAX);
 	p_smp->base_ver = 1;
 	p_smp->mgmt_class = IB_MCLASS_SUBN_DIR;
 	p_smp->class_ver = 1;
@@ -3891,16 +3809,15 @@ ib_smp_init_new(
 	p_smp->dr_slid = dr_slid;
 	p_smp->dr_dlid = dr_dlid;
 
-	memset( p_smp->resv1, 0,
-		sizeof(p_smp->resv1) +
-		sizeof(p_smp->data) +
-		sizeof(p_smp->initial_path) +
-		sizeof(p_smp->return_path) );
+	memset(p_smp->resv1, 0,
+	       sizeof(p_smp->resv1) +
+	       sizeof(p_smp->data) +
+	       sizeof(p_smp->initial_path) + sizeof(p_smp->return_path));
 
 	/* copy the path */
-	memcpy( &p_smp->initial_path, path_out,
-		sizeof( p_smp->initial_path ) );
+	memcpy(&p_smp->initial_path, path_out, sizeof(p_smp->initial_path));
 }
+
 /*
 * PARAMETERS
 *	p_smp
@@ -3948,12 +3865,12 @@ ib_smp_init_new(
 *
 * SYNOPSIS
 */
-static inline void*	OSM_API
-ib_smp_get_payload_ptr(
-	IN	const	ib_smp_t* const		p_smp )
+static inline void *OSM_API
+ib_smp_get_payload_ptr(IN const ib_smp_t * const p_smp)
 {
-	return( (void*)p_smp->data );
+	return ((void *)p_smp->data);
 }
+
 /*
 * PARAMETERS
 *	p_smp
@@ -3978,21 +3895,20 @@ ib_smp_get_payload_ptr(
 * SYNOPSIS
 */
 #include <complib/cl_packon.h>
-typedef struct _ib_node_info
-{
-	uint8_t				base_version;
-	uint8_t				class_version;
-	uint8_t				node_type;
-	uint8_t				num_ports;
-	ib_net64_t			sys_guid;
-	ib_net64_t			node_guid;
-	ib_net64_t			port_guid;
-	ib_net16_t			partition_cap;
-	ib_net16_t			device_id;
-	ib_net32_t			revision;
-	ib_net32_t			port_num_vendor_id;
+typedef struct _ib_node_info {
+	uint8_t base_version;
+	uint8_t class_version;
+	uint8_t node_type;
+	uint8_t num_ports;
+	ib_net64_t sys_guid;
+	ib_net64_t node_guid;
+	ib_net64_t port_guid;
+	ib_net16_t partition_cap;
+	ib_net16_t device_id;
+	ib_net32_t revision;
+	ib_net32_t port_num_vendor_id;
 
-}	PACK_SUFFIX ib_node_info_t;
+} PACK_SUFFIX ib_node_info_t;
 #include <complib/cl_packoff.h>
 /************/
 
@@ -4008,52 +3924,47 @@ typedef struct _ib_node_info
 #define IB_SA_DATA_SIZE 200
 
 #include <complib/cl_packon.h>
-typedef struct _ib_sa_mad
-{
-	uint8_t					base_ver;
-	uint8_t					mgmt_class;
-	uint8_t					class_ver;
-	uint8_t					method;
-	ib_net16_t				status;
-	ib_net16_t				resv;
-	ib_net64_t				trans_id;
-	ib_net16_t				attr_id;
-	ib_net16_t				resv1;
-	ib_net32_t				attr_mod;
+typedef struct _ib_sa_mad {
+	uint8_t base_ver;
+	uint8_t mgmt_class;
+	uint8_t class_ver;
+	uint8_t method;
+	ib_net16_t status;
+	ib_net16_t resv;
+	ib_net64_t trans_id;
+	ib_net16_t attr_id;
+	ib_net16_t resv1;
+	ib_net32_t attr_mod;
 
-	uint8_t					rmpp_version;
-	uint8_t					rmpp_type;
-	uint8_t					rmpp_flags;
-	uint8_t					rmpp_status;
+	uint8_t rmpp_version;
+	uint8_t rmpp_type;
+	uint8_t rmpp_flags;
+	uint8_t rmpp_status;
 
-	ib_net32_t				seg_num;
-	ib_net32_t				paylen_newwin;
+	ib_net32_t seg_num;
+	ib_net32_t paylen_newwin;
 
-	ib_net64_t				sm_key;
+	ib_net64_t sm_key;
 
-	ib_net16_t				attr_offset;
-	ib_net16_t				resv3;
+	ib_net16_t attr_offset;
+	ib_net16_t resv3;
 
-	ib_net64_t				comp_mask;
+	ib_net64_t comp_mask;
 
-	uint8_t					data[IB_SA_DATA_SIZE];
-}	PACK_SUFFIX ib_sa_mad_t;
+	uint8_t data[IB_SA_DATA_SIZE];
+} PACK_SUFFIX ib_sa_mad_t;
 #include <complib/cl_packoff.h>
 /**********/
 #define IB_SA_MAD_HDR_SIZE (sizeof(ib_sa_mad_t) - IB_SA_DATA_SIZE)
 
-static inline uint32_t	OSM_API
-ib_get_attr_size(
-	IN	const	ib_net16_t				attr_offset )
+static inline uint32_t OSM_API ib_get_attr_size(IN const ib_net16_t attr_offset)
 {
-	return( ((uint32_t)cl_ntoh16( attr_offset )) << 3 );
+	return (((uint32_t) cl_ntoh16(attr_offset)) << 3);
 }
 
-static inline ib_net16_t	OSM_API
-ib_get_attr_offset(
-	IN	const	uint32_t				attr_size )
+static inline ib_net16_t OSM_API ib_get_attr_offset(IN const uint32_t attr_size)
 {
-	return( cl_hton16( (uint16_t)(attr_size >> 3) ) );
+	return (cl_hton16((uint16_t) (attr_size >> 3)));
 }
 
 /****f* IBA Base: Types/ib_sa_mad_get_payload_ptr
@@ -4065,12 +3976,12 @@ ib_get_attr_offset(
 *
 * SYNOPSIS
 */
-static inline void*	OSM_API
-ib_sa_mad_get_payload_ptr(
-	IN	const	ib_sa_mad_t* const		p_sa_mad )
+static inline void *OSM_API
+ib_sa_mad_get_payload_ptr(IN const ib_sa_mad_t * const p_sa_mad)
 {
-	return( (void*)p_sa_mad->data );
+	return ((void *)p_sa_mad->data);
 }
+
 /*
 * PARAMETERS
 *	p_smp
@@ -4088,9 +3999,9 @@ ib_sa_mad_get_payload_ptr(
 #define IB_NODE_INFO_PORT_NUM_MASK		(CL_HTON32(0xFF000000))
 #define IB_NODE_INFO_VEND_ID_MASK		(CL_HTON32(0x00FFFFFF))
 #if CPU_LE
-	#define IB_NODE_INFO_PORT_NUM_SHIFT 0
+#define IB_NODE_INFO_PORT_NUM_SHIFT 0
 #else
-	#define IB_NODE_INFO_PORT_NUM_SHIFT 24
+#define IB_NODE_INFO_PORT_NUM_SHIFT 24
 #endif
 
 /****f* IBA Base: Types/ib_node_info_get_local_port_num
@@ -4102,14 +4013,14 @@ ib_sa_mad_get_payload_ptr(
 *
 * SYNOPSIS
 */
-static inline uint8_t	OSM_API
-ib_node_info_get_local_port_num(
-	IN	const	ib_node_info_t* const	p_ni )
+static inline uint8_t OSM_API
+ib_node_info_get_local_port_num(IN const ib_node_info_t * const p_ni)
 {
-	return( (uint8_t)(( p_ni->port_num_vendor_id &
-			IB_NODE_INFO_PORT_NUM_MASK )
-			>> IB_NODE_INFO_PORT_NUM_SHIFT ));
+	return ((uint8_t) ((p_ni->port_num_vendor_id &
+			    IB_NODE_INFO_PORT_NUM_MASK)
+			   >> IB_NODE_INFO_PORT_NUM_SHIFT));
 }
+
 /*
 * PARAMETERS
 *	p_ni
@@ -4133,13 +4044,13 @@ ib_node_info_get_local_port_num(
 *
 * SYNOPSIS
 */
-static inline ib_net32_t	OSM_API
-ib_node_info_get_vendor_id(
-	IN	const	ib_node_info_t* const	p_ni )
+static inline ib_net32_t OSM_API
+ib_node_info_get_vendor_id(IN const ib_node_info_t * const p_ni)
 {
-	return( (ib_net32_t)( p_ni->port_num_vendor_id &
-			IB_NODE_INFO_VEND_ID_MASK ) );
+	return ((ib_net32_t) (p_ni->port_num_vendor_id &
+			      IB_NODE_INFO_VEND_ID_MASK));
 }
+
 /*
 * PARAMETERS
 *	p_ni
@@ -4157,26 +4068,24 @@ ib_node_info_get_vendor_id(
 #define IB_NODE_DESCRIPTION_SIZE 64
 
 #include <complib/cl_packon.h>
-typedef struct _ib_node_desc
-{
+typedef struct _ib_node_desc {
 	// Node String is an array of UTF-8 character that
 	// describes the node in text format
 	// Note that this string is NOT NULL TERMINATED!
-	uint8_t		description[IB_NODE_DESCRIPTION_SIZE];
+	uint8_t description[IB_NODE_DESCRIPTION_SIZE];
 
-}	PACK_SUFFIX ib_node_desc_t;
+} PACK_SUFFIX ib_node_desc_t;
 #include <complib/cl_packoff.h>
 
 #include <complib/cl_packon.h>
-typedef struct _ib_node_record_t
-{
-	ib_net16_t		lid;
-	ib_net16_t		resv;
-	ib_node_info_t	node_info;
-	ib_node_desc_t	node_desc;
-	uint8_t			pad[4];
+typedef struct _ib_node_record_t {
+	ib_net16_t lid;
+	ib_net16_t resv;
+	ib_node_info_t node_info;
+	ib_node_desc_t node_desc;
+	uint8_t pad[4];
 
-}	PACK_SUFFIX ib_node_record_t;
+} PACK_SUFFIX ib_node_record_t;
 #include <complib/cl_packoff.h>
 
 /****s* IBA Base: Types/ib_port_info_t
@@ -4189,41 +4098,40 @@ typedef struct _ib_node_record_t
 * SYNOPSIS
 */
 #include <complib/cl_packon.h>
-typedef struct _ib_port_info
-{
-	ib_net64_t			m_key;
-	ib_net64_t			subnet_prefix;
-	ib_net16_t			base_lid;
-	ib_net16_t			master_sm_base_lid;
-	ib_net32_t			capability_mask;
-	ib_net16_t			diag_code;
-	ib_net16_t			m_key_lease_period;
-	uint8_t				local_port_num;
-	uint8_t				link_width_enabled;
-	uint8_t				link_width_supported;
-	uint8_t				link_width_active;
-	uint8_t				state_info1; /* LinkSpeedSupported and PortState */
-	uint8_t				state_info2; /* PortPhysState and LinkDownDefaultState */
-	uint8_t				mkey_lmc;
-	uint8_t				link_speed;	 /* LinkSpeedEnabled and LinkSpeedActive */
-	uint8_t				mtu_smsl;
-	uint8_t				vl_cap;		 /* VLCap and InitType */
-	uint8_t				vl_high_limit;
-	uint8_t				vl_arb_high_cap;
-	uint8_t				vl_arb_low_cap;
-	uint8_t				mtu_cap;
-	uint8_t				vl_stall_life;
-	uint8_t				vl_enforce;
-	ib_net16_t			m_key_violations;
-	ib_net16_t			p_key_violations;
-	ib_net16_t			q_key_violations;
-	uint8_t				guid_cap;
-	uint8_t				subnet_timeout; /* cli_rereg(1b), resrv(
-2b), timeout(5b) */
-	uint8_t				resp_time_value;
-	uint8_t				error_threshold;
+typedef struct _ib_port_info {
+	ib_net64_t m_key;
+	ib_net64_t subnet_prefix;
+	ib_net16_t base_lid;
+	ib_net16_t master_sm_base_lid;
+	ib_net32_t capability_mask;
+	ib_net16_t diag_code;
+	ib_net16_t m_key_lease_period;
+	uint8_t local_port_num;
+	uint8_t link_width_enabled;
+	uint8_t link_width_supported;
+	uint8_t link_width_active;
+	uint8_t state_info1;	/* LinkSpeedSupported and PortState */
+	uint8_t state_info2;	/* PortPhysState and LinkDownDefaultState */
+	uint8_t mkey_lmc;
+	uint8_t link_speed;	/* LinkSpeedEnabled and LinkSpeedActive */
+	uint8_t mtu_smsl;
+	uint8_t vl_cap;		/* VLCap and InitType */
+	uint8_t vl_high_limit;
+	uint8_t vl_arb_high_cap;
+	uint8_t vl_arb_low_cap;
+	uint8_t mtu_cap;
+	uint8_t vl_stall_life;
+	uint8_t vl_enforce;
+	ib_net16_t m_key_violations;
+	ib_net16_t p_key_violations;
+	ib_net16_t q_key_violations;
+	uint8_t guid_cap;
+	uint8_t subnet_timeout;	/* cli_rereg(1b), resrv(
+				   2b), timeout(5b) */
+	uint8_t resp_time_value;
+	uint8_t error_threshold;
 
-}	PACK_SUFFIX ib_port_info_t;
+} PACK_SUFFIX ib_port_info_t;
 #include <complib/cl_packoff.h>
 /************/
 
@@ -4290,12 +4198,12 @@ typedef struct _ib_port_info
 *
 * SYNOPSIS
 */
-static inline uint8_t	OSM_API
-ib_port_info_get_port_state(
-	IN	const	ib_port_info_t* const	p_pi )
+static inline uint8_t OSM_API
+ib_port_info_get_port_state(IN const ib_port_info_t * const p_pi)
 {
-	return( (uint8_t)(p_pi->state_info1 & IB_PORT_STATE_MASK) );
+	return ((uint8_t) (p_pi->state_info1 & IB_PORT_STATE_MASK));
 }
+
 /*
 * PARAMETERS
 *	p_pi
@@ -4318,13 +4226,13 @@ ib_port_info_get_port_state(
 *
 * SYNOPSIS
 */
-static inline void	OSM_API
-ib_port_info_set_port_state(
-	IN		ib_port_info_t* const	p_pi,
-	IN	const	uint8_t			port_state )
+static inline void OSM_API
+ib_port_info_set_port_state(IN ib_port_info_t * const p_pi,
+			    IN const uint8_t port_state)
 {
-	p_pi->state_info1 = (uint8_t)((p_pi->state_info1 & 0xF0) | port_state );
+	p_pi->state_info1 = (uint8_t) ((p_pi->state_info1 & 0xF0) | port_state);
 }
+
 /*
 * PARAMETERS
 *	p_pi
@@ -4350,12 +4258,12 @@ ib_port_info_set_port_state(
 *
 * SYNOPSIS
 */
-static inline uint8_t	OSM_API
-ib_port_info_get_vl_cap(
-	IN const ib_port_info_t* const p_pi)
+static inline uint8_t OSM_API
+ib_port_info_get_vl_cap(IN const ib_port_info_t * const p_pi)
 {
-	return((p_pi->vl_cap >> 4) & 0x0F);
+	return ((p_pi->vl_cap >> 4) & 0x0F);
 }
+
 /*
 * PARAMETERS
 *	p_pi
@@ -4378,12 +4286,12 @@ ib_port_info_get_vl_cap(
 *
 * SYNOPSIS
 */
-static inline uint8_t	OSM_API
-ib_port_info_get_init_type(
-	IN const ib_port_info_t* const p_pi)
+static inline uint8_t OSM_API
+ib_port_info_get_init_type(IN const ib_port_info_t * const p_pi)
 {
 	return (uint8_t) (p_pi->vl_cap & 0x0F);
 }
+
 /*
 * PARAMETERS
 *	p_pi
@@ -4406,12 +4314,12 @@ ib_port_info_get_init_type(
 *
 * SYNOPSIS
 */
-static inline uint8_t	OSM_API
-ib_port_info_get_op_vls(
-	IN const ib_port_info_t* const p_pi)
+static inline uint8_t OSM_API
+ib_port_info_get_op_vls(IN const ib_port_info_t * const p_pi)
 {
-	return((p_pi->vl_enforce >> 4) & 0x0F);
+	return ((p_pi->vl_enforce >> 4) & 0x0F);
 }
+
 /*
 * PARAMETERS
 *	p_pi
@@ -4434,13 +4342,13 @@ ib_port_info_get_op_vls(
 *
 * SYNOPSIS
 */
-static inline void	OSM_API
-ib_port_info_set_op_vls(
-	IN		ib_port_info_t* const	p_pi,
-	IN	const	uint8_t			op_vls )
+static inline void OSM_API
+ib_port_info_set_op_vls(IN ib_port_info_t * const p_pi, IN const uint8_t op_vls)
 {
-	p_pi->vl_enforce = (uint8_t)((p_pi->vl_enforce & 0x0F) | (op_vls << 4) );
+	p_pi->vl_enforce =
+	    (uint8_t) ((p_pi->vl_enforce & 0x0F) | (op_vls << 4));
 }
+
 /*
 * PARAMETERS
 *	p_pi
@@ -4466,13 +4374,13 @@ ib_port_info_set_op_vls(
 *
 * SYNOPSIS
 */
-static inline void	OSM_API
-ib_port_info_set_state_no_change(
-	IN		ib_port_info_t* const	p_pi )
+static inline void OSM_API
+ib_port_info_set_state_no_change(IN ib_port_info_t * const p_pi)
 {
-	ib_port_info_set_port_state( p_pi, IB_LINK_NO_CHANGE );
+	ib_port_info_set_port_state(p_pi, IB_LINK_NO_CHANGE);
 	p_pi->state_info2 = 0;
 }
+
 /*
 * PARAMETERS
 *	p_pi
@@ -4495,14 +4403,14 @@ ib_port_info_set_state_no_change(
 *
 * SYNOPSIS
 */
-static inline uint8_t	OSM_API
-ib_port_info_get_link_speed_sup(
-	IN	const	ib_port_info_t* const	p_pi )
+static inline uint8_t OSM_API
+ib_port_info_get_link_speed_sup(IN const ib_port_info_t * const p_pi)
 {
-	return( (uint8_t)((p_pi->state_info1 &
-			IB_PORT_LINK_SPEED_SUPPORTED_MASK) >>
-			IB_PORT_LINK_SPEED_SHIFT) );
+	return ((uint8_t) ((p_pi->state_info1 &
+			    IB_PORT_LINK_SPEED_SUPPORTED_MASK) >>
+			   IB_PORT_LINK_SPEED_SHIFT));
 }
+
 /*
 * PARAMETERS
 *	p_pi
@@ -4526,16 +4434,16 @@ ib_port_info_get_link_speed_sup(
 *
 * SYNOPSIS
 */
-static inline void	OSM_API
-ib_port_info_set_link_speed_sup(
-	IN	uint8_t const		speed,
-	IN	ib_port_info_t*		p_pi )
+static inline void OSM_API
+ib_port_info_set_link_speed_sup(IN uint8_t const speed,
+				IN ib_port_info_t * p_pi)
 {
 	p_pi->state_info1 =
-		( ~IB_PORT_LINK_SPEED_SUPPORTED_MASK & p_pi->state_info1 ) |
-		( IB_PORT_LINK_SPEED_SUPPORTED_MASK &
-			(speed << IB_PORT_LINK_SPEED_SHIFT) );
+	    (~IB_PORT_LINK_SPEED_SUPPORTED_MASK & p_pi->state_info1) |
+	    (IB_PORT_LINK_SPEED_SUPPORTED_MASK &
+	     (speed << IB_PORT_LINK_SPEED_SHIFT));
 }
+
 /*
 * PARAMETERS
 *	speed
@@ -4561,14 +4469,14 @@ ib_port_info_set_link_speed_sup(
 *
 * SYNOPSIS
 */
-static inline uint8_t	OSM_API
-ib_port_info_get_port_phys_state(
-	IN	const	ib_port_info_t* const	p_pi )
+static inline uint8_t OSM_API
+ib_port_info_get_port_phys_state(IN const ib_port_info_t * const p_pi)
 {
-	return( (uint8_t)((p_pi->state_info2 &
-                      IB_PORT_PHYS_STATE_MASK) >>
-                     IB_PORT_PHYS_STATE_SHIFT) );
+	return ((uint8_t) ((p_pi->state_info2 &
+			    IB_PORT_PHYS_STATE_MASK) >>
+			   IB_PORT_PHYS_STATE_SHIFT));
 }
+
 /*
 * PARAMETERS
 *	p_pi
@@ -4592,16 +4500,16 @@ ib_port_info_get_port_phys_state(
 *
 * SYNOPSIS
 */
-static inline void	OSM_API
-ib_port_info_set_port_phys_state(
-	IN	uint8_t const		phys_state,
-	IN	ib_port_info_t*		p_pi )
+static inline void OSM_API
+ib_port_info_set_port_phys_state(IN uint8_t const phys_state,
+				 IN ib_port_info_t * p_pi)
 {
 	p_pi->state_info2 =
-		( ~IB_PORT_PHYS_STATE_MASK & p_pi->state_info2 ) |
-		( IB_PORT_PHYS_STATE_MASK &
-        (phys_state << IB_PORT_PHYS_STATE_SHIFT) );
+	    (~IB_PORT_PHYS_STATE_MASK & p_pi->state_info2) |
+	    (IB_PORT_PHYS_STATE_MASK &
+	     (phys_state << IB_PORT_PHYS_STATE_SHIFT));
 }
+
 /*
 * PARAMETERS
 *	phys_state
@@ -4627,12 +4535,12 @@ ib_port_info_set_port_phys_state(
 *
 * SYNOPSIS
 */
-static inline uint8_t	OSM_API
-ib_port_info_get_link_down_def_state(
-	IN	const	ib_port_info_t* const	p_pi )
+static inline uint8_t OSM_API
+ib_port_info_get_link_down_def_state(IN const ib_port_info_t * const p_pi)
 {
-	return( (uint8_t)(p_pi->state_info2 & IB_PORT_LNKDWNDFTSTATE_MASK) );
+	return ((uint8_t) (p_pi->state_info2 & IB_PORT_LNKDWNDFTSTATE_MASK));
 }
+
 /*
 * PARAMETERS
 *	p_pi
@@ -4655,13 +4563,14 @@ ib_port_info_get_link_down_def_state(
 *
 * SYNOPSIS
 */
-static inline void	OSM_API
-ib_port_info_set_link_down_def_state(
-	IN		ib_port_info_t* const	p_pi,
-	IN	const	uint8_t			link_dwn_state )
+static inline void OSM_API
+ib_port_info_set_link_down_def_state(IN ib_port_info_t * const p_pi,
+				     IN const uint8_t link_dwn_state)
 {
-	p_pi->state_info2 = (uint8_t)((p_pi->state_info2 & 0xF0) | link_dwn_state );
+	p_pi->state_info2 =
+	    (uint8_t) ((p_pi->state_info2 & 0xF0) | link_dwn_state);
 }
+
 /*
 * PARAMETERS
 *	p_pi
@@ -4687,14 +4596,14 @@ ib_port_info_set_link_down_def_state(
 *
 * SYNOPSIS
 */
-static inline uint8_t	OSM_API
-ib_port_info_get_link_speed_active(
-	IN	const	ib_port_info_t* const	p_pi )
+static inline uint8_t OSM_API
+ib_port_info_get_link_speed_active(IN const ib_port_info_t * const p_pi)
 {
-  return( (uint8_t)((p_pi->link_speed &
-                     IB_PORT_LINK_SPEED_ACTIVE_MASK) >>
-                    IB_PORT_LINK_SPEED_SHIFT) );
+	return ((uint8_t) ((p_pi->link_speed &
+			    IB_PORT_LINK_SPEED_ACTIVE_MASK) >>
+			   IB_PORT_LINK_SPEED_SHIFT));
 }
+
 /*
 * PARAMETERS
 *	p_pi
@@ -4739,93 +4648,89 @@ ib_port_info_get_link_speed_active(
 *
 * SYNOPSIS
 */
-static inline uint8_t	OSM_API
-ib_port_info_compute_rate(
-	IN	const	ib_port_info_t* const	p_pi )
+static inline uint8_t OSM_API
+ib_port_info_compute_rate(IN const ib_port_info_t * const p_pi)
 {
-  uint8_t rate = 0;
+	uint8_t rate = 0;
 
-  switch (ib_port_info_get_link_speed_active(p_pi))
-  {
-  case IB_LINK_SPEED_ACTIVE_2_5:
-    switch (p_pi->link_width_active)
-    {
-    case IB_LINK_WIDTH_ACTIVE_1X:
-      rate = IB_PATH_RECORD_RATE_2_5_GBS;
-      break;
+	switch (ib_port_info_get_link_speed_active(p_pi)) {
+	case IB_LINK_SPEED_ACTIVE_2_5:
+		switch (p_pi->link_width_active) {
+		case IB_LINK_WIDTH_ACTIVE_1X:
+			rate = IB_PATH_RECORD_RATE_2_5_GBS;
+			break;
 
-    case IB_LINK_WIDTH_ACTIVE_4X:
-      rate = IB_PATH_RECORD_RATE_10_GBS;
-      break;
+		case IB_LINK_WIDTH_ACTIVE_4X:
+			rate = IB_PATH_RECORD_RATE_10_GBS;
+			break;
 
-    case IB_LINK_WIDTH_ACTIVE_8X:
-      rate = IB_PATH_RECORD_RATE_20_GBS;
-      break;
+		case IB_LINK_WIDTH_ACTIVE_8X:
+			rate = IB_PATH_RECORD_RATE_20_GBS;
+			break;
 
-    case IB_LINK_WIDTH_ACTIVE_12X:
-      rate = IB_PATH_RECORD_RATE_30_GBS;
-      break;
+		case IB_LINK_WIDTH_ACTIVE_12X:
+			rate = IB_PATH_RECORD_RATE_30_GBS;
+			break;
 
-    default:
-      rate = IB_PATH_RECORD_RATE_2_5_GBS;
-      break;
-    }
-    break;
-  case IB_LINK_SPEED_ACTIVE_5:
-    switch (p_pi->link_width_active)
-    {
-    case IB_LINK_WIDTH_ACTIVE_1X:
-      rate = IB_PATH_RECORD_RATE_5_GBS;
-      break;
+		default:
+			rate = IB_PATH_RECORD_RATE_2_5_GBS;
+			break;
+		}
+		break;
+	case IB_LINK_SPEED_ACTIVE_5:
+		switch (p_pi->link_width_active) {
+		case IB_LINK_WIDTH_ACTIVE_1X:
+			rate = IB_PATH_RECORD_RATE_5_GBS;
+			break;
 
-    case IB_LINK_WIDTH_ACTIVE_4X:
-      rate = IB_PATH_RECORD_RATE_20_GBS;
-      break;
+		case IB_LINK_WIDTH_ACTIVE_4X:
+			rate = IB_PATH_RECORD_RATE_20_GBS;
+			break;
 
-    case IB_LINK_WIDTH_ACTIVE_8X:
-      rate = IB_PATH_RECORD_RATE_40_GBS;
-      break;
+		case IB_LINK_WIDTH_ACTIVE_8X:
+			rate = IB_PATH_RECORD_RATE_40_GBS;
+			break;
 
-    case IB_LINK_WIDTH_ACTIVE_12X:
-      rate = IB_PATH_RECORD_RATE_60_GBS;
-      break;
+		case IB_LINK_WIDTH_ACTIVE_12X:
+			rate = IB_PATH_RECORD_RATE_60_GBS;
+			break;
 
-    default:
-      rate = IB_PATH_RECORD_RATE_5_GBS;
-      break;
-    }
-    break;
-  case IB_LINK_SPEED_ACTIVE_10:
-    switch (p_pi->link_width_active)
-    {
-    case IB_LINK_WIDTH_ACTIVE_1X:
-      rate = IB_PATH_RECORD_RATE_10_GBS;
-      break;
+		default:
+			rate = IB_PATH_RECORD_RATE_5_GBS;
+			break;
+		}
+		break;
+	case IB_LINK_SPEED_ACTIVE_10:
+		switch (p_pi->link_width_active) {
+		case IB_LINK_WIDTH_ACTIVE_1X:
+			rate = IB_PATH_RECORD_RATE_10_GBS;
+			break;
 
-    case IB_LINK_WIDTH_ACTIVE_4X:
-      rate = IB_PATH_RECORD_RATE_40_GBS;
-      break;
+		case IB_LINK_WIDTH_ACTIVE_4X:
+			rate = IB_PATH_RECORD_RATE_40_GBS;
+			break;
 
-    case IB_LINK_WIDTH_ACTIVE_8X:
-      rate = IB_PATH_RECORD_RATE_80_GBS;
-      break;
+		case IB_LINK_WIDTH_ACTIVE_8X:
+			rate = IB_PATH_RECORD_RATE_80_GBS;
+			break;
 
-    case IB_LINK_WIDTH_ACTIVE_12X:
-      rate =IB_PATH_RECORD_RATE_120_GBS;
-      break;
+		case IB_LINK_WIDTH_ACTIVE_12X:
+			rate = IB_PATH_RECORD_RATE_120_GBS;
+			break;
 
-    default:
-      rate = IB_PATH_RECORD_RATE_10_GBS;
-      break;
-    }
-    break;
-  default:
-    rate = IB_PATH_RECORD_RATE_2_5_GBS;
-    break;
-  }
+		default:
+			rate = IB_PATH_RECORD_RATE_10_GBS;
+			break;
+		}
+		break;
+	default:
+		rate = IB_PATH_RECORD_RATE_2_5_GBS;
+		break;
+	}
 
-  return rate;
+	return rate;
 }
+
 /*
 * PARAMETERS
 *	p_pi
@@ -4848,52 +4753,48 @@ ib_port_info_compute_rate(
 *
 * SYNOPSIS
 */
-static inline uint8_t	OSM_API
-ib_path_get_ipd(
-	IN		uint8_t		local_link_width_supported,
-	IN		uint8_t		path_rec_rate )
+static inline uint8_t OSM_API
+ib_path_get_ipd(IN uint8_t local_link_width_supported, IN uint8_t path_rec_rate)
 {
 	uint8_t ipd = 0;
 
-	switch(local_link_width_supported)
-	{
+	switch (local_link_width_supported) {
 		/* link_width_supported = 1: 1x */
-		case 1:
-			break;
+	case 1:
+		break;
 
 		/* link_width_supported = 3: 1x or 4x */
-		case 3:
-			switch(path_rec_rate & 0x3F)
-			{
-				case IB_PATH_RECORD_RATE_2_5_GBS:
-					ipd = 3;
-					break;
-				default:
-					break;
-			}
+	case 3:
+		switch (path_rec_rate & 0x3F) {
+		case IB_PATH_RECORD_RATE_2_5_GBS:
+			ipd = 3;
 			break;
-
-		/* link_width_supported = 11: 1x or 4x or 12x */
-		case 11:
-			switch(path_rec_rate & 0x3F)
-			{
-				case IB_PATH_RECORD_RATE_2_5_GBS:
-					ipd = 11;
-					break;
-				case IB_PATH_RECORD_RATE_10_GBS:
-					ipd = 2;
-					break;
-				default:
-					break;
-			}
-			break;
-
 		default:
 			break;
+		}
+		break;
+
+		/* link_width_supported = 11: 1x or 4x or 12x */
+	case 11:
+		switch (path_rec_rate & 0x3F) {
+		case IB_PATH_RECORD_RATE_2_5_GBS:
+			ipd = 11;
+			break;
+		case IB_PATH_RECORD_RATE_10_GBS:
+			ipd = 2;
+			break;
+		default:
+			break;
+		}
+		break;
+
+	default:
+		break;
 	}
 
 	return ipd;
 }
+
 /*
 * PARAMETERS
 *	local_link_width_supported
@@ -4919,12 +4820,12 @@ ib_path_get_ipd(
 *
 * SYNOPSIS
 */
-static inline uint8_t	OSM_API
-ib_port_info_get_mtu_cap(
-	IN	const	ib_port_info_t* const	p_pi )
+static inline uint8_t OSM_API
+ib_port_info_get_mtu_cap(IN const ib_port_info_t * const p_pi)
 {
-	return( (uint8_t)(p_pi->mtu_cap & 0x0F) );
+	return ((uint8_t) (p_pi->mtu_cap & 0x0F));
 }
+
 /*
 * PARAMETERS
 *	p_pi
@@ -4947,12 +4848,12 @@ ib_port_info_get_mtu_cap(
 *
 * SYNOPSIS
 */
-static inline uint8_t	OSM_API
-ib_port_info_get_neighbor_mtu(
-	IN const ib_port_info_t* const p_pi )
+static inline uint8_t OSM_API
+ib_port_info_get_neighbor_mtu(IN const ib_port_info_t * const p_pi)
 {
-	return( (uint8_t)((p_pi->mtu_smsl & 0xF0) >> 4) );
+	return ((uint8_t) ((p_pi->mtu_smsl & 0xF0) >> 4));
 }
+
 /*
 * PARAMETERS
 *	p_pi
@@ -4975,15 +4876,15 @@ ib_port_info_get_neighbor_mtu(
 *
 * SYNOPSIS
 */
-static inline void	OSM_API
-ib_port_info_set_neighbor_mtu(
-	IN		ib_port_info_t* const	p_pi,
-	IN	const	uint8_t			mtu )
+static inline void OSM_API
+ib_port_info_set_neighbor_mtu(IN ib_port_info_t * const p_pi,
+			      IN const uint8_t mtu)
 {
-	CL_ASSERT( mtu <= 5 );
-	CL_ASSERT( mtu != 0 );
-	p_pi->mtu_smsl = (uint8_t)((p_pi->mtu_smsl & 0x0F) | (mtu << 4));
+	CL_ASSERT(mtu <= 5);
+	CL_ASSERT(mtu != 0);
+	p_pi->mtu_smsl = (uint8_t) ((p_pi->mtu_smsl & 0x0F) | (mtu << 4));
 }
+
 /*
 * PARAMETERS
 *	p_pi
@@ -5009,12 +4910,12 @@ ib_port_info_set_neighbor_mtu(
 *
 * SYNOPSIS
 */
-static inline uint8_t	OSM_API
-ib_port_info_get_master_smsl(
-	IN const ib_port_info_t* const p_pi )
+static inline uint8_t OSM_API
+ib_port_info_get_master_smsl(IN const ib_port_info_t * const p_pi)
 {
-  return (uint8_t) (p_pi->mtu_smsl & 0x0F);
+	return (uint8_t) (p_pi->mtu_smsl & 0x0F);
 }
+
 /*
 * PARAMETERS
 *	p_pi
@@ -5037,13 +4938,13 @@ ib_port_info_get_master_smsl(
 *
 * SYNOPSIS
 */
-static inline void	OSM_API
-ib_port_info_set_master_smsl(
-	IN		ib_port_info_t* const	p_pi,
-	IN	const	uint8_t			smsl )
+static inline void OSM_API
+ib_port_info_set_master_smsl(IN ib_port_info_t * const p_pi,
+			     IN const uint8_t smsl)
 {
-	p_pi->mtu_smsl = (uint8_t)((p_pi->mtu_smsl & 0xF0) | smsl );
+	p_pi->mtu_smsl = (uint8_t) ((p_pi->mtu_smsl & 0xF0) | smsl);
 }
+
 /*
 * PARAMETERS
 *	p_pi
@@ -5069,16 +4970,15 @@ ib_port_info_set_master_smsl(
 *
 * SYNOPSIS
 */
-static inline void	OSM_API
-ib_port_info_set_timeout(
-	IN		ib_port_info_t* const	p_pi,
-	IN	const	uint8_t			timeout )
+static inline void OSM_API
+ib_port_info_set_timeout(IN ib_port_info_t * const p_pi,
+			 IN const uint8_t timeout)
 {
-	CL_ASSERT( timeout <= 0x1F );
+	CL_ASSERT(timeout <= 0x1F);
 	p_pi->subnet_timeout =
-     (uint8_t)(
-       (p_pi->subnet_timeout & 0x80) | (timeout & 0x1F));
+	    (uint8_t) ((p_pi->subnet_timeout & 0x80) | (timeout & 0x1F));
 }
+
 /*
 * PARAMETERS
 *	p_pi
@@ -5104,16 +5004,16 @@ ib_port_info_set_timeout(
 *
 * SYNOPSIS
 */
-static inline void	OSM_API
-ib_port_info_set_client_rereg(
-	IN		ib_port_info_t* const   p_pi,
-	IN	const   uint8_t         	client_rereg )
+static inline void OSM_API
+ib_port_info_set_client_rereg(IN ib_port_info_t * const p_pi,
+			      IN const uint8_t client_rereg)
 {
-	CL_ASSERT( client_rereg <= 0x1 );
+	CL_ASSERT(client_rereg <= 0x1);
 	p_pi->subnet_timeout =
-     (uint8_t)(
-       (p_pi->subnet_timeout & 0x1F) | ((client_rereg << 7) & 0x80));
+	    (uint8_t) ((p_pi->
+			subnet_timeout & 0x1F) | ((client_rereg << 7) & 0x80));
 }
+
 /*
 * PARAMETERS
 *	p_pi
@@ -5139,12 +5039,12 @@ ib_port_info_set_client_rereg(
 *
 * SYNOPSIS
 */
-static inline uint8_t	OSM_API
-ib_port_info_get_timeout(
-  IN			ib_port_info_t const*   p_pi )
+static inline uint8_t OSM_API
+ib_port_info_get_timeout(IN ib_port_info_t const *p_pi)
 {
-  return(p_pi->subnet_timeout & 0x1F );
+	return (p_pi->subnet_timeout & 0x1F);
 }
+
 /*
 * PARAMETERS
 *	p_pi
@@ -5167,12 +5067,12 @@ ib_port_info_get_timeout(
 *
 * SYNOPSIS
 */
-static inline uint8_t	OSM_API
-ib_port_info_get_client_rereg(
-  IN			ib_port_info_t const* p_pi )
+static inline uint8_t OSM_API
+ib_port_info_get_client_rereg(IN ib_port_info_t const *p_pi)
 {
-  return ( (p_pi->subnet_timeout & 0x80 ) >> 7);
+	return ((p_pi->subnet_timeout & 0x80) >> 7);
 }
+
 /*
 * PARAMETERS
 *	p_pi
@@ -5196,14 +5096,14 @@ ib_port_info_get_client_rereg(
 *
 * SYNOPSIS
 */
-static inline void	OSM_API
-ib_port_info_set_hoq_lifetime(
-  IN		ib_port_info_t* const	p_pi,
-  IN	const	uint8_t			hoq_life )
+static inline void OSM_API
+ib_port_info_set_hoq_lifetime(IN ib_port_info_t * const p_pi,
+			      IN const uint8_t hoq_life)
 {
-  p_pi->vl_stall_life = (uint8_t)((hoq_life & 0x1f) |
-											 (p_pi->vl_stall_life & 0xe0));
+	p_pi->vl_stall_life = (uint8_t) ((hoq_life & 0x1f) |
+					 (p_pi->vl_stall_life & 0xe0));
 }
+
 /*
 * PARAMETERS
 *	p_pi
@@ -5230,11 +5130,10 @@ ib_port_info_set_hoq_lifetime(
 *
 * SYNOPSIS
 */
-static inline uint8_t	OSM_API
-ib_port_info_get_hoq_lifetime(
-  IN	const	ib_port_info_t* const	p_pi )
+static inline uint8_t OSM_API
+ib_port_info_get_hoq_lifetime(IN const ib_port_info_t * const p_pi)
 {
-  return( (uint8_t)(p_pi->vl_stall_life & 0x1f) );
+	return ((uint8_t) (p_pi->vl_stall_life & 0x1f));
 }
 
 /*
@@ -5260,14 +5159,14 @@ ib_port_info_get_hoq_lifetime(
 *
 * SYNOPSIS
 */
-static inline void	OSM_API
-ib_port_info_set_vl_stall_count(
-  IN		ib_port_info_t* const	p_pi,
-  IN	const	uint8_t			vl_stall_count )
+static inline void OSM_API
+ib_port_info_set_vl_stall_count(IN ib_port_info_t * const p_pi,
+				IN const uint8_t vl_stall_count)
 {
-  p_pi->vl_stall_life = (uint8_t)((p_pi->vl_stall_life & 0x1f) |
-											 ((vl_stall_count << 5) & 0xe0));
+	p_pi->vl_stall_life = (uint8_t) ((p_pi->vl_stall_life & 0x1f) |
+					 ((vl_stall_count << 5) & 0xe0));
 }
+
 /*
 * PARAMETERS
 *	p_pi
@@ -5294,11 +5193,10 @@ ib_port_info_set_vl_stall_count(
 *
 * SYNOPSIS
 */
-static inline uint8_t	OSM_API
-ib_port_info_get_vl_stall_count(
-  IN	const ib_port_info_t* const	p_pi )
+static inline uint8_t OSM_API
+ib_port_info_get_vl_stall_count(IN const ib_port_info_t * const p_pi)
 {
-  return( (uint8_t)(p_pi->vl_stall_life & 0xe0) >> 5);
+	return ((uint8_t) (p_pi->vl_stall_life & 0xe0) >> 5);
 }
 
 /*
@@ -5323,12 +5221,12 @@ ib_port_info_get_vl_stall_count(
 *
 * SYNOPSIS
 */
-static inline uint8_t	OSM_API
-ib_port_info_get_lmc(
-	IN	const	ib_port_info_t* const	p_pi )
+static inline uint8_t OSM_API
+ib_port_info_get_lmc(IN const ib_port_info_t * const p_pi)
 {
-	return( (uint8_t)(p_pi->mkey_lmc & IB_PORT_LMC_MASK) );
+	return ((uint8_t) (p_pi->mkey_lmc & IB_PORT_LMC_MASK));
 }
+
 /*
 * PARAMETERS
 *	p_pi
@@ -5351,14 +5249,13 @@ ib_port_info_get_lmc(
 *
 * SYNOPSIS
 */
-static inline void	OSM_API
-ib_port_info_set_lmc(
-	IN		ib_port_info_t* const	p_pi,
-	IN	const	uint8_t			lmc )
+static inline void OSM_API
+ib_port_info_set_lmc(IN ib_port_info_t * const p_pi, IN const uint8_t lmc)
 {
-	CL_ASSERT( lmc <= IB_PORT_LMC_MAX );
-	p_pi->mkey_lmc = (uint8_t)((p_pi->mkey_lmc & 0xF8) | lmc);
+	CL_ASSERT(lmc <= IB_PORT_LMC_MAX);
+	p_pi->mkey_lmc = (uint8_t) ((p_pi->mkey_lmc & 0xF8) | lmc);
 }
+
 /*
 * PARAMETERS
 *	p_pi
@@ -5384,12 +5281,12 @@ ib_port_info_set_lmc(
 *
 * SYNOPSIS
 */
-static inline uint8_t	OSM_API
-ib_port_info_get_link_speed_enabled(
-	IN	const	ib_port_info_t* const	p_pi )
+static inline uint8_t OSM_API
+ib_port_info_get_link_speed_enabled(IN const ib_port_info_t * const p_pi)
 {
-	return( (uint8_t)(p_pi->link_speed & IB_PORT_LINK_SPEED_ENABLED_MASK) );
+	return ((uint8_t) (p_pi->link_speed & IB_PORT_LINK_SPEED_ENABLED_MASK));
 }
+
 /*
 * PARAMETERS
 *	p_pi
@@ -5412,13 +5309,14 @@ ib_port_info_get_link_speed_enabled(
 *
 * SYNOPSIS
 */
-static inline void	OSM_API
-ib_port_info_set_link_speed_enabled(
-	IN		ib_port_info_t* const	p_pi,
-	IN	const	uint8_t			link_speed_enabled )
+static inline void OSM_API
+ib_port_info_set_link_speed_enabled(IN ib_port_info_t * const p_pi,
+				    IN const uint8_t link_speed_enabled)
 {
-	p_pi->link_speed = (uint8_t)((p_pi->link_speed & 0xF0) | link_speed_enabled );
+	p_pi->link_speed =
+	    (uint8_t) ((p_pi->link_speed & 0xF0) | link_speed_enabled);
 }
+
 /*
 * PARAMETERS
 *	p_pi
@@ -5444,13 +5342,13 @@ ib_port_info_set_link_speed_enabled(
 *
 * SYNOPSIS
 */
-static inline uint8_t	OSM_API
-ib_port_info_get_mpb(
-	IN	const	ib_port_info_t* const	p_pi )
+static inline uint8_t OSM_API
+ib_port_info_get_mpb(IN const ib_port_info_t * const p_pi)
 {
-	return( (uint8_t)((p_pi->mkey_lmc & IB_PORT_MPB_MASK) >>
-			IB_PORT_MPB_SHIFT) );
+	return ((uint8_t) ((p_pi->mkey_lmc & IB_PORT_MPB_MASK) >>
+			   IB_PORT_MPB_SHIFT));
 }
+
 /*
 * PARAMETERS
 *	p_ni
@@ -5473,15 +5371,14 @@ ib_port_info_get_mpb(
 *
 * SYNOPSIS
 */
-static inline void	OSM_API
-ib_port_info_set_mpb(
-	IN		ib_port_info_t*		p_pi,
-	IN		uint8_t			mpb )
+static inline void OSM_API
+ib_port_info_set_mpb(IN ib_port_info_t * p_pi, IN uint8_t mpb)
 {
 	p_pi->mkey_lmc =
-		(~IB_PORT_MPB_MASK & p_pi->mkey_lmc) |
-		( IB_PORT_MPB_MASK & (mpb << IB_PORT_MPB_SHIFT) );
+	    (~IB_PORT_MPB_MASK & p_pi->mkey_lmc) |
+	    (IB_PORT_MPB_MASK & (mpb << IB_PORT_MPB_SHIFT));
 }
+
 /*
 * PARAMETERS
 *	mpb
@@ -5505,12 +5402,12 @@ ib_port_info_set_mpb(
 *
 * SYNOPSIS
 */
-static inline uint8_t	OSM_API
-ib_port_info_get_local_phy_err_thd(
-	IN	const	ib_port_info_t* const	p_pi )
+static inline uint8_t OSM_API
+ib_port_info_get_local_phy_err_thd(IN const ib_port_info_t * const p_pi)
 {
-  return (uint8_t)( (p_pi->error_threshold & 0xF0) >> 4);
+	return (uint8_t) ((p_pi->error_threshold & 0xF0) >> 4);
 }
+
 /*
 * PARAMETERS
 *	p_pi
@@ -5533,12 +5430,12 @@ ib_port_info_get_local_phy_err_thd(
 *
 * SYNOPSIS
 */
-static inline uint8_t	OSM_API
-ib_port_info_get_overrun_err_thd(
-	IN	const	ib_port_info_t* const	p_pi )
+static inline uint8_t OSM_API
+ib_port_info_get_overrun_err_thd(IN const ib_port_info_t * const p_pi)
 {
-  return (uint8_t)(p_pi->error_threshold & 0x0F);
+	return (uint8_t) (p_pi->error_threshold & 0x0F);
 }
+
 /*
 * PARAMETERS
 *	p_pi
@@ -5561,15 +5458,16 @@ ib_port_info_get_overrun_err_thd(
 *
 * SYNOPSIS
 */
-static inline void	OSM_API
-ib_port_info_set_phy_and_overrun_err_thd(
-  IN		ib_port_info_t* const	p_pi,
-  IN		uint8_t			phy_threshold,
-  IN		uint8_t			overrun_threshold )
+static inline void OSM_API
+ib_port_info_set_phy_and_overrun_err_thd(IN ib_port_info_t * const p_pi,
+					 IN uint8_t phy_threshold,
+					 IN uint8_t overrun_threshold)
 {
-  p_pi->error_threshold =
-	 (uint8_t)( ((phy_threshold & 0x0F) << 4) | (overrun_threshold & 0x0F) );
+	p_pi->error_threshold =
+	    (uint8_t) (((phy_threshold & 0x0F) << 4) |
+		       (overrun_threshold & 0x0F));
 }
+
 /*
 * PARAMETERS
 *	p_pi
@@ -5589,59 +5487,55 @@ ib_port_info_set_phy_and_overrun_err_thd(
 * SEE ALSO
 *********/
 
-typedef uint8_t		ib_svc_name_t[64];
+typedef uint8_t ib_svc_name_t[64];
 
 #include <complib/cl_packon.h>
-typedef struct _ib_service_record
-{
-	ib_net64_t		service_id;
-	ib_gid_t		service_gid;
-	ib_net16_t		service_pkey;
-	ib_net16_t		resv;
-	ib_net32_t		service_lease;
-	uint8_t			service_key[16];
-	ib_svc_name_t		service_name;
-	uint8_t			service_data8[16];
-	ib_net16_t		service_data16[8];
-	ib_net32_t		service_data32[4];
-	ib_net64_t		service_data64[2];
+typedef struct _ib_service_record {
+	ib_net64_t service_id;
+	ib_gid_t service_gid;
+	ib_net16_t service_pkey;
+	ib_net16_t resv;
+	ib_net32_t service_lease;
+	uint8_t service_key[16];
+	ib_svc_name_t service_name;
+	uint8_t service_data8[16];
+	ib_net16_t service_data16[8];
+	ib_net32_t service_data32[4];
+	ib_net64_t service_data64[2];
 
-}	PACK_SUFFIX ib_service_record_t;
+} PACK_SUFFIX ib_service_record_t;
 #include <complib/cl_packoff.h>
 
 #include <complib/cl_packon.h>
-typedef struct _ib_portinfo_record
-{
-	ib_net16_t		lid;
-	uint8_t			port_num;
-	uint8_t			resv;
-	ib_port_info_t		port_info;
-	uint8_t			pad[6];
+typedef struct _ib_portinfo_record {
+	ib_net16_t lid;
+	uint8_t port_num;
+	uint8_t resv;
+	ib_port_info_t port_info;
+	uint8_t pad[6];
 
-}	PACK_SUFFIX ib_portinfo_record_t;
+} PACK_SUFFIX ib_portinfo_record_t;
 #include <complib/cl_packoff.h>
 
 #include <complib/cl_packon.h>
-typedef struct _ib_link_record
-{
-	ib_net16_t		from_lid;
-	uint8_t			from_port_num;
-	uint8_t			to_port_num;
-	ib_net16_t		to_lid;
-	uint8_t			pad[2];
+typedef struct _ib_link_record {
+	ib_net16_t from_lid;
+	uint8_t from_port_num;
+	uint8_t to_port_num;
+	ib_net16_t to_lid;
+	uint8_t pad[2];
 
-}	PACK_SUFFIX ib_link_record_t;
+} PACK_SUFFIX ib_link_record_t;
 #include <complib/cl_packoff.h>
 
 #include <complib/cl_packon.h>
-typedef struct _ib_sminfo_record
-{
-	ib_net16_t		lid;
-	uint16_t		resv0;
-	ib_sm_info_t		sm_info;
-	uint8_t			pad[7];
+typedef struct _ib_sminfo_record {
+	ib_net16_t lid;
+	uint16_t resv0;
+	ib_sm_info_t sm_info;
+	uint8_t pad[7];
 
-}	PACK_SUFFIX ib_sminfo_record_t;
+} PACK_SUFFIX ib_sminfo_record_t;
 #include <complib/cl_packoff.h>
 
 /****s* IBA Base: Types/ib_lft_record_t
@@ -5654,13 +5548,12 @@ typedef struct _ib_sminfo_record
 * SYNOPSIS
 */
 #include <complib/cl_packon.h>
-typedef struct _ib_lft_record
-{
-	ib_net16_t		lid;
-	ib_net16_t		block_num;
-	uint32_t		resv0;
-	uint8_t			lft[64];
-}	PACK_SUFFIX ib_lft_record_t;
+typedef struct _ib_lft_record {
+	ib_net16_t lid;
+	ib_net16_t block_num;
+	uint32_t resv0;
+	uint8_t lft[64];
+} PACK_SUFFIX ib_lft_record_t;
 #include <complib/cl_packoff.h>
 /************/
 
@@ -5674,13 +5567,12 @@ typedef struct _ib_lft_record
 * SYNOPSIS
 */
 #include <complib/cl_packon.h>
-typedef struct _ib_mft_record
-{
-	ib_net16_t		lid;
-	ib_net16_t		position_block_num;
-	uint32_t		resv0;
-	ib_net16_t		mft[IB_MCAST_BLOCK_SIZE];
-}	PACK_SUFFIX ib_mft_record_t;
+typedef struct _ib_mft_record {
+	ib_net16_t lid;
+	ib_net16_t position_block_num;
+	uint32_t resv0;
+	ib_net16_t mft[IB_MCAST_BLOCK_SIZE];
+} PACK_SUFFIX ib_mft_record_t;
 #include <complib/cl_packoff.h>
 /************/
 
@@ -5694,33 +5586,31 @@ typedef struct _ib_mft_record
 * SYNOPSIS
 */
 #include <complib/cl_packon.h>
-typedef struct _ib_switch_info
-{
-	ib_net16_t			lin_cap;
-	ib_net16_t			rand_cap;
-	ib_net16_t			mcast_cap;
-	ib_net16_t			lin_top;
-	uint8_t				def_port;
-	uint8_t				def_mcast_pri_port;
-	uint8_t				def_mcast_not_port;
-	uint8_t				life_state;
-	ib_net16_t			lids_per_port;
-	ib_net16_t			enforce_cap;
-	uint8_t				flags;
+typedef struct _ib_switch_info {
+	ib_net16_t lin_cap;
+	ib_net16_t rand_cap;
+	ib_net16_t mcast_cap;
+	ib_net16_t lin_top;
+	uint8_t def_port;
+	uint8_t def_mcast_pri_port;
+	uint8_t def_mcast_not_port;
+	uint8_t life_state;
+	ib_net16_t lids_per_port;
+	ib_net16_t enforce_cap;
+	uint8_t flags;
 
-}	PACK_SUFFIX ib_switch_info_t;
+} PACK_SUFFIX ib_switch_info_t;
 #include <complib/cl_packoff.h>
 /************/
 
 #include <complib/cl_packon.h>
-typedef struct _ib_switch_info_record
-{
-	ib_net16_t			lid;
-	uint16_t			resv0;
-	ib_switch_info_t		switch_info;
-	uint8_t				pad[3];
+typedef struct _ib_switch_info_record {
+	ib_net16_t lid;
+	uint16_t resv0;
+	ib_switch_info_t switch_info;
+	uint8_t pad[3];
 
-}	PACK_SUFFIX ib_switch_info_record_t;
+} PACK_SUFFIX ib_switch_info_record_t;
 #include <complib/cl_packoff.h>
 
 #define IB_SWITCH_PSC 0x04
@@ -5734,12 +5624,12 @@ typedef struct _ib_switch_info_record
 *
 * SYNOPSIS
 */
-static inline boolean_t	OSM_API
-ib_switch_info_get_state_change(
-	IN	const	ib_switch_info_t* const	p_si )
+static inline boolean_t OSM_API
+ib_switch_info_get_state_change(IN const ib_switch_info_t * const p_si)
 {
-	return( (p_si->life_state & IB_SWITCH_PSC) == IB_SWITCH_PSC );
+	return ((p_si->life_state & IB_SWITCH_PSC) == IB_SWITCH_PSC);
 }
+
 /*
 * PARAMETERS
 *	p_si
@@ -5762,12 +5652,12 @@ ib_switch_info_get_state_change(
 *
 * SYNOPSIS
 */
-static inline void	OSM_API
-ib_switch_info_clear_state_change(
-	IN		ib_switch_info_t* const	p_si )
+static inline void OSM_API
+ib_switch_info_clear_state_change(IN ib_switch_info_t * const p_si)
 {
-	p_si->life_state = (uint8_t)(p_si->life_state & 0xFB);
+	p_si->life_state = (uint8_t) (p_si->life_state & 0xFB);
 }
+
 /*
 * PARAMETERS
 *	p_ni
@@ -5792,12 +5682,12 @@ ib_switch_info_clear_state_change(
 *
 * SYNOPSIS
 */
-static inline boolean_t	OSM_API
-ib_switch_info_is_enhanced_port0(
-	IN	const	ib_switch_info_t* const	p_si )
+static inline boolean_t OSM_API
+ib_switch_info_is_enhanced_port0(IN const ib_switch_info_t * const p_si)
 {
-	return( (p_si->flags & 0x08) == 0x08 );
+	return ((p_si->flags & 0x08) == 0x08);
 }
+
 /*
 * PARAMETERS
 *	p_si
@@ -5823,46 +5713,43 @@ ib_switch_info_is_enhanced_port0(
 #define	GUID_TABLE_MAX_ENTRIES		8
 
 #include <complib/cl_packon.h>
-typedef struct _ib_guid_info
-{
-	ib_net64_t			guid[GUID_TABLE_MAX_ENTRIES];
+typedef struct _ib_guid_info {
+	ib_net64_t guid[GUID_TABLE_MAX_ENTRIES];
 
-}	PACK_SUFFIX ib_guid_info_t;
+} PACK_SUFFIX ib_guid_info_t;
 #include <complib/cl_packoff.h>
 /************/
 
 #include <complib/cl_packon.h>
-typedef struct _ib_guidinfo_record
-{
-	ib_net16_t		lid;
-	uint8_t			block_num;
-	uint8_t			resv;
-	uint32_t		reserved;
-	ib_guid_info_t		guid_info;
-}	PACK_SUFFIX ib_guidinfo_record_t;
+typedef struct _ib_guidinfo_record {
+	ib_net16_t lid;
+	uint8_t block_num;
+	uint8_t resv;
+	uint32_t reserved;
+	ib_guid_info_t guid_info;
+} PACK_SUFFIX ib_guidinfo_record_t;
 #include <complib/cl_packoff.h>
 
 #define IB_MULTIPATH_MAX_GIDS 11	/* Support max that can fit into first MAD (for now) */
 
 #include <complib/cl_packon.h>
-typedef struct _ib_multipath_rec_t
-{
-	ib_net32_t		hop_flow_raw;
-	uint8_t			tclass;
-	uint8_t			num_path;
-	ib_net16_t		pkey;
-	uint8_t			resv0;
-	uint8_t			sl;
-	uint8_t			mtu;
-	uint8_t			rate;
-	uint8_t			pkt_life;
-	uint8_t			resv1;
-	uint8_t			independence;	/* formerly resv2 */
-	uint8_t			sgid_count;
-	uint8_t			dgid_count;
-	uint8_t			resv3[7];
-	ib_gid_t		gids[IB_MULTIPATH_MAX_GIDS];
-}	PACK_SUFFIX ib_multipath_rec_t;
+typedef struct _ib_multipath_rec_t {
+	ib_net32_t hop_flow_raw;
+	uint8_t tclass;
+	uint8_t num_path;
+	ib_net16_t pkey;
+	uint8_t resv0;
+	uint8_t sl;
+	uint8_t mtu;
+	uint8_t rate;
+	uint8_t pkt_life;
+	uint8_t resv1;
+	uint8_t independence;	/* formerly resv2 */
+	uint8_t sgid_count;
+	uint8_t dgid_count;
+	uint8_t resv3[7];
+	ib_gid_t gids[IB_MULTIPATH_MAX_GIDS];
+} PACK_SUFFIX ib_multipath_rec_t;
 #include <complib/cl_packoff.h>
 /*
 * FIELDS
@@ -5907,12 +5794,12 @@ typedef struct _ib_multipath_rec_t
 *
 * SYNOPSIS
 */
-static inline uint8_t	OSM_API
-ib_multipath_rec_num_path(
-	IN	const   ib_multipath_rec_t* const	p_rec )
+static inline uint8_t OSM_API
+ib_multipath_rec_num_path(IN const ib_multipath_rec_t * const p_rec)
 {
-        return( p_rec->num_path &0x7F );
+	return (p_rec->num_path & 0x7F);
 }
+
 /*
 * PARAMETERS
 *       p_rec
@@ -5936,12 +5823,12 @@ ib_multipath_rec_num_path(
 *
 * SYNOPSIS
 */
-static inline uint8_t	OSM_API
-ib_multipath_rec_sl(
-	IN	const   ib_multipath_rec_t* const	p_rec )
+static inline uint8_t OSM_API
+ib_multipath_rec_sl(IN const ib_multipath_rec_t * const p_rec)
 {
-        return( (uint8_t)((cl_ntoh16( p_rec->sl )) & 0xF) );
+	return ((uint8_t) ((cl_ntoh16(p_rec->sl)) & 0xF));
 }
+
 /*
 * PARAMETERS
 *       p_rec
@@ -5965,12 +5852,12 @@ ib_multipath_rec_sl(
 *
 * SYNOPSIS
 */
-static inline uint8_t	OSM_API
-ib_multipath_rec_mtu(
-	IN	const   ib_multipath_rec_t* const	p_rec )
+static inline uint8_t OSM_API
+ib_multipath_rec_mtu(IN const ib_multipath_rec_t * const p_rec)
 {
-        return( (uint8_t)(p_rec->mtu & IB_MULTIPATH_REC_BASE_MASK) );
+	return ((uint8_t) (p_rec->mtu & IB_MULTIPATH_REC_BASE_MASK));
 }
+
 /*
 * PARAMETERS
 *       p_rec
@@ -6000,12 +5887,12 @@ ib_multipath_rec_mtu(
 *
 * SYNOPSIS
 */
-static inline uint8_t	OSM_API
-ib_multipath_rec_mtu_sel(
-	IN	const   ib_multipath_rec_t* const	p_rec )
+static inline uint8_t OSM_API
+ib_multipath_rec_mtu_sel(IN const ib_multipath_rec_t * const p_rec)
 {
-        return( (uint8_t)((p_rec->mtu & IB_MULTIPATH_REC_SELECTOR_MASK) >> 6) );
+	return ((uint8_t) ((p_rec->mtu & IB_MULTIPATH_REC_SELECTOR_MASK) >> 6));
 }
+
 /*
 * PARAMETERS
 *       p_rec
@@ -6033,12 +5920,12 @@ ib_multipath_rec_mtu_sel(
 *
 * SYNOPSIS
 */
-static inline uint8_t	OSM_API
-ib_multipath_rec_rate(
-	IN	const   ib_multipath_rec_t* const	p_rec )
+static inline uint8_t OSM_API
+ib_multipath_rec_rate(IN const ib_multipath_rec_t * const p_rec)
 {
-        return( (uint8_t)(p_rec->rate & IB_MULTIPATH_REC_BASE_MASK) );
+	return ((uint8_t) (p_rec->rate & IB_MULTIPATH_REC_BASE_MASK));
 }
+
 /*
 * PARAMETERS
 *       p_rec
@@ -6066,12 +5953,13 @@ ib_multipath_rec_rate(
 *
 * SYNOPSIS
 */
-static inline uint8_t	OSM_API
-ib_multipath_rec_rate_sel(
-	IN	const   ib_multipath_rec_t* const	p_rec )
+static inline uint8_t OSM_API
+ib_multipath_rec_rate_sel(IN const ib_multipath_rec_t * const p_rec)
 {
-        return( (uint8_t)((p_rec->rate & IB_MULTIPATH_REC_SELECTOR_MASK) >> 6) );
+	return ((uint8_t)
+		((p_rec->rate & IB_MULTIPATH_REC_SELECTOR_MASK) >> 6));
 }
+
 /*
 * PARAMETERS
 *       p_rec
@@ -6099,12 +5987,12 @@ ib_multipath_rec_rate_sel(
 *
 * SYNOPSIS
 */
-static inline uint8_t	OSM_API
-ib_multipath_rec_pkt_life(
-	IN	const   ib_multipath_rec_t* const	p_rec )
+static inline uint8_t OSM_API
+ib_multipath_rec_pkt_life(IN const ib_multipath_rec_t * const p_rec)
 {
-        return( (uint8_t)(p_rec->pkt_life & IB_MULTIPATH_REC_BASE_MASK) );
+	return ((uint8_t) (p_rec->pkt_life & IB_MULTIPATH_REC_BASE_MASK));
 }
+
 /*
 * PARAMETERS
 *       p_rec
@@ -6128,12 +6016,13 @@ ib_multipath_rec_pkt_life(
 *
 * SYNOPSIS
 */
-static inline uint8_t	OSM_API
-ib_multipath_rec_pkt_life_sel(
-	IN	const	ib_multipath_rec_t* const	p_rec )
+static inline uint8_t OSM_API
+ib_multipath_rec_pkt_life_sel(IN const ib_multipath_rec_t * const p_rec)
 {
-        return( (uint8_t)((p_rec->pkt_life & IB_MULTIPATH_REC_SELECTOR_MASK) >> 6 ));
+	return ((uint8_t)
+		((p_rec->pkt_life & IB_MULTIPATH_REC_SELECTOR_MASK) >> 6));
 }
+
 /*
 * PARAMETERS
 *       p_rec
@@ -6164,11 +6053,10 @@ ib_multipath_rec_pkt_life_sel(
 */
 
 #include <complib/cl_packon.h>
-typedef struct _ib_pkey_table
-{
-	ib_net16_t		pkey_entry[IB_NUM_PKEY_ELEMENTS_IN_BLOCK];
+typedef struct _ib_pkey_table {
+	ib_net16_t pkey_entry[IB_NUM_PKEY_ELEMENTS_IN_BLOCK];
 
-}	PACK_SUFFIX ib_pkey_table_t;
+} PACK_SUFFIX ib_pkey_table_t;
 #include <complib/cl_packoff.h>
 /************/
 
@@ -6182,16 +6070,15 @@ typedef struct _ib_pkey_table
 * SYNOPSIS
 */
 #include <complib/cl_packon.h>
-typedef struct _ib_pkey_table_record
-{
-	ib_net16_t		lid; // for CA: lid of port, for switch lid of port 0
-	uint16_t		block_num;
-   uint8_t			port_num; // for switch: port number, for CA: reserved
-	uint8_t 		reserved1;
-	uint16_t 		reserved2;
-	ib_pkey_table_t		pkey_tbl;
+typedef struct _ib_pkey_table_record {
+	ib_net16_t lid;		// for CA: lid of port, for switch lid of port 0
+	uint16_t block_num;
+	uint8_t port_num;	// for switch: port number, for CA: reserved
+	uint8_t reserved1;
+	uint16_t reserved2;
+	ib_pkey_table_t pkey_tbl;
 
-}	PACK_SUFFIX ib_pkey_table_record_t;
+} PACK_SUFFIX ib_pkey_table_record_t;
 #include <complib/cl_packoff.h>
 /************/
 
@@ -6207,10 +6094,9 @@ typedef struct _ib_pkey_table_record
 * SYNOPSIS
 */
 #include <complib/cl_packon.h>
-typedef struct _ib_slvl_table
-{
-	uint8_t raw_vl_by_sl[IB_MAX_NUM_VLS/2];
-}	PACK_SUFFIX ib_slvl_table_t;
+typedef struct _ib_slvl_table {
+	uint8_t raw_vl_by_sl[IB_MAX_NUM_VLS / 2];
+} PACK_SUFFIX ib_slvl_table_t;
 #include <complib/cl_packoff.h>
 /************/
 
@@ -6224,15 +6110,14 @@ typedef struct _ib_slvl_table
 * SYNOPSIS
 */
 #include <complib/cl_packon.h>
-typedef struct _ib_slvl_table_record
-{
-	ib_net16_t		lid; // for CA: lid of port, for switch lid of port 0
-	uint8_t			in_port_num;	// reserved for CAs
-	uint8_t			out_port_num;	// reserved for CAs
-	uint32_t		resv;
-	ib_slvl_table_t		slvl_tbl;
+typedef struct _ib_slvl_table_record {
+	ib_net16_t lid;		// for CA: lid of port, for switch lid of port 0
+	uint8_t in_port_num;	// reserved for CAs
+	uint8_t out_port_num;	// reserved for CAs
+	uint32_t resv;
+	ib_slvl_table_t slvl_tbl;
 
-}	PACK_SUFFIX ib_slvl_table_record_t;
+} PACK_SUFFIX ib_slvl_table_record_t;
 #include <complib/cl_packoff.h>
 /************/
 
@@ -6245,27 +6130,25 @@ typedef struct _ib_slvl_table_record
 *
 * SYNOPSIS
 */
-static inline void	OSM_API
-ib_slvl_table_set(
-  IN		ib_slvl_table_t*	p_slvl_tbl,
-  IN		uint8_t			sl_index,
-  IN		uint8_t			vl )
+static inline void OSM_API
+ib_slvl_table_set(IN ib_slvl_table_t * p_slvl_tbl,
+		  IN uint8_t sl_index, IN uint8_t vl)
 {
-  uint8_t idx = sl_index/2;
-  CL_ASSERT(vl <= 15);
-  CL_ASSERT(sl_index <= 15);
+	uint8_t idx = sl_index / 2;
+	CL_ASSERT(vl <= 15);
+	CL_ASSERT(sl_index <= 15);
 
-  if (sl_index%2)
-  {
-    /* this is an odd sl. Need to update the ls bits */
-    p_slvl_tbl->raw_vl_by_sl[idx] = ( p_slvl_tbl->raw_vl_by_sl[idx] & 0xF0 ) | vl ;
-  }
-  else
-  {
-    /* this is an even sl. Need to update the ms bits */
-    p_slvl_tbl->raw_vl_by_sl[idx] = ( vl << 4 ) | ( p_slvl_tbl->raw_vl_by_sl[idx] & 0x0F );
-  }
+	if (sl_index % 2) {
+		/* this is an odd sl. Need to update the ls bits */
+		p_slvl_tbl->raw_vl_by_sl[idx] =
+		    (p_slvl_tbl->raw_vl_by_sl[idx] & 0xF0) | vl;
+	} else {
+		/* this is an even sl. Need to update the ms bits */
+		p_slvl_tbl->raw_vl_by_sl[idx] =
+		    (vl << 4) | (p_slvl_tbl->raw_vl_by_sl[idx] & 0x0F);
+	}
 }
+
 /*
 * PARAMETERS
 *	p_slvl_tbl
@@ -6295,25 +6178,21 @@ ib_slvl_table_set(
 *
 * SYNOPSIS
 */
-static inline uint8_t	OSM_API
-ib_slvl_table_get(
-  IN	const	ib_slvl_table_t*	p_slvl_tbl,
-  IN		uint8_t			sl_index )
+static inline uint8_t OSM_API
+ib_slvl_table_get(IN const ib_slvl_table_t * p_slvl_tbl, IN uint8_t sl_index)
 {
-  uint8_t idx = sl_index/2;
-  CL_ASSERT(sl_index <= 15);
+	uint8_t idx = sl_index / 2;
+	CL_ASSERT(sl_index <= 15);
 
-  if (sl_index%2)
-  {
-    /* this is an odd sl. Need to return the ls bits. */
-    return ( p_slvl_tbl->raw_vl_by_sl[idx] & 0x0F );
-  }
-  else
-  {
-    /* this is an even sl. Need to return the ms bits. */
-    return ( (p_slvl_tbl->raw_vl_by_sl[idx] & 0xF0) >> 4 );
-  }
+	if (sl_index % 2) {
+		/* this is an odd sl. Need to return the ls bits. */
+		return (p_slvl_tbl->raw_vl_by_sl[idx] & 0x0F);
+	} else {
+		/* this is an even sl. Need to return the ms bits. */
+		return ((p_slvl_tbl->raw_vl_by_sl[idx] & 0xF0) >> 4);
+	}
 }
+
 /*
 * PARAMETERS
 *	p_slvl_tbl
@@ -6341,11 +6220,10 @@ ib_slvl_table_get(
 * SYNOPSIS
 */
 #include <complib/cl_packon.h>
-typedef struct _ib_vl_arb_element
-{
-  uint8_t vl;
-  uint8_t weight;
-}	PACK_SUFFIX ib_vl_arb_element_t;
+typedef struct _ib_vl_arb_element {
+	uint8_t vl;
+	uint8_t weight;
+} PACK_SUFFIX ib_vl_arb_element_t;
 #include <complib/cl_packoff.h>
 /************/
 
@@ -6361,10 +6239,9 @@ typedef struct _ib_vl_arb_element
 * SYNOPSIS
 */
 #include <complib/cl_packon.h>
-typedef struct _ib_vl_arb_table
-{
+typedef struct _ib_vl_arb_table {
 	ib_vl_arb_element_t vl_entry[IB_NUM_VL_ARB_ELEMENTS_IN_BLOCK];
-}	PACK_SUFFIX ib_vl_arb_table_t;
+} PACK_SUFFIX ib_vl_arb_table_t;
 #include <complib/cl_packoff.h>
 /************/
 
@@ -6378,14 +6255,13 @@ typedef struct _ib_vl_arb_table
 * SYNOPSIS
 */
 #include <complib/cl_packon.h>
-typedef struct _ib_vl_arb_table_record
-{
-	ib_net16_t		lid; // for CA: lid of port, for switch lid of port 0
-	uint8_t			port_num;
-	uint8_t			block_num;
-	uint32_t		reserved;
-	ib_vl_arb_table_t	vl_arb_tbl;
-}	PACK_SUFFIX ib_vl_arb_table_record_t;
+typedef struct _ib_vl_arb_table_record {
+	ib_net16_t lid;		// for CA: lid of port, for switch lid of port 0
+	uint8_t port_num;
+	uint8_t block_num;
+	uint32_t reserved;
+	ib_vl_arb_table_t vl_arb_tbl;
+} PACK_SUFFIX ib_vl_arb_table_record_t;
 #include <complib/cl_packoff.h>
 /************/
 
@@ -6393,15 +6269,14 @@ typedef struct _ib_vl_arb_table_record
  *	Global route header information received with unreliable datagram messages
  */
 #include <complib/cl_packon.h>
-typedef struct _ib_grh
-{
-	ib_net32_t		ver_class_flow;
-	ib_net16_t		resv1;
-	uint8_t			resv2;
-	uint8_t			hop_limit;
-	ib_gid_t		src_gid;
-	ib_gid_t		dest_gid;
-}	PACK_SUFFIX ib_grh_t;
+typedef struct _ib_grh {
+	ib_net32_t ver_class_flow;
+	ib_net16_t resv1;
+	uint8_t resv2;
+	uint8_t hop_limit;
+	ib_gid_t src_gid;
+	ib_gid_t dest_gid;
+} PACK_SUFFIX ib_grh_t;
 #include <complib/cl_packoff.h>
 
 /****f* IBA Base: Types/ib_grh_get_ver_class_flow
@@ -6413,28 +6288,28 @@ typedef struct _ib_grh
 *
 * SYNOPSIS
 */
-static inline void	OSM_API
-ib_grh_get_ver_class_flow(
-	IN	const	ib_net32_t		ver_class_flow,
-	OUT		uint8_t* const		p_ver,
-	OUT		uint8_t* const		p_tclass,
-	OUT		uint32_t* const		p_flow_lbl )
+static inline void OSM_API
+ib_grh_get_ver_class_flow(IN const ib_net32_t ver_class_flow,
+			  OUT uint8_t * const p_ver,
+			  OUT uint8_t * const p_tclass,
+			  OUT uint32_t * const p_flow_lbl)
 {
 	ib_net32_t tmp_ver_class_flow;
 
 	if (p_ver)
-		*p_ver = (uint8_t)(ver_class_flow & 0x0f);
+		*p_ver = (uint8_t) (ver_class_flow & 0x0f);
 
 	tmp_ver_class_flow = ver_class_flow >> 4;
 
 	if (p_tclass)
-		*p_tclass = (uint8_t)(tmp_ver_class_flow & 0xff);
+		*p_tclass = (uint8_t) (tmp_ver_class_flow & 0xff);
 
 	tmp_ver_class_flow = tmp_ver_class_flow >> 8;
 
 	if (p_flow_lbl)
 		*p_flow_lbl = tmp_ver_class_flow & 0xfffff;
 }
+
 /*
 * PARAMETERS
 *	ver_class_flow
@@ -6465,13 +6340,11 @@ ib_grh_get_ver_class_flow(
 *
 * SYNOPSIS
 */
-static inline ib_net32_t	OSM_API
-ib_grh_set_ver_class_flow(
-	IN	const	uint8_t			ver,
-	IN	const	uint8_t			tclass,
-	IN	const	uint32_t		flow_lbl )
+static inline ib_net32_t OSM_API
+ib_grh_set_ver_class_flow(IN const uint8_t ver,
+			  IN const uint8_t tclass, IN const uint32_t flow_lbl)
 {
-	ib_net32_t		ver_class_flow;
+	ib_net32_t ver_class_flow;
 
 	ver_class_flow = flow_lbl;
 	ver_class_flow = ver_class_flow << 8;
@@ -6480,6 +6353,7 @@ ib_grh_set_ver_class_flow(
 	ver_class_flow = ver_class_flow | ver;
 	return (ver_class_flow);
 }
+
 /*
 * PARAMETERS
 *	ver
@@ -6512,24 +6386,23 @@ ib_grh_set_ver_class_flow(
 * SYNOPSIS
 */
 #include <complib/cl_packon.h>
-typedef struct _ib_member_rec
-{
-	ib_gid_t				mgid;
-	ib_gid_t				port_gid;
-	ib_net32_t				qkey;
-	ib_net16_t				mlid;
-	uint8_t					mtu;
-	uint8_t					tclass;
-	ib_net16_t				pkey;
-	uint8_t					rate;
-	uint8_t					pkt_life;
-	ib_net32_t				sl_flow_hop;
-	uint8_t					scope_state;
-	uint8_t					proxy_join:1;
-	uint8_t					reserved[2];
-	uint8_t					pad[4];
+typedef struct _ib_member_rec {
+	ib_gid_t mgid;
+	ib_gid_t port_gid;
+	ib_net32_t qkey;
+	ib_net16_t mlid;
+	uint8_t mtu;
+	uint8_t tclass;
+	ib_net16_t pkey;
+	uint8_t rate;
+	uint8_t pkt_life;
+	ib_net32_t sl_flow_hop;
+	uint8_t scope_state;
+	uint8_t proxy_join:1;
+	uint8_t reserved[2];
+	uint8_t pad[4];
 
-}	PACK_SUFFIX ib_member_rec_t;
+} PACK_SUFFIX ib_member_rec_t;
 #include <complib/cl_packoff.h>
 /*
 * FIELDS
@@ -6581,27 +6454,27 @@ typedef struct _ib_member_rec
 *
 * SYNOPSIS
 */
-static inline void	OSM_API
-ib_member_get_sl_flow_hop(
-	IN const ib_net32_t sl_flow_hop,
-	OUT uint8_t* const p_sl,
-	OUT uint32_t* const p_flow_lbl,
-	OUT uint8_t* const p_hop )
+static inline void OSM_API
+ib_member_get_sl_flow_hop(IN const ib_net32_t sl_flow_hop,
+			  OUT uint8_t * const p_sl,
+			  OUT uint32_t * const p_flow_lbl,
+			  OUT uint8_t * const p_hop)
 {
 	uint32_t tmp;
 
 	tmp = cl_ntoh32(sl_flow_hop);
 	if (p_hop)
-		*p_hop = (uint8_t)tmp;
+		*p_hop = (uint8_t) tmp;
 	tmp >>= 8;
 
 	if (p_flow_lbl)
-		*p_flow_lbl = (uint32_t)(tmp & 0xfffff);
+		*p_flow_lbl = (uint32_t) (tmp & 0xfffff);
 	tmp >>= 20;
 
 	if (p_sl)
-		*p_sl = (uint8_t)tmp;
+		*p_sl = (uint8_t) tmp;
 }
+
 /*
 * PARAMETERS
 *	sl_flow_hop
@@ -6632,17 +6505,17 @@ ib_member_get_sl_flow_hop(
 *
 * SYNOPSIS
 */
-static inline ib_net32_t	OSM_API
-ib_member_set_sl_flow_hop(
-	IN const uint8_t sl,
-	IN const uint32_t flow_label,
-	IN const uint8_t hop_limit )
+static inline ib_net32_t OSM_API
+ib_member_set_sl_flow_hop(IN const uint8_t sl,
+			  IN const uint32_t flow_label,
+			  IN const uint8_t hop_limit)
 {
 	uint32_t tmp;
 
 	tmp = (sl << 28) | ((flow_label & 0xfffff) << 8) | hop_limit;
 	return cl_hton32(tmp);
 }
+
 /*
 * PARAMETERS
 *	sl
@@ -6673,23 +6546,23 @@ ib_member_set_sl_flow_hop(
 *
 * SYNOPSIS
 */
-static inline void	OSM_API
-ib_member_get_scope_state(
-	IN	const	uint8_t			scope_state,
-	OUT		uint8_t* const		p_scope,
-	OUT		uint8_t* const		p_state )
+static inline void OSM_API
+ib_member_get_scope_state(IN const uint8_t scope_state,
+			  OUT uint8_t * const p_scope,
+			  OUT uint8_t * const p_state)
 {
-	uint8_t		tmp_scope_state;
+	uint8_t tmp_scope_state;
 
 	if (p_state)
-		*p_state = (uint8_t)(scope_state & 0x0f);
+		*p_state = (uint8_t) (scope_state & 0x0f);
 
 	tmp_scope_state = scope_state >> 4;
 
 	if (p_scope)
-		*p_scope = (uint8_t)(tmp_scope_state & 0x0f);
+		*p_scope = (uint8_t) (tmp_scope_state & 0x0f);
 
 }
+
 /*
 * PARAMETERS
 *	scope_state
@@ -6717,18 +6590,17 @@ ib_member_get_scope_state(
 *
 * SYNOPSIS
 */
-static inline uint8_t	OSM_API
-ib_member_set_scope_state(
-	IN	const	uint8_t			scope,
-	IN	const	uint8_t			state )
+static inline uint8_t OSM_API
+ib_member_set_scope_state(IN const uint8_t scope, IN const uint8_t state)
 {
-	uint8_t		scope_state;
+	uint8_t scope_state;
 
 	scope_state = scope;
 	scope_state = scope_state << 4;
 	scope_state = scope_state | state;
 	return (scope_state);
 }
+
 /*
 * PARAMETERS
 *	scope
@@ -6756,14 +6628,14 @@ ib_member_set_scope_state(
 *
 * SYNOPSIS
 */
-static inline void	OSM_API
-ib_member_set_join_state(
-	IN OUT		ib_member_rec_t		*p_mc_rec,
-	IN	const	uint8_t			state )
+static inline void OSM_API
+ib_member_set_join_state(IN OUT ib_member_rec_t * p_mc_rec,
+			 IN const uint8_t state)
 {
 	/* keep the scope as it is */
 	p_mc_rec->scope_state = (p_mc_rec->scope_state & 0xF0) | (0x0f & state);
 }
+
 /*
 * PARAMETERS
 *	p_mc_rec
@@ -6799,115 +6671,111 @@ ib_member_set_join_state(
 #define IB_NOTICE_TYPE_EMPTY				0x7F
 
 #include <complib/cl_packon.h>
-typedef struct _ib_mad_notice_attr    // Total Size calc  Accumulated
+typedef struct _ib_mad_notice_attr	// Total Size calc  Accumulated
 {
-  uint8_t			generic_type;    // 1                1
+	uint8_t generic_type;	// 1                1
 
-  union _notice_g_or_v
-  {
-	 struct _notice_generic            // 5                6
-	 {
-		uint8_t		prod_type_msb;
-		ib_net16_t	prod_type_lsb;
-		ib_net16_t	trap_num;
-	 }	PACK_SUFFIX generic;
+	union _notice_g_or_v {
+		struct _notice_generic	// 5                6
+		{
+			uint8_t prod_type_msb;
+			ib_net16_t prod_type_lsb;
+			ib_net16_t trap_num;
+		} PACK_SUFFIX generic;
 
-	 struct _notice_vend
-	 {
-		uint8_t		vend_id_msb;
-		ib_net16_t	vend_id_lsb;
-		ib_net16_t	dev_id;
-	 }	PACK_SUFFIX vend;
-  } g_or_v;
+		struct _notice_vend {
+			uint8_t vend_id_msb;
+			ib_net16_t vend_id_lsb;
+			ib_net16_t dev_id;
+		} PACK_SUFFIX vend;
+	} g_or_v;
 
-  ib_net16_t			issuer_lid;    // 2                 8
-  ib_net16_t			toggle_count;  // 2                 10
+	ib_net16_t issuer_lid;	// 2                 8
+	ib_net16_t toggle_count;	// 2                 10
 
-  union _data_details               // 54                64
+	union _data_details	// 54                64
 	{
-	  struct _raw_data
-	  {
-		 uint8_t	details[54];
-	  } PACK_SUFFIX raw_data;
+		struct _raw_data {
+			uint8_t details[54];
+		} PACK_SUFFIX raw_data;
 
-	  struct _ntc_64_67
-	  {
-		 uint8_t    res[6];
-		 ib_gid_t   gid;	// the Node or Multicast Group that came in/out
-	  } PACK_SUFFIX ntc_64_67;
+		struct _ntc_64_67 {
+			uint8_t res[6];
+			ib_gid_t gid;	// the Node or Multicast Group that came in/out
+		} PACK_SUFFIX ntc_64_67;
 
-	  struct _ntc_128 {
-		 ib_net16_t sw_lid; // the sw lid of which link state changed
-	  } PACK_SUFFIX ntc_128;
+		struct _ntc_128 {
+			ib_net16_t sw_lid;	// the sw lid of which link state changed
+		} PACK_SUFFIX ntc_128;
 
-	  struct _ntc_129_131 {
-		 ib_net16_t    pad;
-		 ib_net16_t    lid;		// lid and port number of the violation
-		 uint8_t     port_num;
-	  } PACK_SUFFIX ntc_129_131;
+		struct _ntc_129_131 {
+			ib_net16_t pad;
+			ib_net16_t lid;	// lid and port number of the violation
+			uint8_t port_num;
+		} PACK_SUFFIX ntc_129_131;
 
-	  struct _ntc_144 {
-		 ib_net16_t    pad1;
-		 ib_net16_t    lid;		// lid where capability mask changed
-		 ib_net16_t    pad2;
-		 ib_net32_t    new_cap_mask; // new capability mask
-	  } PACK_SUFFIX ntc_144;
+		struct _ntc_144 {
+			ib_net16_t pad1;
+			ib_net16_t lid;	// lid where capability mask changed
+			ib_net16_t pad2;
+			ib_net32_t new_cap_mask;	// new capability mask
+		} PACK_SUFFIX ntc_144;
 
-	  struct _ntc_145 {
-		 ib_net16_t    pad1;
-		 ib_net16_t    lid;		// lid where sys guid changed
-		 ib_net16_t    pad2;
-		 ib_net64_t    new_sys_guid; // new system image guid
-	  } PACK_SUFFIX ntc_145;
+		struct _ntc_145 {
+			ib_net16_t pad1;
+			ib_net16_t lid;	// lid where sys guid changed
+			ib_net16_t pad2;
+			ib_net64_t new_sys_guid;	// new system image guid
+		} PACK_SUFFIX ntc_145;
 
-	  struct _ntc_256 {                       // total: 54
-		 ib_net16_t    pad1;                   // 2
-		 ib_net16_t    lid;                    // 2
-		 ib_net16_t    pad2;                   // 2
-		 uint8_t       method;                 // 1
-		 uint8_t       pad3;                   // 1
-		 ib_net16_t    attr_id;                // 2
-		 ib_net32_t    attr_mod;               // 4
-		 ib_net64_t    mkey;                   // 8
-		 uint8_t       dr_slid;                // 1
-		 uint8_t       dr_trunc_hop;           // 1
-		 uint8_t       dr_rtn_path[30];        // 30
-	  } PACK_SUFFIX ntc_256;
+		struct _ntc_256 {	// total: 54
+			ib_net16_t pad1;	// 2
+			ib_net16_t lid;	// 2
+			ib_net16_t pad2;	// 2
+			uint8_t method;	// 1
+			uint8_t pad3;	// 1
+			ib_net16_t attr_id;	// 2
+			ib_net32_t attr_mod;	// 4
+			ib_net64_t mkey;	// 8
+			uint8_t dr_slid;	// 1
+			uint8_t dr_trunc_hop;	// 1
+			uint8_t dr_rtn_path[30];	// 30
+		} PACK_SUFFIX ntc_256;
 
-	  struct _ntc_257_258 // violation of p/q_key // 49
-	  {
-		 ib_net16_t    pad1;                   // 2
-		 ib_net16_t    lid1;                   // 2
-		 ib_net16_t    lid2;                   // 2
-		 ib_net32_t    key;                    // 2
-		 uint8_t       sl;                     // 1
-		 ib_net32_t    qp1;                    // 4
-		 ib_net32_t    qp2;                    // 4
-		 ib_gid_t      gid1;                   // 16
-		 ib_gid_t      gid2;                   // 16
-	  } PACK_SUFFIX ntc_257_258;
+		struct _ntc_257_258	// violation of p/q_key // 49
+		{
+			ib_net16_t pad1;	// 2
+			ib_net16_t lid1;	// 2
+			ib_net16_t lid2;	// 2
+			ib_net32_t key;	// 2
+			uint8_t sl;	// 1
+			ib_net32_t qp1;	// 4
+			ib_net32_t qp2;	// 4
+			ib_gid_t gid1;	// 16
+			ib_gid_t gid2;	// 16
+		} PACK_SUFFIX ntc_257_258;
 
-	  struct _ntc_259 // p/q_key violation with sw info 53
-	  {
-		 ib_net16_t    data_valid;   // 2
-		 ib_net16_t    lid1;         // 2
-		 ib_net16_t    lid2;         // 2
-		 ib_net32_t    key;          // 4
-		 uint8_t       sl;           // 1
-		 ib_net32_t    qp1;          // 4
-		 uint8_t       qp2_msb;      // 1
-		 ib_net16_t    qp2_lsb;      // 2
-		 ib_gid_t      gid1;         // 16
-		 ib_gid_t      gid2;         // 16
-		 ib_net16_t    sw_lid;       // 2
-		 uint8_t       port_no;      // 1
-	  } PACK_SUFFIX ntc_259;
+		struct _ntc_259	// p/q_key violation with sw info 53
+		{
+			ib_net16_t data_valid;	// 2
+			ib_net16_t lid1;	// 2
+			ib_net16_t lid2;	// 2
+			ib_net32_t key;	// 4
+			uint8_t sl;	// 1
+			ib_net32_t qp1;	// 4
+			uint8_t qp2_msb;	// 1
+			ib_net16_t qp2_lsb;	// 2
+			ib_gid_t gid1;	// 16
+			ib_gid_t gid2;	// 16
+			ib_net16_t sw_lid;	// 2
+			uint8_t port_no;	// 1
+		} PACK_SUFFIX ntc_259;
 
 	} data_details;
 
-  ib_gid_t			issuer_gid;    // 16          80
+	ib_gid_t issuer_gid;	// 16          80
 
-}	PACK_SUFFIX ib_mad_notice_attr_t;
+} PACK_SUFFIX ib_mad_notice_attr_t;
 #include <complib/cl_packoff.h>
 
 /****f* IBA Base: Types/ib_notice_is_generic
@@ -6919,12 +6787,12 @@ typedef struct _ib_mad_notice_attr    // Total Size calc  Accumulated
 *
 * SYNOPSIS
 */
-static inline boolean_t	OSM_API
-ib_notice_is_generic(
-  IN		const	ib_mad_notice_attr_t *p_ntc )
+static inline boolean_t OSM_API
+ib_notice_is_generic(IN const ib_mad_notice_attr_t * p_ntc)
 {
-  return (p_ntc->generic_type & 0x80);
+	return (p_ntc->generic_type & 0x80);
 }
+
 /*
 * PARAMETERS
 *	p_ntc
@@ -6946,12 +6814,12 @@ ib_notice_is_generic(
 *
 * SYNOPSIS
 */
-static inline uint8_t	OSM_API
-ib_notice_get_type(
-  IN		const	ib_mad_notice_attr_t *p_ntc )
+static inline uint8_t OSM_API
+ib_notice_get_type(IN const ib_mad_notice_attr_t * p_ntc)
 {
-  return p_ntc->generic_type & 0x7f;
+	return p_ntc->generic_type & 0x7f;
 }
+
 /*
 * PARAMETERS
 *	p_ntc
@@ -6973,16 +6841,16 @@ ib_notice_get_type(
 *
 * SYNOPSIS
 */
-static inline ib_net32_t	OSM_API
-ib_notice_get_prod_type(
-  IN		   const	ib_mad_notice_attr_t *p_ntc )
+static inline ib_net32_t OSM_API
+ib_notice_get_prod_type(IN const ib_mad_notice_attr_t * p_ntc)
 {
-  uint32_t pt;
+	uint32_t pt;
 
-  pt = cl_ntoh16(p_ntc->g_or_v.generic.prod_type_lsb) |
-    (p_ntc->g_or_v.generic.prod_type_msb << 16);
-  return cl_hton32(pt);
+	pt = cl_ntoh16(p_ntc->g_or_v.generic.prod_type_lsb) |
+	    (p_ntc->g_or_v.generic.prod_type_msb << 16);
+	return cl_hton32(pt);
 }
+
 /*
 * PARAMETERS
 *	p_ntc
@@ -7004,15 +6872,17 @@ ib_notice_get_prod_type(
 *
 * SYNOPSIS
 */
-static inline void	OSM_API
-ib_notice_set_prod_type(
-  IN ib_mad_notice_attr_t *p_ntc,
-  IN ib_net32_t prod_type_val )
+static inline void OSM_API
+ib_notice_set_prod_type(IN ib_mad_notice_attr_t * p_ntc,
+			IN ib_net32_t prod_type_val)
 {
-  uint32_t ptv = cl_ntoh32(prod_type_val);
-  p_ntc->g_or_v.generic.prod_type_lsb = cl_hton16((uint16_t)(ptv & 0x0000ffff));
-  p_ntc->g_or_v.generic.prod_type_msb = (uint8_t)( (ptv & 0x00ff0000) >> 16);
+	uint32_t ptv = cl_ntoh32(prod_type_val);
+	p_ntc->g_or_v.generic.prod_type_lsb =
+	    cl_hton16((uint16_t) (ptv & 0x0000ffff));
+	p_ntc->g_or_v.generic.prod_type_msb =
+	    (uint8_t) ((ptv & 0x00ff0000) >> 16);
 }
+
 /*
 * PARAMETERS
 *	p_ntc
@@ -7037,16 +6907,16 @@ ib_notice_set_prod_type(
 *
 * SYNOPSIS
 */
-static inline void	OSM_API
-ib_notice_set_prod_type_ho(
-  IN ib_mad_notice_attr_t *p_ntc,
-  IN uint32_t prod_type_val_ho )
+static inline void OSM_API
+ib_notice_set_prod_type_ho(IN ib_mad_notice_attr_t * p_ntc,
+			   IN uint32_t prod_type_val_ho)
 {
-  p_ntc->g_or_v.generic.prod_type_lsb =
-	  cl_hton16( (uint16_t)(prod_type_val_ho & 0x0000ffff) );
-  p_ntc->g_or_v.generic.prod_type_msb =
-	  (uint8_t)( (prod_type_val_ho & 0x00ff0000) >> 16);
+	p_ntc->g_or_v.generic.prod_type_lsb =
+	    cl_hton16((uint16_t) (prod_type_val_ho & 0x0000ffff));
+	p_ntc->g_or_v.generic.prod_type_msb =
+	    (uint8_t) ((prod_type_val_ho & 0x00ff0000) >> 16);
 }
+
 /*
 * PARAMETERS
 *	p_ntc
@@ -7071,16 +6941,16 @@ ib_notice_set_prod_type_ho(
 *
 * SYNOPSIS
 */
-static inline ib_net32_t	OSM_API
-ib_notice_get_vend_id(
-  IN		const	ib_mad_notice_attr_t *p_ntc )
+static inline ib_net32_t OSM_API
+ib_notice_get_vend_id(IN const ib_mad_notice_attr_t * p_ntc)
 {
-  uint32_t vi;
+	uint32_t vi;
 
-  vi = cl_ntoh16(p_ntc->g_or_v.vend.vend_id_lsb) |
-    (p_ntc->g_or_v.vend.vend_id_msb << 16);
-  return cl_hton32(vi);
+	vi = cl_ntoh16(p_ntc->g_or_v.vend.vend_id_lsb) |
+	    (p_ntc->g_or_v.vend.vend_id_msb << 16);
+	return cl_hton32(vi);
 }
+
 /*
 * PARAMETERS
 *	p_ntc
@@ -7102,15 +6972,15 @@ ib_notice_get_vend_id(
 *
 * SYNOPSIS
 */
-static inline void	OSM_API
-ib_notice_set_vend_id(
-  IN ib_mad_notice_attr_t *p_ntc,
-  IN ib_net32_t vend_id )
+static inline void OSM_API
+ib_notice_set_vend_id(IN ib_mad_notice_attr_t * p_ntc, IN ib_net32_t vend_id)
 {
-  uint32_t vi = cl_ntoh32(vend_id);
-  p_ntc->g_or_v.vend.vend_id_lsb = cl_hton16((uint16_t)(vi & 0x0000ffff));
-  p_ntc->g_or_v.vend.vend_id_msb = (uint8_t)((vi & 0x00ff0000) >> 16);
+	uint32_t vi = cl_ntoh32(vend_id);
+	p_ntc->g_or_v.vend.vend_id_lsb =
+	    cl_hton16((uint16_t) (vi & 0x0000ffff));
+	p_ntc->g_or_v.vend.vend_id_msb = (uint8_t) ((vi & 0x00ff0000) >> 16);
 }
+
 /*
 * PARAMETERS
 *	p_ntc
@@ -7135,16 +7005,16 @@ ib_notice_set_vend_id(
 *
 * SYNOPSIS
 */
-static inline void	OSM_API
-ib_notice_set_vend_id_ho(
-  IN ib_mad_notice_attr_t *p_ntc,
-  IN uint32_t vend_id_ho )
+static inline void OSM_API
+ib_notice_set_vend_id_ho(IN ib_mad_notice_attr_t * p_ntc,
+			 IN uint32_t vend_id_ho)
 {
-  p_ntc->g_or_v.vend.vend_id_lsb =
-	  cl_hton16((uint16_t)(vend_id_ho & 0x0000ffff));
-  p_ntc->g_or_v.vend.vend_id_msb =
-	  (uint8_t)((vend_id_ho & 0x00ff0000) >> 16);
+	p_ntc->g_or_v.vend.vend_id_lsb =
+	    cl_hton16((uint16_t) (vend_id_ho & 0x0000ffff));
+	p_ntc->g_or_v.vend.vend_id_msb =
+	    (uint8_t) ((vend_id_ho & 0x00ff0000) >> 16);
 }
+
 /*
 * PARAMETERS
 *	p_ntc
@@ -7161,38 +7031,34 @@ ib_notice_set_vend_id_ho(
 *********/
 
 #include <complib/cl_packon.h>
-typedef struct _ib_inform_info
-{
-  ib_gid_t				gid;
-  ib_net16_t				lid_range_begin;
-  ib_net16_t				lid_range_end;
-  ib_net16_t				reserved1;
-  uint8_t				is_generic;
-  uint8_t				subscribe;
-  ib_net16_t				trap_type;
-  union _inform_g_or_v
-  {
-	 struct _inform_generic
-	 {
-		ib_net16_t		trap_num;
-		ib_net32_t		qpn_resp_time_val;
-		uint8_t			reserved2;
-		uint8_t			node_type_msb;
-		ib_net16_t		node_type_lsb;
-	 } PACK_SUFFIX generic;
+typedef struct _ib_inform_info {
+	ib_gid_t gid;
+	ib_net16_t lid_range_begin;
+	ib_net16_t lid_range_end;
+	ib_net16_t reserved1;
+	uint8_t is_generic;
+	uint8_t subscribe;
+	ib_net16_t trap_type;
+	union _inform_g_or_v {
+		struct _inform_generic {
+			ib_net16_t trap_num;
+			ib_net32_t qpn_resp_time_val;
+			uint8_t reserved2;
+			uint8_t node_type_msb;
+			ib_net16_t node_type_lsb;
+		} PACK_SUFFIX generic;
 
-	 struct _inform_vend
-	 {
-		ib_net16_t		dev_id;
-		ib_net32_t		qpn_resp_time_val;
-		uint8_t			reserved2;
-		uint8_t			vendor_id_msb;
-		ib_net16_t		vendor_id_lsb;
-	 } PACK_SUFFIX vend;
+		struct _inform_vend {
+			ib_net16_t dev_id;
+			ib_net32_t qpn_resp_time_val;
+			uint8_t reserved2;
+			uint8_t vendor_id_msb;
+			ib_net16_t vendor_id_lsb;
+		} PACK_SUFFIX vend;
 
-  }	PACK_SUFFIX g_or_v;
+	} PACK_SUFFIX g_or_v;
 
-}	PACK_SUFFIX ib_inform_info_t;
+} PACK_SUFFIX ib_inform_info_t;
 #include <complib/cl_packoff.h>
 
 /****f* IBA Base: Types/ib_inform_info_get_qpn_resp_time
@@ -7204,20 +7070,20 @@ typedef struct _ib_inform_info
 *
 * SYNOPSIS
 */
-static inline void	OSM_API
-ib_inform_info_get_qpn_resp_time(
-  IN	const	ib_net32_t		qpn_resp_time_val,
-  OUT		ib_net32_t* const	p_qpn,
-  OUT		uint8_t* const		p_resp_time_val )
+static inline void OSM_API
+ib_inform_info_get_qpn_resp_time(IN const ib_net32_t qpn_resp_time_val,
+				 OUT ib_net32_t * const p_qpn,
+				 OUT uint8_t * const p_resp_time_val)
 {
-  uint32_t tmp = cl_ntoh32(qpn_resp_time_val);
+	uint32_t tmp = cl_ntoh32(qpn_resp_time_val);
 
-  if (p_qpn)
-    *p_qpn = cl_hton32((tmp & 0xffffff00) >> 8);
+	if (p_qpn)
+		*p_qpn = cl_hton32((tmp & 0xffffff00) >> 8);
 
 	if (p_resp_time_val)
-		*p_resp_time_val = (uint8_t)(tmp & 0x0000001f);
+		*p_resp_time_val = (uint8_t) (tmp & 0x0000001f);
 }
+
 /*
 * PARAMETERS
 *	qpn_resp_time_val
@@ -7245,19 +7111,16 @@ ib_inform_info_get_qpn_resp_time(
 *
 * SYNOPSIS
 */
-static inline void	OSM_API
-ib_inform_info_set_qpn(
-  IN	ib_inform_info_t 	*p_ii,
-  IN	ib_net32_t const	qpn)
+static inline void OSM_API
+ib_inform_info_set_qpn(IN ib_inform_info_t * p_ii, IN ib_net32_t const qpn)
 {
-  uint32_t tmp = cl_ntoh32(p_ii->g_or_v.generic.qpn_resp_time_val);
+	uint32_t tmp = cl_ntoh32(p_ii->g_or_v.generic.qpn_resp_time_val);
 
-  p_ii->g_or_v.generic.qpn_resp_time_val =
-    cl_hton32(
-      (tmp & 0x000000ff) |
-      ((cl_ntoh32(qpn) << 8) & 0xffffff00)
-      );
+	p_ii->g_or_v.generic.qpn_resp_time_val =
+	    cl_hton32((tmp & 0x000000ff) | ((cl_ntoh32(qpn) << 8) & 0xffffff00)
+	    );
 }
+
 /*
 * PARAMETERS
 *
@@ -7277,16 +7140,16 @@ ib_inform_info_set_qpn(
 *
 * SYNOPSIS
 */
-static inline ib_net32_t	OSM_API
-ib_inform_info_get_prod_type(
-  IN		const	ib_inform_info_t  *p_inf)
+static inline ib_net32_t OSM_API
+ib_inform_info_get_prod_type(IN const ib_inform_info_t * p_inf)
 {
-  uint32_t nt;
+	uint32_t nt;
 
-  nt = cl_ntoh16(p_inf->g_or_v.generic.node_type_lsb) |
-    (p_inf->g_or_v.generic.node_type_msb << 16);
-  return cl_hton32(nt);
+	nt = cl_ntoh16(p_inf->g_or_v.generic.node_type_lsb) |
+	    (p_inf->g_or_v.generic.node_type_msb << 16);
+	return cl_hton32(nt);
 }
+
 /*
 * PARAMETERS
 *	p_inf
@@ -7310,16 +7173,16 @@ ib_inform_info_get_prod_type(
 *
 * SYNOPSIS
 */
-static inline ib_net32_t	OSM_API
-ib_inform_info_get_vend_id(
-  IN		const	ib_inform_info_t  *p_inf)
+static inline ib_net32_t OSM_API
+ib_inform_info_get_vend_id(IN const ib_inform_info_t * p_inf)
 {
-  uint32_t vi;
+	uint32_t vi;
 
-  vi = cl_ntoh16(p_inf->g_or_v.vend.vendor_id_lsb) |
-    (p_inf->g_or_v.vend.vendor_id_msb << 16);
-  return cl_hton32(vi);
+	vi = cl_ntoh16(p_inf->g_or_v.vend.vendor_id_lsb) |
+	    (p_inf->g_or_v.vend.vendor_id_msb << 16);
+	return cl_hton32(vi);
 }
+
 /*
 * PARAMETERS
 *	p_inf
@@ -7344,14 +7207,13 @@ ib_inform_info_get_vend_id(
 * SYNOPSIS
 */
 #include <complib/cl_packon.h>
-typedef struct _ib_inform_info_record
-{
-	ib_gid_t			subscriber_gid;
-	ib_net16_t			subscriber_enum;
-	uint8_t 			reserved[6];
-	ib_inform_info_t		inform_info;
-	uint8_t				pad[4];
-}	PACK_SUFFIX ib_inform_info_record_t;
+typedef struct _ib_inform_info_record {
+	ib_gid_t subscriber_gid;
+	ib_net16_t subscriber_enum;
+	uint8_t reserved[6];
+	ib_inform_info_t inform_info;
+	uint8_t pad[4];
+} PACK_SUFFIX ib_inform_info_record_t;
 #include <complib/cl_packoff.h>
 
 /****s* IBA Base: Types/ib_perfmgt_mad_t
@@ -7364,15 +7226,14 @@ typedef struct _ib_inform_info_record
 * SYNOPSIS
 */
 #include <complib/cl_packon.h>
-typedef struct _ib_perfmgt_mad
-{
-	ib_mad_t		header;
-	uint8_t			resv[40];
+typedef struct _ib_perfmgt_mad {
+	ib_mad_t header;
+	uint8_t resv[40];
 
 #define	IB_PM_DATA_SIZE		192
-	uint8_t			data[IB_PM_DATA_SIZE];
+	uint8_t data[IB_PM_DATA_SIZE];
 
-}	PACK_SUFFIX ib_perfmgt_mad_t;
+} PACK_SUFFIX ib_perfmgt_mad_t;
 #include <complib/cl_packoff.h>
 /*
 * FIELDS
@@ -7400,29 +7261,28 @@ typedef struct _ib_perfmgt_mad
 * SYNOPSIS
 */
 #include <complib/cl_packon.h>
-typedef struct _ib_port_counters
-{
-	uint8_t 			reserved;
-	uint8_t                         port_select;
-	ib_net16_t                      counter_select;
-	ib_net16_t                      symbol_err_cnt;
-	uint8_t                         link_err_recover;
-	uint8_t                         link_downed;
-	ib_net16_t                      rcv_err;
-	ib_net16_t                      rcv_rem_phys_err;
-	ib_net16_t                      rcv_switch_relay_err;
-	ib_net16_t                      xmit_discards;
-	uint8_t                         xmit_constraint_err;
-	uint8_t                         rcv_constraint_err;
-	uint8_t                         res1;
-	uint8_t                         link_int_buffer_overrun;
-	ib_net16_t                      res2;
-	ib_net16_t                      vl15_dropped;
-	ib_net32_t                      xmit_data;
-	ib_net32_t                      rcv_data;
-	ib_net32_t                      xmit_pkts;
-	ib_net32_t                      rcv_pkts;
-}	PACK_SUFFIX ib_port_counters_t;
+typedef struct _ib_port_counters {
+	uint8_t reserved;
+	uint8_t port_select;
+	ib_net16_t counter_select;
+	ib_net16_t symbol_err_cnt;
+	uint8_t link_err_recover;
+	uint8_t link_downed;
+	ib_net16_t rcv_err;
+	ib_net16_t rcv_rem_phys_err;
+	ib_net16_t rcv_switch_relay_err;
+	ib_net16_t xmit_discards;
+	uint8_t xmit_constraint_err;
+	uint8_t rcv_constraint_err;
+	uint8_t res1;
+	uint8_t link_int_buffer_overrun;
+	ib_net16_t res2;
+	ib_net16_t vl15_dropped;
+	ib_net32_t xmit_data;
+	ib_net32_t rcv_data;
+	ib_net32_t xmit_pkts;
+	ib_net32_t rcv_pkts;
+} PACK_SUFFIX ib_port_counters_t;
 #include <complib/cl_packoff.h>
 
 #define PC_LINK_INT(integ_buf_over) ((integ_buf_over & 0xF0) >> 4)
@@ -7438,21 +7298,20 @@ typedef struct _ib_port_counters
 * SYNOPSIS
 */
 #include <complib/cl_packon.h>
-typedef struct _ib_port_counters_ext
-{
-	uint8_t     reserved;
-	uint8_t     port_select;
-	ib_net16_t  counter_select;
-	ib_net32_t  reserved2;
-	ib_net64_t  xmit_data;
-	ib_net64_t  rcv_data;
-	ib_net64_t  xmit_pkts;
-	ib_net64_t  rcv_pkts;
-	ib_net64_t  unicast_xmit_pkts;
-	ib_net64_t  unicast_rcv_pkts;
-	ib_net64_t  multicast_xmit_pkts;
-	ib_net64_t  multicast_rcv_pkts;
-}	PACK_SUFFIX ib_port_counters_ext_t;
+typedef struct _ib_port_counters_ext {
+	uint8_t reserved;
+	uint8_t port_select;
+	ib_net16_t counter_select;
+	ib_net32_t reserved2;
+	ib_net64_t xmit_data;
+	ib_net64_t rcv_data;
+	ib_net64_t xmit_pkts;
+	ib_net64_t rcv_pkts;
+	ib_net64_t unicast_xmit_pkts;
+	ib_net64_t unicast_rcv_pkts;
+	ib_net64_t multicast_xmit_pkts;
+	ib_net64_t multicast_rcv_pkts;
+} PACK_SUFFIX ib_port_counters_ext_t;
 #include <complib/cl_packoff.h>
 
 /****s* IBA Base: Types/ib_port_samples_control
@@ -7465,16 +7324,15 @@ typedef struct _ib_port_counters_ext
 * SYNOPSIS
 */
 #include <complib/cl_packon.h>
-typedef struct _ib_port_samples_control
-{
-	uint8_t    op_code;
-	uint8_t    port_select;
-	uint8_t    tick;
-	uint8_t    counter_width;       /* 5 bits res : 3bits counter_width */
-	ib_net32_t counter_mask;        /* 2 bits res : 3 bits counter_mask : 27 bits counter_masks_1to9 */
-	ib_net16_t counter_mask_10to14; /* 1 bits res : 15 bits counter_masks_10to14 */
-	uint8_t    sample_mech;
-	uint8_t    sample_status;       /* 6 bits res : 2 bits sample_status */
+typedef struct _ib_port_samples_control {
+	uint8_t op_code;
+	uint8_t port_select;
+	uint8_t tick;
+	uint8_t counter_width;	/* 5 bits res : 3bits counter_width */
+	ib_net32_t counter_mask;	/* 2 bits res : 3 bits counter_mask : 27 bits counter_masks_1to9 */
+	ib_net16_t counter_mask_10to14;	/* 1 bits res : 15 bits counter_masks_10to14 */
+	uint8_t sample_mech;
+	uint8_t sample_status;	/* 6 bits res : 2 bits sample_status */
 	ib_net64_t option_mask;
 	ib_net64_t vendor_mask;
 	ib_net32_t sample_start;
@@ -7523,10 +7381,9 @@ typedef struct _ib_port_samples_control
 * SYNOPSIS
 */
 #include <complib/cl_packon.h>
-typedef struct _ib_port_samples_result
-{
+typedef struct _ib_port_samples_result {
 	ib_net16_t tag;
-	ib_net16_t sample_status; /* 14 bits res : 2 bits sample_status */
+	ib_net16_t sample_status;	/* 14 bits res : 2 bits sample_status */
 	ib_net32_t counter0;
 	ib_net32_t counter1;
 	ib_net32_t counter2;
@@ -7544,8 +7401,6 @@ typedef struct _ib_port_samples_result
 	ib_net32_t counter14;
 } PACK_SUFFIX ib_port_samples_result_t;
 #include <complib/cl_packoff.h>
-
-
 
 /****d* IBA Base: Types/DM_SVC_NAME
 * NAME
@@ -7571,15 +7426,14 @@ typedef struct _ib_port_samples_result
 * SYNOPSIS
 */
 #include <complib/cl_packon.h>
-typedef struct _ib_dm_mad
-{
-	ib_mad_t		header;
-	uint8_t			resv[40];
+typedef struct _ib_dm_mad {
+	ib_mad_t header;
+	uint8_t resv[40];
 
 #define	IB_DM_DATA_SIZE		192
-	uint8_t			data[IB_DM_DATA_SIZE];
+	uint8_t data[IB_DM_DATA_SIZE];
 
-}	PACK_SUFFIX ib_dm_mad_t;
+} PACK_SUFFIX ib_dm_mad_t;
 #include <complib/cl_packoff.h>
 /*
 * FIELDS
@@ -7607,21 +7461,20 @@ typedef struct _ib_dm_mad
 * SYNOPSIS
 */
 #include <complib/cl_packon.h>
-typedef struct _ib_iou_info
-{
-	ib_net16_t		change_id;
-	uint8_t			max_controllers;
-	uint8_t			diag_rom;
+typedef struct _ib_iou_info {
+	ib_net16_t change_id;
+	uint8_t max_controllers;
+	uint8_t diag_rom;
 
 #define	IB_DM_CTRL_LIST_SIZE	128
 
-	uint8_t			controller_list[IB_DM_CTRL_LIST_SIZE];
+	uint8_t controller_list[IB_DM_CTRL_LIST_SIZE];
 #define	IOC_NOT_INSTALLED		0x0
 #define	IOC_INSTALLED			0x1
-//		Reserved values				0x02-0xE
+//              Reserved values                         0x02-0xE
 #define	SLOT_DOES_NOT_EXIST		0xF
 
-}	PACK_SUFFIX ib_iou_info_t;
+} PACK_SUFFIX ib_iou_info_t;
 #include <complib/cl_packoff.h>
 /*
 * FIELDS
@@ -7654,12 +7507,12 @@ typedef struct _ib_iou_info
 *
 * SYNOPSIS
 */
-static inline uint8_t	OSM_API
-ib_iou_info_diag_dev_id(
-	IN	const	ib_iou_info_t* const	p_iou_info )
+static inline uint8_t OSM_API
+ib_iou_info_diag_dev_id(IN const ib_iou_info_t * const p_iou_info)
 {
-	return( (uint8_t)(p_iou_info->diag_rom >> 6 & 1) );
+	return ((uint8_t) (p_iou_info->diag_rom >> 6 & 1));
 }
+
 /*
 * PARAMETERS
 *	p_iou_info
@@ -7683,12 +7536,12 @@ ib_iou_info_diag_dev_id(
 *
 * SYNOPSIS
 */
-static inline uint8_t	OSM_API
-ib_iou_info_option_rom(
-	IN	const	ib_iou_info_t*	const	p_iou_info )
+static inline uint8_t OSM_API
+ib_iou_info_option_rom(IN const ib_iou_info_t * const p_iou_info)
 {
-	return( (uint8_t)(p_iou_info->diag_rom >> 7) );
+	return ((uint8_t) (p_iou_info->diag_rom >> 7));
 }
+
 /*
 * PARAMETERS
 *	p_iou_info
@@ -7712,17 +7565,18 @@ ib_iou_info_option_rom(
 *
 * SYNOPSIS
 */
-static inline uint8_t	OSM_API
-ioc_at_slot(
-	IN	const	ib_iou_info_t*	const	p_iou_info,
-	IN		uint8_t			slot )
+static inline uint8_t OSM_API
+ioc_at_slot(IN const ib_iou_info_t * const p_iou_info, IN uint8_t slot)
 {
-	if( slot >= IB_DM_CTRL_LIST_SIZE ) return SLOT_DOES_NOT_EXIST;
-	else return (int8_t)
-		( (slot%2) ?
-			((p_iou_info->controller_list[slot/2] & 0xf0) >> 4 ):
-			(p_iou_info->controller_list[slot/2] & 0x0f) );
+	if (slot >= IB_DM_CTRL_LIST_SIZE)
+		return SLOT_DOES_NOT_EXIST;
+	else
+		return (int8_t)
+		    ((slot % 2) ?
+		     ((p_iou_info->controller_list[slot / 2] & 0xf0) >> 4) :
+		     (p_iou_info->controller_list[slot / 2] & 0x0f));
 }
+
 /*
 * PARAMETERS
 *	p_iou_info
@@ -7750,32 +7604,31 @@ ioc_at_slot(
 * SYNOPSIS
 */
 #include <complib/cl_packon.h>
-typedef struct _ib_ioc_profile
-{
-	ib_net64_t				ioc_guid;
+typedef struct _ib_ioc_profile {
+	ib_net64_t ioc_guid;
 
-	ib_net32_t				vend_id;
+	ib_net32_t vend_id;
 
-	ib_net32_t				dev_id;
-	ib_net16_t				dev_ver;
-	ib_net16_t				resv2;
+	ib_net32_t dev_id;
+	ib_net16_t dev_ver;
+	ib_net16_t resv2;
 
-	ib_net32_t				subsys_vend_id;
-	ib_net32_t				subsys_id;
+	ib_net32_t subsys_vend_id;
+	ib_net32_t subsys_id;
 
-	ib_net16_t				io_class;
-	ib_net16_t				io_subclass;
-	ib_net16_t				protocol;
-	ib_net16_t				protocol_ver;
+	ib_net16_t io_class;
+	ib_net16_t io_subclass;
+	ib_net16_t protocol;
+	ib_net16_t protocol_ver;
 
-	ib_net32_t				resv3;
-	ib_net16_t				send_msg_depth;
-	uint8_t					resv4;
-	uint8_t					rdma_read_depth;
-	ib_net32_t				send_msg_size;
-	ib_net32_t				rdma_size;
+	ib_net32_t resv3;
+	ib_net16_t send_msg_depth;
+	uint8_t resv4;
+	uint8_t rdma_read_depth;
+	ib_net32_t send_msg_size;
+	ib_net32_t rdma_size;
 
-	uint8_t					ctrl_ops_cap;
+	uint8_t ctrl_ops_cap;
 #define	CTRL_OPS_CAP_ST		0x01
 #define	CTRL_OPS_CAP_SF		0x02
 #define	CTRL_OPS_CAP_RT		0x04
@@ -7785,17 +7638,17 @@ typedef struct _ib_ioc_profile
 #define	CTRL_OPS_CAP_AT		0x40
 #define	CTRL_OPS_CAP_AF		0x80
 
-	uint8_t					resv5;
+	uint8_t resv5;
 
-	uint8_t					num_svc_entries;
+	uint8_t num_svc_entries;
 #define	MAX_NUM_SVC_ENTRIES	0xff
 
-	uint8_t					resv6[9];
+	uint8_t resv6[9];
 
 #define	CTRL_ID_STRING_LEN	64
-	char					id_string[CTRL_ID_STRING_LEN];
+	char id_string[CTRL_ID_STRING_LEN];
 
-}	PACK_SUFFIX ib_ioc_profile_t;
+} PACK_SUFFIX ib_ioc_profile_t;
 #include <complib/cl_packoff.h>
 /*
 * FIELDS
@@ -7858,18 +7711,15 @@ typedef struct _ib_ioc_profile
 * ib_dm_mad_t
 *********/
 
-static inline uint32_t	OSM_API
-ib_ioc_profile_get_vend_id(
-	IN	const	ib_ioc_profile_t* const		p_ioc_profile )
+static inline uint32_t OSM_API
+ib_ioc_profile_get_vend_id(IN const ib_ioc_profile_t * const p_ioc_profile)
 {
-	return( cl_ntoh32(p_ioc_profile->vend_id) >> 8 );
+	return (cl_ntoh32(p_ioc_profile->vend_id) >> 8);
 }
 
-
-static inline void	OSM_API
-ib_ioc_profile_set_vend_id(
-	IN		ib_ioc_profile_t* const		p_ioc_profile,
-	IN	const	uint32_t			vend_id )
+static inline void OSM_API
+ib_ioc_profile_set_vend_id(IN ib_ioc_profile_t * const p_ioc_profile,
+			   IN const uint32_t vend_id)
 {
 	p_ioc_profile->vend_id = (cl_hton32(vend_id) << 8);
 }
@@ -7884,14 +7734,13 @@ ib_ioc_profile_set_vend_id(
 * SYNOPSIS
 */
 #include <complib/cl_packon.h>
-typedef struct _ib_svc_entry
-{
+typedef struct _ib_svc_entry {
 #define	MAX_SVC_ENTRY_NAME_LEN		40
-	char				name[MAX_SVC_ENTRY_NAME_LEN];
+	char name[MAX_SVC_ENTRY_NAME_LEN];
 
-	ib_net64_t			id;
+	ib_net64_t id;
 
-}	PACK_SUFFIX ib_svc_entry_t;
+} PACK_SUFFIX ib_svc_entry_t;
 #include <complib/cl_packoff.h>
 /*
 * FIELDS
@@ -7915,12 +7764,11 @@ typedef struct _ib_svc_entry
 * SYNOPSIS
 */
 #include <complib/cl_packon.h>
-typedef struct _ib_svc_entries
-{
+typedef struct _ib_svc_entries {
 #define	SVC_ENTRY_COUNT			4
-	ib_svc_entry_t			service_entry[SVC_ENTRY_COUNT];
+	ib_svc_entry_t service_entry[SVC_ENTRY_COUNT];
 
-}	PACK_SUFFIX ib_svc_entries_t;
+} PACK_SUFFIX ib_svc_entries_t;
 #include <complib/cl_packoff.h>
 /*
 * FIELDS
@@ -7931,54 +7779,51 @@ typedef struct _ib_svc_entries
 * ib_dm_mad_t, ib_svc_entry_t
 *********/
 
-static inline void	OSM_API
-ib_dm_get_slot_lo_hi(
-	IN	const	ib_net32_t		slot_lo_hi,
-	OUT		uint8_t		*const	p_slot,
-	OUT		uint8_t		*const	p_lo,
-	OUT		uint8_t		*const	p_hi )
+static inline void OSM_API
+ib_dm_get_slot_lo_hi(IN const ib_net32_t slot_lo_hi,
+		     OUT uint8_t * const p_slot,
+		     OUT uint8_t * const p_lo, OUT uint8_t * const p_hi)
 {
-	ib_net32_t		tmp_slot_lo_hi = CL_NTOH32( slot_lo_hi );
+	ib_net32_t tmp_slot_lo_hi = CL_NTOH32(slot_lo_hi);
 
-	if( p_slot )
-		*p_slot = (uint8_t)( ( tmp_slot_lo_hi >> 16 ) & 0x0f );
+	if (p_slot)
+		*p_slot = (uint8_t) ((tmp_slot_lo_hi >> 16) & 0x0f);
 
-	if( p_hi )
-		*p_hi	= (uint8_t)( ( tmp_slot_lo_hi >> 8 ) & 0xff );
+	if (p_hi)
+		*p_hi = (uint8_t) ((tmp_slot_lo_hi >> 8) & 0xff);
 
-	if( p_lo )
-		*p_lo	= (uint8_t)( ( tmp_slot_lo_hi >> 0 ) & 0xff );
+	if (p_lo)
+		*p_lo = (uint8_t) ((tmp_slot_lo_hi >> 0) & 0xff);
 }
 
 /*
  *	IBA defined information describing an I/O controller
  */
 #include <complib/cl_packon.h>
-typedef struct _ib_ioc_info
-{
-	ib_net64_t				module_guid;
-	ib_net64_t				iou_guid;
-	ib_ioc_profile_t			ioc_profile;
-	ib_net64_t				access_key;
-	uint16_t				initiators_conf;
-	uint8_t					resv[38];
+typedef struct _ib_ioc_info {
+	ib_net64_t module_guid;
+	ib_net64_t iou_guid;
+	ib_ioc_profile_t ioc_profile;
+	ib_net64_t access_key;
+	uint16_t initiators_conf;
+	uint8_t resv[38];
 
-}	PACK_SUFFIX ib_ioc_info_t;
+} PACK_SUFFIX ib_ioc_info_t;
 #include <complib/cl_packoff.h>
 
 /*
  *	The following definitions are shared between the Access Layer and VPD
  */
-typedef struct _ib_ca* __ptr64			ib_ca_handle_t;
-typedef struct _ib_pd* __ptr64			ib_pd_handle_t;
-typedef struct _ib_rdd* __ptr64			ib_rdd_handle_t;
-typedef struct _ib_mr* __ptr64			ib_mr_handle_t;
-typedef struct _ib_mw* __ptr64			ib_mw_handle_t;
-typedef struct _ib_qp* __ptr64			ib_qp_handle_t;
-typedef struct _ib_eec* __ptr64			ib_eec_handle_t;
-typedef struct _ib_cq* __ptr64			ib_cq_handle_t;
-typedef struct _ib_av* __ptr64			ib_av_handle_t;
-typedef struct _ib_mcast* __ptr64		ib_mcast_handle_t;
+typedef struct _ib_ca *__ptr64 ib_ca_handle_t;
+typedef struct _ib_pd *__ptr64 ib_pd_handle_t;
+typedef struct _ib_rdd *__ptr64 ib_rdd_handle_t;
+typedef struct _ib_mr *__ptr64 ib_mr_handle_t;
+typedef struct _ib_mw *__ptr64 ib_mw_handle_t;
+typedef struct _ib_qp *__ptr64 ib_qp_handle_t;
+typedef struct _ib_eec *__ptr64 ib_eec_handle_t;
+typedef struct _ib_cq *__ptr64 ib_cq_handle_t;
+typedef struct _ib_av *__ptr64 ib_av_handle_t;
+typedef struct _ib_mcast *__ptr64 ib_mcast_handle_t;
 
 /* Currently for windows branch, use the extended version of ib special verbs struct
 	in order to be compliant with Infinicon ib_types; later we'll change it to support
@@ -8000,8 +7845,7 @@ typedef struct _ib_mcast* __ptr64		ib_mcast_handle_t;
 *
 * SYNOPSIS
 */
-typedef enum _ib_api_status_t
-{
+typedef enum _ib_api_status_t {
 	IB_SUCCESS,
 	IB_INSUFFICIENT_RESOURCES,
 	IB_INSUFFICIENT_MEMORY,
@@ -8042,22 +7886,21 @@ typedef enum _ib_api_status_t
 	IB_INVALID_RDD_HANDLE,
 	IB_INVALID_MCAST_HANDLE,
 	IB_INVALID_CALLBACK,
-	IB_INVALID_AL_HANDLE,			/* InfiniBand Access Layer */
-	IB_INVALID_HANDLE,			/* InfiniBand Access Layer */
-	IB_ERROR,				/* InfiniBand Access Layer */
-	IB_REMOTE_ERROR,			/* Infiniband Access Layer */
-	IB_VERBS_PROCESSING_DONE,		/* See Notes above	   */
+	IB_INVALID_AL_HANDLE,	/* InfiniBand Access Layer */
+	IB_INVALID_HANDLE,	/* InfiniBand Access Layer */
+	IB_ERROR,		/* InfiniBand Access Layer */
+	IB_REMOTE_ERROR,	/* Infiniband Access Layer */
+	IB_VERBS_PROCESSING_DONE,	/* See Notes above         */
 	IB_INVALID_WR_TYPE,
 	IB_QP_IN_TIMEWAIT,
 	IB_EE_IN_TIMEWAIT,
 	IB_INVALID_PORT,
 	IB_NOT_DONE,
-	IB_UNKNOWN_ERROR			/* ALWAYS LAST ENUM VALUE! */
-
-}	ib_api_status_t;
+	IB_UNKNOWN_ERROR	/* ALWAYS LAST ENUM VALUE! */
+} ib_api_status_t;
 /*****/
 
-OSM_EXPORT const char* ib_error_str[];
+OSM_EXPORT const char *ib_error_str[];
 
 /****f* IBA Base: Types/ib_get_err_str
 * NAME
@@ -8068,14 +7911,13 @@ OSM_EXPORT const char* ib_error_str[];
 *
 * SYNOPSIS
 */
-static inline const char*	OSM_API
-ib_get_err_str(
-	IN		ib_api_status_t			status )
+static inline const char *OSM_API ib_get_err_str(IN ib_api_status_t status)
 {
-	if( status > IB_UNKNOWN_ERROR )
+	if (status > IB_UNKNOWN_ERROR)
 		status = IB_UNKNOWN_ERROR;
-	return( ib_error_str[status] );
+	return (ib_error_str[status]);
 }
+
 /*
 * PARAMETERS
 *	status
@@ -8101,8 +7943,7 @@ ib_get_err_str(
 *
 * SYNOPSIS
 */
-typedef enum _ib_async_event_t
-{
+typedef enum _ib_async_event_t {
 	IB_AE_SQ_ERROR = 1,
 	IB_AE_SQ_DRAINED,
 	IB_AE_RQ_ERROR,
@@ -8130,8 +7971,7 @@ typedef enum _ib_async_event_t
 	IB_AE_PORT_ACTIVE,
 	IB_AE_PORT_DOWN,
 	IB_AE_UNKNOWN		/* ALWAYS LAST ENUM VALUE */
-
-}	ib_async_event_t;
+} ib_async_event_t;
 /*
 * VALUES
 *	IB_AE_SQ_ERROR
@@ -8244,7 +8084,7 @@ typedef enum _ib_async_event_t
 *
 *****/
 
-OSM_EXPORT const char* ib_async_event_str[];
+OSM_EXPORT const char *ib_async_event_str[];
 
 /****f* IBA Base: Types/ib_get_async_event_str
 * NAME
@@ -8255,14 +8095,14 @@ OSM_EXPORT const char* ib_async_event_str[];
 *
 * SYNOPSIS
 */
-static inline const char*	OSM_API
-ib_get_async_event_str(
-	IN		ib_async_event_t		event )
+static inline const char *OSM_API
+ib_get_async_event_str(IN ib_async_event_t event)
 {
-	if( event > IB_AE_UNKNOWN )
+	if (event > IB_AE_UNKNOWN)
 		event = IB_AE_UNKNOWN;
-	return( ib_async_event_str[event] );
+	return (ib_async_event_str[event]);
 }
+
 /*
 * PARAMETERS
 *	event
@@ -8293,52 +8133,47 @@ ib_get_async_event_str(
 *
 * SYNOPSIS
 */
-typedef struct _ib_event_rec
-{
-	void					*context;
-	ib_async_event_t			type;
+typedef struct _ib_event_rec {
+	void *context;
+	ib_async_event_t type;
 
 	/* HCA vendor specific event information. */
-	uint64_t				vendor_specific;
+	uint64_t vendor_specific;
 
 	/* The following structures are valid only for trap types. */
-	union _trap
-	{
-		struct
-		{
-			uint16_t			lid;
-			ib_net64_t			port_guid;
-			uint8_t				port_num;
+	union _trap {
+		struct {
+			uint16_t lid;
+			ib_net64_t port_guid;
+			uint8_t port_num;
 
 			/*
 			 * The following structure is valid only for
 			 * P_KEY, Q_KEY, and M_KEY violation traps.
 			 */
-			struct
-			{
-				uint8_t			sl;
-				uint16_t		src_lid;
-				uint16_t		dest_lid;
-				union _key
-				{
-					uint16_t	pkey;
-					uint32_t	qkey;
-					uint64_t	mkey;
+			struct {
+				uint8_t sl;
+				uint16_t src_lid;
+				uint16_t dest_lid;
+				union _key {
+					uint16_t pkey;
+					uint32_t qkey;
+					uint64_t mkey;
 				} key;
-				uint32_t		src_qp;
-				uint32_t		dest_qp;
-				ib_gid_t		src_gid;
-				ib_gid_t		dest_gid;
+				uint32_t src_qp;
+				uint32_t dest_qp;
+				ib_gid_t src_gid;
+				ib_gid_t dest_gid;
 
-			}	violation;
+			} violation;
 
 		} info;
 
-		ib_net64_t				sysimg_guid;
+		ib_net64_t sysimg_guid;
 
-	}	trap;
+	} trap;
 
-}	ib_event_rec_t;
+} ib_event_rec_t;
 /*******/
 
 /****d* Access Layer/ib_atomic_t
@@ -8350,13 +8185,11 @@ typedef struct _ib_event_rec
 *
 * SYNOPSIS
 */
-typedef enum _ib_atomic_t
-{
+typedef enum _ib_atomic_t {
 	IB_ATOMIC_NONE,
 	IB_ATOMIC_LOCAL,
 	IB_ATOMIC_GLOBAL
-
-}	ib_atomic_t;
+} ib_atomic_t;
 /*
 * VALUES
 *	IB_ATOMIC_NONE
@@ -8380,31 +8213,30 @@ typedef enum _ib_atomic_t
 *
 * SYNOPSIS
 */
-typedef struct _ib_port_cap
-{
-	boolean_t		cm;
-	boolean_t		snmp;
-	boolean_t		dev_mgmt;
-	boolean_t		vend;
-	boolean_t		sm;
-	boolean_t		sm_disable;
-	boolean_t		qkey_ctr;
-	boolean_t		pkey_ctr;
-	boolean_t		notice;
-	boolean_t		trap;
-	boolean_t		apm;
-	boolean_t		slmap;
-	boolean_t		pkey_nvram;
-	boolean_t		mkey_nvram;
-	boolean_t		sysguid;
-	boolean_t		dr_notice;
-	boolean_t		boot_mgmt;
-	boolean_t		capm_notice;
-	boolean_t		reinit;
-	boolean_t		ledinfo;
-	boolean_t		port_active;
+typedef struct _ib_port_cap {
+	boolean_t cm;
+	boolean_t snmp;
+	boolean_t dev_mgmt;
+	boolean_t vend;
+	boolean_t sm;
+	boolean_t sm_disable;
+	boolean_t qkey_ctr;
+	boolean_t pkey_ctr;
+	boolean_t notice;
+	boolean_t trap;
+	boolean_t apm;
+	boolean_t slmap;
+	boolean_t pkey_nvram;
+	boolean_t mkey_nvram;
+	boolean_t sysguid;
+	boolean_t dr_notice;
+	boolean_t boot_mgmt;
+	boolean_t capm_notice;
+	boolean_t reinit;
+	boolean_t ledinfo;
+	boolean_t port_active;
 
-}	ib_port_cap_t;
+} ib_port_cap_t;
 /*****/
 
 /****d* Access Layer/ib_init_type_t
@@ -8420,7 +8252,7 @@ typedef struct _ib_port_cap
 *
 * SYNOPSIS
 */
-typedef uint8_t					ib_init_type_t;
+typedef uint8_t ib_init_type_t;
 #define IB_INIT_TYPE_NO_LOAD			0x01
 #define IB_INIT_TYPE_PRESERVE_CONTENT		0x02
 #define IB_INIT_TYPE_PRESERVE_PRESENCE		0x04
@@ -8436,16 +8268,15 @@ typedef uint8_t					ib_init_type_t;
 *
 * SYNOPSIS
 */
-typedef struct _ib_port_attr_mod
-{
-	ib_port_cap_t				cap;
-	uint16_t				pkey_ctr;
-	uint16_t				qkey_ctr;
+typedef struct _ib_port_attr_mod {
+	ib_port_cap_t cap;
+	uint16_t pkey_ctr;
+	uint16_t qkey_ctr;
 
-	ib_init_type_t				init_type;
-	ib_net64_t				system_image_guid;
+	ib_init_type_t init_type;
+	ib_net64_t system_image_guid;
 
-}	ib_port_attr_mod_t;
+} ib_port_attr_mod_t;
 /*
 * SEE ALSO
 *	ib_port_cap_t
@@ -8460,28 +8291,27 @@ typedef struct _ib_port_attr_mod
 *
 * SYNOPSIS
 */
-typedef struct _ib_port_attr
-{
-	ib_net64_t				port_guid;
-	uint8_t					port_num;
-	uint8_t					mtu;
-	uint64_t				max_msg_size;
-	ib_net16_t				lid;
-	uint8_t					lmc;
+typedef struct _ib_port_attr {
+	ib_net64_t port_guid;
+	uint8_t port_num;
+	uint8_t mtu;
+	uint64_t max_msg_size;
+	ib_net16_t lid;
+	uint8_t lmc;
 
 	/*
 	 * LinkWidthSupported as defined in PortInfo.  Required to calculate
 	 * inter-packet delay (a.k.a. static rate).
 	 */
-	uint8_t					link_width_supported;
+	uint8_t link_width_supported;
 
-	uint16_t				max_vls;
+	uint16_t max_vls;
 
-	ib_net16_t				sm_lid;
-	uint8_t					sm_sl;
-	uint8_t					link_state;
+	ib_net16_t sm_lid;
+	uint8_t sm_sl;
+	uint8_t link_state;
 
-	ib_init_type_t				init_type_reply; /* Optional */
+	ib_init_type_t init_type_reply;	/* Optional */
 
 	/*
 	 * subnet_timeout:
@@ -8491,22 +8321,22 @@ typedef struct _ib_port_attr
 	 *
 	 * timeout = 4.096 microseconds * 2^subnet_timeout
 	 */
-	uint8_t					subnet_timeout;
+	uint8_t subnet_timeout;
 
-	ib_port_cap_t				cap;
-	uint16_t				pkey_ctr;
-	uint16_t				qkey_ctr;
+	ib_port_cap_t cap;
+	uint16_t pkey_ctr;
+	uint16_t qkey_ctr;
 
-	uint16_t				num_gids;
-	uint16_t				num_pkeys;
+	uint16_t num_gids;
+	uint16_t num_pkeys;
 	/*
 	 * Pointers at the end of the structure to allow doing a simple
 	 * memory comparison of contents up to the first pointer.
 	 */
-	ib_gid_t				*p_gid_table;
-	ib_net16_t				*p_pkey_table;
+	ib_gid_t *p_gid_table;
+	ib_net16_t *p_pkey_table;
 
-}	ib_port_attr_t;
+} ib_port_attr_t;
 /*
 * SEE ALSO
 *	uint8_t, ib_port_cap_t, ib_link_states_t
@@ -8521,58 +8351,57 @@ typedef struct _ib_port_attr
 *
 * SYNOPSIS
 */
-typedef struct _ib_ca_attr
-{
-	ib_net64_t				ca_guid;
+typedef struct _ib_ca_attr {
+	ib_net64_t ca_guid;
 
-	uint32_t				vend_id;
-	uint16_t				dev_id;
-	uint16_t				revision;
-	uint64_t				fw_ver;
+	uint32_t vend_id;
+	uint16_t dev_id;
+	uint16_t revision;
+	uint64_t fw_ver;
 
 	/*
 	 * Total size of the ca attributes in bytes
 	 */
-	uint32_t				size;
-	uint32_t				max_qps;
-	uint32_t				max_wrs;
+	uint32_t size;
+	uint32_t max_qps;
+	uint32_t max_wrs;
 
-	uint32_t				max_sges;
-	uint32_t				max_rd_sges;
+	uint32_t max_sges;
+	uint32_t max_rd_sges;
 
-	uint32_t				max_cqs;
-	uint32_t				max_cqes;
+	uint32_t max_cqs;
+	uint32_t max_cqes;
 
-	uint32_t				max_pds;
+	uint32_t max_pds;
 
-	uint32_t				init_regions;
-	uint64_t				init_region_size;
+	uint32_t init_regions;
+	uint64_t init_region_size;
 
-	uint32_t				init_windows;
-	uint32_t				max_addr_handles;
+	uint32_t init_windows;
+	uint32_t max_addr_handles;
 
-	uint32_t				max_partitions;
+	uint32_t max_partitions;
 
-	ib_atomic_t				atomicity;
+	ib_atomic_t atomicity;
 
-	uint8_t					max_qp_resp_res;
-	uint8_t					max_eec_resp_res;
-	uint8_t					max_resp_res;
+	uint8_t max_qp_resp_res;
+	uint8_t max_eec_resp_res;
+	uint8_t max_resp_res;
 
-	uint8_t					max_qp_init_depth;
-	uint8_t					max_eec_init_depth;
+	uint8_t max_qp_init_depth;
+	uint8_t max_eec_init_depth;
 
-	uint32_t				max_eecs;
-	uint32_t				max_rdds;
+	uint32_t max_eecs;
+	uint32_t max_rdds;
 
-	uint32_t				max_ipv6_qps;
-	uint32_t				max_ether_qps;
+	uint32_t max_ipv6_qps;
+	uint32_t max_ether_qps;
 
-	uint32_t				max_mcast_grps;
-	uint32_t				max_mcast_qps;
-	uint32_t				max_qps_per_mcast_grp;
-	uint32_t				max_fmr;
-	uint32_t				max_map_per_fmr;
+	uint32_t max_mcast_grps;
+	uint32_t max_mcast_qps;
+	uint32_t max_qps_per_mcast_grp;
+	uint32_t max_fmr;
+	uint32_t max_map_per_fmr;
 
 	/*
 	 * local_ack_delay:
@@ -8581,31 +8410,31 @@ typedef struct _ib_ca_attr
 	 *
 	 * timeout = 4.096 microseconds * 2^local_ack_delay
 	 */
-	uint8_t					local_ack_delay;
+	uint8_t local_ack_delay;
 
-	boolean_t				bad_pkey_ctr_support;
-	boolean_t				bad_qkey_ctr_support;
-	boolean_t				raw_mcast_support;
-	boolean_t				apm_support;
-	boolean_t				av_port_check;
-	boolean_t				change_primary_port;
-	boolean_t				modify_wr_depth;
-	boolean_t				current_qp_state_support;
-	boolean_t				shutdown_port_capability;
-	boolean_t				init_type_support;
-	boolean_t				port_active_event_support;
-	boolean_t				system_image_guid_support;
-	boolean_t				hw_agents;
+	boolean_t bad_pkey_ctr_support;
+	boolean_t bad_qkey_ctr_support;
+	boolean_t raw_mcast_support;
+	boolean_t apm_support;
+	boolean_t av_port_check;
+	boolean_t change_primary_port;
+	boolean_t modify_wr_depth;
+	boolean_t current_qp_state_support;
+	boolean_t shutdown_port_capability;
+	boolean_t init_type_support;
+	boolean_t port_active_event_support;
+	boolean_t system_image_guid_support;
+	boolean_t hw_agents;
 
-	ib_net64_t				system_image_guid;
+	ib_net64_t system_image_guid;
 
-	uint32_t				num_page_sizes;
-	uint8_t					num_ports;
+	uint32_t num_page_sizes;
+	uint8_t num_ports;
 
-	uint32_t				*p_page_size;
-	ib_port_attr_t				*p_port_attr;
+	uint32_t *p_page_size;
+	ib_port_attr_t *p_port_attr;
 
-}	ib_ca_attr_t;
+} ib_ca_attr_t;
 /*
 * FIELDS
 *	ca_guid
@@ -8786,10 +8615,8 @@ typedef struct _ib_ca_attr
 *
 * SYNOPSIS
 */
-ib_ca_attr_t*
-ib_copy_ca_attr(
-	IN		ib_ca_attr_t* const		p_dest,
-	IN	const	ib_ca_attr_t* const		p_src );
+ib_ca_attr_t *ib_copy_ca_attr(IN ib_ca_attr_t * const p_dest,
+			      IN const ib_ca_attr_t * const p_src);
 /*
 * PARAMETERS
 *	p_dest
@@ -8818,28 +8645,26 @@ ib_copy_ca_attr(
 *
 * SYNOPSIS
 */
-typedef struct _ib_av_attr
-{
-	uint8_t					port_num;
+typedef struct _ib_av_attr {
+	uint8_t port_num;
 
-	uint8_t					sl;
-	ib_net16_t				dlid;
+	uint8_t sl;
+	ib_net16_t dlid;
 
-	boolean_t				grh_valid;
-	ib_grh_t				grh;
-	uint8_t					static_rate;
-	uint8_t					path_bits;
+	boolean_t grh_valid;
+	ib_grh_t grh;
+	uint8_t static_rate;
+	uint8_t path_bits;
 
-	struct _av_conn
-	{
-		uint8_t				path_mtu;
-		uint8_t				local_ack_timeout;
-		uint8_t				seq_err_retry_cnt;
-		uint8_t				rnr_retry_cnt;
+	struct _av_conn {
+		uint8_t path_mtu;
+		uint8_t local_ack_timeout;
+		uint8_t seq_err_retry_cnt;
+		uint8_t rnr_retry_cnt;
 
-	}	conn;
+	} conn;
 
-}	ib_av_attr_t;
+} ib_av_attr_t;
 /*
 * SEE ALSO
 *	ib_gid_t
@@ -8854,21 +8679,19 @@ typedef struct _ib_av_attr
 *
 * SYNOPSIS
 */
-typedef enum _ib_qp_type
-{
-	IB_QPT_RELIABLE_CONN	= 0,	/* Matches CM REQ transport type */
-	IB_QPT_UNRELIABLE_CONN	= 1,	/* Matches CM REQ transport type */
-	IB_QPT_RELIABLE_DGRM	= 2,	/* Matches CM REQ transport type */
+typedef enum _ib_qp_type {
+	IB_QPT_RELIABLE_CONN = 0,	/* Matches CM REQ transport type */
+	IB_QPT_UNRELIABLE_CONN = 1,	/* Matches CM REQ transport type */
+	IB_QPT_RELIABLE_DGRM = 2,	/* Matches CM REQ transport type */
 	IB_QPT_UNRELIABLE_DGRM,
 	IB_QPT_QP0,
 	IB_QPT_QP1,
 	IB_QPT_RAW_IPV6,
 	IB_QPT_RAW_ETHER,
-	IB_QPT_MAD,			/* InfiniBand Access Layer */
-	IB_QPT_QP0_ALIAS,		/* InfiniBand Access Layer */
-	IB_QPT_QP1_ALIAS		/* InfiniBand Access Layer */
-
-}	ib_qp_type_t;
+	IB_QPT_MAD,		/* InfiniBand Access Layer */
+	IB_QPT_QP0_ALIAS,	/* InfiniBand Access Layer */
+	IB_QPT_QP1_ALIAS	/* InfiniBand Access Layer */
+} ib_qp_type_t;
 /*
 * VALUES
 *	IB_QPT_RELIABLE_CONN
@@ -8921,7 +8744,7 @@ typedef enum _ib_qp_type
 *
 * SYNOPSIS
 */
-typedef uint32_t				ib_access_t;
+typedef uint32_t ib_access_t;
 #define IB_AC_RDMA_READ				0x00000001
 #define IB_AC_RDMA_WRITE			0x00000002
 #define IB_AC_ATOMIC				0x00000004
@@ -8945,7 +8768,7 @@ typedef uint32_t				ib_access_t;
 *
 * SYNOPSIS
 */
-typedef uint32_t				ib_qp_state_t;
+typedef uint32_t ib_qp_state_t;
 #define IB_QPS_RESET				0x00000001
 #define IB_QPS_INIT				0x00000002
 #define IB_QPS_RTR				0x00000004
@@ -8967,13 +8790,11 @@ typedef uint32_t				ib_qp_state_t;
 *
 * SYNOPSIS
 */
-typedef enum _ib_apm_state
-{
+typedef enum _ib_apm_state {
 	IB_APM_MIGRATED = 1,
 	IB_APM_REARM,
 	IB_APM_ARMED
-
-}	ib_apm_state_t;
+} ib_apm_state_t;
 /*****/
 
 /****s* Access Layer/ib_qp_create_t
@@ -8985,23 +8806,22 @@ typedef enum _ib_apm_state
 *
 * SYNOPSIS
 */
-typedef struct _ib_qp_create
-{
-	ib_qp_type_t			qp_type;
+typedef struct _ib_qp_create {
+	ib_qp_type_t qp_type;
 
-	ib_rdd_handle_t			h_rdd;
+	ib_rdd_handle_t h_rdd;
 
-	uint32_t			sq_depth;
-	uint32_t			rq_depth;
-	uint32_t			sq_sge;
-	uint32_t			rq_sge;
+	uint32_t sq_depth;
+	uint32_t rq_depth;
+	uint32_t sq_sge;
+	uint32_t rq_sge;
 
-	ib_cq_handle_t			h_sq_cq;
-	ib_cq_handle_t			h_rq_cq;
+	ib_cq_handle_t h_sq_cq;
+	ib_cq_handle_t h_rq_cq;
 
-	boolean_t			sq_signaled;
+	boolean_t sq_signaled;
 
-}	ib_qp_create_t;
+} ib_qp_create_t;
 /*
 * FIELDS
 *	type
@@ -9067,41 +8887,40 @@ typedef struct _ib_qp_create
 *
 * SYNOPSIS
 */
-typedef struct _ib_qp_attr
-{
-	ib_pd_handle_t				h_pd;
-	ib_qp_type_t				qp_type;
-	ib_access_t				access_ctrl;
-	uint16_t				pkey_index;
+typedef struct _ib_qp_attr {
+	ib_pd_handle_t h_pd;
+	ib_qp_type_t qp_type;
+	ib_access_t access_ctrl;
+	uint16_t pkey_index;
 
-	uint32_t				sq_depth;
-	uint32_t				rq_depth;
-	uint32_t				sq_sge;
-	uint32_t				rq_sge;
-	uint8_t					init_depth;
-	uint8_t					resp_res;
+	uint32_t sq_depth;
+	uint32_t rq_depth;
+	uint32_t sq_sge;
+	uint32_t rq_sge;
+	uint8_t init_depth;
+	uint8_t resp_res;
 
-	ib_cq_handle_t				h_sq_cq;
-	ib_cq_handle_t				h_rq_cq;
-	ib_rdd_handle_t				h_rdd;
+	ib_cq_handle_t h_sq_cq;
+	ib_cq_handle_t h_rq_cq;
+	ib_rdd_handle_t h_rdd;
 
-	boolean_t				sq_signaled;
+	boolean_t sq_signaled;
 
-	ib_qp_state_t				state;
-	ib_net32_t				num;
-	ib_net32_t				dest_num;
-	ib_net32_t				qkey;
+	ib_qp_state_t state;
+	ib_net32_t num;
+	ib_net32_t dest_num;
+	ib_net32_t qkey;
 
-	ib_net32_t				sq_psn;
-	ib_net32_t				rq_psn;
+	ib_net32_t sq_psn;
+	ib_net32_t rq_psn;
 
-	uint8_t					primary_port;
-	uint8_t					alternate_port;
-	ib_av_attr_t				primary_av;
-	ib_av_attr_t				alternate_av;
-	ib_apm_state_t				apm_state;
+	uint8_t primary_port;
+	uint8_t alternate_port;
+	ib_av_attr_t primary_av;
+	ib_av_attr_t alternate_av;
+	ib_apm_state_t apm_state;
 
-}	ib_qp_attr_t;
+} ib_qp_attr_t;
 /*
 * FIELDS
 *	h_pd
@@ -9124,7 +8943,7 @@ typedef struct _ib_qp_attr
 *
 * SYNOPSIS
 */
-typedef uint32_t				ib_qp_opts_t;
+typedef uint32_t ib_qp_opts_t;
 #define IB_MOD_QP_ALTERNATE_AV			0x00000001
 #define IB_MOD_QP_PKEY				0x00000002
 #define IB_MOD_QP_APM_STATE			0x00000004
@@ -9156,86 +8975,79 @@ typedef uint32_t				ib_qp_opts_t;
 *
 * SYNOPSIS
 */
-typedef struct _ib_qp_mod
-{
-	ib_qp_state_t				req_state;
+typedef struct _ib_qp_mod {
+	ib_qp_state_t req_state;
 
-	union _qp_state
-	{
-		struct _qp_reset
-		{
+	union _qp_state {
+		struct _qp_reset {
 			/*
 			 * Time, in milliseconds, that the QP needs to spend in
 			 * the time wait state before being reused.
 			 */
-			uint32_t		timewait;
+			uint32_t timewait;
 
-		}	reset;
+		} reset;
 
-		struct _qp_init
-		{
-			ib_qp_opts_t		opts;
-			uint8_t			primary_port;
-			ib_net32_t		qkey;
-			uint16_t		pkey_index;
-			ib_access_t		access_ctrl;
+		struct _qp_init {
+			ib_qp_opts_t opts;
+			uint8_t primary_port;
+			ib_net32_t qkey;
+			uint16_t pkey_index;
+			ib_access_t access_ctrl;
 
-		}	init;
+		} init;
 
-		struct _qp_rtr
-		{
-			ib_net32_t		rq_psn;
-			ib_net32_t		dest_qp;
-			ib_av_attr_t		primary_av;
-			uint8_t			resp_res;
+		struct _qp_rtr {
+			ib_net32_t rq_psn;
+			ib_net32_t dest_qp;
+			ib_av_attr_t primary_av;
+			uint8_t resp_res;
 
-			ib_qp_opts_t		opts;
-			ib_av_attr_t		alternate_av;
-			ib_net32_t		qkey;
-			uint16_t		pkey_index;
-			ib_access_t		access_ctrl;
-			uint32_t		sq_depth;
-			uint32_t		rq_depth;
-			uint8_t			rnr_nak_timeout;
+			ib_qp_opts_t opts;
+			ib_av_attr_t alternate_av;
+			ib_net32_t qkey;
+			uint16_t pkey_index;
+			ib_access_t access_ctrl;
+			uint32_t sq_depth;
+			uint32_t rq_depth;
+			uint8_t rnr_nak_timeout;
 
-		}	rtr;
+		} rtr;
 
-		struct _qp_rts
-		{
-			ib_net32_t		sq_psn;
-			uint8_t			retry_cnt;
-			uint8_t			rnr_retry_cnt;
-			uint8_t			rnr_nak_timeout;
-			uint8_t			local_ack_timeout;
-			uint8_t			init_depth;
+		struct _qp_rts {
+			ib_net32_t sq_psn;
+			uint8_t retry_cnt;
+			uint8_t rnr_retry_cnt;
+			uint8_t rnr_nak_timeout;
+			uint8_t local_ack_timeout;
+			uint8_t init_depth;
 
-			ib_qp_opts_t		opts;
-			ib_qp_state_t		current_state;
-			ib_net32_t		qkey;
-			ib_access_t		access_ctrl;
-			uint8_t			resp_res;
+			ib_qp_opts_t opts;
+			ib_qp_state_t current_state;
+			ib_net32_t qkey;
+			ib_access_t access_ctrl;
+			uint8_t resp_res;
 
-			ib_av_attr_t		primary_av;
-			ib_av_attr_t		alternate_av;
+			ib_av_attr_t primary_av;
+			ib_av_attr_t alternate_av;
 
-			uint32_t		sq_depth;
-			uint32_t		rq_depth;
+			uint32_t sq_depth;
+			uint32_t rq_depth;
 
-			ib_apm_state_t		apm_state;
-			uint8_t			primary_port;
-			uint16_t		pkey_index;
+			ib_apm_state_t apm_state;
+			uint8_t primary_port;
+			uint16_t pkey_index;
 
-		}	rts;
+		} rts;
 
-		struct _qp_sqd
-		{
-			boolean_t		sqd_event;
+		struct _qp_sqd {
+			boolean_t sqd_event;
 
-		}	sqd;
+		} sqd;
 
-	}	state;
+	} state;
 
-}	ib_qp_mod_t;
+} ib_qp_mod_t;
 /*
 * SEE ALSO
 *	ib_qp_state_t, ib_access_t, ib_av_attr_t, ib_apm_state_t
@@ -9250,25 +9062,24 @@ typedef struct _ib_qp_mod
 *
 * SYNOPSIS
 */
-typedef struct _ib_eec_attr
-{
-	ib_qp_state_t				state;
-	ib_rdd_handle_t				h_rdd;
-	ib_net32_t				local_eecn;
+typedef struct _ib_eec_attr {
+	ib_qp_state_t state;
+	ib_rdd_handle_t h_rdd;
+	ib_net32_t local_eecn;
 
-	ib_net32_t				sq_psn;
-	ib_net32_t				rq_psn;
-	uint8_t					primary_port;
-	uint16_t				pkey_index;
-	uint32_t				resp_res;
-	ib_net32_t				remote_eecn;
-	uint32_t				init_depth;
-	uint32_t				dest_num;	// ??? What is this?
-	ib_av_attr_t				primary_av;
-	ib_av_attr_t				alternate_av;
-	ib_apm_state_t				apm_state;
+	ib_net32_t sq_psn;
+	ib_net32_t rq_psn;
+	uint8_t primary_port;
+	uint16_t pkey_index;
+	uint32_t resp_res;
+	ib_net32_t remote_eecn;
+	uint32_t init_depth;
+	uint32_t dest_num;	// ??? What is this?
+	ib_av_attr_t primary_av;
+	ib_av_attr_t alternate_av;
+	ib_apm_state_t apm_state;
 
-}	ib_eec_attr_t;
+} ib_eec_attr_t;
 /*
 * SEE ALSO
 *	ib_qp_state_t, ib_av_attr_t, ib_apm_state_t
@@ -9283,7 +9094,7 @@ typedef struct _ib_eec_attr
 *
 * SYNOPSIS
 */
-typedef uint32_t				ib_eec_opts_t;
+typedef uint32_t ib_eec_opts_t;
 #define IB_MOD_EEC_ALTERNATE_AV			0x00000001
 #define IB_MOD_EEC_PKEY				0x00000002
 #define IB_MOD_EEC_APM_STATE			0x00000004
@@ -9308,59 +9119,53 @@ typedef uint32_t				ib_eec_opts_t;
 *
 * SYNOPSIS
 */
-typedef struct _ib_eec_mod
-{
-	ib_qp_state_t					req_state;
+typedef struct _ib_eec_mod {
+	ib_qp_state_t req_state;
 
-	union _eec_state
-	{
-		struct _eec_init
-		{
-			uint8_t				primary_port;
-			uint16_t			pkey_index;
+	union _eec_state {
+		struct _eec_init {
+			uint8_t primary_port;
+			uint16_t pkey_index;
 
-		}	init;
+		} init;
 
-		struct _eec_rtr
-		{
-			ib_net32_t			rq_psn;
-			ib_net32_t			remote_eecn;
-			ib_av_attr_t			primary_av;
-			uint8_t				resp_res;
+		struct _eec_rtr {
+			ib_net32_t rq_psn;
+			ib_net32_t remote_eecn;
+			ib_av_attr_t primary_av;
+			uint8_t resp_res;
 
-			ib_eec_opts_t			opts;
-			ib_av_attr_t			alternate_av;
-			uint16_t			pkey_index;
+			ib_eec_opts_t opts;
+			ib_av_attr_t alternate_av;
+			uint16_t pkey_index;
 
-		}	rtr;
+		} rtr;
 
-		struct _eec_rts
-		{
-			ib_net32_t			sq_psn;
-			uint8_t				retry_cnt;
-			uint8_t				rnr_retry_cnt;
-			uint8_t				local_ack_timeout;
-			uint8_t				init_depth;
+		struct _eec_rts {
+			ib_net32_t sq_psn;
+			uint8_t retry_cnt;
+			uint8_t rnr_retry_cnt;
+			uint8_t local_ack_timeout;
+			uint8_t init_depth;
 
-			ib_eec_opts_t			opts;
-			ib_av_attr_t			alternate_av;
-			ib_apm_state_t			apm_state;
+			ib_eec_opts_t opts;
+			ib_av_attr_t alternate_av;
+			ib_apm_state_t apm_state;
 
-			ib_av_attr_t			primary_av;
-			uint16_t			pkey_index;
-			uint8_t				primary_port;
+			ib_av_attr_t primary_av;
+			uint16_t pkey_index;
+			uint8_t primary_port;
 
-		}	rts;
+		} rts;
 
-		struct _eec_sqd
-		{
-			boolean_t			sqd_event;
+		struct _eec_sqd {
+			boolean_t sqd_event;
 
-		}	sqd;
+		} sqd;
 
-	}	state;
+	} state;
 
-}	ib_eec_mod_t;
+} ib_eec_mod_t;
 /*
 * SEE ALSO
 *	ib_qp_state_t, ib_av_attr_t, ib_apm_state_t
@@ -9375,15 +9180,13 @@ typedef struct _ib_eec_mod
 *
 * SYNOPSIS
 */
-typedef enum _ib_wr_type_t
-{
+typedef enum _ib_wr_type_t {
 	WR_SEND = 1,
 	WR_RDMA_WRITE,
 	WR_RDMA_READ,
 	WR_COMPARE_SWAP,
 	WR_FETCH_ADD
-
-}	ib_wr_type_t;
+} ib_wr_type_t;
 /*****/
 
 /****s* Access Layer/ib_local_ds_t
@@ -9397,13 +9200,12 @@ typedef enum _ib_wr_type_t
 *
 * SYNOPSIS
 */
-typedef struct _ib_local_ds
-{
-	void					*vaddr;
-	uint32_t				length;
-	uint32_t				lkey;
+typedef struct _ib_local_ds {
+	void *vaddr;
+	uint32_t length;
+	uint32_t lkey;
 
-}	ib_local_ds_t;
+} ib_local_ds_t;
 /*****/
 
 /****d* Access Layer/ib_send_opt_t
@@ -9416,7 +9218,7 @@ typedef struct _ib_local_ds
 *
 * SYNOPSIS
 */
-typedef uint32_t			ib_send_opt_t;
+typedef uint32_t ib_send_opt_t;
 #define IB_SEND_OPT_IMMEDIATE		0x00000001
 #define IB_SEND_OPT_FENCE		0x00000002
 #define IB_SEND_OPT_SIGNALED		0x00000004
@@ -9476,66 +9278,59 @@ typedef uint32_t			ib_send_opt_t;
 *
 * SYNOPSIS
 */
-typedef struct _ib_send_wr
-{
-	struct _ib_send_wr			*p_next;
-	uint64_t				wr_id;
-	ib_wr_type_t				wr_type;
-	ib_send_opt_t				send_opt;
-	uint32_t				num_ds;
-	ib_local_ds_t				*ds_array;
-	ib_net32_t				immediate_data;
+typedef struct _ib_send_wr {
+	struct _ib_send_wr *p_next;
+	uint64_t wr_id;
+	ib_wr_type_t wr_type;
+	ib_send_opt_t send_opt;
+	uint32_t num_ds;
+	ib_local_ds_t *ds_array;
+	ib_net32_t immediate_data;
 
-	union _send_dgrm
-	{
-		struct _send_ud
-		{
-			ib_net32_t		remote_qp;
-			ib_net32_t		remote_qkey;
-			ib_av_handle_t		h_av;
+	union _send_dgrm {
+		struct _send_ud {
+			ib_net32_t remote_qp;
+			ib_net32_t remote_qkey;
+			ib_av_handle_t h_av;
 
-		}	ud;
+		} ud;
 
-		struct _send_rd
-		{
-			ib_net32_t		remote_qp;
-			ib_net32_t		remote_qkey;
-			ib_net32_t		eecn;
+		struct _send_rd {
+			ib_net32_t remote_qp;
+			ib_net32_t remote_qkey;
+			ib_net32_t eecn;
 
-		}	rd;
+		} rd;
 
-		struct _send_raw_ether
-		{
-			ib_net16_t		dest_lid;
-			uint8_t			path_bits;
-			uint8_t			sl;
-			uint8_t			max_static_rate;
-			ib_net16_t		ether_type;
+		struct _send_raw_ether {
+			ib_net16_t dest_lid;
+			uint8_t path_bits;
+			uint8_t sl;
+			uint8_t max_static_rate;
+			ib_net16_t ether_type;
 
-		}	raw_ether;
+		} raw_ether;
 
-		struct _send_raw_ipv6
-		{
-			ib_net16_t		dest_lid;
-			uint8_t			path_bits;
-			uint8_t			sl;
-			uint8_t			max_static_rate;
+		struct _send_raw_ipv6 {
+			ib_net16_t dest_lid;
+			uint8_t path_bits;
+			uint8_t sl;
+			uint8_t max_static_rate;
 
-		}	raw_ipv6;
+		} raw_ipv6;
 
-	}	dgrm;
+	} dgrm;
 
-	struct _send_remote_ops
-	{
-		uint64_t			vaddr;
-		uint32_t			rkey;
+	struct _send_remote_ops {
+		uint64_t vaddr;
+		uint32_t rkey;
 
-		ib_net64_t			atomic1;
-		ib_net64_t			atomic2;
+		ib_net64_t atomic1;
+		ib_net64_t atomic2;
 
-	}	remote_ops;
+	} remote_ops;
 
-}	ib_send_wr_t;
+} ib_send_wr_t;
 /*
 * FIELDS
 *	p_next
@@ -9650,13 +9445,12 @@ typedef struct _ib_send_wr
 *
 * SYNOPSIS
 */
-typedef struct _ib_recv_wr
-{
-	struct _ib_recv_wr		*p_next;
-	uint64_t			wr_id;
-	uint32_t			num_ds;
-	ib_local_ds_t			*ds_array;
-}	ib_recv_wr_t;
+typedef struct _ib_recv_wr {
+	struct _ib_recv_wr *p_next;
+	uint64_t wr_id;
+	uint32_t num_ds;
+	ib_local_ds_t *ds_array;
+} ib_recv_wr_t;
 /*
 * FIELDS
 *	p_next
@@ -9689,18 +9483,17 @@ typedef struct _ib_recv_wr
 *
 * SYNOPSIS
 */
-typedef struct _ib_bind_wr
-{
-	uint64_t				wr_id;
-	ib_send_opt_t				send_opt;
+typedef struct _ib_bind_wr {
+	uint64_t wr_id;
+	ib_send_opt_t send_opt;
 
-	ib_mr_handle_t				h_mr;
-	ib_access_t				access_ctrl;
-	uint32_t				current_rkey;
+	ib_mr_handle_t h_mr;
+	ib_access_t access_ctrl;
+	uint32_t current_rkey;
 
-	ib_local_ds_t				local_ds;
+	ib_local_ds_t local_ds;
 
-}	ib_bind_wr_t;
+} ib_bind_wr_t;
 /*
 * FIELDS
 *	wr_id
@@ -9737,8 +9530,7 @@ typedef struct _ib_bind_wr
 *
 * SYNOPSIS
 */
-typedef enum _ib_wc_status_t
-{
+typedef enum _ib_wc_status_t {
 	IB_WCS_SUCCESS,
 	IB_WCS_LOCAL_LEN_ERR,
 	IB_WCS_LOCAL_OP_ERR,
@@ -9754,11 +9546,10 @@ typedef enum _ib_wc_status_t
 	IB_WCS_REM_INVALID_RD_REQ_ERR,
 	IB_WCS_INVALID_EECN,
 	IB_WCS_INVALID_EEC_STATE,
-	IB_WCS_UNMATCHED_RESPONSE,		/* InfiniBand Access Layer */
-	IB_WCS_CANCELED,			/* InfiniBand Access Layer */
-	IB_WCS_UNKNOWN				/* Must be last. */
-
-}	ib_wc_status_t;
+	IB_WCS_UNMATCHED_RESPONSE,	/* InfiniBand Access Layer */
+	IB_WCS_CANCELED,	/* InfiniBand Access Layer */
+	IB_WCS_UNKNOWN		/* Must be last. */
+} ib_wc_status_t;
 /*
 * VALUES
 *	IB_WCS_SUCCESS
@@ -9841,7 +9632,7 @@ typedef enum _ib_wc_status_t
 *		The completed work request was canceled by the user.
 *****/
 
-OSM_EXPORT const char* ib_wc_status_str[];
+OSM_EXPORT const char *ib_wc_status_str[];
 
 /****f* IBA Base: Types/ib_get_wc_status_str
 * NAME
@@ -9852,14 +9643,14 @@ OSM_EXPORT const char* ib_wc_status_str[];
 *
 * SYNOPSIS
 */
-static inline const char*	OSM_API
-ib_get_wc_status_str(
-	IN		ib_wc_status_t			wc_status )
+static inline const char *OSM_API
+ib_get_wc_status_str(IN ib_wc_status_t wc_status)
 {
-	if( wc_status > IB_WCS_UNKNOWN )
+	if (wc_status > IB_WCS_UNKNOWN)
 		wc_status = IB_WCS_UNKNOWN;
-	return( ib_wc_status_str[wc_status] );
+	return (ib_wc_status_str[wc_status]);
 }
+
 /*
 * PARAMETERS
 *	wc_status
@@ -9882,8 +9673,7 @@ ib_get_wc_status_str(
 *
 * SYNOPSIS
 */
-typedef enum _ib_wc_type_t
-{
+typedef enum _ib_wc_type_t {
 	IB_WC_SEND,
 	IB_WC_RDMA_WRITE,
 	IB_WC_RECV,
@@ -9892,8 +9682,7 @@ typedef enum _ib_wc_type_t
 	IB_WC_FETCH_ADD,
 	IB_WC_COMPARE_SWAP,
 	IB_WC_RECV_RDMA_WRITE
-
-}	ib_wc_type_t;
+} ib_wc_type_t;
 /*****/
 
 /****d* Access Layer/ib_recv_opt_t
@@ -9905,7 +9694,7 @@ typedef enum _ib_wc_type_t
 *
 * SYNOPSIS
 */
-typedef uint32_t			ib_recv_opt_t;
+typedef uint32_t ib_recv_opt_t;
 #define	IB_RECV_OPT_IMMEDIATE		0x00000001
 #define IB_RECV_OPT_FORWARD		0x00000002
 #define IB_RECV_OPT_GRH_VALID		0x00000004
@@ -9938,67 +9727,60 @@ typedef uint32_t			ib_recv_opt_t;
 *
 * SYNOPSIS
 */
-typedef struct _ib_wc
-{
-	struct _ib_wc			*p_next;
-	uint64_t			wr_id;
-	ib_wc_type_t			wc_type;
+typedef struct _ib_wc {
+	struct _ib_wc *p_next;
+	uint64_t wr_id;
+	ib_wc_type_t wc_type;
 
-	uint32_t			length;
-	ib_wc_status_t			status;
-	uint64_t			vendor_specific;
+	uint32_t length;
+	ib_wc_status_t status;
+	uint64_t vendor_specific;
 
-	union _wc_recv
-	{
-		struct _wc_conn
-		{
-			ib_recv_opt_t	recv_opt;
-			ib_net32_t	immediate_data;
+	union _wc_recv {
+		struct _wc_conn {
+			ib_recv_opt_t recv_opt;
+			ib_net32_t immediate_data;
 
-		}	conn;
+		} conn;
 
-		struct _wc_ud
-		{
-			ib_recv_opt_t	recv_opt;
-			ib_net32_t	immediate_data;
-			ib_net32_t	remote_qp;
-			uint16_t	pkey_index;
-			ib_net16_t	remote_lid;
-			uint8_t		remote_sl;
-			uint8_t		path_bits;
+		struct _wc_ud {
+			ib_recv_opt_t recv_opt;
+			ib_net32_t immediate_data;
+			ib_net32_t remote_qp;
+			uint16_t pkey_index;
+			ib_net16_t remote_lid;
+			uint8_t remote_sl;
+			uint8_t path_bits;
 
-		}	ud;
+		} ud;
 
-		struct _wc_rd
-		{
-			ib_net32_t	remote_eecn;
-			ib_net32_t	remote_qp;
-			ib_net16_t	remote_lid;
-			uint8_t		remote_sl;
-			uint32_t	free_cnt;
+		struct _wc_rd {
+			ib_net32_t remote_eecn;
+			ib_net32_t remote_qp;
+			ib_net16_t remote_lid;
+			uint8_t remote_sl;
+			uint32_t free_cnt;
 
-		}	rd;
+		} rd;
 
-		struct _wc_raw_ipv6
-		{
-			ib_net16_t	remote_lid;
-			uint8_t		remote_sl;
-			uint8_t		path_bits;
+		struct _wc_raw_ipv6 {
+			ib_net16_t remote_lid;
+			uint8_t remote_sl;
+			uint8_t path_bits;
 
-		}	raw_ipv6;
+		} raw_ipv6;
 
-		struct _wc_raw_ether
-		{
-			ib_net16_t	remote_lid;
-			uint8_t		remote_sl;
-			uint8_t		path_bits;
-			ib_net16_t	ether_type;
+		struct _wc_raw_ether {
+			ib_net16_t remote_lid;
+			uint8_t remote_sl;
+			uint8_t path_bits;
+			ib_net16_t ether_type;
 
-		}	raw_ether;
+		} raw_ether;
 
-	}	recv;
+	} recv;
 
-}	ib_wc_t;
+} ib_wc_t;
 /*
 * FIELDS
 *	p_next
@@ -10117,12 +9899,11 @@ typedef struct _ib_wc
 *
 * SYNOPSIS
 */
-typedef struct _ib_mr_create
-{
-	void					*vaddr;
-	uint64_t				length;
-	ib_access_t				access_ctrl;
-}	ib_mr_create_t;
+typedef struct _ib_mr_create {
+	void *vaddr;
+	uint64_t length;
+	ib_access_t access_ctrl;
+} ib_mr_create_t;
 /*
 * FIELDS
 *	vaddr
@@ -10147,15 +9928,14 @@ typedef struct _ib_mr_create
 *
 * SYNOPSIS
 */
-typedef struct _ib_phys_create
-{
-	uint64_t				length;
-	uint32_t				num_bufs;
-	uint64_t				*buf_array;
-	uint32_t				buf_offset;
-	uint32_t				page_size;
-	ib_access_t				access_ctrl;
-}	ib_phys_create_t;
+typedef struct _ib_phys_create {
+	uint64_t length;
+	uint32_t num_bufs;
+	uint64_t *buf_array;
+	uint32_t buf_offset;
+	uint32_t page_size;
+	ib_access_t access_ctrl;
+} ib_phys_create_t;
 /*
 *	length
 *		The length of the memory region in bytes.
@@ -10190,17 +9970,16 @@ typedef struct _ib_phys_create
 *
 * SYNOPSIS
 */
-typedef struct _ib_mr_attr
-{
-	ib_pd_handle_t			h_pd;
-	void				*local_lb;
-	void				*local_ub;
-	void				*remote_lb;
-	void				*remote_ub;
-	ib_access_t			access_ctrl;
-	uint32_t			lkey;
-	uint32_t			rkey;
-}	ib_mr_attr_t;
+typedef struct _ib_mr_attr {
+	ib_pd_handle_t h_pd;
+	void *local_lb;
+	void *local_ub;
+	void *remote_lb;
+	void *remote_ub;
+	ib_access_t access_ctrl;
+	uint32_t lkey;
+	uint32_t rkey;
+} ib_mr_attr_t;
 /*
 * DESCRIPTION
 *	h_pd
@@ -10248,7 +10027,7 @@ typedef struct _ib_mr_attr
 *
 * SYNOPSIS
 */
-typedef uint32_t				ib_ca_mod_t;
+typedef uint32_t ib_ca_mod_t;
 #define IB_CA_MOD_IS_CM_SUPPORTED		0x00000001
 #define IB_CA_MOD_IS_SNMP_SUPPORTED		0x00000002
 #define	IB_CA_MOD_IS_DEV_MGMT_SUPPORTED		0x00000004
@@ -10365,7 +10144,7 @@ typedef uint32_t				ib_ca_mod_t;
 *
 * SYNOPSIS
 */
-typedef uint32_t						ib_mr_mod_t;
+typedef uint32_t ib_mr_mod_t;
 #define IB_MR_MOD_ADDR					0x00000001
 #define IB_MR_MOD_PD					0x00000002
 #define IB_MR_MOD_ACCESS				0x00000004
@@ -10463,15 +10242,14 @@ typedef uint32_t						ib_mr_mod_t;
 *
 * SYNOPSIS
 */
-typedef struct _ib_ci_op
-{
-	IN		uint32_t			command;
-	IN	OUT	void*				p_buf OPTIONAL;
-	IN		uint32_t			buf_size;
-	IN	OUT	uint32_t			num_bytes_ret;
-	IN	OUT	int32_t				status;
+typedef struct _ib_ci_op {
+	IN uint32_t command;
+	IN OUT void *p_buf OPTIONAL;
+	IN uint32_t buf_size;
+	IN OUT uint32_t num_bytes_ret;
+	IN OUT int32_t status;
 
-}	ib_ci_op_t;
+} ib_ci_op_t;
 /*
 * FIELDS
 *	command
@@ -10505,11 +10283,8 @@ typedef struct _ib_ci_op
 *****/
 
 END_C_DECLS
-
-#endif /* ndef WIN32 */
-
+#endif				/* ndef WIN32 */
 #if defined( __WIN__ )
-    #include <iba/ib_types_extended.h>
+#include <iba/ib_types_extended.h>
 #endif
-
-#endif /* __IB_TYPES_H__ */
+#endif				/* __IB_TYPES_H__ */

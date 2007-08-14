@@ -43,19 +43,17 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /*
  * Defines known Communication management class versions
  */
 #define IB_MCLASS_CM_VER_2				2
 #define IB_MCLASS_CM_VER_1				1
-
 /*
  *	Defines the size of user available data in communication management MADs
  */
@@ -70,7 +68,6 @@ BEGIN_C_DECLS
 #define IB_DREP_PDATA_SIZE_VER2				224
 #define IB_SIDR_REQ_PDATA_SIZE_VER2			216
 #define IB_SIDR_REP_PDATA_SIZE_VER2			136
-
 #define IB_REQ_PDATA_SIZE_VER1				92
 #define IB_MRA_PDATA_SIZE_VER1				222
 #define IB_REJ_PDATA_SIZE_VER1				148
@@ -82,10 +79,8 @@ BEGIN_C_DECLS
 #define IB_DREP_PDATA_SIZE_VER1				224
 #define IB_SIDR_REQ_PDATA_SIZE_VER1			216
 #define IB_SIDR_REP_PDATA_SIZE_VER1			140
-
 #define IB_ARI_SIZE					72	// redefine
 #define IB_APR_INFO_SIZE				72
-
 /****d* Access Layer/ib_rej_status_t
 * NAME
 *	ib_rej_status_t
@@ -95,7 +90,7 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef	ib_net16_t					ib_rej_status_t;
+typedef ib_net16_t ib_rej_status_t;
 /*
 * SEE ALSO
 *	ib_cm_rej, ib_cm_rej_rec_t
@@ -147,7 +142,7 @@ typedef	ib_net16_t					ib_rej_status_t;
 *
 * SYNOPSIS
 */
-typedef uint8_t						ib_apr_status_t;
+typedef uint8_t ib_apr_status_t;
 /*
 * SEE ALSO
 *	ib_cm_apr, ib_cm_apr_rec_t
@@ -195,7 +190,7 @@ typedef uint8_t						ib_apr_status_t;
 /*
  *	Service ID resolution status
  */
-typedef uint16_t					ib_sidr_status_t;
+typedef uint16_t ib_sidr_status_t;
 #define IB_SIDR_SUCCESS					0
 #define IB_SIDR_UNSUPPORTED				1
 #define IB_SIDR_REJECT					2
@@ -204,7 +199,5 @@ typedef uint16_t					ib_sidr_status_t;
 #define IB_SIDR_UNSUPPORTED_VER				5
 
 END_C_DECLS
-
-#endif /* ndef WIN32 */
-
-#endif /* __IB_CM_TYPES_H__ */
+#endif				/* ndef WIN32 */
+#endif				/* __IB_CM_TYPES_H__ */
