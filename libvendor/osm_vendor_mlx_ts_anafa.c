@@ -43,7 +43,7 @@
 
 #if HAVE_CONFIG_H
 #  include <config.h>
-#endif /* HAVE_CONFIG_H */
+#endif				/* HAVE_CONFIG_H */
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -63,18 +63,17 @@
 #include <opensm/osm_ts_useraccess.h>
 
 static void
- __osmv_TOPSPIN_ANAFA_mad_addr_to_osm_addr (IN osm_vendor_t const *p_vend,
-					    IN struct ib_mad *p_mad,
-					    IN uint8_t is_smi,
-					    OUT osm_mad_addr_t * p_mad_addr);
+__osmv_TOPSPIN_ANAFA_mad_addr_to_osm_addr(IN osm_vendor_t const *p_vend,
+					  IN struct ib_mad *p_mad,
+					  IN uint8_t is_smi,
+					  OUT osm_mad_addr_t * p_mad_addr);
 
 static void
- __osmv_TOPSPIN_ANAFA_osm_addr_to_mad_addr (IN const osm_mad_addr_t *
-					    p_mad_addr, IN uint8_t is_smi,
-					    OUT struct ib_mad *p_mad);
+__osmv_TOPSPIN_ANAFA_osm_addr_to_mad_addr(IN const osm_mad_addr_t *
+					  p_mad_addr, IN uint8_t is_smi,
+					  OUT struct ib_mad *p_mad);
 
-void
-__osmv_TOPSPIN_ANAFA_receiver_thr (void *p_ctx)
+void __osmv_TOPSPIN_ANAFA_receiver_thr(void *p_ctx)
 {
 	int ts_ret_code;
 	struct ib_mad mad;
@@ -82,63 +81,62 @@ __osmv_TOPSPIN_ANAFA_receiver_thr (void *p_ctx)
 	osmv_bind_obj_t *const p_bo = (osmv_bind_obj_t *) p_ctx;
 	ib_api_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER (p_bo->p_vendor->p_log,
-		       __osmv_TOPSPIN_ANAFA_receiver_thr);
+	OSM_LOG_ENTER(p_bo->p_vendor->p_log, __osmv_TOPSPIN_ANAFA_receiver_thr);
 
 	/* Make sure the p_bo object is still relevant */
-   if (( p_bo->magic_ptr != p_bo) || p_bo->is_closing )
+	if ((p_bo->magic_ptr != p_bo) || p_bo->is_closing)
 		return;
 
 	/* we set the type of cancelation for this thread */
 	/* pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL); */
 
 	while (1) {
-     /* Make sure the p_bo object is still relevant */
-     if (( p_bo->magic_ptr != p_bo) || p_bo->is_closing )
-       return;
+		/* Make sure the p_bo object is still relevant */
+		if ((p_bo->magic_ptr != p_bo) || p_bo->is_closing)
+			return;
 
 		/* we read one mad at a time and pass it to the read callback function */
 		ts_ret_code =
-		    read (((osmv_TOPSPIN_ANAFA_transport_mgr_t *) (p_bo->
-								   p_transp_mgr))->
-			  device_fd, &mad, sizeof (mad));
+		    read(((osmv_TOPSPIN_ANAFA_transport_mgr_t *) (p_bo->
+								  p_transp_mgr))->
+			 device_fd, &mad, sizeof(mad));
 
-      /* Make sure the p_bo object is still relevant */
-      if (( p_bo->magic_ptr != p_bo) || p_bo->is_closing )
-        return;
+		/* Make sure the p_bo object is still relevant */
+		if ((p_bo->magic_ptr != p_bo) || p_bo->is_closing)
+			return;
 
-		if (ts_ret_code != sizeof (mad)) {
-			osm_log (p_bo->p_vendor->p_log, OSM_LOG_ERROR,
-				 "__osmv_TOPSPIN_ANAFA_receiver_thr: ERR 6903: "
-				 "error with read, bytes = %d\n", ts_ret_code);
+		if (ts_ret_code != sizeof(mad)) {
+			osm_log(p_bo->p_vendor->p_log, OSM_LOG_ERROR,
+				"__osmv_TOPSPIN_ANAFA_receiver_thr: ERR 6903: "
+				"error with read, bytes = %d\n", ts_ret_code);
 			break;
 		} else {
-			osm_log (p_bo->p_vendor->p_log, OSM_LOG_DEBUG,
-				 "__osmv_TOPSPIN_ANAFA_receiver_thr: "
-				 "MAD QPN:%d SLID:0x%04x class:0x%02x "
-				 "method:0x%02x attr:0x%04x status:0x%04x "
-				 "tid:0x%016" PRIx64 "\n",
-				 mad.dqpn,
-				 cl_ntoh16 (mad.slid),
-				 mad.mgmt_class,
-				 mad.r_method,
-				 cl_ntoh16 (mad.attribute_id),
-				 cl_ntoh16 (mad.status),
-				 cl_ntoh64 (mad.transaction_id));
+			osm_log(p_bo->p_vendor->p_log, OSM_LOG_DEBUG,
+				"__osmv_TOPSPIN_ANAFA_receiver_thr: "
+				"MAD QPN:%d SLID:0x%04x class:0x%02x "
+				"method:0x%02x attr:0x%04x status:0x%04x "
+				"tid:0x%016" PRIx64 "\n",
+				mad.dqpn,
+				cl_ntoh16(mad.slid),
+				mad.mgmt_class,
+				mad.r_method,
+				cl_ntoh16(mad.attribute_id),
+				cl_ntoh16(mad.status),
+				cl_ntoh64(mad.transaction_id));
 
 			/* first arrange an address */
 			__osmv_TOPSPIN_ANAFA_mad_addr_to_osm_addr
 			    (p_bo->p_vendor, &mad,
-			    (((ib_mad_t *) & mad)->mgmt_class ==
-			    IB_MCLASS_SUBN_LID)
-			    || (((ib_mad_t *) & mad)->mgmt_class ==
-				IB_MCLASS_SUBN_DIR), &mad_addr);
+			     (((ib_mad_t *) & mad)->mgmt_class ==
+			      IB_MCLASS_SUBN_LID)
+			     || (((ib_mad_t *) & mad)->mgmt_class ==
+				 IB_MCLASS_SUBN_DIR), &mad_addr);
 
 			/* call the receiver callback */
 
 			status =
-			    osmv_dispatch_mad ((osm_bind_handle_t) p_bo,
-					       (void *)&mad, &mad_addr);
+			    osmv_dispatch_mad((osm_bind_handle_t) p_bo,
+					      (void *)&mad, &mad_addr);
 
 			/* Make sure the p_bo object is still relevant */
 			if (p_bo->magic_ptr != p_bo)
@@ -146,16 +144,16 @@ __osmv_TOPSPIN_ANAFA_receiver_thr (void *p_ctx)
 
 			if (IB_INTERRUPTED == status) {
 
-				osm_log (p_bo->p_vendor->p_log, OSM_LOG_DEBUG,
-					 "__osmv_TOPSPIN_ANAFA_receiver_thr: "
-					 "The bind handle %p is being closed. "
-					 "Breaking the loop.\n", p_bo);
+				osm_log(p_bo->p_vendor->p_log, OSM_LOG_DEBUG,
+					"__osmv_TOPSPIN_ANAFA_receiver_thr: "
+					"The bind handle %p is being closed. "
+					"Breaking the loop.\n", p_bo);
 				break;
 			}
 		}
 	}
 
-	OSM_LOG_EXIT (p_bo->p_vendor->p_log);
+	OSM_LOG_EXIT(p_bo->p_vendor->p_log);
 }
 
 /*
@@ -167,11 +165,9 @@ __osmv_TOPSPIN_ANAFA_receiver_thr (void *p_ctx)
  */
 
 ib_api_status_t
-osmv_transport_init (
-  IN osm_bind_info_t * p_info,
-  IN char hca_id[VENDOR_HCA_MAXNAMES],
-  IN uint8_t hca_idx,
-  IN osmv_bind_obj_t * p_bo)
+osmv_transport_init(IN osm_bind_info_t * p_info,
+		    IN char hca_id[VENDOR_HCA_MAXNAMES],
+		    IN uint8_t hca_idx, IN osmv_bind_obj_t * p_bo)
 {
 	cl_status_t cl_st;
 
@@ -185,18 +181,18 @@ osmv_transport_init (
 	    (osmv_TOPSPIN_ANAFA_transport_info_t *) p_bo->p_vendor->
 	    p_transport_info;
 
-	p_mgr = malloc (sizeof (osmv_TOPSPIN_ANAFA_transport_mgr_t));
+	p_mgr = malloc(sizeof(osmv_TOPSPIN_ANAFA_transport_mgr_t));
 	if (!p_mgr) {
 		return IB_INSUFFICIENT_MEMORY;
 	}
 
-	memset(p_mgr, 0, sizeof (osmv_TOPSPIN_ANAFA_transport_mgr_t));
+	memset(p_mgr, 0, sizeof(osmv_TOPSPIN_ANAFA_transport_mgr_t));
 
 	/* open TopSpin file device */
-	device_fd = open (device_file, O_RDWR);
+	device_fd = open(device_file, O_RDWR);
 	if (device_fd < 0) {
-		fprintf (stderr, "Fatal: Fail to open the file:%s err:%d\n",
-			 device_file, errno);
+		fprintf(stderr, "Fatal: Fail to open the file:%s err:%d\n",
+			device_file, errno);
 		return IB_ERROR;
 	}
 	p_mgr->device_fd = device_fd;
@@ -205,7 +201,7 @@ osmv_transport_init (
 	 * Create the MAD filter on this file handle.
 	 */
 
-	filter.port = 0;        /* Victor */
+	filter.port = 0;	/* Victor */
 	filter.direction = TS_IB_MAD_DIRECTION_IN;
 	filter.mask =
 	    TS_IB_MAD_FILTER_DIRECTION |
@@ -217,13 +213,13 @@ osmv_transport_init (
 	case IB_MCLASS_SUBN_DIR:
 		filter.qpn = 0;
 		filter.mgmt_class = IB_MCLASS_SUBN_LID;
-		ts_ioctl_ret = ioctl (device_fd, TS_IB_IOCSMADFILTADD, &filter);
+		ts_ioctl_ret = ioctl(device_fd, TS_IB_IOCSMADFILTADD, &filter);
 		if (ts_ioctl_ret < 0) {
 			return IB_ERROR;
 		}
 
 		filter.mgmt_class = IB_MCLASS_SUBN_DIR;
-		ts_ioctl_ret = ioctl (device_fd, TS_IB_IOCSMADFILTADD, &filter);
+		ts_ioctl_ret = ioctl(device_fd, TS_IB_IOCSMADFILTADD, &filter);
 		if (ts_ioctl_ret < 0) {
 			return IB_ERROR;
 		}
@@ -234,7 +230,7 @@ osmv_transport_init (
 	default:
 		filter.qpn = 1;
 		filter.mgmt_class = p_info->mad_class;
-		ts_ioctl_ret = ioctl (device_fd, TS_IB_IOCSMADFILTADD, &filter);
+		ts_ioctl_ret = ioctl(device_fd, TS_IB_IOCSMADFILTADD, &filter);
 		if (ts_ioctl_ret < 0) {
 			return IB_ERROR;
 		}
@@ -250,8 +246,8 @@ osmv_transport_init (
 
 	/* init receiver thread */
 	cl_st =
-	    cl_thread_init (&p_mgr->receiver, __osmv_TOPSPIN_ANAFA_receiver_thr,
-			    (void *)p_bo, "osmv TOPSPIN_ANAFA rcv thr");
+	    cl_thread_init(&p_mgr->receiver, __osmv_TOPSPIN_ANAFA_receiver_thr,
+			   (void *)p_bo, "osmv TOPSPIN_ANAFA rcv thr");
 
 	return (ib_api_status_t) cl_st;
 }
@@ -265,9 +261,8 @@ osmv_transport_init (
  */
 
 ib_api_status_t
-osmv_transport_mad_send (IN const osm_bind_handle_t h_bind,
-			 IN void *p_mad,
-			 IN const osm_mad_addr_t * p_mad_addr)
+osmv_transport_mad_send(IN const osm_bind_handle_t h_bind,
+			IN void *p_mad, IN const osm_mad_addr_t * p_mad_addr)
 {
 
 	osmv_bind_obj_t *p_bo = (osmv_bind_obj_t *) h_bind;
@@ -278,7 +273,7 @@ osmv_transport_mad_send (IN const osm_bind_handle_t h_bind,
 
 	const ib_mad_t *p_mad_hdr = p_mad;
 
-	OSM_LOG_ENTER (p_vend->p_log, osmv_transport_mad_send);
+	OSM_LOG_ENTER(p_vend->p_log, osmv_transport_mad_send);
 
 	/* Make sure the p_bo object is still relevant */
 	if (p_bo->magic_ptr != p_bo)
@@ -287,7 +282,7 @@ osmv_transport_mad_send (IN const osm_bind_handle_t h_bind,
 	/*
 	 * Copy the MAD over to the sent mad
 	 */
-	memcpy (&ts_mad, p_mad_hdr, MAD_BLOCK_SIZE);
+	memcpy(&ts_mad, p_mad_hdr, MAD_BLOCK_SIZE);
 
 	/*
 	 * For all sends other than directed route SM MADs,
@@ -295,11 +290,11 @@ osmv_transport_mad_send (IN const osm_bind_handle_t h_bind,
 	 */
 	if (p_mad_hdr->mgmt_class != IB_MCLASS_SUBN_DIR) {
 
-		__osmv_TOPSPIN_ANAFA_osm_addr_to_mad_addr (p_mad_addr,
-							   p_mad_hdr->
-							   mgmt_class ==
-							   IB_MCLASS_SUBN_LID,
-							   &ts_mad);
+		__osmv_TOPSPIN_ANAFA_osm_addr_to_mad_addr(p_mad_addr,
+							  p_mad_hdr->
+							  mgmt_class ==
+							  IB_MCLASS_SUBN_LID,
+							  &ts_mad);
 	} else {
 		/* is a directed route - we need to construct a permissive address */
 		/* we do not need port number since it is part of the mad_hndl */
@@ -316,18 +311,18 @@ osmv_transport_mad_send (IN const osm_bind_handle_t h_bind,
 	}
 
 	/* ts_mad.port = p_bo->port_num; */
-	ts_mad.port = 0;        /* Victor */
+	ts_mad.port = 0;	/* Victor */
 
 	/* send it */
 	ret =
-	    write (((osmv_TOPSPIN_ANAFA_transport_mgr_t *) (p_bo->
-							    p_transp_mgr))->
-		   device_fd, &ts_mad, sizeof (ts_mad));
+	    write(((osmv_TOPSPIN_ANAFA_transport_mgr_t *) (p_bo->
+							   p_transp_mgr))->
+		  device_fd, &ts_mad, sizeof(ts_mad));
 
-	if (ret != sizeof (ts_mad)) {
-		osm_log (p_vend->p_log, OSM_LOG_ERROR,
-			 "osmv_transport_mad_send: ERR 6904: "
-			 "Error sending mad (%d).\n", ret);
+	if (ret != sizeof(ts_mad)) {
+		osm_log(p_vend->p_log, OSM_LOG_ERROR,
+			"osmv_transport_mad_send: ERR 6904: "
+			"Error sending mad (%d).\n", ret);
 		status = IB_ERROR;
 		goto Exit;
 	}
@@ -335,39 +330,38 @@ osmv_transport_mad_send (IN const osm_bind_handle_t h_bind,
 	status = IB_SUCCESS;
 
       Exit:
-	OSM_LOG_EXIT (p_vend->p_log);
+	OSM_LOG_EXIT(p_vend->p_log);
 	return (status);
 }
 
-void
-osmv_transport_done (IN const osm_bind_handle_t h_bind)
+void osmv_transport_done(IN const osm_bind_handle_t h_bind)
 {
 	osmv_bind_obj_t *p_bo = (osmv_bind_obj_t *) h_bind;
 	osmv_TOPSPIN_ANAFA_transport_mgr_t *p_tpot_mgr =
 	    (osmv_TOPSPIN_ANAFA_transport_mgr_t *) (p_bo->p_transp_mgr);
 
-	CL_ASSERT (p_bo);
+	CL_ASSERT(p_bo);
 
 	/* First of all - zero out the magic_ptr, so if a callback is called -
 	   it'll know that we are currently closing down, and will not handle the
 	   mad. */
 	p_bo->magic_ptr = 0;
 
-   /* usleep(3000000); */
+	/* usleep(3000000); */
 
 	/* pthread_cancel (p_tpot_mgr->receiver.osd.id); */
-	cl_thread_destroy (&(p_tpot_mgr->receiver));
-	free (p_tpot_mgr);
+	cl_thread_destroy(&(p_tpot_mgr->receiver));
+	free(p_tpot_mgr);
 }
 
 static void
-__osmv_TOPSPIN_ANAFA_osm_addr_to_mad_addr (IN const osm_mad_addr_t * p_mad_addr,
-					   IN uint8_t is_smi,
-					   OUT struct ib_mad *p_mad)
+__osmv_TOPSPIN_ANAFA_osm_addr_to_mad_addr(IN const osm_mad_addr_t * p_mad_addr,
+					  IN uint8_t is_smi,
+					  OUT struct ib_mad *p_mad)
 {
 
 	/* For global destination or Multicast address: */
-	p_mad->dlid = cl_ntoh16 (p_mad_addr->dest_lid);
+	p_mad->dlid = cl_ntoh16(p_mad_addr->dest_lid);
 	p_mad->sl = p_mad_addr->addr_type.gsi.service_level;
 	if (is_smi) {
 		p_mad->sqpn = 0;
@@ -384,17 +378,17 @@ __osmv_TOPSPIN_ANAFA_osm_addr_to_mad_addr (IN const osm_mad_addr_t * p_mad_addr,
 }
 
 static void
-__osmv_TOPSPIN_ANAFA_mad_addr_to_osm_addr (IN osm_vendor_t const *p_vend,
-					   IN struct ib_mad *p_mad,
-					   IN uint8_t is_smi,
-					   OUT osm_mad_addr_t * p_mad_addr)
+__osmv_TOPSPIN_ANAFA_mad_addr_to_osm_addr(IN osm_vendor_t const *p_vend,
+					  IN struct ib_mad *p_mad,
+					  IN uint8_t is_smi,
+					  OUT osm_mad_addr_t * p_mad_addr)
 {
-	p_mad_addr->dest_lid = cl_hton16 (p_mad->slid);
+	p_mad_addr->dest_lid = cl_hton16(p_mad->slid);
 	p_mad_addr->static_rate = 0;
 	p_mad_addr->path_bits = 0;
 	if (is_smi) {
 		/* SMI */
-		p_mad_addr->addr_type.smi.source_lid = cl_hton16 (p_mad->slid);
+		p_mad_addr->addr_type.smi.source_lid = cl_hton16(p_mad->slid);
 		p_mad_addr->addr_type.smi.port_num = p_mad->port;
 	} else {
 		/* GSI */
@@ -427,6 +421,3 @@ __osmv_TOPSPIN_ANAFA_mad_addr_to_osm_addr (IN osm_vendor_t const *p_vend,
 		 */
 	}
 }
-
-
-

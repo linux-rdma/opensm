@@ -33,7 +33,6 @@
  *
  */
 
-
 /*
  * Abstract:
  *    Implementation of osm_pkt_randomizer_t.
@@ -46,7 +45,7 @@
 
 #if HAVE_CONFIG_H
 #  include <config.h>
-#endif /* HAVE_CONFIG_H */
+#endif				/* HAVE_CONFIG_H */
 
 #include <vendor/osm_pkt_randomizer.h>
 #include <stdlib.h>
@@ -67,46 +66,45 @@
  * the given paths: 0,1 or 0,3,1,4 - the return value will be FALSE.
  **********************************************************************/
 boolean_t
-__osm_pkt_randomizer_is_path_in_fault_paths(
-  IN osm_log_t      *p_log,
-  IN osm_dr_path_t        *p_dr_path,
-  IN osm_pkt_randomizer_t *p_pkt_rand )
+__osm_pkt_randomizer_is_path_in_fault_paths(IN osm_log_t * p_log,
+					    IN osm_dr_path_t * p_dr_path,
+					    IN osm_pkt_randomizer_t *
+					    p_pkt_rand)
 {
-  boolean_t  res = FALSE, found_path;
-  osm_dr_path_t *p_found_dr_path;
-  uint8_t ind1, ind2;
+	boolean_t res = FALSE, found_path;
+	osm_dr_path_t *p_found_dr_path;
+	uint8_t ind1, ind2;
 
-  OSM_LOG_ENTER( p_log, __osm_pkt_randomizer_is_path_in_fault_paths );
+	OSM_LOG_ENTER(p_log, __osm_pkt_randomizer_is_path_in_fault_paths);
 
-  for ( ind1 = 0 ; ind1 < p_pkt_rand->num_paths_initialized ; ind1++ )
-  {
-    found_path = TRUE;
-    p_found_dr_path = &(p_pkt_rand->fault_dr_paths[ind1]);
-    /* if the hop count of the found path is greater than the
-       hop count of the input path - then it is not part of it.
-       Check the next path. */
-    if (p_found_dr_path->hop_count > p_dr_path->hop_count)
-      continue;
+	for (ind1 = 0; ind1 < p_pkt_rand->num_paths_initialized; ind1++) {
+		found_path = TRUE;
+		p_found_dr_path = &(p_pkt_rand->fault_dr_paths[ind1]);
+		/* if the hop count of the found path is greater than the
+		   hop count of the input path - then it is not part of it.
+		   Check the next path. */
+		if (p_found_dr_path->hop_count > p_dr_path->hop_count)
+			continue;
 
-    /* go over all the ports in the found path and see if they match
-       the ports in the input path */
-    for ( ind2 = 0 ; ind2 <= p_found_dr_path->hop_count ; ind2++ )
-      if (p_found_dr_path->path[ind2] != p_dr_path->path[ind2])
-        found_path = FALSE;
+		/* go over all the ports in the found path and see if they match
+		   the ports in the input path */
+		for (ind2 = 0; ind2 <= p_found_dr_path->hop_count; ind2++)
+			if (p_found_dr_path->path[ind2] !=
+			    p_dr_path->path[ind2])
+				found_path = FALSE;
 
-    /* If found_path is TRUE  then there is a full match of the path */
-    if ( found_path == TRUE )
-    {
-      osm_log( p_log, OSM_LOG_VERBOSE,
-               "__osm_pkt_randomizer_is_path_in_fault_paths: "
-               "Given path is in a fault path\n");
-      res = TRUE;
-      break;
-    }
-  }
+		/* If found_path is TRUE  then there is a full match of the path */
+		if (found_path == TRUE) {
+			osm_log(p_log, OSM_LOG_VERBOSE,
+				"__osm_pkt_randomizer_is_path_in_fault_paths: "
+				"Given path is in a fault path\n");
+			res = TRUE;
+			break;
+		}
+	}
 
-  OSM_LOG_EXIT( p_log );
-  return res;
+	OSM_LOG_EXIT(p_log);
+	return res;
 }
 
 /**********************************************************************
@@ -121,228 +119,224 @@ __osm_pkt_randomizer_is_path_in_fault_paths(
  * if to drop it or not.
  **********************************************************************/
 boolean_t
-__osm_pkt_randomizer_process_path(
-  IN osm_log_t            *p_log,
-  IN osm_pkt_randomizer_t *p_pkt_rand,
-  IN osm_dr_path_t        *p_dr_path )
+__osm_pkt_randomizer_process_path(IN osm_log_t * p_log,
+				  IN osm_pkt_randomizer_t * p_pkt_rand,
+				  IN osm_dr_path_t * p_dr_path)
 {
-  boolean_t res = FALSE;
-  static boolean_t rand_value_init = FALSE;
-  static int rand_value;
-  boolean_t in_fault_paths;
-  uint8_t i;
-  char buf[BUF_SIZE];
-  char line[BUF_SIZE];
+	boolean_t res = FALSE;
+	static boolean_t rand_value_init = FALSE;
+	static int rand_value;
+	boolean_t in_fault_paths;
+	uint8_t i;
+	char buf[BUF_SIZE];
+	char line[BUF_SIZE];
 
-  OSM_LOG_ENTER( p_log, __osm_pkt_randomizer_process_path );
+	OSM_LOG_ENTER(p_log, __osm_pkt_randomizer_process_path);
 
-  if (rand_value_init == FALSE)
-  {
-    int seed;
+	if (rand_value_init == FALSE) {
+		int seed;
 #ifdef WIN32
-    SYSTEMTIME st;
+		SYSTEMTIME st;
 #else
-    struct timeval tv;
-    struct timezone tz;
-#endif /*  WIN32 */
+		struct timeval tv;
+		struct timezone tz;
+#endif				/*  WIN32 */
 
-    /* initiate the rand_value according to timeofday */
-    rand_value_init = TRUE;
+		/* initiate the rand_value according to timeofday */
+		rand_value_init = TRUE;
 
 #ifdef WIN32
-      GetLocalTime(&st);
-      seed = st.wMilliseconds;
+		GetLocalTime(&st);
+		seed = st.wMilliseconds;
 #else
-      gettimeofday( &tv, &tz );
-      seed = tv.tv_usec;
-#endif /*  WIN32 */
+		gettimeofday(&tv, &tz);
+		seed = tv.tv_usec;
+#endif				/*  WIN32 */
 
-      srand(seed);
-  }
+		srand(seed);
+	}
 
-  /* If the hop_count is 1 - then this is a mad down to our local port - don't drop it */
-  if ( p_dr_path->hop_count <= 1 )
-    goto Exit;
+	/* If the hop_count is 1 - then this is a mad down to our local port - don't drop it */
+	if (p_dr_path->hop_count <= 1)
+		goto Exit;
 
-  rand_value = rand();
+	rand_value = rand();
 
-  sprintf( buf, "Path: " );
-  /* update the dr_path into the buf */
-  for (i = 0 ; i <= p_dr_path->hop_count; i++ )
-  {
-    sprintf( line, "[%X]", p_dr_path->path[i] );
-    strcat( buf, line );
-  }
+	sprintf(buf, "Path: ");
+	/* update the dr_path into the buf */
+	for (i = 0; i <= p_dr_path->hop_count; i++) {
+		sprintf(line, "[%X]", p_dr_path->path[i]);
+		strcat(buf, line);
+	}
 
-  /* Check if the path given is in one of the fault paths */
-  in_fault_paths =  __osm_pkt_randomizer_is_path_in_fault_paths(
-    p_log, p_dr_path, p_pkt_rand );
+	/* Check if the path given is in one of the fault paths */
+	in_fault_paths =
+	    __osm_pkt_randomizer_is_path_in_fault_paths(p_log, p_dr_path,
+							p_pkt_rand);
 
-  /* Check if all paths are initialized */
-  if ( p_pkt_rand->num_paths_initialized < p_pkt_rand->osm_pkt_num_unstable_links )
-  {
-    /* Not all packets are initialized. */
-    if ( in_fault_paths == FALSE )
-    {
-      /* the path is not in the false paths. Check using the rand value
-         if to update it there or not. */
-      if ( rand_value%(p_pkt_rand->osm_pkt_unstable_link_rate) == 0 )
-      {
-        osm_log( p_log, OSM_LOG_VERBOSE,
-                 "__osm_pkt_randomizer_process_path: "
-                 "%s added to the fault_dr_paths list\n"
-                 "\t\t\t rand_value:%u, unstable_link_rate:%u \n",
-                 buf, rand_value, p_pkt_rand->osm_pkt_unstable_link_rate );
+	/* Check if all paths are initialized */
+	if (p_pkt_rand->num_paths_initialized <
+	    p_pkt_rand->osm_pkt_num_unstable_links) {
+		/* Not all packets are initialized. */
+		if (in_fault_paths == FALSE) {
+			/* the path is not in the false paths. Check using the rand value
+			   if to update it there or not. */
+			if (rand_value %
+			    (p_pkt_rand->osm_pkt_unstable_link_rate) == 0) {
+				osm_log(p_log, OSM_LOG_VERBOSE,
+					"__osm_pkt_randomizer_process_path: "
+					"%s added to the fault_dr_paths list\n"
+					"\t\t\t rand_value:%u, unstable_link_rate:%u \n",
+					buf, rand_value,
+					p_pkt_rand->osm_pkt_unstable_link_rate);
 
-        /* update the path in the fault paths */
-        memcpy( &(p_pkt_rand->fault_dr_paths[p_pkt_rand->num_paths_initialized]),
-                p_dr_path, sizeof(osm_dr_path_t) );
-        p_pkt_rand->num_paths_initialized++;
-        in_fault_paths = TRUE;
-      }
-    }
-  }
+				/* update the path in the fault paths */
+				memcpy(&
+				       (p_pkt_rand->
+					fault_dr_paths[p_pkt_rand->
+						       num_paths_initialized]),
+				       p_dr_path, sizeof(osm_dr_path_t));
+				p_pkt_rand->num_paths_initialized++;
+				in_fault_paths = TRUE;
+			}
+		}
+	}
 
-  if ( in_fault_paths == FALSE )
-  {
-    /* If in_fault_paths is FALSE - just ignore the path */
-    osm_log( p_log, OSM_LOG_VERBOSE,
-             "__osm_pkt_randomizer_process_path: "
-             "%s not in fault paths\n", buf );
-    goto Exit;
-  }
+	if (in_fault_paths == FALSE) {
+		/* If in_fault_paths is FALSE - just ignore the path */
+		osm_log(p_log, OSM_LOG_VERBOSE,
+			"__osm_pkt_randomizer_process_path: "
+			"%s not in fault paths\n", buf);
+		goto Exit;
+	}
 
-  /* The path is in the fault paths. Need to choose (randomally if to drop it
-     or not. */
-  rand_value = rand();
+	/* The path is in the fault paths. Need to choose (randomally if to drop it
+	   or not. */
+	rand_value = rand();
 
-  if ( rand_value%(p_pkt_rand->osm_pkt_drop_rate) == 0 )
-  {
-    /* drop the current packet */
-    res = TRUE;
-    osm_log( p_log, OSM_LOG_VERBOSE,
-             "__osm_pkt_randomizer_process_path: "
-             "Dropping path:%s\n", buf );
-  }
+	if (rand_value % (p_pkt_rand->osm_pkt_drop_rate) == 0) {
+		/* drop the current packet */
+		res = TRUE;
+		osm_log(p_log, OSM_LOG_VERBOSE,
+			"__osm_pkt_randomizer_process_path: "
+			"Dropping path:%s\n", buf);
+	}
 
- Exit:
-  OSM_LOG_EXIT( p_log );
-  return res;
+      Exit:
+	OSM_LOG_EXIT(p_log);
+	return res;
 }
 
 /**********************************************************************
  **********************************************************************/
 boolean_t
-osm_pkt_randomizer_mad_drop(
-  IN osm_log_t            *p_log,
-  IN osm_pkt_randomizer_t *p_pkt_randomizer,
-  IN const ib_mad_t       *p_mad )
+osm_pkt_randomizer_mad_drop(IN osm_log_t * p_log,
+			    IN osm_pkt_randomizer_t * p_pkt_randomizer,
+			    IN const ib_mad_t * p_mad)
 {
-  const ib_smp_t* p_smp;
-  boolean_t res = FALSE;
-  osm_dr_path_t dr_path;
+	const ib_smp_t *p_smp;
+	boolean_t res = FALSE;
+	osm_dr_path_t dr_path;
 
-  OSM_LOG_ENTER( p_log, osm_pkt_randomizer_mad_drop );
+	OSM_LOG_ENTER(p_log, osm_pkt_randomizer_mad_drop);
 
-  p_smp = (ib_smp_t*)p_mad;
+	p_smp = (ib_smp_t *) p_mad;
 
-  if ( p_smp->mgmt_class != IB_MCLASS_SUBN_DIR )
-    /* This is a lid route mad. Don't drop it */
-    goto Exit;
+	if (p_smp->mgmt_class != IB_MCLASS_SUBN_DIR)
+		/* This is a lid route mad. Don't drop it */
+		goto Exit;
 
-  osm_dr_path_init( &dr_path,
-                    0, /* The h_bind is not really important for us to save */
-                    p_smp->hop_count, p_smp->initial_path );
+	osm_dr_path_init(&dr_path, 0,	/* The h_bind is not really important for us to save */
+			 p_smp->hop_count, p_smp->initial_path);
 
-  if (__osm_pkt_randomizer_process_path( p_log, p_pkt_randomizer, &dr_path ) )
-  {
-    /* the mad should be dropped o*/
-    osm_log ( p_log, OSM_LOG_VERBOSE,
-              "osm_pkt_randomizer_mad_drop: "
-              "mad TID: 0x%" PRIx64 " is being dropped\n",
-              cl_ntoh64(p_smp->trans_id) );
-    res = TRUE;
-  }
+	if (__osm_pkt_randomizer_process_path
+	    (p_log, p_pkt_randomizer, &dr_path)) {
+		/* the mad should be dropped o */
+		osm_log(p_log, OSM_LOG_VERBOSE,
+			"osm_pkt_randomizer_mad_drop: "
+			"mad TID: 0x%" PRIx64 " is being dropped\n",
+			cl_ntoh64(p_smp->trans_id));
+		res = TRUE;
+	}
 
- Exit:
-  OSM_LOG_EXIT( p_log );
-  return res;
+      Exit:
+	OSM_LOG_EXIT(p_log);
+	return res;
 }
 
 /**********************************************************************
  **********************************************************************/
 ib_api_status_t
-osm_pkt_randomizer_init(
-  IN OUT osm_pkt_randomizer_t **pp_pkt_randomizer,
-  IN osm_log_t            *p_log )
+osm_pkt_randomizer_init(IN OUT osm_pkt_randomizer_t ** pp_pkt_randomizer,
+			IN osm_log_t * p_log)
 {
-  uint8_t tmp;
-  ib_api_status_t res = IB_SUCCESS;
+	uint8_t tmp;
+	ib_api_status_t res = IB_SUCCESS;
 
-  OSM_LOG_ENTER( p_log, osm_pkt_randomizer_init );
+	OSM_LOG_ENTER(p_log, osm_pkt_randomizer_init);
 
-  *pp_pkt_randomizer = malloc( sizeof( osm_pkt_randomizer_t ) );
-  if ( *pp_pkt_randomizer == NULL )
-  {
-    res = IB_INSUFFICIENT_MEMORY;
-    goto Exit;
-  }
-  memset( *pp_pkt_randomizer, 0, sizeof(osm_pkt_randomizer_t) );
-  (*pp_pkt_randomizer)->num_paths_initialized = 0;
+	*pp_pkt_randomizer = malloc(sizeof(osm_pkt_randomizer_t));
+	if (*pp_pkt_randomizer == NULL) {
+		res = IB_INSUFFICIENT_MEMORY;
+		goto Exit;
+	}
+	memset(*pp_pkt_randomizer, 0, sizeof(osm_pkt_randomizer_t));
+	(*pp_pkt_randomizer)->num_paths_initialized = 0;
 
-  tmp = atol( getenv("OSM_PKT_DROP_RATE") );
-  (*pp_pkt_randomizer)->osm_pkt_drop_rate = tmp;
+	tmp = atol(getenv("OSM_PKT_DROP_RATE"));
+	(*pp_pkt_randomizer)->osm_pkt_drop_rate = tmp;
 
-  if ( getenv("OSM_PKT_NUM_UNSTABLE_LINKS") != NULL && (tmp = atol( getenv("OSM_PKT_NUM_UNSTABLE_LINKS") )) > 0 )
-    (*pp_pkt_randomizer)->osm_pkt_num_unstable_links = tmp;
-  else
-    (*pp_pkt_randomizer)->osm_pkt_num_unstable_links = 1;
+	if (getenv("OSM_PKT_NUM_UNSTABLE_LINKS") != NULL
+	    && (tmp = atol(getenv("OSM_PKT_NUM_UNSTABLE_LINKS"))) > 0)
+		(*pp_pkt_randomizer)->osm_pkt_num_unstable_links = tmp;
+	else
+		(*pp_pkt_randomizer)->osm_pkt_num_unstable_links = 1;
 
-  if ( getenv("OSM_PKT_UNSTABLE_LINK_RATE") != NULL && (tmp = atol( getenv("OSM_PKT_UNSTABLE_LINK_RATE") )) > 0 )
-    (*pp_pkt_randomizer)->osm_pkt_unstable_link_rate = tmp;
-  else
-    (*pp_pkt_randomizer)->osm_pkt_unstable_link_rate = 20;
+	if (getenv("OSM_PKT_UNSTABLE_LINK_RATE") != NULL
+	    && (tmp = atol(getenv("OSM_PKT_UNSTABLE_LINK_RATE"))) > 0)
+		(*pp_pkt_randomizer)->osm_pkt_unstable_link_rate = tmp;
+	else
+		(*pp_pkt_randomizer)->osm_pkt_unstable_link_rate = 20;
 
-  osm_log( p_log, OSM_LOG_VERBOSE,
-           "osm_pkt_randomizer_init: "
-           "Using OSM_PKT_DROP_RATE=%u \n"
-           "\t\t\t\t OSM_PKT_NUM_UNSTABLE_LINKS=%u \n"
-           "\t\t\t\t OSM_PKT_UNSTABLE_LINK_RATE=%u \n",
-           (*pp_pkt_randomizer)->osm_pkt_drop_rate,
-           (*pp_pkt_randomizer)->osm_pkt_num_unstable_links,
-           (*pp_pkt_randomizer)->osm_pkt_unstable_link_rate );
+	osm_log(p_log, OSM_LOG_VERBOSE,
+		"osm_pkt_randomizer_init: "
+		"Using OSM_PKT_DROP_RATE=%u \n"
+		"\t\t\t\t OSM_PKT_NUM_UNSTABLE_LINKS=%u \n"
+		"\t\t\t\t OSM_PKT_UNSTABLE_LINK_RATE=%u \n",
+		(*pp_pkt_randomizer)->osm_pkt_drop_rate,
+		(*pp_pkt_randomizer)->osm_pkt_num_unstable_links,
+		(*pp_pkt_randomizer)->osm_pkt_unstable_link_rate);
 
-  /* allocate the fault_dr_paths variable */
-  /* It is the number of the paths that will be saved as fault = osm_pkt_num_unstable_links */
-  (*pp_pkt_randomizer)->fault_dr_paths = malloc( sizeof( osm_dr_path_t ) *
-                                                 (*pp_pkt_randomizer)->osm_pkt_num_unstable_links );
-  if ( (*pp_pkt_randomizer)->fault_dr_paths == NULL )
-  {
-    res = IB_INSUFFICIENT_MEMORY;
-    goto Exit;
-  }
+	/* allocate the fault_dr_paths variable */
+	/* It is the number of the paths that will be saved as fault = osm_pkt_num_unstable_links */
+	(*pp_pkt_randomizer)->fault_dr_paths = malloc(sizeof(osm_dr_path_t) *
+						      (*pp_pkt_randomizer)->
+						      osm_pkt_num_unstable_links);
+	if ((*pp_pkt_randomizer)->fault_dr_paths == NULL) {
+		res = IB_INSUFFICIENT_MEMORY;
+		goto Exit;
+	}
 
-  memset( (*pp_pkt_randomizer)->fault_dr_paths, 0,
-	  sizeof( osm_dr_path_t ) * (*pp_pkt_randomizer)->osm_pkt_num_unstable_links );
+	memset((*pp_pkt_randomizer)->fault_dr_paths, 0,
+	       sizeof(osm_dr_path_t) *
+	       (*pp_pkt_randomizer)->osm_pkt_num_unstable_links);
 
- Exit:
-  OSM_LOG_EXIT( p_log );
-  return (res);
+      Exit:
+	OSM_LOG_EXIT(p_log);
+	return (res);
 }
 
 /**********************************************************************
  **********************************************************************/
 void
-osm_pkt_randomizer_destroy(
-  IN OUT osm_pkt_randomizer_t **pp_pkt_randomizer,
-  IN osm_log_t            *p_log )
+osm_pkt_randomizer_destroy(IN OUT osm_pkt_randomizer_t ** pp_pkt_randomizer,
+			   IN osm_log_t * p_log)
 {
-  OSM_LOG_ENTER( p_log, osm_pkt_randomizer_destroy );
+	OSM_LOG_ENTER(p_log, osm_pkt_randomizer_destroy);
 
-  if ( *pp_pkt_randomizer != NULL )
-  {
-    free( (*pp_pkt_randomizer)->fault_dr_paths );
-    free( *pp_pkt_randomizer );
-  }
-  OSM_LOG_EXIT( p_log );
+	if (*pp_pkt_randomizer != NULL) {
+		free((*pp_pkt_randomizer)->fault_dr_paths);
+		free(*pp_pkt_randomizer);
+	}
+	OSM_LOG_EXIT(p_log);
 }
