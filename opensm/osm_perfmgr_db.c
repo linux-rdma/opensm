@@ -253,7 +253,7 @@ perfmgr_db_add_err_reading(perfmgr_db_t *db, uint64_t guid,
 	debug_dump_err_reading(db, guid, port, p_port, reading);
 
 	epi_pe_data.time_diff_s = (reading->time - previous->time);
-	osm_epi_create_node_id(&(epi_pe_data.node_id), guid, port, node->node_name);
+	osm_epi_create_port_id(&(epi_pe_data.port_id), guid, port, node->node_name);
 
 	/* calculate changes from previous reading */
 	epi_pe_data.symbol_err_cnt = (reading->symbol_err_cnt - previous->symbol_err_cnt);
@@ -378,7 +378,7 @@ perfmgr_db_add_dc_reading(perfmgr_db_t *db, uint64_t guid,
 	debug_dump_dc_reading(db, guid, port, p_port, reading);
 
 	epi_dc_data.time_diff_s = (reading->time - previous->time);
-	osm_epi_create_node_id(&(epi_dc_data.node_id), guid, port, node->node_name);
+	osm_epi_create_port_id(&(epi_dc_data.port_id), guid, port, node->node_name);
 
 	/* calculate changes from previous reading */
 	epi_dc_data.xmit_data = (reading->xmit_data - previous->xmit_data);

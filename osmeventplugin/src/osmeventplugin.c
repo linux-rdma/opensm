@@ -108,9 +108,9 @@ handle_port_counter(_log_events_t *log, osm_epi_pe_event_t *pc)
 		|| pc->vl15_dropped > 0) {
 		fprintf(log->log_file,
 			"Port counter errors for node 0x%"PRIx64" (%s) port %d\n",
-			pc->node_id.node_guid,
-			pc->node_id.node_name,
-			pc->node_id.port_num);
+			pc->port_id.node_guid,
+			pc->port_id.node_name,
+			pc->port_id.port_num);
 	}
 }
 
@@ -121,9 +121,9 @@ handle_port_counter_ext(_log_events_t *log, osm_epi_dc_event_t *epc)
 {
 	fprintf(log->log_file,
 		"Recieved Data counters for node 0x%"PRIx64" (%s) port %d\n",
-		epc->node_id.node_guid,
-		epc->node_id.node_name,
-		epc->node_id.port_num);
+		epc->port_id.node_guid,
+		epc->port_id.node_name,
+		epc->port_id.port_num);
 }
 
 /** =========================================================================
@@ -134,9 +134,9 @@ handle_port_select(_log_events_t *log, osm_epi_ps_event_t *ps)
 	if (ps->xmit_wait > 0) {
 		fprintf(log->log_file,
 			"Port select Xmit Wait counts for node 0x%"PRIx64" (%s) port %d\n",
-			ps->node_id.node_guid,
-			ps->node_id.node_name,
-			ps->node_id.port_num);
+			ps->port_id.node_guid,
+			ps->port_id.node_name,
+			ps->port_id.port_num);
 	}
 }
 
@@ -148,9 +148,9 @@ handle_trap_event(_log_events_t *log, osm_epi_trap_event_t *trap)
 	fprintf(log->log_file,
 		"Trap event %d from 0x%"PRIx64" (%s) port %d\n",
 		trap->trap_num,
-		trap->node_id.node_guid,
-		trap->node_id.node_name,
-		trap->node_id.port_num);
+		trap->port_id.node_guid,
+		trap->port_id.node_name,
+		trap->port_id.port_num);
 }
 
 /** =========================================================================

@@ -83,7 +83,7 @@ typedef struct {
 	uint64_t   node_guid;
 	uint8_t    port_num;
 	char       node_name[OSM_EPI_NODE_NAME_LEN];
-} osm_epi_node_id_t;
+} osm_epi_port_id_t;
 
 /** =========================================================================
  * Port error event
@@ -91,7 +91,7 @@ typedef struct {
  * This is a difference from the last reading.  NOT an absolute reading.
  */
 typedef struct {
-	osm_epi_node_id_t node_id;
+	osm_epi_port_id_t port_id;
 	uint64_t          symbol_err_cnt;
 	uint64_t          link_err_recover;
 	uint64_t          link_downed;
@@ -112,7 +112,7 @@ typedef struct {
  * This is a difference from the last reading.  NOT an absolute reading.
  */
 typedef struct {
-	osm_epi_node_id_t node_id;
+	osm_epi_port_id_t port_id;
 	uint64_t          xmit_data;
 	uint64_t          rcv_data;
 	uint64_t          xmit_pkts;
@@ -129,7 +129,7 @@ typedef struct {
  * This is a difference from the last reading.  NOT an absolute reading.
  */
 typedef struct {
-	osm_epi_node_id_t node_id;
+	osm_epi_port_id_t port_id;
 	uint64_t          xmit_wait;
 	time_t            time_diff_s;
 } osm_epi_ps_event_t;
@@ -138,7 +138,7 @@ typedef struct {
  * Trap events
  */
 typedef struct {
-	osm_epi_node_id_t node_id;
+	osm_epi_port_id_t port_id;
 	uint8_t           type;
 	uint32_t          prod_type;
 	uint16_t          trap_num;
@@ -189,13 +189,13 @@ void              osm_epi_report(osm_epi_plugin_t *plugin,
  * Helper functions
  */
 static inline void
-osm_epi_create_node_id(osm_epi_node_id_t *node_id, uint64_t node_guid,
+osm_epi_create_port_id(osm_epi_port_id_t *port_id, uint64_t node_guid,
 			uint8_t port_num, char *node_name)
 {
-	node_id->node_guid = node_guid;
-	node_id->port_num = port_num;
-	strncpy(node_id->node_name, node_name, OSM_EPI_NODE_NAME_LEN);
-	node_id->node_name[OSM_EPI_NODE_NAME_LEN-1] = '\0';
+	port_id->node_guid = node_guid;
+	port_id->port_num = port_num;
+	strncpy(port_id->node_name, node_name, OSM_EPI_NODE_NAME_LEN);
+	port_id->node_name[OSM_EPI_NODE_NAME_LEN-1] = '\0';
 }
 
 END_C_DECLS
