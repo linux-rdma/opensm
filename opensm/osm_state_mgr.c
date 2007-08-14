@@ -1011,15 +1011,14 @@ __osm_state_mgr_light_sweep_start(
    ib_api_status_t status = IB_SUCCESS;
    osm_bind_handle_t h_bind;
    cl_qmap_t *p_sw_tbl;
-   cl_list_t *p_no_rem_port_list;
-   cl_list_iterator_t list_iter;
-   uint8_t path_array[IB_SUBNET_PATH_HOPS_MAX];
+   cl_map_item_t *p_next;
+   osm_node_t *p_node;
+   osm_physp_t *p_physp;
+   uint8_t port_num;
 
    OSM_LOG_ENTER( p_mgr->p_log, __osm_state_mgr_light_sweep_start );
 
    p_sw_tbl = &p_mgr->p_subn->sw_guid_tbl;
-
-   memset( path_array, 0, sizeof( path_array ) );
 
    /*
     * First, get the bind handle.
@@ -1034,14 +1033,32 @@ __osm_state_mgr_light_sweep_start(
 
       /* now scan the list of physical ports that were not down but have no remote port */
       CL_PLOCK_ACQUIRE( p_mgr->p_lock );
-      p_no_rem_port_list = &p_mgr->p_subn->light_sweep_physp_list;
-      list_iter = cl_list_head( p_no_rem_port_list );
-      while( list_iter != cl_list_end( p_no_rem_port_list ) )
+      p_next = cl_qmap_head( &p_mgr->p_subn->node_guid_tbl );
+      while( p_next != cl_qmap_end( &p_mgr->p_subn->node_guid_tbl ) )
       {
-         __osm_state_mgr_get_remote_port_info( p_mgr,
-                                               ( osm_physp_t * )
-                                               cl_list_obj( list_iter ) );
-         list_iter = cl_list_next( list_iter );
+         p_node = (osm_node_t *)p_next;
+         p_next = cl_qmap_next( p_next );
+
+         for (port_num = 1; port_num < osm_node_get_num_physp(p_node); port_num++)
+         {
+            p_physp = osm_node_get_physp_ptr(p_node, port_num);
+            if (osm_physp_is_valid(p_physp) &&
+                (osm_physp_get_port_state(p_physp) != IB_LINK_DOWN) &&
+                ! osm_physp_get_remote(p_physp))
+            {
+               osm_log( p_mgr->p_log, OSM_LOG_ERROR,
+                        "__osm_state_mgr_light_sweep_start: ERR 0108: "
+                        "Unknown remote side for node 0x%016" PRIx64
+                        " port %u. Adding to light sweep sampling list\n",
+                        cl_ntoh64( osm_node_get_node_guid( p_node )), port_num);
+
+               osm_dump_dr_path(p_mgr->p_log,
+                                osm_physp_get_dr_path_ptr( p_physp ),
+                                OSM_LOG_ERROR);
+
+               __osm_state_mgr_get_remote_port_info( p_mgr, p_physp );
+            }
+         }
       }
       CL_PLOCK_RELEASE( p_mgr->p_lock );
    }

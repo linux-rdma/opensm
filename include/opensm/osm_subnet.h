@@ -550,7 +550,6 @@ typedef struct _osm_subn
   cl_qmap_t		   prtn_pkey_tbl;
   cl_qmap_t		   mgrp_mlid_tbl;
   cl_qmap_t		   sm_guid_tbl;
-  cl_list_t                light_sweep_physp_list;
   cl_qlist_t		   sa_sr_list;
   cl_qlist_t		   sa_infr_list;
   cl_ptr_vector_t	   port_lid_tbl;
@@ -602,11 +601,6 @@ typedef struct _osm_subn
 *	sm_guid_tbl
 *		Container of pointers to SM objects representing other SMs
 *		on the subnet.
-*
-*	light_sweep_physp_list
-*		A list of all phys ports to scan for a change in remote
-*		side state in next light sweep. These ports are not down
-*		but for some reason the remote side did not answer.
 *
 *	node_lid_tbl
 *		Container of pointers to all Node objects in the subent.

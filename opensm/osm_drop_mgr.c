@@ -528,15 +528,12 @@ osm_drop_mgr_process(
 {
   cl_qmap_t   *p_node_guid_tbl;
   cl_qmap_t   *p_port_guid_tbl;
-  cl_list_t   *p_lsweep_ports;
   osm_port_t  *p_port;
   osm_port_t  *p_next_port;
   osm_node_t  *p_node;
   osm_node_t  *p_next_node;
   ib_net64_t   port_guid;
   ib_net64_t   node_guid;
-  uint8_t      port_num;
-  osm_physp_t *p_physp;
 
   CL_ASSERT( p_mgr );
 
@@ -544,7 +541,6 @@ osm_drop_mgr_process(
 
   p_node_guid_tbl = &p_mgr->p_subn->node_guid_tbl;
   p_port_guid_tbl = &p_mgr->p_subn->port_guid_tbl;
-  p_lsweep_ports = &p_mgr->p_subn->light_sweep_physp_list;
 
   CL_PLOCK_EXCL_ACQUIRE( p_mgr->p_lock );
 
@@ -627,41 +623,6 @@ osm_drop_mgr_process(
     */
     if( p_port->discovery_count == 0 )
       __osm_drop_mgr_remove_port( p_mgr, p_port );
-  }
-
-  /*
-     scan through all the ports left - if the port is not DOWN and
-     it does not have a valid remote port - we need to track it for
-     next light sweep scan...
-  */
-  cl_list_remove_all( p_lsweep_ports );
-  p_next_node = (osm_node_t*)cl_qmap_head( p_node_guid_tbl );
-  while( p_next_node != (osm_node_t*)cl_qmap_end( p_node_guid_tbl ) )
-  {
-    p_node = p_next_node;
-    p_next_node = (osm_node_t*)cl_qmap_next( &p_next_node->map_item );
-
-    for (port_num = 1; port_num < osm_node_get_num_physp(p_node); port_num++)
-    {
-      p_physp = osm_node_get_physp_ptr(p_node, port_num);
-      if (osm_physp_is_valid(p_physp) &&
-          (osm_physp_get_port_state(p_physp) != IB_LINK_DOWN) &&
-          ! osm_physp_get_remote(p_physp))
-      {
-        osm_log( p_mgr->p_log, OSM_LOG_ERROR,
-                 "osm_drop_mgr_process: ERR 0108: "
-                 "Unknown remote side for node 0x%016" PRIx64
-                 " port %u. Adding to light sweep sampling list\n",
-                 cl_ntoh64( osm_node_get_node_guid( p_node )),
-                 port_num);
-
-        osm_dump_dr_path(p_mgr->p_log,
-                         osm_physp_get_dr_path_ptr( p_physp ),
-                         OSM_LOG_ERROR);
-
-        cl_list_insert_head( p_lsweep_ports, p_physp );
-      }
-    }
   }
 
   CL_PLOCK_RELEASE( p_mgr->p_lock );

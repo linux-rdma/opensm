@@ -95,8 +95,6 @@ osm_subn_construct(
   cl_qmap_init( &p_subn->rtr_guid_tbl );
   cl_qmap_init( &p_subn->prtn_pkey_tbl );
   cl_qmap_init( &p_subn->mgrp_mlid_tbl );
-  cl_list_construct( &p_subn->light_sweep_physp_list );
-  cl_list_init( &p_subn->light_sweep_physp_list, 5 );
 }
 
 /**********************************************************************
@@ -169,9 +167,6 @@ osm_subn_destroy(
     p_next_infr = (osm_infr_t*)cl_qlist_next( &p_infr->list_item );
     osm_infr_delete( p_infr );
   }
-
-  cl_list_remove_all( &p_subn->light_sweep_physp_list );
-  cl_list_destroy( &p_subn->light_sweep_physp_list );
 
   cl_ptr_vector_destroy( &p_subn->port_lid_tbl );
   cl_map_remove_all(&(p_subn->opt.port_prof_ignore_guids));
