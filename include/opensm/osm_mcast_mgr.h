@@ -59,15 +59,13 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 #define OSM_MCAST_MGR_LIST_SIZE_MIN 256
-
 /****h* OpenSM/Multicast Manager
 * NAME
 *	Multicast Manager
@@ -85,7 +83,6 @@ BEGIN_C_DECLS
 *	Steve King, Intel
 *
 *********/
-
 /****s* OpenSM: Multicast Manager/osm_mcast_mgr_t
 * NAME
 *	osm_mcast_mgr_t
@@ -98,12 +95,11 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_mcast_mgr
-{
-	osm_subn_t					*p_subn;
-	osm_req_t					*p_req;
-	osm_log_t					*p_log;
-	cl_plock_t					*p_lock;
+typedef struct _osm_mcast_mgr {
+	osm_subn_t *p_subn;
+	osm_req_t *p_req;
+	osm_log_t *p_log;
+	cl_plock_t *p_lock;
 
 } osm_mcast_mgr_t;
 /*
@@ -133,9 +129,7 @@ typedef struct _osm_mcast_mgr
 *
 * SYNOPSIS
 */
-void
-osm_mcast_mgr_construct(
-	IN osm_mcast_mgr_t* const p_mgr );
+void osm_mcast_mgr_construct(IN osm_mcast_mgr_t * const p_mgr);
 /*
 * PARAMETERS
 *	p_mgr
@@ -165,9 +159,7 @@ osm_mcast_mgr_construct(
 *
 * SYNOPSIS
 */
-void
-osm_mcast_mgr_destroy(
-	IN osm_mcast_mgr_t* const p_mgr );
+void osm_mcast_mgr_destroy(IN osm_mcast_mgr_t * const p_mgr);
 /*
 * PARAMETERS
 *	p_mgr
@@ -199,12 +191,10 @@ osm_mcast_mgr_destroy(
 * SYNOPSIS
 */
 ib_api_status_t
-osm_mcast_mgr_init(
-	IN osm_mcast_mgr_t* const p_mgr,
-	IN osm_req_t* const p_req,
-	IN osm_subn_t* const p_subn,
-	IN osm_log_t* const p_log,
-	IN cl_plock_t* const p_lock );
+osm_mcast_mgr_init(IN osm_mcast_mgr_t * const p_mgr,
+		   IN osm_req_t * const p_req,
+		   IN osm_subn_t * const p_subn,
+		   IN osm_log_t * const p_log, IN cl_plock_t * const p_lock);
 /*
 * PARAMETERS
 *	p_mgr
@@ -243,9 +233,7 @@ osm_mcast_mgr_init(
 *
 * SYNOPSIS
 */
-osm_signal_t
-osm_mcast_mgr_process(
-	IN osm_mcast_mgr_t* const p_mgr );
+osm_signal_t osm_mcast_mgr_process(IN osm_mcast_mgr_t * const p_mgr);
 /*
 * PARAMETERS
 *	p_mgr
@@ -275,9 +263,7 @@ osm_mcast_mgr_process(
 * SYNOPSIS
 */
 osm_signal_t
-osm_mcast_mgr_process_mgrp_cb(
-	IN void*					const Context1,
-	IN void*					const Context2 );
+osm_mcast_mgr_process_mgrp_cb(IN void *const Context1, IN void *const Context2);
 /*
 * PARAMETERS
 *	(Context1) p_mgr
@@ -306,11 +292,10 @@ osm_mcast_mgr_process_mgrp_cb(
 * SYNOPSIS
 */
 ib_api_status_t
-osm_mcast_mgr_process_single(
-	IN osm_mcast_mgr_t* const p_mgr,
-	IN const ib_net16_t mlid,
-	IN const ib_net64_t port_guid,
-	IN const uint8_t join_state );
+osm_mcast_mgr_process_single(IN osm_mcast_mgr_t * const p_mgr,
+			     IN const ib_net16_t mlid,
+			     IN const ib_net64_t port_guid,
+			     IN const uint8_t join_state);
 /*
 * PARAMETERS
 *	p_mgr
@@ -335,5 +320,4 @@ osm_mcast_mgr_process_single(
 *********/
 
 END_C_DECLS
-
-#endif	/* _OSM_MCAST_MGR_H_ */
+#endif				/* _OSM_MCAST_MGR_H_ */

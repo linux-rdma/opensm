@@ -59,13 +59,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* OpenSM/Router
 * NAME
 *	Router
@@ -85,7 +84,6 @@ BEGIN_C_DECLS
 *	Hal Rosenstock, Voltaire
 *
 *********/
-
 /****s* OpenSM: Router/osm_router_t
 * NAME
 *	osm_router_t
@@ -98,10 +96,9 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_router
-{
-	cl_map_item_t	map_item;
-	osm_port_t	*p_port;
+typedef struct _osm_router {
+	cl_map_item_t map_item;
+	osm_port_t *p_port;
 } osm_router_t;
 /*
 * FIELDS
@@ -124,9 +121,7 @@ typedef struct _osm_router
 *
 * SYNOPSIS
 */
-void
-osm_router_delete(
-	IN OUT osm_router_t** const pp_rtr );
+void osm_router_delete(IN OUT osm_router_t ** const pp_rtr);
 /*
 * PARAMETERS
 *	p_rtr
@@ -150,9 +145,7 @@ osm_router_delete(
 *
 * SYNOPSIS
 */
-osm_router_t*
-osm_router_new(
-	IN osm_port_t* const p_port );
+osm_router_t *osm_router_new(IN osm_port_t * const p_port);
 /*
 * PARAMETERS
 *	p_node
@@ -176,12 +169,12 @@ osm_router_new(
 *
 * SYNOPSIS
 */
-static inline osm_port_t*
-osm_router_get_port_ptr(
-        IN const osm_router_t* const p_rtr )
+static inline osm_port_t *osm_router_get_port_ptr(IN const osm_router_t *
+						  const p_rtr)
 {
-        return( p_rtr->p_port );
+	return (p_rtr->p_port);
 }
+
 /*
 * PARAMETERS
 *	p_rtr
@@ -205,12 +198,12 @@ osm_router_get_port_ptr(
 *
 * SYNOPSIS
 */
-static inline osm_node_t*
-osm_router_get_node_ptr(
-	IN const osm_router_t* const p_rtr )
+static inline osm_node_t *osm_router_get_node_ptr(IN const osm_router_t *
+						  const p_rtr)
 {
-	return( p_rtr->p_port->p_node );
+	return (p_rtr->p_port->p_node);
 }
+
 /*
 * PARAMETERS
 *	p_rtr
@@ -226,5 +219,4 @@ osm_router_get_node_ptr(
 *********/
 
 END_C_DECLS
-
-#endif /* _OSM_ROUTER_H_ */
+#endif				/* _OSM_ROUTER_H_ */

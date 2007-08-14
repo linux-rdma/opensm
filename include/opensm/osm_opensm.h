@@ -67,13 +67,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* OpenSM/OpenSM
 * NAME
 *	OpenSM
@@ -91,7 +90,6 @@ BEGIN_C_DECLS
 *	Steve King, Intel
 *
 *********/
-
 /****s* OpenSM: OpenSM/osm_routing_engine
 * NAME
 *	struct osm_routing_engine
@@ -105,10 +103,10 @@ BEGIN_C_DECLS
 struct osm_routing_engine {
 	const char *name;
 	void *context;
-	int (*build_lid_matrices)(void *context);
-	int (*ucast_build_fwd_tables)(void *context);
-	void (*ucast_dump_tables)(void *context);
-	void (*delete)(void *context);
+	int (*build_lid_matrices) (void *context);
+	int (*ucast_build_fwd_tables) (void *context);
+	void (*ucast_dump_tables) (void *context);
+	void (*delete) (void *context);
 };
 /*
 * FIELDS
@@ -133,13 +131,12 @@ struct osm_routing_engine {
 *		internals cleanup.
 */
 
-typedef struct _osm_console_t
-{
-  int   socket;
-  int   in_fd;
-  int   out_fd;
-  FILE *in;
-  FILE *out;
+typedef struct _osm_console_t {
+	int socket;
+	int in_fd;
+	int out_fd;
+	FILE *in;
+	FILE *out;
 } osm_console_t;
 
 /****s* OpenSM: OpenSM/osm_opensm_t
@@ -154,25 +151,24 @@ typedef struct _osm_console_t
 *
 * SYNOPSIS
 */
-typedef struct _osm_opensm_t
-{
-  osm_subn_t		subn;
-  osm_sm_t		sm;
-  osm_sa_t		sa;
+typedef struct _osm_opensm_t {
+	osm_subn_t subn;
+	osm_sm_t sm;
+	osm_sa_t sa;
 #ifdef ENABLE_OSM_PERF_MGR
-  osm_perfmgr_t         perfmgr;
-#endif /* ENABLE_OSM_PERF_MGR */
-  osm_epi_plugin_t     *event_plugin;
-  osm_db_t		db;
-  osm_mad_pool_t	mad_pool;
-  osm_vendor_t		*p_vendor;
-  osm_vl15_t		vl15;
-  osm_log_t		log;
-  cl_dispatcher_t	disp;
-  cl_plock_t		lock;
-  struct osm_routing_engine routing_engine;
-  osm_stats_t		stats;
-  osm_console_t		console;
+	osm_perfmgr_t perfmgr;
+#endif				/* ENABLE_OSM_PERF_MGR */
+	osm_epi_plugin_t *event_plugin;
+	osm_db_t db;
+	osm_mad_pool_t mad_pool;
+	osm_vendor_t *p_vendor;
+	osm_vl15_t vl15;
+	osm_log_t log;
+	cl_dispatcher_t disp;
+	cl_plock_t lock;
+	struct osm_routing_engine routing_engine;
+	osm_stats_t stats;
+	osm_console_t console;
 } osm_opensm_t;
 /*
 * FIELDS
@@ -226,8 +222,7 @@ typedef struct _osm_opensm_t
 *
 * SYNOPSIS
 */
-void osm_opensm_construct(
-	IN osm_opensm_t* const p_osm );
+void osm_opensm_construct(IN osm_opensm_t * const p_osm);
 /*
 * PARAMETERS
 *	p_osm
@@ -256,8 +251,7 @@ void osm_opensm_construct(
 *
 * SYNOPSIS
 */
-void osm_opensm_destroy(
-	IN osm_opensm_t* const p_osm );
+void osm_opensm_destroy(IN osm_opensm_t * const p_osm);
 /*
 * PARAMETERS
 *	p_osm
@@ -286,9 +280,8 @@ void osm_opensm_destroy(
 * SYNOPSIS
 */
 ib_api_status_t
-osm_opensm_init(
-	IN osm_opensm_t* const p_osm,
-	IN const osm_subn_opt_t* const p_opt );
+osm_opensm_init(IN osm_opensm_t * const p_osm,
+		IN const osm_subn_opt_t * const p_opt);
 /*
 * PARAMETERS
 *	p_osm
@@ -316,12 +309,11 @@ osm_opensm_init(
 *
 * SYNOPSIS
 */
-static inline void
-osm_opensm_sweep(
-	IN osm_opensm_t* const p_osm )
+static inline void osm_opensm_sweep(IN osm_opensm_t * const p_osm)
 {
-	osm_sm_sweep( &p_osm->sm );
+	osm_sm_sweep(&p_osm->sm);
 }
+
 /*
 * PARAMETERS
 *	p_osm
@@ -348,12 +340,12 @@ osm_opensm_sweep(
 * SYNOPSIS
 */
 static inline void
-osm_opensm_set_log_flags(
-	IN osm_opensm_t* const p_osm,
-	IN const osm_log_level_t log_flags )
+osm_opensm_set_log_flags(IN osm_opensm_t * const p_osm,
+			 IN const osm_log_level_t log_flags)
 {
-	osm_log_set_level( &p_osm->log, log_flags );
+	osm_log_set_level(&p_osm->log, log_flags);
 }
+
 /*
 * PARAMETERS
 *	p_osm
@@ -380,9 +372,7 @@ osm_opensm_set_log_flags(
 * SYNOPSIS
 */
 ib_api_status_t
-osm_opensm_bind(
-	IN osm_opensm_t* const p_osm,
-	IN const ib_net64_t guid );
+osm_opensm_bind(IN osm_opensm_t * const p_osm, IN const ib_net64_t guid);
 /*
 * PARAMETERS
 *	p_osm
@@ -410,13 +400,13 @@ osm_opensm_bind(
 * SYNOPSIS
 */
 static inline cl_status_t
-osm_opensm_wait_for_subnet_up(
-	IN osm_opensm_t*			const p_osm,
-	IN uint32_t				const wait_us,
-	IN boolean_t				const interruptible )
+osm_opensm_wait_for_subnet_up(IN osm_opensm_t * const p_osm,
+			      IN uint32_t const wait_us,
+			      IN boolean_t const interruptible)
 {
-	return( osm_sm_wait_for_subnet_up( &p_osm->sm, wait_us, interruptible ) );
+	return (osm_sm_wait_for_subnet_up(&p_osm->sm, wait_us, interruptible));
 }
+
 /*
 * PARAMETERS
 *	p_osm
@@ -445,8 +435,8 @@ osm_opensm_wait_for_subnet_up(
 *********/
 
 /* dump helpers */
-void osm_dump_mcast_routes(osm_opensm_t *osm);
-void osm_dump_all(osm_opensm_t *osm);
+void osm_dump_mcast_routes(osm_opensm_t * osm);
+void osm_dump_all(osm_opensm_t * osm);
 
 /****v* OpenSM/osm_exit_flag
 */
@@ -457,5 +447,4 @@ extern volatile unsigned int osm_exit_flag;
 *********/
 
 END_C_DECLS
-
-#endif	/* _OSM_OPENSM_H_ */
+#endif				/* _OSM_OPENSM_H_ */

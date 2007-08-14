@@ -60,13 +60,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* OpenSM/Multicast Group
 * NAME
 *	Multicast Group
@@ -86,7 +85,6 @@ BEGIN_C_DECLS
 *	Steve King, Intel
 *
 *********/
-
 /****f* IBA Base: OpneSM: Multicast Group/osm_get_mcast_req_type_str
 * NAME
 *	osm_get_mcast_req_type_str
@@ -96,9 +94,7 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-const char*
-osm_get_mcast_req_type_str(
-  IN osm_mcast_req_type_t  req_type );
+const char *osm_get_mcast_req_type_str(IN osm_mcast_req_type_t req_type);
 /*
 * PARAMETERS
 *	req_type
@@ -124,11 +120,10 @@ osm_get_mcast_req_type_str(
 *
 * SYNOPSIS
 */
-typedef struct osm_mcast_mgr_ctxt
-{
-	ib_net16_t		mlid;
-	osm_mcast_req_type_t	req_type;
-	ib_net64_t		port_guid;
+typedef struct osm_mcast_mgr_ctxt {
+	ib_net16_t mlid;
+	osm_mcast_req_type_t req_type;
+	ib_net64_t port_guid;
 } osm_mcast_mgr_ctxt_t;
 /*
 * FIELDS
@@ -159,17 +154,16 @@ typedef struct osm_mcast_mgr_ctxt
 *
 * SYNOPSIS
 */
-typedef struct _osm_mgrp
-{
-	cl_map_item_t		map_item;
-	ib_net16_t		mlid;
-	osm_mtree_node_t	*p_root;
-	cl_qmap_t		mcm_port_tbl;
-	ib_member_rec_t		mcmember_rec;
-	boolean_t		well_known;
-	boolean_t		to_be_deleted;
-	uint32_t		last_change_id;
-	uint32_t		last_tree_id;
+typedef struct _osm_mgrp {
+	cl_map_item_t map_item;
+	ib_net16_t mlid;
+	osm_mtree_node_t *p_root;
+	cl_qmap_t mcm_port_tbl;
+	ib_member_rec_t mcmember_rec;
+	boolean_t well_known;
+	boolean_t to_be_deleted;
+	uint32_t last_change_id;
+	uint32_t last_tree_id;
 } osm_mgrp_t;
 /*
 * FIELDS
@@ -223,10 +217,9 @@ typedef struct _osm_mgrp
 *
 * SYNOPSIS
 */
-typedef	void (*osm_mgrp_func_t)(
-	IN const osm_mgrp_t* const p_mgrp,
-	IN const osm_mtree_node_t* const p_mtn,
-	IN void* context );
+typedef void (*osm_mgrp_func_t) (IN const osm_mgrp_t * const p_mgrp,
+				 IN const osm_mtree_node_t * const p_mtn,
+				 IN void *context);
 /*
 * PARAMETERS
 *	p_mgrp
@@ -255,9 +248,7 @@ typedef	void (*osm_mgrp_func_t)(
 *
 * SYNOPSIS
 */
-osm_mgrp_t*
-osm_mgrp_new(
-	IN const ib_net16_t mlid );
+osm_mgrp_t *osm_mgrp_new(IN const ib_net16_t mlid);
 /*
 * PARAMETERS
 *	mlid
@@ -282,9 +273,7 @@ osm_mgrp_new(
 *
 * SYNOPSIS
 */
-void
-osm_mgrp_delete(
-	IN osm_mgrp_t* const p_mgrp );
+void osm_mgrp_delete(IN osm_mgrp_t * const p_mgrp);
 /*
 * PARAMETERS
 *	p_mgrp
@@ -309,13 +298,13 @@ osm_mgrp_delete(
 * SYNOPSIS
 */
 static inline boolean_t
-osm_mgrp_is_guid(
-	IN const osm_mgrp_t* const p_mgrp,
-	IN const ib_net64_t port_guid )
+osm_mgrp_is_guid(IN const osm_mgrp_t * const p_mgrp,
+		 IN const ib_net64_t port_guid)
 {
-	return( cl_qmap_get( &p_mgrp->mcm_port_tbl, port_guid ) !=
-			cl_qmap_end( &p_mgrp->mcm_port_tbl ) );
+	return (cl_qmap_get(&p_mgrp->mcm_port_tbl, port_guid) !=
+		cl_qmap_end(&p_mgrp->mcm_port_tbl));
 }
+
 /*
 * PARAMETERS
 *	p_mgrp
@@ -343,12 +332,11 @@ osm_mgrp_is_guid(
 *
 * SYNOPSIS
 */
-static inline boolean_t
-osm_mgrp_is_empty(
-	IN const osm_mgrp_t* const p_mgrp )
+static inline boolean_t osm_mgrp_is_empty(IN const osm_mgrp_t * const p_mgrp)
 {
-	return( cl_qmap_count( &p_mgrp->mcm_port_tbl ) == 0 );
+	return (cl_qmap_count(&p_mgrp->mcm_port_tbl) == 0);
 }
+
 /*
 * PARAMETERS
 *	p_mgrp
@@ -373,12 +361,11 @@ osm_mgrp_is_empty(
 *
 * SYNOPSIS
 */
-static inline ib_net16_t
-osm_mgrp_get_mlid(
-	IN const osm_mgrp_t* const p_mgrp )
+static inline ib_net16_t osm_mgrp_get_mlid(IN const osm_mgrp_t * const p_mgrp)
 {
-	return( p_mgrp->mlid );
+	return (p_mgrp->mlid);
 }
+
 /*
 * PARAMETERS
 *	p_mgrp
@@ -402,12 +389,10 @@ osm_mgrp_get_mlid(
 *
 * SYNOPSIS
 */
-osm_mcm_port_t*
-osm_mgrp_add_port(
-	IN osm_mgrp_t* const p_mgrp,
-	IN const ib_gid_t* const p_port_gid,
-	IN const uint8_t join_state,
-   IN boolean_t     proxy_join);
+osm_mcm_port_t *osm_mgrp_add_port(IN osm_mgrp_t * const p_mgrp,
+				  IN const ib_gid_t * const p_port_gid,
+				  IN const uint8_t join_state,
+				  IN boolean_t proxy_join);
 /*
 * PARAMETERS
 *	p_mgrp
@@ -439,10 +424,9 @@ osm_mgrp_add_port(
 */
 
 boolean_t
-osm_mgrp_is_port_present(
-	IN const osm_mgrp_t* const p_mgrp,
-	IN const ib_net64_t port_guid,
-	OUT osm_mcm_port_t ** const pp_mcm_port);
+osm_mgrp_is_port_present(IN const osm_mgrp_t * const p_mgrp,
+			 IN const ib_net64_t port_guid,
+			 OUT osm_mcm_port_t ** const pp_mcm_port);
 /*
 * PARAMETERS
 *	p_mgrp
@@ -474,11 +458,10 @@ osm_mgrp_is_port_present(
 * SYNOPSIS
 */
 void
-osm_mgrp_remove_port(
-	IN osm_subn_t* const p_subn,
-	IN osm_log_t* const p_log,
-	IN osm_mgrp_t* const p_mgrp,
-	IN const ib_net64_t port_guid );
+osm_mgrp_remove_port(IN osm_subn_t * const p_subn,
+		     IN osm_log_t * const p_log,
+		     IN osm_mgrp_t * const p_mgrp,
+		     IN const ib_net64_t port_guid);
 /*
 * PARAMETERS
 *
@@ -512,15 +495,15 @@ osm_mgrp_remove_port(
 *
 * SYNOPSIS
 */
-static inline osm_switch_t*
-osm_mgrp_get_root_switch(
-	IN const osm_mgrp_t* const p_mgrp )
+static inline osm_switch_t *osm_mgrp_get_root_switch(IN const osm_mgrp_t *
+						     const p_mgrp)
 {
-	if( p_mgrp->p_root )
-		return( p_mgrp->p_root->p_sw );
+	if (p_mgrp->p_root)
+		return (p_mgrp->p_root->p_sw);
 	else
-		return( NULL );
+		return (NULL);
 }
+
 /*
 * PARAMETERS
 *	p_mgrp
@@ -547,9 +530,8 @@ osm_mgrp_get_root_switch(
 * SYNOPSIS
 */
 float
-osm_mgrp_compute_avg_hops(
-	const osm_mgrp_t* const p_mgrp,
-	const osm_switch_t* const p_sw );
+osm_mgrp_compute_avg_hops(const osm_mgrp_t * const p_mgrp,
+			  const osm_switch_t * const p_sw);
 /*
 * PARAMETERS
 *	p_mgrp
@@ -579,10 +561,8 @@ osm_mgrp_compute_avg_hops(
 * SYNOPSIS
 */
 void
-osm_mgrp_apply_func(
-	const osm_mgrp_t* const p_mgrp,
-	osm_mgrp_func_t p_func,
-	void* context );
+osm_mgrp_apply_func(const osm_mgrp_t * const p_mgrp,
+		    osm_mgrp_func_t p_func, void *context);
 /*
 * PARAMETERS
 *	p_mgrp
@@ -614,10 +594,8 @@ osm_mgrp_apply_func(
 * SYNOPSIS
 */
 void
-osm_mgrp_send_delete_notice(
-	IN osm_subn_t* const p_subn,
-   IN osm_log_t* const p_log,
-   IN osm_mgrp_t *p_mgrp );
+osm_mgrp_send_delete_notice(IN osm_subn_t * const p_subn,
+			    IN osm_log_t * const p_log, IN osm_mgrp_t * p_mgrp);
 /*
 * PARAMETERS
 *	p_subn
@@ -648,10 +626,8 @@ osm_mgrp_send_delete_notice(
 * SYNOPSIS
 */
 void
-osm_mgrp_send_create_notice(
-	IN osm_subn_t* const p_subn,
-   IN osm_log_t* const p_log,
-   IN osm_mgrp_t *p_mgrp );
+osm_mgrp_send_create_notice(IN osm_subn_t * const p_subn,
+			    IN osm_log_t * const p_log, IN osm_mgrp_t * p_mgrp);
 /*
 * PARAMETERS
 *	p_subn
@@ -673,5 +649,4 @@ osm_mgrp_send_create_notice(
 *********/
 
 END_C_DECLS
-
-#endif		/* _OSM_MULTICAST_H_ */
+#endif				/* _OSM_MULTICAST_H_ */

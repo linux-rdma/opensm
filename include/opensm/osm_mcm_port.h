@@ -55,13 +55,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****s* OpenSM: MCM Port Object/osm_mcm_port_t
 * NAME
 *   osm_mcm_port_t
@@ -75,12 +74,11 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_mcm_port
-{
-	cl_map_item_t	map_item;
-	ib_gid_t	port_gid;
-	uint8_t		scope_state;
-	boolean_t	proxy_join;
+typedef struct _osm_mcm_port {
+	cl_map_item_t map_item;
+	ib_gid_t port_gid;
+	uint8_t scope_state;
+	boolean_t proxy_join;
 } osm_mcm_port_t;
 /*
 * FIELDS
@@ -113,11 +111,9 @@ typedef struct _osm_mcm_port
 *
 * SYNOPSIS
 */
-osm_mcm_port_t*
-osm_mcm_port_new(
-	IN const ib_gid_t* const p_port_gid,
-	IN const uint8_t   scope_state,
-	IN const boolean_t proxy_join );
+osm_mcm_port_t *osm_mcm_port_new(IN const ib_gid_t * const p_port_gid,
+				 IN const uint8_t scope_state,
+				 IN const boolean_t proxy_join);
 /*
 * PARAMETERS
 *	p_port_gid
@@ -148,9 +144,7 @@ osm_mcm_port_new(
 *
 * SYNOPSIS
 */
-void
-osm_mcm_port_delete(
-	IN osm_mcm_port_t* const p_mcm );
+void osm_mcm_port_delete(IN osm_mcm_port_t * const p_mcm);
 /*
 * PARAMETERS
 *	p_mcm
@@ -166,5 +160,4 @@ osm_mcm_port_delete(
 *********/
 
 END_C_DECLS
-
-#endif		/* _OSM_MCM_PORT_H_ */
+#endif				/* _OSM_MCM_PORT_H_ */

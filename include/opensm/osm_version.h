@@ -39,13 +39,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****s* OpenSM: Base/OSM_VERSION
 * NAME
 *	OSM_VERSION
@@ -57,7 +56,5 @@ BEGIN_C_DECLS
 */
 #define OSM_VERSION "OpenSM Rev:openib-3.1.4"
 /********/
-
 END_C_DECLS
-
-#endif	/* _OSM_VERSION_H_ */
+#endif				/* _OSM_VERSION_H_ */

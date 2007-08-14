@@ -59,13 +59,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* OpenSM/Slvl Map Receiver
 * NAME
 *	Slvl Map Receiver
@@ -83,7 +82,6 @@ BEGIN_C_DECLS
 *	Eitan Zahavi, Mellanox
 *
 *********/
-
 /****s* OpenSM: Slvl Map Receiver/osm_slvl_rcv_t
 * NAME
 *	osm_slvl_rcv_t
@@ -96,12 +94,11 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_slvl_rcv
-{
-	osm_subn_t	*p_subn;
-	osm_req_t	*p_req;
-	osm_log_t	*p_log;
-	cl_plock_t	*p_lock;
+typedef struct _osm_slvl_rcv {
+	osm_subn_t *p_subn;
+	osm_req_t *p_req;
+	osm_log_t *p_log;
+	cl_plock_t *p_lock;
 } osm_slvl_rcv_t;
 /*
 * FIELDS
@@ -130,8 +127,7 @@ typedef struct _osm_slvl_rcv
 *
 * SYNOPSIS
 */
-void osm_slvl_rcv_construct(
-	IN osm_slvl_rcv_t* const p_ctrl );
+void osm_slvl_rcv_construct(IN osm_slvl_rcv_t * const p_ctrl);
 /*
 * PARAMETERS
 *	p_ctrl
@@ -161,8 +157,7 @@ void osm_slvl_rcv_construct(
 *
 * SYNOPSIS
 */
-void osm_slvl_rcv_destroy(
-	IN osm_slvl_rcv_t* const p_ctrl );
+void osm_slvl_rcv_destroy(IN osm_slvl_rcv_t * const p_ctrl);
 /*
 * PARAMETERS
 *	p_ctrl
@@ -193,12 +188,11 @@ void osm_slvl_rcv_destroy(
 *
 * SYNOPSIS
 */
-ib_api_status_t osm_slvl_rcv_init(
-	IN osm_slvl_rcv_t* const p_ctrl,
-	IN osm_req_t* const p_req,
-	IN osm_subn_t* const p_subn,
-	IN osm_log_t* const p_log,
-	IN cl_plock_t* const p_lock );
+ib_api_status_t osm_slvl_rcv_init(IN osm_slvl_rcv_t * const p_ctrl,
+				  IN osm_req_t * const p_req,
+				  IN osm_subn_t * const p_subn,
+				  IN osm_log_t * const p_log,
+				  IN cl_plock_t * const p_lock);
 /*
 * PARAMETERS
 *	p_ctrl
@@ -237,9 +231,7 @@ ib_api_status_t osm_slvl_rcv_init(
 *
 * SYNOPSIS
 */
-void osm_slvl_rcv_process(
-	IN void* context,
-	IN void* p_data );
+void osm_slvl_rcv_process(IN void *context, IN void *p_data);
 /*
 * PARAMETERS
 *	context
@@ -260,5 +252,4 @@ void osm_slvl_rcv_process(
 *********/
 
 END_C_DECLS
-
-#endif	/* _OSM_SLVL_RCV_H_ */
+#endif				/* _OSM_SLVL_RCV_H_ */

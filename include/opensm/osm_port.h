@@ -61,13 +61,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /*
 	Forward references.
 */
@@ -109,21 +108,20 @@ struct _osm_node;
 *
 * SYNOPSIS
 */
-typedef struct _osm_physp
-{
-	ib_port_info_t		port_info;
-	ib_net64_t		port_guid;
-	uint8_t			port_num;
-	struct _osm_node	*p_node;
-	struct _osm_physp	*p_remote_physp;
-	boolean_t		healthy;
-	uint8_t			vl_high_limit;
-	unsigned		need_update;
-	osm_dr_path_t		dr_path;
-	osm_pkey_tbl_t		pkeys;
-	ib_vl_arb_table_t	vl_arb[4];
-	cl_ptr_vector_t		slvl_by_port;
-	boolean_t		got_set_resp;
+typedef struct _osm_physp {
+	ib_port_info_t port_info;
+	ib_net64_t port_guid;
+	uint8_t port_num;
+	struct _osm_node *p_node;
+	struct _osm_physp *p_remote_physp;
+	boolean_t healthy;
+	uint8_t vl_high_limit;
+	unsigned need_update;
+	osm_dr_path_t dr_path;
+	osm_pkey_tbl_t pkeys;
+	ib_vl_arb_table_t vl_arb[4];
+	cl_ptr_vector_t slvl_by_port;
+	boolean_t got_set_resp;
 } osm_physp_t;
 /*
 * FIELDS
@@ -199,9 +197,7 @@ typedef struct _osm_physp
 *
 * SYNOPSIS
 */
-void
-osm_physp_construct(
-	IN osm_physp_t* const p_physp );
+void osm_physp_construct(IN osm_physp_t * const p_physp);
 /*
 * PARAMETERS
 *	p_physp
@@ -226,14 +222,13 @@ osm_physp_construct(
 * SYNOPSIS
 */
 void
-osm_physp_init(
-	IN osm_physp_t* const p_physp,
-	IN const ib_net64_t port_guid,
-	IN const uint8_t port_num,
-	IN const struct _osm_node* const p_node,
-	IN const osm_bind_handle_t h_bind,
-	IN const uint8_t hop_count,
-	IN const uint8_t* const p_initial_path );
+osm_physp_init(IN osm_physp_t * const p_physp,
+	       IN const ib_net64_t port_guid,
+	       IN const uint8_t port_num,
+	       IN const struct _osm_node *const p_node,
+	       IN const osm_bind_handle_t h_bind,
+	       IN const uint8_t hop_count,
+	       IN const uint8_t * const p_initial_path);
 /*
 * PARAMETERS
 *	p_physp
@@ -281,9 +276,7 @@ osm_physp_init(
 *
 * SYNOPSIS
 */
-void
-osm_physp_destroy(
-  IN osm_physp_t* const p_physp );
+void osm_physp_destroy(IN osm_physp_t * const p_physp);
 /*
 * PARAMETERS
 *	p_port
@@ -312,13 +305,12 @@ osm_physp_destroy(
 *
 * SYNOPSIS
 */
-static inline boolean_t
-osm_physp_is_valid(
-	IN const osm_physp_t* const p_physp )
+static inline boolean_t osm_physp_is_valid(IN const osm_physp_t * const p_physp)
 {
-	CL_ASSERT( p_physp );
-	return( p_physp->port_guid != 0 );
+	CL_ASSERT(p_physp);
+	return (p_physp->port_guid != 0);
 }
+
 /*
 * PARAMETERS
 *	p_physp
@@ -345,12 +337,12 @@ osm_physp_is_valid(
 * SYNOPSIS
 */
 static inline boolean_t
-osm_physp_is_healthy(
-	IN const osm_physp_t* const p_physp )
+osm_physp_is_healthy(IN const osm_physp_t * const p_physp)
 {
-	CL_ASSERT( p_physp );
-	return( p_physp->healthy );
+	CL_ASSERT(p_physp);
+	return (p_physp->healthy);
 }
+
 /*
 * PARAMETERS
 *	p_physp
@@ -379,9 +371,7 @@ osm_physp_is_healthy(
 *
 * SYNOPSIS
 */
-boolean_t
-osm_link_is_healthy(
-  IN const osm_physp_t* const p_physp );
+boolean_t osm_link_is_healthy(IN const osm_physp_t * const p_physp);
 /*
 * PARAMETERS
 *	p_physp
@@ -409,13 +399,12 @@ osm_link_is_healthy(
 * SYNOPSIS
 */
 static inline void
-osm_physp_set_health(
-  IN osm_physp_t* const p_physp,
-  IN boolean_t is_healthy )
+osm_physp_set_health(IN osm_physp_t * const p_physp, IN boolean_t is_healthy)
 {
-	CL_ASSERT( p_physp );
+	CL_ASSERT(p_physp);
 	p_physp->healthy = is_healthy;
 }
+
 /*
 * PARAMETERS
 *	p_physp
@@ -446,26 +435,24 @@ osm_physp_set_health(
 * SYNOPSIS
 */
 static inline void
-osm_physp_set_port_info(
-	IN osm_physp_t* const p_physp,
-	IN const ib_port_info_t* const p_pi )
+osm_physp_set_port_info(IN osm_physp_t * const p_physp,
+			IN const ib_port_info_t * const p_pi)
 {
-	CL_ASSERT( p_pi );
-	CL_ASSERT( osm_physp_is_valid( p_physp ) );
+	CL_ASSERT(p_pi);
+	CL_ASSERT(osm_physp_is_valid(p_physp));
 
-	if (ib_port_info_get_port_state(p_pi) == IB_LINK_DOWN)
-	{
-	  /* If PortState is down, only copy PortState */
-	  /* and PortPhysicalState per C14-24-2.1 */
-	  ib_port_info_set_port_state(&p_physp->port_info, IB_LINK_DOWN);
-	  ib_port_info_set_port_phys_state(
-		ib_port_info_get_port_phys_state(p_pi), &p_physp->port_info);
-	}
-	else
-	{
-	  p_physp->port_info = *p_pi;
+	if (ib_port_info_get_port_state(p_pi) == IB_LINK_DOWN) {
+		/* If PortState is down, only copy PortState */
+		/* and PortPhysicalState per C14-24-2.1 */
+		ib_port_info_set_port_state(&p_physp->port_info, IB_LINK_DOWN);
+		ib_port_info_set_port_phys_state
+		    (ib_port_info_get_port_phys_state(p_pi),
+		     &p_physp->port_info);
+	} else {
+		p_physp->port_info = *p_pi;
 	}
 }
+
 /*
 * PARAMETERS
 *	p_physp
@@ -494,20 +481,19 @@ osm_physp_set_port_info(
 * SYNOPSIS
 */
 static inline ib_net16_t
-osm_physp_trim_base_lid_to_valid_range(
-	IN osm_physp_t* const p_physp )
+osm_physp_trim_base_lid_to_valid_range(IN osm_physp_t * const p_physp)
 {
 	ib_net16_t orig_lid = 0;
 
-	CL_ASSERT( osm_physp_is_valid( p_physp ) );
-	if ( ( cl_ntoh16( p_physp->port_info.base_lid ) > IB_LID_UCAST_END_HO ) ||
-             ( cl_ntoh16( p_physp->port_info.base_lid ) < IB_LID_UCAST_START_HO ) )
-	{
+	CL_ASSERT(osm_physp_is_valid(p_physp));
+	if ((cl_ntoh16(p_physp->port_info.base_lid) > IB_LID_UCAST_END_HO) ||
+	    (cl_ntoh16(p_physp->port_info.base_lid) < IB_LID_UCAST_START_HO)) {
 		orig_lid = p_physp->port_info.base_lid;
 		p_physp->port_info.base_lid = 0;
 	}
 	return orig_lid;
 }
+
 /*
 * PARAMETERS
 *	p_physp
@@ -533,11 +519,10 @@ osm_physp_trim_base_lid_to_valid_range(
 * SYNOPSIS
 */
 void
-osm_physp_set_pkey_tbl( IN osm_log_t* p_log,
-                        IN const osm_subn_t* p_subn,
-                        IN osm_physp_t* const p_physp,
-                        IN ib_pkey_table_t *p_pkey_tbl,
-                        IN uint16_t block_num );
+osm_physp_set_pkey_tbl(IN osm_log_t * p_log,
+		       IN const osm_subn_t * p_subn,
+		       IN osm_physp_t * const p_physp,
+		       IN ib_pkey_table_t * p_pkey_tbl, IN uint16_t block_num);
 /*
 * PARAMETERS
 *	p_log
@@ -576,16 +561,17 @@ osm_physp_set_pkey_tbl( IN osm_log_t* p_log,
 *
 * SYNOPSIS
 */
-static inline const osm_pkey_tbl_t *
-osm_physp_get_pkey_tbl( IN const osm_physp_t* const p_physp )
+static inline const osm_pkey_tbl_t *osm_physp_get_pkey_tbl(IN const osm_physp_t
+							   * const p_physp)
 {
-  CL_ASSERT( osm_physp_is_valid( p_physp ) );
-  /*
-    (14.2.5.7) - the block number valid values are 0-2047, and are further
-    limited by the size of the P_Key table specified by the PartitionCap on the node.
-  */
-  return( &p_physp->pkeys );
+	CL_ASSERT(osm_physp_is_valid(p_physp));
+	/*
+	   (14.2.5.7) - the block number valid values are 0-2047, and are further
+	   limited by the size of the P_Key table specified by the PartitionCap on the node.
+	 */
+	return (&p_physp->pkeys);
 };
+
 /*
 * PARAMETERS
 *	p_physp
@@ -609,16 +595,17 @@ osm_physp_get_pkey_tbl( IN const osm_physp_t* const p_physp )
 *
 * SYNOPSIS
 */
-static inline osm_pkey_tbl_t *
-osm_physp_get_mod_pkey_tbl( IN osm_physp_t* const p_physp )
+static inline osm_pkey_tbl_t *osm_physp_get_mod_pkey_tbl(IN osm_physp_t *
+							 const p_physp)
 {
-  CL_ASSERT( osm_physp_is_valid( p_physp ) );
-  /*
-    (14.2.5.7) - the block number valid values are 0-2047, and are further
-    limited by the size of the P_Key table specified by the PartitionCap on the node.
-  */
-  return( &p_physp->pkeys );
+	CL_ASSERT(osm_physp_is_valid(p_physp));
+	/*
+	   (14.2.5.7) - the block number valid values are 0-2047, and are further
+	   limited by the size of the P_Key table specified by the PartitionCap on the node.
+	 */
+	return (&p_physp->pkeys);
 };
+
 /*
 * PARAMETERS
 *	p_physp
@@ -643,17 +630,17 @@ osm_physp_get_mod_pkey_tbl( IN osm_physp_t* const p_physp )
 * SYNOPSIS
 */
 static inline void
-osm_physp_set_slvl_tbl( IN osm_physp_t* const p_physp,
-			IN ib_slvl_table_t *p_slvl_tbl,
-			IN uint8_t in_port_num )
+osm_physp_set_slvl_tbl(IN osm_physp_t * const p_physp,
+		       IN ib_slvl_table_t * p_slvl_tbl, IN uint8_t in_port_num)
 {
-  ib_slvl_table_t *p_tbl;
+	ib_slvl_table_t *p_tbl;
 
-  CL_ASSERT( p_slvl_tbl );
-  CL_ASSERT( osm_physp_is_valid( p_physp ) );
-  p_tbl = cl_ptr_vector_get(&p_physp->slvl_by_port, in_port_num);
-  *p_tbl = *p_slvl_tbl;
+	CL_ASSERT(p_slvl_tbl);
+	CL_ASSERT(osm_physp_is_valid(p_physp));
+	p_tbl = cl_ptr_vector_get(&p_physp->slvl_by_port, in_port_num);
+	*p_tbl = *p_slvl_tbl;
 }
+
 /*
 * PARAMETERS
 *	p_physp
@@ -683,16 +670,17 @@ osm_physp_set_slvl_tbl( IN osm_physp_t* const p_physp,
 *
 * SYNOPSIS
 */
-static inline ib_slvl_table_t *
-osm_physp_get_slvl_tbl( IN const osm_physp_t* const p_physp,
-			IN uint8_t in_port_num )
+static inline ib_slvl_table_t *osm_physp_get_slvl_tbl(IN const osm_physp_t *
+						      const p_physp,
+						      IN uint8_t in_port_num)
 {
-  ib_slvl_table_t *p_tbl;
+	ib_slvl_table_t *p_tbl;
 
-  CL_ASSERT( osm_physp_is_valid( p_physp ) );
-  p_tbl = cl_ptr_vector_get(&p_physp->slvl_by_port, in_port_num);
-  return(p_tbl);
+	CL_ASSERT(osm_physp_is_valid(p_physp));
+	p_tbl = cl_ptr_vector_get(&p_physp->slvl_by_port, in_port_num);
+	return (p_tbl);
 }
+
 /*
 * PARAMETERS
 *	p_physp
@@ -720,15 +708,15 @@ osm_physp_get_slvl_tbl( IN const osm_physp_t* const p_physp,
 * SYNOPSIS
 */
 static inline void
-osm_physp_set_vla_tbl( IN osm_physp_t* const p_physp,
-		       IN ib_vl_arb_table_t *p_vla_tbl,
-		       IN uint8_t block_num )
+osm_physp_set_vla_tbl(IN osm_physp_t * const p_physp,
+		      IN ib_vl_arb_table_t * p_vla_tbl, IN uint8_t block_num)
 {
-  CL_ASSERT( p_vla_tbl );
-  CL_ASSERT( osm_physp_is_valid( p_physp ) );
-  CL_ASSERT( (1 <= block_num) && (block_num <= 4));
-  p_physp->vl_arb[block_num - 1] = *p_vla_tbl;
+	CL_ASSERT(p_vla_tbl);
+	CL_ASSERT(osm_physp_is_valid(p_physp));
+	CL_ASSERT((1 <= block_num) && (block_num <= 4));
+	p_physp->vl_arb[block_num - 1] = *p_vla_tbl;
 }
+
 /*
 * PARAMETERS
 *	p_physp
@@ -759,14 +747,15 @@ osm_physp_set_vla_tbl( IN osm_physp_t* const p_physp,
 *
 * SYNOPSIS
 */
-static inline ib_vl_arb_table_t *
-osm_physp_get_vla_tbl( IN osm_physp_t* const p_physp,
-		       IN uint8_t block_num )
+static inline ib_vl_arb_table_t *osm_physp_get_vla_tbl(IN osm_physp_t *
+						       const p_physp,
+						       IN uint8_t block_num)
 {
-  CL_ASSERT( osm_physp_is_valid( p_physp ) );
-  CL_ASSERT( (1 <= block_num) && (block_num <= 4));
-  return(& (p_physp->vl_arb[block_num - 1]));
+	CL_ASSERT(osm_physp_is_valid(p_physp));
+	CL_ASSERT((1 <= block_num) && (block_num <= 4));
+	return (&(p_physp->vl_arb[block_num - 1]));
 }
+
 /*
 * PARAMETERS
 *	p_physp
@@ -794,13 +783,13 @@ osm_physp_get_vla_tbl( IN osm_physp_t* const p_physp,
 *
 * SYNOPSIS
 */
-static inline osm_physp_t*
-osm_physp_get_remote(
-	IN const osm_physp_t* const p_physp )
+static inline osm_physp_t *osm_physp_get_remote(IN const osm_physp_t *
+						const p_physp)
 {
-	CL_ASSERT( osm_physp_is_valid( p_physp ) );
-	return( p_physp->p_remote_physp );
+	CL_ASSERT(osm_physp_is_valid(p_physp));
+	return (p_physp->p_remote_physp);
 }
+
 /*
 * PARAMETERS
 *	p_physp
@@ -826,12 +815,12 @@ osm_physp_get_remote(
 * SYNOPSIS
 */
 static inline ib_net64_t
-osm_physp_get_port_guid(
-	IN const osm_physp_t* const p_physp )
+osm_physp_get_port_guid(IN const osm_physp_t * const p_physp)
 {
-	CL_ASSERT( osm_physp_is_valid( p_physp ) );
-	return( p_physp->port_guid );
+	CL_ASSERT(osm_physp_is_valid(p_physp));
+	return (p_physp->port_guid);
 }
+
 /*
 * PARAMETERS
 *	p_physp
@@ -856,12 +845,12 @@ osm_physp_get_port_guid(
 * SYNOPSIS
 */
 static inline ib_net64_t
-osm_physp_get_subnet_prefix(
-	IN const osm_physp_t* const p_physp )
+osm_physp_get_subnet_prefix(IN const osm_physp_t * const p_physp)
 {
-	CL_ASSERT( osm_physp_is_valid( p_physp ) );
-	return( p_physp->port_info.subnet_prefix );
+	CL_ASSERT(osm_physp_is_valid(p_physp));
+	return (p_physp->port_info.subnet_prefix);
 }
+
 /*
 * PARAMETERS
 *	p_physp
@@ -887,17 +876,17 @@ osm_physp_get_subnet_prefix(
 * SYNOPSIS
 */
 static inline boolean_t
-osm_physp_link_exists(
-	IN const osm_physp_t* const p_physp,
-	IN const osm_physp_t* const p_remote_physp )
+osm_physp_link_exists(IN const osm_physp_t * const p_physp,
+		      IN const osm_physp_t * const p_remote_physp)
 {
-	CL_ASSERT( p_physp );
-	CL_ASSERT( osm_physp_is_valid( p_physp ) );
-	CL_ASSERT( p_remote_physp );
-	CL_ASSERT( osm_physp_is_valid( p_remote_physp ) );
-	return(  (p_physp->p_remote_physp == p_remote_physp ) &&
-			(p_remote_physp->p_remote_physp == p_physp ) );
+	CL_ASSERT(p_physp);
+	CL_ASSERT(osm_physp_is_valid(p_physp));
+	CL_ASSERT(p_remote_physp);
+	CL_ASSERT(osm_physp_is_valid(p_remote_physp));
+	return ((p_physp->p_remote_physp == p_remote_physp) &&
+		(p_remote_physp->p_remote_physp == p_physp));
 }
+
 /*
 * PARAMETERS
 *	p_physp
@@ -926,15 +915,15 @@ osm_physp_link_exists(
 * SYNOPSIS
 */
 static inline void
-osm_physp_link(
-	IN osm_physp_t* const p_physp,
-	IN osm_physp_t* const p_remote_physp )
+osm_physp_link(IN osm_physp_t * const p_physp,
+	       IN osm_physp_t * const p_remote_physp)
 {
-	CL_ASSERT( p_physp );
-	CL_ASSERT( p_remote_physp );
+	CL_ASSERT(p_physp);
+	CL_ASSERT(p_remote_physp);
 	p_physp->p_remote_physp = p_remote_physp;
 	p_remote_physp->p_remote_physp = p_physp;
 }
+
 /*
 * PARAMETERS
 *	p_physp
@@ -962,16 +951,16 @@ osm_physp_link(
 * SYNOPSIS
 */
 static inline void
-osm_physp_unlink(
-	IN osm_physp_t* const p_physp,
-	IN osm_physp_t* const p_remote_physp )
+osm_physp_unlink(IN osm_physp_t * const p_physp,
+		 IN osm_physp_t * const p_remote_physp)
 {
-	CL_ASSERT( p_physp );
-	CL_ASSERT( p_remote_physp );
-	CL_ASSERT( osm_physp_link_exists( p_physp, p_remote_physp ) );
+	CL_ASSERT(p_physp);
+	CL_ASSERT(p_remote_physp);
+	CL_ASSERT(osm_physp_link_exists(p_physp, p_remote_physp));
 	p_physp->p_remote_physp = NULL;
 	p_remote_physp->p_remote_physp = NULL;
 }
+
 /*
 * PARAMETERS
 *	p_physp
@@ -1000,15 +989,15 @@ osm_physp_unlink(
 * SYNOPSIS
 */
 static inline boolean_t
-osm_physp_has_any_link(
-	IN const osm_physp_t* const p_physp )
+osm_physp_has_any_link(IN const osm_physp_t * const p_physp)
 {
-	CL_ASSERT( p_physp );
-	if( osm_physp_is_valid( p_physp ) )
-		return( p_physp->p_remote_physp != NULL );
+	CL_ASSERT(p_physp);
+	if (osm_physp_is_valid(p_physp))
+		return (p_physp->p_remote_physp != NULL);
 	else
-		return( FALSE );
+		return (FALSE);
 }
+
 /*
 * PARAMETERS
 *	p_physp
@@ -1034,13 +1023,13 @@ osm_physp_has_any_link(
 * SYNOPSIS
 */
 static inline uint8_t
-osm_physp_get_port_num(
-	IN const osm_physp_t* const p_physp )
+osm_physp_get_port_num(IN const osm_physp_t * const p_physp)
 {
-	CL_ASSERT( p_physp );
-	CL_ASSERT( osm_physp_is_valid( p_physp ) );
-	return( p_physp->port_num );
+	CL_ASSERT(p_physp);
+	CL_ASSERT(osm_physp_is_valid(p_physp));
+	return (p_physp->port_num);
 }
+
 /*
 * PARAMETERS
 *	p_physp
@@ -1063,14 +1052,14 @@ osm_physp_get_port_num(
 *
 * SYNOPSIS
 */
-static inline struct _osm_node*
-osm_physp_get_node_ptr(
-	IN const osm_physp_t* const p_physp )
+static inline struct _osm_node *osm_physp_get_node_ptr(IN const osm_physp_t *
+						       const p_physp)
 {
-	CL_ASSERT( p_physp );
-	CL_ASSERT( osm_physp_is_valid( p_physp ) );
-	return( (struct _osm_node*)p_physp->p_node );
+	CL_ASSERT(p_physp);
+	CL_ASSERT(osm_physp_is_valid(p_physp));
+	return ((struct _osm_node *)p_physp->p_node);
 }
+
 /*
 * PARAMETERS
 *	p_physp
@@ -1094,13 +1083,13 @@ osm_physp_get_node_ptr(
 * SYNOPSIS
 */
 static inline uint8_t
-osm_physp_get_port_state(
-	IN const osm_physp_t* const p_physp )
+osm_physp_get_port_state(IN const osm_physp_t * const p_physp)
 {
-	CL_ASSERT( p_physp );
-	CL_ASSERT( osm_physp_is_valid( p_physp ) );
-	return( ib_port_info_get_port_state( &p_physp->port_info ));
+	CL_ASSERT(p_physp);
+	CL_ASSERT(osm_physp_is_valid(p_physp));
+	return (ib_port_info_get_port_state(&p_physp->port_info));
 }
+
 /*
 * PARAMETERS
 *	p_physp
@@ -1124,13 +1113,13 @@ osm_physp_get_port_state(
 * SYNOPSIS
 */
 static inline ib_net16_t
-osm_physp_get_base_lid(
-	IN const osm_physp_t* const p_physp )
+osm_physp_get_base_lid(IN const osm_physp_t * const p_physp)
 {
-	CL_ASSERT( p_physp );
-	CL_ASSERT( osm_physp_is_valid( p_physp ) );
-	return( p_physp->port_info.base_lid );
+	CL_ASSERT(p_physp);
+	CL_ASSERT(osm_physp_is_valid(p_physp));
+	return (p_physp->port_info.base_lid);
 }
+
 /*
 * PARAMETERS
 *	p_physp
@@ -1153,14 +1142,13 @@ osm_physp_get_base_lid(
 *
 * SYNOPSIS
 */
-static inline uint8_t
-osm_physp_get_lmc(
-	IN const osm_physp_t* const p_physp )
+static inline uint8_t osm_physp_get_lmc(IN const osm_physp_t * const p_physp)
 {
-	CL_ASSERT( p_physp );
-	CL_ASSERT( osm_physp_is_valid( p_physp ) );
-	return( ib_port_info_get_lmc( &p_physp->port_info ) );
+	CL_ASSERT(p_physp);
+	CL_ASSERT(osm_physp_is_valid(p_physp));
+	return (ib_port_info_get_lmc(&p_physp->port_info));
 }
+
 /*
 * PARAMETERS
 *	p_physp
@@ -1183,14 +1171,14 @@ osm_physp_get_lmc(
 *
 * SYNOPSIS
 */
-static inline osm_dr_path_t*
-osm_physp_get_dr_path_ptr(
-	IN const osm_physp_t* const p_physp )
+static inline osm_dr_path_t *osm_physp_get_dr_path_ptr(IN const osm_physp_t *
+						       const p_physp)
 {
-	CL_ASSERT( p_physp );
-	CL_ASSERT( osm_physp_is_valid( p_physp ) );
-	return( (osm_dr_path_t*)&p_physp->dr_path );
+	CL_ASSERT(p_physp);
+	CL_ASSERT(osm_physp_is_valid(p_physp));
+	return ((osm_dr_path_t *) & p_physp->dr_path);
 }
+
 /*
 * PARAMETERS
 *	p_physp
@@ -1239,8 +1227,7 @@ osm_physp_get_dr_path_ptr(
 *
 * SYNOPSIS
 */
-typedef enum _osm_port_lid_category
-{
+typedef enum _osm_port_lid_category {
 	OSM_PORT_LID_ASSIGNED = 0,
 	OSM_PORT_LID_UNASSIGNED,
 	OSM_PORT_LID_CONFLICT,
@@ -1278,15 +1265,14 @@ typedef enum _osm_port_lid_category
 *
 * SYNOPSIS
 */
-typedef struct _osm_port
-{
-	cl_map_item_t			map_item;
-	struct _osm_node		*p_node;
-	ib_net64_t			guid;
-	uint32_t			discovery_count;
-	unsigned			is_new;
-	osm_physp_t			*p_physp;
-	cl_qlist_t			mcm_list;
+typedef struct _osm_port {
+	cl_map_item_t map_item;
+	struct _osm_node *p_node;
+	ib_net64_t guid;
+	uint32_t discovery_count;
+	unsigned is_new;
+	osm_physp_t *p_physp;
+	cl_qlist_t mcm_list;
 } osm_port_t;
 /*
 * FIELDS
@@ -1324,9 +1310,7 @@ typedef struct _osm_port
 *
 * SYNOPSIS
 */
-void
-osm_port_delete(
-	IN OUT osm_port_t** const pp_port );
+void osm_port_delete(IN OUT osm_port_t ** const pp_port);
 /*
 * PARAMETERS
 *	pp_port
@@ -1352,10 +1336,8 @@ osm_port_delete(
 *
 * SYNOPSIS
 */
-osm_port_t*
-osm_port_new(
-	IN const ib_node_info_t* p_ni,
-	IN const struct _osm_node* const p_parent_node );
+osm_port_t *osm_port_new(IN const ib_node_info_t * p_ni,
+			 IN const struct _osm_node *const p_parent_node);
 /*
 * PARAMETERS
 *	p_ni
@@ -1385,12 +1367,12 @@ osm_port_new(
 * SYNOPSIS
 */
 static inline ib_net16_t
-osm_port_get_base_lid(
-	IN const osm_port_t* const p_port )
+osm_port_get_base_lid(IN const osm_port_t * const p_port)
 {
-	CL_ASSERT( p_port->p_physp && osm_physp_is_valid( p_port->p_physp ) );
-	return( osm_physp_get_base_lid( p_port->p_physp ));
+	CL_ASSERT(p_port->p_physp && osm_physp_is_valid(p_port->p_physp));
+	return (osm_physp_get_base_lid(p_port->p_physp));
 }
+
 /*
 * PARAMETERS
 *	p_port
@@ -1415,13 +1397,12 @@ osm_port_get_base_lid(
 *
 * SYNOPSIS
 */
-static inline uint8_t
-osm_port_get_lmc(
-	IN const osm_port_t* const p_port )
+static inline uint8_t osm_port_get_lmc(IN const osm_port_t * const p_port)
 {
-	CL_ASSERT( p_port->p_physp && osm_physp_is_valid( p_port->p_physp ) );
-	return( osm_physp_get_lmc( p_port->p_physp ));
+	CL_ASSERT(p_port->p_physp && osm_physp_is_valid(p_port->p_physp));
+	return (osm_physp_get_lmc(p_port->p_physp));
 }
+
 /*
 * PARAMETERS
 *	p_port
@@ -1445,12 +1426,11 @@ osm_port_get_lmc(
 *
 * SYNOPSIS
 */
-static inline ib_net64_t
-osm_port_get_guid(
-	IN const osm_port_t* const p_port )
+static inline ib_net64_t osm_port_get_guid(IN const osm_port_t * const p_port)
 {
-	return( p_port->guid );
+	return (p_port->guid);
 }
+
 /*
 * PARAMETERS
 *	p_port
@@ -1476,10 +1456,9 @@ osm_port_get_guid(
 * SYNOPSIS
 */
 void
-osm_port_get_lid_range_ho(
-	IN const osm_port_t* const p_port,
-	OUT uint16_t* const p_min_lid,
-	OUT uint16_t* const p_max_lid );
+osm_port_get_lid_range_ho(IN const osm_port_t * const p_port,
+			  OUT uint16_t * const p_min_lid,
+			  OUT uint16_t * const p_max_lid);
 /*
 * PARAMETERS
 *	p_port
@@ -1511,10 +1490,9 @@ osm_port_get_lid_range_ho(
 * SYNOPSIS
 */
 ib_api_status_t
-osm_get_port_by_base_lid(
-	IN const osm_subn_t*       const p_subn,
-	IN const ib_net16_t        lid,
-	IN OUT const osm_port_t**  const pp_port );
+osm_get_port_by_base_lid(IN const osm_subn_t * const p_subn,
+			 IN const ib_net16_t lid,
+			 IN OUT const osm_port_t ** const pp_port);
 /*
 * PARAMETERS
 *	p_subn
@@ -1547,9 +1525,7 @@ osm_get_port_by_base_lid(
 * SYNOPSIS
 */
 void
-osm_port_add_new_physp(
-	IN osm_port_t* const p_port,
-	IN const uint8_t port_num );
+osm_port_add_new_physp(IN osm_port_t * const p_port, IN const uint8_t port_num);
 /*
 * PARAMETERS
 *	p_port
@@ -1577,9 +1553,7 @@ osm_port_add_new_physp(
 * SYNOPSIS
 */
 ib_api_status_t
-osm_port_add_mgrp(
-	IN osm_port_t* const p_port,
-	IN const ib_net16_t mlid );
+osm_port_add_mgrp(IN osm_port_t * const p_port, IN const ib_net16_t mlid);
 /*
 * PARAMETERS
 *	p_port
@@ -1608,9 +1582,7 @@ osm_port_add_mgrp(
 * SYNOPSIS
 */
 void
-osm_port_remove_mgrp(
-	IN osm_port_t* const p_port,
-	IN const ib_net16_t mlid );
+osm_port_remove_mgrp(IN osm_port_t * const p_port, IN const ib_net16_t mlid);
 /*
 * PARAMETERS
 *	p_port
@@ -1637,9 +1609,7 @@ osm_port_remove_mgrp(
 *
 * SYNOPSIS
 */
-void
-osm_port_remove_all_mgrp(
-	IN osm_port_t* const p_port );
+void osm_port_remove_all_mgrp(IN osm_port_t * const p_port);
 /*
 * PARAMETERS
 *	p_port
@@ -1665,9 +1635,7 @@ osm_port_remove_all_mgrp(
 * SYNOPSIS
 */
 uint8_t
-osm_physp_calc_link_mtu(
-	IN osm_log_t*           p_log,
-	IN const osm_physp_t*   p_physp );
+osm_physp_calc_link_mtu(IN osm_log_t * p_log, IN const osm_physp_t * p_physp);
 /*
 * PARAMETERS
 *	p_log
@@ -1696,10 +1664,9 @@ osm_physp_calc_link_mtu(
 * SYNOPSIS
 */
 uint8_t
-osm_physp_calc_link_op_vls(
-	IN osm_log_t*                p_log,
-	IN const osm_subn_t *        p_subn,
-	IN const osm_physp_t*        p_physp );
+osm_physp_calc_link_op_vls(IN osm_log_t * p_log,
+			   IN const osm_subn_t * p_subn,
+			   IN const osm_physp_t * p_physp);
 /*
 * PARAMETERS
 *	p_log
@@ -1731,11 +1698,10 @@ osm_physp_calc_link_op_vls(
 * SYNOPSIS
 */
 void
-osm_physp_replace_dr_path_with_alternate_dr_path(
-  IN osm_log_t           *p_log,
-  IN osm_subn_t  const   *p_subn,
-  IN osm_physp_t const   *p_physp,
-  IN osm_bind_handle_t   *h_bind );
+osm_physp_replace_dr_path_with_alternate_dr_path(IN osm_log_t * p_log,
+						 IN osm_subn_t const *p_subn,
+						 IN osm_physp_t const *p_physp,
+						 IN osm_bind_handle_t * h_bind);
 /*
 * PARAMETERS
 *	p_log
@@ -1760,5 +1726,4 @@ osm_physp_replace_dr_path_with_alternate_dr_path(
 *********/
 
 END_C_DECLS
-
-#endif		/* _OSM_PORT_H_ */
+#endif				/* _OSM_PORT_H_ */

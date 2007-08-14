@@ -55,13 +55,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* OpenSM/Random Forwarding Table
 * NAME
 *	Random Forwarding Table
@@ -81,7 +80,6 @@ BEGIN_C_DECLS
 *	Steve King, Intel
 *
 *********/
-
 /****s* OpenSM: Forwarding Table/osm_rand_fwd_tbl_t
 * NAME
 *	osm_rand_fwd_tbl_t
@@ -94,10 +92,9 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_rand_fwd_tbl
-{
+typedef struct _osm_rand_fwd_tbl {
 	/* PLACE HOLDER STRUCTURE ONLY!! */
-	uint32_t				size;
+	uint32_t size;
 } osm_rand_fwd_tbl_t;
 /*
 * FIELDS
@@ -116,16 +113,15 @@ typedef struct _osm_rand_fwd_tbl
 *
 * SYNOPSIS
 */
-static inline void
-osm_rand_tbl_delete(
-	IN osm_rand_fwd_tbl_t** const pp_tbl )
+static inline void osm_rand_tbl_delete(IN osm_rand_fwd_tbl_t ** const pp_tbl)
 {
 	/*
-		TO DO - This is a place holder function only!
-	*/
-	free( *pp_tbl );
+	   TO DO - This is a place holder function only!
+	 */
+	free(*pp_tbl);
 	*pp_tbl = NULL;
 }
+
 /*
 * PARAMETERS
 *	pp_tbl
@@ -151,17 +147,16 @@ osm_rand_tbl_delete(
 * SYNOPSIS
 */
 static inline void
-osm_rand_fwd_tbl_set(
-	IN osm_rand_fwd_tbl_t* const p_tbl,
-	IN const uint16_t lid_ho,
-	IN const uint8_t port )
+osm_rand_fwd_tbl_set(IN osm_rand_fwd_tbl_t * const p_tbl,
+		     IN const uint16_t lid_ho, IN const uint8_t port)
 {
 	/* Random forwarding tables not supported yet. */
-	UNUSED_PARAM( p_tbl );
-	UNUSED_PARAM( lid_ho );
-	UNUSED_PARAM( port );
-	CL_ASSERT( FALSE );
+	UNUSED_PARAM(p_tbl);
+	UNUSED_PARAM(lid_ho);
+	UNUSED_PARAM(port);
+	CL_ASSERT(FALSE);
 }
+
 /*
 * PARAMETERS
 *	p_tbl
@@ -191,18 +186,18 @@ osm_rand_fwd_tbl_set(
 * SYNOPSIS
 */
 static inline ib_api_status_t
-osm_rand_fwd_tbl_set_block(
-	IN osm_rand_fwd_tbl_t* const p_tbl,
-	IN const uint8_t* const p_block,
-	IN const uint32_t block_num )
+osm_rand_fwd_tbl_set_block(IN osm_rand_fwd_tbl_t * const p_tbl,
+			   IN const uint8_t * const p_block,
+			   IN const uint32_t block_num)
 {
 	/* Random forwarding tables not supported yet. */
-	UNUSED_PARAM( p_tbl );
-	UNUSED_PARAM( p_block );
-	UNUSED_PARAM( block_num );
-	CL_ASSERT( FALSE );
-	return( IB_ERROR );
+	UNUSED_PARAM(p_tbl);
+	UNUSED_PARAM(p_block);
+	UNUSED_PARAM(block_num);
+	CL_ASSERT(FALSE);
+	return (IB_ERROR);
 }
+
 /*
 * PARAMETERS
 *	p_tbl
@@ -232,16 +227,16 @@ osm_rand_fwd_tbl_set_block(
 * SYNOPSIS
 */
 static inline uint8_t
-osm_rand_fwd_tbl_get(
-	IN const osm_rand_fwd_tbl_t* const p_tbl,
-	IN const uint16_t lid_ho )
+osm_rand_fwd_tbl_get(IN const osm_rand_fwd_tbl_t * const p_tbl,
+		     IN const uint16_t lid_ho)
 {
-	CL_ASSERT( FALSE );
-	UNUSED_PARAM( p_tbl );
-	UNUSED_PARAM( lid_ho );
+	CL_ASSERT(FALSE);
+	UNUSED_PARAM(p_tbl);
+	UNUSED_PARAM(lid_ho);
 
-	return( OSM_NO_PATH );
+	return (OSM_NO_PATH);
 }
+
 /*
 * PARAMETERS
 *	p_tbl
@@ -268,12 +263,12 @@ osm_rand_fwd_tbl_get(
 * SYNOPSIS
 */
 static inline uint16_t
-osm_rand_fwd_tbl_get_lids_per_block(
-	IN const osm_rand_fwd_tbl_t* const p_tbl )
+osm_rand_fwd_tbl_get_lids_per_block(IN const osm_rand_fwd_tbl_t * const p_tbl)
 {
-	UNUSED_PARAM( p_tbl );
-	return( 16 );
+	UNUSED_PARAM(p_tbl);
+	return (16);
 }
+
 /*
 * PARAMETERS
 *	p_tbl
@@ -297,15 +292,16 @@ osm_rand_fwd_tbl_get_lids_per_block(
 * SYNOPSIS
 */
 static inline uint16_t
-osm_rand_fwd_tbl_get_max_block_id_in_use(
-	IN const osm_rand_fwd_tbl_t* const p_tbl,
-	IN const uint16_t lid_top_ho )
+osm_rand_fwd_tbl_get_max_block_id_in_use(IN const osm_rand_fwd_tbl_t *
+					 const p_tbl,
+					 IN const uint16_t lid_top_ho)
 {
-	UNUSED_PARAM( p_tbl );
-	UNUSED_PARAM( lid_top_ho );
-	CL_ASSERT( FALSE );
-	return( 0 );
+	UNUSED_PARAM(p_tbl);
+	UNUSED_PARAM(lid_top_ho);
+	CL_ASSERT(FALSE);
+	return (0);
 }
+
 /*
 * PARAMETERS
 *	p_tbl
@@ -329,13 +325,13 @@ osm_rand_fwd_tbl_get_max_block_id_in_use(
 * SYNOPSIS
 */
 static inline uint16_t
-osm_rand_fwd_tbl_get_size(
-	IN const osm_rand_fwd_tbl_t* const p_tbl )
+osm_rand_fwd_tbl_get_size(IN const osm_rand_fwd_tbl_t * const p_tbl)
 {
-	UNUSED_PARAM( p_tbl );
-	CL_ASSERT( FALSE );
-	return( 0 );
+	UNUSED_PARAM(p_tbl);
+	CL_ASSERT(FALSE);
+	return (0);
 }
+
 /*
 * PARAMETERS
 *	p_tbl
@@ -350,5 +346,4 @@ osm_rand_fwd_tbl_get_size(
 *********/
 
 END_C_DECLS
-
-#endif	/* _OSM_RAND_FWD_TBL_H_ */
+#endif				/* _OSM_RAND_FWD_TBL_H_ */

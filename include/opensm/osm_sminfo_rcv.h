@@ -61,13 +61,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* OpenSM/SMInfo Receiver
 * NAME
 *	SMInfo Receiver
@@ -85,7 +84,6 @@ BEGIN_C_DECLS
 *	Steve King, Intel
 *
 *********/
-
 /****s* OpenSM: SMInfo Receiver/osm_sminfo_rcv_t
 * NAME
 *	osm_sminfo_rcv_t
@@ -98,15 +96,14 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_sminfo_rcv
-{
-	osm_subn_t			*p_subn;
-	osm_stats_t			*p_stats;
-	osm_log_t			*p_log;
-	osm_resp_t			*p_resp;
-	osm_state_mgr_t			*p_state_mgr;
-	struct _osm_sm_state_mgr	*p_sm_state_mgr;
-	cl_plock_t			*p_lock;
+typedef struct _osm_sminfo_rcv {
+	osm_subn_t *p_subn;
+	osm_stats_t *p_stats;
+	osm_log_t *p_log;
+	osm_resp_t *p_resp;
+	osm_state_mgr_t *p_state_mgr;
+	struct _osm_sm_state_mgr *p_sm_state_mgr;
+	cl_plock_t *p_lock;
 } osm_sminfo_rcv_t;
 /*
 * FIELDS
@@ -144,8 +141,7 @@ typedef struct _osm_sminfo_rcv
 *
 * SYNOPSIS
 */
-void osm_sminfo_rcv_construct(
-	IN osm_sminfo_rcv_t* const p_rcv );
+void osm_sminfo_rcv_construct(IN osm_sminfo_rcv_t * const p_rcv);
 /*
 * PARAMETERS
 *	p_rcv
@@ -175,8 +171,7 @@ void osm_sminfo_rcv_construct(
 *
 * SYNOPSIS
 */
-void osm_sminfo_rcv_destroy(
-	IN osm_sminfo_rcv_t* const p_rcv );
+void osm_sminfo_rcv_destroy(IN osm_sminfo_rcv_t * const p_rcv);
 /*
 * PARAMETERS
 *	p_rcv
@@ -207,15 +202,15 @@ void osm_sminfo_rcv_destroy(
 *
 * SYNOPSIS
 */
-ib_api_status_t osm_sminfo_rcv_init(
-	IN osm_sminfo_rcv_t* const p_rcv,
-	IN osm_subn_t* const p_subn,
-	IN osm_stats_t* const p_stats,
-	IN osm_resp_t* const p_resp,
-	IN osm_log_t* const p_log,
-	IN osm_state_mgr_t* const p_state_mgr,
-	IN struct _osm_sm_state_mgr* const p_sm_state_mgr,
-	IN cl_plock_t* const p_lock );
+ib_api_status_t osm_sminfo_rcv_init(IN osm_sminfo_rcv_t * const p_rcv,
+				    IN osm_subn_t * const p_subn,
+				    IN osm_stats_t * const p_stats,
+				    IN osm_resp_t * const p_resp,
+				    IN osm_log_t * const p_log,
+				    IN osm_state_mgr_t * const p_state_mgr,
+				    IN struct _osm_sm_state_mgr *const
+				    p_sm_state_mgr,
+				    IN cl_plock_t * const p_lock);
 /*
 * PARAMETERS
 *	p_rcv
@@ -263,9 +258,7 @@ ib_api_status_t osm_sminfo_rcv_init(
 *
 * SYNOPSIS
 */
-void osm_sminfo_rcv_process(
-	IN void *context,
-	IN void *data );
+void osm_sminfo_rcv_process(IN void *context, IN void *data);
 /*
 * PARAMETERS
 *	context
@@ -286,5 +279,4 @@ void osm_sminfo_rcv_process(
 *********/
 
 END_C_DECLS
-
-#endif	/* _OSM_SMINFO_RCV_H_ */
+#endif				/* _OSM_SMINFO_RCV_H_ */

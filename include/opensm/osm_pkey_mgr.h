@@ -52,13 +52,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****f* OpenSM: P_Key Manager/osm_pkey_mgr_process
 * NAME
 *	osm_pkey_mgr_process
@@ -68,9 +67,7 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-osm_signal_t
-osm_pkey_mgr_process(
-	IN osm_opensm_t *p_osm );
+osm_signal_t osm_pkey_mgr_process(IN osm_opensm_t * p_osm);
 /*
 * PARAMETERS
 *	p_osm
@@ -85,5 +82,4 @@ osm_pkey_mgr_process(
 *********/
 
 END_C_DECLS
-
-#endif	/* _OSM_PKEY_MGR_H_ */
+#endif				/* _OSM_PKEY_MGR_H_ */

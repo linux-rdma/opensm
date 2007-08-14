@@ -57,13 +57,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* OpenSM/Partition
 * NAME
 *	Partition
@@ -83,7 +82,6 @@ BEGIN_C_DECLS
 *	Steve King, Intel
 *
 *********/
-
 /****s* OpenSM: Partition/osm_prtn_t
 * NAME
 *	osm_prtn_t
@@ -96,14 +94,13 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_prtn
-{
-	cl_map_item_t	map_item;
-	uint16_t	pkey;
-	uint8_t		sl;
-	cl_map_t	full_guid_tbl;
-	cl_map_t	part_guid_tbl;
-	char		name[32];
+typedef struct _osm_prtn {
+	cl_map_item_t map_item;
+	uint16_t pkey;
+	uint8_t sl;
+	cl_map_t full_guid_tbl;
+	cl_map_t part_guid_tbl;
+	char name[32];
 } osm_prtn_t;
 /*
 * FIELDS
@@ -141,8 +138,7 @@ typedef struct _osm_prtn
 *
 * SYNOPSIS
 */
-void osm_prtn_delete(
-	IN OUT osm_prtn_t** const pp_prtn );
+void osm_prtn_delete(IN OUT osm_prtn_t ** const pp_prtn);
 /*
 * PARAMETERS
 *	pp_prtn
@@ -168,9 +164,7 @@ void osm_prtn_delete(
 *
 * SYNOPSIS
 */
-osm_prtn_t* osm_prtn_new(
-	IN const char *name,
-	IN const uint16_t pkey );
+osm_prtn_t *osm_prtn_new(IN const char *name, IN const uint16_t pkey);
 /*
 * PARAMETERS
 *	name
@@ -198,14 +192,13 @@ osm_prtn_t* osm_prtn_new(
 *
 * SYNOPSIS
 */
-static inline
-boolean_t osm_prtn_is_guid(
-	IN const osm_prtn_t* const p_prtn,
-	IN const ib_net64_t guid )
+static inline boolean_t osm_prtn_is_guid(IN const osm_prtn_t * const p_prtn,
+					 IN const ib_net64_t guid)
 {
 	return (cl_map_get(&p_prtn->full_guid_tbl, guid) != NULL) ||
-		(cl_map_get(&p_prtn->part_guid_tbl, guid) != NULL);
+	    (cl_map_get(&p_prtn->part_guid_tbl, guid) != NULL);
 }
+
 /*
 * PARAMETERS
 *	p_prtn
@@ -232,9 +225,8 @@ boolean_t osm_prtn_is_guid(
 *
 * SYNOPSIS
 */
-ib_api_status_t osm_prtn_make_partitions(
-	IN osm_log_t * const p_log,
-	IN osm_subn_t * const p_subn);
+ib_api_status_t osm_prtn_make_partitions(IN osm_log_t * const p_log,
+					 IN osm_subn_t * const p_subn);
 /*
 * PARAMETERS
 *	p_log
@@ -252,5 +244,4 @@ ib_api_status_t osm_prtn_make_partitions(
 *********/
 
 END_C_DECLS
-
-#endif /* _OSM_PARTITION_H_ */
+#endif				/* _OSM_PARTITION_H_ */

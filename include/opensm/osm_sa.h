@@ -82,13 +82,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* OpenSM/SA
 * NAME
 *	SA
@@ -108,7 +107,6 @@ BEGIN_C_DECLS
 *	Anil Keshavamurthy, Intel
 *
 *********/
-
 /****d* OpenSM: SA/osm_sa_state_t
 * NAME
 *	osm_sa_state_t
@@ -118,11 +116,9 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef enum _osm_sa_state
-{
+typedef enum _osm_sa_state {
 	OSM_SA_STATE_INIT = 0,
 	OSM_SA_STATE_READY
-
 } osm_sa_state_t;
 /***********/
 
@@ -138,72 +134,71 @@ typedef enum _osm_sa_state
 *
 * SYNOPSIS
 */
-typedef struct _osm_sa
-{
-	osm_sa_state_t				state;
-	osm_subn_t				*p_subn;
-	osm_vendor_t				*p_vendor;
-	osm_log_t				*p_log;
-	osm_mad_pool_t				*p_mad_pool;
-	cl_dispatcher_t				*p_disp;
-	cl_plock_t				*p_lock;
-	atomic32_t				sa_trans_id;
-	osm_sa_mad_ctrl_t			mad_ctrl;
-	osm_sa_resp_t				resp;
-	osm_cpi_rcv_t				cpi_rcv;
-	osm_nr_rcv_t				nr_rcv;
-	osm_pir_rcv_t				pir_rcv;
-	osm_gir_rcv_t				gir_rcv;
-	osm_lr_rcv_t				lr_rcv;
-	osm_pr_rcv_t				pr_rcv;
-	osm_smir_rcv_t				smir_rcv;
-	osm_mcmr_recv_t				mcmr_rcv;
-	osm_sr_rcv_t				sr_rcv;
+typedef struct _osm_sa {
+	osm_sa_state_t state;
+	osm_subn_t *p_subn;
+	osm_vendor_t *p_vendor;
+	osm_log_t *p_log;
+	osm_mad_pool_t *p_mad_pool;
+	cl_dispatcher_t *p_disp;
+	cl_plock_t *p_lock;
+	atomic32_t sa_trans_id;
+	osm_sa_mad_ctrl_t mad_ctrl;
+	osm_sa_resp_t resp;
+	osm_cpi_rcv_t cpi_rcv;
+	osm_nr_rcv_t nr_rcv;
+	osm_pir_rcv_t pir_rcv;
+	osm_gir_rcv_t gir_rcv;
+	osm_lr_rcv_t lr_rcv;
+	osm_pr_rcv_t pr_rcv;
+	osm_smir_rcv_t smir_rcv;
+	osm_mcmr_recv_t mcmr_rcv;
+	osm_sr_rcv_t sr_rcv;
 #if defined (VENDOR_RMPP_SUPPORT) && defined (DUAL_SIDED_RMPP)
-	osm_mpr_rcv_t				mpr_rcv;
+	osm_mpr_rcv_t mpr_rcv;
 #endif
 
 	/* InformInfo Receiver */
-	osm_infr_rcv_t				infr_rcv;
+	osm_infr_rcv_t infr_rcv;
 
 	/* VL Arbitrartion Query */
-	osm_vlarb_rec_rcv_t			vlarb_rec_rcv;
+	osm_vlarb_rec_rcv_t vlarb_rec_rcv;
 
 	/* SLtoVL Map Query */
-	osm_slvl_rec_rcv_t			slvl_rec_rcv;
+	osm_slvl_rec_rcv_t slvl_rec_rcv;
 
 	/* P_Key table Query */
-	osm_pkey_rec_rcv_t			pkey_rec_rcv;
+	osm_pkey_rec_rcv_t pkey_rec_rcv;
 
 	/* LinearForwardingTable Query */
-	osm_lftr_rcv_t				lftr_rcv;
+	osm_lftr_rcv_t lftr_rcv;
 
 	/* SwitchInfo Query */
-	osm_sir_rcv_t				sir_rcv;
+	osm_sir_rcv_t sir_rcv;
 
 	/* MulticastForwardingTable Query */
-	osm_mftr_rcv_t				mftr_rcv;
+	osm_mftr_rcv_t mftr_rcv;
 
-	cl_disp_reg_handle_t			cpi_disp_h;
-	cl_disp_reg_handle_t			nr_disp_h;
-	cl_disp_reg_handle_t			pir_disp_h;
-	cl_disp_reg_handle_t			gir_disp_h;
-	cl_disp_reg_handle_t			lr_disp_h;
-	cl_disp_reg_handle_t			pr_disp_h;
-	cl_disp_reg_handle_t			smir_disp_h;
-	cl_disp_reg_handle_t			mcmr_disp_h;
-	cl_disp_reg_handle_t			sr_disp_h;
+	cl_disp_reg_handle_t cpi_disp_h;
+	cl_disp_reg_handle_t nr_disp_h;
+	cl_disp_reg_handle_t pir_disp_h;
+	cl_disp_reg_handle_t gir_disp_h;
+	cl_disp_reg_handle_t lr_disp_h;
+	cl_disp_reg_handle_t pr_disp_h;
+	cl_disp_reg_handle_t smir_disp_h;
+	cl_disp_reg_handle_t mcmr_disp_h;
+	cl_disp_reg_handle_t sr_disp_h;
 #if defined (VENDOR_RMPP_SUPPORT) && defined (DUAL_SIDED_RMPP)
-	cl_disp_reg_handle_t			mpr_disp_h;
+	cl_disp_reg_handle_t mpr_disp_h;
 #endif
-	cl_disp_reg_handle_t			infr_disp_h;
-	cl_disp_reg_handle_t			infir_disp_h;
-	cl_disp_reg_handle_t			vlarb_disp_h;
-	cl_disp_reg_handle_t			slvl_disp_h;
-	cl_disp_reg_handle_t			pkey_disp_h;
-	cl_disp_reg_handle_t			lft_disp_h;
-	cl_disp_reg_handle_t			sir_disp_h;
-	cl_disp_reg_handle_t			mft_disp_h;
+	cl_disp_reg_handle_t infr_disp_h;
+	cl_disp_reg_handle_t infir_disp_h;
+	cl_disp_reg_handle_t vlarb_disp_h;
+	cl_disp_reg_handle_t slvl_disp_h;
+	cl_disp_reg_handle_t pkey_disp_h;
+	cl_disp_reg_handle_t lft_disp_h;
+	cl_disp_reg_handle_t sir_disp_h;
+	cl_disp_reg_handle_t mft_disp_h;
 } osm_sa_t;
 /*
 * FIELDS
@@ -259,8 +254,7 @@ typedef struct _osm_sa
 *
 * SYNOPSIS
 */
-void osm_sa_construct(
-	IN osm_sa_t* const p_sa );
+void osm_sa_construct(IN osm_sa_t * const p_sa);
 /*
 * PARAMETERS
 *	p_sa
@@ -289,8 +283,7 @@ void osm_sa_construct(
 *
 * SYNOPSIS
 */
-void osm_sa_shutdown(
-	IN osm_sa_t* const p_sa );
+void osm_sa_shutdown(IN osm_sa_t * const p_sa);
 /*
 * PARAMETERS
 *	p_sa
@@ -313,8 +306,7 @@ void osm_sa_shutdown(
 *
 * SYNOPSIS
 */
-void osm_sa_destroy(
-	IN osm_sa_t* const p_sa );
+void osm_sa_destroy(IN osm_sa_t * const p_sa);
 /*
 * PARAMETERS
 *	p_sa
@@ -342,16 +334,15 @@ void osm_sa_destroy(
 *
 * SYNOPSIS
 */
-ib_api_status_t osm_sa_init(
-	IN osm_sm_t* const p_sm,
-	IN osm_sa_t* const p_sa,
-	IN osm_subn_t* const p_subn,
-	IN osm_vendor_t* const p_vendor,
-	IN osm_mad_pool_t* const p_mad_pool,
-	IN osm_log_t* const p_log,
-	IN osm_stats_t*	const p_stats,
-	IN cl_dispatcher_t* const p_disp,
-	IN cl_plock_t* const p_lock );
+ib_api_status_t osm_sa_init(IN osm_sm_t * const p_sm,
+			    IN osm_sa_t * const p_sa,
+			    IN osm_subn_t * const p_subn,
+			    IN osm_vendor_t * const p_vendor,
+			    IN osm_mad_pool_t * const p_mad_pool,
+			    IN osm_log_t * const p_log,
+			    IN osm_stats_t * const p_stats,
+			    IN cl_dispatcher_t * const p_disp,
+			    IN cl_plock_t * const p_lock);
 /*
 * PARAMETERS
 *	p_sa
@@ -398,8 +389,7 @@ ib_api_status_t osm_sa_init(
 *
 * SYNOPSIS
 */
-boolean_t osm_sa_is_inited(
-	IN const osm_sa_t* const p_sa );
+boolean_t osm_sa_is_inited(IN const osm_sa_t * const p_sa);
 /*
 * PARAMETERS
 *	p_sa
@@ -427,9 +417,7 @@ boolean_t osm_sa_is_inited(
 * SYNOPSIS
 */
 ib_api_status_t
-osm_sa_bind(
-	IN osm_sa_t* const p_sa,
-	IN const ib_net64_t port_guid );
+osm_sa_bind(IN osm_sa_t * const p_sa, IN const ib_net64_t port_guid);
 /*
 * PARAMETERS
 *	p_sa
@@ -490,5 +478,4 @@ int osm_sa_db_file_load(struct _osm_opensm_t *p_osm);
 *********/
 
 END_C_DECLS
-
-#endif		/* _OSM_SA_H_ */
+#endif				/* _OSM_SA_H_ */

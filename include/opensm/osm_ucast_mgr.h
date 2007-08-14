@@ -59,15 +59,13 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 #define OSM_UCAST_MGR_LIST_SIZE_MIN 256
-
 /****h* OpenSM/Unicast Manager
 * NAME
 *	Unicast Manager
@@ -85,7 +83,6 @@ BEGIN_C_DECLS
 *	Steve King, Intel
 *
 *********/
-
 /****s* OpenSM: Unicast Manager/osm_ucast_mgr_t
 * NAME
 *	osm_ucast_mgr_t
@@ -98,15 +95,14 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_ucast_mgr
-{
-	osm_subn_t	*p_subn;
-	osm_req_t	*p_req;
-	osm_log_t	*p_log;
-	cl_plock_t	*p_lock;
-	boolean_t	 any_change;
-	boolean_t	some_hop_count_set;
-	uint8_t		*lft_buf;
+typedef struct _osm_ucast_mgr {
+	osm_subn_t *p_subn;
+	osm_req_t *p_req;
+	osm_log_t *p_log;
+	cl_plock_t *p_lock;
+	boolean_t any_change;
+	boolean_t some_hop_count_set;
+	uint8_t *lft_buf;
 } osm_ucast_mgr_t;
 /*
 * FIELDS
@@ -148,9 +144,7 @@ typedef struct _osm_ucast_mgr
 *
 * SYNOPSIS
 */
-void
-osm_ucast_mgr_construct(
-	IN osm_ucast_mgr_t* const p_mgr );
+void osm_ucast_mgr_construct(IN osm_ucast_mgr_t * const p_mgr);
 /*
 * PARAMETERS
 *	p_mgr
@@ -180,9 +174,7 @@ osm_ucast_mgr_construct(
 *
 * SYNOPSIS
 */
-void
-osm_ucast_mgr_destroy(
-	IN osm_ucast_mgr_t* const p_mgr );
+void osm_ucast_mgr_destroy(IN osm_ucast_mgr_t * const p_mgr);
 /*
 * PARAMETERS
 *	p_mgr
@@ -214,12 +206,10 @@ osm_ucast_mgr_destroy(
 * SYNOPSIS
 */
 ib_api_status_t
-osm_ucast_mgr_init(
-	IN osm_ucast_mgr_t* const p_mgr,
-	IN osm_req_t* const p_req,
-	IN osm_subn_t* const p_subn,
-	IN osm_log_t* const p_log,
-	IN cl_plock_t* const p_lock );
+osm_ucast_mgr_init(IN osm_ucast_mgr_t * const p_mgr,
+		   IN osm_req_t * const p_req,
+		   IN osm_subn_t * const p_subn,
+		   IN osm_log_t * const p_log, IN cl_plock_t * const p_lock);
 /*
 * PARAMETERS
 *	p_mgr
@@ -259,9 +249,8 @@ osm_ucast_mgr_init(
 * SYNOPSIS
 */
 void
-osm_ucast_mgr_set_fwd_table(
-	IN osm_ucast_mgr_t* const p_mgr,
-	IN osm_switch_t* const p_sw );
+osm_ucast_mgr_set_fwd_table(IN osm_ucast_mgr_t * const p_mgr,
+			    IN osm_switch_t * const p_sw);
 /*
 * PARAMETERS
 *	p_mgr
@@ -283,9 +272,7 @@ osm_ucast_mgr_set_fwd_table(
 *
 * SYNOPSIS
 */
-void
-osm_ucast_mgr_build_lid_matrices(
-	IN osm_ucast_mgr_t* const p_mgr );
+void osm_ucast_mgr_build_lid_matrices(IN osm_ucast_mgr_t * const p_mgr);
 /*
 * PARAMETERS
 *	p_mgr
@@ -309,10 +296,9 @@ osm_ucast_mgr_build_lid_matrices(
 * SYNOPSIS
 */
 cl_status_t
-osm_ucast_mgr_read_guid_file(
-	IN  osm_ucast_mgr_t * const p_mgr,
-	IN  const char      * guid_file_name,
-	IN  cl_list_t       * p_list );
+osm_ucast_mgr_read_guid_file(IN osm_ucast_mgr_t * const p_mgr,
+			     IN const char *guid_file_name,
+			     IN cl_list_t * p_list);
 /*
 * PARAMETERS
 *	p_mgr
@@ -344,9 +330,7 @@ osm_ucast_mgr_read_guid_file(
 *
 * SYNOPSIS
 */
-osm_signal_t
-osm_ucast_mgr_process(
-	IN osm_ucast_mgr_t* const p_mgr );
+osm_signal_t osm_ucast_mgr_process(IN osm_ucast_mgr_t * const p_mgr);
 /*
 * PARAMETERS
 *	p_mgr
@@ -366,5 +350,4 @@ osm_ucast_mgr_process(
 *	Unicast Manager, Node Info Response Controller
 *********/
 END_C_DECLS
-
-#endif	/* _OSM_UCAST_MGR_H_ */
+#endif				/* _OSM_UCAST_MGR_H_ */

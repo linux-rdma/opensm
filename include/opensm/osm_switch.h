@@ -60,13 +60,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* OpenSM/Switch
 * NAME
 *	Switch
@@ -86,7 +85,6 @@ BEGIN_C_DECLS
 *	Steve King, Intel
 *
 *********/
-
 /****s* OpenSM: Switch/osm_switch_t
 * NAME
 *	osm_switch_t
@@ -99,21 +97,20 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_switch
-{
-	cl_map_item_t				map_item;
-	osm_node_t				*p_node;
-	ib_switch_info_t			switch_info;
-	uint16_t				max_lid_ho;
-	uint8_t					num_ports;
-	uint16_t				num_hops;
-	uint8_t					**hops;
-	osm_port_profile_t			*p_prof;
-	osm_fwd_tbl_t				fwd_tbl;
-	osm_mcast_tbl_t				mcast_tbl;
-	uint32_t				discovery_count;
-	unsigned				need_update;
-	void					*priv;
+typedef struct _osm_switch {
+	cl_map_item_t map_item;
+	osm_node_t *p_node;
+	ib_switch_info_t switch_info;
+	uint16_t max_lid_ho;
+	uint8_t num_ports;
+	uint16_t num_hops;
+	uint8_t **hops;
+	osm_port_profile_t *p_prof;
+	osm_fwd_tbl_t fwd_tbl;
+	osm_mcast_tbl_t mcast_tbl;
+	uint32_t discovery_count;
+	unsigned need_update;
+	void *priv;
 } osm_switch_t;
 /*
 * FIELDS
@@ -170,9 +167,7 @@ typedef struct _osm_switch
 *
 * SYNOPSIS
 */
-void
-osm_switch_delete(
-	IN OUT osm_switch_t** const pp_sw );
+void osm_switch_delete(IN OUT osm_switch_t ** const pp_sw);
 /*
 * PARAMETERS
 *	p_sw
@@ -196,10 +191,8 @@ osm_switch_delete(
 *
 * SYNOPSIS
 */
-osm_switch_t*
-osm_switch_new(
-	IN osm_node_t* const p_node,
-	IN const osm_madw_t* const p_madw );
+osm_switch_t *osm_switch_new(IN osm_node_t * const p_node,
+			     IN const osm_madw_t * const p_madw);
 /*
 * PARAMETERS
 *	p_node
@@ -228,14 +221,13 @@ osm_switch_new(
 * SYNOPSIS
 */
 static inline uint8_t
-osm_switch_get_hop_count(
-	IN const osm_switch_t* const p_sw,
-	IN const uint16_t lid_ho,
-	IN const uint8_t port_num )
+osm_switch_get_hop_count(IN const osm_switch_t * const p_sw,
+			 IN const uint16_t lid_ho, IN const uint8_t port_num)
 {
 	return (lid_ho > p_sw->max_lid_ho || !p_sw->hops[lid_ho]) ?
-		OSM_NO_PATH : p_sw->hops[lid_ho][port_num];
+	    OSM_NO_PATH : p_sw->hops[lid_ho][port_num];
 }
+
 /*
 * PARAMETERS
 *	p_sw
@@ -264,12 +256,12 @@ osm_switch_get_hop_count(
 *
 * SYNOPSIS
 */
-static inline osm_fwd_tbl_t*
-osm_switch_get_fwd_tbl_ptr(
-	IN const osm_switch_t* const p_sw )
+static inline osm_fwd_tbl_t *osm_switch_get_fwd_tbl_ptr(IN const osm_switch_t *
+							const p_sw)
 {
-	return( (osm_fwd_tbl_t*)&p_sw->fwd_tbl );
+	return ((osm_fwd_tbl_t *) & p_sw->fwd_tbl);
 }
+
 /*
 * PARAMETERS
 *	p_sw
@@ -293,11 +285,9 @@ osm_switch_get_fwd_tbl_ptr(
 * SYNOPSIS
 */
 cl_status_t
-osm_switch_set_hops(
-	IN osm_switch_t* const p_sw,
-	IN const uint16_t lid_ho,
-	IN const uint8_t port_num,
-	IN const uint8_t num_hops );
+osm_switch_set_hops(IN osm_switch_t * const p_sw,
+		    IN const uint16_t lid_ho,
+		    IN const uint8_t port_num, IN const uint8_t num_hops);
 /*
 * PARAMETERS
 *	p_sw
@@ -329,9 +319,7 @@ osm_switch_set_hops(
 *
 * SYNOPSIS
 */
-void
-osm_switch_clear_hops(
-	IN osm_switch_t *p_sw );
+void osm_switch_clear_hops(IN osm_switch_t * p_sw);
 /*
 * PARAMETERS
 *	p_sw
@@ -353,13 +341,13 @@ osm_switch_clear_hops(
 * SYNOPSIS
 */
 static inline uint8_t
-osm_switch_get_least_hops(
-	IN const osm_switch_t* const p_sw,
-	IN const uint16_t lid_ho )
+osm_switch_get_least_hops(IN const osm_switch_t * const p_sw,
+			  IN const uint16_t lid_ho)
 {
 	return (lid_ho > p_sw->max_lid_ho || !p_sw->hops[lid_ho]) ?
-		OSM_NO_PATH : p_sw->hops[lid_ho][0];
+	    OSM_NO_PATH : p_sw->hops[lid_ho][0];
 }
+
 /*
 * PARAMETERS
 *	p_sw
@@ -389,9 +377,8 @@ osm_switch_get_least_hops(
 * SYNOPSIS
 */
 uint8_t
-osm_switch_get_port_least_hops(
-	IN const osm_switch_t* const p_sw,
-	IN const osm_port_t *p_port );
+osm_switch_get_port_least_hops(IN const osm_switch_t * const p_sw,
+			       IN const osm_port_t * p_port);
 /*
 * PARAMETERS
 *	p_sw
@@ -421,12 +408,12 @@ osm_switch_get_port_least_hops(
 * SYNOPSIS
 */
 static inline uint8_t
-osm_switch_get_port_by_lid(
-	IN const osm_switch_t* const p_sw,
-	IN const uint16_t lid_ho )
+osm_switch_get_port_by_lid(IN const osm_switch_t * const p_sw,
+			   IN const uint16_t lid_ho)
 {
-	return( osm_fwd_tbl_get( &p_sw->fwd_tbl, lid_ho ) );
+	return (osm_fwd_tbl_get(&p_sw->fwd_tbl, lid_ho));
 }
+
 /*
 * PARAMETERS
 *	p_sw
@@ -453,10 +440,8 @@ osm_switch_get_port_by_lid(
 *
 * SYNOPSIS
 */
-osm_physp_t*
-osm_switch_get_physp_ptr(
-	IN const osm_switch_t* const p_sw,
-	IN const uint32_t port_num );
+osm_physp_t *osm_switch_get_physp_ptr(IN const osm_switch_t * const p_sw,
+				      IN const uint32_t port_num);
 /*
 * PARAMETERS
 *	p_sw
@@ -486,29 +471,29 @@ osm_switch_get_physp_ptr(
 *
 * SYNOPSIS
 */
-static inline osm_physp_t*
-osm_switch_get_route_by_lid(
-	IN const osm_switch_t* const p_sw,
-	IN const ib_net16_t lid )
+static inline osm_physp_t *osm_switch_get_route_by_lid(IN const osm_switch_t *
+						       const p_sw,
+						       IN const ib_net16_t lid)
 {
 	uint8_t port_num;
 
-	CL_ASSERT( p_sw );
-	CL_ASSERT( lid );
+	CL_ASSERT(p_sw);
+	CL_ASSERT(lid);
 
-	port_num = osm_fwd_tbl_get( &p_sw->fwd_tbl, cl_ntoh16( lid ) );
+	port_num = osm_fwd_tbl_get(&p_sw->fwd_tbl, cl_ntoh16(lid));
 	/*
 	   In order to avoid holes in the subnet (usually happens when
 	   running UPDN algorithm), i.e. cases where port is
 	   unreachable through a switch (we put an OSM_NO_PATH value at
 	   the port entry, we do not assert on unreachable lid entries
 	   at the fwd table but return NULL
-	*/
+	 */
 	if (port_num != OSM_NO_PATH)
-		return( osm_node_get_physp_ptr( p_sw->p_node, port_num ) );
+		return (osm_node_get_physp_ptr(p_sw->p_node, port_num));
 	else
 		return NULL;
 }
+
 /*
 * PARAMETERS
 *	p_sw
@@ -539,13 +524,13 @@ osm_switch_get_route_by_lid(
 *
 */
 static inline unsigned
-osm_switch_sp0_is_lmc_capable(
-	IN const osm_switch_t* const p_sw,
-	IN osm_subn_t *p_subn)
+osm_switch_sp0_is_lmc_capable(IN const osm_switch_t * const p_sw,
+			      IN osm_subn_t * p_subn)
 {
 	return (p_subn->opt.lmc_esp0 &&
 		ib_switch_info_is_enhanced_port0(&p_sw->switch_info)) ? 1 : 0;
 }
+
 /*
 * PARAMETERS
 *	p_sw
@@ -574,12 +559,12 @@ osm_switch_sp0_is_lmc_capable(
 * SYNOPSIS
 */
 static inline uint32_t
-osm_switch_get_max_block_id(
-	IN const osm_switch_t* const p_sw )
+osm_switch_get_max_block_id(IN const osm_switch_t * const p_sw)
 {
-	return( (uint32_t)(osm_fwd_tbl_get_size( &p_sw->fwd_tbl ) /
-		osm_fwd_tbl_get_lids_per_block( &p_sw->fwd_tbl ) ) );
+	return ((uint32_t) (osm_fwd_tbl_get_size(&p_sw->fwd_tbl) /
+			    osm_fwd_tbl_get_lids_per_block(&p_sw->fwd_tbl)));
 }
+
 /*
 * PARAMETERS
 *	p_sw
@@ -605,12 +590,13 @@ osm_switch_get_max_block_id(
 * SYNOPSIS
 */
 static inline uint16_t
-osm_switch_get_max_block_id_in_use(
-	IN const osm_switch_t* const p_sw )
+osm_switch_get_max_block_id_in_use(IN const osm_switch_t * const p_sw)
 {
-	return( osm_fwd_tbl_get_max_block_id_in_use( &p_sw->fwd_tbl,
-			cl_ntoh16( p_sw->switch_info.lin_top ) ) );
+	return (osm_fwd_tbl_get_max_block_id_in_use(&p_sw->fwd_tbl,
+						    cl_ntoh16(p_sw->switch_info.
+							      lin_top)));
 }
+
 /*
 * PARAMETERS
 *	p_sw
@@ -635,10 +621,9 @@ osm_switch_get_max_block_id_in_use(
 * SYNOPSIS
 */
 boolean_t
-osm_switch_get_fwd_tbl_block(
-	IN const osm_switch_t* const p_sw,
-	IN const uint32_t block_id,
-	OUT uint8_t* const p_block );
+osm_switch_get_fwd_tbl_block(IN const osm_switch_t * const p_sw,
+			     IN const uint32_t block_id,
+			     OUT uint8_t * const p_block);
 /*
 * PARAMETERS
 *	p_sw
@@ -671,11 +656,11 @@ osm_switch_get_fwd_tbl_block(
 * SYNOPSIS
 */
 static inline boolean_t
-osm_switch_supports_mcast(
-	IN const osm_switch_t* const p_sw )
+osm_switch_supports_mcast(IN const osm_switch_t * const p_sw)
 {
-	return( p_sw->switch_info.mcast_cap != 0 );
+	return (p_sw->switch_info.mcast_cap != 0);
 }
+
 /*
 * PARAMETERS
 *	p_sw
@@ -700,14 +685,14 @@ osm_switch_supports_mcast(
 * SYNOPSIS
 */
 static inline void
-osm_switch_set_switch_info(
-	IN osm_switch_t* const p_sw,
-	IN const ib_switch_info_t* const p_si )
+osm_switch_set_switch_info(IN osm_switch_t * const p_sw,
+			   IN const ib_switch_info_t * const p_si)
 {
-	CL_ASSERT( p_sw );
-	CL_ASSERT( p_si );
+	CL_ASSERT(p_sw);
+	CL_ASSERT(p_si);
 	p_sw->switch_info = *p_si;
 }
+
 /*
 * PARAMETERS
 *	p_sw
@@ -734,12 +719,11 @@ osm_switch_set_switch_info(
 * SYNOPSIS
 */
 static inline void
-osm_switch_count_path(
-	IN osm_switch_t* const p_sw,
-	IN const uint8_t port )
+osm_switch_count_path(IN osm_switch_t * const p_sw, IN const uint8_t port)
 {
-	  osm_port_prof_path_count_inc( &p_sw->p_prof[port] );
+	osm_port_prof_path_count_inc(&p_sw->p_prof[port]);
 }
+
 /*
 * PARAMETERS
 *	p_sw
@@ -766,14 +750,14 @@ osm_switch_count_path(
 * SYNOPSIS
 */
 static inline ib_api_status_t
-osm_switch_set_ft_block(
-	IN osm_switch_t* const p_sw,
-	IN const uint8_t* const p_block,
-	IN const uint32_t block_num )
+osm_switch_set_ft_block(IN osm_switch_t * const p_sw,
+			IN const uint8_t * const p_block,
+			IN const uint32_t block_num)
 {
-	CL_ASSERT( p_sw );
-	return( osm_fwd_tbl_set_block( &p_sw->fwd_tbl, p_block, block_num ) );
+	CL_ASSERT(p_sw);
+	return (osm_fwd_tbl_set_block(&p_sw->fwd_tbl, p_block, block_num));
 }
+
 /*
 * PARAMETERS
 *	p_sw
@@ -803,16 +787,15 @@ osm_switch_set_ft_block(
 * SYNOPSIS
 */
 static inline ib_api_status_t
-osm_switch_set_mft_block(
-	IN osm_switch_t* const p_sw,
-	IN const ib_net16_t* const p_block,
-	IN const uint16_t block_num,
-	IN const uint8_t position )
+osm_switch_set_mft_block(IN osm_switch_t * const p_sw,
+			 IN const ib_net16_t * const p_block,
+			 IN const uint16_t block_num, IN const uint8_t position)
 {
-	CL_ASSERT( p_sw );
-	return( osm_mcast_tbl_set_block( &p_sw->mcast_tbl, p_block,
-			block_num, position ) );
+	CL_ASSERT(p_sw);
+	return (osm_mcast_tbl_set_block(&p_sw->mcast_tbl, p_block,
+					block_num, position));
 }
+
 /*
 * PARAMETERS
 *	p_sw
@@ -845,16 +828,16 @@ osm_switch_set_mft_block(
 * SYNOPSIS
 */
 static inline boolean_t
-osm_switch_get_mft_block(
-	IN osm_switch_t* const p_sw,
-	IN const uint16_t block_num,
-	IN const uint8_t position,
-	OUT ib_net16_t* const p_block )
+osm_switch_get_mft_block(IN osm_switch_t * const p_sw,
+			 IN const uint16_t block_num,
+			 IN const uint8_t position,
+			 OUT ib_net16_t * const p_block)
 {
-	CL_ASSERT( p_sw );
-	return( osm_mcast_tbl_get_block( &p_sw->mcast_tbl,
-			block_num, position, p_block ) );
+	CL_ASSERT(p_sw);
+	return (osm_mcast_tbl_get_block(&p_sw->mcast_tbl,
+					block_num, position, p_block));
 }
+
 /*
 * PARAMETERS
 *	p_sw
@@ -889,12 +872,12 @@ osm_switch_get_mft_block(
 * SYNOPSIS
 */
 static inline uint16_t
-osm_switch_get_mft_max_block(
-	IN osm_switch_t* const p_sw )
+osm_switch_get_mft_max_block(IN osm_switch_t * const p_sw)
 {
-	CL_ASSERT( p_sw );
-	return( osm_mcast_tbl_get_max_block( &p_sw->mcast_tbl ) );
+	CL_ASSERT(p_sw);
+	return (osm_mcast_tbl_get_max_block(&p_sw->mcast_tbl));
 }
+
 /*
 * PARAMETERS
 *	p_sw
@@ -913,12 +896,12 @@ osm_switch_get_mft_max_block(
 * SYNOPSIS
 */
 static inline int16_t
-osm_switch_get_mft_max_block_in_use(
-	IN osm_switch_t* const p_sw )
+osm_switch_get_mft_max_block_in_use(IN osm_switch_t * const p_sw)
 {
-	CL_ASSERT( p_sw );
-	return( osm_mcast_tbl_get_max_block_in_use( &p_sw->mcast_tbl ) );
+	CL_ASSERT(p_sw);
+	return (osm_mcast_tbl_get_max_block_in_use(&p_sw->mcast_tbl));
 }
+
 /*
 * PARAMETERS
 *	p_sw
@@ -943,12 +926,12 @@ osm_switch_get_mft_max_block_in_use(
 * SYNOPSIS
 */
 static inline uint8_t
-osm_switch_get_mft_max_position(
-	IN osm_switch_t* const p_sw )
+osm_switch_get_mft_max_position(IN osm_switch_t * const p_sw)
 {
-	CL_ASSERT( p_sw );
-	return( osm_mcast_tbl_get_max_position( &p_sw->mcast_tbl ) );
+	CL_ASSERT(p_sw);
+	return (osm_mcast_tbl_get_max_position(&p_sw->mcast_tbl));
 }
+
 /*
 * PARAMETERS
 *	p_sw
@@ -971,15 +954,14 @@ osm_switch_get_mft_max_position(
 * SYNOPSIS
 */
 uint8_t
-osm_switch_recommend_path(
-	IN const osm_switch_t* const p_sw,
-	IN osm_port_t *p_port,
-	IN const uint16_t lid_ho,
-	IN const boolean_t ignore_existing,
-	IN OUT uint64_t *remote_sys_guids,
-	IN OUT uint16_t *p_num_used_sys,
-	IN OUT uint64_t *remote_node_guids,
-	IN OUT uint16_t *p_num_used_nodes );
+osm_switch_recommend_path(IN const osm_switch_t * const p_sw,
+			  IN osm_port_t * p_port,
+			  IN const uint16_t lid_ho,
+			  IN const boolean_t ignore_existing,
+			  IN OUT uint64_t * remote_sys_guids,
+			  IN OUT uint16_t * p_num_used_sys,
+			  IN OUT uint64_t * remote_node_guids,
+			  IN OUT uint16_t * p_num_used_nodes);
 /*
 * PARAMETERS
 *	p_sw
@@ -1032,11 +1014,10 @@ osm_switch_recommend_path(
 * SYNOPSIS
 */
 uint8_t
-osm_switch_recommend_mcast_path(
-	IN osm_switch_t* const p_sw,
-	IN osm_port_t *p_port,
-	IN const uint16_t mlid_ho,
-	IN const boolean_t ignore_existing );
+osm_switch_recommend_mcast_path(IN osm_switch_t * const p_sw,
+				IN osm_port_t * p_port,
+				IN const uint16_t mlid_ho,
+				IN const boolean_t ignore_existing);
 /*
 * PARAMETERS
 *	p_sw
@@ -1073,11 +1054,11 @@ osm_switch_recommend_mcast_path(
 * SYNOPSIS
 */
 static inline uint16_t
-osm_switch_get_fwd_tbl_size(
-	IN const osm_switch_t* const p_sw )
+osm_switch_get_fwd_tbl_size(IN const osm_switch_t * const p_sw)
 {
-	return( osm_fwd_tbl_get_size( &p_sw->fwd_tbl ) );
+	return (osm_fwd_tbl_get_size(&p_sw->fwd_tbl));
 }
+
 /*
 * PARAMETERS
 *	p_sw
@@ -1101,11 +1082,11 @@ osm_switch_get_fwd_tbl_size(
 * SYNOPSIS
 */
 static inline uint16_t
-osm_switch_get_mcast_fwd_tbl_size(
-	IN const osm_switch_t* const p_sw )
+osm_switch_get_mcast_fwd_tbl_size(IN const osm_switch_t * const p_sw)
 {
-	return( cl_ntoh16( p_sw->switch_info.mcast_cap ) );
+	return (cl_ntoh16(p_sw->switch_info.mcast_cap));
 }
+
 /*
 * PARAMETERS
 *	p_sw
@@ -1129,12 +1110,12 @@ osm_switch_get_mcast_fwd_tbl_size(
 * SYNOPSIS
 */
 static inline uint32_t
-osm_switch_path_count_get(
-	IN const osm_switch_t* const p_sw,
-	IN const uint8_t port_num )
+osm_switch_path_count_get(IN const osm_switch_t * const p_sw,
+			  IN const uint8_t port_num)
 {
-	return( osm_port_prof_path_count_get( &p_sw->p_prof[port_num] ) );
+	return (osm_port_prof_path_count_get(&p_sw->p_prof[port_num]));
 }
+
 /*
 * PARAMETERS
 *	p_sw
@@ -1161,9 +1142,7 @@ osm_switch_path_count_get(
 * SYNOPSIS
 */
 int
-osm_switch_prepare_path_rebuild(
-	IN osm_switch_t* p_sw,
-	IN uint16_t max_lids );
+osm_switch_prepare_path_rebuild(IN osm_switch_t * p_sw, IN uint16_t max_lids);
 /*
 * PARAMETERS
 *	p_sw
@@ -1189,12 +1168,13 @@ osm_switch_prepare_path_rebuild(
 *
 * SYNOPSIS
 */
-static inline osm_mcast_tbl_t*
-osm_switch_get_mcast_tbl_ptr(
-	IN const osm_switch_t* const p_sw )
+static inline osm_mcast_tbl_t *osm_switch_get_mcast_tbl_ptr(IN const
+							    osm_switch_t *
+							    const p_sw)
 {
-	return( (osm_mcast_tbl_t*)&p_sw->mcast_tbl );
+	return ((osm_mcast_tbl_t *) & p_sw->mcast_tbl);
 }
+
 /*
 * PARAMETERS
 *	p_sw
@@ -1219,18 +1199,18 @@ osm_switch_get_mcast_tbl_ptr(
 * SYNOPSIS
 */
 static inline boolean_t
-osm_switch_is_in_mcast_tree(
-	IN const osm_switch_t* const p_sw,
-	IN const uint16_t mlid_ho )
+osm_switch_is_in_mcast_tree(IN const osm_switch_t * const p_sw,
+			    IN const uint16_t mlid_ho)
 {
-	const osm_mcast_tbl_t* p_tbl;
+	const osm_mcast_tbl_t *p_tbl;
 
 	p_tbl = &p_sw->mcast_tbl;
-	if( p_tbl )
-		return( osm_mcast_tbl_is_any_port( &p_sw->mcast_tbl, mlid_ho ) );
+	if (p_tbl)
+		return (osm_mcast_tbl_is_any_port(&p_sw->mcast_tbl, mlid_ho));
 	else
-		return( FALSE );
+		return (FALSE);
 }
+
 /*
 * PARAMETERS
 *	p_sw
@@ -1249,5 +1229,4 @@ osm_switch_is_in_mcast_tree(
 *********/
 
 END_C_DECLS
-
-#endif /* _OSM_SWITCH_H_ */
+#endif				/* _OSM_SWITCH_H_ */

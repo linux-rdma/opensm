@@ -56,13 +56,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****s* OpenSM: Multicast Member Info/osm_mcm_info_t
 * NAME
 *	osm_mcm_info_t
@@ -77,10 +76,9 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_mcm_info
-{
-	cl_list_item_t	list_item;
-	ib_net16_t	mlid;
+typedef struct _osm_mcm_info {
+	cl_list_item_t list_item;
+	ib_net16_t mlid;
 } osm_mcm_info_t;
 /*
 * FIELDS
@@ -102,9 +100,7 @@ typedef struct _osm_mcm_info
 *
 * SYNOPSIS
 */
-osm_mcm_info_t*
-osm_mcm_info_new(
-  IN const ib_net16_t mlid );
+osm_mcm_info_t *osm_mcm_info_new(IN const ib_net16_t mlid);
 /*
 * PARAMETERS
 *	mlid
@@ -127,9 +123,7 @@ osm_mcm_info_new(
 *
 * SYNOPSIS
 */
-void
-osm_mcm_info_delete(
-	IN osm_mcm_info_t* const p_mcm );
+void osm_mcm_info_delete(IN osm_mcm_info_t * const p_mcm);
 /*
 * PARAMETERS
 *	p_mcm
@@ -144,5 +138,4 @@ osm_mcm_info_delete(
 *********/
 
 END_C_DECLS
-
-#endif		/* _OSM_MCM_INFO_H_ */
+#endif				/* _OSM_MCM_INFO_H_ */

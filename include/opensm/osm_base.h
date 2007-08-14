@@ -60,13 +60,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* OpenSM/Constants
 * NAME
 *	Constants
@@ -78,7 +77,6 @@ BEGIN_C_DECLS
 *	Steve King, Intel
 *
 *********/
-
 /****h* OpenSM/Base
 * NAME
 *	Base
@@ -95,7 +93,6 @@ BEGIN_C_DECLS
 *	Steve King, Intel
 *
 *********/
-
 /****s* OpenSM: Base/OSM_DEFAULT_M_KEY
 * NAME
 *	OSM_DEFAULT_M_KEY
@@ -107,7 +104,6 @@ BEGIN_C_DECLS
 */
 #define OSM_DEFAULT_M_KEY 0
 /********/
-
 /****s* OpenSM: Base/OSM_DEFAULT_SM_KEY
 * NAME
 *	OSM_DEFAULT_SM_KEY
@@ -119,7 +115,6 @@ BEGIN_C_DECLS
 */
 #define OSM_DEFAULT_SM_KEY 1
 /********/
-
 /****s* OpenSM: Base/OSM_DEFAULT_LMC
 * NAME
 *	OSM_DEFAULT_LMC
@@ -131,7 +126,6 @@ BEGIN_C_DECLS
 */
 #define OSM_DEFAULT_LMC 0
 /********/
-
 /****s* OpenSM: Base/OSM_DEFAULT_MAX_OP_VLS
 * NAME
 *	OSM_DEFAULT_MAX_OP_VLS
@@ -145,7 +139,6 @@ BEGIN_C_DECLS
 */
 #define OSM_DEFAULT_MAX_OP_VLS 5
 /********/
-
 /****s* OpenSM: Base/OSM_DEFAULT_SL
 * NAME
 *	OSM_DEFAULT_SL
@@ -157,7 +150,6 @@ BEGIN_C_DECLS
 */
 #define OSM_DEFAULT_SL 0
 /********/
-
 /****s* OpenSM: Base/OSM_DEFAULT_SM_PRIORITY
 * NAME
 *	OSM_DEFAULT_SM_PRIORITY
@@ -170,7 +162,6 @@ BEGIN_C_DECLS
 */
 #define OSM_DEFAULT_SM_PRIORITY 0
 /********/
-
 /****d* OpenSM: Base/OSM_DEFAULT_TMP_DIR
 * NAME
 *	OSM_DEFAULT_TMP_DIR
@@ -187,7 +178,6 @@ BEGIN_C_DECLS
 #define OSM_DEFAULT_TMP_DIR "/var/log/"
 #endif
 /***********/
-
 /****d* OpenSM: Base/OSM_DEFAULT_CACHE_DIR
 * NAME
 *	OSM_DEFAULT_CACHE_DIR
@@ -204,7 +194,6 @@ BEGIN_C_DECLS
 #define OSM_DEFAULT_CACHE_DIR "/var/cache/opensm/"
 #endif
 /***********/
-
 /****d* OpenSM: Base/OSM_DEFAULT_LOG_FILE
 * NAME
 *	OSM_DEFAULT_LOG_FILE
@@ -220,7 +209,6 @@ BEGIN_C_DECLS
 #define OSM_DEFAULT_LOG_FILE "/var/log/opensm.log"
 #endif
 /***********/
-
 /****d* OpenSM: Base/OSM_DEFAULT_PARTITION_CONFIG_FILE
 * NAME
 *	OSM_DEFAULT_PARTITION_CONFIG_FILE
@@ -236,7 +224,6 @@ BEGIN_C_DECLS
 #define OSM_DEFAULT_PARTITION_CONFIG_FILE "/etc/ofa/opensm-partitions.conf"
 #endif
 /***********/
-
 /****d* OpenSM: Base/OSM_DEFAULT_SWEEP_INTERVAL_SECS
 * NAME
 *	OSM_DEFAULT_SWEEP_INTERVAL_SECS
@@ -248,7 +235,6 @@ BEGIN_C_DECLS
 */
 #define OSM_DEFAULT_SWEEP_INTERVAL_SECS 10
 /***********/
-
 /****d* OpenSM: Base/OSM_DEFAULT_TRANS_TIMEOUT_MILLISEC
 * NAME
 *	OSM_DEFAULT_TRANS_TIMEOUT_MILLISEC
@@ -260,7 +246,6 @@ BEGIN_C_DECLS
 */
 #define OSM_DEFAULT_TRANS_TIMEOUT_MILLISEC 200
 /***********/
-
 /****d* OpenSM: Base/OSM_DEFAULT_SUBNET_TIMEOUT
 * NAME
 *	OSM_DEFAULT_SUBNET_TIMEOUT
@@ -274,7 +259,6 @@ BEGIN_C_DECLS
 */
 #define OSM_DEFAULT_SUBNET_TIMEOUT 0x12
 /***********/
-
 /****d* OpenSM: Base/OSM_DEFAULT_SWITCH_PACKET_LIFE
 * NAME
 *	OSM_DEFAULT_SWITCH_PACKET_LIFE
@@ -289,7 +273,6 @@ BEGIN_C_DECLS
 */
 #define OSM_DEFAULT_SWITCH_PACKET_LIFE 0x12
 /***********/
-
 /****d* OpenSM: Base/OSM_DEFAULT_HEAD_OF_QUEUE_LIFE
 * NAME
 *	OSM_DEFAULT_HEAD_OF_QUEUE_LIFE
@@ -303,7 +286,6 @@ BEGIN_C_DECLS
 */
 #define OSM_DEFAULT_HEAD_OF_QUEUE_LIFE 0x12
 /***********/
-
 /****d* OpenSM: Base/OSM_DEFAULT_LEAF_HEAD_OF_QUEUE_LIFE
 * NAME
 *	OSM_DEFAULT_LEAF_HEAD_OF_QUEUE_LIFE
@@ -317,7 +299,6 @@ BEGIN_C_DECLS
 */
 #define OSM_DEFAULT_LEAF_HEAD_OF_QUEUE_LIFE 0x10
 /***********/
-
 /****d* OpenSM: Base/OSM_DEFAULT_VL_STALL_COUNT
 * NAME
 *	OSM_DEFAULT_LEAF_VL_COUNT
@@ -331,7 +312,6 @@ BEGIN_C_DECLS
 */
 #define OSM_DEFAULT_VL_STALL_COUNT 0x7
 /***********/
-
 /****d* OpenSM: Base/OSM_DEFAULT_LEAF_VL_STALL_COUNT
 * NAME
 *	OSM_DEFAULT_LEAF_VL_STALL_COUNT
@@ -346,7 +326,6 @@ BEGIN_C_DECLS
 */
 #define OSM_DEFAULT_LEAF_VL_STALL_COUNT 0x7
 /***********/
-
 /****d* OpenSM: Base/OSM_DEFAULT_TRAP_SUPRESSION_TIMEOUT
 * NAME
 *	OSM_DEFAULT_TRAP_SUPRESSION_TIMEOUT
@@ -360,7 +339,6 @@ BEGIN_C_DECLS
 */
 #define OSM_DEFAULT_TRAP_SUPRESSION_TIMEOUT 5000000
 /***********/
-
 /****d* OpenSM: Base/OSM_DEFAULT_UNHEALTHY_TIMEOUT
 * NAME
 *	OSM_DEFAULT_UNHEALTHY_TIMEOUT
@@ -374,7 +352,6 @@ BEGIN_C_DECLS
 */
 #define OSM_DEFAULT_UNHEALTHY_TIMEOUT 60000000
 /***********/
-
 /****d* OpenSM: Base/OSM_DEFAULT_ERROR_THRESHOLD
 * NAME
 *	OSM_DEFAULT_ERROR_THRESHOLD
@@ -386,7 +363,6 @@ BEGIN_C_DECLS
 */
 #define OSM_DEFAULT_ERROR_THRESHOLD 0x08
 /***********/
-
 /****d* OpenSM: Base/OSM_DEFAULT_SMP_MAX_ON_WIRE
 * NAME
 *	OSM_DEFAULT_SMP_MAX_ON_WIRE
@@ -399,7 +375,6 @@ BEGIN_C_DECLS
 */
 #define OSM_DEFAULT_SMP_MAX_ON_WIRE 4
 /***********/
-
 /****d* OpenSM: Base/OSM_SM_DEFAULT_QP0_RCV_SIZE
 * NAME
 *	OSM_SM_DEFAULT_QP0_RCV_SIZE
@@ -411,7 +386,6 @@ BEGIN_C_DECLS
 */
 #define OSM_SM_DEFAULT_QP0_RCV_SIZE 256
 /***********/
-
 /****d* OpenSM: Base/OSM_SM_DEFAULT_QP0_SEND_SIZE
 * NAME
 *	OSM_SM_DEFAULT_QP0_SEND_SIZE
@@ -423,7 +397,6 @@ BEGIN_C_DECLS
 */
 #define OSM_SM_DEFAULT_QP0_SEND_SIZE 256
 /***********/
-
 /****d* OpenSM: Base/OSM_SM_DEFAULT_QP1_RCV_SIZE
 * NAME
 *   OSM_SM_DEFAULT_QP1_RCV_SIZE
@@ -435,7 +408,6 @@ BEGIN_C_DECLS
 */
 #define OSM_SM_DEFAULT_QP1_RCV_SIZE 256
 /***********/
-
 /****d* OpenSM: Base/OSM_SM_DEFAULT_QP1_SEND_SIZE
 * NAME
 *   OSM_SM_DEFAULT_QP1_SEND_SIZE
@@ -446,7 +418,6 @@ BEGIN_C_DECLS
 * SYNOPSIS
 */
 #define OSM_SM_DEFAULT_QP1_SEND_SIZE 256
-
 /****d* OpenSM: Base/OSM_PM_DEFAULT_QP1_RCV_SIZE
 * NAME
 *   OSM_PM_DEFAULT_QP1_RCV_SIZE
@@ -458,7 +429,6 @@ BEGIN_C_DECLS
 */
 #define OSM_PM_DEFAULT_QP1_RCV_SIZE 256
 /***********/
-
 /****d* OpenSM: Base/OSM_PM_DEFAULT_QP1_SEND_SIZE
 * NAME
 *   OSM_PM_DEFAULT_QP1_SEND_SIZE
@@ -469,8 +439,6 @@ BEGIN_C_DECLS
 * SYNOPSIS
 */
 #define OSM_PM_DEFAULT_QP1_SEND_SIZE 256
-
-
 /****d* OpenSM: Base/OSM_SM_DEFAULT_POLLING_TIMEOUT_MILLISECS
 * NAME
 *   OSM_SM_DEFAULT_POLLING_TIMEOUT_MILLISECS
@@ -483,7 +451,6 @@ BEGIN_C_DECLS
 */
 #define OSM_SM_DEFAULT_POLLING_TIMEOUT_MILLISECS 10000
 /**********/
-
 /****d* OpenSM: Base/OSM_SM_DEFAULT_POLLING_RETRY_NUMBER
 * NAME
 *   OSM_SM_DEFAULT_POLLING_RETRY_NUMBER
@@ -496,7 +463,6 @@ BEGIN_C_DECLS
 */
 #define OSM_SM_DEFAULT_POLLING_RETRY_NUMBER 4
 /**********/
-
 /****d* OpenSM: Base/OSM_DEFAULT_QOS_MAX_VLS
  * Name
  *       OSM_DEFAULT_QOS_MAX_VLS
@@ -508,7 +474,6 @@ BEGIN_C_DECLS
  */
 #define OSM_DEFAULT_QOS_MAX_VLS 15
 /***********/
-
 /****d* OpenSM: Base/OSM_DEFAULT_QOS_HIGH_LIMIT
  * Name
  *       OSM_DEFAULT_QOS_HIGH_LIMIT
@@ -520,7 +485,6 @@ BEGIN_C_DECLS
  */
 #define OSM_DEFAULT_QOS_HIGH_LIMIT 0
 /***********/
-
 /****d* OpenSM: Base/OSM_DEFAULT_QOS_VLARB_HIGH
  * Name
  *       OSM_DEFAULT_QOS_VLARB_HIGH
@@ -532,7 +496,6 @@ BEGIN_C_DECLS
  */
 #define OSM_DEFAULT_QOS_VLARB_HIGH "0:4,1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0,12:0,13:0,14:0"
 /***********/
-
 /****d* OpenSM: Base/OSM_DEFAULT_QOS_VLARB_LOW
  * Name
  *       OSM_DEFAULT_QOS_VLARB_LOW
@@ -544,7 +507,6 @@ BEGIN_C_DECLS
  */
 #define OSM_DEFAULT_QOS_VLARB_LOW "0:0,1:4,2:4,3:4,4:4,5:4,6:4,7:4,8:4,9:4,10:4,11:4,12:4,13:4,14:4"
 /***********/
-
 /****d* OpenSM: Base/OSM_DEFAULT_QOS_SL2VL
  * Name
  *       OSM_DEFAULT_QOS_SL2VL
@@ -556,7 +518,6 @@ BEGIN_C_DECLS
  */
 #define OSM_DEFAULT_QOS_SL2VL "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,7"
 /***********/
-
 /****d* OpenSM: Base/OSM_NO_PATH
 * NAME
 *	OSM_NO_PATH
@@ -568,7 +529,6 @@ BEGIN_C_DECLS
 */
 #define OSM_NO_PATH			0xFF
 /**********/
-
 /****d* OpenSM: Base/osm_thread_state_t
 * NAME
 *	osm_thread_state_t
@@ -579,13 +539,11 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef enum _osm_thread_state
-{
+typedef enum _osm_thread_state {
 	OSM_THREAD_STATE_NONE = 0,
 	OSM_THREAD_STATE_INIT,
 	OSM_THREAD_STATE_RUN,
 	OSM_THREAD_STATE_EXIT
-
 } osm_thread_state_t;
 /***********/
 
@@ -695,8 +653,7 @@ typedef enum _osm_thread_state
 *
 * SYNOPSIS
 */
-typedef enum _osm_sm_state
-{
+typedef enum _osm_sm_state {
 	OSM_SM_STATE_NO_STATE = 0,
 	OSM_SM_STATE_INIT,
 	OSM_SM_STATE_IDLE,
@@ -776,21 +733,19 @@ typedef uintn_t osm_signal_t;
 *
 * SYNOPSIS
 */
-typedef enum _osm_sm_signal
-{
-  OSM_SM_SIGNAL_INIT = 0,
-  OSM_SM_SIGNAL_DISCOVERY_COMPLETED,
-  OSM_SM_SIGNAL_POLLING_TIMEOUT,
-  OSM_SM_SIGNAL_DISCOVER,
-  OSM_SM_SIGNAL_DISABLE,
-  OSM_SM_SIGNAL_HANDOVER,
-  OSM_SM_SIGNAL_HANDOVER_SENT,
-  OSM_SM_SIGNAL_ACKNOWLEDGE,
-  OSM_SM_SIGNAL_STANDBY,
-  OSM_SM_SIGNAL_MASTER_OR_HIGHER_SM_DETECTED_DONE,
-  OSM_SM_SIGNAL_WAIT_FOR_HANDOVER,
-  OSM_SM_SIGNAL_MAX
-
+typedef enum _osm_sm_signal {
+	OSM_SM_SIGNAL_INIT = 0,
+	OSM_SM_SIGNAL_DISCOVERY_COMPLETED,
+	OSM_SM_SIGNAL_POLLING_TIMEOUT,
+	OSM_SM_SIGNAL_DISCOVER,
+	OSM_SM_SIGNAL_DISABLE,
+	OSM_SM_SIGNAL_HANDOVER,
+	OSM_SM_SIGNAL_HANDOVER_SENT,
+	OSM_SM_SIGNAL_ACKNOWLEDGE,
+	OSM_SM_SIGNAL_STANDBY,
+	OSM_SM_SIGNAL_MASTER_OR_HIGHER_SM_DETECTED_DONE,
+	OSM_SM_SIGNAL_WAIT_FOR_HANDOVER,
+	OSM_SM_SIGNAL_MAX
 } osm_sm_signal_t;
 /***********/
 
@@ -803,14 +758,12 @@ typedef enum _osm_sm_signal
 *
 * SYNOPSIS
 */
-typedef enum _osm_mcast_req_type
-{
-  OSM_MCAST_REQ_TYPE_CREATE,
-  OSM_MCAST_REQ_TYPE_JOIN,
-  OSM_MCAST_REQ_TYPE_LEAVE,
-  OSM_MCAST_REQ_TYPE_SUBNET_CHANGE
-
-}	osm_mcast_req_type_t;
+typedef enum _osm_mcast_req_type {
+	OSM_MCAST_REQ_TYPE_CREATE,
+	OSM_MCAST_REQ_TYPE_JOIN,
+	OSM_MCAST_REQ_TYPE_LEAVE,
+	OSM_MCAST_REQ_TYPE_SUBNET_CHANGE
+} osm_mcast_req_type_t;
 /***********/
 
 /****s* OpenSM: Base/MAX_GUID_FILE_LINE_LENGTH
@@ -862,5 +815,4 @@ typedef enum _osm_mcast_req_type
 /**********/
 
 END_C_DECLS
-
-#endif	/* _OSM_BASE_H_ */
+#endif				/* _OSM_BASE_H_ */

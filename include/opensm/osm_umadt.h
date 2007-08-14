@@ -57,24 +57,24 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
 
-typedef struct _umadt_obj_t{
-	void*           umadt_handle;
+typedef struct _umadt_obj_t {
+	void *umadt_handle;
 	UMADT_INTERFACE uMadtInterface;
-	IBT_INTERFACE   IbtInterface;
-	boolean     	init_done;
-	cl_spinlock_t 	register_lock;
-	cl_qlist_t  	register_list;
-	osm_log_t		*p_log;
-	uint32_t		timeout;
+	IBT_INTERFACE IbtInterface;
+	boolean init_done;
+	cl_spinlock_t register_lock;
+	cl_qlist_t register_list;
+	osm_log_t *p_log;
+	uint32_t timeout;
 
-}umadt_obj_t;
+} umadt_obj_t;
 /*********/
 
 /****s* OpenSM: Umadt MAD Wrapper/osm_bind_info
@@ -87,28 +87,28 @@ typedef struct _umadt_obj_t{
 * SYNOPSIS
 */
 
-typedef struct _mad_bind_info_t{
-    cl_list_item_t              list_item;
-	umadt_obj_t					*p_umadt_obj;
-    osm_mad_pool_t              *p_mad_pool;
-    osm_vend_mad_recv_callback_t    mad_recv_callback;
-    void                        *client_context;
-    cl_thread_t                 recv_processor_thread;
-	cl_spinlock_t				trans_ctxt_lock;
-	cl_qlist_t					trans_ctxt_list;
-	cl_timer_t					timeout_timer;
-	cl_spinlock_t				timeout_list_lock;
-	cl_qlist_t					timeout_list;
-    RegisterClassStruct         umadt_reg_class;
-    MADT_HANDLE                 umadt_handle;       /* Umadt type */
+typedef struct _mad_bind_info_t {
+	cl_list_item_t list_item;
+	umadt_obj_t *p_umadt_obj;
+	osm_mad_pool_t *p_mad_pool;
+	osm_vend_mad_recv_callback_t mad_recv_callback;
+	void *client_context;
+	cl_thread_t recv_processor_thread;
+	cl_spinlock_t trans_ctxt_lock;
+	cl_qlist_t trans_ctxt_list;
+	cl_timer_t timeout_timer;
+	cl_spinlock_t timeout_list_lock;
+	cl_qlist_t timeout_list;
+	RegisterClassStruct umadt_reg_class;
+	MADT_HANDLE umadt_handle;	/* Umadt type */
 
-}mad_bind_info_t;
+} mad_bind_info_t;
 
 typedef struct _trans_context_t {
-	cl_list_item_t	list_item;
-	uint64_t		trans_id;
-        uint64_t		sent_time;	/* micro secs */
-	void*			context;
+	cl_list_item_t list_item;
+	uint64_t trans_id;
+	uint64_t sent_time;	/* micro secs */
+	void *context;
 } trans_context_t;
 
 /*
@@ -139,5 +139,4 @@ typedef struct _trans_context_t {
 *********/
 
 END_C_DECLS
-
 #endif /*_OSM_UMADT_h_ */

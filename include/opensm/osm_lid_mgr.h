@@ -59,15 +59,13 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 #define OSM_LID_MGR_LIST_SIZE_MIN 256
-
 /****h* OpenSM/LID Manager
 * NAME
 *	LID Manager
@@ -85,7 +83,6 @@ BEGIN_C_DECLS
 *	Steve King, Intel
 *
 *********/
-
 /****s* OpenSM: LID Manager/osm_lid_mgr_t
 * NAME
 *	osm_lid_mgr_t
@@ -98,17 +95,16 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_lid_mgr
-{
-  osm_subn_t      *p_subn;
-  osm_db_t        *p_db;
-  osm_req_t       *p_req;
-  osm_log_t       *p_log;
-  cl_plock_t      *p_lock;
-  boolean_t        send_set_reqs;
-  osm_db_domain_t *p_g2l;
-  cl_ptr_vector_t  used_lids;
-  cl_qlist_t       free_ranges;
+typedef struct _osm_lid_mgr {
+	osm_subn_t *p_subn;
+	osm_db_t *p_db;
+	osm_req_t *p_req;
+	osm_log_t *p_log;
+	cl_plock_t *p_lock;
+	boolean_t send_set_reqs;
+	osm_db_domain_t *p_g2l;
+	cl_ptr_vector_t used_lids;
+	cl_qlist_t free_ranges;
 } osm_lid_mgr_t;
 /*
 * FIELDS
@@ -156,9 +152,7 @@ typedef struct _osm_lid_mgr
 *
 * SYNOPSIS
 */
-void
-osm_lid_mgr_construct(
-	IN osm_lid_mgr_t* const p_mgr );
+void osm_lid_mgr_construct(IN osm_lid_mgr_t * const p_mgr);
 /*
 * PARAMETERS
 *	p_mgr
@@ -188,9 +182,7 @@ osm_lid_mgr_construct(
 *
 * SYNOPSIS
 */
-void
-osm_lid_mgr_destroy(
-	IN osm_lid_mgr_t* const p_mgr );
+void osm_lid_mgr_destroy(IN osm_lid_mgr_t * const p_mgr);
 /*
 * PARAMETERS
 *	p_mgr
@@ -222,13 +214,11 @@ osm_lid_mgr_destroy(
 * SYNOPSIS
 */
 ib_api_status_t
-osm_lid_mgr_init(
-	IN osm_lid_mgr_t* const p_mgr,
-	IN osm_req_t* const p_req,
-	IN osm_subn_t* const p_subn,
-	IN osm_db_t* const p_db,
-	IN osm_log_t* const p_log,
-	IN cl_plock_t* const p_lock );
+osm_lid_mgr_init(IN osm_lid_mgr_t * const p_mgr,
+		 IN osm_req_t * const p_req,
+		 IN osm_subn_t * const p_subn,
+		 IN osm_db_t * const p_db,
+		 IN osm_log_t * const p_log, IN cl_plock_t * const p_lock);
 /*
 * PARAMETERS
 *	p_mgr
@@ -270,9 +260,7 @@ osm_lid_mgr_init(
 *
 * SYNOPSIS
 */
-osm_signal_t
-osm_lid_mgr_process_sm(
-	IN osm_lid_mgr_t* const p_mgr );
+osm_signal_t osm_lid_mgr_process_sm(IN osm_lid_mgr_t * const p_mgr);
 /*
 * PARAMETERS
 *	p_mgr
@@ -300,9 +288,7 @@ osm_lid_mgr_process_sm(
 *
 * SYNOPSIS
 */
-osm_signal_t
-osm_lid_mgr_process_subnet(
-	IN osm_lid_mgr_t* const p_mgr );
+osm_signal_t osm_lid_mgr_process_subnet(IN osm_lid_mgr_t * const p_mgr);
 /*
 * PARAMETERS
 *	p_mgr
@@ -321,5 +307,4 @@ osm_lid_mgr_process_subnet(
 *********/
 
 END_C_DECLS
-
-#endif	/* _OSM_LID_MGR_H_ */
+#endif				/* _OSM_LID_MGR_H_ */

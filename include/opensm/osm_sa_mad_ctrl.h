@@ -60,13 +60,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* OpenSM/SA MAD Controller
 * NAME
 *	SA MAD Controller
@@ -84,7 +83,6 @@ BEGIN_C_DECLS
 *	Ranjit Pandit, Intel
 *
 *********/
-
 /****s* OpenSM: SA MAD Controller/osm_sa_mad_ctrl_t
 * NAME
 *	osm_sa_mad_ctrl_t
@@ -97,17 +95,16 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_sa_mad_ctrl
-{
-  osm_log_t             *p_log;
-  osm_mad_pool_t        *p_mad_pool;
-  osm_vendor_t          *p_vendor;
-  osm_bind_handle_t      h_bind;
-  cl_dispatcher_t       *p_disp;
-  cl_disp_reg_handle_t   h_disp;
-  osm_stats_t           *p_stats;
-  osm_subn_t            *p_subn;
-  osm_sa_resp_t         *p_resp;
+typedef struct _osm_sa_mad_ctrl {
+	osm_log_t *p_log;
+	osm_mad_pool_t *p_mad_pool;
+	osm_vendor_t *p_vendor;
+	osm_bind_handle_t h_bind;
+	cl_dispatcher_t *p_disp;
+	cl_disp_reg_handle_t h_disp;
+	osm_stats_t *p_stats;
+	osm_subn_t *p_subn;
+	osm_sa_resp_t *p_resp;
 } osm_sa_mad_ctrl_t;
 /*
 * FIELDS
@@ -149,8 +146,7 @@ typedef struct _osm_sa_mad_ctrl
 *
 * SYNOPSIS
 */
-void osm_sa_mad_ctrl_construct(
-	IN osm_sa_mad_ctrl_t* const p_ctrl );
+void osm_sa_mad_ctrl_construct(IN osm_sa_mad_ctrl_t * const p_ctrl);
 /*
 * PARAMETERS
 *	p_ctrl
@@ -181,8 +177,7 @@ void osm_sa_mad_ctrl_construct(
 *
 * SYNOPSIS
 */
-void osm_sa_mad_ctrl_destroy(
-	IN osm_sa_mad_ctrl_t* const p_ctrl );
+void osm_sa_mad_ctrl_destroy(IN osm_sa_mad_ctrl_t * const p_ctrl);
 /*
 * PARAMETERS
 *	p_ctrl
@@ -213,15 +208,14 @@ void osm_sa_mad_ctrl_destroy(
 *
 * SYNOPSIS
 */
-ib_api_status_t osm_sa_mad_ctrl_init(
-	IN osm_sa_mad_ctrl_t* const p_ctrl,
-   IN osm_sa_resp_t*     const p_resp,
-	IN osm_mad_pool_t* const p_mad_pool,
-	IN osm_vendor_t* const p_vendor,
-	IN osm_subn_t* const p_subn,
-	IN osm_log_t* const p_log,
-	IN osm_stats_t* const p_stats,
-	IN cl_dispatcher_t* const p_disp );
+ib_api_status_t osm_sa_mad_ctrl_init(IN osm_sa_mad_ctrl_t * const p_ctrl,
+				     IN osm_sa_resp_t * const p_resp,
+				     IN osm_mad_pool_t * const p_mad_pool,
+				     IN osm_vendor_t * const p_vendor,
+				     IN osm_subn_t * const p_subn,
+				     IN osm_log_t * const p_log,
+				     IN osm_stats_t * const p_stats,
+				     IN cl_dispatcher_t * const p_disp);
 /*
 * PARAMETERS
 *	p_ctrl
@@ -267,9 +261,8 @@ ib_api_status_t osm_sa_mad_ctrl_init(
 * SYNOPSIS
 */
 ib_api_status_t
-osm_sa_mad_ctrl_bind(
-	IN osm_sa_mad_ctrl_t* const p_ctrl,
-	IN const ib_net64_t port_guid );
+osm_sa_mad_ctrl_bind(IN osm_sa_mad_ctrl_t * const p_ctrl,
+		     IN const ib_net64_t port_guid);
 /*
 * PARAMETERS
 *	p_ctrl
@@ -298,9 +291,7 @@ osm_sa_mad_ctrl_bind(
 *
 * SYNOPSIS
 */
-ib_api_status_t
-osm_sa_mad_ctrl_unbind(
-  IN osm_sa_mad_ctrl_t* const p_ctrl);
+ib_api_status_t osm_sa_mad_ctrl_unbind(IN osm_sa_mad_ctrl_t * const p_ctrl);
 /*
 * PARAMETERS
 *	p_ctrl
@@ -326,11 +317,11 @@ osm_sa_mad_ctrl_unbind(
 * SYNOPSIS
 */
 static inline osm_bind_handle_t
-osm_sa_mad_ctrl_get_bind_handle(
-	IN const osm_sa_mad_ctrl_t* const p_ctrl )
+osm_sa_mad_ctrl_get_bind_handle(IN const osm_sa_mad_ctrl_t * const p_ctrl)
 {
-	return( p_ctrl->h_bind );
+	return (p_ctrl->h_bind);
 }
+
 /*
 * PARAMETERS
 *	p_ctrl
@@ -348,5 +339,4 @@ osm_sa_mad_ctrl_get_bind_handle(
 *********/
 
 END_C_DECLS
-
-#endif	/* _OSM_SA_MAD_CTRL_H_ */
+#endif				/* _OSM_SA_MAD_CTRL_H_ */

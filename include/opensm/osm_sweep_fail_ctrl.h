@@ -58,13 +58,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* OpenSM/Sweep Fail Controller
 * NAME
 *	Sweep Fail Controller
@@ -83,7 +82,6 @@ BEGIN_C_DECLS
 *	Steve King, Intel
 *
 *********/
-
 /****s* OpenSM: Sweep Fail Controller/osm_sweep_fail_ctrl_t
 * NAME
 *	osm_sweep_fail_ctrl_t
@@ -96,13 +94,11 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_sweep_fail_ctrl
-{
-	osm_log_t					*p_log;
-	osm_state_mgr_t				*p_state_mgr;
-	cl_dispatcher_t				*p_disp;
-	cl_disp_reg_handle_t		h_disp;
-
+typedef struct _osm_sweep_fail_ctrl {
+	osm_log_t *p_log;
+	osm_state_mgr_t *p_state_mgr;
+	cl_dispatcher_t *p_disp;
+	cl_disp_reg_handle_t h_disp;
 
 } osm_sweep_fail_ctrl_t;
 /*
@@ -133,9 +129,7 @@ typedef struct _osm_sweep_fail_ctrl
 *
 * SYNOPSIS
 */
-void
-osm_sweep_fail_ctrl_construct(
-	IN osm_sweep_fail_ctrl_t* const p_ctrl );
+void osm_sweep_fail_ctrl_construct(IN osm_sweep_fail_ctrl_t * const p_ctrl);
 /*
 * PARAMETERS
 *	p_ctrl
@@ -166,9 +160,7 @@ osm_sweep_fail_ctrl_construct(
 *
 * SYNOPSIS
 */
-void
-osm_sweep_fail_ctrl_destroy(
-	IN osm_sweep_fail_ctrl_t* const p_ctrl );
+void osm_sweep_fail_ctrl_destroy(IN osm_sweep_fail_ctrl_t * const p_ctrl);
 /*
 * PARAMETERS
 *	p_ctrl
@@ -200,11 +192,10 @@ osm_sweep_fail_ctrl_destroy(
 * SYNOPSIS
 */
 ib_api_status_t
-osm_sweep_fail_ctrl_init(
-	IN osm_sweep_fail_ctrl_t* const p_ctrl,
-	IN osm_log_t* const p_log,
-	IN osm_state_mgr_t* const p_state_mgr,
-	IN cl_dispatcher_t* const p_disp );
+osm_sweep_fail_ctrl_init(IN osm_sweep_fail_ctrl_t * const p_ctrl,
+			 IN osm_log_t * const p_log,
+			 IN osm_state_mgr_t * const p_state_mgr,
+			 IN cl_dispatcher_t * const p_disp);
 /*
 * PARAMETERS
 *	p_ctrl
@@ -235,5 +226,4 @@ osm_sweep_fail_ctrl_init(
 *********/
 
 END_C_DECLS
-
-#endif	/* _OSM_SWEEP_FAIL_CTRL_H_ */
+#endif				/* _OSM_SWEEP_FAIL_CTRL_H_ */

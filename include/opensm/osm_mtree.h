@@ -57,15 +57,13 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 #define OSM_MTREE_LEAF ((void*)-1)
-
 /****h* OpenSM/Multicast Tree
 * NAME
 *	Multicast Tree
@@ -88,7 +86,6 @@ BEGIN_C_DECLS
 *	Steve King, Intel
 *
 *********/
-
 /****s* OpenSM: Multicast Tree/osm_mtree_node_t
 * NAME
 *	osm_mtree_node_t
@@ -105,13 +102,12 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_mtree_node
-{
-	cl_map_item_t		map_item;
-	osm_switch_t		*p_sw;
-	uint8_t			max_children;
-	struct _osm_mtree_node	*p_up;
-	struct _osm_mtree_node	*child_array[1];
+typedef struct _osm_mtree_node {
+	cl_map_item_t map_item;
+	osm_switch_t *p_sw;
+	uint8_t max_children;
+	struct _osm_mtree_node *p_up;
+	struct _osm_mtree_node *child_array[1];
 } osm_mtree_node_t;
 /*
 * FIELDS
@@ -147,9 +143,7 @@ typedef struct _osm_mtree_node
 *
 * SYNOPSIS
 */
-osm_mtree_node_t*
-osm_mtree_node_new(
-	IN const osm_switch_t* const p_sw );
+osm_mtree_node_t *osm_mtree_node_new(IN const osm_switch_t * const p_sw);
 /*
 * PARAMETERS
 *	p_sw
@@ -172,9 +166,7 @@ osm_mtree_node_new(
 *
 * SYNOPSIS
 */
-void
-osm_mtree_destroy(
-  IN osm_mtree_node_t *p_mtn );
+void osm_mtree_destroy(IN osm_mtree_node_t * p_mtn);
 /*
 * PARAMETERS
 *	p_mtn
@@ -201,11 +193,11 @@ osm_mtree_destroy(
 * SYNOPSIS
 */
 static inline uint8_t
-osm_mtree_node_get_max_children(
-	IN const osm_mtree_node_t* const p_mtn )
+osm_mtree_node_get_max_children(IN const osm_mtree_node_t * const p_mtn)
 {
-	return( p_mtn->max_children );
+	return (p_mtn->max_children);
 }
+
 /*
 * PARAMETERS
 *	p_mtn
@@ -228,14 +220,15 @@ osm_mtree_node_get_max_children(
 *
 * SYNOPSIS
 */
-static inline osm_mtree_node_t*
-osm_mtree_node_get_child(
-	IN const osm_mtree_node_t* const p_mtn,
-	IN const uint8_t child )
+static inline osm_mtree_node_t *osm_mtree_node_get_child(IN const
+							 osm_mtree_node_t *
+							 const p_mtn,
+							 IN const uint8_t child)
 {
-	CL_ASSERT( child < p_mtn->max_children );
-	return( p_mtn->child_array[child] );
+	CL_ASSERT(child < p_mtn->max_children);
+	return (p_mtn->child_array[child]);
 }
+
 /*
 * PARAMETERS
 *	p_mtn
@@ -262,12 +255,13 @@ osm_mtree_node_get_child(
 *
 * SYNOPSIS
 */
-static inline osm_switch_t*
-osm_mtree_node_get_switch_ptr(
-	IN const osm_mtree_node_t* const p_mtn )
+static inline osm_switch_t *osm_mtree_node_get_switch_ptr(IN const
+							  osm_mtree_node_t *
+							  const p_mtn)
 {
-	return( p_mtn->p_sw );
+	return (p_mtn->p_sw);
 }
+
 /*
 * PARAMETERS
 *	p_mtn
@@ -286,5 +280,4 @@ osm_mtree_node_get_switch_ptr(
 *********/
 
 END_C_DECLS
-
-#endif		/* _OSM_MTREE_H_ */
+#endif				/* _OSM_MTREE_H_ */

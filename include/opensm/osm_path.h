@@ -43,13 +43,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /*
  * Abstract:
  * 	Declaration of path related objects.
@@ -60,7 +59,6 @@ BEGIN_C_DECLS
  *
  * $Revision: 1.4 $
  */
-
 /****h* OpenSM/DR Path
 * NAME
 *	DR Path
@@ -74,7 +72,6 @@ BEGIN_C_DECLS
 *	Steve King, Intel
 *
 *********/
-
 /****s* OpenSM: DR Path/osm_dr_path_t
 * NAME
 *	osm_dr_path_t
@@ -86,11 +83,10 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_dr_path
-{
-	osm_bind_handle_t		h_bind;
-	uint8_t					hop_count;
-	uint8_t					path[IB_SUBNET_PATH_HOPS_MAX];
+typedef struct _osm_dr_path {
+	osm_bind_handle_t h_bind;
+	uint8_t hop_count;
+	uint8_t path[IB_SUBNET_PATH_HOPS_MAX];
 
 } osm_dr_path_t;
 /*
@@ -116,12 +112,10 @@ typedef struct _osm_dr_path
 *
 * SYNOPSIS
 */
-static inline void
-osm_dr_path_construct(
-	IN osm_dr_path_t* const p_path )
+static inline void osm_dr_path_construct(IN osm_dr_path_t * const p_path)
 {
 	/* The first location in the path array is reserved. */
-	memset( p_path, 0, sizeof(*p_path) );
+	memset(p_path, 0, sizeof(*p_path));
 	p_path->h_bind = OSM_BIND_INVALID_HANDLE;
 }
 
@@ -157,18 +151,17 @@ osm_dr_path_construct(
 * SYNOPSIS
 */
 static inline void
-osm_dr_path_init(
-	IN osm_dr_path_t* const p_path,
-	IN const osm_bind_handle_t h_bind,
-	IN const uint8_t hop_count,
-	IN const uint8_t path[IB_SUBNET_PATH_HOPS_MAX] )
+osm_dr_path_init(IN osm_dr_path_t * const p_path,
+		 IN const osm_bind_handle_t h_bind,
+		 IN const uint8_t hop_count,
+		 IN const uint8_t path[IB_SUBNET_PATH_HOPS_MAX])
 {
 	/* The first location in the path array is reserved. */
-	CL_ASSERT( path[0] == 0 );
-	CL_ASSERT( hop_count < IB_SUBNET_PATH_HOPS_MAX );
+	CL_ASSERT(path[0] == 0);
+	CL_ASSERT(hop_count < IB_SUBNET_PATH_HOPS_MAX);
 	p_path->h_bind = h_bind;
 	p_path->hop_count = hop_count;
-	memcpy( p_path->path, path, IB_SUBNET_PATH_HOPS_MAX );
+	memcpy(p_path->path, path, IB_SUBNET_PATH_HOPS_MAX);
 }
 
 /*
@@ -202,15 +195,13 @@ osm_dr_path_init(
 * SYNOPSIS
 */
 static inline void
-osm_dr_path_extend(
-	IN osm_dr_path_t* const p_path,
-	IN const uint8_t port_num )
+osm_dr_path_extend(IN osm_dr_path_t * const p_path, IN const uint8_t port_num)
 {
 	p_path->hop_count++;
-	CL_ASSERT( p_path->hop_count < IB_SUBNET_PATH_HOPS_MAX );
+	CL_ASSERT(p_path->hop_count < IB_SUBNET_PATH_HOPS_MAX);
 	/*
-		Location 0 in the path array is reserved per IB spec.
-	*/
+	   Location 0 in the path array is reserved per IB spec.
+	 */
 	p_path->path[p_path->hop_count] = port_num;
 }
 
@@ -240,10 +231,9 @@ osm_dr_path_extend(
 * SYNOPSIS
 */
 static inline osm_bind_handle_t
-osm_dr_path_get_bind_handle(
-	IN const osm_dr_path_t* const p_path )
+osm_dr_path_get_bind_handle(IN const osm_dr_path_t * const p_path)
 {
-	return( p_path->h_bind );
+	return (p_path->h_bind);
 }
 
 /*
@@ -263,5 +253,4 @@ osm_dr_path_get_bind_handle(
 *********/
 
 END_C_DECLS
-
-#endif		/* _OSM_PATH_H_ */
+#endif				/* _OSM_PATH_H_ */

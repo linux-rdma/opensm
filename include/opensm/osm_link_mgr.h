@@ -58,13 +58,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* OpenSM/Link Manager
 * NAME
 *	Link Manager
@@ -82,7 +81,6 @@ BEGIN_C_DECLS
 *	Steve King, Intel
 *
 *********/
-
 /****s* OpenSM: Link Manager/osm_link_mgr_t
 * NAME
 *	osm_link_mgr_t
@@ -95,13 +93,12 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_link_mgr
-{
-	osm_subn_t					*p_subn;
-	osm_req_t					*p_req;
-	osm_log_t					*p_log;
-	cl_plock_t					*p_lock;
-	boolean_t					send_set_reqs;
+typedef struct _osm_link_mgr {
+	osm_subn_t *p_subn;
+	osm_req_t *p_req;
+	osm_log_t *p_log;
+	cl_plock_t *p_lock;
+	boolean_t send_set_reqs;
 
 } osm_link_mgr_t;
 /*
@@ -134,9 +131,7 @@ typedef struct _osm_link_mgr
 *
 * SYNOPSIS
 */
-void
-osm_link_mgr_construct(
-	IN osm_link_mgr_t* const p_mgr );
+void osm_link_mgr_construct(IN osm_link_mgr_t * const p_mgr);
 /*
 * PARAMETERS
 *	p_mgr
@@ -166,9 +161,7 @@ osm_link_mgr_construct(
 *
 * SYNOPSIS
 */
-void
-osm_link_mgr_destroy(
-	IN osm_link_mgr_t* const p_mgr );
+void osm_link_mgr_destroy(IN osm_link_mgr_t * const p_mgr);
 /*
 * PARAMETERS
 *	p_mgr
@@ -200,12 +193,10 @@ osm_link_mgr_destroy(
 * SYNOPSIS
 */
 ib_api_status_t
-osm_link_mgr_init(
-	IN osm_link_mgr_t* const p_mgr,
-	IN osm_req_t* const p_req,
-	IN osm_subn_t* const p_subn,
-	IN osm_log_t* const p_log,
-	IN cl_plock_t* const p_lock );
+osm_link_mgr_init(IN osm_link_mgr_t * const p_mgr,
+		  IN osm_req_t * const p_req,
+		  IN osm_subn_t * const p_subn,
+		  IN osm_log_t * const p_log, IN cl_plock_t * const p_lock);
 /*
 * PARAMETERS
 *	p_mgr
@@ -245,9 +236,8 @@ osm_link_mgr_init(
 * SYNOPSIS
 */
 osm_signal_t
-osm_link_mgr_process(
-	IN osm_link_mgr_t* const p_mgr,
-	IN const uint8_t link_state );
+osm_link_mgr_process(IN osm_link_mgr_t * const p_mgr,
+		     IN const uint8_t link_state);
 /*
 * PARAMETERS
 *	p_mgr
@@ -270,5 +260,4 @@ osm_link_mgr_process(
 *********/
 
 END_C_DECLS
-
-#endif	/* _OSM_LINK_MGR_H_ */
+#endif				/* _OSM_LINK_MGR_H_ */

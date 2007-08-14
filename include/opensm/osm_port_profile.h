@@ -61,13 +61,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* OpenSM/Port Profile
 * NAME
 *	Port Profile
@@ -81,7 +80,6 @@ BEGIN_C_DECLS
 *	Steve King, Intel
 *
 *********/
-
 /****s* OpenSM: Switch/osm_port_profile_t
 * NAME
 *	osm_port_profile_t
@@ -96,9 +94,8 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_port_profile
-{
-	uint32_t		num_paths;
+typedef struct _osm_port_profile {
+	uint32_t num_paths;
 } osm_port_profile_t;
 /*
 * FIELDS
@@ -117,13 +114,12 @@ typedef struct _osm_port_profile
 *
 * SYNOPSIS
 */
-static inline void
-osm_port_prof_construct(
-	IN osm_port_profile_t* const p_prof )
+static inline void osm_port_prof_construct(IN osm_port_profile_t * const p_prof)
 {
-	CL_ASSERT( p_prof );
-	memset( p_prof, 0, sizeof(*p_prof) );
+	CL_ASSERT(p_prof);
+	memset(p_prof, 0, sizeof(*p_prof));
 }
+
 /*
 * PARAMETERS
 *	p_prof
@@ -148,12 +144,12 @@ osm_port_prof_construct(
 * SYNOPSIS
 */
 static inline void
-osm_port_prof_path_count_inc(
-	IN osm_port_profile_t* const p_prof )
+osm_port_prof_path_count_inc(IN osm_port_profile_t * const p_prof)
 {
-	CL_ASSERT( p_prof );
+	CL_ASSERT(p_prof);
 	p_prof->num_paths++;
 }
+
 /*
 * PARAMETERS
 *	p_pro
@@ -177,11 +173,11 @@ osm_port_prof_path_count_inc(
 * SYNOPSIS
 */
 static inline uint32_t
-osm_port_prof_path_count_get(
-	IN const osm_port_profile_t* const p_prof )
+osm_port_prof_path_count_get(IN const osm_port_profile_t * const p_prof)
 {
-	return( p_prof->num_paths );
+	return (p_prof->num_paths);
 }
+
 /*
 * PARAMETERS
 *	p_pro
@@ -206,22 +202,21 @@ osm_port_prof_path_count_get(
 * SYNOPSIS
 */
 static inline boolean_t
-osm_port_prof_is_ignored_port(
-	IN const osm_subn_t *p_subn,
-	IN ib_net64_t port_guid,
-	IN uint8_t port_num )
+osm_port_prof_is_ignored_port(IN const osm_subn_t * p_subn,
+			      IN ib_net64_t port_guid, IN uint8_t port_num)
 {
-  const cl_map_t *p_map = &(p_subn->opt.port_prof_ignore_guids);
-  const void *p_obj = cl_map_get(p_map, port_guid);
-  size_t res;
+	const cl_map_t *p_map = &(p_subn->opt.port_prof_ignore_guids);
+	const void *p_obj = cl_map_get(p_map, port_guid);
+	size_t res;
 
-  // HACK: we currently support ignoring ports 0 - 31
-  if (p_obj != NULL) {
-	 res = (size_t)p_obj & (size_t)(1 << port_num);
-	 return (res != 0);
-  }
-  return FALSE;
+	// HACK: we currently support ignoring ports 0 - 31
+	if (p_obj != NULL) {
+		res = (size_t) p_obj & (size_t) (1 << port_num);
+		return (res != 0);
+	}
+	return FALSE;
 }
+
 /*
 * PARAMETERS
 *	p_subn
@@ -248,28 +243,26 @@ osm_port_prof_is_ignored_port(
 * SYNOPSIS
 */
 static inline void
-osm_port_prof_set_ignored_port(
-	IN osm_subn_t *p_subn,
-	IN ib_net64_t port_guid,
-	IN uint8_t port_num )
+osm_port_prof_set_ignored_port(IN osm_subn_t * p_subn,
+			       IN ib_net64_t port_guid, IN uint8_t port_num)
 {
-  cl_map_t *p_map = &(p_subn->opt.port_prof_ignore_guids);
-  const void *p_obj = cl_map_get(p_map, port_guid);
-  size_t value = 0;
+	cl_map_t *p_map = &(p_subn->opt.port_prof_ignore_guids);
+	const void *p_obj = cl_map_get(p_map, port_guid);
+	size_t value = 0;
 
-  // HACK: we currently support ignoring ports 0 - 31
-  CL_ASSERT(port_num < 32);
+	// HACK: we currently support ignoring ports 0 - 31
+	CL_ASSERT(port_num < 32);
 
-  if (p_obj != NULL) {
-	 value = (size_t)p_obj;
-	 cl_map_remove(p_map, port_guid);
-  }
+	if (p_obj != NULL) {
+		value = (size_t) p_obj;
+		cl_map_remove(p_map, port_guid);
+	}
 
-  value = value | (1 << port_num);
-  cl_map_insert(&(p_subn->opt.port_prof_ignore_guids),
-					 port_guid,
-					 (void *)value);
+	value = value | (1 << port_num);
+	cl_map_insert(&(p_subn->opt.port_prof_ignore_guids),
+		      port_guid, (void *)value);
 }
+
 /*
 * PARAMETERS
 *	p_subn
@@ -287,5 +280,4 @@ osm_port_prof_set_ignored_port(
 *********/
 
 END_C_DECLS
-
-#endif		/* _OSM_PORT_PROFILE_H_ */
+#endif				/* _OSM_PORT_PROFILE_H_ */

@@ -38,17 +38,15 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
-typedef struct ib_user_mad_filter      osm_ts_user_mad_filter;
-typedef struct ib_set_port_info_ioctl  osm_ts_set_port_info_ioctl;
-typedef struct ib_get_port_info_ioctl  osm_ts_get_port_info_ioctl;
-typedef struct ib_gid_entry_ioctl      osm_ts_gid_entry_ioctl;
+typedef struct ib_user_mad_filter osm_ts_user_mad_filter;
+typedef struct ib_set_port_info_ioctl osm_ts_set_port_info_ioctl;
+typedef struct ib_get_port_info_ioctl osm_ts_get_port_info_ioctl;
+typedef struct ib_gid_entry_ioctl osm_ts_gid_entry_ioctl;
 
 END_C_DECLS
-

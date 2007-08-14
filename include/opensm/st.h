@@ -43,19 +43,17 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 #if (__WORDSIZE == 64) || defined (_WIN64)
 #define st_ptr_t unsigned long long
 #else
 #define st_ptr_t unsigned long
 #endif
-
 typedef st_ptr_t st_data_t;
 
 #define ST_DATA_T_DEFINED
@@ -63,20 +61,20 @@ typedef st_ptr_t st_data_t;
 typedef struct st_table st_table;
 
 struct st_hash_type {
-  int (*compare)(void *, void *);
-  st_ptr_t (*hash)(void *);
+	int (*compare) (void *, void *);
+	st_ptr_t(*hash) (void *);
 };
 
 struct st_table {
-    struct st_hash_type *type;
-    int num_bins;
-    int num_entries;
-    struct st_table_entry **bins;
+	struct st_hash_type *type;
+	int num_bins;
+	int num_entries;
+	struct st_table_entry **bins;
 };
 
 #define st_is_member(table,key) st_lookup(table,key,(st_data_t *)0)
 
-enum st_retval {ST_CONTINUE, ST_STOP, ST_DELETE};
+enum st_retval { ST_CONTINUE, ST_STOP, ST_DELETE };
 
 st_table *st_init_table(struct st_hash_type *);
 st_table *st_init_table_with_size(struct st_hash_type *, size_t);
@@ -88,7 +86,9 @@ int st_delete(st_table *, st_data_t *, st_data_t *);
 int st_delete_safe(st_table *, st_data_t *, st_data_t *, st_data_t);
 int st_insert(st_table *, st_data_t, st_data_t);
 int st_lookup(st_table *, st_data_t, st_data_t *);
-void st_foreach(st_table *, int (*)(st_data_t key, st_data_t val, st_data_t arg), st_data_t);
+void st_foreach(st_table *,
+		int (*)(st_data_t key, st_data_t val, st_data_t arg),
+		st_data_t);
 void st_add_direct(st_table *, st_data_t, st_data_t);
 void st_free_table(st_table *);
 void st_cleanup_safe(st_table *, st_data_t);
@@ -103,5 +103,4 @@ st_table *st_copy(st_table *);
 /* int st_strhash(void); */
 
 END_C_DECLS
-
-#endif /* ST_INCLUDED */
+#endif				/* ST_INCLUDED */

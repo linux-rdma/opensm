@@ -47,18 +47,16 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
-void osm_console_init(osm_subn_opt_t *opt, osm_opensm_t *p_osm);
-void osm_console(osm_opensm_t *p_osm);
-void osm_console_prompt(FILE *out);
-void osm_console_close_socket(osm_opensm_t *p_osm);
+void osm_console_init(osm_subn_opt_t * opt, osm_opensm_t * p_osm);
+void osm_console(osm_opensm_t * p_osm);
+void osm_console_prompt(FILE * out);
+void osm_console_close_socket(osm_opensm_t * p_osm);
 
 END_C_DECLS
-
-#endif	/* _OSM_CONSOLE_H_ */
+#endif				/* _OSM_CONSOLE_H_ */

@@ -60,13 +60,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* OpenSM/Multicast Forwarding Table Receiver
 * NAME
 *	Multicast Forwarding Table Receiver
@@ -84,7 +83,6 @@ BEGIN_C_DECLS
 *	Hal Rosenstock, Voltaire
 *
 *********/
-
 /****s* OpenSM: Multicast Forwarding Table Receiver/osm_mftr_rcv_t
 * NAME
 *	osm_mftr_rcv_t
@@ -97,15 +95,14 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_mft
-{
-	osm_subn_t*	p_subn;
-	osm_stats_t*	p_stats;
-	osm_sa_resp_t*	p_resp;
-	osm_mad_pool_t*	p_mad_pool;
-	osm_log_t*	p_log;
-	cl_plock_t*	p_lock;
-	cl_qlock_pool_t	pool;
+typedef struct _osm_mft {
+	osm_subn_t *p_subn;
+	osm_stats_t *p_stats;
+	osm_sa_resp_t *p_resp;
+	osm_mad_pool_t *p_mad_pool;
+	osm_log_t *p_log;
+	cl_plock_t *p_lock;
+	cl_qlock_pool_t pool;
 } osm_mftr_rcv_t;
 /*
 * FIELDS
@@ -144,8 +141,7 @@ typedef struct _osm_mft
 *
 * SYNOPSIS
 */
-void osm_mftr_rcv_construct(
-	IN osm_mftr_rcv_t* const p_ctrl );
+void osm_mftr_rcv_construct(IN osm_mftr_rcv_t * const p_ctrl);
 /*
 * PARAMETERS
 *	p_ctrl
@@ -175,8 +171,7 @@ void osm_mftr_rcv_construct(
 *
 * SYNOPSIS
 */
-void osm_mftr_rcv_destroy(
-	IN osm_mftr_rcv_t* const p_ctrl );
+void osm_mftr_rcv_destroy(IN osm_mftr_rcv_t * const p_ctrl);
 /*
 * PARAMETERS
 *	p_ctrl
@@ -207,13 +202,12 @@ void osm_mftr_rcv_destroy(
 *
 * SYNOPSIS
 */
-ib_api_status_t osm_mftr_rcv_init(
-	IN osm_mftr_rcv_t* const p_rcv,
-	IN osm_sa_resp_t* const p_resp,
-	IN osm_mad_pool_t* const p_mad_pool,
-	IN osm_subn_t* const p_subn,
-	IN osm_log_t* const p_log,
-	IN cl_plock_t* const p_lock );
+ib_api_status_t osm_mftr_rcv_init(IN osm_mftr_rcv_t * const p_rcv,
+				  IN osm_sa_resp_t * const p_resp,
+				  IN osm_mad_pool_t * const p_mad_pool,
+				  IN osm_subn_t * const p_subn,
+				  IN osm_log_t * const p_log,
+				  IN cl_plock_t * const p_lock);
 /*
 * PARAMETERS
 *	p_rcv
@@ -252,9 +246,7 @@ ib_api_status_t osm_mftr_rcv_init(
 *
 * SYNOPSIS
 */
-void osm_mftr_rcv_process(
-	IN void *context,
-	IN void *data );
+void osm_mftr_rcv_process(IN void *context, IN void *data);
 /*
 * PARAMETERS
 *	context
@@ -276,5 +268,4 @@ void osm_mftr_rcv_process(
 *********/
 
 END_C_DECLS
-
-#endif	/* _OSM_MFTR_H_ */
+#endif				/* _OSM_MFTR_H_ */

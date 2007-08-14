@@ -62,13 +62,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* OpenSM/State Manager
 * NAME
 *	State Manager
@@ -86,7 +85,6 @@ BEGIN_C_DECLS
 *	Steve King, Intel
 *
 *********/
-
 /****s* OpenSM: State Manager/osm_state_mgr_t
 * NAME
 *	osm_state_mgr_t
@@ -99,25 +97,24 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_state_mgr
-{
-  osm_subn_t					*p_subn;
-  osm_log_t					*p_log;
-  osm_lid_mgr_t				*p_lid_mgr;
-  osm_ucast_mgr_t			*p_ucast_mgr;
-  osm_mcast_mgr_t			*p_mcast_mgr;
-  osm_link_mgr_t				*p_link_mgr;
-  osm_drop_mgr_t				*p_drop_mgr;
-  osm_req_t					*p_req;
-  osm_stats_t					*p_stats;
-  struct _osm_sm_state_mgr  *p_sm_state_mgr;
-  const osm_sm_mad_ctrl_t	*p_mad_ctrl;
-  cl_spinlock_t				state_lock;
-  cl_spinlock_t				idle_lock;
-  cl_qlist_t					idle_time_list;
-  cl_plock_t					*p_lock;
-  cl_event_t					*p_subnet_up_event;
-  osm_sm_state_t				state;
+typedef struct _osm_state_mgr {
+	osm_subn_t *p_subn;
+	osm_log_t *p_log;
+	osm_lid_mgr_t *p_lid_mgr;
+	osm_ucast_mgr_t *p_ucast_mgr;
+	osm_mcast_mgr_t *p_mcast_mgr;
+	osm_link_mgr_t *p_link_mgr;
+	osm_drop_mgr_t *p_drop_mgr;
+	osm_req_t *p_req;
+	osm_stats_t *p_stats;
+	struct _osm_sm_state_mgr *p_sm_state_mgr;
+	const osm_sm_mad_ctrl_t *p_mad_ctrl;
+	cl_spinlock_t state_lock;
+	cl_spinlock_t idle_lock;
+	cl_qlist_t idle_time_list;
+	cl_plock_t *p_lock;
+	cl_event_t *p_subnet_up_event;
+	osm_sm_state_t state;
 } osm_state_mgr_t;
 /*
 * FIELDS
@@ -189,24 +186,18 @@ typedef struct _osm_state_mgr
 * SYNOPSIS
 */
 
-typedef osm_signal_t
-(*osm_pfn_start_t)(
-	IN				void						*context1,
-	IN				void						*context2 );
+typedef osm_signal_t(*osm_pfn_start_t) (IN void *context1, IN void *context2);
 
 typedef void
-(*osm_pfn_done_t)(
-	IN				void						*context1,
-	IN				void						*context2 );
+ (*osm_pfn_done_t) (IN void *context1, IN void *context2);
 
-typedef struct _osm_idle_item
-{
-	cl_list_item_t	list_item;
-	void*			context1;
-	void*			context2;
-	osm_pfn_start_t	pfn_start;
-	osm_pfn_done_t	pfn_done;
-}osm_idle_item_t;
+typedef struct _osm_idle_item {
+	cl_list_item_t list_item;
+	void *context1;
+	void *context2;
+	osm_pfn_start_t pfn_start;
+	osm_pfn_done_t pfn_done;
+} osm_idle_item_t;
 
 /*
 * FIELDS
@@ -240,13 +231,10 @@ typedef struct _osm_idle_item
 */
 
 ib_api_status_t
-osm_state_mgr_process_idle(
-	IN osm_state_mgr_t* const p_mgr,
-	IN osm_pfn_start_t	pfn_start,
-	IN osm_pfn_done_t	pfn_done,
-	void*			context1,
-	void*			context2
-	);
+osm_state_mgr_process_idle(IN osm_state_mgr_t * const p_mgr,
+			   IN osm_pfn_start_t pfn_start,
+			   IN osm_pfn_done_t pfn_done,
+			   void *context1, void *context2);
 
 /*
 * PARAMETERS
@@ -290,9 +278,7 @@ osm_state_mgr_process_idle(
 *
 * SYNOPSIS
 */
-void
-osm_state_mgr_construct(
-	IN osm_state_mgr_t* const p_mgr );
+void osm_state_mgr_construct(IN osm_state_mgr_t * const p_mgr);
 /*
 * PARAMETERS
 *	p_mgr
@@ -322,9 +308,7 @@ osm_state_mgr_construct(
 *
 * SYNOPSIS
 */
-void
-osm_state_mgr_destroy(
-	IN osm_state_mgr_t* const p_mgr );
+void osm_state_mgr_destroy(IN osm_state_mgr_t * const p_mgr);
 /*
 * PARAMETERS
 *	p_mgr
@@ -356,21 +340,20 @@ osm_state_mgr_destroy(
 * SYNOPSIS
 */
 ib_api_status_t
-osm_state_mgr_init(
-	IN osm_state_mgr_t*			const p_mgr,
-	IN osm_subn_t*				const p_subn,
-	IN osm_lid_mgr_t*			const p_lid_mgr,
-	IN osm_ucast_mgr_t*			const p_ucast_mgr,
-	IN osm_mcast_mgr_t*			const p_mcast_mgr,
-	IN osm_link_mgr_t*			const p_link_mgr,
-	IN osm_drop_mgr_t*			const p_drop_mgr,
-	IN osm_req_t*				const p_req,
-   IN osm_stats_t*               const p_stats,
-   IN struct _osm_sm_state_mgr*  const p_sm_state_mgr,
-	IN const osm_sm_mad_ctrl_t* const p_mad_ctrl,
-	IN cl_plock_t*				const p_lock,
-	IN cl_event_t*				const p_subnet_up_event,
-	IN osm_log_t*				const p_log );
+osm_state_mgr_init(IN osm_state_mgr_t * const p_mgr,
+		   IN osm_subn_t * const p_subn,
+		   IN osm_lid_mgr_t * const p_lid_mgr,
+		   IN osm_ucast_mgr_t * const p_ucast_mgr,
+		   IN osm_mcast_mgr_t * const p_mcast_mgr,
+		   IN osm_link_mgr_t * const p_link_mgr,
+		   IN osm_drop_mgr_t * const p_drop_mgr,
+		   IN osm_req_t * const p_req,
+		   IN osm_stats_t * const p_stats,
+		   IN struct _osm_sm_state_mgr *const p_sm_state_mgr,
+		   IN const osm_sm_mad_ctrl_t * const p_mad_ctrl,
+		   IN cl_plock_t * const p_lock,
+		   IN cl_event_t * const p_subnet_up_event,
+		   IN osm_log_t * const p_log);
 /*
 * PARAMETERS
 *	p_mgr
@@ -434,28 +417,22 @@ osm_state_mgr_init(
 * SYNOPSIS
 */
 static inline boolean_t
-osm_sm_is_greater_than (
-  IN const uint8_t    l_priority,
-  IN const ib_net64_t l_guid,
-  IN const uint8_t    r_priority,
-  IN const ib_net64_t r_guid )
+osm_sm_is_greater_than(IN const uint8_t l_priority,
+		       IN const ib_net64_t l_guid,
+		       IN const uint8_t r_priority, IN const ib_net64_t r_guid)
 {
-  if( l_priority > r_priority )
-  {
-    return( TRUE );
-  }
-  else
-  {
-    if( l_priority == r_priority )
-    {
-      if( cl_ntoh64(l_guid) <  cl_ntoh64(r_guid) )
-      {
-        return( TRUE );
-      }
-    }
-  }
-  return( FALSE );
+	if (l_priority > r_priority) {
+		return (TRUE);
+	} else {
+		if (l_priority == r_priority) {
+			if (cl_ntoh64(l_guid) < cl_ntoh64(r_guid)) {
+				return (TRUE);
+			}
+		}
+	}
+	return (FALSE);
 }
+
 /*
 * PARAMETERS
 *	l_priority
@@ -491,9 +468,7 @@ osm_sm_is_greater_than (
 * SYNOPSIS
 */
 void
-osm_state_mgr_process(
-	IN osm_state_mgr_t* const p_mgr,
-	IN osm_signal_t signal );
+osm_state_mgr_process(IN osm_state_mgr_t * const p_mgr, IN osm_signal_t signal);
 /*
 * PARAMETERS
 *	p_mgr
@@ -512,5 +487,4 @@ osm_state_mgr_process(
 *********/
 
 END_C_DECLS
-
-#endif	/* _OSM_STATE_MGR_H_ */
+#endif				/* _OSM_STATE_MGR_H_ */

@@ -62,13 +62,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* OpenSM/Generic Requester
 * NAME
 *	Generic Requester
@@ -86,7 +85,6 @@ BEGIN_C_DECLS
 *	Steve King, Intel
 *
 *********/
-
 /****s* OpenSM: Generic Requester/osm_req_t
 * NAME
 *	osm_req_t
@@ -99,13 +97,12 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_req
-{
-	osm_mad_pool_t				*p_pool;
-	osm_vl15_t				*p_vl15;
-	osm_log_t				*p_log;
-	osm_subn_t				*p_subn;
-	atomic32_t				*p_sm_trans_id;
+typedef struct _osm_req {
+	osm_mad_pool_t *p_pool;
+	osm_vl15_t *p_vl15;
+	osm_log_t *p_log;
+	osm_subn_t *p_subn;
+	atomic32_t *p_sm_trans_id;
 
 } osm_req_t;
 /*
@@ -138,9 +135,7 @@ typedef struct _osm_req
 *
 * SYNOPSIS
 */
-void
-osm_req_construct(
-	IN osm_req_t* const p_req );
+void osm_req_construct(IN osm_req_t * const p_req);
 /*
 * PARAMETERS
 *	p_req
@@ -170,9 +165,7 @@ osm_req_construct(
 *
 * SYNOPSIS
 */
-void
-osm_req_destroy(
-	IN osm_req_t* const p_req );
+void osm_req_destroy(IN osm_req_t * const p_req);
 /*
 * PARAMETERS
 *	p_req
@@ -204,13 +197,11 @@ osm_req_destroy(
 * SYNOPSIS
 */
 ib_api_status_t
-osm_req_init(
-	IN osm_req_t*				const p_req,
-	IN osm_mad_pool_t*			const p_pool,
-	IN osm_vl15_t*				const p_vl15,
-	IN osm_subn_t*				const p_subn,
-	IN osm_log_t*				const p_log,
-	IN atomic32_t*				const p_sm_trans_id );
+osm_req_init(IN osm_req_t * const p_req,
+	     IN osm_mad_pool_t * const p_pool,
+	     IN osm_vl15_t * const p_vl15,
+	     IN osm_subn_t * const p_subn,
+	     IN osm_log_t * const p_log, IN atomic32_t * const p_sm_trans_id);
 /*
 * PARAMETERS
 *	p_req
@@ -254,13 +245,12 @@ osm_req_init(
 * SYNOPSIS
 */
 ib_api_status_t
-osm_req_get(
-	IN const osm_req_t* const p_req,
-	IN const osm_dr_path_t* const p_path,
-	IN const uint16_t attr_id,
-	IN const uint32_t attr_mod,
-	IN const cl_disp_msgid_t err_msg,
-	IN const osm_madw_context_t* const p_context );
+osm_req_get(IN const osm_req_t * const p_req,
+	    IN const osm_dr_path_t * const p_path,
+	    IN const uint16_t attr_id,
+	    IN const uint32_t attr_mod,
+	    IN const cl_disp_msgid_t err_msg,
+	    IN const osm_madw_context_t * const p_context);
 /*
 * PARAMETERS
 *	p_req
@@ -304,15 +294,14 @@ osm_req_get(
 * SYNOPSIS
 */
 ib_api_status_t
-osm_req_set(
-	IN const osm_req_t* const p_req,
-	IN const osm_dr_path_t* const p_path,
-	IN const uint8_t* const p_payload,
-	IN const size_t payload_size,
-	IN const uint16_t attr_id,
-	IN const uint32_t attr_mod,
-	IN const cl_disp_msgid_t err_msg,
-	IN const osm_madw_context_t* const p_context );
+osm_req_set(IN const osm_req_t * const p_req,
+	    IN const osm_dr_path_t * const p_path,
+	    IN const uint8_t * const p_payload,
+	    IN const size_t payload_size,
+	    IN const uint16_t attr_id,
+	    IN const uint32_t attr_mod,
+	    IN const cl_disp_msgid_t err_msg,
+	    IN const osm_madw_context_t * const p_context);
 /*
 * PARAMETERS
 *	p_req
@@ -353,5 +342,4 @@ osm_req_set(
 *********/
 
 END_C_DECLS
-
-#endif	/* _OSM_REQ_H_ */
+#endif				/* _OSM_REQ_H_ */

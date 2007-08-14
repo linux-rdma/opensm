@@ -58,17 +58,15 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 #define OSM_SUBNET_VECTOR_MIN_SIZE			0
 #define OSM_SUBNET_VECTOR_GROW_SIZE			1
 #define OSM_SUBNET_VECTOR_CAPACITY			256
-
 struct _osm_opensm_t;
 
 /****h* OpenSM/Subnet
@@ -103,8 +101,7 @@ struct _osm_opensm_t;
 * SYNOPSIS
 */
 typedef int
-(*osm_pfn_ui_extension_t)(
-	IN	void*				context );
+ (*osm_pfn_ui_extension_t) (IN void *context);
 /*
 * PARAMETERS
 *	context
@@ -130,11 +127,10 @@ typedef int
 * SYNOPSIS
 */
 typedef void
-(*osm_pfn_ui_mcast_extension_t)(
-  IN void                 *context,
-  IN ib_net16_t            mlid,
-  IN osm_mcast_req_type_t  request_type,
-  IN ib_net64_t            port_guid );
+ (*osm_pfn_ui_mcast_extension_t) (IN void *context,
+				  IN ib_net16_t mlid,
+				  IN osm_mcast_req_type_t request_type,
+				  IN ib_net64_t port_guid);
 /*
 * PARAMETERS
 *  context
@@ -167,11 +163,10 @@ typedef void
 *
 * SYNOPSIS
 */
-typedef enum _osm_testability_modes
-{
-  OSM_TEST_MODE_NONE = 0,
-  OSM_TEST_MODE_EXIT_BEFORE_SEND_HANDOVER,
-  OSM_TEST_MODE_MAX
+typedef enum _osm_testability_modes {
+	OSM_TEST_MODE_NONE = 0,
+	OSM_TEST_MODE_EXIT_BEFORE_SEND_HANDOVER,
+	OSM_TEST_MODE_MAX
 } osm_testability_modes_t;
 /***********/
 
@@ -186,11 +181,11 @@ typedef enum _osm_testability_modes
 * SYNOPSIS
 */
 typedef struct _osm_qos_options_t {
-  unsigned max_vls;
-  unsigned high_limit;
-  char *vlarb_high;
-  char *vlarb_low;
-  char *sl2vl;
+	unsigned max_vls;
+	unsigned high_limit;
+	char *vlarb_high;
+	char *vlarb_low;
+	char *sl2vl;
 } osm_qos_options_t;
 /*
 * FIELDS
@@ -223,84 +218,83 @@ typedef struct _osm_qos_options_t {
 *
 * SYNOPSIS
 */
-typedef struct _osm_subn_opt
-{
-  ib_net64_t               guid;
-  ib_net64_t		   m_key;
-  ib_net64_t               sm_key;
-  ib_net64_t		   subnet_prefix;
-  ib_net16_t		   m_key_lease_period;
-  uint32_t		   sweep_interval;
-  uint32_t		   max_wire_smps;
-  uint32_t		   transaction_timeout;
-  uint8_t		   sm_priority;
-  uint8_t		   lmc;
-  boolean_t		   lmc_esp0;
-  uint8_t		   max_op_vls;
-  uint8_t		   force_link_speed;
-  boolean_t		   reassign_lids;
-  boolean_t		   ignore_other_sm;
-  boolean_t		   single_thread;
-  boolean_t		   no_multicast_option;
-  boolean_t		   disable_multicast;
-  boolean_t		   force_log_flush;
-  uint8_t                  subnet_timeout;
-  uint8_t                  packet_life_time;
-  uint8_t                  vl_stall_count;
-  uint8_t                  leaf_vl_stall_count;
-  uint8_t                  head_of_queue_lifetime;
-  uint8_t                  leaf_head_of_queue_lifetime;
-  uint8_t                  local_phy_errors_threshold;
-  uint8_t                  overrun_errors_threshold;
-  uint32_t                 sminfo_polling_timeout;
-  uint32_t                 polling_retry_number;
-  uint32_t		   max_msg_fifo_timeout;
-  boolean_t                force_heavy_sweep;
-  uint8_t                  log_flags;
-  char *                   dump_files_dir;
-  char *                   log_file;
-  unsigned long            log_max_size;
-  char *                   partition_config_file;
-  boolean_t                no_partition_enforcement;
-  boolean_t                no_qos;
-  boolean_t                accum_log_file;
-  char *                   console;
-  uint16_t                 console_port;
-  cl_map_t                 port_prof_ignore_guids;
-  boolean_t                port_profile_switch_nodes;
-  osm_pfn_ui_extension_t   pfn_ui_pre_lid_assign;
-  void *                   ui_pre_lid_assign_ctx;
-  osm_pfn_ui_mcast_extension_t pfn_ui_mcast_fdb_assign;
-  void *                   ui_mcast_fdb_assign_ctx;
-  boolean_t                sweep_on_trap;
-  osm_testability_modes_t  testability_mode;
-  char *                   routing_engine_name;
-  boolean_t                connect_roots;
-  char *                   lid_matrix_dump_file;
-  char *                   ucast_dump_file;
-  char *                   root_guid_file;
-  char *                   cn_guid_file;
-  char *                   sa_db_file;
-  boolean_t                exit_on_fatal;
-  boolean_t                honor_guid2lid_file;
-  boolean_t                daemon;
-  boolean_t                sm_inactive;
-  boolean_t                babbling_port_policy;
-  osm_qos_options_t        qos_options;
-  osm_qos_options_t        qos_ca_options;
-  osm_qos_options_t        qos_sw0_options;
-  osm_qos_options_t        qos_swe_options;
-  osm_qos_options_t        qos_rtr_options;
-  boolean_t                enable_quirks;
-  boolean_t                no_clients_rereg;
+typedef struct _osm_subn_opt {
+	ib_net64_t guid;
+	ib_net64_t m_key;
+	ib_net64_t sm_key;
+	ib_net64_t subnet_prefix;
+	ib_net16_t m_key_lease_period;
+	uint32_t sweep_interval;
+	uint32_t max_wire_smps;
+	uint32_t transaction_timeout;
+	uint8_t sm_priority;
+	uint8_t lmc;
+	boolean_t lmc_esp0;
+	uint8_t max_op_vls;
+	uint8_t force_link_speed;
+	boolean_t reassign_lids;
+	boolean_t ignore_other_sm;
+	boolean_t single_thread;
+	boolean_t no_multicast_option;
+	boolean_t disable_multicast;
+	boolean_t force_log_flush;
+	uint8_t subnet_timeout;
+	uint8_t packet_life_time;
+	uint8_t vl_stall_count;
+	uint8_t leaf_vl_stall_count;
+	uint8_t head_of_queue_lifetime;
+	uint8_t leaf_head_of_queue_lifetime;
+	uint8_t local_phy_errors_threshold;
+	uint8_t overrun_errors_threshold;
+	uint32_t sminfo_polling_timeout;
+	uint32_t polling_retry_number;
+	uint32_t max_msg_fifo_timeout;
+	boolean_t force_heavy_sweep;
+	uint8_t log_flags;
+	char *dump_files_dir;
+	char *log_file;
+	unsigned long log_max_size;
+	char *partition_config_file;
+	boolean_t no_partition_enforcement;
+	boolean_t no_qos;
+	boolean_t accum_log_file;
+	char *console;
+	uint16_t console_port;
+	cl_map_t port_prof_ignore_guids;
+	boolean_t port_profile_switch_nodes;
+	osm_pfn_ui_extension_t pfn_ui_pre_lid_assign;
+	void *ui_pre_lid_assign_ctx;
+	osm_pfn_ui_mcast_extension_t pfn_ui_mcast_fdb_assign;
+	void *ui_mcast_fdb_assign_ctx;
+	boolean_t sweep_on_trap;
+	osm_testability_modes_t testability_mode;
+	char *routing_engine_name;
+	boolean_t connect_roots;
+	char *lid_matrix_dump_file;
+	char *ucast_dump_file;
+	char *root_guid_file;
+	char *cn_guid_file;
+	char *sa_db_file;
+	boolean_t exit_on_fatal;
+	boolean_t honor_guid2lid_file;
+	boolean_t daemon;
+	boolean_t sm_inactive;
+	boolean_t babbling_port_policy;
+	osm_qos_options_t qos_options;
+	osm_qos_options_t qos_ca_options;
+	osm_qos_options_t qos_sw0_options;
+	osm_qos_options_t qos_swe_options;
+	osm_qos_options_t qos_rtr_options;
+	boolean_t enable_quirks;
+	boolean_t no_clients_rereg;
 #ifdef ENABLE_OSM_PERF_MGR
-  boolean_t                perfmgr;
-  boolean_t                perfmgr_redir;
-  uint16_t                 perfmgr_sweep_time_s;
-  uint32_t                 perfmgr_max_outstanding_queries;
-  char *                   event_db_dump_file;
-#endif /* ENABLE_OSM_PERF_MGR */
-  char *                   event_plugin_name;
+	boolean_t perfmgr;
+	boolean_t perfmgr_redir;
+	uint16_t perfmgr_sweep_time_s;
+	uint32_t perfmgr_max_outstanding_queries;
+	char *event_db_dump_file;
+#endif				/* ENABLE_OSM_PERF_MGR */
+	char *event_plugin_name;
 } osm_subn_opt_t;
 /*
 * FIELDS
@@ -540,37 +534,36 @@ typedef struct _osm_subn_opt
 *
 * SYNOPSIS
 */
-typedef struct _osm_subn
-{
-  struct _osm_opensm_t    *p_osm;
-  cl_qmap_t		   sw_guid_tbl;
-  cl_qmap_t		   node_guid_tbl;
-  cl_qmap_t		   port_guid_tbl;
-  cl_qmap_t		   rtr_guid_tbl;
-  cl_qmap_t		   prtn_pkey_tbl;
-  cl_qmap_t		   mgrp_mlid_tbl;
-  cl_qmap_t		   sm_guid_tbl;
-  cl_qlist_t		   sa_sr_list;
-  cl_qlist_t		   sa_infr_list;
-  cl_ptr_vector_t	   port_lid_tbl;
-  ib_net16_t		   master_sm_base_lid;
-  ib_net16_t		   sm_base_lid;
-  ib_net64_t		   sm_port_guid;
-  uint8_t		   sm_state;
-  osm_subn_opt_t	   opt;
-  uint16_t		   max_unicast_lid_ho;
-  uint16_t		   max_multicast_lid_ho;
-  uint8_t                  min_ca_mtu;
-  uint8_t                  min_ca_rate;
-  boolean_t                ignore_existing_lfts;
-  boolean_t                subnet_initialization_error;
-  boolean_t                force_immediate_heavy_sweep;
-  boolean_t                force_delayed_heavy_sweep;
-  boolean_t                in_sweep_hop_0;
-  boolean_t                moved_to_master_state;
-  boolean_t                first_time_master_sweep;
-  boolean_t                coming_out_of_standby;
-  unsigned                 need_update;
+typedef struct _osm_subn {
+	struct _osm_opensm_t *p_osm;
+	cl_qmap_t sw_guid_tbl;
+	cl_qmap_t node_guid_tbl;
+	cl_qmap_t port_guid_tbl;
+	cl_qmap_t rtr_guid_tbl;
+	cl_qmap_t prtn_pkey_tbl;
+	cl_qmap_t mgrp_mlid_tbl;
+	cl_qmap_t sm_guid_tbl;
+	cl_qlist_t sa_sr_list;
+	cl_qlist_t sa_infr_list;
+	cl_ptr_vector_t port_lid_tbl;
+	ib_net16_t master_sm_base_lid;
+	ib_net16_t sm_base_lid;
+	ib_net64_t sm_port_guid;
+	uint8_t sm_state;
+	osm_subn_opt_t opt;
+	uint16_t max_unicast_lid_ho;
+	uint16_t max_multicast_lid_ho;
+	uint8_t min_ca_mtu;
+	uint8_t min_ca_rate;
+	boolean_t ignore_existing_lfts;
+	boolean_t subnet_initialization_error;
+	boolean_t force_immediate_heavy_sweep;
+	boolean_t force_delayed_heavy_sweep;
+	boolean_t in_sweep_hop_0;
+	boolean_t moved_to_master_state;
+	boolean_t first_time_master_sweep;
+	boolean_t coming_out_of_standby;
+	unsigned need_update;
 } osm_subn_t;
 /*
 * FIELDS
@@ -716,9 +709,7 @@ typedef struct _osm_subn
 *
 * SYNOPSIS
 */
-void
-osm_subn_construct(
-	IN osm_subn_t* const p_subn );
+void osm_subn_construct(IN osm_subn_t * const p_subn);
 /*
 * PARAMETERS
 *	p_subn
@@ -747,9 +738,7 @@ osm_subn_construct(
 *
 * SYNOPSIS
 */
-void
-osm_subn_destroy(
-	IN osm_subn_t* const p_subn );
+void osm_subn_destroy(IN osm_subn_t * const p_subn);
 /*
 * PARAMETERS
 *	p_subn
@@ -778,10 +767,9 @@ osm_subn_destroy(
 * SYNOPSIS
 */
 ib_api_status_t
-osm_subn_init(
-	IN osm_subn_t* const p_subn,
-	IN struct _osm_opensm_t * const p_osm,
-	IN const osm_subn_opt_t* const p_opt );
+osm_subn_init(IN osm_subn_t * const p_subn,
+	      IN struct _osm_opensm_t *const p_osm,
+	      IN const osm_subn_opt_t * const p_opt);
 /*
 * PARAMETERS
 *	p_subn
@@ -822,11 +810,10 @@ struct _osm_port;
 * SYNOPSIS
 */
 ib_api_status_t
-osm_get_gid_by_mad_addr(
-   IN struct _osm_log      *p_log,
-   IN const osm_subn_t     *p_subn,
-   IN const struct _osm_mad_addr *p_mad_addr,
-   OUT ib_gid_t            *p_gid);
+osm_get_gid_by_mad_addr(IN struct _osm_log *p_log,
+			IN const osm_subn_t * p_subn,
+			IN const struct _osm_mad_addr *p_mad_addr,
+			OUT ib_gid_t * p_gid);
 /*
 * PARAMETERS
 *  p_log
@@ -861,11 +848,10 @@ osm_get_gid_by_mad_addr(
 *
 * SYNOPSIS
 */
-struct _osm_physp *
-osm_get_physp_by_mad_addr(
-   IN struct _osm_log      *p_log,
-   IN const osm_subn_t     *p_subn,
-   IN struct _osm_mad_addr *p_mad_addr );
+struct _osm_physp *osm_get_physp_by_mad_addr(IN struct _osm_log *p_log,
+					     IN const osm_subn_t * p_subn,
+					     IN struct _osm_mad_addr
+					     *p_mad_addr);
 /*
 * PARAMETERS
 *  p_log
@@ -897,11 +883,9 @@ osm_get_physp_by_mad_addr(
 *
 * SYNOPSIS
 */
-struct _osm_port *
-osm_get_port_by_mad_addr(
-   IN struct _osm_log      *p_log,
-   IN const osm_subn_t     *p_subn,
-   IN struct _osm_mad_addr *p_mad_addr );
+struct _osm_port *osm_get_port_by_mad_addr(IN struct _osm_log *p_log,
+					   IN const osm_subn_t * p_subn,
+					   IN struct _osm_mad_addr *p_mad_addr);
 /*
 * PARAMETERS
 *  p_log
@@ -932,10 +916,8 @@ osm_get_port_by_mad_addr(
 *
 * SYNOPSIS
 */
-struct _osm_switch *
-osm_get_switch_by_guid(
-   IN const osm_subn_t *p_subn,
-   IN uint64_t          guid );
+struct _osm_switch *osm_get_switch_by_guid(IN const osm_subn_t * p_subn,
+					   IN uint64_t guid);
 /*
 * PARAMETERS
 *	p_subn
@@ -963,10 +945,8 @@ osm_get_switch_by_guid(
 *
 * SYNOPSIS
 */
-struct _osm_node *
-osm_get_node_by_guid(
-   IN osm_subn_t  const *p_subn,
-   IN uint64_t    guid );
+struct _osm_node *osm_get_node_by_guid(IN osm_subn_t const *p_subn,
+				       IN uint64_t guid);
 /*
 * PARAMETERS
 *	p_subn
@@ -994,10 +974,8 @@ osm_get_node_by_guid(
 *
 * SYNOPSIS
 */
-struct _osm_port *
-osm_get_port_by_guid(
-   IN osm_subn_t  const *p_subn,
-   IN uint64_t    guid );
+struct _osm_port *osm_get_port_by_guid(IN osm_subn_t const *p_subn,
+				       IN uint64_t guid);
 /*
 * PARAMETERS
 *	p_subn
@@ -1026,11 +1004,10 @@ osm_get_port_by_guid(
 *
 * SYNOPSIS
 */
-struct _osm_physp *
-osm_get_physp_by_mad_addr(
-   IN struct _osm_log      *p_log,
-   IN const osm_subn_t     *p_subn,
-   IN struct _osm_mad_addr *p_mad_addr );
+struct _osm_physp *osm_get_physp_by_mad_addr(IN struct _osm_log *p_log,
+					     IN const osm_subn_t * p_subn,
+					     IN struct _osm_mad_addr
+					     *p_mad_addr);
 /*
 * PARAMETERS
 *  p_log
@@ -1059,9 +1036,7 @@ osm_get_physp_by_mad_addr(
 *
 * SYNOPSIS
 */
-void
-osm_subn_set_default_opt(
-	IN osm_subn_opt_t* const p_opt );
+void osm_subn_set_default_opt(IN osm_subn_opt_t * const p_opt);
 /*
 * PARAMETERS
 *
@@ -1086,9 +1061,7 @@ osm_subn_set_default_opt(
 *
 * SYNOPSIS
 */
-void
-osm_subn_set_default_opt(
-	IN osm_subn_opt_t* const p_opt );
+void osm_subn_set_default_opt(IN osm_subn_opt_t * const p_opt);
 /*
 * PARAMETERS
 *
@@ -1114,9 +1087,7 @@ osm_subn_set_default_opt(
 *
 * SYNOPSIS
 */
-ib_api_status_t
-osm_subn_parse_conf_file(
-  IN osm_subn_opt_t* const p_opt );
+ib_api_status_t osm_subn_parse_conf_file(IN osm_subn_opt_t * const p_opt);
 /*
 * PARAMETERS
 *
@@ -1144,9 +1115,7 @@ osm_subn_parse_conf_file(
 *
 * SYNOPSIS
 */
-ib_api_status_t
-osm_subn_rescan_conf_file(
-  IN osm_subn_opt_t* const p_opts );
+ib_api_status_t osm_subn_rescan_conf_file(IN osm_subn_opt_t * const p_opts);
 /*
 * PARAMETERS
 *
@@ -1170,9 +1139,7 @@ osm_subn_rescan_conf_file(
 *
 * SYNOPSIS
 */
-ib_api_status_t
-osm_subn_write_conf_file(
-  IN osm_subn_opt_t* const p_opt );
+ib_api_status_t osm_subn_write_conf_file(IN osm_subn_opt_t * const p_opt);
 /*
 * PARAMETERS
 *
@@ -1191,5 +1158,4 @@ osm_subn_write_conf_file(
 *********/
 
 END_C_DECLS
-
-#endif /* _OSM_SUBNET_H_ */
+#endif				/* _OSM_SUBNET_H_ */

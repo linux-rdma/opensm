@@ -57,13 +57,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* OpenSM/State Manager Controller
 * NAME
 *	State Manager Controller
@@ -82,7 +81,6 @@ BEGIN_C_DECLS
 *	Steve King, Intel
 *
 *********/
-
 /****s* OpenSM: State Manager Controller/osm_state_mgr_ctrl_t
 * NAME
 *	osm_state_mgr_ctrl_t
@@ -95,12 +93,11 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_state_mgr_ctrl
-{
-	osm_state_mgr_t				*p_mgr;
-	osm_log_t					*p_log;
-	cl_dispatcher_t				*p_disp;
-	cl_disp_reg_handle_t		h_disp;
+typedef struct _osm_state_mgr_ctrl {
+	osm_state_mgr_t *p_mgr;
+	osm_log_t *p_log;
+	cl_dispatcher_t *p_disp;
+	cl_disp_reg_handle_t h_disp;
 
 } osm_state_mgr_ctrl_t;
 /*
@@ -130,9 +127,7 @@ typedef struct _osm_state_mgr_ctrl
 *
 * SYNOPSIS
 */
-void
-osm_state_mgr_ctrl_construct(
-	IN osm_state_mgr_ctrl_t* const p_ctrl );
+void osm_state_mgr_ctrl_construct(IN osm_state_mgr_ctrl_t * const p_ctrl);
 /*
 * PARAMETERS
 *	p_ctrl
@@ -163,9 +158,7 @@ osm_state_mgr_ctrl_construct(
 *
 * SYNOPSIS
 */
-void
-osm_state_mgr_ctrl_destroy(
-	IN osm_state_mgr_ctrl_t* const p_ctrl );
+void osm_state_mgr_ctrl_destroy(IN osm_state_mgr_ctrl_t * const p_ctrl);
 /*
 * PARAMETERS
 *	p_ctrl
@@ -197,11 +190,10 @@ osm_state_mgr_ctrl_destroy(
 * SYNOPSIS
 */
 ib_api_status_t
-osm_state_mgr_ctrl_init(
-	IN osm_state_mgr_ctrl_t* const p_ctrl,
-	IN osm_state_mgr_t* const p_mgr,
-	IN osm_log_t* const p_log,
-	IN cl_dispatcher_t* const p_disp );
+osm_state_mgr_ctrl_init(IN osm_state_mgr_ctrl_t * const p_ctrl,
+			IN osm_state_mgr_t * const p_mgr,
+			IN osm_log_t * const p_log,
+			IN cl_dispatcher_t * const p_disp);
 /*
 * PARAMETERS
 *	p_ctrl
@@ -229,5 +221,4 @@ osm_state_mgr_ctrl_init(
 *********/
 
 END_C_DECLS
-
-#endif		/* OSM_STATE_MGR_CTRL_H_ */
+#endif				/* OSM_STATE_MGR_CTRL_H_ */

@@ -41,13 +41,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* OpenSM Event plugin interface
 * DESCRIPTION
 *       Database interface to record subnet events
@@ -58,15 +57,12 @@ BEGIN_C_DECLS
 *	Ira Weiny, LLNL
 *
 *********/
-
 #define OSM_EVENT_PLUGIN_NAME_NONE "NONE"
-
 #ifdef ENABLE_OSM_DEFAULT_EVENT_PLUGIN
 #define OSM_DEFAULT_EVENT_PLUGIN_NAME "osmeventplugin"
-#else /* !ENABLE_OSM_DEFAULT_EVENT_PLUGIN */
+#else				/* !ENABLE_OSM_DEFAULT_EVENT_PLUGIN */
 #define OSM_DEFAULT_EVENT_PLUGIN_NAME OSM_EVENT_PLUGIN_NAME_NONE
-#endif /* ENABLE_OSM_DEFAULT_EVENT_PLUGIN */
-
+#endif				/* ENABLE_OSM_DEFAULT_EVENT_PLUGIN */
 #define OSM_EPI_NODE_NAME_LEN (128)
 /** =========================================================================
  * Event types
@@ -80,9 +76,9 @@ typedef enum {
 } osm_epi_event_id_t;
 
 typedef struct {
-	uint64_t   node_guid;
-	uint8_t    port_num;
-	char       node_name[OSM_EPI_NODE_NAME_LEN];
+	uint64_t node_guid;
+	uint8_t port_num;
+	char node_name[OSM_EPI_NODE_NAME_LEN];
 } osm_epi_port_id_t;
 
 /** =========================================================================
@@ -92,19 +88,19 @@ typedef struct {
  */
 typedef struct {
 	osm_epi_port_id_t port_id;
-	uint64_t          symbol_err_cnt;
-	uint64_t          link_err_recover;
-	uint64_t          link_downed;
-	uint64_t          rcv_err;
-	uint64_t          rcv_rem_phys_err;
-	uint64_t          rcv_switch_relay_err;
-	uint64_t          xmit_discards;
-	uint64_t          xmit_constraint_err;
-	uint64_t          rcv_constraint_err;
-	uint64_t          link_integrity;
-	uint64_t          buffer_overrun;
-	uint64_t          vl15_dropped;
-	time_t            time_diff_s;
+	uint64_t symbol_err_cnt;
+	uint64_t link_err_recover;
+	uint64_t link_downed;
+	uint64_t rcv_err;
+	uint64_t rcv_rem_phys_err;
+	uint64_t rcv_switch_relay_err;
+	uint64_t xmit_discards;
+	uint64_t xmit_constraint_err;
+	uint64_t rcv_constraint_err;
+	uint64_t link_integrity;
+	uint64_t buffer_overrun;
+	uint64_t vl15_dropped;
+	time_t time_diff_s;
 } osm_epi_pe_event_t;
 
 /** =========================================================================
@@ -113,15 +109,15 @@ typedef struct {
  */
 typedef struct {
 	osm_epi_port_id_t port_id;
-	uint64_t          xmit_data;
-	uint64_t          rcv_data;
-	uint64_t          xmit_pkts;
-	uint64_t          rcv_pkts;
-	uint64_t          unicast_xmit_pkts;
-	uint64_t          unicast_rcv_pkts;
-	uint64_t          multicast_xmit_pkts;
-	uint64_t          multicast_rcv_pkts;
-	time_t            time_diff_s;
+	uint64_t xmit_data;
+	uint64_t rcv_data;
+	uint64_t xmit_pkts;
+	uint64_t rcv_pkts;
+	uint64_t unicast_xmit_pkts;
+	uint64_t unicast_rcv_pkts;
+	uint64_t multicast_xmit_pkts;
+	uint64_t multicast_rcv_pkts;
+	time_t time_diff_s;
 } osm_epi_dc_event_t;
 
 /** =========================================================================
@@ -130,8 +126,8 @@ typedef struct {
  */
 typedef struct {
 	osm_epi_port_id_t port_id;
-	uint64_t          xmit_wait;
-	time_t            time_diff_s;
+	uint64_t xmit_wait;
+	time_t time_diff_s;
 } osm_epi_ps_event_t;
 
 /** =========================================================================
@@ -139,11 +135,11 @@ typedef struct {
  */
 typedef struct {
 	osm_epi_port_id_t port_id;
-	uint8_t           type;
-	uint32_t          prod_type;
-	uint16_t          trap_num;
-	uint16_t          issuer_lid;
-	time_t            time;
+	uint8_t type;
+	uint32_t prod_type;
+	uint16_t trap_num;
+	uint16_t issuer_lid;
+	time_t time;
 } osm_epi_trap_event_t;
 
 /** =========================================================================
@@ -153,15 +149,13 @@ typedef struct {
  */
 #define OSM_EVENT_PLUGIN_IMPL_NAME "osm_event_plugin"
 #define OSM_EVENT_PLUGIN_INTERFACE_VER (1)
-typedef struct
-{
-	int   interface_version;
-	void *(*construct)(osm_log_t *osm_log);
-	void  (*destroy)(void *plugin_data);
+typedef struct {
+	int interface_version;
+	void *(*construct) (osm_log_t * osm_log);
+	void (*destroy) (void *plugin_data);
 
-	void  (*report)(void *plugin_data,
-			osm_epi_event_id_t event_id,
-			void *event_data);
+	void (*report) (void *plugin_data,
+			osm_epi_event_id_t event_id, void *event_data);
 
 } __osm_epi_plugin_t;
 
@@ -169,36 +163,32 @@ typedef struct
  * The database structure should be considered opaque
  */
 typedef struct {
-	void                *handle;
-	__osm_epi_plugin_t  *impl;
-	void                *plugin_data;
-	osm_log_t           *p_log;
+	void *handle;
+	__osm_epi_plugin_t *impl;
+	void *plugin_data;
+	osm_log_t *p_log;
 } osm_epi_plugin_t;
-
 
 /**
  * functions
  */
-osm_epi_plugin_t *osm_epi_construct(osm_log_t *p_log, char *plugin_name);
-void              osm_epi_destroy(osm_epi_plugin_t *plugin);
-void              osm_epi_report(osm_epi_plugin_t *plugin,
-				osm_epi_event_id_t event_id,
-				void *event_data);
+osm_epi_plugin_t *osm_epi_construct(osm_log_t * p_log, char *plugin_name);
+void osm_epi_destroy(osm_epi_plugin_t * plugin);
+void osm_epi_report(osm_epi_plugin_t * plugin,
+		    osm_epi_event_id_t event_id, void *event_data);
 
 /** =========================================================================
  * Helper functions
  */
 static inline void
-osm_epi_create_port_id(osm_epi_port_id_t *port_id, uint64_t node_guid,
-			uint8_t port_num, char *node_name)
+osm_epi_create_port_id(osm_epi_port_id_t * port_id, uint64_t node_guid,
+		       uint8_t port_num, char *node_name)
 {
 	port_id->node_guid = node_guid;
 	port_id->port_num = port_num;
 	strncpy(port_id->node_name, node_name, OSM_EPI_NODE_NAME_LEN);
-	port_id->node_name[OSM_EPI_NODE_NAME_LEN-1] = '\0';
+	port_id->node_name[OSM_EPI_NODE_NAME_LEN - 1] = '\0';
 }
 
 END_C_DECLS
-
-#endif		/* _OSM_EVENT_PLUGIN_H_ */
-
+#endif				/* _OSM_EVENT_PLUGIN_H_ */

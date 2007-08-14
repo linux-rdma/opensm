@@ -65,26 +65,21 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 #define LOG_ENTRY_SIZE_MAX		4096
 #define BUF_SIZE			LOG_ENTRY_SIZE_MAX
-
 #define __func__ __FUNCTION__
-
 #define OSM_LOG_ENTER( OSM_LOG_PTR, NAME ) \
 	osm_log( OSM_LOG_PTR, OSM_LOG_FUNCS, \
 		 "%s: [\n", __func__);
-
 #define OSM_LOG_EXIT( OSM_LOG_PTR ) \
 	osm_log( OSM_LOG_PTR, OSM_LOG_FUNCS, \
 		 "%s: ]\n", __func__);
-
 /****h* OpenSM/Log
 * NAME
 *	Log
@@ -119,17 +114,16 @@ typedef uint8_t osm_log_level_t;
 *
 * SYNOPSIS
 */
-typedef struct _osm_log
-{
-	osm_log_level_t			level;
-	cl_spinlock_t			lock;
-	unsigned long			count;
-	unsigned long                   max_size;
-	boolean_t			flush;
-	FILE*				out_port;
-  	boolean_t			accum_log_file;
-	boolean_t			daemon;
-        char*				log_file_name;
+typedef struct _osm_log {
+	osm_log_level_t level;
+	cl_spinlock_t lock;
+	unsigned long count;
+	unsigned long max_size;
+	boolean_t flush;
+	FILE *out_port;
+	boolean_t accum_log_file;
+	boolean_t daemon;
+	char *log_file_name;
 } osm_log_t;
 /*********/
 
@@ -142,12 +136,11 @@ typedef struct _osm_log
 *
 * SYNOPSIS
 */
-static inline void
-osm_log_construct(
-	IN osm_log_t* const p_log )
+static inline void osm_log_construct(IN osm_log_t * const p_log)
 {
-	cl_spinlock_construct( &p_log->lock );
+	cl_spinlock_construct(&p_log->lock);
 }
+
 /*
 * PARAMETERS
 *	p_log
@@ -177,17 +170,16 @@ osm_log_construct(
 *
 * SYNOPSIS
 */
-static inline void
-osm_log_destroy(
-	IN osm_log_t* const p_log )
+static inline void osm_log_destroy(IN osm_log_t * const p_log)
 {
-	cl_spinlock_destroy( &p_log->lock );
+	cl_spinlock_destroy(&p_log->lock);
 	if (p_log->out_port != stdout) {
-	  fclose(p_log->out_port);
-	  p_log->out_port = stdout;
+		fclose(p_log->out_port);
+		p_log->out_port = stdout;
 	}
 	closelog();
 }
+
 /*
 * PARAMETERS
 *	p_log
@@ -219,13 +211,12 @@ osm_log_destroy(
 * SYNOPSIS
 */
 ib_api_status_t
-osm_log_init_v2(
-  IN osm_log_t* const p_log,
-  IN const boolean_t flush,
-  IN const uint8_t log_flags,
-  IN const char *log_file,
-  IN const unsigned long max_size,
-  IN const boolean_t accum_log_file );
+osm_log_init_v2(IN osm_log_t * const p_log,
+		IN const boolean_t flush,
+		IN const uint8_t log_flags,
+		IN const char *log_file,
+		IN const unsigned long max_size,
+		IN const boolean_t accum_log_file);
 /*
 * PARAMETERS
 *	p_log
@@ -263,9 +254,7 @@ osm_log_init_v2(
 *
 * SYNOPSIS
 */
-int
-osm_log_reopen_file(
-	osm_log_t *p_log);
+int osm_log_reopen_file(osm_log_t * p_log);
 /*
 * PARAMETERS
 *	p_log
@@ -286,12 +275,10 @@ osm_log_reopen_file(
 * SYNOPSIS
 */
 ib_api_status_t
-osm_log_init(
-  IN osm_log_t* const p_log,
-  IN const boolean_t flush,
-  IN const uint8_t log_flags,
-  IN const char *log_file,
-  IN const boolean_t accum_log_file );
+osm_log_init(IN osm_log_t * const p_log,
+	     IN const boolean_t flush,
+	     IN const uint8_t log_flags,
+	     IN const char *log_file, IN const boolean_t accum_log_file);
 /*
  * Same as osm_log_init_v2() but without max_size parameter
  */
@@ -306,11 +293,11 @@ osm_log_init(
 * SYNOPSIS
 */
 static inline osm_log_level_t
-osm_log_get_level(
-	IN const osm_log_t* const p_log )
+osm_log_get_level(IN const osm_log_t * const p_log)
 {
-	return( p_log->level );
+	return (p_log->level);
 }
+
 /*
 * PARAMETERS
 *	p_log
@@ -336,12 +323,11 @@ osm_log_get_level(
 * SYNOPSIS
 */
 static inline void
-osm_log_set_level(
-	IN osm_log_t* const p_log,
-	IN const osm_log_level_t level )
+osm_log_set_level(IN osm_log_t * const p_log, IN const osm_log_level_t level)
 {
 	p_log->level = level;
 }
+
 /*
 * PARAMETERS
 *	p_log
@@ -371,12 +357,12 @@ osm_log_set_level(
 * SYNOPSIS
 */
 static inline boolean_t
-osm_log_is_active(
-	IN const osm_log_t* const p_log,
-	IN const osm_log_level_t level )
+osm_log_is_active(IN const osm_log_t * const p_log,
+		  IN const osm_log_level_t level)
 {
-	return( (p_log->level & level) != 0 );
+	return ((p_log->level & level) != 0);
 }
+
 /*
 * PARAMETERS
 *	p_log
@@ -396,20 +382,17 @@ osm_log_is_active(
 *	osm_log_destroy
 *********/
 
-extern int osm_log_printf(osm_log_t *p_log, osm_log_level_t level,
+extern int osm_log_printf(osm_log_t * p_log, osm_log_level_t level,
 			  const char *fmt, ...);
 
 void
-osm_log(
-	IN osm_log_t* const p_log,
+osm_log(IN osm_log_t * const p_log,
 	IN const osm_log_level_t verbosity,
-	IN const char *p_str, ... ) STRICT_OSM_LOG_FORMAT;
+	IN const char *p_str, ...) STRICT_OSM_LOG_FORMAT;
 
 void
-osm_log_raw(
-	IN osm_log_t* const p_log,
-	IN const osm_log_level_t verbosity,
-	IN const char *p_buf );
+osm_log_raw(IN osm_log_t * const p_log,
+	    IN const osm_log_level_t verbosity, IN const char *p_buf);
 
 #define DBG_CL_LOCK 0
 
@@ -479,8 +462,7 @@ osm_log_raw(
 *
 * SYNOPSIS
 */
-boolean_t
-osm_is_debug(void);
+boolean_t osm_is_debug(void);
 /*
 * PARAMETERS
 *    None
@@ -493,5 +475,4 @@ osm_is_debug(void);
 *********/
 
 END_C_DECLS
-
-#endif		/* _OSM_LOG_H_ */
+#endif				/* _OSM_LOG_H_ */

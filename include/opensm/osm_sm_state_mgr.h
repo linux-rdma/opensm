@@ -64,13 +64,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* OpenSM/SM State Manager
 * NAME
 *	SM State Manager
@@ -88,7 +87,6 @@ BEGIN_C_DECLS
 *	Yael Kalka, Mellanox
 *
 *********/
-
 /****s* OpenSM: SM State Manager/osm_sm_state_mgr_t
 * NAME
 *	osm_sm_state_mgr_t
@@ -101,17 +99,16 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_sm_state_mgr
-{
-	cl_spinlock_t    state_lock;
-	cl_timer_t       polling_timer;
-	uint32_t         retry_number;
-	ib_net64_t       master_guid;
-	osm_state_mgr_t* p_state_mgr;
-	osm_subn_t*      p_subn;
-	osm_req_t*       p_req;
-	osm_log_t*       p_log;
-	osm_remote_sm_t* p_polling_sm;
+typedef struct _osm_sm_state_mgr {
+	cl_spinlock_t state_lock;
+	cl_timer_t polling_timer;
+	uint32_t retry_number;
+	ib_net64_t master_guid;
+	osm_state_mgr_t *p_state_mgr;
+	osm_subn_t *p_subn;
+	osm_req_t *p_req;
+	osm_log_t *p_log;
+	osm_remote_sm_t *p_polling_sm;
 } osm_sm_state_mgr_t;
 
 /*
@@ -159,9 +156,7 @@ typedef struct _osm_sm_state_mgr
 *
 * SYNOPSIS
 */
-void
-osm_sm_state_mgr_construct(
-	IN osm_sm_state_mgr_t* const p_sm_mgr );
+void osm_sm_state_mgr_construct(IN osm_sm_state_mgr_t * const p_sm_mgr);
 /*
 * PARAMETERS
 *	p_sm_mgr
@@ -191,9 +186,7 @@ osm_sm_state_mgr_construct(
 *
 * SYNOPSIS
 */
-void
-osm_sm_state_mgr_destroy(
-	IN osm_sm_state_mgr_t* const p_sm_mgr );
+void osm_sm_state_mgr_destroy(IN osm_sm_state_mgr_t * const p_sm_mgr);
 /*
 * PARAMETERS
 *	p_sm_mgr
@@ -225,12 +218,10 @@ osm_sm_state_mgr_destroy(
 * SYNOPSIS
 */
 ib_api_status_t
-osm_sm_state_mgr_init(
-	IN osm_sm_state_mgr_t*	const p_sm_mgr,
-	IN osm_state_mgr_t*     const p_state_mgr,
-	IN osm_subn_t*				const p_subn,
-	IN osm_req_t*           const p_req,
-	IN osm_log_t*				const p_log );
+osm_sm_state_mgr_init(IN osm_sm_state_mgr_t * const p_sm_mgr,
+		      IN osm_state_mgr_t * const p_state_mgr,
+		      IN osm_subn_t * const p_subn,
+		      IN osm_req_t * const p_req, IN osm_log_t * const p_log);
 /*
 * PARAMETERS
 *	p_sm_mgr
@@ -271,9 +262,8 @@ osm_sm_state_mgr_init(
 * SYNOPSIS
 */
 ib_api_status_t
-osm_sm_state_mgr_process(
-	IN osm_sm_state_mgr_t* const p_sm_mgr,
-	IN osm_sm_signal_t signal );
+osm_sm_state_mgr_process(IN osm_sm_state_mgr_t * const p_sm_mgr,
+			 IN osm_sm_signal_t signal);
 /*
 * PARAMETERS
 *	p_sm_mgr
@@ -291,7 +281,6 @@ osm_sm_state_mgr_process(
 *	State Manager
 *********/
 
-
 /****f* OpenSM: SM State Manager/osm_sm_state_mgr_signal_master_is_alive
 * NAME
 *	osm_sm_state_mgr_signal_master_is_alive
@@ -303,8 +292,7 @@ osm_sm_state_mgr_process(
 * SYNOPSIS
 */
 void
-osm_sm_state_mgr_signal_master_is_alive(
-		IN osm_sm_state_mgr_t* const p_sm_mgr );
+osm_sm_state_mgr_signal_master_is_alive(IN osm_sm_state_mgr_t * const p_sm_mgr);
 /*
 * PARAMETERS
 *	p_sm_mgr
@@ -330,9 +318,8 @@ osm_sm_state_mgr_signal_master_is_alive(
 * SYNOPSIS
 */
 ib_api_status_t
-osm_sm_state_mgr_check_legality(
-	IN osm_sm_state_mgr_t* const p_sm_mgr,
-	IN osm_sm_signal_t signal );
+osm_sm_state_mgr_check_legality(IN osm_sm_state_mgr_t * const p_sm_mgr,
+				IN osm_sm_signal_t signal);
 /*
 * PARAMETERS
 *	p_sm_mgr
@@ -351,5 +338,4 @@ osm_sm_state_mgr_check_legality(
 *********/
 
 END_C_DECLS
-
-#endif	/* _OSM_SM_STATE_MGR_H_ */
+#endif				/* _OSM_SM_STATE_MGR_H_ */

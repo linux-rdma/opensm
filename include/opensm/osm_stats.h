@@ -54,13 +54,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* OpenSM/Statistics
 * NAME
 *	OpenSM
@@ -73,7 +72,6 @@ BEGIN_C_DECLS
 *	Steve King, Intel
 *
 *********/
-
 /****s* OpenSM: Statistics/osm_stats_t
 * NAME
 *	osm_stats_t
@@ -83,16 +81,15 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_stats
-{
-	atomic32_t					qp0_mads_outstanding;
-	atomic32_t					qp0_mads_outstanding_on_wire;
-	atomic32_t					qp0_mads_rcvd;
-	atomic32_t					qp0_mads_sent;
-	atomic32_t					qp0_unicasts_sent;
-	atomic32_t					sa_mads_outstanding;
-	atomic32_t					sa_mads_rcvd;
-	atomic32_t					sa_mads_sent;
+typedef struct _osm_stats {
+	atomic32_t qp0_mads_outstanding;
+	atomic32_t qp0_mads_outstanding_on_wire;
+	atomic32_t qp0_mads_rcvd;
+	atomic32_t qp0_mads_sent;
+	atomic32_t qp0_unicasts_sent;
+	atomic32_t sa_mads_outstanding;
+	atomic32_t sa_mads_rcvd;
+	atomic32_t sa_mads_sent;
 
 } osm_stats_t;
 /*
@@ -121,5 +118,4 @@ typedef struct _osm_stats
 ***************/
 
 END_C_DECLS
-
-#endif	/* _OSM_STATS_H_ */
+#endif				/* _OSM_STATS_H_ */

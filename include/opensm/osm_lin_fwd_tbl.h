@@ -55,13 +55,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* OpenSM/Linear Forwarding Table
 * NAME
 *	Linear Forwarding Table
@@ -79,7 +78,6 @@ BEGIN_C_DECLS
 *	Steve King, Intel
 *
 *********/
-
 /****s* OpenSM: Forwarding Table/osm_lin_fwd_tbl_t
 * NAME
 *	osm_lin_fwd_tbl_t
@@ -91,10 +89,9 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_lin_fwd_tbl
-{
-	uint16_t	size;
-	uint8_t		port_tbl[1];
+typedef struct _osm_lin_fwd_tbl {
+	uint16_t size;
+	uint8_t port_tbl[1];
 } osm_lin_fwd_tbl_t;
 /*
 * FIELDS
@@ -119,9 +116,7 @@ typedef struct _osm_lin_fwd_tbl
 *
 * SYNOPSIS
 */
-osm_lin_fwd_tbl_t*
-osm_lin_tbl_new(
-	IN uint16_t const size );
+osm_lin_fwd_tbl_t *osm_lin_tbl_new(IN uint16_t const size);
 /*
 * PARAMETERS
 *	size
@@ -146,9 +141,7 @@ osm_lin_tbl_new(
 *
 * SYNOPSIS
 */
-void
-osm_lin_tbl_delete(
-	IN osm_lin_fwd_tbl_t** const pp_tbl );
+void osm_lin_tbl_delete(IN osm_lin_fwd_tbl_t ** const pp_tbl);
 /*
 * PARAMETERS
 *	pp_tbl
@@ -174,15 +167,14 @@ osm_lin_tbl_delete(
 * SYNOPSIS
 */
 static inline void
-osm_lin_fwd_tbl_set(
-	IN osm_lin_fwd_tbl_t* const p_tbl,
-	IN const uint16_t lid_ho,
-	IN const uint8_t port )
+osm_lin_fwd_tbl_set(IN osm_lin_fwd_tbl_t * const p_tbl,
+		    IN const uint16_t lid_ho, IN const uint8_t port)
 {
-	CL_ASSERT( lid_ho < p_tbl->size );
-	if( lid_ho < p_tbl->size )
+	CL_ASSERT(lid_ho < p_tbl->size);
+	if (lid_ho < p_tbl->size)
 		p_tbl->port_tbl[lid_ho] = port;
 }
+
 /*
 * PARAMETERS
 *	p_tbl
@@ -212,15 +204,15 @@ osm_lin_fwd_tbl_set(
 * SYNOPSIS
 */
 static inline uint8_t
-osm_lin_fwd_tbl_get(
-	IN const osm_lin_fwd_tbl_t* const p_tbl,
-	IN const uint16_t lid_ho )
+osm_lin_fwd_tbl_get(IN const osm_lin_fwd_tbl_t * const p_tbl,
+		    IN const uint16_t lid_ho)
 {
-	if( lid_ho < p_tbl->size )
-		return( p_tbl->port_tbl[lid_ho] );
+	if (lid_ho < p_tbl->size)
+		return (p_tbl->port_tbl[lid_ho]);
 	else
-		return( 0xFF );
+		return (0xFF);
 }
+
 /*
 * PARAMETERS
 *	p_tbl
@@ -247,11 +239,11 @@ osm_lin_fwd_tbl_get(
 * SYNOPSIS
 */
 static inline uint16_t
-osm_lin_fwd_tbl_get_size(
-	IN const osm_lin_fwd_tbl_t* const p_tbl )
+osm_lin_fwd_tbl_get_size(IN const osm_lin_fwd_tbl_t * const p_tbl)
 {
-	return( p_tbl->size );
+	return (p_tbl->size);
 }
+
 /*
 * PARAMETERS
 *	p_tbl
@@ -275,12 +267,12 @@ osm_lin_fwd_tbl_get_size(
 * SYNOPSIS
 */
 static inline uint16_t
-osm_lin_fwd_tbl_get_lids_per_block(
-	IN const osm_lin_fwd_tbl_t* const p_tbl )
+osm_lin_fwd_tbl_get_lids_per_block(IN const osm_lin_fwd_tbl_t * const p_tbl)
 {
-	UNUSED_PARAM( p_tbl );
-	return( 64 );
+	UNUSED_PARAM(p_tbl);
+	return (64);
 }
+
 /*
 * PARAMETERS
 *	p_tbl
@@ -304,13 +296,14 @@ osm_lin_fwd_tbl_get_lids_per_block(
 * SYNOPSIS
 */
 static inline uint16_t
-osm_lin_fwd_tbl_get_max_block_id_in_use(
-	IN const osm_lin_fwd_tbl_t* const p_tbl,
-	IN const uint16_t lid_top_ho )
+osm_lin_fwd_tbl_get_max_block_id_in_use(IN const osm_lin_fwd_tbl_t *
+					const p_tbl,
+					IN const uint16_t lid_top_ho)
 {
-	return( (uint16_t)(lid_top_ho /
-			osm_lin_fwd_tbl_get_lids_per_block( p_tbl ) ) );
+	return ((uint16_t) (lid_top_ho /
+			    osm_lin_fwd_tbl_get_lids_per_block(p_tbl)));
 }
+
 /*
 * PARAMETERS
 *	p_tbl
@@ -334,26 +327,26 @@ osm_lin_fwd_tbl_get_max_block_id_in_use(
 * SYNOPSIS
 */
 static inline ib_api_status_t
-osm_lin_fwd_tbl_set_block(
-	IN osm_lin_fwd_tbl_t* const p_tbl,
-	IN const uint8_t* const p_block,
-	IN const uint32_t block_num )
+osm_lin_fwd_tbl_set_block(IN osm_lin_fwd_tbl_t * const p_tbl,
+			  IN const uint8_t * const p_block,
+			  IN const uint32_t block_num)
 {
 	uint16_t lid_start;
 	uint16_t num_lids;
 
-	CL_ASSERT( p_tbl );
-	CL_ASSERT( p_block );
+	CL_ASSERT(p_tbl);
+	CL_ASSERT(p_block);
 
-	num_lids = osm_lin_fwd_tbl_get_lids_per_block( p_tbl );
-	lid_start = (uint16_t)(block_num * num_lids);
+	num_lids = osm_lin_fwd_tbl_get_lids_per_block(p_tbl);
+	lid_start = (uint16_t) (block_num * num_lids);
 
-	if( lid_start + num_lids > p_tbl->size )
-		return( IB_INVALID_PARAMETER );
+	if (lid_start + num_lids > p_tbl->size)
+		return (IB_INVALID_PARAMETER);
 
-	memcpy( &p_tbl->port_tbl[lid_start], p_block, num_lids );
-	return( IB_SUCCESS );
+	memcpy(&p_tbl->port_tbl[lid_start], p_block, num_lids);
+	return (IB_SUCCESS);
 }
+
 /*
 * PARAMETERS
 *	p_tbl
@@ -374,5 +367,4 @@ osm_lin_fwd_tbl_set_block(
 *********/
 
 END_C_DECLS
-
-#endif		/* _OSM_LIN_FWD_TBL_H_ */
+#endif				/* _OSM_LIN_FWD_TBL_H_ */

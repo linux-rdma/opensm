@@ -50,13 +50,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* OpenSM/Database
 * NAME
 *	Database
@@ -79,7 +78,6 @@ BEGIN_C_DECLS
 *	Eitan Zahavi, Mellanox Technologies LTD
 *
 *********/
-
 /****s* OpenSM: Database/osm_db_domain_t
 * NAME
 *	osm_db_domain_t
@@ -93,8 +91,8 @@ BEGIN_C_DECLS
 * SYNOPSIS
 */
 typedef struct _osm_db_domain {
-  struct _osm_db     *p_db;
-  void               *p_domain_imp;
+	struct _osm_db *p_db;
+	void *p_domain_imp;
 } osm_db_domain_t;
 /*
 * FIELDS
@@ -120,11 +118,10 @@ typedef struct _osm_db_domain {
 *
 * SYNOPSIS
 */
-typedef struct _osm_db
-{
-  void        *p_db_imp;
-  osm_log_t   *p_log;
-  cl_list_t    domains;
+typedef struct _osm_db {
+	void *p_db_imp;
+	osm_log_t *p_log;
+	cl_list_t domains;
 } osm_db_t;
 /*
 * FIELDS
@@ -149,9 +146,7 @@ typedef struct _osm_db
 *
 * SYNOPSIS
 */
-void
-osm_db_construct(
-   IN osm_db_t* const p_db );
+void osm_db_construct(IN osm_db_t * const p_db);
 /*
 * PARAMETERS
 *	p_db
@@ -173,9 +168,7 @@ osm_db_construct(
 *
 * SYNOPSIS
 */
-void
-osm_db_destroy(
-	IN osm_db_t* const p_db );
+void osm_db_destroy(IN osm_db_t * const p_db);
 /*
 * PARAMETERS
 *	p_db
@@ -194,10 +187,7 @@ osm_db_destroy(
 *
 * SYNOPSIS
 */
-int
-osm_db_init(
-	IN osm_db_t* const p_db,
-	IN osm_log_t *p_log  );
+int osm_db_init(IN osm_db_t * const p_db, IN osm_log_t * p_log);
 /*
 * PARAMETERS
 *
@@ -223,10 +213,8 @@ osm_db_init(
 *
 * SYNOPSIS
 */
-osm_db_domain_t*
-osm_db_domain_init(
-   IN osm_db_t* const p_db,
-   IN char *domain_name);
+osm_db_domain_t *osm_db_domain_init(IN osm_db_t * const p_db,
+				    IN char *domain_name);
 /*
 * PARAMETERS
 *
@@ -253,9 +241,7 @@ osm_db_domain_init(
 *
 * SYNOPSIS
 */
-int
-osm_db_restore(
-  IN osm_db_domain_t *p_domain);
+int osm_db_restore(IN osm_db_domain_t * p_domain);
 /*
 * PARAMETERS
 *
@@ -279,9 +265,7 @@ osm_db_restore(
 *
 * SYNOPSIS
 */
-int
-osm_db_clear(
-  IN osm_db_domain_t *p_domain);
+int osm_db_clear(IN osm_db_domain_t * p_domain);
 /*
 * PARAMETERS
 *
@@ -305,8 +289,7 @@ osm_db_clear(
 *
 * SYNOPSIS
 */
-int osm_db_store(
-   IN osm_db_domain_t *p_domain);
+int osm_db_store(IN osm_db_domain_t * p_domain);
 /*
 * PARAMETERS
 *
@@ -330,10 +313,7 @@ int osm_db_store(
 *
 * SYNOPSIS
 */
-int
-osm_db_keys(
-  IN osm_db_domain_t *p_domain,
-  OUT cl_list_t* p_key_list);
+int osm_db_keys(IN osm_db_domain_t * p_domain, OUT cl_list_t * p_key_list);
 /*
 * PARAMETERS
 *
@@ -364,9 +344,7 @@ osm_db_keys(
 * SYNOPSIS
 */
 /* lookup value by key */
-char *osm_db_lookup(
-   IN osm_db_domain_t *p_domain,
-   IN char *const p_key);
+char *osm_db_lookup(IN osm_db_domain_t * p_domain, IN char *const p_key);
 /*
 * PARAMETERS
 *
@@ -394,10 +372,8 @@ char *osm_db_lookup(
 * SYNOPSIS
 */
 int
-osm_db_update(
-  IN osm_db_domain_t *p_domain,
-  IN char *const p_key,
-  IN char *const p_val);
+osm_db_update(IN osm_db_domain_t * p_domain,
+	      IN char *const p_key, IN char *const p_val);
 /*
 * PARAMETERS
 *
@@ -429,10 +405,7 @@ osm_db_update(
 *
 * SYNOPSIS
 */
-int
-osm_db_delete(
-  IN osm_db_domain_t *p_domain,
-  IN char *const p_key);
+int osm_db_delete(IN osm_db_domain_t * p_domain, IN char *const p_key);
 /*
 * PARAMETERS
 *
@@ -451,5 +424,4 @@ osm_db_delete(
 *********/
 
 END_C_DECLS
-
-#endif		/* _OSM_DB_H_ */
+#endif				/* _OSM_DB_H_ */

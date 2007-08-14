@@ -56,13 +56,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* OpenSM/SA Response
 * NAME
 *	SA Response
@@ -81,7 +80,6 @@ BEGIN_C_DECLS
 *	Steve King, Intel
 *
 *********/
-
 /****s* OpenSM: SA Response/osm_sa_resp_t
 * NAME
 *	osm_sa_resp_t
@@ -94,10 +92,9 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_sa_resp
-{
-	osm_mad_pool_t				*p_pool;
-	osm_log_t				*p_log;
+typedef struct _osm_sa_resp {
+	osm_mad_pool_t *p_pool;
+	osm_log_t *p_log;
 } osm_sa_resp_t;
 /*
 * FIELDS
@@ -117,9 +114,7 @@ typedef struct _osm_sa_resp
 *
 * SYNOPSIS
 */
-void
-osm_sa_resp_construct(
-	IN osm_sa_resp_t* const p_resp );
+void osm_sa_resp_construct(IN osm_sa_resp_t * const p_resp);
 /*
 * PARAMETERS
 *	p_resp
@@ -149,9 +144,7 @@ osm_sa_resp_construct(
 *
 * SYNOPSIS
 */
-void
-osm_sa_resp_destroy(
-	IN osm_sa_resp_t* const p_resp );
+void osm_sa_resp_destroy(IN osm_sa_resp_t * const p_resp);
 /*
 * PARAMETERS
 *	p_resp
@@ -183,10 +176,8 @@ osm_sa_resp_destroy(
 * SYNOPSIS
 */
 ib_api_status_t
-osm_sa_resp_init(
-	IN osm_sa_resp_t*		const p_resp,
-	IN osm_mad_pool_t*		const p_pool,
-	IN osm_log_t*			const p_log );
+osm_sa_resp_init(IN osm_sa_resp_t * const p_resp,
+		 IN osm_mad_pool_t * const p_pool, IN osm_log_t * const p_log);
 /*
 * PARAMETERS
 *	p_resp
@@ -224,10 +215,9 @@ osm_sa_resp_init(
 * SYNOPSIS
 */
 void
-osm_sa_send_error(
-    IN osm_sa_resp_t*		const p_resp,
-    IN const osm_madw_t*	const p_madw,
-    IN const ib_net16_t		sa_status );
+osm_sa_send_error(IN osm_sa_resp_t * const p_resp,
+		  IN const osm_madw_t * const p_madw,
+		  IN const ib_net16_t sa_status);
 /*
 * PARAMETERS
 *	p_resp
@@ -251,5 +241,4 @@ osm_sa_send_error(
 *********/
 
 END_C_DECLS
-
-#endif	/* _OSM_SA_RESP_H_ */
+#endif				/* _OSM_SA_RESP_H_ */

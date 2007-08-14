@@ -46,13 +46,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /*
    Forward references.
 */
@@ -86,14 +85,13 @@ struct _osm_physp;
 *
 * SYNOPSIS
 */
-typedef struct _osm_pkey_tbl
-{
-  cl_ptr_vector_t blocks;
-  cl_ptr_vector_t new_blocks;
-  cl_map_t        keys;
-  cl_qlist_t      pending;
-  uint16_t        used_blocks;
-  uint16_t        max_blocks;
+typedef struct _osm_pkey_tbl {
+	cl_ptr_vector_t blocks;
+	cl_ptr_vector_t new_blocks;
+	cl_map_t keys;
+	cl_qlist_t pending;
+	uint16_t used_blocks;
+	uint16_t max_blocks;
 } osm_pkey_tbl_t;
 /*
 * FIELDS
@@ -140,11 +138,11 @@ typedef struct _osm_pkey_tbl
 * SYNOPSIS
 */
 typedef struct _osm_pending_pkey {
-  cl_list_item_t	list_item;
-  uint16_t		pkey;
-  uint16_t		block;
-  uint8_t		index;
-  boolean_t		is_new;
+	cl_list_item_t list_item;
+	uint16_t pkey;
+	uint16_t block;
+	uint8_t index;
+	boolean_t is_new;
 } osm_pending_pkey_t;
 /*
 * FIELDS
@@ -173,8 +171,7 @@ typedef struct _osm_pending_pkey {
 *
 * SYNOPSIS
 */
-void osm_pkey_tbl_construct(
-  IN osm_pkey_tbl_t *p_pkey_tbl);
+void osm_pkey_tbl_construct(IN osm_pkey_tbl_t * p_pkey_tbl);
 /*
 *  p_pkey_tbl
 *     [in] Pointer to osm_pkey_tbl_t object.
@@ -192,9 +189,7 @@ void osm_pkey_tbl_construct(
 *
 * SYNOPSIS
 */
-ib_api_status_t
-osm_pkey_tbl_init(
-  IN osm_pkey_tbl_t *p_pkey_tbl);
+ib_api_status_t osm_pkey_tbl_init(IN osm_pkey_tbl_t * p_pkey_tbl);
 /*
 *  p_pkey_tbl
 *     [in] Pointer to osm_pkey_tbl_t object.
@@ -212,8 +207,7 @@ osm_pkey_tbl_init(
 *
 * SYNOPSIS
 */
-void osm_pkey_tbl_destroy(
-  IN osm_pkey_tbl_t *p_pkey_tbl);
+void osm_pkey_tbl_destroy(IN osm_pkey_tbl_t * p_pkey_tbl);
 /*
 *  p_pkey_tbl
 *     [in] Pointer to osm_pkey_tbl_t object.
@@ -232,11 +226,11 @@ void osm_pkey_tbl_destroy(
 * SYNOPSIS
 */
 static inline uint16_t
-osm_pkey_tbl_get_num_blocks(
-  IN const osm_pkey_tbl_t *p_pkey_tbl )
+osm_pkey_tbl_get_num_blocks(IN const osm_pkey_tbl_t * p_pkey_tbl)
 {
-  return((uint16_t)(cl_ptr_vector_get_size( &p_pkey_tbl->blocks )));
+	return ((uint16_t) (cl_ptr_vector_get_size(&p_pkey_tbl->blocks)));
 }
+
 /*
 *  p_pkey_tbl
 *     [in] Pointer to osm_pkey_tbl_t object.
@@ -257,12 +251,14 @@ osm_pkey_tbl_get_num_blocks(
 *
 * SYNOPSIS
 */
-static inline ib_pkey_table_t *osm_pkey_tbl_block_get(
-  const osm_pkey_tbl_t *p_pkey_tbl, uint16_t block)
+static inline ib_pkey_table_t *osm_pkey_tbl_block_get(const osm_pkey_tbl_t *
+						      p_pkey_tbl,
+						      uint16_t block)
 {
-  return( (block < cl_ptr_vector_get_size(&p_pkey_tbl->blocks)) ?
-          cl_ptr_vector_get(&p_pkey_tbl->blocks, block) : NULL );
+	return ((block < cl_ptr_vector_get_size(&p_pkey_tbl->blocks)) ?
+		cl_ptr_vector_get(&p_pkey_tbl->blocks, block) : NULL);
 };
+
 /*
 *  p_pkey_tbl
 *     [in] Pointer to osm_pkey_tbl_t object.
@@ -286,11 +282,12 @@ static inline ib_pkey_table_t *osm_pkey_tbl_block_get(
 *
 * SYNOPSIS
 */
-static inline ib_pkey_table_t *osm_pkey_tbl_new_block_get(
-  const osm_pkey_tbl_t *p_pkey_tbl, uint16_t block)
+static inline ib_pkey_table_t *osm_pkey_tbl_new_block_get(const osm_pkey_tbl_t *
+							  p_pkey_tbl,
+							  uint16_t block)
 {
-  return (block < cl_ptr_vector_get_size(&p_pkey_tbl->new_blocks)) ?
-          cl_ptr_vector_get(&p_pkey_tbl->new_blocks, block) : NULL;
+	return (block < cl_ptr_vector_get_size(&p_pkey_tbl->new_blocks)) ?
+	    cl_ptr_vector_get(&p_pkey_tbl->new_blocks, block) : NULL;
 };
 
 /****f* OpenSM: osm_pkey_tbl_set_new_entry
@@ -304,11 +301,9 @@ static inline ib_pkey_table_t *osm_pkey_tbl_new_block_get(
 * SYNOPSIS
 */
 ib_api_status_t
-osm_pkey_tbl_set_new_entry(
-	IN osm_pkey_tbl_t *p_pkey_tbl,
-	IN uint16_t        block_idx,
-	IN uint8_t         pkey_idx,
-	IN uint16_t        pkey);
+osm_pkey_tbl_set_new_entry(IN osm_pkey_tbl_t * p_pkey_tbl,
+			   IN uint16_t block_idx,
+			   IN uint8_t pkey_idx, IN uint16_t pkey);
 /*
 * p_pkey_tbl
 *   [in] Pointer to the PKey table
@@ -341,10 +336,9 @@ osm_pkey_tbl_set_new_entry(
 * SYNOPSIS
 */
 boolean_t
-osm_pkey_find_next_free_entry(
-	IN osm_pkey_tbl_t *p_pkey_tbl,
-	OUT uint16_t      *p_block_idx,
-	OUT uint8_t       *p_pkey_idx);
+osm_pkey_find_next_free_entry(IN osm_pkey_tbl_t * p_pkey_tbl,
+			      OUT uint16_t * p_block_idx,
+			      OUT uint8_t * p_pkey_idx);
 /*
 * p_pkey_tbl
 *   [in] Pointer to the PKey table
@@ -370,8 +364,7 @@ osm_pkey_find_next_free_entry(
 *
 * SYNOPSIS
 */
-void osm_pkey_tbl_init_new_blocks(
-  const osm_pkey_tbl_t *p_pkey_tbl);
+void osm_pkey_tbl_init_new_blocks(const osm_pkey_tbl_t * p_pkey_tbl);
 /*
 *  p_pkey_tbl
 *     [in] Pointer to osm_pkey_tbl_t object.
@@ -392,11 +385,10 @@ void osm_pkey_tbl_init_new_blocks(
 * SYNOPSIS
 */
 ib_api_status_t
-osm_pkey_tbl_get_block_and_idx(
-  IN  osm_pkey_tbl_t *p_pkey_tbl,
-  IN  uint16_t       *p_pkey,
-  OUT uint16_t       *block_idx,
-  OUT uint8_t        *pkey_index);
+osm_pkey_tbl_get_block_and_idx(IN osm_pkey_tbl_t * p_pkey_tbl,
+			       IN uint16_t * p_pkey,
+			       OUT uint16_t * block_idx,
+			       OUT uint8_t * pkey_index);
 /*
 *  p_pkey_tbl
 *     [in] Pointer to osm_pkey_tbl_t object.
@@ -424,10 +416,8 @@ osm_pkey_tbl_get_block_and_idx(
 * SYNOPSIS
 */
 ib_api_status_t
-osm_pkey_tbl_set(
-  IN osm_pkey_tbl_t *p_pkey_tbl,
-  IN uint16_t block,
-  IN ib_pkey_table_t *p_tbl);
+osm_pkey_tbl_set(IN osm_pkey_tbl_t * p_pkey_tbl,
+		 IN uint16_t block, IN ib_pkey_table_t * p_tbl);
 /*
 *  p_pkey_tbl
 *     [in] Pointer to osm_pkey_tbl_t object.
@@ -454,10 +444,9 @@ osm_pkey_tbl_set(
 *
 * SYNOPSIS
 */
-boolean_t osm_physp_share_this_pkey(
-  IN const struct _osm_physp * const p_physp1,
-  IN const struct _osm_physp * const p_physp2,
-  IN const ib_net16_t    pkey);
+boolean_t osm_physp_share_this_pkey(IN const struct _osm_physp *const p_physp1,
+				    IN const struct _osm_physp *const p_physp2,
+				    IN const ib_net16_t pkey);
 /*
 * PARAMETERS
 *
@@ -487,9 +476,10 @@ boolean_t osm_physp_share_this_pkey(
 *
 * SYNOPSIS
 */
-ib_net16_t osm_physp_find_common_pkey(
-  IN const struct _osm_physp * const p_physp1,
-  IN const struct _osm_physp * const p_physp2 );
+ib_net16_t osm_physp_find_common_pkey(IN const struct _osm_physp *const
+				      p_physp1,
+				      IN const struct _osm_physp *const
+				      p_physp2);
 /*
 * PARAMETERS
 *
@@ -531,10 +521,9 @@ ib_net16_t osm_physp_find_common_pkey(
 *
 * SYNOPSIS
 */
-boolean_t osm_physp_share_pkey(
-  IN osm_log_t*          p_log,
-  IN const struct _osm_physp*  const p_physp_1,
-  IN const struct _osm_physp*  const p_physp_2 );
+boolean_t osm_physp_share_pkey(IN osm_log_t * p_log,
+			       IN const struct _osm_physp *const p_physp_1,
+			       IN const struct _osm_physp *const p_physp_2);
 
 /*
 * PARAMETERS
@@ -579,10 +568,9 @@ boolean_t osm_physp_share_pkey(
 *
 * SYNOPSIS
 */
-boolean_t osm_port_share_pkey(
-  IN osm_log_t*          p_log,
-  IN const struct _osm_port*   const p_port_1,
-  IN const struct _osm_port*   const p_port_2 );
+boolean_t osm_port_share_pkey(IN osm_log_t * p_log,
+			      IN const struct _osm_port *const p_port_1,
+			      IN const struct _osm_port *const p_port_2);
 
 /*
 * PARAMETERS
@@ -627,13 +615,12 @@ boolean_t osm_port_share_pkey(
 *
 * SYNOPSIS
 */
-boolean_t osm_lid_share_pkey(
-  IN osm_log_t*          p_log,
-  IN const struct _osm_subn*  const p_subn,
-  IN const ib_net16_t    lid1,
-  IN const uint8_t       port_num1,
-  IN const ib_net16_t    lid2,
-  IN const uint8_t       port_num2 );
+boolean_t osm_lid_share_pkey(IN osm_log_t * p_log,
+			     IN const struct _osm_subn *const p_subn,
+			     IN const ib_net16_t lid1,
+			     IN const uint8_t port_num1,
+			     IN const ib_net16_t lid2,
+			     IN const uint8_t port_num2);
 
 /*
 * PARAMETERS
@@ -687,10 +674,9 @@ boolean_t osm_lid_share_pkey(
 *
 * SYNOPSIS
 */
-boolean_t osm_physp_has_pkey(
-  IN osm_log_t*               p_log,
-  IN const ib_net16_t         pkey,
-  IN const struct _osm_physp* const p_physp );
+boolean_t osm_physp_has_pkey(IN osm_log_t * p_log,
+			     IN const ib_net16_t pkey,
+			     IN const struct _osm_physp *const p_physp);
 
 /*
 * PARAMETERS
@@ -719,12 +705,11 @@ boolean_t osm_physp_has_pkey(
 *
 * SYNOPSIS
 */
-void osm_pkey_get_tables(
-  IN osm_log_t			  *p_log,
-  IN osm_req_t			  *p_req,
-  IN osm_subn_t* const  p_subn,
-  IN struct _osm_node* const  p_node,
-  IN struct _osm_physp* const p_physp );
+void osm_pkey_get_tables(IN osm_log_t * p_log,
+			 IN osm_req_t * p_req,
+			 IN osm_subn_t * const p_subn,
+			 IN struct _osm_node *const p_node,
+			 IN struct _osm_physp *const p_physp);
 
 /*
 * PARAMETERS
@@ -751,5 +736,4 @@ void osm_pkey_get_tables(
 *********/
 
 END_C_DECLS
-
-#endif	/* _OSM_PKEY_H_ */
+#endif				/* _OSM_PKEY_H_ */

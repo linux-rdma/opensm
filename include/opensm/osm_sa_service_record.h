@@ -63,13 +63,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* OpenSM/Service Record Receiver
 * NAME
 *	Service Record Receiver
@@ -87,7 +86,6 @@ BEGIN_C_DECLS
 *	Anil S Keshavamurthy
 *
 *********/
-
 /****s* OpenSM: Service Record Receiver/osm_sr_rcv_t
 * NAME
 *	osm_sr_rcv_t
@@ -100,15 +98,14 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_sr_rcv
-{
-	osm_subn_t	*p_subn;
-	osm_sa_resp_t	*p_resp;
-	osm_mad_pool_t	*p_mad_pool;
-	osm_log_t	*p_log;
-	cl_plock_t	*p_lock;
-	cl_qlock_pool_t	sr_pool;
-	cl_timer_t	sr_timer;
+typedef struct _osm_sr_rcv {
+	osm_subn_t *p_subn;
+	osm_sa_resp_t *p_resp;
+	osm_mad_pool_t *p_mad_pool;
+	osm_log_t *p_log;
+	cl_plock_t *p_lock;
+	cl_qlock_pool_t sr_pool;
+	cl_timer_t sr_timer;
 } osm_sr_rcv_t;
 /*
 * FIELDS
@@ -140,9 +137,7 @@ typedef struct _osm_sr_rcv
 *
 * SYNOPSIS
 */
-void
-osm_sr_rcv_construct(
-	IN osm_sr_rcv_t* const p_rcv );
+void osm_sr_rcv_construct(IN osm_sr_rcv_t * const p_rcv);
 /*
 * PARAMETERS
 *	p_rcv
@@ -171,9 +166,7 @@ osm_sr_rcv_construct(
 *
 * SYNOPSIS
 */
-void
-osm_sr_rcv_destroy(
-	IN osm_sr_rcv_t* const p_rcv );
+void osm_sr_rcv_destroy(IN osm_sr_rcv_t * const p_rcv);
 /*
 * PARAMETERS
 *	p_rcv
@@ -205,13 +198,11 @@ osm_sr_rcv_destroy(
 * SYNOPSIS
 */
 ib_api_status_t
-osm_sr_rcv_init(
-	IN osm_sr_rcv_t* const p_rcv,
-	IN osm_sa_resp_t* const p_resp,
-	IN osm_mad_pool_t* const p_mad_pool,
-	IN osm_subn_t* const p_subn,
-	IN osm_log_t* const p_log,
-	IN cl_plock_t* const p_lock );
+osm_sr_rcv_init(IN osm_sr_rcv_t * const p_rcv,
+		IN osm_sa_resp_t * const p_resp,
+		IN osm_mad_pool_t * const p_mad_pool,
+		IN osm_subn_t * const p_subn,
+		IN osm_log_t * const p_log, IN cl_plock_t * const p_lock);
 /*
 * PARAMETERS
 *	p_rcv
@@ -247,10 +238,7 @@ osm_sr_rcv_init(
 *
 * SYNOPSIS
 */
-void
-osm_sr_rcv_process(
-	IN void *context,
-	IN void *data );
+void osm_sr_rcv_process(IN void *context, IN void *data);
 /*
 * PARAMETERS
 *	context
@@ -277,9 +265,7 @@ osm_sr_rcv_process(
 * SYNOPSIS
 */
 
-void
-osm_sr_rcv_lease_cb(
-	IN void*    context );
+void osm_sr_rcv_lease_cb(IN void *context);
 /*
 * PARAMETERS
 *	context
@@ -293,5 +279,4 @@ osm_sr_rcv_lease_cb(
 *********/
 
 END_C_DECLS
-
-#endif	/* _OSM_SR_H_ */
+#endif				/* _OSM_SR_H_ */

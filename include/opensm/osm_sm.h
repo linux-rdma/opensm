@@ -87,13 +87,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* OpenSM/SM
 * NAME
 *	SM
@@ -112,7 +111,6 @@ BEGIN_C_DECLS
 *	Steve King, Intel
 *
 *********/
-
 /****s* OpenSM: SM/osm_sm_t
 * NAME
 *  osm_sm_t
@@ -125,55 +123,54 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_sm
-{
-  osm_thread_state_t       thread_state;
-  cl_event_t               signal;
-  cl_event_t               subnet_up_event;
-  cl_thread_t              sweeper;
-  osm_subn_t               *p_subn;
-  osm_db_t                 *p_db;
-  osm_vendor_t             *p_vendor;
-  osm_log_t                *p_log;
-  osm_mad_pool_t           *p_mad_pool;
-  osm_vl15_t               *p_vl15;
-  cl_dispatcher_t          *p_disp;
-  cl_plock_t               *p_lock;
-  atomic32_t               sm_trans_id;
-  osm_req_t                req;
-  osm_resp_t               resp;
-  osm_ni_rcv_t             ni_rcv;
-  osm_pi_rcv_t             pi_rcv;
-  osm_nd_rcv_t             nd_rcv;
-  osm_sm_mad_ctrl_t        mad_ctrl;
-  osm_si_rcv_t             si_rcv;
-  osm_state_mgr_ctrl_t     state_mgr_ctrl;
-  osm_lid_mgr_t            lid_mgr;
-  osm_ucast_mgr_t          ucast_mgr;
-  osm_link_mgr_t           link_mgr;
-  osm_state_mgr_t          state_mgr;
-  osm_drop_mgr_t           drop_mgr;
-  osm_lft_rcv_t            lft_rcv;
-  osm_mft_rcv_t            mft_rcv;
-  osm_sweep_fail_ctrl_t    sweep_fail_ctrl;
-  osm_sminfo_rcv_t         sm_info_rcv;
-  osm_trap_rcv_t           trap_rcv;
-  osm_sm_state_mgr_t       sm_state_mgr;
-  osm_mcast_mgr_t          mcast_mgr;
-  osm_slvl_rcv_t           slvl_rcv;
-  osm_vla_rcv_t            vla_rcv;
-  osm_pkey_rcv_t           pkey_rcv;
-  cl_disp_reg_handle_t     ni_disp_h;
-  cl_disp_reg_handle_t     pi_disp_h;
-  cl_disp_reg_handle_t     nd_disp_h;
-  cl_disp_reg_handle_t     si_disp_h;
-  cl_disp_reg_handle_t     lft_disp_h;
-  cl_disp_reg_handle_t     mft_disp_h;
-  cl_disp_reg_handle_t     sm_info_disp_h;
-  cl_disp_reg_handle_t     trap_disp_h;
-  cl_disp_reg_handle_t     slvl_disp_h;
-  cl_disp_reg_handle_t     vla_disp_h;
-  cl_disp_reg_handle_t     pkey_disp_h;
+typedef struct _osm_sm {
+	osm_thread_state_t thread_state;
+	cl_event_t signal;
+	cl_event_t subnet_up_event;
+	cl_thread_t sweeper;
+	osm_subn_t *p_subn;
+	osm_db_t *p_db;
+	osm_vendor_t *p_vendor;
+	osm_log_t *p_log;
+	osm_mad_pool_t *p_mad_pool;
+	osm_vl15_t *p_vl15;
+	cl_dispatcher_t *p_disp;
+	cl_plock_t *p_lock;
+	atomic32_t sm_trans_id;
+	osm_req_t req;
+	osm_resp_t resp;
+	osm_ni_rcv_t ni_rcv;
+	osm_pi_rcv_t pi_rcv;
+	osm_nd_rcv_t nd_rcv;
+	osm_sm_mad_ctrl_t mad_ctrl;
+	osm_si_rcv_t si_rcv;
+	osm_state_mgr_ctrl_t state_mgr_ctrl;
+	osm_lid_mgr_t lid_mgr;
+	osm_ucast_mgr_t ucast_mgr;
+	osm_link_mgr_t link_mgr;
+	osm_state_mgr_t state_mgr;
+	osm_drop_mgr_t drop_mgr;
+	osm_lft_rcv_t lft_rcv;
+	osm_mft_rcv_t mft_rcv;
+	osm_sweep_fail_ctrl_t sweep_fail_ctrl;
+	osm_sminfo_rcv_t sm_info_rcv;
+	osm_trap_rcv_t trap_rcv;
+	osm_sm_state_mgr_t sm_state_mgr;
+	osm_mcast_mgr_t mcast_mgr;
+	osm_slvl_rcv_t slvl_rcv;
+	osm_vla_rcv_t vla_rcv;
+	osm_pkey_rcv_t pkey_rcv;
+	cl_disp_reg_handle_t ni_disp_h;
+	cl_disp_reg_handle_t pi_disp_h;
+	cl_disp_reg_handle_t nd_disp_h;
+	cl_disp_reg_handle_t si_disp_h;
+	cl_disp_reg_handle_t lft_disp_h;
+	cl_disp_reg_handle_t mft_disp_h;
+	cl_disp_reg_handle_t sm_info_disp_h;
+	cl_disp_reg_handle_t trap_disp_h;
+	cl_disp_reg_handle_t slvl_disp_h;
+	cl_disp_reg_handle_t vla_disp_h;
+	cl_disp_reg_handle_t pkey_disp_h;
 } osm_sm_t;
 /*
 * FIELDS
@@ -241,9 +238,7 @@ typedef struct _osm_sm
 *
 * SYNOPSIS
 */
-void
-osm_sm_construct(
-	IN osm_sm_t* const p_sm );
+void osm_sm_construct(IN osm_sm_t * const p_sm);
 /*
 * PARAMETERS
 *	p_sm
@@ -272,9 +267,7 @@ osm_sm_construct(
 *
 * SYNOPSIS
 */
-void
-osm_sm_shutdown(
-	IN osm_sm_t* const p_sm );
+void osm_sm_shutdown(IN osm_sm_t * const p_sm);
 /*
 * PARAMETERS
 *	p_sm
@@ -297,9 +290,7 @@ osm_sm_shutdown(
 *
 * SYNOPSIS
 */
-void
-osm_sm_destroy(
-	IN osm_sm_t* const p_sm );
+void osm_sm_destroy(IN osm_sm_t * const p_sm);
 /*
 * PARAMETERS
 *	p_sm
@@ -328,17 +319,15 @@ osm_sm_destroy(
 * SYNOPSIS
 */
 ib_api_status_t
-osm_sm_init(
-	IN osm_sm_t* const p_sm,
-	IN osm_subn_t* const p_subn,
-   IN osm_db_t* const p_db,
-	IN osm_vendor_t* const p_vendor,
-	IN osm_mad_pool_t* const p_mad_pool,
-	IN osm_vl15_t* const p_vl15,
-	IN osm_log_t* const p_log,
-	IN osm_stats_t*	const p_stats,
-	IN cl_dispatcher_t* const p_disp,
-	IN cl_plock_t* const p_lock );
+osm_sm_init(IN osm_sm_t * const p_sm,
+	    IN osm_subn_t * const p_subn,
+	    IN osm_db_t * const p_db,
+	    IN osm_vendor_t * const p_vendor,
+	    IN osm_mad_pool_t * const p_mad_pool,
+	    IN osm_vl15_t * const p_vl15,
+	    IN osm_log_t * const p_log,
+	    IN osm_stats_t * const p_stats,
+	    IN cl_dispatcher_t * const p_disp, IN cl_plock_t * const p_lock);
 /*
 * PARAMETERS
 *	p_sm
@@ -387,9 +376,7 @@ osm_sm_init(
 *
 * SYNOPSIS
 */
-void
-osm_sm_sweep(
-	IN osm_sm_t* const p_sm );
+void osm_sm_sweep(IN osm_sm_t * const p_sm);
 /*
 * PARAMETERS
 *	p_sm
@@ -414,9 +401,7 @@ osm_sm_sweep(
 * SYNOPSIS
 */
 ib_api_status_t
-osm_sm_bind(
-	IN osm_sm_t* const p_sm,
-	IN const ib_net64_t port_guid );
+osm_sm_bind(IN osm_sm_t * const p_sm, IN const ib_net64_t port_guid);
 /*
 * PARAMETERS
 *	p_sm
@@ -448,11 +433,10 @@ osm_sm_bind(
 * SYNOPSIS
 */
 ib_api_status_t
-osm_sm_mcgrp_join(
-	IN osm_sm_t* const p_sm,
-	IN const ib_net16_t mlid,
-	IN const ib_net64_t port_guid,
-   IN osm_mcast_req_type_t req_type );
+osm_sm_mcgrp_join(IN osm_sm_t * const p_sm,
+		  IN const ib_net16_t mlid,
+		  IN const ib_net64_t port_guid,
+		  IN osm_mcast_req_type_t req_type);
 /*
 * PARAMETERS
 *	p_sm
@@ -488,10 +472,8 @@ osm_sm_mcgrp_join(
 * SYNOPSIS
 */
 ib_api_status_t
-osm_sm_mcgrp_leave(
-	IN osm_sm_t* const p_sm,
-	IN const ib_net16_t mlid,
-	IN const ib_net64_t port_guid );
+osm_sm_mcgrp_leave(IN osm_sm_t * const p_sm,
+		   IN const ib_net16_t mlid, IN const ib_net64_t port_guid);
 /*
 * PARAMETERS
 *	p_sm
@@ -521,14 +503,14 @@ osm_sm_mcgrp_leave(
 * SYNOPSIS
 */
 static inline cl_status_t
-osm_sm_wait_for_subnet_up(
-	IN osm_sm_t*				const p_sm,
-	IN uint32_t				const wait_us,
-	IN boolean_t				const interruptible )
+osm_sm_wait_for_subnet_up(IN osm_sm_t * const p_sm,
+			  IN uint32_t const wait_us,
+			  IN boolean_t const interruptible)
 {
-	return( cl_event_wait_on( &p_sm->subnet_up_event,
-			wait_us, interruptible ) );
+	return (cl_event_wait_on(&p_sm->subnet_up_event,
+				 wait_us, interruptible));
 }
+
 /*
 * PARAMETERS
 *	p_sm
@@ -557,5 +539,4 @@ osm_sm_wait_for_subnet_up(
 *********/
 
 END_C_DECLS
-
-#endif		/* _OSM_SM_H_ */
+#endif				/* _OSM_SM_H_ */

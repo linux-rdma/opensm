@@ -63,13 +63,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* OpenSM/Inform Record
 * NAME
 *	Inform Record
@@ -89,7 +88,6 @@ BEGIN_C_DECLS
 *    Eitan Zahavi, Mellanox
 *
 *********/
-
 /****s* OpenSM: Inform Record/osm_infr_t
 * NAME
 *	osm_infr_t
@@ -102,13 +100,12 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_infr_t
-{
-	cl_list_item_t		list_item;
-	osm_bind_handle_t	h_bind;
-	osm_infr_rcv_t*		p_infr_rcv;
-	osm_mad_addr_t		report_addr;
-	ib_inform_info_record_t	inform_record;
+typedef struct _osm_infr_t {
+	cl_list_item_t list_item;
+	osm_bind_handle_t h_bind;
+	osm_infr_rcv_t *p_infr_rcv;
+	osm_mad_addr_t report_addr;
+	ib_inform_info_record_t inform_record;
 } osm_infr_t;
 /*
 * FIELDS
@@ -139,9 +136,7 @@ typedef struct _osm_infr_t
 *
 * SYNOPSIS
 */
-osm_infr_t*
-osm_infr_new(
-	IN const osm_infr_t *p_infr_rec );
+osm_infr_t *osm_infr_new(IN const osm_infr_t * p_infr_rec);
 /*
 * PARAMETERS
 *	p_inf_rec
@@ -166,9 +161,7 @@ osm_infr_new(
 *
 * SYNOPSIS
 */
-void
-osm_infr_delete(
-	IN osm_infr_t* const p_infr );
+void osm_infr_delete(IN osm_infr_t * const p_infr);
 /*
 * PARAMETERS
 *	p_infr
@@ -187,11 +180,9 @@ osm_infr_delete(
 *
 * SYNOPSIS
 */
-osm_infr_t*
-osm_infr_get_by_rec(
-	IN osm_subn_t	const	*p_subn,
-	IN osm_log_t	*p_log,
-	IN osm_infr_t*	const	p_infr_rec );
+osm_infr_t *osm_infr_get_by_rec(IN osm_subn_t const *p_subn,
+				IN osm_log_t * p_log,
+				IN osm_infr_t * const p_infr_rec);
 /*
 * PARAMETERS
 *	p_subn
@@ -210,16 +201,12 @@ osm_infr_get_by_rec(
 *********/
 
 void
-osm_infr_insert_to_db(
-	IN osm_subn_t	*p_subn,
-	IN osm_log_t	*p_log,
-	IN osm_infr_t	*p_infr);
+osm_infr_insert_to_db(IN osm_subn_t * p_subn,
+		      IN osm_log_t * p_log, IN osm_infr_t * p_infr);
 
 void
-osm_infr_remove_from_db(
-	IN osm_subn_t	*p_subn,
-	IN osm_log_t	*p_log,
-	IN osm_infr_t	*p_infr);
+osm_infr_remove_from_db(IN osm_subn_t * p_subn,
+			IN osm_log_t * p_log, IN osm_infr_t * p_infr);
 
 /****f* OpenSM: Inform Record/osm_report_notice
 * NAME
@@ -236,10 +223,8 @@ osm_infr_remove_from_db(
 * SYNOPSIS
 */
 ib_api_status_t
-osm_report_notice(
-	IN osm_log_t* const p_log,
-	IN osm_subn_t* p_subn,
-	IN ib_mad_notice_attr_t* p_ntc );
+osm_report_notice(IN osm_log_t * const p_log,
+		  IN osm_subn_t * p_subn, IN ib_mad_notice_attr_t * p_ntc);
 /*
 * PARAMETERS
 *	p_rcv
@@ -256,5 +241,4 @@ osm_report_notice(
 *********/
 
 END_C_DECLS
-
-#endif		/* _OSM_INFR_H_ */
+#endif				/* _OSM_INFR_H_ */

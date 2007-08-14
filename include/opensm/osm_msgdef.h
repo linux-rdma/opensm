@@ -49,13 +49,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* OpenSM/Dispatcher Messages
 * NAME
 *	Dispatcher Messages
@@ -76,7 +75,6 @@ BEGIN_C_DECLS
 *	Steve King, Intel
 *
 *********/
-
 /****s* OpenSM: Dispatcher Messages/OSM_MSG_MAD_NODE_INFO
 * NAME
 *	OSM_MSG_MAD_NODE_INFO
@@ -91,7 +89,6 @@ BEGIN_C_DECLS
 *
 *
 ***********/
-
 /****s* OpenSM: Dispatcher Messages/OSM_MSG_MAD_PORT_INFO
 * NAME
 *	OSM_MSG_MAD_PORT_INFO
@@ -106,7 +103,6 @@ BEGIN_C_DECLS
 *
 *
 ***********/
-
 /****s* OpenSM: Dispatcher Messages/OSM_MSG_MAD_SWITCH_INFO
 * NAME
 *	OSM_MSG_MAD_SWITCH_INFO
@@ -120,7 +116,6 @@ BEGIN_C_DECLS
 *	Delivery notice:		yes
 *
 ***********/
-
 /****s* OpenSM: Dispatcher Messages/OSM_MSG_MAD_NODE_DESC
 * NAME
 *	OSM_MSG_MAD_NODE_DESC
@@ -135,7 +130,6 @@ BEGIN_C_DECLS
 *
 * SOURCE
 ***********/
-
 /****d* OpenSM: Dispatcher Messages/OSM_MSG_NO_SMPS_OUTSTANDING
 * NAME
 *   OSM_MSG_NO_SMPS_OUTSTANDING
@@ -150,8 +144,7 @@ BEGIN_C_DECLS
 *
 * SOURCE
 ***********/
-enum
-{
+enum {
 	OSM_MSG_NONE = 0,
 	OSM_MSG_MAD_NODE_INFO,
 	OSM_MSG_MAD_PORT_INFO,
@@ -191,5 +184,4 @@ enum
 };
 
 END_C_DECLS
-
-#endif /* _OSM_MSGDEF_H_ */
+#endif				/* _OSM_MSGDEF_H_ */

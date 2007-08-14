@@ -58,13 +58,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****s* OpenSM: MAD Wrapper/osm_bind_info_t
 * NAME
 *   osm_bind_info_t
@@ -73,16 +72,15 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_bind_info
-{
-    ib_net64_t		port_guid;
-    uint8_t		mad_class;
-    uint8_t		class_version;
-    boolean_t		is_responder;
-    boolean_t		is_trap_processor;
-    boolean_t		is_report_processor;
-    uint32_t		send_q_size;
-    uint32_t		recv_q_size;
+typedef struct _osm_bind_info {
+	ib_net64_t port_guid;
+	uint8_t mad_class;
+	uint8_t class_version;
+	boolean_t is_responder;
+	boolean_t is_trap_processor;
+	boolean_t is_report_processor;
+	uint32_t send_q_size;
+	uint32_t recv_q_size;
 } osm_bind_info_t;
 /*
 * FIELDS
@@ -142,13 +140,12 @@ typedef struct _osm_bind_info
 *
 * SYNOPSIS
 */
-typedef struct _osm_ni_context
-{
-  ib_net64_t			node_guid;
-  uint8_t			port_num;
-  ib_net64_t			dup_node_guid;
-  uint8_t			dup_port_num;
-  unsigned			dup_count;
+typedef struct _osm_ni_context {
+	ib_net64_t node_guid;
+	uint8_t port_num;
+	ib_net64_t dup_node_guid;
+	uint8_t dup_port_num;
+	unsigned dup_count;
 } osm_ni_context_t;
 /*
 * FIELDS
@@ -175,15 +172,14 @@ typedef struct _osm_ni_context
 *
 * SYNOPSIS
 */
-typedef struct _osm_pi_context
-{
-  ib_net64_t			node_guid;
-  ib_net64_t			port_guid;
-  boolean_t			set_method;
-  boolean_t			light_sweep;
-  boolean_t			update_master_sm_base_lid;
-  boolean_t			ignore_errors;
-  boolean_t			active_transition;
+typedef struct _osm_pi_context {
+	ib_net64_t node_guid;
+	ib_net64_t port_guid;
+	boolean_t set_method;
+	boolean_t light_sweep;
+	boolean_t update_master_sm_base_lid;
+	boolean_t ignore_errors;
+	boolean_t active_transition;
 } osm_pi_context_t;
 /*********/
 
@@ -196,9 +192,8 @@ typedef struct _osm_pi_context
 *
 * SYNOPSIS
 */
-typedef struct _osm_nd_context
-{
-	ib_net64_t			node_guid;
+typedef struct _osm_nd_context {
+	ib_net64_t node_guid;
 } osm_nd_context_t;
 /*********/
 
@@ -211,11 +206,10 @@ typedef struct _osm_nd_context
 *
 * SYNOPSIS
 */
-typedef struct _osm_si_context
-{
-	ib_net64_t			node_guid;
-	boolean_t			set_method;
-	boolean_t			light_sweep;
+typedef struct _osm_si_context {
+	ib_net64_t node_guid;
+	boolean_t set_method;
+	boolean_t light_sweep;
 } osm_si_context_t;
 /*********/
 
@@ -228,10 +222,9 @@ typedef struct _osm_si_context
 *
 * SYNOPSIS
 */
-typedef struct _osm_lft_context
-{
-	ib_net64_t			node_guid;
-	boolean_t			set_method;
+typedef struct _osm_lft_context {
+	ib_net64_t node_guid;
+	boolean_t set_method;
 } osm_lft_context_t;
 /*********/
 
@@ -244,10 +237,9 @@ typedef struct _osm_lft_context
 *
 * SYNOPSIS
 */
-typedef struct _osm_mft_context
-{
-	ib_net64_t			node_guid;
-	boolean_t			set_method;
+typedef struct _osm_mft_context {
+	ib_net64_t node_guid;
+	boolean_t set_method;
 } osm_mft_context_t;
 /*********/
 
@@ -260,10 +252,9 @@ typedef struct _osm_mft_context
 *
 * SYNOPSIS
 */
-typedef struct _osm_smi_context
-{
-  ib_net64_t		port_guid;
-  boolean_t		set_method;
+typedef struct _osm_smi_context {
+	ib_net64_t port_guid;
+	boolean_t set_method;
 } osm_smi_context_t;
 /*********/
 
@@ -276,11 +267,10 @@ typedef struct _osm_smi_context
 *
 * SYNOPSIS
 */
-typedef struct _osm_pkey_context
-{
-  ib_net64_t			node_guid;
-  ib_net64_t			port_guid;
-  boolean_t			set_method;
+typedef struct _osm_pkey_context {
+	ib_net64_t node_guid;
+	ib_net64_t port_guid;
+	boolean_t set_method;
 } osm_pkey_context_t;
 /*********/
 
@@ -293,11 +283,10 @@ typedef struct _osm_pkey_context
 *
 * SYNOPSIS
 */
-typedef struct _osm_slvl_context
-{
-  ib_net64_t			node_guid;
-  ib_net64_t			port_guid;
-  boolean_t			set_method;
+typedef struct _osm_slvl_context {
+	ib_net64_t node_guid;
+	ib_net64_t port_guid;
+	boolean_t set_method;
 } osm_slvl_context_t;
 /*********/
 
@@ -310,11 +299,10 @@ typedef struct _osm_slvl_context
 *
 * SYNOPSIS
 */
-typedef struct _osm_vla_context
-{
-  ib_net64_t			node_guid;
-  ib_net64_t			port_guid;
-  boolean_t			set_method;
+typedef struct _osm_vla_context {
+	ib_net64_t node_guid;
+	ib_net64_t port_guid;
+	boolean_t set_method;
 } osm_vla_context_t;
 /*********/
 
@@ -323,11 +311,11 @@ typedef struct _osm_vla_context
 *	Context for Performance manager queries
 */
 typedef struct _osm_perfmgr_context {
-  uint64_t node_guid;
-  uint16_t port;
-  uint8_t mad_method; /* was this a get or a set */
+	uint64_t node_guid;
+	uint16_t port;
+	uint8_t mad_method;	/* was this a get or a set */
 #if 0
-  struct timeval query_start;
+	struct timeval query_start;
 #endif
 } osm_perfmgr_context_t;
 /*********/
@@ -342,10 +330,9 @@ typedef struct _osm_perfmgr_context {
 *
 * SYNOPSIS
 */
-typedef struct _osm_arbitrary_context
-{
-  void*             context1;
-  void*             context2;
+typedef struct _osm_arbitrary_context {
+	void *context1;
+	void *context2;
 } osm_arbitrary_context_t;
 /*********/
 #endif
@@ -359,19 +346,18 @@ typedef struct _osm_arbitrary_context
 *
 * SYNOPSIS
 */
-typedef union _osm_madw_context
-{
-	osm_ni_context_t	ni_context;
-	osm_pi_context_t	pi_context;
-	osm_nd_context_t	nd_context;
-	osm_si_context_t	si_context;
-	osm_lft_context_t	lft_context;
-	osm_mft_context_t	mft_context;
-	osm_smi_context_t	smi_context;
-	osm_slvl_context_t	slvl_context;
-	osm_pkey_context_t	pkey_context;
-	osm_vla_context_t	vla_context;
-	osm_perfmgr_context_t	perfmgr_context;
+typedef union _osm_madw_context {
+	osm_ni_context_t ni_context;
+	osm_pi_context_t pi_context;
+	osm_nd_context_t nd_context;
+	osm_si_context_t si_context;
+	osm_lft_context_t lft_context;
+	osm_mft_context_t mft_context;
+	osm_smi_context_t smi_context;
+	osm_slvl_context_t slvl_context;
+	osm_pkey_context_t pkey_context;
+	osm_vla_context_t vla_context;
+	osm_perfmgr_context_t perfmgr_context;
 #ifndef OSM_VENDOR_INTF_OPENIB
 	osm_arbitrary_context_t arb_context;
 #endif
@@ -386,30 +372,26 @@ typedef union _osm_madw_context
 *
 * SYNOPSIS
 */
-typedef struct _osm_mad_addr
-{
-    ib_net16_t	dest_lid;
-    uint8_t	path_bits;
-    uint8_t	static_rate;
+typedef struct _osm_mad_addr {
+	ib_net16_t dest_lid;
+	uint8_t path_bits;
+	uint8_t static_rate;
 
-    union addr_type
-    {
-        struct _smi
-		{
-		  ib_net16_t		source_lid;
-		  uint8_t		port_num;
-        } smi;
+	union addr_type {
+		struct _smi {
+			ib_net16_t source_lid;
+			uint8_t port_num;
+		} smi;
 
-        struct _gsi
-		{
-            ib_net32_t    		remote_qp;
-            ib_net32_t			remote_qkey;
-            ib_net16_t   		pkey;
-            uint8_t       		service_level;
-            boolean_t			global_route;
-            ib_grh_t		   	grh_info;
-        } gsi;
-    } addr_type;
+		struct _gsi {
+			ib_net32_t remote_qp;
+			ib_net32_t remote_qkey;
+			ib_net16_t pkey;
+			uint8_t service_level;
+			boolean_t global_route;
+			ib_grh_t grh_info;
+		} gsi;
+	} addr_type;
 
 } osm_mad_addr_t;
 /*
@@ -427,19 +409,18 @@ typedef struct _osm_mad_addr
 *
 * SYNOPSIS
 */
-typedef struct _osm_madw
-{
-	cl_pool_item_t					pool_item;
-	osm_bind_handle_t				h_bind;
-	osm_vend_wrap_t					vend_wrap;
-	osm_mad_addr_t					mad_addr;
-	osm_bind_info_t					bind_info;
-	osm_madw_context_t				context;
-	uint32_t					mad_size;
-	ib_api_status_t					status;
-	cl_disp_msgid_t					fail_msg;
-	boolean_t					resp_expected;
-	const ib_mad_t					*p_mad;
+typedef struct _osm_madw {
+	cl_pool_item_t pool_item;
+	osm_bind_handle_t h_bind;
+	osm_vend_wrap_t vend_wrap;
+	osm_mad_addr_t mad_addr;
+	osm_bind_info_t bind_info;
+	osm_madw_context_t context;
+	uint32_t mad_size;
+	ib_api_status_t status;
+	cl_disp_msgid_t fail_msg;
+	boolean_t resp_expected;
+	const ib_mad_t *p_mad;
 } osm_madw_t;
 /*
 * FIELDS
@@ -496,17 +477,16 @@ typedef struct _osm_madw
 *
 * SYNOPSIS
 */
-static inline void
-osm_madw_construct(
-	IN osm_madw_t* const p_madw )
+static inline void osm_madw_construct(IN osm_madw_t * const p_madw)
 {
 	/*
-		Don't touch the pool_item since that is an opaque object.
-		Clear all other objects in the mad wrapper.
-	*/
-	memset( ((uint8_t *)p_madw) + sizeof( cl_pool_item_t ), 0,
-		sizeof(*p_madw) - sizeof( cl_pool_item_t ) );
+	   Don't touch the pool_item since that is an opaque object.
+	   Clear all other objects in the mad wrapper.
+	 */
+	memset(((uint8_t *) p_madw) + sizeof(cl_pool_item_t), 0,
+	       sizeof(*p_madw) - sizeof(cl_pool_item_t));
 }
+
 /*
 * PARAMETERS
 *	p_madw
@@ -535,8 +515,7 @@ osm_madw_construct(
 *
 * SYNOPSIS
 */
-void osm_madw_destroy(
-	IN osm_madw_t* const p_madw );
+void osm_madw_destroy(IN osm_madw_t * const p_madw);
 /*
 * PARAMETERS
 *	p_madw
@@ -565,20 +544,20 @@ void osm_madw_destroy(
 * SYNOPSIS
 */
 static inline void
-osm_madw_init(
-	IN osm_madw_t* const p_madw,
-	IN osm_bind_handle_t h_bind,
-	IN const uint32_t mad_size,
-	IN const osm_mad_addr_t* const p_mad_addr )
+osm_madw_init(IN osm_madw_t * const p_madw,
+	      IN osm_bind_handle_t h_bind,
+	      IN const uint32_t mad_size,
+	      IN const osm_mad_addr_t * const p_mad_addr)
 {
-	osm_madw_construct( p_madw );
+	osm_madw_construct(p_madw);
 	p_madw->h_bind = h_bind;
 	p_madw->fail_msg = CL_DISP_MSGID_NONE;
 	p_madw->mad_size = mad_size;
-	if( p_mad_addr )
+	if (p_mad_addr)
 		p_madw->mad_addr = *p_mad_addr;
 	p_madw->resp_expected = FALSE;
 }
+
 /*
 * PARAMETERS
 *	p_madw
@@ -608,12 +587,11 @@ osm_madw_init(
 *
 * SYNOPSIS
 */
-static inline ib_smp_t*
-osm_madw_get_smp_ptr(
-	IN const osm_madw_t* const p_madw )
+static inline ib_smp_t *osm_madw_get_smp_ptr(IN const osm_madw_t * const p_madw)
 {
-	return( (ib_smp_t*)p_madw->p_mad );
+	return ((ib_smp_t *) p_madw->p_mad);
 }
+
 /*
 * PARAMETERS
 *	p_madw
@@ -637,12 +615,12 @@ osm_madw_get_smp_ptr(
 *
 * SYNOPSIS
 */
-static inline ib_sa_mad_t*
-osm_madw_get_sa_mad_ptr(
-	IN const osm_madw_t* const p_madw )
+static inline ib_sa_mad_t *osm_madw_get_sa_mad_ptr(IN const osm_madw_t *
+						   const p_madw)
 {
-	return( (ib_sa_mad_t*)p_madw->p_mad );
+	return ((ib_sa_mad_t *) p_madw->p_mad);
 }
+
 /*
 * PARAMETERS
 *	p_madw
@@ -663,12 +641,12 @@ osm_madw_get_sa_mad_ptr(
 *
 * SYNOPSIS
 */
-static inline ib_perfmgt_mad_t*
-osm_madw_get_perfmgt_mad_ptr(
-	IN const osm_madw_t* const p_madw )
+static inline ib_perfmgt_mad_t *osm_madw_get_perfmgt_mad_ptr(IN const osm_madw_t
+							     * const p_madw)
 {
-	return((ib_perfmgt_mad_t*)p_madw->p_mad);
+	return ((ib_perfmgt_mad_t *) p_madw->p_mad);
 }
+
 /*
 * PARAMETERS
 *	p_madw
@@ -692,12 +670,12 @@ osm_madw_get_perfmgt_mad_ptr(
 *
 * SYNOPSIS
 */
-static inline osm_ni_context_t*
-osm_madw_get_ni_context_ptr(
-	IN const osm_madw_t* const p_madw )
+static inline osm_ni_context_t *osm_madw_get_ni_context_ptr(IN const osm_madw_t
+							    * const p_madw)
 {
-	return( (osm_ni_context_t*)&p_madw->context );
+	return ((osm_ni_context_t *) & p_madw->context);
 }
+
 /*
 * PARAMETERS
 *	p_madw
@@ -720,12 +698,12 @@ osm_madw_get_ni_context_ptr(
 *
 * SYNOPSIS
 */
-static inline osm_pi_context_t*
-osm_madw_get_pi_context_ptr(
-	IN const osm_madw_t* const p_madw )
+static inline osm_pi_context_t *osm_madw_get_pi_context_ptr(IN const osm_madw_t
+							    * const p_madw)
 {
-	return( (osm_pi_context_t*)&p_madw->context );
+	return ((osm_pi_context_t *) & p_madw->context);
 }
+
 /*
 * PARAMETERS
 *	p_madw
@@ -748,12 +726,12 @@ osm_madw_get_pi_context_ptr(
 *
 * SYNOPSIS
 */
-static inline osm_nd_context_t*
-osm_madw_get_nd_context_ptr(
-	IN const osm_madw_t* const p_madw )
+static inline osm_nd_context_t *osm_madw_get_nd_context_ptr(IN const osm_madw_t
+							    * const p_madw)
 {
-	return( (osm_nd_context_t*)&p_madw->context );
+	return ((osm_nd_context_t *) & p_madw->context);
 }
+
 /*
 * PARAMETERS
 *	p_madw
@@ -776,12 +754,13 @@ osm_madw_get_nd_context_ptr(
 *
 * SYNOPSIS
 */
-static inline osm_lft_context_t*
-osm_madw_get_lft_context_ptr(
-	IN const osm_madw_t* const p_madw )
+static inline osm_lft_context_t *osm_madw_get_lft_context_ptr(IN const
+							      osm_madw_t *
+							      const p_madw)
 {
-	return( (osm_lft_context_t*)&p_madw->context );
+	return ((osm_lft_context_t *) & p_madw->context);
 }
+
 /*
 * PARAMETERS
 *	p_madw
@@ -804,12 +783,13 @@ osm_madw_get_lft_context_ptr(
 *
 * SYNOPSIS
 */
-static inline osm_mft_context_t*
-osm_madw_get_mft_context_ptr(
-	IN const osm_madw_t* const p_madw )
+static inline osm_mft_context_t *osm_madw_get_mft_context_ptr(IN const
+							      osm_madw_t *
+							      const p_madw)
 {
-	return( (osm_mft_context_t*)&p_madw->context );
+	return ((osm_mft_context_t *) & p_madw->context);
 }
+
 /*
 * PARAMETERS
 *	p_madw
@@ -832,12 +812,12 @@ osm_madw_get_mft_context_ptr(
 *
 * SYNOPSIS
 */
-static inline osm_si_context_t*
-osm_madw_get_si_context_ptr(
-	IN const osm_madw_t* const p_madw )
+static inline osm_si_context_t *osm_madw_get_si_context_ptr(IN const osm_madw_t
+							    * const p_madw)
 {
-	return( (osm_si_context_t*)&p_madw->context );
+	return ((osm_si_context_t *) & p_madw->context);
 }
+
 /*
 * PARAMETERS
 *	p_madw
@@ -860,12 +840,13 @@ osm_madw_get_si_context_ptr(
 *
 * SYNOPSIS
 */
-static inline osm_smi_context_t*
-osm_madw_get_smi_context_ptr(
-	IN const osm_madw_t* const p_madw )
+static inline osm_smi_context_t *osm_madw_get_smi_context_ptr(IN const
+							      osm_madw_t *
+							      const p_madw)
 {
-	return( (osm_smi_context_t*)&p_madw->context );
+	return ((osm_smi_context_t *) & p_madw->context);
 }
+
 /*
 * PARAMETERS
 *	p_madw
@@ -888,12 +869,13 @@ osm_madw_get_smi_context_ptr(
 *
 * SYNOPSIS
 */
-static inline osm_pkey_context_t*
-osm_madw_get_pkey_context_ptr(
-	IN const osm_madw_t* const p_madw )
+static inline osm_pkey_context_t *osm_madw_get_pkey_context_ptr(IN const
+								osm_madw_t *
+								const p_madw)
 {
-	return( (osm_pkey_context_t*)&p_madw->context );
+	return ((osm_pkey_context_t *) & p_madw->context);
 }
+
 /*
 * PARAMETERS
 *	p_madw
@@ -916,12 +898,13 @@ osm_madw_get_pkey_context_ptr(
 *
 * SYNOPSIS
 */
-static inline osm_slvl_context_t*
-osm_madw_get_slvl_context_ptr(
-	IN const osm_madw_t* const p_madw )
+static inline osm_slvl_context_t *osm_madw_get_slvl_context_ptr(IN const
+								osm_madw_t *
+								const p_madw)
 {
-	return( (osm_slvl_context_t*)&p_madw->context );
+	return ((osm_slvl_context_t *) & p_madw->context);
 }
+
 /*
 * PARAMETERS
 *	p_madw
@@ -944,12 +927,13 @@ osm_madw_get_slvl_context_ptr(
 *
 * SYNOPSIS
 */
-static inline osm_vla_context_t*
-osm_madw_get_vla_context_ptr(
-	IN const osm_madw_t* const p_madw )
+static inline osm_vla_context_t *osm_madw_get_vla_context_ptr(IN const
+							      osm_madw_t *
+							      const p_madw)
 {
-	return( (osm_vla_context_t*)&p_madw->context );
+	return ((osm_vla_context_t *) & p_madw->context);
 }
+
 /*
 * PARAMETERS
 *	p_madw
@@ -973,12 +957,16 @@ osm_madw_get_vla_context_ptr(
 *
 * SYNOPSIS
 */
-static inline osm_arbitrary_context_t*
-osm_madw_get_arbitrary_context_ptr(
-	IN const osm_madw_t* const p_madw )
+static inline osm_arbitrary_context_t *osm_madw_get_arbitrary_context_ptr(IN
+									  const
+									  osm_madw_t
+									  *
+									  const
+									  p_madw)
 {
-	return( (osm_arbitrary_context_t*)&p_madw->context );
+	return ((osm_arbitrary_context_t *) & p_madw->context);
 }
+
 /*
 * PARAMETERS
 *	p_madw
@@ -1002,12 +990,12 @@ osm_madw_get_arbitrary_context_ptr(
 *
 * SYNOPSIS
 */
-static inline osm_vend_wrap_t*
-osm_madw_get_vend_ptr(
-	IN const osm_madw_t* const p_madw )
+static inline osm_vend_wrap_t *osm_madw_get_vend_ptr(IN const osm_madw_t *
+						     const p_madw)
 {
-	return( (osm_vend_wrap_t*)&p_madw->vend_wrap );
+	return ((osm_vend_wrap_t *) & p_madw->vend_wrap);
 }
+
 /*
 * PARAMETERS
 *	p_madw
@@ -1031,11 +1019,11 @@ osm_madw_get_vend_ptr(
 * SYNOPSIS
 */
 static inline osm_bind_handle_t
-osm_madw_get_bind_handle(
-	IN const osm_madw_t* const p_madw )
+osm_madw_get_bind_handle(IN const osm_madw_t * const p_madw)
 {
-	return( (osm_bind_handle_t)p_madw->h_bind );
+	return ((osm_bind_handle_t) p_madw->h_bind);
 }
+
 /*
 * PARAMETERS
 *	p_madw
@@ -1058,12 +1046,12 @@ osm_madw_get_bind_handle(
 *
 * SYNOPSIS
 */
-static inline osm_mad_addr_t*
-osm_madw_get_mad_addr_ptr(
-	IN const osm_madw_t* const p_madw )
+static inline osm_mad_addr_t *osm_madw_get_mad_addr_ptr(IN const osm_madw_t *
+							const p_madw)
 {
-	return( (osm_mad_addr_t*)&p_madw->mad_addr );
+	return ((osm_mad_addr_t *) & p_madw->mad_addr);
 }
+
 /*
 * PARAMETERS
 *	p_madw
@@ -1086,12 +1074,11 @@ osm_madw_get_mad_addr_ptr(
 *
 * SYNOPSIS
 */
-static inline ib_mad_t*
-osm_madw_get_mad_ptr(
-	IN const osm_madw_t* const p_madw )
+static inline ib_mad_t *osm_madw_get_mad_ptr(IN const osm_madw_t * const p_madw)
 {
-	return( (ib_mad_t*)p_madw->p_mad );
+	return ((ib_mad_t *) p_madw->p_mad);
 }
+
 /*
 * PARAMETERS
 *	p_madw
@@ -1116,11 +1103,11 @@ osm_madw_get_mad_ptr(
 * SYNOPSIS
 */
 static inline cl_disp_msgid_t
-osm_madw_get_err_msg(
-	IN const osm_madw_t* const p_madw )
+osm_madw_get_err_msg(IN const osm_madw_t * const p_madw)
 {
-	return( (cl_disp_msgid_t)p_madw->fail_msg );
+	return ((cl_disp_msgid_t) p_madw->fail_msg);
 }
+
 /*
 * PARAMETERS
 *	p_madw
@@ -1145,12 +1132,11 @@ osm_madw_get_err_msg(
 * SYNOPSIS
 */
 static inline void
-osm_madw_set_mad(
-	IN osm_madw_t* const p_madw,
-	IN const ib_mad_t* const p_mad )
+osm_madw_set_mad(IN osm_madw_t * const p_madw, IN const ib_mad_t * const p_mad)
 {
 	p_madw->p_mad = p_mad;
 }
+
 /*
 * PARAMETERS
 *	p_madw
@@ -1177,12 +1163,12 @@ osm_madw_set_mad(
 * SYNOPSIS
 */
 static inline void
-osm_madw_copy_context(
-	IN osm_madw_t* const p_dest,
-	IN const osm_madw_t* const p_src )
+osm_madw_copy_context(IN osm_madw_t * const p_dest,
+		      IN const osm_madw_t * const p_src)
 {
 	p_dest->context = p_src->context;
 }
+
 /*
 * PARAMETERS
 *	p_dest
@@ -1200,5 +1186,4 @@ osm_madw_copy_context(
 *********/
 
 END_C_DECLS
-
-#endif		/* _OSM_MADW_H_ */
+#endif				/* _OSM_MADW_H_ */

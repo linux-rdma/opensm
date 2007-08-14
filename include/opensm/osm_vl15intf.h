@@ -64,13 +64,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* OpenSM/VL15
 * NAME
 *	VL15
@@ -94,7 +93,6 @@ BEGIN_C_DECLS
 *	Steve King, Intel
 *
 *********/
-
 /****d* OpenSM: SM/osm_vl15_state_t
 * NAME
 *	osm_vl15_state_t
@@ -104,11 +102,9 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef enum _osm_vl15_state
-{
+typedef enum _osm_vl15_state {
 	OSM_VL15_STATE_INIT = 0,
 	OSM_VL15_STATE_READY
-
 } osm_vl15_state_t;
 /***********/
 
@@ -124,22 +120,21 @@ typedef enum _osm_vl15_state
 *
 * SYNOPSIS
 */
-typedef struct _osm_vl15
-{
-	osm_thread_state_t				thread_state;
-	osm_vl15_state_t				state;
-	uint32_t						max_wire_smps;
-	cl_event_t						signal;
-	cl_thread_t						poller;
-	cl_qlist_t						rfifo;
-	cl_qlist_t						ufifo;
-	cl_spinlock_t					lock;
-	osm_vendor_t					*p_vend;
-	osm_log_t						*p_log;
-	osm_stats_t						*p_stats;
-	osm_subn_t						*p_subn;
-	cl_disp_reg_handle_t			h_disp;
-	cl_plock_t						*p_lock;
+typedef struct _osm_vl15 {
+	osm_thread_state_t thread_state;
+	osm_vl15_state_t state;
+	uint32_t max_wire_smps;
+	cl_event_t signal;
+	cl_thread_t poller;
+	cl_qlist_t rfifo;
+	cl_qlist_t ufifo;
+	cl_spinlock_t lock;
+	osm_vendor_t *p_vend;
+	osm_log_t *p_log;
+	osm_stats_t *p_stats;
+	osm_subn_t *p_subn;
+	cl_disp_reg_handle_t h_disp;
+	cl_plock_t *p_lock;
 
 } osm_vl15_t;
 /*
@@ -201,9 +196,7 @@ typedef struct _osm_vl15
 *
 * SYNOPSIS
 */
-void
-osm_vl15_construct(
-	IN osm_vl15_t* const p_vl15 );
+void osm_vl15_construct(IN osm_vl15_t * const p_vl15);
 /*
 * PARAMETERS
 *	p_vl15
@@ -233,9 +226,7 @@ osm_vl15_construct(
 * SYNOPSIS
 */
 void
-osm_vl15_destroy(
-	IN osm_vl15_t* const p_vl15,
-   IN struct _osm_mad_pool *p_pool);
+osm_vl15_destroy(IN osm_vl15_t * const p_vl15, IN struct _osm_mad_pool *p_pool);
 /*
 * PARAMETERS
 *	p_vl15
@@ -272,15 +263,13 @@ osm_vl15_destroy(
 * SYNOPSIS
 */
 ib_api_status_t
-osm_vl15_init(
-	IN osm_vl15_t* const p_vl15,
-	IN osm_vendor_t* const p_vend,
-	IN osm_log_t* const p_log,
-	IN osm_stats_t* const p_stats,
-	IN const int32_t max_wire_smps,
-	IN osm_subn_t* const p_subn,
-	IN cl_dispatcher_t* const p_disp,
-	IN cl_plock_t* const p_lock );
+osm_vl15_init(IN osm_vl15_t * const p_vl15,
+	      IN osm_vendor_t * const p_vend,
+	      IN osm_log_t * const p_log,
+	      IN osm_stats_t * const p_stats,
+	      IN const int32_t max_wire_smps,
+	      IN osm_subn_t * const p_subn,
+	      IN cl_dispatcher_t * const p_disp, IN cl_plock_t * const p_lock);
 /*
 * PARAMETERS
 *	p_vl15
@@ -327,10 +316,7 @@ osm_vl15_init(
 *
 * SYNOPSIS
 */
-void
-osm_vl15_post(
-	IN osm_vl15_t* const p_vl15,
-	IN osm_madw_t* const p_madw );
+void osm_vl15_post(IN osm_vl15_t * const p_vl15, IN osm_madw_t * const p_madw);
 /*
 * PARAMETERS
 *	p_vl15
@@ -359,9 +345,7 @@ osm_vl15_post(
 *
 * SYNOPSIS
 */
-void
-osm_vl15_poll(
-	IN osm_vl15_t* const p_vl );
+void osm_vl15_poll(IN osm_vl15_t * const p_vl);
 /*
 * PARAMETERS
 *	p_vl15
@@ -392,9 +376,8 @@ osm_vl15_poll(
 * SYNOPSIS
 */
 void
-osm_vl15_shutdown(
-	IN osm_vl15_t* const p_vl,
-	IN osm_mad_pool_t* const p_mad_pool);
+osm_vl15_shutdown(IN osm_vl15_t * const p_vl,
+		  IN osm_mad_pool_t * const p_mad_pool);
 /*
 * PARAMETERS
 *	p_vl15
@@ -413,5 +396,4 @@ osm_vl15_shutdown(
 *********/
 
 END_C_DECLS
-
-#endif		/* _OSM_VL15INTF_H_ */
+#endif				/* _OSM_VL15INTF_H_ */

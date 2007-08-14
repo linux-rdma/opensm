@@ -41,13 +41,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /*
  * Abstract:
  * 	Declaration of the attribute request object.  This object
@@ -60,7 +59,6 @@ BEGIN_C_DECLS
  *
  * $Revision: 1.4 $
  */
-
 /****h* OpenSM/Attribute Request
 * NAME
 *	Attribute Request
@@ -76,7 +74,6 @@ BEGIN_C_DECLS
 *	Steve King, Intel
 *
 *********/
-
 /****s* OpenSM: Attribute Request/osm_attrib_req_t
 * NAME
 *	osm_attrib_req_t
@@ -88,13 +85,12 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_attrib_req
-{
-	uint16_t				attrib_id;
-	uint32_t				attrib_mod;
-	osm_madw_context_t		context;
-	osm_dr_path_t			path;
-	cl_disp_msgid_t			err_msg;
+typedef struct _osm_attrib_req {
+	uint16_t attrib_id;
+	uint32_t attrib_mod;
+	osm_madw_context_t context;
+	osm_dr_path_t path;
+	cl_disp_msgid_t err_msg;
 
 } osm_attrib_req_t;
 /*
@@ -115,5 +111,4 @@ typedef struct _osm_attrib_req
 *********/
 
 END_C_DECLS
-
-#endif		/* _OSM_ATTRIB_REQ_H_ */
+#endif				/* _OSM_ATTRIB_REQ_H_ */

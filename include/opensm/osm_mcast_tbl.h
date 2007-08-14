@@ -55,13 +55,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****s* OpenSM: Forwarding Table/osm_mcast_tbl_t
 * NAME
 *	osm_mcast_tbl_t
@@ -73,15 +72,14 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_mcast_fwd_tbl
-{
-	uint8_t				num_ports;
-	uint8_t				max_position;
-	uint16_t			max_block;
-	int16_t				max_block_in_use;
-	uint16_t			num_entries;
-	uint16_t			max_mlid_ho;
-	uint16_t			(*p_mask_tbl)[][IB_MCAST_POSITION_MAX];
+typedef struct _osm_mcast_fwd_tbl {
+	uint8_t num_ports;
+	uint8_t max_position;
+	uint16_t max_block;
+	int16_t max_block_in_use;
+	uint16_t num_entries;
+	uint16_t max_mlid_ho;
+	uint16_t(*p_mask_tbl)[][IB_MCAST_POSITION_MAX];
 } osm_mcast_tbl_t;
 /*
 * FIELDS
@@ -122,10 +120,8 @@ typedef struct _osm_mcast_fwd_tbl
 * SYNOPSIS
 */
 ib_api_status_t
-osm_mcast_tbl_init(
-	IN osm_mcast_tbl_t* const p_tbl,
-	IN uint8_t const num_ports,
-	IN uint16_t const capacity );
+osm_mcast_tbl_init(IN osm_mcast_tbl_t * const p_tbl,
+		   IN uint8_t const num_ports, IN uint16_t const capacity);
 /*
 * PARAMETERS
 *	num_ports
@@ -152,9 +148,7 @@ osm_mcast_tbl_init(
 *
 * SYNOPSIS
 */
-void
-osm_mcast_tbl_delete(
-	IN osm_mcast_tbl_t** const pp_tbl );
+void osm_mcast_tbl_delete(IN osm_mcast_tbl_t ** const pp_tbl);
 /*
 * PARAMETERS
 *	pp_tbl
@@ -179,9 +173,7 @@ osm_mcast_tbl_delete(
 *
 * SYNOPSIS
 */
-void
-osm_mcast_tbl_destroy(
-  IN osm_mcast_tbl_t* const p_tbl );
+void osm_mcast_tbl_destroy(IN osm_mcast_tbl_t * const p_tbl);
 /*
 * PARAMETERS
 *	p_tbl
@@ -205,10 +197,8 @@ osm_mcast_tbl_destroy(
 * SYNOPSIS
 */
 void
-osm_mcast_tbl_set(
-	IN osm_mcast_tbl_t* const p_tbl,
-	IN const uint16_t mlid_ho,
-	IN const uint8_t port_num );
+osm_mcast_tbl_set(IN osm_mcast_tbl_t * const p_tbl,
+		  IN const uint16_t mlid_ho, IN const uint8_t port_num);
 /*
 * PARAMETERS
 *	p_tbl
@@ -238,9 +228,8 @@ osm_mcast_tbl_set(
 * SYNOPSIS
 */
 void
-osm_mcast_tbl_clear_mlid(
-	IN osm_mcast_tbl_t* const p_tbl,
-	IN const uint16_t mlid_ho );
+osm_mcast_tbl_clear_mlid(IN osm_mcast_tbl_t * const p_tbl,
+			 IN const uint16_t mlid_ho);
 /*
 * PARAMETERS
 *	p_tbl
@@ -267,10 +256,8 @@ osm_mcast_tbl_clear_mlid(
 * SYNOPSIS
 */
 boolean_t
-osm_mcast_tbl_is_port(
-	IN const osm_mcast_tbl_t* const p_tbl,
-	IN const uint16_t mlid_ho,
-	IN const uint8_t port_num );
+osm_mcast_tbl_is_port(IN const osm_mcast_tbl_t * const p_tbl,
+		      IN const uint16_t mlid_ho, IN const uint8_t port_num);
 /*
 * PARAMETERS
 *	p_tbl
@@ -300,9 +287,8 @@ osm_mcast_tbl_is_port(
 * SYNOPSIS
 */
 boolean_t
-osm_mcast_tbl_is_any_port(
-	IN const osm_mcast_tbl_t* const p_tbl,
-	IN const uint16_t mlid_ho );
+osm_mcast_tbl_is_any_port(IN const osm_mcast_tbl_t * const p_tbl,
+			  IN const uint16_t mlid_ho);
 /*
 * PARAMETERS
 *	p_tbl
@@ -329,11 +315,9 @@ osm_mcast_tbl_is_any_port(
 * SYNOPSIS
 */
 ib_api_status_t
-osm_mcast_tbl_set_block(
-	IN osm_mcast_tbl_t* const p_tbl,
-	IN const ib_net16_t* const p_block,
-	IN const int16_t block_num,
-	IN const uint8_t position );
+osm_mcast_tbl_set_block(IN osm_mcast_tbl_t * const p_tbl,
+			IN const ib_net16_t * const p_block,
+			IN const int16_t block_num, IN const uint8_t position);
 /*
 * PARAMETERS
 *	p_tbl
@@ -363,11 +347,10 @@ osm_mcast_tbl_set_block(
 * SYNOPSIS
 */
 boolean_t
-osm_mcast_tbl_get_block(
-	IN osm_mcast_tbl_t* const p_tbl,
-	IN const int16_t block_num,
-	IN const uint8_t position,
-	OUT ib_net16_t* const p_block );
+osm_mcast_tbl_get_block(IN osm_mcast_tbl_t * const p_tbl,
+			IN const int16_t block_num,
+			IN const uint8_t position,
+			OUT ib_net16_t * const p_block);
 /*
 * PARAMETERS
 *	p_tbl
@@ -403,11 +386,11 @@ osm_mcast_tbl_get_block(
 * SYNOPSIS
 */
 static inline uint16_t
-osm_mcast_tbl_get_max_block(
-	IN osm_mcast_tbl_t* const p_tbl )
+osm_mcast_tbl_get_max_block(IN osm_mcast_tbl_t * const p_tbl)
 {
-	return( p_tbl->max_block );
+	return (p_tbl->max_block);
 }
+
 /*
 * PARAMETERS
 *	p_tbl
@@ -432,11 +415,11 @@ osm_mcast_tbl_get_max_block(
 * SYNOPSIS
 */
 static inline int16_t
-osm_mcast_tbl_get_max_block_in_use(
-	IN osm_mcast_tbl_t* const p_tbl )
+osm_mcast_tbl_get_max_block_in_use(IN osm_mcast_tbl_t * const p_tbl)
 {
-	return( p_tbl->max_block_in_use );
+	return (p_tbl->max_block_in_use);
 }
+
 /*
 * PARAMETERS
 *	p_tbl
@@ -461,11 +444,11 @@ osm_mcast_tbl_get_max_block_in_use(
 * SYNOPSIS
 */
 static inline uint8_t
-osm_mcast_tbl_get_max_position(
-	IN osm_mcast_tbl_t* const p_tbl )
+osm_mcast_tbl_get_max_position(IN osm_mcast_tbl_t * const p_tbl)
 {
-	return( p_tbl->max_position );
+	return (p_tbl->max_position);
 }
+
 /*
 * PARAMETERS
 *	p_tbl
@@ -480,5 +463,4 @@ osm_mcast_tbl_get_max_position(
 *********/
 
 END_C_DECLS
-
-#endif		/* _OSM_MCAST_TBL_H_ */
+#endif				/* _OSM_MCAST_TBL_H_ */

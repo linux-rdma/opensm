@@ -178,4 +178,4 @@
 
 */
 
-#endif /* _OSM_ERRORS_H_ */
+#endif				/* _OSM_ERRORS_H_ */

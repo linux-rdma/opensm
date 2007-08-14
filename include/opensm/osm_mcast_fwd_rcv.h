@@ -57,13 +57,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* OpenSM/MFT Receiver
 * NAME
 *	MFT Receiver
@@ -81,7 +80,6 @@ BEGIN_C_DECLS
 *	Steve King, Intel
 *
 *********/
-
 /****s* OpenSM: MFT Receiver/osm_mft_rcv_t
 * NAME
 *	osm_mft_rcv_t
@@ -94,11 +92,10 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_mft_rcv
-{
-	osm_subn_t	*p_subn;
-	osm_log_t	*p_log;
-	cl_plock_t	*p_lock;
+typedef struct _osm_mft_rcv {
+	osm_subn_t *p_subn;
+	osm_log_t *p_log;
+	cl_plock_t *p_lock;
 } osm_mft_rcv_t;
 /*
 * FIELDS
@@ -124,9 +121,7 @@ typedef struct _osm_mft_rcv
 *
 * SYNOPSIS
 */
-void
-osm_mft_rcv_construct(
-	IN osm_mft_rcv_t* const p_rcv );
+void osm_mft_rcv_construct(IN osm_mft_rcv_t * const p_rcv);
 /*
 * PARAMETERS
 *	p_rcv
@@ -156,9 +151,7 @@ osm_mft_rcv_construct(
 *
 * SYNOPSIS
 */
-void
-osm_mft_rcv_destroy(
-	IN osm_mft_rcv_t* const p_rcv );
+void osm_mft_rcv_destroy(IN osm_mft_rcv_t * const p_rcv);
 /*
 * PARAMETERS
 *	p_rcv
@@ -190,11 +183,9 @@ osm_mft_rcv_destroy(
 * SYNOPSIS
 */
 ib_api_status_t
-osm_mft_rcv_init(
-	IN osm_mft_rcv_t* const p_rcv,
-	IN osm_subn_t* const p_subn,
-	IN osm_log_t* const p_log,
-	IN cl_plock_t* const p_lock );
+osm_mft_rcv_init(IN osm_mft_rcv_t * const p_rcv,
+		 IN osm_subn_t * const p_subn,
+		 IN osm_log_t * const p_log, IN cl_plock_t * const p_lock);
 /*
 * PARAMETERS
 *	p_rcv
@@ -230,10 +221,7 @@ osm_mft_rcv_init(
 *
 * SYNOPSIS
 */
-void
-osm_mft_rcv_process(
-	IN void *context,
-	IN void *data );
+void osm_mft_rcv_process(IN void *context, IN void *data);
 /*
 * PARAMETERS
 *	context
@@ -254,5 +242,4 @@ osm_mft_rcv_process(
 *********/
 
 END_C_DECLS
-
-#endif	/* _OSM_MFT_RCV_H_ */
+#endif				/* _OSM_MFT_RCV_H_ */

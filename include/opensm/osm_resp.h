@@ -62,13 +62,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* OpenSM/Generic Responder
 * NAME
 *	Generic Responder
@@ -86,7 +85,6 @@ BEGIN_C_DECLS
 *	Steve King, Intel
 *
 *********/
-
 /****s* OpenSM: Generic Responder/osm_resp_t
 * NAME
 *	osm_resp_t
@@ -99,12 +97,11 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_resp
-{
-	osm_mad_pool_t				*p_pool;
-	osm_vl15_t				*p_vl15;
-	osm_log_t				*p_log;
-	osm_subn_t				*p_subn;
+typedef struct _osm_resp {
+	osm_mad_pool_t *p_pool;
+	osm_vl15_t *p_vl15;
+	osm_log_t *p_log;
+	osm_subn_t *p_subn;
 
 } osm_resp_t;
 /*
@@ -134,9 +131,7 @@ typedef struct _osm_resp
 *
 * SYNOPSIS
 */
-void
-osm_resp_construct(
-	IN osm_resp_t* const p_resp );
+void osm_resp_construct(IN osm_resp_t * const p_resp);
 /*
 * PARAMETERS
 *	p_resp
@@ -166,9 +161,7 @@ osm_resp_construct(
 *
 * SYNOPSIS
 */
-void
-osm_resp_destroy(
-	IN osm_resp_t* const p_resp );
+void osm_resp_destroy(IN osm_resp_t * const p_resp);
 /*
 * PARAMETERS
 *	p_resp
@@ -200,12 +193,10 @@ osm_resp_destroy(
 * SYNOPSIS
 */
 ib_api_status_t
-osm_resp_init(
-	IN osm_resp_t*				const p_resp,
-	IN osm_mad_pool_t*			const p_pool,
-	IN osm_vl15_t*				const p_vl15,
-	IN osm_subn_t*				const p_subn,
-	IN osm_log_t*				const p_log );
+osm_resp_init(IN osm_resp_t * const p_resp,
+	      IN osm_mad_pool_t * const p_pool,
+	      IN osm_vl15_t * const p_vl15,
+	      IN osm_subn_t * const p_subn, IN osm_log_t * const p_log);
 /*
 * PARAMETERS
 *	p_resp
@@ -245,11 +236,9 @@ osm_resp_init(
 * SYNOPSIS
 */
 ib_api_status_t
-osm_resp_send(
-	IN const osm_resp_t* const p_resp,
-	IN const osm_madw_t* const p_req_madw,
-	IN const ib_net16_t status,
-	IN const uint8_t* const p_payload );
+osm_resp_send(IN const osm_resp_t * const p_resp,
+	      IN const osm_madw_t * const p_req_madw,
+	      IN const ib_net16_t status, IN const uint8_t * const p_payload);
 /*
 * PARAMETERS
 *	p_resp
@@ -275,5 +264,4 @@ osm_resp_send(
 *********/
 
 END_C_DECLS
-
-#endif	/* _OSM_RESP_H_ */
+#endif				/* _OSM_RESP_H_ */

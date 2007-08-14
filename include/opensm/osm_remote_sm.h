@@ -55,13 +55,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* OpenSM/Remote SM
 * NAME
 *	Remote SM
@@ -79,7 +78,6 @@ BEGIN_C_DECLS
 *	Steve King, Intel
 *
 *********/
-
 /****s* OpenSM: Remote SM/osm_remote_sm_t
 * NAME
 *	osm_remote_sm_t
@@ -92,11 +90,10 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_remote_sm
-{
-	cl_map_item_t				map_item;
-	const osm_port_t			*p_port;
-	ib_sm_info_t				smi;
+typedef struct _osm_remote_sm {
+	cl_map_item_t map_item;
+	const osm_port_t *p_port;
+	ib_sm_info_t smi;
 } osm_remote_sm_t;
 /*
 * FIELDS
@@ -120,9 +117,7 @@ typedef struct _osm_remote_sm
 *
 * SYNOPSIS
 */
-void
-osm_remote_sm_construct(
-	IN osm_remote_sm_t* const p_sm );
+void osm_remote_sm_construct(IN osm_remote_sm_t * const p_sm);
 /*
 * PARAMETERS
 *	p_sm
@@ -151,9 +146,7 @@ osm_remote_sm_construct(
 *
 * SYNOPSIS
 */
-void
-osm_remote_sm_destroy(
-	IN osm_remote_sm_t* const p_sm );
+void osm_remote_sm_destroy(IN osm_remote_sm_t * const p_sm);
 /*
 * PARAMETERS
 *	p_sm
@@ -182,10 +175,9 @@ osm_remote_sm_destroy(
 * SYNOPSIS
 */
 void
-osm_remote_sm_init(
-	IN osm_remote_sm_t* const p_sm,
-	IN const osm_port_t* const p_port,
-	IN const ib_sm_info_t* const p_smi );
+osm_remote_sm_init(IN osm_remote_sm_t * const p_sm,
+		   IN const osm_port_t * const p_port,
+		   IN const ib_sm_info_t * const p_smi);
 /*
 * PARAMETERS
 *	p_sm
@@ -208,5 +200,4 @@ osm_remote_sm_init(
 *********/
 
 END_C_DECLS
-
-#endif		/* _OSM_REMOTE_SM_H_ */
+#endif				/* _OSM_REMOTE_SM_H_ */
