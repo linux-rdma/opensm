@@ -45,13 +45,12 @@
 
 #if HAVE_CONFIG_H
 #  include <config.h>
-#endif /* HAVE_CONFIG_H */
+#endif				/* HAVE_CONFIG_H */
 
 #include <complib/cl_types.h>
 
 /* Status values above converted to text for easier printing. */
-const char* cl_status_text[] =
-{
+const char *cl_status_text[] = {
 	"CL_SUCCESS",
 	"CL_ERROR",
 	"CL_INVALID_STATE",

@@ -35,68 +35,57 @@
 
 #if HAVE_CONFIG_H
 #  include <config.h>
-#endif /* HAVE_CONFIG_H */
+#endif				/* HAVE_CONFIG_H */
 
 #include <complib/cl_spinlock.h>
 
-void
-cl_spinlock_construct(
-	IN	cl_spinlock_t* const	p_spinlock )
+void cl_spinlock_construct(IN cl_spinlock_t * const p_spinlock)
 {
-	CL_ASSERT( p_spinlock );
+	CL_ASSERT(p_spinlock);
 
 	p_spinlock->state = CL_UNINITIALIZED;
 }
 
-cl_status_t
-cl_spinlock_init(
-	IN	cl_spinlock_t* const	p_spinlock )
+cl_status_t cl_spinlock_init(IN cl_spinlock_t * const p_spinlock)
 {
-	CL_ASSERT( p_spinlock );
+	CL_ASSERT(p_spinlock);
 
-	cl_spinlock_construct( p_spinlock );
+	cl_spinlock_construct(p_spinlock);
 
 	/* Initialize with pthread_mutexattr_t = NULL */
-	if( pthread_mutex_init( &p_spinlock->mutex, NULL ) )
-		return( CL_ERROR );
+	if (pthread_mutex_init(&p_spinlock->mutex, NULL))
+		return (CL_ERROR);
 
 	p_spinlock->state = CL_INITIALIZED;
-	return( CL_SUCCESS );
+	return (CL_SUCCESS);
 }
 
-void
-cl_spinlock_destroy(
-	IN	cl_spinlock_t* const	p_spinlock )
+void cl_spinlock_destroy(IN cl_spinlock_t * const p_spinlock)
 {
-	CL_ASSERT( p_spinlock );
-	CL_ASSERT( cl_is_state_valid( p_spinlock->state ) );
+	CL_ASSERT(p_spinlock);
+	CL_ASSERT(cl_is_state_valid(p_spinlock->state));
 
-	if( p_spinlock->state == CL_INITIALIZED )
-   {
-      p_spinlock->state = CL_UNINITIALIZED;
-     	pthread_mutex_lock( &p_spinlock->mutex );
-      pthread_mutex_unlock( &p_spinlock->mutex );
-      pthread_mutex_destroy( &p_spinlock->mutex );
-   }
-   p_spinlock->state = CL_UNINITIALIZED;
+	if (p_spinlock->state == CL_INITIALIZED) {
+		p_spinlock->state = CL_UNINITIALIZED;
+		pthread_mutex_lock(&p_spinlock->mutex);
+		pthread_mutex_unlock(&p_spinlock->mutex);
+		pthread_mutex_destroy(&p_spinlock->mutex);
+	}
+	p_spinlock->state = CL_UNINITIALIZED;
 }
 
-void
-cl_spinlock_acquire(
-	IN	cl_spinlock_t* const	p_spinlock )
+void cl_spinlock_acquire(IN cl_spinlock_t * const p_spinlock)
 {
-	CL_ASSERT( p_spinlock );
-	CL_ASSERT( p_spinlock->state == CL_INITIALIZED );
+	CL_ASSERT(p_spinlock);
+	CL_ASSERT(p_spinlock->state == CL_INITIALIZED);
 
-	pthread_mutex_lock( &p_spinlock->mutex );
+	pthread_mutex_lock(&p_spinlock->mutex);
 }
 
-void
-cl_spinlock_release(
-	IN	cl_spinlock_t* const	p_spinlock )
+void cl_spinlock_release(IN cl_spinlock_t * const p_spinlock)
 {
-	CL_ASSERT( p_spinlock );
-	CL_ASSERT( p_spinlock->state == CL_INITIALIZED );
+	CL_ASSERT(p_spinlock);
+	CL_ASSERT(p_spinlock->state == CL_INITIALIZED);
 
-	pthread_mutex_unlock( &p_spinlock->mutex );
+	pthread_mutex_unlock(&p_spinlock->mutex);
 }

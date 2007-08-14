@@ -45,13 +45,12 @@
 
 #if HAVE_CONFIG_H
 #  include <config.h>
-#endif /* HAVE_CONFIG_H */
+#endif				/* HAVE_CONFIG_H */
 
 #include <complib/cl_types.h>
 
 /* ib_api_status_t values above converted to text for easier printing. */
-const char* ib_error_str[] =
-{
+const char *ib_error_str[] = {
 	"IB_SUCCESS",
 	"IB_INSUFFICIENT_RESOURCES",
 	"IB_INSUFFICIENT_MEMORY",
@@ -95,7 +94,7 @@ const char* ib_error_str[] =
 	"IB_INVALID_AL_HANDLE",
 	"IB_INVALID_HANDLE",
 	"IB_ERROR",
-	"IB_REMOTE_ERROR",		/* Infiniband Access Layer */
+	"IB_REMOTE_ERROR",	/* Infiniband Access Layer */
 	"IB_VERBS_PROCESSING_DONE",
 	"IB_INVALID_WR_TYPE",
 	"IB_QP_IN_TIMEWAIT",
@@ -103,12 +102,10 @@ const char* ib_error_str[] =
 	"IB_INVALID_PORT",
 	"IB_NOT_DONE",
 	"IB_UNKNOWN_ERROR"
-
 };
 
 /* ib_async_event_t values above converted to text for easier printing. */
-const char* ib_async_event_str[] =
-{
+const char *ib_async_event_str[] = {
 	"IB_AE_SQ_ERROR",
 	"IB_AE_SQ_DRAINED",
 	"IB_AE_RQ_ERROR",
@@ -133,14 +130,12 @@ const char* ib_async_event_str[] =
 	"IB_AE_EEC_APM_ERROR",
 	"IB_AE_WQ_REQ_ERROR",
 	"IB_AE_WQ_ACCESS_ERROR",
-	"IB_AE_PORT_ACTIVE",		/* ACTIVE STATE */
-	"IB_AE_PORT_DOWN",		/* INIT", ARMED", DOWN */
+	"IB_AE_PORT_ACTIVE",	/* ACTIVE STATE */
+	"IB_AE_PORT_DOWN",	/* INIT", ARMED", DOWN */
 	"IB_AE_UNKNOWN"
-
 };
 
-const char* ib_wc_status_str[] =
-{
+const char *ib_wc_status_str[] = {
 	"IB_WCS_SUCCESS",
 	"IB_WCS_LOCAL_LEN_ERR",
 	"IB_WCS_LOCAL_OP_ERR",
@@ -157,7 +152,6 @@ const char* ib_wc_status_str[] =
 	"IB_WCS_INVALID_EECN",
 	"IB_WCS_INVALID_EEC_STATE",
 	"IB_WCS_UNMATCHED_RESPONSE",	/* InfiniBand Access Layer */
-	"IB_WCS_CANCELED",		/* InfiniBand Access Layer */
+	"IB_WCS_CANCELED",	/* InfiniBand Access Layer */
 	"IB_WCS_UNKNOWN"
-
 };
