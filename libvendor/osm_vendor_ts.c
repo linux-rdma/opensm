@@ -990,5 +990,3 @@ osm_vendor_set_debug(
 {
 
 }
-
-#endif /* OSM_VENDOR_INTF_TS */

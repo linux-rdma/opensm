@@ -1424,7 +1424,6 @@ void
 osm_vendor_set_sm(
   IN osm_bind_handle_t h_bind,
   IN boolean_t         is_sm_val )
- )
 {
   osm_al_bind_info_t *p_bind = (osm_al_bind_info_t *)h_bind;
   osm_vendor_t *p_vend = p_bind->p_vend;
