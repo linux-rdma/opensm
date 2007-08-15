@@ -52,13 +52,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****d* OpenSM Vendor SA Client/osmv_flags_t
 * NAME
 *	osmv_flags_t
@@ -68,7 +67,7 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef uint32_t					osmv_flags_t;
+typedef uint32_t osmv_flags_t;
 #define OSM_SA_FLAGS_SYNC				0x00000001
 /*
 * VALUES
@@ -90,8 +89,7 @@ typedef uint32_t					osmv_flags_t;
 *
 * SYNOPSIS
 */
-typedef enum _osmv_query_type
-{
+typedef enum _osmv_query_type {
 	OSMV_QUERY_USER_DEFINED,
 
 	OSMV_QUERY_ALL_SVC_RECS,
@@ -116,7 +114,7 @@ typedef enum _osmv_query_type
 
 	OSMV_QUERY_MULTIPATH_REC,
 
-}	osmv_query_type_t;
+} osmv_query_type_t;
 /*
 * VALUES
 *	OSMV_QUERY_USER_DEFINED
@@ -185,15 +183,14 @@ typedef enum _osmv_query_type
 *
 * SYNOPSIS
 */
-typedef struct _osmv_user_query
-{
-	uint8_t					method;
-	ib_net16_t				attr_id;
-	ib_net16_t				attr_offset;
-	ib_net32_t				attr_mod;
-	ib_net64_t				comp_mask;
-	void					*p_attr;
-}	osmv_user_query_t;
+typedef struct _osmv_user_query {
+	uint8_t method;
+	ib_net16_t attr_id;
+	ib_net16_t attr_offset;
+	ib_net32_t attr_mod;
+	ib_net64_t comp_mask;
+	void *p_attr;
+} osmv_user_query_t;
 /*
 * FIELDS
 *
@@ -238,11 +235,10 @@ typedef struct _osmv_user_query
 *
 * SYNOPSIS
 */
-typedef struct _osmv_gid_pair
-{
-	ib_gid_t				src_gid;
-	ib_gid_t				dest_gid;
-}	osmv_gid_pair_t;
+typedef struct _osmv_gid_pair {
+	ib_gid_t src_gid;
+	ib_gid_t dest_gid;
+} osmv_gid_pair_t;
 /*
 * FIELDS
 *	src_gid
@@ -267,11 +263,10 @@ typedef struct _osmv_gid_pair
 *
 * SYNOPSIS
 */
-typedef struct _osmv_lid_pair
-{
-	ib_net16_t				src_lid;
-	ib_net16_t				dest_lid;
-}	osmv_lid_pair_t;
+typedef struct _osmv_lid_pair {
+	ib_net16_t src_lid;
+	ib_net16_t dest_lid;
+} osmv_lid_pair_t;
 /*
 * FIELDS
 *	src_lid
@@ -294,11 +289,10 @@ typedef struct _osmv_lid_pair
 *
 * SYNOPSIS
 */
-typedef struct _osmv_guid_pair
-{
-	ib_net64_t				src_guid;
-	ib_net64_t				dest_guid;
-}	osmv_guid_pair_t;
+typedef struct _osmv_guid_pair {
+	ib_net64_t src_guid;
+	ib_net64_t dest_guid;
+} osmv_guid_pair_t;
 /*
 * FIELDS
 *	src_guid
@@ -324,17 +318,16 @@ typedef struct _osmv_guid_pair
 *
 * SYNOPSIS
 */
-typedef struct _osmv_multipath_req_t
-{
-	ib_net64_t	comp_mask;
-	uint16_t	pkey;
-	boolean_t	reversible;
-	uint8_t		num_path;
-	uint8_t		sl;
-	uint8_t		independence;
-	uint8_t		sgid_count;
-	uint8_t		dgid_count;
-	ib_gid_t	gids[IB_MULTIPATH_MAX_GIDS];
+typedef struct _osmv_multipath_req_t {
+	ib_net64_t comp_mask;
+	uint16_t pkey;
+	boolean_t reversible;
+	uint8_t num_path;
+	uint8_t sl;
+	uint8_t independence;
+	uint8_t sgid_count;
+	uint8_t dgid_count;
+	ib_gid_t gids[IB_MULTIPATH_MAX_GIDS];
 } osmv_multipath_req_t;
 /*
 * FIELDS
@@ -354,14 +347,13 @@ typedef struct _osmv_multipath_req_t
 *
 * SYNOPSIS
 */
-typedef struct _osmv_query_res
-{
-	const void				*query_context;
-	ib_api_status_t				 status;
-	osmv_query_type_t			 query_type;
-	uint32_t				 result_cnt;
-	osm_madw_t      			*p_result_madw;
-}	osmv_query_res_t;
+typedef struct _osmv_query_res {
+	const void *query_context;
+	ib_api_status_t status;
+	osmv_query_type_t query_type;
+	uint32_t result_cnt;
+	osm_madw_t *p_result_madw;
+} osmv_query_res_t;
 /*
 * FIELDS
 *	query_context
@@ -413,22 +405,21 @@ typedef struct _osmv_query_res
 *
 * SYNOPSIS
 */
-static inline void*
-osmv_get_query_result(
-	IN osm_madw_t  		*p_result_madw,
-	IN uint32_t		result_index )
+static inline void *osmv_get_query_result(IN osm_madw_t * p_result_madw,
+					  IN uint32_t result_index)
 {
-	ib_sa_mad_t		*p_sa_mad;
+	ib_sa_mad_t *p_sa_mad;
 
-	CL_ASSERT( p_result_madw );
-	p_sa_mad = (ib_sa_mad_t*)osm_madw_get_mad_ptr( p_result_madw );
-	CL_ASSERT( p_sa_mad );
-	CL_ASSERT( ib_get_attr_size( p_sa_mad->attr_offset ) * (result_index + 1) +
-		IB_SA_MAD_HDR_SIZE <= p_result_madw->mad_size );
+	CL_ASSERT(p_result_madw);
+	p_sa_mad = (ib_sa_mad_t *) osm_madw_get_mad_ptr(p_result_madw);
+	CL_ASSERT(p_sa_mad);
+	CL_ASSERT(ib_get_attr_size(p_sa_mad->attr_offset) * (result_index + 1) +
+		  IB_SA_MAD_HDR_SIZE <= p_result_madw->mad_size);
 
-	return( p_sa_mad->data +
-		(ib_get_attr_size( p_sa_mad->attr_offset ) * result_index) );
+	return (p_sa_mad->data +
+		(ib_get_attr_size(p_sa_mad->attr_offset) * result_index));
 }
+
 /*
 * PARAMETERS
 *	p_result_madw
@@ -458,19 +449,20 @@ osmv_get_query_result(
 *
 * SYNOPSIS
 */
-static inline ib_path_rec_t*
-osmv_get_query_path_rec(
-	IN osm_madw_t  		*p_result_madw,
-	IN uint32_t		result_index )
+static inline ib_path_rec_t *osmv_get_query_path_rec(IN osm_madw_t *
+						     p_result_madw,
+						     IN uint32_t result_index)
 {
-	ib_sa_mad_t		*p_sa_mad;
+	ib_sa_mad_t *p_sa_mad;
 
-	CL_ASSERT( p_result_madw );
-	p_sa_mad = (ib_sa_mad_t*)osm_madw_get_mad_ptr( p_result_madw );
-	CL_ASSERT( p_sa_mad && p_sa_mad->attr_id == IB_MAD_ATTR_PATH_RECORD );
+	CL_ASSERT(p_result_madw);
+	p_sa_mad = (ib_sa_mad_t *) osm_madw_get_mad_ptr(p_result_madw);
+	CL_ASSERT(p_sa_mad && p_sa_mad->attr_id == IB_MAD_ATTR_PATH_RECORD);
 
-	return( (ib_path_rec_t*)osmv_get_query_result( p_result_madw, result_index ) );
+	return ((ib_path_rec_t *)
+		osmv_get_query_result(p_result_madw, result_index));
 }
+
 /*
 * PARAMETERS
 *	p_result_madw
@@ -498,20 +490,21 @@ osmv_get_query_path_rec(
 *
 * SYNOPSIS
 */
-static inline ib_portinfo_record_t*
-osmv_get_query_portinfo_rec(
-	IN osm_madw_t		*p_result_madw,
-	IN uint32_t		result_index )
+static inline ib_portinfo_record_t *osmv_get_query_portinfo_rec(IN osm_madw_t *
+								p_result_madw,
+								IN uint32_t
+								result_index)
 {
-	ib_sa_mad_t		*p_sa_mad;
+	ib_sa_mad_t *p_sa_mad;
 
-	CL_ASSERT( p_result_madw );
-	p_sa_mad = (ib_sa_mad_t*)osm_madw_get_mad_ptr( p_result_madw );
-	CL_ASSERT( p_sa_mad && p_sa_mad->attr_id == IB_MAD_ATTR_PORTINFO_RECORD );
+	CL_ASSERT(p_result_madw);
+	p_sa_mad = (ib_sa_mad_t *) osm_madw_get_mad_ptr(p_result_madw);
+	CL_ASSERT(p_sa_mad && p_sa_mad->attr_id == IB_MAD_ATTR_PORTINFO_RECORD);
 
-	return( (ib_portinfo_record_t*)osmv_get_query_result( p_result_madw,
-		result_index ) );
+	return ((ib_portinfo_record_t *) osmv_get_query_result(p_result_madw,
+							       result_index));
 }
+
 /*
 * PARAMETERS
 *	p_result_madw
@@ -539,20 +532,21 @@ osmv_get_query_portinfo_rec(
 *
 * SYNOPSIS
 */
-static inline ib_node_record_t*
-osmv_get_query_node_rec(
-	IN osm_madw_t		*p_result_madw,
-	IN uint32_t		result_index )
+static inline ib_node_record_t *osmv_get_query_node_rec(IN osm_madw_t *
+							p_result_madw,
+							IN uint32_t
+							result_index)
 {
-	ib_sa_mad_t		*p_sa_mad;
+	ib_sa_mad_t *p_sa_mad;
 
-	CL_ASSERT( p_result_madw );
-	p_sa_mad = (ib_sa_mad_t*)osm_madw_get_mad_ptr( p_result_madw );
-	CL_ASSERT( p_sa_mad && p_sa_mad->attr_id == IB_MAD_ATTR_NODE_RECORD );
+	CL_ASSERT(p_result_madw);
+	p_sa_mad = (ib_sa_mad_t *) osm_madw_get_mad_ptr(p_result_madw);
+	CL_ASSERT(p_sa_mad && p_sa_mad->attr_id == IB_MAD_ATTR_NODE_RECORD);
 
-	return( (ib_node_record_t*)osmv_get_query_result( p_result_madw,
-		result_index ) );
+	return ((ib_node_record_t *) osmv_get_query_result(p_result_madw,
+							   result_index));
 }
+
 /*
 * PARAMETERS
 *	p_result_madw
@@ -580,20 +574,21 @@ osmv_get_query_node_rec(
 *
 * SYNOPSIS
 */
-static inline ib_service_record_t*
-osmv_get_query_svc_rec(
-	IN osm_madw_t		*p_result_madw,
-	IN uint32_t		result_index )
+static inline ib_service_record_t *osmv_get_query_svc_rec(IN osm_madw_t *
+							  p_result_madw,
+							  IN uint32_t
+							  result_index)
 {
-	ib_sa_mad_t		*p_sa_mad;
+	ib_sa_mad_t *p_sa_mad;
 
-	CL_ASSERT( p_result_madw );
-	p_sa_mad = (ib_sa_mad_t*)osm_madw_get_mad_ptr( p_result_madw );
-	CL_ASSERT( p_sa_mad && p_sa_mad->attr_id == IB_MAD_ATTR_SERVICE_RECORD );
+	CL_ASSERT(p_result_madw);
+	p_sa_mad = (ib_sa_mad_t *) osm_madw_get_mad_ptr(p_result_madw);
+	CL_ASSERT(p_sa_mad && p_sa_mad->attr_id == IB_MAD_ATTR_SERVICE_RECORD);
 
-	return( (ib_service_record_t*)osmv_get_query_result( p_result_madw,
-		result_index ) );
+	return ((ib_service_record_t *) osmv_get_query_result(p_result_madw,
+							      result_index));
 }
+
 /*
 * PARAMETERS
 *	p_result_madw
@@ -621,20 +616,20 @@ osmv_get_query_svc_rec(
 *
 * SYNOPSIS
 */
-static inline ib_member_rec_t*
-osmv_get_query_mc_rec(
-	IN osm_madw_t		*p_result_madw,
-	IN uint32_t		result_index )
+static inline ib_member_rec_t *osmv_get_query_mc_rec(IN osm_madw_t *
+						     p_result_madw,
+						     IN uint32_t result_index)
 {
-	ib_sa_mad_t		*p_sa_mad;
+	ib_sa_mad_t *p_sa_mad;
 
-	CL_ASSERT( p_result_madw );
-	p_sa_mad = (ib_sa_mad_t*)osm_madw_get_mad_ptr( p_result_madw );
-	CL_ASSERT( p_sa_mad && p_sa_mad->attr_id == IB_MAD_ATTR_MCMEMBER_RECORD );
+	CL_ASSERT(p_result_madw);
+	p_sa_mad = (ib_sa_mad_t *) osm_madw_get_mad_ptr(p_result_madw);
+	CL_ASSERT(p_sa_mad && p_sa_mad->attr_id == IB_MAD_ATTR_MCMEMBER_RECORD);
 
-	return( (ib_member_rec_t*)osmv_get_query_result( p_result_madw,
-		result_index ) );
+	return ((ib_member_rec_t *) osmv_get_query_result(p_result_madw,
+							  result_index));
 }
+
 /*
 * PARAMETERS
 *	p_result_madw
@@ -662,20 +657,25 @@ osmv_get_query_mc_rec(
 *
 * SYNOPSIS
 */
-static inline ib_inform_info_record_t*
-osmv_get_query_inform_info_rec(
-	IN osm_madw_t		*p_result_madw,
-	IN uint32_t		result_index )
+static inline ib_inform_info_record_t *osmv_get_query_inform_info_rec(IN
+								      osm_madw_t
+								      *
+								      p_result_madw,
+								      IN
+								      uint32_t
+								      result_index)
 {
-	ib_sa_mad_t		*p_sa_mad;
+	ib_sa_mad_t *p_sa_mad;
 
-	CL_ASSERT( p_result_madw );
-	p_sa_mad = (ib_sa_mad_t*)osm_madw_get_mad_ptr( p_result_madw );
-	CL_ASSERT( p_sa_mad && p_sa_mad->attr_id == IB_MAD_ATTR_INFORM_INFO_RECORD );
+	CL_ASSERT(p_result_madw);
+	p_sa_mad = (ib_sa_mad_t *) osm_madw_get_mad_ptr(p_result_madw);
+	CL_ASSERT(p_sa_mad
+		  && p_sa_mad->attr_id == IB_MAD_ATTR_INFORM_INFO_RECORD);
 
-        return( (ib_inform_info_record_t*)osmv_get_query_result( p_result_madw,
-                result_index ) );
+	return ((ib_inform_info_record_t *) osmv_get_query_result(p_result_madw,
+								  result_index));
 }
+
 /*
 * PARAMETERS
 *	p_result_madw
@@ -704,8 +704,7 @@ osmv_get_query_inform_info_rec(
 * SYNOPSIS
 */
 typedef void
-(*osmv_pfn_query_cb_t)(
-	IN osmv_query_res_t	*p_query_res );
+ (*osmv_pfn_query_cb_t) (IN osmv_query_res_t * p_query_res);
 /*
 * PARAMETERS
 *	p_query_res
@@ -735,19 +734,18 @@ typedef void
 *
 * SYNOPSIS
 */
-typedef struct _osmv_query_req
-{
-	osmv_query_type_t			query_type;
-	const void				*p_query_input;
-	ib_net64_t				sm_key;
+typedef struct _osmv_query_req {
+	osmv_query_type_t query_type;
+	const void *p_query_input;
+	ib_net64_t sm_key;
 
-	uint32_t				timeout_ms;
-	uint32_t				retry_cnt;
-	osmv_flags_t				flags;
+	uint32_t timeout_ms;
+	uint32_t retry_cnt;
+	osmv_flags_t flags;
 
-	const void				*query_context;
-	osmv_pfn_query_cb_t			pfn_query_cb;
-}	osmv_query_req_t;
+	const void *query_context;
+	osmv_pfn_query_cb_t pfn_query_cb;
+} osmv_query_req_t;
 /*
 * FIELDS
 *	query_type
@@ -816,11 +814,8 @@ typedef struct _osmv_query_req
 * SYNOPSIS
 */
 osm_bind_handle_t
-osmv_bind_sa(
-  IN osm_vendor_t    * const p_vend,
-  IN osm_mad_pool_t  * const p_mad_pool,
-  IN ib_net64_t              port_guid
-  );
+osmv_bind_sa(IN osm_vendor_t * const p_vend,
+	     IN osm_mad_pool_t * const p_mad_pool, IN ib_net64_t port_guid);
 /*
 * PARAMETERS
 *   p_vend
@@ -851,10 +846,8 @@ osmv_bind_sa(
 * SYNOPSIS
 */
 ib_api_status_t
-osmv_query_sa(
-  IN osm_bind_handle_t         h_bind,
-  IN const osmv_query_req_t * const p_query_req
-  );
+osmv_query_sa(IN osm_bind_handle_t h_bind,
+	      IN const osmv_query_req_t * const p_query_req);
 /*
 * PARAMETERS
 *   h_bind
@@ -875,5 +868,4 @@ osmv_query_sa(
 *********/
 
 END_C_DECLS
-
-#endif /* _OSM_VENDOR_SA_API_H_ */
+#endif				/* _OSM_VENDOR_SA_API_H_ */

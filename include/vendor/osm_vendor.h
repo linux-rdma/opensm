@@ -33,7 +33,6 @@
  *
  */
 
-
 /*
  * Abstract:
  * 	Include file used by OpenSM to pull in the correct vendor file.
@@ -75,4 +74,3 @@
 #error No MAD Interface selected!
 #error Choose an interface in osm_vendor_select.h
 #endif
-

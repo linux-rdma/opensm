@@ -44,22 +44,18 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /* The maximum number of outstanding MADs an RMPP sender can transmit */
 #define OSMV_RMPP_RECV_WIN       16
-
 /* The maximum number of retransmissions of the same MAD */
 #define OSMV_MAX_RETRANSMIT      3
-
 /* Transaction Timeout = OSMV_TXN_TIMEOUT_FACTOR * Response Timeout */
 #define OSMV_TXN_TIMEOUT_FACTOR  128
-
 /************/
 /****s* OSM Vendor: Types/osmv_bind_obj_t
 * NAME
@@ -71,39 +67,37 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-
 typedef struct _osmv_bind_obj {
-  /* Used to signal when the struct is being destroyed */
-    struct _osmv_bind_obj*         magic_ptr;
+	/* Used to signal when the struct is being destroyed */
+	struct _osmv_bind_obj *magic_ptr;
 
-    osm_vendor_t               /*const */ *p_vendor;
+	 osm_vendor_t /*const */  * p_vendor;
 
-    uint32_t                          hca_hndl;
-    uint32_t                          port_num;
+	uint32_t hca_hndl;
+	uint32_t port_num;
 
-    /* Atomic access protector */
-    cl_spinlock_t lock;
+	/* Atomic access protector */
+	cl_spinlock_t lock;
 
-    /* is_closing == TRUE --> the handle is being unbound */
-    boolean_t is_closing;
+	/* is_closing == TRUE --> the handle is being unbound */
+	boolean_t is_closing;
 
-    /* Event callbacks */
-    osm_vend_mad_recv_callback_t     recv_cb;
-    osm_vend_mad_send_err_callback_t send_err_cb;
-    /* ... and their context */
-    void                             *cb_context;
+	/* Event callbacks */
+	osm_vend_mad_recv_callback_t recv_cb;
+	osm_vend_mad_send_err_callback_t send_err_cb;
+	/* ... and their context */
+	void *cb_context;
 
-    /* A pool to manage MAD wrappers*/
-    osm_mad_pool_t                   *p_osm_pool;
+	/* A pool to manage MAD wrappers */
+	osm_mad_pool_t *p_osm_pool;
 
-    /* each subvendor implements its own transport mgr */
-    void                             *p_transp_mgr;
+	/* each subvendor implements its own transport mgr */
+	void *p_transp_mgr;
 
-    /* The transaction DB */
-    osmv_txn_mgr_t                    txn_mgr;
+	/* The transaction DB */
+	osmv_txn_mgr_t txn_mgr;
 
 } osmv_bind_obj_t;
 
 END_C_DECLS
-
-#endif  /* _OSMV_DEFS_H_ */
+#endif				/* _OSMV_DEFS_H_ */

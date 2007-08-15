@@ -45,13 +45,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****s* OpenSM: Vendor/osm_vendor_mgt_bind
 * NAME
 *   osm_vendor_mgt_bind_t
@@ -62,14 +61,12 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_vendor_mgt_bind
-{
-  boolean_t smi_init, gsi_init;
-  IB_MGT_mad_hndl_t smi_mads_hdl;
-  IB_MGT_mad_hndl_t gsi_mads_hdl;
-  struct _osm_mtl_bind_info *smi_p_bind;
-}
-osm_vendor_mgt_bind_t;
+typedef struct _osm_vendor_mgt_bind {
+	boolean_t smi_init, gsi_init;
+	IB_MGT_mad_hndl_t smi_mads_hdl;
+	IB_MGT_mad_hndl_t gsi_mads_hdl;
+	struct _osm_mtl_bind_info *smi_p_bind;
+} osm_vendor_mgt_bind_t;
 
 /*
 * FIELDS
@@ -91,19 +88,17 @@ osm_vendor_mgt_bind_t;
 *
 * SYNOPSIS
 */
-typedef struct _osm_mtl_bind_info
-{
-  IB_MGT_mad_hndl_t mad_hndl;
-  osm_vendor_t *p_vend;
-  void *client_context;
-  VAPI_hca_hndl_t hca_hndl;
-  VAPI_hca_id_t hca_id;
-  uint8_t port_num;
-  osm_vend_mad_recv_callback_t rcv_callback;
-  osm_vend_mad_send_err_callback_t send_err_callback;
-  osm_mad_pool_t *p_osm_pool;
-}
-osm_mtl_bind_info_t;
+typedef struct _osm_mtl_bind_info {
+	IB_MGT_mad_hndl_t mad_hndl;
+	osm_vendor_t *p_vend;
+	void *client_context;
+	VAPI_hca_hndl_t hca_hndl;
+	VAPI_hca_id_t hca_id;
+	uint8_t port_num;
+	osm_vend_mad_recv_callback_t rcv_callback;
+	osm_vend_mad_send_err_callback_t send_err_callback;
+	osm_mad_pool_t *p_osm_pool;
+} osm_mtl_bind_info_t;
 
 /*
 * FIELDS
@@ -135,10 +130,7 @@ osm_mtl_bind_info_t;
 * SEE ALSO
 *********/
 ib_api_status_t
-osm_mtl_send_mad(
-  IN osm_mtl_bind_info_t *p_bind,
-  IN osm_madw_t * const p_madw);
+osm_mtl_send_mad(IN osm_mtl_bind_info_t * p_bind, IN osm_madw_t * const p_madw);
 
 END_C_DECLS
-
-#endif // _OSM_BIND_H_
+#endif				// _OSM_BIND_H_

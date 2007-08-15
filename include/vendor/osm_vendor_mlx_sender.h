@@ -43,13 +43,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****d* OSM Vendor/osmv_simple_send_madw
  * NAME
  *   osmv_simple_send_madw
@@ -62,12 +61,9 @@ BEGIN_C_DECLS
  *
  */
 ib_api_status_t
-osmv_simple_send_madw(
-  IN osm_bind_handle_t h_bind,
-  IN osm_madw_t *const p_madw,
-  IN osmv_txn_ctx_t   *p_txn,
-  IN boolean_t         is_retry
-  );
+osmv_simple_send_madw(IN osm_bind_handle_t h_bind,
+		      IN osm_madw_t * const p_madw,
+		      IN osmv_txn_ctx_t * p_txn, IN boolean_t is_retry);
 
 /****d* OSM Vendor/osmv_rmpp_send_madw
  * NAME
@@ -82,10 +78,9 @@ osmv_simple_send_madw(
  *      has been acknowledged, or upon error.
  */
 ib_api_status_t
-osmv_rmpp_send_madw(IN osm_bind_handle_t   h_bind,
-                    IN osm_madw_t   *const p_madw,
-                    IN osmv_txn_ctx_t     *p_txn,
-                    IN boolean_t           is_rmpp_ds);
+osmv_rmpp_send_madw(IN osm_bind_handle_t h_bind,
+		    IN osm_madw_t * const p_madw,
+		    IN osmv_txn_ctx_t * p_txn, IN boolean_t is_rmpp_ds);
 
 /*
  *  NAME            osmv_rmpp_send_ack
@@ -94,11 +89,10 @@ osmv_rmpp_send_madw(IN osm_bind_handle_t   h_bind,
  */
 
 ib_api_status_t
-osmv_rmpp_send_ack(IN osm_bind_handle_t     h_bind,
-                   IN const ib_mad_t       *p_req_mad,
-                   IN uint32_t              seg_num,
-                   IN uint32_t              nwl,
-                   IN const osm_mad_addr_t *p_mad_addr);
+osmv_rmpp_send_ack(IN osm_bind_handle_t h_bind,
+		   IN const ib_mad_t * p_req_mad,
+		   IN uint32_t seg_num,
+		   IN uint32_t nwl, IN const osm_mad_addr_t * p_mad_addr);
 
 /*
  *  NAME           osmv_rmpp_send_nak
@@ -107,11 +101,10 @@ osmv_rmpp_send_ack(IN osm_bind_handle_t     h_bind,
  */
 
 ib_api_status_t
-osmv_rmpp_send_nak(IN osm_bind_handle_t     h_bind,
-                   IN const ib_mad_t       *p_req_mad,
-                   IN const osm_mad_addr_t *p_mad_addr,
-                   IN uint8_t               nak_type,
-                   IN uint8_t               status);
+osmv_rmpp_send_nak(IN osm_bind_handle_t h_bind,
+		   IN const ib_mad_t * p_req_mad,
+		   IN const osm_mad_addr_t * p_mad_addr,
+		   IN uint8_t nak_type, IN uint8_t status);
 
 /*
  *  NAME           osmv_rmpp_snd_error
@@ -120,17 +113,16 @@ osmv_rmpp_send_nak(IN osm_bind_handle_t     h_bind,
  */
 
 static inline void
-osmv_rmpp_snd_error(IN osmv_rmpp_send_ctx_t *p_send_ctx,
-                    IN ib_api_status_t       status)
+osmv_rmpp_snd_error(IN osmv_rmpp_send_ctx_t * p_send_ctx,
+		    IN ib_api_status_t status)
 {
-    p_send_ctx->status = status;
+	p_send_ctx->status = status;
 
-    /* Release the thread waiting on send()
-     * It will release the transaction's context
-     */
-    cl_event_signal(&p_send_ctx->event);
+	/* Release the thread waiting on send()
+	 * It will release the transaction's context
+	 */
+	cl_event_signal(&p_send_ctx->event);
 }
 
 END_C_DECLS
-
-#endif  /* _OSMV_RMPP_SENDER_H_ */
+#endif				/* _OSMV_RMPP_SENDER_H_ */

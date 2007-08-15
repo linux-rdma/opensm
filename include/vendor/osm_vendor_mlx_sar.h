@@ -42,22 +42,21 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
 
-typedef struct _osmv_rmpp_sar{
-    void*    p_arbt_mad;
-    uint32_t    data_len;  /* total data len in all the mads */
-    /* these data members contain only constants */
-    uint32_t    hdr_sz;
-    uint32_t    data_sz;   /*typical data sz for this kind of mad (sa or regular */
+typedef struct _osmv_rmpp_sar {
+	void *p_arbt_mad;
+	uint32_t data_len;	/* total data len in all the mads */
+	/* these data members contain only constants */
+	uint32_t hdr_sz;
+	uint32_t data_sz;	/*typical data sz for this kind of mad (sa or regular */
 
-}osmv_rmpp_sar_t;
-
+} osmv_rmpp_sar_t;
 
 /*
  * NAME
@@ -70,8 +69,8 @@ typedef struct _osmv_rmpp_sar{
  *
  */
 ib_api_status_t
-osmv_rmpp_sar_init(osmv_rmpp_sar_t* p_sar, void* p_arbt_mad,
-                   uint32_t mad_size, boolean_t is_sa_mad);
+osmv_rmpp_sar_init(osmv_rmpp_sar_t * p_sar, void *p_arbt_mad,
+		   uint32_t mad_size, boolean_t is_sa_mad);
 
 /*
  * NAME
@@ -83,8 +82,7 @@ osmv_rmpp_sar_init(osmv_rmpp_sar_t* p_sar, void* p_arbt_mad,
  * SEE ALSO
  *
  */
-void
-osmv_rmpp_sar_done(osmv_rmpp_sar_t* p_sar);
+void osmv_rmpp_sar_done(osmv_rmpp_sar_t * p_sar);
 
 /*
  * NAME
@@ -97,7 +95,8 @@ osmv_rmpp_sar_done(osmv_rmpp_sar_t* p_sar);
  *
  */
 ib_api_status_t
-osmv_rmpp_sar_get_mad_seg(osmv_rmpp_sar_t* p_sar,uint32_t seg_idx,void* p_buf);
+osmv_rmpp_sar_get_mad_seg(osmv_rmpp_sar_t * p_sar, uint32_t seg_idx,
+			  void *p_buf);
 
 /*
  * NAME
@@ -111,8 +110,7 @@ osmv_rmpp_sar_get_mad_seg(osmv_rmpp_sar_t* p_sar,uint32_t seg_idx,void* p_buf);
  *
  */
 ib_api_status_t
-osmv_rmpp_sar_reassemble_arbt_mad(osmv_rmpp_sar_t* p_sar,cl_qlist_t* p_bufs);
+osmv_rmpp_sar_reassemble_arbt_mad(osmv_rmpp_sar_t * p_sar, cl_qlist_t * p_bufs);
 
 END_C_DECLS
-
-#endif  /* _OSMV_SAR_H_ */
+#endif				/* _OSMV_SAR_H_ */

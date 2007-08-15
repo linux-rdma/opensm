@@ -48,62 +48,58 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
 
 typedef enum _osmv_txn_rmpp_state {
 
-    OSMV_TXN_RMPP_NONE = 0, /* Not part of RMPP transaction */
+	OSMV_TXN_RMPP_NONE = 0,	/* Not part of RMPP transaction */
 
-    OSMV_TXN_RMPP_SENDER,
-    OSMV_TXN_RMPP_RECEIVER
-
+	OSMV_TXN_RMPP_SENDER,
+	OSMV_TXN_RMPP_RECEIVER
 } osmv_txn_rmpp_state_t;
-
 
 typedef struct _osmv_rmpp_txfr {
 
-    osmv_txn_rmpp_state_t   rmpp_state;
-    boolean_t               is_rmpp_init_by_peer;
-    osmv_rmpp_send_ctx_t   *p_rmpp_send_ctx;
-    osmv_rmpp_recv_ctx_t   *p_rmpp_recv_ctx;
+	osmv_txn_rmpp_state_t rmpp_state;
+	boolean_t is_rmpp_init_by_peer;
+	osmv_rmpp_send_ctx_t *p_rmpp_send_ctx;
+	osmv_rmpp_recv_ctx_t *p_rmpp_recv_ctx;
 
 } osmv_rmpp_txfr_t;
 
-
 typedef struct _osmv_txn_ctx {
 
-    /* The original Transaction ID */
-    uint64_t                tid;
-    /* The key by which the Transaction is stored */
-    uint64_t                key;
+	/* The original Transaction ID */
+	uint64_t tid;
+	/* The key by which the Transaction is stored */
+	uint64_t key;
 
-    /* RMPP Send/Receive contexts, if applicable */
-    osmv_rmpp_txfr_t        rmpp_txfr;
+	/* RMPP Send/Receive contexts, if applicable */
+	osmv_rmpp_txfr_t rmpp_txfr;
 
-    /* A MAD that was sent during the transaction (request or response) */
-    osm_madw_t              *p_madw;
+	/* A MAD that was sent during the transaction (request or response) */
+	osm_madw_t *p_madw;
 
-    /* Reference to a log to enable tracing */
-    osm_log_t               *p_log;
+	/* Reference to a log to enable tracing */
+	osm_log_t *p_log;
 
 } osmv_txn_ctx_t;
 
-
 typedef struct _osmv_txn_mgr {
 
-    /* Container of all the transactions */
-    cl_qmap_t          *p_txn_map;
+	/* Container of all the transactions */
+	cl_qmap_t *p_txn_map;
 
-    /* The timeouts DB */
-    cl_event_wheel_t   *p_event_wheel;
+	/* The timeouts DB */
+	cl_event_wheel_t *p_event_wheel;
 
-    /* Reference to a log to enable tracing */
-    osm_log_t          *p_log;
+	/* Reference to a log to enable tracing */
+	osm_log_t *p_log;
 
 } osmv_txn_mgr_t;
 
@@ -119,11 +115,8 @@ typedef struct _osmv_txn_mgr {
  *
  */
 ib_api_status_t
-osmv_txn_init(  IN  osm_bind_handle_t      h_bind,
-		IN  uint64_t               tid,
-		IN  uint64_t               key,
-		OUT osmv_txn_ctx_t       **pp_txn);
-
+osmv_txn_init(IN osm_bind_handle_t h_bind,
+	      IN uint64_t tid, IN uint64_t key, OUT osmv_txn_ctx_t ** pp_txn);
 
 /*
  * NAME
@@ -136,10 +129,8 @@ osmv_txn_init(  IN  osm_bind_handle_t      h_bind,
  *
  */
 ib_api_status_t
-osmv_txn_init_rmpp_sender(IN osm_bind_handle_t  h_bind,
-			  IN osmv_txn_ctx_t    *p_txn,
-			  IN osm_madw_t        *p_madw);
-
+osmv_txn_init_rmpp_sender(IN osm_bind_handle_t h_bind,
+			  IN osmv_txn_ctx_t * p_txn, IN osm_madw_t * p_madw);
 
 /*
  * NAME
@@ -152,9 +143,9 @@ osmv_txn_init_rmpp_sender(IN osm_bind_handle_t  h_bind,
  *
  */
 ib_api_status_t
-osmv_txn_init_rmpp_receiver(IN osm_bind_handle_t  h_bind,
-			    IN osmv_txn_ctx_t    *p_txn,
-			    IN boolean_t          is_init_by_peer);
+osmv_txn_init_rmpp_receiver(IN osm_bind_handle_t h_bind,
+			    IN osmv_txn_ctx_t * p_txn,
+			    IN boolean_t is_init_by_peer);
 
 /*
  * NAME
@@ -167,9 +158,8 @@ osmv_txn_init_rmpp_receiver(IN osm_bind_handle_t  h_bind,
  *
  */
 void
-osmv_txn_done(IN osm_bind_handle_t  h_bind,
-	      IN uint64_t           key,
-	      IN boolean_t          is_in_cb);
+osmv_txn_done(IN osm_bind_handle_t h_bind,
+	      IN uint64_t key, IN boolean_t is_in_cb);
 /*
  * NAME
  *   osmv_txn_get_tid
@@ -179,11 +169,10 @@ osmv_txn_done(IN osm_bind_handle_t  h_bind,
  * SEE ALSO
  *
  */
-static inline uint64_t
-osmv_txn_get_tid(IN osmv_txn_ctx_t* p_txn)
+static inline uint64_t osmv_txn_get_tid(IN osmv_txn_ctx_t * p_txn)
 {
-    CL_ASSERT(NULL != p_txn);
-    return p_txn->tid;
+	CL_ASSERT(NULL != p_txn);
+	return p_txn->tid;
 }
 
 /*
@@ -196,12 +185,12 @@ osmv_txn_get_tid(IN osmv_txn_ctx_t* p_txn)
  *
  */
 
-static inline uint64_t
-osmv_txn_get_key(IN osmv_txn_ctx_t* p_txn)
+static inline uint64_t osmv_txn_get_key(IN osmv_txn_ctx_t * p_txn)
 {
-    CL_ASSERT(NULL != p_txn);
-    return p_txn->key;
+	CL_ASSERT(NULL != p_txn);
+	return p_txn->key;
 }
+
 /*
  * NAME
  *   osmv_txn_is_rmpp_init_by_peer
@@ -212,11 +201,10 @@ osmv_txn_get_key(IN osmv_txn_ctx_t* p_txn)
  * SEE ALSO
  *
  */
-static inline boolean_t
-osmv_txn_is_rmpp_init_by_peer(IN osmv_txn_ctx_t* p_txn)
+static inline boolean_t osmv_txn_is_rmpp_init_by_peer(IN osmv_txn_ctx_t * p_txn)
 {
-    CL_ASSERT(NULL != p_txn);
-    return p_txn->rmpp_txfr.is_rmpp_init_by_peer;
+	CL_ASSERT(NULL != p_txn);
+	return p_txn->rmpp_txfr.is_rmpp_init_by_peer;
 }
 
 /*
@@ -228,11 +216,11 @@ osmv_txn_is_rmpp_init_by_peer(IN osmv_txn_ctx_t* p_txn)
  * SEE ALSO
  *
  */
-static inline osmv_rmpp_send_ctx_t*
-osmv_txn_get_rmpp_send_ctx(IN osmv_txn_ctx_t* p_txn)
+static inline osmv_rmpp_send_ctx_t *osmv_txn_get_rmpp_send_ctx(IN osmv_txn_ctx_t
+							       * p_txn)
 {
-    CL_ASSERT(NULL != p_txn);
-    return p_txn->rmpp_txfr.p_rmpp_send_ctx;
+	CL_ASSERT(NULL != p_txn);
+	return p_txn->rmpp_txfr.p_rmpp_send_ctx;
 }
 
 /*
@@ -244,11 +232,11 @@ osmv_txn_get_rmpp_send_ctx(IN osmv_txn_ctx_t* p_txn)
  * SEE ALSO
  *
  */
-static inline osmv_rmpp_recv_ctx_t*
-osmv_txn_get_rmpp_recv_ctx(IN osmv_txn_ctx_t* p_txn)
+static inline osmv_rmpp_recv_ctx_t *osmv_txn_get_rmpp_recv_ctx(IN osmv_txn_ctx_t
+							       * p_txn)
 {
-    CL_ASSERT(NULL != p_txn);
-    return p_txn->rmpp_txfr.p_rmpp_recv_ctx;
+	CL_ASSERT(NULL != p_txn);
+	return p_txn->rmpp_txfr.p_rmpp_recv_ctx;
 }
 
 /*
@@ -261,10 +249,10 @@ osmv_txn_get_rmpp_recv_ctx(IN osmv_txn_ctx_t* p_txn)
  *
  */
 static inline osmv_txn_rmpp_state_t
-osmv_txn_get_rmpp_state(IN osmv_txn_ctx_t *p_txn)
+osmv_txn_get_rmpp_state(IN osmv_txn_ctx_t * p_txn)
 {
-    CL_ASSERT(NULL != p_txn);
-    return p_txn->rmpp_txfr.rmpp_state;
+	CL_ASSERT(NULL != p_txn);
+	return p_txn->rmpp_txfr.rmpp_state;
 }
 
 /*
@@ -277,11 +265,11 @@ osmv_txn_get_rmpp_state(IN osmv_txn_ctx_t *p_txn)
  *
  */
 static inline void
-osmv_txn_set_rmpp_state(IN osmv_txn_ctx_t        *p_txn,
-			IN osmv_txn_rmpp_state_t  state)
+osmv_txn_set_rmpp_state(IN osmv_txn_ctx_t * p_txn,
+			IN osmv_txn_rmpp_state_t state)
 {
-    CL_ASSERT(NULL != p_txn);
-    p_txn->rmpp_txfr.rmpp_state = state;
+	CL_ASSERT(NULL != p_txn);
+	p_txn->rmpp_txfr.rmpp_state = state;
 }
 
 /*
@@ -293,11 +281,10 @@ osmv_txn_set_rmpp_state(IN osmv_txn_ctx_t        *p_txn,
  * SEE ALSO
  *
  */
-static inline osm_madw_t*
-osmv_txn_get_madw(IN osmv_txn_ctx_t *p_txn)
+static inline osm_madw_t *osmv_txn_get_madw(IN osmv_txn_ctx_t * p_txn)
 {
-    CL_ASSERT(NULL != p_txn);
-    return p_txn->p_madw;
+	CL_ASSERT(NULL != p_txn);
+	return p_txn->p_madw;
 }
 
 /*
@@ -310,11 +297,10 @@ osmv_txn_get_madw(IN osmv_txn_ctx_t *p_txn)
  *
  */
 static inline void
-osmv_txn_set_madw(IN osmv_txn_ctx_t *p_txn,
-		  IN osm_madw_t     *p_madw)
+osmv_txn_set_madw(IN osmv_txn_ctx_t * p_txn, IN osm_madw_t * p_madw)
 {
-    CL_ASSERT(NULL != p_txn);
-    p_txn->p_madw = p_madw;
+	CL_ASSERT(NULL != p_txn);
+	p_txn->p_madw = p_madw;
 }
 
 /*
@@ -327,9 +313,8 @@ osmv_txn_set_madw(IN osmv_txn_ctx_t *p_txn,
  *
  */
 ib_api_status_t
-osmv_txn_set_timeout_ev(IN osm_bind_handle_t    h_bind,
-			IN uint64_t             key,
-			IN uint64_t             msec);
+osmv_txn_set_timeout_ev(IN osm_bind_handle_t h_bind,
+			IN uint64_t key, IN uint64_t msec);
 /*
  * NAME
  *  osmv_txn_remove_timeout_ev
@@ -339,9 +324,7 @@ osmv_txn_set_timeout_ev(IN osm_bind_handle_t    h_bind,
  * SEE ALSO
  *
  */
-void
-osmv_txn_remove_timeout_ev(IN osm_bind_handle_t      h_bind,
-			   IN uint64_t               key);
+void osmv_txn_remove_timeout_ev(IN osm_bind_handle_t h_bind, IN uint64_t key);
 /*
  * NAME
  *  osmv_txn_lookup
@@ -353,14 +336,10 @@ osmv_txn_remove_timeout_ev(IN osm_bind_handle_t      h_bind,
  *
  */
 ib_api_status_t
-osmv_txn_lookup(IN osm_bind_handle_t      h_bind,
-		IN uint64_t               key,
-		OUT osmv_txn_ctx_t      **pp_txn);
+osmv_txn_lookup(IN osm_bind_handle_t h_bind,
+		IN uint64_t key, OUT osmv_txn_ctx_t ** pp_txn);
 
-void
-osmv_txn_abort_rmpp_txns(IN osm_bind_handle_t h_bind);
-
-
+void osmv_txn_abort_rmpp_txns(IN osm_bind_handle_t h_bind);
 
 /*      *       *       *       *       *       *       *       *       *       *       *       */
 /*
@@ -373,9 +352,8 @@ osmv_txn_abort_rmpp_txns(IN osm_bind_handle_t h_bind);
  *
  */
 ib_api_status_t
-osmv_txnmgr_init(IN osmv_txn_mgr_t *p_tx_mgr,
-		 IN osm_log_t      *p_log,
-		 IN cl_spinlock_t  *p_lock);
+osmv_txnmgr_init(IN osmv_txn_mgr_t * p_tx_mgr,
+		 IN osm_log_t * p_log, IN cl_spinlock_t * p_lock);
 
 /*
  * NAME
@@ -386,20 +364,17 @@ osmv_txnmgr_init(IN osmv_txn_mgr_t *p_tx_mgr,
  * SEE ALSO
  *
  */
-void
-osmv_txnmgr_done(IN osm_bind_handle_t      h_bind);
+void osmv_txnmgr_done(IN osm_bind_handle_t h_bind);
 
-void osmv_txn_lock(IN osm_bind_handle_t      h_bind);
-void osmv_txn_unlock(IN osm_bind_handle_t    h_bind);
+void osmv_txn_lock(IN osm_bind_handle_t h_bind);
+void osmv_txn_unlock(IN osm_bind_handle_t h_bind);
 
-inline static uint64_t
-osmv_txn_uniq_key(IN uint64_t tid)
+inline static uint64_t osmv_txn_uniq_key(IN uint64_t tid)
 {
-    uint64_t pid = getpid();
+	uint64_t pid = getpid();
 
-    return ((pid << 32) | (tid & 0xFFFFFFFF));
+	return ((pid << 32) | (tid & 0xFFFFFFFF));
 }
 
 END_C_DECLS
-
-#endif  /* _OSMV_TXN_H_ */
+#endif				/* _OSMV_TXN_H_ */

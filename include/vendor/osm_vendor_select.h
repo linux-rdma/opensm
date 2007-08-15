@@ -33,7 +33,6 @@
  *
  */
 
-
 /*
  * Abstract:
  * 	Include file that defines which vendor files to compile.
@@ -65,12 +64,12 @@
 #ifndef OSM_VENDOR_INTF_SIM
 #ifndef OSM_VENDOR_INTF_AL
 #define OSM_VENDOR_INTF_AL
-#endif /* AL */
-#endif /* TS */
-#endif /* SIM */
-#endif /* MTL */
-#endif /* UMADT */
-#endif /* TEST */
-#endif /* OPENIB */
+#endif				/* AL */
+#endif				/* TS */
+#endif				/* SIM */
+#endif				/* MTL */
+#endif				/* UMADT */
+#endif				/* TEST */
+#endif				/* OPENIB */
 
-#endif /* _OSM_VENDOR_SELECT_H_ */
+#endif				/* _OSM_VENDOR_SELECT_H_ */

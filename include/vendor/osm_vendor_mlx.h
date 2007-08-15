@@ -43,13 +43,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /*
   Forward reference
 */
@@ -59,35 +58,34 @@ struct _osm_pkt_randomizer;
 
 typedef struct _osm_vendor {
 
-    /* for holding common transport info - useful at ibmgt transport*/
-    void             *p_transport_info;
+	/* for holding common transport info - useful at ibmgt transport */
+	void *p_transport_info;
 
-    osm_log_t        *p_log;
+	osm_log_t *p_log;
 
-    /* Uniform timeout for every ACK/single MAD */
-    uint32_t          resp_timeout;
+	/* Uniform timeout for every ACK/single MAD */
+	uint32_t resp_timeout;
 
-    /* Uniform timeout for every rmpp transaction */
-    uint32_t          ttime_timeout;
+	/* Uniform timeout for every rmpp transaction */
+	uint32_t ttime_timeout;
 
-    /* All the bind handles associated with the vendor */
-    cl_qlist_t        bind_handles;
+	/* All the bind handles associated with the vendor */
+	cl_qlist_t bind_handles;
 
-    /* run randomizer flag */
-    boolean_t  run_randomizer;
+	/* run randomizer flag */
+	boolean_t run_randomizer;
 
-    /* Packet Randomizer object */
-    struct _osm_pkt_randomizer *p_pkt_randomizer;
+	/* Packet Randomizer object */
+	struct _osm_pkt_randomizer *p_pkt_randomizer;
 
 } osm_vendor_t;
 
 /* Repeating the definitions in osm_vendor_api.h */
 
-typedef	void*	osm_bind_handle_t;
+typedef void *osm_bind_handle_t;
 
-typedef struct  _osm_vend_wrap
-{
-    ib_mad_t* p_mad;
+typedef struct _osm_vend_wrap {
+	ib_mad_t *p_mad;
 } osm_vend_wrap_t;
 
 #ifndef OSM_BIND_INVALID_HANDLE
@@ -95,5 +93,4 @@ typedef struct  _osm_vend_wrap
 #endif
 
 END_C_DECLS
-
 #endif

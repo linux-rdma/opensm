@@ -54,13 +54,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****s* OpenSM Vendor API/osm_vend_mad_recv_callback_t
 * NAME
 *  osm_vend_mad_recv_callback_t
@@ -71,10 +70,9 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef void (*osm_vend_mad_recv_callback_t)(
-   IN osm_madw_t *p_madw,
-   IN void* bind_context,
-   IN osm_madw_t *p_req_madw );
+typedef void (*osm_vend_mad_recv_callback_t) (IN osm_madw_t * p_madw,
+					      IN void *bind_context,
+					      IN osm_madw_t * p_req_madw);
 /*
 * PARAMETERS
 *  p_madw
@@ -107,9 +105,8 @@ typedef void (*osm_vend_mad_recv_callback_t)(
 *
 * SYNOPSIS
 */
-typedef void (*osm_vend_mad_send_err_callback_t)(
-   IN void* bind_context,
-   IN osm_madw_t *p_madw );
+typedef void (*osm_vend_mad_send_err_callback_t) (IN void *bind_context,
+						  IN osm_madw_t * p_madw);
 /*
 * PARAMETERS
 *  bind_context
@@ -139,10 +136,8 @@ typedef void (*osm_vend_mad_send_err_callback_t)(
 *
 * SYNOPSIS
 */
-osm_vendor_t*
-osm_vendor_new(
-   IN osm_log_t* const p_log,
-   IN const uint32_t timeout );
+osm_vendor_t *osm_vendor_new(IN osm_log_t * const p_log,
+			     IN const uint32_t timeout);
 /*
 * PARAMETERS
 *  p_log
@@ -168,9 +163,7 @@ osm_vendor_new(
 *
 * SYNOPSIS
 */
-void
-osm_vendor_delete(
-   IN osm_vendor_t** const pp_vend );
+void osm_vendor_delete(IN osm_vendor_t ** const pp_vend);
 /*
 * PARAMETERS
 *  pp_vend
@@ -194,10 +187,9 @@ osm_vendor_delete(
 * SYNOPSIS
 */
 ib_api_status_t
-osm_vendor_get_all_port_attr(
-   IN osm_vendor_t*        const p_vend,
-   IN ib_port_attr_t*      const p_attr_array,
-   IN uint32_t*            const p_num_ports );
+osm_vendor_get_all_port_attr(IN osm_vendor_t * const p_vend,
+			     IN ib_port_attr_t * const p_attr_array,
+			     IN uint32_t * const p_num_ports);
 /*
 * PARAMETERS
 *  p_vend
@@ -232,10 +224,8 @@ osm_vendor_get_all_port_attr(
 * SYNOPSIS
 */
 ib_api_status_t
-osm_vendor_init(
-   IN osm_vendor_t* const p_vend,
-   IN osm_log_t * const p_log,
-   IN const uint32_t timeout );
+osm_vendor_init(IN osm_vendor_t * const p_vend,
+		IN osm_log_t * const p_log, IN const uint32_t timeout);
 /*
 * PARAMETERS
 *  p_vend
@@ -267,13 +257,12 @@ osm_vendor_init(
 * SYNOPSIS
 */
 osm_bind_handle_t
-osm_vendor_bind(
-   IN osm_vendor_t* const p_vend,
-    IN osm_bind_info_t* const p_bind_info,
-    IN osm_mad_pool_t* const p_mad_pool,
-    IN osm_vend_mad_recv_callback_t mad_recv_callback,
-    IN osm_vend_mad_send_err_callback_t send_err_callback,
-    IN void* context );
+osm_vendor_bind(IN osm_vendor_t * const p_vend,
+		IN osm_bind_info_t * const p_bind_info,
+		IN osm_mad_pool_t * const p_mad_pool,
+		IN osm_vend_mad_recv_callback_t mad_recv_callback,
+		IN osm_vend_mad_send_err_callback_t send_err_callback,
+		IN void *context);
 /*
 * PARAMETERS
 *  p_vend
@@ -313,9 +302,7 @@ osm_vendor_bind(
 *
 * SYNOPSIS
 */
-void
-osm_vendor_unbind(
-    IN osm_bind_handle_t h_bind );
+void osm_vendor_unbind(IN osm_bind_handle_t h_bind);
 /*
 * PARAMETERS
 *  h_bind
@@ -339,11 +326,9 @@ osm_vendor_unbind(
 *
 * SYNOPSIS
 */
-ib_mad_t*
-osm_vendor_get(
-    IN osm_bind_handle_t      h_bind,
-    IN const uint32_t         mad_size,
-    IN osm_vend_wrap_t* const p_vend_wrap );
+ib_mad_t *osm_vendor_get(IN osm_bind_handle_t h_bind,
+			 IN const uint32_t mad_size,
+			 IN osm_vend_wrap_t * const p_vend_wrap);
 /*
 * PARAMETERS
 *   h_bind
@@ -372,10 +357,8 @@ osm_vendor_get(
 * SYNOPSIS
 */
 ib_api_status_t
-osm_vendor_send(
-    IN osm_bind_handle_t h_bind,
-    IN osm_madw_t* const p_madw,
-    IN boolean_t const resp_expected);
+osm_vendor_send(IN osm_bind_handle_t h_bind,
+		IN osm_madw_t * const p_madw, IN boolean_t const resp_expected);
 /*
 * PARAMETERS
 *   h_bind
@@ -409,9 +392,8 @@ osm_vendor_send(
 * SYNOPSIS
 */
 void
-osm_vendor_put(
-    IN osm_bind_handle_t h_bind,
-    IN osm_vend_wrap_t* const p_vend_wrap );
+osm_vendor_put(IN osm_bind_handle_t h_bind,
+	       IN osm_vend_wrap_t * const p_vend_wrap);
 /*
 * PARAMETERS
 *   h_bind
@@ -439,9 +421,7 @@ osm_vendor_put(
 *
 * SYNOPSIS
 */
-ib_api_status_t
-osm_vendor_local_lid_change(
-    IN osm_bind_handle_t h_bind );
+ib_api_status_t osm_vendor_local_lid_change(IN osm_bind_handle_t h_bind);
 /*
 * PARAMETERS
 *   h_bind
@@ -464,10 +444,7 @@ osm_vendor_local_lid_change(
 *
 * SYNOPSIS
 */
-void
-osm_vendor_set_sm(
-    IN osm_bind_handle_t h_bind,
-    IN boolean_t         is_sm_val );
+void osm_vendor_set_sm(IN osm_bind_handle_t h_bind, IN boolean_t is_sm_val);
 /*
 * PARAMETERS
 *   h_bind
@@ -494,10 +471,7 @@ osm_vendor_set_sm(
 *
 * SYNOPSIS
 */
-void
-osm_vendor_set_debug(
-    IN osm_vendor_t*        const p_vend,
-    IN int32_t         level );
+void osm_vendor_set_debug(IN osm_vendor_t * const p_vend, IN int32_t level);
 /*
 * PARAMETERS
 *   p_vend
@@ -515,5 +489,4 @@ osm_vendor_set_debug(
 *********/
 
 END_C_DECLS
-
-#endif   /* _OSM_VENDOR_API_H_ */
+#endif				/* _OSM_VENDOR_API_H_ */

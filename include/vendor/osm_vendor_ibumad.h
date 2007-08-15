@@ -47,13 +47,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* OpenSM/Vendor Access Layer (UMAD)
 * NAME
 *	Vendor UMAD
@@ -65,12 +64,9 @@ BEGIN_C_DECLS
 *
 *
 *********/
-
 #define OSM_DEFAULT_RETRY_COUNT 3
-
 #define OSM_UMAD_MAX_CAS	32
 #define OSM_UMAD_MAX_PORTS_PER_CA	2
-
 /****s* OpenSM: Vendor UMAD/osm_ca_info_t
 * NAME
 *   osm_ca_info_t
@@ -80,11 +76,10 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_ca_info
-{
-	ib_net64_t		guid;
-	size_t			attr_size;
-	ib_ca_attr_t		*p_attr;
+typedef struct _osm_ca_info {
+	ib_net64_t guid;
+	size_t attr_size;
+	ib_ca_attr_t *p_attr;
 } osm_ca_info_t;
 /*
 * FIELDS
@@ -110,11 +105,11 @@ typedef struct _osm_ca_info
 * SYNOPSIS
 */
 static inline uint8_t
-osm_ca_info_get_num_ports(
-	IN const osm_ca_info_t* const p_ca_info )
+osm_ca_info_get_num_ports(IN const osm_ca_info_t * const p_ca_info)
 {
-	return( p_ca_info->p_attr->num_ports );
+	return (p_ca_info->p_attr->num_ports);
 }
+
 /*
 * PARAMETERS
 *	p_ca_info
@@ -137,7 +132,7 @@ osm_ca_info_get_num_ports(
 *
 * SYNOPSIS
 */
-typedef	void	*osm_bind_handle_t;
+typedef void *osm_bind_handle_t;
 /***********/
 
 typedef struct _umad_match {
@@ -148,20 +143,18 @@ typedef struct _umad_match {
 
 #define OSM_UMAD_MAX_PENDING	1000
 
-typedef struct vendor_match_tbl
-{
+typedef struct vendor_match_tbl {
 	umad_match_t tbl[OSM_UMAD_MAX_PENDING];
 	uint32_t last_version;
 	int max;
 } vendor_match_tbl_t;
 
-typedef	struct _osm_vendor
-{
-	osm_log_t	*p_log;
-	uint32_t	ca_count;
-	osm_ca_info_t	*p_ca_info;
-	uint32_t	timeout;
-	int 		max_retries;
+typedef struct _osm_vendor {
+	osm_log_t *p_log;
+	uint32_t ca_count;
+	osm_ca_info_t *p_ca_info;
+	uint32_t timeout;
+	int max_retries;
 	osm_bind_handle_t agents[UMAD_CA_MAX_AGENTS];
 	char ca_names[OSM_UMAD_MAX_CAS][UMAD_CA_NAME_LEN];
 	vendor_match_tbl_t mtbl;
@@ -176,15 +169,13 @@ typedef	struct _osm_vendor
 
 #define OSM_BIND_INVALID_HANDLE 0
 
-typedef struct _osm_vend_wrap
-{
+typedef struct _osm_vend_wrap {
 	int agent;
 	int size;
 	int retries;
 	void *umad;
-	osm_bind_handle_t  h_bind;
+	osm_bind_handle_t h_bind;
 } osm_vend_wrap_t;
 
 END_C_DECLS
-
-#endif /* _OSM_VENDOR_UMAD_H_ */
+#endif				/* _OSM_VENDOR_UMAD_H_ */

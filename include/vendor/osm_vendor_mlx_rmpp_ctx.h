@@ -44,48 +44,45 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
 
 typedef struct _osmv_rmpp_send_ctx {
 
-    uint8_t    status;
+	uint8_t status;
 
-    uint32_t   window_first;
-    uint32_t   window_last;
+	uint32_t window_first;
+	uint32_t window_last;
 
-    uint32_t   mad_sz;
-    boolean_t  is_sa_mad;
+	uint32_t mad_sz;
+	boolean_t is_sa_mad;
 
-    cl_event_t event;
+	cl_event_t event;
 
-    /* Segmentation engine */
-    osmv_rmpp_sar_t sar;
-    osm_log_t *p_log;
+	/* Segmentation engine */
+	osmv_rmpp_sar_t sar;
+	osm_log_t *p_log;
 
 } osmv_rmpp_send_ctx_t;
 
-
 typedef struct _osmv_rmpp_recv_ctx {
 
-    boolean_t       is_sa_mad;
+	boolean_t is_sa_mad;
 
-    uint32_t    expected_seg;
+	uint32_t expected_seg;
 
-    /* Reassembly buffer */
-    cl_qlist_t *p_rbuf;
+	/* Reassembly buffer */
+	cl_qlist_t *p_rbuf;
 
-    /* Reassembly engine */
-    osmv_rmpp_sar_t sar;
-    osm_log_t* p_log;
+	/* Reassembly engine */
+	osmv_rmpp_sar_t sar;
+	osm_log_t *p_log;
 
-}  osmv_rmpp_recv_ctx_t;
-
-
+} osmv_rmpp_recv_ctx_t;
 
 /*
  * NAME
@@ -98,9 +95,8 @@ typedef struct _osmv_rmpp_recv_ctx {
  *
  */
 ib_api_status_t
-osmv_rmpp_send_ctx_init(osmv_rmpp_send_ctx_t* p_ctx, void* arbt_mad, uint32_t mad_sz,
-                        osm_log_t* p_log);
-
+osmv_rmpp_send_ctx_init(osmv_rmpp_send_ctx_t * p_ctx, void *arbt_mad,
+			uint32_t mad_sz, osm_log_t * p_log);
 
 /*
  * NAME
@@ -112,9 +108,7 @@ osmv_rmpp_send_ctx_init(osmv_rmpp_send_ctx_t* p_ctx, void* arbt_mad, uint32_t ma
  * SEE ALSO
  *
  */
-void
-osmv_rmpp_send_ctx_done(IN osmv_rmpp_send_ctx_t *ctx);
-
+void osmv_rmpp_send_ctx_done(IN osmv_rmpp_send_ctx_t * ctx);
 
 /*
  * NAME
@@ -126,10 +120,10 @@ osmv_rmpp_send_ctx_done(IN osmv_rmpp_send_ctx_t *ctx);
  *
  */
 static inline uint32_t
-osmv_rmpp_send_ctx_get_wf(IN const osmv_rmpp_send_ctx_t *p_ctx)
+osmv_rmpp_send_ctx_get_wf(IN const osmv_rmpp_send_ctx_t * p_ctx)
 {
-    CL_ASSERT( p_ctx);
-    return p_ctx->window_first;
+	CL_ASSERT(p_ctx);
+	return p_ctx->window_first;
 }
 
 /*
@@ -142,10 +136,10 @@ osmv_rmpp_send_ctx_get_wf(IN const osmv_rmpp_send_ctx_t *p_ctx)
  *
  */
 static inline void
-osmv_rmpp_send_ctx_set_wf(IN osmv_rmpp_send_ctx_t *p_ctx, IN uint32_t val)
+osmv_rmpp_send_ctx_set_wf(IN osmv_rmpp_send_ctx_t * p_ctx, IN uint32_t val)
 {
-    CL_ASSERT( p_ctx);
-    p_ctx->window_first = val;
+	CL_ASSERT(p_ctx);
+	p_ctx->window_first = val;
 }
 
 /*
@@ -158,10 +152,10 @@ osmv_rmpp_send_ctx_set_wf(IN osmv_rmpp_send_ctx_t *p_ctx, IN uint32_t val)
  *
  */
 static inline uint32_t
-osmv_rmpp_send_ctx_get_wl(IN const osmv_rmpp_send_ctx_t *p_send_ctx)
+osmv_rmpp_send_ctx_get_wl(IN const osmv_rmpp_send_ctx_t * p_send_ctx)
 {
-    CL_ASSERT(p_send_ctx);
-    return p_send_ctx->window_last;
+	CL_ASSERT(p_send_ctx);
+	return p_send_ctx->window_last;
 }
 
 /*
@@ -174,10 +168,10 @@ osmv_rmpp_send_ctx_get_wl(IN const osmv_rmpp_send_ctx_t *p_send_ctx)
  *
  */
 static inline void
-osmv_rmpp_send_ctx_set_wl(IN osmv_rmpp_send_ctx_t *p_ctx, IN uint32_t val)
+osmv_rmpp_send_ctx_set_wl(IN osmv_rmpp_send_ctx_t * p_ctx, IN uint32_t val)
 {
-    CL_ASSERT( p_ctx);
-    p_ctx->window_last = val;
+	CL_ASSERT(p_ctx);
+	p_ctx->window_last = val;
 }
 
 /*
@@ -189,8 +183,7 @@ osmv_rmpp_send_ctx_set_wl(IN osmv_rmpp_send_ctx_t *p_ctx, IN uint32_t val)
  * SEE ALSO
  *
  */
-uint32_t
-osmv_rmpp_send_ctx_get_num_segs(IN osmv_rmpp_send_ctx_t *p_send_ctx);
+uint32_t osmv_rmpp_send_ctx_get_num_segs(IN osmv_rmpp_send_ctx_t * p_send_ctx);
 
 /*
  * NAME
@@ -202,8 +195,9 @@ osmv_rmpp_send_ctx_get_num_segs(IN osmv_rmpp_send_ctx_t *p_send_ctx);
  *
  */
 ib_api_status_t
-osmv_rmpp_send_ctx_get_seg(IN osmv_rmpp_send_ctx_t *p_send_ctx,IN uint32_t seg_idx,
-                           IN uint32_t resp_timeout, OUT void* p_mad);
+osmv_rmpp_send_ctx_get_seg(IN osmv_rmpp_send_ctx_t * p_send_ctx,
+			   IN uint32_t seg_idx, IN uint32_t resp_timeout,
+			   OUT void *p_mad);
 
 /*
  * NAME
@@ -215,7 +209,7 @@ osmv_rmpp_send_ctx_get_seg(IN osmv_rmpp_send_ctx_t *p_send_ctx,IN uint32_t seg_i
  *
  */
 ib_api_status_t
-osmv_rmpp_recv_ctx_init(osmv_rmpp_recv_ctx_t *p_ctx,osm_log_t* p_log );
+osmv_rmpp_recv_ctx_init(osmv_rmpp_recv_ctx_t * p_ctx, osm_log_t * p_log);
 
 /*
  * NAME
@@ -226,8 +220,7 @@ osmv_rmpp_recv_ctx_init(osmv_rmpp_recv_ctx_t *p_ctx,osm_log_t* p_log );
  * SEE ALSO
  *
  */
-void
-osmv_rmpp_recv_ctx_done(IN osmv_rmpp_recv_ctx_t *p_ctx);
+void osmv_rmpp_recv_ctx_done(IN osmv_rmpp_recv_ctx_t * p_ctx);
 
 /*
  * NAME
@@ -238,10 +231,10 @@ osmv_rmpp_recv_ctx_done(IN osmv_rmpp_recv_ctx_t *p_ctx);
  *
  */
 static inline uint32_t
-osmv_rmpp_recv_ctx_get_es(IN const osmv_rmpp_recv_ctx_t *p_recv_ctx)
+osmv_rmpp_recv_ctx_get_es(IN const osmv_rmpp_recv_ctx_t * p_recv_ctx)
 {
-    CL_ASSERT( p_recv_ctx);
-    return p_recv_ctx->expected_seg;
+	CL_ASSERT(p_recv_ctx);
+	return p_recv_ctx->expected_seg;
 }
 
 /*
@@ -253,11 +246,10 @@ osmv_rmpp_recv_ctx_get_es(IN const osmv_rmpp_recv_ctx_t *p_recv_ctx)
  *
  */
 static inline void
-osmv_rmpp_recv_ctx_set_es(IN osmv_rmpp_recv_ctx_t *p_recv_ctx,
-                          IN uint32_t val)
+osmv_rmpp_recv_ctx_set_es(IN osmv_rmpp_recv_ctx_t * p_recv_ctx, IN uint32_t val)
 {
-    CL_ASSERT( p_recv_ctx);
-    p_recv_ctx->expected_seg = val;
+	CL_ASSERT(p_recv_ctx);
+	p_recv_ctx->expected_seg = val;
 }
 
 /*
@@ -269,20 +261,18 @@ osmv_rmpp_recv_ctx_set_es(IN osmv_rmpp_recv_ctx_t *p_recv_ctx,
  *
  */
 ib_api_status_t
-osmv_rmpp_recv_ctx_store_mad_seg(IN osmv_rmpp_recv_ctx_t *p_recv_ctx,
-                                 IN void* p_mad);
-
-
-uint32_t
-osmv_rmpp_recv_ctx_get_cur_byte_num(IN osmv_rmpp_recv_ctx_t *p_recv_ctx);
+osmv_rmpp_recv_ctx_store_mad_seg(IN osmv_rmpp_recv_ctx_t * p_recv_ctx,
+				 IN void *p_mad);
 
 uint32_t
-osmv_rmpp_recv_ctx_get_byte_num_from_first(IN osmv_rmpp_recv_ctx_t *p_recv_ctx);
+osmv_rmpp_recv_ctx_get_cur_byte_num(IN osmv_rmpp_recv_ctx_t * p_recv_ctx);
 
 uint32_t
-osmv_rmpp_recv_ctx_get_byte_num_from_last(IN osmv_rmpp_recv_ctx_t *p_recv_ctx);
+osmv_rmpp_recv_ctx_get_byte_num_from_first(IN osmv_rmpp_recv_ctx_t *
+					   p_recv_ctx);
 
-
+uint32_t
+osmv_rmpp_recv_ctx_get_byte_num_from_last(IN osmv_rmpp_recv_ctx_t * p_recv_ctx);
 
 /*
  * NAME
@@ -292,10 +282,8 @@ osmv_rmpp_recv_ctx_get_byte_num_from_last(IN osmv_rmpp_recv_ctx_t *p_recv_ctx);
  *  reassembles all rmpp buffs to one big arbitrary mad
  */
 ib_api_status_t
-osmv_rmpp_recv_ctx_reassemble_arbt_mad( IN osmv_rmpp_recv_ctx_t *p_recv_ctx,
-					IN uint32_t              size,
-				        IN void* p_arbt_mad);
+osmv_rmpp_recv_ctx_reassemble_arbt_mad(IN osmv_rmpp_recv_ctx_t * p_recv_ctx,
+				       IN uint32_t size, IN void *p_arbt_mad);
 
 END_C_DECLS
-
 #endif

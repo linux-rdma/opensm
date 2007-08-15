@@ -39,13 +39,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 #ifdef IN
 #undef IN
 #endif
@@ -65,7 +64,6 @@ BEGIN_C_DECLS
 #ifndef OUT
 #define OUT
 #endif
-
 #ifndef OSM_VENDOR_INTF_TS_NO_VAPI
 #ifndef OSM_VENDOR_INTF_ANAFA
 #ifndef OSM_VENDOR_INTF_SIM
@@ -74,7 +72,5 @@ BEGIN_C_DECLS
 #endif
 #endif
 #endif
-
 END_C_DECLS
-
-#endif  /* _OSMV_INOUT_H_ */
+#endif				/* _OSMV_INOUT_H_ */

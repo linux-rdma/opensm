@@ -33,7 +33,6 @@
  *
  */
 
-
 #ifndef _OSM_VENDOR_TEST_H_
 #define _OSM_VENDOR_TEST_H_
 
@@ -44,17 +43,14 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /* This value must be zero for the TEST transport. */
 #define OSM_BIND_INVALID_HANDLE 0
-
-
 /*
  * Abstract:
  * 	Declaration of vendor specific transport interface.
@@ -67,7 +63,6 @@ BEGIN_C_DECLS
  *
  * $Revision: 1.4 $
  */
-
 /****h* OpenSM/Vendor Test
 * NAME
 *	Vendor Test
@@ -91,9 +86,8 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_vend_wrap
-{
-	uint32_t		dummy;
+typedef struct _osm_vend_wrap {
+	uint32_t dummy;
 
 } osm_vend_wrap_t;
 /*********/
@@ -110,28 +104,25 @@ typedef struct _osm_vend_wrap
 *
 * SYNOPSIS
 */
-typedef struct _osm_vendor
-{
-	osm_log_t		*p_log;
-	uint32_t		timeout;
+typedef struct _osm_vendor {
+	osm_log_t *p_log;
+	uint32_t timeout;
 
 } osm_vendor_t;
 /*********/
 
-typedef struct _osm_bind_handle
-{
-	osm_vendor_t			*p_vend;
-    ib_net64_t				port_guid;
-    uint8_t					mad_class;
-    uint8_t					class_version;
-    boolean_t				is_responder;
-    boolean_t				is_trap_processor;
-    boolean_t				is_report_processor;
-    uint32_t				send_q_size;
-    uint32_t				recv_q_size;
+typedef struct _osm_bind_handle {
+	osm_vendor_t *p_vend;
+	ib_net64_t port_guid;
+	uint8_t mad_class;
+	uint8_t class_version;
+	boolean_t is_responder;
+	boolean_t is_trap_processor;
+	boolean_t is_report_processor;
+	uint32_t send_q_size;
+	uint32_t recv_q_size;
 
 } *osm_bind_handle_t;
 
 END_C_DECLS
-
-#endif		/* _OSM_VENDOR_TEST_H_ */
+#endif				/* _OSM_VENDOR_TEST_H_ */

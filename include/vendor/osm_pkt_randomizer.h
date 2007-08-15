@@ -33,7 +33,6 @@
  *
  */
 
-
 /*
  * Abstract:
  * 	Declaration of osm_subn_t.
@@ -49,7 +48,6 @@
 #ifndef _OSM_PKT_RANDOMIZER_H_
 #define _OSM_PKT_RANDOMIZER_H_
 
-
 #include <iba/ib_types.h>
 #include <complib/cl_qmap.h>
 #include <complib/cl_map.h>
@@ -62,13 +60,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* OpenSM/Packet Randomizer
 * NAME
 *	Packet Randomizer
@@ -84,7 +81,6 @@ BEGIN_C_DECLS
 *	Yael Kalka, Mellanox
 *
 *********/
-
 /****d* OpenSM: Pkt_Randomizer/osm_pkt_randomizer_t
 * NAME
 *	osm_pkt_randomizer_t
@@ -95,13 +91,12 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_pkt_randomizer
-{
-  uint8_t         osm_pkt_drop_rate;
-  uint8_t         osm_pkt_num_unstable_links;
-  uint8_t         osm_pkt_unstable_link_rate;
-  osm_dr_path_t  *fault_dr_paths;
-  uint8_t         num_paths_initialized;
+typedef struct _osm_pkt_randomizer {
+	uint8_t osm_pkt_drop_rate;
+	uint8_t osm_pkt_num_unstable_links;
+	uint8_t osm_pkt_unstable_link_rate;
+	osm_dr_path_t *fault_dr_paths;
+	uint8_t num_paths_initialized;
 } osm_pkt_randomizer_t;
 
 /*
@@ -143,9 +138,8 @@ typedef struct _osm_pkt_randomizer
 * SYNOPSIS
 */
 ib_api_status_t
-osm_pkt_randomizer_init(
-  IN OUT osm_pkt_randomizer_t **pp_pkt_randomizer,
-  IN osm_log_t            *p_log );
+osm_pkt_randomizer_init(IN OUT osm_pkt_randomizer_t ** pp_pkt_randomizer,
+			IN osm_log_t * p_log);
 /*
 * PARAMETERS
 *  p_pkt_randomizer
@@ -163,7 +157,6 @@ osm_pkt_randomizer_init(
 *
 *********/
 
-
 /****f* OpenSM: Pkt_Randomizer/osm_pkt_randomizer_destroy
 * NAME
 *	osm_pkt_randomizer_destroy
@@ -174,9 +167,8 @@ osm_pkt_randomizer_init(
 * SYNOPSIS
 */
 void
-osm_pkt_randomizer_destroy(
-  IN osm_pkt_randomizer_t **pp_pkt_randomizer,
-  IN osm_log_t            *p_log );
+osm_pkt_randomizer_destroy(IN osm_pkt_randomizer_t ** pp_pkt_randomizer,
+			   IN osm_log_t * p_log);
 /*
 * PARAMETERS
 *  p_pkt_randomizer
@@ -210,10 +202,9 @@ osm_pkt_randomizer_destroy(
 * SYNOPSIS
 */
 boolean_t
-osm_pkt_randomizer_mad_drop(
-  IN osm_log_t            *p_log,
-  IN osm_pkt_randomizer_t *p_pkt_randomizer,
-  IN const ib_mad_t       *p_mad );
+osm_pkt_randomizer_mad_drop(IN osm_log_t * p_log,
+			    IN osm_pkt_randomizer_t * p_pkt_randomizer,
+			    IN const ib_mad_t * p_mad);
 /*
 * PARAMETERS
 *  p_subn
@@ -235,5 +226,4 @@ osm_pkt_randomizer_mad_drop(
 *********/
 
 END_C_DECLS
-
-#endif /* _OSM_PKT_RANDOMIZER_H */
+#endif				/* _OSM_PKT_RANDOMIZER_H */

@@ -33,7 +33,6 @@
  *
  */
 
-
 /*
  * Abstract:
  * 	Declaration of osm_mad_wrapper_t.
@@ -45,9 +44,6 @@
  *
  * $Revision: 1.4 $
  */
-
-
-
 
 #ifndef _OSM_VENDOR_AL_H_
 #define _OSM_VENDOR_AL_H_
@@ -62,13 +58,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* OpenSM/Vendor AL
 * NAME
 *	Vendor AL
@@ -87,9 +82,6 @@ BEGIN_C_DECLS
 *
 *
 *********/
-
-
-
 /****h* OpenSM/Vendor Access Layer (AL)
 * NAME
 *	Vendor AL
@@ -101,14 +93,11 @@ BEGIN_C_DECLS
 *	Steve King, Intel
 *
 *********/
-
 #define OSM_AL_SQ_SGE 256
 #define OSM_AL_RQ_SGE 256
 #define OSM_DEFAULT_RETRY_COUNT 3
-
 /* AL supports RMPP */
 #define VENDOR_RMPP_SUPPORT 1
-
 /****s* OpenSM: Vendor AL/osm_ca_info_t
 * NAME
 *   osm_ca_info_t
@@ -118,11 +107,10 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_ca_info
-{
-	ib_net64_t				guid;
-	size_t					attr_size;
-	ib_ca_attr_t			*p_attr;
+typedef struct _osm_ca_info {
+	ib_net64_t guid;
+	size_t attr_size;
+	ib_ca_attr_t *p_attr;
 
 } osm_ca_info_t;
 /*
@@ -149,11 +137,11 @@ typedef struct _osm_ca_info
 * SYNOPSIS
 */
 static inline uint8_t
-osm_ca_info_get_num_ports(
-	IN const osm_ca_info_t* const p_ca_info )
+osm_ca_info_get_num_ports(IN const osm_ca_info_t * const p_ca_info)
 {
-	return( p_ca_info->p_attr->num_ports );
+	return (p_ca_info->p_attr->num_ports);
 }
+
 /*
 * PARAMETERS
 *	p_ca_info
@@ -177,12 +165,12 @@ osm_ca_info_get_num_ports(
 * SYNOPSIS
 */
 static inline ib_net64_t
-osm_ca_info_get_port_guid(
-	IN const osm_ca_info_t* const p_ca_info,
-	IN const uint8_t index )
+osm_ca_info_get_port_guid(IN const osm_ca_info_t * const p_ca_info,
+			  IN const uint8_t index)
 {
-	return( p_ca_info->p_attr->p_port_attr[index].port_guid );
+	return (p_ca_info->p_attr->p_port_attr[index].port_guid);
 }
+
 /*
 * PARAMETERS
 *	p_ca_info
@@ -212,12 +200,12 @@ osm_ca_info_get_port_guid(
 * SYNOPSIS
 */
 static inline uint8_t
-osm_ca_info_get_port_num(
-	IN const osm_ca_info_t* const p_ca_info,
-	IN const uint8_t index )
+osm_ca_info_get_port_num(IN const osm_ca_info_t * const p_ca_info,
+			 IN const uint8_t index)
 {
-	return( p_ca_info->p_attr->p_port_attr[index].port_num );
+	return (p_ca_info->p_attr->p_port_attr[index].port_num);
 }
+
 /*
 * PARAMETERS
 *	p_ca_info
@@ -246,11 +234,11 @@ osm_ca_info_get_port_num(
 * SYNOPSIS
 */
 static inline ib_net64_t
-osm_ca_info_get_ca_guid(
-	IN const osm_ca_info_t* const p_ca_info )
+osm_ca_info_get_ca_guid(IN const osm_ca_info_t * const p_ca_info)
 {
-	return( p_ca_info->p_attr->ca_guid );
+	return (p_ca_info->p_attr->ca_guid);
 }
+
 /*
 * PARAMETERS
 *	p_ca_info
@@ -273,15 +261,14 @@ osm_ca_info_get_ca_guid(
 *
 * SYNOPSIS
 */
-typedef	struct _osm_vendor
-{
-	ib_al_handle_t		h_al;
-	osm_log_t			*p_log;
-	uint32_t			ca_count;
-	osm_ca_info_t		*p_ca_info;
-	uint32_t			timeout;
-	ib_ca_handle_t		h_ca;
-	ib_pd_handle_t		h_pd;
+typedef struct _osm_vendor {
+	ib_al_handle_t h_al;
+	osm_log_t *p_log;
+	uint32_t ca_count;
+	osm_ca_info_t *p_ca_info;
+	uint32_t timeout;
+	ib_ca_handle_t h_ca;
+	ib_pd_handle_t h_pd;
 
 } osm_vendor_t;
 /*
@@ -307,9 +294,7 @@ typedef	struct _osm_vendor
 * SEE ALSO
 *********/
 
-
 #define OSM_BIND_INVALID_HANDLE 0
-
 
 /****s* OpenSM: Vendor AL/osm_bind_handle_t
 * NAME
@@ -320,7 +305,7 @@ typedef	struct _osm_vendor
 *
 * SYNOPSIS
 */
-typedef	void*	osm_bind_handle_t;
+typedef void *osm_bind_handle_t;
 /***********/
 
 /****s* OpenSM/osm_vend_wrap_t
@@ -333,15 +318,14 @@ typedef	void*	osm_bind_handle_t;
 *
 * SYNOPSIS
 *********/
-typedef struct _osm_vend_wrap_t
-{
-    uint32_t					size;
-	osm_bind_handle_t			h_bind;
-	ib_mad_element_t			*p_elem;
-	ib_av_handle_t				h_av;
-	void*						p_resp_madw;
+typedef struct _osm_vend_wrap_t {
+	uint32_t size;
+	osm_bind_handle_t h_bind;
+	ib_mad_element_t *p_elem;
+	ib_av_handle_t h_av;
+	void *p_resp_madw;
 
-}osm_vend_wrap_t;
+} osm_vend_wrap_t;
 /*
 * FIELDS
 *	size
@@ -365,7 +349,5 @@ typedef struct _osm_vend_wrap_t
 * SEE ALSO
 *********/
 
-
 END_C_DECLS
-
-#endif /* _OSM_VENDOR_AL_H_ */
+#endif				/* _OSM_VENDOR_AL_H_ */

@@ -52,13 +52,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /*
  * NAME
  *   osmv_transport_init
@@ -66,13 +65,11 @@ BEGIN_C_DECLS
  * DESCRIPTION
  *   Setup the MAD transport infrastructure (filters, callbacks etc).
  */
-
 #define VENDOR_HCA_MAXNAMES 32
 ib_api_status_t
-osmv_transport_init( IN osm_bind_info_t *p_info,
-                     IN char hca_id[VENDOR_HCA_MAXNAMES],
-                     IN uint8_t hca_idx,
-                     IN osmv_bind_obj_t *p_bo);
+osmv_transport_init(IN osm_bind_info_t * p_info,
+		    IN char hca_id[VENDOR_HCA_MAXNAMES],
+		    IN uint8_t hca_idx, IN osmv_bind_obj_t * p_bo);
 
 /*
  * NAME
@@ -82,9 +79,8 @@ osmv_transport_init( IN osm_bind_info_t *p_info,
  *   Send a single MAD (256 byte)
  */
 ib_api_status_t
-osmv_transport_mad_send(IN const osm_bind_handle_t   h_bind,
-			IN void                     *p_mad,
-			IN const osm_mad_addr_t     *p_mad_addr);
+osmv_transport_mad_send(IN const osm_bind_handle_t h_bind,
+			IN void *p_mad, IN const osm_mad_addr_t * p_mad_addr);
 
 /*
  * NAME
@@ -93,9 +89,7 @@ osmv_transport_mad_send(IN const osm_bind_handle_t   h_bind,
  * DESCRIPTION
  *   deallocator of transportation infrastructure
  */
-void
-osmv_transport_done(IN const osm_bind_handle_t h_bind);
+void osmv_transport_done(IN const osm_bind_handle_t h_bind);
 
 END_C_DECLS
-
-#endif  /* _OSMV_TRANSPORT_H_ */
+#endif				/* _OSMV_TRANSPORT_H_ */

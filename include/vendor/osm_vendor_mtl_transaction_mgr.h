@@ -33,8 +33,6 @@
  *
  */
 
-
-
 /*
  * Abstract:
  * 	Definition of interface for the MTL Vendor
@@ -50,9 +48,9 @@
 #define _OSM_TRANSACTION_MGR_H_
 
   /*
-#include <vapi_types.h>
-#include <evapi.h>
-*/
+     #include <vapi_types.h>
+     #include <evapi.h>
+   */
 
 #include <iba/ib_types.h>
 #include <iba/ib_al.h>
@@ -73,13 +71,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****s* OpenSM: Transaction Manager/osm_madw_req_t
 * NAME
 *  osm_madw_req_t
@@ -90,14 +87,13 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_madw_req
-{
-  cl_list_item_t   list_item;
-  cl_map_item_t    map_item;
-  osm_madw_t       *p_madw;
-  uint64_t         waking_time;
-  uint8_t          retry_cnt;
-  osm_bind_handle_t *p_bind;
+typedef struct _osm_madw_req {
+	cl_list_item_t list_item;
+	cl_map_item_t map_item;
+	osm_madw_t *p_madw;
+	uint64_t waking_time;
+	uint8_t retry_cnt;
+	osm_bind_handle_t *p_bind;
 } osm_madw_req_t;
 
 /*
@@ -143,14 +139,12 @@ typedef struct _osm_madw_req
 *
 * SYNOPSIS
 */
-typedef struct _osm_transaction_mgr
-{
-  cl_qmap_t     *madw_by_tid_map_p;
-  cl_qlist_t    *madw_reqs_list_p;
-  cl_spinlock_t transaction_mgr_lock;
-  cl_timer_t    madw_list_timer;
-}
-osm_transaction_mgr_t;
+typedef struct _osm_transaction_mgr {
+	cl_qmap_t *madw_by_tid_map_p;
+	cl_qlist_t *madw_reqs_list_p;
+	cl_spinlock_t transaction_mgr_lock;
+	cl_timer_t madw_list_timer;
+} osm_transaction_mgr_t;
 
 /*
 * FIELDS
@@ -178,8 +172,7 @@ osm_transaction_mgr_t;
 *
 * SYNOPSIS
 */
-void
-osm_transaction_mgr_init( IN osm_vendor_t * const p_vend );
+void osm_transaction_mgr_init(IN osm_vendor_t * const p_vend);
 
 /*
 * PARAMETERS
@@ -187,7 +180,6 @@ osm_transaction_mgr_init( IN osm_vendor_t * const p_vend );
 *		[in] Pointer to a Osm Vendor object.
 *
 *********/
-
 
 /****f* OpenSM: Transaction Manager/osm_transaction_mgr_destroy
 * NAME
@@ -200,8 +192,7 @@ osm_transaction_mgr_init( IN osm_vendor_t * const p_vend );
 *
 * SYNOPSIS
 */
-void
-osm_transaction_mgr_destroy ( IN osm_vendor_t * const p_vend );
+void osm_transaction_mgr_destroy(IN osm_vendor_t * const p_vend);
 
 /*
 * PARAMETERS
@@ -224,8 +215,8 @@ osm_transaction_mgr_destroy ( IN osm_vendor_t * const p_vend );
 * SYNOPSIS
 */
 ib_api_status_t
-osm_transaction_mgr_insert_madw( IN osm_bind_handle_t *p_bind,
-											IN osm_madw_t *  p_madw );
+osm_transaction_mgr_insert_madw(IN osm_bind_handle_t * p_bind,
+				IN osm_madw_t * p_madw);
 /*
 * PARAMETERS
 *	p_vend
@@ -235,7 +226,6 @@ osm_transaction_mgr_insert_madw( IN osm_bind_handle_t *p_bind,
 *     [in] Pointer to the Mad Wrapper to be added.
 *
 *********/
-
 
 /****f* OpenSM: Transaction Manager/osm_transaction_mgr_erase_madw
 * NAME
@@ -250,8 +240,8 @@ osm_transaction_mgr_insert_madw( IN osm_bind_handle_t *p_bind,
 * SYNOPSIS
 */
 ib_api_status_t
-osm_transaction_mgr_erase_madw( IN osm_vendor_t * const p_vend,
-										  IN ib_mad_t *  p_mad );
+osm_transaction_mgr_erase_madw(IN osm_vendor_t * const p_vend,
+			       IN ib_mad_t * p_mad);
 /*
 * PARAMETERS
 *	p_vend
@@ -272,9 +262,9 @@ osm_transaction_mgr_erase_madw( IN osm_vendor_t * const p_vend,
 * SYNOPSIS
 */
 ib_api_status_t
-osm_transaction_mgr_get_madw_for_tid( IN osm_vendor_t * const p_vend,
-												  IN ib_mad_t * const p_mad,
-												  OUT osm_madw_t ** req_madw_p );
+osm_transaction_mgr_get_madw_for_tid(IN osm_vendor_t * const p_vend,
+				     IN ib_mad_t * const p_mad,
+				     OUT osm_madw_t ** req_madw_p);
 /*
 * PARAMETERS
 *	p_vend
@@ -287,7 +277,6 @@ osm_transaction_mgr_get_madw_for_tid( IN osm_vendor_t * const p_vend,
 *      [out] Pointer to the mad Wrapper to be found.
 *
 *********/
-
 
 /****f* OpenSM: Transaction Manager/osm_transaction_mgr_callback
 * NAME
@@ -303,8 +292,7 @@ osm_transaction_mgr_get_madw_for_tid( IN osm_vendor_t * const p_vend,
 *
 * SYNOPSIS
 */
-void
-osm_transaction_mgr_callback( IN void* context );
+void osm_transaction_mgr_callback(IN void *context);
 /*
 * PARAMETERS
 *	context
@@ -313,6 +301,4 @@ osm_transaction_mgr_callback( IN void* context );
 *********/
 
 END_C_DECLS
-
-#endif /* _OSM_TRANSACTION_MGR_H_ */
-
+#endif				/* _OSM_TRANSACTION_MGR_H_ */

@@ -33,7 +33,6 @@
  *
  */
 
-
 /*
  * Abstract:
  * 	Definition of interface for the TS Vendor
@@ -65,13 +64,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****s* OpenSM: Vendor TS/osm_bind_handle_t
  * NAME
  *   osm_bind_handle_t
@@ -95,17 +93,16 @@ typedef void *osm_bind_handle_t;
  *
  * SYNOPSIS
  */
-typedef struct _osm_ts_bind_info
-{
-  int                              ul_dev_fd;
-  VAPI_hca_hndl_t                  hca_hndl;
-  struct _osm_vendor              *p_vend;
-  void                            *client_context;
-  uint8_t                          port_num;
-  void                            *rcv_callback;
-  void                            *send_err_callback;
-  struct _osm_mad_pool            *p_osm_pool;
-  cl_thread_t                      poller;
+typedef struct _osm_ts_bind_info {
+	int ul_dev_fd;
+	VAPI_hca_hndl_t hca_hndl;
+	struct _osm_vendor *p_vend;
+	void *client_context;
+	uint8_t port_num;
+	void *rcv_callback;
+	void *send_err_callback;
+	struct _osm_mad_pool *p_osm_pool;
+	cl_thread_t poller;
 } osm_ts_bind_info_t;
 /*
  * FIELDS
@@ -168,14 +165,12 @@ typedef struct _osm_ts_bind_info
  *
  * SYNOPSIS
  */
-typedef struct _osm_ca_info
-{
-  ib_net64_t guid;
-  size_t attr_size;
-  ib_ca_attr_t *p_attr;
+typedef struct _osm_ca_info {
+	ib_net64_t guid;
+	size_t attr_size;
+	ib_ca_attr_t *p_attr;
 
-}
-osm_ca_info_t;
+} osm_ca_info_t;
 
 /*
  * FIELDS
@@ -191,7 +186,6 @@ osm_ca_info_t;
  * SEE ALSO
  *********/
 
-
 /***** OpenSM: Vendor TS/osm_vendor_t
  * NAME
  *  osm_vendor_t
@@ -201,15 +195,14 @@ osm_ca_info_t;
  *
  * SYNOPSIS
  */
-typedef struct _osm_vendor
-{
-  osm_log_t *p_log;
-  uint32_t ca_count;
-  osm_ca_info_t *p_ca_info;
-  uint32_t timeout;
-  struct _osm_transaction_mgr *p_transaction_mgr;
-  osm_ts_bind_info_t smi_bind;
-  osm_ts_bind_info_t gsi_bind;
+typedef struct _osm_vendor {
+	osm_log_t *p_log;
+	uint32_t ca_count;
+	osm_ca_info_t *p_ca_info;
+	uint32_t timeout;
+	struct _osm_transaction_mgr *p_transaction_mgr;
+	osm_ts_bind_info_t smi_bind;
+	osm_ts_bind_info_t gsi_bind;
 } osm_vendor_t;
 
 /*
@@ -241,7 +234,6 @@ typedef struct _osm_vendor
  * SEE ALSO
  *********/
 
-
 /****f* OpenSM: Vendor TS/CA Info/osm_ca_info_get_port_guid
  * NAME
  *	osm_ca_info_get_port_guid
@@ -252,10 +244,10 @@ typedef struct _osm_vendor
  * SYNOPSIS
  */
 static inline ib_net64_t
-osm_ca_info_get_port_guid( IN const osm_ca_info_t * const p_ca_info,
-                           IN const uint8_t index )
+osm_ca_info_get_port_guid(IN const osm_ca_info_t * const p_ca_info,
+			  IN const uint8_t index)
 {
-  return ( p_ca_info->p_attr->p_port_attr[index].port_guid );
+	return (p_ca_info->p_attr->p_port_attr[index].port_guid);
 }
 
 /*
@@ -286,9 +278,9 @@ osm_ca_info_get_port_guid( IN const osm_ca_info_t * const p_ca_info,
  * SYNOPSIS
  */
 static inline uint8_t
-osm_ca_info_get_num_ports( IN const osm_ca_info_t * const p_ca_info )
+osm_ca_info_get_num_ports(IN const osm_ca_info_t * const p_ca_info)
 {
-  return ( p_ca_info->p_attr->num_ports );
+	return (p_ca_info->p_attr->num_ports);
 }
 
 /*
@@ -315,11 +307,11 @@ osm_ca_info_get_num_ports( IN const osm_ca_info_t * const p_ca_info )
  * SYNOPSIS
  */
 ib_api_status_t
-osm_vendor_get_guid_ca_and_port( IN osm_vendor_t * const p_vend,
-                                 IN ib_net64_t const guid,
-                                 OUT VAPI_hca_hndl_t * p_hca_hndl,
-                                 OUT VAPI_hca_id_t * p_hca_id,
-                                 OUT uint32_t * p_port_num );
+osm_vendor_get_guid_ca_and_port(IN osm_vendor_t * const p_vend,
+				IN ib_net64_t const guid,
+				OUT VAPI_hca_hndl_t * p_hca_hndl,
+				OUT VAPI_hca_id_t * p_hca_id,
+				OUT uint32_t * p_port_num);
 
 /*
  * PARAMETERS
@@ -356,11 +348,10 @@ osm_vendor_get_guid_ca_and_port( IN osm_vendor_t * const p_vend,
  *
  * SYNOPSIS
  */
-ib_api_status_t osm_vendor_get_all_port_attr( IN osm_vendor_t * const p_vend,
-                                              IN ib_port_attr_t *
-                                              const p_attr_array,
-                                              IN uint32_t *
-                                              const p_num_ports );
+ib_api_status_t osm_vendor_get_all_port_attr(IN osm_vendor_t * const p_vend,
+					     IN ib_port_attr_t *
+					     const p_attr_array,
+					     IN uint32_t * const p_num_ports);
 
 /*
  * PARAMETERS
@@ -382,7 +373,6 @@ ib_api_status_t osm_vendor_get_all_port_attr( IN osm_vendor_t * const p_vend,
  * SEE ALSO
  *********/
 
-
 #define OSM_BIND_INVALID_HANDLE 0
 
 /****s* OpenSM: Vendor TS/osm_vend_wrap_t
@@ -395,12 +385,11 @@ ib_api_status_t osm_vendor_get_all_port_attr( IN osm_vendor_t * const p_vend,
  *
  * SYNOPSIS
  *********/
-typedef struct _osm_vend_wrap_t
-{
-  uint32_t size;
-  osm_bind_handle_t      h_bind;
-  ib_mad_t               *p_mad_buf;
-  void *p_resp_madw;
+typedef struct _osm_vend_wrap_t {
+	uint32_t size;
+	osm_bind_handle_t h_bind;
+	ib_mad_t *p_mad_buf;
+	void *p_resp_madw;
 } osm_vend_wrap_t;
 
 /*
@@ -423,5 +412,4 @@ typedef struct _osm_vend_wrap_t
  *********/
 
 END_C_DECLS
-
-#endif /* _OSM_VENDOR_TS_H_ */
+#endif				/* _OSM_VENDOR_TS_H_ */

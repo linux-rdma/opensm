@@ -42,26 +42,23 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 #if defined( OSM_VENDOR_INTF_TS_NO_VAPI ) || defined( OSM_VENDOR_INTF_SIM )
 #define VAPI_hca_hndl_t uint32_t
 #define VAPI_hca_id_t char*
 #endif
-
 ib_api_status_t
-osm_vendor_get_guid_ca_and_port( IN osm_vendor_t const *p_vend,
-                                 IN ib_net64_t const guid,
-                                 OUT uint32_t *p_hca_hndl,
-                                 OUT char     *p_hca_id,
-                                 OUT uint8_t  *p_hca_idx,
-                                 OUT uint32_t *p_port_num );
+osm_vendor_get_guid_ca_and_port(IN osm_vendor_t const *p_vend,
+				IN ib_net64_t const guid,
+				OUT uint32_t * p_hca_hndl,
+				OUT char *p_hca_id,
+				OUT uint8_t * p_hca_idx,
+				OUT uint32_t * p_port_num);
 
 END_C_DECLS
-
-#endif  /* _OSMV_HCA_H_ */
+#endif				/* _OSMV_HCA_H_ */

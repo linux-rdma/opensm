@@ -39,13 +39,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /*
  * NAME
  *   osmv_dispatch_mad
@@ -62,12 +61,10 @@ BEGIN_C_DECLS
  *   p_mad_buf             The 256 byte buffer of individual MAD
  *   p_mad_addr            The MAD originator's address
  */
-
 ib_api_status_t
-osmv_dispatch_mad(IN osm_bind_handle_t     h_bind,
-                  IN const void           *p_mad_buf,
-                  IN const osm_mad_addr_t *p_mad_addr);
+osmv_dispatch_mad(IN osm_bind_handle_t h_bind,
+		  IN const void *p_mad_buf,
+		  IN const osm_mad_addr_t * p_mad_addr);
 
 END_C_DECLS
-
 #endif

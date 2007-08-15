@@ -33,7 +33,6 @@
  *
  */
 
-
 /*
  * Abstract:
  * 	Declaration of osm_mad_wrapper_t.
@@ -58,13 +57,12 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 /****h* OpenSM/ Vendor Umadt
 * NAME
 *	MAD Wrapper
@@ -76,9 +74,8 @@ BEGIN_C_DECLS
 *	Ranjit Pandit, Intel
 *
 *********/
-typedef	void*	osm_vendor_t;
+typedef void *osm_vendor_t;
 #define OSM_BIND_INVALID_HANDLE 0
-
 
 /****s* OpenSM: Vendor Umadt /osm_bind_handle_t
 * NAME
@@ -90,7 +87,7 @@ typedef	void*	osm_vendor_t;
 * SYNOPSIS
 */
 
-typedef	void*	osm_bind_handle_t;
+typedef void *osm_bind_handle_t;
 
 /****s* OpenSM: Vendor Umadt /mad_direction_t
 * NAME
@@ -104,8 +101,8 @@ typedef	void*	osm_bind_handle_t;
 * SYNOPSIS
 */
 typedef enum _mad_direction_t {
-    SEND =0,
-    RECEIVE,
+	SEND = 0,
+	RECEIVE,
 } mad_direction_t;
 
 /****s* OpenSM/ osm_vend_wrap_t
@@ -119,10 +116,10 @@ typedef enum _mad_direction_t {
 * SYNOPSIS
 *********/
 typedef struct _osm_vend_wrap_t {
-    MadtStruct      *p_madt_struct;
-    mad_direction_t direction; // send or receive
-    uint32_t		size;
-}osm_vend_wrap_t;
+	MadtStruct *p_madt_struct;
+	mad_direction_t direction;	// send or receive
+	uint32_t size;
+} osm_vend_wrap_t;
 /*
 * FIELDS
 *	p_madt_struct
@@ -135,5 +132,4 @@ typedef struct _osm_vend_wrap_t {
 *********/
 
 END_C_DECLS
-
-#endif /* _OSM_VENDOR_UMADT_h_ */
+#endif				/* _OSM_VENDOR_UMADT_h_ */

@@ -49,24 +49,21 @@
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
 #  define END_C_DECLS   }
-#else /* !__cplusplus */
+#else				/* !__cplusplus */
 #  define BEGIN_C_DECLS
 #  define END_C_DECLS
-#endif /* __cplusplus */
+#endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-
 #define OSMV_ANAFA_ID 0
-
 typedef struct _osmv_TOPSPIN_ANAFA_transport_mgr_ {
-  int device_fd;
-  cl_thread_t                         receiver;
-}osmv_TOPSPIN_ANAFA_transport_mgr_t;
+	int device_fd;
+	cl_thread_t receiver;
+} osmv_TOPSPIN_ANAFA_transport_mgr_t;
 
 typedef struct _osmv_TOPSPIN_ANAFA_transport_info_ {
-    int device_fd;
-}osmv_TOPSPIN_ANAFA_transport_info_t;
+	int device_fd;
+} osmv_TOPSPIN_ANAFA_transport_info_t;
 
 END_C_DECLS
-
-#endif  /* _OSMV_TRANSPORT_ANAFA_H_ */
+#endif				/* _OSMV_TRANSPORT_ANAFA_H_ */
