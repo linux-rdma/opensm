@@ -479,10 +479,9 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * const p_opt)
 
 /**********************************************************************
  **********************************************************************/
-static inline void
-__osm_subn_opts_unpack_net64(IN char *p_req_key,
-			     IN char *p_key,
-			     IN char *p_val_str, IN uint64_t * p_val)
+static void
+opts_unpack_net64(IN char *p_req_key,
+		  IN char *p_key, IN char *p_val_str, IN uint64_t * p_val)
 {
 	uint64_t val;
 
@@ -506,10 +505,9 @@ __osm_subn_opts_unpack_net64(IN char *p_req_key,
 
 /**********************************************************************
  **********************************************************************/
-static inline void
-__osm_subn_opts_unpack_uint32(IN char *p_req_key,
-			      IN char *p_key,
-			      IN char *p_val_str, IN uint32_t * p_val)
+static void
+opts_unpack_uint32(IN char *p_req_key,
+		   IN char *p_key, IN char *p_val_str, IN uint32_t * p_val)
 {
 	uint32_t val;
 
@@ -528,10 +526,9 @@ __osm_subn_opts_unpack_uint32(IN char *p_req_key,
 
 /**********************************************************************
  **********************************************************************/
-static inline void
-__osm_subn_opts_unpack_uint16(IN char *p_req_key,
-			      IN char *p_key,
-			      IN char *p_val_str, IN uint16_t * p_val)
+static void
+opts_unpack_uint16(IN char *p_req_key,
+		   IN char *p_key, IN char *p_val_str, IN uint16_t * p_val)
 {
 	uint16_t val;
 
@@ -550,10 +547,9 @@ __osm_subn_opts_unpack_uint16(IN char *p_req_key,
 
 /**********************************************************************
  **********************************************************************/
-static inline void
-__osm_subn_opts_unpack_net16(IN char *p_req_key,
-			     IN char *p_key,
-			     IN char *p_val_str, IN uint16_t * p_val)
+static void
+opts_unpack_net16(IN char *p_req_key,
+		  IN char *p_key, IN char *p_val_str, IN uint16_t * p_val)
 {
 	if (!strcmp(p_req_key, p_key)) {
 		uint32_t val;
@@ -572,10 +568,9 @@ __osm_subn_opts_unpack_net16(IN char *p_req_key,
 
 /**********************************************************************
  **********************************************************************/
-static inline void
-__osm_subn_opts_unpack_uint8(IN char *p_req_key,
-			     IN char *p_key,
-			     IN char *p_val_str, IN uint8_t * p_val)
+static void
+opts_unpack_uint8(IN char *p_req_key,
+		  IN char *p_key, IN char *p_val_str, IN uint8_t * p_val)
 {
 	if (!strcmp(p_req_key, p_key)) {
 		uint32_t val;
@@ -594,10 +589,9 @@ __osm_subn_opts_unpack_uint8(IN char *p_req_key,
 
 /**********************************************************************
  **********************************************************************/
-static inline void
-__osm_subn_opts_unpack_boolean(IN char *p_req_key,
-			       IN char *p_key,
-			       IN char *p_val_str, IN boolean_t * p_val)
+static void
+opts_unpack_boolean(IN char *p_req_key,
+		    IN char *p_key, IN char *p_val_str, IN boolean_t * p_val)
 {
 	if (!strcmp(p_req_key, p_key) && p_val_str) {
 		boolean_t val;
@@ -619,10 +613,9 @@ __osm_subn_opts_unpack_boolean(IN char *p_req_key,
 
 /**********************************************************************
  **********************************************************************/
-static inline void
-__osm_subn_opts_unpack_charp(IN char *p_req_key,
-			     IN char *p_key,
-			     IN char *p_val_str, IN char **p_val)
+static void
+opts_unpack_charp(IN char *p_req_key,
+		  IN char *p_key, IN char *p_val_str, IN char **p_val)
 {
 	if (!strcmp(p_req_key, p_key) && p_val_str) {
 		if ((*p_val == NULL) || strcmp(p_val_str, *p_val)) {
@@ -652,15 +645,15 @@ subn_parse_qos_options(IN const char *prefix,
 	char name[256];
 
 	snprintf(name, sizeof(name), "%s_max_vls", prefix);
-	__osm_subn_opts_unpack_uint32(name, p_key, p_val_str, &opt->max_vls);
+	opts_unpack_uint32(name, p_key, p_val_str, &opt->max_vls);
 	snprintf(name, sizeof(name), "%s_high_limit", prefix);
-	__osm_subn_opts_unpack_uint32(name, p_key, p_val_str, &opt->high_limit);
+	opts_unpack_uint32(name, p_key, p_val_str, &opt->high_limit);
 	snprintf(name, sizeof(name), "%s_vlarb_high", prefix);
-	__osm_subn_opts_unpack_charp(name, p_key, p_val_str, &opt->vlarb_high);
+	opts_unpack_charp(name, p_key, p_val_str, &opt->vlarb_high);
 	snprintf(name, sizeof(name), "%s_vlarb_low", prefix);
-	__osm_subn_opts_unpack_charp(name, p_key, p_val_str, &opt->vlarb_low);
+	opts_unpack_charp(name, p_key, p_val_str, &opt->vlarb_low);
 	snprintf(name, sizeof(name), "%s_sl2vl", prefix);
-	__osm_subn_opts_unpack_charp(name, p_key, p_val_str, &opt->sl2vl);
+	opts_unpack_charp(name, p_key, p_val_str, &opt->sl2vl);
 }
 
 static int
@@ -738,7 +731,7 @@ ib_api_status_t osm_subn_rescan_conf_file(IN osm_subn_opt_t * const p_opts)
 /**********************************************************************
  **********************************************************************/
 
-static void osm_subn_verify_max_vls(IN unsigned *max_vls, IN char *key)
+static void subn_verify_max_vls(IN unsigned *max_vls, IN char *key)
 {
 	char buff[128];
 
@@ -752,7 +745,7 @@ static void osm_subn_verify_max_vls(IN unsigned *max_vls, IN char *key)
 	}
 }
 
-static void osm_subn_verify_high_limit(IN unsigned *high_limit, IN char *key)
+static void subn_verify_high_limit(IN unsigned *high_limit, IN char *key)
 {
 	char buff[128];
 
@@ -766,7 +759,7 @@ static void osm_subn_verify_high_limit(IN unsigned *high_limit, IN char *key)
 	}
 }
 
-static void osm_subn_verify_vlarb(IN char *vlarb, IN char *key)
+static void subn_verify_vlarb(IN char *vlarb, IN char *key)
 {
 	if (vlarb) {
 		char buff[128];
@@ -850,7 +843,7 @@ static void osm_subn_verify_vlarb(IN char *vlarb, IN char *key)
 	}
 }
 
-static void osm_subn_verify_sl2vl(IN char *sl2vl, IN char *key)
+static void subn_verify_sl2vl(IN char *sl2vl, IN char *key)
 {
 	if (sl2vl) {
 		char buff[128];
@@ -903,7 +896,7 @@ static void osm_subn_verify_sl2vl(IN char *sl2vl, IN char *key)
 	}
 }
 
-static void osm_subn_verify_conf_file(IN osm_subn_opt_t * const p_opts)
+static void subn_verify_conf_file(IN osm_subn_opt_t * const p_opts)
 {
 	char buff[128];
 
@@ -950,62 +943,61 @@ static void osm_subn_verify_conf_file(IN osm_subn_opt_t * const p_opts)
 	}
 
 	if (p_opts->no_qos == FALSE) {
-		osm_subn_verify_max_vls(&(p_opts->qos_options.max_vls),
-					"qos_max_vls");
-		osm_subn_verify_max_vls(&(p_opts->qos_ca_options.max_vls),
-					"qos_ca_max_vls");
-		osm_subn_verify_max_vls(&(p_opts->qos_sw0_options.max_vls),
-					"qos_sw0_max_vls");
-		osm_subn_verify_max_vls(&(p_opts->qos_swe_options.max_vls),
-					"qos_swe_max_vls");
-		osm_subn_verify_max_vls(&(p_opts->qos_rtr_options.max_vls),
-					"qos_rtr_max_vls");
+		subn_verify_max_vls(&(p_opts->qos_options.max_vls),
+				    "qos_max_vls");
+		subn_verify_max_vls(&(p_opts->qos_ca_options.max_vls),
+				    "qos_ca_max_vls");
+		subn_verify_max_vls(&(p_opts->qos_sw0_options.max_vls),
+				    "qos_sw0_max_vls");
+		subn_verify_max_vls(&(p_opts->qos_swe_options.max_vls),
+				    "qos_swe_max_vls");
+		subn_verify_max_vls(&(p_opts->qos_rtr_options.max_vls),
+				    "qos_rtr_max_vls");
 
-		osm_subn_verify_high_limit(&(p_opts->qos_options.high_limit),
-					   "qos_high_limit");
-		osm_subn_verify_high_limit(&(p_opts->qos_ca_options.high_limit),
-					   "qos_ca_high_limit");
-		osm_subn_verify_high_limit(&
-					   (p_opts->qos_sw0_options.high_limit),
-					   "qos_sw0_high_limit");
-		osm_subn_verify_high_limit(&
-					   (p_opts->qos_swe_options.high_limit),
-					   "qos_swe_high_limit");
-		osm_subn_verify_high_limit(&
-					   (p_opts->qos_rtr_options.high_limit),
-					   "qos_rtr_high_limit");
+		subn_verify_high_limit(&(p_opts->qos_options.high_limit),
+				       "qos_high_limit");
+		subn_verify_high_limit(&(p_opts->qos_ca_options.high_limit),
+				       "qos_ca_high_limit");
+		subn_verify_high_limit(&
+				       (p_opts->qos_sw0_options.high_limit),
+				       "qos_sw0_high_limit");
+		subn_verify_high_limit(&
+				       (p_opts->qos_swe_options.high_limit),
+				       "qos_swe_high_limit");
+		subn_verify_high_limit(&
+				       (p_opts->qos_rtr_options.high_limit),
+				       "qos_rtr_high_limit");
 
-		osm_subn_verify_vlarb(p_opts->qos_options.vlarb_low,
-				      "qos_vlarb_low");
-		osm_subn_verify_vlarb(p_opts->qos_ca_options.vlarb_low,
-				      "qos_ca_vlarb_low");
-		osm_subn_verify_vlarb(p_opts->qos_sw0_options.vlarb_low,
-				      "qos_sw0_vlarb_low");
-		osm_subn_verify_vlarb(p_opts->qos_swe_options.vlarb_low,
-				      "qos_swe_vlarb_low");
-		osm_subn_verify_vlarb(p_opts->qos_rtr_options.vlarb_low,
-				      "qos_rtr_vlarb_low");
+		subn_verify_vlarb(p_opts->qos_options.vlarb_low,
+				  "qos_vlarb_low");
+		subn_verify_vlarb(p_opts->qos_ca_options.vlarb_low,
+				  "qos_ca_vlarb_low");
+		subn_verify_vlarb(p_opts->qos_sw0_options.vlarb_low,
+				  "qos_sw0_vlarb_low");
+		subn_verify_vlarb(p_opts->qos_swe_options.vlarb_low,
+				  "qos_swe_vlarb_low");
+		subn_verify_vlarb(p_opts->qos_rtr_options.vlarb_low,
+				  "qos_rtr_vlarb_low");
 
-		osm_subn_verify_vlarb(p_opts->qos_options.vlarb_high,
-				      "qos_vlarb_high");
-		osm_subn_verify_vlarb(p_opts->qos_ca_options.vlarb_high,
-				      "qos_ca_vlarb_high");
-		osm_subn_verify_vlarb(p_opts->qos_sw0_options.vlarb_high,
-				      "qos_sw0_vlarb_high");
-		osm_subn_verify_vlarb(p_opts->qos_swe_options.vlarb_high,
-				      "qos_swe_vlarb_high");
-		osm_subn_verify_vlarb(p_opts->qos_rtr_options.vlarb_high,
-				      "qos_rtr_vlarb_high");
+		subn_verify_vlarb(p_opts->qos_options.vlarb_high,
+				  "qos_vlarb_high");
+		subn_verify_vlarb(p_opts->qos_ca_options.vlarb_high,
+				  "qos_ca_vlarb_high");
+		subn_verify_vlarb(p_opts->qos_sw0_options.vlarb_high,
+				  "qos_sw0_vlarb_high");
+		subn_verify_vlarb(p_opts->qos_swe_options.vlarb_high,
+				  "qos_swe_vlarb_high");
+		subn_verify_vlarb(p_opts->qos_rtr_options.vlarb_high,
+				  "qos_rtr_vlarb_high");
 
-		osm_subn_verify_sl2vl(p_opts->qos_options.sl2vl, "qos_sl2vl");
-		osm_subn_verify_sl2vl(p_opts->qos_ca_options.sl2vl,
-				      "qos_ca_sl2vl");
-		osm_subn_verify_sl2vl(p_opts->qos_sw0_options.sl2vl,
-				      "qos_sw0_sl2vl");
-		osm_subn_verify_sl2vl(p_opts->qos_swe_options.sl2vl,
-				      "qos_swe_sl2vl");
-		osm_subn_verify_sl2vl(p_opts->qos_rtr_options.sl2vl,
-				      "qos_rtr_sl2vl");
+		subn_verify_sl2vl(p_opts->qos_options.sl2vl, "qos_sl2vl");
+		subn_verify_sl2vl(p_opts->qos_ca_options.sl2vl, "qos_ca_sl2vl");
+		subn_verify_sl2vl(p_opts->qos_sw0_options.sl2vl,
+				  "qos_sw0_sl2vl");
+		subn_verify_sl2vl(p_opts->qos_swe_options.sl2vl,
+				  "qos_swe_sl2vl");
+		subn_verify_sl2vl(p_opts->qos_rtr_options.sl2vl,
+				  "qos_rtr_sl2vl");
 	}
 #ifdef ENABLE_OSM_PERF_MGR
 	if (p_opts->perfmgr_sweep_time_s < 1) {
@@ -1055,307 +1047,217 @@ ib_api_status_t osm_subn_parse_conf_file(IN osm_subn_opt_t * const p_opts)
 	while (fgets(line, 1023, opts_file) != NULL) {
 		/* get the first token */
 		p_key = strtok_r(line, " \t\n", &p_last);
-		if (p_key) {
-			p_val = strtok_r(NULL, " \t\n", &p_last);
+		if (!p_key)
+			continue;
 
-			__osm_subn_opts_unpack_net64("guid", p_key, p_val,
-						     &p_opts->guid);
+		p_val = strtok_r(NULL, " \t\n", &p_last);
 
-			__osm_subn_opts_unpack_net64("m_key", p_key, p_val,
-						     &p_opts->m_key);
+		opts_unpack_net64("guid", p_key, p_val, &p_opts->guid);
 
-			__osm_subn_opts_unpack_net64("sm_key", p_key, p_val,
-						     &p_opts->sm_key);
+		opts_unpack_net64("m_key", p_key, p_val, &p_opts->m_key);
 
-			__osm_subn_opts_unpack_net64("subnet_prefix",
-						     p_key, p_val,
-						     &p_opts->subnet_prefix);
+		opts_unpack_net64("sm_key", p_key, p_val, &p_opts->sm_key);
 
-			__osm_subn_opts_unpack_net16("m_key_lease_period",
-						     p_key, p_val,
-						     &p_opts->
-						     m_key_lease_period);
+		opts_unpack_net64("subnet_prefix",
+				  p_key, p_val, &p_opts->subnet_prefix);
 
-			__osm_subn_opts_unpack_uint32("sweep_interval",
-						      p_key, p_val,
-						      &p_opts->sweep_interval);
+		opts_unpack_net16("m_key_lease_period",
+				  p_key, p_val, &p_opts->m_key_lease_period);
 
-			__osm_subn_opts_unpack_uint32("max_wire_smps",
-						      p_key, p_val,
-						      &p_opts->max_wire_smps);
+		opts_unpack_uint32("sweep_interval",
+				   p_key, p_val, &p_opts->sweep_interval);
 
-			__osm_subn_opts_unpack_charp("console",
-						     p_key, p_val,
-						     &p_opts->console);
+		opts_unpack_uint32("max_wire_smps",
+				   p_key, p_val, &p_opts->max_wire_smps);
 
-			__osm_subn_opts_unpack_uint16("console_port",
-						      p_key, p_val,
-						      &p_opts->console_port);
+		opts_unpack_charp("console", p_key, p_val, &p_opts->console);
 
-			__osm_subn_opts_unpack_uint32("transaction_timeout",
-						      p_key, p_val,
-						      &p_opts->
-						      transaction_timeout);
+		opts_unpack_uint16("console_port",
+				   p_key, p_val, &p_opts->console_port);
 
-			__osm_subn_opts_unpack_uint32("max_msg_fifo_timeout",
-						      p_key, p_val,
-						      &p_opts->
-						      max_msg_fifo_timeout);
+		opts_unpack_uint32("transaction_timeout",
+				   p_key, p_val, &p_opts->transaction_timeout);
 
-			__osm_subn_opts_unpack_uint8("sm_priority",
-						     p_key, p_val,
-						     &p_opts->sm_priority);
+		opts_unpack_uint32("max_msg_fifo_timeout",
+				   p_key, p_val, &p_opts->max_msg_fifo_timeout);
 
-			__osm_subn_opts_unpack_uint8("lmc",
-						     p_key, p_val,
-						     &p_opts->lmc);
+		opts_unpack_uint8("sm_priority",
+				  p_key, p_val, &p_opts->sm_priority);
 
-			__osm_subn_opts_unpack_boolean("lmc_esp0",
-						       p_key, p_val,
-						       &p_opts->lmc_esp0);
+		opts_unpack_uint8("lmc", p_key, p_val, &p_opts->lmc);
 
-			__osm_subn_opts_unpack_uint8("max_op_vls",
-						     p_key, p_val,
-						     &p_opts->max_op_vls);
+		opts_unpack_boolean("lmc_esp0",
+				    p_key, p_val, &p_opts->lmc_esp0);
 
-			__osm_subn_opts_unpack_uint8("force_link_speed",
-						     p_key, p_val,
-						     &p_opts->force_link_speed);
+		opts_unpack_uint8("max_op_vls",
+				  p_key, p_val, &p_opts->max_op_vls);
 
-			__osm_subn_opts_unpack_boolean("reassign_lids",
-						       p_key, p_val,
-						       &p_opts->reassign_lids);
+		opts_unpack_uint8("force_link_speed",
+				  p_key, p_val, &p_opts->force_link_speed);
 
-			__osm_subn_opts_unpack_boolean("ignore_other_sm",
-						       p_key, p_val,
-						       &p_opts->
-						       ignore_other_sm);
+		opts_unpack_boolean("reassign_lids",
+				    p_key, p_val, &p_opts->reassign_lids);
 
-			__osm_subn_opts_unpack_boolean("single_thread",
-						       p_key, p_val,
-						       &p_opts->single_thread);
+		opts_unpack_boolean("ignore_other_sm",
+				    p_key, p_val, &p_opts->ignore_other_sm);
 
-			__osm_subn_opts_unpack_boolean("no_multicast_option",
-						       p_key, p_val,
-						       &p_opts->
-						       no_multicast_option);
+		opts_unpack_boolean("single_thread",
+				    p_key, p_val, &p_opts->single_thread);
 
-			__osm_subn_opts_unpack_boolean("disable_multicast",
-						       p_key, p_val,
-						       &p_opts->
-						       disable_multicast);
+		opts_unpack_boolean("no_multicast_option",
+				    p_key, p_val, &p_opts->no_multicast_option);
 
-			__osm_subn_opts_unpack_boolean("force_log_flush",
-						       p_key, p_val,
-						       &p_opts->
-						       force_log_flush);
+		opts_unpack_boolean("disable_multicast",
+				    p_key, p_val, &p_opts->disable_multicast);
 
-			__osm_subn_opts_unpack_uint8("subnet_timeout",
-						     p_key, p_val,
-						     &p_opts->subnet_timeout);
+		opts_unpack_boolean("force_log_flush",
+				    p_key, p_val, &p_opts->force_log_flush);
 
-			__osm_subn_opts_unpack_uint8("packet_life_time",
-						     p_key, p_val,
-						     &p_opts->packet_life_time);
+		opts_unpack_uint8("subnet_timeout",
+				  p_key, p_val, &p_opts->subnet_timeout);
 
-			__osm_subn_opts_unpack_uint8("vl_stall_count",
-						     p_key, p_val,
-						     &p_opts->vl_stall_count);
+		opts_unpack_uint8("packet_life_time",
+				  p_key, p_val, &p_opts->packet_life_time);
 
-			__osm_subn_opts_unpack_uint8("leaf_vl_stall_count",
-						     p_key, p_val,
-						     &p_opts->
-						     leaf_vl_stall_count);
+		opts_unpack_uint8("vl_stall_count",
+				  p_key, p_val, &p_opts->vl_stall_count);
 
-			__osm_subn_opts_unpack_uint8("head_of_queue_lifetime",
-						     p_key, p_val,
-						     &p_opts->
-						     head_of_queue_lifetime);
+		opts_unpack_uint8("leaf_vl_stall_count",
+				  p_key, p_val, &p_opts->leaf_vl_stall_count);
 
-			__osm_subn_opts_unpack_uint8
-			    ("leaf_head_of_queue_lifetime", p_key, p_val,
-			     &p_opts->leaf_head_of_queue_lifetime);
+		opts_unpack_uint8("head_of_queue_lifetime",
+				  p_key, p_val,
+				  &p_opts->head_of_queue_lifetime);
 
-			__osm_subn_opts_unpack_uint8
-			    ("local_phy_errors_threshold", p_key, p_val,
-			     &p_opts->local_phy_errors_threshold);
+		opts_unpack_uint8("leaf_head_of_queue_lifetime", p_key, p_val,
+				  &p_opts->leaf_head_of_queue_lifetime);
 
-			__osm_subn_opts_unpack_uint8("overrun_errors_threshold",
-						     p_key, p_val,
-						     &p_opts->
-						     overrun_errors_threshold);
+		opts_unpack_uint8("local_phy_errors_threshold", p_key, p_val,
+				  &p_opts->local_phy_errors_threshold);
 
-			__osm_subn_opts_unpack_uint32("sminfo_polling_timeout",
-						      p_key, p_val,
-						      &p_opts->
-						      sminfo_polling_timeout);
+		opts_unpack_uint8("overrun_errors_threshold",
+				  p_key, p_val,
+				  &p_opts->overrun_errors_threshold);
 
-			__osm_subn_opts_unpack_uint32("polling_retry_number",
-						      p_key, p_val,
-						      &p_opts->
-						      polling_retry_number);
+		opts_unpack_uint32("sminfo_polling_timeout",
+				   p_key, p_val,
+				   &p_opts->sminfo_polling_timeout);
 
-			__osm_subn_opts_unpack_boolean("force_heavy_sweep",
-						       p_key, p_val,
-						       &p_opts->
-						       force_heavy_sweep);
+		opts_unpack_uint32("polling_retry_number",
+				   p_key, p_val, &p_opts->polling_retry_number);
 
-			__osm_subn_opts_unpack_uint8("log_flags",
-						     p_key, p_val,
-						     &p_opts->log_flags);
+		opts_unpack_boolean("force_heavy_sweep",
+				    p_key, p_val, &p_opts->force_heavy_sweep);
 
-			__osm_subn_opts_unpack_boolean
-			    ("port_profile_switch_nodes", p_key, p_val,
-			     &p_opts->port_profile_switch_nodes);
+		opts_unpack_uint8("log_flags",
+				  p_key, p_val, &p_opts->log_flags);
 
-			__osm_subn_opts_unpack_boolean("sweep_on_trap",
-						       p_key, p_val,
-						       &p_opts->sweep_on_trap);
+		opts_unpack_boolean("port_profile_switch_nodes", p_key, p_val,
+				    &p_opts->port_profile_switch_nodes);
 
-			__osm_subn_opts_unpack_charp("routing_engine",
-						     p_key, p_val,
-						     &p_opts->
-						     routing_engine_name);
+		opts_unpack_boolean("sweep_on_trap",
+				    p_key, p_val, &p_opts->sweep_on_trap);
 
-			__osm_subn_opts_unpack_boolean("connect_roots",
-						       p_key, p_val,
-						       &p_opts->connect_roots);
+		opts_unpack_charp("routing_engine",
+				  p_key, p_val, &p_opts->routing_engine_name);
 
-			__osm_subn_opts_unpack_charp("log_file", p_key, p_val,
-						     &p_opts->log_file);
+		opts_unpack_boolean("connect_roots",
+				    p_key, p_val, &p_opts->connect_roots);
 
-			__osm_subn_opts_unpack_uint32("log_max_size",
-						      p_key, p_val,
-						      (uint32_t *) & p_opts->
-						      log_max_size);
+		opts_unpack_charp("log_file", p_key, p_val, &p_opts->log_file);
 
-			__osm_subn_opts_unpack_charp("partition_config_file",
-						     p_key, p_val,
-						     &p_opts->
-						     partition_config_file);
+		opts_unpack_uint32("log_max_size",
+				   p_key, p_val,
+				   (uint32_t *) & p_opts->log_max_size);
 
-			__osm_subn_opts_unpack_boolean
-			    ("no_partition_enforcement", p_key, p_val,
-			     &p_opts->no_partition_enforcement);
+		opts_unpack_charp("partition_config_file",
+				  p_key, p_val, &p_opts->partition_config_file);
 
-			__osm_subn_opts_unpack_boolean("no_qos",
-						       p_key, p_val,
-						       &p_opts->no_qos);
+		opts_unpack_boolean("no_partition_enforcement", p_key, p_val,
+				    &p_opts->no_partition_enforcement);
 
-			__osm_subn_opts_unpack_boolean("accum_log_file",
-						       p_key, p_val,
-						       &p_opts->accum_log_file);
+		opts_unpack_boolean("no_qos", p_key, p_val, &p_opts->no_qos);
 
-			__osm_subn_opts_unpack_charp("dump_files_dir",
-						     p_key, p_val,
-						     &p_opts->dump_files_dir);
+		opts_unpack_boolean("accum_log_file",
+				    p_key, p_val, &p_opts->accum_log_file);
 
-			__osm_subn_opts_unpack_charp("lid_matrix_dump_file",
-						     p_key, p_val,
-						     &p_opts->
-						     lid_matrix_dump_file);
+		opts_unpack_charp("dump_files_dir",
+				  p_key, p_val, &p_opts->dump_files_dir);
 
-			__osm_subn_opts_unpack_charp("ucast_dump_file",
-						     p_key, p_val,
-						     &p_opts->ucast_dump_file);
+		opts_unpack_charp("lid_matrix_dump_file",
+				  p_key, p_val, &p_opts->lid_matrix_dump_file);
 
-			__osm_subn_opts_unpack_charp("root_guid_file",
-						     p_key, p_val,
-						     &p_opts->root_guid_file);
+		opts_unpack_charp("ucast_dump_file",
+				  p_key, p_val, &p_opts->ucast_dump_file);
 
-			__osm_subn_opts_unpack_charp("cn_guid_file",
-						     p_key, p_val,
-						     &p_opts->cn_guid_file);
+		opts_unpack_charp("root_guid_file",
+				  p_key, p_val, &p_opts->root_guid_file);
 
-			__osm_subn_opts_unpack_charp("sa_db_file",
-						     p_key, p_val,
-						     &p_opts->sa_db_file);
+		opts_unpack_charp("cn_guid_file",
+				  p_key, p_val, &p_opts->cn_guid_file);
 
-			__osm_subn_opts_unpack_boolean("exit_on_fatal",
-						       p_key, p_val,
-						       &p_opts->exit_on_fatal);
+		opts_unpack_charp("sa_db_file",
+				  p_key, p_val, &p_opts->sa_db_file);
 
-			__osm_subn_opts_unpack_boolean("honor_guid2lid_file",
-						       p_key, p_val,
-						       &p_opts->
-						       honor_guid2lid_file);
+		opts_unpack_boolean("exit_on_fatal",
+				    p_key, p_val, &p_opts->exit_on_fatal);
 
-			__osm_subn_opts_unpack_boolean("daemon",
-						       p_key, p_val,
-						       &p_opts->daemon);
+		opts_unpack_boolean("honor_guid2lid_file",
+				    p_key, p_val, &p_opts->honor_guid2lid_file);
 
-			__osm_subn_opts_unpack_boolean("sm_inactive",
-						       p_key, p_val,
-						       &p_opts->sm_inactive);
+		opts_unpack_boolean("daemon", p_key, p_val, &p_opts->daemon);
 
-			__osm_subn_opts_unpack_boolean("babbling_port_policy",
-						       p_key, p_val,
-						       &p_opts->
-						       babbling_port_policy);
+		opts_unpack_boolean("sm_inactive",
+				    p_key, p_val, &p_opts->sm_inactive);
+
+		opts_unpack_boolean("babbling_port_policy",
+				    p_key, p_val,
+				    &p_opts->babbling_port_policy);
 
 #ifdef ENABLE_OSM_PERF_MGR
-			__osm_subn_opts_unpack_boolean("perfmgr",
-						       p_key, p_val,
-						       &p_opts->perfmgr);
+		opts_unpack_boolean("perfmgr", p_key, p_val, &p_opts->perfmgr);
 
-			__osm_subn_opts_unpack_boolean("perfmgr_redir",
-						       p_key, p_val,
-						       &p_opts->perfmgr_redir);
+		opts_unpack_boolean("perfmgr_redir",
+				    p_key, p_val, &p_opts->perfmgr_redir);
 
-			__osm_subn_opts_unpack_uint16("perfmgr_sweep_time_s",
-						      p_key, p_val,
-						      &p_opts->
-						      perfmgr_sweep_time_s);
+		opts_unpack_uint16("perfmgr_sweep_time_s",
+				   p_key, p_val, &p_opts->perfmgr_sweep_time_s);
 
-			__osm_subn_opts_unpack_uint32
-			    ("perfmgr_max_outstanding_queries", p_key, p_val,
-			     &p_opts->perfmgr_max_outstanding_queries);
+		opts_unpack_uint32("perfmgr_max_outstanding_queries",
+				   p_key, p_val,
+				   &p_opts->perfmgr_max_outstanding_queries);
 
-			__osm_subn_opts_unpack_charp("event_db_dump_file",
-						     p_key, p_val,
-						     &p_opts->
-						     event_db_dump_file);
+		opts_unpack_charp("event_db_dump_file",
+				  p_key, p_val, &p_opts->event_db_dump_file);
 #endif				/* ENABLE_OSM_PERF_MGR */
 
-			__osm_subn_opts_unpack_charp("event_plugin_name",
-						     p_key, p_val,
-						     &p_opts->
-						     event_plugin_name);
+		opts_unpack_charp("event_plugin_name",
+				  p_key, p_val, &p_opts->event_plugin_name);
 
-			subn_parse_qos_options("qos",
-					       p_key, p_val,
-					       &p_opts->qos_options);
+		subn_parse_qos_options("qos",
+				       p_key, p_val, &p_opts->qos_options);
 
-			subn_parse_qos_options("qos_ca",
-					       p_key, p_val,
-					       &p_opts->qos_ca_options);
+		subn_parse_qos_options("qos_ca",
+				       p_key, p_val, &p_opts->qos_ca_options);
 
-			subn_parse_qos_options("qos_sw0",
-					       p_key, p_val,
-					       &p_opts->qos_sw0_options);
+		subn_parse_qos_options("qos_sw0",
+				       p_key, p_val, &p_opts->qos_sw0_options);
 
-			subn_parse_qos_options("qos_swe",
-					       p_key, p_val,
-					       &p_opts->qos_swe_options);
+		subn_parse_qos_options("qos_swe",
+				       p_key, p_val, &p_opts->qos_swe_options);
 
-			subn_parse_qos_options("qos_rtr",
-					       p_key, p_val,
-					       &p_opts->qos_rtr_options);
+		subn_parse_qos_options("qos_rtr",
+				       p_key, p_val, &p_opts->qos_rtr_options);
 
-			__osm_subn_opts_unpack_boolean("enable_quirks",
-						       p_key, p_val,
-						       &p_opts->enable_quirks);
+		opts_unpack_boolean("enable_quirks",
+				    p_key, p_val, &p_opts->enable_quirks);
 
-			__osm_subn_opts_unpack_boolean("no_clients_rereg",
-						       p_key, p_val,
-						       &p_opts->
-						       no_clients_rereg);
-
-		}
+		opts_unpack_boolean("no_clients_rereg",
+				    p_key, p_val, &p_opts->no_clients_rereg);
 	}
 	fclose(opts_file);
 
-	osm_subn_verify_conf_file(p_opts);
+	subn_verify_conf_file(p_opts);
 
 	return IB_SUCCESS;
 }
