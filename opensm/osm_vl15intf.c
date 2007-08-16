@@ -77,9 +77,7 @@ __osm_vl15_poller(
   OSM_LOG_ENTER( p_vl->p_log, __osm_vl15_poller );
 
   if ( p_vl->thread_state == OSM_THREAD_STATE_NONE)
-  {
     p_vl->thread_state = OSM_THREAD_STATE_RUN;
-  }
 
   while( p_vl->thread_state == OSM_THREAD_STATE_RUN )
   {
@@ -105,17 +103,13 @@ __osm_vl15_poller(
     if( p_madw != (osm_madw_t*)cl_qlist_end( p_fifo ) )
     {
       if( osm_log_is_active( p_vl->p_log, OSM_LOG_DEBUG ) )
-      {
         osm_log( p_vl->p_log, OSM_LOG_DEBUG,
                  "__osm_vl15_poller: "
                  "Servicing p_madw = %p\n", p_madw );
-      }
 
       if( osm_log_is_active( p_vl->p_log, OSM_LOG_FRAMES ) )
-      {
         osm_dump_dr_smp( p_vl->p_log,
                          osm_madw_get_smp_ptr( p_madw ), OSM_LOG_FRAMES );
-      }
 
       /*
         Non-response-expected mads are not throttled on the wire
@@ -131,15 +125,11 @@ __osm_vl15_poller(
           To avoid this confusion, preincrement the counts on the
           assumption that send() will succeed.
         */
-        mads_on_wire = cl_atomic_inc(
-          &p_vl->p_stats->qp0_mads_outstanding_on_wire );
+        mads_on_wire = cl_atomic_inc(&p_vl->p_stats->qp0_mads_outstanding_on_wire);
         CL_ASSERT( mads_on_wire <= p_vl->max_wire_smps );
       }
       else
-      {
-        unicasts_sent = cl_atomic_inc(
-          &p_vl->p_stats->qp0_unicasts_sent );
-      }
+        unicasts_sent = cl_atomic_inc(&p_vl->p_stats->qp0_unicasts_sent);
 
       mads_sent = cl_atomic_inc( &p_vl->p_stats->qp0_mads_sent );
 
@@ -197,12 +187,10 @@ __osm_vl15_poller(
               Signal the state manager.
             */
             if( osm_log_is_active( p_vl->p_log, OSM_LOG_DEBUG ) )
-            {
               osm_log( p_vl->p_log, OSM_LOG_DEBUG,
                        "__osm_vl15_poller: "
                        "Posting Dispatcher message %s\n",
                        osm_get_disp_msg_str( OSM_MSG_NO_SMPS_OUTSTANDING ) );
-            }
 
             cl_status = cl_disp_post( p_vl->h_disp,
                                       OSM_MSG_NO_SMPS_OUTSTANDING,
@@ -211,54 +199,41 @@ __osm_vl15_poller(
                                       NULL );
 
             if( cl_status != CL_SUCCESS )
-            {
               osm_log( p_vl->p_log, OSM_LOG_ERROR,
                        "__osm_vl15_poller: ERR 3E06: "
                        "Dispatcher post message failed (%s)\n",
                        CL_STATUS_MSG( cl_status ) );
-            }
           }
         }
       }
-      else
-      {
-        if( osm_log_is_active( p_vl->p_log, OSM_LOG_DEBUG ) )
-        {
-          osm_log( p_vl->p_log, OSM_LOG_DEBUG,
-                   "__osm_vl15_poller: "
-                   "%u QP0 MADs on wire, %u outstanding, %u unicasts sent, "
-                   "%u total sent\n",
-                   p_vl->p_stats->qp0_mads_outstanding_on_wire,
-                   p_vl->p_stats->qp0_mads_outstanding,
-                   p_vl->p_stats->qp0_unicasts_sent,
-                   p_vl->p_stats->qp0_mads_sent );
-        }
-      }
+      else if( osm_log_is_active( p_vl->p_log, OSM_LOG_DEBUG ) )
+        osm_log( p_vl->p_log, OSM_LOG_DEBUG,
+                 "__osm_vl15_poller: "
+                 "%u QP0 MADs on wire, %u outstanding, %u unicasts sent, "
+                 "%u total sent\n",
+                 p_vl->p_stats->qp0_mads_outstanding_on_wire,
+                 p_vl->p_stats->qp0_mads_outstanding,
+                 p_vl->p_stats->qp0_unicasts_sent,
+                 p_vl->p_stats->qp0_mads_sent );
     }
     else
-    {
       /*
         The VL15 FIFO is empty, so we have nothing left to do.
       */
       status = cl_event_wait_on( &p_vl->signal,
                                  EVENT_NO_TIMEOUT, TRUE );
-    }
 
     while( (p_vl->p_stats->qp0_mads_outstanding_on_wire >=
             (int32_t)p_vl->max_wire_smps ) &&
            (p_vl->thread_state == OSM_THREAD_STATE_RUN ) )
-    {
       status = cl_event_wait_on( &p_vl->signal,
                                  EVENT_NO_TIMEOUT, TRUE );
-    }
 
     if( status != CL_SUCCESS )
-    {
       osm_log( p_vl->p_log, OSM_LOG_ERROR,
                "__osm_vl15_poller: ERR 3E02: "
                "Event wait failed (%s)\n",
                CL_STATUS_MSG( status ) );
-    }
   }
 
   /*
@@ -425,11 +400,9 @@ osm_vl15_poll(
       (int32_t)p_vl->max_wire_smps )
   {
     if( osm_log_is_active( p_vl->p_log, OSM_LOG_DEBUG ) )
-    {
       osm_log( p_vl->p_log, OSM_LOG_DEBUG,
                "osm_vl15_poll: "
                "Signalling poller thread\n" );
-    }
 
     cl_event_signal( &p_vl->signal );
   }
@@ -449,11 +422,9 @@ osm_vl15_post(
   CL_ASSERT( p_vl->state == OSM_VL15_STATE_READY );
 
   if( osm_log_is_active( p_vl->p_log, OSM_LOG_DEBUG ) )
-  {
     osm_log( p_vl->p_log, OSM_LOG_DEBUG,
              "osm_vl15_post: "
              "Posting p_madw = 0x%p\n", p_madw );
-  }
 
   /*
     Determine in which fifo to place the pending madw.
@@ -465,19 +436,15 @@ osm_vl15_post(
     cl_atomic_inc( &p_vl->p_stats->qp0_mads_outstanding );
   }
   else
-  {
     cl_qlist_insert_tail( &p_vl->ufifo, (cl_list_item_t*)p_madw );
-  }
   cl_spinlock_release( &p_vl->lock );
 
   if( osm_log_is_active( p_vl->p_log, OSM_LOG_DEBUG ) )
-  {
     osm_log( p_vl->p_log, OSM_LOG_DEBUG,
              "osm_vl15_post: "
              "%u QP0 MADs on wire, %u QP0 MADs outstanding\n",
              p_vl->p_stats->qp0_mads_outstanding_on_wire,
              p_vl->p_stats->qp0_mads_outstanding );
-  }
 
   osm_vl15_poll( p_vl );
 
@@ -508,11 +475,9 @@ osm_vl15_shutdown(
   while ( p_madw != (osm_madw_t*)cl_qlist_end( &p_vl->ufifo ) )
   {
     if( osm_log_is_active( p_vl->p_log, OSM_LOG_DEBUG ) )
-    {
       osm_log( p_vl->p_log, OSM_LOG_DEBUG,
                "osm_vl15_shutdown: "
                "Releasing Response p_madw = %p\n", p_madw );
-    }
 
     osm_mad_pool_put( p_mad_pool, p_madw );
 
@@ -524,11 +489,9 @@ osm_vl15_shutdown(
   while ( p_madw != (osm_madw_t*)cl_qlist_end( &p_vl->rfifo ) )
   {
     if( osm_log_is_active( p_vl->p_log, OSM_LOG_DEBUG ) )
-    {
       osm_log( p_vl->p_log, OSM_LOG_DEBUG,
                "osm_vl15_shutdown: "
                "Releasing Request p_madw = %p\n", p_madw );
-    }
 
     osm_mad_pool_put( p_mad_pool, p_madw );
     cl_atomic_dec( &p_vl->p_stats->qp0_mads_outstanding );
