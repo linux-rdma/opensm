@@ -141,29 +141,21 @@ osm_trap_rcv_aging_tracker_callback(
 
   p_physp = __get_physp_by_lid_and_num( p_rcv, lid, port_num );
   if (!p_physp)
-  {
     osm_log( p_rcv->p_log, OSM_LOG_VERBOSE,
             "osm_trap_rcv_aging_tracker_callback: "
             "Cannot find port num:0x%X with lid:%u\n",
             port_num, lid );
-  }
-  else
+  /* make sure the physp is still valid */
+  /* If the health port was false - set it to true */
+  else if ( osm_physp_is_valid(p_physp) && !osm_physp_is_healthy(p_physp) )
   {
-    /* make sure the physp is still valid */
-    if ( osm_physp_is_valid(p_physp) )
-    {
-      /* If the health port was false - set it to true */
-      if (!osm_physp_is_healthy(p_physp) )
-      {
-        osm_log( p_rcv->p_log, OSM_LOG_VERBOSE,
-                 "osm_trap_rcv_aging_tracker_callback: "
-                 "Clearing health bit of port num:%u with lid:%u\n",
-                 port_num, lid );
+    osm_log( p_rcv->p_log, OSM_LOG_VERBOSE,
+             "osm_trap_rcv_aging_tracker_callback: "
+             "Clearing health bit of port num:%u with lid:%u\n",
+             port_num, lid );
 
-        /* Clear its health bit */
-        osm_physp_set_health(p_physp, TRUE);
-      }
-    }
+    /* Clear its health bit */
+    osm_physp_set_health(p_physp, TRUE);
   }
 
   OSM_LOG_EXIT (p_rcv->p_log );
@@ -349,14 +341,12 @@ __osm_trap_rcv_process_request(
   CL_ASSERT( p_madw );
 
   if (osm_exit_flag)
-  {
     /*
        We got an exit flag - do nothing
        Otherwise we start a sweep on the trap 144 caused by cleaning up
        SM Cap bit...
     */
     goto Exit;
-  }
 
   /* update the is_gsi flag according to the mgmt_class field */
   if (p_madw->p_mad->mgmt_class == IB_MCLASS_SUBN_LID ||
@@ -425,7 +415,6 @@ __osm_trap_rcv_process_request(
       if ((p_ntci->g_or_v.generic.trap_num == CL_HTON16(129)) ||
            (p_ntci->g_or_v.generic.trap_num == CL_HTON16(130)) ||
            (p_ntci->g_or_v.generic.trap_num == CL_HTON16(131)))
-      {
         osm_log( p_rcv->p_log, OSM_LOG_ERROR,
                  "__osm_trap_rcv_process_request: "
                  "Received Generic Notice type:0x%02X num:%u Producer:%u (%s) "
@@ -438,9 +427,7 @@ __osm_trap_rcv_process_request(
                  p_ntci->data_details.ntc_129_131.port_num,
                  cl_ntoh64(p_smp->trans_id)
                  );
-      }
       else
-      {
         osm_log( p_rcv->p_log, OSM_LOG_ERROR,
                  "__osm_trap_rcv_process_request: "
                  "Received Generic Notice type:0x%02X num:%u Producer:%u (%s) "
@@ -452,10 +439,8 @@ __osm_trap_rcv_process_request(
                  cl_hton16(source_lid),
                  cl_ntoh64(p_smp->trans_id)
                  );
-      }
     }
     else
-    {
       osm_log( p_rcv->p_log, OSM_LOG_ERROR,
                "__osm_trap_rcv_process_request: "
                "Received Vendor Notice type:0x%02X vend:0x%06X dev:%u "
@@ -466,7 +451,6 @@ __osm_trap_rcv_process_request(
                cl_ntoh16(source_lid),
                cl_ntoh64(p_smp->trans_id)
                );
-    }
   }
 
   osm_dump_notice( p_rcv->p_log, p_ntci, OSM_LOG_VERBOSE );
@@ -540,14 +524,12 @@ __osm_trap_rcv_process_request(
           );
 
         if (! p_physp)
-        {
           osm_log( p_rcv->p_log, OSM_LOG_ERROR,
                    "__osm_trap_rcv_process_request: ERR 3805: "
                    "Failed to find physical port by lid:0x%02X num:%u\n",
                    cl_ntoh16(p_ntci->data_details.ntc_129_131.lid),
                    p_ntci->data_details.ntc_129_131.port_num
                    );
-        }
         else
         {
           /* When babbling port policy option is enabled and
@@ -595,15 +577,11 @@ __osm_trap_rcv_process_request(
                                   &context );
 
             if( status == IB_SUCCESS )
-            {
                goto Exit;
-            }
-            else
-            {
-               osm_log( p_rcv->p_log, OSM_LOG_ERROR,
-                        "__osm_trap_rcv_process_request: ERR 3811: "
-                        "Request to set PortInfo failed\n" );
-            }
+
+            osm_log( p_rcv->p_log, OSM_LOG_ERROR,
+                     "__osm_trap_rcv_process_request: ERR 3811: "
+                     "Request to set PortInfo failed\n" );
           }
 
           osm_log( p_rcv->p_log, OSM_LOG_VERBOSE,
@@ -699,13 +677,7 @@ __osm_trap_rcv_process_request(
      accordingly. See IBA 1.2 p.739 or IBA 1.1 p.653 for details. */
   if (is_gsi)
   {
-    if (tmp_madw.mad_addr.addr_type.gsi.global_route)
-    {
-      memcpy(&(p_ntci->issuer_gid),
-             &(tmp_madw.mad_addr.addr_type.gsi.grh_info.src_gid),
-             sizeof(ib_gid_t));
-    }
-    else
+    if (!tmp_madw.mad_addr.addr_type.gsi.global_route)
     {
       osm_log( p_rcv->p_log, OSM_LOG_ERROR,
                "__osm_trap_rcv_process_request: ERR 3806: "
@@ -713,6 +685,9 @@ __osm_trap_rcv_process_request(
                "Cannot update issuer_gid!\n" );
       goto Exit;
     }
+    memcpy(&(p_ntci->issuer_gid),
+           &(tmp_madw.mad_addr.addr_type.gsi.grh_info.src_gid),
+           sizeof(ib_gid_t));
   }
   else
   {
@@ -826,13 +801,9 @@ osm_trap_rcv_process(
     SM's Trap.
   */
   if( ib_smp_is_response( p_smp ) )
-  {
     __osm_trap_rcv_process_response( p_rcv, p_madw );
-  }
   else
-  {
     __osm_trap_rcv_process_request( p_rcv, p_madw );
-  }
 
   OSM_LOG_EXIT( p_rcv->p_log );
 }
