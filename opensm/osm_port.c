@@ -129,15 +129,11 @@ osm_physp_init(
 
   /* allocate enough SL2VL tables */
   if (osm_node_get_type( p_node ) == IB_NODE_TYPE_SWITCH)
-  {
     /* we need node num ports + 1 SL2VL tables */
     num_slvl = osm_node_get_num_physp( p_node ) + 1;
-  }
   else
-  {
     /* An end node - we need only one SL2VL */
     num_slvl = 1;
-  }
 
   cl_ptr_vector_init( &p_physp->slvl_by_port, num_slvl, 1);
   for (i = 0; i < num_slvl; i++)
@@ -397,7 +393,6 @@ osm_physp_calc_link_mtu(
     remote_mtu = ib_port_info_get_mtu_cap( &p_remote_physp->port_info );
 
     if( osm_log_is_active( p_log, OSM_LOG_DEBUG ) )
-    {
       osm_log( p_log, OSM_LOG_DEBUG,
                "osm_physp_calc_link_mtu: "
                "Remote port 0x%016" PRIx64 " port = 0x%X : "
@@ -405,7 +400,6 @@ osm_physp_calc_link_mtu(
                cl_ntoh64( osm_physp_get_port_guid( p_remote_physp ) ),
                osm_physp_get_port_num( p_remote_physp ),
                remote_mtu, mtu );
-    }
 
     if( mtu != remote_mtu )
     {
@@ -413,7 +407,6 @@ osm_physp_calc_link_mtu(
         mtu = remote_mtu;
 
       if( osm_log_is_active( p_log, OSM_LOG_VERBOSE ) )
-      {
         osm_log( p_log, OSM_LOG_VERBOSE,
                  "osm_physp_calc_link_mtu: "
                  "MTU mismatch between ports."
@@ -425,7 +418,6 @@ osm_physp_calc_link_mtu(
                  cl_ntoh64( osm_physp_get_port_guid( p_remote_physp ) ),
                  osm_physp_get_port_num( p_remote_physp ),
                  mtu );
-      }
     }
   }
   else
@@ -466,7 +458,6 @@ osm_physp_calc_link_op_vls(
     remote_op_vls = ib_port_info_get_vl_cap( &p_remote_physp->port_info );
 
     if( osm_log_is_active( p_log, OSM_LOG_DEBUG ) )
-    {
       osm_log( p_log, OSM_LOG_DEBUG,
                "osm_physp_calc_link_op_vls: "
                "Remote port 0x%016" PRIx64 " port = 0x%X : "
@@ -476,7 +467,6 @@ osm_physp_calc_link_op_vls(
                remote_op_vls,
                op_vls
                );
-    }
 
     if( op_vls != remote_op_vls )
     {
@@ -484,7 +474,6 @@ osm_physp_calc_link_op_vls(
         op_vls = remote_op_vls;
 
       if( osm_log_is_active( p_log, OSM_LOG_VERBOSE ) )
-      {
         osm_log( p_log, OSM_LOG_VERBOSE,
                  "osm_physp_calc_link_op_vls: "
                  "OP_VLS mismatch between ports."
@@ -496,7 +485,6 @@ osm_physp_calc_link_op_vls(
                  cl_ntoh64( osm_physp_get_port_guid( p_remote_physp ) ),
                  osm_physp_get_port_num( p_remote_physp ),
                  op_vls );
-      }
     }
   }
   else
@@ -856,7 +844,6 @@ osm_physp_set_pkey_tbl(
     node.
   */
   if (!p_physp->p_node->sw || p_physp->port_num == 0 )
-  {
     /*
        The maximum blocks is defined in the node info: partition cap for CA,
        routers and switch management ports.
@@ -864,9 +851,7 @@ osm_physp_set_pkey_tbl(
     max_blocks = (cl_ntoh16(p_physp->p_node->node_info.partition_cap) +
                   IB_NUM_PKEY_ELEMENTS_IN_BLOCK - 1)
       / IB_NUM_PKEY_ELEMENTS_IN_BLOCK;
-  }
   else
-  {
     /*
       This is a switch, and not a management port. The maximum blocks is defined
       in the switch info: partition enforcement cap.
@@ -874,7 +859,6 @@ osm_physp_set_pkey_tbl(
     max_blocks =
       (cl_ntoh16(p_physp->p_node->sw->switch_info.enforce_cap) +
        IB_NUM_PKEY_ELEMENTS_IN_BLOCK - 1) / IB_NUM_PKEY_ELEMENTS_IN_BLOCK;
-  }
 
   if ( block_num >= max_blocks )
   {

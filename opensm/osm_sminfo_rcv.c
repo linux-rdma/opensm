@@ -222,9 +222,7 @@ __osm_sminfo_rcv_check_set_req_legality(
   if (p_smp->attr_mod == IB_SMINFO_ATTR_MOD_ACKNOWLEDGE)
   {
     if ( ib_sminfo_get_state( p_smi ) == IB_SMINFO_STATE_STANDBY )
-    {
       return( IB_SUCCESS );
-    }
   }
   else if ( p_smp->attr_mod == IB_SMINFO_ATTR_MOD_HANDOVER ||
             p_smp->attr_mod == IB_SMINFO_ATTR_MOD_DISABLE ||
@@ -232,9 +230,7 @@ __osm_sminfo_rcv_check_set_req_legality(
             p_smp->attr_mod == IB_SMINFO_ATTR_MOD_DISCOVER )
   {
     if ( ib_sminfo_get_state( p_smi ) == IB_SMINFO_STATE_MASTER )
-    {
       return( IB_SUCCESS );
-    }
   }
 
   return( IB_INVALID_PARAMETER );
@@ -317,12 +313,10 @@ __osm_sminfo_rcv_process_set_request(
     /* send a response with error code */
     status = osm_resp_send( p_rcv->p_resp, p_madw, 7, payload );
     if( status != IB_SUCCESS )
-    {
       osm_log( p_rcv->p_log, OSM_LOG_ERROR,
                "__osm_sminfo_rcv_process_set_request: ERR 2F05: "
                "Error sending response (%s)\n",
                ib_get_err_str( status ) );
-    }
     CL_PLOCK_RELEASE( p_rcv->p_lock );
     goto Exit;
   }
@@ -370,12 +364,10 @@ __osm_sminfo_rcv_process_set_request(
     /* send a response with error code */
     status = osm_resp_send( p_rcv->p_resp, p_madw, 7, payload );
     if( status != IB_SUCCESS )
-    {
       osm_log( p_rcv->p_log, OSM_LOG_ERROR,
                "__osm_sminfo_rcv_process_set_request: ERR 2F08: "
                "Error sending response (%s)\n",
                ib_get_err_str( status ) );
-    }
     CL_PLOCK_RELEASE( p_rcv->p_lock );
     goto Exit;
   }
@@ -383,12 +375,10 @@ __osm_sminfo_rcv_process_set_request(
   /* the SubnSet(SMInfo) command is ok. Send a response. */
   status = osm_resp_send( p_rcv->p_resp, p_madw, 0, payload );
   if( status != IB_SUCCESS )
-  {
     osm_log( p_rcv->p_log, OSM_LOG_ERROR,
              "__osm_sminfo_rcv_process_set_request: ERR 2F09: "
              "Error sending response (%s)\n",
              ib_get_err_str( status ) );
-  }
 
   /* it is a legal packet - act according to it */
 
@@ -411,12 +401,10 @@ __osm_sminfo_rcv_process_set_request(
                                      sm_signal );
 
   if( status != IB_SUCCESS )
-  {
     osm_log( p_rcv->p_log, OSM_LOG_ERROR,
              "__osm_sminfo_rcv_process_set_request: ERR 2F10: "
              "Error in SM state transition (%s)\n",
              ib_get_err_str( status ) );
-  }
 
  Exit:
   OSM_LOG_EXIT( p_rcv->p_log );
@@ -441,12 +429,10 @@ __osm_sminfo_rcv_process_get_sm(
   p_smi = &p_sm->smi;
 
   if( osm_log_is_active( p_rcv->p_log, OSM_LOG_VERBOSE ) )
-  {
     osm_log( p_rcv->p_log, OSM_LOG_VERBOSE,
              "__osm_sminfo_rcv_process_get_sm: "
              "Detected SM 0x%016" PRIx64 " in state %u\n",
              cl_ntoh64( p_smi->guid ), ib_sminfo_get_state( p_smi ) );
-  }
 
   /*
     Check the state of this SM vs. our own.
@@ -656,13 +642,11 @@ __osm_sminfo_rcv_process_get_response(
     cl_qmap_insert( p_sm_tbl, port_guid, &p_sm->map_item );
   }
   else
-  {
     /*
       We already know this SM.
       Update the SMInfo attribute.
     */
     p_sm->smi = *p_smi;
-  }
 
   process_get_sm_ret_val = __osm_sminfo_rcv_process_get_sm( p_rcv, p_sm );
 
@@ -773,30 +757,19 @@ osm_sminfo_rcv_process(
     }
 
     if ( p_smi_context->set_method == FALSE )
-    {
       /* this is a response to a Get method */
       __osm_sminfo_rcv_process_get_response( p_rcv, p_madw );
-    }
     else
-    {
       /* this is a response to a Set method */
       __osm_sminfo_rcv_process_set_response( p_rcv, p_madw );
-    }
   }
-  else
-  {
+  else if ( p_smp->method == IB_MAD_METHOD_GET )
     /* This is a request */
-    if ( p_smp->method == IB_MAD_METHOD_GET )
-    {
-      /* This is a SubnGet request */
-      __osm_sminfo_rcv_process_get_request( p_rcv, p_madw );
-    }
-    else
-    {
-      /* This should be a SubnSet request */
-      __osm_sminfo_rcv_process_set_request( p_rcv, p_madw );
-    }
-  }
+    /* This is a SubnGet request */
+    __osm_sminfo_rcv_process_get_request( p_rcv, p_madw );
+  else
+    /* This should be a SubnSet request */
+    __osm_sminfo_rcv_process_set_request( p_rcv, p_madw );
 
  Exit:
   OSM_LOG_EXIT( p_rcv->p_log );

@@ -81,11 +81,9 @@ __osm_pi_rcv_set_sm(
   OSM_LOG_ENTER( p_rcv->p_log, __osm_pi_rcv_set_sm );
 
   if( osm_log_is_active( p_rcv->p_log, OSM_LOG_DEBUG ) )
-  {
     osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
              "__osm_pi_rcv_set_sm: "
              "Setting IS_SM bit in port attributes\n");
-  }
 
   p_dr_path = osm_physp_get_dr_path_ptr( p_physp );
   h_bind = osm_dr_path_get_bind_handle( p_dr_path );
@@ -152,12 +150,10 @@ __osm_pi_rcv_process_endport(
       We received the PortInfo for our own port.
     */
     if( !( p_pi->capability_mask & IB_PORT_CAP_IS_SM ) )
-    {
       /*
         Set the IS_SM bit to indicate our port hosts an SM.
       */
       __osm_pi_rcv_set_sm( p_rcv, p_physp );
-    }
   }
   else
   {
@@ -168,30 +164,24 @@ __osm_pi_rcv_process_endport(
     p_sm_tbl = &p_rcv->p_subn->sm_guid_tbl;
     p_sm = (osm_remote_sm_t*)cl_qmap_get( p_sm_tbl, port_guid );
     if( p_sm != (osm_remote_sm_t*)cl_qmap_end( p_sm_tbl ) )
-    {
       /* clean it up */
       p_sm->smi.pri_state = 0xF0 & p_sm->smi.pri_state;
-    }
 
     if( p_pi->capability_mask & IB_PORT_CAP_IS_SM )
     {
       if( p_rcv->p_subn->opt.ignore_other_sm )
-      {
         osm_log( p_rcv->p_log, OSM_LOG_VERBOSE,
                  "__osm_pi_rcv_process_endport: "
                  "Ignoring SM on port 0x%" PRIx64 "\n",
                  cl_ntoh64( port_guid ) );
-      }
       else
       {
         if( osm_log_is_active( p_rcv->p_log, OSM_LOG_VERBOSE ) )
-        {
           osm_log( p_rcv->p_log, OSM_LOG_VERBOSE,
                    "__osm_pi_rcv_process_endport: "
                    "Detected another SM. Requesting SMInfo"
                    "\n\t\t\t\tPort 0x%" PRIx64 "\n",
                    cl_ntoh64( port_guid ) );
-        }
 
         /*
           This port indicates it's an SM and it's not our own port.
@@ -208,12 +198,10 @@ __osm_pi_rcv_process_endport(
                               &context );
 
         if( status != IB_SUCCESS )
-        {
           osm_log( p_rcv->p_log, OSM_LOG_ERROR,
                    "__osm_pi_rcv_process_endport: ERR 0F05: "
                    "Failure requesting SMInfo (%s)\n",
                    ib_get_err_str( status ) );
-        }
       }
     }
   }
@@ -309,23 +297,16 @@ __osm_pi_rcv_process_switch_port(
                               &context );
 
         if( status != IB_SUCCESS )
-        {
           osm_log( p_rcv->p_log, OSM_LOG_ERROR,
                    "__osm_pi_rcv_process_switch_port: ERR 0F02: "
                    "Failure initiating NodeInfo request (%s)\n",
                    ib_get_err_str(status) );
-        }
       }
-      else
-      {
-        if( osm_log_is_active( p_rcv->p_log, OSM_LOG_DEBUG ) )
-        {
-          osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
-                   "__osm_pi_rcv_process_switch_port: "
-                   "Skipping SMP responder port 0x%X\n",
-                   p_pi->local_port_num );
-        }
-      }
+      else if( osm_log_is_active( p_rcv->p_log, OSM_LOG_DEBUG ) )
+        osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
+                 "__osm_pi_rcv_process_switch_port: "
+                 "Skipping SMP responder port 0x%X\n",
+                 p_pi->local_port_num );
       break;
 
     default:
@@ -357,10 +338,8 @@ __osm_pi_rcv_process_switch_port(
 	/* Determine if base switch port 0 */
 	if (p_node->sw &&
 	    !ib_switch_info_is_enhanced_port0(&p_node->sw->switch_info))
-        {
 		/* PortState is not used on BSP0 but just in case it is DOWN */
 		p_physp->port_info = *p_pi;
-        }
 	__osm_pi_rcv_process_endport(p_rcv, p_physp, p_pi);
   }
 
@@ -425,12 +404,10 @@ void osm_pkey_get_tables(
   port_num = p_physp->port_num;
 
   if (!p_node->sw || port_num == 0)
-  {
     /* The maximum blocks is defined by the node info partition cap for CA,
        router, and switch management ports. */
     max_blocks = (cl_ntoh16(p_node->node_info.partition_cap)+IB_NUM_PKEY_ELEMENTS_IN_BLOCK -1)
       / IB_NUM_PKEY_ELEMENTS_IN_BLOCK ;
-  }
   else
   {
     /* This is a switch, and not a management port. The maximum blocks
@@ -601,7 +578,6 @@ osm_pi_rcv_process_set(
   }
 
   if( osm_log_is_active( p_rcv->p_log, OSM_LOG_DEBUG ) )
-  {
     osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
              "osm_pi_rcv_process_set: "
              "Received logical SetResp() for GUID 0x%" PRIx64
@@ -612,7 +588,6 @@ osm_pi_rcv_process_set(
              port_num,
              cl_ntoh64( osm_node_get_node_guid( p_node ) ),
              cl_ntoh64( p_smp->trans_id ) );
-  }
 
   osm_physp_set_port_info( p_physp, p_pi );
 
@@ -720,9 +695,7 @@ osm_pi_rcv_process(
     boolean around to determine if we were doing Get() or Set().
   */
   if( p_context->set_method )
-  {
     osm_pi_rcv_process_set( p_rcv, p_port, port_num, p_madw );
-  }
   else
   {
     p_port->discovery_count++;
@@ -732,7 +705,6 @@ osm_pi_rcv_process(
       most likely due to a subnet sweep in progress.
     */
     if( osm_log_is_active( p_rcv->p_log, OSM_LOG_VERBOSE ) )
-    {
       osm_log( p_rcv->p_log, OSM_LOG_VERBOSE,
                "osm_pi_rcv_process: "
                "Discovered port num 0x%X with GUID 0x%" PRIx64
@@ -742,7 +714,6 @@ osm_pi_rcv_process(
                cl_ntoh64( port_guid ),
                cl_ntoh64( node_guid ),
                cl_ntoh64( p_smp->trans_id ) );
-    }
 
     p_node = p_port->p_node;
     CL_ASSERT( p_node );
@@ -757,12 +728,10 @@ osm_pi_rcv_process(
     if( !osm_physp_is_valid( p_physp ) )
     {
       if( osm_log_is_active( p_rcv->p_log, OSM_LOG_VERBOSE ) )
-      {
         osm_log( p_rcv->p_log, OSM_LOG_VERBOSE,
                  "osm_pi_rcv_process: "
                  "Initializing port number 0x%X\n",
                  port_num );
-      }
 
       osm_physp_init( p_physp,
                       port_guid,

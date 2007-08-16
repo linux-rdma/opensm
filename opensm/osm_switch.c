@@ -219,9 +219,7 @@ osm_switch_get_fwd_tbl_block(
       information for the specified block of LIDs.
     */
     for( lid_ho = base_lid_ho; lid_ho <= block_top_lid_ho; lid_ho++ )
-    {
       p_block[lid_ho - base_lid_ho] =  osm_fwd_tbl_get( p_tbl, lid_ho );
-    }
 
     return_flag = TRUE;
   }
@@ -346,9 +344,7 @@ osm_switch_recommend_path(
            minimum hop function.
         */
         if ( hops == least_hops )
-        {
           return( port_num );
-        }
       }
     }
   }
@@ -370,95 +366,88 @@ osm_switch_recommend_path(
   /* port number starts with zero and num_ports is 1 + num phys ports */
   for ( port_num = 1; port_num < num_ports; port_num++ )
   {
-    if ( osm_switch_get_hop_count( p_sw, base_lid, port_num ) == least_hops)
+    if ( osm_switch_get_hop_count( p_sw, base_lid, port_num ) != least_hops)
+      continue;
+
+    /* let us make sure it is not down or unhealthy */
+    p_physp = osm_node_get_physp_ptr(p_sw->p_node, port_num);
+    if (!osm_physp_is_valid(p_physp) ||
+        !osm_physp_is_healthy(p_physp) ||
+        /*
+          we require all - non sma ports to be linked
+          to be routed through
+        */
+        !osm_physp_get_remote(p_physp))
+      continue;
+
+    /*
+      We located a least-hop port, possibly one of many.
+      For this port, check the running total count of
+      the number of paths through this port.  Select
+      the port routing the least number of paths.
+    */
+    check_count = osm_port_prof_path_count_get(&p_sw->p_prof[port_num]);
+
+    /*
+      Advanced LMC routing requires tracking of the
+      best port by the node connected to the other side of
+      it.
+    */
+    if (routing_for_lmc)
     {
-      /* let us make sure it is not down or unhealthy */
-      p_physp = osm_node_get_physp_ptr(p_sw->p_node, port_num);
-      if (osm_physp_is_valid(p_physp) &&
-          osm_physp_is_healthy(p_physp) &&
-          /*
-            we require all - non sma ports to be linked
-            to be routed through
-          */
-          osm_physp_get_remote(p_physp))
-      {
-
-        /*
-          We located a least-hop port, possibly one of many.
-          For this port, check the running total count of
-          the number of paths through this port.  Select
-          the port routing the least number of paths.
-        */
-        check_count = osm_port_prof_path_count_get(
-          &p_sw->p_prof[port_num] );
-
-        /*
-          Advanced LMC routing requires tracking of the
-          best port by the node connected to the other side of
-          it.
-        */
-        if (routing_for_lmc)
-        {
 #if 0
-          printf("LID:0x%X SYS:%d NODE:%d\n", lid_ho, *p_num_used_sys, *p_num_used_nodes);
+      printf("LID:0x%X SYS:%d NODE:%d\n", lid_ho, *p_num_used_sys, *p_num_used_nodes);
 #endif
 
-          /* Get the Remote Node */
-          p_rem_physp = osm_physp_get_remote(p_physp);
-          p_rem_node = osm_physp_get_node_ptr(p_rem_physp);
+      /* Get the Remote Node */
+      p_rem_physp = osm_physp_get_remote(p_physp);
+      p_rem_node = osm_physp_get_node_ptr(p_rem_physp);
 
-          /* Is the sys guid already used ? */
-          sys_used = FALSE;
-          for (i = 0; !sys_used && (i < *p_num_used_sys); i++)
-            if (!memcmp(&p_rem_node->node_info.sys_guid,
-                        &remote_sys_guids[i],
-                        sizeof(uint64_t)))
-              sys_used = TRUE;
+      /* Is the sys guid already used ? */
+      sys_used = FALSE;
+      for (i = 0; !sys_used && (i < *p_num_used_sys); i++)
+        if (!memcmp(&p_rem_node->node_info.sys_guid,
+                    &remote_sys_guids[i],
+                    sizeof(uint64_t)))
+          sys_used = TRUE;
 
-          /* If not update the least hops for this case */
-          if (!sys_used)
-          {
-            if (check_count < least_paths_other_sys)
-            {
-              least_paths_other_sys = check_count;
-              best_port_other_sys = port_num;
-            }
-          }
-          else
-          { /* same sys found - try node */
-
-            /* Else is the node guid already used ? */
-            node_used = FALSE;
-            for (i = 0; !node_used && (i < *p_num_used_nodes); i++)
-              if (!memcmp(&p_rem_node->node_info.node_guid,
-                          &remote_node_guids[i],
-                          sizeof(uint64_t)))
-                node_used = TRUE;
-
-
-            /* If not update the least hops for this case */
-            if (!node_used)
-            {
-              if (check_count < least_paths_other_nodes)
-              {
-                least_paths_other_nodes = check_count;
-                best_port_other_node = port_num;
-              }
-            }
-
-          } /* same sys found */
-        } /* routing for LMC mode */
-
-        /*
-          the count is min but also lower then the max subscribed
-        */
-        if( check_count < least_paths )
+      /* If not update the least hops for this case */
+      if (!sys_used)
+      {
+        if (check_count < least_paths_other_sys)
         {
-          port_found = TRUE;
-          best_port = port_num;
-          least_paths = check_count;
+          least_paths_other_sys = check_count;
+          best_port_other_sys = port_num;
         }
       }
+      else
+      { /* same sys found - try node */
+        /* Else is the node guid already used ? */
+        node_used = FALSE;
+        for (i = 0; !node_used && (i < *p_num_used_nodes); i++)
+          if (!memcmp(&p_rem_node->node_info.node_guid,
+                      &remote_node_guids[i],
+                      sizeof(uint64_t)))
+            node_used = TRUE;
+
+        /* If not update the least hops for this case */
+        if (!node_used && check_count < least_paths_other_nodes)
+        {
+          least_paths_other_nodes = check_count;
+          best_port_other_node = port_num;
+        }
+
+      } /* same sys found */
+    } /* routing for LMC mode */
+
+    /*
+      the count is min but also lower then the max subscribed
+    */
+    if( check_count < least_paths )
+    {
+      port_found = TRUE;
+      best_port = port_num;
+      least_paths = check_count;
     }
   }
 
@@ -630,18 +619,15 @@ osm_switch_recommend_mcast_path(
   {
     for( port_num = 1; port_num < num_ports; port_num++ )
     {
-      if( osm_mcast_tbl_is_port( &p_sw->mcast_tbl, mlid_ho, port_num ) )
-      {
-        /*
-          Don't be too trusting of the current forwarding table!
-          Verify that the LID is reachable through this port.
-        */
-        hops = osm_switch_get_hop_count( p_sw, base_lid, port_num );
-        if( hops != OSM_NO_PATH )
-        {
-          return( port_num );
-        }
-      }
+      if( !osm_mcast_tbl_is_port( &p_sw->mcast_tbl, mlid_ho, port_num ) )
+        continue;
+      /*
+        Don't be too trusting of the current forwarding table!
+        Verify that the LID is reachable through this port.
+      */
+      hops = osm_switch_get_hop_count( p_sw, base_lid, port_num );
+      if( hops != OSM_NO_PATH )
+        return( port_num );
     }
   }
 
@@ -661,10 +647,8 @@ osm_switch_recommend_mcast_path(
   */
   least_hops = osm_switch_get_least_hops( p_sw, base_lid );
   for( port_num = 1; port_num < num_ports; port_num++ )
-  {
     if( osm_switch_get_hop_count( p_sw, base_lid, port_num ) == least_hops )
       break;
-  }
 
   CL_ASSERT( port_num < num_ports );
   return( port_num );
