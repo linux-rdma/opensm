@@ -61,13 +61,124 @@
 
 /**********************************************************************
  **********************************************************************/
-void __osm_vl15_poller(IN void *p_ptr)
+
+static void vl15_send_mad(osm_vl15_t * p_vl, osm_madw_t * p_madw)
 {
 	ib_api_status_t status;
-	osm_madw_t *p_madw;
+	cl_status_t cl_status;
 	uint32_t mads_sent;
 	uint32_t unicasts_sent;
 	uint32_t mads_on_wire;
+	uint32_t outstanding;
+
+	/*
+	   Non-response-expected mads are not throttled on the wire
+	   since we can have no confirmation that they arrived
+	   at their destination.
+	 */
+	if (p_madw->resp_expected == TRUE) {
+		/*
+		   Note that other threads may not see the response MAD
+		   arrive before send() even returns.
+		   In that case, the wire count would temporarily go negative.
+		   To avoid this confusion, preincrement the counts on the
+		   assumption that send() will succeed.
+		 */
+		mads_on_wire =
+		    cl_atomic_inc(&p_vl->p_stats->qp0_mads_outstanding_on_wire);
+		CL_ASSERT(mads_on_wire <= p_vl->max_wire_smps);
+	} else
+		unicasts_sent =
+		    cl_atomic_inc(&p_vl->p_stats->qp0_unicasts_sent);
+
+	mads_sent = cl_atomic_inc(&p_vl->p_stats->qp0_mads_sent);
+
+	status = osm_vendor_send(osm_madw_get_bind_handle(p_madw),
+				 p_madw, p_madw->resp_expected);
+
+	if (status == IB_SUCCESS) {
+		if (osm_log_is_active(p_vl->p_log, OSM_LOG_DEBUG))
+			osm_log(p_vl->p_log, OSM_LOG_DEBUG,
+				"__osm_vl15_poller: "
+				"%u QP0 MADs on wire, %u outstanding, "
+				"%u unicasts sent, %u total sent\n",
+				p_vl->p_stats->qp0_mads_outstanding_on_wire,
+				p_vl->p_stats->qp0_mads_outstanding,
+				p_vl->p_stats->qp0_unicasts_sent,
+				p_vl->p_stats->qp0_mads_sent);
+		return;
+	}
+
+	osm_log(p_vl->p_log, OSM_LOG_ERROR,
+		"__osm_vl15_poller: ERR 3E03: "
+		"MAD send failed (%s)\n", ib_get_err_str(status));
+
+	/*
+	   The MAD was never successfully sent, so
+	   fix up the pre-incremented count values.
+	 */
+
+	/* Decrement qp0_mads_sent and qp0_mads_outstanding_on_wire
+	   that were incremented in the code above. */
+	mads_sent = cl_atomic_dec(&p_vl->p_stats->qp0_mads_sent);
+
+	if (p_madw->resp_expected == FALSE)
+		return;
+
+	cl_atomic_dec(&p_vl->p_stats->qp0_mads_outstanding_on_wire);
+
+	/*
+	   The following code is similar to the code in
+	   __osm_sm_mad_ctrl_retire_trans_mad. We need to decrement the
+	   qp0_mads_outstanding counter, and if we reached 0 - need to call
+	   the cl_disp_post with OSM_SIGNAL_NO_PENDING_TRANSACTION (in order
+	   to wake up the state mgr).
+	   There is one difference from the code in __osm_sm_mad_ctrl_retire_trans_mad.
+	   This code is called for all (vl15) mads, if osm_vendor_send() failed, unlike
+	   __osm_sm_mad_ctrl_retire_trans_mad which is called only on mads where
+	   resp_expected == TRUE. As a result, the qp0_mads_outstanding counter
+	   should be decremented and handled accordingly only if this is a mad
+	   with resp_expected == TRUE.
+	 */
+
+	outstanding = cl_atomic_dec(&p_vl->p_stats->qp0_mads_outstanding);
+
+	osm_log(p_vl->p_log, OSM_LOG_DEBUG,
+		"__osm_vl15_poller: "
+		"%u QP0 MADs outstanding\n",
+		p_vl->p_stats->qp0_mads_outstanding);
+
+	if (outstanding)
+		return;
+
+	/*
+	   The wire is clean.
+	   Signal the state manager.
+	 */
+	if (osm_log_is_active(p_vl->p_log, OSM_LOG_DEBUG))
+		osm_log(p_vl->p_log,
+			OSM_LOG_DEBUG,
+			"__osm_vl15_poller: "
+			"Posting Dispatcher message %s\n",
+			osm_get_disp_msg_str(OSM_MSG_NO_SMPS_OUTSTANDING));
+
+	cl_status = cl_disp_post(p_vl->h_disp,
+				 OSM_MSG_NO_SMPS_OUTSTANDING, (void *)
+				 OSM_SIGNAL_NO_PENDING_TRANSACTIONS,
+				 NULL, NULL);
+
+	if (cl_status != CL_SUCCESS)
+		osm_log(p_vl->p_log,
+			OSM_LOG_ERROR,
+			"__osm_vl15_poller: ERR 3E06: "
+			"Dispatcher post message failed (%s)\n",
+			CL_STATUS_MSG(cl_status));
+}
+
+static void __osm_vl15_poller(IN void *p_ptr)
+{
+	ib_api_status_t status;
+	osm_madw_t *p_madw;
 	osm_vl15_t *const p_vl = (osm_vl15_t *) p_ptr;
 	cl_qlist_t *p_fifo;
 
@@ -107,124 +218,7 @@ void __osm_vl15_poller(IN void *p_ptr)
 						osm_madw_get_smp_ptr(p_madw),
 						OSM_LOG_FRAMES);
 
-			/*
-			   Non-response-expected mads are not throttled on the wire
-			   since we can have no confirmation that they arrived
-			   at their destination.
-			 */
-			if (p_madw->resp_expected == TRUE) {
-				/*
-				   Note that other threads may not see the response MAD
-				   arrive before send() even returns.
-				   In that case, the wire count would temporarily go negative.
-				   To avoid this confusion, preincrement the counts on the
-				   assumption that send() will succeed.
-				 */
-				mads_on_wire =
-				    cl_atomic_inc(&p_vl->p_stats->
-						  qp0_mads_outstanding_on_wire);
-				CL_ASSERT(mads_on_wire <= p_vl->max_wire_smps);
-			} else
-				unicasts_sent =
-				    cl_atomic_inc(&p_vl->p_stats->
-						  qp0_unicasts_sent);
-
-			mads_sent =
-			    cl_atomic_inc(&p_vl->p_stats->qp0_mads_sent);
-
-			status =
-			    osm_vendor_send(osm_madw_get_bind_handle(p_madw),
-					    p_madw, p_madw->resp_expected);
-
-			if (status != IB_SUCCESS) {
-				uint32_t outstanding;
-				cl_status_t cl_status;
-
-				osm_log(p_vl->p_log, OSM_LOG_ERROR,
-					"__osm_vl15_poller: ERR 3E03: "
-					"MAD send failed (%s)\n",
-					ib_get_err_str(status));
-
-				/*
-				   The MAD was never successfully sent, so
-				   fix up the pre-incremented count values.
-				 */
-
-				/* Decrement qp0_mads_sent and qp0_mads_outstanding_on_wire
-				   that were incremented in the code above. */
-				mads_sent =
-				    cl_atomic_dec(&p_vl->p_stats->
-						  qp0_mads_sent);
-				if (p_madw->resp_expected == TRUE)
-					cl_atomic_dec(&p_vl->p_stats->
-						      qp0_mads_outstanding_on_wire);
-
-				/*
-				   The following code is similar to the code in
-				   __osm_sm_mad_ctrl_retire_trans_mad. We need to decrement the
-				   qp0_mads_outstanding counter, and if we reached 0 - need to call
-				   the cl_disp_post with OSM_SIGNAL_NO_PENDING_TRANSACTION (in order
-				   to wake up the state mgr).
-				   There is one difference from the code in __osm_sm_mad_ctrl_retire_trans_mad.
-				   This code is called for all (vl15) mads, if osm_vendor_send() failed, unlike
-				   __osm_sm_mad_ctrl_retire_trans_mad which is called only on mads where
-				   resp_expected == TRUE. As a result, the qp0_mads_outstanding counter
-				   should be decremented and handled accordingly only if this is a mad
-				   with resp_expected == TRUE.
-				 */
-				if (p_madw->resp_expected == TRUE) {
-					outstanding =
-					    cl_atomic_dec(&p_vl->p_stats->
-							  qp0_mads_outstanding);
-
-					osm_log(p_vl->p_log, OSM_LOG_DEBUG,
-						"__osm_vl15_poller: "
-						"%u QP0 MADs outstanding\n",
-						p_vl->p_stats->
-						qp0_mads_outstanding);
-
-					if (outstanding == 0) {
-						/*
-						   The wire is clean.
-						   Signal the state manager.
-						 */
-						if (osm_log_is_active
-						    (p_vl->p_log,
-						     OSM_LOG_DEBUG))
-							osm_log(p_vl->p_log,
-								OSM_LOG_DEBUG,
-								"__osm_vl15_poller: "
-								"Posting Dispatcher message %s\n",
-								osm_get_disp_msg_str
-								(OSM_MSG_NO_SMPS_OUTSTANDING));
-
-						cl_status =
-						    cl_disp_post(p_vl->h_disp,
-								 OSM_MSG_NO_SMPS_OUTSTANDING,
-								 (void *)
-								 OSM_SIGNAL_NO_PENDING_TRANSACTIONS,
-								 NULL, NULL);
-
-						if (cl_status != CL_SUCCESS)
-							osm_log(p_vl->p_log,
-								OSM_LOG_ERROR,
-								"__osm_vl15_poller: ERR 3E06: "
-								"Dispatcher post message failed (%s)\n",
-								CL_STATUS_MSG
-								(cl_status));
-					}
-				}
-			} else
-			    if (osm_log_is_active(p_vl->p_log, OSM_LOG_DEBUG))
-				osm_log(p_vl->p_log, OSM_LOG_DEBUG,
-					"__osm_vl15_poller: "
-					"%u QP0 MADs on wire, %u outstanding, %u unicasts sent, "
-					"%u total sent\n",
-					p_vl->p_stats->
-					qp0_mads_outstanding_on_wire,
-					p_vl->p_stats->qp0_mads_outstanding,
-					p_vl->p_stats->qp0_unicasts_sent,
-					p_vl->p_stats->qp0_mads_sent);
+			vl15_send_mad(p_vl, p_madw);
 		} else
 			/*
 			   The VL15 FIFO is empty, so we have nothing left to do.
