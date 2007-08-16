@@ -473,7 +473,7 @@ __osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context)
 	node_guid = cl_ntoh64(node->node_info.node_guid);
 
 	/* make sure we have a database object ready to store this information */
-	if (perfmgr_db_create_entry(pm->db, node_guid, num_ports + 1,
+	if (perfmgr_db_create_entry(pm->db, node_guid, num_ports,
 				    node->print_desc) !=
 		PERFMGR_EVENT_DB_SUCCESS)
 	{
