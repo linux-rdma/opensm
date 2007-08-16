@@ -56,8 +56,7 @@
 #include <opensm/osm_switch.h>
 #include <opensm/osm_log.h>
 
-
-static uint16_t remap_lid(osm_opensm_t *p_osm, uint16_t lid, ib_net64_t guid)
+static uint16_t remap_lid(osm_opensm_t * p_osm, uint16_t lid, ib_net64_t guid)
 {
 	osm_port_t *p_port;
 	uint16_t min_lid, max_lid;
@@ -108,7 +107,7 @@ static void add_path(osm_opensm_t * p_osm,
 		cl_ntoh64(osm_node_get_node_guid(p_sw->p_node)));
 }
 
-static void add_lid_hops(osm_opensm_t *p_osm, osm_switch_t *p_sw,
+static void add_lid_hops(osm_opensm_t * p_osm, osm_switch_t * p_sw,
 			 uint16_t lid, ib_net64_t guid,
 			 uint8_t hops[], unsigned len)
 {
@@ -119,7 +118,7 @@ static void add_lid_hops(osm_opensm_t *p_osm, osm_switch_t *p_sw,
 	if (len > p_sw->num_ports)
 		len = p_sw->num_ports;
 
-	for (i = 0 ; i < len ; i++)
+	for (i = 0; i < len; i++)
 		osm_switch_set_hops(p_sw, lid, i, hops[i]);
 }
 
@@ -137,7 +136,7 @@ static int do_ucast_file_load(void *context)
 
 	file_name = p_osm->subn.opt.ucast_dump_file;
 	if (!file_name) {
-		osm_log(&p_osm->log, OSM_LOG_ERROR|OSM_LOG_SYS,
+		osm_log(&p_osm->log, OSM_LOG_ERROR | OSM_LOG_SYS,
 			"do_ucast_file_load: ERR 6301: "
 			"ucast dump file name is not defined; "
 			"using default routing algorithm\n");
@@ -146,7 +145,7 @@ static int do_ucast_file_load(void *context)
 
 	file = fopen(file_name, "r");
 	if (!file) {
-		osm_log(&p_osm->log, OSM_LOG_ERROR|OSM_LOG_SYS,
+		osm_log(&p_osm->log, OSM_LOG_ERROR | OSM_LOG_SYS,
 			"do_ucast_file_load: ERR 6302: "
 			"cannot open ucast dump file \'%s\'; "
 			"using default routing algorithm\n", file_name);
@@ -168,14 +167,15 @@ static int do_ucast_file_load(void *context)
 			continue;
 
 		if (!strncmp(p, "Multicast mlids", 15)) {
-			osm_log(&p_osm->log, OSM_LOG_ERROR|OSM_LOG_SYS,
+			osm_log(&p_osm->log, OSM_LOG_ERROR | OSM_LOG_SYS,
 				"do_ucast_file_load: ERR 6303: "
 				"Multicast dump file detected; "
 				"skipping parsing. Using default "
 				"routing algorithm\n");
 		} else if (!strncmp(p, "Unicast lids", 12)) {
 			if (p_sw)
-				osm_ucast_mgr_set_fwd_table(&p_osm->sm.ucast_mgr, p_sw);
+				osm_ucast_mgr_set_fwd_table(&p_osm->sm.
+							    ucast_mgr, p_sw);
 			q = strstr(p, " guid 0x");
 			if (!q) {
 				osm_log(&p_osm->log, OSM_LOG_ERROR,
@@ -203,10 +203,11 @@ static int do_ucast_file_load(void *context)
 					cl_ntoh64(sw_guid));
 				continue;
 			}
-			memset(p_osm->sm.ucast_mgr.lft_buf, 0xff, IB_LID_UCAST_END_HO + 1);
+			memset(p_osm->sm.ucast_mgr.lft_buf, 0xff,
+			       IB_LID_UCAST_END_HO + 1);
 		} else if (p_sw && !strncmp(p, "0x", 2)) {
 			p += 2;
-			lid = (uint16_t)strtoul(p, &q, 16);
+			lid = (uint16_t) strtoul(p, &q, 16);
 			if (q == p || !isspace(*q)) {
 				osm_log(&p_osm->log, OSM_LOG_ERROR,
 					"PARSE ERROR: %s:%u: "
@@ -217,7 +218,7 @@ static int do_ucast_file_load(void *context)
 			p = q;
 			while (isspace(*p))
 				p++;
-			port_num = (uint8_t)strtoul(p, &q, 10);
+			port_num = (uint8_t) strtoul(p, &q, 10);
 			if (q == p || !isspace(*q)) {
 				osm_log(&p_osm->log, OSM_LOG_ERROR,
 					"PARSE ERROR: %s:%u: "
@@ -235,8 +236,7 @@ static int do_ucast_file_load(void *context)
 					"(maybe broken dump): \'%s\'\n",
 					file_name, lineno, p);
 				port_guid = 0;
-			}
-			else {
+			} else {
 				p = q + 12;
 				port_guid = strtoull(p, &q, 16);
 				if (q == p || (!isspace(*q) && *q != ':')) {
@@ -274,7 +274,7 @@ static int do_lid_matrix_file_load(void *context)
 
 	file_name = p_osm->subn.opt.lid_matrix_dump_file;
 	if (!file_name) {
-		osm_log(&p_osm->log, OSM_LOG_ERROR|OSM_LOG_SYS,
+		osm_log(&p_osm->log, OSM_LOG_ERROR | OSM_LOG_SYS,
 			"do_lid_matrix_file_load: ERR 6304: "
 			"lid matrix file name is not defined; "
 			"using default lid matrix generation algorithm\n");
@@ -283,7 +283,7 @@ static int do_lid_matrix_file_load(void *context)
 
 	file = fopen(file_name, "r");
 	if (!file) {
-		osm_log(&p_osm->log, OSM_LOG_ERROR|OSM_LOG_SYS,
+		osm_log(&p_osm->log, OSM_LOG_ERROR | OSM_LOG_SYS,
 			"do_lid_matrix_file_load: ERR 6305: "
 			"cannot open lid matrix file \'%s\'; "
 			"using default lid matrix generation algorithm\n",
@@ -350,7 +350,7 @@ static int do_lid_matrix_file_load(void *context)
 				return -1;
 			}
 			/* Just checked the range, so casting is safe */
-			lid = (uint16_t)num;
+			lid = (uint16_t) num;
 			p = q;
 			while (isspace(*p) || *p == ':')
 				p++;
@@ -358,13 +358,13 @@ static int do_lid_matrix_file_load(void *context)
 				num = strtoul(p, &q, 16);
 				if (num > 0xff || q == p) {
 					osm_log(&p_osm->log, OSM_LOG_ERROR,
-					"PARSE ERROR: %s:%u: "
-					"cannot parse hops number: \'%s\'\n",
-					file_name, lineno, p);
+						"PARSE ERROR: %s:%u: "
+						"cannot parse hops number: \'%s\'\n",
+						file_name, lineno, p);
 					return -1;
 				}
 				/* Just checked the range, so casting is safe */
-				hops[len++] = (uint8_t)num;
+				hops[len++] = (uint8_t) num;
 				p = q;
 				while (isspace(*p))
 					p++;
@@ -378,8 +378,7 @@ static int do_lid_matrix_file_load(void *context)
 					"(maybe broken dump): \'%s\'\n",
 					file_name, lineno, p);
 				guid = 0;
-			}
-			else {
+			} else {
 				p = q + 12;
 				guid = strtoull(p, &q, 16);
 				if (q == p || !isspace(*q)) {

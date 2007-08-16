@@ -47,7 +47,7 @@
 
 #if HAVE_CONFIG_H
 #  include <config.h>
-#endif /* HAVE_CONFIG_H */
+#endif				/* HAVE_CONFIG_H */
 
 #include <stdlib.h>
 #include <string.h>
@@ -56,47 +56,39 @@
 /**********************************************************************
  **********************************************************************/
 static void
-osm_mcm_port_init(
-  IN osm_mcm_port_t* const p_mcm,
-  IN const ib_gid_t* const p_port_gid,
-  IN const uint8_t   scope_state,
-  IN const boolean_t proxy_join )
+osm_mcm_port_init(IN osm_mcm_port_t * const p_mcm,
+		  IN const ib_gid_t * const p_port_gid,
+		  IN const uint8_t scope_state, IN const boolean_t proxy_join)
 {
-  CL_ASSERT( p_port_gid );
-  CL_ASSERT( scope_state );
+	CL_ASSERT(p_port_gid);
+	CL_ASSERT(scope_state);
 
-  p_mcm->port_gid = *p_port_gid;
-  p_mcm->scope_state = scope_state;
-  p_mcm->proxy_join = proxy_join;
+	p_mcm->port_gid = *p_port_gid;
+	p_mcm->scope_state = scope_state;
+	p_mcm->proxy_join = proxy_join;
 }
 
 /**********************************************************************
  **********************************************************************/
-osm_mcm_port_t*
-osm_mcm_port_new(
-  IN const ib_gid_t* const p_port_gid,
-  IN const uint8_t   scope_state,
-  IN const boolean_t proxy_join )
+osm_mcm_port_t *osm_mcm_port_new(IN const ib_gid_t * const p_port_gid,
+				 IN const uint8_t scope_state,
+				 IN const boolean_t proxy_join)
 {
-  osm_mcm_port_t* p_mcm;
+	osm_mcm_port_t *p_mcm;
 
-  p_mcm = malloc( sizeof(*p_mcm) );
-  if( p_mcm )
-  {
-    memset( p_mcm, 0, sizeof(*p_mcm) );
-    osm_mcm_port_init( p_mcm, p_port_gid,
-                       scope_state, proxy_join );
-  }
+	p_mcm = malloc(sizeof(*p_mcm));
+	if (p_mcm) {
+		memset(p_mcm, 0, sizeof(*p_mcm));
+		osm_mcm_port_init(p_mcm, p_port_gid, scope_state, proxy_join);
+	}
 
-  return( p_mcm );
+	return (p_mcm);
 }
 
 /**********************************************************************
  **********************************************************************/
-void
-osm_mcm_port_delete(
-  IN osm_mcm_port_t* const p_mcm )
+void osm_mcm_port_delete(IN osm_mcm_port_t * const p_mcm)
 {
-  CL_ASSERT( p_mcm );
-  free( p_mcm );
+	CL_ASSERT(p_mcm);
+	free(p_mcm);
 }

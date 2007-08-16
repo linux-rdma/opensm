@@ -47,7 +47,7 @@
 
 #if HAVE_CONFIG_H
 #  include <config.h>
-#endif /* HAVE_CONFIG_H */
+#endif				/* HAVE_CONFIG_H */
 
 #include <opensm/osm_log.h>
 #include <stdlib.h>
@@ -66,28 +66,26 @@ static int log_exit_count = 0;
 #include <complib/cl_timer.h>
 
 static char *month_str[] = {
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec"
+	"Jan",
+	"Feb",
+	"Mar",
+	"Apr",
+	"May",
+	"Jun",
+	"Jul",
+	"Aug",
+	"Sep",
+	"Oct",
+	"Nov",
+	"Dec"
 };
 #else
-void
-OsmReportState(
-    IN const char *p_str);
-#endif /* ndef WIN32 */
+void OsmReportState(IN const char *p_str);
+#endif				/* ndef WIN32 */
 
 #ifndef WIN32
 
-static void truncate_log_file(osm_log_t* const p_log)
+static void truncate_log_file(osm_log_t * const p_log)
 {
 	int fd = fileno(p_log->out_port);
 	if (ftruncate(fd, 0) < 0)
@@ -99,255 +97,247 @@ static void truncate_log_file(osm_log_t* const p_log)
 	p_log->count = 0;
 }
 
-#else /* Windows */
+#else				/* Windows */
 
-static void truncate_log_file(osm_log_t* const p_log)
+static void truncate_log_file(osm_log_t * const p_log)
 {
-	fprintf(stderr, "truncate_log_file: cannot truncate on windows system (yet)\n");
+	fprintf(stderr,
+		"truncate_log_file: cannot truncate on windows system (yet)\n");
 }
-#endif /* ndef WIN32 */
+#endif				/* ndef WIN32 */
 
-int osm_log_printf(osm_log_t *p_log, osm_log_level_t level,
+int osm_log_printf(osm_log_t * p_log, osm_log_level_t level,
 		   const char *fmt, ...)
 {
 	va_list args;
 	int ret;
 
-	if (!(p_log->level&level))
+	if (!(p_log->level & level))
 		return 0;
 
 	va_start(args, fmt);
 	ret = vfprintf(stdout, fmt, args);
 	va_end(args);
 
-	if (p_log->flush || level&OSM_LOG_ERROR)
-		fflush( stdout );
+	if (p_log->flush || level & OSM_LOG_ERROR)
+		fflush(stdout);
 
 	return ret;
 }
 
 void
-osm_log(
-  IN osm_log_t* const p_log,
-  IN const osm_log_level_t verbosity,
-  IN const char *p_str, ... )
+osm_log(IN osm_log_t * const p_log,
+	IN const osm_log_level_t verbosity, IN const char *p_str, ...)
 {
-  char      buffer[LOG_ENTRY_SIZE_MAX];
-  va_list   args;
-  int       ret;
+	char buffer[LOG_ENTRY_SIZE_MAX];
+	va_list args;
+	int ret;
 
 #ifdef WIN32
-  SYSTEMTIME st;
-  uint32_t pid = GetCurrentThreadId();
+	SYSTEMTIME st;
+	uint32_t pid = GetCurrentThreadId();
 #else
-  pid_t pid = 0;
-  time_t tim;
-  struct tm result;
-  uint64_t time_usecs;
-  uint32_t usecs;
+	pid_t pid = 0;
+	time_t tim;
+	struct tm result;
+	uint64_t time_usecs;
+	uint32_t usecs;
 
-  time_usecs = cl_get_time_stamp();
-  tim = time_usecs/1000000;
-  usecs = time_usecs % 1000000;
-  localtime_r(&tim, &result);
-#endif /* WIN32 */
+	time_usecs = cl_get_time_stamp();
+	tim = time_usecs / 1000000;
+	usecs = time_usecs % 1000000;
+	localtime_r(&tim, &result);
+#endif				/* WIN32 */
 
-  /* If this is a call to syslog - always print it */
-  if ( verbosity & (OSM_LOG_SYS | p_log->level) )
-  {
-    va_start( args, p_str );
-    vsprintf( buffer, p_str, args );
-    va_end(args);
+	/* If this is a call to syslog - always print it */
+	if (verbosity & (OSM_LOG_SYS | p_log->level)) {
+		va_start(args, p_str);
+		vsprintf(buffer, p_str, args);
+		va_end(args);
 
-    /* this is a call to the syslog */
-    if (verbosity & OSM_LOG_SYS)
-    {
-      syslog(LOG_INFO, "%s\n", buffer);
+		/* this is a call to the syslog */
+		if (verbosity & OSM_LOG_SYS) {
+			syslog(LOG_INFO, "%s\n", buffer);
 
-      /* SYSLOG should go to stdout too */
-      if (p_log->out_port != stdout)
-      {
-        printf("%s\n", buffer);
-        fflush( stdout );
-      }
+			/* SYSLOG should go to stdout too */
+			if (p_log->out_port != stdout) {
+				printf("%s\n", buffer);
+				fflush(stdout);
+			}
 #ifdef WIN32
-      OsmReportState(buffer);
-#endif /* WIN32 */
-    }
+			OsmReportState(buffer);
+#endif				/* WIN32 */
+		}
 
-    /* regular log to default out_port */
-    cl_spinlock_acquire( &p_log->lock );
+		/* regular log to default out_port */
+		cl_spinlock_acquire(&p_log->lock);
 
-    if (p_log->max_size && p_log->count > p_log->max_size)
-    {
-      /* truncate here */
-      fprintf(stderr, "osm_log: log file exceeds the limit %lu. Truncating.\n",
-              p_log->max_size);
-      truncate_log_file(p_log);
-    }
-
+		if (p_log->max_size && p_log->count > p_log->max_size) {
+			/* truncate here */
+			fprintf(stderr,
+				"osm_log: log file exceeds the limit %lu. Truncating.\n",
+				p_log->max_size);
+			truncate_log_file(p_log);
+		}
 #ifdef WIN32
-    GetLocalTime(&st);
- _retry:
-    ret = fprintf( p_log->out_port, "[%02d:%02d:%02d:%03d][%04X] -> %s",
-                   st.wHour, st.wMinute, st.wSecond, st.wMilliseconds,
-                   pid, buffer );
+		GetLocalTime(&st);
+	      _retry:
+		ret =
+		    fprintf(p_log->out_port,
+			    "[%02d:%02d:%02d:%03d][%04X] -> %s", st.wHour,
+			    st.wMinute, st.wSecond, st.wMilliseconds, pid,
+			    buffer);
 #else
-    pid = pthread_self();
- _retry:
-    ret = fprintf( p_log->out_port, "%s %02d %02d:%02d:%02d %06d [%04X] -> %s",
-                   (result.tm_mon < 12 ? month_str[result.tm_mon] : "???"),
-                   result.tm_mday, result.tm_hour,
-                   result.tm_min, result.tm_sec,
-                   usecs, pid, buffer );
+		pid = pthread_self();
+	      _retry:
+		ret =
+		    fprintf(p_log->out_port,
+			    "%s %02d %02d:%02d:%02d %06d [%04X] -> %s",
+			    (result.tm_mon <
+			     12 ? month_str[result.tm_mon] : "???"),
+			    result.tm_mday, result.tm_hour, result.tm_min,
+			    result.tm_sec, usecs, pid, buffer);
 #endif
 
-    /*  flush log */
-    if ( ret > 0 &&
-         (p_log->flush || (verbosity & (OSM_LOG_ERROR | OSM_LOG_SYS))) &&
-         fflush( p_log->out_port ) < 0 )
-      ret = -1;
+		/*  flush log */
+		if (ret > 0 &&
+		    (p_log->flush
+		     || (verbosity & (OSM_LOG_ERROR | OSM_LOG_SYS)))
+		    && fflush(p_log->out_port) < 0)
+			ret = -1;
 
-    if (ret >= 0)
-    {
-      log_exit_count = 0;
-      p_log->count += ret;
-    }
-    else if (log_exit_count < 3)
-    {
-      log_exit_count++;
-      if (errno == ENOSPC && p_log->max_size) {
-        fprintf(stderr, "osm_log: write failed: %s. Truncating log file.\n",
-                strerror(errno));
-        truncate_log_file(p_log);
-        goto _retry;
-      }
-      fprintf(stderr, "osm_log: write failed: %s\n", strerror(errno));
-    }
+		if (ret >= 0) {
+			log_exit_count = 0;
+			p_log->count += ret;
+		} else if (log_exit_count < 3) {
+			log_exit_count++;
+			if (errno == ENOSPC && p_log->max_size) {
+				fprintf(stderr,
+					"osm_log: write failed: %s. Truncating log file.\n",
+					strerror(errno));
+				truncate_log_file(p_log);
+				goto _retry;
+			}
+			fprintf(stderr, "osm_log: write failed: %s\n",
+				strerror(errno));
+		}
 
-    cl_spinlock_release( &p_log->lock );
-  }
+		cl_spinlock_release(&p_log->lock);
+	}
 }
 
 void
-osm_log_raw(
-  IN osm_log_t* const p_log,
-  IN const osm_log_level_t verbosity,
-  IN const char *p_buf )
+osm_log_raw(IN osm_log_t * const p_log,
+	    IN const osm_log_level_t verbosity, IN const char *p_buf)
 {
-  if( p_log->level & verbosity )
-  {
-    cl_spinlock_acquire( &p_log->lock );
-    printf( "%s", p_buf );
-    cl_spinlock_release( &p_log->lock );
+	if (p_log->level & verbosity) {
+		cl_spinlock_acquire(&p_log->lock);
+		printf("%s", p_buf);
+		cl_spinlock_release(&p_log->lock);
 
-    /*
-      Flush log on errors too.
-    */
-    if( p_log->flush || (verbosity & OSM_LOG_ERROR) )
-      fflush( stdout );
-  }
+		/*
+		   Flush log on errors too.
+		 */
+		if (p_log->flush || (verbosity & OSM_LOG_ERROR))
+			fflush(stdout);
+	}
 }
 
-boolean_t
-osm_is_debug(void)
+boolean_t osm_is_debug(void)
 {
 #if defined( _DEBUG_ )
-  return TRUE;
+	return TRUE;
 #else
-  return FALSE;
-#endif /* defined( _DEBUG_ ) */
+	return FALSE;
+#endif				/* defined( _DEBUG_ ) */
 }
 
-static int
-open_out_port(IN osm_log_t *p_log)
+static int open_out_port(IN osm_log_t * p_log)
 {
-  struct stat st;
+	struct stat st;
 
-  if (p_log->accum_log_file)
-    p_log->out_port = fopen(p_log->log_file_name, "a+");
-  else
-    p_log->out_port = fopen(p_log->log_file_name, "w+");
+	if (p_log->accum_log_file)
+		p_log->out_port = fopen(p_log->log_file_name, "a+");
+	else
+		p_log->out_port = fopen(p_log->log_file_name, "w+");
 
-  if (!p_log->out_port)
-  {
-    if (p_log->accum_log_file)
-      syslog(LOG_CRIT, "Cannot open %s for appending. Permission denied\n",
-	     p_log->log_file_name);
-    else
-      syslog(LOG_CRIT, "Cannot open %s for writing. Permission denied\n",
-	     p_log->log_file_name);
+	if (!p_log->out_port) {
+		if (p_log->accum_log_file)
+			syslog(LOG_CRIT,
+			       "Cannot open %s for appending. Permission denied\n",
+			       p_log->log_file_name);
+		else
+			syslog(LOG_CRIT,
+			       "Cannot open %s for writing. Permission denied\n",
+			       p_log->log_file_name);
 
-    return(IB_UNKNOWN_ERROR);
-  }
+		return (IB_UNKNOWN_ERROR);
+	}
 
-  if (fstat(fileno(p_log->out_port), &st) == 0)
-    p_log->count = st.st_size;
+	if (fstat(fileno(p_log->out_port), &st) == 0)
+		p_log->count = st.st_size;
 
-  syslog(LOG_NOTICE, "%s log file opened\n", p_log->log_file_name);
+	syslog(LOG_NOTICE, "%s log file opened\n", p_log->log_file_name);
 
-  if (p_log->daemon) {
-    dup2(fileno(p_log->out_port), 0);
-    dup2(fileno(p_log->out_port), 1);
-    dup2(fileno(p_log->out_port), 2);
-  }
+	if (p_log->daemon) {
+		dup2(fileno(p_log->out_port), 0);
+		dup2(fileno(p_log->out_port), 1);
+		dup2(fileno(p_log->out_port), 2);
+	}
 
-  return (0);
+	return (0);
 }
 
-int
-osm_log_reopen_file(osm_log_t *p_log)
+int osm_log_reopen_file(osm_log_t * p_log)
 {
-  int ret;
+	int ret;
 
-  if (p_log->out_port == stdout || p_log->out_port == stderr)
-    return 0;
-  cl_spinlock_acquire(&p_log->lock);
-  fclose(p_log->out_port);
-  ret = open_out_port(p_log);
-  cl_spinlock_release(&p_log->lock);
-  return ret;
-}
-
-ib_api_status_t
-osm_log_init_v2(
-  IN osm_log_t* const p_log,
-  IN const boolean_t flush,
-  IN const uint8_t log_flags,
-  IN const char *log_file,
-  IN const unsigned long max_size,
-  IN const boolean_t accum_log_file )
-{
-  p_log->level = log_flags;
-  p_log->flush = flush;
-  p_log->count = 0;
-  p_log->max_size = max_size;
-  p_log->accum_log_file = accum_log_file;
-  p_log->log_file_name = (char *)log_file;
-
-  openlog("OpenSM", LOG_CONS | LOG_PID, LOG_USER);
-
-  if (log_file == NULL || !strcmp(log_file, "-") ||
-      !strcmp(log_file, "stdout"))
-    p_log->out_port = stdout;
-  else if (!strcmp(log_file, "stderr"))
-    p_log->out_port = stderr;
-  else if (open_out_port(p_log))
-    return (IB_UNKNOWN_ERROR);
-
-  if (cl_spinlock_init( &p_log->lock ) == CL_SUCCESS)
-    return IB_SUCCESS;
-  else
-    return IB_ERROR;
+	if (p_log->out_port == stdout || p_log->out_port == stderr)
+		return 0;
+	cl_spinlock_acquire(&p_log->lock);
+	fclose(p_log->out_port);
+	ret = open_out_port(p_log);
+	cl_spinlock_release(&p_log->lock);
+	return ret;
 }
 
 ib_api_status_t
-osm_log_init(
-  IN osm_log_t* const p_log,
-  IN const boolean_t flush,
-  IN const uint8_t log_flags,
-  IN const char *log_file,
-  IN const boolean_t accum_log_file )
+osm_log_init_v2(IN osm_log_t * const p_log,
+		IN const boolean_t flush,
+		IN const uint8_t log_flags,
+		IN const char *log_file,
+		IN const unsigned long max_size,
+		IN const boolean_t accum_log_file)
 {
-  return osm_log_init_v2( p_log, flush, log_flags, log_file, 0, accum_log_file );
+	p_log->level = log_flags;
+	p_log->flush = flush;
+	p_log->count = 0;
+	p_log->max_size = max_size;
+	p_log->accum_log_file = accum_log_file;
+	p_log->log_file_name = (char *)log_file;
+
+	openlog("OpenSM", LOG_CONS | LOG_PID, LOG_USER);
+
+	if (log_file == NULL || !strcmp(log_file, "-") ||
+	    !strcmp(log_file, "stdout"))
+		p_log->out_port = stdout;
+	else if (!strcmp(log_file, "stderr"))
+		p_log->out_port = stderr;
+	else if (open_out_port(p_log))
+		return (IB_UNKNOWN_ERROR);
+
+	if (cl_spinlock_init(&p_log->lock) == CL_SUCCESS)
+		return IB_SUCCESS;
+	else
+		return IB_ERROR;
+}
+
+ib_api_status_t
+osm_log_init(IN osm_log_t * const p_log,
+	     IN const boolean_t flush,
+	     IN const uint8_t log_flags,
+	     IN const char *log_file, IN const boolean_t accum_log_file)
+{
+	return osm_log_init_v2(p_log, flush, log_flags, log_file, 0,
+			       accum_log_file);
 }

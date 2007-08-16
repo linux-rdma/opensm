@@ -61,7 +61,7 @@ struct qos_config {
 	ib_slvl_table_t sl2vl;
 };
 
-static void qos_build_config(struct qos_config * cfg,
+static void qos_build_config(struct qos_config *cfg,
 			     osm_qos_options_t * opt, osm_qos_options_t * dflt);
 
 /*
@@ -71,7 +71,8 @@ static ib_api_status_t vlarb_update_table_block(osm_req_t * p_req,
 						osm_physp_t * p,
 						uint8_t port_num,
 						unsigned force_update,
-						const ib_vl_arb_table_t *table_block,
+						const ib_vl_arb_table_t *
+						table_block,
 						unsigned block_length,
 						unsigned block_num)
 {
@@ -83,8 +84,7 @@ static ib_api_status_t vlarb_update_table_block(osm_req_t * p_req,
 	vl_mask = (1 << (ib_port_info_get_op_vls(&p->port_info) - 1)) - 1;
 
 	memset(&block, 0, sizeof(block));
-	memcpy(&block, table_block,
-		block_length * sizeof(block.vl_entry[0]));
+	memcpy(&block, table_block, block_length * sizeof(block.vl_entry[0]));
 	for (i = 0; i < block_length; i++)
 		block.vl_entry[i].vl &= vl_mask;
 
@@ -175,7 +175,7 @@ static ib_api_status_t sl2vl_update_table(osm_req_t * p_req,
 			vl1 &= vl_mask;
 		if (vl2 != 15)
 			vl2 &= vl_mask;
-		tbl.raw_vl_by_sl[i] = (vl1 << 4 ) | vl2 ;
+		tbl.raw_vl_by_sl[i] = (vl1 << 4) | vl2;
 	}
 
 	if (!force_update && (p_tbl = osm_physp_get_slvl_tbl(p, in_port)) &&
@@ -205,7 +205,9 @@ static ib_api_status_t sl2vl_update(osm_req_t * p_req, osm_port_t * p_port,
 		if (ib_port_info_get_vl_cap(&p->port_info) == 1) {
 			/* Check port 0's capability mask */
 			p_physp = p_port->p_physp;
-			if (!(p_physp->port_info.capability_mask & IB_PORT_CAP_HAS_SL_MAP))
+			if (!
+			    (p_physp->port_info.
+			     capability_mask & IB_PORT_CAP_HAS_SL_MAP))
 				return IB_SUCCESS;
 		}
 		num_ports = osm_node_get_num_physp(osm_physp_get_node_ptr(p));
@@ -308,14 +310,15 @@ osm_signal_t osm_qos_setup(osm_opensm_t * p_osm)
 				if (!osm_physp_is_valid(p_physp))
 					continue;
 				force_update = p_physp->need_update ||
-					p_osm->subn.need_update;
+				    p_osm->subn.need_update;
 				status =
 				    qos_physp_setup(&p_osm->log, &p_osm->sm.req,
 						    p_port, p_physp, i,
 						    force_update, &swe_config);
 			}
 			/* skip base port 0 */
-			if (!ib_switch_info_is_enhanced_port0(&p_node->sw->switch_info))
+			if (!ib_switch_info_is_enhanced_port0
+			    (&p_node->sw->switch_info))
 				continue;
 
 			cfg = &sw0_config;
@@ -330,8 +333,7 @@ osm_signal_t osm_qos_setup(osm_opensm_t * p_osm)
 
 		force_update = p_physp->need_update || p_osm->subn.need_update;
 		status = qos_physp_setup(&p_osm->log, &p_osm->sm.req,
-					 p_port, p_physp, 0,
-					 force_update, cfg);
+					 p_port, p_physp, 0, force_update, cfg);
 	}
 
 	cl_plock_release(&p_osm->lock);
@@ -359,7 +361,7 @@ static int parse_vlarb_entry(char *str, ib_vl_arb_element_t * e)
 	p += parse_one_unsigned(p, ':', &val);
 	e->vl = val % 15;
 	p += parse_one_unsigned(p, ',', &val);
-	e->weight = (uint8_t)val;
+	e->weight = (uint8_t) val;
 	return (int)(p - str);
 }
 
@@ -382,20 +384,24 @@ static void qos_build_config(struct qos_config *cfg,
 	memset(cfg, 0, sizeof(*cfg));
 
 	cfg->max_vls = opt->max_vls > 0 ? opt->max_vls : dflt->max_vls;
-	cfg->vl_high_limit = (uint8_t)opt->high_limit;
+	cfg->vl_high_limit = (uint8_t) opt->high_limit;
 
 	p = opt->vlarb_high ? opt->vlarb_high : dflt->vlarb_high;
 	for (i = 0; i < 2 * IB_NUM_VL_ARB_ELEMENTS_IN_BLOCK; i++) {
 		p += parse_vlarb_entry(p,
-				       &cfg->vlarb_high[i/IB_NUM_VL_ARB_ELEMENTS_IN_BLOCK].
-				       vl_entry[i%IB_NUM_VL_ARB_ELEMENTS_IN_BLOCK]);
+				       &cfg->vlarb_high[i /
+							IB_NUM_VL_ARB_ELEMENTS_IN_BLOCK].
+				       vl_entry[i %
+						IB_NUM_VL_ARB_ELEMENTS_IN_BLOCK]);
 	}
 
 	p = opt->vlarb_low ? opt->vlarb_low : dflt->vlarb_low;
 	for (i = 0; i < 2 * IB_NUM_VL_ARB_ELEMENTS_IN_BLOCK; i++) {
 		p += parse_vlarb_entry(p,
-				       &cfg->vlarb_low[i/IB_NUM_VL_ARB_ELEMENTS_IN_BLOCK].
-				       vl_entry[i%IB_NUM_VL_ARB_ELEMENTS_IN_BLOCK]);
+				       &cfg->vlarb_low[i /
+						       IB_NUM_VL_ARB_ELEMENTS_IN_BLOCK].
+				       vl_entry[i %
+						IB_NUM_VL_ARB_ELEMENTS_IN_BLOCK]);
 	}
 
 	p = opt->sl2vl ? opt->sl2vl : dflt->sl2vl;

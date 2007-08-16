@@ -60,14 +60,13 @@
 /**
  * functions
  */
-osm_epi_plugin_t *
-osm_epi_construct(osm_log_t *p_log, char *plugin_name)
+osm_epi_plugin_t *osm_epi_construct(osm_log_t * p_log, char *plugin_name)
 {
-	char              lib_name[OSM_PATH_MAX];
+	char lib_name[OSM_PATH_MAX];
 	osm_epi_plugin_t *rc = NULL;
 
 	if (!plugin_name ||
-			strcmp(plugin_name, OSM_EVENT_PLUGIN_NAME_NONE) == 0)
+	    strcmp(plugin_name, OSM_EVENT_PLUGIN_NAME_NONE) == 0)
 		return (NULL);
 
 	/* find the plugin */
@@ -85,12 +84,13 @@ osm_epi_construct(osm_log_t *p_log, char *plugin_name)
 		goto DLOPENFAIL;
 	}
 
-	rc->impl = (__osm_epi_plugin_t *)dlsym(rc->handle, OSM_EVENT_PLUGIN_IMPL_NAME);
+	rc->impl =
+	    (__osm_epi_plugin_t *) dlsym(rc->handle,
+					 OSM_EVENT_PLUGIN_IMPL_NAME);
 	if (!rc->impl) {
 		osm_log(p_log, OSM_LOG_ERROR,
 			"Failed to find \"%s\" symbol in \"%s\" : \"%s\"\n",
-			OSM_EVENT_PLUGIN_IMPL_NAME,
-			lib_name, dlerror());
+			OSM_EVENT_PLUGIN_IMPL_NAME, lib_name, dlerror());
 		goto Exit;
 	}
 
@@ -119,15 +119,14 @@ osm_epi_construct(osm_log_t *p_log, char *plugin_name)
 	rc->p_log = p_log;
 	return (rc);
 
-Exit:
+      Exit:
 	dlclose(rc->handle);
-DLOPENFAIL:
+      DLOPENFAIL:
 	free(rc);
 	return (NULL);
 }
 
-void
-osm_epi_destroy(osm_epi_plugin_t *plugin)
+void osm_epi_destroy(osm_epi_plugin_t * plugin)
 {
 	if (plugin) {
 		if (plugin->impl->destroy)
@@ -138,11 +137,9 @@ osm_epi_destroy(osm_epi_plugin_t *plugin)
 }
 
 void
-osm_epi_report(osm_epi_plugin_t *plugin, osm_epi_event_id_t event_id,
-		void *event_data)
+osm_epi_report(osm_epi_plugin_t * plugin, osm_epi_event_id_t event_id,
+	       void *event_data)
 {
 	if (plugin && plugin->impl->report)
-		plugin->impl->report(plugin->plugin_data,
-				event_id, event_data);
+		plugin->impl->report(plugin->plugin_data, event_id, event_data);
 }
-

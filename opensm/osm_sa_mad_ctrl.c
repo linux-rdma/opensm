@@ -46,7 +46,7 @@
 
 #if HAVE_CONFIG_H
 #  include <config.h>
-#endif /* HAVE_CONFIG_H */
+#endif				/* HAVE_CONFIG_H */
 
 #include <string.h>
 #include <complib/cl_debug.h>
@@ -68,22 +68,21 @@
  * SYNOPSIS
  */
 static void
-__osm_sa_mad_ctrl_disp_done_callback(
-  IN void* context,
-  IN void* p_data )
+__osm_sa_mad_ctrl_disp_done_callback(IN void *context, IN void *p_data)
 {
-  osm_sa_mad_ctrl_t* const p_ctrl = (osm_sa_mad_ctrl_t*)context;
-  osm_madw_t* const p_madw = (osm_madw_t*)p_data;
+	osm_sa_mad_ctrl_t *const p_ctrl = (osm_sa_mad_ctrl_t *) context;
+	osm_madw_t *const p_madw = (osm_madw_t *) p_data;
 
-  OSM_LOG_ENTER( p_ctrl->p_log, __osm_sa_mad_ctrl_disp_done_callback );
+	OSM_LOG_ENTER(p_ctrl->p_log, __osm_sa_mad_ctrl_disp_done_callback);
 
-  CL_ASSERT( p_madw );
-  /*
-    Return the MAD & wrapper to the pool.
-  */
-  osm_mad_pool_put( p_ctrl->p_mad_pool, p_madw );
-  OSM_LOG_EXIT( p_ctrl->p_log );
+	CL_ASSERT(p_madw);
+	/*
+	   Return the MAD & wrapper to the pool.
+	 */
+	osm_mad_pool_put(p_ctrl->p_mad_pool, p_madw);
+	OSM_LOG_EXIT(p_ctrl->p_log);
 }
+
 /************/
 
 /****f* opensm: SA/__osm_sa_mad_ctrl_process
@@ -96,185 +95,179 @@ __osm_sa_mad_ctrl_disp_done_callback(
  * SYNOPSIS
  */
 static void
-__osm_sa_mad_ctrl_process(
-  IN osm_sa_mad_ctrl_t* const p_ctrl,
-  IN osm_madw_t *p_madw )
+__osm_sa_mad_ctrl_process(IN osm_sa_mad_ctrl_t * const p_ctrl,
+			  IN osm_madw_t * p_madw)
 {
-  ib_sa_mad_t* p_sa_mad;
-  cl_status_t status;
-  cl_disp_msgid_t msg_id = CL_DISP_MSGID_NONE;
-  uint64_t last_dispatched_msg_queue_time_msec;
-  uint32_t num_messages;
+	ib_sa_mad_t *p_sa_mad;
+	cl_status_t status;
+	cl_disp_msgid_t msg_id = CL_DISP_MSGID_NONE;
+	uint64_t last_dispatched_msg_queue_time_msec;
+	uint32_t num_messages;
 
-  OSM_LOG_ENTER( p_ctrl->p_log, __osm_sa_mad_ctrl_process );
+	OSM_LOG_ENTER(p_ctrl->p_log, __osm_sa_mad_ctrl_process);
 
-  /*
-     If the dispatcher is showing us that it is overloaded
-     there is no point in placing the request in. We should instead provide
-     immediate response - IB_RESOURCE_BUSY
-     But how do we know?
-     The dispatcher reports back the number of outstanding messages and the
-     time the last message stayed in the queue.
-     HACK: Actually, we cannot send a mad from within the receive callback;
-     thus - we will just drop it.
-  */
-  cl_disp_get_queue_status(p_ctrl->h_disp,
-			   &num_messages,
-			   &last_dispatched_msg_queue_time_msec);
-  if ((num_messages > 1) &&
-      (p_ctrl->p_subn->opt.max_msg_fifo_timeout) &&
-      (last_dispatched_msg_queue_time_msec >
-       p_ctrl->p_subn->opt.max_msg_fifo_timeout))
-  {
-    osm_log( p_ctrl->p_log, OSM_LOG_INFO,
-             "__osm_sa_mad_ctrl_process: "
-             /*             "Responding BUSY status since the dispatcher is already"*/
-             "Dropping MAD since the dispatcher is already"
-	     " overloaded with %u messages and queue time of:"
-	     "%" PRIu64 "[msec]\n",
-	     num_messages, last_dispatched_msg_queue_time_msec );
+	/*
+	   If the dispatcher is showing us that it is overloaded
+	   there is no point in placing the request in. We should instead provide
+	   immediate response - IB_RESOURCE_BUSY
+	   But how do we know?
+	   The dispatcher reports back the number of outstanding messages and the
+	   time the last message stayed in the queue.
+	   HACK: Actually, we cannot send a mad from within the receive callback;
+	   thus - we will just drop it.
+	 */
+	cl_disp_get_queue_status(p_ctrl->h_disp,
+				 &num_messages,
+				 &last_dispatched_msg_queue_time_msec);
+	if ((num_messages > 1) &&
+	    (p_ctrl->p_subn->opt.max_msg_fifo_timeout) &&
+	    (last_dispatched_msg_queue_time_msec >
+	     p_ctrl->p_subn->opt.max_msg_fifo_timeout)) {
+		osm_log(p_ctrl->p_log, OSM_LOG_INFO,
+			"__osm_sa_mad_ctrl_process: "
+			/*             "Responding BUSY status since the dispatcher is already" */
+			"Dropping MAD since the dispatcher is already"
+			" overloaded with %u messages and queue time of:"
+			"%" PRIu64 "[msec]\n",
+			num_messages, last_dispatched_msg_queue_time_msec);
 
-    /* send a busy response */
-    /*    osm_sa_send_error( p_ctrl->p_resp, p_madw, IB_RESOURCE_BUSY ); */
+		/* send a busy response */
+		/*    osm_sa_send_error( p_ctrl->p_resp, p_madw, IB_RESOURCE_BUSY ); */
 
-    /* return the request to the pool */
-    osm_mad_pool_put( p_ctrl->p_mad_pool, p_madw );
+		/* return the request to the pool */
+		osm_mad_pool_put(p_ctrl->p_mad_pool, p_madw);
 
-    goto Exit;
-  }
+		goto Exit;
+	}
 
-  p_sa_mad = osm_madw_get_sa_mad_ptr( p_madw );
+	p_sa_mad = osm_madw_get_sa_mad_ptr(p_madw);
 
-  /*
-    Note that attr_id (like the rest of the MAD) is in
-    network byte order.
-  */
-  switch( p_sa_mad->attr_id )
-  {
-  case IB_MAD_ATTR_CLASS_PORT_INFO:
-    msg_id = OSM_MSG_MAD_CLASS_PORT_INFO;
-    break;
+	/*
+	   Note that attr_id (like the rest of the MAD) is in
+	   network byte order.
+	 */
+	switch (p_sa_mad->attr_id) {
+	case IB_MAD_ATTR_CLASS_PORT_INFO:
+		msg_id = OSM_MSG_MAD_CLASS_PORT_INFO;
+		break;
 
-  case IB_MAD_ATTR_NODE_RECORD:
-    msg_id = OSM_MSG_MAD_NODE_RECORD;
-    break;
+	case IB_MAD_ATTR_NODE_RECORD:
+		msg_id = OSM_MSG_MAD_NODE_RECORD;
+		break;
 
-  case IB_MAD_ATTR_PORTINFO_RECORD:
-    msg_id = OSM_MSG_MAD_PORTINFO_RECORD;
-    break;
+	case IB_MAD_ATTR_PORTINFO_RECORD:
+		msg_id = OSM_MSG_MAD_PORTINFO_RECORD;
+		break;
 
-  case IB_MAD_ATTR_LINK_RECORD:
-    msg_id = OSM_MSG_MAD_LINK_RECORD;
-    break;
+	case IB_MAD_ATTR_LINK_RECORD:
+		msg_id = OSM_MSG_MAD_LINK_RECORD;
+		break;
 
-  case IB_MAD_ATTR_SMINFO_RECORD:
-    msg_id = OSM_MSG_MAD_SMINFO_RECORD;
-    break;
+	case IB_MAD_ATTR_SMINFO_RECORD:
+		msg_id = OSM_MSG_MAD_SMINFO_RECORD;
+		break;
 
-  case IB_MAD_ATTR_SERVICE_RECORD:
-    msg_id = OSM_MSG_MAD_SERVICE_RECORD;
-    break;
+	case IB_MAD_ATTR_SERVICE_RECORD:
+		msg_id = OSM_MSG_MAD_SERVICE_RECORD;
+		break;
 
-  case IB_MAD_ATTR_PATH_RECORD:
-    msg_id = OSM_MSG_MAD_PATH_RECORD;
-    break;
+	case IB_MAD_ATTR_PATH_RECORD:
+		msg_id = OSM_MSG_MAD_PATH_RECORD;
+		break;
 
-  case IB_MAD_ATTR_MCMEMBER_RECORD:
-    msg_id = OSM_MSG_MAD_MCMEMBER_RECORD;
-    break;
+	case IB_MAD_ATTR_MCMEMBER_RECORD:
+		msg_id = OSM_MSG_MAD_MCMEMBER_RECORD;
+		break;
 
-  case IB_MAD_ATTR_INFORM_INFO:
-    msg_id = OSM_MSG_MAD_INFORM_INFO;
-    break;
+	case IB_MAD_ATTR_INFORM_INFO:
+		msg_id = OSM_MSG_MAD_INFORM_INFO;
+		break;
 
-  case IB_MAD_ATTR_VLARB_RECORD:
-    msg_id = OSM_MSG_MAD_VL_ARB_RECORD;
-    break;
+	case IB_MAD_ATTR_VLARB_RECORD:
+		msg_id = OSM_MSG_MAD_VL_ARB_RECORD;
+		break;
 
-  case IB_MAD_ATTR_SLVL_RECORD:
-    msg_id = OSM_MSG_MAD_SLVL_TBL_RECORD;
-    break;
+	case IB_MAD_ATTR_SLVL_RECORD:
+		msg_id = OSM_MSG_MAD_SLVL_TBL_RECORD;
+		break;
 
-  case IB_MAD_ATTR_PKEY_TBL_RECORD:
-    msg_id = OSM_MSG_MAD_PKEY_TBL_RECORD;
-    break;
+	case IB_MAD_ATTR_PKEY_TBL_RECORD:
+		msg_id = OSM_MSG_MAD_PKEY_TBL_RECORD;
+		break;
 
-  case IB_MAD_ATTR_LFT_RECORD:
-    msg_id = OSM_MSG_MAD_LFT_RECORD;
-    break;
+	case IB_MAD_ATTR_LFT_RECORD:
+		msg_id = OSM_MSG_MAD_LFT_RECORD;
+		break;
 
-  case IB_MAD_ATTR_GUIDINFO_RECORD:
-    msg_id = OSM_MSG_MAD_GUIDINFO_RECORD;
-    break;
+	case IB_MAD_ATTR_GUIDINFO_RECORD:
+		msg_id = OSM_MSG_MAD_GUIDINFO_RECORD;
+		break;
 
-  case IB_MAD_ATTR_INFORM_INFO_RECORD:
-    msg_id = OSM_MSG_MAD_INFORM_INFO_RECORD;
-    break;
+	case IB_MAD_ATTR_INFORM_INFO_RECORD:
+		msg_id = OSM_MSG_MAD_INFORM_INFO_RECORD;
+		break;
 
-  case IB_MAD_ATTR_SWITCH_INFO_RECORD:
-    msg_id = OSM_MSG_MAD_SWITCH_INFO_RECORD;
-    break;
+	case IB_MAD_ATTR_SWITCH_INFO_RECORD:
+		msg_id = OSM_MSG_MAD_SWITCH_INFO_RECORD;
+		break;
 
-  case IB_MAD_ATTR_MFT_RECORD:
-    msg_id = OSM_MSG_MAD_MFT_RECORD;
-    break;
+	case IB_MAD_ATTR_MFT_RECORD:
+		msg_id = OSM_MSG_MAD_MFT_RECORD;
+		break;
 
 #if defined (VENDOR_RMPP_SUPPORT) && defined (DUAL_SIDED_RMPP)
-  case IB_MAD_ATTR_MULTIPATH_RECORD:
-    msg_id = OSM_MSG_MAD_MULTIPATH_RECORD;
-    break;
+	case IB_MAD_ATTR_MULTIPATH_RECORD:
+		msg_id = OSM_MSG_MAD_MULTIPATH_RECORD;
+		break;
 #endif
 
-  default:
-    osm_log( p_ctrl->p_log, OSM_LOG_ERROR,
-             "__osm_sa_mad_ctrl_process: ERR 1A01: "
-             "Unsupported attribute = 0x%X\n",
-             cl_ntoh16( p_sa_mad->attr_id ) );
-    osm_dump_sa_mad( p_ctrl->p_log, p_sa_mad, OSM_LOG_ERROR );
-  }
+	default:
+		osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
+			"__osm_sa_mad_ctrl_process: ERR 1A01: "
+			"Unsupported attribute = 0x%X\n",
+			cl_ntoh16(p_sa_mad->attr_id));
+		osm_dump_sa_mad(p_ctrl->p_log, p_sa_mad, OSM_LOG_ERROR);
+	}
 
-  if( msg_id != CL_DISP_MSGID_NONE )
-  {
-    /*
-      Post this MAD to the dispatcher for asynchronous
-      processing by the appropriate controller.
-    */
+	if (msg_id != CL_DISP_MSGID_NONE) {
+		/*
+		   Post this MAD to the dispatcher for asynchronous
+		   processing by the appropriate controller.
+		 */
 
-    osm_log( p_ctrl->p_log, OSM_LOG_DEBUG,
-             "__osm_sa_mad_ctrl_process: "
-             "Posting Dispatcher message %s\n",
-             osm_get_disp_msg_str( msg_id ) );
+		osm_log(p_ctrl->p_log, OSM_LOG_DEBUG,
+			"__osm_sa_mad_ctrl_process: "
+			"Posting Dispatcher message %s\n",
+			osm_get_disp_msg_str(msg_id));
 
-    status = cl_disp_post( p_ctrl->h_disp,
-                           msg_id,
-                           p_madw,
-                           __osm_sa_mad_ctrl_disp_done_callback,
-                           p_ctrl );
+		status = cl_disp_post(p_ctrl->h_disp,
+				      msg_id,
+				      p_madw,
+				      __osm_sa_mad_ctrl_disp_done_callback,
+				      p_ctrl);
 
-    if( status != CL_SUCCESS )
-    {
-      osm_log( p_ctrl->p_log, OSM_LOG_ERROR,
-               "__osm_sa_mad_ctrl_process: ERR 1A02: "
-               "Dispatcher post message failed (%s) for attribute = 0x%X\n",
-               CL_STATUS_MSG( status ),
-               cl_ntoh16( p_sa_mad->attr_id ) );
+		if (status != CL_SUCCESS) {
+			osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
+				"__osm_sa_mad_ctrl_process: ERR 1A02: "
+				"Dispatcher post message failed (%s) for attribute = 0x%X\n",
+				CL_STATUS_MSG(status),
+				cl_ntoh16(p_sa_mad->attr_id));
 
-      osm_mad_pool_put( p_ctrl->p_mad_pool, p_madw );
-      goto Exit;
-    }
-  }
-  else
-  {
-    /*
-      There is an unknown MAD attribute type for which there is
-      no recipient.  Simply retire the MAD here.
-    */
-    osm_mad_pool_put( p_ctrl->p_mad_pool, p_madw );
-  }
+			osm_mad_pool_put(p_ctrl->p_mad_pool, p_madw);
+			goto Exit;
+		}
+	} else {
+		/*
+		   There is an unknown MAD attribute type for which there is
+		   no recipient.  Simply retire the MAD here.
+		 */
+		osm_mad_pool_put(p_ctrl->p_mad_pool, p_madw);
+	}
 
- Exit:
-  OSM_LOG_EXIT( p_ctrl->p_log );
+      Exit:
+	OSM_LOG_EXIT(p_ctrl->p_log);
 }
+
 /*
  * PARAMETERS
  *
@@ -295,116 +288,109 @@ __osm_sa_mad_ctrl_process(
  * SYNOPSIS
  */
 static void
-__osm_sa_mad_ctrl_rcv_callback(
-  IN osm_madw_t *p_madw,
-  IN void *bind_context,
-  IN osm_madw_t *p_req_madw )
+__osm_sa_mad_ctrl_rcv_callback(IN osm_madw_t * p_madw,
+			       IN void *bind_context,
+			       IN osm_madw_t * p_req_madw)
 {
-  osm_sa_mad_ctrl_t* p_ctrl = (osm_sa_mad_ctrl_t*)bind_context;
-  ib_sa_mad_t* p_sa_mad;
+	osm_sa_mad_ctrl_t *p_ctrl = (osm_sa_mad_ctrl_t *) bind_context;
+	ib_sa_mad_t *p_sa_mad;
 
-  OSM_LOG_ENTER( p_ctrl->p_log, __osm_sa_mad_ctrl_rcv_callback );
+	OSM_LOG_ENTER(p_ctrl->p_log, __osm_sa_mad_ctrl_rcv_callback);
 
-  CL_ASSERT( p_madw );
+	CL_ASSERT(p_madw);
 
-  /*
-    A MAD was received from the wire, possibly in response to a request.
-  */
-  cl_atomic_inc( &p_ctrl->p_stats->sa_mads_rcvd );
+	/*
+	   A MAD was received from the wire, possibly in response to a request.
+	 */
+	cl_atomic_inc(&p_ctrl->p_stats->sa_mads_rcvd);
 
-  if( osm_log_is_active( p_ctrl->p_log, OSM_LOG_DEBUG ) )
-  {
-    osm_log( p_ctrl->p_log, OSM_LOG_DEBUG,
-             "__osm_sa_mad_ctrl_rcv_callback: "
-             "%u SA MADs received\n",
-             p_ctrl->p_stats->sa_mads_rcvd );
-  }
+	if (osm_log_is_active(p_ctrl->p_log, OSM_LOG_DEBUG)) {
+		osm_log(p_ctrl->p_log, OSM_LOG_DEBUG,
+			"__osm_sa_mad_ctrl_rcv_callback: "
+			"%u SA MADs received\n", p_ctrl->p_stats->sa_mads_rcvd);
+	}
 
-  /*
-   * C15-0.1.3 requires not responding to any MAD if the SM is
-   * not in active state!
-   * We will not respond if the sm_state is not MASTER, or if the
-   * first_time_master_sweep flag (of the subnet) is TRUE - this
-   * flag indicates that the master still didn't finish its first
-   * sweep, so the subnet is not up and stable yet.
-   */
-  if ( p_ctrl->p_subn->sm_state != IB_SMINFO_STATE_MASTER )
-  {
-    osm_log( p_ctrl->p_log, OSM_LOG_VERBOSE,
-             "__osm_sa_mad_ctrl_rcv_callback: "
-             "Received SA MAD while SM not MASTER. MAD ignored\n");
-    osm_mad_pool_put( p_ctrl->p_mad_pool, p_madw );
-    goto Exit;
-  }
-  if ( p_ctrl->p_subn->first_time_master_sweep == TRUE )
-  {
-    osm_log( p_ctrl->p_log, OSM_LOG_VERBOSE,
-             "__osm_sa_mad_ctrl_rcv_callback: "
-             "Received SA MAD while SM in first sweep. MAD ignored\n");
-    osm_mad_pool_put( p_ctrl->p_mad_pool, p_madw );
-    goto Exit;
-  }
+	/*
+	 * C15-0.1.3 requires not responding to any MAD if the SM is
+	 * not in active state!
+	 * We will not respond if the sm_state is not MASTER, or if the
+	 * first_time_master_sweep flag (of the subnet) is TRUE - this
+	 * flag indicates that the master still didn't finish its first
+	 * sweep, so the subnet is not up and stable yet.
+	 */
+	if (p_ctrl->p_subn->sm_state != IB_SMINFO_STATE_MASTER) {
+		osm_log(p_ctrl->p_log, OSM_LOG_VERBOSE,
+			"__osm_sa_mad_ctrl_rcv_callback: "
+			"Received SA MAD while SM not MASTER. MAD ignored\n");
+		osm_mad_pool_put(p_ctrl->p_mad_pool, p_madw);
+		goto Exit;
+	}
+	if (p_ctrl->p_subn->first_time_master_sweep == TRUE) {
+		osm_log(p_ctrl->p_log, OSM_LOG_VERBOSE,
+			"__osm_sa_mad_ctrl_rcv_callback: "
+			"Received SA MAD while SM in first sweep. MAD ignored\n");
+		osm_mad_pool_put(p_ctrl->p_mad_pool, p_madw);
+		goto Exit;
+	}
 
-  p_sa_mad = osm_madw_get_sa_mad_ptr( p_madw );
+	p_sa_mad = osm_madw_get_sa_mad_ptr(p_madw);
 
-  if( osm_log_is_active( p_ctrl->p_log, OSM_LOG_FRAMES ) )
-    osm_dump_sa_mad( p_ctrl->p_log, p_sa_mad, OSM_LOG_FRAMES );
+	if (osm_log_is_active(p_ctrl->p_log, OSM_LOG_FRAMES))
+		osm_dump_sa_mad(p_ctrl->p_log, p_sa_mad, OSM_LOG_FRAMES);
 
-  /*
-   * C15-0.1.5 - Table 185: SA Header - p884
-   * SM_key should be either 0 or match the current SM_Key
-   * otherwise discard the MAD.
-   */
-  if ((p_sa_mad->sm_key != 0) &&
-      (p_sa_mad->sm_key != p_ctrl->p_subn->opt.sm_key)) {
-    osm_log( p_ctrl->p_log, OSM_LOG_ERROR,
-             "__osm_sa_mad_ctrl_rcv_callback: ERR 1A04: "
-             "Non-Zero SA MAD SM_Key: 0x%" PRIx64 " != SM_Key: 0x%" PRIx64
-             "; MAD ignored\n",
-             cl_ntoh64(p_sa_mad->sm_key),
-             cl_ntoh64(p_ctrl->p_subn->opt.sm_key)
-             );
-    osm_mad_pool_put( p_ctrl->p_mad_pool, p_madw );
-    goto Exit;
-  }
+	/*
+	 * C15-0.1.5 - Table 185: SA Header - p884
+	 * SM_key should be either 0 or match the current SM_Key
+	 * otherwise discard the MAD.
+	 */
+	if ((p_sa_mad->sm_key != 0) &&
+	    (p_sa_mad->sm_key != p_ctrl->p_subn->opt.sm_key)) {
+		osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
+			"__osm_sa_mad_ctrl_rcv_callback: ERR 1A04: "
+			"Non-Zero SA MAD SM_Key: 0x%" PRIx64 " != SM_Key: 0x%"
+			PRIx64 "; MAD ignored\n", cl_ntoh64(p_sa_mad->sm_key),
+			cl_ntoh64(p_ctrl->p_subn->opt.sm_key)
+		    );
+		osm_mad_pool_put(p_ctrl->p_mad_pool, p_madw);
+		goto Exit;
+	}
 
-  switch( p_sa_mad->method )
-  {
-  case IB_MAD_METHOD_REPORT_RESP:
-    /* we do not really do anything with report represses -
-       just retire the transaction */
-    osm_log( p_ctrl->p_log, OSM_LOG_DEBUG,
-             "__osm_sa_mad_ctrl_rcv_callback: "
-             "Received Report Repress. Retiring the transaction\n");
+	switch (p_sa_mad->method) {
+	case IB_MAD_METHOD_REPORT_RESP:
+		/* we do not really do anything with report represses -
+		   just retire the transaction */
+		osm_log(p_ctrl->p_log, OSM_LOG_DEBUG,
+			"__osm_sa_mad_ctrl_rcv_callback: "
+			"Received Report Repress. Retiring the transaction\n");
 
-    if (p_req_madw)
-      osm_mad_pool_put( p_ctrl->p_mad_pool, p_req_madw );
-    osm_mad_pool_put( p_ctrl->p_mad_pool, p_madw );
+		if (p_req_madw)
+			osm_mad_pool_put(p_ctrl->p_mad_pool, p_req_madw);
+		osm_mad_pool_put(p_ctrl->p_mad_pool, p_madw);
 
-    break;
+		break;
 
-  case IB_MAD_METHOD_GET:
-  case IB_MAD_METHOD_GETTABLE:
+	case IB_MAD_METHOD_GET:
+	case IB_MAD_METHOD_GETTABLE:
 #if defined (VENDOR_RMPP_SUPPORT) && defined (DUAL_SIDED_RMPP)
-  case IB_MAD_METHOD_GETMULTI:
+	case IB_MAD_METHOD_GETMULTI:
 #endif
-  case IB_MAD_METHOD_SET:
-  case IB_MAD_METHOD_DELETE:
-    __osm_sa_mad_ctrl_process( p_ctrl, p_madw );
-    break;
+	case IB_MAD_METHOD_SET:
+	case IB_MAD_METHOD_DELETE:
+		__osm_sa_mad_ctrl_process(p_ctrl, p_madw);
+		break;
 
-  default:
-    osm_log( p_ctrl->p_log, OSM_LOG_ERROR,
-             "__osm_sa_mad_ctrl_rcv_callback: ERR 1A05: "
-             "Unsupported method = 0x%X\n",
-             p_sa_mad->method );
-    osm_mad_pool_put( p_ctrl->p_mad_pool, p_madw );
-    goto Exit;
-  }
+	default:
+		osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
+			"__osm_sa_mad_ctrl_rcv_callback: ERR 1A05: "
+			"Unsupported method = 0x%X\n", p_sa_mad->method);
+		osm_mad_pool_put(p_ctrl->p_mad_pool, p_madw);
+		goto Exit;
+	}
 
- Exit:
-  OSM_LOG_EXIT( p_ctrl->p_log );
+      Exit:
+	OSM_LOG_EXIT(p_ctrl->p_log);
 }
+
 /*
  * PARAMETERS
  *
@@ -426,69 +412,65 @@ __osm_sa_mad_ctrl_rcv_callback(
  * SYNOPSIS
  */
 void
-__osm_sa_mad_ctrl_send_err_callback(
-  IN void *bind_context,
-  IN osm_madw_t *p_madw )
+__osm_sa_mad_ctrl_send_err_callback(IN void *bind_context,
+				    IN osm_madw_t * p_madw)
 {
-  osm_sa_mad_ctrl_t* p_ctrl = (osm_sa_mad_ctrl_t*)bind_context;
-  cl_status_t status;
+	osm_sa_mad_ctrl_t *p_ctrl = (osm_sa_mad_ctrl_t *) bind_context;
+	cl_status_t status;
 
-  OSM_LOG_ENTER( p_ctrl->p_log, __osm_sa_mad_ctrl_send_err_callback );
+	OSM_LOG_ENTER(p_ctrl->p_log, __osm_sa_mad_ctrl_send_err_callback);
 
-  osm_log( p_ctrl->p_log, OSM_LOG_ERROR,
-           "__osm_sa_mad_ctrl_send_err_callback: ERR 1A06: "
-           "MAD transaction completed in error\n" );
+	osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
+		"__osm_sa_mad_ctrl_send_err_callback: ERR 1A06: "
+		"MAD transaction completed in error\n");
 
-  /*
-    We should never be here since the SA never originates a request.
-    Unless we generated a Report(Notice)
-  */
+	/*
+	   We should never be here since the SA never originates a request.
+	   Unless we generated a Report(Notice)
+	 */
 
-  CL_ASSERT( p_madw );
+	CL_ASSERT(p_madw);
 
-  /*
-    An error occurred.  No response was received to a request MAD.
-    Retire the original request MAD.
-  */
+	/*
+	   An error occurred.  No response was received to a request MAD.
+	   Retire the original request MAD.
+	 */
 
-  osm_dump_sa_mad(p_ctrl->p_log, osm_madw_get_sa_mad_ptr( p_madw ),
-                  OSM_LOG_ERROR );
+	osm_dump_sa_mad(p_ctrl->p_log, osm_madw_get_sa_mad_ptr(p_madw),
+			OSM_LOG_ERROR);
 
-  /*  __osm_sm_mad_ctrl_update_wire_stats( p_ctrl ); */
+	/*  __osm_sm_mad_ctrl_update_wire_stats( p_ctrl ); */
 
-  if( osm_madw_get_err_msg( p_madw ) != CL_DISP_MSGID_NONE )
-  {
-    if( osm_log_is_active( p_ctrl->p_log, OSM_LOG_DEBUG ) )
-    {
-      osm_log( p_ctrl->p_log, OSM_LOG_DEBUG,
-               "__osm_sa_mad_ctrl_send_err_callback: "
-               "Posting Dispatcher message %s\n",
-               osm_get_disp_msg_str( osm_madw_get_err_msg( p_madw ) ) );
-    }
+	if (osm_madw_get_err_msg(p_madw) != CL_DISP_MSGID_NONE) {
+		if (osm_log_is_active(p_ctrl->p_log, OSM_LOG_DEBUG)) {
+			osm_log(p_ctrl->p_log, OSM_LOG_DEBUG,
+				"__osm_sa_mad_ctrl_send_err_callback: "
+				"Posting Dispatcher message %s\n",
+				osm_get_disp_msg_str(osm_madw_get_err_msg
+						     (p_madw)));
+		}
 
-    status = cl_disp_post( p_ctrl->h_disp,
-                           osm_madw_get_err_msg( p_madw ),
-                           p_madw,
-                           __osm_sa_mad_ctrl_disp_done_callback,
-                           p_ctrl );
-    if( status != CL_SUCCESS )
-    {
-      osm_log( p_ctrl->p_log, OSM_LOG_ERROR,
-               "__osm_sa_mad_ctrl_send_err_callback: ERR 1A07: "
-               "Dispatcher post message failed (%s)\n",
-               CL_STATUS_MSG( status ) );
-    }
-  }
-  else
-  {
-    /*
-      No error message was provided, just retire the MAD.
-    */
-    osm_mad_pool_put( p_ctrl->p_mad_pool, p_madw );
-  }
+		status = cl_disp_post(p_ctrl->h_disp,
+				      osm_madw_get_err_msg(p_madw),
+				      p_madw,
+				      __osm_sa_mad_ctrl_disp_done_callback,
+				      p_ctrl);
+		if (status != CL_SUCCESS) {
+			osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
+				"__osm_sa_mad_ctrl_send_err_callback: ERR 1A07: "
+				"Dispatcher post message failed (%s)\n",
+				CL_STATUS_MSG(status));
+		}
+	} else {
+		/*
+		   No error message was provided, just retire the MAD.
+		 */
+		osm_mad_pool_put(p_ctrl->p_mad_pool, p_madw);
+	}
 
-  OSM_LOG_EXIT( p_ctrl->p_log );
+	OSM_LOG_EXIT(p_ctrl->p_log);
 }
+
 /*
  * PARAMETERS
  *
@@ -501,150 +483,134 @@ __osm_sa_mad_ctrl_send_err_callback(
 
 /**********************************************************************
  **********************************************************************/
-void
-osm_sa_mad_ctrl_construct(
-  IN osm_sa_mad_ctrl_t* const p_ctrl )
+void osm_sa_mad_ctrl_construct(IN osm_sa_mad_ctrl_t * const p_ctrl)
 {
-  CL_ASSERT( p_ctrl );
-  memset( p_ctrl, 0, sizeof(*p_ctrl) );
-  p_ctrl->h_disp = CL_DISP_INVALID_HANDLE;
+	CL_ASSERT(p_ctrl);
+	memset(p_ctrl, 0, sizeof(*p_ctrl));
+	p_ctrl->h_disp = CL_DISP_INVALID_HANDLE;
 }
 
 /**********************************************************************
  **********************************************************************/
-void
-osm_sa_mad_ctrl_destroy(
-  IN osm_sa_mad_ctrl_t* const p_ctrl )
+void osm_sa_mad_ctrl_destroy(IN osm_sa_mad_ctrl_t * const p_ctrl)
 {
-  CL_ASSERT( p_ctrl );
-  cl_disp_unregister( p_ctrl->h_disp );
-}
-
-/**********************************************************************
- **********************************************************************/
-ib_api_status_t
-osm_sa_mad_ctrl_init(
-  IN osm_sa_mad_ctrl_t* const p_ctrl,
-  IN osm_sa_resp_t*  const p_resp,
-  IN osm_mad_pool_t* const p_mad_pool,
-  IN osm_vendor_t* const p_vendor,
-  IN osm_subn_t* const p_subn,
-  IN osm_log_t* const p_log,
-  IN osm_stats_t* const p_stats,
-  IN cl_dispatcher_t* const p_disp )
-{
-  ib_api_status_t status = IB_SUCCESS;
-
-  OSM_LOG_ENTER( p_log, osm_sa_mad_ctrl_init );
-
-  osm_sa_mad_ctrl_construct( p_ctrl );
-
-  p_ctrl->p_log = p_log;
-  p_ctrl->p_disp = p_disp;
-  p_ctrl->p_mad_pool = p_mad_pool;
-  p_ctrl->p_vendor = p_vendor;
-  p_ctrl->p_stats = p_stats;
-  p_ctrl->p_subn = p_subn;
-  p_ctrl->p_resp = p_resp;
-
-  p_ctrl->h_disp = cl_disp_register(
-    p_disp,
-    CL_DISP_MSGID_NONE,
-    NULL,
-    p_ctrl );
-
-  if( p_ctrl->h_disp == CL_DISP_INVALID_HANDLE )
-  {
-    osm_log( p_log, OSM_LOG_ERROR,
-             "osm_sa_mad_ctrl_init: ERR 1A08: "
-             "Dispatcher registration failed\n" );
-    status = IB_INSUFFICIENT_RESOURCES;
-    goto Exit;
-  }
-
- Exit:
-  OSM_LOG_EXIT( p_log );
-  return( status );
+	CL_ASSERT(p_ctrl);
+	cl_disp_unregister(p_ctrl->h_disp);
 }
 
 /**********************************************************************
  **********************************************************************/
 ib_api_status_t
-osm_sa_mad_ctrl_bind(
-  IN osm_sa_mad_ctrl_t* const p_ctrl,
-  IN const ib_net64_t port_guid )
+osm_sa_mad_ctrl_init(IN osm_sa_mad_ctrl_t * const p_ctrl,
+		     IN osm_sa_resp_t * const p_resp,
+		     IN osm_mad_pool_t * const p_mad_pool,
+		     IN osm_vendor_t * const p_vendor,
+		     IN osm_subn_t * const p_subn,
+		     IN osm_log_t * const p_log,
+		     IN osm_stats_t * const p_stats,
+		     IN cl_dispatcher_t * const p_disp)
 {
-  osm_bind_info_t bind_info;
-  ib_api_status_t status = IB_SUCCESS;
+	ib_api_status_t status = IB_SUCCESS;
 
-  OSM_LOG_ENTER( p_ctrl->p_log, osm_sa_mad_ctrl_bind );
+	OSM_LOG_ENTER(p_log, osm_sa_mad_ctrl_init);
 
-  if( p_ctrl->h_bind != OSM_BIND_INVALID_HANDLE )
-  {
-    osm_log( p_ctrl->p_log, OSM_LOG_ERROR,
-             "osm_sa_mad_ctrl_bind: ERR 1A09: "
-             "Multiple binds not allowed\n" );
-    status = IB_ERROR;
-    goto Exit;
-  }
+	osm_sa_mad_ctrl_construct(p_ctrl);
 
-  bind_info.class_version = 2;
-  bind_info.is_responder = TRUE;
-  bind_info.is_report_processor = FALSE;
-  bind_info.is_trap_processor = FALSE;
-  bind_info.mad_class = IB_MCLASS_SUBN_ADM;
-  bind_info.port_guid = port_guid;
-  bind_info.recv_q_size = OSM_SM_DEFAULT_QP1_RCV_SIZE;
-  bind_info.send_q_size = OSM_SM_DEFAULT_QP1_SEND_SIZE;
+	p_ctrl->p_log = p_log;
+	p_ctrl->p_disp = p_disp;
+	p_ctrl->p_mad_pool = p_mad_pool;
+	p_ctrl->p_vendor = p_vendor;
+	p_ctrl->p_stats = p_stats;
+	p_ctrl->p_subn = p_subn;
+	p_ctrl->p_resp = p_resp;
 
-  osm_log( p_ctrl->p_log, OSM_LOG_VERBOSE,
-           "osm_sa_mad_ctrl_bind: "
-           "Binding to port GUID 0x%" PRIx64 "\n",
-           cl_ntoh64( port_guid ) );
+	p_ctrl->h_disp = cl_disp_register(p_disp,
+					  CL_DISP_MSGID_NONE, NULL, p_ctrl);
 
-  p_ctrl->h_bind = osm_vendor_bind( p_ctrl->p_vendor,
-                                    &bind_info,
-                                    p_ctrl->p_mad_pool,
-                                    __osm_sa_mad_ctrl_rcv_callback,
-                                    __osm_sa_mad_ctrl_send_err_callback,
-                                    p_ctrl );
+	if (p_ctrl->h_disp == CL_DISP_INVALID_HANDLE) {
+		osm_log(p_log, OSM_LOG_ERROR,
+			"osm_sa_mad_ctrl_init: ERR 1A08: "
+			"Dispatcher registration failed\n");
+		status = IB_INSUFFICIENT_RESOURCES;
+		goto Exit;
+	}
 
-  if( p_ctrl->h_bind == OSM_BIND_INVALID_HANDLE )
-  {
-    status = IB_ERROR;
-    osm_log( p_ctrl->p_log, OSM_LOG_ERROR,
-             "osm_sa_mad_ctrl_bind: ERR 1A10: "
-             "Vendor specific bind failed (%s)\n",
-             ib_get_err_str(status) );
-    goto Exit;
-  }
-
- Exit:
-  OSM_LOG_EXIT( p_ctrl->p_log );
-  return( status );
+      Exit:
+	OSM_LOG_EXIT(p_log);
+	return (status);
 }
 
 /**********************************************************************
  **********************************************************************/
 ib_api_status_t
-osm_sa_mad_ctrl_unbind(
-  IN osm_sa_mad_ctrl_t* const p_ctrl)
+osm_sa_mad_ctrl_bind(IN osm_sa_mad_ctrl_t * const p_ctrl,
+		     IN const ib_net64_t port_guid)
 {
-  ib_api_status_t status = IB_SUCCESS;
+	osm_bind_info_t bind_info;
+	ib_api_status_t status = IB_SUCCESS;
 
-  OSM_LOG_ENTER( p_ctrl->p_log, osm_sa_mad_ctrl_unbind );
+	OSM_LOG_ENTER(p_ctrl->p_log, osm_sa_mad_ctrl_bind);
 
-  if( p_ctrl->h_bind == OSM_BIND_INVALID_HANDLE )
-  {
-    osm_log( p_ctrl->p_log, OSM_LOG_ERROR,
-             "osm_sa_mad_ctrl_unbind: ERR 1A11: "
-             "No previous bind\n" );
-    status = IB_ERROR;
-    goto Exit;
-  }
+	if (p_ctrl->h_bind != OSM_BIND_INVALID_HANDLE) {
+		osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
+			"osm_sa_mad_ctrl_bind: ERR 1A09: "
+			"Multiple binds not allowed\n");
+		status = IB_ERROR;
+		goto Exit;
+	}
 
-  osm_vendor_unbind( p_ctrl->h_bind );
- Exit:
-  OSM_LOG_EXIT( p_ctrl->p_log );
-  return( status );
+	bind_info.class_version = 2;
+	bind_info.is_responder = TRUE;
+	bind_info.is_report_processor = FALSE;
+	bind_info.is_trap_processor = FALSE;
+	bind_info.mad_class = IB_MCLASS_SUBN_ADM;
+	bind_info.port_guid = port_guid;
+	bind_info.recv_q_size = OSM_SM_DEFAULT_QP1_RCV_SIZE;
+	bind_info.send_q_size = OSM_SM_DEFAULT_QP1_SEND_SIZE;
+
+	osm_log(p_ctrl->p_log, OSM_LOG_VERBOSE,
+		"osm_sa_mad_ctrl_bind: "
+		"Binding to port GUID 0x%" PRIx64 "\n", cl_ntoh64(port_guid));
+
+	p_ctrl->h_bind = osm_vendor_bind(p_ctrl->p_vendor,
+					 &bind_info,
+					 p_ctrl->p_mad_pool,
+					 __osm_sa_mad_ctrl_rcv_callback,
+					 __osm_sa_mad_ctrl_send_err_callback,
+					 p_ctrl);
+
+	if (p_ctrl->h_bind == OSM_BIND_INVALID_HANDLE) {
+		status = IB_ERROR;
+		osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
+			"osm_sa_mad_ctrl_bind: ERR 1A10: "
+			"Vendor specific bind failed (%s)\n",
+			ib_get_err_str(status));
+		goto Exit;
+	}
+
+      Exit:
+	OSM_LOG_EXIT(p_ctrl->p_log);
+	return (status);
+}
+
+/**********************************************************************
+ **********************************************************************/
+ib_api_status_t osm_sa_mad_ctrl_unbind(IN osm_sa_mad_ctrl_t * const p_ctrl)
+{
+	ib_api_status_t status = IB_SUCCESS;
+
+	OSM_LOG_ENTER(p_ctrl->p_log, osm_sa_mad_ctrl_unbind);
+
+	if (p_ctrl->h_bind == OSM_BIND_INVALID_HANDLE) {
+		osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
+			"osm_sa_mad_ctrl_unbind: ERR 1A11: "
+			"No previous bind\n");
+		status = IB_ERROR;
+		goto Exit;
+	}
+
+	osm_vendor_unbind(p_ctrl->h_bind);
+      Exit:
+	OSM_LOG_EXIT(p_ctrl->p_log);
+	return (status);
 }

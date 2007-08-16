@@ -33,7 +33,6 @@
  *
  */
 
-
 /*
  * Abstract:
  *    Implementation of osm_sweep_fail_ctrl_t.
@@ -46,7 +45,7 @@
 
 #if HAVE_CONFIG_H
 #  include <config.h>
-#endif /* HAVE_CONFIG_H */
+#endif				/* HAVE_CONFIG_H */
 
 #include <string.h>
 #include <opensm/osm_sweep_fail_ctrl.h>
@@ -54,80 +53,68 @@
 
 /**********************************************************************
  **********************************************************************/
-void
-__osm_sweep_fail_ctrl_disp_callback(
-  IN  void *context,
-  IN  void *p_data )
+void __osm_sweep_fail_ctrl_disp_callback(IN void *context, IN void *p_data)
 {
-  osm_sweep_fail_ctrl_t* const p_ctrl = (osm_sweep_fail_ctrl_t*)context;
+	osm_sweep_fail_ctrl_t *const p_ctrl = (osm_sweep_fail_ctrl_t *) context;
 
-  OSM_LOG_ENTER( p_ctrl->p_log, __osm_sweep_fail_ctrl_disp_callback );
+	OSM_LOG_ENTER(p_ctrl->p_log, __osm_sweep_fail_ctrl_disp_callback);
 
-  UNUSED_PARAM( p_data );
-  /*
-    Notify the state manager that we had a light sweep failure.
-  */
-  osm_state_mgr_process( p_ctrl->p_state_mgr,
-                         OSM_SIGNAL_LIGHT_SWEEP_FAIL );
+	UNUSED_PARAM(p_data);
+	/*
+	   Notify the state manager that we had a light sweep failure.
+	 */
+	osm_state_mgr_process(p_ctrl->p_state_mgr, OSM_SIGNAL_LIGHT_SWEEP_FAIL);
 
-  OSM_LOG_EXIT( p_ctrl->p_log );
+	OSM_LOG_EXIT(p_ctrl->p_log);
 }
 
 /**********************************************************************
  **********************************************************************/
-void
-osm_sweep_fail_ctrl_construct(
-  IN osm_sweep_fail_ctrl_t* const p_ctrl )
+void osm_sweep_fail_ctrl_construct(IN osm_sweep_fail_ctrl_t * const p_ctrl)
 {
-  memset( p_ctrl, 0, sizeof(*p_ctrl) );
-  p_ctrl->h_disp = CL_DISP_INVALID_HANDLE;
+	memset(p_ctrl, 0, sizeof(*p_ctrl));
+	p_ctrl->h_disp = CL_DISP_INVALID_HANDLE;
 }
 
 /**********************************************************************
  **********************************************************************/
-void
-osm_sweep_fail_ctrl_destroy(
-  IN osm_sweep_fail_ctrl_t* const p_ctrl )
+void osm_sweep_fail_ctrl_destroy(IN osm_sweep_fail_ctrl_t * const p_ctrl)
 {
-  CL_ASSERT( p_ctrl );
-  cl_disp_unregister( p_ctrl->h_disp );
+	CL_ASSERT(p_ctrl);
+	cl_disp_unregister(p_ctrl->h_disp);
 }
 
 /**********************************************************************
  **********************************************************************/
 ib_api_status_t
-osm_sweep_fail_ctrl_init(
-  IN osm_sweep_fail_ctrl_t* const p_ctrl,
-  IN osm_log_t* const p_log,
-  IN osm_state_mgr_t* const p_state_mgr,
-  IN cl_dispatcher_t* const p_disp )
+osm_sweep_fail_ctrl_init(IN osm_sweep_fail_ctrl_t * const p_ctrl,
+			 IN osm_log_t * const p_log,
+			 IN osm_state_mgr_t * const p_state_mgr,
+			 IN cl_dispatcher_t * const p_disp)
 {
-  ib_api_status_t status = IB_SUCCESS;
+	ib_api_status_t status = IB_SUCCESS;
 
-  OSM_LOG_ENTER( p_log, osm_sweep_fail_ctrl_init );
+	OSM_LOG_ENTER(p_log, osm_sweep_fail_ctrl_init);
 
-  osm_sweep_fail_ctrl_construct( p_ctrl );
-  p_ctrl->p_log = p_log;
-  p_ctrl->p_disp = p_disp;
-  p_ctrl->p_state_mgr = p_state_mgr;
+	osm_sweep_fail_ctrl_construct(p_ctrl);
+	p_ctrl->p_log = p_log;
+	p_ctrl->p_disp = p_disp;
+	p_ctrl->p_state_mgr = p_state_mgr;
 
-  p_ctrl->h_disp = cl_disp_register(
-    p_disp,
-    OSM_MSG_LIGHT_SWEEP_FAIL,
-    __osm_sweep_fail_ctrl_disp_callback,
-    p_ctrl );
+	p_ctrl->h_disp = cl_disp_register(p_disp,
+					  OSM_MSG_LIGHT_SWEEP_FAIL,
+					  __osm_sweep_fail_ctrl_disp_callback,
+					  p_ctrl);
 
-  if( p_ctrl->h_disp == CL_DISP_INVALID_HANDLE )
-  {
-    osm_log( p_log, OSM_LOG_ERROR,
-             "osm_sweep_fail_ctrl_init: ERR 3501: "
-             "Dispatcher registration failed\n" );
-    status = IB_INSUFFICIENT_RESOURCES;
-    goto Exit;
-  }
+	if (p_ctrl->h_disp == CL_DISP_INVALID_HANDLE) {
+		osm_log(p_log, OSM_LOG_ERROR,
+			"osm_sweep_fail_ctrl_init: ERR 3501: "
+			"Dispatcher registration failed\n");
+		status = IB_INSUFFICIENT_RESOURCES;
+		goto Exit;
+	}
 
- Exit:
-  OSM_LOG_EXIT( p_log );
-  return( status );
+      Exit:
+	OSM_LOG_EXIT(p_log);
+	return (status);
 }
-

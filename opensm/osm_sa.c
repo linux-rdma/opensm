@@ -47,7 +47,7 @@
 
 #if HAVE_CONFIG_H
 #  include <config.h>
-#endif /* HAVE_CONFIG_H */
+#endif				/* HAVE_CONFIG_H */
 
 #include <string.h>
 #include <ctype.h>
@@ -74,449 +74,376 @@
 
 /**********************************************************************
  **********************************************************************/
-void
-osm_sa_construct(
-  IN osm_sa_t* const p_sa )
+void osm_sa_construct(IN osm_sa_t * const p_sa)
 {
-  memset( p_sa, 0, sizeof(*p_sa) );
-  p_sa->state = OSM_SA_STATE_INIT;
-  p_sa->sa_trans_id = OSM_SA_INITIAL_TID_VALUE;
+	memset(p_sa, 0, sizeof(*p_sa));
+	p_sa->state = OSM_SA_STATE_INIT;
+	p_sa->sa_trans_id = OSM_SA_INITIAL_TID_VALUE;
 
-  osm_sa_resp_construct( &p_sa->resp );
-  osm_nr_rcv_construct( &p_sa->nr_rcv);
-  osm_pir_rcv_construct( &p_sa->pir_rcv );
-  osm_gir_rcv_construct( &p_sa->gir_rcv );
-  osm_lr_rcv_construct( &p_sa->lr_rcv );
-  osm_pr_rcv_construct( &p_sa->pr_rcv );
+	osm_sa_resp_construct(&p_sa->resp);
+	osm_nr_rcv_construct(&p_sa->nr_rcv);
+	osm_pir_rcv_construct(&p_sa->pir_rcv);
+	osm_gir_rcv_construct(&p_sa->gir_rcv);
+	osm_lr_rcv_construct(&p_sa->lr_rcv);
+	osm_pr_rcv_construct(&p_sa->pr_rcv);
 #if defined (VENDOR_RMPP_SUPPORT) && defined (DUAL_SIDED_RMPP)
-  osm_mpr_rcv_construct( &p_sa->mpr_rcv );
+	osm_mpr_rcv_construct(&p_sa->mpr_rcv);
 #endif
-  osm_smir_rcv_construct( &p_sa->smir_rcv );
-  osm_mcmr_rcv_construct(&p_sa->mcmr_rcv );
-  osm_sr_rcv_construct( &p_sa->sr_rcv );
-  osm_infr_rcv_construct( &p_sa->infr_rcv );
-  osm_vlarb_rec_rcv_construct( &p_sa->vlarb_rec_rcv );
-  osm_slvl_rec_rcv_construct( &p_sa->slvl_rec_rcv );
-  osm_pkey_rec_rcv_construct( &p_sa->pkey_rec_rcv );
-  osm_lftr_rcv_construct( &p_sa->lftr_rcv );
-  osm_sir_rcv_construct( &p_sa->sir_rcv );
-  osm_mftr_rcv_construct( &p_sa->mftr_rcv );
+	osm_smir_rcv_construct(&p_sa->smir_rcv);
+	osm_mcmr_rcv_construct(&p_sa->mcmr_rcv);
+	osm_sr_rcv_construct(&p_sa->sr_rcv);
+	osm_infr_rcv_construct(&p_sa->infr_rcv);
+	osm_vlarb_rec_rcv_construct(&p_sa->vlarb_rec_rcv);
+	osm_slvl_rec_rcv_construct(&p_sa->slvl_rec_rcv);
+	osm_pkey_rec_rcv_construct(&p_sa->pkey_rec_rcv);
+	osm_lftr_rcv_construct(&p_sa->lftr_rcv);
+	osm_sir_rcv_construct(&p_sa->sir_rcv);
+	osm_mftr_rcv_construct(&p_sa->mftr_rcv);
 }
 
 /**********************************************************************
  **********************************************************************/
-void
-osm_sa_shutdown(
-  IN osm_sa_t* const p_sa )
+void osm_sa_shutdown(IN osm_sa_t * const p_sa)
 {
-  ib_api_status_t status;
-  OSM_LOG_ENTER( p_sa->p_log, osm_sa_shutdown );
+	ib_api_status_t status;
+	OSM_LOG_ENTER(p_sa->p_log, osm_sa_shutdown);
 
-  /* unbind from the mad service */
-  status = osm_sa_mad_ctrl_unbind( &p_sa->mad_ctrl );
+	/* unbind from the mad service */
+	status = osm_sa_mad_ctrl_unbind(&p_sa->mad_ctrl);
 
-  /* remove any registered dispatcher message */
-  cl_disp_unregister( p_sa->nr_disp_h );
-  cl_disp_unregister( p_sa->pir_disp_h );
-  cl_disp_unregister( p_sa->gir_disp_h );
-  cl_disp_unregister( p_sa->lr_disp_h );
-  cl_disp_unregister( p_sa->pr_disp_h );
+	/* remove any registered dispatcher message */
+	cl_disp_unregister(p_sa->nr_disp_h);
+	cl_disp_unregister(p_sa->pir_disp_h);
+	cl_disp_unregister(p_sa->gir_disp_h);
+	cl_disp_unregister(p_sa->lr_disp_h);
+	cl_disp_unregister(p_sa->pr_disp_h);
 #if defined (VENDOR_RMPP_SUPPORT) && defined (DUAL_SIDED_RMPP)
-  cl_disp_unregister( p_sa->mpr_disp_h );
+	cl_disp_unregister(p_sa->mpr_disp_h);
 #endif
-  cl_disp_unregister( p_sa->smir_disp_h );
-  cl_disp_unregister( p_sa->mcmr_disp_h);
-  cl_disp_unregister( p_sa->sr_disp_h );
-  cl_disp_unregister( p_sa->infr_disp_h );
-  cl_disp_unregister( p_sa->infir_disp_h );
-  cl_disp_unregister( p_sa->vlarb_disp_h );
-  cl_disp_unregister( p_sa->slvl_disp_h );
-  cl_disp_unregister( p_sa->pkey_disp_h );
-  cl_disp_unregister( p_sa->lft_disp_h );
-  cl_disp_unregister( p_sa->sir_disp_h );
-  cl_disp_unregister( p_sa->mft_disp_h );
-  osm_sa_mad_ctrl_destroy( &p_sa->mad_ctrl );
+	cl_disp_unregister(p_sa->smir_disp_h);
+	cl_disp_unregister(p_sa->mcmr_disp_h);
+	cl_disp_unregister(p_sa->sr_disp_h);
+	cl_disp_unregister(p_sa->infr_disp_h);
+	cl_disp_unregister(p_sa->infir_disp_h);
+	cl_disp_unregister(p_sa->vlarb_disp_h);
+	cl_disp_unregister(p_sa->slvl_disp_h);
+	cl_disp_unregister(p_sa->pkey_disp_h);
+	cl_disp_unregister(p_sa->lft_disp_h);
+	cl_disp_unregister(p_sa->sir_disp_h);
+	cl_disp_unregister(p_sa->mft_disp_h);
+	osm_sa_mad_ctrl_destroy(&p_sa->mad_ctrl);
 
-  OSM_LOG_EXIT( p_sa->p_log );
+	OSM_LOG_EXIT(p_sa->p_log);
 }
 
 /**********************************************************************
  **********************************************************************/
-void
-osm_sa_destroy(
-  IN osm_sa_t* const p_sa )
+void osm_sa_destroy(IN osm_sa_t * const p_sa)
 {
-  OSM_LOG_ENTER( p_sa->p_log, osm_sa_destroy );
+	OSM_LOG_ENTER(p_sa->p_log, osm_sa_destroy);
 
-  p_sa->state = OSM_SA_STATE_INIT;
+	p_sa->state = OSM_SA_STATE_INIT;
 
-  osm_nr_rcv_destroy( &p_sa->nr_rcv );
-  osm_pir_rcv_destroy( &p_sa->pir_rcv );
-  osm_gir_rcv_destroy( &p_sa->gir_rcv );
-  osm_lr_rcv_destroy( &p_sa->lr_rcv );
-  osm_pr_rcv_destroy( &p_sa->pr_rcv );
+	osm_nr_rcv_destroy(&p_sa->nr_rcv);
+	osm_pir_rcv_destroy(&p_sa->pir_rcv);
+	osm_gir_rcv_destroy(&p_sa->gir_rcv);
+	osm_lr_rcv_destroy(&p_sa->lr_rcv);
+	osm_pr_rcv_destroy(&p_sa->pr_rcv);
 #if defined (VENDOR_RMPP_SUPPORT) && defined (DUAL_SIDED_RMPP)
-  osm_mpr_rcv_destroy( &p_sa->mpr_rcv );
+	osm_mpr_rcv_destroy(&p_sa->mpr_rcv);
 #endif
-  osm_smir_rcv_destroy( &p_sa->smir_rcv );
-  osm_mcmr_rcv_destroy(&p_sa->mcmr_rcv);
-  osm_sr_rcv_destroy( &p_sa->sr_rcv );
-  osm_infr_rcv_destroy( &p_sa->infr_rcv );
-  osm_vlarb_rec_rcv_destroy( &p_sa->vlarb_rec_rcv );
-  osm_slvl_rec_rcv_destroy( &p_sa->slvl_rec_rcv );
-  osm_pkey_rec_rcv_destroy( &p_sa->pkey_rec_rcv );
-  osm_lftr_rcv_destroy( &p_sa->lftr_rcv );
-  osm_sir_rcv_destroy( &p_sa->sir_rcv );
-  osm_mftr_rcv_destroy( &p_sa->mftr_rcv );
-  osm_sa_resp_destroy( &p_sa->resp );
+	osm_smir_rcv_destroy(&p_sa->smir_rcv);
+	osm_mcmr_rcv_destroy(&p_sa->mcmr_rcv);
+	osm_sr_rcv_destroy(&p_sa->sr_rcv);
+	osm_infr_rcv_destroy(&p_sa->infr_rcv);
+	osm_vlarb_rec_rcv_destroy(&p_sa->vlarb_rec_rcv);
+	osm_slvl_rec_rcv_destroy(&p_sa->slvl_rec_rcv);
+	osm_pkey_rec_rcv_destroy(&p_sa->pkey_rec_rcv);
+	osm_lftr_rcv_destroy(&p_sa->lftr_rcv);
+	osm_sir_rcv_destroy(&p_sa->sir_rcv);
+	osm_mftr_rcv_destroy(&p_sa->mftr_rcv);
+	osm_sa_resp_destroy(&p_sa->resp);
 
-  OSM_LOG_EXIT( p_sa->p_log );
+	OSM_LOG_EXIT(p_sa->p_log);
 }
 
 /**********************************************************************
  **********************************************************************/
 ib_api_status_t
-osm_sa_init(
-  IN osm_sm_t* const p_sm,
-  IN osm_sa_t* const p_sa,
-  IN osm_subn_t* const p_subn,
-  IN osm_vendor_t* const p_vendor,
-  IN osm_mad_pool_t* const p_mad_pool,
-  IN osm_log_t* const p_log,
-  IN osm_stats_t* const p_stats,
-  IN cl_dispatcher_t* const p_disp,
-  IN cl_plock_t* const p_lock )
+osm_sa_init(IN osm_sm_t * const p_sm,
+	    IN osm_sa_t * const p_sa,
+	    IN osm_subn_t * const p_subn,
+	    IN osm_vendor_t * const p_vendor,
+	    IN osm_mad_pool_t * const p_mad_pool,
+	    IN osm_log_t * const p_log,
+	    IN osm_stats_t * const p_stats,
+	    IN cl_dispatcher_t * const p_disp, IN cl_plock_t * const p_lock)
 {
-  ib_api_status_t status = IB_SUCCESS;
+	ib_api_status_t status = IB_SUCCESS;
 
-  OSM_LOG_ENTER( p_log, osm_sa_init );
+	OSM_LOG_ENTER(p_log, osm_sa_init);
 
-  p_sa->p_subn = p_subn;
-  p_sa->p_vendor = p_vendor;
-  p_sa->p_mad_pool = p_mad_pool;
-  p_sa->p_log = p_log;
-  p_sa->p_disp = p_disp;
-  p_sa->p_lock = p_lock;
+	p_sa->p_subn = p_subn;
+	p_sa->p_vendor = p_vendor;
+	p_sa->p_mad_pool = p_mad_pool;
+	p_sa->p_log = p_log;
+	p_sa->p_disp = p_disp;
+	p_sa->p_lock = p_lock;
 
-  p_sa->state = OSM_SA_STATE_READY;
+	p_sa->state = OSM_SA_STATE_READY;
 
-  status = osm_sa_resp_init(&p_sa->resp,
-                            p_sa->p_mad_pool,
-                            p_log);
-  if( status != IB_SUCCESS )
-    goto Exit;
+	status = osm_sa_resp_init(&p_sa->resp, p_sa->p_mad_pool, p_log);
+	if (status != IB_SUCCESS)
+		goto Exit;
 
-  status = osm_sa_mad_ctrl_init(
-    &p_sa->mad_ctrl,
-    &p_sa->resp,
-    p_sa->p_mad_pool,
-    p_sa->p_vendor,
-    p_subn,
-    p_log,
-    p_stats,
-    p_disp );
-  if( status != IB_SUCCESS )
-    goto Exit;
+	status = osm_sa_mad_ctrl_init(&p_sa->mad_ctrl,
+				      &p_sa->resp,
+				      p_sa->p_mad_pool,
+				      p_sa->p_vendor,
+				      p_subn, p_log, p_stats, p_disp);
+	if (status != IB_SUCCESS)
+		goto Exit;
 
-  status = osm_cpi_rcv_init(
-    &p_sa->cpi_rcv,
-    &p_sa->resp,
-    p_sa->p_mad_pool,
-    p_subn,
-    p_log,
-    p_lock );
-  if( status != IB_SUCCESS )
-    goto Exit;
+	status = osm_cpi_rcv_init(&p_sa->cpi_rcv,
+				  &p_sa->resp,
+				  p_sa->p_mad_pool, p_subn, p_log, p_lock);
+	if (status != IB_SUCCESS)
+		goto Exit;
 
-  status = osm_nr_rcv_init(
-    &p_sa->nr_rcv,
-    &p_sa->resp,
-    p_sa->p_mad_pool,
-    p_subn,
-    p_log,
-    p_lock );
-  if( status != IB_SUCCESS )
-    goto Exit;
+	status = osm_nr_rcv_init(&p_sa->nr_rcv,
+				 &p_sa->resp,
+				 p_sa->p_mad_pool, p_subn, p_log, p_lock);
+	if (status != IB_SUCCESS)
+		goto Exit;
 
-  status = osm_pir_rcv_init(
-    &p_sa->pir_rcv,
-    &p_sa->resp,
-    p_sa->p_mad_pool,
-    p_subn,
-    p_log,
-    p_lock );
-  if( status != IB_SUCCESS )
-    goto Exit;
+	status = osm_pir_rcv_init(&p_sa->pir_rcv,
+				  &p_sa->resp,
+				  p_sa->p_mad_pool, p_subn, p_log, p_lock);
+	if (status != IB_SUCCESS)
+		goto Exit;
 
-  status = osm_gir_rcv_init(
-    &p_sa->gir_rcv,
-    &p_sa->resp,
-    p_sa->p_mad_pool,
-    p_subn,
-    p_log,
-    p_lock );
-  if( status != IB_SUCCESS )
-    goto Exit;
+	status = osm_gir_rcv_init(&p_sa->gir_rcv,
+				  &p_sa->resp,
+				  p_sa->p_mad_pool, p_subn, p_log, p_lock);
+	if (status != IB_SUCCESS)
+		goto Exit;
 
-  status = osm_lr_rcv_init(
-    &p_sa->lr_rcv,
-    &p_sa->resp,
-    p_sa->p_mad_pool,
-    p_subn,
-    p_log,
-    p_lock );
-  if( status != IB_SUCCESS )
-    goto Exit;
+	status = osm_lr_rcv_init(&p_sa->lr_rcv,
+				 &p_sa->resp,
+				 p_sa->p_mad_pool, p_subn, p_log, p_lock);
+	if (status != IB_SUCCESS)
+		goto Exit;
 
-  status = osm_pr_rcv_init(
-    &p_sa->pr_rcv,
-    &p_sa->resp,
-    p_sa->p_mad_pool,
-    p_subn,
-    p_log,
-    p_lock );
-  if( status != IB_SUCCESS )
-    goto Exit;
+	status = osm_pr_rcv_init(&p_sa->pr_rcv,
+				 &p_sa->resp,
+				 p_sa->p_mad_pool, p_subn, p_log, p_lock);
+	if (status != IB_SUCCESS)
+		goto Exit;
 
 #if defined (VENDOR_RMPP_SUPPORT) && defined (DUAL_SIDED_RMPP)
-  status = osm_mpr_rcv_init(
-    &p_sa->mpr_rcv,
-    &p_sa->resp,
-    p_sa->p_mad_pool,
-    p_subn,
-    p_log,
-    p_lock );
-  if( status != IB_SUCCESS )
-    goto Exit;
+	status = osm_mpr_rcv_init(&p_sa->mpr_rcv,
+				  &p_sa->resp,
+				  p_sa->p_mad_pool, p_subn, p_log, p_lock);
+	if (status != IB_SUCCESS)
+		goto Exit;
 #endif
 
-  status = osm_smir_rcv_init(
-    &p_sa->smir_rcv,
-    &p_sa->resp,
-    p_sa->p_mad_pool,
-    p_subn,
-    p_stats,
-    p_log,
-    p_lock );
-  if( status != IB_SUCCESS )
-    goto Exit;
+	status = osm_smir_rcv_init(&p_sa->smir_rcv,
+				   &p_sa->resp,
+				   p_sa->p_mad_pool,
+				   p_subn, p_stats, p_log, p_lock);
+	if (status != IB_SUCCESS)
+		goto Exit;
 
-  status = osm_mcmr_rcv_init(
-    p_sm,
-    &p_sa->mcmr_rcv,
-    &p_sa->resp,
-    p_sa->p_mad_pool,
-    p_subn,
-    p_log,
-    p_lock);
-  if( status != IB_SUCCESS )
-    goto Exit;
+	status = osm_mcmr_rcv_init(p_sm,
+				   &p_sa->mcmr_rcv,
+				   &p_sa->resp,
+				   p_sa->p_mad_pool, p_subn, p_log, p_lock);
+	if (status != IB_SUCCESS)
+		goto Exit;
 
-  status = osm_sr_rcv_init(
-    &p_sa->sr_rcv,
-    &p_sa->resp,
-    p_sa->p_mad_pool,
-    p_subn,
-    p_log,
-    p_lock);
-  if( status != IB_SUCCESS )
-    goto Exit;
+	status = osm_sr_rcv_init(&p_sa->sr_rcv,
+				 &p_sa->resp,
+				 p_sa->p_mad_pool, p_subn, p_log, p_lock);
+	if (status != IB_SUCCESS)
+		goto Exit;
 
-  status = osm_infr_rcv_init(
-    &p_sa->infr_rcv,
-    &p_sa->resp,
-    p_sa->p_mad_pool,
-    p_subn,
-    p_log,
-    p_lock);
-  if( status != IB_SUCCESS )
-    goto Exit;
+	status = osm_infr_rcv_init(&p_sa->infr_rcv,
+				   &p_sa->resp,
+				   p_sa->p_mad_pool, p_subn, p_log, p_lock);
+	if (status != IB_SUCCESS)
+		goto Exit;
 
-  status = osm_vlarb_rec_rcv_init(
-    &p_sa->vlarb_rec_rcv,
-    &p_sa->resp,
-    p_sa->p_mad_pool,
-    p_subn,
-    p_log,
-    p_lock);
-  if( status != IB_SUCCESS )
-    goto Exit;
+	status = osm_vlarb_rec_rcv_init(&p_sa->vlarb_rec_rcv,
+					&p_sa->resp,
+					p_sa->p_mad_pool,
+					p_subn, p_log, p_lock);
+	if (status != IB_SUCCESS)
+		goto Exit;
 
-  status = osm_slvl_rec_rcv_init(
-    &p_sa->slvl_rec_rcv,
-    &p_sa->resp,
-    p_sa->p_mad_pool,
-    p_subn,
-    p_log,
-    p_lock);
-  if( status != IB_SUCCESS )
-    goto Exit;
+	status = osm_slvl_rec_rcv_init(&p_sa->slvl_rec_rcv,
+				       &p_sa->resp,
+				       p_sa->p_mad_pool, p_subn, p_log, p_lock);
+	if (status != IB_SUCCESS)
+		goto Exit;
 
-  status = osm_pkey_rec_rcv_init(
-    &p_sa->pkey_rec_rcv,
-    &p_sa->resp,
-    p_sa->p_mad_pool,
-    p_subn,
-    p_log,
-    p_lock);
-  if( status != IB_SUCCESS )
-    goto Exit;
+	status = osm_pkey_rec_rcv_init(&p_sa->pkey_rec_rcv,
+				       &p_sa->resp,
+				       p_sa->p_mad_pool, p_subn, p_log, p_lock);
+	if (status != IB_SUCCESS)
+		goto Exit;
 
-  status = osm_lftr_rcv_init(
-    &p_sa->lftr_rcv,
-    &p_sa->resp,
-    p_sa->p_mad_pool,
-    p_subn,
-    p_log,
-    p_lock);
-  if( status != IB_SUCCESS )
-    goto Exit;
+	status = osm_lftr_rcv_init(&p_sa->lftr_rcv,
+				   &p_sa->resp,
+				   p_sa->p_mad_pool, p_subn, p_log, p_lock);
+	if (status != IB_SUCCESS)
+		goto Exit;
 
-  status = osm_sir_rcv_init(
-    &p_sa->sir_rcv,
-    &p_sa->resp,
-    p_sa->p_mad_pool,
-    p_subn,
-    p_log,
-    p_lock);
-  if( status != IB_SUCCESS )
-    goto Exit;
+	status = osm_sir_rcv_init(&p_sa->sir_rcv,
+				  &p_sa->resp,
+				  p_sa->p_mad_pool, p_subn, p_log, p_lock);
+	if (status != IB_SUCCESS)
+		goto Exit;
 
-  status = osm_mftr_rcv_init(
-    &p_sa->mftr_rcv,
-    &p_sa->resp,
-    p_sa->p_mad_pool,
-    p_subn,
-    p_log,
-    p_lock);
-  if( status != IB_SUCCESS )
-    goto Exit;
+	status = osm_mftr_rcv_init(&p_sa->mftr_rcv,
+				   &p_sa->resp,
+				   p_sa->p_mad_pool, p_subn, p_log, p_lock);
+	if (status != IB_SUCCESS)
+		goto Exit;
 
-  p_sa->cpi_disp_h = cl_disp_register(p_disp, OSM_MSG_MAD_CLASS_PORT_INFO,
-                                      osm_cpi_rcv_process, &p_sa->cpi_rcv);
-  if( p_sa->cpi_disp_h == CL_DISP_INVALID_HANDLE )
-    goto Exit;
+	p_sa->cpi_disp_h = cl_disp_register(p_disp, OSM_MSG_MAD_CLASS_PORT_INFO,
+					    osm_cpi_rcv_process,
+					    &p_sa->cpi_rcv);
+	if (p_sa->cpi_disp_h == CL_DISP_INVALID_HANDLE)
+		goto Exit;
 
-  p_sa->nr_disp_h = cl_disp_register(p_disp, OSM_MSG_MAD_NODE_RECORD,
-                                     osm_nr_rcv_process, &p_sa->nr_rcv);
-  if( p_sa->nr_disp_h == CL_DISP_INVALID_HANDLE )
-    goto Exit;
+	p_sa->nr_disp_h = cl_disp_register(p_disp, OSM_MSG_MAD_NODE_RECORD,
+					   osm_nr_rcv_process, &p_sa->nr_rcv);
+	if (p_sa->nr_disp_h == CL_DISP_INVALID_HANDLE)
+		goto Exit;
 
-  p_sa->pir_disp_h = cl_disp_register(p_disp, OSM_MSG_MAD_PORTINFO_RECORD,
-                                      osm_pir_rcv_process, &p_sa->pir_rcv);
-  if( p_sa->pir_disp_h == CL_DISP_INVALID_HANDLE )
-    goto Exit;
+	p_sa->pir_disp_h = cl_disp_register(p_disp, OSM_MSG_MAD_PORTINFO_RECORD,
+					    osm_pir_rcv_process,
+					    &p_sa->pir_rcv);
+	if (p_sa->pir_disp_h == CL_DISP_INVALID_HANDLE)
+		goto Exit;
 
-  p_sa->gir_disp_h = cl_disp_register(p_disp, OSM_MSG_MAD_GUIDINFO_RECORD,
-                                      osm_gir_rcv_process, &p_sa->gir_rcv);
-  if( p_sa->gir_disp_h == CL_DISP_INVALID_HANDLE )
-    goto Exit;
+	p_sa->gir_disp_h = cl_disp_register(p_disp, OSM_MSG_MAD_GUIDINFO_RECORD,
+					    osm_gir_rcv_process,
+					    &p_sa->gir_rcv);
+	if (p_sa->gir_disp_h == CL_DISP_INVALID_HANDLE)
+		goto Exit;
 
-  p_sa->lr_disp_h = cl_disp_register(p_disp, OSM_MSG_MAD_LINK_RECORD,
-                                     osm_lr_rcv_process, &p_sa->lr_rcv);
-  if( p_sa->lr_disp_h == CL_DISP_INVALID_HANDLE )
-    goto Exit;
+	p_sa->lr_disp_h = cl_disp_register(p_disp, OSM_MSG_MAD_LINK_RECORD,
+					   osm_lr_rcv_process, &p_sa->lr_rcv);
+	if (p_sa->lr_disp_h == CL_DISP_INVALID_HANDLE)
+		goto Exit;
 
-  p_sa->pr_disp_h = cl_disp_register(p_disp, OSM_MSG_MAD_PATH_RECORD,
-                                     osm_pr_rcv_process, &p_sa->pr_rcv);
-  if( p_sa->pr_disp_h == CL_DISP_INVALID_HANDLE )
-    goto Exit;
+	p_sa->pr_disp_h = cl_disp_register(p_disp, OSM_MSG_MAD_PATH_RECORD,
+					   osm_pr_rcv_process, &p_sa->pr_rcv);
+	if (p_sa->pr_disp_h == CL_DISP_INVALID_HANDLE)
+		goto Exit;
 
 #if defined (VENDOR_RMPP_SUPPORT) && defined (DUAL_SIDED_RMPP)
-  p_sa->mpr_disp_h = cl_disp_register(p_disp, OSM_MSG_MAD_MULTIPATH_RECORD,
-                                      osm_mpr_rcv_process, &p_sa->mpr_rcv);
-  if( p_sa->mpr_disp_h == CL_DISP_INVALID_HANDLE )
-    goto Exit;
+	p_sa->mpr_disp_h =
+	    cl_disp_register(p_disp, OSM_MSG_MAD_MULTIPATH_RECORD,
+			     osm_mpr_rcv_process, &p_sa->mpr_rcv);
+	if (p_sa->mpr_disp_h == CL_DISP_INVALID_HANDLE)
+		goto Exit;
 #endif
 
-  p_sa->smir_disp_h = cl_disp_register(p_disp, OSM_MSG_MAD_SMINFO_RECORD,
-                                       osm_smir_rcv_process, &p_sa->smir_rcv);
-  if( p_sa->smir_disp_h == CL_DISP_INVALID_HANDLE )
-    goto Exit;
+	p_sa->smir_disp_h = cl_disp_register(p_disp, OSM_MSG_MAD_SMINFO_RECORD,
+					     osm_smir_rcv_process,
+					     &p_sa->smir_rcv);
+	if (p_sa->smir_disp_h == CL_DISP_INVALID_HANDLE)
+		goto Exit;
 
-  p_sa->mcmr_disp_h = cl_disp_register(p_disp, OSM_MSG_MAD_MCMEMBER_RECORD,
-                                       osm_mcmr_rcv_process, &p_sa->mcmr_rcv);
-  if( p_sa->mcmr_disp_h == CL_DISP_INVALID_HANDLE )
-    goto Exit;
+	p_sa->mcmr_disp_h =
+	    cl_disp_register(p_disp, OSM_MSG_MAD_MCMEMBER_RECORD,
+			     osm_mcmr_rcv_process, &p_sa->mcmr_rcv);
+	if (p_sa->mcmr_disp_h == CL_DISP_INVALID_HANDLE)
+		goto Exit;
 
-  p_sa->sr_disp_h = cl_disp_register(p_disp, OSM_MSG_MAD_SERVICE_RECORD,
-                                     osm_sr_rcv_process, &p_sa->sr_rcv);
-  if( p_sa->sr_disp_h == CL_DISP_INVALID_HANDLE )
-    goto Exit;
+	p_sa->sr_disp_h = cl_disp_register(p_disp, OSM_MSG_MAD_SERVICE_RECORD,
+					   osm_sr_rcv_process, &p_sa->sr_rcv);
+	if (p_sa->sr_disp_h == CL_DISP_INVALID_HANDLE)
+		goto Exit;
 
-  p_sa->infr_disp_h = cl_disp_register(p_disp, OSM_MSG_MAD_INFORM_INFO,
-                                       osm_infr_rcv_process, &p_sa->infr_rcv);
-  if( p_sa->infr_disp_h == CL_DISP_INVALID_HANDLE )
-    goto Exit;
+	p_sa->infr_disp_h = cl_disp_register(p_disp, OSM_MSG_MAD_INFORM_INFO,
+					     osm_infr_rcv_process,
+					     &p_sa->infr_rcv);
+	if (p_sa->infr_disp_h == CL_DISP_INVALID_HANDLE)
+		goto Exit;
 
-  p_sa->infir_disp_h = cl_disp_register(p_disp, OSM_MSG_MAD_INFORM_INFO_RECORD,
-                                        osm_infir_rcv_process, &p_sa->infr_rcv);
-  if( p_sa->infir_disp_h == CL_DISP_INVALID_HANDLE )
-    goto Exit;
+	p_sa->infir_disp_h =
+	    cl_disp_register(p_disp, OSM_MSG_MAD_INFORM_INFO_RECORD,
+			     osm_infir_rcv_process, &p_sa->infr_rcv);
+	if (p_sa->infir_disp_h == CL_DISP_INVALID_HANDLE)
+		goto Exit;
 
-  p_sa->vlarb_disp_h = cl_disp_register(p_disp, OSM_MSG_MAD_VL_ARB_RECORD,
-                                        osm_vlarb_rec_rcv_process,
-                                        &p_sa->vlarb_rec_rcv);
-  if( p_sa->vlarb_disp_h == CL_DISP_INVALID_HANDLE )
-    goto Exit;
+	p_sa->vlarb_disp_h = cl_disp_register(p_disp, OSM_MSG_MAD_VL_ARB_RECORD,
+					      osm_vlarb_rec_rcv_process,
+					      &p_sa->vlarb_rec_rcv);
+	if (p_sa->vlarb_disp_h == CL_DISP_INVALID_HANDLE)
+		goto Exit;
 
-  p_sa->slvl_disp_h = cl_disp_register(p_disp, OSM_MSG_MAD_SLVL_TBL_RECORD,
-                                       osm_slvl_rec_rcv_process,
-                                       &p_sa->slvl_rec_rcv);
-  if( p_sa->slvl_disp_h == CL_DISP_INVALID_HANDLE )
-    goto Exit;
+	p_sa->slvl_disp_h =
+	    cl_disp_register(p_disp, OSM_MSG_MAD_SLVL_TBL_RECORD,
+			     osm_slvl_rec_rcv_process, &p_sa->slvl_rec_rcv);
+	if (p_sa->slvl_disp_h == CL_DISP_INVALID_HANDLE)
+		goto Exit;
 
-  p_sa->pkey_disp_h = cl_disp_register(p_disp, OSM_MSG_MAD_PKEY_TBL_RECORD,
-                                       osm_pkey_rec_rcv_process,
-                                       &p_sa->pkey_rec_rcv);
-  if( p_sa->pkey_disp_h == CL_DISP_INVALID_HANDLE )
-    goto Exit;
+	p_sa->pkey_disp_h =
+	    cl_disp_register(p_disp, OSM_MSG_MAD_PKEY_TBL_RECORD,
+			     osm_pkey_rec_rcv_process, &p_sa->pkey_rec_rcv);
+	if (p_sa->pkey_disp_h == CL_DISP_INVALID_HANDLE)
+		goto Exit;
 
-  p_sa->lft_disp_h = cl_disp_register(p_disp, OSM_MSG_MAD_LFT_RECORD,
-                                      osm_lftr_rcv_process, &p_sa->lftr_rcv);
-  if( p_sa->lft_disp_h == CL_DISP_INVALID_HANDLE )
-    goto Exit;
+	p_sa->lft_disp_h = cl_disp_register(p_disp, OSM_MSG_MAD_LFT_RECORD,
+					    osm_lftr_rcv_process,
+					    &p_sa->lftr_rcv);
+	if (p_sa->lft_disp_h == CL_DISP_INVALID_HANDLE)
+		goto Exit;
 
-  p_sa->sir_disp_h = cl_disp_register(p_disp, OSM_MSG_MAD_SWITCH_INFO_RECORD,
-                                      osm_sir_rcv_process, &p_sa->sir_rcv);
-  if( p_sa->sir_disp_h == CL_DISP_INVALID_HANDLE )
-    goto Exit;
+	p_sa->sir_disp_h =
+	    cl_disp_register(p_disp, OSM_MSG_MAD_SWITCH_INFO_RECORD,
+			     osm_sir_rcv_process, &p_sa->sir_rcv);
+	if (p_sa->sir_disp_h == CL_DISP_INVALID_HANDLE)
+		goto Exit;
 
-  p_sa->mft_disp_h = cl_disp_register(p_disp, OSM_MSG_MAD_MFT_RECORD,
-                                      osm_mftr_rcv_process, &p_sa->mftr_rcv);
-  if( p_sa->mft_disp_h == CL_DISP_INVALID_HANDLE )
-    goto Exit;
+	p_sa->mft_disp_h = cl_disp_register(p_disp, OSM_MSG_MAD_MFT_RECORD,
+					    osm_mftr_rcv_process,
+					    &p_sa->mftr_rcv);
+	if (p_sa->mft_disp_h == CL_DISP_INVALID_HANDLE)
+		goto Exit;
 
- Exit:
-  OSM_LOG_EXIT( p_log );
-  return( status );
+      Exit:
+	OSM_LOG_EXIT(p_log);
+	return (status);
 }
 
 /**********************************************************************
  **********************************************************************/
 ib_api_status_t
-osm_sa_bind(
-  IN osm_sa_t* const p_sa,
-  IN const ib_net64_t port_guid )
+osm_sa_bind(IN osm_sa_t * const p_sa, IN const ib_net64_t port_guid)
 {
-  ib_api_status_t status;
+	ib_api_status_t status;
 
-  OSM_LOG_ENTER( p_sa->p_log, osm_sa_bind );
+	OSM_LOG_ENTER(p_sa->p_log, osm_sa_bind);
 
-  status = osm_sa_mad_ctrl_bind( &p_sa->mad_ctrl, port_guid );
+	status = osm_sa_mad_ctrl_bind(&p_sa->mad_ctrl, port_guid);
 
-  if( status != IB_SUCCESS )
-  {
-    osm_log( p_sa->p_log, OSM_LOG_ERROR,
-             "osm_sa_bind: ERR 4C03: "
-             "SA MAD Controller bind failed (%s)\n",
-             ib_get_err_str( status ) );
-    goto Exit;
-  }
+	if (status != IB_SUCCESS) {
+		osm_log(p_sa->p_log, OSM_LOG_ERROR,
+			"osm_sa_bind: ERR 4C03: "
+			"SA MAD Controller bind failed (%s)\n",
+			ib_get_err_str(status));
+		goto Exit;
+	}
 
- Exit:
-  OSM_LOG_EXIT( p_sa->p_log );
-  return( status );
+      Exit:
+	OSM_LOG_EXIT(p_sa->p_log);
+	return (status);
 }
 
 /**********************************************************************
@@ -532,11 +459,11 @@ struct opensm_dump_context {
 };
 
 static int
-opensm_dump_to_file(osm_opensm_t *p_osm, const char *file_name,
-		    void (*dump_func)(osm_opensm_t *p_osm, FILE *file))
+opensm_dump_to_file(osm_opensm_t * p_osm, const char *file_name,
+		    void (*dump_func) (osm_opensm_t * p_osm, FILE * file))
 {
 	char path[1024];
-	FILE  *file;
+	FILE *file;
 
 	snprintf(path, sizeof(path), "%s/%s",
 		 p_osm->subn.opt.dump_files_dir, file_name);
@@ -550,7 +477,7 @@ opensm_dump_to_file(osm_opensm_t *p_osm, const char *file_name,
 		return -1;
 	}
 
-	chmod(path, S_IRUSR|S_IWUSR);
+	chmod(path, S_IRUSR | S_IWUSR);
 
 	dump_func(p_osm, file);
 
@@ -558,28 +485,25 @@ opensm_dump_to_file(osm_opensm_t *p_osm, const char *file_name,
 	return 0;
 }
 
-static void
-mcast_mgr_dump_one_port(cl_map_item_t *p_map_item, void *cxt)
+static void mcast_mgr_dump_one_port(cl_map_item_t * p_map_item, void *cxt)
 {
 	FILE *file = ((struct opensm_dump_context *)cxt)->file;
-	osm_mcm_port_t *p_mcm_port = (osm_mcm_port_t *)p_map_item;
+	osm_mcm_port_t *p_mcm_port = (osm_mcm_port_t *) p_map_item;
 
 	fprintf(file, "mcm_port: "
 		"port_gid=0x%016" PRIx64 ":0x%016" PRIx64 " "
 		"scope_state=0x%02x proxy_join=0x%x" "\n\n",
 		cl_ntoh64(p_mcm_port->port_gid.unicast.prefix),
 		cl_ntoh64(p_mcm_port->port_gid.unicast.interface_id),
-		p_mcm_port->scope_state,
-		p_mcm_port->proxy_join);
+		p_mcm_port->scope_state, p_mcm_port->proxy_join);
 }
 
-static void
-sa_dump_one_mgrp(cl_map_item_t *p_map_item, void *cxt)
+static void sa_dump_one_mgrp(cl_map_item_t * p_map_item, void *cxt)
 {
 	struct opensm_dump_context dump_context;
 	osm_opensm_t *p_osm = ((struct opensm_dump_context *)cxt)->p_osm;
 	FILE *file = ((struct opensm_dump_context *)cxt)->file;
-	osm_mgrp_t *p_mgrp = (osm_mgrp_t *)p_map_item;
+	osm_mgrp_t *p_mgrp = (osm_mgrp_t *) p_map_item;
 
 	fprintf(file, "MC Group 0x%04x %s:"
 		" mgid=0x%016" PRIx64 ":0x%016" PRIx64
@@ -602,8 +526,7 @@ sa_dump_one_mgrp(cl_map_item_t *p_map_item, void *cxt)
 		p_mgrp->mcmember_rec.pkt_life,
 		cl_ntoh32(p_mgrp->mcmember_rec.sl_flow_hop),
 		p_mgrp->mcmember_rec.scope_state,
-		p_mgrp->mcmember_rec.proxy_join
-		);
+		p_mgrp->mcmember_rec.proxy_join);
 
 	dump_context.p_osm = p_osm;
 	dump_context.file = file;
@@ -612,11 +535,10 @@ sa_dump_one_mgrp(cl_map_item_t *p_map_item, void *cxt)
 			   mcast_mgr_dump_one_port, &dump_context);
 }
 
-static void
-sa_dump_one_inform(cl_list_item_t *p_list_item, void *cxt)
+static void sa_dump_one_inform(cl_list_item_t * p_list_item, void *cxt)
 {
 	FILE *file = ((struct opensm_dump_context *)cxt)->file;
-	osm_infr_t *p_infr = (osm_infr_t *)p_list_item;
+	osm_infr_t *p_infr = (osm_infr_t *) p_list_item;
 	ib_inform_info_record_t *p_iir = &p_infr->inform_record;
 
 	fprintf(file, "InformInfo Record:"
@@ -657,11 +579,10 @@ sa_dump_one_inform(cl_list_item_t *p_list_item, void *cxt)
 		p_infr->report_addr.addr_type.gsi.service_level);
 }
 
-static void
-sa_dump_one_service(cl_list_item_t *p_list_item, void *cxt)
+static void sa_dump_one_service(cl_list_item_t * p_list_item, void *cxt)
 {
 	FILE *file = ((struct opensm_dump_context *)cxt)->file;
-	osm_svcr_t *p_svcr = (osm_svcr_t *)p_list_item;
+	osm_svcr_t *p_svcr = (osm_svcr_t *) p_list_item;
 	ib_service_record_t *p_sr = &p_svcr->service_record;
 
 	fprintf(file, "Service Record: id=0x%016" PRIx64
@@ -677,11 +598,11 @@ sa_dump_one_service(cl_list_item_t *p_list_item, void *cxt)
 		" data32=0x%08x%08x:0x%08x%08x"
 		" data64=0x%016" PRIx64 ":0x%016" PRIx64
 		" modified_time=0x%x lease_period=0x%x\n\n",
-		cl_ntoh64( p_sr->service_id ),
-		cl_ntoh64( p_sr->service_gid.unicast.prefix ),
-		cl_ntoh64( p_sr->service_gid.unicast.interface_id ),
-		cl_ntoh16( p_sr->service_pkey ),
-		cl_ntoh32( p_sr->service_lease ),
+		cl_ntoh64(p_sr->service_id),
+		cl_ntoh64(p_sr->service_gid.unicast.prefix),
+		cl_ntoh64(p_sr->service_gid.unicast.interface_id),
+		cl_ntoh16(p_sr->service_pkey),
+		cl_ntoh32(p_sr->service_lease),
 		p_sr->service_key[0], p_sr->service_key[1],
 		p_sr->service_key[2], p_sr->service_key[3],
 		p_sr->service_key[4], p_sr->service_key[5],
@@ -716,14 +637,14 @@ sa_dump_one_service(cl_list_item_t *p_list_item, void *cxt)
 		p_svcr->modified_time, p_svcr->lease_period);
 }
 
-static void
-sa_dump_all_sa(osm_opensm_t *p_osm, FILE *file)
+static void sa_dump_all_sa(osm_opensm_t * p_osm, FILE * file)
 {
 	struct opensm_dump_context dump_context;
 
 	dump_context.p_osm = p_osm;
 	dump_context.file = file;
-	osm_log(&p_osm->log, OSM_LOG_DEBUG, "sa_dump_all_sa: Dump multicast:\n");
+	osm_log(&p_osm->log, OSM_LOG_DEBUG,
+		"sa_dump_all_sa: Dump multicast:\n");
 	cl_plock_acquire(&p_osm->lock);
 	cl_qmap_apply_func(&p_osm->subn.mgrp_mlid_tbl,
 			   sa_dump_one_mgrp, &dump_context);
@@ -736,7 +657,7 @@ sa_dump_all_sa(osm_opensm_t *p_osm, FILE *file)
 	cl_plock_release(&p_osm->lock);
 }
 
-int osm_sa_db_file_dump(osm_opensm_t *p_osm)
+int osm_sa_db_file_dump(osm_opensm_t * p_osm)
 {
 	return opensm_dump_to_file(p_osm, "opensm-sa.dump", sa_dump_all_sa);
 }
@@ -744,8 +665,8 @@ int osm_sa_db_file_dump(osm_opensm_t *p_osm)
 /*
  *  SA DB Loader
  */
-osm_mgrp_t *load_mcgroup(osm_opensm_t *p_osm, ib_net16_t mlid,
-			 ib_member_rec_t *p_mcm_rec, unsigned well_known)
+osm_mgrp_t *load_mcgroup(osm_opensm_t * p_osm, ib_net16_t mlid,
+			 ib_member_rec_t * p_mcm_rec, unsigned well_known)
 {
 	ib_net64_t comp_mask;
 	cl_map_item_t *p_next;
@@ -754,8 +675,8 @@ osm_mgrp_t *load_mcgroup(osm_opensm_t *p_osm, ib_net16_t mlid,
 	cl_plock_excl_acquire(&p_osm->lock);
 
 	if ((p_next = cl_qmap_get(&p_osm->subn.mgrp_mlid_tbl, mlid)) !=
-	     cl_qmap_end(&p_osm->subn.mgrp_mlid_tbl)) {
-		p_mgrp = (osm_mgrp_t *)p_next;
+	    cl_qmap_end(&p_osm->subn.mgrp_mlid_tbl)) {
+		p_mgrp = (osm_mgrp_t *) p_next;
 		if (!memcmp(&p_mgrp->mcmember_rec.mgid, &p_mcm_rec->mgid,
 			    sizeof(ib_gid_t))) {
 			osm_log(&p_osm->log, OSM_LOG_DEBUG,
@@ -769,10 +690,10 @@ osm_mgrp_t *load_mcgroup(osm_opensm_t *p_osm, ib_net16_t mlid,
 			cl_ntoh16(mlid));
 		p_mgrp = NULL;
 		goto _out;
-        }
+	}
 
 	comp_mask = IB_MCR_COMPMASK_MTU | IB_MCR_COMPMASK_MTU_SEL
-			| IB_MCR_COMPMASK_RATE | IB_MCR_COMPMASK_RATE_SEL;
+	    | IB_MCR_COMPMASK_RATE | IB_MCR_COMPMASK_RATE_SEL;
 	if (osm_mcmr_rcv_find_or_create_new_mgrp(&p_osm->sa.mcmr_rcv,
 						 comp_mask, p_mcm_rec,
 						 &p_mgrp) != IB_SUCCESS ||
@@ -783,18 +704,17 @@ osm_mgrp_t *load_mcgroup(osm_opensm_t *p_osm, ib_net16_t mlid,
 			cl_ntoh16(mlid),
 			cl_ntoh64(p_mcm_rec->mgid.unicast.prefix),
 			cl_ntoh64(p_mcm_rec->mgid.unicast.interface_id));
-		p_mgrp=NULL;
-	}
-	else if (well_known)
+		p_mgrp = NULL;
+	} else if (well_known)
 		p_mgrp->well_known = TRUE;
 
-  _out:
+      _out:
 	cl_plock_release(&p_osm->lock);
 
 	return p_mgrp;
 }
 
-static int load_svcr(osm_opensm_t *p_osm, ib_service_record_t *sr,
+static int load_svcr(osm_opensm_t * p_osm, ib_service_record_t * sr,
 		     uint32_t modified_time, uint32_t lease_period)
 {
 	osm_svcr_t *p_svcr;
@@ -802,7 +722,7 @@ static int load_svcr(osm_opensm_t *p_osm, ib_service_record_t *sr,
 
 	cl_plock_excl_acquire(&p_osm->lock);
 
-	if(osm_svcr_get_by_rid(&p_osm->subn, &p_osm->log, sr)) {
+	if (osm_svcr_get_by_rid(&p_osm->subn, &p_osm->log, sr)) {
 		osm_log(&p_osm->log, OSM_LOG_VERBOSE,
 			"load_svcr: ServiceRecord already exists\n");
 		goto _out;
@@ -826,14 +746,14 @@ static int load_svcr(osm_opensm_t *p_osm, ib_service_record_t *sr,
 	if (lease_period != 0xffffffff)
 		cl_timer_trim(&p_osm->sa.sr_rcv.sr_timer, 1000);
 
-  _out:
+      _out:
 	cl_plock_release(&p_osm->lock);
 
 	return ret;
 }
 
-static int load_infr(osm_opensm_t *p_osm, ib_inform_info_record_t *iir,
-		     osm_mad_addr_t *addr)
+static int load_infr(osm_opensm_t * p_osm, ib_inform_info_record_t * iir,
+		     osm_mad_addr_t * addr)
 {
 	osm_infr_t infr, *p_infr;
 	int ret = 0;
@@ -864,12 +784,11 @@ static int load_infr(osm_opensm_t *p_osm, ib_inform_info_record_t *iir,
 
 	osm_infr_insert_to_db(&p_osm->subn, &p_osm->log, p_infr);
 
-  _out:
+      _out:
 	cl_plock_release(&p_osm->lock);
 
 	return ret;
 }
-
 
 #define UNPACK_FUNC(name,x) \
 int unpack_##name##x(char *p, uint##x##_t *val_ptr) \
@@ -888,12 +807,12 @@ int unpack_##name##x(char *p, uint##x##_t *val_ptr) \
 
 #define cl_hton8(x) (x)
 
-UNPACK_FUNC(net,8);
-UNPACK_FUNC(net,16);
-UNPACK_FUNC(net,32);
-UNPACK_FUNC(net,64);
+UNPACK_FUNC(net, 8);
+UNPACK_FUNC(net, 16);
+UNPACK_FUNC(net, 32);
+UNPACK_FUNC(net, 64);
 
-static int unpack_string(char *p, uint8_t *buf, unsigned len)
+static int unpack_string(char *p, uint8_t * buf, unsigned len)
 {
 	char *q = p;
 	char delim = ' ';
@@ -908,7 +827,7 @@ static int unpack_string(char *p, uint8_t *buf, unsigned len)
 	return (int)(q - p);
 }
 
-static int unpack_string64(char *p, uint8_t *buf)
+static int unpack_string64(char *p, uint8_t * buf)
 {
 	return unpack_string(p, buf, 64);
 }
@@ -934,7 +853,7 @@ static int unpack_string64(char *p, uint8_t *buf)
 	p += _ret; \
 }
 
-int osm_sa_db_file_load(osm_opensm_t *p_osm)
+int osm_sa_db_file_load(osm_opensm_t * p_osm)
 {
 	char line[1024];
 	char *file_name;
@@ -954,7 +873,7 @@ int osm_sa_db_file_load(osm_opensm_t *p_osm)
 
 	file = fopen(file_name, "r");
 	if (!file) {
-		osm_log(&p_osm->log, OSM_LOG_ERROR|OSM_LOG_SYS,
+		osm_log(&p_osm->log, OSM_LOG_ERROR | OSM_LOG_SYS,
 			"osm_sa_db_file_load: ERR 4C02: "
 			"cannot open sa db file \'%s\'. "
 			"Skip restoring\n", file_name);
@@ -985,7 +904,7 @@ int osm_sa_db_file_load(osm_opensm_t *p_osm)
 			memset(&mcm_rec, 0, sizeof(mcm_rec));
 
 			PARSE_AHEAD(p, net16, " 0x", &mlid);
-			if(strstr(p, "well known"))
+			if (strstr(p, "well known"))
 				well_known = 1;
 			PARSE_AHEAD(p, net64, " mgid=0x",
 				    &mcm_rec.mgid.unicast.prefix);
@@ -1013,8 +932,7 @@ int osm_sa_db_file_load(osm_opensm_t *p_osm)
 					      well_known);
 			if (!p_mgrp)
 				rereg_clients = 1;
-		}
-		else if (p_mgrp && !strncmp(p, "mcm_port", 8)) {
+		} else if (p_mgrp && !strncmp(p, "mcm_port", 8)) {
 			ib_gid_t port_gid;
 			ib_net64_t guid;
 			uint8_t scope_state;
@@ -1031,11 +949,10 @@ int osm_sa_db_file_load(osm_opensm_t *p_osm)
 			guid = port_gid.unicast.interface_id;
 			if (cl_qmap_get(&p_mgrp->mcm_port_tbl,
 					port_gid.unicast.interface_id) ==
-				cl_qmap_end(&p_mgrp->mcm_port_tbl))
+			    cl_qmap_end(&p_mgrp->mcm_port_tbl))
 				osm_mgrp_add_port(p_mgrp, &port_gid,
 						  scope_state, proxy_join);
-		}
-		else if (!strncmp(p, "Service Record:", 15)) {
+		} else if (!strncmp(p, "Service Record:", 15)) {
 			ib_service_record_t s_rec;
 			uint32_t modified_time, lease_period;
 
@@ -1048,25 +965,27 @@ int osm_sa_db_file_load(osm_opensm_t *p_osm)
 			PARSE_AHEAD(p, net64, ":0x",
 				    &s_rec.service_gid.unicast.interface_id);
 			PARSE_AHEAD(p, net16, " pkey=0x", &s_rec.service_pkey);
-			PARSE_AHEAD(p, net32, " lease=0x", &s_rec.service_lease);
+			PARSE_AHEAD(p, net32, " lease=0x",
+				    &s_rec.service_lease);
 			PARSE_AHEAD(p, net64, " key=0x",
-				    (ib_net64_t *)(&s_rec.service_key[0]));
+				    (ib_net64_t *) (&s_rec.service_key[0]));
 			PARSE_AHEAD(p, net64, ":0x",
-				    (ib_net64_t *)(&s_rec.service_key[8]));
+				    (ib_net64_t *) (&s_rec.service_key[8]));
 			PARSE_AHEAD(p, string64, " name=", s_rec.service_name);
 			PARSE_AHEAD(p, net64, " data8=0x",
-				    (ib_net64_t *)(&s_rec.service_data8[0]));
+				    (ib_net64_t *) (&s_rec.service_data8[0]));
 			PARSE_AHEAD(p, net64, ":0x",
-				    (ib_net64_t *)(&s_rec.service_data8[8]));
+				    (ib_net64_t *) (&s_rec.service_data8[8]));
 			PARSE_AHEAD(p, net64, " data16=0x",
-				    (ib_net64_t *)(&s_rec.service_data16[0]));
+				    (ib_net64_t *) (&s_rec.service_data16[0]));
 			PARSE_AHEAD(p, net64, ":0x",
-				    (ib_net64_t *)(&s_rec.service_data16[4]));
+				    (ib_net64_t *) (&s_rec.service_data16[4]));
 			PARSE_AHEAD(p, net64, " data32=0x",
-				    (ib_net64_t *)(&s_rec.service_data32[0]));
+				    (ib_net64_t *) (&s_rec.service_data32[0]));
 			PARSE_AHEAD(p, net64, ":0x",
-				    (ib_net64_t *)(&s_rec.service_data32[2]));
-			PARSE_AHEAD(p, net64, " data64=0x", &s_rec.service_data64[0]);
+				    (ib_net64_t *) (&s_rec.service_data32[2]));
+			PARSE_AHEAD(p, net64, " data64=0x",
+				    &s_rec.service_data64[0]);
 			PARSE_AHEAD(p, net64, ":0x", &s_rec.service_data64[1]);
 			PARSE_AHEAD(p, net32, " modified_time=0x",
 				    &modified_time);
@@ -1076,8 +995,7 @@ int osm_sa_db_file_load(osm_opensm_t *p_osm)
 			if (load_svcr(p_osm, &s_rec, cl_ntoh32(modified_time),
 				      cl_ntoh32(lease_period)))
 				rereg_clients = 1;
-		}
-		else if (!strncmp(p, "InformInfo Record:", 18)) {
+		} else if (!strncmp(p, "InformInfo Record:", 18)) {
 			ib_inform_info_record_t i_rec;
 			osm_mad_addr_t rep_addr;
 
@@ -1094,7 +1012,8 @@ int osm_sa_db_file_load(osm_opensm_t *p_osm)
 			PARSE_AHEAD(p, net64, " gid=0x",
 				    &i_rec.inform_info.gid.unicast.prefix);
 			PARSE_AHEAD(p, net64, ":0x",
-				    &i_rec.inform_info.gid.unicast.interface_id);
+				    &i_rec.inform_info.gid.unicast.
+				    interface_id);
 			PARSE_AHEAD(p, net16, " lid_range_begin=0x",
 				    &i_rec.inform_info.lid_range_begin);
 			PARSE_AHEAD(p, net16, " lid_range_end=0x",
@@ -1108,9 +1027,11 @@ int osm_sa_db_file_load(osm_opensm_t *p_osm)
 			PARSE_AHEAD(p, net16, " trap_num=0x",
 				    &i_rec.inform_info.g_or_v.generic.trap_num);
 			PARSE_AHEAD(p, net32, " qpn_resp_time_val=0x",
-				    &i_rec.inform_info.g_or_v.generic.qpn_resp_time_val);
+				    &i_rec.inform_info.g_or_v.generic.
+				    qpn_resp_time_val);
 			PARSE_AHEAD(p, net32, " node_type=0x",
-				    (uint32_t *)&i_rec.inform_info.g_or_v.generic.reserved2);
+				    (uint32_t *) & i_rec.inform_info.g_or_v.
+				    generic.reserved2);
 
 			PARSE_AHEAD(p, net16, " rep_addr: lid=0x",
 				    &rep_addr.dest_lid);
@@ -1135,7 +1056,7 @@ int osm_sa_db_file_load(osm_opensm_t *p_osm)
 	if (!rereg_clients)
 		p_osm->subn.opt.no_clients_rereg = TRUE;
 
-  _error:
+      _error:
 	fclose(file);
 	return ret;
 }

@@ -33,7 +33,6 @@
  *
  */
 
-
 /*
  * Abstract:
  *    Implementation of osm_fwd_tbl_t.
@@ -48,68 +47,59 @@
 
 #if HAVE_CONFIG_H
 #  include <config.h>
-#endif /* HAVE_CONFIG_H */
+#endif				/* HAVE_CONFIG_H */
 
 #include <complib/cl_math.h>
 #include <iba/ib_types.h>
 #include <opensm/osm_fwd_tbl.h>
 
-
 /**********************************************************************
  **********************************************************************/
 ib_api_status_t
-osm_fwd_tbl_init(
-  IN osm_fwd_tbl_t* const p_tbl,
-  IN const ib_switch_info_t* const p_si )
+osm_fwd_tbl_init(IN osm_fwd_tbl_t * const p_tbl,
+		 IN const ib_switch_info_t * const p_si)
 {
-  uint16_t tbl_cap;
-  ib_api_status_t status = IB_SUCCESS;
+	uint16_t tbl_cap;
+	ib_api_status_t status = IB_SUCCESS;
 
-  /*
-    Determine the type and size of the forwarding table
-    used by this switch, then initialize accordingly.
-    The current implementation only supports switches
-    with linear forwarding tables.
-  */
-  tbl_cap = cl_ntoh16( p_si->lin_cap );
+	/*
+	   Determine the type and size of the forwarding table
+	   used by this switch, then initialize accordingly.
+	   The current implementation only supports switches
+	   with linear forwarding tables.
+	 */
+	tbl_cap = cl_ntoh16(p_si->lin_cap);
 
-  if( tbl_cap == 0 )
-  {
-    /*
-      This switch does not support linear forwarding
-      tables.  Error out for now.
-    */
-    status = IB_UNSUPPORTED;
-    goto Exit;
-  }
+	if (tbl_cap == 0) {
+		/*
+		   This switch does not support linear forwarding
+		   tables.  Error out for now.
+		 */
+		status = IB_UNSUPPORTED;
+		goto Exit;
+	}
 
-  p_tbl->p_rnd_tbl = NULL;
+	p_tbl->p_rnd_tbl = NULL;
 
-  p_tbl->p_lin_tbl = osm_lin_tbl_new( tbl_cap );
+	p_tbl->p_lin_tbl = osm_lin_tbl_new(tbl_cap);
 
-  if( p_tbl->p_lin_tbl == NULL )
-  {
-    status = IB_INSUFFICIENT_MEMORY;
-    goto Exit;
-  }
+	if (p_tbl->p_lin_tbl == NULL) {
+		status = IB_INSUFFICIENT_MEMORY;
+		goto Exit;
+	}
 
- Exit:
-  return( status );
+      Exit:
+	return (status);
 }
 
 /**********************************************************************
  **********************************************************************/
-void
-osm_fwd_tbl_destroy(
-  IN osm_fwd_tbl_t* const p_tbl )
+void osm_fwd_tbl_destroy(IN osm_fwd_tbl_t * const p_tbl)
 {
-  if( p_tbl->p_lin_tbl )
-  {
-    CL_ASSERT( p_tbl->p_rnd_tbl == NULL );
-    osm_lin_tbl_delete( &p_tbl->p_lin_tbl );
-  }
-  else
-  {
-    osm_rand_tbl_delete( &p_tbl->p_rnd_tbl );
-  }
+	if (p_tbl->p_lin_tbl) {
+		CL_ASSERT(p_tbl->p_rnd_tbl == NULL);
+		osm_lin_tbl_delete(&p_tbl->p_lin_tbl);
+	} else {
+		osm_rand_tbl_delete(&p_tbl->p_rnd_tbl);
+	}
 }

@@ -202,7 +202,9 @@ static void dump_ucast_routes(cl_map_item_t * p_map_item, void *cxt)
 								  p_node, 0);
 					base_lid = cl_ntoh16(base_lid);
 					num_hops =
-					    p_physp->p_remote_physp->p_node->sw == p_sw ? 0 :
+					    p_physp->p_remote_physp->p_node->
+					    sw ==
+					    p_sw ? 0 :
 					    osm_switch_get_hop_count(p_sw,
 								     base_lid,
 								     port_num);
@@ -270,7 +272,8 @@ static void dump_mcast_routes(cl_map_item_t * p_map_item, void *cxt)
 				mlid_ho + IB_LID_MCAST_START_HO);
 			while (position <= p_tbl->max_position) {
 				mask_entry =
-				    cl_ntoh16((*p_tbl->p_mask_tbl)[mlid_ho][position]);
+				    cl_ntoh16((*p_tbl->
+					       p_mask_tbl)[mlid_ho][position]);
 				if (mask_entry == 0) {
 					position++;
 					continue;
@@ -278,11 +281,13 @@ static void dump_mcast_routes(cl_map_item_t * p_map_item, void *cxt)
 				for (j = 0; j < 16; j++) {
 					if ((1 << j) & mask_entry) {
 						if (first_mlid) {
-							fprintf(file, "%s", sw_hdr);
+							fprintf(file, "%s",
+								sw_hdr);
 							first_mlid = FALSE;
 						}
 						if (first_port) {
-							fprintf(file, "%s", mlid_hdr);
+							fprintf(file, "%s",
+								mlid_hdr);
 							first_port = FALSE;
 						}
 						fprintf(file, " 0x%03X ",

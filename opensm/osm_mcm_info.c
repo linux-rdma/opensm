@@ -33,7 +33,6 @@
  *
  */
 
-
 /*
  * Abstract:
  *    Declaration of osm_mcm_info_t.
@@ -48,34 +47,29 @@
 
 #if HAVE_CONFIG_H
 #  include <config.h>
-#endif /* HAVE_CONFIG_H */
+#endif				/* HAVE_CONFIG_H */
 
 #include <stdlib.h>
 #include <opensm/osm_mcm_info.h>
 
 /**********************************************************************
  **********************************************************************/
-osm_mcm_info_t*
-osm_mcm_info_new(
-  IN const ib_net16_t mlid )
+osm_mcm_info_t *osm_mcm_info_new(IN const ib_net16_t mlid)
 {
-  osm_mcm_info_t* p_mcm;
+	osm_mcm_info_t *p_mcm;
 
-  p_mcm = (osm_mcm_info_t*)malloc( sizeof(*p_mcm) );
-  if( p_mcm )
-  {
-    memset(p_mcm, 0, sizeof(*p_mcm) );
-    p_mcm->mlid = mlid;
-  }
+	p_mcm = (osm_mcm_info_t *) malloc(sizeof(*p_mcm));
+	if (p_mcm) {
+		memset(p_mcm, 0, sizeof(*p_mcm));
+		p_mcm->mlid = mlid;
+	}
 
-  return( p_mcm );
+	return (p_mcm);
 }
 
 /**********************************************************************
  **********************************************************************/
-void
-osm_mcm_info_delete(
-  IN osm_mcm_info_t* const p_mcm )
+void osm_mcm_info_delete(IN osm_mcm_info_t * const p_mcm)
 {
-  free( p_mcm );
+	free(p_mcm);
 }

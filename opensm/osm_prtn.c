@@ -45,7 +45,7 @@
 
 #if HAVE_CONFIG_H
 #  include <config.h>
-#endif /* HAVE_CONFIG_H */
+#endif				/* HAVE_CONFIG_H */
 
 #include <stdlib.h>
 #include <string.h>
@@ -65,9 +65,7 @@ extern int osm_prtn_config_parse_file(osm_log_t * const p_log,
 
 static uint16_t global_pkey_counter;
 
-osm_prtn_t* osm_prtn_new(
-	IN const char *name,
-	IN const uint16_t pkey )
+osm_prtn_t *osm_prtn_new(IN const char *name, IN const uint16_t pkey)
 {
 	osm_prtn_t *p = malloc(sizeof(*p));
 	if (!p)
@@ -89,8 +87,7 @@ osm_prtn_t* osm_prtn_new(
 	return p;
 }
 
-void osm_prtn_delete(
-	IN OUT osm_prtn_t** const pp_prtn )
+void osm_prtn_delete(IN OUT osm_prtn_t ** const pp_prtn)
 {
 	osm_prtn_t *p = *pp_prtn;
 
@@ -102,8 +99,9 @@ void osm_prtn_delete(
 	*pp_prtn = NULL;
 }
 
-ib_api_status_t osm_prtn_add_port(osm_log_t *p_log, osm_subn_t *p_subn,
-				  osm_prtn_t *p, ib_net64_t guid, boolean_t full)
+ib_api_status_t osm_prtn_add_port(osm_log_t * p_log, osm_subn_t * p_subn,
+				  osm_prtn_t * p, ib_net64_t guid,
+				  boolean_t full)
 {
 	ib_api_status_t status = IB_SUCCESS;
 	cl_map_t *p_tbl;
@@ -113,8 +111,7 @@ ib_api_status_t osm_prtn_add_port(osm_log_t *p_log, osm_subn_t *p_subn,
 	p_port = osm_get_port_by_guid(p_subn, guid);
 	if (!p_port) {
 		osm_log(p_log, OSM_LOG_VERBOSE, "osm_prtn_add_port: "
-			"port 0x%" PRIx64 " not found\n",
-			cl_ntoh64(guid));
+			"port 0x%" PRIx64 " not found\n", cl_ntoh64(guid));
 		return status;
 	}
 
@@ -134,7 +131,7 @@ ib_api_status_t osm_prtn_add_port(osm_log_t *p_log, osm_subn_t *p_subn,
 			cl_ntoh64(guid), p->name, cl_ntoh16(p->pkey));
 	}
 
-	p_tbl = (full == TRUE) ? &p->full_guid_tbl : &p->part_guid_tbl ;
+	p_tbl = (full == TRUE) ? &p->full_guid_tbl : &p->part_guid_tbl;
 
 	if (cl_map_insert(p_tbl, guid, p_physp) == NULL)
 		return IB_INSUFFICIENT_MEMORY;
@@ -142,8 +139,8 @@ ib_api_status_t osm_prtn_add_port(osm_log_t *p_log, osm_subn_t *p_subn,
 	return status;
 }
 
-ib_api_status_t osm_prtn_add_all(osm_log_t *p_log, osm_subn_t *p_subn,
-				 osm_prtn_t *p, boolean_t full)
+ib_api_status_t osm_prtn_add_all(osm_log_t * p_log, osm_subn_t * p_subn,
+				 osm_prtn_t * p, boolean_t full)
 {
 	cl_qmap_t *p_port_tbl = &p_subn->port_guid_tbl;
 	cl_map_item_t *p_item;
@@ -152,7 +149,7 @@ ib_api_status_t osm_prtn_add_all(osm_log_t *p_log, osm_subn_t *p_subn,
 
 	p_item = cl_qmap_head(p_port_tbl);
 	while (p_item != cl_qmap_end(p_port_tbl)) {
-		p_port = (osm_port_t *)p_item;
+		p_port = (osm_port_t *) p_item;
 		p_item = cl_qmap_next(p_item);
 		status = osm_prtn_add_port(p_log, p_subn, p,
 					   osm_port_get_guid(p_port), full);
@@ -160,19 +157,19 @@ ib_api_status_t osm_prtn_add_all(osm_log_t *p_log, osm_subn_t *p_subn,
 			goto _err;
 	}
 
-  _err:
+      _err:
 	return status;
 }
 
 static const ib_gid_t osm_ipoib_mgid = {
-  {
-    0xff,                           /*  multicast field */
-    0x12,                           /*  non-permanent bit, link local scope */
-    0x40, 0x1b,                     /*  IPv4 signature */
-    0xff, 0xff,                     /*  16 bits of P_Key (to be filled in) */
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00,   /*  48 bits of zeros */
-    0xff, 0xff, 0xff, 0xff,            /*  32 bit IPv4 broadcast address */
-  },
+	{
+	 0xff,			/*  multicast field */
+	 0x12,			/*  non-permanent bit, link local scope */
+	 0x40, 0x1b,		/*  IPv4 signature */
+	 0xff, 0xff,		/*  16 bits of P_Key (to be filled in) */
+	 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,	/*  48 bits of zeros */
+	 0xff, 0xff, 0xff, 0xff,	/*  32 bit IPv4 broadcast address */
+	 },
 };
 
 /*
@@ -180,18 +177,18 @@ static const ib_gid_t osm_ipoib_mgid = {
  * we have to pre-define the MGID
  */
 static const ib_gid_t osm_ts_ipoib_mgid = {
-  {
-    0xff,                           /*  multicast field */
-    0x12,                           /*  non-permanent bit, link local scope */
-    0x40, 0x1b,                     /*  IPv4 signature */
-    0xff, 0xff,                     /*  16 bits of P_Key (to be filled in) */
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00,   /*  48 bits of zeros */
-    0x00, 0x00, 0x00, 0x01,            /*  32 bit IPv4 broadcast address */
-  },
+	{
+	 0xff,			/*  multicast field */
+	 0x12,			/*  non-permanent bit, link local scope */
+	 0x40, 0x1b,		/*  IPv4 signature */
+	 0xff, 0xff,		/*  16 bits of P_Key (to be filled in) */
+	 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,	/*  48 bits of zeros */
+	 0x00, 0x00, 0x00, 0x01,	/*  32 bit IPv4 broadcast address */
+	 },
 };
 
-ib_api_status_t osm_prtn_add_mcgroup(osm_log_t *p_log,
-				     osm_subn_t *p_subn, osm_prtn_t *p,
+ib_api_status_t osm_prtn_add_mcgroup(osm_log_t * p_log,
+				     osm_subn_t * p_subn, osm_prtn_t * p,
 				     unsigned is_ipoib, uint8_t rate,
 				     uint8_t mtu, uint8_t scope)
 {
@@ -207,27 +204,30 @@ ib_api_status_t osm_prtn_add_mcgroup(osm_log_t *p_log,
 
 	memset(&mc_rec, 0, sizeof(mc_rec));
 
-	mc_rec.mgid = osm_ipoib_mgid; /* ipv4 broadcast group */
+	mc_rec.mgid = osm_ipoib_mgid;	/* ipv4 broadcast group */
 	memcpy(&mc_rec.mgid.raw[4], &pkey, sizeof(pkey));
 
 	mc_rec.qkey = CL_HTON32(0x0b1b);
-	mc_rec.mtu = (mtu ? mtu : OSM_DEFAULT_MGRP_MTU) | (2 << 6); /* 2048 Bytes */
+	mc_rec.mtu = (mtu ? mtu : OSM_DEFAULT_MGRP_MTU) | (2 << 6);	/* 2048 Bytes */
 	mc_rec.tclass = 0;
 	mc_rec.pkey = pkey;
-	mc_rec.rate = (rate ? rate : OSM_DEFAULT_MGRP_RATE) | (2 << 6); /* 10Gb/sec */
+	mc_rec.rate = (rate ? rate : OSM_DEFAULT_MGRP_RATE) | (2 << 6);	/* 10Gb/sec */
 	mc_rec.pkt_life = OSM_DEFAULT_SUBNET_TIMEOUT;
 	mc_rec.sl_flow_hop = ib_member_set_sl_flow_hop(p->sl, 0, 0);
 	/* Scope in MCMemberRecord (if present) needs to be consistent with MGID */
-	mc_rec.scope_state = ib_member_set_scope_state(scope ? scope : OSM_DEFAULT_MGRP_SCOPE, MC_FULL_MEMBER);
+	mc_rec.scope_state =
+	    ib_member_set_scope_state(scope ? scope : OSM_DEFAULT_MGRP_SCOPE,
+				      MC_FULL_MEMBER);
 	ib_mgid_set_scope(&mc_rec.mgid, scope ? scope : OSM_DEFAULT_MGRP_SCOPE);
 
 	/* don't update rate, mtu */
 	comp_mask = IB_MCR_COMPMASK_MTU | IB_MCR_COMPMASK_MTU_SEL |
-		    IB_MCR_COMPMASK_RATE | IB_MCR_COMPMASK_RATE_SEL;
+	    IB_MCR_COMPMASK_RATE | IB_MCR_COMPMASK_RATE_SEL;
 	status = osm_mcmr_rcv_find_or_create_new_mgrp(&p_sa->mcmr_rcv,
-						      comp_mask, &mc_rec, &p_mgrp);
+						      comp_mask, &mc_rec,
+						      &p_mgrp);
 	if (!p_mgrp || status != IB_SUCCESS)
-		osm_log( p_log, OSM_LOG_ERROR,
+		osm_log(p_log, OSM_LOG_ERROR,
 			"osm_prtn_add_mcgroup: "
 			"Failed to create MC group with pkey 0x%04x\n",
 			cl_ntoh16(pkey));
@@ -239,17 +239,19 @@ ib_api_status_t osm_prtn_add_mcgroup(osm_log_t *p_log,
 	mc_rec.mgid = osm_ts_ipoib_mgid;
 	memcpy(&mc_rec.mgid.raw[4], &pkey, sizeof(pkey));
 	/* Scope in MCMemberRecord (if present) needs to be consistent with MGID */
-	ts_scope = ib_mgid_get_scope(&osm_ts_ipoib_mgid); /* get scope from MGID */
-	mc_rec.scope_state = ib_member_set_scope_state(ts_scope, MC_FULL_MEMBER);
-	status = osm_mcmr_rcv_find_or_create_new_mgrp(&p_sa->mcmr_rcv,
-			comp_mask, &mc_rec, &p_mgrp);
+	ts_scope = ib_mgid_get_scope(&osm_ts_ipoib_mgid);	/* get scope from MGID */
+	mc_rec.scope_state =
+	    ib_member_set_scope_state(ts_scope, MC_FULL_MEMBER);
+	status =
+	    osm_mcmr_rcv_find_or_create_new_mgrp(&p_sa->mcmr_rcv, comp_mask,
+						 &mc_rec, &p_mgrp);
 	if (p_mgrp)
 		p_mgrp->well_known = TRUE;
 
 	return status;
 }
 
-static uint16_t __generate_pkey(osm_subn_t *p_subn)
+static uint16_t __generate_pkey(osm_subn_t * p_subn)
 {
 	uint16_t pkey;
 
@@ -263,14 +265,14 @@ static uint16_t __generate_pkey(osm_subn_t *p_subn)
 	return 0;
 }
 
-static osm_prtn_t *find_prtn_by_name(osm_subn_t *p_subn, const char *name)
+static osm_prtn_t *find_prtn_by_name(osm_subn_t * p_subn, const char *name)
 {
 	cl_map_item_t *p_next;
 	osm_prtn_t *p;
 
 	p_next = cl_qmap_head(&p_subn->prtn_pkey_tbl);
 	while (p_next != cl_qmap_end(&p_subn->prtn_pkey_tbl)) {
-		p = (osm_prtn_t *)p_next;
+		p = (osm_prtn_t *) p_next;
 		p_next = cl_qmap_next(&p->map_item);
 		if (!strncmp(p->name, name, sizeof(p->name)))
 			return p;
@@ -279,17 +281,17 @@ static osm_prtn_t *find_prtn_by_name(osm_subn_t *p_subn, const char *name)
 	return NULL;
 }
 
-osm_prtn_t *osm_prtn_make_new(osm_log_t *p_log, osm_subn_t *p_subn,
+osm_prtn_t *osm_prtn_make_new(osm_log_t * p_log, osm_subn_t * p_subn,
 			      const char *name, uint16_t pkey)
 {
 	osm_prtn_t *p = NULL, *p_check;
 
-	pkey &= cl_hton16((uint16_t)~0x8000);
+	pkey &= cl_hton16((uint16_t) ~ 0x8000);
 
 	if (!pkey) {
 		if (name && (p = find_prtn_by_name(p_subn, name)))
 			return p;
-		if(!(pkey = __generate_pkey(p_subn)))
+		if (!(pkey = __generate_pkey(p_subn)))
 			return NULL;
 	}
 
@@ -297,13 +299,12 @@ osm_prtn_t *osm_prtn_make_new(osm_log_t *p_log, osm_subn_t *p_subn,
 	if (!p) {
 		osm_log(p_log, OSM_LOG_ERROR,
 			"osm_prtn_make_new: Unable to create"
-			" partition \'%s\' (0x%04x)\n",
-			name, cl_ntoh16(pkey));
+			" partition \'%s\' (0x%04x)\n", name, cl_ntoh16(pkey));
 		return NULL;
 	}
 
-	p_check = (osm_prtn_t *)cl_qmap_insert(&p_subn->prtn_pkey_tbl,
-					       p->pkey, &p->map_item);
+	p_check = (osm_prtn_t *) cl_qmap_insert(&p_subn->prtn_pkey_tbl,
+						p->pkey, &p->map_item);
 	if (p != p_check) {
 		osm_log(p_log, OSM_LOG_VERBOSE,
 			"osm_prtn_make_new: Duplicated partition"
@@ -324,19 +325,21 @@ static ib_api_status_t osm_prtn_make_default(osm_log_t * const p_log,
 	ib_api_status_t status = IB_UNKNOWN_ERROR;
 	osm_prtn_t *p;
 
-	p = osm_prtn_make_new(p_log, p_subn, "Default", IB_DEFAULT_PARTIAL_PKEY);
+	p = osm_prtn_make_new(p_log, p_subn, "Default",
+			      IB_DEFAULT_PARTIAL_PKEY);
 	if (!p)
 		goto _err;
 	status = osm_prtn_add_all(p_log, p_subn, p, no_config);
 	if (status != IB_SUCCESS)
 		goto _err;
 	cl_map_remove(&p->part_guid_tbl, p_subn->sm_port_guid);
-	status = osm_prtn_add_port(p_log, p_subn, p, p_subn->sm_port_guid, TRUE);
+	status =
+	    osm_prtn_add_port(p_log, p_subn, p, p_subn->sm_port_guid, TRUE);
 
 	if (no_config)
 		osm_prtn_add_mcgroup(p_log, p_subn, p, 1, 0, 0, 0);
 
-  _err:
+      _err:
 	return status;
 }
 
@@ -351,15 +354,14 @@ ib_api_status_t osm_prtn_make_partitions(osm_log_t * const p_log,
 	osm_prtn_t *p;
 
 	file_name = p_subn->opt.partition_config_file ?
-			p_subn->opt.partition_config_file :
-			"/etc/osm-partitions.conf";
+	    p_subn->opt.partition_config_file : "/etc/osm-partitions.conf";
 	if (stat(file_name, &statbuf))
 		is_config = FALSE;
 
 	/* clean up current port maps */
 	p_next = cl_qmap_head(&p_subn->prtn_pkey_tbl);
 	while (p_next != cl_qmap_end(&p_subn->prtn_pkey_tbl)) {
-		p = (osm_prtn_t *)p_next;
+		p = (osm_prtn_t *) p_next;
 		p_next = cl_qmap_next(&p->map_item);
 		cl_map_remove_all(&p->part_guid_tbl);
 		cl_map_remove_all(&p->full_guid_tbl);
@@ -380,16 +382,16 @@ ib_api_status_t osm_prtn_make_partitions(osm_log_t * const p_log,
 	/* and now clean up empty partitions */
 	p_next = cl_qmap_head(&p_subn->prtn_pkey_tbl);
 	while (p_next != cl_qmap_end(&p_subn->prtn_pkey_tbl)) {
-		p = (osm_prtn_t *)p_next;
+		p = (osm_prtn_t *) p_next;
 		p_next = cl_qmap_next(&p->map_item);
 		if (cl_map_count(&p->part_guid_tbl) == 0 &&
 		    cl_map_count(&p->full_guid_tbl) == 0) {
 			cl_qmap_remove_item(&p_subn->prtn_pkey_tbl,
-					    (cl_map_item_t *)p);
+					    (cl_map_item_t *) p);
 			osm_prtn_delete(&p);
 		}
 	}
 
-  _err:
+      _err:
 	return status;
 }

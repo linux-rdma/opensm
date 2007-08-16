@@ -42,7 +42,7 @@
 
 #if HAVE_CONFIG_H
 #  include <config.h>
-#endif /* HAVE_CONFIG_H */
+#endif				/* HAVE_CONFIG_H */
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -65,23 +65,23 @@
 /*
  */
 struct part_conf {
-	osm_log_t  *p_log;
+	osm_log_t *p_log;
 	osm_subn_t *p_subn;
 	osm_prtn_t *p_prtn;
-	unsigned    is_ipoib, mtu, rate, sl, scope;
-	boolean_t   full;
+	unsigned is_ipoib, mtu, rate, sl, scope;
+	boolean_t full;
 };
 
-extern osm_prtn_t *osm_prtn_make_new(osm_log_t *p_log, osm_subn_t *p_subn,
+extern osm_prtn_t *osm_prtn_make_new(osm_log_t * p_log, osm_subn_t * p_subn,
 				     const char *name, uint16_t pkey);
-extern ib_api_status_t osm_prtn_add_all(osm_log_t *p_log,
-					osm_subn_t *p_subn,
-					osm_prtn_t *p, boolean_t full);
-extern ib_api_status_t osm_prtn_add_port(osm_log_t *p_log,
-					 osm_subn_t *p_subn, osm_prtn_t *p,
+extern ib_api_status_t osm_prtn_add_all(osm_log_t * p_log,
+					osm_subn_t * p_subn,
+					osm_prtn_t * p, boolean_t full);
+extern ib_api_status_t osm_prtn_add_port(osm_log_t * p_log,
+					 osm_subn_t * p_subn, osm_prtn_t * p,
 					 ib_net64_t guid, boolean_t full);
-extern ib_api_status_t osm_prtn_add_mcgroup(osm_log_t *p_log,
-					    osm_subn_t *p_subn, osm_prtn_t *p,
+extern ib_api_status_t osm_prtn_add_mcgroup(osm_log_t * p_log,
+					    osm_subn_t * p_subn, osm_prtn_t * p,
 					    unsigned is_ipoib, uint8_t rate,
 					    uint8_t mtu, uint8_t scope);
 
@@ -98,7 +98,7 @@ static int partition_create(unsigned lineno, struct part_conf *conf,
 	if (id) {
 		char *end;
 
-		pkey = (uint16_t)strtoul(id, &end, 0);
+		pkey = (uint16_t) strtoul(id, &end, 0);
 		if (end == id || *end)
 			return -1;
 	} else
@@ -114,15 +114,16 @@ static int partition_create(unsigned lineno, struct part_conf *conf,
 			osm_log(conf->p_log, OSM_LOG_ERROR,
 				"partition_create: Overriding SL %d to default SL %d on partition %s as QoS not enabled\n",
 				conf->sl, OSM_DEFAULT_SL, name);
-		  conf->sl = OSM_DEFAULT_SL;
+			conf->sl = OSM_DEFAULT_SL;
 		}
 	}
-	conf->p_prtn->sl = (uint8_t)conf->sl;
+	conf->p_prtn->sl = (uint8_t) conf->sl;
 
 	if (conf->is_ipoib)
 		osm_prtn_add_mcgroup(conf->p_log, conf->p_subn, conf->p_prtn,
-			     conf->is_ipoib, (uint8_t)conf->rate,
-			     (uint8_t)conf->mtu, (uint8_t)conf->scope);
+				     conf->is_ipoib, (uint8_t) conf->rate,
+				     (uint8_t) conf->mtu,
+				     (uint8_t) conf->scope);
 
 	return 0;
 }
@@ -164,7 +165,9 @@ static int partition_add_flag(unsigned lineno, struct part_conf *conf,
 		else
 			conf->sl = sl;
 	} else if (!strncmp(flag, "defmember", len)) {
-		if (!val || (strncmp(val, "limited", strlen(val)) && strncmp(val, "full", strlen(val))))
+		if (!val
+		    || (strncmp(val, "limited", strlen(val))
+			&& strncmp(val, "full", strlen(val))))
 			osm_log(conf->p_log, OSM_LOG_VERBOSE,
 				"PARSE WARN: line %d: "
 				"flag \'defmember\' requires valid value (limited or full)"
@@ -172,10 +175,10 @@ static int partition_add_flag(unsigned lineno, struct part_conf *conf,
 		else
 			conf->full = strncmp(val, "full", strlen(val)) == 0;
 	} else {
-			osm_log(conf->p_log, OSM_LOG_VERBOSE,
-					  "PARSE WARN: line %d: "
-					  "unrecognized partition flag \'%s\'"
-					  " - ignored\n", lineno, flag);
+		osm_log(conf->p_log, OSM_LOG_VERBOSE,
+			"PARSE WARN: line %d: "
+			"unrecognized partition flag \'%s\'"
+			" - ignored\n", lineno, flag);
 	}
 	return 0;
 }
@@ -251,8 +254,7 @@ static int parse_name_token(char *str, char **name, char **val)
 	str = q;
 
 	q = p + strlen(p);
-	while ( q != p &&
-		(*q == '\0' || *q == ' ' || *q == '\t' || *q == '\n'))
+	while (q != p && (*q == '\0' || *q == ' ' || *q == '\t' || *q == '\n'))
 		*q-- = '\0';
 
 	*name = p;
@@ -266,15 +268,14 @@ static int parse_name_token(char *str, char **name, char **val)
 
 	q = p + strlen(p);
 	len += (int)(q - str) + 1;
-	while ( q != p &&
-		( *q == '\0' || *q == ' ' || *q == '\t' || *q == '\n'))
+	while (q != p && (*q == '\0' || *q == ' ' || *q == '\t' || *q == '\n'))
 		*q-- = '\0';
 	*val = p;
 
 	return len;
 }
 
-static struct part_conf *new_part_conf(osm_log_t *p_log, osm_subn_t *p_subn)
+static struct part_conf *new_part_conf(osm_log_t * p_log, osm_subn_t * p_subn)
 {
 	static struct part_conf part;
 	struct part_conf *conf = &part;
@@ -343,9 +344,9 @@ static int parse_part_conf(struct part_conf *conf, char *str, int lineno)
 		if (!flag) {
 			osm_log(conf->p_log, OSM_LOG_ERROR,
 				"PARSE ERROR: line %d: "
-				"bad partition flags\n",lineno);
+				"bad partition flags\n", lineno);
 			fprintf(stderr, "\nPARSE ERROR: line %d: "
-				"bad partition flags\n",lineno);
+				"bad partition flags\n", lineno);
 			return -1;
 		}
 		p += ret;
@@ -354,7 +355,7 @@ static int parse_part_conf(struct part_conf *conf, char *str, int lineno)
 	}
 
 	if (p != str || (partition_create(lineno, conf,
-					name, id, flag, flval) < 0)) {
+					  name, id, flag, flval) < 0)) {
 		osm_log(conf->p_log, OSM_LOG_ERROR,
 			"PARSE ERROR: line %d: "
 			"bad partition definition\n", lineno);
@@ -363,7 +364,7 @@ static int parse_part_conf(struct part_conf *conf, char *str, int lineno)
 		return -1;
 	}
 
-  skip_header:
+      skip_header:
 	do {
 		name = flag = NULL;
 		q = strchr(p, ',');
@@ -385,7 +386,7 @@ static int parse_part_conf(struct part_conf *conf, char *str, int lineno)
 	return len;
 }
 
-int osm_prtn_config_parse_file(osm_log_t *p_log, osm_subn_t *p_subn,
+int osm_prtn_config_parse_file(osm_log_t * p_log, osm_subn_t * p_subn,
 			       const char *file_name)
 {
 	char line[1024];
@@ -396,9 +397,9 @@ int osm_prtn_config_parse_file(osm_log_t *p_log, osm_subn_t *p_subn,
 	file = fopen(file_name, "r");
 	if (!file) {
 		osm_log(p_log, OSM_LOG_VERBOSE,
-				"osm_prtn_config_parse_file: "
-				"Cannot open config file \'%s\': %s\n",
-				file_name, strerror(errno));
+			"osm_prtn_config_parse_file: "
+			"Cannot open config file \'%s\': %s\n",
+			file_name, strerror(errno));
 		return -1;
 	}
 
@@ -422,13 +423,15 @@ int osm_prtn_config_parse_file(osm_log_t *p_log, osm_subn_t *p_subn,
 			if (*p == '\0')
 				break;
 
-			if (!conf &&
-				!(conf = new_part_conf(p_log, p_subn))) {
+			if (!conf && !(conf = new_part_conf(p_log, p_subn))) {
 				osm_log(conf->p_log, OSM_LOG_ERROR,
 					"PARSE ERROR: line %d: "
-					"internal: cannot create config\n", lineno);
-				fprintf(stderr, "PARSE ERROR: line %d: "
-					"internal: cannot create config\n", lineno);
+					"internal: cannot create config\n",
+					lineno);
+				fprintf(stderr,
+					"PARSE ERROR: line %d: "
+					"internal: cannot create config\n",
+					lineno);
 				break;
 			}
 

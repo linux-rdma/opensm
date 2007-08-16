@@ -46,7 +46,7 @@
 
 #if HAVE_CONFIG_H
 #  include <config.h>
-#endif /* HAVE_CONFIG_H */
+#endif				/* HAVE_CONFIG_H */
 
 #include <stdlib.h>
 #include <string.h>
@@ -55,30 +55,25 @@
 
 /**********************************************************************
  **********************************************************************/
-void
-osm_router_delete(
-  IN OUT osm_router_t** const pp_rtr )
+void osm_router_delete(IN OUT osm_router_t ** const pp_rtr)
 {
-  free( *pp_rtr );
-  *pp_rtr = NULL;
+	free(*pp_rtr);
+	*pp_rtr = NULL;
 }
 
 /**********************************************************************
  **********************************************************************/
-osm_router_t*
-osm_router_new(
-  IN osm_port_t* const p_port )
+osm_router_t *osm_router_new(IN osm_port_t * const p_port)
 {
-  osm_router_t *p_rtr;
+	osm_router_t *p_rtr;
 
-  CL_ASSERT( p_port );
+	CL_ASSERT(p_port);
 
-  p_rtr = (osm_router_t*)malloc( sizeof(*p_rtr) );
-  if( p_rtr )
-  {
-    memset( p_rtr, 0, sizeof(*p_rtr) );
-    p_rtr->p_port = p_port;
-  }
+	p_rtr = (osm_router_t *) malloc(sizeof(*p_rtr));
+	if (p_rtr) {
+		memset(p_rtr, 0, sizeof(*p_rtr));
+		p_rtr->p_port = p_port;
+	}
 
-  return( p_rtr );
+	return (p_rtr);
 }

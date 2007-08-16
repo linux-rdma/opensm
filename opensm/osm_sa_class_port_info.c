@@ -47,7 +47,7 @@
 
 #if HAVE_CONFIG_H
 #  include <config.h>
-#endif /* HAVE_CONFIG_H */
+#endif				/* HAVE_CONFIG_H */
 
 #include <string.h>
 #include <iba/ib_types.h>
@@ -63,216 +63,205 @@
 #define MAX_MSECS_TO_RTV 24
 /* Precalculated table in msec (index is related to encoded value) */
 /* 4.096 usec * 2 ** n (where n = 8 - 31) */
-static uint32_t __msecs_to_rtv_table[MAX_MSECS_TO_RTV] =
-					{ 1, 2, 4, 8,
-					  16, 33, 67, 134,
-					  268, 536, 1073, 2147,
-					  4294, 8589, 17179, 34359,
-					  68719, 137438, 274877, 549755,
-					  1099511, 2199023, 4398046, 8796093 };
+static uint32_t __msecs_to_rtv_table[MAX_MSECS_TO_RTV] = { 1, 2, 4, 8,
+	16, 33, 67, 134,
+	268, 536, 1073, 2147,
+	4294, 8589, 17179, 34359,
+	68719, 137438, 274877, 549755,
+	1099511, 2199023, 4398046, 8796093
+};
 
 /**********************************************************************
  **********************************************************************/
-void
-osm_cpi_rcv_construct(
-  IN osm_cpi_rcv_t* const p_rcv )
+void osm_cpi_rcv_construct(IN osm_cpi_rcv_t * const p_rcv)
 {
-  memset( p_rcv, 0, sizeof(*p_rcv) );
+	memset(p_rcv, 0, sizeof(*p_rcv));
 }
 
 /**********************************************************************
  **********************************************************************/
-void
-osm_cpi_rcv_destroy(
-  IN osm_cpi_rcv_t* const p_rcv )
+void osm_cpi_rcv_destroy(IN osm_cpi_rcv_t * const p_rcv)
 {
-  OSM_LOG_ENTER( p_rcv->p_log, osm_cpi_rcv_destroy );
-  OSM_LOG_EXIT( p_rcv->p_log );
+	OSM_LOG_ENTER(p_rcv->p_log, osm_cpi_rcv_destroy);
+	OSM_LOG_EXIT(p_rcv->p_log);
 }
 
 /**********************************************************************
  **********************************************************************/
 ib_api_status_t
-osm_cpi_rcv_init(
-  IN osm_cpi_rcv_t*     const p_rcv,
-  IN osm_sa_resp_t*     const p_resp,
-  IN osm_mad_pool_t*    const p_mad_pool,
-  IN osm_subn_t*        const p_subn,
-  IN osm_log_t*         const p_log,
-  IN cl_plock_t*        const p_lock )
+osm_cpi_rcv_init(IN osm_cpi_rcv_t * const p_rcv,
+		 IN osm_sa_resp_t * const p_resp,
+		 IN osm_mad_pool_t * const p_mad_pool,
+		 IN osm_subn_t * const p_subn,
+		 IN osm_log_t * const p_log, IN cl_plock_t * const p_lock)
 {
-  ib_api_status_t status = IB_SUCCESS;
+	ib_api_status_t status = IB_SUCCESS;
 
-  OSM_LOG_ENTER( p_log, osm_cpi_rcv_init );
+	OSM_LOG_ENTER(p_log, osm_cpi_rcv_init);
 
-  osm_cpi_rcv_construct( p_rcv );
+	osm_cpi_rcv_construct(p_rcv);
 
-  p_rcv->p_log = p_log;
-  p_rcv->p_subn = p_subn;
-  p_rcv->p_lock = p_lock;
-  p_rcv->p_resp = p_resp;
-  p_rcv->p_mad_pool = p_mad_pool;
+	p_rcv->p_log = p_log;
+	p_rcv->p_subn = p_subn;
+	p_rcv->p_lock = p_lock;
+	p_rcv->p_resp = p_resp;
+	p_rcv->p_mad_pool = p_mad_pool;
 
-  OSM_LOG_EXIT( p_rcv->p_log );
-  return( status );
+	OSM_LOG_EXIT(p_rcv->p_log);
+	return (status);
 }
 
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_cpi_rcv_respond(
-  IN osm_cpi_rcv_t*        const p_rcv,
-  IN const osm_madw_t*     const p_madw )
+__osm_cpi_rcv_respond(IN osm_cpi_rcv_t * const p_rcv,
+		      IN const osm_madw_t * const p_madw)
 {
-  osm_madw_t*              p_resp_madw;
-  const ib_sa_mad_t*       p_sa_mad;
-  ib_sa_mad_t*             p_resp_sa_mad;
-  ib_class_port_info_t    *p_resp_cpi;
-  ib_api_status_t          status;
-  ib_gid_t                 zero_gid;
-  uint8_t                  rtv;
+	osm_madw_t *p_resp_madw;
+	const ib_sa_mad_t *p_sa_mad;
+	ib_sa_mad_t *p_resp_sa_mad;
+	ib_class_port_info_t *p_resp_cpi;
+	ib_api_status_t status;
+	ib_gid_t zero_gid;
+	uint8_t rtv;
 
-  OSM_LOG_ENTER( p_rcv->p_log, __osm_cpi_rcv_respond );
+	OSM_LOG_ENTER(p_rcv->p_log, __osm_cpi_rcv_respond);
 
-  memset(&zero_gid, 0, sizeof(ib_gid_t));
+	memset(&zero_gid, 0, sizeof(ib_gid_t));
 
-  /*
-    Get a MAD to reply. Address of Mad is in the received mad_wrapper
-  */
-  p_resp_madw = osm_mad_pool_get( p_rcv->p_mad_pool,
-                                  p_madw->h_bind,
-                                  MAD_BLOCK_SIZE,
-                                  &p_madw->mad_addr );
-  if( !p_resp_madw )
-  {
-    osm_log( p_rcv->p_log, OSM_LOG_ERROR,
-             "__osm_cpi_rcv_respond: ERR 1408: "
-             "Unable to allocate MAD\n" );
-    goto Exit;
-  }
+	/*
+	   Get a MAD to reply. Address of Mad is in the received mad_wrapper
+	 */
+	p_resp_madw = osm_mad_pool_get(p_rcv->p_mad_pool,
+				       p_madw->h_bind,
+				       MAD_BLOCK_SIZE, &p_madw->mad_addr);
+	if (!p_resp_madw) {
+		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+			"__osm_cpi_rcv_respond: ERR 1408: "
+			"Unable to allocate MAD\n");
+		goto Exit;
+	}
 
-  p_sa_mad = osm_madw_get_sa_mad_ptr( p_madw );
-  p_resp_sa_mad = osm_madw_get_sa_mad_ptr( p_resp_madw );
+	p_sa_mad = osm_madw_get_sa_mad_ptr(p_madw);
+	p_resp_sa_mad = osm_madw_get_sa_mad_ptr(p_resp_madw);
 
-  memcpy( p_resp_sa_mad, p_sa_mad, IB_SA_MAD_HDR_SIZE );
-  p_resp_sa_mad->method |= IB_MAD_METHOD_RESP_MASK;
-  /* C15-0.1.5 - always return SM_Key = 0 (table 185 p 884) */
-  p_resp_sa_mad->sm_key = 0;
+	memcpy(p_resp_sa_mad, p_sa_mad, IB_SA_MAD_HDR_SIZE);
+	p_resp_sa_mad->method |= IB_MAD_METHOD_RESP_MASK;
+	/* C15-0.1.5 - always return SM_Key = 0 (table 185 p 884) */
+	p_resp_sa_mad->sm_key = 0;
 
-  p_resp_cpi = (ib_class_port_info_t*)ib_sa_mad_get_payload_ptr( p_resp_sa_mad );
+	p_resp_cpi =
+	    (ib_class_port_info_t *) ib_sa_mad_get_payload_ptr(p_resp_sa_mad);
 
-  /* finally do it (the job) man ! */
-  p_resp_cpi->base_ver = 1;
-  p_resp_cpi->class_ver = 2;
-  /* Calculate encoded response time value */
-  /* transaction timeout is in msec */
-  if (p_rcv->p_subn->opt.transaction_timeout > __msecs_to_rtv_table[MAX_MSECS_TO_RTV])
-    rtv = MAX_MSECS_TO_RTV - 1;
-  else
-  {
-    for (rtv = 0; rtv < MAX_MSECS_TO_RTV; rtv++) {
-      if (p_rcv->p_subn->opt.transaction_timeout <= __msecs_to_rtv_table[rtv])
-         break;
-    }
-  }
-  rtv += 8;
-  p_resp_cpi->resp_time_val = rtv;
-  p_resp_cpi->redir_gid = zero_gid;
-  p_resp_cpi->redir_tc_sl_fl = 0;
-  p_resp_cpi->redir_lid = 0;
-  p_resp_cpi->redir_pkey = 0;
-  p_resp_cpi->redir_qp = CL_NTOH32(1);
-  p_resp_cpi->redir_qkey = IB_QP1_WELL_KNOWN_Q_KEY;
-  p_resp_cpi->trap_gid = zero_gid;
-  p_resp_cpi->trap_tc_sl_fl = 0;
-  p_resp_cpi->trap_lid = 0;
-  p_resp_cpi->trap_pkey = 0;
-  p_resp_cpi->trap_hop_qp = 0;
-  p_resp_cpi->trap_qkey = IB_QP1_WELL_KNOWN_Q_KEY;
+	/* finally do it (the job) man ! */
+	p_resp_cpi->base_ver = 1;
+	p_resp_cpi->class_ver = 2;
+	/* Calculate encoded response time value */
+	/* transaction timeout is in msec */
+	if (p_rcv->p_subn->opt.transaction_timeout >
+	    __msecs_to_rtv_table[MAX_MSECS_TO_RTV])
+		rtv = MAX_MSECS_TO_RTV - 1;
+	else {
+		for (rtv = 0; rtv < MAX_MSECS_TO_RTV; rtv++) {
+			if (p_rcv->p_subn->opt.transaction_timeout <=
+			    __msecs_to_rtv_table[rtv])
+				break;
+		}
+	}
+	rtv += 8;
+	p_resp_cpi->resp_time_val = rtv;
+	p_resp_cpi->redir_gid = zero_gid;
+	p_resp_cpi->redir_tc_sl_fl = 0;
+	p_resp_cpi->redir_lid = 0;
+	p_resp_cpi->redir_pkey = 0;
+	p_resp_cpi->redir_qp = CL_NTOH32(1);
+	p_resp_cpi->redir_qkey = IB_QP1_WELL_KNOWN_Q_KEY;
+	p_resp_cpi->trap_gid = zero_gid;
+	p_resp_cpi->trap_tc_sl_fl = 0;
+	p_resp_cpi->trap_lid = 0;
+	p_resp_cpi->trap_pkey = 0;
+	p_resp_cpi->trap_hop_qp = 0;
+	p_resp_cpi->trap_qkey = IB_QP1_WELL_KNOWN_Q_KEY;
 
-  /* set specific capability mask bits */
-  /* we do not support the following options/optional records:
-     OSM_CAP_IS_SUBN_OPT_RECS_SUP :
-     RandomForwardingTableRecord,
-     ServiceAssociationRecord
-     other optional records supported "under the table"
+	/* set specific capability mask bits */
+	/* we do not support the following options/optional records:
+	   OSM_CAP_IS_SUBN_OPT_RECS_SUP :
+	   RandomForwardingTableRecord,
+	   ServiceAssociationRecord
+	   other optional records supported "under the table"
 
-     OSM_CAP_IS_MULTIPATH_SUP:
-     TraceRecord
+	   OSM_CAP_IS_MULTIPATH_SUP:
+	   TraceRecord
 
-     OSM_CAP_IS_REINIT_SUP:
-     For reinitialization functionality.
+	   OSM_CAP_IS_REINIT_SUP:
+	   For reinitialization functionality.
 
-     So not sending traps, but supporting Get(Notice) and Set(Notice).
-  */
+	   So not sending traps, but supporting Get(Notice) and Set(Notice).
+	 */
 
-  /* Note host notation replaced later */
+	/* Note host notation replaced later */
 #if defined (VENDOR_RMPP_SUPPORT) && defined (DUAL_SIDED_RMPP)
-  p_resp_cpi->cap_mask = OSM_CAP_IS_SUBN_GET_SET_NOTICE_SUP |
-                         OSM_CAP_IS_PORT_INFO_CAPMASK_MATCH_SUPPORTED |
-                         OSM_CAP_IS_MULTIPATH_SUP;
+	p_resp_cpi->cap_mask = OSM_CAP_IS_SUBN_GET_SET_NOTICE_SUP |
+	    OSM_CAP_IS_PORT_INFO_CAPMASK_MATCH_SUPPORTED |
+	    OSM_CAP_IS_MULTIPATH_SUP;
 #else
-  p_resp_cpi->cap_mask = OSM_CAP_IS_SUBN_GET_SET_NOTICE_SUP |
-			 OSM_CAP_IS_PORT_INFO_CAPMASK_MATCH_SUPPORTED;
+	p_resp_cpi->cap_mask = OSM_CAP_IS_SUBN_GET_SET_NOTICE_SUP |
+	    OSM_CAP_IS_PORT_INFO_CAPMASK_MATCH_SUPPORTED;
 #endif
-  if (p_rcv->p_subn->opt.no_multicast_option != TRUE)
-    p_resp_cpi->cap_mask |= OSM_CAP_IS_UD_MCAST_SUP;
-  p_resp_cpi->cap_mask = cl_hton16(p_resp_cpi->cap_mask);
+	if (p_rcv->p_subn->opt.no_multicast_option != TRUE)
+		p_resp_cpi->cap_mask |= OSM_CAP_IS_UD_MCAST_SUP;
+	p_resp_cpi->cap_mask = cl_hton16(p_resp_cpi->cap_mask);
 
-  if( osm_log_is_active( p_rcv->p_log, OSM_LOG_FRAMES ) )
-    osm_dump_sa_mad( p_rcv->p_log, p_resp_sa_mad, OSM_LOG_FRAMES );
+	if (osm_log_is_active(p_rcv->p_log, OSM_LOG_FRAMES))
+		osm_dump_sa_mad(p_rcv->p_log, p_resp_sa_mad, OSM_LOG_FRAMES);
 
-  status = osm_vendor_send( p_resp_madw->h_bind, p_resp_madw,  FALSE );
-  if( status != IB_SUCCESS )
-  {
-    osm_log( p_rcv->p_log, OSM_LOG_ERROR,
-             "__osm_cpi_rcv_respond: ERR 1409: "
-             "Unable to send MAD (%s)\n", ib_get_err_str( status ) );
-    /*  osm_mad_pool_put( p_rcv->p_mad_pool, p_resp_madw ); */
-    goto Exit;
-  }
+	status = osm_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE);
+	if (status != IB_SUCCESS) {
+		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+			"__osm_cpi_rcv_respond: ERR 1409: "
+			"Unable to send MAD (%s)\n", ib_get_err_str(status));
+		/*  osm_mad_pool_put( p_rcv->p_mad_pool, p_resp_madw ); */
+		goto Exit;
+	}
 
- Exit:
-  OSM_LOG_EXIT( p_rcv->p_log );
+      Exit:
+	OSM_LOG_EXIT(p_rcv->p_log);
 }
 
 /**********************************************************************
  * This code actually handles the call
  **********************************************************************/
-void
-osm_cpi_rcv_process(
-  IN void *context,
-  IN void *data )
+void osm_cpi_rcv_process(IN void *context, IN void *data)
 {
-  osm_cpi_rcv_t *p_rcv = context;
-  osm_madw_t *p_madw = data;
-  const ib_sa_mad_t*    p_sa_mad;
+	osm_cpi_rcv_t *p_rcv = context;
+	osm_madw_t *p_madw = data;
+	const ib_sa_mad_t *p_sa_mad;
 
-  OSM_LOG_ENTER( p_rcv->p_log, osm_cpi_rcv_process );
+	OSM_LOG_ENTER(p_rcv->p_log, osm_cpi_rcv_process);
 
-  CL_ASSERT( p_madw );
+	CL_ASSERT(p_madw);
 
-  p_sa_mad = osm_madw_get_sa_mad_ptr( p_madw );
+	p_sa_mad = osm_madw_get_sa_mad_ptr(p_madw);
 
-  /* we only support GET */
-  if (p_sa_mad->method != IB_MAD_METHOD_GET)
-  {
-    osm_log( p_rcv->p_log, OSM_LOG_ERROR,
-             "osm_cpi_rcv_process: ERR 1403: "
-             "Unsupported Method (%s)\n",
-             ib_get_sa_method_str( p_sa_mad->method ) );
-    osm_sa_send_error( p_rcv->p_resp, p_madw, IB_SA_MAD_STATUS_REQ_INVALID);
-    goto Exit;
-  }
+	/* we only support GET */
+	if (p_sa_mad->method != IB_MAD_METHOD_GET) {
+		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+			"osm_cpi_rcv_process: ERR 1403: "
+			"Unsupported Method (%s)\n",
+			ib_get_sa_method_str(p_sa_mad->method));
+		osm_sa_send_error(p_rcv->p_resp, p_madw,
+				  IB_SA_MAD_STATUS_REQ_INVALID);
+		goto Exit;
+	}
 
-  CL_ASSERT( p_sa_mad->attr_id == IB_MAD_ATTR_CLASS_PORT_INFO );
+	CL_ASSERT(p_sa_mad->attr_id == IB_MAD_ATTR_CLASS_PORT_INFO);
 
-  /*
-    CLASS PORT INFO does not really look on the SMDB - no lock required.
-  */
+	/*
+	   CLASS PORT INFO does not really look on the SMDB - no lock required.
+	 */
 
-  __osm_cpi_rcv_respond( p_rcv, p_madw);
+	__osm_cpi_rcv_respond(p_rcv, p_madw);
 
- Exit:
-  OSM_LOG_EXIT( p_rcv->p_log );
+      Exit:
+	OSM_LOG_EXIT(p_rcv->p_log);
 }

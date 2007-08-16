@@ -33,7 +33,6 @@
  *
  */
 
-
 /*
  * Abstract:
  *    Implementation of osm_state_mgr_ctrl_t.
@@ -48,7 +47,7 @@
 
 #if HAVE_CONFIG_H
 #  include <config.h>
-#endif /* HAVE_CONFIG_H */
+#endif				/* HAVE_CONFIG_H */
 
 #include <string.h>
 #include <opensm/osm_state_mgr_ctrl.h>
@@ -56,72 +55,61 @@
 
 /**********************************************************************
  **********************************************************************/
-void
-__osm_state_mgr_ctrl_disp_callback(
-  IN  void *context,
-  IN  void *p_data )
+void __osm_state_mgr_ctrl_disp_callback(IN void *context, IN void *p_data)
 {
-  /* ignore return status when invoked via the dispatcher */
-    osm_state_mgr_process( ((osm_state_mgr_ctrl_t*)context)->p_mgr,
-		(osm_signal_t)(p_data) );
+	/* ignore return status when invoked via the dispatcher */
+	osm_state_mgr_process(((osm_state_mgr_ctrl_t *) context)->p_mgr,
+			      (osm_signal_t) (p_data));
 }
 
 /**********************************************************************
  **********************************************************************/
-void
-osm_state_mgr_ctrl_construct(
-  IN osm_state_mgr_ctrl_t* const p_ctrl )
+void osm_state_mgr_ctrl_construct(IN osm_state_mgr_ctrl_t * const p_ctrl)
 {
-  memset( p_ctrl, 0, sizeof(*p_ctrl) );
-  p_ctrl->h_disp = CL_DISP_INVALID_HANDLE;
+	memset(p_ctrl, 0, sizeof(*p_ctrl));
+	p_ctrl->h_disp = CL_DISP_INVALID_HANDLE;
 }
 
 /**********************************************************************
  **********************************************************************/
-void
-osm_state_mgr_ctrl_destroy(
-  IN osm_state_mgr_ctrl_t* const p_ctrl )
+void osm_state_mgr_ctrl_destroy(IN osm_state_mgr_ctrl_t * const p_ctrl)
 {
-  CL_ASSERT( p_ctrl );
-  cl_disp_unregister( p_ctrl->h_disp );
+	CL_ASSERT(p_ctrl);
+	cl_disp_unregister(p_ctrl->h_disp);
 }
 
 /**********************************************************************
  **********************************************************************/
 ib_api_status_t
-osm_state_mgr_ctrl_init(
-  IN osm_state_mgr_ctrl_t* const p_ctrl,
-  IN osm_state_mgr_t* const p_mgr,
-  IN osm_log_t* const p_log,
-  IN cl_dispatcher_t* const p_disp )
+osm_state_mgr_ctrl_init(IN osm_state_mgr_ctrl_t * const p_ctrl,
+			IN osm_state_mgr_t * const p_mgr,
+			IN osm_log_t * const p_log,
+			IN cl_dispatcher_t * const p_disp)
 {
-  ib_api_status_t status = IB_SUCCESS;
+	ib_api_status_t status = IB_SUCCESS;
 
-  OSM_LOG_ENTER( p_log, osm_state_mgr_ctrl_init );
+	OSM_LOG_ENTER(p_log, osm_state_mgr_ctrl_init);
 
-  osm_state_mgr_ctrl_construct( p_ctrl );
-  p_ctrl->p_log = p_log;
+	osm_state_mgr_ctrl_construct(p_ctrl);
+	p_ctrl->p_log = p_log;
 
-  p_ctrl->p_mgr = p_mgr;
-  p_ctrl->p_disp = p_disp;
+	p_ctrl->p_mgr = p_mgr;
+	p_ctrl->p_disp = p_disp;
 
-  p_ctrl->h_disp = cl_disp_register(
-    p_disp,
-    OSM_MSG_NO_SMPS_OUTSTANDING,
-    __osm_state_mgr_ctrl_disp_callback,
-    p_ctrl );
+	p_ctrl->h_disp = cl_disp_register(p_disp,
+					  OSM_MSG_NO_SMPS_OUTSTANDING,
+					  __osm_state_mgr_ctrl_disp_callback,
+					  p_ctrl);
 
-  if( p_ctrl->h_disp == CL_DISP_INVALID_HANDLE )
-  {
-    osm_log( p_log, OSM_LOG_ERROR,
-             "osm_state_mgr_ctrl_init: ERR 3401: "
-             "Dispatcher registration failed\n" );
-    status = IB_INSUFFICIENT_RESOURCES;
-    goto Exit;
-  }
+	if (p_ctrl->h_disp == CL_DISP_INVALID_HANDLE) {
+		osm_log(p_log, OSM_LOG_ERROR,
+			"osm_state_mgr_ctrl_init: ERR 3401: "
+			"Dispatcher registration failed\n");
+		status = IB_INSUFFICIENT_RESOURCES;
+		goto Exit;
+	}
 
- Exit:
-  OSM_LOG_EXIT( p_log );
-  return( status );
+      Exit:
+	OSM_LOG_EXIT(p_log);
+	return (status);
 }
-

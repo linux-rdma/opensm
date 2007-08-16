@@ -46,7 +46,7 @@
 
 #if HAVE_CONFIG_H
 #  include <config.h>
-#endif /* HAVE_CONFIG_H */
+#endif				/* HAVE_CONFIG_H */
 
 #include <stdlib.h>
 #include <complib/cl_debug.h>
@@ -55,82 +55,74 @@
 /**********************************************************************
  **********************************************************************/
 static void
-osm_mtree_node_init(
-  IN osm_mtree_node_t*     const p_mtn,
-  IN const osm_switch_t*      const p_sw )
+osm_mtree_node_init(IN osm_mtree_node_t * const p_mtn,
+		    IN const osm_switch_t * const p_sw)
 {
-  uint32_t              i;
+	uint32_t i;
 
-  CL_ASSERT( p_mtn );
-  CL_ASSERT( p_sw );
+	CL_ASSERT(p_mtn);
+	CL_ASSERT(p_sw);
 
-  memset( p_mtn, 0, sizeof(*p_mtn) );
+	memset(p_mtn, 0, sizeof(*p_mtn));
 
-  p_mtn->p_sw = (osm_switch_t*)p_sw;
-  p_mtn->max_children = p_sw->num_ports;
+	p_mtn->p_sw = (osm_switch_t *) p_sw;
+	p_mtn->max_children = p_sw->num_ports;
 
-  for( i = 0; i < p_mtn->max_children; i++ )
-    p_mtn->child_array[i] = NULL;
+	for (i = 0; i < p_mtn->max_children; i++)
+		p_mtn->child_array[i] = NULL;
 }
 
 /**********************************************************************
  **********************************************************************/
-osm_mtree_node_t*
-osm_mtree_node_new(
-  IN const osm_switch_t* const p_sw )
+osm_mtree_node_t *osm_mtree_node_new(IN const osm_switch_t * const p_sw)
 {
-  osm_mtree_node_t *p_mtn;
+	osm_mtree_node_t *p_mtn;
 
-  p_mtn = malloc( sizeof(osm_mtree_node_t) +
-                  sizeof(void*) * (p_sw->num_ports - 1) );
+	p_mtn = malloc(sizeof(osm_mtree_node_t) +
+		       sizeof(void *) * (p_sw->num_ports - 1));
 
-  if( p_mtn != NULL )
-    osm_mtree_node_init( p_mtn, p_sw );
+	if (p_mtn != NULL)
+		osm_mtree_node_init(p_mtn, p_sw);
 
-  return( p_mtn );
+	return (p_mtn);
 }
 
 /**********************************************************************
  **********************************************************************/
-void
-osm_mtree_destroy(
-  IN osm_mtree_node_t *p_mtn )
+void osm_mtree_destroy(IN osm_mtree_node_t * p_mtn)
 {
-  uint32_t i;
+	uint32_t i;
 
-  if (p_mtn == NULL)
-    return;
+	if (p_mtn == NULL)
+		return;
 
-  if ( p_mtn->child_array != NULL )
-    for (i = 0 ; i< p_mtn->max_children; i++ )
-      if ( (p_mtn->child_array[i] != NULL) &&
-           (p_mtn->child_array[i] != OSM_MTREE_LEAF) )
-        osm_mtree_destroy(p_mtn->child_array[i]);
+	if (p_mtn->child_array != NULL)
+		for (i = 0; i < p_mtn->max_children; i++)
+			if ((p_mtn->child_array[i] != NULL) &&
+			    (p_mtn->child_array[i] != OSM_MTREE_LEAF))
+				osm_mtree_destroy(p_mtn->child_array[i]);
 
-  free( p_mtn );
+	free(p_mtn);
 }
 
 /**********************************************************************
  **********************************************************************/
-void
-__osm_mtree_dump(
-  IN osm_mtree_node_t *p_mtn )
+void __osm_mtree_dump(IN osm_mtree_node_t * p_mtn)
 {
-  uint32_t i;
+	uint32_t i;
 
-  if (p_mtn == NULL)
-    return;
+	if (p_mtn == NULL)
+		return;
 
-  printf("GUID:0x%016" PRIx64 " max_children:%u\n",
-         cl_ntoh64(p_mtn->p_sw->p_node->node_info.node_guid),
-         p_mtn->max_children );
-  if ( p_mtn->child_array != NULL )
-  {
-    for (i = 0 ; i< p_mtn->max_children; i++ )
-    {
-      printf("i=%d\n", i);
-      if ( (p_mtn->child_array[i] != NULL) && (p_mtn->child_array[i] != OSM_MTREE_LEAF) )
-        __osm_mtree_dump(p_mtn->child_array[i]);
-    }
-  }
+	printf("GUID:0x%016" PRIx64 " max_children:%u\n",
+	       cl_ntoh64(p_mtn->p_sw->p_node->node_info.node_guid),
+	       p_mtn->max_children);
+	if (p_mtn->child_array != NULL) {
+		for (i = 0; i < p_mtn->max_children; i++) {
+			printf("i=%d\n", i);
+			if ((p_mtn->child_array[i] != NULL)
+			    && (p_mtn->child_array[i] != OSM_MTREE_LEAF))
+				__osm_mtree_dump(p_mtn->child_array[i]);
+		}
+	}
 }
