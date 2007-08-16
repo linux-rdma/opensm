@@ -82,40 +82,36 @@ __osm_sm_mad_ctrl_retire_trans_mad(IN osm_sm_mad_ctrl_t * const p_ctrl,
 	/*
 	   Return the MAD & wrapper to the pool.
 	 */
-	if (osm_log_is_active(p_ctrl->p_log, OSM_LOG_DEBUG)) {
+	if (osm_log_is_active(p_ctrl->p_log, OSM_LOG_DEBUG))
 		osm_log(p_ctrl->p_log, OSM_LOG_DEBUG,
 			"__osm_sm_mad_ctrl_retire_trans_mad: "
 			"Retiring MAD with TID 0x%" PRIx64 "\n",
 			cl_ntoh64(osm_madw_get_smp_ptr(p_madw)->trans_id));
-	}
 
 	osm_mad_pool_put(p_ctrl->p_mad_pool, p_madw);
 
 	outstanding = cl_atomic_dec(&p_ctrl->p_stats->qp0_mads_outstanding);
 
-	if (osm_log_is_active(p_ctrl->p_log, OSM_LOG_DEBUG)) {
+	if (osm_log_is_active(p_ctrl->p_log, OSM_LOG_DEBUG))
 		osm_log(p_ctrl->p_log, OSM_LOG_DEBUG,
 			"__osm_sm_mad_ctrl_retire_trans_mad: "
 			"%u QP0 MADs outstanding\n",
 			p_ctrl->p_stats->qp0_mads_outstanding);
-	}
 
 	if (outstanding == 0) {
 		/*
 		   The wire is clean.
 		   Signal the state manager.
 		 */
-		if (osm_log_is_active(p_ctrl->p_log, OSM_LOG_DEBUG)) {
+		if (osm_log_is_active(p_ctrl->p_log, OSM_LOG_DEBUG))
 			osm_log(p_ctrl->p_log, OSM_LOG_DEBUG,
 				"__osm_sm_mad_ctrl_retire_trans_mad: "
 				"Posting Dispatcher message %s\n",
 				osm_get_disp_msg_str
 				(OSM_MSG_NO_SMPS_OUTSTANDING));
-		}
 
 		status = cl_disp_post(p_ctrl->h_disp,
-				      OSM_MSG_NO_SMPS_OUTSTANDING,
-				      (void *)
+				      OSM_MSG_NO_SMPS_OUTSTANDING, (void *)
 				      OSM_SIGNAL_NO_PENDING_TRANSACTIONS, NULL,
 				      NULL);
 
@@ -167,12 +163,10 @@ __osm_sm_mad_ctrl_disp_done_callback(IN void *context, IN void *p_data)
 	if (ib_smp_is_response(p_smp)) {
 		CL_ASSERT(p_madw->resp_expected == FALSE);
 		__osm_sm_mad_ctrl_retire_trans_mad(p_ctrl, p_madw);
-	} else {
-		if (p_madw->resp_expected == TRUE)
-			__osm_sm_mad_ctrl_retire_trans_mad(p_ctrl, p_madw);
-		else
-			osm_mad_pool_put(p_ctrl->p_mad_pool, p_madw);
-	}
+	} else if (p_madw->resp_expected == TRUE)
+		__osm_sm_mad_ctrl_retire_trans_mad(p_ctrl, p_madw);
+	else
+		osm_mad_pool_put(p_ctrl->p_mad_pool, p_madw);
 
 	OSM_LOG_EXIT(p_ctrl->p_log);
 }
@@ -198,12 +192,11 @@ __osm_sm_mad_ctrl_update_wire_stats(IN osm_sm_mad_ctrl_t * const p_ctrl)
 	mads_on_wire =
 	    cl_atomic_dec(&p_ctrl->p_stats->qp0_mads_outstanding_on_wire);
 
-	if (osm_log_is_active(p_ctrl->p_log, OSM_LOG_DEBUG)) {
+	if (osm_log_is_active(p_ctrl->p_log, OSM_LOG_DEBUG))
 		osm_log(p_ctrl->p_log, OSM_LOG_DEBUG,
 			"__osm_sm_mad_ctrl_update_wire_stats: "
 			"%u SMPs on the wire, %u outstanding\n", mads_on_wire,
 			p_ctrl->p_stats->qp0_mads_outstanding);
-	}
 
 	/*
 	   We can signal the VL15 controller to send another MAD
@@ -240,13 +233,11 @@ __osm_sm_mad_ctrl_process_get_resp(IN osm_sm_mad_ctrl_t * const p_ctrl,
 
 	p_smp = osm_madw_get_smp_ptr(p_madw);
 
-	if (p_smp->mgmt_class == IB_MCLASS_SUBN_DIR) {
-		if (!ib_smp_is_d(p_smp)) {
-			osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
-				"__osm_sm_mad_ctrl_process_get_resp: ERR 3102: "
-				"'D' bit not set in returned SMP\n");
-			osm_dump_dr_smp(p_ctrl->p_log, p_smp, OSM_LOG_ERROR);
-		}
+	if (p_smp->mgmt_class == IB_MCLASS_SUBN_DIR && !ib_smp_is_d(p_smp)) {
+		osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
+			"__osm_sm_mad_ctrl_process_get_resp: ERR 3102: "
+			"'D' bit not set in returned SMP\n");
+		osm_dump_dr_smp(p_ctrl->p_log, p_smp, OSM_LOG_ERROR);
 	}
 
 	p_old_madw = (osm_madw_t *) transaction_context;
@@ -312,33 +303,29 @@ __osm_sm_mad_ctrl_process_get_resp(IN osm_sm_mad_ctrl_t * const p_ctrl,
 		goto Exit;
 	}
 
-	if (msg_id != CL_DISP_MSGID_NONE) {
-		/*
-		   Post this MAD to the dispatcher for asynchronous
-		   processing by the appropriate controller.
-		 */
+	if (msg_id == CL_DISP_MSGID_NONE)
+		goto Exit;
 
-		if (osm_log_is_active(p_ctrl->p_log, OSM_LOG_DEBUG)) {
-			osm_log(p_ctrl->p_log, OSM_LOG_DEBUG,
-				"__osm_sm_mad_ctrl_process_get_resp: "
-				"Posting Dispatcher message %s\n",
-				osm_get_disp_msg_str(msg_id));
-		}
+	/*
+	   Post this MAD to the dispatcher for asynchronous
+	   processing by the appropriate controller.
+	 */
 
-		status = cl_disp_post(p_ctrl->h_disp,
-				      msg_id,
-				      p_madw,
-				      __osm_sm_mad_ctrl_disp_done_callback,
-				      p_ctrl);
+	if (osm_log_is_active(p_ctrl->p_log, OSM_LOG_DEBUG))
+		osm_log(p_ctrl->p_log, OSM_LOG_DEBUG,
+			"__osm_sm_mad_ctrl_process_get_resp: "
+			"Posting Dispatcher message %s\n",
+			osm_get_disp_msg_str(msg_id));
 
-		if (status != CL_SUCCESS) {
-			osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
-				"__osm_sm_mad_ctrl_process_get_resp: ERR 3104: "
-				"Dispatcher post message failed (%s) for attribute = 0x%X\n",
-				CL_STATUS_MSG(status),
-				cl_ntoh16(p_smp->attr_id));
-			goto Exit;
-		}
+	status = cl_disp_post(p_ctrl->h_disp, msg_id, p_madw,
+			      __osm_sm_mad_ctrl_disp_done_callback, p_ctrl);
+
+	if (status != CL_SUCCESS) {
+		osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
+			"__osm_sm_mad_ctrl_process_get_resp: ERR 3104: "
+			"Dispatcher post message failed (%s) for attribute = 0x%X\n",
+			CL_STATUS_MSG(status), cl_ntoh16(p_smp->attr_id));
+		goto Exit;
 	}
 
       Exit:
@@ -383,38 +370,35 @@ __osm_sm_mad_ctrl_process_get(IN osm_sm_mad_ctrl_t * const p_ctrl,
 		break;
 	}
 
-	if (msg_id != CL_DISP_MSGID_NONE) {
-		/*
-		   Post this MAD to the dispatcher for asynchronous
-		   processing by the appropriate controller.
-		 */
-
-		if (osm_log_is_active(p_ctrl->p_log, OSM_LOG_DEBUG)) {
-			osm_log(p_ctrl->p_log, OSM_LOG_DEBUG,
-				"__osm_sm_mad_ctrl_process_get: "
-				"Posting Dispatcher message %s\n",
-				osm_get_disp_msg_str(msg_id));
-		}
-
-		status = cl_disp_post(p_ctrl->h_disp,
-				      msg_id,
-				      p_madw,
-				      __osm_sm_mad_ctrl_disp_done_callback,
-				      p_ctrl);
-
-		if (status != CL_SUCCESS) {
-			osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
-				"__osm_sm_mad_ctrl_process_get: ERR 3106: "
-				"Dispatcher post message failed (%s)\n",
-				CL_STATUS_MSG(status));
-			goto Exit;
-		}
-	} else {
+	if (msg_id == CL_DISP_MSGID_NONE) {
 		/*
 		   There is an unknown MAD attribute type for which there is
 		   no recipient.  Simply retire the MAD here.
 		 */
 		osm_mad_pool_put(p_ctrl->p_mad_pool, p_madw);
+		goto Exit;
+	}
+
+	/*
+	   Post this MAD to the dispatcher for asynchronous
+	   processing by the appropriate controller.
+	 */
+
+	if (osm_log_is_active(p_ctrl->p_log, OSM_LOG_DEBUG))
+		osm_log(p_ctrl->p_log, OSM_LOG_DEBUG,
+			"__osm_sm_mad_ctrl_process_get: "
+			"Posting Dispatcher message %s\n",
+			osm_get_disp_msg_str(msg_id));
+
+	status = cl_disp_post(p_ctrl->h_disp, msg_id, p_madw,
+			      __osm_sm_mad_ctrl_disp_done_callback, p_ctrl);
+
+	if (status != CL_SUCCESS) {
+		osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
+			"__osm_sm_mad_ctrl_process_get: ERR 3106: "
+			"Dispatcher post message failed (%s)\n",
+			CL_STATUS_MSG(status));
+		goto Exit;
 	}
 
       Exit:
@@ -470,38 +454,35 @@ __osm_sm_mad_ctrl_process_set(IN osm_sm_mad_ctrl_t * const p_ctrl,
 		break;
 	}
 
-	if (msg_id != CL_DISP_MSGID_NONE) {
-		/*
-		   Post this MAD to the dispatcher for asynchronous
-		   processing by the appropriate controller.
-		 */
-
-		if (osm_log_is_active(p_ctrl->p_log, OSM_LOG_DEBUG)) {
-			osm_log(p_ctrl->p_log, OSM_LOG_DEBUG,
-				"__osm_sm_mad_ctrl_process_set: "
-				"Posting Dispatcher message %s\n",
-				osm_get_disp_msg_str(msg_id));
-		}
-
-		status = cl_disp_post(p_ctrl->h_disp,
-				      msg_id,
-				      p_madw,
-				      __osm_sm_mad_ctrl_disp_done_callback,
-				      p_ctrl);
-
-		if (status != CL_SUCCESS) {
-			osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
-				"__osm_sm_mad_ctrl_process_set: ERR 3108: "
-				"Dispatcher post message failed (%s)\n",
-				CL_STATUS_MSG(status));
-			goto Exit;
-		}
-	} else {
+	if (msg_id == CL_DISP_MSGID_NONE) {
 		/*
 		   There is an unknown MAD attribute type for which there is
 		   no recipient.  Simply retire the MAD here.
 		 */
 		osm_mad_pool_put(p_ctrl->p_mad_pool, p_madw);
+		goto Exit;
+	}
+
+	/*
+	   Post this MAD to the dispatcher for asynchronous
+	   processing by the appropriate controller.
+	 */
+
+	if (osm_log_is_active(p_ctrl->p_log, OSM_LOG_DEBUG))
+		osm_log(p_ctrl->p_log, OSM_LOG_DEBUG,
+			"__osm_sm_mad_ctrl_process_set: "
+			"Posting Dispatcher message %s\n",
+			osm_get_disp_msg_str(msg_id));
+
+	status = cl_disp_post(p_ctrl->h_disp, msg_id, p_madw,
+			      __osm_sm_mad_ctrl_disp_done_callback, p_ctrl);
+
+	if (status != CL_SUCCESS) {
+		osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
+			"__osm_sm_mad_ctrl_process_set: ERR 3108: "
+			"Dispatcher post message failed (%s)\n",
+			CL_STATUS_MSG(status));
+		goto Exit;
 	}
 
       Exit:
@@ -567,38 +548,35 @@ __osm_sm_mad_ctrl_process_trap(IN osm_sm_mad_ctrl_t * const p_ctrl,
 		break;
 	}
 
-	if (msg_id != CL_DISP_MSGID_NONE) {
-		/*
-		   Post this MAD to the dispatcher for asynchronous
-		   processing by the appropriate controller.
-		 */
-
-		if (osm_log_is_active(p_ctrl->p_log, OSM_LOG_DEBUG)) {
-			osm_log(p_ctrl->p_log, OSM_LOG_DEBUG,
-				"__osm_sm_mad_ctrl_process_trap: "
-				"Posting Dispatcher message %s\n",
-				osm_get_disp_msg_str(msg_id));
-		}
-
-		status = cl_disp_post(p_ctrl->h_disp,
-				      msg_id,
-				      p_madw,
-				      __osm_sm_mad_ctrl_disp_done_callback,
-				      p_ctrl);
-
-		if (status != CL_SUCCESS) {
-			osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
-				"__osm_sm_mad_ctrl_process_trap: ERR 3110: "
-				"Dispatcher post message failed (%s)\n",
-				CL_STATUS_MSG(status));
-			goto Exit;
-		}
-	} else {
+	if (msg_id == CL_DISP_MSGID_NONE) {
 		/*
 		   There is an unknown MAD attribute type for which there is
 		   no recipient.  Simply retire the MAD here.
 		 */
 		osm_mad_pool_put(p_ctrl->p_mad_pool, p_madw);
+		goto Exit;
+	}
+
+	/*
+	   Post this MAD to the dispatcher for asynchronous
+	   processing by the appropriate controller.
+	 */
+
+	if (osm_log_is_active(p_ctrl->p_log, OSM_LOG_DEBUG))
+		osm_log(p_ctrl->p_log, OSM_LOG_DEBUG,
+			"__osm_sm_mad_ctrl_process_trap: "
+			"Posting Dispatcher message %s\n",
+			osm_get_disp_msg_str(msg_id));
+
+	status = cl_disp_post(p_ctrl->h_disp, msg_id, p_madw,
+			      __osm_sm_mad_ctrl_disp_done_callback, p_ctrl);
+
+	if (status != CL_SUCCESS) {
+		osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
+			"__osm_sm_mad_ctrl_process_trap: ERR 3110: "
+			"Dispatcher post message failed (%s)\n",
+			CL_STATUS_MSG(status));
+		goto Exit;
 	}
 
       Exit:
@@ -642,12 +620,11 @@ __osm_sm_mad_ctrl_rcv_callback(IN osm_madw_t * p_madw,
 	 */
 	cl_atomic_inc(&p_ctrl->p_stats->qp0_mads_rcvd);
 
-	if (osm_log_is_active(p_ctrl->p_log, OSM_LOG_DEBUG)) {
+	if (osm_log_is_active(p_ctrl->p_log, OSM_LOG_DEBUG))
 		osm_log(p_ctrl->p_log, OSM_LOG_DEBUG,
 			"__osm_sm_mad_ctrl_rcv_callback: "
 			"%u QP0 MADs received\n",
 			p_ctrl->p_stats->qp0_mads_rcvd);
-	}
 
 	p_smp = osm_madw_get_smp_ptr(p_madw);
 
@@ -664,13 +641,10 @@ __osm_sm_mad_ctrl_rcv_callback(IN osm_madw_t * p_madw,
 		    (p_smp->method == IB_MAD_METHOD_TRAP_REPRESS)) {
 			CL_ASSERT(p_madw->resp_expected == FALSE);
 			__osm_sm_mad_ctrl_retire_trans_mad(p_ctrl, p_madw);
-		} else {
-			if (p_madw->resp_expected == TRUE)
-				__osm_sm_mad_ctrl_retire_trans_mad(p_ctrl,
-								   p_madw);
-			else
-				osm_mad_pool_put(p_ctrl->p_mad_pool, p_madw);
-		}
+		} else if (p_madw->resp_expected == TRUE)
+			__osm_sm_mad_ctrl_retire_trans_mad(p_ctrl, p_madw);
+		else
+			osm_mad_pool_put(p_ctrl->p_mad_pool, p_madw);
 
 		goto Exit;
 	}
@@ -678,11 +652,10 @@ __osm_sm_mad_ctrl_rcv_callback(IN osm_madw_t * p_madw,
 	if (osm_log_is_active(p_ctrl->p_log, OSM_LOG_FRAMES))
 		osm_dump_dr_smp(p_ctrl->p_log, p_smp, OSM_LOG_FRAMES);
 
-	if (p_smp->mgmt_class == IB_MCLASS_SUBN_DIR) {
+	if (p_smp->mgmt_class == IB_MCLASS_SUBN_DIR)
 		status = ib_smp_get_status(p_smp);
-	} else {
+	else
 		status = p_smp->status;
-	}
 
 	if (status != 0) {
 		osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
@@ -824,31 +797,28 @@ __osm_sm_mad_ctrl_send_err_cb(IN void *bind_context, IN osm_madw_t * p_madw)
 	__osm_sm_mad_ctrl_update_wire_stats(p_ctrl);
 
 	if (osm_madw_get_err_msg(p_madw) != CL_DISP_MSGID_NONE) {
-		if (osm_log_is_active(p_ctrl->p_log, OSM_LOG_DEBUG)) {
+		if (osm_log_is_active(p_ctrl->p_log, OSM_LOG_DEBUG))
 			osm_log(p_ctrl->p_log, OSM_LOG_DEBUG,
 				"__osm_sm_mad_ctrl_send_err_cb: "
 				"Posting Dispatcher message %s\n",
 				osm_get_disp_msg_str(osm_madw_get_err_msg
 						     (p_madw)));
-		}
 
 		status = cl_disp_post(p_ctrl->h_disp,
 				      osm_madw_get_err_msg(p_madw),
 				      p_madw,
 				      __osm_sm_mad_ctrl_disp_done_callback,
 				      p_ctrl);
-		if (status != CL_SUCCESS) {
+		if (status != CL_SUCCESS)
 			osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
 				"__osm_sm_mad_ctrl_send_err_cb: ERR 3115: "
 				"Dispatcher post message failed (%s)\n",
 				CL_STATUS_MSG(status));
-		}
-	} else {
+	} else
 		/*
 		   No error message was provided, just retire the MAD.
 		 */
 		__osm_sm_mad_ctrl_retire_trans_mad(p_ctrl, p_madw);
-	}
 
 	OSM_LOG_EXIT(p_ctrl->p_log);
 }
@@ -878,9 +848,8 @@ void osm_sm_mad_ctrl_destroy(IN osm_sm_mad_ctrl_t * const p_ctrl)
 {
 	CL_ASSERT(p_ctrl);
 
-	if (p_ctrl->h_bind != CL_DISP_INVALID_HANDLE) {
+	if (p_ctrl->h_bind != CL_DISP_INVALID_HANDLE)
 		osm_vendor_unbind(p_ctrl->h_bind);
-	}
 	cl_disp_unregister(p_ctrl->h_disp);
 }
 
