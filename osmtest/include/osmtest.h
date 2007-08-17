@@ -78,19 +78,18 @@ enum OSMT_FLOWS {
  *
  * SYNOPSIS
  */
-typedef struct _osmtest_opt
-{
-  uint32_t transaction_timeout;
-  boolean_t force_log_flush;
-  boolean_t create;
-  uint32_t retry_count;
-  uint32_t stress;
-  uint32_t mmode;
-  char file_name[OSMTEST_FILE_PATH_MAX];
-  uint8_t flow;
-  uint8_t wait_time;
-  char *log_file;
-  boolean_t ignore_path_records;
+typedef struct _osmtest_opt {
+	uint32_t transaction_timeout;
+	boolean_t force_log_flush;
+	boolean_t create;
+	uint32_t retry_count;
+	uint32_t stress;
+	uint32_t mmode;
+	char file_name[OSMTEST_FILE_PATH_MAX];
+	uint8_t flow;
+	uint8_t wait_time;
+	char *log_file;
+	boolean_t ignore_path_records;
 } osmtest_opt_t;
 
 /*
@@ -112,7 +111,6 @@ typedef struct _osmtest_opt
  *
  *********/
 
-
 /****s* OSMTest/osmtest_t
  * NAME
  * osmtest_t
@@ -125,21 +123,20 @@ typedef struct _osmtest_opt
  *
  * SYNOPSIS
  */
-typedef struct _osmtest
-{
-  osm_log_t           log;
-  struct _osm_vendor *p_vendor;
-  osm_bind_handle_t   h_bind;
-  osm_mad_pool_t      mad_pool;
+typedef struct _osmtest {
+	osm_log_t log;
+	struct _osm_vendor *p_vendor;
+	osm_bind_handle_t h_bind;
+	osm_mad_pool_t mad_pool;
 
-  osmtest_opt_t       opt;
-  ib_port_attr_t      local_port;
-  subnet_t            exp_subn;
-  cl_qpool_t          node_pool;
-  cl_qpool_t          port_pool;
-  cl_qpool_t          link_pool;
+	osmtest_opt_t opt;
+	ib_port_attr_t local_port;
+	subnet_t exp_subn;
+	cl_qpool_t node_pool;
+	cl_qpool_t port_pool;
+	cl_qpool_t link_pool;
 
-  uint16_t            max_lid;
+	uint16_t max_lid;
 } osmtest_t;
 
 /*
@@ -186,18 +183,15 @@ typedef struct _osmtest
  *
  * SYNOPSIS
  */
-typedef struct _osmtest_req_context
-{
-  osmtest_t *p_osmt;
-  osmv_query_res_t result;
+typedef struct _osmtest_req_context {
+	osmtest_t *p_osmt;
+	osmv_query_res_t result;
 } osmtest_req_context_t;
 
-typedef struct _osmtest_mgrp_t
-{
-  cl_map_item_t				map_item;
-  ib_member_rec_t				mcmember_rec;
+typedef struct _osmtest_mgrp_t {
+	cl_map_item_t map_item;
+	ib_member_rec_t mcmember_rec;
 } osmtest_mgrp_t;
-
 
 /*
  * FIELDS
@@ -214,7 +208,7 @@ typedef struct _osmtest_mgrp_t
  *
  * SYNOPSIS
  */
-void osmtest_construct( IN osmtest_t * const p_osmt );
+void osmtest_construct(IN osmtest_t * const p_osmt);
 
 /*
  * PARAMETERS
@@ -244,7 +238,7 @@ void osmtest_construct( IN osmtest_t * const p_osmt );
  *
  * SYNOPSIS
  */
-void osmtest_destroy( IN osmtest_t * const p_osmt );
+void osmtest_destroy(IN osmtest_t * const p_osmt);
 
 /*
  * PARAMETERS
@@ -273,10 +267,9 @@ void osmtest_destroy( IN osmtest_t * const p_osmt );
  *
  * SYNOPSIS
  */
-ib_api_status_t osmtest_init( IN osmtest_t * const p_osmt,
-                              IN const osmtest_opt_t * const p_opt,
-                              IN const osm_log_level_t log_flags
-                              );
+ib_api_status_t osmtest_init(IN osmtest_t * const p_osmt,
+			     IN const osmtest_opt_t * const p_opt,
+			     IN const osm_log_level_t log_flags);
 
 /*
  * PARAMETERS
@@ -308,7 +301,7 @@ ib_api_status_t osmtest_init( IN osmtest_t * const p_osmt,
  *
  * SYNOPSIS
  */
-ib_api_status_t osmtest_run( IN osmtest_t * const p_osmt );
+ib_api_status_t osmtest_run(IN osmtest_t * const p_osmt);
 
 /*
  * PARAMETERS
@@ -335,9 +328,8 @@ ib_api_status_t osmtest_run( IN osmtest_t * const p_osmt );
  *
  * SYNOPSIS
  */
-ib_api_status_t osmtest_bind( IN osmtest_t * p_osmt,
-                              IN uint16_t max_lid,
-                              IN ib_net64_t guid OPTIONAL );
+ib_api_status_t osmtest_bind(IN osmtest_t * p_osmt,
+			     IN uint16_t max_lid, IN ib_net64_t guid OPTIONAL);
 
 /*
  * PARAMETERS
@@ -369,8 +361,7 @@ ib_api_status_t osmtest_bind( IN osmtest_t * p_osmt,
  *
  * SYNOPSIS
  */
-void
-osmtest_query_res_cb( IN osmv_query_res_t * p_rec );
+void osmtest_query_res_cb(IN osmv_query_res_t * p_rec);
 /*
  * PARAMETERS
  * p_rec
@@ -393,8 +384,7 @@ osmtest_query_res_cb( IN osmv_query_res_t * p_rec );
  *
  * SYNOPSIS
  */
-const char *
-ib_get_mad_status_str( IN const ib_mad_t * const p_mad );
+const char *ib_get_mad_status_str(IN const ib_mad_t * const p_mad);
 /*
  * PARAMETERS
  * p_mad
@@ -417,7 +407,7 @@ ib_get_mad_status_str( IN const ib_mad_t * const p_mad );
  *
  * SYNOPSIS
  */
-ib_api_status_t osmt_run_service_records_flow( IN osmtest_t * const p_osmt );
+ib_api_status_t osmt_run_service_records_flow(IN osmtest_t * const p_osmt);
 /*
  * PARAMETERS
  *  p_osmt
@@ -431,8 +421,7 @@ ib_api_status_t osmt_run_service_records_flow( IN osmtest_t * const p_osmt );
  * SEE ALSO
  *********/
 
-ib_api_status_t
-osmt_run_inform_info_flow( IN osmtest_t * const p_osmt );
+ib_api_status_t osmt_run_inform_info_flow(IN osmtest_t * const p_osmt);
 
 /****f* OSMTest/osmt_run_slvl_and_vlarb_records_flow
  * NAME
@@ -444,7 +433,7 @@ osmt_run_inform_info_flow( IN osmtest_t * const p_osmt );
  * SYNOPSIS
  */
 ib_api_status_t
-osmt_run_slvl_and_vlarb_records_flow( IN osmtest_t * const p_osmt );
+osmt_run_slvl_and_vlarb_records_flow(IN osmtest_t * const p_osmt);
 /*
  * PARAMETERS
  *  p_osmt
@@ -467,8 +456,7 @@ osmt_run_slvl_and_vlarb_records_flow( IN osmtest_t * const p_osmt );
  *
  * SYNOPSIS
  */
-ib_api_status_t
-osmt_run_mcast_flow( IN osmtest_t * const p_osmt );
+ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt);
 /*
  * PARAMETERS
  *  p_osmt
@@ -492,8 +480,7 @@ osmt_run_mcast_flow( IN osmtest_t * const p_osmt );
  *
  * SYNOPSIS
  */
-ib_api_status_t
-osmt_run_trap64_65_flow( IN osmtest_t * const p_osmt );
+ib_api_status_t osmt_run_trap64_65_flow(IN osmtest_t * const p_osmt);
 /*
  * PARAMETERS
  *  p_osmt
@@ -508,16 +495,14 @@ osmt_run_trap64_65_flow( IN osmtest_t * const p_osmt );
  *********/
 
 ib_api_status_t
-osmtest_get_all_recs( IN osmtest_t * const p_osmt,
-                      IN ib_net16_t const attr_id,
-                      IN size_t const attr_size,
-                      IN OUT osmtest_req_context_t * const p_context );
+osmtest_get_all_recs(IN osmtest_t * const p_osmt,
+		     IN ib_net16_t const attr_id,
+		     IN size_t const attr_size,
+		     IN OUT osmtest_req_context_t * const p_context);
 
 ib_api_status_t
-osmtest_get_local_port_lmc( IN osmtest_t * const p_osmt,
-                            IN ib_net16_t  lid,
-                            OUT uint8_t *  const p_lmc );
-
+osmtest_get_local_port_lmc(IN osmtest_t * const p_osmt,
+			   IN ib_net16_t lid, OUT uint8_t * const p_lmc);
 
 /*
  * A few auxiliary macros for logging
@@ -526,4 +511,4 @@ osmtest_get_local_port_lmc( IN osmtest_t * const p_osmt,
 #define EXPECTING_ERRORS_START "[[ ===== Expecting Errors - START ===== "
 #define EXPECTING_ERRORS_END   "   ===== Expecting Errors  -  END ===== ]]"
 
-#endif /* _OSMTEST_H_ */
+#endif				/* _OSMTEST_H_ */

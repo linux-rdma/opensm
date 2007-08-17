@@ -54,7 +54,6 @@
 #include <opensm/osm_mad_pool.h>
 #include <opensm/osm_helper.h>
 
-
 /****s* Subnet Database/generic_t
 * NAME
 *	generic_t
@@ -65,10 +64,9 @@
 *
 * SYNOPSIS
 */
-typedef struct _generic
-{
-	cl_map_item_t map_item;		/* must be first element! */
-	uint32_t count;				/* must be second element! */
+typedef struct _generic {
+	cl_map_item_t map_item;	/* must be first element! */
+	uint32_t count;		/* must be second element! */
 } generic_t;
 
 /*
@@ -87,10 +85,9 @@ typedef struct _generic
 *
 * SYNOPSIS
 */
-typedef struct _node
-{
-	cl_map_item_t map_item;		/* must be first element! */
-	uint32_t count;				/* must be second element! */
+typedef struct _node {
+	cl_map_item_t map_item;	/* must be first element! */
+	uint32_t count;		/* must be second element! */
 	ib_node_record_t rec;
 	ib_node_record_t comp;
 } node_t;
@@ -116,21 +113,19 @@ typedef struct _node
 * SEE ALSO
 *********/
 
-static inline node_t *
-node_new( void )
+static inline node_t *node_new(void)
 {
 	node_t *p_obj;
 
-	p_obj = malloc( sizeof( *p_obj ) );
+	p_obj = malloc(sizeof(*p_obj));
 	if (p_obj)
-		memset( p_obj, 0, sizeof( *p_obj ) );
-	return ( p_obj );
+		memset(p_obj, 0, sizeof(*p_obj));
+	return (p_obj);
 }
 
-static inline void
-node_delete( IN node_t * p_obj )
+static inline void node_delete(IN node_t * p_obj)
 {
-	free( p_obj );
+	free(p_obj);
 }
 
 /****s* Subnet Database/port_t
@@ -143,15 +138,14 @@ node_delete( IN node_t * p_obj )
 *
 * SYNOPSIS
 */
-typedef struct _port
-{
-  cl_map_item_t map_item;		/* must be first element! */
-  uint32_t count;				/* must be second element! */
-  /* Since there is no unique identifier for all ports we
-	  must be able to have such a key by the lid and port num */
-  uint64_t port_id;
-  ib_portinfo_record_t rec;
-  ib_portinfo_record_t comp;
+typedef struct _port {
+	cl_map_item_t map_item;	/* must be first element! */
+	uint32_t count;		/* must be second element! */
+	/* Since there is no unique identifier for all ports we
+	   must be able to have such a key by the lid and port num */
+	uint64_t port_id;
+	ib_portinfo_record_t rec;
+	ib_portinfo_record_t comp;
 } port_t;
 
 /*
@@ -176,56 +170,47 @@ typedef struct _port
 * SEE ALSO
 *********/
 
-static inline port_t *
-port_new( void )
+static inline port_t *port_new(void)
 {
 	port_t *p_obj;
 
-	p_obj = malloc( sizeof( *p_obj ) );
+	p_obj = malloc(sizeof(*p_obj));
 	if (p_obj)
-		memset( p_obj, 0, sizeof( *p_obj ) );
-	return ( p_obj );
+		memset(p_obj, 0, sizeof(*p_obj));
+	return (p_obj);
 }
 
-static inline void
-port_delete( IN port_t * p_obj )
+static inline void port_delete(IN port_t * p_obj)
 {
-	free( p_obj );
+	free(p_obj);
 }
 
 static inline uint64_t
-port_gen_id(
-				 IN ib_net16_t const lid,
-				 IN uint8_t const port_num)
+port_gen_id(IN ib_net16_t const lid, IN uint8_t const port_num)
 {
-  return( lid << 8 | port_num );
+	return (lid << 8 | port_num);
 }
 
 static inline void
-port_ext_id( IN uint64_t id,
-				 IN ib_net16_t *p_lid,
-				 IN uint8_t *p_port_num)
+port_ext_id(IN uint64_t id, IN ib_net16_t * p_lid, IN uint8_t * p_port_num)
 {
-  CL_ASSERT( (id & 0xFF) < 0x100 );
-  *p_port_num = (uint8_t)(id & 0xFF);
-  CL_ASSERT( ((id >> 8) & 0xFFFF) < 0x10000 );
-  *p_lid = (uint16_t)((id >> 8) & 0xFFFF);
+	CL_ASSERT((id & 0xFF) < 0x100);
+	*p_port_num = (uint8_t) (id & 0xFF);
+	CL_ASSERT(((id >> 8) & 0xFFFF) < 0x10000);
+	*p_lid = (uint16_t) ((id >> 8) & 0xFFFF);
 }
 
 static inline void
-port_set_id( IN port_t * p_obj,
-				 IN ib_net16_t const lid,
-				 IN uint8_t const port_num)
+port_set_id(IN port_t * p_obj,
+	    IN ib_net16_t const lid, IN uint8_t const port_num)
 {
-  p_obj->port_id = port_gen_id(lid, port_num);
+	p_obj->port_id = port_gen_id(lid, port_num);
 }
 
 static inline void
-port_get_id( IN port_t * p_obj,
-				 IN ib_net16_t *p_lid,
-				 IN uint8_t *p_port_num)
+port_get_id(IN port_t * p_obj, IN ib_net16_t * p_lid, IN uint8_t * p_port_num)
 {
-  port_ext_id(p_obj->port_id, p_lid, p_port_num);
+	port_ext_id(p_obj->port_id, p_lid, p_port_num);
 }
 
 /****s* Subnet Database/path_t
@@ -238,10 +223,9 @@ port_get_id( IN port_t * p_obj,
 *
 * SYNOPSIS
 */
-typedef struct _path
-{
-	cl_map_item_t map_item;		/* must be first element! */
-	uint32_t count;				/* must be second element! */
+typedef struct _path {
+	cl_map_item_t map_item;	/* must be first element! */
+	uint32_t count;		/* must be second element! */
 	ib_path_rec_t rec;
 	ib_path_rec_t comp;
 } path_t;
@@ -267,21 +251,19 @@ typedef struct _path
 * SEE ALSO
 *********/
 
-static inline path_t *
-path_new( void )
+static inline path_t *path_new(void)
 {
 	path_t *p_obj;
 
-	p_obj = malloc( sizeof( *p_obj ) );
+	p_obj = malloc(sizeof(*p_obj));
 	if (p_obj)
-		memset( p_obj, 0, sizeof( *p_obj ) );
-	return ( p_obj );
+		memset(p_obj, 0, sizeof(*p_obj));
+	return (p_obj);
 }
 
-static inline void
-path_delete( IN path_t * p_obj )
+static inline void path_delete(IN path_t * p_obj)
 {
-	free( p_obj );
+	free(p_obj);
 }
 
 /****s* Subnet Database/subnet_t
@@ -293,16 +275,15 @@ path_delete( IN path_t * p_obj )
 *
 * SYNOPSIS
 */
-typedef struct _subnet
-{
-  cl_qmap_t node_lid_tbl;
-  cl_qmap_t node_guid_tbl;
-  cl_qmap_t mgrp_mlid_tbl;
-  /* cl_qmap_t port_lid_tbl; */
-  /* cl_qmap_t port_guid_tbl; */
-  cl_qmap_t port_key_tbl;
-  cl_qmap_t link_tbl;
-  cl_qmap_t path_tbl;
+typedef struct _subnet {
+	cl_qmap_t node_lid_tbl;
+	cl_qmap_t node_guid_tbl;
+	cl_qmap_t mgrp_mlid_tbl;
+	/* cl_qmap_t port_lid_tbl; */
+	/* cl_qmap_t port_guid_tbl; */
+	cl_qmap_t port_key_tbl;
+	cl_qmap_t link_tbl;
+	cl_qmap_t path_tbl;
 } subnet_t;
 
 /*
@@ -321,7 +302,7 @@ typedef struct _subnet
 *
 * SYNOPSIS
 */
-void subnet_construct( IN subnet_t * const p_subn );
+void subnet_construct(IN subnet_t * const p_subn);
 
 /*
 * FIELDS
@@ -338,7 +319,7 @@ void subnet_construct( IN subnet_t * const p_subn );
 *
 * SYNOPSIS
 */
-cl_status_t subnet_init( IN subnet_t * const p_subn );
+cl_status_t subnet_init(IN subnet_t * const p_subn);
 
 /*
 * FIELDS

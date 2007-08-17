@@ -42,7 +42,6 @@
  * $Revision: 1.2 $
  */
 
-
 /*
 	osmtest object
 	0x0100 - 0x01FF

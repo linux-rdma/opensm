@@ -41,47 +41,38 @@
 #include "osmt_mtl_regular_qp.h"
 #endif
 
-typedef struct _osmt_qp_ctx
-{
+typedef struct _osmt_qp_ctx {
 #ifdef OSM_VENDOR_INTF_MTL
-  osmt_mtl_mad_res_t qp_bind_hndl;
+	osmt_mtl_mad_res_t qp_bind_hndl;
 #endif
-  uint8_t *p_send_buf;
-  uint8_t *p_recv_buf;
+	uint8_t *p_send_buf;
+	uint8_t *p_recv_buf;
 #ifdef OSM_VENDOR_INTF_MTL
-  IB_MGT_mad_hndl_t ib_mgt_qp0_handle;
+	IB_MGT_mad_hndl_t ib_mgt_qp0_handle;
 #endif
-}
-osmt_qp_ctx_t;
+} osmt_qp_ctx_t;
 
 ib_api_status_t
-osmt_bind_inform_qp( IN osmtest_t * const p_osmt,
-							OUT osmt_qp_ctx_t *p_qp_ctx);
+osmt_bind_inform_qp(IN osmtest_t * const p_osmt, OUT osmt_qp_ctx_t * p_qp_ctx);
 
 void
-osmt_unbind_inform_qp( IN osmtest_t * const p_osmt,
-							  IN osmt_qp_ctx_t *p_qp_ctx);
-
+osmt_unbind_inform_qp(IN osmtest_t * const p_osmt, IN osmt_qp_ctx_t * p_qp_ctx);
 
 ib_api_status_t
-osmt_reg_unreg_inform_info( IN osmtest_t         *p_osmt,
-									 IN osmt_qp_ctx_t     *p_qp_ctx,
-									 IN ib_inform_info_t	 *p_inform_info,
-									 IN uint8_t           reg_flag
-									 );
+osmt_reg_unreg_inform_info(IN osmtest_t * p_osmt,
+			   IN osmt_qp_ctx_t * p_qp_ctx,
+			   IN ib_inform_info_t * p_inform_info,
+			   IN uint8_t reg_flag);
 
 ib_api_status_t
-osmt_trap_wait( IN osmtest_t * const    p_osmt,
-                IN osmt_qp_ctx_t        *p_qp_ctx
-                );
+osmt_trap_wait(IN osmtest_t * const p_osmt, IN osmt_qp_ctx_t * p_qp_ctx);
 
 ib_api_status_t
-osmt_init_inform_info(IN osmtest_t * const p_osmt,
-							 OUT ib_inform_info_t* p_ii);
+osmt_init_inform_info(IN osmtest_t * const p_osmt, OUT ib_inform_info_t * p_ii);
 
 ib_api_status_t
-osmt_init_inform_info_by_trap (IN osmtest_t * const p_osmt,
-			       IN ib_net16_t trap_num,
-			       OUT ib_inform_info_t* p_ii);
+osmt_init_inform_info_by_trap(IN osmtest_t * const p_osmt,
+			      IN ib_net16_t trap_num,
+			      OUT ib_inform_info_t * p_ii);
 
-#endif /* __OSMT_INFORM__ */
+#endif				/* __OSMT_INFORM__ */

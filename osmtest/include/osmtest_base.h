@@ -68,4 +68,4 @@
 
 extern const char *const p_file;
 
-#endif /* _OSMTEST_BASE_H_ */
+#endif				/* _OSMTEST_BASE_H_ */
