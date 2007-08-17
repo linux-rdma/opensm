@@ -443,40 +443,37 @@ __osm_link_mgr_process_node(
       specified state.
     */
     p_physp = osm_node_get_physp_ptr( p_node, (uint8_t)i );
-    if( osm_physp_is_valid( p_physp ) )
+    if( !osm_physp_is_valid( p_physp ) )
+      continue;
+
+    current_state = osm_physp_get_port_state( p_physp );
+
+    if( current_state == IB_LINK_DOWN )
+      continue;
+
+    /*
+      Normally we only send state update if state is lower
+      then required state. However, we need to send update if
+      no state change required.
+    */
+    if( (link_state == IB_LINK_NO_CHANGE) ||
+        (current_state < link_state) )
     {
-      current_state = osm_physp_get_port_state( p_physp );
+      p_mgr->send_set_reqs = FALSE;
+      __osm_link_mgr_set_physp_pi(
+        p_mgr,
+        p_physp,
+        link_state );
 
-      if( current_state == IB_LINK_DOWN )
-        continue;
-
-      /*
-        Normally we only send state update if state is lower
-        then required state. However, we need to send update if
-        no state change required.
-      */
-      if( (link_state == IB_LINK_NO_CHANGE) ||
-          (current_state < link_state) )
-      {
-        p_mgr->send_set_reqs = FALSE;
-        __osm_link_mgr_set_physp_pi(
-          p_mgr,
-          p_physp,
-          link_state );
-
-        if ( p_mgr->send_set_reqs == TRUE )
-          signal = OSM_SIGNAL_DONE_PENDING;
-      }
-      else
-      {
-        if( osm_log_is_active( p_mgr->p_log, OSM_LOG_DEBUG ) )
-          osm_log( p_mgr->p_log, OSM_LOG_DEBUG,
-                   "__osm_link_mgr_process_node: "
-                   "Physical port 0x%X already %s. Skipping\n",
-                   p_physp->port_num,
-                   ib_get_port_state_str( current_state ) );
-      }
+      if ( p_mgr->send_set_reqs == TRUE )
+        signal = OSM_SIGNAL_DONE_PENDING;
     }
+    else if( osm_log_is_active( p_mgr->p_log, OSM_LOG_DEBUG ) )
+      osm_log( p_mgr->p_log, OSM_LOG_DEBUG,
+               "__osm_link_mgr_process_node: "
+               "Physical port 0x%X already %s. Skipping\n",
+               p_physp->port_num,
+               ib_get_port_state_str( current_state ) );
   }
 
   OSM_LOG_EXIT( p_mgr->p_log );
