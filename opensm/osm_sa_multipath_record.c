@@ -156,7 +156,7 @@ __osm_sa_multipath_rec_is_tavor_port(IN const osm_port_t * const p_port)
 
 /**********************************************************************
  **********************************************************************/
-boolean_t
+static boolean_t
 __osm_sa_multipath_rec_apply_tavor_mtu_limit(IN const ib_multipath_rec_t *
 					     const p_mpr,
 					     IN const osm_port_t *

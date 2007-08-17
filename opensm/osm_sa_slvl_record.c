@@ -130,7 +130,7 @@ osm_slvl_rec_rcv_init(IN osm_slvl_rec_rcv_t * const p_rcv,
 
 /**********************************************************************
  **********************************************************************/
-void
+static void
 __osm_sa_slvl_create(IN osm_slvl_rec_rcv_t * const p_rcv,
 		     IN const osm_physp_t * const p_physp,
 		     IN osm_slvl_search_ctxt_t * const p_ctxt,
@@ -182,7 +182,7 @@ __osm_sa_slvl_create(IN osm_slvl_rec_rcv_t * const p_rcv,
 
 /**********************************************************************
  **********************************************************************/
-void
+static void
 __osm_sa_slvl_by_comp_mask(IN osm_slvl_rec_rcv_t * const p_rcv,
 			   IN const osm_port_t * const p_port,
 			   osm_slvl_search_ctxt_t * const p_ctxt)
@@ -261,7 +261,7 @@ __osm_sa_slvl_by_comp_mask(IN osm_slvl_rec_rcv_t * const p_rcv,
 
 /**********************************************************************
  **********************************************************************/
-void
+static void
 __osm_sa_slvl_by_comp_mask_cb(IN cl_map_item_t * const p_map_item,
 			      IN void *context)
 {

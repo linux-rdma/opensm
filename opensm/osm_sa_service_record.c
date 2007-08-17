@@ -213,7 +213,7 @@ __match_service_pkey_with_ports_pkey(IN osm_sr_rcv_t * const p_rcv,
 
 /**********************************************************************
  **********************************************************************/
-boolean_t
+static boolean_t
 __match_name_to_key_association(IN osm_sr_rcv_t * const p_rcv,
 				ib_service_record_t * p_service_rec,
 				ib_net64_t comp_mask)

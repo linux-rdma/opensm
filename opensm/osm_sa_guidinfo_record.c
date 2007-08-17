@@ -175,7 +175,7 @@ __osm_gir_rcv_new_gir(IN osm_gir_rcv_t * const p_rcv,
 
 /**********************************************************************
  **********************************************************************/
-void
+static void
 __osm_sa_gir_create_gir(IN osm_gir_rcv_t * const p_rcv,
 			IN const osm_node_t * const p_node,
 			IN cl_qlist_t * const p_list,
@@ -286,7 +286,7 @@ __osm_sa_gir_create_gir(IN osm_gir_rcv_t * const p_rcv,
 
 /**********************************************************************
  **********************************************************************/
-void
+static void
 __osm_sa_gir_by_comp_mask_cb(IN cl_map_item_t * const p_map_item,
 			     IN void *context)
 {

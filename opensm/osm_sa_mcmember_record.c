@@ -882,7 +882,7 @@ __validate_delete(IN osm_mcmr_recv_t * const p_rcv,
  *    scope bits set. (EZ: the idea here is that SA created MGIDs are the
  *    only source for this signature with link-local scope)
  */
-ib_api_status_t
+static ib_api_status_t
 __validate_requested_mgid(IN osm_mcmr_recv_t * const p_rcv,
 			  IN const ib_member_rec_t * p_mcm_rec)
 {
@@ -975,7 +975,7 @@ __validate_requested_mgid(IN osm_mcmr_recv_t * const p_rcv,
  Check if the requested new MC group parameters are realizable.
  Also set the default MTU and Rate if not provided by the user.
 **********************************************************************/
-boolean_t
+static boolean_t
 __mgrp_request_is_realizable(IN osm_mcmr_recv_t * const p_rcv,
 			     IN ib_net64_t comp_mask,
 			     IN ib_member_rec_t * p_mcm_rec,
@@ -1750,7 +1750,7 @@ __osm_mcmr_rcv_new_mcmr(IN osm_mcmr_recv_t * const p_rcv,
 /**********************************************************************
  Match the given mgrp to the requested mcmr
 **********************************************************************/
-void
+static void
 __osm_sa_mcm_by_comp_mask_cb(IN cl_map_item_t * const p_map_item,
 			     IN void *context)
 {

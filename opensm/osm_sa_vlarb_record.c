@@ -131,7 +131,7 @@ osm_vlarb_rec_rcv_init(IN osm_vlarb_rec_rcv_t * const p_rcv,
 
 /**********************************************************************
  **********************************************************************/
-void
+static void
 __osm_sa_vl_arb_create(IN osm_vlarb_rec_rcv_t * const p_rcv,
 		       IN osm_physp_t * const p_physp,
 		       IN osm_vl_arb_search_ctxt_t * const p_ctxt,
@@ -182,7 +182,7 @@ __osm_sa_vl_arb_create(IN osm_vlarb_rec_rcv_t * const p_rcv,
 
 /**********************************************************************
  **********************************************************************/
-void
+static void
 __osm_sa_vl_arb_check_physp(IN osm_vlarb_rec_rcv_t * const p_rcv,
 			    IN osm_physp_t * const p_physp,
 			    osm_vl_arb_search_ctxt_t * const p_ctxt)
@@ -205,7 +205,7 @@ __osm_sa_vl_arb_check_physp(IN osm_vlarb_rec_rcv_t * const p_rcv,
 
 /**********************************************************************
  **********************************************************************/
-void
+static void
 __osm_sa_vl_arb_by_comp_mask(IN osm_vlarb_rec_rcv_t * const p_rcv,
 			     IN const osm_port_t * const p_port,
 			     osm_vl_arb_search_ctxt_t * const p_ctxt)
@@ -278,7 +278,7 @@ __osm_sa_vl_arb_by_comp_mask(IN osm_vlarb_rec_rcv_t * const p_rcv,
 
 /**********************************************************************
  **********************************************************************/
-void
+static void
 __osm_sa_vl_arb_by_comp_mask_cb(IN cl_map_item_t * const p_map_item,
 				IN void *context)
 {

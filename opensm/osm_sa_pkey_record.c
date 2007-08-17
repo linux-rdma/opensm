@@ -118,7 +118,7 @@ osm_pkey_rec_rcv_init(IN osm_pkey_rec_rcv_t * const p_rcv,
 
 /**********************************************************************
  **********************************************************************/
-void
+static void
 __osm_sa_pkey_create(IN osm_pkey_rec_rcv_t * const p_rcv,
 		     IN osm_physp_t * const p_physp,
 		     IN osm_pkey_search_ctxt_t * const p_ctxt,
@@ -170,7 +170,7 @@ __osm_sa_pkey_create(IN osm_pkey_rec_rcv_t * const p_rcv,
 
 /**********************************************************************
  **********************************************************************/
-void
+static void
 __osm_sa_pkey_check_physp(IN osm_pkey_rec_rcv_t * const p_rcv,
 			  IN osm_physp_t * const p_physp,
 			  osm_pkey_search_ctxt_t * const p_ctxt)

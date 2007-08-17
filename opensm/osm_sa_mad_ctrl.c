@@ -411,7 +411,7 @@ __osm_sa_mad_ctrl_rcv_callback(IN osm_madw_t * p_madw,
  *
  * SYNOPSIS
  */
-void
+static void
 __osm_sa_mad_ctrl_send_err_callback(IN void *bind_context,
 				    IN osm_madw_t * p_madw)
 {

@@ -174,7 +174,7 @@ __osm_pir_rcv_new_pir(IN osm_pir_rcv_t * const p_rcv,
 
 /**********************************************************************
  **********************************************************************/
-void
+static void
 __osm_sa_pir_create(IN osm_pir_rcv_t * const p_rcv,
 		    IN const osm_physp_t * const p_physp,
 		    IN osm_pir_search_ctxt_t * const p_ctxt)
@@ -227,7 +227,7 @@ __osm_sa_pir_create(IN osm_pir_rcv_t * const p_rcv,
 
 /**********************************************************************
  **********************************************************************/
-void
+static void
 __osm_sa_pir_check_physp(IN osm_pir_rcv_t * const p_rcv,
 			 IN const osm_physp_t * const p_physp,
 			 osm_pir_search_ctxt_t * const p_ctxt)
