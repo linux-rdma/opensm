@@ -33,7 +33,7 @@
 
 #if HAVE_CONFIG_H
 #  include <config.h>
-#endif /* HAVE_CONFIG_H */
+#endif				/* HAVE_CONFIG_H */
 
 #include <errno.h>
 #include <string.h>
@@ -50,16 +50,14 @@
  * generates to this interface.
  */
 #define SAMPLE_PLUGIN_OUTPUT_FILE "/tmp/osm_sample_event_plugin_output"
-typedef struct _log_events
-{
-	FILE      *log_file;
+typedef struct _log_events {
+	FILE *log_file;
 	osm_log_t *osmlog;
 } _log_events_t;
 
 /** =========================================================================
  */
-static void *
-construct(osm_log_t *osmlog)
+static void *construct(osm_log_t * osmlog)
 {
 	_log_events_t *log = malloc(sizeof(*log));
 	if (!log)
@@ -81,115 +79,101 @@ construct(osm_log_t *osmlog)
 
 /** =========================================================================
  */
-static void
-destroy(void *_log)
+static void destroy(void *_log)
 {
-	_log_events_t *log = (_log_events_t *)_log;
+	_log_events_t *log = (_log_events_t *) _log;
 	fclose(log->log_file);
 	free(log);
 }
 
 /** =========================================================================
  */
-static void
-handle_port_counter(_log_events_t *log, osm_epi_pe_event_t *pc)
+static void handle_port_counter(_log_events_t * log, osm_epi_pe_event_t * pc)
 {
 	if (pc->symbol_err_cnt > 0
-		|| pc->link_err_recover > 0
-		|| pc->link_downed > 0
-		|| pc->rcv_err > 0
-		|| pc->rcv_rem_phys_err > 0
-		|| pc->rcv_switch_relay_err > 0
-		|| pc->xmit_discards > 0
-		|| pc->xmit_constraint_err > 0
-		|| pc->rcv_constraint_err > 0
-		|| pc->link_integrity > 0
-		|| pc->buffer_overrun > 0
-		|| pc->vl15_dropped > 0) {
+	    || pc->link_err_recover > 0
+	    || pc->link_downed > 0
+	    || pc->rcv_err > 0
+	    || pc->rcv_rem_phys_err > 0
+	    || pc->rcv_switch_relay_err > 0
+	    || pc->xmit_discards > 0
+	    || pc->xmit_constraint_err > 0
+	    || pc->rcv_constraint_err > 0
+	    || pc->link_integrity > 0
+	    || pc->buffer_overrun > 0 || pc->vl15_dropped > 0) {
 		fprintf(log->log_file,
-			"Port counter errors for node 0x%"PRIx64" (%s) port %d\n",
-			pc->port_id.node_guid,
-			pc->port_id.node_name,
-			pc->port_id.port_num);
+			"Port counter errors for node 0x%" PRIx64
+			" (%s) port %d\n", pc->port_id.node_guid,
+			pc->port_id.node_name, pc->port_id.port_num);
 	}
 }
 
 /** =========================================================================
  */
 static void
-handle_port_counter_ext(_log_events_t *log, osm_epi_dc_event_t *epc)
+handle_port_counter_ext(_log_events_t * log, osm_epi_dc_event_t * epc)
 {
 	fprintf(log->log_file,
-		"Recieved Data counters for node 0x%"PRIx64" (%s) port %d\n",
+		"Recieved Data counters for node 0x%" PRIx64 " (%s) port %d\n",
 		epc->port_id.node_guid,
-		epc->port_id.node_name,
-		epc->port_id.port_num);
+		epc->port_id.node_name, epc->port_id.port_num);
 }
 
 /** =========================================================================
  */
-static void
-handle_port_select(_log_events_t *log, osm_epi_ps_event_t *ps)
+static void handle_port_select(_log_events_t * log, osm_epi_ps_event_t * ps)
 {
 	if (ps->xmit_wait > 0) {
 		fprintf(log->log_file,
-			"Port select Xmit Wait counts for node 0x%"PRIx64" (%s) port %d\n",
-			ps->port_id.node_guid,
-			ps->port_id.node_name,
-			ps->port_id.port_num);
+			"Port select Xmit Wait counts for node 0x%" PRIx64
+			" (%s) port %d\n", ps->port_id.node_guid,
+			ps->port_id.node_name, ps->port_id.port_num);
 	}
 }
 
 /** =========================================================================
  */
-static void
-handle_trap_event(_log_events_t *log, osm_epi_trap_event_t *trap)
+static void handle_trap_event(_log_events_t * log, osm_epi_trap_event_t * trap)
 {
 	fprintf(log->log_file,
-		"Trap event %d from 0x%"PRIx64" (%s) port %d\n",
+		"Trap event %d from 0x%" PRIx64 " (%s) port %d\n",
 		trap->trap_num,
 		trap->port_id.node_guid,
-		trap->port_id.node_name,
-		trap->port_id.port_num);
+		trap->port_id.node_name, trap->port_id.port_num);
 }
 
 /** =========================================================================
  */
-static void
-report(void *_log, osm_epi_event_id_t event_id, void *event_data)
+static void report(void *_log, osm_epi_event_id_t event_id, void *event_data)
 {
-	_log_events_t *log = (_log_events_t *)_log;
+	_log_events_t *log = (_log_events_t *) _log;
 
-	switch (event_id)
-	{
-		case OSM_EVENT_ID_PORT_ERRORS:
-			handle_port_counter(log, (osm_epi_pe_event_t *)event_data);
-			break;
-		case OSM_EVENT_ID_PORT_DATA_COUNTERS:
-			handle_port_counter_ext(log, (osm_epi_dc_event_t *)event_data);
-			break;
-		case OSM_EVENT_ID_PORT_SELECT:
-			handle_port_select(log, (osm_epi_ps_event_t *)event_data);
-			break;
-		case OSM_EVENT_ID_TRAP:
-			handle_trap_event(log, (osm_epi_trap_event_t *)event_data);
-			break;
-		case OSM_EVENT_ID_MAX:
-		default:
-			osm_log(log->osmlog, OSM_LOG_ERROR,
-				"Unknown event reported to plugin\n");
+	switch (event_id) {
+	case OSM_EVENT_ID_PORT_ERRORS:
+		handle_port_counter(log, (osm_epi_pe_event_t *) event_data);
+		break;
+	case OSM_EVENT_ID_PORT_DATA_COUNTERS:
+		handle_port_counter_ext(log, (osm_epi_dc_event_t *) event_data);
+		break;
+	case OSM_EVENT_ID_PORT_SELECT:
+		handle_port_select(log, (osm_epi_ps_event_t *) event_data);
+		break;
+	case OSM_EVENT_ID_TRAP:
+		handle_trap_event(log, (osm_epi_trap_event_t *) event_data);
+		break;
+	case OSM_EVENT_ID_MAX:
+	default:
+		osm_log(log->osmlog, OSM_LOG_ERROR,
+			"Unknown event reported to plugin\n");
 	}
 }
-
 
 /** =========================================================================
  * Define the object symbol for loading
  */
-__osm_epi_plugin_t osm_event_plugin =
-{
-interface_version: OSM_EVENT_PLUGIN_INTERFACE_VER,
-construct : construct,
-destroy : destroy,
-report : report
+__osm_epi_plugin_t osm_event_plugin = {
+      interface_version:OSM_EVENT_PLUGIN_INTERFACE_VER,
+      construct:construct,
+      destroy:destroy,
+      report:report
 };
-
