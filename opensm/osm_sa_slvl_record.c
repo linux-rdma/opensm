@@ -168,7 +168,6 @@ __osm_sa_slvl_create(
     lid = osm_node_get_base_lid( p_physp->p_node, 0 );
 
   if( osm_log_is_active( p_rcv->p_log, OSM_LOG_DEBUG ) )
-  {
     osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
              "__osm_sa_slvl_create: "
              "New SLtoVL Map for: OUT port 0x%016" PRIx64
@@ -177,7 +176,6 @@ __osm_sa_slvl_create(
              cl_ntoh16( lid ), osm_physp_get_port_num( p_physp ),
              in_port_idx
              );
-  }
 
   memset( &p_rec_item->rec, 0, sizeof( p_rec_item->rec ) );
 
@@ -234,13 +232,9 @@ __osm_sa_slvl_by_comp_mask(
   else
   {
     if ( comp_mask & IB_SLVL_COMPMASK_OUT_PORT )
-    {
       out_port_start = out_port_end = p_rcvd_rec->out_port_num;
-    }
     if ( comp_mask & IB_SLVL_COMPMASK_IN_PORT )
-    {
       in_port_start = in_port_end = p_rcvd_rec->in_port_num;
-    }
 
     for( out_port_num = out_port_start; out_port_num <= out_port_end; out_port_num++ ) {
       p_out_physp = osm_node_get_physp_ptr( p_port->p_node, out_port_num );
@@ -396,11 +390,9 @@ osm_slvl_rec_rcv_process(
       /*  this does the loop on all the port phys ports */
       __osm_sa_slvl_by_comp_mask( p_rcv, p_port, &context );
     else
-    {
       cl_qmap_apply_func( &p_rcv->p_subn->port_guid_tbl,
                           __osm_sa_slvl_by_comp_mask_cb,
                           &context );
-    }
   }
 
   cl_plock_release( p_rcv->p_lock );
@@ -525,9 +517,7 @@ osm_slvl_rec_rcv_process(
     p_rec_item = (osm_slvl_item_t*)cl_qlist_remove_head( &rec_list );
     /* copy only if not trimmed */
     if (i < num_rec)
-    {
       *p_resp_rec = p_rec_item->rec;
-    }
     cl_qlock_pool_put( &p_rcv->pool, &p_rec_item->pool_item );
     p_resp_rec++;
   }

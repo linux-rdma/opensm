@@ -170,18 +170,14 @@ __get_base_lid(
   OUT uint16_t *         p_base_lid )
 {
   if(p_physp->p_node->node_info.node_type == IB_NODE_TYPE_SWITCH)
-  {
     *p_base_lid =
       cl_ntoh16(
         osm_physp_get_base_lid(
           osm_node_get_physp_ptr(p_physp->p_node, 0))
         );
-  }
   else
-  {
     *p_base_lid =
       cl_ntoh16(osm_physp_get_base_lid(p_physp));
-  }
 }
 
 /**********************************************************************
@@ -291,7 +287,6 @@ __osm_lr_rcv_get_physp_link(
       goto Exit;
 
   if( osm_log_is_active( p_rcv->p_log, OSM_LOG_DEBUG ) )
-  {
     osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
              "__osm_lr_rcv_get_physp_link: "
              "Acquiring link record\n"
@@ -301,7 +296,6 @@ __osm_lr_rcv_get_physp_link(
              src_port_num,
              cl_ntoh64( osm_physp_get_port_guid( p_dest_physp ) ),
              dest_port_num );
-  }
 
   __get_base_lid(p_src_physp, &from_base_lid_ho);
   __get_base_lid(p_dest_physp, &to_base_lid_ho);
@@ -758,10 +752,8 @@ osm_lr_rcv_process(
                                            &p_src_port, &p_dest_port );
 
   if( sa_status == IB_SA_MAD_STATUS_SUCCESS )
-  {
     __osm_lr_rcv_get_port_links( p_rcv, p_lr, p_src_port, p_dest_port,
                                  p_sa_mad->comp_mask, &lr_list, p_req_physp );
-  }
 
   cl_plock_release( p_rcv->p_lock );
 

@@ -389,7 +389,6 @@ __osm_pr_rcv_get_path_parms(
     {
       mtu = ib_port_info_get_mtu_cap( p_pi );
       if( osm_log_is_active( p_rcv->p_log, OSM_LOG_DEBUG ) )
-      {
         osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
                  "__osm_pr_rcv_get_path_parms: "
                  "New smallest MTU = %u at intervening port 0x%016" PRIx64
@@ -397,14 +396,12 @@ __osm_pr_rcv_get_path_parms(
                  mtu,
                  cl_ntoh64( osm_physp_get_port_guid( p_physp ) ),
                  osm_physp_get_port_num( p_physp ) );
-      }
     }
 
     if( rate > ib_port_info_compute_rate( p_pi ) )
     {
       rate = ib_port_info_compute_rate( p_pi );
       if( osm_log_is_active( p_rcv->p_log, OSM_LOG_DEBUG ) )
-      {
         osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
                  "__osm_pr_rcv_get_path_parms: "
                  "New smallest rate = %u at intervening port 0x%016" PRIx64
@@ -412,7 +409,6 @@ __osm_pr_rcv_get_path_parms(
                  rate,
                  cl_ntoh64( osm_physp_get_port_guid( p_physp ) ),
                  osm_physp_get_port_num( p_physp ) );
-      }
     }
 
     /*
@@ -440,7 +436,6 @@ __osm_pr_rcv_get_path_parms(
     {
       mtu = ib_port_info_get_mtu_cap( p_pi );
       if( osm_log_is_active( p_rcv->p_log, OSM_LOG_DEBUG ) )
-      {
         osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
                  "__osm_pr_rcv_get_path_parms: "
                  "New smallest MTU = %u at intervening port 0x%016" PRIx64
@@ -448,14 +443,12 @@ __osm_pr_rcv_get_path_parms(
                  mtu,
                  cl_ntoh64( osm_physp_get_port_guid( p_physp ) ),
                  osm_physp_get_port_num( p_physp ) );
-      }
     }
 
     if( rate > ib_port_info_compute_rate( p_pi ) )
     {
       rate = ib_port_info_compute_rate( p_pi );
       if( osm_log_is_active( p_rcv->p_log, OSM_LOG_DEBUG ) )
-      {
         osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
                  "__osm_pr_rcv_get_path_parms: "
                  "New smallest rate = %u at intervening port 0x%016" PRIx64
@@ -463,7 +456,6 @@ __osm_pr_rcv_get_path_parms(
                  rate,
                  cl_ntoh64( osm_physp_get_port_guid( p_physp ) ),
                  osm_physp_get_port_num( p_physp ) );
-      }
     }
 
   }
@@ -477,34 +469,28 @@ __osm_pr_rcv_get_path_parms(
   {
     mtu = ib_port_info_get_mtu_cap( p_pi );
     if( osm_log_is_active( p_rcv->p_log, OSM_LOG_DEBUG ) )
-    {
       osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
                "__osm_pr_rcv_get_path_parms: "
                "New smallest MTU = %u at destination port 0x%016" PRIx64 "\n",
                mtu,
                cl_ntoh64(osm_physp_get_port_guid( p_physp )) );
-    }
   }
 
   if( rate > ib_port_info_compute_rate( p_pi ) )
   {
     rate = ib_port_info_compute_rate( p_pi );
     if( osm_log_is_active( p_rcv->p_log, OSM_LOG_DEBUG ) )
-    {
       osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
                "__osm_pr_rcv_get_path_parms: "
                "New smallest rate = %u at destination port 0x%016" PRIx64 "\n",
                rate,
                cl_ntoh64(osm_physp_get_port_guid( p_physp )) );
-    }
   }
 
   if( osm_log_is_active( p_rcv->p_log, OSM_LOG_DEBUG ) )
-  {
     osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
              "__osm_pr_rcv_get_path_parms: "
              "Path min MTU = %u, min rate = %u\n", mtu, rate );
-  }
 
   /*
     Determine if these values meet the user criteria
@@ -690,14 +676,12 @@ __osm_pr_rcv_get_path_parms(
     p_prtn = (osm_prtn_t *)cl_qmap_get(&p_rcv->p_subn->prtn_pkey_tbl,
                                        pkey & cl_ntoh16((uint16_t)~0x8000));
     if ( p_prtn == (osm_prtn_t *)cl_qmap_end(&p_rcv->p_subn->prtn_pkey_tbl) )
-    {
       /* this may be possible when pkey tables are created somehow in
          previous runs or things are going wrong here */
       osm_log( p_rcv->p_log, OSM_LOG_ERROR,
                "__osm_pr_rcv_get_path_parms: ERR 1F1C: "
                "No partition found for PKey 0x%04x - using default SL %d\n",
                cl_ntoh16(pkey), sl );
-    }
     else
     {
       if (p_rcv->p_subn->opt.routing_engine_name &&
@@ -833,12 +817,10 @@ __osm_pr_rcv_get_lid_pair_path(
   OSM_LOG_ENTER( p_rcv->p_log, __osm_pr_rcv_get_lid_pair_path );
 
   if( osm_log_is_active( p_rcv->p_log, OSM_LOG_DEBUG ) )
-  {
     osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
              "__osm_pr_rcv_get_lid_pair_path: "
              "Src LID 0x%X, Dest LID 0x%X\n",
              src_lid_ho, dest_lid_ho );
-  }
 
   p_pr_item = (osm_pr_item_t*)cl_qlock_pool_get( &p_rcv->pr_pool );
   if( p_pr_item == NULL )
@@ -926,24 +908,20 @@ __osm_pr_rcv_get_port_pair_paths(
   OSM_LOG_ENTER( p_rcv->p_log, __osm_pr_rcv_get_port_pair_paths );
 
   if( osm_log_is_active( p_rcv->p_log, OSM_LOG_DEBUG ) )
-  {
     osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
              "__osm_pr_rcv_get_port_pair_paths: "
              "Src port 0x%016" PRIx64 ", "
              "Dst port 0x%016" PRIx64 "\n",
              cl_ntoh64( osm_port_get_guid( p_src_port ) ),
              cl_ntoh64( osm_port_get_guid( p_dest_port ) ) );
-  }
 
   /* Check that the req_port, src_port and dest_port all share a
      pkey. The check is done on the default physical port of the ports. */
   if (osm_port_share_pkey(p_rcv->p_log, p_req_port, p_src_port) == FALSE ||
       osm_port_share_pkey(p_rcv->p_log, p_req_port, p_dest_port) == FALSE ||
       osm_port_share_pkey(p_rcv->p_log, p_src_port, p_dest_port) == FALSE )
-  {
     /* One of the pairs doesn't share a pkey so the path is disqualified. */
     goto Exit;
-  }
 
   p_sa_mad = osm_madw_get_sa_mad_ptr( p_madw );
   p_pr = (ib_path_rec_t*)ib_sa_mad_get_payload_ptr( p_sa_mad );
@@ -1003,10 +981,8 @@ __osm_pr_rcv_get_port_pair_paths(
     dest_lid_max_ho = cl_ntoh16( p_pr->dlid );
   }
   else
-  {
     osm_port_get_lid_range_ho( p_dest_port, &dest_lid_min_ho,
                                &dest_lid_max_ho );
-  }
 
   if( comp_mask & IB_PR_COMPMASK_SLID )
   {
@@ -1014,10 +990,8 @@ __osm_pr_rcv_get_port_pair_paths(
     src_lid_max_ho = cl_ntoh16( p_pr->slid );
   }
   else
-  {
     osm_port_get_lid_range_ho( p_src_port, &src_lid_min_ho,
                                &src_lid_max_ho );
-  }
 
   if ( src_lid_min_ho == 0 )
   {
@@ -1036,14 +1010,12 @@ __osm_pr_rcv_get_port_pair_paths(
   }
 
   if( osm_log_is_active( p_rcv->p_log, OSM_LOG_DEBUG ) )
-  {
     osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
              "__osm_pr_rcv_get_port_pair_paths: "
              "Src LIDs [0x%X-0x%X], "
              "Dest LIDs [0x%X-0x%X]\n",
              src_lid_min_ho, src_lid_max_ho,
              dest_lid_min_ho, dest_lid_max_ho );
-  }
 
   src_lid_ho = src_lid_min_ho;
   dest_lid_ho = dest_lid_min_ho;
@@ -1537,9 +1509,7 @@ __get_mgrp_by_mgid(
                       &mcmr_search_context);
 
   if( mcmr_search_context.p_mgrp == NULL )
-  {
     return IB_NOT_FOUND;
-  }
 
   *pp_mgrp = mcmr_search_context.p_mgrp;
   return IB_SUCCESS;
@@ -1557,9 +1527,7 @@ __get_mgrp_by_mlid(
   map_item = cl_qmap_get( &p_rcv->p_subn->mgrp_mlid_tbl, mlid );
 
   if( map_item == cl_qmap_end(&p_rcv->p_subn->mgrp_mlid_tbl) )
-  {
     return NULL;
-  }
 
   return (osm_mgrp_t *)map_item;
 }
@@ -1616,11 +1584,9 @@ __osm_pr_get_mgrp(
     {
       *pp_mgrp = __get_mgrp_by_mlid( p_rcv, p_pr->dlid );
       if( *pp_mgrp == NULL)
-      {
         osm_log( p_rcv->p_log, OSM_LOG_ERROR,
                  "__osm_pr_get_mgrp: ERR 1F11: "
                  "No MC group found for PathRecord destination LID\n" );
-      }
     }
   }
 
@@ -2036,11 +2002,9 @@ osm_pr_rcv_process(
       {
         p_pr_item = (osm_pr_item_t*)cl_qlock_pool_get( &p_rcv->pr_pool );
         if( p_pr_item == NULL )
-        {
           osm_log( p_rcv->p_log, OSM_LOG_ERROR,
                    "osm_pr_rcv_process: ERR 1F18: "
                    "Unable to allocate path record for MC group\n" );
-        }
         else
         {
 	  /* Copy PathRecord request into response */
@@ -2084,11 +2048,9 @@ osm_pr_rcv_process(
         }
       }
       else
-      {
         osm_log( p_rcv->p_log, OSM_LOG_ERROR,
                  "osm_pr_rcv_process: ERR 1F19: "
                  "MC group attributes don't match PathRecord request\n" );
-      }
     }
   }
 

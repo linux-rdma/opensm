@@ -315,13 +315,11 @@ __osm_mpr_rcv_get_path_parms(
     p_prtn = (osm_prtn_t *)cl_qmap_get(&p_rcv->p_subn->prtn_pkey_tbl,
 				       required_pkey & cl_ntoh16((uint16_t)~0x8000));
     if ( p_prtn == (osm_prtn_t *)cl_qmap_end(&p_rcv->p_subn->prtn_pkey_tbl) )
-    {
       /* this may be possible when pkey tables are created somehow in
          previous runs or things are going wrong here */
       osm_log( p_rcv->p_log, OSM_LOG_ERROR,
                "__osm_mpr_rcv_get_path_parms: ERR 451A: "
                "No partition found for PKey 0x%04x - using default SL %d\n", cl_ntoh16(required_pkey), required_sl );
-    }
     else
       required_sl = p_prtn->sl;
 
@@ -438,7 +436,6 @@ __osm_mpr_rcv_get_path_parms(
     {
       mtu = ib_port_info_get_mtu_cap( p_pi );
       if ( osm_log_is_active( p_rcv->p_log, OSM_LOG_DEBUG ) )
-      {
         osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
 		 "__osm_mpr_rcv_get_path_parms: "
 		 "New smallest MTU = %u at intervening port 0x%016" PRIx64
@@ -446,14 +443,12 @@ __osm_mpr_rcv_get_path_parms(
 		 mtu,
 		 cl_ntoh64( osm_physp_get_port_guid( p_physp ) ),
 		 osm_physp_get_port_num( p_physp ) );
-      }
     }
 
     if ( rate > ib_port_info_compute_rate( p_pi ) )
     {
       rate = ib_port_info_compute_rate( p_pi );
       if ( osm_log_is_active( p_rcv->p_log, OSM_LOG_DEBUG ) )
-      {
         osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
                  "__osm_mpr_rcv_get_path_parms: "
 		 "New smallest rate = %u at intervening port 0x%016" PRIx64
@@ -461,7 +456,6 @@ __osm_mpr_rcv_get_path_parms(
 		 rate,
 		 cl_ntoh64( osm_physp_get_port_guid( p_physp ) ),
 		 osm_physp_get_port_num( p_physp ) );
-      }
     }
 
     /*
@@ -504,7 +498,6 @@ __osm_mpr_rcv_get_path_parms(
     {
       mtu = ib_port_info_get_mtu_cap( p_pi );
       if ( osm_log_is_active( p_rcv->p_log, OSM_LOG_DEBUG ) )
-      {
         osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
 		 "__osm_mpr_rcv_get_path_parms: "
 		 "New smallest MTU = %u at intervening port 0x%016" PRIx64
@@ -512,14 +505,12 @@ __osm_mpr_rcv_get_path_parms(
 		 mtu,
 		 cl_ntoh64( osm_physp_get_port_guid( p_physp ) ),
 		 osm_physp_get_port_num( p_physp ) );
-      }
     }
 
     if ( rate > ib_port_info_compute_rate( p_pi ) )
     {
       rate = ib_port_info_compute_rate( p_pi );
       if ( osm_log_is_active( p_rcv->p_log, OSM_LOG_DEBUG ) )
-      {
         osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
 		 "__osm_mpr_rcv_get_path_parms: "
 		 "New smallest rate = %u at intervening port 0x%016" PRIx64
@@ -527,7 +518,6 @@ __osm_mpr_rcv_get_path_parms(
 		 rate,
 		 cl_ntoh64( osm_physp_get_port_guid( p_physp ) ),
 		 osm_physp_get_port_num( p_physp ) );
-      }
     }
 
   }
@@ -541,26 +531,22 @@ __osm_mpr_rcv_get_path_parms(
   {
     mtu = ib_port_info_get_mtu_cap( p_pi );
     if ( osm_log_is_active( p_rcv->p_log, OSM_LOG_DEBUG ) )
-    {
       osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
 	       "__osm_mpr_rcv_get_path_parms: "
 	       "New smallest MTU = %u at destination port 0x%016" PRIx64 "\n",
 	       mtu,
 	       cl_ntoh64( osm_physp_get_port_guid( p_physp ) ) );
-    }
   }
 
   if ( rate > ib_port_info_compute_rate( p_pi ) )
   {
     rate = ib_port_info_compute_rate( p_pi );
     if ( osm_log_is_active( p_rcv->p_log, OSM_LOG_DEBUG ) )
-    {
       osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
 	       "__osm_mpr_rcv_get_path_parms: "
 	       "New smallest rate = %u at destination port 0x%016" PRIx64 "\n",
 	       rate,
 	       cl_ntoh64( osm_physp_get_port_guid( p_physp ) ) );
-    }
   }
 
   if ( osm_log_is_active( p_rcv->p_log, OSM_LOG_DEBUG ) )
@@ -800,12 +786,10 @@ __osm_mpr_rcv_get_lid_pair_path(
   OSM_LOG_ENTER( p_rcv->p_log, __osm_mpr_rcv_get_lid_pair_path );
 
   if ( osm_log_is_active( p_rcv->p_log, OSM_LOG_DEBUG ) )
-  {
     osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
 	     "__osm_mpr_rcv_get_lid_pair_path: "
 	     "Src LID 0x%X, Dest LID 0x%X\n",
 	     src_lid_ho, dest_lid_ho );
-  }
 
   p_pr_item = (osm_mpr_item_t*)cl_qlock_pool_get( &p_rcv->pr_pool );
   if ( p_pr_item == NULL )
@@ -894,24 +878,20 @@ __osm_mpr_rcv_get_port_pair_paths(
   OSM_LOG_ENTER( p_rcv->p_log, __osm_mpr_rcv_get_port_pair_paths );
 
   if ( osm_log_is_active( p_rcv->p_log, OSM_LOG_DEBUG ) )
-  {
     osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
 	     "__osm_mpr_rcv_get_port_pair_paths: "
 	     "Src port 0x%016" PRIx64 ", "
 	     "Dst port 0x%016" PRIx64 "\n",
 	     cl_ntoh64( osm_port_get_guid( p_src_port ) ),
 	     cl_ntoh64( osm_port_get_guid( p_dest_port ) ) );
-  }
 
   /* Check that the req_port, src_port and dest_port all share a
      pkey. The check is done on the default physical port of the ports. */
   if ( osm_port_share_pkey(p_rcv->p_log, p_req_port, p_src_port ) == FALSE ||
        osm_port_share_pkey(p_rcv->p_log, p_req_port, p_dest_port ) == FALSE ||
        osm_port_share_pkey(p_rcv->p_log, p_src_port, p_dest_port ) == FALSE )
-  {
     /* One of the pairs doesn't share a pkey so the path is disqualified. */
     goto Exit;
-  }
 
   /*
     We shouldn't be here if the paths are disqualified in some way...
@@ -963,14 +943,12 @@ __osm_mpr_rcv_get_port_pair_paths(
   osm_port_get_lid_range_ho( p_dest_port, &dest_lid_min_ho, &dest_lid_max_ho );
 
   if ( osm_log_is_active( p_rcv->p_log, OSM_LOG_DEBUG ) )
-  {
     osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
 	     "__osm_mpr_rcv_get_port_pair_paths: "
 	     "Src LID [0x%X-0x%X], "
 	     "Dest LID [0x%X-0x%X]\n",
 	     src_lid_min_ho, src_lid_max_ho,
 	     dest_lid_min_ho, dest_lid_max_ho );
-  }
 
   src_lid_ho = src_lid_min_ho;
   dest_lid_ho = dest_lid_min_ho;
@@ -1098,7 +1076,6 @@ __osm_mpr_rcv_get_apm_port_pair_paths(
   OSM_LOG_ENTER( p_rcv->p_log, __osm_mpr_rcv_get_apm_port_pair_paths );
 
   if ( osm_log_is_active( p_rcv->p_log, OSM_LOG_DEBUG ) )
-  {
     osm_log( p_rcv->p_log, OSM_LOG_DEBUG,
 	     "__osm_mpr_rcv_get_apm_port_pair_paths: "
 	     "Src port 0x%016" PRIx64 ", "
@@ -1106,7 +1083,6 @@ __osm_mpr_rcv_get_apm_port_pair_paths(
 	     cl_ntoh64( osm_port_get_guid( p_src_port ) ),
 	     cl_ntoh64( osm_port_get_guid( p_dest_port ) ),
 	     base_offs );
-  }
 
   osm_port_get_lid_range_ho( p_src_port, &src_lid_min_ho, &src_lid_max_ho );
   osm_port_get_lid_range_ho( p_dest_port, &dest_lid_min_ho, &dest_lid_max_ho );
