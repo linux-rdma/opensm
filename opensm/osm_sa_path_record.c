@@ -1686,8 +1686,7 @@ __osm_pr_rcv_respond(IN osm_pr_rcv_t * const p_rcv,
 			       (osm_pr_item_t *) cl_qlist_end(p_list)) {
 				cl_qlock_pool_put(&p_rcv->pr_pool,
 						  &p_pr_item->pool_item);
-				p_pr_item =
-				    (osm_pr_item_t *)
+				p_pr_item = (osm_pr_item_t *)
 				    cl_qlist_remove_head(p_list);
 			}
 			goto Exit;
@@ -1924,89 +1923,72 @@ void osm_pr_rcv_process(IN void *context, IN void *data)
 		/* First, get the MC info */
 		__osm_pr_get_mgrp(p_rcv, p_madw, &p_mgrp);
 
-		if (p_mgrp) {
-			/* Make sure the rest of the PathRecord matches the MC group attributes */
-			status =
-			    __osm_pr_match_mgrp_attributes(p_rcv, p_madw,
-							   p_mgrp);
-			if (status == IB_SUCCESS) {
-				p_pr_item =
-				    (osm_pr_item_t *) cl_qlock_pool_get(&p_rcv->
-									pr_pool);
-				if (p_pr_item == NULL)
-					osm_log(p_rcv->p_log, OSM_LOG_ERROR,
-						"osm_pr_rcv_process: ERR 1F18: "
-						"Unable to allocate path record for MC group\n");
-				else {
-					/* Copy PathRecord request into response */
-					p_sa_mad =
-					    osm_madw_get_sa_mad_ptr(p_madw);
-					p_pr =
-					    (ib_path_rec_t *)
-					    ib_sa_mad_get_payload_ptr(p_sa_mad);
-					p_pr_item->path_rec = *p_pr;
+		if (!p_mgrp)
+			goto Unlock;
 
-					/* Now, use the MC info to cruft up the PathRecord response */
-					p_pr_item->path_rec.dgid =
-					    p_mgrp->mcmember_rec.mgid;
-					p_pr_item->path_rec.dlid =
-					    p_mgrp->mcmember_rec.mlid;
-					p_pr_item->path_rec.tclass =
-					    p_mgrp->mcmember_rec.tclass;
-					p_pr_item->path_rec.num_path = 1;
-					p_pr_item->path_rec.pkey =
-					    p_mgrp->mcmember_rec.pkey;
+		/* Make sure the rest of the PathRecord matches the MC group attributes */
+		status = __osm_pr_match_mgrp_attributes(p_rcv, p_madw, p_mgrp);
+		if (status != IB_SUCCESS) {
+			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+				"osm_pr_rcv_process: ERR 1F19: "
+				"MC group attributes don't match PathRecord request\n");
+			goto Unlock;
+		}
 
-					/* MTU, rate, and packet lifetime should be exactly */
-					p_pr_item->path_rec.mtu =
-					    (2 << 6) | p_mgrp->mcmember_rec.mtu;
-					p_pr_item->path_rec.rate =
-					    (2 << 6) | p_mgrp->mcmember_rec.
-					    rate;
-					p_pr_item->path_rec.pkt_life =
-					    (2 << 6) | p_mgrp->mcmember_rec.
-					    pkt_life;
+		p_pr_item =
+		    (osm_pr_item_t *) cl_qlock_pool_get(&p_rcv->pr_pool);
+		if (p_pr_item == NULL) {
+			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+				"osm_pr_rcv_process: ERR 1F18: "
+				"Unable to allocate path record for MC group\n");
+			goto Unlock;
+		}
 
-					/* SL, Hop Limit, and Flow Label */
-					ib_member_get_sl_flow_hop(p_mgrp->
-								  mcmember_rec.
-								  sl_flow_hop,
-								  &sl,
-								  &flow_label,
-								  &hop_limit);
-					p_pr_item->path_rec.sl = cl_hton16(sl);
+		/* Copy PathRecord request into response */
+		p_sa_mad = osm_madw_get_sa_mad_ptr(p_madw);
+		p_pr = (ib_path_rec_t *)
+		    ib_sa_mad_get_payload_ptr(p_sa_mad);
+		p_pr_item->path_rec = *p_pr;
+
+		/* Now, use the MC info to cruft up the PathRecord response */
+		p_pr_item->path_rec.dgid = p_mgrp->mcmember_rec.mgid;
+		p_pr_item->path_rec.dlid = p_mgrp->mcmember_rec.mlid;
+		p_pr_item->path_rec.tclass = p_mgrp->mcmember_rec.tclass;
+		p_pr_item->path_rec.num_path = 1;
+		p_pr_item->path_rec.pkey = p_mgrp->mcmember_rec.pkey;
+
+		/* MTU, rate, and packet lifetime should be exactly */
+		p_pr_item->path_rec.mtu = (2 << 6) | p_mgrp->mcmember_rec.mtu;
+		p_pr_item->path_rec.rate = (2 << 6) | p_mgrp->mcmember_rec.rate;
+		p_pr_item->path_rec.pkt_life =
+		    (2 << 6) | p_mgrp->mcmember_rec.pkt_life;
+
+		/* SL, Hop Limit, and Flow Label */
+		ib_member_get_sl_flow_hop(p_mgrp->
+					  mcmember_rec.
+					  sl_flow_hop,
+					  &sl, &flow_label, &hop_limit);
+		p_pr_item->path_rec.sl = cl_hton16(sl);
 #ifndef ROUTER_EXP
-					p_pr_item->path_rec.hop_flow_raw =
-					    cl_hton32(hop_limit) | (flow_label
-								    << 8);
+		p_pr_item->path_rec.hop_flow_raw =
+		    cl_hton32(hop_limit) | (flow_label << 8);
 #else
-					/* HopLimit is not yet set in non link local MC groups */
-					/* If it were, this would not be needed */
-					if (ib_mgid_get_scope
-					    (&p_mgrp->mcmember_rec.mgid) ==
-					    MC_SCOPE_LINK_LOCAL)
-						p_pr_item->path_rec.
-						    hop_flow_raw =
-						    cl_hton32(hop_limit) |
-						    (flow_label << 8);
-					else
-						p_pr_item->path_rec.
-						    hop_flow_raw =
-						    cl_hton32(IB_HOPLIMIT_MAX) |
-						    (flow_label << 8);
+		/* HopLimit is not yet set in non link local MC groups */
+		/* If it were, this would not be needed */
+		if (ib_mgid_get_scope
+		    (&p_mgrp->mcmember_rec.mgid) == MC_SCOPE_LINK_LOCAL)
+			p_pr_item->path_rec.
+			    hop_flow_raw =
+			    cl_hton32(hop_limit) | (flow_label << 8);
+		else
+			p_pr_item->path_rec.
+			    hop_flow_raw =
+			    cl_hton32(IB_HOPLIMIT_MAX) | (flow_label << 8);
 #endif
 
-					cl_qlist_insert_tail(&pr_list,
-							     (cl_list_item_t *)
-							     & p_pr_item->
-							     pool_item);
+		cl_qlist_insert_tail(&pr_list, (cl_list_item_t *)
+				     & p_pr_item->pool_item);
 
-				}
-			} else
-				osm_log(p_rcv->p_log, OSM_LOG_ERROR,
-					"osm_pr_rcv_process: ERR 1F19: "
-					"MC group attributes don't match PathRecord request\n");
-		}
 	}
 
       Unlock:
