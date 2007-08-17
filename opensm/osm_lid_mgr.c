@@ -177,13 +177,11 @@ __osm_lid_mgr_validate_db(
   while ((cl_list_item_t*)p_item != cl_qlist_end(&guids))
   {
     if (osm_db_guid2lid_get( p_mgr->p_g2l, p_item->guid, &min_lid, &max_lid ))
-    {
       osm_log( p_mgr->p_log, OSM_LOG_ERROR,
                "__osm_lid_mgr_validate_db: ERR 0311: "
                "could not get lid for guid:0x%016" PRIx64 "\n",
                p_item->guid
                );
-    }
     else
     {
       lids_ok = TRUE;
@@ -309,11 +307,9 @@ osm_lid_mgr_init(
         goto Exit;
       }
       else
-      {
         osm_log( p_mgr->p_log, OSM_LOG_ERROR,
                  "osm_lid_mgr_init: ERR 0317: "
                  "Error restoring Guid-to-Lid persistent database\n");
-      }
     }
 
     /* we need to make sure we did not get duplicates with
@@ -598,9 +594,7 @@ __osm_lid_mgr_init_sweep(
     if (is_free)
     {
       if (p_range)
-      {
         p_range->max_lid = lid;
-      }
       else
       {
         p_range =
@@ -678,13 +672,11 @@ __osm_lid_mgr_is_range_not_persistent(
         return( FALSE );
     }
     else
-    {
       /*
         We are out of range in the array.
         Consider all further entries "free".
       */
       return( TRUE );
-    }
   }
 
   return( TRUE );
@@ -741,15 +733,11 @@ __osm_lid_mgr_find_free_lid_range(
     {
       /* ok let us use that range */
       if (lid + num_lids - 1 == p_range->max_lid)
-      {
         /* we consumed the entire range */
         cl_qlist_remove_item( &p_mgr->free_ranges, p_item );
-      }
       else
-      {
         /* only update the available range */
         p_range->min_lid = lid + num_lids;
-      }
 
       *p_min_lid = lid;
       *p_max_lid = (uint16_t)(lid + num_lids - 1);
@@ -854,12 +842,10 @@ __osm_lid_mgr_get_port_lid(
     }
   }
   else
-  {
     osm_log( p_mgr->p_log, OSM_LOG_DEBUG,
              "__osm_lid_mgr_get_port_lid: "
              "0x%016" PRIx64" has no persistent lid assigned\n",
              guid );
-  }
 
   /* if the port info carries a lid it must be lmc aligned and not mapped
      by the pesistent storage  */
@@ -886,22 +872,18 @@ __osm_lid_mgr_get_port_lid(
         goto NewLidSet;
       }
       else
-      {
         osm_log( p_mgr->p_log, OSM_LOG_DEBUG,
                  "__osm_lid_mgr_get_port_lid: "
                  "0x%016" PRIx64
                  " existing lid range:[0x%x:0x%x] is not free\n",
                  guid, min_lid, min_lid + num_lids - 1 );
-      }
     }
     else
-    {
       osm_log( p_mgr->p_log, OSM_LOG_DEBUG,
                "__osm_lid_mgr_get_port_lid: "
                "0x%016" PRIx64
                " existing lid range:[0x%x:0x%x] is not lmc aligned\n",
                guid, min_lid, min_lid + num_lids - 1 );
-    }
   }
 
   /* first cleanup the existing discovered lid range */
@@ -989,13 +971,11 @@ __osm_lid_mgr_set_physp_pi(
       in link mgr).
     */
     if( osm_log_is_active( p_mgr->p_log, OSM_LOG_DEBUG ) )
-    {
       osm_log( p_mgr->p_log, OSM_LOG_DEBUG,
                "__osm_lid_mgr_set_physp_pi: "
                "Skipping switch port %u, GUID 0x%016" PRIx64 "\n",
                port_num,
                cl_ntoh64( osm_physp_get_port_guid( p_physp ) ) );
-    }
     goto Exit;
   }
 
@@ -1016,9 +996,7 @@ __osm_lid_mgr_set_physp_pi(
 
   /* Correction by FUJITSU */
   if( port_num != 0 )
-  {
     memcpy( payload, p_old_pi, sizeof(ib_port_info_t) );
-  }
 
   /*
     Correction following a bug injected by the previous
@@ -1150,7 +1128,6 @@ __osm_lid_mgr_set_physp_pi(
          (op_vls !=  ib_port_info_get_op_vls(p_old_pi)))
     {
       if( osm_log_is_active( p_mgr->p_log, OSM_LOG_DEBUG ) )
-      {
         osm_log( p_mgr->p_log, OSM_LOG_DEBUG,
                  "__osm_lid_mgr_set_physp_pi: "
                  "Sending Link Down to GUID 0x%016" PRIx64 "port %d due to op_vls or mtu change. MTU:%u,%u VL_CAP:%u,%u\n",
@@ -1158,7 +1135,6 @@ __osm_lid_mgr_set_physp_pi(
                  port_num, mtu, ib_port_info_get_neighbor_mtu(p_old_pi),
                  op_vls, ib_port_info_get_op_vls(p_old_pi)
                  );
-      }
 
       /*
          we need to make sure the internal DB will follow the fact the remote
@@ -1301,14 +1277,12 @@ __osm_lid_mgr_process_our_sm_node(
   p_mgr->p_subn->sm_base_lid = cl_hton16( min_lid_ho );
 
   if( osm_log_is_active( p_mgr->p_log, OSM_LOG_VERBOSE ) )
-  {
     osm_log( p_mgr->p_log, OSM_LOG_VERBOSE,
              "__osm_lid_mgr_process_our_sm_node: "
              "Assigning SM's port 0x%016" PRIx64
              "\n\t\t\t\tto LID range [0x%X,0x%X]\n",
              cl_ntoh64( osm_port_get_guid( p_port ) ),
              min_lid_ho, max_lid_ho );
-  }
 
   /*
     Set the PortInfo the Physical Port associated with this Port.
@@ -1416,28 +1390,27 @@ osm_lid_mgr_process_subnet(
                "osm_lid_mgr_process_subnet: "
                "Skipping our own port 0x%016" PRIx64 "\n",
                cl_ntoh64( port_guid ) );
+      continue;
     }
-    else
-    {
-      /*
-        get the port lid range - we need to send it on first active sweep or
-        if there was a change (the result of the __osm_lid_mgr_get_port_lid)
-      */
-      lid_changed =
-        __osm_lid_mgr_get_port_lid(p_mgr, p_port, &min_lid_ho, &max_lid_ho);
 
-      /* we can call the function to update the port info as it known to
-         look for any field change and will only send an updated if required */
-      osm_log( p_mgr->p_log, OSM_LOG_VERBOSE,
-               "osm_lid_mgr_process_subnet: "
-               "Assigned port 0x%016" PRIx64
-               ", LID [0x%X,0x%X]\n", cl_ntoh64( port_guid ),
-               min_lid_ho, max_lid_ho );
+    /*
+      get the port lid range - we need to send it on first active sweep or
+      if there was a change (the result of the __osm_lid_mgr_get_port_lid)
+    */
+    lid_changed =
+      __osm_lid_mgr_get_port_lid(p_mgr, p_port, &min_lid_ho, &max_lid_ho);
 
-      /* the proc returns the fact it sent a set port info */
-      if (__osm_lid_mgr_set_physp_pi( p_mgr, p_port, p_port->p_physp, cl_hton16( min_lid_ho )))
-        p_mgr->send_set_reqs = TRUE;
-    }
+    /* we can call the function to update the port info as it known to
+       look for any field change and will only send an updated if required */
+    osm_log( p_mgr->p_log, OSM_LOG_VERBOSE,
+             "osm_lid_mgr_process_subnet: "
+             "Assigned port 0x%016" PRIx64
+             ", LID [0x%X,0x%X]\n", cl_ntoh64( port_guid ),
+             min_lid_ho, max_lid_ho );
+
+    /* the proc returns the fact it sent a set port info */
+    if (__osm_lid_mgr_set_physp_pi( p_mgr, p_port, p_port->p_physp, cl_hton16( min_lid_ho )))
+      p_mgr->send_set_reqs = TRUE;
   } /* all ports */
 
   /* store the guid to lid table in persistent db */

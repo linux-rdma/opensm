@@ -158,12 +158,10 @@ __osm_link_mgr_set_physp_pi(
       /* This means the switch doesn't support enhanced port 0.
          Can skip it. */
       if( osm_log_is_active( p_mgr->p_log, OSM_LOG_DEBUG ) )
-      {
         osm_log( p_mgr->p_log, OSM_LOG_DEBUG,
                  "__osm_link_mgr_set_physp_pi: "
                  "Skipping port 0, GUID 0x%016" PRIx64 "\n",
                  cl_ntoh64( osm_physp_get_port_guid( p_physp ) ) );
-      }
       goto Exit;
     }
     esp0 = TRUE;
@@ -346,7 +344,6 @@ __osm_link_mgr_set_physp_pi(
     context.pi_context.ignore_errors = FALSE;
   }
   else
-  {
     /*
       Since the only change we try to do is to modify the port
       state we can ignore the errors that might be caused by a
@@ -354,7 +351,6 @@ __osm_link_mgr_set_physp_pi(
       in.
     */
     context.pi_context.ignore_errors = FALSE;
-  }
 
   ib_port_info_set_port_state( p_pi, port_state );
   if (port_state != IB_LINK_NO_CHANGE &&
@@ -427,13 +423,11 @@ __osm_link_mgr_process_node(
   OSM_LOG_ENTER( p_mgr->p_log, __osm_link_mgr_process_node );
 
   if( osm_log_is_active( p_mgr->p_log, OSM_LOG_DEBUG ) )
-  {
     osm_log( p_mgr->p_log, OSM_LOG_DEBUG,
              "__osm_link_mgr_process_node: "
              "Node 0x%" PRIx64 " going to %s\n",
              cl_ntoh64( osm_node_get_node_guid( p_node ) ),
              ib_get_port_state_str( link_state ) );
-  }
 
   /*
     Set the PortInfo for every Physical Port associated
@@ -476,13 +470,11 @@ __osm_link_mgr_process_node(
       else
       {
         if( osm_log_is_active( p_mgr->p_log, OSM_LOG_DEBUG ) )
-        {
           osm_log( p_mgr->p_log, OSM_LOG_DEBUG,
                    "__osm_link_mgr_process_node: "
                    "Physical port 0x%X already %s. Skipping\n",
                    p_physp->port_num,
                    ib_get_port_state_str( current_state ) );
-        }
       }
     }
   }
