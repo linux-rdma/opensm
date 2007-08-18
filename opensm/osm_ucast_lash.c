@@ -90,11 +90,6 @@ typedef struct _reachable_dest {
 	struct _reachable_dest * next;
 } reachable_dest_t;
 
-typedef struct _q_item {
-	int sw;
-	struct _q_item * next;
-} q_item_t;
-
 typedef struct _switch {
 	osm_switch_t *p_sw;
 	int * dij_channels;
@@ -141,19 +136,19 @@ static cdg_vertex_t* create_cdg_vertex(unsigned num_switches)
 }
 
 static void connect_switches(lash_t *p_lash, int sw1, int sw2,
-			    int physical_port_1)
+			    int phy_port_1)
 {
   osm_log_t *p_log = &p_lash->p_osm->log;
   unsigned num = p_lash->switches[sw1]->num_connections;
 
   p_lash->switches[sw1]->phys_connections[num] = sw2;
-  p_lash->switches[sw1]->virtual_physical_port_table[num] = physical_port_1;
+  p_lash->switches[sw1]->virtual_physical_port_table[num] = phy_port_1;
   p_lash->switches[sw1]->num_connections++;
 
   osm_log(p_log, OSM_LOG_VERBOSE,
 	  "connect_switches: "
 	  "LASH connect: %d, %d, %d\n",
-	  sw1, sw2, physical_port_1);
+	  sw1, sw2, phy_port_1);
 
 }
 
@@ -215,7 +210,8 @@ static uint8_t find_port_from_lid(IN const ib_net16_t lid_no,
 
     p_current_physp = osm_node_get_physp_ptr(p_sw->p_node, i);
 
-    if (osm_physp_is_valid(p_current_physp)) {
+    if (!osm_physp_is_valid(p_current_physp))
+      continue;
 
 	p_remote_physp = p_current_physp->p_remote_physp;
 
@@ -223,22 +219,22 @@ static uint8_t find_port_from_lid(IN const ib_net16_t lid_no,
 	  osm_node_t *p_opposite_node = osm_physp_get_node_ptr(p_remote_physp);
 
 	  if (osm_node_get_type( p_opposite_node ) == IB_NODE_TYPE_CA) {
-	    ib_port_info_t *port_info = &p_remote_physp->port_info;
-	    ib_net16_t remote_port_lid =  port_info->base_lid;
+	    ib_port_info_t *pi = &p_remote_physp->port_info;
+	    ib_net16_t remote_port_lid =  pi->base_lid;
 	    if (remote_port_lid == lid_no) {
 	      egress_port = i;
 	      goto Exit;
 	    }
 	  }
 	}
-    }
   }// for
 
  Exit:
   return egress_port;
 }
 
-int randint ( int high )
+#if 0
+static int randint ( int high )
 {
   int r;
 
@@ -247,6 +243,7 @@ int randint ( int high )
   high++;
   return (r%high);
 }
+#endif
 
 /************************************
 
@@ -507,9 +504,8 @@ static void generate_cdg_for_sp(lash_t*p_lash, int sw, int dest_switch, int lane
       v->num_temp_depend = 0;
 
       cdg_vertex_matrix[lane][sw][next_switch] = v;
-    } else {
+    } else
       v = cdg_vertex_matrix[lane][sw][next_switch];
-    }
 
     v->num_using_vertex++;
 
@@ -567,11 +563,10 @@ static void set_temp_depend_to_permanent_for_sp(lash_t *p_lash, int sw,
     v = cdg_vertex_matrix[lane][sw][next_switch];
     CL_ASSERT(v != NULL);
 
-    if(v->temp == 1) {
+    if(v->temp == 1)
       v->temp = 0;
-    } else {
+    else
       v->num_temp_depend = 0;
-    }
 
     sw = next_switch;
     output_link = switches[sw]->routing_table[dest_switch].out_link;
