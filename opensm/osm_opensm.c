@@ -249,10 +249,9 @@ osm_opensm_init(IN osm_opensm_t * const p_osm,
 	if (status != IB_SUCCESS)
 		goto Exit;
 
-	status = osm_vl15_init(&p_osm->vl15,
-			       p_osm->p_vendor,
-			       &p_osm->log, &p_osm->stats, p_opt->max_wire_smps,
-			       &p_osm->subn, &p_osm->disp, &p_osm->lock);
+	status = osm_vl15_init(&p_osm->vl15, p_osm->p_vendor,
+			       &p_osm->log, &p_osm->stats,
+			       p_opt->max_wire_smps);
 	if (status != IB_SUCCESS)
 		goto Exit;
 

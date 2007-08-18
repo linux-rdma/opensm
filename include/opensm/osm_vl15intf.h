@@ -53,13 +53,11 @@
 #include <complib/cl_event.h>
 #include <complib/cl_thread.h>
 #include <complib/cl_qlist.h>
-#include <complib/cl_passivelock.h>
 #include <opensm/osm_stats.h>
 #include <opensm/osm_log.h>
 #include <opensm/osm_madw.h>
 #include <opensm/osm_mad_pool.h>
 #include <vendor/osm_vendor.h>
-#include <opensm/osm_subnet.h>
 
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
@@ -132,10 +130,6 @@ typedef struct _osm_vl15 {
 	osm_vendor_t *p_vend;
 	osm_log_t *p_log;
 	osm_stats_t *p_stats;
-	osm_subn_t *p_subn;
-	cl_disp_reg_handle_t h_disp;
-	cl_plock_t *p_lock;
-
 } osm_vl15_t;
 /*
 * FIELDS
@@ -173,15 +167,6 @@ typedef struct _osm_vl15 {
 *
 *	p_stats
 *		Pointer to the OpenSM statistics block.
-*
-*  p_subn
-*     Pointer to the Subnet object for this subnet.
-*
-*  h_disp
-*    Handle returned from dispatcher registration.
-*
-*	p_lock
-*		Pointer to the serializing lock.
 *
 * SEE ALSO
 *	VL15 object
@@ -267,9 +252,7 @@ osm_vl15_init(IN osm_vl15_t * const p_vl15,
 	      IN osm_vendor_t * const p_vend,
 	      IN osm_log_t * const p_log,
 	      IN osm_stats_t * const p_stats,
-	      IN const int32_t max_wire_smps,
-	      IN osm_subn_t * const p_subn,
-	      IN cl_dispatcher_t * const p_disp, IN cl_plock_t * const p_lock);
+	      IN const int32_t max_wire_smps);
 /*
 * PARAMETERS
 *	p_vl15
@@ -286,15 +269,6 @@ osm_vl15_init(IN osm_vl15_t * const p_vl15,
 *
 *	max_wire_smps
 *		[in] Maximum number of MADs allowed on the wire at one time.
-*
-*  p_subn
-*     [in] Pointer to the subnet object.
-*
-*  p_disp
-*     [in] Pointer to the dispatcher object.
-*
-*	p_lock
-*		[in] Pointer to the OpenSM serializing lock.
 *
 * RETURN VALUES
 *	IB_SUCCESS if the VL15 object was initialized successfully.
