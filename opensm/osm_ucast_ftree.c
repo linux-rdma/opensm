@@ -278,8 +278,8 @@ __osm_ftree_compare_port_groups_by_remote_switch_index(IN const void *p1,
 
 /***************************************************/
 
-boolean_t __osm_ftree_sw_less_by_index(IN ftree_sw_t * p_sw1,
-				       IN ftree_sw_t * p_sw2)
+static boolean_t __osm_ftree_sw_less_by_index(IN ftree_sw_t * p_sw1,
+					      IN ftree_sw_t * p_sw2)
 {
 	if (__osm_ftree_compare_switches_by_index
 	    ((void *)&p_sw1, (void *)&p_sw2) < 0)
@@ -289,8 +289,8 @@ boolean_t __osm_ftree_sw_less_by_index(IN ftree_sw_t * p_sw1,
 
 /***************************************************/
 
-boolean_t __osm_ftree_sw_greater_by_index(IN ftree_sw_t * p_sw1,
-					  IN ftree_sw_t * p_sw2)
+static boolean_t __osm_ftree_sw_greater_by_index(IN ftree_sw_t * p_sw1,
+						 IN ftree_sw_t * p_sw2)
 {
 	if (__osm_ftree_compare_switches_by_index
 	    ((void *)&p_sw1, (void *)&p_sw2) > 0)
