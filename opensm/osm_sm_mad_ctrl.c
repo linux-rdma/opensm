@@ -726,9 +726,6 @@ void
 __osm_sm_mad_ctrl_send_err_cb(IN void *bind_context, IN osm_madw_t * p_madw)
 {
 	osm_sm_mad_ctrl_t *p_ctrl = (osm_sm_mad_ctrl_t *) bind_context;
-#if 0
-	osm_physp_t *p_physp;
-#endif
 	ib_api_status_t status;
 	ib_smp_t *p_smp;
 
@@ -770,7 +767,7 @@ __osm_sm_mad_ctrl_send_err_cb(IN void *bind_context, IN osm_madw_t * p_madw)
 	/* For now - do not add the alternate dr path to the release */
 #if 0
 	if (p_madw->mad_addr.dest_lid != 0xFFFF) {
-		p_physp =
+		osm_physp_t *p_physp =
 		    osm_get_physp_by_mad_addr(p_ctrl->p_log,
 					      p_ctrl->p_subn,
 					      &(p_madw->mad_addr));
