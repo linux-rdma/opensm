@@ -316,18 +316,11 @@ static ib_net32_t get_qp(__monitored_node_t * mon_node, uint8_t port)
 {
 	ib_net32_t qp = cl_ntoh32(1);
 
-	if (mon_node) {
-		if (mon_node->redir_tbl_size) {
-			if (port < mon_node->redir_tbl_size) {
-				if (mon_node->redir_port[port].redir_lid) {
-					if (mon_node->redir_port[port].redir_qp) {
-						qp = mon_node->redir_port[port].
-						    redir_qp;
-					}
-				}
-			}
-		}
-	}
+	if (mon_node && mon_node->redir_tbl_size &&
+	    port < mon_node->redir_tbl_size &&
+	    mon_node->redir_port[port].redir_lid &&
+	    mon_node->redir_port[port].redir_qp)
+		qp = mon_node->redir_port[port].redir_qp;
 
 	return qp;
 }
@@ -339,31 +332,20 @@ static ib_net32_t get_qp(__monitored_node_t * mon_node, uint8_t port)
 static ib_net16_t
 get_lid(osm_node_t * p_node, uint8_t port, __monitored_node_t * mon_node)
 {
-	ib_net16_t lid = 0;
-
-	if (mon_node) {
-		if (mon_node->redir_tbl_size) {
-			if (port < mon_node->redir_tbl_size) {
-				lid = mon_node->redir_port[port].redir_lid;
-				if (lid) {
-					return lid;
-				}
-			}
-		}
-	}
+	if (mon_node && mon_node->redir_tbl_size &&
+	    port < mon_node->redir_tbl_size &&
+	    mon_node->redir_port[port].redir_lid)
+		return mon_node->redir_port[port].redir_lid;
 
 	switch (p_node->node_info.node_type) {
 	case IB_NODE_TYPE_CA:
 	case IB_NODE_TYPE_ROUTER:
-		lid = osm_node_get_base_lid(p_node, port);
-		break;
+		return osm_node_get_base_lid(p_node, port);
 	case IB_NODE_TYPE_SWITCH:
-		lid = osm_node_get_base_lid(p_node, 0);
-		break;
+		return osm_node_get_base_lid(p_node, 0);
 	default:
-		break;
+		return 0;
 	}
-	return (lid);
 }
 
 /**********************************************************************
@@ -518,14 +500,10 @@ __osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context)
 	}
 
 	/* if switch, check for enhanced port 0 */
-	if (osm_node_get_type(node) == IB_NODE_TYPE_SWITCH) {
-		if (node->sw) {
-			if (ib_switch_info_is_enhanced_port0
-			    (&node->sw->switch_info)) {
-				startport = 0;
-			}
-		}
-	}
+	if (osm_node_get_type(node) == IB_NODE_TYPE_SWITCH &&
+	    node->sw &&
+	    ib_switch_info_is_enhanced_port0(&node->sw->switch_info))
+		startport = 0;
 
 	/* issue the query for each port */
 	for (port = startport; port < num_ports; port++) {
@@ -559,13 +537,12 @@ __osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context)
 		status =
 		    osm_perfmgr_send_pc_mad(pm, lid, remote_qp, port,
 					    IB_MAD_METHOD_GET, &mad_context);
-		if (status != IB_SUCCESS) {
+		if (status != IB_SUCCESS)
 			osm_log(pm->log, OSM_LOG_ERROR,
 				"__osm_pm_query_counters: ERR 4C09: Failed to issue port counter query for node 0x%"
 				PRIx64 " port %d (%s)\n",
 				node->node_info.node_guid, port,
 				node->print_desc);
-		}
 	}
       Exit:
 	cl_plock_release(pm->lock);
@@ -817,11 +794,10 @@ osm_perfmgr_check_overflow(osm_perfmgr_t * pm, uint64_t node_guid,
 		status =
 		    osm_perfmgr_send_pc_mad(pm, lid, remote_qp, port,
 					    IB_MAD_METHOD_SET, &mad_context);
-		if (status != IB_SUCCESS) {
+		if (status != IB_SUCCESS)
 			osm_log(pm->log, OSM_LOG_ERROR,
 				"PerfMgr: ERR 4C11: Failed to send clear counters MAD for node 0x%"
 				PRIx64 " port %d\n", node_guid, port);
-		}
 
 		perfmgr_db_clear_prev_dc(pm->db, node_guid, port);
 	}
@@ -852,32 +828,29 @@ osm_perfmgr_log_events(osm_perfmgr_t * pm, uint64_t node_guid, uint8_t port,
 
 	/* FIXME these events should be defineable by the user in a config
 	 * file somewhere. */
-	if (reading->symbol_err_cnt > prev_read.symbol_err_cnt) {
+	if (reading->symbol_err_cnt > prev_read.symbol_err_cnt)
 		osm_log(pm->log, OSM_LOG_ERROR,
 			"osm_perfmgr_log_events: ERR 4C0D: "
 			"Found %" PRIu64 " Symbol errors in %lu sec on node 0x%"
 			PRIx64 " port %u\n",
 			(reading->symbol_err_cnt - prev_read.symbol_err_cnt),
 			time_diff, node_guid, port);
-	}
 
-	if (reading->rcv_err > prev_read.rcv_err) {
+	if (reading->rcv_err > prev_read.rcv_err)
 		osm_log(pm->log, OSM_LOG_ERROR,
 			"osm_perfmgr_log_events: ERR 4C0E: "
 			"Found %" PRIu64
 			" Receive errors in %lu sec on node 0x%" PRIx64
 			" port %u\n", (reading->rcv_err - prev_read.rcv_err),
 			time_diff, node_guid, port);
-	}
 
-	if (reading->xmit_discards > prev_read.xmit_discards) {
+	if (reading->xmit_discards > prev_read.xmit_discards)
 		osm_log(pm->log, OSM_LOG_ERROR,
 			"osm_perfmgr_log_events: ERR 4C0F: "
 			"Found %" PRIu64 " Xmit Discards in %lu sec on node 0x%"
 			PRIx64 " port %u\n",
 			(reading->xmit_discards - prev_read.xmit_discards),
 			time_diff, node_guid, port);
-	}
 }
 
 /**********************************************************************
@@ -967,13 +940,12 @@ static void osm_pc_rcv_process(void *context, void *data)
 					    port,
 					    mad_context->perfmgr_context.
 					    mad_method, mad_context);
-		if (status != IB_SUCCESS) {
+		if (status != IB_SUCCESS)
 			osm_log(pm->log, OSM_LOG_ERROR,
 				"osm_pc_rcv_process: ERR 4C14: Failed to send redirected MAD with method 0x%x for node 0x%"
 				PRIx64 " port %d\n",
 				mad_context->perfmgr_context.mad_method,
 				node_guid, port);
-		}
 		goto Exit;
 	}
 
@@ -1100,11 +1072,10 @@ void osm_perfmgr_clear_counters(osm_perfmgr_t * pm)
  *******************************************************************/
 void osm_perfmgr_dump_counters(osm_perfmgr_t * pm, perfmgr_db_dump_t dump_type)
 {
-	if (perfmgr_db_dump(pm->db, pm->event_db_dump_file, dump_type) != 0) {
+	if (perfmgr_db_dump(pm->db, pm->event_db_dump_file, dump_type) != 0)
 		osm_log(pm->log, OSM_LOG_ERROR,
 			"PB dump port counters: ERR 4C10: Failed to dump file %s : %s",
 			pm->event_db_dump_file, strerror(errno));
-	}
 }
 
 #endif				/* ENABLE_OSM_PERF_MGR */
