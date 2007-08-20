@@ -1114,7 +1114,7 @@ osm_vendor_send(IN osm_bind_handle_t h_bind,
 	sent_mad_size = p_madw->mad_size;
 #else
 	sent_mad_size = is_rmpp ? p_madw->mad_size - IB_SA_MAD_HDR_SIZE :
-	    p_madw->mad_size,
+	    p_madw->mad_size;
 #endif
 	    if ((ret = umad_send(p_bind->port_id, p_bind->agent_id, p_vw->umad,
 				 sent_mad_size,
