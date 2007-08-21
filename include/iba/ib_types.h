@@ -1647,6 +1647,28 @@ static inline boolean_t OSM_API ib_class_is_rmpp(IN const uint8_t class_code)
 #define IB_SMINFO_STATE_MASTER				3
 /**********/
 
+/****d* IBA Base: Constants/IB_PATH_REC_SL_MASK
+* NAME
+*	IB_PATH_REC_SL_MASK
+*
+* DESCRIPTION
+*	Mask for the sl field for path record
+*
+* SOURCE
+*/
+#define IB_PATH_REC_SL_MASK				0x000F
+
+/****d* IBA Base: Constants/IB_PATH_REC_QOS_CLASS_MASK
+* NAME
+*	IB_PATH_REC_QOS_CLASS_MASK
+*
+* DESCRIPTION
+*	Mask for the QoS class field for path record
+*
+* SOURCE
+*/
+#define IB_PATH_REC_QOS_CLASS_MASK			0xFFF0
+
 /****d* IBA Base: Constants/IB_PATH_REC_SELECTOR_MASK
 * NAME
 *	IB_PATH_REC_SELECTOR_MASK
@@ -2286,7 +2308,7 @@ ib_gid_get_guid(IN const ib_gid_t * const p_gid)
 */
 #include <complib/cl_packon.h>
 typedef struct _ib_path_rec {
-	uint8_t resv0[8];
+	ib_net64_t service_id;
 	ib_gid_t dgid;
 	ib_gid_t sgid;
 	ib_net16_t dlid;
@@ -2295,7 +2317,7 @@ typedef struct _ib_path_rec {
 	uint8_t tclass;
 	uint8_t num_path;
 	ib_net16_t pkey;
-	ib_net16_t sl;
+	ib_net16_t qos_class_sl;
 	uint8_t mtu;
 	uint8_t rate;
 	uint8_t pkt_life;
@@ -2306,8 +2328,8 @@ typedef struct _ib_path_rec {
 #include <complib/cl_packoff.h>
 /*
 * FIELDS
-*	resv0
-*		Reserved bytes.
+*	service_id
+*		Service ID for QoS.
 *
 *	dgid
 *		GID of destination port.
@@ -2335,11 +2357,8 @@ typedef struct _ib_path_rec {
 *	pkey
 *		Partition key (P_Key) to use on this path.
 *
-*	resv1
-*		Reserved byte.
-*
-*	sl
-*		Service level to use on this path.
+*	qos_class_sl
+*		QoS class and service level to use on this path.
 *
 *	mtu
 *		MTU and MTU selector fields to use on this path
@@ -2360,6 +2379,7 @@ typedef struct _ib_path_rec {
 *********/
 
 /* Path Record Component Masks */
+#define  IB_PR_COMPMASK_SERVICEID         (CL_HTON64(((uint64_t)1)<<1))
 #define  IB_PR_COMPMASK_DGID              (CL_HTON64(((uint64_t)1)<<2))
 #define  IB_PR_COMPMASK_SGID              (CL_HTON64(((uint64_t)1)<<3))
 #define  IB_PR_COMPMASK_DLID              (CL_HTON64(((uint64_t)1)<<4))
@@ -2372,7 +2392,7 @@ typedef struct _ib_path_rec {
 #define  IB_PR_COMPMASK_REVERSIBLE        (CL_HTON64(((uint64_t)1)<<11))
 #define  IB_PR_COMPMASK_NUMBPATH          (CL_HTON64(((uint64_t)1)<<12))
 #define  IB_PR_COMPMASK_PKEY              (CL_HTON64(((uint64_t)1)<<13))
-#define  IB_PR_COMPMASK_RESV1             (CL_HTON64(((uint64_t)1)<<14))
+#define  IB_PR_COMPMASK_QOS_CLASS         (CL_HTON64(((uint64_t)1)<<14))
 #define  IB_PR_COMPMASK_SL                (CL_HTON64(((uint64_t)1)<<15))
 #define  IB_PR_COMPMASK_MTUSELEC          (CL_HTON64(((uint64_t)1)<<16))
 #define  IB_PR_COMPMASK_MTU               (CL_HTON64(((uint64_t)1)<<17))
@@ -2630,6 +2650,7 @@ ib_path_rec_init_local(IN ib_path_rec_t * const p_rec,
 		       IN uint8_t num_path,
 		       IN ib_net16_t pkey,
 		       IN uint8_t sl,
+		       IN uint16_t qos_class,
 		       IN uint8_t mtu_selector,
 		       IN uint8_t mtu,
 		       IN uint8_t rate_selector,
@@ -2643,8 +2664,8 @@ ib_path_rec_init_local(IN ib_path_rec_t * const p_rec,
 	p_rec->slid = slid;
 	p_rec->num_path = num_path;
 	p_rec->pkey = pkey;
-	/* Lower 4 bits of path rec's SL are reserved. */
-	p_rec->sl = cl_ntoh16(sl);
+	p_rec->qos_class_sl = cl_hton16( (sl & IB_PATH_REC_SL_MASK) |
+						 (qos_class << 4) );
 	p_rec->mtu = (uint8_t) ((mtu & IB_PATH_REC_BASE_MASK) |
 				(uint8_t) (mtu_selector << 6));
 	p_rec->rate = (uint8_t) ((rate & IB_PATH_REC_BASE_MASK) |
@@ -2656,8 +2677,8 @@ ib_path_rec_init_local(IN ib_path_rec_t * const p_rec,
 	/* Clear global routing fields for local path records */
 	p_rec->hop_flow_raw = 0;
 	p_rec->tclass = 0;
+	p_rec->service_id = 0;
 
-	*((uint64_t *) p_rec->resv0) = 0;
 	*((uint32_t *) p_rec->resv2) = 0;
 	*((uint16_t *) p_rec->resv2 + 2) = 0;
 }
@@ -2686,6 +2707,9 @@ ib_path_rec_init_local(IN ib_path_rec_t * const p_rec,
 *
 *	pkey
 *		[in] Partition key (P_Key) to use on this path.
+*
+*	qos_class
+*		[in] QoS class to use on this path.  Lower 12-bits are valid.
 *
 *	sl
 *		[in] Service level to use on this path.  Lower 4-bits are valid.
@@ -2750,6 +2774,40 @@ ib_path_rec_num_path(IN const ib_path_rec_t * const p_rec)
 *	ib_path_rec_t
 *********/
 
+/****f* IBA Base: Types/ib_path_rec_set_sl
+* NAME
+*	ib_path_rec_set_sl
+*
+* DESCRIPTION
+*	Set path service level.
+*
+* SYNOPSIS
+*/
+static inline void	OSM_API
+ib_path_rec_set_sl(
+	IN ib_path_rec_t* const p_rec,
+	IN const uint8_t sl )
+{
+	p_rec->qos_class_sl = (p_rec->qos_class_sl & CL_HTON16(IB_PATH_REC_QOS_CLASS_MASK)) |
+	                    cl_hton16(sl & IB_PATH_REC_SL_MASK);
+}
+/*
+* PARAMETERS
+*	p_rec
+*		[in] Pointer to the path record object.
+*
+*	sl
+*		[in] Service level to set.
+*
+* RETURN VALUES
+*	None
+*
+* NOTES
+*
+* SEE ALSO
+*	ib_path_rec_t
+*********/
+
 /****f* IBA Base: Types/ib_path_rec_sl
 * NAME
 *	ib_path_rec_sl
@@ -2762,7 +2820,7 @@ ib_path_rec_num_path(IN const ib_path_rec_t * const p_rec)
 static inline uint8_t OSM_API
 ib_path_rec_sl(IN const ib_path_rec_t * const p_rec)
 {
-	return ((uint8_t) ((cl_ntoh16(p_rec->sl)) & 0xF));
+	return ((uint8_t) ((cl_ntoh16(p_rec->qos_class_sl)) & IB_PATH_REC_SL_MASK));
 }
 
 /*
@@ -2772,6 +2830,69 @@ ib_path_rec_sl(IN const ib_path_rec_t * const p_rec)
 *
 * RETURN VALUES
 *	SL.
+*
+* NOTES
+*
+* SEE ALSO
+*	ib_path_rec_t
+*********/
+
+/****f* IBA Base: Types/ib_path_rec_set_qos_class
+* NAME
+*	ib_path_rec_set_qos_class
+*
+* DESCRIPTION
+*	Set path QoS class.
+*
+* SYNOPSIS
+*/
+static inline void	OSM_API
+ib_path_rec_set_qos_class(
+	IN ib_path_rec_t* const p_rec,
+	IN const uint16_t qos_class )
+{
+	p_rec->qos_class_sl = (p_rec->qos_class_sl & CL_HTON16(IB_PATH_REC_SL_MASK)) |
+	                    cl_hton16(qos_class << 4);
+}
+/*
+* PARAMETERS
+*	p_rec
+*		[in] Pointer to the path record object.
+*
+*	qos_class
+*		[in] QoS class to set.
+*
+* RETURN VALUES
+*	None
+*
+* NOTES
+*
+* SEE ALSO
+*	ib_path_rec_t
+*********/
+
+/****f* IBA Base: Types/ib_path_rec_qos_class
+* NAME
+*	ib_path_rec_qos_class
+*
+* DESCRIPTION
+*	Get QoS class.
+*
+* SYNOPSIS
+*/
+static inline uint16_t	OSM_API
+ib_path_rec_qos_class(
+	IN	const	ib_path_rec_t* const	p_rec )
+{
+	return (cl_ntoh16( p_rec->qos_class_sl ) >> 4);
+}
+/*
+* PARAMETERS
+*	p_rec
+*		[in] Pointer to the path record object.
+*
+* RETURN VALUES
+*	QoS class of the path record.
 *
 * NOTES
 *

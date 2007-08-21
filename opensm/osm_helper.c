@@ -1044,7 +1044,7 @@ osm_dump_path_record(IN osm_log_t * const p_log,
 	if (osm_log_is_active(p_log, log_level)) {
 		osm_log(p_log, log_level,
 			"PathRecord dump:\n"
-			"\t\t\t\tresv0...................0x%016" PRIx64 "\n"
+			"\t\t\t\tservice_id..............0x%016" PRIx64 "\n"
 			"\t\t\t\tdgid....................0x%016" PRIx64 " : "
 			"0x%016" PRIx64 "\n"
 			"\t\t\t\tsgid....................0x%016" PRIx64 " : "
@@ -1055,6 +1055,7 @@ osm_dump_path_record(IN osm_log_t * const p_log,
 			"\t\t\t\ttclass..................0x%X\n"
 			"\t\t\t\tnum_path_revers.........0x%X\n"
 			"\t\t\t\tpkey....................0x%X\n"
+			"\t\t\t\tqos_class...............0x%X\n"
 			"\t\t\t\tsl......................0x%X\n"
 			"\t\t\t\tmtu.....................0x%X\n"
 			"\t\t\t\trate....................0x%X\n"
@@ -1063,7 +1064,7 @@ osm_dump_path_record(IN osm_log_t * const p_log,
 			"\t\t\t\tresv2...................0x%X\n"
 			"\t\t\t\tresv3...................0x%X\n"
 			"",
-			*(uint64_t *) p_pr->resv0,
+			cl_ntoh64(p_pr->service_id),
 			cl_ntoh64(p_pr->dgid.unicast.prefix),
 			cl_ntoh64(p_pr->dgid.unicast.interface_id),
 			cl_ntoh64(p_pr->sgid.unicast.prefix),
@@ -1074,7 +1075,8 @@ osm_dump_path_record(IN osm_log_t * const p_log,
 			p_pr->tclass,
 			p_pr->num_path,
 			cl_ntoh16(p_pr->pkey),
-			cl_ntoh16(p_pr->sl),
+			ib_path_rec_qos_class(p_pr),
+			ib_path_rec_sl(p_pr),
 			p_pr->mtu,
 			p_pr->rate,
 			p_pr->pkt_life,

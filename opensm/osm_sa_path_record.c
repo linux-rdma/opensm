@@ -740,7 +740,8 @@ __osm_pr_rcv_build_pr(IN osm_pr_rcv_t * const p_rcv,
 #endif
 
 	p_pr->pkey = p_parms->pkey;
-	p_pr->sl = cl_hton16(p_parms->sl);
+	ib_path_rec_set_sl(p_pr, p_parms->sl);
+	ib_path_rec_set_qos_class(p_pr, 0);
 	p_pr->mtu = (uint8_t) (p_parms->mtu | 0x80);
 	p_pr->rate = (uint8_t) (p_parms->rate | 0x80);
 
@@ -1968,7 +1969,8 @@ void osm_pr_rcv_process(IN void *context, IN void *data)
 					  mcmember_rec.
 					  sl_flow_hop,
 					  &sl, &flow_label, &hop_limit);
-		p_pr_item->path_rec.sl = cl_hton16(sl);
+		ib_path_rec_set_sl(&p_pr_item->path_rec, sl);
+		ib_path_rec_set_qos_class(&p_pr_item->path_rec, 0);
 #ifndef ROUTER_EXP
 		p_pr_item->path_rec.hop_flow_raw =
 		    cl_hton32(hop_limit) | (flow_label << 8);

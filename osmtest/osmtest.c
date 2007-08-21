@@ -1908,6 +1908,7 @@ osmtest_write_path_info(IN osmtest_t * const p_osmt,
 			 "# num_path              0x%X\n"
 			 "pkey                    0x%X\n"
 			 "# sl                    0x%X\n"
+			 "# qos_class             0x%X\n"
 			 "# mtu                   0x%X\n"
 			 "# rate                  0x%X\n"
 			 "# pkt_life              0x%X\n"
@@ -1918,7 +1919,8 @@ osmtest_write_path_info(IN osmtest_t * const p_osmt,
 			 cl_ntoh64(p_rec->sgid.unicast.interface_id),
 			 cl_ntoh16(p_rec->dlid), cl_ntoh16(p_rec->slid),
 			 cl_ntoh32(p_rec->hop_flow_raw), p_rec->tclass,
-			 p_rec->num_path, cl_ntoh16(p_rec->pkey), p_rec->sl,
+			 p_rec->num_path, cl_ntoh16(p_rec->pkey),
+			 ib_path_rec_sl(p_rec), ib_path_rec_qos_class(p_rec),
 			 p_rec->mtu, p_rec->rate, p_rec->pkt_life,
 			 p_rec->preference);
 
