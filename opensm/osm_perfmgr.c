@@ -535,7 +535,6 @@ __osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context)
  **********************************************************************/
 void __osm_perfmgr_sweeper(void *p_ptr)
 {
-	ib_api_status_t status;
 	osm_perfmgr_t *const pm = (osm_perfmgr_t *) p_ptr;
 
 	OSM_LOG_ENTER(pm->log, __osm_pm_sweeper);
@@ -590,8 +589,7 @@ void __osm_perfmgr_sweeper(void *p_ptr)
 		pm->sweep_state = PERFMGR_SWEEP_SLEEP;
 
 		/* Wait for a forced sweep or period timeout. */
-		status = cl_event_wait_on(&pm->sig_sweep,
-					  pm->sweep_time_s * 1000000, TRUE);
+		cl_event_wait_on(&pm->sig_sweep, pm->sweep_time_s * 1000000, TRUE);
 	}
 
 	OSM_LOG_EXIT(pm->log);
