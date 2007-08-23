@@ -2664,8 +2664,8 @@ ib_path_rec_init_local(IN ib_path_rec_t * const p_rec,
 	p_rec->slid = slid;
 	p_rec->num_path = num_path;
 	p_rec->pkey = pkey;
-	p_rec->qos_class_sl = cl_hton16( (sl & IB_PATH_REC_SL_MASK) |
-						 (qos_class << 4) );
+	p_rec->qos_class_sl = cl_hton16((sl & IB_PATH_REC_SL_MASK) |
+					(qos_class << 4));
 	p_rec->mtu = (uint8_t) ((mtu & IB_PATH_REC_BASE_MASK) |
 				(uint8_t) (mtu_selector << 6));
 	p_rec->rate = (uint8_t) ((rate & IB_PATH_REC_BASE_MASK) |
@@ -2783,14 +2783,14 @@ ib_path_rec_num_path(IN const ib_path_rec_t * const p_rec)
 *
 * SYNOPSIS
 */
-static inline void	OSM_API
-ib_path_rec_set_sl(
-	IN ib_path_rec_t* const p_rec,
-	IN const uint8_t sl )
+static inline void OSM_API
+ib_path_rec_set_sl(IN ib_path_rec_t * const p_rec, IN const uint8_t sl)
 {
-	p_rec->qos_class_sl = (p_rec->qos_class_sl & CL_HTON16(IB_PATH_REC_QOS_CLASS_MASK)) |
-	                    cl_hton16(sl & IB_PATH_REC_SL_MASK);
+	p_rec->qos_class_sl =
+	    (p_rec->qos_class_sl & CL_HTON16(IB_PATH_REC_QOS_CLASS_MASK)) |
+	    cl_hton16(sl & IB_PATH_REC_SL_MASK);
 }
+
 /*
 * PARAMETERS
 *	p_rec
@@ -2820,7 +2820,7 @@ ib_path_rec_set_sl(
 static inline uint8_t OSM_API
 ib_path_rec_sl(IN const ib_path_rec_t * const p_rec)
 {
-	return ((uint8_t) ((cl_ntoh16(p_rec->qos_class_sl)) & IB_PATH_REC_SL_MASK));
+	return (uint8_t)(cl_ntoh16(p_rec->qos_class_sl) & IB_PATH_REC_SL_MASK);
 }
 
 /*
@@ -2846,14 +2846,15 @@ ib_path_rec_sl(IN const ib_path_rec_t * const p_rec)
 *
 * SYNOPSIS
 */
-static inline void	OSM_API
-ib_path_rec_set_qos_class(
-	IN ib_path_rec_t* const p_rec,
-	IN const uint16_t qos_class )
+static inline void OSM_API
+ib_path_rec_set_qos_class(IN ib_path_rec_t * const p_rec,
+			  IN const uint16_t qos_class)
 {
-	p_rec->qos_class_sl = (p_rec->qos_class_sl & CL_HTON16(IB_PATH_REC_SL_MASK)) |
-	                    cl_hton16(qos_class << 4);
+	p_rec->qos_class_sl =
+	    (p_rec->qos_class_sl & CL_HTON16(IB_PATH_REC_SL_MASK)) |
+	    cl_hton16(qos_class << 4);
 }
+
 /*
 * PARAMETERS
 *	p_rec
@@ -2880,12 +2881,12 @@ ib_path_rec_set_qos_class(
 *
 * SYNOPSIS
 */
-static inline uint16_t	OSM_API
-ib_path_rec_qos_class(
-	IN	const	ib_path_rec_t* const	p_rec )
+static inline uint16_t OSM_API
+ib_path_rec_qos_class(IN const ib_path_rec_t * const p_rec)
 {
-	return (cl_ntoh16( p_rec->qos_class_sl ) >> 4);
+	return (cl_ntoh16(p_rec->qos_class_sl) >> 4);
 }
+
 /*
 * PARAMETERS
 *	p_rec
