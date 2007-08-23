@@ -61,8 +61,61 @@
 #include <opensm/osm_node.h>
 #include <complib/cl_thread.h>
 #include <vendor/osm_vendor_api.h>
+#include <float.h>
 
 #define OSM_PERFMGR_INITIAL_TID_VALUE 0xcafe
+
+#if ENABLE_OSM_PERF_MGR_PROFILE
+struct {
+	double   fastest_us;
+	double   slowest_us;
+	double   avg_us;
+	uint64_t num;
+} perfmgr_mad_stats =
+{
+	fastest_us: DBL_MAX,
+	slowest_us: DBL_MIN,
+	avg_us: 0,
+	num: 0
+};
+
+/* diff must be something which can fit in a susecond_t */
+static inline void update_mad_stats(struct timeval *diff)
+{
+	double new = (diff->tv_sec * 1000000) + diff->tv_usec;
+	if (new < perfmgr_mad_stats.fastest_us)
+		perfmgr_mad_stats.fastest_us = new;
+	if (new > perfmgr_mad_stats.slowest_us)
+		perfmgr_mad_stats.slowest_us = new;
+
+	perfmgr_mad_stats.avg_us = ((perfmgr_mad_stats.avg_us * perfmgr_mad_stats.num) + new)
+					/(perfmgr_mad_stats.num+1);
+	perfmgr_mad_stats.num++;
+}
+
+static inline void perfmgr_clear_mad_stats(void)
+{
+	perfmgr_mad_stats.fastest_us = DBL_MAX;
+	perfmgr_mad_stats.slowest_us = DBL_MIN;
+	perfmgr_mad_stats.avg_us = 0;
+	perfmgr_mad_stats.num = 0;
+}
+
+/* after and diff can be the same struct */
+static inline void diff_time(struct timeval *before,
+			struct timeval *after,
+			struct timeval *diff)
+{
+	struct timeval tmp = *after;
+	if (tmp.tv_usec < before->tv_usec) {
+		tmp.tv_sec--;
+		tmp.tv_usec += 1000000;
+	}
+	diff->tv_sec = tmp.tv_sec - before->tv_sec;
+	diff->tv_usec = tmp.tv_usec - before->tv_usec;
+}
+
+#endif
 
 /**********************************************************************
  * Internal helper functions.
@@ -130,16 +183,6 @@ osm_perfmgr_mad_recv_callback(osm_madw_t * p_madw, void *bind_context,
 			"PerfMgr Dispatcher post failed\n");
 		osm_mad_pool_put(pm->mad_pool, p_madw);
 	}
-#if 0
-	do {
-		struct timeval rcv_time;
-		gettimeofday(&rcv_time, NULL);
-		osm_log(pm->log, OSM_LOG_INFO,
-			"perfmgr rcv time %ld\n",
-			rcv_time.tv_usec -
-			p_madw->context.perfmgr_context.query_start.tv_usec);
-	} while (0);
-#endif
 	OSM_LOG_EXIT(pm->log);
 }
 
@@ -506,7 +549,7 @@ __osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context)
 		mad_context.perfmgr_context.node_guid = node_guid;
 		mad_context.perfmgr_context.port = port;
 		mad_context.perfmgr_context.mad_method = IB_MAD_METHOD_GET;
-#if 0
+#if ENABLE_OSM_PERF_MGR_PROFILE
 		gettimeofday(&(mad_context.perfmgr_context.query_start), NULL);
 #endif
 		osm_log(pm->log, OSM_LOG_VERBOSE,
@@ -553,7 +596,7 @@ void __osm_perfmgr_sweeper(void *p_ptr)
 		 */
 		if (pm->subn->sm_state == IB_SMINFO_STATE_MASTER &&
 		    pm->state == PERFMGR_STATE_ENABLED) {
-#if 0
+#if ENABLE_OSM_PERF_MGR_PROFILE
 			struct timeval before, after;
 			gettimeofday(&before, NULL);
 #endif
@@ -578,11 +621,25 @@ void __osm_perfmgr_sweeper(void *p_ptr)
 			 * sweep
 			 */
 			__remove_marked_nodes(pm);
-#if 0
+
+#if ENABLE_OSM_PERF_MGR_PROFILE
+			/* spin on outstanding queries */
+			while (pm->outstanding_queries > 0)
+				cl_event_wait_on(&pm->sig_sweep, 1000, TRUE);
+
 			gettimeofday(&after, NULL);
+			diff_time(&before, &after, &after);
 			osm_log(pm->log, OSM_LOG_INFO,
-				"PerfMgr total sweep time : %ld us\n",
-				after.tv_usec - before.tv_usec);
+				"PerfMgr total sweep time : %ld.%06ld s\n"
+				"        fastest mad      : %g us\n"
+				"        slowest mad      : %g us\n"
+				"        average mad      : %g us\n"
+				,
+				after.tv_sec, after.tv_usec,
+				perfmgr_mad_stats.fastest_us,
+				perfmgr_mad_stats.slowest_us,
+				perfmgr_mad_stats.avg_us);
+			perfmgr_clear_mad_stats();
 #endif
 		}
 
@@ -948,14 +1005,14 @@ static void osm_pc_rcv_process(void *context, void *data)
 
 	osm_perfmgr_check_overflow(pm, node_guid, port, wire_read);
 
-#if 0
+#if ENABLE_OSM_PERF_MGR_PROFILE
 	do {
 		struct timeval proc_time;
 		gettimeofday(&proc_time, NULL);
-		osm_log(pm->log, OSM_LOG_INFO,
-			"PerfMgr done: processing time %ld\n",
-			proc_time.tv_usec -
-			p_madw->context.perfmgr_context.query_start.tv_usec);
+		diff_time(&(p_madw->context.perfmgr_context.query_start),
+				&proc_time,
+				&proc_time);
+		update_mad_stats(&proc_time);
 	} while (0);
 #endif
 

@@ -215,10 +215,22 @@ AC_ARG_ENABLE(perf-mgr,
      no)  perf_mgr=no ;;
    esac],
    perf_mgr=no)
+AC_ARG_ENABLE(perf-mgr-profile,
+[  --enable-perf-mgr-profile Enable the performance manager profiling (default no)],
+	[case $enableval in
+	yes) perf_mgr_profile=yes ;;
+	no)  perf_mgr_profile=no ;;
+	esac],
+	perf_mgr_profile=no)
 if test $perf_mgr = yes; then
   AC_DEFINE(ENABLE_OSM_PERF_MGR,
-	    1,
-	    [Define as 1 if you want to enable the performance manager])
+	1,
+	[Define as 1 if you want to enable the performance manager])
+  if test $perf_mgr_profile = yes; then
+	AC_DEFINE(ENABLE_OSM_PERF_MGR_PROFILE,
+		1,
+		[Define as 1 if you want to enable the performance manager profiling code])
+  fi
 fi
 # --- END OPENIB_OSM_PERF_MGR_SEL ---
 ]) dnl OPENIB_OSM_PERF_MGR_SEL
