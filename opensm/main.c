@@ -284,6 +284,12 @@ void show_usage(void)
 	printf("-I\n"
 	       "--inactive\n"
 	       "           Start SM in inactive rather than normal init SM state.\n\n");
+#ifdef ENABLE_OSM_PERF_MGR
+	printf("--perfmgr\n"
+	       "           Start with PerfMgr enabled.\n\n");
+	printf("--perfmgr_sweep_time_s <sec.>\n"
+	       "           PerfMgr sweep interval in seconds.\n\n");
+#endif
 	printf("-v\n"
 	       "--verbose\n"
 	       "          This option increases the log verbosity level.\n"
