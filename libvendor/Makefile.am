@@ -75,6 +75,7 @@ libosmvendor_la_SOURCES = osm_vendor_mlx.c \
 HDRS =$(COMM_HDRS) $(srcdir)/../include/vendor/osm_vendor_mlx.h
 endif
 
+libosmvendor_la_LIBADD = -L../complib -losmcomp
 libosmvendor_la_LDFLAGS = -version-info $(osmvendor_api_version) \
 	-export-dynamic $(libosmvendor_version_script)
 libosmvendor_la_DEPENDENCIES = $(srcdir)/libosmvendor.map
