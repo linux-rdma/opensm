@@ -1080,10 +1080,14 @@ int main(int argc, char *argv[])
 	sleep(exitTimeout);
 #endif
 
-	if (osm.mad_pool.mads_out)
+	if (osm.mad_pool.mads_out) {
 		fprintf(stdout,
 			"There are still %u MADs out. Forcing the exit of the OpenSM application...\n",
 			osm.mad_pool.mads_out);
+#ifdef ENABLE_OSM_PERF_MGR
+		pthread_cond_signal(&osm.stats.cond);
+#endif
+	}
 
       Exit:
 	osm_opensm_destroy(&osm);

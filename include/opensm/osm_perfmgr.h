@@ -44,7 +44,7 @@
 #include <iba/ib_types.h>
 #include <complib/cl_passivelock.h>
 #include <complib/cl_event.h>
-#include <complib/cl_thread.h>
+#include <complib/cl_timer.h>
 #include <opensm/osm_subnet.h>
 #include <opensm/osm_req.h>
 #include <opensm/osm_log.h>
@@ -110,9 +110,8 @@ typedef struct _monitored_node {
 *  be manipulated only through the provided functions.
 */
 typedef struct _osm_perfmgr {
-	osm_thread_state_t thread_state;
 	cl_event_t sig_sweep;
-	cl_thread_t sweeper;
+	cl_timer_t sweep_timer;
 	osm_subn_t *subn;
 	osm_sm_t *sm;
 	cl_plock_t *lock;
@@ -222,6 +221,8 @@ void osm_perfmgr_dump_counters(osm_perfmgr_t * p_perfmgr,
 
 ib_api_status_t osm_perfmgr_bind(osm_perfmgr_t * const p_perfmgr,
 				 const ib_net64_t port_guid);
+
+void osm_perfmgr_process(osm_perfmgr_t * pm);
 
 /****f* OpenSM: PerfMgr/osm_perfmgr_init */
 ib_api_status_t osm_perfmgr_init(osm_perfmgr_t * const perfmgr,

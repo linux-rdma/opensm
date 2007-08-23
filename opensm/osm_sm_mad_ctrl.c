@@ -106,6 +106,9 @@ __osm_sm_mad_ctrl_retire_trans_mad(IN osm_sm_mad_ctrl_t * const p_ctrl,
 			"__osm_sm_mad_ctrl_retire_trans_mad: "
 			"signal OSM_SIGNAL_NO_PENDING_TRANSACTIONS\n");
 
+#ifdef ENABLE_OSM_PERF_MGR
+		pthread_cond_signal(&p_ctrl->p_stats->cond);
+#endif
 		osm_sm_signal(&p_ctrl->p_subn->p_osm->sm,
 			      OSM_SIGNAL_NO_PENDING_TRANSACTIONS);
 	}

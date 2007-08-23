@@ -59,6 +59,7 @@
 #include <opensm/osm_perfmgr.h>
 #include <opensm/osm_log.h>
 #include <opensm/osm_node.h>
+#include <opensm/osm_opensm.h>
 #include <complib/cl_thread.h>
 #include <vendor/osm_vendor_api.h>
 #include <float.h>
@@ -550,83 +551,324 @@ __osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context)
 }
 
 /**********************************************************************
- * Main PerfMgr Thread.
- * Loop continuously and query the performance counters.
+ * Discovery stuff.
+ * Basically this code should not be here, but merged with main OpenSM
  **********************************************************************/
-void __osm_perfmgr_sweeper(void *p_ptr)
+static int sweep_hop_1(osm_sm_t * sm)
 {
-	osm_perfmgr_t *const pm = (osm_perfmgr_t *) p_ptr;
+	ib_api_status_t status = IB_SUCCESS;
+	osm_bind_handle_t h_bind;
+	osm_madw_context_t context;
+	osm_node_t *p_node;
+	osm_port_t *p_port;
+	osm_physp_t *p_physp;
+	osm_dr_path_t *p_dr_path;
+	osm_dr_path_t hop_1_path;
+	ib_net64_t port_guid;
+	uint8_t port_num;
+	uint8_t path_array[IB_SUBNET_PATH_HOPS_MAX];
+	uint8_t num_ports;
+	osm_physp_t *p_ext_physp;
 
-	OSM_LOG_ENTER(pm->log, __osm_pm_sweeper);
+	port_guid = sm->p_subn->sm_port_guid;
 
-	if (pm->thread_state == OSM_THREAD_STATE_INIT)
-		pm->thread_state = OSM_THREAD_STATE_RUN;
+	p_port = osm_get_port_by_guid(sm->p_subn, port_guid);
+	if (!p_port) {
+		osm_log(sm->p_log, OSM_LOG_ERROR,
+			"sweep_hop_1: ERR 4C81: No SM port object\n");
+		return -1;
+	}
+
+	p_node = p_port->p_node;
+	port_num = ib_node_info_get_local_port_num(&p_node->node_info);
+
+	osm_log(sm->p_log, OSM_LOG_DEBUG,
+		"sweep_hop_1: Probing hop 1 on local port %u\n", port_num);
+
+	p_physp = osm_node_get_physp_ptr(p_node, port_num);
+
+	CL_ASSERT(osm_physp_is_valid(p_physp));
+
+	p_dr_path = osm_physp_get_dr_path_ptr(p_physp);
+	h_bind = osm_dr_path_get_bind_handle(p_dr_path);
+
+	CL_ASSERT(h_bind != OSM_BIND_INVALID_HANDLE);
+
+	memset(path_array, 0, sizeof(path_array));
+	/* the hop_1 operations depend on the type of our node.
+	 * Currently - legal nodes that can host SM are SW and CA */
+	switch (osm_node_get_type(p_node)) {
+	case IB_NODE_TYPE_CA:
+	case IB_NODE_TYPE_ROUTER:
+		memset(&context, 0, sizeof(context));
+		context.ni_context.node_guid = osm_node_get_node_guid(p_node);
+		context.ni_context.port_num = port_num;
+
+		path_array[1] = port_num;
+
+		osm_dr_path_init(&hop_1_path, h_bind, 1, path_array);
+		status = osm_req_get(&sm->req,
+				     &hop_1_path,
+				     IB_MAD_ATTR_NODE_INFO, 0,
+				     CL_DISP_MSGID_NONE, &context);
+
+		if (status != IB_SUCCESS)
+			osm_log(sm->p_log, OSM_LOG_ERROR,
+				"sweep_hop_1: ERR 4C82: "
+				"Request for NodeInfo failed\n");
+		break;
+
+	case IB_NODE_TYPE_SWITCH:
+		/* Need to go over all the ports of the switch, and send a node_info
+		 * from them. This doesn't include the port 0 of the switch, which
+		 * hosts the SM.
+		 * Note: We'll send another switchInfo on port 0, since if no ports
+		 * are connected, we still want to get some response, and have the
+		 * subnet come up.
+		 */
+		num_ports = osm_node_get_num_physp(p_node);
+		for (port_num = 0; port_num < num_ports; port_num++) {
+			/* go through the port only if the port is not DOWN */
+			p_ext_physp = osm_node_get_physp_ptr(p_node, port_num);
+			if (ib_port_info_get_port_state
+			    (&p_ext_physp->port_info) <= IB_LINK_DOWN)
+				continue;
+
+			memset(&context, 0, sizeof(context));
+			context.ni_context.node_guid =
+			    osm_node_get_node_guid(p_node);
+			context.ni_context.port_num = port_num;
+
+			path_array[1] = port_num;
+
+			osm_dr_path_init(&hop_1_path, h_bind, 1, path_array);
+			status = osm_req_get(&sm->req, &hop_1_path,
+					     IB_MAD_ATTR_NODE_INFO, 0,
+					     CL_DISP_MSGID_NONE, &context);
+
+			if (status != IB_SUCCESS)
+				osm_log(sm->p_log, OSM_LOG_ERROR,
+					"sweep_hop_1: ERR 4C82: "
+					"Request for NodeInfo failed\n");
+		}
+		break;
+
+	default:
+		osm_log(sm->p_log, OSM_LOG_ERROR,
+			"sweep_hop_1: ERR 4C83: Unknown node type %d\n",
+			osm_node_get_type(p_node));
+	}
+
+	return (status);
+}
+
+static unsigned is_sm_port_down(osm_sm_t *const sm)
+{
+	ib_net64_t port_guid;
+	osm_port_t *p_port;
+
+	port_guid = sm->p_subn->sm_port_guid;
+	if (port_guid == 0)
+		return 1;
+
+	CL_PLOCK_ACQUIRE(sm->p_lock);
+	p_port = osm_get_port_by_guid(sm->p_subn, port_guid);
+	if (!p_port) {
+		CL_PLOCK_RELEASE(sm->p_lock);
+		osm_log(sm->p_log, OSM_LOG_ERROR,
+			"is_sm_port_down: ERR 4C85: "
+			"SM port with GUID:%016" PRIx64 " is unknown\n",
+			cl_ntoh64(port_guid));
+		return 1;
+	}
+	CL_PLOCK_RELEASE(sm->p_lock);
+
+	return osm_physp_get_port_state(p_port->p_physp) == IB_LINK_DOWN;
+}
+
+static int sweep_hop_0(osm_sm_t *const sm)
+{
+	ib_api_status_t status;
+	osm_dr_path_t dr_path;
+	osm_bind_handle_t h_bind;
+	uint8_t path_array[IB_SUBNET_PATH_HOPS_MAX];
+
+	memset(path_array, 0, sizeof(path_array));
+
+	h_bind = osm_sm_mad_ctrl_get_bind_handle(&sm->mad_ctrl);
+	if (h_bind == OSM_BIND_INVALID_HANDLE) {
+		osm_log(sm->p_log, OSM_LOG_DEBUG,
+			"sweep_hop_0: No bound ports.\n");
+		return -1;
+	}
+
+	osm_dr_path_init(&dr_path, h_bind, 0, path_array);
+	status = osm_req_get(&sm->req,
+			     &dr_path, IB_MAD_ATTR_NODE_INFO, 0,
+			     CL_DISP_MSGID_NONE, NULL);
+
+	if (status != IB_SUCCESS)
+		osm_log(sm->p_log, OSM_LOG_ERROR,
+			"sweep_hop_0: ERR 4C86: Request for NodeInfo failed\n");
+
+	return (status);
+}
+
+static int wait_for_pending_transactions(osm_stats_t *stats)
+{
+	pthread_mutex_lock(&stats->mutex);
+	while (stats->qp0_mads_outstanding && !osm_exit_flag)
+		pthread_cond_wait(&stats->cond, &stats->mutex);
+	pthread_mutex_unlock(&stats->mutex);
+	return 0;
+}
+
+static void reset_node_count(cl_map_item_t * const p_map_item, void *cxt)
+{
+	osm_node_t *p_node = (osm_node_t *) p_map_item;
+	p_node->discovery_count = 0;
+}
+
+static void reset_port_count(cl_map_item_t * const p_map_item, void *cxt)
+{
+	osm_port_t *p_port = (osm_port_t *) p_map_item;
+	p_port->discovery_count = 0;
+}
+
+static void reset_switch_count(cl_map_item_t * const p_map_item, void *cxt)
+{
+	osm_switch_t *p_sw = (osm_switch_t *) p_map_item;
+	p_sw->discovery_count = 0;
+	p_sw->need_update = 0;
+}
+
+static int perfmgr_discovery(osm_opensm_t *osm)
+{
+	unsigned signals = osm->sm.signal_mask;
+	int ret;
+
+	CL_PLOCK_ACQUIRE(&osm->lock);
+	cl_qmap_apply_func(&osm->subn.node_guid_tbl, reset_node_count, NULL);
+	cl_qmap_apply_func(&osm->subn.port_guid_tbl, reset_port_count, NULL);
+	cl_qmap_apply_func(&osm->subn.sw_guid_tbl, reset_switch_count, NULL);
+	CL_PLOCK_RELEASE(&osm->lock);
+
+	osm->subn.in_sweep_hop_0 = TRUE;
+
+	ret = sweep_hop_0(&osm->sm);
+	if (ret)
+		goto _exit;
+
+	wait_for_pending_transactions(&osm->stats);
+
+	if (is_sm_port_down(&osm->sm)) {
+		osm_log(&osm->log, OSM_LOG_VERBOSE,
+			"SM port is down\n");
+		goto _drop;
+	}
+
+	osm->subn.in_sweep_hop_0 = FALSE;
+
+	ret = sweep_hop_1(&osm->sm);
+	if (ret)
+		goto _exit;
+
+	wait_for_pending_transactions(&osm->stats);
+
+       _drop:
+	osm_drop_mgr_process(&osm->sm.drop_mgr);
+
+       _exit:
+	/* dirty hack: cleanup signal mask -
+	 * this will not be needed later with both discoveries merged */
+	cl_spinlock_acquire(&osm->sm.signal_lock);
+	osm->sm.signal_mask &= ~(OSM_SIGNAL_NO_PENDING_TRANSACTIONS|
+				 OSM_SIGNAL_CHANGE_DETECTED);
+	osm->sm.signal_mask |= signals;
+	cl_spinlock_release(&osm->sm.signal_lock);
+	return ret;
+}
+
+/**********************************************************************
+ * Main PerfMgr processor - query the performance counters.
+ **********************************************************************/
+void osm_perfmgr_process(osm_perfmgr_t *pm)
+{
+#if ENABLE_OSM_PERF_MGR_PROFILE
+	struct timeval before, after;
+#endif
+
+	if (pm->state != PERFMGR_STATE_ENABLED)
+		return;
+
+	if (pm->sm->state_mgr.state != OSM_SM_STATE_IDLE &&
+	    pm->sm->state_mgr.state != OSM_SM_STATE_STANDBY)
+		return;
+
+	if (pm->sm->state_mgr.state == OSM_SM_STATE_STANDBY ||
+	    (pm->sm->state_mgr.state == OSM_SM_STATE_IDLE &&
+	     pm->subn->sm_state == IB_SMINFO_STATE_NOTACTIVE))
+		perfmgr_discovery(pm->subn->p_osm);
+
+#if ENABLE_OSM_PERF_MGR_PROFILE
+	gettimeofday(&before, NULL);
+#endif
+	pm->sweep_state = PERFMGR_SWEEP_ACTIVE;
+	/* With the global lock held collect the node guids */
+	/* FIXME we should be able to track SA notices
+	 * and not have to sweep the node_guid_tbl each pass
+	 */
+	osm_log(pm->log, OSM_LOG_VERBOSE,
+		"Gathering PerfMgr stats\n");
+	cl_plock_acquire(pm->lock);
+	cl_qmap_apply_func(&(pm->subn->node_guid_tbl),
+			   __collect_guids, (void *)pm);
+	cl_plock_release(pm->lock);
+
+	/* then for each node query their counters */
+	cl_qmap_apply_func(&(pm->monitored_map),
+			   __osm_perfmgr_query_counters, (void *)pm);
+
+	/* Clean out any nodes found to be removed during the
+	 * sweep
+	 */
+	__remove_marked_nodes(pm);
+
+#if ENABLE_OSM_PERF_MGR_PROFILE
+	/* spin on outstanding queries */
+	while (pm->outstanding_queries > 0)
+		cl_event_wait_on(&pm->sig_sweep, 1000, TRUE);
+
+	gettimeofday(&after, NULL);
+	diff_time(&before, &after, &after);
+	osm_log(pm->log, OSM_LOG_INFO,
+		"PerfMgr total sweep time : %ld.%06ld s\n"
+		"        fastest mad      : %g us\n"
+		"        slowest mad      : %g us\n"
+		"        average mad      : %g us\n",
+		after.tv_sec, after.tv_usec,
+		perfmgr_mad_stats.fastest_us,
+		perfmgr_mad_stats.slowest_us,
+		perfmgr_mad_stats.avg_us);
+		perfmgr_clear_mad_stats();
+#endif
+
+	pm->sweep_state = PERFMGR_SWEEP_SLEEP;
+}
+
+/**********************************************************************
+ * PerfMgr timer - loop continuously and signal SM to run PerfMgr
+ * processor.
+ **********************************************************************/
+static void perfmgr_sweep(void *arg)
+{
+	osm_perfmgr_t * pm = arg;
 
 	__init_monitored_nodes(pm);
 
-	while (pm->thread_state == OSM_THREAD_STATE_RUN) {
-		/*  do the sweep only if in MASTER state
-		 *  AND we have been activated.
-		 *  FIXME put something in here to try and reduce the load on the system
-		 *  when it is not IDLE.
-		 if (pm->sm->state_mgr.state != OSM_SM_STATE_IDLE)
-		 */
-		if (pm->subn->sm_state == IB_SMINFO_STATE_MASTER &&
-		    pm->state == PERFMGR_STATE_ENABLED) {
-#if ENABLE_OSM_PERF_MGR_PROFILE
-			struct timeval before, after;
-			gettimeofday(&before, NULL);
-#endif
-			pm->sweep_state = PERFMGR_SWEEP_ACTIVE;
-			/* With the global lock held collect the node guids */
-			/* FIXME we should be able to track SA notices
-			 * and not have to sweep the node_guid_tbl each pass
-			 */
-			osm_log(pm->log, OSM_LOG_VERBOSE,
-				"Gathering PerfMgr stats\n");
-			cl_plock_acquire(pm->lock);
-			cl_qmap_apply_func(&(pm->subn->node_guid_tbl),
-					   __collect_guids, (void *)pm);
-			cl_plock_release(pm->lock);
-
-			/* then for each node query their counters */
-			cl_qmap_apply_func(&(pm->monitored_map),
-					   __osm_perfmgr_query_counters,
-					   (void *)pm);
-
-			/* Clean out any nodes found to be removed during the
-			 * sweep
-			 */
-			__remove_marked_nodes(pm);
-
-#if ENABLE_OSM_PERF_MGR_PROFILE
-			/* spin on outstanding queries */
-			while (pm->outstanding_queries > 0)
-				cl_event_wait_on(&pm->sig_sweep, 1000, TRUE);
-
-			gettimeofday(&after, NULL);
-			diff_time(&before, &after, &after);
-			osm_log(pm->log, OSM_LOG_INFO,
-				"PerfMgr total sweep time : %ld.%06ld s\n"
-				"        fastest mad      : %g us\n"
-				"        slowest mad      : %g us\n"
-				"        average mad      : %g us\n"
-				,
-				after.tv_sec, after.tv_usec,
-				perfmgr_mad_stats.fastest_us,
-				perfmgr_mad_stats.slowest_us,
-				perfmgr_mad_stats.avg_us);
-			perfmgr_clear_mad_stats();
-#endif
-		}
-
-		pm->sweep_state = PERFMGR_SWEEP_SLEEP;
-
-		/* Wait for a forced sweep or period timeout. */
-		cl_event_wait_on(&pm->sig_sweep, pm->sweep_time_s * 1000000, TRUE);
-	}
-
-	OSM_LOG_EXIT(pm->log);
+	if (pm->state == PERFMGR_STATE_ENABLED)
+		osm_sm_signal(pm->sm, OSM_SIGNAL_PERFMGR_SWEEP);
+	cl_timer_start(&pm->sweep_timer, pm->sweep_time_s * 1000);
 }
 
 /**********************************************************************
@@ -634,6 +876,7 @@ void __osm_perfmgr_sweeper(void *p_ptr)
 void osm_perfmgr_shutdown(osm_perfmgr_t * const pm)
 {
 	OSM_LOG_ENTER(pm->log, osm_perfmgr_shutdown);
+	cl_timer_stop(&pm->sweep_timer);
 	osm_perfmgr_mad_unbind(pm);
 	OSM_LOG_EXIT(pm->log);
 }
@@ -645,6 +888,9 @@ void osm_perfmgr_destroy(osm_perfmgr_t * const pm)
 	OSM_LOG_ENTER(pm->log, osm_perfmgr_destroy);
 	free(pm->event_db_dump_file);
 	perfmgr_db_destroy(pm->db);
+	cl_timer_destroy(&pm->sweep_timer);
+	pthread_cond_destroy(&pm->subn->p_osm->stats.cond);
+	pthread_mutex_destroy(&pm->subn->p_osm->stats.mutex);
 	OSM_LOG_EXIT(pm->log);
 }
 
@@ -1033,6 +1279,13 @@ osm_perfmgr_init(osm_perfmgr_t * const pm,
 	pm->max_outstanding_queries = p_opt->perfmgr_max_outstanding_queries;
 	pm->event_plugin = event_plugin;
 
+	pthread_mutex_init(&subn->p_osm->stats.mutex, NULL);
+	pthread_cond_init(&subn->p_osm->stats.cond, NULL);
+
+	status = cl_timer_init(&pm->sweep_timer, perfmgr_sweep, pm);
+	if (status != IB_SUCCESS)
+		goto Exit;
+
 	pm->db = perfmgr_db_construct(pm->log, pm->event_plugin);
 	if (!pm->db) {
 		pm->state = PERFMGR_STATE_NO_DB;
@@ -1044,11 +1297,7 @@ osm_perfmgr_init(osm_perfmgr_t * const pm,
 	if (pm->pc_disp_h == CL_DISP_INVALID_HANDLE)
 		goto Exit;
 
-	pm->thread_state = OSM_THREAD_STATE_INIT;
-	status = cl_thread_init(&pm->sweeper, __osm_perfmgr_sweeper, pm,
-				"PerfMgr sweeper");
-	if (status != IB_SUCCESS)
-		goto Exit;
+	cl_timer_start(&pm->sweep_timer, pm->sweep_time_s * 1000);
 
       Exit:
 	OSM_LOG_EXIT(log);

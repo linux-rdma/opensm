@@ -2111,7 +2111,8 @@ const char *const __osm_sm_signal_str[] = {
 	"OSM_SIGNAL_IDLE_TIME_PROCESS_REQUEST",	/* 9 */
 	"OSM_SIGNAL_MASTER_OR_HIGHER_SM_DETECTED",	/* 10 */
 	"OSM_SIGNAL_EXIT_STBY",	/* 11 */
-	"UNKNOWN SIGNAL!!"	/* 12 */
+	"OSM_SIGNAL_PERFMGR_SWEEP", /* 12 */
+	"UNKNOWN SIGNAL!!"	/* 13 */
 };
 
 /**********************************************************************

@@ -63,11 +63,23 @@
 #include <opensm/osm_msgdef.h>
 #include <opensm/osm_mcast_mgr.h>
 #include <opensm/osm_mcm_info.h>
+#include <opensm/osm_perfmgr.h>
+#include <opensm/osm_opensm.h>
 
 #define  OSM_SM_INITIAL_TID_VALUE 0x1233
 
 /**********************************************************************
  **********************************************************************/
+static void osm_sm_process(osm_sm_t *sm, osm_signal_t signal)
+{
+#ifdef ENABLE_OSM_PERF_MGR
+	if (signal == OSM_SIGNAL_PERFMGR_SWEEP)
+		osm_perfmgr_process(&sm->p_subn->p_osm->perfmgr);
+	else
+#endif
+		osm_state_mgr_process(&sm->state_mgr, signal);
+}
+
 static void __osm_sm_sweeper(IN void *p_ptr)
 {
 	ib_api_status_t status;
@@ -104,7 +116,7 @@ static void __osm_sm_sweeper(IN void *p_ptr)
 
 		for (i = 0 ; signals ; signals >>= 1 , i++)
 			if (signals&1)
-				osm_state_mgr_process(&p_sm->state_mgr, i);
+				osm_sm_process(p_sm, i);
 	}
 
 	OSM_LOG_EXIT(p_sm->p_log);

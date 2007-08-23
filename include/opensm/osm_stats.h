@@ -48,6 +48,9 @@
 #ifndef _OSM_STATS_H_
 #define _OSM_STATS_H_
 
+#ifdef ENABLE_OSM_PERF_MGR
+#include <pthread.h>
+#endif
 #include <opensm/osm_base.h>
 #include <complib/cl_atomic.h>
 
@@ -90,7 +93,10 @@ typedef struct _osm_stats {
 	atomic32_t sa_mads_outstanding;
 	atomic32_t sa_mads_rcvd;
 	atomic32_t sa_mads_sent;
-
+#ifdef ENABLE_OSM_PERF_MGR
+	pthread_mutex_t mutex;
+	pthread_cond_t cond;
+#endif
 } osm_stats_t;
 /*
 * FIELDS

@@ -736,7 +736,8 @@ typedef enum _osm_sm_state {
 #define OSM_SIGNAL_IDLE_TIME_PROCESS_REQUEST	9
 #define OSM_SIGNAL_MASTER_OR_HIGHER_SM_DETECTED	10
 #define OSM_SIGNAL_EXIT_STBY			11
-#define OSM_SIGNAL_MAX				12
+#define OSM_SIGNAL_PERFMGR_SWEEP		12
+#define OSM_SIGNAL_MAX				13
 
 typedef uintn_t osm_signal_t;
 /***********/
