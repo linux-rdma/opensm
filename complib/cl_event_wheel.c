@@ -42,7 +42,9 @@
 #include <complib/cl_event_wheel.h>
 #include <complib/cl_debug.h>
 
-cl_status_t
+#define CL_DBG(fmt, arg...)
+
+static cl_status_t
 __event_will_age_before(IN const cl_list_item_t * const p_list_item,
 			IN void *context)
 {
@@ -58,7 +60,7 @@ __event_will_age_before(IN const cl_list_item_t * const p_list_item,
 		return CL_NOT_FOUND;
 }
 
-void __cl_event_wheel_callback(IN void *context)
+static void __cl_event_wheel_callback(IN void *context)
 {
 	cl_event_wheel_t *p_event_wheel = (cl_event_wheel_t *) context;
 	cl_list_item_t *p_list_item, *p_prev_event_list_item;
@@ -69,30 +71,25 @@ void __cl_event_wheel_callback(IN void *context)
 	uint32_t new_timeout;
 	cl_status_t cl_status;
 
-	OSM_LOG_ENTER(p_event_wheel->p_log, __cl_event_wheel_callback);
-
 	/* might be during closing ...  */
-	if (p_event_wheel->closing) {
-		goto JustExit;
-	}
+	if (p_event_wheel->closing)
+		return;
 
 	current_time = cl_get_time_stamp();
 
-	if (NULL != p_event_wheel->p_external_lock) {
+	if (NULL != p_event_wheel->p_external_lock)
 
 		/* Take care of the order of acquiring locks to avoid the deadlock!
 		 * The external lock goes first.
 		 */
-		CL_SPINLOCK_ACQUIRE(p_event_wheel->p_external_lock);
-	}
+		cl_spinlock_acquire(p_event_wheel->p_external_lock);
 
-	CL_SPINLOCK_ACQUIRE(&p_event_wheel->lock);
+	cl_spinlock_acquire(&p_event_wheel->lock);
 
 	p_list_item = cl_qlist_head(&p_event_wheel->events_wheel);
-	if (p_list_item == cl_qlist_end(&p_event_wheel->events_wheel)) {
+	if (p_list_item == cl_qlist_end(&p_event_wheel->events_wheel))
 		/* the list is empty - nothing to do */
 		goto Exit;
-	}
 
 	/* we found such an item.  get the p_event */
 	p_event =
@@ -100,14 +97,13 @@ void __cl_event_wheel_callback(IN void *context)
 
 	while (p_event->aging_time <= current_time) {
 		/* this object has aged - invoke it's callback */
-		if (p_event->pfn_aged_callback) {
+		if (p_event->pfn_aged_callback)
 			next_aging_time =
 			    p_event->pfn_aged_callback(p_event->key,
 						       p_event->num_regs,
 						       p_event->context);
-		} else {
+		else
 			next_aging_time = 0;
-		}
 
 		/* point to the next object in the wheel */
 		p_list_next_item = cl_qlist_next(p_list_item);
@@ -153,10 +149,9 @@ void __cl_event_wheel_callback(IN void *context)
 
 		/* advance to next event */
 		p_list_item = p_list_next_item;
-		if (p_list_item == cl_qlist_end(&p_event_wheel->events_wheel)) {
+		if (p_list_item == cl_qlist_end(&p_event_wheel->events_wheel))
 			/* the list is empty - nothing to do */
 			break;
-		}
 
 		/* get the p_event */
 		p_event =
@@ -175,25 +170,20 @@ void __cl_event_wheel_callback(IN void *context)
 		new_timeout =
 		    (uint32_t) (((p_event->aging_time - current_time) / 1000) +
 				0.5);
-		osm_log(p_event_wheel->p_log, OSM_LOG_DEBUG,
-			"__cl_event_wheel_callback : "
-			"Restart timer in : %u [msec]\n", new_timeout);
+		CL_DBG("__cl_event_wheel_callback: Restart timer in: "
+		       "%u [msec]\n", new_timeout);
 		cl_status = cl_timer_start(&p_event_wheel->timer, new_timeout);
 		if (cl_status != CL_SUCCESS) {
-			osm_log(p_event_wheel->p_log, OSM_LOG_ERROR,
-				"__cl_event_wheel_callback : ERR 6100: "
-				"Failed to start timer\n");
+			CL_DBG("__cl_event_wheel_callback : ERR 6100: "
+			       "Failed to start timer\n");
 		}
 	}
 
 	/* release the lock */
       Exit:
-	CL_SPINLOCK_RELEASE(&p_event_wheel->lock);
-	if (NULL != p_event_wheel->p_external_lock) {
-		CL_SPINLOCK_RELEASE(p_event_wheel->p_external_lock);
-	}
-      JustExit:
-	OSM_LOG_EXIT(p_event_wheel->p_log);
+	cl_spinlock_release(&p_event_wheel->lock);
+	if (NULL != p_event_wheel->p_external_lock)
+		cl_spinlock_release(p_event_wheel->p_external_lock);
 }
 
 /*
@@ -211,34 +201,19 @@ cl_event_wheel_init(IN cl_event_wheel_t * const p_event_wheel,
 {
 	cl_status_t cl_status = CL_SUCCESS;
 
-	OSM_LOG_ENTER(p_log, cl_event_wheel_init);
-
 	/* initialize */
-	p_event_wheel->p_log = p_log;
 	p_event_wheel->p_external_lock = NULL;
 	p_event_wheel->closing = FALSE;
 	cl_status = cl_spinlock_init(&(p_event_wheel->lock));
-	if (cl_status != CL_SUCCESS) {
-		osm_log(p_event_wheel->p_log, OSM_LOG_ERROR,
-			"cl_event_wheel_init : ERR 6101: "
-			"Failed to initialize cl_spinlock\n");
-		goto Exit;
-	}
+	if (cl_status != CL_SUCCESS)
+		return cl_status;
 	cl_qlist_init(&p_event_wheel->events_wheel);
 	cl_qmap_init(&p_event_wheel->events_map);
 
 	/* init the timer with timeout */
 	cl_status = cl_timer_init(&p_event_wheel->timer, __cl_event_wheel_callback, p_event_wheel);	/* cb context */
 
-	if (cl_status != CL_SUCCESS) {
-		osm_log(p_event_wheel->p_log, OSM_LOG_ERROR,
-			"cl_event_wheel_init : ERR 6102: "
-			"Failed to initialize cl_timer\n");
-		goto Exit;
-	}
-      Exit:
-	OSM_LOG_EXIT(p_event_wheel->p_log);
-	return (cl_status);
+	return cl_status;
 }
 
 cl_status_t
@@ -247,7 +222,7 @@ cl_event_wheel_init_ex(IN cl_event_wheel_t * const p_event_wheel,
 {
 	cl_status_t cl_status;
 
-	cl_status = cl_event_wheel_init(p_event_wheel, p_log);
+	cl_status = cl_event_wheel_init(p_event_wheel, NULL);
 	if (CL_SUCCESS != cl_status) {
 		return cl_status;
 	}
@@ -261,23 +236,17 @@ void cl_event_wheel_dump(IN cl_event_wheel_t * const p_event_wheel)
 	cl_list_item_t *p_list_item;
 	cl_event_wheel_reg_info_t *p_event;
 
-	OSM_LOG_ENTER(p_event_wheel->p_log, cl_event_wheel_dump);
-
 	p_list_item = cl_qlist_head(&p_event_wheel->events_wheel);
-	osm_log(p_event_wheel->p_log, OSM_LOG_DEBUG,
-		"cl_event_wheel_dump: " "event_wheel ptr:%p\n", p_event_wheel);
 
 	while (p_list_item != cl_qlist_end(&p_event_wheel->events_wheel)) {
 		p_event =
 		    PARENT_STRUCT(p_list_item, cl_event_wheel_reg_info_t,
 				  list_item);
-		osm_log(p_event_wheel->p_log, OSM_LOG_DEBUG,
-			"cl_event_wheel_dump: " "Found event key:<0x%" PRIx64
-			">, aging time:%" PRIu64 "\n", p_event->key,
-			p_event->aging_time);
+		CL_DBG("cl_event_wheel_dump: Found event key:<0x%"
+		       PRIx64 ">, aging time:%" PRIu64 "\n",
+		       p_event->key, p_event->aging_time);
 		p_list_item = cl_qlist_next(p_list_item);
 	}
-	OSM_LOG_EXIT(p_event_wheel->p_log);
 }
 
 void cl_event_wheel_destroy(IN cl_event_wheel_t * const p_event_wheel)
@@ -286,10 +255,8 @@ void cl_event_wheel_destroy(IN cl_event_wheel_t * const p_event_wheel)
 	cl_map_item_t *p_map_item;
 	cl_event_wheel_reg_info_t *p_event;
 
-	OSM_LOG_ENTER(p_event_wheel->p_log, cl_event_wheel_destroy);
-
 	/* we need to get a lock */
-	CL_SPINLOCK_ACQUIRE(&p_event_wheel->lock);
+	cl_spinlock_acquire(&p_event_wheel->lock);
 
 	cl_event_wheel_dump(p_event_wheel);
 
@@ -300,10 +267,8 @@ void cl_event_wheel_destroy(IN cl_event_wheel_t * const p_event_wheel)
 		    PARENT_STRUCT(p_list_item, cl_event_wheel_reg_info_t,
 				  list_item);
 
-		osm_log(p_event_wheel->p_log, OSM_LOG_DEBUG,
-			"cl_event_wheel_destroy: "
-			"Found outstanding event key:<0x%" PRIx64 ">\n",
-			p_event->key);
+		CL_DBG("cl_event_wheel_destroy: Found outstanding event"
+		       " key:<0x%" PRIx64 ">\n", p_event->key);
 
 		/* remove it from the map */
 		p_map_item = &(p_event->map_item);
@@ -318,10 +283,8 @@ void cl_event_wheel_destroy(IN cl_event_wheel_t * const p_event_wheel)
 
 	/* destroy the lock (this should be done without releasing - we don't want
 	   any other run to grab the lock at this point. */
-	CL_SPINLOCK_RELEASE(&p_event_wheel->lock);
+	cl_spinlock_release(&p_event_wheel->lock);
 	cl_spinlock_destroy(&(p_event_wheel->lock));
-
-	OSM_LOG_EXIT(p_event_wheel->p_log);
 }
 
 cl_status_t
@@ -338,19 +301,16 @@ cl_event_wheel_reg(IN cl_event_wheel_t * const p_event_wheel,
 	cl_list_item_t *prev_event_list_item;
 	cl_map_item_t *p_map_item;
 
-	OSM_LOG_ENTER(p_event_wheel->p_log, cl_event_wheel_reg);
-
 	/* Get the lock on the manager */
-	CL_SPINLOCK_ACQUIRE(&(p_event_wheel->lock));
+	cl_spinlock_acquire(&(p_event_wheel->lock));
 
 	cl_event_wheel_dump(p_event_wheel);
 
 	/* Make sure such a key does not exists */
 	p_map_item = cl_qmap_get(&p_event_wheel->events_map, key);
 	if (p_map_item != cl_qmap_end(&p_event_wheel->events_map)) {
-		osm_log(p_event_wheel->p_log, OSM_LOG_DEBUG,
-			"cl_event_wheel_reg: "
-			"Already exists key:0x%" PRIx64 "\n", key);
+		CL_DBG("cl_event_wheel_reg: Already exists key:0x%"
+		       PRIx64 "\n", key);
 
 		/* already there - remove it from the list as it is getting a new time */
 		p_event =
@@ -376,12 +336,10 @@ cl_event_wheel_reg(IN cl_event_wheel_t * const p_event_wheel,
 	p_event->context = context;
 	p_event->num_regs++;
 
-	osm_log(p_event_wheel->p_log, OSM_LOG_DEBUG,
-		"cl_event_wheel_reg: "
-		"Registering event key:0x%" PRIx64 " aging in %u [msec]\n",
-		p_event->key,
-		(uint32_t) ((p_event->aging_time -
-			     cl_get_time_stamp()) / 1000));
+	CL_DBG("cl_event_wheel_reg: Registering event key:0x%" PRIx64
+	       " aging in %u [msec]\n", p_event->key,
+	       (uint32_t) ((p_event->aging_time -
+			    cl_get_time_stamp()) / 1000));
 
 	/* If the list is empty - need to start the timer */
 	if (cl_is_qlist_empty(&p_event_wheel->events_wheel)) {
@@ -413,18 +371,15 @@ cl_event_wheel_reg(IN cl_event_wheel_t * const p_event_wheel,
 		to = (uint32_t) timeout;
 		if (timeout > (uint32_t) timeout) {
 			to = 0xffffffff;	/* max 32 bit timer */
-			osm_log(p_event_wheel->p_log, OSM_LOG_INFO,
-				"cl_event_wheel_reg: "
-				"timeout requested is too large. Using timeout: %u\n",
-				to);
+			CL_DBG("cl_event_wheel_reg: timeout requested is "
+			       "too large. Using timeout: %u\n", to);
 		}
 
 		/* start the timer to the timeout [msec] */
 		cl_status = cl_timer_start(&p_event_wheel->timer, to);
 		if (cl_status != CL_SUCCESS) {
-			osm_log(p_event_wheel->p_log, OSM_LOG_ERROR,
-				"cl_event_wheel_reg : ERR 6103: "
-				"Failed to start timer\n");
+			CL_DBG("cl_event_wheel_reg : ERR 6103: "
+			       "Failed to start timer\n");
 			goto Exit;
 		}
 	}
@@ -443,8 +398,7 @@ cl_event_wheel_reg(IN cl_event_wheel_t * const p_event_wheel,
 	cl_qmap_insert(&p_event_wheel->events_map, key, &(p_event->map_item));
 
       Exit:
-	CL_SPINLOCK_RELEASE(&p_event_wheel->lock);
-	OSM_LOG_EXIT(p_event_wheel->p_log);
+	cl_spinlock_release(&p_event_wheel->lock);
 
 	return cl_status;
 }
@@ -455,12 +409,9 @@ cl_event_wheel_unreg(IN cl_event_wheel_t * const p_event_wheel, IN uint64_t key)
 	cl_event_wheel_reg_info_t *p_event;
 	cl_map_item_t *p_map_item;
 
-	OSM_LOG_ENTER(p_event_wheel->p_log, cl_event_wheel_unreg);
+	CL_DBG("cl_event_wheel_unreg: " "Removing key:0x%" PRIx64 "\n", key);
 
-	osm_log(p_event_wheel->p_log, OSM_LOG_DEBUG,
-		"cl_event_wheel_unreg: " "Removing key:0x%" PRIx64 "\n", key);
-
-	CL_SPINLOCK_ACQUIRE(&p_event_wheel->lock);
+	cl_spinlock_acquire(&p_event_wheel->lock);
 	p_map_item = cl_qmap_get(&p_event_wheel->events_map, key);
 	if (p_map_item != cl_qmap_end(&p_event_wheel->events_map)) {
 		/* we found such an item. */
@@ -475,21 +426,17 @@ cl_event_wheel_unreg(IN cl_event_wheel_t * const p_event_wheel, IN uint64_t key)
 		cl_qmap_remove_item(&p_event_wheel->events_map,
 				    &(p_event->map_item));
 
-		osm_log(p_event_wheel->p_log, OSM_LOG_DEBUG,
-			"cl_event_wheel_unreg: "
-			"Removed key:0x%" PRIx64 "\n", key);
+		CL_DBG("cl_event_wheel_unreg: Removed key:0x%" PRIx64 "\n",
+		       key);
 
 		/* free the item */
 		free(p_event);
 	} else {
-		osm_log(p_event_wheel->p_log, OSM_LOG_DEBUG,
-			"cl_event_wheel_unreg: "
-			"Did not find key:0x%" PRIx64 "\n", key);
+		CL_DBG("cl_event_wheel_unreg: did not find key:0x%" PRIx64
+		       "\n", key);
 	}
 
-	CL_SPINLOCK_RELEASE(&p_event_wheel->lock);
-	OSM_LOG_EXIT(p_event_wheel->p_log);
-
+	cl_spinlock_release(&p_event_wheel->lock);
 }
 
 uint32_t
@@ -501,14 +448,11 @@ cl_event_wheel_num_regs(IN cl_event_wheel_t * const p_event_wheel,
 	cl_map_item_t *p_map_item;
 	uint32_t num_regs = 0;
 
-	OSM_LOG_ENTER(p_event_wheel->p_log, cl_event_wheel_num_regs);
-
 	/* try to find the key in the map */
-	osm_log(p_event_wheel->p_log, OSM_LOG_DEBUG,
-		"cl_event_wheel_num_regs: "
-		"Looking for key:0x%" PRIx64 "\n", key);
+	CL_DBG("cl_event_wheel_num_regs: Looking for key:0x%"
+	       PRIx64 "\n", key);
 
-	CL_SPINLOCK_ACQUIRE(&p_event_wheel->lock);
+	cl_spinlock_acquire(&p_event_wheel->lock);
 	p_map_item = cl_qmap_get(&p_event_wheel->events_map, key);
 	if (p_map_item != cl_qmap_end(&p_event_wheel->events_map)) {
 		/* ok so we can simply return it's num_regs */
@@ -518,8 +462,7 @@ cl_event_wheel_num_regs(IN cl_event_wheel_t * const p_event_wheel,
 		num_regs = p_event->num_regs;
 	}
 
-	CL_SPINLOCK_RELEASE(&p_event_wheel->lock);
-	OSM_LOG_EXIT(p_event_wheel->p_log);
+	cl_spinlock_release(&p_event_wheel->lock);
 	return (num_regs);
 }
 
@@ -577,17 +520,14 @@ void __test_event_aging(uint64_t key, void *context)
 
 int main()
 {
-	osm_log_t log;
 	cl_event_wheel_t event_wheel;
 	/*  uint64_t key; */
 
 	/* construct */
-	osm_log_construct(&log);
 	cl_event_wheel_construct(&event_wheel);
 
 	/* init */
-	osm_log_init_v2(&log, TRUE, 0xff, NULL, 0, FALSE);
-	cl_event_wheel_init(&event_wheel, &log);
+	cl_event_wheel_init(&event_wheel, NULL);
 
 	/* Start Playing */
 	cl_event_wheel_reg(&event_wheel, 1,	/*  key */

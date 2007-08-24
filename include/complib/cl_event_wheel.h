@@ -148,7 +148,6 @@ typedef struct _cl_event_wheel {
 	boolean_t closing;
 	cl_qlist_t events_wheel;
 	cl_timer_t timer;
-	osm_log_t *p_log;
 } cl_event_wheel_t;
 /*
 * FIELDS
@@ -171,9 +170,6 @@ typedef struct _cl_event_wheel {
 *
 *	timer
 *		The timer scheduling event time propagation.
-*
-*  p_log
-*     Pointer to opensm log object.
 *
 * SEE ALSO
 *	Event_Wheel
