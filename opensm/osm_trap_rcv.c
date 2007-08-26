@@ -203,7 +203,12 @@ osm_trap_rcv_init(IN osm_trap_rcv_t * const p_rcv,
 	p_rcv->p_resp = p_resp;
 	p_rcv->p_state_mgr = p_state_mgr;
 
-	cl_event_wheel_init(&p_rcv->trap_aging_tracker, p_log);
+	if(cl_event_wheel_init(&p_rcv->trap_aging_tracker)) {
+		osm_log(p_log, OSM_LOG_ERROR,
+			"osm_trap_rcv_init: ERR 3800: "
+			"Failed to initialize cl_event_wheel\n");
+		status = IB_NOT_DONE;
+	}
 
 	OSM_LOG_EXIT(p_rcv->p_log);
 	return (status);

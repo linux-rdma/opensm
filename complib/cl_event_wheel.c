@@ -196,8 +196,7 @@ void cl_event_wheel_construct(IN cl_event_wheel_t * const p_event_wheel)
 }
 
 cl_status_t
-cl_event_wheel_init(IN cl_event_wheel_t * const p_event_wheel,
-		    IN osm_log_t * p_log)
+cl_event_wheel_init(IN cl_event_wheel_t * const p_event_wheel)
 {
 	cl_status_t cl_status = CL_SUCCESS;
 
@@ -218,14 +217,13 @@ cl_event_wheel_init(IN cl_event_wheel_t * const p_event_wheel,
 
 cl_status_t
 cl_event_wheel_init_ex(IN cl_event_wheel_t * const p_event_wheel,
-		       IN osm_log_t * p_log, IN cl_spinlock_t * p_external_lock)
+		       IN cl_spinlock_t * p_external_lock)
 {
 	cl_status_t cl_status;
 
-	cl_status = cl_event_wheel_init(p_event_wheel, NULL);
-	if (CL_SUCCESS != cl_status) {
+	cl_status = cl_event_wheel_init(p_event_wheel);
+	if (CL_SUCCESS != cl_status)
 		return cl_status;
-	}
 
 	p_event_wheel->p_external_lock = p_external_lock;
 	return cl_status;
@@ -527,7 +525,7 @@ int main()
 	cl_event_wheel_construct(&event_wheel);
 
 	/* init */
-	cl_event_wheel_init(&event_wheel, NULL);
+	cl_event_wheel_init(&event_wheel);
 
 	/* Start Playing */
 	cl_event_wheel_reg(&event_wheel, 1,	/*  key */

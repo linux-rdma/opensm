@@ -1,4 +1,4 @@
-OSMCOMP_2.0 {
+OSMCOMP_2.3 {
 	global:
 		complib_init;
 		complib_exit;

@@ -51,7 +51,6 @@
 #include <complib/cl_qmap.h>
 #include <complib/cl_timer.h>
 #include <complib/cl_spinlock.h>
-#include <opensm/osm_log.h>
 
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
@@ -261,16 +260,12 @@ void cl_event_wheel_construct(IN cl_event_wheel_t * const p_event_wheel);
 * SYNOPSIS
 */
 cl_status_t
-cl_event_wheel_init(IN cl_event_wheel_t * const p_event_wheel,
-		    IN osm_log_t * p_log);
+cl_event_wheel_init(IN cl_event_wheel_t * const p_event_wheel);
 
 /*
 * PARAMETERS
 *	p_event_wheel
 *		[in] Pointer to a Event_Wheel.
-*
-*  p_log
-*     [in] Pointer to opensm log object to be used for logging
 *
 * RETURN VALUE
 *	CL_SUCCESS if the operation is successful.
@@ -291,16 +286,12 @@ cl_event_wheel_init(IN cl_event_wheel_t * const p_event_wheel,
 */
 cl_status_t
 cl_event_wheel_init_ex(IN cl_event_wheel_t * const p_event_wheel,
-		       IN osm_log_t * p_log,
 		       IN cl_spinlock_t * p_external_lock);
 
 /*
 * PARAMETERS
 *  p_event_wheel
 *     [in] Pointer to a Event_Wheel.
-*
-*  p_log
-*     [in] Pointer to opensm log object to be used for logging
 *
 *  p_external_lock
 *     [in] Reference to external spinlock to guard internal structures
