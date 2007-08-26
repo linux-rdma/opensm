@@ -104,7 +104,6 @@ typedef struct _osm_sm_state_mgr {
 	cl_timer_t polling_timer;
 	uint32_t retry_number;
 	ib_net64_t master_guid;
-	osm_state_mgr_t *p_state_mgr;
 	osm_subn_t *p_subn;
 	osm_req_t *p_req;
 	osm_log_t *p_log;
@@ -125,9 +124,6 @@ typedef struct _osm_sm_state_mgr {
 *
 *	master_guid
 *		Port GUID of master SM.
-*
-*	p_state_mgr
-*		Pointer to the state manager object.
 *
 *	p_subn
 *		Pointer to the Subnet object for this subnet.
@@ -219,7 +215,6 @@ void osm_sm_state_mgr_destroy(IN osm_sm_state_mgr_t * const p_sm_mgr);
 */
 ib_api_status_t
 osm_sm_state_mgr_init(IN osm_sm_state_mgr_t * const p_sm_mgr,
-		      IN osm_state_mgr_t * const p_state_mgr,
 		      IN osm_subn_t * const p_subn,
 		      IN osm_req_t * const p_req, IN osm_log_t * const p_log);
 /*
@@ -227,14 +222,10 @@ osm_sm_state_mgr_init(IN osm_sm_state_mgr_t * const p_sm_mgr,
 *	p_sm_mgr
 *		[in] Pointer to an osm_sm_state_mgr_t object to initialize.
 *
-*
-*  p_state_mgr
-*     [in] Pointer to the State Manager object.
-*
 *	p_subn
 *		[in] Pointer to the Subnet object for this subnet.
 *
-*  p_req
+*	p_req
 *		[in] Pointer to an osm_req_t object.
 *
 *	p_log

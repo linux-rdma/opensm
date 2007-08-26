@@ -78,7 +78,6 @@ osm_signal_t osm_qos_setup(IN osm_opensm_t * p_osm);
 void osm_state_mgr_construct(IN osm_state_mgr_t * const p_mgr)
 {
 	memset(p_mgr, 0, sizeof(*p_mgr));
-	cl_spinlock_construct(&p_mgr->state_lock);
 	cl_spinlock_construct(&p_mgr->idle_lock);
 	p_mgr->state = OSM_SM_STATE_INIT;
 }
@@ -92,7 +91,6 @@ void osm_state_mgr_destroy(IN osm_state_mgr_t * const p_mgr)
 	OSM_LOG_ENTER(p_mgr->p_log, osm_state_mgr_destroy);
 
 	/* destroy the locks */
-	cl_spinlock_destroy(&p_mgr->state_lock);
 	cl_spinlock_destroy(&p_mgr->idle_lock);
 
 	OSM_LOG_EXIT(p_mgr->p_log);
@@ -148,13 +146,6 @@ osm_state_mgr_init(IN osm_state_mgr_t * const p_mgr,
 	p_mgr->state = OSM_SM_STATE_IDLE;
 	p_mgr->p_lock = p_lock;
 	p_mgr->p_subnet_up_event = p_subnet_up_event;
-
-	status = cl_spinlock_init(&p_mgr->state_lock);
-	if (status != CL_SUCCESS) {
-		osm_log(p_mgr->p_log, OSM_LOG_ERROR,
-			"osm_state_mgr_init: ERR 3301: "
-			"Spinlock init failed (%s)\n", CL_STATUS_MSG(status));
-	}
 
 	cl_qlist_init(&p_mgr->idle_time_list);
 
@@ -1791,16 +1782,6 @@ void osm_state_mgr_process(IN osm_state_mgr_t * const p_mgr,
 	if (osm_exit_flag)
 		signal = OSM_SIGNAL_NONE;
 
-	/*
-	 * The state lock prevents many race conditions from screwing
-	 * up the state transition process.  For example, if an function
-	 * puts transactions on the wire, the state lock guarantees this
-	 * loop will see the return code ("DONE PENDING") of the function
-	 * before the "NO OUTSTANDING TRANSACTIONS" signal is asynchronously
-	 * received.
-	 */
-	cl_spinlock_acquire(&p_mgr->state_lock);
-
 	while (signal != OSM_SIGNAL_NONE) {
 		if (osm_log_is_active(p_mgr->p_log, OSM_LOG_DEBUG)) {
 			osm_log(p_mgr->p_log, OSM_LOG_DEBUG,
@@ -2779,8 +2760,6 @@ void osm_state_mgr_process(IN osm_state_mgr_t * const p_mgr,
 
 	}
 
-	cl_spinlock_release(&p_mgr->state_lock);
-
 	OSM_LOG_EXIT(p_mgr->p_log);
 }
 
@@ -2814,7 +2793,8 @@ osm_state_mgr_process_idle(IN osm_state_mgr_t * const p_mgr,
 	cl_qlist_insert_tail(&p_mgr->idle_time_list, &p_idle_item->list_item);
 	cl_spinlock_release(&p_mgr->idle_lock);
 
-	osm_state_mgr_process(p_mgr, OSM_SIGNAL_IDLE_TIME_PROCESS_REQUEST);
+	osm_sm_signal(&p_mgr->p_subn->p_osm->sm,
+		      OSM_SIGNAL_IDLE_TIME_PROCESS_REQUEST);
 
 	OSM_LOG_EXIT(p_mgr->p_log);
 

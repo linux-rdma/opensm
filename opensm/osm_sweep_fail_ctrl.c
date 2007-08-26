@@ -50,6 +50,7 @@
 #include <string.h>
 #include <opensm/osm_sweep_fail_ctrl.h>
 #include <opensm/osm_msgdef.h>
+#include <opensm/osm_sm.h>
 
 /**********************************************************************
  **********************************************************************/
@@ -63,7 +64,7 @@ void __osm_sweep_fail_ctrl_disp_callback(IN void *context, IN void *p_data)
 	/*
 	   Notify the state manager that we had a light sweep failure.
 	 */
-	osm_state_mgr_process(p_ctrl->p_state_mgr, OSM_SIGNAL_LIGHT_SWEEP_FAIL);
+	osm_sm_signal(p_ctrl->sm, OSM_SIGNAL_LIGHT_SWEEP_FAIL);
 
 	OSM_LOG_EXIT(p_ctrl->p_log);
 }
@@ -89,7 +90,7 @@ void osm_sweep_fail_ctrl_destroy(IN osm_sweep_fail_ctrl_t * const p_ctrl)
 ib_api_status_t
 osm_sweep_fail_ctrl_init(IN osm_sweep_fail_ctrl_t * const p_ctrl,
 			 IN osm_log_t * const p_log,
-			 IN osm_state_mgr_t * const p_state_mgr,
+			 IN osm_sm_t * const sm,
 			 IN cl_dispatcher_t * const p_disp)
 {
 	ib_api_status_t status = IB_SUCCESS;
@@ -99,7 +100,7 @@ osm_sweep_fail_ctrl_init(IN osm_sweep_fail_ctrl_t * const p_ctrl,
 	osm_sweep_fail_ctrl_construct(p_ctrl);
 	p_ctrl->p_log = p_log;
 	p_ctrl->p_disp = p_disp;
-	p_ctrl->p_state_mgr = p_state_mgr;
+	p_ctrl->sm = sm;
 
 	p_ctrl->h_disp = cl_disp_register(p_disp,
 					  OSM_MSG_LIGHT_SWEEP_FAIL,

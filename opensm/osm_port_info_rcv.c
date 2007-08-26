@@ -67,6 +67,7 @@
 #include <vendor/osm_vendor_api.h>
 #include <opensm/osm_pkey.h>
 #include <opensm/osm_remote_sm.h>
+#include <opensm/osm_opensm.h>
 
 /**********************************************************************
  **********************************************************************/
@@ -481,7 +482,6 @@ osm_pi_rcv_init(IN osm_pi_rcv_t * const p_rcv,
 		IN osm_req_t * const p_req,
 		IN osm_subn_t * const p_subn,
 		IN osm_log_t * const p_log,
-		IN osm_state_mgr_t * const p_state_mgr,
 		IN cl_plock_t * const p_lock)
 {
 	ib_api_status_t status = IB_SUCCESS;
@@ -493,7 +493,6 @@ osm_pi_rcv_init(IN osm_pi_rcv_t * const p_rcv,
 	p_rcv->p_subn = p_subn;
 	p_rcv->p_lock = p_lock;
 	p_rcv->p_req = p_req;
-	p_rcv->p_state_mgr = p_state_mgr;
 
 	OSM_LOG_EXIT(p_log);
 	return (status);
@@ -629,8 +628,8 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 			"GUID 0x%" PRIx64 " port 0x%016" PRIx64
 			", Commencing heavy sweep\n",
 			cl_ntoh64(node_guid), cl_ntoh64(port_guid));
-		osm_state_mgr_process(p_rcv->p_state_mgr,
-				      OSM_SIGNAL_CHANGE_DETECTED);
+		osm_sm_signal(&p_rcv->p_subn->p_osm->sm,
+			      OSM_SIGNAL_CHANGE_DETECTED);
 		goto Exit;
 	}
 

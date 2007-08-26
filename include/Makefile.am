@@ -87,7 +87,6 @@ EXTRA_DIST = \
 	$(srcdir)/opensm/osm_vl15intf.h \
 	$(srcdir)/opensm/osm_drop_mgr.h \
 	$(srcdir)/opensm/osm_port_info_rcv.h \
-	$(srcdir)/opensm/osm_state_mgr_ctrl.h \
 	$(srcdir)/opensm/osm_perfmgr.h \
 	$(srcdir)/opensm/osm_perfmgr_db.h \
 	$(srcdir)/opensm/osm_qos_policy.h \

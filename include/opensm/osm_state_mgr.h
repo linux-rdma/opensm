@@ -109,7 +109,6 @@ typedef struct _osm_state_mgr {
 	osm_stats_t *p_stats;
 	struct _osm_sm_state_mgr *p_sm_state_mgr;
 	const osm_sm_mad_ctrl_t *p_mad_ctrl;
-	cl_spinlock_t state_lock;
 	cl_spinlock_t idle_lock;
 	cl_qlist_t idle_time_list;
 	cl_plock_t *p_lock;
@@ -150,9 +149,6 @@ typedef struct _osm_state_mgr {
 *
 *	p_mad_ctrl
 *		Pointer to the SM's MAD Controller object.
-*
-*	state_lock
-*		Spinlock guarding the state and processes.
 *
 *	p_lock
 *		lock guarding the subnet object.

@@ -187,7 +187,6 @@ osm_trap_rcv_init(IN osm_trap_rcv_t * const p_rcv,
 		  IN osm_stats_t * const p_stats,
 		  IN osm_resp_t * const p_resp,
 		  IN osm_log_t * const p_log,
-		  IN osm_state_mgr_t * const p_state_mgr,
 		  IN cl_plock_t * const p_lock)
 {
 	ib_api_status_t status = IB_SUCCESS;
@@ -201,7 +200,6 @@ osm_trap_rcv_init(IN osm_trap_rcv_t * const p_rcv,
 	p_rcv->p_lock = p_lock;
 	p_rcv->p_stats = p_stats;
 	p_rcv->p_resp = p_resp;
-	p_rcv->p_state_mgr = p_state_mgr;
 
 	if(cl_event_wheel_init(&p_rcv->trap_aging_tracker)) {
 		osm_log(p_log, OSM_LOG_ERROR,
@@ -665,7 +663,7 @@ __osm_trap_rcv_process_request(IN osm_trap_rcv_t * const p_rcv,
 
 			p_rcv->p_subn->force_immediate_heavy_sweep = TRUE;
 		}
-		osm_state_mgr_process(p_rcv->p_state_mgr, OSM_SIGNAL_SWEEP);
+		osm_sm_signal(&p_rcv->p_subn->p_osm->sm, OSM_SIGNAL_SWEEP);
 	}
 
 	/* If we reached here due to trap 129/130/131 - do not need to do

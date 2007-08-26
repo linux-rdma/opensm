@@ -90,7 +90,6 @@ osm_sminfo_rcv_init(IN osm_sminfo_rcv_t * const p_rcv,
 		    IN osm_stats_t * const p_stats,
 		    IN osm_resp_t * const p_resp,
 		    IN osm_log_t * const p_log,
-		    IN osm_state_mgr_t * const p_state_mgr,
 		    IN osm_sm_state_mgr_t * const p_sm_state_mgr,
 		    IN cl_plock_t * const p_lock)
 {
@@ -105,7 +104,6 @@ osm_sminfo_rcv_init(IN osm_sminfo_rcv_t * const p_rcv,
 	p_rcv->p_lock = p_lock;
 	p_rcv->p_stats = p_stats;
 	p_rcv->p_resp = p_resp;
-	p_rcv->p_state_mgr = p_state_mgr;
 	p_rcv->p_sm_state_mgr = p_sm_state_mgr;
 
 	OSM_LOG_EXIT(p_rcv->p_log);
@@ -387,10 +385,8 @@ __osm_sminfo_rcv_process_set_request(IN const osm_sminfo_rcv_t * const p_rcv,
 }
 
 /**********************************************************************
- * Return a signal with which to call the osm_state_mgr_process.
- * This is done since we are locked by p_rcv->p_lock in this function,
- * and thus cannot call osm_state_mgr_process (that locks the state_lock).
- * If return OSM_SIGNAL_NONE - do not call osm_state_mgr_process.
+ * Return a signal with which to call the osm_sm_signal.
+ * If return OSM_SIGNAL_NONE - do not call osm_sm_signal.
  **********************************************************************/
 static osm_signal_t
 __osm_sminfo_rcv_process_get_sm(IN const osm_sminfo_rcv_t * const p_rcv,
@@ -617,10 +613,10 @@ __osm_sminfo_rcv_process_get_response(IN const osm_sminfo_rcv_t * const p_rcv,
 	CL_PLOCK_RELEASE(p_rcv->p_lock);
 
 	/* If process_get_sm_ret_val != OSM_SIGNAL_NONE then we have to signal
-	 * to the state_mgr with that signal. */
+	 * to the SM with that signal. */
 	if (process_get_sm_ret_val != OSM_SIGNAL_NONE)
-		osm_state_mgr_process(p_rcv->p_state_mgr,
-				      process_get_sm_ret_val);
+		osm_sm_signal(&p_rcv->p_subn->p_osm->sm,
+			      process_get_sm_ret_val);
 
       Exit:
 	OSM_LOG_EXIT(p_rcv->p_log);

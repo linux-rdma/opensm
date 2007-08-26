@@ -49,7 +49,7 @@ opensm_SOURCES = main.c osm_console.c osm_db_files.c \
 		 osm_sa_sw_info_record.c osm_service.c \
 		 osm_slvl_map_rcv.c osm_sm.c osm_sminfo_rcv.c \
 		 osm_sm_mad_ctrl.c osm_sm_state_mgr.c osm_state_mgr.c \
-		 osm_state_mgr_ctrl.c osm_subnet.c \
+		 osm_subnet.c \
 		 osm_sweep_fail_ctrl.c osm_sw_info_rcv.c osm_switch.c \
 		 osm_prtn.c osm_prtn_config.c osm_qos.c osm_router.c \
 		 osm_trap_rcv.c osm_ucast_mgr.c osm_ucast_updn.c \

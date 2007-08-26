@@ -52,11 +52,11 @@
 #include <complib/cl_passivelock.h>
 #include <complib/cl_event.h>
 #include <complib/cl_thread.h>
-#include <opensm/osm_stats.h>
 #include <complib/cl_dispatcher.h>
+#include <vendor/osm_vendor.h>
+#include <opensm/osm_stats.h>
 #include <opensm/osm_subnet.h>
 #include <opensm/osm_vl15intf.h>
-#include <vendor/osm_vendor.h>
 #include <opensm/osm_mad_pool.h>
 #include <opensm/osm_req.h>
 #include <opensm/osm_resp.h>
@@ -66,7 +66,6 @@
 #include <opensm/osm_sw_info_rcv.h>
 #include <opensm/osm_node_desc_rcv.h>
 #include <opensm/osm_sm_mad_ctrl.h>
-#include <opensm/osm_state_mgr_ctrl.h>
 #include <opensm/osm_lid_mgr.h>
 #include <opensm/osm_ucast_mgr.h>
 #include <opensm/osm_link_mgr.h>
@@ -83,6 +82,7 @@
 #include <opensm/osm_port.h>
 #include <opensm/osm_mcast_mgr.h>
 #include <opensm/osm_db.h>
+#include <opensm/osm_state_mgr.h>
 
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
@@ -123,9 +123,11 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_sm {
+typedef struct osm_sm {
 	osm_thread_state_t thread_state;
-	cl_event_t signal;
+	unsigned signal_mask;
+	cl_spinlock_t signal_lock;
+	cl_event_t signal_event;
 	cl_event_t subnet_up_event;
 	cl_thread_t sweeper;
 	osm_subn_t *p_subn;
@@ -144,7 +146,6 @@ typedef struct _osm_sm {
 	osm_nd_rcv_t nd_rcv;
 	osm_sm_mad_ctrl_t mad_ctrl;
 	osm_si_rcv_t si_rcv;
-	osm_state_mgr_ctrl_t state_mgr_ctrl;
 	osm_lid_mgr_t lid_mgr;
 	osm_ucast_mgr_t ucast_mgr;
 	osm_link_mgr_t link_mgr;
@@ -365,6 +366,30 @@ osm_sm_init(IN osm_sm_t * const p_sm,
 *
 * SEE ALSO
 *	SM object, osm_sm_construct, osm_sm_destroy
+*********/
+
+/****f* OpenSM: SM/osm_sm_signal
+* NAME
+*	osm_sm_signal
+*
+* DESCRIPTION
+*	Signal event to SM
+*
+* SYNOPSIS
+*/
+void osm_sm_signal(IN osm_sm_t * const p_sm, osm_signal_t signal);
+/*
+* PARAMETERS
+*	p_sm
+*		[in] Pointer to an osm_sm_t object.
+*
+*	signal
+*		[in] sm signal number.
+*
+* NOTES
+*
+* SEE ALSO
+*	SM object
 *********/
 
 /****f* OpenSM: SM/osm_sm_sweep

@@ -53,7 +53,6 @@
 #include <complib/cl_passivelock.h>
 #include <complib/cl_debug.h>
 #include <time.h>
-#include <opensm/osm_state_mgr.h>
 #include <opensm/osm_madw.h>
 #include <opensm/osm_switch.h>
 #include <opensm/osm_log.h>
@@ -325,7 +324,7 @@ static void __osm_sm_state_mgr_polling_callback(IN void *context)
 		osm_log(p_sm_mgr->p_log, OSM_LOG_VERBOSE,
 			"__osm_sm_state_mgr_polling_callback: "
 			"Signalling subnet_up_event\n");
-		cl_event_signal(p_sm_mgr->p_state_mgr->p_subnet_up_event);
+		cl_event_signal(&p_sm_mgr->p_subn->p_osm->sm.subnet_up_event);
 		goto Exit;
 	}
 
@@ -394,7 +393,6 @@ void osm_sm_state_mgr_destroy(IN osm_sm_state_mgr_t * const p_sm_mgr)
  **********************************************************************/
 ib_api_status_t
 osm_sm_state_mgr_init(IN osm_sm_state_mgr_t * const p_sm_mgr,
-		      IN osm_state_mgr_t * const p_state_mgr,
 		      IN osm_subn_t * const p_subn,
 		      IN osm_req_t * const p_req, IN osm_log_t * const p_log)
 {
@@ -411,7 +409,6 @@ osm_sm_state_mgr_init(IN osm_sm_state_mgr_t * const p_sm_mgr,
 	p_sm_mgr->p_log = p_log;
 	p_sm_mgr->p_req = p_req;
 	p_sm_mgr->p_subn = p_subn;
-	p_sm_mgr->p_state_mgr = p_state_mgr;
 
 	if (p_subn->opt.sm_inactive) {
 		/* init the state of the SM to not active */
@@ -575,8 +572,8 @@ osm_sm_state_mgr_process(IN osm_sm_state_mgr_t * const p_sm_mgr,
 			p_sm_mgr->p_subn->sm_state =
 			    IB_SMINFO_STATE_DISCOVERING;
 			p_sm_mgr->p_subn->coming_out_of_standby = TRUE;
-			osm_state_mgr_process(p_sm_mgr->p_state_mgr,
-					      OSM_SIGNAL_EXIT_STBY);
+			osm_sm_signal(&p_sm_mgr->p_subn->p_osm->sm,
+				      OSM_SIGNAL_EXIT_STBY);
 			break;
 		case OSM_SM_SIGNAL_DISABLE:
 			/*
@@ -609,8 +606,8 @@ osm_sm_state_mgr_process(IN osm_sm_state_mgr_t * const p_sm_mgr,
 			p_sm_mgr->p_subn->master_sm_base_lid =
 			    p_sm_mgr->p_subn->sm_base_lid;
 			p_sm_mgr->p_subn->coming_out_of_standby = TRUE;
-			osm_state_mgr_process(p_sm_mgr->p_state_mgr,
-					      OSM_SIGNAL_EXIT_STBY);
+			osm_sm_signal(&p_sm_mgr->p_subn->p_osm->sm,
+				      OSM_SIGNAL_EXIT_STBY);
 			break;
 		case OSM_SM_SIGNAL_ACKNOWLEDGE:
 			/*
@@ -671,8 +668,8 @@ osm_sm_state_mgr_process(IN osm_sm_state_mgr_t * const p_sm_mgr,
 				"Received OSM_SM_SIGNAL_HANDOVER or OSM_SM_SIGNAL_POLLING_TIMEOUT\n");
 			p_sm_mgr->p_polling_sm = NULL;
 			p_sm_mgr->p_subn->force_immediate_heavy_sweep = TRUE;
-			osm_state_mgr_process(p_sm_mgr->p_state_mgr,
-					      OSM_SIGNAL_SWEEP);
+			osm_sm_signal(&p_sm_mgr->p_subn->p_osm->sm,
+				      OSM_SIGNAL_SWEEP);
 			break;
 		case OSM_SM_SIGNAL_HANDOVER_SENT:
 			/*

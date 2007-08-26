@@ -59,6 +59,7 @@
 #include <opensm/osm_switch.h>
 #include <opensm/osm_subnet.h>
 #include <opensm/osm_helper.h>
+#include <opensm/osm_opensm.h>
 
 /**********************************************************************
  The plock must be held before calling this function.
@@ -519,7 +520,6 @@ osm_si_rcv_init(IN osm_si_rcv_t * const p_rcv,
 		IN osm_subn_t * const p_subn,
 		IN osm_log_t * const p_log,
 		IN osm_req_t * const p_req,
-		IN osm_state_mgr_t * const p_state_mgr,
 		IN cl_plock_t * const p_lock)
 {
 	ib_api_status_t status = IB_SUCCESS;
@@ -531,7 +531,6 @@ osm_si_rcv_init(IN osm_si_rcv_t * const p_rcv,
 	p_rcv->p_subn = p_subn;
 	p_rcv->p_lock = p_lock;
 	p_rcv->p_req = p_req;
-	p_rcv->p_state_mgr = p_state_mgr;
 
 	OSM_LOG_EXIT(p_rcv->p_log);
 	return (status);
@@ -614,8 +613,8 @@ void osm_si_rcv_process(IN void *context, IN void *data)
 			if (__osm_si_rcv_process_existing
 			    (p_rcv, p_node, p_madw)) {
 				CL_PLOCK_RELEASE(p_rcv->p_lock);
-				osm_state_mgr_process(p_rcv->p_state_mgr,
-						      OSM_SIGNAL_CHANGE_DETECTED);
+				osm_sm_signal(&p_rcv->p_subn->p_osm->sm,
+					      OSM_SIGNAL_CHANGE_DETECTED);
 				goto Exit;
 			}
 		}

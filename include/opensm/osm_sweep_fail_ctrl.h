@@ -52,7 +52,6 @@
 #include <complib/cl_dispatcher.h>
 #include <opensm/osm_base.h>
 #include <opensm/osm_madw.h>
-#include <opensm/osm_state_mgr.h>
 #include <opensm/osm_log.h>
 
 #ifdef __cplusplus
@@ -82,6 +81,7 @@ BEGIN_C_DECLS
 *	Steve King, Intel
 *
 *********/
+struct osm_sm;
 /****s* OpenSM: Sweep Fail Controller/osm_sweep_fail_ctrl_t
 * NAME
 *	osm_sweep_fail_ctrl_t
@@ -95,19 +95,19 @@ BEGIN_C_DECLS
 * SYNOPSIS
 */
 typedef struct _osm_sweep_fail_ctrl {
+	struct osm_sm *sm;
 	osm_log_t *p_log;
-	osm_state_mgr_t *p_state_mgr;
 	cl_dispatcher_t *p_disp;
 	cl_disp_reg_handle_t h_disp;
 
 } osm_sweep_fail_ctrl_t;
 /*
 * FIELDS
+*	sm
+*		Pointer to the sm object.
+*
 *	p_log
 *		Pointer to the log object.
-*
-*	p_sate_mgr
-*		Pointer to the state manager object.
 *
 *	p_disp
 *		Pointer to the Dispatcher.
@@ -194,7 +194,7 @@ void osm_sweep_fail_ctrl_destroy(IN osm_sweep_fail_ctrl_t * const p_ctrl);
 ib_api_status_t
 osm_sweep_fail_ctrl_init(IN osm_sweep_fail_ctrl_t * const p_ctrl,
 			 IN osm_log_t * const p_log,
-			 IN osm_state_mgr_t * const p_state_mgr,
+			 IN struct osm_sm * const sm,
 			 IN cl_dispatcher_t * const p_disp);
 /*
 * PARAMETERS
@@ -207,8 +207,8 @@ osm_sweep_fail_ctrl_init(IN osm_sweep_fail_ctrl_t * const p_ctrl,
 *	p_log
 *		[in] Pointer to the log object.
 *
-*	p_state_mgr
-*		[in] Pointer to the state manager object.
+*	sm
+*		[in] Pointer to the sm object.
 *
 *	p_disp
 *		[in] Pointer to the OpenSM central Dispatcher.

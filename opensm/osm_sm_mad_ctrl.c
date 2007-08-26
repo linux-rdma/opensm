@@ -74,7 +74,6 @@ __osm_sm_mad_ctrl_retire_trans_mad(IN osm_sm_mad_ctrl_t * const p_ctrl,
 				   IN osm_madw_t * const p_madw)
 {
 	uint32_t outstanding;
-	cl_status_t status;
 
 	OSM_LOG_ENTER(p_ctrl->p_log, __osm_sm_mad_ctrl_retire_trans_mad);
 
@@ -101,30 +100,16 @@ __osm_sm_mad_ctrl_retire_trans_mad(IN osm_sm_mad_ctrl_t * const p_ctrl,
 	if (outstanding == 0) {
 		/*
 		   The wire is clean.
-		   Signal the state manager.
+		   Signal the subnet manager.
 		 */
-		if (osm_log_is_active(p_ctrl->p_log, OSM_LOG_DEBUG))
-			osm_log(p_ctrl->p_log, OSM_LOG_DEBUG,
-				"__osm_sm_mad_ctrl_retire_trans_mad: "
-				"Posting Dispatcher message %s\n",
-				osm_get_disp_msg_str
-				(OSM_MSG_NO_SMPS_OUTSTANDING));
+		osm_log(p_ctrl->p_log, OSM_LOG_DEBUG,
+			"__osm_sm_mad_ctrl_retire_trans_mad: "
+			"signal OSM_SIGNAL_NO_PENDING_TRANSACTIONS\n");
 
-		status = cl_disp_post(p_ctrl->h_disp,
-				      OSM_MSG_NO_SMPS_OUTSTANDING, (void *)
-				      OSM_SIGNAL_NO_PENDING_TRANSACTIONS, NULL,
-				      NULL);
-
-		if (status != CL_SUCCESS) {
-			osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
-				"__osm_sm_mad_ctrl_retire_trans_mad: ERR 3101: "
-				"Dispatcher post message failed (%s)\n",
-				CL_STATUS_MSG(status));
-			goto Exit;
-		}
+		osm_sm_signal(&p_ctrl->p_subn->p_osm->sm,
+			      OSM_SIGNAL_NO_PENDING_TRANSACTIONS);
 	}
 
-      Exit:
 	OSM_LOG_EXIT(p_ctrl->p_log);
 }
 

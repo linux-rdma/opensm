@@ -57,7 +57,6 @@
 #include <opensm/osm_resp.h>
 #include <opensm/osm_remote_sm.h>
 #include <opensm/osm_log.h>
-#include <opensm/osm_state_mgr.h>
 
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
@@ -102,7 +101,6 @@ typedef struct _osm_trap_rcv {
 	osm_stats_t *p_stats;
 	osm_log_t *p_log;
 	osm_resp_t *p_resp;
-	osm_state_mgr_t *p_state_mgr;
 	cl_plock_t *p_lock;
 	cl_event_wheel_t trap_aging_tracker;
 } osm_trap_rcv_t;
@@ -119,9 +117,6 @@ typedef struct _osm_trap_rcv {
 *
 *	p_resp
 *		Pointer to the generic MAD responder object.
-*
-*	p_state_mgr
-*		Pointer to the State Manager object.
 *
 *	p_lock
 *		Pointer to the serializing lock.
@@ -210,7 +205,6 @@ ib_api_status_t osm_trap_rcv_init(IN osm_trap_rcv_t * const p_rcv,
 				  IN osm_stats_t * const p_stats,
 				  IN osm_resp_t * const p_resp,
 				  IN osm_log_t * const p_log,
-				  IN osm_state_mgr_t * const p_state_mgr,
 				  IN cl_plock_t * const p_lock);
 /*
 * PARAMETERS
@@ -228,9 +222,6 @@ ib_api_status_t osm_trap_rcv_init(IN osm_trap_rcv_t * const p_rcv,
 *
 *	p_log
 *		[in] Pointer to the log object.
-*
-*	p_state_mgr
-*		[in] Pointer to the State Manager object.
 *
 *	p_lock
 *		[in] Pointer to the OpenSM serializing lock.

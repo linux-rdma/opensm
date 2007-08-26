@@ -130,27 +130,12 @@ BEGIN_C_DECLS
 *
 * SOURCE
 ***********/
-/****d* OpenSM: Dispatcher Messages/OSM_MSG_NO_SMPS_OUTSTANDING
-* NAME
-*   OSM_MSG_NO_SMPS_OUTSTANDING
-*
-* DESCRIPTION
-*   Message indicating that there are no outstanding SMPs on the subnet.
-*
-* NOTES
-*   Sent by:                osm_mad_ctrl_t
-*   Received by:            osm_state_mgr_ctrl_t
-*   Delivery notice:        no
-*
-* SOURCE
-***********/
 enum {
 	OSM_MSG_NONE = 0,
 	OSM_MSG_MAD_NODE_INFO,
 	OSM_MSG_MAD_PORT_INFO,
 	OSM_MSG_MAD_SWITCH_INFO,
 	OSM_MSG_MAD_NODE_DESC,
-	OSM_MSG_NO_SMPS_OUTSTANDING,
 	OSM_MSG_MAD_NODE_RECORD,
 	OSM_MSG_MAD_PORTINFO_RECORD,
 	OSM_MSG_MAD_SERVICE_RECORD,
