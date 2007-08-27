@@ -243,5 +243,34 @@ ib_api_status_t osm_prtn_make_partitions(IN osm_log_t * const p_log,
 * SEE ALSO
 *********/
 
+/****f* OpenSM: Partition/osm_prtn_find_by_name
+* NAME
+*	osm_prtn_find_by_name
+*
+* DESCRIPTION
+* 	Fides partition by name.
+*
+* SYNOPSIS
+*/
+osm_prtn_t *
+osm_prtn_find_by_name(
+	IN osm_subn_t *p_subn,
+	IN const char *name);
+/*
+* PARAMETERS
+*	p_subn
+*		[in] Pointer to a subnet object.
+*
+*	name
+*		[in] Required partition name.
+*
+* RETURN VALUES
+*	Pointer to the partition object on success.
+*
+* NOTES
+*
+* SEE ALSO
+*********/
+
 END_C_DECLS
 #endif				/* _OSM_PARTITION_H_ */

@@ -265,7 +265,7 @@ static uint16_t __generate_pkey(osm_subn_t * p_subn)
 	return 0;
 }
 
-static osm_prtn_t *find_prtn_by_name(osm_subn_t * p_subn, const char *name)
+osm_prtn_t *osm_prtn_find_by_name(osm_subn_t * p_subn, const char *name)
 {
 	cl_map_item_t *p_next;
 	osm_prtn_t *p;
@@ -289,7 +289,7 @@ osm_prtn_t *osm_prtn_make_new(osm_log_t * p_log, osm_subn_t * p_subn,
 	pkey &= cl_hton16((uint16_t) ~ 0x8000);
 
 	if (!pkey) {
-		if (name && (p = find_prtn_by_name(p_subn, name)))
+		if (name && (p = osm_prtn_find_by_name(p_subn, name)))
 			return p;
 		if (!(pkey = __generate_pkey(p_subn)))
 			return NULL;
