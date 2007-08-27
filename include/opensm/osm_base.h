@@ -224,6 +224,23 @@ BEGIN_C_DECLS
 #define OSM_DEFAULT_PARTITION_CONFIG_FILE "/etc/ofa/opensm-partitions.conf"
 #endif
 /***********/
+
+/****d* OpenSM: Base/OSM_DEFAULT_QOS_POLICY_FILE
+* NAME
+*	OSM_DEFAULT_QOS_POLICY_FILE
+*
+* DESCRIPTION
+*	Specifies the default QoS policy file name
+*
+* SYNOPSIS
+*/
+#ifdef __WIN__
+#define OSM_DEFAULT_QOS_POLICY_FILE strcat(GetOsmCachePath(), "osm-qos-policy.conf")
+#else
+#define OSM_DEFAULT_QOS_POLICY_FILE "/etc/ofa/opensm-qos-policy.conf"
+#endif
+/***********/
+
 /****d* OpenSM: Base/OSM_DEFAULT_SWEEP_INTERVAL_SECS
 * NAME
 *	OSM_DEFAULT_SWEEP_INTERVAL_SECS

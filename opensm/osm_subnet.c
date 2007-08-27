@@ -452,6 +452,7 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * const p_opt)
 	p_opt->partition_config_file = OSM_DEFAULT_PARTITION_CONFIG_FILE;
 	p_opt->no_partition_enforcement = FALSE;
 	p_opt->no_qos = TRUE;
+	p_opt->qos_policy_file = OSM_DEFAULT_QOS_POLICY_FILE;
 	p_opt->accum_log_file = TRUE;
 	p_opt->port_profile_switch_nodes = FALSE;
 	p_opt->pfn_ui_pre_lid_assign = NULL;
@@ -1178,6 +1179,9 @@ ib_api_status_t osm_subn_parse_conf_file(IN osm_subn_opt_t * const p_opts)
 
 		opts_unpack_boolean("no_qos", p_key, p_val, &p_opts->no_qos);
 
+		opts_unpack_charp("qos_policy_file",
+				    p_key, p_val, &p_opts->qos_policy_file);
+
 		opts_unpack_boolean("accum_log_file",
 				    p_key, p_val, &p_opts->accum_log_file);
 
@@ -1541,7 +1545,11 @@ ib_api_status_t osm_subn_write_conf_file(IN osm_subn_opt_t * const p_opts)
 	fprintf(opts_file,
 		"#\n# QoS OPTIONS\n#\n"
 		"# Disable QoS setup\n"
-		"no_qos %s\n\n", p_opts->no_qos ? "TRUE" : "FALSE");
+		"no_qos %s\n\n"
+		"# QoS policy file to be used\n"
+		"qos_policy_file %s\n\n",
+		p_opts->no_qos ? "TRUE" : "FALSE",
+		p_opts->qos_policy_file);
 
 	subn_dump_qos_options(opts_file,
 			      "QoS default options", "qos",

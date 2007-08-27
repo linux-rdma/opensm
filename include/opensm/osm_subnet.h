@@ -68,6 +68,7 @@ BEGIN_C_DECLS
 #define OSM_SUBNET_VECTOR_GROW_SIZE			1
 #define OSM_SUBNET_VECTOR_CAPACITY			256
 struct _osm_opensm_t;
+struct _osm_qos_policy_t;
 
 /****h* OpenSM/Subnet
 * NAME
@@ -257,6 +258,7 @@ typedef struct _osm_subn_opt {
 	char *partition_config_file;
 	boolean_t no_partition_enforcement;
 	boolean_t no_qos;
+	char *qos_policy_file;
 	boolean_t accum_log_file;
 	char *console;
 	uint16_t console_port;
@@ -397,6 +399,13 @@ typedef struct _osm_subn_opt {
 *		This option defines maximal log file size in MB. When
 *		specified the log file will be truncated upon reaching
 *		this limit.
+*
+*	no_qos
+*		Boolean that specifies whether the OpenSM QoS functionality
+*		should be off or on.
+*
+*	qos_policy_file
+*		Name of the QoS policy file.
 *
 *	accum_log_file
 *		If TRUE (default) - the log file will be accumulated.
@@ -551,6 +560,7 @@ typedef struct _osm_subn {
 	ib_net64_t sm_port_guid;
 	uint8_t sm_state;
 	osm_subn_opt_t opt;
+	struct _osm_qos_policy_t *p_qos_policy;
 	uint16_t max_unicast_lid_ho;
 	uint16_t max_multicast_lid_ho;
 	uint8_t min_ca_mtu;
@@ -618,6 +628,9 @@ typedef struct _osm_subn {
 *
 *	opt
 *		Subnet options structure contains site specific configuration.
+*
+*	p_qos_policy
+*		Subnet QoS policy structure.
 *
 *	max_unicast_lid_ho
 *		The minimal max unicast lid reported by all switches

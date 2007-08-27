@@ -269,6 +269,10 @@ void show_usage(void)
 	       "          The default name is \'"
 	       OSM_DEFAULT_PARTITION_CONFIG_FILE "\'.\n\n");
 	printf("-Q\n" "--qos\n" "          This option enables QoS setup.\n\n");
+	printf("-Y\n"
+	       "--qos_policy_file\n"
+	       "          This option defines the optional QoS policy file.\n"
+	       "          The default name is \'" OSM_DEFAULT_QOS_POLICY_FILE "\'.\n\n");
 	printf("-N\n"
 	       "--no_part_enforce\n"
 	       "          This option disables partition enforcement on switch external ports.\n\n");
@@ -580,7 +584,7 @@ int main(int argc, char *argv[])
 	char *ignore_guids_file_name = NULL;
 	uint32_t val;
 	const char *const short_option =
-	    "i:f:ed:g:l:L:s:t:a:u:R:zM:U:S:P:NBIQvVhorcyxp:n:q:k:C:";
+	    "i:f:ed:g:l:L:s:t:a:u:R:zM:U:S:P:Y:NBIQvVhorcyxp:n:q:k:C:";
 
 	/*
 	   In the array below, the 2nd parameter specifies the number
@@ -604,6 +608,7 @@ int main(int argc, char *argv[])
 		{"Pconfig", 1, NULL, 'P'},
 		{"no_part_enforce", 0, NULL, 'N'},
 		{"qos", 0, NULL, 'Q'},
+		{"qos_policy_file", 1, NULL, 'Y'},
 		{"maxsmps", 1, NULL, 'n'},
 		{"console", 1, NULL, 'q'},
 		{"V", 0, NULL, 'V'},
@@ -821,6 +826,11 @@ int main(int argc, char *argv[])
 
 		case 'Q':
 			opt.no_qos = FALSE;
+			break;
+
+		case 'Y':
+			opt.qos_policy_file = optarg;
+			printf(" QoS policy file \'%s\'\n", optarg);
 			break;
 
 		case 'y':
