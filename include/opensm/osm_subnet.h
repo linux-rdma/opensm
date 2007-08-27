@@ -1118,28 +1118,28 @@ ib_api_status_t osm_subn_parse_conf_file(IN osm_subn_opt_t * const p_opt);
 *	Subnet object, osm_subn_construct, osm_subn_destroy
 *********/
 
-/****f* OpenSM: Subnet/osm_subn_parse_conf_file
+/****f* OpenSM: Subnet/osm_subn_parse_conf_files
 * NAME
-*	osm_subn_rescan_conf_file
+*	osm_subn_rescan_conf_files
 *
 * DESCRIPTION
-*	The osm_subn_rescan_conf_file function parses the configuration
-*	file and update selected subnet options
+*	The osm_subn_rescan_conf_files function parses the configuration
+*	files and update selected subnet options
 *
 * SYNOPSIS
 */
-ib_api_status_t osm_subn_rescan_conf_file(IN osm_subn_opt_t * const p_opts);
+ib_api_status_t osm_subn_rescan_conf_files(IN osm_subn_t * const p_subn);
 /*
 * PARAMETERS
 *
-*	p_opt
-*		[in] Pointer to the subnet options structure.
+*	p_subn
+*		[in] Pointer to the subnet structure.
 *
 * RETURN VALUES
 *	IB_SUCCESS, IB_ERROR
 *
 * NOTES
-*  This uses the same file as osm_subn_parse_conf_file()
+*  This uses the same file as osm_subn_parse_conf_files()
 *
 *********/
 

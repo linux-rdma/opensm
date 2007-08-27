@@ -1878,7 +1878,7 @@ void osm_state_mgr_process(IN osm_state_mgr_t * const p_mgr,
 					p_mgr->p_subn->subnet_initialization_error = FALSE;
 
 					/* rescan configuration updates */
-					status = osm_subn_rescan_conf_file(&p_mgr->p_subn->opt);
+					status = osm_subn_rescan_conf_files(p_mgr->p_subn);
 					if (status != IB_SUCCESS) {
 						osm_log(p_mgr->p_log,
 							OSM_LOG_ERROR,

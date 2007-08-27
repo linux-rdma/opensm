@@ -69,6 +69,7 @@
 #include <opensm/osm_console.h>
 #include <opensm/osm_perfmgr.h>
 #include <opensm/osm_event_plugin.h>
+#include <opensm/osm_qos_policy.h>
 
 #if defined(PATH_MAX)
 #define OSM_PATH_MAX	(PATH_MAX + 1)
@@ -677,7 +678,7 @@ subn_dump_qos_options(FILE * file,
 
 /**********************************************************************
  **********************************************************************/
-ib_api_status_t osm_subn_rescan_conf_file(IN osm_subn_opt_t * const p_opts)
+ib_api_status_t osm_subn_rescan_conf_files(IN osm_subn_t * const p_subn)
 {
 	char *p_cache_dir = getenv("OSM_CACHE_DIR");
 	char file_name[OSM_PATH_MAX];
@@ -704,27 +705,31 @@ ib_api_status_t osm_subn_rescan_conf_file(IN osm_subn_opt_t * const p_opts)
 
 			subn_parse_qos_options("qos",
 					       p_key, p_val,
-					       &p_opts->qos_options);
+					       &p_subn->opt.qos_options);
 
 			subn_parse_qos_options("qos_ca",
 					       p_key, p_val,
-					       &p_opts->qos_ca_options);
+					       &p_subn->opt.qos_ca_options);
 
 			subn_parse_qos_options("qos_sw0",
 					       p_key, p_val,
-					       &p_opts->qos_sw0_options);
+					       &p_subn->opt.qos_sw0_options);
 
 			subn_parse_qos_options("qos_swe",
 					       p_key, p_val,
-					       &p_opts->qos_swe_options);
+					       &p_subn->opt.qos_swe_options);
 
 			subn_parse_qos_options("qos_rtr",
 					       p_key, p_val,
-					       &p_opts->qos_rtr_options);
+					       &p_subn->opt.qos_rtr_options);
 
 		}
 	}
 	fclose(opts_file);
+
+	/* read QoS policy config file */
+	if (!p_subn->opt.no_qos)
+		osm_qos_parse_policy_file(p_subn);
 
 	return IB_SUCCESS;
 }
