@@ -167,6 +167,8 @@ void osm_subn_destroy(IN osm_subn_t * const p_subn)
 	cl_ptr_vector_destroy(&p_subn->port_lid_tbl);
 	cl_map_remove_all(&(p_subn->opt.port_prof_ignore_guids));
 	cl_map_destroy(&(p_subn->opt.port_prof_ignore_guids));
+
+	osm_qos_policy_destroy(p_subn->p_qos_policy);
 }
 
 /**********************************************************************
