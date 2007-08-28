@@ -51,6 +51,7 @@
 #include <errno.h>
 #include <ctype.h>
 #include <sys/time.h>
+#include <signal.h>
 #include <opensm/osm_console.h>
 #include <opensm/osm_version.h>
 #include <complib/cl_passivelock.h>

@@ -49,7 +49,6 @@
 #define _OSM_OPENSM_H_
 
 #include <stdio.h>
-#include <signal.h>
 #include <complib/cl_dispatcher.h>
 #include <complib/cl_passivelock.h>
 #include <complib/cl_atomic.h>

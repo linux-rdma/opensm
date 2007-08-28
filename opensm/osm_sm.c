@@ -51,10 +51,11 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <iba/ib_types.h>
 #include <complib/cl_qmap.h>
 #include <complib/cl_passivelock.h>
 #include <complib/cl_debug.h>
-#include <iba/ib_types.h>
+#include <complib/cl_thread.h>
 #include <opensm/osm_sm.h>
 #include <opensm/osm_madw.h>
 #include <opensm/osm_log.h>
@@ -62,8 +63,6 @@
 #include <opensm/osm_msgdef.h>
 #include <opensm/osm_mcast_mgr.h>
 #include <opensm/osm_mcm_info.h>
-#include <complib/cl_thread.h>
-#include <signal.h>
 
 #define  OSM_SM_INITIAL_TID_VALUE 0x1233
 
