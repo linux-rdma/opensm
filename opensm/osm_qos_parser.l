@@ -109,6 +109,8 @@ static void reset_new_line_flags();
 
 %}
 
+%option nounput
+
 PORT_GROUPS_START       port\-groups
 PORT_GROUPS_END         end\-port\-groups
 PORT_GROUP_START        port\-group
