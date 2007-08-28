@@ -129,6 +129,7 @@ typedef struct osm_sm {
 	cl_spinlock_t signal_lock;
 	cl_event_t signal_event;
 	cl_event_t subnet_up_event;
+	cl_timer_t sweep_timer;
 	cl_thread_t sweeper;
 	osm_subn_t *p_subn;
 	osm_db_t *p_db;

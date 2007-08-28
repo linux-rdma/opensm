@@ -83,9 +83,7 @@ static void __osm_sm_sweeper(IN void *p_ptr)
 		 * signaling the event.
 		 */
 		status = cl_event_wait_on(&p_sm->signal_event,
-					  p_sm->p_subn->opt.sweep_interval ?
-					  p_sm->p_subn->opt.sweep_interval *
-					  1000000 : EVENT_NO_TIMEOUT, TRUE);
+					  EVENT_NO_TIMEOUT, TRUE);
 
 		if (status == CL_SUCCESS)
 			osm_log(p_sm->p_log, OSM_LOG_DEBUG,
@@ -104,18 +102,23 @@ static void __osm_sm_sweeper(IN void *p_ptr)
 		p_sm->signal_mask = 0;
 		cl_spinlock_release(&p_sm->signal_lock);
 
-		/*  do the sweep only if we are in MASTER state */
-		if (status == CL_TIMEOUT &&
-		    (p_sm->p_subn->sm_state == IB_SMINFO_STATE_MASTER ||
-		     p_sm->p_subn->sm_state == IB_SMINFO_STATE_DISCOVERING))
-			signals |= 1 << OSM_SIGNAL_SWEEP;
-
 		for (i = 0 ; signals ; signals >>= 1 , i++)
 			if (signals&1)
 				osm_state_mgr_process(&p_sm->state_mgr, i);
 	}
 
 	OSM_LOG_EXIT(p_sm->p_log);
+}
+
+static void sm_sweep(void *arg)
+{
+	osm_sm_t *sm = arg;
+
+	/*  do the sweep only if we are in MASTER state */
+	if (sm->p_subn->sm_state == IB_SMINFO_STATE_MASTER ||
+	    sm->p_subn->sm_state == IB_SMINFO_STATE_DISCOVERING)
+		osm_sm_signal(sm, OSM_SIGNAL_SWEEP);
+	cl_timer_start(&sm->sweep_timer, sm->p_subn->opt.sweep_interval*1000);
 }
 
 /**********************************************************************
@@ -176,6 +179,7 @@ void osm_sm_shutdown(IN osm_sm_t * const p_sm)
 	if (signal_event)
 		cl_event_signal(&p_sm->signal_event);
 
+	cl_timer_stop(&p_sm->sweep_timer);
 	cl_thread_destroy(&p_sm->sweeper);
 
 	/*
@@ -225,6 +229,7 @@ void osm_sm_destroy(IN osm_sm_t * const p_sm)
 	osm_state_mgr_destroy(&p_sm->state_mgr);
 	osm_sm_state_mgr_destroy(&p_sm->sm_state_mgr);
 	osm_mcast_mgr_destroy(&p_sm->mcast_mgr);
+	cl_timer_destroy(&p_sm->sweep_timer);
 	cl_event_destroy(&p_sm->signal_event);
 	cl_event_destroy(&p_sm->subnet_up_event);
 	cl_spinlock_destroy(&p_sm->signal_lock);
@@ -268,6 +273,10 @@ osm_sm_init(IN osm_sm_t * const p_sm,
 		goto Exit;
 
 	status = cl_event_init(&p_sm->subnet_up_event, FALSE);
+	if (status != CL_SUCCESS)
+		goto Exit;
+
+	status = cl_timer_init(&p_sm->sweep_timer, sm_sweep, p_sm);
 	if (status != CL_SUCCESS)
 		goto Exit;
 
@@ -480,6 +489,10 @@ osm_sm_init(IN osm_sm_t * const p_sm,
 				"opensm sweeper");
 	if (status != IB_SUCCESS)
 		goto Exit;
+
+	if (p_sm->p_subn->opt.sweep_interval)
+		cl_timer_start(&p_sm->sweep_timer,
+			       p_sm->p_subn->opt.sweep_interval*1000);
 
       Exit:
 	OSM_LOG_EXIT(p_log);
