@@ -63,7 +63,7 @@ osm_qos_parser_y.c: $(srcdir)/osm_qos_parser.y $(srcdir)/../include/opensm/osm_q
 	$(YACC) -y -d $(srcdir)/osm_qos_parser.y -o $(srcdir)/osm_qos_parser_y.c --defines=$(srcdir)/../include/opensm/osm_qos_parser_y.h --name-prefix=__qos_parser_
 
 osm_qos_parser_l.c: $(srcdir)/osm_qos_parser.l $(srcdir)/../include/opensm/osm_qos_policy.h
-	$(LEX) --prefix=__qos_parser_ -o $(srcdir)/osm_qos_parser_l.c $(srcdir)/osm_qos_parser.l
+	$(LEX) -P__qos_parser_ -o$(srcdir)/osm_qos_parser_l.c $(srcdir)/osm_qos_parser.l
 
 if OSMV_OPENIB
 opensm_CFLAGS = -Wall $(OSMV_CFLAGS) -fno-strict-aliasing -DVENDOR_RMPP_SUPPORT -DDUAL_SIDED_RMPP $(DBGFLAGS) -D_XOPEN_SOURCE=600 -D_BSD_SOURCE=1
