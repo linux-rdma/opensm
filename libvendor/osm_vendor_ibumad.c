@@ -1120,16 +1120,18 @@ osm_vendor_send(IN osm_bind_handle_t h_bind,
 			     sent_mad_size,
 			     resp_expected ? p_vend->timeout : 0,
 			     p_vend->max_retries)) < 0) {
-		if (resp_expected)
-			get_madw(p_vend, &p_mad->trans_id);	/* remove from aging table */
 		osm_log(p_vend->p_log, OSM_LOG_ERROR,
 			"osm_vendor_send: ERR 5430: "
 			"Send p_madw = %p of size %d failed %d (%m)\n",
 			p_madw, sent_mad_size, ret);
-		p_madw->status = IB_ERROR;
-		pthread_mutex_lock(&p_vend->cb_mutex);
-		(*p_bind->send_err_callback) (p_bind->client_context, p_madw);	/* cb frees madw */
-		pthread_mutex_unlock(&p_vend->cb_mutex);
+		if (resp_expected) {
+			get_madw(p_vend, &p_mad->trans_id);	/* remove from aging table */
+			p_madw->status = IB_ERROR;
+			pthread_mutex_lock(&p_vend->cb_mutex);
+			(*p_bind->send_err_callback) (p_bind->client_context, p_madw);	/* cb frees madw */
+			pthread_mutex_unlock(&p_vend->cb_mutex);
+		} else
+			osm_mad_pool_put(p_bind->p_mad_pool, p_madw);
 		goto Exit;
 	}
 
