@@ -322,7 +322,7 @@ osmv_txnmgr_init(IN osmv_txn_mgr_t * p_tx_mgr,
 	 * We tell the Event Wheel run in a non-protected manner in the reg/unreg calls,
 	 * and acquire an external lock in the asynchronous callback.
 	 */
-	cl_st = cl_event_wheel_init_ex(p_tx_mgr->p_event_wheel, p_log, p_lock);
+	cl_st = cl_event_wheel_init_ex(p_tx_mgr->p_event_wheel, p_lock);
 	if (cl_st != CL_SUCCESS) {
 		free(p_tx_mgr->p_event_wheel);
 		return (ib_api_status_t) cl_st;
