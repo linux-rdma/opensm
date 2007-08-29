@@ -401,7 +401,6 @@ osm_sm_state_mgr_init(IN osm_sm_state_mgr_t * const p_sm_mgr,
 	OSM_LOG_ENTER(p_log, osm_sm_state_mgr_init);
 
 	CL_ASSERT(p_subn);
-	CL_ASSERT(p_state_mgr);
 	CL_ASSERT(p_req);
 
 	osm_sm_state_mgr_construct(p_sm_mgr);
