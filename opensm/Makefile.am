@@ -60,7 +60,8 @@ opensm_SOURCES = main.c osm_console.c osm_db_files.c \
 		 osm_qos_parser_y.c osm_qos_parser_l.c osm_qos_policy.c
 
 osm_qos_parser_y.c: $(srcdir)/osm_qos_parser.y $(srcdir)/../include/opensm/osm_qos_policy.h
-	$(YACC) -y -d $(srcdir)/osm_qos_parser.y -o $(srcdir)/osm_qos_parser_y.c --defines=$(srcdir)/../include/opensm/osm_qos_parser_y.h --name-prefix=__qos_parser_
+	$(YACC) -d -o $(srcdir)/osm_qos_parser_y.c -p__qos_parser_ $(srcdir)/osm_qos_parser.y
+	mv -f y.tab.h $(srcdir)/../include/opensm/osm_qos_parser_y.h
 
 osm_qos_parser_l.c: $(srcdir)/osm_qos_parser.l $(srcdir)/../include/opensm/osm_qos_policy.h
 	$(LEX) -P__qos_parser_ -o$(srcdir)/osm_qos_parser_l.c $(srcdir)/osm_qos_parser.l
