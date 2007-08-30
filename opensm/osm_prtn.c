@@ -198,7 +198,6 @@ ib_api_status_t osm_prtn_add_mcgroup(osm_log_t * p_log,
 	osm_mgrp_t *p_mgrp = NULL;
 	osm_sa_t *p_sa = &p_subn->p_osm->sa;
 	ib_api_status_t status = IB_SUCCESS;
-	uint8_t ts_scope;
 
 	pkey = p->pkey | cl_hton16(0x8000);
 
@@ -239,9 +238,11 @@ ib_api_status_t osm_prtn_add_mcgroup(osm_log_t * p_log,
 	mc_rec.mgid = osm_ts_ipoib_mgid;
 	memcpy(&mc_rec.mgid.raw[4], &pkey, sizeof(pkey));
 	/* Scope in MCMemberRecord (if present) needs to be consistent with MGID */
-	ts_scope = ib_mgid_get_scope(&osm_ts_ipoib_mgid);	/* get scope from MGID */
 	mc_rec.scope_state =
-	    ib_member_set_scope_state(ts_scope, MC_FULL_MEMBER);
+	    ib_member_set_scope_state(scope ? scope : OSM_DEFAULT_MGRP_SCOPE,
+				      MC_FULL_MEMBER);
+	ib_mgid_set_scope(&mc_rec.mgid, scope ? scope : OSM_DEFAULT_MGRP_SCOPE);
+
 	status =
 	    osm_mcmr_rcv_find_or_create_new_mgrp(&p_sa->mcmr_rcv, comp_mask,
 						 &mc_rec, &p_mgrp);
