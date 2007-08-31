@@ -60,7 +60,7 @@
 BEGIN_C_DECLS
 #include <complib/cl_qlist.h>
 #include <pthread.h>
-    typedef enum _cl_timer_state {
+typedef enum _cl_timer_state {
 	CL_TIMER_IDLE,
 	CL_TIMER_QUEUED,
 	CL_TIMER_RUNNING
@@ -74,7 +74,6 @@ typedef struct _cl_timer_t {
 	const void *context;
 	pthread_cond_t cond;
 	struct timespec timeout;
-
 } cl_timer_t;
 
 /* Internal functions to create the timer provider. */

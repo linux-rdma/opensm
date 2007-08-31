@@ -46,7 +46,6 @@ void cl_event_construct(IN cl_event_t * p_event)
 {
 	CL_ASSERT(p_event);
 
-	cl_spinlock_construct(&p_event->spinlock);
 	p_event->state = CL_UNINITIALIZED;
 }
 
@@ -58,7 +57,7 @@ cl_event_init(IN cl_event_t * const p_event, IN const boolean_t manual_reset)
 	cl_event_construct(p_event);
 
 	pthread_cond_init(&p_event->condvar, NULL);
-	cl_spinlock_init(&p_event->spinlock);
+	pthread_mutex_init(&p_event->mutex, NULL);
 	p_event->signaled = FALSE;
 	p_event->manual_reset = manual_reset;
 	p_event->state = CL_INITIALIZED;
@@ -74,9 +73,9 @@ void cl_event_destroy(IN cl_event_t * const p_event)
 	if (p_event->state == CL_INITIALIZED) {
 		pthread_cond_broadcast(&p_event->condvar);
 		pthread_cond_destroy(&p_event->condvar);
+		pthread_mutex_destroy(&p_event->mutex);
 	}
 
-	cl_spinlock_destroy(&p_event->spinlock);
 	p_event->state = CL_UNINITIALIZED;
 }
 
@@ -85,7 +84,7 @@ cl_status_t cl_event_signal(IN cl_event_t * const p_event)
 	/* Make sure that the event was started */
 	CL_ASSERT(p_event->state == CL_INITIALIZED);
 
-	cl_spinlock_acquire(&p_event->spinlock);
+	pthread_mutex_lock(&p_event->mutex);
 	p_event->signaled = TRUE;
 	/* Wake up one or all depending on whether the event is auto-resetting. */
 	if (p_event->manual_reset)
@@ -93,7 +92,7 @@ cl_status_t cl_event_signal(IN cl_event_t * const p_event)
 	else
 		pthread_cond_signal(&p_event->condvar);
 
-	cl_spinlock_release(&p_event->spinlock);
+	pthread_mutex_unlock(&p_event->mutex);
 
 	return (CL_SUCCESS);
 }
@@ -103,9 +102,9 @@ cl_status_t cl_event_reset(IN cl_event_t * const p_event)
 	/* Make sure that the event was started */
 	CL_ASSERT(p_event->state == CL_INITIALIZED);
 
-	cl_spinlock_acquire(&p_event->spinlock);
+	pthread_mutex_lock(&p_event->mutex);
 	p_event->signaled = FALSE;
-	cl_spinlock_release(&p_event->spinlock);
+	pthread_mutex_unlock(&p_event->mutex);
 
 	return (CL_SUCCESS);
 }
@@ -122,27 +121,27 @@ cl_event_wait_on(IN cl_event_t * const p_event,
 	/* Make sure that the event was Started */
 	CL_ASSERT(p_event->state == CL_INITIALIZED);
 
-	cl_spinlock_acquire(&p_event->spinlock);
+	pthread_mutex_lock(&p_event->mutex);
 
 	/* Return immediately if the event is signalled. */
 	if (p_event->signaled) {
 		if (!p_event->manual_reset)
 			p_event->signaled = FALSE;
 
-		cl_spinlock_release(&p_event->spinlock);
+		pthread_mutex_unlock(&p_event->mutex);
 		return (CL_SUCCESS);
 	}
 
 	/* If just testing the state, return CL_TIMEOUT. */
 	if (wait_us == 0) {
-		cl_spinlock_release(&p_event->spinlock);
+		pthread_mutex_unlock(&p_event->mutex);
 		return (CL_TIMEOUT);
 	}
 
 	if (wait_us == EVENT_NO_TIMEOUT) {
 		/* Wait for condition variable to be signaled or broadcast. */
 		if (pthread_cond_wait
-		    (&p_event->condvar, &p_event->spinlock.mutex))
+		    (&p_event->condvar, &p_event->mutex))
 			status = CL_NOT_DONE;
 		else
 			status = CL_SUCCESS;
@@ -154,8 +153,8 @@ cl_event_wait_on(IN cl_event_t * const p_event,
 			    (curtime.tv_usec + (wait_us % 1000000)) * 1000;
 
 			wait_ret = pthread_cond_timedwait(&p_event->condvar,
-							  &p_event->spinlock.
-							  mutex, &timeout);
+							  &p_event->mutex,
+							  &timeout);
 			if (wait_ret == 0)
 				status =
 				    (p_event->
@@ -171,6 +170,6 @@ cl_event_wait_on(IN cl_event_t * const p_event,
 	if (!p_event->manual_reset)
 		p_event->signaled = FALSE;
 
-	cl_spinlock_release(&p_event->spinlock);
+	pthread_mutex_unlock(&p_event->mutex);
 	return (status);
 }

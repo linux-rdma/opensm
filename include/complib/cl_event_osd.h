@@ -47,7 +47,6 @@
 #define _CL_EVENT_OSD_H_
 
 #include <complib/cl_types.h>
-#include <complib/cl_spinlock.h>
 
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
@@ -63,13 +62,12 @@ BEGIN_C_DECLS
  * Linux user mode specific data structure for the event object.
  * Users should not access these variables directly.
  */
-    typedef struct _cl_event_t {
+typedef struct _cl_event_t {
 	pthread_cond_t condvar;
+	pthread_mutex_t mutex;
 	boolean_t signaled;
 	boolean_t manual_reset;
-	cl_spinlock_t spinlock;
 	cl_state_t state;
-
 } cl_event_t;
 
 END_C_DECLS
