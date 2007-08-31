@@ -198,8 +198,12 @@ ib_api_status_t osm_prtn_add_mcgroup(osm_log_t * p_log,
 	osm_mgrp_t *p_mgrp = NULL;
 	osm_sa_t *p_sa = &p_subn->p_osm->sa;
 	ib_api_status_t status = IB_SUCCESS;
+	uint8_t hop_limit;
 
 	pkey = p->pkey | cl_hton16(0x8000);
+	if (! scope)
+	    scope = OSM_DEFAULT_MGRP_SCOPE;
+	hop_limit = (scope == MC_SCOPE_LINK_LOCAL) ? 0 : IB_HOPLIMIT_MAX;
 
 	memset(&mc_rec, 0, sizeof(mc_rec));
 
@@ -212,12 +216,10 @@ ib_api_status_t osm_prtn_add_mcgroup(osm_log_t * p_log,
 	mc_rec.pkey = pkey;
 	mc_rec.rate = (rate ? rate : OSM_DEFAULT_MGRP_RATE) | (2 << 6);	/* 10Gb/sec */
 	mc_rec.pkt_life = OSM_DEFAULT_SUBNET_TIMEOUT;
-	mc_rec.sl_flow_hop = ib_member_set_sl_flow_hop(p->sl, 0, 0);
+	mc_rec.sl_flow_hop = ib_member_set_sl_flow_hop(p->sl, 0, hop_limit);
 	/* Scope in MCMemberRecord (if present) needs to be consistent with MGID */
-	mc_rec.scope_state =
-	    ib_member_set_scope_state(scope ? scope : OSM_DEFAULT_MGRP_SCOPE,
-				      MC_FULL_MEMBER);
-	ib_mgid_set_scope(&mc_rec.mgid, scope ? scope : OSM_DEFAULT_MGRP_SCOPE);
+	mc_rec.scope_state = ib_member_set_scope_state(scope, MC_FULL_MEMBER);
+	ib_mgid_set_scope(&mc_rec.mgid, scope);
 
 	/* don't update rate, mtu */
 	comp_mask = IB_MCR_COMPMASK_MTU | IB_MCR_COMPMASK_MTU_SEL |
@@ -238,10 +240,8 @@ ib_api_status_t osm_prtn_add_mcgroup(osm_log_t * p_log,
 	mc_rec.mgid = osm_ts_ipoib_mgid;
 	memcpy(&mc_rec.mgid.raw[4], &pkey, sizeof(pkey));
 	/* Scope in MCMemberRecord (if present) needs to be consistent with MGID */
-	mc_rec.scope_state =
-	    ib_member_set_scope_state(scope ? scope : OSM_DEFAULT_MGRP_SCOPE,
-				      MC_FULL_MEMBER);
-	ib_mgid_set_scope(&mc_rec.mgid, scope ? scope : OSM_DEFAULT_MGRP_SCOPE);
+	mc_rec.scope_state = ib_member_set_scope_state(scope, MC_FULL_MEMBER);
+	ib_mgid_set_scope(&mc_rec.mgid, scope);
 
 	status =
 	    osm_mcmr_rcv_find_or_create_new_mgrp(&p_sa->mcmr_rcv, comp_mask,
