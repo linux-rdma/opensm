@@ -98,7 +98,8 @@ opensminclude_HEADERS = $(srcdir)/../include/opensm/osm_base.h \
 			$(srcdir)/../include/opensm/osm_madw.h \
 			$(srcdir)/../include/opensm/osm_mad_pool.h \
 			$(srcdir)/../include/opensm/osm_msgdef.h \
-			$(srcdir)/../include/opensm/osm_helper.h
+			$(srcdir)/../include/opensm/osm_helper.h \
+			$(srcdir)/../include/opensm/osm_event_plugin.h
 
 # headers are distributed as part of the include dir
 EXTRA_DIST = $(srcdir)/libopensm.map $(srcdir)/libopensm.ver \
