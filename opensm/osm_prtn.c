@@ -201,8 +201,8 @@ ib_api_status_t osm_prtn_add_mcgroup(osm_log_t * p_log,
 	uint8_t hop_limit;
 
 	pkey = p->pkey | cl_hton16(0x8000);
-	if (! scope)
-	    scope = OSM_DEFAULT_MGRP_SCOPE;
+	if (!scope)
+		scope = OSM_DEFAULT_MGRP_SCOPE;
 	hop_limit = (scope == MC_SCOPE_LINK_LOCAL) ? 0 : IB_HOPLIMIT_MAX;
 
 	memset(&mc_rec, 0, sizeof(mc_rec));
