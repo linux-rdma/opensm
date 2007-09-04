@@ -1658,6 +1658,17 @@ static inline boolean_t OSM_API ib_class_is_rmpp(IN const uint8_t class_code)
 */
 #define IB_PATH_REC_SL_MASK				0x000F
 
+/****d* IBA Base: Constants/IB_MULTIPATH_REC_SL_MASK
+* NAME
+*	IB_MILTIPATH_REC_SL_MASK
+*
+* DESCRIPTION
+*	Mask for the sl field for MultiPath record
+*
+* SOURCE
+*/
+#define IB_MULTIPATH_REC_SL_MASK			0x000F
+
 /****d* IBA Base: Constants/IB_PATH_REC_QOS_CLASS_MASK
 * NAME
 *	IB_PATH_REC_QOS_CLASS_MASK
@@ -1668,6 +1679,17 @@ static inline boolean_t OSM_API ib_class_is_rmpp(IN const uint8_t class_code)
 * SOURCE
 */
 #define IB_PATH_REC_QOS_CLASS_MASK			0xFFF0
+
+/****d* IBA Base: Constants/IB_MULTIPATH_REC_QOS_CLASS_MASK
+* NAME
+*	IB_MULTIPATH_REC_QOS_CLASS_MASK
+*
+* DESCRIPTION
+*	Mask for the QoS class field for MultiPath record
+*
+* SOURCE
+*/
+#define IB_MULTIPATH_REC_QOS_CLASS_MASK			0xFFF0
 
 /****d* IBA Base: Constants/IB_PATH_REC_SELECTOR_MASK
 * NAME
@@ -2589,7 +2611,7 @@ typedef struct _ib_path_rec {
 #define IB_MPR_COMPMASK_REVERSIBLE	(CL_HTON64(((uint64_t)1)<<5))
 #define IB_MPR_COMPMASK_NUMBPATH	(CL_HTON64(((uint64_t)1)<<6))
 #define IB_MPR_COMPMASK_PKEY		(CL_HTON64(((uint64_t)1)<<7))
-#define IB_MPR_COMPMASK_RESV1		(CL_HTON64(((uint64_t)1)<<8))
+#define IB_MPR_COMPMASK_QOS_CLASS	(CL_HTON64(((uint64_t)1)<<8))
 #define IB_MPR_COMPMASK_SL		(CL_HTON64(((uint64_t)1)<<9))
 #define IB_MPR_COMPMASK_MTUSELEC	(CL_HTON64(((uint64_t)1)<<10))
 #define IB_MPR_COMPMASK_MTU		(CL_HTON64(((uint64_t)1)<<11))
@@ -2597,12 +2619,12 @@ typedef struct _ib_path_rec {
 #define IB_MPR_COMPMASK_RATE		(CL_HTON64(((uint64_t)1)<<13))
 #define IB_MPR_COMPMASK_PKTLIFETIMESELEC (CL_HTON64(((uint64_t)1)<<14))
 #define IB_MPR_COMPMASK_PKTLIFETIME	(CL_HTON64(((uint64_t)1)<<15))
-#define IB_MPR_COMPMASK_RESV2		(CL_HTON64(((uint64_t)1)<<16))
+#define IB_MPR_COMPMASK_SERVICEID_MSB	(CL_HTON64(((uint64_t)1)<<16))
 #define IB_MPR_COMPMASK_INDEPSELEC	(CL_HTON64(((uint64_t)1)<<17))
 #define IB_MPR_COMPMASK_RESV3		(CL_HTON64(((uint64_t)1)<<18))
 #define IB_MPR_COMPMASK_SGIDCOUNT	(CL_HTON64(((uint64_t)1)<<19))
 #define IB_MPR_COMPMASK_DGIDCOUNT	(CL_HTON64(((uint64_t)1)<<20))
-#define IB_MPR_COMPMASK_RESV4		(CL_HTON64(((uint64_t)1)<<21))
+#define IB_MPR_COMPMASK_SERVICEID_LSB	(CL_HTON64(((uint64_t)1)<<21))
 
 /* SMInfo Record Component Masks */
 #define IB_SMIR_COMPMASK_LID		(CL_HTON64(((uint64_t)1)<<0))
@@ -5861,16 +5883,15 @@ typedef struct _ib_multipath_rec_t {
 	uint8_t tclass;
 	uint8_t num_path;
 	ib_net16_t pkey;
-	uint8_t resv0;
-	uint8_t sl;
+	ib_net16_t qos_class_sl;
 	uint8_t mtu;
 	uint8_t rate;
 	uint8_t pkt_life;
-	uint8_t resv1;
+	uint8_t service_id_8msb;
 	uint8_t independence;	/* formerly resv2 */
 	uint8_t sgid_count;
 	uint8_t dgid_count;
-	uint8_t resv3[7];
+	uint8_t service_id_56lsb[7];
 	ib_gid_t gids[IB_MULTIPATH_MAX_GIDS];
 } PACK_SUFFIX ib_multipath_rec_t;
 #include <complib/cl_packoff.h>
@@ -5890,8 +5911,8 @@ typedef struct _ib_multipath_rec_t {
 *       pkey
 *               Partition key (P_Key) to use on this path.
 *
-*       sl
-*               Service level to use on this path.
+*       qos_class_sl
+*               QoS class and service level to use on this path.
 *
 *       mtu
 *               MTU and MTU selector fields to use on this path
@@ -5900,6 +5921,12 @@ typedef struct _ib_multipath_rec_t {
 *
 *       pkt_life
 *               Packet lifetime
+*
+*	service_id_8msb
+*		8 most significant bits of Service ID
+*
+*	service_id_56lsb
+*		56 least significant bits of Service ID
 *
 *       preference
 *               Indicates the relative merit of this path versus other path
@@ -5937,6 +5964,41 @@ ib_multipath_rec_num_path(IN const ib_multipath_rec_t * const p_rec)
 *       ib_multipath_rec_t
 *********/
 
+/****f* IBA Base: Types/ib_multipath_rec_set_sl
+* NAME
+*	ib_multipath_rec_set_sl
+*
+* DESCRIPTION
+*	Set path service level.
+*
+* SYNOPSIS
+*/
+static inline void	OSM_API
+ib_multipath_rec_set_sl(
+	IN ib_multipath_rec_t* const p_rec,
+	IN const uint8_t sl )
+{
+	p_rec->qos_class_sl =
+		(p_rec->qos_class_sl & CL_HTON16(IB_MULTIPATH_REC_QOS_CLASS_MASK)) |
+			cl_hton16(sl & IB_MULTIPATH_REC_SL_MASK);
+}
+/*
+* PARAMETERS
+*	p_rec
+*		[in] Pointer to the MultiPath record object.
+*
+*	sl
+*		[in] Service level to set.
+*
+* RETURN VALUES
+*	None
+*
+* NOTES
+*
+* SEE ALSO
+*	ib_multipath_rec_t
+*********/
+
 /****f* IBA Base: Types/ib_multipath_rec_sl
 * NAME
 *       ib_multipath_rec_sl
@@ -5949,7 +6011,7 @@ ib_multipath_rec_num_path(IN const ib_multipath_rec_t * const p_rec)
 static inline uint8_t OSM_API
 ib_multipath_rec_sl(IN const ib_multipath_rec_t * const p_rec)
 {
-	return ((uint8_t) ((cl_ntoh16(p_rec->sl)) & 0xF));
+	return ((uint8_t) ((cl_ntoh16(p_rec->qos_class_sl)) & IB_MULTIPATH_REC_SL_MASK));
 }
 
 /*
@@ -5964,6 +6026,70 @@ ib_multipath_rec_sl(IN const ib_multipath_rec_t * const p_rec)
 *
 * SEE ALSO
 *       ib_multipath_rec_t
+*********/
+
+/****f* IBA Base: Types/ib_multipath_rec_set_qos_class
+* NAME
+*	ib_multipath_rec_set_qos_class
+*
+* DESCRIPTION
+*	Set path QoS class.
+*
+* SYNOPSIS
+*/
+static inline void	OSM_API
+ib_multipath_rec_set_qos_class(
+	IN ib_multipath_rec_t* const p_rec,
+	IN const uint16_t qos_class )
+{
+	p_rec->qos_class_sl =
+		(p_rec->qos_class_sl & CL_HTON16(IB_MULTIPATH_REC_SL_MASK)) |
+			cl_hton16(qos_class << 4);
+}
+/*
+* PARAMETERS
+*	p_rec
+*		[in] Pointer to the MultiPath record object.
+*
+*	qos_class
+*		[in] QoS class to set.
+*
+* RETURN VALUES
+*	None
+*
+* NOTES
+*
+* SEE ALSO
+*	ib_multipath_rec_t
+*********/
+
+/****f* IBA Base: Types/ib_multipath_rec_qos_class
+* NAME
+*	ib_multipath_rec_qos_class
+*
+* DESCRIPTION
+*	Get QoS class.
+*
+* SYNOPSIS
+*/
+static inline uint16_t	OSM_API
+ib_multipath_rec_qos_class(
+	IN	const	ib_multipath_rec_t* const	p_rec )
+{
+	return (cl_ntoh16( p_rec->qos_class_sl ) >> 4);
+}
+/*
+* PARAMETERS
+*	p_rec
+*		[in] Pointer to the MultiPath record object.
+*
+* RETURN VALUES
+*	QoS class of the MultiPath record.
+*
+* NOTES
+*
+* SEE ALSO
+*	ib_multipath_rec_t
 *********/
 
 /****f* IBA Base: Types/ib_multipath_rec_mtu
@@ -6162,6 +6288,41 @@ ib_multipath_rec_pkt_life_sel(IN const ib_multipath_rec_t * const p_rec)
 *
 * SEE ALSO
 *       ib_multipath_rec_t
+*********/
+
+/****f* IBA Base: Types/ib_multipath_rec_service_id
+* NAME
+*	ib_multipath_rec_service_id
+*
+* DESCRIPTION
+*	Get multipath service id.
+*
+* SYNOPSIS
+*/
+static inline uint64_t OSM_API
+ib_multipath_rec_service_id(IN const ib_multipath_rec_t * const p_rec)
+{
+	union {
+		ib_net64_t sid;
+		uint8_t sid_arr[8];
+	} sid_union;
+	sid_union.sid_arr[0] = p_rec->service_id_8msb;
+	memcpy(&sid_union.sid_arr[1], p_rec->service_id_56lsb, 7);
+	return sid_union.sid;
+}
+
+/*
+* PARAMETERS
+*	p_rec
+*		[in] Pointer to the multipath record object.
+*
+* RETURN VALUES
+*	Service ID
+*
+* NOTES
+*
+* SEE ALSO
+*	ib_multipath_rec_t
 *********/
 
 #define IB_NUM_PKEY_ELEMENTS_IN_BLOCK		32

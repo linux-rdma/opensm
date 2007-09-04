@@ -840,7 +840,8 @@ osmv_query_sa(IN osm_bind_handle_t h_bind,
 		else
 			multipath_rec.num_path &= ~0x80;
 		multipath_rec.pkey = p_mpr_req->pkey;
-		multipath_rec.sl = p_mpr_req->sl;
+		ib_multipath_rec_set_sl(&multipath_rec, p_mpr_req->sl);
+		ib_multipath_rec_set_qos_class(&multipath_rec, 0);
 		multipath_rec.independence = p_mpr_req->independence;
 		multipath_rec.sgid_count = p_mpr_req->sgid_count;
 		multipath_rec.dgid_count = p_mpr_req->dgid_count;

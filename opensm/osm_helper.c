@@ -1131,29 +1131,30 @@ osm_dump_multipath_record(IN osm_log_t * const p_log,
 			"\t\t\t\ttclass..................0x%X\n"
 			"\t\t\t\tnum_path_revers.........0x%X\n"
 			"\t\t\t\tpkey....................0x%X\n"
-			"\t\t\t\tresv0...................0x%X\n"
+			"\t\t\t\tqos_class...............0x%X\n"
 			"\t\t\t\tsl......................0x%X\n"
 			"\t\t\t\tmtu.....................0x%X\n"
 			"\t\t\t\trate....................0x%X\n"
 			"\t\t\t\tpkt_life................0x%X\n"
-			"\t\t\t\tresv1...................0x%X\n"
 			"\t\t\t\tindependence............0x%X\n"
 			"\t\t\t\tsgid_count..............0x%X\n"
 			"\t\t\t\tdgid_count..............0x%X\n"
+			"\t\t\t\tservice_id..............0x%016" PRIx64 "\n"
 			"%s\n"
 			"",
 			cl_ntoh32(p_mpr->hop_flow_raw),
 			p_mpr->tclass,
 			p_mpr->num_path,
 			cl_ntoh16(p_mpr->pkey),
-			p_mpr->resv0,
-			cl_ntoh16(p_mpr->sl),
+			ib_multipath_rec_qos_class(p_mpr),
+			ib_multipath_rec_sl(p_mpr),
 			p_mpr->mtu,
 			p_mpr->rate,
 			p_mpr->pkt_life,
-			p_mpr->resv1,
 			p_mpr->independence,
-			p_mpr->sgid_count, p_mpr->dgid_count, buf_line);
+			p_mpr->sgid_count, p_mpr->dgid_count,
+			ib_multipath_rec_service_id(p_mpr),
+			buf_line);
 	}
 }
 
