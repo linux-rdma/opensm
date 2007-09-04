@@ -1153,7 +1153,7 @@ osm_dump_multipath_record(IN osm_log_t * const p_log,
 			p_mpr->pkt_life,
 			p_mpr->independence,
 			p_mpr->sgid_count, p_mpr->dgid_count,
-			ib_multipath_rec_service_id(p_mpr),
+			cl_ntoh64(ib_multipath_rec_service_id(p_mpr)),
 			buf_line);
 	}
 }

@@ -6299,7 +6299,7 @@ ib_multipath_rec_pkt_life_sel(IN const ib_multipath_rec_t * const p_rec)
 *
 * SYNOPSIS
 */
-static inline uint64_t OSM_API
+static inline ib_net64_t OSM_API
 ib_multipath_rec_service_id(IN const ib_multipath_rec_t * const p_rec)
 {
 	union {
