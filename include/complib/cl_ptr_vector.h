@@ -103,7 +103,7 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-    typedef void
+typedef void
  (*cl_pfn_ptr_vec_apply_t) (IN const size_t index,
 			    IN void *const element, IN void *context);
 /*

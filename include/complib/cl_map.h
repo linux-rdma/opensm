@@ -112,10 +112,9 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-    typedef struct _cl_map {
+typedef struct _cl_map {
 	cl_qmap_t qmap;
 	cl_qpool_t pool;
-
 } cl_map_t;
 /*
 * FIELDS

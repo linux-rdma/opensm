@@ -76,5 +76,5 @@ BEGIN_C_DECLS
 #define cl_ntoh64(x)	(x)
 #define cl_hton64(x)	(x)
 #endif
-    END_C_DECLS
+END_C_DECLS
 #endif				/* _CL_BYTESWAP_OSD_H_ */

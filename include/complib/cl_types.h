@@ -69,12 +69,12 @@ typedef uint64_t net64_t;
 #ifndef ASSERT_VOIDP2UINTN
 #if __WORDSIZE == 64
 #define ASSERT_VOIDP2UINTN(var) \
-        CL_ASSERT( (intptr_t)var <= 0xffffffffffffffffL )
+	CL_ASSERT( (intptr_t)var <= 0xffffffffffffffffL )
 #else				/*  __WORDSIZE == 64 */
 #if __WORDSIZE == 32
   /* need to cast carefully to avoid the warining of un-needed check */
 #define ASSERT_VOIDP2UINTN(var) \
-        CL_ASSERT( (intptr_t)var <= 0x100000000ULL )
+	CL_ASSERT( (intptr_t)var <= 0x100000000ULL )
 #else				/*  __WORDSIZE == 32 */
 #error "Need to know WORDSIZE to tell how to cast to unsigned long int"
 #endif				/*  __WORDSIZE == 32 */

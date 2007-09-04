@@ -77,8 +77,7 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-    typedef void
- (*cl_pfn_thread_callback_t) (IN void *context);
+typedef void (*cl_pfn_thread_callback_t) (IN void *context);
 /*
 * PARAMETERS
 *	context

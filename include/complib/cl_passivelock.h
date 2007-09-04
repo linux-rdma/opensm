@@ -97,7 +97,7 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-    typedef struct _cl_plock {
+typedef struct _cl_plock {
 	pthread_rwlock_t lock;
 	cl_state_t state;
 } cl_plock_t;

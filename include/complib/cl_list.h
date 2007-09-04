@@ -120,10 +120,9 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-    typedef struct _cl_list {
+typedef struct _cl_list {
 	cl_qlist_t list;
 	cl_qpool_t list_item_pool;
-
 } cl_list_t;
 /*
 * FIELDS

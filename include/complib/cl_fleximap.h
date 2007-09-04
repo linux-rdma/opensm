@@ -120,7 +120,7 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-    typedef struct _cl_fmap_item {
+typedef struct _cl_fmap_item {
 	/* Must be first to allow casting. */
 	cl_pool_item_t pool_item;
 	struct _cl_fmap_item *p_left;
@@ -131,7 +131,6 @@ BEGIN_C_DECLS
 #ifdef _DEBUG_
 	struct _cl_fmap *p_map;
 #endif
-
 } cl_fmap_item_t;
 /*
 * FIELDS

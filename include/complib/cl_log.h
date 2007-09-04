@@ -75,7 +75,7 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-    typedef enum _cl_log_type {
+typedef enum _cl_log_type {
 	CL_LOG_INFO,
 	CL_LOG_WARN,
 	CL_LOG_ERROR

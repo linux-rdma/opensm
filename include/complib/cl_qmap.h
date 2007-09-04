@@ -115,7 +115,7 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-    typedef enum _cl_map_color {
+typedef enum _cl_map_color {
 	CL_MAP_RED,
 	CL_MAP_BLACK
 } cl_map_color_t;

@@ -94,8 +94,7 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-    typedef void
- (*cl_pfn_timer_callback_t) (IN void *context);
+typedef void (*cl_pfn_timer_callback_t) (IN void *context);
 /*
 * PARAMETERS
 *	context

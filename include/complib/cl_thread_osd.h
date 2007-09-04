@@ -59,7 +59,7 @@ BEGIN_C_DECLS
 #include <complib/cl_event.h>
 #include <pthread.h>
 /* Linux user mode thread object structure definition. */
-    typedef struct _cl_thread_osd_t {
+typedef struct _cl_thread_osd_t {
 	pthread_t id;
 	cl_state_t state;
 

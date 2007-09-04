@@ -91,10 +91,9 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-    typedef struct _cl_qlock_pool {
+typedef struct _cl_qlock_pool {
 	cl_spinlock_t lock;
 	cl_qpool_t pool;
-
 } cl_qlock_pool_t;
 /*
 * FIELDS

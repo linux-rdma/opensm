@@ -96,7 +96,7 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-    typedef struct _cl_thread_pool {
+typedef struct _cl_thread_pool {
 	void (*pfn_callback) (void *);
 	void *context;
 	unsigned running_count;

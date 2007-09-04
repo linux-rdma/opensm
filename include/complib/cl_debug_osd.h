@@ -93,5 +93,5 @@ BEGIN_C_DECLS
 #define _CL_DBG_ERROR	\
 	("%s%s%s() !ERROR!: ", __MODULE__, __MOD_DELIMITER__, __func__)
 #define CL_CHK_STK
-    END_C_DECLS
+END_C_DECLS
 #endif				/* _CL_DEBUG_OSD_H_ */

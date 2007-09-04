@@ -139,5 +139,5 @@ BEGIN_C_DECLS
 #define ROUNDUP(val, align)	\
 	((((val) / (align))*(align)) + (((val) % (align)) ? (align) : 0))
 #endif
-    END_C_DECLS
+END_C_DECLS
 #endif				/* _CL_MATH_H_ */

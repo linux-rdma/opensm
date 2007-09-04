@@ -117,13 +117,12 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-    typedef struct _cl_pool_item {
+typedef struct _cl_pool_item {
 	cl_list_item_t list_item;
 #ifdef _DEBUG_
 	/* Pointer to the owner pool used for sanity checks. */
 	struct _cl_qcpool *p_pool;
 #endif
-
 } cl_pool_item_t;
 /*
 * FIELDS

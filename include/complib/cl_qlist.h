@@ -118,13 +118,12 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-    typedef struct _cl_list_item {
+typedef struct _cl_list_item {
 	struct _cl_list_item *p_next;
 	struct _cl_list_item *p_prev;
 #ifdef _DEBUG_
 	struct _cl_qlist *p_list;
 #endif
-
 } cl_list_item_t;
 /*
 * FIELDS
