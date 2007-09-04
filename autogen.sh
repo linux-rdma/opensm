@@ -62,13 +62,20 @@ fi
 
 # visit all sub directories with autogen.sh
 anyErr=0
-for a in `ls */autogen.sh`; do
-    echo Visiting $a
-    $a 2>&1 | sed 's/^/| /' | grep -v "arning: underquoted definition"
-    if test $? != 0; then
-        echo $a failed
-        anyErr=1
-    fi
+for a in include complib libvendor opensm osmtest osmeventplugin ; do
+	dir=`dirname $a`
+	test -d ${dir}/config || mkdir ${dir}/config
+	echo Visiting $a
+	( cd $a && \
+	set -x && \
+	aclocal -I config -I ../config && \
+	libtoolize --force --copy && \
+	autoheader && \
+	automake --foreign --add-missing --copy && \
+	autoconf ) \
+	2>&1 | sed 's/^/| /' | grep -v "arning: underquoted definition"
+	if test $? != 0; then
+		echo $a failed
+		anyErr=1
+	fi
 done
-
-exit $anyErr
