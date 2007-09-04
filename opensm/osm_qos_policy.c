@@ -640,7 +640,8 @@ static osm_qos_match_rule_t *__qos_policy_get_match_rule_by_pr(
 		   to have a matching Service ID to match the rule */
 
 		if (p_qos_match_rule->service_id_range_len) {
-			if (!(comp_mask & IB_PR_COMPMASK_SERVICEID)) {
+			if (!(comp_mask & IB_PR_COMPMASK_SERVICEID_MSB) ||
+			    !(comp_mask & IB_PR_COMPMASK_SERVICEID_LSB)) {
 				list_iterator = cl_list_next(list_iterator);
 				continue;
 			}
@@ -648,7 +649,7 @@ static osm_qos_match_rule_t *__qos_policy_get_match_rule_by_pr(
 			if (!__is_num_in_range_arr
 			    (p_qos_match_rule->service_id_range_arr,
 			     p_qos_match_rule->service_id_range_len,
-			     p_pr->service_id)) {
+			     cl_ntoh64(p_pr->service_id))) {
 				list_iterator = cl_list_next(list_iterator);
 				continue;
 			}
@@ -667,7 +668,7 @@ static osm_qos_match_rule_t *__qos_policy_get_match_rule_by_pr(
 			if (!__is_num_in_range_arr
 			    (p_qos_match_rule->pkey_range_arr,
 			     p_qos_match_rule->pkey_range_len,
-			     ib_path_rec_qos_class(p_pr))) {
+			     cl_ntoh16(p_pr->pkey))) {
 				list_iterator = cl_list_next(list_iterator);
 				continue;
 			}

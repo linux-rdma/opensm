@@ -2379,7 +2379,8 @@ typedef struct _ib_path_rec {
 *********/
 
 /* Path Record Component Masks */
-#define  IB_PR_COMPMASK_SERVICEID         (CL_HTON64(((uint64_t)1)<<1))
+#define  IB_PR_COMPMASK_SERVICEID_MSB     (CL_HTON64(((uint64_t)1)<<0))
+#define  IB_PR_COMPMASK_SERVICEID_LSB     (CL_HTON64(((uint64_t)1)<<1))
 #define  IB_PR_COMPMASK_DGID              (CL_HTON64(((uint64_t)1)<<2))
 #define  IB_PR_COMPMASK_SGID              (CL_HTON64(((uint64_t)1)<<3))
 #define  IB_PR_COMPMASK_DLID              (CL_HTON64(((uint64_t)1)<<4))
