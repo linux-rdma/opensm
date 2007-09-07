@@ -67,6 +67,7 @@
 #include <opensm/osm_multicast.h>
 #include <opensm/osm_partition.h>
 #include <opensm/osm_opensm.h>
+#include <opensm/osm_qos_policy.h>
 #ifdef ROUTER_EXP
 #include <opensm/osm_router.h>
 #include <opensm/osm_sa_mcmember_record.h>
@@ -236,8 +237,9 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 {
 	const osm_node_t *p_node;
 	const osm_physp_t *p_physp;
+	const osm_physp_t *p_src_physp;
 	const osm_physp_t *p_dest_physp;
-	const osm_prtn_t *p_prtn;
+	const osm_prtn_t *p_prtn = NULL;
 	const ib_port_info_t *p_pi;
 	ib_api_status_t status = IB_SUCCESS;
 	ib_net16_t pkey;
@@ -248,7 +250,12 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 	uint8_t required_rate;
 	uint8_t required_pkt_life;
 	uint8_t sl;
+	uint8_t in_port_num;
 	ib_net16_t dest_lid;
+	uint8_t i;
+	ib_slvl_table_t *p_slvl_tbl = NULL;
+	osm_qos_level_t *p_qos_level = NULL;
+	uint16_t valid_sl_mask = 0xffff;
 
 	OSM_LOG_ENTER(p_rcv->p_log, __osm_pr_rcv_get_path_parms);
 
@@ -256,6 +263,7 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 
 	p_dest_physp = p_dest_port->p_physp;
 	p_physp = p_src_port->p_physp;
+	p_src_physp = p_physp;
 	p_pi = &p_physp->port_info;
 
 	mtu = ib_port_info_get_mtu_cap(p_pi);
@@ -289,12 +297,11 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 
 	if (p_node->sw) {
 		/*
-		 * If the dest_lid_ho is equal to the lid of the switch pointed by
-		 * p_sw then p_physp will be the physical port of the switch port zero.
+		 * Source node is a switch.
+		 * Make sure that p_physp points to the out port of the
+		 * switch that routes to the destination lid (dest_lid_ho)
 		 */
-		p_physp =
-		    osm_switch_get_route_by_lid(p_node->sw,
-						cl_ntoh16(dest_lid_ho));
+		p_physp = osm_switch_get_route_by_lid(p_node->sw, dest_lid);
 		if (p_physp == 0) {
 			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
 				"__osm_pr_rcv_get_path_parms: ERR 1F02: "
@@ -306,15 +313,40 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 		}
 	}
 
+	if (!p_rcv->p_subn->opt.no_qos) {
+
+		/*
+		 * Whether this node is switch or CA, the IN port for
+		 * the sl2vl table is 0, because this is a source node.
+		 */
+		p_slvl_tbl = osm_physp_get_slvl_tbl(p_physp, 0);
+
+		/* update valid SLs that still exist on this route */
+		for (i = 0; i < IB_MAX_NUM_VLS; i++) {
+			if (valid_sl_mask & (1 << i) &&
+			    ib_slvl_table_get(p_slvl_tbl, i) == IB_DROP_VL)
+				valid_sl_mask &= ~(1 << i);
+		}
+		if (!valid_sl_mask) {
+			if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG))
+				osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+					"__osm_pr_rcv_get_path_parms: "
+					"All the SLs lead to VL15 on this path\n");
+			status = IB_NOT_FOUND;
+			goto Exit;
+		}
+	}
+
 	/*
 	 * Same as above
 	 */
 	p_node = osm_physp_get_node_ptr(p_dest_physp);
 
 	if (p_node->sw) {
-		p_dest_physp =
-		    osm_switch_get_route_by_lid(p_node->sw,
-						cl_ntoh16(dest_lid_ho));
+		/*
+		 * if destination is switch, we want p_dest_physp to point to port 0
+		 */
+		p_dest_physp = osm_switch_get_route_by_lid(p_node->sw, dest_lid);
 
 		if (p_dest_physp == 0) {
 			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
@@ -328,7 +360,13 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 
 	}
 
+	/*
+	 * Now go through the path step by step
+	 */
+
 	while (p_physp != p_dest_physp) {
+
+		p_node = osm_physp_get_node_ptr(p_physp);
 		p_physp = osm_physp_get_remote(p_physp);
 
 		if (p_physp == 0) {
@@ -340,6 +378,8 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 			status = IB_ERROR;
 			goto Exit;
 		}
+
+		in_port_num = osm_physp_get_port_num(p_physp);
 
 		/*
 		   This is point to point case (no switch in between)
@@ -367,29 +407,11 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 		 */
 		p_pi = &p_physp->port_info;
 
-		if (mtu > ib_port_info_get_mtu_cap(p_pi)) {
+		if (mtu > ib_port_info_get_mtu_cap(p_pi))
 			mtu = ib_port_info_get_mtu_cap(p_pi);
-			if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG))
-				osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
-					"__osm_pr_rcv_get_path_parms: "
-					"New smallest MTU = %u at intervening port 0x%016"
-					PRIx64 " port num 0x%X\n", mtu,
-					cl_ntoh64(osm_physp_get_port_guid
-						  (p_physp)),
-					osm_physp_get_port_num(p_physp));
-		}
 
-		if (rate > ib_port_info_compute_rate(p_pi)) {
+		if (rate > ib_port_info_compute_rate(p_pi))
 			rate = ib_port_info_compute_rate(p_pi);
-			if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG))
-				osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
-					"__osm_pr_rcv_get_path_parms: "
-					"New smallest rate = %u at intervening port 0x%016"
-					PRIx64 " port num 0x%X\n", rate,
-					cl_ntoh64(osm_physp_get_port_guid
-						  (p_physp)),
-					osm_physp_get_port_num(p_physp));
-		}
 
 		/*
 		   Continue with the egress port on this switch.
@@ -406,35 +428,36 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 			goto Exit;
 		}
 
-		CL_ASSERT(p_physp);
 		CL_ASSERT(osm_physp_is_valid(p_physp));
 
 		p_pi = &p_physp->port_info;
 
-		if (mtu > ib_port_info_get_mtu_cap(p_pi)) {
+		if (mtu > ib_port_info_get_mtu_cap(p_pi))
 			mtu = ib_port_info_get_mtu_cap(p_pi);
-			if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG))
-				osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
-					"__osm_pr_rcv_get_path_parms: "
-					"New smallest MTU = %u at intervening port 0x%016"
-					PRIx64 " port num 0x%X\n", mtu,
-					cl_ntoh64(osm_physp_get_port_guid
-						  (p_physp)),
-					osm_physp_get_port_num(p_physp));
-		}
 
-		if (rate > ib_port_info_compute_rate(p_pi)) {
+		if (rate > ib_port_info_compute_rate(p_pi))
 			rate = ib_port_info_compute_rate(p_pi);
-			if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG))
-				osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
-					"__osm_pr_rcv_get_path_parms: "
-					"New smallest rate = %u at intervening port 0x%016"
-					PRIx64 " port num 0x%X\n", rate,
-					cl_ntoh64(osm_physp_get_port_guid
-						  (p_physp)),
-					osm_physp_get_port_num(p_physp));
-		}
 
+		if (!p_rcv->p_subn->opt.no_qos) {
+			/*
+			 * Check SL2VL table of the switch and update valid SLs
+			 */
+			p_slvl_tbl = osm_physp_get_slvl_tbl(p_physp, in_port_num);
+			for (i = 0; i < IB_MAX_NUM_VLS; i++) {
+				if (valid_sl_mask & (1 << i) &&
+				    ib_slvl_table_get(p_slvl_tbl, i) == IB_DROP_VL)
+					valid_sl_mask &= ~(1 << i);
+			}
+			if (!valid_sl_mask) {
+				if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG))
+					osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+						"__osm_pr_rcv_get_path_parms: "
+						"All the SLs lead to VL15 "
+						"on this path\n");
+				status = IB_NOT_FOUND;
+				goto Exit;
+			}
+		}
 	}
 
 	/*
@@ -442,30 +465,76 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 	 */
 	p_pi = &p_physp->port_info;
 
-	if (mtu > ib_port_info_get_mtu_cap(p_pi)) {
+	if (mtu > ib_port_info_get_mtu_cap(p_pi))
 		mtu = ib_port_info_get_mtu_cap(p_pi);
-		if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG))
-			osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
-				"__osm_pr_rcv_get_path_parms: "
-				"New smallest MTU = %u at destination port 0x%016"
-				PRIx64 "\n", mtu,
-				cl_ntoh64(osm_physp_get_port_guid(p_physp)));
-	}
 
-	if (rate > ib_port_info_compute_rate(p_pi)) {
+	if (rate > ib_port_info_compute_rate(p_pi))
 		rate = ib_port_info_compute_rate(p_pi);
-		if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG))
-			osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
-				"__osm_pr_rcv_get_path_parms: "
-				"New smallest rate = %u at destination port 0x%016"
-				PRIx64 "\n", rate,
-				cl_ntoh64(osm_physp_get_port_guid(p_physp)));
-	}
 
 	if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG))
 		osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
 			"__osm_pr_rcv_get_path_parms: "
-			"Path min MTU = %u, min rate = %u\n", mtu, rate);
+			"Path min MTU = %u, min rate = %u\n",
+			mtu, rate);
+
+	/*
+	 * Get QoS Level object according to the path request
+	 * and adjust path parameters according to QoS settings
+	 */
+	if ( !p_rcv->p_subn->opt.no_qos &&
+	     p_rcv->p_subn->p_qos_policy &&
+	     (p_qos_level = osm_qos_policy_get_qos_level_by_pr(
+		    p_rcv->p_subn->p_qos_policy, p_pr,
+		    p_src_physp, p_dest_physp, comp_mask)) ) {
+
+		if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG))
+			osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+				"__osm_pr_rcv_get_path_parms: "
+				"PathRecord request matches QoS Level '%s' (%s)\n",
+				p_qos_level->name,
+				(p_qos_level->use) ? p_qos_level->
+				use : "no description");
+
+		if (p_qos_level->mtu_limit_set
+		    && (mtu > p_qos_level->mtu_limit))
+			mtu = p_qos_level->mtu_limit;
+
+		if (p_qos_level->rate_limit_set
+		    && (rate > p_qos_level->rate_limit))
+			rate = p_qos_level->rate_limit;
+
+		if (p_qos_level->pkt_life_set
+		    && (pkt_life > p_qos_level->pkt_life))
+			pkt_life = p_qos_level->pkt_life;
+
+		if (p_qos_level->sl_set) {
+			sl = p_qos_level->sl;
+			if (!(valid_sl_mask & (1 << sl))) {
+				status = IB_NOT_FOUND;
+				goto Exit;
+			}
+		}
+
+		if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG))
+			osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+				"__osm_pr_rcv_get_path_parms: "
+				"Path params with QoS constaraints: "
+				"min MTU = %u, min rate = %u, "
+				"packet lifetime = %u, sl = %u\n",
+				mtu, rate, pkt_life, sl);
+	}
+
+	/*
+	 * Set packet lifetime.
+	 * According to spec definition IBA 1.2 Table 205
+	 * PacketLifeTime description, for loopback paths,
+	 * packetLifeTime shall be zero.
+	 */
+	if (p_src_port == p_dest_port)
+		pkt_life = 0;
+	else if ( !(p_qos_level && p_qos_level->pkt_life_set) )
+		pkt_life = OSM_DEFAULT_SUBNET_TIMEOUT;
+
 
 	/*
 	   Determine if these values meet the user criteria
@@ -511,6 +580,8 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 			break;
 		}
 	}
+	if (status != IB_SUCCESS)
+		goto Exit;
 
 	/* we silently ignore cases where only the Rate selector is defined */
 	if ((comp_mask & IB_PR_COMPMASK_RATESELEC) &&
@@ -551,14 +622,8 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 			break;
 		}
 	}
-
-	/* Verify the pkt_life_time */
-	/* According to spec definition IBA 1.2 Table 205 PacketLifeTime description,
-	   for loopback paths, packetLifeTime shall be zero. */
-	if (p_src_port == p_dest_port)
-		pkt_life = 0;	/* loopback */
-	else
-		pkt_life = OSM_DEFAULT_SUBNET_TIMEOUT;
+	if (status != IB_SUCCESS)
+		goto Exit;
 
 	/* we silently ignore cases where only the PktLife selector is defined */
 	if ((comp_mask & IB_PR_COMPMASK_PKTLIFETIMESELEC) &&
@@ -603,12 +668,24 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 	if (status != IB_SUCCESS)
 		goto Exit;
 
-	if (comp_mask & IB_PR_COMPMASK_RAWTRAFFIC &&
-	    cl_ntoh32(p_pr->hop_flow_raw) & (1 << 31))
-		pkey = osm_physp_find_common_pkey(p_physp, p_dest_physp);
+	/*
+	 * set Pkey for this path record request
+	 */
+
+	if ((comp_mask & IB_PR_COMPMASK_RAWTRAFFIC) &&
+	    (cl_ntoh32(p_pr->hop_flow_raw) & (1 << 31)))
+		pkey = osm_physp_find_common_pkey(p_src_physp, p_dest_physp);
+
 	else if (comp_mask & IB_PR_COMPMASK_PKEY) {
+		/*
+		 * PR request has a specific pkey:
+		 * Check that source and destination share this pkey.
+		 * If QoS level has pkeys, check that this pkey exists
+		 * in the QoS level pkeys.
+		 * PR returned pkey is the requested pkey.
+		 */
 		pkey = p_pr->pkey;
-		if (!osm_physp_share_this_pkey(p_physp, p_dest_physp, pkey)) {
+		if (!osm_physp_share_this_pkey(p_src_physp, p_dest_physp, pkey)) {
 			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
 				"__osm_pr_rcv_get_path_parms: ERR 1F1A: "
 				"Ports do not share specified PKey 0x%04x\n",
@@ -616,8 +693,37 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 			status = IB_NOT_FOUND;
 			goto Exit;
 		}
+		if (p_qos_level && p_qos_level->pkey_range_len &&
+		    !osm_qos_level_has_pkey(p_qos_level, pkey)) {
+			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+				"__osm_pr_rcv_get_path_parms: ERR 1F1D: "
+				"Ports do not share PKeys defined by QoS level\n");
+			status = IB_NOT_FOUND;
+			goto Exit;
+		}
+
+	} else if (p_qos_level && p_qos_level->pkey_range_len) {
+		/*
+		 * PR request doesn't have a specific pkey, but QoS level
+		 * has pkeys - get shared pkey from QoS level pkeys
+		 */
+		pkey = osm_qos_level_get_shared_pkey(p_qos_level,
+						     p_src_physp,
+						     p_dest_physp);
+		if (!pkey) {
+			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+				"__osm_pr_rcv_get_path_parms: ERR 1F1E: "
+				"Ports do not share PKeys defined by QoS level\n");
+			status = IB_NOT_FOUND;
+			goto Exit;
+		}
 	} else {
-		pkey = osm_physp_find_common_pkey(p_physp, p_dest_physp);
+		/*
+		 * Neither PR request nor QoS level have pkey.
+		 * Just get any shared pkey.
+		 */
+		pkey = osm_physp_find_common_pkey(p_src_physp,
+						  p_dest_physp);
 		if (!pkey) {
 			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
 				"__osm_pr_rcv_get_path_parms: ERR 1F1B: "
@@ -627,14 +733,6 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 		}
 	}
 
-	if (p_rcv->p_subn->opt.routing_engine_name &&
-	    strcmp(p_rcv->p_subn->opt.routing_engine_name, "lash") == 0)
-		/* slid and dest_lid are stored in network in lash */
-		sl = osm_get_lash_sl(p_rcv->p_subn->p_osm, p_src_port,
-				     p_dest_port);
-	else
-		sl = OSM_DEFAULT_SL;
-
 	if (pkey) {
 		p_prtn =
 		    (osm_prtn_t *) cl_qmap_get(&p_rcv->p_subn->prtn_pkey_tbl,
@@ -642,33 +740,104 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 								0x8000));
 		if (p_prtn ==
 		    (osm_prtn_t *) cl_qmap_end(&p_rcv->p_subn->prtn_pkey_tbl))
-			/* this may be possible when pkey tables are created somehow in
-			   previous runs or things are going wrong here */
-			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
-				"__osm_pr_rcv_get_path_parms: ERR 1F1C: "
-				"No partition found for PKey 0x%04x - using default SL %d\n",
-				cl_ntoh16(pkey), sl);
-		else {
-			if (p_rcv->p_subn->opt.routing_engine_name &&
-			    strcmp(p_rcv->p_subn->opt.routing_engine_name,
-				   "lash") == 0)
-				/* slid and dest_lid are stored in network in lash */
-				sl = osm_get_lash_sl(p_rcv->p_subn->p_osm,
-						     p_src_port, p_dest_port);
-			else
-				sl = p_prtn->sl;
-		}
-
-		/* reset pkey when raw traffic */
-		if (comp_mask & IB_PR_COMPMASK_RAWTRAFFIC &&
-		    cl_ntoh32(p_pr->hop_flow_raw) & (1 << 31))
-			pkey = 0;
+			p_prtn = NULL;
 	}
 
-	if ((comp_mask & IB_PR_COMPMASK_SL) && ib_path_rec_sl(p_pr) != sl) {
+	/*
+	 * Set PathRecord SL.
+	 */
+
+	if (comp_mask & IB_PR_COMPMASK_SL) {
+		/*
+		 * Specific SL was requested
+		 */
+		sl = ib_path_rec_sl(p_pr);
+
+		if (p_qos_level && p_qos_level->sl_set && (p_qos_level->sl != sl)) {
+			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+				"__osm_pr_rcv_get_path_parms: ERR 1F1F: "
+				"QoS constaraints: required PathRecord SL (%u) "
+				"doesn't match QoS policy SL (%u)\n",
+				sl, p_qos_level->sl);
+			status = IB_NOT_FOUND;
+			goto Exit;
+		}
+
+		if (p_rcv->p_subn->opt.routing_engine_name &&
+		    strcmp(p_rcv->p_subn->opt.routing_engine_name, "lash") == 0 &&
+		    osm_get_lash_sl(p_rcv->p_subn->p_osm,
+				    p_src_port, p_dest_port) != sl) {
+			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+				"__osm_pr_rcv_get_path_parms: ERR 1F23: "
+				"Required PathRecord SL (%u) doesn't "
+				"match LASH SL\n",
+				sl);
+			status = IB_NOT_FOUND;
+			goto Exit;
+		}
+
+	} else if (p_rcv->p_subn->opt.routing_engine_name &&
+		   strcmp(p_rcv->p_subn->opt.routing_engine_name, "lash") == 0) {
+		/*
+		 * No specific SL in PathRecord request.
+		 * If it's LASH routing - use its SL.
+		 * slid and dest_lid are stored in network in lash.
+		 */
+		sl = osm_get_lash_sl(p_rcv->p_subn->p_osm,
+				     p_src_port, p_dest_port);
+
+	} else if (p_qos_level && p_qos_level->sl_set) {
+		/*
+		 * No specific SL was requested, and we're not in
+		 * LASH routing, but there is an SL in QoS level.
+		 */
+		sl = p_qos_level->sl;
+
+		if (pkey && p_prtn && p_prtn->sl != p_qos_level->sl)
+			osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+				"__osm_pr_rcv_get_path_parms: "
+				"QoS level SL (%u) overrides partition SL (%u)\n",
+				p_qos_level->sl, p_prtn->sl);
+
+	} else if (pkey) {
+		/*
+		 * No specific SL in request or in QoS level - use partition SL
+		 */
+		if (!p_prtn) {
+			/* this may be possible when pkey tables are created somehow in
+			previous runs or things are going wrong here */
+			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+			"__osm_pr_rcv_get_path_parms: ERR 1F1C: "
+			"No partition found for PKey 0x%04x - using default SL %d\n",
+			cl_ntoh16(pkey), sl);
+                        sl = OSM_DEFAULT_SL;
+		} else
+			sl = p_prtn->sl;
+	} else if (!p_rcv->p_subn->opt.no_qos) {
+		if (valid_sl_mask & (1 << OSM_DEFAULT_SL))
+			sl = OSM_DEFAULT_SL;
+		else {
+			for (i = 0; i < IB_MAX_NUM_VLS; i++)
+				if (valid_sl_mask & (1 << i))
+					break;
+			sl = i;
+		}
+	}
+	else
+		sl = OSM_DEFAULT_SL;
+
+	if (!p_rcv->p_subn->opt.no_qos && !(valid_sl_mask & (1 << sl))) {
+		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+			"__osm_pr_rcv_get_path_parms: ERR 1F24: "
+			"Selected SL (%u) leads to VL15\n", sl);
 		status = IB_NOT_FOUND;
 		goto Exit;
 	}
+
+	/* reset pkey when raw traffic */
+	if (comp_mask & IB_PR_COMPMASK_RAWTRAFFIC &&
+	    cl_ntoh32(p_pr->hop_flow_raw) & (1 << 31))
+		pkey = 0;
 
 	p_parms->mtu = mtu;
 	p_parms->rate = rate;
