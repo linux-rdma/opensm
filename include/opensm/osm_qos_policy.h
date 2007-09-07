@@ -51,6 +51,7 @@
 #include <complib/cl_list.h>
 #include <opensm/osm_port.h>
 #include <opensm/osm_sa_path_record.h>
+#include <opensm/osm_sa_multipath_record.h>
 
 #define YYSTYPE char *
 #define OSM_QOS_POLICY_MAX_PORTS_ON_SWITCH  128
@@ -175,6 +176,13 @@ int osm_qos_policy_validate(osm_qos_policy_t * p_qos_policy, osm_log_t * p_log);
 osm_qos_level_t * osm_qos_policy_get_qos_level_by_pr(
 	IN const osm_qos_policy_t * p_qos_policy,
 	IN const ib_path_rec_t * p_pr,
+	IN const osm_physp_t * p_src_physp,
+	IN const osm_physp_t * p_dest_physp,
+	IN ib_net64_t comp_mask);
+
+osm_qos_level_t * osm_qos_policy_get_qos_level_by_mpr(
+	IN const osm_qos_policy_t * p_qos_policy,
+	IN const ib_multipath_rec_t * p_mpr,
 	IN const osm_physp_t * p_src_physp,
 	IN const osm_physp_t * p_dest_physp,
 	IN ib_net64_t comp_mask);
