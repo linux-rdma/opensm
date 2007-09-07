@@ -1752,7 +1752,7 @@ int osm_qos_parse_policy_file(IN osm_subn_t * const p_subn)
     column_num = 1;
     line_num = 1;
 
-    p_subn->p_qos_policy = osm_qos_policy_create();
+    p_subn->p_qos_policy = osm_qos_policy_create(p_subn);
 
     __parser_tmp_struct_init();
     p_qos_policy = p_subn->p_qos_policy;

@@ -53,6 +53,7 @@
 #include <opensm/osm_node.h>
 #include <opensm/osm_port.h>
 #include <opensm/osm_partition.h>
+#include <opensm/osm_opensm.h>
 #include <opensm/osm_qos_policy.h>
 
 /***************************************************
@@ -380,7 +381,7 @@ void osm_qos_policy_match_rule_destroy(osm_qos_match_rule_t * p)
 /***************************************************
  ***************************************************/
 
-osm_qos_policy_t * osm_qos_policy_create()
+osm_qos_policy_t * osm_qos_policy_create(osm_subn_t * p_subn)
 {
 	osm_qos_policy_t * p_qos_policy = (osm_qos_policy_t *)malloc(sizeof(osm_qos_policy_t));
 	if (!p_qos_policy)
@@ -403,6 +404,7 @@ osm_qos_policy_t * osm_qos_policy_create()
 	cl_list_construct(&p_qos_policy->qos_match_rules);
 	cl_list_init(&p_qos_policy->qos_match_rules, 10);
 
+	p_qos_policy->p_subn = p_subn;
 	return p_qos_policy;
 }
 
@@ -542,7 +544,7 @@ __qos_policy_is_port_in_group(osm_subn_t * p_subn,
  ***************************************************/
 
 static boolean_t
-__qos_policy_is_port_in_group_list(const osm_pr_rcv_t * p_rcv,
+__qos_policy_is_port_in_group_list(const osm_qos_policy_t * p_qos_policy,
 				   const osm_physp_t * p_physp,
 				   cl_list_t * p_port_group_list)
 {
@@ -555,7 +557,7 @@ __qos_policy_is_port_in_group_list(const osm_pr_rcv_t * p_rcv,
 		    (osm_qos_port_group_t *) cl_list_obj(list_iterator);
 		if (p_port_group) {
 			if (__qos_policy_is_port_in_group
-			    (p_rcv->p_subn, p_physp, p_port_group))
+			    (p_qos_policy->p_subn, p_physp, p_port_group))
 				return TRUE;
 		}
 		list_iterator = cl_list_next(list_iterator);
@@ -566,10 +568,11 @@ __qos_policy_is_port_in_group_list(const osm_pr_rcv_t * p_rcv,
 /***************************************************
  ***************************************************/
 
-static osm_qos_match_rule_t *__qos_policy_get_match_rule_by_pr(
+static osm_qos_match_rule_t *__qos_policy_get_match_rule_by_params(
 			 const osm_qos_policy_t * p_qos_policy,
-			 const osm_pr_rcv_t * p_rcv,
-			 const ib_path_rec_t * p_pr,
+			 uint64_t service_id,
+			 uint16_t qos_class,
+			 uint16_t pkey,
 			 const osm_physp_t * p_src_physp,
 			 const osm_physp_t * p_dest_physp,
 			 ib_net64_t comp_mask)
@@ -594,7 +597,7 @@ static osm_qos_match_rule_t *__qos_policy_get_match_rule_by_pr(
 		/* If a match rule has Source groups, PR request source has to be in this list */
 
 		if (cl_list_count(&p_qos_match_rule->source_group_list)) {
-			if (!__qos_policy_is_port_in_group_list(p_rcv,
+			if (!__qos_policy_is_port_in_group_list(p_qos_policy,
 								p_src_physp,
 								&p_qos_match_rule->
 								source_group_list))
@@ -607,7 +610,7 @@ static osm_qos_match_rule_t *__qos_policy_get_match_rule_by_pr(
 		/* If a match rule has Destination groups, PR request dest. has to be in this list */
 
 		if (cl_list_count(&p_qos_match_rule->destination_group_list)) {
-			if (!__qos_policy_is_port_in_group_list(p_rcv,
+			if (!__qos_policy_is_port_in_group_list(p_qos_policy,
 								p_dest_physp,
 								&p_qos_match_rule->
 								destination_group_list))
@@ -629,7 +632,7 @@ static osm_qos_match_rule_t *__qos_policy_get_match_rule_by_pr(
 			if (!__is_num_in_range_arr
 			    (p_qos_match_rule->qos_class_range_arr,
 			     p_qos_match_rule->qos_class_range_len,
-			     ib_path_rec_qos_class(p_pr))) {
+			     qos_class)) {
 				list_iterator = cl_list_next(list_iterator);
 				continue;
 			}
@@ -649,7 +652,7 @@ static osm_qos_match_rule_t *__qos_policy_get_match_rule_by_pr(
 			if (!__is_num_in_range_arr
 			    (p_qos_match_rule->service_id_range_arr,
 			     p_qos_match_rule->service_id_range_len,
-			     cl_ntoh64(p_pr->service_id))) {
+			     service_id)) {
 				list_iterator = cl_list_next(list_iterator);
 				continue;
 			}
@@ -668,7 +671,7 @@ static osm_qos_match_rule_t *__qos_policy_get_match_rule_by_pr(
 			if (!__is_num_in_range_arr
 			    (p_qos_match_rule->pkey_range_arr,
 			     p_qos_match_rule->pkey_range_len,
-			     cl_ntoh16(p_pr->pkey))) {
+			     pkey)) {
 				list_iterator = cl_list_next(list_iterator);
 				continue;
 			}
@@ -688,8 +691,9 @@ static osm_qos_match_rule_t *__qos_policy_get_match_rule_by_pr(
 /***************************************************
  ***************************************************/
 
-static osm_qos_level_t *__qos_policy_get_qos_level_by_name(osm_qos_policy_t * p_qos_policy,
-							   char *name)
+static osm_qos_level_t *__qos_policy_get_qos_level_by_name(
+		const osm_qos_policy_t * p_qos_policy,
+		char *name)
 {
 	osm_qos_level_t *p_qos_level = NULL;
 	cl_list_iterator_t list_iterator;
@@ -713,8 +717,9 @@ static osm_qos_level_t *__qos_policy_get_qos_level_by_name(osm_qos_policy_t * p_
 /***************************************************
  ***************************************************/
 
-static osm_qos_port_group_t *__qos_policy_get_port_group_by_name(osm_qos_policy_t * p_qos_policy,
-								 const char *const name)
+static osm_qos_port_group_t *__qos_policy_get_port_group_by_name(
+		const osm_qos_policy_t * p_qos_policy,
+		const char *const name)
 {
 	osm_qos_port_group_t *p_port_group = NULL;
 	cl_list_iterator_t list_iterator;
@@ -869,54 +874,66 @@ int osm_qos_policy_validate(osm_qos_policy_t * p_qos_policy,
 /***************************************************
  ***************************************************/
 
-void osm_qos_policy_get_qos_level_by_pr(IN const osm_qos_policy_t * p_qos_policy,
-					IN const osm_pr_rcv_t * p_rcv,
-					IN const ib_path_rec_t * p_pr,
-					IN const osm_physp_t * p_src_physp,
-					IN const osm_physp_t * p_dest_physp,
-					IN ib_net64_t comp_mask,
-					OUT osm_qos_level_t ** pp_qos_level)
+static osm_qos_level_t * __qos_policy_get_qos_level_by_params(
+	IN const osm_qos_policy_t * p_qos_policy,
+	IN const osm_physp_t * p_src_physp,
+	IN const osm_physp_t * p_dest_physp,
+	IN uint64_t service_id,
+	IN uint16_t qos_class,
+	IN uint16_t pkey,
+	IN ib_net64_t comp_mask)
 {
 	osm_qos_match_rule_t *p_qos_match_rule = NULL;
 	osm_qos_level_t *p_qos_level = NULL;
 
-	OSM_LOG_ENTER(p_rcv->p_log, osm_qos_policy_get_qos_level_by_pr);
-
-	*pp_qos_level = NULL;
+	OSM_LOG_ENTER(&p_qos_policy->p_subn->p_osm->log,
+		      __qos_policy_get_qos_level_by_params);
 
 	if (!p_qos_policy)
 		goto Exit;
 
-	p_qos_match_rule = __qos_policy_get_match_rule_by_pr(p_qos_policy,
-							     p_rcv,
-							     p_pr,
-							     p_src_physp,
-							     p_dest_physp,
-							     comp_mask);
+	p_qos_match_rule = __qos_policy_get_match_rule_by_params(
+		p_qos_policy, service_id, qos_class, pkey,
+		p_src_physp, p_dest_physp, comp_mask);
 
 	if (p_qos_match_rule)
 		p_qos_level = p_qos_match_rule->p_qos_level;
 	else
 		p_qos_level = p_qos_policy->p_default_qos_level;
 
-	osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
-		"osm_qos_policy_get_qos_level_by_pr: "
+	osm_log(&p_qos_policy->p_subn->p_osm->log, OSM_LOG_DEBUG,
+		"__qos_policy_get_qos_level_by_params: "
 		"PathRecord request:"
 		"Src port 0x%016" PRIx64 ", "
 		"Dst port 0x%016" PRIx64 "\n",
 		cl_ntoh64(osm_physp_get_port_guid(p_src_physp)),
 		cl_ntoh64(osm_physp_get_port_guid(p_dest_physp)));
-	osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
-		"osm_qos_policy_get_qos_level_by_pr: "
+	osm_log(&p_qos_policy->p_subn->p_osm->log, OSM_LOG_DEBUG,
+		"__qos_policy_get_qos_level_by_params: "
 		"Applying QoS Level %s (%s)\n",
 		p_qos_level->name,
 		(p_qos_level->use) ? p_qos_level->use : "no description");
 
-	*pp_qos_level = p_qos_level;
-
       Exit:
-	OSM_LOG_EXIT(p_rcv->p_log);
-}				/* osm_qos_policy_get_qos_level_by_pr() */
+	OSM_LOG_EXIT(&p_qos_policy->p_subn->p_osm->log);
+	return p_qos_level;
+}				/* __qos_policy_get_qos_level_by_params() */
+
+/***************************************************
+ ***************************************************/
+
+osm_qos_level_t * osm_qos_policy_get_qos_level_by_pr(
+	IN const osm_qos_policy_t * p_qos_policy,
+	IN const ib_path_rec_t * p_pr,
+	IN const osm_physp_t * p_src_physp,
+	IN const osm_physp_t * p_dest_physp,
+	IN ib_net64_t comp_mask)
+{
+	return __qos_policy_get_qos_level_by_params(
+		p_qos_policy, p_src_physp, p_dest_physp,
+		cl_ntoh64(p_pr->service_id), ib_path_rec_qos_class(p_pr),
+		cl_ntoh16(p_pr->pkey), comp_mask);
+}
 
 /***************************************************
  ***************************************************/

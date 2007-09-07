@@ -141,6 +141,7 @@ typedef struct _osm_qos_policy_t {
 	cl_list_t qos_levels;			/* list of osm_qos_level_t */
 	cl_list_t qos_match_rules;		/* list of osm_qos_match_rule_t */
 	osm_qos_level_t *p_default_qos_level;	/* default QoS level */
+	osm_subn_t *p_subn;			/* osm subnet object */
 } osm_qos_policy_t;
 
 /***************************************************/
@@ -167,17 +168,16 @@ ib_net16_t osm_qos_level_get_shared_pkey(IN const osm_qos_level_t * p_qos_level,
 osm_qos_match_rule_t * osm_qos_policy_match_rule_create();
 void osm_qos_policy_match_rule_destroy(osm_qos_match_rule_t * p_match_rule);
 
-osm_qos_policy_t * osm_qos_policy_create();
+osm_qos_policy_t * osm_qos_policy_create(osm_subn_t * p_subn);
 void osm_qos_policy_destroy(osm_qos_policy_t * p_qos_policy);
 int osm_qos_policy_validate(osm_qos_policy_t * p_qos_policy, osm_log_t * p_log);
 
-void osm_qos_policy_get_qos_level_by_pr(IN const osm_qos_policy_t * p_qos_policy,
-					IN const osm_pr_rcv_t * p_rcv,
-					IN const ib_path_rec_t * p_pr,
-					IN const osm_physp_t * p_src_physp,
-					IN const osm_physp_t * p_dest_physp,
-					IN ib_net64_t comp_mask,
-					OUT osm_qos_level_t ** pp_qos_level);
+osm_qos_level_t * osm_qos_policy_get_qos_level_by_pr(
+	IN const osm_qos_policy_t * p_qos_policy,
+	IN const ib_path_rec_t * p_pr,
+	IN const osm_physp_t * p_src_physp,
+	IN const osm_physp_t * p_dest_physp,
+	IN ib_net64_t comp_mask);
 
 /***************************************************/
 
