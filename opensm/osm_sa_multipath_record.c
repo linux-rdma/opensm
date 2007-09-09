@@ -181,7 +181,7 @@ __osm_sa_multipath_rec_apply_tavor_mtu_limit(IN const ib_multipath_rec_t *
 	 */
 	required_mtu = ib_multipath_rec_mtu(p_mpr);
 	if ((comp_mask & IB_MPR_COMPMASK_MTUSELEC) &&
-	    (comp_mask & IB_PR_COMPMASK_MTU)) {
+	    (comp_mask & IB_MPR_COMPMASK_MTU)) {
 		switch (ib_multipath_rec_mtu_sel(p_mpr)) {
 		case 0:	/* must be greater than */
 		case 2:	/* exact match */
@@ -322,7 +322,7 @@ __osm_mpr_rcv_get_path_parms(IN osm_mpr_rcv_t * const p_rcv,
 			required_sl = p_prtn->sl;
 
 		/* reset pkey when raw traffic */
-		if (comp_mask & IB_PR_COMPMASK_RAWTRAFFIC &&
+		if (comp_mask & IB_MPR_COMPMASK_RAWTRAFFIC &&
 		    cl_ntoh32(p_mpr->hop_flow_raw) & (1 << 31))
 			required_pkey = 0;
 	}
@@ -591,7 +591,7 @@ __osm_mpr_rcv_get_path_parms(IN osm_mpr_rcv_t * const p_rcv,
 
 	/* we silently ignore cases where only the Rate selector is defined */
 	if ((comp_mask & IB_MPR_COMPMASK_RATESELEC) &&
-	    (comp_mask & IB_PR_COMPMASK_RATE)) {
+	    (comp_mask & IB_MPR_COMPMASK_RATE)) {
 		required_rate = ib_multipath_rec_rate(p_mpr);
 		switch (ib_multipath_rec_rate_sel(p_mpr)) {
 		case 0:	/* must be greater than */
