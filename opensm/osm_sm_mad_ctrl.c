@@ -283,6 +283,7 @@ __osm_sm_mad_ctrl_process_get_resp(IN osm_sm_mad_ctrl_t * const p_ctrl,
 	case IB_MAD_ATTR_NOTICE:
 	case IB_MAD_ATTR_INFORM_INFO:
 	default:
+		cl_atomic_inc(&p_ctrl->p_stats->qp0_mads_rcvd_unknown);
 		osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
 			"__osm_sm_mad_ctrl_process_get_resp: ERR 3103: "
 			"Unsupported attribute = 0x%X\n",
@@ -351,6 +352,7 @@ __osm_sm_mad_ctrl_process_get(IN osm_sm_mad_ctrl_t * const p_ctrl,
 		break;
 
 	default:
+		cl_atomic_inc(&p_ctrl->p_stats->qp0_mads_rcvd_unknown);
 		osm_log(p_ctrl->p_log, OSM_LOG_VERBOSE,
 			"__osm_sm_mad_ctrl_process_get: "
 			"Ignoring SubnGet MAD - unsupported attribute = 0x%X\n",
@@ -434,8 +436,9 @@ __osm_sm_mad_ctrl_process_set(IN osm_sm_mad_ctrl_t * const p_ctrl,
 		break;
 
 	default:
+		cl_atomic_inc(&p_ctrl->p_stats->qp0_mads_rcvd_unknown);
 		osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
-			"__osm_sm_mad_ctrl_process_set: ERR 3107: "
+			"__osm_sm_mad_ctrl_process_set: ERR  3107: "
 			"Unsupported attribute = 0x%X\n",
 			cl_ntoh16(p_smp->attr_id));
 		osm_dump_dr_smp(p_ctrl->p_log, p_smp, OSM_LOG_ERROR);
@@ -528,6 +531,7 @@ __osm_sm_mad_ctrl_process_trap(IN osm_sm_mad_ctrl_t * const p_ctrl,
 		break;
 
 	default:
+		cl_atomic_inc(&p_ctrl->p_stats->qp0_mads_rcvd_unknown);
 		osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
 			"__osm_sm_mad_ctrl_process_trap: ERR 3109: "
 			"Unsupported attribute = 0x%X\n",
@@ -678,6 +682,7 @@ __osm_sm_mad_ctrl_rcv_callback(IN osm_madw_t * p_madw,
 	case IB_MAD_METHOD_REPORT_RESP:
 	case IB_MAD_METHOD_TRAP_REPRESS:
 	default:
+		cl_atomic_inc(&p_ctrl->p_stats->qp0_mads_rcvd_unknown);
 		osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
 			"__osm_sm_mad_ctrl_rcv_callback: ERR 3112: "
 			"Unsupported method = 0x%X\n", p_smp->method);

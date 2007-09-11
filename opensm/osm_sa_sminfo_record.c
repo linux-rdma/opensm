@@ -68,6 +68,7 @@
 #include <opensm/osm_port.h>
 #include <opensm/osm_pkey.h>
 #include <opensm/osm_remote_sm.h>
+#include <opensm/osm_sa.h>
 
 #define OSM_SMIR_RCV_POOL_MIN_SIZE     32
 #define OSM_SMIR_RCV_POOL_GROW_SIZE    32
@@ -550,7 +551,8 @@ void osm_smir_rcv_process(IN void *ctx, IN void *data)
 
 	CL_ASSERT(cl_is_qlist_empty(&rec_list));
 
-	status = osm_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE);
+	status = osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE,
+				    p_rcv->p_subn);
 	if (status != IB_SUCCESS) {
 		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
 			"osm_smir_rcv_process: ERR 2802: "

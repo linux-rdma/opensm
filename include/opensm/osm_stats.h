@@ -90,9 +90,12 @@ typedef struct _osm_stats {
 	atomic32_t qp0_mads_rcvd;
 	atomic32_t qp0_mads_sent;
 	atomic32_t qp0_unicasts_sent;
+	atomic32_t qp0_mads_rcvd_unknown;
 	atomic32_t sa_mads_outstanding;
 	atomic32_t sa_mads_rcvd;
 	atomic32_t sa_mads_sent;
+	atomic32_t sa_mads_rcvd_unknown;
+	atomic32_t sa_mads_ignored;
 #ifdef ENABLE_OSM_PERF_MGR
 	pthread_mutex_t mutex;
 	pthread_cond_t cond;
@@ -119,6 +122,27 @@ typedef struct _osm_stats {
 *	qp0_unicasts_sent
 *		Total number of response-less MADs sent on the wire.  This count
 *		includes getresp(), send() and trap() methods.
+*
+*	qp0_mads_rcvd_unknown
+*		Total number of unknown QP0 MADs received. This includes
+*		unrecognized attribute IDs and methods.
+*
+*	sa_mads_outstanding
+*		Contains the number of MADs outstanding on QP1.
+*
+*	sa_mads_rcvd
+*		Total number of QP1 MADs received.
+*
+*	sa_mads_sent
+*		Total number of QP1 MADs sent.
+*
+*	sa_mads_rcvd_unknown
+*		Total number of unknown QP1 MADs received. This includes
+*		unrecognized attribute IDs and methods.
+*
+*	sa_mads_ignored
+*		Total number of QP1 MADs received because SM is not
+*		master or SM is in first time sweep.
 *
 * SEE ALSO
 ***************/

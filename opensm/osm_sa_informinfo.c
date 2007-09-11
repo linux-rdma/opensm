@@ -318,7 +318,8 @@ __osm_infr_rcv_respond(IN osm_infr_rcv_t * const p_rcv,
 	p_resp_infr =
 	    (ib_inform_info_t *) ib_sa_mad_get_payload_ptr(p_resp_sa_mad);
 
-	status = osm_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE);
+	status = osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE,
+				    p_rcv->p_subn);
 
 	if (status != IB_SUCCESS) {
 		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
@@ -626,11 +627,12 @@ osm_infr_rcv_process_get_method(IN osm_infr_rcv_t * const p_rcv,
 
 	CL_ASSERT(cl_is_qlist_empty(&rec_list));
 
-	status = osm_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE);
+	status = osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE,
+				    p_rcv->p_subn);
 	if (status != IB_SUCCESS) {
 		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
 			"osm_infr_rcv_process_get_method: ERR 430C: "
-			"osm_vendor_send status = %s\n",
+			"osm_sa_vendor_send status = %s\n",
 			ib_get_err_str(status));
 		goto Exit;
 	}

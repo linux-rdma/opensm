@@ -438,7 +438,8 @@ __osm_sr_rcv_respond(IN osm_sr_rcv_t * const p_rcv,
 		}
 	}
 
-	status = osm_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE);
+	status = osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE,
+				    p_rcv->p_subn);
 
 	if (status != IB_SUCCESS) {
 		osm_log(p_rcv->p_log, OSM_LOG_ERROR,

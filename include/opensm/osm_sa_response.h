@@ -52,6 +52,7 @@
 #include <opensm/osm_log.h>
 #include <opensm/osm_madw.h>
 #include <opensm/osm_mad_pool.h>
+#include <opensm/osm_subnet.h>
 
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
@@ -94,6 +95,7 @@ BEGIN_C_DECLS
 */
 typedef struct _osm_sa_resp {
 	osm_mad_pool_t *p_pool;
+	osm_subn_t *p_subn;
 	osm_log_t *p_log;
 } osm_sa_resp_t;
 /*
@@ -177,7 +179,9 @@ void osm_sa_resp_destroy(IN osm_sa_resp_t * const p_resp);
 */
 ib_api_status_t
 osm_sa_resp_init(IN osm_sa_resp_t * const p_resp,
-		 IN osm_mad_pool_t * const p_pool, IN osm_log_t * const p_log);
+		 IN osm_mad_pool_t * const p_pool,
+		 IN osm_subn_t * const p_subn,
+		 IN osm_log_t * const p_log);
 /*
 * PARAMETERS
 *	p_resp
@@ -186,8 +190,8 @@ osm_sa_resp_init(IN osm_sa_resp_t * const p_resp,
 *	p_mad_pool
 *		[in] Pointer to the MAD pool.
 *
-*	p_vl15
-*		[in] Pointer to the VL15 interface.
+*	p_subn
+*		[in] Pointer to Subnet object for this subnet.
 *
 *	p_log
 *		[in] Pointer to the log object.

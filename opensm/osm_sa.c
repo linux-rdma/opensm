@@ -69,6 +69,7 @@
 #include <opensm/osm_multicast.h>
 #include <opensm/osm_inform.h>
 #include <opensm/osm_service.h>
+#include <vendor/osm_vendor_api.h>
 
 #define  OSM_SA_INITIAL_TID_VALUE 0xabc
 
@@ -192,7 +193,7 @@ osm_sa_init(IN osm_sm_t * const p_sm,
 
 	p_sa->state = OSM_SA_STATE_READY;
 
-	status = osm_sa_resp_init(&p_sa->resp, p_sa->p_mad_pool, p_log);
+	status = osm_sa_resp_init(&p_sa->resp, p_sa->p_mad_pool, p_subn, p_log);
 	if (status != IB_SUCCESS)
 		goto Exit;
 
@@ -444,6 +445,21 @@ osm_sa_bind(IN osm_sa_t * const p_sa, IN const ib_net64_t port_guid)
       Exit:
 	OSM_LOG_EXIT(p_sa->p_log);
 	return (status);
+}
+
+ib_api_status_t
+osm_sa_vendor_send(IN osm_bind_handle_t h_bind,
+		   IN osm_madw_t * const p_madw,
+		   IN boolean_t const resp_expected,
+		   IN osm_subn_t * const p_subn)
+{
+	ib_api_status_t status;
+
+	cl_atomic_inc(&p_subn->p_osm->stats.sa_mads_sent);
+	status = osm_vendor_send(h_bind, p_madw, resp_expected);
+	if (status != IB_SUCCESS)
+		cl_atomic_dec(&p_subn->p_osm->stats.sa_mads_sent);
+	return status;
 }
 
 /**********************************************************************

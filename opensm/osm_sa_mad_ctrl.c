@@ -261,6 +261,7 @@ __osm_sa_mad_ctrl_process(IN osm_sa_mad_ctrl_t * const p_ctrl,
 		   There is an unknown MAD attribute type for which there is
 		   no recipient.  Simply retire the MAD here.
 		 */
+		cl_atomic_inc(&p_ctrl->p_stats->sa_mads_rcvd_unknown);
 		osm_mad_pool_put(p_ctrl->p_mad_pool, p_madw);
 	}
 
@@ -319,6 +320,7 @@ __osm_sa_mad_ctrl_rcv_callback(IN osm_madw_t * p_madw,
 	 * sweep, so the subnet is not up and stable yet.
 	 */
 	if (p_ctrl->p_subn->sm_state != IB_SMINFO_STATE_MASTER) {
+		cl_atomic_inc(&p_ctrl->p_stats->sa_mads_ignored);
 		osm_log(p_ctrl->p_log, OSM_LOG_VERBOSE,
 			"__osm_sa_mad_ctrl_rcv_callback: "
 			"Received SA MAD while SM not MASTER. MAD ignored\n");
@@ -326,6 +328,7 @@ __osm_sa_mad_ctrl_rcv_callback(IN osm_madw_t * p_madw,
 		goto Exit;
 	}
 	if (p_ctrl->p_subn->first_time_master_sweep == TRUE) {
+		cl_atomic_inc(&p_ctrl->p_stats->sa_mads_ignored);
 		osm_log(p_ctrl->p_log, OSM_LOG_VERBOSE,
 			"__osm_sa_mad_ctrl_rcv_callback: "
 			"Received SA MAD while SM in first sweep. MAD ignored\n");
@@ -380,6 +383,7 @@ __osm_sa_mad_ctrl_rcv_callback(IN osm_madw_t * p_madw,
 		break;
 
 	default:
+		cl_atomic_inc(&p_ctrl->p_stats->sa_mads_rcvd_unknown);
 		osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
 			"__osm_sa_mad_ctrl_rcv_callback: ERR 1A05: "
 			"Unsupported method = 0x%X\n", p_sa_mad->method);

@@ -68,6 +68,7 @@
 #include <opensm/osm_msgdef.h>
 #include <opensm/osm_pkey.h>
 #include <opensm/osm_inform.h>
+#include <opensm/osm_sa.h>
 
 #define OSM_MCMR_RCV_POOL_MIN_SIZE     32
 #define OSM_MCMR_RCV_POOL_GROW_SIZE    32
@@ -523,7 +524,8 @@ __osm_mcmr_rcv_respond(IN const osm_mcmr_recv_t * const p_rcv,
 	p_resp_mcmember_rec->pkt_life &= 0x3f;
 	p_resp_mcmember_rec->pkt_life |= 2 << 6;	/* exactly */
 
-	status = osm_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE);
+	status = osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE,
+				    p_rcv->p_subn);
 
 	if (status != IB_SUCCESS) {
 		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
@@ -2138,11 +2140,12 @@ __osm_mcmr_query_mgrp(IN osm_mcmr_recv_t * const p_rcv,
 
 	CL_ASSERT(cl_is_qlist_empty(&rec_list));
 
-	status = osm_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE);
+	status = osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE,
+				    p_rcv->p_subn);
 	if (status != IB_SUCCESS) {
 		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
 			"__osm_mcmr_query_mgrp: ERR 1B17: "
-			"osm_vendor_send status = %s\n",
+			"osm_sa_vendor_send status = %s\n",
 			ib_get_err_str(status));
 		goto Exit;
 	}

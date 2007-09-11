@@ -65,6 +65,7 @@
 #include <vendor/osm_vendor_api.h>
 #include <opensm/osm_helper.h>
 #include <opensm/osm_qos_policy.h>
+#include <opensm/osm_sa.h>
 
 #define OSM_MPR_RCV_POOL_MIN_SIZE	64
 #define OSM_MPR_RCV_POOL_GROW_SIZE	64
@@ -1644,7 +1645,8 @@ __osm_mpr_rcv_respond(IN osm_mpr_rcv_t * const p_rcv,
 
 	osm_dump_sa_mad(p_rcv->p_log, p_resp_sa_mad, OSM_LOG_FRAMES);
 
-	status = osm_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE);
+	status = osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE,
+				    p_rcv->p_subn);
 
 	if (status != IB_SUCCESS) {
 		osm_log(p_rcv->p_log, OSM_LOG_ERROR,

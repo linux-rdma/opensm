@@ -84,7 +84,7 @@ BEGIN_C_DECLS
 * SYNOPSIS
 */
 typedef struct _osm_pkey_rec_rcv {
-	const osm_subn_t *p_subn;
+	osm_subn_t *p_subn;
 	osm_sa_resp_t *p_resp;
 	osm_mad_pool_t *p_mad_pool;
 	osm_log_t *p_log;
@@ -190,7 +190,7 @@ ib_api_status_t
 osm_pkey_rec_rcv_init(IN osm_pkey_rec_rcv_t * const p_rcv,
 		      IN osm_sa_resp_t * const p_resp,
 		      IN osm_mad_pool_t * const p_mad_pool,
-		      IN const osm_subn_t * const p_subn,
+		      IN osm_subn_t * const p_subn,
 		      IN osm_log_t * const p_log, IN cl_plock_t * const p_lock);
 /*
 * PARAMETERS

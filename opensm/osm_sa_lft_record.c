@@ -58,6 +58,7 @@
 #include <vendor/osm_vendor_api.h>
 #include <opensm/osm_helper.h>
 #include <opensm/osm_pkey.h>
+#include <opensm/osm_sa.h>
 
 #define OSM_LFTR_RCV_POOL_MIN_SIZE      32
 #define OSM_LFTR_RCV_POOL_GROW_SIZE     32
@@ -474,11 +475,12 @@ void osm_lftr_rcv_process(IN void *ctx, IN void *data)
 
 	CL_ASSERT(cl_is_qlist_empty(&rec_list));
 
-	status = osm_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE);
+	status = osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE,
+				    p_rcv->p_subn);
 	if (status != IB_SUCCESS) {
 		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
 			"osm_lftr_rcv_process: ERR 4411: "
-			"osm_vendor_send status = %s\n",
+			"osm_sa_vendor_send status = %s\n",
 			ib_get_err_str(status));
 		goto Exit;
 	}

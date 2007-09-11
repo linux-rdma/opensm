@@ -58,6 +58,7 @@
 #include <vendor/osm_vendor_api.h>
 #include <opensm/osm_helper.h>
 #include <opensm/osm_pkey.h>
+#include <opensm/osm_sa.h>
 
 #define OSM_NR_RCV_POOL_MIN_SIZE    32
 #define OSM_NR_RCV_POOL_GROW_SIZE   32
@@ -98,7 +99,7 @@ ib_api_status_t
 osm_nr_rcv_init(IN osm_nr_rcv_t * const p_rcv,
 		IN osm_sa_resp_t * const p_resp,
 		IN osm_mad_pool_t * const p_mad_pool,
-		IN const osm_subn_t * const p_subn,
+		IN osm_subn_t * const p_subn,
 		IN osm_log_t * const p_log, IN cl_plock_t * const p_lock)
 {
 	ib_api_status_t status;
@@ -559,11 +560,12 @@ void osm_nr_rcv_process(IN void *ctx, IN void *data)
 
 	CL_ASSERT(cl_is_qlist_empty(&rec_list));
 
-	status = osm_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE);
+	status = osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE,
+				    p_rcv->p_subn);
 	if (status != IB_SUCCESS) {
 		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
 			"osm_nr_rcv_process: ERR 1D07: "
-			"osm_vendor_send status = %s\n",
+			"osm_sa_vendor_send status = %s\n",
 			ib_get_err_str(status));
 		goto Exit;
 	}

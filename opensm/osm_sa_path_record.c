@@ -68,6 +68,7 @@
 #include <opensm/osm_partition.h>
 #include <opensm/osm_opensm.h>
 #include <opensm/osm_qos_policy.h>
+#include <opensm/osm_sa.h>
 #ifdef ROUTER_EXP
 #include <opensm/osm_router.h>
 #include <opensm/osm_sa_mcmember_record.h>
@@ -1948,7 +1949,8 @@ __osm_pr_rcv_respond(IN osm_pr_rcv_t * const p_rcv,
 
 	CL_ASSERT(cl_is_qlist_empty(p_list));
 
-	status = osm_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE);
+	status = osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE,
+				    p_rcv->p_subn);
 
 	if (status != IB_SUCCESS) {
 		osm_log(p_rcv->p_log, OSM_LOG_ERROR,

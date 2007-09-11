@@ -57,6 +57,7 @@
 #include <opensm/osm_trap_rcv.h>
 #include <vendor/osm_vendor_api.h>
 #include <opensm/osm_pkey.h>
+#include <opensm/osm_sa.h>
 
 typedef struct _osm_infr_match_ctxt {
 	cl_list_t *p_remove_infr_list;
@@ -387,11 +388,12 @@ static ib_api_status_t __osm_send_report(IN osm_infr_t * p_infr_rec,	/* the info
 	*p_report_ntc = *p_ntc;
 
 	/* The TRUE is for: response is expected */
-	status = osm_vendor_send(p_report_madw->h_bind, p_report_madw, TRUE);
+	status = osm_sa_vendor_send(p_report_madw->h_bind, p_report_madw, TRUE,
+				    p_infr_rec->p_infr_rcv->p_subn);
 	if (status != IB_SUCCESS) {
 		osm_log(p_log, OSM_LOG_ERROR,
 			"__osm_send_report: ERR 0204: "
-			"osm_vendor_send status = %s\n",
+			"osm_sa_vendor_send status = %s\n",
 			ib_get_err_str(status));
 		goto Exit;
 	}

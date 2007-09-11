@@ -204,6 +204,7 @@ typedef struct _osm_sa {
 * FIELDS
 *	state
 *		State of this SA object
+*
 *	p_subn
 *		Pointer to the Subnet object for this subnet.
 *
@@ -435,6 +436,22 @@ osm_sa_bind(IN osm_sa_t * const p_sa, IN const ib_net64_t port_guid);
 *
 * SEE ALSO
 *********/
+
+/****f* OpenSM: SA/osm_sa_vendor_send
+* NAME
+*	osm_sa_vendor_send
+*
+* DESCRIPTION
+*	Sends SA MAD via osm_vendor_call and maintains the QP1 sent statistic
+*
+* SYNOPSIS
+*/
+ib_api_status_t
+osm_sa_vendor_send(
+	IN osm_bind_handle_t h_bind,
+	IN osm_madw_t* const p_madw,
+	IN boolean_t const resp_expected,
+	IN osm_subn_t* const p_subn );
 
 struct _osm_opensm_t;
 /****f* OpenSM: SA/osm_sa_db_file_dump

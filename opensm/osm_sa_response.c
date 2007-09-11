@@ -56,6 +56,7 @@
 #include <opensm/osm_helper.h>
 #include <vendor/osm_vendor_api.h>
 #include <opensm/osm_opensm.h>
+#include <opensm/osm_sa.h>
 
 /**********************************************************************
  **********************************************************************/
@@ -75,7 +76,9 @@ void osm_sa_resp_destroy(IN osm_sa_resp_t * const p_resp)
  **********************************************************************/
 ib_api_status_t
 osm_sa_resp_init(IN osm_sa_resp_t * const p_resp,
-		 IN osm_mad_pool_t * const p_pool, IN osm_log_t * const p_log)
+		 IN osm_mad_pool_t * const p_pool,
+		 IN osm_subn_t * const p_subn,
+		 IN osm_log_t * const p_log)
 {
 	ib_api_status_t status = IB_SUCCESS;
 
@@ -83,6 +86,7 @@ osm_sa_resp_init(IN osm_sa_resp_t * const p_resp,
 
 	osm_sa_resp_construct(p_resp);
 
+	p_resp->p_subn = p_subn;
 	p_resp->p_log = p_log;
 	p_resp->p_pool = p_pool;
 
@@ -150,8 +154,8 @@ osm_sa_send_error(IN osm_sa_resp_t * const p_resp,
 	if (osm_log_is_active(p_resp->p_log, OSM_LOG_FRAMES))
 		osm_dump_sa_mad(p_resp->p_log, p_resp_sa_mad, OSM_LOG_FRAMES);
 
-	status = osm_vendor_send(osm_madw_get_bind_handle(p_resp_madw),
-				 p_resp_madw, FALSE);
+	status = osm_sa_vendor_send(osm_madw_get_bind_handle(p_resp_madw),
+				    p_resp_madw, FALSE, p_resp->p_subn);
 
 	if (status != IB_SUCCESS) {
 		osm_log(p_resp->p_log, OSM_LOG_ERROR,
