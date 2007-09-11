@@ -231,7 +231,7 @@ void show_usage(void)
 	       "          4 outstanding SMPs.\n\n");
 	printf("-console [off|local"
 #ifdef ENABLE_OSM_CONSOLE_SOCKET
-	       "|socket"
+	       "|socket|loopback"
 #endif
 	       "]\n          This option activates the OpenSM console (default off).\n\n");
 #ifdef ENABLE_OSM_CONSOLE_SOCKET
@@ -733,18 +733,17 @@ int main(int argc, char *argv[])
 			/*
 			 * OpenSM interactive console
 			 */
-			if (strcmp(optarg, "off") == 0) {
-				opt.console = "off";
-			} else if (strcmp(optarg, "local") == 0) {
-				opt.console = "local";
+			if (strcmp(optarg, "off") == 0
+			    || strcmp(optarg, "local") == 0
 #ifdef ENABLE_OSM_CONSOLE_SOCKET
-			} else if (strcmp(optarg, "socket") == 0) {
-				opt.console = "socket";
+			    || strcmp(optarg, "socket") == 0
+			    || strcmp(optarg, "loopback") == 0
 #endif
-			} else {
+			    )
+				opt.console = optarg;
+			else
 				printf("-console %s option not understood\n",
 				       optarg);
-			}
 			break;
 
 #ifdef ENABLE_OSM_CONSOLE_SOCKET
@@ -1041,13 +1040,14 @@ int main(int argc, char *argv[])
 		   Sit here forever
 		 */
 		while (!osm_exit_flag) {
-			if (strcmp(opt.console, "local") == 0) {
-				osm_console(&osm);
+			if (strcmp(opt.console, "local") == 0
 #ifdef ENABLE_OSM_CONSOLE_SOCKET
-			} else if (strcmp(opt.console, "socket") == 0) {
-				osm_console(&osm);
+			    || strcmp(opt.console, "socket") == 0
+			    || strcmp(opt.console, "loopback") = 0
 #endif
-			} else
+			    )
+				osm_console(&osm);
+			else
 				cl_thread_suspend(10000);
 
 			if (osm_usr1_flag) {

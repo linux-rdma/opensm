@@ -914,7 +914,8 @@ void osm_console_init(osm_subn_opt_t * opt, osm_opensm_t * p_osm)
 
 		osm_console_prompt(p_osm->console.out);
 #ifdef ENABLE_OSM_CONSOLE_SOCKET
-	} else if (strcmp(opt->console, "socket") == 0) {
+	} else if (strcmp(opt->console, "socket") == 0
+		   || strcmp(opt->console, "loopback") == 0) {
 		struct sockaddr_in sin;
 		int optval = 1;
 
@@ -929,7 +930,10 @@ void osm_console_init(osm_subn_opt_t * opt, osm_opensm_t * p_osm)
 			   &optval, sizeof(optval));
 		sin.sin_family = AF_INET;
 		sin.sin_port = htons(opt->console_port);
-		sin.sin_addr.s_addr = htonl(INADDR_ANY);
+		if (strcmp(opt->console, "socket") == 0)
+			sin.sin_addr.s_addr = htonl(INADDR_ANY);
+		else
+			sin.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 		if (bind(p_osm->console.socket, &sin, sizeof(sin)) < 0) {
 			osm_log(&(p_osm->log), OSM_LOG_ERROR,
 				"osm_console_init: ERR 4B02: Failed to bind console socket: %s\n",
