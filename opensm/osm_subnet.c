@@ -454,7 +454,7 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * const p_opt)
 	p_opt->log_max_size = 0;
 	p_opt->partition_config_file = OSM_DEFAULT_PARTITION_CONFIG_FILE;
 	p_opt->no_partition_enforcement = FALSE;
-	p_opt->no_qos = TRUE;
+	p_opt->qos = FALSE;
 	p_opt->qos_policy_file = OSM_DEFAULT_QOS_POLICY_FILE;
 	p_opt->accum_log_file = TRUE;
 	p_opt->port_profile_switch_nodes = FALSE;
@@ -730,7 +730,7 @@ ib_api_status_t osm_subn_rescan_conf_files(IN osm_subn_t * const p_subn)
 	fclose(opts_file);
 
 	/* read QoS policy config file */
-	if (!p_subn->opt.no_qos)
+	if (p_subn->opt.qos)
 		osm_qos_parse_policy_file(p_subn);
 
 	return IB_SUCCESS;
@@ -950,7 +950,7 @@ static void subn_verify_conf_file(IN osm_subn_opt_t * const p_opts)
 		p_opts->console = OSM_DEFAULT_CONSOLE;
 	}
 
-	if (p_opts->no_qos == FALSE) {
+	if (p_opts->qos) {
 		subn_verify_max_vls(&(p_opts->qos_options.max_vls),
 				    "qos_max_vls");
 		subn_verify_max_vls(&(p_opts->qos_ca_options.max_vls),
@@ -1184,7 +1184,7 @@ ib_api_status_t osm_subn_parse_conf_file(IN osm_subn_opt_t * const p_opts)
 		opts_unpack_boolean("no_partition_enforcement", p_key, p_val,
 				    &p_opts->no_partition_enforcement);
 
-		opts_unpack_boolean("no_qos", p_key, p_val, &p_opts->no_qos);
+		opts_unpack_boolean("qos", p_key, p_val, &p_opts->qos);
 
 		opts_unpack_charp("qos_policy_file",
 				    p_key, p_val, &p_opts->qos_policy_file);
@@ -1551,11 +1551,11 @@ ib_api_status_t osm_subn_write_conf_file(IN osm_subn_opt_t * const p_opts)
 
 	fprintf(opts_file,
 		"#\n# QoS OPTIONS\n#\n"
-		"# Disable QoS setup\n"
-		"no_qos %s\n\n"
+		"# Enable QoS setup\n"
+		"qos %s\n\n"
 		"# QoS policy file to be used\n"
 		"qos_policy_file %s\n\n",
-		p_opts->no_qos ? "TRUE" : "FALSE",
+		p_opts->qos ? "TRUE" : "FALSE",
 		p_opts->qos_policy_file);
 
 	subn_dump_qos_options(opts_file,

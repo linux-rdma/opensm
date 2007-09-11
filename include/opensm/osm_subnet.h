@@ -257,7 +257,7 @@ typedef struct _osm_subn_opt {
 	unsigned long log_max_size;
 	char *partition_config_file;
 	boolean_t no_partition_enforcement;
-	boolean_t no_qos;
+	boolean_t qos;
 	char *qos_policy_file;
 	boolean_t accum_log_file;
 	char *console;
@@ -400,7 +400,7 @@ typedef struct _osm_subn_opt {
 *		specified the log file will be truncated upon reaching
 *		this limit.
 *
-*	no_qos
+*	qos
 *		Boolean that specifies whether the OpenSM QoS functionality
 *		should be off or on.
 *

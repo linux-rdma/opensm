@@ -352,7 +352,7 @@ __osm_link_mgr_set_physp_pi(IN osm_link_mgr_t * const p_mgr,
 			send_set = TRUE;
 
 		/* provide the vl_high_limit from the qos mgr */
-		if (p_mgr->p_subn->opt.no_qos == FALSE &&
+		if (p_mgr->p_subn->opt.qos &&
 		    p_physp->vl_high_limit != p_old_pi->vl_high_limit) {
 			send_set = TRUE;
 			p_pi->vl_high_limit = p_physp->vl_high_limit;

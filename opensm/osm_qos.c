@@ -280,7 +280,7 @@ osm_signal_t osm_qos_setup(osm_opensm_t * p_osm)
 	unsigned force_update;
 	uint8_t i;
 
-	if (p_osm->subn.opt.no_qos)
+	if (!p_osm->subn.opt.qos)
 		return OSM_SIGNAL_DONE;
 
 	OSM_LOG_ENTER(&p_osm->log, osm_qos_setup);

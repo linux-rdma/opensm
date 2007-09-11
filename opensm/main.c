@@ -826,7 +826,7 @@ int main(int argc, char *argv[])
 			break;
 
 		case 'Q':
-			opt.no_qos = FALSE;
+			opt.qos = TRUE;
 			break;
 
 		case 'Y':

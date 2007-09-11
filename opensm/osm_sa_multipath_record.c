@@ -301,7 +301,7 @@ __osm_mpr_rcv_get_path_parms(IN osm_mpr_rcv_t * const p_rcv,
 		}
 	}
 
-	if (!p_rcv->p_subn->opt.no_qos) {
+	if (p_rcv->p_subn->opt.qos) {
 
 		/*
 		 * Whether this node is switch or CA, the IN port for
@@ -427,7 +427,7 @@ __osm_mpr_rcv_get_path_parms(IN osm_mpr_rcv_t * const p_rcv,
 		if (rate > ib_port_info_compute_rate(p_pi))
 			rate = ib_port_info_compute_rate(p_pi);
 
-		if (!p_rcv->p_subn->opt.no_qos) {
+		if (p_rcv->p_subn->opt.qos) {
 			/*
 			 * Check SL2VL table of the switch and update valid SLs
 			 */
@@ -470,7 +470,7 @@ __osm_mpr_rcv_get_path_parms(IN osm_mpr_rcv_t * const p_rcv,
 	 * Get QoS Level object according to the MultiPath request
 	 * and adjust MultiPath parameters according to QoS settings
 	 */
-	if ( !p_rcv->p_subn->opt.no_qos &&
+	if ( p_rcv->p_subn->opt.qos &&
 	     p_rcv->p_subn->p_qos_policy &&
 	     (p_qos_level = osm_qos_policy_get_qos_level_by_mpr(
 		    p_rcv->p_subn->p_qos_policy, p_mpr,
@@ -791,7 +791,7 @@ __osm_mpr_rcv_get_path_parms(IN osm_mpr_rcv_t * const p_rcv,
 		} else
 			required_sl = p_prtn->sl;
 
-	} else if (!p_rcv->p_subn->opt.no_qos) {
+	} else if (p_rcv->p_subn->opt.qos) {
 		if (valid_sl_mask & (1 << OSM_DEFAULT_SL))
 			required_sl = OSM_DEFAULT_SL;
 		else {
@@ -804,7 +804,7 @@ __osm_mpr_rcv_get_path_parms(IN osm_mpr_rcv_t * const p_rcv,
 	else
 		required_sl = OSM_DEFAULT_SL;
 
-	if (!p_rcv->p_subn->opt.no_qos && !(valid_sl_mask & (1 << required_sl))) {
+	if (p_rcv->p_subn->opt.qos && !(valid_sl_mask & (1 << required_sl))) {
 		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
 			"__osm_mpr_rcv_get_path_parms: ERR 451F: "
 			"Selected SL (%u) leads to VL15\n", required_sl);
