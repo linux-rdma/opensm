@@ -50,32 +50,8 @@ fi
 # cleanup
 find . \( -name Makefile.in -o -name aclocal.m4 -o -name autom4te.cache -o -name configure -o -name aclocal.m4 \) -exec \rm -rf {} \; -prune
 
-# handle our own autoconf:
-(aclocal -I config 2>&1 ) && \
-(automake --add-missing --gnu --copy ) && \
-(autoconf 2>&1 )
-if test $? != 0; then
-    exit 1
-fi
-
-
-
-# visit all sub directories with autogen.sh
-anyErr=0
-for a in include complib libvendor opensm osmtest osmeventplugin ; do
-	dir=`dirname $a`
-	test -d ${dir}/config || mkdir ${dir}/config
-	echo Visiting $a
-	( cd $a && \
-	set -x && \
-	aclocal -I config -I ../config && \
-	libtoolize --force --copy && \
-	autoheader && \
-	automake --foreign --add-missing --copy && \
-	autoconf ) \
-	2>&1 | sed 's/^/| /' | grep -v "arning: underquoted definition"
-	if test $? != 0; then
-		echo $a failed
-		anyErr=1
-	fi
-done
+aclocal -I config && \
+libtoolize --force --copy && \
+autoheader && \
+automake --foreign --add-missing --copy && \
+autoconf

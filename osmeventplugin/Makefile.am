@@ -18,6 +18,8 @@ else
     libosmeventplugin_version_script =
 endif
 
+osmeventplugin_api_version=$(shell grep LIBVERSION= $(srcdir)/libosmeventplugin.ver | sed 's/LIBVERSION=//')
+
 libosmeventplugin_la_SOURCES = src/osmeventplugin.c
 libosmeventplugin_la_LDFLAGS = -version-info $(osmeventplugin_api_version) \
 	 -export-dynamic $(libosmeventplugin_version_script)

@@ -21,6 +21,8 @@ else
 libopensm_version_script =
 endif
 
+opensm_api_version=$(shell grep LIBVERSION= $(srcdir)/libopensm.ver | sed 's/LIBVERSION=//')
+
 libopensm_la_SOURCES = osm_log.c osm_mad_pool.c osm_helper.c
 libopensm_la_LDFLAGS = -version-info $(opensm_api_version) \
 	-export-dynamic $(libopensm_version_script)

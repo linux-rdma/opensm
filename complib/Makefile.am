@@ -17,6 +17,8 @@ else
     libosmcomp_version_script =
 endif
 
+complib_api_version=$(shell grep LIBVERSION= $(srcdir)/libosmcomp.ver | sed 's/LIBVERSION=//')
+
 libosmcomp_la_SOURCES = cl_complib.c cl_dispatcher.c \
 			cl_event.c cl_event_wheel.c \
 			cl_list.c cl_log.c cl_map.c \

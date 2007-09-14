@@ -4,6 +4,7 @@ AC_PREREQ(2.57)
 AC_INIT(opensm, 3.1.1, general@lists.openfabrics.org)
 AC_CONFIG_SRCDIR([opensm/osm_opensm.c])
 AC_CONFIG_AUX_DIR(config)
+AC_CONFIG_HEADERS(include/config.h)
 AM_INIT_AUTOMAKE(opensm, 3.1.1)
 
 dnl Defines the Language
@@ -16,16 +17,49 @@ AM_MAINTAINER_MODE
 
 dnl Required for cases make defines a MAKE=make ??? Why
 AC_PROG_MAKE_SET
+AC_PROG_CC
+AC_PROG_LIBTOOL
+AC_PROG_INSTALL
+AC_PROG_LN_S
+AC_PROG_MAKE_SET
+AC_PROG_YACC
+AC_PROG_LEX
+
+dnl Checks for libraries
+AC_CHECK_LIB(pthread, pthread_mutex_init, [],
+	AC_MSG_ERROR([pthread_mutex_init() not found.  libosmcomp requires libpthread.]))
+
+dnl Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
+AC_C_INLINE
+AC_TYPE_PID_T
+AC_TYPE_SIZE_T
+AC_HEADER_TIME
+AC_STRUCT_TM
+AC_C_VOLATILE
+
+dnl We use --version-script with ld if possible
+AC_CACHE_CHECK(whether ld accepts --version-script, ac_cv_version_script,
+if test -n "`$LD --help < /dev/null 2>/dev/null | grep version-script`"; then
+	ac_cv_version_script=yes
+else
+	ac_cv_version_script=no
+fi)
+AM_CONDITIONAL(HAVE_LD_VERSION_SCRIPT, test "$ac_cv_version_script" = "yes")
 
 dnl Define an input config option to control debug compile
-AC_ARG_ENABLE(debug,
-[  --enable-debug    Turn on debugging],
+AC_ARG_ENABLE(debug,    [  --enable-debug          Turn on debugging],
 [case "${enableval}" in
-  yes) debug=true ;;
-  no)  debug=false ;;
-  *) AC_MSG_ERROR(bad value ${enableval} for --enable-debug) ;;
-esac],[debug=false])
+	yes) debug=true ;;
+	no)  debug=false ;;
+	*) AC_MSG_ERROR(bad value ${enableval} for --enable-debug) ;;
+esac],debug=false)
 AM_CONDITIONAL(DEBUG, test x$debug = xtrue)
+
+AC_ARG_ENABLE(libcheck, [  --disable-libcheck      do not test for presence of ib libraries],
+[if test x$enableval = xno ; then
+	disable_libcheck=yes
+fi])
 
 dnl check if they want the socket console
 OPENIB_OSM_CONSOLE_SOCKET_SEL
@@ -39,9 +73,15 @@ OPENIB_OSM_DEFAULT_EVENT_PLUGIN_SEL
 dnl Provide user option to select vendor
 OPENIB_APP_OSMV_SEL
 
-dnl Configure the following subdirs
-AC_CONFIG_SUBDIRS(complib libvendor opensm osmtest include osmeventplugin)
+dnl Checks for headers and libraries
+OPENIB_APP_OSMV_CHECK_HEADER
+OPENIB_APP_OSMV_CHECK_LIB
+
+# we have to revive the env CFLAGS as some how they are being overwritten...
+# see http://sources.redhat.com/automake/automake.html#Flag-Variables-Ordering
+# for why they should NEVER be modified by the configure to allow for user
+# overrides.
+CFLAGS=$ac_env_CFLAGS_value
 
 dnl Create the following Makefiles
-AC_OUTPUT(Makefile)
-AC_OUTPUT(opensm.spec)
+AC_OUTPUT([Makefile include/Makefile complib/Makefile libvendor/Makefile opensm/Makefile osmeventplugin/Makefile osmtest/Makefile opensm.spec])

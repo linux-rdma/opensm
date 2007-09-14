@@ -23,6 +23,8 @@ else
     libosmvendor_version_script =
 endif
 
+osmvendor_api_version=$(shell grep LIBVERSION= $(srcdir)/libosmvendor.ver | sed 's/LIBVERSION=//')
+
 COMM_HDRS= $(srcdir)/../include/vendor/osm_vendor_api.h \
 			$(srcdir)/../include/vendor/osm_vendor.h \
 			$(srcdir)/../include/vendor/osm_vendor_select.h \
