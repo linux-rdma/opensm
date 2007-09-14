@@ -76,11 +76,7 @@ libosmcompinclude_HEADERS = $(srcdir)/../include/complib/cl_atomic.h \
 	$(srcdir)/../include/complib/cl_vector.h
 
 # headers are distributed as part of the include dir
-EXTRA_DIST = $(srcdir)/libosmcomp.spec.in $(srcdir)/libosmcomp.map \
-	$(srcdir)/libosmcomp.ver
-
-dist-hook: libosmcomp.spec
-	cp libosmcomp.spec $(distdir)
+EXTRA_DIST = $(srcdir)/libosmcomp.map $(srcdir)/libosmcomp.ver
 
 # as we can not use libtool -release since it actually changes the SONAME
 # to the full release name instead of keeping it to the original

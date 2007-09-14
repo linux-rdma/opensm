@@ -87,10 +87,7 @@ libosmvendorincludedir = $(includedir)/infiniband/vendor
 libosmvendorinclude_HEADERS = $(HDRS)
 
 # headers are distributed as part of the include dir
-EXTRA_DIST = libosmvendor.spec.in $(srcdir)/libosmvendor.map $(srcdir)/libosmvendor.ver
-
-dist-hook: libosmvendor.spec
-	cp libosmvendor.spec $(distdir)
+EXTRA_DIST = $(srcdir)/libosmvendor.map $(srcdir)/libosmvendor.ver
 
 # as we can not use libtool -release since it actually changes the SONAME
 # to the full release name instead of keeping it to the original

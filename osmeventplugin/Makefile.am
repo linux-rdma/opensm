@@ -31,9 +31,4 @@ libosmeventpluginincludedir = $(includedir)/infiniband/complib
 libosmeventplugininclude_HEADERS =
 
 # headers are distributed as part of the include dir
-EXTRA_DIST = $(srcdir)/libosmeventplugin.spec.in $(srcdir)/libosmeventplugin.map \
-	$(srcdir)/libosmeventplugin.ver
-
-dist-hook: libosmeventplugin.spec
-	cp libosmeventplugin.spec $(distdir)
-
+EXTRA_DIST = $(srcdir)/libosmeventplugin.map $(srcdir)/libosmeventplugin.ver
