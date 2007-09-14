@@ -61,11 +61,12 @@ with_sim="/usr")
 dnl based on the with_osmv we can try the vendor flag
 if test $with_osmv = "openib"; then
    OSMV_CFLAGS="-DOSM_VENDOR_INTF_OPENIB"
-   OSMV_INCLUDES="-I\$(srcdir)/../include -I\$(srcdir)/../../libibcommon/include/infiniband -I\$(srcdir)/../../libibumad/include/infiniband"
-   if test "x$with_umad_libs" = "x"; then
-     OSMV_LDADD="-libumad"
-   else
-     OSMV_LDADD="-L$with_umad_libs -libumad"
+   OSMV_INCLUDES="-I\$(srcdir)/../include -I\$(srcdir)/../../libibcommon/include -I\$(srcdir)/../../libibumad/include -I\$(includedir)"
+   OSMV_LDADD="-L\$(abs_srcdir)/../../libibumad/.libs -L\$(abs_srcdir)/../../libibcommon/.libs -L\$(libdir) -libumad -libcommon"
+   OSMV_LDADD="-Wl,--rpath -Wl,\$(abs_srcdir)/../../libibumad/.libs -Wl,--rpath -Wl,\$(abs_srcdir)/../../libibcommon/.libs -Wl,--rpath -Wl,\$(libdir) $OSMV_LDADD"
+
+   if test "x$with_umad_libs" != "x"; then
+     OSMV_LDADD="-L$with_umad_libs $OSMV_LDADD"
    fi
 
    if test "x$with_umad_includes" != "x"; then 
