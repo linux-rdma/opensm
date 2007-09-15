@@ -105,7 +105,8 @@ opensminclude_HEADERS = $(srcdir)/../include/opensm/osm_base.h \
 
 # headers are distributed as part of the include dir
 EXTRA_DIST = $(srcdir)/libopensm.map $(srcdir)/libopensm.ver \
-	     $(srcdir)/ChangeLog
+	     $(srcdir)/ChangeLog \
+	     $(srcdir)/osm_qos_parser.y $(srcdir)/osm_qos_parser.l
 
 # as we can not use libtool -release since it actually changes the SONAME
 # to the full release name instead of keeping it to the original
