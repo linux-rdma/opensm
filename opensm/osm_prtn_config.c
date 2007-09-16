@@ -109,13 +109,13 @@ static int partition_create(unsigned lineno, struct part_conf *conf,
 	if (!conf->p_prtn)
 		return -1;
 
-	if (!conf->p_subn->opt.qos) {
-		if (conf->sl != OSM_DEFAULT_SL) {
-			osm_log(conf->p_log, OSM_LOG_ERROR,
-				"partition_create: Overriding SL %d to default SL %d on partition %s as QoS not enabled\n",
-				conf->sl, OSM_DEFAULT_SL, name);
-			conf->sl = OSM_DEFAULT_SL;
-		}
+	if (!conf->p_subn->opt.qos && conf->sl != OSM_DEFAULT_SL) {
+		osm_log(conf->p_log, OSM_LOG_DEBUG,
+			"partition_create: Overriding SL %d"
+			" to default SL %d on partition %s"
+			" as QoS is not enabled.\n",
+			conf->sl, OSM_DEFAULT_SL, name);
+		conf->sl = OSM_DEFAULT_SL;
 	}
 	conf->p_prtn->sl = (uint8_t) conf->sl;
 
