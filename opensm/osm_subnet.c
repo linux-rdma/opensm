@@ -1298,7 +1298,7 @@ ib_api_status_t osm_subn_write_conf_file(IN osm_subn_opt_t * const p_opts)
 		"guid 0x%016" PRIx64 "\n\n"
 		"# M_Key value sent to all ports qualifying all Set(PortInfo)\n"
 		"m_key 0x%016" PRIx64 "\n\n"
-		"# The lease period used for the M_Key on this subnet in [msec]\n"
+		"# The lease period used for the M_Key on this subnet in [sec]\n"
 		"m_key_lease_period %u\n\n"
 		"# SM_Key value of the SM to qualify rcv SA queries as 'trusted'\n"
 		"sm_key 0x%016" PRIx64 "\n\n"
