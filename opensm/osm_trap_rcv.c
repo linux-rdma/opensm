@@ -439,6 +439,16 @@ __osm_trap_rcv_process_request(IN osm_trap_rcv_t * const p_rcv,
 
 	osm_dump_notice(p_rcv->p_log, p_ntci, OSM_LOG_VERBOSE);
 
+	p_physp = osm_get_physp_by_mad_addr(p_rcv->p_log,
+					    p_rcv->p_subn,
+					    &tmp_madw.mad_addr);
+	if (p_physp)
+		p_smp->m_key = p_physp->port_info.m_key;
+	else
+		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+			"__osm_trap_rcv_process_request: ERR 3809: "
+			"Failed to find source physical port for trap\n");
+
 	status = osm_resp_send(p_rcv->p_resp, &tmp_madw, 0, payload);
 	if (status != IB_SUCCESS) {
 		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
