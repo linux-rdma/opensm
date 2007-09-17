@@ -50,6 +50,7 @@
 #include <iba/ib_types.h>
 #include <complib/cl_list.h>
 #include <opensm/osm_port.h>
+#include <opensm/osm_partition.h>
 #include <opensm/osm_sa_path_record.h>
 #include <opensm/osm_sa_multipath_record.h>
 
@@ -59,17 +60,20 @@
 
 /***************************************************/
 
+typedef struct _osm_qos_port_t {
+	cl_map_item_t map_item;
+	osm_physp_t * p_physp;
+} osm_qos_port_t;
+
 typedef struct _osm_qos_port_group_t {
 	char *name;			/* single string (this port group name) */
 	char *use;			/* single string (description) */
 	cl_list_t port_name_list;	/* list of port names (.../.../...) */
-	uint64_t **guid_range_arr;	/* array of guid ranges (pair of 64-bit guids) */
-	unsigned guid_range_len;	/* num of guid ranges in the array */
-	cl_list_t partition_list;	/* list of partition names */
 	boolean_t node_type_ca;
 	boolean_t node_type_switch;
 	boolean_t node_type_router;
 	boolean_t node_type_self;
+	cl_qmap_t port_map;
 } osm_qos_port_group_t;
 
 /***************************************************/
@@ -147,6 +151,7 @@ typedef struct _osm_qos_policy_t {
 
 /***************************************************/
 
+osm_qos_port_t *osm_qos_policy_port_create(osm_physp_t * p_physp);
 osm_qos_port_group_t * osm_qos_policy_port_group_create();
 void osm_qos_policy_port_group_destroy(osm_qos_port_group_t * p_port_group);
 

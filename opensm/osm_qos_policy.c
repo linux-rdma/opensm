@@ -101,6 +101,27 @@ static void __free_single_element(void *p_element, void *context)
 		free(p_element);
 }
 
+static void __free_port_map_element(cl_map_item_t *p_element, void *context)
+{
+	if (p_element)
+		free(p_element);
+}
+
+/***************************************************
+ ***************************************************/
+
+osm_qos_port_t *osm_qos_policy_port_create(osm_physp_t *p_physp)
+{
+	osm_qos_port_t *p =
+	    (osm_qos_port_t *) malloc(sizeof(osm_qos_port_t));
+	if (!p)
+		return NULL;
+	memset(p, 0, sizeof(osm_qos_port_t));
+
+	p->p_physp = p_physp;
+	return p;
+}
+
 /***************************************************
  ***************************************************/
 
@@ -114,7 +135,7 @@ osm_qos_port_group_t *osm_qos_policy_port_group_create()
 	memset(p, 0, sizeof(osm_qos_port_group_t));
 
 	cl_list_init(&p->port_name_list, 10);
-	cl_list_init(&p->partition_list, 10);
+	cl_qmap_init(&p->port_map);
 
 	return p;
 }
@@ -124,8 +145,6 @@ osm_qos_port_group_t *osm_qos_policy_port_group_create()
 
 void osm_qos_policy_port_group_destroy(osm_qos_port_group_t * p)
 {
-	unsigned i;
-
 	if (!p)
 		return;
 
@@ -134,18 +153,12 @@ void osm_qos_policy_port_group_destroy(osm_qos_port_group_t * p)
 	if (p->use)
 		free(p->use);
 
-	for (i = 0; i < p->guid_range_len; i++)
-		free(p->guid_range_arr[i]);
-	if (p->guid_range_arr)
-		free(p->guid_range_arr);
-
 	cl_list_apply_func(&p->port_name_list, __free_single_element, NULL);
 	cl_list_remove_all(&p->port_name_list);
 	cl_list_destroy(&p->port_name_list);
 
-	cl_list_apply_func(&p->partition_list, __free_single_element, NULL);
-	cl_list_remove_all(&p->partition_list);
-	cl_list_destroy(&p->partition_list);
+	cl_qmap_apply_func(&p->port_map,  __free_port_map_element,  NULL);
+	cl_qmap_remove_all(&p->port_map);
 
 	free(p);
 }
@@ -491,12 +504,9 @@ __qos_policy_is_port_in_group(osm_subn_t * p_subn,
 			      osm_qos_port_group_t * p_port_group)
 {
 	osm_node_t *p_node = osm_physp_get_node_ptr(p_physp);
-	osm_prtn_t *p_prtn = NULL;
 	ib_net64_t port_guid = osm_physp_get_port_guid(p_physp);
 	uint64_t port_guid_ho = cl_ntoh64(port_guid);
 	uint8_t node_type = osm_node_get_type(p_node);
-	cl_list_iterator_t list_iterator;
-	char *partition_name;
 
 	/* check whether this port's type matches any of group's types */
 
@@ -506,26 +516,11 @@ __qos_policy_is_port_in_group(osm_subn_t * p_subn,
 		&& p_port_group->node_type_router))
 		return TRUE;
 
-	/* check whether this port's guid is in range of this group's guids */
+	/* check whether this port's guid is in group's port map */
 
-	if (__is_num_in_range_arr(p_port_group->guid_range_arr,
-				  p_port_group->guid_range_len, port_guid_ho))
+	if (cl_qmap_get(&p_port_group->port_map, port_guid_ho) !=
+	    cl_qmap_end(&p_port_group->port_map))
 		return TRUE;
-
-	/* check whether this port is member of this group's partitions */
-
-	list_iterator = cl_list_head(&p_port_group->partition_list);
-	while (list_iterator != cl_list_end(&p_port_group->partition_list)) {
-		partition_name = (char *)cl_list_obj(list_iterator);
-		if (partition_name && strlen(partition_name)) {
-			p_prtn = osm_prtn_find_by_name(p_subn, partition_name);
-			if (p_prtn) {
-				if (osm_prtn_is_guid(p_prtn, port_guid))
-					return TRUE;
-			}
-		}
-		list_iterator = cl_list_next(list_iterator);
-	}
 
 	/* check whether this port's name matches any of group's names */
 

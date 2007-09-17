@@ -103,6 +103,19 @@ static void __merge_rangearr(
     uint64_t  ** * p_arr,
     unsigned     * p_arr_len );
 
+static void __parser_add_port_to_port_map(
+    cl_qmap_t   * p_map,
+    osm_physp_t * p_physp);
+
+static void __parser_add_range_to_port_map(
+    cl_qmap_t  * p_map,
+    uint64_t  ** range_arr,
+    unsigned     range_len);
+
+static void __parser_add_map_to_port_map(
+    cl_qmap_t * p_dmap,
+    cl_map_t  * p_smap);
+
 extern char * __qos_parser_text;
 extern void __qos_parser_error (char *s);
 extern int __qos_parser_lex (void);
@@ -612,24 +625,9 @@ port_group_port_guid:   port_group_port_guid_start list_of_ranges {
                                                       &range_arr,
                                                       &range_len );
 
-                                if ( !p_current_port_group->guid_range_len )
-                                {
-                                    p_current_port_group->guid_range_arr = range_arr;
-                                    p_current_port_group->guid_range_len = range_len;
-                                }
-                                else
-                                {
-                                    uint64_t ** new_range_arr;
-                                    unsigned new_range_len;
-                                    __merge_rangearr( p_current_port_group->guid_range_arr,
-                                                      p_current_port_group->guid_range_len,
-                                                      range_arr,
-                                                      range_len,
-                                                      &new_range_arr,
-                                                      &new_range_len );
-                                    p_current_port_group->guid_range_arr = new_range_arr;
-                                    p_current_port_group->guid_range_len = new_range_len;
-                                }
+                                __parser_add_range_to_port_map(&p_current_port_group->port_map,
+                                                               range_arr,
+                                                               range_len);
                             }
                         }
                         ;
@@ -643,13 +641,26 @@ port_group_partition:  port_group_partition_start string_list {
                             /* 'partition' in 'port-group' - any num of instances */
                             cl_list_iterator_t    list_iterator;
                             char                * tmp_str;
+                            osm_prtn_t          * p_prtn;
 
+                            /* extract all the ports from the partition
+                               to the port map of this port group */
                             list_iterator = cl_list_head(&tmp_parser_struct.str_list);
                             while( list_iterator != cl_list_end(&tmp_parser_struct.str_list) )
                             {
                                 tmp_str = (char*)cl_list_obj(list_iterator);
                                 if (tmp_str)
-                                    cl_list_insert_tail(&p_current_port_group->partition_list,tmp_str);
+                                {
+                                    p_prtn = osm_prtn_find_by_name(p_qos_policy->p_subn, tmp_str);
+                                    if (p_prtn)
+                                    {
+                                        __parser_add_map_to_port_map(&p_current_port_group->port_map,
+                                                                     &p_prtn->part_guid_tbl);
+                                        __parser_add_map_to_port_map(&p_current_port_group->port_map,
+                                                                     &p_prtn->full_guid_tbl);
+                                    }
+                                    free(tmp_str);
+                                }
                                 list_iterator = cl_list_next(list_iterator);
                             }
                             cl_list_remove_all(&tmp_parser_struct.str_list);
@@ -2181,6 +2192,72 @@ static void __merge_rangearr(
                             &res_arr_len );
     *p_arr = res_arr;
     *p_arr_len = res_arr_len;
+}
+
+/***************************************************
+ ***************************************************/
+
+static void __parser_add_port_to_port_map(
+    cl_qmap_t   * p_map,
+    osm_physp_t * p_physp)
+{
+    if (p_physp && osm_physp_is_valid(p_physp) &&
+        cl_qmap_get(p_map, cl_ntoh64(
+           osm_physp_get_port_guid(p_physp))) == cl_qmap_end(p_map))
+    {
+        osm_qos_port_t * p_port = osm_qos_policy_port_create(p_physp);
+        cl_qmap_insert(p_map,
+                       cl_ntoh64(osm_physp_get_port_guid(p_physp)),
+                       &p_port->map_item);
+    }
+}
+
+/***************************************************
+ ***************************************************/
+
+static void __parser_add_range_to_port_map(
+    cl_qmap_t  * p_map,
+    uint64_t  ** range_arr,
+    unsigned     range_len)
+{
+    unsigned i;
+    uint64_t guid_ho;
+    osm_port_t * p_osm_port;
+
+    if (!range_arr || !range_len)
+        return;
+
+    for (i = 0; i < range_len; i++) {
+         for (guid_ho = range_arr[i][0]; guid_ho <= range_arr[i][1]; guid_ho++) {
+             p_osm_port =
+                osm_get_port_by_guid(p_qos_policy->p_subn, cl_hton64(guid_ho));
+             if (p_osm_port)
+                 __parser_add_port_to_port_map(p_map, p_osm_port->p_physp);
+         }
+         free(range_arr[i]);
+    }
+    free(range_arr);
+}
+
+/***************************************************
+ ***************************************************/
+
+static void __parser_add_map_to_port_map(
+    cl_qmap_t * p_dmap,
+    cl_map_t  * p_smap)
+{
+    cl_map_iterator_t map_iterator;
+    osm_physp_t * p_physp;
+
+    if (!p_dmap || !p_smap)
+        return;
+
+    map_iterator = cl_map_head(p_smap);
+    while (map_iterator != cl_map_end(p_smap)) {
+        p_physp = (osm_physp_t*)cl_map_obj(map_iterator);
+        __parser_add_port_to_port_map(p_dmap, p_physp);
+        map_iterator = cl_map_next(map_iterator);
+    }
 }
 
 /***************************************************
