@@ -58,6 +58,10 @@
 #define OSM_QOS_POLICY_MAX_PORTS_ON_SWITCH  128
 #define OSM_QOS_POLICY_DEFAULT_LEVEL_NAME   "default"
 
+#define OSM_QOS_POLICY_NODE_TYPE_CA        (((uint8_t)1)<<IB_NODE_TYPE_CA)
+#define OSM_QOS_POLICY_NODE_TYPE_SWITCH    (((uint8_t)1)<<IB_NODE_TYPE_SWITCH)
+#define OSM_QOS_POLICY_NODE_TYPE_ROUTER    (((uint8_t)1)<<IB_NODE_TYPE_ROUTER)
+
 /***************************************************/
 
 typedef struct _osm_qos_port_t {
@@ -69,10 +73,7 @@ typedef struct _osm_qos_port_group_t {
 	char *name;			/* single string (this port group name) */
 	char *use;			/* single string (description) */
 	cl_list_t port_name_list;	/* list of port names (.../.../...) */
-	boolean_t node_type_ca;
-	boolean_t node_type_switch;
-	boolean_t node_type_router;
-	boolean_t node_type_self;
+	uint8_t node_types;		/* node types bitmask */
 	cl_qmap_t port_map;
 } osm_qos_port_group_t;
 

@@ -694,29 +694,39 @@ node_type_item:           node_type_ca
                         ;
 
 node_type_ca:           TK_NODE_TYPE_CA {
-                            p_current_port_group->node_type_ca = TRUE;;
+                            p_current_port_group->node_types |=
+                               OSM_QOS_POLICY_NODE_TYPE_CA;
                         }
                         ;
 
 node_type_switch:       TK_NODE_TYPE_SWITCH {
-                            p_current_port_group->node_type_switch = TRUE;
+                            p_current_port_group->node_types |=
+                               OSM_QOS_POLICY_NODE_TYPE_SWITCH;
                         }
                         ;
 
 node_type_router:       TK_NODE_TYPE_ROUTER {
-                            p_current_port_group->node_type_router = TRUE;
+                            p_current_port_group->node_types |=
+                               OSM_QOS_POLICY_NODE_TYPE_ROUTER;
                         }
                         ;
 
 node_type_all:          TK_NODE_TYPE_ALL {
-                            p_current_port_group->node_type_ca = TRUE;
-                            p_current_port_group->node_type_switch = TRUE;
-                            p_current_port_group->node_type_router = TRUE;
+                            p_current_port_group->node_types |=
+                               (OSM_QOS_POLICY_NODE_TYPE_CA |
+                                OSM_QOS_POLICY_NODE_TYPE_SWITCH |
+                                OSM_QOS_POLICY_NODE_TYPE_ROUTER);
                         }
                         ;
 
 node_type_self:         TK_NODE_TYPE_SELF {
-                            p_current_port_group->node_type_self = TRUE;
+                            osm_port_t * p_osm_port =
+                                osm_get_port_by_guid(p_qos_policy->p_subn,
+                                     p_qos_policy->p_subn->sm_port_guid);
+                            if (p_osm_port)
+                                __parser_add_port_to_port_map(
+                                   &p_current_port_group->port_map,
+                                   p_osm_port->p_physp);
                         }
                         ;
 

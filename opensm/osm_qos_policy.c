@@ -506,14 +506,11 @@ __qos_policy_is_port_in_group(osm_subn_t * p_subn,
 	osm_node_t *p_node = osm_physp_get_node_ptr(p_physp);
 	ib_net64_t port_guid = osm_physp_get_port_guid(p_physp);
 	uint64_t port_guid_ho = cl_ntoh64(port_guid);
-	uint8_t node_type = osm_node_get_type(p_node);
 
 	/* check whether this port's type matches any of group's types */
 
-	if ((node_type == IB_NODE_TYPE_CA && p_port_group->node_type_ca) ||
-	    (node_type == IB_NODE_TYPE_SWITCH && p_port_group->node_type_switch)
-	    || (node_type == IB_NODE_TYPE_ROUTER
-		&& p_port_group->node_type_router))
+	if ( p_port_group->node_types &
+	     (((uint8_t)1)<<osm_node_get_type(p_node)) )
 		return TRUE;
 
 	/* check whether this port's guid is in group's port map */
