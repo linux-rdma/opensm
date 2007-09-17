@@ -1043,7 +1043,7 @@ int main(int argc, char *argv[])
 			if (strcmp(opt.console, "local") == 0
 #ifdef ENABLE_OSM_CONSOLE_SOCKET
 			    || strcmp(opt.console, "socket") == 0
-			    || strcmp(opt.console, "loopback") = 0
+			    || strcmp(opt.console, "loopback") == 0
 #endif
 			    )
 				osm_console(&osm);
