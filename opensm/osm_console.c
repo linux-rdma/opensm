@@ -390,18 +390,17 @@ static void print_status(osm_opensm_t * p_osm, FILE * out)
 #endif
 		fprintf(out, "\n   MAD stats\n"
 			"   ---------\n"
-			"   QP0 MADS outstanding           : %d\n"
-			"   QP0 MADS outstanding (on wire) : %d\n"
-			"   QP0 MADS rcvd                  : %d\n"
-			"   QP0 MADS sent                  : %d\n"
+			"   QP0 MADs outstanding           : %d\n"
+			"   QP0 MADs outstanding (on wire) : %d\n"
+			"   QP0 MADs rcvd                  : %d\n"
+			"   QP0 MADs sent                  : %d\n"
 			"   QP0 unicasts sent              : %d\n"
 			"   QP0 unknown MADs rcvd          : %d\n"
-			"   SA MADS outstanding            : %d\n"
-			"   SA MADS rcvd                   : %d\n"
-			"   SA MADS sent                   : %d\n"
-			"   QP1 MADs sent                  : %d\n"
-			"   QP1 unknown MADs rcvd          : %d\n"
-			"   QP1 MADs ignored               : %d\n",
+			"   SA MADs outstanding            : %d\n"
+			"   SA MADs rcvd                   : %d\n"
+			"   SA MADs sent                   : %d\n"
+			"   SA unknown MADs rcvd           : %d\n"
+			"   SA MADs ignored                : %d\n",
 			p_osm->stats.qp0_mads_outstanding,
 			p_osm->stats.qp0_mads_outstanding_on_wire,
 			p_osm->stats.qp0_mads_rcvd,
@@ -409,7 +408,7 @@ static void print_status(osm_opensm_t * p_osm, FILE * out)
 			p_osm->stats.qp0_unicasts_sent,
 			p_osm->stats.qp0_mads_rcvd_unknown,
 			p_osm->stats.sa_mads_outstanding,
-			p_osm->stats.sa_mads_rcvd, p_osm->stats.sa_mads_sent,
+			p_osm->stats.sa_mads_rcvd,
 			p_osm->stats.sa_mads_sent,
 			p_osm->stats.sa_mads_rcvd_unknown,
 			p_osm->stats.sa_mads_ignored);

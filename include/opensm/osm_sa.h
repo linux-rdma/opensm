@@ -442,7 +442,7 @@ osm_sa_bind(IN osm_sa_t * const p_sa, IN const ib_net64_t port_guid);
 *	osm_sa_vendor_send
 *
 * DESCRIPTION
-*	Sends SA MAD via osm_vendor_call and maintains the QP1 sent statistic
+*	Sends SA MAD via osm_vendor_send and maintains the QP1 sent statistic
 *
 * SYNOPSIS
 */

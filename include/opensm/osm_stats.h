@@ -128,20 +128,20 @@ typedef struct _osm_stats {
 *		unrecognized attribute IDs and methods.
 *
 *	sa_mads_outstanding
-*		Contains the number of MADs outstanding on QP1.
+*		Contains the number of SA MADs outstanding on QP1.
 *
 *	sa_mads_rcvd
-*		Total number of QP1 MADs received.
+*		Total number of SA MADs received.
 *
 *	sa_mads_sent
-*		Total number of QP1 MADs sent.
+*		Total number of SA MADs sent.
 *
 *	sa_mads_rcvd_unknown
-*		Total number of unknown QP1 MADs received. This includes
+*		Total number of unknown SA MADs received. This includes
 *		unrecognized attribute IDs and methods.
 *
 *	sa_mads_ignored
-*		Total number of QP1 MADs received because SM is not
+*		Total number of SA MADs received because SM is not
 *		master or SM is in first time sweep.
 *
 * SEE ALSO
