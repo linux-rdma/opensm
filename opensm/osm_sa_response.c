@@ -77,8 +77,7 @@ void osm_sa_resp_destroy(IN osm_sa_resp_t * const p_resp)
 ib_api_status_t
 osm_sa_resp_init(IN osm_sa_resp_t * const p_resp,
 		 IN osm_mad_pool_t * const p_pool,
-		 IN osm_subn_t * const p_subn,
-		 IN osm_log_t * const p_log)
+		 IN osm_subn_t * const p_subn, IN osm_log_t * const p_log)
 {
 	ib_api_status_t status = IB_SUCCESS;
 

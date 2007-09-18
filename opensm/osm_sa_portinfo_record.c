@@ -683,8 +683,7 @@ void osm_pir_rcv_process(IN void *ctx, IN void *data)
 			       (osm_pir_item_t *) cl_qlist_end(&rec_list)) {
 				cl_qlock_pool_put(&p_rcv->pool,
 						  &p_rec_item->pool_item);
-				p_rec_item =
-				    (osm_pir_item_t *)
+				p_rec_item = (osm_pir_item_t *)
 				    cl_qlist_remove_head(&rec_list);
 			}
 

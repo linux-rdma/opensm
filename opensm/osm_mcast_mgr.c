@@ -794,8 +794,7 @@ static osm_mtree_node_t *__osm_mcast_mgr_branch(osm_mcast_mgr_t * const p_mgr,
 			CL_ASSERT(count == 1);
 
 			p_mtn->child_array[i] = OSM_MTREE_LEAF;
-			p_wobj =
-			    (osm_mcast_work_obj_t *)
+			p_wobj = (osm_mcast_work_obj_t *)
 			    cl_qlist_remove_head(p_port_list);
 
 			CL_ASSERT(cl_is_qlist_empty(p_port_list));

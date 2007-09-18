@@ -471,11 +471,12 @@ __osm_mpr_rcv_get_path_parms(IN osm_mpr_rcv_t * const p_rcv,
 	 * Get QoS Level object according to the MultiPath request
 	 * and adjust MultiPath parameters according to QoS settings
 	 */
-	if ( p_rcv->p_subn->opt.qos &&
-	     p_rcv->p_subn->p_qos_policy &&
-	     (p_qos_level = osm_qos_policy_get_qos_level_by_mpr(
-		    p_rcv->p_subn->p_qos_policy, p_mpr,
-		    p_src_physp, p_dest_physp, comp_mask)) ) {
+	if (p_rcv->p_subn->opt.qos &&
+	    p_rcv->p_subn->p_qos_policy &&
+	    (p_qos_level =
+	     osm_qos_policy_get_qos_level_by_mpr(p_rcv->p_subn->p_qos_policy,
+						 p_mpr, p_src_physp,
+						 p_dest_physp, comp_mask))) {
 
 		if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG))
 			osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
@@ -607,7 +608,7 @@ __osm_mpr_rcv_get_path_parms(IN osm_mpr_rcv_t * const p_rcv,
 	   for loopback paths, packetLifeTime shall be zero. */
 	if (p_src_port == p_dest_port)
 		pkt_life = 0;	/* loopback */
-	else if ( !(p_qos_level && p_qos_level->pkt_life_set) )
+	else if (!(p_qos_level && p_qos_level->pkt_life_set))
 		pkt_life = OSM_DEFAULT_SUBNET_TIMEOUT;
 
 	/* we silently ignore cases where only the PktLife selector is defined */
@@ -732,8 +733,8 @@ __osm_mpr_rcv_get_path_parms(IN osm_mpr_rcv_t * const p_rcv,
 	if (required_pkey) {
 		p_prtn =
 		    (osm_prtn_t *) cl_qmap_get(&p_rcv->p_subn->prtn_pkey_tbl,
-					       required_pkey & cl_ntoh16((uint16_t) ~
-								0x8000));
+					       required_pkey &
+					       cl_ntoh16((uint16_t) ~ 0x8000));
 		if (p_prtn ==
 		    (osm_prtn_t *) cl_qmap_end(&p_rcv->p_subn->prtn_pkey_tbl))
 			p_prtn = NULL;
@@ -801,8 +802,7 @@ __osm_mpr_rcv_get_path_parms(IN osm_mpr_rcv_t * const p_rcv,
 					break;
 			required_sl = i;
 		}
-	}
-	else
+	} else
 		required_sl = OSM_DEFAULT_SL;
 
 	if (p_rcv->p_subn->opt.qos && !(valid_sl_mask & (1 << required_sl))) {

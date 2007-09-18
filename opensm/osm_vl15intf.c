@@ -257,8 +257,7 @@ ib_api_status_t
 osm_vl15_init(IN osm_vl15_t * const p_vl,
 	      IN osm_vendor_t * const p_vend,
 	      IN osm_log_t * const p_log,
-	      IN osm_stats_t * const p_stats,
-	      IN const int32_t max_wire_smps)
+	      IN osm_stats_t * const p_stats, IN const int32_t max_wire_smps)
 {
 	ib_api_status_t status = IB_SUCCESS;
 

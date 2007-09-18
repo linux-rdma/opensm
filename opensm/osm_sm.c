@@ -70,7 +70,7 @@
 
 /**********************************************************************
  **********************************************************************/
-static void osm_sm_process(osm_sm_t *sm, osm_signal_t signal)
+static void osm_sm_process(osm_sm_t * sm, osm_signal_t signal)
 {
 #ifdef ENABLE_OSM_PERF_MGR
 	if (signal == OSM_SIGNAL_PERFMGR_SWEEP)
@@ -114,8 +114,8 @@ static void __osm_sm_sweeper(IN void *p_ptr)
 		p_sm->signal_mask = 0;
 		cl_spinlock_release(&p_sm->signal_lock);
 
-		for (i = 0 ; signals ; signals >>= 1 , i++)
-			if (signals&1)
+		for (i = 0; signals; signals >>= 1, i++)
+			if (signals & 1)
 				osm_sm_process(p_sm, i);
 	}
 
@@ -130,7 +130,7 @@ static void sm_sweep(void *arg)
 	if (sm->p_subn->sm_state == IB_SMINFO_STATE_MASTER ||
 	    sm->p_subn->sm_state == IB_SMINFO_STATE_DISCOVERING)
 		osm_sm_signal(sm, OSM_SIGNAL_SWEEP);
-	cl_timer_start(&sm->sweep_timer, sm->p_subn->opt.sweep_interval*1000);
+	cl_timer_start(&sm->sweep_timer, sm->p_subn->opt.sweep_interval * 1000);
 }
 
 /**********************************************************************
@@ -312,21 +312,18 @@ osm_sm_init(IN osm_sm_t * const p_sm,
 		goto Exit;
 
 	status = osm_ni_rcv_init(&p_sm->ni_rcv,
-				 &p_sm->req,
-				 p_subn, p_log, p_lock);
+				 &p_sm->req, p_subn, p_log, p_lock);
 	if (status != IB_SUCCESS)
 		goto Exit;
 
 	status = osm_pi_rcv_init(&p_sm->pi_rcv,
-				 &p_sm->req,
-				 p_subn, p_log, p_lock);
+				 &p_sm->req, p_subn, p_log, p_lock);
 	if (status != IB_SUCCESS)
 		goto Exit;
 
 	status = osm_si_rcv_init(&p_sm->si_rcv,
 				 p_sm->p_subn,
-				 p_sm->p_log,
-				 &p_sm->req, p_sm->p_lock);
+				 p_sm->p_log, &p_sm->req, p_sm->p_lock);
 
 	if (status != IB_SUCCESS)
 		goto Exit;
@@ -393,15 +390,12 @@ osm_sm_init(IN osm_sm_t * const p_sm,
 				     p_subn,
 				     p_stats,
 				     &p_sm->resp,
-				     p_log,
-				     &p_sm->sm_state_mgr, p_lock);
+				     p_log, &p_sm->sm_state_mgr, p_lock);
 	if (status != IB_SUCCESS)
 		goto Exit;
 
 	status = osm_trap_rcv_init(&p_sm->trap_rcv,
-				   p_subn,
-				   p_stats,
-				   &p_sm->resp, p_log, p_lock);
+				   p_subn, p_stats, &p_sm->resp, p_log, p_lock);
 	if (status != IB_SUCCESS)
 		goto Exit;
 
@@ -504,7 +498,7 @@ osm_sm_init(IN osm_sm_t * const p_sm,
 
 	if (p_sm->p_subn->opt.sweep_interval)
 		cl_timer_start(&p_sm->sweep_timer,
-			       p_sm->p_subn->opt.sweep_interval*1000);
+			       p_sm->p_subn->opt.sweep_interval * 1000);
 
       Exit:
 	OSM_LOG_EXIT(p_log);

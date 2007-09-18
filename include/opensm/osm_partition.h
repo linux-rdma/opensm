@@ -252,10 +252,7 @@ ib_api_status_t osm_prtn_make_partitions(IN osm_log_t * const p_log,
 *
 * SYNOPSIS
 */
-osm_prtn_t *
-osm_prtn_find_by_name(
-	IN osm_subn_t *p_subn,
-	IN const char *name);
+osm_prtn_t *osm_prtn_find_by_name(IN osm_subn_t * p_subn, IN const char *name);
 /*
 * PARAMETERS
 *	p_subn

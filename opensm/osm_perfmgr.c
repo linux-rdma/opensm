@@ -68,12 +68,11 @@
 
 #if ENABLE_OSM_PERF_MGR_PROFILE
 struct {
-	double   fastest_us;
-	double   slowest_us;
-	double   avg_us;
+	double fastest_us;
+	double slowest_us;
+	double avg_us;
 	uint64_t num;
-} perfmgr_mad_stats =
-{
+} perfmgr_mad_stats = {
 	fastest_us: DBL_MAX,
 	slowest_us: DBL_MIN,
 	avg_us: 0,
@@ -89,8 +88,9 @@ static inline void update_mad_stats(struct timeval *diff)
 	if (new > perfmgr_mad_stats.slowest_us)
 		perfmgr_mad_stats.slowest_us = new;
 
-	perfmgr_mad_stats.avg_us = ((perfmgr_mad_stats.avg_us * perfmgr_mad_stats.num) + new)
-					/(perfmgr_mad_stats.num+1);
+	perfmgr_mad_stats.avg_us =
+	    ((perfmgr_mad_stats.avg_us * perfmgr_mad_stats.num) + new)
+	    / (perfmgr_mad_stats.num + 1);
 	perfmgr_mad_stats.num++;
 }
 
@@ -104,8 +104,7 @@ static inline void perfmgr_clear_mad_stats(void)
 
 /* after and diff can be the same struct */
 static inline void diff_time(struct timeval *before,
-			struct timeval *after,
-			struct timeval *diff)
+			     struct timeval *after, struct timeval *diff)
 {
 	struct timeval tmp = *after;
 	if (tmp.tv_usec < before->tv_usec) {
@@ -662,7 +661,7 @@ static int sweep_hop_1(osm_sm_t * sm)
 	return (status);
 }
 
-static unsigned is_sm_port_down(osm_sm_t *const sm)
+static unsigned is_sm_port_down(osm_sm_t * const sm)
 {
 	ib_net64_t port_guid;
 	osm_port_t *p_port;
@@ -686,7 +685,7 @@ static unsigned is_sm_port_down(osm_sm_t *const sm)
 	return osm_physp_get_port_state(p_port->p_physp) == IB_LINK_DOWN;
 }
 
-static int sweep_hop_0(osm_sm_t *const sm)
+static int sweep_hop_0(osm_sm_t * const sm)
 {
 	ib_api_status_t status;
 	osm_dr_path_t dr_path;
@@ -714,7 +713,7 @@ static int sweep_hop_0(osm_sm_t *const sm)
 	return (status);
 }
 
-static int wait_for_pending_transactions(osm_stats_t *stats)
+static int wait_for_pending_transactions(osm_stats_t * stats)
 {
 	pthread_mutex_lock(&stats->mutex);
 	while (stats->qp0_mads_outstanding && !osm_exit_flag)
@@ -742,7 +741,7 @@ static void reset_switch_count(cl_map_item_t * const p_map_item, void *cxt)
 	p_sw->need_update = 0;
 }
 
-static int perfmgr_discovery(osm_opensm_t *osm)
+static int perfmgr_discovery(osm_opensm_t * osm)
 {
 	unsigned signals = osm->sm.signal_mask;
 	int ret;
@@ -762,8 +761,7 @@ static int perfmgr_discovery(osm_opensm_t *osm)
 	wait_for_pending_transactions(&osm->stats);
 
 	if (is_sm_port_down(&osm->sm)) {
-		osm_log(&osm->log, OSM_LOG_VERBOSE,
-			"SM port is down\n");
+		osm_log(&osm->log, OSM_LOG_VERBOSE, "SM port is down\n");
 		goto _drop;
 	}
 
@@ -775,14 +773,14 @@ static int perfmgr_discovery(osm_opensm_t *osm)
 
 	wait_for_pending_transactions(&osm->stats);
 
-       _drop:
+      _drop:
 	osm_drop_mgr_process(&osm->sm.drop_mgr);
 
-       _exit:
+      _exit:
 	/* dirty hack: cleanup signal mask -
 	 * this will not be needed later with both discoveries merged */
 	cl_spinlock_acquire(&osm->sm.signal_lock);
-	osm->sm.signal_mask &= ~(OSM_SIGNAL_NO_PENDING_TRANSACTIONS|
+	osm->sm.signal_mask &= ~(OSM_SIGNAL_NO_PENDING_TRANSACTIONS |
 				 OSM_SIGNAL_CHANGE_DETECTED);
 	osm->sm.signal_mask |= signals;
 	cl_spinlock_release(&osm->sm.signal_lock);
@@ -792,7 +790,7 @@ static int perfmgr_discovery(osm_opensm_t *osm)
 /**********************************************************************
  * Main PerfMgr processor - query the performance counters.
  **********************************************************************/
-void osm_perfmgr_process(osm_perfmgr_t *pm)
+void osm_perfmgr_process(osm_perfmgr_t * pm)
 {
 #if ENABLE_OSM_PERF_MGR_PROFILE
 	struct timeval before, after;
@@ -818,8 +816,7 @@ void osm_perfmgr_process(osm_perfmgr_t *pm)
 	/* FIXME we should be able to track SA notices
 	 * and not have to sweep the node_guid_tbl each pass
 	 */
-	osm_log(pm->log, OSM_LOG_VERBOSE,
-		"Gathering PerfMgr stats\n");
+	osm_log(pm->log, OSM_LOG_VERBOSE, "Gathering PerfMgr stats\n");
 	cl_plock_acquire(pm->lock);
 	cl_qmap_apply_func(&(pm->subn->node_guid_tbl),
 			   __collect_guids, (void *)pm);
@@ -848,9 +845,8 @@ void osm_perfmgr_process(osm_perfmgr_t *pm)
 		"        average mad      : %g us\n",
 		after.tv_sec, after.tv_usec,
 		perfmgr_mad_stats.fastest_us,
-		perfmgr_mad_stats.slowest_us,
-		perfmgr_mad_stats.avg_us);
-		perfmgr_clear_mad_stats();
+		perfmgr_mad_stats.slowest_us, perfmgr_mad_stats.avg_us);
+	perfmgr_clear_mad_stats();
 #endif
 
 	pm->sweep_state = PERFMGR_SWEEP_SLEEP;
@@ -862,7 +858,7 @@ void osm_perfmgr_process(osm_perfmgr_t *pm)
  **********************************************************************/
 static void perfmgr_sweep(void *arg)
 {
-	osm_perfmgr_t * pm = arg;
+	osm_perfmgr_t *pm = arg;
 
 	__init_monitored_nodes(pm);
 
@@ -1228,8 +1224,7 @@ static void osm_pc_rcv_process(void *context, void *data)
 		struct timeval proc_time;
 		gettimeofday(&proc_time, NULL);
 		diff_time(&(p_madw->context.perfmgr_context.query_start),
-				&proc_time,
-				&proc_time);
+			  &proc_time, &proc_time);
 		update_mad_stats(&proc_time);
 	} while (0);
 #endif

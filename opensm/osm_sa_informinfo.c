@@ -521,8 +521,7 @@ osm_infr_rcv_process_get_method(IN osm_infr_rcv_t * const p_rcv,
 			       (osm_iir_item_t *) cl_qlist_end(&rec_list)) {
 				cl_qlock_pool_put(&p_rcv->pool,
 						  &p_rec_item->pool_item);
-				p_rec_item =
-				    (osm_iir_item_t *)
+				p_rec_item = (osm_iir_item_t *)
 				    cl_qlist_remove_head(&rec_list);
 			}
 
@@ -591,8 +590,7 @@ osm_infr_rcv_process_get_method(IN osm_infr_rcv_t * const p_rcv,
 	p_resp_sa_mad->attr_offset =
 	    ib_get_attr_offset(sizeof(ib_inform_info_record_t));
 
-	p_resp_rec =
-	    (ib_inform_info_record_t *)
+	p_resp_rec = (ib_inform_info_record_t *)
 	    ib_sa_mad_get_payload_ptr(p_resp_sa_mad);
 
 #ifndef VENDOR_RMPP_SUPPORT

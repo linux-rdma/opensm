@@ -867,8 +867,7 @@ ib_api_status_t
 osm_ni_rcv_init(IN osm_ni_rcv_t * const p_rcv,
 		IN osm_req_t * const p_req,
 		IN osm_subn_t * const p_subn,
-		IN osm_log_t * const p_log,
-		IN cl_plock_t * const p_lock)
+		IN osm_log_t * const p_log, IN cl_plock_t * const p_lock)
 {
 	ib_api_status_t status = IB_SUCCESS;
 

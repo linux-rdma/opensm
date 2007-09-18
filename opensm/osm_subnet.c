@@ -1187,7 +1187,7 @@ ib_api_status_t osm_subn_parse_conf_file(IN osm_subn_opt_t * const p_opts)
 		opts_unpack_boolean("qos", p_key, p_val, &p_opts->qos);
 
 		opts_unpack_charp("qos_policy_file",
-				    p_key, p_val, &p_opts->qos_policy_file);
+				  p_key, p_val, &p_opts->qos_policy_file);
 
 		opts_unpack_boolean("accum_log_file",
 				    p_key, p_val, &p_opts->accum_log_file);
@@ -1555,8 +1555,7 @@ ib_api_status_t osm_subn_write_conf_file(IN osm_subn_opt_t * const p_opts)
 		"qos %s\n\n"
 		"# QoS policy file to be used\n"
 		"qos_policy_file %s\n\n",
-		p_opts->qos ? "TRUE" : "FALSE",
-		p_opts->qos_policy_file);
+		p_opts->qos ? "TRUE" : "FALSE", p_opts->qos_policy_file);
 
 	subn_dump_qos_options(opts_file,
 			      "QoS default options", "qos",

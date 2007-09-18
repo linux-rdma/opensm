@@ -466,8 +466,7 @@ void osm_sir_rcv_process(IN void *ctx, IN void *data)
 	p_resp_sa_mad->attr_offset =
 	    ib_get_attr_offset(sizeof(ib_switch_info_record_t));
 
-	p_resp_rec =
-	    (ib_switch_info_record_t *)
+	p_resp_rec = (ib_switch_info_record_t *)
 	    ib_sa_mad_get_payload_ptr(p_resp_sa_mad);
 
 #ifndef VENDOR_RMPP_SUPPORT

@@ -432,15 +432,13 @@ void osm_vlarb_rec_rcv_process(IN void *ctx, IN void *data)
 					  IB_SA_MAD_STATUS_TOO_MANY_RECORDS);
 
 			/* need to set the mem free ... */
-			p_rec_item =
-			    (osm_vl_arb_item_t *)
+			p_rec_item = (osm_vl_arb_item_t *)
 			    cl_qlist_remove_head(&rec_list);
 			while (p_rec_item !=
 			       (osm_vl_arb_item_t *) cl_qlist_end(&rec_list)) {
 				cl_qlock_pool_put(&p_rcv->pool,
 						  &p_rec_item->pool_item);
-				p_rec_item =
-				    (osm_vl_arb_item_t *)
+				p_rec_item = (osm_vl_arb_item_t *)
 				    cl_qlist_remove_head(&rec_list);
 			}
 
@@ -487,8 +485,7 @@ void osm_vlarb_rec_rcv_process(IN void *ctx, IN void *data)
 			"osm_mad_pool_get failed\n");
 
 		for (i = 0; i < num_rec; i++) {
-			p_rec_item =
-			    (osm_vl_arb_item_t *)
+			p_rec_item = (osm_vl_arb_item_t *)
 			    cl_qlist_remove_head(&rec_list);
 			cl_qlock_pool_put(&p_rcv->pool, &p_rec_item->pool_item);
 		}

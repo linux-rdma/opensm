@@ -742,23 +742,19 @@ osm_physp_replace_dr_path_with_alternate_dr_path(IN osm_log_t * p_log,
 				}
 			}
 
-			p_physp =
-			    (osm_physp_t *)
+			p_physp = (osm_physp_t *)
 			    cl_list_remove_head(p_currPortsList);
 			if (reached_dest == TRUE) {
 				/* free the rest of the currPortsList */
 				while (p_physp != NULL)
-					p_physp =
-					    (osm_physp_t *)
+					p_physp = (osm_physp_t *)
 					    cl_list_remove_head
 					    (p_currPortsList);
 				/* free the nextPortsList, if items were added to it */
-				p_physp =
-				    (osm_physp_t *)
+				p_physp = (osm_physp_t *)
 				    cl_list_remove_head(p_nextPortsList);
 				while (p_physp != NULL)
-					p_physp =
-					    (osm_physp_t *)
+					p_physp = (osm_physp_t *)
 					    cl_list_remove_head
 					    (p_nextPortsList);
 				next_list_is_full = FALSE;

@@ -165,9 +165,8 @@ static int partition_add_flag(unsigned lineno, struct part_conf *conf,
 		else
 			conf->sl = sl;
 	} else if (!strncmp(flag, "defmember", len)) {
-		if (!val
-		    || (strncmp(val, "limited", strlen(val))
-			&& strncmp(val, "full", strlen(val))))
+		if (!val || (strncmp(val, "limited", strlen(val))
+			     && strncmp(val, "full", strlen(val))))
 			osm_log(conf->p_log, OSM_LOG_VERBOSE,
 				"PARSE WARN: line %d: "
 				"flag \'defmember\' requires valid value (limited or full)"

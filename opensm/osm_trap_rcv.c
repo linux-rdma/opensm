@@ -186,8 +186,7 @@ osm_trap_rcv_init(IN osm_trap_rcv_t * const p_rcv,
 		  IN osm_subn_t * const p_subn,
 		  IN osm_stats_t * const p_stats,
 		  IN osm_resp_t * const p_resp,
-		  IN osm_log_t * const p_log,
-		  IN cl_plock_t * const p_lock)
+		  IN osm_log_t * const p_log, IN cl_plock_t * const p_lock)
 {
 	ib_api_status_t status = IB_SUCCESS;
 
@@ -201,7 +200,7 @@ osm_trap_rcv_init(IN osm_trap_rcv_t * const p_rcv,
 	p_rcv->p_stats = p_stats;
 	p_rcv->p_resp = p_resp;
 
-	if(cl_event_wheel_init(&p_rcv->trap_aging_tracker)) {
+	if (cl_event_wheel_init(&p_rcv->trap_aging_tracker)) {
 		osm_log(p_log, OSM_LOG_ERROR,
 			"osm_trap_rcv_init: ERR 3800: "
 			"Failed to initialize cl_event_wheel\n");
@@ -440,8 +439,7 @@ __osm_trap_rcv_process_request(IN osm_trap_rcv_t * const p_rcv,
 	osm_dump_notice(p_rcv->p_log, p_ntci, OSM_LOG_VERBOSE);
 
 	p_physp = osm_get_physp_by_mad_addr(p_rcv->p_log,
-					    p_rcv->p_subn,
-					    &tmp_madw.mad_addr);
+					    p_rcv->p_subn, &tmp_madw.mad_addr);
 	if (p_physp)
 		p_smp->m_key = p_physp->port_info.m_key;
 	else

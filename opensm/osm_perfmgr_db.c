@@ -137,9 +137,8 @@ static void __free_node(_db_node_t * node)
 /* insert nodes to the database */
 static perfmgr_db_err_t __insert(perfmgr_db_t * db, _db_node_t * node)
 {
-	cl_map_item_t *rc =
-	    cl_qmap_insert(&(db->pc_data), node->node_guid,
-			   (cl_map_item_t *) node);
+	cl_map_item_t *rc = cl_qmap_insert(&(db->pc_data), node->node_guid,
+					   (cl_map_item_t *) node);
 
 	if ((void *)rc != (void *)node)
 		return (PERFMGR_EVENT_DB_FAIL);

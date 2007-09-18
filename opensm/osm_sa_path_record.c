@@ -475,18 +475,18 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 	if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG))
 		osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
 			"__osm_pr_rcv_get_path_parms: "
-			"Path min MTU = %u, min rate = %u\n",
-			mtu, rate);
+			"Path min MTU = %u, min rate = %u\n", mtu, rate);
 
 	/*
 	 * Get QoS Level object according to the path request
 	 * and adjust path parameters according to QoS settings
 	 */
-	if ( p_rcv->p_subn->opt.qos &&
-	     p_rcv->p_subn->p_qos_policy &&
-	     (p_qos_level = osm_qos_policy_get_qos_level_by_pr(
-		    p_rcv->p_subn->p_qos_policy, p_pr,
-		    p_src_physp, p_dest_physp, comp_mask)) ) {
+	if (p_rcv->p_subn->opt.qos &&
+	    p_rcv->p_subn->p_qos_policy &&
+	    (p_qos_level =
+	     osm_qos_policy_get_qos_level_by_pr(p_rcv->p_subn->p_qos_policy,
+						p_pr, p_src_physp, p_dest_physp,
+						comp_mask))) {
 
 		if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG))
 			osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
@@ -533,9 +533,8 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 	 */
 	if (p_src_port == p_dest_port)
 		pkt_life = 0;
-	else if ( !(p_qos_level && p_qos_level->pkt_life_set) )
+	else if (!(p_qos_level && p_qos_level->pkt_life_set))
 		pkt_life = OSM_DEFAULT_SUBNET_TIMEOUT;
-
 
 	/*
 	   Determine if these values meet the user criteria
@@ -709,8 +708,7 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 		 * has pkeys - get shared pkey from QoS level pkeys
 		 */
 		pkey = osm_qos_level_get_shared_pkey(p_qos_level,
-						     p_src_physp,
-						     p_dest_physp);
+						     p_src_physp, p_dest_physp);
 		if (!pkey) {
 			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
 				"__osm_pr_rcv_get_path_parms: ERR 1F1E: "
@@ -723,8 +721,7 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 		 * Neither PR request nor QoS level have pkey.
 		 * Just get any shared pkey.
 		 */
-		pkey = osm_physp_find_common_pkey(p_src_physp,
-						  p_dest_physp);
+		pkey = osm_physp_find_common_pkey(p_src_physp, p_dest_physp);
 		if (!pkey) {
 			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
 				"__osm_pr_rcv_get_path_parms: ERR 1F1B: "
@@ -754,31 +751,32 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 		 */
 		sl = ib_path_rec_sl(p_pr);
 
-		if (p_qos_level && p_qos_level->sl_set && (p_qos_level->sl != sl)) {
+		if (p_qos_level && p_qos_level->sl_set
+		    && (p_qos_level->sl != sl)) {
 			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
 				"__osm_pr_rcv_get_path_parms: ERR 1F1F: "
 				"QoS constaraints: required PathRecord SL (%u) "
-				"doesn't match QoS policy SL (%u)\n",
-				sl, p_qos_level->sl);
+				"doesn't match QoS policy SL (%u)\n", sl,
+				p_qos_level->sl);
 			status = IB_NOT_FOUND;
 			goto Exit;
 		}
 
 		if (p_rcv->p_subn->opt.routing_engine_name &&
-		    strcmp(p_rcv->p_subn->opt.routing_engine_name, "lash") == 0 &&
-		    osm_get_lash_sl(p_rcv->p_subn->p_osm,
-				    p_src_port, p_dest_port) != sl) {
+		    strcmp(p_rcv->p_subn->opt.routing_engine_name, "lash") == 0
+		    && osm_get_lash_sl(p_rcv->p_subn->p_osm, p_src_port,
+				       p_dest_port) != sl) {
 			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
 				"__osm_pr_rcv_get_path_parms: ERR 1F23: "
 				"Required PathRecord SL (%u) doesn't "
-				"match LASH SL\n",
-				sl);
+				"match LASH SL\n", sl);
 			status = IB_NOT_FOUND;
 			goto Exit;
 		}
 
 	} else if (p_rcv->p_subn->opt.routing_engine_name &&
-		   strcmp(p_rcv->p_subn->opt.routing_engine_name, "lash") == 0) {
+		   strcmp(p_rcv->p_subn->opt.routing_engine_name,
+			  "lash") == 0) {
 		/*
 		 * No specific SL in PathRecord request.
 		 * If it's LASH routing - use its SL.
@@ -806,12 +804,12 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 		 */
 		if (!p_prtn) {
 			/* this may be possible when pkey tables are created somehow in
-			previous runs or things are going wrong here */
+			   previous runs or things are going wrong here */
 			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
-			"__osm_pr_rcv_get_path_parms: ERR 1F1C: "
-			"No partition found for PKey 0x%04x - using default SL %d\n",
-			cl_ntoh16(pkey), sl);
-                        sl = OSM_DEFAULT_SL;
+				"__osm_pr_rcv_get_path_parms: ERR 1F1C: "
+				"No partition found for PKey 0x%04x - using default SL %d\n",
+				cl_ntoh16(pkey), sl);
+			sl = OSM_DEFAULT_SL;
 		} else
 			sl = p_prtn->sl;
 	} else if (p_rcv->p_subn->opt.qos) {
@@ -823,8 +821,7 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 					break;
 			sl = i;
 		}
-	}
-	else
+	} else
 		sl = OSM_DEFAULT_SL;
 
 	if (p_rcv->p_subn->opt.qos && !(valid_sl_mask & (1 << sl))) {
