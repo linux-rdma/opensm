@@ -23,7 +23,9 @@ endif
 
 man_MANS = man/opensm.8 man/osmtest.8
 
-EXTRA_DIST = opensm.spec scripts/opensm.init scripts/opensm.sysconfig $(man_MANS)
+various_scripts = $(wildcard scripts/*)
+
+EXTRA_DIST = autogen.sh opensm.spec $(various_scripts) $(man_MANS)
 
 dist-hook: $(EXTRA_DIST)
 	mkdir -p $(distdir)/scripts
