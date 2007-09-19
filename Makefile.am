@@ -30,3 +30,5 @@ EXTRA_DIST = autogen.sh opensm.spec $(various_scripts) $(man_MANS)
 dist-hook: $(EXTRA_DIST)
 	mkdir -p $(distdir)/scripts
 	cp -r --parents $< $(distdir)
+	test -x ../$(top_srcdir)/gen_chlog.sh \
+		&& ../$(top_srcdir)/gen_chlog.sh $(PACKAGE) > $(distdir)/ChangeLog
