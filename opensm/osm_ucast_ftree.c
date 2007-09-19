@@ -2885,6 +2885,8 @@ __osm_ftree_rank_leaf_switches(IN ftree_fabric_t * p_ftree,
 
 		p_remote_osm_node =
 		    osm_node_get_remote_node(p_osm_node, i, NULL);
+		if (!p_remote_osm_node)
+			continue;
 
 		switch (osm_node_get_type(p_remote_osm_node)) {
 		case IB_NODE_TYPE_CA:
