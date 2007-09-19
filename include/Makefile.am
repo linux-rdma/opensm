@@ -157,5 +157,3 @@ EXTRA_DIST = \
 	$(srcdir)/vendor/osm_mtl_bind.h
 
 pkgincludedir = $(includedir)/infiniband
-
-dist-hook:
