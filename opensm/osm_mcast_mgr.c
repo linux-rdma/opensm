@@ -765,6 +765,8 @@ static osm_mtree_node_t *__osm_mcast_mgr_branch(osm_mcast_mgr_t * const p_mgr,
 
 		p_node = p_sw->p_node;
 		p_remote_node = osm_node_get_remote_node(p_node, i, NULL);
+		if (!p_remote_node)
+			continue;
 
 		if (osm_node_get_type(p_remote_node) == IB_NODE_TYPE_SWITCH) {
 			/*
