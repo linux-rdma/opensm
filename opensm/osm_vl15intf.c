@@ -170,15 +170,17 @@ static void __osm_vl15_poller(IN void *p_ptr)
 
 		while ((p_vl->p_stats->qp0_mads_outstanding_on_wire >=
 			(int32_t) p_vl->max_wire_smps) &&
-		       (p_vl->thread_state == OSM_THREAD_STATE_RUN))
+		       (p_vl->thread_state == OSM_THREAD_STATE_RUN)) {
 			status = cl_event_wait_on(&p_vl->signal,
 						  EVENT_NO_TIMEOUT, TRUE);
-
-		if (status != CL_SUCCESS)
-			osm_log(p_vl->p_log, OSM_LOG_ERROR,
-				"__osm_vl15_poller: ERR 3E02: "
-				"Event wait failed (%s)\n",
-				CL_STATUS_MSG(status));
+			if (status != CL_SUCCESS) {
+				osm_log(p_vl->p_log, OSM_LOG_ERROR,
+					"__osm_vl15_poller: ERR 3E02: "
+					"Event wait failed (%s)\n",
+					CL_STATUS_MSG(status));
+				break;
+			}
+		}
 	}
 
 	/*
