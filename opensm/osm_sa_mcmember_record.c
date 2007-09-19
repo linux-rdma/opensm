@@ -1773,7 +1773,7 @@ __osm_sa_mcm_by_comp_mask_cb(IN cl_map_item_t * const p_map_item,
 	uint8_t scope_state_mask = 0;
 	cl_map_item_t *p_item;
 	ib_gid_t port_gid;
-	boolean_t proxy_join;
+	boolean_t proxy_join = FALSE;
 
 	OSM_LOG_ENTER(p_rcv->p_log, __osm_sa_mcm_by_comp_mask_cb);
 
