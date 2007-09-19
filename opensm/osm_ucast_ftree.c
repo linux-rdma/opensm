@@ -1526,7 +1526,7 @@ static int __osm_ftree_fabric_mark_leaf_switches(IN ftree_fabric_t * p_ftree)
 static void __osm_ftree_fabric_make_indexing(IN ftree_fabric_t * p_ftree)
 {
 	ftree_sw_t *p_remote_sw;
-	ftree_sw_t *p_sw;
+	ftree_sw_t *p_sw = NULL;
 	ftree_sw_t *p_next_sw;
 	ftree_tuple_t new_tuple;
 	uint32_t i;
@@ -2082,13 +2082,11 @@ __osm_ftree_fabric_route_upgoing_by_going_down(IN ftree_fabric_t * p_ftree,
 
 	/* foreach down-going port group (in indexing order)
 	   starting with the least loaded group */
+	i = p_sw->down_port_groups_idx;
 	for (k = 0; k < p_sw->down_port_groups_num; k++) {
-		if (k == 0)
-			i = p_sw->down_port_groups_idx;
-		else
-			i = (i + 1) % p_sw->down_port_groups_num;
 
 		p_group = p_sw->down_port_groups[i];
+		i = (i + 1) % p_sw->down_port_groups_num;
 
 		/* Skip this port group unless it points to a switch */
 		if (p_group->remote_node_type != IB_NODE_TYPE_SWITCH)
@@ -3413,7 +3411,7 @@ static void __osm_ftree_fabric_set_leaf_rank(IN ftree_fabric_t * p_ftree)
 {
 	unsigned i;
 	ftree_sw_t *p_sw;
-	ftree_hca_t *p_hca;
+	ftree_hca_t *p_hca = NULL;
 	ftree_hca_t *p_next_hca;
 
 	OSM_LOG_ENTER(&p_ftree->p_osm->log, __osm_ftree_fabric_set_leaf_rank);
