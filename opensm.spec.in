@@ -30,7 +30,7 @@ Group: System Environment/Daemons
 URL: http://openfabrics.org/
 Source: git://git.openfabrics.org/~sashak/management/@TARBALL@
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildRequires: libibumad-devel, autoconf, libtool, automake
+BuildRequires: libibumad-devel, libtool
 Requires: %{name}-libs = %{version}-%{release}, logrotate
 Requires(post): /sbin/service, /sbin/chkconfig
 Requires(preun): /sbin/chkconfig, /sbin/service
@@ -72,7 +72,6 @@ Static version of the opensm libraries
 %setup -q
 
 %build
-./autogen.sh
 %configure \
         %{?_enable_console_socket} \
         %{?_disable_console_socket} \
