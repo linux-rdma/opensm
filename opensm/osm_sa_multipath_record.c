@@ -226,7 +226,7 @@ __osm_mpr_rcv_get_path_parms(IN osm_mpr_rcv_t * const p_rcv,
 	const osm_physp_t *p_physp;
 	const osm_physp_t *p_src_physp;
 	const osm_physp_t *p_dest_physp;
-	const osm_prtn_t *p_prtn;
+	const osm_prtn_t *p_prtn = NULL;
 	const ib_port_info_t *p_pi;
 	ib_slvl_table_t *p_slvl_tbl;
 	ib_api_status_t status = IB_SUCCESS;
@@ -494,10 +494,6 @@ __osm_mpr_rcv_get_path_parms(IN osm_mpr_rcv_t * const p_rcv,
 		    && (rate > p_qos_level->rate_limit))
 			rate = p_qos_level->rate_limit;
 
-		if (p_qos_level->pkt_life_set
-		    && (pkt_life > p_qos_level->pkt_life))
-			pkt_life = p_qos_level->pkt_life;
-
 		if (p_qos_level->sl_set) {
 			required_sl = p_qos_level->sl;
 			if (!(valid_sl_mask & (1 << required_sl))) {
@@ -505,14 +501,6 @@ __osm_mpr_rcv_get_path_parms(IN osm_mpr_rcv_t * const p_rcv,
 				goto Exit;
 			}
 		}
-
-		if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG))
-			osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
-				"__osm_mpr_rcv_get_path_parms: "
-				"MultiPath params with QoS constaraints: "
-				"min MTU = %u, min rate = %u, "
-				"packet lifetime = %u, sl = %u\n",
-				mtu, rate, pkt_life, required_sl);
 	}
 
 	/*
@@ -608,7 +596,9 @@ __osm_mpr_rcv_get_path_parms(IN osm_mpr_rcv_t * const p_rcv,
 	   for loopback paths, packetLifeTime shall be zero. */
 	if (p_src_port == p_dest_port)
 		pkt_life = 0;	/* loopback */
-	else if (!(p_qos_level && p_qos_level->pkt_life_set))
+	else if (p_qos_level && p_qos_level->pkt_life_set)
+		pkt_life = p_qos_level->pkt_life;
+	else
 		pkt_life = OSM_DEFAULT_SUBNET_TIMEOUT;
 
 	/* we silently ignore cases where only the PktLife selector is defined */
@@ -783,13 +773,13 @@ __osm_mpr_rcv_get_path_parms(IN osm_mpr_rcv_t * const p_rcv,
 					       required_pkey &
 					       cl_ntoh16((uint16_t) ~ 0x8000));
 		if (!p_prtn) {
+			required_sl = OSM_DEFAULT_SL;
 			/* this may be possible when pkey tables are created somehow in
 			   previous runs or things are going wrong here */
 			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
 				"__osm_mpr_rcv_get_path_parms: ERR 451A: "
 				"No partition found for PKey 0x%04x - using default SL %d\n",
 				cl_ntoh16(required_pkey), required_sl);
-			required_sl = OSM_DEFAULT_SL;
 		} else
 			required_sl = p_prtn->sl;
 
@@ -824,6 +814,13 @@ __osm_mpr_rcv_get_path_parms(IN osm_mpr_rcv_t * const p_rcv,
 	p_parms->pkt_life = pkt_life;
 	p_parms->sl = required_sl;
 	p_parms->hops = hops;
+
+	if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG))
+		osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+			"__osm_mpr_rcv_get_path_parms: MultiPath params:"
+			" mtu = %u, rate = %u, packet lifetime = %u,"
+			" pkey = %u, sl = %u, hops = %u\n", mtu, rate,
+			pkt_life, cl_ntoh16(required_pkey), required_sl, hops);
 
       Exit:
 	OSM_LOG_EXIT(p_rcv->p_log);

@@ -487,7 +487,6 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 	     osm_qos_policy_get_qos_level_by_pr(p_rcv->p_subn->p_qos_policy,
 						p_pr, p_src_physp, p_dest_physp,
 						comp_mask))) {
-
 		if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG))
 			osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
 				"__osm_pr_rcv_get_path_parms: "
@@ -504,10 +503,6 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 		    && (rate > p_qos_level->rate_limit))
 			rate = p_qos_level->rate_limit;
 
-		if (p_qos_level->pkt_life_set
-		    && (pkt_life > p_qos_level->pkt_life))
-			pkt_life = p_qos_level->pkt_life;
-
 		if (p_qos_level->sl_set) {
 			sl = p_qos_level->sl;
 			if (!(valid_sl_mask & (1 << sl))) {
@@ -515,14 +510,6 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 				goto Exit;
 			}
 		}
-
-		if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG))
-			osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
-				"__osm_pr_rcv_get_path_parms: "
-				"Path params with QoS constaraints: "
-				"min MTU = %u, min rate = %u, "
-				"packet lifetime = %u, sl = %u\n",
-				mtu, rate, pkt_life, sl);
 	}
 
 	/*
@@ -533,7 +520,9 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 	 */
 	if (p_src_port == p_dest_port)
 		pkt_life = 0;
-	else if (!(p_qos_level && p_qos_level->pkt_life_set))
+	else if (p_qos_level && p_qos_level->pkt_life_set)
+		pkt_life = p_qos_level->pkt_life;
+	else
 		pkt_life = OSM_DEFAULT_SUBNET_TIMEOUT;
 
 	/*
@@ -803,13 +792,13 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 		 * No specific SL in request or in QoS level - use partition SL
 		 */
 		if (!p_prtn) {
+			sl = OSM_DEFAULT_SL;
 			/* this may be possible when pkey tables are created somehow in
 			   previous runs or things are going wrong here */
 			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
 				"__osm_pr_rcv_get_path_parms: ERR 1F1C: "
 				"No partition found for PKey 0x%04x - using default SL %d\n",
 				cl_ntoh16(pkey), sl);
-			sl = OSM_DEFAULT_SL;
 		} else
 			sl = p_prtn->sl;
 	} else if (p_rcv->p_subn->opt.qos) {
@@ -843,6 +832,12 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 	p_parms->pkey = pkey;
 	p_parms->sl = sl;
 
+	if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG))
+		osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+			"__osm_pr_rcv_get_path_parms: Path params:"
+			" mtu = %u, rate = %u, packet lifetime = %u,"
+			" pkey = %u, sl = %u\n",
+			mtu, rate, pkt_life, cl_ntoh16(pkey), sl);
       Exit:
 	OSM_LOG_EXIT(p_rcv->p_log);
 	return (status);
