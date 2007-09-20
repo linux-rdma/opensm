@@ -54,7 +54,7 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-#define OSM_VERSION "OpenSM Rev:openib-3.1.4"
+#define OSM_VERSION "OpenSM 3.1.5"
 /********/
 END_C_DECLS
 #endif				/* _OSM_VERSION_H_ */
