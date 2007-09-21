@@ -4,7 +4,6 @@ SUBDIRS = .
 nobase_pkginclude_HEADERS = iba/ib_types.h iba/ib_cm_types.h
 
 EXTRA_DIST = \
-	$(srcdir)/opensm/osm_version.h \
 	$(srcdir)/opensm/osm_sa_path_record.h \
 	$(srcdir)/opensm/osm_lid_mgr.h \
 	$(srcdir)/opensm/osm_vl_arb_rcv.h \
