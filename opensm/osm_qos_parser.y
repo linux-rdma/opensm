@@ -107,10 +107,19 @@ static void __parser_add_port_to_port_map(
     cl_qmap_t   * p_map,
     osm_physp_t * p_physp);
 
-static void __parser_add_range_to_port_map(
+static void __parser_add_guid_range_to_port_map(
     cl_qmap_t  * p_map,
     uint64_t  ** range_arr,
     unsigned     range_len);
+
+static void __parser_add_pkey_range_to_port_map(
+    cl_qmap_t  * p_map,
+    uint64_t  ** range_arr,
+    unsigned     range_len);
+
+static void __parser_add_partition_list_to_port_map(
+    cl_qmap_t  * p_map,
+    cl_list_t  * p_list);
 
 static void __parser_add_map_to_port_map(
     cl_qmap_t * p_dmap,
@@ -237,6 +246,8 @@ qos_policy_entry:     port_groups_section
      *          ...
      *          port-name: vs1/HCA-1/P1
      *          ...
+     *          pkey: 0x00FF-0x0FFF
+     *          ...
      *          partition: Part1
      *          ...
      *          node-type: ROUTER,CA,SWITCH,SELF,ALL
@@ -278,6 +289,7 @@ port_group_entry:     port_group_name
                     | port_group_use
                     | port_group_port_guid
                     | port_group_port_name
+                    | port_group_pkey
                     | port_group_partition
                     | port_group_node_type
                     ;
@@ -526,6 +538,7 @@ qos_match_rule_entry: qos_match_rule_use
      *      port_group_use
      *      port_group_port_guid
      *      port_group_port_name
+     *      port_group_pkey
      *      port_group_partition
      *      port_group_node_type
      */
@@ -625,9 +638,10 @@ port_group_port_guid:   port_group_port_guid_start list_of_ranges {
                                                       &range_arr,
                                                       &range_len );
 
-                                __parser_add_range_to_port_map(&p_current_port_group->port_map,
-                                                               range_arr,
-                                                               range_len);
+                                __parser_add_guid_range_to_port_map(
+                                                      &p_current_port_group->port_map,
+                                                      range_arr,
+                                                      range_len);
                             }
                         }
                         ;
@@ -637,33 +651,36 @@ port_group_port_guid_start: TK_PORT_GUID {
                         }
                         ;
 
+port_group_pkey:        port_group_pkey_start list_of_ranges {
+                            /* 'pkey' in 'port-group' - any num of instances */
+                            /* list of pkey ranges */
+                            if (cl_list_count(&tmp_parser_struct.num_pair_list))
+                            {
+                                uint64_t ** range_arr;
+                                unsigned range_len;
+
+                                __rangelist2rangearr( &tmp_parser_struct.num_pair_list,
+                                                      &range_arr,
+                                                      &range_len );
+
+                                __parser_add_pkey_range_to_port_map(
+                                                      &p_current_port_group->port_map,
+                                                      range_arr,
+                                                      range_len);
+                            }
+                        }
+                        ;
+
+port_group_pkey_start:  TK_PKEY {
+                            RESET_BUFFER;
+                        }
+                        ;
+
 port_group_partition:  port_group_partition_start string_list {
                             /* 'partition' in 'port-group' - any num of instances */
-                            cl_list_iterator_t    list_iterator;
-                            char                * tmp_str;
-                            osm_prtn_t          * p_prtn;
-
-                            /* extract all the ports from the partition
-                               to the port map of this port group */
-                            list_iterator = cl_list_head(&tmp_parser_struct.str_list);
-                            while( list_iterator != cl_list_end(&tmp_parser_struct.str_list) )
-                            {
-                                tmp_str = (char*)cl_list_obj(list_iterator);
-                                if (tmp_str)
-                                {
-                                    p_prtn = osm_prtn_find_by_name(p_qos_policy->p_subn, tmp_str);
-                                    if (p_prtn)
-                                    {
-                                        __parser_add_map_to_port_map(&p_current_port_group->port_map,
-                                                                     &p_prtn->part_guid_tbl);
-                                        __parser_add_map_to_port_map(&p_current_port_group->port_map,
-                                                                     &p_prtn->full_guid_tbl);
-                                    }
-                                    free(tmp_str);
-                                }
-                                list_iterator = cl_list_next(list_iterator);
-                            }
-                            cl_list_remove_all(&tmp_parser_struct.str_list);
+                            __parser_add_partition_list_to_port_map(
+                                               &p_current_port_group->port_map,
+                                               &tmp_parser_struct.str_list);
                         }
                         ;
 
@@ -2226,7 +2243,7 @@ static void __parser_add_port_to_port_map(
 /***************************************************
  ***************************************************/
 
-static void __parser_add_range_to_port_map(
+static void __parser_add_guid_range_to_port_map(
     cl_qmap_t  * p_map,
     uint64_t  ** range_arr,
     unsigned     range_len)
@@ -2248,6 +2265,67 @@ static void __parser_add_range_to_port_map(
          free(range_arr[i]);
     }
     free(range_arr);
+}
+
+/***************************************************
+ ***************************************************/
+
+static void __parser_add_pkey_range_to_port_map(
+    cl_qmap_t  * p_map,
+    uint64_t  ** range_arr,
+    unsigned     range_len)
+{
+    unsigned i;
+    uint64_t pkey_64;
+    ib_net16_t pkey;
+    osm_prtn_t * p_prtn;
+
+    if (!range_arr || !range_len)
+        return;
+
+    for (i = 0; i < range_len; i++) {
+         for (pkey_64 = range_arr[i][0]; pkey_64 <= range_arr[i][1]; pkey_64++) {
+             pkey = cl_hton16((uint16_t)(pkey_64 & 0x7fff));
+             p_prtn = (osm_prtn_t *)
+                 cl_qmap_get(&p_qos_policy->p_subn->prtn_pkey_tbl, pkey);
+             if (p_prtn != (osm_prtn_t *)cl_qmap_end(
+                   &p_qos_policy->p_subn->prtn_pkey_tbl)) {
+                 __parser_add_map_to_port_map(p_map, &p_prtn->part_guid_tbl);
+                 __parser_add_map_to_port_map(p_map, &p_prtn->full_guid_tbl);
+             }
+         }
+         free(range_arr[i]);
+    }
+    free(range_arr);
+}
+
+/***************************************************
+ ***************************************************/
+
+static void __parser_add_partition_list_to_port_map(
+    cl_qmap_t  * p_map,
+    cl_list_t  * p_list)
+{
+    cl_list_iterator_t    list_iterator;
+    char                * tmp_str;
+    osm_prtn_t          * p_prtn;
+
+    /* extract all the ports from the partition
+       to the port map of this port group */
+    list_iterator = cl_list_head(p_list);
+    while(list_iterator != cl_list_end(p_list)) {
+        tmp_str = (char*)cl_list_obj(list_iterator);
+        if (tmp_str) {
+            p_prtn = osm_prtn_find_by_name(p_qos_policy->p_subn, tmp_str);
+            if (p_prtn) {
+                __parser_add_map_to_port_map(p_map, &p_prtn->part_guid_tbl);
+                __parser_add_map_to_port_map(p_map, &p_prtn->full_guid_tbl);
+            }
+            free(tmp_str);
+        }
+        list_iterator = cl_list_next(list_iterator);
+    }
+    cl_list_remove_all(p_list);
 }
 
 /***************************************************
