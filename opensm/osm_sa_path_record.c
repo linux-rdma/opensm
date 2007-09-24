@@ -723,7 +723,7 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 	if (pkey) {
 		p_prtn =
 		    (osm_prtn_t *) cl_qmap_get(&p_rcv->p_subn->prtn_pkey_tbl,
-					       pkey & cl_ntoh16((uint16_t) ~
+					       pkey & cl_hton16((uint16_t) ~
 								0x8000));
 		if (p_prtn ==
 		    (osm_prtn_t *) cl_qmap_end(&p_rcv->p_subn->prtn_pkey_tbl))
