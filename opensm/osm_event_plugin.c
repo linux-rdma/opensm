@@ -117,6 +117,7 @@ osm_epi_plugin_t *osm_epi_construct(osm_log_t * p_log, char *plugin_name)
 		goto Exit;
 
 	rc->p_log = p_log;
+	rc->plugin_name = strdup(plugin_name);
 	return (rc);
 
       Exit:
@@ -132,6 +133,7 @@ void osm_epi_destroy(osm_epi_plugin_t * plugin)
 		if (plugin->impl->destroy)
 			plugin->impl->destroy(plugin->plugin_data);
 		dlclose(plugin->handle);
+		free(plugin->plugin_name);
 		free(plugin);
 	}
 }

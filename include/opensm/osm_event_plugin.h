@@ -167,6 +167,7 @@ typedef struct {
 	__osm_epi_plugin_t *impl;
 	void *plugin_data;
 	osm_log_t *p_log;
+	char *plugin_name;
 } osm_epi_plugin_t;
 
 /**

@@ -814,12 +814,15 @@ static void perfmgr_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 			"state                   : %s\n"
 			"sweep state             : %s\n"
 			"sweep time              : %us\n"
-			"outstanding queries/max : %d/%u\n",
+			"outstanding queries/max : %d/%u\n"
+			"loaded event plugin     : %s\n",
 			osm_perfmgr_get_state_str(&(p_osm->perfmgr)),
 			osm_perfmgr_get_sweep_state_str(&(p_osm->perfmgr)),
 			osm_perfmgr_get_sweep_time_s(&(p_osm->perfmgr)),
 			p_osm->perfmgr.outstanding_queries,
-			p_osm->perfmgr.max_outstanding_queries);
+			p_osm->perfmgr.max_outstanding_queries,
+			p_osm->perfmgr.event_plugin ?
+				p_osm->perfmgr.event_plugin->plugin_name : "NONE" );
 	}
 }
 #endif				/* ENABLE_OSM_PERF_MGR */
