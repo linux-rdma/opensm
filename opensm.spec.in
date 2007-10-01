@@ -108,7 +108,7 @@ fi
 %preun
 if [ $1 = 0 ]; then
     /sbin/service opensm stop
-    /sbin/chkconfig --delete opensm
+    /sbin/chkconfig --del opensm
     rm -f /var/cache/opensm/*
 fi
 
