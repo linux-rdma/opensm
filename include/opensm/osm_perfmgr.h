@@ -207,7 +207,7 @@ inline static void osm_perfmgr_set_sweep_time_s(osm_perfmgr_t * p_perfmgr,
 						uint16_t time_s)
 {
 	p_perfmgr->sweep_time_s = time_s;
-	cl_event_signal(&p_perfmgr->sig_sweep);
+	osm_sm_signal(p_perfmgr->sm, OSM_SIGNAL_PERFMGR_SWEEP);
 }
 
 inline static uint16_t osm_perfmgr_get_sweep_time_s(osm_perfmgr_t * p_perfmgr)
