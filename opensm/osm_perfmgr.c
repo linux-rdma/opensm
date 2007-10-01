@@ -860,8 +860,6 @@ static void perfmgr_sweep(void *arg)
 {
 	osm_perfmgr_t *pm = arg;
 
-	__init_monitored_nodes(pm);
-
 	if (pm->state == PERFMGR_STATE_ENABLED)
 		osm_sm_signal(pm->sm, OSM_SIGNAL_PERFMGR_SWEEP);
 	cl_timer_start(&pm->sweep_timer, pm->sweep_time_s * 1000);
@@ -1291,6 +1289,8 @@ osm_perfmgr_init(osm_perfmgr_t * const pm,
 					 osm_pc_rcv_process, pm);
 	if (pm->pc_disp_h == CL_DISP_INVALID_HANDLE)
 		goto Exit;
+
+	__init_monitored_nodes(pm);
 
 	cl_timer_start(&pm->sweep_timer, pm->sweep_time_s * 1000);
 
