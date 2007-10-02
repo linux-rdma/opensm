@@ -822,7 +822,7 @@ static void perfmgr_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 			p_osm->perfmgr.outstanding_queries,
 			p_osm->perfmgr.max_outstanding_queries,
 			p_osm->perfmgr.event_plugin ?
-				p_osm->perfmgr.event_plugin->plugin_name : "NONE" );
+			p_osm->perfmgr.event_plugin->plugin_name : "NONE");
 	}
 }
 #endif				/* ENABLE_OSM_PERF_MGR */
@@ -844,14 +844,14 @@ static void quit_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 	osm_console_close_socket(p_osm);
 }
 
-static void help_version(FILE *out, int detail)
+static void help_version(FILE * out, int detail)
 {
-  fprintf(out, "version -- print the OSM version\n");
+	fprintf(out, "version -- print the OSM version\n");
 }
 
 static void version_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 {
-  fprintf(out, "%s build %s %s\n", OSM_VERSION, __DATE__, __TIME__);
+	fprintf(out, "%s build %s %s\n", OSM_VERSION, __DATE__, __TIME__);
 }
 
 /* more parse routines go here */
@@ -866,7 +866,7 @@ static const struct command console_cmds[] = {
 	{"logflush", &help_logflush, &logflush_parse},
 	{"querylid", &help_querylid, &querylid_parse},
 	{"portstatus", &help_portstatus, &portstatus_parse},
-  {"version", &help_version, &version_parse},
+	{"version", &help_version, &version_parse},
 #ifdef ENABLE_OSM_PERF_MGR
 	{"perfmgr", &help_perfmgr, &perfmgr_parse},
 #endif				/* ENABLE_OSM_PERF_MGR */
