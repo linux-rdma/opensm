@@ -38,9 +38,15 @@
 #include <opensm/osm_subnet.h>
 #include <opensm/osm_opensm.h>
 
+#define OSM_DISABLE_CONSOLE      "off"
+#define OSM_LOCAL_CONSOLE        "local"
+#define OSM_REMOTE_CONSOLE       "socket"
+#define OSM_LOOPBACK_CONSOLE     "loopback"
+#define OSM_CONSOLE_NAME         "OSM Console"
+
 #define OSM_COMMAND_LINE_LEN	 120
 #define OSM_COMMAND_PROMPT	 "$ "
-#define OSM_DEFAULT_CONSOLE      "off"
+#define OSM_DEFAULT_CONSOLE      OSM_DISABLE_CONSOLE
 #define OSM_DEFAULT_CONSOLE_PORT 10000
 #define OSM_DAEMON_NAME          "opensm"
 

@@ -927,7 +927,7 @@ void osm_console_init(osm_subn_opt_t * opt, osm_opensm_t * p_osm)
 {
 	p_osm->console.socket = -1;
 	/* set up the file descriptors for the console */
-	if (strcmp(opt->console, "local") == 0) {
+	if (strcmp(opt->console, OSM_LOCAL_CONSOLE) == 0) {
 		p_osm->console.in = stdin;
 		p_osm->console.out = stdout;
 		p_osm->console.in_fd = fileno(stdin);
@@ -935,8 +935,8 @@ void osm_console_init(osm_subn_opt_t * opt, osm_opensm_t * p_osm)
 
 		osm_console_prompt(p_osm->console.out);
 #ifdef ENABLE_OSM_CONSOLE_SOCKET
-	} else if (strcmp(opt->console, "socket") == 0
-		   || strcmp(opt->console, "loopback") == 0) {
+	} else if (strcmp(opt->console, OSM_REMOTE_CONSOLE) == 0
+		   || strcmp(opt->console, OSM_LOOPBACK_CONSOLE) == 0) {
 		struct sockaddr_in sin;
 		int optval = 1;
 
@@ -951,7 +951,7 @@ void osm_console_init(osm_subn_opt_t * opt, osm_opensm_t * p_osm)
 			   &optval, sizeof(optval));
 		sin.sin_family = AF_INET;
 		sin.sin_port = htons(opt->console_port);
-		if (strcmp(opt->console, "socket") == 0)
+		if (strcmp(opt->console, OSM_REMOTE_CONSOLE) == 0)
 			sin.sin_addr.s_addr = htonl(INADDR_ANY);
 		else
 			sin.sin_addr.s_addr = htonl(INADDR_LOOPBACK);

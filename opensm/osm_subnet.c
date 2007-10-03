@@ -936,10 +936,10 @@ static void subn_verify_conf_file(IN osm_subn_opt_t * const p_opts)
 		p_opts->force_link_speed = IB_PORT_LINK_SPEED_ENABLED_MASK;
 	}
 
-	if (strcmp(p_opts->console, "off")
-	    && strcmp(p_opts->console, "local")
+	if (strcmp(p_opts->console, OSM_DISABLE_CONSOLE)
+	    && strcmp(p_opts->console, OSM_LOCAL_CONSOLE)
 #ifdef ENABLE_OSM_CONSOLE_SOCKET
-	    && strcmp(p_opts->console, "socket")
+	    && strcmp(p_opts->console, OSM_REMOTE_CONSOLE)
 #endif
 	    ) {
 		sprintf(buff, " Invalid Cached Option Value:console = %s"

@@ -733,11 +733,11 @@ int main(int argc, char *argv[])
 			/*
 			 * OpenSM interactive console
 			 */
-			if (strcmp(optarg, "off") == 0
-			    || strcmp(optarg, "local") == 0
+			if (strcmp(optarg, OSM_DISABLE_CONSOLE) == 0
+			    || strcmp(optarg, OSM_LOCAL_CONSOLE) == 0
 #ifdef ENABLE_OSM_CONSOLE_SOCKET
-			    || strcmp(optarg, "socket") == 0
-			    || strcmp(optarg, "loopback") == 0
+			    || strcmp(optarg, OSM_REMOTE_CONSOLE) == 0
+			    || strcmp(optarg, OSM_LOOPBACK_CONSOLE) == 0
 #endif
 			    )
 				opt.console = optarg;
@@ -1040,10 +1040,10 @@ int main(int argc, char *argv[])
 		   Sit here forever
 		 */
 		while (!osm_exit_flag) {
-			if (strcmp(opt.console, "local") == 0
+			if (strcmp(opt.console, OSM_LOCAL_CONSOLE) == 0
 #ifdef ENABLE_OSM_CONSOLE_SOCKET
-			    || strcmp(opt.console, "socket") == 0
-			    || strcmp(opt.console, "loopback") == 0
+			    || strcmp(opt.console, OSM_REMOTE_CONSOLE) == 0
+			    || strcmp(opt.console, OSM_LOOPBACK_CONSOLE) == 0
 #endif
 			    )
 				osm_console(&osm);
