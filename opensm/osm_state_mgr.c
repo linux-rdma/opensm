@@ -1169,7 +1169,6 @@ static void __osm_topology_file_create(IN osm_state_mgr_t * const p_mgr)
 static void __osm_state_mgr_report(IN osm_state_mgr_t * const p_mgr)
 {
 	const cl_qmap_t *p_tbl;
-	const osm_port_t *p_port;
 	const osm_node_t *p_node;
 	const osm_physp_t *p_physp;
 	const osm_physp_t *p_remote_physp;
@@ -1191,23 +1190,22 @@ static void __osm_state_mgr_report(IN osm_state_mgr_t * const p_mgr)
 		       ": #  : Sta : LID  : LMC : MTU  : LWA : LSA : Port GUID    "
 		       "    : Neighbor Port (Port #)\n");
 
-	p_tbl = &p_mgr->p_subn->port_guid_tbl;
+	p_tbl = &p_mgr->p_subn->node_guid_tbl;
 
 	/*
 	 * Hold lock non-exclusively while we perform these read-only operations.
 	 */
 
 	CL_PLOCK_ACQUIRE(p_mgr->p_lock);
-	p_port = (osm_port_t *) cl_qmap_head(p_tbl);
-	while (p_port != (osm_port_t *) cl_qmap_end(p_tbl)) {
+	p_node = (osm_node_t *) cl_qmap_head(p_tbl);
+	while (p_node != (osm_node_t *) cl_qmap_end(p_tbl)) {
 		if (osm_log_is_active(p_mgr->p_log, OSM_LOG_DEBUG)) {
 			osm_log(p_mgr->p_log, OSM_LOG_DEBUG,
 				"__osm_state_mgr_report: "
-				"Processing port 0x%016" PRIx64 "\n",
-				cl_ntoh64(osm_port_get_guid(p_port)));
+				"Processing node 0x%016" PRIx64 "\n",
+				cl_ntoh64(osm_node_get_node_guid(p_node)));
 		}
 
-		p_node = p_port->p_node;
 		node_type = osm_node_get_type(p_node);
 		if (node_type == IB_NODE_TYPE_SWITCH)
 			start_port = 0;
@@ -1311,7 +1309,7 @@ static void __osm_state_mgr_report(IN osm_state_mgr_t * const p_mgr)
 		osm_log_printf(p_mgr->p_log, OSM_LOG_VERBOSE,
 			       "------------------------------------------------------"
 			       "------------------------------------------------\n");
-		p_port = (osm_port_t *) cl_qmap_next(&p_port->map_item);
+		p_node = (osm_node_t *) cl_qmap_next(&p_node->map_item);
 	}
 
 	CL_PLOCK_RELEASE(p_mgr->p_lock);
