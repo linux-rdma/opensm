@@ -370,6 +370,213 @@ static void dump_ucast_lfts(cl_map_item_t * p_map_item, void *cxt)
 	fprintf(file, "%u lids dumped\n", max_lid);
 }
 
+static void dump_topology_node(cl_map_item_t * p_map_item, void *cxt)
+{
+	osm_node_t *p_node = (osm_node_t *) p_map_item;
+	FILE *file = ((struct dump_context *)cxt)->file;
+	uint32_t cPort;
+	osm_node_t *p_nbnode;
+	osm_physp_t *p_physp, *p_default_physp, *p_rphysp;
+	uint8_t link_speed_act;
+
+	if (!p_node->node_info.num_ports)
+		return;
+
+	for (cPort = 1; cPort < osm_node_get_num_physp(p_node); cPort++) {
+		uint8_t port_state;
+
+		p_physp = osm_node_get_physp_ptr(p_node, cPort);
+		if (!osm_physp_is_valid(p_physp))
+			continue;
+
+		p_rphysp = p_physp->p_remote_physp;
+		if (!p_rphysp || !osm_physp_is_valid(p_rphysp))
+			continue;
+
+		CL_ASSERT(cPort == p_physp->port_num);
+
+		if (p_node->node_info.node_type == IB_NODE_TYPE_SWITCH)
+			p_default_physp = osm_node_get_physp_ptr(p_node, 0);
+		else
+			p_default_physp = p_physp;
+
+		fprintf(file, "{ %s%s Ports:%02X"
+			" SystemGUID:%016" PRIx64
+			" NodeGUID:%016" PRIx64
+			" PortGUID:%016" PRIx64
+			" VenID:%06X DevID:%04X Rev:%08X {%s} LID:%04X PN:%02X } ",
+			p_node->node_info.node_type == IB_NODE_TYPE_SWITCH ?
+			"SW" : p_node->node_info.node_type ==
+			IB_NODE_TYPE_CA ? "CA" : p_node->node_info.node_type ==
+			IB_NODE_TYPE_ROUTER ? "Rt" : "**",
+			p_default_physp->port_info.base_lid ==
+			p_default_physp->port_info.
+			master_sm_base_lid ? "-SM" : "",
+			p_node->node_info.num_ports,
+			cl_ntoh64(p_node->node_info.sys_guid),
+			cl_ntoh64(p_node->node_info.node_guid),
+			cl_ntoh64(p_physp->port_guid),
+			cl_ntoh32(ib_node_info_get_vendor_id
+				  (&p_node->node_info)),
+			cl_ntoh16(p_node->node_info.device_id),
+			cl_ntoh32(p_node->node_info.revision),
+			p_node->print_desc,
+			cl_ntoh16(p_default_physp->port_info.base_lid), cPort);
+
+		p_nbnode = p_rphysp->p_node;
+
+		if (p_nbnode->node_info.node_type == IB_NODE_TYPE_SWITCH)
+			p_default_physp = osm_node_get_physp_ptr(p_nbnode, 0);
+		else
+			p_default_physp = p_rphysp;
+
+		fprintf(file, "{ %s%s Ports:%02X"
+			" SystemGUID:%016" PRIx64
+			" NodeGUID:%016" PRIx64
+			" PortGUID:%016" PRIx64
+			" VenID:%08X DevID:%04X Rev:%08X {%s} LID:%04X PN:%02X } ",
+			p_nbnode->node_info.node_type == IB_NODE_TYPE_SWITCH ?
+			"SW" : p_nbnode->node_info.node_type ==
+			IB_NODE_TYPE_CA ? "CA" :
+			p_nbnode->node_info.node_type == IB_NODE_TYPE_ROUTER ?
+			"Rt" : "**",
+			p_default_physp->port_info.base_lid ==
+			p_default_physp->port_info.
+			master_sm_base_lid ? "-SM" : "",
+			p_nbnode->node_info.num_ports,
+			cl_ntoh64(p_nbnode->node_info.sys_guid),
+			cl_ntoh64(p_nbnode->node_info.node_guid),
+			cl_ntoh64(p_rphysp->port_guid),
+			cl_ntoh32(ib_node_info_get_vendor_id
+				  (&p_nbnode->node_info)),
+			cl_ntoh32(p_nbnode->node_info.device_id),
+			cl_ntoh32(p_nbnode->node_info.revision),
+			p_nbnode->print_desc,
+			cl_ntoh16(p_default_physp->port_info.base_lid),
+			p_rphysp->port_num);
+
+		port_state = ib_port_info_get_port_state(&p_physp->port_info);
+		link_speed_act =
+		    ib_port_info_get_link_speed_active(&p_physp->port_info);
+
+		fprintf(file, "PHY=%s LOG=%s SPD=%s\n",
+			p_physp->port_info.link_width_active == 1 ? "1x" :
+			p_physp->port_info.link_width_active == 2 ? "4x" :
+			p_physp->port_info.link_width_active == 8 ? "12x" :
+			"??",
+			port_state == IB_LINK_ACTIVE ? "ACT" :
+			port_state == IB_LINK_ARMED ? "ARM" :
+			port_state == IB_LINK_INIT ? "INI" : "DWN",
+			link_speed_act == 1 ? "2.5" :
+			link_speed_act == 2 ? "5" :
+			link_speed_act == 4 ? "10" : "??");
+	}
+}
+
+static void print_node_report(cl_map_item_t * p_map_item, void *cxt)
+{
+	osm_node_t *p_node = (osm_node_t *) p_map_item;
+	osm_opensm_t *osm = ((struct dump_context *)cxt)->p_osm;
+	osm_log_t *log = &osm->log;
+	const osm_physp_t *p_physp, *p_remote_physp;
+	const ib_port_info_t *p_pi;
+	uint8_t port_num;
+	uint32_t num_ports;
+	uint8_t node_type;
+
+	if (osm_log_is_active(log, OSM_LOG_DEBUG))
+		osm_log(log, OSM_LOG_DEBUG, "__osm_state_mgr_report: "
+			"Processing node 0x%016" PRIx64 "\n",
+			cl_ntoh64(osm_node_get_node_guid(p_node)));
+
+	node_type = osm_node_get_type(p_node);
+
+	num_ports = osm_node_get_num_physp(p_node);
+	port_num = node_type == IB_NODE_TYPE_SWITCH ? 0 : 1;
+	for (; port_num < num_ports; port_num++) {
+		p_physp = osm_node_get_physp_ptr(p_node, port_num);
+		if (!osm_physp_is_valid(p_physp))
+			continue;
+
+		osm_log_printf(log, OSM_LOG_VERBOSE, "%-11s : %s : %02X :",
+			       osm_get_manufacturer_str(cl_ntoh64
+							(osm_node_get_node_guid
+							 (p_node))),
+			       osm_get_node_type_str_fixed_width
+			       (node_type), port_num);
+
+		p_pi = &p_physp->port_info;
+
+		/*
+		 * Port state is not defined for switch port 0
+		 */
+		if (port_num == 0)
+			osm_log_printf(log, OSM_LOG_VERBOSE, "     :");
+		else
+			osm_log_printf(log, OSM_LOG_VERBOSE, " %s :",
+				       osm_get_port_state_str_fixed_width
+				       (ib_port_info_get_port_state(p_pi)));
+
+		/*
+		 * LID values are only meaningful in select cases.
+		 */
+		if (ib_port_info_get_port_state(p_pi) != IB_LINK_DOWN
+		    && ((node_type == IB_NODE_TYPE_SWITCH && port_num == 0)
+			|| node_type != IB_NODE_TYPE_SWITCH))
+			osm_log_printf(log, OSM_LOG_VERBOSE, " %04X :  %01X  :",
+				       cl_ntoh16(p_pi->base_lid),
+				       ib_port_info_get_lmc(p_pi));
+		else
+			osm_log_printf(log, OSM_LOG_VERBOSE, "      :     :");
+
+		if (port_num != 0)
+			osm_log_printf(log, OSM_LOG_VERBOSE, " %s : %s : %s ",
+				       osm_get_mtu_str
+				       (ib_port_info_get_neighbor_mtu(p_pi)),
+				       osm_get_lwa_str(p_pi->link_width_active),
+				       osm_get_lsa_str
+				       (ib_port_info_get_link_speed_active
+					(p_pi)));
+		else
+			osm_log_printf(log, OSM_LOG_VERBOSE,
+				       "      :     :     ");
+
+		if (osm_physp_get_port_guid(p_physp) == osm->subn.sm_port_guid)
+			osm_log_printf(log, OSM_LOG_VERBOSE,
+				       "* %016" PRIx64 " *",
+				       cl_ntoh64(osm_physp_get_port_guid
+						 (p_physp)));
+		else
+			osm_log_printf(log, OSM_LOG_VERBOSE,
+				       ": %016" PRIx64 " :",
+				       cl_ntoh64(osm_physp_get_port_guid
+						 (p_physp)));
+
+		if (port_num
+		    && (ib_port_info_get_port_state(p_pi) != IB_LINK_DOWN)) {
+			p_remote_physp = osm_physp_get_remote(p_physp);
+			if (p_remote_physp
+			    && osm_physp_is_valid(p_remote_physp))
+				osm_log_printf(log, OSM_LOG_VERBOSE,
+					       " %016" PRIx64 " (%02X)",
+					       cl_ntoh64
+					       (osm_physp_get_port_guid
+						(p_remote_physp)),
+					       osm_physp_get_port_num
+					       (p_remote_physp));
+			else
+				osm_log_printf(log, OSM_LOG_VERBOSE,
+					       " UNKNOWN");
+		}
+
+		osm_log_printf(log, OSM_LOG_VERBOSE, "\n");
+	}
+
+	osm_log_printf(log, OSM_LOG_VERBOSE,
+		       "------------------------------------------------------"
+		       "------------------------------------------------\n");
+}
+
 /**********************************************************************
  **********************************************************************/
 static void dump_qmap(osm_opensm_t * p_osm, FILE * file,
@@ -410,6 +617,18 @@ static void dump_qmap_to_file(osm_opensm_t * p_osm, const char *file_name,
 /**********************************************************************
  **********************************************************************/
 
+static void print_report(osm_opensm_t * osm)
+{
+	osm_log_printf(&osm->log, OSM_LOG_VERBOSE,
+		       "\n==================================================="
+		       "===================================================="
+		       "\nVendor      : Ty "
+		       ": #  : Sta : LID  : LMC : MTU  : LWA : LSA : Port GUID    "
+		       "    : Neighbor Port (Port #)\n");
+
+	dump_qmap(osm, NULL, &osm->subn.node_guid_tbl, print_node_report);
+}
+
 void osm_dump_mcast_routes(osm_opensm_t * osm)
 {
 	if (osm_log_is_active(&osm->log, OSM_LOG_ROUTING)) {
@@ -436,4 +655,8 @@ void osm_dump_all(osm_opensm_t * osm)
 		dump_qmap_to_file(osm, "opensm.mcfdbs",
 				  &osm->subn.sw_guid_tbl, dump_mcast_routes);
 	}
+	dump_qmap_to_file(osm, "opensm-subnet.lst", &osm->subn.node_guid_tbl,
+			  dump_topology_node);
+	if (osm_log_is_active(&osm->log, OSM_LOG_VERBOSE))
+		print_report(osm);
 }
