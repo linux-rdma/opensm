@@ -1174,7 +1174,6 @@ static void __osm_state_mgr_report(IN osm_state_mgr_t * const p_mgr)
 	const osm_physp_t *p_remote_physp;
 	const ib_port_info_t *p_pi;
 	uint8_t port_num;
-	uint8_t start_port;
 	uint32_t num_ports;
 	uint8_t node_type;
 
@@ -1199,21 +1198,17 @@ static void __osm_state_mgr_report(IN osm_state_mgr_t * const p_mgr)
 	CL_PLOCK_ACQUIRE(p_mgr->p_lock);
 	p_node = (osm_node_t *) cl_qmap_head(p_tbl);
 	while (p_node != (osm_node_t *) cl_qmap_end(p_tbl)) {
-		if (osm_log_is_active(p_mgr->p_log, OSM_LOG_DEBUG)) {
+		if (osm_log_is_active(p_mgr->p_log, OSM_LOG_DEBUG))
 			osm_log(p_mgr->p_log, OSM_LOG_DEBUG,
 				"__osm_state_mgr_report: "
 				"Processing node 0x%016" PRIx64 "\n",
 				cl_ntoh64(osm_node_get_node_guid(p_node)));
-		}
 
 		node_type = osm_node_get_type(p_node);
-		if (node_type == IB_NODE_TYPE_SWITCH)
-			start_port = 0;
-		else
-			start_port = 1;
 
 		num_ports = osm_node_get_num_physp(p_node);
-		for (port_num = start_port; port_num < num_ports; port_num++) {
+		port_num = node_type == IB_NODE_TYPE_SWITCH ? 0 : 1;
+		for (; port_num < num_ports; port_num++) {
 			p_physp = osm_node_get_physp_ptr(p_node, port_num);
 			if (!osm_physp_is_valid(p_physp))
 				continue;
@@ -1288,7 +1283,7 @@ static void __osm_state_mgr_report(IN osm_state_mgr_t * const p_mgr)
 				IB_LINK_DOWN)) {
 				p_remote_physp = osm_physp_get_remote(p_physp);
 				if (p_remote_physp
-				    && osm_physp_is_valid(p_remote_physp)) {
+				    && osm_physp_is_valid(p_remote_physp))
 					osm_log_printf(p_mgr->p_log,
 						       OSM_LOG_VERBOSE,
 						       " %016" PRIx64 " (%02X)",
@@ -1297,7 +1292,7 @@ static void __osm_state_mgr_report(IN osm_state_mgr_t * const p_mgr)
 							(p_remote_physp)),
 						       osm_physp_get_port_num
 						       (p_remote_physp));
-				} else
+				else
 					osm_log_printf(p_mgr->p_log,
 						       OSM_LOG_VERBOSE,
 						       " UNKNOWN");
