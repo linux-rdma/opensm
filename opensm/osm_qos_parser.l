@@ -260,33 +260,41 @@ WHITE_DOTDOT_WHITE      [ \t]*:[ \t]*
 
 -                   {
                         SAVE_POS;
-                        __qos_parser_lval = strdup(__qos_parser_text);
                         if (in_description || in_list_of_strings || in_single_string)
+                        {
+                            __qos_parser_lval = strdup(__qos_parser_text);
                             return TK_TEXT;
+                        }
                         return TK_DASH;
                     }
 
 :                   {
                         SAVE_POS;
-                        __qos_parser_lval = strdup(__qos_parser_text);
                         if (in_description || in_list_of_strings || in_single_string)
+                        {
+                            __qos_parser_lval = strdup(__qos_parser_text);
                             return TK_TEXT;
+                        }
                         return TK_DOTDOT;
                     }
 
 ,                   {
                         SAVE_POS;
-                        __qos_parser_lval = strdup(__qos_parser_text);
                         if (in_description)
+                        {
+                            __qos_parser_lval = strdup(__qos_parser_text);
                             return TK_TEXT;
+                        }
                         return TK_COMMA;
                     }
 
 \*                  {
                         SAVE_POS;
-                        __qos_parser_lval = strdup(__qos_parser_text);
                         if (in_description || in_list_of_strings || in_single_string)
+                        {
+                            __qos_parser_lval = strdup(__qos_parser_text);
                             return TK_TEXT;
+                        }
                         return TK_ASTERISK;
                     }
 

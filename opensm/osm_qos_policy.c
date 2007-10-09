@@ -101,12 +101,6 @@ static void __free_single_element(void *p_element, void *context)
 		free(p_element);
 }
 
-static void __free_port_map_element(cl_map_item_t *p_element, void *context)
-{
-	if (p_element)
-		free(p_element);
-}
-
 /***************************************************
  ***************************************************/
 
@@ -145,6 +139,9 @@ osm_qos_port_group_t *osm_qos_policy_port_group_create()
 
 void osm_qos_policy_port_group_destroy(osm_qos_port_group_t * p)
 {
+	osm_qos_port_t * p_port;
+	osm_qos_port_t * p_old_port;
+
 	if (!p)
 		return;
 
@@ -157,7 +154,13 @@ void osm_qos_policy_port_group_destroy(osm_qos_port_group_t * p)
 	cl_list_remove_all(&p->port_name_list);
 	cl_list_destroy(&p->port_name_list);
 
-	cl_qmap_apply_func(&p->port_map,  __free_port_map_element,  NULL);
+	p_port = (osm_qos_port_t *) cl_qmap_head(&p->port_map);
+	while (p_port != (osm_qos_port_t *) cl_qmap_end(&p->port_map))
+	{
+		p_old_port = p_port;
+		p_port = (osm_qos_port_t *) cl_qmap_next(&p_port->map_item);
+		free(p_old_port);
+	}
 	cl_qmap_remove_all(&p->port_map);
 
 	free(p);
@@ -219,7 +222,7 @@ osm_qos_sl2vl_scope_t *osm_qos_policy_sl2vl_scope_create()
 	if (!p)
 		return NULL;
 
-	memset(p, 0, sizeof(osm_qos_vlarb_scope_t));
+	memset(p, 0, sizeof(osm_qos_sl2vl_scope_t));
 
 	cl_list_init(&p->group_list, 10);
 	cl_list_init(&p->across_from_list, 10);
@@ -274,6 +277,8 @@ void osm_qos_policy_qos_level_destroy(osm_qos_level_t * p)
 	if (!p)
 		return;
 
+	if (p->name)
+		free(p->name);
 	if (p->use)
 		free(p->use);
 
