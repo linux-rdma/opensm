@@ -50,7 +50,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include <sys/stat.h>
+#include <errno.h>
 #include <opensm/osm_opensm.h>
 #include <opensm/osm_qos_policy.h>
 #include <opensm/osm_qos_parser_y.h>
@@ -129,6 +129,7 @@ extern char * __qos_parser_text;
 extern void __qos_parser_error (char *s);
 extern int __qos_parser_lex (void);
 extern FILE * __qos_parser_in;
+extern int errno;
 
 #define RESET_BUFFER  __parser_tmp_struct_reset()
 
@@ -1741,7 +1742,6 @@ number_from_range_2:  TK_NUMBER {
 int osm_qos_parse_policy_file(IN osm_subn_t * const p_subn)
 {
     int res = 0;
-    struct stat statbuf;
     static boolean_t first_time = TRUE;
     p_qos_parser_osm_log = &p_subn->p_osm->log;
 
@@ -1750,13 +1750,14 @@ int osm_qos_parse_policy_file(IN osm_subn_t * const p_subn)
     osm_qos_policy_destroy(p_subn->p_qos_policy);
     p_subn->p_qos_policy = NULL;
 
-    if (!stat(p_subn->opt.qos_policy_file, &statbuf)) {
-
+    __qos_parser_in = fopen (p_subn->opt.qos_policy_file, "r");
+    if (!__qos_parser_in)
+    {
         if (strcmp(p_subn->opt.qos_policy_file,OSM_DEFAULT_QOS_POLICY_FILE)) {
             osm_log(p_qos_parser_osm_log, OSM_LOG_ERROR,
                     "osm_qos_parse_policy_file: ERR AC01: "
-                    "QoS policy file not found (%s)\n",
-                    p_subn->opt.qos_policy_file);
+                    "Failed opening QoS policy file %s - %s\n",
+                    p_subn->opt.qos_policy_file, strerror(errno));
             res = 1;
         }
         else
@@ -1765,17 +1766,6 @@ int osm_qos_parse_policy_file(IN osm_subn_t * const p_subn)
                     "QoS policy file not found (%s)\n",
                     p_subn->opt.qos_policy_file);
 
-        goto Exit;
-    }
-
-    __qos_parser_in = fopen (p_subn->opt.qos_policy_file, "r");
-    if (!__qos_parser_in)
-    {
-        osm_log(p_qos_parser_osm_log, OSM_LOG_ERROR,
-                "osm_qos_parse_policy_file: ERR AC02: "
-                "Failed opening QoS policy file (%s)\n",
-                p_subn->opt.qos_policy_file);
-        res = 1;
         goto Exit;
     }
 
