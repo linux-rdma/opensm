@@ -171,6 +171,7 @@ WHITE                   [ \t]+
 NEW_LINE                \n
 COMMENT		            \#.*\n
 WHITE_DOTDOT_WHITE      [ \t]*:[ \t]*
+QUOTED_TEXT             \"[^\"]*\"
 
 %%
 
@@ -296,6 +297,13 @@ WHITE_DOTDOT_WHITE      [ \t]*:[ \t]*
                             return TK_TEXT;
                         }
                         return TK_ASTERISK;
+                    }
+
+{QUOTED_TEXT}       {
+                        SAVE_POS;
+                        __qos_parser_lval = strdup(&__qos_parser_text[1]);
+                        __qos_parser_lval[strlen(__qos_parser_lval)-1] = '\0';
+                        return TK_TEXT;
                     }
 
 .                   { SAVE_POS; __qos_parser_lval = strdup(__qos_parser_text); return TK_TEXT;}
