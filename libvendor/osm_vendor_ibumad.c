@@ -82,7 +82,6 @@ typedef struct _osm_umad_bind_info {
 	osm_mad_pool_t *p_mad_pool;
 	osm_vend_mad_recv_callback_t mad_recv_callback;
 	osm_vend_mad_send_err_callback_t send_err_callback;
-
 	ib_net64_t port_guid;
 	int port_id;
 	int agent_id;
@@ -805,7 +804,7 @@ osm_vendor_bind(IN osm_vendor_t * const p_vend,
 {
 	ib_net64_t port_guid;
 	osm_umad_bind_info_t *p_bind = 0;
-	uint32_t method_mask[4];
+	long method_mask[16/sizeof(long)];
 	int umad_port_id;
 	uint8_t rmpp_version;
 
