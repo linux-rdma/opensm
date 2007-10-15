@@ -136,9 +136,8 @@ static int do_ucast_file_load(void *context)
 
 	file_name = p_osm->subn.opt.ucast_dump_file;
 	if (!file_name) {
-		osm_log(&p_osm->log, OSM_LOG_ERROR | OSM_LOG_SYS,
-			"do_ucast_file_load: ERR 6301: "
-			"ucast dump file name is not defined; "
+		osm_log(&p_osm->log, OSM_LOG_VERBOSE, "do_ucast_file_load: "
+			"ucast dump file name is not given; "
 			"using default routing algorithm\n");
 		return -1;
 	}
@@ -274,9 +273,9 @@ static int do_lid_matrix_file_load(void *context)
 
 	file_name = p_osm->subn.opt.lid_matrix_dump_file;
 	if (!file_name) {
-		osm_log(&p_osm->log, OSM_LOG_ERROR | OSM_LOG_SYS,
-			"do_lid_matrix_file_load: ERR 6304: "
-			"lid matrix file name is not defined; "
+		osm_log(&p_osm->log, OSM_LOG_VERBOSE,
+			"do_lid_matrix_file_load: "
+			"lid matrix file name is not given; "
 			"using default lid matrix generation algorithm\n");
 		return -1;
 	}
