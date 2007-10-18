@@ -1272,43 +1272,6 @@ static void populate_fwd_tbls(lash_t * p_lash)
 	OSM_LOG_EXIT(p_log);
 }
 
-static void print_fwd_table(IN const osm_switch_t * p_sw)
-{
-	uint16_t max_lid_ho, lid_ho;
-	uint64_t switch_guid = osm_lash_get_switch_guid(p_sw);
-
-	max_lid_ho = p_sw->max_lid_ho;
-	printf("FWDTBL: 0x%016" PRIx64 " max LID 0x%04X\n",
-	       cl_ntoh64(switch_guid), max_lid_ho);
-
-	// starting at 1, not 0. Assuming no LID with an ID of 0
-	for (lid_ho = 1; lid_ho <= max_lid_ho; lid_ho++) {
-		uint8_t port_num = osm_switch_get_port_by_lid(p_sw, lid_ho);
-
-		if (port_num == OSM_NO_PATH)
-			printf("0x%04X : UNREACHABLE\n", lid_ho);
-		else
-			printf("0x%04X : %d \n", lid_ho, port_num);
-	}
-	printf("\n");
-}
-
-static void print_fwd_tables(lash_t * p_lash)
-{
-	osm_subn_t *p_subn = &p_lash->p_osm->subn;
-	osm_switch_t *p_next_sw, *p_sw;
-
-	p_next_sw = (osm_switch_t *) cl_qmap_head(&p_subn->sw_guid_tbl);
-	while (p_next_sw != (osm_switch_t *) cl_qmap_end(&p_subn->sw_guid_tbl)) {
-		p_sw = p_next_sw;
-		p_next_sw = (osm_switch_t *) cl_qmap_next(&p_sw->map_item);
-
-		if (p_sw && p_sw->p_node) {
-			print_fwd_table(p_sw);
-		}
-	}
-}
-
 static void osm_lash_process_switch(lash_t * p_lash, osm_switch_t * p_sw)
 {
 	osm_log_t *p_log = &p_lash->p_osm->log;
@@ -1492,7 +1455,6 @@ static int lash_process(void *context)
 		goto Exit;
 
 	populate_fwd_tbls(p_lash);
-	print_fwd_tables(p_lash);
 
       Exit:
 	free_lash_structures(p_lash);
