@@ -829,6 +829,17 @@ osm_vendor_bind(IN osm_vendor_t * const p_vend,
 		goto Exit;
 	}
 
+	if (umad_get_issm_path(p_vend->umad_port.ca_name,
+			       p_vend->umad_port.portnum,
+			       p_vend->issm_path,
+			       sizeof(p_vend->issm_path)) < 0) {
+		osm_log(p_vend->p_log, OSM_LOG_ERROR,
+			"osm_vendor_bind: ERR 5424: "
+			"Cannot resolve issm path for port %s:%u\n",
+			p_vend->umad_port.ca_name, p_vend->umad_port.portnum);
+		goto Exit;
+	}
+
 	if (!(p_bind = malloc(sizeof(*p_bind)))) {
 		osm_log(p_vend->p_log, OSM_LOG_ERROR,
 			"osm_vendor_bind: ERR 5425: "
@@ -1165,27 +1176,24 @@ void osm_vendor_set_sm(IN osm_bind_handle_t h_bind, IN boolean_t is_sm_val)
 {
 	osm_umad_bind_info_t *p_bind = (osm_umad_bind_info_t *) h_bind;
 	osm_vendor_t *p_vend = p_bind->p_vend;
-	char issmstring[24];
 
 	OSM_LOG_ENTER(p_vend->p_log, osm_vendor_set_sm);
-	sprintf(issmstring, "/dev/infiniband/issm%d", p_vend->umad_port_id);
 	if (TRUE == is_sm_val) {
-		p_vend->issmfd = open(issmstring, O_NONBLOCK);
+		p_vend->issmfd = open(p_vend->issm_path, O_NONBLOCK);
 		if (p_vend->issmfd < 0) {
 			osm_log(p_vend->p_log, OSM_LOG_ERROR,
 				"osm_vendor_set_sm: ERR 5431: "
-				"setting IS_SM capability"
-				" mask failed; errno %d\n", errno);
+				"setting IS_SM capmask: cannot open file "
+				"\'%s\': %s\n",
+				p_vend->issm_path, strerror(errno));
 			p_vend->issmfd = -1;
 		}
-	} else {
-		if (p_vend->issmfd != -1) {
-			if (0 != close(p_vend->issmfd))
-				osm_log(p_vend->p_log, OSM_LOG_ERROR,
-					"osm_vendor_set_sm: ERR 5432: "
-					"clearing IS_SM capability"
-					" mask failed: errno %d\n", errno);
-		}
+	} else if (p_vend->issmfd != -1) {
+		if (0 != close(p_vend->issmfd))
+			osm_log(p_vend->p_log, OSM_LOG_ERROR,
+				"osm_vendor_set_sm: ERR 5432: "
+				"clearing IS_SM capmask: cannot close: %s\n",
+				strerror(errno));
 		p_vend->issmfd = -1;
 	}
 	OSM_LOG_EXIT(p_vend->p_log);

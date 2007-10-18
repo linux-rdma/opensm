@@ -165,6 +165,7 @@ typedef struct _osm_vendor {
 	int umad_port_id;
 	void *receiver;
 	int issmfd;
+	char issm_path[256];
 } osm_vendor_t;
 
 #define OSM_BIND_INVALID_HANDLE 0
