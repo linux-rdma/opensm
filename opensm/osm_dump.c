@@ -136,6 +136,7 @@ static void dump_ucast_routes(cl_map_item_t * p_map_item, void *cxt)
 	uint16_t max_lid_ho;
 	uint16_t lid_ho, base_lid;
 	boolean_t direct_route_exists = FALSE;
+	boolean_t dor;
 	osm_switch_t *p_sw = (osm_switch_t *) p_map_item;
 	osm_opensm_t *p_osm = ((struct dump_context *)cxt)->p_osm;
 	FILE *file = ((struct dump_context *)cxt)->file;
@@ -148,6 +149,10 @@ static void dump_ucast_routes(cl_map_item_t * p_map_item, void *cxt)
 		"Switch 0x%016" PRIx64 "\n"
 		"LID    : Port : Hops : Optimal\n",
 		cl_ntoh64(osm_node_get_node_guid(p_node)));
+
+	dor = (p_osm->routing_engine.name &&
+	       (strcmp(p_osm->routing_engine.name, "dor") == 0));
+
 	for (lid_ho = 1; lid_ho <= max_lid_ho; lid_ho++) {
 		fprintf(file, "0x%04X : ", lid_ho);
 
@@ -228,7 +233,11 @@ static void dump_ucast_routes(cl_map_item_t * p_map_item, void *cxt)
 		if (best_hops == num_hops)
 			fprintf(file, "yes");
 		else {
-			best_port = osm_switch_recommend_path(p_sw, p_port, lid_ho, TRUE, NULL, NULL, NULL, NULL);	/* No LMC Optimization */
+			/* No LMC Optimization */
+			best_port = osm_switch_recommend_path(p_sw, p_port,
+							      lid_ho, TRUE, dor,
+							      NULL, NULL,
+							      NULL, NULL);
 			fprintf(file, "No %u hop path possible via port %u!",
 				best_hops, best_port);
 		}

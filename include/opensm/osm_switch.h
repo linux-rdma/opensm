@@ -958,6 +958,7 @@ osm_switch_recommend_path(IN const osm_switch_t * const p_sw,
 			  IN osm_port_t * p_port,
 			  IN const uint16_t lid_ho,
 			  IN const boolean_t ignore_existing,
+			  IN const boolean_t dor,
 			  IN OUT uint64_t * remote_sys_guids,
 			  IN OUT uint16_t * p_num_used_sys,
 			  IN OUT uint64_t * remote_node_guids,
@@ -979,6 +980,9 @@ osm_switch_recommend_path(IN const osm_switch_t * const p_sw,
 *		regardless of existing paths.
 *		If false, the switch will choose an existing route if one
 *		exists, otherwise will choose the optimal route.
+*
+*	dor
+*		[in] If TRUE, Dimension Order Routing will be done.
 *
 *	remote_sys_guids
 *		[in out] The array of remote system guids already used to

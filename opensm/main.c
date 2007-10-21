@@ -174,7 +174,7 @@ void show_usage(void)
 	       "--routing_engine <engine name>\n"
 	       "          This option chooses routing engine instead of Min Hop\n"
 	       "          algorithm (default).\n"
-	       "          Supported engines: updn, file, ftree, lash\n\n");
+	       "          Supported engines: updn, file, ftree, lash, dor\n\n");
 	printf("-z\n"
 	       "--connect_roots\n"
 	       "          This option enforces a routing engine (currently\n"

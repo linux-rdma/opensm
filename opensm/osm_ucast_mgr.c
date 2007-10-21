@@ -211,6 +211,8 @@ __osm_ucast_mgr_process_port(IN osm_ucast_mgr_t * const p_mgr,
 	uint8_t port;
 	boolean_t is_ignored_by_port_prof;
 	ib_net64_t node_guid;
+	struct osm_routing_engine *p_routing_eng;
+	boolean_t dor;
 	/*
 	   The following are temporary structures that will aid
 	   in providing better routing in LMC > 0 situations
@@ -274,6 +276,9 @@ __osm_ucast_mgr_process_port(IN osm_ucast_mgr_t * const p_mgr,
 
 	node_guid = osm_node_get_node_guid(p_sw->p_node);
 
+	p_routing_eng = &p_mgr->p_subn->p_osm->routing_engine;
+	dor = p_routing_eng->name && (strcmp(p_routing_eng->name, "dor") == 0);
+
 	/*
 	   The lid matrix contains the number of hops to each
 	   lid from each port.  From this information we determine
@@ -286,6 +291,7 @@ __osm_ucast_mgr_process_port(IN osm_ucast_mgr_t * const p_mgr,
 			port = osm_switch_recommend_path(p_sw, p_port, lid_ho,
 							 p_mgr->p_subn->
 							 ignore_existing_lfts,
+							 dor,
 							 remote_sys_guids,
 							 &num_used_sys,
 							 remote_node_guids,
@@ -294,6 +300,7 @@ __osm_ucast_mgr_process_port(IN osm_ucast_mgr_t * const p_mgr,
 			port = osm_switch_recommend_path(p_sw, p_port, lid_ho,
 							 p_mgr->p_subn->
 							 ignore_existing_lfts,
+							 dor,
 							 NULL, NULL, NULL,
 							 NULL);
 
@@ -306,8 +313,7 @@ __osm_ucast_mgr_process_port(IN osm_ucast_mgr_t * const p_mgr,
 
 			/* Up/Down routing can cause unreachable routes between some
 			   switches so we do not report that as an error in that case */
-			if (!p_mgr->p_subn->p_osm->routing_engine.
-			    build_lid_matrices) {
+			if (!p_routing_eng->build_lid_matrices) {
 				osm_log(p_mgr->p_log, OSM_LOG_ERROR,
 					"__osm_ucast_mgr_process_port: ERR 3A08: "
 					"No path to get to LID 0x%X from switch 0x%"

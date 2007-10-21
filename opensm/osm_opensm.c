@@ -81,6 +81,7 @@ const static struct routing_engine_module routing_modules[] = {
 	{"file", osm_ucast_file_setup},
 	{"ftree", osm_ucast_ftree_setup},
 	{"lash", osm_ucast_lash_setup},
+	{"dor", osm_ucast_null_setup },
 	{NULL, NULL}
 };
 

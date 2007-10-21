@@ -224,6 +224,7 @@ osm_switch_recommend_path(IN const osm_switch_t * const p_sw,
 			  IN osm_port_t * p_port,
 			  IN const uint16_t lid_ho,
 			  IN const boolean_t ignore_existing,
+			  IN const boolean_t dor,
 			  IN OUT uint64_t * remote_sys_guids,
 			  IN OUT uint16_t * p_num_used_sys,
 			  IN OUT uint64_t * remote_node_guids,
@@ -267,6 +268,7 @@ osm_switch_recommend_path(IN const osm_switch_t * const p_sw,
 	osm_physp_t *p_physp;
 	osm_physp_t *p_rem_physp;
 	osm_node_t *p_rem_node;
+	osm_node_t *p_rem_node_first = NULL;
 
 	CL_ASSERT(lid_ho > 0);
 
@@ -430,6 +432,19 @@ osm_switch_recommend_path(IN const osm_switch_t * const p_sw,
 		   the count is min but also lower then the max subscribed
 		 */
 		if (check_count < least_paths) {
+			if (dor) {
+			    /* Get the Remote Node */
+			    p_rem_physp = osm_physp_get_remote(p_physp);
+			    p_rem_node = osm_physp_get_node_ptr(p_rem_physp);
+			    /* use the first dimension, but spread
+			     * traffic out among the group of ports
+			     * representing that dimension */
+			    if (port_found) {
+			        if (p_rem_node != p_rem_node_first)
+				    continue;
+			    } else
+			        p_rem_node_first = p_rem_node;
+			}
 			port_found = TRUE;
 			best_port = port_num;
 			least_paths = check_count;
