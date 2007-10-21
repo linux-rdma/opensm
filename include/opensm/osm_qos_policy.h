@@ -49,6 +49,7 @@
 
 #include <iba/ib_types.h>
 #include <complib/cl_list.h>
+#include <opensm/st.h>
 #include <opensm/osm_port.h>
 #include <opensm/osm_partition.h>
 #include <opensm/osm_sa_path_record.h>
@@ -72,7 +73,6 @@ typedef struct _osm_qos_port_t {
 typedef struct _osm_qos_port_group_t {
 	char *name;			/* single string (this port group name) */
 	char *use;			/* single string (description) */
-	cl_list_t port_name_list;	/* list of port names (.../.../...) */
 	uint8_t node_types;		/* node types bitmask */
 	cl_qmap_t port_map;
 } osm_qos_port_group_t;
@@ -148,6 +148,7 @@ typedef struct _osm_qos_policy_t {
 	cl_list_t qos_match_rules;		/* list of osm_qos_match_rule_t */
 	osm_qos_level_t *p_default_qos_level;	/* default QoS level */
 	osm_subn_t *p_subn;			/* osm subnet object */
+	st_table * p_node_hash;			/* node by name hash */
 } osm_qos_policy_t;
 
 /***************************************************/

@@ -59,6 +59,33 @@
 /***************************************************
  ***************************************************/
 
+static void
+__build_nodebyname_hash(osm_qos_policy_t * p_qos_policy)
+{
+	osm_node_t * p_node;
+	cl_qmap_t  * p_node_guid_tbl = &p_qos_policy->p_subn->node_guid_tbl;
+
+	p_qos_policy->p_node_hash = st_init_strtable();
+	CL_ASSERT(p_qos_policy->p_node_hash);
+
+	if (!p_node_guid_tbl || !cl_qmap_count(p_node_guid_tbl))
+		return;
+
+	for (p_node = (osm_node_t *) cl_qmap_head(p_node_guid_tbl);
+	     p_node != (osm_node_t *) cl_qmap_end(p_node_guid_tbl);
+	     p_node = (osm_node_t *) cl_qmap_next(&p_node->map_item)) {
+		if (!st_lookup(p_qos_policy->p_node_hash,
+			      (st_data_t)p_node->print_desc,
+			      (st_data_t*)&p_node))
+			st_insert(p_qos_policy->p_node_hash,
+				  (st_data_t)p_node->print_desc,
+				  (st_data_t)p_node);
+	}
+}
+
+/***************************************************
+ ***************************************************/
+
 static boolean_t
 __is_num_in_range_arr(uint64_t ** range_arr,
 		  unsigned range_arr_len, uint64_t num)
@@ -127,8 +154,6 @@ osm_qos_port_group_t *osm_qos_policy_port_group_create()
 		return NULL;
 
 	memset(p, 0, sizeof(osm_qos_port_group_t));
-
-	cl_list_init(&p->port_name_list, 10);
 	cl_qmap_init(&p->port_map);
 
 	return p;
@@ -149,10 +174,6 @@ void osm_qos_policy_port_group_destroy(osm_qos_port_group_t * p)
 		free(p->name);
 	if (p->use)
 		free(p->use);
-
-	cl_list_apply_func(&p->port_name_list, __free_single_element, NULL);
-	cl_list_remove_all(&p->port_name_list);
-	cl_list_destroy(&p->port_name_list);
 
 	p_port = (osm_qos_port_t *) cl_qmap_head(&p->port_map);
 	while (p_port != (osm_qos_port_t *) cl_qmap_end(&p->port_map))
@@ -423,6 +444,8 @@ osm_qos_policy_t * osm_qos_policy_create(osm_subn_t * p_subn)
 	cl_list_init(&p_qos_policy->qos_match_rules, 10);
 
 	p_qos_policy->p_subn = p_subn;
+	__build_nodebyname_hash(p_qos_policy);
+
 	return p_qos_policy;
 }
 
@@ -494,6 +517,9 @@ void osm_qos_policy_destroy(osm_qos_policy_t * p_qos_policy)
 	}
 	cl_list_remove_all(&p_qos_policy->qos_match_rules);
 	cl_list_destroy(&p_qos_policy->qos_match_rules);
+
+	if (p_qos_policy->p_node_hash)
+		st_free_table(p_qos_policy->p_node_hash);
 
 	free(p_qos_policy);
 

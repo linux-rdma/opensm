@@ -245,7 +245,8 @@ qos_policy_entry:     port_groups_section
      *          use: our SRP storage targets
      *          port-guid: 0x1000000000000001,0x1000000000000002
      *          ...
-     *          port-name: vs1/HCA-1/P1
+     *          port-name: vs1 HCA-1/P1
+     *          port-name: node_description/P2
      *          ...
      *          pkey: 0x00FF-0x0FFF
      *          ...
@@ -602,21 +603,60 @@ port_group_use_start:   TK_USE {
 
 port_group_port_name:   port_group_port_name_start string_list {
                             /* 'port-name' in 'port-group' - any num of instances */
-                            cl_list_iterator_t    list_iterator;
-                            char                * tmp_str;
+                            cl_list_iterator_t list_iterator;
+                            osm_node_t * p_node;
+                            osm_physp_t * p_physp;
+                            unsigned port_num;
+                            char * tmp_str;
+                            char * port_str;
 
-                            list_iterator = cl_list_head(&tmp_parser_struct.str_list);
-                            while( list_iterator != cl_list_end(&tmp_parser_struct.str_list) )
+                            /* parsing port name strings */
+                            for (list_iterator = cl_list_head(&tmp_parser_struct.str_list);
+                                 list_iterator != cl_list_end(&tmp_parser_struct.str_list);
+                                 list_iterator = cl_list_next(list_iterator))
                             {
                                 tmp_str = (char*)cl_list_obj(list_iterator);
-
-                                /*
-                                 * TODO: parse port name strings
-                                 */
-
                                 if (tmp_str)
-                                    cl_list_insert_tail(&p_current_port_group->port_name_list,tmp_str);
-                                list_iterator = cl_list_next(list_iterator);
+                                {
+                                    /* last slash in port name string is a separator
+                                       between node name and port number */
+                                    port_str = strrchr(tmp_str, '/');
+                                    if (!port_str || (strlen(port_str) < 3) ||
+                                        (port_str[1] != 'p' && port_str[1] != 'P')) {
+                                        yyerror("illegal port name");
+                                        free(tmp_str);
+                                        cl_list_remove_all(&tmp_parser_struct.str_list);
+                                        return 1;
+                                    }
+
+                                    if (!(port_num = strtoul(&port_str[2],NULL,0))) {
+                                        yyerror("illegal port number in port name");
+                                        free(tmp_str);
+                                        cl_list_remove_all(&tmp_parser_struct.str_list);
+                                        return 1;
+                                    }
+
+                                    /* separate node name from port number */
+                                    port_str[0] = '\0';
+
+                                    if (st_lookup(p_qos_policy->p_node_hash,
+                                                  (st_data_t)tmp_str,
+                                                  (st_data_t*)&p_node))
+                                    {
+                                        /* we found the node, now get the right port */
+                                        p_physp = osm_node_get_physp_ptr(p_node, port_num);
+                                        if (!p_physp) {
+                                            yyerror("port number out of range in port name");
+                                            free(tmp_str);
+                                            cl_list_remove_all(&tmp_parser_struct.str_list);
+                                            return 1;
+                                        }
+                                        /* we found the port, now add it to guid table */
+                                        __parser_add_port_to_port_map(&p_current_port_group->port_map,
+                                                                      p_physp);
+                                    }
+                                    free(tmp_str);
+                                }
                             }
                             cl_list_remove_all(&tmp_parser_struct.str_list);
                         }
