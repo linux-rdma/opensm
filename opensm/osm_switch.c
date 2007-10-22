@@ -433,17 +433,18 @@ osm_switch_recommend_path(IN const osm_switch_t * const p_sw,
 		 */
 		if (check_count < least_paths) {
 			if (dor) {
-			    /* Get the Remote Node */
-			    p_rem_physp = osm_physp_get_remote(p_physp);
-			    p_rem_node = osm_physp_get_node_ptr(p_rem_physp);
-			    /* use the first dimension, but spread
-			     * traffic out among the group of ports
-			     * representing that dimension */
-			    if (port_found) {
-			        if (p_rem_node != p_rem_node_first)
-				    continue;
-			    } else
-			        p_rem_node_first = p_rem_node;
+				/* Get the Remote Node */
+				p_rem_physp = osm_physp_get_remote(p_physp);
+				p_rem_node =
+				    osm_physp_get_node_ptr(p_rem_physp);
+				/* use the first dimension, but spread
+				 * traffic out among the group of ports
+				 * representing that dimension */
+				if (port_found) {
+					if (p_rem_node != p_rem_node_first)
+						continue;
+				} else
+					p_rem_node_first = p_rem_node;
 			}
 			port_found = TRUE;
 			best_port = port_num;
