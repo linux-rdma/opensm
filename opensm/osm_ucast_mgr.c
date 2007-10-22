@@ -212,7 +212,6 @@ __osm_ucast_mgr_process_port(IN osm_ucast_mgr_t * const p_mgr,
 	boolean_t is_ignored_by_port_prof;
 	ib_net64_t node_guid;
 	struct osm_routing_engine *p_routing_eng;
-	boolean_t dor;
 	/*
 	   The following are temporary structures that will aid
 	   in providing better routing in LMC > 0 situations
@@ -277,7 +276,6 @@ __osm_ucast_mgr_process_port(IN osm_ucast_mgr_t * const p_mgr,
 	node_guid = osm_node_get_node_guid(p_sw->p_node);
 
 	p_routing_eng = &p_mgr->p_subn->p_osm->routing_engine;
-	dor = p_routing_eng->name && (strcmp(p_routing_eng->name, "dor") == 0);
 
 	/*
 	   The lid matrix contains the number of hops to each
@@ -291,7 +289,7 @@ __osm_ucast_mgr_process_port(IN osm_ucast_mgr_t * const p_mgr,
 			port = osm_switch_recommend_path(p_sw, p_port, lid_ho,
 							 p_mgr->p_subn->
 							 ignore_existing_lfts,
-							 dor,
+							 p_mgr->is_dor,
 							 remote_sys_guids,
 							 &num_used_sys,
 							 remote_node_guids,
@@ -300,7 +298,7 @@ __osm_ucast_mgr_process_port(IN osm_ucast_mgr_t * const p_mgr,
 			port = osm_switch_recommend_path(p_sw, p_port, lid_ho,
 							 p_mgr->p_subn->
 							 ignore_existing_lfts,
-							 dor,
+							 p_mgr->is_dor,
 							 NULL, NULL, NULL,
 							 NULL);
 
@@ -772,12 +770,14 @@ osm_signal_t osm_ucast_mgr_process(IN osm_ucast_mgr_t * const p_mgr)
 	struct osm_routing_engine *p_routing_eng;
 	osm_signal_t signal = OSM_SIGNAL_DONE;
 	cl_qmap_t *p_sw_guid_tbl;
-	boolean_t default_routing = TRUE;
 
 	OSM_LOG_ENTER(p_mgr->p_log, osm_ucast_mgr_process);
 
 	p_sw_guid_tbl = &p_mgr->p_subn->sw_guid_tbl;
 	p_routing_eng = &p_mgr->p_subn->p_osm->routing_engine;
+
+	p_mgr->is_dor = p_routing_eng->name
+	    && (strcmp(p_routing_eng->name, "dor") == 0);
 
 	CL_PLOCK_EXCL_ACQUIRE(p_mgr->p_lock);
 
@@ -803,11 +803,8 @@ osm_signal_t osm_ucast_mgr_process(IN osm_ucast_mgr_t * const p_mgr)
 	   Now that the lid matrices have been built, we can
 	   build and download the switch forwarding tables.
 	 */
-	if (p_routing_eng->ucast_build_fwd_tables &&
-	    (p_routing_eng->ucast_build_fwd_tables(p_routing_eng->context) ==
-	     0))
-		default_routing = FALSE;
-	else
+	if (!p_routing_eng->ucast_build_fwd_tables ||
+	    p_routing_eng->ucast_build_fwd_tables(p_routing_eng->context))
 		cl_qmap_apply_func(p_sw_guid_tbl, __osm_ucast_mgr_process_tbl,
 				   p_mgr);
 

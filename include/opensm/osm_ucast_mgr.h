@@ -100,6 +100,7 @@ typedef struct _osm_ucast_mgr {
 	osm_req_t *p_req;
 	osm_log_t *p_log;
 	cl_plock_t *p_lock;
+	boolean_t is_dor;
 	boolean_t any_change;
 	boolean_t some_hop_count_set;
 	uint8_t *lft_buf;
@@ -117,6 +118,9 @@ typedef struct _osm_ucast_mgr {
 *
 *	p_lock
 *		Pointer to the serializing lock.
+*
+*	is_dor
+*		Dimension Order Routing (DOR) will be done
 *
 *	any_change
 *		Initialized to FALSE at the beginning of the algorithm,
