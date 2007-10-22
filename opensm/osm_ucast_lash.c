@@ -148,17 +148,6 @@ static void connect_switches(lash_t * p_lash, int sw1, int sw2, int phy_port_1)
 
 }
 
-static uint64_t osm_lash_get_switch_guid(IN const osm_switch_t * p_sw)
-{
-	uint64_t switch_guid = -1;
-	osm_physp_t *p_physp = osm_node_get_physp_ptr(p_sw->p_node, 0);
-
-	if (osm_physp_is_valid(p_physp))
-		switch_guid = osm_physp_get_port_guid(p_physp);
-
-	return switch_guid;
-}
-
 static osm_switch_t *get_osm_switch_from_port(osm_port_t * port)
 {
 	osm_physp_t *p = port->p_physp;
