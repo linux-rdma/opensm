@@ -661,6 +661,18 @@ typedef enum _osm_thread_state {
 #define OSM_CAP_IS_PORT_INFO_CAPMASK_MATCH_SUPPORTED (1 << 13)
 /***********/
 
+/****d* OpenSM: Base/OSM_CAP2_IS_QOS_SUPPORTED
+* Name
+*	OSM_CAP2_IS_QOS_SUPPORTED
+*
+* DESCRIPTION
+*	QoS is supported
+*
+* SYNOPSIS
+*/
+#define OSM_CAP2_IS_QOS_SUPPORTED (1 << 1)
+/***********/
+
 /****d* OpenSM: Base/osm_sm_state_t
 * NAME
 *	osm_sm_state_t

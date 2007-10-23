@@ -3249,8 +3249,7 @@ typedef struct _ib_class_port_info {
 	uint8_t base_ver;
 	uint8_t class_ver;
 	ib_net16_t cap_mask;
-	uint8_t reserved[3];
-	uint8_t resp_time_val;
+	ib_net32_t cap_mask2_resp_time;
 	ib_gid_t redir_gid;
 	ib_net32_t redir_tc_sl_fl;
 	ib_net16_t redir_lid;
@@ -3277,8 +3276,9 @@ typedef struct _ib_class_port_info {
 *	cap_mask
 *		Supported capabilities of this management class.
 *
-*	resp_time_value
-*		Maximum expected response time.
+*	cap_mask2_resp_time
+*		Maximum expected response time and additional
+*		supported capabilities of this management class.
 *
 *	redr_gid
 *		GID to use for redirection, or zero
@@ -3322,6 +3322,135 @@ typedef struct _ib_class_port_info {
 * SEE ALSO
 *	IB_CLASS_CAP_GETSET, IB_CLASS_CAP_TRAP
 *
+*********/
+
+/****f* IBA Base: Types/ib_class_set_resp_time_val
+* NAME
+*	ib_class_set_resp_time_val
+*
+* DESCRIPTION
+*	Set maximum expected response time.
+*
+* SYNOPSIS
+*/
+static inline void OSM_API
+ib_class_set_resp_time_val(IN ib_class_port_info_t * const p_cpi,
+			   IN const uint8_t val)
+{
+	p_cpi->cap_mask2_resp_time =
+	    (p_cpi->cap_mask2_resp_time & CL_HTON32(~IB_CLASS_RESP_TIME_MASK)) |
+	    cl_hton32(val & IB_CLASS_RESP_TIME_MASK);
+}
+
+/*
+* PARAMETERS
+*	p_cpi
+*		[in] Pointer to the class port info object.
+*
+*	val
+*		[in] Response time value to set.
+*
+* RETURN VALUES
+*	None
+*
+* NOTES
+*
+* SEE ALSO
+*	ib_class_port_info_t
+*********/
+
+/****f* IBA Base: Types/ib_class_resp_time_val
+* NAME
+*	ib_class_resp_time_val
+*
+* DESCRIPTION
+*	Get response time value.
+*
+* SYNOPSIS
+*/
+static inline uint8_t OSM_API
+ib_class_resp_time_val(IN ib_class_port_info_t * const p_cpi)
+{
+	return (uint8_t)(cl_ntoh32(p_cpi->cap_mask2_resp_time) &
+			 IB_CLASS_RESP_TIME_MASK);
+}
+
+/*
+* PARAMETERS
+*	p_cpi
+*		[in] Pointer to the class port info object.
+*
+* RETURN VALUES
+*	Response time value.
+*
+* NOTES
+*
+* SEE ALSO
+*	ib_class_port_info_t
+*********/
+
+/****f* IBA Base: Types/ib_class_set_cap_mask2
+* NAME
+*	ib_class_set_cap_mask2
+*
+* DESCRIPTION
+*	Set ClassPortInfo:CapabilityMask2.
+*
+* SYNOPSIS
+*/
+static inline void OSM_API
+ib_class_set_cap_mask2(IN ib_class_port_info_t * const p_cpi,
+		       IN const uint32_t cap_mask2)
+{
+	p_cpi->cap_mask2_resp_time = (p_cpi->cap_mask2_resp_time &
+		CL_HTON32(IB_CLASS_RESP_TIME_MASK)) |
+		cl_hton32(cap_mask2 << 5);
+}
+
+/*
+* PARAMETERS
+*	p_cpi
+*		[in] Pointer to the class port info object.
+*
+*	cap_mask2
+*		[in] CapabilityMask2 value to set.
+*
+* RETURN VALUES
+*	None
+*
+* NOTES
+*
+* SEE ALSO
+*	ib_class_port_info_t
+*********/
+
+/****f* IBA Base: Types/ib_class_cap_mask2
+* NAME
+*	ib_class_cap_mask2
+*
+* DESCRIPTION
+*	Get ClassPortInfo:CapabilityMask2.
+*
+* SYNOPSIS
+*/
+static inline uint32_t OSM_API
+ib_class_cap_mask2(IN const ib_class_port_info_t * const p_cpi)
+{
+	return (cl_ntoh32(p_cpi->cap_mask2_resp_time) >> 5);
+}
+
+/*
+* PARAMETERS
+*	p_cpi
+*		[in] Pointer to the class port info object.
+*
+* RETURN VALUES
+*	CapabilityMask2 of the ClassPortInfo.
+*
+* NOTES
+*
+* SEE ALSO
+*	ib_class_port_info_t
 *********/
 
 /****s* IBA Base: Types/ib_sm_info_t

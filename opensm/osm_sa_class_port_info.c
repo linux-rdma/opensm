@@ -170,7 +170,7 @@ __osm_cpi_rcv_respond(IN osm_cpi_rcv_t * const p_rcv,
 		}
 	}
 	rtv += 8;
-	p_resp_cpi->resp_time_val = rtv;
+	ib_class_set_resp_time_val(p_resp_cpi, rtv);
 	p_resp_cpi->redir_gid = zero_gid;
 	p_resp_cpi->redir_tc_sl_fl = 0;
 	p_resp_cpi->redir_lid = 0;
@@ -209,6 +209,9 @@ __osm_cpi_rcv_respond(IN osm_cpi_rcv_t * const p_rcv,
 	p_resp_cpi->cap_mask = OSM_CAP_IS_SUBN_GET_SET_NOTICE_SUP |
 	    OSM_CAP_IS_PORT_INFO_CAPMASK_MATCH_SUPPORTED;
 #endif
+	if (p_rcv->p_subn->opt.qos)
+		ib_class_set_cap_mask2(p_resp_cpi, OSM_CAP2_IS_QOS_SUPPORTED);
+
 	if (p_rcv->p_subn->opt.no_multicast_option != TRUE)
 		p_resp_cpi->cap_mask |= OSM_CAP_IS_UD_MCAST_SUP;
 	p_resp_cpi->cap_mask = cl_hton16(p_resp_cpi->cap_mask);

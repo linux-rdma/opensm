@@ -713,10 +713,17 @@ ib_api_status_t osmtest_validate_sa_class_port_info(IN osmtest_t * const p_osmt)
 	    (ib_class_port_info_t *) ib_sa_mad_get_payload_ptr(p_resp_sa_madp);
 
 	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmtest_validate_sa_class_port_info:\n-----------------------------\nSA Class Port Info:\n"
-		" base_ver:%u\n class_ver:%u\n cap_mask:0x%X\n resp_time_val:0x%X\n-----------------------------\n",
+		"osmtest_validate_sa_class_port_info:\n"
+		"-----------------------------\n"
+		"SA Class Port Info:\n"
+		" base_ver:%u\n"
+		" class_ver:%u\n"
+		" cap_mask:0x%X\n"
+		" cap_mask2:0x%X\n"
+		" resp_time_val:0x%X\n"
+		"-----------------------------\n",
 		p_cpi->base_ver, p_cpi->class_ver, cl_ntoh16(p_cpi->cap_mask),
-		p_cpi->resp_time_val);
+		ib_class_cap_mask2(p_cpi), ib_class_resp_time_val(p_cpi));
 
       Exit:
 #if 0
