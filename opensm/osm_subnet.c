@@ -629,12 +629,17 @@ opts_unpack_charp(IN char *p_req_key,
 			printf(buff);
 			cl_log_event("OpenSM", CL_LOG_INFO, buff, NULL, 0);
 
-			/*
-			   Ignore the possible memory leak here;
-			   the pointer may be to a static default.
-			 */
-			*p_val = (char *)malloc(strlen(p_val_str) + 1);
-			strcpy(*p_val, p_val_str);
+			/* special case the "(null)" string */
+			if (strcmp("(null)", p_val_str) == 0) {
+				*p_val = NULL;
+			} else {
+				/*
+				  Ignore the possible memory leak here;
+				  the pointer may be to a static default.
+				*/
+				*p_val = (char *)malloc(strlen(p_val_str) + 1);
+				strcpy(*p_val, p_val_str);
+			}
 		}
 	}
 }
