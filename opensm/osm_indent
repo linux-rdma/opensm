@@ -44,3 +44,13 @@
 # linux/scripts/Lindent).
 
 indent -npro -kr -i8 -ts8 -sob -l80 -ss -ncs "$@"
+
+# indent doesn't have an option for label indentation, so do it with sed
+for f in $@ ; do
+	test -f $f || continue
+	temp=`mktemp -t osm_indent.XXXXXXXX`
+	cat $f \
+	| sed -e 's/^      \([A-Za-z_]\+[A-Za-z_0-9]*:\)$/\1/' > $temp
+	diff $f $temp > /dev/null || cat $temp > $f
+	rm -f $temp
+done
