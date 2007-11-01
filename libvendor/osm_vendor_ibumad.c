@@ -782,11 +782,11 @@ static void osm_vendor_close_port(osm_vendor_t * const p_vend)
 
 static int set_bit(int nr, void *method_mask)
 {
-	int mask, retval;
-	long *addr = method_mask;
+	long mask, *addr = method_mask;
+	int retval;
 
-	addr += nr >> 5;
-	mask = 1 << (nr & 0x1f);
+	addr += nr / (8*sizeof(long));
+	mask = 1L << (nr % (8*sizeof(long)));
 	retval = (mask & *addr) != 0;
 	*addr |= mask;
 	return retval;
