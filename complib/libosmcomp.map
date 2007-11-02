@@ -151,5 +151,9 @@ OSMCOMP_2.3 {
 		ib_error_str;
 		ib_async_event_str;
 		ib_wc_status_str;
+		open_node_name_map;
+		close_node_name_map;
+		remap_node_name;
+		clean_nodedesc;
 	local: *;
 };

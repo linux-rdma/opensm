@@ -126,6 +126,7 @@ EXTRA_DIST = \
 	$(srcdir)/complib/cl_types.h \
 	$(srcdir)/complib/cl_fleximap.h \
 	$(srcdir)/complib/cl_qcomppool.h \
+	$(srcdir)/complib/cl_nodenamemap.h \
 	$(srcdir)/iba/ib_types.h \
 	$(srcdir)/iba/ib_cm_types.h \
 	$(srcdir)/vendor/osm_vendor_mlx_transport_anafa.h \
