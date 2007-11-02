@@ -36,17 +36,28 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <complib/cl_qmap.h>
 
-/* NOTE: this modifies the parameter "nodedesc". */
+/* NOTE: this may modify the parameter "nodedesc". */
 char *clean_nodedesc(char *nodedesc);
+
+typedef struct _name_map_item {
+	cl_map_item_t item;
+	uint64_t guid;
+	char *name;
+} name_map_item_t;
+typedef struct _node_name_map {
+	FILE *fp;
+	cl_qmap_t map;
+} nn_map_t;
 
 /**
  * Node name map interface.
  * It is OK to pass NULL for the node_name_map[_fp] parameters.
  */
-FILE *open_node_name_map(char *node_name_map);
-void  close_node_name_map(FILE *node_name_map_fp);
-char *remap_node_name(FILE *node_name_map_fp, uint64_t target_guid,
+nn_map_t *open_node_name_map(char *node_name_map);
+void  close_node_name_map(nn_map_t *map);
+char *remap_node_name(nn_map_t *map, uint64_t target_guid,
 			char *nodedesc);
 	/* NOTE: parameter "nodedesc" may be modified here. */
 

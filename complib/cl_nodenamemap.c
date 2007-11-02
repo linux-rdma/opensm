@@ -44,67 +44,102 @@
 
 #include <complib/cl_nodenamemap.h>
 
-FILE *
+static void
+read_names(nn_map_t *map)
+{
+	char *line = NULL;
+	size_t len = 0;
+	name_map_item_t *item;
+
+	rewind(map->fp);
+	while (getline(&line, &len, map->fp) != -1) {
+		char *guid_str = NULL;
+		char *name = NULL;
+		line[len-1] = '\0';
+		if (line[0] == '#')
+			continue;
+
+		guid_str = strtok(line, "\"#");
+		name = strtok(NULL, "\"#");
+		if (!guid_str || !name)
+			continue;
+
+		item = malloc(sizeof(*item));
+		if (!item) {
+			goto error;
+		}
+		item->guid = strtoull(guid_str, NULL, 0);
+		item->name = strdup(name);
+		cl_qmap_insert(&(map->map), item->guid, (cl_map_item_t *)item);
+	}
+
+error:
+	free (line);
+}
+
+nn_map_t *
 open_node_name_map(char *node_name_map)
 {
-	FILE *rc = NULL;
+	FILE *tmp_fp = NULL;
+	nn_map_t *rc = NULL;
 
 	if (node_name_map != NULL) {
-		rc = fopen(node_name_map, "r");
-		if (rc == NULL) {
+		tmp_fp = fopen(node_name_map, "r");
+		if (tmp_fp == NULL) {
 			fprintf(stderr,
 				"WARNING failed to open switch map \"%s\" (%s)\n",
 				node_name_map, strerror(errno));
 		}
 #ifdef HAVE_DEFAULT_NODENAME_MAP
 	} else {
-		rc = fopen(HAVE_DEFAULT_NODENAME_MAP, "r");
+		tmp_fp = fopen(HAVE_DEFAULT_NODENAME_MAP, "r");
 #endif /* HAVE_DEFAULT_NODENAME_MAP */
 	}
+	if (!tmp_fp)
+		return (NULL);
+
+	rc = malloc(sizeof(*rc));
+	if (!rc)
+		return (NULL);
+	rc->fp = tmp_fp;
+	cl_qmap_init(&(rc->map));
+	read_names(rc);
 	return (rc);
 }
 
 void
-close_node_name_map(FILE *fp)
+close_node_name_map(nn_map_t *map)
 {
-	if (fp)
-		fclose(fp);
+	name_map_item_t *item = NULL;
+
+	if (!map)
+		return;
+
+	item = (name_map_item_t *)cl_qmap_head(&(map->map));
+	while (item != (name_map_item_t *)cl_qmap_end(&(map->map))) {
+		item = (name_map_item_t *)cl_qmap_remove(&(map->map), item->guid);
+		free(item->name);
+		free(item);
+		item = (name_map_item_t *)cl_qmap_head(&(map->map));
+	}
+	if (map->fp)
+		fclose(map->fp);
+	free(map);
 }
 
 char *
-remap_node_name(FILE *node_name_map_fp, uint64_t target_guid, char *nodedesc)
+remap_node_name(nn_map_t *map, uint64_t target_guid, char *nodedesc)
 {
-#define NAME_LEN (256)
-	char     *line = NULL;
-	size_t    len = 0;
-	uint64_t  guid = 0;
-	char     *rc = NULL;
-	int       line_count = 0;
+	char *rc = NULL;
+	name_map_item_t *item = NULL;
 
-	if (node_name_map_fp == NULL)
+	if (!map)
 		goto done;
 
-	rewind(node_name_map_fp);
-	for (line_count = 1;
-		getline(&line, &len, node_name_map_fp) != -1;
-		line_count++) {
-		line[len-1] = '\0';
-		if (line[0] == '#')
-			goto next_one;
-		char *guid_str = strtok(line, "\"#");
-		char *name = strtok(NULL, "\"#");
-		if (!guid_str || !name)
-			goto next_one;
-		guid = strtoull(guid_str, NULL, 0);
-		if (target_guid == guid) {
-			rc = strdup(name);
-			free (line);
-			goto done;
-		}
-next_one:
-		free (line);
-		line = NULL;
-	}
+	item = (name_map_item_t *)cl_qmap_get(&(map->map), target_guid);
+	if (item != (name_map_item_t *)cl_qmap_end(&(map->map)))
+		rc = strdup(item->name);
+
 done:
 	if (rc == NULL)
 		rc = strdup(clean_nodedesc(nodedesc));
