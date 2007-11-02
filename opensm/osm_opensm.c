@@ -312,7 +312,7 @@ osm_opensm_init(IN osm_opensm_t * const p_osm,
 		goto Exit;
 	}
 
-	p_osm->node_name_map = open_node_name_map(NULL);
+	p_osm->node_name_map = open_node_name_map(p_opt->node_name_map_name);
 
       Exit:
 	osm_log(&p_osm->log, OSM_LOG_FUNCS, "osm_opensm_init: ]\n");	/* Format Waived */

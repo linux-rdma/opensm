@@ -445,6 +445,7 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * const p_opt)
 #endif				/* ENABLE_OSM_PERF_MGR */
 
 	p_opt->event_plugin_name = OSM_DEFAULT_EVENT_PLUGIN_NAME;
+	p_opt->node_name_map_name = NULL;
 
 	p_opt->dump_files_dir = getenv("OSM_TMP_DIR");
 	if (!p_opt->dump_files_dir || !(*p_opt->dump_files_dir))
@@ -1250,6 +1251,9 @@ ib_api_status_t osm_subn_parse_conf_file(IN osm_subn_opt_t * const p_opts)
 		opts_unpack_charp("event_plugin_name",
 				  p_key, p_val, &p_opts->event_plugin_name);
 
+		opts_unpack_charp("node_name_map_name",
+				  p_key, p_val, &p_opts->node_name_map_name);
+
 		subn_parse_qos_options("qos",
 				       p_key, p_val, &p_opts->qos_options);
 
@@ -1507,6 +1511,12 @@ ib_api_status_t osm_subn_write_conf_file(IN osm_subn_opt_t * const p_opts)
 	fprintf(opts_file,
 		"#\n# Event Plugin Options\n#\n"
 		"event_plugin_name %s\n\n", p_opts->event_plugin_name);
+
+	fprintf(opts_file,
+		"#\n# Node name map for mapping node's to more descirptive node descriptors\n"
+		"# (man ibnetdiscover for more information)\n#\n"
+		"node_name_map_name %s\n\n",
+		p_opts->node_name_map_name ? p_opts->node_name_map_name : "(null)");
 
 	fprintf(opts_file,
 		"#\n# DEBUG FEATURES\n#\n"
