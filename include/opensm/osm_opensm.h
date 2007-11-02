@@ -52,6 +52,7 @@
 #include <complib/cl_dispatcher.h>
 #include <complib/cl_passivelock.h>
 #include <complib/cl_atomic.h>
+#include <complib/cl_nodenamemap.h>
 #include <opensm/osm_stats.h>
 #include <opensm/osm_log.h>
 #include <opensm/osm_sm.h>
@@ -168,6 +169,7 @@ typedef struct _osm_opensm_t {
 	struct osm_routing_engine routing_engine;
 	osm_stats_t stats;
 	osm_console_t console;
+	nn_map_t *node_name_map;
 } osm_opensm_t;
 /*
 * FIELDS

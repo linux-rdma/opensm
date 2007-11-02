@@ -297,6 +297,7 @@ typedef struct _osm_subn_opt {
 	char *event_db_dump_file;
 #endif				/* ENABLE_OSM_PERF_MGR */
 	char *event_plugin_name;
+	char *node_name_map_name;
 } osm_subn_opt_t;
 /*
 * FIELDS

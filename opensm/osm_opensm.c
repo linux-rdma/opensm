@@ -183,6 +183,8 @@ void osm_opensm_destroy(IN osm_opensm_t * const p_osm)
 	osm_subn_destroy(&p_osm->subn);
 	cl_disp_destroy(&p_osm->disp);
 
+	close_node_name_map(p_osm->node_name_map);
+
 	cl_plock_destroy(&p_osm->lock);
 
 	osm_log_destroy(&p_osm->log);
@@ -309,6 +311,8 @@ osm_opensm_init(IN osm_opensm_t * const p_osm,
 			p_opt->routing_engine_name);
 		goto Exit;
 	}
+
+	p_osm->node_name_map = open_node_name_map(NULL);
 
       Exit:
 	osm_log(&p_osm->log, OSM_LOG_FUNCS, "osm_opensm_init: ]\n");	/* Format Waived */

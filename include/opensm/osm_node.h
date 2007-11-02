@@ -106,7 +106,7 @@ typedef struct _osm_node {
 	ib_node_desc_t node_desc;
 	uint32_t discovery_count;
 	uint32_t physp_tbl_size;
-	char print_desc[IB_NODE_DESCRIPTION_SIZE + 1];
+	char *print_desc;
 	osm_physp_t physp_table[1];
 } osm_node_t;
 /*

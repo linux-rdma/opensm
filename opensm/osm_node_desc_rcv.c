@@ -58,6 +58,7 @@
 #include <opensm/osm_madw.h>
 #include <opensm/osm_log.h>
 #include <opensm/osm_node.h>
+#include <opensm/osm_opensm.h>
 #include <opensm/osm_subnet.h>
 
 /**********************************************************************
@@ -67,13 +68,24 @@ __osm_nd_rcv_process_nd(IN const osm_nd_rcv_t * const p_rcv,
 			IN osm_node_t * const p_node,
 			IN const ib_node_desc_t * const p_nd)
 {
+	char *tmp_desc;
+	char print_desc[IB_NODE_DESCRIPTION_SIZE + 1];
+
 	OSM_LOG_ENTER(p_rcv->p_log, __osm_nd_rcv_process_nd);
 
 	memcpy(&p_node->node_desc.description, p_nd, sizeof(*p_nd));
 
 	/* also set up a printable version */
-	memcpy(&p_node->print_desc, p_nd, sizeof(*p_nd));
-	p_node->print_desc[IB_NODE_DESCRIPTION_SIZE] = '\0';
+	memcpy(print_desc, p_nd, sizeof(*p_nd));
+	print_desc[IB_NODE_DESCRIPTION_SIZE] = '\0';
+	tmp_desc = remap_node_name(p_rcv->p_subn->p_osm->node_name_map,
+			cl_ntoh64(osm_node_get_node_guid(p_node)),
+			print_desc);
+
+	/* make a copy for this node to "own" */
+	if (p_node->print_desc)
+		free(p_node->print_desc);
+	p_node->print_desc = strdup(tmp_desc);
 
 	if (osm_log_is_active(p_rcv->p_log, OSM_LOG_VERBOSE)) {
 		osm_log(p_rcv->p_log, OSM_LOG_VERBOSE,

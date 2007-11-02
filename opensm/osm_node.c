@@ -131,6 +131,7 @@ osm_node_t *osm_node_new(IN const osm_madw_t * const p_madw)
 
 		osm_node_init_physp(p_node, p_madw);
 	}
+	p_node->print_desc = strdup("<unknown>");
 
 	return (p_node);
 }
@@ -146,6 +147,11 @@ static void osm_node_destroy(IN osm_node_t * p_node)
 	 */
 	for (i = 0; i < p_node->physp_tbl_size; i++)
 		osm_physp_destroy(&p_node->physp_table[i]);
+
+	/* cleanup printable node_desc field */
+	if (p_node->print_desc) {
+		free(p_node->print_desc);
+	}
 }
 
 /**********************************************************************
