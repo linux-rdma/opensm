@@ -147,6 +147,9 @@ static inline void __remove_marked_nodes(osm_perfmgr_t * pm)
 
 		cl_qmap_remove_item(&(pm->monitored_map),
 				    (cl_map_item_t *) (pm->remove_list));
+
+		if (pm->remove_list->name)
+			free(pm->remove_list->name);
 		free(pm->remove_list);
 		pm->remove_list = next;
 	}
@@ -440,12 +443,13 @@ static void __collect_guids(cl_map_item_t * const p_map_item, void *context)
 		mon_node = malloc(sizeof(*mon_node) + sizeof(redir_t) * size);
 		if (!mon_node) {
 			osm_log(pm->log, OSM_LOG_ERROR,
-				"PerfMgr: __collect_guids ERR 4C06: malloc failed so not handling node GUID 0x%"
-				PRIx64 "\n", node_guid);
+				"PerfMgr: __collect_guids ERR 4C06: malloc failed: not handling node %s"
+				"(GUID 0x%" PRIx64 ")\n", node->print_desc, node_guid);
 			goto Exit;
 		}
 		memset(mon_node, 0, sizeof(*mon_node) + sizeof(redir_t) * size);
 		mon_node->guid = node_guid;
+		mon_node->name = strdup(node->print_desc);
 		mon_node->redir_tbl_size = size + 1;
 		cl_qmap_insert(&(pm->monitored_map), node_guid,
 			       (cl_map_item_t *) mon_node);
@@ -477,10 +481,10 @@ __osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context)
 	node = osm_get_node_by_guid(pm->subn, cl_hton64(mon_node->guid));
 	if (!node) {
 		osm_log(pm->log, OSM_LOG_ERROR,
-			"__osm_perfmgr_query_counters: ERR 4C07: Node guid 0x%"
+			"__osm_perfmgr_query_counters: ERR 4C07: Node \"%s\" (guid 0x%"
 			PRIx64
-			" no longer exists so removing from PerfMgr monitoring\n",
-			mon_node->guid);
+			") no longer exists so removing from PerfMgr monitoring\n",
+			mon_node->name, mon_node->guid);
 		__mark_for_removal(pm, mon_node);
 		goto Exit;
 	}

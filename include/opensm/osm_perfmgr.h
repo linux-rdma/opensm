@@ -101,6 +101,7 @@ typedef struct _monitored_node {
 	cl_map_item_t map_item;
 	struct _monitored_node *next;
 	uint64_t guid;
+	char *name;
 	uint32_t redir_tbl_size;
 	redir_t redir_port[1];	/* redirection on a per port basis */
 } __monitored_node_t;
