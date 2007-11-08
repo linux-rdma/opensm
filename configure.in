@@ -70,7 +70,9 @@ OPENIB_OSM_CONSOLE_SOCKET_SEL
 dnl select performance manager or not
 OPENIB_OSM_PERF_MGR_SEL
 
-dnl Check for the specification of a default node name map file
+dnl Check for a different default node name map file
+dnl default {sysconfdir}/ib-node-name-map
+NODENAMEMAPFILE=ib-node-name-map
 AC_MSG_CHECKING(for --with-node-name-map )
 AC_ARG_WITH(node-name-map,
     AC_HELP_STRING([--with-node-name-map=file],
@@ -86,15 +88,12 @@ AC_ARG_WITH(node-name-map,
 )
 AC_MSG_RESULT(${withnodenamemap=no})
 
-if test $withnodenamemap = "yes"; then
-   NODENAMEMAP_TMP1="`eval echo ${sysconfdir}/$NODENAMEMAPFILE`"
-   NODENAMEMAP_TMP2="`echo $NODENAMEMAP_TMP1 | sed 's/^NONE/$ac_default_prefix/'`"
-   NODENAMEMAP="`eval echo $NODENAMEMAP_TMP2`"
-
-   AC_DEFINE_UNQUOTED(HAVE_DEFAULT_NODENAME_MAP,
-	         ["$NODENAMEMAP"],
-	         [Define a default node name map file])
-fi
+NODENAMEMAP_TMP1="`eval echo ${sysconfdir}/$NODENAMEMAPFILE`"
+NODENAMEMAP_TMP2="`echo $NODENAMEMAP_TMP1 | sed 's/^NONE/$ac_default_prefix/'`"
+NODENAMEMAP="`eval echo $NODENAMEMAP_TMP2`"
+AC_DEFINE_UNQUOTED(HAVE_DEFAULT_NODENAME_MAP,
+	["$NODENAMEMAP"],
+	[Define a default node name map file])
 
 dnl select example event plugin or not
 OPENIB_OSM_DEFAULT_EVENT_PLUGIN_SEL
