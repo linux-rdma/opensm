@@ -1024,9 +1024,7 @@ osm_perfmgr_check_overflow(osm_perfmgr_t * pm, __monitored_node_t *mon_node,
 
 		cl_plock_acquire(pm->lock);
 		p_node = osm_get_node_by_guid(pm->subn, cl_hton64(mon_node->guid));
-		/* Could find monitored node for this rather than */
-		/* potentially redoing redirection */
-		lid = get_lid(p_node, port, NULL);
+		lid = get_lid(p_node, port, mon_node);
 		cl_plock_release(pm->lock);
 		if (lid == 0) {
 			osm_log(pm->log, OSM_LOG_ERROR,
