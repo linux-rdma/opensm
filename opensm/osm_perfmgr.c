@@ -168,7 +168,7 @@ osm_perfmgr_mad_recv_callback(osm_madw_t * p_madw, void *bind_context,
 {
 	osm_perfmgr_t *pm = (osm_perfmgr_t *) bind_context;
 
-	OSM_LOG_ENTER(pm->log, osm_pm_mad_recv_callback);
+	OSM_LOG_ENTER(pm->log, osm_perfmgr_mad_recv_callback);
 
 	osm_madw_copy_context(p_madw, p_req_madw);
 	osm_mad_pool_put(pm->mad_pool, p_req_madw);
@@ -197,7 +197,7 @@ osm_perfmgr_mad_send_err_callback(void *bind_context, osm_madw_t * p_madw)
 	uint64_t node_guid = context->perfmgr_context.node_guid;
 	uint8_t port = context->perfmgr_context.port;
 
-	OSM_LOG_ENTER(pm->log, osm_pm_mad_send_err_callback);
+	OSM_LOG_ENTER(pm->log, osm_perfmgr_mad_send_err_callback);
 
 	osm_log(pm->log, OSM_LOG_ERROR,
 		"osm_perfmgr_mad_send_err_callback: ERR 4C02: 0x%" PRIx64
@@ -251,11 +251,11 @@ osm_perfmgr_bind(osm_perfmgr_t * const pm, const ib_net64_t port_guid)
 	osm_bind_info_t bind_info;
 	ib_api_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(pm->log, osm_pm_bind);
+	OSM_LOG_ENTER(pm->log, osm_perfmgr_bind);
 
 	if (pm->bind_handle != OSM_BIND_INVALID_HANDLE) {
 		osm_log(pm->log, OSM_LOG_ERROR,
-			"osm_pm_mad_ctrl_bind: ERR 4C03: Multiple binds not allowed\n");
+			"osm_perfmgr_mad_ctrl_bind: ERR 4C03: Multiple binds not allowed\n");
 		status = IB_ERROR;
 		goto Exit;
 	}
@@ -270,7 +270,7 @@ osm_perfmgr_bind(osm_perfmgr_t * const pm, const ib_net64_t port_guid)
 	bind_info.send_q_size = OSM_PM_DEFAULT_QP1_SEND_SIZE;
 
 	osm_log(pm->log, OSM_LOG_VERBOSE,
-		"osm_pm_mad_bind: "
+		"osm_perfmgr_mad_bind: "
 		"Binding to port GUID 0x%" PRIx64 "\n", cl_ntoh64(port_guid));
 
 	pm->bind_handle = osm_vendor_bind(pm->vendor,
@@ -283,7 +283,7 @@ osm_perfmgr_bind(osm_perfmgr_t * const pm, const ib_net64_t port_guid)
 	if (pm->bind_handle == OSM_BIND_INVALID_HANDLE) {
 		status = IB_ERROR;
 		osm_log(pm->log, OSM_LOG_ERROR,
-			"osm_pm_mad_bind: ERR 4C04: Vendor specific bind failed (%s)\n",
+			"osm_perfmgr_mad_bind: ERR 4C04: Vendor specific bind failed (%s)\n",
 			ib_get_err_str(status));
 		goto Exit;
 	}
@@ -301,7 +301,7 @@ static void osm_perfmgr_mad_unbind(osm_perfmgr_t * const pm)
 	OSM_LOG_ENTER(pm->log, osm_sa_mad_ctrl_unbind);
 	if (pm->bind_handle == OSM_BIND_INVALID_HANDLE) {
 		osm_log(pm->log, OSM_LOG_ERROR,
-			"osm_pm_mad_unbind: ERR 4C05: No previous bind\n");
+			"osm_perfmgr_mad_unbind: ERR 4C05: No previous bind\n");
 		goto Exit;
 	}
 	osm_vendor_unbind(pm->bind_handle);
@@ -471,13 +471,13 @@ __osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context)
 	uint64_t node_guid = 0;
 	ib_net32_t remote_qp;
 
-	OSM_LOG_ENTER(pm->log, __osm_pm_query_counters);
+	OSM_LOG_ENTER(pm->log, __osm_perfmgr_query_counters);
 
 	cl_plock_acquire(pm->lock);
 	node = osm_get_node_by_guid(pm->subn, cl_hton64(mon_node->guid));
 	if (!node) {
 		osm_log(pm->log, OSM_LOG_ERROR,
-			"__osm_pm_query_counters: ERR 4C07: Node guid 0x%"
+			"__osm_perfmgr_query_counters: ERR 4C07: Node guid 0x%"
 			PRIx64
 			" no longer exists so removing from PerfMgr monitoring\n",
 			mon_node->guid);
@@ -493,7 +493,7 @@ __osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context)
 				    node->print_desc) !=
 	    PERFMGR_EVENT_DB_SUCCESS) {
 		osm_log(pm->log, OSM_LOG_ERROR,
-			"__osm_pm_query_counters: ERR 4C08: DB create entry failed for 0x%"
+			"__osm_perfmgr_query_counters: ERR 4C08: DB create entry failed for 0x%"
 			PRIx64 " (%s) : %s\n", node_guid, node->print_desc,
 			strerror(errno));
 		goto Exit;
@@ -515,7 +515,7 @@ __osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context)
 		lid = get_lid(node, port, mon_node);
 		if (lid == 0) {
 			osm_log(pm->log, OSM_LOG_DEBUG,
-				"__osm_pm_query_counters: WARN: node 0x%" PRIx64
+				"__osm_perfmgr_query_counters: WARN: node 0x%" PRIx64
 				" port %d (%s): port out of range, skipping\n",
 				cl_ntoh64(node->node_info.node_guid), port,
 				node->print_desc);
@@ -531,7 +531,7 @@ __osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context)
 		gettimeofday(&(mad_context.perfmgr_context.query_start), NULL);
 #endif
 		osm_log(pm->log, OSM_LOG_VERBOSE,
-			"__osm_pm_query_counters: Getting stats for node 0x%"
+			"__osm_perfmgr_query_counters: Getting stats for node 0x%"
 			PRIx64 " port %d (lid %X) (%s)\n", node_guid, port,
 			cl_ntoh16(lid), node->print_desc);
 		status =
@@ -539,7 +539,7 @@ __osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context)
 					    IB_MAD_METHOD_GET, &mad_context);
 		if (status != IB_SUCCESS)
 			osm_log(pm->log, OSM_LOG_ERROR,
-				"__osm_pm_query_counters: ERR 4C09: Failed to issue port counter query for node 0x%"
+				"__osm_perfmgr_query_counters: ERR 4C09: Failed to issue port counter query for node 0x%"
 				PRIx64 " port %d (%s)\n",
 				node->node_info.node_guid, port,
 				node->print_desc);
@@ -1250,7 +1250,7 @@ osm_perfmgr_init(osm_perfmgr_t * const pm,
 {
 	ib_api_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(log, osm_pm_init);
+	OSM_LOG_ENTER(log, osm_perfmgr_init);
 
 	osm_log(log, OSM_LOG_VERBOSE, "Initializing PerfMgr\n");
 
