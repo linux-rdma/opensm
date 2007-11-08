@@ -453,8 +453,9 @@ static void __osm_state_mgr_reset_node_count(IN cl_map_item_t *
 	if (osm_log_is_active(p_mgr->p_log, OSM_LOG_DEBUG)) {
 		osm_log(p_mgr->p_log, OSM_LOG_DEBUG,
 			"__osm_state_mgr_reset_node_count: "
-			"Resetting discovery count for node 0x%" PRIx64 "\n",
-			cl_ntoh64(osm_node_get_node_guid(p_node)));
+			"Resetting discovery count for node 0x%" PRIx64 "(%s)\n",
+			cl_ntoh64(osm_node_get_node_guid(p_node)),
+			p_node->print_desc);
 	}
 
 	p_node->discovery_count = 0;
@@ -471,8 +472,9 @@ static void __osm_state_mgr_reset_port_count(IN cl_map_item_t *
 	if (osm_log_is_active(p_mgr->p_log, OSM_LOG_DEBUG)) {
 		osm_log(p_mgr->p_log, OSM_LOG_DEBUG,
 			"__osm_state_mgr_reset_port_count: "
-			"Resetting discovery count for port 0x%" PRIx64 "\n",
-			cl_ntoh64(osm_port_get_guid(p_port)));
+			"Resetting discovery count for port 0x%" PRIx64 "(node %s)\n",
+			cl_ntoh64(osm_port_get_guid(p_port)),
+			p_port->p_node ? p_port->p_node->print_desc : "UNKNOWN");
 	}
 
 	p_port->discovery_count = 0;
@@ -490,8 +492,9 @@ __osm_state_mgr_reset_switch_count(IN cl_map_item_t * const p_map_item,
 	if (osm_log_is_active(p_mgr->p_log, OSM_LOG_DEBUG)) {
 		osm_log(p_mgr->p_log, OSM_LOG_DEBUG,
 			"__osm_state_mgr_reset_switch_count: "
-			"Resetting discovery count for switch 0x%" PRIx64 "\n",
-			cl_ntoh64(osm_node_get_node_guid(p_sw->p_node)));
+			"Resetting discovery count for switch 0x%" PRIx64 " (%s)\n",
+			cl_ntoh64(osm_node_get_node_guid(p_sw->p_node)),
+			p_sw->p_node->print_desc);
 	}
 
 	p_sw->discovery_count = 0;
@@ -749,8 +752,9 @@ static boolean_t __osm_state_mgr_is_sm_port_down(IN osm_state_mgr_t *
 	if (!p_port) {
 		osm_log(p_mgr->p_log, OSM_LOG_ERROR,
 			"__osm_state_mgr_is_sm_port_down: ERR 3309: "
-			"SM port with GUID:%016" PRIx64 " is unknown\n",
-			cl_ntoh64(port_guid));
+			"SM port with GUID:%016" PRIx64 " (%s) is unknown\n",
+			cl_ntoh64(port_guid),
+			p_port->p_node ? p_port->p_node->print_desc : "UNKNOWN");
 		state = IB_LINK_DOWN;
 		CL_PLOCK_RELEASE(p_mgr->p_lock);
 		goto Exit;
@@ -899,8 +903,9 @@ static ib_api_status_t __osm_state_mgr_sweep_hop_1(IN osm_state_mgr_t *
 
 	default:
 		osm_log(p_mgr->p_log, OSM_LOG_ERROR,
-			"__osm_state_mgr_sweep_hop_1: ERR 3313: Unknown node type %d\n",
-			osm_node_get_type(p_node));
+			"__osm_state_mgr_sweep_hop_1: ERR 3313: Unknown node type %d (%s)\n",
+			osm_node_get_type(p_node),
+			p_node->print_desc);
 	}
 
       Exit:
@@ -958,9 +963,9 @@ static ib_api_status_t __osm_state_mgr_light_sweep_start(IN osm_state_mgr_t *
 						"__osm_state_mgr_light_sweep_start: ERR 0108: "
 						"Unknown remote side for node 0x%016"
 						PRIx64
-						" port %u. Adding to light sweep sampling list\n",
+						"(%s) port %u. Adding to light sweep sampling list\n",
 						cl_ntoh64(osm_node_get_node_guid
-							  (p_node)), port_num);
+							  (p_node)), p_node->print_desc, port_num);
 
 					osm_dump_dr_path(p_mgr->p_log,
 							 osm_physp_get_dr_path_ptr
@@ -1084,7 +1089,8 @@ static osm_remote_sm_t *__osm_state_mgr_exists_other_master_sm(IN
 			osm_log(p_mgr->p_log, OSM_LOG_VERBOSE,
 				"__osm_state_mgr_exists_other_master_sm: "
 				"Found remote master SM with guid:0x%016" PRIx64
-				"\n", cl_ntoh64(p_sm->smi.guid));
+				" (node %s)\n", cl_ntoh64(p_sm->smi.guid),
+				p_sm->p_port->p_node ? p_sm->p_port->p_node->print_desc : "UNKNOWN");
 			p_sm_res = p_sm;
 			goto Exit;
 		}
@@ -1144,8 +1150,10 @@ static osm_remote_sm_t *__osm_state_mgr_get_highest_sm(IN osm_state_mgr_t *
 	if (p_highest_sm != NULL) {
 		osm_log(p_mgr->p_log, OSM_LOG_DEBUG,
 			"__osm_state_mgr_get_highest_sm: "
-			"Found higher SM with guid: %016" PRIx64 "\n",
-			cl_ntoh64(p_highest_sm->smi.guid));
+			"Found higher SM with guid: %016" PRIx64 " (node %s)\n",
+			cl_ntoh64(p_highest_sm->smi.guid),
+			p_highest_sm->p_port->p_node ?
+			p_highest_sm->p_port->p_node->print_desc : "UNKNOWN");
 	}
 
 	OSM_LOG_EXIT(p_mgr->p_log);
@@ -1196,7 +1204,8 @@ __osm_state_mgr_send_handover(IN osm_state_mgr_t * const p_mgr,
 	osm_log(p_mgr->p_log, OSM_LOG_VERBOSE,
 		"__osm_state_mgr_send_handover: "
 		"Handing over mastership. Updating sm_state_mgr master_guid: %016"
-		PRIx64 "\n", cl_ntoh64(p_port->guid));
+		PRIx64 " (node %s)\n", cl_ntoh64(p_port->guid),
+		p_port->p_node ? p_port->p_node->print_desc : "UNKNOWN");
 	p_mgr->p_sm_state_mgr->master_guid = p_port->guid;
 
 	context.smi_context.port_guid = p_port->guid;
