@@ -702,8 +702,14 @@ ib_api_status_t osm_subn_rescan_conf_files(IN osm_subn_t * const p_subn)
 	strcat(file_name, "/opensm.opts");
 
 	opts_file = fopen(file_name, "r");
-	if (!opts_file)
-		return (errno == ENOENT) ? IB_SUCCESS : IB_ERROR;
+	if (!opts_file) {
+		if (errno == ENOENT)
+			return IB_SUCCESS;
+		osm_log(&p_subn->p_osm->log, OSM_LOG_ERROR,
+			"cannot open file \'%s\': %s\n",
+			file_name, strerror(errno));
+		return IB_ERROR;
+	}
 
 	while (fgets(line, 1023, opts_file) != NULL) {
 		/* get the first token */
@@ -1055,8 +1061,13 @@ ib_api_status_t osm_subn_parse_conf_file(IN osm_subn_opt_t * const p_opts)
 	strcat(file_name, "/opensm.opts");
 
 	opts_file = fopen(file_name, "r");
-	if (!opts_file)
-		return (errno == ENOENT) ? IB_SUCCESS : IB_ERROR;
+	if (!opts_file) {
+		if (errno == ENOENT)
+			return IB_SUCCESS;
+		printf("cannot open file \'%s\': %s\n",
+		       file_name, strerror(errno));
+		return IB_ERROR;
+	}
 
 	while (fgets(line, 1023, opts_file) != NULL) {
 		/* get the first token */
@@ -1298,8 +1309,11 @@ ib_api_status_t osm_subn_write_conf_file(IN osm_subn_opt_t * const p_opts)
 	strcat(file_name, "/opensm.opts");
 
 	opts_file = fopen(file_name, "w");
-	if (!opts_file)
+	if (!opts_file) {
+		printf("cannot open file \'%s\' for writing: %s\n",
+		       file_name, strerror(errno));
 		return IB_ERROR;
+	}
 
 	fprintf(opts_file,
 		"#\n# DEVICE ATTRIBUTES OPTIONS\n#\n"
