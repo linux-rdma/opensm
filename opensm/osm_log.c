@@ -184,19 +184,19 @@ osm_log(IN osm_log_t * const p_log,
 	      _retry:
 		ret =
 		    fprintf(p_log->out_port,
-			    "[%02d:%02d:%02d:%03d][%04X] -> %s", st.wHour,
+			    "[%02d:%02d:%02d:%03d][%04X] 0x%02x -> %s", st.wHour,
 			    st.wMinute, st.wSecond, st.wMilliseconds, pid,
-			    buffer);
+			    verbosity, buffer);
 #else
 		pid = pthread_self();
 	      _retry:
 		ret =
 		    fprintf(p_log->out_port,
-			    "%s %02d %02d:%02d:%02d %06d [%04X] -> %s",
+			    "%s %02d %02d:%02d:%02d %06d [%04X] 0x%02x -> %s",
 			    (result.tm_mon <
 			     12 ? month_str[result.tm_mon] : "???"),
 			    result.tm_mday, result.tm_hour, result.tm_min,
-			    result.tm_sec, usecs, pid, buffer);
+			    result.tm_sec, usecs, pid, verbosity, buffer);
 #endif
 
 		/*  flush log */

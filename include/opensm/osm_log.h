@@ -99,6 +99,7 @@ typedef uint8_t osm_log_level_t;
 #define OSM_LOG_FUNCS			0x10
 #define OSM_LOG_FRAMES			0x20
 #define OSM_LOG_ROUTING			0x40
+#define OSM_LOG_ALL				0x7f
 #define OSM_LOG_SYS           		0x80
 
 /*
@@ -283,6 +284,11 @@ osm_log_init(IN osm_log_t * const p_log,
  * Same as osm_log_init_v2() but without max_size parameter
  */
 
+void
+osm_log(IN osm_log_t * const p_log,
+	IN const osm_log_level_t verbosity,
+	IN const char *p_str, ...) STRICT_OSM_LOG_FORMAT;
+
 /****f* OpenSM: Log/osm_log_get_level
 * NAME
 *	osm_log_get_level
@@ -326,6 +332,7 @@ static inline void
 osm_log_set_level(IN osm_log_t * const p_log, IN const osm_log_level_t level)
 {
 	p_log->level = level;
+	osm_log(p_log, OSM_LOG_ALL, "Setting log level to: 0x%02x\n", level);
 }
 
 /*
@@ -384,11 +391,6 @@ osm_log_is_active(IN const osm_log_t * const p_log,
 
 extern int osm_log_printf(osm_log_t * p_log, osm_log_level_t level,
 			  const char *fmt, ...);
-
-void
-osm_log(IN osm_log_t * const p_log,
-	IN const osm_log_level_t verbosity,
-	IN const char *p_str, ...) STRICT_OSM_LOG_FORMAT;
 
 void
 osm_log_raw(IN osm_log_t * const p_log,
