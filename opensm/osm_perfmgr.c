@@ -255,7 +255,7 @@ osm_perfmgr_bind(osm_perfmgr_t * const pm, const ib_net64_t port_guid)
 
 	if (pm->bind_handle != OSM_BIND_INVALID_HANDLE) {
 		osm_log(pm->log, OSM_LOG_ERROR,
-			"osm_perfmgr_mad_ctrl_bind: ERR 4C03: Multiple binds not allowed\n");
+			"osm_perfmgr_bind: ERR 4C03: Multiple binds not allowed\n");
 		status = IB_ERROR;
 		goto Exit;
 	}
@@ -270,7 +270,7 @@ osm_perfmgr_bind(osm_perfmgr_t * const pm, const ib_net64_t port_guid)
 	bind_info.send_q_size = OSM_PM_DEFAULT_QP1_SEND_SIZE;
 
 	osm_log(pm->log, OSM_LOG_VERBOSE,
-		"osm_perfmgr_mad_bind: "
+		"osm_perfmgr_bind: "
 		"Binding to port GUID 0x%" PRIx64 "\n", cl_ntoh64(port_guid));
 
 	pm->bind_handle = osm_vendor_bind(pm->vendor,
@@ -283,7 +283,7 @@ osm_perfmgr_bind(osm_perfmgr_t * const pm, const ib_net64_t port_guid)
 	if (pm->bind_handle == OSM_BIND_INVALID_HANDLE) {
 		status = IB_ERROR;
 		osm_log(pm->log, OSM_LOG_ERROR,
-			"osm_perfmgr_mad_bind: ERR 4C04: Vendor specific bind failed (%s)\n",
+			"osm_perfmgr_bind: ERR 4C04: Vendor specific bind failed (%s)\n",
 			ib_get_err_str(status));
 		goto Exit;
 	}
