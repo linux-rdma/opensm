@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2006 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -91,16 +91,16 @@ BEGIN_C_DECLS
 *********/
 typedef uint8_t osm_log_level_t;
 
-#define OSM_LOG_NONE			0x00
-#define OSM_LOG_ERROR			0x01
-#define OSM_LOG_INFO			0x02
-#define OSM_LOG_VERBOSE			0x04
-#define OSM_LOG_DEBUG			0x08
-#define OSM_LOG_FUNCS			0x10
-#define OSM_LOG_FRAMES			0x20
-#define OSM_LOG_ROUTING			0x40
-#define OSM_LOG_ALL				0x7f
-#define OSM_LOG_SYS           		0x80
+#define OSM_LOG_NONE	0x00
+#define OSM_LOG_ERROR	0x01
+#define OSM_LOG_INFO	0x02
+#define OSM_LOG_VERBOSE	0x04
+#define OSM_LOG_DEBUG	0x08
+#define OSM_LOG_FUNCS	0x10
+#define OSM_LOG_FRAMES	0x20
+#define OSM_LOG_ROUTING	0x40
+#define OSM_LOG_ALL	0x7f
+#define OSM_LOG_SYS	0x80
 
 /*
 	DEFAULT - turn on ERROR and INFO only
