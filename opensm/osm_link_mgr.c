@@ -389,15 +389,12 @@ __osm_link_mgr_set_physp_pi(IN osm_link_mgr_t * const p_mgr,
 	   b. got_set_resp on the physical port is FALSE. This means we haven't
 	   seen this port before - need to send PortInfoSet to it.
 	 */
-	if (send_set ||
-	    (osm_node_get_type(p_node) != IB_NODE_TYPE_SWITCH
-	     && p_physp->got_set_resp == FALSE)
-	    || (osm_node_get_type(p_node) == IB_NODE_TYPE_SWITCH
-		&& port_num == 0 && p_physp->got_set_resp == FALSE)
-	    || (osm_node_get_type(p_node) == IB_NODE_TYPE_SWITCH
-		&& port_num != 0
-		&& (p_mgr->p_subn->first_time_master_sweep == TRUE
-		    || p_physp->got_set_resp == FALSE))) {
+	if (p_physp->got_set_resp == FALSE
+	    || (osm_node_get_type(p_node) == IB_NODE_TYPE_SWITCH && port_num
+		&& p_mgr->p_subn->first_time_master_sweep == TRUE))
+		send_set = TRUE;
+
+	if (send_set) {
 		p_mgr->send_set_reqs = TRUE;
 		status = osm_req_set(p_mgr->p_req,
 				     osm_physp_get_dr_path_ptr(p_physp),
