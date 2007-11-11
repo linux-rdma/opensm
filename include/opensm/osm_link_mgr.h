@@ -98,8 +98,6 @@ typedef struct _osm_link_mgr {
 	osm_req_t *p_req;
 	osm_log_t *p_log;
 	cl_plock_t *p_lock;
-	boolean_t send_set_reqs;
-
 } osm_link_mgr_t;
 /*
 * FIELDS
@@ -114,9 +112,6 @@ typedef struct _osm_link_mgr {
 *
 *	p_lock
 *		Pointer to the serializing lock.
-*
-*	send_set_reqs
-*		Boolean to indicate whether any set requests sent.
 *
 * SEE ALSO
 *	Link Manager object

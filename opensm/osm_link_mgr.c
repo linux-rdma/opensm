@@ -102,7 +102,7 @@ osm_link_mgr_init(IN osm_link_mgr_t * const p_mgr,
 
 /**********************************************************************
  **********************************************************************/
-static void
+static boolean_t
 __osm_link_mgr_set_physp_pi(IN osm_link_mgr_t * const p_mgr,
 			    IN osm_physp_t * const p_physp,
 			    IN uint8_t const port_state)
@@ -385,8 +385,7 @@ __osm_link_mgr_set_physp_pi(IN osm_link_mgr_t * const p_mgr,
 	    && p_mgr->p_subn->first_time_master_sweep == TRUE)
 		send_set = TRUE;
 
-	if (send_set) {
-		p_mgr->send_set_reqs = TRUE;
+	if (send_set)
 		status = osm_req_set(p_mgr->p_req,
 				     osm_physp_get_dr_path_ptr(p_physp),
 				     payload,
@@ -394,10 +393,10 @@ __osm_link_mgr_set_physp_pi(IN osm_link_mgr_t * const p_mgr,
 				     IB_MAD_ATTR_PORT_INFO,
 				     cl_hton32(port_num),
 				     CL_DISP_MSGID_NONE, &context);
-	}
 
       Exit:
 	OSM_LOG_EXIT(p_mgr->p_log);
+	return send_set;
 }
 
 /**********************************************************************
@@ -439,7 +438,6 @@ __osm_link_mgr_process_node(IN osm_link_mgr_t * const p_mgr,
 			continue;
 
 		current_state = osm_physp_get_port_state(p_physp);
-
 		if (current_state == IB_LINK_DOWN)
 			continue;
 
@@ -448,19 +446,16 @@ __osm_link_mgr_process_node(IN osm_link_mgr_t * const p_mgr,
 		   then required state. However, we need to send update if
 		   no state change required.
 		 */
-		if ((link_state == IB_LINK_NO_CHANGE) ||
-		    (current_state < link_state)) {
-			p_mgr->send_set_reqs = FALSE;
-			__osm_link_mgr_set_physp_pi(p_mgr, p_physp, link_state);
-
-			if (p_mgr->send_set_reqs == TRUE)
-				signal = OSM_SIGNAL_DONE_PENDING;
-		} else if (osm_log_is_active(p_mgr->p_log, OSM_LOG_DEBUG))
+		if (link_state != IB_LINK_NO_CHANGE &&
+		    link_state <= current_state)
 			osm_log(p_mgr->p_log, OSM_LOG_DEBUG,
 				"__osm_link_mgr_process_node: "
 				"Physical port 0x%X already %s. Skipping\n",
 				p_physp->port_num,
 				ib_get_port_state_str(current_state));
+		else if (__osm_link_mgr_set_physp_pi(p_mgr, p_physp,
+						     link_state))
+			signal = OSM_SIGNAL_DONE_PENDING;
 	}
 
 	OSM_LOG_EXIT(p_mgr->p_log);
