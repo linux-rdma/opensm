@@ -208,12 +208,11 @@ __osm_sa_pir_create(IN osm_pir_rcv_t * const p_rcv,
 		/*
 		   We validate that the lid belongs to this node.
 		 */
-		if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG)) {
+		if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG))
 			osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
 				"__osm_sa_pir_create: "
 				"Comparing LID: 0x%X <= 0x%X <= 0x%X\n",
 				base_lid_ho, match_lid_ho, max_lid_ho);
-		}
 
 		if (match_lid_ho < base_lid_ho || match_lid_ho > max_lid_ho)
 			goto Exit;
@@ -625,33 +624,28 @@ void osm_pir_rcv_process(IN void *ctx, IN void *data)
 				"No port found with LID 0x%x\n",
 				cl_ntoh16(p_rcvd_rec->lid));
 		}
-	} else {
-		if (comp_mask & IB_PIR_COMPMASK_BASELID) {
-			if ((uint16_t) cl_ptr_vector_get_size(p_tbl) >
-			    cl_ntoh16(p_pi->base_lid)) {
-				p_port =
-				    cl_ptr_vector_get(p_tbl,
-						      cl_ntoh16(p_pi->
-								base_lid));
-			} else {
-				status = IB_NOT_FOUND;
-				osm_log(p_rcv->p_log, OSM_LOG_ERROR,
-					"osm_pir_rcv_process: ERR 2103: "
-					"Given LID (0x%X) is out of range:0x%X\n",
-					cl_ntoh16(p_pi->base_lid),
-					cl_ptr_vector_get_size(p_tbl));
-			}
+	} else if (comp_mask & IB_PIR_COMPMASK_BASELID) {
+		if ((uint16_t) cl_ptr_vector_get_size(p_tbl) >
+		    cl_ntoh16(p_pi->base_lid))
+			p_port = cl_ptr_vector_get(p_tbl,
+						   cl_ntoh16(p_pi->base_lid));
+		else {
+			status = IB_NOT_FOUND;
+			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+				"osm_pir_rcv_process: ERR 2103: "
+				"Given LID (0x%X) is out of range:0x%X\n",
+				cl_ntoh16(p_pi->base_lid),
+				cl_ptr_vector_get_size(p_tbl));
 		}
 	}
 
 	if (status == IB_SUCCESS) {
 		if (p_port)
 			__osm_sa_pir_by_comp_mask(p_rcv, p_port, &context);
-		else {
+		else
 			cl_qmap_apply_func(&p_rcv->p_subn->port_guid_tbl,
 					   __osm_sa_pir_by_comp_mask_cb,
 					   &context);
-		}
 	}
 
 	cl_plock_release(p_rcv->p_lock);
