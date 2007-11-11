@@ -191,13 +191,13 @@ void osm_vl15_construct(IN osm_vl15_t * const p_vl15);
 *	This function does not return a value.
 *
 * NOTES
-*	Allows calling osm_vl15_init, osm_vl15_destroy, and osm_vl15_is_inited.
+*	Allows calling osm_vl15_destroy.
 *
 *	Calling osm_vl15_construct is a prerequisite to calling any other
 *	method except osm_vl15_init.
 *
 * SEE ALSO
-*	VL15 object, osm_vl15_init, osm_vl15_destroy, osm_vl15_is_inited
+*	VL15 object, osm_vl15_init, osm_vl15_destroy
 *********/
 
 /****f* OpenSM: VL15/osm_vl15_destroy
@@ -277,8 +277,7 @@ osm_vl15_init(IN osm_vl15_t * const p_vl15,
 *	Allows calling other VL15 methods.
 *
 * SEE ALSO
-*	VL15 object, osm_vl15_construct, osm_vl15_destroy,
-*	osm_vl15_is_inited
+*	VL15 object, osm_vl15_construct, osm_vl15_destroy
 *********/
 
 /****f* OpenSM: VL15/osm_vl15_post

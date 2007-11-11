@@ -138,15 +138,13 @@ void osm_ni_rcv_construct(IN osm_ni_rcv_t * const p_ctrl);
 *	This function does not return a value.
 *
 * NOTES
-*	Allows calling osm_ni_rcv_init, osm_ni_rcv_destroy,
-*	and osm_ni_rcv_is_inited.
+*	Allows calling osm_ni_rcv_destroy,
 *
 *	Calling osm_ni_rcv_construct is a prerequisite to calling any other
 *	method except osm_ni_rcv_init.
 *
 * SEE ALSO
-*	Node Info Receiver object, osm_ni_rcv_init,
-*	osm_ni_rcv_destroy, osm_ni_rcv_is_inited
+*	Node Info Receiver object, osm_ni_rcv_init, osm_ni_rcv_destroy
 *********/
 
 /****f* OpenSM: Node Info Receiver/osm_ni_rcv_destroy
@@ -221,35 +219,7 @@ ib_api_status_t osm_ni_rcv_init(IN osm_ni_rcv_t * const p_ctrl,
 *
 * SEE ALSO
 *	Node Info Receiver object, osm_ni_rcv_construct,
-*	osm_ni_rcv_destroy, osm_ni_rcv_is_inited
-*********/
-
-/****f* OpenSM: Node Info Receiver/osm_ni_rcv_is_inited
-* NAME
-*	osm_ni_rcv_is_inited
-*
-* DESCRIPTION
-*	Indicates if the object has been initialized with osm_ni_rcv_init.
-*
-* SYNOPSIS
-*/
-boolean_t osm_ni_rcv_is_inited(IN const osm_ni_rcv_t * const p_ctrl);
-/*
-* PARAMETERS
-*	p_ctrl
-*		[in] Pointer to an osm_ni_rcv_t object.
-*
-* RETURN VALUES
-*	TRUE if the object was initialized successfully,
-*	FALSE otherwise.
-*
-* NOTES
-*	The osm_ni_rcv_construct or osm_ni_rcv_init must be
-*	called before using this function.
-*
-* SEE ALSO
-*	Node Info Receiver object, osm_ni_rcv_construct,
-*	osm_ni_rcv_init
+*	osm_ni_rcv_destroy
 *********/
 
 /****f* OpenSM: Node Info Receiver/osm_ni_rcv_process

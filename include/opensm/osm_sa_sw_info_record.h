@@ -145,15 +145,13 @@ void osm_sir_rcv_construct(IN osm_sir_rcv_t * const p_ctrl);
 *	This function does not return a value.
 *
 * NOTES
-*	Allows calling osm_sir_rcv_init, osm_sir_rcv_destroy,
-*	and osm_sir_rcv_is_inited.
+*	Allows calling osm_sir_rcv_destroy.
 *
 *	Calling osm_sir_rcv_construct is a prerequisite to calling any other
 *	method except osm_sir_rcv_init.
 *
 * SEE ALSO
-*	Switch Info Receiver object, osm_sir_rcv_init,
-*	osm_sir_rcv_destroy, osm_sir_rcv_is_inited
+*	Switch Info Receiver object, osm_sir_rcv_init, osm_sir_rcv_destroy
 *********/
 
 /****f* OpenSM: Switch Info Receiver/osm_sir_rcv_destroy
@@ -232,35 +230,7 @@ ib_api_status_t osm_sir_rcv_init(IN osm_sir_rcv_t * const p_rcv,
 *
 * SEE ALSO
 *	Switch Info Receiver object, osm_sir_rcv_construct,
-*	osm_sir_rcv_destroy, osm_sir_rcv_is_inited
-*********/
-
-/****f* OpenSM: Switch Info Receiver/osm_sir_rcv_is_inited
-* NAME
-*	osm_sir_rcv_is_inited
-*
-* DESCRIPTION
-*	Indicates if the object has been initialized with osm_sir_rcv_init.
-*
-* SYNOPSIS
-*/
-boolean_t osm_sir_rcv_is_inited(IN const osm_sir_rcv_t * const p_ctrl);
-/*
-* PARAMETERS
-*	p_ctrl
-*		[in] Pointer to an osm_sir_rcv_t object.
-*
-* RETURN VALUES
-*	TRUE if the object was initialized successfully,
-*	FALSE otherwise.
-*
-* NOTES
-*	The osm_sir_rcv_construct or osm_sir_rcv_init must be
-*	called before using this function.
-*
-* SEE ALSO
-*	Switch Info Receiver object, osm_sir_rcv_construct,
-*	osm_sir_rcv_init
+*	osm_sir_rcv_destroy
 *********/
 
 /****f* OpenSM: Switch Info Receiver/osm_sir_rcv_process

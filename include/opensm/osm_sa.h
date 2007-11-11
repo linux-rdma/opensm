@@ -265,13 +265,13 @@ void osm_sa_construct(IN osm_sa_t * const p_sa);
 *	This function does not return a value.
 *
 * NOTES
-*	Allows calling osm_sa_init, osm_sa_destroy, and osm_sa_is_inited.
+*	Allows calling osm_sa_destroy.
 *
 *	Calling osm_sa_construct is a prerequisite to calling any other
 *	method except osm_sa_init.
 *
 * SEE ALSO
-*	SA object, osm_sa_init, osm_sa_destroy, osm_sa_is_inited
+*	SA object, osm_sa_init, osm_sa_destroy
 *********/
 
 /****f* OpenSM: SA/osm_sa_shutdown
@@ -377,35 +377,7 @@ ib_api_status_t osm_sa_init(IN osm_sm_t * const p_sm,
 *	Allows calling other SA methods.
 *
 * SEE ALSO
-*	SA object, osm_sa_construct, osm_sa_destroy,
-*	osm_sa_is_inited
-*********/
-
-/****f* OpenSM: SA/osm_sa_is_inited
-* NAME
-*	osm_sa_is_inited
-*
-* DESCRIPTION
-*	Indicates if the object has been initialized with osm_sa_init.
-*
-* SYNOPSIS
-*/
-boolean_t osm_sa_is_inited(IN const osm_sa_t * const p_sa);
-/*
-* PARAMETERS
-*	p_sa
-*		[in] Pointer to an osm_sa_t object.
-*
-* RETURN VALUES
-*	TRUE if the object was initialized successfully,
-*	FALSE otherwise.
-*
-* NOTES
-*	The osm_sa_construct or osm_sa_init must be called before using
-*	this function.
-*
-* SEE ALSO
-*	SA object, osm_sa_construct, osm_sa_init
+*	SA object, osm_sa_construct, osm_sa_destroy
 *********/
 
 /****f* OpenSM: SA/osm_sa_bind
