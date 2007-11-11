@@ -121,7 +121,6 @@ typedef struct _osm_physp {
 	osm_pkey_tbl_t pkeys;
 	ib_vl_arb_table_t vl_arb[4];
 	cl_ptr_vector_t slvl_by_port;
-	boolean_t got_set_resp;
 } osm_physp_t;
 /*
 * FIELDS
@@ -173,16 +172,6 @@ typedef struct _osm_physp {
 *		A vector of pointers to the sl2vl tables (ordered by input port).
 *		On switches have an entry for every other input port (inc SMA=0).
 *		On CAs only one per port.
-*
-*	got_set_resp
-*		Marks whether or not we got a PortInfoSetResp from this port or not.
-*		This is used for minimizing the number of PortInfoSet requests sent.
-*		If we already got a set response from this port, then we will
-*		send a PortInfoSet only if the values we are updating are
-*		different than the ones on the port. If the haven't gotten a set
-*		response - then we want to send the request anyways - since
-*		every we need at least one PortInfoSet request for every port
-*		(by a new SM).
 *
 * SEE ALSO
 *	Port

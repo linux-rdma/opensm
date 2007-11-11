@@ -184,6 +184,10 @@ __osm_link_mgr_set_physp_pi(IN osm_link_mgr_t * const p_mgr,
 	    ib_port_info_get_link_down_def_state(p_old_pi))
 		send_set = TRUE;
 
+	/* didn't get PortInfo before */
+	if (!ib_port_info_get_port_state(p_old_pi))
+		send_set = TRUE;
+
 	/* we only change port fields if we do not change state */
 	if (port_state == IB_LINK_NO_CHANGE) {
 		/* The following fields are relevant only for CA port, router, or Enh. SP0 */
@@ -355,8 +359,7 @@ __osm_link_mgr_set_physp_pi(IN osm_link_mgr_t * const p_mgr,
 		context.pi_context.ignore_errors = FALSE;
 
 	if (port_state != IB_LINK_NO_CHANGE &&
-	    ib_port_info_get_port_state(p_pi) !=
-	    ib_port_info_get_port_state(p_old_pi)) {
+	    port_state != ib_port_info_get_port_state(p_old_pi)) {
 		send_set = TRUE;
 		if (port_state == IB_LINK_ACTIVE)
 			context.pi_context.active_transition = TRUE;
@@ -373,20 +376,13 @@ __osm_link_mgr_set_physp_pi(IN osm_link_mgr_t * const p_mgr,
 	/* We need to send the PortInfoSet request with the new sm_lid
 	   in the following cases:
 	   1. There is a change in the values (send_set == TRUE)
-	   2. This is an ca port or a switch port 0 and got_set_resp is FALSE
-	   (in this case we sent a PortInfoSet in the osm_lid_mgr, but for some
-	   reason we didn't get a response) - try and re-send.
-	   3. This is a switch port and:
-	   a. first_time_master_sweep flag on the subnet is TRUE. This means the
-	   SM just became master, and it then needs to send at PortInfoSet to
-	   every port (and this is the first time we can send a PortInfoSet to
-	   switch external ports).
-	   b. got_set_resp on the physical port is FALSE. This means we haven't
-	   seen this port before - need to send PortInfoSet to it.
+	   2. This is a switch external port (so it wasn't handled yet by
+	   osm_lid_mgr) and first_time_master_sweep flag on the subnet is TRUE,
+	   which means the SM just became master, and it then needs to send at
+	   PortInfoSet to every port.
 	 */
-	if (p_physp->got_set_resp == FALSE
-	    || (osm_node_get_type(p_node) == IB_NODE_TYPE_SWITCH && port_num
-		&& p_mgr->p_subn->first_time_master_sweep == TRUE))
+	if (osm_node_get_type(p_node) == IB_NODE_TYPE_SWITCH && port_num
+	    && p_mgr->p_subn->first_time_master_sweep == TRUE)
 		send_set = TRUE;
 
 	if (send_set) {

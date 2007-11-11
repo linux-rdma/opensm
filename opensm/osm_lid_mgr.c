@@ -977,6 +977,10 @@ __osm_lid_mgr_set_physp_pi(IN osm_lid_mgr_t * const p_mgr,
 	    ib_port_info_get_link_down_def_state(p_old_pi))
 		send_set = TRUE;
 
+	/* didn't get PortInfo before */
+	if (!ib_port_info_get_port_state(p_old_pi))
+		send_set = TRUE;
+
 	p_pi->m_key = p_mgr->p_subn->opt.m_key;
 	if (memcmp(&p_pi->m_key, &p_old_pi->m_key, sizeof(p_pi->m_key)))
 		send_set = TRUE;
@@ -1148,11 +1152,8 @@ __osm_lid_mgr_set_physp_pi(IN osm_lid_mgr_t * const p_mgr,
 	   2. first_time_master_sweep flag on the subnet is TRUE. This means the
 	   SM just became master, and it then needs to send a PortInfo Set to
 	   every port.
-	   3. got_set_resp on the physical port is FALSE. This means we haven't seen
-	   this port before and we need to send Set of PortInfo to it.
 	 */
-	if (p_mgr->p_subn->first_time_master_sweep == TRUE ||
-	    p_physp->got_set_resp == FALSE)
+	if (p_mgr->p_subn->first_time_master_sweep == TRUE)
 		send_set = TRUE;
 
 	if (send_set) {

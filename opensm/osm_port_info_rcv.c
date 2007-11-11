@@ -563,9 +563,6 @@ osm_pi_rcv_process_set(IN const osm_pi_rcv_t * const p_rcv,
 
 	osm_physp_set_port_info(p_physp, p_pi);
 
-	/* We got a PortInfoSetResp - set the got_set_resp flag to TRUE */
-	p_physp->got_set_resp = TRUE;
-
 	OSM_LOG_EXIT(p_rcv->p_log);
 }
 
