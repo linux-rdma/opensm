@@ -166,24 +166,20 @@ __osm_link_mgr_set_physp_pi(IN osm_link_mgr_t * const p_mgr,
 	p_old_pi = &p_physp->port_info;
 
 	memset(payload, 0, IB_SMP_DATA_SIZE);
-
-	/* Correction by FUJITSU */
 	memcpy(payload, p_old_pi, sizeof(ib_port_info_t));
 
 	/*
-	   Correction following a bug injected by the previous
-	   FUJITSU line:
-
 	   Should never write back a value that is bigger then 3 in
 	   the PortPhysicalState field - so can not simply copy!
 
 	   Actually we want to write there:
 	   port physical state - no change,
 	   link down default state = polling
-	   port state - no change
+	   port state - as requested.
 	 */
 	p_pi->state_info2 = 0x02;
-	ib_port_info_set_port_state(p_pi, IB_LINK_NO_CHANGE);
+	ib_port_info_set_port_state(p_pi, port_state);
+
 	if (ib_port_info_get_link_down_def_state(p_pi) !=
 	    ib_port_info_get_link_down_def_state(p_old_pi))
 		send_set = TRUE;
@@ -358,7 +354,6 @@ __osm_link_mgr_set_physp_pi(IN osm_link_mgr_t * const p_mgr,
 		 */
 		context.pi_context.ignore_errors = FALSE;
 
-	ib_port_info_set_port_state(p_pi, port_state);
 	if (port_state != IB_LINK_NO_CHANGE &&
 	    ib_port_info_get_port_state(p_pi) !=
 	    ib_port_info_get_port_state(p_old_pi)) {

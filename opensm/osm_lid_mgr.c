@@ -959,15 +959,9 @@ __osm_lid_mgr_set_physp_pi(IN osm_lid_mgr_t * const p_mgr,
 	 */
 
 	memset(payload, 0, IB_SMP_DATA_SIZE);
-
-	/* Correction by FUJITSU */
-	if (port_num != 0)
-		memcpy(payload, p_old_pi, sizeof(ib_port_info_t));
+	memcpy(payload, p_old_pi, sizeof(ib_port_info_t));
 
 	/*
-	   Correction following a bug injected by the previous
-	   FUJITSU line:
-
 	   Should never write back a value that is bigger then 3 in
 	   the PortPhysicalState field, so cannot simply copy!
 
@@ -976,20 +970,12 @@ __osm_lid_mgr_set_physp_pi(IN osm_lid_mgr_t * const p_mgr,
 	   link down default state = polling
 	   port state - no change
 	 */
-	/* these values can be set only for ca ports, so if we are
-	   on a switch node, set these values to zero */
-	if (osm_node_get_type(p_node) == IB_NODE_TYPE_SWITCH)
-		p_pi->state_info2 = 0x0;
-	else {
-		p_pi->state_info2 = 0x02;
-		/* Check to see if the value we are setting is different than
-		   the value in the port_info. If it is, turn on send_set flag */
-		if (ib_port_info_get_link_down_def_state(p_pi) !=
-		    ib_port_info_get_link_down_def_state(p_old_pi))
-			send_set = TRUE;
-	}
-
+	p_pi->state_info2 = 0x02;
 	ib_port_info_set_port_state(p_pi, IB_LINK_NO_CHANGE);
+
+	if (ib_port_info_get_link_down_def_state(p_pi) !=
+	    ib_port_info_get_link_down_def_state(p_old_pi))
+		send_set = TRUE;
 
 	p_pi->m_key = p_mgr->p_subn->opt.m_key;
 	if (memcmp(&p_pi->m_key, &p_old_pi->m_key, sizeof(p_pi->m_key)))
