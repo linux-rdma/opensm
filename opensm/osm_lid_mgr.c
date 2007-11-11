@@ -929,12 +929,12 @@ __osm_lid_mgr_set_physp_pi(IN osm_lid_mgr_t * const p_mgr,
 	port_num = osm_physp_get_port_num(p_physp);
 	p_node = osm_physp_get_node_ptr(p_physp);
 
-	if ((osm_node_get_type(p_node) == IB_NODE_TYPE_SWITCH) &&
-	    (port_num != 0)) {
+	if (osm_node_get_type(p_node) == IB_NODE_TYPE_SWITCH &&
+	    port_num != 0) {
 		/*
-		   Switch ports that are not numbered 0 should not be set with the
-		   following attributes as they are set later (during NO_CHANGE state
-		   in link mgr).
+		   Switch ports that are not numbered 0 should not be set
+		   with the following attributes as they are set later
+		   (during NO_CHANGE state in link mgr).
 		 */
 		if (osm_log_is_active(p_mgr->p_log, OSM_LOG_DEBUG))
 			osm_log(p_mgr->p_log, OSM_LOG_DEBUG,
@@ -992,36 +992,26 @@ __osm_lid_mgr_set_physp_pi(IN osm_lid_mgr_t * const p_mgr,
 	ib_port_info_set_port_state(p_pi, IB_LINK_NO_CHANGE);
 
 	p_pi->m_key = p_mgr->p_subn->opt.m_key;
-	/* Check to see if the value we are setting is different than
-	   the value in the port_info. If it is, turn on send_set flag */
 	if (memcmp(&p_pi->m_key, &p_old_pi->m_key, sizeof(p_pi->m_key)))
 		send_set = TRUE;
 
 	p_pi->subnet_prefix = p_mgr->p_subn->opt.subnet_prefix;
-	/* Check to see if the value we are setting is different than
-	   the value in the port_info. If it is, turn on send_set flag */
 	if (memcmp(&p_pi->subnet_prefix, &p_old_pi->subnet_prefix,
 		   sizeof(p_pi->subnet_prefix)))
 		send_set = TRUE;
 
 	p_pi->base_lid = lid;
-	/* Check to see if the value we are setting is different than
-	   the value in the port_info. If it is, turn on send_set flag */
 	if (memcmp(&p_pi->base_lid, &p_old_pi->base_lid,
 		   sizeof(p_pi->base_lid)))
 		send_set = TRUE;
 
 	/* we are updating the ports with our local sm_base_lid */
 	p_pi->master_sm_base_lid = p_mgr->p_subn->sm_base_lid;
-	/* Check to see if the value we are setting is different than
-	   the value in the port_info. If it is, turn on send_set flag */
 	if (memcmp(&p_pi->master_sm_base_lid, &p_old_pi->master_sm_base_lid,
 		   sizeof(p_pi->master_sm_base_lid)))
 		send_set = TRUE;
 
 	p_pi->m_key_lease_period = p_mgr->p_subn->opt.m_key_lease_period;
-	/* Check to see if the value we are setting is different than
-	   the value in the port_info. If it is, turn on send_set flag */
 	if (memcmp(&p_pi->m_key_lease_period, &p_old_pi->m_key_lease_period,
 		   sizeof(p_pi->m_key_lease_period)))
 		send_set = TRUE;
@@ -1031,8 +1021,6 @@ __osm_lid_mgr_set_physp_pi(IN osm_lid_mgr_t * const p_mgr,
 	   and the CA ports
 	 */
 	ib_port_info_set_timeout(p_pi, p_mgr->p_subn->opt.subnet_timeout);
-	/* Check to see if the value we are setting is different than
-	   the value in the port_info. If it is, turn on send_set flag */
 	if (ib_port_info_get_timeout(p_pi) !=
 	    ib_port_info_get_timeout(p_old_pi))
 		send_set = TRUE;
@@ -1044,8 +1032,6 @@ __osm_lid_mgr_set_physp_pi(IN osm_lid_mgr_t * const p_mgr,
 		   This is not the switch management port
 		 */
 		p_pi->link_width_enabled = p_old_pi->link_width_supported;
-		/* Check to see if the value we are setting is different than
-		   the value in the port_info. If it is, turn on send_set flag */
 		if (memcmp(&p_pi->link_width_enabled,
 			   &p_old_pi->link_width_enabled,
 			   sizeof(p_pi->link_width_enabled)))
@@ -1053,8 +1039,6 @@ __osm_lid_mgr_set_physp_pi(IN osm_lid_mgr_t * const p_mgr,
 
 		/* M_KeyProtectBits are always zero */
 		p_pi->mkey_lmc = p_mgr->p_subn->opt.lmc;
-		/* Check to see if the value we are setting is different than
-		   the value in the port_info. If it is, turn on send_set flag */
 		if (memcmp(&p_pi->mkey_lmc, &p_old_pi->mkey_lmc,
 			   sizeof(p_pi->mkey_lmc)))
 			send_set = TRUE;
@@ -1090,8 +1074,8 @@ __osm_lid_mgr_set_physp_pi(IN osm_lid_mgr_t * const p_mgr,
 			send_set = TRUE;
 
 		/*
-		   To reset the port state machine we can send PortInfo.State = DOWN.
-		   (see: 7.2.7 p171 lines:10-19)
+		   To reset the port state machine we can send
+		   PortInfo.State = DOWN. (see: 7.2.7 p171 lines:10-19)
 		 */
 		if ((mtu != ib_port_info_get_neighbor_mtu(p_old_pi)) ||
 		    (op_vls != ib_port_info_get_op_vls(p_old_pi))) {
@@ -1143,11 +1127,8 @@ __osm_lid_mgr_set_physp_pi(IN osm_lid_mgr_t * const p_mgr,
 		if (osm_switch_sp0_is_lmc_capable(p_node->sw, p_mgr->p_subn)) {
 			/* M_KeyProtectBits are always zero */
 			p_pi->mkey_lmc = p_mgr->p_subn->opt.lmc;
-			/* Check to see if the value we are setting is different than
-			   the value in the port_info. If it is, turn on send_set flag */
-			if (memcmp
-			    (&p_pi->mkey_lmc, &p_old_pi->mkey_lmc,
-			     sizeof(p_pi->mkey_lmc)))
+			if (memcmp(&p_pi->mkey_lmc, &p_old_pi->mkey_lmc,
+				   sizeof(p_pi->mkey_lmc)))
 				send_set = TRUE;
 		}
 	}
