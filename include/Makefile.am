@@ -6,8 +6,6 @@ nobase_pkginclude_HEADERS = iba/ib_types.h iba/ib_cm_types.h
 EXTRA_DIST = \
 	$(srcdir)/opensm/osm_sa_path_record.h \
 	$(srcdir)/opensm/osm_lid_mgr.h \
-	$(srcdir)/opensm/osm_vl_arb_rcv.h \
-	$(srcdir)/opensm/osm_pkey_rcv.h \
 	$(srcdir)/opensm/osm_port.h \
 	$(srcdir)/opensm/osm_sm_state_mgr.h \
 	$(srcdir)/opensm/osm_state_mgr.h \
@@ -33,20 +31,16 @@ EXTRA_DIST = \
 	$(srcdir)/opensm/osm_sa_pkey_record.h \
 	$(srcdir)/opensm/osm_inform.h \
 	$(srcdir)/opensm/osm_path.h \
-	$(srcdir)/opensm/osm_lin_fwd_rcv.h \
 	$(srcdir)/opensm/osm_service.h \
 	$(srcdir)/opensm/osm_switch.h \
-	$(srcdir)/opensm/osm_sw_info_rcv.h \
 	$(srcdir)/opensm/osm_router.h \
 	$(srcdir)/opensm/osm_prefix_route.h \
 	$(srcdir)/opensm/osm_sa_slvl_record.h \
 	$(srcdir)/opensm/osm_opensm.h \
 	$(srcdir)/opensm/osm_sa.h \
 	$(srcdir)/opensm/osm_port_profile.h \
-	$(srcdir)/opensm/osm_sminfo_rcv.h \
 	$(srcdir)/opensm/osm_multicast.h \
 	$(srcdir)/opensm/osm_sa_class_port_info.h \
-	$(srcdir)/opensm/osm_node_info_rcv.h \
 	$(srcdir)/opensm/osm_base.h \
 	$(srcdir)/opensm/osm_sa_sminfo_record.h \
 	$(srcdir)/opensm/osm_mcast_mgr.h \
@@ -54,7 +48,6 @@ EXTRA_DIST = \
 	$(srcdir)/opensm/osm_event_plugin.h \
 	$(srcdir)/opensm/osm_mtree.h \
 	$(srcdir)/opensm/osm_sm.h \
-	$(srcdir)/opensm/osm_trap_rcv.h \
 	$(srcdir)/opensm/osm_lin_fwd_tbl.h \
 	$(srcdir)/opensm/osm_ucast_mgr.h \
 	$(srcdir)/opensm/osm_db.h \
@@ -72,19 +65,15 @@ EXTRA_DIST = \
 	$(srcdir)/opensm/osm_sa_link_record.h \
 	$(srcdir)/opensm/osm_mcm_port.h \
 	$(srcdir)/opensm/osm_log.h \
-	$(srcdir)/opensm/osm_mcast_fwd_rcv.h \
 	$(srcdir)/opensm/osm_fwd_tbl.h \
 	$(srcdir)/opensm/osm_db_pack.h \
 	$(srcdir)/opensm/osm_sm_mad_ctrl.h \
-	$(srcdir)/opensm/osm_slvl_map_rcv.h \
 	$(srcdir)/opensm/osm_attrib_req.h \
-	$(srcdir)/opensm/osm_node_desc_rcv.h \
 	$(srcdir)/opensm/osm_stats.h \
 	$(srcdir)/opensm/osm_sa_mcmember_record.h \
 	$(srcdir)/opensm/osm_sa_sw_info_record.h \
 	$(srcdir)/opensm/osm_vl15intf.h \
 	$(srcdir)/opensm/osm_drop_mgr.h \
-	$(srcdir)/opensm/osm_port_info_rcv.h \
 	$(srcdir)/opensm/osm_perfmgr.h \
 	$(srcdir)/opensm/osm_perfmgr_db.h \
 	$(srcdir)/opensm/osm_qos_policy.h \
