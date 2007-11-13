@@ -55,7 +55,7 @@ fi
 
 start () {
     echo -n "Starting opensm: "
-    daemon /usr/bin/opensm -B $OPTIONS
+    /usr/sbin/opensm -B $OPTIONS > /dev/null
     if [[ $RETVAL -eq 0 ]]; then
         touch /var/lock/subsys/opensm
         success
