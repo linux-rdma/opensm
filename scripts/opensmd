@@ -27,7 +27,7 @@
 # and/or other materials provided with the distribution.
 #
 #
-# processname: /usr/bin/opensm
+# processname: /usr/sbin/opensm
 # config: /etc/opensm.conf
 # pidfile: /var/run/opensm.pid
 
