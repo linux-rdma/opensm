@@ -50,11 +50,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <complib/cl_debug.h>
-#include <complib/cl_timer.h>
 #include <opensm/osm_sa_informinfo.h>
 #include <opensm/osm_helper.h>
 #include <opensm/osm_inform.h>
-#include <opensm/osm_trap_rcv.h>
 #include <vendor/osm_vendor_api.h>
 #include <opensm/osm_pkey.h>
 #include <opensm/osm_sa.h>

@@ -51,61 +51,15 @@
 
 #include <string.h>
 #include <iba/ib_types.h>
-#include <complib/cl_qmap.h>
 #include <complib/cl_passivelock.h>
 #include <complib/cl_debug.h>
-#include <opensm/osm_vl_arb_rcv.h>
-#include <opensm/osm_node_info_rcv.h>
 #include <opensm/osm_req.h>
 #include <opensm/osm_madw.h>
 #include <opensm/osm_log.h>
 #include <opensm/osm_node.h>
 #include <opensm/osm_subnet.h>
-#include <opensm/osm_mad_pool.h>
-#include <opensm/osm_msgdef.h>
 #include <opensm/osm_helper.h>
-#include <vendor/osm_vendor_api.h>
-
-/**********************************************************************
- **********************************************************************/
-void osm_vla_rcv_construct(IN osm_vla_rcv_t * const p_rcv)
-{
-	memset(p_rcv, 0, sizeof(*p_rcv));
-}
-
-/**********************************************************************
- **********************************************************************/
-void osm_vla_rcv_destroy(IN osm_vla_rcv_t * const p_rcv)
-{
-	CL_ASSERT(p_rcv);
-
-	OSM_LOG_ENTER(p_rcv->p_log, osm_vla_rcv_destroy);
-
-	OSM_LOG_EXIT(p_rcv->p_log);
-}
-
-/**********************************************************************
- **********************************************************************/
-ib_api_status_t
-osm_vla_rcv_init(IN osm_vla_rcv_t * const p_rcv,
-		 IN osm_req_t * const p_req,
-		 IN osm_subn_t * const p_subn,
-		 IN osm_log_t * const p_log, IN cl_plock_t * const p_lock)
-{
-	ib_api_status_t status = IB_SUCCESS;
-
-	OSM_LOG_ENTER(p_log, osm_vla_rcv_init);
-
-	osm_vla_rcv_construct(p_rcv);
-
-	p_rcv->p_log = p_log;
-	p_rcv->p_subn = p_subn;
-	p_rcv->p_lock = p_lock;
-	p_rcv->p_req = p_req;
-
-	OSM_LOG_EXIT(p_log);
-	return (status);
-}
+#include <opensm/osm_sm.h>
 
 /**********************************************************************
  **********************************************************************/
@@ -114,7 +68,7 @@ osm_vla_rcv_init(IN osm_vla_rcv_t * const p_rcv,
  */
 void osm_vla_rcv_process(IN void *context, IN void *data)
 {
-	osm_vla_rcv_t *p_rcv = context;
+	osm_sm_t *sm = context;
 	osm_madw_t *p_madw = data;
 	ib_vl_arb_table_t *p_vla_tbl;
 	ib_smp_t *p_smp;
@@ -126,9 +80,9 @@ void osm_vla_rcv_process(IN void *context, IN void *data)
 	ib_net64_t node_guid;
 	uint8_t port_num, block_num;
 
-	CL_ASSERT(p_rcv);
+	CL_ASSERT(sm);
 
-	OSM_LOG_ENTER(p_rcv->p_log, osm_vla_rcv_process);
+	OSM_LOG_ENTER(sm->p_log, osm_vla_rcv_process);
 
 	CL_ASSERT(p_madw);
 
@@ -142,11 +96,11 @@ void osm_vla_rcv_process(IN void *context, IN void *data)
 
 	CL_ASSERT(p_smp->attr_id == IB_MAD_ATTR_VL_ARBITRATION);
 
-	cl_plock_excl_acquire(p_rcv->p_lock);
-	p_port = osm_get_port_by_guid(p_rcv->p_subn, port_guid);
+	cl_plock_excl_acquire(sm->p_lock);
+	p_port = osm_get_port_by_guid(sm->p_subn, port_guid);
 	if (!p_port) {
-		cl_plock_release(p_rcv->p_lock);
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		cl_plock_release(sm->p_lock);
+		osm_log(sm->p_log, OSM_LOG_ERROR,
 			"osm_vla_rcv_process: ERR 3F06: "
 			"No port object for port with GUID 0x%" PRIx64
 			"\n\t\t\t\tfor parent node GUID 0x%" PRIx64
@@ -175,8 +129,8 @@ void osm_vla_rcv_process(IN void *context, IN void *data)
 	   We do not mind if this is a result of a set or get - all we want is to update
 	   the subnet.
 	 */
-	if (osm_log_is_active(p_rcv->p_log, OSM_LOG_VERBOSE)) {
-		osm_log(p_rcv->p_log, OSM_LOG_VERBOSE,
+	if (osm_log_is_active(sm->p_log, OSM_LOG_VERBOSE)) {
+		osm_log(sm->p_log, OSM_LOG_VERBOSE,
 			"osm_vla_rcv_process: "
 			"Got GetResp(VLArb) block:%u port_num %u with GUID 0x%"
 			PRIx64 " for parent node GUID 0x%" PRIx64 ", TID 0x%"
@@ -189,18 +143,18 @@ void osm_vla_rcv_process(IN void *context, IN void *data)
 	   If so, Ignore it.
 	 */
 	if (!osm_physp_is_valid(p_physp)) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sm->p_log, OSM_LOG_ERROR,
 			"osm_vla_rcv_process: "
 			"Got invalid port number 0x%X\n", port_num);
 		goto Exit;
 	}
 
-	osm_dump_vl_arb_table(p_rcv->p_log,
+	osm_dump_vl_arb_table(sm->p_log,
 			      port_guid, block_num,
 			      port_num, p_vla_tbl, OSM_LOG_DEBUG);
 
 	if ((block_num < 1) || (block_num > 4)) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sm->p_log, OSM_LOG_ERROR,
 			"osm_vla_rcv_process: "
 			"Got invalid block number 0x%X\n", block_num);
 		goto Exit;
@@ -208,7 +162,7 @@ void osm_vla_rcv_process(IN void *context, IN void *data)
 	osm_physp_set_vla_tbl(p_physp, p_vla_tbl, block_num);
 
       Exit:
-	cl_plock_release(p_rcv->p_lock);
+	cl_plock_release(sm->p_lock);
 
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sm->p_log);
 }

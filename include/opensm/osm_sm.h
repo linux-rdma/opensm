@@ -53,6 +53,7 @@
 #include <complib/cl_event.h>
 #include <complib/cl_thread.h>
 #include <complib/cl_dispatcher.h>
+#include <complib/cl_event_wheel.h>
 #include <vendor/osm_vendor.h>
 #include <opensm/osm_stats.h>
 #include <opensm/osm_subnet.h>
@@ -61,24 +62,13 @@
 #include <opensm/osm_req.h>
 #include <opensm/osm_resp.h>
 #include <opensm/osm_log.h>
-#include <opensm/osm_node_info_rcv.h>
-#include <opensm/osm_port_info_rcv.h>
-#include <opensm/osm_sw_info_rcv.h>
-#include <opensm/osm_node_desc_rcv.h>
 #include <opensm/osm_sm_mad_ctrl.h>
 #include <opensm/osm_lid_mgr.h>
 #include <opensm/osm_ucast_mgr.h>
 #include <opensm/osm_link_mgr.h>
 #include <opensm/osm_drop_mgr.h>
-#include <opensm/osm_lin_fwd_rcv.h>
-#include <opensm/osm_mcast_fwd_rcv.h>
 #include <opensm/osm_sweep_fail_ctrl.h>
-#include <opensm/osm_sminfo_rcv.h>
-#include <opensm/osm_trap_rcv.h>
 #include <opensm/osm_sm_state_mgr.h>
-#include <opensm/osm_slvl_map_rcv.h>
-#include <opensm/osm_vl_arb_rcv.h>
-#include <opensm/osm_pkey_rcv.h>
 #include <opensm/osm_port.h>
 #include <opensm/osm_mcast_mgr.h>
 #include <opensm/osm_db.h>
@@ -130,6 +120,7 @@ typedef struct osm_sm {
 	cl_event_t signal_event;
 	cl_event_t subnet_up_event;
 	cl_timer_t sweep_timer;
+	cl_event_wheel_t trap_aging_tracker;
 	cl_thread_t sweeper;
 	osm_subn_t *p_subn;
 	osm_db_t *p_db;
@@ -144,26 +135,15 @@ typedef struct osm_sm {
 	cl_qlist_t mgrp_list;
 	osm_req_t req;
 	osm_resp_t resp;
-	osm_ni_rcv_t ni_rcv;
-	osm_pi_rcv_t pi_rcv;
-	osm_nd_rcv_t nd_rcv;
 	osm_sm_mad_ctrl_t mad_ctrl;
-	osm_si_rcv_t si_rcv;
 	osm_lid_mgr_t lid_mgr;
 	osm_ucast_mgr_t ucast_mgr;
 	osm_link_mgr_t link_mgr;
 	osm_state_mgr_t state_mgr;
 	osm_drop_mgr_t drop_mgr;
-	osm_lft_rcv_t lft_rcv;
-	osm_mft_rcv_t mft_rcv;
 	osm_sweep_fail_ctrl_t sweep_fail_ctrl;
-	osm_sminfo_rcv_t sm_info_rcv;
-	osm_trap_rcv_t trap_rcv;
 	osm_sm_state_mgr_t sm_state_mgr;
 	osm_mcast_mgr_t mcast_mgr;
-	osm_slvl_rcv_t slvl_rcv;
-	osm_vla_rcv_t vla_rcv;
-	osm_pkey_rcv_t pkey_rcv;
 	cl_disp_reg_handle_t ni_disp_h;
 	cl_disp_reg_handle_t pi_disp_h;
 	cl_disp_reg_handle_t nd_disp_h;
@@ -181,8 +161,8 @@ typedef struct osm_sm {
 *	p_subn
 *		Pointer to the Subnet object for this subnet.
 *
-*  p_db
-*     Pointer to the database (persistency) object
+*	p_db
+*		Pointer to the database (persistency) object
 *
 *	p_vendor
 *		Pointer to the vendor specific interfaces object.
@@ -201,21 +181,6 @@ typedef struct osm_sm {
 *
 *	resp
 *		MAD attribute responder.
-*
-*	nd_rcv_ctrl
-*		Node Description Receive Controller.
-*
-*	ni_rcv_ctrl
-*		Node Info Receive Controller.
-*
-*	pi_rcv_ctrl
-*		Port Info Receive Controller.
-*
-*	si_rcv_ctrl
-*		Switch Info Receive Controller.
-*
-*	nd_rcv_ctrl
-*		Node Description Receive Controller.
 *
 *	mad_ctrl
 *		MAD Controller.

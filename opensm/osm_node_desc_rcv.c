@@ -54,7 +54,6 @@
 #include <complib/cl_qmap.h>
 #include <complib/cl_passivelock.h>
 #include <complib/cl_debug.h>
-#include <opensm/osm_node_desc_rcv.h>
 #include <opensm/osm_madw.h>
 #include <opensm/osm_log.h>
 #include <opensm/osm_node.h>
@@ -64,21 +63,21 @@
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_nd_rcv_process_nd(IN const osm_nd_rcv_t * const p_rcv,
+__osm_nd_rcv_process_nd(IN osm_sm_t * sm,
 			IN osm_node_t * const p_node,
 			IN const ib_node_desc_t * const p_nd)
 {
 	char *tmp_desc;
 	char print_desc[IB_NODE_DESCRIPTION_SIZE + 1];
 
-	OSM_LOG_ENTER(p_rcv->p_log, __osm_nd_rcv_process_nd);
+	OSM_LOG_ENTER(sm->p_log, __osm_nd_rcv_process_nd);
 
 	memcpy(&p_node->node_desc.description, p_nd, sizeof(*p_nd));
 
 	/* also set up a printable version */
 	memcpy(print_desc, p_nd, sizeof(*p_nd));
 	print_desc[IB_NODE_DESCRIPTION_SIZE] = '\0';
-	tmp_desc = remap_node_name(p_rcv->p_subn->p_osm->node_name_map,
+	tmp_desc = remap_node_name(sm->p_subn->p_osm->node_name_map,
 			cl_ntoh64(osm_node_get_node_guid(p_node)),
 			print_desc);
 
@@ -87,70 +86,31 @@ __osm_nd_rcv_process_nd(IN const osm_nd_rcv_t * const p_rcv,
 		free(p_node->print_desc);
 	p_node->print_desc = tmp_desc;
 
-	if (osm_log_is_active(p_rcv->p_log, OSM_LOG_VERBOSE)) {
-		osm_log(p_rcv->p_log, OSM_LOG_VERBOSE,
+	if (osm_log_is_active(sm->p_log, OSM_LOG_VERBOSE)) {
+		osm_log(sm->p_log, OSM_LOG_VERBOSE,
 			"__osm_nd_rcv_process_nd: "
 			"Node 0x%" PRIx64 "\n\t\t\t\tDescription = %s\n",
 			cl_ntoh64(osm_node_get_node_guid(p_node)),
 			p_node->print_desc);
 	}
 
-	OSM_LOG_EXIT(p_rcv->p_log);
-}
-
-/**********************************************************************
- **********************************************************************/
-void osm_nd_rcv_construct(IN osm_nd_rcv_t * const p_rcv)
-{
-	memset(p_rcv, 0, sizeof(*p_rcv));
-}
-
-/**********************************************************************
- **********************************************************************/
-void osm_nd_rcv_destroy(IN osm_nd_rcv_t * const p_rcv)
-{
-	CL_ASSERT(p_rcv);
-
-	OSM_LOG_ENTER(p_rcv->p_log, osm_nd_rcv_destroy);
-
-	OSM_LOG_EXIT(p_rcv->p_log);
-}
-
-/**********************************************************************
- **********************************************************************/
-ib_api_status_t
-osm_nd_rcv_init(IN osm_nd_rcv_t * const p_rcv,
-		IN osm_subn_t * const p_subn,
-		IN osm_log_t * const p_log, IN cl_plock_t * const p_lock)
-{
-	ib_api_status_t status = IB_SUCCESS;
-
-	OSM_LOG_ENTER(p_log, osm_nd_rcv_init);
-
-	osm_nd_rcv_construct(p_rcv);
-
-	p_rcv->p_log = p_log;
-	p_rcv->p_subn = p_subn;
-	p_rcv->p_lock = p_lock;
-
-	OSM_LOG_EXIT(p_rcv->p_log);
-	return (status);
+	OSM_LOG_EXIT(sm->p_log);
 }
 
 /**********************************************************************
  **********************************************************************/
 void osm_nd_rcv_process(IN void *context, IN void *data)
 {
-	osm_nd_rcv_t *p_rcv = context;
+	osm_sm_t *sm = context;
 	osm_madw_t *p_madw = data;
 	ib_node_desc_t *p_nd;
 	ib_smp_t *p_smp;
 	osm_node_t *p_node;
 	ib_net64_t node_guid;
 
-	CL_ASSERT(p_rcv);
+	CL_ASSERT(sm);
 
-	OSM_LOG_ENTER(p_rcv->p_log, osm_nd_rcv_process);
+	OSM_LOG_ENTER(sm->p_log, osm_nd_rcv_process);
 
 	CL_ASSERT(p_madw);
 
@@ -162,17 +122,17 @@ void osm_nd_rcv_process(IN void *context, IN void *data)
 	 */
 
 	node_guid = osm_madw_get_nd_context_ptr(p_madw)->node_guid;
-	CL_PLOCK_EXCL_ACQUIRE(p_rcv->p_lock);
-	p_node = osm_get_node_by_guid(p_rcv->p_subn, node_guid);
+	CL_PLOCK_EXCL_ACQUIRE(sm->p_lock);
+	p_node = osm_get_node_by_guid(sm->p_subn, node_guid);
 	if (!p_node) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sm->p_log, OSM_LOG_ERROR,
 			"osm_nd_rcv_process: ERR 0B01: "
 			"NodeDescription received for nonexistent node "
 			"0x%" PRIx64 "\n", cl_ntoh64(node_guid));
 	} else {
-		__osm_nd_rcv_process_nd(p_rcv, p_node, p_nd);
+		__osm_nd_rcv_process_nd(sm, p_node, p_nd);
 	}
 
-	CL_PLOCK_RELEASE(p_rcv->p_lock);
-	OSM_LOG_EXIT(p_rcv->p_log);
+	CL_PLOCK_RELEASE(sm->p_lock);
+	OSM_LOG_EXIT(sm->p_log);
 }

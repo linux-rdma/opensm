@@ -68,6 +68,18 @@
 
 #define  OSM_SM_INITIAL_TID_VALUE 0x1233
 
+extern void osm_lft_rcv_process(IN void *context, IN void *data);
+extern void osm_mft_rcv_process(IN void *context, IN void *data);
+extern void osm_nd_rcv_process(IN void *context, IN void *data);
+extern void osm_ni_rcv_process(IN void *context, IN void *data);
+extern void osm_pkey_rcv_process(IN void *context, IN void *data);
+extern void osm_pi_rcv_process(IN void *context, IN void *data);
+extern void osm_slvl_rcv_process(IN void *context, IN void *p_data);
+extern void osm_sminfo_rcv_process(IN void *context, IN void *data);
+extern void osm_si_rcv_process(IN void *context, IN void *data);
+extern void osm_trap_rcv_process(IN void *context, IN void *data);
+extern void osm_vla_rcv_process(IN void *context, IN void *data);
+
 /**********************************************************************
  **********************************************************************/
 static void osm_sm_process(osm_sm_t * sm, osm_signal_t signal)
@@ -143,29 +155,19 @@ void osm_sm_construct(IN osm_sm_t * const p_sm)
 	cl_spinlock_construct(&p_sm->signal_lock);
 	cl_event_construct(&p_sm->signal_event);
 	cl_event_construct(&p_sm->subnet_up_event);
+	cl_event_wheel_construct(&p_sm->trap_aging_tracker);
 	cl_thread_construct(&p_sm->sweeper);
 	cl_spinlock_construct(&p_sm->mgrp_lock);
 	osm_req_construct(&p_sm->req);
 	osm_resp_construct(&p_sm->resp);
-	osm_ni_rcv_construct(&p_sm->ni_rcv);
-	osm_pi_rcv_construct(&p_sm->pi_rcv);
-	osm_nd_rcv_construct(&p_sm->nd_rcv);
 	osm_sm_mad_ctrl_construct(&p_sm->mad_ctrl);
-	osm_si_rcv_construct(&p_sm->si_rcv);
 	osm_lid_mgr_construct(&p_sm->lid_mgr);
 	osm_ucast_mgr_construct(&p_sm->ucast_mgr);
 	osm_link_mgr_construct(&p_sm->link_mgr);
 	osm_state_mgr_construct(&p_sm->state_mgr);
 	osm_drop_mgr_construct(&p_sm->drop_mgr);
-	osm_lft_rcv_construct(&p_sm->lft_rcv);
-	osm_mft_rcv_construct(&p_sm->mft_rcv);
 	osm_sweep_fail_ctrl_construct(&p_sm->sweep_fail_ctrl);
-	osm_sminfo_rcv_construct(&p_sm->sm_info_rcv);
-	osm_trap_rcv_construct(&p_sm->trap_rcv);
 	osm_sm_state_mgr_construct(&p_sm->sm_state_mgr);
-	osm_slvl_rcv_construct(&p_sm->slvl_rcv);
-	osm_vla_rcv_construct(&p_sm->vla_rcv);
-	osm_pkey_rcv_construct(&p_sm->pkey_rcv);
 	osm_mcast_mgr_construct(&p_sm->mcast_mgr);
 }
 
@@ -222,26 +224,16 @@ void osm_sm_shutdown(IN osm_sm_t * const p_sm)
 void osm_sm_destroy(IN osm_sm_t * const p_sm)
 {
 	OSM_LOG_ENTER(p_sm->p_log, osm_sm_destroy);
-	osm_trap_rcv_destroy(&p_sm->trap_rcv);
-	osm_sminfo_rcv_destroy(&p_sm->sm_info_rcv);
 	osm_req_destroy(&p_sm->req);
 	osm_resp_destroy(&p_sm->resp);
-	osm_ni_rcv_destroy(&p_sm->ni_rcv);
-	osm_pi_rcv_destroy(&p_sm->pi_rcv);
-	osm_si_rcv_destroy(&p_sm->si_rcv);
-	osm_nd_rcv_destroy(&p_sm->nd_rcv);
 	osm_lid_mgr_destroy(&p_sm->lid_mgr);
 	osm_ucast_mgr_destroy(&p_sm->ucast_mgr);
 	osm_link_mgr_destroy(&p_sm->link_mgr);
 	osm_drop_mgr_destroy(&p_sm->drop_mgr);
-	osm_lft_rcv_destroy(&p_sm->lft_rcv);
-	osm_mft_rcv_destroy(&p_sm->mft_rcv);
-	osm_slvl_rcv_destroy(&p_sm->slvl_rcv);
-	osm_vla_rcv_destroy(&p_sm->vla_rcv);
-	osm_pkey_rcv_destroy(&p_sm->pkey_rcv);
 	osm_state_mgr_destroy(&p_sm->state_mgr);
 	osm_sm_state_mgr_destroy(&p_sm->sm_state_mgr);
 	osm_mcast_mgr_destroy(&p_sm->mcast_mgr);
+	cl_event_wheel_destroy(&p_sm->trap_aging_tracker);
 	cl_timer_destroy(&p_sm->sweep_timer);
 	cl_event_destroy(&p_sm->signal_event);
 	cl_event_destroy(&p_sm->subnet_up_event);
@@ -319,24 +311,7 @@ osm_sm_init(IN osm_sm_t * const p_sm,
 	if (status != IB_SUCCESS)
 		goto Exit;
 
-	status = osm_ni_rcv_init(&p_sm->ni_rcv,
-				 &p_sm->req, p_subn, p_log, p_lock);
-	if (status != IB_SUCCESS)
-		goto Exit;
-
-	status = osm_pi_rcv_init(&p_sm->pi_rcv,
-				 &p_sm->req, p_subn, p_log, p_lock);
-	if (status != IB_SUCCESS)
-		goto Exit;
-
-	status = osm_si_rcv_init(&p_sm->si_rcv,
-				 p_sm->p_subn,
-				 p_sm->p_log, &p_sm->req, p_sm->p_lock);
-
-	if (status != IB_SUCCESS)
-		goto Exit;
-
-	status = osm_nd_rcv_init(&p_sm->nd_rcv, p_subn, p_log, p_lock);
+	status = cl_event_wheel_init(&p_sm->trap_aging_tracker);
 	if (status != IB_SUCCESS)
 		goto Exit;
 
@@ -381,29 +356,8 @@ osm_sm_init(IN osm_sm_t * const p_sm,
 	if (status != IB_SUCCESS)
 		goto Exit;
 
-	status = osm_lft_rcv_init(&p_sm->lft_rcv, p_subn, p_log, p_lock);
-	if (status != IB_SUCCESS)
-		goto Exit;
-
-	status = osm_mft_rcv_init(&p_sm->mft_rcv, p_subn, p_log, p_lock);
-	if (status != IB_SUCCESS)
-		goto Exit;
-
 	status = osm_sweep_fail_ctrl_init(&p_sm->sweep_fail_ctrl,
 					  p_log, p_sm, p_disp);
-	if (status != IB_SUCCESS)
-		goto Exit;
-
-	status = osm_sminfo_rcv_init(&p_sm->sm_info_rcv,
-				     p_subn,
-				     p_stats,
-				     &p_sm->resp,
-				     p_log, &p_sm->sm_state_mgr, p_lock);
-	if (status != IB_SUCCESS)
-		goto Exit;
-
-	status = osm_trap_rcv_init(&p_sm->trap_rcv,
-				   p_subn, p_stats, &p_sm->resp, p_log, p_lock);
 	if (status != IB_SUCCESS)
 		goto Exit;
 
@@ -417,80 +371,58 @@ osm_sm_init(IN osm_sm_t * const p_sm,
 	if (status != IB_SUCCESS)
 		goto Exit;
 
-	status = osm_slvl_rcv_init(&p_sm->slvl_rcv,
-				   &p_sm->req, p_subn, p_log, p_lock);
-	if (status != IB_SUCCESS)
-		goto Exit;
-
-	status = osm_vla_rcv_init(&p_sm->vla_rcv,
-				  &p_sm->req, p_subn, p_log, p_lock);
-	if (status != IB_SUCCESS)
-		goto Exit;
-
-	status = osm_pkey_rcv_init(&p_sm->pkey_rcv,
-				   &p_sm->req, p_subn, p_log, p_lock);
-	if (status != IB_SUCCESS)
-		goto Exit;
-
 	p_sm->ni_disp_h = cl_disp_register(p_disp, OSM_MSG_MAD_NODE_INFO,
-					   osm_ni_rcv_process, &p_sm->ni_rcv);
+					   osm_ni_rcv_process, p_sm);
 	if (p_sm->ni_disp_h == CL_DISP_INVALID_HANDLE)
 		goto Exit;
 
 	p_sm->pi_disp_h = cl_disp_register(p_disp, OSM_MSG_MAD_PORT_INFO,
-					   osm_pi_rcv_process, &p_sm->pi_rcv);
+					   osm_pi_rcv_process, p_sm);
 	if (p_sm->pi_disp_h == CL_DISP_INVALID_HANDLE)
 		goto Exit;
 
 	p_sm->si_disp_h = cl_disp_register(p_disp, OSM_MSG_MAD_SWITCH_INFO,
-					   osm_si_rcv_process, &p_sm->si_rcv);
+					   osm_si_rcv_process, p_sm);
 	if (p_sm->si_disp_h == CL_DISP_INVALID_HANDLE)
 		goto Exit;
 
 	p_sm->nd_disp_h = cl_disp_register(p_disp, OSM_MSG_MAD_NODE_DESC,
-					   osm_nd_rcv_process, &p_sm->nd_rcv);
+					   osm_nd_rcv_process, p_sm);
 	if (p_sm->nd_disp_h == CL_DISP_INVALID_HANDLE)
 		goto Exit;
 
 	p_sm->lft_disp_h = cl_disp_register(p_disp, OSM_MSG_MAD_LFT,
-					    osm_lft_rcv_process,
-					    &p_sm->lft_rcv);
+					    osm_lft_rcv_process, p_sm);
 	if (p_sm->lft_disp_h == CL_DISP_INVALID_HANDLE)
 		goto Exit;
 
 	p_sm->mft_disp_h = cl_disp_register(p_disp, OSM_MSG_MAD_MFT,
-					    osm_mft_rcv_process,
-					    &p_sm->mft_rcv);
+					    osm_mft_rcv_process, p_sm);
 	if (p_sm->mft_disp_h == CL_DISP_INVALID_HANDLE)
 		goto Exit;
 
 	p_sm->sm_info_disp_h = cl_disp_register(p_disp, OSM_MSG_MAD_SM_INFO,
-						osm_sminfo_rcv_process,
-						&p_sm->sm_info_rcv);
+						osm_sminfo_rcv_process, p_sm);
 	if (p_sm->sm_info_disp_h == CL_DISP_INVALID_HANDLE)
 		goto Exit;
 
 	p_sm->trap_disp_h = cl_disp_register(p_disp, OSM_MSG_MAD_NOTICE,
-					     osm_trap_rcv_process,
-					     &p_sm->trap_rcv);
+					     osm_trap_rcv_process, p_sm);
 	if (p_sm->trap_disp_h == CL_DISP_INVALID_HANDLE)
 		goto Exit;
 
 	p_sm->slvl_disp_h = cl_disp_register(p_disp, OSM_MSG_MAD_SLVL,
-					     osm_slvl_rcv_process,
-					     &p_sm->slvl_rcv);
+					     osm_slvl_rcv_process, p_sm);
 	if (p_sm->slvl_disp_h == CL_DISP_INVALID_HANDLE)
 		goto Exit;
 
 	p_sm->vla_disp_h = cl_disp_register(p_disp, OSM_MSG_MAD_VL_ARB,
-					    osm_vla_rcv_process,
-					    &p_sm->vla_rcv);
+					    osm_vla_rcv_process, p_sm);
 	if (p_sm->vla_disp_h == CL_DISP_INVALID_HANDLE)
 		goto Exit;
 
 	p_sm->pkey_disp_h = cl_disp_register(p_disp, OSM_MSG_MAD_PKEY,
-					     osm_pkey_rcv_process,
-					     &p_sm->pkey_rcv);
+					     osm_pkey_rcv_process, p_sm);
 	if (p_sm->pkey_disp_h == CL_DISP_INVALID_HANDLE)
 		goto Exit;
 

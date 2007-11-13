@@ -58,7 +58,6 @@
 #include <opensm/osm_madw.h>
 #include <opensm/osm_log.h>
 #include <opensm/osm_sa_informinfo.h>
-#include <opensm/osm_trap_rcv.h>
 
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {

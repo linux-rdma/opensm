@@ -54,7 +54,6 @@
 #include <complib/cl_qmap.h>
 #include <complib/cl_passivelock.h>
 #include <complib/cl_debug.h>
-#include <opensm/osm_sw_info_rcv.h>
 #include <opensm/osm_log.h>
 #include <opensm/osm_switch.h>
 #include <opensm/osm_subnet.h>
@@ -65,7 +64,7 @@
  The plock must be held before calling this function.
 **********************************************************************/
 static void
-__osm_si_rcv_get_port_info(IN const osm_si_rcv_t * const p_rcv,
+__osm_si_rcv_get_port_info(IN osm_sm_t * sm,
 			   IN osm_switch_t * const p_sw,
 			   IN const osm_madw_t * const p_madw)
 {
@@ -78,7 +77,7 @@ __osm_si_rcv_get_port_info(IN const osm_si_rcv_t * const p_rcv,
 	const ib_smp_t *p_smp;
 	ib_api_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(p_rcv->p_log, __osm_si_rcv_get_port_info);
+	OSM_LOG_ENTER(sm->p_log, __osm_si_rcv_get_port_info);
 
 	CL_ASSERT(p_sw);
 
@@ -112,21 +111,21 @@ __osm_si_rcv_get_port_info(IN const osm_si_rcv_t * const p_rcv,
 			 p_smp->hop_count, p_smp->initial_path);
 
 	for (port_num = 0; port_num < num_ports; port_num++) {
-		status = osm_req_get(p_rcv->p_req,
+		status = osm_req_get(&sm->req,
 				     &dr_path,
 				     IB_MAD_ATTR_PORT_INFO,
 				     cl_hton32(port_num),
 				     CL_DISP_MSGID_NONE, &context);
 		if (status != IB_SUCCESS) {
 			/* continue the loop despite the error */
-			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+			osm_log(sm->p_log, OSM_LOG_ERROR,
 				"__osm_si_rcv_get_port_info: ERR 3602: "
 				"Failure initiating PortInfo request (%s)\n",
 				ib_get_err_str(status));
 		}
 	}
 
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sm->p_log);
 }
 
 #if 0
@@ -134,7 +133,7 @@ __osm_si_rcv_get_port_info(IN const osm_si_rcv_t * const p_rcv,
  The plock must be held before calling this function.
 **********************************************************************/
 static void
-__osm_si_rcv_get_fwd_tbl(IN const osm_si_rcv_t * const p_rcv,
+__osm_si_rcv_get_fwd_tbl(IN osm_sm_t * sm,
 			 IN osm_switch_t * const p_sw)
 {
 	osm_madw_context_t context;
@@ -145,7 +144,7 @@ __osm_si_rcv_get_fwd_tbl(IN const osm_si_rcv_t * const p_rcv,
 	uint32_t max_block_id_ho;
 	ib_api_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(p_rcv->p_log, __osm_si_rcv_get_fwd_tbl);
+	OSM_LOG_ENTER(sm->p_log, __osm_si_rcv_get_fwd_tbl);
 
 	CL_ASSERT(p_sw);
 
@@ -165,34 +164,34 @@ __osm_si_rcv_get_fwd_tbl(IN const osm_si_rcv_t * const p_rcv,
 	p_dr_path = osm_physp_get_dr_path_ptr(p_physp);
 
 	for (block_id_ho = 0; block_id_ho <= max_block_id_ho; block_id_ho++) {
-		if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG)) {
-			osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+		if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
+			osm_log(sm->p_log, OSM_LOG_DEBUG,
 				"__osm_si_rcv_get_fwd_tbl: "
 				"Retrieving FT block %u\n", block_id_ho);
 		}
 
-		status = osm_req_get(p_rcv->p_req,
+		status = osm_req_get(&sm->req,
 				     p_dr_path,
 				     IB_MAD_ATTR_LIN_FWD_TBL,
 				     cl_hton32(block_id_ho),
 				     CL_DISP_MSGID_NONE, &context);
 		if (status != IB_SUCCESS) {
 			/* continue the loop despite the error */
-			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+			osm_log(sm->p_log, OSM_LOG_ERROR,
 				"__osm_si_rcv_get_fwd_tbl: ERR 3603: "
 				"Failure initiating PortInfo request (%s)\n",
 				ib_get_err_str(status));
 		}
 	}
 
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sm->p_log);
 }
 
 /**********************************************************************
  The plock must be held before calling this function.
 **********************************************************************/
 static void
-__osm_si_rcv_get_mcast_fwd_tbl(IN const osm_si_rcv_t * const p_rcv,
+__osm_si_rcv_get_mcast_fwd_tbl(IN osm_sm_t * sm,
 			       IN osm_switch_t * const p_sw)
 {
 	osm_madw_context_t context;
@@ -207,7 +206,7 @@ __osm_si_rcv_get_mcast_fwd_tbl(IN const osm_si_rcv_t * const p_rcv,
 	uint32_t attr_mod_ho;
 	ib_api_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(p_rcv->p_log, __osm_si_rcv_get_mcast_fwd_tbl);
+	OSM_LOG_ENTER(sm->p_log, __osm_si_rcv_get_mcast_fwd_tbl);
 
 	CL_ASSERT(p_sw);
 
@@ -216,7 +215,7 @@ __osm_si_rcv_get_mcast_fwd_tbl(IN const osm_si_rcv_t * const p_rcv,
 	CL_ASSERT(osm_node_get_type(p_node) == IB_NODE_TYPE_SWITCH);
 
 	if (osm_switch_get_mcast_fwd_tbl_size(p_sw) == 0) {
-		osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+		osm_log(sm->p_log, OSM_LOG_DEBUG,
 			"__osm_si_rcv_get_mcast_fwd_tbl: "
 			"Multicast not supported by switch 0x%016" PRIx64 "\n",
 			cl_ntoh64(osm_node_get_node_guid(p_node)));
@@ -234,7 +233,7 @@ __osm_si_rcv_get_mcast_fwd_tbl(IN const osm_si_rcv_t * const p_rcv,
 	max_block_id_ho = osm_mcast_tbl_get_max_block(p_tbl);
 
 	if (max_block_id_ho > IB_MCAST_MAX_BLOCK_ID) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sm->p_log, OSM_LOG_ERROR,
 			"__osm_si_rcv_get_mcast_fwd_tbl: ERR 3609: "
 			"Out-of-range mcast block size = %u on switch 0x%016"
 			PRIx64 "\n", max_block_id_ho,
@@ -246,7 +245,7 @@ __osm_si_rcv_get_mcast_fwd_tbl(IN const osm_si_rcv_t * const p_rcv,
 
 	CL_ASSERT(max_position <= IB_MCAST_POSITION_MAX);
 
-	osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+	osm_log(sm->p_log, OSM_LOG_DEBUG,
 		"__osm_si_rcv_get_mcast_fwd_tbl: "
 		"Max MFT block = %u, Max position = %u\n", max_block_id_ho,
 		max_position);
@@ -254,15 +253,15 @@ __osm_si_rcv_get_mcast_fwd_tbl(IN const osm_si_rcv_t * const p_rcv,
 	p_dr_path = osm_physp_get_dr_path_ptr(p_physp);
 
 	for (block_id_ho = 0; block_id_ho <= max_block_id_ho; block_id_ho++) {
-		if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG)) {
-			osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+		if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
+			osm_log(sm->p_log, OSM_LOG_DEBUG,
 				"__osm_si_rcv_get_mcast_fwd_tbl: "
 				"Retrieving MFT block %u\n", block_id_ho);
 		}
 
 		for (position = 0; position <= max_position; position++) {
-			if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG)) {
-				osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+			if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
+				osm_log(sm->p_log, OSM_LOG_DEBUG,
 					"__osm_si_rcv_get_mcast_fwd_tbl: "
 					"Retrieving MFT position %u\n",
 					position);
@@ -271,13 +270,13 @@ __osm_si_rcv_get_mcast_fwd_tbl(IN const osm_si_rcv_t * const p_rcv,
 			attr_mod_ho =
 			    block_id_ho | position << IB_MCAST_POSITION_SHIFT;
 			status =
-			    osm_req_get(p_rcv->p_req, p_dr_path,
+			    osm_req_get(&sm->req, p_dr_path,
 					IB_MAD_ATTR_MCAST_FWD_TBL,
 					cl_hton32(attr_mod_ho),
 					CL_DISP_MSGID_NONE, &context);
 			if (status != IB_SUCCESS) {
 				/* continue the loop despite the error */
-				osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+				osm_log(sm->p_log, OSM_LOG_ERROR,
 					"__osm_si_rcv_get_mcast_fwd_tbl: ERR 3607: "
 					"Failure initiating PortInfo request (%s)\n",
 					ib_get_err_str(status));
@@ -286,7 +285,7 @@ __osm_si_rcv_get_mcast_fwd_tbl(IN const osm_si_rcv_t * const p_rcv,
 	}
 
       Exit:
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sm->p_log);
 }
 #endif
 
@@ -294,7 +293,7 @@ __osm_si_rcv_get_mcast_fwd_tbl(IN const osm_si_rcv_t * const p_rcv,
    Lock must be held on entry to this function.
 **********************************************************************/
 static void
-__osm_si_rcv_process_new(IN const osm_si_rcv_t * const p_rcv,
+__osm_si_rcv_process_new(IN osm_sm_t * sm,
 			 IN osm_node_t * const p_node,
 			 IN const osm_madw_t * const p_madw)
 {
@@ -304,18 +303,18 @@ __osm_si_rcv_process_new(IN const osm_si_rcv_t * const p_rcv,
 	ib_smp_t *p_smp;
 	cl_qmap_t *p_sw_guid_tbl;
 
-	CL_ASSERT(p_rcv);
+	CL_ASSERT(sm);
 
-	OSM_LOG_ENTER(p_rcv->p_log, __osm_si_rcv_process_new);
+	OSM_LOG_ENTER(sm->p_log, __osm_si_rcv_process_new);
 
 	CL_ASSERT(p_madw);
 
-	p_sw_guid_tbl = &p_rcv->p_subn->sw_guid_tbl;
+	p_sw_guid_tbl = &sm->p_subn->sw_guid_tbl;
 
 	p_smp = osm_madw_get_smp_ptr(p_madw);
 	p_si = (ib_switch_info_t *) ib_smp_get_payload_ptr(p_smp);
 
-	osm_dump_switch_info(p_rcv->p_log, p_si, OSM_LOG_DEBUG);
+	osm_dump_switch_info(sm->p_log, p_si, OSM_LOG_DEBUG);
 
 	/*
 	   Allocate a new switch object for this switch,
@@ -323,30 +322,30 @@ __osm_si_rcv_process_new(IN const osm_si_rcv_t * const p_rcv,
 	 */
 	p_sw = osm_switch_new(p_node, p_madw);
 	if (p_sw == NULL) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sm->p_log, OSM_LOG_ERROR,
 			"__osm_si_rcv_process_new: ERR 3608: "
 			"Unable to allocate new switch object\n");
 		goto Exit;
 	}
 
 	/* set subnet max mlid to the minimum MulticastFDBCap of all switches */
-	if (p_sw->mcast_tbl.max_mlid_ho < p_rcv->p_subn->max_multicast_lid_ho) {
-		p_rcv->p_subn->max_multicast_lid_ho =
+	if (p_sw->mcast_tbl.max_mlid_ho < sm->p_subn->max_multicast_lid_ho) {
+		sm->p_subn->max_multicast_lid_ho =
 		    p_sw->mcast_tbl.max_mlid_ho;
-		osm_log(p_rcv->p_log, OSM_LOG_VERBOSE,
+		osm_log(sm->p_log, OSM_LOG_VERBOSE,
 			"__osm_si_rcv_process_new: "
 			"Subnet max multicast lid is 0x%X\n",
-			p_rcv->p_subn->max_multicast_lid_ho);
+			sm->p_subn->max_multicast_lid_ho);
 	}
 
 	/* set subnet max unicast lid to the minimum LinearFDBCap of all switches */
-	if (p_sw->fwd_tbl.p_lin_tbl->size < p_rcv->p_subn->max_unicast_lid_ho) {
-		p_rcv->p_subn->max_unicast_lid_ho =
+	if (p_sw->fwd_tbl.p_lin_tbl->size < sm->p_subn->max_unicast_lid_ho) {
+		sm->p_subn->max_unicast_lid_ho =
 		    p_sw->fwd_tbl.p_lin_tbl->size;
-		osm_log(p_rcv->p_log, OSM_LOG_VERBOSE,
+		osm_log(sm->p_log, OSM_LOG_VERBOSE,
 			"__osm_si_rcv_process_new: "
 			"Subnet max unicast lid is 0x%X\n",
-			p_rcv->p_subn->max_unicast_lid_ho);
+			sm->p_subn->max_unicast_lid_ho);
 	}
 
 	p_check = (osm_switch_t *) cl_qmap_insert(p_sw_guid_tbl,
@@ -357,7 +356,7 @@ __osm_si_rcv_process_new(IN const osm_si_rcv_t * const p_rcv,
 		/*
 		   This shouldn't happen since we hold the lock!
 		 */
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sm->p_log, OSM_LOG_ERROR,
 			"__osm_si_rcv_process_new: ERR 3605: "
 			"Unable to add new switch object to database\n");
 		osm_switch_delete(&p_sw);
@@ -376,7 +375,7 @@ __osm_si_rcv_process_new(IN const osm_si_rcv_t * const p_rcv,
 	/*
 	   Get the PortInfo attribute for every port.
 	 */
-	__osm_si_rcv_get_port_info(p_rcv, p_sw, p_madw);
+	__osm_si_rcv_get_port_info(sm, p_sw, p_madw);
 
 	/*
 	   Don't bother retrieving the current unicast and multicast tables
@@ -390,13 +389,13 @@ __osm_si_rcv_process_new(IN const osm_si_rcv_t * const p_rcv,
 	   The code to retrieve the tables was fully debugged.
 	 */
 #if 0
-	__osm_si_rcv_get_fwd_tbl(p_rcv, p_sw);
-	if (!p_rcv->p_subn->opt.disable_multicast)
-		__osm_si_rcv_get_mcast_fwd_tbl(p_rcv, p_sw);
+	__osm_si_rcv_get_fwd_tbl(sm, p_sw);
+	if (!sm->p_subn->opt.disable_multicast)
+		__osm_si_rcv_get_mcast_fwd_tbl(sm, p_sw);
 #endif
 
       Exit:
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sm->p_log);
 }
 
 /**********************************************************************
@@ -405,7 +404,7 @@ __osm_si_rcv_process_new(IN const osm_si_rcv_t * const p_rcv,
    this can not be done internally as the event needs the lock...
 **********************************************************************/
 static boolean_t
-__osm_si_rcv_process_existing(IN const osm_si_rcv_t * const p_rcv,
+__osm_si_rcv_process_existing(IN osm_sm_t * sm,
 			      IN osm_node_t * const p_node,
 			      IN const osm_madw_t * const p_madw)
 {
@@ -415,7 +414,7 @@ __osm_si_rcv_process_existing(IN const osm_si_rcv_t * const p_rcv,
 	ib_smp_t *p_smp;
 	boolean_t is_change_detected = FALSE;
 
-	OSM_LOG_ENTER(p_rcv->p_log, __osm_si_rcv_process_existing);
+	OSM_LOG_ENTER(sm->p_log, __osm_si_rcv_process_existing);
 
 	CL_ASSERT(p_madw);
 
@@ -424,16 +423,16 @@ __osm_si_rcv_process_existing(IN const osm_si_rcv_t * const p_rcv,
 	p_si_context = osm_madw_get_si_context_ptr(p_madw);
 
 	if (p_si_context->set_method) {
-		if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG)) {
-			osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+		if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
+			osm_log(sm->p_log, OSM_LOG_DEBUG,
 				"__osm_si_rcv_process_existing: "
 				"Received logical SetResp()\n");
 		}
 
 		osm_switch_set_switch_info(p_sw, p_si);
 	} else {
-		if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG)) {
-			osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+		if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
+			osm_log(sm->p_log, OSM_LOG_DEBUG,
 				"__osm_si_rcv_process_existing: "
 				"Received logical GetResp()\n");
 		}
@@ -449,7 +448,7 @@ __osm_si_rcv_process_existing(IN const osm_si_rcv_t * const p_rcv,
 			/* If the mad was returned with an error -
 			   signal a change to the state manager. */
 			if (ib_smp_get_status(p_smp) != 0) {
-				osm_log(p_rcv->p_log, OSM_LOG_VERBOSE,
+				osm_log(sm->p_log, OSM_LOG_VERBOSE,
 					"__osm_si_rcv_process_existing: "
 					"GetResp() received with error in light sweep. "
 					"Commencing heavy sweep\n");
@@ -461,7 +460,7 @@ __osm_si_rcv_process_existing(IN const osm_si_rcv_t * const p_rcv,
 				   a light sweep.
 				 */
 				if (ib_switch_info_get_state_change(p_si)) {
-					osm_dump_switch_info(p_rcv->p_log, p_si,
+					osm_dump_switch_info(sm->p_log, p_si,
 							     OSM_LOG_DEBUG);
 					is_change_detected = TRUE;
 				}
@@ -472,16 +471,16 @@ __osm_si_rcv_process_existing(IN const osm_si_rcv_t * const p_rcv,
 			   of the state change bit.
 			 */
 			p_sw->discovery_count++;
-			osm_log(p_rcv->p_log, OSM_LOG_VERBOSE,
+			osm_log(sm->p_log, OSM_LOG_VERBOSE,
 				"__osm_si_rcv_process_existing: "
 				"discovery_count is:%u\n",
 				p_sw->discovery_count);
 
 			/* If this is the first discovery - then get the port_info */
 			if (p_sw->discovery_count == 1)
-				__osm_si_rcv_get_port_info(p_rcv, p_sw, p_madw);
+				__osm_si_rcv_get_port_info(sm, p_sw, p_madw);
 			else {
-				osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+				osm_log(sm->p_log, OSM_LOG_DEBUG,
 					"__osm_si_rcv_process_existing: "
 					"Not discovering again through switch:0x%"
 					PRIx64 "\n",
@@ -490,55 +489,15 @@ __osm_si_rcv_process_existing(IN const osm_si_rcv_t * const p_rcv,
 		}
 	}
 
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sm->p_log);
 	return is_change_detected;
-}
-
-/**********************************************************************
- **********************************************************************/
-void osm_si_rcv_construct(IN osm_si_rcv_t * const p_rcv)
-{
-	memset(p_rcv, 0, sizeof(*p_rcv));
-}
-
-/**********************************************************************
- **********************************************************************/
-void osm_si_rcv_destroy(IN osm_si_rcv_t * const p_rcv)
-{
-	CL_ASSERT(p_rcv);
-
-	OSM_LOG_ENTER(p_rcv->p_log, osm_si_rcv_destroy);
-
-	OSM_LOG_EXIT(p_rcv->p_log);
-}
-
-/**********************************************************************
- **********************************************************************/
-ib_api_status_t
-osm_si_rcv_init(IN osm_si_rcv_t * const p_rcv,
-		IN osm_subn_t * const p_subn,
-		IN osm_log_t * const p_log,
-		IN osm_req_t * const p_req, IN cl_plock_t * const p_lock)
-{
-	ib_api_status_t status = IB_SUCCESS;
-	OSM_LOG_ENTER(p_log, osm_si_rcv_init);
-
-	osm_si_rcv_construct(p_rcv);
-
-	p_rcv->p_log = p_log;
-	p_rcv->p_subn = p_subn;
-	p_rcv->p_lock = p_lock;
-	p_rcv->p_req = p_req;
-
-	OSM_LOG_EXIT(p_rcv->p_log);
-	return (status);
 }
 
 /**********************************************************************
  **********************************************************************/
 void osm_si_rcv_process(IN void *context, IN void *data)
 {
-	osm_si_rcv_t *p_rcv = context;
+	osm_sm_t *sm = context;
 	osm_madw_t *p_madw = data;
 	ib_switch_info_t *p_si;
 	ib_smp_t *p_smp;
@@ -546,9 +505,9 @@ void osm_si_rcv_process(IN void *context, IN void *data)
 	ib_net64_t node_guid;
 	osm_si_context_t *p_context;
 
-	CL_ASSERT(p_rcv);
+	CL_ASSERT(sm);
 
-	OSM_LOG_ENTER(p_rcv->p_log, osm_si_rcv_process);
+	OSM_LOG_ENTER(sm->p_log, osm_si_rcv_process);
 
 	CL_ASSERT(p_madw);
 
@@ -563,19 +522,19 @@ void osm_si_rcv_process(IN void *context, IN void *data)
 
 	node_guid = p_context->node_guid;
 
-	if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG)) {
-		osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+	if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
+		osm_log(sm->p_log, OSM_LOG_DEBUG,
 			"osm_si_rcv_process: "
 			"Switch GUID 0x%016" PRIx64
 			", TID 0x%" PRIx64 "\n",
 			cl_ntoh64(node_guid), cl_ntoh64(p_smp->trans_id));
 	}
 
-	CL_PLOCK_EXCL_ACQUIRE(p_rcv->p_lock);
+	CL_PLOCK_EXCL_ACQUIRE(sm->p_lock);
 
-	p_node = osm_get_node_by_guid(p_rcv->p_subn, node_guid);
+	p_node = osm_get_node_by_guid(sm->p_subn, node_guid);
 	if (!p_node) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sm->p_log, OSM_LOG_ERROR,
 			"osm_si_rcv_process: ERR 3606: "
 			"SwitchInfo received for nonexistent node "
 			"with GUID 0x%" PRIx64 "\n", cl_ntoh64(node_guid));
@@ -585,7 +544,7 @@ void osm_si_rcv_process(IN void *context, IN void *data)
 		   Hack for bad value in Mellanox switch
 		 */
 		if (cl_ntoh16(p_si->lin_top) > IB_LID_UCAST_END_HO) {
-			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+			osm_log(sm->p_log, OSM_LOG_ERROR,
 				"osm_si_rcv_process: ERR 3610: "
 				"\n\t\t\t\tBad LinearFDBTop value = 0x%X "
 				"on switch 0x%" PRIx64
@@ -600,25 +559,25 @@ void osm_si_rcv_process(IN void *context, IN void *data)
 		   Acquire the switch object for this switch.
 		 */
 		if (!p_node->sw) {
-			__osm_si_rcv_process_new(p_rcv, p_node, p_madw);
+			__osm_si_rcv_process_new(sm, p_node, p_madw);
 			/*
 			   A new switch was found during the sweep so we need
 			   to ignore the current LFT settings.
 			 */
-			p_rcv->p_subn->ignore_existing_lfts = TRUE;
+			sm->p_subn->ignore_existing_lfts = TRUE;
 		} else {
 			/* we might get back a request for signaling change was detected */
 			if (__osm_si_rcv_process_existing
-			    (p_rcv, p_node, p_madw)) {
-				CL_PLOCK_RELEASE(p_rcv->p_lock);
-				osm_sm_signal(&p_rcv->p_subn->p_osm->sm,
+			    (sm, p_node, p_madw)) {
+				CL_PLOCK_RELEASE(sm->p_lock);
+				osm_sm_signal(&sm->p_subn->p_osm->sm,
 					      OSM_SIGNAL_CHANGE_DETECTED);
 				goto Exit;
 			}
 		}
 	}
 
-	CL_PLOCK_RELEASE(p_rcv->p_lock);
+	CL_PLOCK_RELEASE(sm->p_lock);
       Exit:
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sm->p_log);
 }

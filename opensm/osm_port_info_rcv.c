@@ -54,8 +54,7 @@
 #include <complib/cl_qmap.h>
 #include <complib/cl_passivelock.h>
 #include <complib/cl_debug.h>
-#include <opensm/osm_port_info_rcv.h>
-#include <opensm/osm_node_info_rcv.h>
+#include <vendor/osm_vendor_api.h>
 #include <opensm/osm_req.h>
 #include <opensm/osm_madw.h>
 #include <opensm/osm_log.h>
@@ -64,7 +63,6 @@
 #include <opensm/osm_mad_pool.h>
 #include <opensm/osm_msgdef.h>
 #include <opensm/osm_helper.h>
-#include <vendor/osm_vendor_api.h>
 #include <opensm/osm_pkey.h>
 #include <opensm/osm_remote_sm.h>
 #include <opensm/osm_opensm.h>
@@ -72,16 +70,16 @@
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_pi_rcv_set_sm(IN const osm_pi_rcv_t * const p_rcv,
+__osm_pi_rcv_set_sm(IN osm_sm_t * sm,
 		    IN osm_physp_t * const p_physp)
 {
 	osm_bind_handle_t h_bind;
 	osm_dr_path_t *p_dr_path;
 
-	OSM_LOG_ENTER(p_rcv->p_log, __osm_pi_rcv_set_sm);
+	OSM_LOG_ENTER(sm->p_log, __osm_pi_rcv_set_sm);
 
-	if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG))
-		osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+	if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG))
+		osm_log(sm->p_log, OSM_LOG_DEBUG,
 			"__osm_pi_rcv_set_sm: "
 			"Setting IS_SM bit in port attributes\n");
 
@@ -93,7 +91,7 @@ __osm_pi_rcv_set_sm(IN const osm_pi_rcv_t * const p_rcv,
 	 */
 	osm_vendor_set_sm(h_bind, TRUE);
 
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sm->p_log);
 }
 
 /**********************************************************************
@@ -114,7 +112,7 @@ static void pi_rcv_check_and_fix_lid(osm_log_t *log, ib_port_info_t * const pi,
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_pi_rcv_process_endport(IN const osm_pi_rcv_t * const p_rcv,
+__osm_pi_rcv_process_endport(IN osm_sm_t * sm,
 			     IN osm_physp_t * const p_physp,
 			     IN const ib_port_info_t * const p_pi)
 {
@@ -125,7 +123,7 @@ __osm_pi_rcv_process_endport(IN const osm_pi_rcv_t * const p_rcv,
 	cl_qmap_t *p_sm_tbl;
 	osm_remote_sm_t *p_sm;
 
-	OSM_LOG_ENTER(p_rcv->p_log, __osm_pi_rcv_process_endport);
+	OSM_LOG_ENTER(sm->p_log, __osm_pi_rcv_process_endport);
 
 	port_guid = osm_physp_get_port_guid(p_physp);
 
@@ -133,25 +131,25 @@ __osm_pi_rcv_process_endport(IN const osm_pi_rcv_t * const p_rcv,
 	if (osm_physp_get_port_num(p_physp) != 0) {
 		/* track the minimal endport MTU and rate */
 		mtu = ib_port_info_get_mtu_cap(p_pi);
-		if (mtu < p_rcv->p_subn->min_ca_mtu) {
-			osm_log(p_rcv->p_log, OSM_LOG_VERBOSE,
+		if (mtu < sm->p_subn->min_ca_mtu) {
+			osm_log(sm->p_log, OSM_LOG_VERBOSE,
 				"__osm_pi_rcv_process_endport: "
 				"Setting endport minimal MTU to:%u defined by port:0x%"
 				PRIx64 "\n", mtu, cl_ntoh64(port_guid));
-			p_rcv->p_subn->min_ca_mtu = mtu;
+			sm->p_subn->min_ca_mtu = mtu;
 		}
 
 		rate = ib_port_info_compute_rate(p_pi);
-		if (rate < p_rcv->p_subn->min_ca_rate) {
-			osm_log(p_rcv->p_log, OSM_LOG_VERBOSE,
+		if (rate < sm->p_subn->min_ca_rate) {
+			osm_log(sm->p_log, OSM_LOG_VERBOSE,
 				"__osm_pi_rcv_process_endport: "
 				"Setting endport minimal rate to:%u defined by port:0x%"
 				PRIx64 "\n", rate, cl_ntoh64(port_guid));
-			p_rcv->p_subn->min_ca_rate = rate;
+			sm->p_subn->min_ca_rate = rate;
 		}
 	}
 
-	if (port_guid == p_rcv->p_subn->sm_port_guid) {
+	if (port_guid == sm->p_subn->sm_port_guid) {
 		/*
 		   We received the PortInfo for our own port.
 		 */
@@ -159,28 +157,28 @@ __osm_pi_rcv_process_endport(IN const osm_pi_rcv_t * const p_rcv,
 			/*
 			   Set the IS_SM bit to indicate our port hosts an SM.
 			 */
-			__osm_pi_rcv_set_sm(p_rcv, p_physp);
+			__osm_pi_rcv_set_sm(sm, p_physp);
 	} else {
 		/*
 		   Before querying the SM - we want to make sure we clean its state, so
 		   if the querying fails we recognize that this SM is not active.
 		 */
-		p_sm_tbl = &p_rcv->p_subn->sm_guid_tbl;
+		p_sm_tbl = &sm->p_subn->sm_guid_tbl;
 		p_sm = (osm_remote_sm_t *) cl_qmap_get(p_sm_tbl, port_guid);
 		if (p_sm != (osm_remote_sm_t *) cl_qmap_end(p_sm_tbl))
 			/* clean it up */
 			p_sm->smi.pri_state = 0xF0 & p_sm->smi.pri_state;
 
 		if (p_pi->capability_mask & IB_PORT_CAP_IS_SM) {
-			if (p_rcv->p_subn->opt.ignore_other_sm)
-				osm_log(p_rcv->p_log, OSM_LOG_VERBOSE,
+			if (sm->p_subn->opt.ignore_other_sm)
+				osm_log(sm->p_log, OSM_LOG_VERBOSE,
 					"__osm_pi_rcv_process_endport: "
 					"Ignoring SM on port 0x%" PRIx64 "\n",
 					cl_ntoh64(port_guid));
 			else {
 				if (osm_log_is_active
-				    (p_rcv->p_log, OSM_LOG_VERBOSE))
-					osm_log(p_rcv->p_log, OSM_LOG_VERBOSE,
+				    (sm->p_log, OSM_LOG_VERBOSE))
+					osm_log(sm->p_log, OSM_LOG_VERBOSE,
 						"__osm_pi_rcv_process_endport: "
 						"Detected another SM. Requesting SMInfo"
 						"\n\t\t\t\tPort 0x%" PRIx64
@@ -193,7 +191,7 @@ __osm_pi_rcv_process_endport(IN const osm_pi_rcv_t * const p_rcv,
 				memset(&context, 0, sizeof(context));
 				context.smi_context.set_method = FALSE;
 				context.smi_context.port_guid = port_guid;
-				status = osm_req_get(p_rcv->p_req,
+				status = osm_req_get(&sm->req,
 						     osm_physp_get_dr_path_ptr
 						     (p_physp),
 						     IB_MAD_ATTR_SM_INFO, 0,
@@ -201,7 +199,7 @@ __osm_pi_rcv_process_endport(IN const osm_pi_rcv_t * const p_rcv,
 						     &context);
 
 				if (status != IB_SUCCESS)
-					osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+					osm_log(sm->p_log, OSM_LOG_ERROR,
 						"__osm_pi_rcv_process_endport: ERR 0F05: "
 						"Failure requesting SMInfo (%s)\n",
 						ib_get_err_str(status));
@@ -209,14 +207,14 @@ __osm_pi_rcv_process_endport(IN const osm_pi_rcv_t * const p_rcv,
 		}
 	}
 
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sm->p_log);
 }
 
 /**********************************************************************
  The plock must be held before calling this function.
 **********************************************************************/
 static void
-__osm_pi_rcv_process_switch_port(IN const osm_pi_rcv_t * const p_rcv,
+__osm_pi_rcv_process_switch_port(IN osm_sm_t * sm,
 				 IN osm_node_t * const p_node,
 				 IN osm_physp_t * const p_physp,
 				 IN ib_port_info_t * const p_pi)
@@ -229,7 +227,7 @@ __osm_pi_rcv_process_switch_port(IN const osm_pi_rcv_t * const p_rcv,
 	uint8_t remote_port_num;
 	osm_dr_path_t path;
 
-	OSM_LOG_ENTER(p_rcv->p_log, __osm_pi_rcv_process_switch_port);
+	OSM_LOG_ENTER(sm->p_log, __osm_pi_rcv_process_switch_port);
 
 	/*
 	   Check the state of the physical port.
@@ -240,7 +238,7 @@ __osm_pi_rcv_process_switch_port(IN const osm_pi_rcv_t * const p_rcv,
 	/* if in_sweep_hop_0 is TRUE, then this means the SM is on the switch,
 	   and we got switchInfo of our local switch. Do not continue
 	   probing through the switch. */
-	if (port_num != 0 && p_rcv->p_subn->in_sweep_hop_0 == FALSE) {
+	if (port_num != 0 && sm->p_subn->in_sweep_hop_0 == FALSE) {
 		switch (ib_port_info_get_port_state(p_pi)) {
 		case IB_LINK_DOWN:
 			p_remote_physp = osm_physp_get_remote(p_physp);
@@ -251,7 +249,7 @@ __osm_pi_rcv_process_switch_port(IN const osm_pi_rcv_t * const p_rcv,
 				remote_port_num =
 				    osm_physp_get_port_num(p_remote_physp);
 
-				osm_log(p_rcv->p_log, OSM_LOG_VERBOSE,
+				osm_log(sm->p_log, OSM_LOG_VERBOSE,
 					"__osm_pi_rcv_process_switch_port: "
 					"Unlinking local node 0x%" PRIx64
 					", port 0x%X"
@@ -297,7 +295,7 @@ __osm_pi_rcv_process_switch_port(IN const osm_pi_rcv_t * const p_rcv,
 				context.ni_context.port_num =
 				    osm_physp_get_port_num(p_physp);
 
-				status = osm_req_get(p_rcv->p_req,
+				status = osm_req_get(&sm->req,
 						     &path,
 						     IB_MAD_ATTR_NODE_INFO,
 						     0,
@@ -305,20 +303,20 @@ __osm_pi_rcv_process_switch_port(IN const osm_pi_rcv_t * const p_rcv,
 						     &context);
 
 				if (status != IB_SUCCESS)
-					osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+					osm_log(sm->p_log, OSM_LOG_ERROR,
 						"__osm_pi_rcv_process_switch_port: ERR 0F02: "
 						"Failure initiating NodeInfo request (%s)\n",
 						ib_get_err_str(status));
 			} else
-			    if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG))
-				osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+			    if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG))
+				osm_log(sm->p_log, OSM_LOG_DEBUG,
 					"__osm_pi_rcv_process_switch_port: "
 					"Skipping SMP responder port 0x%X\n",
 					p_pi->local_port_num);
 			break;
 
 		default:
-			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+			osm_log(sm->p_log, OSM_LOG_ERROR,
 				"__osm_pi_rcv_process_switch_port: ERR 0F03: "
 				"Unknown link state = %u, port = 0x%X\n",
 				ib_port_info_get_port_state(p_pi),
@@ -331,7 +329,7 @@ __osm_pi_rcv_process_switch_port(IN const osm_pi_rcv_t * const p_rcv,
 		p_node->sw->need_update = 0;
 
 	if (port_num == 0)
-		pi_rcv_check_and_fix_lid(p_rcv->p_log, p_pi, p_physp);
+		pi_rcv_check_and_fix_lid(sm->p_log, p_pi, p_physp);
 
 	/*
 	   Update the PortInfo attribute.
@@ -344,31 +342,31 @@ __osm_pi_rcv_process_switch_port(IN const osm_pi_rcv_t * const p_rcv,
 		    !ib_switch_info_is_enhanced_port0(&p_node->sw->switch_info))
 			/* PortState is not used on BSP0 but just in case it is DOWN */
 			p_physp->port_info = *p_pi;
-		__osm_pi_rcv_process_endport(p_rcv, p_physp, p_pi);
+		__osm_pi_rcv_process_endport(sm, p_physp, p_pi);
 	}
 
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sm->p_log);
 }
 
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_pi_rcv_process_ca_or_router_port(IN const osm_pi_rcv_t * const p_rcv,
+__osm_pi_rcv_process_ca_or_router_port(IN osm_sm_t * sm,
 				       IN osm_node_t * const p_node,
 				       IN osm_physp_t * const p_physp,
 				       IN ib_port_info_t * const p_pi)
 {
-	OSM_LOG_ENTER(p_rcv->p_log, __osm_pi_rcv_process_ca_or_router_port);
+	OSM_LOG_ENTER(sm->p_log, __osm_pi_rcv_process_ca_or_router_port);
 
 	UNUSED_PARAM(p_node);
 
-	pi_rcv_check_and_fix_lid(p_rcv->p_log, p_pi, p_physp);
+	pi_rcv_check_and_fix_lid(sm->p_log, p_pi, p_physp);
 
 	osm_physp_set_port_info(p_physp, p_pi);
 
-	__osm_pi_rcv_process_endport(p_rcv, p_physp, p_pi);
+	__osm_pi_rcv_process_endport(sm, p_physp, p_pi);
 
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sm->p_log);
 }
 
 #define IBM_VENDOR_ID  (0x5076)
@@ -450,62 +448,21 @@ static void get_pkey_table(IN osm_log_t * p_log,
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_pi_rcv_get_pkey_slvl_vla_tables(IN const osm_pi_rcv_t * const p_rcv,
+__osm_pi_rcv_get_pkey_slvl_vla_tables(IN osm_sm_t * sm,
 				      IN osm_node_t * const p_node,
 				      IN osm_physp_t * const p_physp)
 {
-	OSM_LOG_ENTER(p_rcv->p_log, __osm_pi_rcv_get_pkey_slvl_vla_tables);
+	OSM_LOG_ENTER(sm->p_log, __osm_pi_rcv_get_pkey_slvl_vla_tables);
 
-	get_pkey_table(p_rcv->p_log, p_rcv->p_req, p_rcv->p_subn,
-		       p_node, p_physp);
+	get_pkey_table(sm->p_log, &sm->req, sm->p_subn, p_node, p_physp);
 
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sm->p_log);
 }
 
 /**********************************************************************
  **********************************************************************/
-void osm_pi_rcv_construct(IN osm_pi_rcv_t * const p_rcv)
-{
-	memset(p_rcv, 0, sizeof(*p_rcv));
-}
-
-/**********************************************************************
- **********************************************************************/
-void osm_pi_rcv_destroy(IN osm_pi_rcv_t * const p_rcv)
-{
-	OSM_LOG_ENTER(p_rcv->p_log, osm_pi_rcv_destroy);
-
-	CL_ASSERT(p_rcv);
-	OSM_LOG_EXIT(p_rcv->p_log);
-}
-
-/**********************************************************************
- **********************************************************************/
-ib_api_status_t
-osm_pi_rcv_init(IN osm_pi_rcv_t * const p_rcv,
-		IN osm_req_t * const p_req,
-		IN osm_subn_t * const p_subn,
-		IN osm_log_t * const p_log, IN cl_plock_t * const p_lock)
-{
-	ib_api_status_t status = IB_SUCCESS;
-	OSM_LOG_ENTER(p_log, osm_pi_rcv_init);
-
-	osm_pi_rcv_construct(p_rcv);
-
-	p_rcv->p_log = p_log;
-	p_rcv->p_subn = p_subn;
-	p_rcv->p_lock = p_lock;
-	p_rcv->p_req = p_req;
-
-	OSM_LOG_EXIT(p_log);
-	return (status);
-}
-
-/**********************************************************************
- **********************************************************************/
-void
-osm_pi_rcv_process_set(IN const osm_pi_rcv_t * const p_rcv,
-		       IN osm_node_t * const p_node,
+static void
+osm_pi_rcv_process_set(IN osm_sm_t * sm, IN osm_node_t * const p_node,
 		       IN const uint8_t port_num, IN osm_madw_t * const p_madw)
 {
 	osm_physp_t *p_physp;
@@ -515,7 +472,7 @@ osm_pi_rcv_process_set(IN const osm_pi_rcv_t * const p_rcv,
 	osm_pi_context_t *p_context;
 	osm_log_level_t level;
 
-	OSM_LOG_ENTER(p_rcv->p_log, osm_pi_rcv_process_set);
+	OSM_LOG_ENTER(sm->p_log, osm_pi_rcv_process_set);
 
 	p_context = osm_madw_get_pi_context_ptr(p_madw);
 
@@ -535,24 +492,24 @@ osm_pi_rcv_process_set(IN const osm_pi_rcv_t * const p_rcv,
 		if (p_context->active_transition &&
 		    (cl_ntoh16(p_smp->status) & 0x7fff) == 0x1c) {
 			level = OSM_LOG_INFO;
-			osm_log(p_rcv->p_log, OSM_LOG_INFO,
+			osm_log(sm->p_log, OSM_LOG_INFO,
 				"osm_pi_rcv_process_set: "
 				"Received error status 0x%x for SetResp() during ACTIVE transition\n",
 				cl_ntoh16(p_smp->status) & 0x7fff);
 			/* Should there be a subsequent Get to validate that port is ACTIVE ? */
 		} else {
 			level = OSM_LOG_ERROR;
-			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+			osm_log(sm->p_log, OSM_LOG_ERROR,
 				"osm_pi_rcv_process_set: ERR 0F10: "
 				"Received error status for SetResp()\n");
 		}
-		osm_dump_port_info(p_rcv->p_log,
+		osm_dump_port_info(sm->p_log,
 				   osm_node_get_node_guid(p_node),
 				   port_guid, port_num, p_pi, level);
 	}
 
-	if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG))
-		osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+	if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG))
+		osm_log(sm->p_log, OSM_LOG_DEBUG,
 			"osm_pi_rcv_process_set: "
 			"Received logical SetResp() for GUID 0x%" PRIx64
 			", port num 0x%X"
@@ -565,14 +522,14 @@ osm_pi_rcv_process_set(IN const osm_pi_rcv_t * const p_rcv,
 
 	osm_physp_set_port_info(p_physp, p_pi);
 
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sm->p_log);
 }
 
 /**********************************************************************
  **********************************************************************/
 void osm_pi_rcv_process(IN void *context, IN void *data)
 {
-	osm_pi_rcv_t *p_rcv = context;
+	osm_sm_t *sm = context;
 	osm_madw_t *p_madw = data;
 	ib_port_info_t *p_pi;
 	ib_smp_t *p_smp;
@@ -585,9 +542,9 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 	ib_net64_t node_guid;
 	uint8_t port_num;
 
-	OSM_LOG_ENTER(p_rcv->p_log, osm_pi_rcv_process);
+	OSM_LOG_ENTER(sm->p_log, osm_pi_rcv_process);
 
-	CL_ASSERT(p_rcv);
+	CL_ASSERT(sm);
 	CL_ASSERT(p_madw);
 
 	p_smp = osm_madw_get_smp_ptr(p_madw);
@@ -601,13 +558,13 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 	port_guid = p_context->port_guid;
 	node_guid = p_context->node_guid;
 
-	osm_dump_port_info(p_rcv->p_log,
+	osm_dump_port_info(sm->p_log,
 			   node_guid, port_guid, port_num, p_pi, OSM_LOG_DEBUG);
 
 	/* On receipt of client reregister, clear the reregister bit so
 	   reregistering won't be sent again and again */
 	if (ib_port_info_get_client_rereg(p_pi)) {
-		osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+		osm_log(sm->p_log, OSM_LOG_DEBUG,
 			"osm_pi_rcv_process: "
 			"Client reregister received on response\n");
 		ib_port_info_set_client_rereg(p_pi, 0);
@@ -620,22 +577,22 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 	   do anything with the response - just flag that we need a heavy sweep
 	 */
 	if (p_context->light_sweep == TRUE) {
-		osm_log(p_rcv->p_log, OSM_LOG_VERBOSE,
+		osm_log(sm->p_log, OSM_LOG_VERBOSE,
 			"osm_pi_rcv_process: "
 			"Got light sweep response from remote port of parent node "
 			"GUID 0x%" PRIx64 " port 0x%016" PRIx64
 			", Commencing heavy sweep\n",
 			cl_ntoh64(node_guid), cl_ntoh64(port_guid));
-		osm_sm_signal(&p_rcv->p_subn->p_osm->sm,
+		osm_sm_signal(&sm->p_subn->p_osm->sm,
 			      OSM_SIGNAL_CHANGE_DETECTED);
 		goto Exit;
 	}
 
-	CL_PLOCK_EXCL_ACQUIRE(p_rcv->p_lock);
-	p_port = osm_get_port_by_guid(p_rcv->p_subn, port_guid);
+	CL_PLOCK_EXCL_ACQUIRE(sm->p_lock);
+	p_port = osm_get_port_by_guid(sm->p_subn, port_guid);
 	if (!p_port) {
-		CL_PLOCK_RELEASE(p_rcv->p_lock);
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		CL_PLOCK_RELEASE(sm->p_lock);
+		osm_log(sm->p_log, OSM_LOG_ERROR,
 			"osm_pi_rcv_process: ERR 0F06: "
 			"No port object for port with GUID 0x%" PRIx64
 			"\n\t\t\t\tfor parent node GUID 0x%" PRIx64
@@ -660,7 +617,7 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 	   boolean around to determine if we were doing Get() or Set().
 	 */
 	if (p_context->set_method)
-		osm_pi_rcv_process_set(p_rcv, p_node, port_num, p_madw);
+		osm_pi_rcv_process_set(sm, p_node, port_num, p_madw);
 	else {
 		p_port->discovery_count++;
 
@@ -668,8 +625,8 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 		   This PortInfo arrived because we did a Get() method,
 		   most likely due to a subnet sweep in progress.
 		 */
-		if (osm_log_is_active(p_rcv->p_log, OSM_LOG_VERBOSE))
-			osm_log(p_rcv->p_log, OSM_LOG_VERBOSE,
+		if (osm_log_is_active(sm->p_log, OSM_LOG_VERBOSE))
+			osm_log(sm->p_log, OSM_LOG_VERBOSE,
 				"osm_pi_rcv_process: "
 				"Discovered port num 0x%X with GUID 0x%" PRIx64
 				" for parent node GUID 0x%" PRIx64
@@ -687,8 +644,8 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 		   continue processing as normal.
 		 */
 		if (!osm_physp_is_valid(p_physp)) {
-			if (osm_log_is_active(p_rcv->p_log, OSM_LOG_VERBOSE))
-				osm_log(p_rcv->p_log, OSM_LOG_VERBOSE,
+			if (osm_log_is_active(sm->p_log, OSM_LOG_VERBOSE))
+				osm_log(sm->p_log, OSM_LOG_VERBOSE,
 					"osm_pi_rcv_process: "
 					"Initializing port number 0x%X\n",
 					port_num);
@@ -718,13 +675,13 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 		   in the subnet.
 		 */
 		if (p_context->update_master_sm_base_lid == TRUE) {
-			osm_log(p_rcv->p_log, OSM_LOG_VERBOSE,
+			osm_log(sm->p_log, OSM_LOG_VERBOSE,
 				"osm_pi_rcv_process: "
 				"update_master_sm is TRUE. "
 				"Updating master_sm_base_lid to:%u\n",
 				p_pi->master_sm_base_lid);
 
-			p_rcv->p_subn->master_sm_base_lid =
+			sm->p_subn->master_sm_base_lid =
 			    p_pi->master_sm_base_lid;
 		}
 
@@ -737,16 +694,16 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 		switch (osm_node_get_type(p_node)) {
 		case IB_NODE_TYPE_CA:
 		case IB_NODE_TYPE_ROUTER:
-			__osm_pi_rcv_process_ca_or_router_port(p_rcv,
+			__osm_pi_rcv_process_ca_or_router_port(sm,
 							       p_node, p_physp,
 							       p_pi);
 			break;
 		case IB_NODE_TYPE_SWITCH:
-			__osm_pi_rcv_process_switch_port(p_rcv,
+			__osm_pi_rcv_process_switch_port(sm,
 							 p_node, p_physp, p_pi);
 			break;
 		default:
-			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+			osm_log(sm->p_log, OSM_LOG_ERROR,
 				"osm_pi_rcv_process: ERR 0F07: "
 				"Unknown node type %u with GUID 0x%" PRIx64
 				"\n", osm_node_get_type(p_node),
@@ -757,17 +714,17 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 		/*
 		   Get the tables on the physp.
 		 */
-		if (p_physp->need_update || p_rcv->p_subn->need_update)
-			__osm_pi_rcv_get_pkey_slvl_vla_tables(p_rcv, p_node,
+		if (p_physp->need_update || sm->p_subn->need_update)
+			__osm_pi_rcv_get_pkey_slvl_vla_tables(sm, p_node,
 							      p_physp);
 
 	}
 
-	CL_PLOCK_RELEASE(p_rcv->p_lock);
+	CL_PLOCK_RELEASE(sm->p_lock);
 
       Exit:
 	/*
 	   Release the lock before jumping here!!
 	 */
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sm->p_log);
 }

@@ -55,7 +55,6 @@
 #include <complib/cl_qmap.h>
 #include <complib/cl_passivelock.h>
 #include <complib/cl_debug.h>
-#include <opensm/osm_sminfo_rcv.h>
 #include <opensm/osm_madw.h>
 #include <opensm/osm_log.h>
 #include <opensm/osm_node.h>
@@ -65,73 +64,27 @@
 #include <opensm/osm_opensm.h>
 
 /**********************************************************************
- **********************************************************************/
-void osm_sminfo_rcv_construct(IN osm_sminfo_rcv_t * const p_rcv)
-{
-	memset(p_rcv, 0, sizeof(*p_rcv));
-}
-
-/**********************************************************************
- **********************************************************************/
-void osm_sminfo_rcv_destroy(IN osm_sminfo_rcv_t * const p_rcv)
-{
-	CL_ASSERT(p_rcv);
-
-	OSM_LOG_ENTER(p_rcv->p_log, osm_sminfo_rcv_destroy);
-
-	OSM_LOG_EXIT(p_rcv->p_log);
-}
-
-/**********************************************************************
- **********************************************************************/
-ib_api_status_t
-osm_sminfo_rcv_init(IN osm_sminfo_rcv_t * const p_rcv,
-		    IN osm_subn_t * const p_subn,
-		    IN osm_stats_t * const p_stats,
-		    IN osm_resp_t * const p_resp,
-		    IN osm_log_t * const p_log,
-		    IN osm_sm_state_mgr_t * const p_sm_state_mgr,
-		    IN cl_plock_t * const p_lock)
-{
-	ib_api_status_t status = IB_SUCCESS;
-
-	OSM_LOG_ENTER(p_log, osm_sminfo_rcv_init);
-
-	osm_sminfo_rcv_construct(p_rcv);
-
-	p_rcv->p_log = p_log;
-	p_rcv->p_subn = p_subn;
-	p_rcv->p_lock = p_lock;
-	p_rcv->p_stats = p_stats;
-	p_rcv->p_resp = p_resp;
-	p_rcv->p_sm_state_mgr = p_sm_state_mgr;
-
-	OSM_LOG_EXIT(p_rcv->p_log);
-	return (status);
-}
-
-/**********************************************************************
  Return TRUE if the remote sm given (by ib_sm_info_t) is higher,
  return FALSE otherwise.
  By higher - we mean: SM with higher priority or with same priority
  and lower GUID.
 **********************************************************************/
 static inline boolean_t
-__osm_sminfo_rcv_remote_sm_is_higher(IN const osm_sminfo_rcv_t * p_rcv,
+__osm_sminfo_rcv_remote_sm_is_higher(IN osm_sm_t * sm,
 				     IN const ib_sm_info_t * p_remote_sm)
 {
 
 	return (osm_sm_is_greater_than(ib_sminfo_get_priority(p_remote_sm),
 				       p_remote_sm->guid,
-				       p_rcv->p_subn->opt.sm_priority,
-				       p_rcv->p_subn->sm_port_guid));
+				       sm->p_subn->opt.sm_priority,
+				       sm->p_subn->sm_port_guid));
 
 }
 
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_sminfo_rcv_process_get_request(IN const osm_sminfo_rcv_t * const p_rcv,
+__osm_sminfo_rcv_process_get_request(IN osm_sm_t * sm,
 				     IN const osm_madw_t * const p_madw)
 {
 	uint8_t payload[IB_SMP_DATA_SIZE];
@@ -140,7 +93,7 @@ __osm_sminfo_rcv_process_get_request(IN const osm_sminfo_rcv_t * const p_rcv,
 	ib_api_status_t status;
 	ib_sm_info_t *p_remote_smi;
 
-	OSM_LOG_ENTER(p_rcv->p_log, __osm_sminfo_rcv_process_get_request);
+	OSM_LOG_ENTER(sm->p_log, __osm_sminfo_rcv_process_get_request);
 
 	CL_ASSERT(p_madw);
 
@@ -153,31 +106,31 @@ __osm_sminfo_rcv_process_get_request(IN const osm_sminfo_rcv_t * const p_rcv,
 
 	CL_ASSERT(p_smp->method == IB_MAD_METHOD_GET);
 
-	p_smi->guid = p_rcv->p_subn->sm_port_guid;
-	p_smi->act_count = cl_hton32(p_rcv->p_stats->qp0_mads_sent);
-	p_smi->pri_state = (uint8_t) (p_rcv->p_subn->sm_state |
-				      p_rcv->p_subn->opt.sm_priority << 4);
+	p_smi->guid = sm->p_subn->sm_port_guid;
+	p_smi->act_count = cl_hton32(sm->p_subn->p_osm->stats.qp0_mads_sent);
+	p_smi->pri_state = (uint8_t) (sm->p_subn->sm_state |
+				      sm->p_subn->opt.sm_priority << 4);
 	/*
 	   p.840 line 20 - Return 0 for the SM key unless we authenticate the
 	   requester as the master SM.
 	 */
 	p_remote_smi = ib_smp_get_payload_ptr(osm_madw_get_smp_ptr(p_madw));
 	if (ib_sminfo_get_state(p_remote_smi) == IB_SMINFO_STATE_MASTER) {
-		osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+		osm_log(sm->p_log, OSM_LOG_DEBUG,
 			"__osm_sminfo_rcv_process_get_request: "
 			"Responding to master SM with real sm_key\n");
-		p_smi->sm_key = p_rcv->p_subn->opt.sm_key;
+		p_smi->sm_key = sm->p_subn->opt.sm_key;
 	} else {
 		/* The requester is not authenticated as master - set sm_key to zero. */
-		osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+		osm_log(sm->p_log, OSM_LOG_DEBUG,
 			"__osm_sminfo_rcv_process_get_request: "
 			"Responding to SM not master with zero sm_key\n");
 		p_smi->sm_key = 0;
 	}
 
-	status = osm_resp_send(p_rcv->p_resp, p_madw, 0, payload);
+	status = osm_resp_send(&sm->resp, p_madw, 0, payload);
 	if (status != IB_SUCCESS) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sm->p_log, OSM_LOG_ERROR,
 			"__osm_sminfo_rcv_process_get_request: ERR 2F02: "
 			"Error sending response (%s)\n",
 			ib_get_err_str(status));
@@ -185,7 +138,7 @@ __osm_sminfo_rcv_process_get_request(IN const osm_sminfo_rcv_t * const p_rcv,
 	}
 
       Exit:
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sm->p_log);
 }
 
 /**********************************************************************
@@ -222,18 +175,18 @@ __osm_sminfo_rcv_check_set_req_legality(IN const ib_smp_t * const p_smp)
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_sminfo_rcv_process_set_request(IN const osm_sminfo_rcv_t * const p_rcv,
+__osm_sminfo_rcv_process_set_request(IN osm_sm_t * sm,
 				     IN const osm_madw_t * const p_madw)
 {
 	uint8_t payload[IB_SMP_DATA_SIZE];
 	ib_smp_t *p_smp;
 	ib_sm_info_t *p_smi = (ib_sm_info_t *) payload;
-	ib_sm_info_t *p_rcv_smi;
+	ib_sm_info_t *sm_smi;
 	ib_api_status_t status;
 	osm_sm_signal_t sm_signal;
 	ib_sm_info_t *p_remote_smi;
 
-	OSM_LOG_ENTER(p_rcv->p_log, __osm_sminfo_rcv_process_set_request);
+	OSM_LOG_ENTER(sm->p_log, __osm_sminfo_rcv_process_set_request);
 
 	CL_ASSERT(p_madw);
 
@@ -243,36 +196,36 @@ __osm_sminfo_rcv_process_set_request(IN const osm_sminfo_rcv_t * const p_rcv,
 	memset(payload, 0, sizeof(payload));
 
 	/* get the lock */
-	CL_PLOCK_EXCL_ACQUIRE(p_rcv->p_lock);
+	CL_PLOCK_EXCL_ACQUIRE(sm->p_lock);
 
 	p_smp = osm_madw_get_smp_ptr(p_madw);
-	p_rcv_smi = ib_smp_get_payload_ptr(p_smp);
+	sm_smi = ib_smp_get_payload_ptr(p_smp);
 
 	if (p_smp->method != IB_MAD_METHOD_SET) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sm->p_log, OSM_LOG_ERROR,
 			"__osm_sminfo_rcv_process_set_request: ERR 2F03: "
 			"Unsupported method 0x%X\n", p_smp->method);
-		CL_PLOCK_RELEASE(p_rcv->p_lock);
+		CL_PLOCK_RELEASE(sm->p_lock);
 		goto Exit;
 	}
 
-	p_smi->guid = p_rcv->p_subn->sm_port_guid;
-	p_smi->act_count = cl_hton32(p_rcv->p_stats->qp0_mads_sent);
-	p_smi->pri_state = (uint8_t) (p_rcv->p_subn->sm_state |
-				      p_rcv->p_subn->opt.sm_priority << 4);
+	p_smi->guid = sm->p_subn->sm_port_guid;
+	p_smi->act_count = cl_hton32(sm->p_subn->p_osm->stats.qp0_mads_sent);
+	p_smi->pri_state = (uint8_t) (sm->p_subn->sm_state |
+				      sm->p_subn->opt.sm_priority << 4);
 	/*
 	   p.840 line 20 - Return 0 for the SM key unless we authenticate the
 	   requester as the master SM.
 	 */
 	p_remote_smi = ib_smp_get_payload_ptr(osm_madw_get_smp_ptr(p_madw));
 	if (ib_sminfo_get_state(p_remote_smi) == IB_SMINFO_STATE_MASTER) {
-		osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+		osm_log(sm->p_log, OSM_LOG_DEBUG,
 			"__osm_sminfo_rcv_process_set_request: "
 			"Responding to master SM with real sm_key\n");
-		p_smi->sm_key = p_rcv->p_subn->opt.sm_key;
+		p_smi->sm_key = sm->p_subn->opt.sm_key;
 	} else {
 		/* The requester is not authenticated as master - set sm_key to zero. */
-		osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+		osm_log(sm->p_log, OSM_LOG_DEBUG,
 			"__osm_sminfo_rcv_process_set_request: "
 			"Responding to SM not master with zero sm_key\n");
 		p_smi->sm_key = 0;
@@ -281,20 +234,20 @@ __osm_sminfo_rcv_process_set_request(IN const osm_sminfo_rcv_t * const p_rcv,
 	/* Check the legality of the packet */
 	status = __osm_sminfo_rcv_check_set_req_legality(p_smp);
 	if (status != IB_SUCCESS) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sm->p_log, OSM_LOG_ERROR,
 			"__osm_sminfo_rcv_process_set_request: ERR 2F04: "
 			"Check legality failed. AttributeModifier:0x%X RemoteState:%s\n",
 			p_smp->attr_mod,
 			osm_get_sm_mgr_state_str(ib_sminfo_get_state
-						 (p_rcv_smi)));
+						 (sm_smi)));
 		/* send a response with error code */
-		status = osm_resp_send(p_rcv->p_resp, p_madw, 7, payload);
+		status = osm_resp_send(&sm->resp, p_madw, 7, payload);
 		if (status != IB_SUCCESS)
-			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+			osm_log(sm->p_log, OSM_LOG_ERROR,
 				"__osm_sminfo_rcv_process_set_request: ERR 2F05: "
 				"Error sending response (%s)\n",
 				ib_get_err_str(status));
-		CL_PLOCK_RELEASE(p_rcv->p_lock);
+		CL_PLOCK_RELEASE(sm->p_lock);
 		goto Exit;
 	}
 
@@ -320,38 +273,38 @@ __osm_sminfo_rcv_process_set_request(IN const osm_sminfo_rcv_t * const p_rcv,
 		   This code shouldn't be reached - checked in the
 		   check legality
 		 */
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sm->p_log, OSM_LOG_ERROR,
 			"__osm_sminfo_rcv_process_set_request: ERR 2F06: "
 			"THIS CODE SHOULD NOT BE REACHED!!\n");
-		CL_PLOCK_RELEASE(p_rcv->p_lock);
+		CL_PLOCK_RELEASE(sm->p_lock);
 		goto Exit;
 	}
 
 	/* check legality of the needed transition in the SM state machine */
-	status = osm_sm_state_mgr_check_legality(p_rcv->p_sm_state_mgr,
+	status = osm_sm_state_mgr_check_legality(&sm->sm_state_mgr,
 						 sm_signal);
 	if (status != IB_SUCCESS) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sm->p_log, OSM_LOG_ERROR,
 			"__osm_sminfo_rcv_process_set_request: ERR 2F07: "
 			"Failed check of legality of needed SM transition. AttributeModifier:0x%X RemoteState:%s\n",
 			p_smp->attr_mod,
 			osm_get_sm_mgr_state_str(ib_sminfo_get_state
-						 (p_rcv_smi)));
+						 (sm_smi)));
 		/* send a response with error code */
-		status = osm_resp_send(p_rcv->p_resp, p_madw, 7, payload);
+		status = osm_resp_send(&sm->resp, p_madw, 7, payload);
 		if (status != IB_SUCCESS)
-			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+			osm_log(sm->p_log, OSM_LOG_ERROR,
 				"__osm_sminfo_rcv_process_set_request: ERR 2F08: "
 				"Error sending response (%s)\n",
 				ib_get_err_str(status));
-		CL_PLOCK_RELEASE(p_rcv->p_lock);
+		CL_PLOCK_RELEASE(sm->p_lock);
 		goto Exit;
 	}
 
 	/* the SubnSet(SMInfo) command is ok. Send a response. */
-	status = osm_resp_send(p_rcv->p_resp, p_madw, 0, payload);
+	status = osm_resp_send(&sm->resp, p_madw, 0, payload);
 	if (status != IB_SUCCESS)
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sm->p_log, OSM_LOG_ERROR,
 			"__osm_sminfo_rcv_process_set_request: ERR 2F09: "
 			"Error sending response (%s)\n",
 			ib_get_err_str(status));
@@ -362,26 +315,26 @@ __osm_sminfo_rcv_process_set_request(IN const osm_sminfo_rcv_t * const p_rcv,
 	/* p_sm_state_mgr in the master_guid variable - the guid of the */
 	/* current master. */
 	if (p_smp->attr_mod == IB_SMINFO_ATTR_MOD_STANDBY) {
-		osm_log(p_rcv->p_log, OSM_LOG_VERBOSE,
+		osm_log(sm->p_log, OSM_LOG_VERBOSE,
 			"__osm_sminfo_rcv_process_set_request: "
 			"Received a STANDBY signal. Updating "
 			"sm_state_mgr master_guid: 0x%016" PRIx64 "\n",
-			cl_ntoh64(p_rcv_smi->guid));
-		p_rcv->p_sm_state_mgr->master_guid = p_rcv_smi->guid;
+			cl_ntoh64(sm_smi->guid));
+		sm->sm_state_mgr.master_guid = sm_smi->guid;
 	}
 
 	/* call osm_sm_state_mgr_process with the received signal. */
-	CL_PLOCK_RELEASE(p_rcv->p_lock);
-	status = osm_sm_state_mgr_process(p_rcv->p_sm_state_mgr, sm_signal);
+	CL_PLOCK_RELEASE(sm->p_lock);
+	status = osm_sm_state_mgr_process(&sm->sm_state_mgr, sm_signal);
 
 	if (status != IB_SUCCESS)
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sm->p_log, OSM_LOG_ERROR,
 			"__osm_sminfo_rcv_process_set_request: ERR 2F10: "
 			"Error in SM state transition (%s)\n",
 			ib_get_err_str(status));
 
       Exit:
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sm->p_log);
 }
 
 /**********************************************************************
@@ -389,18 +342,18 @@ __osm_sminfo_rcv_process_set_request(IN const osm_sminfo_rcv_t * const p_rcv,
  * If return OSM_SIGNAL_NONE - do not call osm_sm_signal.
  **********************************************************************/
 static osm_signal_t
-__osm_sminfo_rcv_process_get_sm(IN const osm_sminfo_rcv_t * const p_rcv,
+__osm_sminfo_rcv_process_get_sm(IN osm_sm_t * sm,
 				IN const osm_remote_sm_t * const p_sm)
 {
 	const ib_sm_info_t *p_smi;
 	osm_signal_t ret_val = OSM_SIGNAL_NONE;
 
-	OSM_LOG_ENTER(p_rcv->p_log, __osm_sminfo_rcv_process_get_sm);
+	OSM_LOG_ENTER(sm->p_log, __osm_sminfo_rcv_process_get_sm);
 
 	p_smi = &p_sm->smi;
 
-	if (osm_log_is_active(p_rcv->p_log, OSM_LOG_VERBOSE))
-		osm_log(p_rcv->p_log, OSM_LOG_VERBOSE,
+	if (osm_log_is_active(sm->p_log, OSM_LOG_VERBOSE))
+		osm_log(sm->p_log, OSM_LOG_VERBOSE,
 			"__osm_sminfo_rcv_process_get_sm: "
 			"Detected SM 0x%016" PRIx64 " in state %u\n",
 			cl_ntoh64(p_smi->guid), ib_sminfo_get_state(p_smi));
@@ -408,7 +361,7 @@ __osm_sminfo_rcv_process_get_sm(IN const osm_sminfo_rcv_t * const p_rcv,
 	/*
 	   Check the state of this SM vs. our own.
 	 */
-	switch (p_rcv->p_subn->sm_state) {
+	switch (sm->p_subn->sm_state) {
 	case IB_SMINFO_STATE_NOTACTIVE:
 		break;
 
@@ -419,27 +372,27 @@ __osm_sminfo_rcv_process_get_sm(IN const osm_sminfo_rcv_t * const p_rcv,
 		case IB_SMINFO_STATE_MASTER:
 			ret_val = OSM_SIGNAL_MASTER_OR_HIGHER_SM_DETECTED;
 			/* save on the p_sm_state_mgr the guid of the current master. */
-			osm_log(p_rcv->p_log, OSM_LOG_VERBOSE,
+			osm_log(sm->p_log, OSM_LOG_VERBOSE,
 				"__osm_sminfo_rcv_process_get_sm: "
 				"Found master SM. Updating sm_state_mgr master_guid: 0x%016"
 				PRIx64 "\n", cl_ntoh64(p_sm->p_port->guid));
-			p_rcv->p_sm_state_mgr->master_guid = p_sm->p_port->guid;
+			sm->sm_state_mgr.master_guid = p_sm->p_port->guid;
 			break;
 		case IB_SMINFO_STATE_DISCOVERING:
 		case IB_SMINFO_STATE_STANDBY:
-			if (__osm_sminfo_rcv_remote_sm_is_higher(p_rcv, p_smi)
+			if (__osm_sminfo_rcv_remote_sm_is_higher(sm, p_smi)
 			    == TRUE) {
 				/* the remote is a higher sm - need to stop sweeping */
 				ret_val =
 				    OSM_SIGNAL_MASTER_OR_HIGHER_SM_DETECTED;
-				/* save on the p_sm_state_mgr the guid of the higher SM we found - */
+				/* save on the sm_state_mgr the guid of the higher SM we found - */
 				/* we will poll it - as long as it lives - we should be in Standby. */
-				osm_log(p_rcv->p_log, OSM_LOG_VERBOSE,
+				osm_log(sm->p_log, OSM_LOG_VERBOSE,
 					"__osm_sminfo_rcv_process_get_sm: "
 					"Found higher SM. Updating sm_state_mgr master_guid:"
 					" 0x%016" PRIx64 "\n",
 					cl_ntoh64(p_sm->p_port->guid));
-				p_rcv->p_sm_state_mgr->master_guid =
+				sm->sm_state_mgr.master_guid =
 				    p_sm->p_port->guid;
 			}
 			break;
@@ -455,22 +408,20 @@ __osm_sminfo_rcv_process_get_sm(IN const osm_sminfo_rcv_t * const p_rcv,
 		case IB_SMINFO_STATE_MASTER:
 			/* This means the master is alive */
 			/* Signal that to the SM state mgr */
-			osm_sm_state_mgr_signal_master_is_alive(p_rcv->
-								p_sm_state_mgr);
+			osm_sm_state_mgr_signal_master_is_alive(&sm->sm_state_mgr);
 			break;
 		case IB_SMINFO_STATE_STANDBY:
 			/* This should be the response from the sm we are polling. */
 			/* If it is - then signal master is alive */
-			if (p_rcv->p_sm_state_mgr->master_guid ==
-			    p_sm->p_port->guid) {
+			if (sm->sm_state_mgr.master_guid == p_sm->p_port->guid) {
 				/* Make sure that it is an SM with higher priority than us.
 				   If we started polling it when it was master, and it moved
 				   to standby - then it might be with a lower priority than
 				   us - and then we don't want to continue polling it. */
 				if (__osm_sminfo_rcv_remote_sm_is_higher
-				    (p_rcv, p_smi) == TRUE)
+				    (sm, p_smi) == TRUE)
 					osm_sm_state_mgr_signal_master_is_alive
-					    (p_rcv->p_sm_state_mgr);
+					    (&sm->sm_state_mgr);
 			}
 			break;
 		default:
@@ -485,9 +436,9 @@ __osm_sminfo_rcv_process_get_sm(IN const osm_sminfo_rcv_t * const p_rcv,
 			/* If this is a response due to our polling, this means that we are
 			   waiting for a handover from this SM, and it is still alive -
 			   signal that. */
-			if (p_rcv->p_sm_state_mgr->p_polling_sm != NULL) {
-				osm_sm_state_mgr_signal_master_is_alive(p_rcv->
-									p_sm_state_mgr);
+			if (sm->sm_state_mgr.p_polling_sm != NULL) {
+				osm_sm_state_mgr_signal_master_is_alive(&sm->
+									sm_state_mgr);
 			} else {
 				/* This is a response we got while sweeping the subnet.
 				   We will handle a case of handover needed later on, when the sweep
@@ -504,14 +455,14 @@ __osm_sminfo_rcv_process_get_sm(IN const osm_sminfo_rcv_t * const p_rcv,
 		break;
 	}
 
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sm->p_log);
 	return ret_val;
 }
 
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_sminfo_rcv_process_get_response(IN const osm_sminfo_rcv_t * const p_rcv,
+__osm_sminfo_rcv_process_get_response(IN osm_sm_t * sm,
 				      IN const osm_madw_t * const p_madw)
 {
 	const ib_smp_t *p_smp;
@@ -522,34 +473,34 @@ __osm_sminfo_rcv_process_get_response(IN const osm_sminfo_rcv_t * const p_rcv,
 	osm_remote_sm_t *p_sm;
 	osm_signal_t process_get_sm_ret_val = OSM_SIGNAL_NONE;
 
-	OSM_LOG_ENTER(p_rcv->p_log, __osm_sminfo_rcv_process_get_response);
+	OSM_LOG_ENTER(sm->p_log, __osm_sminfo_rcv_process_get_response);
 
 	CL_ASSERT(p_madw);
 
 	p_smp = osm_madw_get_smp_ptr(p_madw);
 
 	if (p_smp->method != IB_MAD_METHOD_GET_RESP) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sm->p_log, OSM_LOG_ERROR,
 			"__osm_sminfo_rcv_process_get_response: ERR 2F11: "
 			"Unsupported method 0x%X\n", p_smp->method);
 		goto Exit;
 	}
 
 	p_smi = ib_smp_get_payload_ptr(p_smp);
-	p_sm_tbl = &p_rcv->p_subn->sm_guid_tbl;
+	p_sm_tbl = &sm->p_subn->sm_guid_tbl;
 	port_guid = p_smi->guid;
 
-	osm_dump_sm_info(p_rcv->p_log, p_smi, OSM_LOG_DEBUG);
+	osm_dump_sm_info(sm->p_log, p_smi, OSM_LOG_DEBUG);
 
 	/*
 	   Check that the sm_key of the found SM is the same as ours,
 	   or is zero. If not - OpenSM cannot continue with configuration!. */
-	if (p_smi->sm_key != 0 && p_smi->sm_key != p_rcv->p_subn->opt.sm_key) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+	if (p_smi->sm_key != 0 && p_smi->sm_key != sm->p_subn->opt.sm_key) {
+		osm_log(sm->p_log, OSM_LOG_ERROR,
 			"__osm_sminfo_rcv_process_get_response: ERR 2F18: "
 			"Got SM with sm_key that doesn't match our "
 			"local key. Exiting\n");
-		osm_log(p_rcv->p_log, OSM_LOG_SYS,
+		osm_log(sm->p_log, OSM_LOG_SYS,
 			"Found remote SM with non-matching sm_key. Exiting\n");
 		osm_exit_flag = TRUE;
 		goto Exit;
@@ -558,18 +509,18 @@ __osm_sminfo_rcv_process_get_response(IN const osm_sminfo_rcv_t * const p_rcv,
 	/*
 	   Determine if we already have another SM object for this SM.
 	 */
-	CL_PLOCK_EXCL_ACQUIRE(p_rcv->p_lock);
+	CL_PLOCK_EXCL_ACQUIRE(sm->p_lock);
 
-	p_port = osm_get_port_by_guid(p_rcv->p_subn, port_guid);
+	p_port = osm_get_port_by_guid(sm->p_subn, port_guid);
 	if (!p_port) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sm->p_log, OSM_LOG_ERROR,
 			"__osm_sminfo_rcv_process_get_response: ERR 2F12: "
 			"No port object for this SM\n");
 		goto _unlock_and_exit;
 	}
 
 	if (osm_port_get_guid(p_port) != p_smi->guid) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sm->p_log, OSM_LOG_ERROR,
 			"__osm_sminfo_rcv_process_get_response: ERR 2F13: "
 			"Bogus SM port GUID"
 			"\n\t\t\t\tExpected 0x%016" PRIx64
@@ -579,8 +530,8 @@ __osm_sminfo_rcv_process_get_response(IN const osm_sminfo_rcv_t * const p_rcv,
 		goto _unlock_and_exit;
 	}
 
-	if (port_guid == p_rcv->p_subn->sm_port_guid) {
-		osm_log(p_rcv->p_log, OSM_LOG_VERBOSE,
+	if (port_guid == sm->p_subn->sm_port_guid) {
+		osm_log(sm->p_log, OSM_LOG_VERBOSE,
 			"__osm_sminfo_rcv_process_get_response: "
 			"Self query response received - SM port 0x%016" PRIx64
 			"\n", cl_ntoh64(port_guid));
@@ -591,7 +542,7 @@ __osm_sminfo_rcv_process_get_response(IN const osm_sminfo_rcv_t * const p_rcv,
 	if (p_sm == (osm_remote_sm_t *) cl_qmap_end(p_sm_tbl)) {
 		p_sm = malloc(sizeof(*p_sm));
 		if (p_sm == NULL) {
-			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+			osm_log(sm->p_log, OSM_LOG_ERROR,
 				"__osm_sminfo_rcv_process_get_response: ERR 2F14: "
 				"Unable to allocate SM object\n");
 			goto _unlock_and_exit;
@@ -607,49 +558,49 @@ __osm_sminfo_rcv_process_get_response(IN const osm_sminfo_rcv_t * const p_rcv,
 		 */
 		p_sm->smi = *p_smi;
 
-	process_get_sm_ret_val = __osm_sminfo_rcv_process_get_sm(p_rcv, p_sm);
+	process_get_sm_ret_val = __osm_sminfo_rcv_process_get_sm(sm, p_sm);
 
       _unlock_and_exit:
-	CL_PLOCK_RELEASE(p_rcv->p_lock);
+	CL_PLOCK_RELEASE(sm->p_lock);
 
 	/* If process_get_sm_ret_val != OSM_SIGNAL_NONE then we have to signal
 	 * to the SM with that signal. */
 	if (process_get_sm_ret_val != OSM_SIGNAL_NONE)
-		osm_sm_signal(&p_rcv->p_subn->p_osm->sm,
+		osm_sm_signal(&sm->p_subn->p_osm->sm,
 			      process_get_sm_ret_val);
 
       Exit:
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sm->p_log);
 }
 
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_sminfo_rcv_process_set_response(IN const osm_sminfo_rcv_t * const p_rcv,
+__osm_sminfo_rcv_process_set_response(IN osm_sm_t * sm,
 				      IN const osm_madw_t * const p_madw)
 {
 	const ib_smp_t *p_smp;
 	const ib_sm_info_t *p_smi;
 
-	OSM_LOG_ENTER(p_rcv->p_log, __osm_sminfo_rcv_process_set_response);
+	OSM_LOG_ENTER(sm->p_log, __osm_sminfo_rcv_process_set_response);
 
 	CL_ASSERT(p_madw);
 
 	p_smp = osm_madw_get_smp_ptr(p_madw);
 
 	if (p_smp->method != IB_MAD_METHOD_GET_RESP) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sm->p_log, OSM_LOG_ERROR,
 			"__osm_sminfo_rcv_process_set_response: ERR 2F16: "
 			"Unsupported method 0x%X\n", p_smp->method);
 		goto Exit;
 	}
 
 	p_smi = ib_smp_get_payload_ptr(p_smp);
-	osm_dump_sm_info(p_rcv->p_log, p_smi, OSM_LOG_DEBUG);
+	osm_dump_sm_info(sm->p_log, p_smi, OSM_LOG_DEBUG);
 
 	/* Check the AttributeModifier */
 	if (p_smp->attr_mod != IB_SMINFO_ATTR_MOD_HANDOVER) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sm->p_log, OSM_LOG_ERROR,
 			"__osm_sminfo_rcv_process_set_response: ERR 2F17: "
 			"Unsupported attribute modifier 0x%X\n",
 			p_smp->attr_mod);
@@ -662,19 +613,19 @@ __osm_sminfo_rcv_process_set_response(IN const osm_sminfo_rcv_t * const p_rcv,
 	 */
 
       Exit:
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sm->p_log);
 }
 
 /**********************************************************************
  **********************************************************************/
 void osm_sminfo_rcv_process(IN void *context, IN void *data)
 {
-	osm_sminfo_rcv_t *p_rcv = context;
+	osm_sm_t *sm = context;
 	osm_madw_t *p_madw = data;
 	ib_smp_t *p_smp;
 	osm_smi_context_t *p_smi_context;
 
-	OSM_LOG_ENTER(p_rcv->p_log, osm_sminfo_rcv_process);
+	OSM_LOG_ENTER(sm->p_log, osm_sminfo_rcv_process);
 
 	CL_ASSERT(p_madw);
 
@@ -696,7 +647,7 @@ void osm_sminfo_rcv_process(IN void *context, IN void *data)
 		   moving issue.
 		 */
 		if (p_smi_context->port_guid != p_smi->guid) {
-			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+			osm_log(sm->p_log, OSM_LOG_ERROR,
 				"osm_sminfo_rcv_process: ERR 2F19: "
 				"Unexpected SM port GUID in response"
 				"\n\t\t\t\tExpected 0x%016" PRIx64
@@ -708,18 +659,18 @@ void osm_sminfo_rcv_process(IN void *context, IN void *data)
 
 		if (p_smi_context->set_method == FALSE)
 			/* this is a response to a Get method */
-			__osm_sminfo_rcv_process_get_response(p_rcv, p_madw);
+			__osm_sminfo_rcv_process_get_response(sm, p_madw);
 		else
 			/* this is a response to a Set method */
-			__osm_sminfo_rcv_process_set_response(p_rcv, p_madw);
+			__osm_sminfo_rcv_process_set_response(sm, p_madw);
 	} else if (p_smp->method == IB_MAD_METHOD_GET)
 		/* This is a request */
 		/* This is a SubnGet request */
-		__osm_sminfo_rcv_process_get_request(p_rcv, p_madw);
+		__osm_sminfo_rcv_process_get_request(sm, p_madw);
 	else
 		/* This should be a SubnSet request */
-		__osm_sminfo_rcv_process_set_request(p_rcv, p_madw);
+		__osm_sminfo_rcv_process_set_request(sm, p_madw);
 
       Exit:
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sm->p_log);
 }

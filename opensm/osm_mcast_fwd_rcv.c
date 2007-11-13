@@ -54,56 +54,17 @@
 #include <complib/cl_qmap.h>
 #include <complib/cl_passivelock.h>
 #include <complib/cl_debug.h>
-#include <opensm/osm_mcast_fwd_rcv.h>
 #include <opensm/osm_madw.h>
 #include <opensm/osm_log.h>
 #include <opensm/osm_switch.h>
 #include <opensm/osm_subnet.h>
-
-/**********************************************************************
- **********************************************************************/
-void osm_mft_rcv_construct(IN osm_mft_rcv_t * const p_rcv)
-{
-	memset(p_rcv, 0, sizeof(*p_rcv));
-}
-
-/**********************************************************************
- **********************************************************************/
-void osm_mft_rcv_destroy(IN osm_mft_rcv_t * const p_rcv)
-{
-	CL_ASSERT(p_rcv);
-
-	OSM_LOG_ENTER(p_rcv->p_log, osm_mft_rcv_destroy);
-
-	OSM_LOG_EXIT(p_rcv->p_log);
-}
-
-/**********************************************************************
- **********************************************************************/
-ib_api_status_t
-osm_mft_rcv_init(IN osm_mft_rcv_t * const p_rcv,
-		 IN osm_subn_t * const p_subn,
-		 IN osm_log_t * const p_log, IN cl_plock_t * const p_lock)
-{
-	ib_api_status_t status = IB_SUCCESS;
-
-	OSM_LOG_ENTER(p_log, osm_mft_rcv_init);
-
-	osm_mft_rcv_construct(p_rcv);
-
-	p_rcv->p_log = p_log;
-	p_rcv->p_subn = p_subn;
-	p_rcv->p_lock = p_lock;
-
-	OSM_LOG_EXIT(p_rcv->p_log);
-	return (status);
-}
+#include <opensm/osm_sm.h>
 
 /**********************************************************************
  **********************************************************************/
 void osm_mft_rcv_process(IN void *context, IN void *data)
 {
-	osm_mft_rcv_t *p_rcv = context;
+	osm_sm_t *sm = context;
 	osm_madw_t *p_madw = data;
 	ib_smp_t *p_smp;
 	uint32_t block_num;
@@ -114,9 +75,9 @@ void osm_mft_rcv_process(IN void *context, IN void *data)
 	ib_net64_t node_guid;
 	ib_api_status_t status;
 
-	CL_ASSERT(p_rcv);
+	CL_ASSERT(sm);
 
-	OSM_LOG_ENTER(p_rcv->p_log, osm_mft_rcv_process);
+	OSM_LOG_ENTER(sm->p_log, osm_mft_rcv_process);
 
 	CL_ASSERT(p_madw);
 
@@ -133,8 +94,8 @@ void osm_mft_rcv_process(IN void *context, IN void *data)
 	p_mft_context = osm_madw_get_mft_context_ptr(p_madw);
 	node_guid = p_mft_context->node_guid;
 
-	if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG)) {
-		osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+	if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
+		osm_log(sm->p_log, OSM_LOG_DEBUG,
 			"osm_mft_rcv_process: "
 			"Setting MFT block %u, position %u, "
 			"Switch 0x%016" PRIx64 ", TID 0x%" PRIx64 "\n",
@@ -142,11 +103,11 @@ void osm_mft_rcv_process(IN void *context, IN void *data)
 			cl_ntoh64(p_smp->trans_id));
 	}
 
-	CL_PLOCK_EXCL_ACQUIRE(p_rcv->p_lock);
-	p_sw = osm_get_switch_by_guid(p_rcv->p_subn, node_guid);
+	CL_PLOCK_EXCL_ACQUIRE(sm->p_lock);
+	p_sw = osm_get_switch_by_guid(sm->p_subn, node_guid);
 
 	if (!p_sw) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sm->p_log, OSM_LOG_ERROR,
 			"osm_mft_rcv_process: ERR 0801: "
 			"MFT received for nonexistent node "
 			"0x%016" PRIx64 "\n", cl_ntoh64(node_guid));
@@ -155,7 +116,7 @@ void osm_mft_rcv_process(IN void *context, IN void *data)
 						  (uint16_t) block_num,
 						  position);
 		if (status != IB_SUCCESS) {
-			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+			osm_log(sm->p_log, OSM_LOG_ERROR,
 				"osm_mft_rcv_process: ERR 0802: "
 				"Setting MFT block failed (%s)"
 				"\n\t\t\t\tSwitch 0x%016" PRIx64
@@ -165,6 +126,6 @@ void osm_mft_rcv_process(IN void *context, IN void *data)
 		}
 	}
 
-	CL_PLOCK_RELEASE(p_rcv->p_lock);
-	OSM_LOG_EXIT(p_rcv->p_log);
+	CL_PLOCK_RELEASE(sm->p_lock);
+	OSM_LOG_EXIT(sm->p_log);
 }

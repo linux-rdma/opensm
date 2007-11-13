@@ -53,7 +53,6 @@
 #include <iba/ib_types.h>
 #include <complib/cl_qmap.h>
 #include <complib/cl_debug.h>
-#include <opensm/osm_trap_rcv.h>
 #include <opensm/osm_madw.h>
 #include <opensm/osm_log.h>
 #include <opensm/osm_node.h>
@@ -91,10 +90,10 @@ typedef struct _osm_trap_aging_tracker_context {
 
 /**********************************************************************
  **********************************************************************/
-static osm_physp_t *__get_physp_by_lid_and_num(IN osm_trap_rcv_t * const p_rcv,
+static osm_physp_t *__get_physp_by_lid_and_num(IN osm_sm_t * sm,
 					       IN uint16_t lid, IN uint8_t num)
 {
-	cl_ptr_vector_t *p_vec = &(p_rcv->p_subn->port_lid_tbl);
+	cl_ptr_vector_t *p_vec = &(sm->p_subn->port_lid_tbl);
 	osm_port_t *p_port;
 	osm_physp_t *p_physp;
 
@@ -119,12 +118,12 @@ uint64_t
 osm_trap_rcv_aging_tracker_callback(IN uint64_t key,
 				    IN uint32_t num_regs, IN void *context)
 {
-	osm_trap_rcv_t *p_rcv = (osm_trap_rcv_t *) context;
+	osm_sm_t *sm = context;
 	uint16_t lid;
 	uint8_t port_num;
 	osm_physp_t *p_physp;
 
-	OSM_LOG_ENTER(p_rcv->p_log, osm_trap_rcv_aging_tracker_callback);
+	OSM_LOG_ENTER(sm->p_log, osm_trap_rcv_aging_tracker_callback);
 
 	if (osm_exit_flag)
 		/* We got an exit flag - do nothing */
@@ -133,16 +132,16 @@ osm_trap_rcv_aging_tracker_callback(IN uint64_t key,
 	lid = cl_ntoh16((uint16_t) ((key & 0x0000FFFF00000000ULL) >> 32));
 	port_num = (uint8_t) ((key & 0x00FF000000000000ULL) >> 48);
 
-	p_physp = __get_physp_by_lid_and_num(p_rcv, lid, port_num);
+	p_physp = __get_physp_by_lid_and_num(sm, lid, port_num);
 	if (!p_physp)
-		osm_log(p_rcv->p_log, OSM_LOG_VERBOSE,
+		osm_log(sm->p_log, OSM_LOG_VERBOSE,
 			"osm_trap_rcv_aging_tracker_callback: "
 			"Cannot find port num:0x%X with lid:%u\n",
 			port_num, lid);
 	/* make sure the physp is still valid */
 	/* If the health port was false - set it to true */
 	else if (osm_physp_is_valid(p_physp) && !osm_physp_is_healthy(p_physp)) {
-		osm_log(p_rcv->p_log, OSM_LOG_VERBOSE,
+		osm_log(sm->p_log, OSM_LOG_VERBOSE,
 			"osm_trap_rcv_aging_tracker_callback: "
 			"Clearing health bit of port num:%u with lid:%u\n",
 			port_num, lid);
@@ -151,64 +150,11 @@ osm_trap_rcv_aging_tracker_callback(IN uint64_t key,
 		osm_physp_set_health(p_physp, TRUE);
 	}
 
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sm->p_log);
 
 	/* We want to remove the event from the tracker - so
 	   need to return zero. */
 	return 0;
-}
-
-/**********************************************************************
- **********************************************************************/
-void osm_trap_rcv_construct(IN osm_trap_rcv_t * const p_rcv)
-{
-	memset(p_rcv, 0, sizeof(*p_rcv));
-	cl_event_wheel_construct(&p_rcv->trap_aging_tracker);
-}
-
-/**********************************************************************
- **********************************************************************/
-void osm_trap_rcv_destroy(IN osm_trap_rcv_t * const p_rcv)
-{
-	CL_ASSERT(p_rcv);
-
-	OSM_LOG_ENTER(p_rcv->p_log, osm_trap_rcv_destroy);
-
-	cl_event_wheel_destroy(&p_rcv->trap_aging_tracker);
-
-	OSM_LOG_EXIT(p_rcv->p_log);
-}
-
-/**********************************************************************
- **********************************************************************/
-ib_api_status_t
-osm_trap_rcv_init(IN osm_trap_rcv_t * const p_rcv,
-		  IN osm_subn_t * const p_subn,
-		  IN osm_stats_t * const p_stats,
-		  IN osm_resp_t * const p_resp,
-		  IN osm_log_t * const p_log, IN cl_plock_t * const p_lock)
-{
-	ib_api_status_t status = IB_SUCCESS;
-
-	OSM_LOG_ENTER(p_log, osm_trap_rcv_init);
-
-	osm_trap_rcv_construct(p_rcv);
-
-	p_rcv->p_log = p_log;
-	p_rcv->p_subn = p_subn;
-	p_rcv->p_lock = p_lock;
-	p_rcv->p_stats = p_stats;
-	p_rcv->p_resp = p_resp;
-
-	if (cl_event_wheel_init(&p_rcv->trap_aging_tracker)) {
-		osm_log(p_log, OSM_LOG_ERROR,
-			"osm_trap_rcv_init: ERR 3800: "
-			"Failed to initialize cl_event_wheel\n");
-		status = IB_NOT_DONE;
-	}
-
-	OSM_LOG_EXIT(p_rcv->p_log);
-	return (status);
 }
 
 /**********************************************************************
@@ -297,7 +243,7 @@ static int __print_num_received(IN uint32_t num_received)
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_trap_rcv_process_request(IN osm_trap_rcv_t * const p_rcv,
+__osm_trap_rcv_process_request(IN osm_sm_t * sm,
 			       IN const osm_madw_t * const p_madw)
 {
 	uint8_t payload[sizeof(ib_mad_notice_attr_t)];
@@ -317,7 +263,7 @@ __osm_trap_rcv_process_request(IN osm_trap_rcv_t * const p_rcv,
 	uint64_t event_wheel_timeout = OSM_DEFAULT_TRAP_SUPRESSION_TIMEOUT;
 	boolean_t run_heavy_sweep = FALSE;
 
-	OSM_LOG_ENTER(p_rcv->p_log, __osm_trap_rcv_process_request);
+	OSM_LOG_ENTER(sm->p_log, __osm_trap_rcv_process_request);
 
 	CL_ASSERT(p_madw);
 
@@ -343,7 +289,7 @@ __osm_trap_rcv_process_request(IN osm_trap_rcv_t * const p_rcv,
 	p_smp = osm_madw_get_smp_ptr(p_madw);
 
 	if (p_smp->method != IB_MAD_METHOD_TRAP) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sm->p_log, OSM_LOG_ERROR,
 			"__osm_trap_rcv_process_request: ERR 3801: "
 			"Unsupported method 0x%X\n", p_smp->method);
 		goto Exit;
@@ -369,19 +315,19 @@ __osm_trap_rcv_process_request(IN osm_trap_rcv_t * const p_rcv,
 			/* Check if the sm_base_lid is 0. If yes - this means that
 			   the local lid wasn't configured yet. Don't send a response
 			   to the trap. */
-			if (p_rcv->p_subn->sm_base_lid == 0) {
-				osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+			if (sm->p_subn->sm_base_lid == 0) {
+				osm_log(sm->p_log, OSM_LOG_DEBUG,
 					"__osm_trap_rcv_process_request: "
 					"Received SLID=0 Trap with local LID=0. Ignoring MAD\n");
 				goto Exit;
 			}
-			osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+			osm_log(sm->p_log, OSM_LOG_DEBUG,
 				"__osm_trap_rcv_process_request: "
 				"Received SLID=0 Trap. Using local LID:0x%04X instead\n",
-				cl_ntoh16(p_rcv->p_subn->sm_base_lid)
+				cl_ntoh16(sm->p_subn->sm_base_lid)
 			    );
 			tmp_madw.mad_addr.addr_type.smi.source_lid =
-			    p_rcv->p_subn->sm_base_lid;
+			    sm->p_subn->sm_base_lid;
 		}
 
 		source_lid = tmp_madw.mad_addr.addr_type.smi.source_lid;
@@ -393,7 +339,7 @@ __osm_trap_rcv_process_request(IN osm_trap_rcv_t * const p_rcv,
 				CL_HTON16(130))
 			    || (p_ntci->g_or_v.generic.trap_num ==
 				CL_HTON16(131)))
-				osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+				osm_log(sm->p_log, OSM_LOG_ERROR,
 					"__osm_trap_rcv_process_request: "
 					"Received Generic Notice type:0x%02X num:%u Producer:%u (%s) "
 					"from LID:0x%04X Port %d TID:0x%016"
@@ -409,7 +355,7 @@ __osm_trap_rcv_process_request(IN osm_trap_rcv_t * const p_rcv,
 					port_num, cl_ntoh64(p_smp->trans_id)
 				    );
 			else
-				osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+				osm_log(sm->p_log, OSM_LOG_ERROR,
 					"__osm_trap_rcv_process_request: "
 					"Received Generic Notice type:0x%02X num:%u Producer:%u (%s) "
 					"from LID:0x%04X TID:0x%016" PRIx64
@@ -424,7 +370,7 @@ __osm_trap_rcv_process_request(IN osm_trap_rcv_t * const p_rcv,
 					cl_ntoh64(p_smp->trans_id)
 				    );
 		} else
-			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+			osm_log(sm->p_log, OSM_LOG_ERROR,
 				"__osm_trap_rcv_process_request: "
 				"Received Vendor Notice type:0x%02X vend:0x%06X dev:%u "
 				"from LID:0x%04X TID:0x%016" PRIx64 "\n",
@@ -436,20 +382,20 @@ __osm_trap_rcv_process_request(IN osm_trap_rcv_t * const p_rcv,
 			    );
 	}
 
-	osm_dump_notice(p_rcv->p_log, p_ntci, OSM_LOG_VERBOSE);
+	osm_dump_notice(sm->p_log, p_ntci, OSM_LOG_VERBOSE);
 
-	p_physp = osm_get_physp_by_mad_addr(p_rcv->p_log,
-					    p_rcv->p_subn, &tmp_madw.mad_addr);
+	p_physp = osm_get_physp_by_mad_addr(sm->p_log,
+					    sm->p_subn, &tmp_madw.mad_addr);
 	if (p_physp)
 		p_smp->m_key = p_physp->port_info.m_key;
 	else
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sm->p_log, OSM_LOG_ERROR,
 			"__osm_trap_rcv_process_request: ERR 3809: "
 			"Failed to find source physical port for trap\n");
 
-	status = osm_resp_send(p_rcv->p_resp, &tmp_madw, 0, payload);
+	status = osm_resp_send(&sm->resp, &tmp_madw, 0, payload);
 	if (status != IB_SUCCESS) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sm->p_log, OSM_LOG_ERROR,
 			"__osm_trap_rcv_process_request: ERR 3802: "
 			"Error sending response (%s)\n",
 			ib_get_err_str(status));
@@ -488,13 +434,13 @@ __osm_trap_rcv_process_request(IN osm_trap_rcv_t * const p_rcv,
 
 		/* try to find it in the aging tracker */
 		num_received =
-		    cl_event_wheel_num_regs(&p_rcv->trap_aging_tracker,
+		    cl_event_wheel_num_regs(&sm->trap_aging_tracker,
 					    trap_key);
 
 		/* Now we know how many times it provided this trap */
 		if (num_received > 10) {
 			if (__print_num_received(num_received))
-				osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+				osm_log(sm->p_log, OSM_LOG_ERROR,
 					"__osm_trap_rcv_process_request: ERR 3804: "
 					"Received trap %u times consecutively\n",
 					num_received);
@@ -504,7 +450,7 @@ __osm_trap_rcv_process_request(IN osm_trap_rcv_t * const p_rcv,
 			 */
 			if (physp_change_trap == TRUE) {
 				/* get the port */
-				p_physp = __get_physp_by_lid_and_num(p_rcv,
+				p_physp = __get_physp_by_lid_and_num(sm,
 								     cl_ntoh16
 								     (p_ntci->
 								      data_details.
@@ -513,7 +459,7 @@ __osm_trap_rcv_process_request(IN osm_trap_rcv_t * const p_rcv,
 								     port_num);
 
 				if (!p_physp)
-					osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+					osm_log(sm->p_log, OSM_LOG_ERROR,
 						"__osm_trap_rcv_process_request: ERR 3805: "
 						"Failed to find physical port by lid:0x%02X num:%u\n",
 						cl_ntoh16(p_ntci->data_details.
@@ -523,7 +469,7 @@ __osm_trap_rcv_process_request(IN osm_trap_rcv_t * const p_rcv,
 				else {
 					/* When babbling port policy option is enabled and
 					   Threshold for disabling a "babbling" port is exceeded */
-					if (p_rcv->p_subn->opt.
+					if (sm->p_subn->opt.
 					    babbling_port_policy
 					    && num_received >= 250) {
 						uint8_t
@@ -536,7 +482,7 @@ __osm_trap_rcv_process_request(IN osm_trap_rcv_t * const p_rcv,
 						/* If trap 131, might want to disable peer port if available */
 						/* but peer port has been observed not to respond to SM requests */
 
-						osm_log(p_rcv->p_log,
+						osm_log(sm->p_log,
 							OSM_LOG_ERROR,
 							"__osm_trap_rcv_process_request: ERR 3810: "
 							" Disabling physical port lid:0x%02X num:%u\n",
@@ -577,7 +523,7 @@ __osm_trap_rcv_process_request(IN osm_trap_rcv_t * const p_rcv,
 						    active_transition = FALSE;
 
 						status =
-						    osm_req_set(&p_rcv->p_subn->
+						    osm_req_set(&sm->p_subn->
 								p_osm->sm.req,
 								osm_physp_get_dr_path_ptr
 								(p_physp),
@@ -593,13 +539,13 @@ __osm_trap_rcv_process_request(IN osm_trap_rcv_t * const p_rcv,
 						if (status == IB_SUCCESS)
 							goto Exit;
 
-						osm_log(p_rcv->p_log,
+						osm_log(sm->p_log,
 							OSM_LOG_ERROR,
 							"__osm_trap_rcv_process_request: ERR 3811: "
 							"Request to set PortInfo failed\n");
 					}
 
-					osm_log(p_rcv->p_log, OSM_LOG_VERBOSE,
+					osm_log(sm->p_log, OSM_LOG_VERBOSE,
 						"__osm_trap_rcv_process_request: "
 						"Marking unhealthy physical port by lid:0x%02X num:%u\n",
 						cl_ntoh16(p_ntci->data_details.
@@ -631,18 +577,18 @@ __osm_trap_rcv_process_request(IN osm_trap_rcv_t * const p_rcv,
 		/* If physp_change_trap is TRUE - then use a callback to unset the
 		   healthy bit. If not - no need to use a callback. */
 		if (physp_change_trap == TRUE)
-			cl_event_wheel_reg(&p_rcv->trap_aging_tracker, trap_key, cl_get_time_stamp() + event_wheel_timeout, osm_trap_rcv_aging_tracker_callback,	/* no callback */
-					   p_rcv	/* no context */
+			cl_event_wheel_reg(&sm->trap_aging_tracker, trap_key, cl_get_time_stamp() + event_wheel_timeout, osm_trap_rcv_aging_tracker_callback,	/* no callback */
+					   sm	/* no context */
 			    );
 		else
-			cl_event_wheel_reg(&p_rcv->trap_aging_tracker, trap_key, cl_get_time_stamp() + event_wheel_timeout, NULL,	/* no callback */
+			cl_event_wheel_reg(&sm->trap_aging_tracker, trap_key, cl_get_time_stamp() + event_wheel_timeout, NULL,	/* no callback */
 					   NULL	/* no context */
 			    );
 
 		/* If was already registered do nothing more */
 		if (num_received > 10 && run_heavy_sweep == FALSE) {
 			if (__print_num_received(num_received))
-				osm_log(p_rcv->p_log, OSM_LOG_VERBOSE,
+				osm_log(sm->p_log, OSM_LOG_VERBOSE,
 					"__osm_trap_rcv_process_request: "
 					"Continuously received this trap %u times. Ignoring\n",
 					num_received);
@@ -651,7 +597,7 @@ __osm_trap_rcv_process_request(IN osm_trap_rcv_t * const p_rcv,
 	}
 
 	/* do a sweep if we received a trap */
-	if (p_rcv->p_subn->opt.sweep_on_trap) {
+	if (sm->p_subn->opt.sweep_on_trap) {
 		/* if this is trap number 128 or run_heavy_sweep is TRUE - update the
 		   force_single_heavy_sweep flag of the subnet.
 		   Sweep also on traps 144/145 - these traps signal a change of a certain
@@ -663,15 +609,15 @@ __osm_trap_rcv_process_request(IN osm_trap_rcv_t * const p_rcv,
 		     (cl_ntoh16(p_ntci->g_or_v.generic.trap_num) == 144) ||
 		     (cl_ntoh16(p_ntci->g_or_v.generic.trap_num) == 145) ||
 		     run_heavy_sweep)) {
-			osm_log(p_rcv->p_log, OSM_LOG_VERBOSE,
+			osm_log(sm->p_log, OSM_LOG_VERBOSE,
 				"__osm_trap_rcv_process_request: "
 				"Forcing immediate heavy sweep. "
 				"Received trap:%u\n",
 				cl_ntoh16(p_ntci->g_or_v.generic.trap_num));
 
-			p_rcv->p_subn->force_immediate_heavy_sweep = TRUE;
+			sm->p_subn->force_immediate_heavy_sweep = TRUE;
 		}
-		osm_sm_signal(&p_rcv->p_subn->p_osm->sm, OSM_SIGNAL_SWEEP);
+		osm_sm_signal(&sm->p_subn->p_osm->sm, OSM_SIGNAL_SWEEP);
 	}
 
 	/* If we reached here due to trap 129/130/131 - do not need to do
@@ -685,7 +631,7 @@ __osm_trap_rcv_process_request(IN osm_trap_rcv_t * const p_rcv,
 	   accordingly. See IBA 1.2 p.739 or IBA 1.1 p.653 for details. */
 	if (is_gsi) {
 		if (!tmp_madw.mad_addr.addr_type.gsi.global_route) {
-			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+			osm_log(sm->p_log, OSM_LOG_ERROR,
 				"__osm_trap_rcv_process_request: ERR 3806: "
 				"Received gsi trap with global_route FALSE. "
 				"Cannot update issuer_gid!\n");
@@ -696,14 +642,14 @@ __osm_trap_rcv_process_request(IN osm_trap_rcv_t * const p_rcv,
 		       sizeof(ib_gid_t));
 	} else {
 		/* Need to use the IssuerLID */
-		p_tbl = &p_rcv->p_subn->port_lid_tbl;
+		p_tbl = &sm->p_subn->port_lid_tbl;
 
 		CL_ASSERT(cl_ptr_vector_get_size(p_tbl) < 0x10000);
 
 		if ((uint16_t) cl_ptr_vector_get_size(p_tbl) <=
 		    cl_ntoh16(source_lid)) {
 			/*  the source lid is out of range */
-			osm_log(p_rcv->p_log, OSM_LOG_VERBOSE,
+			osm_log(sm->p_log, OSM_LOG_VERBOSE,
 				"__osm_trap_rcv_process_request: "
 				"source lid is out of range:0x%X\n",
 				cl_ntoh16(source_lid));
@@ -713,7 +659,7 @@ __osm_trap_rcv_process_request(IN osm_trap_rcv_t * const p_rcv,
 		p_port = cl_ptr_vector_get(p_tbl, cl_ntoh16(source_lid));
 		if (p_port == 0) {
 			/* We have the lid - but no corresponding port */
-			osm_log(p_rcv->p_log, OSM_LOG_VERBOSE,
+			osm_log(sm->p_log, OSM_LOG_VERBOSE,
 				"__osm_trap_rcv_process_request: "
 				"Cannot find port corresponding to lid:0x%X\n",
 				cl_ntoh16(source_lid));
@@ -722,16 +668,16 @@ __osm_trap_rcv_process_request(IN osm_trap_rcv_t * const p_rcv,
 		}
 
 		p_ntci->issuer_gid.unicast.prefix =
-		    p_rcv->p_subn->opt.subnet_prefix;
+		    sm->p_subn->opt.subnet_prefix;
 		p_ntci->issuer_gid.unicast.interface_id = p_port->guid;
 	}
 
 	/* we need a lock here as the InformInfo DB must be stable */
-	CL_PLOCK_ACQUIRE(p_rcv->p_lock);
-	status = osm_report_notice(p_rcv->p_log, p_rcv->p_subn, p_ntci);
-	CL_PLOCK_RELEASE(p_rcv->p_lock);
+	CL_PLOCK_ACQUIRE(sm->p_lock);
+	status = osm_report_notice(sm->p_log, sm->p_subn, p_ntci);
+	CL_PLOCK_RELEASE(sm->p_lock);
 	if (status != IB_SUCCESS) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sm->p_log, OSM_LOG_ERROR,
 			"__osm_trap_rcv_process_request: ERR 3803: "
 			"Error sending trap reports (%s)\n",
 			ib_get_err_str(status));
@@ -739,7 +685,7 @@ __osm_trap_rcv_process_request(IN osm_trap_rcv_t * const p_rcv,
 	}
 
       Exit:
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sm->p_log);
 }
 
 #if 0
@@ -747,18 +693,18 @@ __osm_trap_rcv_process_request(IN osm_trap_rcv_t * const p_rcv,
  CURRENTLY WE ARE NOT CREATING TRAPS - SO THIS CALL IS AN ERROR
 **********************************************************************/
 static void
-__osm_trap_rcv_process_sm(IN const osm_trap_rcv_t * const p_rcv,
+__osm_trap_rcv_process_sm(IN osm_sm_t * sm,
 			  IN const osm_remote_sm_t * const p_sm)
 {
 	/* const ib_sm_info_t*        p_smi; */
 
-	OSM_LOG_ENTER(p_rcv->p_log, __osm_trap_rcv_process_sm);
+	OSM_LOG_ENTER(sm->p_log, __osm_trap_rcv_process_sm);
 
-	osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+	osm_log(sm->p_log, OSM_LOG_ERROR,
 		"__osm_trap_rcv_process_sm: ERR 3807: "
 		"This function is not supported yet\n");
 
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sm->p_log);
 }
 #endif
 
@@ -766,28 +712,28 @@ __osm_trap_rcv_process_sm(IN const osm_trap_rcv_t * const p_rcv,
  CURRENTLY WE ARE NOT CREATING TRAPS - SO THIS CALL IN AN ERROR
 **********************************************************************/
 static void
-__osm_trap_rcv_process_response(IN const osm_trap_rcv_t * const p_rcv,
+__osm_trap_rcv_process_response(IN osm_sm_t * sm,
 				IN const osm_madw_t * const p_madw)
 {
 
-	OSM_LOG_ENTER(p_rcv->p_log, __osm_trap_rcv_process_response);
+	OSM_LOG_ENTER(sm->p_log, __osm_trap_rcv_process_response);
 
-	osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+	osm_log(sm->p_log, OSM_LOG_ERROR,
 		"__osm_trap_rcv_process_response: ERR 3808: "
 		"This function is not supported yet\n");
 
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sm->p_log);
 }
 
 /**********************************************************************
  **********************************************************************/
 void osm_trap_rcv_process(IN void *context, IN void *data)
 {
-	osm_trap_rcv_t *p_rcv = context;
+	osm_sm_t *sm = context;
 	osm_madw_t *p_madw = data;
 	ib_smp_t *p_smp;
 
-	OSM_LOG_ENTER(p_rcv->p_log, osm_trap_rcv_process);
+	OSM_LOG_ENTER(sm->p_log, osm_trap_rcv_process);
 
 	CL_ASSERT(p_madw);
 
@@ -799,9 +745,9 @@ void osm_trap_rcv_process(IN void *context, IN void *data)
 	   SM's Trap.
 	 */
 	if (ib_smp_is_response(p_smp))
-		__osm_trap_rcv_process_response(p_rcv, p_madw);
+		__osm_trap_rcv_process_response(sm, p_madw);
 	else
-		__osm_trap_rcv_process_request(p_rcv, p_madw);
+		__osm_trap_rcv_process_request(sm, p_madw);
 
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sm->p_log);
 }
