@@ -2,8 +2,8 @@ OpenSM Partition configuration
 ===============================
 
 The default name of OpenSM partitions configuration file is
-'/etc/ofa/opensm-partitions.conf'. The default may be changed by using
---Pconfig (-P) option with OpenSM.
+'/etc/opensm/opensm-partitions.conf'. The default may be changed by
+using --Pconfig (-P) option with OpenSM.
 
 The default partition will be created by OpenSM unconditionally even
 when partition configuration file does not exist or cannot be accessed.
