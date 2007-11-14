@@ -5,7 +5,11 @@ osmtest \- InfiniBand subnet manager and administration (SM/SA) test program
 
 .SH SYNOPSIS
 .B osmtest 
-[\-f(low) <c|a|v|s|e|f|m|q|t>] [\-w(ait) <trap_wait_time>] [\-d(ebug) <number>]  [\-m(ax_lid) <LID in hex>] [\-g(uid)[=]<GUID in hex>] [-p(ort)] [\-i(nventory) <filename>] [\-s(tress)] [\-M(ulticast_Mode)] [\-t(imeout) <milliseconds>] [\-l | \-\-log_file] [\-v] [\-vf <flags>] [\-h(elp)]
+[\-f(low) <c|a|v|s|e|f|m|q|t>] [\-w(ait) <trap_wait_time>] [\-d(ebug) <number>]
+[\-m(ax_lid) <LID in hex>] [\-g(uid)[=]<GUID in hex>] [-p(ort)]
+[\-i(nventory) <filename>] [\-s(tress)] [\-M(ulticast_Mode)]
+[\-t(imeout) <milliseconds>] [\-l | \-\-log_file] [\-v] [\-vf <flags>]
+[\-h(elp)]
  
 .SH DESCRIPTION
 .PP
@@ -17,7 +21,7 @@ Default is to run all flows with the exception of the QoS flow.
 osmtest provides a test suite for opensm.
 
 osmtest has the following capabilities and testing flows:
-      
+
 It creates an inventory file of all available Nodes, Ports, and PathRecords, 
 including all their fields.
 It verifies the existing inventory, with all the object fields, and matches it 
