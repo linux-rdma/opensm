@@ -70,8 +70,25 @@ OPENIB_OSM_CONSOLE_SOCKET_SEL
 dnl select performance manager or not
 OPENIB_OSM_PERF_MGR_SEL
 
+dnl Check for a different subdir for the config files.
+OPENSM_CONF_SUB_DIR=opensm
+AC_MSG_CHECKING(for --with-opensm-conf-sub-dir)
+AC_ARG_WITH(opensm-conf-sub-dir,
+    AC_HELP_STRING([--with-opensm-conf-sub-dir=dir],
+                   [define a directory name for opensm's conf files <sysconfdir>/<dir> (default "opensm")]),
+    [ case "$withval" in
+    no)
+        ;;
+    *)
+        withopensmconfsubdir=yes
+        OPENSM_CONF_SUB_DIR=$withval
+        ;;
+    esac ]
+)
+AC_MSG_RESULT(${withopensmconfsubdir=no})
+
 dnl Set up <sysconfdir>/opensm config dir.
-CONF_DIR_TMP1="`eval echo ${sysconfdir}/opensm`"
+CONF_DIR_TMP1="`eval echo ${sysconfdir}/$OPENSM_CONF_SUB_DIR`"
 CONF_DIR_TMP2="`echo $CONF_DIR_TMP1 | sed 's/^NONE/$ac_default_prefix/'`"
 CONF_DIR="`eval echo $CONF_DIR_TMP2`"
 
