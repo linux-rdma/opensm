@@ -112,6 +112,26 @@ AC_DEFINE_UNQUOTED(HAVE_DEFAULT_NODENAME_MAP,
 	["$CONF_DIR/$NODENAMEMAPFILE"],
 	[Define a default node name map file])
 
+dnl Check for a different QOS policy file
+QOS_POLICY_FILE=qos-policy.conf
+AC_MSG_CHECKING(for --with-qos-policy-conf)
+AC_ARG_WITH(qos-policy-conf,
+    AC_HELP_STRING([--with-qos-policy-conf=file],
+                   [define a QOS policy config file (default qos-policy.conf)]),
+    [ case "$withval" in
+    no)
+        ;;
+    *)
+        withqospolicyconf=yes
+        QOS_POLICY_FILE=$withval
+        ;;
+    esac ]
+)
+AC_MSG_RESULT(${withqospolicyconf=no})
+AC_DEFINE_UNQUOTED(HAVE_DEFAULT_QOS_POLICY_FILE,
+	["$CONF_DIR/$QOS_POLICY_FILE"],
+	[Define a QOS policy config file])
+
 dnl select example event plugin or not
 OPENIB_OSM_DEFAULT_EVENT_PLUGIN_SEL
 

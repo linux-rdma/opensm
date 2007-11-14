@@ -48,6 +48,10 @@
 #ifndef _OSM_BASE_H_
 #define _OSM_BASE_H_
 
+#if HAVE_CONFIG_H
+#  include <config.h>
+#endif				/* HAVE_CONFIG_H */
+
 #ifdef __WIN__
 #include <vendor/winosm_common.h>
 #define OSM_CDECL __cdecl
@@ -236,9 +240,13 @@ BEGIN_C_DECLS
 */
 #ifdef __WIN__
 #define OSM_DEFAULT_QOS_POLICY_FILE strcat(GetOsmCachePath(), "osm-qos-policy.conf")
-#else
-#define OSM_DEFAULT_QOS_POLICY_FILE "/etc/ofa/opensm-qos-policy.conf"
-#endif
+#else /* !__WIN__ */
+#   ifdef HAVE_DEFAULT_QOS_POLICY_FILE
+#      define OSM_DEFAULT_QOS_POLICY_FILE HAVE_DEFAULT_QOS_POLICY_FILE
+#   else /* !HAVE_DEFAULT_QOS_POLICY_FILE */
+#      define OSM_DEFAULT_QOS_POLICY_FILE "/etc/ofa/opensm-qos-policy.conf"
+#   endif /* HAVE_DEFAULT_QOS_POLICY_FILE */
+#endif /* __WIN__ */
 /***********/
 
 /****d* OpenSM: Base/OSM_DEFAULT_SWEEP_INTERVAL_SECS
