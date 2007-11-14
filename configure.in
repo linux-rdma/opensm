@@ -98,7 +98,7 @@ NODENAMEMAPFILE=ib-node-name-map
 AC_MSG_CHECKING(for --with-node-name-map )
 AC_ARG_WITH(node-name-map,
     AC_HELP_STRING([--with-node-name-map=file],
-                   [define a default node name map file]),
+                   [define a default node name map file (default ib-node-name-map)]),
     [ case "$withval" in
     no)
         ;;
