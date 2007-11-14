@@ -70,6 +70,11 @@ OPENIB_OSM_CONSOLE_SOCKET_SEL
 dnl select performance manager or not
 OPENIB_OSM_PERF_MGR_SEL
 
+dnl Set up <sysconfdir>/opensm config dir.
+CONF_DIR_TMP1="`eval echo ${sysconfdir}/opensm`"
+CONF_DIR_TMP2="`echo $CONF_DIR_TMP1 | sed 's/^NONE/$ac_default_prefix/'`"
+CONF_DIR="`eval echo $CONF_DIR_TMP2`"
+
 dnl Check for a different default node name map file
 dnl default {sysconfdir}/ib-node-name-map
 NODENAMEMAPFILE=ib-node-name-map
@@ -87,12 +92,8 @@ AC_ARG_WITH(node-name-map,
     esac ]
 )
 AC_MSG_RESULT(${withnodenamemap=no})
-
-NODENAMEMAP_TMP1="`eval echo ${sysconfdir}/$NODENAMEMAPFILE`"
-NODENAMEMAP_TMP2="`echo $NODENAMEMAP_TMP1 | sed 's/^NONE/$ac_default_prefix/'`"
-NODENAMEMAP="`eval echo $NODENAMEMAP_TMP2`"
 AC_DEFINE_UNQUOTED(HAVE_DEFAULT_NODENAME_MAP,
-	["$NODENAMEMAP"],
+	["$CONF_DIR/$NODENAMEMAPFILE"],
 	[Define a default node name map file])
 
 dnl select example event plugin or not
