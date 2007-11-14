@@ -92,7 +92,7 @@ else
 fi
 mkdir -p $etc/{init.d,ofa,logrotate.d}
 install -m 755 scripts/${REDHAT}opensm.init $etc/init.d/opensm
-install -m 644 scripts/${REDHAT}opensm.conf $etc/ofa/opensm.conf
+install -m 644 scripts/opensm.conf $etc/ofa/opensm.conf
 install -m 644 scripts/opensm.logrotate $etc/logrotate.d/opensm
 
 %clean
