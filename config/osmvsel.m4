@@ -13,19 +13,22 @@ AC_DEFUN([OPENIB_APP_OSMV_SEL], [
 
 dnl Define a way for the user to provide the osm vendor type
 AC_ARG_WITH(osmv,
-[  --with-osmv=<type> define the osm vendor type to build],
+    AC_HELP_STRING([--with-osmv=<type>],
+                   [define the osm vendor type to build]),
 AC_MSG_NOTICE(Using OSM Vendor Type:$with_osmv),
 with_osmv="openib")
 
 dnl Define a way for the user to provide the path to the ibumad installation
 AC_ARG_WITH(umad-prefix,
-[  --with-umad-prefix=<dir> define the dir used as prefix for ibumad installation],
+    AC_HELP_STRING([--with-umad-prefix=<dir>],
+                   [define the dir used as prefix for ibumad installation]),
 AC_MSG_NOTICE(Using ibumad installation prefix:$with_umad_prefix),
 with_umad_prefix="")
 
 dnl Define a way for the user to provide the path to the ibumad includes
 AC_ARG_WITH(umad-includes,
-[  --with-umad-includes=<dir> define the dir where ibumad includes are installed],
+    AC_HELP_STRING([--with-umad-includes=<dir>],
+                   [define the dir where ibumad includes are installed]),
 AC_MSG_NOTICE(Using ibumad includes from:$with_umad_includes),
 with_umad_includes="")
 
@@ -37,7 +40,8 @@ fi
 
 dnl Define a way for the user to provide the path to the ibumad libs
 AC_ARG_WITH(umad-libs,
-[  --with-umad-libs=<dir> define the dir where ibumad libs are installed],
+    AC_HELP_STRING([--with-umad-libs=<dir>],
+                   [define the dir where ibumad libs are installed]),
 AC_MSG_NOTICE(Using ibumad libs from:$with_umad_libs),
 with_umad_libs="")
 
@@ -54,7 +58,8 @@ fi
 
 dnl Define a way for the user to provide the path to the simulator installation
 AC_ARG_WITH(sim,
-[  --with-sim=<dir> define the simulator prefix for building sim vendor (/usr)],
+    AC_HELP_STRING([--with-sim=<dir>],
+                   [define the simulator prefix for building sim vendor (default /usr)]),
 AC_MSG_NOTICE(Using Simulator from:$with_sim),
 with_sim="/usr")
 
