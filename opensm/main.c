@@ -273,25 +273,21 @@ void show_usage(void)
 	printf("-Y\n"
 	       "--qos_policy_file\n"
 	       "          This option defines the optional QoS policy file.\n"
-	       "          The default name is \'" OSM_DEFAULT_QOS_POLICY_FILE "\'.\n\n");
-	printf("-N\n"
-	       "--no_part_enforce\n"
+	       "          The default name is \'" OSM_DEFAULT_QOS_POLICY_FILE
+	       "\'.\n\n");
+	printf("-N\n" "--no_part_enforce\n"
 	       "          This option disables partition enforcement on switch external ports.\n\n");
-	printf("-y\n"
-	       "--stay_on_fatal\n"
+	printf("-y\n" "--stay_on_fatal\n"
 	       "          This option will cause SM not to exit on fatal initialization\n"
 	       "          issues: if SM discovers duplicated guids or 12x link with\n"
 	       "          lane reversal badly configured.\n"
 	       "          By default, the SM will exit on these errors.\n\n");
-	printf("-B\n"
-	       "--daemon\n"
+	printf("-B\n" "--daemon\n"
 	       "          Run in daemon mode - OpenSM will run in the background.\n\n");
-	printf("-I\n"
-	       "--inactive\n"
+	printf("-I\n" "--inactive\n"
 	       "           Start SM in inactive rather than normal init SM state.\n\n");
 #ifdef ENABLE_OSM_PERF_MGR
-	printf("--perfmgr\n"
-	       "           Start with PerfMgr enabled.\n\n");
+	printf("--perfmgr\n" "           Start with PerfMgr enabled.\n\n");
 	printf("--perfmgr_sweep_time_s <sec.>\n"
 	       "           PerfMgr sweep interval in seconds.\n\n");
 #endif
@@ -379,14 +375,16 @@ ib_net64_t get_port_guid(IN osm_opensm_t * p_osm, uint64_t port_guid)
 		printf("\nNo local ports detected!\n");
 		return (0);
 	}
-	/* If num_ports is 1, then there is only one possible port to use. Use it. */
+	/* If num_ports is 1, then there is only one possible port to use.
+	 * Use it. */
 	if (num_ports == 1) {
 		printf("Using default GUID 0x%" PRIx64 "\n",
 		       cl_hton64(attr_array[0].port_guid));
 		return (attr_array[0].port_guid);
 	}
 #if defined ( OSM_VENDOR_INTF_OPENIB )
-	/* If port_guid is 0, and this is gen2 - use the default port whose info is in attr_array[0] */
+	/* If port_guid is 0, and this is gen2 - use the default port
+	 * whose info is in attr_array[0] */
 	if (port_guid == 0) {
 		printf("Using default GUID 0x%" PRIx64 "\n",
 		       cl_hton64(attr_array[0].port_guid));
@@ -394,34 +392,31 @@ ib_net64_t get_port_guid(IN osm_opensm_t * p_osm, uint64_t port_guid)
 	}
 #endif				/* OSM_VENDOR_INTF_OPENIB */
 
-	/* More than one possible port - list all ports and let the user to choose. */
+	/* More than one possible port - list all ports and let the user
+	 * to choose. */
 	while (done_flag == FALSE) {
 		printf("\nChoose a local port number with which to bind:\n\n");
-		/* If this is gen2 code - then port 0 has details of the default port used.
-		   no need to print it.
-		   If this is not gen2 code - need to print details of all ports. */
+		/* If this is gen2 code - then port 0 has details of the
+		 * default port used, no need to print it.
+		 * If this is not gen2 code - need to print details of
+		 * all ports. */
 #if defined ( OSM_VENDOR_INTF_OPENIB )
-		for (i = 1; i < num_ports; i++) {
+		for (i = 1; i < num_ports; i++)
 			printf("\t%u: GUID 0x%8" PRIx64
 			       ", lid 0x%04X, state %s\n", i,
 			       cl_ntoh64(attr_array[i].port_guid),
 			       attr_array[i].lid,
 			       ib_get_port_state_str(attr_array[i].link_state));
-		}
 		printf("\nEnter choice (1-%u): ", i - 1);
 # else
-		for (i = 0; i < num_ports; i++) {
-			/*
-			   Print the index + 1 since by convention, port numbers
-			   start with 1 on host channel adapters.
-			 */
-
+		for (i = 0; i < num_ports; i++)
+			/* Print the index + 1 since by convention, port
+			 * numbers start with 1 on host channel adapters. */
 			printf("\t%u: GUID 0x%8" PRIx64
 			       ", lid 0x%04X, state %s\n", i + 1,
 			       cl_ntoh64(attr_array[i].port_guid),
 			       attr_array[i].lid,
 			       ib_get_port_state_str(attr_array[i].link_state));
-		}
 		printf("\nEnter choice (1-%u): ", i);
 #endif				/* OSM_VENDOR_INTF_OPENIB */
 
@@ -437,9 +432,8 @@ ib_net64_t get_port_guid(IN osm_opensm_t * p_osm, uint64_t port_guid)
 			{
 				printf("\nError: Lame choice!\n");
 				fflush(stdin);
-			} else {
+			} else
 				done_flag = TRUE;
-			}
 		} else {
 			/* get rid of the junk in the selection line */
 			scanf("%s", junk);
@@ -522,7 +516,7 @@ parse_ignore_guids_file(IN char *guids_file_name, IN osm_opensm_t * p_osm)
 
 	fclose(fh);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_osm->log);
 	return (status);
 }
@@ -578,9 +572,6 @@ int main(int argc, char *argv[])
 	boolean_t run_once_flag = FALSE;
 	int32_t vendor_debug = 0;
 	uint32_t next_option;
-#if 0
-	uint32_t exitTimeout;
-#endif
 	boolean_t cache_options = FALSE;
 	char *ignore_guids_file_name = NULL;
 	uint32_t val;
@@ -695,10 +686,11 @@ int main(int argc, char *argv[])
 			   Specifies port guid with which to bind.
 			 */
 			opt.guid = cl_hton64(strtoull(optarg, NULL, 16));
-			if (!opt.guid) {
-				/* If guid is 0 - need to display the guid list */
+			if (!opt.guid)
+				/* If guid is 0 - need to display the
+				 * guid list */
 				opt.guid = INVALID_GUID;
-			} else
+			else
 				printf(" Guid <0x%" PRIx64 ">\n",
 				       cl_hton64(opt.guid));
 			break;
@@ -770,18 +762,18 @@ int main(int argc, char *argv[])
 				opt.disable_multicast = TRUE;
 			}
 			/*
-			 * NOTE: Debug level 4 used to be used for memory tracking
-			 * but this is now deprecated
+			 * NOTE: Debug level 4 used to be used for memory
+			 * tracking but this is now deprecated
 			 */
-			else if (dbg_lvl == 5) {
+			else if (dbg_lvl == 5)
 				vendor_debug++;
-			} else if (dbg_lvl >= 10) {
-				/* Please look at osm_subnet.h for list of testability modes. */
+			else if (dbg_lvl >= 10)
+				/* Please look at osm_subnet.h for list
+				 * of testability modes. */
 				opt.testability_mode = dbg_lvl - 9;
-			} else
-				printf
-				    (" OpenSM: Unknown debug option %d ignored\n",
-				     dbg_lvl);
+			else
+				printf(" OpenSM: Unknown debug option %d"
+				       " ignored\n", dbg_lvl);
 			break;
 
 		case 'l':
@@ -970,9 +962,8 @@ int main(int argc, char *argv[])
 	status = osm_opensm_init(&osm, &opt);
 	if (status != IB_SUCCESS) {
 		const char *err_str = ib_get_err_str(status);
-		if (err_str == NULL) {
+		if (err_str == NULL)
 			err_str = "Unknown Error Type";
-		}
 		printf("\nError from osm_opensm_init: %s.\n", err_str);
 		/* We will just exit, and not go to Exit, since we don't
 		   want the destroy to be called. */
@@ -993,11 +984,9 @@ int main(int argc, char *argv[])
 		goto Exit;
 	}
 
-	if (cache_options == TRUE) {
-		if (osm_subn_write_conf_file(&opt) != IB_SUCCESS) {
-			printf("\nosm_subn_write_conf_file failed!\n");
-		}
-	}
+	if (cache_options == TRUE
+	    && osm_subn_write_conf_file(&opt) != IB_SUCCESS)
+		printf("\nosm_subn_write_conf_file failed!\n");
 
 	status = osm_opensm_bind(&osm, opt.guid);
 	if (status != IB_SUCCESS) {
@@ -1064,22 +1053,6 @@ int main(int argc, char *argv[])
 		osm_console_close_socket(&osm);
 	}
 
-#if 0
-	/* wait for all transactions to end */
-	CL_ASSERT(((opt.polling_retry_number +
-		    1) * opt.transaction_timeout / 1000.0) < 0x100000000ULL);
-	exitTimeout =
-	    (uint32_t) ((opt.polling_retry_number +
-			 1) * opt.transaction_timeout / 1000.0);
-
-	if (exitTimeout < 3)
-		exitTimeout = 3;
-
-	printf("\n------- OpenSM Exiting (in %u seconds) -------\n",
-	       exitTimeout);
-	sleep(exitTimeout);
-#endif
-
 	if (osm.mad_pool.mads_out) {
 		fprintf(stdout,
 			"There are still %u MADs out. Forcing the exit of the OpenSM application...\n",
@@ -1089,7 +1062,7 @@ int main(int argc, char *argv[])
 #endif
 	}
 
-      Exit:
+Exit:
 	osm_opensm_destroy(&osm);
 	complib_exit();
 
