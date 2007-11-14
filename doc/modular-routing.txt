@@ -57,7 +57,7 @@ The usage is similar to unicast forwarding tables loading from dump
 file (introduced by 'file' routing engine), but new lid matrix file
 name should be specified by -M or --lid_matrix_file option. For example:
 
-  opensm -R file -M ./opensm-lid-matrix.dump
+  opensm -R file -M ./opensm-lid-matrix.dump
 
 The dump file is named 'opensm-lid-matrix.dump' and will be generated in
 standard opensm dump directory (/var/log by default) when

@@ -198,8 +198,8 @@ or visible bugs were also fixed.
 * osm_sminfo_rcv.c: Add SMInfo self query check. OpenSM can query
   itself for SMInfo occassionally due to port moving during subnet
   discovery process. Don't create remote SM entry in this case to
-  prevent deadlocks. 
-    
+  prevent deadlocks.
+
 * osm_ucast_updn.c: Two similar bugs in up/down routing fixed.
   8-bit integers were used as indexes when scanning subnet, which
   in one case caused OpenSM to crash when ranking "path" is longer
