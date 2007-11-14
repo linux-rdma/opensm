@@ -93,7 +93,6 @@ CONF_DIR_TMP2="`echo $CONF_DIR_TMP1 | sed 's/^NONE/$ac_default_prefix/'`"
 CONF_DIR="`eval echo $CONF_DIR_TMP2`"
 
 dnl Check for a different default node name map file
-dnl default {sysconfdir}/ib-node-name-map
 NODENAMEMAPFILE=ib-node-name-map
 AC_MSG_CHECKING(for --with-node-name-map )
 AC_ARG_WITH(node-name-map,
