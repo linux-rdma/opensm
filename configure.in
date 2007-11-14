@@ -112,6 +112,26 @@ AC_DEFINE_UNQUOTED(HAVE_DEFAULT_NODENAME_MAP,
 	["$CONF_DIR/$NODENAMEMAPFILE"],
 	[Define a default node name map file])
 
+dnl Check for a different partition conf file
+PARTITION_CONFIG_FILE=partitions.conf
+AC_MSG_CHECKING(for --with-partitions-conf)
+AC_ARG_WITH(partitions-conf,
+    AC_HELP_STRING([--with-partitions-conf=file],
+                   [define a partitions config file (default partitions.conf)]),
+    [ case "$withval" in
+    no)
+        ;;
+    *)
+        withpartitionsconf=yes
+        PARTITION_CONFIG_FILE=$withval
+        ;;
+    esac ]
+)
+AC_MSG_RESULT(${withpartitionsconf=no})
+AC_DEFINE_UNQUOTED(HAVE_DEFAULT_PARTITION_CONFIG_FILE,
+	["$CONF_DIR/$PARTITION_CONFIG_FILE"],
+	[Define a QOS policy config file])
+
 dnl Check for a different QOS policy file
 QOS_POLICY_FILE=qos-policy.conf
 AC_MSG_CHECKING(for --with-qos-policy-conf)

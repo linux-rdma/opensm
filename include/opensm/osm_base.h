@@ -224,9 +224,13 @@ BEGIN_C_DECLS
 */
 #ifdef __WIN__
 #define OSM_DEFAULT_PARTITION_CONFIG_FILE strcat(GetOsmCachePath(), "osm-partitions.conf")
-#else
-#define OSM_DEFAULT_PARTITION_CONFIG_FILE "/etc/ofa/opensm-partitions.conf"
-#endif
+#else /* !__WIN__ */
+#   ifdef HAVE_DEFAULT_PARTITION_CONFIG_FILE
+#      define OSM_DEFAULT_PARTITION_CONFIG_FILE HAVE_DEFAULT_PARTITION_CONFIG_FILE
+#   else /* !HAVE_DEFAULT_PARTITION_CONFIG_FILE */
+#      define OSM_DEFAULT_PARTITION_CONFIG_FILE "/etc/ofa/opensm-partitions.conf"
+#   endif /* HAVE_DEFAULT_PARTITION_CONFIG_FILE */
+#endif /* __WIN__ */
 /***********/
 
 /****d* OpenSM: Base/OSM_DEFAULT_QOS_POLICY_FILE
