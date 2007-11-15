@@ -263,15 +263,16 @@ ib_net64_t get_port_guid(IN osmtest_t * p_osmt, uint64_t port_guid)
 		return (0);
 	}
 
-	if (port_guid == 0 || num_ports == 1) {
+	if (num_ports == 1) {
 		printf("using default guid 0x%" PRIx64 "\n",
 		       cl_hton64(attr_array[0].port_guid));
 		return (attr_array[0].port_guid);
 	}
 
 	for (i = 0; i < num_ports; i++) {
-		if (attr_array[i].port_guid == port_guid)
-			return port_guid;
+		if (attr_array[i].port_guid == port_guid ||
+		    (!port_guid && attr_array[i].link_state > IB_LINK_DOWN))
+			return attr_array[i].port_guid;
 	}
 
 	return 0;
