@@ -703,24 +703,6 @@ osm_vendor_open_port(IN osm_vendor_t * const p_vend,
 	}
 
 	/* Port found, try to open it */
-	if (umad_get_ca(p_vend->ca_names[ca], &p_vend->umad_ca) < 0) {
-		osm_log(p_vend->p_log, OSM_LOG_ERROR,
-			"osm_vendor_open_port: ERR 542A: "
-			"umad_get_ca() failed\n");
-		goto Exit;
-	}
-
-	/* Validate that node is an IB node type */
-	if (p_vend->umad_ca.node_type < 1 || p_vend->umad_ca.node_type > 3) {
-		osm_log(p_vend->p_log, OSM_LOG_ERROR,
-			"osm_vendor_open_port: ERR 542D: "
-			"Node type %d is not an IB node type\n",
-			p_vend->umad_ca.node_type);
-		fprintf(stderr, "Node type %d is not an IB node type\n",
-			p_vend->umad_ca.node_type);
-		goto Exit;
-	}
-
 	if (umad_get_port(p_vend->ca_names[ca], i, &p_vend->umad_port) < 0) {
 		osm_log(p_vend->p_log, OSM_LOG_ERROR,
 			"osm_vendor_open_port: ERR 542B: "

@@ -158,7 +158,6 @@ typedef struct _osm_vendor {
 	osm_bind_handle_t agents[UMAD_CA_MAX_AGENTS];
 	char ca_names[OSM_UMAD_MAX_CAS][UMAD_CA_NAME_LEN];
 	vendor_match_tbl_t mtbl;
-	umad_ca_t umad_ca;
 	umad_port_t umad_port;
 	pthread_mutex_t cb_mutex;
 	pthread_mutex_t match_tbl_mutex;
