@@ -349,13 +349,12 @@ void show_usage(void)
  **********************************************************************/
 ib_net64_t get_port_guid(IN osm_opensm_t * p_osm, uint64_t port_guid)
 {
-	uint32_t i;
-	uint32_t choice = 0;
+	ib_port_attr_t attr_array[GUID_ARRAY_SIZE];
+	uint32_t num_ports = GUID_ARRAY_SIZE;
 	char junk[128];
+	uint32_t i, choice = 0;
 	boolean_t done_flag = FALSE;
 	ib_api_status_t status;
-	uint32_t num_ports = GUID_ARRAY_SIZE;
-	ib_port_attr_t attr_array[GUID_ARRAY_SIZE];
 
 	/*
 	   Call the transport layer for a list of local port
@@ -382,58 +381,41 @@ ib_net64_t get_port_guid(IN osm_opensm_t * p_osm, uint64_t port_guid)
 		       cl_hton64(attr_array[0].port_guid));
 		return (attr_array[0].port_guid);
 	}
-#if defined ( OSM_VENDOR_INTF_OPENIB )
-	/* If port_guid is 0, and this is gen2 - use the default port
-	 * whose info is in attr_array[0] */
+	/* If port_guid is 0 - use the first connected port */
 	if (port_guid == 0) {
+		for (i = 0; i < num_ports; i++)
+			if (attr_array[i].link_state > IB_LINK_DOWN)
+				break;
+		if (i == num_ports)
+			i = 0;
 		printf("Using default GUID 0x%" PRIx64 "\n",
-		       cl_hton64(attr_array[0].port_guid));
-		return (attr_array[0].port_guid);
+		       cl_hton64(attr_array[i].port_guid));
+		return (attr_array[i].port_guid);
 	}
-#endif				/* OSM_VENDOR_INTF_OPENIB */
 
 	/* More than one possible port - list all ports and let the user
 	 * to choose. */
 	while (done_flag == FALSE) {
 		printf("\nChoose a local port number with which to bind:\n\n");
-		/* If this is gen2 code - then port 0 has details of the
-		 * default port used, no need to print it.
-		 * If this is not gen2 code - need to print details of
-		 * all ports. */
-#if defined ( OSM_VENDOR_INTF_OPENIB )
-		for (i = 1; i < num_ports; i++)
-			printf("\t%u: GUID 0x%8" PRIx64
-			       ", lid 0x%04X, state %s\n", i,
-			       cl_ntoh64(attr_array[i].port_guid),
-			       attr_array[i].lid,
-			       ib_get_port_state_str(attr_array[i].link_state));
-		printf("\nEnter choice (1-%u): ", i - 1);
-# else
 		for (i = 0; i < num_ports; i++)
 			/* Print the index + 1 since by convention, port
 			 * numbers start with 1 on host channel adapters. */
-			printf("\t%u: GUID 0x%8" PRIx64
-			       ", lid 0x%04X, state %s\n", i + 1,
+			printf("\t%u: GUID 0x%" PRIx64
+			       ", lid %u, state %s\n", i + 1,
 			       cl_ntoh64(attr_array[i].port_guid),
 			       attr_array[i].lid,
 			       ib_get_port_state_str(attr_array[i].link_state));
 		printf("\nEnter choice (1-%u): ", i);
-#endif				/* OSM_VENDOR_INTF_OPENIB */
-
 		fflush(stdout);
 		if (scanf("%u", &choice)) {
-			/* If gen2 code - choice can be between 1 to num_ports-1
-			   if not gen2 code - choice can be between 1 to num_ports */
-#if defined ( OSM_VENDOR_INTF_OPENIB )
-			if (choice >= num_ports)
-# else
 			if (choice > num_ports || choice < 1)
-#endif				/* OSM_VENDOR_INTF_OPENIB */
 			{
 				printf("\nError: Lame choice!\n");
 				fflush(stdin);
-			} else
+			} else {
+				choice--;
 				done_flag = TRUE;
+			}
 		} else {
 			/* get rid of the junk in the selection line */
 			scanf("%s", junk);
@@ -441,13 +423,9 @@ ib_net64_t get_port_guid(IN osm_opensm_t * p_osm, uint64_t port_guid)
 			fflush(stdin);
 		}
 	}
-#if defined ( OSM_VENDOR_INTF_OPENIB )
-	printf("Choice guid=0x%8" PRIx64 "\n",
+	printf("Choice guid=0x%" PRIx64 "\n",
 	       cl_ntoh64(attr_array[choice].port_guid));
 	return (attr_array[choice].port_guid);
-# else
-	return (attr_array[choice - 1].port_guid);
-#endif				/* OSM_VENDOR_INTF_OPENIB */
 }
 
 /**********************************************************************
