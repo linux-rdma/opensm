@@ -82,7 +82,7 @@ extern ib_api_status_t osm_prtn_add_port(osm_log_t * p_log,
 					 ib_net64_t guid, boolean_t full);
 extern ib_api_status_t osm_prtn_add_mcgroup(osm_log_t * p_log,
 					    osm_subn_t * p_subn, osm_prtn_t * p,
-					    unsigned is_ipoib, uint8_t rate,
+					    uint8_t rate,
 					    uint8_t mtu, uint8_t scope);
 
 static int partition_create(unsigned lineno, struct part_conf *conf,
@@ -121,7 +121,7 @@ static int partition_create(unsigned lineno, struct part_conf *conf,
 
 	if (conf->is_ipoib)
 		osm_prtn_add_mcgroup(conf->p_log, conf->p_subn, conf->p_prtn,
-				     conf->is_ipoib, (uint8_t) conf->rate,
+				     (uint8_t) conf->rate,
 				     (uint8_t) conf->mtu,
 				     (uint8_t) conf->scope);
 

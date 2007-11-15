@@ -189,7 +189,7 @@ static const ib_gid_t osm_ts_ipoib_mgid = {
 
 ib_api_status_t osm_prtn_add_mcgroup(osm_log_t * p_log,
 				     osm_subn_t * p_subn, osm_prtn_t * p,
-				     unsigned is_ipoib, uint8_t rate,
+				     uint8_t rate,
 				     uint8_t mtu, uint8_t scope)
 {
 	ib_member_rec_t mc_rec;
@@ -338,7 +338,7 @@ static ib_api_status_t osm_prtn_make_default(osm_log_t * const p_log,
 	    osm_prtn_add_port(p_log, p_subn, p, p_subn->sm_port_guid, TRUE);
 
 	if (no_config)
-		osm_prtn_add_mcgroup(p_log, p_subn, p, 1, 0, 0, 0);
+		osm_prtn_add_mcgroup(p_log, p_subn, p, 0, 0, 0);
 
       _err:
 	return status;
