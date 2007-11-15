@@ -393,6 +393,9 @@ ib_net64_t get_port_guid(IN osm_opensm_t * p_osm, uint64_t port_guid)
 		return (attr_array[i].port_guid);
 	}
 
+	if (p_osm->subn.opt.daemon)
+		return 0;
+
 	/* More than one possible port - list all ports and let the user
 	 * to choose. */
 	while (done_flag == FALSE) {
@@ -955,12 +958,6 @@ int main(int argc, char *argv[])
 	 */
 	if (opt.guid == 0 || cl_hton64(opt.guid) == CL_HTON64(INVALID_GUID))
 		opt.guid = get_port_guid(&osm, opt.guid);
-
-	if (opt.guid == 0) {
-		printf("Error: Could not get port guid\n");
-		status = IB_ERROR;
-		goto Exit;
-	}
 
 	if (cache_options == TRUE
 	    && osm_subn_write_conf_file(&opt) != IB_SUCCESS)
