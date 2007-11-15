@@ -656,18 +656,23 @@ osm_vendor_open_port(IN osm_vendor_t * const p_vend,
 		     IN const ib_net64_t port_guid)
 {
 	ib_net64_t portguids[OSM_UMAD_MAX_PORTS_PER_CA + 1];
-	int i = 0, umad_port_id = -1, found = 0;
+	int i = 0, umad_port_id = -1;
+	char *name;
 	int ca, r;
 
 	CL_ASSERT(p_vend);
 
 	OSM_LOG_ENTER(p_vend->p_log, osm_vendor_open_port);
 
-	CL_ASSERT(port_guid);
-
 	if (p_vend->umad_port_id >= 0) {
 		umad_port_id = p_vend->umad_port_id;
 		goto Exit;
+	}
+
+	if (!port_guid) {
+		name = NULL;
+		i = 0;
+		goto _found;
 	}
 
 	for (ca = 0; ca < p_vend->ca_count; ca++) {
@@ -680,37 +685,33 @@ osm_vendor_open_port(IN osm_vendor_t * const p_vend,
 				p_vend->ca_names[ca], strerror(r));
 			goto Exit;
 		}
-
 		for (i = 0; i < r; i++)
 			if (port_guid == portguids[i]) {
-				found = 1;
-				break;
+				name = p_vend->ca_names[ca];
+				goto _found;
 			}
-
-		if (found)
-			break;
 	}
 
-	if (!found) {
-		/*
-		 * No local CA owns this guid!
-		 */
-		osm_log(p_vend->p_log, OSM_LOG_ERROR,
-			"osm_vendor_open_port: ERR 5422: "
-			"Unable to find requested CA guid 0x%" PRIx64 "\n",
-			cl_ntoh64(port_guid));
-		goto Exit;
-	}
+	/*
+	 * No local CA owns this guid!
+	 */
+	osm_log(p_vend->p_log, OSM_LOG_ERROR,
+		"osm_vendor_open_port: ERR 5422: "
+		"Unable to find requested CA guid 0x%" PRIx64 "\n",
+		cl_ntoh64(port_guid));
+	goto Exit;
 
+_found:
 	/* Port found, try to open it */
-	if (umad_get_port(p_vend->ca_names[ca], i, &p_vend->umad_port) < 0) {
+	if (umad_get_port(name, i, &p_vend->umad_port) < 0) {
 		osm_log(p_vend->p_log, OSM_LOG_ERROR,
 			"osm_vendor_open_port: ERR 542B: "
 			"umad_get_port() failed\n");
 		goto Exit;
 	}
 
-	if ((umad_port_id = umad_open_port(p_vend->ca_names[ca], i)) < 0) {
+	if ((umad_port_id = umad_open_port(p_vend->umad_port.ca_name,
+					   p_vend->umad_port.portnum)) < 0) {
 		osm_log(p_vend->p_log, OSM_LOG_ERROR,
 			"osm_vendor_open_port: ERR 542C: "
 			"umad_open_port() failed\n");
