@@ -725,6 +725,8 @@ osm_vendor_open_port(IN osm_vendor_t * const p_vend,
 			"osm_vendor_open_port: ERR 5423: "
 			"Unable to alloc receiver struct\n");
 		umad_close_port(umad_port_id);
+		umad_release_port(&p_vend->umad_port);
+		p_vend->umad_port.port_guid = 0;
 		p_vend->umad_port_id = umad_port_id = -1;
 		goto Exit;
 	}
@@ -733,6 +735,8 @@ osm_vendor_open_port(IN osm_vendor_t * const p_vend,
 			"osm_vendor_open_port: ERR 5420: "
 			"umad_receiver_init failed\n");
 		umad_close_port(umad_port_id);
+		umad_release_port(&p_vend->umad_port);
+		p_vend->umad_port.port_guid = 0;
 		p_vend->umad_port_id = umad_port_id = -1;
 	}
 
@@ -758,6 +762,8 @@ static void osm_vendor_close_port(osm_vendor_t * const p_vend)
 			if (p_vend->agents[i])
 				umad_unregister(p_vend->umad_port_id, i);
 		umad_close_port(p_vend->umad_port_id);
+		umad_release_port(&p_vend->umad_port);
+		p_vend->umad_port.port_guid = 0;
 		p_vend->umad_port_id = -1;
 	}
 }
