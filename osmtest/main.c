@@ -235,10 +235,9 @@ static void print_all_guids(IN osmtest_t * p_osmt)
 	}
 
 	printf("\nListing GUIDs:\n");
-	for (i = 1; i < num_ports; i++) {	/* excluding logical mgmt port */
+	for (i = 0; i < num_ports; i++)
 		printf("Port %i: 0x%" PRIx64 "\n", i,
 		       cl_hton64(attr_array[i].port_guid));
-	}
 }
 
 /**********************************************************************
