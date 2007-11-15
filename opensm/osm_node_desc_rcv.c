@@ -85,7 +85,7 @@ __osm_nd_rcv_process_nd(IN const osm_nd_rcv_t * const p_rcv,
 	/* make a copy for this node to "own" */
 	if (p_node->print_desc)
 		free(p_node->print_desc);
-	p_node->print_desc = strdup(tmp_desc);
+	p_node->print_desc = tmp_desc;
 
 	if (osm_log_is_active(p_rcv->p_log, OSM_LOG_VERBOSE)) {
 		osm_log(p_rcv->p_log, OSM_LOG_VERBOSE,
