@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -55,11 +55,8 @@ typedef struct _osmv_sa_bind_info {
 	osm_log_t *p_log;
 	osm_vendor_t *p_vendor;
 	osm_mad_pool_t *p_mad_pool;
-	uint64_t port_guid;
 	cl_event_t sync_event;
-	uint64_t last_lids_update_sec;
-	uint16_t lid;
-	uint16_t sm_lid;
+	time_t last_lids_update_sec;
 } osmv_sa_bind_info_t;
 
 /*****************************************************************************
@@ -219,93 +216,18 @@ static void __osmv_sa_mad_err_cb(IN void *bind_context, IN osm_madw_t * p_madw)
 }
 
 /*****************************************************************************
- This routine needs to be invoked on every send - since the SM LID and Local
- lid might change. To do that without any major performance impact we cache
- the results and time that they were obtained. Refresh only twice a minute.
- To avoid the need to use statics and risk a race - we require the refresh time
- to be stored in the context of the results. Also this covers cases where
- we query for multiple guids.
+ Update lids of vendor umad_port.
  *****************************************************************************/
-static ib_api_status_t
-__osmv_get_lid_and_sm_lid_by_port_guid(IN osm_vendor_t * const p_vend,
-				       IN ib_net64_t port_guid,
-				       IN OUT uint64_t * p_lids_update_time_sec,
-				       OUT uint16_t * lid,
-				       OUT uint16_t * sm_lid)
+static ib_api_status_t update_umad_port(osm_vendor_t * p_vend)
 {
-	ib_api_status_t status;
-	ib_port_attr_t *p_attr_array;
-	uint32_t num_ports = MAX_PORTS;
-	uint32_t port_num;
-
-	OSM_LOG_ENTER(p_vend->p_log, __osmv_get_lid_and_sm_lid_by_port_guid);
-
-	/* use previous values if current time is close enough to previous query */
-	if ((time(NULL) <= *p_lids_update_time_sec + 30) && *lid && *sm_lid) {
-		osm_log(p_vend->p_log, OSM_LOG_DEBUG,
-			"__osmv_get_lid_and_sm_lid_by_port_guid: "
-			"Using previously stored lid:0x%04x sm_lid:0x%04x\n",
-			*lid, *sm_lid);
-		status = IB_SUCCESS;
-		goto Exit;
-	}
-
-	/* obtain the number of available ports */
-	num_ports = MAX_PORTS;
-	status = osm_vendor_get_all_port_attr(p_vend, NULL, &num_ports);
-	if (status != IB_INSUFFICIENT_MEMORY) {
-		osm_log(p_vend->p_log, OSM_LOG_ERROR,
-			"__osmv_get_lid_and_sm_lid_by_port_guid: ERR 5503: "
-			"expected to get IB_INSUFFICIENT_MEMORY but got: %s\n",
-			ib_get_err_str(status)
-		    );
-		status = IB_ERROR;
-		goto Exit;
-	}
-
-	osm_log(p_vend->p_log, OSM_LOG_DEBUG,
-		"__osmv_get_lid_and_sm_lid_by_port_guid: "
-		"Found total of %u ports. Looking for guid:0x%016" PRIx64 "\n",
-		num_ports, cl_ntoh64(port_guid)
-	    );
-
-	/* allocate the attributes */
-	p_attr_array =
-	    (ib_port_attr_t *) malloc(sizeof(ib_port_attr_t) * num_ports);
-
-	/* obtain the attributes */
-	status = osm_vendor_get_all_port_attr(p_vend, p_attr_array, &num_ports);
-	if (status != IB_SUCCESS) {
-		osm_log(p_vend->p_log, OSM_LOG_ERROR,
-			"__osmv_get_lid_and_sm_lid_by_port_guid: ERR 5504: "
-			"Failed to get port attributes (error: %s)\n",
-			ib_get_err_str(status)
-		    );
-		free(p_attr_array);
-		goto Exit;
-	}
-
-	status = IB_ERROR;
-	/* find the port requested in the list */
-	for (port_num = 0; (port_num < num_ports) && (status == IB_ERROR);
-	     port_num++) {
-		if (p_attr_array[port_num].port_guid == port_guid) {
-			*lid = p_attr_array[port_num].lid;
-			*sm_lid = p_attr_array[port_num].sm_lid;
-			*p_lids_update_time_sec = time(NULL);
-			status = IB_SUCCESS;
-			osm_log(p_vend->p_log, OSM_LOG_DEBUG,
-				"__osmv_get_lid_and_sm_lid_by_port_guid: "
-				"Found guid:0x%016" PRIx64 " with idx:%d\n",
-				cl_ntoh64(port_guid), port_num);
-		}
-	}
-
-	free(p_attr_array);
-
-      Exit:
-	OSM_LOG_EXIT(p_vend->p_log);
-	return (status);
+	umad_port_t port;
+	if (umad_get_port(p_vend->umad_port.ca_name,
+			  p_vend->umad_port.portnum, &port) < 0)
+		return IB_ERROR;
+	p_vend->umad_port.base_lid = port.base_lid;
+	p_vend->umad_port.sm_lid = port.sm_lid;
+	umad_release_port(&port);
+	return IB_SUCCESS;
 }
 
 /*****************************************************************************
@@ -316,7 +238,6 @@ osmv_bind_sa(IN osm_vendor_t * const p_vend,
 {
 	osm_bind_info_t bind_info;
 	osm_log_t *p_log = p_vend->p_log;
-	ib_api_status_t status = IB_SUCCESS;
 	osmv_sa_bind_info_t *p_sa_bind_info;
 	cl_status_t cl_status;
 
@@ -348,10 +269,8 @@ osmv_bind_sa(IN osm_vendor_t * const p_vend,
 
 	/* store some important context */
 	p_sa_bind_info->p_log = p_log;
-	p_sa_bind_info->port_guid = port_guid;
 	p_sa_bind_info->p_mad_pool = p_mad_pool;
 	p_sa_bind_info->p_vendor = p_vend;
-	p_sa_bind_info->last_lids_update_sec = 0;
 
 	/* Bind to the lower level */
 	p_sa_bind_info->h_bind = osm_vendor_bind(p_vend, &bind_info, p_mad_pool, __osmv_sa_mad_rcv_cb, __osmv_sa_mad_err_cb, p_sa_bind_info);	/* context provided to CBs */
@@ -365,21 +284,8 @@ osmv_bind_sa(IN osm_vendor_t * const p_vend,
 		goto Exit;
 	}
 
-	/* obtain the sm_lid from the vendor */
-	status =
-	    __osmv_get_lid_and_sm_lid_by_port_guid(p_vend, port_guid,
-						   &p_sa_bind_info->
-						   last_lids_update_sec,
-						   &p_sa_bind_info->lid,
-						   &p_sa_bind_info->sm_lid);
-	if (status != IB_SUCCESS) {
-		free(p_sa_bind_info);
-		p_sa_bind_info = OSM_BIND_INVALID_HANDLE;
-		osm_log(p_log, OSM_LOG_ERROR,
-			"osmv_bind_sa: ERR 5507: "
-			"Failed to obtain the SM lid\n");
-		goto Exit;
-	}
+	/* update time umad_port is initilized now */
+	p_sa_bind_info->last_lids_update_sec = time(NULL);
 
 	/* initialize the sync_event */
 	cl_event_construct(&p_sa_bind_info->sync_event);
@@ -465,18 +371,15 @@ __osmv_send_sa_req(IN osmv_sa_bind_info_t * p_bind,
 	   (actually it is cached in the bind object and refreshed
 	   every 30sec by this proc )
 	 */
-	status =
-	    __osmv_get_lid_and_sm_lid_by_port_guid(p_bind->p_vendor,
-						   p_bind->port_guid,
-						   &p_bind->
-						   last_lids_update_sec,
-						   &p_bind->lid,
-						   &p_bind->sm_lid);
-	if (status != IB_SUCCESS) {
-		osm_log(p_log, OSM_LOG_ERROR,
-			"__osmv_send_sa_req: ERR 5509: "
-			"Failed to obtain the SM lid\n");
-		goto Exit;
+	if (time(NULL) > p_bind->last_lids_update_sec + 30) {
+		status = update_umad_port(p_bind->p_vendor);
+		if (status != IB_SUCCESS) {
+			osm_log(p_log, OSM_LOG_ERROR,
+				"__osmv_send_sa_req: ERR 5509: "
+				"Failed to obtain the SM lid\n");
+			goto Exit;
+		}
+		p_bind->last_lids_update_sec = time(NULL);
 	}
 
 	/* Get a MAD wrapper for the send */
@@ -529,8 +432,10 @@ __osmv_send_sa_req(IN osmv_sa_bind_info_t * p_bind,
 	/*
 	   Provide the address to send to
 	 */
-	p_madw->mad_addr.dest_lid = cl_hton16(p_bind->sm_lid);
-	p_madw->mad_addr.addr_type.smi.source_lid = cl_hton16(p_bind->lid);
+	p_madw->mad_addr.dest_lid =
+		cl_hton16(p_bind->p_vendor->umad_port.sm_lid);
+	p_madw->mad_addr.addr_type.smi.source_lid =
+		cl_hton16(p_bind->p_vendor->umad_port.base_lid);
 	p_madw->mad_addr.addr_type.gsi.remote_qp = CL_HTON32(1);
 	p_madw->resp_expected = TRUE;
 	p_madw->fail_msg = CL_DISP_MSGID_NONE;
