@@ -543,18 +543,10 @@ osm_vendor_get_all_port_attr(IN osm_vendor_t * const p_vend,
 			     IN ib_port_attr_t * const p_attr_array,
 			     IN uint32_t * const p_num_ports)
 {
-	ib_net64_t portguids[*p_num_ports];
-	ib_net64_t *p_guid = portguids, *e = portguids + *p_num_ports;
 	umad_ca_t ca;
-	int lids[*p_num_ports];
-	int linkstates[*p_num_ports];
-	int portnums[*p_num_ports];
-	int *p_lid = lids;
-	int *p_linkstates = linkstates;
-	int *p_portnum = portnums;
-	umad_port_t def_port = { "" };
+	ib_port_attr_t *attr = p_attr_array;
+	unsigned done = 0;
 	int r, i, j;
-	int sm_lid = 0;
 
 	OSM_LOG_ENTER(p_vend->p_log, osm_vendor_get_all_port_attr);
 
@@ -568,81 +560,37 @@ osm_vendor_get_all_port_attr(IN osm_vendor_t * const p_vend,
 		goto Exit;
 	}
 
-	for (i = 0; p_guid < e && i < p_vend->ca_count; i++) {
+	if (!p_attr_array) {
+		r = IB_INSUFFICIENT_MEMORY;
+		*p_num_ports = 0;
+		goto Exit;
+	}
+
+	for (i = 0; i < p_vend->ca_count && !done; i++) {
 		/*
 		 * For each CA, retrieve the port guids
 		 */
-		if ((r = umad_get_ca_portguids(p_vend->ca_names[i],
-					       p_guid, e - p_guid)) < 0) {
-			osm_log(p_vend->p_log, OSM_LOG_ERROR,
-				"osm_vendor_get_all_port_attr: ERR 5419: "
-				"Unable to get CA %s port guids (%s)\n",
-				p_vend->ca_names[i], strerror(r));
-			goto Exit;
-		}
-
-		p_guid += r;
-
-		if ((r = umad_get_ca(p_vend->ca_names[i], &ca)) == 0) {
+		if (umad_get_ca(p_vend->ca_names[i], &ca) == 0) {
 			for (j = 0; j <= ca.numports; j++) {
-				if (ca.ports[j]) {
-					*p_lid = ca.ports[j]->base_lid;
-					*p_linkstates = ca.ports[j]->state;
-					*p_portnum = ca.ports[j]->portnum;
-					free(ca.ports[j]);
+				if (!ca.ports[j])
+					continue;
+				attr->port_guid = ca.ports[j]->port_guid;
+				attr->lid = ca.ports[j]->base_lid;
+				attr->port_num = ca.ports[j]->portnum;
+				attr->sm_lid = ca.ports[j]->sm_lid;
+				attr->link_state = ca.ports[j]->state;
+				attr++;
+				if (attr - p_attr_array > *p_num_ports) {
+					done = 1;
+					break;
 				}
-				p_lid++;
-				p_linkstates++;
-				p_portnum++;
 			}
+			umad_release_ca(&ca);
 		}
 	}
 
-	*p_num_ports = p_guid - portguids;
-
-	/*
-	 * If no port 0 - we are on other than switch.
-	 * Get a default 'best' port from the library.
-	 */
-	if (*p_num_ports && !portguids[0]) {
-		umad_get_port(0, 0, &def_port);
-
-		portguids[0] = def_port.port_guid;
-		lids[0] = def_port.base_lid;
-		linkstates[0] = def_port.state;
-		portnums[0] = def_port.portnum;
-		sm_lid = def_port.sm_lid;
-
-		osm_log(p_vend->p_log, OSM_LOG_DEBUG,
-			"osm_vendor_get_all_port_attr: "
-			"assign CA %s port %d guid (0x%" PRIx64
-			") as the default port\n", def_port.ca_name,
-			def_port.portnum, cl_hton64(def_port.port_guid));
-
-		umad_release_port(&def_port);
-	}
-
-	j = 0;
-	if (p_attr_array) {
-		/* set the port guid, lid, and sm lid in the port attr struct */
-		for (i = 0; i < *p_num_ports; i++) {
-			if (i > 0 && portguids[i] == 0)
-				continue;
-			p_attr_array[j].port_guid = portguids[i];
-			p_attr_array[j].lid = lids[i];
-			p_attr_array[j].port_num = portnums[i];
-			if (j == 0)
-				p_attr_array[j].sm_lid = sm_lid;
-			else
-				p_attr_array[j].sm_lid =
-				    p_vend->umad_port.sm_lid;
-			p_attr_array[j].link_state = linkstates[i];
-			j++;
-		}
-		r = 0;
-		*p_num_ports = j;
-	} else
-		r = IB_INSUFFICIENT_MEMORY;
+	*p_num_ports = attr - p_attr_array;
+	r = 0;
 
       Exit:
 	OSM_LOG_EXIT(p_vend->p_log);
