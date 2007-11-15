@@ -400,6 +400,11 @@ void osm_qos_policy_match_rule_destroy(osm_qos_match_rule_t * p)
 	if (p->qos_class_range_arr)
 		free(p->qos_class_range_arr);
 
+	for (i = 0; i < p->pkey_range_len; i++)
+		free(p->pkey_range_arr[i]);
+	if (p->pkey_range_arr)
+		free(p->pkey_range_arr);
+
 	cl_list_apply_func(&p->source_list, __free_single_element, NULL);
 	cl_list_remove_all(&p->source_list);
 	cl_list_destroy(&p->source_list);
