@@ -74,7 +74,7 @@ typedef struct _osmv_sa_bind_info {
   A pointer to the actual context of the request (a copy of the oriignal
   request structure) is attached as the p_madw->context.ni_context.node_guid
 */
-void
+static void
 __osmv_sa_mad_rcv_cb(IN osm_madw_t * p_madw,
 		     IN void *bind_context, IN osm_madw_t * p_req_madw)
 {
@@ -185,7 +185,7 @@ __osmv_sa_mad_rcv_cb(IN osm_madw_t * p_madw,
 
   Only report the error and get rid of the mad wrapper
 */
-void __osmv_sa_mad_err_cb(IN void *bind_context, IN osm_madw_t * p_madw)
+static void __osmv_sa_mad_err_cb(IN void *bind_context, IN osm_madw_t * p_madw)
 {
 	osmv_sa_bind_info_t *p_bind = (osmv_sa_bind_info_t *) bind_context;
 	osmv_query_req_t *p_query_req_copy = NULL;
@@ -226,7 +226,7 @@ void __osmv_sa_mad_err_cb(IN void *bind_context, IN osm_madw_t * p_madw)
  to be stored in the context of the results. Also this covers cases where
  we query for multiple guids.
  *****************************************************************************/
-ib_api_status_t
+static ib_api_status_t
 __osmv_get_lid_and_sm_lid_by_port_guid(IN osm_vendor_t * const p_vend,
 				       IN ib_net64_t port_guid,
 				       IN OUT uint64_t * p_lids_update_time_sec,
@@ -444,7 +444,7 @@ typedef struct _osmv_sa_mad_data {
 /*****************************************************************************
  *****************************************************************************/
 /* Send a MAD out on the GSI interface */
-ib_api_status_t
+static ib_api_status_t
 __osmv_send_sa_req(IN osmv_sa_bind_info_t * p_bind,
 		   IN const osmv_sa_mad_data_t * const p_sa_mad_data,
 		   IN const osmv_query_req_t * const p_query_req)

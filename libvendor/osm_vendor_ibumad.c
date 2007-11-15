@@ -237,7 +237,7 @@ static void unlock_mutex(void *arg)
 	pthread_mutex_unlock(arg);
 }
 
-void *umad_receiver(void *p_ptr)
+static void *umad_receiver(void *p_ptr)
 {
 	umad_receiver_t *const p_ur = (umad_receiver_t *) p_ptr;
 	osm_vendor_t *p_vend = p_ur->p_vend;
@@ -938,7 +938,7 @@ osm_vendor_bind(IN osm_vendor_t * const p_vend,
 
 /**********************************************************************
  **********************************************************************/
-void
+static void
 __osm_vendor_recv_dummy_cb(IN osm_madw_t * p_madw,
 			   IN void *bind_context, IN osm_madw_t * p_req_madw)
 {
@@ -950,7 +950,7 @@ __osm_vendor_recv_dummy_cb(IN osm_madw_t * p_madw,
 
 /**********************************************************************
  **********************************************************************/
-void
+static void
 __osm_vendor_send_err_dummy_cb(IN void *bind_context,
 			       IN osm_madw_t * p_req_madw)
 {
