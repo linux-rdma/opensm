@@ -20,6 +20,7 @@ opensm \- InfiniBand subnet manager and administration (SM/SA)
 [\-Q | \-\-qos] [\-N | \-\-no_part_enforce] [\-y | \-\-stay_on_fatal]
 [\-B | \-\-daemon] [\-I | \-\-inactive]
 [\-\-perfmgr] [\-\-perfmgr_sweep_time_s <seconds>]
+[\-\-prefix_routes_file <path>]
 [\-v(erbose)] [\-V] [\-D <flags>] [\-d(ebug) <number>] [\-h(elp)] [\-?]
 
 .SH DESCRIPTION
@@ -200,6 +201,13 @@ is accumulative.
 \fB\-P\fR, \fB\-\-Pconfig\fR
 This option defines the optional partition configuration file.
 The default name is \'/etc/opensm/opensm-partitions.conf\'.
+.TP
+.BI --prefix_routes_file= path
+Prefix routes control how the SA responds to path record queries for
+off-subnet DGIDs.  By default, the SA fails such queries. The
+.B PREFIX ROUTES
+section below describes the format of the configuration file.
+The default path is \fB\%/etc/ofa/opensm\-prefix\-routes.conf\fP.
 .TP
 \fB\-Q\fR, \fB\-\-qos\fR
 This option enables QoS setup. It is disabled by default.
@@ -464,6 +472,39 @@ Examples:
  qos_sw0_max_vls=2
  qos_ca_sl2vl=0,1,2,3,5,5,5,12,12,0,
  qos_swe_high_limit=0
+
+.SH PREFIX ROUTES
+.PP
+Prefix routes control how the SA responds to path record queries for
+off-subnet DGIDs.  By default, the SA fails such queries.
+Note that IBA does not specify how the SA should obtain off-subnet path
+record information.
+The prefix routes configuration is meant as a stop-gap until the
+specification is completed.
+.PP
+Each line in the configuration file is a 64-bit prefix followed by a
+64-bit GUID, separated by white space.
+The GUID specifies the router port on the local subnet that will
+handle the prefix.
+Blank lines are ignored, as is anything between a \fB#\fP character
+and the end of the line.
+The prefix and GUID are both in hex, the leading 0x is optional.
+Either, or both, can be wild-carded by specifying an
+asterisk instead of an explicit prefix or GUID.
+.PP
+When responding to a path record query for an off-subnet DGID,
+opensm searches for the first prefix match in the configuration file.
+Therefore, the order of the lines in the configuration file is important:
+a wild-carded prefix at the beginning of the configuration file renders
+all subsequent lines useless.
+If there is no match, then opensm fails the query.
+It is legal to repeat prefixes in the configuration file,
+opensm will return the path to the first available matching router.
+A configuration file with a single line where both prefix and GUID
+are wild-carded means that a path record query specifying any
+off-subnet DGID should return a path to the first available router.
+This configuration yields the same behaviour formerly achieved by
+compiling opensm with -DROUTER_EXP.
 
 .SH ROUTING
 .PP
@@ -872,6 +913,10 @@ a file compatible with dump_lfts.sh output. This file can be used
 as input for forwarding tables loading by 'file' routing engine.
 Both or one of options -U and -M can be specified together with \'-R file\'.
 
+.SH FILES
+.TP
+.B /etc/ofa/opensm-prefix-routes.conf
+default prefix routes file.
 
 .SH AUTHORS
 .TP

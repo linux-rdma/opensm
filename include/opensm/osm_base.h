@@ -253,6 +253,22 @@ BEGIN_C_DECLS
 #endif /* __WIN__ */
 /***********/
 
+/****d* OpenSM: Base/OSM_DEFAULT_PREFIX_ROUTES_FILE
+* NAME
+*	OSM_DEFAULT_PREFIX_ROUTES_FILE
+*
+* DESCRIPTION
+*	Specifies the default prefix routes file name
+*
+* SYNOPSIS
+*/
+#ifdef __WIN__
+#define OSM_DEFAULT_PREFIX_ROUTES_FILE strcat(GetOsmCachePath(), "osm-prefix-routes.conf")
+#else
+#define OSM_DEFAULT_PREFIX_ROUTES_FILE "/etc/ofa/opensm-prefix-routes.conf"
+#endif
+/***********/
+
 /****d* OpenSM: Base/OSM_DEFAULT_SWEEP_INTERVAL_SECS
 * NAME
 *	OSM_DEFAULT_SWEEP_INTERVAL_SECS

@@ -291,6 +291,11 @@ void show_usage(void)
 	printf("--perfmgr_sweep_time_s <sec.>\n"
 	       "           PerfMgr sweep interval in seconds.\n\n");
 #endif
+	printf("--prefix_routes_file <path to file>\n"
+	       "          This option specifies the prefix routes file.\n"
+	       "          Prefix routes control how the SA responds to path record\n"
+	       "          queries for off-subnet DGIDs.  Default file is:\n"
+	       "              "OSM_DEFAULT_PREFIX_ROUTES_FILE"\n\n");
 	printf("-v\n"
 	       "--verbose\n"
 	       "          This option increases the log verbosity level.\n"
@@ -609,6 +614,7 @@ int main(int argc, char *argv[])
 		{"perfmgr", 0, NULL, 1},
 		{"perfmgr_sweep_time_s", 1, NULL, 2},
 #endif
+		{"prefix_routes_file", 1, NULL, 3},
 		{NULL, 0, NULL, 0}	/* Required at the end of the array */
 	};
 
@@ -911,6 +917,9 @@ int main(int argc, char *argv[])
 			break;
 #endif				/* ENABLE_OSM_PERF_MGR */
 
+		case 3:
+			opt.prefix_routes_file = optarg;
+			break;
 		case 'h':
 		case '?':
 		case ':':

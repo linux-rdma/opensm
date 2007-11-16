@@ -38,6 +38,7 @@ EXTRA_DIST = \
 	$(srcdir)/opensm/osm_switch.h \
 	$(srcdir)/opensm/osm_sw_info_rcv.h \
 	$(srcdir)/opensm/osm_router.h \
+	$(srcdir)/opensm/osm_prefix_route.h \
 	$(srcdir)/opensm/osm_sa_slvl_record.h \
 	$(srcdir)/opensm/osm_opensm.h \
 	$(srcdir)/opensm/osm_sa.h \

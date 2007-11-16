@@ -54,6 +54,7 @@
 #include <complib/cl_ptr_vector.h>
 #include <complib/cl_list.h>
 #include <opensm/osm_base.h>
+#include <opensm/osm_prefix_route.h>
 
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
@@ -298,6 +299,7 @@ typedef struct _osm_subn_opt {
 #endif				/* ENABLE_OSM_PERF_MGR */
 	char *event_plugin_name;
 	char *node_name_map_name;
+	char *prefix_routes_file;
 } osm_subn_opt_t;
 /*
 * FIELDS
@@ -550,6 +552,7 @@ typedef struct _osm_subn {
 	cl_qmap_t node_guid_tbl;
 	cl_qmap_t port_guid_tbl;
 	cl_qmap_t rtr_guid_tbl;
+	cl_qlist_t prefix_routes_list;
 	cl_qmap_t prtn_pkey_tbl;
 	cl_qmap_t mgrp_mlid_tbl;
 	cl_qmap_t sm_guid_tbl;

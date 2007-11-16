@@ -69,10 +69,9 @@
 #include <opensm/osm_opensm.h>
 #include <opensm/osm_qos_policy.h>
 #include <opensm/osm_sa.h>
-#ifdef ROUTER_EXP
 #include <opensm/osm_router.h>
 #include <opensm/osm_sa_mcmember_record.h>
-#endif
+#include <opensm/osm_prefix_route.h>
 
 #define OSM_PR_RCV_POOL_MIN_SIZE    64
 #define OSM_PR_RCV_POOL_GROW_SIZE   64
@@ -858,19 +857,12 @@ __osm_pr_rcv_build_pr(IN osm_pr_rcv_t * const p_rcv,
 {
 	const osm_physp_t *p_src_physp;
 	const osm_physp_t *p_dest_physp;
-#ifdef ROUTER_EXP
 	boolean_t is_nonzero_gid = 0;
-#endif
 
 	OSM_LOG_ENTER(p_rcv->p_log, __osm_pr_rcv_build_pr);
 
 	p_src_physp = p_src_port->p_physp;
-#ifndef ROUTER_EXP
-	p_dest_physp = p_dest_port->p_physp;
 
-	p_pr->dgid.unicast.prefix = osm_physp_get_subnet_prefix(p_dest_physp);
-	p_pr->dgid.unicast.interface_id = osm_physp_get_port_guid(p_dest_physp);
-#else
 	if (p_dgid) {
 		if (memcmp(p_dgid, &zero_gid, sizeof(*p_dgid)))
 			is_nonzero_gid = 1;
@@ -886,7 +878,6 @@ __osm_pr_rcv_build_pr(IN osm_pr_rcv_t * const p_rcv,
 		p_pr->dgid.unicast.interface_id =
 		    osm_physp_get_port_guid(p_dest_physp);
 	}
-#endif
 
 	p_pr->sgid.unicast.prefix = osm_physp_get_subnet_prefix(p_src_physp);
 	p_pr->sgid.unicast.interface_id = osm_physp_get_port_guid(p_src_physp);
@@ -895,11 +886,10 @@ __osm_pr_rcv_build_pr(IN osm_pr_rcv_t * const p_rcv,
 	p_pr->slid = cl_hton16(src_lid_ho);
 
 	p_pr->hop_flow_raw &= cl_hton32(1 << 31);
-#ifdef ROUTER_EXP
+
 	/* Only set HopLimit if going through a router */
 	if (is_nonzero_gid)
 		p_pr->hop_flow_raw |= cl_hton32(IB_HOPLIMIT_MAX);
-#endif
 
 	p_pr->pkey = p_parms->pkey;
 	ib_path_rec_set_sl(p_pr, p_parms->sl);
@@ -1262,10 +1252,8 @@ __osm_pr_rcv_get_end_points(IN osm_pr_rcv_t * const p_rcv,
 	ib_net64_t dest_guid;
 	ib_api_status_t status;
 	ib_net16_t sa_status = IB_SA_MAD_STATUS_SUCCESS;
-#ifdef ROUTER_EXP
 	osm_router_t *p_rtr;
 	osm_port_t *p_rtr_port;
-#endif
 
 	OSM_LOG_ENTER(p_rcv->p_log, __osm_pr_rcv_get_end_points);
 
@@ -1359,20 +1347,47 @@ __osm_pr_rcv_get_end_points(IN osm_pr_rcv_t * const p_rcv,
 					"Non local DGID subnet prefix 0x%016"
 					PRIx64 "\n",
 					cl_ntoh64(p_pr->dgid.unicast.prefix));
-#ifndef ROUTER_EXP
-				/*
-				   This 'error' is the client's fault (bad gid) so
-				   don't enter it as an error in our own log.
-				   Return an error response to the client.
-				 */
-				sa_status = IB_SA_MAD_STATUS_INVALID_GID;
-				goto Exit;
-#else
-				/* Just use "first" router (if it exists) for now */
-				p_rtr =
-				    (osm_router_t *) cl_qmap_head(&p_rcv->
-								  p_subn->
-								  rtr_guid_tbl);
+
+				/* Find the router port that is configured to handle
+				   this prefix, if any: */
+				osm_prefix_route_t *route = NULL;
+				osm_prefix_route_t *r = (osm_prefix_route_t *)
+					cl_qlist_head(&p_rcv->p_subn->prefix_routes_list);
+
+				while (r != (osm_prefix_route_t *)
+				       cl_qlist_end(&p_rcv->p_subn->prefix_routes_list))
+				{
+					if (r->prefix == p_pr->dgid.unicast.prefix ||
+					    r->prefix == 0)
+					{
+						route = r;
+						break;
+					}
+					r = (osm_prefix_route_t *) cl_qlist_next(&r->list_item);
+				}
+
+				if (! route) {
+					/*
+					  This 'error' is the client's fault (bad gid) so
+					  don't enter it as an error in our own log.
+					  Return an error response to the client.
+					*/
+					sa_status = IB_SA_MAD_STATUS_INVALID_GID;
+					goto Exit;
+				} else if (route->guid == 0) {
+					/* first router */
+					p_rtr = (osm_router_t *)
+						cl_qmap_head(&p_rcv->
+							     p_subn->
+							     rtr_guid_tbl);
+				} else {
+					p_rtr = (osm_router_t *)
+						cl_qmap_get(&p_rcv->
+							    p_subn->
+							    rtr_guid_tbl,
+							    route->guid);
+				}
+
 				if (p_rtr ==
 				    (osm_router_t *) cl_qmap_end(&p_rcv->
 								 p_subn->
@@ -1380,7 +1395,7 @@ __osm_pr_rcv_get_end_points(IN osm_pr_rcv_t * const p_rcv,
 				{
 					osm_log(p_rcv->p_log, OSM_LOG_ERROR,
 						"__osm_pr_rcv_get_end_points: ERR 1F22: "
-						"Off subnet DGID but no routers found\n");
+						"Off subnet DGID but router not found\n");
 					sa_status =
 					    IB_SA_MAD_STATUS_INVALID_GID;
 					goto Exit;
@@ -1390,7 +1405,6 @@ __osm_pr_rcv_get_end_points(IN osm_pr_rcv_t * const p_rcv,
 				dest_guid = osm_port_get_guid(p_rtr_port);
 				if (p_dgid)
 					*p_dgid = p_pr->dgid;
-#endif
 			}
 		}
 
@@ -2134,22 +2148,14 @@ void osm_pr_rcv_process(IN void *context, IN void *data)
 					  &sl, &flow_label, &hop_limit);
 		ib_path_rec_set_sl(&p_pr_item->path_rec, sl);
 		ib_path_rec_set_qos_class(&p_pr_item->path_rec, 0);
-#ifndef ROUTER_EXP
-		p_pr_item->path_rec.hop_flow_raw =
-		    cl_hton32(hop_limit) | (flow_label << 8);
-#else
+
 		/* HopLimit is not yet set in non link local MC groups */
 		/* If it were, this would not be needed */
-		if (ib_mgid_get_scope
-		    (&p_mgrp->mcmember_rec.mgid) == MC_SCOPE_LINK_LOCAL)
-			p_pr_item->path_rec.
-			    hop_flow_raw =
-			    cl_hton32(hop_limit) | (flow_label << 8);
-		else
-			p_pr_item->path_rec.
-			    hop_flow_raw =
-			    cl_hton32(IB_HOPLIMIT_MAX) | (flow_label << 8);
-#endif
+		if (ib_mgid_get_scope(&p_mgrp->mcmember_rec.mgid) != MC_SCOPE_LINK_LOCAL)
+			hop_limit = IB_HOPLIMIT_MAX;
+
+		p_pr_item->path_rec.hop_flow_raw =
+			cl_hton32(hop_limit) | (flow_label << 8);
 
 		cl_qlist_insert_tail(&pr_list, (cl_list_item_t *)
 				     & p_pr_item->pool_item);
