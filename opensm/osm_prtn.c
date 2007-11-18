@@ -355,7 +355,7 @@ ib_api_status_t osm_prtn_make_partitions(osm_log_t * const p_log,
 	osm_prtn_t *p;
 
 	file_name = p_subn->opt.partition_config_file ?
-	    p_subn->opt.partition_config_file : "/etc/osm-partitions.conf";
+	    p_subn->opt.partition_config_file : OSM_DEFAULT_PARTITION_CONFIG_FILE;
 	if (stat(file_name, &statbuf))
 		is_config = FALSE;
 
