@@ -555,16 +555,6 @@ __qos_policy_is_port_in_group(osm_subn_t * p_subn,
 	    cl_qmap_end(&p_port_group->port_map))
 		return TRUE;
 
-	/* check whether this port's name matches any of group's names */
-
-	/*
-	 * TODO: check port names
-	 *
-	 *  char desc[IB_NODE_DESCRIPTION_SIZE + 1];
-	 *  memcpy(desc, p_node->node_desc.description, IB_NODE_DESCRIPTION_SIZE);
-	 *  desc[IB_NODE_DESCRIPTION_SIZE] = '\0';
-	 */
-
 	return FALSE;
 }				/* __qos_policy_is_port_in_group() */
 
