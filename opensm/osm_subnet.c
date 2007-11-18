@@ -741,10 +741,6 @@ ib_api_status_t osm_subn_rescan_conf_files(IN osm_subn_t * const p_subn)
 	}
 	fclose(opts_file);
 
-	/* read QoS policy config file */
-	if (p_subn->opt.qos)
-		osm_qos_parse_policy_file(p_subn);
-
 	return IB_SUCCESS;
 }
 

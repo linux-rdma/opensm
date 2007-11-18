@@ -52,6 +52,7 @@
 #include <complib/cl_debug.h>
 #include <opensm/osm_opensm.h>
 #include <opensm/osm_subnet.h>
+#include <opensm/osm_qos_policy.h>
 
 struct qos_config {
 	uint8_t max_vls;
@@ -295,6 +296,9 @@ osm_signal_t osm_qos_setup(osm_opensm_t * p_osm)
 			 &p_osm->subn.opt.qos_options);
 
 	cl_plock_excl_acquire(&p_osm->lock);
+
+	/* read QoS policy config file */
+	osm_qos_parse_policy_file(&p_osm->subn);
 
 	p_tbl = &p_osm->subn.port_guid_tbl;
 	p_next = cl_qmap_head(p_tbl);
