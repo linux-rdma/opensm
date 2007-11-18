@@ -604,6 +604,7 @@ osm_vendor_open_port(IN osm_vendor_t * const p_vend,
 		     IN const ib_net64_t port_guid)
 {
 	ib_net64_t portguids[OSM_UMAD_MAX_PORTS_PER_CA + 1];
+	umad_ca_t umad_ca;
 	int i = 0, umad_port_id = -1;
 	char *name;
 	int ca, r;
@@ -650,6 +651,26 @@ osm_vendor_open_port(IN osm_vendor_t * const p_vend,
 	goto Exit;
 
 _found:
+	/* Validate that node is an IB node type (not iWARP) */
+	if (umad_get_ca(name, &umad_ca) < 0) {
+		osm_log(p_vend->p_log, OSM_LOG_ERROR,
+			"osm_vendor_open_port: ERR 542A: "
+			"umad_get_ca() failed\n");
+		goto Exit;
+	}
+
+	if (umad_ca.node_type < 1 || umad_ca.node_type > 3) {
+		osm_log(p_vend->p_log, OSM_LOG_ERROR,
+			"osm_vendor_open_port: ERR 542D: "
+			"Type %d of node \'%s\' is not an IB node type\n",
+			umad_ca.node_type, umad_ca.ca_name);
+		fprintf(stderr, "Type %d of node \'%s\' is not an IB node type\n",
+			umad_ca.node_type, umad_ca.ca_name);
+		umad_release_ca(&umad_ca);
+		goto Exit;
+	}
+	umad_release_ca(&umad_ca);
+
 	/* Port found, try to open it */
 	if (umad_get_port(name, i, &p_vend->umad_port) < 0) {
 		osm_log(p_vend->p_log, OSM_LOG_ERROR,
