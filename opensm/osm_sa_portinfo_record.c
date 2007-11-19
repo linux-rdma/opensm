@@ -461,7 +461,7 @@ __osm_sa_pir_check_physp(IN osm_pir_rcv_t * const p_rcv,
  **********************************************************************/
 static void
 __osm_sa_pir_by_comp_mask(IN osm_pir_rcv_t * const p_rcv,
-			  IN const osm_port_t * const p_port,
+			  IN const osm_node_t * const p_node,
 			  osm_pir_search_ctxt_t * const p_ctxt)
 {
 	const ib_portinfo_record_t *p_rcvd_rec;
@@ -477,12 +477,12 @@ __osm_sa_pir_by_comp_mask(IN osm_pir_rcv_t * const p_rcv,
 	comp_mask = p_ctxt->comp_mask;
 	p_req_physp = p_ctxt->p_req_physp;
 
-	num_ports = osm_node_get_num_physp(p_port->p_node);
+	num_ports = osm_node_get_num_physp(p_node);
 
 	if (comp_mask & IB_PIR_COMPMASK_PORTNUM) {
 		if (p_rcvd_rec->port_num < num_ports) {
 			p_physp =
-			    osm_node_get_physp_ptr(p_port->p_node,
+			    osm_node_get_physp_ptr(p_node,
 						   p_rcvd_rec->port_num);
 			/* Check that the p_physp is valid, and that the p_physp and the
 			   p_req_physp share a pkey. */
@@ -495,7 +495,7 @@ __osm_sa_pir_by_comp_mask(IN osm_pir_rcv_t * const p_rcv,
 	} else {
 		for (port_num = 0; port_num < num_ports; port_num++) {
 			p_physp =
-			    osm_node_get_physp_ptr(p_port->p_node, port_num);
+			    osm_node_get_physp_ptr(p_node, port_num);
 			if (!osm_physp_is_valid(p_physp))
 				continue;
 
@@ -518,10 +518,10 @@ static void
 __osm_sa_pir_by_comp_mask_cb(IN cl_map_item_t * const p_map_item,
 			     IN void *context)
 {
-	const osm_port_t *const p_port = (osm_port_t *) p_map_item;
+	const osm_node_t *const p_node = (osm_node_t *) p_map_item;
 	osm_pir_search_ctxt_t *const p_ctxt = (osm_pir_search_ctxt_t *) context;
 
-	__osm_sa_pir_by_comp_mask(p_ctxt->p_rcv, p_port, p_ctxt);
+	__osm_sa_pir_by_comp_mask(p_ctxt->p_rcv, p_node, p_ctxt);
 }
 
 /**********************************************************************
@@ -641,9 +641,10 @@ void osm_pir_rcv_process(IN void *ctx, IN void *data)
 
 	if (status == IB_SUCCESS) {
 		if (p_port)
-			__osm_sa_pir_by_comp_mask(p_rcv, p_port, &context);
+			__osm_sa_pir_by_comp_mask(p_rcv, p_port->p_node,
+						  &context);
 		else
-			cl_qmap_apply_func(&p_rcv->p_subn->port_guid_tbl,
+			cl_qmap_apply_func(&p_rcv->p_subn->node_guid_tbl,
 					   __osm_sa_pir_by_comp_mask_cb,
 					   &context);
 	}
