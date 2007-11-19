@@ -47,6 +47,7 @@
 
 #include <stdio.h>
 #include <assert.h>
+#include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
@@ -125,8 +126,9 @@ static void __parser_add_map_to_port_map(
     cl_qmap_t * p_dmap,
     cl_map_t  * p_smap);
 
+static void __qos_parser_error(const char *format, ...);
+
 extern char * __qos_parser_text;
-extern void __qos_parser_error (char *s);
 extern int __qos_parser_lex (void);
 extern FILE * __qos_parser_in;
 extern int errno;
@@ -1871,14 +1873,24 @@ int __qos_parser_wrap()
 /***************************************************
  ***************************************************/
 
-void __qos_parser_error (char *s)
+static void __qos_parser_error(const char *format, ...)
 {
+    char s[256];
+    va_list pvar;
+
     OSM_LOG_ENTER(p_qos_parser_osm_log, __qos_parser_error);
+
+    va_start(pvar, format);
+    vsnprintf(s, 256, format, pvar);
+    va_end(pvar);
+
     osm_log(p_qos_parser_osm_log, OSM_LOG_ERROR,
             "__qos_parser_error: ERR AC05: "
-            "Syntax error (line %d:%d): %s. "
-            "Last text read: \"%s\"\n",
-            line_num, column_num, s, __parser_strip_white(__qos_parser_text));
+            "Syntax error (line %d:%d): %s",
+            line_num, column_num, s);
+    fprintf(stderr,
+            "Error in QoS Policy File (line %d:%d): %s.\n",
+            line_num, column_num, s);
     OSM_LOG_EXIT(p_qos_parser_osm_log);
 }
 
