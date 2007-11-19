@@ -265,7 +265,11 @@ BEGIN_C_DECLS
 #ifdef __WIN__
 #define OSM_DEFAULT_PREFIX_ROUTES_FILE strcat(GetOsmCachePath(), "osm-prefix-routes.conf")
 #else
+#ifdef OPENSM_CONFIG_DIR
+#define OSM_DEFAULT_PREFIX_ROUTES_FILE OPENSM_CONFIG_DIR "/prefix-routes.conf"
+#else
 #define OSM_DEFAULT_PREFIX_ROUTES_FILE "/etc/ofa/opensm-prefix-routes.conf"
+#endif
 #endif
 /***********/
 
