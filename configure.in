@@ -92,6 +92,10 @@ CONF_DIR_TMP1="`eval echo ${sysconfdir}/$OPENSM_CONF_SUB_DIR`"
 CONF_DIR_TMP2="`echo $CONF_DIR_TMP1 | sed 's/^NONE/$ac_default_prefix/'`"
 CONF_DIR="`eval echo $CONF_DIR_TMP2`"
 
+AC_DEFINE_UNQUOTED(OPENSM_CONFIG_DIR,
+	["$CONF_DIR"],
+	[Define OpenSM config directory])
+
 dnl Check for a different default node name map file
 NODENAMEMAPFILE=ib-node-name-map
 AC_MSG_CHECKING(for --with-node-name-map )
