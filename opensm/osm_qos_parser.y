@@ -625,14 +625,17 @@ port_group_port_name:   port_group_port_name_start string_list {
                                     port_str = strrchr(tmp_str, '/');
                                     if (!port_str || (strlen(port_str) < 3) ||
                                         (port_str[1] != 'p' && port_str[1] != 'P')) {
-                                        yyerror("illegal port name");
+                                        __qos_parser_error("'%s' - illegal port name",
+                                                           tmp_str);
                                         free(tmp_str);
                                         cl_list_remove_all(&tmp_parser_struct.str_list);
                                         return 1;
                                     }
 
                                     if (!(port_num = strtoul(&port_str[2],NULL,0))) {
-                                        yyerror("illegal port number in port name");
+                                        __qos_parser_error(
+                                               "'%s' - illegal port number in port name",
+                                               tmp_str);
                                         free(tmp_str);
                                         cl_list_remove_all(&tmp_parser_struct.str_list);
                                         return 1;
@@ -648,7 +651,9 @@ port_group_port_name:   port_group_port_name_start string_list {
                                         /* we found the node, now get the right port */
                                         p_physp = osm_node_get_physp_ptr(p_node, port_num);
                                         if (!p_physp) {
-                                            yyerror("port number out of range in port name");
+                                            __qos_parser_error(
+                                                   "'%s' - port number out of range in port name",
+                                                   tmp_str);
                                             free(tmp_str);
                                             cl_list_remove_all(&tmp_parser_struct.str_list);
                                             return 1;
