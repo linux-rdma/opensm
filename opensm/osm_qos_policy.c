@@ -56,6 +56,8 @@
 #include <opensm/osm_opensm.h>
 #include <opensm/osm_qos_policy.h>
 
+extern osm_qos_level_t __default_simple_qos_level;
+
 /***************************************************
  ***************************************************/
 
@@ -770,8 +772,11 @@ int osm_qos_policy_validate(osm_qos_policy_t * p_qos_policy,
 	osm_qos_port_group_t *p_port_group = NULL;
 	osm_qos_match_rule_t *p_qos_match_rule = NULL;
 	char *str;
-	unsigned i;
+	unsigned i, j;
 	int res = 0;
+	uint64_t pkey_64;
+	ib_net16_t pkey;
+	osm_prtn_t * p_prtn;
 
 	OSM_LOG_ENTER(p_log, osm_qos_policy_validate);
 
@@ -780,12 +785,20 @@ int osm_qos_policy_validate(osm_qos_policy_t * p_qos_policy,
 	p_qos_policy->p_default_qos_level =
 	    __qos_policy_get_qos_level_by_name(p_qos_policy, OSM_QOS_POLICY_DEFAULT_LEVEL_NAME);
 	if (!p_qos_policy->p_default_qos_level) {
-		osm_log(p_log, OSM_LOG_ERROR,
-			"osm_qos_policy_validate: ERR AC10: "
-			"Default qos-level (%s) not defined.\n",
-			OSM_QOS_POLICY_DEFAULT_LEVEL_NAME);
-		res = 1;
-		goto Exit;
+		/* There's no default QoS level in the usual qos-level section.
+		   Check whether the 'simple' default QoS level that can be
+		   defined in the qos-ulp section exists */
+		if (__default_simple_qos_level.sl_set) {
+			p_qos_policy->p_default_qos_level = &__default_simple_qos_level;
+		}
+		else {
+			osm_log(p_log, OSM_LOG_ERROR,
+				"osm_qos_policy_validate: ERR AC10: "
+				"Default qos-level (%s) not defined.\n",
+				OSM_QOS_POLICY_DEFAULT_LEVEL_NAME);
+			res = 1;
+			goto Exit;
+		}
 	}
 
 	/* scan all the match rules, and fill the lists of pointers to
@@ -803,9 +816,10 @@ int osm_qos_policy_validate(osm_qos_policy_t * p_qos_policy,
 
 		/* find the matching qos-level for each match-rule */
 
-		p_qos_match_rule->p_qos_level =
-		    __qos_policy_get_qos_level_by_name(p_qos_policy,
-						       p_qos_match_rule->qos_level_name);
+		if (!p_qos_match_rule->p_qos_level)
+			p_qos_match_rule->p_qos_level =
+				__qos_policy_get_qos_level_by_name(p_qos_policy,
+					       p_qos_match_rule->qos_level_name);
 
 		if (!p_qos_match_rule->p_qos_level) {
 			osm_log(p_log, OSM_LOG_ERROR,
@@ -874,6 +888,51 @@ int osm_qos_policy_validate(osm_qos_policy_t * p_qos_policy,
 						    p_port_group);
 
 				list_iterator = cl_list_next(list_iterator);
+			}
+		}
+
+		/*
+		 * Scan all the pkeys in matching rule, and if the
+		 * partition for these pkeys exists, set the SL
+		 * according to the QoS Level.
+		 * Warn if there's mismatch between QoS level SL
+		 * and Partition SL.
+		 */
+
+		for (j = 0; j < p_qos_match_rule->pkey_range_len; j++) {
+			for ( pkey_64 = p_qos_match_rule->pkey_range_arr[i][0];
+			      pkey_64 <= p_qos_match_rule->pkey_range_arr[i][1];
+			      pkey_64++) {
+                                pkey = cl_hton16((uint16_t)(pkey_64 & 0x7fff));
+				p_prtn = (osm_prtn_t *)cl_qmap_get(
+					&p_qos_policy->p_subn->prtn_pkey_tbl, pkey);
+
+				if (p_prtn == (osm_prtn_t *)cl_qmap_end(
+					&p_qos_policy->p_subn->prtn_pkey_tbl)) {
+					/* partition for this pkey not found */
+					osm_log(p_log,
+						OSM_LOG_ERROR,
+						"osm_qos_policy_validate: ERR AC14: "
+						"pkey 0x%04X in match rule - "
+						"partition doesn't exist\n",
+						cl_ntoh16(pkey));
+					continue;
+				}
+
+				if (p_qos_match_rule->p_qos_level->sl_set &&
+                                    p_prtn->sl != p_qos_match_rule->p_qos_level->sl) {
+					/* overriding partition's SL */
+					osm_log(p_log,
+						OSM_LOG_ERROR,
+						"osm_qos_policy_validate: ERR AC15: "
+						"pkey 0x%04X in match rule - "
+						"overriding partition SL (%u) "
+						"with QoS Level SL (%u)\n",
+						cl_ntoh16(pkey),
+						p_prtn->sl,
+						p_qos_match_rule->p_qos_level->sl);
+					p_prtn->sl = p_qos_match_rule->p_qos_level->sl;
+				}
 			}
 		}
 

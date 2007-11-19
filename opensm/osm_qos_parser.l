@@ -105,19 +105,34 @@ static void reset_new_line_flags();
 #define START_RATE_LIMIT       {in_single_number = TRUE;}   /* single number */
 #define START_PACKET_LIFE      {in_single_number = TRUE;}   /* single number */
 
+#define START_ULP_DEFAULT       {in_single_number = TRUE;}      /* single number */
+#define START_ULP_ANY           {in_list_of_num_ranges = TRUE;} /* comma-separated list of hex or dec num ranges */
+#define START_ULP_SDP_DEFAULT   {in_single_number = TRUE;}      /* single number */
+#define START_ULP_SDP_PORT      {in_list_of_num_ranges = TRUE;} /* comma-separated list of hex or dec num ranges */
+#define START_ULP_RDS_DEFAULT   {in_single_number = TRUE;}      /* single number */
+#define START_ULP_RDS_PORT      {in_list_of_num_ranges = TRUE;} /* comma-separated list of hex or dec num ranges */
+#define START_ULP_ISER_DEFAULT  {in_single_number = TRUE;}      /* single number */
+#define START_ULP_ISER_PORT     {in_list_of_num_ranges = TRUE;} /* comma-separated list of hex or dec num ranges */
+#define START_ULP_SRP_GUID      {in_list_of_num_ranges = TRUE;} /* comma-separated list of hex or dec num ranges */
+#define START_ULP_IPOIB_DEFAULT {in_single_number = TRUE;}      /* single number */
+#define START_ULP_IPOIB_PKEY    {in_list_of_num_ranges = TRUE;} /* comma-separated list of hex or dec num ranges */
 
 
 %}
 
 %option nounput
 
+QOS_ULPS_START          qos\-ulps
+QOS_ULPS_END            end\-qos\-ulps
 PORT_GROUPS_START       port\-groups
 PORT_GROUPS_END         end\-port\-groups
 PORT_GROUP_START        port\-group
 PORT_GROUP_END          end\-port\-group
+PORT_NUM                port\-num
 NAME                    name
 USE                     use
 PORT_GUID               port\-guid
+TARGET_PORT_GUID        target\-port\-guid
 PORT_NAME               port\-name
 PARTITION               partition
 NODE_TYPE               node\-type
@@ -167,10 +182,19 @@ SWITCH                  [Ss][Ww][Ii][Tt][Cc][Hh]
 SELF                    [Ss][Ee][Ll][Ff]
 ALL                     [Aa][Ll][Ll]
 
+ULP_SDP                 [Ss][Dd][Pp]
+ULP_SRP                 [Ss][Rr][Pp]
+ULP_RDS                 [Rr][Dd][Ss]
+ULP_IPOIB               [Ii][Pp][Oo][Ii][Bb]
+ULP_ISER                [Ii][Ss][Ee][Rr]
+ULP_ANY                 [Aa][Nn][Yy]
+ULP_DEFAULT             [Dd][Ee][Ff][Aa][Uu][Ll][Tt]
+
 WHITE                   [ \t]+
 NEW_LINE                \n
 COMMENT		            \#.*\n
 WHITE_DOTDOT_WHITE      [ \t]*:[ \t]*
+WHITE_COMMA_WHITE       [ \t]*,[ \t]*
 QUOTED_TEXT             \"[^\"]*\"
 
 %%
@@ -180,6 +204,9 @@ QUOTED_TEXT             \"[^\"]*\"
 {WHITE}{NEW_LINE}       { SAVE_POS; RESET_NEW_LINE_FLAGS; } /* trailing blanks with new line */
 {WHITE}                 { SAVE_POS; HANDLE_IF_IN_DESCRIPTION; }
 {NEW_LINE}              { SAVE_POS; RESET_NEW_LINE_FLAGS; }
+
+{QOS_ULPS_START}        { SAVE_POS; HANDLE_IF_IN_DESCRIPTION; return TK_QOS_ULPS_START; }
+{QOS_ULPS_END}          { SAVE_POS; HANDLE_IF_IN_DESCRIPTION; return TK_QOS_ULPS_END; }
 
 {PORT_GROUPS_START}     { SAVE_POS; HANDLE_IF_IN_DESCRIPTION; return TK_PORT_GROUPS_START; }
 {PORT_GROUPS_END}       { SAVE_POS; HANDLE_IF_IN_DESCRIPTION; return TK_PORT_GROUPS_END; }
@@ -241,6 +268,25 @@ QUOTED_TEXT             \"[^\"]*\"
 {SWITCH}                  { SAVE_POS; if (in_node_type) return TK_NODE_TYPE_SWITCH; __qos_parser_lval = strdup(__qos_parser_text); return TK_TEXT; }
 {SELF}                    { SAVE_POS; if (in_node_type) return TK_NODE_TYPE_SELF;   __qos_parser_lval = strdup(__qos_parser_text); return TK_TEXT; }
 {ALL}                     { SAVE_POS; if (in_node_type) return TK_NODE_TYPE_ALL;    __qos_parser_lval = strdup(__qos_parser_text); return TK_TEXT; }
+
+{ULP_DEFAULT}{WHITE_DOTDOT_WHITE}              { SAVE_POS; HANDLE_IF_IN_DESCRIPTION; START_ULP_DEFAULT; return TK_ULP_DEFAULT; }
+{ULP_ANY}{WHITE_COMMA_WHITE}{SERVICE_ID}       { SAVE_POS; HANDLE_IF_IN_DESCRIPTION; START_ULP_ANY; return TK_ULP_ANY_SERVICE_ID; }
+{ULP_ANY}{WHITE_COMMA_WHITE}{PKEY}             { SAVE_POS; HANDLE_IF_IN_DESCRIPTION; START_ULP_ANY; return TK_ULP_ANY_PKEY; }
+{ULP_ANY}{WHITE_COMMA_WHITE}{TARGET_PORT_GUID} { SAVE_POS; HANDLE_IF_IN_DESCRIPTION; START_ULP_ANY; return TK_ULP_ANY_TARGET_PORT_GUID; }
+
+{ULP_SDP}{WHITE_DOTDOT_WHITE}                  { SAVE_POS; HANDLE_IF_IN_DESCRIPTION; START_ULP_SDP_DEFAULT; return TK_ULP_SDP_DEFAULT; }
+{ULP_SDP}{WHITE_COMMA_WHITE}{PORT_NUM}         { SAVE_POS; HANDLE_IF_IN_DESCRIPTION; START_ULP_SDP_PORT; return TK_ULP_SDP_PORT; }
+
+{ULP_RDS}{WHITE_DOTDOT_WHITE}                  { SAVE_POS; HANDLE_IF_IN_DESCRIPTION; START_ULP_RDS_DEFAULT; return TK_ULP_RDS_DEFAULT; }
+{ULP_RDS}{WHITE_COMMA_WHITE}{PORT_NUM}         { SAVE_POS; HANDLE_IF_IN_DESCRIPTION; START_ULP_RDS_PORT; return TK_ULP_RDS_PORT; }
+
+{ULP_ISER}{WHITE_DOTDOT_WHITE}                 { SAVE_POS; HANDLE_IF_IN_DESCRIPTION; START_ULP_SDP_DEFAULT; return TK_ULP_ISER_DEFAULT; }
+{ULP_ISER}{WHITE_COMMA_WHITE}{PORT_NUM}        { SAVE_POS; HANDLE_IF_IN_DESCRIPTION; START_ULP_SDP_PORT; return TK_ULP_ISER_PORT; }
+
+{ULP_SRP}{WHITE_COMMA_WHITE}{TARGET_PORT_GUID} { SAVE_POS; HANDLE_IF_IN_DESCRIPTION; START_ULP_SRP_GUID; return TK_ULP_SRP_GUID; }
+
+{ULP_IPOIB}{WHITE_DOTDOT_WHITE}                { SAVE_POS; HANDLE_IF_IN_DESCRIPTION; START_ULP_IPOIB_DEFAULT; return TK_ULP_IPOIB_DEFAULT; }
+{ULP_IPOIB}{WHITE_COMMA_WHITE}{PKEY}           { SAVE_POS; HANDLE_IF_IN_DESCRIPTION; START_ULP_IPOIB_PKEY; return TK_ULP_IPOIB_PKEY; }
 
 0[xX][0-9a-fA-F]+  {
                         SAVE_POS;
