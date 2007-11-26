@@ -791,7 +791,7 @@ osm_vendor_bind(IN osm_vendor_t * const p_vend,
 			       p_vend->issm_path,
 			       sizeof(p_vend->issm_path)) < 0) {
 		osm_log(p_vend->p_log, OSM_LOG_ERROR,
-			"osm_vendor_bind: ERR 5424: "
+			"osm_vendor_bind: ERR 542E: "
 			"Cannot resolve issm path for port %s:%u\n",
 			p_vend->umad_port.ca_name, p_vend->umad_port.portnum);
 		goto Exit;
