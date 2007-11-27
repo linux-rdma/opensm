@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004, 2005 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -49,8 +49,6 @@
 #define _OSM_CPI_H_
 
 #include <complib/cl_passivelock.h>
-#include <complib/cl_qlist.h>
-#include <complib/cl_qlockpool.h>
 #include <opensm/osm_base.h>
 #include <opensm/osm_madw.h>
 #include <opensm/osm_sa_response.h>

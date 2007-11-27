@@ -51,11 +51,8 @@
 #include <opensm/osm_pkey.h>
 #include <opensm/osm_sa.h>
 
-#define OSM_PKEY_REC_RCV_POOL_MIN_SIZE      32
-#define OSM_PKEY_REC_RCV_POOL_GROW_SIZE     32
-
 typedef struct _osm_pkey_item {
-	cl_pool_item_t pool_item;
+	cl_list_item_t list_item;
 	ib_pkey_table_record_t rec;
 } osm_pkey_item_t;
 
@@ -73,7 +70,6 @@ typedef struct _osm_pkey_search_ctxt {
 void osm_pkey_rec_rcv_construct(IN osm_pkey_rec_rcv_t * const p_rcv)
 {
 	memset(p_rcv, 0, sizeof(*p_rcv));
-	cl_qlock_pool_construct(&p_rcv->pool);
 }
 
 /**********************************************************************
@@ -81,7 +77,6 @@ void osm_pkey_rec_rcv_construct(IN osm_pkey_rec_rcv_t * const p_rcv)
 void osm_pkey_rec_rcv_destroy(IN osm_pkey_rec_rcv_t * const p_rcv)
 {
 	OSM_LOG_ENTER(p_rcv->p_log, osm_pkey_rec_rcv_destroy);
-	cl_qlock_pool_destroy(&p_rcv->pool);
 	OSM_LOG_EXIT(p_rcv->p_log);
 }
 
@@ -94,8 +89,6 @@ osm_pkey_rec_rcv_init(IN osm_pkey_rec_rcv_t * const p_rcv,
 		      IN osm_subn_t * const p_subn,
 		      IN osm_log_t * const p_log, IN cl_plock_t * const p_lock)
 {
-	ib_api_status_t status;
-
 	OSM_LOG_ENTER(p_log, osm_pkey_rec_rcv_init);
 
 	osm_pkey_rec_rcv_construct(p_rcv);
@@ -106,15 +99,8 @@ osm_pkey_rec_rcv_init(IN osm_pkey_rec_rcv_t * const p_rcv,
 	p_rcv->p_resp = p_resp;
 	p_rcv->p_mad_pool = p_mad_pool;
 
-	/* used for matching records collection */
-	status = cl_qlock_pool_init(&p_rcv->pool,
-				    OSM_PKEY_REC_RCV_POOL_MIN_SIZE,
-				    0,
-				    OSM_PKEY_REC_RCV_POOL_GROW_SIZE,
-				    sizeof(osm_pkey_item_t), NULL, NULL, NULL);
-
 	OSM_LOG_EXIT(p_log);
-	return (status);
+	return IB_SUCCESS;
 }
 
 /**********************************************************************
@@ -131,11 +117,11 @@ __osm_sa_pkey_create(IN osm_pkey_rec_rcv_t * const p_rcv,
 
 	OSM_LOG_ENTER(p_rcv->p_log, __osm_sa_pkey_create);
 
-	p_rec_item = (osm_pkey_item_t *) cl_qlock_pool_get(&p_rcv->pool);
+	p_rec_item = malloc(sizeof(*p_rec_item));
 	if (p_rec_item == NULL) {
 		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
 			"__osm_sa_pkey_create: ERR 4602: "
-			"cl_qlock_pool_get failed\n");
+			"rec_item alloc failed\n");
 		status = IB_INSUFFICIENT_RESOURCES;
 		goto Exit;
 	}
@@ -154,7 +140,7 @@ __osm_sa_pkey_create(IN osm_pkey_rec_rcv_t * const p_rcv,
 			cl_ntoh16(lid), osm_physp_get_port_num(p_physp), block);
 	}
 
-	memset(&p_rec_item->rec, 0, sizeof(p_rec_item->rec));
+	memset(p_rec_item, 0, sizeof(*p_rec_item));
 
 	p_rec_item->rec.lid = lid;
 	p_rec_item->rec.block_num = block;
@@ -162,8 +148,7 @@ __osm_sa_pkey_create(IN osm_pkey_rec_rcv_t * const p_rcv,
 	p_rec_item->rec.pkey_tbl =
 	    *(osm_pkey_tbl_block_get(osm_physp_get_pkey_tbl(p_physp), block));
 
-	cl_qlist_insert_tail(p_ctxt->p_list,
-			     (cl_list_item_t *) & p_rec_item->pool_item);
+	cl_qlist_insert_tail(p_ctxt->p_list, &p_rec_item->list_item);
 
       Exit:
 	OSM_LOG_EXIT(p_rcv->p_log);
@@ -444,8 +429,7 @@ void osm_pkey_rec_rcv_process(IN void *ctx, IN void *data)
 			    (osm_pkey_item_t *) cl_qlist_remove_head(&rec_list);
 			while (p_rec_item !=
 			       (osm_pkey_item_t *) cl_qlist_end(&rec_list)) {
-				cl_qlock_pool_put(&p_rcv->pool,
-						  &p_rec_item->pool_item);
+				free(p_rec_item);
 				p_rec_item = (osm_pkey_item_t *)
 				    cl_qlist_remove_head(&rec_list);
 			}
@@ -494,7 +478,7 @@ void osm_pkey_rec_rcv_process(IN void *ctx, IN void *data)
 		for (i = 0; i < num_rec; i++) {
 			p_rec_item =
 			    (osm_pkey_item_t *) cl_qlist_remove_head(&rec_list);
-			cl_qlock_pool_put(&p_rcv->pool, &p_rec_item->pool_item);
+			free(p_rec_item);
 		}
 
 		osm_sa_send_error(p_rcv->p_resp, p_madw,
@@ -541,10 +525,9 @@ void osm_pkey_rec_rcv_process(IN void *ctx, IN void *data)
 		p_rec_item =
 		    (osm_pkey_item_t *) cl_qlist_remove_head(&rec_list);
 		/* copy only if not trimmed */
-		if (i < num_rec) {
+		if (i < num_rec)
 			*p_resp_rec = p_rec_item->rec;
-		}
-		cl_qlock_pool_put(&p_rcv->pool, &p_rec_item->pool_item);
+		free(p_rec_item);
 		p_resp_rec++;
 	}
 

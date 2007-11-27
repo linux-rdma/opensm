@@ -63,11 +63,8 @@
 #include <opensm/osm_pkey.h>
 #include <opensm/osm_sa.h>
 
-#define OSM_VLARB_REC_RCV_POOL_MIN_SIZE      32
-#define OSM_VLARB_REC_RCV_POOL_GROW_SIZE     32
-
 typedef struct _osm_vl_arb_item {
-	cl_pool_item_t pool_item;
+	cl_list_item_t list_item;
 	ib_vl_arb_table_record_t rec;
 } osm_vl_arb_item_t;
 
@@ -85,7 +82,6 @@ typedef struct _osm_vl_arb_search_ctxt {
 void osm_vlarb_rec_rcv_construct(IN osm_vlarb_rec_rcv_t * const p_rcv)
 {
 	memset(p_rcv, 0, sizeof(*p_rcv));
-	cl_qlock_pool_construct(&p_rcv->pool);
 }
 
 /**********************************************************************
@@ -93,7 +89,6 @@ void osm_vlarb_rec_rcv_construct(IN osm_vlarb_rec_rcv_t * const p_rcv)
 void osm_vlarb_rec_rcv_destroy(IN osm_vlarb_rec_rcv_t * const p_rcv)
 {
 	OSM_LOG_ENTER(p_rcv->p_log, osm_vlarb_rec_rcv_destroy);
-	cl_qlock_pool_destroy(&p_rcv->pool);
 	OSM_LOG_EXIT(p_rcv->p_log);
 }
 
@@ -106,8 +101,6 @@ osm_vlarb_rec_rcv_init(IN osm_vlarb_rec_rcv_t * const p_rcv,
 		       IN osm_subn_t * const p_subn,
 		       IN osm_log_t * const p_log, IN cl_plock_t * const p_lock)
 {
-	ib_api_status_t status;
-
 	OSM_LOG_ENTER(p_log, osm_vlarb_rec_rcv_init);
 
 	osm_vlarb_rec_rcv_construct(p_rcv);
@@ -118,16 +111,8 @@ osm_vlarb_rec_rcv_init(IN osm_vlarb_rec_rcv_t * const p_rcv,
 	p_rcv->p_resp = p_resp;
 	p_rcv->p_mad_pool = p_mad_pool;
 
-	/* used for matching records collection */
-	status = cl_qlock_pool_init(&p_rcv->pool,
-				    OSM_VLARB_REC_RCV_POOL_MIN_SIZE,
-				    0,
-				    OSM_VLARB_REC_RCV_POOL_GROW_SIZE,
-				    sizeof(osm_vl_arb_item_t),
-				    NULL, NULL, NULL);
-
 	OSM_LOG_EXIT(p_log);
-	return (status);
+	return IB_SUCCESS;
 }
 
 /**********************************************************************
@@ -144,11 +129,11 @@ __osm_sa_vl_arb_create(IN osm_vlarb_rec_rcv_t * const p_rcv,
 
 	OSM_LOG_ENTER(p_rcv->p_log, __osm_sa_vl_arb_create);
 
-	p_rec_item = (osm_vl_arb_item_t *) cl_qlock_pool_get(&p_rcv->pool);
+	p_rec_item = malloc(sizeof(*p_rec_item));
 	if (p_rec_item == NULL) {
 		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
 			"__osm_sa_vl_arb_create: ERR 2A02: "
-			"cl_qlock_pool_get failed\n");
+			"rec_item alloc failed\n");
 		status = IB_INSUFFICIENT_RESOURCES;
 		goto Exit;
 	}
@@ -158,24 +143,22 @@ __osm_sa_vl_arb_create(IN osm_vlarb_rec_rcv_t * const p_rcv,
 	else
 		lid = osm_node_get_base_lid(p_physp->p_node, 0);
 
-	if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG)) {
+	if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG))
 		osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
 			"__osm_sa_vl_arb_create: "
 			"New VLArbitration for: port 0x%016" PRIx64
 			", lid 0x%X, port 0x%X Block:%u\n",
 			cl_ntoh64(osm_physp_get_port_guid(p_physp)),
 			cl_ntoh16(lid), osm_physp_get_port_num(p_physp), block);
-	}
 
-	memset(&p_rec_item->rec, 0, sizeof(p_rec_item->rec));
+	memset(p_rec_item, 0, sizeof(*p_rec_item));
 
 	p_rec_item->rec.lid = lid;
 	p_rec_item->rec.port_num = osm_physp_get_port_num(p_physp);
 	p_rec_item->rec.block_num = block;
 	p_rec_item->rec.vl_arb_tbl = *(osm_physp_get_vla_tbl(p_physp, block));
 
-	cl_qlist_insert_tail(p_ctxt->p_list,
-			     (cl_list_item_t *) & p_rec_item->pool_item);
+	cl_qlist_insert_tail(p_ctxt->p_list, &p_rec_item->list_item);
 
       Exit:
 	OSM_LOG_EXIT(p_rcv->p_log);
@@ -436,8 +419,7 @@ void osm_vlarb_rec_rcv_process(IN void *ctx, IN void *data)
 			    cl_qlist_remove_head(&rec_list);
 			while (p_rec_item !=
 			       (osm_vl_arb_item_t *) cl_qlist_end(&rec_list)) {
-				cl_qlock_pool_put(&p_rcv->pool,
-						  &p_rec_item->pool_item);
+				free(p_rec_item);
 				p_rec_item = (osm_vl_arb_item_t *)
 				    cl_qlist_remove_head(&rec_list);
 			}
@@ -487,7 +469,7 @@ void osm_vlarb_rec_rcv_process(IN void *ctx, IN void *data)
 		for (i = 0; i < num_rec; i++) {
 			p_rec_item = (osm_vl_arb_item_t *)
 			    cl_qlist_remove_head(&rec_list);
-			cl_qlock_pool_put(&p_rcv->pool, &p_rec_item->pool_item);
+			free(p_rec_item);
 		}
 
 		osm_sa_send_error(p_rcv->p_resp, p_madw,
@@ -534,10 +516,9 @@ void osm_vlarb_rec_rcv_process(IN void *ctx, IN void *data)
 		p_rec_item =
 		    (osm_vl_arb_item_t *) cl_qlist_remove_head(&rec_list);
 		/* copy only if not trimmed */
-		if (i < num_rec) {
+		if (i < num_rec)
 			*p_resp_rec = p_rec_item->rec;
-		}
-		cl_qlock_pool_put(&p_rcv->pool, &p_rec_item->pool_item);
+		free(p_rec_item);
 		p_resp_rec++;
 	}
 

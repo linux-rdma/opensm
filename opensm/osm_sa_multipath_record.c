@@ -67,13 +67,10 @@
 #include <opensm/osm_qos_policy.h>
 #include <opensm/osm_sa.h>
 
-#define OSM_MPR_RCV_POOL_MIN_SIZE	64
-#define OSM_MPR_RCV_POOL_GROW_SIZE	64
-
 #define OSM_SA_MPR_MAX_NUM_PATH        127
 
 typedef struct _osm_mpr_item {
-	cl_pool_item_t pool_item;
+	cl_list_item_t list_item;
 	const osm_port_t *p_src_port;
 	const osm_port_t *p_dest_port;
 	int hops;
@@ -95,7 +92,6 @@ typedef struct _osm_path_parms {
 void osm_mpr_rcv_construct(IN osm_mpr_rcv_t * const p_rcv)
 {
 	memset(p_rcv, 0, sizeof(*p_rcv));
-	cl_qlock_pool_construct(&p_rcv->pr_pool);
 }
 
 /**********************************************************************
@@ -103,7 +99,6 @@ void osm_mpr_rcv_construct(IN osm_mpr_rcv_t * const p_rcv)
 void osm_mpr_rcv_destroy(IN osm_mpr_rcv_t * const p_rcv)
 {
 	OSM_LOG_ENTER(p_rcv->p_log, osm_mpr_rcv_destroy);
-	cl_qlock_pool_destroy(&p_rcv->pr_pool);
 	OSM_LOG_EXIT(p_rcv->p_log);
 }
 
@@ -116,8 +111,6 @@ osm_mpr_rcv_init(IN osm_mpr_rcv_t * const p_rcv,
 		 IN osm_subn_t * const p_subn,
 		 IN osm_log_t * const p_log, IN cl_plock_t * const p_lock)
 {
-	ib_api_status_t status;
-
 	OSM_LOG_ENTER(p_log, osm_mpr_rcv_init);
 
 	osm_mpr_rcv_construct(p_rcv);
@@ -128,14 +121,8 @@ osm_mpr_rcv_init(IN osm_mpr_rcv_t * const p_rcv,
 	p_rcv->p_resp = p_resp;
 	p_rcv->p_mad_pool = p_mad_pool;
 
-	status = cl_qlock_pool_init(&p_rcv->pr_pool,
-				    OSM_MPR_RCV_POOL_MIN_SIZE,
-				    0,
-				    OSM_MPR_RCV_POOL_GROW_SIZE,
-				    sizeof(osm_mpr_item_t), NULL, NULL, NULL);
-
 	OSM_LOG_EXIT(p_rcv->p_log);
-	return (status);
+	return IB_SUCCESS;
 }
 
 /**********************************************************************
@@ -905,20 +892,21 @@ __osm_mpr_rcv_get_lid_pair_path(IN osm_mpr_rcv_t * const p_rcv,
 			"Src LID 0x%X, Dest LID 0x%X\n",
 			src_lid_ho, dest_lid_ho);
 
-	p_pr_item = (osm_mpr_item_t *) cl_qlock_pool_get(&p_rcv->pr_pool);
+	p_pr_item = malloc(sizeof(*p_pr_item));
 	if (p_pr_item == NULL) {
 		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
 			"__osm_mpr_rcv_get_lid_pair_path: ERR 4501: "
 			"Unable to allocate path record\n");
 		goto Exit;
 	}
+	memset(p_pr_item, 0, sizeof(*p_pr_item));
 
 	status = __osm_mpr_rcv_get_path_parms(p_rcv, p_mpr, p_src_port,
 					      p_dest_port, dest_lid_ho,
 					      comp_mask, &path_parms);
 
 	if (status != IB_SUCCESS) {
-		cl_qlock_pool_put(&p_rcv->pr_pool, &p_pr_item->pool_item);
+		free(p_pr_item);
 		p_pr_item = NULL;
 		goto Exit;
 	}
@@ -942,8 +930,7 @@ __osm_mpr_rcv_get_lid_pair_path(IN osm_mpr_rcv_t * const p_rcv,
 				"__osm_mpr_rcv_get_lid_pair_path: "
 				"Requested reversible path but failed to get one\n");
 
-			cl_qlock_pool_put(&p_rcv->pr_pool,
-					  &p_pr_item->pool_item);
+			free(p_pr_item);
 			p_pr_item = NULL;
 			goto Exit;
 		}
@@ -1084,9 +1071,7 @@ __osm_mpr_rcv_get_port_pair_paths(IN osm_mpr_rcv_t * const p_rcv,
 							    preference);
 
 		if (p_pr_item) {
-			cl_qlist_insert_tail(p_list,
-					     (cl_list_item_t *) & p_pr_item->
-					     pool_item);
+			cl_qlist_insert_tail(p_list, &p_pr_item->list_item);
 			++path_num;
 		}
 
@@ -1152,9 +1137,7 @@ __osm_mpr_rcv_get_port_pair_paths(IN osm_mpr_rcv_t * const p_rcv,
 							    preference);
 
 		if (p_pr_item) {
-			cl_qlist_insert_tail(p_list,
-					     (cl_list_item_t *) & p_pr_item->
-					     pool_item);
+			cl_qlist_insert_tail(p_list, &p_pr_item->list_item);
 			++path_num;
 		}
 	}
@@ -1471,14 +1454,10 @@ __osm_mpr_rcv_get_apm_paths(IN osm_mpr_rcv_t * const p_rcv,
 			matrix[0][0]->path_rec.dlid, matrix[0][0]->hops,
 			matrix[1][1]->path_rec.slid,
 			matrix[1][1]->path_rec.dlid, matrix[1][1]->hops);
-		cl_qlist_insert_tail(p_list,
-				     (cl_list_item_t *) & matrix[0][0]->
-				     pool_item);
-		cl_qlist_insert_tail(p_list,
-				     (cl_list_item_t *) & matrix[1][1]->
-				     pool_item);
-		cl_qlock_pool_put(&p_rcv->pr_pool, &matrix[0][1]->pool_item);
-		cl_qlock_pool_put(&p_rcv->pr_pool, &matrix[1][0]->pool_item);
+		cl_qlist_insert_tail(p_list, &matrix[0][0]->list_item);
+		cl_qlist_insert_tail(p_list, &matrix[1][1]->list_item);
+		free(matrix[0][1]);
+		free(matrix[1][0]);
 	} else {
 		/* Diag B */
 		osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
@@ -1489,14 +1468,10 @@ __osm_mpr_rcv_get_apm_paths(IN osm_mpr_rcv_t * const p_rcv,
 			matrix[0][1]->path_rec.dlid, matrix[0][1]->hops,
 			matrix[1][0]->path_rec.slid,
 			matrix[1][0]->path_rec.dlid, matrix[1][0]->hops);
-		cl_qlist_insert_tail(p_list,
-				     (cl_list_item_t *) & matrix[0][1]->
-				     pool_item);
-		cl_qlist_insert_tail(p_list,
-				     (cl_list_item_t *) & matrix[1][0]->
-				     pool_item);
-		cl_qlock_pool_put(&p_rcv->pr_pool, &matrix[0][0]->pool_item);
-		cl_qlock_pool_put(&p_rcv->pr_pool, &matrix[1][1]->pool_item);
+		cl_qlist_insert_tail(p_list, &matrix[0][1]->list_item);
+		cl_qlist_insert_tail(p_list, &matrix[1][0]->list_item);
+		free(matrix[0][0]);
+		free(matrix[1][1]);
 	}
 
 	OSM_LOG_EXIT(p_rcv->p_log);
@@ -1598,8 +1573,7 @@ __osm_mpr_rcv_respond(IN osm_mpr_rcv_t * const p_rcv,
 		for (i = 0; i < num_rec; i++) {
 			p_mpr_item =
 			    (osm_mpr_item_t *) cl_qlist_remove_head(p_list);
-			cl_qlock_pool_put(&p_rcv->pr_pool,
-					  &p_mpr_item->pool_item);
+			free(p_mpr_item);
 		}
 
 		osm_sa_send_error(p_rcv->p_resp, p_madw,
@@ -1634,7 +1608,7 @@ __osm_mpr_rcv_respond(IN osm_mpr_rcv_t * const p_rcv,
 		/* Copy the Path Records from the list into the MAD */
 		*p_resp_pr = p_mpr_item->path_rec;
 
-		cl_qlock_pool_put(&p_rcv->pr_pool, &p_mpr_item->pool_item);
+		free(p_mpr_item);
 		p_resp_pr++;
 	}
 

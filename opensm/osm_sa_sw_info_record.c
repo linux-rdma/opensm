@@ -63,7 +63,7 @@
 #define OSM_SIR_RCV_POOL_GROW_SIZE   32
 
 typedef struct _osm_sir_item {
-	cl_pool_item_t pool_item;
+	cl_list_item_t list_item;
 	ib_switch_info_record_t rec;
 } osm_sir_item_t;
 
@@ -80,7 +80,6 @@ typedef struct _osm_sir_search_ctxt {
 void osm_sir_rcv_construct(IN osm_sir_rcv_t * const p_rcv)
 {
 	memset(p_rcv, 0, sizeof(*p_rcv));
-	cl_qlock_pool_construct(&p_rcv->pool);
 }
 
 /**********************************************************************
@@ -88,7 +87,6 @@ void osm_sir_rcv_construct(IN osm_sir_rcv_t * const p_rcv)
 void osm_sir_rcv_destroy(IN osm_sir_rcv_t * const p_rcv)
 {
 	OSM_LOG_ENTER(p_rcv->p_log, osm_sir_rcv_destroy);
-	cl_qlock_pool_destroy(&p_rcv->pool);
 	OSM_LOG_EXIT(p_rcv->p_log);
 }
 
@@ -101,8 +99,6 @@ osm_sir_rcv_init(IN osm_sir_rcv_t * const p_rcv,
 		 IN osm_subn_t * const p_subn,
 		 IN osm_log_t * const p_log, IN cl_plock_t * const p_lock)
 {
-	ib_api_status_t status;
-
 	OSM_LOG_ENTER(p_log, osm_sir_rcv_init);
 
 	osm_sir_rcv_construct(p_rcv);
@@ -113,14 +109,8 @@ osm_sir_rcv_init(IN osm_sir_rcv_t * const p_rcv,
 	p_rcv->p_resp = p_resp;
 	p_rcv->p_mad_pool = p_mad_pool;
 
-	status = cl_qlock_pool_init(&p_rcv->pool,
-				    OSM_SIR_RCV_POOL_MIN_SIZE,
-				    0,
-				    OSM_SIR_RCV_POOL_GROW_SIZE,
-				    sizeof(osm_sir_item_t), NULL, NULL, NULL);
-
 	OSM_LOG_EXIT(p_log);
-	return (status);
+	return IB_SUCCESS;
 }
 
 /**********************************************************************
@@ -135,29 +125,27 @@ __osm_sir_rcv_new_sir(IN osm_sir_rcv_t * const p_rcv,
 
 	OSM_LOG_ENTER(p_rcv->p_log, __osm_sir_rcv_new_sir);
 
-	p_rec_item = (osm_sir_item_t *) cl_qlock_pool_get(&p_rcv->pool);
+	p_rec_item = malloc(sizeof(*p_rec_item));
 	if (p_rec_item == NULL) {
 		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
 			"__osm_sir_rcv_new_sir: ERR 5308: "
-			"cl_qlock_pool_get failed\n");
+			"rec_item alloc failed\n");
 		status = IB_INSUFFICIENT_RESOURCES;
 		goto Exit;
 	}
 
-	if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG)) {
+	if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG))
 		osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
 			"__osm_sir_rcv_new_sir: "
 			"New SwitchInfoRecord: lid 0x%X\n", cl_ntoh16(lid)
 		    );
-	}
 
-	memset(&p_rec_item->rec, 0, sizeof(ib_switch_info_record_t));
+	memset(p_rec_item, 0, sizeof(*p_rec_item));
 
 	p_rec_item->rec.lid = lid;
 	p_rec_item->rec.switch_info = p_sw->switch_info;
 
-	cl_qlist_insert_tail(p_list,
-			     (cl_list_item_t *) & p_rec_item->pool_item);
+	cl_qlist_insert_tail(p_list, &p_rec_item->list_item);
 
       Exit:
 	OSM_LOG_EXIT(p_rcv->p_log);
@@ -393,7 +381,7 @@ void osm_sir_rcv_process(IN void *ctx, IN void *data)
 		/* need to set the mem free ... */
 		p_rec_item = (osm_sir_item_t *) cl_qlist_remove_head(&rec_list);
 		while (p_rec_item != (osm_sir_item_t *) cl_qlist_end(&rec_list)) {
-			cl_qlock_pool_put(&p_rcv->pool, &p_rec_item->pool_item);
+			free(p_rec_item);
 			p_rec_item =
 			    (osm_sir_item_t *) cl_qlist_remove_head(&rec_list);
 		}
@@ -442,7 +430,7 @@ void osm_sir_rcv_process(IN void *ctx, IN void *data)
 		for (i = 0; i < num_rec; i++) {
 			p_rec_item =
 			    (osm_sir_item_t *) cl_qlist_remove_head(&rec_list);
-			cl_qlock_pool_put(&p_rcv->pool, &p_rec_item->pool_item);
+			free(p_rec_item);
 		}
 
 		osm_sa_send_error(p_rcv->p_resp, p_madw,
@@ -487,10 +475,9 @@ void osm_sir_rcv_process(IN void *ctx, IN void *data)
 	for (i = 0; i < pre_trim_num_rec; i++) {
 		p_rec_item = (osm_sir_item_t *) cl_qlist_remove_head(&rec_list);
 		/* copy only if not trimmed */
-		if (i < num_rec) {
+		if (i < num_rec)
 			*p_resp_rec = p_rec_item->rec;
-		}
-		cl_qlock_pool_put(&p_rcv->pool, &p_rec_item->pool_item);
+		free(p_rec_item);
 		p_resp_rec++;
 	}
 

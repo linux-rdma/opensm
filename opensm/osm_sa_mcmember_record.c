@@ -70,11 +70,8 @@
 #include <opensm/osm_inform.h>
 #include <opensm/osm_sa.h>
 
-#define OSM_MCMR_RCV_POOL_MIN_SIZE     32
-#define OSM_MCMR_RCV_POOL_GROW_SIZE    32
-
 typedef struct _osm_mcmr_item {
-	cl_pool_item_t pool_item;
+	cl_list_item_t list_item;
 	ib_member_rec_t rec;
 } osm_mcmr_item_t;
 
@@ -93,7 +90,6 @@ typedef struct osm_sa_mcmr_search_ctxt {
 void osm_mcmr_rcv_construct(IN osm_mcmr_recv_t * const p_rcv)
 {
 	memset(p_rcv, 0, sizeof(*p_rcv));
-	cl_qlock_pool_construct(&p_rcv->pool);
 }
 
 /**********************************************************************
@@ -103,9 +99,6 @@ void osm_mcmr_rcv_destroy(IN osm_mcmr_recv_t * const p_rcv)
 	CL_ASSERT(p_rcv);
 
 	OSM_LOG_ENTER(p_rcv->p_log, osm_mcmr_rcv_destroy);
-
-	cl_qlock_pool_destroy(&p_rcv->pool);
-
 	OSM_LOG_EXIT(p_rcv->p_log);
 }
 
@@ -119,8 +112,6 @@ osm_mcmr_rcv_init(IN osm_sm_t * const p_sm,
 		  IN osm_subn_t * const p_subn,
 		  IN osm_log_t * const p_log, IN cl_plock_t * const p_lock)
 {
-	ib_api_status_t status = IB_SUCCESS;
-
 	OSM_LOG_ENTER(p_log, osm_mcmr_rcv_init);
 
 	osm_mcmr_rcv_construct(p_rcv);
@@ -133,18 +124,8 @@ osm_mcmr_rcv_init(IN osm_sm_t * const p_sm,
 	p_rcv->p_mad_pool = p_mad_pool;
 	p_rcv->mlid_ho = 0xC000;
 
-	status = cl_qlock_pool_init(&p_rcv->pool,
-				    OSM_MCMR_RCV_POOL_MIN_SIZE,
-				    0,
-				    OSM_MCMR_RCV_POOL_GROW_SIZE,
-				    sizeof(osm_mcmr_item_t), NULL, NULL, NULL);
-	if (status != CL_SUCCESS) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
-			"osm_mcmr_rcv_init: ERR 1B02: "
-			"qlock pool init failed (%d)\n", status);
-	}
 	OSM_LOG_EXIT(p_rcv->p_log);
-	return (status);
+	return IB_SUCCESS;
 }
 
 /**********************************************************************
@@ -1727,22 +1708,21 @@ __osm_mcmr_rcv_new_mcmr(IN osm_mcmr_recv_t * const p_rcv,
 
 	OSM_LOG_ENTER(p_rcv->p_log, __osm_mcmr_rcv_new_mcmr);
 
-	p_rec_item = (osm_mcmr_item_t *) cl_qlock_pool_get(&p_rcv->pool);
+	p_rec_item = malloc(sizeof(*p_rec_item));
 	if (p_rec_item == NULL) {
 		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
 			"__osm_mcmr_rcv_new_mcmr: ERR 1B15: "
-			"cl_qlock_pool_get failed\n");
+			"rec_item alloc failed\n");
 		status = IB_INSUFFICIENT_RESOURCES;
 		goto Exit;
 	}
 
-	memset(&p_rec_item->rec, 0, sizeof(p_rec_item->rec));
+	memset(p_rec_item, 0, sizeof(*p_rec_item));
 
 	/* HACK: Untrusted requesters should result with 0 Join
 	   State, Port Guid, and Proxy */
 	p_rec_item->rec = *p_rcvd_rec;
-	cl_qlist_insert_tail(p_list,
-			     (cl_list_item_t *) & p_rec_item->pool_item);
+	cl_qlist_insert_tail(p_list, &p_rec_item->list_item);
 
       Exit:
 	OSM_LOG_EXIT(p_rcv->p_log);
@@ -2023,7 +2003,7 @@ __osm_mcmr_query_mgrp(IN osm_mcmr_recv_t * const p_rcv,
 		    (osm_mcmr_item_t *) cl_qlist_remove_head(&rec_list);
 		while (p_rec_item !=
 		       (osm_mcmr_item_t *) cl_qlist_end(&rec_list)) {
-			cl_qlock_pool_put(&p_rcv->pool, &p_rec_item->pool_item);
+			free(p_rec_item);
 			p_rec_item =
 			    (osm_mcmr_item_t *) cl_qlist_remove_head(&rec_list);
 		}
@@ -2070,7 +2050,7 @@ __osm_mcmr_query_mgrp(IN osm_mcmr_recv_t * const p_rcv,
 		for (i = 0; i < num_rec; i++) {
 			p_rec_item =
 			    (osm_mcmr_item_t *) cl_qlist_remove_head(&rec_list);
-			cl_qlock_pool_put(&p_rcv->pool, &p_rec_item->pool_item);
+			free(p_rec_item);
 		}
 
 		osm_sa_send_error(p_rcv->p_resp, p_madw,
@@ -2134,7 +2114,7 @@ __osm_mcmr_query_mgrp(IN osm_mcmr_recv_t * const p_rcv,
 				p_resp_rec->proxy_join = 0;
 			}
 		}
-		cl_qlock_pool_put(&p_rcv->pool, &p_rec_item->pool_item);
+		free(p_rec_item);
 		p_resp_rec++;
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2006-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -103,7 +103,6 @@ typedef struct _osm_sir_rcv {
 	osm_req_t *p_req;
 	osm_state_mgr_t *p_state_mgr;
 	cl_plock_t *p_lock;
-	cl_qlock_pool_t pool;
 } osm_sir_rcv_t;
 /*
 * FIELDS

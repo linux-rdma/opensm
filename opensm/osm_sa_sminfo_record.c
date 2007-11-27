@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -70,11 +70,8 @@
 #include <opensm/osm_remote_sm.h>
 #include <opensm/osm_sa.h>
 
-#define OSM_SMIR_RCV_POOL_MIN_SIZE     32
-#define OSM_SMIR_RCV_POOL_GROW_SIZE    32
-
 typedef struct _osm_smir_item {
-	cl_pool_item_t pool_item;
+	cl_list_item_t list_item;
 	ib_sminfo_record_t rec;
 } osm_smir_item_t;
 
@@ -91,7 +88,6 @@ typedef struct _osm_smir_search_ctxt {
 void osm_smir_rcv_construct(IN osm_smir_rcv_t * const p_rcv)
 {
 	memset(p_rcv, 0, sizeof(*p_rcv));
-	cl_qlock_pool_construct(&p_rcv->pool);
 }
 
 /**********************************************************************
@@ -99,9 +95,7 @@ void osm_smir_rcv_construct(IN osm_smir_rcv_t * const p_rcv)
 void osm_smir_rcv_destroy(IN osm_smir_rcv_t * const p_rcv)
 {
 	CL_ASSERT(p_rcv);
-
 	OSM_LOG_ENTER(p_rcv->p_log, osm_smir_rcv_destroy);
-	cl_qlock_pool_destroy(&p_rcv->pool);
 	OSM_LOG_EXIT(p_rcv->p_log);
 }
 
@@ -115,8 +109,6 @@ osm_smir_rcv_init(IN osm_smir_rcv_t * const p_rcv,
 		  IN osm_stats_t * const p_stats,
 		  IN osm_log_t * const p_log, IN cl_plock_t * const p_lock)
 {
-	ib_api_status_t status = IB_SUCCESS;
-
 	OSM_LOG_ENTER(p_log, osm_smir_rcv_init);
 
 	osm_smir_rcv_construct(p_rcv);
@@ -128,14 +120,8 @@ osm_smir_rcv_init(IN osm_smir_rcv_t * const p_rcv,
 	p_rcv->p_stats = p_stats;
 	p_rcv->p_mad_pool = p_mad_pool;
 
-	status = cl_qlock_pool_init(&p_rcv->pool,
-				    OSM_SMIR_RCV_POOL_MIN_SIZE,
-				    0,
-				    OSM_SMIR_RCV_POOL_GROW_SIZE,
-				    sizeof(osm_smir_item_t), NULL, NULL, NULL);
-
 	OSM_LOG_EXIT(p_rcv->p_log);
-	return (status);
+	return IB_SUCCESS;
 }
 
 static ib_api_status_t
@@ -152,31 +138,29 @@ __osm_smir_rcv_new_smir(IN osm_smir_rcv_t * const p_rcv,
 
 	OSM_LOG_ENTER(p_rcv->p_log, __osm_smir_rcv_new_smir);
 
-	p_rec_item = (osm_smir_item_t *) cl_qlock_pool_get(&p_rcv->pool);
+	p_rec_item = malloc(sizeof(*p_rec_item));
 	if (p_rec_item == NULL) {
 		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
 			"__osm_smir_rcv_new_smir: ERR 2801: "
-			"cl_qlock_pool_get failed\n");
+			"rec_item alloc failed\n");
 		status = IB_INSUFFICIENT_RESOURCES;
 		goto Exit;
 	}
 
-	if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG)) {
+	if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG))
 		osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
 			"__osm_smir_rcv_new_smir: "
 			"New SMInfo: GUID 0x%016" PRIx64 "\n", cl_ntoh64(guid)
 		    );
-	}
 
-	memset(&p_rec_item->rec, 0, sizeof(ib_sminfo_record_t));
+	memset(p_rec_item, 0, sizeof(*p_rec_item));
 
 	p_rec_item->rec.lid = osm_port_get_base_lid(p_port);
 	p_rec_item->rec.sm_info.guid = guid;
 	p_rec_item->rec.sm_info.act_count = act_count;
 	p_rec_item->rec.sm_info.pri_state = pri_state;
 
-	cl_qlist_insert_tail(p_list,
-			     (cl_list_item_t *) & p_rec_item->pool_item);
+	cl_qlist_insert_tail(p_list, &p_rec_item->list_item);
 
       Exit:
 	OSM_LOG_EXIT(p_rcv->p_log);
@@ -445,8 +429,7 @@ void osm_smir_rcv_process(IN void *ctx, IN void *data)
 			    (osm_smir_item_t *) cl_qlist_remove_head(&rec_list);
 			while (p_rec_item !=
 			       (osm_smir_item_t *) cl_qlist_end(&rec_list)) {
-				cl_qlock_pool_put(&p_rcv->pool,
-						  &p_rec_item->pool_item);
+				free(p_rec_item);
 				p_rec_item = (osm_smir_item_t *)
 				    cl_qlist_remove_head(&rec_list);
 			}
@@ -493,7 +476,7 @@ void osm_smir_rcv_process(IN void *ctx, IN void *data)
 		for (i = 0; i < num_rec; i++) {
 			p_rec_item =
 			    (osm_smir_item_t *) cl_qlist_remove_head(&rec_list);
-			cl_qlock_pool_put(&p_rcv->pool, &p_rec_item->pool_item);
+			free(p_rec_item);
 		}
 
 		osm_sa_send_error(p_rcv->p_resp, p_madw,
@@ -544,7 +527,7 @@ void osm_smir_rcv_process(IN void *ctx, IN void *data)
 			*p_resp_rec = p_rec_item->rec;
 			p_resp_rec->sm_info.sm_key = 0;
 		}
-		cl_qlock_pool_put(&p_rcv->pool, &p_rec_item->pool_item);
+		free(p_rec_item);
 		p_resp_rec++;
 	}
 

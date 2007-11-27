@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -50,7 +50,6 @@
 #define _OSM_SMIR_H_
 
 #include <complib/cl_passivelock.h>
-#include <complib/cl_qlist.h>
 #include <opensm/osm_base.h>
 #include <opensm/osm_madw.h>
 #include <opensm/osm_sa_response.h>
@@ -103,7 +102,6 @@ typedef struct _osm_smir {
 	osm_mad_pool_t *p_mad_pool;
 	osm_log_t *p_log;
 	cl_plock_t *p_lock;
-	cl_qlock_pool_t pool;
 } osm_smir_rcv_t;
 /*
 * FIELDS

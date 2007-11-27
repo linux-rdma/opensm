@@ -64,11 +64,8 @@
 #include <opensm/osm_pkey.h>
 #include <opensm/osm_sa.h>
 
-#define OSM_PIR_RCV_POOL_MIN_SIZE      32
-#define OSM_PIR_RCV_POOL_GROW_SIZE     32
-
 typedef struct _osm_pir_item {
-	cl_pool_item_t pool_item;
+	cl_list_item_t list_item;
 	ib_portinfo_record_t rec;
 } osm_pir_item_t;
 
@@ -86,7 +83,6 @@ typedef struct _osm_pir_search_ctxt {
 void osm_pir_rcv_construct(IN osm_pir_rcv_t * const p_rcv)
 {
 	memset(p_rcv, 0, sizeof(*p_rcv));
-	cl_qlock_pool_construct(&p_rcv->pool);
 }
 
 /**********************************************************************
@@ -94,7 +90,6 @@ void osm_pir_rcv_construct(IN osm_pir_rcv_t * const p_rcv)
 void osm_pir_rcv_destroy(IN osm_pir_rcv_t * const p_rcv)
 {
 	OSM_LOG_ENTER(p_rcv->p_log, osm_pir_rcv_destroy);
-	cl_qlock_pool_destroy(&p_rcv->pool);
 	OSM_LOG_EXIT(p_rcv->p_log);
 }
 
@@ -107,8 +102,6 @@ osm_pir_rcv_init(IN osm_pir_rcv_t * const p_rcv,
 		 IN osm_subn_t * const p_subn,
 		 IN osm_log_t * const p_log, IN cl_plock_t * const p_lock)
 {
-	ib_api_status_t status;
-
 	OSM_LOG_ENTER(p_log, osm_pir_rcv_init);
 
 	osm_pir_rcv_construct(p_rcv);
@@ -119,14 +112,8 @@ osm_pir_rcv_init(IN osm_pir_rcv_t * const p_rcv,
 	p_rcv->p_resp = p_resp;
 	p_rcv->p_mad_pool = p_mad_pool;
 
-	status = cl_qlock_pool_init(&p_rcv->pool,
-				    OSM_PIR_RCV_POOL_MIN_SIZE,
-				    0,
-				    OSM_PIR_RCV_POOL_GROW_SIZE,
-				    sizeof(osm_pir_item_t), NULL, NULL, NULL);
-
 	OSM_LOG_EXIT(p_log);
-	return (status);
+	return IB_SUCCESS;
 }
 
 /**********************************************************************
@@ -141,32 +128,30 @@ __osm_pir_rcv_new_pir(IN osm_pir_rcv_t * const p_rcv,
 
 	OSM_LOG_ENTER(p_rcv->p_log, __osm_pir_rcv_new_pir);
 
-	p_rec_item = (osm_pir_item_t *) cl_qlock_pool_get(&p_rcv->pool);
+	p_rec_item = malloc(sizeof(*p_rec_item));
 	if (p_rec_item == NULL) {
 		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
 			"__osm_pir_rcv_new_pir: ERR 2102: "
-			"cl_qlock_pool_get failed\n");
+			"rec_item alloc failed\n");
 		status = IB_INSUFFICIENT_RESOURCES;
 		goto Exit;
 	}
 
-	if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG)) {
+	if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG))
 		osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
 			"__osm_pir_rcv_new_pir: "
 			"New PortInfoRecord: port 0x%016" PRIx64
 			", lid 0x%X, port 0x%X\n",
 			cl_ntoh64(osm_physp_get_port_guid(p_physp)),
 			cl_ntoh16(lid), osm_physp_get_port_num(p_physp));
-	}
 
-	memset(&p_rec_item->rec, 0, sizeof(p_rec_item->rec));
+	memset(p_rec_item, 0, sizeof(*p_rec_item));
 
 	p_rec_item->rec.lid = lid;
 	p_rec_item->rec.port_info = p_physp->port_info;
 	p_rec_item->rec.port_num = osm_physp_get_port_num(p_physp);
 
-	cl_qlist_insert_tail(p_list,
-			     (cl_list_item_t *) & p_rec_item->pool_item);
+	cl_qlist_insert_tail(p_list, &p_rec_item->list_item);
 
       Exit:
 	OSM_LOG_EXIT(p_rcv->p_log);
@@ -676,8 +661,7 @@ void osm_pir_rcv_process(IN void *ctx, IN void *data)
 			    (osm_pir_item_t *) cl_qlist_remove_head(&rec_list);
 			while (p_rec_item !=
 			       (osm_pir_item_t *) cl_qlist_end(&rec_list)) {
-				cl_qlock_pool_put(&p_rcv->pool,
-						  &p_rec_item->pool_item);
+				free(p_rec_item);
 				p_rec_item = (osm_pir_item_t *)
 				    cl_qlist_remove_head(&rec_list);
 			}
@@ -725,7 +709,7 @@ void osm_pir_rcv_process(IN void *ctx, IN void *data)
 		for (i = 0; i < num_rec; i++) {
 			p_rec_item =
 			    (osm_pir_item_t *) cl_qlist_remove_head(&rec_list);
-			cl_qlock_pool_put(&p_rcv->pool, &p_rec_item->pool_item);
+			free(p_rec_item);
 		}
 
 		osm_sa_send_error(p_rcv->p_resp, p_madw,
@@ -786,7 +770,7 @@ void osm_pir_rcv_process(IN void *ctx, IN void *data)
 			if (trusted_req == FALSE)
 				p_resp_rec->port_info.m_key = 0;
 		}
-		cl_qlock_pool_put(&p_rcv->pool, &p_rec_item->pool_item);
+		free(p_rec_item);
 		p_resp_rec++;
 	}
 

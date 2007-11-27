@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -66,11 +66,8 @@
 #include <opensm/osm_inform.h>
 #include <opensm/osm_pkey.h>
 
-#define OSM_IIR_RCV_POOL_MIN_SIZE      32
-#define OSM_IIR_RCV_POOL_GROW_SIZE     32
-
 typedef struct _osm_iir_item {
-	cl_pool_item_t pool_item;
+	cl_list_item_t list_item;
 	ib_inform_info_record_t rec;
 } osm_iir_item_t;
 
@@ -89,7 +86,6 @@ typedef struct _osm_iir_search_ctxt {
 void osm_infr_rcv_construct(IN osm_infr_rcv_t * const p_rcv)
 {
 	memset(p_rcv, 0, sizeof(*p_rcv));
-	cl_qlock_pool_construct(&p_rcv->pool);
 }
 
 /**********************************************************************
@@ -99,7 +95,6 @@ void osm_infr_rcv_destroy(IN osm_infr_rcv_t * const p_rcv)
 	CL_ASSERT(p_rcv);
 
 	OSM_LOG_ENTER(p_rcv->p_log, osm_infr_rcv_destroy);
-	cl_qlock_pool_destroy(&p_rcv->pool);
 	OSM_LOG_EXIT(p_rcv->p_log);
 }
 
@@ -112,8 +107,6 @@ osm_infr_rcv_init(IN osm_infr_rcv_t * const p_rcv,
 		  IN osm_subn_t * const p_subn,
 		  IN osm_log_t * const p_log, IN cl_plock_t * const p_lock)
 {
-	ib_api_status_t status = IB_ERROR;
-
 	OSM_LOG_ENTER(p_log, osm_infr_rcv_init);
 
 	osm_infr_rcv_construct(p_rcv);
@@ -124,14 +117,8 @@ osm_infr_rcv_init(IN osm_infr_rcv_t * const p_rcv,
 	p_rcv->p_resp = p_resp;
 	p_rcv->p_mad_pool = p_mad_pool;
 
-	status = cl_qlock_pool_init(&p_rcv->pool,
-				    OSM_IIR_RCV_POOL_MIN_SIZE,
-				    0,
-				    OSM_IIR_RCV_POOL_GROW_SIZE,
-				    sizeof(osm_iir_item_t), NULL, NULL, NULL);
-
 	OSM_LOG_EXIT(p_rcv->p_log);
-	return (status);
+	return IB_SUCCESS;
 }
 
 /**********************************************************************
@@ -392,18 +379,17 @@ __osm_sa_inform_info_rec_by_comp_mask(IN osm_infr_rcv_t * const p_rcv,
 		goto Exit;
 	}
 
-	p_rec_item = (osm_iir_item_t *) cl_qlock_pool_get(&p_rcv->pool);
+	p_rec_item = malloc(sizeof(*p_rec_item));
 	if (p_rec_item == NULL) {
 		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
 			"__osm_sa_inform_info_rec_by_comp_mask: ERR 430E: "
-			"cl_qlock_pool_get failed\n");
+			"rec_item alloc failed\n");
 		goto Exit;
 	}
 
 	memcpy((void *)&p_rec_item->rec, (void *)&p_infr->inform_record,
 	       sizeof(ib_inform_info_record_t));
-	cl_qlist_insert_tail(p_ctxt->p_list,
-			     (cl_list_item_t *) & p_rec_item->pool_item);
+	cl_qlist_insert_tail(p_ctxt->p_list, &p_rec_item->list_item);
 
       Exit:
 	OSM_LOG_EXIT(p_rcv->p_log);
@@ -519,8 +505,7 @@ osm_infr_rcv_process_get_method(IN osm_infr_rcv_t * const p_rcv,
 			    (osm_iir_item_t *) cl_qlist_remove_head(&rec_list);
 			while (p_rec_item !=
 			       (osm_iir_item_t *) cl_qlist_end(&rec_list)) {
-				cl_qlock_pool_put(&p_rcv->pool,
-						  &p_rec_item->pool_item);
+				free(p_rec_item);
 				p_rec_item = (osm_iir_item_t *)
 				    cl_qlist_remove_head(&rec_list);
 			}
@@ -565,7 +550,7 @@ osm_infr_rcv_process_get_method(IN osm_infr_rcv_t * const p_rcv,
 		for (i = 0; i < num_rec; i++) {
 			p_rec_item =
 			    (osm_iir_item_t *) cl_qlist_remove_head(&rec_list);
-			cl_qlock_pool_put(&p_rcv->pool, &p_rec_item->pool_item);
+			free(p_rec_item);
 		}
 
 		osm_sa_send_error(p_rcv->p_resp, p_madw,
@@ -619,7 +604,7 @@ osm_infr_rcv_process_get_method(IN osm_infr_rcv_t * const p_rcv,
 			for (j = 0; j < 4; j++)
 				p_resp_rec->pad[j] = 0;
 		}
-		cl_qlock_pool_put(&p_rcv->pool, &p_rec_item->pool_item);
+		free(p_rec_item);
 		p_resp_rec++;
 	}
 

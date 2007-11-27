@@ -73,15 +73,12 @@
 #include <opensm/osm_sa_mcmember_record.h>
 #include <opensm/osm_prefix_route.h>
 
-#define OSM_PR_RCV_POOL_MIN_SIZE    64
-#define OSM_PR_RCV_POOL_GROW_SIZE   64
-
 extern uint8_t osm_get_lash_sl(osm_opensm_t * p_osm,
 			       const osm_port_t * p_src_port,
 			       const osm_port_t * p_dst_port);
 
 typedef struct _osm_pr_item {
-	cl_pool_item_t pool_item;
+	cl_list_item_t list_item;
 	ib_path_rec_t path_rec;
 } osm_pr_item_t;
 
@@ -111,7 +108,6 @@ static const ib_gid_t zero_gid = { {0x00, 0x00, 0x00, 0x00,
 void osm_pr_rcv_construct(IN osm_pr_rcv_t * const p_rcv)
 {
 	memset(p_rcv, 0, sizeof(*p_rcv));
-	cl_qlock_pool_construct(&p_rcv->pr_pool);
 }
 
 /**********************************************************************
@@ -119,7 +115,6 @@ void osm_pr_rcv_construct(IN osm_pr_rcv_t * const p_rcv)
 void osm_pr_rcv_destroy(IN osm_pr_rcv_t * const p_rcv)
 {
 	OSM_LOG_ENTER(p_rcv->p_log, osm_pr_rcv_destroy);
-	cl_qlock_pool_destroy(&p_rcv->pr_pool);
 	OSM_LOG_EXIT(p_rcv->p_log);
 }
 
@@ -132,8 +127,6 @@ osm_pr_rcv_init(IN osm_pr_rcv_t * const p_rcv,
 		IN osm_subn_t * const p_subn,
 		IN osm_log_t * const p_log, IN cl_plock_t * const p_lock)
 {
-	ib_api_status_t status;
-
 	OSM_LOG_ENTER(p_log, osm_pr_rcv_init);
 
 	osm_pr_rcv_construct(p_rcv);
@@ -144,14 +137,8 @@ osm_pr_rcv_init(IN osm_pr_rcv_t * const p_rcv,
 	p_rcv->p_resp = p_resp;
 	p_rcv->p_mad_pool = p_mad_pool;
 
-	status = cl_qlock_pool_init(&p_rcv->pr_pool,
-				    OSM_PR_RCV_POOL_MIN_SIZE,
-				    0,
-				    OSM_PR_RCV_POOL_GROW_SIZE,
-				    sizeof(osm_pr_item_t), NULL, NULL, NULL);
-
 	OSM_LOG_EXIT(p_rcv->p_log);
-	return (status);
+	return IB_SUCCESS;
 }
 
 /**********************************************************************
@@ -939,20 +926,21 @@ __osm_pr_rcv_get_lid_pair_path(IN osm_pr_rcv_t * const p_rcv,
 			"Src LID 0x%X, Dest LID 0x%X\n",
 			src_lid_ho, dest_lid_ho);
 
-	p_pr_item = (osm_pr_item_t *) cl_qlock_pool_get(&p_rcv->pr_pool);
+	p_pr_item = malloc(sizeof(*p_pr_item));
 	if (p_pr_item == NULL) {
 		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
 			"__osm_pr_rcv_get_lid_pair_path: ERR 1F01: "
 			"Unable to allocate path record\n");
 		goto Exit;
 	}
+	memset(p_pr_item, 0, sizeof(*p_pr_item));
 
 	status = __osm_pr_rcv_get_path_parms(p_rcv, p_pr, p_src_port,
 					     p_dest_port, dest_lid_ho,
 					     comp_mask, &path_parms);
 
 	if (status != IB_SUCCESS) {
-		cl_qlock_pool_put(&p_rcv->pr_pool, &p_pr_item->pool_item);
+		free(p_pr_item);
 		p_pr_item = NULL;
 		goto Exit;
 	}
@@ -976,8 +964,7 @@ __osm_pr_rcv_get_lid_pair_path(IN osm_pr_rcv_t * const p_rcv,
 				"__osm_pr_rcv_get_lid_pair_path: "
 				"Requested reversible path but failed to get one\n");
 
-			cl_qlock_pool_put(&p_rcv->pr_pool,
-					  &p_pr_item->pool_item);
+			free(p_pr_item);
 			p_pr_item = NULL;
 			goto Exit;
 		}
@@ -1158,9 +1145,7 @@ __osm_pr_rcv_get_port_pair_paths(IN osm_pr_rcv_t * const p_rcv,
 							   preference);
 
 		if (p_pr_item) {
-			cl_qlist_insert_tail(p_list,
-					     (cl_list_item_t *) & p_pr_item->
-					     pool_item);
+			cl_qlist_insert_tail(p_list, &p_pr_item->list_item);
 			++path_num;
 		}
 
@@ -1226,9 +1211,7 @@ __osm_pr_rcv_get_port_pair_paths(IN osm_pr_rcv_t * const p_rcv,
 							   preference);
 
 		if (p_pr_item) {
-			cl_qlist_insert_tail(p_list,
-					     (cl_list_item_t *) & p_pr_item->
-					     pool_item);
+			cl_qlist_insert_tail(p_list, &p_pr_item->list_item);
 			++path_num;
 		}
 	}
@@ -1861,8 +1844,7 @@ __osm_pr_rcv_respond(IN osm_pr_rcv_t * const p_rcv,
 			    (osm_pr_item_t *) cl_qlist_remove_head(p_list);
 			while (p_pr_item !=
 			       (osm_pr_item_t *) cl_qlist_end(p_list)) {
-				cl_qlock_pool_put(&p_rcv->pr_pool,
-						  &p_pr_item->pool_item);
+				free(p_pr_item);
 				p_pr_item = (osm_pr_item_t *)
 				    cl_qlist_remove_head(p_list);
 			}
@@ -1907,8 +1889,7 @@ __osm_pr_rcv_respond(IN osm_pr_rcv_t * const p_rcv,
 		for (i = 0; i < num_rec; i++) {
 			p_pr_item =
 			    (osm_pr_item_t *) cl_qlist_remove_head(p_list);
-			cl_qlock_pool_put(&p_rcv->pr_pool,
-					  &p_pr_item->pool_item);
+			free(p_pr_item);
 		}
 
 		osm_sa_send_error(p_rcv->p_resp, p_madw,
@@ -1949,7 +1930,7 @@ __osm_pr_rcv_respond(IN osm_pr_rcv_t * const p_rcv,
 		if (i < num_rec)
 			*p_resp_pr = p_pr_item->path_rec;
 
-		cl_qlock_pool_put(&p_rcv->pr_pool, &p_pr_item->pool_item);
+		free(p_pr_item);
 		p_resp_pr++;
 	}
 
@@ -2113,14 +2094,14 @@ void osm_pr_rcv_process(IN void *context, IN void *data)
 			goto Unlock;
 		}
 
-		p_pr_item =
-		    (osm_pr_item_t *) cl_qlock_pool_get(&p_rcv->pr_pool);
+		p_pr_item = malloc(sizeof(*p_pr_item));
 		if (p_pr_item == NULL) {
 			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
 				"osm_pr_rcv_process: ERR 1F18: "
 				"Unable to allocate path record for MC group\n");
 			goto Unlock;
 		}
+		memset(p_pr_item, 0, sizeof(*p_pr_item));
 
 		/* Copy PathRecord request into response */
 		p_sa_mad = osm_madw_get_sa_mad_ptr(p_madw);
@@ -2157,9 +2138,7 @@ void osm_pr_rcv_process(IN void *context, IN void *data)
 		p_pr_item->path_rec.hop_flow_raw =
 			cl_hton32(hop_limit) | (flow_label << 8);
 
-		cl_qlist_insert_tail(&pr_list, (cl_list_item_t *)
-				     & p_pr_item->pool_item);
-
+		cl_qlist_insert_tail(&pr_list, &p_pr_item->list_item);
 	}
 
       Unlock:

@@ -66,11 +66,8 @@
 #include <opensm/osm_service.h>
 #include <opensm/osm_pkey.h>
 
-#define OSM_SR_RCV_POOL_MIN_SIZE    64
-#define OSM_SR_RCV_POOL_GROW_SIZE   64
-
 typedef struct _osm_sr_item {
-	cl_pool_item_t pool_item;
+	cl_list_item_t list_item;
 	ib_service_record_t service_rec;
 } osm_sr_item_t;
 
@@ -79,7 +76,6 @@ typedef struct osm_sr_match_item {
 	ib_service_record_t *p_service_rec;
 	ib_net64_t comp_mask;
 	osm_sr_rcv_t *p_rcv;
-
 } osm_sr_match_item_t;
 
 typedef struct _osm_sr_search_ctxt {
@@ -92,7 +88,6 @@ typedef struct _osm_sr_search_ctxt {
 void osm_sr_rcv_construct(IN osm_sr_rcv_t * const p_rcv)
 {
 	memset(p_rcv, 0, sizeof(*p_rcv));
-	cl_qlock_pool_construct(&p_rcv->sr_pool);
 	cl_timer_construct(&p_rcv->sr_timer);
 }
 
@@ -101,7 +96,6 @@ void osm_sr_rcv_construct(IN osm_sr_rcv_t * const p_rcv)
 void osm_sr_rcv_destroy(IN osm_sr_rcv_t * const p_rcv)
 {
 	OSM_LOG_ENTER(p_rcv->p_log, osm_sr_rcv_destroy);
-	cl_qlock_pool_destroy(&p_rcv->sr_pool);
 	cl_timer_trim(&p_rcv->sr_timer, 1);
 	cl_timer_destroy(&p_rcv->sr_timer);
 	OSM_LOG_EXIT(p_rcv->p_log);
@@ -116,8 +110,7 @@ osm_sr_rcv_init(IN osm_sr_rcv_t * const p_rcv,
 		IN osm_subn_t * const p_subn,
 		IN osm_log_t * const p_log, IN cl_plock_t * const p_lock)
 {
-	ib_api_status_t status = IB_ERROR;
-	cl_status_t cl_status;
+	ib_api_status_t status;
 
 	OSM_LOG_ENTER(p_log, osm_sr_rcv_init);
 
@@ -129,20 +122,8 @@ osm_sr_rcv_init(IN osm_sr_rcv_t * const p_rcv,
 	p_rcv->p_resp = p_resp;
 	p_rcv->p_mad_pool = p_mad_pool;
 
-	cl_status = cl_qlock_pool_init(&p_rcv->sr_pool,
-				       OSM_SR_RCV_POOL_MIN_SIZE,
-				       0,
-				       OSM_SR_RCV_POOL_GROW_SIZE,
-				       sizeof(osm_sr_item_t), NULL, NULL, NULL);
-	if (cl_status != CL_SUCCESS)
-		goto Exit;
-
 	status = cl_timer_init(&p_rcv->sr_timer, osm_sr_rcv_lease_cb, p_rcv);
-	if (cl_status != CL_SUCCESS)
-		goto Exit;
 
-	status = IB_SUCCESS;
-      Exit:
 	OSM_LOG_EXIT(p_rcv->p_log);
 	return (status);
 }
@@ -315,8 +296,7 @@ __osm_sr_rcv_respond(IN osm_sr_rcv_t * const p_rcv,
 		/* need to set the mem free ... */
 		p_sr_item = (osm_sr_item_t *) cl_qlist_remove_head(p_list);
 		while (p_sr_item != (osm_sr_item_t *) cl_qlist_end(p_list)) {
-			cl_qlock_pool_put(&p_rcv->sr_pool,
-					  &p_sr_item->pool_item);
+			free(p_sr_item);
 			p_sr_item =
 			    (osm_sr_item_t *) cl_qlist_remove_head(p_list);
 		}
@@ -355,8 +335,7 @@ __osm_sr_rcv_respond(IN osm_sr_rcv_t * const p_rcv,
 		/* Release the quick pool items */
 		p_sr_item = (osm_sr_item_t *) cl_qlist_remove_head(p_list);
 		while (p_sr_item != (osm_sr_item_t *) cl_qlist_end(p_list)) {
-			cl_qlock_pool_put(&p_rcv->sr_pool,
-					  &p_sr_item->pool_item);
+			free(p_sr_item);
 			p_sr_item =
 			    (osm_sr_item_t *) cl_qlist_remove_head(p_list);
 		}
@@ -430,8 +409,7 @@ __osm_sr_rcv_respond(IN osm_sr_rcv_t * const p_rcv,
 
 				num_copied++;
 			}
-			cl_qlock_pool_put(&p_rcv->sr_pool,
-					  &p_sr_item->pool_item);
+			free(p_sr_item);
 			p_resp_sr++;
 			p_sr_item =
 			    (osm_sr_item_t *) cl_qlist_remove_head(p_list);
@@ -668,9 +646,7 @@ __get_matching_sr(IN cl_list_item_t * const p_list_item, IN void *context)
 		}
 	}
 
-	p_sr_pool_item =
-	    (osm_sr_item_t *) cl_qlock_pool_get(&p_sr_item->p_rcv->sr_pool);
-
+	p_sr_pool_item = malloc(sizeof(*p_sr_pool_item));
 	if (p_sr_pool_item == NULL) {
 		osm_log(p_sr_item->p_rcv->p_log, OSM_LOG_ERROR,
 			"__get_matching_sr: ERR 2408: "
@@ -680,8 +656,7 @@ __get_matching_sr(IN cl_list_item_t * const p_list_item, IN void *context)
 
 	p_sr_pool_item->service_rec = p_svcr->service_record;
 
-	cl_qlist_insert_tail(&p_sr_item->sr_list,
-			     (cl_list_item_t *) & p_sr_pool_item->pool_item);
+	cl_qlist_insert_tail(&p_sr_item->sr_list, &p_sr_pool_item->list_item);
 
       Exit:
 	return;
@@ -848,7 +823,7 @@ osm_sr_rcv_process_set_method(IN osm_sr_rcv_t * const p_rcv,
 		p_svcr->modified_time = cl_get_time_stamp_sec();
 	}
 
-	p_sr_item = (osm_sr_item_t *) cl_qlock_pool_get(&p_rcv->sr_pool);
+	p_sr_item = malloc(sizeof(*p_sr_item));
 	if (p_sr_item == NULL) {
 		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
 			"osm_sr_rcv_process_set_method: ERR 2412: "
@@ -866,8 +841,7 @@ osm_sr_rcv_process_set_method(IN osm_sr_rcv_t * const p_rcv,
 	p_sr_item->service_rec = *p_recvd_service_rec;
 	cl_qlist_init(&sr_list);
 
-	cl_qlist_insert_tail(&sr_list,
-			     (cl_list_item_t *) & p_sr_item->pool_item);
+	cl_qlist_insert_tail(&sr_list, &p_sr_item->list_item);
 
 	__osm_sr_rcv_respond(p_rcv, p_madw, &sr_list);
 
@@ -925,7 +899,7 @@ osm_sr_rcv_process_delete_method(IN osm_sr_rcv_t * const p_rcv,
 
 	cl_plock_release(p_rcv->p_lock);
 
-	p_sr_item = (osm_sr_item_t *) cl_qlock_pool_get(&p_rcv->sr_pool);
+	p_sr_item = malloc(sizeof(*p_sr_item));
 	if (p_sr_item == NULL) {
 		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
 			"osm_sr_rcv_process_delete_method: ERR 2413: "
@@ -939,8 +913,7 @@ osm_sr_rcv_process_delete_method(IN osm_sr_rcv_t * const p_rcv,
 	p_sr_item->service_rec = p_svcr->service_record;
 	cl_qlist_init(&sr_list);
 
-	cl_qlist_insert_tail(&sr_list,
-			     (cl_list_item_t *) & p_sr_item->pool_item);
+	cl_qlist_insert_tail(&sr_list, &p_sr_item->list_item);
 
 	if (p_svcr)
 		osm_svcr_delete(p_svcr);

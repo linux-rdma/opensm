@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2006-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -62,11 +62,8 @@
 #include <opensm/osm_pkey.h>
 #include <opensm/osm_sa.h>
 
-#define OSM_GIR_RCV_POOL_MIN_SIZE      32
-#define OSM_GIR_RCV_POOL_GROW_SIZE     32
-
 typedef struct _osm_gir_item {
-	cl_pool_item_t pool_item;
+	cl_list_item_t list_item;
 	ib_guidinfo_record_t rec;
 } osm_gir_item_t;
 
@@ -83,7 +80,6 @@ typedef struct _osm_gir_search_ctxt {
 void osm_gir_rcv_construct(IN osm_gir_rcv_t * const p_rcv)
 {
 	memset(p_rcv, 0, sizeof(*p_rcv));
-	cl_qlock_pool_construct(&p_rcv->pool);
 }
 
 /**********************************************************************
@@ -91,7 +87,6 @@ void osm_gir_rcv_construct(IN osm_gir_rcv_t * const p_rcv)
 void osm_gir_rcv_destroy(IN osm_gir_rcv_t * const p_rcv)
 {
 	OSM_LOG_ENTER(p_rcv->p_log, osm_gir_rcv_destroy);
-	cl_qlock_pool_destroy(&p_rcv->pool);
 	OSM_LOG_EXIT(p_rcv->p_log);
 }
 
@@ -104,8 +99,6 @@ osm_gir_rcv_init(IN osm_gir_rcv_t * const p_rcv,
 		 IN osm_subn_t * const p_subn,
 		 IN osm_log_t * const p_log, IN cl_plock_t * const p_lock)
 {
-	ib_api_status_t status;
-
 	OSM_LOG_ENTER(p_log, osm_gir_rcv_init);
 
 	osm_gir_rcv_construct(p_rcv);
@@ -116,14 +109,8 @@ osm_gir_rcv_init(IN osm_gir_rcv_t * const p_rcv,
 	p_rcv->p_resp = p_resp;
 	p_rcv->p_mad_pool = p_mad_pool;
 
-	status = cl_qlock_pool_init(&p_rcv->pool,
-				    OSM_GIR_RCV_POOL_MIN_SIZE,
-				    0,
-				    OSM_GIR_RCV_POOL_GROW_SIZE,
-				    sizeof(osm_gir_item_t), NULL, NULL, NULL);
-
 	OSM_LOG_EXIT(p_log);
-	return (status);
+	return IB_SUCCESS;
 }
 
 /**********************************************************************
@@ -142,11 +129,11 @@ __osm_gir_rcv_new_gir(IN osm_gir_rcv_t * const p_rcv,
 
 	OSM_LOG_ENTER(p_rcv->p_log, __osm_gir_rcv_new_gir);
 
-	p_rec_item = (osm_gir_item_t *) cl_qlock_pool_get(&p_rcv->pool);
+	p_rec_item = malloc(sizeof(*p_rec_item));
 	if (p_rec_item == NULL) {
 		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
 			"__osm_gir_rcv_new_gir: ERR 5102: "
-			"cl_qlock_pool_get failed\n");
+			"rec_item alloc failed\n");
 		status = IB_INSUFFICIENT_RESOURCES;
 		goto Exit;
 	}
@@ -158,7 +145,7 @@ __osm_gir_rcv_new_gir(IN osm_gir_rcv_t * const p_rcv,
 			cl_ntoh16(match_lid), block_num);
 	}
 
-	memset(&p_rec_item->rec, 0, sizeof(p_rec_item->rec));
+	memset(p_rec_item, 0, sizeof(*p_rec_item));
 
 	p_rec_item->rec.lid = match_lid;
 	p_rec_item->rec.block_num = block_num;
@@ -166,8 +153,7 @@ __osm_gir_rcv_new_gir(IN osm_gir_rcv_t * const p_rcv,
 		p_rec_item->rec.guid_info.guid[0] =
 		    osm_physp_get_port_guid(p_req_physp);
 
-	cl_qlist_insert_tail(p_list,
-			     (cl_list_item_t *) & p_rec_item->pool_item);
+	cl_qlist_insert_tail(p_list, &p_rec_item->list_item);
 
       Exit:
 	OSM_LOG_EXIT(p_rcv->p_log);
@@ -465,8 +451,7 @@ void osm_gir_rcv_process(IN void *ctx, IN void *data)
 			    (osm_gir_item_t *) cl_qlist_remove_head(&rec_list);
 			while (p_rec_item !=
 			       (osm_gir_item_t *) cl_qlist_end(&rec_list)) {
-				cl_qlock_pool_put(&p_rcv->pool,
-						  &p_rec_item->pool_item);
+				free(p_rec_item);
 				p_rec_item = (osm_gir_item_t *)
 				    cl_qlist_remove_head(&rec_list);
 			}
@@ -514,7 +499,7 @@ void osm_gir_rcv_process(IN void *ctx, IN void *data)
 		for (i = 0; i < num_rec; i++) {
 			p_rec_item =
 			    (osm_gir_item_t *) cl_qlist_remove_head(&rec_list);
-			cl_qlock_pool_put(&p_rcv->pool, &p_rec_item->pool_item);
+			free(p_rec_item);
 		}
 
 		osm_sa_send_error(p_rcv->p_resp, p_madw,
@@ -559,10 +544,9 @@ void osm_gir_rcv_process(IN void *ctx, IN void *data)
 	for (i = 0; i < pre_trim_num_rec; i++) {
 		p_rec_item = (osm_gir_item_t *) cl_qlist_remove_head(&rec_list);
 		/* copy only if not trimmed */
-		if (i < num_rec) {
+		if (i < num_rec)
 			*p_resp_rec = p_rec_item->rec;
-		}
-		cl_qlock_pool_put(&p_rcv->pool, &p_rec_item->pool_item);
+		free(p_rec_item);
 		p_resp_rec++;
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -61,11 +61,8 @@
 #include <opensm/osm_pkey.h>
 #include <opensm/osm_sa.h>
 
-#define OSM_LR_RCV_POOL_MIN_SIZE    64
-#define OSM_LR_RCV_POOL_GROW_SIZE   64
-
 typedef struct _osm_lr_item {
-	cl_pool_item_t pool_item;
+	cl_list_item_t list_item;
 	ib_link_record_t link_rec;
 } osm_lr_item_t;
 
@@ -74,7 +71,6 @@ typedef struct _osm_lr_item {
 void osm_lr_rcv_construct(IN osm_lr_rcv_t * const p_rcv)
 {
 	memset(p_rcv, 0, sizeof(*p_rcv));
-	cl_qlock_pool_construct(&p_rcv->lr_pool);
 }
 
 /**********************************************************************
@@ -82,7 +78,6 @@ void osm_lr_rcv_construct(IN osm_lr_rcv_t * const p_rcv)
 void osm_lr_rcv_destroy(IN osm_lr_rcv_t * const p_rcv)
 {
 	OSM_LOG_ENTER(p_rcv->p_log, osm_lr_rcv_destroy);
-	cl_qlock_pool_destroy(&p_rcv->lr_pool);
 	OSM_LOG_EXIT(p_rcv->p_log);
 }
 
@@ -95,8 +90,6 @@ osm_lr_rcv_init(IN osm_lr_rcv_t * const p_rcv,
 		IN osm_subn_t * const p_subn,
 		IN osm_log_t * const p_log, IN cl_plock_t * const p_lock)
 {
-	ib_api_status_t status = IB_SUCCESS;
-
 	OSM_LOG_ENTER(p_log, osm_lr_rcv_init);
 
 	osm_lr_rcv_construct(p_rcv);
@@ -107,14 +100,8 @@ osm_lr_rcv_init(IN osm_lr_rcv_t * const p_rcv,
 	p_rcv->p_resp = p_resp;
 	p_rcv->p_mad_pool = p_mad_pool;
 
-	status = cl_qlock_pool_init(&p_rcv->lr_pool,
-				    OSM_LR_RCV_POOL_MIN_SIZE,
-				    0,
-				    OSM_LR_RCV_POOL_GROW_SIZE,
-				    sizeof(osm_lr_item_t), NULL, NULL, NULL);
-
 	OSM_LOG_EXIT(p_rcv->p_log);
-	return (status);
+	return IB_SUCCESS;
 }
 
 /**********************************************************************
@@ -128,7 +115,7 @@ __osm_lr_rcv_build_physp_link(IN osm_lr_rcv_t * const p_rcv,
 {
 	osm_lr_item_t *p_lr_item;
 
-	p_lr_item = (osm_lr_item_t *) cl_qlock_pool_get(&p_rcv->lr_pool);
+	p_lr_item = malloc(sizeof(*p_lr_item));
 	if (p_lr_item == NULL) {
 		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
 			"__osm_lr_rcv_build_physp_link: ERR 1801: "
@@ -141,13 +128,14 @@ __osm_lr_rcv_build_physp_link(IN osm_lr_rcv_t * const p_rcv,
 			cl_ntoh16(from_lid), cl_ntoh16(to_lid));
 		return;
 	}
+	memset(p_lr_item, 0, sizeof(*p_lr_item));
 
 	p_lr_item->link_rec.from_port_num = from_port;
 	p_lr_item->link_rec.to_port_num = to_port;
 	p_lr_item->link_rec.to_lid = to_lid;
 	p_lr_item->link_rec.from_lid = from_lid;
 
-	cl_qlist_insert_tail(p_list, (cl_list_item_t *) & p_lr_item->pool_item);
+	cl_qlist_insert_tail(p_list, &p_lr_item->list_item);
 }
 
 /**********************************************************************
@@ -560,8 +548,7 @@ __osm_lr_rcv_respond(IN osm_lr_rcv_t * const p_rcv,
 		/* need to set the mem free ... */
 		p_lr_item = (osm_lr_item_t *) cl_qlist_remove_head(p_list);
 		while (p_lr_item != (osm_lr_item_t *) cl_qlist_end(p_list)) {
-			cl_qlock_pool_put(&p_rcv->lr_pool,
-					  &p_lr_item->pool_item);
+			free(p_lr_item);
 			p_lr_item =
 			    (osm_lr_item_t *) cl_qlist_remove_head(p_list);
 		}
@@ -600,8 +587,7 @@ __osm_lr_rcv_respond(IN osm_lr_rcv_t * const p_rcv,
 		/* Release the quick pool items */
 		p_lr_item = (osm_lr_item_t *) cl_qlist_remove_head(p_list);
 		while (p_lr_item != (osm_lr_item_t *) cl_qlist_end(p_list)) {
-			cl_qlock_pool_put(&p_rcv->lr_pool,
-					  &p_lr_item->pool_item);
+			free(p_lr_item);
 			p_lr_item =
 			    (osm_lr_item_t *) cl_qlist_remove_head(p_list);
 		}
@@ -654,8 +640,7 @@ __osm_lr_rcv_respond(IN osm_lr_rcv_t * const p_rcv,
 				*p_resp_lr = p_lr_item->link_rec;
 				num_copied++;
 			}
-			cl_qlock_pool_put(&p_rcv->lr_pool,
-					  &p_lr_item->pool_item);
+			free(p_lr_item);
 			p_resp_lr++;
 			p_lr_item =
 			    (osm_lr_item_t *) cl_qlist_remove_head(p_list);

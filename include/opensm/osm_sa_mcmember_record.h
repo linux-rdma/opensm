@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -50,7 +50,6 @@
 #define _OSM_MCMR_H_
 
 #include <complib/cl_passivelock.h>
-#include <complib/cl_qlist.h>
 #include <opensm/osm_base.h>
 #include <opensm/osm_madw.h>
 #include <opensm/osm_sa_response.h>
@@ -105,7 +104,6 @@ typedef struct _osm_mcmr {
 	osm_log_t *p_log;
 	cl_plock_t *p_lock;
 	uint16_t mlid_ho;
-	cl_qlock_pool_t pool;
 } osm_mcmr_recv_t;
 
 /*
