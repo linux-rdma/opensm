@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -340,10 +340,10 @@ void osm_vl15_post(IN osm_vl15_t * const p_vl, IN osm_madw_t * const p_madw)
 	 */
 	cl_spinlock_acquire(&p_vl->lock);
 	if (p_madw->resp_expected == TRUE) {
-		cl_qlist_insert_tail(&p_vl->rfifo, (cl_list_item_t *) p_madw);
+		cl_qlist_insert_tail(&p_vl->rfifo, &p_madw->list_item);
 		cl_atomic_inc(&p_vl->p_stats->qp0_mads_outstanding);
 	} else
-		cl_qlist_insert_tail(&p_vl->ufifo, (cl_list_item_t *) p_madw);
+		cl_qlist_insert_tail(&p_vl->ufifo, &p_madw->list_item);
 	cl_spinlock_release(&p_vl->lock);
 
 	if (osm_log_is_active(p_vl->p_log, OSM_LOG_DEBUG))

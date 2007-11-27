@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004, 2005 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -50,7 +50,6 @@
 
 #include <iba/ib_types.h>
 #include <complib/cl_atomic.h>
-#include <complib/cl_qlockpool.h>
 #include <opensm/osm_base.h>
 #include <vendor/osm_vendor.h>
 #include <opensm/osm_madw.h>
@@ -97,16 +96,12 @@ BEGIN_C_DECLS
 */
 typedef struct _osm_mad_pool {
 	osm_log_t *p_log;
-	cl_qlock_pool_t madw_pool;
 	atomic32_t mads_out;
 } osm_mad_pool_t;
 /*
 * FIELDS
 *	p_log
 *		Pointer to the log object.
-*
-*	lock
-*		Spinlock guarding the pool.
 *
 *	mads_out
 *		Running total of the number of MADs outstanding.

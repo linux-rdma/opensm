@@ -409,7 +409,7 @@ typedef struct _osm_mad_addr {
 * SYNOPSIS
 */
 typedef struct _osm_madw {
-	cl_pool_item_t pool_item;
+	cl_list_item_t list_item;
 	osm_bind_handle_t h_bind;
 	osm_vend_wrap_t vend_wrap;
 	osm_mad_addr_t mad_addr;
@@ -423,8 +423,8 @@ typedef struct _osm_madw {
 } osm_madw_t;
 /*
 * FIELDS
-*	pool_item
-*		List linkage for pools and lists.  MUST BE FIRST MEMBER!
+*	list_item
+*		List linkage for lists.  MUST BE FIRST MEMBER!
 *
 *	h_bind
 *		Bind handle for the port on which this MAD will be sent
@@ -467,72 +467,6 @@ typedef struct _osm_madw {
 * SEE ALSO
 *********/
 
-/****f* OpenSM: MAD Wrapper/osm_madw_construct
-* NAME
-*	osm_madw_construct
-*
-* DESCRIPTION
-*	This function constructs a MAD Wrapper object.
-*
-* SYNOPSIS
-*/
-static inline void osm_madw_construct(IN osm_madw_t * const p_madw)
-{
-	/*
-	   Don't touch the pool_item since that is an opaque object.
-	   Clear all other objects in the mad wrapper.
-	 */
-	memset(((uint8_t *) p_madw) + sizeof(cl_pool_item_t), 0,
-	       sizeof(*p_madw) - sizeof(cl_pool_item_t));
-}
-
-/*
-* PARAMETERS
-*	p_madw
-*		[in] Pointer to a MAD Wrapper object to construct.
-*
-* RETURN VALUE
-*	This function does not return a value.
-*
-* NOTES
-*	Allows calling osm_madw_init, osm_madw_destroy
-*
-*	Calling osm_madw_construct is a prerequisite to calling any other
-*	method except osm_madw_init.
-*
-* SEE ALSO
-*	MAD Wrapper object, osm_madw_init, osm_madw_destroy
-*********/
-
-/****f* OpenSM: MAD Wrapper/osm_madw_destroy
-* NAME
-*	osm_madw_destroy
-*
-* DESCRIPTION
-*	The osm_madw_destroy function destroys a node, releasing
-*	all resources.
-*
-* SYNOPSIS
-*/
-void osm_madw_destroy(IN osm_madw_t * const p_madw);
-/*
-* PARAMETERS
-*	p_madw
-*		[in] Pointer to a MAD Wrapper object to destroy.
-*
-* RETURN VALUE
-*	This function does not return a value.
-*
-* NOTES
-*	Performs any necessary cleanup of the specified MAD Wrapper object.
-*	Further operations should not be attempted on the destroyed object.
-*	This function should only be called after a call to osm_madw_construct or
-*	osm_madw_init.
-*
-* SEE ALSO
-*	MAD Wrapper object, osm_madw_construct, osm_madw_init
-*********/
-
 /****f* OpenSM: MAD Wrapper/osm_madw_init
 * NAME
 *	osm_madw_init
@@ -548,7 +482,7 @@ osm_madw_init(IN osm_madw_t * const p_madw,
 	      IN const uint32_t mad_size,
 	      IN const osm_mad_addr_t * const p_mad_addr)
 {
-	osm_madw_construct(p_madw);
+	memset(p_madw, 0, sizeof(*p_madw));
 	p_madw->h_bind = h_bind;
 	p_madw->fail_msg = CL_DISP_MSGID_NONE;
 	p_madw->mad_size = mad_size;
@@ -602,7 +536,7 @@ static inline ib_smp_t *osm_madw_get_smp_ptr(IN const osm_madw_t * const p_madw)
 * NOTES
 *
 * SEE ALSO
-*	MAD Wrapper object, osm_madw_construct, osm_madw_destroy
+*	MAD Wrapper object
 *********/
 
 /****f* OpenSM: MAD Wrapper/osm_madw_get_sa_mad_ptr
@@ -631,7 +565,7 @@ static inline ib_sa_mad_t *osm_madw_get_sa_mad_ptr(IN const osm_madw_t *
 * NOTES
 *
 * SEE ALSO
-*	MAD Wrapper object, osm_madw_construct, osm_madw_destroy
+*	MAD Wrapper object
 *********/
 
 /****f* OpenSM: MAD Wrapper/osm_madw_get_perfmgt_mad_ptr
@@ -657,7 +591,7 @@ static inline ib_perfmgt_mad_t *osm_madw_get_perfmgt_mad_ptr(IN const osm_madw_t
 * NOTES
 *
 * SEE ALSO
-*	MAD Wrapper object, osm_madw_construct, osm_madw_destroy
+*	MAD Wrapper object
 *********/
 
 /****f* OpenSM: MAD Wrapper/osm_madw_get_ni_context_ptr
