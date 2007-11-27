@@ -42,10 +42,9 @@
 #include <string.h>
 #include <vendor/osm_vendor_ts.h>
 #include <vendor/osm_vendor_api.h>
+#include <vendor/osm_ts_useraccess.h>
 #include <opensm/osm_subnet.h>
 #include <opensm/osm_opensm.h>
-
-#include <opensm/osm_ts_useraccess.h>
 
 /*
   Since a race can accure on requests. Meaning - a response is received before

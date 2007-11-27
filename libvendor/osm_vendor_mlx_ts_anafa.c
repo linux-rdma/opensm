@@ -59,8 +59,7 @@
 #include <vendor/osm_vendor_mlx_transport_anafa.h>
 #include <vendor/osm_vendor_mlx_dispatcher.h>
 #include <vendor/osm_vendor_mlx_svc.h>
-
-#include <opensm/osm_ts_useraccess.h>
+#include <vendor/osm_ts_useraccess.h>
 
 static void
 __osmv_TOPSPIN_ANAFA_mad_addr_to_osm_addr(IN osm_vendor_t const *p_vend,

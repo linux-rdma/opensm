@@ -71,7 +71,7 @@
 #include <opensm/osm_mad_pool.h>
 
 #include <vendor/osm_vendor_umadt.h>
-#include <opensm/osm_umadt.h>
+#include <vendor/osm_umadt.h>
 
 /*  GEN1 includes */
 #include "umadt_so.h"

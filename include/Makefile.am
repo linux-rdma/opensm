@@ -45,9 +45,7 @@ EXTRA_DIST = \
 	$(srcdir)/opensm/osm_port_profile.h \
 	$(srcdir)/opensm/osm_sminfo_rcv.h \
 	$(srcdir)/opensm/osm_multicast.h \
-	$(srcdir)/opensm/osm_ts_useraccess.h \
 	$(srcdir)/opensm/osm_sa_class_port_info.h \
-	$(srcdir)/opensm/osm_umadt.h \
 	$(srcdir)/opensm/osm_node_info_rcv.h \
 	$(srcdir)/opensm/osm_base.h \
 	$(srcdir)/opensm/osm_sa_sminfo_record.h \
@@ -155,6 +153,8 @@ EXTRA_DIST = \
 	$(srcdir)/vendor/osm_vendor_al.h \
 	$(srcdir)/vendor/osm_vendor_mtl.h \
 	$(srcdir)/vendor/osm_vendor_sa_api.h \
+	$(srcdir)/vendor/osm_ts_useraccess.h \
+	$(srcdir)/vendor/osm_umadt.h \
 	$(srcdir)/vendor/osm_mtl_bind.h
 
 pkgincludedir = $(includedir)/infiniband

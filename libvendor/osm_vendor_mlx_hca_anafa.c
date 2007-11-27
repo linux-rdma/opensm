@@ -50,7 +50,7 @@
 #include <sys/ioctl.h>
 
 #include <vendor/osm_vendor_mlx_transport_anafa.h>
-#include <opensm/osm_ts_useraccess.h>
+#include <vendor/osm_ts_useraccess.h>
 
 /********************************************************************************
  *

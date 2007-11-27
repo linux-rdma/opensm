@@ -57,8 +57,7 @@
 #include <vendor/osm_vendor_mlx_transport.h>
 #include <vendor/osm_vendor_mlx_dispatcher.h>
 #include <vendor/osm_vendor_mlx_svc.h>
-
-#include <opensm/osm_ts_useraccess.h>
+#include <vendor/osm_ts_useraccess.h>
 
 typedef struct _osmv_TOPSPIN_transport_mgr_ {
 	int device_fd;

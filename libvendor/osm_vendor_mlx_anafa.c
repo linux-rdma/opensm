@@ -51,8 +51,7 @@
 #include <vendor/osm_vendor_mlx_svc.h>
 #include <vendor/osm_vendor_mlx_sender.h>
 #include <vendor/osm_pkt_randomizer.h>
-
-#include <opensm/osm_ts_useraccess.h>
+#include <vendor/osm_ts_useraccess.h>
 
 /**
  *      FORWARD REFERENCES
