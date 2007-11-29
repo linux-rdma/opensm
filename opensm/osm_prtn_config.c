@@ -68,7 +68,7 @@ struct part_conf {
 	osm_log_t *p_log;
 	osm_subn_t *p_subn;
 	osm_prtn_t *p_prtn;
-	unsigned is_ipoib, mtu, rate, sl, scope;
+	unsigned is_ipoib, mtu, rate, sl, scope_mask;
 	boolean_t full;
 };
 
@@ -89,6 +89,7 @@ static int partition_create(unsigned lineno, struct part_conf *conf,
 			    char *name, char *id, char *flag, char *flag_val)
 {
 	uint16_t pkey;
+	unsigned int scope;
 
 	if (!id && name && isdigit(*name)) {
 		id = name;
@@ -119,12 +120,26 @@ static int partition_create(unsigned lineno, struct part_conf *conf,
 	}
 	conf->p_prtn->sl = (uint8_t) conf->sl;
 
-	if (conf->is_ipoib)
+	if (!conf->is_ipoib)
+		return 0;
+
+	if (!conf->scope_mask) {
 		osm_prtn_add_mcgroup(conf->p_log, conf->p_subn, conf->p_prtn,
 				     (uint8_t) conf->rate,
 				     (uint8_t) conf->mtu,
-				     (uint8_t) conf->scope);
+				     0);
+		return 0;
+	}
 
+	for (scope = 0; scope < 16; scope++) {
+		if (((1<<scope) & conf->scope_mask) == 0)
+			continue;
+
+		osm_prtn_add_mcgroup(conf->p_log, conf->p_subn, conf->p_prtn,
+				     (uint8_t) conf->rate,
+				     (uint8_t) conf->mtu,
+				     (uint8_t) scope);
+	}
 	return 0;
 }
 
@@ -147,11 +162,14 @@ static int partition_add_flag(unsigned lineno, struct part_conf *conf,
 				"flag \'rate\' requires valid value"
 				" - skipped\n", lineno);
 	} else if (!strncmp(flag, "scope", len)) {
-		if (!val || (conf->scope = strtoul(val, NULL, 0)) == 0)
+		unsigned int scope;
+		if (!val || (scope = strtoul(val, NULL, 0)) == 0 || scope > 0xF)
 			osm_log(conf->p_log, OSM_LOG_VERBOSE,
 				"PARSE WARN: line %d: "
 				"flag \'scope\' requires valid value"
 				" - skipped\n", lineno);
+		else
+			conf->scope_mask |= (1<<scope);
 	} else if (!strncmp(flag, "sl", len)) {
 		unsigned sl;
 		char *end;
