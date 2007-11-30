@@ -953,7 +953,7 @@ __validate_requested_mgid(IN osm_mcmr_recv_t * const p_rcv,
 	   the scope should not be link local */
 	if ((signature == 0xA01B) &&
 	    ((p_mcm_rec->mgid.multicast.header[1] & 0x0F) ==
-	     MC_SCOPE_LINK_LOCAL)) {
+	     IB_MC_SCOPE_LINK_LOCAL)) {
 		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
 			"__validate_requested_mgid: ERR 1B24: "
 			"MGID uses 0xA01B signature but with link-local scope\n");
@@ -1180,7 +1180,7 @@ osm_mcmr_rcv_create_new_mgrp(IN osm_mcmr_recv_t * const p_rcv,
 						  scope_state, &scope, NULL);
 		} else {
 			/* to guarantee no collision with other subnets use local scope! */
-			scope = MC_SCOPE_LINK_LOCAL;
+			scope = IB_MC_SCOPE_LINK_LOCAL;
 		}
 
 		p_mgid = &(mcm_rec.mgid);

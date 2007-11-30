@@ -255,6 +255,18 @@ BEGIN_C_DECLS
 */
 #define IB_HOPLIMIT_MAX					255
 /*********/
+/****d* IBA Base: Constants/IB_MC_SCOPE_*
+* NAME
+*	IB_MC_SCOPE_*
+*
+* DESCRIPTION
+*	Scope component definitions from IBA 1.2 (Table 3 p. 146)
+*/
+#define IB_MC_SCOPE_LINK_LOCAL		0x2
+#define IB_MC_SCOPE_SITE_LOCAL		0x5
+#define IB_MC_SCOPE_ORG_LOCAL		0x8
+#define IB_MC_SCOPE_GLOBAL		0xE
+/*********/
 /****d* IBA Base: Constants/IB_PKEY_MAX_BLOCKS
 * NAME
 *	IB_PKEY_MAX_BLOCKS

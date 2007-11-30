@@ -379,12 +379,6 @@ osm_mcmr_rcv_find_or_create_new_mgrp(IN osm_mcmr_recv_t * const p_mcmr,
 #define OSM_DEFAULT_MGRP_RATE 0x03
 /***********/
 
-/* Scope component definitions from IBA 1.2 (Table 3 p. 146) */
-#define MC_SCOPE_LINK_LOCAL		0x2
-#define MC_SCOPE_SITE_LOCAL		0x5
-#define MC_SCOPE_ORG_LOCAL		0x8
-#define MC_SCOPE_GLOBAL			0xE
-
 /****d* OpenSM: MC Member Record Receiver/OSM_DEFAULT_MGRP_SCOPE
 * Name
 *	OSM_DEFAULT_MGRP_SCOPE
@@ -394,13 +388,8 @@ osm_mcmr_rcv_find_or_create_new_mgrp(IN osm_mcmr_recv_t * const p_mcmr,
 *
 * SYNOPSIS
 */
-#define OSM_DEFAULT_MGRP_SCOPE MC_SCOPE_LINK_LOCAL
+#define OSM_DEFAULT_MGRP_SCOPE IB_MC_SCOPE_LINK_LOCAL
 /***********/
-
-/* JoinState definitions from IBA 1.2 */
-#define MC_FULL_MEMBER			0x1
-#define MC_NON_MEMBER			0x2
-#define MC_SENDONLY_NON_MEMBER		0x4
 
 END_C_DECLS
 #endif				/* _OSM_MCMR_H_ */

@@ -2151,7 +2151,7 @@ void osm_pr_rcv_process(IN void *context, IN void *data)
 
 		/* HopLimit is not yet set in non link local MC groups */
 		/* If it were, this would not be needed */
-		if (ib_mgid_get_scope(&p_mgrp->mcmember_rec.mgid) != MC_SCOPE_LINK_LOCAL)
+		if (ib_mgid_get_scope(&p_mgrp->mcmember_rec.mgid) != IB_MC_SCOPE_LINK_LOCAL)
 			hop_limit = IB_HOPLIMIT_MAX;
 
 		p_pr_item->path_rec.hop_flow_raw =
