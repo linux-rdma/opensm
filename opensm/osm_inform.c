@@ -50,7 +50,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <complib/cl_debug.h>
-#include <opensm/osm_sa_informinfo.h>
 #include <opensm/osm_helper.h>
 #include <opensm/osm_inform.h>
 #include <vendor/osm_vendor_api.h>
@@ -115,7 +114,7 @@ __match_inf_rec(IN const cl_list_item_t * const p_list_item, IN void *context)
 {
 	osm_infr_t *p_infr_rec = (osm_infr_t *) context;
 	osm_infr_t *p_infr = (osm_infr_t *) p_list_item;
-	osm_log_t *p_log = p_infr_rec->p_infr_rcv->p_log;
+	osm_log_t *p_log = p_infr_rec->sa->p_log;
 	cl_status_t status = CL_NOT_FOUND;
 	ib_gid_t all_zero_gid;
 
@@ -339,7 +338,7 @@ static ib_api_status_t __osm_send_report(IN osm_infr_t * p_infr_rec,	/* the info
 	ib_sa_mad_t *p_sa_mad;
 	static atomic32_t trap_fwd_trans_id = 0x02DAB000;
 	ib_api_status_t status;
-	osm_log_t *p_log = p_infr_rec->p_infr_rcv->p_log;
+	osm_log_t *p_log = p_infr_rec->sa->p_log;
 
 	OSM_LOG_ENTER(p_log, __osm_send_report);
 
@@ -354,7 +353,7 @@ static ib_api_status_t __osm_send_report(IN osm_infr_t * p_infr_rec,	/* the info
 		cl_ntoh16(p_infr_rec->report_addr.dest_lid), trap_fwd_trans_id);
 
 	/* get the MAD to send */
-	p_report_madw = osm_mad_pool_get(p_infr_rec->p_infr_rcv->p_mad_pool,
+	p_report_madw = osm_mad_pool_get(p_infr_rec->sa->p_mad_pool,
 					 p_infr_rec->h_bind,
 					 MAD_BLOCK_SIZE,
 					 &(p_infr_rec->report_addr));
@@ -387,7 +386,7 @@ static ib_api_status_t __osm_send_report(IN osm_infr_t * p_infr_rec,	/* the info
 
 	/* The TRUE is for: response is expected */
 	status = osm_sa_vendor_send(p_report_madw->h_bind, p_report_madw, TRUE,
-				    p_infr_rec->p_infr_rcv->p_subn);
+				    p_infr_rec->sa->p_subn);
 	if (status != IB_SUCCESS) {
 		osm_log(p_log, OSM_LOG_ERROR,
 			"__osm_send_report: ERR 0204: "
@@ -416,8 +415,8 @@ __match_notice_to_inf_rec(IN cl_list_item_t * const p_list_item,
 	osm_infr_t *p_infr_rec = (osm_infr_t *) p_list_item;
 	ib_inform_info_t *p_ii = &(p_infr_rec->inform_record.inform_info);
 	cl_status_t status = CL_NOT_FOUND;
-	osm_log_t *p_log = p_infr_rec->p_infr_rcv->p_log;
-	osm_subn_t *p_subn = p_infr_rec->p_infr_rcv->p_subn;
+	osm_log_t *p_log = p_infr_rec->sa->p_log;
+	osm_subn_t *p_subn = p_infr_rec->sa->p_subn;
 	ib_gid_t source_gid;
 	osm_port_t *p_src_port;
 	osm_port_t *p_dest_port;

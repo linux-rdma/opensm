@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -58,26 +58,9 @@
 #include <opensm/osm_subnet.h>
 #include <vendor/osm_vendor.h>
 #include <opensm/osm_mad_pool.h>
-#include <opensm/osm_sa_response.h>
 #include <opensm/osm_log.h>
-#include <opensm/osm_sa_node_record.h>
-#include <opensm/osm_sa_portinfo_record.h>
-#include <opensm/osm_sa_guidinfo_record.h>
-#include <opensm/osm_sa_link_record.h>
-#include <opensm/osm_sa_path_record.h>
-#include <opensm/osm_sa_multipath_record.h>
-#include <opensm/osm_sa_sminfo_record.h>
 #include <opensm/osm_sa_mad_ctrl.h>
-#include <opensm/osm_sa_mcmember_record.h>
-#include <opensm/osm_sa_service_record.h>
-#include <opensm/osm_sa_class_port_info.h>
-#include <opensm/osm_sa_informinfo.h>
-#include <opensm/osm_sa_slvl_record.h>
-#include <opensm/osm_sa_vlarb_record.h>
-#include <opensm/osm_sa_pkey_record.h>
-#include <opensm/osm_sa_lft_record.h>
-#include <opensm/osm_sa_sw_info_record.h>
-#include <opensm/osm_sa_mft_record.h>
+#include <opensm/osm_sm.h>
 
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
@@ -136,6 +119,7 @@ typedef enum _osm_sa_state {
 */
 typedef struct _osm_sa {
 	osm_sa_state_t state;
+	osm_sm_t *sm;
 	osm_subn_t *p_subn;
 	osm_vendor_t *p_vendor;
 	osm_log_t *p_log;
@@ -144,41 +128,8 @@ typedef struct _osm_sa {
 	cl_plock_t *p_lock;
 	atomic32_t sa_trans_id;
 	osm_sa_mad_ctrl_t mad_ctrl;
-	osm_sa_resp_t resp;
-	osm_cpi_rcv_t cpi_rcv;
-	osm_nr_rcv_t nr_rcv;
-	osm_pir_rcv_t pir_rcv;
-	osm_gir_rcv_t gir_rcv;
-	osm_lr_rcv_t lr_rcv;
-	osm_pr_rcv_t pr_rcv;
-	osm_smir_rcv_t smir_rcv;
-	osm_mcmr_recv_t mcmr_rcv;
-	osm_sr_rcv_t sr_rcv;
-#if defined (VENDOR_RMPP_SUPPORT) && defined (DUAL_SIDED_RMPP)
-	osm_mpr_rcv_t mpr_rcv;
-#endif
 
-	/* InformInfo Receiver */
-	osm_infr_rcv_t infr_rcv;
-
-	/* VL Arbitrartion Query */
-	osm_vlarb_rec_rcv_t vlarb_rec_rcv;
-
-	/* SLtoVL Map Query */
-	osm_slvl_rec_rcv_t slvl_rec_rcv;
-
-	/* P_Key table Query */
-	osm_pkey_rec_rcv_t pkey_rec_rcv;
-
-	/* LinearForwardingTable Query */
-	osm_lftr_rcv_t lftr_rcv;
-
-	/* SwitchInfo Query */
-	osm_sir_rcv_t sir_rcv;
-
-	/* MulticastForwardingTable Query */
-	osm_mftr_rcv_t mftr_rcv;
-
+	cl_timer_t sr_timer;
 	cl_disp_reg_handle_t cpi_disp_h;
 	cl_disp_reg_handle_t nr_disp_h;
 	cl_disp_reg_handle_t pir_disp_h;
@@ -205,6 +156,9 @@ typedef struct _osm_sa {
 *	state
 *		State of this SA object
 *
+*	sm
+*		Pointer to the Subnet Manager object.
+*
 *	p_subn
 *		Pointer to the Subnet object for this subnet.
 *
@@ -228,19 +182,6 @@ typedef struct _osm_sa {
 *
 *	mad_ctrl
 *		Mad Controller
-*
-*	resp
-*		Response object
-*
-*	nr
-*
-*	pir_rcv
-*
-*	lr
-*
-*	pr
-*
-*	smir
 *
 * SEE ALSO
 *	SM object
@@ -424,6 +365,38 @@ osm_sa_vendor_send(IN osm_bind_handle_t h_bind,
 		   IN boolean_t const resp_expected,
 		   IN osm_subn_t * const p_subn);
 
+/****f* IBA Base: Types/osm_sa_send_error
+* NAME
+*	osm_sa_send_error
+*
+* DESCRIPTION
+*	Sends a generic SA response with the specified error status.
+*	The payload is simply replicated from the request MAD.
+*
+* SYNOPSIS
+*/
+void
+osm_sa_send_error(IN osm_sa_t * sa,
+		  IN const osm_madw_t * const p_madw,
+		  IN const ib_net16_t sa_status);
+/*
+* PARAMETERS
+*	sa
+*		[in] Pointer to an osm_sa_t object.
+*
+*	p_madw
+*		[in] Original MAD to which the response must be sent.
+*
+*	sa_status
+*		[in] Status to send in the response.
+*
+* RETURN VALUES
+*	None.
+*
+* SEE ALSO
+*	SA object
+*********/
+
 struct _osm_opensm_t;
 /****f* OpenSM: SA/osm_sa_db_file_dump
 * NAME
@@ -462,6 +435,37 @@ int osm_sa_db_file_load(struct _osm_opensm_t *p_osm);
 *
 * RETURN VALUES
 *	0 on success, other value on failure.
+*
+*********/
+
+/****f* OpenSM: MC Member Record Receiver/osm_mcmr_rcv_find_or_create_new_mgrp
+* NAME
+*	osm_mcmr_rcv_find_or_create_new_mgrp
+*
+* DESCRIPTION
+*	Create new Multicast group
+*
+* SYNOPSIS
+*/
+
+ib_api_status_t
+osm_mcmr_rcv_find_or_create_new_mgrp(IN osm_sa_t * sa,
+				     IN uint64_t comp_mask,
+				     IN ib_member_rec_t *
+				     const p_recvd_mcmember_rec,
+				     OUT osm_mgrp_t ** pp_mgrp);
+/*
+* PARAMETERS
+*	p_sa
+*		[in] Pointer to an osm_sa_t object.
+*	p_recvd_mcmember_rec
+*		[in] Received Multicast member record
+*
+*	pp_mgrp
+*		[out] pointer the osm_mgrp_t object
+*
+* RETURN VALUES
+*	IB_SUCCESS, IB_ERROR
 *
 *********/
 

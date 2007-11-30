@@ -208,41 +208,5 @@ osm_sa_resp_init(IN osm_sa_resp_t * const p_resp,
 *	osm_sa_resp_destroy
 *********/
 
-/****f* IBA Base: Types/osm_sa_send_error
-* NAME
-*	osm_sa_send_error
-*
-* DESCRIPTION
-*	Sends a generic SA response with the specified error status.
-*	The payload is simply replicated from the request MAD.
-*
-* SYNOPSIS
-*/
-void
-osm_sa_send_error(IN osm_sa_resp_t * const p_resp,
-		  IN const osm_madw_t * const p_madw,
-		  IN const ib_net16_t sa_status);
-/*
-* PARAMETERS
-*	p_resp
-*		[in] Pointer to an osm_sa_resp_t object.
-*
-*	p_madw
-*		[in] Original MAD to which the response must be sent.
-*
-*	sa_status
-*		[in] Status to send in the response.
-*
-* RETURN VALUES
-*	None.
-*
-* NOTES
-*	Allows calling other SA Response methods.
-*
-* SEE ALSO
-*	SA Response object, osm_sa_resp_construct,
-*	osm_sa_resp_destroy
-*********/
-
 END_C_DECLS
 #endif				/* _OSM_SA_RESP_H_ */

@@ -103,7 +103,6 @@ typedef struct _osm_mcmr {
 	osm_mad_pool_t *p_mad_pool;
 	osm_log_t *p_log;
 	cl_plock_t *p_lock;
-	uint16_t mlid_ho;
 } osm_mcmr_recv_t;
 
 /*
@@ -301,55 +300,6 @@ osm_mcmr_rcv_create_new_mgrp(IN osm_mcmr_recv_t * const p_mcmr,
 * SEE ALSO
 *
 *********/
-
-/****f* OpenSM: MC Member Record Receiver/osm_mcmr_rcv_find_or_create_new_mgrp
-* NAME
-*	osm_mcmr_rcv_find_or_create_new_mgrp
-*
-* DESCRIPTION
-*	Create new Multicast group
-*
-* SYNOPSIS
-*/
-
-ib_api_status_t
-osm_mcmr_rcv_find_or_create_new_mgrp(IN osm_mcmr_recv_t * const p_mcmr,
-				     IN uint64_t comp_mask,
-				     IN ib_member_rec_t *
-				     const p_recvd_mcmember_rec,
-				     OUT osm_mgrp_t ** pp_mgrp);
-/*
-* PARAMETERS
-*	p_mcmr
-*		[in] Pointer to an osm_mcmr_recv_t object.
-*	p_recvd_mcmember_rec
-*		[in] Received Multicast member record
-*
-*	pp_mgrp
-*		[out] pointer the osm_mgrp_t object
-*
-* RETURN VALUES
-*	IB_SUCCESS, IB_ERROR
-*
-* NOTES
-*
-*
-* SEE ALSO
-*
-*********/
-
-#define JOIN_MC_COMP_MASK	(IB_MCR_COMPMASK_MGID |		\
-							IB_MCR_COMPMASK_PORT_GID |	\
-							IB_MCR_COMPMASK_JOIN_STATE)
-
-#define REQUIRED_MC_CREATE_COMP_MASK	(IB_MCR_COMPMASK_MGID		| \
-										IB_MCR_COMPMASK_PORT_GID	| \
-										IB_MCR_COMPMASK_JOIN_STATE	| \
-										IB_MCR_COMPMASK_QKEY		| \
-										IB_MCR_COMPMASK_TCLASS		| \
-										IB_MCR_COMPMASK_PKEY		| \
-										IB_MCR_COMPMASK_FLOW		| \
-										IB_MCR_COMPMASK_SL)
 
 END_C_DECLS
 #endif				/* _OSM_MCMR_H_ */

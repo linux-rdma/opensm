@@ -50,7 +50,6 @@
 #define _OSM_SR_H_
 
 #include <complib/cl_passivelock.h>
-#include <complib/cl_timer.h>
 #include <opensm/osm_base.h>
 #include <opensm/osm_madw.h>
 #include <opensm/osm_sa_response.h>
@@ -102,7 +101,6 @@ typedef struct _osm_sr_rcv {
 	osm_mad_pool_t *p_mad_pool;
 	osm_log_t *p_log;
 	cl_plock_t *p_lock;
-	cl_timer_t sr_timer;
 } osm_sr_rcv_t;
 /*
 * FIELDS

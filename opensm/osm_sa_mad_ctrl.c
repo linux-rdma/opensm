@@ -51,11 +51,11 @@
 #include <string.h>
 #include <complib/cl_debug.h>
 #include <iba/ib_types.h>
-#include <opensm/osm_sa_mad_ctrl.h>
 #include <vendor/osm_vendor_api.h>
+#include <opensm/osm_sa_mad_ctrl.h>
 #include <opensm/osm_msgdef.h>
 #include <opensm/osm_helper.h>
-#include <opensm/osm_sa_response.h>
+#include <opensm/osm_sa.h>
 
 /****f* opensm: SA/__osm_sa_mad_ctrl_disp_done_callback
  * NAME
@@ -506,7 +506,7 @@ void osm_sa_mad_ctrl_destroy(IN osm_sa_mad_ctrl_t * const p_ctrl)
  **********************************************************************/
 ib_api_status_t
 osm_sa_mad_ctrl_init(IN osm_sa_mad_ctrl_t * const p_ctrl,
-		     IN osm_sa_resp_t * const p_resp,
+		     IN osm_sa_t * sa,
 		     IN osm_mad_pool_t * const p_mad_pool,
 		     IN osm_vendor_t * const p_vendor,
 		     IN osm_subn_t * const p_subn,
@@ -520,13 +520,13 @@ osm_sa_mad_ctrl_init(IN osm_sa_mad_ctrl_t * const p_ctrl,
 
 	osm_sa_mad_ctrl_construct(p_ctrl);
 
+	p_ctrl->sa = sa;
 	p_ctrl->p_log = p_log;
 	p_ctrl->p_disp = p_disp;
 	p_ctrl->p_mad_pool = p_mad_pool;
 	p_ctrl->p_vendor = p_vendor;
 	p_ctrl->p_stats = p_stats;
 	p_ctrl->p_subn = p_subn;
-	p_ctrl->p_resp = p_resp;
 
 	p_ctrl->h_disp = cl_disp_register(p_disp,
 					  CL_DISP_MSGID_NONE, NULL, p_ctrl);

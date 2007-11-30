@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -52,8 +52,6 @@
 #include <opensm/st.h>
 #include <opensm/osm_port.h>
 #include <opensm/osm_partition.h>
-#include <opensm/osm_sa_path_record.h>
-#include <opensm/osm_sa_multipath_record.h>
 
 #define YYSTYPE char *
 #define OSM_QOS_POLICY_MAX_PORTS_ON_SWITCH  128

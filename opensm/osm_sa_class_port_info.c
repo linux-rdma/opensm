@@ -55,8 +55,6 @@
 #include <complib/cl_passivelock.h>
 #include <complib/cl_debug.h>
 #include <complib/cl_qlist.h>
-#include <opensm/osm_sa_class_port_info.h>
-#include <vendor/osm_vendor.h>
 #include <vendor/osm_vendor_api.h>
 #include <opensm/osm_helper.h>
 #include <opensm/osm_sa.h>
@@ -74,48 +72,8 @@ static uint32_t __msecs_to_rtv_table[MAX_MSECS_TO_RTV] = { 1, 2, 4, 8,
 
 /**********************************************************************
  **********************************************************************/
-void osm_cpi_rcv_construct(IN osm_cpi_rcv_t * const p_rcv)
-{
-	memset(p_rcv, 0, sizeof(*p_rcv));
-}
-
-/**********************************************************************
- **********************************************************************/
-void osm_cpi_rcv_destroy(IN osm_cpi_rcv_t * const p_rcv)
-{
-	OSM_LOG_ENTER(p_rcv->p_log, osm_cpi_rcv_destroy);
-	OSM_LOG_EXIT(p_rcv->p_log);
-}
-
-/**********************************************************************
- **********************************************************************/
-ib_api_status_t
-osm_cpi_rcv_init(IN osm_cpi_rcv_t * const p_rcv,
-		 IN osm_sa_resp_t * const p_resp,
-		 IN osm_mad_pool_t * const p_mad_pool,
-		 IN osm_subn_t * const p_subn,
-		 IN osm_log_t * const p_log, IN cl_plock_t * const p_lock)
-{
-	ib_api_status_t status = IB_SUCCESS;
-
-	OSM_LOG_ENTER(p_log, osm_cpi_rcv_init);
-
-	osm_cpi_rcv_construct(p_rcv);
-
-	p_rcv->p_log = p_log;
-	p_rcv->p_subn = p_subn;
-	p_rcv->p_lock = p_lock;
-	p_rcv->p_resp = p_resp;
-	p_rcv->p_mad_pool = p_mad_pool;
-
-	OSM_LOG_EXIT(p_rcv->p_log);
-	return (status);
-}
-
-/**********************************************************************
- **********************************************************************/
 static void
-__osm_cpi_rcv_respond(IN osm_cpi_rcv_t * const p_rcv,
+__osm_cpi_rcv_respond(IN osm_sa_t * sa,
 		      IN const osm_madw_t * const p_madw)
 {
 	osm_madw_t *p_resp_madw;
@@ -126,18 +84,18 @@ __osm_cpi_rcv_respond(IN osm_cpi_rcv_t * const p_rcv,
 	ib_gid_t zero_gid;
 	uint8_t rtv;
 
-	OSM_LOG_ENTER(p_rcv->p_log, __osm_cpi_rcv_respond);
+	OSM_LOG_ENTER(sa->p_log, __osm_cpi_rcv_respond);
 
 	memset(&zero_gid, 0, sizeof(ib_gid_t));
 
 	/*
 	   Get a MAD to reply. Address of Mad is in the received mad_wrapper
 	 */
-	p_resp_madw = osm_mad_pool_get(p_rcv->p_mad_pool,
+	p_resp_madw = osm_mad_pool_get(sa->p_mad_pool,
 				       p_madw->h_bind,
 				       MAD_BLOCK_SIZE, &p_madw->mad_addr);
 	if (!p_resp_madw) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sa->p_log, OSM_LOG_ERROR,
 			"__osm_cpi_rcv_respond: ERR 1408: "
 			"Unable to allocate MAD\n");
 		goto Exit;
@@ -159,12 +117,12 @@ __osm_cpi_rcv_respond(IN osm_cpi_rcv_t * const p_rcv,
 	p_resp_cpi->class_ver = 2;
 	/* Calculate encoded response time value */
 	/* transaction timeout is in msec */
-	if (p_rcv->p_subn->opt.transaction_timeout >
+	if (sa->p_subn->opt.transaction_timeout >
 	    __msecs_to_rtv_table[MAX_MSECS_TO_RTV])
 		rtv = MAX_MSECS_TO_RTV - 1;
 	else {
 		for (rtv = 0; rtv < MAX_MSECS_TO_RTV; rtv++) {
-			if (p_rcv->p_subn->opt.transaction_timeout <=
+			if (sa->p_subn->opt.transaction_timeout <=
 			    __msecs_to_rtv_table[rtv])
 				break;
 		}
@@ -209,28 +167,28 @@ __osm_cpi_rcv_respond(IN osm_cpi_rcv_t * const p_rcv,
 	p_resp_cpi->cap_mask = OSM_CAP_IS_SUBN_GET_SET_NOTICE_SUP |
 	    OSM_CAP_IS_PORT_INFO_CAPMASK_MATCH_SUPPORTED;
 #endif
-	if (p_rcv->p_subn->opt.qos)
+	if (sa->p_subn->opt.qos)
 		ib_class_set_cap_mask2(p_resp_cpi, OSM_CAP2_IS_QOS_SUPPORTED);
 
-	if (p_rcv->p_subn->opt.no_multicast_option != TRUE)
+	if (sa->p_subn->opt.no_multicast_option != TRUE)
 		p_resp_cpi->cap_mask |= OSM_CAP_IS_UD_MCAST_SUP;
 	p_resp_cpi->cap_mask = cl_hton16(p_resp_cpi->cap_mask);
 
-	if (osm_log_is_active(p_rcv->p_log, OSM_LOG_FRAMES))
-		osm_dump_sa_mad(p_rcv->p_log, p_resp_sa_mad, OSM_LOG_FRAMES);
+	if (osm_log_is_active(sa->p_log, OSM_LOG_FRAMES))
+		osm_dump_sa_mad(sa->p_log, p_resp_sa_mad, OSM_LOG_FRAMES);
 
 	status = osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE,
-				    p_rcv->p_subn);
+				    sa->p_subn);
 	if (status != IB_SUCCESS) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sa->p_log, OSM_LOG_ERROR,
 			"__osm_cpi_rcv_respond: ERR 1409: "
 			"Unable to send MAD (%s)\n", ib_get_err_str(status));
-		/*  osm_mad_pool_put( p_rcv->p_mad_pool, p_resp_madw ); */
+		/*  osm_mad_pool_put( sa->p_mad_pool, p_resp_madw ); */
 		goto Exit;
 	}
 
       Exit:
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sa->p_log);
 }
 
 /**********************************************************************
@@ -238,11 +196,11 @@ __osm_cpi_rcv_respond(IN osm_cpi_rcv_t * const p_rcv,
  **********************************************************************/
 void osm_cpi_rcv_process(IN void *context, IN void *data)
 {
-	osm_cpi_rcv_t *p_rcv = context;
+	osm_sa_t *sa = context;
 	osm_madw_t *p_madw = data;
 	const ib_sa_mad_t *p_sa_mad;
 
-	OSM_LOG_ENTER(p_rcv->p_log, osm_cpi_rcv_process);
+	OSM_LOG_ENTER(sa->p_log, osm_cpi_rcv_process);
 
 	CL_ASSERT(p_madw);
 
@@ -250,11 +208,11 @@ void osm_cpi_rcv_process(IN void *context, IN void *data)
 
 	/* we only support GET */
 	if (p_sa_mad->method != IB_MAD_METHOD_GET) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sa->p_log, OSM_LOG_ERROR,
 			"osm_cpi_rcv_process: ERR 1403: "
 			"Unsupported Method (%s)\n",
 			ib_get_sa_method_str(p_sa_mad->method));
-		osm_sa_send_error(p_rcv->p_resp, p_madw,
+		osm_sa_send_error(sa, p_madw,
 				  IB_SA_MAD_STATUS_REQ_INVALID);
 		goto Exit;
 	}
@@ -265,8 +223,8 @@ void osm_cpi_rcv_process(IN void *context, IN void *data)
 	   CLASS PORT INFO does not really look on the SMDB - no lock required.
 	 */
 
-	__osm_cpi_rcv_respond(p_rcv, p_madw);
+	__osm_cpi_rcv_respond(sa, p_madw);
 
       Exit:
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sa->p_log);
 }

@@ -51,7 +51,6 @@
 #include <complib/cl_passivelock.h>
 #include <opensm/osm_base.h>
 #include <opensm/osm_madw.h>
-#include <opensm/osm_sa_response.h>
 #include <opensm/osm_subnet.h>
 #include <opensm/osm_port.h>
 #include <opensm/osm_log.h>

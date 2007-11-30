@@ -55,13 +55,11 @@
 #include <complib/cl_passivelock.h>
 #include <complib/cl_debug.h>
 #include <complib/cl_qlist.h>
+#include <vendor/osm_vendor_api.h>
 #include <opensm/osm_base.h>
-#include <opensm/osm_sa_path_record.h>
 #include <opensm/osm_port.h>
 #include <opensm/osm_node.h>
 #include <opensm/osm_switch.h>
-#include <vendor/osm_vendor.h>
-#include <vendor/osm_vendor_api.h>
 #include <opensm/osm_helper.h>
 #include <opensm/osm_pkey.h>
 #include <opensm/osm_multicast.h>
@@ -70,7 +68,6 @@
 #include <opensm/osm_qos_policy.h>
 #include <opensm/osm_sa.h>
 #include <opensm/osm_router.h>
-#include <opensm/osm_sa_mcmember_record.h>
 #include <opensm/osm_prefix_route.h>
 
 extern uint8_t osm_get_lash_sl(osm_opensm_t * p_osm,
@@ -94,7 +91,7 @@ typedef struct _osm_path_parms {
 typedef struct osm_sa_pr_mcmr_search_ctxt {
 	ib_gid_t *p_mgid;
 	osm_mgrp_t *p_mgrp;
-	osm_pr_rcv_t *p_rcv;
+	osm_sa_t *sa;
 } osm_sa_pr_mcmr_search_ctxt_t;
 
 static const ib_gid_t zero_gid = { {0x00, 0x00, 0x00, 0x00,
@@ -102,44 +99,6 @@ static const ib_gid_t zero_gid = { {0x00, 0x00, 0x00, 0x00,
 				    0x00, 0x00, 0x00, 0x00,
 				    0x00, 0x00, 0x00, 0x00},
 };
-
-/**********************************************************************
- **********************************************************************/
-void osm_pr_rcv_construct(IN osm_pr_rcv_t * const p_rcv)
-{
-	memset(p_rcv, 0, sizeof(*p_rcv));
-}
-
-/**********************************************************************
- **********************************************************************/
-void osm_pr_rcv_destroy(IN osm_pr_rcv_t * const p_rcv)
-{
-	OSM_LOG_ENTER(p_rcv->p_log, osm_pr_rcv_destroy);
-	OSM_LOG_EXIT(p_rcv->p_log);
-}
-
-/**********************************************************************
- **********************************************************************/
-ib_api_status_t
-osm_pr_rcv_init(IN osm_pr_rcv_t * const p_rcv,
-		IN osm_sa_resp_t * const p_resp,
-		IN osm_mad_pool_t * const p_mad_pool,
-		IN osm_subn_t * const p_subn,
-		IN osm_log_t * const p_log, IN cl_plock_t * const p_lock)
-{
-	OSM_LOG_ENTER(p_log, osm_pr_rcv_init);
-
-	osm_pr_rcv_construct(p_rcv);
-
-	p_rcv->p_log = p_log;
-	p_rcv->p_subn = p_subn;
-	p_rcv->p_lock = p_lock;
-	p_rcv->p_resp = p_resp;
-	p_rcv->p_mad_pool = p_mad_pool;
-
-	OSM_LOG_EXIT(p_rcv->p_log);
-	return IB_SUCCESS;
-}
 
 /**********************************************************************
  **********************************************************************/
@@ -214,7 +173,7 @@ __osm_sa_path_rec_apply_tavor_mtu_limit(IN const ib_path_rec_t * const p_pr,
 /**********************************************************************
  **********************************************************************/
 static ib_api_status_t
-__osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
+__osm_pr_rcv_get_path_parms(IN osm_sa_t * sa,
 			    IN const ib_path_rec_t * const p_pr,
 			    IN const osm_port_t * const p_src_port,
 			    IN const osm_port_t * const p_dest_port,
@@ -246,7 +205,7 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 	uint16_t valid_sl_mask = 0xffff;
 	int is_lash;
 
-	OSM_LOG_ENTER(p_rcv->p_log, __osm_pr_rcv_get_path_parms);
+	OSM_LOG_ENTER(sa->p_log, __osm_pr_rcv_get_path_parms);
 
 	dest_lid = cl_hton16(dest_lid_ho);
 
@@ -254,7 +213,7 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 	p_physp = p_src_port->p_physp;
 	p_src_physp = p_physp;
 	p_pi = &p_physp->port_info;
-	p_osm = p_rcv->p_subn->p_osm;
+	p_osm = sa->p_subn->p_osm;
 
 	mtu = ib_port_info_get_mtu_cap(p_pi);
 	rate = ib_port_info_compute_rate(p_pi);
@@ -265,12 +224,12 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 	   and at least one end of the path is Tavor we override the
 	   port MTU with 1K.
 	 */
-	if (p_rcv->p_subn->opt.enable_quirks &&
+	if (sa->p_subn->opt.enable_quirks &&
 	    __osm_sa_path_rec_apply_tavor_mtu_limit(p_pr, p_src_port,
 						    p_dest_port, comp_mask))
 		if (mtu > IB_MTU_LEN_1024) {
 			mtu = IB_MTU_LEN_1024;
-			osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+			osm_log(sa->p_log, OSM_LOG_DEBUG,
 				"__osm_pr_rcv_get_path_parms: "
 				"Optimized Path MTU to 1K for Mellanox Tavor device\n");
 		}
@@ -293,7 +252,7 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 		 */
 		p_physp = osm_switch_get_route_by_lid(p_node->sw, dest_lid);
 		if (p_physp == 0) {
-			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+			osm_log(sa->p_log, OSM_LOG_ERROR,
 				"__osm_pr_rcv_get_path_parms: ERR 1F02: "
 				"Cannot find routing to LID 0x%X from switch for GUID 0x%016"
 				PRIx64 "\n", dest_lid_ho,
@@ -303,7 +262,7 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 		}
 	}
 
-	if (p_rcv->p_subn->opt.qos) {
+	if (sa->p_subn->opt.qos) {
 
 		/*
 		 * Whether this node is switch or CA, the IN port for
@@ -318,8 +277,8 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 				valid_sl_mask &= ~(1 << i);
 		}
 		if (!valid_sl_mask) {
-			if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG))
-				osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+			if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
+				osm_log(sa->p_log, OSM_LOG_DEBUG,
 					"__osm_pr_rcv_get_path_parms: "
 					"All the SLs lead to VL15 on this path\n");
 			status = IB_NOT_FOUND;
@@ -339,7 +298,7 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 		p_dest_physp = osm_switch_get_route_by_lid(p_node->sw, dest_lid);
 
 		if (p_dest_physp == 0) {
-			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+			osm_log(sa->p_log, OSM_LOG_ERROR,
 				"__osm_pr_rcv_get_path_parms: ERR 1F03: "
 				"Cannot find routing to LID 0x%X from switch for GUID 0x%016"
 				PRIx64 "\n", dest_lid_ho,
@@ -360,7 +319,7 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 		p_physp = osm_physp_get_remote(p_physp);
 
 		if (p_physp == 0) {
-			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+			osm_log(sa->p_log, OSM_LOG_ERROR,
 				"__osm_pr_rcv_get_path_parms: ERR 1F05: "
 				"Cannot find remote phys port when routing to LID 0x%X from node GUID 0x%016"
 				PRIx64 "\n", dest_lid_ho,
@@ -385,7 +344,7 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 			   If this isn't a switch, we should have reached
 			   the destination by now!
 			 */
-			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+			osm_log(sa->p_log, OSM_LOG_ERROR,
 				"__osm_pr_rcv_get_path_parms: ERR 1F06: "
 				"Internal error, bad path\n");
 			status = IB_ERROR;
@@ -409,7 +368,7 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 		p_physp = osm_switch_get_route_by_lid(p_node->sw, dest_lid);
 
 		if (p_physp == 0) {
-			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+			osm_log(sa->p_log, OSM_LOG_ERROR,
 				"__osm_pr_rcv_get_path_parms: ERR 1F07: "
 				"Dead end on path to LID 0x%X from switch for GUID 0x%016"
 				PRIx64 "\n", dest_lid_ho,
@@ -428,7 +387,7 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 		if (rate > ib_port_info_compute_rate(p_pi))
 			rate = ib_port_info_compute_rate(p_pi);
 
-		if (p_rcv->p_subn->opt.qos) {
+		if (sa->p_subn->opt.qos) {
 			/*
 			 * Check SL2VL table of the switch and update valid SLs
 			 */
@@ -439,8 +398,8 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 					valid_sl_mask &= ~(1 << i);
 			}
 			if (!valid_sl_mask) {
-				if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG))
-					osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+				if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
+					osm_log(sa->p_log, OSM_LOG_DEBUG,
 						"__osm_pr_rcv_get_path_parms: "
 						"All the SLs lead to VL15 "
 						"on this path\n");
@@ -461,8 +420,8 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 	if (rate > ib_port_info_compute_rate(p_pi))
 		rate = ib_port_info_compute_rate(p_pi);
 
-	if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG))
-		osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
+		osm_log(sa->p_log, OSM_LOG_DEBUG,
 			"__osm_pr_rcv_get_path_parms: "
 			"Path min MTU = %u, min rate = %u\n", mtu, rate);
 
@@ -470,14 +429,14 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 	 * Get QoS Level object according to the path request
 	 * and adjust path parameters according to QoS settings
 	 */
-	if (p_rcv->p_subn->opt.qos &&
-	    p_rcv->p_subn->p_qos_policy &&
+	if (sa->p_subn->opt.qos &&
+	    sa->p_subn->p_qos_policy &&
 	    (p_qos_level =
-	     osm_qos_policy_get_qos_level_by_pr(p_rcv->p_subn->p_qos_policy,
+	     osm_qos_policy_get_qos_level_by_pr(sa->p_subn->p_qos_policy,
 						p_pr, p_src_physp, p_dest_physp,
 						comp_mask))) {
-		if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG))
-			osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+		if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
+			osm_log(sa->p_log, OSM_LOG_DEBUG,
 				"__osm_pr_rcv_get_path_parms: "
 				"PathRecord request matches QoS Level '%s' (%s)\n",
 				p_qos_level->name,
@@ -664,7 +623,7 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 		 */
 		pkey = p_pr->pkey;
 		if (!osm_physp_share_this_pkey(p_src_physp, p_dest_physp, pkey)) {
-			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+			osm_log(sa->p_log, OSM_LOG_ERROR,
 				"__osm_pr_rcv_get_path_parms: ERR 1F1A: "
 				"Ports do not share specified PKey 0x%04x\n",
 				cl_ntoh16(pkey));
@@ -673,7 +632,7 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 		}
 		if (p_qos_level && p_qos_level->pkey_range_len &&
 		    !osm_qos_level_has_pkey(p_qos_level, pkey)) {
-			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+			osm_log(sa->p_log, OSM_LOG_ERROR,
 				"__osm_pr_rcv_get_path_parms: ERR 1F1D: "
 				"Ports do not share PKeys defined by QoS level\n");
 			status = IB_NOT_FOUND;
@@ -688,7 +647,7 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 		pkey = osm_qos_level_get_shared_pkey(p_qos_level,
 						     p_src_physp, p_dest_physp);
 		if (!pkey) {
-			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+			osm_log(sa->p_log, OSM_LOG_ERROR,
 				"__osm_pr_rcv_get_path_parms: ERR 1F1E: "
 				"Ports do not share PKeys defined by QoS level\n");
 			status = IB_NOT_FOUND;
@@ -701,7 +660,7 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 		 */
 		pkey = osm_physp_find_common_pkey(p_src_physp, p_dest_physp);
 		if (!pkey) {
-			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+			osm_log(sa->p_log, OSM_LOG_ERROR,
 				"__osm_pr_rcv_get_path_parms: ERR 1F1B: "
 				"Ports do not have any shared PKeys\n");
 			status = IB_NOT_FOUND;
@@ -711,11 +670,11 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 
 	if (pkey) {
 		p_prtn =
-		    (osm_prtn_t *) cl_qmap_get(&p_rcv->p_subn->prtn_pkey_tbl,
+		    (osm_prtn_t *) cl_qmap_get(&sa->p_subn->prtn_pkey_tbl,
 					       pkey & cl_hton16((uint16_t) ~
 								0x8000));
 		if (p_prtn ==
-		    (osm_prtn_t *) cl_qmap_end(&p_rcv->p_subn->prtn_pkey_tbl))
+		    (osm_prtn_t *) cl_qmap_end(&sa->p_subn->prtn_pkey_tbl))
 			p_prtn = NULL;
 	}
 
@@ -733,7 +692,7 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 
 		if (p_qos_level && p_qos_level->sl_set
 		    && (p_qos_level->sl != sl)) {
-			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+			osm_log(sa->p_log, OSM_LOG_ERROR,
 				"__osm_pr_rcv_get_path_parms: ERR 1F1F: "
 				"QoS constaraints: required PathRecord SL (%u) "
 				"doesn't match QoS policy SL (%u)\n", sl,
@@ -744,7 +703,7 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 
 		if (is_lash
 		    && osm_get_lash_sl(p_osm, p_src_port, p_dest_port) != sl) {
-			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+			osm_log(sa->p_log, OSM_LOG_ERROR,
 				"__osm_pr_rcv_get_path_parms: ERR 1F23: "
 				"Required PathRecord SL (%u) doesn't "
 				"match LASH SL\n", sl);
@@ -759,7 +718,6 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 		 * slid and dest_lid are stored in network in lash.
 		 */
 		sl = osm_get_lash_sl(p_osm, p_src_port, p_dest_port);
-
 	} else if (p_qos_level && p_qos_level->sl_set) {
 		/*
 		 * No specific SL was requested, and we're not in
@@ -768,7 +726,7 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 		sl = p_qos_level->sl;
 
 		if (pkey && p_prtn && p_prtn->sl != p_qos_level->sl)
-			osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+			osm_log(sa->p_log, OSM_LOG_DEBUG,
 				"__osm_pr_rcv_get_path_parms: "
 				"QoS level SL (%u) overrides partition SL (%u)\n",
 				p_qos_level->sl, p_prtn->sl);
@@ -781,13 +739,13 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 			sl = OSM_DEFAULT_SL;
 			/* this may be possible when pkey tables are created somehow in
 			   previous runs or things are going wrong here */
-			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+			osm_log(sa->p_log, OSM_LOG_ERROR,
 				"__osm_pr_rcv_get_path_parms: ERR 1F1C: "
 				"No partition found for PKey 0x%04x - using default SL %d\n",
 				cl_ntoh16(pkey), sl);
 		} else
 			sl = p_prtn->sl;
-	} else if (p_rcv->p_subn->opt.qos) {
+	} else if (sa->p_subn->opt.qos) {
 		if (valid_sl_mask & (1 << OSM_DEFAULT_SL))
 			sl = OSM_DEFAULT_SL;
 		else {
@@ -799,8 +757,8 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 	} else
 		sl = OSM_DEFAULT_SL;
 
-	if (p_rcv->p_subn->opt.qos && !(valid_sl_mask & (1 << sl))) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+	if (sa->p_subn->opt.qos && !(valid_sl_mask & (1 << sl))) {
+		osm_log(sa->p_log, OSM_LOG_ERROR,
 			"__osm_pr_rcv_get_path_parms: ERR 1F24: "
 			"Selected SL (%u) leads to VL15\n", sl);
 		status = IB_NOT_FOUND;
@@ -818,21 +776,21 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 	p_parms->pkey = pkey;
 	p_parms->sl = sl;
 
-	if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG))
-		osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
+		osm_log(sa->p_log, OSM_LOG_DEBUG,
 			"__osm_pr_rcv_get_path_parms: Path params:"
 			" mtu = %u, rate = %u, packet lifetime = %u,"
 			" pkey = 0x%04X, sl = %u\n",
 			mtu, rate, pkt_life, cl_ntoh16(pkey), sl);
       Exit:
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sa->p_log);
 	return (status);
 }
 
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_pr_rcv_build_pr(IN osm_pr_rcv_t * const p_rcv,
+__osm_pr_rcv_build_pr(IN osm_sa_t * sa,
 		      IN const osm_port_t * const p_src_port,
 		      IN const osm_port_t * const p_dest_port,
 		      IN const ib_gid_t * const p_dgid,
@@ -846,7 +804,7 @@ __osm_pr_rcv_build_pr(IN osm_pr_rcv_t * const p_rcv,
 	const osm_physp_t *p_dest_physp;
 	boolean_t is_nonzero_gid = 0;
 
-	OSM_LOG_ENTER(p_rcv->p_log, __osm_pr_rcv_build_pr);
+	OSM_LOG_ENTER(sa->p_log, __osm_pr_rcv_build_pr);
 
 	p_src_physp = p_src_port->p_physp;
 
@@ -897,13 +855,13 @@ __osm_pr_rcv_build_pr(IN osm_pr_rcv_t * const p_rcv,
 	if (p_parms->reversible)
 		p_pr->num_path = 0x80;
 
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sa->p_log);
 }
 
 /**********************************************************************
  **********************************************************************/
 static osm_pr_item_t *
-__osm_pr_rcv_get_lid_pair_path(IN osm_pr_rcv_t * const p_rcv,
+__osm_pr_rcv_get_lid_pair_path(IN osm_sa_t * sa,
 			       IN const ib_path_rec_t * const p_pr,
 			       IN const osm_port_t * const p_src_port,
 			       IN const osm_port_t * const p_dest_port,
@@ -918,24 +876,24 @@ __osm_pr_rcv_get_lid_pair_path(IN osm_pr_rcv_t * const p_rcv,
 	osm_pr_item_t *p_pr_item;
 	ib_api_status_t status, rev_path_status;
 
-	OSM_LOG_ENTER(p_rcv->p_log, __osm_pr_rcv_get_lid_pair_path);
+	OSM_LOG_ENTER(sa->p_log, __osm_pr_rcv_get_lid_pair_path);
 
-	if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG))
-		osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
+		osm_log(sa->p_log, OSM_LOG_DEBUG,
 			"__osm_pr_rcv_get_lid_pair_path: "
 			"Src LID 0x%X, Dest LID 0x%X\n",
 			src_lid_ho, dest_lid_ho);
 
 	p_pr_item = malloc(sizeof(*p_pr_item));
 	if (p_pr_item == NULL) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sa->p_log, OSM_LOG_ERROR,
 			"__osm_pr_rcv_get_lid_pair_path: ERR 1F01: "
 			"Unable to allocate path record\n");
 		goto Exit;
 	}
 	memset(p_pr_item, 0, sizeof(*p_pr_item));
 
-	status = __osm_pr_rcv_get_path_parms(p_rcv, p_pr, p_src_port,
+	status = __osm_pr_rcv_get_path_parms(sa, p_pr, p_src_port,
 					     p_dest_port, dest_lid_ho,
 					     comp_mask, &path_parms);
 
@@ -946,7 +904,7 @@ __osm_pr_rcv_get_lid_pair_path(IN osm_pr_rcv_t * const p_rcv,
 	}
 
 	/* now try the reversible path */
-	rev_path_status = __osm_pr_rcv_get_path_parms(p_rcv, p_pr, p_dest_port,
+	rev_path_status = __osm_pr_rcv_get_path_parms(sa, p_pr, p_dest_port,
 						      p_src_port, src_lid_ho,
 						      comp_mask,
 						      &rev_path_parms);
@@ -960,7 +918,7 @@ __osm_pr_rcv_get_lid_pair_path(IN osm_pr_rcv_t * const p_rcv,
 	 */
 	if (comp_mask & IB_PR_COMPMASK_REVERSIBLE) {
 		if ((!path_parms.reversible && (p_pr->num_path & 0x80))) {
-			osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+			osm_log(sa->p_log, OSM_LOG_DEBUG,
 				"__osm_pr_rcv_get_lid_pair_path: "
 				"Requested reversible path but failed to get one\n");
 
@@ -970,19 +928,19 @@ __osm_pr_rcv_get_lid_pair_path(IN osm_pr_rcv_t * const p_rcv,
 		}
 	}
 
-	__osm_pr_rcv_build_pr(p_rcv, p_src_port, p_dest_port, p_dgid,
+	__osm_pr_rcv_build_pr(sa, p_src_port, p_dest_port, p_dgid,
 			      src_lid_ho, dest_lid_ho, preference, &path_parms,
 			      &p_pr_item->path_rec);
 
       Exit:
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sa->p_log);
 	return (p_pr_item);
 }
 
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_pr_rcv_get_port_pair_paths(IN osm_pr_rcv_t * const p_rcv,
+__osm_pr_rcv_get_port_pair_paths(IN osm_sa_t * sa,
 				 IN const osm_madw_t * const p_madw,
 				 IN const osm_port_t * const p_req_port,
 				 IN const osm_port_t * const p_src_port,
@@ -1006,10 +964,10 @@ __osm_pr_rcv_get_port_pair_paths(IN osm_pr_rcv_t * const p_rcv,
 	uintn_t src_offset;
 	uintn_t dest_offset;
 
-	OSM_LOG_ENTER(p_rcv->p_log, __osm_pr_rcv_get_port_pair_paths);
+	OSM_LOG_ENTER(sa->p_log, __osm_pr_rcv_get_port_pair_paths);
 
-	if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG))
-		osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
+		osm_log(sa->p_log, OSM_LOG_DEBUG,
 			"__osm_pr_rcv_get_port_pair_paths: "
 			"Src port 0x%016" PRIx64 ", "
 			"Dst port 0x%016" PRIx64 "\n",
@@ -1018,10 +976,10 @@ __osm_pr_rcv_get_port_pair_paths(IN osm_pr_rcv_t * const p_rcv,
 
 	/* Check that the req_port, src_port and dest_port all share a
 	   pkey. The check is done on the default physical port of the ports. */
-	if (osm_port_share_pkey(p_rcv->p_log, p_req_port, p_src_port) == FALSE
-	    || osm_port_share_pkey(p_rcv->p_log, p_req_port,
+	if (osm_port_share_pkey(sa->p_log, p_req_port, p_src_port) == FALSE
+	    || osm_port_share_pkey(sa->p_log, p_req_port,
 				   p_dest_port) == FALSE
-	    || osm_port_share_pkey(p_rcv->p_log, p_src_port,
+	    || osm_port_share_pkey(sa->p_log, p_src_port,
 				   p_dest_port) == FALSE)
 		/* One of the pairs doesn't share a pkey so the path is disqualified. */
 		goto Exit;
@@ -1092,21 +1050,21 @@ __osm_pr_rcv_get_port_pair_paths(IN osm_pr_rcv_t * const p_rcv,
 					  &src_lid_max_ho);
 
 	if (src_lid_min_ho == 0) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sa->p_log, OSM_LOG_ERROR,
 			"__osm_pr_rcv_get_port_pair_paths: ERR 1F20:"
 			"Obtained source LID of 0. No such LID possible\n");
 		goto Exit;
 	}
 
 	if (dest_lid_min_ho == 0) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sa->p_log, OSM_LOG_ERROR,
 			"__osm_pr_rcv_get_port_pair_paths: ERR 1F21:"
 			"Obtained destination LID of 0. No such LID possible\n");
 		goto Exit;
 	}
 
-	if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG))
-		osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
+		osm_log(sa->p_log, OSM_LOG_DEBUG,
 			"__osm_pr_rcv_get_port_pair_paths: "
 			"Src LIDs [0x%X-0x%X], "
 			"Dest LIDs [0x%X-0x%X]\n",
@@ -1136,7 +1094,7 @@ __osm_pr_rcv_get_port_pair_paths(IN osm_pr_rcv_t * const p_rcv,
 		   These paths are "fully redundant"
 		 */
 
-		p_pr_item = __osm_pr_rcv_get_lid_pair_path(p_rcv, p_pr,
+		p_pr_item = __osm_pr_rcv_get_lid_pair_path(sa, p_pr,
 							   p_src_port,
 							   p_dest_port, p_dgid,
 							   src_lid_ho,
@@ -1202,7 +1160,7 @@ __osm_pr_rcv_get_port_pair_paths(IN osm_pr_rcv_t * const p_rcv,
 		if (src_offset == dest_offset)
 			continue;	/* already reported */
 
-		p_pr_item = __osm_pr_rcv_get_lid_pair_path(p_rcv, p_pr,
+		p_pr_item = __osm_pr_rcv_get_lid_pair_path(sa, p_pr,
 							   p_src_port,
 							   p_dest_port, p_dgid,
 							   src_lid_ho,
@@ -1217,13 +1175,13 @@ __osm_pr_rcv_get_port_pair_paths(IN osm_pr_rcv_t * const p_rcv,
 	}
 
       Exit:
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sa->p_log);
 }
 
 /**********************************************************************
  **********************************************************************/
 static ib_net16_t
-__osm_pr_rcv_get_end_points(IN osm_pr_rcv_t * const p_rcv,
+__osm_pr_rcv_get_end_points(IN osm_sa_t * sa,
 			    IN const osm_madw_t * const p_madw,
 			    OUT const osm_port_t ** const pp_src_port,
 			    OUT const osm_port_t ** const pp_dest_port,
@@ -1238,7 +1196,7 @@ __osm_pr_rcv_get_end_points(IN osm_pr_rcv_t * const p_rcv,
 	osm_router_t *p_rtr;
 	osm_port_t *p_rtr_port;
 
-	OSM_LOG_ENTER(p_rcv->p_log, __osm_pr_rcv_get_end_points);
+	OSM_LOG_ENTER(sa->p_log, __osm_pr_rcv_get_end_points);
 
 	/*
 	   Determine what fields are valid and then get a pointer
@@ -1258,13 +1216,13 @@ __osm_pr_rcv_get_end_points(IN osm_pr_rcv_t * const p_rcv,
 	if (comp_mask & IB_PR_COMPMASK_SGID) {
 		if (!ib_gid_is_link_local(&p_pr->sgid)) {
 			if (ib_gid_get_subnet_prefix(&p_pr->sgid) !=
-			    p_rcv->p_subn->opt.subnet_prefix) {
+			    sa->p_subn->opt.subnet_prefix) {
 				/*
 				   This 'error' is the client's fault (bad gid) so
 				   don't enter it as an error in our own log.
 				   Return an error response to the client.
 				 */
-				osm_log(p_rcv->p_log, OSM_LOG_VERBOSE,
+				osm_log(sa->p_log, OSM_LOG_VERBOSE,
 					"__osm_pr_rcv_get_end_points: "
 					"Non local SGID subnet prefix 0x%016"
 					PRIx64 "\n",
@@ -1275,7 +1233,7 @@ __osm_pr_rcv_get_end_points(IN osm_pr_rcv_t * const p_rcv,
 			}
 		}
 
-		*pp_src_port = osm_get_port_by_guid(p_rcv->p_subn,
+		*pp_src_port = osm_get_port_by_guid(sa->p_subn,
 						    p_pr->sgid.unicast.
 						    interface_id);
 		if (!*pp_src_port) {
@@ -1284,7 +1242,7 @@ __osm_pr_rcv_get_end_points(IN osm_pr_rcv_t * const p_rcv,
 			   don't enter it as an error in our own log.
 			   Return an error response to the client.
 			 */
-			osm_log(p_rcv->p_log, OSM_LOG_VERBOSE,
+			osm_log(sa->p_log, OSM_LOG_VERBOSE,
 				"__osm_pr_rcv_get_end_points: "
 				"No source port with GUID 0x%016" PRIx64 "\n",
 				cl_ntoh64(p_pr->sgid.unicast.interface_id));
@@ -1295,7 +1253,7 @@ __osm_pr_rcv_get_end_points(IN osm_pr_rcv_t * const p_rcv,
 	} else {
 		*pp_src_port = 0;
 		if (comp_mask & IB_PR_COMPMASK_SLID) {
-			status = cl_ptr_vector_at(&p_rcv->p_subn->port_lid_tbl,
+			status = cl_ptr_vector_at(&sa->p_subn->port_lid_tbl,
 						  cl_ntoh16(p_pr->slid),
 						  (void **)pp_src_port);
 
@@ -1305,7 +1263,7 @@ __osm_pr_rcv_get_end_points(IN osm_pr_rcv_t * const p_rcv,
 				   don't enter it as an error in our own log.
 				   Return an error response to the client.
 				 */
-				osm_log(p_rcv->p_log, OSM_LOG_VERBOSE,
+				osm_log(sa->p_log, OSM_LOG_VERBOSE,
 					"__osm_pr_rcv_get_end_points: "
 					"No source port with LID = 0x%X\n",
 					cl_ntoh16(p_pr->slid));
@@ -1324,8 +1282,8 @@ __osm_pr_rcv_get_end_points(IN osm_pr_rcv_t * const p_rcv,
 		if (!ib_gid_is_link_local(&p_pr->dgid)) {
 			if (!ib_gid_is_multicast(&p_pr->dgid) &&
 			    ib_gid_get_subnet_prefix(&p_pr->dgid) !=
-			    p_rcv->p_subn->opt.subnet_prefix) {
-				osm_log(p_rcv->p_log, OSM_LOG_VERBOSE,
+			    sa->p_subn->opt.subnet_prefix) {
+				osm_log(sa->p_log, OSM_LOG_VERBOSE,
 					"__osm_pr_rcv_get_end_points: "
 					"Non local DGID subnet prefix 0x%016"
 					PRIx64 "\n",
@@ -1335,10 +1293,10 @@ __osm_pr_rcv_get_end_points(IN osm_pr_rcv_t * const p_rcv,
 				   this prefix, if any: */
 				osm_prefix_route_t *route = NULL;
 				osm_prefix_route_t *r = (osm_prefix_route_t *)
-					cl_qlist_head(&p_rcv->p_subn->prefix_routes_list);
+					cl_qlist_head(&sa->p_subn->prefix_routes_list);
 
 				while (r != (osm_prefix_route_t *)
-				       cl_qlist_end(&p_rcv->p_subn->prefix_routes_list))
+				       cl_qlist_end(&sa->p_subn->prefix_routes_list))
 				{
 					if (r->prefix == p_pr->dgid.unicast.prefix ||
 					    r->prefix == 0)
@@ -1360,23 +1318,23 @@ __osm_pr_rcv_get_end_points(IN osm_pr_rcv_t * const p_rcv,
 				} else if (route->guid == 0) {
 					/* first router */
 					p_rtr = (osm_router_t *)
-						cl_qmap_head(&p_rcv->
+						cl_qmap_head(&sa->
 							     p_subn->
 							     rtr_guid_tbl);
 				} else {
 					p_rtr = (osm_router_t *)
-						cl_qmap_get(&p_rcv->
+						cl_qmap_get(&sa->
 							    p_subn->
 							    rtr_guid_tbl,
 							    route->guid);
 				}
 
 				if (p_rtr ==
-				    (osm_router_t *) cl_qmap_end(&p_rcv->
+				    (osm_router_t *) cl_qmap_end(&sa->
 								 p_subn->
 								 rtr_guid_tbl))
 				{
-					osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+					osm_log(sa->p_log, OSM_LOG_ERROR,
 						"__osm_pr_rcv_get_end_points: ERR 1F22: "
 						"Off subnet DGID but router not found\n");
 					sa_status =
@@ -1391,14 +1349,14 @@ __osm_pr_rcv_get_end_points(IN osm_pr_rcv_t * const p_rcv,
 			}
 		}
 
-		*pp_dest_port = osm_get_port_by_guid(p_rcv->p_subn, dest_guid);
+		*pp_dest_port = osm_get_port_by_guid(sa->p_subn, dest_guid);
 		if (!*pp_dest_port) {
 			/*
 			   This 'error' is the client's fault (bad gid) so
 			   don't enter it as an error in our own log.
 			   Return an error response to the client.
 			 */
-			osm_log(p_rcv->p_log, OSM_LOG_VERBOSE,
+			osm_log(sa->p_log, OSM_LOG_VERBOSE,
 				"__osm_pr_rcv_get_end_points: "
 				"No dest port with GUID 0x%016" PRIx64 "\n",
 				cl_ntoh64(dest_guid));
@@ -1409,7 +1367,7 @@ __osm_pr_rcv_get_end_points(IN osm_pr_rcv_t * const p_rcv,
 	} else {
 		*pp_dest_port = 0;
 		if (comp_mask & IB_PR_COMPMASK_DLID) {
-			status = cl_ptr_vector_at(&p_rcv->p_subn->port_lid_tbl,
+			status = cl_ptr_vector_at(&sa->p_subn->port_lid_tbl,
 						  cl_ntoh16(p_pr->dlid),
 						  (void **)pp_dest_port);
 
@@ -1419,7 +1377,7 @@ __osm_pr_rcv_get_end_points(IN osm_pr_rcv_t * const p_rcv,
 				   don't enter it as an error in our own log.
 				   Return an error response to the client.
 				 */
-				osm_log(p_rcv->p_log, OSM_LOG_VERBOSE,
+				osm_log(sa->p_log, OSM_LOG_VERBOSE,
 					"__osm_pr_rcv_get_end_points: "
 					"No dest port with LID = 0x%X\n",
 					cl_ntoh16(p_pr->dlid));
@@ -1431,14 +1389,14 @@ __osm_pr_rcv_get_end_points(IN osm_pr_rcv_t * const p_rcv,
 	}
 
       Exit:
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sa->p_log);
 	return (sa_status);
 }
 
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_pr_rcv_process_world(IN osm_pr_rcv_t * const p_rcv,
+__osm_pr_rcv_process_world(IN osm_sa_t * sa,
 			   IN const osm_madw_t * const p_madw,
 			   IN const osm_port_t * const requester_port,
 			   IN const ib_gid_t * const p_dgid,
@@ -1449,7 +1407,7 @@ __osm_pr_rcv_process_world(IN osm_pr_rcv_t * const p_rcv,
 	const osm_port_t *p_dest_port;
 	const osm_port_t *p_src_port;
 
-	OSM_LOG_ENTER(p_rcv->p_log, __osm_pr_rcv_process_world);
+	OSM_LOG_ENTER(sa->p_log, __osm_pr_rcv_process_world);
 
 	/*
 	   Iterate the entire port space over itself.
@@ -1459,13 +1417,13 @@ __osm_pr_rcv_process_world(IN osm_pr_rcv_t * const p_rcv,
 	   We compute both A -> B and B -> A, since we don't have
 	   any check to determine the reversability of the paths.
 	 */
-	p_tbl = &p_rcv->p_subn->port_guid_tbl;
+	p_tbl = &sa->p_subn->port_guid_tbl;
 
 	p_dest_port = (osm_port_t *) cl_qmap_head(p_tbl);
 	while (p_dest_port != (osm_port_t *) cl_qmap_end(p_tbl)) {
 		p_src_port = (osm_port_t *) cl_qmap_head(p_tbl);
 		while (p_src_port != (osm_port_t *) cl_qmap_end(p_tbl)) {
-			__osm_pr_rcv_get_port_pair_paths(p_rcv, p_madw,
+			__osm_pr_rcv_get_port_pair_paths(sa, p_madw,
 							 requester_port,
 							 p_src_port,
 							 p_dest_port, p_dgid,
@@ -1479,13 +1437,13 @@ __osm_pr_rcv_process_world(IN osm_pr_rcv_t * const p_rcv,
 		    (osm_port_t *) cl_qmap_next(&p_dest_port->map_item);
 	}
 
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sa->p_log);
 }
 
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_pr_rcv_process_half(IN osm_pr_rcv_t * const p_rcv,
+__osm_pr_rcv_process_half(IN osm_sa_t * sa,
 			  IN const osm_madw_t * const p_madw,
 			  IN const osm_port_t * const requester_port,
 			  IN const osm_port_t * const p_src_port,
@@ -1497,14 +1455,14 @@ __osm_pr_rcv_process_half(IN osm_pr_rcv_t * const p_rcv,
 	const cl_qmap_t *p_tbl;
 	const osm_port_t *p_port;
 
-	OSM_LOG_ENTER(p_rcv->p_log, __osm_pr_rcv_process_half);
+	OSM_LOG_ENTER(sa->p_log, __osm_pr_rcv_process_half);
 
 	/*
 	   Iterate over every port, looking for matches...
 	   A path record from a port to itself is legit, so no
 	   need to special case that one.
 	 */
-	p_tbl = &p_rcv->p_subn->port_guid_tbl;
+	p_tbl = &sa->p_subn->port_guid_tbl;
 
 	if (p_src_port) {
 		/*
@@ -1512,7 +1470,7 @@ __osm_pr_rcv_process_half(IN osm_pr_rcv_t * const p_rcv,
 		 */
 		p_port = (osm_port_t *) cl_qmap_head(p_tbl);
 		while (p_port != (osm_port_t *) cl_qmap_end(p_tbl)) {
-			__osm_pr_rcv_get_port_pair_paths(p_rcv, p_madw,
+			__osm_pr_rcv_get_port_pair_paths(sa, p_madw,
 							 requester_port,
 							 p_src_port, p_port,
 							 p_dgid, comp_mask,
@@ -1525,7 +1483,7 @@ __osm_pr_rcv_process_half(IN osm_pr_rcv_t * const p_rcv,
 		 */
 		p_port = (osm_port_t *) cl_qmap_head(p_tbl);
 		while (p_port != (osm_port_t *) cl_qmap_end(p_tbl)) {
-			__osm_pr_rcv_get_port_pair_paths(p_rcv, p_madw,
+			__osm_pr_rcv_get_port_pair_paths(sa, p_madw,
 							 requester_port, p_port,
 							 p_dest_port, p_dgid,
 							 comp_mask, p_list);
@@ -1533,13 +1491,13 @@ __osm_pr_rcv_process_half(IN osm_pr_rcv_t * const p_rcv,
 		}
 	}
 
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sa->p_log);
 }
 
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_pr_rcv_process_pair(IN osm_pr_rcv_t * const p_rcv,
+__osm_pr_rcv_process_pair(IN osm_sa_t * sa,
 			  IN const osm_madw_t * const p_madw,
 			  IN const osm_port_t * const requester_port,
 			  IN const osm_port_t * const p_src_port,
@@ -1548,13 +1506,13 @@ __osm_pr_rcv_process_pair(IN osm_pr_rcv_t * const p_rcv,
 			  IN const ib_net64_t comp_mask,
 			  IN cl_qlist_t * const p_list)
 {
-	OSM_LOG_ENTER(p_rcv->p_log, __osm_pr_rcv_process_pair);
+	OSM_LOG_ENTER(sa->p_log, __osm_pr_rcv_process_pair);
 
-	__osm_pr_rcv_get_port_pair_paths(p_rcv, p_madw, requester_port,
+	__osm_pr_rcv_get_port_pair_paths(sa, p_madw, requester_port,
 					 p_src_port, p_dest_port, p_dgid,
 					 comp_mask, p_list);
 
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sa->p_log);
 }
 
 /**********************************************************************
@@ -1566,11 +1524,11 @@ __search_mgrp_by_mgid(IN cl_map_item_t * const p_map_item, IN void *context)
 	osm_sa_pr_mcmr_search_ctxt_t *p_ctxt =
 	    (osm_sa_pr_mcmr_search_ctxt_t *) context;
 	const ib_gid_t *p_recvd_mgid;
-	osm_pr_rcv_t *p_rcv;
+	osm_sa_t *sa;
 	/* uint32_t i; */
 
 	p_recvd_mgid = p_ctxt->p_mgid;
-	p_rcv = p_ctxt->p_rcv;
+	sa = p_ctxt->sa;
 
 	/* ignore groups marked for deletion */
 	if (p_mgrp->to_be_deleted)
@@ -1592,7 +1550,7 @@ __search_mgrp_by_mgid(IN cl_map_item_t * const p_map_item, IN void *context)
 #endif
 
 	if (p_ctxt->p_mgrp) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sa->p_log, OSM_LOG_ERROR,
 			"__search_mgrp_by_mgid: ERR 1F08: "
 			"Multiple MC groups for same MGID\n");
 		return;
@@ -1603,17 +1561,17 @@ __search_mgrp_by_mgid(IN cl_map_item_t * const p_map_item, IN void *context)
 /**********************************************************************
  **********************************************************************/
 static ib_api_status_t
-__get_mgrp_by_mgid(IN osm_pr_rcv_t * const p_rcv,
+__get_mgrp_by_mgid(IN osm_sa_t * sa,
 		   IN ib_path_rec_t * p_recvd_path_rec,
 		   OUT osm_mgrp_t ** pp_mgrp)
 {
 	osm_sa_pr_mcmr_search_ctxt_t mcmr_search_context;
 
 	mcmr_search_context.p_mgid = &p_recvd_path_rec->dgid;
-	mcmr_search_context.p_rcv = p_rcv;
+	mcmr_search_context.sa = sa;
 	mcmr_search_context.p_mgrp = NULL;
 
-	cl_qmap_apply_func(&p_rcv->p_subn->mgrp_mlid_tbl,
+	cl_qmap_apply_func(&sa->p_subn->mgrp_mlid_tbl,
 			   __search_mgrp_by_mgid, &mcmr_search_context);
 
 	if (mcmr_search_context.p_mgrp == NULL)
@@ -1625,14 +1583,14 @@ __get_mgrp_by_mgid(IN osm_pr_rcv_t * const p_rcv,
 
 /**********************************************************************
  **********************************************************************/
-static osm_mgrp_t *__get_mgrp_by_mlid(IN const osm_pr_rcv_t * const p_rcv,
+static osm_mgrp_t *__get_mgrp_by_mlid(IN osm_sa_t * sa,
 				      IN ib_net16_t const mlid)
 {
 	cl_map_item_t *map_item;
 
-	map_item = cl_qmap_get(&p_rcv->p_subn->mgrp_mlid_tbl, mlid);
+	map_item = cl_qmap_get(&sa->p_subn->mgrp_mlid_tbl, mlid);
 
-	if (map_item == cl_qmap_end(&p_rcv->p_subn->mgrp_mlid_tbl))
+	if (map_item == cl_qmap_end(&sa->p_subn->mgrp_mlid_tbl))
 		return NULL;
 
 	return (osm_mgrp_t *) map_item;
@@ -1641,7 +1599,7 @@ static osm_mgrp_t *__get_mgrp_by_mlid(IN const osm_pr_rcv_t * const p_rcv,
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_pr_get_mgrp(IN osm_pr_rcv_t * const p_rcv,
+__osm_pr_get_mgrp(IN osm_sa_t * sa,
 		  IN const osm_madw_t * const p_madw, OUT osm_mgrp_t ** pp_mgrp)
 {
 	ib_path_rec_t *p_pr;
@@ -1649,7 +1607,7 @@ __osm_pr_get_mgrp(IN osm_pr_rcv_t * const p_rcv,
 	ib_net64_t comp_mask;
 	ib_api_status_t status;
 
-	OSM_LOG_ENTER(p_rcv->p_log, __osm_pr_get_mgrp);
+	OSM_LOG_ENTER(sa->p_log, __osm_pr_get_mgrp);
 
 	p_sa_mad = osm_madw_get_sa_mad_ptr(p_madw);
 	p_pr = (ib_path_rec_t *) ib_sa_mad_get_payload_ptr(p_sa_mad);
@@ -1657,9 +1615,9 @@ __osm_pr_get_mgrp(IN osm_pr_rcv_t * const p_rcv,
 	comp_mask = p_sa_mad->comp_mask;
 
 	if (comp_mask & IB_PR_COMPMASK_DGID) {
-		status = __get_mgrp_by_mgid(p_rcv, p_pr, pp_mgrp);
+		status = __get_mgrp_by_mgid(sa, p_pr, pp_mgrp);
 		if (status != IB_SUCCESS) {
-			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+			osm_log(sa->p_log, OSM_LOG_ERROR,
 				"__osm_pr_get_mgrp: ERR 1F09: "
 				"No MC group found for PathRecord destination GID\n");
 			goto Exit;
@@ -1672,29 +1630,29 @@ __osm_pr_get_mgrp(IN osm_pr_rcv_t * const p_rcv,
 			/* the same as the DLID in the PathRecord */
 			if ((*pp_mgrp)->mlid != p_pr->dlid) {
 				/* Note: perhaps this might be better indicated as an invalid request */
-				osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+				osm_log(sa->p_log, OSM_LOG_ERROR,
 					"__osm_pr_get_mgrp: ERR 1F10: "
 					"MC group MLID does not match PathRecord destination LID\n");
 				*pp_mgrp = NULL;
 				goto Exit;
 			}
 		} else {
-			*pp_mgrp = __get_mgrp_by_mlid(p_rcv, p_pr->dlid);
+			*pp_mgrp = __get_mgrp_by_mlid(sa, p_pr->dlid);
 			if (*pp_mgrp == NULL)
-				osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+				osm_log(sa->p_log, OSM_LOG_ERROR,
 					"__osm_pr_get_mgrp: ERR 1F11: "
 					"No MC group found for PathRecord destination LID\n");
 		}
 	}
 
       Exit:
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sa->p_log);
 }
 
 /**********************************************************************
  **********************************************************************/
 static ib_api_status_t
-__osm_pr_match_mgrp_attributes(IN osm_pr_rcv_t * const p_rcv,
+__osm_pr_match_mgrp_attributes(IN osm_sa_t * sa,
 			       IN const osm_madw_t * const p_madw,
 			       IN const osm_mgrp_t * const p_mgrp)
 {
@@ -1706,7 +1664,7 @@ __osm_pr_match_mgrp_attributes(IN osm_pr_rcv_t * const p_rcv,
 	uint8_t sl;
 	uint8_t hop_limit;
 
-	OSM_LOG_ENTER(p_rcv->p_log, __osm_pr_match_mgrp_attributes);
+	OSM_LOG_ENTER(sa->p_log, __osm_pr_match_mgrp_attributes);
 
 	p_sa_mad = osm_madw_get_sa_mad_ptr(p_madw);
 	p_pr = (ib_path_rec_t *) ib_sa_mad_get_payload_ptr(p_sa_mad);
@@ -1753,14 +1711,14 @@ __osm_pr_match_mgrp_attributes(IN osm_pr_rcv_t * const p_rcv,
 	status = IB_SUCCESS;
 
       Exit:
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sa->p_log);
 	return (status);
 }
 
 /**********************************************************************
  **********************************************************************/
 static int
-__osm_pr_rcv_check_mcast_dest(IN osm_pr_rcv_t * const p_rcv,
+__osm_pr_rcv_check_mcast_dest(IN osm_sa_t * sa,
 			      IN const osm_madw_t * const p_madw)
 {
 	const ib_path_rec_t *p_pr;
@@ -1768,7 +1726,7 @@ __osm_pr_rcv_check_mcast_dest(IN osm_pr_rcv_t * const p_rcv,
 	ib_net64_t comp_mask;
 	int is_multicast = 0;
 
-	OSM_LOG_ENTER(p_rcv->p_log, __osm_pr_rcv_check_mcast_dest);
+	OSM_LOG_ENTER(sa->p_log, __osm_pr_rcv_check_mcast_dest);
 
 	p_sa_mad = osm_madw_get_sa_mad_ptr(p_madw);
 	p_pr = (ib_path_rec_t *) ib_sa_mad_get_payload_ptr(p_sa_mad);
@@ -1786,7 +1744,7 @@ __osm_pr_rcv_check_mcast_dest(IN osm_pr_rcv_t * const p_rcv,
 		    cl_ntoh16(p_pr->dlid) <= IB_LID_MCAST_END_HO)
 			is_multicast = 1;
 		else if (is_multicast) {
-			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+			osm_log(sa->p_log, OSM_LOG_ERROR,
 				"__osm_pr_rcv_check_mcast_dest: ERR 1F12: "
 				"PathRecord request indicates MGID but not MLID\n");
 			is_multicast = -1;
@@ -1794,14 +1752,14 @@ __osm_pr_rcv_check_mcast_dest(IN osm_pr_rcv_t * const p_rcv,
 	}
 
       Exit:
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sa->p_log);
 	return (is_multicast);
 }
 
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_pr_rcv_respond(IN osm_pr_rcv_t * const p_rcv,
+__osm_pr_rcv_respond(IN osm_sa_t * sa,
 		     IN const osm_madw_t * const p_madw,
 		     IN cl_qlist_t * const p_list)
 {
@@ -1814,11 +1772,11 @@ __osm_pr_rcv_respond(IN osm_pr_rcv_t * const p_rcv,
 #endif
 	ib_path_rec_t *p_resp_pr;
 	ib_api_status_t status;
-	const ib_sa_mad_t *p_rcvd_mad = osm_madw_get_sa_mad_ptr(p_madw);
+	const ib_sa_mad_t *sad_mad = osm_madw_get_sa_mad_ptr(p_madw);
 	osm_pr_item_t *p_pr_item;
 	uint32_t i;
 
-	OSM_LOG_ENTER(p_rcv->p_log, __osm_pr_rcv_respond);
+	OSM_LOG_ENTER(sa->p_log, __osm_pr_rcv_respond);
 
 	num_rec = cl_qlist_count(p_list);
 
@@ -1826,18 +1784,18 @@ __osm_pr_rcv_respond(IN osm_pr_rcv_t * const p_rcv,
 	 * C15-0.1.30:
 	 * If we do a SubnAdmGet and got more than one record it is an error !
 	 */
-	if (p_rcvd_mad->method == IB_MAD_METHOD_GET) {
+	if (sad_mad->method == IB_MAD_METHOD_GET) {
 		if (num_rec == 0) {
-			osm_sa_send_error(p_rcv->p_resp, p_madw,
+			osm_sa_send_error(sa, p_madw,
 					  IB_SA_MAD_STATUS_NO_RECORDS);
 			goto Exit;
 		}
 		if (num_rec > 1) {
-			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+			osm_log(sa->p_log, OSM_LOG_ERROR,
 				"__osm_pr_rcv_respond: ERR 1F13: "
 				"Got more than one record for SubnAdmGet (%zu)\n",
 				num_rec);
-			osm_sa_send_error(p_rcv->p_resp, p_madw,
+			osm_sa_send_error(sa, p_madw,
 					  IB_SA_MAD_STATUS_TOO_MANY_RECORDS);
 			/* need to set the mem free ... */
 			p_pr_item =
@@ -1857,7 +1815,7 @@ __osm_pr_rcv_respond(IN osm_pr_rcv_t * const p_rcv,
 	trim_num_rec =
 	    (MAD_BLOCK_SIZE - IB_SA_MAD_HDR_SIZE) / sizeof(ib_path_rec_t);
 	if (trim_num_rec < num_rec) {
-		osm_log(p_rcv->p_log, OSM_LOG_VERBOSE,
+		osm_log(sa->p_log, OSM_LOG_VERBOSE,
 			"__osm_pr_rcv_respond: "
 			"Number of records:%u trimmed to:%u to fit in one MAD\n",
 			num_rec, trim_num_rec);
@@ -1865,12 +1823,12 @@ __osm_pr_rcv_respond(IN osm_pr_rcv_t * const p_rcv,
 	}
 #endif
 
-	osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+	osm_log(sa->p_log, OSM_LOG_DEBUG,
 		"__osm_pr_rcv_respond: "
 		"Generating response with %zu records\n", num_rec);
 
-	if ((p_rcvd_mad->method == IB_MAD_METHOD_GET) && (num_rec == 0)) {
-		osm_sa_send_error(p_rcv->p_resp, p_madw,
+	if ((sad_mad->method == IB_MAD_METHOD_GET) && (num_rec == 0)) {
+		osm_sa_send_error(sa, p_madw,
 				  IB_SA_MAD_STATUS_NO_RECORDS);
 		goto Exit;
 	}
@@ -1878,11 +1836,11 @@ __osm_pr_rcv_respond(IN osm_pr_rcv_t * const p_rcv,
 	/*
 	 * Get a MAD to reply. Address of Mad is in the received mad_wrapper
 	 */
-	p_resp_madw = osm_mad_pool_get(p_rcv->p_mad_pool, p_madw->h_bind,
+	p_resp_madw = osm_mad_pool_get(sa->p_mad_pool, p_madw->h_bind,
 				       num_rec * sizeof(ib_path_rec_t) +
 				       IB_SA_MAD_HDR_SIZE, &p_madw->mad_addr);
 	if (!p_resp_madw) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sa->p_log, OSM_LOG_ERROR,
 			"__osm_pr_rcv_respond: ERR 1F14: "
 			"Unable to allocate MAD\n");
 
@@ -1892,7 +1850,7 @@ __osm_pr_rcv_respond(IN osm_pr_rcv_t * const p_rcv,
 			free(p_pr_item);
 		}
 
-		osm_sa_send_error(p_rcv->p_resp, p_madw,
+		osm_sa_send_error(sa, p_madw,
 				  IB_SA_MAD_STATUS_NO_RESOURCES);
 		goto Exit;
 	}
@@ -1937,24 +1895,24 @@ __osm_pr_rcv_respond(IN osm_pr_rcv_t * const p_rcv,
 	CL_ASSERT(cl_is_qlist_empty(p_list));
 
 	status = osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE,
-				    p_rcv->p_subn);
+				    sa->p_subn);
 
 	if (status != IB_SUCCESS) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sa->p_log, OSM_LOG_ERROR,
 			"__osm_pr_rcv_respond: ERR 1F15: "
 			"Unable to send MAD (%s)\n", ib_get_err_str(status));
-		/*  osm_mad_pool_put( p_rcv->p_mad_pool, p_resp_madw ); */
+		/*  osm_mad_pool_put( sa->p_mad_pool, p_resp_madw ); */
 	}
 
       Exit:
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sa->p_log);
 }
 
 /**********************************************************************
  **********************************************************************/
 void osm_pr_rcv_process(IN void *context, IN void *data)
 {
-	osm_pr_rcv_t *p_rcv = context;
+	osm_sa_t *sa = context;
 	osm_madw_t *p_madw = data;
 	const ib_path_rec_t *p_pr;
 	const ib_sa_mad_t *p_sa_mad;
@@ -1966,7 +1924,7 @@ void osm_pr_rcv_process(IN void *context, IN void *data)
 	osm_port_t *requester_port;
 	int ret;
 
-	OSM_LOG_ENTER(p_rcv->p_log, osm_pr_rcv_process);
+	OSM_LOG_ENTER(sa->p_log, osm_pr_rcv_process);
 
 	CL_ASSERT(p_madw);
 
@@ -1978,28 +1936,28 @@ void osm_pr_rcv_process(IN void *context, IN void *data)
 	/* we only support SubnAdmGet and SubnAdmGetTable methods */
 	if ((p_sa_mad->method != IB_MAD_METHOD_GET) &&
 	    (p_sa_mad->method != IB_MAD_METHOD_GETTABLE)) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sa->p_log, OSM_LOG_ERROR,
 			"osm_pr_rcv_process: ERR 1F17: "
 			"Unsupported Method (%s)\n",
 			ib_get_sa_method_str(p_sa_mad->method));
-		osm_sa_send_error(p_rcv->p_resp, p_madw,
+		osm_sa_send_error(sa, p_madw,
 				  IB_MAD_STATUS_UNSUP_METHOD_ATTR);
 		goto Exit;
 	}
 
 	/* update the requester physical port. */
-	requester_port = osm_get_port_by_mad_addr(p_rcv->p_log, p_rcv->p_subn,
+	requester_port = osm_get_port_by_mad_addr(sa->p_log, sa->p_subn,
 						  osm_madw_get_mad_addr_ptr
 						  (p_madw));
 	if (requester_port == NULL) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sa->p_log, OSM_LOG_ERROR,
 			"osm_pr_rcv_process: ERR 1F16: "
 			"Cannot find requester physical port\n");
 		goto Exit;
 	}
 
-	if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG))
-		osm_dump_path_record(p_rcv->p_log, p_pr, OSM_LOG_DEBUG);
+	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
+		osm_dump_path_record(sa->p_log, p_pr, OSM_LOG_DEBUG);
 
 	cl_qlist_init(&pr_list);
 
@@ -2007,13 +1965,13 @@ void osm_pr_rcv_process(IN void *context, IN void *data)
 	   Most SA functions (including this one) are read-only on the
 	   subnet object, so we grab the lock non-exclusively.
 	 */
-	cl_plock_acquire(p_rcv->p_lock);
+	cl_plock_acquire(sa->p_lock);
 
 	/* Handle multicast destinations separately */
-	if ((ret = __osm_pr_rcv_check_mcast_dest(p_rcv, p_madw)) < 0) {
+	if ((ret = __osm_pr_rcv_check_mcast_dest(sa, p_madw)) < 0) {
 		/* Multicast DGID with unicast DLID */
-		cl_plock_release(p_rcv->p_lock);
-		osm_sa_send_error(p_rcv->p_resp, p_madw,
+		cl_plock_release(sa->p_lock);
+		osm_sa_send_error(sa, p_madw,
 				  IB_MAD_STATUS_INVALID_FIELD);
 		goto Exit;
 	}
@@ -2021,10 +1979,10 @@ void osm_pr_rcv_process(IN void *context, IN void *data)
 	if (ret > 0)
 		goto McastDest;
 
-	osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+	osm_log(sa->p_log, OSM_LOG_DEBUG,
 		"osm_pr_rcv_process: " "Unicast destination requested\n");
 
-	sa_status = __osm_pr_rcv_get_end_points(p_rcv, p_madw,
+	sa_status = __osm_pr_rcv_get_end_points(sa, p_madw,
 						&p_src_port, &p_dest_port,
 						&dgid);
 
@@ -2035,14 +1993,14 @@ void osm_pr_rcv_process(IN void *context, IN void *data)
 		 */
 		if (p_src_port) {
 			if (p_dest_port)
-				__osm_pr_rcv_process_pair(p_rcv, p_madw,
+				__osm_pr_rcv_process_pair(sa, p_madw,
 							  requester_port,
 							  p_src_port,
 							  p_dest_port, &dgid,
 							  p_sa_mad->comp_mask,
 							  &pr_list);
 			else
-				__osm_pr_rcv_process_half(p_rcv, p_madw,
+				__osm_pr_rcv_process_half(sa, p_madw,
 							  requester_port,
 							  p_src_port, NULL,
 							  &dgid,
@@ -2050,7 +2008,7 @@ void osm_pr_rcv_process(IN void *context, IN void *data)
 							  &pr_list);
 		} else {
 			if (p_dest_port)
-				__osm_pr_rcv_process_half(p_rcv, p_madw,
+				__osm_pr_rcv_process_half(sa, p_madw,
 							  requester_port, NULL,
 							  p_dest_port, &dgid,
 							  p_sa_mad->comp_mask,
@@ -2059,7 +2017,7 @@ void osm_pr_rcv_process(IN void *context, IN void *data)
 				/*
 				   Katie, bar the door!
 				 */
-				__osm_pr_rcv_process_world(p_rcv, p_madw,
+				__osm_pr_rcv_process_world(sa, p_madw,
 							   requester_port,
 							   &dgid,
 							   p_sa_mad->comp_mask,
@@ -2069,7 +2027,7 @@ void osm_pr_rcv_process(IN void *context, IN void *data)
 	goto Unlock;
 
       McastDest:
-	osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+	osm_log(sa->p_log, OSM_LOG_DEBUG,
 		"osm_pr_rcv_process: " "Multicast destination requested\n");
 	{
 		osm_mgrp_t *p_mgrp = NULL;
@@ -2080,15 +2038,15 @@ void osm_pr_rcv_process(IN void *context, IN void *data)
 		uint8_t hop_limit;
 
 		/* First, get the MC info */
-		__osm_pr_get_mgrp(p_rcv, p_madw, &p_mgrp);
+		__osm_pr_get_mgrp(sa, p_madw, &p_mgrp);
 
 		if (!p_mgrp)
 			goto Unlock;
 
 		/* Make sure the rest of the PathRecord matches the MC group attributes */
-		status = __osm_pr_match_mgrp_attributes(p_rcv, p_madw, p_mgrp);
+		status = __osm_pr_match_mgrp_attributes(sa, p_madw, p_mgrp);
 		if (status != IB_SUCCESS) {
-			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+			osm_log(sa->p_log, OSM_LOG_ERROR,
 				"osm_pr_rcv_process: ERR 1F19: "
 				"MC group attributes don't match PathRecord request\n");
 			goto Unlock;
@@ -2096,7 +2054,7 @@ void osm_pr_rcv_process(IN void *context, IN void *data)
 
 		p_pr_item = malloc(sizeof(*p_pr_item));
 		if (p_pr_item == NULL) {
-			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+			osm_log(sa->p_log, OSM_LOG_ERROR,
 				"osm_pr_rcv_process: ERR 1F18: "
 				"Unable to allocate path record for MC group\n");
 			goto Unlock;
@@ -2142,11 +2100,11 @@ void osm_pr_rcv_process(IN void *context, IN void *data)
 	}
 
       Unlock:
-	cl_plock_release(p_rcv->p_lock);
+	cl_plock_release(sa->p_lock);
 
 	/* Now, (finally) respond to the PathRecord request */
-	__osm_pr_rcv_respond(p_rcv, p_madw, &pr_list);
+	__osm_pr_rcv_respond(sa, p_madw, &pr_list);
 
       Exit:
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sa->p_log);
 }

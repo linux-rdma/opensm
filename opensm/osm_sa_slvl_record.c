@@ -55,10 +55,9 @@
 #include <complib/cl_passivelock.h>
 #include <complib/cl_debug.h>
 #include <complib/cl_qlist.h>
-#include <opensm/osm_sa_slvl_record.h>
+#include <vendor/osm_vendor_api.h>
 #include <opensm/osm_port.h>
 #include <opensm/osm_node.h>
-#include <vendor/osm_vendor_api.h>
 #include <opensm/osm_helper.h>
 #include <opensm/osm_pkey.h>
 #include <opensm/osm_sa.h>
@@ -73,52 +72,14 @@ typedef struct _osm_slvl_search_ctxt {
 	ib_net64_t comp_mask;
 	uint8_t in_port_num;
 	cl_qlist_t *p_list;
-	osm_slvl_rec_rcv_t *p_rcv;
+	osm_sa_t *sa;
 	const osm_physp_t *p_req_physp;
 } osm_slvl_search_ctxt_t;
 
 /**********************************************************************
  **********************************************************************/
-void osm_slvl_rec_rcv_construct(IN osm_slvl_rec_rcv_t * const p_rcv)
-{
-	memset(p_rcv, 0, sizeof(*p_rcv));
-}
-
-/**********************************************************************
- **********************************************************************/
-void osm_slvl_rec_rcv_destroy(IN osm_slvl_rec_rcv_t * const p_rcv)
-{
-	OSM_LOG_ENTER(p_rcv->p_log, osm_slvl_rec_rcv_destroy);
-	OSM_LOG_EXIT(p_rcv->p_log);
-}
-
-/**********************************************************************
- **********************************************************************/
-ib_api_status_t
-osm_slvl_rec_rcv_init(IN osm_slvl_rec_rcv_t * const p_rcv,
-		      IN osm_sa_resp_t * const p_resp,
-		      IN osm_mad_pool_t * const p_mad_pool,
-		      IN osm_subn_t * const p_subn,
-		      IN osm_log_t * const p_log, IN cl_plock_t * const p_lock)
-{
-	OSM_LOG_ENTER(p_log, osm_slvl_rec_rcv_init);
-
-	osm_slvl_rec_rcv_construct(p_rcv);
-
-	p_rcv->p_log = p_log;
-	p_rcv->p_subn = p_subn;
-	p_rcv->p_lock = p_lock;
-	p_rcv->p_resp = p_resp;
-	p_rcv->p_mad_pool = p_mad_pool;
-
-	OSM_LOG_EXIT(p_log);
-	return IB_SUCCESS;
-}
-
-/**********************************************************************
- **********************************************************************/
 static void
-__osm_sa_slvl_create(IN osm_slvl_rec_rcv_t * const p_rcv,
+__osm_sa_slvl_create(IN osm_sa_t * sa,
 		     IN const osm_physp_t * const p_physp,
 		     IN osm_slvl_search_ctxt_t * const p_ctxt,
 		     IN uint8_t in_port_idx)
@@ -127,11 +88,11 @@ __osm_sa_slvl_create(IN osm_slvl_rec_rcv_t * const p_rcv,
 	uint16_t lid;
 	ib_api_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(p_rcv->p_log, __osm_sa_slvl_create);
+	OSM_LOG_ENTER(sa->p_log, __osm_sa_slvl_create);
 
 	p_rec_item = malloc(sizeof(*p_rec_item));
 	if (p_rec_item == NULL) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sa->p_log, OSM_LOG_ERROR,
 			"__osm_sa_slvl_create: ERR 2602: "
 			"rec_item alloc failed\n");
 		status = IB_INSUFFICIENT_RESOURCES;
@@ -143,8 +104,8 @@ __osm_sa_slvl_create(IN osm_slvl_rec_rcv_t * const p_rcv,
 	else
 		lid = osm_node_get_base_lid(p_physp->p_node, 0);
 
-	if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG))
-		osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
+		osm_log(sa->p_log, OSM_LOG_DEBUG,
 			"__osm_sa_slvl_create: "
 			"New SLtoVL Map for: OUT port 0x%016" PRIx64
 			", lid 0x%X, port 0x%X to In Port:%u\n",
@@ -163,13 +124,13 @@ __osm_sa_slvl_create(IN osm_slvl_rec_rcv_t * const p_rcv,
 	cl_qlist_insert_tail(p_ctxt->p_list, &p_rec_item->list_item);
 
       Exit:
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sa->p_log);
 }
 
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_sa_slvl_by_comp_mask(IN osm_slvl_rec_rcv_t * const p_rcv,
+__osm_sa_slvl_by_comp_mask(IN osm_sa_t * sa,
 			   IN const osm_port_t * const p_port,
 			   osm_slvl_search_ctxt_t * const p_ctxt)
 {
@@ -182,7 +143,7 @@ __osm_sa_slvl_by_comp_mask(IN osm_slvl_rec_rcv_t * const p_rcv,
 	uint8_t out_port_start, out_port_end;
 	const osm_physp_t *p_req_physp;
 
-	OSM_LOG_ENTER(p_rcv->p_log, __osm_sa_slvl_by_comp_mask);
+	OSM_LOG_ENTER(sa->p_log, __osm_sa_slvl_by_comp_mask);
 
 	p_rcvd_rec = p_ctxt->p_rcvd_rec;
 	comp_mask = p_ctxt->comp_mask;
@@ -194,15 +155,15 @@ __osm_sa_slvl_by_comp_mask(IN osm_slvl_rec_rcv_t * const p_rcv,
 	p_req_physp = p_ctxt->p_req_physp;
 
 	if (p_port->p_node->node_info.node_type != IB_NODE_TYPE_SWITCH) {
-		osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+		osm_log(sa->p_log, OSM_LOG_DEBUG,
 			"__osm_sa_slvl_by_comp_mask:  "
 			"Using Physical Default Port Number: 0x%X (for End Node)\n",
 			p_port->p_physp->port_num);
 		p_out_physp = p_port->p_physp;
 		/* check that the p_out_physp and the p_req_physp share a pkey */
 		if (osm_physp_share_pkey
-		    (p_rcv->p_log, p_req_physp, p_out_physp))
-			__osm_sa_slvl_create(p_rcv, p_out_physp, p_ctxt, 0);
+		    (sa->p_log, p_req_physp, p_out_physp))
+			__osm_sa_slvl_create(sa, p_out_physp, p_ctxt, 0);
 	} else {
 		if (comp_mask & IB_SLVL_COMPMASK_OUT_PORT)
 			out_port_start = out_port_end =
@@ -234,15 +195,15 @@ __osm_sa_slvl_by_comp_mask(IN osm_slvl_rec_rcv_t * const p_rcv,
 				/* if the requester and the p_out_physp don't share a pkey -
 				   continue */
 				if (!osm_physp_share_pkey
-				    (p_rcv->p_log, p_req_physp, p_out_physp))
+				    (sa->p_log, p_req_physp, p_out_physp))
 					continue;
 
-				__osm_sa_slvl_create(p_rcv, p_out_physp, p_ctxt,
+				__osm_sa_slvl_create(sa, p_out_physp, p_ctxt,
 						     in_port_num);
 			}
 		}
 	}
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sa->p_log);
 }
 
 /**********************************************************************
@@ -255,14 +216,14 @@ __osm_sa_slvl_by_comp_mask_cb(IN cl_map_item_t * const p_map_item,
 	osm_slvl_search_ctxt_t *const p_ctxt =
 	    (osm_slvl_search_ctxt_t *) context;
 
-	__osm_sa_slvl_by_comp_mask(p_ctxt->p_rcv, p_port, p_ctxt);
+	__osm_sa_slvl_by_comp_mask(p_ctxt->sa, p_port, p_ctxt);
 }
 
 /**********************************************************************
  **********************************************************************/
 void osm_slvl_rec_rcv_process(IN void *ctx, IN void *data)
 {
-	osm_slvl_rec_rcv_t *p_rcv = ctx;
+	osm_sa_t *sa = ctx;
 	osm_madw_t *p_madw = data;
 	const ib_sa_mad_t *p_rcvd_mad;
 	const ib_slvl_table_record_t *p_rcvd_rec;
@@ -284,9 +245,9 @@ void osm_slvl_rec_rcv_process(IN void *ctx, IN void *data)
 	ib_net64_t comp_mask;
 	osm_physp_t *p_req_physp;
 
-	CL_ASSERT(p_rcv);
+	CL_ASSERT(sa);
 
-	OSM_LOG_ENTER(p_rcv->p_log, osm_slvl_rec_rcv_process);
+	OSM_LOG_ENTER(sa->p_log, osm_slvl_rec_rcv_process);
 
 	CL_ASSERT(p_madw);
 
@@ -300,22 +261,22 @@ void osm_slvl_rec_rcv_process(IN void *ctx, IN void *data)
 	/* we only support SubnAdmGet and SubnAdmGetTable methods */
 	if ((p_rcvd_mad->method != IB_MAD_METHOD_GET) &&
 	    (p_rcvd_mad->method != IB_MAD_METHOD_GETTABLE)) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sa->p_log, OSM_LOG_ERROR,
 			"osm_slvl_rec_rcv_process: ERR 2604: "
 			"Unsupported Method (%s)\n",
 			ib_get_sa_method_str(p_rcvd_mad->method));
-		osm_sa_send_error(p_rcv->p_resp, p_madw,
+		osm_sa_send_error(sa, p_madw,
 				  IB_MAD_STATUS_UNSUP_METHOD_ATTR);
 		goto Exit;
 	}
 
 	/* update the requester physical port. */
-	p_req_physp = osm_get_physp_by_mad_addr(p_rcv->p_log,
-						p_rcv->p_subn,
+	p_req_physp = osm_get_physp_by_mad_addr(sa->p_log,
+						sa->p_subn,
 						osm_madw_get_mad_addr_ptr
 						(p_madw));
 	if (p_req_physp == NULL) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sa->p_log, OSM_LOG_ERROR,
 			"osm_slvl_rec_rcv_process: ERR 2603: "
 			"Cannot find requester physical port\n");
 		goto Exit;
@@ -328,13 +289,13 @@ void osm_slvl_rec_rcv_process(IN void *ctx, IN void *data)
 	context.p_rcvd_rec = p_rcvd_rec;
 	context.p_list = &rec_list;
 	context.comp_mask = p_rcvd_mad->comp_mask;
-	context.p_rcv = p_rcv;
+	context.sa = sa;
 	context.in_port_num = p_rcvd_rec->in_port_num;
 	context.p_req_physp = p_req_physp;
 
-	cl_plock_acquire(p_rcv->p_lock);
+	cl_plock_acquire(sa->p_lock);
 
-	osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+	osm_log(sa->p_log, OSM_LOG_DEBUG,
 		"osm_slvl_rec_rcv_process: "
 		"Got Query Lid:0x%04X(%02X), In-Port:0x%02X(%02X), Out-Port:0x%02X(%02X)\n",
 		cl_ntoh16(p_rcvd_rec->lid),
@@ -350,16 +311,16 @@ void osm_slvl_rec_rcv_process(IN void *ctx, IN void *data)
 	 */
 	if (comp_mask & IB_SLVL_COMPMASK_LID) {
 
-		p_tbl = &p_rcv->p_subn->port_lid_tbl;
+		p_tbl = &sa->p_subn->port_lid_tbl;
 
 		CL_ASSERT(cl_ptr_vector_get_size(p_tbl) < 0x10000);
 
 		status =
-		    osm_get_port_by_base_lid(p_rcv->p_subn, p_rcvd_rec->lid,
+		    osm_get_port_by_base_lid(sa->p_subn, p_rcvd_rec->lid,
 					     &p_port);
 		if ((status != IB_SUCCESS) || (p_port == NULL)) {
 			status = IB_NOT_FOUND;
-			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+			osm_log(sa->p_log, OSM_LOG_ERROR,
 				"osm_slvl_rec_rcv_process: ERR 2608: "
 				"No port found with LID 0x%x\n",
 				cl_ntoh16(p_rcvd_rec->lid));
@@ -370,14 +331,14 @@ void osm_slvl_rec_rcv_process(IN void *ctx, IN void *data)
 		/* if we have a unique port - no need for a port search */
 		if (p_port)
 			/*  this does the loop on all the port phys ports */
-			__osm_sa_slvl_by_comp_mask(p_rcv, p_port, &context);
+			__osm_sa_slvl_by_comp_mask(sa, p_port, &context);
 		else
-			cl_qmap_apply_func(&p_rcv->p_subn->port_guid_tbl,
+			cl_qmap_apply_func(&sa->p_subn->port_guid_tbl,
 					   __osm_sa_slvl_by_comp_mask_cb,
 					   &context);
 	}
 
-	cl_plock_release(p_rcv->p_lock);
+	cl_plock_release(sa->p_lock);
 
 	num_rec = cl_qlist_count(&rec_list);
 
@@ -387,16 +348,16 @@ void osm_slvl_rec_rcv_process(IN void *ctx, IN void *data)
 	 */
 	if (p_rcvd_mad->method == IB_MAD_METHOD_GET) {
 		if (num_rec == 0) {
-			osm_sa_send_error(p_rcv->p_resp, p_madw,
+			osm_sa_send_error(sa, p_madw,
 					  IB_SA_MAD_STATUS_NO_RECORDS);
 			goto Exit;
 		}
 		if (num_rec > 1) {
-			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+			osm_log(sa->p_log, OSM_LOG_ERROR,
 				"osm_slvl_rec_rcv_process: ERR 2607: "
 				"Got more than one record for SubnAdmGet (%u)\n",
 				num_rec);
-			osm_sa_send_error(p_rcv->p_resp, p_madw,
+			osm_sa_send_error(sa, p_madw,
 					  IB_SA_MAD_STATUS_TOO_MANY_RECORDS);
 
 			/* need to set the mem free ... */
@@ -419,7 +380,7 @@ void osm_slvl_rec_rcv_process(IN void *ctx, IN void *data)
 	    (MAD_BLOCK_SIZE -
 	     IB_SA_MAD_HDR_SIZE) / sizeof(ib_slvl_table_record_t);
 	if (trim_num_rec < num_rec) {
-		osm_log(p_rcv->p_log, OSM_LOG_VERBOSE,
+		osm_log(sa->p_log, OSM_LOG_VERBOSE,
 			"osm_slvl_rec_rcv_process: "
 			"Number of records:%u trimmed to:%u to fit in one MAD\n",
 			num_rec, trim_num_rec);
@@ -427,11 +388,11 @@ void osm_slvl_rec_rcv_process(IN void *ctx, IN void *data)
 	}
 #endif
 
-	osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+	osm_log(sa->p_log, OSM_LOG_DEBUG,
 		"osm_slvl_rec_rcv_process: " "Returning %u records\n", num_rec);
 
 	if ((p_rcvd_mad->method == IB_MAD_METHOD_GET) && (num_rec == 0)) {
-		osm_sa_send_error(p_rcv->p_resp, p_madw,
+		osm_sa_send_error(sa, p_madw,
 				  IB_SA_MAD_STATUS_NO_RECORDS);
 		goto Exit;
 	}
@@ -439,14 +400,14 @@ void osm_slvl_rec_rcv_process(IN void *ctx, IN void *data)
 	/*
 	 * Get a MAD to reply. Address of Mad is in the received mad_wrapper
 	 */
-	p_resp_madw = osm_mad_pool_get(p_rcv->p_mad_pool,
+	p_resp_madw = osm_mad_pool_get(sa->p_mad_pool,
 				       p_madw->h_bind,
 				       num_rec *
 				       sizeof(ib_slvl_table_record_t) +
 				       IB_SA_MAD_HDR_SIZE, &p_madw->mad_addr);
 
 	if (!p_resp_madw) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sa->p_log, OSM_LOG_ERROR,
 			"osm_slvl_rec_rcv_process: ERR 2605: "
 			"osm_mad_pool_get failed\n");
 
@@ -456,7 +417,7 @@ void osm_slvl_rec_rcv_process(IN void *ctx, IN void *data)
 			free(p_rec_item);
 		}
 
-		osm_sa_send_error(p_rcv->p_resp, p_madw,
+		osm_sa_send_error(sa, p_madw,
 				  IB_SA_MAD_STATUS_NO_RESOURCES);
 		goto Exit;
 	}
@@ -509,9 +470,9 @@ void osm_slvl_rec_rcv_process(IN void *ctx, IN void *data)
 	CL_ASSERT(cl_is_qlist_empty(&rec_list));
 
 	status = osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE,
-				    p_rcv->p_subn);
+				    sa->p_subn);
 	if (status != IB_SUCCESS) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sa->p_log, OSM_LOG_ERROR,
 			"osm_slvl_rec_rcv_process: ERR 2606: "
 			"osm_vendor_send status = %s\n",
 			ib_get_err_str(status));
@@ -519,5 +480,5 @@ void osm_slvl_rec_rcv_process(IN void *ctx, IN void *data)
 	}
 
       Exit:
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sa->p_log);
 }

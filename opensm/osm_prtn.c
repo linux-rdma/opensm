@@ -224,8 +224,7 @@ ib_api_status_t osm_prtn_add_mcgroup(osm_log_t * p_log,
 	/* don't update rate, mtu */
 	comp_mask = IB_MCR_COMPMASK_MTU | IB_MCR_COMPMASK_MTU_SEL |
 	    IB_MCR_COMPMASK_RATE | IB_MCR_COMPMASK_RATE_SEL;
-	status = osm_mcmr_rcv_find_or_create_new_mgrp(&p_sa->mcmr_rcv,
-						      comp_mask, &mc_rec,
+	status = osm_mcmr_rcv_find_or_create_new_mgrp(p_sa, comp_mask, &mc_rec,
 						      &p_mgrp);
 	if (!p_mgrp || status != IB_SUCCESS)
 		osm_log(p_log, OSM_LOG_ERROR,
@@ -243,9 +242,8 @@ ib_api_status_t osm_prtn_add_mcgroup(osm_log_t * p_log,
 	mc_rec.scope_state = ib_member_set_scope_state(scope, IB_MC_REC_STATE_FULL_MEMBER);
 	ib_mgid_set_scope(&mc_rec.mgid, scope);
 
-	status =
-	    osm_mcmr_rcv_find_or_create_new_mgrp(&p_sa->mcmr_rcv, comp_mask,
-						 &mc_rec, &p_mgrp);
+	status = osm_mcmr_rcv_find_or_create_new_mgrp(p_sa, comp_mask, &mc_rec,
+						      &p_mgrp);
 	if (p_mgrp)
 		p_mgrp->well_known = TRUE;
 

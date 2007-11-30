@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -52,51 +52,15 @@
 #include <string.h>
 #include <iba/ib_types.h>
 #include <complib/cl_debug.h>
-#include <opensm/osm_sa_response.h>
-#include <opensm/osm_helper.h>
 #include <vendor/osm_vendor_api.h>
+#include <opensm/osm_helper.h>
 #include <opensm/osm_opensm.h>
 #include <opensm/osm_sa.h>
 
 /**********************************************************************
  **********************************************************************/
-void osm_sa_resp_construct(IN osm_sa_resp_t * const p_resp)
-{
-	memset(p_resp, 0, sizeof(*p_resp));
-}
-
-/**********************************************************************
- **********************************************************************/
-void osm_sa_resp_destroy(IN osm_sa_resp_t * const p_resp)
-{
-	CL_ASSERT(p_resp);
-}
-
-/**********************************************************************
- **********************************************************************/
-ib_api_status_t
-osm_sa_resp_init(IN osm_sa_resp_t * const p_resp,
-		 IN osm_mad_pool_t * const p_pool,
-		 IN osm_subn_t * const p_subn, IN osm_log_t * const p_log)
-{
-	ib_api_status_t status = IB_SUCCESS;
-
-	OSM_LOG_ENTER(p_log, osm_sa_resp_init);
-
-	osm_sa_resp_construct(p_resp);
-
-	p_resp->p_subn = p_subn;
-	p_resp->p_log = p_log;
-	p_resp->p_pool = p_pool;
-
-	OSM_LOG_EXIT(p_log);
-	return (status);
-}
-
-/**********************************************************************
- **********************************************************************/
 void
-osm_sa_send_error(IN osm_sa_resp_t * const p_resp,
+osm_sa_send_error(IN osm_sa_t * sa,
 		  IN const osm_madw_t * const p_madw,
 		  IN const ib_net16_t sa_status)
 {
@@ -105,22 +69,22 @@ osm_sa_send_error(IN osm_sa_resp_t * const p_resp,
 	ib_sa_mad_t *p_sa_mad;
 	ib_api_status_t status;
 
-	OSM_LOG_ENTER(p_resp->p_log, osm_sa_send_error);
+	OSM_LOG_ENTER(sa->p_log, osm_sa_send_error);
 
 	/* avoid races - if we are exiting - exit */
 	if (osm_exit_flag) {
-		osm_log(p_resp->p_log, OSM_LOG_DEBUG,
+		osm_log(sa->p_log, OSM_LOG_DEBUG,
 			"osm_sa_send_error: "
 			"Ignoring requested send after exit\n");
 		goto Exit;
 	}
 
-	p_resp_madw = osm_mad_pool_get(p_resp->p_pool,
+	p_resp_madw = osm_mad_pool_get(sa->p_mad_pool,
 				       p_madw->h_bind, MAD_BLOCK_SIZE,
 				       &p_madw->mad_addr);
 
 	if (p_resp_madw == NULL) {
-		osm_log(p_resp->p_log, OSM_LOG_ERROR,
+		osm_log(sa->p_log, OSM_LOG_ERROR,
 			"osm_sa_send_error: ERR 2301: "
 			"Unable to acquire response MAD\n");
 		goto Exit;
@@ -150,20 +114,20 @@ osm_sa_send_error(IN osm_sa_resp_t * const p_resp,
 	if (p_resp_sa_mad->attr_id == IB_MAD_ATTR_MULTIPATH_RECORD)
 		p_resp_sa_mad->attr_id = IB_MAD_ATTR_PATH_RECORD;
 
-	if (osm_log_is_active(p_resp->p_log, OSM_LOG_FRAMES))
-		osm_dump_sa_mad(p_resp->p_log, p_resp_sa_mad, OSM_LOG_FRAMES);
+	if (osm_log_is_active(sa->p_log, OSM_LOG_FRAMES))
+		osm_dump_sa_mad(sa->p_log, p_resp_sa_mad, OSM_LOG_FRAMES);
 
 	status = osm_sa_vendor_send(osm_madw_get_bind_handle(p_resp_madw),
-				    p_resp_madw, FALSE, p_resp->p_subn);
+				    p_resp_madw, FALSE, sa->p_subn);
 
 	if (status != IB_SUCCESS) {
-		osm_log(p_resp->p_log, OSM_LOG_ERROR,
+		osm_log(sa->p_log, OSM_LOG_ERROR,
 			"osm_sa_send_error: ERR 2302: "
 			"Error sending MAD (%s)\n", ib_get_err_str(status));
-		/*  osm_mad_pool_put( p_resp->p_pool, p_resp_madw ); */
+		/*  osm_mad_pool_put( sa->p_mad_pool, p_resp_madw ); */
 		goto Exit;
 	}
 
       Exit:
-	OSM_LOG_EXIT(p_resp->p_log);
+	OSM_LOG_EXIT(sa->p_log);
 }

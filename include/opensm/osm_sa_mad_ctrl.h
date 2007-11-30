@@ -55,7 +55,6 @@
 #include <opensm/osm_madw.h>
 #include <opensm/osm_mad_pool.h>
 #include <opensm/osm_log.h>
-#include <opensm/osm_sa_response.h>
 
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
@@ -83,6 +82,8 @@ BEGIN_C_DECLS
 *	Ranjit Pandit, Intel
 *
 *********/
+
+struct _osm_sa;
 /****s* OpenSM: SA MAD Controller/osm_sa_mad_ctrl_t
 * NAME
 *	osm_sa_mad_ctrl_t
@@ -96,6 +97,7 @@ BEGIN_C_DECLS
 * SYNOPSIS
 */
 typedef struct _osm_sa_mad_ctrl {
+	struct _osm_sa *sa;
 	osm_log_t *p_log;
 	osm_mad_pool_t *p_mad_pool;
 	osm_vendor_t *p_vendor;
@@ -104,10 +106,12 @@ typedef struct _osm_sa_mad_ctrl {
 	cl_disp_reg_handle_t h_disp;
 	osm_stats_t *p_stats;
 	osm_subn_t *p_subn;
-	osm_sa_resp_t *p_resp;
 } osm_sa_mad_ctrl_t;
 /*
 * FIELDS
+*	sa
+*		Pointer to the SA object.
+*
 *	p_log
 *		Pointer to the log object.
 *
@@ -128,9 +132,6 @@ typedef struct _osm_sa_mad_ctrl {
 *
 *	p_stats
 *		Pointer to the OpenSM statistics block.
-*
-*  p_resp
-*     Pointer to the SA response manager
 *
 * SEE ALSO
 *	SA MAD Controller object
@@ -209,7 +210,7 @@ void osm_sa_mad_ctrl_destroy(IN osm_sa_mad_ctrl_t * const p_ctrl);
 * SYNOPSIS
 */
 ib_api_status_t osm_sa_mad_ctrl_init(IN osm_sa_mad_ctrl_t * const p_ctrl,
-				     IN osm_sa_resp_t * const p_resp,
+				     IN struct _osm_sa * sa,
 				     IN osm_mad_pool_t * const p_mad_pool,
 				     IN osm_vendor_t * const p_vendor,
 				     IN osm_subn_t * const p_subn,
@@ -221,8 +222,8 @@ ib_api_status_t osm_sa_mad_ctrl_init(IN osm_sa_mad_ctrl_t * const p_ctrl,
 *	p_ctrl
 *		[in] Pointer to an osm_sa_mad_ctrl_t object to initialize.
 *
-*  p_resp
-*     [in] Pointer to the response SA manager object
+*	sa
+*		[in] Pointer to the SA object.
 *
 *	p_mad_pool
 *		[in] Pointer to the MAD pool.

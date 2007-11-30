@@ -52,15 +52,11 @@
 #include <iba/ib_types.h>
 #include <complib/cl_debug.h>
 #include <complib/cl_qlist.h>
-#include <opensm/osm_sa_sw_info_record.h>
-#include <opensm/osm_node.h>
 #include <vendor/osm_vendor_api.h>
+#include <opensm/osm_node.h>
 #include <opensm/osm_helper.h>
 #include <opensm/osm_pkey.h>
 #include <opensm/osm_sa.h>
-
-#define OSM_SIR_RCV_POOL_MIN_SIZE    32
-#define OSM_SIR_RCV_POOL_GROW_SIZE   32
 
 typedef struct _osm_sir_item {
 	cl_list_item_t list_item;
@@ -71,71 +67,33 @@ typedef struct _osm_sir_search_ctxt {
 	const ib_switch_info_record_t *p_rcvd_rec;
 	ib_net64_t comp_mask;
 	cl_qlist_t *p_list;
-	osm_sir_rcv_t *p_rcv;
+	osm_sa_t *sa;
 	const osm_physp_t *p_req_physp;
 } osm_sir_search_ctxt_t;
 
 /**********************************************************************
  **********************************************************************/
-void osm_sir_rcv_construct(IN osm_sir_rcv_t * const p_rcv)
-{
-	memset(p_rcv, 0, sizeof(*p_rcv));
-}
-
-/**********************************************************************
- **********************************************************************/
-void osm_sir_rcv_destroy(IN osm_sir_rcv_t * const p_rcv)
-{
-	OSM_LOG_ENTER(p_rcv->p_log, osm_sir_rcv_destroy);
-	OSM_LOG_EXIT(p_rcv->p_log);
-}
-
-/**********************************************************************
- **********************************************************************/
-ib_api_status_t
-osm_sir_rcv_init(IN osm_sir_rcv_t * const p_rcv,
-		 IN osm_sa_resp_t * const p_resp,
-		 IN osm_mad_pool_t * const p_mad_pool,
-		 IN osm_subn_t * const p_subn,
-		 IN osm_log_t * const p_log, IN cl_plock_t * const p_lock)
-{
-	OSM_LOG_ENTER(p_log, osm_sir_rcv_init);
-
-	osm_sir_rcv_construct(p_rcv);
-
-	p_rcv->p_log = p_log;
-	p_rcv->p_subn = p_subn;
-	p_rcv->p_lock = p_lock;
-	p_rcv->p_resp = p_resp;
-	p_rcv->p_mad_pool = p_mad_pool;
-
-	OSM_LOG_EXIT(p_log);
-	return IB_SUCCESS;
-}
-
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t
-__osm_sir_rcv_new_sir(IN osm_sir_rcv_t * const p_rcv,
+__osm_sir_rcv_new_sir(IN osm_sa_t * sa,
 		      IN const osm_switch_t * const p_sw,
 		      IN cl_qlist_t * const p_list, IN ib_net16_t const lid)
 {
 	osm_sir_item_t *p_rec_item;
 	ib_api_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(p_rcv->p_log, __osm_sir_rcv_new_sir);
+	OSM_LOG_ENTER(sa->p_log, __osm_sir_rcv_new_sir);
 
 	p_rec_item = malloc(sizeof(*p_rec_item));
 	if (p_rec_item == NULL) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sa->p_log, OSM_LOG_ERROR,
 			"__osm_sir_rcv_new_sir: ERR 5308: "
 			"rec_item alloc failed\n");
 		status = IB_INSUFFICIENT_RESOURCES;
 		goto Exit;
 	}
 
-	if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG))
-		osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
+		osm_log(sa->p_log, OSM_LOG_DEBUG,
 			"__osm_sir_rcv_new_sir: "
 			"New SwitchInfoRecord: lid 0x%X\n", cl_ntoh16(lid)
 		    );
@@ -148,35 +106,35 @@ __osm_sir_rcv_new_sir(IN osm_sir_rcv_t * const p_rcv,
 	cl_qlist_insert_tail(p_list, &p_rec_item->list_item);
 
       Exit:
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sa->p_log);
 	return (status);
 }
 
 /**********************************************************************
  **********************************************************************/
-static osm_port_t *__osm_sir_get_port_by_guid(IN osm_sir_rcv_t * const p_rcv,
+static osm_port_t *__osm_sir_get_port_by_guid(IN osm_sa_t * sa,
 					      IN uint64_t port_guid)
 {
 	osm_port_t *p_port;
 
-	CL_PLOCK_ACQUIRE(p_rcv->p_lock);
+	CL_PLOCK_ACQUIRE(sa->p_lock);
 
-	p_port = osm_get_port_by_guid(p_rcv->p_subn, port_guid);
+	p_port = osm_get_port_by_guid(sa->p_subn, port_guid);
 	if (!p_port) {
-		osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+		osm_log(sa->p_log, OSM_LOG_DEBUG,
 			"__osm_sir_get_port_by_guid ERR 5309: "
 			"Invalid port GUID 0x%016" PRIx64 "\n", port_guid);
 		p_port = NULL;
 	}
 
-	CL_PLOCK_RELEASE(p_rcv->p_lock);
+	CL_PLOCK_RELEASE(sa->p_lock);
 	return p_port;
 }
 
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_sir_rcv_create_sir(IN osm_sir_rcv_t * const p_rcv,
+__osm_sir_rcv_create_sir(IN osm_sa_t * sa,
 			 IN const osm_switch_t * const p_sw,
 			 IN cl_qlist_t * const p_list,
 			 IN ib_net16_t const match_lid,
@@ -188,10 +146,10 @@ __osm_sir_rcv_create_sir(IN osm_sir_rcv_t * const p_rcv,
 	ib_net16_t min_lid_ho;
 	ib_net16_t max_lid_ho;
 
-	OSM_LOG_ENTER(p_rcv->p_log, __osm_sir_rcv_create_sir);
+	OSM_LOG_ENTER(sa->p_log, __osm_sir_rcv_create_sir);
 
-	if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG)) {
-		osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG)) {
+		osm_log(sa->p_log, OSM_LOG_DEBUG,
 			"__osm_sir_rcv_create_sir: "
 			"Looking for SwitchInfoRecord with LID: 0x%X\n",
 			cl_ntoh16(match_lid)
@@ -200,10 +158,10 @@ __osm_sir_rcv_create_sir(IN osm_sir_rcv_t * const p_rcv,
 
 	/* In switches, the port guid is the node guid. */
 	p_port =
-	    __osm_sir_get_port_by_guid(p_rcv,
+	    __osm_sir_get_port_by_guid(sa,
 				       p_sw->p_node->node_info.port_guid);
 	if (!p_port) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sa->p_log, OSM_LOG_ERROR,
 			"__osm_sir_rcv_create_sir: ERR 530A: "
 			"Failed to find Port by Node Guid:0x%016" PRIx64
 			"\n", cl_ntoh64(p_sw->p_node->node_info.node_guid)
@@ -215,7 +173,7 @@ __osm_sir_rcv_create_sir(IN osm_sir_rcv_t * const p_rcv,
 	   the same partition. */
 	p_physp = p_port->p_physp;
 	if (!p_physp) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sa->p_log, OSM_LOG_ERROR,
 			"__osm_sir_rcv_create_sir: ERR 530B: "
 			"Failed to find default physical Port by Node Guid:0x%016"
 			PRIx64 "\n",
@@ -223,7 +181,7 @@ __osm_sir_rcv_create_sir(IN osm_sir_rcv_t * const p_rcv,
 		    );
 		goto Exit;
 	}
-	if (!osm_physp_share_pkey(p_rcv->p_log, p_req_physp, p_physp))
+	if (!osm_physp_share_pkey(sa->p_log, p_req_physp, p_physp))
 		goto Exit;
 
 	/* get the port 0 of the switch */
@@ -234,8 +192,8 @@ __osm_sir_rcv_create_sir(IN osm_sir_rcv_t * const p_rcv,
 		/*
 		   We validate that the lid belongs to this switch.
 		 */
-		if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG)) {
-			osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+		if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG)) {
+			osm_log(sa->p_log, OSM_LOG_DEBUG,
 				"__osm_sir_rcv_create_sir: "
 				"Comparing LID: 0x%X <= 0x%X <= 0x%X\n",
 				min_lid_ho, match_lid_ho, max_lid_ho);
@@ -246,11 +204,11 @@ __osm_sir_rcv_create_sir(IN osm_sir_rcv_t * const p_rcv,
 
 	}
 
-	__osm_sir_rcv_new_sir(p_rcv, p_sw, p_list,
+	__osm_sir_rcv_new_sir(sa, p_sw, p_list,
 			      osm_port_get_base_lid(p_port));
 
       Exit:
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sa->p_log);
 }
 
 /**********************************************************************
@@ -264,13 +222,13 @@ __osm_sir_rcv_by_comp_mask(IN cl_map_item_t * const p_map_item,
 	const osm_switch_t *const p_sw = (osm_switch_t *) p_map_item;
 	const ib_switch_info_record_t *const p_rcvd_rec = p_ctxt->p_rcvd_rec;
 	const osm_physp_t *const p_req_physp = p_ctxt->p_req_physp;
-	osm_sir_rcv_t *const p_rcv = p_ctxt->p_rcv;
+	osm_sa_t *sa = p_ctxt->sa;
 	ib_net64_t const comp_mask = p_ctxt->comp_mask;
 	ib_net16_t match_lid = 0;
 
-	OSM_LOG_ENTER(p_ctxt->p_rcv->p_log, __osm_sir_rcv_by_comp_mask);
+	OSM_LOG_ENTER(p_ctxt->sa->p_log, __osm_sir_rcv_by_comp_mask);
 
-	osm_dump_switch_info(p_ctxt->p_rcv->p_log,
+	osm_dump_switch_info(p_ctxt->sa->p_log,
 			     &p_sw->switch_info, OSM_LOG_VERBOSE);
 
 	if (comp_mask & IB_SWIR_COMPMASK_LID) {
@@ -279,20 +237,20 @@ __osm_sir_rcv_by_comp_mask(IN cl_map_item_t * const p_map_item,
 			goto Exit;
 	}
 
-	__osm_sir_rcv_create_sir(p_rcv, p_sw, p_ctxt->p_list,
+	__osm_sir_rcv_create_sir(sa, p_sw, p_ctxt->p_list,
 				 match_lid, p_req_physp);
 
       Exit:
-	OSM_LOG_EXIT(p_ctxt->p_rcv->p_log);
+	OSM_LOG_EXIT(p_ctxt->sa->p_log);
 }
 
 /**********************************************************************
  **********************************************************************/
 void osm_sir_rcv_process(IN void *ctx, IN void *data)
 {
-	osm_sir_rcv_t *p_rcv = ctx;
+	osm_sa_t *sa = ctx;
 	osm_madw_t *p_madw = data;
-	const ib_sa_mad_t *p_rcvd_mad;
+	const ib_sa_mad_t *sad_mad;
 	const ib_switch_info_record_t *p_rcvd_rec;
 	ib_switch_info_record_t *p_resp_rec;
 	cl_qlist_t rec_list;
@@ -308,61 +266,61 @@ void osm_sir_rcv_process(IN void *ctx, IN void *data)
 	ib_api_status_t status;
 	osm_physp_t *p_req_physp;
 
-	CL_ASSERT(p_rcv);
+	CL_ASSERT(sa);
 
-	OSM_LOG_ENTER(p_rcv->p_log, osm_sir_rcv_process);
+	OSM_LOG_ENTER(sa->p_log, osm_sir_rcv_process);
 
 	CL_ASSERT(p_madw);
 
-	p_rcvd_mad = osm_madw_get_sa_mad_ptr(p_madw);
+	sad_mad = osm_madw_get_sa_mad_ptr(p_madw);
 	p_rcvd_rec =
-	    (ib_switch_info_record_t *) ib_sa_mad_get_payload_ptr(p_rcvd_mad);
+	    (ib_switch_info_record_t *) ib_sa_mad_get_payload_ptr(sad_mad);
 
-	CL_ASSERT(p_rcvd_mad->attr_id == IB_MAD_ATTR_SWITCH_INFO_RECORD);
+	CL_ASSERT(sad_mad->attr_id == IB_MAD_ATTR_SWITCH_INFO_RECORD);
 
 	/* we only support SubnAdmGet and SubnAdmGetTable methods */
-	if ((p_rcvd_mad->method != IB_MAD_METHOD_GET) &&
-	    (p_rcvd_mad->method != IB_MAD_METHOD_GETTABLE)) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+	if ((sad_mad->method != IB_MAD_METHOD_GET) &&
+	    (sad_mad->method != IB_MAD_METHOD_GETTABLE)) {
+		osm_log(sa->p_log, OSM_LOG_ERROR,
 			"osm_sir_rcv_process: ERR 5305: "
 			"Unsupported Method (%s)\n",
-			ib_get_sa_method_str(p_rcvd_mad->method));
-		osm_sa_send_error(p_rcv->p_resp, p_madw,
+			ib_get_sa_method_str(sad_mad->method));
+		osm_sa_send_error(sa, p_madw,
 				  IB_MAD_STATUS_UNSUP_METHOD_ATTR);
 		goto Exit;
 	}
 
 	/* update the requester physical port. */
-	p_req_physp = osm_get_physp_by_mad_addr(p_rcv->p_log,
-						p_rcv->p_subn,
+	p_req_physp = osm_get_physp_by_mad_addr(sa->p_log,
+						sa->p_subn,
 						osm_madw_get_mad_addr_ptr
 						(p_madw));
 	if (p_req_physp == NULL) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sa->p_log, OSM_LOG_ERROR,
 			"osm_sir_rcv_process: ERR 5304: "
 			"Cannot find requester physical port\n");
 		goto Exit;
 	}
 
-	if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG))
-		osm_dump_switch_info_record(p_rcv->p_log, p_rcvd_rec,
+	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
+		osm_dump_switch_info_record(sa->p_log, p_rcvd_rec,
 					    OSM_LOG_DEBUG);
 
 	cl_qlist_init(&rec_list);
 
 	context.p_rcvd_rec = p_rcvd_rec;
 	context.p_list = &rec_list;
-	context.comp_mask = p_rcvd_mad->comp_mask;
-	context.p_rcv = p_rcv;
+	context.comp_mask = sad_mad->comp_mask;
+	context.sa = sa;
 	context.p_req_physp = p_req_physp;
 
-	cl_plock_acquire(p_rcv->p_lock);
+	cl_plock_acquire(sa->p_lock);
 
 	/* Go over all switches */
-	cl_qmap_apply_func(&p_rcv->p_subn->sw_guid_tbl,
+	cl_qmap_apply_func(&sa->p_subn->sw_guid_tbl,
 			   __osm_sir_rcv_by_comp_mask, &context);
 
-	cl_plock_release(p_rcv->p_lock);
+	cl_plock_release(sa->p_lock);
 
 	num_rec = cl_qlist_count(&rec_list);
 
@@ -370,12 +328,12 @@ void osm_sir_rcv_process(IN void *ctx, IN void *data)
 	 * C15-0.1.30:
 	 * If we do a SubnAdmGet and got more than one record it is an error !
 	 */
-	if ((p_rcvd_mad->method == IB_MAD_METHOD_GET) && (num_rec > 1)) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+	if ((sad_mad->method == IB_MAD_METHOD_GET) && (num_rec > 1)) {
+		osm_log(sa->p_log, OSM_LOG_ERROR,
 			"osm_sir_rcv_process: ERR 5303: "
 			"Got more than one record for SubnAdmGet (%u)\n",
 			num_rec);
-		osm_sa_send_error(p_rcv->p_resp, p_madw,
+		osm_sa_send_error(sa, p_madw,
 				  IB_SA_MAD_STATUS_TOO_MANY_RECORDS);
 
 		/* need to set the mem free ... */
@@ -396,7 +354,7 @@ void osm_sir_rcv_process(IN void *ctx, IN void *data)
 	    (MAD_BLOCK_SIZE -
 	     IB_SA_MAD_HDR_SIZE) / sizeof(ib_switch_info_record_t);
 	if (trim_num_rec < num_rec) {
-		osm_log(p_rcv->p_log, OSM_LOG_VERBOSE,
+		osm_log(sa->p_log, OSM_LOG_VERBOSE,
 			"osm_sir_rcv_process: "
 			"Number of records:%u trimmed to:%u to fit in one MAD\n",
 			num_rec, trim_num_rec);
@@ -404,11 +362,11 @@ void osm_sir_rcv_process(IN void *ctx, IN void *data)
 	}
 #endif
 
-	osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+	osm_log(sa->p_log, OSM_LOG_DEBUG,
 		"osm_sir_rcv_process: " "Returning %u records\n", num_rec);
 
-	if ((p_rcvd_mad->method == IB_MAD_METHOD_GET) && (num_rec == 0)) {
-		osm_sa_send_error(p_rcv->p_resp, p_madw,
+	if ((sad_mad->method == IB_MAD_METHOD_GET) && (num_rec == 0)) {
+		osm_sa_send_error(sa, p_madw,
 				  IB_SA_MAD_STATUS_NO_RECORDS);
 		goto Exit;
 	}
@@ -416,14 +374,14 @@ void osm_sir_rcv_process(IN void *ctx, IN void *data)
 	/*
 	 * Get a MAD to reply. Address of Mad is in the received mad_wrapper
 	 */
-	p_resp_madw = osm_mad_pool_get(p_rcv->p_mad_pool,
+	p_resp_madw = osm_mad_pool_get(sa->p_mad_pool,
 				       p_madw->h_bind,
 				       num_rec *
 				       sizeof(ib_switch_info_record_t) +
 				       IB_SA_MAD_HDR_SIZE, &p_madw->mad_addr);
 
 	if (!p_resp_madw) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sa->p_log, OSM_LOG_ERROR,
 			"osm_sir_rcv_process: ERR 5306: "
 			"osm_mad_pool_get failed\n");
 
@@ -433,7 +391,7 @@ void osm_sir_rcv_process(IN void *ctx, IN void *data)
 			free(p_rec_item);
 		}
 
-		osm_sa_send_error(p_rcv->p_resp, p_madw,
+		osm_sa_send_error(sa, p_madw,
 				  IB_SA_MAD_STATUS_NO_RESOURCES);
 		goto Exit;
 	}
@@ -446,7 +404,7 @@ void osm_sir_rcv_process(IN void *ctx, IN void *data)
 	   Then copy all records from the list into the response payload.
 	 */
 
-	memcpy(p_resp_sa_mad, p_rcvd_mad, IB_SA_MAD_HDR_SIZE);
+	memcpy(p_resp_sa_mad, sad_mad, IB_SA_MAD_HDR_SIZE);
 	p_resp_sa_mad->method |= IB_MAD_METHOD_RESP_MASK;
 	/* C15-0.1.5 - always return SM_Key = 0 (table 185 p 884) */
 	p_resp_sa_mad->sm_key = 0;
@@ -484,9 +442,9 @@ void osm_sir_rcv_process(IN void *ctx, IN void *data)
 	CL_ASSERT(cl_is_qlist_empty(&rec_list));
 
 	status = osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE,
-				    p_rcv->p_subn);
+				    sa->p_subn);
 	if (status != IB_SUCCESS) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sa->p_log, OSM_LOG_ERROR,
 			"osm_sir_rcv_process: ERR 5307: "
 			"osm_sa_vendor_send status = %s\n",
 			ib_get_err_str(status));
@@ -494,5 +452,5 @@ void osm_sir_rcv_process(IN void *ctx, IN void *data)
 	}
 
       Exit:
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sa->p_log);
 }

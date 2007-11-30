@@ -57,7 +57,7 @@
 #include <opensm/osm_subnet.h>
 #include <opensm/osm_madw.h>
 #include <opensm/osm_log.h>
-#include <opensm/osm_sa_informinfo.h>
+#include <opensm/osm_sa.h>
 
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
@@ -102,7 +102,7 @@ BEGIN_C_DECLS
 typedef struct _osm_infr_t {
 	cl_list_item_t list_item;
 	osm_bind_handle_t h_bind;
-	osm_infr_rcv_t *p_infr_rcv;
+	osm_sa_t *sa;
 	osm_mad_addr_t report_addr;
 	ib_inform_info_record_t inform_record;
 } osm_infr_t;
@@ -114,8 +114,8 @@ typedef struct _osm_infr_t {
 *	h_bind
 *		A handle of lower level mad srvc
 *
-*	p_infr_rcv
-*		The receiver of inform_info's
+*	sa
+*		A pointer to osm_sa object
 *
 *	report_addr
 *		Report address

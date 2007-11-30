@@ -53,10 +53,9 @@
 #include <iba/ib_types.h>
 #include <complib/cl_qmap.h>
 #include <complib/cl_debug.h>
-#include <opensm/osm_sa_link_record.h>
+#include <vendor/osm_vendor_api.h>
 #include <opensm/osm_node.h>
 #include <opensm/osm_switch.h>
-#include <vendor/osm_vendor_api.h>
 #include <opensm/osm_helper.h>
 #include <opensm/osm_pkey.h>
 #include <opensm/osm_sa.h>
@@ -68,46 +67,8 @@ typedef struct _osm_lr_item {
 
 /**********************************************************************
  **********************************************************************/
-void osm_lr_rcv_construct(IN osm_lr_rcv_t * const p_rcv)
-{
-	memset(p_rcv, 0, sizeof(*p_rcv));
-}
-
-/**********************************************************************
- **********************************************************************/
-void osm_lr_rcv_destroy(IN osm_lr_rcv_t * const p_rcv)
-{
-	OSM_LOG_ENTER(p_rcv->p_log, osm_lr_rcv_destroy);
-	OSM_LOG_EXIT(p_rcv->p_log);
-}
-
-/**********************************************************************
- **********************************************************************/
-ib_api_status_t
-osm_lr_rcv_init(IN osm_lr_rcv_t * const p_rcv,
-		IN osm_sa_resp_t * const p_resp,
-		IN osm_mad_pool_t * const p_mad_pool,
-		IN osm_subn_t * const p_subn,
-		IN osm_log_t * const p_log, IN cl_plock_t * const p_lock)
-{
-	OSM_LOG_ENTER(p_log, osm_lr_rcv_init);
-
-	osm_lr_rcv_construct(p_rcv);
-
-	p_rcv->p_log = p_log;
-	p_rcv->p_subn = p_subn;
-	p_rcv->p_lock = p_lock;
-	p_rcv->p_resp = p_resp;
-	p_rcv->p_mad_pool = p_mad_pool;
-
-	OSM_LOG_EXIT(p_rcv->p_log);
-	return IB_SUCCESS;
-}
-
-/**********************************************************************
- **********************************************************************/
 static void
-__osm_lr_rcv_build_physp_link(IN osm_lr_rcv_t * const p_rcv,
+__osm_lr_rcv_build_physp_link(IN osm_sa_t * sa,
 			      IN const ib_net16_t from_lid,
 			      IN const ib_net16_t to_lid,
 			      IN const uint8_t from_port,
@@ -117,7 +78,7 @@ __osm_lr_rcv_build_physp_link(IN osm_lr_rcv_t * const p_rcv,
 
 	p_lr_item = malloc(sizeof(*p_lr_item));
 	if (p_lr_item == NULL) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sa->p_log, OSM_LOG_ERROR,
 			"__osm_lr_rcv_build_physp_link: ERR 1801: "
 			"Unable to acquire link record\n"
 			"\t\t\t\tFrom port 0x%u\n"
@@ -153,7 +114,7 @@ __get_base_lid(IN const osm_physp_t * p_physp, OUT ib_net16_t * p_base_lid)
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_lr_rcv_get_physp_link(IN osm_lr_rcv_t * const p_rcv,
+__osm_lr_rcv_get_physp_link(IN osm_sa_t * sa,
 			    IN const ib_link_record_t * const p_lr,
 			    IN const osm_physp_t * p_src_physp,
 			    IN const osm_physp_t * p_dest_physp,
@@ -167,7 +128,7 @@ __osm_lr_rcv_get_physp_link(IN osm_lr_rcv_t * const p_rcv,
 	ib_net16_t to_base_lid;
 	ib_net16_t lmc_mask;
 
-	OSM_LOG_ENTER(p_rcv->p_log, __osm_lr_rcv_get_physp_link);
+	OSM_LOG_ENTER(sa->p_log, __osm_lr_rcv_get_physp_link);
 
 	/*
 	   If only one end of the link is specified, determine
@@ -215,20 +176,20 @@ __osm_lr_rcv_get_physp_link(IN osm_lr_rcv_t * const p_rcv,
 
 	/* Check that the p_src_physp, p_dest_physp and p_req_physp
 	   all share a pkey (doesn't have to be the same p_key). */
-	if (!osm_physp_share_pkey(p_rcv->p_log, p_src_physp, p_dest_physp)) {
-		osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+	if (!osm_physp_share_pkey(sa->p_log, p_src_physp, p_dest_physp)) {
+		osm_log(sa->p_log, OSM_LOG_DEBUG,
 			"__osm_lr_rcv_get_physp_link: "
 			"Source and Dest PhysPorts do not share PKey\n");
 		goto Exit;
 	}
-	if (!osm_physp_share_pkey(p_rcv->p_log, p_src_physp, p_req_physp)) {
-		osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+	if (!osm_physp_share_pkey(sa->p_log, p_src_physp, p_req_physp)) {
+		osm_log(sa->p_log, OSM_LOG_DEBUG,
 			"__osm_lr_rcv_get_physp_link: "
 			"Source and Requester PhysPorts do not share PKey\n");
 		goto Exit;
 	}
-	if (!osm_physp_share_pkey(p_rcv->p_log, p_req_physp, p_dest_physp)) {
-		osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+	if (!osm_physp_share_pkey(sa->p_log, p_req_physp, p_dest_physp)) {
+		osm_log(sa->p_log, OSM_LOG_DEBUG,
 			"__osm_lr_rcv_get_physp_link: "
 			"Requester and Dest PhysPorts do not share PKey\n");
 		goto Exit;
@@ -248,7 +209,7 @@ __osm_lr_rcv_get_physp_link(IN osm_lr_rcv_t * const p_rcv,
 	__get_base_lid(p_src_physp, &from_base_lid);
 	__get_base_lid(p_dest_physp, &to_base_lid);
 
-	lmc_mask = ~((1 << p_rcv->p_subn->opt.lmc) - 1);
+	lmc_mask = ~((1 << sa->p_subn->opt.lmc) - 1);
 	lmc_mask = cl_hton16(lmc_mask);
 
 	if (comp_mask & IB_LR_COMPMASK_FROM_LID)
@@ -259,8 +220,8 @@ __osm_lr_rcv_get_physp_link(IN osm_lr_rcv_t * const p_rcv,
 		if (to_base_lid != (p_lr->to_lid & lmc_mask))
 			goto Exit;
 
-	if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG))
-		osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
+		osm_log(sa->p_log, OSM_LOG_DEBUG,
 			"__osm_lr_rcv_get_physp_link: "
 			"Acquiring link record\n"
 			"\t\t\t\tsrc port 0x%" PRIx64 " (port 0x%X)"
@@ -271,18 +232,17 @@ __osm_lr_rcv_get_physp_link(IN osm_lr_rcv_t * const p_rcv,
 			dest_port_num);
 
 
-	__osm_lr_rcv_build_physp_link(p_rcv, from_base_lid,
-				      to_base_lid, src_port_num,
-				      dest_port_num, p_list);
+	__osm_lr_rcv_build_physp_link(sa, from_base_lid, to_base_lid,
+				      src_port_num, dest_port_num, p_list);
 
       Exit:
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sa->p_log);
 }
 
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_lr_rcv_get_port_links(IN osm_lr_rcv_t * const p_rcv,
+__osm_lr_rcv_get_port_links(IN osm_sa_t * sa,
 			    IN const ib_link_record_t * const p_lr,
 			    IN const osm_port_t * p_src_port,
 			    IN const osm_port_t * p_dest_port,
@@ -299,7 +259,7 @@ __osm_lr_rcv_get_port_links(IN osm_lr_rcv_t * const p_rcv,
 	uint8_t dest_num_ports;
 	uint8_t dest_port_num;
 
-	OSM_LOG_ENTER(p_rcv->p_log, __osm_lr_rcv_get_port_links);
+	OSM_LOG_ENTER(sa->p_log, __osm_lr_rcv_get_port_links);
 
 	if (p_src_port) {
 		if (p_dest_port) {
@@ -327,7 +287,7 @@ __osm_lr_rcv_get_port_links(IN osm_lr_rcv_t * const p_rcv,
 					if (osm_physp_is_valid(p_src_physp) &&
 					    osm_physp_is_valid(p_dest_physp))
 						__osm_lr_rcv_get_physp_link
-						    (p_rcv, p_lr, p_src_physp,
+						    (sa, p_lr, p_src_physp,
 						     p_dest_physp, comp_mask,
 						     p_list, p_req_physp);
 				}
@@ -348,7 +308,7 @@ __osm_lr_rcv_get_port_links(IN osm_lr_rcv_t * const p_rcv,
 								   port_num);
 					if (osm_physp_is_valid(p_src_physp))
 						__osm_lr_rcv_get_physp_link
-						    (p_rcv, p_lr, p_src_physp,
+						    (sa, p_lr, p_src_physp,
 						     NULL, comp_mask, p_list,
 						     p_req_physp);
 				}
@@ -363,7 +323,7 @@ __osm_lr_rcv_get_port_links(IN osm_lr_rcv_t * const p_rcv,
 								   port_num);
 					if (osm_physp_is_valid(p_src_physp))
 						__osm_lr_rcv_get_physp_link
-						    (p_rcv, p_lr, p_src_physp,
+						    (sa, p_lr, p_src_physp,
 						     NULL, comp_mask, p_list,
 						     p_req_physp);
 				}
@@ -386,7 +346,7 @@ __osm_lr_rcv_get_port_links(IN osm_lr_rcv_t * const p_rcv,
 								   port_num);
 					if (osm_physp_is_valid(p_dest_physp))
 						__osm_lr_rcv_get_physp_link
-						    (p_rcv, p_lr, NULL,
+						    (sa, p_lr, NULL,
 						     p_dest_physp, comp_mask,
 						     p_list, p_req_physp);
 				}
@@ -401,7 +361,7 @@ __osm_lr_rcv_get_port_links(IN osm_lr_rcv_t * const p_rcv,
 								   port_num);
 					if (osm_physp_is_valid(p_dest_physp))
 						__osm_lr_rcv_get_physp_link
-						    (p_rcv, p_lr, NULL,
+						    (sa, p_lr, NULL,
 						     p_dest_physp, comp_mask,
 						     p_list, p_req_physp);
 				}
@@ -410,7 +370,7 @@ __osm_lr_rcv_get_port_links(IN osm_lr_rcv_t * const p_rcv,
 			/*
 			   Process the world (recurse once back into this function).
 			 */
-			p_node_tbl = &p_rcv->p_subn->node_guid_tbl;
+			p_node_tbl = &sa->p_subn->node_guid_tbl;
 			p_node = (osm_node_t *)cl_qmap_head(p_node_tbl);
 
 			while (p_node != (osm_node_t *)cl_qmap_end(p_node_tbl)) {
@@ -422,9 +382,9 @@ __osm_lr_rcv_get_port_links(IN osm_lr_rcv_t * const p_rcv,
 				p_src_physp = osm_node_get_any_physp_ptr(p_node);
 				if (osm_physp_is_valid(p_src_physp)) {
 					p_src_port = (osm_port_t *)
-					    cl_qmap_get(&p_rcv->p_subn->port_guid_tbl,
+					    cl_qmap_get(&sa->p_subn->port_guid_tbl,
 					        osm_physp_get_port_guid(p_src_physp));
-					__osm_lr_rcv_get_port_links(p_rcv, p_lr,
+					__osm_lr_rcv_get_port_links(sa, p_lr,
 								    p_src_port, NULL,
 								    comp_mask, p_list,
 								    p_req_physp);
@@ -435,14 +395,14 @@ __osm_lr_rcv_get_port_links(IN osm_lr_rcv_t * const p_rcv,
 		}
 	}
 
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sa->p_log);
 }
 
 /**********************************************************************
  Returns the SA status to return to the client.
  **********************************************************************/
 static ib_net16_t
-__osm_lr_rcv_get_end_points(IN osm_lr_rcv_t * const p_rcv,
+__osm_lr_rcv_get_end_points(IN osm_sa_t * sa,
 			    IN const osm_madw_t * const p_madw,
 			    OUT const osm_port_t ** const pp_src_port,
 			    OUT const osm_port_t ** const pp_dest_port)
@@ -453,7 +413,7 @@ __osm_lr_rcv_get_end_points(IN osm_lr_rcv_t * const p_rcv,
 	ib_api_status_t status;
 	ib_net16_t sa_status = IB_SA_MAD_STATUS_SUCCESS;
 
-	OSM_LOG_ENTER(p_rcv->p_log, __osm_lr_rcv_get_end_points);
+	OSM_LOG_ENTER(sa->p_log, __osm_lr_rcv_get_end_points);
 
 	/*
 	   Determine what fields are valid and then get a pointer
@@ -467,7 +427,7 @@ __osm_lr_rcv_get_end_points(IN osm_lr_rcv_t * const p_rcv,
 	*pp_dest_port = NULL;
 
 	if (p_sa_mad->comp_mask & IB_LR_COMPMASK_FROM_LID) {
-		status = osm_get_port_by_base_lid(p_rcv->p_subn,
+		status = osm_get_port_by_base_lid(sa->p_subn,
 						  p_lr->from_lid, pp_src_port);
 
 		if ((status != IB_SUCCESS) || (*pp_src_port == NULL)) {
@@ -476,7 +436,7 @@ __osm_lr_rcv_get_end_points(IN osm_lr_rcv_t * const p_rcv,
 			   don't enter it as an error in our own log.
 			   Return an error response to the client.
 			 */
-			osm_log(p_rcv->p_log, OSM_LOG_VERBOSE,
+			osm_log(sa->p_log, OSM_LOG_VERBOSE,
 				"__osm_lr_rcv_get_end_points: "
 				"No source port with LID = 0x%X\n",
 				cl_ntoh16(p_lr->from_lid));
@@ -487,7 +447,7 @@ __osm_lr_rcv_get_end_points(IN osm_lr_rcv_t * const p_rcv,
 	}
 
 	if (p_sa_mad->comp_mask & IB_LR_COMPMASK_TO_LID) {
-		status = osm_get_port_by_base_lid(p_rcv->p_subn,
+		status = osm_get_port_by_base_lid(sa->p_subn,
 						  p_lr->to_lid, pp_dest_port);
 
 		if ((status != IB_SUCCESS) || (*pp_dest_port == NULL)) {
@@ -496,7 +456,7 @@ __osm_lr_rcv_get_end_points(IN osm_lr_rcv_t * const p_rcv,
 			   don't enter it as an error in our own log.
 			   Return an error response to the client.
 			 */
-			osm_log(p_rcv->p_log, OSM_LOG_VERBOSE,
+			osm_log(sa->p_log, OSM_LOG_VERBOSE,
 				"__osm_lr_rcv_get_end_points: "
 				"No dest port with LID = 0x%X\n",
 				cl_ntoh16(p_lr->to_lid));
@@ -507,14 +467,14 @@ __osm_lr_rcv_get_end_points(IN osm_lr_rcv_t * const p_rcv,
 	}
 
       Exit:
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sa->p_log);
 	return (sa_status);
 }
 
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_lr_rcv_respond(IN osm_lr_rcv_t * const p_rcv,
+__osm_lr_rcv_respond(IN osm_sa_t * sa,
 		     IN const osm_madw_t * const p_madw,
 		     IN cl_qlist_t * const p_list)
 {
@@ -530,7 +490,7 @@ __osm_lr_rcv_respond(IN osm_lr_rcv_t * const p_rcv,
 	osm_lr_item_t *p_lr_item;
 	const ib_sa_mad_t *p_rcvd_mad = osm_madw_get_sa_mad_ptr(p_madw);
 
-	OSM_LOG_ENTER(p_rcv->p_log, __osm_lr_rcv_respond);
+	OSM_LOG_ENTER(sa->p_log, __osm_lr_rcv_respond);
 
 	num_rec = cl_qlist_count(p_list);
 	/*
@@ -538,11 +498,11 @@ __osm_lr_rcv_respond(IN osm_lr_rcv_t * const p_rcv,
 	 * If we do a SubnAdmGet and got more than one record it is an error !
 	 */
 	if ((p_rcvd_mad->method == IB_MAD_METHOD_GET) && (num_rec > 1)) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sa->p_log, OSM_LOG_ERROR,
 			"__osm_lr_rcv_respond: ERR 1806: "
 			"Got more than one record for SubnAdmGet (%zu)\n",
 			num_rec);
-		osm_sa_send_error(p_rcv->p_resp, p_madw,
+		osm_sa_send_error(sa, p_madw,
 				  IB_SA_MAD_STATUS_TOO_MANY_RECORDS);
 
 		/* need to set the mem free ... */
@@ -559,7 +519,7 @@ __osm_lr_rcv_respond(IN osm_lr_rcv_t * const p_rcv,
 	trim_num_rec =
 	    (MAD_BLOCK_SIZE - IB_SA_MAD_HDR_SIZE) / sizeof(ib_link_record_t);
 	if (trim_num_rec < num_rec) {
-		osm_log(p_rcv->p_log, OSM_LOG_VERBOSE,
+		osm_log(sa->p_log, OSM_LOG_VERBOSE,
 			"__osm_lr_rcv_respond: "
 			"Number of records:%u trimmed to:%u to fit in one MAD\n",
 			num_rec, trim_num_rec);
@@ -567,8 +527,8 @@ __osm_lr_rcv_respond(IN osm_lr_rcv_t * const p_rcv,
 	}
 #endif
 
-	if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG)) {
-		osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
+	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG)) {
+		osm_log(sa->p_log, OSM_LOG_DEBUG,
 			"__osm_lr_rcv_respond: "
 			"Generating response with %zu records", num_rec);
 	}
@@ -576,12 +536,12 @@ __osm_lr_rcv_respond(IN osm_lr_rcv_t * const p_rcv,
 	/*
 	   Get a MAD to reply. Address of Mad is in the received mad_wrapper
 	 */
-	p_resp_madw = osm_mad_pool_get(p_rcv->p_mad_pool,
+	p_resp_madw = osm_mad_pool_get(sa->p_mad_pool,
 				       p_madw->h_bind,
 				       num_rec * sizeof(ib_link_record_t) +
 				       IB_SA_MAD_HDR_SIZE, &p_madw->mad_addr);
 	if (!p_resp_madw) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sa->p_log, OSM_LOG_ERROR,
 			"__osm_lr_rcv_respond: ERR 1802: "
 			"Unable to allocate MAD\n");
 		/* Release the quick pool items */
@@ -648,24 +608,24 @@ __osm_lr_rcv_respond(IN osm_lr_rcv_t * const p_rcv,
 	}
 
 	status = osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE,
-				    p_rcv->p_subn);
+				    sa->p_subn);
 	if (status != IB_SUCCESS) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sa->p_log, OSM_LOG_ERROR,
 			"__osm_lr_rcv_respond: ERR 1803: "
 			"Unable to send MAD (%s)\n", ib_get_err_str(status));
-		/*       osm_mad_pool_put( p_rcv->p_mad_pool, p_resp_madw ); */
+		/*       osm_mad_pool_put( sa->p_mad_pool, p_resp_madw ); */
 		goto Exit;
 	}
 
       Exit:
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sa->p_log);
 }
 
 /**********************************************************************
  **********************************************************************/
 void osm_lr_rcv_process(IN void *context, IN void *data)
 {
-	osm_lr_rcv_t *p_rcv = context;
+	osm_sa_t *sa = context;
 	osm_madw_t *p_madw = data;
 	const ib_link_record_t *p_lr;
 	const ib_sa_mad_t *p_sa_mad;
@@ -675,7 +635,7 @@ void osm_lr_rcv_process(IN void *context, IN void *data)
 	ib_net16_t sa_status;
 	osm_physp_t *p_req_physp;
 
-	OSM_LOG_ENTER(p_rcv->p_log, osm_lr_rcv_process);
+	OSM_LOG_ENTER(sa->p_log, osm_lr_rcv_process);
 
 	CL_ASSERT(p_madw);
 
@@ -687,29 +647,29 @@ void osm_lr_rcv_process(IN void *context, IN void *data)
 	/* we only support SubnAdmGet and SubnAdmGetTable methods */
 	if ((p_sa_mad->method != IB_MAD_METHOD_GET) &&
 	    (p_sa_mad->method != IB_MAD_METHOD_GETTABLE)) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sa->p_log, OSM_LOG_ERROR,
 			"osm_lr_rcv_process: ERR 1804: "
 			"Unsupported Method (%s)\n",
 			ib_get_sa_method_str(p_sa_mad->method));
-		osm_sa_send_error(p_rcv->p_resp, p_madw,
+		osm_sa_send_error(sa, p_madw,
 				  IB_MAD_STATUS_UNSUP_METHOD_ATTR);
 		goto Exit;
 	}
 
 	/* update the requester physical port. */
-	p_req_physp = osm_get_physp_by_mad_addr(p_rcv->p_log,
-						p_rcv->p_subn,
+	p_req_physp = osm_get_physp_by_mad_addr(sa->p_log,
+						sa->p_subn,
 						osm_madw_get_mad_addr_ptr
 						(p_madw));
 	if (p_req_physp == NULL) {
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
+		osm_log(sa->p_log, OSM_LOG_ERROR,
 			"osm_lr_rcv_process: ERR 1805: "
 			"Cannot find requester physical port\n");
 		goto Exit;
 	}
 
-	if (osm_log_is_active(p_rcv->p_log, OSM_LOG_DEBUG))
-		osm_dump_link_record(p_rcv->p_log, p_lr, OSM_LOG_DEBUG);
+	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
+		osm_dump_link_record(sa->p_log, p_lr, OSM_LOG_DEBUG);
 
 	cl_qlist_init(&lr_list);
 
@@ -717,28 +677,28 @@ void osm_lr_rcv_process(IN void *context, IN void *data)
 	   Most SA functions (including this one) are read-only on the
 	   subnet object, so we grab the lock non-exclusively.
 	 */
-	cl_plock_acquire(p_rcv->p_lock);
+	cl_plock_acquire(sa->p_lock);
 
-	sa_status = __osm_lr_rcv_get_end_points(p_rcv, p_madw,
+	sa_status = __osm_lr_rcv_get_end_points(sa, p_madw,
 						&p_src_port, &p_dest_port);
 
 	if (sa_status == IB_SA_MAD_STATUS_SUCCESS)
-		__osm_lr_rcv_get_port_links(p_rcv, p_lr, p_src_port,
+		__osm_lr_rcv_get_port_links(sa, p_lr, p_src_port,
 					    p_dest_port, p_sa_mad->comp_mask,
 					    &lr_list, p_req_physp);
 
-	cl_plock_release(p_rcv->p_lock);
+	cl_plock_release(sa->p_lock);
 
 	if ((cl_qlist_count(&lr_list) == 0) &&
 	    (p_sa_mad->method == IB_MAD_METHOD_GET)) {
-		osm_sa_send_error(p_rcv->p_resp, p_madw,
+		osm_sa_send_error(sa, p_madw,
 				  IB_SA_MAD_STATUS_NO_RECORDS);
 		goto Exit;
 	}
 
-	__osm_lr_rcv_respond(p_rcv, p_madw, &lr_list);
+	__osm_lr_rcv_respond(sa, p_madw, &lr_list);
 
       Exit:
 
-	OSM_LOG_EXIT(p_rcv->p_log);
+	OSM_LOG_EXIT(sa->p_log);
 }
