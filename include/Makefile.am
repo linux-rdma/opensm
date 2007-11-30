@@ -104,7 +104,6 @@ EXTRA_DIST = \
 	$(srcdir)/complib/cl_qlist.h \
 	$(srcdir)/complib/cl_vector.h \
 	$(srcdir)/complib/cl_byteswap_osd.h \
-	$(srcdir)/complib/cl_qlockpool.h \
 	$(srcdir)/complib/cl_event_wheel.h \
 	$(srcdir)/complib/cl_thread.h \
 	$(srcdir)/complib/cl_packoff.h \

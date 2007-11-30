@@ -98,11 +98,6 @@ OSMCOMP_2.3 {
 		cl_ptr_vector_apply_func;
 		cl_ptr_vector_find_from_start;
 		cl_ptr_vector_find_from_end;
-		cl_qlock_pool_construct;
-		cl_qlock_pool_destroy;
-		cl_qlock_pool_init;
-		cl_qlock_pool_get;
-		cl_qlock_pool_put;
 		cl_spinlock_construct;
 		cl_spinlock_init;
 		cl_spinlock_destroy;

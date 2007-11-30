@@ -58,7 +58,6 @@ libosmcompinclude_HEADERS = $(srcdir)/../include/complib/cl_atomic.h \
 	$(srcdir)/../include/complib/cl_ptr_vector.h \
 	$(srcdir)/../include/complib/cl_qcomppool.h \
 	$(srcdir)/../include/complib/cl_qlist.h \
-	$(srcdir)/../include/complib/cl_qlockpool.h \
 	$(srcdir)/../include/complib/cl_qmap.h \
 	$(srcdir)/../include/complib/cl_qpool.h \
 	$(srcdir)/../include/complib/cl_spinlock.h \
