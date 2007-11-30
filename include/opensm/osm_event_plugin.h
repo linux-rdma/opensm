@@ -160,7 +160,7 @@ typedef struct {
 } __osm_epi_plugin_t;
 
 /** =========================================================================
- * The database structure should be considered opaque
+ * The plugin structure should be considered opaque
  */
 typedef struct {
 	void *handle;
