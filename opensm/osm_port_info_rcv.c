@@ -370,11 +370,11 @@ __osm_pi_rcv_process_ca_or_router_port(IN const osm_pi_rcv_t * const p_rcv,
 #define IBM_VENDOR_ID  (0x5076)
 /**********************************************************************
  **********************************************************************/
-void osm_pkey_get_tables(IN osm_log_t * p_log,
-			 IN osm_req_t * p_req,
-			 IN osm_subn_t * const p_subn,
-			 IN osm_node_t * const p_node,
-			 IN osm_physp_t * const p_physp)
+static void get_pkey_table(IN osm_log_t * p_log,
+			   IN osm_req_t * p_req,
+			   IN osm_subn_t * const p_subn,
+			   IN osm_node_t * const p_node,
+			   IN osm_physp_t * const p_physp)
 {
 
 	osm_madw_context_t context;
@@ -384,7 +384,7 @@ void osm_pkey_get_tables(IN osm_log_t * p_log,
 	uint16_t block_num, max_blocks;
 	uint32_t attr_mod_ho;
 
-	OSM_LOG_ENTER(p_log, osm_pkey_get_tables);
+	OSM_LOG_ENTER(p_log, get_pkey_table);
 
 	path = *osm_physp_get_dr_path_ptr(p_physp);
 
@@ -452,8 +452,8 @@ __osm_pi_rcv_get_pkey_slvl_vla_tables(IN const osm_pi_rcv_t * const p_rcv,
 {
 	OSM_LOG_ENTER(p_rcv->p_log, __osm_pi_rcv_get_pkey_slvl_vla_tables);
 
-	osm_pkey_get_tables(p_rcv->p_log, p_rcv->p_req, p_rcv->p_subn,
-			    p_node, p_physp);
+	get_pkey_table(p_rcv->p_log, p_rcv->p_req, p_rcv->p_subn,
+		       p_node, p_physp);
 
 	OSM_LOG_EXIT(p_rcv->p_log);
 }

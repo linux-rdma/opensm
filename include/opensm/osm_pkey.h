@@ -696,44 +696,5 @@ boolean_t osm_physp_has_pkey(IN osm_log_t * p_log,
 *
 *********/
 
-/****f* OpenSM: osm_pkey_get_tables
-* NAME
-*  osm_pkey_get_tables
-*
-* DESCRIPTION
-*  Sends a request for getting the pkey tables of the given physp.
-*
-* SYNOPSIS
-*/
-void osm_pkey_get_tables(IN osm_log_t * p_log,
-			 IN osm_req_t * p_req,
-			 IN osm_subn_t * const p_subn,
-			 IN struct _osm_node *const p_node,
-			 IN struct _osm_physp *const p_physp);
-
-/*
-* PARAMETERS
-*  p_log
-*     [in] Pointer to osm_log object.
-*
-*  p_req
-*     [in] Pointer to osm_req object.
-*
-*  p_subn
-*     [in] Pointer to osm_subn object.
-*
-*  p_node
-*     [in] Pointer to osm_node object.
-*
-*  p_physp
-*     [in] Pointer to osm_physp_t object.
-*
-* RETURN VALUES
-*  None
-*
-* NOTES
-*
-*********/
-
 END_C_DECLS
 #endif				/* _OSM_PKEY_H_ */
