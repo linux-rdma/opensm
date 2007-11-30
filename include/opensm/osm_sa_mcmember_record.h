@@ -353,43 +353,5 @@ osm_mcmr_rcv_find_or_create_new_mgrp(IN osm_mcmr_recv_t * const p_mcmr,
 										IB_MCR_COMPMASK_FLOW		| \
 										IB_MCR_COMPMASK_SL)
 
-/****d* OpenSM: MC Member Record Receiver/OSM_DEFAULT_MGRP_MTU
-* Name
-*	OSM_DEFAULT_MGRP_MTU
-*
-* DESCRIPTION
-*	Default MTU used for new MGRP creation (2048 bytes)
-*  Note it includes the MTUSelector which is set to "Greater Than"
-*
-* SYNOPSIS
-*/
-#define OSM_DEFAULT_MGRP_MTU 0x04
-/***********/
-
-/****d* OpenSM: MC Member Record Receiver/OSM_DEFAULT_MGRP_RATE
-* Name
-*	OSM_DEFAULT_MGRP_RATE
-*
-* DESCRIPTION
-*	Default RATE used for new MGRP creation (10Gb/sec)
-*  Note it includes the RateSelector which is set to "Greater Than"
-*
-* SYNOPSIS
-*/
-#define OSM_DEFAULT_MGRP_RATE 0x03
-/***********/
-
-/****d* OpenSM: MC Member Record Receiver/OSM_DEFAULT_MGRP_SCOPE
-* Name
-*	OSM_DEFAULT_MGRP_SCOPE
-*
-* DESCRIPTION
-*	Default SCOPE used for new MGRP creation (link local)
-*
-* SYNOPSIS
-*/
-#define OSM_DEFAULT_MGRP_SCOPE IB_MC_SCOPE_LINK_LOCAL
-/***********/
-
 END_C_DECLS
 #endif				/* _OSM_MCMR_H_ */
