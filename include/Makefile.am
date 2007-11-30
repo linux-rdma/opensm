@@ -4,45 +4,32 @@ SUBDIRS = .
 nobase_pkginclude_HEADERS = iba/ib_types.h iba/ib_cm_types.h
 
 EXTRA_DIST = \
-	$(srcdir)/opensm/osm_sa_path_record.h \
 	$(srcdir)/opensm/osm_lid_mgr.h \
 	$(srcdir)/opensm/osm_port.h \
 	$(srcdir)/opensm/osm_sm_state_mgr.h \
 	$(srcdir)/opensm/osm_state_mgr.h \
 	$(srcdir)/opensm/osm_rand_fwd_tbl.h \
-	$(srcdir)/opensm/osm_sa_vlarb_record.h \
 	$(srcdir)/opensm/osm_madw.h \
 	$(srcdir)/opensm/osm_subnet.h \
 	$(srcdir)/opensm/osm_sweep_fail_ctrl.h \
-	$(srcdir)/opensm/osm_sa_lft_record.h \
-	$(srcdir)/opensm/osm_sa_mft_record.h \
 	$(srcdir)/opensm/osm_resp.h \
 	$(srcdir)/opensm/osm_partition.h \
 	$(srcdir)/opensm/osm_helper.h \
-	$(srcdir)/opensm/osm_sa_portinfo_record.h \
-	$(srcdir)/opensm/osm_sa_guidinfo_record.h \
-	$(srcdir)/opensm/osm_sa_multipath_record.h \
-	$(srcdir)/opensm/osm_sa_service_record.h \
-	$(srcdir)/opensm/osm_sa_response.h \
 	$(srcdir)/opensm/osm_node.h \
 	$(srcdir)/opensm/osm_console.h \
 	$(srcdir)/opensm/osm_req.h \
 	$(srcdir)/opensm/osm_mcm_info.h \
-	$(srcdir)/opensm/osm_sa_pkey_record.h \
 	$(srcdir)/opensm/osm_inform.h \
 	$(srcdir)/opensm/osm_path.h \
 	$(srcdir)/opensm/osm_service.h \
 	$(srcdir)/opensm/osm_switch.h \
 	$(srcdir)/opensm/osm_router.h \
 	$(srcdir)/opensm/osm_prefix_route.h \
-	$(srcdir)/opensm/osm_sa_slvl_record.h \
 	$(srcdir)/opensm/osm_opensm.h \
 	$(srcdir)/opensm/osm_sa.h \
 	$(srcdir)/opensm/osm_port_profile.h \
 	$(srcdir)/opensm/osm_multicast.h \
-	$(srcdir)/opensm/osm_sa_class_port_info.h \
 	$(srcdir)/opensm/osm_base.h \
-	$(srcdir)/opensm/osm_sa_sminfo_record.h \
 	$(srcdir)/opensm/osm_mcast_mgr.h \
 	$(srcdir)/opensm/osm_errors.h \
 	$(srcdir)/opensm/osm_event_plugin.h \
@@ -51,18 +38,15 @@ EXTRA_DIST = \
 	$(srcdir)/opensm/osm_lin_fwd_tbl.h \
 	$(srcdir)/opensm/osm_ucast_mgr.h \
 	$(srcdir)/opensm/osm_db.h \
-	$(srcdir)/opensm/osm_sa_informinfo.h \
 	$(srcdir)/opensm/osm_mad_pool.h \
 	$(srcdir)/opensm/osm_remote_sm.h \
 	$(srcdir)/opensm/osm_link_mgr.h \
 	$(srcdir)/opensm/osm_msgdef.h \
-	$(srcdir)/opensm/osm_sa_node_record.h \
 	$(srcdir)/opensm/st.h \
 	$(srcdir)/opensm/osm_mcast_tbl.h \
 	$(srcdir)/opensm/osm_pkey.h \
 	$(srcdir)/opensm/osm_pkey_mgr.h \
 	$(srcdir)/opensm/osm_sa_mad_ctrl.h \
-	$(srcdir)/opensm/osm_sa_link_record.h \
 	$(srcdir)/opensm/osm_mcm_port.h \
 	$(srcdir)/opensm/osm_log.h \
 	$(srcdir)/opensm/osm_fwd_tbl.h \
@@ -70,8 +54,6 @@ EXTRA_DIST = \
 	$(srcdir)/opensm/osm_sm_mad_ctrl.h \
 	$(srcdir)/opensm/osm_attrib_req.h \
 	$(srcdir)/opensm/osm_stats.h \
-	$(srcdir)/opensm/osm_sa_mcmember_record.h \
-	$(srcdir)/opensm/osm_sa_sw_info_record.h \
 	$(srcdir)/opensm/osm_vl15intf.h \
 	$(srcdir)/opensm/osm_drop_mgr.h \
 	$(srcdir)/opensm/osm_perfmgr.h \
