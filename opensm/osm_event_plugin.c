@@ -97,7 +97,9 @@ osm_epi_plugin_t *osm_epi_construct(osm_log_t * p_log, char *plugin_name)
 	/* Check the version to make sure this module will work with us */
 	if (rc->impl->interface_version != OSM_EVENT_PLUGIN_INTERFACE_VER) {
 		osm_log(p_log, OSM_LOG_ERROR,
+			"Error opening %s: "
 			"%s symbol is the wrong version %d != %d\n",
+			plugin_name,
 			OSM_EVENT_PLUGIN_IMPL_NAME,
 			rc->impl->interface_version,
 			OSM_EVENT_PLUGIN_INTERFACE_VER);
