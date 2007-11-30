@@ -334,7 +334,7 @@ perfmgr_db_err_t
 perfmgr_db_clear_prev_err(perfmgr_db_t * db, uint64_t guid, uint8_t port)
 {
 	_db_node_t *node = NULL;
-	perfmgr_db_data_cnt_reading_t *previous = NULL;
+	perfmgr_db_err_reading_t *previous = NULL;
 	perfmgr_db_err_t rc = PERFMGR_EVENT_DB_SUCCESS;
 
 	cl_plock_excl_acquire(&(db->lock));
@@ -342,10 +342,10 @@ perfmgr_db_clear_prev_err(perfmgr_db_t * db, uint64_t guid, uint8_t port)
 	if ((rc = bad_node_port(node, port)) != PERFMGR_EVENT_DB_SUCCESS)
 		goto Exit;
 
-	previous = &(node->ports[port].dc_previous);
+	previous = &(node->ports[port].err_previous);
 
 	memset(previous, 0, sizeof(*previous));
-	node->ports[port].dc_previous.time = time(NULL);
+	node->ports[port].err_previous.time = time(NULL);
 
       Exit:
 	cl_plock_release(&(db->lock));
