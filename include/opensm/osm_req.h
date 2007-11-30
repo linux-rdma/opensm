@@ -103,7 +103,6 @@ typedef struct _osm_req {
 	osm_log_t *p_log;
 	osm_subn_t *p_subn;
 	atomic32_t *p_sm_trans_id;
-
 } osm_req_t;
 /*
 * FIELDS
@@ -313,7 +312,7 @@ osm_req_set(IN const osm_req_t * const p_req,
 *	p_payload
 *		[in] Pointer to the SMP payload to send.
 *
-*  payload_size
+*	payload_size
 *		[in] The size of the payload to be copied to the SMP data field.
 *
 *	attr_id

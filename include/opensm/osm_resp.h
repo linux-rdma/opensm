@@ -102,7 +102,6 @@ typedef struct _osm_resp {
 	osm_vl15_t *p_vl15;
 	osm_log_t *p_log;
 	osm_subn_t *p_subn;
-
 } osm_resp_t;
 /*
 * FIELDS
