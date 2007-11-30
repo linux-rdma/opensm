@@ -31,8 +31,6 @@
  *
  */
 
-#include <opensm/osm_event_plugin.h>
-
 /****h* OpenSM Event plugin interface
 * DESCRIPTION
 *       Database interface to record subnet events
