@@ -565,7 +565,6 @@ __osm_state_mgr_get_remote_port_info(IN osm_state_mgr_t * const p_mgr,
 	    cl_hton64(osm_physp_get_port_num(p_physp));
 	mad_context.pi_context.set_method = FALSE;
 	mad_context.pi_context.light_sweep = TRUE;
-	mad_context.pi_context.ignore_errors = FALSE;
 	mad_context.pi_context.update_master_sm_base_lid = FALSE;
 	mad_context.pi_context.active_transition = FALSE;
 

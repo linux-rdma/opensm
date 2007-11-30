@@ -1127,7 +1127,6 @@ __osm_lid_mgr_set_physp_pi(IN osm_lid_mgr_t * const p_mgr,
 	context.pi_context.port_guid = osm_physp_get_port_guid(p_physp);
 	context.pi_context.set_method = TRUE;
 	context.pi_context.update_master_sm_base_lid = FALSE;
-	context.pi_context.ignore_errors = FALSE;
 	context.pi_context.light_sweep = FALSE;
 	context.pi_context.active_transition = FALSE;
 

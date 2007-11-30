@@ -346,17 +346,7 @@ __osm_link_mgr_set_physp_pi(IN osm_link_mgr_t * const p_mgr,
 			send_set = TRUE;
 			p_pi->vl_high_limit = p_physp->vl_high_limit;
 		}
-
-		/* also the context can flag the need to check for errors. */
-		context.pi_context.ignore_errors = FALSE;
-	} else
-		/*
-		   Since the only change we try to do is to modify the port
-		   state we can ignore the errors that might be caused by a
-		   race in setting the state and the actual state the port is
-		   in.
-		 */
-		context.pi_context.ignore_errors = FALSE;
+	}
 
 	if (port_state != IB_LINK_NO_CHANGE &&
 	    port_state != ib_port_info_get_port_state(p_old_pi)) {

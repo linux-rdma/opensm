@@ -178,7 +178,6 @@ typedef struct _osm_pi_context {
 	boolean_t set_method;
 	boolean_t light_sweep;
 	boolean_t update_master_sm_base_lid;
-	boolean_t ignore_errors;
 	boolean_t active_transition;
 } osm_pi_context_t;
 /*********/

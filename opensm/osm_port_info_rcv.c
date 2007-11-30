@@ -528,7 +528,7 @@ osm_pi_rcv_process_set(IN const osm_pi_rcv_t * const p_rcv,
 	p_pi = (ib_port_info_t *) ib_smp_get_payload_ptr(p_smp);
 
 	/* check for error */
-	if (!p_context->ignore_errors && (cl_ntoh16(p_smp->status) & 0x7fff)) {
+	if (cl_ntoh16(p_smp->status) & 0x7fff) {
 		/* If port already ACTIVE, don't treat status 7 as error */
 		if (p_context->active_transition &&
 		    (cl_ntoh16(p_smp->status) & 0x7fff) == 0x1c) {
