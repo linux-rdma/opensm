@@ -12,12 +12,10 @@ EXTRA_DIST = \
 	$(srcdir)/opensm/osm_madw.h \
 	$(srcdir)/opensm/osm_subnet.h \
 	$(srcdir)/opensm/osm_sweep_fail_ctrl.h \
-	$(srcdir)/opensm/osm_resp.h \
 	$(srcdir)/opensm/osm_partition.h \
 	$(srcdir)/opensm/osm_helper.h \
 	$(srcdir)/opensm/osm_node.h \
 	$(srcdir)/opensm/osm_console.h \
-	$(srcdir)/opensm/osm_req.h \
 	$(srcdir)/opensm/osm_mcm_info.h \
 	$(srcdir)/opensm/osm_inform.h \
 	$(srcdir)/opensm/osm_path.h \
