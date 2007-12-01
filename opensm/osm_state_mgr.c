@@ -1175,16 +1175,6 @@ __osm_state_mgr_send_handover(IN osm_state_mgr_t * const p_mgr,
 
 	OSM_LOG_ENTER(p_mgr->p_log, __osm_state_mgr_send_handover);
 
-	if (p_mgr->p_subn->opt.testability_mode ==
-	    OSM_TEST_MODE_EXIT_BEFORE_SEND_HANDOVER) {
-		osm_log(p_mgr->p_log, OSM_LOG_ERROR,
-			"__osm_state_mgr_send_handover: ERR 3315: "
-			"Exit on testability mode OSM_TEST_MODE_EXIT_BEFORE_SEND_HANDOVER\n");
-		osm_exit_flag = TRUE;
-		sleep(3);
-		exit(1);
-	}
-
 	/*
 	 * Send a query of SubnSet(SMInfo) HANDOVER to the remote sm given.
 	 */

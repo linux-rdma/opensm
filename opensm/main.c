@@ -754,10 +754,6 @@ int main(int argc, char *argv[])
 			 */
 			else if (dbg_lvl == 5)
 				vendor_debug++;
-			else if (dbg_lvl >= 10)
-				/* Please look at osm_subnet.h for list
-				 * of testability modes. */
-				opt.testability_mode = dbg_lvl - 9;
 			else
 				printf(" OpenSM: Unknown debug option %d"
 				       " ignored\n", dbg_lvl);

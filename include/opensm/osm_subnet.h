@@ -156,22 +156,6 @@ typedef void
 *
 *********/
 
-/****d* OpenSM: Subnet/osm_testability_modes_t
-* NAME
-*	osm_testability_modes_t
-*
-* DESCRIPTION
-*	Enumerates the possible testability modes.
-*
-* SYNOPSIS
-*/
-typedef enum _osm_testability_modes {
-	OSM_TEST_MODE_NONE = 0,
-	OSM_TEST_MODE_EXIT_BEFORE_SEND_HANDOVER,
-	OSM_TEST_MODE_MAX
-} osm_testability_modes_t;
-/***********/
-
 /****s* OpenSM: Subnet/osm_qos_options_t
 * NAME
 *	osm_qos_options_t
@@ -270,7 +254,6 @@ typedef struct _osm_subn_opt {
 	osm_pfn_ui_mcast_extension_t pfn_ui_mcast_fdb_assign;
 	void *ui_mcast_fdb_assign_ctx;
 	boolean_t sweep_on_trap;
-	osm_testability_modes_t testability_mode;
 	char *routing_engine_name;
 	boolean_t connect_roots;
 	char *lid_matrix_dump_file;
@@ -439,9 +422,6 @@ typedef struct _osm_subn_opt {
 *
 *	sweep_on_trap
 *		Received traps will initiate a new sweep.
-*
-*	testability_mode
-*		Object that indicates if we are running in a special testability mode.
 *
 *	routing_engine_name
 *		Name of used routing engine

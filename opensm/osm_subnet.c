@@ -470,7 +470,6 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * const p_opt)
 	p_opt->pfn_ui_mcast_fdb_assign = NULL;
 	p_opt->ui_mcast_fdb_assign_ctx = NULL;
 	p_opt->sweep_on_trap = TRUE;
-	p_opt->testability_mode = OSM_TEST_MODE_NONE;
 	p_opt->routing_engine_name = NULL;
 	p_opt->connect_roots = FALSE;
 	p_opt->lid_matrix_dump_file = NULL;
