@@ -49,10 +49,14 @@
 #define _OSM_STATS_H_
 
 #ifdef ENABLE_OSM_PERF_MGR
+#ifdef HAVE_LIBPTHREAD
 #include <pthread.h>
+#else
+#include <complib/cl_event.h>
 #endif
-#include <opensm/osm_base.h>
+#endif
 #include <complib/cl_atomic.h>
+#include <opensm/osm_base.h>
 
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
@@ -97,8 +101,12 @@ typedef struct _osm_stats {
 	atomic32_t sa_mads_rcvd_unknown;
 	atomic32_t sa_mads_ignored;
 #ifdef ENABLE_OSM_PERF_MGR
+#ifdef HAVE_LIBPTHREAD
 	pthread_mutex_t mutex;
 	pthread_cond_t cond;
+#else
+	cl_event_t event;
+#endif
 #endif
 } osm_stats_t;
 /*

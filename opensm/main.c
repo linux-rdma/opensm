@@ -1045,7 +1045,11 @@ int main(int argc, char *argv[])
 			"There are still %u MADs out. Forcing the exit of the OpenSM application...\n",
 			osm.mad_pool.mads_out);
 #ifdef ENABLE_OSM_PERF_MGR
+#ifdef HAVE_LIBPTHREAD
 		pthread_cond_signal(&osm.stats.cond);
+#else
+		cl_event_signal(&osm.stats.event);
+#endif
 #endif
 	}
 

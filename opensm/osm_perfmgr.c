@@ -719,10 +719,19 @@ static int sweep_hop_0(osm_sm_t * const sm)
 
 static int wait_for_pending_transactions(osm_stats_t * stats)
 {
+#ifdef HAVE_LIBPTHREAD
 	pthread_mutex_lock(&stats->mutex);
 	while (stats->qp0_mads_outstanding && !osm_exit_flag)
 		pthread_cond_wait(&stats->cond, &stats->mutex);
 	pthread_mutex_unlock(&stats->mutex);
+#else
+	while (1) {
+		unsigned count = stats->qp0_mads_outstanding;
+		if (!count || osm_exit_flag)
+			break;
+		cl_event_wait_on(&stats->event, EVENT_NO_TIMEOUT, TRUE);
+	}
+#endif
 	return osm_exit_flag;
 }
 
@@ -889,8 +898,12 @@ void osm_perfmgr_destroy(osm_perfmgr_t * const pm)
 	free(pm->event_db_dump_file);
 	perfmgr_db_destroy(pm->db);
 	cl_timer_destroy(&pm->sweep_timer);
+#ifdef HAVE_LIBPTHREAD
 	pthread_cond_destroy(&pm->subn->p_osm->stats.cond);
 	pthread_mutex_destroy(&pm->subn->p_osm->stats.mutex);
+#else
+	cl_event_destroy(&pm->subn->p_osm->stats.event);
+#endif
 	OSM_LOG_EXIT(pm->log);
 }
 
@@ -1287,8 +1300,14 @@ osm_perfmgr_init(osm_perfmgr_t * const pm,
 	pm->max_outstanding_queries = p_opt->perfmgr_max_outstanding_queries;
 	pm->event_plugin = event_plugin;
 
+#ifdef HAVE_LIBPTHREAD
 	pthread_mutex_init(&subn->p_osm->stats.mutex, NULL);
 	pthread_cond_init(&subn->p_osm->stats.cond, NULL);
+#else
+	status = cl_event_init(&subn->p_osm->stats.event, FALSE);
+	if (status != IB_SUCCESS)
+		goto Exit;
+#endif
 
 	status = cl_timer_init(&pm->sweep_timer, perfmgr_sweep, pm);
 	if (status != IB_SUCCESS)
