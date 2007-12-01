@@ -49,10 +49,11 @@
 #endif				/* HAVE_CONFIG_H */
 
 #include <string.h>
+#include <time.h>
 #include <iba/ib_types.h>
 #include <complib/cl_passivelock.h>
 #include <complib/cl_debug.h>
-#include <time.h>
+#include <opensm/osm_sm.h>
 #include <opensm/osm_madw.h>
 #include <opensm/osm_switch.h>
 #include <opensm/osm_log.h>
@@ -392,24 +393,20 @@ void osm_sm_state_mgr_destroy(IN osm_sm_state_mgr_t * const p_sm_mgr)
 /**********************************************************************
  **********************************************************************/
 ib_api_status_t
-osm_sm_state_mgr_init(IN osm_sm_state_mgr_t * const p_sm_mgr,
-		      IN osm_subn_t * const p_subn,
-		      IN osm_req_t * const p_req, IN osm_log_t * const p_log)
+osm_sm_state_mgr_init(IN osm_sm_state_mgr_t * const p_sm_mgr, IN osm_sm_t * sm)
 {
 	cl_status_t status;
 
-	OSM_LOG_ENTER(p_log, osm_sm_state_mgr_init);
-
-	CL_ASSERT(p_subn);
-	CL_ASSERT(p_req);
+	OSM_LOG_ENTER(sm->p_log, osm_sm_state_mgr_init);
 
 	osm_sm_state_mgr_construct(p_sm_mgr);
 
-	p_sm_mgr->p_log = p_log;
-	p_sm_mgr->p_req = p_req;
-	p_sm_mgr->p_subn = p_subn;
+	p_sm_mgr->sm = sm;
+	p_sm_mgr->p_log = sm->p_log;
+	p_sm_mgr->p_req = &sm->req;
+	p_sm_mgr->p_subn = sm->p_subn;
 
-	if (p_subn->opt.sm_inactive) {
+	if (p_sm_mgr->p_subn->opt.sm_inactive) {
 		/* init the state of the SM to not active */
 		p_sm_mgr->p_subn->sm_state = IB_SMINFO_STATE_NOTACTIVE;
 		__osm_sm_state_mgr_notactive_msg(p_sm_mgr);

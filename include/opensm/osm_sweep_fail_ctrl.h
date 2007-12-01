@@ -96,21 +96,12 @@ struct osm_sm;
 */
 typedef struct _osm_sweep_fail_ctrl {
 	struct osm_sm *sm;
-	osm_log_t *p_log;
-	cl_dispatcher_t *p_disp;
 	cl_disp_reg_handle_t h_disp;
-
 } osm_sweep_fail_ctrl_t;
 /*
 * FIELDS
 *	sm
 *		Pointer to the sm object.
-*
-*	p_log
-*		Pointer to the log object.
-*
-*	p_disp
-*		Pointer to the Dispatcher.
 *
 *	h_disp
 *		Handle returned from dispatcher registration.
@@ -193,25 +184,14 @@ void osm_sweep_fail_ctrl_destroy(IN osm_sweep_fail_ctrl_t * const p_ctrl);
 */
 ib_api_status_t
 osm_sweep_fail_ctrl_init(IN osm_sweep_fail_ctrl_t * const p_ctrl,
-			 IN osm_log_t * const p_log,
-			 IN struct osm_sm * const sm,
-			 IN cl_dispatcher_t * const p_disp);
+			 IN struct osm_sm * sm);
 /*
 * PARAMETERS
 *	p_ctrl
 *		[in] Pointer to an osm_sweep_fail_ctrl_t object to initialize.
 *
-*	p_rcv
-*		[in] Pointer to an osm_sweep_fail_t object.
-*
-*	p_log
-*		[in] Pointer to the log object.
-*
 *	sm
-*		[in] Pointer to the sm object.
-*
-*	p_disp
-*		[in] Pointer to the OpenSM central Dispatcher.
+*		[in] Pointer to the SM object.
 *
 * RETURN VALUES
 *	CL_SUCCESS if the Sweep Fail Controller object was initialized

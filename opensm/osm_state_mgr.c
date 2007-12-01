@@ -55,6 +55,7 @@
 #include <complib/cl_passivelock.h>
 #include <complib/cl_debug.h>
 #include <opensm/osm_state_mgr.h>
+#include <opensm/osm_sm.h>
 #include <opensm/osm_madw.h>
 #include <opensm/osm_switch.h>
 #include <opensm/osm_log.h>
@@ -93,51 +94,27 @@ void osm_state_mgr_destroy(IN osm_state_mgr_t * const p_mgr)
 /**********************************************************************
  **********************************************************************/
 ib_api_status_t
-osm_state_mgr_init(IN osm_state_mgr_t * const p_mgr,
-		   IN osm_subn_t * const p_subn,
-		   IN osm_lid_mgr_t * const p_lid_mgr,
-		   IN osm_ucast_mgr_t * const p_ucast_mgr,
-		   IN osm_mcast_mgr_t * const p_mcast_mgr,
-		   IN osm_link_mgr_t * const p_link_mgr,
-		   IN osm_drop_mgr_t * const p_drop_mgr,
-		   IN osm_req_t * const p_req,
-		   IN osm_stats_t * const p_stats,
-		   IN osm_sm_state_mgr_t * const p_sm_state_mgr,
-		   IN const osm_sm_mad_ctrl_t * const p_mad_ctrl,
-		   IN cl_plock_t * const p_lock,
-		   IN cl_event_t * const p_subnet_up_event,
-		   IN osm_log_t * const p_log)
+osm_state_mgr_init(IN osm_state_mgr_t * const p_mgr, IN osm_sm_t * sm)
 {
-	OSM_LOG_ENTER(p_log, osm_state_mgr_init);
-
-	CL_ASSERT(p_subn);
-	CL_ASSERT(p_lid_mgr);
-	CL_ASSERT(p_ucast_mgr);
-	CL_ASSERT(p_mcast_mgr);
-	CL_ASSERT(p_link_mgr);
-	CL_ASSERT(p_drop_mgr);
-	CL_ASSERT(p_req);
-	CL_ASSERT(p_stats);
-	CL_ASSERT(p_sm_state_mgr);
-	CL_ASSERT(p_mad_ctrl);
-	CL_ASSERT(p_lock);
+	OSM_LOG_ENTER(sm->p_log, osm_state_mgr_init);
 
 	osm_state_mgr_construct(p_mgr);
 
-	p_mgr->p_log = p_log;
-	p_mgr->p_subn = p_subn;
-	p_mgr->p_lid_mgr = p_lid_mgr;
-	p_mgr->p_ucast_mgr = p_ucast_mgr;
-	p_mgr->p_mcast_mgr = p_mcast_mgr;
-	p_mgr->p_link_mgr = p_link_mgr;
-	p_mgr->p_drop_mgr = p_drop_mgr;
-	p_mgr->p_mad_ctrl = p_mad_ctrl;
-	p_mgr->p_req = p_req;
-	p_mgr->p_stats = p_stats;
-	p_mgr->p_sm_state_mgr = p_sm_state_mgr;
+	p_mgr->sm = sm;
+	p_mgr->p_log = sm->p_log;
+	p_mgr->p_subn = sm->p_subn;
+	p_mgr->p_lid_mgr = &sm->lid_mgr;
+	p_mgr->p_ucast_mgr = &sm->ucast_mgr;
+	p_mgr->p_mcast_mgr = &sm->mcast_mgr;
+	p_mgr->p_link_mgr = &sm->link_mgr;
+	p_mgr->p_drop_mgr = &sm->drop_mgr;
+	p_mgr->p_mad_ctrl = &sm->mad_ctrl;
+	p_mgr->p_req = &sm->req;
+	p_mgr->p_stats = &sm->p_subn->p_osm->stats;
+	p_mgr->p_sm_state_mgr = &sm->sm_state_mgr;
 	p_mgr->state = OSM_SM_STATE_IDLE;
-	p_mgr->p_lock = p_lock;
-	p_mgr->p_subnet_up_event = p_subnet_up_event;
+	p_mgr->p_lock = sm->p_lock;
+	p_mgr->p_subnet_up_event = &sm->subnet_up_event;
 
 	OSM_LOG_EXIT(p_mgr->p_log);
 	return IB_SUCCESS;

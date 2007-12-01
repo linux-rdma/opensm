@@ -91,6 +91,7 @@
 #include <complib/cl_qmap.h>
 #include <complib/cl_debug.h>
 #include <opensm/osm_lid_mgr.h>
+#include <opensm/osm_sm.h>
 #include <opensm/osm_log.h>
 #include <opensm/osm_node.h>
 #include <opensm/osm_switch.h>
@@ -98,7 +99,6 @@
 #include <opensm/osm_msgdef.h>
 #include <vendor/osm_vendor_api.h>
 #include <opensm/osm_db_pack.h>
-#include <stdlib.h>
 
 /**********************************************************************
   lid range item of qlist
@@ -241,28 +241,20 @@ static void __osm_lid_mgr_validate_db(IN osm_lid_mgr_t * p_mgr)
 /**********************************************************************
  **********************************************************************/
 ib_api_status_t
-osm_lid_mgr_init(IN osm_lid_mgr_t * const p_mgr,
-		 IN osm_req_t * const p_req,
-		 IN osm_subn_t * const p_subn,
-		 IN osm_db_t * const p_db,
-		 IN osm_log_t * const p_log, IN cl_plock_t * const p_lock)
+osm_lid_mgr_init(IN osm_lid_mgr_t * const p_mgr, IN osm_sm_t *sm)
 {
 	ib_api_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(p_log, osm_lid_mgr_init);
-
-	CL_ASSERT(p_req);
-	CL_ASSERT(p_subn);
-	CL_ASSERT(p_lock);
-	CL_ASSERT(p_db);
+	OSM_LOG_ENTER(sm->p_log, osm_lid_mgr_init);
 
 	osm_lid_mgr_construct(p_mgr);
 
-	p_mgr->p_log = p_log;
-	p_mgr->p_subn = p_subn;
-	p_mgr->p_db = p_db;
-	p_mgr->p_lock = p_lock;
-	p_mgr->p_req = p_req;
+	p_mgr->sm = sm;
+	p_mgr->p_log = sm->p_log;
+	p_mgr->p_subn = sm->p_subn;
+	p_mgr->p_db = sm->p_db;
+	p_mgr->p_lock = sm->p_lock;
+	p_mgr->p_req = &sm->req;
 
 	/* we initialize and restore the db domain of guid to lid map */
 	p_mgr->p_g2l = osm_db_domain_init(p_mgr->p_db, "/guid2lid");
@@ -280,7 +272,7 @@ osm_lid_mgr_init(IN osm_lid_mgr_t * const p_mgr,
 	/* we use the stored guid to lid table if not forced to reassign */
 	if (!p_mgr->p_subn->opt.reassign_lids) {
 		if (osm_db_restore(p_mgr->p_g2l)) {
-			if (p_subn->opt.exit_on_fatal) {
+			if (p_mgr->p_subn->opt.exit_on_fatal) {
 				osm_log(p_mgr->p_log, OSM_LOG_SYS,
 					"FATAL: Error restoring Guid-to-Lid persistent database\n");
 				status = IB_ERROR;

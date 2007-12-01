@@ -315,59 +315,35 @@ osm_sm_init(IN osm_sm_t * const p_sm,
 	if (status != IB_SUCCESS)
 		goto Exit;
 
-	status = osm_lid_mgr_init(&p_sm->lid_mgr,
-				  &p_sm->req,
-				  p_sm->p_subn,
-				  p_sm->p_db, p_sm->p_log, p_sm->p_lock);
+	status = osm_lid_mgr_init(&p_sm->lid_mgr, p_sm);
 	if (status != IB_SUCCESS)
 		goto Exit;
 
-	status = osm_ucast_mgr_init(&p_sm->ucast_mgr,
-				    &p_sm->req,
-				    p_sm->p_subn, p_sm->p_log, p_sm->p_lock);
+	status = osm_ucast_mgr_init(&p_sm->ucast_mgr, p_sm);
 	if (status != IB_SUCCESS)
 		goto Exit;
 
-	status = osm_link_mgr_init(&p_sm->link_mgr,
-				   &p_sm->req,
-				   p_sm->p_subn, p_sm->p_log, p_sm->p_lock);
+	status = osm_link_mgr_init(&p_sm->link_mgr, p_sm);
 	if (status != IB_SUCCESS)
 		goto Exit;
 
-	status = osm_state_mgr_init(&p_sm->state_mgr,
-				    p_sm->p_subn,
-				    &p_sm->lid_mgr,
-				    &p_sm->ucast_mgr,
-				    &p_sm->mcast_mgr,
-				    &p_sm->link_mgr,
-				    &p_sm->drop_mgr,
-				    &p_sm->req,
-				    p_stats,
-				    &p_sm->sm_state_mgr,
-				    &p_sm->mad_ctrl,
-				    p_sm->p_lock,
-				    &p_sm->subnet_up_event, p_sm->p_log);
+	status = osm_state_mgr_init(&p_sm->state_mgr, p_sm);
 	if (status != IB_SUCCESS)
 		goto Exit;
 
-	status = osm_drop_mgr_init(&p_sm->drop_mgr,
-				   p_sm->p_subn,
-				   p_sm->p_log, &p_sm->req, p_sm->p_lock);
+	status = osm_drop_mgr_init(&p_sm->drop_mgr, p_sm);
 	if (status != IB_SUCCESS)
 		goto Exit;
 
-	status = osm_sweep_fail_ctrl_init(&p_sm->sweep_fail_ctrl,
-					  p_log, p_sm, p_disp);
+	status = osm_sweep_fail_ctrl_init(&p_sm->sweep_fail_ctrl, p_sm);
 	if (status != IB_SUCCESS)
 		goto Exit;
 
-	status = osm_sm_state_mgr_init(&p_sm->sm_state_mgr,
-				       p_sm->p_subn, &p_sm->req, p_sm->p_log);
+	status = osm_sm_state_mgr_init(&p_sm->sm_state_mgr, p_sm);
 	if (status != IB_SUCCESS)
 		goto Exit;
 
-	status = osm_mcast_mgr_init(&p_sm->mcast_mgr,
-				    &p_sm->req, p_subn, p_log, p_lock);
+	status = osm_mcast_mgr_init(&p_sm->mcast_mgr, p_sm);
 	if (status != IB_SUCCESS)
 		goto Exit;
 

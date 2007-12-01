@@ -83,6 +83,7 @@ BEGIN_C_DECLS
 *	Steve King, Intel
 *
 *********/
+struct osm_sm;
 /****s* OpenSM: LID Manager/osm_lid_mgr_t
 * NAME
 *	osm_lid_mgr_t
@@ -96,6 +97,7 @@ BEGIN_C_DECLS
 * SYNOPSIS
 */
 typedef struct _osm_lid_mgr {
+	struct osm_sm *sm;
 	osm_subn_t *p_subn;
 	osm_db_t *p_db;
 	osm_req_t *p_req;
@@ -108,6 +110,9 @@ typedef struct _osm_lid_mgr {
 } osm_lid_mgr_t;
 /*
 * FIELDS
+*	sm
+*		Pointer to the SM object.
+*
 *	p_subn
 *		Pointer to the Subnet object for this subnet.
 *
@@ -214,30 +219,14 @@ void osm_lid_mgr_destroy(IN osm_lid_mgr_t * const p_mgr);
 * SYNOPSIS
 */
 ib_api_status_t
-osm_lid_mgr_init(IN osm_lid_mgr_t * const p_mgr,
-		 IN osm_req_t * const p_req,
-		 IN osm_subn_t * const p_subn,
-		 IN osm_db_t * const p_db,
-		 IN osm_log_t * const p_log, IN cl_plock_t * const p_lock);
+osm_lid_mgr_init(IN osm_lid_mgr_t * const p_mgr, IN struct osm_sm * sm);
 /*
 * PARAMETERS
 *	p_mgr
 *		[in] Pointer to an osm_lid_mgr_t object to initialize.
 *
-*	p_req
-*		[in] Pointer to the attribute Requester object.
-*
-*	p_subn
-*		[in] Pointer to the Subnet object for this subnet.
-*
-*	p_db
-*		[in] Pointer to the database object.
-*
-*	p_log
-*		[in] Pointer to the log object.
-*
-*	p_lock
-*		[in] Pointer to the OpenSM serializing lock.
+*	sm
+*		[in] Pointer to the SM object for this subnet.
 *
 * RETURN VALUES
 *	CL_SUCCESS if the LID Manager object was initialized

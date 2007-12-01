@@ -85,6 +85,7 @@ BEGIN_C_DECLS
 *	Steve King, Intel
 *
 *********/
+struct osm_sm;
 /****s* OpenSM: State Manager/osm_state_mgr_t
 * NAME
 *	osm_state_mgr_t
@@ -98,6 +99,7 @@ BEGIN_C_DECLS
 * SYNOPSIS
 */
 typedef struct _osm_state_mgr {
+	struct osm_sm *sm;
 	osm_subn_t *p_subn;
 	osm_log_t *p_log;
 	osm_lid_mgr_t *p_lid_mgr;
@@ -115,6 +117,9 @@ typedef struct _osm_state_mgr {
 } osm_state_mgr_t;
 /*
 * FIELDS
+*	sm
+*		Pointer to the SM object.
+*
 *	p_subn
 *		Pointer to the Subnet object for this subnet.
 *
@@ -139,11 +144,11 @@ typedef struct _osm_state_mgr {
 *	p_req
 *		Pointer to the Requester object sending SMPs.
 *
-*  p_stats
-*     Pointer to the OpenSM statistics block.
+*	p_stats
+*		Pointer to the OpenSM statistics block.
 *
-*  p_sm_state_mgr
-*     Pointer to the SM state mgr object.
+*	p_sm_state_mgr
+*		Pointer to the SM state mgr object.
 *
 *	p_mad_ctrl
 *		Pointer to the SM's MAD Controller object.
@@ -156,15 +161,6 @@ typedef struct _osm_state_mgr {
 *
 *	state
 *		State of the SM.
-*
-*  state_step_mode
-*     Controls the mode of progressing to next stage:
-*     OSM_STATE_STEP_CONTINUOUS - normal automatic progress mode
-*     OSM_STATE_STEP_TAKE_ONE - do one step and stop
-*     OSM_STATE_STEP_BREAK  - stop before taking next step
-*
-*  next_stage_signal
-*     Stores the signal to be provided when running the next stage.
 *
 * SEE ALSO
 *	State Manager object
@@ -241,60 +237,14 @@ void osm_state_mgr_destroy(IN osm_state_mgr_t * const p_mgr);
 * SYNOPSIS
 */
 ib_api_status_t
-osm_state_mgr_init(IN osm_state_mgr_t * const p_mgr,
-		   IN osm_subn_t * const p_subn,
-		   IN osm_lid_mgr_t * const p_lid_mgr,
-		   IN osm_ucast_mgr_t * const p_ucast_mgr,
-		   IN osm_mcast_mgr_t * const p_mcast_mgr,
-		   IN osm_link_mgr_t * const p_link_mgr,
-		   IN osm_drop_mgr_t * const p_drop_mgr,
-		   IN osm_req_t * const p_req,
-		   IN osm_stats_t * const p_stats,
-		   IN struct _osm_sm_state_mgr *const p_sm_state_mgr,
-		   IN const osm_sm_mad_ctrl_t * const p_mad_ctrl,
-		   IN cl_plock_t * const p_lock,
-		   IN cl_event_t * const p_subnet_up_event,
-		   IN osm_log_t * const p_log);
+osm_state_mgr_init(IN osm_state_mgr_t * const p_mgr, struct osm_sm * sm);
 /*
 * PARAMETERS
 *	p_mgr
 *		[in] Pointer to an osm_state_mgr_t object to initialize.
 *
-*	p_subn
-*		[in] Pointer to the Subnet object for this subnet.
-*
-*	p_lid_mgr
-*		[in] Pointer to the LID Manager object.
-*
-*	p_ucast_mgr
-*		[in] Pointer to the Unicast Manager object.
-*
-*	p_mcast_mgr
-*		[in] Pointer to the Multicast Manager object.
-*
-*	p_link_mgr
-*		[in] Pointer to the Link Manager object.
-*
-*	p_drop_mgr
-*		[in] Pointer to the Drop Manager object.
-*
-*	p_req
-*		[in] Pointer to the Request Controller object.
-*
-*  p_stats
-*     [in] Pointer to the OpenSM statistics block.
-*
-*  p_sm_state_mgr
-*     [in] Pointer to the SM state mgr object.
-*
-*	p_mad_ctrl
-*		[in] Pointer to the SM's mad controller.
-*
-*	p_subnet_up_event
-*		[in] Pointer to the event to set if/when the subnet comes up.
-*
-*	p_log
-*		[in] Pointer to the log object.
+*	sm
+*		[in] Pointer to the SM object.
 *
 * RETURN VALUES
 *	IB_SUCCESS if the State Manager object was initialized

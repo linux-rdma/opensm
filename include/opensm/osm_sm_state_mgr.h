@@ -87,6 +87,7 @@ BEGIN_C_DECLS
 *	Yael Kalka, Mellanox
 *
 *********/
+struct osm_sm;
 /****s* OpenSM: SM State Manager/osm_sm_state_mgr_t
 * NAME
 *	osm_sm_state_mgr_t
@@ -100,6 +101,7 @@ BEGIN_C_DECLS
 * SYNOPSIS
 */
 typedef struct _osm_sm_state_mgr {
+	struct osm_sm *sm;
 	cl_spinlock_t state_lock;
 	cl_timer_t polling_timer;
 	uint32_t retry_number;
@@ -112,6 +114,9 @@ typedef struct _osm_sm_state_mgr {
 
 /*
 * FIELDS
+*	sm
+*		Pointer to the SM object.
+*
 *	state_lock
 *		Spinlock guarding the state and processes.
 *
@@ -164,8 +169,8 @@ void osm_sm_state_mgr_construct(IN osm_sm_state_mgr_t * const p_sm_mgr);
 * NOTES
 *	Allows osm_sm_state_mgr_destroy
 *
-*	Calling osm_sm_state_mgr_construct is a prerequisite to calling any other
-*	method except osm_sm_state_mgr_init.
+*	Calling osm_sm_state_mgr_construct is a prerequisite to calling any
+*	other method except osm_sm_state_mgr_init.
 *
 * SEE ALSO
 *	SM State Manager object, osm_sm_state_mgr_init,
@@ -215,21 +220,14 @@ void osm_sm_state_mgr_destroy(IN osm_sm_state_mgr_t * const p_sm_mgr);
 */
 ib_api_status_t
 osm_sm_state_mgr_init(IN osm_sm_state_mgr_t * const p_sm_mgr,
-		      IN osm_subn_t * const p_subn,
-		      IN osm_req_t * const p_req, IN osm_log_t * const p_log);
+		      struct osm_sm * sm);
 /*
 * PARAMETERS
 *	p_sm_mgr
 *		[in] Pointer to an osm_sm_state_mgr_t object to initialize.
 *
-*	p_subn
-*		[in] Pointer to the Subnet object for this subnet.
-*
-*	p_req
-*		[in] Pointer to an osm_req_t object.
-*
-*	p_log
-*		[in] Pointer to the log object.
+*	sm
+*		[in] Pointer to the SM object.
 *
 * RETURN VALUES
 *	IB_SUCCESS if the SM State Manager object was initialized

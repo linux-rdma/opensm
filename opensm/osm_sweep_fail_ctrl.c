@@ -59,7 +59,7 @@ static void __osm_sweep_fail_ctrl_disp_callback(IN void *context,
 {
 	osm_sweep_fail_ctrl_t *const p_ctrl = (osm_sweep_fail_ctrl_t *) context;
 
-	OSM_LOG_ENTER(p_ctrl->p_log, __osm_sweep_fail_ctrl_disp_callback);
+	OSM_LOG_ENTER(p_ctrl->sm->p_log, __osm_sweep_fail_ctrl_disp_callback);
 
 	UNUSED_PARAM(p_data);
 	/*
@@ -67,7 +67,7 @@ static void __osm_sweep_fail_ctrl_disp_callback(IN void *context,
 	 */
 	osm_sm_signal(p_ctrl->sm, OSM_SIGNAL_LIGHT_SWEEP_FAIL);
 
-	OSM_LOG_EXIT(p_ctrl->p_log);
+	OSM_LOG_EXIT(p_ctrl->sm->p_log);
 }
 
 /**********************************************************************
@@ -90,26 +90,22 @@ void osm_sweep_fail_ctrl_destroy(IN osm_sweep_fail_ctrl_t * const p_ctrl)
  **********************************************************************/
 ib_api_status_t
 osm_sweep_fail_ctrl_init(IN osm_sweep_fail_ctrl_t * const p_ctrl,
-			 IN osm_log_t * const p_log,
-			 IN osm_sm_t * const sm,
-			 IN cl_dispatcher_t * const p_disp)
+			 IN osm_sm_t * const sm)
 {
 	ib_api_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(p_log, osm_sweep_fail_ctrl_init);
+	OSM_LOG_ENTER(sm->p_log, osm_sweep_fail_ctrl_init);
 
 	osm_sweep_fail_ctrl_construct(p_ctrl);
-	p_ctrl->p_log = p_log;
-	p_ctrl->p_disp = p_disp;
 	p_ctrl->sm = sm;
 
-	p_ctrl->h_disp = cl_disp_register(p_disp,
+	p_ctrl->h_disp = cl_disp_register(sm->p_disp,
 					  OSM_MSG_LIGHT_SWEEP_FAIL,
 					  __osm_sweep_fail_ctrl_disp_callback,
 					  p_ctrl);
 
 	if (p_ctrl->h_disp == CL_DISP_INVALID_HANDLE) {
-		osm_log(p_log, OSM_LOG_ERROR,
+		osm_log(sm->p_log, OSM_LOG_ERROR,
 			"osm_sweep_fail_ctrl_init: ERR 3501: "
 			"Dispatcher registration failed\n");
 		status = IB_INSUFFICIENT_RESOURCES;
@@ -117,6 +113,6 @@ osm_sweep_fail_ctrl_init(IN osm_sweep_fail_ctrl_t * const p_ctrl,
 	}
 
       Exit:
-	OSM_LOG_EXIT(p_log);
+	OSM_LOG_EXIT(sm->p_log);
 	return (status);
 }

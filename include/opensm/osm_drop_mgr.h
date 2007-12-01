@@ -81,6 +81,7 @@ BEGIN_C_DECLS
 *	Steve King, Intel
 *
 *********/
+struct osm_sm;
 /****s* OpenSM: Drop Manager/osm_drop_mgr_t
 * NAME
 *	osm_drop_mgr_t
@@ -94,6 +95,7 @@ BEGIN_C_DECLS
 * SYNOPSIS
 */
 typedef struct _osm_drop_mgr {
+	struct osm_sm *sm;
 	osm_subn_t *p_subn;
 	osm_log_t *p_log;
 	osm_req_t *p_req;
@@ -102,6 +104,9 @@ typedef struct _osm_drop_mgr {
 } osm_drop_mgr_t;
 /*
 * FIELDS
+*	sm
+*		Pointer to the SM object.
+*
 *	p_subn
 *		Pointer to the Subnet object for this subnet.
 *
@@ -188,38 +193,24 @@ void osm_drop_mgr_destroy(IN osm_drop_mgr_t * const p_mgr);
 *
 * SYNOPSIS
 */
-ib_api_status_t osm_drop_mgr_init(IN osm_drop_mgr_t * const p_mgr,
-				  IN osm_subn_t * const p_subn,
-				  IN osm_log_t * const p_log,
-				  IN osm_req_t * const p_req,
-				  IN cl_plock_t * const p_lock);
+ib_api_status_t
+osm_drop_mgr_init(IN osm_drop_mgr_t * const p_mgr, struct osm_sm * sm);
 /*
 * PARAMETERS
 *	p_mgr
 *		[in] Pointer to an osm_drop_mgr_t object to initialize.
 *
-*	p_subn
-*		[in] Pointer to the Subnet object for this subnet.
-*
-*	p_log
-*		[in] Pointer to the log object.
-*
-*	p_req
-*		[in] Pointer to an osm_req_t object.
-*
-*	p_lock
-*		[in] Pointer to the OpenSM serializing lock.
+*	sm
+*		[in] Pointer to the SM object.
 *
 * RETURN VALUES
-*	IB_SUCCESS if the Drop Manager object was initialized
-*	successfully.
+*	IB_SUCCESS if the Drop Manager object was initialized successfully.
 *
 * NOTES
 *	Allows calling other Drop Manager methods.
 *
 * SEE ALSO
-*	Drop Manager object, osm_drop_mgr_construct,
-*	osm_drop_mgr_destroy
+*	Drop Manager object, osm_drop_mgr_construct, osm_drop_mgr_destroy
 *********/
 
 /****f* OpenSM: Drop Manager/osm_drop_mgr_process
