@@ -107,7 +107,6 @@ typedef struct _osm_state_mgr {
 	osm_mcast_mgr_t *p_mcast_mgr;
 	osm_link_mgr_t *p_link_mgr;
 	osm_drop_mgr_t *p_drop_mgr;
-	osm_req_t *p_req;
 	osm_stats_t *p_stats;
 	struct _osm_sm_state_mgr *p_sm_state_mgr;
 	const osm_sm_mad_ctrl_t *p_mad_ctrl;
@@ -140,9 +139,6 @@ typedef struct _osm_state_mgr {
 *
 *	p_drop_mgr
 *		Pointer to the Drop Manager object.
-*
-*	p_req
-*		Pointer to the Requester object sending SMPs.
 *
 *	p_stats
 *		Pointer to the OpenSM statistics block.

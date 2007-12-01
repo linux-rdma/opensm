@@ -238,7 +238,7 @@ __osm_sm_state_mgr_send_master_sm_info_req(IN osm_sm_state_mgr_t * p_sm_mgr)
 	context.smi_context.port_guid = p_port->guid;
 	context.smi_context.set_method = FALSE;
 
-	status = osm_req_get(p_sm_mgr->p_req,
+	status = osm_req_get(p_sm_mgr->sm,
 			     osm_physp_get_dr_path_ptr(p_port->p_physp),
 			     IB_MAD_ATTR_SM_INFO, 0, CL_DISP_MSGID_NONE,
 			     &context);
@@ -403,7 +403,6 @@ osm_sm_state_mgr_init(IN osm_sm_state_mgr_t * const p_sm_mgr, IN osm_sm_t * sm)
 
 	p_sm_mgr->sm = sm;
 	p_sm_mgr->p_log = sm->p_log;
-	p_sm_mgr->p_req = &sm->req;
 	p_sm_mgr->p_subn = sm->p_subn;
 
 	if (p_sm_mgr->p_subn->opt.sm_inactive) {

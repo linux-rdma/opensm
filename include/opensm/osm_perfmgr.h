@@ -46,7 +46,6 @@
 #include <complib/cl_event.h>
 #include <complib/cl_timer.h>
 #include <opensm/osm_subnet.h>
-#include <opensm/osm_req.h>
 #include <opensm/osm_log.h>
 #include <opensm/osm_perfmgr_db.h>
 #include <opensm/osm_sm.h>

@@ -107,7 +107,6 @@ typedef struct _osm_sm_state_mgr {
 	uint32_t retry_number;
 	ib_net64_t master_guid;
 	osm_subn_t *p_subn;
-	osm_req_t *p_req;
 	osm_log_t *p_log;
 	osm_remote_sm_t *p_polling_sm;
 } osm_sm_state_mgr_t;
@@ -132,9 +131,6 @@ typedef struct _osm_sm_state_mgr {
 *
 *	p_subn
 *		Pointer to the Subnet object for this subnet.
-*
-*	p_req
-*		Pointer to the generic attribute request object.
 *
 *	p_log
 *		Pointer to the log object.

@@ -38,10 +38,10 @@
 
 #include <iba/ib_types.h>
 #include <complib/cl_dispatcher.h>
+#include <complib/cl_map.h>
 #include <opensm/osm_base.h>
 #include <opensm/osm_log.h>
 #include <opensm/osm_msgdef.h>
-#include <opensm/osm_req.h>
 
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {

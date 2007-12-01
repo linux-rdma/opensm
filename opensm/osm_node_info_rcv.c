@@ -55,7 +55,6 @@
 #include <complib/cl_qmap.h>
 #include <complib/cl_passivelock.h>
 #include <complib/cl_debug.h>
-#include <opensm/osm_req.h>
 #include <opensm/osm_madw.h>
 #include <opensm/osm_log.h>
 #include <opensm/osm_node.h>
@@ -116,9 +115,7 @@ static void requery_dup_node_info(IN osm_sm_t * sm,
 	context.ni_context.dup_port_num = p_physp->port_num;
 	context.ni_context.dup_count = count;
 
-	status = osm_req_get(&sm->req,
-			     &path,
-			     IB_MAD_ATTR_NODE_INFO,
+	status = osm_req_get(sm, &path, IB_MAD_ATTR_NODE_INFO,
 			     0, CL_DISP_MSGID_NONE, &context);
 
 	if (status != IB_SUCCESS)
@@ -313,8 +310,7 @@ __osm_ni_rcv_process_new_node(IN osm_sm_t * sm,
 	context.pi_context.light_sweep = FALSE;
 	context.pi_context.active_transition = FALSE;
 
-	status = osm_req_get(&sm->req,
-			     osm_physp_get_dr_path_ptr(p_physp),
+	status = osm_req_get(sm, osm_physp_get_dr_path_ptr(p_physp),
 			     IB_MAD_ATTR_PORT_INFO,
 			     cl_hton32(port_num), CL_DISP_MSGID_NONE, &context);
 	if (status != IB_SUCCESS)
@@ -367,8 +363,7 @@ __osm_ni_rcv_get_node_desc(IN osm_sm_t * sm,
 
 	context.nd_context.node_guid = osm_node_get_node_guid(p_node);
 
-	status = osm_req_get(&sm->req,
-			     osm_physp_get_dr_path_ptr(p_physp),
+	status = osm_req_get(sm, osm_physp_get_dr_path_ptr(p_physp),
 			     IB_MAD_ATTR_NODE_DESC,
 			     0, CL_DISP_MSGID_NONE, &context);
 	if (status != IB_SUCCESS)
@@ -509,8 +504,7 @@ __osm_ni_rcv_process_existing_ca_or_router(IN osm_sm_t * sm,
 	context.pi_context.update_master_sm_base_lid = FALSE;
 	context.pi_context.light_sweep = FALSE;
 
-	status = osm_req_get(&sm->req,
-			     osm_physp_get_dr_path_ptr(p_physp),
+	status = osm_req_get(sm, osm_physp_get_dr_path_ptr(p_physp),
 			     IB_MAD_ATTR_PORT_INFO,
 			     cl_hton32(port_num), CL_DISP_MSGID_NONE, &context);
 
@@ -552,9 +546,7 @@ __osm_ni_rcv_process_switch(IN osm_sm_t * sm,
 	context.si_context.light_sweep = FALSE;
 
 	/* Request a SwitchInfo attribute */
-	status = osm_req_get(&sm->req,
-			     &dr_path,
-			     IB_MAD_ATTR_SWITCH_INFO,
+	status = osm_req_get(sm, &dr_path, IB_MAD_ATTR_SWITCH_INFO,
 			     0, CL_DISP_MSGID_NONE, &context);
 	if (status != IB_SUCCESS)
 		/* continue despite error */

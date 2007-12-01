@@ -99,7 +99,6 @@ osm_ucast_mgr_init(IN osm_ucast_mgr_t * const p_mgr, IN osm_sm_t * sm)
 	p_mgr->p_log = sm->p_log;
 	p_mgr->p_subn = sm->p_subn;
 	p_mgr->p_lock = sm->p_lock;
-	p_mgr->p_req = &sm->req;
 
 	p_mgr->lft_buf = malloc(IB_LID_UCAST_END_HO + 1);
 	if (!p_mgr->lft_buf)
@@ -431,9 +430,7 @@ osm_ucast_mgr_set_fwd_table(IN osm_ucast_mgr_t * const p_mgr,
 		context.si_context.node_guid = osm_node_get_node_guid(p_node);
 		context.si_context.set_method = TRUE;
 
-		status = osm_req_set(p_mgr->p_req,
-				     p_path,
-				     (uint8_t *) & si,
+		status = osm_req_set(p_mgr->sm, p_path, (uint8_t *) & si,
 				     sizeof(si),
 				     IB_MAD_ATTR_SWITCH_INFO,
 				     0, CL_DISP_MSGID_NONE, &context);
@@ -469,8 +466,7 @@ osm_ucast_mgr_set_fwd_table(IN osm_ucast_mgr_t * const p_mgr,
 				"Writing FT block %u\n", block_id_ho);
 		}
 
-		status = osm_req_set(p_mgr->p_req,
-				     p_path,
+		status = osm_req_set(p_mgr->sm, p_path,
 				     p_mgr->lft_buf + block_id_ho * 64,
 				     sizeof(block),
 				     IB_MAD_ATTR_LIN_FWD_TBL,

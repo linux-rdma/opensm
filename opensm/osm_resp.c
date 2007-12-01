@@ -52,7 +52,6 @@
 #include <string.h>
 #include <iba/ib_types.h>
 #include <complib/cl_debug.h>
-#include <opensm/osm_resp.h>
 #include <opensm/osm_madw.h>
 #include <opensm/osm_attrib_req.h>
 #include <opensm/osm_log.h>
@@ -64,51 +63,14 @@
 
 /**********************************************************************
  **********************************************************************/
-void osm_resp_construct(IN osm_resp_t * const p_resp)
-{
-	memset(p_resp, 0, sizeof(*p_resp));
-}
-
-/**********************************************************************
- **********************************************************************/
-void osm_resp_destroy(IN osm_resp_t * const p_resp)
-{
-	CL_ASSERT(p_resp);
-}
-
-/**********************************************************************
- **********************************************************************/
-ib_api_status_t
-osm_resp_init(IN osm_resp_t * const p_resp,
-	      IN osm_mad_pool_t * const p_pool,
-	      IN osm_vl15_t * const p_vl15,
-	      IN osm_subn_t * const p_subn, IN osm_log_t * const p_log)
-{
-	ib_api_status_t status = IB_SUCCESS;
-
-	OSM_LOG_ENTER(p_log, osm_resp_init);
-
-	osm_resp_construct(p_resp);
-
-	p_resp->p_log = p_log;
-	p_resp->p_pool = p_pool;
-	p_resp->p_vl15 = p_vl15;
-	p_resp->p_subn = p_subn;
-
-	OSM_LOG_EXIT(p_log);
-	return (status);
-}
-
-/**********************************************************************
- **********************************************************************/
 static void
-osm_resp_make_resp_smp(IN const osm_resp_t * const p_resp,
+osm_resp_make_resp_smp(IN osm_sm_t * sm,
 		       IN const ib_smp_t * const p_src_smp,
 		       IN const ib_net16_t status,
 		       IN const uint8_t * const p_payload,
 		       OUT ib_smp_t * const p_dest_smp)
 {
-	OSM_LOG_ENTER(p_resp->p_log, osm_resp_make_resp_smp);
+	OSM_LOG_ENTER(sm->p_log, osm_resp_make_resp_smp);
 
 	CL_ASSERT(p_dest_smp);
 	CL_ASSERT(p_src_smp);
@@ -123,7 +85,7 @@ osm_resp_make_resp_smp(IN const osm_resp_t * const p_resp,
 		p_dest_smp->method = IB_MAD_METHOD_TRAP_REPRESS;
 		p_dest_smp->status = 0;
 	} else {
-		osm_log(p_resp->p_log, OSM_LOG_ERROR,
+		osm_log(sm->p_log, OSM_LOG_ERROR,
 			"osm_resp_make_resp_smp: ERR 1302: "
 			"src smp method unsupported 0x%X\n", p_src_smp->method);
 		goto Exit;
@@ -137,13 +99,13 @@ osm_resp_make_resp_smp(IN const osm_resp_t * const p_resp,
 	memcpy(&p_dest_smp->data, p_payload, IB_SMP_DATA_SIZE);
 
       Exit:
-	OSM_LOG_EXIT(p_resp->p_log);
+	OSM_LOG_EXIT(sm->p_log);
 }
 
 /**********************************************************************
  **********************************************************************/
 ib_api_status_t
-osm_resp_send(IN const osm_resp_t * const p_resp,
+osm_resp_send(IN osm_sm_t * sm,
 	      IN const osm_madw_t * const p_req_madw,
 	      IN const ib_net16_t mad_status,
 	      IN const uint8_t * const p_payload)
@@ -153,7 +115,7 @@ osm_resp_send(IN const osm_resp_t * const p_resp,
 	osm_madw_t *p_madw;
 	ib_api_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(p_resp->p_log, osm_resp_send);
+	OSM_LOG_ENTER(sm->p_log, osm_resp_send);
 
 	CL_ASSERT(p_req_madw);
 	CL_ASSERT(p_payload);
@@ -162,12 +124,12 @@ osm_resp_send(IN const osm_resp_t * const p_resp,
 	if (osm_exit_flag)
 		goto Exit;
 
-	p_madw = osm_mad_pool_get(p_resp->p_pool,
+	p_madw = osm_mad_pool_get(sm->p_mad_pool,
 				  osm_madw_get_bind_handle(p_req_madw),
 				  MAD_BLOCK_SIZE, NULL);
 
 	if (p_madw == NULL) {
-		osm_log(p_resp->p_log, OSM_LOG_ERROR,
+		osm_log(sm->p_log, OSM_LOG_ERROR,
 			"osm_resp_send: ERR 1301: " "Unable to acquire MAD\n");
 		status = IB_INSUFFICIENT_RESOURCES;
 		goto Exit;
@@ -179,7 +141,7 @@ osm_resp_send(IN const osm_resp_t * const p_resp,
 	 */
 	p_smp = osm_madw_get_smp_ptr(p_madw);
 	p_req_smp = osm_madw_get_smp_ptr(p_req_madw);
-	osm_resp_make_resp_smp(p_resp, p_req_smp, mad_status, p_payload, p_smp);
+	osm_resp_make_resp_smp(sm, p_req_smp, mad_status, p_payload, p_smp);
 	p_madw->mad_addr.dest_lid =
 	    p_req_madw->mad_addr.addr_type.smi.source_lid;
 	p_madw->mad_addr.addr_type.smi.source_lid =
@@ -188,8 +150,8 @@ osm_resp_send(IN const osm_resp_t * const p_resp,
 	p_madw->resp_expected = FALSE;
 	p_madw->fail_msg = CL_DISP_MSGID_NONE;
 
-	if (osm_log_is_active(p_resp->p_log, OSM_LOG_DEBUG)) {
-		osm_log(p_resp->p_log, OSM_LOG_DEBUG,
+	if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
+		osm_log(sm->p_log, OSM_LOG_DEBUG,
 			"osm_resp_send: "
 			"Responding to %s (0x%X)"
 			"\n\t\t\t\tattribute modifier 0x%X, TID 0x%" PRIx64
@@ -198,9 +160,9 @@ osm_resp_send(IN const osm_resp_t * const p_resp,
 			cl_ntoh64(p_smp->trans_id));
 	}
 
-	osm_vl15_post(p_resp->p_vl15, p_madw);
+	osm_vl15_post(sm->p_vl15, p_madw);
 
       Exit:
-	OSM_LOG_EXIT(p_resp->p_log);
+	OSM_LOG_EXIT(sm->p_log);
 	return (status);
 }

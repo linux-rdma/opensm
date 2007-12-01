@@ -111,9 +111,7 @@ __osm_si_rcv_get_port_info(IN osm_sm_t * sm,
 			 p_smp->hop_count, p_smp->initial_path);
 
 	for (port_num = 0; port_num < num_ports; port_num++) {
-		status = osm_req_get(&sm->req,
-				     &dr_path,
-				     IB_MAD_ATTR_PORT_INFO,
+		status = osm_req_get(sm, &dr_path, IB_MAD_ATTR_PORT_INFO,
 				     cl_hton32(port_num),
 				     CL_DISP_MSGID_NONE, &context);
 		if (status != IB_SUCCESS) {

@@ -612,8 +612,7 @@ static int sweep_hop_1(osm_sm_t * sm)
 		path_array[1] = port_num;
 
 		osm_dr_path_init(&hop_1_path, h_bind, 1, path_array);
-		status = osm_req_get(&sm->req,
-				     &hop_1_path,
+		status = osm_req_get(sm, &hop_1_path,
 				     IB_MAD_ATTR_NODE_INFO, 0,
 				     CL_DISP_MSGID_NONE, &context);
 
@@ -647,7 +646,7 @@ static int sweep_hop_1(osm_sm_t * sm)
 			path_array[1] = port_num;
 
 			osm_dr_path_init(&hop_1_path, h_bind, 1, path_array);
-			status = osm_req_get(&sm->req, &hop_1_path,
+			status = osm_req_get(sm, &hop_1_path,
 					     IB_MAD_ATTR_NODE_INFO, 0,
 					     CL_DISP_MSGID_NONE, &context);
 
@@ -708,8 +707,7 @@ static int sweep_hop_0(osm_sm_t * const sm)
 	}
 
 	osm_dr_path_init(&dr_path, h_bind, 0, path_array);
-	status = osm_req_get(&sm->req,
-			     &dr_path, IB_MAD_ATTR_NODE_INFO, 0,
+	status = osm_req_get(sm, &dr_path, IB_MAD_ATTR_NODE_INFO, 0,
 			     CL_DISP_MSGID_NONE, NULL);
 
 	if (status != IB_SUCCESS)

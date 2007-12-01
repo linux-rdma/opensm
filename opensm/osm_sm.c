@@ -158,8 +158,6 @@ void osm_sm_construct(IN osm_sm_t * const p_sm)
 	cl_event_wheel_construct(&p_sm->trap_aging_tracker);
 	cl_thread_construct(&p_sm->sweeper);
 	cl_spinlock_construct(&p_sm->mgrp_lock);
-	osm_req_construct(&p_sm->req);
-	osm_resp_construct(&p_sm->resp);
 	osm_sm_mad_ctrl_construct(&p_sm->mad_ctrl);
 	osm_lid_mgr_construct(&p_sm->lid_mgr);
 	osm_ucast_mgr_construct(&p_sm->ucast_mgr);
@@ -224,8 +222,6 @@ void osm_sm_shutdown(IN osm_sm_t * const p_sm)
 void osm_sm_destroy(IN osm_sm_t * const p_sm)
 {
 	OSM_LOG_ENTER(p_sm->p_log, osm_sm_destroy);
-	osm_req_destroy(&p_sm->req);
-	osm_resp_destroy(&p_sm->resp);
 	osm_lid_mgr_destroy(&p_sm->lid_mgr);
 	osm_ucast_mgr_destroy(&p_sm->ucast_mgr);
 	osm_link_mgr_destroy(&p_sm->link_mgr);
@@ -298,16 +294,6 @@ osm_sm_init(IN osm_sm_t * const p_sm,
 				      p_sm->p_vl15,
 				      p_sm->p_vendor,
 				      p_log, p_stats, p_lock, p_disp);
-	if (status != IB_SUCCESS)
-		goto Exit;
-
-	status = osm_req_init(&p_sm->req,
-			      p_mad_pool,
-			      p_vl15, p_subn, p_log, &p_sm->sm_trans_id);
-	if (status != IB_SUCCESS)
-		goto Exit;
-
-	status = osm_resp_init(&p_sm->resp, p_mad_pool, p_vl15, p_subn, p_log);
 	if (status != IB_SUCCESS)
 		goto Exit;
 

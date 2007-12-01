@@ -87,7 +87,7 @@ pkey_mgr_get_physp_max_blocks(IN const osm_subn_t * p_subn,
  */
 static void
 pkey_mgr_process_physical_port(IN osm_log_t * p_log,
-			       IN const osm_req_t * p_req,
+			       IN osm_sm_t * sm,
 			       IN const ib_net16_t pkey,
 			       IN osm_physp_t * p_physp)
 {
@@ -149,8 +149,7 @@ pkey_mgr_process_physical_port(IN osm_log_t * p_log,
 /**********************************************************************
  **********************************************************************/
 static void
-pkey_mgr_process_partition_table(osm_log_t * p_log,
-				 const osm_req_t * p_req,
+pkey_mgr_process_partition_table(osm_log_t * p_log, osm_sm_t * sm,
 				 const osm_prtn_t * p_prtn,
 				 const boolean_t full)
 {
@@ -169,7 +168,7 @@ pkey_mgr_process_partition_table(osm_log_t * p_log,
 		i_next = cl_map_next(i);
 		p_physp = cl_map_obj(i);
 		if (p_physp && osm_physp_is_valid(p_physp))
-			pkey_mgr_process_physical_port(p_log, p_req, pkey,
+			pkey_mgr_process_physical_port(p_log, sm, pkey,
 						       p_physp);
 	}
 }
@@ -177,7 +176,7 @@ pkey_mgr_process_partition_table(osm_log_t * p_log,
 /**********************************************************************
  **********************************************************************/
 static ib_api_status_t
-pkey_mgr_update_pkey_entry(IN const osm_req_t * p_req,
+pkey_mgr_update_pkey_entry(IN osm_sm_t * sm,
 			   IN const osm_physp_t * p_physp,
 			   IN const ib_pkey_table_t * block,
 			   IN const uint16_t block_index)
@@ -192,7 +191,7 @@ pkey_mgr_update_pkey_entry(IN const osm_req_t * p_req,
 	attr_mod = block_index;
 	if (osm_node_get_type(p_node) == IB_NODE_TYPE_SWITCH)
 		attr_mod |= osm_physp_get_port_num(p_physp) << 16;
-	return osm_req_set(p_req, osm_physp_get_dr_path_ptr(p_physp),
+	return osm_req_set(sm, osm_physp_get_dr_path_ptr(p_physp),
 			   (uint8_t *) block, sizeof(*block),
 			   IB_MAD_ATTR_P_KEY_TABLE,
 			   cl_hton32(attr_mod), CL_DISP_MSGID_NONE, &context);
@@ -201,8 +200,7 @@ pkey_mgr_update_pkey_entry(IN const osm_req_t * p_req,
 /**********************************************************************
  **********************************************************************/
 static boolean_t
-pkey_mgr_enforce_partition(IN osm_log_t * p_log,
-			   IN const osm_req_t * p_req,
+pkey_mgr_enforce_partition(IN osm_log_t * p_log, osm_sm_t * sm,
 			   IN osm_physp_t * p_physp, IN const boolean_t enforce)
 {
 	osm_madw_context_t context;
@@ -242,7 +240,7 @@ pkey_mgr_enforce_partition(IN osm_log_t * p_log,
 	context.pi_context.light_sweep = FALSE;
 	context.pi_context.active_transition = FALSE;
 
-	status = osm_req_set(p_req, osm_physp_get_dr_path_ptr(p_physp),
+	status = osm_req_set(sm, osm_physp_get_dr_path_ptr(p_physp),
 			     payload, sizeof(payload),
 			     IB_MAD_ATTR_PORT_INFO,
 			     cl_hton32(osm_physp_get_port_num(p_physp)),
@@ -270,8 +268,7 @@ pkey_mgr_enforce_partition(IN osm_log_t * p_log,
 
 /**********************************************************************
  **********************************************************************/
-static boolean_t pkey_mgr_update_port(osm_log_t * p_log,
-				      osm_req_t * p_req,
+static boolean_t pkey_mgr_update_port(osm_log_t * p_log, osm_sm_t * sm,
 				      const osm_port_t * const p_port)
 {
 	osm_physp_t *p_physp;
@@ -300,7 +297,7 @@ static boolean_t pkey_mgr_update_port(osm_log_t * p_log,
 	p_pkey_tbl = osm_physp_get_mod_pkey_tbl(p_physp);
 	num_of_blocks = osm_pkey_tbl_get_num_blocks(p_pkey_tbl);
 	max_num_of_blocks =
-	    pkey_mgr_get_physp_max_blocks(p_req->p_subn, p_physp);
+	    pkey_mgr_get_physp_max_blocks(sm->p_subn, p_physp);
 	if (p_pkey_tbl->max_blocks > max_num_of_blocks) {
 		osm_log(p_log, OSM_LOG_INFO,
 			"pkey_mgr_update_port: "
@@ -379,7 +376,7 @@ static boolean_t pkey_mgr_update_port(osm_log_t * p_log,
 			continue;
 
 		status =
-		    pkey_mgr_update_pkey_entry(p_req, p_physp, new_block,
+		    pkey_mgr_update_pkey_entry(sm, p_physp, new_block,
 					       block_index);
 		if (status == IB_SUCCESS) {
 			osm_log(p_log, OSM_LOG_DEBUG,
@@ -407,8 +404,7 @@ static boolean_t pkey_mgr_update_port(osm_log_t * p_log,
 /**********************************************************************
  **********************************************************************/
 static boolean_t
-pkey_mgr_update_peer_port(osm_log_t * p_log,
-			  const osm_req_t * p_req,
+pkey_mgr_update_peer_port(osm_log_t * p_log, osm_sm_t * sm,
 			  const osm_subn_t * p_subn,
 			  const osm_port_t * const p_port, boolean_t enforce)
 {
@@ -452,7 +448,7 @@ pkey_mgr_update_peer_port(osm_log_t * p_log,
 		enforce = FALSE;
 	}
 
-	if (pkey_mgr_enforce_partition(p_log, p_req, peer, enforce))
+	if (pkey_mgr_enforce_partition(p_log, sm, peer, enforce))
 		port_info_set = TRUE;
 
 	if (enforce == FALSE)
@@ -470,7 +466,7 @@ pkey_mgr_update_peer_port(osm_log_t * p_log,
 		if (!peer_block
 		    || memcmp(peer_block, block, sizeof(*peer_block))) {
 			status =
-			    pkey_mgr_update_pkey_entry(p_req, peer, block,
+			    pkey_mgr_update_pkey_entry(sm, peer, block,
 						       block_index);
 			if (status == IB_SUCCESS)
 				ret_val = TRUE;
@@ -529,9 +525,9 @@ osm_signal_t osm_pkey_mgr_process(IN osm_opensm_t * p_osm)
 	while (p_next != cl_qmap_end(p_tbl)) {
 		p_prtn = (osm_prtn_t *) p_next;
 		p_next = cl_qmap_next(p_next);
-		pkey_mgr_process_partition_table(&p_osm->log, &p_osm->sm.req,
+		pkey_mgr_process_partition_table(&p_osm->log, &p_osm->sm,
 						 p_prtn, FALSE);
-		pkey_mgr_process_partition_table(&p_osm->log, &p_osm->sm.req,
+		pkey_mgr_process_partition_table(&p_osm->log, &p_osm->sm,
 						 p_prtn, TRUE);
 	}
 
@@ -541,10 +537,10 @@ osm_signal_t osm_pkey_mgr_process(IN osm_opensm_t * p_osm)
 	while (p_next != cl_qmap_end(p_tbl)) {
 		p_port = (osm_port_t *) p_next;
 		p_next = cl_qmap_next(p_next);
-		if (pkey_mgr_update_port(&p_osm->log, &p_osm->sm.req, p_port))
+		if (pkey_mgr_update_port(&p_osm->log, &p_osm->sm, p_port))
 			signal = OSM_SIGNAL_DONE_PENDING;
 		if ((osm_node_get_type(p_port->p_node) != IB_NODE_TYPE_SWITCH)
-		    && pkey_mgr_update_peer_port(&p_osm->log, &p_osm->sm.req,
+		    && pkey_mgr_update_peer_port(&p_osm->log, &p_osm->sm,
 						 &p_osm->subn, p_port,
 						 !p_osm->subn.opt.
 						 no_partition_enforcement))

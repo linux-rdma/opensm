@@ -55,7 +55,6 @@
 #include <complib/cl_passivelock.h>
 #include <complib/cl_debug.h>
 #include <vendor/osm_vendor_api.h>
-#include <opensm/osm_req.h>
 #include <opensm/osm_madw.h>
 #include <opensm/osm_log.h>
 #include <opensm/osm_node.h>
@@ -191,7 +190,7 @@ __osm_pi_rcv_process_endport(IN osm_sm_t * sm,
 				memset(&context, 0, sizeof(context));
 				context.smi_context.set_method = FALSE;
 				context.smi_context.port_guid = port_guid;
-				status = osm_req_get(&sm->req,
+				status = osm_req_get(sm,
 						     osm_physp_get_dr_path_ptr
 						     (p_physp),
 						     IB_MAD_ATTR_SM_INFO, 0,
@@ -295,7 +294,7 @@ __osm_pi_rcv_process_switch_port(IN osm_sm_t * sm,
 				context.ni_context.port_num =
 				    osm_physp_get_port_num(p_physp);
 
-				status = osm_req_get(&sm->req,
+				status = osm_req_get(sm,
 						     &path,
 						     IB_MAD_ATTR_NODE_INFO,
 						     0,
@@ -373,8 +372,7 @@ __osm_pi_rcv_process_ca_or_router_port(IN osm_sm_t * sm,
 /**********************************************************************
  **********************************************************************/
 static void get_pkey_table(IN osm_log_t * p_log,
-			   IN osm_req_t * p_req,
-			   IN osm_subn_t * const p_subn,
+			   IN osm_sm_t * sm,
 			   IN osm_node_t * const p_node,
 			   IN osm_physp_t * const p_physp)
 {
@@ -426,9 +424,7 @@ static void get_pkey_table(IN osm_log_t * p_log,
 			attr_mod_ho = block_num;
 		else
 			attr_mod_ho = block_num | (port_num << 16);
-		status = osm_req_get(p_req,
-				     &path,
-				     IB_MAD_ATTR_P_KEY_TABLE,
+		status = osm_req_get(sm, &path, IB_MAD_ATTR_P_KEY_TABLE,
 				     cl_hton32(attr_mod_ho),
 				     CL_DISP_MSGID_NONE, &context);
 
@@ -454,7 +450,7 @@ __osm_pi_rcv_get_pkey_slvl_vla_tables(IN osm_sm_t * sm,
 {
 	OSM_LOG_ENTER(sm->p_log, __osm_pi_rcv_get_pkey_slvl_vla_tables);
 
-	get_pkey_table(sm->p_log, &sm->req, sm->p_subn, p_node, p_physp);
+	get_pkey_table(sm->p_log, sm, p_node, p_physp);
 
 	OSM_LOG_EXIT(sm->p_log);
 }

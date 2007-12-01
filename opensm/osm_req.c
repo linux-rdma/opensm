@@ -52,7 +52,6 @@
 #include <string.h>
 #include <iba/ib_types.h>
 #include <complib/cl_debug.h>
-#include <opensm/osm_req.h>
 #include <opensm/osm_madw.h>
 #include <opensm/osm_attrib_req.h>
 #include <opensm/osm_log.h>
@@ -63,51 +62,10 @@
 #include <opensm/osm_opensm.h>
 
 /**********************************************************************
- **********************************************************************/
-void osm_req_construct(IN osm_req_t * const p_req)
-{
-	CL_ASSERT(p_req);
-
-	memset(p_req, 0, sizeof(*p_req));
-}
-
-/**********************************************************************
- **********************************************************************/
-void osm_req_destroy(IN osm_req_t * const p_req)
-{
-	CL_ASSERT(p_req);
-}
-
-/**********************************************************************
- **********************************************************************/
-ib_api_status_t
-osm_req_init(IN osm_req_t * const p_req,
-	     IN osm_mad_pool_t * const p_pool,
-	     IN osm_vl15_t * const p_vl15,
-	     IN osm_subn_t * const p_subn,
-	     IN osm_log_t * const p_log, IN atomic32_t * const p_sm_trans_id)
-{
-	ib_api_status_t status = IB_SUCCESS;
-
-	OSM_LOG_ENTER(p_log, osm_req_init);
-
-	osm_req_construct(p_req);
-	p_req->p_log = p_log;
-
-	p_req->p_pool = p_pool;
-	p_req->p_vl15 = p_vl15;
-	p_req->p_subn = p_subn;
-	p_req->p_sm_trans_id = p_sm_trans_id;
-
-	OSM_LOG_EXIT(p_log);
-	return (status);
-}
-
-/**********************************************************************
   The plock MAY or MAY NOT be held before calling this function.
 **********************************************************************/
 ib_api_status_t
-osm_req_get(IN const osm_req_t * const p_req,
+osm_req_get(IN osm_sm_t * sm,
 	    IN const osm_dr_path_t * const p_path,
 	    IN const uint16_t attr_id,
 	    IN const uint32_t attr_mod,
@@ -118,9 +76,9 @@ osm_req_get(IN const osm_req_t * const p_req,
 	ib_api_status_t status = IB_SUCCESS;
 	ib_net64_t tid;
 
-	CL_ASSERT(p_req);
+	CL_ASSERT(sm);
 
-	OSM_LOG_ENTER(p_req->p_log, osm_req_get);
+	OSM_LOG_ENTER(sm->p_log, osm_req_get);
 
 	CL_ASSERT(p_path);
 	CL_ASSERT(attr_id);
@@ -131,20 +89,20 @@ osm_req_get(IN const osm_req_t * const p_req,
 
 	/* p_context may be NULL. */
 
-	p_madw = osm_mad_pool_get(p_req->p_pool,
+	p_madw = osm_mad_pool_get(sm->p_mad_pool,
 				  p_path->h_bind, MAD_BLOCK_SIZE, NULL);
 
 	if (p_madw == NULL) {
-		osm_log(p_req->p_log, OSM_LOG_ERROR,
+		osm_log(sm->p_log, OSM_LOG_ERROR,
 			"osm_req_get: ERR 1101: " "Unable to acquire MAD\n");
 		status = IB_INSUFFICIENT_RESOURCES;
 		goto Exit;
 	}
 
-	tid = cl_hton64((uint64_t) cl_atomic_inc(p_req->p_sm_trans_id));
+	tid = cl_hton64((uint64_t) cl_atomic_inc(&sm->sm_trans_id));
 
-	if (osm_log_is_active(p_req->p_log, OSM_LOG_DEBUG)) {
-		osm_log(p_req->p_log, OSM_LOG_DEBUG,
+	if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
+		osm_log(sm->p_log, OSM_LOG_DEBUG,
 			"osm_req_get: "
 			"Getting %s (0x%X), modifier 0x%X, TID 0x%" PRIx64 "\n",
 			ib_get_sm_attr_str(attr_id),
@@ -158,7 +116,7 @@ osm_req_get(IN const osm_req_t * const p_req,
 			attr_id,
 			attr_mod,
 			p_path->hop_count,
-			p_req->p_subn->opt.m_key,
+			sm->p_subn->opt.m_key,
 			p_path->path, IB_LID_PERMISSIVE, IB_LID_PERMISSIVE);
 
 	p_madw->mad_addr.dest_lid = IB_LID_PERMISSIVE;
@@ -175,10 +133,10 @@ osm_req_get(IN const osm_req_t * const p_req,
 	if (p_context)
 		p_madw->context = *p_context;
 
-	osm_vl15_post(p_req->p_vl15, p_madw);
+	osm_vl15_post(sm->p_vl15, p_madw);
 
       Exit:
-	OSM_LOG_EXIT(p_req->p_log);
+	OSM_LOG_EXIT(sm->p_log);
 	return (status);
 }
 
@@ -186,7 +144,7 @@ osm_req_get(IN const osm_req_t * const p_req,
   The plock MAY or MAY NOT be held before calling this function.
 **********************************************************************/
 ib_api_status_t
-osm_req_set(IN const osm_req_t * const p_req,
+osm_req_set(IN osm_sm_t * sm,
 	    IN const osm_dr_path_t * const p_path,
 	    IN const uint8_t * const p_payload,
 	    IN const size_t payload_size,
@@ -199,9 +157,9 @@ osm_req_set(IN const osm_req_t * const p_req,
 	ib_api_status_t status = IB_SUCCESS;
 	ib_net64_t tid;
 
-	CL_ASSERT(p_req);
+	CL_ASSERT(sm);
 
-	OSM_LOG_ENTER(p_req->p_log, osm_req_set);
+	OSM_LOG_ENTER(sm->p_log, osm_req_set);
 
 	CL_ASSERT(p_path);
 	CL_ASSERT(attr_id);
@@ -213,20 +171,20 @@ osm_req_set(IN const osm_req_t * const p_req,
 
 	/* p_context may be NULL. */
 
-	p_madw = osm_mad_pool_get(p_req->p_pool,
+	p_madw = osm_mad_pool_get(sm->p_mad_pool,
 				  p_path->h_bind, MAD_BLOCK_SIZE, NULL);
 
 	if (p_madw == NULL) {
-		osm_log(p_req->p_log, OSM_LOG_ERROR,
+		osm_log(sm->p_log, OSM_LOG_ERROR,
 			"osm_req_set: ERR 1102: " "Unable to acquire MAD\n");
 		status = IB_INSUFFICIENT_RESOURCES;
 		goto Exit;
 	}
 
-	tid = cl_hton64((uint64_t) cl_atomic_inc(p_req->p_sm_trans_id));
+	tid = cl_hton64((uint64_t) cl_atomic_inc(&sm->sm_trans_id));
 
-	if (osm_log_is_active(p_req->p_log, OSM_LOG_DEBUG)) {
-		osm_log(p_req->p_log, OSM_LOG_DEBUG,
+	if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
+		osm_log(sm->p_log, OSM_LOG_DEBUG,
 			"osm_req_set: "
 			"Setting %s (0x%X), modifier 0x%X, TID 0x%" PRIx64 "\n",
 			ib_get_sm_attr_str(attr_id),
@@ -240,7 +198,7 @@ osm_req_set(IN const osm_req_t * const p_req,
 			attr_id,
 			attr_mod,
 			p_path->hop_count,
-			p_req->p_subn->opt.m_key,
+			sm->p_subn->opt.m_key,
 			p_path->path, IB_LID_PERMISSIVE, IB_LID_PERMISSIVE);
 
 	p_madw->mad_addr.dest_lid = IB_LID_PERMISSIVE;
@@ -259,9 +217,9 @@ osm_req_set(IN const osm_req_t * const p_req,
 
 	memcpy(osm_madw_get_smp_ptr(p_madw)->data, p_payload, payload_size);
 
-	osm_vl15_post(p_req->p_vl15, p_madw);
+	osm_vl15_post(sm->p_vl15, p_madw);
 
       Exit:
-	OSM_LOG_EXIT(p_req->p_log);
+	OSM_LOG_EXIT(sm->p_log);
 	return (status);
 }

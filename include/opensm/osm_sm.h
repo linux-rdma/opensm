@@ -59,8 +59,6 @@
 #include <opensm/osm_subnet.h>
 #include <opensm/osm_vl15intf.h>
 #include <opensm/osm_mad_pool.h>
-#include <opensm/osm_req.h>
-#include <opensm/osm_resp.h>
 #include <opensm/osm_log.h>
 #include <opensm/osm_sm_mad_ctrl.h>
 #include <opensm/osm_lid_mgr.h>
@@ -133,8 +131,6 @@ typedef struct osm_sm {
 	atomic32_t sm_trans_id;
 	cl_spinlock_t mgrp_lock;
 	cl_qlist_t mgrp_list;
-	osm_req_t req;
-	osm_resp_t resp;
 	osm_sm_mad_ctrl_t mad_ctrl;
 	osm_lid_mgr_t lid_mgr;
 	osm_ucast_mgr_t ucast_mgr;
@@ -175,12 +171,6 @@ typedef struct osm_sm {
 *
 *	p_vl15
 *		Pointer to the VL15 interface.
-*
-*	req
-*		Generic MAD attribute requester.
-*
-*	resp
-*		MAD attribute responder.
 *
 *	mad_ctrl
 *		MAD Controller.
@@ -411,6 +401,139 @@ osm_sm_bind(IN osm_sm_t * const p_sm, IN const ib_net64_t port_guid);
 *	A given SM object can only be bound to one port at a time.
 *
 * SEE ALSO
+*********/
+
+/****f* OpenSM: SM/osm_req_get
+* NAME
+*	osm_req_get
+*
+* DESCRIPTION
+*	Starts the process to transmit a directed route request for
+*	the attribute.
+*
+* SYNOPSIS
+*/
+ib_api_status_t
+osm_req_get(IN osm_sm_t * sm,
+	    IN const osm_dr_path_t * const p_path,
+	    IN const uint16_t attr_id,
+	    IN const uint32_t attr_mod,
+	    IN const cl_disp_msgid_t err_msg,
+	    IN const osm_madw_context_t * const p_context);
+/*
+* PARAMETERS
+*	sm
+*		[in] Pointer to an osm_sm_t object.
+*
+*	p_path
+*		[in] Pointer to the directed route path to the node
+*		from which to retrieve the attribute.
+*
+*	attr_id
+*		[in] Attribute ID to request.
+*
+*	attr_mod
+*		[in] Attribute modifier for this request.
+*
+*	err_msg
+*		[in] Message id with which to post this MAD if an error occurs.
+*
+*	p_context
+*		[in] Mad wrapper context structure to be copied into the wrapper
+*		context, and thus visible to the recipient of the response.
+*
+* RETURN VALUES
+*	IB_SUCCESS if the request was successful.
+*
+* NOTES
+*	This function asynchronously requests the specified attribute.
+*	The response from the node will be routed through the Dispatcher
+*	to the appropriate receive controller object.
+*********/
+/****f* OpenSM: SM/osm_req_set
+* NAME
+*	osm_req_set
+*
+* DESCRIPTION
+*	Starts the process to transmit a directed route Set() request.
+*
+* SYNOPSIS
+*/
+ib_api_status_t
+osm_req_set(IN osm_sm_t * sm,
+	    IN const osm_dr_path_t * const p_path,
+	    IN const uint8_t * const p_payload,
+	    IN const size_t payload_size,
+	    IN const uint16_t attr_id,
+	    IN const uint32_t attr_mod,
+	    IN const cl_disp_msgid_t err_msg,
+	    IN const osm_madw_context_t * const p_context);
+/*
+* PARAMETERS
+*	sm
+*		[in] Pointer to an osm_sm_t object.
+*
+*	p_path
+*		[in] Pointer to the directed route path of the recipient.
+*
+*	p_payload
+*		[in] Pointer to the SMP payload to send.
+*
+*	payload_size
+*		[in] The size of the payload to be copied to the SMP data field.
+*
+*	attr_id
+*		[in] Attribute ID to request.
+*
+*	attr_mod
+*		[in] Attribute modifier for this request.
+*
+*	err_msg
+*		[in] Message id with which to post this MAD if an error occurs.
+*
+*	p_context
+*		[in] Mad wrapper context structure to be copied into the wrapper
+*		context, and thus visible to the recipient of the response.
+*
+* RETURN VALUES
+*	IB_SUCCESS if the request was successful.
+*
+* NOTES
+*	This function asynchronously requests the specified attribute.
+*	The response from the node will be routed through the Dispatcher
+*	to the appropriate receive controller object.
+*********/
+/****f* OpenSM: SM/osm_resp_send
+* NAME
+*	osm_resp_send
+*
+* DESCRIPTION
+*	Starts the process to transmit a directed route response.
+*
+* SYNOPSIS
+*/
+ib_api_status_t
+osm_resp_send(IN osm_sm_t * sm,
+	      IN const osm_madw_t * const p_req_madw,
+	      IN const ib_net16_t status, IN const uint8_t * const p_payload);
+/*
+* PARAMETERS
+*	p_resp
+*		[in] Pointer to an osm_resp_t object.
+*
+*	p_madw
+*		[in] Pointer to the MAD Wrapper object for the requesting MAD
+*		to which this response is generated.
+*
+*	status
+*		[in] Status for this response.
+*
+*	p_payload
+*		[in] Pointer to the payload of the response MAD.
+*
+* RETURN VALUES
+*	IB_SUCCESS if the response was successful.
+*
 *********/
 
 /****f* OpenSM: SM/osm_sm_mcgrp_join

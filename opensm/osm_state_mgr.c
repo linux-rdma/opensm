@@ -109,7 +109,6 @@ osm_state_mgr_init(IN osm_state_mgr_t * const p_mgr, IN osm_sm_t * sm)
 	p_mgr->p_link_mgr = &sm->link_mgr;
 	p_mgr->p_drop_mgr = &sm->drop_mgr;
 	p_mgr->p_mad_ctrl = &sm->mad_ctrl;
-	p_mgr->p_req = &sm->req;
 	p_mgr->p_stats = &sm->p_subn->p_osm->stats;
 	p_mgr->p_sm_state_mgr = &sm->sm_state_mgr;
 	p_mgr->state = OSM_SM_STATE_IDLE;
@@ -486,9 +485,7 @@ static void __osm_state_mgr_get_sw_info(IN cl_map_item_t * const p_object,
 	mad_context.si_context.set_method = FALSE;
 	mad_context.si_context.light_sweep = TRUE;
 
-	status = osm_req_get(p_mgr->p_req,
-			     p_dr_path,
-			     IB_MAD_ATTR_SWITCH_INFO, 0,
+	status = osm_req_get(p_mgr->sm, p_dr_path, IB_MAD_ATTR_SWITCH_INFO, 0,
 			     OSM_MSG_LIGHT_SWEEP_FAIL, &mad_context);
 
 	if (status != IB_SUCCESS) {
@@ -532,8 +529,7 @@ __osm_state_mgr_get_remote_port_info(IN osm_state_mgr_t * const p_mgr,
 
 	/* note that with some negative logic - if the query failed it means that
 	 * there is no point in going to heavy sweep */
-	status = osm_req_get(p_mgr->p_req,
-			     &rem_node_dr_path,
+	status = osm_req_get(p_mgr->sm, &rem_node_dr_path,
 			     IB_MAD_ATTR_PORT_INFO, 0, CL_DISP_MSGID_NONE,
 			     &mad_context);
 
@@ -595,7 +591,7 @@ static ib_api_status_t __osm_state_mgr_sweep_hop_0(IN osm_state_mgr_t *
 		CL_PLOCK_RELEASE(p_mgr->p_lock);
 
 		osm_dr_path_init(&dr_path, h_bind, 0, path_array);
-		status = osm_req_get(p_mgr->p_req,
+		status = osm_req_get(p_mgr->sm,
 				     &dr_path, IB_MAD_ATTR_NODE_INFO, 0,
 				     CL_DISP_MSGID_NONE, NULL);
 
@@ -813,8 +809,7 @@ static ib_api_status_t __osm_state_mgr_sweep_hop_1(IN osm_state_mgr_t *
 		path_array[1] = port_num;
 
 		osm_dr_path_init(&hop_1_path, h_bind, 1, path_array);
-		status = osm_req_get(p_mgr->p_req,
-				     &hop_1_path,
+		status = osm_req_get(p_mgr->sm, &hop_1_path,
 				     IB_MAD_ATTR_NODE_INFO, 0,
 				     CL_DISP_MSGID_NONE, &context);
 
@@ -849,7 +844,7 @@ static ib_api_status_t __osm_state_mgr_sweep_hop_1(IN osm_state_mgr_t *
 				osm_dr_path_init(&hop_1_path, h_bind, 1,
 						 path_array);
 				status =
-				    osm_req_get(p_mgr->p_req, &hop_1_path,
+				    osm_req_get(p_mgr->sm, &hop_1_path,
 						IB_MAD_ATTR_NODE_INFO, 0,
 						CL_DISP_MSGID_NONE, &context);
 
@@ -1110,7 +1105,7 @@ __osm_state_mgr_send_handover(IN osm_state_mgr_t * const p_mgr,
 		p_smi->sm_key = 0;
 	}
 
-	status = osm_req_set(p_mgr->p_req,
+	status = osm_req_set(p_mgr->sm,
 			     osm_physp_get_dr_path_ptr(p_port->p_physp),
 			     payload, sizeof(payload),
 			     IB_MAD_ATTR_SM_INFO, IB_SMINFO_ATTR_MOD_HANDOVER,

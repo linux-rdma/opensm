@@ -89,7 +89,6 @@ osm_link_mgr_init(IN osm_link_mgr_t * const p_mgr, IN osm_sm_t * sm)
 	p_mgr->p_log = sm->p_log;
 	p_mgr->p_subn = sm->p_subn;
 	p_mgr->p_lock = sm->p_lock;
-	p_mgr->p_req = &sm->req;
 
 	OSM_LOG_EXIT(p_mgr->p_log);
 	return (status);
@@ -371,7 +370,7 @@ __osm_link_mgr_set_physp_pi(IN osm_link_mgr_t * const p_mgr,
 		send_set = TRUE;
 
 	if (send_set)
-		status = osm_req_set(p_mgr->p_req,
+		status = osm_req_set(p_mgr->sm,
 				     osm_physp_get_dr_path_ptr(p_physp),
 				     payload,
 				     sizeof(payload),

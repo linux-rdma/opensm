@@ -51,7 +51,6 @@
 #include <complib/cl_passivelock.h>
 #include <opensm/osm_base.h>
 #include <opensm/osm_madw.h>
-#include <opensm/osm_req.h>
 #include <opensm/osm_subnet.h>
 #include <opensm/osm_log.h>
 
@@ -97,7 +96,6 @@ struct osm_sm;
 typedef struct _osm_link_mgr {
 	struct osm_sm *sm;
 	osm_subn_t *p_subn;
-	osm_req_t *p_req;
 	osm_log_t *p_log;
 	cl_plock_t *p_lock;
 } osm_link_mgr_t;
@@ -108,9 +106,6 @@ typedef struct _osm_link_mgr {
 *
 *	p_subn
 *		Pointer to the Subnet object for this subnet.
-*
-*	p_req
-*		Pointer to the Requester object sending SMPs.
 *
 *	p_log
 *		Pointer to the log object.

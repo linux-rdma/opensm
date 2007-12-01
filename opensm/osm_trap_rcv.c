@@ -393,7 +393,7 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 			"__osm_trap_rcv_process_request: ERR 3809: "
 			"Failed to find source physical port for trap\n");
 
-	status = osm_resp_send(&sm->resp, &tmp_madw, 0, payload);
+	status = osm_resp_send(sm, &tmp_madw, 0, payload);
 	if (status != IB_SUCCESS) {
 		osm_log(sm->p_log, OSM_LOG_ERROR,
 			"__osm_trap_rcv_process_request: ERR 3802: "
@@ -523,8 +523,7 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 						    active_transition = FALSE;
 
 						status =
-						    osm_req_set(&sm->p_subn->
-								p_osm->sm.req,
+						    osm_req_set(sm,
 								osm_physp_get_dr_path_ptr
 								(p_physp),
 								payload,

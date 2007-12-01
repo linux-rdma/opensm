@@ -68,7 +68,7 @@ static void qos_build_config(struct qos_config *cfg,
 /*
  * QoS primitives
  */
-static ib_api_status_t vlarb_update_table_block(osm_req_t * p_req,
+static ib_api_status_t vlarb_update_table_block(osm_sm_t * sm,
 						osm_physp_t * p,
 						uint8_t port_num,
 						unsigned force_update,
@@ -100,13 +100,13 @@ static ib_api_status_t vlarb_update_table_block(osm_req_t * p_req,
 	context.vla_context.set_method = TRUE;
 	attr_mod = ((block_num + 1) << 16) | port_num;
 
-	return osm_req_set(p_req, osm_physp_get_dr_path_ptr(p),
+	return osm_req_set(sm, osm_physp_get_dr_path_ptr(p),
 			   (uint8_t *) & block, sizeof(block),
 			   IB_MAD_ATTR_VL_ARBITRATION,
 			   cl_hton32(attr_mod), CL_DISP_MSGID_NONE, &context);
 }
 
-static ib_api_status_t vlarb_update(osm_req_t * p_req,
+static ib_api_status_t vlarb_update(osm_sm_t * sm,
 				    osm_physp_t * p, uint8_t port_num,
 				    unsigned force_update,
 				    const struct qos_config *qcfg)
@@ -118,7 +118,7 @@ static ib_api_status_t vlarb_update(osm_req_t * p_req,
 	if (p_pi->vl_arb_low_cap > 0) {
 		len = p_pi->vl_arb_low_cap < IB_NUM_VL_ARB_ELEMENTS_IN_BLOCK ?
 		    p_pi->vl_arb_low_cap : IB_NUM_VL_ARB_ELEMENTS_IN_BLOCK;
-		if ((status = vlarb_update_table_block(p_req, p, port_num,
+		if ((status = vlarb_update_table_block(sm, p, port_num,
 						       force_update,
 						       &qcfg->vlarb_low[0],
 						       len, 0)) != IB_SUCCESS)
@@ -126,7 +126,7 @@ static ib_api_status_t vlarb_update(osm_req_t * p_req,
 	}
 	if (p_pi->vl_arb_low_cap > IB_NUM_VL_ARB_ELEMENTS_IN_BLOCK) {
 		len = p_pi->vl_arb_low_cap % IB_NUM_VL_ARB_ELEMENTS_IN_BLOCK;
-		if ((status = vlarb_update_table_block(p_req, p, port_num,
+		if ((status = vlarb_update_table_block(sm, p, port_num,
 						       force_update,
 						       &qcfg->vlarb_low[1],
 						       len, 1)) != IB_SUCCESS)
@@ -135,7 +135,7 @@ static ib_api_status_t vlarb_update(osm_req_t * p_req,
 	if (p_pi->vl_arb_high_cap > 0) {
 		len = p_pi->vl_arb_high_cap < IB_NUM_VL_ARB_ELEMENTS_IN_BLOCK ?
 		    p_pi->vl_arb_high_cap : IB_NUM_VL_ARB_ELEMENTS_IN_BLOCK;
-		if ((status = vlarb_update_table_block(p_req, p, port_num,
+		if ((status = vlarb_update_table_block(sm, p, port_num,
 						       force_update,
 						       &qcfg->vlarb_high[0],
 						       len, 2)) != IB_SUCCESS)
@@ -143,7 +143,7 @@ static ib_api_status_t vlarb_update(osm_req_t * p_req,
 	}
 	if (p_pi->vl_arb_high_cap > IB_NUM_VL_ARB_ELEMENTS_IN_BLOCK) {
 		len = p_pi->vl_arb_high_cap % IB_NUM_VL_ARB_ELEMENTS_IN_BLOCK;
-		if ((status = vlarb_update_table_block(p_req, p, port_num,
+		if ((status = vlarb_update_table_block(sm, p, port_num,
 						       force_update,
 						       &qcfg->vlarb_high[1],
 						       len, 3)) != IB_SUCCESS)
@@ -153,7 +153,7 @@ static ib_api_status_t vlarb_update(osm_req_t * p_req,
 	return status;
 }
 
-static ib_api_status_t sl2vl_update_table(osm_req_t * p_req,
+static ib_api_status_t sl2vl_update_table(osm_sm_t * sm,
 					  osm_physp_t * p, uint8_t in_port,
 					  uint8_t out_port,
 					  unsigned force_update,
@@ -187,13 +187,13 @@ static ib_api_status_t sl2vl_update_table(osm_req_t * p_req,
 	context.slvl_context.port_guid = osm_physp_get_port_guid(p);
 	context.slvl_context.set_method = TRUE;
 	attr_mod = in_port << 8 | out_port;
-	return osm_req_set(p_req, osm_physp_get_dr_path_ptr(p),
+	return osm_req_set(sm, osm_physp_get_dr_path_ptr(p),
 			   (uint8_t *) & tbl, sizeof(tbl),
 			   IB_MAD_ATTR_SLVL_TABLE,
 			   cl_hton32(attr_mod), CL_DISP_MSGID_NONE, &context);
 }
 
-static ib_api_status_t sl2vl_update(osm_req_t * p_req, osm_port_t * p_port,
+static ib_api_status_t sl2vl_update(osm_sm_t * sm, osm_port_t * p_port,
 				    osm_physp_t * p, uint8_t port_num,
 				    unsigned force_update,
 				    const struct qos_config *qcfg)
@@ -220,7 +220,7 @@ static ib_api_status_t sl2vl_update(osm_req_t * p_req, osm_port_t * p_port,
 
 	for (i = 0; i < num_ports; i++) {
 		status =
-		    sl2vl_update_table(p_req, p, i, port_num,
+		    sl2vl_update_table(sm, p, i, port_num,
 				       force_update, &qcfg->sl2vl);
 		if (status != IB_SUCCESS)
 			return status;
@@ -229,7 +229,7 @@ static ib_api_status_t sl2vl_update(osm_req_t * p_req, osm_port_t * p_port,
 	return IB_SUCCESS;
 }
 
-static ib_api_status_t qos_physp_setup(osm_log_t * p_log, osm_req_t * p_req,
+static ib_api_status_t qos_physp_setup(osm_log_t * p_log, osm_sm_t * sm,
 				       osm_port_t * p_port, osm_physp_t * p,
 				       uint8_t port_num,
 				       unsigned force_update,
@@ -243,7 +243,7 @@ static ib_api_status_t qos_physp_setup(osm_log_t * p_log, osm_req_t * p_req,
 	p->vl_high_limit = qcfg->vl_high_limit;
 
 	/* setup VLArbitration */
-	status = vlarb_update(p_req, p, port_num, force_update, qcfg);
+	status = vlarb_update(sm, p, port_num, force_update, qcfg);
 	if (status != IB_SUCCESS) {
 		osm_log(p_log, OSM_LOG_ERROR,
 			"qos_physp_setup: ERR 6202 : "
@@ -254,7 +254,7 @@ static ib_api_status_t qos_physp_setup(osm_log_t * p_log, osm_req_t * p_req,
 	}
 
 	/* setup SL2VL tables */
-	status = sl2vl_update(p_req, p_port, p, port_num, force_update, qcfg);
+	status = sl2vl_update(sm, p_port, p, port_num, force_update, qcfg);
 	if (status != IB_SUCCESS) {
 		osm_log(p_log, OSM_LOG_ERROR,
 			"qos_physp_setup: ERR 6203 : "
@@ -316,7 +316,7 @@ osm_signal_t osm_qos_setup(osm_opensm_t * p_osm)
 				force_update = p_physp->need_update ||
 				    p_osm->subn.need_update;
 				status =
-				    qos_physp_setup(&p_osm->log, &p_osm->sm.req,
+				    qos_physp_setup(&p_osm->log, &p_osm->sm,
 						    p_port, p_physp, i,
 						    force_update, &swe_config);
 			}
@@ -336,7 +336,7 @@ osm_signal_t osm_qos_setup(osm_opensm_t * p_osm)
 			continue;
 
 		force_update = p_physp->need_update || p_osm->subn.need_update;
-		status = qos_physp_setup(&p_osm->log, &p_osm->sm.req,
+		status = qos_physp_setup(&p_osm->log, &p_osm->sm,
 					 p_port, p_physp, 0, force_update, cfg);
 	}
 

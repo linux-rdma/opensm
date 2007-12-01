@@ -51,7 +51,6 @@
 #include <complib/cl_passivelock.h>
 #include <opensm/osm_base.h>
 #include <opensm/osm_madw.h>
-#include <opensm/osm_req.h>
 #include <opensm/osm_subnet.h>
 #include <opensm/osm_db.h>
 #include <opensm/osm_log.h>
@@ -100,7 +99,6 @@ typedef struct _osm_lid_mgr {
 	struct osm_sm *sm;
 	osm_subn_t *p_subn;
 	osm_db_t *p_db;
-	osm_req_t *p_req;
 	osm_log_t *p_log;
 	cl_plock_t *p_lock;
 	boolean_t send_set_reqs;
@@ -118,9 +116,6 @@ typedef struct _osm_lid_mgr {
 *
 *	p_db
 *		Pointer to the database (persistency) object
-*
-*	p_req
-*		Pointer to the Requester object sending SMPs.
 *
 *	p_log
 *		Pointer to the log object.

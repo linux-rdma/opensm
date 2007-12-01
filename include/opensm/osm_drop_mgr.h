@@ -52,7 +52,6 @@
 #include <opensm/osm_base.h>
 #include <opensm/osm_madw.h>
 #include <opensm/osm_subnet.h>
-#include <opensm/osm_req.h>
 #include <opensm/osm_log.h>
 
 #ifdef __cplusplus
@@ -98,7 +97,6 @@ typedef struct _osm_drop_mgr {
 	struct osm_sm *sm;
 	osm_subn_t *p_subn;
 	osm_log_t *p_log;
-	osm_req_t *p_req;
 	cl_plock_t *p_lock;
 
 } osm_drop_mgr_t;
@@ -112,9 +110,6 @@ typedef struct _osm_drop_mgr {
 *
 *	p_log
 *		Pointer to the log object.
-*
-*	p_req
-*		Pointer to the Request object.
 *
 *	p_lock
 *		Pointer to the serializing lock.

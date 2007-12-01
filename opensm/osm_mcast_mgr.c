@@ -387,7 +387,6 @@ osm_mcast_mgr_init(IN osm_mcast_mgr_t * const p_mgr, IN osm_sm_t * sm)
 	p_mgr->p_log = sm->p_log;
 	p_mgr->p_subn = sm->p_subn;
 	p_mgr->p_lock = sm->p_lock;
-	p_mgr->p_req = &sm->req;
 
 	OSM_LOG_EXIT(p_mgr->p_log);
 	return (status);
@@ -447,9 +446,7 @@ __osm_mcast_mgr_set_tbl(IN osm_mcast_mgr_t * const p_mgr,
 
 		block_id_ho = block_num + (position << 28);
 
-		status = osm_req_set(p_mgr->p_req,
-				     p_path,
-				     (void *)block,
+		status = osm_req_set(p_mgr->sm, p_path, (void *)block,
 				     sizeof(block),
 				     IB_MAD_ATTR_MCAST_FWD_TBL,
 				     cl_hton32(block_id_ho),

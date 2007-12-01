@@ -225,42 +225,5 @@ osm_resp_init(IN osm_resp_t * const p_resp,
 *	osm_resp_destroy
 *********/
 
-/****f* OpenSM: Generic Responder/osm_resp_send
-* NAME
-*	osm_resp_send
-*
-* DESCRIPTION
-*	Starts the process to transmit a directed route response.
-*
-* SYNOPSIS
-*/
-ib_api_status_t
-osm_resp_send(IN const osm_resp_t * const p_resp,
-	      IN const osm_madw_t * const p_req_madw,
-	      IN const ib_net16_t status, IN const uint8_t * const p_payload);
-/*
-* PARAMETERS
-*	p_resp
-*		[in] Pointer to an osm_resp_t object.
-*
-*	p_madw
-*		[in] Pointer to the MAD Wrapper object for the requesting MAD
-*		to which this response is generated.
-*
-*	status
-*		[in] Status for this response.
-*
-*	p_payload
-*		[in] Pointer to the payload of the response MAD.
-*
-* RETURN VALUES
-*	IB_SUCCESS if the response was successful.
-*
-* NOTES
-*
-* SEE ALSO
-*	Generic Responder
-*********/
-
 END_C_DECLS
 #endif				/* _OSM_RESP_H_ */

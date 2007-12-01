@@ -254,7 +254,6 @@ osm_lid_mgr_init(IN osm_lid_mgr_t * const p_mgr, IN osm_sm_t *sm)
 	p_mgr->p_subn = sm->p_subn;
 	p_mgr->p_db = sm->p_db;
 	p_mgr->p_lock = sm->p_lock;
-	p_mgr->p_req = &sm->req;
 
 	/* we initialize and restore the db domain of guid to lid map */
 	p_mgr->p_g2l = osm_db_domain_init(p_mgr->p_db, "/guid2lid");
@@ -1149,7 +1148,7 @@ __osm_lid_mgr_set_physp_pi(IN osm_lid_mgr_t * const p_mgr,
 
 	if (send_set) {
 		p_mgr->send_set_reqs = TRUE;
-		status = osm_req_set(p_mgr->p_req,
+		status = osm_req_set(p_mgr->sm,
 				     osm_physp_get_dr_path_ptr(p_physp),
 				     payload,
 				     sizeof(payload),

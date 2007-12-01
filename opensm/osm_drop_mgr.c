@@ -101,7 +101,6 @@ osm_drop_mgr_init(IN osm_drop_mgr_t * const p_mgr, IN osm_sm_t * sm)
 	p_mgr->p_log = sm->p_log;
 	p_mgr->p_subn = sm->p_subn;
 	p_mgr->p_lock = sm->p_lock;
-	p_mgr->p_req = &sm->req;
 
 	OSM_LOG_EXIT(p_mgr->p_log);
 	return (status);

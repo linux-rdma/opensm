@@ -128,7 +128,7 @@ __osm_sminfo_rcv_process_get_request(IN osm_sm_t * sm,
 		p_smi->sm_key = 0;
 	}
 
-	status = osm_resp_send(&sm->resp, p_madw, 0, payload);
+	status = osm_resp_send(sm, p_madw, 0, payload);
 	if (status != IB_SUCCESS) {
 		osm_log(sm->p_log, OSM_LOG_ERROR,
 			"__osm_sminfo_rcv_process_get_request: ERR 2F02: "
@@ -241,7 +241,7 @@ __osm_sminfo_rcv_process_set_request(IN osm_sm_t * sm,
 			osm_get_sm_mgr_state_str(ib_sminfo_get_state
 						 (sm_smi)));
 		/* send a response with error code */
-		status = osm_resp_send(&sm->resp, p_madw, 7, payload);
+		status = osm_resp_send(sm, p_madw, 7, payload);
 		if (status != IB_SUCCESS)
 			osm_log(sm->p_log, OSM_LOG_ERROR,
 				"__osm_sminfo_rcv_process_set_request: ERR 2F05: "
@@ -291,7 +291,7 @@ __osm_sminfo_rcv_process_set_request(IN osm_sm_t * sm,
 			osm_get_sm_mgr_state_str(ib_sminfo_get_state
 						 (sm_smi)));
 		/* send a response with error code */
-		status = osm_resp_send(&sm->resp, p_madw, 7, payload);
+		status = osm_resp_send(sm, p_madw, 7, payload);
 		if (status != IB_SUCCESS)
 			osm_log(sm->p_log, OSM_LOG_ERROR,
 				"__osm_sminfo_rcv_process_set_request: ERR 2F08: "
@@ -302,7 +302,7 @@ __osm_sminfo_rcv_process_set_request(IN osm_sm_t * sm,
 	}
 
 	/* the SubnSet(SMInfo) command is ok. Send a response. */
-	status = osm_resp_send(&sm->resp, p_madw, 0, payload);
+	status = osm_resp_send(sm, p_madw, 0, payload);
 	if (status != IB_SUCCESS)
 		osm_log(sm->p_log, OSM_LOG_ERROR,
 			"__osm_sminfo_rcv_process_set_request: ERR 2F09: "
