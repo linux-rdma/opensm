@@ -153,15 +153,13 @@ __osm_lr_rcv_build_physp_link(IN osm_lr_rcv_t * const p_rcv,
 /**********************************************************************
  **********************************************************************/
 static void
-__get_base_lid(IN const osm_physp_t * p_physp, OUT uint16_t * p_base_lid)
+__get_base_lid(IN const osm_physp_t * p_physp, OUT ib_net16_t * p_base_lid)
 {
 	if (p_physp->p_node->node_info.node_type == IB_NODE_TYPE_SWITCH)
-		*p_base_lid =
-		    cl_ntoh16(osm_physp_get_base_lid
-			      (osm_node_get_physp_ptr(p_physp->p_node, 0))
-		    );
+		*p_base_lid = osm_physp_get_base_lid
+			      (osm_node_get_physp_ptr(p_physp->p_node, 0));
 	else
-		*p_base_lid = cl_ntoh16(osm_physp_get_base_lid(p_physp));
+		*p_base_lid = osm_physp_get_base_lid(p_physp);
 }
 
 /**********************************************************************
@@ -177,8 +175,8 @@ __osm_lr_rcv_get_physp_link(IN osm_lr_rcv_t * const p_rcv,
 {
 	uint8_t src_port_num;
 	uint8_t dest_port_num;
-	ib_net16_t from_base_lid_ho;
-	ib_net16_t to_base_lid_ho;
+	ib_net16_t from_base_lid;
+	ib_net16_t to_base_lid;
 
 	OSM_LOG_ENTER(p_rcv->p_log, __osm_lr_rcv_get_physp_link);
 
@@ -269,12 +267,12 @@ __osm_lr_rcv_get_physp_link(IN osm_lr_rcv_t * const p_rcv,
 			cl_ntoh64(osm_physp_get_port_guid(p_dest_physp)),
 			dest_port_num);
 
-	__get_base_lid(p_src_physp, &from_base_lid_ho);
-	__get_base_lid(p_dest_physp, &to_base_lid_ho);
+	__get_base_lid(p_src_physp, &from_base_lid);
+	__get_base_lid(p_dest_physp, &to_base_lid);
 
-	__osm_lr_rcv_build_physp_link(p_rcv, cl_ntoh16(from_base_lid_ho),
-				      cl_ntoh16(to_base_lid_ho),
-				      src_port_num, dest_port_num, p_list);
+	__osm_lr_rcv_build_physp_link(p_rcv, from_base_lid,
+				      to_base_lid, src_port_num,
+				      dest_port_num, p_list);
 
       Exit:
 	OSM_LOG_EXIT(p_rcv->p_log);
