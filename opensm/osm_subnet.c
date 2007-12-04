@@ -1533,7 +1533,7 @@ ib_api_status_t osm_subn_write_conf_file(IN osm_subn_opt_t * const p_opts)
 	if (p_opts->routing_engine_name)
 		fprintf(opts_file,
 			"# Routing engine\n"
-                        "# Supported engines: updn, file, ftree, lash, dor\n"
+                        "# Supported engines: minhop, updn, file, ftree, lash, dor\n"
 			"routing_engine %s\n\n", p_opts->routing_engine_name);
 	if (p_opts->connect_roots)
 		fprintf(opts_file,

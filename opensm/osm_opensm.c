@@ -77,6 +77,7 @@ static int osm_ucast_null_setup(osm_opensm_t * p_osm);
 
 const static struct routing_engine_module routing_modules[] = {
 	{"null", osm_ucast_null_setup},
+	{"minhop", osm_ucast_null_setup},
 	{"updn", osm_ucast_updn_setup},
 	{"file", osm_ucast_file_setup},
 	{"ftree", osm_ucast_ftree_setup},
