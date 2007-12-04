@@ -1207,41 +1207,6 @@ static inline osm_dr_path_t *osm_physp_get_dr_path_ptr(IN const osm_physp_t *
 *
 *********/
 
-/****d* OpenSM: Port/osm_port_lid_category_t
-* NAME
-*	osm_port_lid_category_t
-*
-* DESCRIPTION
-*	Enumerated values for LID disposition.
-*
-* SYNOPSIS
-*/
-typedef enum _osm_port_lid_category {
-	OSM_PORT_LID_ASSIGNED = 0,
-	OSM_PORT_LID_UNASSIGNED,
-	OSM_PORT_LID_CONFLICT,
-	OSM_PORT_LID_FOREIGN,
-
-} osm_port_lid_category_t;
-/*
-* FIELDS
-*	OSM_PORT_LID_ASSIGNED
-*		Indicates the Port has a known LID value.
-*
-*	OSM_PORT_LID_UNASSIGNED
-*		Indicates the Port does not have a LID value.
-*
-*	OSM_PORT_LID_CONFLICT
-*		Indicates the Port's LID conflicts with an assigned LID.
-*
-*	OSM_PORT_LID_FOREIGN
-*		Indicates the Port has a LID value not currently known in
-*		in the OpenSM LID database.
-*
-* SEE ALSO
-*	Port
-*********/
-
 /****s* OpenSM: Port/osm_port_t
 * NAME
 *	osm_port_t
