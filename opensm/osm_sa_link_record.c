@@ -177,7 +177,7 @@ __osm_lr_rcv_get_physp_link(IN osm_lr_rcv_t * const p_rcv,
 	uint8_t dest_port_num;
 	ib_net16_t from_base_lid;
 	ib_net16_t to_base_lid;
-	uint16_t lmc_mask;
+	ib_net16_t lmc_mask;
 
 	OSM_LOG_ENTER(p_rcv->p_log, __osm_lr_rcv_get_physp_link);
 
@@ -261,6 +261,7 @@ __osm_lr_rcv_get_physp_link(IN osm_lr_rcv_t * const p_rcv,
 	__get_base_lid(p_dest_physp, &to_base_lid);
 
 	lmc_mask = ~((1 << p_rcv->p_subn->opt.lmc) - 1);
+	lmc_mask = cl_hton16(lmc_mask);
 
 	if (comp_mask & IB_LR_COMPMASK_FROM_LID)
 		if (from_base_lid != (p_lr->from_lid & lmc_mask))
