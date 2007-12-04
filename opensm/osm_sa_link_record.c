@@ -304,7 +304,8 @@ __osm_lr_rcv_get_port_links(IN osm_lr_rcv_t * const p_rcv,
 {
 	const osm_physp_t *p_src_physp;
 	const osm_physp_t *p_dest_physp;
-	const cl_qmap_t *p_port_tbl;
+	const cl_qmap_t *p_node_tbl;
+	osm_node_t * p_node;
 	uint8_t port_num;
 	uint8_t num_ports;
 	uint8_t dest_num_ports;
@@ -421,19 +422,27 @@ __osm_lr_rcv_get_port_links(IN osm_lr_rcv_t * const p_rcv,
 			/*
 			   Process the world (recurse once back into this function).
 			 */
-			p_port_tbl = &p_rcv->p_subn->port_guid_tbl;
-			p_src_port = (osm_port_t *) cl_qmap_head(p_port_tbl);
+			p_node_tbl = &p_rcv->p_subn->node_guid_tbl;
+			p_node = (osm_node_t *)cl_qmap_head(p_node_tbl);
 
-			while (p_src_port !=
-			       (osm_port_t *) cl_qmap_end(p_port_tbl)) {
-				__osm_lr_rcv_get_port_links(p_rcv, p_lr,
-							    p_src_port, NULL,
-							    comp_mask, p_list,
-							    p_req_physp);
-
-				p_src_port =
-				    (osm_port_t *) cl_qmap_next(&p_src_port->
-								map_item);
+			while (p_node != (osm_node_t *)cl_qmap_end(p_node_tbl)) {
+				/*
+				   Get only one port for each node.
+				   After the recursive call, this function will
+				   scan all the ports of this node anyway.
+				 */
+				p_src_physp = osm_node_get_any_physp_ptr(p_node);
+				if (osm_physp_is_valid(p_src_physp)) {
+					p_src_port = (osm_port_t *)
+					    cl_qmap_get(&p_rcv->p_subn->port_guid_tbl,
+					        osm_physp_get_port_guid(p_src_physp));
+					__osm_lr_rcv_get_port_links(p_rcv, p_lr,
+								    p_src_port, NULL,
+								    comp_mask, p_list,
+								    p_req_physp);
+				}
+				p_node = (osm_node_t *) cl_qmap_next(&p_node->
+								     map_item);
 			}
 		}
 	}
