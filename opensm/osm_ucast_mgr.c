@@ -797,7 +797,7 @@ osm_signal_t osm_ucast_mgr_process(IN osm_ucast_mgr_t * const p_mgr)
 	osm_log(p_mgr->p_log, OSM_LOG_INFO,
 		"osm_ucast_mgr_process: "
 		"%s tables configured on all switches\n",
-		p_routing_eng->name ? p_routing_eng->name : "null (min-hop)");
+		p_routing_eng->name ? p_routing_eng->name : "null (minhop)");
 
 	/*
 	   Now that the lid matrices have been built, we can

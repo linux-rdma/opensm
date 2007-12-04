@@ -113,7 +113,7 @@ static int osm_ucast_null_setup(osm_opensm_t * p_osm)
 {
 	osm_log(&p_osm->log, OSM_LOG_VERBOSE,
 		"osm_ucast_null_setup: nothing yet - "
-		"using default (min-hop) routing engine\n");
+		"using default (minhop) routing engine\n");
 	return 0;
 }
 
