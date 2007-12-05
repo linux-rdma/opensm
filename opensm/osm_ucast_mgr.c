@@ -696,7 +696,6 @@ static int ucast_mgr_setup_all_switches(osm_subn_t * p_subn)
 
 /**********************************************************************
  **********************************************************************/
-
 cl_status_t
 osm_ucast_mgr_read_guid_file(IN osm_ucast_mgr_t * const p_mgr,
 			     IN const char *guid_file_name,
@@ -719,7 +718,7 @@ osm_ucast_mgr_read_guid_file(IN osm_ucast_mgr_t * const p_mgr,
 		goto Exit;
 	}
 
-	while (fgets(line, MAX_GUID_FILE_LINE_LENGTH, guid_file)) {
+	while (fgets(line, sizeof(line), guid_file)) {
 		if (strcspn(line, " ,;.") != strlen(line)) {
 			osm_log(p_mgr->p_log, OSM_LOG_ERROR,
 				"osm_ucast_mgr_read_guid_file: ERR 3A14: "
