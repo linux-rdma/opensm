@@ -305,13 +305,11 @@ osm_opensm_init(IN osm_opensm_t * const p_osm,
 #endif				/* ENABLE_OSM_PERF_MGR */
 
 	if (p_opt->routing_engine_name &&
-	    setup_routing_engine(p_osm, p_opt->routing_engine_name)) {
+	    setup_routing_engine(p_osm, p_opt->routing_engine_name))
 		osm_log(&p_osm->log, OSM_LOG_VERBOSE,
 			"osm_opensm_init: cannot find or setup routing engine"
 			" \'%s\'. Default will be used instead\n",
 			p_opt->routing_engine_name);
-		goto Exit;
-	}
 
 	p_osm->node_name_map = open_node_name_map(p_opt->node_name_map_name);
 
