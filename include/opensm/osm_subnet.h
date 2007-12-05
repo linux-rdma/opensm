@@ -559,8 +559,7 @@ typedef struct _osm_subn {
 	uint8_t min_ca_rate;
 	boolean_t ignore_existing_lfts;
 	boolean_t subnet_initialization_error;
-	boolean_t force_immediate_heavy_sweep;
-	boolean_t force_delayed_heavy_sweep;
+	boolean_t force_heavy_sweep;
 	boolean_t in_sweep_hop_0;
 	boolean_t moved_to_master_state;
 	boolean_t first_time_master_sweep;
@@ -650,21 +649,13 @@ typedef struct _osm_subn {
 *     that failed). We want to declare the subnet as unhealthy, and force
 *     another heavy sweep.
 *
-*  force_immediate_heavy_sweep
+*  force_heavy_sweep
 *     If TRUE - we want to force a heavy sweep. This can be done either
 *     due to receiving of trap - meaning there is some change on the subnet,
 *     or we received a handover from a remote sm.
 *     In this case we want to sweep and reconfigure the entire subnet.
 *     This will cause another heavy sweep to occure when the current sweep
 *     is done.
-*
-*  force_delayed_heavy_sweep
-*     In some means - similar to the force_immediate_heavy_sweep flag, only
-*     it'll cause a heavy sweep in the next sweep. Note that this means that
-*     if we are running with -s 0 (no sweeps) - then this forced heavy sweep
-*     will not occur.
-*     If we had some trouble on the subnet, that caused a strange dropping
-*     of ports - we will try to do another heavy sweep on our next sweep.
 *
 *  in_sweep_hop_0
 *     When in_sweep_hop_0 flag is set to TRUE - this means we are

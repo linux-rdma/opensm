@@ -474,9 +474,8 @@ static void resweep_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 		fprintf(out, "Invalid resweep command\n");
 		help_resweep(out, 1);
 	} else {
-		if (strcmp(p_cmd, "heavy") == 0) {
-			p_osm->subn.force_immediate_heavy_sweep = TRUE;
-		}
+		if (strcmp(p_cmd, "heavy") == 0)
+			p_osm->subn.force_heavy_sweep = TRUE;
 		osm_opensm_sweep(p_osm);
 	}
 }

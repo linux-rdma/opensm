@@ -1386,21 +1386,15 @@ void osm_state_mgr_process(IN osm_state_mgr_t * const p_mgr,
 				    IB_SMINFO_STATE_DISCOVERING
 				    && p_mgr->p_subn->opt.force_heavy_sweep ==
 				    FALSE
-				    && p_mgr->p_subn->
-				    force_immediate_heavy_sweep == FALSE
-				    && p_mgr->p_subn->
-				    force_delayed_heavy_sweep == FALSE
+				    && p_mgr->p_subn->force_heavy_sweep == FALSE
 				    && p_mgr->p_subn->subnet_initialization_error == FALSE) {
 					if (__osm_state_mgr_light_sweep_start(p_mgr) == IB_SUCCESS) {
 						p_mgr->state = OSM_SM_STATE_SWEEP_LIGHT;
 					}
 				} else {
-					/* First of all - if force_immediate_heavy_sweep is TRUE then
+					/* First of all - if force_heavy_sweep is TRUE then
 					 * need to unset it */
-					p_mgr->p_subn->force_immediate_heavy_sweep = FALSE;
-					/* If force_delayed_heavy_sweep is TRUE then
-					 * need to unset it */
-					p_mgr->p_subn->force_delayed_heavy_sweep = FALSE;
+					p_mgr->p_subn->force_heavy_sweep = FALSE;
 					/* If subnet_initialization_error is TRUE then
 					 * need to unset it. */
 					p_mgr->p_subn->subnet_initialization_error = FALSE;
@@ -1487,7 +1481,7 @@ void osm_state_mgr_process(IN osm_state_mgr_t * const p_mgr,
 			switch (signal) {
 			case OSM_SIGNAL_NO_PENDING_TRANSACTIONS:
 			case OSM_SIGNAL_DONE:
-				if (p_mgr->p_subn->force_immediate_heavy_sweep) {
+				if (p_mgr->p_subn->force_heavy_sweep) {
 					/*
 					 * Do not read next item from the idle queue.
 					 * Immediate heavy sweep is requested, so it's
@@ -1631,7 +1625,7 @@ void osm_state_mgr_process(IN osm_state_mgr_t * const p_mgr,
 
 			case OSM_SIGNAL_NO_PENDING_TRANSACTIONS:
 				/* if new sweep requiested - don't bother with the rest */
-				if (p_mgr->p_subn->force_immediate_heavy_sweep) {
+				if (p_mgr->p_subn->force_heavy_sweep) {
 					p_mgr->state = OSM_SM_STATE_IDLE;
 					signal = OSM_SIGNAL_SWEEP;
 					break;
@@ -2301,7 +2295,7 @@ void osm_state_mgr_process(IN osm_state_mgr_t * const p_mgr,
 
 		/* if we got a signal to force immediate heavy sweep in the middle of the sweep -
 		 * try another sweep. */
-		if ((p_mgr->p_subn->force_immediate_heavy_sweep) &&
+		if ((p_mgr->p_subn->force_heavy_sweep) &&
 		    (p_mgr->state == OSM_SM_STATE_IDLE)) {
 			signal = OSM_SIGNAL_SWEEP;
 		}

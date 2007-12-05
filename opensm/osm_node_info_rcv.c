@@ -183,7 +183,7 @@ __osm_ni_rcv_set_links(IN osm_sm_t * sm,
 	}
 
 	if (osm_node_has_any_link(p_node, port_num) &&
-	    sm->p_subn->force_immediate_heavy_sweep == FALSE &&
+	    sm->p_subn->force_heavy_sweep == FALSE &&
 	    (!p_ni_context->dup_count ||
 	     (p_ni_context->dup_node_guid == osm_node_get_node_guid(p_node) &&
 	      p_ni_context->dup_port_num == port_num))) {
@@ -207,7 +207,7 @@ __osm_ni_rcv_set_links(IN osm_sm_t * sm,
 			report_duplicated_guid(sm, p_physp,
 					       p_neighbor_node,
 					       p_ni_context->port_num);
-			sm->p_subn->force_immediate_heavy_sweep = TRUE;
+			sm->p_subn->force_heavy_sweep = TRUE;
 		} else if (p_node->sw)
 			requery_dup_node_info(sm, p_physp->p_remote_physp,
 					      p_ni_context->dup_count + 1);

@@ -589,9 +589,9 @@ osm_sm_state_mgr_process(IN osm_sm_state_mgr_t * const p_sm_mgr,
 			if (p_sm_mgr->p_subn->first_time_master_sweep == FALSE)
 				p_sm_mgr->p_subn->first_time_master_sweep =
 				    TRUE;
-			/* Turn on the force_immediate_heavy_sweep - we want a
+			/* Turn on the force_heavy_sweep - we want a
 			 * heavy sweep to occur on the first sweep of this SM. */
-			p_sm_mgr->p_subn->force_immediate_heavy_sweep = TRUE;
+			p_sm_mgr->p_subn->force_heavy_sweep = TRUE;
 
 			p_sm_mgr->p_subn->sm_state = IB_SMINFO_STATE_MASTER;
 			/*
@@ -659,10 +659,10 @@ osm_sm_state_mgr_process(IN osm_sm_state_mgr_t * const p_sm_mgr,
 			 */
 			osm_log(p_sm_mgr->p_log, OSM_LOG_VERBOSE,
 				"osm_sm_state_mgr_process: "
-				"Forcing immediate heavy sweep. "
+				"Forcing heavy sweep. "
 				"Received OSM_SM_SIGNAL_HANDOVER or OSM_SM_SIGNAL_POLLING_TIMEOUT\n");
 			p_sm_mgr->p_polling_sm = NULL;
-			p_sm_mgr->p_subn->force_immediate_heavy_sweep = TRUE;
+			p_sm_mgr->p_subn->force_heavy_sweep = TRUE;
 			osm_sm_signal(&p_sm_mgr->p_subn->p_osm->sm,
 				      OSM_SIGNAL_SWEEP);
 			break;

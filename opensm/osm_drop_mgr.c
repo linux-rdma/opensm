@@ -151,12 +151,12 @@ drop_mgr_clean_physp(IN const osm_drop_mgr_t * const p_mgr,
 			    IB_LINK_ACTIVE) {
 				osm_log(p_mgr->p_log, OSM_LOG_VERBOSE,
 					"drop_mgr_clean_physp: "
-					"Forcing delayed heavy sweep. Remote "
+					"Forcing new heavy sweep. Remote "
 					"port 0x%016" PRIx64 " port num: 0x%X "
 					"was recognized in ACTIVE state\n",
 					cl_ntoh64(p_remote_physp->port_guid),
 					p_remote_physp->port_num);
-				p_mgr->p_subn->force_delayed_heavy_sweep = TRUE;
+				p_mgr->p_subn->force_heavy_sweep = TRUE;
 			}
 
 			/* If the remote node is ca or router - need to remove the remote port,

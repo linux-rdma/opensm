@@ -607,11 +607,11 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 		     run_heavy_sweep)) {
 			osm_log(sm->p_log, OSM_LOG_VERBOSE,
 				"__osm_trap_rcv_process_request: "
-				"Forcing immediate heavy sweep. "
+				"Forcing heavy sweep. "
 				"Received trap:%u\n",
 				cl_ntoh16(p_ntci->g_or_v.generic.trap_num));
 
-			sm->p_subn->force_immediate_heavy_sweep = TRUE;
+			sm->p_subn->force_heavy_sweep = TRUE;
 		}
 		osm_sm_signal(&sm->p_subn->p_osm->sm, OSM_SIGNAL_SWEEP);
 	}

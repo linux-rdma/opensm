@@ -1032,7 +1032,7 @@ int main(int argc, char *argv[])
 			if (osm_hup_flag) {
 				osm_hup_flag = 0;
 				/* a HUP signal should only start a new heavy sweep */
-				osm.subn.force_immediate_heavy_sweep = TRUE;
+				osm.subn.force_heavy_sweep = TRUE;
 				osm_opensm_sweep(&osm);
 			}
 		}
