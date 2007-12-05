@@ -2341,6 +2341,9 @@ int osm_qos_parse_policy_file(IN osm_subn_t * const p_subn)
                 "osm_qos_parse_policy_file: ERR AC04: "
                 "Error(s) in QoS policy file (%s)\n",
                 p_subn->opt.qos_policy_file);
+        fprintf(stderr,
+                "Error(s) in QoS policy file (%s)\n",
+                p_subn->opt.qos_policy_file);
         osm_qos_policy_destroy(p_subn->p_qos_policy);
         p_subn->p_qos_policy = NULL;
         res = 1;
