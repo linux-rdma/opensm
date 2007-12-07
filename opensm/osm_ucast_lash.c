@@ -786,6 +786,7 @@ static void balance_virtual_lanes(lash_t * p_lash, unsigned lanes_needed)
 static switch_t *switch_create(lash_t * p_lash, unsigned id, osm_switch_t * p_sw)
 {
 	unsigned num_switches = p_lash->num_switches;
+	unsigned num_ports = p_sw->num_ports;
 	switch_t *sw;
 	unsigned int i;
 
@@ -802,15 +803,14 @@ static switch_t *switch_create(lash_t * p_lash, unsigned id, osm_switch_t * p_sw
 		return NULL;
 	}
 
-	sw->virtual_physical_port_table = malloc(num_switches * sizeof(int));
+	sw->virtual_physical_port_table = malloc(num_ports * sizeof(int));
 	if (!sw->virtual_physical_port_table) {
 		free(sw->dij_channels);
 		free(sw);
 		return NULL;
 	}
 
-	sw->phys_connections = malloc(num_switches * sizeof(int));
-
+	sw->phys_connections = malloc(num_ports * sizeof(int));
 	if (!sw->phys_connections) {
 		free(sw->virtual_physical_port_table);
 		free(sw->dij_channels);
@@ -819,7 +819,6 @@ static switch_t *switch_create(lash_t * p_lash, unsigned id, osm_switch_t * p_sw
 	}
 
 	sw->routing_table = malloc(num_switches * sizeof(sw->routing_table[0]));
-
 	if (!sw->routing_table) {
 		free(sw->phys_connections);
 		free(sw->virtual_physical_port_table);
@@ -831,9 +830,11 @@ static switch_t *switch_create(lash_t * p_lash, unsigned id, osm_switch_t * p_sw
 	for (i = 0; i < num_switches; i++) {
 		sw->routing_table[i].out_link = NONE;
 		sw->routing_table[i].lane = NONE;
+	}
+
+	for (i = 0; i < num_ports; i++) {
 		sw->virtual_physical_port_table[i] = -1;
-		if (i < num_switches - 1)
-			sw->phys_connections[i] = NONE;
+		sw->phys_connections[i] = NONE;
 	}
 
 	sw->p_sw = p_sw;
