@@ -102,15 +102,8 @@ typedef struct _switch {
 		unsigned lane;
 	} *routing_table;
 	unsigned int num_connections;
-#if 0
-	struct connections {
-		unsigned sw;
-		unsigned port;
-	} *connections;
-#else
 	int *virtual_physical_port_table;
 	int *phys_connections;
-#endif
 } switch_t;
 
 typedef struct _lash {
@@ -233,11 +226,6 @@ static int randint(int high)
 }
 #endif
 
-/************************************
-
-            CYCLE EXISTS
-
-************************************/
 static int cycle_exists(cdg_vertex_t * start, cdg_vertex_t * current,
 			cdg_vertex_t * prev, int visit_num)
 {
@@ -282,11 +270,6 @@ static int cycle_exists(cdg_vertex_t * start, cdg_vertex_t * current,
 	return cycle_found;
 }
 
-/************************************
-
-  REMOVE SEMIPERMANENTDEPEND FOR SP
-
-************************************/
 static void remove_semipermanent_depend_for_sp(lash_t * p_lash, int sw,
 					       int dest_switch, int lane)
 {
@@ -353,11 +336,6 @@ static void remove_semipermanent_depend_for_sp(lash_t * p_lash, int sw,
 	}
 }
 
-/************************************
-
-              ENQUEUE
-
-************************************/
 inline static void enqueue(cl_list_t * bfsq, switch_t * sw, int dist)
 {
 	CL_ASSERT(sw->q_state == UNQUEUED);
@@ -366,11 +344,6 @@ inline static void enqueue(cl_list_t * bfsq, switch_t * sw, int dist)
 	cl_list_insert_tail(bfsq, sw);
 }
 
-/************************************
-
-              DEQUEUE
-
-************************************/
 inline static void dequeue(cl_list_t * bfsq, switch_t ** sw)
 {
 	*sw = (switch_t *) cl_list_remove_head(bfsq);
@@ -378,11 +351,6 @@ inline static void dequeue(cl_list_t * bfsq, switch_t ** sw)
 	(*sw)->q_state = MST_MEMBER;
 }
 
-/************************************
-
-       GET PHYS CONNECTION
-
-************************************/
 static int get_phys_connection(switch_t ** switches, int switch_from,
 			       int switch_to)
 {
@@ -394,11 +362,6 @@ static int get_phys_connection(switch_t ** switches, int switch_from,
 	return i;
 }
 
-/************************************
-
-           SHORTEST PATH
-
-************************************/
 static void shortest_path(lash_t * p_lash, int ir)
 {
 	switch_t **switches = p_lash->switches, *sw, *swi;
@@ -424,11 +387,6 @@ static void shortest_path(lash_t * p_lash, int ir)
 	cl_list_destroy(&bfsq);
 }
 
-/************************************
-
-    GENERATE ROUTING FUNC FOR MST
-
-************************************/
 static void generate_routing_func_for_mst(lash_t * p_lash, int sw,
 					  reachable_dest_t ** destinations)
 {
@@ -468,11 +426,6 @@ static void generate_routing_func_for_mst(lash_t * p_lash, int sw,
 	*destinations = i_dest;
 }
 
-/************************************
-
-        GENERATE CDG FOR SP
-
-************************************/
 static void generate_cdg_for_sp(lash_t * p_lash, int sw, int dest_switch,
 				int lane)
 {
@@ -546,11 +499,6 @@ static void generate_cdg_for_sp(lash_t * p_lash, int sw, int dest_switch,
 	}
 }
 
-/************************************
-
- SET TEMP DEPEND TO PERMANENT FOR SP
-
-************************************/
 static void set_temp_depend_to_permanent_for_sp(lash_t * p_lash, int sw,
 						int dest_switch, int lane)
 {
@@ -581,11 +529,6 @@ static void set_temp_depend_to_permanent_for_sp(lash_t * p_lash, int sw,
 
 }
 
-/************************************
-
-     REMOVE TEMP DEPEND FOR SP
-
-************************************/
 static void remove_temp_depend_for_sp(lash_t * p_lash, int sw, int dest_switch,
 				      int lane)
 {
@@ -626,11 +569,6 @@ static void remove_temp_depend_for_sp(lash_t * p_lash, int sw, int dest_switch,
 	}
 }
 
-/************************************
-
-      BALANCE VIRTUAL LANES
-
-************************************/
 static void balance_virtual_lanes(lash_t * p_lash, unsigned lanes_needed)
 {
 	unsigned num_switches = p_lash->num_switches;
