@@ -691,7 +691,7 @@ static osm_qos_match_rule_t *__qos_policy_get_match_rule_by_params(
 			if (!__is_num_in_range_arr
 			    (p_qos_match_rule->pkey_range_arr,
 			     p_qos_match_rule->pkey_range_len,
-			     pkey)) {
+			     pkey & 0x7FFF)) {
 				list_iterator = cl_list_next(list_iterator);
 				continue;
 			}

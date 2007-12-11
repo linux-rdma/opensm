@@ -94,6 +94,11 @@ static int __parser_match_rule_end();
 static void __parser_ulp_match_rule_start();
 static int __parser_ulp_match_rule_end();
 
+static void __pkey_rangelist2rangearr(
+    cl_list_t    * p_list,
+    uint64_t  ** * p_arr,
+    unsigned     * p_arr_len);
+
 static void __rangelist2rangearr(
     cl_list_t    * p_list,
     uint64_t  ** * p_arr,
@@ -677,7 +682,7 @@ qos_ulp:            TK_ULP_DEFAULT single_number {
                         }
 
                         /* get all the pkey ranges */
-                        __rangelist2rangearr( &tmp_parser_struct.num_pair_list,
+                        __pkey_rangelist2rangearr( &tmp_parser_struct.num_pair_list,
                                               &range_arr,
                                               &range_len );
 
@@ -927,7 +932,7 @@ qos_ulp:            TK_ULP_DEFAULT single_number {
                         }
 
                         /* get all the pkey ranges */
-                        __rangelist2rangearr( &tmp_parser_struct.num_pair_list,
+                        __pkey_rangelist2rangearr( &tmp_parser_struct.num_pair_list,
                                               &range_arr,
                                               &range_len );
 
@@ -1182,7 +1187,7 @@ port_group_pkey:        port_group_pkey_start list_of_ranges {
                                 uint64_t ** range_arr;
                                 unsigned range_len;
 
-                                __rangelist2rangearr( &tmp_parser_struct.num_pair_list,
+                                __pkey_rangelist2rangearr( &tmp_parser_struct.num_pair_list,
                                                       &range_arr,
                                                       &range_len );
 
@@ -1867,7 +1872,7 @@ qos_level_pkey:         qos_level_pkey_start list_of_ranges {
                                 uint64_t ** range_arr;
                                 unsigned range_len;
 
-                                __rangelist2rangearr( &tmp_parser_struct.num_pair_list,
+                                __pkey_rangelist2rangearr( &tmp_parser_struct.num_pair_list,
                                                       &range_arr,
                                                       &range_len );
 
@@ -2094,7 +2099,7 @@ qos_match_rule_pkey:    qos_match_rule_pkey_start list_of_ranges {
                                 uint64_t ** range_arr;
                                 unsigned range_len;
 
-                                __rangelist2rangearr( &tmp_parser_struct.num_pair_list,
+                                __pkey_rangelist2rangearr( &tmp_parser_struct.num_pair_list,
                                                       &range_arr,
                                                       &range_len );
 
@@ -2773,6 +2778,36 @@ static void __sort_reduce_rangearr(
 
     *p_res_arr = res_arr;
     *p_res_arr_len = valid_cnt;
+}
+
+/***************************************************
+ ***************************************************/
+
+static void __pkey_rangelist2rangearr(
+    cl_list_t    * p_list,
+    uint64_t  ** * p_arr,
+    unsigned     * p_arr_len)
+{
+    uint64_t   tmp_pkey;
+    uint64_t * p_pkeys;
+    cl_list_iterator_t list_iterator;
+
+    list_iterator= cl_list_head(p_list);
+    while( list_iterator != cl_list_end(p_list) )
+    {
+       p_pkeys = (uint64_t *)cl_list_obj(list_iterator);
+       p_pkeys[0] &= 0x7fff;
+       p_pkeys[1] &= 0x7fff;
+       if (p_pkeys[0] > p_pkeys[1])
+       {
+           tmp_pkey = p_pkeys[1];
+           p_pkeys[1] = p_pkeys[0];
+           p_pkeys[0] = tmp_pkey;
+       }
+       list_iterator = cl_list_next(list_iterator);
+    }
+
+    __rangelist2rangearr(p_list, p_arr, p_arr_len);
 }
 
 /***************************************************
