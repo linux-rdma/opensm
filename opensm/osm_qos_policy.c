@@ -900,8 +900,8 @@ int osm_qos_policy_validate(osm_qos_policy_t * p_qos_policy,
 		 */
 
 		for (j = 0; j < p_qos_match_rule->pkey_range_len; j++) {
-			for ( pkey_64 = p_qos_match_rule->pkey_range_arr[i][0];
-			      pkey_64 <= p_qos_match_rule->pkey_range_arr[i][1];
+			for ( pkey_64 = p_qos_match_rule->pkey_range_arr[j][0];
+			      pkey_64 <= p_qos_match_rule->pkey_range_arr[j][1];
 			      pkey_64++) {
                                 pkey = cl_hton16((uint16_t)(pkey_64 & 0x7fff));
 				p_prtn = (osm_prtn_t *)cl_qmap_get(
