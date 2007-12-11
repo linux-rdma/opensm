@@ -222,10 +222,9 @@ osmv_rmpp_send_madw(IN osm_bind_handle_t h_bind,
 		osm_log(p_bo->p_vendor->p_log, OSM_LOG_DEBUG,
 			"Double-sided RMPP - switching to be the receiver.\n");
 
-		ret =
-		    osmv_txn_init_rmpp_receiver(h_bind, p_txn,
-						FALSE
-						/*Send was initiated by me */ );
+		ret = osmv_txn_init_rmpp_receiver(h_bind, p_txn, FALSE
+						  /*Send was initiated by me */
+						  );
 
 		if (IB_SUCCESS == ret) {
 			/* Send ACK on the 0 segment */
@@ -233,7 +232,7 @@ osmv_rmpp_send_madw(IN osm_bind_handle_t h_bind,
 		}
 	}
 
-      send_done:
+send_done:
 	OSM_LOG_EXIT(p_bo->p_vendor->p_log);
 	return ret;
 }

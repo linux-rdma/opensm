@@ -260,7 +260,7 @@ void __osm_transaction_mgr_callback(IN void *context)
 		madw_p = (osm_madw_t *) (cl_list_remove_head(&tmp_madw_p_list));
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_vend->p_log);
 
 }

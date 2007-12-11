@@ -163,7 +163,7 @@ __osmv_sa_mad_rcv_cb(IN osm_madw_t * p_madw,
 	if ((p_query_req_copy->flags & OSM_SA_FLAGS_SYNC) == OSM_SA_FLAGS_SYNC)
 		cl_event_signal(&p_bind->sync_event);
 
-      Exit:
+Exit:
 
 	/* free the copied query request if found */
 	if (p_query_req_copy)
@@ -302,7 +302,7 @@ __osmv_get_lid_and_sm_lid_by_port_guid(IN osm_vendor_t * const p_vend,
 
 	free(p_attr_array);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_vend->p_log);
 	return (status);
 }
@@ -392,7 +392,7 @@ osmv_bind_sa(IN osm_vendor_t * const p_vend,
 		p_sa_bind_info = OSM_BIND_INVALID_HANDLE;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_log);
 	return (p_sa_bind_info);
 }
@@ -565,7 +565,7 @@ __osmv_send_sa_req(IN osmv_sa_bind_info_t * p_bind,
 		status = p_madw->status;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_log);
 	return status;
 }

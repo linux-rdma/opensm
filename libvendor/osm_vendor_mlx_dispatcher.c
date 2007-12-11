@@ -174,7 +174,7 @@ osmv_dispatch_mad(IN osm_bind_handle_t h_bind,
 		CL_ASSERT(FALSE);
 	}
 
-      dispatch_mad_done:
+dispatch_mad_done:
 	osmv_txn_unlock(p_bo);
 
 	OSM_LOG_EXIT(p_log);
@@ -284,7 +284,7 @@ __osmv_dispatch_simple_mad(IN osm_bind_handle_t h_bind,
 	/* Do the job ! */
 	p_bo->recv_cb(p_madw, p_bo->cb_context, p_req_madw);
 
-      dispatch_simple_mad_done:
+dispatch_simple_mad_done:
 	OSM_LOG_EXIT(p_bo->p_vendor->p_log);
 }
 
@@ -373,7 +373,7 @@ __osmv_dispatch_rmpp_mad(IN osm_bind_handle_t h_bind,
 		CL_ASSERT(FALSE);
 	}
 
-      dispatch_rmpp_mad_done:
+dispatch_rmpp_mad_done:
 	OSM_LOG_EXIT(p_bo->p_vendor->p_log);
 }
 
@@ -470,7 +470,7 @@ __osmv_dispatch_rmpp_snd(IN osm_bind_handle_t h_bind,
 		cl_event_signal(&p_send_ctx->event);
 	}
 
-      dispatch_rmpp_snd_done:
+dispatch_rmpp_snd_done:
 	OSM_LOG_EXIT(p_bo->p_vendor->p_log);
 }
 
@@ -631,7 +631,7 @@ __osmv_dispatch_rmpp_rcv(IN osm_bind_handle_t h_bind,
 	/* Finally, do the job! */
 	p_bo->recv_cb(p_new_madw, p_bo->cb_context, p_req_madw);
 
-      dispatch_rmpp_rcv_done:
+dispatch_rmpp_rcv_done:
 	OSM_LOG_EXIT(p_bo->p_vendor->p_log);
 	return status;
 }

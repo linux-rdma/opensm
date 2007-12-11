@@ -222,7 +222,7 @@ __parse_ca_info_file(IN osm_vendor_t * const p_vend,
 		pfs_ca_info->name, pfs_ca_info->guid, pfs_ca_info->num_ports);
 
 	status = IB_SUCCESS;
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_vend->p_log);
 	return status;
 }
@@ -396,7 +396,7 @@ __parse_port_info_file(IN osm_vendor_t * const p_vend,
 		pfs_port_info->sm_sl);
 
 	status = IB_SUCCESS;
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_vend->p_log);
 	return status;
 }
@@ -468,7 +468,7 @@ __get_port_guid_from_port_gid_tbl(IN osm_vendor_t * const p_vend,
 	    (uint64_t) g[3] << 48 | (uint64_t) g[2] << 32 | (uint64_t) g[1] <<
 	    16 | g[0];
 	status = IB_SUCCESS;
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_vend->p_log);
 	return status;
 }
@@ -542,7 +542,7 @@ __osm_ca_info_init(IN osm_vendor_t * const p_vend,
 	}
 
 	status = IB_SUCCESS;
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_vend->p_log);
 	return (status);
 }
@@ -664,7 +664,7 @@ osm_vendor_get_all_port_attr(IN osm_vendor_t * const p_vend,
 
 	status = IB_SUCCESS;
 
-      Exit:
+Exit:
 	if (p_ca_infos) {
 		osm_ca_info_destroy(p_vend, p_ca_infos, ca_count);
 	}
@@ -742,7 +742,7 @@ osm_vendor_get_guid_ca_and_port(IN osm_vendor_t * const p_vend,
 		cl_ntoh64(guid));
 	status = IB_INVALID_GUID;
 
-      Exit:
+Exit:
 
 	OSM_LOG_EXIT(p_vend->p_log);
 	return (status);

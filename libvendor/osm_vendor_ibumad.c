@@ -121,7 +121,7 @@ static void clear_madw(osm_vendor_t * p_vend)
 	}
 	pthread_mutex_unlock(&p_vend->match_tbl_mutex);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_vend->p_log);
 }
 
@@ -479,7 +479,7 @@ osm_vendor_init(IN osm_vendor_t * const p_vend,
 	p_vend->ca_count = n_cas;
 	p_vend->mtbl.max = OSM_UMAD_MAX_PENDING;
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_log);
 	return (r);
 }
@@ -515,7 +515,7 @@ osm_vendor_t *osm_vendor_new(IN osm_log_t * const p_log,
 		p_vend = NULL;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_log);
 	return (p_vend);
 }
@@ -592,7 +592,7 @@ osm_vendor_get_all_port_attr(IN osm_vendor_t * const p_vend,
 	*p_num_ports = attr - p_attr_array;
 	r = 0;
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_vend->p_log);
 	return r;
 }
@@ -664,7 +664,8 @@ _found:
 			"osm_vendor_open_port: ERR 542D: "
 			"Type %d of node \'%s\' is not an IB node type\n",
 			umad_ca.node_type, umad_ca.ca_name);
-		fprintf(stderr, "Type %d of node \'%s\' is not an IB node type\n",
+		fprintf(stderr,
+			"Type %d of node \'%s\' is not an IB node type\n",
 			umad_ca.node_type, umad_ca.ca_name);
 		umad_release_ca(&umad_ca);
 		goto Exit;
@@ -710,7 +711,7 @@ _found:
 		p_vend->umad_port_id = umad_port_id = -1;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_vend->p_log);
 	return umad_port_id;
 }
@@ -743,8 +744,8 @@ static int set_bit(int nr, void *method_mask)
 	long mask, *addr = method_mask;
 	int retval;
 
-	addr += nr / (8*sizeof(long));
-	mask = 1L << (nr % (8*sizeof(long)));
+	addr += nr / (8 * sizeof(long));
+	mask = 1L << (nr % (8 * sizeof(long)));
 	retval = (mask & *addr) != 0;
 	*addr |= mask;
 	return retval;
@@ -762,7 +763,7 @@ osm_vendor_bind(IN osm_vendor_t * const p_vend,
 {
 	ib_net64_t port_guid;
 	osm_umad_bind_info_t *p_bind = 0;
-	long method_mask[16/sizeof(long)];
+	long method_mask[16 / sizeof(long)];
 	int umad_port_id;
 	uint8_t rmpp_version;
 
@@ -900,7 +901,7 @@ osm_vendor_bind(IN osm_vendor_t * const p_vend,
 		p_vend->agents[p_bind->agent_id1] = p_bind;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_vend->p_log);
 	return ((osm_bind_handle_t) p_bind);
 }
@@ -1074,7 +1075,7 @@ osm_vendor_send(IN osm_bind_handle_t h_bind,
 #endif
 	}
 
-      Resp:
+Resp:
 	if (resp_expected)
 		put_madw(p_vend, p_madw, &p_mad->trans_id);
 
@@ -1109,7 +1110,7 @@ osm_vendor_send(IN osm_bind_handle_t h_bind,
 	osm_log(p_vend->p_log, OSM_LOG_DEBUG, "osm_vendor_send: "
 		"Completed sending %s p_madw = %p\n",
 		resp_expected ? "request" : "response or unsolicited", p_madw);
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_vend->p_log);
 	return (ret);
 }

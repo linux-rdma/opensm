@@ -338,7 +338,7 @@ osm_vendor_init(IN osm_vendor_t * const p_vend,
 	/*  __osm_mtl_init_tid_mad_map( p_vend ); */
 	p_vend->timeout = timeout;
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_log);
 	return (status);
 }
@@ -431,11 +431,10 @@ __osm_mtl_rcv_callback(IN IB_MGT_mad_hndl_t mad_hndl,
 							    payload_p)->
 							   mgmt_class ==
 							   IB_MCLASS_SUBN_LID)
-							  ||
-							  (((ib_mad_t *)
-							    payload_p)->
-							   mgmt_class ==
-							   IB_MCLASS_SUBN_DIR),
+							  || (((ib_mad_t *)
+							       payload_p)->
+							      mgmt_class ==
+							      IB_MCLASS_SUBN_DIR),
 							  &mad_addr);
 
 		osm_log(p_log, OSM_LOG_ERROR,
@@ -506,7 +505,7 @@ __osm_mtl_rcv_callback(IN IB_MGT_mad_hndl_t mad_hndl,
 	(*bind_info_p->rcv_callback) (madw_p, bind_info_p->client_context,
 				      req_madw_p);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_log);
 }
 
@@ -803,7 +802,7 @@ osm_vendor_bind(IN osm_vendor_t * const p_vend,
 
 	/* HACK: Do we need to initialize an address vector ???? */
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_vend->p_log);
 	return ((osm_bind_handle_t) p_bind);
 }
@@ -851,7 +850,7 @@ ib_mad_t *osm_vendor_get(IN osm_bind_handle_t h_bind,
 			"Acquired MAD %p, size = %u.\n", mad_p, p_vw->size);
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_vend->p_log);
 	return (mad_p);
 }
@@ -985,7 +984,7 @@ osm_mtl_send_mad(IN osm_mtl_bind_info_t * p_bind, IN osm_madw_t * const p_madw)
 
 	status = IB_SUCCESS;
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_vend->p_log);
 	return (status);
 }
@@ -1044,7 +1043,7 @@ osm_vendor_send(IN osm_bind_handle_t h_bind,
 	/* do the actual send */
 	status = osm_mtl_send_mad(p_bind, p_madw);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_vend->p_log);
 	return (status);
 }

@@ -371,7 +371,7 @@ __osm_ts_rcv_callback(IN osm_ts_bind_info_t * p_bind,
 	(*(osm_vend_mad_recv_callback_t) p_bind->rcv_callback)
 	    (p_madw, p_bind->client_context, p_req_madw);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_log);
 }
 
@@ -639,7 +639,7 @@ osm_vendor_bind(IN osm_vendor_t * const p_vend,
 	if (status != IB_SUCCESS)
 		goto Exit;
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_vend->p_log);
 	return ((osm_bind_handle_t) p_bind);
 }
@@ -684,7 +684,7 @@ ib_mad_t *osm_vendor_get(IN osm_bind_handle_t h_bind,
 			"Acquired MAD %p, size = %u.\n", p_mad, p_vw->size);
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_vend->p_log);
 	return (p_mad);
 }
@@ -785,7 +785,7 @@ osm_ts_send_mad(IN osm_ts_bind_info_t * p_bind, IN osm_madw_t * const p_madw)
 
 	status = IB_SUCCESS;
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_vend->p_log);
 	return (status);
 }
@@ -848,7 +848,7 @@ osm_vendor_send(IN osm_bind_handle_t h_bind,
 	/* this will handle all cleanup if neccessary */
 	__osm_ts_send_callback(p_bind, !resp_expected, p_madw, status);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_vend->p_log);
 	return (status);
 }

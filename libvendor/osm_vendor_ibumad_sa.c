@@ -151,7 +151,7 @@ __osmv_sa_mad_rcv_cb(IN osm_madw_t * p_madw,
 					(p_madw->mad_size -
 					 IB_SA_MAD_HDR_SIZE) %
 					ib_get_attr_size(p_sa_mad->attr_offset)
-				);
+				    );
 			} else
 				query_res.result_cnt = 0;
 #endif
@@ -165,7 +165,7 @@ __osmv_sa_mad_rcv_cb(IN osm_madw_t * p_madw,
 	if ((p_query_req_copy->flags & OSM_SA_FLAGS_SYNC) == OSM_SA_FLAGS_SYNC)
 		cl_event_signal(&p_bind->sync_event);
 
-      Exit:
+Exit:
 
 	/* free the copied query request if found */
 	if (p_query_req_copy)
@@ -302,7 +302,7 @@ osmv_bind_sa(IN osm_vendor_t * const p_vend,
 		p_sa_bind_info = OSM_BIND_INVALID_HANDLE;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_log);
 	return (p_sa_bind_info);
 }
@@ -436,9 +436,9 @@ __osmv_send_sa_req(IN osmv_sa_bind_info_t * p_bind,
 	   Provide the address to send to
 	 */
 	p_madw->mad_addr.dest_lid =
-		cl_hton16(p_bind->p_vendor->umad_port.sm_lid);
+	    cl_hton16(p_bind->p_vendor->umad_port.sm_lid);
 	p_madw->mad_addr.addr_type.smi.source_lid =
-		cl_hton16(p_bind->p_vendor->umad_port.base_lid);
+	    cl_hton16(p_bind->p_vendor->umad_port.base_lid);
 	p_madw->mad_addr.addr_type.gsi.remote_qp = CL_HTON32(1);
 	p_madw->resp_expected = TRUE;
 	p_madw->fail_msg = CL_DISP_MSGID_NONE;
@@ -472,7 +472,7 @@ __osmv_send_sa_req(IN osmv_sa_bind_info_t * p_bind,
 		status = p_madw->status;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_log);
 	return status;
 }

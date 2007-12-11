@@ -175,7 +175,7 @@ __osm_vendor_get_ca_ids(IN osm_vendor_t * const p_vend,
 
 	status = IB_SUCCESS;
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_vend->p_log);
 	return (status);
 }
@@ -277,7 +277,7 @@ __osm_ca_info_init(IN osm_vendor_t * const p_vend,
 	}
 
 	status = IB_SUCCESS;
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_vend->p_log);
 	return (status);
 }
@@ -402,7 +402,7 @@ osm_vendor_get_all_port_attr(IN osm_vendor_t * const p_vend,
 
 	status = IB_SUCCESS;
 
-      Exit:
+Exit:
 	*p_num_ports = total_ports;
 
 	if (p_ca_ids)
@@ -529,7 +529,7 @@ osm_vendor_get_guid_ca_and_port(IN osm_vendor_t * const p_vend,
 		cl_ntoh64(guid));
 	status = IB_INVALID_GUID;
 
-      Exit:
+Exit:
 	if (p_ca_ids != NULL)
 		free(p_ca_ids);
 	if (p_port_gid != NULL)

@@ -104,7 +104,7 @@ osmv_txn_init(IN osm_bind_handle_t h_bind,
 	OSM_LOG_EXIT(p_bo->p_vendor->p_log);
 	return IB_SUCCESS;
 
-      insert_txn_failed:
+insert_txn_failed:
 	free(p_txn);
 
 	OSM_LOG_EXIT(p_bo->p_vendor->p_log);
@@ -669,7 +669,7 @@ __osmv_txn_timeout_cb(IN uint64_t key,
 		ret = 0;
 	}
 
-      txn_done:
+txn_done:
 	OSM_LOG_EXIT(p_bo->p_vendor->p_log);
 	return ret;
 }

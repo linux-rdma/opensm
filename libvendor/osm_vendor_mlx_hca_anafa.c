@@ -138,7 +138,7 @@ __osm_ca_info_init(IN osm_vendor_t * const p_vend,
 	p_ca_info->attr.p_port_attr[0].sm_lid = port_info.port_info.sm_lid;
 
 	status = IB_SUCCESS;
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_vend->p_log);
 	return (status);
 }
@@ -185,7 +185,7 @@ osm_vendor_get_all_port_attr(IN osm_vendor_t * const p_vend,
 	p_attr_array[0] = ca_info.attr.p_port_attr[0];	/* anafa has only one port */
 	status = IB_SUCCESS;
 
-      Exit:
+Exit:
 
 	OSM_LOG_EXIT(p_vend->p_log);
 	return (status);

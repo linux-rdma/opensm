@@ -252,7 +252,7 @@ __osm_al_send_callback(IN void *mad_svc_context, IN ib_mad_element_t * p_elem)
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_vend->p_log);
 }
 
@@ -370,7 +370,7 @@ osm_vendor_init(IN osm_vendor_t * const p_vend,
 
 	p_vend->timeout = timeout;
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_log);
 	return (status);
 }
@@ -401,7 +401,7 @@ osm_vendor_t *osm_vendor_new(IN osm_log_t * const p_log,
 		p_vend = NULL;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_log);
 	return (p_vend);
 }
@@ -465,7 +465,7 @@ __osm_ca_info_init(IN osm_vendor_t * const p_vend,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_vend->p_log);
 	return (status);
 }
@@ -511,7 +511,7 @@ osm_ca_info_t *osm_ca_info_new(IN osm_vendor_t * const p_vend,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_vend->p_log);
 	return (p_ca_info);
 }
@@ -564,7 +564,7 @@ __osm_vendor_get_ca_guids(IN osm_vendor_t * const p_vend,
 			"Detected %u local channel adapters.\n", *p_num_guids);
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_vend->p_log);
 	return (status);
 }
@@ -688,7 +688,7 @@ osm_vendor_get_all_port_attr(IN osm_vendor_t * const p_vend,
 
 	*p_num_ports = total_ports;
 
-      Exit:
+Exit:
 	if (p_ca_guid)
 		free(p_ca_guid);
 
@@ -858,7 +858,7 @@ __osm_vendor_open_ca(IN osm_vendor_t * const p_vend,
 
 	CL_ASSERT(p_vend->h_pd);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_vend->p_log);
 	return (status);
 }
@@ -1022,7 +1022,7 @@ osm_vendor_bind(IN osm_vendor_t * const p_vend,
 			"Allocating av handle %p.\n", p_bind->h_dr_av);
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_vend->p_log);
 	return ((osm_bind_handle_t) p_bind);
 }
@@ -1069,7 +1069,7 @@ ib_mad_t *osm_vendor_get(IN osm_bind_handle_t h_bind,
 			"Acquired MAD %p, size = %u.\n", p_mad, mad_size);
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_vend->p_log);
 	return (p_mad);
 }
@@ -1241,7 +1241,7 @@ osm_vendor_send(IN osm_bind_handle_t h_bind,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_vend->p_log);
 	return (status);
 }
@@ -1283,7 +1283,7 @@ ib_api_status_t osm_vendor_local_lid_change(IN osm_bind_handle_t h_bind)
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_vend->p_log);
 	return (status);
 }

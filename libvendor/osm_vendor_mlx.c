@@ -394,7 +394,7 @@ ib_mad_t *osm_vendor_get(IN osm_bind_handle_t h_bind,
 	}
 	p_vw->p_mad = p_mad;
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_vend->p_log);
 	return (p_mad);
 }
@@ -512,10 +512,10 @@ osm_vendor_send(IN osm_bind_handle_t h_bind,
 		osm_mad_pool_put(p_mad_pool, p_madw);
 		goto aborted;
 	}
-      send_done:
+send_done:
 
 	osmv_txn_unlock(p_bo);
-      aborted:
+aborted:
 	OSM_LOG_EXIT(p_log);
 	return ret;
 }
@@ -756,7 +756,7 @@ __osmv_get_send_txn(IN osm_bind_handle_t h_bind,
 	 */
 	osmv_txn_set_madw(*pp_txn, p_madw);
 
-      get_send_txn_done:
+get_send_txn_done:
 	OSM_LOG_EXIT(p_bo->p_vendor->p_log);
 
 	return ret;

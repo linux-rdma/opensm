@@ -177,7 +177,7 @@ osmv_rmpp_send_ctx_get_seg(IN osmv_rmpp_send_ctx_t * p_send_ctx,
 	p_rmpp_mad->paylen_newwin = cl_ntoh32(paylen);
 	p_rmpp_mad->seg_num = cl_ntoh32(seg_idx);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_send_ctx->p_log);
 	return st;
 }

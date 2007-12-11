@@ -119,8 +119,7 @@ osmv_transport_init(IN osm_bind_info_t * p_info,
 		osm_log(p_bo->p_vendor->p_log, OSM_LOG_DEBUG,
 			"osmv_transport_init: first bind() for the vendor\n");
 		p_bo->p_vendor->p_transport_info
-		    =
-		    (osmv_IBMGT_transport_info_t *)
+		    = (osmv_IBMGT_transport_info_t *)
 		    malloc(sizeof(osmv_IBMGT_transport_info_t));
 		if (NULL == p_bo->p_vendor->p_transport_info) {
 			return IB_INSUFFICIENT_MEMORY;
@@ -349,7 +348,7 @@ osmv_transport_init(IN osm_bind_info_t * p_info,
 	p_mgr->is_send_ok = FALSE;
 	p_mgr->mad_type = mad_type;
 
-      Exit:
+Exit:
 	/* OSM_LOG_EXIT(p_log ); */
 	return (ib_api_status_t) st;
 }

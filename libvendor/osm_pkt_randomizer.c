@@ -222,7 +222,7 @@ __osm_pkt_randomizer_process_path(IN osm_log_t * p_log,
 			"Dropping path:%s\n", buf);
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_log);
 	return res;
 }
@@ -259,7 +259,7 @@ osm_pkt_randomizer_mad_drop(IN osm_log_t * p_log,
 		res = TRUE;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_log);
 	return res;
 }
@@ -321,7 +321,7 @@ osm_pkt_randomizer_init(IN OUT osm_pkt_randomizer_t ** pp_pkt_randomizer,
 	       sizeof(osm_dr_path_t) *
 	       (*pp_pkt_randomizer)->osm_pkt_num_unstable_links);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_log);
 	return (res);
 }

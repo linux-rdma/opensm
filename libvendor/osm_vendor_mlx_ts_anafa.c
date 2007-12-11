@@ -328,7 +328,7 @@ osmv_transport_mad_send(IN const osm_bind_handle_t h_bind,
 
 	status = IB_SUCCESS;
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_vend->p_log);
 	return (status);
 }
