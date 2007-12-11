@@ -239,12 +239,13 @@ static void updn_destroy(IN updn_t * const p_updn)
 		free(p_updn->updn_ucast_reg_inputs.guid_list);
 
 	/* destroy the list of root nodes */
-	while ((p_guid_list_item = cl_list_remove_head(p_updn->p_root_nodes)))
-		free(p_guid_list_item);
-
-	cl_list_remove_all(p_updn->p_root_nodes);
-	cl_list_destroy(p_updn->p_root_nodes);
-	free(p_updn->p_root_nodes);
+        if (p_updn->p_root_nodes) {
+                while ((p_guid_list_item = cl_list_remove_head(p_updn->p_root_nodes)))
+                        free(p_guid_list_item);
+                cl_list_remove_all(p_updn->p_root_nodes);
+                cl_list_destroy(p_updn->p_root_nodes);
+                free(p_updn->p_root_nodes);
+        }
 	free(p_updn);
 }
 
@@ -815,12 +816,14 @@ int osm_ucast_updn_setup(osm_opensm_t * p_osm)
 	if (!p_updn)
 		return -1;
 
+	if (updn_init(p_updn, p_osm) != IB_SUCCESS) {
+                updn_destroy(p_updn);
+		return -1;
+        }
+
 	p_osm->routing_engine.context = p_updn;
 	p_osm->routing_engine.delete = __osm_updn_delete;
 	p_osm->routing_engine.build_lid_matrices = __osm_updn_call;
-
-	if (updn_init(p_updn, p_osm) != IB_SUCCESS)
-		return -1;
 
 	if (!p_updn->auto_detect_root_nodes)
 		__osm_updn_convert_list2array(p_updn);
