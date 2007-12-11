@@ -239,13 +239,14 @@ static void updn_destroy(IN updn_t * const p_updn)
 		free(p_updn->updn_ucast_reg_inputs.guid_list);
 
 	/* destroy the list of root nodes */
-        if (p_updn->p_root_nodes) {
-                while ((p_guid_list_item = cl_list_remove_head(p_updn->p_root_nodes)))
-                        free(p_guid_list_item);
-                cl_list_remove_all(p_updn->p_root_nodes);
-                cl_list_destroy(p_updn->p_root_nodes);
-                free(p_updn->p_root_nodes);
-        }
+	if (p_updn->p_root_nodes) {
+		while ((p_guid_list_item =
+			cl_list_remove_head(p_updn->p_root_nodes)))
+			free(p_guid_list_item);
+		cl_list_remove_all(p_updn->p_root_nodes);
+		cl_list_destroy(p_updn->p_root_nodes);
+		free(p_updn->p_root_nodes);
+	}
 	free(p_updn);
 }
 
@@ -319,7 +320,7 @@ static cl_status_t updn_init(IN updn_t * const p_updn, IN osm_opensm_t * p_osm)
 	}
 	/* If auto mode detection required - will be executed in main b4 the assignment of UI Ucast */
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_osm->log);
 	return (status);
 }
@@ -535,7 +536,7 @@ __osm_subn_calc_up_down_min_hop_table(IN uint32_t num_guids,
 		"Setting all switches' Min Hop Table\n");
 	status = __osm_subn_set_up_down_min_hop_table(p_updn);
 
-      _exit:
+_exit:
 	OSM_LOG_EXIT(&p_updn->p_osm->log);
 	return status;
 }
@@ -794,7 +795,7 @@ static void __osm_updn_find_root_nodes_by_min_hop(OUT updn_t * p_updn)
 	/* Now convert the cl_list to array */
 	__osm_updn_convert_list2array(p_updn);
 
-      _exit:
+_exit:
 	OSM_LOG_EXIT(&p_osm->log);
 	return;
 }
@@ -817,9 +818,9 @@ int osm_ucast_updn_setup(osm_opensm_t * p_osm)
 		return -1;
 
 	if (updn_init(p_updn, p_osm) != IB_SUCCESS) {
-                updn_destroy(p_updn);
+		updn_destroy(p_updn);
 		return -1;
-        }
+	}
 
 	p_osm->routing_engine.context = p_updn;
 	p_osm->routing_engine.delete = __osm_updn_delete;
