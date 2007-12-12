@@ -819,7 +819,7 @@ __osm_mpr_rcv_get_path_parms(IN osm_mpr_rcv_t * const p_rcv,
 		osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
 			"__osm_mpr_rcv_get_path_parms: MultiPath params:"
 			" mtu = %u, rate = %u, packet lifetime = %u,"
-			" pkey = %u, sl = %u, hops = %u\n", mtu, rate,
+			" pkey = 0x%04X, sl = %u, hops = %u\n", mtu, rate,
 			pkt_life, cl_ntoh16(required_pkey), required_sl, hops);
 
       Exit:

@@ -835,7 +835,7 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 		osm_log(p_rcv->p_log, OSM_LOG_DEBUG,
 			"__osm_pr_rcv_get_path_parms: Path params:"
 			" mtu = %u, rate = %u, packet lifetime = %u,"
-			" pkey = %u, sl = %u\n",
+			" pkey = 0x%04X, sl = %u\n",
 			mtu, rate, pkt_life, cl_ntoh16(pkey), sl);
       Exit:
 	OSM_LOG_EXIT(p_rcv->p_log);
