@@ -139,11 +139,9 @@ if test "$disable_libcheck" != "yes"; then
 
  dnl based on the with_osmv we can try the vendor flag
  if test $with_osmv = "openib"; then
-   osmv_save_ldflags=$LDFLAGS
-   LDFLAGS="$LDFLAGS $OSMV_LDADD"
+   LDADD="$LDADD $OSMV_LDADD"
    AC_CHECK_LIB(ibumad, umad_init, [],
 	 AC_MSG_ERROR([umad_init() not found. libosmvendor of type openib requires libibumad.]))
-   LD_FLAGS=$osmv_save_ldflags
  elif test $with_osmv = "sim" ; then
    LDFLAGS="$LDFLAGS -L$with_sim/lib"
    AC_CHECK_FILE([$with_sim/lib/libibmscli.a], [], 
