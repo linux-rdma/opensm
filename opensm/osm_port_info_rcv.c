@@ -101,8 +101,7 @@ __osm_pi_rcv_set_sm(IN const osm_pi_rcv_t * const p_rcv,
 static void pi_rcv_check_and_fix_lid(osm_log_t *log, ib_port_info_t * const pi,
 				     osm_physp_t * p)
 {
-	if ((cl_ntoh16(pi->base_lid) > IB_LID_UCAST_END_HO) ||
-	    (cl_ntoh16(pi->base_lid) < IB_LID_UCAST_START_HO)) {
+	if (cl_ntoh16(pi->base_lid) > IB_LID_UCAST_END_HO) {
 		osm_log(log, OSM_LOG_ERROR,
 			"pi_rcv_check_and_fix_lid: ERR 0F04: "
 			"Got invalid base LID 0x%x from the network. "
