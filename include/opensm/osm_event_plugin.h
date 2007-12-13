@@ -75,7 +75,7 @@ typedef enum {
 	OSM_EVENT_ID_MAX
 } osm_epi_event_id_t;
 
-typedef struct {
+typedef struct osm_epi_port_id {
 	uint64_t node_guid;
 	uint8_t port_num;
 	char node_name[OSM_EPI_NODE_NAME_LEN];
@@ -86,7 +86,7 @@ typedef struct {
  * OSM_EVENT_ID_PORT_COUNTER
  * This is a difference from the last reading.  NOT an absolute reading.
  */
-typedef struct {
+typedef struct osm_epi_pe_event {
 	osm_epi_port_id_t port_id;
 	uint64_t symbol_err_cnt;
 	uint64_t link_err_recover;
@@ -107,7 +107,7 @@ typedef struct {
  * Port data counter event
  * This is a difference from the last reading.  NOT an absolute reading.
  */
-typedef struct {
+typedef struct osm_epi_dc_event {
 	osm_epi_port_id_t port_id;
 	uint64_t xmit_data;
 	uint64_t rcv_data;
@@ -124,7 +124,7 @@ typedef struct {
  * Port select event
  * This is a difference from the last reading.  NOT an absolute reading.
  */
-typedef struct {
+typedef struct osm_api_ps_event {
 	osm_epi_port_id_t port_id;
 	uint64_t xmit_wait;
 	time_t time_diff_s;
@@ -133,7 +133,7 @@ typedef struct {
 /** =========================================================================
  * Trap events
  */
-typedef struct {
+typedef struct osm_epi_trap_event {
 	osm_epi_port_id_t port_id;
 	uint8_t type;
 	uint32_t prod_type;
@@ -153,16 +153,14 @@ typedef struct osm_event_plugin {
 	int interface_version;
 	void *(*construct) (osm_log_t * osm_log);
 	void (*destroy) (void *plugin_data);
-
 	void (*report) (void *plugin_data,
 			osm_epi_event_id_t event_id, void *event_data);
-
 } osm_event_plugin_t;
 
 /** =========================================================================
  * The plugin structure should be considered opaque
  */
-typedef struct {
+typedef struct osm_epi_plugin {
 	void *handle;
 	osm_event_plugin_t *impl;
 	void *plugin_data;
