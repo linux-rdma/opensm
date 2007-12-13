@@ -459,45 +459,6 @@ osm_physp_set_port_info(IN osm_physp_t * const p_physp,
 *	Port, Physical Port
 *********/
 
-/****f* OpenSM: Physical Port/osm_physp_trim_base_lid_to_valid_range
-* NAME
-*  osm_physp_trim_base_lid_to_valid_range
-*
-* DESCRIPTION
-*  Validates the base LID in the Physical Port object
-*  and resets it if the base LID is invalid.
-*
-* SYNOPSIS
-*/
-static inline ib_net16_t
-osm_physp_trim_base_lid_to_valid_range(IN osm_physp_t * const p_physp)
-{
-	ib_net16_t orig_lid = 0;
-
-	CL_ASSERT(osm_physp_is_valid(p_physp));
-	if ((cl_ntoh16(p_physp->port_info.base_lid) > IB_LID_UCAST_END_HO) ||
-	    (cl_ntoh16(p_physp->port_info.base_lid) < IB_LID_UCAST_START_HO)) {
-		orig_lid = p_physp->port_info.base_lid;
-		p_physp->port_info.base_lid = 0;
-	}
-	return orig_lid;
-}
-
-/*
-* PARAMETERS
-*	p_physp
-*		[in] Pointer to an osm_physp_t object.
-*
-* RETURN VALUES
-*	Returns 0 if the base LID in the Physical port object is valid.
-*	Returns original invalid LID otherwise.
-*
-* NOTES
-*
-* SEE ALSO
-*	Port, Physical Port
-*********/
-
 /****f* OpenSM: Physical Port/osm_physp_set_pkey_tbl
 * NAME
 *  osm_physp_set_pkey_tbl

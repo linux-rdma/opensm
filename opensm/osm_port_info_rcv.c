@@ -98,6 +98,22 @@ __osm_pi_rcv_set_sm(IN const osm_pi_rcv_t * const p_rcv,
 
 /**********************************************************************
  **********************************************************************/
+static void pi_rcv_check_and_fix_lid(osm_log_t *log, ib_port_info_t * const pi,
+				     osm_physp_t * p)
+{
+	if ((cl_ntoh16(pi->base_lid) > IB_LID_UCAST_END_HO) ||
+	    (cl_ntoh16(pi->base_lid) < IB_LID_UCAST_START_HO)) {
+		osm_log(log, OSM_LOG_ERROR,
+			"pi_rcv_check_and_fix_lid: ERR 0F04: "
+			"Got invalid base LID 0x%x from the network. "
+			"Corrected to 0x%x.\n", cl_ntoh16(pi->base_lid),
+			cl_ntoh16(p->port_info.base_lid));
+		pi->base_lid = p->port_info.base_lid;
+	}
+}
+
+/**********************************************************************
+ **********************************************************************/
 static void
 __osm_pi_rcv_process_endport(IN const osm_pi_rcv_t * const p_rcv,
 			     IN osm_physp_t * const p_physp,
@@ -204,13 +220,12 @@ static void
 __osm_pi_rcv_process_switch_port(IN const osm_pi_rcv_t * const p_rcv,
 				 IN osm_node_t * const p_node,
 				 IN osm_physp_t * const p_physp,
-				 IN const ib_port_info_t * const p_pi)
+				 IN ib_port_info_t * const p_pi)
 {
 	ib_api_status_t status = IB_SUCCESS;
 	osm_madw_context_t context;
 	osm_physp_t *p_remote_physp;
 	osm_node_t *p_remote_node;
-	ib_net16_t orig_lid;
 	uint8_t port_num;
 	uint8_t remote_port_num;
 	osm_dr_path_t path;
@@ -316,19 +331,15 @@ __osm_pi_rcv_process_switch_port(IN const osm_pi_rcv_t * const p_rcv,
 	if (ib_port_info_get_port_state(p_pi) > IB_LINK_INIT && p_node->sw)
 		p_node->sw->need_update = 0;
 
+	if (port_num == 0)
+		pi_rcv_check_and_fix_lid(p_rcv->p_log, p_pi, p_physp);
+
 	/*
 	   Update the PortInfo attribute.
 	 */
 	osm_physp_set_port_info(p_physp, p_pi);
 
 	if (port_num == 0) {
-		/* This is switch management port 0 */
-		if ((orig_lid =
-		     osm_physp_trim_base_lid_to_valid_range(p_physp)))
-			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
-				"__osm_pi_rcv_process_switch_port: ERR 0F04: "
-				"Invalid base LID 0x%x corrected\n",
-				cl_ntoh16(orig_lid));
 		/* Determine if base switch port 0 */
 		if (p_node->sw &&
 		    !ib_switch_info_is_enhanced_port0(&p_node->sw->switch_info))
@@ -346,21 +357,15 @@ static void
 __osm_pi_rcv_process_ca_or_router_port(IN const osm_pi_rcv_t * const p_rcv,
 				       IN osm_node_t * const p_node,
 				       IN osm_physp_t * const p_physp,
-				       IN const ib_port_info_t * const p_pi)
+				       IN ib_port_info_t * const p_pi)
 {
-	ib_net16_t orig_lid;
-
 	OSM_LOG_ENTER(p_rcv->p_log, __osm_pi_rcv_process_ca_or_router_port);
 
 	UNUSED_PARAM(p_node);
 
-	osm_physp_set_port_info(p_physp, p_pi);
+	pi_rcv_check_and_fix_lid(p_rcv->p_log, p_pi, p_physp);
 
-	if ((orig_lid = osm_physp_trim_base_lid_to_valid_range(p_physp)))
-		osm_log(p_rcv->p_log, OSM_LOG_ERROR,
-			"__osm_pi_rcv_process_ca_or_router_port: ERR 0F08: "
-			"Invalid base LID 0x%x corrected\n",
-			cl_ntoh16(orig_lid));
+	osm_physp_set_port_info(p_physp, p_pi);
 
 	__osm_pi_rcv_process_endport(p_rcv, p_physp, p_pi);
 
