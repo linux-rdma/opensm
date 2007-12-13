@@ -83,7 +83,7 @@ osm_epi_plugin_t *osm_epi_construct(osm_log_t * p_log, char *plugin_name)
 	}
 
 	rc->impl =
-	    (__osm_epi_plugin_t *) dlsym(rc->handle,
+	    (osm_event_plugin_t *) dlsym(rc->handle,
 					 OSM_EVENT_PLUGIN_IMPL_NAME);
 	if (!rc->impl) {
 		osm_log(p_log, OSM_LOG_ERROR,

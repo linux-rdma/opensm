@@ -171,7 +171,7 @@ static void report(void *_log, osm_epi_event_id_t event_id, void *event_data)
 /** =========================================================================
  * Define the object symbol for loading
  */
-__osm_epi_plugin_t osm_event_plugin = {
+osm_event_plugin_t osm_event_plugin = {
       interface_version:OSM_EVENT_PLUGIN_INTERFACE_VER,
       construct:construct,
       destroy:destroy,

@@ -149,7 +149,7 @@ typedef struct {
  */
 #define OSM_EVENT_PLUGIN_IMPL_NAME "osm_event_plugin"
 #define OSM_EVENT_PLUGIN_INTERFACE_VER (1)
-typedef struct {
+typedef struct osm_event_plugin {
 	int interface_version;
 	void *(*construct) (osm_log_t * osm_log);
 	void (*destroy) (void *plugin_data);
@@ -157,14 +157,14 @@ typedef struct {
 	void (*report) (void *plugin_data,
 			osm_epi_event_id_t event_id, void *event_data);
 
-} __osm_epi_plugin_t;
+} osm_event_plugin_t;
 
 /** =========================================================================
  * The plugin structure should be considered opaque
  */
 typedef struct {
 	void *handle;
-	__osm_epi_plugin_t *impl;
+	osm_event_plugin_t *impl;
 	void *plugin_data;
 	osm_log_t *p_log;
 	char *plugin_name;
