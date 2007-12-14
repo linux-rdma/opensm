@@ -47,7 +47,7 @@
  * This function is always run as a result of creation a new user mode thread.
  * Its main job is to synchronize the creation and running of the new thread.
  */
-void *__cl_thread_wrapper(void *arg)
+static void *__cl_thread_wrapper(void *arg)
 {
 	cl_thread_t *p_thread = (cl_thread_t *) arg;
 

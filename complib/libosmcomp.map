@@ -109,7 +109,6 @@ OSMCOMP_2.3 {
 		cl_spinlock_acquire;
 		cl_spinlock_release;
 		cl_status_text;
-		__cl_thread_wrapper;
 		cl_thread_construct;
 		cl_thread_init;
 		cl_thread_destroy;
