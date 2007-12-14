@@ -440,7 +440,7 @@ osm_sm_state_mgr_init(IN osm_sm_state_mgr_t * const p_sm_mgr,
 
 /**********************************************************************
  **********************************************************************/
-void
+static void
 __osm_sm_state_mgr_signal_error(IN const osm_sm_state_mgr_t * const p_sm_mgr,
 				IN const osm_sm_signal_t signal)
 {

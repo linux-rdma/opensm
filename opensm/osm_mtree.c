@@ -107,7 +107,7 @@ void osm_mtree_destroy(IN osm_mtree_node_t * p_mtn)
 
 /**********************************************************************
  **********************************************************************/
-void __osm_mtree_dump(IN osm_mtree_node_t * p_mtn)
+static void __osm_mtree_dump(IN osm_mtree_node_t * p_mtn)
 {
 	uint32_t i;
 

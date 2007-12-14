@@ -91,8 +91,8 @@ typedef struct _osm_trap_aging_tracker_context {
 
 /**********************************************************************
  **********************************************************************/
-osm_physp_t *__get_physp_by_lid_and_num(IN osm_trap_rcv_t * const p_rcv,
-					IN uint16_t lid, IN uint8_t num)
+static osm_physp_t *__get_physp_by_lid_and_num(IN osm_trap_rcv_t * const p_rcv,
+					       IN uint16_t lid, IN uint8_t num)
 {
 	cl_ptr_vector_t *p_vec = &(p_rcv->p_subn->port_lid_tbl);
 	osm_port_t *p_port;

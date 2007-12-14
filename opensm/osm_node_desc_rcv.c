@@ -63,7 +63,7 @@
 
 /**********************************************************************
  **********************************************************************/
-void
+static void
 __osm_nd_rcv_process_nd(IN const osm_nd_rcv_t * const p_rcv,
 			IN osm_node_t * const p_node,
 			IN const ib_node_desc_t * const p_nd)

@@ -54,7 +54,8 @@
 
 /**********************************************************************
  **********************************************************************/
-void __osm_sweep_fail_ctrl_disp_callback(IN void *context, IN void *p_data)
+static void __osm_sweep_fail_ctrl_disp_callback(IN void *context,
+						IN void *p_data)
 {
 	osm_sweep_fail_ctrl_t *const p_ctrl = (osm_sweep_fail_ctrl_t *) context;
 

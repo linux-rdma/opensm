@@ -469,7 +469,7 @@ osm_physp_calc_link_op_vls(IN osm_log_t * p_log,
 	return (op_vls);
 }
 
-inline uint64_t __osm_ptr_to_key(void const *p)
+static inline uint64_t __osm_ptr_to_key(void const *p)
 {
 	uint64_t k = 0;
 
@@ -477,7 +477,7 @@ inline uint64_t __osm_ptr_to_key(void const *p)
 	return k;
 }
 
-inline void *__osm_key_to_ptr(uint64_t k)
+static inline void *__osm_key_to_ptr(uint64_t k)
 {
 	void *p = 0;
 

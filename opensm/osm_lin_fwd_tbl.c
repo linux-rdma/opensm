@@ -55,7 +55,7 @@
 #include <iba/ib_types.h>
 #include <opensm/osm_lin_fwd_tbl.h>
 
-inline size_t __osm_lin_tbl_compute_obj_size(IN const uint32_t num_ports)
+static inline size_t __osm_lin_tbl_compute_obj_size(IN const uint32_t num_ports)
 {
 	return (sizeof(osm_lin_fwd_tbl_t) + (num_ports - 1));
 }

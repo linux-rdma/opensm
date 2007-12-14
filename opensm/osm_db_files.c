@@ -434,7 +434,7 @@ int osm_db_restore(IN osm_db_domain_t * p_domain)
 
 /***************************************************************************
  ***************************************************************************/
-int __osm_dump_tbl_entry(st_data_t key, st_data_t val, st_data_t arg)
+static int __osm_dump_tbl_entry(st_data_t key, st_data_t val, st_data_t arg)
 {
 	FILE *p_file = (FILE *) arg;
 	char *p_key = (char *)key;
@@ -505,7 +505,7 @@ int osm_db_store(IN osm_db_domain_t * p_domain)
  ***************************************************************************/
 /* simply de-allocate the key and the value and return the code
    that makes the st_foreach delete the entry */
-int __osm_clear_tbl_entry(st_data_t key, st_data_t val, st_data_t arg)
+static int __osm_clear_tbl_entry(st_data_t key, st_data_t val, st_data_t arg)
 {
 	free((char *)key);
 	free((char *)val);
@@ -527,7 +527,8 @@ int osm_db_clear(IN osm_db_domain_t * p_domain)
 
 /***************************************************************************
  ***************************************************************************/
-int __osm_get_key_of_tbl_entry(st_data_t key, st_data_t val, st_data_t arg)
+static int __osm_get_key_of_tbl_entry(st_data_t key, st_data_t val,
+				      st_data_t arg)
 {
 	cl_list_t *p_list = (cl_list_t *) arg;
 	cl_list_insert_tail(p_list, (void *)key);

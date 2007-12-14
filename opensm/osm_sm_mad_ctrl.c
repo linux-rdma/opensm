@@ -594,7 +594,7 @@ __osm_sm_mad_ctrl_process_trap(IN osm_sm_mad_ctrl_t * const p_ctrl,
  *
  * SYNOPSIS
  */
-void
+static void
 __osm_sm_mad_ctrl_rcv_callback(IN osm_madw_t * p_madw,
 			       IN void *bind_context,
 			       IN osm_madw_t * p_req_madw)
@@ -715,7 +715,7 @@ __osm_sm_mad_ctrl_rcv_callback(IN osm_madw_t * p_madw,
  *
  * SYNOPSIS
  */
-void
+static void
 __osm_sm_mad_ctrl_send_err_cb(IN void *bind_context, IN osm_madw_t * p_madw)
 {
 	osm_sm_mad_ctrl_t *p_ctrl = (osm_sm_mad_ctrl_t *) bind_context;
