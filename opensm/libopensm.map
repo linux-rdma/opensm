@@ -17,8 +17,6 @@ OPENSM_1.5 {
 		ib_get_sm_method_str;
 		ib_get_sm_attr_str;
 		ib_get_sa_attr_str;
-		osm_dbg_do_line;
-		osm_dbg_get_capabilities_str;
 		osm_dump_port_info;
 		osm_dump_portinfo_record;
 		osm_dump_guidinfo_record;

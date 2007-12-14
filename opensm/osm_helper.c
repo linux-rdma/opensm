@@ -495,11 +495,11 @@ const char *ib_get_sa_attr_str(IN ib_net16_t attr)
 
 /**********************************************************************
  **********************************************************************/
-ib_api_status_t
-osm_dbg_do_line(IN char **pp_local,
-		IN const uint32_t buf_size,
-		IN const char *const p_prefix_str,
-		IN const char *const p_new_str, IN uint32_t * const p_total_len)
+static ib_api_status_t
+dbg_do_line(IN char **pp_local,
+	    IN const uint32_t buf_size,
+	    IN const char *const p_prefix_str,
+	    IN const char *const p_new_str, IN uint32_t * const p_total_len)
 {
 	char line[LINE_LENGTH];
 	uint32_t len;
@@ -517,11 +517,11 @@ osm_dbg_do_line(IN char **pp_local,
 
 /**********************************************************************
  **********************************************************************/
-void
-osm_dbg_get_capabilities_str(IN char *p_buf,
-			     IN const uint32_t buf_size,
-			     IN const char *const p_prefix_str,
-			     IN const ib_port_info_t * const p_pi)
+static void
+dbg_get_capabilities_str(IN char *p_buf,
+			 IN const uint32_t buf_size,
+			 IN const char *const p_prefix_str,
+			 IN const ib_port_info_t * const p_pi)
 {
 	uint32_t total_len = 0;
 	char *p_local = p_buf;
@@ -530,195 +530,195 @@ osm_dbg_get_capabilities_str(IN char *p_buf,
 	p_local += strlen(p_local);
 
 	if (p_pi->capability_mask & IB_PORT_CAP_RESV0) {
-		if (osm_dbg_do_line(&p_local, buf_size, p_prefix_str,
-				    "IB_PORT_CAP_RESV0\n",
-				    &total_len) != IB_SUCCESS)
+		if (dbg_do_line(&p_local, buf_size, p_prefix_str,
+				"IB_PORT_CAP_RESV0\n",
+				&total_len) != IB_SUCCESS)
 			return;
 	}
 	if (p_pi->capability_mask & IB_PORT_CAP_IS_SM) {
-		if (osm_dbg_do_line(&p_local, buf_size, p_prefix_str,
-				    "IB_PORT_CAP_IS_SM\n",
-				    &total_len) != IB_SUCCESS)
+		if (dbg_do_line(&p_local, buf_size, p_prefix_str,
+				"IB_PORT_CAP_IS_SM\n",
+				&total_len) != IB_SUCCESS)
 			return;
 	}
 	if (p_pi->capability_mask & IB_PORT_CAP_HAS_NOTICE) {
-		if (osm_dbg_do_line(&p_local, buf_size, p_prefix_str,
-				    "IB_PORT_CAP_HAS_NOTICE\n",
-				    &total_len) != IB_SUCCESS)
+		if (dbg_do_line(&p_local, buf_size, p_prefix_str,
+				"IB_PORT_CAP_HAS_NOTICE\n",
+				&total_len) != IB_SUCCESS)
 			return;
 	}
 	if (p_pi->capability_mask & IB_PORT_CAP_HAS_TRAP) {
-		if (osm_dbg_do_line(&p_local, buf_size, p_prefix_str,
-				    "IB_PORT_CAP_HAS_TRAP\n",
-				    &total_len) != IB_SUCCESS)
+		if (dbg_do_line(&p_local, buf_size, p_prefix_str,
+				"IB_PORT_CAP_HAS_TRAP\n",
+				&total_len) != IB_SUCCESS)
 			return;
 	}
 	if (p_pi->capability_mask & IB_PORT_CAP_HAS_IPD) {
-		if (osm_dbg_do_line(&p_local, buf_size, p_prefix_str,
-				    "IB_PORT_CAP_HAS_IPD\n",
-				    &total_len) != IB_SUCCESS)
+		if (dbg_do_line(&p_local, buf_size, p_prefix_str,
+				"IB_PORT_CAP_HAS_IPD\n",
+				&total_len) != IB_SUCCESS)
 			return;
 	}
 	if (p_pi->capability_mask & IB_PORT_CAP_HAS_AUTO_MIG) {
-		if (osm_dbg_do_line(&p_local, buf_size, p_prefix_str,
-				    "IB_PORT_CAP_HAS_AUTO_MIG\n",
-				    &total_len) != IB_SUCCESS)
+		if (dbg_do_line(&p_local, buf_size, p_prefix_str,
+				"IB_PORT_CAP_HAS_AUTO_MIG\n",
+				&total_len) != IB_SUCCESS)
 			return;
 	}
 	if (p_pi->capability_mask & IB_PORT_CAP_HAS_SL_MAP) {
-		if (osm_dbg_do_line(&p_local, buf_size, p_prefix_str,
-				    "IB_PORT_CAP_HAS_SL_MAP\n",
-				    &total_len) != IB_SUCCESS)
+		if (dbg_do_line(&p_local, buf_size, p_prefix_str,
+				"IB_PORT_CAP_HAS_SL_MAP\n",
+				&total_len) != IB_SUCCESS)
 			return;
 	}
 	if (p_pi->capability_mask & IB_PORT_CAP_HAS_NV_MKEY) {
-		if (osm_dbg_do_line(&p_local, buf_size, p_prefix_str,
-				    "IB_PORT_CAP_HAS_NV_MKEY\n",
-				    &total_len) != IB_SUCCESS)
+		if (dbg_do_line(&p_local, buf_size, p_prefix_str,
+				"IB_PORT_CAP_HAS_NV_MKEY\n",
+				&total_len) != IB_SUCCESS)
 			return;
 	}
 	if (p_pi->capability_mask & IB_PORT_CAP_HAS_NV_PKEY) {
-		if (osm_dbg_do_line(&p_local, buf_size, p_prefix_str,
-				    "IB_PORT_CAP_HAS_NV_PKEY\n",
-				    &total_len) != IB_SUCCESS)
+		if (dbg_do_line(&p_local, buf_size, p_prefix_str,
+				"IB_PORT_CAP_HAS_NV_PKEY\n",
+				&total_len) != IB_SUCCESS)
 			return;
 	}
 	if (p_pi->capability_mask & IB_PORT_CAP_HAS_LED_INFO) {
-		if (osm_dbg_do_line(&p_local, buf_size, p_prefix_str,
-				    "IB_PORT_CAP_HAS_LED_INFO\n",
-				    &total_len) != IB_SUCCESS)
+		if (dbg_do_line(&p_local, buf_size, p_prefix_str,
+				"IB_PORT_CAP_HAS_LED_INFO\n",
+				&total_len) != IB_SUCCESS)
 			return;
 	}
 	if (p_pi->capability_mask & IB_PORT_CAP_SM_DISAB) {
-		if (osm_dbg_do_line(&p_local, buf_size, p_prefix_str,
-				    "IB_PORT_CAP_SM_DISAB\n",
-				    &total_len) != IB_SUCCESS)
+		if (dbg_do_line(&p_local, buf_size, p_prefix_str,
+				"IB_PORT_CAP_SM_DISAB\n",
+				&total_len) != IB_SUCCESS)
 			return;
 	}
 	if (p_pi->capability_mask & IB_PORT_CAP_HAS_SYS_IMG_GUID) {
-		if (osm_dbg_do_line(&p_local, buf_size, p_prefix_str,
-				    "IB_PORT_CAP_HAS_SYS_IMG_GUID\n",
-				    &total_len) != IB_SUCCESS)
+		if (dbg_do_line(&p_local, buf_size, p_prefix_str,
+				"IB_PORT_CAP_HAS_SYS_IMG_GUID\n",
+				&total_len) != IB_SUCCESS)
 			return;
 	}
 	if (p_pi->capability_mask & IB_PORT_CAP_HAS_PKEY_SW_EXT_PORT_TRAP) {
-		if (osm_dbg_do_line(&p_local, buf_size, p_prefix_str,
-				    "IB_PORT_CAP_PKEY_SW_EXT_PORT_TRAP\n",
-				    &total_len) != IB_SUCCESS)
+		if (dbg_do_line(&p_local, buf_size, p_prefix_str,
+				"IB_PORT_CAP_PKEY_SW_EXT_PORT_TRAP\n",
+				&total_len) != IB_SUCCESS)
 			return;
 	}
 	if (p_pi->capability_mask & IB_PORT_CAP_RESV13) {
-		if (osm_dbg_do_line(&p_local, buf_size, p_prefix_str,
-				    "IB_PORT_CAP_RESV13\n",
-				    &total_len) != IB_SUCCESS)
+		if (dbg_do_line(&p_local, buf_size, p_prefix_str,
+				"IB_PORT_CAP_RESV13\n",
+				&total_len) != IB_SUCCESS)
 			return;
 	}
 	if (p_pi->capability_mask & IB_PORT_CAP_RESV14) {
-		if (osm_dbg_do_line(&p_local, buf_size, p_prefix_str,
-				    "IB_PORT_CAP_RESV14\n",
-				    &total_len) != IB_SUCCESS)
+		if (dbg_do_line(&p_local, buf_size, p_prefix_str,
+				"IB_PORT_CAP_RESV14\n",
+				&total_len) != IB_SUCCESS)
 			return;
 	}
 	if (p_pi->capability_mask & IB_PORT_CAP_RESV15) {
-		if (osm_dbg_do_line(&p_local, buf_size, p_prefix_str,
-				    "IB_PORT_CAP_RESV15\n",
-				    &total_len) != IB_SUCCESS)
+		if (dbg_do_line(&p_local, buf_size, p_prefix_str,
+				"IB_PORT_CAP_RESV15\n",
+				&total_len) != IB_SUCCESS)
 			return;
 	}
 	if (p_pi->capability_mask & IB_PORT_CAP_HAS_COM_MGT) {
-		if (osm_dbg_do_line(&p_local, buf_size, p_prefix_str,
-				    "IB_PORT_CAP_HAS_COM_MGT\n",
-				    &total_len) != IB_SUCCESS)
+		if (dbg_do_line(&p_local, buf_size, p_prefix_str,
+				"IB_PORT_CAP_HAS_COM_MGT\n",
+				&total_len) != IB_SUCCESS)
 			return;
 	}
 	if (p_pi->capability_mask & IB_PORT_CAP_HAS_SNMP) {
-		if (osm_dbg_do_line(&p_local, buf_size, p_prefix_str,
-				    "IB_PORT_CAP_HAS_SNMP\n",
-				    &total_len) != IB_SUCCESS)
+		if (dbg_do_line(&p_local, buf_size, p_prefix_str,
+				"IB_PORT_CAP_HAS_SNMP\n",
+				&total_len) != IB_SUCCESS)
 			return;
 	}
 	if (p_pi->capability_mask & IB_PORT_CAP_REINIT) {
-		if (osm_dbg_do_line(&p_local, buf_size, p_prefix_str,
-				    "IB_PORT_CAP_REINIT\n",
-				    &total_len) != IB_SUCCESS)
+		if (dbg_do_line(&p_local, buf_size, p_prefix_str,
+				"IB_PORT_CAP_REINIT\n",
+				&total_len) != IB_SUCCESS)
 			return;
 	}
 	if (p_pi->capability_mask & IB_PORT_CAP_HAS_DEV_MGT) {
-		if (osm_dbg_do_line(&p_local, buf_size, p_prefix_str,
-				    "IB_PORT_CAP_HAS_DEV_MGT\n",
-				    &total_len) != IB_SUCCESS)
+		if (dbg_do_line(&p_local, buf_size, p_prefix_str,
+				"IB_PORT_CAP_HAS_DEV_MGT\n",
+				&total_len) != IB_SUCCESS)
 			return;
 	}
 	if (p_pi->capability_mask & IB_PORT_CAP_HAS_VEND_CLS) {
-		if (osm_dbg_do_line(&p_local, buf_size, p_prefix_str,
-				    "IB_PORT_CAP_HAS_VEND_CLS\n",
-				    &total_len) != IB_SUCCESS)
+		if (dbg_do_line(&p_local, buf_size, p_prefix_str,
+				"IB_PORT_CAP_HAS_VEND_CLS\n",
+				&total_len) != IB_SUCCESS)
 			return;
 	}
 	if (p_pi->capability_mask & IB_PORT_CAP_HAS_DR_NTC) {
-		if (osm_dbg_do_line(&p_local, buf_size, p_prefix_str,
-				    "IB_PORT_CAP_HAS_DR_NTC\n",
-				    &total_len) != IB_SUCCESS)
+		if (dbg_do_line(&p_local, buf_size, p_prefix_str,
+				"IB_PORT_CAP_HAS_DR_NTC\n",
+				&total_len) != IB_SUCCESS)
 			return;
 	}
 	if (p_pi->capability_mask & IB_PORT_CAP_HAS_CAP_NTC) {
-		if (osm_dbg_do_line(&p_local, buf_size, p_prefix_str,
-				    "IB_PORT_CAP_HAS_CAP_NTC\n",
-				    &total_len) != IB_SUCCESS)
+		if (dbg_do_line(&p_local, buf_size, p_prefix_str,
+				"IB_PORT_CAP_HAS_CAP_NTC\n",
+				&total_len) != IB_SUCCESS)
 			return;
 	}
 	if (p_pi->capability_mask & IB_PORT_CAP_HAS_BM) {
-		if (osm_dbg_do_line(&p_local, buf_size, p_prefix_str,
-				    "IB_PORT_CAP_HAS_BM\n",
-				    &total_len) != IB_SUCCESS)
+		if (dbg_do_line(&p_local, buf_size, p_prefix_str,
+				"IB_PORT_CAP_HAS_BM\n",
+				&total_len) != IB_SUCCESS)
 			return;
 	}
 	if (p_pi->capability_mask & IB_PORT_CAP_HAS_LINK_RT_LATENCY) {
-		if (osm_dbg_do_line(&p_local, buf_size, p_prefix_str,
-				    "IB_PORT_CAP_HAS_LINK_RT_LATENCY\n",
-				    &total_len) != IB_SUCCESS)
+		if (dbg_do_line(&p_local, buf_size, p_prefix_str,
+				"IB_PORT_CAP_HAS_LINK_RT_LATENCY\n",
+				&total_len) != IB_SUCCESS)
 			return;
 	}
 	if (p_pi->capability_mask & IB_PORT_CAP_HAS_CLIENT_REREG) {
-		if (osm_dbg_do_line(&p_local, buf_size, p_prefix_str,
-				    "IB_PORT_CAP_HAS_CLIENT_REREG\n",
-				    &total_len) != IB_SUCCESS)
+		if (dbg_do_line(&p_local, buf_size, p_prefix_str,
+				"IB_PORT_CAP_HAS_CLIENT_REREG\n",
+				&total_len) != IB_SUCCESS)
 			return;
 	}
 	if (p_pi->capability_mask & IB_PORT_CAP_RESV26) {
-		if (osm_dbg_do_line(&p_local, buf_size, p_prefix_str,
-				    "IB_PORT_CAP_RESV26\n",
-				    &total_len) != IB_SUCCESS)
+		if (dbg_do_line(&p_local, buf_size, p_prefix_str,
+				"IB_PORT_CAP_RESV26\n",
+				&total_len) != IB_SUCCESS)
 			return;
 	}
 	if (p_pi->capability_mask & IB_PORT_CAP_RESV27) {
-		if (osm_dbg_do_line(&p_local, buf_size, p_prefix_str,
-				    "IB_PORT_CAP_RESV27\n",
-				    &total_len) != IB_SUCCESS)
+		if (dbg_do_line(&p_local, buf_size, p_prefix_str,
+				"IB_PORT_CAP_RESV27\n",
+				&total_len) != IB_SUCCESS)
 			return;
 	}
 	if (p_pi->capability_mask & IB_PORT_CAP_RESV28) {
-		if (osm_dbg_do_line(&p_local, buf_size, p_prefix_str,
-				    "IB_PORT_CAP_RESV28\n",
-				    &total_len) != IB_SUCCESS)
+		if (dbg_do_line(&p_local, buf_size, p_prefix_str,
+				"IB_PORT_CAP_RESV28\n",
+				&total_len) != IB_SUCCESS)
 			return;
 	}
 	if (p_pi->capability_mask & IB_PORT_CAP_RESV29) {
-		if (osm_dbg_do_line(&p_local, buf_size, p_prefix_str,
-				    "IB_PORT_CAP_RESV29\n",
-				    &total_len) != IB_SUCCESS)
+		if (dbg_do_line(&p_local, buf_size, p_prefix_str,
+				"IB_PORT_CAP_RESV29\n",
+				&total_len) != IB_SUCCESS)
 			return;
 	}
 	if (p_pi->capability_mask & IB_PORT_CAP_RESV30) {
-		if (osm_dbg_do_line(&p_local, buf_size, p_prefix_str,
-				    "IB_PORT_CAP_RESV30\n",
-				    &total_len) != IB_SUCCESS)
+		if (dbg_do_line(&p_local, buf_size, p_prefix_str,
+				"IB_PORT_CAP_RESV30\n",
+				&total_len) != IB_SUCCESS)
 			return;
 	}
 	if (p_pi->capability_mask & IB_PORT_CAP_RESV31) {
-		if (osm_dbg_do_line(&p_local, buf_size, p_prefix_str,
-				    "IB_PORT_CAP_RESV31\n",
-				    &total_len) != IB_SUCCESS)
+		if (dbg_do_line(&p_local, buf_size, p_prefix_str,
+				"IB_PORT_CAP_RESV31\n",
+				&total_len) != IB_SUCCESS)
 			return;
 	}
 }
@@ -806,8 +806,8 @@ osm_dump_port_info(IN osm_log_t * const p_log,
 
 		/*  show the capabilities mask */
 		if (p_pi->capability_mask) {
-			osm_dbg_get_capabilities_str(buf, BUF_SIZE, "\t\t\t\t",
-						     p_pi);
+			dbg_get_capabilities_str(buf, BUF_SIZE, "\t\t\t\t",
+						 p_pi);
 			osm_log(p_log, log_level, "%s", buf);
 		}
 	}
@@ -894,8 +894,8 @@ osm_dump_portinfo_record(IN osm_log_t * const p_log,
 
 		/*  show the capabilities mask */
 		if (p_pi->capability_mask) {
-			osm_dbg_get_capabilities_str(buf, BUF_SIZE, "\t\t\t\t",
-						     p_pi);
+			dbg_get_capabilities_str(buf, BUF_SIZE, "\t\t\t\t",
+						 p_pi);
 			osm_log(p_log, log_level, "%s", buf);
 		}
 	}
