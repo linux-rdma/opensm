@@ -64,7 +64,7 @@ struct command {
 				FILE * out);
 };
 
-struct {
+static struct {
 	int on;
 	int delay_s;
 	time_t previous;

@@ -57,7 +57,7 @@
 /**********************************************************************
  **********************************************************************/
 /* osm_mcast_req_type_t values converted to test for easier printing. */
-const char *osm_mcast_req_type_str[] = {
+const static char *mcast_req_type_str[] = {
 	"OSM_MCAST_REQ_TYPE_CREATE",
 	"OSM_MCAST_REQ_TYPE_JOIN",
 	"OSM_MCAST_REQ_TYPE_LEAVE",
@@ -68,7 +68,7 @@ const char *osm_get_mcast_req_type_str(IN osm_mcast_req_type_t req_type)
 {
 	if (req_type > OSM_MCAST_REQ_TYPE_SUBNET_CHANGE)
 		req_type = OSM_MCAST_REQ_TYPE_SUBNET_CHANGE;
-	return (osm_mcast_req_type_str[req_type]);
+	return (mcast_req_type_str[req_type]);
 }
 
 /**********************************************************************

@@ -681,8 +681,9 @@ int osm_sa_db_file_dump(osm_opensm_t * p_osm)
 /*
  *  SA DB Loader
  */
-osm_mgrp_t *load_mcgroup(osm_opensm_t * p_osm, ib_net16_t mlid,
-			 ib_member_rec_t * p_mcm_rec, unsigned well_known)
+static osm_mgrp_t *load_mcgroup(osm_opensm_t * p_osm, ib_net16_t mlid,
+				ib_member_rec_t * p_mcm_rec,
+				unsigned well_known)
 {
 	ib_net64_t comp_mask;
 	cl_map_item_t *p_next;
@@ -807,7 +808,7 @@ static int load_infr(osm_opensm_t * p_osm, ib_inform_info_record_t * iir,
 }
 
 #define UNPACK_FUNC(name,x) \
-int unpack_##name##x(char *p, uint##x##_t *val_ptr) \
+static int unpack_##name##x(char *p, uint##x##_t *val_ptr) \
 { \
 	char *q; \
 	unsigned long long num; \

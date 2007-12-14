@@ -964,22 +964,22 @@ osm_perfmgr_check_oob_clear(osm_perfmgr_t * pm, __monitored_node_t *mon_node,
 /**********************************************************************
  * Return 1 if the value is "close" to overflowing
  **********************************************************************/
-int counter_overflow_4(uint8_t val)
+static int counter_overflow_4(uint8_t val)
 {
 	return (val >= 10);
 }
 
-int counter_overflow_8(uint8_t val)
+static int counter_overflow_8(uint8_t val)
 {
 	return (val >= (UINT8_MAX - (UINT8_MAX / 4)));
 }
 
-int counter_overflow_16(ib_net16_t val)
+static int counter_overflow_16(ib_net16_t val)
 {
 	return (cl_ntoh16(val) >= (UINT16_MAX - (UINT16_MAX / 4)));
 }
 
-int counter_overflow_32(ib_net32_t val)
+static int counter_overflow_32(ib_net32_t val)
 {
 	return (cl_ntoh32(val) >= (UINT32_MAX - (UINT32_MAX / 4)));
 }

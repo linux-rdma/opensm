@@ -124,7 +124,7 @@ static void setup_signals()
 /**********************************************************************
  **********************************************************************/
 
-void show_usage(void)
+static void show_usage(void)
 {
 	printf("\n------- OpenSM - Usage and options ----------------------\n");
 	printf("Usage:   opensm [options]\n");
@@ -352,7 +352,7 @@ void show_usage(void)
 
 /**********************************************************************
  **********************************************************************/
-ib_net64_t get_port_guid(IN osm_opensm_t * p_osm, uint64_t port_guid)
+static ib_net64_t get_port_guid(IN osm_opensm_t * p_osm, uint64_t port_guid)
 {
 	ib_port_attr_t attr_array[GUID_ARRAY_SIZE];
 	uint32_t num_ports = GUID_ARRAY_SIZE;

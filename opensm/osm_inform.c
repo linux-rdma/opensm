@@ -88,11 +88,11 @@ osm_infr_t *osm_infr_new(IN const osm_infr_t * p_infr_rec)
 
 /**********************************************************************
  **********************************************************************/
-void __dump_all_informs(IN osm_subn_t const *p_subn, IN osm_log_t * p_log)
+static void dump_all_informs(IN osm_subn_t const *p_subn, IN osm_log_t * p_log)
 {
 	cl_list_item_t *p_list_item;
 
-	OSM_LOG_ENTER(p_log, __dump_all_informs);
+	OSM_LOG_ENTER(p_log, dump_all_informs);
 
 	if (!osm_log_is_active(p_log, OSM_LOG_DEBUG))
 		goto Exit;
@@ -246,7 +246,7 @@ osm_infr_t *osm_infr_get_by_rec(IN osm_subn_t const *p_subn,
 
 	OSM_LOG_ENTER(p_log, osm_infr_get_by_rec);
 
-	__dump_all_informs(p_subn, p_log);
+	dump_all_informs(p_subn, p_log);
 
 	osm_log(p_log, OSM_LOG_DEBUG,
 		"osm_infr_get_by_rec: " "Looking for Inform Record\n");
@@ -282,7 +282,7 @@ osm_infr_insert_to_db(IN osm_subn_t * p_subn,
 		"osm_infr_insert_to_db: "
 		"Dump before insertion (size %d)\n",
 		cl_qlist_count(&p_subn->sa_infr_list));
-	__dump_all_informs(p_subn, p_log);
+	dump_all_informs(p_subn, p_log);
 
 #if 0
 	osm_dump_inform_info(p_log,
@@ -296,7 +296,7 @@ osm_infr_insert_to_db(IN osm_subn_t * p_subn,
 		"osm_infr_insert_to_db: "
 		"Dump after insertion (size %d)\n",
 		cl_qlist_count(&p_subn->sa_infr_list));
-	__dump_all_informs(p_subn, p_log);
+	dump_all_informs(p_subn, p_log);
 	OSM_LOG_EXIT(p_log);
 }
 
