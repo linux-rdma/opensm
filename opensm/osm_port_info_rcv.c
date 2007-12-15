@@ -505,11 +505,10 @@ osm_pi_rcv_init(IN osm_pi_rcv_t * const p_rcv,
  **********************************************************************/
 void
 osm_pi_rcv_process_set(IN const osm_pi_rcv_t * const p_rcv,
-		       IN osm_port_t * const p_port,
+		       IN osm_node_t * const p_node,
 		       IN const uint8_t port_num, IN osm_madw_t * const p_madw)
 {
 	osm_physp_t *p_physp;
-	osm_node_t *p_node;
 	ib_net64_t port_guid;
 	ib_smp_t *p_smp;
 	ib_port_info_t *p_pi;
@@ -520,7 +519,6 @@ osm_pi_rcv_process_set(IN const osm_pi_rcv_t * const p_rcv,
 
 	p_context = osm_madw_get_pi_context_ptr(p_madw);
 
-	p_node = p_port->p_node;
 	CL_ASSERT(p_node);
 
 	p_physp = osm_node_get_physp_ptr(p_node, port_num);
@@ -647,6 +645,9 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 		goto Exit;
 	}
 
+	p_node = p_port->p_node;
+	CL_ASSERT(p_node);
+
 	/*
 	   If we were setting the PortInfo, then receiving
 	   this attribute was not part of sweeping the subnet.
@@ -659,7 +660,7 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 	   boolean around to determine if we were doing Get() or Set().
 	 */
 	if (p_context->set_method)
-		osm_pi_rcv_process_set(p_rcv, p_port, port_num, p_madw);
+		osm_pi_rcv_process_set(p_rcv, p_node, port_num, p_madw);
 	else {
 		p_port->discovery_count++;
 
@@ -677,9 +678,6 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 				cl_ntoh64(port_guid),
 				cl_ntoh64(node_guid),
 				cl_ntoh64(p_smp->trans_id));
-
-		p_node = p_port->p_node;
-		CL_ASSERT(p_node);
 
 		p_physp = osm_node_get_physp_ptr(p_node, port_num);
 
