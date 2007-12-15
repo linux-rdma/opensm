@@ -112,25 +112,26 @@ osm_node_t *osm_node_new(IN const osm_madw_t * const p_madw)
 	size = p_ni->num_ports;
 
 	p_node = malloc(sizeof(*p_node) + sizeof(osm_physp_t) * size);
-	if (p_node != NULL) {
-		memset(p_node, 0, sizeof(*p_node) + sizeof(osm_physp_t) * size);
-		p_node->node_info = *p_ni;
-		p_node->physp_tbl_size = size + 1;
+	if (!p_node)
+		return NULL;
 
-		/*
-		   Construct Physical Port objects owned by this Node.
-		   Then, initialize the Physical Port through with we
-		   discovered this port.
-		   For switches, all ports have the same GUID.
-		   For CAs and routers, each port has a different GUID, so we only
-		   know the GUID for the port that responded to our
-		   Get(NodeInfo).
-		 */
-		for (i = 0; i < p_node->physp_tbl_size; i++)
-			osm_physp_construct(&p_node->physp_table[i]);
+	memset(p_node, 0, sizeof(*p_node) + sizeof(osm_physp_t) * size);
+	p_node->node_info = *p_ni;
+	p_node->physp_tbl_size = size + 1;
 
-		osm_node_init_physp(p_node, p_madw);
-	}
+	/*
+	   Construct Physical Port objects owned by this Node.
+	   Then, initialize the Physical Port through with we
+	   discovered this port.
+	   For switches, all ports have the same GUID.
+	   For CAs and routers, each port has a different GUID, so we only
+	   know the GUID for the port that responded to our
+	   Get(NodeInfo).
+	 */
+	for (i = 0; i < p_node->physp_tbl_size; i++)
+		osm_physp_construct(&p_node->physp_table[i]);
+
+	osm_node_init_physp(p_node, p_madw);
 	p_node->print_desc = strdup("<unknown>");
 
 	return (p_node);
