@@ -153,9 +153,9 @@ osm_port_init(IN osm_port_t * const p_port,
 	      IN const ib_node_info_t * p_ni,
 	      IN const osm_node_t * const p_parent_node)
 {
-	uint32_t port_index;
 	ib_net64_t port_guid;
 	osm_physp_t *p_physp;
+	uint8_t port_num;
 
 	CL_ASSERT(p_port);
 	CL_ASSERT(p_ni);
@@ -166,27 +166,18 @@ osm_port_init(IN osm_port_t * const p_port,
 	p_port->p_node = (struct _osm_node *)p_parent_node;
 	port_guid = p_ni->port_guid;
 	p_port->guid = port_guid;
+	port_num = p_ni->node_type == IB_NODE_TYPE_SWITCH ?
+		0 : ib_node_info_get_local_port_num(p_ni);
 
 	/*
 	   Get the pointers to the physical node objects "owned" by this
 	   logical port GUID.
-	   For switches, all the ports are owned; for HCA's and routers,
+	   For switches, port '0' is owned; for HCA's and routers,
 	   only the singular part that has this GUID is owned.
 	 */
-	for (port_index = 0; port_index < p_parent_node->physp_tbl_size;
-	     port_index++) {
-		p_physp = osm_node_get_physp_ptr(p_parent_node, port_index);
-		/*
-		   Because much of the PortInfo data is only valid
-		   for port 0 on switches, try to keep the lowest
-		   possible value of default_port_num.
-		 */
-		if (osm_physp_is_valid(p_physp) &&
-		    port_guid == osm_physp_get_port_guid(p_physp)) {
-			p_port->p_physp = p_physp;
-			break;
-		}
-	}
+	p_physp = osm_node_get_physp_ptr(p_parent_node, port_num);
+	CL_ASSERT(port_guid == osm_physp_get_port_guid(p_physp));
+	p_port->p_physp = p_physp;
 }
 
 /**********************************************************************
@@ -254,28 +245,6 @@ osm_get_port_by_base_lid(IN const osm_subn_t * const p_subn,
 
       Found:
 	return status;
-}
-
-/**********************************************************************
- **********************************************************************/
-void
-osm_port_add_new_physp(IN osm_port_t * const p_port, IN const uint8_t port_num)
-{
-	osm_physp_t *p_physp;
-
-	p_physp = osm_node_get_physp_ptr(p_port->p_node, port_num);
-	CL_ASSERT(osm_physp_is_valid(p_physp));
-	CL_ASSERT(osm_physp_get_port_guid(p_physp) == p_port->guid);
-
-	/*
-	   For switches, we generally want to use Port 0, which is
-	   the management port as the default Physical Port.
-	   The LID value in the PortInfo for example, is only valid
-	   for port 0 on switches.
-	 */
-	if (!osm_physp_is_valid(p_port->p_physp) ||
-	    port_num < p_port->p_physp->port_num)
-		p_port->p_physp = p_physp;
 }
 
 /**********************************************************************

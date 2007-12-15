@@ -1429,35 +1429,6 @@ osm_get_port_by_base_lid(IN const osm_subn_t * const p_subn,
 *       Port
 *********/
 
-/****f* OpenSM: Port/osm_port_add_new_physp
-* NAME
-*	osm_port_add_new_physp
-*
-* DESCRIPTION
-*	Adds a new physical port to the logical collection owned by the Port.
-*	Physical Ports added here must share the same GUID as the Port.
-*
-* SYNOPSIS
-*/
-void
-osm_port_add_new_physp(IN osm_port_t * const p_port, IN const uint8_t port_num);
-/*
-* PARAMETERS
-*	p_port
-*		[in] Pointer to a Port object.
-*
-*	port_num
-*		[in] Port number to add.
-*
-* RETURN VALUE
-*	None.
-*
-* NOTES
-*
-* SEE ALSO
-*	Port
-*********/
-
 /****f* OpenSM: Port/osm_port_add_mgrp
 * NAME
 *	osm_port_add_mgrp

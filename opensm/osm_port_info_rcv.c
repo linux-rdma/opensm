@@ -652,8 +652,6 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 				       p_node,
 				       osm_madw_get_bind_handle(p_madw),
 				       p_smp->hop_count, p_smp->initial_path);
-
-			osm_port_add_new_physp(p_port, port_num);
 		} else {
 			/*
 			   Update the directed route path to this port

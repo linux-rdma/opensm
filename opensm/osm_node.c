@@ -86,6 +86,23 @@ osm_node_init_physp(IN osm_node_t * const p_node,
 
 /**********************************************************************
  **********************************************************************/
+static void node_init_physp0(IN osm_node_t * const p_node,
+			     IN const osm_madw_t * const p_madw)
+{
+	ib_smp_t *p_smp;
+	ib_node_info_t *p_ni;
+
+	p_smp = osm_madw_get_smp_ptr(p_madw);
+	p_ni = (ib_node_info_t *) ib_smp_get_payload_ptr(p_smp);
+
+	osm_physp_init(&p_node->physp_table[0],
+		       p_ni->port_guid, 0, p_node,
+		       osm_madw_get_bind_handle(p_madw),
+		       p_smp->hop_count, p_smp->initial_path);
+}
+
+/**********************************************************************
+ **********************************************************************/
 osm_node_t *osm_node_new(IN const osm_madw_t * const p_madw)
 {
 	osm_node_t *p_node;
@@ -132,6 +149,8 @@ osm_node_t *osm_node_new(IN const osm_madw_t * const p_madw)
 		osm_physp_construct(&p_node->physp_table[i]);
 
 	osm_node_init_physp(p_node, p_madw);
+	if (p_ni->node_type == IB_NODE_TYPE_SWITCH)
+		node_init_physp0(p_node, p_madw);
 	p_node->print_desc = strdup("<unknown>");
 
 	return (p_node);
