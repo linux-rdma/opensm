@@ -65,12 +65,7 @@ osm_node_init_physp(IN osm_node_t * const p_node,
 	ib_node_info_t *p_ni;
 	uint8_t port_num;
 
-	CL_ASSERT(p_node);
-	CL_ASSERT(p_madw);
-
 	p_smp = osm_madw_get_smp_ptr(p_madw);
-
-	CL_ASSERT(p_smp->attr_id == IB_MAD_ATTR_NODE_INFO);
 
 	p_ni = (ib_node_info_t *) ib_smp_get_payload_ptr(p_smp);
 	port_guid = p_ni->port_guid;
@@ -111,12 +106,7 @@ osm_node_t *osm_node_new(IN const osm_madw_t * const p_madw)
 	uint8_t i;
 	uint32_t size;
 
-	CL_ASSERT(p_madw);
-
 	p_smp = osm_madw_get_smp_ptr(p_madw);
-
-	CL_ASSERT(p_smp->attr_id == IB_MAD_ATTR_NODE_INFO);
-
 	p_ni = (ib_node_info_t *) ib_smp_get_payload_ptr(p_smp);
 
 	/*

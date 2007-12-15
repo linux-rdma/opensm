@@ -281,9 +281,6 @@ __osm_ni_rcv_process_new_node(IN osm_sm_t * sm,
 
 	OSM_LOG_ENTER(sm->p_log, __osm_ni_rcv_process_new_node);
 
-	CL_ASSERT(p_node);
-	CL_ASSERT(p_madw);
-
 	p_smp = osm_madw_get_smp_ptr(p_madw);
 	p_ni = (ib_node_info_t *) ib_smp_get_payload_ptr(p_smp);
 	port_num = ib_node_info_get_local_port_num(p_ni);
@@ -297,11 +294,6 @@ __osm_ni_rcv_process_new_node(IN osm_sm_t * sm,
 	   knows which node & port are relevant.
 	 */
 	p_physp = osm_node_get_physp_ptr(p_node, port_num);
-
-	CL_ASSERT(osm_physp_is_valid(p_physp));
-	CL_ASSERT(osm_madw_get_bind_handle(p_madw) ==
-		  osm_dr_path_get_bind_handle(osm_physp_get_dr_path_ptr
-					      (p_physp)));
 
 	context.pi_context.node_guid = p_ni->node_guid;
 	context.pi_context.port_guid = p_ni->port_guid;
@@ -339,9 +331,6 @@ __osm_ni_rcv_get_node_desc(IN osm_sm_t * sm,
 
 	OSM_LOG_ENTER(sm->p_log, __osm_ni_rcv_get_node_desc);
 
-	CL_ASSERT(p_node);
-	CL_ASSERT(p_madw);
-
 	p_smp = osm_madw_get_smp_ptr(p_madw);
 	p_ni = (ib_node_info_t *) ib_smp_get_payload_ptr(p_smp);
 	port_num = ib_node_info_get_local_port_num(p_ni);
@@ -355,11 +344,6 @@ __osm_ni_rcv_get_node_desc(IN osm_sm_t * sm,
 	   knows which node & port are relevant.
 	 */
 	p_physp = osm_node_get_physp_ptr(p_node, port_num);
-
-	CL_ASSERT(osm_physp_is_valid(p_physp));
-	CL_ASSERT(osm_madw_get_bind_handle(p_madw) ==
-		  osm_dr_path_get_bind_handle(osm_physp_get_dr_path_ptr
-					      (p_physp)));
 
 	context.nd_context.node_guid = osm_node_get_node_guid(p_node);
 
@@ -480,14 +464,6 @@ __osm_ni_rcv_process_existing_ca_or_router(IN osm_sm_t * sm,
 		p_physp = osm_node_get_physp_ptr(p_node, port_num);
 	} else {
 		p_physp = osm_node_get_physp_ptr(p_node, port_num);
-
-		if (!osm_physp_is_valid(p_physp)) {
-			osm_log(sm->p_log, OSM_LOG_ERROR,
-				"__osm_ni_rcv_process_existing_ca_or_router: ERR 0D19: "
-				"Invalid physical port. Aborting discovery\n");
-			goto Exit;
-		}
-
 		/*
 		   Update the DR Path to the port,
 		   in case the old one is no longer available.
@@ -531,9 +507,6 @@ __osm_ni_rcv_process_switch(IN osm_sm_t * sm,
 	ib_smp_t *p_smp;
 
 	OSM_LOG_ENTER(sm->p_log, __osm_ni_rcv_process_switch);
-
-	CL_ASSERT(p_node);
-	CL_ASSERT(p_madw);
 
 	p_smp = osm_madw_get_smp_ptr(p_madw);
 
