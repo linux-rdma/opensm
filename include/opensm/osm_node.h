@@ -478,46 +478,6 @@ osm_node_get_remote_base_lid(IN const osm_node_t * const p_node,
 *	Node object
 *********/
 
-/****f* OpenSM: Node/osm_node_get_remote_type
-* NAME
-*	osm_node_get_remote_type
-*
-* DESCRIPTION
-*	Returns the type of the node on the other side
-*	of the wire from the specified port on this node.
-*	The remote node must exist.
-*
-* SYNOPSIS
-*/
-static inline uint8_t
-osm_node_get_remote_type(IN const osm_node_t * const p_node,
-			 IN const uint8_t port_num)
-{
-	osm_node_t *p_remote_node;
-
-	p_remote_node = osm_node_get_remote_node(p_node, port_num, NULL);
-	CL_ASSERT(p_remote_node);
-	return (osm_node_get_type(p_remote_node));
-}
-
-/*
-* PARAMETERS
-*	p_node
-*		[in] Pointer to an osm_node_t object.
-*
-*	port_num
-*		[in] Local port number.
-*
-* RETURN VALUES
-*	Returns the type of the node on the other side
-*	of the wire from the specified port on this node.
-*
-* NOTES
-*
-* SEE ALSO
-*	Node object
-*********/
-
 /****f* OpenSM: Node/osm_node_get_lmc
 * NAME
 *	osm_node_get_lmc

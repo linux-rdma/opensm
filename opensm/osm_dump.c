@@ -99,7 +99,7 @@ static void dump_ucast_path_distribution(cl_map_item_t * p_map_item, void *cxt)
 		remote_guid_ho =
 		    cl_ntoh64(osm_node_get_node_guid(p_remote_node));
 
-		switch (osm_node_get_remote_type(p_node, i)) {
+		switch (osm_node_get_type(p_remote_node)) {
 		case IB_NODE_TYPE_SWITCH:
 			osm_log_printf(&p_osm->log, OSM_LOG_DEBUG,
 				       " (link to switch");
