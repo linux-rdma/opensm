@@ -515,7 +515,7 @@ __osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context)
 	for (port = startport; port < num_ports; port++) {
 		ib_net16_t lid;
 
-		if (!osm_physp_is_valid(osm_node_get_physp_ptr(node, port)))
+		if (!osm_node_get_physp_ptr(node, port))
 			continue;
 
 		lid = get_lid(node, port, mon_node);
@@ -592,7 +592,7 @@ static int sweep_hop_1(osm_sm_t * sm)
 
 	p_physp = osm_node_get_physp_ptr(p_node, port_num);
 
-	CL_ASSERT(osm_physp_is_valid(p_physp));
+	CL_ASSERT(p_physp);
 
 	p_dr_path = osm_physp_get_dr_path_ptr(p_physp);
 	h_bind = osm_dr_path_get_bind_handle(p_dr_path);

@@ -241,8 +241,7 @@ __osm_pi_rcv_process_switch_port(IN osm_sm_t * sm,
 		switch (ib_port_info_get_port_state(p_pi)) {
 		case IB_LINK_DOWN:
 			p_remote_physp = osm_physp_get_remote(p_physp);
-			if (p_remote_physp
-			    && osm_physp_is_valid(p_remote_physp)) {
+			if (p_remote_physp) {
 				p_remote_node =
 				    osm_physp_get_node_ptr(p_remote_physp);
 				remote_port_num =
@@ -475,7 +474,7 @@ osm_pi_rcv_process_set(IN osm_sm_t * sm, IN osm_node_t * const p_node,
 	CL_ASSERT(p_node);
 
 	p_physp = osm_node_get_physp_ptr(p_node, port_num);
-	CL_ASSERT(osm_physp_is_valid(p_physp));
+	CL_ASSERT(p_physp);
 
 	port_guid = osm_physp_get_port_guid(p_physp);
 
@@ -639,13 +638,13 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 		   If so, initialize the new Physical Port then
 		   continue processing as normal.
 		 */
-		if (!osm_physp_is_valid(p_physp)) {
+		if (!p_physp) {
 			if (osm_log_is_active(sm->p_log, OSM_LOG_VERBOSE))
 				osm_log(sm->p_log, OSM_LOG_VERBOSE,
 					"osm_pi_rcv_process: "
 					"Initializing port number 0x%X\n",
 					port_num);
-
+			p_physp = &p_node->physp_table[port_num];
 			osm_physp_init(p_physp,
 				       port_guid,
 				       port_num,

@@ -630,7 +630,7 @@ static void __get_stats(cl_map_item_t * const p_map_item, void *context)
 		uint8_t port_state = ib_port_info_get_port_state(pi);
 		uint8_t port_phys_state = ib_port_info_get_port_phys_state(pi);
 
-		if (!osm_physp_is_valid(phys))
+		if (!phys)
 			continue;
 
 		if ((enabled_width ^ active_width) > active_width) {

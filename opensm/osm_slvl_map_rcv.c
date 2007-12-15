@@ -125,8 +125,6 @@ void osm_slvl_rcv_process(IN void *context, IN void *p_data)
 		in_port_num = 0;
 	}
 
-	CL_ASSERT(p_physp);
-
 	/*
 	   We do not mind if this is a result of a set or get - all we want is to update
 	   the subnet.
@@ -145,7 +143,7 @@ void osm_slvl_rcv_process(IN void *context, IN void *p_data)
 	   Determine if we encountered a new Physical Port.
 	   If so, Ignore it.
 	 */
-	if (!osm_physp_is_valid(p_physp)) {
+	if (!p_physp) {
 		osm_log(sm->p_log, OSM_LOG_ERROR,
 			"osm_slvl_rcv_process: "
 			"Got invalid port number 0x%X\n", out_port_num);

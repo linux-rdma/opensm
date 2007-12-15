@@ -90,12 +90,11 @@ typedef struct _osm_trap_aging_tracker_context {
 
 /**********************************************************************
  **********************************************************************/
-static osm_physp_t *__get_physp_by_lid_and_num(IN osm_sm_t * sm,
-					       IN uint16_t lid, IN uint8_t num)
+static osm_physp_t *get_physp_by_lid_and_num(IN osm_sm_t * sm,
+					     IN uint16_t lid, IN uint8_t num)
 {
 	cl_ptr_vector_t *p_vec = &(sm->p_subn->port_lid_tbl);
 	osm_port_t *p_port;
-	osm_physp_t *p_physp;
 
 	if (lid > cl_ptr_vector_get_size(p_vec))
 		return NULL;
@@ -107,9 +106,7 @@ static osm_physp_t *__get_physp_by_lid_and_num(IN osm_sm_t * sm,
 	if (osm_node_get_num_physp(p_port->p_node) < num)
 		return NULL;
 
-	p_physp = osm_node_get_physp_ptr(p_port->p_node, num);
-
-	return osm_physp_is_valid(p_physp) ? p_physp : NULL;
+	return osm_node_get_physp_ptr(p_port->p_node, num);
 }
 
 /**********************************************************************
@@ -132,7 +129,7 @@ osm_trap_rcv_aging_tracker_callback(IN uint64_t key,
 	lid = cl_ntoh16((uint16_t) ((key & 0x0000FFFF00000000ULL) >> 32));
 	port_num = (uint8_t) ((key & 0x00FF000000000000ULL) >> 48);
 
-	p_physp = __get_physp_by_lid_and_num(sm, lid, port_num);
+	p_physp = get_physp_by_lid_and_num(sm, lid, port_num);
 	if (!p_physp)
 		osm_log(sm->p_log, OSM_LOG_VERBOSE,
 			"osm_trap_rcv_aging_tracker_callback: "
@@ -140,7 +137,7 @@ osm_trap_rcv_aging_tracker_callback(IN uint64_t key,
 			port_num, lid);
 	/* make sure the physp is still valid */
 	/* If the health port was false - set it to true */
-	else if (osm_physp_is_valid(p_physp) && !osm_physp_is_healthy(p_physp)) {
+	else if (!osm_physp_is_healthy(p_physp)) {
 		osm_log(sm->p_log, OSM_LOG_VERBOSE,
 			"osm_trap_rcv_aging_tracker_callback: "
 			"Clearing health bit of port num:%u with lid:%u\n",
@@ -450,13 +447,13 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 			 */
 			if (physp_change_trap == TRUE) {
 				/* get the port */
-				p_physp = __get_physp_by_lid_and_num(sm,
-								     cl_ntoh16
-								     (p_ntci->
-								      data_details.
-								      ntc_129_131.
-								      lid),
-								     port_num);
+				p_physp = get_physp_by_lid_and_num(sm,
+								   cl_ntoh16
+								   (p_ntci->
+								    data_details.
+								    ntc_129_131.
+								    lid),
+								   port_num);
 
 				if (!p_physp)
 					osm_log(sm->p_log, OSM_LOG_ERROR,

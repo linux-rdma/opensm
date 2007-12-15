@@ -316,8 +316,7 @@ osm_switch_recommend_path(IN const osm_switch_t * const p_sw,
 			   Verify that the port number is legal and that the
 			   LID is reachable through this port.
 			 */
-			if (osm_physp_is_valid(p_physp) &&
-			    osm_physp_is_healthy(p_physp) &&
+			if (p_physp && osm_physp_is_healthy(p_physp) &&
 			    osm_physp_get_remote(p_physp)) {
 				hops =
 				    osm_switch_get_hop_count(p_sw, base_lid,
@@ -359,8 +358,7 @@ osm_switch_recommend_path(IN const osm_switch_t * const p_sw,
 
 		/* let us make sure it is not down or unhealthy */
 		p_physp = osm_node_get_physp_ptr(p_sw->p_node, port_num);
-		if (!osm_physp_is_valid(p_physp) ||
-		    !osm_physp_is_healthy(p_physp) ||
+		if (!p_physp || !osm_physp_is_healthy(p_physp) ||
 		    /*
 		       we require all - non sma ports to be linked
 		       to be routed through

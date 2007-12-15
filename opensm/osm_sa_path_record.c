@@ -360,7 +360,6 @@ __osm_pr_rcv_get_path_parms(IN osm_sa_t * sa,
 		   Continue with the egress port on this switch.
 		 */
 		p_physp = osm_switch_get_route_by_lid(p_node->sw, dest_lid);
-
 		if (p_physp == 0) {
 			osm_log(sa->p_log, OSM_LOG_ERROR,
 				"__osm_pr_rcv_get_path_parms: ERR 1F07: "
@@ -370,8 +369,6 @@ __osm_pr_rcv_get_path_parms(IN osm_sa_t * sa,
 			status = IB_ERROR;
 			goto Exit;
 		}
-
-		CL_ASSERT(osm_physp_is_valid(p_physp));
 
 		p_pi = &p_physp->port_info;
 

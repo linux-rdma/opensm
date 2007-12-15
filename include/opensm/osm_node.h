@@ -213,13 +213,13 @@ osm_node_t *osm_node_new(IN const osm_madw_t * const p_madw);
 *
 * SYNOPSIS
 */
-static inline osm_physp_t *osm_node_get_physp_ptr(IN const osm_node_t *
-						  const p_node,
+static inline osm_physp_t *osm_node_get_physp_ptr(IN osm_node_t * const p_node,
 						  IN const uint32_t port_num)
 {
 
 	CL_ASSERT(port_num < p_node->physp_tbl_size);
-	return ((osm_physp_t *) & p_node->physp_table[port_num]);
+	return osm_physp_is_valid(&p_node->physp_table[port_num]) ?
+		&p_node->physp_table[port_num] : NULL;
 }
 
 /*
@@ -383,7 +383,7 @@ static inline uint8_t osm_node_get_num_physp(IN const osm_node_t * const p_node)
 *
 * SYNOPSIS
 */
-osm_node_t *osm_node_get_remote_node(IN const osm_node_t * const p_node,
+osm_node_t *osm_node_get_remote_node(IN osm_node_t * const p_node,
 				     IN const uint8_t port_num,
 				     OUT uint8_t * p_remote_port_num);
 /*
@@ -457,7 +457,7 @@ osm_node_get_base_lid(IN const osm_node_t * const p_node,
 * SYNOPSIS
 */
 ib_net16_t
-osm_node_get_remote_base_lid(IN const osm_node_t * const p_node,
+osm_node_get_remote_base_lid(IN osm_node_t * const p_node,
 			     IN const uint32_t port_num);
 /*
 * PARAMETERS

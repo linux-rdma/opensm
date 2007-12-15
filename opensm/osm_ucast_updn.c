@@ -390,12 +390,9 @@ updn_subn_rank(IN unsigned num_guids,
 			/*
 			   make sure that all the following occur on p_remote_physp:
 			   1. The port isn't NULL
-			   2. The port is a valid port
-			   3. It is a switch
+			   2. It is a switch
 			 */
-			if (p_remote_physp &&
-			    osm_physp_is_valid(p_remote_physp) &&
-			    p_remote_physp->p_node->sw) {
+			if (p_remote_physp && p_remote_physp->p_node->sw) {
 				remote_u = p_remote_physp->p_node->sw->priv;
 				port_guid = p_remote_physp->port_guid;
 

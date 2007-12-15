@@ -2829,9 +2829,7 @@ __osm_ftree_rank_switches_from_leafs(IN ftree_fabric_t * p_ftree,
 		/* note: skipping port 0 on switches */
 		for (i = 1; i < osm_node_get_num_physp(p_node); i++) {
 			p_osm_port = osm_node_get_physp_ptr(p_node, i);
-			if (!osm_physp_is_valid(p_osm_port))
-				continue;
-			if (!osm_link_is_healthy(p_osm_port))
+			if (!p_osm_port || !osm_link_is_healthy(p_osm_port))
 				continue;
 
 			p_remote_node =
@@ -2883,9 +2881,7 @@ __osm_ftree_rank_leaf_switches(IN ftree_fabric_t * p_ftree,
 
 	for (i = 0; i < osm_node_get_num_physp(p_osm_node); i++) {
 		p_osm_port = osm_node_get_physp_ptr(p_osm_node, i);
-		if (!osm_physp_is_valid(p_osm_port))
-			continue;
-		if (!osm_link_is_healthy(p_osm_port))
+		if (!p_osm_port || !osm_link_is_healthy(p_osm_port))
 			continue;
 
 		p_remote_osm_node =
@@ -2989,10 +2985,7 @@ __osm_ftree_fabric_construct_hca_ports(IN ftree_fabric_t * p_ftree,
 
 	for (i = 0; i < osm_node_get_num_physp(p_node); i++) {
 		osm_physp_t *p_osm_port = osm_node_get_physp_ptr(p_node, i);
-
-		if (!osm_physp_is_valid(p_osm_port))
-			continue;
-		if (!osm_link_is_healthy(p_osm_port))
+		if (!p_osm_port && !osm_link_is_healthy(p_osm_port))
 			continue;
 
 		p_remote_osm_port = osm_physp_get_remote(p_osm_port);
@@ -3115,10 +3108,7 @@ static int __osm_ftree_fabric_construct_sw_ports(IN ftree_fabric_t * p_ftree,
 
 	for (i = 0; i < osm_node_get_num_physp(p_node); i++) {
 		osm_physp_t *p_osm_port = osm_node_get_physp_ptr(p_node, i);
-
-		if (!osm_physp_is_valid(p_osm_port))
-			continue;
-		if (!osm_link_is_healthy(p_osm_port))
+		if (!p_osm_port || !osm_link_is_healthy(p_osm_port))
 			continue;
 
 		p_remote_osm_port = osm_physp_get_remote(p_osm_port);
@@ -3291,9 +3281,7 @@ static int __osm_ftree_fabric_rank_from_roots(IN ftree_fabric_t * p_ftree)
 		/* note: skipping port 0 on switches */
 		for (i = 1; i < osm_node_get_num_physp(p_osm_node); i++) {
 			p_osm_physp = osm_node_get_physp_ptr(p_osm_node, i);
-			if (!osm_physp_is_valid(p_osm_physp))
-				continue;
-			if (!osm_link_is_healthy(p_osm_physp))
+			if (!p_osm_physp  || !osm_link_is_healthy(p_osm_physp))
 				continue;
 
 			p_remote_osm_node =

@@ -2884,9 +2884,8 @@ static void __parser_add_port_to_port_map(
     cl_qmap_t   * p_map,
     osm_physp_t * p_physp)
 {
-    if (p_physp && osm_physp_is_valid(p_physp) &&
-        cl_qmap_get(p_map, cl_ntoh64(
-           osm_physp_get_port_guid(p_physp))) == cl_qmap_end(p_map))
+    if (cl_qmap_get(p_map, cl_ntoh64(osm_physp_get_port_guid(p_physp))) ==
+        cl_qmap_end(p_map))
     {
         osm_qos_port_t * p_port = osm_qos_policy_port_create(p_physp);
         if (p_port)

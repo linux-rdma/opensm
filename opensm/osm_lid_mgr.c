@@ -883,10 +883,8 @@ __osm_lid_mgr_set_remote_pi_state_to_init(IN osm_lid_mgr_t * const p_mgr,
 	if (p_rem_physp == NULL)
 		return;
 
-	if (osm_physp_is_valid(p_rem_physp))
-		/* but in some rare cases the remote side might be irresponsive */
-		ib_port_info_set_port_state(&p_rem_physp->port_info,
-					    IB_LINK_INIT);
+	/* but in some rare cases the remote side might be irresponsive */
+	ib_port_info_set_port_state(&p_rem_physp->port_info, IB_LINK_INIT);
 }
 
 /**********************************************************************
@@ -914,7 +912,7 @@ __osm_lid_mgr_set_physp_pi(IN osm_lid_mgr_t * const p_mgr,
 	   Don't bother doing anything if this Physical Port is not valid.
 	   This allows simplified code in the caller.
 	 */
-	if (p_physp == NULL || !osm_physp_is_valid(p_physp))
+	if (!p_physp)
 		goto Exit;
 
 	port_num = osm_physp_get_port_num(p_physp);

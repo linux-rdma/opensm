@@ -129,7 +129,7 @@ void osm_pkey_rcv_process(IN void *context, IN void *data)
 	   Determine if we encountered a new Physical Port.
 	   If so, ignore it.
 	 */
-	if (!osm_physp_is_valid(p_physp)) {
+	if (!p_physp) {
 		osm_log(sm->p_log, OSM_LOG_ERROR,
 			"osm_pkey_rcv_process: ERR 4807: "
 			"Got invalid port number 0x%X\n", port_num);

@@ -176,7 +176,7 @@ __osm_sa_slvl_by_comp_mask(IN osm_sa_t * sa,
 			p_out_physp =
 			    osm_node_get_physp_ptr(p_port->p_node,
 						   out_port_num);
-			if (!osm_physp_is_valid(p_out_physp))
+			if (!p_out_physp)
 				continue;
 
 			for (in_port_num = in_port_start;
@@ -189,7 +189,7 @@ __osm_sa_slvl_by_comp_mask(IN osm_sa_t * sa,
 				p_in_physp =
 				    osm_node_get_physp_ptr(p_port->p_node,
 							   in_port_num);
-				if (!osm_physp_is_valid(p_in_physp))
+				if (!p_in_physp)
 					continue;
 
 				/* if the requester and the p_out_physp don't share a pkey -

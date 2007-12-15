@@ -136,7 +136,7 @@ drop_mgr_clean_physp(IN const osm_drop_mgr_t * const p_mgr,
 	osm_port_t *p_remote_port;
 
 	p_remote_physp = osm_physp_get_remote(p_physp);
-	if (p_remote_physp && osm_physp_is_valid(p_remote_physp)) {
+	if (p_remote_physp) {
 		p_remote_port = osm_get_port_by_guid(p_mgr->p_subn,
 						     p_remote_physp->port_guid);
 
@@ -383,7 +383,7 @@ __osm_drop_mgr_process_node(IN const osm_drop_mgr_t * const p_mgr,
 	max_ports = osm_node_get_num_physp(p_node);
 	for (port_num = 0; port_num < max_ports; port_num++) {
 		p_physp = osm_node_get_physp_ptr(p_node, port_num);
-		if (osm_physp_is_valid(p_physp)) {
+		if (p_physp) {
 			port_guid = osm_physp_get_port_guid(p_physp);
 
 			p_port = osm_get_port_by_guid(p_mgr->p_subn, port_guid);
@@ -454,7 +454,7 @@ __osm_drop_mgr_check_node(IN const osm_drop_mgr_t * const p_mgr,
 
 	/* Make sure we have a port object for port zero */
 	p_physp = osm_node_get_physp_ptr(p_node, 0);
-	if (!osm_physp_is_valid(p_physp)) {
+	if (!p_physp) {
 		osm_log(p_mgr->p_log, OSM_LOG_VERBOSE,
 			"__osm_drop_mgr_check_node: "
 			"Node 0x%016" PRIx64 " no valid physical port 0\n",

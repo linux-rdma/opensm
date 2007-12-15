@@ -96,8 +96,6 @@ __osm_si_rcv_get_port_info(IN osm_sm_t * sm,
 	 */
 	p_physp = osm_node_get_any_physp_ptr(p_node);
 
-	CL_ASSERT(osm_physp_is_valid(p_physp));
-
 	context.pi_context.node_guid = osm_node_get_node_guid(p_node);
 	context.pi_context.port_guid = osm_physp_get_port_guid(p_physp);
 	context.pi_context.set_method = FALSE;
@@ -151,8 +149,6 @@ __osm_si_rcv_get_fwd_tbl(IN osm_sm_t * sm,
 	CL_ASSERT(osm_node_get_type(p_node) == IB_NODE_TYPE_SWITCH);
 
 	p_physp = osm_node_get_any_physp_ptr(p_node);
-
-	CL_ASSERT(osm_physp_is_valid(p_physp));
 
 	context.lft_context.node_guid = osm_node_get_node_guid(p_node);
 	context.lft_context.set_method = FALSE;
@@ -222,8 +218,6 @@ __osm_si_rcv_get_mcast_fwd_tbl(IN osm_sm_t * sm,
 
 	p_physp = osm_node_get_any_physp_ptr(p_node);
 	p_tbl = osm_switch_get_mcast_tbl_ptr(p_sw);
-
-	CL_ASSERT(osm_physp_is_valid(p_physp));
 
 	context.mft_context.node_guid = osm_node_get_node_guid(p_node);
 	context.mft_context.set_method = FALSE;

@@ -167,7 +167,7 @@ pkey_mgr_process_partition_table(osm_log_t * p_log, osm_sm_t * sm,
 		i = i_next;
 		i_next = cl_map_next(i);
 		p_physp = cl_map_obj(i);
-		if (p_physp && osm_physp_is_valid(p_physp))
+		if (p_physp)
 			pkey_mgr_process_physical_port(p_log, sm, pkey,
 						       p_physp);
 	}
@@ -290,7 +290,7 @@ static boolean_t pkey_mgr_update_port(osm_log_t * p_log, osm_sm_t * sm,
 	memset(&empty_block, 0, sizeof(ib_pkey_table_t));
 
 	p_physp = p_port->p_physp;
-	if (!osm_physp_is_valid(p_physp))
+	if (!p_physp)
 		return FALSE;
 
 	p_node = osm_physp_get_node_ptr(p_physp);
@@ -424,10 +424,10 @@ pkey_mgr_update_peer_port(osm_log_t * p_log, osm_sm_t * sm,
 	memset(&empty_block, 0, sizeof(ib_pkey_table_t));
 
 	p_physp = p_port->p_physp;
-	if (!osm_physp_is_valid(p_physp))
+	if (!p_physp)
 		return FALSE;
 	peer = osm_physp_get_remote(p_physp);
-	if (!peer || !osm_physp_is_valid(peer))
+	if (!peer)
 		return FALSE;
 	p_node = osm_physp_get_node_ptr(peer);
 	if (!p_node->sw || !p_node->sw->switch_info.enforce_cap)

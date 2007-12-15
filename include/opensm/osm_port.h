@@ -1252,7 +1252,7 @@ void osm_port_delete(IN OUT osm_port_t ** const pp_port);
 * SYNOPSIS
 */
 osm_port_t *osm_port_new(IN const ib_node_info_t * p_ni,
-			 IN const struct _osm_node *const p_parent_node);
+			 IN struct _osm_node *const p_parent_node);
 /*
 * PARAMETERS
 *	p_ni

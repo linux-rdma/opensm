@@ -116,9 +116,6 @@ __osm_link_mgr_set_physp_pi(IN osm_link_mgr_t * const p_mgr,
 
 	OSM_LOG_ENTER(p_mgr->p_log, __osm_link_mgr_set_physp_pi);
 
-	CL_ASSERT(p_physp);
-	CL_ASSERT(osm_physp_is_valid(p_physp));
-
 	p_node = osm_physp_get_node_ptr(p_physp);
 
 	port_num = osm_physp_get_port_num(p_physp);
@@ -241,8 +238,7 @@ __osm_link_mgr_set_physp_pi(IN osm_link_mgr_t * const p_mgr,
 		   Several timeout mechanisms:
 		 */
 		p_remote_physp = osm_physp_get_remote(p_physp);
-		if (port_num != 0 && p_remote_physp &&
-		    osm_physp_is_valid(p_remote_physp)) {
+		if (port_num != 0 && p_remote_physp) {
 			if (osm_node_get_type(osm_physp_get_node_ptr(p_physp))
 			    == IB_NODE_TYPE_ROUTER) {
 				ib_port_info_set_hoq_lifetime(p_pi,
@@ -418,7 +414,7 @@ __osm_link_mgr_process_node(IN osm_link_mgr_t * const p_mgr,
 		   specified state.
 		 */
 		p_physp = osm_node_get_physp_ptr(p_node, (uint8_t) i);
-		if (!osm_physp_is_valid(p_physp))
+		if (!p_physp)
 			continue;
 
 		current_state = osm_physp_get_port_state(p_physp);

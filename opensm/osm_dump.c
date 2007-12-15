@@ -394,11 +394,11 @@ static void dump_topology_node(cl_map_item_t * p_map_item, void *cxt)
 		uint8_t port_state;
 
 		p_physp = osm_node_get_physp_ptr(p_node, cPort);
-		if (!osm_physp_is_valid(p_physp))
+		if (!p_physp)
 			continue;
 
 		p_rphysp = p_physp->p_remote_physp;
-		if (!p_rphysp || !osm_physp_is_valid(p_rphysp))
+		if (!p_rphysp)
 			continue;
 
 		CL_ASSERT(cPort == p_physp->port_num);
@@ -503,7 +503,7 @@ static void print_node_report(cl_map_item_t * p_map_item, void *cxt)
 	port_num = node_type == IB_NODE_TYPE_SWITCH ? 0 : 1;
 	for (; port_num < num_ports; port_num++) {
 		p_physp = osm_node_get_physp_ptr(p_node, port_num);
-		if (!osm_physp_is_valid(p_physp))
+		if (!p_physp)
 			continue;
 
 		osm_log_printf(log, OSM_LOG_VERBOSE, "%-11s : %s : %02X :",
@@ -563,8 +563,7 @@ static void print_node_report(cl_map_item_t * p_map_item, void *cxt)
 		if (port_num
 		    && (ib_port_info_get_port_state(p_pi) != IB_LINK_DOWN)) {
 			p_remote_physp = osm_physp_get_remote(p_physp);
-			if (p_remote_physp
-			    && osm_physp_is_valid(p_remote_physp))
+			if (p_remote_physp)
 				osm_log_printf(log, OSM_LOG_VERBOSE,
 					       " %016" PRIx64 " (%02X)",
 					       cl_ntoh64

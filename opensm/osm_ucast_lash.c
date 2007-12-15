@@ -187,13 +187,12 @@ static uint8_t find_port_from_lid(IN const ib_net16_t lid_no,
 	for (i = 1; i < port_count; i++) {
 
 		p_current_physp = osm_node_get_physp_ptr(p_sw->p_node, i);
-
-		if (!osm_physp_is_valid(p_current_physp))
+		if (!p_current_physp)
 			continue;
 
 		p_remote_physp = p_current_physp->p_remote_physp;
 
-		if (p_remote_physp && osm_physp_is_valid(p_remote_physp)) {
+		if (p_remote_physp) {
 			osm_node_t *p_opposite_node =
 			    osm_physp_get_node_ptr(p_remote_physp);
 
@@ -1216,12 +1215,9 @@ static void osm_lash_process_switch(lash_t * p_lash, osm_switch_t * p_sw)
 	for (i = 1; i < port_count; i++) {
 
 		p_current_physp = osm_node_get_physp_ptr(p_sw->p_node, i);
-
-		if (osm_physp_is_valid(p_current_physp)) {
+		if (p_current_physp) {
 			p_remote_physp = p_current_physp->p_remote_physp;
-
-			if (p_remote_physp && osm_physp_is_valid(p_remote_physp)
-			    && p_remote_physp->p_node->sw) {
+			if (p_remote_physp && p_remote_physp->p_node->sw) {
 				int physical_port_a_num =
 				    osm_physp_get_port_num(p_current_physp);
 				int physical_port_b_num =
@@ -1315,7 +1311,7 @@ static int discover_network_properties(lash_t * p_lash)
 			osm_physp_t *p_current_physp =
 			    osm_node_get_physp_ptr(p_sw->p_node, i);
 
-			if (osm_physp_is_valid(p_current_physp)
+			if (p_current_physp
 			    && p_current_physp->p_remote_physp) {
 
 				ib_port_info_t *p_port_info =

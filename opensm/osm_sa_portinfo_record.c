@@ -407,7 +407,7 @@ __osm_sa_pir_check_physp(IN osm_sa_t * sa,
  **********************************************************************/
 static void
 __osm_sa_pir_by_comp_mask(IN osm_sa_t * sa,
-			  IN const osm_node_t * const p_node,
+			  IN osm_node_t * const p_node,
 			  osm_pir_search_ctxt_t * const p_ctxt)
 {
 	const ib_portinfo_record_t *p_rcvd_rec;
@@ -432,7 +432,7 @@ __osm_sa_pir_by_comp_mask(IN osm_sa_t * sa,
 						   p_rcvd_rec->port_num);
 			/* Check that the p_physp is valid, and that the p_physp and the
 			   p_req_physp share a pkey. */
-			if (osm_physp_is_valid(p_physp) &&
+			if (p_physp &&
 			    osm_physp_share_pkey(sa->p_log, p_req_physp,
 						 p_physp))
 				__osm_sa_pir_check_physp(sa, p_physp,
@@ -442,7 +442,7 @@ __osm_sa_pir_by_comp_mask(IN osm_sa_t * sa,
 		for (port_num = 0; port_num < num_ports; port_num++) {
 			p_physp =
 			    osm_node_get_physp_ptr(p_node, port_num);
-			if (!osm_physp_is_valid(p_physp))
+			if (!p_physp)
 				continue;
 
 			/* if the requester and the p_physp don't share a pkey -
@@ -464,7 +464,7 @@ static void
 __osm_sa_pir_by_comp_mask_cb(IN cl_map_item_t * const p_map_item,
 			     IN void *context)
 {
-	const osm_node_t *const p_node = (osm_node_t *) p_map_item;
+	osm_node_t *const p_node = (osm_node_t *) p_map_item;
 	osm_pir_search_ctxt_t *const p_ctxt = (osm_pir_search_ctxt_t *) context;
 
 	__osm_sa_pir_by_comp_mask(p_ctxt->sa, p_node, p_ctxt);

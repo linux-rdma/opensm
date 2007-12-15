@@ -311,7 +311,7 @@ osm_signal_t osm_qos_setup(osm_opensm_t * p_osm)
 			num_physp = osm_node_get_num_physp(p_node);
 			for (i = 1; i < num_physp; i++) {
 				p_physp = osm_node_get_physp_ptr(p_node, i);
-				if (!osm_physp_is_valid(p_physp))
+				if (!p_physp)
 					continue;
 				force_update = p_physp->need_update ||
 				    p_osm->subn.need_update;
@@ -332,7 +332,7 @@ osm_signal_t osm_qos_setup(osm_opensm_t * p_osm)
 			cfg = &ca_config;
 
 		p_physp = p_port->p_physp;
-		if (!osm_physp_is_valid(p_physp))
+		if (!p_physp)
 			continue;
 
 		force_update = p_physp->need_update || p_osm->subn.need_update;

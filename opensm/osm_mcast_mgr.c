@@ -720,7 +720,7 @@ static osm_mtree_node_t *__osm_mcast_mgr_branch(osm_mcast_mgr_t * const p_mgr,
 	for (i = 0; i < max_children; i++) {
 		const osm_physp_t *p_physp;
 		const osm_physp_t *p_remote_physp;
-		const osm_node_t *p_node;
+		osm_node_t *p_node;
 		const osm_node_t *p_remote_node;
 
 		p_port_list = &list_array[i];
@@ -767,11 +767,10 @@ static osm_mtree_node_t *__osm_mcast_mgr_branch(osm_mcast_mgr_t * const p_mgr,
 			CL_ASSERT(p_remote_node->sw);
 
 			p_physp = osm_node_get_physp_ptr(p_node, i);
-			CL_ASSERT(osm_physp_is_valid(p_physp));
+			CL_ASSERT(p_physp);
 
 			p_remote_physp = osm_physp_get_remote(p_physp);
 			CL_ASSERT(p_remote_physp);
-			CL_ASSERT(osm_physp_is_valid(p_remote_physp));
 
 			p_mtn->child_array[i] =
 			    __osm_mcast_mgr_branch(p_mgr, p_mgrp,
@@ -1068,29 +1067,11 @@ osm_mcast_mgr_process_single(IN osm_mcast_mgr_t * const p_mgr,
 		goto Exit;
 	}
 
-	if (!osm_physp_is_valid(p_physp)) {
-		osm_log(p_mgr->p_log, OSM_LOG_ERROR,
-			"osm_mcast_mgr_process_single: ERR 0A07: "
-			"Unable to acquire valid physical port object "
-			"for 0x%" PRIx64 "\n", cl_ntoh64(port_guid));
-		status = IB_ERROR;
-		goto Exit;
-	}
-
 	p_remote_physp = osm_physp_get_remote(p_physp);
 	if (p_remote_physp == NULL) {
 		osm_log(p_mgr->p_log, OSM_LOG_ERROR,
 			"osm_mcast_mgr_process_single: ERR 0A11: "
 			"Unable to acquire remote phsyical port object "
-			"for 0x%" PRIx64 "\n", cl_ntoh64(port_guid));
-		status = IB_ERROR;
-		goto Exit;
-	}
-
-	if (!osm_physp_is_valid(p_remote_physp)) {
-		osm_log(p_mgr->p_log, OSM_LOG_ERROR,
-			"osm_mcast_mgr_process_single: ERR 0A21: "
-			"Unable to acquire valid remote physical port object "
 			"for 0x%" PRIx64 "\n", cl_ntoh64(port_guid));
 		status = IB_ERROR;
 		goto Exit;

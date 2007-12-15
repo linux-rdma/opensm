@@ -151,7 +151,7 @@ void osm_port_delete(IN OUT osm_port_t ** const pp_port)
 static void
 osm_port_init(IN osm_port_t * const p_port,
 	      IN const ib_node_info_t * p_ni,
-	      IN const osm_node_t * const p_parent_node)
+	      IN osm_node_t * const p_parent_node)
 {
 	ib_net64_t port_guid;
 	osm_physp_t *p_physp;
@@ -183,7 +183,7 @@ osm_port_init(IN osm_port_t * const p_port,
 /**********************************************************************
  **********************************************************************/
 osm_port_t *osm_port_new(IN const ib_node_info_t * p_ni,
-			 IN const osm_node_t * const p_parent_node)
+			 IN osm_node_t * const p_parent_node)
 {
 	osm_port_t *p_port;
 
@@ -318,7 +318,7 @@ osm_physp_calc_link_mtu(IN osm_log_t * p_log, IN const osm_physp_t * p_physp)
 	OSM_LOG_ENTER(p_log, osm_physp_calc_link_mtu);
 
 	p_remote_physp = osm_physp_get_remote(p_physp);
-	if (p_remote_physp && osm_physp_is_valid(p_remote_physp)) {
+	if (p_remote_physp) {
 		/* use the available MTU */
 		mtu = ib_port_info_get_mtu_cap(&p_physp->port_info);
 
@@ -383,7 +383,7 @@ osm_physp_calc_link_op_vls(IN osm_log_t * p_log,
 	OSM_LOG_ENTER(p_log, osm_physp_calc_link_op_vls);
 
 	p_remote_physp = osm_physp_get_remote(p_physp);
-	if (p_remote_physp && osm_physp_is_valid(p_remote_physp)) {
+	if (p_remote_physp) {
 		/* use the available VLCap */
 		op_vls = ib_port_info_get_vl_cap(&p_physp->port_info);
 
@@ -508,7 +508,7 @@ __osm_physp_get_dr_physp_set(IN osm_log_t * p_log,
 			p_path->path[hop]);
 
 		/* make sure we got a valid port and it has a remote port */
-		if (!osm_physp_is_valid(p_physp)) {
+		if (!p_physp) {
 			osm_log(p_log, OSM_LOG_ERROR,
 				"__osm_physp_get_dr_nodes_set: ERR 4104: "
 				"DR Traversal stopped on invalid port at hop:%u\n",
@@ -643,7 +643,6 @@ osm_physp_replace_dr_path_with_alternate_dr_path(IN osm_log_t * p_log,
 	p_physp = p_port->p_physp;
 
 	CL_ASSERT(p_physp);
-	CL_ASSERT(osm_physp_is_valid(p_physp));
 
 	cl_list_insert_tail(p_nextPortsList, p_physp);
 
@@ -675,12 +674,11 @@ osm_physp_replace_dr_path_with_alternate_dr_path(IN osm_log_t * p_log,
 				/*
 				   make sure that all of the following occurred:
 				   1. The port isn't NULL
-				   2. The port is a valid port
-				   3. This is not the port we came from
-				   4. The port is not in the physp_map
-				   5. This port haven't been visited before
+				   2. This is not the port we came from
+				   3. The port is not in the physp_map
+				   4. This port haven't been visited before
 				 */
-				if (osm_physp_is_valid(p_remote_physp) &&
+				if (p_remote_physp &&
 				    p_remote_physp != p_physp &&
 				    cl_map_get(&physp_map,
 					       __osm_ptr_to_key(p_remote_physp))
@@ -749,7 +747,7 @@ boolean_t osm_link_is_healthy(IN const osm_physp_t * const p_physp)
 
 	CL_ASSERT(p_physp);
 	p_remote_physp = p_physp->p_remote_physp;
-	if (p_remote_physp != NULL && osm_physp_is_valid(p_remote_physp))
+	if (p_remote_physp != NULL)
 		return ((p_physp->healthy) & (p_remote_physp->healthy));
 	/* the other side is not known - consider the link as healthy */
 	return (TRUE);
@@ -766,7 +764,6 @@ osm_physp_set_pkey_tbl(IN osm_log_t * p_log,
 	uint16_t max_blocks;
 
 	CL_ASSERT(p_pkey_tbl);
-	CL_ASSERT(osm_physp_is_valid(p_physp));
 	/*
 	   (14.2.5.7) - the block number valid values are 0-2047, and are further
 	   limited by the size of the P_Key table specified by the PartitionCap on the

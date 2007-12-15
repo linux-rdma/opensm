@@ -720,7 +720,6 @@ static boolean_t __osm_state_mgr_is_sm_port_down(IN osm_state_mgr_t *
 	p_physp = p_port->p_physp;
 
 	CL_ASSERT(p_physp);
-	CL_ASSERT(osm_physp_is_valid(p_physp));
 
 	state = osm_physp_get_port_state(p_physp);
 	CL_PLOCK_RELEASE(p_mgr->p_lock);
@@ -789,7 +788,7 @@ static ib_api_status_t __osm_state_mgr_sweep_hop_1(IN osm_state_mgr_t *
 
 	p_physp = osm_node_get_physp_ptr(p_node, port_num);
 
-	CL_ASSERT(osm_physp_is_valid(p_physp));
+	CL_ASSERT(p_physp);
 
 	p_dr_path = osm_physp_get_dr_path_ptr(p_physp);
 	h_bind = osm_dr_path_get_bind_handle(p_dr_path);
@@ -911,7 +910,7 @@ static ib_api_status_t __osm_state_mgr_light_sweep_start(IN osm_state_mgr_t *
 			     port_num++) {
 				p_physp =
 				    osm_node_get_physp_ptr(p_node, port_num);
-				if (osm_physp_is_valid(p_physp)
+				if (p_physp
 				    && (osm_physp_get_port_state(p_physp) !=
 					IB_LINK_DOWN)
 				    && !osm_physp_get_remote(p_physp)) {

@@ -125,7 +125,7 @@ __osm_gir_rcv_new_gir(IN osm_sa_t * sa,
  **********************************************************************/
 static void
 __osm_sa_gir_create_gir(IN osm_sa_t * sa,
-			IN const osm_node_t * const p_node,
+			IN osm_node_t * const p_node,
 			IN cl_qlist_t * const p_list,
 			IN ib_net64_t const match_port_guid,
 			IN ib_net16_t const match_lid,
@@ -164,8 +164,7 @@ __osm_sa_gir_create_gir(IN osm_sa_t * sa,
 
 	for (port_num = 0; port_num < num_ports; port_num++) {
 		p_physp = osm_node_get_physp_ptr(p_node, port_num);
-
-		if (!osm_physp_is_valid(p_physp))
+		if (!p_physp)
 			continue;
 
 		/* Check to see if the found p_physp and the requester physp
@@ -240,7 +239,7 @@ __osm_sa_gir_by_comp_mask_cb(IN cl_map_item_t * const p_map_item,
 {
 	const osm_gir_search_ctxt_t *const p_ctxt =
 	    (osm_gir_search_ctxt_t *) context;
-	const osm_node_t *const p_node = (osm_node_t *) p_map_item;
+	osm_node_t *const p_node = (osm_node_t *) p_map_item;
 	const ib_guidinfo_record_t *const p_rcvd_rec = p_ctxt->p_rcvd_rec;
 	const osm_physp_t *const p_req_physp = p_ctxt->p_req_physp;
 	osm_sa_t *sa = p_ctxt->sa;
