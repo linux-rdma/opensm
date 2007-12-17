@@ -264,7 +264,7 @@ static void __osm_sm_state_mgr_start_polling(IN osm_sm_state_mgr_t * p_sm_mgr)
 	OSM_LOG_ENTER(p_sm_mgr->p_log, __osm_sm_state_mgr_start_polling);
 
 	/*
-	 * Init the retry_nubmer back to zero - need to restart counting
+	 * Init the retry_number back to zero - need to restart counting
 	 */
 	p_sm_mgr->retry_number = 0;
 
