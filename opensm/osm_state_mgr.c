@@ -1516,6 +1516,23 @@ void osm_state_mgr_process(IN osm_state_mgr_t * const p_mgr,
 			switch (signal) {
 			case OSM_SIGNAL_NO_PENDING_TRANSACTIONS:
 			case OSM_SIGNAL_DONE:
+				if (p_mgr->p_subn->force_immediate_heavy_sweep) {
+					/*
+					 * Do not read next item from the idle queue.
+					 * Immediate heavy sweep is requested, so it's
+					 * more important.
+					 * Besides, there is a chance that after the
+					 * heavy sweep complition, idle queue processing
+					 * that SM would have performed here will be obsolete.
+					 */
+					if (osm_log_is_active(p_mgr->p_log, OSM_LOG_DEBUG))
+						osm_log(p_mgr->p_log, OSM_LOG_DEBUG,
+						"osm_state_mgr_process: "
+						"interrupting idle time queue processing - heavy sweep requested\n");
+					signal = OSM_SIGNAL_NONE;
+					p_mgr->state = OSM_SM_STATE_IDLE;
+					break;
+				}
 				signal = OSM_SIGNAL_IDLE_TIME_PROCESS;
 				p_mgr->state = OSM_SM_STATE_PROCESS_REQUEST;
 				break;
