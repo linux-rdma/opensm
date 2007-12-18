@@ -355,7 +355,7 @@ static boolean_t pkey_mgr_update_port(osm_log_t * p_log,
 					"pkey_mgr_update_port: ERR 0505: "
 					"Failed to set PKey 0x%04x in block %u idx %u "
 					"for node 0x%016" PRIx64 " port %u\n",
-					p_pending->pkey, block_index,
+					cl_ntoh16(p_pending->pkey), block_index,
 					pkey_index,
 					cl_ntoh64(osm_node_get_node_guid
 						  (p_node)),
