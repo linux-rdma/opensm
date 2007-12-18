@@ -180,6 +180,8 @@ static void help_perfmgr(FILE * out, int detail)
 			"   [clear_counters] -- clear the counters stored\n");
 		fprintf(out,
 			"   [dump_counters [mach]] -- dump the counters (optionally in [mach]ine readable format)\n");
+		fprintf(out,
+			"   [print_counters <nodename|nodeguid>] -- print the counters for the specified node\n");
 	}
 }
 #endif				/* ENABLE_OSM_PERF_MGR */
@@ -795,6 +797,14 @@ static void perfmgr_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 			} else {
 				osm_perfmgr_dump_counters(&(p_osm->perfmgr),
 							  PERFMGR_EVENT_DB_DUMP_HR);
+			}
+		} else if (strcmp(p_cmd, "print_counters") == 0) {
+			p_cmd = next_token(p_last);
+			if (p_cmd) {
+				osm_perfmgr_print_counters(&(p_osm->perfmgr), p_cmd, out);
+			} else {
+				fprintf(out,
+					"print_counters requires a node name to be specified\n");
 			}
 		} else if (strcmp(p_cmd, "sweep_time") == 0) {
 			p_cmd = next_token(p_last);

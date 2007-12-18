@@ -677,6 +677,52 @@ static void __db_dump(cl_map_item_t * const p_map_item, void *context)
 }
 
 /**********************************************************************
+ * print node data to fp
+ **********************************************************************/
+void
+perfmgr_db_print_by_name(perfmgr_db_t * db, char *nodename, FILE *fp)
+{
+	cl_map_item_t *item = NULL;
+	_db_node_t *node = NULL;
+
+	cl_plock_acquire(&(db->lock));
+
+	/* find the node */
+	item = cl_qmap_head(&(db->pc_data));
+	while (item != cl_qmap_end(&(db->pc_data))) {
+		node = (_db_node_t *)item;
+		if (strcmp(node->node_name, nodename) == 0) {
+			__dump_node_hr(node, fp);
+			goto done;
+		}
+		item = cl_qmap_next(item);
+	}
+
+	fprintf(fp, "Node %s not found...\n", nodename);
+done:
+	cl_plock_release(&(db->lock));
+}
+
+/**********************************************************************
+ * print node data to fp
+ **********************************************************************/
+void
+perfmgr_db_print_by_guid(perfmgr_db_t * db, uint64_t nodeguid, FILE *fp)
+{
+	cl_map_item_t *node = NULL;
+
+	cl_plock_acquire(&(db->lock));
+
+	node = cl_qmap_get(&(db->pc_data), nodeguid);
+	if (node != cl_qmap_end(&(db->pc_data)))
+		__dump_node_hr((_db_node_t *)node, fp);
+	else
+		fprintf(fp, "Node %"PRIx64" not found...\n", nodeguid);
+
+	cl_plock_release(&(db->lock));
+}
+
+/**********************************************************************
  * dump the data to the file "file"
  **********************************************************************/
 perfmgr_db_err_t
