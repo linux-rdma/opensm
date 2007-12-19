@@ -90,6 +90,29 @@ BEGIN_C_DECLS
 *	Steve King, Intel
 *
 *********/
+
+/****d* OpenSM: OpenSM/osm_routing_engine_type_t
+* NAME
+*       osm_routing_engine_type_t
+*
+* DESCRIPTION
+*       Enumerates the possible routing engines that
+*       could be used to route a subnet.
+*
+* SYNOPSIS
+*/
+typedef enum _osm_routing_engine_type {
+	OSM_ROUTING_ENGINE_TYPE_NONE = 0,
+	OSM_ROUTING_ENGINE_TYPE_MINHOP,
+	OSM_ROUTING_ENGINE_TYPE_UPDN,
+	OSM_ROUTING_ENGINE_TYPE_FILE,
+	OSM_ROUTING_ENGINE_TYPE_FTREE,
+	OSM_ROUTING_ENGINE_TYPE_LASH,
+	OSM_ROUTING_ENGINE_TYPE_DOR,
+	OSM_ROUTING_ENGINE_TYPE_UNKNOWN
+} osm_routing_engine_type_t;
+/***********/
+
 /****s* OpenSM: OpenSM/osm_routing_engine
 * NAME
 *	struct osm_routing_engine
@@ -167,6 +190,7 @@ typedef struct _osm_opensm_t {
 	cl_dispatcher_t disp;
 	cl_plock_t lock;
 	struct osm_routing_engine routing_engine;
+	osm_routing_engine_type_t routing_engine_used;
 	osm_stats_t stats;
 	osm_console_t console;
 	nn_map_t *node_name_map;
@@ -207,6 +231,9 @@ typedef struct _osm_opensm_t {
 *
 *	routing_engine
 *		Routing engine; will be initialized then used.
+*
+*	routing_engine_used
+*		Indicates which routing engine was used to route a subnet.
 *
 *	stats
 *		Open SM statistics block
@@ -429,6 +456,54 @@ osm_opensm_wait_for_subnet_up(IN osm_opensm_t * const p_osm,
 *	CL_NOT_DONE if the wait was interrupted by an external signal.
 *
 *	CL_ERROR if the wait operation failed.
+*
+* NOTES
+*
+* SEE ALSO
+*********/
+
+/****f* OpenSM: OpenSM/osm_routing_engine_type_str
+* NAME
+*	osm_routing_engine_type_str
+*
+* DESCRIPTION
+*	Returns a string for the specified routing engine type.
+*
+* SYNOPSIS
+*/
+const char *
+osm_routing_engine_type_str(IN osm_routing_engine_type_t type);
+/*
+* PARAMETERS
+*	type
+*		[in] routing engine type.
+*
+* RETURN VALUES
+*	Pointer to routing engine name.
+*
+* NOTES
+*
+* SEE ALSO
+*********/
+
+/****f* OpenSM: OpenSM/osm_routing_engine_type
+* NAME
+*	osm_routing_engine_type
+*
+* DESCRIPTION
+*	Returns a routing engine type specified routing engine name string.
+*
+* SYNOPSIS
+*/
+osm_routing_engine_type_t
+osm_routing_engine_type(IN const char *str);
+/*
+* PARAMETERS
+*	str
+*		[in] routing engine name string.
+*
+* RETURN VALUES
+*	Routing engine type.
 *
 * NOTES
 *

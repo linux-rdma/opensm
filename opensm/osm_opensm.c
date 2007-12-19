@@ -86,6 +86,59 @@ const static struct routing_engine_module routing_modules[] = {
 	{NULL, NULL}
 };
 
+/**********************************************************************
+ **********************************************************************/
+const char *
+osm_routing_engine_type_str(IN osm_routing_engine_type_t type)
+{
+	if (type == OSM_ROUTING_ENGINE_TYPE_NONE)
+		return "none";
+	else if (type == OSM_ROUTING_ENGINE_TYPE_MINHOP)
+		return "minhop";
+	else if (type == OSM_ROUTING_ENGINE_TYPE_UPDN)
+		return "updn";
+	else if (type == OSM_ROUTING_ENGINE_TYPE_FILE)
+		return "file";
+	else if (type == OSM_ROUTING_ENGINE_TYPE_FTREE)
+		return "ftree";
+	else if (type == OSM_ROUTING_ENGINE_TYPE_LASH)
+		return "lash";
+	else if (type == OSM_ROUTING_ENGINE_TYPE_DOR)
+		return "dor";
+	else
+		return "unknown";
+}
+
+/**********************************************************************
+ **********************************************************************/
+osm_routing_engine_type_t
+osm_routing_engine_type(IN const char *str)
+{
+	/* For legacy reasons, consider a NULL pointer and the string
+	 * "null" as the minhop routing engine.
+	 */
+	if (!str
+	    || !strcasecmp(str, "null")
+	    || !strcasecmp(str, "minhop"))
+		return OSM_ROUTING_ENGINE_TYPE_MINHOP;
+	else if (!strcasecmp(str, "none"))
+		return OSM_ROUTING_ENGINE_TYPE_NONE;
+	else if (!strcasecmp(str, "updn"))
+		return OSM_ROUTING_ENGINE_TYPE_UPDN;
+	else if (!strcasecmp(str, "file"))
+		return OSM_ROUTING_ENGINE_TYPE_FILE;
+	else if (!strcasecmp(str, "ftree"))
+		return OSM_ROUTING_ENGINE_TYPE_FTREE;
+	else if (!strcasecmp(str, "lash"))
+		return OSM_ROUTING_ENGINE_TYPE_LASH;
+	else if (!strcasecmp(str, "dor"))
+		return OSM_ROUTING_ENGINE_TYPE_DOR;
+	else
+		return OSM_ROUTING_ENGINE_TYPE_UNKNOWN;
+}
+
+/**********************************************************************
+ **********************************************************************/
 static int setup_routing_engine(osm_opensm_t * p_osm, const char *name)
 {
 	const struct routing_engine_module *r;
@@ -310,6 +363,8 @@ osm_opensm_init(IN osm_opensm_t * const p_osm,
 			"osm_opensm_init: cannot find or setup routing engine"
 			" \'%s\'. Default will be used instead\n",
 			p_opt->routing_engine_name);
+
+	p_osm->routing_engine_used = OSM_ROUTING_ENGINE_TYPE_NONE;
 
 	p_osm->node_name_map = open_node_name_map(p_opt->node_name_map_name);
 
