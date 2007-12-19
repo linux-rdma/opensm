@@ -766,14 +766,18 @@ osm_ucast_mgr_read_guid_file(IN osm_ucast_mgr_t * const p_mgr,
  **********************************************************************/
 osm_signal_t osm_ucast_mgr_process(IN osm_ucast_mgr_t * const p_mgr)
 {
+	osm_opensm_t *p_osm;
 	struct osm_routing_engine *p_routing_eng;
 	osm_signal_t signal = OSM_SIGNAL_DONE;
 	cl_qmap_t *p_sw_guid_tbl;
+	int blm = 0;
+	int ubft = 0;
 
 	OSM_LOG_ENTER(p_mgr->p_log, osm_ucast_mgr_process);
 
 	p_sw_guid_tbl = &p_mgr->p_subn->sw_guid_tbl;
-	p_routing_eng = &p_mgr->p_subn->p_osm->routing_engine;
+	p_osm = p_mgr->p_subn->p_osm;
+	p_routing_eng = &p_osm->routing_engine;
 
 	p_mgr->is_dor = p_routing_eng->name
 	    && (strcmp(p_routing_eng->name, "dor") == 0);
@@ -789,23 +793,45 @@ osm_signal_t osm_ucast_mgr_process(IN osm_ucast_mgr_t * const p_mgr)
 
 	p_mgr->any_change = FALSE;
 
-	if (!p_routing_eng->build_lid_matrices ||
-	    p_routing_eng->build_lid_matrices(p_routing_eng->context) != 0)
+	if (p_routing_eng->build_lid_matrices) {
+	    blm = p_routing_eng->build_lid_matrices(p_routing_eng->context);
+	    if (blm)
 		osm_ucast_mgr_build_lid_matrices(p_mgr);
-
-	osm_log(p_mgr->p_log, OSM_LOG_INFO,
-		"osm_ucast_mgr_process: "
-		"%s tables configured on all switches\n",
-		p_routing_eng->name ? p_routing_eng->name : "null (minhop)");
+	}
+	else
+	    osm_ucast_mgr_build_lid_matrices(p_mgr);
 
 	/*
 	   Now that the lid matrices have been built, we can
 	   build and download the switch forwarding tables.
 	 */
-	if (!p_routing_eng->ucast_build_fwd_tables ||
-	    p_routing_eng->ucast_build_fwd_tables(p_routing_eng->context))
+	if (p_routing_eng->ucast_build_fwd_tables) {
+	    ubft = p_routing_eng->ucast_build_fwd_tables(p_routing_eng->context);
+	    if (ubft)
 		cl_qmap_apply_func(p_sw_guid_tbl, __osm_ucast_mgr_process_tbl,
 				   p_mgr);
+	}
+	else
+	    cl_qmap_apply_func(p_sw_guid_tbl, __osm_ucast_mgr_process_tbl,
+			       p_mgr);
+
+	/* 'file' routing engine has one unique logic corner case*/
+	if (p_routing_eng->name
+	    && (strcmp(p_routing_eng->name, "file") == 0)
+	    && (!blm || !ubft))
+	    p_osm->routing_engine_used = OSM_ROUTING_ENGINE_TYPE_FILE;
+	else {
+	    if (!blm && !ubft)
+		p_osm->routing_engine_used =
+			osm_routing_engine_type(p_routing_eng->name);
+	    else
+		p_osm->routing_engine_used = OSM_ROUTING_ENGINE_TYPE_MINHOP;
+	}
+
+	osm_log(p_mgr->p_log, OSM_LOG_INFO,
+		"osm_ucast_mgr_process: "
+		"%s tables configured on all switches\n",
+		osm_routing_engine_type_str(p_osm->routing_engine_used));
 
 	if (p_mgr->any_change) {
 		signal = OSM_SIGNAL_DONE_PENDING;

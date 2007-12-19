@@ -376,6 +376,7 @@ static char *sm_state_mgr_str(osm_sm_state_t state)
 static void print_status(osm_opensm_t * p_osm, FILE * out)
 {
 	if (out) {
+		cl_plock_acquire(&p_osm->lock);
 		fprintf(out, "   OpenSM Version     : %s\n", OSM_VERSION);
 		fprintf(out, "   SM State/Mgr State : %s/%s\n",
 			sm_state_str(p_osm->subn.sm_state),
@@ -383,8 +384,8 @@ static void print_status(osm_opensm_t * p_osm, FILE * out)
 		fprintf(out, "   SA State           : %s\n",
 			sa_state_str(p_osm->sa.state));
 		fprintf(out, "   Routing Engine     : %s\n",
-			p_osm->routing_engine.name ? p_osm->routing_engine.
-			name : "null (minhop)");
+			osm_routing_engine_type_str(p_osm->
+						    routing_engine_used));
 #ifdef ENABLE_OSM_PERF_MGR
 		fprintf(out, "\n   PerfMgr state/sweep state : %s/%s\n",
 			osm_perfmgr_get_state_str(&(p_osm->perfmgr)),
@@ -429,6 +430,7 @@ static void print_status(osm_opensm_t * p_osm, FILE * out)
 			p_osm->subn.first_time_master_sweep,
 			p_osm->subn.coming_out_of_standby);
 		fprintf(out, "\n");
+		cl_plock_release(&p_osm->lock);
 	}
 }
 
