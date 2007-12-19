@@ -1425,7 +1425,7 @@ uint8_t osm_get_lash_sl(osm_opensm_t * p_osm, osm_port_t * p_src_port,
 	unsigned src_id;
 	osm_switch_t *p_sw;
 
-	if (p_osm->routing_engine.ucast_build_fwd_tables != lash_process)
+	if (p_osm->routing_engine_used != OSM_ROUTING_ENGINE_TYPE_LASH)
 		return OSM_DEFAULT_SL;
 
 	p_sw = get_osm_switch_from_port(p_dst_port);

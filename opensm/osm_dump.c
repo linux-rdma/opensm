@@ -150,8 +150,7 @@ static void dump_ucast_routes(cl_map_item_t * p_map_item, void *cxt)
 		"LID    : Port : Hops : Optimal\n",
 		cl_ntoh64(osm_node_get_node_guid(p_node)));
 
-	dor = (p_osm->routing_engine.name &&
-	       (strcmp(p_osm->routing_engine.name, "dor") == 0));
+	dor = (p_osm->routing_engine_used == OSM_ROUTING_ENGINE_TYPE_DOR);
 
 	for (lid_ho = 1; lid_ho <= max_lid_ho; lid_ho++) {
 		fprintf(file, "0x%04X : ", lid_ho);

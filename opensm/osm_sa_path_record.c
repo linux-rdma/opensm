@@ -240,6 +240,7 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 	const osm_physp_t *p_src_physp;
 	const osm_physp_t *p_dest_physp;
 	const osm_prtn_t *p_prtn = NULL;
+	osm_opensm_t *p_osm;
 	const ib_port_info_t *p_pi;
 	ib_api_status_t status = IB_SUCCESS;
 	ib_net16_t pkey;
@@ -256,6 +257,7 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 	ib_slvl_table_t *p_slvl_tbl = NULL;
 	osm_qos_level_t *p_qos_level = NULL;
 	uint16_t valid_sl_mask = 0xffff;
+	int is_lash;
 
 	OSM_LOG_ENTER(p_rcv->p_log, __osm_pr_rcv_get_path_parms);
 
@@ -265,6 +267,7 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 	p_physp = p_src_port->p_physp;
 	p_src_physp = p_physp;
 	p_pi = &p_physp->port_info;
+	p_osm = p_rcv->p_subn->p_osm;
 
 	mtu = ib_port_info_get_mtu_cap(p_pi);
 	rate = ib_port_info_compute_rate(p_pi);
@@ -733,6 +736,8 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 	 * Set PathRecord SL.
 	 */
 
+	is_lash = (p_osm->routing_engine_used == OSM_ROUTING_ENGINE_TYPE_LASH);
+
 	if (comp_mask & IB_PR_COMPMASK_SL) {
 		/*
 		 * Specific SL was requested
@@ -750,10 +755,8 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 			goto Exit;
 		}
 
-		if (p_rcv->p_subn->opt.routing_engine_name &&
-		    strcmp(p_rcv->p_subn->opt.routing_engine_name, "lash") == 0
-		    && osm_get_lash_sl(p_rcv->p_subn->p_osm, p_src_port,
-				       p_dest_port) != sl) {
+		if (is_lash
+		    && osm_get_lash_sl(p_osm, p_src_port, p_dest_port) != sl) {
 			osm_log(p_rcv->p_log, OSM_LOG_ERROR,
 				"__osm_pr_rcv_get_path_parms: ERR 1F23: "
 				"Required PathRecord SL (%u) doesn't "
@@ -762,16 +765,13 @@ __osm_pr_rcv_get_path_parms(IN osm_pr_rcv_t * const p_rcv,
 			goto Exit;
 		}
 
-	} else if (p_rcv->p_subn->opt.routing_engine_name &&
-		   strcmp(p_rcv->p_subn->opt.routing_engine_name,
-			  "lash") == 0) {
+	} else if (is_lash) {
 		/*
 		 * No specific SL in PathRecord request.
 		 * If it's LASH routing - use its SL.
 		 * slid and dest_lid are stored in network in lash.
 		 */
-		sl = osm_get_lash_sl(p_rcv->p_subn->p_osm,
-				     p_src_port, p_dest_port);
+		sl = osm_get_lash_sl(p_osm, p_src_port, p_dest_port);
 
 	} else if (p_qos_level && p_qos_level->sl_set) {
 		/*
