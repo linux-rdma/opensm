@@ -49,11 +49,7 @@
 #endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-#if (__WORDSIZE == 64) || defined (_WIN64)
-#define st_ptr_t unsigned long long
-#else
 #define st_ptr_t unsigned long
-#endif
 typedef st_ptr_t st_data_t;
 
 #define ST_DATA_T_DEFINED

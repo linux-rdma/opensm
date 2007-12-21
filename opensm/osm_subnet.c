@@ -497,11 +497,7 @@ opts_unpack_net64(IN char *p_req_key,
 	uint64_t val;
 
 	if (!strcmp(p_req_key, p_key)) {
-#if __WORDSIZE == 64
-		val = strtoul(p_val_str, NULL, 0);
-#else
 		val = strtoull(p_val_str, NULL, 0);
-#endif
 		if (cl_hton64(val) != *p_val) {
 			char buff[128];
 			sprintf(buff,

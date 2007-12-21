@@ -48,11 +48,7 @@ static inline void __osm_pack_guid(uint64_t guid, char *p_guid_str)
 
 static inline uint64_t __osm_unpack_guid(char *p_guid_str)
 {
-#if __WORDSIZE == 64
-	return (strtoul(p_guid_str, NULL, 0));
-#else
-	return (strtoull(p_guid_str, NULL, 0));
-#endif
+	return strtoull(p_guid_str, NULL, 0);
 }
 
 static inline void

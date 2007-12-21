@@ -56,14 +56,6 @@
 #include <opensm/osm_subnet.h>
 #include <opensm/osm_log.h>
 
-#if __WORDSIZE == 64
-#define STRTO_IB_NET64(str, end, base) strtoul(str, end, base)
-#else
-#define STRTO_IB_NET64(str, end, base) strtoull(str, end, base)
-#endif
-
-/*
- */
 struct part_conf {
 	osm_log_t *p_log;
 	osm_subn_t *p_subn;
@@ -230,7 +222,7 @@ static int partition_add_port(unsigned lineno, struct part_conf *conf,
 		guid = cl_ntoh64(conf->p_subn->sm_port_guid);
 	} else {
 		char *end;
-		guid = STRTO_IB_NET64(name, &end, 0);
+		guid = strtoull(name, &end, 0);
 		if (!guid || *end)
 			return -1;
 	}

@@ -2420,11 +2420,7 @@ static char * __parser_strip_white(char * str)
 
 static void __parser_str2uint64(uint64_t * p_val, char * str)
 {
-#if __WORDSIZE == 64
-   *p_val = strtoul(str, NULL, 0);
-#else
    *p_val = strtoull(str, NULL, 0);
-#endif
 }
 
 /***************************************************
