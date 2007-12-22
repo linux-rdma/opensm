@@ -90,22 +90,25 @@ const static struct routing_engine_module routing_modules[] = {
  **********************************************************************/
 const char *osm_routing_engine_type_str(IN osm_routing_engine_type_t type)
 {
-	if (type == OSM_ROUTING_ENGINE_TYPE_NONE)
+	switch (type) {
+	case OSM_ROUTING_ENGINE_TYPE_NONE:
 		return "none";
-	else if (type == OSM_ROUTING_ENGINE_TYPE_MINHOP)
+	case OSM_ROUTING_ENGINE_TYPE_MINHOP:
 		return "minhop";
-	else if (type == OSM_ROUTING_ENGINE_TYPE_UPDN)
+	case OSM_ROUTING_ENGINE_TYPE_UPDN:
 		return "updn";
-	else if (type == OSM_ROUTING_ENGINE_TYPE_FILE)
+	case OSM_ROUTING_ENGINE_TYPE_FILE:
 		return "file";
-	else if (type == OSM_ROUTING_ENGINE_TYPE_FTREE)
+	case OSM_ROUTING_ENGINE_TYPE_FTREE:
 		return "ftree";
-	else if (type == OSM_ROUTING_ENGINE_TYPE_LASH)
+	case OSM_ROUTING_ENGINE_TYPE_LASH:
 		return "lash";
-	else if (type == OSM_ROUTING_ENGINE_TYPE_DOR)
+	case OSM_ROUTING_ENGINE_TYPE_DOR:
 		return "dor";
-	else
-		return "unknown";
+	default:
+		break;
+	}
+	return "unknown";
 }
 
 /**********************************************************************
