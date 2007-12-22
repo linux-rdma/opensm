@@ -570,6 +570,7 @@ static int __osm_updn_call(void *ctx)
 	updn_t *p_updn = ctx;
 	cl_map_item_t *p_item;
 	osm_switch_t *p_sw;
+	int ret = 0;
 
 	OSM_LOG_ENTER(&p_updn->p_osm->log, __osm_updn_call);
 
@@ -600,16 +601,18 @@ static int __osm_updn_call(void *ctx)
 	if (p_updn->updn_ucast_reg_inputs.num_guids > 0) {
 		osm_log(&(p_updn->p_osm->log), OSM_LOG_DEBUG,
 			"__osm_updn_call: " "activating UPDN algorithm\n");
-		__osm_subn_calc_up_down_min_hop_table(p_updn->
+		ret = __osm_subn_calc_up_down_min_hop_table(p_updn->
 						      updn_ucast_reg_inputs.
 						      num_guids,
 						      p_updn->
 						      updn_ucast_reg_inputs.
 						      guid_list, p_updn);
-	} else
+	} else {
 		osm_log(&p_updn->p_osm->log, OSM_LOG_INFO,
 			"__osm_updn_call: "
 			"disabling UPDN algorithm, no root nodes were found\n");
+		ret = 1;
+	}
 
 	p_item = cl_qmap_head(&p_updn->p_osm->subn.sw_guid_tbl);
 	while (p_item != cl_qmap_end(&p_updn->p_osm->subn.sw_guid_tbl)) {
@@ -619,7 +622,7 @@ static int __osm_updn_call(void *ctx)
 	}
 
 	OSM_LOG_EXIT(&p_updn->p_osm->log);
-	return 0;
+	return ret;
 }
 
 /**********************************************************************
