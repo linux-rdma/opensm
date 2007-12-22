@@ -499,20 +499,19 @@ static int __osm_subn_set_up_down_min_hop_table(IN updn_t * p_updn)
 /**********************************************************************
  **********************************************************************/
 static int
-__osm_subn_calc_up_down_min_hop_table(IN uint32_t num_guids,
-				      IN uint64_t * guid_list,
-				      IN updn_t * p_updn)
+updn_build_lid_matrices(IN uint32_t num_guids,
+			IN uint64_t * guid_list, IN updn_t * p_updn)
 {
 	int status;
 
 	OSM_LOG_ENTER(&p_updn->p_osm->log, osm_subn_calc_up_down_min_hop_table);
 
 	osm_log(&p_updn->p_osm->log, OSM_LOG_VERBOSE,
-		"__osm_subn_calc_up_down_min_hop_table: "
+		"updn_build_lid_matrices: "
 		"Ranking all port guids in the list\n");
 	if (num_guids == 0) {
 		osm_log(&p_updn->p_osm->log, OSM_LOG_ERROR,
-			"__osm_subn_calc_up_down_min_hop_table: ERR AA0A: "
+			"updn_build_lid_matrices: ERR AA0A: "
 			"No guids were provided or number of guids is 0\n");
 		status = -1;
 		goto _exit;
@@ -521,7 +520,7 @@ __osm_subn_calc_up_down_min_hop_table(IN uint32_t num_guids,
 	/* Check if it's not a switched subnet */
 	if (cl_is_qmap_empty(&p_updn->p_osm->subn.sw_guid_tbl)) {
 		osm_log(&p_updn->p_osm->log, OSM_LOG_ERROR,
-			"__osm_subn_calc_up_down_min_hop_table: ERR AAOB: "
+			"updn_build_lid_matrices: ERR AAOB: "
 			"This is not a switched subnet, cannot perform UPDN algorithm\n");
 		status = -1;
 		goto _exit;
@@ -532,7 +531,7 @@ __osm_subn_calc_up_down_min_hop_table(IN uint32_t num_guids,
 
 	/* After multiple ranking need to set Min Hop Table by UpDn algorithm  */
 	osm_log(&p_updn->p_osm->log, OSM_LOG_VERBOSE,
-		"__osm_subn_calc_up_down_min_hop_table: "
+		"updn_build_lid_matrices: "
 		"Setting all switches' Min Hop Table\n");
 	status = __osm_subn_set_up_down_min_hop_table(p_updn);
 
@@ -601,12 +600,10 @@ static int __osm_updn_call(void *ctx)
 	if (p_updn->updn_ucast_reg_inputs.num_guids > 0) {
 		osm_log(&(p_updn->p_osm->log), OSM_LOG_DEBUG,
 			"__osm_updn_call: " "activating UPDN algorithm\n");
-		ret = __osm_subn_calc_up_down_min_hop_table(p_updn->
-						      updn_ucast_reg_inputs.
-						      num_guids,
-						      p_updn->
-						      updn_ucast_reg_inputs.
-						      guid_list, p_updn);
+		ret = updn_build_lid_matrices(p_updn->updn_ucast_reg_inputs.
+					      num_guids,
+					      p_updn->updn_ucast_reg_inputs.
+					      guid_list, p_updn);
 	} else {
 		osm_log(&p_updn->p_osm->log, OSM_LOG_INFO,
 			"__osm_updn_call: "
