@@ -90,7 +90,6 @@ BEGIN_C_DECLS
 *	Steve King, Intel
 *
 *********/
-
 /****d* OpenSM: OpenSM/osm_routing_engine_type_t
 * NAME
 *       osm_routing_engine_type_t
@@ -471,8 +470,7 @@ osm_opensm_wait_for_subnet_up(IN osm_opensm_t * const p_osm,
 *
 * SYNOPSIS
 */
-const char *
-osm_routing_engine_type_str(IN osm_routing_engine_type_t type);
+const char *osm_routing_engine_type_str(IN osm_routing_engine_type_t type);
 /*
 * PARAMETERS
 *	type
@@ -495,8 +493,7 @@ osm_routing_engine_type_str(IN osm_routing_engine_type_t type);
 *
 * SYNOPSIS
 */
-osm_routing_engine_type_t
-osm_routing_engine_type(IN const char *str);
+osm_routing_engine_type_t osm_routing_engine_type(IN const char *str);
 /*
 * PARAMETERS
 *	str

@@ -82,14 +82,13 @@ const static struct routing_engine_module routing_modules[] = {
 	{"file", osm_ucast_file_setup},
 	{"ftree", osm_ucast_ftree_setup},
 	{"lash", osm_ucast_lash_setup},
-	{"dor", osm_ucast_null_setup },
+	{"dor", osm_ucast_null_setup},
 	{NULL, NULL}
 };
 
 /**********************************************************************
  **********************************************************************/
-const char *
-osm_routing_engine_type_str(IN osm_routing_engine_type_t type)
+const char *osm_routing_engine_type_str(IN osm_routing_engine_type_t type)
 {
 	if (type == OSM_ROUTING_ENGINE_TYPE_NONE)
 		return "none";
@@ -111,14 +110,12 @@ osm_routing_engine_type_str(IN osm_routing_engine_type_t type)
 
 /**********************************************************************
  **********************************************************************/
-osm_routing_engine_type_t
-osm_routing_engine_type(IN const char *str)
+osm_routing_engine_type_t osm_routing_engine_type(IN const char *str)
 {
 	/* For legacy reasons, consider a NULL pointer and the string
 	 * "null" as the minhop routing engine.
 	 */
-	if (!str
-	    || !strcasecmp(str, "null")
+	if (!str || !strcasecmp(str, "null")
 	    || !strcasecmp(str, "minhop"))
 		return OSM_ROUTING_ENGINE_TYPE_MINHOP;
 	else if (!strcasecmp(str, "none"))
@@ -368,7 +365,7 @@ osm_opensm_init(IN osm_opensm_t * const p_osm,
 
 	p_osm->node_name_map = open_node_name_map(p_opt->node_name_map_name);
 
-      Exit:
+Exit:
 	osm_log(&p_osm->log, OSM_LOG_FUNCS, "osm_opensm_init: ]\n");	/* Format Waived */
 	return (status);
 }
@@ -396,7 +393,7 @@ osm_opensm_bind(IN osm_opensm_t * const p_osm, IN const ib_net64_t guid)
 		goto Exit;
 #endif				/* ENABLE_OSM_PERF_MGR */
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_osm->log);
 	return (status);
 }

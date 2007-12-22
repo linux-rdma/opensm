@@ -361,7 +361,7 @@ __osm_ucast_mgr_process_port(IN osm_ucast_mgr_t * const p_mgr,
 			osm_switch_count_path(p_sw, port);
 	}
 
-      Exit:
+Exit:
 	if (remote_sys_guids)
 		free(remote_sys_guids);
 	if (remote_node_guids)
@@ -755,7 +755,7 @@ osm_ucast_mgr_read_guid_file(IN osm_ucast_mgr_t * const p_mgr,
 		cl_list_insert_tail(p_list, p_guid);
 	}
 
-      Exit:
+Exit:
 	if (guid_file)
 		fclose(guid_file);
 	OSM_LOG_EXIT(p_mgr->p_log);
@@ -794,38 +794,38 @@ osm_signal_t osm_ucast_mgr_process(IN osm_ucast_mgr_t * const p_mgr)
 	p_mgr->any_change = FALSE;
 
 	if (p_routing_eng->build_lid_matrices) {
-	    blm = p_routing_eng->build_lid_matrices(p_routing_eng->context);
-	    if (blm)
+		blm = p_routing_eng->build_lid_matrices(p_routing_eng->context);
+		if (blm)
+			osm_ucast_mgr_build_lid_matrices(p_mgr);
+	} else
 		osm_ucast_mgr_build_lid_matrices(p_mgr);
-	}
-	else
-	    osm_ucast_mgr_build_lid_matrices(p_mgr);
 
 	/*
 	   Now that the lid matrices have been built, we can
 	   build and download the switch forwarding tables.
 	 */
 	if (p_routing_eng->ucast_build_fwd_tables) {
-	    ubft = p_routing_eng->ucast_build_fwd_tables(p_routing_eng->context);
-	    if (ubft)
+		ubft =
+		    p_routing_eng->ucast_build_fwd_tables(p_routing_eng->
+							  context);
+		if (ubft)
+			cl_qmap_apply_func(p_sw_guid_tbl,
+					   __osm_ucast_mgr_process_tbl, p_mgr);
+	} else
 		cl_qmap_apply_func(p_sw_guid_tbl, __osm_ucast_mgr_process_tbl,
 				   p_mgr);
-	}
-	else
-	    cl_qmap_apply_func(p_sw_guid_tbl, __osm_ucast_mgr_process_tbl,
-			       p_mgr);
 
-	/* 'file' routing engine has one unique logic corner case*/
-	if (p_routing_eng->name
-	    && (strcmp(p_routing_eng->name, "file") == 0)
+	/* 'file' routing engine has one unique logic corner case */
+	if (p_routing_eng->name && (strcmp(p_routing_eng->name, "file") == 0)
 	    && (!blm || !ubft))
-	    p_osm->routing_engine_used = OSM_ROUTING_ENGINE_TYPE_FILE;
+		p_osm->routing_engine_used = OSM_ROUTING_ENGINE_TYPE_FILE;
 	else {
-	    if (!blm && !ubft)
-		p_osm->routing_engine_used =
-			osm_routing_engine_type(p_routing_eng->name);
-	    else
-		p_osm->routing_engine_used = OSM_ROUTING_ENGINE_TYPE_MINHOP;
+		if (!blm && !ubft)
+			p_osm->routing_engine_used =
+			    osm_routing_engine_type(p_routing_eng->name);
+		else
+			p_osm->routing_engine_used =
+			    OSM_ROUTING_ENGINE_TYPE_MINHOP;
 	}
 
 	osm_log(p_mgr->p_log, OSM_LOG_INFO,
@@ -845,7 +845,7 @@ osm_signal_t osm_ucast_mgr_process(IN osm_ucast_mgr_t * const p_mgr)
 			"No need to set any LFT Tables on any switches\n");
 	}
 
-      Exit:
+Exit:
 	CL_PLOCK_RELEASE(p_mgr->p_lock);
 	OSM_LOG_EXIT(p_mgr->p_log);
 	return (signal);
