@@ -212,7 +212,8 @@ pkey_mgr_enforce_partition(IN osm_log_t * p_log,
 
 	p_pi = &p_physp->port_info;
 
-	if ((p_pi->vl_enforce & 0xc) == (0xc) * (enforce == TRUE)) {
+	if (((p_pi->vl_enforce & 0xc) == 0x4 && enforce) ||
+	    ((p_pi->vl_enforce & 0xc) == 0 && !enforce)) {
 		osm_log(p_log, OSM_LOG_DEBUG,
 			"pkey_mgr_enforce_partition: "
 			"No need to update PortInfo for "
@@ -227,10 +228,13 @@ pkey_mgr_enforce_partition(IN osm_log_t * p_log,
 	memcpy(payload, p_pi, sizeof(ib_port_info_t));
 
 	p_pi = (ib_port_info_t *) payload;
+
+	/* clearing enforcement in both directions */
+	p_pi->vl_enforce &= ~0xc;
 	if (enforce == TRUE)
-		p_pi->vl_enforce |= 0xc;
-	else
-		p_pi->vl_enforce &= ~0xc;
+		/* enforcing only in outbound direction */
+		p_pi->vl_enforce |= 0x4;
+
 	p_pi->state_info2 = 0;
 	ib_port_info_set_port_state(p_pi, IB_LINK_NO_CHANGE);
 
