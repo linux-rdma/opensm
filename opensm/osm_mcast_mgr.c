@@ -815,7 +815,7 @@ static osm_mtree_node_t *__osm_mcast_mgr_branch(osm_mcast_mgr_t * const p_mgr,
 	}
 
 	free(list_array);
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_mgr->p_log);
 	return (p_mtn);
 }
@@ -932,7 +932,7 @@ __osm_mcast_mgr_build_spanning_tree(osm_mcast_mgr_t * const p_mgr,
 		"Configured MLID 0x%X for %u ports, max tree depth = %u\n",
 		cl_ntoh16(osm_mgrp_get_mlid(p_mgrp)), count, max_depth);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_mgr->p_log);
 	return (status);
 }
@@ -1171,7 +1171,7 @@ osm_mcast_mgr_process_single(IN osm_mcast_mgr_t * const p_mgr,
 		}
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_mgr->p_log);
 	return (status);
 }
@@ -1254,63 +1254,55 @@ osm_mcast_mgr_process_tree(IN osm_mcast_mgr_t * const p_mgr,
 							   port_guid);
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_mgr->p_log);
 	return (status);
 }
 
 /**********************************************************************
  Process the entire group.
-
  NOTE : The lock should be held externally!
  **********************************************************************/
-static osm_signal_t
-osm_mcast_mgr_process_mgrp(IN osm_mcast_mgr_t * const p_mgr,
-			   IN osm_mgrp_t * const p_mgrp,
-			   IN osm_mcast_req_type_t req_type,
-			   IN ib_net64_t port_guid)
+static ib_api_status_t
+mcast_mgr_process_mgrp(IN osm_mcast_mgr_t * const p_mgr,
+		       IN osm_mgrp_t * const p_mgrp,
+		       IN osm_mcast_req_type_t req_type,
+		       IN ib_net64_t port_guid)
 {
-	osm_signal_t signal = OSM_SIGNAL_DONE;
 	ib_api_status_t status;
-	osm_switch_t *p_sw;
-	cl_qmap_t *p_sw_tbl;
-	boolean_t pending_transactions = FALSE;
 
 	OSM_LOG_ENTER(p_mgr->p_log, osm_mcast_mgr_process_mgrp);
-
-	p_sw_tbl = &p_mgr->p_subn->sw_guid_tbl;
 
 	status = osm_mcast_mgr_process_tree(p_mgr, p_mgrp, req_type, port_guid);
 	if (status != IB_SUCCESS) {
 		osm_log(p_mgr->p_log, OSM_LOG_ERROR,
-			"osm_mcast_mgr_process_mgrp: ERR 0A19: "
+			"mcast_mgr_process_mgrp: ERR 0A19: "
 			"Unable to create spanning tree (%s)\n",
 			ib_get_err_str(status));
-
 		goto Exit;
 	}
+	p_mgrp->last_tree_id = p_mgrp->last_change_id;
 
-	/*
-	   Walk the switches and download the tables for each.
+	/* Remove MGRP only if osm_mcm_port_t count is 0 and
+	 * Not a well known group
 	 */
-	p_sw = (osm_switch_t *) cl_qmap_head(p_sw_tbl);
-	while (p_sw != (osm_switch_t *) cl_qmap_end(p_sw_tbl)) {
-		signal = __osm_mcast_mgr_set_tbl(p_mgr, p_sw);
-		if (signal == OSM_SIGNAL_DONE_PENDING)
-			pending_transactions = TRUE;
-
-		p_sw = (osm_switch_t *) cl_qmap_next(&p_sw->map_item);
+	if (cl_qmap_count(&p_mgrp->mcm_port_tbl) == 0 && !p_mgrp->well_known) {
+		osm_log(p_mgr->p_log, OSM_LOG_DEBUG,
+			"mcast_mgr_process_mgrp: "
+			"Destroying mgrp with lid:0x%X\n",
+			cl_ntoh16(p_mgrp->mlid));
+		/* Send a Report to any InformInfo registered for
+		   Trap 67 : MCGroup delete */
+		osm_mgrp_send_delete_notice(p_mgr->p_subn, p_mgr->p_log,
+					    p_mgrp);
+		cl_qmap_remove_item(&p_mgr->p_subn->mgrp_mlid_tbl,
+				    (cl_map_item_t *) p_mgrp);
+		osm_mgrp_delete(p_mgrp);
 	}
 
-	osm_dump_mcast_routes(p_mgr->p_subn->p_osm);
-
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_mgr->p_log);
-
-	if (pending_transactions == TRUE)
-		return (OSM_SIGNAL_DONE_PENDING);
-	else
-		return (OSM_SIGNAL_DONE);
+	return status;
 }
 
 /**********************************************************************
@@ -1321,14 +1313,13 @@ osm_signal_t osm_mcast_mgr_process(IN osm_mcast_mgr_t * const p_mgr)
 	osm_switch_t *p_sw;
 	cl_qmap_t *p_sw_tbl;
 	cl_qmap_t *p_mcast_tbl;
+	cl_qlist_t *p_list = &p_mgr->p_subn->p_osm->sm.mgrp_list;
 	osm_mgrp_t *p_mgrp;
-	ib_api_status_t status;
 	boolean_t pending_transactions = FALSE;
 
 	OSM_LOG_ENTER(p_mgr->p_log, osm_mcast_mgr_process);
 
 	p_sw_tbl = &p_mgr->p_subn->sw_guid_tbl;
-
 	p_mcast_tbl = &p_mgr->p_subn->mgrp_mlid_tbl;
 	/*
 	   While holding the lock, iterate over all the established
@@ -1343,16 +1334,8 @@ osm_signal_t osm_mcast_mgr_process(IN osm_mcast_mgr_t * const p_mgr)
 		/* We reached here due to some change that caused a heavy sweep
 		   of the subnet. Not due to a specific multicast request.
 		   So the request type is subnet_change and the port guid is 0. */
-		status = osm_mcast_mgr_process_tree(p_mgr, p_mgrp,
-						    OSM_MCAST_REQ_TYPE_SUBNET_CHANGE,
-						    0);
-		if (status != IB_SUCCESS) {
-			osm_log(p_mgr->p_log, OSM_LOG_ERROR,
-				"osm_mcast_mgr_process: ERR 0A20: "
-				"Unable to create spanning tree (%s)\n",
-				ib_get_err_str(status));
-		}
-
+		mcast_mgr_process_mgrp(p_mgr, p_mgrp,
+				       OSM_MCAST_REQ_TYPE_SUBNET_CHANGE, 0);
 		p_mgrp = (osm_mgrp_t *) cl_qmap_next(&p_mgrp->map_item);
 	}
 
@@ -1364,8 +1347,12 @@ osm_signal_t osm_mcast_mgr_process(IN osm_mcast_mgr_t * const p_mgr)
 		signal = __osm_mcast_mgr_set_tbl(p_mgr, p_sw);
 		if (signal == OSM_SIGNAL_DONE_PENDING)
 			pending_transactions = TRUE;
-
 		p_sw = (osm_switch_t *) cl_qmap_next(&p_sw->map_item);
+	}
+
+	while (!cl_is_qlist_empty(p_list)) {
+		cl_list_item_t *p = cl_qlist_remove_head(p_list);
+		free(p);
 	}
 
 	CL_PLOCK_RELEASE(p_mgr->p_lock);
@@ -1395,78 +1382,78 @@ osm_mgrp_t *__get_mgrp_by_mlid(IN osm_mcast_mgr_t * const p_mgr,
 
 /**********************************************************************
   This is the function that is invoked during idle time to handle the
-  process request. Context1 is simply the osm_mcast_mgr_t*, Context2
-  hold the mlid, port guid and action (join/leave/delete) required.
+  process request for mcast groups where join/leave/delete was required.
  **********************************************************************/
-osm_signal_t
-osm_mcast_mgr_process_mgrp_cb(IN void *const Context1, IN void *const Context2)
+osm_signal_t osm_mcast_mgr_process_mgroups(osm_mcast_mgr_t * p_mgr)
 {
-	osm_mcast_mgr_t *p_mgr = (osm_mcast_mgr_t *) Context1;
+	cl_qlist_t *p_list = &p_mgr->p_subn->p_osm->sm.mgrp_list;
+	osm_switch_t *p_sw;
+	cl_qmap_t *p_sw_tbl;
 	osm_mgrp_t *p_mgrp;
 	ib_net16_t mlid;
-	osm_signal_t signal = OSM_SIGNAL_DONE;
-	osm_mcast_mgr_ctxt_t *p_ctxt = (osm_mcast_mgr_ctxt_t *) Context2;
-	osm_mcast_req_type_t req_type = p_ctxt->req_type;
-	ib_net64_t port_guid = p_ctxt->port_guid;
+	osm_signal_t ret, signal = OSM_SIGNAL_DONE;
+	osm_mcast_mgr_ctxt_t *ctx;
+	osm_mcast_req_type_t req_type;
+	ib_net64_t port_guid;
 
-	OSM_LOG_ENTER(p_mgr->p_log, osm_mcast_mgr_process_mgrp_cb);
-
-	/* nice copy no warning on size diff */
-	memcpy(&mlid, &p_ctxt->mlid, sizeof(mlid));
-
-	/* we can destroy the context now */
-	free(p_ctxt);
+	OSM_LOG_ENTER(p_mgr->p_log, osm_mcast_mgr_process_mgroups);
 
 	/* we need a lock to make sure the p_mgrp is not change other ways */
 	CL_PLOCK_EXCL_ACQUIRE(p_mgr->p_lock);
-	p_mgrp = __get_mgrp_by_mlid(p_mgr, mlid);
 
-	/* since we delayed the execution we prefer to pass the
-	   mlid as the mgrp identifier and then find it or abort */
+	if (cl_is_qlist_empty(p_list)) {
+		CL_PLOCK_RELEASE(p_mgr->p_lock);
+		return OSM_SIGNAL_NONE;
+	}
 
-	if (p_mgrp) {
+	while (!cl_is_qlist_empty(p_list)) {
+		ctx = (osm_mcast_mgr_ctxt_t *) cl_qlist_remove_head(p_list);
+		req_type = ctx->req_type;
+		port_guid = ctx->port_guid;
 
-		/* if there was no change from the last time we processed the group
-		   we can skip doing anything
+		/* nice copy no warning on size diff */
+		memcpy(&mlid, &ctx->mlid, sizeof(mlid));
+
+		/* we can destroy the context now */
+		free(ctx);
+
+		/* since we delayed the execution we prefer to pass the
+		   mlid as the mgrp identifier and then find it or abort */
+		p_mgrp = __get_mgrp_by_mlid(p_mgr, mlid);
+		if (!p_mgrp)
+			continue;
+
+		/* if there was no change from the last time
+		 * we processed the group we can skip doing anything
 		 */
 		if (p_mgrp->last_change_id == p_mgrp->last_tree_id) {
 			osm_log(p_mgr->p_log, OSM_LOG_DEBUG,
-				"osm_mcast_mgr_process_mgrp_cb: "
+				"osm_mcast_mgr_process_mgroups: "
 				"Skip processing mgrp with lid:0x%X change id:%u\n",
 				cl_ntoh16(mlid), p_mgrp->last_change_id);
-		} else {
-			osm_log(p_mgr->p_log, OSM_LOG_DEBUG,
-				"osm_mcast_mgr_process_mgrp_cb: "
-				"Processing mgrp with lid:0x%X change id:%u\n",
-				cl_ntoh16(mlid), p_mgrp->last_change_id);
-
-			signal =
-			    osm_mcast_mgr_process_mgrp(p_mgr, p_mgrp, req_type,
-						       port_guid);
-			p_mgrp->last_tree_id = p_mgrp->last_change_id;
+			continue;
 		}
 
-		/* Remove MGRP only if osm_mcm_port_t count is 0 and
-		 * Not a well known group
-		 */
-		if ((0x0 == cl_qmap_count(&p_mgrp->mcm_port_tbl)) &&
-		    (p_mgrp->well_known == FALSE)) {
-			osm_log(p_mgr->p_log, OSM_LOG_DEBUG,
-				"osm_mcast_mgr_process_mgrp_cb: "
-				"Destroying mgrp with lid:0x%X\n",
-				cl_ntoh16(mlid));
-
-			/* Send a Report to any InformInfo registered for
-			   Trap 67 : MCGroup delete */
-			osm_mgrp_send_delete_notice(p_mgr->p_subn, p_mgr->p_log,
-						    p_mgrp);
-
-			cl_qmap_remove_item(&p_mgr->p_subn->mgrp_mlid_tbl,
-					    (cl_map_item_t *) p_mgrp);
-
-			osm_mgrp_delete(p_mgrp);
-		}
+		osm_log(p_mgr->p_log, OSM_LOG_DEBUG,
+			"osm_mcast_mgr_process_mgroups: "
+			"Processing mgrp with lid:0x%X change id:%u\n",
+			cl_ntoh16(mlid), p_mgrp->last_change_id);
+		mcast_mgr_process_mgrp(p_mgr, p_mgrp, req_type, port_guid);
 	}
+
+	/*
+	   Walk the switches and download the tables for each.
+	 */
+	p_sw_tbl = &p_mgr->p_subn->sw_guid_tbl;
+	p_sw = (osm_switch_t *) cl_qmap_head(p_sw_tbl);
+	while (p_sw != (osm_switch_t *) cl_qmap_end(p_sw_tbl)) {
+		ret = __osm_mcast_mgr_set_tbl(p_mgr, p_sw);
+		if (ret == OSM_SIGNAL_DONE_PENDING)
+			signal = ret;
+		p_sw = (osm_switch_t *) cl_qmap_next(&p_sw->map_item);
+	}
+
+	osm_dump_mcast_routes(p_mgr->p_subn->p_osm);
 
 	CL_PLOCK_RELEASE(p_mgr->p_lock);
 	OSM_LOG_EXIT(p_mgr->p_log);

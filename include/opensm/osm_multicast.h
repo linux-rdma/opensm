@@ -50,6 +50,7 @@
 
 #include <iba/ib_types.h>
 #include <complib/cl_qmap.h>
+#include <complib/cl_qlist.h>
 #include <complib/cl_spinlock.h>
 #include <opensm/osm_base.h>
 #include <opensm/osm_mtree.h>
@@ -121,6 +122,7 @@ const char *osm_get_mcast_req_type_str(IN osm_mcast_req_type_t req_type);
 * SYNOPSIS
 */
 typedef struct osm_mcast_mgr_ctxt {
+	cl_list_item_t list_item;
 	ib_net16_t mlid;
 	osm_mcast_req_type_t req_type;
 	ib_net64_t port_guid;

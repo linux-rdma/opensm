@@ -100,7 +100,6 @@ typedef struct _osm_mcast_mgr {
 	osm_req_t *p_req;
 	osm_log_t *p_log;
 	cl_plock_t *p_lock;
-
 } osm_mcast_mgr_t;
 /*
 * FIELDS
@@ -253,24 +252,21 @@ osm_signal_t osm_mcast_mgr_process(IN osm_mcast_mgr_t * const p_mgr);
 *	Multicast Manager, Node Info Response Controller
 *********/
 
-/****f* OpenSM: Multicast Manager/osm_mcast_mgr_process_mgrp_cb
+/****f* OpenSM: Multicast Manager/osm_mcast_mgr_process_mgroups
 * NAME
-*	osm_mcast_mgr_process_mgrp_cb
+*	osm_mcast_mgr_process_mgroups
 *
 * DESCRIPTION
-*	Callback entry point for the osm_mcast_mgr_process_mgrp function.
+*	Process only requested mcast groups.
 *
 * SYNOPSIS
 */
 osm_signal_t
-osm_mcast_mgr_process_mgrp_cb(IN void *const Context1, IN void *const Context2);
+osm_mcast_mgr_process_mgroups(IN osm_mcast_mgr_t *p_mgr);
 /*
 * PARAMETERS
-*	(Context1) p_mgr
+*	p_mgr
 *		[in] Pointer to an osm_mcast_mgr_t object.
-*
-*	(Context2) p_mgrp
-*		[in] Pointer to the multicast group to process.
 *
 * RETURN VALUES
 *	IB_SUCCESS

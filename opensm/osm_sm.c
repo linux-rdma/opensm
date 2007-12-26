@@ -144,6 +144,7 @@ void osm_sm_construct(IN osm_sm_t * const p_sm)
 	cl_event_construct(&p_sm->signal_event);
 	cl_event_construct(&p_sm->subnet_up_event);
 	cl_thread_construct(&p_sm->sweeper);
+	cl_spinlock_construct(&p_sm->mgrp_lock);
 	osm_req_construct(&p_sm->req);
 	osm_resp_construct(&p_sm->resp);
 	osm_ni_rcv_construct(&p_sm->ni_rcv);
@@ -245,6 +246,7 @@ void osm_sm_destroy(IN osm_sm_t * const p_sm)
 	cl_event_destroy(&p_sm->signal_event);
 	cl_event_destroy(&p_sm->subnet_up_event);
 	cl_spinlock_destroy(&p_sm->signal_lock);
+	cl_spinlock_destroy(&p_sm->mgrp_lock);
 
 	osm_log(p_sm->p_log, OSM_LOG_SYS, "Exiting SM\n");	/* Format Waived */
 	OSM_LOG_EXIT(p_sm->p_log);
@@ -289,6 +291,12 @@ osm_sm_init(IN osm_sm_t * const p_sm,
 		goto Exit;
 
 	status = cl_timer_init(&p_sm->sweep_timer, sm_sweep, p_sm);
+	if (status != CL_SUCCESS)
+		goto Exit;
+
+	cl_qlist_init(&p_sm->mgrp_list);
+
+	status = cl_spinlock_init(&p_sm->mgrp_lock);
 	if (status != CL_SUCCESS)
 		goto Exit;
 
@@ -551,32 +559,43 @@ osm_sm_bind(IN osm_sm_t * const p_sm, IN const ib_net64_t port_guid)
 /**********************************************************************
  **********************************************************************/
 static ib_api_status_t
-__osm_sm_mgrp_connect(IN osm_sm_t * const p_sm,
+__osm_sm_mgrp_process(IN osm_sm_t * const p_sm,
 		      IN osm_mgrp_t * const p_mgrp,
 		      IN const ib_net64_t port_guid,
 		      IN osm_mcast_req_type_t req_type)
 {
-	ib_api_status_t status;
 	osm_mcast_mgr_ctxt_t *ctx2;
-
-	OSM_LOG_ENTER(p_sm->p_log, __osm_sm_mgrp_connect);
 
 	/*
 	 * 'Schedule' all the QP0 traffic for when the state manager
 	 * isn't busy trying to do something else.
 	 */
 	ctx2 = (osm_mcast_mgr_ctxt_t *) malloc(sizeof(osm_mcast_mgr_ctxt_t));
+	if (!ctx2)
+		return IB_ERROR;
+	memset(ctx2, 0, sizeof(*ctx2));
 	memcpy(&ctx2->mlid, &p_mgrp->mlid, sizeof(p_mgrp->mlid));
 	ctx2->req_type = req_type;
 	ctx2->port_guid = port_guid;
 
-	status = osm_state_mgr_process_idle(&p_sm->state_mgr,
-					    osm_mcast_mgr_process_mgrp_cb,
-					    NULL, &p_sm->mcast_mgr,
-					    (void *)ctx2);
+	cl_spinlock_acquire(&p_sm->mgrp_lock);
+	cl_qlist_insert_tail(&p_sm->mgrp_list, &ctx2->list_item);
+	cl_spinlock_release(&p_sm->mgrp_lock);
 
-	OSM_LOG_EXIT(p_sm->p_log);
-	return (status);
+	osm_sm_signal(p_sm, OSM_SIGNAL_IDLE_TIME_PROCESS_REQUEST);
+
+	return IB_SUCCESS;
+}
+
+/**********************************************************************
+ **********************************************************************/
+static ib_api_status_t
+__osm_sm_mgrp_connect(IN osm_sm_t * const p_sm,
+		      IN osm_mgrp_t * const p_mgrp,
+		      IN const ib_net64_t port_guid,
+		      IN osm_mcast_req_type_t req_type)
+{
+	return __osm_sm_mgrp_process(p_sm, p_mgrp, port_guid, req_type);
 }
 
 /**********************************************************************
@@ -586,31 +605,7 @@ __osm_sm_mgrp_disconnect(IN osm_sm_t * const p_sm,
 			 IN osm_mgrp_t * const p_mgrp,
 			 IN const ib_net64_t port_guid)
 {
-	ib_api_status_t status;
-	osm_mcast_mgr_ctxt_t *ctx2;
-
-	OSM_LOG_ENTER(p_sm->p_log, __osm_sm_mgrp_disconnect);
-
-	/*
-	 * 'Schedule' all the QP0 traffic for when the state manager
-	 * isn't busy trying to do something else.
-	 */
-	ctx2 = (osm_mcast_mgr_ctxt_t *) malloc(sizeof(osm_mcast_mgr_ctxt_t));
-	memcpy(&ctx2->mlid, &p_mgrp->mlid, sizeof(p_mgrp->mlid));
-	ctx2->req_type = OSM_MCAST_REQ_TYPE_LEAVE;
-	ctx2->port_guid = port_guid;
-
-	status = osm_state_mgr_process_idle(&p_sm->state_mgr,
-					    osm_mcast_mgr_process_mgrp_cb,
-					    NULL, &p_sm->mcast_mgr, ctx2);
-	if (status != IB_SUCCESS) {
-		osm_log(p_sm->p_log, OSM_LOG_ERROR,
-			"__osm_sm_mgrp_disconnect: ERR 2E11: "
-			"Failure processing multicast group (%s)\n",
-			ib_get_err_str(status));
-	}
-
-	OSM_LOG_EXIT(p_sm->p_log);
+	__osm_sm_mgrp_process(p_sm, p_mgrp, port_guid, OSM_MCAST_REQ_TYPE_LEAVE);
 }
 
 /**********************************************************************
@@ -719,8 +714,8 @@ osm_sm_mcgrp_join(IN osm_sm_t * const p_sm,
 		goto Exit;
 	}
 
-	CL_PLOCK_RELEASE(p_sm->p_lock);
 	status = __osm_sm_mgrp_connect(p_sm, p_mgrp, port_guid, req_type);
+	CL_PLOCK_RELEASE(p_sm->p_lock);
 
       Exit:
 	OSM_LOG_EXIT(p_sm->p_log);
@@ -782,9 +777,8 @@ osm_sm_mcgrp_leave(IN osm_sm_t * const p_sm,
 
 	osm_port_remove_mgrp(p_port, mlid);
 
-	CL_PLOCK_RELEASE(p_sm->p_lock);
-
 	__osm_sm_mgrp_disconnect(p_sm, p_mgrp, port_guid);
+	CL_PLOCK_RELEASE(p_sm->p_lock);
 
       Exit:
 	OSM_LOG_EXIT(p_sm->p_log);

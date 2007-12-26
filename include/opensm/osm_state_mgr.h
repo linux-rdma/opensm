@@ -109,8 +109,6 @@ typedef struct _osm_state_mgr {
 	osm_stats_t *p_stats;
 	struct _osm_sm_state_mgr *p_sm_state_mgr;
 	const osm_sm_mad_ctrl_t *p_mad_ctrl;
-	cl_spinlock_t idle_lock;
-	cl_qlist_t idle_time_list;
 	cl_plock_t *p_lock;
 	cl_event_t *p_subnet_up_event;
 	osm_sm_state_t state;
@@ -170,99 +168,6 @@ typedef struct _osm_state_mgr {
 *
 * SEE ALSO
 *	State Manager object
-*********/
-
-/****s* OpenSM: State Manager/_osm_idle_item
-* NAME
-*	_osm_idle_item
-*
-* DESCRIPTION
-*	Idle item.
-*
-* SYNOPSIS
-*/
-
-typedef osm_signal_t(*osm_pfn_start_t) (IN void *context1, IN void *context2);
-
-typedef void
- (*osm_pfn_done_t) (IN void *context1, IN void *context2);
-
-typedef struct _osm_idle_item {
-	cl_list_item_t list_item;
-	void *context1;
-	void *context2;
-	osm_pfn_start_t pfn_start;
-	osm_pfn_done_t pfn_done;
-} osm_idle_item_t;
-
-/*
-* FIELDS
-*	list_item
-*		list item.
-*
-*	context1
-*		Context pointer
-*
-*	context2
-*		Context pointer
-*
-*	pfn_start
-*		Pointer to the start function.
-*
-*	pfn_done
-*		Pointer to the dine function.
-* SEE ALSO
-*	State Manager object
-*********/
-
-/****f* OpenSM: State Manager/osm_state_mgr_process_idle
-* NAME
-*	osm_state_mgr_process_idle
-*
-* DESCRIPTION
-*	Formulates the osm_idle_item and inserts it into the queue and
-*	signals the state manager.
-*
-* SYNOPSIS
-*/
-
-ib_api_status_t
-osm_state_mgr_process_idle(IN osm_state_mgr_t * const p_mgr,
-			   IN osm_pfn_start_t pfn_start,
-			   IN osm_pfn_done_t pfn_done,
-			   void *context1, void *context2);
-
-/*
-* PARAMETERS
-*	p_mgr
-*		[in] Pointer to a State Manager object to construct.
-*
-*	pfn_start
-*		[in] Pointer the start function which will be called at
-*			idle time.
-*
-*	pfn_done
-*		[in] pointer the done function which will be called
-*			when outstanding smps is zero
-*
-*	context1
-*		[in] Pointer to void
-*
-*	context2
-*		[in] Pointer to void
-*
-* RETURN VALUE
-*	IB_SUCCESS or IB_ERROR
-*
-* NOTES
-*	Allows osm_state_mgr_destroy
-*
-*	Calling osm_state_mgr_construct is a prerequisite to calling any other
-*	method except osm_state_mgr_init.
-*
-* SEE ALSO
-*	State Manager object, osm_state_mgr_init,
-*	osm_state_mgr_destroy
 *********/
 
 /****f* OpenSM: State Manager/osm_state_mgr_construct

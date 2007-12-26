@@ -140,6 +140,8 @@ typedef struct osm_sm {
 	cl_dispatcher_t *p_disp;
 	cl_plock_t *p_lock;
 	atomic32_t sm_trans_id;
+	cl_spinlock_t mgrp_lock;
+	cl_qlist_t mgrp_list;
 	osm_req_t req;
 	osm_resp_t resp;
 	osm_ni_rcv_t ni_rcv;

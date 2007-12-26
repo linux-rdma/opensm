@@ -76,7 +76,6 @@ osm_signal_t osm_qos_setup(IN osm_opensm_t * p_osm);
 void osm_state_mgr_construct(IN osm_state_mgr_t * const p_mgr)
 {
 	memset(p_mgr, 0, sizeof(*p_mgr));
-	cl_spinlock_construct(&p_mgr->idle_lock);
 	p_mgr->state = OSM_SM_STATE_INIT;
 }
 
@@ -87,9 +86,6 @@ void osm_state_mgr_destroy(IN osm_state_mgr_t * const p_mgr)
 	CL_ASSERT(p_mgr);
 
 	OSM_LOG_ENTER(p_mgr->p_log, osm_state_mgr_destroy);
-
-	/* destroy the locks */
-	cl_spinlock_destroy(&p_mgr->idle_lock);
 
 	OSM_LOG_EXIT(p_mgr->p_log);
 }
@@ -112,8 +108,6 @@ osm_state_mgr_init(IN osm_state_mgr_t * const p_mgr,
 		   IN cl_event_t * const p_subnet_up_event,
 		   IN osm_log_t * const p_log)
 {
-	cl_status_t status;
-
 	OSM_LOG_ENTER(p_log, osm_state_mgr_init);
 
 	CL_ASSERT(p_subn);
@@ -145,17 +139,8 @@ osm_state_mgr_init(IN osm_state_mgr_t * const p_mgr,
 	p_mgr->p_lock = p_lock;
 	p_mgr->p_subnet_up_event = p_subnet_up_event;
 
-	cl_qlist_init(&p_mgr->idle_time_list);
-
-	status = cl_spinlock_init(&p_mgr->idle_lock);
-	if (status != CL_SUCCESS) {
-		osm_log(p_mgr->p_log, OSM_LOG_ERROR,
-			"osm_state_mgr_init: ERR 3302: "
-			"Spinlock init failed (%s)\n", CL_STATUS_MSG(status));
-	}
-
 	OSM_LOG_EXIT(p_mgr->p_log);
-	return (status);
+	return IB_SUCCESS;
 }
 
 /**********************************************************************
@@ -989,79 +974,6 @@ static ib_api_status_t __osm_state_mgr_light_sweep_start(IN osm_state_mgr_t *
 }
 
 /**********************************************************************
- **********************************************************************/
-static void __process_idle_time_queue_done(IN osm_state_mgr_t * const p_mgr)
-{
-	cl_qlist_t *p_list = &p_mgr->idle_time_list;
-	cl_list_item_t *p_list_item;
-	osm_idle_item_t *p_process_item;
-
-	OSM_LOG_ENTER(p_mgr->p_log, __process_idle_time_queue_done);
-
-	cl_spinlock_acquire(&p_mgr->idle_lock);
-	p_list_item = cl_qlist_remove_head(p_list);
-
-	if (p_list_item == cl_qlist_end(p_list)) {
-		cl_spinlock_release(&p_mgr->idle_lock);
-		osm_log(p_mgr->p_log, OSM_LOG_ERROR,
-			"__process_idle_time_queue_done: ERR 3314: "
-			"Idle time queue is empty\n");
-		return;
-	}
-	cl_spinlock_release(&p_mgr->idle_lock);
-
-	p_process_item = (osm_idle_item_t *) p_list_item;
-
-	if (p_process_item->pfn_done) {
-
-		p_process_item->pfn_done(p_process_item->context1,
-					 p_process_item->context2);
-	}
-
-	free(p_process_item);
-
-	OSM_LOG_EXIT(p_mgr->p_log);
-	return;
-}
-
-/**********************************************************************
- **********************************************************************/
-static osm_signal_t __process_idle_time_queue_start(IN osm_state_mgr_t *
-						    const p_mgr)
-{
-	cl_qlist_t *p_list = &p_mgr->idle_time_list;
-	cl_list_item_t *p_list_item;
-	osm_idle_item_t *p_process_item;
-	osm_signal_t signal;
-
-	OSM_LOG_ENTER(p_mgr->p_log, __process_idle_time_queue_start);
-
-	cl_spinlock_acquire(&p_mgr->idle_lock);
-
-	p_list_item = cl_qlist_head(p_list);
-	if (p_list_item == cl_qlist_end(p_list)) {
-		cl_spinlock_release(&p_mgr->idle_lock);
-		OSM_LOG_EXIT(p_mgr->p_log);
-		return OSM_SIGNAL_NONE;
-	}
-
-	cl_spinlock_release(&p_mgr->idle_lock);
-
-	p_process_item = (osm_idle_item_t *) p_list_item;
-
-	CL_ASSERT(p_process_item->pfn_start);
-
-	signal =
-	    p_process_item->pfn_start(p_process_item->context1,
-				      p_process_item->context2);
-
-	CL_ASSERT(signal != OSM_SIGNAL_NONE);
-
-	OSM_LOG_EXIT(p_mgr->p_log);
-	return signal;
-}
-
-/**********************************************************************
  * Go over all the remote SMs (as updated in the sm_guid_tbl).
  * Find if there is a remote sm that is a master SM.
  * If there is a remote master SM - return a pointer to it,
@@ -1558,7 +1470,7 @@ void osm_state_mgr_process(IN osm_state_mgr_t * const p_mgr,
 		case OSM_SM_STATE_PROCESS_REQUEST:
 			switch (signal) {
 			case OSM_SIGNAL_IDLE_TIME_PROCESS:
-				signal = __process_idle_time_queue_start(p_mgr);
+				signal = osm_mcast_mgr_process_mgroups(p_mgr->p_mcast_mgr);
 				switch (signal) {
 				case OSM_SIGNAL_NONE:
 					p_mgr->state = OSM_SM_STATE_IDLE;
@@ -1604,14 +1516,6 @@ void osm_state_mgr_process(IN osm_state_mgr_t * const p_mgr,
 			switch (signal) {
 			case OSM_SIGNAL_NO_PENDING_TRANSACTIONS:
 			case OSM_SIGNAL_DONE:
-				/* CALL the done function */
-				__process_idle_time_queue_done(p_mgr);
-
-				/*
-				 * Set the signal to OSM_SIGNAL_IDLE_TIME_PROCESS
-				 * so that the next element in the queue gets processed
-				 */
-
 				signal = OSM_SIGNAL_IDLE_TIME_PROCESS;
 				p_mgr->state = OSM_SM_STATE_PROCESS_REQUEST;
 				break;
@@ -2423,42 +2327,4 @@ void osm_state_mgr_process(IN osm_state_mgr_t * const p_mgr,
 	}
 
 	OSM_LOG_EXIT(p_mgr->p_log);
-}
-
-/**********************************************************************
- **********************************************************************/
-ib_api_status_t
-osm_state_mgr_process_idle(IN osm_state_mgr_t * const p_mgr,
-			   IN osm_pfn_start_t pfn_start,
-			   IN osm_pfn_done_t pfn_done, void *context1,
-			   void *context2)
-{
-	osm_idle_item_t *p_idle_item;
-
-	OSM_LOG_ENTER(p_mgr->p_log, osm_state_mgr_process_idle);
-
-	p_idle_item = malloc(sizeof(osm_idle_item_t));
-	if (p_idle_item == NULL) {
-		osm_log(p_mgr->p_log, OSM_LOG_ERROR,
-			"osm_state_mgr_process_idle: ERR 3321: "
-			"insufficient memory\n");
-		return IB_ERROR;
-	}
-
-	memset(p_idle_item, 0, sizeof(osm_idle_item_t));
-	p_idle_item->pfn_start = pfn_start;
-	p_idle_item->pfn_done = pfn_done;
-	p_idle_item->context1 = context1;
-	p_idle_item->context2 = context2;
-
-	cl_spinlock_acquire(&p_mgr->idle_lock);
-	cl_qlist_insert_tail(&p_mgr->idle_time_list, &p_idle_item->list_item);
-	cl_spinlock_release(&p_mgr->idle_lock);
-
-	osm_sm_signal(&p_mgr->p_subn->p_osm->sm,
-		      OSM_SIGNAL_IDLE_TIME_PROCESS_REQUEST);
-
-	OSM_LOG_EXIT(p_mgr->p_log);
-
-	return IB_SUCCESS;
 }
