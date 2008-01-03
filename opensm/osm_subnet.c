@@ -1582,9 +1582,9 @@ ib_api_status_t osm_subn_write_conf_file(IN osm_subn_opt_t * const p_opts)
 
 	fprintf(opts_file,
 		"#\n# TIMING AND THREADING OPTIONS\n#\n"
-		"# Number of MADs sent in parallel\n"
+		"# Maximum number of SMPs sent in parallel\n"
 		"max_wire_smps %u\n\n"
-		"# The time taken to a transaction to finish in [msec]\n"
+		"# The maximum time in [msec] allowed for a transaction to complete\n"
 		"transaction_timeout %u\n\n"
 		"# Maximal time in [msec] a message can stay in the incoming message queue.\n"
 		"# If there is more than one message in the queue and the last message\n"

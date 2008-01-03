@@ -306,6 +306,13 @@ typedef struct _osm_subn_opt {
 *		The number of seconds between subnet sweeps.  A value of 0
 *		disables sweeping.
 *
+*	max_wire_smps
+*		The maximum number of SMPs sent in parallel.  Default is 4.
+*
+*	transaction_timeout
+*		The maximum time in milliseconds allowed for a transaction
+*		to complete.  Default is 200.
+*
 *	sm_priority
 *		The priority of this SM as specified by the user.  This
 *		value is made available in the SMInfo attribute.
