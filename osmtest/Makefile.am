@@ -31,7 +31,6 @@ osmtest$(EXEEXT): $(osmtest_OBJECTS) $(osmtest_DEPENDENCIES)
 endif
 
 EXTRA_DIST = $(srcdir)/include/osmt_inform.h \
-   $(srcdir)/include/error.h \
    $(srcdir)/include/osmtest_subnet.h \
    $(srcdir)/include/osmtest.h \
    $(srcdir)/include/osmt_mtl_regular_qp.h \
