@@ -107,9 +107,9 @@ osm_version:
 	if [ -x $(top_srcdir)/../gen_ver.sh ] ; then \
 		ver_file=$(srcdir)/../include/opensm/osm_version.h ; \
 		osm_ver=`cat $$ver_file | sed -ne '/#define OSM_VERSION /s/^.*\"OpenSM \(.*\)\"$$/\1/p'` ; \
-		ver=`$(top_srcdir)/../gen_ver.sh $$PACKAGE` ; \
+		ver=`$(top_srcdir)/../gen_ver.sh $(PACKAGE)` ; \
 		if [ $$ver != $$osm_ver ] ; then \
-			cat $$ver_file | sed -e '/#define OSM_VERSION /s/\"OpenSM \(.*\)\"/\"OpenSM '$$ver'\"/' > tmp_new_version ; \
+			cat $$ver_file | sed -e '/#define OSM_VERSION /s/\"OpenSM .*\"/\"OpenSM '$$ver'\"/' > tmp_new_version ; \
 			cat tmp_new_version > $$ver_file && rm -f tmp_new_version ; \
 		fi ; \
 	fi
