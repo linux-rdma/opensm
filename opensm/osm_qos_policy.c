@@ -77,8 +77,7 @@ __build_nodebyname_hash(osm_qos_policy_t * p_qos_policy)
 	     p_node != (osm_node_t *) cl_qmap_end(p_node_guid_tbl);
 	     p_node = (osm_node_t *) cl_qmap_next(&p_node->map_item)) {
 		if (!st_lookup(p_qos_policy->p_node_hash,
-			      (st_data_t)p_node->print_desc,
-			      (st_data_t*)&p_node))
+			      (st_data_t)p_node->print_desc, NULL))
 			st_insert(p_qos_policy->p_node_hash,
 				  (st_data_t)p_node->print_desc,
 				  (st_data_t)p_node);
