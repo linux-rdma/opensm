@@ -571,6 +571,8 @@ osm_vendor_get_all_port_attr(IN osm_vendor_t * const p_vend,
 		 * For each CA, retrieve the port guids
 		 */
 		if (umad_get_ca(p_vend->ca_names[i], &ca) == 0) {
+			if (ca.node_type < 1 || ca.node_type > 3)
+				continue;
 			for (j = 0; j <= ca.numports; j++) {
 				if (!ca.ports[j])
 					continue;
