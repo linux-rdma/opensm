@@ -75,6 +75,8 @@ Static version of the opensm libraries
 %configure \
         %{?_enable_console_socket} \
         %{?_disable_console_socket} \
+        %{?_enable_perf_mgr} \
+        %{?_disable_perf_mgr} \
         %{?_enable_event_plugin} \
         %{?_disable_event_plugin}
 make %{?_smp_mflags}
