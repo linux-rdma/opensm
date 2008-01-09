@@ -1307,6 +1307,7 @@ osm_signal_t osm_mcast_mgr_process(IN osm_mcast_mgr_t * const p_mgr)
 	cl_qmap_t *p_mcast_tbl;
 	cl_qlist_t *p_list = &p_mgr->p_subn->p_osm->sm.mgrp_list;
 	osm_mgrp_t *p_mgrp;
+	osm_mgrp_t *p_next_mgrp;
 	boolean_t pending_transactions = FALSE;
 
 	OSM_LOG_ENTER(p_mgr->p_log, osm_mcast_mgr_process);
@@ -1326,9 +1327,10 @@ osm_signal_t osm_mcast_mgr_process(IN osm_mcast_mgr_t * const p_mgr)
 		/* We reached here due to some change that caused a heavy sweep
 		   of the subnet. Not due to a specific multicast request.
 		   So the request type is subnet_change and the port guid is 0. */
+		p_next_mgrp = (osm_mgrp_t *) cl_qmap_next(&p_mgrp->map_item);
 		mcast_mgr_process_mgrp(p_mgr, p_mgrp,
 				       OSM_MCAST_REQ_TYPE_SUBNET_CHANGE, 0);
-		p_mgrp = (osm_mgrp_t *) cl_qmap_next(&p_mgrp->map_item);
+		p_mgrp = p_next_mgrp;
 	}
 
 	/*
