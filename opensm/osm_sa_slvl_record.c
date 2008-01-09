@@ -229,7 +229,6 @@ void osm_slvl_rec_rcv_process(IN void *ctx, IN void *data)
 	const ib_slvl_table_record_t *p_rcvd_rec;
 	const cl_ptr_vector_t *p_tbl;
 	const osm_port_t *p_port = NULL;
-	const ib_slvl_table_t *p_slvl_tbl;
 	cl_qlist_t rec_list;
 	osm_madw_t *p_resp_madw;
 	ib_sa_mad_t *p_resp_sa_mad;
@@ -281,8 +280,6 @@ void osm_slvl_rec_rcv_process(IN void *ctx, IN void *data)
 			"Cannot find requester physical port\n");
 		goto Exit;
 	}
-
-	p_slvl_tbl = (ib_slvl_table_t *) ib_sa_mad_get_payload_ptr(p_rcvd_mad);
 
 	cl_qlist_init(&rec_list);
 
