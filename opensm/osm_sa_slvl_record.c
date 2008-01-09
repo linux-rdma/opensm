@@ -149,9 +149,9 @@ __osm_sa_slvl_by_comp_mask(IN osm_sa_t * sa,
 	comp_mask = p_ctxt->comp_mask;
 	num_ports = osm_node_get_num_physp(p_port->p_node);
 	in_port_start = 0;
-	in_port_end = num_ports;
+	in_port_end = num_ports - 1;
 	out_port_start = 0;
-	out_port_end = num_ports;
+	out_port_end = num_ports - 1;
 	p_req_physp = p_ctxt->p_req_physp;
 
 	if (p_port->p_node->node_info.node_type != IB_NODE_TYPE_SWITCH) {
