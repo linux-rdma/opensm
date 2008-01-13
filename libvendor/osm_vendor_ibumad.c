@@ -199,9 +199,10 @@ put_madw(osm_vendor_t * p_vend, osm_madw_t * p_madw, ib_net64_t * tid)
 }
 
 static void
-ib_mad_addr_conv(ib_mad_addr_t * ib_mad_addr, osm_mad_addr_t * osm_mad_addr,
+ib_mad_addr_conv(ib_user_mad_t * umad, osm_mad_addr_t * osm_mad_addr,
 		 int is_smi)
 {
+	ib_mad_addr_t *ib_mad_addr = umad_get_mad_addr(umad);
 	osm_mad_addr->dest_lid = ib_mad_addr->lid;
 	osm_mad_addr->path_bits = ib_mad_addr->path_bits;
 	osm_mad_addr->static_rate = 0;
@@ -214,7 +215,7 @@ ib_mad_addr_conv(ib_mad_addr_t * ib_mad_addr, osm_mad_addr_t * osm_mad_addr,
 
 	osm_mad_addr->addr_type.gsi.remote_qp = ib_mad_addr->qpn;
 	osm_mad_addr->addr_type.gsi.remote_qkey = ib_mad_addr->qkey;
-	osm_mad_addr->addr_type.gsi.pkey = IB_DEFAULT_PKEY;	/* FIXME: support real pkey */
+	osm_mad_addr->addr_type.gsi.pkey = umad_get_pkey(umad);
 	osm_mad_addr->addr_type.gsi.service_level = ib_mad_addr->sl;
 	osm_mad_addr->addr_type.gsi.global_route = 0;	/* FIXME: handle GRH */
 	memset(&osm_mad_addr->addr_type.gsi.grh_info, 0,
@@ -303,7 +304,7 @@ static void *umad_receiver(void *p_ptr)
 		mad = (ib_mad_t *) umad_get_mad(umad);
 		ib_mad_addr = umad_get_mad_addr(umad);
 
-		ib_mad_addr_conv(ib_mad_addr, &osm_addr,
+		ib_mad_addr_conv(umad, &osm_addr,
 				 mad->mgmt_class == IB_MCLASS_SUBN_LID ||
 				 mad->mgmt_class == IB_MCLASS_SUBN_DIR);
 
@@ -1046,8 +1047,7 @@ osm_vendor_send(IN osm_bind_handle_t h_bind,
 			  p_mad_addr->addr_type.gsi.service_level,
 			  IB_QP1_WELL_KNOWN_Q_KEY);
 	umad_set_grh(p_vw->umad, 0);	/* FIXME: GRH support */
-	umad_set_pkey(p_vw->umad, 0);
-	/* FIXME: p_mad_addr->addr_type.gsi.pkey to index */
+	umad_set_pkey(p_vw->umad, p_mad_addr->addr_type.gsi.pkey);
 	if (ib_class_is_rmpp(p_mad->mgmt_class)) {	/* RMPP GSI classes     FIXME: no GRH */
 		if (!ib_rmpp_is_flag_set((ib_rmpp_mad_t *) p_sa,
 					 IB_RMPP_FLAG_ACTIVE)) {
