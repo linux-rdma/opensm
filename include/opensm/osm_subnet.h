@@ -283,6 +283,7 @@ typedef struct _osm_subn_opt {
 	char *event_plugin_name;
 	char *node_name_map_name;
 	char *prefix_routes_file;
+	boolean_t consolodate_ipv6_snm_req;
 } osm_subn_opt_t;
 /*
 * FIELDS

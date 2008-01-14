@@ -615,6 +615,7 @@ int main(int argc, char *argv[])
 		{"perfmgr_sweep_time_s", 1, NULL, 2},
 #endif
 		{"prefix_routes_file", 1, NULL, 3},
+		{"consolodate_ipv6_snm_reqests", 0, NULL, 4},
 		{NULL, 0, NULL, 0}	/* Required at the end of the array */
 	};
 
@@ -915,6 +916,9 @@ int main(int argc, char *argv[])
 
 		case 3:
 			opt.prefix_routes_file = optarg;
+			break;
+		case 4:
+			opt.consolodate_ipv6_snm_req = TRUE;
 			break;
 		case 'h':
 		case '?':
