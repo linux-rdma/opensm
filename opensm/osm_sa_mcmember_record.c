@@ -1157,7 +1157,6 @@ __search_mgrp_by_mgid(IN cl_map_item_t * const p_map_item, IN void *context)
 	    (osm_sa_pr_mcmr_search_ctxt_t *) context;
 	const ib_gid_t *p_recvd_mgid;
 	osm_sa_t *sa;
-	/* uint32_t i; */
 
 	p_recvd_mgid = p_ctxt->p_mgid;
 	sa = p_ctxt->sa;
