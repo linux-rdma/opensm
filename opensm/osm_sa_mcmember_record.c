@@ -96,49 +96,6 @@ typedef struct osm_sa_mcmr_search_ctxt {
 } osm_sa_mcmr_search_ctxt_t;
 
 /**********************************************************************
- A search function that compares the given mgrp with the search context
- if there is a match by mgid the p_mgrp is copied to the search context
- p_mgrp component
-
- Inputs:
- p_map_item - which is part of a mgrp object
- context - points to the osm_sa_mcmr_search_ctxt_t including the mgid
-   looked for and the result p_mgrp
-**********************************************************************/
-static void
-__search_mgrp_by_mgid(IN cl_map_item_t * const p_map_item, IN void *context)
-{
-	osm_mgrp_t *p_mgrp = (osm_mgrp_t *) p_map_item;
-	osm_sa_mcmr_search_ctxt_t *p_ctxt =
-	    (osm_sa_mcmr_search_ctxt_t *) context;
-	const ib_member_rec_t *p_recvd_mcmember_rec;
-	osm_sa_t *sa;
-
-	p_recvd_mcmember_rec = p_ctxt->p_mcmember_rec;
-	sa = p_ctxt->sa;
-
-	/* ignore groups marked for deletion */
-	if (p_mgrp->to_be_deleted)
-		return;
-
-	/* compare entire MGID so different scope will not sneak in for
-	   the same MGID */
-	if (memcmp(&p_mgrp->mcmember_rec.mgid,
-		   &p_recvd_mcmember_rec->mgid, sizeof(ib_gid_t)))
-		return;
-
-	if (p_ctxt->p_mgrp) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"__search_mgrp_by_mgid: ERR 1B03: "
-			"Multiple MC groups for same MGID\n");
-		return;
-	}
-
-	p_ctxt->p_mgrp = p_mgrp;
-
-}
-
-/**********************************************************************
  Look for a MGRP in the mgrp_mlid_tbl by mlid
 **********************************************************************/
 static osm_mgrp_t *__get_mgrp_by_mlid(IN osm_sa_t * sa,
@@ -152,31 +109,6 @@ static osm_mgrp_t *__get_mgrp_by_mlid(IN osm_sa_t * sa,
 	}
 	return (osm_mgrp_t *) map_item;
 
-}
-
-/**********************************************************************
-Look for a MGRP in the mgrp_mlid_tbl by mgid
-***********************************************************************/
-static ib_api_status_t
-__get_mgrp_by_mgid(IN osm_sa_t * sa,
-		   IN ib_member_rec_t * p_recvd_mcmember_rec,
-		   OUT osm_mgrp_t ** pp_mgrp)
-{
-	osm_sa_mcmr_search_ctxt_t mcmr_search_context;
-
-	mcmr_search_context.p_mcmember_rec = p_recvd_mcmember_rec;
-	mcmr_search_context.sa = sa;
-	mcmr_search_context.p_mgrp = NULL;
-
-	cl_qmap_apply_func(&sa->p_subn->mgrp_mlid_tbl,
-			   __search_mgrp_by_mgid, &mcmr_search_context);
-
-	if (mcmr_search_context.p_mgrp == NULL) {
-		return IB_NOT_FOUND;
-	}
-
-	*pp_mgrp = mcmr_search_context.p_mgrp;
-	return IB_SUCCESS;
 }
 
 /*********************************************************************
@@ -1208,6 +1140,69 @@ osm_mcmr_rcv_create_new_mgrp(IN osm_sa_t * sa,
 
 }
 
+
+typedef struct osm_sa_pr_mcmr_search_ctxt {
+	ib_gid_t *p_mgid;
+	osm_mgrp_t *p_mgrp;
+	osm_sa_t *sa;
+} osm_sa_pr_mcmr_search_ctxt_t;
+
+/**********************************************************************
+ *********************************************************************/
+static void
+__search_mgrp_by_mgid(IN cl_map_item_t * const p_map_item, IN void *context)
+{
+	osm_mgrp_t *p_mgrp = (osm_mgrp_t *) p_map_item;
+	osm_sa_pr_mcmr_search_ctxt_t *p_ctxt =
+	    (osm_sa_pr_mcmr_search_ctxt_t *) context;
+	const ib_gid_t *p_recvd_mgid;
+	osm_sa_t *sa;
+	/* uint32_t i; */
+
+	p_recvd_mgid = p_ctxt->p_mgid;
+	sa = p_ctxt->sa;
+
+	/* ignore groups marked for deletion */
+	if (p_mgrp->to_be_deleted)
+		return;
+
+	/* compare entire MGID so different scope will not sneak in for
+	   the same MGID */
+	if (memcmp(&p_mgrp->mcmember_rec.mgid, p_recvd_mgid, sizeof(ib_gid_t)))
+		return;
+
+	if (p_ctxt->p_mgrp) {
+		osm_log(sa->p_log, OSM_LOG_ERROR,
+			"__search_mgrp_by_mgid: ERR 1F08: "
+			"Multiple MC groups for same MGID\n");
+		return;
+	}
+	p_ctxt->p_mgrp = p_mgrp;
+}
+
+/**********************************************************************
+ **********************************************************************/
+ib_api_status_t
+osm_get_mgrp_by_mgid(IN osm_sa_t *sa,
+		   IN ib_gid_t *p_mgid,
+		   OUT osm_mgrp_t **pp_mgrp)
+{
+	osm_sa_pr_mcmr_search_ctxt_t mcmr_search_context;
+
+	mcmr_search_context.p_mgid = p_mgid;
+	mcmr_search_context.sa = sa;
+	mcmr_search_context.p_mgrp = NULL;
+
+	cl_qmap_apply_func(&sa->p_subn->mgrp_mlid_tbl,
+			   __search_mgrp_by_mgid, &mcmr_search_context);
+
+	if (mcmr_search_context.p_mgrp == NULL)
+		return IB_NOT_FOUND;
+
+	*pp_mgrp = mcmr_search_context.p_mgrp;
+	return IB_SUCCESS;
+}
+
 /**********************************************************************
  Call this function to find or create a new mgrp.
 **********************************************************************/
@@ -1220,7 +1215,7 @@ osm_mcmr_rcv_find_or_create_new_mgrp(IN osm_sa_t * sa,
 {
 	ib_api_status_t status;
 
-	status = __get_mgrp_by_mgid(sa, p_recvd_mcmember_rec, pp_mgrp);
+	status = osm_get_mgrp_by_mgid(sa, &p_recvd_mcmember_rec->mgid, pp_mgrp);
 	if (status == IB_SUCCESS)
 		return status;
 	return osm_mcmr_rcv_create_new_mgrp(sa, comp_mask,
@@ -1264,7 +1259,7 @@ __osm_mcmr_rcv_leave_mgrp(IN osm_sa_t * sa,
 	}
 
 	CL_PLOCK_EXCL_ACQUIRE(sa->p_lock);
-	status = __get_mgrp_by_mgid(sa, p_recvd_mcmember_rec, &p_mgrp);
+	status = osm_get_mgrp_by_mgid(sa, &p_recvd_mcmember_rec->mgid, &p_mgrp);
 	if (status == IB_SUCCESS) {
 		mlid = p_mgrp->mlid;
 		portguid = p_recvd_mcmember_rec->port_gid.unicast.interface_id;
@@ -1440,7 +1435,7 @@ __osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa,
 				  &join_state);
 
 	/* do we need to create a new group? */
-	status = __get_mgrp_by_mgid(sa, p_recvd_mcmember_rec, &p_mgrp);
+	status = osm_get_mgrp_by_mgid(sa, &p_recvd_mcmember_rec->mgid, &p_mgrp);
 	if ((status == IB_NOT_FOUND) || p_mgrp->to_be_deleted) {
 		/* check for JoinState.FullMember = 1 o15.0.1.9 */
 		if ((join_state & 0x01) != 0x01) {

@@ -88,12 +88,6 @@ typedef struct _osm_path_parms {
 	boolean_t reversible;
 } osm_path_parms_t;
 
-typedef struct osm_sa_pr_mcmr_search_ctxt {
-	ib_gid_t *p_mgid;
-	osm_mgrp_t *p_mgrp;
-	osm_sa_t *sa;
-} osm_sa_pr_mcmr_search_ctxt_t;
-
 static const ib_gid_t zero_gid = { {0x00, 0x00, 0x00, 0x00,
 				    0x00, 0x00, 0x00, 0x00,
 				    0x00, 0x00, 0x00, 0x00,
@@ -1516,72 +1510,6 @@ __osm_pr_rcv_process_pair(IN osm_sa_t * sa,
 }
 
 /**********************************************************************
- *********************************************************************/
-static void
-__search_mgrp_by_mgid(IN cl_map_item_t * const p_map_item, IN void *context)
-{
-	osm_mgrp_t *p_mgrp = (osm_mgrp_t *) p_map_item;
-	osm_sa_pr_mcmr_search_ctxt_t *p_ctxt =
-	    (osm_sa_pr_mcmr_search_ctxt_t *) context;
-	const ib_gid_t *p_recvd_mgid;
-	osm_sa_t *sa;
-	/* uint32_t i; */
-
-	p_recvd_mgid = p_ctxt->p_mgid;
-	sa = p_ctxt->sa;
-
-	/* ignore groups marked for deletion */
-	if (p_mgrp->to_be_deleted)
-		return;
-
-	/* compare entire MGID so different scope will not sneak in for
-	   the same MGID */
-	if (memcmp(&p_mgrp->mcmember_rec.mgid, p_recvd_mgid, sizeof(ib_gid_t)))
-		return;
-
-#if 0
-	for (i = 0;
-	     i < sizeof(p_mgrp->mcmember_rec.mgid.multicast.raw_group_id);
-	     i++) {
-		if (p_mgrp->mcmember_rec.mgid.multicast.raw_group_id[i] !=
-		    p_recvd_mgid->mgid.multicast.raw_group_id[i])
-			return;
-	}
-#endif
-
-	if (p_ctxt->p_mgrp) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"__search_mgrp_by_mgid: ERR 1F08: "
-			"Multiple MC groups for same MGID\n");
-		return;
-	}
-	p_ctxt->p_mgrp = p_mgrp;
-}
-
-/**********************************************************************
- **********************************************************************/
-static ib_api_status_t
-__get_mgrp_by_mgid(IN osm_sa_t * sa,
-		   IN ib_path_rec_t * p_recvd_path_rec,
-		   OUT osm_mgrp_t ** pp_mgrp)
-{
-	osm_sa_pr_mcmr_search_ctxt_t mcmr_search_context;
-
-	mcmr_search_context.p_mgid = &p_recvd_path_rec->dgid;
-	mcmr_search_context.sa = sa;
-	mcmr_search_context.p_mgrp = NULL;
-
-	cl_qmap_apply_func(&sa->p_subn->mgrp_mlid_tbl,
-			   __search_mgrp_by_mgid, &mcmr_search_context);
-
-	if (mcmr_search_context.p_mgrp == NULL)
-		return IB_NOT_FOUND;
-
-	*pp_mgrp = mcmr_search_context.p_mgrp;
-	return IB_SUCCESS;
-}
-
-/**********************************************************************
  **********************************************************************/
 static osm_mgrp_t *__get_mgrp_by_mlid(IN osm_sa_t * sa,
 				      IN ib_net16_t const mlid)
@@ -1615,7 +1543,7 @@ __osm_pr_get_mgrp(IN osm_sa_t * sa,
 	comp_mask = p_sa_mad->comp_mask;
 
 	if (comp_mask & IB_PR_COMPMASK_DGID) {
-		status = __get_mgrp_by_mgid(sa, p_pr, pp_mgrp);
+		status = osm_get_mgrp_by_mgid(sa, &p_pr->dgid, pp_mgrp);
 		if (status != IB_SUCCESS) {
 			osm_log(sa->p_log, OSM_LOG_ERROR,
 				"__osm_pr_get_mgrp: ERR 1F09: "
