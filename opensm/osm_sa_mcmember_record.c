@@ -1173,7 +1173,7 @@ __search_mgrp_by_mgid(IN cl_map_item_t * const p_map_item, IN void *context)
 
 	if (p_ctxt->p_mgrp) {
 		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"__search_mgrp_by_mgid: ERR 1F08: "
+			"__search_mgrp_by_mgid: ERR 1B30: "
 			"Multiple MC groups for same MGID\n");
 		return;
 	}
