@@ -1174,35 +1174,26 @@ __search_mgrp_by_mgid(IN cl_map_item_t * const p_map_item, IN void *context)
 			/* 0xff12601bXXXX0000 : 0x00000001ffYYYYYY */
 			/* Where XXXX is the partition and YYYYYY is the last 24 bits
 			 * of the port guid */
-#define PREFIX_MASK (0xff12601b00000000)
-#define INT_ID_MASK (0x00000001ff000000)
+#define PREFIX_MASK (0xff12601b00000000ULL)
+#define INT_ID_MASK (0x00000001ff000000ULL)
 			uint64_t g_prefix = cl_ntoh64(p_mgrp->mcmember_rec.mgid.unicast.prefix);
 			uint64_t g_interface_id = cl_ntoh64(p_mgrp->mcmember_rec.mgid.unicast.interface_id);
 			uint64_t rcv_prefix = cl_ntoh64(p_recvd_mgid->unicast.prefix);
 			uint64_t rcv_interface_id = cl_ntoh64(p_recvd_mgid->unicast.interface_id);
 
-			if (((rcv_prefix & PREFIX_MASK) == PREFIX_MASK)
-				&&
-				(rcv_interface_id & INT_ID_MASK) == INT_ID_MASK) {
-
-				if ((g_prefix == rcv_prefix)
-					&&
-					(g_interface_id & INT_ID_MASK) ==
-						(rcv_interface_id & INT_ID_MASK)
-					) {
-					osm_log(sa->p_log, OSM_LOG_INFO,
-						"Special Case Mcast Join for MGID "
-						" MGID 0x%016"PRIx64" : 0x%016"PRIx64"\n",
-						rcv_prefix, rcv_interface_id);
-					goto match;
-				}
-			}
-		}
-
-		return;
+			if ((rcv_prefix & PREFIX_MASK) == PREFIX_MASK &&
+			    (rcv_interface_id & INT_ID_MASK) == INT_ID_MASK &&
+			    g_prefix == rcv_prefix &&
+			    (g_interface_id & INT_ID_MASK) ==
+			     (rcv_interface_id & INT_ID_MASK))
+				osm_log(sa->p_log, OSM_LOG_INFO,
+					"Special Case Mcast Join for MGID "
+					" MGID 0x%016"PRIx64" : 0x%016"PRIx64"\n",
+					rcv_prefix, rcv_interface_id);
+		} else
+			return;
 	}
 
-match:
 	if (p_ctxt->p_mgrp) {
 		osm_log(sa->p_log, OSM_LOG_ERROR,
 			"__search_mgrp_by_mgid: ERR 1B30: "
