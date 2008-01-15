@@ -296,6 +296,8 @@ static void show_usage(void)
 	       "          Prefix routes control how the SA responds to path record\n"
 	       "          queries for off-subnet DGIDs.  Default file is:\n"
 	       "              "OSM_DEFAULT_PREFIX_ROUTES_FILE"\n\n");
+	printf("--consolidate_ipv6_snm_req\n"
+		"Consolidate IPv6 Solicited Node Multicast group joins into 1 IB multicast group.\n");
 	printf("-v\n"
 	       "--verbose\n"
 	       "          This option increases the log verbosity level.\n"
@@ -615,7 +617,7 @@ int main(int argc, char *argv[])
 		{"perfmgr_sweep_time_s", 1, NULL, 2},
 #endif
 		{"prefix_routes_file", 1, NULL, 3},
-		{"consolodate_ipv6_snm_reqests", 0, NULL, 4},
+		{"consolidate_ipv6_snm_reqests", 0, NULL, 4},
 		{NULL, 0, NULL, 0}	/* Required at the end of the array */
 	};
 
@@ -918,7 +920,7 @@ int main(int argc, char *argv[])
 			opt.prefix_routes_file = optarg;
 			break;
 		case 4:
-			opt.consolodate_ipv6_snm_req = TRUE;
+			opt.consolidate_ipv6_snm_req = TRUE;
 			break;
 		case 'h':
 		case '?':

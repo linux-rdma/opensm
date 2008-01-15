@@ -1169,7 +1169,7 @@ __search_mgrp_by_mgid(IN cl_map_item_t * const p_map_item, IN void *context)
 	   the same MGID */
 	if (memcmp(&p_mgrp->mcmember_rec.mgid, p_recvd_mgid, sizeof(ib_gid_t))) {
 
-		if (sa->p_subn->opt.consolodate_ipv6_snm_req) {
+		if (sa->p_subn->opt.consolidate_ipv6_snm_req) {
 			/* Special Case IPV6 Multicast Loopback addresses */
 			/* 0xff12601bXXXX0000 : 0x00000001ffYYYYYY */
 			/* Where XXXX is the partition and YYYYYY is the last 24 bits

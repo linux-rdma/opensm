@@ -481,7 +481,7 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * const p_opt)
 	p_opt->enable_quirks = FALSE;
 	p_opt->no_clients_rereg = FALSE;
 	p_opt->prefix_routes_file = OSM_DEFAULT_PREFIX_ROUTES_FILE;
-	p_opt->consolodate_ipv6_snm_req = FALSE;
+	p_opt->consolidate_ipv6_snm_req = FALSE;
 	subn_set_default_qos_options(&p_opt->qos_options);
 	subn_set_default_qos_options(&p_opt->qos_ca_options);
 	subn_set_default_qos_options(&p_opt->qos_sw0_options);
@@ -1396,8 +1396,8 @@ ib_api_status_t osm_subn_parse_conf_file(IN osm_subn_opt_t * const p_opts)
 		opts_unpack_charp("prefix_routes_file",
 				  p_key, p_val, &p_opts->prefix_routes_file);
 
-		opts_unpack_boolean("consolodate_ipv6_snm_req",
-				p_key, p_val, &p_opts->consolodate_ipv6_snm_req);
+		opts_unpack_boolean("consolidate_ipv6_snm_req",
+				p_key, p_val, &p_opts->consolidate_ipv6_snm_req);
 	}
 	fclose(opts_file);
 
@@ -1727,8 +1727,8 @@ ib_api_status_t osm_subn_write_conf_file(IN osm_subn_opt_t * const p_opts)
 
 	fprintf(opts_file,
 		"#\n# IPv6 MCast Options\n#\n"
-		"consolodate_ipv6_snm_req %s\n\n",
-		p_opts->consolodate_ipv6_snm_req ? "TRUE" : "FALSE");
+		"consolidate_ipv6_snm_req %s\n\n",
+		p_opts->consolidate_ipv6_snm_req ? "TRUE" : "FALSE");
 
 	/* optional string attributes ... */
 
