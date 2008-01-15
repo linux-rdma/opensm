@@ -1054,13 +1054,17 @@ static void __osm_ftree_fabric_clear(ftree_fabric_t * p_ftree)
 	while ((p_guid =
 		(uint64_t *) cl_list_remove_head(&p_ftree->root_guid_list)))
 		free(p_guid);
-	cl_list_destroy(&p_ftree->root_guid_list);
 
 	/* free the leaf switches array */
 	if ((p_ftree->leaf_switches_num > 0) && (p_ftree->leaf_switches))
 		free(p_ftree->leaf_switches);
 
 	p_ftree->leaf_switches_num = 0;
+	p_ftree->cn_num = 0;
+	p_ftree->leaf_switch_rank = 0;
+	p_ftree->max_switch_rank = 0;
+	p_ftree->max_cn_per_leaf = 0;
+	p_ftree->lft_max_lid_ho = 0;
 	p_ftree->leaf_switches = NULL;
 	p_ftree->fabric_built = FALSE;
 
@@ -1073,6 +1077,7 @@ static void __osm_ftree_fabric_destroy(ftree_fabric_t * p_ftree)
 	if (!p_ftree)
 		return;
 	__osm_ftree_fabric_clear(p_ftree);
+	cl_list_destroy(&p_ftree->root_guid_list);
 	cl_pool_destroy(&p_ftree->sw_fwd_tbl_pool);
 	free(p_ftree);
 }
@@ -1244,6 +1249,8 @@ static void __osm_ftree_fabric_dump_general_info(IN ftree_fabric_t * p_ftree)
 		"  - Fabric has %u CAs (%u of them CNs), %u switches\n",
 		cl_qmap_count(&p_ftree->hca_tbl), p_ftree->cn_num,
 		cl_qmap_count(&p_ftree->sw_tbl));
+
+	CL_ASSERT(cl_qmap_count(&p_ftree->hca_tbl) >= p_ftree->cn_num);
 
 	for (i = 0; i <= p_ftree->max_switch_rank; i++) {
 		j = 0;
@@ -3598,6 +3605,8 @@ static int __osm_ftree_construct_fabric(IN void *context)
 	int status = 0;
 
 	OSM_LOG_ENTER(&p_ftree->p_osm->log, __osm_ftree_construct_fabric);
+
+	__osm_ftree_fabric_clear(p_ftree);
 
 	if (p_ftree->p_osm->subn.opt.lmc > 0) {
 		osm_log(&p_ftree->p_osm->log, OSM_LOG_SYS,
