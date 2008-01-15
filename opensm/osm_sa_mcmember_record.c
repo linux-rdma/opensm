@@ -1185,11 +1185,13 @@ __search_mgrp_by_mgid(IN cl_map_item_t * const p_map_item, IN void *context)
 			    (rcv_interface_id & INT_ID_MASK) == INT_ID_MASK &&
 			    g_prefix == rcv_prefix &&
 			    (g_interface_id & INT_ID_MASK) ==
-			     (rcv_interface_id & INT_ID_MASK))
+			     (rcv_interface_id & INT_ID_MASK)) {
 				osm_log(sa->p_log, OSM_LOG_INFO,
 					"Special Case Mcast Join for MGID "
 					" MGID 0x%016"PRIx64" : 0x%016"PRIx64"\n",
 					rcv_prefix, rcv_interface_id);
+			} else
+				return;
 		} else
 			return;
 	}
