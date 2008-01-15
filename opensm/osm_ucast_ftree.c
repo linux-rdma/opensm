@@ -550,7 +550,7 @@ __osm_ftree_port_group_dump(IN ftree_fabric_t * p_ftree,
 		"__osm_ftree_port_group_dump:"
 		"    Port Group of size %u, port(s): %s, direction: %s\n"
 		"                  Local <--> Remote GUID (LID):"
-		"0x%016" PRIx64 " (0x%x) <--> 0x%016" PRIx64 " (0x%x)\n",
+		"0x%016" PRIx64 " (0x%04x) <--> 0x%016" PRIx64 " (0x%04x)\n",
 		size,
 		buff,
 		(direction == FTREE_DIRECTION_DOWN) ? "DOWN" : "UP",
@@ -1288,7 +1288,7 @@ static void __osm_ftree_fabric_dump_general_info(IN ftree_fabric_t * p_ftree)
 				osm_log(&p_ftree->p_osm->log, OSM_LOG_VERBOSE,
 					"__osm_ftree_fabric_dump_general_info: "
 					"      GUID: 0x%016" PRIx64
-					", LID: 0x%x, Index %s\n",
+					", LID: 0x%04x, Index %s\n",
 					__osm_ftree_sw_get_guid_ho(p_sw),
 					cl_ntoh16(p_sw->base_lid),
 					__osm_ftree_tuple_to_str(p_sw->tuple));
@@ -1301,7 +1301,7 @@ static void __osm_ftree_fabric_dump_general_info(IN ftree_fabric_t * p_ftree)
 			osm_log(&p_ftree->p_osm->log, OSM_LOG_VERBOSE,
 				"__osm_ftree_fabric_dump_general_info: "
 				"      GUID: 0x%016" PRIx64
-				", LID: 0x%x, Index %s\n",
+				", LID: 0x%04x, Index %s\n",
 				__osm_ftree_sw_get_guid_ho(p_ftree->
 							   leaf_switches[i]),
 				cl_ntoh16(p_ftree->leaf_switches[i]->base_lid),
@@ -1362,7 +1362,7 @@ static void __osm_ftree_fabric_dump_hca_ordering(IN ftree_fabric_t * p_ftree)
 			if (!p_group_on_hca->is_cn)
 				continue;
 
-			fprintf(p_hca_ordering_file, "0x%x\t%s\n",
+			fprintf(p_hca_ordering_file, "0x%04x\t%s\n",
 				cl_ntoh16(p_group_on_hca->base_lid),
 				p_hca->p_osm_node->print_desc);
 
@@ -1566,7 +1566,7 @@ static void __osm_ftree_fabric_make_indexing(IN ftree_fabric_t * p_ftree)
 		"__osm_ftree_fabric_make_indexing: Indexing starting point:\n"
 		"                                            - Switch rank  : %u\n"
 		"                                            - Switch index : %s\n"
-		"                                            - Node LID     : 0x%x\n"
+		"                                            - Node LID     : 0x%04x\n"
 		"                                            - Node GUID    : 0x%016"
 		PRIx64 "\n", p_sw->rank, __osm_ftree_tuple_to_str(p_sw->tuple),
 		cl_ntoh16(p_sw->base_lid), __osm_ftree_sw_get_guid_ho(p_sw));
@@ -1859,9 +1859,9 @@ static boolean_t __osm_ftree_fabric_validate_topology(IN ftree_fabric_t *
 					"__osm_ftree_fabric_validate_topology: "
 					"ERR AB09: Different number of upward port groups on switches:\n"
 					"       GUID 0x%016" PRIx64
-					", LID 0x%x, Index %s - %u groups\n"
+					", LID 0x%04x, Index %s - %u groups\n"
 					"       GUID 0x%016" PRIx64
-					", LID 0x%x, Index %s - %u groups\n",
+					", LID 0x%04x, Index %s - %u groups\n",
 					__osm_ftree_sw_get_guid_ho
 					(reference_sw_arr[p_sw->rank]),
 					cl_ntoh16(reference_sw_arr[p_sw->rank]->
@@ -1887,9 +1887,9 @@ static boolean_t __osm_ftree_fabric_validate_topology(IN ftree_fabric_t *
 					"__osm_ftree_fabric_validate_topology: "
 					"ERR AB0A: Different number of downward port groups on switches:\n"
 					"       GUID 0x%016" PRIx64
-					", LID 0x%x, Index %s - %u port groups\n"
+					", LID 0x%04x, Index %s - %u port groups\n"
 					"       GUID 0x%016" PRIx64
-					", LID 0x%x, Index %s - %u port groups\n",
+					", LID 0x%04x, Index %s - %u port groups\n",
 					__osm_ftree_sw_get_guid_ho
 					(reference_sw_arr[p_sw->rank]),
 					cl_ntoh16(reference_sw_arr[p_sw->rank]->
@@ -1923,10 +1923,10 @@ static boolean_t __osm_ftree_fabric_validate_topology(IN ftree_fabric_t *
 							"ERR AB0B: Different number of ports in an upward port group on switches:\n"
 							"       GUID 0x%016"
 							PRIx64
-							", LID 0x%x, Index %s - %u ports\n"
+							", LID 0x%04x, Index %s - %u ports\n"
 							"       GUID 0x%016"
 							PRIx64
-							", LID 0x%x, Index %s - %u ports\n",
+							", LID 0x%04x, Index %s - %u ports\n",
 							__osm_ftree_sw_get_guid_ho
 							(reference_sw_arr
 							 [p_sw->rank]),
@@ -1971,10 +1971,10 @@ static boolean_t __osm_ftree_fabric_validate_topology(IN ftree_fabric_t *
 							"ERR AB0C: Different number of ports in an downward port group on switches:\n"
 							"       GUID 0x%016"
 							PRIx64
-							", LID 0x%x, Index %s - %u ports\n"
+							", LID 0x%04x, Index %s - %u ports\n"
 							"       GUID 0x%016"
 							PRIx64
-							", LID 0x%x, Index %s - %u ports\n",
+							", LID 0x%04x, Index %s - %u ports\n",
 							__osm_ftree_sw_get_guid_ho
 							(reference_sw_arr
 							 [p_sw->rank]),
@@ -2137,7 +2137,7 @@ __osm_ftree_fabric_route_upgoing_by_going_down(IN ftree_fabric_t * p_ftree,
 			osm_log(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
 				"__osm_ftree_fabric_route_upgoing_by_going_down: "
 				"Loop of lenght %d in the fabric:\n                             "
-				"Switch %s (LID 0x%x) closes loop through switch %s (LID 0x%x)\n",
+				"Switch %s (LID 0x%04x) closes loop through switch %s (LID 0x%04x)\n",
 				(p_remote_sw->rank - highest_rank_in_route) * 2,
 				__osm_ftree_tuple_to_str(p_remote_sw->tuple),
 				cl_ntoh16(p_group->base_lid),
@@ -2190,7 +2190,7 @@ __osm_ftree_fabric_route_upgoing_by_going_down(IN ftree_fabric_t * p_ftree,
 							   remote_port_num);
 			osm_log(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
 				"__osm_ftree_fabric_route_upgoing_by_going_down: "
-				"Switch %s: set path to CA LID 0x%x through port %u\n",
+				"Switch %s: set path to CA LID 0x%04x through port %u\n",
 				__osm_ftree_tuple_to_str(p_remote_sw->tuple),
 				cl_ntoh16(target_lid),
 				p_min_port->remote_port_num);
@@ -2355,7 +2355,7 @@ __osm_ftree_fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
 		if (p_sw->is_leaf) {
 			osm_log(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
 				"__osm_ftree_fabric_route_downgoing_by_going_up: "
-				" - Routing MAIN path for %s CA LID 0x%x: %s --> %s\n",
+				" - Routing MAIN path for %s CA LID 0x%04x: %s --> %s\n",
 				(is_real_lid) ? "real" : "DUMMY",
 				cl_ntoh16(target_lid),
 				__osm_ftree_tuple_to_str(p_sw->tuple),
@@ -2375,7 +2375,7 @@ __osm_ftree_fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
 							   remote_port_num);
 			osm_log(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
 				"__osm_ftree_fabric_route_downgoing_by_going_up: "
-				"Switch %s: set path to CA LID 0x%x through port %u\n",
+				"Switch %s: set path to CA LID 0x%04x through port %u\n",
 				__osm_ftree_tuple_to_str(p_remote_sw->tuple),
 				cl_ntoh16(target_lid),
 				p_min_port->remote_port_num);
@@ -2456,7 +2456,7 @@ __osm_ftree_fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
 		if (p_sw->is_leaf) {
 			osm_log(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
 				"__osm_ftree_fabric_route_downgoing_by_going_up: "
-				" - Routing SECONDARY path for LID 0x%x: %s --> %s\n",
+				" - Routing SECONDARY path for LID 0x%04x: %s --> %s\n",
 				cl_ntoh16(target_lid),
 				__osm_ftree_tuple_to_str(p_sw->tuple),
 				__osm_ftree_tuple_to_str(p_remote_sw->tuple));
@@ -2562,7 +2562,7 @@ static void __osm_ftree_fabric_route_to_cns(IN ftree_fabric_t * p_ftree)
 							   p_port->port_num);
 			osm_log(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
 				"__osm_ftree_fabric_route_to_cns: "
-				"Switch %s: set path to CN LID 0x%x through port %u\n",
+				"Switch %s: set path to CN LID 0x%04x through port %u\n",
 				__osm_ftree_tuple_to_str(p_sw->tuple),
 				cl_ntoh16(hca_lid), p_port->port_num);
 
@@ -2673,7 +2673,7 @@ static void __osm_ftree_fabric_route_to_non_cns(IN ftree_fabric_t * p_ftree)
 
 			osm_log(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
 				"__osm_ftree_fabric_route_to_non_cns: "
-				"Switch %s: set path to non-CN HCA LID 0x%x through port %u\n",
+				"Switch %s: set path to non-CN HCA LID 0x%04x through port %u\n",
 				__osm_ftree_tuple_to_str(p_sw->tuple),
 				cl_ntoh16(hca_lid), port_num_on_switch);
 
@@ -2732,7 +2732,7 @@ static void __osm_ftree_fabric_route_to_switches(IN ftree_fabric_t * p_ftree)
 
 		osm_log(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
 			"__osm_ftree_fabric_route_to_switches: "
-			"Switch %s (LID 0x%x): routing switch-to-switch pathes\n",
+			"Switch %s (LID 0x%04x): routing switch-to-switch pathes\n",
 			__osm_ftree_tuple_to_str(p_sw->tuple),
 			cl_ntoh16(p_sw->base_lid));
 
@@ -2947,7 +2947,7 @@ __osm_ftree_rank_leaf_switches(IN ftree_fabric_t * p_ftree,
 			PRIx64 "\n"
 			"                                            - Switch guid: 0x%016"
 			PRIx64 "\n"
-			"                                            - Switch LID : 0x%x\n",
+			"                                            - Switch LID : 0x%04x\n",
 			__osm_ftree_hca_get_guid_ho(p_hca),
 			__osm_ftree_sw_get_guid_ho(p_sw),
 			cl_ntoh16(p_sw->base_lid));
@@ -3165,9 +3165,9 @@ static int __osm_ftree_fabric_construct_sw_ports(IN ftree_fabric_t * p_ftree,
 					"__osm_ftree_fabric_construct_sw_ports: ERR AB16: "
 					"Illegal link between switches with ranks %u and %u:\n"
 					"       GUID 0x%016" PRIx64
-					", LID 0x%x, rank %u\n"
+					", LID 0x%04x, rank %u\n"
 					"       GUID 0x%016" PRIx64
-					", LID 0x%x, rank %u\n", p_sw->rank,
+					", LID 0x%04x, rank %u\n", p_sw->rank,
 					p_remote_sw->rank,
 					__osm_ftree_sw_get_guid_ho(p_sw),
 					cl_ntoh16(p_sw->base_lid), p_sw->rank,
@@ -3778,7 +3778,7 @@ static int __osm_ftree_construct_fabric(IN void *context)
 
 	osm_log(&p_ftree->p_osm->log, OSM_LOG_VERBOSE,
 		"__osm_ftree_construct_fabric: "
-		"Max LID in switch LFTs (in host order): 0x%x\n",
+		"Max LID in switch LFTs (in host order): 0x%04x\n",
 		p_ftree->lft_max_lid_ho);
 
       Exit:
