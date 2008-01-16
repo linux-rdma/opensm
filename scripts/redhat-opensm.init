@@ -75,7 +75,7 @@ else
     LMC_FLAG="-l ${LMC}"
 fi
 
-if [[ -z $MAXSMPS ]]; then
+if [[ -z $MAXSMPS || "$MAXSMPS" == "4" ]]; then
     MAXSMPS_FLAG=""
 else
     MAXSMPS_FLAG="-maxsmps ${MAXSMPS}"
