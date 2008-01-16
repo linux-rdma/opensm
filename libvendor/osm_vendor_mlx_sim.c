@@ -382,13 +382,7 @@ __osmv_ibms_mad_addr_to_osm_addr(IN osm_vendor_t const *p_vend,
 		p_osm_addr->addr_type.gsi.remote_qp =
 		    cl_ntoh32(p_ibms_addr->sqpn);
 		p_osm_addr->addr_type.gsi.remote_qkey = IB_QP1_WELL_KNOWN_Q_KEY;
-		/*  we do have the p_osm_addr->pkey_ix but how to get the PKey by index ? */
-		/*  the only way seems to be to use VAPI_query_hca_pkey_tbl and obtain */
-		/*  the full PKey table - than go by the index. */
-		/*  since this does not seem reasonable to me I simply use the default */
-		/*  There is a TAVOR limitation that only one P_KEY is supported per */
-		/*  QP - so QP1 must use IB_DEFAULT_PKEY */
-		p_osm_addr->addr_type.gsi.pkey = IB_DEFAULT_PKEY;
+		p_osm_addr->addr_type.gsi.pkey_ix = p_ibms_addr->pkey_index;
 		p_osm_addr->addr_type.gsi.service_level = p_ibms_addr->sl;
 
 		p_osm_addr->addr_type.gsi.global_route = FALSE;

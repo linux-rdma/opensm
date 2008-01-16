@@ -720,7 +720,7 @@ __osmv_IBMGT_rcv_desc_to_osm_addr(IN IB_MGT_mad_rcv_desc_t * p_rcv_desc,
 		/*  since this does not seem reasonable to me I simply use the default */
 		/*  There is a TAVOR limitation that only one P_KEY is supported per  */
 		/*  QP - so QP1 must use IB_DEFAULT_PKEY */
-		p_mad_addr->addr_type.gsi.pkey = IB_DEFAULT_PKEY;
+		p_mad_addr->addr_type.gsi.pkey_ix = 0;
 		p_mad_addr->addr_type.gsi.service_level = p_rcv_desc->sl;
 
 		p_mad_addr->addr_type.gsi.global_route = p_rcv_desc->grh_flag;

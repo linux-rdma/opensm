@@ -294,7 +294,7 @@ __osm_al_rcv_callback(IN void *mad_svc_context, IN ib_mad_element_t * p_elem)
 	} else {
 		mad_addr.addr_type.gsi.remote_qp = p_elem->remote_qp;
 		mad_addr.addr_type.gsi.remote_qkey = p_elem->remote_qkey;
-		mad_addr.addr_type.gsi.pkey = p_elem->pkey_index;
+		mad_addr.addr_type.gsi.pkey_ix = p_elem->pkey_index;
 		mad_addr.addr_type.gsi.service_level = p_elem->remote_sl;
 		mad_addr.addr_type.gsi.global_route = FALSE;
 	}

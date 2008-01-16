@@ -533,7 +533,7 @@ __osmv_send_sa_req(IN osmv_sa_bind_info_t * p_bind,
 	p_madw->mad_addr.addr_type.smi.source_lid = cl_hton16(p_bind->lid);
 	p_madw->mad_addr.addr_type.gsi.remote_qp = CL_HTON32(1);
 	p_madw->mad_addr.addr_type.gsi.remote_qkey = IB_QP1_WELL_KNOWN_Q_KEY;
-	p_madw->mad_addr.addr_type.gsi.pkey = IB_DEFAULT_PKEY;
+	p_madw->mad_addr.addr_type.gsi.pkey_ix = 0;
 	p_madw->resp_expected = TRUE;
 	p_madw->fail_msg = CL_DISP_MSGID_NONE;
 

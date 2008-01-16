@@ -549,7 +549,7 @@ osm_vendor_send(IN osm_bind_handle_t h_bind,
 		    p_mad_addr->addr_type.gsi.remote_qp;
 		destAddr.AddrType.Gsi.RemoteQkey =
 		    p_mad_addr->addr_type.gsi.remote_qkey;
-		destAddr.AddrType.Gsi.PKey = p_mad_addr->addr_type.gsi.pkey;
+		destAddr.AddrType.Gsi.PKey = OSM_DEFAULT_PKEY;
 		destAddr.AddrType.Gsi.ServiceLevel =
 		    p_mad_addr->addr_type.gsi.service_level;
 		destAddr.AddrType.Gsi.GlobalRoute =
@@ -962,8 +962,7 @@ void __mad_recv_processor(IN void *context)
 			    pRecvCmp->AddressInfo.AddrType.Gsi.RemoteQpNumber;
 			osm_mad_addr.addr_type.gsi.remote_qkey =
 			    pRecvCmp->AddressInfo.AddrType.Gsi.RemoteQkey;
-			osm_mad_addr.addr_type.gsi.pkey =
-			    pRecvCmp->AddressInfo.AddrType.Gsi.PKey;
+			osm_mad_addr.addr_type.gsi.pkey_ix = 0;
 			osm_mad_addr.addr_type.gsi.service_level =
 			    pRecvCmp->AddressInfo.AddrType.Gsi.ServiceLevel;
 			osm_mad_addr.addr_type.gsi.global_route =

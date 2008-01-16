@@ -399,7 +399,7 @@ osm_perfmgr_send_pc_mad(osm_perfmgr_t * perfmgr, ib_net16_t dest_lid,
 	p_madw->mad_addr.addr_type.gsi.remote_qkey =
 	    cl_hton32(IB_QP1_WELL_KNOWN_Q_KEY);
 	/* FIXME what about other partitions */
-	p_madw->mad_addr.addr_type.gsi.pkey = 0;
+	p_madw->mad_addr.addr_type.gsi.pkey_ix = 0;
 	p_madw->mad_addr.addr_type.gsi.service_level = 0;
 	p_madw->mad_addr.addr_type.gsi.global_route = FALSE;
 	p_madw->resp_expected = TRUE;

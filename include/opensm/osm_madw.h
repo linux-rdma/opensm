@@ -385,7 +385,7 @@ typedef struct _osm_mad_addr {
 		struct _gsi {
 			ib_net32_t remote_qp;
 			ib_net32_t remote_qkey;
-			ib_net16_t pkey;
+			uint16_t pkey_ix;
 			uint8_t service_level;
 			boolean_t global_route;
 			ib_grh_t grh_info;

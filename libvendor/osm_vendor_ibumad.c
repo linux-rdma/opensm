@@ -215,7 +215,7 @@ ib_mad_addr_conv(ib_user_mad_t * umad, osm_mad_addr_t * osm_mad_addr,
 
 	osm_mad_addr->addr_type.gsi.remote_qp = ib_mad_addr->qpn;
 	osm_mad_addr->addr_type.gsi.remote_qkey = ib_mad_addr->qkey;
-	osm_mad_addr->addr_type.gsi.pkey = umad_get_pkey(umad);
+	osm_mad_addr->addr_type.gsi.pkey_ix = umad_get_pkey(umad);
 	osm_mad_addr->addr_type.gsi.service_level = ib_mad_addr->sl;
 	osm_mad_addr->addr_type.gsi.global_route = 0;	/* FIXME: handle GRH */
 	memset(&osm_mad_addr->addr_type.gsi.grh_info, 0,
@@ -1047,7 +1047,7 @@ osm_vendor_send(IN osm_bind_handle_t h_bind,
 			  p_mad_addr->addr_type.gsi.service_level,
 			  IB_QP1_WELL_KNOWN_Q_KEY);
 	umad_set_grh(p_vw->umad, 0);	/* FIXME: GRH support */
-	umad_set_pkey(p_vw->umad, p_mad_addr->addr_type.gsi.pkey);
+	umad_set_pkey(p_vw->umad, p_mad_addr->addr_type.gsi.pkey_ix);
 	if (ib_class_is_rmpp(p_mad->mgmt_class)) {	/* RMPP GSI classes     FIXME: no GRH */
 		if (!ib_rmpp_is_flag_set((ib_rmpp_mad_t *) p_sa,
 					 IB_RMPP_FLAG_ACTIVE)) {

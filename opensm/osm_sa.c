@@ -442,7 +442,7 @@ static void sa_dump_one_inform(cl_list_item_t * p_list_item, void *cxt)
 		" qpn_resp_time_val=0x%x"
 		" node_type=0x%06x"
 		" rep_addr: lid=0x%04x path_bits=0x%02x static_rate=0x%02x"
-		" remote_qp=0x%08x remote_qkey=0x%08x pkey=0x%04x sl=0x%02x"
+		" remote_qp=0x%08x remote_qkey=0x%08x pkey_ix=0x%04x sl=0x%02x"
 		"\n\n",
 		cl_ntoh64(p_iir->subscriber_gid.unicast.prefix),
 		cl_ntoh64(p_iir->subscriber_gid.unicast.interface_id),
@@ -462,7 +462,7 @@ static void sa_dump_one_inform(cl_list_item_t * p_list_item, void *cxt)
 		p_infr->report_addr.static_rate,
 		cl_ntoh32(p_infr->report_addr.addr_type.gsi.remote_qp),
 		cl_ntoh32(p_infr->report_addr.addr_type.gsi.remote_qkey),
-		cl_ntoh16(p_infr->report_addr.addr_type.gsi.pkey),
+		p_infr->report_addr.addr_type.gsi.pkey_ix,
 		p_infr->report_addr.addr_type.gsi.service_level);
 }
 
@@ -886,6 +886,7 @@ int osm_sa_db_file_load(osm_opensm_t * p_osm)
 		} else if (!strncmp(p, "InformInfo Record:", 18)) {
 			ib_inform_info_record_t i_rec;
 			osm_mad_addr_t rep_addr;
+			ib_net16_t val16;
 
 			p_mgrp = NULL;
 			memset(&i_rec, 0, sizeof(i_rec));
@@ -931,8 +932,8 @@ int osm_sa_db_file_load(osm_opensm_t * p_osm)
 				    &rep_addr.addr_type.gsi.remote_qp);
 			PARSE_AHEAD(p, net32, " remote_qkey=0x",
 				    &rep_addr.addr_type.gsi.remote_qkey);
-			PARSE_AHEAD(p, net16, " pkey=0x",
-				    &rep_addr.addr_type.gsi.pkey);
+			PARSE_AHEAD(p, net16, " pkey_ix=0x", &val16);
+			rep_addr.addr_type.gsi.pkey_ix = cl_ntoh16(val16);
 			PARSE_AHEAD(p, net8, " sl=0x",
 				    &rep_addr.addr_type.gsi.service_level);
 
