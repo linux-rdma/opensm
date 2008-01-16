@@ -46,6 +46,7 @@ Summary: Libraries from the opensm package
 Group: System Environment/Libraries
 Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
+Obsoletes: libopensm, libosmcomp, libosmvendor
 
 %description libs
 Shared libraries that are part of the opensm package but are also used by
@@ -56,6 +57,7 @@ libraries can be installed to satisfy dependencies of other applications.
 Summary: Development files for OpenSM
 Group: System Environment/Libraries
 Requires: %{name}-libs = %{version}-%{release} libibumad-devel
+Obsoletes: libopensm-devel, libosmcomp-devel, libosmvendor-devel
 
 %description devel
 Header files for OpenSM.
