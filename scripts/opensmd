@@ -62,7 +62,7 @@ shift
 if [ ! -x  $prog ]; then
     echo "OpenSM not installed"
     exit 1
-fi    
+fi
 
 # Check if OpenSM configured to start automatically
 if [[ -z $ONBOOT || "$ONBOOT" != "yes" ]]; then
@@ -248,7 +248,7 @@ echo_failure() {
   [ "$BOOTUP" = "color" ] && $MOVE_TO_COL
   echo -n "["
   [ "$BOOTUP" = "color" ] && $SETCOLOR_FAILURE
-  echo -n $"FAILED" 
+  echo -n $"FAILED"
   [ "$BOOTUP" = "color" ] && $SETCOLOR_NORMAL
   echo -n "]"
   echo -e "\r"
@@ -257,7 +257,7 @@ echo_failure() {
 
 
 #########################################################################
-   
+
 # Check if $pid (could be plural) are running
 checkpid() {
         local i
@@ -321,10 +321,10 @@ start()
         echo "Please load Infiniband driver first"
         echo
         return 2
-    fi    
-    
+    fi
+
     local OSM_PID=
-    
+
     if [ -f $PID_FILE ]; then
             local line p
             read line < $PID_FILE
@@ -332,14 +332,14 @@ start()
                     [ -z "${p//[0-9]/}" -a -d "/proc/$p" ] && pid="$pid $p"
             done
     fi
-    
+
     if [ -z "$pid" ]; then
         pid=`pidof -o $$ -o $PPID -o %PPID -x $bin`
     fi
-    
+
     if [ -n "${pid:-}" ] ; then
         echo $"${bin} (pid $pid) is already running..."
-    else    
+    else
 
 	if [ -n "${HONORE_GUID2LID_FLAG}" ]; then
 		# Run sldd daemod
@@ -352,17 +352,17 @@ start()
         do
             [ ! -z "$flag" ] && START_FLAGS="$START_FLAGS $flag"
         done
-        
+
         echo $PORT_FLAG | $prog $START_FLAGS > /dev/null 2>&1 &
         OSM_PID=$!
         echo $OSM_PID > $PID_FILE
-	sleep 1        
+	sleep 1
         checkpid $OSM_PID
         RC=$?
         [ $RC -eq 0 ] && echo_success "$bin start" || echo_failure "$bin start"
-        
+
     fi
-return $RC    
+return $RC
 }
 
 stop()
@@ -381,11 +381,11 @@ stop()
                     [ -z "${p//[0-9]/}" -a -d "/proc/$p" ] && pid1="$pid1 $p"
             done
     fi
-    
+
     pid2=`pidof -o $$ -o $PPID -o %PPID -x $bin`
-    
-    pid=`echo "$pid1 $pid2" | sed -e 's/\ /\n/g' | sort -n | uniq | sed -e 's/\n/\ /g'`              
-    
+
+    pid=`echo "$pid1 $pid2" | sed -e 's/\ /\n/g' | sort -n | uniq | sed -e 's/\n/\ /g'`
+
     if [ -n "${pid:-}" ] ; then
         # Kill opensm
         kill -15 $pid > /dev/null 2>&1
@@ -398,7 +398,7 @@ stop()
                 kill -KILL $p > /dev/null 2>&1
                 echo -n "."
                 sleep 1
-            done    
+            done
         done
         echo
         checkpid $pid
@@ -408,24 +408,24 @@ stop()
     else
         echo_failure "$bin shutdown"
         RC=1
-    fi      
-    
+    fi
+
     # Remove pid file if any.
     rm -f $PID_FILE
-return $RC    
+return $RC
 }
 
 status()
 {
     local pid
-    
+
     # First try "pidof"
     pid=`pidof -o $$ -o $PPID -o %PPID -x ${bin}`
     if [ -n "$pid" ]; then
             echo $"${bin} (pid $pid) is running..."
-            return 0 
+            return 0
     fi
-    
+
      # Next try "/var/run/opensm.pid" files
      if [ -f $PID_FILE ] ; then
              read pid < $PID_FILE
@@ -435,7 +435,7 @@ status()
              fi
      fi
      echo $"${bin} is stopped"
-     return 3   
+     return 3
 }
 
 
@@ -445,7 +445,7 @@ case $ACTION in
                 start
 		;;
 	stop)
-		stop    
+		stop
 		;;
 	restart)
 		stop
@@ -455,7 +455,7 @@ case $ACTION in
 		status
 		;;
 	*)
-		echo 
+		echo
 		echo "Usage: `basename $0` {start|stop|restart|status}"
 		echo
 		exit 1

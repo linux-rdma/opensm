@@ -27,16 +27,16 @@
 #
 #
 
-# OpenSM found to have the following problem 
-# when handover is performed: 
+# OpenSM found to have the following problem
+# when handover is performed:
 # If some of the cluster nodes are rebooted during the handover they loose their LID assignment.
-# The reason for it is that the standby SM does not obey its own Guid to LID table 
-# and simply uses the discovered LIDs. If some nodes are not available for it 
+# The reason for it is that the standby SM does not obey its own Guid to LID table
+# and simply uses the discovered LIDs. If some nodes are not available for it
 # their previous LID assignment is lost forever.
 
 # The idea is to use an external daemon that will distribute
 # the semi-static LID assignment table from the master SM to all standby SMs.
-# A standby SM, becoming a master . needs to obey the copied semi static LID assignment table. 
+# A standby SM, becoming a master . needs to obey the copied semi static LID assignment table.
 
 # config: /etc/opensm.conf
 
@@ -66,7 +66,7 @@ declare -i SLDD_DEBUG
 RESCAN_TIME=${RESCAN_TIME:-60}
 
 if [ -z "${OSM_HOSTS}" ]; then
-	[ $SLDD_DEBUG -eq 1 ] && 
+	[ $SLDD_DEBUG -eq 1 ] &&
 	echo "No OpenSM servers (OSM_HOSTS) configured for the IB subnet."
 	exit 0
 fi
@@ -78,7 +78,7 @@ arr_OSM_HOSTS=(${OSM_HOSTS})
 num_of_osm_hosts=${#arr_OSM_HOSTS[@]}
 
 if [ ${num_of_osm_hosts} -eq 1 ]; then
-	[ $SLDD_DEBUG -eq 1 ] && 
+	[ $SLDD_DEBUG -eq 1 ] &&
 	echo "One OpenSM server configured in the IB subnet." &&
 	echo "Nothing to be done for SLDD"
 
@@ -123,19 +123,19 @@ update_remote_cache()
 		if is_alive $host; then
 			stat=$($RSH $host "/bin/mkdir -p ${CACHE_DIR} > /dev/null 2>&1; /bin/rm -f ${CACHE_FILE}.${local_host} > /dev/null 2>&1; echo \$?" | tr -d '[:space:]')
 			if [ "X${stat}" == "X0" ]; then
-				[ $SLDD_DEBUG -eq 1 ] && 
+				[ $SLDD_DEBUG -eq 1 ] &&
 				echo "Updating $host"
 				logger -i "SLDD: updating $host with ${CACHE_FILE}"
 				$RCP ${CACHE_FILE}.upd ${host}:${CACHE_FILE}.${local_host}
 				/bin/cp ${CACHE_FILE}.upd ${CACHE_FILE}.${host}
 			else
-				[ $SLDD_DEBUG -eq 1 ] && 
+				[ $SLDD_DEBUG -eq 1 ] &&
 				echo "$RSH to $host failed."
 				logger -i "SLDD: Failed to update $host with ${CACHE_FILE}. $RSH without password should be enabled"
 				exit 5
 			fi
 		else
-			[ $SLDD_DEBUG -eq 1 ] && 
+			[ $SLDD_DEBUG -eq 1 ] &&
 			echo "$host is down."
 			continue
 		fi
@@ -192,7 +192,7 @@ do
 	if [ -s "${CACHE_FILE}" ]; then
 		new_size=$(du -b ${CACHE_FILE} | awk '{print$1}' | tr -d '[:space:]')
 		# Check if local cache file grew from its last version or the time stamp changed
-		if [ ${new_size} -gt ${last_size} ] ||
+		if [ ${new_size} -gt ${last_size} ]
 		   [ "$(/bin/ls -1t ${CACHE_FILE} ${CACHE_FILE}.tmp 2> /dev/null | head -1)"  != "${CACHE_FILE}.tmp" ]; then
 			largest_remote_cache=$(get_largest_remote_cache)
 			if [[ -n "${largest_remote_cache}" && -s "${largest_remote_cache}" ]]; then
@@ -203,7 +203,7 @@ do
 
 			# Check if local cache file larger than remote chache file
 			if [ ${new_size} -gt ${largest_remote_cache_size} ]; then
-				[ $SLDD_DEBUG -eq 1 ] && 
+				[ $SLDD_DEBUG -eq 1 ] &&
 				echo "Local cache file larger then remote. Update remote cache files"
 				last_size=${new_size}
 				update_remote_cache
@@ -220,7 +220,7 @@ do
 
 		# Update local cache file from remote
 		if [ ${largest_remote_cache_size} -gt ${new_size} ]; then
-			[ $SLDD_DEBUG -eq 1 ] && 
+			[ $SLDD_DEBUG -eq 1 ] &&
 			echo "Local cache file shorter then remote. Use ${largest_remote_cache}"
 			logger -i "SLDD: updating local cache file with ${largest_remote_cache}"
 			swap_cache_files
@@ -228,13 +228,13 @@ do
 		fi
 
 	else # The local cache file is empty
-		[ $SLDD_DEBUG -eq 1 ] && 
+		[ $SLDD_DEBUG -eq 1 ] &&
 		echo "${CACHE_FILE} is empty"
 
 		largest_remote_cache=$(get_largest_remote_cache)
 		if [[ -n "${largest_remote_cache}" && -s "${largest_remote_cache}" ]]; then
 			# Copy it to the current cache
-			[ $SLDD_DEBUG -eq 1 ] && 
+			[ $SLDD_DEBUG -eq 1 ] &&
 			echo "Local cache file is empty. Use ${largest_remote_cache}"
 			logger -i "SLDD: updating local cache file with ${largest_remote_cache}"
 			swap_cache_files
@@ -242,7 +242,7 @@ do
 
 	fi
 
-	[ $SLDD_DEBUG -eq 1 ] && 
+	[ $SLDD_DEBUG -eq 1 ] &&
 	echo "Sleeping ${RESCAN_TIME} seconds."
 	sleep ${RESCAN_TIME}
 
