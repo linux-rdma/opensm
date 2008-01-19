@@ -1429,7 +1429,7 @@ uint8_t osm_get_lash_sl(osm_opensm_t * p_osm, osm_port_t * p_src_port,
 		return OSM_DEFAULT_SL;
 
 	p_sw = get_osm_switch_from_port(p_dst_port);
-	if (!p_sw)
+	if (!p_sw || !p_sw->priv)
 		return OSM_DEFAULT_SL;
 	dst_id = get_lash_id(p_sw);
 
