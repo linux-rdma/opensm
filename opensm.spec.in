@@ -98,6 +98,7 @@ mkdir -p $etc/{init.d,ofa,logrotate.d}
 install -m 755 scripts/${REDHAT}opensm.init $etc/init.d/opensm
 install -m 644 scripts/opensm.conf $etc/ofa/opensm.conf
 install -m 644 scripts/opensm.logrotate $etc/logrotate.d/opensm
+install -m 755 scripts/sldd.sh $RPM_BUILD_ROOT%{_sbindir}/sldd.sh
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -126,6 +127,7 @@ fi
 %{_mandir}/man8/*
 %doc AUTHORS COPYING README
 %{_sysconfdir}/init.d/opensm
+%{_sbindir}/sldd.sh
 %config(noreplace) %{_sysconfdir}/ofa/opensm.conf
 %config(noreplace) %{_sysconfdir}/logrotate.d/opensm
 %dir /var/cache/opensm
