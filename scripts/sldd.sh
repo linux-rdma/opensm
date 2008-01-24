@@ -41,7 +41,7 @@
 # config: /etc/opensm.conf
 
 [ -f /etc/sysconfig/opensm.conf ] && CONFIG=/etc/sysconfig/opensm.conf
-[ -f /etc/ofa/opensm.conf ] && CONFIG=/etc/sysconfig/opensm.conf
+[ -f /etc/ofa/opensm.conf ] && CONFIG=/etc/ofa/opensm.conf
 
 SLDD_DEBUG=${SLDD_DEBUG:-0}
 

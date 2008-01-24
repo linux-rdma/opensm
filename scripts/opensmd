@@ -43,7 +43,7 @@ prog=/usr/bin/opensm
 bin=${prog##*/}
 
 # Handover daemon for updating guid2lid cache file
-sldd_prog=/usr/bin/sldd.sh
+sldd_prog=/usr/sbin/sldd.sh
 sldd_bin=${sldd_prog##*/}
 sldd_pid_file=/var/run/sldd.pid
 
