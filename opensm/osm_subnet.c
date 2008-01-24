@@ -1176,6 +1176,10 @@ ib_api_status_t osm_subn_parse_conf_file(IN osm_subn_opt_t * const p_opts)
 		return IB_ERROR;
 	}
 
+	sprintf(line, " Reading Cached Option File: %s\n", file_name);
+	printf(line);
+	cl_log_event("OpenSM", CL_LOG_INFO, line, NULL, 0);
+
 	while (fgets(line, 1023, opts_file) != NULL) {
 		/* get the first token */
 		p_key = strtok_r(line, " \t\n", &p_last);
