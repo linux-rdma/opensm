@@ -238,9 +238,19 @@ start()
 
 	echo -n "Starting IB Subnet Manager"
         echo $PORT_FLAG | $prog $START_FLAGS > /dev/null 2>&1 &
-        OSM_PID=$!
+        cnt=0; alive=0
+        while [ $cnt -lt 6 -a $alive -ne 1 ]; do
+		echo -n ".";
+		sleep 1
+		alive=0
+                OSM_PID=`pidof $prog`
+                if [ "$OSM_PID" != "" ]; then
+                        alive=1
+                fi
+		let cnt++;
+	done
+
         echo $OSM_PID > $PID_FILE
-	sleep 1
         checkpid $OSM_PID
         RC=$?
         [ $RC -eq 0 ] && echo_success || echo_failure
