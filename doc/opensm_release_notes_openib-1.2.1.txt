@@ -8,10 +8,10 @@ Date:    Jun 2006
 
 1 Overview
 ----------
-This document describes the contents of the OpenSM OFED 1.0 release. 
+This document describes the contents of the OpenSM OFED 1.0 release.
 OpenSM is an InfiniBand compliant Subnet Manager and Administrator,
-and runs on top of OpenIB. The OpenSM version for this release 
-is openib-1.2.1 
+and runs on top of OpenIB. The OpenSM version for this release
+is openib-1.2.1
 
 This document includes the following sections:
 1 This Overview section (describing new features and software
@@ -28,9 +28,9 @@ This document includes the following sections:
 
 * Default for maxsmps changed:
   Control the number of SMP sent in parallel and thus shorten the
-  fabric initialization time. 
+  fabric initialization time.
 
-* osmtest/osmt_slvl_vl_arb.c: 
+* osmtest/osmt_slvl_vl_arb.c:
   Output file name changed from vl_arbs.txt to qos.txt
 
 * Support new IBTA Errata IsPortInfoCapMaskMatchSupported:
@@ -46,7 +46,7 @@ This document includes the following sections:
 
 * Add guid to opensm opts
   This enables the port on which to run the SM to be defined through
-  the configuration file as well as through the command line. 
+  the configuration file as well as through the command line.
 
 * PPC support:
   No PPC QA was performed.
@@ -61,21 +61,21 @@ are provided in Table 2, "Qualified IB Stacks".
 1.4 Supported Devices Firmware
 
 The main task of OpenSM is to initialize InfiniBand devices. The
-qualified devices and their corresponding firmware versions 
-are listed in Table 3. 
+qualified devices and their corresponding firmware versions
+are listed in Table 3.
 
 2 Known Issues And Limitations
 ------------------------------
 
-* No Partition/Pkey policy support: 
-  OpenSM does not provide means to set partitions. 
+* No Partition/Pkey policy support:
+  OpenSM does not provide means to set partitions.
 
 * No Service / Key associations:
-  There is no way to manage Service access by Keys. 
+  There is no way to manage Service access by Keys.
 
-* No SM to SM SMDB synchronization: 
+* No SM to SM SMDB synchronization:
   Puts the burden of re-registering services, multicast groups, and
-  inform-info on the client application (or IB access layer core). 
+  inform-info on the client application (or IB access layer core).
 
 * No "port down" event handling:
   Changing the switch port through which OpenSM connects to the IB
@@ -83,15 +83,15 @@ are listed in Table 3.
   such a connectivity change is made.
 
 * Changing connections during SM operation:
-  Under some conditions the SM can get confused by a change in 
-  cabling (moving a cable from one switch port to the other) and 
-  momentarily see this as having the same GUID appear connected 
-  to two different IB ports. Under some conditions, when the SM fails to 
+  Under some conditions the SM can get confused by a change in
+  cabling (moving a cable from one switch port to the other) and
+  momentarily see this as having the same GUID appear connected
+  to two different IB ports. Under some conditions, when the SM fails to
   get the corresponding change event it might mistakenly report this case
   as a "duplicated GUID" case and abort. It is advisable to double-check
   the syslog after each such change in connectivity and restart
   OpenSM if it has exited.
-  
+
 * No QoS support:
   No SL2VL and VLArbitration setting is performed by the SM.
 
@@ -99,7 +99,7 @@ are listed in Table 3.
 --------------------------------------
 The following section lists all the IB compliance statements which
 OpenSM does not support. Please refer to the IB specification for detailed
-information regarding each compliance statement. 
+information regarding each compliance statement.
 
 * C14-22 (Authentication):
   M_Key M_KeyProtectBits and M_KeyLeasePeriod shall be set in one
@@ -114,7 +114,7 @@ information regarding each compliance statement.
 * C15-0.1.23.4 (Authentication):
   InformInfoRecords shall always be provided with the QPN set to 0,
   except for the case of a trusted request, in which case the actual
-  subscriber QPN shall be returned. 
+  subscriber QPN shall be returned.
 
 * o13-17.1.2 (Event-FWD):
   If no permission to forward, the subscription should be removed and
@@ -189,7 +189,7 @@ or visible bugs were also fixed.
   to passing a data packet with active enable set, the port may
   already have transitioned to active. Active -> active port state
   transition is indicated as an error but it isn't really an error so
-  don't indicate error in the osm log. 
+  don't indicate error in the osm log.
 
 * Routing not set for the first LID in the last LFT block:
   Fix: osm_switch.c: In osm_switch_get_fwd_tbl_block last block calculation
@@ -213,7 +213,7 @@ or visible bugs were also fixed.
   guid error (and possibly exit), but should just ignore this and
   continue. This means that only if the SM recognizes such a
   duplication in a stable subnet that it'll issue the error (and
-  possibly exit). 
+  possibly exit).
 
 * Set PKey table on switch ports not supporting it:
   OpenSM attempts to set pkey table entries on external switch ports
@@ -223,7 +223,7 @@ or visible bugs were also fixed.
 * Incorrect MCMemberRecord Get/GetTable in trusted mode:
   This change fixes the retrieval of the MCMember records according to
   Errata MGTWG3280. This fix provide means to obtain all the group
-  members by issuing a trusted GetTable query. 
+  members by issuing a trusted GetTable query.
 
 * Trusted MCMemberRecord query was not recognized as trusted:
   Trust is checked by comparing the request SM_Key field to the SM
@@ -236,9 +236,9 @@ or visible bugs were also fixed.
   the DB as in the ACTIVE state although its real status was INIT.
   Because of this, the SM didn't try to move the remote port to
   ACTIVE.
-  
+
 * Atomic counters used throughout the code were broken:
-  A new implementation has been provided. 
+  A new implementation has been provided.
 
 * MC Group creation with "less than" MTU ignores the requester MTU:
   When requesting to create an MC group with MTU(rate) selector 1
@@ -260,14 +260,14 @@ or visible bugs were also fixed.
   the first sweep after becoming Master. This doesn't cover all cases
   where ClientReRegistration should be turned on. Fix: turn on this
   bit also on new ports it discovers (in cases of subnet merging, for
-  example). 
+  example).
 
 * segfault during a report on deleted multicast group:
   osm_mcast_mgr.c, executing the line of code:
   osm_mgrp_send_delete_notice( p_mgr->p_subn, p_mgr->p_log, p_mgrp );
   caused segmentation fault since the handle p_mgrp was already
   deleted while the function was called. Fix: inserted the line above
-  into the protected section. 
+  into the protected section.
 
 * segfault in osm_get_gid_by_mad_addr:
   The affected flows are ports and multicast joins.
@@ -297,7 +297,7 @@ OpenSM verification is run using the following activities:
 5.1 osmtest
 
 osmtest is an automated verification tool used for OpenSM
-testing. Its verification flows are described by list below. 
+testing. Its verification flows are described by list below.
 
 * Inventory File: Obtain and verify all port info, node info, and path
   records parameters.
@@ -310,11 +310,11 @@ testing. Its verification flows are described by list below.
    - Delete the first service
    - Delete the third service.
    - Added bad flows of get/delete  non valid service
-   - Add / Get same service with different data 
+   - Add / Get same service with different data
    - Add / Get / Delete by different component  mask values (services
      by Name & Key / Name & Data / Name & Id / Id only )
 
-* Multicast Member Record: 
+* Multicast Member Record:
    - Query of existing Groups (IPoIB)
    - BAD Join with insufficient comp mask (o15.0.1.3)
    - Create given MGID=0 (o15.0.1.4)
@@ -359,7 +359,7 @@ The following test flows are run on the IB management simulator:
 
 * LID Manager:
   Using LMC = 2 the fabric is initialized with LIDs. Faults such as
-  zero LID, Duplicated LID, non-aligned (to LMC) LIDs are 
+  zero LID, Duplicated LID, non-aligned (to LMC) LIDs are
   randomly assigned to various nodes and other errors are randomly
   output to the guid2lid cache file. The SM sweep is run 5 times and
   after each iteration a complete verification is made to ensure that all
@@ -369,14 +369,14 @@ The following test flows are run on the IB management simulator:
 * Multicast Routing:
   Nodes randomly join the 0xc000 group and eventually the
   resulting routing is verified for completeness and adherence to
-  Up/Down routing rules. 
+  Up/Down routing rules.
 
 * osmtest:
   The complete osmtest flow as described in the previous table is run on
   the simulated fabrics.
 
 * Stress Test:
-  This flow merges fabric, LID and stability issues with continuous 
+  This flow merges fabric, LID and stability issues with continuous
   PathRecord, ServiceRecord and Multicast Join/Leave activity to
   stress the SM/SA during continuous sweeps.
 
@@ -394,7 +394,7 @@ tests are:
   network & verify DB correctness.
 
 * Trap Injection: This flow injects traps to the SM and verifies that it
-  handles them gracefully. 
+  handles them gracefully.
 
 * SA Query Test: This test exhaustively checks the SA responses to all
   possible single component mask. To do that the test examines the
@@ -410,9 +410,9 @@ involves real hardware setups of 16 to 32 nodes (or more if a beta site
 is available). Each test is validated by running all-to-all ping through the IB
 interface. The test procedure includes:
 
-* Cluster bringup 
+* Cluster bringup
 
-* Hand-off between 2 or 3 SM's while performing 
+* Hand-off between 2 or 3 SM's while performing
   - Node reboots
   - Switch power cycles (disconnecting the SM's)
 
@@ -423,7 +423,7 @@ interface. The test procedure includes:
 * Trap injection and recovery
 
 
-6 Qualification 
+6 Qualification
 ----------------
 
 Table 2 - Qualified IB Stacks
@@ -436,11 +436,11 @@ OpenIB Gen2 (IBG2 distribution)          |   1.0
 OpenIB Gen1 (IBGD distribution)          |   1.8.0
 VAPI (Mellanox InfiniBand HCA Driver)    |   3.2 and later
 
-Table 3 - Qualified Devices and Corresponding Firmware 
+Table 3 - Qualified Devices and Corresponding Firmware
 ======================================================
 
 Mellanox
-Device  |   FW versions 
+Device  |   FW versions
 --------|-----------------------------------------------------------
 MT43132 |   InfiniScale - fw-43132  5.2.0 (and later)
 MT47396 |   InfiniScale III - fw-47396 0.5.0 (and later)
@@ -456,5 +456,5 @@ iPath   | QHT6040 (PathScale InfiniPath HT-460)
 iPath   | QHT6140 (PathScale InfiniPath HT-465)
 iPath   | QLE6140 (PathScale InfiniPath PE-880)
 
-Note: OpenSM does not run on an IBM Galaxy (eHCA) as it does not expose 
+Note: OpenSM does not run on an IBM Galaxy (eHCA) as it does not expose
 QP0 and QP1. However, it does support it as a device on the subnet.

@@ -1,19 +1,19 @@
 .TH OSMTEST 8 "August 10, 2006" "OpenIB" "OpenIB Management"
 
 .SH NAME
-osmtest \- InfiniBand subnet manager and administration (SM/SA) test program 
+osmtest \- InfiniBand subnet manager and administration (SM/SA) test program
 
 .SH SYNOPSIS
-.B osmtest 
+.B osmtest
 [\-f(low) <c|a|v|s|e|f|m|q|t>] [\-w(ait) <trap_wait_time>] [\-d(ebug) <number>]
 [\-m(ax_lid) <LID in hex>] [\-g(uid)[=]<GUID in hex>] [-p(ort)]
 [\-i(nventory) <filename>] [\-s(tress)] [\-M(ulticast_Mode)]
 [\-t(imeout) <milliseconds>] [\-l | \-\-log_file] [\-v] [\-vf <flags>]
 [\-h(elp)]
- 
+
 .SH DESCRIPTION
 .PP
-osmtest is a test program to validate InfiniBand subnet manager and 
+osmtest is a test program to validate InfiniBand subnet manager and
 administration (SM/SA).
 
 Default is to run all flows with the exception of the QoS flow.
@@ -22,9 +22,9 @@ osmtest provides a test suite for opensm.
 
 osmtest has the following capabilities and testing flows:
 
-It creates an inventory file of all available Nodes, Ports, and PathRecords, 
+It creates an inventory file of all available Nodes, Ports, and PathRecords,
 including all their fields.
-It verifies the existing inventory, with all the object fields, and matches it 
+It verifies the existing inventory, with all the object fields, and matches it
 to a pre-saved one.
 A Multicast Compliancy test.
 An Event Forwarding test.
@@ -32,11 +32,11 @@ A Service Record registration test.
 An RMPP stress test.
 A Small SA Queries stress test.
 
-It is recommended that after installing opensm, the user should run 
+It is recommended that after installing opensm, the user should run
 "osmtest -f c" to generate the inventory file, and
 immediately afterwards run "osmtest -f a" to test OpenSM.
 
-Another recommendation for osmtest usage is to create the inventory when the 
+Another recommendation for osmtest usage is to create the inventory when the
 IB fabric is stable, and occasionally
 run "osmtest -v" to verify that nothing has changed.
 

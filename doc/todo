@@ -7,11 +7,11 @@
 		 to osmtest for this
 5	051207 - Client reregistration is indicated before SA is
 		 ready to accept subscriptions
-6	060109 - Use LID routing for light sweep to guarantee trap 
+6	060109 - Use LID routing for light sweep to guarantee trap
                  delivery path to the SM.
 7	061201 - Finer grained locking ?
 8	061201 - Mapping multiple MGIDs on single MLID when characteristics
-                 match (PKey, etc.)                  
+                 match (PKey, etc.)
 9	070329 - Add ssh support into remote socket/console support
 10	070329 - Add authentication for (at least remote) console
 11	070413 - Add dynamic rate adjustment for multicast groups

@@ -1,14 +1,14 @@
                            OpenSM Release Notes
 								  ======================
 
-Release: IBG2 
+Release: IBG2
 Repo: https://openib.org/svn/trunk/contrib/mellanox/gen2/src/userspace/management/osm
 Version: 4956
 Date:    Jan 2006
 
 1 Overview
 ----------
-This document describes the contents of the OpenSM IBG2 release. 
+This document describes the contents of the OpenSM IBG2 release.
 OpenSM is an InfiniBand compliant Subnet Manager and Administrator,
 and runs on top of OpenIB.
 
@@ -33,7 +33,7 @@ This document includes the following sections:
 
 * Change directory stucturing of the OpenSM code according to libs:
   osm/libvendor - for vendor specific files. osm/complib - for complib
-  specific files. osm/opensm - for opensm core files. osm/include 
+  specific files. osm/opensm - for opensm core files. osm/include
 
 * Semi-static LID assignment: OpenSM uses a cache file for storing all
   LID assignments such that, even after a reboot, the LIDs do not
@@ -44,20 +44,20 @@ This document includes the following sections:
   variable OSM_CACHE_DIR). Other implementations can use LDAP for
   example. Note that a standby SM ignores its previously assigned LIDs
   when it becomes the master, and the previous master LID settings are
-  used. 
+  used.
 
 * Irresponsive Port Handling: A port that does not respond to SM
   queries will be queried upon future light or heavy sweeps, and if
   then it responds, it will be setup immediately. Previously such a
-  port was queried only upon a heavy sweep. 
+  port was queried only upon a heavy sweep.
 
 * Leaf Switch Port HOQ: A different maximal head of queue life time is
   assigned to switch ports connected to HCAs such that a bad chipset
-  or defective hardware will not cause back presure on the fabric. 
+  or defective hardware will not cause back presure on the fabric.
 
 * OSM_TMP_DIR: This is a new environment variable controlling the
   directory where subnet.lst, osm.fdbs and osm.mcfdbs files are
-  created. The deafult is still /tmp. 
+  created. The deafult is still /tmp.
 
 * Configuration Options cache file: OpenSM was enhanced to provide a
   means to modify all its internal configuration options, including
@@ -77,7 +77,7 @@ This document includes the following sections:
 
 * Kill -HUP: If the OpenSM process (ps -efww |grep opensm.bin) gets a
   SIGHUP (sent by kill -HUP), it will start a heavy sweep as if a trap
-  was received or a change in topology was observed by the SM. 
+  was received or a change in topology was observed by the SM.
 
 1.2 Software Dependencies
 
@@ -89,27 +89,27 @@ stacks. The qualified driver versions are provided in Table 2,
 1.4 Supported Devices Firmware
 
 The main task of OpenSM is to initialize InfiniBand devices. The
-qualified devices and their corresponding firmware versions 
+qualified devices and their corresponding firmware versions
 listed in Table 3.
 
 2 Known Issues And Limitations
 ------------------------------
 
-* No Partition/Pkey policy support:	
-  OpenSM does not provide means to set poartitions. 
+* No Partition/Pkey policy support:
+  OpenSM does not provide means to set poartitions.
 
 * IB "trusted" concept is unsupported:
   Queries that should be classified according to the trustworthiness of
   their sources will not be handled correctly.
 
 * No Service / Key associations:
-  There is no way to manage Service access by Keys. 
+  There is no way to manage Service access by Keys.
 
-* No SM to SM SMDB synchronization: 
+* No SM to SM SMDB synchronization:
   Puts the burden of re-registering services, multicast groups, and
-  inform-info on the client application (or IB access layer core). 
+  inform-info on the client application (or IB access layer core).
 
-* NPTL problem under Red Hat 9.0, Red Hat AS 3.0: 
+* NPTL problem under Red Hat 9.0, Red Hat AS 3.0:
   There are some bugs (pthread conditional wait missing events)
   with thread handling when using the dynamic Native POSIX Thread
   Library (/lib/tls) of Red Hat 9.0 & Red Hat AS 3.0 OSs. To overcome
@@ -118,7 +118,7 @@ listed in Table 3.
   and libptherad before invoking the executables. If using the osm
   package, a similar workaround is possible by putting the LD_PRELOAD
   setting in .tclshrc file, for example: set env (LD_PRELOAD)
-  "/lib/libc.so.6:/lib/libpthread.so.0" 
+  "/lib/libc.so.6:/lib/libpthread.so.0"
 
 * InformInfo failure over IBMGT:
   OpenSM might not respect a valid InformInfo unsubscribe request when
@@ -134,7 +134,7 @@ listed in Table 3.
 --------------------------------------
 The following section lists all the IB compliancy statements which
 OpenSM does not support. Please refer to IB specification for detailed
-information on each compliancy statement. 
+information on each compliancy statement.
 
 * C14-22 (Authentication):
   M_Key M_KeyProtectBits and M_KeyLeasePeriod shall be set in one
@@ -149,7 +149,7 @@ information on each compliancy statement.
 * C15-0.1.23.1 (Authentication):
   PortInfoRecords shall always be provided with the M_Key component
   set to 0, except in the case of a trusted request, in which case the
-  actual M_Key component contents shall be provided. 
+  actual M_Key component contents shall be provided.
 
 * C15-0.1.23.2 (Authentication):
   P_KeyTableRecords and ServiceAssociationRecords shall only be
@@ -158,7 +158,7 @@ information on each compliancy statement.
 * C15-0.1.23.4 (Authentication):
   InformInfoRecords shall always be provided with the QPN set to
   0, except for the case of a trusted request, in which case the actual
-  subscriber QPN shall be returned. 
+  subscriber QPN shall be returned.
 
 * o13-17.1.2 (Event-FWD):
   If no permission to forward, the subscription should be removed and
@@ -236,14 +236,14 @@ The following list of bugs were fixed. Note that other less critical
 or visible bugs were also fixed.
 
 * PortInfo query was not matching on several fields.	These fields
-  were added to teh comparison function. 
+  were added to teh comparison function.
 
 * OpenSM would crash during exit flow if run with "-o" flag	A fix to
-  the complib global timer destruction sequence solves this problem. 
+  the complib global timer destruction sequence solves this problem.
 
 * OpenSM does not complete the sweep if the driver fails to send a MAD
   Counting the number of outstanding MADs the SM waits for response
-  for was enhanced to take this acse into acount 
+  for was enhanced to take this acse into acount
 
 * OpenSM was not compliant to the spec statement: C14.62.1.1 Table 183
   p870 l34: ".., the SM shall ensure that one of the P_KeyTable
@@ -251,17 +251,17 @@ or visible bugs were also fixed.
   P_Key, full membership) or the value 0x7FFF (the default P_Key,
   partial membership)."	OpenSM sets the PKey table with an entry of
   0xffff in case there is no such entry or 0x7fff entries on that
-  port. Switch ports are ignored. 
+  port. Switch ports are ignored.
 
 * If the SA is queried with IB_PIR_COMPMASK_BASELID and base_lid of 0,
   the SA was incorrectly returning all the ports. Fix: do not ignore base
-  lid of 0 as a query criteria. 
+  lid of 0 as a query criteria.
 
 * When provided a PathRecord query with num_paths = 0 the SM should
   assuem num_paths = 1. Fix: in the PathRecord query code.
 
 * PathRecord query returned a deleted multicast groups info. Fix:
-  Added a check for multicast group state to avoid such cases. 
+  Added a check for multicast group state to avoid such cases.
 
 * LinkRecord query provided wrong results. Fix: in query code.
 
@@ -270,7 +270,7 @@ or visible bugs were also fixed.
 
 * Multicast and other registration hapenning all the time on the
   cluster. Fix: OpenSM was sending false "client-re-registration"
-  messages (in PortInfo). 
+  messages (in PortInfo).
 
 * On some heavy load cases OpenSM would consume 100% CPU time. Fix: an
   endless loop in timer implementation that would happen under rare
@@ -286,7 +286,7 @@ or visible bugs were also fixed.
   A memory free on non allocated memory was fixed.
 
 * OpenSM sweep algorithm confused by a timing race. Fix: A significant
-  race conditionin the SM sweep algorithm was found and fixed. 
+  race conditionin the SM sweep algorithm was found and fixed.
 
 * OpenSM deadlock due to out of order SMINfo and NodeInfo MAD
   received. Fix: A fix in lock ordering resolves this issue.
@@ -311,7 +311,7 @@ OpenSM verification is run using the following activities:
 5.1 osmtest
 
 OsmTest is the main automated verification tool used for OpenSM
-testing. Its verification flows are described by list below. 
+testing. Its verification flows are described by list below.
 
 * Inventory File: Obtain and verify all port info, node info, and path
   records parameters.
@@ -324,11 +324,11 @@ testing. Its verification flows are described by list below.
 	- Delete the first service
 	- Delete the third service.
 	- Added bad flows of get/delete  non valid service
-	- Add / Get same service with different data 
+	- Add / Get same service with different data
 	- Add / Get / Delete by different component  mask values (services
 	  by Name & Key / Name & Data / Name & Id / Id only )
 
-* Multicast Member Record: 
+* Multicast Member Record:
 	- Query of existing Groups (IPoIB)
 	- BAD Join with insufficient comp mask (o15.0.1.3)
 	- Create given MGID=0 (o15.0.1.4)
@@ -379,7 +379,7 @@ The following test flows are running on the IB management simulator:
 * Multicast Routing:
   Nodes are randomly joining the 0xc000 group and eventually the
   resulting routing is verified for completness and adherance to
-  Up/Down routing rules. 
+  Up/Down routing rules.
 
 * OsmTest:
   The complete osmtest flow as desribed in previous table is run on
@@ -399,7 +399,7 @@ tests are:
   network & verify DB correctness.
 
 * Trap Injection: This flow injects traps to the SM and verify it does
-  handle them gracefully. 
+  handle them gracefully.
 
 * SA Query Test: This test exhoustivly checks the SA responses to all
   possible single component mask. To do that the test examine the
@@ -415,9 +415,9 @@ involves real hardware setup of 16 to 32 nodes (or more if beta site
 is available). Each test is validated by running all-to-all ping through IB
 interface. The test procedure includes:
 
-* Cluster bringup 
+* Cluster bringup
 
-* Handoff between 2 or 3 SM's while performing 
+* Handoff between 2 or 3 SM's while performing
   - Node reboots
   - Switch power cycles (disconneting the SM's)
 
@@ -428,7 +428,7 @@ interface. The test procedure includes:
 * Trap injection and recovery
 
 
-6 Qualification 
+6 Qualification
 ----------------
 
 Table 2 - Qualified IB Stacks
@@ -440,10 +440,10 @@ VAPI (Mellanox Infininband HCA Driver)	 |	3.2 and later
 OpenIB Gen1 (IBGD distribution)			 | 1.8.0
 OpenIB Gen2 (IBG2 distribution)			 | 1.0
 
-Table 3 - Qualified Devices and Corresponding Firmware 
+Table 3 - Qualified Devices and Corresponding Firmware
 ======================================================
 
-Device  |	FW versions 
+Device  |	FW versions
 --------|-----------------------------------------------------------
 MT43132 |	InfiniScale - fw-43132	5.2.0 (and later)
 MT47396 |	InfiniScale III - fw-47396	0.5.0 (and later)

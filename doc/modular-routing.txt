@@ -47,7 +47,7 @@ In order to activate new module use:
 
   opensm -R file -U /path/to/dump_file
 
-If the dump_file is not found or is in error, the default routing 
+If the dump_file is not found or is in error, the default routing
 algorithm is utilized.
 
 The ability to dump switch lid matrices (aka min hops tables) to file and

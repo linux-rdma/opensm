@@ -13,7 +13,7 @@
 2007-06-11 Sasha Khapyorsky <sashak@voltaire.com>
 
 	* osm_helper.c: Remove OSM_SM_SIGNAL_MASTER_OR_HIGHER_SM_DETECTED
-	  from __osm_sm_mgr_signal_str 
+	  from __osm_sm_mgr_signal_str
 
 2007-06-06 Sasha Khapyorsky <sashak@voltaire.com>
 
@@ -21,7 +21,7 @@
 
 2007-06-06 Hal Rosenstock <halr@voltaire.com>
 
-	* osm_helper.c: Add Sun to osm_get_manufacturer_str 
+	* osm_helper.c: Add Sun to osm_get_manufacturer_str
 
 2007-06-04 Hal Rosenstock <halr@voltaire.com>
 
@@ -31,10 +31,10 @@
 
 	* osm_helper.c: Remove repeated strlen() calls
 
-2007-04-27 Ira K. Weiny <weiny2@llnl.gov> 
+2007-04-27 Ira K. Weiny <weiny2@llnl.gov>
 
 	* osm_helper.c: In osm_dump_notice, use ib_get_producer_type_str
-	  for printing producer type 
+	  for printing producer type
 
 2007-04-26 Hal Rosenstock <halr@voltaire.com>
 
@@ -44,7 +44,7 @@
 
 2007-04-25 Yevgeny Kliteynik <kliteyn@dev.mellanox.co.il>
 
-	* osm_helper.c: Fix problematic usage of sprintf() when 
+	* osm_helper.c: Fix problematic usage of sprintf() when
 	  source and destination strings overlap.
 
 2007-04-24 Albert L. Chu <chu11@llnl.gov>
@@ -102,7 +102,7 @@
 
 2006-10-30 Sasha Khapyorsky <sashak@voltaire.com>
 
-	* osm_helper.c: Fix seg fault with strings which 
+	* osm_helper.c: Fix seg fault with strings which
 	  might not be null terminated
 
 2006-10-18 Yevgeny Kliteynik <kliteyn@dev.mellanox.co.il>

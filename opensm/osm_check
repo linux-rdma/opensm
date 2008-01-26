@@ -34,20 +34,20 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-# 
-# 
+#
+#
 #  Abstract:
 #  	Perl script for simple source code error checking.
-# 
+#
 #  Environment:
 #  	Linux User Mode
-# 
+#
 #  $Revision: 1.4 $
-# 
+#
 #
 #
 # DESCRIPTION:
-# 
+#
 # This script performs some simple conformance checks on the
 # OpenSM source code.  It does NOT attempt to act like a full
 # blown 'C' language parser, so it can be fooled.  Something
@@ -59,17 +59,17 @@
 # The following checks are performed:
 # 1) Verify that the function name provided in a log statement
 # matches the name of the current function.
-# 
+#
 # 2) Verify that log statements are in the form that this script
 # can readily parse.  Improvements to the regular expressions
 # might make this unnecessary.
 #
 # 3) Verify that lower two digits of the error codes used in log
 # statements are unique within that file.
-# 
+#
 # 4) Verify that upper two digits of the error codes used in log
 # statements are not used by any other module.
-# 
+#
 # USAGE:
 #
 # In the OpenSM source directory, type:
@@ -91,7 +91,7 @@ if( !exists $ARGV[0] )
 do
 {
 	$doing_params = 0;
-	
+
 	# First, look for command line options.
 	if( $ARGV[0] =~ /-[v|V]/ )
 	{
@@ -100,7 +100,7 @@ do
 		print "Verbose mode on, level = $verbose.\n";
 		$doing_params = 1;
 	}
-	
+
 	if( !exists $ARGV[0] )
 	{
 		print "ERROR: You must specify the files on which to operate, such as '*.c'\n";
@@ -112,7 +112,7 @@ do
 LINE: while( <> )
 {
 	# Skip C single line C style comments
-	# This line must come before the multi-line C comment check! 
+	# This line must come before the multi-line C comment check!
 	if( /\/\*.*\*\// )
 	{
 		$in_c_comment = 0;
@@ -244,7 +244,7 @@ LINE: while( <> )
 		if( $4 ne ": " )
 		{
 			print "MALFORMED LOG STATEMENT!!  NEEDS ': ' $ARGV $.\n";
-		}	
+		}
 
 		if( $1 ne " " )
 		{
@@ -279,4 +279,4 @@ sub osm_check_usage
 	print "Usage:\n";
 	print "osm_check.pl [-v|V] <file list>\n";
 	print "[-v|V] - enable verbose mode.\n\n";
-}	
+}

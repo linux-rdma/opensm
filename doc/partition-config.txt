@@ -96,8 +96,8 @@ Default=0x7fff : ALL, SELF=full ;
 
 NewPartition , ipoib : 0x123456=full, 0x3456789034=limi, 0x2134af2306 ;
 
-YetAnotherOne = 0x300 : SELF=full ;  
-YetAnotherOne = 0x300 : ALL=limited ;  
+YetAnotherOne = 0x300 : SELF=full ;
+YetAnotherOne = 0x300 : ALL=limited ;
 
 
 Note:

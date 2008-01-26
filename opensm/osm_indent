@@ -33,13 +33,13 @@
 # SOFTWARE.
 #
 #########################################################################
-# 
+#
 #  Abstract:
 #  	Indent script for source code formatting.
-# 
+#
 #  Environment:
 #  	Linux User Mode
-# 
+#
 # This is the indent format used for OpenSM (similar to one used in
 # linux/scripts/Lindent).
 

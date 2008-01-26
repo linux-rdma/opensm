@@ -1,6 +1,6 @@
 # In this file we track the current API version
-# of the complib library interface 
-# The version is built of the following 
+# of the complib library interface
+# The version is built of the following
 # tree numbers:
 # API_REV:RUNNING_REV:AGE
 # API_REV - advance on any added API

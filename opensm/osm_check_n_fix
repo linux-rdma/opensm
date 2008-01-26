@@ -58,7 +58,7 @@ eval '(exit $?0)' &&
 # OpenSM source code.  It does NOT attempt to act like a full
 # blown 'C' language parser, so it can be fooled.  Something
 # is better than nothing.
-# 
+#
 # The script starts by running the 'osm_indent' script on teh given files.
 #
 # We use an extra file for tracking error codes used by each file.
@@ -352,13 +352,13 @@ foreach $file_name (@ARGV) {
 
           # Check if we already established the error prefix for this module
           $err_prefix = $module_err_prefixes{$file_name};
-          
+
           # err prefix is not available for this file
           if ( ! $err_prefix ) {
             # make sure no other file uses this prefix:
             if ($module_by_prefix{$found_prefix}) {
               # some other file uses that prefix:
-              
+
               # two modes: either use a new one or abort
               if ($re_assign_err_prefix) {
                 # scan the available module prefixes for an empty one:
@@ -395,14 +395,14 @@ foreach $file_name (@ARGV) {
               $exp_err = 1;
             }
           }
-          
+
           # now check for code duplicates
           $err_base = $module_err_bases{$found_code};
           if( $err_base ) {
             $needed_fixing++;
             print "DUPLICATE ERR NUMBER IN LOG ENTRY!! $file_name $line_num: $current_func: $3\n";
             print "\tPrevious use on line $err_base.\n";
-            
+
             # use the last error code for this module:
             $module_last_err_used{$file_name}++;
             $err_code = sprintf("%02X", $module_last_err_used{$file_name});
@@ -419,7 +419,7 @@ foreach $file_name (@ARGV) {
               $module_last_err_used{$file_name} = $err_code_num;
             }
             $err_code = $found_code;
-            
+
             if( $verbose > 1 ) {
               print "Adding new error: $err_prefix$found_code in $file_name.\n";
             }

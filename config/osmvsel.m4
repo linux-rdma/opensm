@@ -1,7 +1,7 @@
 
 dnl osmvsel.m4: an autoconf for OpenSM Vendor Selection option
 dnl
-dnl To use this macro, just do OPENIB_APP_OSMV_SEL.  
+dnl To use this macro, just do OPENIB_APP_OSMV_SEL.
 dnl the new configure option --with-osmv will be defined.
 dnl current supported values are: openib(default),sim,gen1
 dnl The following variables are defined:
@@ -32,7 +32,7 @@ AC_ARG_WITH(umad-includes,
 AC_MSG_NOTICE(Using ibumad includes from:$with_umad_includes),
 with_umad_includes="")
 
-if test x$with_umad_includes = x; then 
+if test x$with_umad_includes = x; then
    if test x$with_umad_prefix != x; then
         with_umad_includes=$with_umad_prefix/include
    fi
@@ -45,7 +45,7 @@ AC_ARG_WITH(umad-libs,
 AC_MSG_NOTICE(Using ibumad libs from:$with_umad_libs),
 with_umad_libs="")
 
-if test x$with_umad_libs = x; then 
+if test x$with_umad_libs = x; then
    if test x$with_umad_prefix != x; then
 dnl Should we use lib64 or lib
 if test "$(uname -m)" = "x86_64" -o "$(uname -m)" = "ppc64"; then
@@ -74,7 +74,7 @@ if test $with_osmv = "openib"; then
      OSMV_LDADD="-L$with_umad_libs $OSMV_LDADD"
    fi
 
-   if test "x$with_umad_includes" != "x"; then 
+   if test "x$with_umad_includes" != "x"; then
      OSMV_INCLUDES="-I$with_umad_includes $OSMV_INCLUDES"
    fi
 elif test $with_osmv = "sim" ; then
@@ -92,7 +92,7 @@ elif test $with_osmv = "gen1"; then
 
    dnl we need to find the TS includes somewhere...
    osmv_found=0
-   if test -z $TSHOME; then 
+   if test -z $TSHOME; then
       osmv_dir=`uname -r|sed 's/-smp//'`
       osmv_dir_smp=`uname -r`
       for d in /usr/src/linux-$osmv_dir /usr/src/linux-$osmv_dir_smp /lib/modules/$osmv_dir/build /lib/modules/$osmv_dir_smp/build/; do
@@ -106,7 +106,7 @@ elif test $with_osmv = "gen1"; then
          OSMV_INCLUDES="$OSMV_INCLUDES -I$TSHOME"
          osmv_found=1
       fi
-   fi      
+   fi
    if test $osmv_found = 0; then
       AC_MSG_ERROR([Fail to find gen1 include files dir])
    fi
@@ -132,7 +132,7 @@ AC_SUBST(OSMV_INCLUDES)
 # --- END OPENIB_APP_OSMV_SEL ---
 ]) dnl OPENIB_APP_OSMV_SEL
 
-dnl Check for the vendor lib dependency 
+dnl Check for the vendor lib dependency
 AC_DEFUN([OPENIB_APP_OSMV_CHECK_LIB], [
 # --- BEGIN OPENIB_APP_OSMV_CHECK_LIB ---
 if test "$disable_libcheck" != "yes"; then
@@ -144,7 +144,7 @@ if test "$disable_libcheck" != "yes"; then
 	 AC_MSG_ERROR([umad_init() not found. libosmvendor of type openib requires libibumad.]))
  elif test $with_osmv = "sim" ; then
    LDFLAGS="$LDFLAGS -L$with_sim/lib"
-   AC_CHECK_FILE([$with_sim/lib/libibmscli.a], [], 
+   AC_CHECK_FILE([$with_sim/lib/libibmscli.a], [],
     AC_MSG_ERROR([ibms_bind() not found. libosmvendor of type sim requires libibmscli.]))
  elif test $with_osmv = "gen1"; then
    osmv_save_ldflags=$LDFLAGS
@@ -161,7 +161,7 @@ fi
 # --- END OPENIB_APP_OSMV_CHECK_LIB ---
 ]) dnl OPENIB_APP_OSMV_CHECK_LIB
 
-dnl Check for the vendor lib dependency 
+dnl Check for the vendor lib dependency
 AC_DEFUN([OPENIB_APP_OSMV_CHECK_HEADER], [
 # --- BEGIN OPENIB_APP_OSMV_CHECK_HEADER ---
 
