@@ -97,7 +97,7 @@ pkey_mgr_process_physical_port(IN osm_log_t * p_log,
 	char *stat = NULL;
 	osm_pending_pkey_t *p_pending;
 
-	p_pkey_tbl = osm_physp_get_mod_pkey_tbl(p_physp);
+	p_pkey_tbl = &p_physp->pkeys;
 	p_pending = (osm_pending_pkey_t *) malloc(sizeof(osm_pending_pkey_t));
 	if (!p_pending) {
 		osm_log(p_log, OSM_LOG_ERROR,
@@ -294,7 +294,7 @@ static boolean_t pkey_mgr_update_port(osm_log_t * p_log, osm_sm_t * sm,
 		return FALSE;
 
 	p_node = osm_physp_get_node_ptr(p_physp);
-	p_pkey_tbl = osm_physp_get_mod_pkey_tbl(p_physp);
+	p_pkey_tbl = &p_physp->pkeys;
 	num_of_blocks = osm_pkey_tbl_get_num_blocks(p_pkey_tbl);
 	max_num_of_blocks =
 	    pkey_mgr_get_physp_max_blocks(sm->p_subn, p_physp);
@@ -434,7 +434,7 @@ pkey_mgr_update_peer_port(osm_log_t * p_log, osm_sm_t * sm,
 		return FALSE;
 
 	p_pkey_tbl = osm_physp_get_pkey_tbl(p_physp);
-	p_peer_pkey_tbl = osm_physp_get_mod_pkey_tbl(peer);
+	p_peer_pkey_tbl = &peer->pkeys;
 	num_of_blocks = osm_pkey_tbl_get_num_blocks(p_pkey_tbl);
 	peer_max_blocks = pkey_mgr_get_physp_max_blocks(p_subn, peer);
 	if (peer_max_blocks < p_pkey_tbl->used_blocks) {

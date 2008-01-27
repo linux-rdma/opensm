@@ -536,40 +536,6 @@ static inline const osm_pkey_tbl_t *osm_physp_get_pkey_tbl(IN const osm_physp_t
 *  Port, Physical Port
 *********/
 
-/****f* OpenSM: Physical Port/osm_physp_get_mod_pkey_tbl
-* NAME
-*  osm_physp_get_mod_pkey_tbl
-*
-* DESCRIPTION
-*  Returns a NON CONST pointer to the P_Key table object of the Physical Port object.
-*
-* SYNOPSIS
-*/
-static inline osm_pkey_tbl_t *osm_physp_get_mod_pkey_tbl(IN osm_physp_t *
-							 const p_physp)
-{
-	CL_ASSERT(osm_physp_is_valid(p_physp));
-	/*
-	   (14.2.5.7) - the block number valid values are 0-2047, and are further
-	   limited by the size of the P_Key table specified by the PartitionCap on the node.
-	 */
-	return (&p_physp->pkeys);
-};
-
-/*
-* PARAMETERS
-*	p_physp
-*		[in] Pointer to an osm_physp_t object.
-*
-* RETURN VALUES
-*  The pointer to the P_Key table object.
-*
-* NOTES
-*
-* SEE ALSO
-*  Port, Physical Port
-*********/
-
 /****f* OpenSM: Physical Port/osm_physp_set_slvl_tbl
 * NAME
 *	osm_physp_set_slvl_tbl
