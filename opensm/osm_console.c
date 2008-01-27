@@ -348,8 +348,6 @@ static char *sm_state_mgr_str(osm_sm_state_t state)
 		return ("Set Active");
 	case OSM_SM_STATE_SET_ACTIVE_WAIT:
 		return ("Set Active Wait");
-	case OSM_SM_STATE_LOST_NEGOTIATION:
-		return ("Lost Negotiation");
 	case OSM_SM_STATE_STANDBY:
 		return ("Standby");
 	case OSM_SM_STATE_SUBNET_UP:
