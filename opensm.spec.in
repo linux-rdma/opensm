@@ -25,7 +25,7 @@ Summary: InfiniBand subnet manager and administration
 Name: opensm
 Version: @VERSION@
 Release: %rel%{?dist}
-License: GPL/BSD
+License: GPLv2 or BSD
 Group: System Environment/Daemons
 URL: http://openfabrics.org/
 Source: http://www.openfabrics.org/downloads/management/@TARBALL@
