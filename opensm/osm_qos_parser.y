@@ -777,8 +777,8 @@ qos_ulp:            TK_ULP_DEFAULT single_number {
                         uint64_t ** range_arr =
                                (uint64_t **)malloc(sizeof(uint64_t *));
                         range_arr[0] = (uint64_t *)malloc(2*sizeof(uint64_t));
-                        range_arr[0][0] = OSM_QOS_POLICY_ULP_RDS_SERVICE_ID;
-                        range_arr[0][1] = OSM_QOS_POLICY_ULP_RDS_SERVICE_ID + 0xFFFF;
+                        range_arr[0][0] = range_arr[0][1] =
+                           OSM_QOS_POLICY_ULP_RDS_SERVICE_ID + OSM_QOS_POLICY_ULP_RDS_PORT;
 
                         p_current_qos_match_rule->service_id_range_arr = range_arr;
                         p_current_qos_match_rule->service_id_range_len = 1;
