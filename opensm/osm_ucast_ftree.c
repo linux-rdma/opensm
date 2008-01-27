@@ -3106,17 +3106,29 @@ static int __osm_ftree_fabric_construct_sw_ports(IN ftree_fabric_t * p_ftree,
 
 	CL_ASSERT(osm_node_get_type(p_node) == IB_NODE_TYPE_SWITCH);
 
-	for (i = 0; i < osm_node_get_num_physp(p_node); i++) {
+	for (i = 1; i < osm_node_get_num_physp(p_node); i++) {
 		osm_physp_t *p_osm_port = osm_node_get_physp_ptr(p_node, i);
 		if (!p_osm_port || !osm_link_is_healthy(p_osm_port))
 			continue;
 
 		p_remote_osm_port = osm_physp_get_remote(p_osm_port);
+		if (!p_remote_osm_port)
+			continue;
+
 		p_remote_node =
 		    osm_node_get_remote_node(p_node, i, &remote_port_num);
 
-		if (!p_remote_osm_port)
+		/* ignore any loopback connection on switch */
+		if (p_node == p_remote_node) {
+			osm_log(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
+				"__osm_ftree_fabric_construct_sw_ports: "
+				"Ignoring loopback on switch GUID 0x%016" PRIx64
+				", LID 0x%04x, rank %u\n",
+				__osm_ftree_sw_get_guid_ho(p_sw),
+				cl_ntoh16(p_sw->base_lid),
+				p_sw->rank);
 			continue;
+		}
 
 		remote_node_type = osm_node_get_type(p_remote_node);
 		remote_node_guid = osm_node_get_node_guid(p_remote_node);
@@ -3148,6 +3160,7 @@ static int __osm_ftree_fabric_construct_sw_ports(IN ftree_fabric_t * p_ftree,
 			    __osm_ftree_fabric_get_sw_by_guid(p_ftree,
 							      remote_node_guid);
 			CL_ASSERT(p_remote_sw);
+
 			p_remote_hca_or_sw = (void *)p_remote_sw;
 
 			if (abs(p_sw->rank - p_remote_sw->rank) != 1) {
