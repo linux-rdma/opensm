@@ -105,7 +105,7 @@ opensminclude_HEADERS = $(srcdir)/../include/opensm/osm_base.h \
 BUILT_SOURCES = osm_version
 osm_version:
 	if [ -x $(top_srcdir)/../gen_ver.sh ] ; then \
-		ver_file=$(srcdir)/../include/opensm/osm_version.h ; \
+		ver_file=$(top_builddir)/include/opensm/osm_version.h ; \
 		osm_ver=`cat $$ver_file | sed -ne '/#define OSM_VERSION /s/^.*\"OpenSM \(.*\)\"$$/\1/p'` ; \
 		ver=`$(top_srcdir)/../gen_ver.sh $(PACKAGE)` ; \
 		if [ $$ver != $$osm_ver ] ; then \
