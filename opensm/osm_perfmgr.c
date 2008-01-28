@@ -723,7 +723,7 @@ static int wait_for_pending_transactions(osm_stats_t * stats)
 	while (stats->qp0_mads_outstanding && !osm_exit_flag)
 		pthread_cond_wait(&stats->cond, &stats->mutex);
 	pthread_mutex_unlock(&stats->mutex);
-	return 0;
+	return osm_exit_flag;
 }
 
 static void reset_node_count(cl_map_item_t * const p_map_item, void *cxt)
@@ -762,7 +762,8 @@ static int perfmgr_discovery(osm_opensm_t * osm)
 	if (ret)
 		goto _exit;
 
-	wait_for_pending_transactions(&osm->stats);
+	if (wait_for_pending_transactions(&osm->stats))
+		goto _exit;
 
 	if (is_sm_port_down(&osm->sm)) {
 		osm_log(&osm->log, OSM_LOG_VERBOSE, "SM port is down\n");
@@ -775,7 +776,8 @@ static int perfmgr_discovery(osm_opensm_t * osm)
 	if (ret)
 		goto _exit;
 
-	wait_for_pending_transactions(&osm->stats);
+	if (wait_for_pending_transactions(&osm->stats))
+		goto _exit;
 
       _drop:
 	osm_drop_mgr_process(&osm->sm.drop_mgr);
