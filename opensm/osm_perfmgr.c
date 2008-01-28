@@ -1187,7 +1187,6 @@ static void osm_pc_rcv_process(void *context, void *data)
 		p_mon_node->redir_port[port].redir_qp = cpi->redir_qp;
 		cl_plock_release(pm->lock);
 
-	      ReIssue:
 		/* Finally, reissue the query to the redirected location */
 		status =
 		    osm_perfmgr_send_pc_mad(pm, cpi->redir_lid, cpi->redir_qp,
