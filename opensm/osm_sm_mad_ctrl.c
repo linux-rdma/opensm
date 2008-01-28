@@ -108,12 +108,10 @@ __osm_sm_mad_ctrl_retire_trans_mad(IN osm_sm_mad_ctrl_t * const p_ctrl,
 
 		osm_sm_signal(&p_ctrl->p_subn->p_osm->sm,
 			      OSM_SIGNAL_NO_PENDING_TRANSACTIONS);
-#ifdef ENABLE_OSM_PERF_MGR
 #ifdef HAVE_LIBPTHREAD
 		pthread_cond_signal(&p_ctrl->p_stats->cond);
 #else
 		cl_event_signal(&p_ctrl->p_stats->event);
-#endif
 #endif
 	}
 

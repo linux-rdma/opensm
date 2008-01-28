@@ -1314,6 +1314,24 @@ static void __osm_state_mgr_check_tbl_consistency(IN osm_state_mgr_t *
 
 /**********************************************************************
  **********************************************************************/
+int wait_for_pending_transactions(osm_stats_t * stats)
+{
+#ifdef HAVE_LIBPTHREAD
+	pthread_mutex_lock(&stats->mutex);
+	while (stats->qp0_mads_outstanding && !osm_exit_flag)
+		pthread_cond_wait(&stats->cond, &stats->mutex);
+	pthread_mutex_unlock(&stats->mutex);
+#else
+	while (1) {
+		unsigned count = stats->qp0_mads_outstanding;
+		if (!count || osm_exit_flag)
+			break;
+		cl_event_wait_on(&stats->event, EVENT_NO_TIMEOUT, TRUE);
+	}
+#endif
+	return osm_exit_flag;
+}
+
 void osm_state_mgr_process(IN osm_state_mgr_t * const p_mgr,
 			   IN osm_signal_t signal)
 {

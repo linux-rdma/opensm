@@ -236,7 +236,12 @@ void osm_opensm_destroy(IN osm_opensm_t * const p_osm)
 	osm_vendor_delete(&p_osm->p_vendor);
 	osm_subn_destroy(&p_osm->subn);
 	cl_disp_destroy(&p_osm->disp);
-
+#ifdef HAVE_LIBPTHREAD
+	pthread_cond_destroy(&p_osm->stats.cond);
+	pthread_mutex_destroy(&p_osm->stats.mutex);
+#else
+	cl_event_destroy(&p_osm->stats.event);
+#endif
 	close_node_name_map(p_osm->node_name_map);
 
 	cl_plock_destroy(&p_osm->lock);
@@ -276,6 +281,15 @@ osm_opensm_init(IN osm_opensm_t * const p_osm,
 	status = cl_plock_init(&p_osm->lock);
 	if (status != IB_SUCCESS)
 		goto Exit;
+
+#ifdef HAVE_LIBPTHREAD
+	pthread_mutex_init(&p_osm->stats.mutex, NULL);
+	pthread_cond_init(&p_osm->stats.cond, NULL);
+#else
+	status = cl_event_init(&p_osm->stats.event, FALSE);
+	if (status != IB_SUCCESS)
+		goto Exit;
+#endif
 
 	if (p_opt->single_thread) {
 		osm_log(&p_osm->log, OSM_LOG_INFO,
