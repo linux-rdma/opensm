@@ -1629,7 +1629,7 @@ ib_api_status_t osm_subn_write_conf_file(IN osm_subn_opt_t * const p_opts)
 		"#\n# Performance Manager Options\n#\n"
 		"# perfmgr enable\n"
 		"perfmgr %s\n\n"
-		"# perfmgr_redir enable\n"
+		"# perfmgr redirection enable\n"
 		"perfmgr_redir %s\n\n"
 		"# sweep time in seconds\n"
 		"perfmgr_sweep_time_s %u\n\n"
