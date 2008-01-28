@@ -210,7 +210,7 @@ osm_perfmgr_mad_send_err_callback(void *bind_context, osm_madw_t * p_madw)
 	if ((p_node = cl_qmap_get(&(pm->monitored_map), node_guid)) ==
 	    cl_qmap_end(&(pm->monitored_map))) {
 		osm_log(pm->log, OSM_LOG_ERROR,
-			"osm_pc_rcv_process: ERR 4C12: GUID 0x%016"
+			"osm_pc_rcv_process: ERR 4C15: GUID 0x%016"
 			PRIx64 " not found in monitored map\n",
 			node_guid);
 		goto Exit;
