@@ -1166,8 +1166,11 @@ static void osm_pc_rcv_process(void *context, void *data)
 			goto Exit;
 		}
 
-		if (!pm->subn->opt.perfmgr_redir)
-			goto ReIssue;
+		if (!pm->subn->opt.perfmgr_redir) {
+				osm_log(pm->log, OSM_LOG_ERROR,
+				       "osm_pc_rcv_process: ERR 4C16: redirection requested but disabled\n");
+			goto Exit;
+		}
 
 		/* LID redirection support (easier than GID redirection) */
 		cl_plock_acquire(pm->lock);
