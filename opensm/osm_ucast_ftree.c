@@ -2985,7 +2985,7 @@ __osm_ftree_fabric_construct_hca_ports(IN ftree_fabric_t * p_ftree,
 
 	for (i = 0; i < osm_node_get_num_physp(p_node); i++) {
 		osm_physp_t *p_osm_port = osm_node_get_physp_ptr(p_node, i);
-		if (!p_osm_port && !osm_link_is_healthy(p_osm_port))
+		if (!p_osm_port || !osm_link_is_healthy(p_osm_port))
 			continue;
 
 		p_remote_osm_port = osm_physp_get_remote(p_osm_port);
