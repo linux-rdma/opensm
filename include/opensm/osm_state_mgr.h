@@ -254,57 +254,6 @@ osm_state_mgr_init(IN osm_state_mgr_t * const p_mgr, struct osm_sm * sm);
 *	osm_state_mgr_destroy
 *********/
 
-/****f* OpenSM: State Manager/osm_sm_is_greater_than
-* NAME
-*	osm_sm_is_greater_than
-*
-* DESCRIPTION
-*  Compares two SM's (14.4.1.2)
-*
-* SYNOPSIS
-*/
-static inline boolean_t
-osm_sm_is_greater_than(IN const uint8_t l_priority,
-		       IN const ib_net64_t l_guid,
-		       IN const uint8_t r_priority, IN const ib_net64_t r_guid)
-{
-	if (l_priority > r_priority) {
-		return (TRUE);
-	} else {
-		if (l_priority == r_priority) {
-			if (cl_ntoh64(l_guid) < cl_ntoh64(r_guid)) {
-				return (TRUE);
-			}
-		}
-	}
-	return (FALSE);
-}
-
-/*
-* PARAMETERS
-*	l_priority
-*		[in] Priority of the SM on the "left"
-*
-*	l_guid
-*		[in] GUID of the SM on the "left"
-*
-*	r_priority
-*		[in] Priority of the SM on the "right"
-*
-*	r_guid
-*		[in] GUID of the SM on the "right"
-*
-* RETURN VALUES
-*  Return TRUE if an sm with l_priority and l_guid is higher than an sm
-*  with r_priority and r_guid,
-*  return FALSE otherwise.
-*
-* NOTES
-*
-* SEE ALSO
-*	State Manager
-*********/
-
 /****f* OpenSM: State Manager/osm_state_mgr_process
 * NAME
 *	osm_state_mgr_process

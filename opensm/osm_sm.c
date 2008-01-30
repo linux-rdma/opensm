@@ -80,6 +80,8 @@ extern void osm_si_rcv_process(IN void *context, IN void *data);
 extern void osm_trap_rcv_process(IN void *context, IN void *data);
 extern void osm_vla_rcv_process(IN void *context, IN void *data);
 
+extern void osm_state_mgr_process(IN osm_sm_t *sm, IN osm_signal_t signal);
+
 /**********************************************************************
  **********************************************************************/
 static void osm_sm_process(osm_sm_t * sm, osm_signal_t signal)
@@ -89,7 +91,7 @@ static void osm_sm_process(osm_sm_t * sm, osm_signal_t signal)
 		osm_perfmgr_process(&sm->p_subn->p_osm->perfmgr);
 	else
 #endif
-		osm_state_mgr_process(&sm->state_mgr, signal);
+		osm_state_mgr_process(sm, signal);
 }
 
 static void __osm_sm_sweeper(IN void *p_ptr)
@@ -154,6 +156,7 @@ void osm_sm_construct(IN osm_sm_t * const p_sm)
 {
 	memset(p_sm, 0, sizeof(*p_sm));
 	p_sm->thread_state = OSM_THREAD_STATE_NONE;
+	p_sm->state = OSM_SM_STATE_INIT;
 	p_sm->sm_trans_id = OSM_SM_INITIAL_TID_VALUE;
 	cl_spinlock_construct(&p_sm->signal_lock);
 	cl_event_construct(&p_sm->signal_event);
@@ -165,7 +168,6 @@ void osm_sm_construct(IN osm_sm_t * const p_sm)
 	osm_lid_mgr_construct(&p_sm->lid_mgr);
 	osm_ucast_mgr_construct(&p_sm->ucast_mgr);
 	osm_link_mgr_construct(&p_sm->link_mgr);
-	osm_state_mgr_construct(&p_sm->state_mgr);
 	osm_drop_mgr_construct(&p_sm->drop_mgr);
 	osm_sweep_fail_ctrl_construct(&p_sm->sweep_fail_ctrl);
 	osm_sm_state_mgr_construct(&p_sm->sm_state_mgr);
@@ -229,7 +231,6 @@ void osm_sm_destroy(IN osm_sm_t * const p_sm)
 	osm_ucast_mgr_destroy(&p_sm->ucast_mgr);
 	osm_link_mgr_destroy(&p_sm->link_mgr);
 	osm_drop_mgr_destroy(&p_sm->drop_mgr);
-	osm_state_mgr_destroy(&p_sm->state_mgr);
 	osm_sm_state_mgr_destroy(&p_sm->sm_state_mgr);
 	osm_mcast_mgr_destroy(&p_sm->mcast_mgr);
 	cl_event_wheel_destroy(&p_sm->trap_aging_tracker);
@@ -316,10 +317,6 @@ osm_sm_init(IN osm_sm_t * const p_sm,
 	if (status != IB_SUCCESS)
 		goto Exit;
 
-	status = osm_state_mgr_init(&p_sm->state_mgr, p_sm);
-	if (status != IB_SUCCESS)
-		goto Exit;
-
 	status = osm_drop_mgr_init(&p_sm->drop_mgr, p_sm);
 	if (status != IB_SUCCESS)
 		goto Exit;
@@ -396,6 +393,7 @@ osm_sm_init(IN osm_sm_t * const p_sm,
 	 * the sweeper thread if the user wants sweeping.
 	 */
 	p_sm->thread_state = OSM_THREAD_STATE_RUN;
+	p_sm->state = OSM_SM_STATE_IDLE;
 	status = cl_thread_init(&p_sm->sweeper, __osm_sm_sweeper, p_sm,
 				"opensm sweeper");
 	if (status != IB_SUCCESS)

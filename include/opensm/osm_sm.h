@@ -70,7 +70,6 @@
 #include <opensm/osm_port.h>
 #include <opensm/osm_mcast_mgr.h>
 #include <opensm/osm_db.h>
-#include <opensm/osm_state_mgr.h>
 
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
@@ -113,6 +112,7 @@ BEGIN_C_DECLS
 */
 typedef struct osm_sm {
 	osm_thread_state_t thread_state;
+	osm_sm_state_t state;
 	unsigned signal_mask;
 	cl_spinlock_t signal_lock;
 	cl_event_t signal_event;
@@ -136,7 +136,6 @@ typedef struct osm_sm {
 	osm_lid_mgr_t lid_mgr;
 	osm_ucast_mgr_t ucast_mgr;
 	osm_link_mgr_t link_mgr;
-	osm_state_mgr_t state_mgr;
 	osm_drop_mgr_t drop_mgr;
 	osm_sweep_fail_ctrl_t sweep_fail_ctrl;
 	osm_sm_state_mgr_t sm_state_mgr;
@@ -653,6 +652,49 @@ osm_sm_wait_for_subnet_up(IN osm_sm_t * const p_sm,
 * NOTES
 *
 * SEE ALSO
+*********/
+
+/****f* OpenSM: State Manager/osm_sm_is_greater_than
+* NAME
+*	osm_sm_is_greater_than
+*
+* DESCRIPTION
+*	Compares two SM's (14.4.1.2)
+*
+* SYNOPSIS
+*/
+static inline boolean_t
+osm_sm_is_greater_than(IN const uint8_t l_priority,
+		       IN const ib_net64_t l_guid,
+		       IN const uint8_t r_priority, IN const ib_net64_t r_guid)
+{
+	return (l_priority > r_priority
+		|| (l_priority == r_priority
+		    && cl_ntoh64(l_guid) < cl_ntoh64(r_guid)));
+}
+
+/*
+* PARAMETERS
+*	l_priority
+*		[in] Priority of the SM on the "left"
+*
+*	l_guid
+*		[in] GUID of the SM on the "left"
+*
+*	r_priority
+*		[in] Priority of the SM on the "right"
+*
+*	r_guid
+*		[in] GUID of the SM on the "right"
+*
+* RETURN VALUES
+*	Return TRUE if an sm with l_priority and l_guid is higher than an sm
+*	with r_priority and r_guid, return FALSE otherwise.
+*
+* NOTES
+*
+* SEE ALSO
+*	State Manager
 *********/
 
 END_C_DECLS

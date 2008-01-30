@@ -314,7 +314,7 @@ static void print_status(osm_opensm_t * p_osm, FILE * out)
 		fprintf(out, "   OpenSM Version     : %s\n", OSM_VERSION);
 		fprintf(out, "   SM State/Mgr State : %s/%s\n",
 			sm_state_str(p_osm->subn.sm_state),
-			sm_state_mgr_str(p_osm->sm.state_mgr.state));
+			sm_state_mgr_str(p_osm->sm.state));
 		fprintf(out, "   SA State           : %s\n",
 			sa_state_str(p_osm->sa.state));
 		fprintf(out, "   Routing Engine     : %s\n",
