@@ -578,8 +578,7 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 			"GUID 0x%" PRIx64 " port 0x%016" PRIx64
 			", Commencing heavy sweep\n",
 			cl_ntoh64(node_guid), cl_ntoh64(port_guid));
-		osm_sm_signal(&sm->p_subn->p_osm->sm,
-			      OSM_SIGNAL_CHANGE_DETECTED);
+		sm->p_subn->force_heavy_sweep = 1;
 		goto Exit;
 	}
 

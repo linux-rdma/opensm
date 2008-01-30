@@ -346,7 +346,6 @@ __osm_sminfo_rcv_process_get_sm(IN osm_sm_t * sm,
 				IN const osm_remote_sm_t * const p_sm)
 {
 	const ib_sm_info_t *p_smi;
-	osm_signal_t ret_val = OSM_SIGNAL_NONE;
 
 	OSM_LOG_ENTER(sm->p_log, __osm_sminfo_rcv_process_get_sm);
 
@@ -370,7 +369,7 @@ __osm_sminfo_rcv_process_get_sm(IN osm_sm_t * sm,
 		case IB_SMINFO_STATE_NOTACTIVE:
 			break;
 		case IB_SMINFO_STATE_MASTER:
-			ret_val = OSM_SIGNAL_MASTER_OR_HIGHER_SM_DETECTED;
+			sm->master_sm_found = 1;
 			/* save on the p_sm_state_mgr the guid of the current master. */
 			osm_log(sm->p_log, OSM_LOG_VERBOSE,
 				"__osm_sminfo_rcv_process_get_sm: "
@@ -383,8 +382,7 @@ __osm_sminfo_rcv_process_get_sm(IN osm_sm_t * sm,
 			if (__osm_sminfo_rcv_remote_sm_is_higher(sm, p_smi)
 			    == TRUE) {
 				/* the remote is a higher sm - need to stop sweeping */
-				ret_val =
-				    OSM_SIGNAL_MASTER_OR_HIGHER_SM_DETECTED;
+				sm->master_sm_found = 1;
 				/* save on the sm_state_mgr the guid of the higher SM we found - */
 				/* we will poll it - as long as it lives - we should be in Standby. */
 				osm_log(sm->p_log, OSM_LOG_VERBOSE,
@@ -456,7 +454,7 @@ __osm_sminfo_rcv_process_get_sm(IN osm_sm_t * sm,
 	}
 
 	OSM_LOG_EXIT(sm->p_log);
-	return ret_val;
+	return 0;
 }
 
 /**********************************************************************
@@ -471,7 +469,6 @@ __osm_sminfo_rcv_process_get_response(IN osm_sm_t * sm,
 	osm_port_t *p_port;
 	ib_net64_t port_guid;
 	osm_remote_sm_t *p_sm;
-	osm_signal_t process_get_sm_ret_val = OSM_SIGNAL_NONE;
 
 	OSM_LOG_ENTER(sm->p_log, __osm_sminfo_rcv_process_get_response);
 
@@ -558,16 +555,10 @@ __osm_sminfo_rcv_process_get_response(IN osm_sm_t * sm,
 		 */
 		p_sm->smi = *p_smi;
 
-	process_get_sm_ret_val = __osm_sminfo_rcv_process_get_sm(sm, p_sm);
+	__osm_sminfo_rcv_process_get_sm(sm, p_sm);
 
       _unlock_and_exit:
 	CL_PLOCK_RELEASE(sm->p_lock);
-
-	/* If process_get_sm_ret_val != OSM_SIGNAL_NONE then we have to signal
-	 * to the SM with that signal. */
-	if (process_get_sm_ret_val != OSM_SIGNAL_NONE)
-		osm_sm_signal(&sm->p_subn->p_osm->sm,
-			      process_get_sm_ret_val);
 
       Exit:
 	OSM_LOG_EXIT(sm->p_log);

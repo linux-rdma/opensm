@@ -1332,998 +1332,336 @@ int wait_for_pending_transactions(osm_stats_t * stats)
 	return osm_exit_flag;
 }
 
-void osm_state_mgr_process(IN osm_state_mgr_t * const p_mgr,
-			   IN osm_signal_t signal)
+static void do_sweep(osm_sm_t * sm)
 {
 	ib_api_status_t status;
 	osm_remote_sm_t *p_remote_sm;
-	osm_signal_t tmp_signal;
 
+	sm->master_sm_found = 0;
+
+	/*
+	 * If we already have switches, then try a light sweep.
+	 * Otherwise, this is probably our first discovery pass
+	 * or we are connected in loopback. In both cases do a
+	 * heavy sweep.
+	 * Note: If we are connected in loopback we want a heavy
+	 * sweep, since we will not be getting any traps if there is
+	 * a lost connection.
+	 */
+	/*  if we are in DISCOVERING state - this means it is either in
+	 *  initializing or wake up from STANDBY - run the heavy sweep */
+	if (cl_qmap_count(&sm->p_subn->sw_guid_tbl)
+	    && sm->p_subn->sm_state != IB_SMINFO_STATE_DISCOVERING
+	    && sm->p_subn->opt.force_heavy_sweep == FALSE
+	    && sm->p_subn->force_heavy_sweep == FALSE
+	    && sm->p_subn->subnet_initialization_error == FALSE
+	    && (__osm_state_mgr_light_sweep_start(&sm->state_mgr) == IB_SUCCESS)) {
+		if (wait_for_pending_transactions(&sm->p_subn->p_osm->stats))
+			return;
+		if (!sm->p_subn->force_heavy_sweep) {
+			__osm_state_mgr_light_sweep_done_msg(&sm->state_mgr);
+			return;
+		}
+	}
+
+	/* go to heavy sweep */
+_repeat_discovery:
+
+	/* First of all - unset all flags */
+	sm->p_subn->force_heavy_sweep = FALSE;
+	sm->p_subn->subnet_initialization_error = FALSE;
+
+	/* rescan configuration updates */
+	status = osm_subn_rescan_conf_files(sm->p_subn);
+	if (status != IB_SUCCESS)
+		osm_log(sm->p_log, OSM_LOG_ERROR,
+			"osm_state_mgr_process: ERR 331A: "
+			"osm_subn_rescan_conf_file failed\n");
+
+	if (sm->p_subn->sm_state != IB_SMINFO_STATE_MASTER)
+		sm->p_subn->need_update = 1;
+
+	status = __osm_state_mgr_sweep_hop_0(&sm->state_mgr);
+	if (status != IB_SUCCESS ||
+	    wait_for_pending_transactions(&sm->p_subn->p_osm->stats))
+		return;
+
+	if (__osm_state_mgr_is_sm_port_down(&sm->state_mgr) == TRUE) {
+		__osm_state_mgr_sm_port_down_msg(&sm->state_mgr);
+
+		/* Run the drop manager - we want to clear all records */
+		osm_drop_mgr_process(&sm->drop_mgr);
+
+		/* Move to DISCOVERING state */
+		osm_sm_state_mgr_process(&sm->sm_state_mgr,
+					 OSM_SM_SIGNAL_DISCOVER);
+		return;
+	}
+
+	status = __osm_state_mgr_sweep_hop_1(&sm->state_mgr);
+	if (status != IB_SUCCESS ||
+	    wait_for_pending_transactions(&sm->p_subn->p_osm->stats))
+		return;
+
+	/* discovery completed - check other sm presense */
+	if (sm->master_sm_found) {
+		sm->state_mgr.state = OSM_SM_STATE_STANDBY;
+		/*
+		 * Call the sm_state_mgr with signal
+		 * MASTER_OR_HIGHER_SM_DETECTED_DONE
+		 */
+		osm_sm_state_mgr_process(&sm->sm_state_mgr,
+					 OSM_SM_SIGNAL_MASTER_OR_HIGHER_SM_DETECTED_DONE);
+		__osm_state_mgr_standby_msg(&sm->state_mgr);
+		return;
+	}
+
+	/* if new sweep requested - don't bother with the rest */
+	if (sm->p_subn->force_heavy_sweep)
+		goto _repeat_discovery;
+
+	__osm_state_mgr_sweep_heavy_done_msg(&sm->state_mgr);
+
+	/* If we are MASTER - get the highest remote_sm, and
+	 * see if it is higher than our local sm.
+	 */
+	if (sm->p_subn->sm_state == IB_SMINFO_STATE_MASTER) {
+		p_remote_sm = __osm_state_mgr_get_highest_sm(&sm->state_mgr);
+		if (p_remote_sm != NULL) {
+			/* report new ports (trap 64) before leaving MASTER */
+			__osm_state_mgr_report_new_ports(&sm->state_mgr);
+
+			/* need to handover the mastership
+			 * to the remote sm, and move to standby */
+			__osm_state_mgr_send_handover(&sm->state_mgr, p_remote_sm);
+			osm_sm_state_mgr_process(&sm->sm_state_mgr,
+						 OSM_SM_SIGNAL_HANDOVER_SENT);
+			sm->state_mgr.state = OSM_SM_STATE_STANDBY;
+			return;
+		} else {
+			/* We are the highest sm - check to see if there is
+			 * a remote SM that is in master state. */
+			p_remote_sm =
+			    __osm_state_mgr_exists_other_master_sm(&sm->state_mgr);
+			if (p_remote_sm != NULL) {
+				/* There is a remote SM that is master.
+				 * need to wait for that SM to relinquish control
+				 * of its portion of the subnet. C14-60.2.1.
+				 * Also - need to start polling on that SM. */
+				sm->sm_state_mgr.p_polling_sm = p_remote_sm;
+				osm_sm_state_mgr_process(&sm->sm_state_mgr,
+				     OSM_SM_SIGNAL_WAIT_FOR_HANDOVER);
+				return;
+			}
+		}
+	}
+
+	/* Need to continue with lid assignment */
+	osm_drop_mgr_process(&sm->drop_mgr);
+
+	/*
+	 * If we are not MASTER already - this means that we are
+	 * in discovery state. call osm_sm_state_mgr with signal
+	 * DISCOVERY_COMPLETED
+	 */
+	if (sm->p_subn->sm_state == IB_SMINFO_STATE_DISCOVERING)
+		osm_sm_state_mgr_process(&sm->sm_state_mgr,
+					 OSM_SM_SIGNAL_DISCOVERY_COMPLETED);
+
+	osm_pkey_mgr_process(sm->p_subn->p_osm);
+
+	osm_qos_setup(sm->p_subn->p_osm);
+
+	/* try to restore SA DB (this should be before lid_mgr
+	   because we may want to disable clients reregistration
+	   when SA DB is restored) */
+	osm_sa_db_file_load(sm->p_subn->p_osm);
+
+	if (wait_for_pending_transactions(&sm->p_subn->p_osm->stats))
+		return;
+
+	osm_lid_mgr_process_sm(&sm->lid_mgr);
+	if (wait_for_pending_transactions(&sm->p_subn->p_osm->stats))
+		return;
+
+	__osm_state_mgr_set_sm_lid_done_msg(&sm->state_mgr);
+	__osm_state_mgr_notify_lid_change(&sm->state_mgr);
+
+	osm_lid_mgr_process_subnet(&sm->lid_mgr);
+	if (wait_for_pending_transactions(&sm->p_subn->p_osm->stats))
+		return;
+
+	/* At this point we need to check the consistency of
+	 * the port_lid_tbl under the subnet. There might be
+	 * errors in it if PortInfo Set reqeusts didn't reach
+	 * their destination. */
+	__osm_state_mgr_check_tbl_consistency(&sm->state_mgr);
+
+	__osm_state_mgr_lid_assign_msg(&sm->state_mgr);
+
+	/*
+	 * Proceed with unicast forwarding table configuration.
+	 * First - send trap 64 on newly discovered endports
+	 */
+	__osm_state_mgr_report_new_ports(&sm->state_mgr);
+
+	osm_ucast_mgr_process(&sm->ucast_mgr);
+	if (wait_for_pending_transactions(&sm->p_subn->p_osm->stats))
+		return;
+
+	/* We are done setting all LFTs so clear the ignore existing.
+	 * From now on, as long as we are still master, we want to
+	 * take into account these lfts. */
+	sm->p_subn->ignore_existing_lfts = FALSE;
+
+	__osm_state_mgr_switch_config_msg(&sm->state_mgr);
+
+	if (!sm->p_subn->opt.disable_multicast) {
+		osm_mcast_mgr_process(&sm->mcast_mgr);
+		if (wait_for_pending_transactions(&sm->p_subn->p_osm->stats))
+			return;
+		__osm_state_mgr_multicast_config_msg(&sm->state_mgr);
+	}
+
+	/*
+	 * The LINK_PORTS state is required since we can not count on
+	 * the port state change MADs to succeed. This is an artifact
+	 * of the spec defining state change from state X to state X
+	 * as an error. The hardware then is not required to process
+	 * other parameters provided by the Set(PortInfo) Packet.
+	 */
+
+	osm_link_mgr_process(&sm->link_mgr, IB_LINK_NO_CHANGE);
+	if (wait_for_pending_transactions(&sm->p_subn->p_osm->stats))
+		return;
+
+	__osm_state_mgr_links_ports_msg(&sm->state_mgr);
+
+	osm_link_mgr_process(&sm->link_mgr, IB_LINK_ARMED);
+	if (wait_for_pending_transactions(&sm->p_subn->p_osm->stats))
+		return;
+
+	__osm_state_mgr_links_armed_msg(&sm->state_mgr);
+
+	osm_link_mgr_process(&sm->link_mgr, IB_LINK_ACTIVE);
+	if (wait_for_pending_transactions(&sm->p_subn->p_osm->stats))
+		return;
+
+	/*
+	 * The sweep completed!
+	 */
+
+	/* in any case we zero this flag */
+	sm->p_subn->coming_out_of_standby = FALSE;
+
+	/* If there were errors - then the subnet is not really up */
+	if (sm->p_subn->subnet_initialization_error == TRUE)
+		__osm_state_mgr_init_errors_msg(&sm->state_mgr);
+	else {
+		/* The subnet is up correctly - set the first_time_master_sweep
+		 * flag (if it is on) to FALSE. */
+		if (sm->p_subn->first_time_master_sweep == TRUE)
+			sm->p_subn->first_time_master_sweep = FALSE;
+			sm->p_subn->need_update = 0;
+
+		osm_dump_all(sm->p_subn->p_osm);
+		__osm_state_mgr_up_msg(&sm->state_mgr);
+
+		if (osm_log_is_active(sm->p_log, OSM_LOG_VERBOSE))
+			osm_sa_db_file_dump(sm->p_subn->p_osm);
+	}
+
+	/*
+	 * Finally signal the subnet up event
+	 */
+	cl_event_signal(&sm->subnet_up_event);
+
+	/* if we got a signal to force heavy sweep or errors
+	 * in the middle of the sweep - try another sweep. */
+	if (sm->p_subn->force_heavy_sweep
+	    || sm->p_subn->subnet_initialization_error)
+		osm_sm_signal(sm, OSM_SIGNAL_SWEEP);
+}
+
+static void do_process_mgrp_queue(osm_sm_t * sm)
+{
+	osm_mcast_mgr_process_mgroups(&sm->mcast_mgr);
+	wait_for_pending_transactions(&sm->p_subn->p_osm->stats);
+}
+
+void osm_state_mgr_process(IN osm_state_mgr_t * const p_mgr,
+			   IN osm_signal_t signal)
+{
 	CL_ASSERT(p_mgr);
 
 	OSM_LOG_ENTER(p_mgr->p_log, osm_state_mgr_process);
 
-	/* if we are exiting do nothing */
-	if (osm_exit_flag)
-		signal = OSM_SIGNAL_NONE;
+	if (osm_log_is_active(p_mgr->p_log, OSM_LOG_DEBUG))
+		osm_log(p_mgr->p_log, OSM_LOG_DEBUG,
+			"osm_state_mgr_process: "
+			"Received signal %s in state %s\n",
+			osm_get_sm_signal_str(signal),
+			osm_get_sm_state_str(p_mgr->state));
 
-	while (signal != OSM_SIGNAL_NONE) {
-		if (osm_log_is_active(p_mgr->p_log, OSM_LOG_DEBUG)) {
-			osm_log(p_mgr->p_log, OSM_LOG_DEBUG,
-				"osm_state_mgr_process: "
-				"Received signal %s in state %s\n",
-				osm_get_sm_signal_str(signal),
-				osm_get_sm_state_str(p_mgr->state));
-		}
-
-		/*
-		 * If we're already sweeping and we get the signal to sweep,
-		 * just ignore it harmlessly.
-		 */
-		if ((p_mgr->state != OSM_SM_STATE_IDLE)
-		    && (p_mgr->state != OSM_SM_STATE_STANDBY)
-		    && (signal == OSM_SIGNAL_SWEEP)) {
-			break;
-		}
-
-		switch (p_mgr->state) {
-		case OSM_SM_STATE_IDLE:
-			switch (signal) {
-			case OSM_SIGNAL_SWEEP:
-				/*
-				 * If the osm_sm_state_mgr is in NOT-ACTIVE state -
-				 * stay in IDLE
-				 */
-				if (p_mgr->p_subn->sm_state == IB_SMINFO_STATE_NOTACTIVE) {
-					osm_vendor_set_sm(p_mgr->p_mad_ctrl->h_bind, FALSE);
-					goto Idle;
-				}
-
-				/*
-				 * If the osm_sm_state_mgr is in INIT state - signal
-				 * it with a INIT signal to move it to DISCOVERY state.
-				 */
-				if (p_mgr->p_subn->sm_state == IB_SMINFO_STATE_INIT)
-					osm_sm_state_mgr_process(p_mgr->
-								 p_sm_state_mgr,
-								 OSM_SM_SIGNAL_INIT);
-
-				/*
-				 * If we already have switches, then try a light sweep.
-				 * Otherwise, this is probably our first discovery pass
-				 * or we are connected in loopback. In both cases do a
-				 * heavy sweep.
-				 * Note: If we are connected in loopback we want a heavy
-				 * sweep, since we will not be getting any traps if there is
-				 * a lost connection.
-				 */
-				/*  if we are in DISCOVERING state - this means it is either in
-				 *  initializing or wake up from STANDBY - run the heavy sweep */
-				if (cl_qmap_count(&p_mgr->p_subn->sw_guid_tbl)
-				    && p_mgr->p_subn->sm_state !=
-				    IB_SMINFO_STATE_DISCOVERING
-				    && p_mgr->p_subn->opt.force_heavy_sweep ==
-				    FALSE
-				    && p_mgr->p_subn->force_heavy_sweep == FALSE
-				    && p_mgr->p_subn->subnet_initialization_error == FALSE) {
-					if (__osm_state_mgr_light_sweep_start(p_mgr) == IB_SUCCESS) {
-						p_mgr->state = OSM_SM_STATE_SWEEP_LIGHT;
-					}
-				} else {
-					/* First of all - if force_heavy_sweep is TRUE then
-					 * need to unset it */
-					p_mgr->p_subn->force_heavy_sweep = FALSE;
-					/* If subnet_initialization_error is TRUE then
-					 * need to unset it. */
-					p_mgr->p_subn->subnet_initialization_error = FALSE;
-
-					/* rescan configuration updates */
-					status = osm_subn_rescan_conf_files(p_mgr->p_subn);
-					if (status != IB_SUCCESS) {
-						osm_log(p_mgr->p_log,
-							OSM_LOG_ERROR,
-							"osm_state_mgr_process: ERR 331A: "
-							"osm_subn_rescan_conf_file failed\n");
-					}
-
-					if (p_mgr->p_subn->sm_state != IB_SMINFO_STATE_MASTER)
-						p_mgr->p_subn->need_update = 1;
-
-					status = __osm_state_mgr_sweep_hop_0(p_mgr);
-					if (status == IB_SUCCESS) {
-						p_mgr->state = OSM_SM_STATE_SWEEP_HEAVY_SELF;
-					}
-				}
-			      Idle:
-				signal = OSM_SIGNAL_NONE;
-				break;
-
-			case OSM_SIGNAL_IDLE_TIME_PROCESS_REQUEST:
-				p_mgr->state = OSM_SM_STATE_PROCESS_REQUEST;
-				signal = OSM_SIGNAL_IDLE_TIME_PROCESS;
-				break;
-
-			default:
-				__osm_state_mgr_signal_error(p_mgr, signal);
-				signal = OSM_SIGNAL_NONE;
+	switch (p_mgr->state) {
+	case OSM_SM_STATE_IDLE:
+		switch (signal) {
+		case OSM_SIGNAL_SWEEP:
+			/*
+			 * If the osm_sm_state_mgr is in NOT-ACTIVE state -
+			 * stay in IDLE
+			 */
+			if (p_mgr->p_subn->sm_state == IB_SMINFO_STATE_NOTACTIVE) {
+				osm_vendor_set_sm(p_mgr->p_mad_ctrl->h_bind, FALSE);
 				break;
 			}
-			break;
-
-		case OSM_SM_STATE_PROCESS_REQUEST:
-			switch (signal) {
-			case OSM_SIGNAL_IDLE_TIME_PROCESS:
-				signal = osm_mcast_mgr_process_mgroups(p_mgr->p_mcast_mgr);
-				switch (signal) {
-				case OSM_SIGNAL_NONE:
-					p_mgr->state = OSM_SM_STATE_IDLE;
-					break;
-
-				case OSM_SIGNAL_DONE_PENDING:
-					p_mgr->state = OSM_SM_STATE_PROCESS_REQUEST_WAIT;
-					signal = OSM_SIGNAL_NONE;
-					break;
-
-				case OSM_SIGNAL_DONE:
-					p_mgr->state = OSM_SM_STATE_PROCESS_REQUEST_DONE;
-					break;
-
-				default:
-					__osm_state_mgr_signal_error(p_mgr, signal);
-					signal = OSM_SIGNAL_NONE;
-					break;
-				}
-				break;
-
-			default:
-				__osm_state_mgr_signal_error(p_mgr, signal);
-				signal = OSM_SIGNAL_NONE;
-				break;
-			}
-			break;
-
-		case OSM_SM_STATE_PROCESS_REQUEST_WAIT:
-			switch (signal) {
-			case OSM_SIGNAL_NO_PENDING_TRANSACTIONS:
-				p_mgr->state = OSM_SM_STATE_PROCESS_REQUEST_DONE;
-				break;
-
-			default:
-				__osm_state_mgr_signal_error(p_mgr, signal);
-				signal = OSM_SIGNAL_NONE;
-				break;
-			}
-			break;
-
-		case OSM_SM_STATE_PROCESS_REQUEST_DONE:
-			switch (signal) {
-			case OSM_SIGNAL_NO_PENDING_TRANSACTIONS:
-			case OSM_SIGNAL_DONE:
-				if (p_mgr->p_subn->force_heavy_sweep) {
-					/*
-					 * Do not read next item from the idle queue.
-					 * Immediate heavy sweep is requested, so it's
-					 * more important.
-					 * Besides, there is a chance that after the
-					 * heavy sweep complition, idle queue processing
-					 * that SM would have performed here will be obsolete.
-					 */
-					if (osm_log_is_active(p_mgr->p_log, OSM_LOG_DEBUG))
-						osm_log(p_mgr->p_log, OSM_LOG_DEBUG,
-						"osm_state_mgr_process: "
-						"interrupting idle time queue processing - heavy sweep requested\n");
-					signal = OSM_SIGNAL_NONE;
-					p_mgr->state = OSM_SM_STATE_IDLE;
-					break;
-				}
-				signal = OSM_SIGNAL_IDLE_TIME_PROCESS;
-				p_mgr->state = OSM_SM_STATE_PROCESS_REQUEST;
-				break;
-
-			default:
-				__osm_state_mgr_signal_error(p_mgr, signal);
-				signal = OSM_SIGNAL_NONE;
-				break;
-			}
-			break;
-
-		case OSM_SM_STATE_SWEEP_LIGHT:
-			switch (signal) {
-			case OSM_SIGNAL_LIGHT_SWEEP_FAIL:
-			case OSM_SIGNAL_CHANGE_DETECTED:
-				/*
-				 * Nothing else to do yet except change state.
-				 */
-				p_mgr->state = OSM_SM_STATE_SWEEP_LIGHT_WAIT;
-				signal = OSM_SIGNAL_NONE;
-				break;
-
-			case OSM_SIGNAL_NO_PENDING_TRANSACTIONS:
-				/*
-				 * No change was detected on the subnet.
-				 * We can return to the idle state.
-				 */
-				__osm_state_mgr_light_sweep_done_msg(p_mgr);
-				p_mgr->state = OSM_SM_STATE_PROCESS_REQUEST;
-				signal = OSM_SIGNAL_IDLE_TIME_PROCESS;
-				break;
-
-			default:
-				__osm_state_mgr_signal_error(p_mgr, signal);
-				signal = OSM_SIGNAL_NONE;
-				break;
-			}
-			break;
-
-		case OSM_SM_STATE_SWEEP_LIGHT_WAIT:
-			switch (signal) {
-			case OSM_SIGNAL_LIGHT_SWEEP_FAIL:
-			case OSM_SIGNAL_CHANGE_DETECTED:
-				/*
-				 * Nothing to do here. One subnet change typcially
-				 * begets another.... But need to wait for all transactions to
-				 * complete
-				 */
-				break;
-
-			case OSM_SIGNAL_NO_PENDING_TRANSACTIONS:
-				/*
-				 * A change was detected on the subnet.
-				 * Initiate a heavy sweep.
-				 */
-				if (__osm_state_mgr_sweep_hop_0(p_mgr) == IB_SUCCESS) {
-					p_mgr->state = OSM_SM_STATE_SWEEP_HEAVY_SELF;
-				}
-				break;
-
-			default:
-				__osm_state_mgr_signal_error(p_mgr, signal);
-				break;
-			}
-			signal = OSM_SIGNAL_NONE;
-			break;
-
-		case OSM_SM_STATE_SWEEP_HEAVY_SELF:
-			switch (signal) {
-			case OSM_SIGNAL_CHANGE_DETECTED:
-				/*
-				 * Nothing to do here. One subnet change typcially
-				 * begets another.... But need to wait for all transactions
-				 */
-				signal = OSM_SIGNAL_NONE;
-				break;
-
-			case OSM_SIGNAL_NO_PENDING_TRANSACTIONS:
-				if (__osm_state_mgr_is_sm_port_down(p_mgr) == TRUE) {
-					__osm_state_mgr_sm_port_down_msg(p_mgr);
-
-					/* Run the drop manager - we want to clear all records */
-					osm_drop_mgr_process(p_mgr->p_drop_mgr);
-
-					/* Move to DISCOVERING state */
-					osm_sm_state_mgr_process(p_mgr->
-								 p_sm_state_mgr,
-								 OSM_SM_SIGNAL_DISCOVER);
-
-					p_mgr->state = OSM_SM_STATE_PROCESS_REQUEST;
-					signal = OSM_SIGNAL_IDLE_TIME_PROCESS;
-				} else {
-					if (__osm_state_mgr_sweep_hop_1(p_mgr)
-					    == IB_SUCCESS) {
-						p_mgr->state = OSM_SM_STATE_SWEEP_HEAVY_SUBNET;
-					}
-					signal = OSM_SIGNAL_NONE;
-				}
-				break;
-
-			default:
-				__osm_state_mgr_signal_error(p_mgr, signal);
-				signal = OSM_SIGNAL_NONE;
-				break;
-			}
-			break;
 
 			/*
-			 * There is no 'OSM_SM_STATE_SWEEP_HEAVY_WAIT' state since we
-			 * know that there are outstanding transactions on the wire already...
+			 * If the osm_sm_state_mgr is in INIT state - signal
+			 * it with a INIT signal to move it to DISCOVERY state.
 			 */
-		case OSM_SM_STATE_SWEEP_HEAVY_SUBNET:
-			switch (signal) {
-			case OSM_SIGNAL_CHANGE_DETECTED:
-				/*
-				 * Nothing to do here. One subnet change typically
-				 * begets another....
-				 */
-				signal = OSM_SIGNAL_NONE;
-				break;
-
-			case OSM_SIGNAL_MASTER_OR_HIGHER_SM_DETECTED:
-				p_mgr->state = OSM_SM_STATE_MASTER_OR_HIGHER_SM_DETECTED;
-				break;
-
-			case OSM_SIGNAL_NO_PENDING_TRANSACTIONS:
-				/* if new sweep requiested - don't bother with the rest */
-				if (p_mgr->p_subn->force_heavy_sweep) {
-					p_mgr->state = OSM_SM_STATE_IDLE;
-					signal = OSM_SIGNAL_SWEEP;
-					break;
-				}
-
-				__osm_state_mgr_sweep_heavy_done_msg(p_mgr);
-
-				/* If we are MASTER - get the highest remote_sm, and
-				 * see if it is higher than our local sm. If
-				 */
-				if (p_mgr->p_subn->sm_state == IB_SMINFO_STATE_MASTER) {
-					p_remote_sm = __osm_state_mgr_get_highest_sm(p_mgr);
-					if (p_remote_sm != NULL) {
-						/* report new ports (trap 64) before leaving MASTER */
-						__osm_state_mgr_report_new_ports(p_mgr);
-
-						/* need to handover the mastership
-						 * to the remote sm, and move to standby */
-						__osm_state_mgr_send_handover(p_mgr, p_remote_sm);
-						osm_sm_state_mgr_process(p_mgr->
-									 p_sm_state_mgr,
-									 OSM_SM_SIGNAL_HANDOVER_SENT);
-						p_mgr->state = OSM_SM_STATE_STANDBY;
-						signal = OSM_SIGNAL_NONE;
-						break;
-					} else {
-						/* We are the highest sm - check to see if there is
-						 * a remote SM that is in master state. */
-						p_remote_sm =
-						    __osm_state_mgr_exists_other_master_sm(p_mgr);
-						if (p_remote_sm != NULL) {
-							/* There is a remote SM that is master.
-							 * need to wait for that SM to relinquish control
-							 * of its portion of the subnet. C14-60.2.1.
-							 * Also - need to start polling on that SM. */
-							p_mgr->p_sm_state_mgr->
-							    p_polling_sm = p_remote_sm;
-							osm_sm_state_mgr_process
-							    (p_mgr->
-							     p_sm_state_mgr,
-							     OSM_SM_SIGNAL_WAIT_FOR_HANDOVER);
-							p_mgr->state = OSM_SM_STATE_PROCESS_REQUEST;
-							signal = OSM_SIGNAL_IDLE_TIME_PROCESS;
-							break;
-						}
-					}
-				}
-
-				/* Need to continue with lid assignment */
-				osm_drop_mgr_process(p_mgr->p_drop_mgr);
-
-				p_mgr->state = OSM_SM_STATE_SET_PKEY;
-
-				/*
-				 * If we are not MASTER already - this means that we are
-				 * in discovery state. call osm_sm_state_mgr with signal
-				 * DISCOVERY_COMPLETED
-				 */
-				if (p_mgr->p_subn->sm_state == IB_SMINFO_STATE_DISCOVERING)
-					osm_sm_state_mgr_process(p_mgr->
-								 p_sm_state_mgr,
-								 OSM_SM_SIGNAL_DISCOVERY_COMPLETED);
-
-				/* the returned signal might be DONE or DONE_PENDING */
-				signal = osm_pkey_mgr_process(p_mgr->p_subn->p_osm);
-
-				/* the returned signal is always DONE */
-				tmp_signal = osm_qos_setup(p_mgr->p_subn->p_osm);
-
-				if (tmp_signal == OSM_SIGNAL_DONE_PENDING)
-					signal = OSM_SIGNAL_DONE_PENDING;
-
-				/* try to restore SA DB (this should be before lid_mgr
-				   because we may want to disable clients reregistration
-				   when SA DB is restored) */
-				osm_sa_db_file_load(p_mgr->p_subn->p_osm);
-
-				break;
-
-			default:
-				__osm_state_mgr_signal_error(p_mgr, signal);
-				signal = OSM_SIGNAL_NONE;
-				break;
-			}
-			break;
-
-		case OSM_SM_STATE_SET_PKEY:
-			switch (signal) {
-			case OSM_SIGNAL_DONE:
-				p_mgr->state = OSM_SM_STATE_SET_PKEY_DONE;
-				break;
-
-			case OSM_SIGNAL_DONE_PENDING:
-				/*
-				 * There are outstanding transactions, so we
-				 * must wait for the wire to clear.
-				 */
-				p_mgr->state = OSM_SM_STATE_SET_PKEY_WAIT;
-				signal = OSM_SIGNAL_NONE;
-				break;
-
-			default:
-				__osm_state_mgr_signal_error(p_mgr, signal);
-				signal = OSM_SIGNAL_NONE;
-				break;
-			}
-			break;
-
-		case OSM_SM_STATE_SET_PKEY_WAIT:
-			switch (signal) {
-			case OSM_SIGNAL_NO_PENDING_TRANSACTIONS:
-				p_mgr->state = OSM_SM_STATE_SET_PKEY_DONE;
-				break;
-
-			default:
-				__osm_state_mgr_signal_error(p_mgr, signal);
-				signal = OSM_SIGNAL_NONE;
-				break;
-			}
-			break;
-
-		case OSM_SM_STATE_SET_PKEY_DONE:
-			switch (signal) {
-			case OSM_SIGNAL_NO_PENDING_TRANSACTIONS:
-			case OSM_SIGNAL_DONE:
-				p_mgr->state = OSM_SM_STATE_SET_SM_UCAST_LID;
-				signal = osm_lid_mgr_process_sm(p_mgr->p_lid_mgr);
-				break;
-
-			default:
-				__osm_state_mgr_signal_error(p_mgr, signal);
-				signal = OSM_SIGNAL_NONE;
-				break;
-			}
-			break;
-
-		case OSM_SM_STATE_SET_SM_UCAST_LID:
-			switch (signal) {
-			case OSM_SIGNAL_DONE:
-				p_mgr->state = OSM_SM_STATE_SET_SM_UCAST_LID_DONE;
-				break;
-
-			case OSM_SIGNAL_DONE_PENDING:
-				/*
-				 * There are outstanding transactions, so we
-				 * must wait for the wire to clear.
-				 */
-				p_mgr->state = OSM_SM_STATE_SET_SM_UCAST_LID_WAIT;
-				signal = OSM_SIGNAL_NONE;
-				break;
-
-			default:
-				__osm_state_mgr_signal_error(p_mgr, signal);
-				signal = OSM_SIGNAL_NONE;
-				break;
-			}
-			break;
-
-		case OSM_SM_STATE_SET_SM_UCAST_LID_WAIT:
-			switch (signal) {
-			case OSM_SIGNAL_NO_PENDING_TRANSACTIONS:
-				p_mgr->state = OSM_SM_STATE_SET_SM_UCAST_LID_DONE;
-				break;
-
-			default:
-				__osm_state_mgr_signal_error(p_mgr, signal);
-				signal = OSM_SIGNAL_NONE;
-				break;
-			}
-			break;
-
-		case OSM_SM_STATE_SET_SM_UCAST_LID_DONE:
-			switch (signal) {
-			case OSM_SIGNAL_NO_PENDING_TRANSACTIONS:
-			case OSM_SIGNAL_DONE:
-				__osm_state_mgr_set_sm_lid_done_msg(p_mgr);
-				__osm_state_mgr_notify_lid_change(p_mgr);
-				p_mgr->state = OSM_SM_STATE_SET_SUBNET_UCAST_LIDS;
-				signal = osm_lid_mgr_process_subnet(p_mgr->p_lid_mgr);
-				break;
-
-			default:
-				__osm_state_mgr_signal_error(p_mgr, signal);
-				signal = OSM_SIGNAL_NONE;
-				break;
-			}
-			break;
-
-		case OSM_SM_STATE_SET_SUBNET_UCAST_LIDS:
-			switch (signal) {
-			case OSM_SIGNAL_DONE:
-				/*
-				 * The LID Manager is done processing.
-				 * There are no outstanding transactions, so we
-				 * can move on to configuring the forwarding tables.
-				 */
-				p_mgr->state = OSM_SM_STATE_SET_SUBNET_UCAST_LIDS_DONE;
-				break;
-
-			case OSM_SIGNAL_DONE_PENDING:
-				/*
-				 * The LID Manager is done processing.
-				 * There are outstanding transactions, so we
-				 * must wait for the wire to clear.
-				 */
-				p_mgr->state = OSM_SM_STATE_SET_SUBNET_UCAST_LIDS_WAIT;
-				signal = OSM_SIGNAL_NONE;
-				break;
-
-			default:
-				__osm_state_mgr_signal_error(p_mgr, signal);
-				signal = OSM_SIGNAL_NONE;
-				break;
-			}
-			break;
-
-			/*
-			 * In this state, the Unicast Manager has completed processing,
-			 * but there are still transactions on the wire.  Therefore,
-			 * wait here until the wire clears.
-			 */
-		case OSM_SM_STATE_SET_SUBNET_UCAST_LIDS_WAIT:
-			switch (signal) {
-			case OSM_SIGNAL_NO_PENDING_TRANSACTIONS:
-				/*
-				 * The LID Manager is done processing.
-				 * There are no outstanding transactions, so we
-				 * can move on to configuring the forwarding tables.
-				 */
-				p_mgr->state = OSM_SM_STATE_SET_SUBNET_UCAST_LIDS_DONE;
-				break;
-
-			default:
-				__osm_state_mgr_signal_error(p_mgr, signal);
-				signal = OSM_SIGNAL_NONE;
-				break;
-			}
-			break;
-
-		case OSM_SM_STATE_SET_SUBNET_UCAST_LIDS_DONE:
-			switch (signal) {
-			case OSM_SIGNAL_DONE:
-			case OSM_SIGNAL_NO_PENDING_TRANSACTIONS:
-				/* At this point we need to check the consistency of
-				 * the port_lid_tbl under the subnet. There might be
-				 * errors in it if PortInfo Set reqeusts didn't reach
-				 * their destination. */
-				__osm_state_mgr_check_tbl_consistency(p_mgr);
-
-				__osm_state_mgr_lid_assign_msg(p_mgr);
-
-				/*
-				 * OK, the wire is clear, so proceed with
-				 * unicast forwarding table configuration.
-				 * First - send trap 64 on newly discovered endports
-				 */
-				__osm_state_mgr_report_new_ports(p_mgr);
-
-				p_mgr->state = OSM_SM_STATE_SET_UCAST_TABLES;
-				signal = osm_ucast_mgr_process(p_mgr->p_ucast_mgr);
-
-				break;
-
-			default:
-				__osm_state_mgr_signal_error(p_mgr, signal);
-				signal = OSM_SIGNAL_NONE;
-				break;
-			}
-			break;
-
-		case OSM_SM_STATE_SET_UCAST_TABLES:
-			switch (signal) {
-			case OSM_SIGNAL_DONE:
-				p_mgr->state = OSM_SM_STATE_SET_UCAST_TABLES_DONE;
-				break;
-
-			case OSM_SIGNAL_DONE_PENDING:
-				/*
-				 * The Unicast Manager is done processing.
-				 * There are outstanding transactions, so we
-				 * must wait for the wire to clear.
-				 */
-				p_mgr->state = OSM_SM_STATE_SET_UCAST_TABLES_WAIT;
-				signal = OSM_SIGNAL_NONE;
-				break;
-
-			default:
-				__osm_state_mgr_signal_error(p_mgr, signal);
-				signal = OSM_SIGNAL_NONE;
-				break;
-			}
-			break;
-
-		case OSM_SM_STATE_SET_UCAST_TABLES_WAIT:
-			switch (signal) {
-			case OSM_SIGNAL_NO_PENDING_TRANSACTIONS:
-				p_mgr->state = OSM_SM_STATE_SET_UCAST_TABLES_DONE;
-				break;
-
-			default:
-				__osm_state_mgr_signal_error(p_mgr, signal);
-				signal = OSM_SIGNAL_NONE;
-				break;
-			}
-			break;
-
-		case OSM_SM_STATE_SET_UCAST_TABLES_DONE:
-			switch (signal) {
-			case OSM_SIGNAL_NO_PENDING_TRANSACTIONS:
-			case OSM_SIGNAL_DONE:
-				/* We are done setting all LFTs so clear the ignore existing.
-				 * From now on, as long as we are still master, we want to
-				 * take into account these lfts. */
-				p_mgr->p_subn->ignore_existing_lfts = FALSE;
-
-				__osm_state_mgr_switch_config_msg(p_mgr);
-
-				if (!p_mgr->p_subn->opt.disable_multicast) {
-					p_mgr->state = OSM_SM_STATE_SET_MCAST_TABLES;
-					signal = osm_mcast_mgr_process(p_mgr->p_mcast_mgr);
-				} else {
-					p_mgr->state = OSM_SM_STATE_SET_LINK_PORTS;
-					signal =
-					    osm_link_mgr_process(p_mgr->
-								 p_link_mgr, IB_LINK_NO_CHANGE);
-				}
-				break;
-
-			default:
-				__osm_state_mgr_signal_error(p_mgr, signal);
-				signal = OSM_SIGNAL_NONE;
-				break;
-			}
-			break;
-
-		case OSM_SM_STATE_SET_MCAST_TABLES:
-			switch (signal) {
-			case OSM_SIGNAL_DONE:
-				p_mgr->state = OSM_SM_STATE_SET_MCAST_TABLES_DONE;
-				break;
-
-			case OSM_SIGNAL_DONE_PENDING:
-				/*
-				 * The Multicast Manager is done processing.
-				 * There are outstanding transactions, so we
-				 * must wait for the wire to clear.
-				 */
-				p_mgr->state = OSM_SM_STATE_SET_MCAST_TABLES_WAIT;
-				signal = OSM_SIGNAL_NONE;
-				break;
-
-			default:
-				__osm_state_mgr_signal_error(p_mgr, signal);
-				signal = OSM_SIGNAL_NONE;
-				break;
-			}
-			break;
-
-		case OSM_SM_STATE_SET_MCAST_TABLES_WAIT:
-			switch (signal) {
-			case OSM_SIGNAL_NO_PENDING_TRANSACTIONS:
-				p_mgr->state = OSM_SM_STATE_SET_MCAST_TABLES_DONE;
-				break;
-
-			default:
-				__osm_state_mgr_signal_error(p_mgr, signal);
-				signal = OSM_SIGNAL_NONE;
-				break;
-			}
-			break;
-
-		case OSM_SM_STATE_SET_MCAST_TABLES_DONE:
-			switch (signal) {
-			case OSM_SIGNAL_NO_PENDING_TRANSACTIONS:
-			case OSM_SIGNAL_DONE:
-				__osm_state_mgr_multicast_config_msg(p_mgr);
-
-				p_mgr->state = OSM_SM_STATE_SET_LINK_PORTS;
-				signal = osm_link_mgr_process(p_mgr->p_link_mgr, IB_LINK_NO_CHANGE);
-				break;
-
-			default:
-				__osm_state_mgr_signal_error(p_mgr, signal);
-				signal = OSM_SIGNAL_NONE;
-				break;
-			}
-			break;
-
-			/*
-			 * The LINK_PORTS state is required since we can not count on
-			 * the port state change MADs to succeed. This is an artifact
-			 * of the spec defining state change from state X to state X
-			 * as an error. The hardware then is not required to process
-			 * other parameters provided by the Set(PortInfo) Packet.
-			 */
-		case OSM_SM_STATE_SET_LINK_PORTS:
-			switch (signal) {
-			case OSM_SIGNAL_DONE:
-				p_mgr->state = OSM_SM_STATE_SET_LINK_PORTS_DONE;
-				break;
-
-			case OSM_SIGNAL_DONE_PENDING:
-				/*
-				 * The Link Manager is done processing.
-				 * There are outstanding transactions, so we
-				 * must wait for the wire to clear.
-				 */
-				p_mgr->state = OSM_SM_STATE_SET_LINK_PORTS_WAIT;
-				signal = OSM_SIGNAL_NONE;
-				break;
-
-			default:
-				__osm_state_mgr_signal_error(p_mgr, signal);
-				signal = OSM_SIGNAL_NONE;
-				break;
-			}
-			break;
-
-		case OSM_SM_STATE_SET_LINK_PORTS_WAIT:
-			switch (signal) {
-			case OSM_SIGNAL_NO_PENDING_TRANSACTIONS:
-				p_mgr->state = OSM_SM_STATE_SET_LINK_PORTS_DONE;
-				break;
-
-			default:
-				__osm_state_mgr_signal_error(p_mgr, signal);
-				signal = OSM_SIGNAL_NONE;
-				break;
-			}
-			break;
-
-		case OSM_SM_STATE_SET_LINK_PORTS_DONE:
-			switch (signal) {
-			case OSM_SIGNAL_NO_PENDING_TRANSACTIONS:
-			case OSM_SIGNAL_DONE:
-
-				__osm_state_mgr_links_ports_msg(p_mgr);
-
-				p_mgr->state = OSM_SM_STATE_SET_ARMED;
-				signal = osm_link_mgr_process(p_mgr->p_link_mgr, IB_LINK_ARMED);
-				break;
-
-			default:
-				__osm_state_mgr_signal_error(p_mgr, signal);
-				signal = OSM_SIGNAL_NONE;
-				break;
-			}
-			break;
-
-		case OSM_SM_STATE_SET_ARMED:
-			switch (signal) {
-			case OSM_SIGNAL_DONE:
-				p_mgr->state = OSM_SM_STATE_SET_ARMED_DONE;
-				break;
-
-			case OSM_SIGNAL_DONE_PENDING:
-				/*
-				 * The Link Manager is done processing.
-				 * There are outstanding transactions, so we
-				 * must wait for the wire to clear.
-				 */
-				p_mgr->state = OSM_SM_STATE_SET_ARMED_WAIT;
-				signal = OSM_SIGNAL_NONE;
-				break;
-
-			default:
-				__osm_state_mgr_signal_error(p_mgr, signal);
-				signal = OSM_SIGNAL_NONE;
-				break;
-			}
-			break;
-
-		case OSM_SM_STATE_SET_ARMED_WAIT:
-			switch (signal) {
-			case OSM_SIGNAL_NO_PENDING_TRANSACTIONS:
-				p_mgr->state = OSM_SM_STATE_SET_ARMED_DONE;
-				break;
-
-			default:
-				__osm_state_mgr_signal_error(p_mgr, signal);
-				signal = OSM_SIGNAL_NONE;
-				break;
-			}
-			break;
-
-		case OSM_SM_STATE_SET_ARMED_DONE:
-			switch (signal) {
-			case OSM_SIGNAL_NO_PENDING_TRANSACTIONS:
-			case OSM_SIGNAL_DONE:
-
-				__osm_state_mgr_links_armed_msg(p_mgr);
-
-				p_mgr->state = OSM_SM_STATE_SET_ACTIVE;
-				signal = osm_link_mgr_process(p_mgr->p_link_mgr, IB_LINK_ACTIVE);
-				break;
-
-			default:
-				__osm_state_mgr_signal_error(p_mgr, signal);
-				signal = OSM_SIGNAL_NONE;
-				break;
-			}
-			break;
-
-		case OSM_SM_STATE_SET_ACTIVE:
-			switch (signal) {
-			case OSM_SIGNAL_DONE:
-				/*
-				 * Don't change the signal, just the state.
-				 */
-				p_mgr->state = OSM_SM_STATE_SUBNET_UP;
-				break;
-
-			case OSM_SIGNAL_DONE_PENDING:
-				/*
-				 * The Link Manager is done processing.
-				 * There are outstanding transactions, so we
-				 * must wait for the wire to clear.
-				 */
-				p_mgr->state = OSM_SM_STATE_SET_ACTIVE_WAIT;
-				signal = OSM_SIGNAL_NONE;
-				break;
-
-			default:
-				__osm_state_mgr_signal_error(p_mgr, signal);
-				signal = OSM_SIGNAL_NONE;
-				break;
-			}
-			break;
-
-		case OSM_SM_STATE_SET_ACTIVE_WAIT:
-			switch (signal) {
-			case OSM_SIGNAL_NO_PENDING_TRANSACTIONS:
-				/*
-				 * Don't change the signal, just the state.
-				 */
-				p_mgr->state = OSM_SM_STATE_SUBNET_UP;
-				break;
-
-			default:
-				__osm_state_mgr_signal_error(p_mgr, signal);
-				signal = OSM_SIGNAL_NONE;
-				break;
-			}
-			break;
-
-		case OSM_SM_STATE_SUBNET_UP:
-			switch (signal) {
-			case OSM_SIGNAL_NO_PENDING_TRANSACTIONS:
-			case OSM_SIGNAL_DONE:
-				/*
-				 * The sweep completed!
-				 */
-
-				/* in any case we zero this flag */
-				p_mgr->p_subn->coming_out_of_standby = FALSE;
-
-				/* If there were errors - then the subnet is not really up */
-				if (p_mgr->p_subn->subnet_initialization_error == TRUE) {
-					__osm_state_mgr_init_errors_msg(p_mgr);
-				} else {
-					/* The subnet is up correctly - set the first_time_master_sweep flag
-					 * (if it is on) to FALSE. */
-					if (p_mgr->p_subn->first_time_master_sweep == TRUE) {
-						p_mgr->p_subn->first_time_master_sweep = FALSE;
-					}
-					p_mgr->p_subn->need_update = 0;
-
-					osm_dump_all(p_mgr->p_subn->p_osm);
-					__osm_state_mgr_up_msg(p_mgr);
-
-					if (osm_log_is_active(p_mgr->p_log, OSM_LOG_VERBOSE))
-						osm_sa_db_file_dump(p_mgr->p_subn->p_osm);
-				}
-				p_mgr->state = OSM_SM_STATE_PROCESS_REQUEST;
-				signal = OSM_SIGNAL_IDLE_TIME_PROCESS;
-
-				/*
-				 * Finally signal the subnet up event
-				 */
-				status =
-				    cl_event_signal(p_mgr->p_subnet_up_event);
-				if (status != IB_SUCCESS) {
-					osm_log(p_mgr->p_log, OSM_LOG_ERROR,
-						"osm_state_mgr_process: ERR 3319: "
-						"Invalid SM state %u\n",
-						p_mgr->state);
-				}
-				break;
-
-			default:
-				__osm_state_mgr_signal_error(p_mgr, signal);
-				signal = OSM_SIGNAL_NONE;
-				break;
-			}
-			break;
-
-		case OSM_SM_STATE_MASTER_OR_HIGHER_SM_DETECTED:
-			switch (signal) {
-			case OSM_SIGNAL_CHANGE_DETECTED:
-				/*
-				 * Nothing to do here. One subnet change typically
-				 * begets another....
-				 */
-				break;
-
-			case OSM_SIGNAL_MASTER_OR_HIGHER_SM_DETECTED:
-				/*
-				 * If we lost once, we might lose again. Nothing to do.
-				 */
-				break;
-
-			case OSM_SIGNAL_NO_PENDING_TRANSACTIONS:
-				p_mgr->state = OSM_SM_STATE_STANDBY;
-				/*
-				 * Call the sm_state_mgr with signal
-				 * MASTER_OR_HIGHER_SM_DETECTED_DONE
-				 */
+			if (p_mgr->p_subn->sm_state == IB_SMINFO_STATE_INIT)
 				osm_sm_state_mgr_process(p_mgr->p_sm_state_mgr,
-							 OSM_SM_SIGNAL_MASTER_OR_HIGHER_SM_DETECTED_DONE);
-				__osm_state_mgr_standby_msg(p_mgr);
-				break;
+							 OSM_SM_SIGNAL_INIT);
 
-			default:
-				__osm_state_mgr_signal_error(p_mgr, signal);
-				break;
-			}
-			signal = OSM_SIGNAL_NONE;
+			do_sweep(p_mgr->sm);
 			break;
 
-		case OSM_SM_STATE_STANDBY:
-			switch (signal) {
-			case OSM_SIGNAL_EXIT_STBY:
-				/*
-				 * Need to force re-write of sm_base_lid to all ports
-				 * to do that we want all the ports to be considered
-				 * foriegn
-				 */
-				signal = OSM_SIGNAL_SWEEP;
-				__osm_state_mgr_clean_known_lids(p_mgr);
-				p_mgr->state = OSM_SM_STATE_IDLE;
-				break;
-
-			case OSM_SIGNAL_NO_PENDING_TRANSACTIONS:
-				/*
-				 * Nothing to do here - need to stay at this state
-				 */
-				signal = OSM_SIGNAL_NONE;
-				break;
-
-			default:
-				__osm_state_mgr_signal_error(p_mgr, signal);
-				signal = OSM_SIGNAL_NONE;
-				break;
-			}
-			/* stay with the same signal - so we can start the sweep */
+		case OSM_SIGNAL_IDLE_TIME_PROCESS_REQUEST:
+			do_process_mgrp_queue(p_mgr->sm);
 			break;
 
 		default:
-			CL_ASSERT(FALSE);
-			osm_log(p_mgr->p_log, OSM_LOG_ERROR,
-				"osm_state_mgr_process: ERR 3320: "
-				"Invalid SM state %u\n", p_mgr->state);
-			p_mgr->state = OSM_SM_STATE_IDLE;
-			signal = OSM_SIGNAL_NONE;
+			__osm_state_mgr_signal_error(p_mgr, signal);
 			break;
 		}
+		break;
 
-		/* if we got a signal to force immediate heavy sweep in the middle of the sweep -
-		 * try another sweep. */
-		if ((p_mgr->p_subn->force_heavy_sweep) &&
-		    (p_mgr->state == OSM_SM_STATE_IDLE)) {
-			signal = OSM_SIGNAL_SWEEP;
+	case OSM_SM_STATE_STANDBY:
+		switch (signal) {
+		case OSM_SIGNAL_EXIT_STBY:
+			/*
+			 * Need to force re-write of sm_base_lid to all ports
+			 * to do that we want all the ports to be considered
+			 * foriegn
+			 */
+			__osm_state_mgr_clean_known_lids(p_mgr);
+			p_mgr->state = OSM_SM_STATE_IDLE;
+			osm_sm_signal(p_mgr->sm, OSM_SIGNAL_SWEEP);
+			break;
+		default:
+			__osm_state_mgr_signal_error(p_mgr, signal);
+			break;
 		}
-		/* if we got errors during the initialization in the middle of the sweep -
-		 * try another sweep. */
-		if ((p_mgr->p_subn->subnet_initialization_error) &&
-		    (p_mgr->state == OSM_SM_STATE_IDLE)) {
-			signal = OSM_SIGNAL_SWEEP;
-		}
+		/* stay with the same signal - so we can start the sweep */
+		break;
 
+	default:
+		CL_ASSERT(FALSE);
+		osm_log(p_mgr->p_log, OSM_LOG_ERROR,
+			"osm_state_mgr_process: ERR 3320: "
+			"Invalid SM state %u\n", p_mgr->state);
+		break;
 	}
 
 	OSM_LOG_EXIT(p_mgr->p_log);

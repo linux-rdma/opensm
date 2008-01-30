@@ -814,7 +814,6 @@ void osm_ni_rcv_process(IN void *context, IN void *data)
 	ib_node_info_t *p_ni;
 	ib_smp_t *p_smp;
 	osm_node_t *p_node;
-	boolean_t process_new_flag = FALSE;
 
 	CL_ASSERT(sm);
 
@@ -854,21 +853,12 @@ void osm_ni_rcv_process(IN void *context, IN void *data)
 
 	osm_dump_node_info(sm->p_log, p_ni, OSM_LOG_DEBUG);
 
-	if (!p_node) {
+	if (!p_node)
 		__osm_ni_rcv_process_new(sm, p_madw);
-		process_new_flag = TRUE;
-	} else
+	else
 		__osm_ni_rcv_process_existing(sm, p_node, p_madw);
 
 	CL_PLOCK_RELEASE(sm->p_lock);
-
-	/*
-	 * If we processed a new node - need to signal to the SM that
-	 * change detected.
-	 */
-	if (process_new_flag)
-		osm_sm_signal(&sm->p_subn->p_osm->sm,
-			      OSM_SIGNAL_CHANGE_DETECTED);
 
       Exit:
 	OSM_LOG_EXIT(sm->p_log);

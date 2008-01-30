@@ -120,6 +120,7 @@ typedef struct osm_sm {
 	cl_timer_t sweep_timer;
 	cl_event_wheel_t trap_aging_tracker;
 	cl_thread_t sweeper;
+	unsigned master_sm_found;
 	osm_subn_t *p_subn;
 	osm_db_t *p_db;
 	osm_vendor_t *p_vendor;

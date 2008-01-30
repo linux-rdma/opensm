@@ -740,7 +740,6 @@ static void reset_switch_count(cl_map_item_t * const p_map_item, void *cxt)
 
 static int perfmgr_discovery(osm_opensm_t * osm)
 {
-	unsigned signals = osm->sm.signal_mask;
 	int ret;
 
 	CL_PLOCK_ACQUIRE(&osm->lock);
@@ -772,17 +771,10 @@ static int perfmgr_discovery(osm_opensm_t * osm)
 	if (wait_for_pending_transactions(&osm->stats))
 		goto _exit;
 
-      _drop:
+_drop:
 	osm_drop_mgr_process(&osm->sm.drop_mgr);
 
-      _exit:
-	/* dirty hack: cleanup signal mask -
-	 * this will not be needed later with both discoveries merged */
-	cl_spinlock_acquire(&osm->sm.signal_lock);
-	osm->sm.signal_mask &= ~(OSM_SIGNAL_NO_PENDING_TRANSACTIONS |
-				 OSM_SIGNAL_CHANGE_DETECTED);
-	osm->sm.signal_mask |= signals;
-	cl_spinlock_release(&osm->sm.signal_lock);
+_exit:
 	return ret;
 }
 

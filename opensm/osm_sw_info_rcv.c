@@ -562,8 +562,7 @@ void osm_si_rcv_process(IN void *context, IN void *data)
 			if (__osm_si_rcv_process_existing
 			    (sm, p_node, p_madw)) {
 				CL_PLOCK_RELEASE(sm->p_lock);
-				osm_sm_signal(&sm->p_subn->p_osm->sm,
-					      OSM_SIGNAL_CHANGE_DETECTED);
+				sm->p_subn->force_heavy_sweep = 1;
 				goto Exit;
 			}
 		}

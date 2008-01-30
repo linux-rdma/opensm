@@ -121,6 +121,9 @@ static void __osm_sm_sweeper(IN void *p_ptr)
 			continue;
 		}
 
+		if (osm_exit_flag)
+			break;
+
 		cl_spinlock_acquire(&p_sm->signal_lock);
 		signals = p_sm->signal_mask;
 		p_sm->signal_mask = 0;

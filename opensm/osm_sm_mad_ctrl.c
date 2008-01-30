@@ -103,11 +103,7 @@ __osm_sm_mad_ctrl_retire_trans_mad(IN osm_sm_mad_ctrl_t * const p_ctrl,
 		   Signal the subnet manager.
 		 */
 		osm_log(p_ctrl->p_log, OSM_LOG_DEBUG,
-			"__osm_sm_mad_ctrl_retire_trans_mad: "
-			"signal OSM_SIGNAL_NO_PENDING_TRANSACTIONS\n");
-
-		osm_sm_signal(&p_ctrl->p_subn->p_osm->sm,
-			      OSM_SIGNAL_NO_PENDING_TRANSACTIONS);
+			"__osm_sm_mad_ctrl_retire_trans_mad: wire is clean.\n");
 #ifdef HAVE_LIBPTHREAD
 		pthread_cond_signal(&p_ctrl->p_stats->cond);
 #else

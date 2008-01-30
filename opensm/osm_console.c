@@ -300,72 +300,8 @@ static char *sm_state_mgr_str(osm_sm_state_t state)
 		return ("Init");
 	case OSM_SM_STATE_IDLE:
 		return ("Idle");
-	case OSM_SM_STATE_SWEEP_LIGHT:
-		return ("Sweep Light");
-	case OSM_SM_STATE_SWEEP_LIGHT_WAIT:
-		return ("Sweep Light Wait");
-	case OSM_SM_STATE_SWEEP_HEAVY_SELF:
-		return ("Sweep Heavy Self");
-	case OSM_SM_STATE_SWEEP_HEAVY_SUBNET:
-		return ("Sweep Heavy Subnet");
-	case OSM_SM_STATE_SET_SM_UCAST_LID:
-		return ("Set SM UCAST LID");
-	case OSM_SM_STATE_SET_SM_UCAST_LID_WAIT:
-		return ("Set SM UCAST LID Wait");
-	case OSM_SM_STATE_SET_SM_UCAST_LID_DONE:
-		return ("Set SM UCAST LID Done");
-	case OSM_SM_STATE_SET_SUBNET_UCAST_LIDS:
-		return ("Set Subnet UCAST LIDS");
-	case OSM_SM_STATE_SET_SUBNET_UCAST_LIDS_WAIT:
-		return ("Set Subnet UCAST LIDS Wait");
-	case OSM_SM_STATE_SET_SUBNET_UCAST_LIDS_DONE:
-		return ("Set Subnet UCAST LIDS Done");
-	case OSM_SM_STATE_SET_UCAST_TABLES:
-		return ("Set UCAST Tables");
-	case OSM_SM_STATE_SET_UCAST_TABLES_WAIT:
-		return ("Set UCAST Tables Wait");
-	case OSM_SM_STATE_SET_UCAST_TABLES_DONE:
-		return ("Set UCAST Tables Done");
-	case OSM_SM_STATE_SET_MCAST_TABLES:
-		return ("Set MCAST Tables");
-	case OSM_SM_STATE_SET_MCAST_TABLES_WAIT:
-		return ("Set MCAST Tables Wait");
-	case OSM_SM_STATE_SET_MCAST_TABLES_DONE:
-		return ("Set MCAST Tables Done");
-	case OSM_SM_STATE_SET_LINK_PORTS:
-		return ("Set Link Ports");
-	case OSM_SM_STATE_SET_LINK_PORTS_WAIT:
-		return ("Set Link Ports Wait");
-	case OSM_SM_STATE_SET_LINK_PORTS_DONE:
-		return ("Set Link Ports Done");
-	case OSM_SM_STATE_SET_ARMED:
-		return ("Set Armed");
-	case OSM_SM_STATE_SET_ARMED_WAIT:
-		return ("Set Armed Wait");
-	case OSM_SM_STATE_SET_ARMED_DONE:
-		return ("Set Armed Done");
-	case OSM_SM_STATE_SET_ACTIVE:
-		return ("Set Active");
-	case OSM_SM_STATE_SET_ACTIVE_WAIT:
-		return ("Set Active Wait");
 	case OSM_SM_STATE_STANDBY:
 		return ("Standby");
-	case OSM_SM_STATE_SUBNET_UP:
-		return ("Subnet Up");
-	case OSM_SM_STATE_PROCESS_REQUEST:
-		return ("Process Request");
-	case OSM_SM_STATE_PROCESS_REQUEST_WAIT:
-		return ("Process Request Wait");
-	case OSM_SM_STATE_PROCESS_REQUEST_DONE:
-		return ("Process Request Done");
-	case OSM_SM_STATE_MASTER_OR_HIGHER_SM_DETECTED:
-		return ("Master or Higher SM Detected");
-	case OSM_SM_STATE_SET_PKEY:
-		return ("Set PKey");
-	case OSM_SM_STATE_SET_PKEY_WAIT:
-		return ("Set PKey Wait");
-	case OSM_SM_STATE_SET_PKEY_DONE:
-		return ("Set PKey Done");
 	default:
 		return ("Unknown State");
 	}
