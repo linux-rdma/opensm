@@ -338,8 +338,6 @@ __osm_sminfo_rcv_process_set_request(IN osm_sm_t * sm,
 }
 
 /**********************************************************************
- * Return a signal with which to call the osm_sm_signal.
- * If return OSM_SIGNAL_NONE - do not call osm_sm_signal.
  **********************************************************************/
 static osm_signal_t
 __osm_sminfo_rcv_process_get_sm(IN osm_sm_t * sm,
