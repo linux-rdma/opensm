@@ -1376,11 +1376,6 @@ osm_signal_t osm_mcast_mgr_process_mgroups(osm_mcast_mgr_t * p_mgr)
 	/* we need a lock to make sure the p_mgrp is not change other ways */
 	CL_PLOCK_EXCL_ACQUIRE(p_mgr->p_lock);
 
-	if (cl_is_qlist_empty(p_list)) {
-		CL_PLOCK_RELEASE(p_mgr->p_lock);
-		return OSM_SIGNAL_NONE;
-	}
-
 	while (!cl_is_qlist_empty(p_list)) {
 		ctx = (osm_mcast_mgr_ctxt_t *) cl_qlist_remove_head(p_list);
 		req_type = ctx->req_type;
