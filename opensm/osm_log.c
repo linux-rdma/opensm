@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2008 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2006 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -241,6 +241,32 @@ osm_log_raw(IN osm_log_t * const p_log,
 		if (p_log->flush || (verbosity & OSM_LOG_ERROR))
 			fflush(stdout);
 	}
+}
+
+void osm_log_msg_box(IN osm_log_t *log, osm_log_level_t level,
+		     const char *func_name, const char *msg)
+{
+#define MSG_BOX_LENGTH 66
+	char buf[MSG_BOX_LENGTH + 1];
+	int i, n;
+
+	if (!osm_log_is_active(log, level))
+		return;
+
+	n = (MSG_BOX_LENGTH - strlen(msg))/2 - 1;
+	if (n < 0)
+		n = 0;
+	for (i = 0 ; i < n; i++)
+		sprintf(buf + i, "*");
+	n += snprintf(buf + n, sizeof(buf) - n, " %s ", msg);
+	for (i = n; i < MSG_BOX_LENGTH; i++)
+		sprintf(buf + i, "*");
+
+	osm_log(log, level, "%s:\n\n\n"
+		"*********************************************"
+		"*********************\n%s\n"
+		"*********************************************"
+		"*********************\n\n\n", func_name, buf);
 }
 
 boolean_t osm_is_debug(void)

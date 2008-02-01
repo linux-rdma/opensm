@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2008 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2006 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -391,9 +391,9 @@ osm_log_is_active(IN const osm_log_t * const p_log,
 
 extern int osm_log_printf(osm_log_t * p_log, osm_log_level_t level,
 			  const char *fmt, ...);
-
-void
-osm_log_raw(IN osm_log_t * const p_log,
+extern void osm_log_msg_box(osm_log_t *log, osm_log_level_t level,
+			    const char *func_name, const char *msg);
+extern void osm_log_raw(IN osm_log_t * const p_log,
 	    IN const osm_log_level_t verbosity, IN const char *p_buf);
 
 #define DBG_CL_LOCK 0

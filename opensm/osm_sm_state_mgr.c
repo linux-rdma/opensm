@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2008 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -74,16 +74,8 @@ __osm_sm_state_mgr_standby_msg(IN const osm_sm_state_mgr_t * p_sm_mgr)
 {
 	osm_log(p_sm_mgr->p_log, OSM_LOG_SYS, "Entering STANDBY state\n");	/* Format Waived */
 
-	if (osm_log_is_active(p_sm_mgr->p_log, OSM_LOG_VERBOSE)) {
-		osm_log(p_sm_mgr->p_log, OSM_LOG_VERBOSE,
-			"__osm_sm_state_mgr_standby_msg: "
-			"\n\n\n********************************"
-			"**********************************\n"
-			"******************** ENTERING SM STANDBY"
-			" STATE *******************\n"
-			"**************************************"
-			"****************************\n\n\n");
-	}
+	osm_log_msg_box(p_sm_mgr->p_log, OSM_LOG_VERBOSE, __FUNCTION__,
+			"ENTERING SM STANDBY STATE");
 }
 
 /**********************************************************************
@@ -93,16 +85,8 @@ __osm_sm_state_mgr_master_msg(IN const osm_sm_state_mgr_t * p_sm_mgr)
 {
 	osm_log(p_sm_mgr->p_log, OSM_LOG_SYS, "Entering MASTER state\n");	/* Format Waived */
 
-	if (osm_log_is_active(p_sm_mgr->p_log, OSM_LOG_VERBOSE)) {
-		osm_log(p_sm_mgr->p_log, OSM_LOG_VERBOSE,
-			"__osm_sm_state_mgr_master_msg: "
-			"\n\n\n********************************"
-			"**********************************\n"
-			"******************** ENTERING SM MASTER"
-			" STATE ********************\n"
-			"**************************************"
-			"****************************\n\n\n");
-	}
+	osm_log_msg_box(p_sm_mgr->p_log, OSM_LOG_VERBOSE, __FUNCTION__,
+			"ENTERING SM MASTER STATE");
 }
 
 /**********************************************************************
@@ -110,16 +94,8 @@ __osm_sm_state_mgr_master_msg(IN const osm_sm_state_mgr_t * p_sm_mgr)
 static void
 __osm_sm_state_mgr_discovering_msg(IN const osm_sm_state_mgr_t * p_sm_mgr)
 {
-	if (osm_log_is_active(p_sm_mgr->p_log, OSM_LOG_VERBOSE)) {
-		osm_log(p_sm_mgr->p_log, OSM_LOG_VERBOSE,
-			"__osm_sm_state_mgr_discovering_msg: "
-			"\n\n\n********************************"
-			"**********************************\n"
-			"******************** ENTERING SM DISCOVERING"
-			" STATE ***************\n"
-			"**************************************"
-			"****************************\n\n\n");
-	}
+	osm_log_msg_box(p_sm_mgr->p_log, OSM_LOG_VERBOSE, __FUNCTION__,
+			"ENTERING SM DISCOVERING STATE");
 }
 
 /**********************************************************************
@@ -129,16 +105,8 @@ __osm_sm_state_mgr_notactive_msg(IN const osm_sm_state_mgr_t * p_sm_mgr)
 {
 	osm_log(p_sm_mgr->p_log, OSM_LOG_SYS, "Entering NOT-ACTIVE state\n");	/* Format Waived */
 
-	if (osm_log_is_active(p_sm_mgr->p_log, OSM_LOG_VERBOSE)) {
-		osm_log(p_sm_mgr->p_log, OSM_LOG_VERBOSE,
-			"__osm_sm_state_mgr_notactive_msg: "
-			"\n\n\n********************************"
-			"**********************************\n"
-			"***************** ENTERING SM NOT-ACTIVE"
-			" STATE *******************\n"
-			"**************************************"
-			"****************************\n\n\n");
-	}
+	osm_log_msg_box(p_sm_mgr->p_log, OSM_LOG_VERBOSE, __FUNCTION__,
+			"ENTERING SM NOT-ACTIVE STATE");
 }
 
 #if 0

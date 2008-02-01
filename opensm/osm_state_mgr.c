@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2008 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -88,24 +88,9 @@ static void __osm_state_mgr_up_msg(IN const osm_sm_t *sm)
 	} else
 		osm_log(sm->p_log, OSM_LOG_INFO, "SUBNET UP\n");	/* Format Waived */
 
-	if (sm->p_subn->opt.sweep_interval)
-		osm_log(sm->p_log, OSM_LOG_VERBOSE,
-			"__osm_state_mgr_up_msg: "
-			"\n\n\n********************************"
-			"**********************************\n"
-			"**************************** SUBNET UP "
-			"***************************\n"
-			"**************************************"
-			"****************************\n\n\n");
-	else
-		osm_log(sm->p_log, OSM_LOG_VERBOSE,
-			"__osm_state_mgr_up_msg: "
-			"\n\n\n********************************"
-			"**********************************\n"
-			"******************* SUBNET UP "
-			"(sweep disabled) *******************\n"
-			"**************************************"
-			"****************************\n\n\n");
+	osm_log_msg_box(sm->p_log, OSM_LOG_VERBOSE, __FUNCTION__,
+			sm->p_subn->opt.sweep_interval ?
+				"SUBNET UP" : "SUBNET UP (sweep disabled)");
 }
 
 /**********************************************************************
@@ -114,44 +99,24 @@ static void __osm_state_mgr_init_errors_msg(IN osm_log_t *log)
 {
 	osm_log(log, OSM_LOG_SYS, "Errors during initialization\n");	/* Format Waived */
 
-	osm_log(log, OSM_LOG_ERROR,
-		"__osm_state_mgr_init_errors_msg: "
-		"\n\n\n********************************"
-		"**********************************\n"
-		"****************** ERRORS DURING INITI"
-		"ALIZATION ******************\n"
-		"**************************************"
-		"****************************\n\n\n");
+	osm_log_msg_box(log, OSM_LOG_ERROR, __FUNCTION__,
+			"ERRORS DURING INITIALIZATION");
 }
 
 /**********************************************************************
  **********************************************************************/
 static void __osm_state_mgr_light_sweep_done_msg(IN osm_log_t *log)
 {
-	if (osm_log_is_active(log, OSM_LOG_VERBOSE))
-		osm_log(log, OSM_LOG_VERBOSE,
-			"__osm_state_mgr_light_sweep_done_msg: "
-			"\n\n\n********************************"
-			"**********************************\n"
-			"********************** LIGHT SWEEP "
-			"COMPLETE **********************\n"
-			"**************************************"
-			"****************************\n\n\n");
+	osm_log_msg_box(log, OSM_LOG_VERBOSE, __FUNCTION__,
+			"LIGHT SWEEP COMPLETE");
 }
 
 /**********************************************************************
  **********************************************************************/
 static void __osm_state_mgr_standby_msg(IN osm_log_t *log)
 {
-	if (osm_log_is_active(log, OSM_LOG_VERBOSE))
-		osm_log(log, OSM_LOG_VERBOSE,
-			"__osm_state_mgr_standby_msg: "
-			"\n\n\n********************************"
-			"**********************************\n"
-			"******************** ENTERING STANDBY"
-			" STATE **********************\n"
-			"**************************************"
-			"****************************\n\n\n");
+	osm_log_msg_box(log, OSM_LOG_VERBOSE, __FUNCTION__,
+			"ENTERING STANDBY STATE");
 }
 
 /**********************************************************************
@@ -160,150 +125,79 @@ static void __osm_state_mgr_sm_port_down_msg(IN osm_log_t *log)
 {
 	osm_log(log, OSM_LOG_SYS, "SM port is down\n");	/* Format Waived */
 
-	if (osm_log_is_active(log, OSM_LOG_VERBOSE))
-		osm_log(log, OSM_LOG_VERBOSE,
-			"__osm_state_mgr_sm_port_down_msg: "
-			"\n\n\n********************************"
-			"**********************************\n"
-			"************************** SM PORT DOWN "
-			"**************************\n"
-			"**************************************"
-			"****************************\n\n\n");
+	osm_log_msg_box(log, OSM_LOG_VERBOSE, __FUNCTION__, "SM PORT DOWN");
 }
 
 /**********************************************************************
  **********************************************************************/
 static void __osm_state_mgr_lid_assign_msg(IN osm_log_t *log)
 {
-	if (osm_log_is_active(log, OSM_LOG_VERBOSE))
-		osm_log(log, OSM_LOG_VERBOSE,
-			"__osm_state_mgr_lid_assign_msg: "
-			"\n\n\n**************************************"
-			"****************************\n"
-			"***** LID ASSIGNMENT COMPLETE - STARTING SWITC"
-			"H TABLE CONFIG *****\n"
-			"*********************************************"
-			"*********************\n\n\n");
+	osm_log_msg_box(log, OSM_LOG_VERBOSE, __FUNCTION__,
+			"LID ASSIGNMENT COMPLETE - STARTING SWITCH TABLE CONFIG");
 }
 
 /**********************************************************************
  **********************************************************************/
 static void __osm_state_mgr_set_sm_lid_done_msg(IN osm_log_t *log)
 {
-	if (osm_log_is_active(log, OSM_LOG_VERBOSE))
-		osm_log(log, OSM_LOG_VERBOSE,
-			"__osm_state_mgr_set_sm_lid_done_msg: "
-			"\n\n\n**************************************"
-			"****************************\n"
-			"**** SM LID ASSIGNMENT COMPLETE - STARTING SUBN"
-			"ET LID CONFIG *****\n"
-			"*********************************************"
-			"*********************\n\n\n");
+	osm_log_msg_box(log, OSM_LOG_VERBOSE, __FUNCTION__,
+			"SM LID ASSIGNMENT COMPLETE - STARTING SUBNET LID CONFIG");
 }
 
 /**********************************************************************
  **********************************************************************/
 static void __osm_state_mgr_switch_config_msg(IN osm_log_t *log)
 {
-	if (osm_log_is_active(log, OSM_LOG_VERBOSE))
-		osm_log(log, OSM_LOG_VERBOSE,
-			"__osm_state_mgr_switch_config_msg: "
-			"\n\n\n**************************************"
-			"****************************\n"
-			"***************** SWITCHES CONFIGURED FOR UNICAST "
-			"****************\n"
-			"*********************************************"
-			"*********************\n\n\n");
+	osm_log_msg_box(log, OSM_LOG_VERBOSE, __FUNCTION__,
+			"SWITCHES CONFIGURED FOR UNICAST");
 }
 
 /**********************************************************************
  **********************************************************************/
 static void __osm_state_mgr_multicast_config_msg(IN osm_log_t *log)
 {
-	if (osm_log_is_active(log, OSM_LOG_VERBOSE))
-		osm_log(log, OSM_LOG_VERBOSE,
-			"__osm_state_mgr_multicast_config_msg: "
-			"\n\n\n**************************************"
-			"****************************\n"
-			"**************** SWITCHES CONFIGURED FOR MULTICAST "
-			"***************\n"
-			"*********************************************"
-			"*********************\n\n\n");
+	osm_log_msg_box(log, OSM_LOG_VERBOSE, __FUNCTION__,
+			"SWITCHES CONFIGURED FOR MULTICAST");
 }
 
 /**********************************************************************
  **********************************************************************/
 static void __osm_state_mgr_links_ports_msg(IN osm_log_t *log)
 {
-	if (osm_log_is_active(log, OSM_LOG_VERBOSE))
-		osm_log(log, OSM_LOG_VERBOSE,
-			"__osm_state_mgr_links_ports_msg: "
-			"\n\n\n**************************************"
-			"****************************\n"
-			"******* LINKS PORTS CONFIGURED - SET LINKS TO ARMED "
-			"STATE ********\n"
-			"*********************************************"
-			"*********************\n\n\n");
+	osm_log_msg_box(log, OSM_LOG_VERBOSE, __FUNCTION__,
+			"LINKS PORTS CONFIGURED - SET LINKS TO ARMED STATE");
 }
 
 /**********************************************************************
  **********************************************************************/
 static void __osm_state_mgr_links_armed_msg(IN osm_log_t *log)
 {
-	if (osm_log_is_active(log, OSM_LOG_VERBOSE))
-		osm_log(log, OSM_LOG_VERBOSE,
-			"__osm_state_mgr_links_armed_msg: "
-			"\n\n\n**************************************"
-			"****************************\n"
-			"************* LINKS ARMED - SET LINKS TO ACTIVE "
-			"STATE ************\n"
-			"*********************************************"
-			"*********************\n\n\n");
+	osm_log_msg_box(log, OSM_LOG_VERBOSE, __FUNCTION__,
+			"LINKS ARMED - SET LINKS TO ACTIVE STATE");
 }
 
 /**********************************************************************
  **********************************************************************/
 static void __osm_state_mgr_sweep_heavy_msg(IN osm_log_t *log)
 {
-	if (osm_log_is_active(log, OSM_LOG_VERBOSE))
-		osm_log(log, OSM_LOG_VERBOSE,
-			"__osm_state_mgr_sweep_heavy_msg: "
-			"\n\n\n**************************************"
-			"****************************\n"
-			"******************** INITIATING HEAVY SWEEP "
-			"**********************\n"
-			"*********************************************"
-			"*********************\n\n\n");
+	osm_log_msg_box(log, OSM_LOG_VERBOSE, __FUNCTION__,
+			"INITIATING HEAVY SWEEP");
 }
 
 /**********************************************************************
  **********************************************************************/
 static void __osm_state_mgr_sweep_heavy_done_msg(IN osm_log_t *log)
 {
-	if (osm_log_is_active(log, OSM_LOG_VERBOSE))
-		osm_log(log, OSM_LOG_VERBOSE,
-			"__osm_state_mgr_sweep_heavy_done_msg: "
-			"\n\n\n**************************************"
-			"****************************\n"
-			"********************* HEAVY SWEEP COMPLETE "
-			"***********************\n"
-			"*********************************************"
-			"*********************\n\n\n");
+	osm_log_msg_box(log, OSM_LOG_VERBOSE, __FUNCTION__,
+			"HEAVY SWEEP COMPLETE");
 }
 
 /**********************************************************************
  **********************************************************************/
 static void __osm_state_mgr_sweep_light_msg(IN osm_log_t *log)
 {
-	if (osm_log_is_active(log, OSM_LOG_VERBOSE))
-		osm_log(log, OSM_LOG_VERBOSE,
-			"__osm_state_mgr_sweep_light_msg: "
-			"\n\n\n**************************************"
-			"****************************\n"
-			"******************** INITIATING LIGHT SWEEP "
-			"**********************\n"
-			"*********************************************"
-			"*********************\n\n\n");
+	osm_log_msg_box(log, OSM_LOG_VERBOSE, __FUNCTION__,
+			"INITIATING LIGHT SWEEP");
 }
 
 /**********************************************************************
