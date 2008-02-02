@@ -551,6 +551,40 @@ static int daemonize(osm_opensm_t * osm)
 
 /**********************************************************************
  **********************************************************************/
+int osm_manager_loop(osm_subn_opt_t * p_opt, osm_opensm_t * p_osm)
+{
+	osm_console_init(p_opt, p_osm);
+
+	/*
+	   Sit here forever
+	 */
+	while (!osm_exit_flag) {
+		if (strcmp(p_opt->console, OSM_LOCAL_CONSOLE) == 0
+#ifdef ENABLE_OSM_CONSOLE_SOCKET
+		    || strcmp(p_opt->console, OSM_REMOTE_CONSOLE) == 0
+		    || strcmp(p_opt->console, OSM_LOOPBACK_CONSOLE) == 0
+#endif
+		    )
+			osm_console(p_osm);
+		else
+			cl_thread_suspend(10000);
+
+		if (osm_usr1_flag) {
+			osm_usr1_flag = 0;
+			osm_log_reopen_file(&(p_osm->log));
+		}
+		if (osm_hup_flag) {
+			osm_hup_flag = 0;
+			/* a HUP signal should only start a new heavy sweep */
+			p_osm->subn.force_heavy_sweep = TRUE;
+			osm_opensm_sweep(p_osm);
+		}
+	}
+	osm_console_close_socket(p_osm);
+	return 0;
+}
+/**********************************************************************
+ **********************************************************************/
 int main(int argc, char *argv[])
 {
 	osm_opensm_t osm;
@@ -1010,34 +1044,10 @@ int main(int argc, char *argv[])
 				osm_exit_flag = 1;
 		}
 	} else {
-		osm_console_init(&opt, &osm);
-
-		/*
-		   Sit here forever
-		 */
-		while (!osm_exit_flag) {
-			if (strcmp(opt.console, OSM_LOCAL_CONSOLE) == 0
-#ifdef ENABLE_OSM_CONSOLE_SOCKET
-			    || strcmp(opt.console, OSM_REMOTE_CONSOLE) == 0
-			    || strcmp(opt.console, OSM_LOOPBACK_CONSOLE) == 0
-#endif
-			    )
-				osm_console(&osm);
-			else
-				cl_thread_suspend(10000);
-
-			if (osm_usr1_flag) {
-				osm_usr1_flag = 0;
-				osm_log_reopen_file(&osm.log);
-			}
-			if (osm_hup_flag) {
-				osm_hup_flag = 0;
-				/* a HUP signal should only start a new heavy sweep */
-				osm.subn.force_heavy_sweep = TRUE;
-				osm_opensm_sweep(&osm);
-			}
-		}
-		osm_console_close_socket(&osm);
+	/*
+	 *	   Sit here until signaled to exit
+	 */
+		osm_manager_loop(&opt, &osm);
 	}
 
 	if (osm.mad_pool.mads_out) {
