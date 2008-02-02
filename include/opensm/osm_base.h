@@ -794,7 +794,7 @@ typedef uintn_t osm_signal_t;
 * SYNOPSIS
 */
 typedef enum _osm_sm_signal {
-	OSM_SM_SIGNAL_INIT = 0,
+	OSM_SM_SIGNAL_NONE = 0,
 	OSM_SM_SIGNAL_DISCOVERY_COMPLETED,
 	OSM_SM_SIGNAL_POLLING_TIMEOUT,
 	OSM_SM_SIGNAL_DISCOVER,

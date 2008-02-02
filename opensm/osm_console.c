@@ -266,8 +266,6 @@ static void priority_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 static char *sm_state_str(int state)
 {
 	switch (state) {
-	case IB_SMINFO_STATE_INIT:
-		return ("Init");
 	case IB_SMINFO_STATE_DISCOVERING:
 		return ("Discovering");
 	case IB_SMINFO_STATE_STANDBY:

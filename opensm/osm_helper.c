@@ -57,6 +57,8 @@
 
 #define LINE_LENGTH 256
 
+#define ARR_SIZE(a) (sizeof(a)/sizeof((a)[0]))
+
 /* we use two tables - one for queries and one for responses */
 const char *const __ib_sa_method_str[] = {
 	"RESERVED",		/* 0 */
@@ -2320,7 +2322,7 @@ const char *osm_get_lsa_str(IN uint8_t const lsa)
  **********************************************************************/
 
 const char *const __osm_sm_mgr_signal_str[] = {
-	"OSM_SM_SIGNAL_INIT",	/* 0 */
+	"OSM_SM_SIGNAL_NONE",	/* 0 */
 	"OSM_SM_SIGNAL_DISCOVERY_COMPLETED",	/* 2 */
 	"OSM_SM_SIGNAL_POLLING_TIMEOUT",	/* 3 */
 	"OSM_SM_SIGNAL_DISCOVER",	/* 4 */
@@ -2348,13 +2350,12 @@ const char *const __osm_sm_mgr_state_str[] = {
 	"IB_SMINFO_STATE_DISCOVERING",	/* 1 */
 	"IB_SMINFO_STATE_STANDBY",	/* 2 */
 	"IB_SMINFO_STATE_MASTER",	/* 3 */
-	"IB_SMINFO_STATE_INIT",	/* 4 */
-	"UNKNOWN STATE!!"	/* 5 */
+	"UNKNOWN STATE!!"	/* 4 */
 };
 
 const char *osm_get_sm_mgr_state_str(IN uint16_t state)
 {
-	if (state > IB_SMINFO_STATE_INIT)
-		state = IB_SMINFO_STATE_INIT + 1;
-	return (__osm_sm_mgr_state_str[state]);
+	return state < ARR_SIZE(__osm_sm_mgr_state_str) ?
+		__osm_sm_mgr_state_str[state] :
+		__osm_sm_mgr_state_str[ARR_SIZE(__osm_sm_mgr_state_str) - 1];
 }

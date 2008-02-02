@@ -1338,14 +1338,6 @@ void osm_state_mgr_process(IN osm_sm_t *sm, IN osm_signal_t signal)
 				break;
 			}
 
-			/*
-			 * If the osm_sm_state_mgr is in INIT state - signal
-			 * it with a INIT signal to move it to DISCOVERY state.
-			 */
-			if (sm->p_subn->sm_state == IB_SMINFO_STATE_INIT)
-				osm_sm_state_mgr_process(&sm->sm_state_mgr,
-							 OSM_SM_SIGNAL_INIT);
-
 			do_sweep(sm);
 			break;
 

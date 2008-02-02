@@ -378,8 +378,9 @@ osm_sm_state_mgr_init(IN osm_sm_state_mgr_t * const p_sm_mgr, IN osm_sm_t * sm)
 		p_sm_mgr->p_subn->sm_state = IB_SMINFO_STATE_NOTACTIVE;
 		__osm_sm_state_mgr_notactive_msg(p_sm_mgr);
 	} else {
-		/* init the state of the SM to init */
-		p_sm_mgr->p_subn->sm_state = IB_SMINFO_STATE_INIT;
+		 /* init the state of the SM to discovering */
+		p_sm_mgr->p_subn->sm_state = IB_SMINFO_STATE_DISCOVERING;
+		__osm_sm_state_mgr_discovering_msg(p_sm_mgr);
 	}
 
 	status = cl_spinlock_init(&p_sm_mgr->state_lock);
@@ -452,24 +453,6 @@ osm_sm_state_mgr_process(IN osm_sm_state_mgr_t * const p_sm_mgr,
 	}
 
 	switch (p_sm_mgr->p_subn->sm_state) {
-	case IB_SMINFO_STATE_INIT:
-		switch (signal) {
-		case OSM_SM_SIGNAL_INIT:
-			/*
-			 * Update the state of the SM to DISCOVERING
-			 */
-			__osm_sm_state_mgr_discovering_msg(p_sm_mgr);
-			p_sm_mgr->p_subn->sm_state =
-			    IB_SMINFO_STATE_DISCOVERING;
-			break;
-
-		default:
-			__osm_sm_state_mgr_signal_error(p_sm_mgr, signal);
-			status = IB_INVALID_PARAMETER;
-			break;
-		}
-		break;
-
 	case IB_SMINFO_STATE_DISCOVERING:
 		switch (signal) {
 		case OSM_SM_SIGNAL_DISCOVERY_COMPLETED:
@@ -706,18 +689,6 @@ osm_sm_state_mgr_check_legality(IN osm_sm_state_mgr_t * const p_sm_mgr,
 	}
 
 	switch (p_sm_mgr->p_subn->sm_state) {
-	case IB_SMINFO_STATE_INIT:
-		switch (signal) {
-		case OSM_SM_SIGNAL_INIT:
-			status = IB_SUCCESS;
-			break;
-		default:
-			__osm_sm_state_mgr_signal_error(p_sm_mgr, signal);
-			status = IB_INVALID_PARAMETER;
-			break;
-		}
-		break;
-
 	case IB_SMINFO_STATE_DISCOVERING:
 		switch (signal) {
 		case OSM_SM_SIGNAL_DISCOVERY_COMPLETED:

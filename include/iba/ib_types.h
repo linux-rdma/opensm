@@ -10588,18 +10588,6 @@ typedef uint32_t ib_mr_mod_t;
 *		The access rights the memory region are being modified.
 *****/
 
-/****d* IBA Base: Constants/IB_SMINFO_STATE_INIT
-* NAME
-*	IB_SMINFO_STATE_INIT
-*
-* DESCRIPTION
-*	Encoded state value used in the SMInfo attribute.
-*
-* SOURCE
-*/
-#define IB_SMINFO_STATE_INIT					4
-/**********/
-
 /****d* IBA Base: Constants/IB_SMINFO_ATTR_MOD_HANDOVER
 * NAME
 *	IB_SMINFO_ATTR_MOD_HANDOVER
