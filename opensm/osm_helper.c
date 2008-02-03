@@ -2346,10 +2346,10 @@ const char *osm_get_sm_mgr_signal_str(IN osm_sm_signal_t signal)
 }
 
 const char *const __osm_sm_mgr_state_str[] = {
-	"IB_SMINFO_STATE_NOTACTIVE",	/* 0 */
-	"IB_SMINFO_STATE_DISCOVERING",	/* 1 */
-	"IB_SMINFO_STATE_STANDBY",	/* 2 */
-	"IB_SMINFO_STATE_MASTER",	/* 3 */
+	"NOTACTIVE",	/* 0 */
+	"DISCOVERING",	/* 1 */
+	"STANDBY",	/* 2 */
+	"MASTER",	/* 3 */
 	"UNKNOWN STATE!!"	/* 4 */
 };
 

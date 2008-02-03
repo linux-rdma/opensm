@@ -69,44 +69,14 @@
 
 /**********************************************************************
  **********************************************************************/
-static void
-__osm_sm_state_mgr_standby_msg(IN const osm_sm_state_mgr_t * p_sm_mgr)
+static void __osm_report_sm_state(IN const osm_sm_state_mgr_t * p_sm_mgr)
 {
-	osm_log(p_sm_mgr->p_log, OSM_LOG_SYS, "Entering STANDBY state\n");	/* Format Waived */
+	char buf[64];
+	const char *state_str = osm_get_sm_mgr_state_str(p_sm_mgr->p_subn->sm_state);
 
-	osm_log_msg_box(p_sm_mgr->p_log, OSM_LOG_VERBOSE, __FUNCTION__,
-			"ENTERING SM STANDBY STATE");
-}
-
-/**********************************************************************
- **********************************************************************/
-static void
-__osm_sm_state_mgr_master_msg(IN const osm_sm_state_mgr_t * p_sm_mgr)
-{
-	osm_log(p_sm_mgr->p_log, OSM_LOG_SYS, "Entering MASTER state\n");	/* Format Waived */
-
-	osm_log_msg_box(p_sm_mgr->p_log, OSM_LOG_VERBOSE, __FUNCTION__,
-			"ENTERING SM MASTER STATE");
-}
-
-/**********************************************************************
- **********************************************************************/
-static void
-__osm_sm_state_mgr_discovering_msg(IN const osm_sm_state_mgr_t * p_sm_mgr)
-{
-	osm_log_msg_box(p_sm_mgr->p_log, OSM_LOG_VERBOSE, __FUNCTION__,
-			"ENTERING SM DISCOVERING STATE");
-}
-
-/**********************************************************************
- **********************************************************************/
-static void
-__osm_sm_state_mgr_notactive_msg(IN const osm_sm_state_mgr_t * p_sm_mgr)
-{
-	osm_log(p_sm_mgr->p_log, OSM_LOG_SYS, "Entering NOT-ACTIVE state\n");	/* Format Waived */
-
-	osm_log_msg_box(p_sm_mgr->p_log, OSM_LOG_VERBOSE, __FUNCTION__,
-			"ENTERING SM NOT-ACTIVE STATE");
+	osm_log(p_sm_mgr->p_log, OSM_LOG_SYS, "Entering %s state\n", state_str);
+	snprintf(buf, sizeof(buf), "ENTERING SM %s STATE", state_str);
+	osm_log_msg_box(p_sm_mgr->p_log, OSM_LOG_VERBOSE, __FUNCTION__, buf);
 }
 
 #if 0
@@ -373,15 +343,10 @@ osm_sm_state_mgr_init(IN osm_sm_state_mgr_t * const p_sm_mgr, IN osm_sm_t * sm)
 	p_sm_mgr->p_log = sm->p_log;
 	p_sm_mgr->p_subn = sm->p_subn;
 
-	if (p_sm_mgr->p_subn->opt.sm_inactive) {
-		/* init the state of the SM to not active */
-		p_sm_mgr->p_subn->sm_state = IB_SMINFO_STATE_NOTACTIVE;
-		__osm_sm_state_mgr_notactive_msg(p_sm_mgr);
-	} else {
-		 /* init the state of the SM to discovering */
-		p_sm_mgr->p_subn->sm_state = IB_SMINFO_STATE_DISCOVERING;
-		__osm_sm_state_mgr_discovering_msg(p_sm_mgr);
-	}
+	p_sm_mgr->p_subn->sm_state = p_sm_mgr->p_subn->opt.sm_inactive ?
+		IB_SMINFO_STATE_NOTACTIVE : IB_SMINFO_STATE_DISCOVERING;
+
+	__osm_report_sm_state(p_sm_mgr);
 
 	status = cl_spinlock_init(&p_sm_mgr->state_lock);
 	if (status != CL_SUCCESS) {
@@ -459,7 +424,6 @@ osm_sm_state_mgr_process(IN osm_sm_state_mgr_t * const p_sm_mgr,
 			/*
 			 * Update the state of the SM to MASTER
 			 */
-			__osm_sm_state_mgr_master_msg(p_sm_mgr);
 			/* Turn on the moved_to_master_state flag */
 			p_sm_mgr->p_subn->moved_to_master_state = TRUE;
 			/* Turn on the first_time_master_sweep flag */
@@ -467,6 +431,7 @@ osm_sm_state_mgr_process(IN osm_sm_state_mgr_t * const p_sm_mgr,
 				p_sm_mgr->p_subn->first_time_master_sweep =
 				    TRUE;
 			p_sm_mgr->p_subn->sm_state = IB_SMINFO_STATE_MASTER;
+			__osm_report_sm_state(p_sm_mgr);
 			/*
 			 * Make sure to set the subnet master_sm_base_lid
 			 * to the sm_base_lid value
@@ -479,8 +444,8 @@ osm_sm_state_mgr_process(IN osm_sm_state_mgr_t * const p_sm_mgr,
 			 * Finished all discovery actions - move to STANDBY
 			 * start the polling
 			 */
-			__osm_sm_state_mgr_standby_msg(p_sm_mgr);
 			p_sm_mgr->p_subn->sm_state = IB_SMINFO_STATE_STANDBY;
+			__osm_report_sm_state(p_sm_mgr);
 			/*
 			 * Since another SM is doing the LFT config - we should not
 			 * ignore the results of it
@@ -514,9 +479,9 @@ osm_sm_state_mgr_process(IN osm_sm_state_mgr_t * const p_sm_mgr,
 			 * case 2: Got a signal to move to DISCOVERING
 			 * Move to DISCOVERING state and start sweeping
 			 */
-			__osm_sm_state_mgr_discovering_msg(p_sm_mgr);
 			p_sm_mgr->p_subn->sm_state =
 			    IB_SMINFO_STATE_DISCOVERING;
+			__osm_report_sm_state(p_sm_mgr);
 			p_sm_mgr->p_subn->coming_out_of_standby = TRUE;
 			osm_sm_signal(&p_sm_mgr->p_subn->p_osm->sm,
 				      OSM_SIGNAL_EXIT_STBY);
@@ -525,15 +490,14 @@ osm_sm_state_mgr_process(IN osm_sm_state_mgr_t * const p_sm_mgr,
 			/*
 			 * Update the state to NOT_ACTIVE
 			 */
-			__osm_sm_state_mgr_notactive_msg(p_sm_mgr);
 			p_sm_mgr->p_subn->sm_state = IB_SMINFO_STATE_NOTACTIVE;
+			__osm_report_sm_state(p_sm_mgr);
 			break;
 		case OSM_SM_SIGNAL_HANDOVER:
 			/*
 			 * Update the state to MASTER, and start sweeping
 			 * OPTIONAL: send ACKNOWLEDGE
 			 */
-			__osm_sm_state_mgr_master_msg(p_sm_mgr);
 			/* Turn on the moved_to_master_state flag */
 			p_sm_mgr->p_subn->moved_to_master_state = TRUE;
 			/* Turn on the first_time_master_sweep flag */
@@ -545,6 +509,7 @@ osm_sm_state_mgr_process(IN osm_sm_state_mgr_t * const p_sm_mgr,
 			p_sm_mgr->p_subn->force_heavy_sweep = TRUE;
 
 			p_sm_mgr->p_subn->sm_state = IB_SMINFO_STATE_MASTER;
+			__osm_report_sm_state(p_sm_mgr);
 			/*
 			 * Make sure to set the subnet master_sm_base_lid
 			 * to the sm_base_lid value
@@ -574,8 +539,8 @@ osm_sm_state_mgr_process(IN osm_sm_state_mgr_t * const p_sm_mgr,
 			 * Update the state to STANDBY
 			 * start the polling
 			 */
-			__osm_sm_state_mgr_standby_msg(p_sm_mgr);
 			p_sm_mgr->p_subn->sm_state = IB_SMINFO_STATE_STANDBY;
+			__osm_report_sm_state(p_sm_mgr);
 			__osm_sm_state_mgr_start_polling(p_sm_mgr);
 			break;
 		default:
@@ -622,8 +587,8 @@ osm_sm_state_mgr_process(IN osm_sm_state_mgr_t * const p_sm_mgr,
 			 * Just sent a HANDOVER signal - move to STANDBY
 			 * start the polling
 			 */
-			__osm_sm_state_mgr_standby_msg(p_sm_mgr);
 			p_sm_mgr->p_subn->sm_state = IB_SMINFO_STATE_STANDBY;
+			__osm_report_sm_state(p_sm_mgr);
 			__osm_sm_state_mgr_start_polling(p_sm_mgr);
 			break;
 		case OSM_SM_SIGNAL_WAIT_FOR_HANDOVER:
@@ -637,9 +602,9 @@ osm_sm_state_mgr_process(IN osm_sm_state_mgr_t * const p_sm_mgr,
 			__osm_sm_state_mgr_start_polling(p_sm_mgr);
 			break;
 		case OSM_SM_SIGNAL_DISCOVER:
-			__osm_sm_state_mgr_discovering_msg(p_sm_mgr);
 			p_sm_mgr->p_subn->sm_state =
 			    IB_SMINFO_STATE_DISCOVERING;
+			__osm_report_sm_state(p_sm_mgr);
 			break;
 		default:
 			__osm_sm_state_mgr_signal_error(p_sm_mgr, signal);

@@ -238,8 +238,7 @@ __osm_sminfo_rcv_process_set_request(IN osm_sm_t * sm,
 			"__osm_sminfo_rcv_process_set_request: ERR 2F04: "
 			"Check legality failed. AttributeModifier:0x%X RemoteState:%s\n",
 			p_smp->attr_mod,
-			osm_get_sm_mgr_state_str(ib_sminfo_get_state
-						 (sm_smi)));
+			osm_get_sm_mgr_state_str(ib_sminfo_get_state(sm_smi)));
 		/* send a response with error code */
 		status = osm_resp_send(sm, p_madw, 7, payload);
 		if (status != IB_SUCCESS)
@@ -288,8 +287,7 @@ __osm_sminfo_rcv_process_set_request(IN osm_sm_t * sm,
 			"__osm_sminfo_rcv_process_set_request: ERR 2F07: "
 			"Failed check of legality of needed SM transition. AttributeModifier:0x%X RemoteState:%s\n",
 			p_smp->attr_mod,
-			osm_get_sm_mgr_state_str(ib_sminfo_get_state
-						 (sm_smi)));
+			osm_get_sm_mgr_state_str(ib_sminfo_get_state(sm_smi)));
 		/* send a response with error code */
 		status = osm_resp_send(sm, p_madw, 7, payload);
 		if (status != IB_SUCCESS)
