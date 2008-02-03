@@ -66,10 +66,10 @@
 #include <opensm/osm_link_mgr.h>
 #include <opensm/osm_drop_mgr.h>
 #include <opensm/osm_sweep_fail_ctrl.h>
-#include <opensm/osm_sm_state_mgr.h>
 #include <opensm/osm_port.h>
 #include <opensm/osm_mcast_mgr.h>
 #include <opensm/osm_db.h>
+#include <opensm/osm_remote_sm.h>
 
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
@@ -115,12 +115,17 @@ typedef struct osm_sm {
 	osm_sm_state_t state;
 	unsigned signal_mask;
 	cl_spinlock_t signal_lock;
+	cl_spinlock_t state_lock;
 	cl_event_t signal_event;
 	cl_event_t subnet_up_event;
 	cl_timer_t sweep_timer;
+	cl_timer_t polling_timer;
 	cl_event_wheel_t trap_aging_tracker;
 	cl_thread_t sweeper;
 	unsigned master_sm_found;
+	uint32_t retry_number;
+	ib_net64_t master_sm_guid;
+	osm_remote_sm_t *p_polling_sm;
 	osm_subn_t *p_subn;
 	osm_db_t *p_db;
 	osm_vendor_t *p_vendor;
@@ -138,7 +143,6 @@ typedef struct osm_sm {
 	osm_link_mgr_t link_mgr;
 	osm_drop_mgr_t drop_mgr;
 	osm_sweep_fail_ctrl_t sweep_fail_ctrl;
-	osm_sm_state_mgr_t sm_state_mgr;
 	osm_mcast_mgr_t mcast_mgr;
 	cl_disp_reg_handle_t ni_disp_h;
 	cl_disp_reg_handle_t pi_disp_h;
@@ -696,6 +700,90 @@ osm_sm_is_greater_than(IN const uint8_t l_priority,
 * SEE ALSO
 *	State Manager
 *********/
+
+/****f* OpenSM: SM State Manager/osm_sm_state_mgr_process
+* NAME
+*	osm_sm_state_mgr_process
+*
+* DESCRIPTION
+*	Processes and maintains the states of the SM.
+*
+* SYNOPSIS
+*/
+ib_api_status_t osm_sm_state_mgr_process(IN osm_sm_t *sm,
+					 IN osm_sm_signal_t signal);
+/*
+* PARAMETERS
+*	sm
+*		[in] Pointer to an osm_sm_t object.
+*
+*	signal
+*		[in] Signal to the state SM engine.
+*
+* RETURN VALUES
+*	None.
+*
+* NOTES
+*
+* SEE ALSO
+*	State Manager
+*********/
+
+/****f* OpenSM: SM State Manager/osm_sm_state_mgr_signal_master_is_alive
+* NAME
+*	osm_sm_state_mgr_signal_master_is_alive
+*
+* DESCRIPTION
+*	Signals that the remote Master SM is alive.
+*	Need to clear the retry_number variable.
+*
+* SYNOPSIS
+*/
+void osm_sm_state_mgr_signal_master_is_alive(IN osm_sm_t *sm);
+/*
+* PARAMETERS
+*	sm
+*		[in] Pointer to an osm_sm_t object.
+*
+* RETURN VALUES
+*	None.
+*
+* NOTES
+*
+* SEE ALSO
+*	State Manager
+*********/
+
+/****f* OpenSM: SM State Manager/osm_sm_state_mgr_check_legality
+* NAME
+*	osm_sm_state_mgr_check_legality
+*
+* DESCRIPTION
+*	Checks the legality of the signal received, according to the
+*  current state of the SM state machine.
+*
+* SYNOPSIS
+*/
+ib_api_status_t osm_sm_state_mgr_check_legality(IN osm_sm_t *sm,
+						IN osm_sm_signal_t signal);
+/*
+* PARAMETERS
+*	sm
+*		[in] Pointer to an osm_sm_t object.
+*
+*	signal
+*		[in] Signal to the state SM engine.
+*
+* RETURN VALUES
+*	None.
+*
+* NOTES
+*
+* SEE ALSO
+*	State Manager
+*********/
+
+void osm_report_sm_state(osm_sm_t *sm);
 
 END_C_DECLS
 #endif				/* _OSM_SM_H_ */

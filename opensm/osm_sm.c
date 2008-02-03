@@ -81,6 +81,7 @@ extern void osm_trap_rcv_process(IN void *context, IN void *data);
 extern void osm_vla_rcv_process(IN void *context, IN void *data);
 
 extern void osm_state_mgr_process(IN osm_sm_t *sm, IN osm_signal_t signal);
+extern void osm_sm_state_mgr_polling_callback(IN void *context);
 
 /**********************************************************************
  **********************************************************************/
@@ -159,6 +160,8 @@ void osm_sm_construct(IN osm_sm_t * const p_sm)
 	p_sm->state = OSM_SM_STATE_INIT;
 	p_sm->sm_trans_id = OSM_SM_INITIAL_TID_VALUE;
 	cl_spinlock_construct(&p_sm->signal_lock);
+	cl_spinlock_construct(&p_sm->state_lock);
+	cl_timer_construct(&p_sm->polling_timer);
 	cl_event_construct(&p_sm->signal_event);
 	cl_event_construct(&p_sm->subnet_up_event);
 	cl_event_wheel_construct(&p_sm->trap_aging_tracker);
@@ -170,7 +173,6 @@ void osm_sm_construct(IN osm_sm_t * const p_sm)
 	osm_link_mgr_construct(&p_sm->link_mgr);
 	osm_drop_mgr_construct(&p_sm->drop_mgr);
 	osm_sweep_fail_ctrl_construct(&p_sm->sweep_fail_ctrl);
-	osm_sm_state_mgr_construct(&p_sm->sm_state_mgr);
 	osm_mcast_mgr_construct(&p_sm->mcast_mgr);
 }
 
@@ -197,6 +199,7 @@ void osm_sm_shutdown(IN osm_sm_t * const p_sm)
 	if (signal_event)
 		cl_event_signal(&p_sm->signal_event);
 
+	cl_timer_stop(&p_sm->polling_timer);
 	cl_timer_stop(&p_sm->sweep_timer);
 	cl_thread_destroy(&p_sm->sweeper);
 
@@ -231,14 +234,15 @@ void osm_sm_destroy(IN osm_sm_t * const p_sm)
 	osm_ucast_mgr_destroy(&p_sm->ucast_mgr);
 	osm_link_mgr_destroy(&p_sm->link_mgr);
 	osm_drop_mgr_destroy(&p_sm->drop_mgr);
-	osm_sm_state_mgr_destroy(&p_sm->sm_state_mgr);
 	osm_mcast_mgr_destroy(&p_sm->mcast_mgr);
 	cl_event_wheel_destroy(&p_sm->trap_aging_tracker);
 	cl_timer_destroy(&p_sm->sweep_timer);
+	cl_timer_destroy(&p_sm->polling_timer);
 	cl_event_destroy(&p_sm->signal_event);
 	cl_event_destroy(&p_sm->subnet_up_event);
 	cl_spinlock_destroy(&p_sm->signal_lock);
 	cl_spinlock_destroy(&p_sm->mgrp_lock);
+	cl_spinlock_destroy(&p_sm->state_lock);
 
 	osm_log(p_sm->p_log, OSM_LOG_SYS, "Exiting SM\n");	/* Format Waived */
 	OSM_LOG_EXIT(p_sm->p_log);
@@ -274,6 +278,10 @@ osm_sm_init(IN osm_sm_t * const p_sm,
 	if (status != CL_SUCCESS)
 		goto Exit;
 
+	status = cl_spinlock_init(&p_sm->state_lock);
+	if (status != CL_SUCCESS)
+		goto Exit;
+
 	status = cl_event_init(&p_sm->signal_event, FALSE);
 	if (status != CL_SUCCESS)
 		goto Exit;
@@ -283,6 +291,11 @@ osm_sm_init(IN osm_sm_t * const p_sm,
 		goto Exit;
 
 	status = cl_timer_init(&p_sm->sweep_timer, sm_sweep, p_sm);
+	if (status != CL_SUCCESS)
+		goto Exit;
+
+	status = cl_timer_init(&p_sm->polling_timer,
+			       osm_sm_state_mgr_polling_callback, p_sm);
 	if (status != CL_SUCCESS)
 		goto Exit;
 
@@ -322,10 +335,6 @@ osm_sm_init(IN osm_sm_t * const p_sm,
 		goto Exit;
 
 	status = osm_sweep_fail_ctrl_init(&p_sm->sweep_fail_ctrl, p_sm);
-	if (status != IB_SUCCESS)
-		goto Exit;
-
-	status = osm_sm_state_mgr_init(&p_sm->sm_state_mgr, p_sm);
 	if (status != IB_SUCCESS)
 		goto Exit;
 
@@ -387,6 +396,10 @@ osm_sm_init(IN osm_sm_t * const p_sm,
 					     osm_pkey_rcv_process, p_sm);
 	if (p_sm->pkey_disp_h == CL_DISP_INVALID_HANDLE)
 		goto Exit;
+
+	p_subn->sm_state = p_subn->opt.sm_inactive ?
+		IB_SMINFO_STATE_NOTACTIVE : IB_SMINFO_STATE_DISCOVERING;
+	osm_report_sm_state(p_sm);
 
 	/*
 	 * Now that the component objects are initialized, start

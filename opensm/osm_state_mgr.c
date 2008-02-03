@@ -65,7 +65,6 @@
 #include <opensm/osm_port.h>
 #include <opensm/osm_pkey_mgr.h>
 #include <vendor/osm_vendor_api.h>
-#include <opensm/osm_sm_state_mgr.h>
 #include <opensm/osm_inform.h>
 #include <opensm/osm_opensm.h>
 
@@ -790,7 +789,7 @@ __osm_state_mgr_send_handover(IN osm_sm_t * const sm,
 		"Handing over mastership. Updating sm_state_mgr master_guid: %016"
 		PRIx64 " (node %s)\n", cl_ntoh64(p_port->guid),
 		p_port->p_node ? p_port->p_node->print_desc : "UNKNOWN");
-	sm->sm_state_mgr.master_guid = p_port->guid;
+	sm->master_sm_guid = p_port->guid;
 
 	context.smi_context.port_guid = p_port->guid;
 	context.smi_context.set_method = TRUE;
@@ -1106,8 +1105,7 @@ _repeat_discovery:
 		osm_drop_mgr_process(&sm->drop_mgr);
 
 		/* Move to DISCOVERING state */
-		osm_sm_state_mgr_process(&sm->sm_state_mgr,
-					 OSM_SM_SIGNAL_DISCOVER);
+		osm_sm_state_mgr_process(sm, OSM_SM_SIGNAL_DISCOVER);
 		return;
 	}
 
@@ -1123,7 +1121,7 @@ _repeat_discovery:
 		 * Call the sm_state_mgr with signal
 		 * MASTER_OR_HIGHER_SM_DETECTED_DONE
 		 */
-		osm_sm_state_mgr_process(&sm->sm_state_mgr,
+		osm_sm_state_mgr_process(sm,
 					 OSM_SM_SIGNAL_MASTER_OR_HIGHER_SM_DETECTED_DONE);
 		osm_log_msg_box(sm->p_log, OSM_LOG_VERBOSE, __FUNCTION__,
 				"ENTERING STANDBY STATE");
@@ -1149,7 +1147,7 @@ _repeat_discovery:
 			/* need to handover the mastership
 			 * to the remote sm, and move to standby */
 			__osm_state_mgr_send_handover(sm, p_remote_sm);
-			osm_sm_state_mgr_process(&sm->sm_state_mgr,
+			osm_sm_state_mgr_process(sm,
 						 OSM_SM_SIGNAL_HANDOVER_SENT);
 			sm->state = OSM_SM_STATE_STANDBY;
 			return;
@@ -1163,8 +1161,8 @@ _repeat_discovery:
 				 * need to wait for that SM to relinquish control
 				 * of its portion of the subnet. C14-60.2.1.
 				 * Also - need to start polling on that SM. */
-				sm->sm_state_mgr.p_polling_sm = p_remote_sm;
-				osm_sm_state_mgr_process(&sm->sm_state_mgr,
+				sm->p_polling_sm = p_remote_sm;
+				osm_sm_state_mgr_process(sm,
 				     OSM_SM_SIGNAL_WAIT_FOR_HANDOVER);
 				return;
 			}
@@ -1180,8 +1178,7 @@ _repeat_discovery:
 	 * DISCOVERY_COMPLETED
 	 */
 	if (sm->p_subn->sm_state == IB_SMINFO_STATE_DISCOVERING)
-		osm_sm_state_mgr_process(&sm->sm_state_mgr,
-					 OSM_SM_SIGNAL_DISCOVERY_COMPLETED);
+		osm_sm_state_mgr_process(sm, OSM_SM_SIGNAL_DISCOVERY_COMPLETED);
 
 	osm_pkey_mgr_process(sm->p_subn->p_osm);
 

@@ -102,13 +102,8 @@ struct osm_sm;
 */
 typedef struct _osm_sm_state_mgr {
 	struct osm_sm *sm;
-	cl_spinlock_t state_lock;
-	cl_timer_t polling_timer;
-	uint32_t retry_number;
-	ib_net64_t master_guid;
 	osm_subn_t *p_subn;
 	osm_log_t *p_log;
-	osm_remote_sm_t *p_polling_sm;
 } osm_sm_state_mgr_t;
 
 /*
@@ -116,29 +111,11 @@ typedef struct _osm_sm_state_mgr {
 *	sm
 *		Pointer to the SM object.
 *
-*	state_lock
-*		Spinlock guarding the state and processes.
-*
-*	polling_timer
-*		Timer for polling.
-*
-*	retry_number
-*		Used in Standby state - to count the number of retries
-*		of queries to the master SM.
-*
-*	master_guid
-*		Port GUID of master SM.
-*
 *	p_subn
 *		Pointer to the Subnet object for this subnet.
 *
 *	p_log
 *		Pointer to the log object.
-*
-*	p_polling_sm
-*		Pointer to a osm_remote_sm_t object. When our SM needs
-*		to poll on a remote sm, this will be the pointer of the
-*		polled SM.
 *
 * SEE ALSO
 *	SM State Manager object
@@ -235,91 +212,6 @@ osm_sm_state_mgr_init(IN osm_sm_state_mgr_t * const p_sm_mgr,
 * SEE ALSO
 *	SM State Manager object, osm_sm_state_mgr_construct,
 *	osm_sm_state_mgr_destroy
-*********/
-
-/****f* OpenSM: SM State Manager/osm_sm_state_mgr_process
-* NAME
-*	osm_sm_state_mgr_process
-*
-* DESCRIPTION
-*	Processes and maintains the states of the SM.
-*
-* SYNOPSIS
-*/
-ib_api_status_t
-osm_sm_state_mgr_process(IN osm_sm_state_mgr_t * const p_sm_mgr,
-			 IN osm_sm_signal_t signal);
-/*
-* PARAMETERS
-*	p_sm_mgr
-*		[in] Pointer to an osm_sm_state_mgr_t object.
-*
-*	signal
-*		[in] Signal to the state SM engine.
-*
-* RETURN VALUES
-*	None.
-*
-* NOTES
-*
-* SEE ALSO
-*	State Manager
-*********/
-
-/****f* OpenSM: SM State Manager/osm_sm_state_mgr_signal_master_is_alive
-* NAME
-*	osm_sm_state_mgr_signal_master_is_alive
-*
-* DESCRIPTION
-*	Signals that the remote Master SM is alive.
-*	Need to clear the retry_number variable.
-*
-* SYNOPSIS
-*/
-void
-osm_sm_state_mgr_signal_master_is_alive(IN osm_sm_state_mgr_t * const p_sm_mgr);
-/*
-* PARAMETERS
-*	p_sm_mgr
-*		[in] Pointer to an osm_sm_state_mgr_t object.
-*
-* RETURN VALUES
-*	None.
-*
-* NOTES
-*
-* SEE ALSO
-*	State Manager
-*********/
-
-/****f* OpenSM: SM State Manager/osm_sm_state_mgr_check_legality
-* NAME
-*	osm_sm_state_mgr_check_legality
-*
-* DESCRIPTION
-*	Checks the legality of the signal received, according to the
-*  current state of the SM state machine.
-*
-* SYNOPSIS
-*/
-ib_api_status_t
-osm_sm_state_mgr_check_legality(IN osm_sm_state_mgr_t * const p_sm_mgr,
-				IN osm_sm_signal_t signal);
-/*
-* PARAMETERS
-*	p_sm_mgr
-*		[in] Pointer to an osm_sm_state_mgr_t object.
-*
-*	signal
-*		[in] Signal to the state SM engine.
-*
-* RETURN VALUES
-*	None.
-*
-* NOTES
-*
-* SEE ALSO
-*	State Manager
 *********/
 
 END_C_DECLS

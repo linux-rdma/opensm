@@ -60,7 +60,7 @@
 #include <opensm/osm_node.h>
 #include <opensm/osm_helper.h>
 #include <opensm/osm_subnet.h>
-#include <opensm/osm_sm_state_mgr.h>
+#include <opensm/osm_sm.h>
 #include <opensm/osm_opensm.h>
 
 /**********************************************************************
@@ -280,8 +280,7 @@ __osm_sminfo_rcv_process_set_request(IN osm_sm_t * sm,
 	}
 
 	/* check legality of the needed transition in the SM state machine */
-	status = osm_sm_state_mgr_check_legality(&sm->sm_state_mgr,
-						 sm_signal);
+	status = osm_sm_state_mgr_check_legality(sm, sm_signal);
 	if (status != IB_SUCCESS) {
 		osm_log(sm->p_log, OSM_LOG_ERROR,
 			"__osm_sminfo_rcv_process_set_request: ERR 2F07: "
@@ -318,12 +317,12 @@ __osm_sminfo_rcv_process_set_request(IN osm_sm_t * sm,
 			"Received a STANDBY signal. Updating "
 			"sm_state_mgr master_guid: 0x%016" PRIx64 "\n",
 			cl_ntoh64(sm_smi->guid));
-		sm->sm_state_mgr.master_guid = sm_smi->guid;
+		sm->master_sm_guid = sm_smi->guid;
 	}
 
 	/* call osm_sm_state_mgr_process with the received signal. */
 	CL_PLOCK_RELEASE(sm->p_lock);
-	status = osm_sm_state_mgr_process(&sm->sm_state_mgr, sm_signal);
+	status = osm_sm_state_mgr_process(sm, sm_signal);
 
 	if (status != IB_SUCCESS)
 		osm_log(sm->p_log, OSM_LOG_ERROR,
@@ -371,7 +370,7 @@ __osm_sminfo_rcv_process_get_sm(IN osm_sm_t * sm,
 				"__osm_sminfo_rcv_process_get_sm: "
 				"Found master SM. Updating sm_state_mgr master_guid: 0x%016"
 				PRIx64 "\n", cl_ntoh64(p_sm->p_port->guid));
-			sm->sm_state_mgr.master_guid = p_sm->p_port->guid;
+			sm->master_sm_guid = p_sm->p_port->guid;
 			break;
 		case IB_SMINFO_STATE_DISCOVERING:
 		case IB_SMINFO_STATE_STANDBY:
@@ -386,8 +385,7 @@ __osm_sminfo_rcv_process_get_sm(IN osm_sm_t * sm,
 					"Found higher SM. Updating sm_state_mgr master_guid:"
 					" 0x%016" PRIx64 "\n",
 					cl_ntoh64(p_sm->p_port->guid));
-				sm->sm_state_mgr.master_guid =
-				    p_sm->p_port->guid;
+				sm->master_sm_guid = p_sm->p_port->guid;
 			}
 			break;
 		default:
@@ -402,20 +400,19 @@ __osm_sminfo_rcv_process_get_sm(IN osm_sm_t * sm,
 		case IB_SMINFO_STATE_MASTER:
 			/* This means the master is alive */
 			/* Signal that to the SM state mgr */
-			osm_sm_state_mgr_signal_master_is_alive(&sm->sm_state_mgr);
+			osm_sm_state_mgr_signal_master_is_alive(sm);
 			break;
 		case IB_SMINFO_STATE_STANDBY:
 			/* This should be the response from the sm we are polling. */
 			/* If it is - then signal master is alive */
-			if (sm->sm_state_mgr.master_guid == p_sm->p_port->guid) {
+			if (sm->master_sm_guid == p_sm->p_port->guid) {
 				/* Make sure that it is an SM with higher priority than us.
 				   If we started polling it when it was master, and it moved
 				   to standby - then it might be with a lower priority than
 				   us - and then we don't want to continue polling it. */
 				if (__osm_sminfo_rcv_remote_sm_is_higher
 				    (sm, p_smi) == TRUE)
-					osm_sm_state_mgr_signal_master_is_alive
-					    (&sm->sm_state_mgr);
+					osm_sm_state_mgr_signal_master_is_alive(sm);
 			}
 			break;
 		default:
@@ -430,10 +427,9 @@ __osm_sminfo_rcv_process_get_sm(IN osm_sm_t * sm,
 			/* If this is a response due to our polling, this means that we are
 			   waiting for a handover from this SM, and it is still alive -
 			   signal that. */
-			if (sm->sm_state_mgr.p_polling_sm != NULL) {
-				osm_sm_state_mgr_signal_master_is_alive(&sm->
-									sm_state_mgr);
-			} else {
+			if (sm->p_polling_sm)
+				osm_sm_state_mgr_signal_master_is_alive(sm);
+			else {
 				/* This is a response we got while sweeping the subnet.
 				   We will handle a case of handover needed later on, when the sweep
 				   is done and all SMs are recongnized. */
