@@ -6,8 +6,6 @@ nobase_pkginclude_HEADERS = iba/ib_types.h iba/ib_cm_types.h
 EXTRA_DIST = \
 	$(srcdir)/opensm/osm_lid_mgr.h \
 	$(srcdir)/opensm/osm_port.h \
-	$(srcdir)/opensm/osm_sm_state_mgr.h \
-	$(srcdir)/opensm/osm_state_mgr.h \
 	$(srcdir)/opensm/osm_rand_fwd_tbl.h \
 	$(srcdir)/opensm/osm_madw.h \
 	$(srcdir)/opensm/osm_subnet.h \
