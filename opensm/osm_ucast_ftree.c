@@ -800,7 +800,6 @@ static inline uint8_t __osm_ftree_sw_get_fwd_table_block(IN ftree_sw_t * p_sw,
 
 static inline cl_status_t
 __osm_ftree_sw_set_hops(IN ftree_sw_t * p_sw,
-			IN uint16_t max_lid_ho,
 			IN uint16_t lid_ho, IN uint8_t port_num,
 			IN uint8_t hops)
 {
@@ -2080,15 +2079,10 @@ __osm_ftree_fabric_route_upgoing_by_going_down(IN ftree_fabric_t * p_ftree,
 
 	/* promote the index that indicates which group should we
 	   start with when going through all the downgoing groups */
-	if (p_sw->down_port_groups_idx == -1)
-		p_sw->down_port_groups_idx = 0;
-	else
-		p_sw->down_port_groups_idx =
-		    (p_sw->down_port_groups_idx +
-		     1) % p_sw->down_port_groups_num;
+	p_sw->down_port_groups_idx =
+		(p_sw->down_port_groups_idx + 1) % p_sw->down_port_groups_num;
 
-	/* foreach down-going port group (in indexing order)
-	   starting with the least loaded group */
+	/* foreach down-going port group (in indexing order) */
 	i = p_sw->down_port_groups_idx;
 	for (k = 0; k < p_sw->down_port_groups_num; k++) {
 
@@ -2156,7 +2150,7 @@ __osm_ftree_fabric_route_upgoing_by_going_down(IN ftree_fabric_t * p_ftree,
 		 *
 		 *  2. is_real_lid == TRUE && is_main_path == FALSE:
 		 *      - going DOWN(TRUE,FALSE) through ALL the groups but only if
-		 *        the remote (upper) switch hasn't been already configured
+		 *        the remote (lower) switch hasn't been already configured
 		 *        for this target LID
 		 *         + NOT promoting port counter
 		 *         + setting path in remote switch fwd tbl if it hasn't been set yet
@@ -2173,7 +2167,7 @@ __osm_ftree_fabric_route_upgoing_by_going_down(IN ftree_fabric_t * p_ftree,
 		 *      - illegal state - we shouldn't get here
 		 */
 
-		/* second case: skip the port group if the remote (upper)
+		/* second case: skip the port group if the remote (lower)
 		   switch has been already configured for this target LID */
 		if (is_real_lid && !is_main_path &&
 		    __osm_ftree_sw_get_fwd_table_block(p_remote_sw,
@@ -2203,7 +2197,6 @@ __osm_ftree_fabric_route_upgoing_by_going_down(IN ftree_fabric_t * p_ftree,
 						 (void **)&p_port);
 
 				__osm_ftree_sw_set_hops(p_remote_sw,
-							p_ftree->lft_max_lid_ho,
 							cl_ntoh16(target_lid),
 							p_port->remote_port_num,
 							((target_rank -
@@ -2390,7 +2383,6 @@ __osm_ftree_fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
 				cl_ptr_vector_at(&p_min_group->ports, j,
 						 (void **)&p_port);
 				__osm_ftree_sw_set_hops(p_remote_sw,
-							p_ftree->lft_max_lid_ho,
 							cl_ntoh16(target_lid),
 							p_port->remote_port_num,
 							target_rank -
@@ -2462,6 +2454,12 @@ __osm_ftree_fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
 				__osm_ftree_tuple_to_str(p_remote_sw->tuple));
 		}
 
+		/* Routing REAL lids on SECONDARY path means routing
+		   switch-to-switch or switch-to-CA paths.
+		   We can safely assume that switch will initiate very
+		   few traffic, so there's no point waisting runtime on
+		   trying to ballance these routes - always pick port 0. */
+
 		cl_ptr_vector_at(&p_group->ports, 0, (void **)&p_port);
 		__osm_ftree_sw_set_fwd_table_block(p_remote_sw,
 						   cl_ntoh16(target_lid),
@@ -2475,7 +2473,6 @@ __osm_ftree_fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
 			cl_ptr_vector_at(&p_group->ports, j, (void **)&p_port);
 
 			__osm_ftree_sw_set_hops(p_remote_sw,
-						p_ftree->lft_max_lid_ho,
 						cl_ntoh16(target_lid),
 						p_port->remote_port_num,
 						target_rank -
@@ -2568,7 +2565,6 @@ static void __osm_ftree_fabric_route_to_cns(IN ftree_fabric_t * p_ftree)
 
 			/* set local min hop table(LID) to route to the CA */
 			__osm_ftree_sw_set_hops(p_sw,
-						p_ftree->lft_max_lid_ho,
 						cl_ntoh16(hca_lid),
 						p_port->port_num, 1);
 
@@ -2682,7 +2678,8 @@ static void __osm_ftree_fabric_route_to_non_cns(IN ftree_fabric_t * p_ftree)
 				cl_ntoh16(hca_lid), port_num_on_switch);
 
 			/* set local min hop table(LID) to route to the CA */
-			__osm_ftree_sw_set_hops(p_sw, p_ftree->lft_max_lid_ho, cl_ntoh16(hca_lid), port_num_on_switch,	/* port num */
+			__osm_ftree_sw_set_hops(p_sw, cl_ntoh16(hca_lid),
+						port_num_on_switch,	/* port num */
 						1);	/* hops */
 
 			/* Assign downgoing ports by stepping up.
@@ -2741,7 +2738,8 @@ static void __osm_ftree_fabric_route_to_switches(IN ftree_fabric_t * p_ftree)
 			cl_ntoh16(p_sw->base_lid));
 
 		/* set min hop table of the switch to itself */
-		__osm_ftree_sw_set_hops(p_sw, p_ftree->lft_max_lid_ho, cl_ntoh16(p_sw->base_lid), 0,	/* port_num */
+		__osm_ftree_sw_set_hops(p_sw, cl_ntoh16(p_sw->base_lid),
+					0,	/* port_num */
 					0);	/* hops     */
 
 		__osm_ftree_fabric_route_downgoing_by_going_up(p_ftree, p_sw,	/* local switch - used as a route-downgoing alg. start point */
