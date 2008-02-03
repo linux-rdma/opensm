@@ -2624,9 +2624,13 @@ static void __osm_ftree_fabric_route_to_cns(IN ftree_fabric_t * p_ftree)
  *       set switch LFT(LID) to the port connecting to compute node
  *       call assign-down-going-port-by-descending-up(TRUE,FALSE) on CURRENT switch
  *
- * Routing to these HCAs is routing a REAL hca lid on SECONDARY path:
+ * Routing to these HCAs is routing a REAL hca lid on SECONDARY path.
+ * However, we do want to allow load-leveling of the traffic to the non-CNs,
+ * because such nodes may include IO nodes with heavy usage
  *   - we should set fwd tables
- *   - we should NOT update port counters
+ *   - we should update port counters
+ * Routing to non-CNs is done after routing to CNs, so updated port
+ * counters will not affect CN-to-CN routing.
  */
 
 static void __osm_ftree_fabric_route_to_non_cns(IN ftree_fabric_t * p_ftree)
@@ -2682,15 +2686,15 @@ static void __osm_ftree_fabric_route_to_non_cns(IN ftree_fabric_t * p_ftree)
 						1);	/* hops */
 
 			/* Assign downgoing ports by stepping up.
-			   We're routing REAL targets, but since they are not CNs and not
-			   included in the leafs array, treat them as SECONDARY path, which
-			   means that the counters won't be updated. */
+			   We're routing REAL targets. They are not CNs and not included
+			   in the leafs array, but we treat them as MAIN path to allow load
+			   leveling, which means that the counters will be updated. */
 			__osm_ftree_fabric_route_downgoing_by_going_up(p_ftree, p_sw,	/* local switch - used as a route-downgoing alg. start point */
 								       NULL,	/* prev. position switch */
 								       hca_lid,	/* LID that we're routing to */
 								       p_sw->rank + 1,	/* rank of the LID that we're routing to */
 								       TRUE,	/* whether this HCA LID is real or dummy */
-								       FALSE);	/* whether this path to HCA should by tracked by counters */
+								       TRUE);	/* whether this path to HCA should by tracked by counters */
 		}
 		/* done with all the port groups of this HCA - go to next HCA */
 	}
