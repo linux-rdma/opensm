@@ -613,7 +613,7 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 
 			sm->p_subn->force_heavy_sweep = TRUE;
 		}
-		osm_sm_signal(&sm->p_subn->p_osm->sm, OSM_SIGNAL_SWEEP);
+		osm_sm_signal(sm, OSM_SIGNAL_SWEEP);
 	}
 
 	/* If we reached here due to trap 129/130/131 - do not need to do
