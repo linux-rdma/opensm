@@ -101,7 +101,7 @@ static void clear_madw(osm_vendor_t * p_vend)
 	umad_match_t *m, *e, *old_m;
 	ib_net64_t old_tid;
 
-	OSM_LOG_ENTER(p_vend->p_log, clear_madw);
+	OSM_LOG_ENTER(p_vend->p_log);
 	pthread_mutex_lock(&p_vend->match_tbl_mutex);
 	for (m = p_vend->mtbl.tbl, e = m + p_vend->mtbl.max; m < e; m++) {
 		if (m->tid) {
@@ -250,7 +250,7 @@ static void *umad_receiver(void *p_ptr)
 	void *umad = 0;
 	int mad_agent, length;
 
-	OSM_LOG_ENTER(p_ur->p_log, umad_receiver);
+	OSM_LOG_ENTER(p_ur->p_log);
 
 	for (;;) {
 		if (!umad &&
@@ -451,7 +451,7 @@ osm_vendor_init(IN osm_vendor_t * const p_vend,
 {
 	int r, n_cas;
 
-	OSM_LOG_ENTER(p_log, osm_vendor_init);
+	OSM_LOG_ENTER(p_log);
 
 	p_vend->p_log = p_log;
 	p_vend->timeout = timeout;
@@ -492,7 +492,7 @@ osm_vendor_t *osm_vendor_new(IN osm_log_t * const p_log,
 {
 	osm_vendor_t *p_vend = NULL;
 
-	OSM_LOG_ENTER(p_log, osm_vendor_new);
+	OSM_LOG_ENTER(p_log);
 
 	if (!timeout) {
 		osm_log(p_log, OSM_LOG_ERROR,
@@ -549,7 +549,7 @@ osm_vendor_get_all_port_attr(IN osm_vendor_t * const p_vend,
 	unsigned done = 0;
 	int r, i, j;
 
-	OSM_LOG_ENTER(p_vend->p_log, osm_vendor_get_all_port_attr);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	CL_ASSERT(p_vend && p_num_ports);
 
@@ -614,7 +614,7 @@ osm_vendor_open_port(IN osm_vendor_t * const p_vend,
 
 	CL_ASSERT(p_vend);
 
-	OSM_LOG_ENTER(p_vend->p_log, osm_vendor_open_port);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	if (p_vend->umad_port_id >= 0) {
 		umad_port_id = p_vend->umad_port_id;
@@ -770,7 +770,7 @@ osm_vendor_bind(IN osm_vendor_t * const p_vend,
 	int umad_port_id;
 	uint8_t rmpp_version;
 
-	OSM_LOG_ENTER(p_vend->p_log, osm_vendor_bind);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	CL_ASSERT(p_user_bind);
 	CL_ASSERT(p_mad_pool);
@@ -940,7 +940,7 @@ void osm_vendor_unbind(IN osm_bind_handle_t h_bind)
 	osm_umad_bind_info_t *p_bind = (osm_umad_bind_info_t *) h_bind;
 	osm_vendor_t *p_vend = p_bind->p_vend;
 
-	OSM_LOG_ENTER(p_vend->p_log, osm_vendor_unbind);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	pthread_mutex_lock(&p_vend->cb_mutex);
 	p_bind->mad_recv_callback = __osm_vendor_recv_dummy_cb;
@@ -959,7 +959,7 @@ ib_mad_t *osm_vendor_get(IN osm_bind_handle_t h_bind,
 	osm_umad_bind_info_t *p_bind = (osm_umad_bind_info_t *) h_bind;
 	osm_vendor_t *p_vend = p_bind->p_vend;
 
-	OSM_LOG_ENTER(p_vend->p_log, osm_vendor_get);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	osm_log(p_vend->p_log, OSM_LOG_DEBUG, "osm_vendor_get: "
 		"Acquiring UMAD for p_madw = %p, size = %u\n", p_vw, mad_size);
@@ -986,7 +986,7 @@ osm_vendor_put(IN osm_bind_handle_t h_bind, IN osm_vend_wrap_t * const p_vw)
 	osm_vendor_t *p_vend = p_bind->p_vend;
 	osm_madw_t *p_madw;
 
-	OSM_LOG_ENTER(p_vend->p_log, osm_vendor_put);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	CL_ASSERT(p_vw);
 
@@ -1026,7 +1026,7 @@ osm_vendor_send(IN osm_bind_handle_t h_bind,
 	uint32_t paylen = 0;
 #endif
 
-	OSM_LOG_ENTER(p_vend->p_log, osm_vendor_send);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	CL_ASSERT(p_vw->h_bind == h_bind);
 	CL_ASSERT(p_mad == umad_get_mad(p_vw->umad));
@@ -1124,7 +1124,7 @@ ib_api_status_t osm_vendor_local_lid_change(IN osm_bind_handle_t h_bind)
 	osm_umad_bind_info_t *p_bind = (osm_umad_bind_info_t *) h_bind;
 	osm_vendor_t *p_vend = p_bind->p_vend;
 
-	OSM_LOG_ENTER(p_vend->p_log, osm_vendor_local_lid_change);
+	OSM_LOG_ENTER(p_vend->p_log);
 	;
 	OSM_LOG_EXIT(p_vend->p_log);
 	return (0);
@@ -1137,7 +1137,7 @@ void osm_vendor_set_sm(IN osm_bind_handle_t h_bind, IN boolean_t is_sm_val)
 	osm_umad_bind_info_t *p_bind = (osm_umad_bind_info_t *) h_bind;
 	osm_vendor_t *p_vend = p_bind->p_vend;
 
-	OSM_LOG_ENTER(p_vend->p_log, osm_vendor_set_sm);
+	OSM_LOG_ENTER(p_vend->p_log);
 	if (TRUE == is_sm_val) {
 		p_vend->issmfd = open(p_vend->issm_path, O_NONBLOCK);
 		if (p_vend->issmfd < 0) {

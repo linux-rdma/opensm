@@ -59,7 +59,7 @@ static void __osm_sweep_fail_ctrl_disp_callback(IN void *context,
 {
 	osm_sweep_fail_ctrl_t *const p_ctrl = (osm_sweep_fail_ctrl_t *) context;
 
-	OSM_LOG_ENTER(p_ctrl->sm->p_log, __osm_sweep_fail_ctrl_disp_callback);
+	OSM_LOG_ENTER(p_ctrl->sm->p_log);
 
 	UNUSED_PARAM(p_data);
 	/*
@@ -94,7 +94,7 @@ osm_sweep_fail_ctrl_init(IN osm_sweep_fail_ctrl_t * const p_ctrl,
 {
 	ib_api_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(sm->p_log, osm_sweep_fail_ctrl_init);
+	OSM_LOG_ENTER(sm->p_log);
 
 	osm_sweep_fail_ctrl_construct(p_ctrl);
 	p_ctrl->sm = sm;

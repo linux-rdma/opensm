@@ -77,7 +77,7 @@ void osm_mft_rcv_process(IN void *context, IN void *data)
 
 	CL_ASSERT(sm);
 
-	OSM_LOG_ENTER(sm->p_log, osm_mft_rcv_process);
+	OSM_LOG_ENTER(sm->p_log);
 
 	CL_ASSERT(p_madw);
 

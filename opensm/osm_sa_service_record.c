@@ -175,7 +175,7 @@ __validate_sr(IN osm_sa_t * sa, IN const osm_madw_t * const p_madw)
 	ib_sa_mad_t *p_sa_mad;
 	ib_service_record_t *p_recvd_service_rec;
 
-	OSM_LOG_ENTER(sa->p_log, __validate_sr);
+	OSM_LOG_ENTER(sa->p_log);
 
 	p_sa_mad = osm_madw_get_sa_mad_ptr(p_madw);
 	p_recvd_service_rec =
@@ -230,7 +230,7 @@ __osm_sr_rcv_respond(IN osm_sa_t * sa,
 	const ib_sa_mad_t *p_rcvd_mad = osm_madw_get_sa_mad_ptr(p_madw);
 	boolean_t trusted_req = TRUE;
 
-	OSM_LOG_ENTER(sa->p_log, __osm_sr_rcv_respond);
+	OSM_LOG_ENTER(sa->p_log);
 
 	num_rec = cl_qlist_count(p_list);
 
@@ -627,7 +627,7 @@ osm_sr_rcv_process_get_method(IN osm_sa_t * sa,
 	osm_sr_search_ctxt_t context;
 	osm_physp_t *p_req_physp;
 
-	OSM_LOG_ENTER(sa->p_log, osm_sr_rcv_process_get_method);
+	OSM_LOG_ENTER(sa->p_log);
 
 	CL_ASSERT(p_madw);
 
@@ -700,7 +700,7 @@ osm_sr_rcv_process_set_method(IN osm_sa_t * sa,
 	osm_sr_item_t *p_sr_item;
 	cl_qlist_t sr_list;
 
-	OSM_LOG_ENTER(sa->p_log, osm_sr_rcv_process_set_method);
+	OSM_LOG_ENTER(sa->p_log);
 
 	CL_ASSERT(p_madw);
 
@@ -816,7 +816,7 @@ osm_sr_rcv_process_delete_method(IN osm_sa_t * sa,
 	osm_sr_item_t *p_sr_item;
 	cl_qlist_t sr_list;
 
-	OSM_LOG_ENTER(sa->p_log, osm_sr_rcv_process_delete_method);
+	OSM_LOG_ENTER(sa->p_log);
 
 	CL_ASSERT(p_madw);
 
@@ -888,7 +888,7 @@ void osm_sr_rcv_process(IN void *context, IN void *data)
 	ib_net16_t sa_status = IB_SA_MAD_STATUS_REQ_INVALID;
 	boolean_t valid;
 
-	OSM_LOG_ENTER(sa->p_log, osm_sr_rcv_process);
+	OSM_LOG_ENTER(sa->p_log);
 
 	CL_ASSERT(p_madw);
 
@@ -950,7 +950,7 @@ void osm_sr_rcv_lease_cb(IN void *context)
 	uint32_t elapsed_time;
 	uint32_t trim_time = 20;	/*  maxiaml timer refresh is 20 seconds */
 
-	OSM_LOG_ENTER(sa->p_log, osm_sr_rcv_lease_cb);
+	OSM_LOG_ENTER(sa->p_log);
 
 	cl_plock_excl_acquire(sa->p_lock);
 

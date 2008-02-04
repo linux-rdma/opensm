@@ -122,7 +122,7 @@ static void __osm_mcast_mgr_purge_tree_node(IN osm_mtree_node_t * p_mtn)
 static void
 __osm_mcast_mgr_purge_tree(osm_sm_t * sm, IN osm_mgrp_t * const p_mgrp)
 {
-	OSM_LOG_ENTER(sm->p_log, __osm_mcast_mgr_purge_tree);
+	OSM_LOG_ENTER(sm->p_log);
 
 	if (p_mgrp->p_root)
 		__osm_mcast_mgr_purge_tree_node(p_mgrp->p_root);
@@ -146,7 +146,7 @@ osm_mcast_mgr_compute_avg_hops(osm_sm_t * sm,
 	const osm_mcm_port_t *p_mcm_port;
 	const cl_qmap_t *p_mcm_tbl;
 
-	OSM_LOG_ENTER(sm->p_log, osm_mcast_mgr_compute_avg_hops);
+	OSM_LOG_ENTER(sm->p_log);
 
 	p_mcm_tbl = &p_mgrp->mcm_port_tbl;
 
@@ -206,7 +206,7 @@ osm_mcast_mgr_compute_max_hops(osm_sm_t * sm,
 	const osm_mcm_port_t *p_mcm_port;
 	const cl_qmap_t *p_mcm_tbl;
 
-	OSM_LOG_ENTER(sm->p_log, osm_mcast_mgr_compute_max_hops);
+	OSM_LOG_ENTER(sm->p_log);
 
 	p_mcm_tbl = &p_mgrp->mcm_port_tbl;
 
@@ -273,7 +273,7 @@ static osm_switch_t *__osm_mcast_mgr_find_optimal_switch(osm_sm_t * sm,
 	boolean_t use_avg_hops = FALSE;	/* use max hops for root */
 #endif
 
-	OSM_LOG_ENTER(sm->p_log, __osm_mcast_mgr_find_optimal_switch);
+	OSM_LOG_ENTER(sm->p_log);
 
 	p_sw_tbl = &sm->p_subn->sw_guid_tbl;
 
@@ -334,7 +334,7 @@ static osm_switch_t *__osm_mcast_mgr_find_root_switch(osm_sm_t * sm,
 {
 	const osm_switch_t *p_sw = NULL;
 
-	OSM_LOG_ENTER(sm->p_log, __osm_mcast_mgr_find_root_switch);
+	OSM_LOG_ENTER(sm->p_log);
 
 	/*
 	   We always look for the best multicast tree root switch.
@@ -367,7 +367,7 @@ __osm_mcast_mgr_set_tbl(osm_sm_t * sm, IN osm_switch_t * const p_sw)
 
 	CL_ASSERT(sm);
 
-	OSM_LOG_ENTER(sm->p_log, __osm_mcast_mgr_set_tbl);
+	OSM_LOG_ENTER(sm->p_log);
 
 	CL_ASSERT(p_sw);
 
@@ -443,7 +443,7 @@ __osm_mcast_mgr_subdivide(osm_sm_t * sm,
 	boolean_t ignore_existing;
 	osm_mcast_work_obj_t *p_wobj;
 
-	OSM_LOG_ENTER(sm->p_log, __osm_mcast_mgr_subdivide);
+	OSM_LOG_ENTER(sm->p_log);
 
 	mlid_ho = cl_ntoh16(osm_mgrp_get_mlid(p_mgrp));
 
@@ -517,7 +517,7 @@ static void __osm_mcast_mgr_purge_list(osm_sm_t * sm, cl_qlist_t * const p_list)
 {
 	osm_mcast_work_obj_t *p_wobj;
 
-	OSM_LOG_ENTER(sm->p_log, __osm_mcast_mgr_purge_list);
+	OSM_LOG_ENTER(sm->p_log);
 
 	while ((p_wobj = (osm_mcast_work_obj_t *) cl_qlist_remove_head(p_list))
 	       != (osm_mcast_work_obj_t *) cl_qlist_end(p_list)) {
@@ -558,7 +558,7 @@ static osm_mtree_node_t *__osm_mcast_mgr_branch(osm_sm_t * sm,
 	uint16_t mlid_ho;
 	osm_mcast_tbl_t *p_tbl;
 
-	OSM_LOG_ENTER(sm->p_log, __osm_mcast_mgr_branch);
+	OSM_LOG_ENTER(sm->p_log);
 
 	CL_ASSERT(p_sw);
 	CL_ASSERT(p_list);
@@ -779,7 +779,7 @@ __osm_mcast_mgr_build_spanning_tree(osm_sm_t * sm, osm_mgrp_t * const p_mgrp)
 	uint8_t max_depth = 0;
 	uint32_t count;
 
-	OSM_LOG_ENTER(sm->p_log, __osm_mcast_mgr_build_spanning_tree);
+	OSM_LOG_ENTER(sm->p_log);
 
 	cl_qlist_init(&port_list);
 
@@ -895,7 +895,7 @@ osm_mcast_mgr_set_table(osm_sm_t * sm,
 	osm_mcast_tbl_t *p_tbl;
 	osm_switch_t *p_sw;
 
-	OSM_LOG_ENTER(sm->p_log, osm_mcast_mgr_set_table);
+	OSM_LOG_ENTER(sm->p_log);
 
 	mlid_ho = cl_ntoh16(osm_mgrp_get_mlid(p_mgrp));
 	p_sw = osm_mtree_node_get_switch_ptr(p_mtn);
@@ -940,7 +940,7 @@ static void __osm_mcast_mgr_clear(osm_sm_t * sm, IN osm_mgrp_t * const p_mgrp)
 	cl_qmap_t *p_sw_tbl;
 	osm_mcast_tbl_t *p_mcast_tbl;
 
-	OSM_LOG_ENTER(sm->p_log, __osm_mcast_mgr_clear);
+	OSM_LOG_ENTER(sm->p_log);
 
 	/*
 	   Walk the switches and clear the routing entries for
@@ -978,7 +978,7 @@ osm_mcast_mgr_process_single(osm_sm_t * sm,
 	osm_mcast_tbl_t *p_mcast_tbl;
 	ib_api_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(sm->p_log, osm_mcast_mgr_process_single);
+	OSM_LOG_ENTER(sm->p_log);
 
 	CL_ASSERT(mlid);
 	CL_ASSERT(port_guid);
@@ -1111,7 +1111,7 @@ osm_mcast_mgr_process_tree(osm_sm_t * sm,
 	ib_net16_t mlid;
 	boolean_t ui_mcast_fdb_assign_func_defined;
 
-	OSM_LOG_ENTER(sm->p_log, osm_mcast_mgr_process_tree);
+	OSM_LOG_ENTER(sm->p_log);
 
 	mlid = osm_mgrp_get_mlid(p_mgrp);
 
@@ -1192,7 +1192,7 @@ mcast_mgr_process_mgrp(osm_sm_t * sm,
 {
 	ib_api_status_t status;
 
-	OSM_LOG_ENTER(sm->p_log, osm_mcast_mgr_process_mgrp);
+	OSM_LOG_ENTER(sm->p_log);
 
 	status = osm_mcast_mgr_process_tree(sm, p_mgrp, req_type, port_guid);
 	if (status != IB_SUCCESS) {
@@ -1238,7 +1238,7 @@ osm_signal_t osm_mcast_mgr_process(osm_sm_t * sm)
 	osm_mgrp_t *p_next_mgrp;
 	boolean_t pending_transactions = FALSE;
 
-	OSM_LOG_ENTER(sm->p_log, osm_mcast_mgr_process);
+	OSM_LOG_ENTER(sm->p_log);
 
 	p_sw_tbl = &sm->p_subn->sw_guid_tbl;
 	p_mcast_tbl = &sm->p_subn->mgrp_mlid_tbl;
@@ -1317,7 +1317,7 @@ osm_signal_t osm_mcast_mgr_process_mgroups(osm_sm_t * sm)
 	osm_mcast_req_type_t req_type;
 	ib_net64_t port_guid;
 
-	OSM_LOG_ENTER(sm->p_log, osm_mcast_mgr_process_mgroups);
+	OSM_LOG_ENTER(sm->p_log);
 
 	/* we need a lock to make sure the p_mgrp is not change other ways */
 	CL_PLOCK_EXCL_ACQUIRE(sm->p_lock);

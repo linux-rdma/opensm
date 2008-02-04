@@ -164,7 +164,7 @@ int osm_db_init(IN osm_db_t * const p_db, IN osm_log_t * p_log)
 	osm_db_imp_t *p_db_imp;
 	struct stat dstat;
 
-	OSM_LOG_ENTER(p_log, osm_db_init);
+	OSM_LOG_ENTER(p_log);
 
 	p_db_imp = (osm_db_imp_t *) malloc(sizeof(osm_db_imp_t));
 	CL_ASSERT(p_db_imp != NULL);
@@ -213,7 +213,7 @@ osm_db_domain_t *osm_db_domain_init(IN osm_db_t * const p_db,
 	osm_log_t *p_log = p_db->p_log;
 	FILE *p_file;
 
-	OSM_LOG_ENTER(p_log, osm_db_domain_init);
+	OSM_LOG_ENTER(p_log);
 
 	/* allocate a new domain object */
 	p_domain = (osm_db_domain_t *) malloc(sizeof(osm_db_domain_t));
@@ -281,7 +281,7 @@ int osm_db_restore(IN osm_db_domain_t * p_domain)
 	char *endptr = NULL;
 	unsigned int line_num;
 
-	OSM_LOG_ENTER(p_log, osm_db_restore);
+	OSM_LOG_ENTER(p_log);
 
 	/* take the lock on the domain */
 	cl_spinlock_acquire(&p_domain_imp->lock);
@@ -452,7 +452,7 @@ int osm_db_store(IN osm_db_domain_t * p_domain)
 	int status = 0;
 	char *p_tmp_file_name;
 
-	OSM_LOG_ENTER(p_log, osm_db_store);
+	OSM_LOG_ENTER(p_log);
 
 	p_domain_imp = (osm_db_domain_imp_t *) p_domain->p_domain_imp;
 	p_tmp_file_name =
@@ -622,7 +622,7 @@ int osm_db_delete(IN osm_db_domain_t * p_domain, IN char *const p_key)
 	char *p_prev_val = NULL;
 	int res;
 
-	OSM_LOG_ENTER(p_log, osm_db_delete);
+	OSM_LOG_ENTER(p_log);
 
 	cl_spinlock_acquire(&p_domain_imp->lock);
 	if (st_delete(p_domain_imp->p_hash,

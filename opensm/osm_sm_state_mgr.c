@@ -86,7 +86,7 @@ static void __osm_sm_state_mgr_send_master_sm_info_req(osm_sm_t * sm)
 	const osm_port_t *p_port;
 	ib_api_status_t status;
 
-	OSM_LOG_ENTER(sm->p_log, __osm_sm_state_mgr_send_master_sm_info_req);
+	OSM_LOG_ENTER(sm->p_log);
 
 	memset(&context, 0, sizeof(context));
 	if (sm->p_subn->sm_state == IB_SMINFO_STATE_STANDBY) {
@@ -136,7 +136,7 @@ static void __osm_sm_state_mgr_start_polling(osm_sm_t * sm)
 	uint32_t timeout = sm->p_subn->opt.sminfo_polling_timeout;
 	cl_status_t cl_status;
 
-	OSM_LOG_ENTER(sm->p_log, __osm_sm_state_mgr_start_polling);
+	OSM_LOG_ENTER(sm->p_log);
 
 	/*
 	 * Init the retry_number back to zero - need to restart counting
@@ -170,7 +170,7 @@ void osm_sm_state_mgr_polling_callback(IN void *context)
 	uint32_t timeout = sm->p_subn->opt.sminfo_polling_timeout;
 	cl_status_t cl_status;
 
-	OSM_LOG_ENTER(sm->p_log, osm_sm_state_mgr_polling_callback);
+	OSM_LOG_ENTER(sm->p_log);
 
 	/*
 	 * We can be here in one of two cases:
@@ -248,7 +248,7 @@ static void __osm_sm_state_mgr_signal_error(osm_sm_t * sm,
  **********************************************************************/
 void osm_sm_state_mgr_signal_master_is_alive(osm_sm_t * sm)
 {
-	OSM_LOG_ENTER(sm->p_log, osm_sm_state_mgr_signal_master_is_alive);
+	OSM_LOG_ENTER(sm->p_log);
 	sm->retry_number = 0;
 	OSM_LOG_EXIT(sm->p_log);
 }
@@ -262,7 +262,7 @@ ib_api_status_t osm_sm_state_mgr_process(osm_sm_t * sm,
 
 	CL_ASSERT(sm);
 
-	OSM_LOG_ENTER(sm->p_log, osm_sm_state_mgr_process);
+	OSM_LOG_ENTER(sm->p_log);
 
 	/*
 	 * The state lock prevents many race conditions from screwing
@@ -484,7 +484,7 @@ ib_api_status_t osm_sm_state_mgr_check_legality(osm_sm_t * sm,
 
 	CL_ASSERT(sm);
 
-	OSM_LOG_ENTER(sm->p_log, osm_sm_state_mgr_check_legality);
+	OSM_LOG_ENTER(sm->p_log);
 
 	/*
 	 * The state lock prevents many race conditions from screwing

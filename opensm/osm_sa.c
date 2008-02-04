@@ -108,7 +108,7 @@ void osm_sa_construct(IN osm_sa_t * const p_sa)
 void osm_sa_shutdown(IN osm_sa_t * const p_sa)
 {
 	ib_api_status_t status;
-	OSM_LOG_ENTER(p_sa->p_log, osm_sa_shutdown);
+	OSM_LOG_ENTER(p_sa->p_log);
 
 	cl_timer_stop(&p_sa->sr_timer);
 
@@ -144,7 +144,7 @@ void osm_sa_shutdown(IN osm_sa_t * const p_sa)
  **********************************************************************/
 void osm_sa_destroy(IN osm_sa_t * const p_sa)
 {
-	OSM_LOG_ENTER(p_sa->p_log, osm_sa_destroy);
+	OSM_LOG_ENTER(p_sa->p_log);
 
 	p_sa->state = OSM_SA_STATE_INIT;
 
@@ -167,7 +167,7 @@ osm_sa_init(IN osm_sm_t * const p_sm,
 {
 	ib_api_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(p_log, osm_sa_init);
+	OSM_LOG_ENTER(p_log);
 
 	p_sa->sm = p_sm;
 	p_sa->p_subn = p_subn;
@@ -301,7 +301,7 @@ osm_sa_bind(IN osm_sa_t * const p_sa, IN const ib_net64_t port_guid)
 {
 	ib_api_status_t status;
 
-	OSM_LOG_ENTER(p_sa->p_log, osm_sa_bind);
+	OSM_LOG_ENTER(p_sa->p_log);
 
 	status = osm_sa_mad_ctrl_bind(&p_sa->mad_ctrl, port_guid);
 

@@ -76,7 +76,7 @@ osmt_register_service(IN osmtest_t * const p_osmt,
 	osm_log_t *p_log = &p_osmt->log;
 	ib_api_status_t status;
 
-	OSM_LOG_ENTER(p_log, osmt_register_service);
+	OSM_LOG_ENTER(p_log);
 
 	osm_log(&p_osmt->log, OSM_LOG_INFO,
 		"osmt_register_service: "
@@ -187,7 +187,7 @@ osmt_register_service_with_full_key(IN osmtest_t * const p_osmt,
 	ib_api_status_t status;
 	uint8_t i, skey[16];
 
-	OSM_LOG_ENTER(p_log, osmt_register_service_with_full_key);
+	OSM_LOG_ENTER(p_log);
 
 	osm_log(&p_osmt->log, OSM_LOG_INFO,
 		"osmt_register_service_with_full_key: "
@@ -320,7 +320,7 @@ osmt_register_service_with_data(IN osmtest_t * const p_osmt,
 	ib_api_status_t status;
 	/*   ib_service_record_t* p_rec; */
 
-	OSM_LOG_ENTER(p_log, osmt_register_service_with_data);
+	OSM_LOG_ENTER(p_log);
 
 	osm_log(&p_osmt->log, OSM_LOG_INFO,
 		"osmt_register_service_with_data: "
@@ -477,7 +477,7 @@ osmt_get_service_by_id_and_name(IN osmtest_t * const p_osmt,
 	uint32_t num_recs = 0;
 	osmv_user_query_t user;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmt_get_service_by_id);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	if (osm_log_is_active(&p_osmt->log, OSM_LOG_VERBOSE))
 		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
@@ -612,7 +612,7 @@ osmt_get_service_by_id(IN osmtest_t * const p_osmt,
 	uint32_t num_recs = 0;
 	osmv_user_query_t user;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmt_get_service_by_id);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	if (osm_log_is_active(&p_osmt->log, OSM_LOG_VERBOSE))
 		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
@@ -747,7 +747,7 @@ osmt_get_service_by_name_and_key(IN osmtest_t * const p_osmt,
 	uint32_t num_recs = 0, i;
 	osmv_user_query_t user;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmt_get_service_by_name_and_key);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	if (osm_log_is_active(&p_osmt->log, OSM_LOG_VERBOSE)) {
 		char buf_service_key[33];
@@ -894,7 +894,7 @@ osmt_get_service_by_name(IN osmtest_t * const p_osmt,
 	ib_svc_name_t service_name;
 	uint32_t num_recs = 0;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmt_get_service_by_name);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	if (osm_log_is_active(&p_osmt->log, OSM_LOG_VERBOSE))
 		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
@@ -1020,7 +1020,7 @@ osmt_get_all_services_and_check_names(IN osmtest_t * const p_osmt,
 	uint32_t num_recs = 0, i, j;
 	uint8_t *p_checked_names;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmt_get_all_services_and_check_names);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	/* Prepare tracker for the checked names */
 	p_checked_names =
@@ -1151,7 +1151,7 @@ osmt_delete_service_by_name(IN osmtest_t * const p_osmt,
 	ib_service_record_t svc_rec;
 	ib_api_status_t status;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmt_delete_service_by_name);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	osm_log(&p_osmt->log, OSM_LOG_INFO,
 		"osmt_delete_service_by_name: "
@@ -1285,7 +1285,7 @@ ib_api_status_t osmt_run_service_records_flow(IN osmtest_t * const p_osmt)
 	uint32_t num_recs = 0;
 #endif
 
-	OSM_LOG_ENTER(&p_osmt->log, osmt_run_service_records_flow);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	/* Init Service names */
 	for (i = 0; i <= 6; i++) {

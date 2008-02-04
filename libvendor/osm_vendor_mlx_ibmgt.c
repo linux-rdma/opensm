@@ -375,7 +375,7 @@ osmv_transport_mad_send(IN const osm_bind_handle_t h_bind,
 	IB_MGT_ret_t ret;
 	ib_mad_t *p_mad = p_ib_mad;
 
-	OSM_LOG_ENTER(p_vend->p_log, osmv_transport_mad_send);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	CL_ASSERT(p_bo->p_vendor->p_transport_info);
 
@@ -482,7 +482,7 @@ void osmv_transport_done(IN const osm_bind_handle_t h_bind)
 	int i;
 	cl_qlist_t *p_list = NULL;
 
-	OSM_LOG_ENTER(p_log, osmv_transport_done);
+	OSM_LOG_ENTER(p_log);
 
 	CL_ASSERT(p_bo);
 

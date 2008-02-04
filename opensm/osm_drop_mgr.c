@@ -173,7 +173,7 @@ static void __osm_drop_mgr_remove_port(osm_sm_t * sm, IN osm_port_t * p_port)
 	ib_mad_notice_attr_t notice;
 	ib_api_status_t status;
 
-	OSM_LOG_ENTER(sm->p_log, __osm_drop_mgr_remove_port);
+	OSM_LOG_ENTER(sm->p_log);
 
 	port_guid = osm_port_get_guid(p_port);
 	osm_log(sm->p_log, OSM_LOG_VERBOSE,
@@ -289,7 +289,7 @@ static void __osm_drop_mgr_remove_switch(osm_sm_t * sm, IN osm_node_t * p_node)
 	cl_qmap_t *p_sw_guid_tbl;
 	ib_net64_t node_guid;
 
-	OSM_LOG_ENTER(sm->p_log, __osm_drop_mgr_remove_switch);
+	OSM_LOG_ENTER(sm->p_log);
 
 	node_guid = osm_node_get_node_guid(p_node);
 	p_sw_guid_tbl = &sm->p_subn->sw_guid_tbl;
@@ -321,7 +321,7 @@ __osm_drop_mgr_process_node(osm_sm_t * sm, IN osm_node_t * p_node)
 	ib_net64_t port_guid;
 	boolean_t return_val = FALSE;
 
-	OSM_LOG_ENTER(sm->p_log, __osm_drop_mgr_process_node);
+	OSM_LOG_ENTER(sm->p_log);
 
 	osm_log(sm->p_log, OSM_LOG_VERBOSE,
 		"__osm_drop_mgr_process_node: "
@@ -378,7 +378,7 @@ static void __osm_drop_mgr_check_node(osm_sm_t * sm, IN osm_node_t * p_node)
 	osm_port_t *p_port;
 	ib_net64_t port_guid;
 
-	OSM_LOG_ENTER(sm->p_log, __osm_drop_mgr_check_node);
+	OSM_LOG_ENTER(sm->p_log);
 
 	node_guid = osm_node_get_node_guid(p_node);
 
@@ -458,7 +458,7 @@ void osm_drop_mgr_process(osm_sm_t * sm)
 
 	CL_ASSERT(sm);
 
-	OSM_LOG_ENTER(sm->p_log, osm_drop_mgr_process);
+	OSM_LOG_ENTER(sm->p_log);
 
 	p_node_guid_tbl = &sm->p_subn->node_guid_tbl;
 	p_port_guid_tbl = &sm->p_subn->port_guid_tbl;

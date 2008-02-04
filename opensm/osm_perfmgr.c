@@ -173,7 +173,7 @@ osm_perfmgr_mad_recv_callback(osm_madw_t * p_madw, void *bind_context,
 {
 	osm_perfmgr_t *pm = (osm_perfmgr_t *) bind_context;
 
-	OSM_LOG_ENTER(pm->log, osm_perfmgr_mad_recv_callback);
+	OSM_LOG_ENTER(pm->log);
 
 	osm_madw_copy_context(p_madw, p_req_madw);
 	osm_mad_pool_put(pm->mad_pool, p_req_madw);
@@ -204,7 +204,7 @@ osm_perfmgr_mad_send_err_callback(void *bind_context, osm_madw_t * p_madw)
 	cl_map_item_t *p_node;
 	__monitored_node_t *p_mon_node;
 
-	OSM_LOG_ENTER(pm->log, osm_perfmgr_mad_send_err_callback);
+	OSM_LOG_ENTER(pm->log);
 
 	/* go ahead and get the monitored node struct to have the printable
 	 * name if needed in messages
@@ -258,7 +258,7 @@ osm_perfmgr_bind(osm_perfmgr_t * const pm, const ib_net64_t port_guid)
 	osm_bind_info_t bind_info;
 	ib_api_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(pm->log, osm_perfmgr_bind);
+	OSM_LOG_ENTER(pm->log);
 
 	if (pm->bind_handle != OSM_BIND_INVALID_HANDLE) {
 		osm_log(pm->log, OSM_LOG_ERROR,
@@ -305,7 +305,7 @@ Exit:
  **********************************************************************/
 static void osm_perfmgr_mad_unbind(osm_perfmgr_t * const pm)
 {
-	OSM_LOG_ENTER(pm->log, osm_sa_mad_ctrl_unbind);
+	OSM_LOG_ENTER(pm->log);
 	if (pm->bind_handle == OSM_BIND_INVALID_HANDLE) {
 		osm_log(pm->log, OSM_LOG_ERROR,
 			"osm_perfmgr_mad_unbind: ERR 4C05: No previous bind\n");
@@ -368,7 +368,7 @@ osm_perfmgr_send_pc_mad(osm_perfmgr_t * perfmgr, ib_net16_t dest_lid,
 	ib_perfmgt_mad_t *pm_mad = NULL;
 	osm_madw_t *p_madw = NULL;
 
-	OSM_LOG_ENTER(perfmgr->log, osm_perfmgr_send_pc_mad);
+	OSM_LOG_ENTER(perfmgr->log);
 
 	p_madw =
 	    osm_mad_pool_get(perfmgr->mad_pool, perfmgr->bind_handle,
@@ -438,7 +438,7 @@ static void __collect_guids(cl_map_item_t * const p_map_item, void *context)
 	__monitored_node_t *mon_node = NULL;
 	uint32_t size;
 
-	OSM_LOG_ENTER(pm->log, __collect_guids);
+	OSM_LOG_ENTER(pm->log);
 
 	if (cl_qmap_get(&(pm->monitored_map), node_guid)
 	    == cl_qmap_end(&(pm->monitored_map))) {
@@ -479,7 +479,7 @@ __osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context)
 	uint64_t node_guid = 0;
 	ib_net32_t remote_qp;
 
-	OSM_LOG_ENTER(pm->log, __osm_perfmgr_query_counters);
+	OSM_LOG_ENTER(pm->log);
 
 	cl_plock_acquire(pm->lock);
 	node = osm_get_node_by_guid(pm->subn, cl_hton64(mon_node->guid));
@@ -857,7 +857,7 @@ static void perfmgr_sweep(void *arg)
  **********************************************************************/
 void osm_perfmgr_shutdown(osm_perfmgr_t * const pm)
 {
-	OSM_LOG_ENTER(pm->log, osm_perfmgr_shutdown);
+	OSM_LOG_ENTER(pm->log);
 	cl_timer_stop(&pm->sweep_timer);
 	osm_perfmgr_mad_unbind(pm);
 	OSM_LOG_EXIT(pm->log);
@@ -867,7 +867,7 @@ void osm_perfmgr_shutdown(osm_perfmgr_t * const pm)
  **********************************************************************/
 void osm_perfmgr_destroy(osm_perfmgr_t * const pm)
 {
-	OSM_LOG_ENTER(pm->log, osm_perfmgr_destroy);
+	OSM_LOG_ENTER(pm->log);
 	free(pm->event_db_dump_file);
 	perfmgr_db_destroy(pm->db);
 	cl_timer_destroy(&pm->sweep_timer);
@@ -976,7 +976,7 @@ osm_perfmgr_check_overflow(osm_perfmgr_t * pm, __monitored_node_t *mon_node,
 	ib_api_status_t status;
 	ib_net32_t remote_qp;
 
-	OSM_LOG_ENTER(pm->log, osm_perfmgr_check_overflow);
+	OSM_LOG_ENTER(pm->log);
 
 	if (counter_overflow_16(pc->symbol_err_cnt) ||
 	    counter_overflow_8(pc->link_err_recover) ||
@@ -1104,7 +1104,7 @@ static void osm_pc_rcv_process(void *context, void *data)
 	cl_map_item_t *p_node;
 	__monitored_node_t *p_mon_node;
 
-	OSM_LOG_ENTER(pm->log, osm_pc_rcv_process);
+	OSM_LOG_ENTER(pm->log);
 
 	/* go ahead and get the monitored node struct to have the printable
 	 * name if needed in messages
@@ -1245,7 +1245,7 @@ osm_perfmgr_init(osm_perfmgr_t * const pm,
 {
 	ib_api_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(log, osm_perfmgr_init);
+	OSM_LOG_ENTER(log);
 
 	osm_log(log, OSM_LOG_VERBOSE, "Initializing PerfMgr\n");
 

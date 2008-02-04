@@ -84,7 +84,7 @@ __osm_cpi_rcv_respond(IN osm_sa_t * sa,
 	ib_gid_t zero_gid;
 	uint8_t rtv;
 
-	OSM_LOG_ENTER(sa->p_log, __osm_cpi_rcv_respond);
+	OSM_LOG_ENTER(sa->p_log);
 
 	memset(&zero_gid, 0, sizeof(ib_gid_t));
 
@@ -200,7 +200,7 @@ void osm_cpi_rcv_process(IN void *context, IN void *data)
 	osm_madw_t *p_madw = data;
 	const ib_sa_mad_t *p_sa_mad;
 
-	OSM_LOG_ENTER(sa->p_log, osm_cpi_rcv_process);
+	OSM_LOG_ENTER(sa->p_log);
 
 	CL_ASSERT(p_madw);
 

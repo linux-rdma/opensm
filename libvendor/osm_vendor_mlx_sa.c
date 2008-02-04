@@ -83,7 +83,7 @@ __osmv_sa_mad_rcv_cb(IN osm_madw_t * p_madw,
 	ib_sa_mad_t *p_sa_mad;
 	ib_net16_t mad_status;
 
-	OSM_LOG_ENTER(p_bind->p_log, __osmv_sa_mad_rcv_cb);
+	OSM_LOG_ENTER(p_bind->p_log);
 
 	if (!p_req_madw) {
 		osm_log(p_bind->p_log, OSM_LOG_DEBUG,
@@ -189,7 +189,7 @@ void __osmv_sa_mad_err_cb(IN void *bind_context, IN osm_madw_t * p_madw)
 	osmv_query_req_t *p_query_req_copy = NULL;
 	osmv_query_res_t query_res;
 
-	OSM_LOG_ENTER(p_bind->p_log, __osmv_sa_mad_err_cb);
+	OSM_LOG_ENTER(p_bind->p_log);
 
 	/* Obtain the sent context etc */
 	p_query_req_copy =
@@ -237,7 +237,7 @@ __osmv_get_lid_and_sm_lid_by_port_guid(IN osm_vendor_t * const p_vend,
 	uint32_t num_ports;
 	uint32_t port_num;
 
-	OSM_LOG_ENTER(p_vend->p_log, __osmv_get_lid_and_sm_lid_by_port_guid);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	/* use prevous values if current time is close enough to previous query */
 	if (cl_get_time_stamp_sec() <= *p_lids_update_time_sec + 30) {
@@ -319,7 +319,7 @@ osmv_bind_sa(IN osm_vendor_t * const p_vend,
 	osmv_sa_bind_info_t *p_sa_bind_info;
 	cl_status_t cl_status;
 
-	OSM_LOG_ENTER(p_log, osmv_bind_sa);
+	OSM_LOG_ENTER(p_log);
 
 	osm_log(p_log, OSM_LOG_DEBUG,
 		"osmv_bind_sa: "
@@ -457,7 +457,7 @@ __osmv_send_sa_req(IN osmv_sa_bind_info_t * p_bind,
 	boolean_t sync;
 	osmv_query_req_t *p_query_req_copy;
 
-	OSM_LOG_ENTER(p_log, __osmv_send_sa_req);
+	OSM_LOG_ENTER(p_log);
 
 	/*
 	   since the sm_lid might change we obtain it every send
@@ -590,7 +590,7 @@ osmv_query_sa(IN osm_bind_handle_t h_bind,
 	osm_log_t *p_log = p_bind->p_log;
 	ib_api_status_t status;
 
-	OSM_LOG_ENTER(p_log, osmv_query_sa);
+	OSM_LOG_ENTER(p_log);
 
 	/* Set the request information. */
 	sa_mad_data.method = IB_MAD_METHOD_GETTABLE;

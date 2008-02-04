@@ -186,7 +186,7 @@ void __osm_vendor_clear_sm(IN osm_bind_handle_t h_bind)
 	VAPI_hca_attr_t attr_mod;
 	VAPI_hca_attr_mask_t attr_mask;
 
-	OSM_LOG_ENTER(p_vend->p_log, __osm_vendor_clear_sm);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	memset(&attr_mod, 0, sizeof(attr_mod));
 	memset(&attr_mask, 0, sizeof(attr_mask));
@@ -222,7 +222,7 @@ void osm_vendor_destroy(IN osm_vendor_t * const p_vend)
 {
 	osm_vendor_mgt_bind_t *vendor_mgt_bind_p;
 	IB_MGT_ret_t mgt_ret;
-	OSM_LOG_ENTER(p_vend->p_log, osm_vendor_destroy);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	if (p_vend->h_al != NULL) {
 		vendor_mgt_bind_p = (osm_vendor_mgt_bind_t *) p_vend->h_al;
@@ -312,7 +312,7 @@ osm_vendor_init(IN osm_vendor_t * const p_vend,
 	osm_vendor_mgt_bind_t *ib_mgt_hdl_p;
 	ib_api_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(p_log, osm_vendor_init);
+	OSM_LOG_ENTER(p_log);
 
 	p_vend->p_log = p_log;
 
@@ -352,7 +352,7 @@ osm_vendor_t *osm_vendor_new(IN osm_log_t * const p_log,
 	ib_api_status_t status;
 	osm_vendor_t *p_vend;
 
-	OSM_LOG_ENTER(p_log, osm_vendor_new);
+	OSM_LOG_ENTER(p_log);
 
 	CL_ASSERT(p_log);
 
@@ -392,7 +392,7 @@ __osm_mtl_rcv_callback(IN IB_MGT_mad_hndl_t mad_hndl,
 	ib_mad_t *mad_buf_p;
 	osm_log_t *const p_log = bind_info_p->p_vend->p_log;
 
-	OSM_LOG_ENTER(p_log, __osm_mtl_rcv_callback);
+	OSM_LOG_ENTER(p_log);
 
 	/* if it is a response MAD we mustbe able to get the request */
 	if (ib_mad_is_response((ib_mad_t *) payload_p)) {
@@ -525,7 +525,7 @@ __osm_mtl_send_callback(IN IB_MGT_mad_hndl_t mad_hndl,
 	osm_vend_wrap_t *p_vw;
 	uint8_t is_resp;
 
-	OSM_LOG_ENTER(p_log, __osm_mtl_send_callback);
+	OSM_LOG_ENTER(p_log);
 
 	/* obtain the madp from the wrid */
 	__osm_set_p_madw_and_resp_by_wrid(wrid, &is_resp, &madw_p);
@@ -609,7 +609,7 @@ osm_vendor_bind(IN osm_vendor_t * const p_vend,
 	osm_vendor_mgt_bind_t *ib_mgt_hdl_p;
 	IB_MGT_ret_t mgt_ret;
 
-	OSM_LOG_ENTER(p_vend->p_log, osm_vendor_bind);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	CL_ASSERT(p_user_bind);
 	CL_ASSERT(p_mad_pool);
@@ -819,7 +819,7 @@ ib_mad_t *osm_vendor_get(IN osm_bind_handle_t h_bind,
 	osm_mtl_bind_info_t *p_bind = (osm_mtl_bind_info_t *) h_bind;
 	osm_vendor_t *p_vend = p_bind->p_vend;
 
-	OSM_LOG_ENTER(p_vend->p_log, osm_vendor_get);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	CL_ASSERT(p_vw);
 	/* HACK: We know we can not send through IB_MGT */
@@ -865,7 +865,7 @@ osm_vendor_put(IN osm_bind_handle_t h_bind, IN osm_vend_wrap_t * const p_vw)
 	osm_vendor_t *p_vend = p_bind->p_vend;
 	osm_madw_t *p_madw;
 
-	OSM_LOG_ENTER(p_vend->p_log, osm_vendor_put);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	CL_ASSERT(p_vw);
 	CL_ASSERT(p_vw->mad_buf_p);
@@ -909,7 +909,7 @@ osm_mtl_send_mad(IN osm_mtl_bind_info_t * p_bind, IN osm_madw_t * const p_madw)
 	uint64_t wrid;
 	uint32_t qpn;
 
-	OSM_LOG_ENTER(p_vend->p_log, osm_mtl_send_mad);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	/*
 	 * For all sends other than directed route SM MADs,
@@ -1004,7 +1004,7 @@ osm_vendor_send(IN osm_bind_handle_t h_bind,
 	osm_vend_wrap_t *const p_vw = osm_madw_get_vend_ptr(p_madw);
 	ib_api_status_t status;
 
-	OSM_LOG_ENTER(p_vend->p_log, osm_vendor_send);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	/*
 	 * If a response is expected to this MAD, then preallocate
@@ -1056,7 +1056,7 @@ ib_api_status_t osm_vendor_local_lid_change(IN osm_bind_handle_t h_bind)
 {
 	osm_vendor_t *p_vend = ((osm_mtl_bind_info_t *) h_bind)->p_vend;
 
-	OSM_LOG_ENTER(p_vend->p_log, osm_vendor_local_lid_change);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	osm_log(p_vend->p_log, OSM_LOG_DEBUG,
 		"osm_vendor_local_lid_change: DEBUG 2202: " "Change of LID.\n");
@@ -1076,7 +1076,7 @@ void osm_vendor_set_sm(IN osm_bind_handle_t h_bind, IN boolean_t is_sm_val)
 	VAPI_hca_attr_t attr_mod;
 	VAPI_hca_attr_mask_t attr_mask;
 
-	OSM_LOG_ENTER(p_vend->p_log, osm_vendor_set_sm);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	memset(&attr_mod, 0, sizeof(attr_mod));
 	memset(&attr_mask, 0, sizeof(attr_mask));

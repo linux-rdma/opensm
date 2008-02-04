@@ -139,7 +139,7 @@ __osm_al_convert_wcs(IN ib_wc_status_t const wc_status)
 static void __osm_al_ca_err_callback(IN ib_async_event_rec_t * p_async_rec)
 {
 	osm_vendor_t *p_vend = (osm_vendor_t *) p_async_rec->context;
-	OSM_LOG_ENTER(p_vend->p_log, __osm_al_ca_err_callback);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	osm_log(p_vend->p_log, OSM_LOG_ERROR,
 		"__osm_al_ca_err_callback: ERR 3B01: "
@@ -155,7 +155,7 @@ static void __osm_al_ca_destroy_callback(IN void *context)
 {
 	osm_al_bind_info_t *p_bind = (osm_al_bind_info_t *) context;
 	osm_vendor_t *p_vend = p_bind->p_vend;
-	OSM_LOG_ENTER(p_vend->p_log, __osm_al_ca_destroy_callback);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	osm_log(p_vend->p_log, OSM_LOG_INFO,
 		"__osm_al_ca_destroy_callback: "
@@ -171,7 +171,7 @@ static void __osm_al_err_callback(IN ib_async_event_rec_t * p_async_rec)
 	osm_al_bind_info_t *p_bind =
 	    (osm_al_bind_info_t *) p_async_rec->context;
 	osm_vendor_t *p_vend = p_bind->p_vend;
-	OSM_LOG_ENTER(p_vend->p_log, __osm_al_err_callback);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	osm_log(p_vend->p_log, OSM_LOG_ERROR,
 		"__osm_al_err_callback: ERR 3B02: "
@@ -193,7 +193,7 @@ __osm_al_send_callback(IN void *mad_svc_context, IN ib_mad_element_t * p_elem)
 	osm_vend_wrap_t *const p_vw = osm_madw_get_vend_ptr(p_madw);
 	ib_mad_t *p_mad;
 
-	OSM_LOG_ENTER(p_vend->p_log, __osm_al_send_callback);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	CL_ASSERT(p_vw);
 	CL_ASSERT(p_vw->h_av);
@@ -271,7 +271,7 @@ __osm_al_rcv_callback(IN void *mad_svc_context, IN ib_mad_element_t * p_elem)
 	ib_mad_t *p_new_mad;
 	osm_mad_addr_t mad_addr;
 
-	OSM_LOG_ENTER(p_vend->p_log, __osm_al_rcv_callback);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	CL_ASSERT(p_elem->context1 == NULL);
 	CL_ASSERT(p_elem->context2 == NULL);
@@ -352,7 +352,7 @@ osm_vendor_init(IN osm_vendor_t * const p_vend,
 		IN osm_log_t * const p_log, IN const uint32_t timeout)
 {
 	ib_api_status_t status;
-	OSM_LOG_ENTER(p_log, osm_vendor_init);
+	OSM_LOG_ENTER(p_log);
 
 	p_vend->p_log = p_log;
 
@@ -383,7 +383,7 @@ osm_vendor_t *osm_vendor_new(IN osm_log_t * const p_log,
 	ib_api_status_t status;
 	osm_vendor_t *p_vend;
 
-	OSM_LOG_ENTER(p_log, osm_vendor_new);
+	OSM_LOG_ENTER(p_log);
 
 	p_vend = malloc(sizeof(*p_vend));
 	if (p_vend == NULL) {
@@ -425,7 +425,7 @@ __osm_ca_info_init(IN osm_vendor_t * const p_vend,
 {
 	ib_api_status_t status;
 
-	OSM_LOG_ENTER(p_vend->p_log, __osm_ca_info_init);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	p_ca_info->guid = ca_guid;
 
@@ -476,7 +476,7 @@ void
 osm_ca_info_destroy(IN osm_vendor_t * const p_vend,
 		    IN osm_ca_info_t * const p_ca_info)
 {
-	OSM_LOG_ENTER(p_vend->p_log, osm_ca_info_destroy);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	if (p_ca_info->p_attr)
 		free(p_ca_info->p_attr);
@@ -494,7 +494,7 @@ osm_ca_info_t *osm_ca_info_new(IN osm_vendor_t * const p_vend,
 	ib_api_status_t status;
 	osm_ca_info_t *p_ca_info;
 
-	OSM_LOG_ENTER(p_vend->p_log, osm_ca_info_new);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	CL_ASSERT(ca_guid);
 
@@ -525,7 +525,7 @@ __osm_vendor_get_ca_guids(IN osm_vendor_t * const p_vend,
 {
 	ib_api_status_t status;
 
-	OSM_LOG_ENTER(p_vend->p_log, __osm_vendor_get_ca_guids);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	CL_ASSERT(p_guids);
 	CL_ASSERT(p_num_guids);
@@ -622,7 +622,7 @@ osm_vendor_get_all_port_attr(IN osm_vendor_t * const p_vend,
 	ib_net64_t *p_ca_guid = NULL;
 	osm_ca_info_t *p_ca_info;
 
-	OSM_LOG_ENTER(p_vend->p_log, osm_vendor_get_all_port_attr);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	CL_ASSERT(p_vend);
 	CL_ASSERT(p_vend->p_ca_info == NULL);
@@ -708,7 +708,7 @@ osm_vendor_get_ca_guid(IN osm_vendor_t * const p_vend,
 	osm_ca_info_t *p_ca_info;
 	uint32_t ca;
 
-	OSM_LOG_ENTER(p_vend->p_log, osm_vendor_get_ca_guid);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	CL_ASSERT(port_guid);
 	/*
@@ -763,7 +763,7 @@ osm_vendor_get_port_num(IN osm_vendor_t * const p_vend,
 	osm_ca_info_t *p_ca_info;
 	uint32_t ca;
 
-	OSM_LOG_ENTER(p_vend->p_log, osm_vendor_get_port_num);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	CL_ASSERT(port_guid);
 	/*
@@ -816,7 +816,7 @@ __osm_vendor_open_ca(IN osm_vendor_t * const p_vend,
 	ib_net64_t ca_guid;
 	ib_api_status_t status;
 
-	OSM_LOG_ENTER(p_vend->p_log, __osm_vendor_open_ca);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	ca_guid = osm_vendor_get_ca_guid(p_vend, port_guid);
 	if (ca_guid == 0) {
@@ -891,7 +891,7 @@ osm_vendor_bind(IN osm_vendor_t * const p_vend,
 	ib_mad_svc_t mad_svc;
 	ib_av_attr_t av;
 
-	OSM_LOG_ENTER(p_vend->p_log, osm_vendor_bind);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	CL_ASSERT(p_user_bind);
 	CL_ASSERT(p_mad_pool);
@@ -1038,7 +1038,7 @@ ib_mad_t *osm_vendor_get(IN osm_bind_handle_t h_bind,
 	osm_vendor_t *p_vend = p_bind->p_vend;
 	ib_api_status_t status;
 
-	OSM_LOG_ENTER(p_vend->p_log, osm_vendor_get);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	CL_ASSERT(p_vw);
 
@@ -1083,7 +1083,7 @@ osm_vendor_put(IN osm_bind_handle_t h_bind, IN osm_vend_wrap_t * const p_vw)
 	osm_vendor_t *p_vend = p_bind->p_vend;
 	ib_api_status_t status;
 
-	OSM_LOG_ENTER(p_vend->p_log, osm_vendor_put);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	CL_ASSERT(p_vw);
 	CL_ASSERT(p_vw->p_elem);
@@ -1120,7 +1120,7 @@ osm_vendor_send(IN osm_bind_handle_t h_bind,
 	ib_mad_element_t *p_elem;
 	ib_av_attr_t av;
 
-	OSM_LOG_ENTER(p_vend->p_log, osm_vendor_send);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	CL_ASSERT(p_vw->h_bind == h_bind);
 	CL_ASSERT(p_vw->p_elem);
@@ -1255,7 +1255,7 @@ ib_api_status_t osm_vendor_local_lid_change(IN osm_bind_handle_t h_bind)
 	ib_av_attr_t av;
 	ib_api_status_t status;
 
-	OSM_LOG_ENTER(p_vend->p_log, osm_vendor_local_lid_change);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	/*
 	   The only thing we need to do is refresh the directed
@@ -1297,7 +1297,7 @@ void osm_vendor_set_sm(IN osm_bind_handle_t h_bind, IN boolean_t is_sm_val)
 	ib_api_status_t status;
 	ib_port_attr_mod_t attr_mod;
 
-	OSM_LOG_ENTER(p_vend->p_log, osm_vendor_set_sm);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	memset(&attr_mod, 0, sizeof(attr_mod));
 

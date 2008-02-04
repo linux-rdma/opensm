@@ -166,7 +166,7 @@ ib_api_status_t osmt_query_mcast(IN osmtest_t * const p_osmt)
 	cl_map_item_t *p_item, *p_next_item;
 	osmtest_mgrp_t *p_mgrp;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmt_query_mcast);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	/*
 	 * Do a blocking query for all Multicast Records in the subnet.
@@ -301,7 +301,7 @@ osmt_send_mcast_request(IN osmtest_t * const p_osmt,
 	osmv_user_query_t user;
 	osmv_query_req_t req;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmt_send_mcast_request);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	/*
 	 * Do a blocking query for this record in the subnet.
@@ -549,7 +549,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 		 0x00, 0x00, 0x00, 0x01},
 	};
 
-	OSM_LOG_ENTER(&p_osmt->log, osmt_run_mcast_flow);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	osm_log(&p_osmt->log, OSM_LOG_INFO,
 		"osmt_run_mcast_flow: " "GetTable of all current MCGs...\n");

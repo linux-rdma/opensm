@@ -800,7 +800,7 @@ static void free_lash_structures(lash_t * p_lash)
 	unsigned num_switches = p_lash->num_switches;
 	osm_log_t *p_log = &p_lash->p_osm->log;
 
-	OSM_LOG_ENTER(p_log, free_lash_structures);
+	OSM_LOG_ENTER(p_log);
 
 	// free cdg_vertex_matrix
 	for (i = 0; i < p_lash->vl_min; i++) {
@@ -856,7 +856,7 @@ static int init_lash_structures(lash_t * p_lash)
 	int status = IB_SUCCESS;
 	unsigned int i, j, k;
 
-	OSM_LOG_ENTER(p_log, init_lash_structures);
+	OSM_LOG_ENTER(p_log);
 
 	// initialise cdg_vertex_matrix[num_switches][num_switches][num_switches]
 	p_lash->cdg_vertex_matrix =
@@ -947,7 +947,7 @@ static int lash_core(lash_t * p_lash)
 	int status = IB_SUCCESS;
 	int *switch_bitmap = NULL;	/* Bitmap to check if we have processed this pair */
 
-	OSM_LOG_ENTER(p_log, lash_core);
+	OSM_LOG_ENTER(p_log);
 
 	switch_bitmap =
 	    (int *)malloc(num_switches * num_switches * sizeof(int));
@@ -1125,7 +1125,7 @@ static void populate_fwd_tbls(lash_t * p_lash)
 	osm_switch_t *p_sw, *p_next_sw, *p_dst_sw;
 	uint16_t max_lid_ho, lid = 0;
 
-	OSM_LOG_ENTER(p_log, populate_fwd_tbls);
+	OSM_LOG_ENTER(p_log);
 
 	p_next_sw = (osm_switch_t *) cl_qmap_head(&p_subn->sw_guid_tbl);
 
@@ -1206,7 +1206,7 @@ static void osm_lash_process_switch(lash_t * p_lash, osm_switch_t * p_sw)
 	osm_physp_t *p_current_physp, *p_remote_physp;
 	unsigned switch_a_lash_id, switch_b_lash_id;
 
-	OSM_LOG_ENTER(p_log, _osm_lash_process_switch);
+	OSM_LOG_ENTER(p_log);
 
 	switch_a_lash_id = get_lash_id(p_sw);
 	port_count = osm_node_get_num_physp(p_sw->p_node);
@@ -1359,7 +1359,7 @@ static int lash_process(void *context)
 	osm_log_t *p_log = &p_lash->p_osm->log;
 	int return_status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(p_log, lash_process);
+	OSM_LOG_ENTER(p_log);
 
 	p_lash->balance_limit = 6;
 

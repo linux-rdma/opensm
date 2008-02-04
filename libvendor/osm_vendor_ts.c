@@ -148,7 +148,7 @@ void __osm_vendor_clear_sm(IN osm_bind_handle_t h_bind)
 	VAPI_hca_attr_t attr_mod;
 	VAPI_hca_attr_mask_t attr_mask;
 
-	OSM_LOG_ENTER(p_vend->p_log, __osm_vendor_clear_sm);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	memset(&attr_mod, 0, sizeof(attr_mod));
 	memset(&attr_mask, 0, sizeof(attr_mask));
@@ -184,7 +184,7 @@ void osm_vendor_construct(IN osm_vendor_t * const p_vend)
  **********************************************************************/
 void osm_vendor_destroy(IN osm_vendor_t * const p_vend)
 {
-	OSM_LOG_ENTER(p_vend->p_log, osm_vendor_destroy);
+	OSM_LOG_ENTER(p_vend->p_log);
 	osm_transaction_mgr_destroy(p_vend);
 
 	/* Destroy the poller threads */
@@ -218,7 +218,7 @@ osm_vendor_init(IN osm_vendor_t * const p_vend,
 {
 	ib_api_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(p_log, osm_vendor_init);
+	OSM_LOG_ENTER(p_log);
 
 	p_vend->p_log = p_log;
 	p_vend->p_transaction_mgr = NULL;
@@ -242,7 +242,7 @@ osm_vendor_t *osm_vendor_new(IN osm_log_t * const p_log,
 	ib_api_status_t status;
 	osm_vendor_t *p_vend;
 
-	OSM_LOG_ENTER(p_log, osm_vendor_new);
+	OSM_LOG_ENTER(p_log);
 
 	CL_ASSERT(p_log);
 
@@ -280,7 +280,7 @@ __osm_ts_rcv_callback(IN osm_ts_bind_info_t * p_bind,
 	ib_mad_t *p_mad_buf;
 	osm_log_t *const p_log = p_bind->p_vend->p_log;
 
-	OSM_LOG_ENTER(p_log, __osm_ts_rcv_callback);
+	OSM_LOG_ENTER(p_log);
 
 	/* if it is a response MAD we mustbe able to get the request */
 	if (ib_mad_is_response((ib_mad_t *) p_mad)) {
@@ -381,7 +381,7 @@ __osm_ts_send_callback(IN osm_ts_bind_info_t * bind_info_p,
 	osm_log_t *const p_log = bind_info_p->p_vend->p_log;
 	osm_vend_wrap_t *p_vw;
 
-	OSM_LOG_ENTER(p_log, __osm_ts_send_callback);
+	OSM_LOG_ENTER(p_log);
 
 	osm_log(p_log, OSM_LOG_DEBUG,
 		"__osm_ts_send_callback: INFO 1008: "
@@ -452,7 +452,7 @@ void __osm_vendor_ts_poller(IN void *p_ptr)
 	osm_mad_addr_t mad_addr;
 	osm_ts_bind_info_t *const p_bind = (osm_ts_bind_info_t *) p_ptr;
 
-	OSM_LOG_ENTER(p_bind->p_vend->p_log, __osm_vendor_ts_poller);
+	OSM_LOG_ENTER(p_bind->p_vend->p_log);
 	/* we set the type of cancelation for this thread */
 	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
 
@@ -525,7 +525,7 @@ osm_vendor_bind(IN osm_vendor_t * const p_vend,
 	int ts_ioctl_ret;
 	int qpn;
 
-	OSM_LOG_ENTER(p_vend->p_log, osm_vendor_bind);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	CL_ASSERT(p_mad_pool);
 
@@ -650,7 +650,7 @@ ib_mad_t *osm_vendor_get(IN osm_bind_handle_t h_bind,
 	osm_ts_bind_info_t *p_bind = (osm_ts_bind_info_t *) h_bind;
 	osm_vendor_t *p_vend = p_bind->p_vend;
 
-	OSM_LOG_ENTER(p_vend->p_log, osm_vendor_get);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	CL_ASSERT(p_vw);
 
@@ -693,7 +693,7 @@ osm_vendor_put(IN osm_bind_handle_t h_bind, IN osm_vend_wrap_t * const p_vw)
 	osm_vendor_t *p_vend = p_bind->p_vend;
 	osm_madw_t *p_madw;
 
-	OSM_LOG_ENTER(p_vend->p_log, osm_vendor_put);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	CL_ASSERT(p_vw);
 	CL_ASSERT(p_vw->p_mad_buf);
@@ -735,7 +735,7 @@ osm_ts_send_mad(IN osm_ts_bind_info_t * p_bind, IN osm_madw_t * const p_madw)
 	int ret;
 	ib_api_status_t status;
 
-	OSM_LOG_ENTER(p_vend->p_log, osm_ts_send_mad);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	/*
 	 * Copy the MAD over to the sent mad
@@ -799,7 +799,7 @@ osm_vendor_send(IN osm_bind_handle_t h_bind,
 	osm_vend_wrap_t *const p_vw = osm_madw_get_vend_ptr(p_madw);
 	ib_api_status_t status;
 
-	OSM_LOG_ENTER(p_vend->p_log, osm_vendor_send);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	/*
 	 * If a response is expected to this MAD, then preallocate
@@ -855,7 +855,7 @@ ib_api_status_t osm_vendor_local_lid_change(IN osm_bind_handle_t h_bind)
 {
 	osm_vendor_t *p_vend = ((osm_ts_bind_info_t *) h_bind)->p_vend;
 
-	OSM_LOG_ENTER(p_vend->p_log, osm_vendor_local_lid_change);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	osm_log(p_vend->p_log, OSM_LOG_DEBUG,
 		"osm_vendor_local_lid_change: DEBUG 2202: " "Change of LID.\n");
@@ -875,7 +875,7 @@ void osm_vendor_set_sm(IN osm_bind_handle_t h_bind, IN boolean_t is_sm_val)
 	VAPI_hca_attr_t attr_mod;
 	VAPI_hca_attr_mask_t attr_mask;
 
-	OSM_LOG_ENTER(p_vend->p_log, osm_vendor_set_sm);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	memset(&attr_mod, 0, sizeof(attr_mod));
 	memset(&attr_mask, 0, sizeof(attr_mask));

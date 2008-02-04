@@ -404,7 +404,7 @@ osm_port_share_pkey(IN osm_log_t * p_log,
 	osm_physp_t *p_physp1, *p_physp2;
 	boolean_t ret;
 
-	OSM_LOG_ENTER(p_log, osm_port_share_pkey);
+	OSM_LOG_ENTER(p_log);
 
 	if (!p_port_1 || !p_port_2) {
 		ret = FALSE;
@@ -441,7 +441,7 @@ osm_lid_share_pkey(IN osm_log_t * p_log,
 	osm_node_t *p_node1, *p_node2;
 	const cl_ptr_vector_t *const p_port_lid_tbl = &(p_subn->port_lid_tbl);
 
-	OSM_LOG_ENTER(p_log, osm_lid_share_pkey);
+	OSM_LOG_ENTER(p_log);
 
 	p_port1 = cl_ptr_vector_get(p_port_lid_tbl, lid1);
 	p_port2 = cl_ptr_vector_get(p_port_lid_tbl, lid2);
@@ -476,7 +476,7 @@ osm_physp_has_pkey(IN osm_log_t * p_log,
 	const osm_pkey_tbl_t *pkey_tbl;
 	boolean_t res = FALSE;
 
-	OSM_LOG_ENTER(p_log, osm_physp_has_pkey);
+	OSM_LOG_ENTER(p_log);
 
 	osm_log(p_log, OSM_LOG_DEBUG,
 		"osm_physp_has_pkey: "

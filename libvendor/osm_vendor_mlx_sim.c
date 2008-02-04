@@ -92,8 +92,7 @@ void __osmv_ibms_receiver_callback(void *p_ctx, ibms_mad_msg_t * p_mad)
 		return;
 
 	{
-		OSM_LOG_ENTER(p_bo->p_vendor->p_log,
-			      __osmv_ibms_receiver_callback);
+		OSM_LOG_ENTER(p_bo->p_vendor->p_log);
 
 		/* some logging */
 		osm_log(p_bo->p_vendor->p_log, OSM_LOG_DEBUG,
@@ -253,7 +252,7 @@ osmv_transport_mad_send(IN const osm_bind_handle_t h_bind,
 
 	const ib_mad_t *p_mad_hdr = p_mad;
 
-	OSM_LOG_ENTER(p_vend->p_log, osmv_transport_mad_send);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	memset(&mad_msg, 0, sizeof(mad_msg));
 
@@ -418,7 +417,7 @@ void osm_vendor_set_sm(IN osm_bind_handle_t h_bind, IN boolean_t is_sm_val)
 	int ret;
 	ibms_cap_msg_t cap_msg;
 
-	OSM_LOG_ENTER(p_vend->p_log, osm_vendor_set_sm);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	cap_msg.mask = IB_PORT_CAP_IS_SM;
 	if (is_sm_val)

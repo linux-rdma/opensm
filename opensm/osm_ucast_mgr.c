@@ -76,7 +76,7 @@ void osm_ucast_mgr_destroy(IN osm_ucast_mgr_t * const p_mgr)
 {
 	CL_ASSERT(p_mgr);
 
-	OSM_LOG_ENTER(p_mgr->p_log, osm_ucast_mgr_destroy);
+	OSM_LOG_ENTER(p_mgr->p_log);
 
 	if (p_mgr->lft_buf)
 		free(p_mgr->lft_buf);
@@ -91,7 +91,7 @@ osm_ucast_mgr_init(IN osm_ucast_mgr_t * const p_mgr, IN osm_sm_t * sm)
 {
 	ib_api_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(sm->p_log, osm_ucast_mgr_init);
+	OSM_LOG_ENTER(sm->p_log);
 
 	osm_ucast_mgr_construct(p_mgr);
 
@@ -152,7 +152,7 @@ __osm_ucast_mgr_process_neighbor(IN osm_ucast_mgr_t * const p_mgr,
 	uint16_t lid_ho;
 	uint8_t hops;
 
-	OSM_LOG_ENTER(p_mgr->p_log, __osm_ucast_mgr_process_neighbor);
+	OSM_LOG_ENTER(p_mgr->p_log);
 
 	if (osm_log_is_active(p_mgr->p_log, OSM_LOG_DEBUG)) {
 		osm_log(p_mgr->p_log, OSM_LOG_DEBUG,
@@ -216,7 +216,7 @@ __osm_ucast_mgr_process_port(IN osm_ucast_mgr_t * const p_mgr,
 	uint16_t num_used_sys = 0;
 	uint16_t num_used_nodes = 0;
 
-	OSM_LOG_ENTER(p_mgr->p_log, __osm_ucast_mgr_process_port);
+	OSM_LOG_ENTER(p_mgr->p_log);
 
 	if (lids_per_port > 1) {
 		remote_sys_guids = malloc(sizeof(uint64_t) * lids_per_port);
@@ -382,7 +382,7 @@ osm_ucast_mgr_set_fwd_table(IN osm_ucast_mgr_t * const p_mgr,
 
 	CL_ASSERT(p_mgr);
 
-	OSM_LOG_ENTER(p_mgr->p_log, osm_ucast_mgr_set_fwd_table);
+	OSM_LOG_ENTER(p_mgr->p_log);
 
 	CL_ASSERT(p_sw);
 
@@ -498,7 +498,7 @@ __osm_ucast_mgr_process_tbl(IN cl_map_item_t * const p_map_item,
 	osm_port_t *p_port;
 	const cl_qmap_t *p_port_tbl;
 
-	OSM_LOG_ENTER(p_mgr->p_log, __osm_ucast_mgr_process_tbl);
+	OSM_LOG_ENTER(p_mgr->p_log);
 
 	p_node = p_sw->p_node;
 
@@ -548,7 +548,7 @@ __osm_ucast_mgr_process_neighbors(IN cl_map_item_t * const p_map_item,
 	uint32_t num_ports;
 	osm_physp_t *p_physp;
 
-	OSM_LOG_ENTER(p_mgr->p_log, __osm_ucast_mgr_process_neighbors);
+	OSM_LOG_ENTER(p_mgr->p_log);
 
 	p_node = p_sw->p_node;
 
@@ -698,7 +698,7 @@ osm_ucast_mgr_read_guid_file(IN osm_ucast_mgr_t * const p_mgr,
 	char *endptr;
 	uint64_t *p_guid;
 
-	OSM_LOG_ENTER(p_mgr->p_log, osm_ucast_mgr_read_guid_file);
+	OSM_LOG_ENTER(p_mgr->p_log);
 
 	guid_file = fopen(guid_file_name, "r");
 	if (guid_file == NULL) {
@@ -764,7 +764,7 @@ osm_signal_t osm_ucast_mgr_process(IN osm_ucast_mgr_t * const p_mgr)
 	int blm = 0;
 	int ubft = 0;
 
-	OSM_LOG_ENTER(p_mgr->p_log, osm_ucast_mgr_process);
+	OSM_LOG_ENTER(p_mgr->p_log);
 
 	p_sw_guid_tbl = &p_mgr->p_subn->sw_guid_tbl;
 	p_osm = p_mgr->p_subn->p_osm;

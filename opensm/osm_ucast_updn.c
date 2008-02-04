@@ -134,7 +134,7 @@ __updn_bfs_by_node(IN osm_log_t * p_log,
 	struct updn_node *u;
 	updn_switch_dir_t next_dir, current_dir;
 
-	OSM_LOG_ENTER(p_log, __updn_bfs_by_node);
+	OSM_LOG_ENTER(p_log);
 
 	lid = osm_node_get_base_lid(p_sw->p_node, 0);
 	lid = cl_ntoh16(lid);
@@ -256,7 +256,7 @@ static updn_t *updn_construct(osm_log_t * p_log)
 {
 	updn_t *p_updn;
 
-	OSM_LOG_ENTER(p_log, updn_construct);
+	OSM_LOG_ENTER(p_log);
 
 	p_updn = malloc(sizeof(updn_t));
 	if (p_updn)
@@ -274,7 +274,7 @@ static cl_status_t updn_init(IN updn_t * const p_updn, IN osm_opensm_t * p_osm)
 	cl_list_iterator_t guid_iterator;
 	ib_api_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(&p_osm->log, updn_init);
+	OSM_LOG_ENTER(&p_osm->log);
 
 	p_updn->p_osm = p_osm;
 	p_list = (cl_list_t *) malloc(sizeof(cl_list_t));
@@ -342,7 +342,7 @@ updn_subn_rank(IN unsigned num_guids,
 	unsigned idx = 0;
 	unsigned max_rank = 0;
 
-	OSM_LOG_ENTER(p_log, updn_subn_rank);
+	OSM_LOG_ENTER(p_log);
 	cl_qlist_init(&list);
 
 	/* Rank all the roots and add them to list */
@@ -449,7 +449,7 @@ static int __osm_subn_set_up_down_min_hop_table(IN updn_t * p_updn)
 	osm_log_t *p_log = &p_updn->p_osm->log;
 	osm_switch_t *p_next_sw, *p_sw;
 
-	OSM_LOG_ENTER(p_log, __osm_subn_set_up_down_min_hop_table);
+	OSM_LOG_ENTER(p_log);
 
 	/* Go over all the switches in the subnet - for each init their Min Hop
 	   Table */
@@ -501,7 +501,7 @@ updn_build_lid_matrices(IN uint32_t num_guids,
 {
 	int status;
 
-	OSM_LOG_ENTER(&p_updn->p_osm->log, osm_subn_calc_up_down_min_hop_table);
+	OSM_LOG_ENTER(&p_updn->p_osm->log);
 
 	osm_log(&p_updn->p_osm->log, OSM_LOG_VERBOSE,
 		"updn_build_lid_matrices: "
@@ -568,7 +568,7 @@ static int __osm_updn_call(void *ctx)
 	osm_switch_t *p_sw;
 	int ret = 0;
 
-	OSM_LOG_ENTER(&p_updn->p_osm->log, __osm_updn_call);
+	OSM_LOG_ENTER(&p_updn->p_osm->log);
 
 	p_item = cl_qmap_head(&p_updn->p_osm->subn.sw_guid_tbl);
 	while (p_item != cl_qmap_end(&p_updn->p_osm->subn.sw_guid_tbl)) {
@@ -627,7 +627,7 @@ static void __osm_updn_convert_list2array(IN updn_t * p_updn)
 	uint32_t i = 0, max_num = 0;
 	uint64_t *p_guid;
 
-	OSM_LOG_ENTER(&p_updn->p_osm->log, __osm_updn_convert_list2array);
+	OSM_LOG_ENTER(&p_updn->p_osm->log);
 
 	p_updn->updn_ucast_reg_inputs.num_guids =
 	    cl_list_count(p_updn->p_root_nodes);
@@ -675,7 +675,7 @@ static void __osm_updn_find_root_nodes_by_min_hop(OUT updn_t * p_updn)
 	unsigned *cas_per_sw;
 	uint16_t lid_ho;
 
-	OSM_LOG_ENTER(&p_osm->log, osm_updn_find_root_nodes_by_min_hop);
+	OSM_LOG_ENTER(&p_osm->log);
 
 	osm_log(&p_osm->log, OSM_LOG_DEBUG,
 		"__osm_updn_find_root_nodes_by_min_hop: "

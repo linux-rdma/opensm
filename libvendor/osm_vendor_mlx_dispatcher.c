@@ -123,7 +123,7 @@ osmv_dispatch_mad(IN osm_bind_handle_t h_bind,
 	osmv_txn_ctx_t *p_txn = NULL;
 	osm_log_t *p_log = p_bo->p_vendor->p_log;
 
-	OSM_LOG_ENTER(p_bo->p_vendor->p_log, osmv_dispatch_mad);
+	OSM_LOG_ENTER(p_bo->p_vendor->p_log);
 
 	CL_ASSERT(NULL != h_bind && NULL != p_mad && NULL != p_mad_addr);
 
@@ -243,7 +243,7 @@ __osmv_dispatch_simple_mad(IN osm_bind_handle_t h_bind,
 	osm_madw_t *p_req_madw = NULL;
 	osmv_bind_obj_t *p_bo = (osmv_bind_obj_t *) h_bind;
 
-	OSM_LOG_ENTER(p_bo->p_vendor->p_log, __osmv_dispatch_simple_mad);
+	OSM_LOG_ENTER(p_bo->p_vendor->p_log);
 
 	/* Build the MAD wrapper to be returned to the user.
 	 * The actual storage for the MAD is allocated there.
@@ -306,7 +306,7 @@ __osmv_dispatch_rmpp_mad(IN osm_bind_handle_t h_bind,
 	osmv_bind_obj_t *p_bo = (osmv_bind_obj_t *) h_bind;
 	osm_madw_t *p_madw;
 
-	OSM_LOG_ENTER(p_bo->p_vendor->p_log, __osmv_dispatch_rmpp_mad);
+	OSM_LOG_ENTER(p_bo->p_vendor->p_log);
 
 	if (NULL == p_txn) {
 		if (FALSE == osmv_rmpp_is_data(p_mad)
@@ -397,7 +397,7 @@ __osmv_dispatch_rmpp_snd(IN osm_bind_handle_t h_bind,
 	uint32_t new_wl = cl_ntoh32(((ib_rmpp_mad_t *) p_mad)->paylen_newwin);
 	osmv_bind_obj_t *p_bo = (osmv_bind_obj_t *) h_bind;
 
-	OSM_LOG_ENTER(p_bo->p_vendor->p_log, __osmv_dispatch_rmpp_snd);
+	OSM_LOG_ENTER(p_bo->p_vendor->p_log);
 
 	if (TRUE == osmv_rmpp_is_abort_stop(p_mad)) {
 
@@ -496,7 +496,7 @@ __osmv_dispatch_rmpp_rcv(IN osm_bind_handle_t h_bind,
 	uint64_t key = osmv_txn_get_key(p_txn);
 	uint64_t tid = osmv_txn_get_tid(p_txn);
 
-	OSM_LOG_ENTER(p_bo->p_vendor->p_log, __osmv_dispatch_rmpp_rcv);
+	OSM_LOG_ENTER(p_bo->p_vendor->p_log);
 
 	if (TRUE == osmv_rmpp_is_ack(p_mad)) {
 		osm_log(p_bo->p_vendor->p_log, OSM_LOG_DEBUG,
@@ -653,7 +653,7 @@ __osmv_dispatch_accept_seg(IN osm_bind_handle_t h_bind,
 	osmv_bind_obj_t *p_bo = (osmv_bind_obj_t *) h_bind;
 	uint64_t tid = osmv_txn_get_tid(p_txn);
 
-	OSM_LOG_ENTER(p_bo->p_vendor->p_log, __osmv_dispatch_accept_seg);
+	OSM_LOG_ENTER(p_bo->p_vendor->p_log);
 
 	if (seg_num != p_recv_ctx->expected_seg) {
 		osm_log(p_bo->p_vendor->p_log, OSM_LOG_DEBUG,

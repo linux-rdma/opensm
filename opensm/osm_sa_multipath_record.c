@@ -192,7 +192,7 @@ __osm_mpr_rcv_get_path_parms(IN osm_sa_t * sa,
 	osm_qos_level_t *p_qos_level = NULL;
 	uint16_t valid_sl_mask = 0xffff;
 
-	OSM_LOG_ENTER(sa->p_log, __osm_mpr_rcv_get_path_parms);
+	OSM_LOG_ENTER(sa->p_log);
 
 	dest_lid = cl_hton16(dest_lid_ho);
 
@@ -786,7 +786,7 @@ __osm_mpr_rcv_build_pr(IN osm_sa_t * sa,
 	const osm_physp_t *p_src_physp;
 	const osm_physp_t *p_dest_physp;
 
-	OSM_LOG_ENTER(sa->p_log, __osm_mpr_rcv_build_pr);
+	OSM_LOG_ENTER(sa->p_log);
 
 	p_src_physp = p_src_port->p_physp;
 	p_dest_physp = p_dest_port->p_physp;
@@ -841,7 +841,7 @@ __osm_mpr_rcv_get_lid_pair_path(IN osm_sa_t * sa,
 	osm_mpr_item_t *p_pr_item;
 	ib_api_status_t status, rev_path_status;
 
-	OSM_LOG_ENTER(sa->p_log, __osm_mpr_rcv_get_lid_pair_path);
+	OSM_LOG_ENTER(sa->p_log);
 
 	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
 		osm_log(sa->p_log, OSM_LOG_DEBUG,
@@ -930,7 +930,7 @@ __osm_mpr_rcv_get_port_pair_paths(IN osm_sa_t * sa,
 	uintn_t src_offset;
 	uintn_t dest_offset;
 
-	OSM_LOG_ENTER(sa->p_log, __osm_mpr_rcv_get_port_pair_paths);
+	OSM_LOG_ENTER(sa->p_log);
 
 	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
 		osm_log(sa->p_log, OSM_LOG_DEBUG,
@@ -1128,7 +1128,7 @@ __osm_mpr_rcv_get_apm_port_pair_paths(IN osm_sa_t * sa,
 	uintn_t iterations;
 	int src_lids, dest_lids;
 
-	OSM_LOG_ENTER(sa->p_log, __osm_mpr_rcv_get_apm_port_pair_paths);
+	OSM_LOG_ENTER(sa->p_log);
 
 	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
 		osm_log(sa->p_log, OSM_LOG_DEBUG,
@@ -1201,7 +1201,7 @@ __osm_mpr_rcv_get_gids(IN osm_sa_t * sa,
 	ib_net16_t ib_status = IB_SUCCESS;
 	int i;
 
-	OSM_LOG_ENTER(sa->p_log, __osm_mpr_rcv_get_gids);
+	OSM_LOG_ENTER(sa->p_log);
 
 	for (i = 0; i < ngids; i++, gids++) {
 		if (!ib_gid_is_link_local(gids)) {
@@ -1266,7 +1266,7 @@ __osm_mpr_rcv_get_end_points(IN osm_sa_t * sa,
 	ib_net16_t sa_status = IB_SA_MAD_STATUS_SUCCESS;
 	ib_gid_t *gids;
 
-	OSM_LOG_ENTER(sa->p_log, __osm_mpr_rcv_get_end_points);
+	OSM_LOG_ENTER(sa->p_log);
 
 	/*
 	   Determine what fields are valid and then get a pointer
@@ -1326,7 +1326,7 @@ __osm_mpr_rcv_get_apm_paths(IN osm_sa_t * sa,
 	int base_offs, src_lid_ho, dest_lid_ho;
 	int sumA, sumB, minA, minB;
 
-	OSM_LOG_ENTER(sa->p_log, __osm_mpr_rcv_get_apm_paths);
+	OSM_LOG_ENTER(sa->p_log);
 
 	/*
 	 * We want to:
@@ -1450,7 +1450,7 @@ __osm_mpr_rcv_process_pairs(IN osm_sa_t * sa,
 	osm_port_t **pp_dest_port, **pp_ed;
 	uint32_t max_paths, num_paths, total_paths = 0;
 
-	OSM_LOG_ENTER(sa->p_log, __osm_mpr_rcv_process_pairs);
+	OSM_LOG_ENTER(sa->p_log);
 
 	if (comp_mask & IB_MPR_COMPMASK_NUMBPATH)
 		max_paths = p_mpr->num_path & 0x7F;
@@ -1503,7 +1503,7 @@ __osm_mpr_rcv_respond(IN osm_sa_t * sa,
 	osm_mpr_item_t *p_mpr_item;
 	uint32_t i;
 
-	OSM_LOG_ENTER(sa->p_log, __osm_mpr_rcv_respond);
+	OSM_LOG_ENTER(sa->p_log);
 
 	p_sa_mad = osm_madw_get_sa_mad_ptr(p_madw);
 	p_mpr = (ib_multipath_rec_t *) ib_sa_mad_get_payload_ptr(p_sa_mad);
@@ -1601,7 +1601,7 @@ void osm_mpr_rcv_process(IN void *context, IN void *data)
 	ib_net16_t sa_status;
 	int nsrc, ndest;
 
-	OSM_LOG_ENTER(sa->p_log, osm_mpr_rcv_process);
+	OSM_LOG_ENTER(sa->p_log);
 
 	CL_ASSERT(p_madw);
 

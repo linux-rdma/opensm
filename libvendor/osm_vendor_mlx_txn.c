@@ -71,7 +71,7 @@ osmv_txn_init(IN osm_bind_handle_t h_bind,
 	osmv_txn_ctx_t *p_txn;
 	osmv_bind_obj_t *p_bo = (osmv_bind_obj_t *) h_bind;
 
-	OSM_LOG_ENTER(p_bo->p_vendor->p_log, osmv_txn_init);
+	OSM_LOG_ENTER(p_bo->p_vendor->p_log);
 
 	CL_ASSERT(NULL != h_bind && NULL != pp_txn);
 
@@ -227,7 +227,7 @@ osmv_txn_done(IN osm_bind_handle_t h_bind,
 	osmv_txn_ctx_t *p_ctx;
 	osmv_bind_obj_t *const p_bo = (osmv_bind_obj_t *) h_bind;
 
-	OSM_LOG_ENTER(p_bo->p_vendor->p_log, osmv_txn_done);
+	OSM_LOG_ENTER(p_bo->p_vendor->p_log);
 
 	CL_ASSERT(h_bind);
 
@@ -280,7 +280,7 @@ void osmv_txn_abort_rmpp_txns(osm_bind_handle_t h_bind)
 	osmv_rmpp_send_ctx_t *p_send_ctx;
 	cl_qmap_t *p_map = p_bo->txn_mgr.p_txn_map;
 
-	OSM_LOG_ENTER(p_bo->p_vendor->p_log, osmv_txn_abort_rmpp_txns);
+	OSM_LOG_ENTER(p_bo->p_vendor->p_log);
 
 	while (FALSE == cl_is_qmap_empty(p_map)) {
 
@@ -364,7 +364,7 @@ __osmv_txnmgr_lookup(IN osmv_txn_mgr_t * p_tx_mgr,
 
 	uint64_t tmp_key;
 
-	OSM_LOG_ENTER(p_tx_mgr->p_log, __osmv_txnmgr_lookup);
+	OSM_LOG_ENTER(p_tx_mgr->p_log);
 
 	CL_ASSERT(p_tx_mgr);
 	CL_ASSERT(pp_txn);
@@ -441,7 +441,7 @@ __osmv_txnmgr_remove_txn(IN osmv_txn_mgr_t * p_tx_mgr,
 	cl_map_obj_t *p_obj;
 	cl_map_item_t *p_item;
 
-	OSM_LOG_ENTER(p_tx_mgr->p_log, __osmv_txnmgr_remove_txn);
+	OSM_LOG_ENTER(p_tx_mgr->p_log);
 
 	CL_ASSERT(p_tx_mgr);
 	CL_ASSERT(pp_txn);
@@ -474,7 +474,7 @@ void __osmv_txn_all_done(osm_bind_handle_t h_bind)
 	cl_map_obj_t *p_obj;
 	osmv_txn_ctx_t *p_txn;
 
-	OSM_LOG_ENTER(p_bo->p_vendor->p_log, __osmv_txn_all_done);
+	OSM_LOG_ENTER(p_bo->p_vendor->p_log);
 
 	p_item = cl_qmap_head(p_bo->txn_mgr.p_txn_map);
 	while (p_item != cl_qmap_end(p_bo->txn_mgr.p_txn_map)) {
@@ -535,7 +535,7 @@ __osmv_txn_timeout_cb(IN uint64_t key,
 	osm_mad_addr_t *p_mad_addr;
 	boolean_t invoke_err_cb = FALSE;
 
-	OSM_LOG_ENTER(p_bo->p_vendor->p_log, __osmv_txn_timeout_cb);
+	OSM_LOG_ENTER(p_bo->p_vendor->p_log);
 
 	/* Don't try to acquire a lock on the Bind Object -
 	 * it's taken by the mechanism that drives the timeout based events!

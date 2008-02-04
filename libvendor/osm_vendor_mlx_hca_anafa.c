@@ -89,7 +89,7 @@ __osm_ca_info_init(IN osm_vendor_t * const p_vend,
 	osm_ts_get_port_info_ioctl port_info;
 	struct ib_get_dev_info_ioctl dev_info;
 
-	OSM_LOG_ENTER(p_vend->p_log, __osm_ca_info_init);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	/* query HCA guid */
 	ioctl_ret = ioctl(p_tpot_info->device_fd, TS_IB_IOCGDEVINFO, &dev_info);
@@ -159,7 +159,7 @@ osm_vendor_get_all_port_attr(IN osm_vendor_t * const p_vend,
 	osm_ca_info_t ca_info;
 	uint32_t attr_array_sz = *p_num_ports;
 
-	OSM_LOG_ENTER(p_vend->p_log, osm_vendor_get_all_port_attr);
+	OSM_LOG_ENTER(p_vend->p_log);
 	CL_ASSERT(p_vend);
 
 	/* anafa has one port - the user didnt supply enough storage space */

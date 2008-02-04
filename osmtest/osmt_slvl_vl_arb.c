@@ -65,7 +65,7 @@ osmtest_write_vl_arb_table(IN osmtest_t * const p_osmt,
 	int result, i;
 	cl_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_write_vl_arb_table);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	result = fprintf(fh,
 			 "VL_ARBITRATION_TABLE\n"
@@ -108,7 +108,7 @@ osmt_query_vl_arb(IN osmtest_t * const p_osmt,
 	osmv_query_req_t req;
 	ib_vl_arb_table_record_t record, *p_rec;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmt_query_vl_arb);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
 		osm_log(&p_osmt->log, OSM_LOG_DEBUG,
@@ -199,7 +199,7 @@ osmt_query_all_ports_vl_arb(IN osmtest_t * const p_osmt, IN FILE * fh)
 	port_t *p_src_port;
 	uint8_t block, anyErr = 0;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmt_query_all_ports_vl_arb);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
 		"osmt_query_all_ports_vl_arb: "
@@ -276,7 +276,7 @@ osmtest_write_slvl_map_table(IN osmtest_t * const p_osmt,
 	int result, i;
 	cl_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_write_slvl_map_table);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	result = fprintf(fh,
 			 "SLtoVL_MAP_TABLE\n"
@@ -316,7 +316,7 @@ osmt_query_slvl_map(IN osmtest_t * const p_osmt,
 	osmv_query_req_t req;
 	ib_slvl_table_record_t record, *p_rec;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmt_query_slvl_map);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
 		osm_log(&p_osmt->log, OSM_LOG_DEBUG,
@@ -409,7 +409,7 @@ osmt_query_all_ports_slvl_map(IN osmtest_t * const p_osmt, IN FILE * fh)
 	node_t *p_node;
 	const cl_qmap_t *p_node_tbl;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmt_query_all_ports_slvl_map);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	/*
 	 * Go over all ports that exist in the subnet
@@ -508,7 +508,7 @@ osmt_run_slvl_and_vlarb_records_flow(IN osmtest_t * const p_osmt)
 	ib_net16_t test_lid;
 	uint8_t lmc;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmt_run_slvl_and_vlarb_records_flow);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	fh = fopen("qos.txt", "w");
 

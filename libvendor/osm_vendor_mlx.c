@@ -69,7 +69,7 @@ osm_vendor_t *osm_vendor_new(IN osm_log_t * const p_log,
 	ib_api_status_t status;
 	osm_vendor_t *p_vend;
 
-	OSM_LOG_ENTER(p_log, osm_vendor_new);
+	OSM_LOG_ENTER(p_log);
 
 	CL_ASSERT(p_log);
 
@@ -104,7 +104,7 @@ void osm_vendor_delete(IN osm_vendor_t ** const pp_vend)
 	osm_bind_handle_t bind_h;
 	osm_log_t *p_log;
 
-	OSM_LOG_ENTER((*pp_vend)->p_log, osm_vendor_delete);
+	OSM_LOG_ENTER((*pp_vend)->p_log);
 	p_log = (*pp_vend)->p_log;
 
 	/* go over the bind handles , unbind them and remove from list */
@@ -151,7 +151,7 @@ osm_vendor_init(IN osm_vendor_t * const p_vend,
 {
 	ib_api_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(p_log, osm_vendor_init);
+	OSM_LOG_ENTER(p_log);
 
 	p_vend->p_transport_info = NULL;
 	p_vend->p_log = p_log;
@@ -324,7 +324,7 @@ void osm_vendor_unbind(IN osm_bind_handle_t h_bind)
 	cl_qlist_t *const p_bh_list =
 	    (cl_qlist_t * const)&p_bo->p_vendor->bind_handles;
 
-	OSM_LOG_ENTER(p_log, osm_vendor_unbind);
+	OSM_LOG_ENTER(p_log);
 
 	/* go over all the items in the list and remove the specific item */
 	p_item = cl_qlist_head(p_bh_list);
@@ -365,7 +365,7 @@ ib_mad_t *osm_vendor_get(IN osm_bind_handle_t h_bind,
 	osm_vendor_t const *p_vend = p_bo->p_vendor;
 	uint32_t act_mad_size;
 
-	OSM_LOG_ENTER(p_vend->p_log, osm_vendor_get);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	CL_ASSERT(p_vw);
 
@@ -422,7 +422,7 @@ osm_vendor_send(IN osm_bind_handle_t h_bind,
 	ib_mad_t *p_mad;
 	osm_log_t *p_log = p_bo->p_vendor->p_log;
 	osm_mad_pool_t *p_mad_pool = p_bo->p_osm_pool;
-	OSM_LOG_ENTER(p_log, osm_vendor_send);
+	OSM_LOG_ENTER(p_log);
 
 	if (NULL == h_bind || NULL == p_madw ||
 	    NULL == (p_mad = osm_madw_get_mad_ptr(p_madw)) ||
@@ -534,7 +534,7 @@ osm_vendor_put(IN osm_bind_handle_t h_bind, IN osm_vend_wrap_t * const p_vw)
 	osm_vendor_t const *p_vend = p_bo->p_vendor;
 
 	if (p_bo->is_closing != TRUE) {
-		OSM_LOG_ENTER(p_vend->p_log, osm_vendor_put);
+		OSM_LOG_ENTER(p_vend->p_log);
 
 		CL_ASSERT(p_vw);
 		CL_ASSERT(p_vw->p_mad);
@@ -563,7 +563,7 @@ osm_vendor_put(IN osm_bind_handle_t h_bind, IN osm_vend_wrap_t * const p_vw)
 ib_api_status_t osm_vendor_local_lid_change(IN osm_bind_handle_t h_bind)
 {
 	osm_vendor_t const *p_vend = ((osmv_bind_obj_t *) h_bind)->p_vendor;
-	OSM_LOG_ENTER(p_vend->p_log, osm_vendor_local_lid_change);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	osm_log(p_vend->p_log, OSM_LOG_DEBUG,
 		"osm_vendor_local_lid_change: " "Change of LID.\n");
@@ -589,7 +589,7 @@ void osm_vendor_set_sm(IN osm_bind_handle_t h_bind, IN boolean_t is_sm_val)
 	VAPI_hca_attr_t attr_mod;
 	VAPI_hca_attr_mask_t attr_mask;
 
-	OSM_LOG_ENTER(p_vend->p_log, osm_vendor_set_sm);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	memset(&attr_mod, 0, sizeof(attr_mod));
 	memset(&attr_mask, 0, sizeof(attr_mask));
@@ -625,7 +625,7 @@ static void __osm_vendor_internal_unbind(osm_bind_handle_t h_bind)
 	osmv_bind_obj_t *p_bo = (osmv_bind_obj_t *) h_bind;
 	osm_log_t *p_log = p_bo->p_vendor->p_log;
 
-	OSM_LOG_ENTER(p_log, __osm_vendor_internal_unbind);
+	OSM_LOG_ENTER(p_log);
 
 	/* "notifying" all that from now on no new sends can be done */
 	p_bo->txn_mgr.p_event_wheel->closing = TRUE;
@@ -687,7 +687,7 @@ __osmv_get_send_txn(IN osm_bind_handle_t h_bind,
 	osmv_bind_obj_t *p_bo = (osmv_bind_obj_t *) h_bind;
 	ib_mad_t *p_mad = osm_madw_get_mad_ptr(p_madw);
 
-	OSM_LOG_ENTER(p_bo->p_vendor->p_log, __osmv_get_send_txn);
+	OSM_LOG_ENTER(p_bo->p_vendor->p_log);
 	CL_ASSERT(NULL != pp_txn);
 
 	key = tid = cl_ntoh64(p_mad->trans_id);

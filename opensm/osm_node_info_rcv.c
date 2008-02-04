@@ -137,7 +137,7 @@ __osm_ni_rcv_set_links(IN osm_sm_t * sm,
 	osm_node_t *p_neighbor_node;
 	osm_physp_t *p_physp;
 
-	OSM_LOG_ENTER(sm->p_log, __osm_ni_rcv_set_links);
+	OSM_LOG_ENTER(sm->p_log);
 
 	/*
 	   A special case exists in which the node we're trying to
@@ -279,7 +279,7 @@ __osm_ni_rcv_process_new_node(IN osm_sm_t * sm,
 	ib_smp_t *p_smp;
 	uint8_t port_num;
 
-	OSM_LOG_ENTER(sm->p_log, __osm_ni_rcv_process_new_node);
+	OSM_LOG_ENTER(sm->p_log);
 
 	p_smp = osm_madw_get_smp_ptr(p_madw);
 	p_ni = (ib_node_info_t *) ib_smp_get_payload_ptr(p_smp);
@@ -329,7 +329,7 @@ __osm_ni_rcv_get_node_desc(IN osm_sm_t * sm,
 	ib_smp_t *p_smp;
 	uint8_t port_num;
 
-	OSM_LOG_ENTER(sm->p_log, __osm_ni_rcv_get_node_desc);
+	OSM_LOG_ENTER(sm->p_log);
 
 	p_smp = osm_madw_get_smp_ptr(p_madw);
 	p_ni = (ib_node_info_t *) ib_smp_get_payload_ptr(p_smp);
@@ -367,7 +367,7 @@ __osm_ni_rcv_process_new_ca_or_router(IN osm_sm_t * sm,
 				      IN osm_node_t * const p_node,
 				      IN const osm_madw_t * const p_madw)
 {
-	OSM_LOG_ENTER(sm->p_log, __osm_ni_rcv_process_new_ca_or_router);
+	OSM_LOG_ENTER(sm->p_log);
 
 	__osm_ni_rcv_process_new_node(sm, p_node, p_madw);
 
@@ -401,7 +401,7 @@ __osm_ni_rcv_process_existing_ca_or_router(IN osm_sm_t * sm,
 	osm_dr_path_t *p_dr_path;
 	osm_bind_handle_t h_bind;
 
-	OSM_LOG_ENTER(sm->p_log, __osm_ni_rcv_process_existing_ca_or_router);
+	OSM_LOG_ENTER(sm->p_log);
 
 	p_smp = osm_madw_get_smp_ptr(p_madw);
 	p_ni = (ib_node_info_t *) ib_smp_get_payload_ptr(p_smp);
@@ -506,7 +506,7 @@ __osm_ni_rcv_process_switch(IN osm_sm_t * sm,
 	osm_dr_path_t dr_path;
 	ib_smp_t *p_smp;
 
-	OSM_LOG_ENTER(sm->p_log, __osm_ni_rcv_process_switch);
+	OSM_LOG_ENTER(sm->p_log);
 
 	p_smp = osm_madw_get_smp_ptr(p_madw);
 
@@ -539,7 +539,7 @@ __osm_ni_rcv_process_existing_switch(IN osm_sm_t * sm,
 				     IN osm_node_t * const p_node,
 				     IN const osm_madw_t * const p_madw)
 {
-	OSM_LOG_ENTER(sm->p_log, __osm_ni_rcv_process_existing_switch);
+	OSM_LOG_ENTER(sm->p_log);
 
 	/*
 	   If this switch has already been probed during this sweep,
@@ -571,7 +571,7 @@ __osm_ni_rcv_process_new_switch(IN osm_sm_t * sm,
 				IN osm_node_t * const p_node,
 				IN const osm_madw_t * const p_madw)
 {
-	OSM_LOG_ENTER(sm->p_log, __osm_ni_rcv_process_new_switch);
+	OSM_LOG_ENTER(sm->p_log);
 
 	__osm_ni_rcv_process_switch(sm, p_node, p_madw);
 
@@ -605,7 +605,7 @@ __osm_ni_rcv_process_new(IN osm_sm_t * sm,
 	osm_ni_context_t *p_ni_context;
 	uint8_t port_num;
 
-	OSM_LOG_ENTER(sm->p_log, __osm_ni_rcv_process_new);
+	OSM_LOG_ENTER(sm->p_log);
 
 	p_smp = osm_madw_get_smp_ptr(p_madw);
 	p_ni = (ib_node_info_t *) ib_smp_get_payload_ptr(p_smp);
@@ -759,7 +759,7 @@ __osm_ni_rcv_process_existing(IN osm_sm_t * sm,
 	osm_ni_context_t *p_ni_context;
 	uint8_t port_num;
 
-	OSM_LOG_ENTER(sm->p_log, __osm_ni_rcv_process_existing);
+	OSM_LOG_ENTER(sm->p_log);
 
 	p_smp = osm_madw_get_smp_ptr(p_madw);
 	p_ni = (ib_node_info_t *) ib_smp_get_payload_ptr(p_smp);
@@ -817,7 +817,7 @@ void osm_ni_rcv_process(IN void *context, IN void *data)
 
 	CL_ASSERT(sm);
 
-	OSM_LOG_ENTER(sm->p_log, osm_ni_rcv_process);
+	OSM_LOG_ENTER(sm->p_log);
 
 	CL_ASSERT(p_madw);
 

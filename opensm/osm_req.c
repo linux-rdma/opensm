@@ -78,7 +78,7 @@ osm_req_get(IN osm_sm_t * sm,
 
 	CL_ASSERT(sm);
 
-	OSM_LOG_ENTER(sm->p_log, osm_req_get);
+	OSM_LOG_ENTER(sm->p_log);
 
 	CL_ASSERT(p_path);
 	CL_ASSERT(attr_id);
@@ -159,7 +159,7 @@ osm_req_set(IN osm_sm_t * sm,
 
 	CL_ASSERT(sm);
 
-	OSM_LOG_ENTER(sm->p_log, osm_req_set);
+	OSM_LOG_ENTER(sm->p_log);
 
 	CL_ASSERT(p_path);
 	CL_ASSERT(attr_id);

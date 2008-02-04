@@ -75,7 +75,7 @@ __osm_sm_mad_ctrl_retire_trans_mad(IN osm_sm_mad_ctrl_t * const p_ctrl,
 {
 	uint32_t outstanding;
 
-	OSM_LOG_ENTER(p_ctrl->p_log, __osm_sm_mad_ctrl_retire_trans_mad);
+	OSM_LOG_ENTER(p_ctrl->p_log);
 
 	CL_ASSERT(p_madw);
 	/*
@@ -133,7 +133,7 @@ __osm_sm_mad_ctrl_disp_done_callback(IN void *context, IN void *p_data)
 	osm_madw_t *const p_madw = (osm_madw_t *) p_data;
 	ib_smp_t *p_smp;
 
-	OSM_LOG_ENTER(p_ctrl->p_log, __osm_sm_mad_ctrl_disp_done_callback);
+	OSM_LOG_ENTER(p_ctrl->p_log);
 
 	/*
 	   If the MAD that just finished processing was a response,
@@ -173,7 +173,7 @@ __osm_sm_mad_ctrl_update_wire_stats(IN osm_sm_mad_ctrl_t * const p_ctrl)
 {
 	uint32_t mads_on_wire;
 
-	OSM_LOG_ENTER(p_ctrl->p_log, __osm_sm_mad_ctrl_update_wire_stats);
+	OSM_LOG_ENTER(p_ctrl->p_log);
 
 	mads_on_wire =
 	    cl_atomic_dec(&p_ctrl->p_stats->qp0_mads_outstanding_on_wire);
@@ -212,7 +212,7 @@ __osm_sm_mad_ctrl_process_get_resp(IN osm_sm_mad_ctrl_t * const p_ctrl,
 	osm_madw_t *p_old_madw;
 	cl_disp_msgid_t msg_id = CL_DISP_MSGID_NONE;
 
-	OSM_LOG_ENTER(p_ctrl->p_log, __osm_sm_mad_ctrl_process_get_resp);
+	OSM_LOG_ENTER(p_ctrl->p_log);
 
 	CL_ASSERT(p_madw);
 	CL_ASSERT(transaction_context);
@@ -336,7 +336,7 @@ __osm_sm_mad_ctrl_process_get(IN osm_sm_mad_ctrl_t * const p_ctrl,
 	cl_status_t status;
 	cl_disp_msgid_t msg_id = CL_DISP_MSGID_NONE;
 
-	OSM_LOG_ENTER(p_ctrl->p_log, __osm_sm_mad_ctrl_process_get);
+	OSM_LOG_ENTER(p_ctrl->p_log);
 
 	p_smp = osm_madw_get_smp_ptr(p_madw);
 
@@ -420,7 +420,7 @@ __osm_sm_mad_ctrl_process_set(IN osm_sm_mad_ctrl_t * const p_ctrl,
 	cl_status_t status;
 	cl_disp_msgid_t msg_id = CL_DISP_MSGID_NONE;
 
-	OSM_LOG_ENTER(p_ctrl->p_log, __osm_sm_mad_ctrl_process_set);
+	OSM_LOG_ENTER(p_ctrl->p_log);
 
 	p_smp = osm_madw_get_smp_ptr(p_madw);
 
@@ -505,7 +505,7 @@ __osm_sm_mad_ctrl_process_trap(IN osm_sm_mad_ctrl_t * const p_ctrl,
 	cl_status_t status;
 	cl_disp_msgid_t msg_id = CL_DISP_MSGID_NONE;
 
-	OSM_LOG_ENTER(p_ctrl->p_log, __osm_sm_mad_ctrl_process_trap);
+	OSM_LOG_ENTER(p_ctrl->p_log);
 
 	p_smp = osm_madw_get_smp_ptr(p_madw);
 
@@ -601,7 +601,7 @@ __osm_sm_mad_ctrl_rcv_callback(IN osm_madw_t * p_madw,
 	ib_smp_t *p_smp;
 	ib_net16_t status;
 
-	OSM_LOG_ENTER(p_ctrl->p_log, __osm_sm_mad_ctrl_rcv_callback);
+	OSM_LOG_ENTER(p_ctrl->p_log);
 
 	CL_ASSERT(p_madw);
 
@@ -720,7 +720,7 @@ __osm_sm_mad_ctrl_send_err_cb(IN void *bind_context, IN osm_madw_t * p_madw)
 	ib_api_status_t status;
 	ib_smp_t *p_smp;
 
-	OSM_LOG_ENTER(p_ctrl->p_log, __osm_sm_mad_ctrl_send_err_cb);
+	OSM_LOG_ENTER(p_ctrl->p_log);
 
 	CL_ASSERT(p_madw);
 
@@ -856,7 +856,7 @@ osm_sm_mad_ctrl_init(IN osm_sm_mad_ctrl_t * const p_ctrl,
 {
 	ib_api_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(p_log, osm_sm_mad_ctrl_init);
+	OSM_LOG_ENTER(p_log);
 
 	osm_sm_mad_ctrl_construct(p_ctrl);
 
@@ -894,7 +894,7 @@ osm_sm_mad_ctrl_bind(IN osm_sm_mad_ctrl_t * const p_ctrl,
 	osm_bind_info_t bind_info;
 	ib_api_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(p_ctrl->p_log, osm_sm_mad_ctrl_bind);
+	OSM_LOG_ENTER(p_ctrl->p_log);
 
 	if (p_ctrl->h_bind != OSM_BIND_INVALID_HANDLE) {
 		osm_log(p_ctrl->p_log, OSM_LOG_ERROR,

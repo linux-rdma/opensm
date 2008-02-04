@@ -508,7 +508,7 @@ osm_signal_t osm_pkey_mgr_process(IN osm_opensm_t * p_osm)
 
 	CL_ASSERT(p_osm);
 
-	OSM_LOG_ENTER(&p_osm->log, osm_pkey_mgr_process);
+	OSM_LOG_ENTER(&p_osm->log);
 
 	CL_PLOCK_EXCL_ACQUIRE(&p_osm->lock);
 

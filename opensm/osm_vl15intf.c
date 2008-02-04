@@ -124,7 +124,7 @@ static void __osm_vl15_poller(IN void *p_ptr)
 	osm_vl15_t *const p_vl = (osm_vl15_t *) p_ptr;
 	cl_qlist_t *p_fifo;
 
-	OSM_LOG_ENTER(p_vl->p_log, __osm_vl15_poller);
+	OSM_LOG_ENTER(p_vl->p_log);
 
 	if (p_vl->thread_state == OSM_THREAD_STATE_NONE)
 		p_vl->thread_state = OSM_THREAD_STATE_RUN;
@@ -213,7 +213,7 @@ osm_vl15_destroy(IN osm_vl15_t * const p_vl, IN struct _osm_mad_pool *p_pool)
 {
 	osm_madw_t *p_madw;
 
-	OSM_LOG_ENTER(p_vl->p_log, osm_vl15_destroy);
+	OSM_LOG_ENTER(p_vl->p_log);
 
 	/*
 	   Signal our threads that we're leaving.
@@ -263,7 +263,7 @@ osm_vl15_init(IN osm_vl15_t * const p_vl,
 {
 	ib_api_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(p_log, osm_vl15_init);
+	OSM_LOG_ENTER(p_log);
 
 	p_vl->p_vend = p_vend;
 	p_vl->p_log = p_log;
@@ -298,7 +298,7 @@ Exit:
  **********************************************************************/
 void osm_vl15_poll(IN osm_vl15_t * const p_vl)
 {
-	OSM_LOG_ENTER(p_vl->p_log, osm_vl15_poll);
+	OSM_LOG_ENTER(p_vl->p_log);
 
 	CL_ASSERT(p_vl->state == OSM_VL15_STATE_READY);
 
@@ -327,7 +327,7 @@ void osm_vl15_poll(IN osm_vl15_t * const p_vl)
  **********************************************************************/
 void osm_vl15_post(IN osm_vl15_t * const p_vl, IN osm_madw_t * const p_madw)
 {
-	OSM_LOG_ENTER(p_vl->p_log, osm_vl15_post);
+	OSM_LOG_ENTER(p_vl->p_log);
 
 	CL_ASSERT(p_vl->state == OSM_VL15_STATE_READY);
 
@@ -364,7 +364,7 @@ osm_vl15_shutdown(IN osm_vl15_t * const p_vl,
 {
 	osm_madw_t *p_madw;
 
-	OSM_LOG_ENTER(p_vl->p_log, osm_vl15_shutdown);
+	OSM_LOG_ENTER(p_vl->p_log);
 
 	/* we only should get here after the VL15 interface was initialized */
 	CL_ASSERT(p_vl->state == OSM_VL15_STATE_READY);

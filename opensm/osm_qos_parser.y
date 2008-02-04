@@ -2272,7 +2272,7 @@ int osm_qos_parse_policy_file(IN osm_subn_t * const p_subn)
     static boolean_t first_time = TRUE;
     p_qos_parser_osm_log = &p_subn->p_osm->log;
 
-    OSM_LOG_ENTER(p_qos_parser_osm_log, osm_qos_parse_policy_file);
+    OSM_LOG_ENTER(p_qos_parser_osm_log);
 
     osm_qos_policy_destroy(p_subn->p_qos_policy);
     p_subn->p_qos_policy = NULL;
@@ -2378,7 +2378,7 @@ static void __qos_parser_error(const char *format, ...)
     char s[256];
     va_list pvar;
 
-    OSM_LOG_ENTER(p_qos_parser_osm_log, __qos_parser_error);
+    OSM_LOG_ENTER(p_qos_parser_osm_log);
 
     va_start(pvar, format);
     vsnprintf(s, 256, format, pvar);

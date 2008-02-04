@@ -88,7 +88,7 @@ __osm_sa_vl_arb_create(IN osm_sa_t * sa,
 	uint16_t lid;
 	ib_api_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(sa->p_log, __osm_sa_vl_arb_create);
+	OSM_LOG_ENTER(sa->p_log);
 
 	p_rec_item = malloc(sizeof(*p_rec_item));
 	if (p_rec_item == NULL) {
@@ -135,7 +135,7 @@ __osm_sa_vl_arb_check_physp(IN osm_sa_t * sa,
 	ib_net64_t comp_mask = p_ctxt->comp_mask;
 	uint8_t block;
 
-	OSM_LOG_ENTER(sa->p_log, __osm_sa_vl_arb_check_physp);
+	OSM_LOG_ENTER(sa->p_log);
 
 	/* we got here with the phys port - all that's left is to get the right block */
 	for (block = 1; block <= 4; block++) {
@@ -162,7 +162,7 @@ __osm_sa_vl_arb_by_comp_mask(IN osm_sa_t * sa,
 	uint8_t num_ports;
 	const osm_physp_t *p_req_physp;
 
-	OSM_LOG_ENTER(sa->p_log, __osm_sa_vl_arb_by_comp_mask);
+	OSM_LOG_ENTER(sa->p_log);
 
 	p_rcvd_rec = p_ctxt->p_rcvd_rec;
 	comp_mask = p_ctxt->comp_mask;
@@ -262,7 +262,7 @@ void osm_vlarb_rec_rcv_process(IN void *ctx, IN void *data)
 
 	CL_ASSERT(sa);
 
-	OSM_LOG_ENTER(sa->p_log, osm_vlarb_rec_rcv_process);
+	OSM_LOG_ENTER(sa->p_log);
 
 	CL_ASSERT(p_madw);
 

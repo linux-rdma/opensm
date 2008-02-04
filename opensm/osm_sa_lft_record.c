@@ -83,7 +83,7 @@ __osm_lftr_rcv_new_lftr(IN osm_sa_t * sa,
 	osm_lftr_item_t *p_rec_item;
 	ib_api_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(sa->p_log, __osm_lftr_rcv_new_lftr);
+	OSM_LOG_ENTER(sa->p_log);
 
 	p_rec_item = malloc(sizeof(*p_rec_item));
 	if (p_rec_item == NULL) {
@@ -241,7 +241,7 @@ void osm_lftr_rcv_process(IN void *ctx, IN void *data)
 
 	CL_ASSERT(sa);
 
-	OSM_LOG_ENTER(sa->p_log, osm_lftr_rcv_process);
+	OSM_LOG_ENTER(sa->p_log);
 
 	CL_ASSERT(p_madw);
 

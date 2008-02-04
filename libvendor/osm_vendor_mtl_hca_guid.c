@@ -114,7 +114,7 @@ __osm_vendor_get_ca_ids(IN osm_vendor_t * const p_vend,
 	ib_api_status_t status;
 	VAPI_ret_t vapi_res;
 
-	OSM_LOG_ENTER(p_vend->p_log, __osm_vendor_get_ca_ids);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	CL_ASSERT(p_hca_ids);
 	CL_ASSERT(p_num_guids);
@@ -197,7 +197,7 @@ __osm_ca_info_init(IN osm_vendor_t * const p_vend,
 	IB_gid_t *p_port_gid;
 	uint16_t maxNumGids;
 
-	OSM_LOG_ENTER(p_vend->p_log, __osm_ca_info_init);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	/* get the HCA handle */
 	vapi_res = EVAPI_get_hca_hndl(ca_id, &hca_hndl);
@@ -288,7 +288,7 @@ void
 osm_ca_info_destroy(IN osm_vendor_t * const p_vend,
 		    IN osm_ca_info_t * const p_ca_info)
 {
-	OSM_LOG_ENTER(p_vend->p_log, osm_ca_info_destroy);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	if (p_ca_info->p_attr) {
 		if (p_ca_info->p_attr->num_ports) {
@@ -323,7 +323,7 @@ osm_vendor_get_all_port_attr(IN osm_vendor_t * const p_vend,
 	VAPI_hca_id_t *p_ca_ids = NULL;
 	osm_ca_info_t *p_ca_info;
 
-	OSM_LOG_ENTER(p_vend->p_log, osm_vendor_get_all_port_attr);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	CL_ASSERT(p_vend);
 
@@ -436,7 +436,7 @@ osm_vendor_get_guid_ca_and_port(IN osm_vendor_t * const p_vend,
 	ib_net64_t port_guid;
 	uint32_t ca, portIdx, ca_count;
 
-	OSM_LOG_ENTER(p_vend->p_log, osm_vendor_get_guid_ca_and_port);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	CL_ASSERT(p_vend);
 

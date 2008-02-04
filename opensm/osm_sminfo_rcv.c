@@ -93,7 +93,7 @@ __osm_sminfo_rcv_process_get_request(IN osm_sm_t * sm,
 	ib_api_status_t status;
 	ib_sm_info_t *p_remote_smi;
 
-	OSM_LOG_ENTER(sm->p_log, __osm_sminfo_rcv_process_get_request);
+	OSM_LOG_ENTER(sm->p_log);
 
 	CL_ASSERT(p_madw);
 
@@ -186,7 +186,7 @@ __osm_sminfo_rcv_process_set_request(IN osm_sm_t * sm,
 	osm_sm_signal_t sm_signal;
 	ib_sm_info_t *p_remote_smi;
 
-	OSM_LOG_ENTER(sm->p_log, __osm_sminfo_rcv_process_set_request);
+	OSM_LOG_ENTER(sm->p_log);
 
 	CL_ASSERT(p_madw);
 
@@ -341,7 +341,7 @@ __osm_sminfo_rcv_process_get_sm(IN osm_sm_t * sm,
 {
 	const ib_sm_info_t *p_smi;
 
-	OSM_LOG_ENTER(sm->p_log, __osm_sminfo_rcv_process_get_sm);
+	OSM_LOG_ENTER(sm->p_log);
 
 	p_smi = &p_sm->smi;
 
@@ -461,7 +461,7 @@ __osm_sminfo_rcv_process_get_response(IN osm_sm_t * sm,
 	ib_net64_t port_guid;
 	osm_remote_sm_t *p_sm;
 
-	OSM_LOG_ENTER(sm->p_log, __osm_sminfo_rcv_process_get_response);
+	OSM_LOG_ENTER(sm->p_log);
 
 	CL_ASSERT(p_madw);
 
@@ -564,7 +564,7 @@ __osm_sminfo_rcv_process_set_response(IN osm_sm_t * sm,
 	const ib_smp_t *p_smp;
 	const ib_sm_info_t *p_smi;
 
-	OSM_LOG_ENTER(sm->p_log, __osm_sminfo_rcv_process_set_response);
+	OSM_LOG_ENTER(sm->p_log);
 
 	CL_ASSERT(p_madw);
 
@@ -607,7 +607,7 @@ void osm_sminfo_rcv_process(IN void *context, IN void *data)
 	ib_smp_t *p_smp;
 	osm_smi_context_t *p_smi_context;
 
-	OSM_LOG_ENTER(sm->p_log, osm_sminfo_rcv_process);
+	OSM_LOG_ENTER(sm->p_log);
 
 	CL_ASSERT(p_madw);
 

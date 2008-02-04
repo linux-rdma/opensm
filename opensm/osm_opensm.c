@@ -394,7 +394,7 @@ osm_opensm_bind(IN osm_opensm_t * const p_osm, IN const ib_net64_t guid)
 {
 	ib_api_status_t status;
 
-	OSM_LOG_ENTER(&p_osm->log, osm_opensm_bind);
+	OSM_LOG_ENTER(&p_osm->log);
 
 	status = osm_sm_bind(&p_osm->sm, guid);
 	if (status != IB_SUCCESS)

@@ -73,7 +73,7 @@ __osm_sa_mad_ctrl_disp_done_callback(IN void *context, IN void *p_data)
 	osm_sa_mad_ctrl_t *const p_ctrl = (osm_sa_mad_ctrl_t *) context;
 	osm_madw_t *const p_madw = (osm_madw_t *) p_data;
 
-	OSM_LOG_ENTER(p_ctrl->p_log, __osm_sa_mad_ctrl_disp_done_callback);
+	OSM_LOG_ENTER(p_ctrl->p_log);
 
 	CL_ASSERT(p_madw);
 	/*
@@ -104,7 +104,7 @@ __osm_sa_mad_ctrl_process(IN osm_sa_mad_ctrl_t * const p_ctrl,
 	uint64_t last_dispatched_msg_queue_time_msec;
 	uint32_t num_messages;
 
-	OSM_LOG_ENTER(p_ctrl->p_log, __osm_sa_mad_ctrl_process);
+	OSM_LOG_ENTER(p_ctrl->p_log);
 
 	/*
 	   If the dispatcher is showing us that it is overloaded
@@ -296,7 +296,7 @@ __osm_sa_mad_ctrl_rcv_callback(IN osm_madw_t * p_madw,
 	osm_sa_mad_ctrl_t *p_ctrl = (osm_sa_mad_ctrl_t *) bind_context;
 	ib_sa_mad_t *p_sa_mad;
 
-	OSM_LOG_ENTER(p_ctrl->p_log, __osm_sa_mad_ctrl_rcv_callback);
+	OSM_LOG_ENTER(p_ctrl->p_log);
 
 	CL_ASSERT(p_madw);
 
@@ -422,7 +422,7 @@ __osm_sa_mad_ctrl_send_err_callback(IN void *bind_context,
 	osm_sa_mad_ctrl_t *p_ctrl = (osm_sa_mad_ctrl_t *) bind_context;
 	cl_status_t status;
 
-	OSM_LOG_ENTER(p_ctrl->p_log, __osm_sa_mad_ctrl_send_err_callback);
+	OSM_LOG_ENTER(p_ctrl->p_log);
 
 	osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
 		"__osm_sa_mad_ctrl_send_err_callback: ERR 1A06: "
@@ -516,7 +516,7 @@ osm_sa_mad_ctrl_init(IN osm_sa_mad_ctrl_t * const p_ctrl,
 {
 	ib_api_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(p_log, osm_sa_mad_ctrl_init);
+	OSM_LOG_ENTER(p_log);
 
 	osm_sa_mad_ctrl_construct(p_ctrl);
 
@@ -553,7 +553,7 @@ osm_sa_mad_ctrl_bind(IN osm_sa_mad_ctrl_t * const p_ctrl,
 	osm_bind_info_t bind_info;
 	ib_api_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(p_ctrl->p_log, osm_sa_mad_ctrl_bind);
+	OSM_LOG_ENTER(p_ctrl->p_log);
 
 	if (p_ctrl->h_bind != OSM_BIND_INVALID_HANDLE) {
 		osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
@@ -603,7 +603,7 @@ ib_api_status_t osm_sa_mad_ctrl_unbind(IN osm_sa_mad_ctrl_t * const p_ctrl)
 {
 	ib_api_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(p_ctrl->p_log, osm_sa_mad_ctrl_unbind);
+	OSM_LOG_ENTER(p_ctrl->p_log);
 
 	if (p_ctrl->h_bind == OSM_BIND_INVALID_HANDLE) {
 		osm_log(p_ctrl->p_log, OSM_LOG_ERROR,

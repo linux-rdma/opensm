@@ -125,7 +125,7 @@ osm_svcr_t *osm_svcr_get_by_rid(IN osm_subn_t const *p_subn,
 {
 	cl_list_item_t *p_list_item;
 
-	OSM_LOG_ENTER(p_log, osm_svcr_get_by_rid);
+	OSM_LOG_ENTER(p_log);
 
 	p_list_item = cl_qlist_find_from_head(&p_subn->sa_sr_list,
 					      __match_rid_of_svc_rec,
@@ -144,7 +144,7 @@ void
 osm_svcr_insert_to_db(IN osm_subn_t * p_subn,
 		      IN osm_log_t * p_log, IN osm_svcr_t * p_svcr)
 {
-	OSM_LOG_ENTER(p_log, osm_svcr_insert_to_db);
+	OSM_LOG_ENTER(p_log);
 
 	osm_log(p_log, OSM_LOG_DEBUG,
 		"osm_svcr_insert_to_db: "
@@ -159,7 +159,7 @@ void
 osm_svcr_remove_from_db(IN osm_subn_t * p_subn,
 			IN osm_log_t * p_log, IN osm_svcr_t * p_svcr)
 {
-	OSM_LOG_ENTER(p_log, osm_svcr_remove_from_db);
+	OSM_LOG_ENTER(p_log);
 
 	osm_log(p_log, OSM_LOG_DEBUG,
 		"osm_svcr_remove_from_db: "

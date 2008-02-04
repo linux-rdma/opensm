@@ -123,7 +123,7 @@ void osm_lid_mgr_destroy(IN osm_lid_mgr_t * const p_mgr)
 {
 	cl_list_item_t *p_item;
 
-	OSM_LOG_ENTER(p_mgr->p_log, osm_lid_mgr_destroy);
+	OSM_LOG_ENTER(p_mgr->p_log);
 
 	cl_ptr_vector_destroy(&p_mgr->used_lids);
 	p_item = cl_qlist_remove_head(&p_mgr->free_ranges);
@@ -149,7 +149,7 @@ static void __osm_lid_mgr_validate_db(IN osm_lid_mgr_t * p_mgr)
 	uint16_t lmc_mask;
 	boolean_t lids_ok;
 
-	OSM_LOG_ENTER(p_mgr->p_log, __osm_lid_mgr_validate_db);
+	OSM_LOG_ENTER(p_mgr->p_log);
 
 	if (p_mgr->p_subn->opt.lmc)
 		lmc_mask = ~((1 << p_mgr->p_subn->opt.lmc) - 1);
@@ -245,7 +245,7 @@ osm_lid_mgr_init(IN osm_lid_mgr_t * const p_mgr, IN osm_sm_t *sm)
 {
 	ib_api_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(sm->p_log, osm_lid_mgr_init);
+	OSM_LOG_ENTER(sm->p_log);
 
 	osm_lid_mgr_construct(p_mgr);
 
@@ -327,7 +327,7 @@ static int __osm_lid_mgr_init_sweep(IN osm_lid_mgr_t * const p_mgr)
 	uint16_t lmc_mask;
 	uint16_t req_lid, num_lids;
 
-	OSM_LOG_ENTER(p_mgr->p_log, __osm_lid_mgr_init_sweep);
+	OSM_LOG_ENTER(p_mgr->p_log);
 
 	if (p_mgr->p_subn->opt.lmc)
 		lmc_mask = ~((1 << p_mgr->p_subn->opt.lmc) - 1);
@@ -763,7 +763,7 @@ __osm_lid_mgr_get_port_lid(IN osm_lid_mgr_t * const p_mgr,
 	int lid_changed = 0;
 	uint16_t lmc_mask;
 
-	OSM_LOG_ENTER(p_mgr->p_log, __osm_lid_mgr_get_port_lid);
+	OSM_LOG_ENTER(p_mgr->p_log);
 
 	if (p_mgr->p_subn->opt.lmc)
 		lmc_mask = ~((1 << p_mgr->p_subn->opt.lmc) - 1);
@@ -906,7 +906,7 @@ __osm_lid_mgr_set_physp_pi(IN osm_lid_mgr_t * const p_mgr,
 	uint8_t port_num;
 	boolean_t send_set = FALSE;
 
-	OSM_LOG_ENTER(p_mgr->p_log, __osm_lid_mgr_set_physp_pi);
+	OSM_LOG_ENTER(p_mgr->p_log);
 
 	/*
 	   Don't bother doing anything if this Physical Port is not valid.
@@ -1172,7 +1172,7 @@ __osm_lid_mgr_process_our_sm_node(IN osm_lid_mgr_t * const p_mgr)
 	uint16_t max_lid_ho;
 	boolean_t res = TRUE;
 
-	OSM_LOG_ENTER(p_mgr->p_log, __osm_lid_mgr_process_our_sm_node);
+	OSM_LOG_ENTER(p_mgr->p_log);
 
 	/*
 	   Acquire our own port object.
@@ -1231,7 +1231,7 @@ osm_signal_t osm_lid_mgr_process_sm(IN osm_lid_mgr_t * const p_mgr)
 {
 	osm_signal_t signal = OSM_SIGNAL_DONE_PENDING;
 
-	OSM_LOG_ENTER(p_mgr->p_log, osm_lid_mgr_process_sm);
+	OSM_LOG_ENTER(p_mgr->p_log);
 
 	CL_ASSERT(p_mgr->p_subn->sm_port_guid);
 
@@ -1283,7 +1283,7 @@ osm_signal_t osm_lid_mgr_process_subnet(IN osm_lid_mgr_t * const p_mgr)
 
 	CL_ASSERT(p_mgr);
 
-	OSM_LOG_ENTER(p_mgr->p_log, osm_lid_mgr_process_subnet);
+	OSM_LOG_ENTER(p_mgr->p_log);
 
 	CL_PLOCK_EXCL_ACQUIRE(p_mgr->p_lock);
 

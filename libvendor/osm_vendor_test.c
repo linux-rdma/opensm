@@ -91,7 +91,7 @@ ib_api_status_t
 osm_vendor_init(IN osm_vendor_t * const p_vend,
 		IN osm_log_t * const p_log, IN const uint32_t timeout)
 {
-	OSM_LOG_ENTER(p_log, osm_vendor_init);
+	OSM_LOG_ENTER(p_log);
 
 	CL_ASSERT(p_vend);
 	CL_ASSERT(p_log);
@@ -109,7 +109,7 @@ osm_vendor_t *osm_vendor_new(IN osm_log_t * const p_log,
 {
 	ib_api_status_t status;
 	osm_vendor_t *p_vend;
-	OSM_LOG_ENTER(p_log, osm_vendor_new);
+	OSM_LOG_ENTER(p_log);
 
 	CL_ASSERT(p_log);
 
@@ -135,7 +135,7 @@ ib_mad_t *osm_vendor_get(IN osm_bind_handle_t h_bind,
 {
 	osm_vendor_t *p_vend;
 	ib_mad_t *p_mad;
-	OSM_LOG_ENTER(h_bind->p_vend->p_log, osm_vendor_get);
+	OSM_LOG_ENTER(h_bind->p_vend->p_log);
 
 	UNUSED_PARAM(p_vend_wrap);
 
@@ -165,7 +165,7 @@ osm_vendor_put(IN osm_bind_handle_t h_bind,
 {
 	osm_vendor_t *p_vend;
 
-	OSM_LOG_ENTER(h_bind->p_vend->p_log, osm_vendor_put);
+	OSM_LOG_ENTER(h_bind->p_vend->p_log);
 
 	UNUSED_PARAM(p_vend_wrap);
 
@@ -193,7 +193,7 @@ osm_vendor_send(IN osm_bind_handle_t h_bind,
 {
 	osm_vendor_t *p_vend = h_bind->p_vend;
 
-	OSM_LOG_ENTER(p_vend->p_log, osm_vendor_send);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	UNUSED_PARAM(p_vend_wrap);
 	UNUSED_PARAM(p_mad_addr);
@@ -218,7 +218,7 @@ osm_vendor_bind(IN osm_vendor_t * const p_vend,
 {
 	osm_bind_handle_t h_bind;
 
-	OSM_LOG_ENTER(p_vend->p_log, osm_vendor_bind);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	CL_ASSERT(p_vend);
 	CL_ASSERT(p_bind_info);
@@ -256,7 +256,7 @@ osm_vendor_get_ports(IN osm_vendor_t * const p_vend,
 		     IN ib_net64_t * const p_guids,
 		     IN uint32_t * const num_guids)
 {
-	OSM_LOG_ENTER(p_vend->p_log, osm_vendor_get_ports);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	*p_guids = CL_NTOH64(0x0000000000001234);
 	*num_guids = 1;
@@ -271,7 +271,7 @@ ib_api_status_t osm_vendor_local_lid_change(IN osm_bind_handle_t h_bind)
 {
 	osm_vendor_t *p_vend = h_bind->p_vend;
 
-	OSM_LOG_ENTER(p_vend->p_log, osm_vendor_local_lid_change);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	OSM_LOG_EXIT(p_vend->p_log);
 

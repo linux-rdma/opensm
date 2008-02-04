@@ -81,7 +81,7 @@ __osm_sir_rcv_new_sir(IN osm_sa_t * sa,
 	osm_sir_item_t *p_rec_item;
 	ib_api_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(sa->p_log, __osm_sir_rcv_new_sir);
+	OSM_LOG_ENTER(sa->p_log);
 
 	p_rec_item = malloc(sizeof(*p_rec_item));
 	if (p_rec_item == NULL) {
@@ -146,7 +146,7 @@ __osm_sir_rcv_create_sir(IN osm_sa_t * sa,
 	ib_net16_t min_lid_ho;
 	ib_net16_t max_lid_ho;
 
-	OSM_LOG_ENTER(sa->p_log, __osm_sir_rcv_create_sir);
+	OSM_LOG_ENTER(sa->p_log);
 
 	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG)) {
 		osm_log(sa->p_log, OSM_LOG_DEBUG,
@@ -226,7 +226,7 @@ __osm_sir_rcv_by_comp_mask(IN cl_map_item_t * const p_map_item,
 	ib_net64_t const comp_mask = p_ctxt->comp_mask;
 	ib_net16_t match_lid = 0;
 
-	OSM_LOG_ENTER(p_ctxt->sa->p_log, __osm_sir_rcv_by_comp_mask);
+	OSM_LOG_ENTER(p_ctxt->sa->p_log);
 
 	osm_dump_switch_info(p_ctxt->sa->p_log,
 			     &p_sw->switch_info, OSM_LOG_VERBOSE);
@@ -268,7 +268,7 @@ void osm_sir_rcv_process(IN void *ctx, IN void *data)
 
 	CL_ASSERT(sa);
 
-	OSM_LOG_ENTER(sa->p_log, osm_sir_rcv_process);
+	OSM_LOG_ENTER(sa->p_log);
 
 	CL_ASSERT(p_madw);
 

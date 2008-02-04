@@ -75,7 +75,7 @@ __osm_pi_rcv_set_sm(IN osm_sm_t * sm,
 	osm_bind_handle_t h_bind;
 	osm_dr_path_t *p_dr_path;
 
-	OSM_LOG_ENTER(sm->p_log, __osm_pi_rcv_set_sm);
+	OSM_LOG_ENTER(sm->p_log);
 
 	if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG))
 		osm_log(sm->p_log, OSM_LOG_DEBUG,
@@ -122,7 +122,7 @@ __osm_pi_rcv_process_endport(IN osm_sm_t * sm,
 	cl_qmap_t *p_sm_tbl;
 	osm_remote_sm_t *p_sm;
 
-	OSM_LOG_ENTER(sm->p_log, __osm_pi_rcv_process_endport);
+	OSM_LOG_ENTER(sm->p_log);
 
 	port_guid = osm_physp_get_port_guid(p_physp);
 
@@ -226,7 +226,7 @@ __osm_pi_rcv_process_switch_port(IN osm_sm_t * sm,
 	uint8_t remote_port_num;
 	osm_dr_path_t path;
 
-	OSM_LOG_ENTER(sm->p_log, __osm_pi_rcv_process_switch_port);
+	OSM_LOG_ENTER(sm->p_log);
 
 	/*
 	   Check the state of the physical port.
@@ -354,7 +354,7 @@ __osm_pi_rcv_process_ca_or_router_port(IN osm_sm_t * sm,
 				       IN osm_physp_t * const p_physp,
 				       IN ib_port_info_t * const p_pi)
 {
-	OSM_LOG_ENTER(sm->p_log, __osm_pi_rcv_process_ca_or_router_port);
+	OSM_LOG_ENTER(sm->p_log);
 
 	UNUSED_PARAM(p_node);
 
@@ -383,7 +383,7 @@ static void get_pkey_table(IN osm_log_t * p_log,
 	uint16_t block_num, max_blocks;
 	uint32_t attr_mod_ho;
 
-	OSM_LOG_ENTER(p_log, get_pkey_table);
+	OSM_LOG_ENTER(p_log);
 
 	path = *osm_physp_get_dr_path_ptr(p_physp);
 
@@ -447,7 +447,7 @@ __osm_pi_rcv_get_pkey_slvl_vla_tables(IN osm_sm_t * sm,
 				      IN osm_node_t * const p_node,
 				      IN osm_physp_t * const p_physp)
 {
-	OSM_LOG_ENTER(sm->p_log, __osm_pi_rcv_get_pkey_slvl_vla_tables);
+	OSM_LOG_ENTER(sm->p_log);
 
 	get_pkey_table(sm->p_log, sm, p_node, p_physp);
 
@@ -467,7 +467,7 @@ osm_pi_rcv_process_set(IN osm_sm_t * sm, IN osm_node_t * const p_node,
 	osm_pi_context_t *p_context;
 	osm_log_level_t level;
 
-	OSM_LOG_ENTER(sm->p_log, osm_pi_rcv_process_set);
+	OSM_LOG_ENTER(sm->p_log);
 
 	p_context = osm_madw_get_pi_context_ptr(p_madw);
 
@@ -537,7 +537,7 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 	ib_net64_t node_guid;
 	uint8_t port_num;
 
-	OSM_LOG_ENTER(sm->p_log, osm_pi_rcv_process);
+	OSM_LOG_ENTER(sm->p_log);
 
 	CL_ASSERT(sm);
 	CL_ASSERT(p_madw);

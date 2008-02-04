@@ -81,7 +81,7 @@ void osm_slvl_rcv_process(IN void *context, IN void *p_data)
 
 	CL_ASSERT(sm);
 
-	OSM_LOG_ENTER(sm->p_log, osm_slvl_rcv_process);
+	OSM_LOG_ENTER(sm->p_log);
 
 	CL_ASSERT(p_madw);
 

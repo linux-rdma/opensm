@@ -93,7 +93,7 @@ __osm_smir_rcv_new_smir(IN osm_sa_t * sa,
 	osm_smir_item_t *p_rec_item;
 	ib_api_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(sa->p_log, __osm_smir_rcv_new_smir);
+	OSM_LOG_ENTER(sa->p_log);
 
 	p_rec_item = malloc(sizeof(*p_rec_item));
 	if (p_rec_item == NULL) {
@@ -135,7 +135,7 @@ __osm_sa_smir_by_comp_mask(IN osm_sa_t * sa,
 	const osm_physp_t *const p_req_physp = p_ctxt->p_req_physp;
 	ib_net64_t const comp_mask = p_ctxt->comp_mask;
 
-	OSM_LOG_ENTER(sa->p_log, __osm_sa_smir_by_comp_mask);
+	OSM_LOG_ENTER(sa->p_log);
 
 	if (comp_mask & IB_SMIR_COMPMASK_GUID) {
 		if (p_rem_sm->smi.guid != p_rcvd_rec->sm_info.guid)
@@ -211,7 +211,7 @@ void osm_smir_rcv_process(IN void *ctx, IN void *data)
 
 	CL_ASSERT(sa);
 
-	OSM_LOG_ENTER(sa->p_log, osm_smir_rcv_process);
+	OSM_LOG_ENTER(sa->p_log);
 
 	CL_ASSERT(p_madw);
 

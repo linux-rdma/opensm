@@ -70,7 +70,7 @@ osm_resp_make_resp_smp(IN osm_sm_t * sm,
 		       IN const uint8_t * const p_payload,
 		       OUT ib_smp_t * const p_dest_smp)
 {
-	OSM_LOG_ENTER(sm->p_log, osm_resp_make_resp_smp);
+	OSM_LOG_ENTER(sm->p_log);
 
 	CL_ASSERT(p_dest_smp);
 	CL_ASSERT(p_src_smp);
@@ -115,7 +115,7 @@ osm_resp_send(IN osm_sm_t * sm,
 	osm_madw_t *p_madw;
 	ib_api_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(sm->p_log, osm_resp_send);
+	OSM_LOG_ENTER(sm->p_log);
 
 	CL_ASSERT(p_req_madw);
 	CL_ASSERT(p_payload);

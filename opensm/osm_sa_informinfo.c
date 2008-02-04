@@ -101,7 +101,7 @@ __validate_ports_access_rights(IN osm_sa_t * sa,
 	const cl_ptr_vector_t *p_tbl;
 	ib_gid_t zero_gid;
 
-	OSM_LOG_ENTER(sa->p_log, __validate_ports_access_rights);
+	OSM_LOG_ENTER(sa->p_log);
 
 	/* get the requester physp from the request address */
 	p_requester_physp = osm_get_physp_by_mad_addr(sa->p_log,
@@ -202,7 +202,7 @@ __validate_infr(IN osm_sa_t * sa, IN osm_infr_t * p_infr_rec)
 {
 	boolean_t valid = TRUE;
 
-	OSM_LOG_ENTER(sa->p_log, __validate_infr);
+	OSM_LOG_ENTER(sa->p_log);
 
 	valid = __validate_ports_access_rights(sa, p_infr_rec);
 	if (!valid) {
@@ -230,7 +230,7 @@ __osm_infr_rcv_respond(IN osm_sa_t * sa,
 	ib_inform_info_t *p_resp_infr;
 	ib_api_status_t status;
 
-	OSM_LOG_ENTER(sa->p_log, __osm_infr_rcv_respond);
+	OSM_LOG_ENTER(sa->p_log);
 
 	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG)) {
 		osm_log(sa->p_log, OSM_LOG_DEBUG,
@@ -293,7 +293,7 @@ __osm_sa_inform_info_rec_by_comp_mask(IN osm_sa_t * sa,
 	const osm_physp_t *p_req_physp;
 	osm_iir_item_t *p_rec_item;
 
-	OSM_LOG_ENTER(sa->p_log, __osm_sa_inform_info_rec_by_comp_mask);
+	OSM_LOG_ENTER(sa->p_log);
 
 	p_rcvd_rec = p_ctxt->p_rcvd_rec;
 	comp_mask = p_ctxt->comp_mask;
@@ -388,7 +388,7 @@ osm_infr_rcv_process_get_method(IN osm_sa_t * sa,
 	ib_api_status_t status = IB_SUCCESS;
 	osm_physp_t *p_req_physp;
 
-	OSM_LOG_ENTER(sa->p_log, osm_infr_rcv_process_get_method);
+	OSM_LOG_ENTER(sa->p_log);
 
 	CL_ASSERT(p_madw);
 	p_rcvd_mad = osm_madw_get_sa_mad_ptr(p_madw);
@@ -597,7 +597,7 @@ osm_infr_rcv_process_set_method(IN osm_sa_t * sa,
 	uint8_t resp_time_val;
 	ib_api_status_t res;
 
-	OSM_LOG_ENTER(sa->p_log, osm_infr_rcv_process_set_method);
+	OSM_LOG_ENTER(sa->p_log);
 
 	CL_ASSERT(p_madw);
 
@@ -774,7 +774,7 @@ void osm_infr_rcv_process(IN void *context, IN void *data)
 	osm_madw_t *p_madw = data;
 	ib_sa_mad_t *p_sa_mad;
 
-	OSM_LOG_ENTER(sa->p_log, osm_infr_rcv_process);
+	OSM_LOG_ENTER(sa->p_log);
 
 	CL_ASSERT(p_madw);
 
@@ -806,7 +806,7 @@ void osm_infir_rcv_process(IN void *context, IN void *data)
 	osm_madw_t *p_madw = data;
 	ib_sa_mad_t *p_sa_mad;
 
-	OSM_LOG_ENTER(sa->p_log, osm_infr_rcv_process);
+	OSM_LOG_ENTER(sa->p_log);
 
 	CL_ASSERT(p_madw);
 

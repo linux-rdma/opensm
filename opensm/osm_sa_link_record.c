@@ -128,7 +128,7 @@ __osm_lr_rcv_get_physp_link(IN osm_sa_t * sa,
 	ib_net16_t to_base_lid;
 	ib_net16_t lmc_mask;
 
-	OSM_LOG_ENTER(sa->p_log, __osm_lr_rcv_get_physp_link);
+	OSM_LOG_ENTER(sa->p_log);
 
 	/*
 	   If only one end of the link is specified, determine
@@ -241,7 +241,7 @@ __osm_lr_rcv_get_port_links(IN osm_sa_t * sa,
 	uint8_t dest_num_ports;
 	uint8_t dest_port_num;
 
-	OSM_LOG_ENTER(sa->p_log, __osm_lr_rcv_get_port_links);
+	OSM_LOG_ENTER(sa->p_log);
 
 	if (p_src_port) {
 		if (p_dest_port) {
@@ -391,7 +391,7 @@ __osm_lr_rcv_get_end_points(IN osm_sa_t * sa,
 	ib_api_status_t status;
 	ib_net16_t sa_status = IB_SA_MAD_STATUS_SUCCESS;
 
-	OSM_LOG_ENTER(sa->p_log, __osm_lr_rcv_get_end_points);
+	OSM_LOG_ENTER(sa->p_log);
 
 	/*
 	   Determine what fields are valid and then get a pointer
@@ -468,7 +468,7 @@ __osm_lr_rcv_respond(IN osm_sa_t * sa,
 	osm_lr_item_t *p_lr_item;
 	const ib_sa_mad_t *p_rcvd_mad = osm_madw_get_sa_mad_ptr(p_madw);
 
-	OSM_LOG_ENTER(sa->p_log, __osm_lr_rcv_respond);
+	OSM_LOG_ENTER(sa->p_log);
 
 	num_rec = cl_qlist_count(p_list);
 	/*
@@ -613,7 +613,7 @@ void osm_lr_rcv_process(IN void *context, IN void *data)
 	ib_net16_t sa_status;
 	osm_physp_t *p_req_physp;
 
-	OSM_LOG_ENTER(sa->p_log, osm_lr_rcv_process);
+	OSM_LOG_ENTER(sa->p_log);
 
 	CL_ASSERT(p_madw);
 

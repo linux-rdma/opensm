@@ -137,7 +137,7 @@ __parse_ca_info_file(IN osm_vendor_t * const p_vend,
 	int num_ports;
 	uint32_t len;
 
-	OSM_LOG_ENTER(p_vend->p_log, __parse_ca_info_file);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	osm_log(p_vend->p_log, OSM_LOG_DEBUG,
 		"__parse_ca_info_file: " "Querying CA %d.\n", idx);
@@ -268,7 +268,7 @@ __parse_port_info_file(IN osm_vendor_t * const p_vend,
 	int lid, sm_lid, lmc, sm_sl;
 	uint32_t len;
 
-	OSM_LOG_ENTER(p_vend->p_log, __parse_port_info_file);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	osm_log(p_vend->p_log, OSM_LOG_DEBUG,
 		"__parse_port_info_file: "
@@ -419,7 +419,7 @@ __get_port_guid_from_port_gid_tbl(IN osm_vendor_t * const p_vend,
 	int g[8];
 	uint32_t len;
 
-	OSM_LOG_ENTER(p_vend->p_log, __get_port_guid_from_port_gid_tbl);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	osm_log(p_vend->p_log, OSM_LOG_DEBUG,
 		"__get_port_guid_from_port_gid_tbl: "
@@ -486,7 +486,7 @@ __osm_ca_info_init(IN osm_vendor_t * const p_vend,
 
 	pfs_ca_info_t pfs_ca_info;
 
-	OSM_LOG_ENTER(p_vend->p_log, __osm_ca_info_init);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	/* parse the CA info file */
 	if (__parse_ca_info_file(p_vend, idx, &pfs_ca_info) != IB_SUCCESS)
@@ -556,7 +556,7 @@ osm_ca_info_destroy(IN osm_vendor_t * const p_vend,
 	osm_ca_info_t *p_ca;
 	uint8_t i;
 
-	OSM_LOG_ENTER(p_vend->p_log, osm_ca_info_destroy);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	for (i = 0; i < num_ca; i++) {
 		p_ca = &p_ca_info[i];
@@ -594,7 +594,7 @@ osm_vendor_get_all_port_attr(IN osm_vendor_t * const p_vend,
 	osm_ca_info_t *p_ca_infos = NULL;
 	uint32_t attr_array_sz = *p_num_ports;
 
-	OSM_LOG_ENTER(p_vend->p_log, osm_vendor_get_all_port_attr);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	CL_ASSERT(p_vend);
 
@@ -691,7 +691,7 @@ osm_vendor_get_guid_ca_and_port(IN osm_vendor_t * const p_vend,
 	uint8_t port_num;
 	ib_api_status_t status = IB_ERROR;
 
-	OSM_LOG_ENTER(p_vend->p_log, osm_vendor_get_guid_ca_and_port);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	CL_ASSERT(p_vend);
 

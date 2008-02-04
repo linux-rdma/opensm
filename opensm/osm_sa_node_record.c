@@ -83,7 +83,7 @@ __osm_nr_rcv_new_nr(IN osm_sa_t * sa,
 	osm_nr_item_t *p_rec_item;
 	ib_api_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(sa->p_log, __osm_nr_rcv_new_nr);
+	OSM_LOG_ENTER(sa->p_log);
 
 	p_rec_item = malloc(sizeof(*p_rec_item));
 	if (p_rec_item == NULL) {
@@ -138,7 +138,7 @@ __osm_nr_rcv_create_nr(IN osm_sa_t * sa,
 	uint8_t lmc;
 	ib_net64_t port_guid;
 
-	OSM_LOG_ENTER(sa->p_log, __osm_nr_rcv_create_nr);
+	OSM_LOG_ENTER(sa->p_log);
 
 	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG)) {
 		osm_log(sa->p_log, OSM_LOG_DEBUG,
@@ -217,7 +217,7 @@ __osm_nr_rcv_by_comp_mask(IN cl_map_item_t * const p_map_item, IN void *context)
 	ib_net64_t match_port_guid = 0;
 	ib_net16_t match_lid = 0;
 
-	OSM_LOG_ENTER(p_ctxt->sa->p_log, __osm_nr_rcv_by_comp_mask);
+	OSM_LOG_ENTER(p_ctxt->sa->p_log);
 
 	osm_dump_node_info(p_ctxt->sa->p_log,
 			   &p_node->node_info, OSM_LOG_VERBOSE);
@@ -336,7 +336,7 @@ void osm_nr_rcv_process(IN void *ctx, IN void *data)
 
 	CL_ASSERT(sa);
 
-	OSM_LOG_ENTER(sa->p_log, osm_nr_rcv_process);
+	OSM_LOG_ENTER(sa->p_log);
 
 	CL_ASSERT(p_madw);
 

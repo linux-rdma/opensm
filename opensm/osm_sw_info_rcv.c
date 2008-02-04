@@ -77,7 +77,7 @@ __osm_si_rcv_get_port_info(IN osm_sm_t * sm,
 	const ib_smp_t *p_smp;
 	ib_api_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(sm->p_log, __osm_si_rcv_get_port_info);
+	OSM_LOG_ENTER(sm->p_log);
 
 	CL_ASSERT(p_sw);
 
@@ -140,7 +140,7 @@ __osm_si_rcv_get_fwd_tbl(IN osm_sm_t * sm,
 	uint32_t max_block_id_ho;
 	ib_api_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(sm->p_log, __osm_si_rcv_get_fwd_tbl);
+	OSM_LOG_ENTER(sm->p_log);
 
 	CL_ASSERT(p_sw);
 
@@ -200,7 +200,7 @@ __osm_si_rcv_get_mcast_fwd_tbl(IN osm_sm_t * sm,
 	uint32_t attr_mod_ho;
 	ib_api_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(sm->p_log, __osm_si_rcv_get_mcast_fwd_tbl);
+	OSM_LOG_ENTER(sm->p_log);
 
 	CL_ASSERT(p_sw);
 
@@ -297,7 +297,7 @@ __osm_si_rcv_process_new(IN osm_sm_t * sm,
 
 	CL_ASSERT(sm);
 
-	OSM_LOG_ENTER(sm->p_log, __osm_si_rcv_process_new);
+	OSM_LOG_ENTER(sm->p_log);
 
 	CL_ASSERT(p_madw);
 
@@ -406,7 +406,7 @@ __osm_si_rcv_process_existing(IN osm_sm_t * sm,
 	ib_smp_t *p_smp;
 	boolean_t is_change_detected = FALSE;
 
-	OSM_LOG_ENTER(sm->p_log, __osm_si_rcv_process_existing);
+	OSM_LOG_ENTER(sm->p_log);
 
 	CL_ASSERT(p_madw);
 
@@ -499,7 +499,7 @@ void osm_si_rcv_process(IN void *context, IN void *data)
 
 	CL_ASSERT(sm);
 
-	OSM_LOG_ENTER(sm->p_log, osm_si_rcv_process);
+	OSM_LOG_ENTER(sm->p_log);
 
 	CL_ASSERT(p_madw);
 

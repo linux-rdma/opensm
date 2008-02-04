@@ -1471,8 +1471,7 @@ static int __osm_ftree_fabric_mark_leaf_switches(IN ftree_fabric_t * p_ftree)
 	unsigned i;
 	int res = 0;
 
-	OSM_LOG_ENTER(&p_ftree->p_osm->log,
-		      __osm_ftree_fabric_mark_leaf_switches);
+	OSM_LOG_ENTER(&p_ftree->p_osm->log);
 
 	osm_log(&p_ftree->p_osm->log, OSM_LOG_VERBOSE,
 		"__osm_ftree_fabric_mark_leaf_switches: "
@@ -1539,7 +1538,7 @@ static void __osm_ftree_fabric_make_indexing(IN ftree_fabric_t * p_ftree)
 	cl_list_t bfs_list;
 	ftree_sw_tbl_element_t *p_sw_tbl_element;
 
-	OSM_LOG_ENTER(&p_ftree->p_osm->log, __osm_ftree_fabric_make_indexing);
+	OSM_LOG_ENTER(&p_ftree->p_osm->log);
 
 	osm_log(&p_ftree->p_osm->log, OSM_LOG_VERBOSE,
 		"__osm_ftree_fabric_make_indexing: "
@@ -1701,8 +1700,7 @@ static int __osm_ftree_fabric_create_leaf_switch_array(IN ftree_fabric_t *
 	unsigned last_leaf_idx;
 	int res = 0;
 
-	OSM_LOG_ENTER(&p_ftree->p_osm->log,
-		      __osm_ftree_fabric_create_leaf_switch_array);
+	OSM_LOG_ENTER(&p_ftree->p_osm->log);
 
 	/* create array of ALL the switches that have leaf rank */
 	all_switches_at_leaf_level = (ftree_sw_t **)
@@ -1824,8 +1822,7 @@ static boolean_t __osm_ftree_fabric_validate_topology(IN ftree_fabric_t *
 	boolean_t res = TRUE;
 	uint8_t i;
 
-	OSM_LOG_ENTER(&p_ftree->p_osm->log,
-		      __osm_ftree_fabric_validate_topology);
+	OSM_LOG_ENTER(&p_ftree->p_osm->log);
 
 	osm_log(&p_ftree->p_osm->log, OSM_LOG_VERBOSE,
 		"__osm_ftree_fabric_validate_topology: "
@@ -2516,7 +2513,7 @@ static void __osm_ftree_fabric_route_to_cns(IN ftree_fabric_t * p_ftree)
 	ib_net16_t hca_lid;
 	unsigned routed_targets_on_leaf;
 
-	OSM_LOG_ENTER(&p_ftree->p_osm->log, __osm_ftree_fabric_route_to_cns);
+	OSM_LOG_ENTER(&p_ftree->p_osm->log);
 
 	/* for each leaf switch (in indexing order) */
 	for (i = 0; i < p_ftree->leaf_switches_num; i++) {
@@ -2640,8 +2637,7 @@ static void __osm_ftree_fabric_route_to_non_cns(IN ftree_fabric_t * p_ftree)
 	unsigned port_num_on_switch;
 	unsigned i;
 
-	OSM_LOG_ENTER(&p_ftree->p_osm->log,
-		      __osm_ftree_fabric_route_to_non_cns);
+	OSM_LOG_ENTER(&p_ftree->p_osm->log);
 
 	p_next_hca = (ftree_hca_t *) cl_qmap_head(&p_ftree->hca_tbl);
 	while (p_next_hca != (ftree_hca_t *) cl_qmap_end(&p_ftree->hca_tbl)) {
@@ -2718,8 +2714,7 @@ static void __osm_ftree_fabric_route_to_switches(IN ftree_fabric_t * p_ftree)
 	ftree_sw_t *p_sw;
 	ftree_sw_t *p_next_sw;
 
-	OSM_LOG_ENTER(&p_ftree->p_osm->log,
-		      __osm_ftree_fabric_route_to_switches);
+	OSM_LOG_ENTER(&p_ftree->p_osm->log);
 
 	p_next_sw = (ftree_sw_t *) cl_qmap_head(&p_ftree->sw_tbl);
 	while (p_next_sw != (ftree_sw_t *) cl_qmap_end(&p_ftree->sw_tbl)) {
@@ -2761,7 +2756,7 @@ static int __osm_ftree_fabric_populate_nodes(IN ftree_fabric_t * p_ftree)
 	osm_node_t *p_osm_node;
 	osm_node_t *p_next_osm_node;
 
-	OSM_LOG_ENTER(&p_ftree->p_osm->log, __osm_ftree_fabric_populate_nodes);
+	OSM_LOG_ENTER(&p_ftree->p_osm->log);
 
 	p_next_osm_node =
 	    (osm_node_t *) cl_qmap_head(&p_ftree->p_osm->subn.node_guid_tbl);
@@ -2879,7 +2874,7 @@ __osm_ftree_rank_leaf_switches(IN ftree_fabric_t * p_ftree,
 	static uint8_t i = 0;
 	int res = 0;
 
-	OSM_LOG_ENTER(&p_ftree->p_osm->log, __osm_ftree_rank_leaf_switches);
+	OSM_LOG_ENTER(&p_ftree->p_osm->log);
 
 	for (i = 0; i < osm_node_get_num_physp(p_osm_node); i++) {
 		p_osm_port = osm_node_get_physp_ptr(p_osm_node, i);
@@ -3243,7 +3238,7 @@ static int __osm_ftree_fabric_rank_from_roots(IN ftree_fabric_t * p_ftree)
 	unsigned i;
 	cl_list_iterator_t guid_iterator;
 
-	OSM_LOG_ENTER(&p_ftree->p_osm->log, __osm_ftree_fabric_rank_from_roots);
+	OSM_LOG_ENTER(&p_ftree->p_osm->log);
 	cl_list_init(&ranking_bfs_list, 10);
 
 	/* Rank all the roots and add them to list */
@@ -3353,7 +3348,7 @@ static int __osm_ftree_fabric_rank_from_hcas(IN ftree_fabric_t * p_ftree)
 	cl_list_t ranking_bfs_list;
 	int res = 0;
 
-	OSM_LOG_ENTER(&p_ftree->p_osm->log, __osm_ftree_fabric_rank_from_hcas);
+	OSM_LOG_ENTER(&p_ftree->p_osm->log);
 
 	cl_list_init(&ranking_bfs_list, 10);
 
@@ -3395,7 +3390,7 @@ static int __osm_ftree_fabric_rank(IN ftree_fabric_t * p_ftree)
 {
 	int res = 0;
 
-	OSM_LOG_ENTER(&p_ftree->p_osm->log, __osm_ftree_fabric_perform_ranking);
+	OSM_LOG_ENTER(&p_ftree->p_osm->log);
 
 	if (__osm_ftree_fabric_roots_provided(p_ftree))
 		res = __osm_ftree_fabric_rank_from_roots(p_ftree);
@@ -3424,7 +3419,7 @@ static void __osm_ftree_fabric_set_leaf_rank(IN ftree_fabric_t * p_ftree)
 	ftree_hca_t *p_hca = NULL;
 	ftree_hca_t *p_next_hca;
 
-	OSM_LOG_ENTER(&p_ftree->p_osm->log, __osm_ftree_fabric_set_leaf_rank);
+	OSM_LOG_ENTER(&p_ftree->p_osm->log);
 
 	if (!__osm_ftree_fabric_roots_provided(p_ftree)) {
 		/* If root file is not provided, the fabric has to be pure fat-tree
@@ -3483,7 +3478,7 @@ static int __osm_ftree_fabric_populate_ports(IN ftree_fabric_t * p_ftree)
 	ftree_sw_t *p_next_sw;
 	int res = 0;
 
-	OSM_LOG_ENTER(&p_ftree->p_osm->log, __osm_ftree_fabric_populate_ports);
+	OSM_LOG_ENTER(&p_ftree->p_osm->log);
 
 	p_next_hca = (ftree_hca_t *) cl_qmap_head(&p_ftree->hca_tbl);
 	while (p_next_hca != (ftree_hca_t *) cl_qmap_end(&p_ftree->hca_tbl)) {
@@ -3538,7 +3533,7 @@ static int __osm_ftree_fabric_read_guid_files(IN ftree_fabric_t * p_ftree)
 {
 	int status = 0;
 
-	OSM_LOG_ENTER(&p_ftree->p_osm->log, __osm_ftree_fabric_read_guid_files);
+	OSM_LOG_ENTER(&p_ftree->p_osm->log);
 
 	if (__osm_ftree_fabric_roots_provided(p_ftree)) {
 		osm_log(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
@@ -3607,7 +3602,7 @@ static int __osm_ftree_construct_fabric(IN void *context)
 	ftree_fabric_t *p_ftree = context;
 	int status = 0;
 
-	OSM_LOG_ENTER(&p_ftree->p_osm->log, __osm_ftree_construct_fabric);
+	OSM_LOG_ENTER(&p_ftree->p_osm->log);
 
 	__osm_ftree_fabric_clear(p_ftree);
 
@@ -3812,7 +3807,7 @@ static int __osm_ftree_do_routing(IN void *context)
 	ftree_fabric_t *p_ftree = context;
 	int status = 0;
 
-	OSM_LOG_ENTER(&p_ftree->p_osm->log, __osm_ftree_do_routing);
+	OSM_LOG_ENTER(&p_ftree->p_osm->log);
 
 	if (!p_ftree->fabric_built) {
 		status = -1;

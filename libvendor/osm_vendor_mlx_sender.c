@@ -71,7 +71,7 @@ osmv_simple_send_madw(IN osm_bind_handle_t h_bind,
 	ib_mad_t *p_mad = (ib_mad_t *) mad_buf;
 	uint64_t key = 0;
 
-	OSM_LOG_ENTER(p_bo->p_vendor->p_log, osmv_simple_send_madw);
+	OSM_LOG_ENTER(p_bo->p_vendor->p_log);
 
 	CL_ASSERT(p_madw->mad_size <= MAD_BLOCK_SIZE);
 
@@ -144,7 +144,7 @@ osmv_rmpp_send_madw(IN osm_bind_handle_t h_bind,
 	osmv_rmpp_send_ctx_t *p_send_ctx = osmv_txn_get_rmpp_send_ctx(p_txn);
 	osmv_bind_obj_t *p_bo = (osmv_bind_obj_t *) h_bind;
 
-	OSM_LOG_ENTER(p_bo->p_vendor->p_log, osmv_rmpp_send_madw);
+	OSM_LOG_ENTER(p_bo->p_vendor->p_log);
 
 	total_segs = osmv_rmpp_send_ctx_get_num_segs(p_send_ctx);
 	CL_ASSERT(total_segs >= 1);
@@ -317,7 +317,7 @@ __osmv_rmpp_send_segment(IN osm_bind_handle_t h_bind,
 	uint32_t timeout = p_bo->p_vendor->resp_timeout;
 	uint64_t key;
 
-	OSM_LOG_ENTER(p_bo->p_vendor->p_log, __osmv_rmpp_send_segment);
+	OSM_LOG_ENTER(p_bo->p_vendor->p_log);
 
 #ifdef OSMV_RANDOM_DROP
 	if (TRUE == osmv_random_drop()) {

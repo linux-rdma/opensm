@@ -120,7 +120,7 @@ osmv_rmpp_send_ctx_get_seg(IN osmv_rmpp_send_ctx_t * p_send_ctx,
 	uint32_t num_segs, paylen = 0;
 	ib_rmpp_mad_t *p_rmpp_mad;
 
-	OSM_LOG_ENTER(p_send_ctx->p_log, osmv_rmpp_send_ctx_get_seg);
+	OSM_LOG_ENTER(p_send_ctx->p_log);
 	CL_ASSERT(p_send_ctx);
 
 	st = osmv_rmpp_sar_get_mad_seg(&p_send_ctx->sar, seg_idx, p_buf);
@@ -236,7 +236,7 @@ osmv_rmpp_recv_ctx_store_mad_seg(IN osmv_rmpp_recv_ctx_t * p_recv_ctx,
 	cl_list_obj_t *p_obj = NULL;
 	void *p_list_mad;
 
-	OSM_LOG_ENTER(p_recv_ctx->p_log, osmv_rmpp_recv_ctx_store_mad_seg);
+	OSM_LOG_ENTER(p_recv_ctx->p_log);
 
 	CL_ASSERT(p_recv_ctx);
 	p_list_mad = malloc(MAD_BLOCK_SIZE);

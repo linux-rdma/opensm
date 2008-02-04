@@ -777,7 +777,7 @@ int osm_qos_policy_validate(osm_qos_policy_t * p_qos_policy,
 	ib_net16_t pkey;
 	osm_prtn_t * p_prtn;
 
-	OSM_LOG_ENTER(p_log, osm_qos_policy_validate);
+	OSM_LOG_ENTER(p_log);
 
 	/* set default qos level */
 
@@ -962,8 +962,7 @@ static osm_qos_level_t * __qos_policy_get_qos_level_by_params(
 	osm_qos_match_rule_t *p_qos_match_rule = NULL;
 	osm_qos_level_t *p_qos_level = NULL;
 
-	OSM_LOG_ENTER(&p_qos_policy->p_subn->p_osm->log,
-		      __qos_policy_get_qos_level_by_params);
+	OSM_LOG_ENTER(&p_qos_policy->p_subn->p_osm->log);
 
 	if (!p_qos_policy)
 		goto Exit;

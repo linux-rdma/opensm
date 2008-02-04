@@ -89,7 +89,7 @@ static void dump_all_informs(IN osm_subn_t const *p_subn, IN osm_log_t * p_log)
 {
 	cl_list_item_t *p_list_item;
 
-	OSM_LOG_ENTER(p_log, dump_all_informs);
+	OSM_LOG_ENTER(p_log);
 
 	if (!osm_log_is_active(p_log, OSM_LOG_DEBUG))
 		goto Exit;
@@ -118,7 +118,7 @@ __match_inf_rec(IN const cl_list_item_t * const p_list_item, IN void *context)
 	cl_status_t status = CL_NOT_FOUND;
 	ib_gid_t all_zero_gid;
 
-	OSM_LOG_ENTER(p_log, __match_inf_rec);
+	OSM_LOG_ENTER(p_log);
 
 	if (memcmp(&p_infr->report_addr,
 		   &p_infr_rec->report_addr, sizeof(p_infr_rec->report_addr))) {
@@ -241,7 +241,7 @@ osm_infr_t *osm_infr_get_by_rec(IN osm_subn_t const *p_subn,
 {
 	cl_list_item_t *p_list_item;
 
-	OSM_LOG_ENTER(p_log, osm_infr_get_by_rec);
+	OSM_LOG_ENTER(p_log);
 
 	dump_all_informs(p_subn, p_log);
 
@@ -270,7 +270,7 @@ void
 osm_infr_insert_to_db(IN osm_subn_t * p_subn,
 		      IN osm_log_t * p_log, IN osm_infr_t * p_infr)
 {
-	OSM_LOG_ENTER(p_log, osm_infr_insert_to_db);
+	OSM_LOG_ENTER(p_log);
 
 	osm_log(p_log, OSM_LOG_DEBUG,
 		"osm_infr_insert_to_db: "
@@ -303,7 +303,7 @@ void
 osm_infr_remove_from_db(IN osm_subn_t * p_subn,
 			IN osm_log_t * p_log, IN osm_infr_t * p_infr)
 {
-	OSM_LOG_ENTER(p_log, osm_infr_remove_from_db);
+	OSM_LOG_ENTER(p_log);
 
 	osm_log(p_log, OSM_LOG_DEBUG,
 		"osm_infr_remove_from_db: "
@@ -340,7 +340,7 @@ static ib_api_status_t __osm_send_report(IN osm_infr_t * p_infr_rec,	/* the info
 	ib_api_status_t status;
 	osm_log_t *p_log = p_infr_rec->sa->p_log;
 
-	OSM_LOG_ENTER(p_log, __osm_send_report);
+	OSM_LOG_ENTER(p_log);
 
 	/* HACK: who switches or uses the src and dest GIDs in the grh_info ?? */
 
@@ -421,7 +421,7 @@ __match_notice_to_inf_rec(IN cl_list_item_t * const p_list_item,
 	osm_port_t *p_src_port;
 	osm_port_t *p_dest_port;
 
-	OSM_LOG_ENTER(p_log, __match_notice_to_inf_rec);
+	OSM_LOG_ENTER(p_log);
 
 	/* matching rules
 	 * InformInfo   Notice
@@ -616,7 +616,7 @@ osm_report_notice(IN osm_log_t * const p_log,
 	osm_infr_t *p_infr_rec;
 	osm_infr_t *p_next_infr_rec;
 
-	OSM_LOG_ENTER(p_log, osm_report_notice);
+	OSM_LOG_ENTER(p_log);
 
 	/*
 	 * we must make sure we are ready for this...

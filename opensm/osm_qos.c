@@ -284,7 +284,7 @@ osm_signal_t osm_qos_setup(osm_opensm_t * p_osm)
 	if (!p_osm->subn.opt.qos)
 		return OSM_SIGNAL_DONE;
 
-	OSM_LOG_ENTER(&p_osm->log, osm_qos_setup);
+	OSM_LOG_ENTER(&p_osm->log);
 
 	qos_build_config(&ca_config, &p_osm->subn.opt.qos_ca_options,
 			 &p_osm->subn.opt.qos_options);

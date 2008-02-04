@@ -77,7 +77,7 @@ void osm_mad_pool_destroy(IN osm_mad_pool_t * const p_pool)
 ib_api_status_t
 osm_mad_pool_init(IN osm_mad_pool_t * const p_pool, IN osm_log_t * const p_log)
 {
-	OSM_LOG_ENTER(p_log, osm_mad_pool_init);
+	OSM_LOG_ENTER(p_log);
 
 	p_pool->p_log = p_log;
 
@@ -95,7 +95,7 @@ osm_madw_t *osm_mad_pool_get(IN osm_mad_pool_t * const p_pool,
 	osm_madw_t *p_madw;
 	ib_mad_t *p_mad;
 
-	OSM_LOG_ENTER(p_pool->p_log, osm_mad_pool_get);
+	OSM_LOG_ENTER(p_pool->p_log);
 
 	CL_ASSERT(h_bind != OSM_BIND_INVALID_HANDLE);
 	CL_ASSERT(total_size);
@@ -153,7 +153,7 @@ osm_madw_t *osm_mad_pool_get_wrapper(IN osm_mad_pool_t * const p_pool,
 {
 	osm_madw_t *p_madw;
 
-	OSM_LOG_ENTER(p_pool->p_log, osm_mad_pool_get_wrapper);
+	OSM_LOG_ENTER(p_pool->p_log);
 
 	CL_ASSERT(h_bind != OSM_BIND_INVALID_HANDLE);
 	CL_ASSERT(total_size);
@@ -192,7 +192,7 @@ osm_madw_t *osm_mad_pool_get_wrapper_raw(IN osm_mad_pool_t * const p_pool)
 {
 	osm_madw_t *p_madw;
 
-	OSM_LOG_ENTER(p_pool->p_log, osm_mad_pool_get_wrapper_raw);
+	OSM_LOG_ENTER(p_pool->p_log);
 
 	p_madw = malloc(sizeof(*p_madw));
 	if (!p_madw)
@@ -215,7 +215,7 @@ osm_madw_t *osm_mad_pool_get_wrapper_raw(IN osm_mad_pool_t * const p_pool)
 void
 osm_mad_pool_put(IN osm_mad_pool_t * const p_pool, IN osm_madw_t * const p_madw)
 {
-	OSM_LOG_ENTER(p_pool->p_log, osm_mad_pool_put);
+	OSM_LOG_ENTER(p_pool->p_log);
 
 	CL_ASSERT(p_madw);
 

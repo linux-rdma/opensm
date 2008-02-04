@@ -100,7 +100,7 @@ static void __osm_sm_sweeper(IN void *p_ptr)
 	osm_sm_t *const p_sm = (osm_sm_t *) p_ptr;
 	unsigned signals, i;
 
-	OSM_LOG_ENTER(p_sm->p_log, __osm_sm_sweeper);
+	OSM_LOG_ENTER(p_sm->p_log);
 
 	while (p_sm->thread_state == OSM_THREAD_STATE_RUN) {
 		/*
@@ -177,7 +177,7 @@ void osm_sm_shutdown(IN osm_sm_t * const p_sm)
 {
 	boolean_t signal_event = FALSE;
 
-	OSM_LOG_ENTER(p_sm->p_log, osm_sm_shutdown);
+	OSM_LOG_ENTER(p_sm->p_log);
 
 	/*
 	 * Signal our threads that we're leaving.
@@ -224,7 +224,7 @@ void osm_sm_shutdown(IN osm_sm_t * const p_sm)
  **********************************************************************/
 void osm_sm_destroy(IN osm_sm_t * const p_sm)
 {
-	OSM_LOG_ENTER(p_sm->p_log, osm_sm_destroy);
+	OSM_LOG_ENTER(p_sm->p_log);
 	osm_lid_mgr_destroy(&p_sm->lid_mgr);
 	osm_ucast_mgr_destroy(&p_sm->ucast_mgr);
 	cl_event_wheel_destroy(&p_sm->trap_aging_tracker);
@@ -255,7 +255,7 @@ osm_sm_init(IN osm_sm_t * const p_sm,
 {
 	ib_api_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(p_log, osm_sm_init);
+	OSM_LOG_ENTER(p_log);
 
 	p_sm->p_subn = p_subn;
 	p_sm->p_db = p_db;
@@ -414,7 +414,7 @@ void osm_sm_signal(osm_sm_t * p_sm, osm_signal_t signal)
  **********************************************************************/
 void osm_sm_sweep(IN osm_sm_t * const p_sm)
 {
-	OSM_LOG_ENTER(p_sm->p_log, osm_sm_sweep);
+	OSM_LOG_ENTER(p_sm->p_log);
 	osm_sm_signal(p_sm, OSM_SIGNAL_SWEEP);
 	OSM_LOG_EXIT(p_sm->p_log);
 }
@@ -426,7 +426,7 @@ osm_sm_bind(IN osm_sm_t * const p_sm, IN const ib_net64_t port_guid)
 {
 	ib_api_status_t status;
 
-	OSM_LOG_ENTER(p_sm->p_log, osm_sm_bind);
+	OSM_LOG_ENTER(p_sm->p_log);
 
 	status = osm_sm_mad_ctrl_bind(&p_sm->mad_ctrl, port_guid);
 
@@ -510,7 +510,7 @@ osm_sm_mcgrp_join(IN osm_sm_t * const p_sm,
 	ib_api_status_t status = IB_SUCCESS;
 	osm_mcm_info_t *p_mcm;
 
-	OSM_LOG_ENTER(p_sm->p_log, osm_sm_mcgrp_join);
+	OSM_LOG_ENTER(p_sm->p_log);
 
 	osm_log(p_sm->p_log, OSM_LOG_VERBOSE,
 		"osm_sm_mcgrp_join: "
@@ -621,7 +621,7 @@ osm_sm_mcgrp_leave(IN osm_sm_t * const p_sm,
 	cl_qmap_t *p_tbl;
 	ib_api_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(p_sm->p_log, osm_sm_mcgrp_leave);
+	OSM_LOG_ENTER(p_sm->p_log);
 
 	osm_log(p_sm->p_log, OSM_LOG_VERBOSE,
 		"osm_sm_mcgrp_leave: "

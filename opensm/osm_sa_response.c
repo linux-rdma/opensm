@@ -69,7 +69,7 @@ osm_sa_send_error(IN osm_sa_t * sa,
 	ib_sa_mad_t *p_sa_mad;
 	ib_api_status_t status;
 
-	OSM_LOG_ENTER(sa->p_log, osm_sa_send_error);
+	OSM_LOG_ENTER(sa->p_log);
 
 	/* avoid races - if we are exiting - exit */
 	if (osm_exit_flag) {

@@ -555,7 +555,7 @@ void osmtest_query_res_cb(IN osmv_query_res_t * p_rec)
 	    (osmtest_req_context_t *) p_rec->query_context;
 	osmtest_t *const p_osmt = p_ctxt->p_osmt;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_query_res_cb);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	p_ctxt->result = *p_rec;
 
@@ -580,7 +580,7 @@ osmtest_get_all_recs(IN osmtest_t * const p_osmt,
 	osmv_user_query_t user;
 	osmv_query_req_t req;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_get_all_recs);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
 		osm_log(&p_osmt->log, OSM_LOG_DEBUG,
@@ -654,7 +654,7 @@ ib_api_status_t osmtest_validate_sa_class_port_info(IN osmtest_t * const p_osmt)
 	osmtest_req_context_t *p_context = &context;
 	ib_sa_mad_t *p_resp_sa_madp;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_validate_sa_class_port_info);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	if (osm_log_is_active(&p_osmt->log, OSM_LOG_VERBOSE)) {
 		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
@@ -750,7 +750,7 @@ osmtest_get_node_rec(IN osmtest_t * const p_osmt,
 	osmv_query_req_t req;
 	ib_node_record_t record;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_get_node_rec);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	if (osm_log_is_active(&p_osmt->log, OSM_LOG_VERBOSE)) {
 		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
@@ -831,7 +831,7 @@ osmtest_get_node_rec_by_lid(IN osmtest_t * const p_osmt,
 	ib_node_record_t record;
 	ib_mad_t *p_mad;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_get_node_rec_by_lid);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	if (osm_log_is_active(&p_osmt->log, OSM_LOG_VERBOSE)) {
 		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
@@ -913,7 +913,7 @@ osmtest_get_path_rec_by_guid_pair(IN osmtest_t * const p_osmt,
 	osmv_query_req_t req;
 	osmv_guid_pair_t guid_pair;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_get_path_rec_by_guid_pair);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	memset(&req, 0, sizeof(req));
 	memset(p_context, 0, sizeof(*p_context));
@@ -982,7 +982,7 @@ osmtest_get_path_rec_by_gid_pair(IN osmtest_t * const p_osmt,
 	osmv_query_req_t req;
 	osmv_gid_pair_t gid_pair;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_get_path_rec_by_gid_pair);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	memset(&req, 0, sizeof(req));
 	memset(p_context, 0, sizeof(*p_context));
@@ -1052,7 +1052,7 @@ osmtest_get_multipath_rec(IN osmtest_t * const p_osmt,
 	cl_status_t status = IB_SUCCESS;
 	osmv_query_req_t req;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_get_multipath_rec);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	/*
 	 * Do a blocking query for this record in the subnet.
@@ -1119,7 +1119,7 @@ osmtest_get_port_rec(IN osmtest_t * const p_osmt,
 	osmv_query_req_t req;
 	ib_portinfo_record_t record;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_get_port_rec);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
 		osm_log(&p_osmt->log, OSM_LOG_DEBUG,
@@ -1201,7 +1201,7 @@ osmtest_get_port_rec_by_num(IN osmtest_t * const p_osmt,
 	ib_portinfo_record_t record;
 	ib_mad_t *p_mad;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_get_port_rec_by_num);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
 		osm_log(&p_osmt->log, OSM_LOG_DEBUG,
@@ -1283,7 +1283,7 @@ osmtest_stress_port_recs_large(IN osmtest_t * const p_osmt,
 	cl_status_t status;
 	uint32_t num_recs = 0;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_stress_port_recs_large);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	memset(&context, 0, sizeof(context));
 	/*
@@ -1348,7 +1348,7 @@ osmtest_stress_node_recs_large(IN osmtest_t * const p_osmt,
 	cl_status_t status;
 	uint32_t num_recs = 0;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_stress_node_recs_large);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	memset(&context, 0, sizeof(context));
 
@@ -1414,7 +1414,7 @@ osmtest_stress_path_recs_large(IN osmtest_t * const p_osmt,
 	cl_status_t status;
 	uint32_t num_recs = 0;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_stress_path_recs_large);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	memset(&context, 0, sizeof(context));
 
@@ -1481,7 +1481,7 @@ osmtest_stress_path_recs_by_guid(IN osmtest_t * const p_osmt,
 	node_t *p_src_node, *p_dst_node;
 	cl_qmap_t *p_tbl;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_stress_path_recs_by_guid);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	memset(&context, 0, sizeof(context));
 
@@ -1597,7 +1597,7 @@ osmtest_stress_port_recs_small(IN osmtest_t * const p_osmt,
 	cl_status_t status;
 	uint32_t num_recs = 0;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_stress_port_recs_small);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	memset(&context, 0, sizeof(context));
 
@@ -1663,7 +1663,7 @@ osmtest_get_local_port_lmc(IN osmtest_t * const p_osmt,
 	cl_status_t status;
 	uint32_t num_recs = 0;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_get_local_port_lmc);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	memset(&context, 0, sizeof(context));
 
@@ -1729,7 +1729,7 @@ ib_api_status_t osmtest_wrong_sm_key_ignored(IN osmtest_t * const p_osmt)
 	osmtest_req_context_t *p_context = &context;
 	uint8_t port_num = 1;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_wrong_sm_key_ignored);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	if (osm_log_is_active(&p_osmt->log, OSM_LOG_INFO)) {
 		osm_log(&p_osmt->log, OSM_LOG_INFO,
@@ -1807,7 +1807,7 @@ osmtest_write_port_info(IN osmtest_t * const p_osmt,
 	int result;
 	cl_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_write_port_info);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	result = fprintf(fh,
 			 "DEFINE_PORT\n"
@@ -1902,7 +1902,7 @@ osmtest_write_path_info(IN osmtest_t * const p_osmt,
 	int result;
 	cl_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_write_path_info);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	result = fprintf(fh,
 			 "DEFINE_PATH\n"
@@ -1953,7 +1953,7 @@ osmtest_write_node_info(IN osmtest_t * const p_osmt,
 	cl_status_t status = IB_SUCCESS;
 	char desc[IB_NODE_DESCRIPTION_SIZE + 1];
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_write_node_info);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	memcpy(desc, p_rec->node_desc.description, IB_NODE_DESCRIPTION_SIZE);
 	desc[IB_NODE_DESCRIPTION_SIZE] = '\0';
@@ -2012,7 +2012,7 @@ osmtest_write_link(IN osmtest_t * const p_osmt,
 	int result;
 	cl_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_write_link);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	result = fprintf(fh,
 			 "DEFINE_LINK\n"
@@ -2049,7 +2049,7 @@ osmtest_write_all_link_recs(IN osmtest_t * const p_osmt, IN FILE * fh)
 	size_t num_recs;
 	int result;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_write_all_link_recs);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	memset(&context, 0, sizeof(context));
 
@@ -2122,7 +2122,7 @@ osmtest_get_path_rec_by_lid_pair(IN osmtest_t * const p_osmt,
 	osmv_query_req_t req;
 	osmv_lid_pair_t lid_pair;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_get_path_rec_by_lid_pair);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	memset(&req, 0, sizeof(req));
 	memset(p_context, 0, sizeof(*p_context));
@@ -2190,7 +2190,7 @@ osmtest_write_all_node_recs(IN osmtest_t * const p_osmt, IN FILE * fh)
 	size_t num_recs;
 	int result;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_write_all_node_recs);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	memset(&context, 0, sizeof(context));
 
@@ -2261,7 +2261,7 @@ osmtest_write_all_port_recs(IN osmtest_t * const p_osmt, IN FILE * fh)
 	size_t num_recs;
 	int result;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_write_all_port_recs);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	memset(&context, 0, sizeof(context));
 
@@ -2333,7 +2333,7 @@ osmtest_write_all_path_recs(IN osmtest_t * const p_osmt, IN FILE * fh)
 	size_t num_recs;
 	int result;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_write_all_path_recs);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	memset(&context, 0, sizeof(context));
 
@@ -2406,7 +2406,7 @@ osmtest_write_all_node_recs(IN osmtest_t * const p_osmt, IN FILE * fh)
 	int result;
 	uint16_t lid;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_write_all_node_recs);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	result = fprintf(fh, "#\n" "# Node Records\n" "#\n");
 	if (result < 0) {
@@ -2505,7 +2505,7 @@ osmtest_write_all_port_recs(IN osmtest_t * const p_osmt, IN FILE * fh)
 	port_t *p_port;
 	int result;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_write_all_port_recs);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	memset(&context, 0, sizeof(context));
 
@@ -2618,7 +2618,7 @@ osmtest_write_all_path_recs(IN osmtest_t * const p_osmt, IN FILE * fh)
 	node_t *p_src_node, *p_dst_node;
 	ib_api_status_t got_status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_write_all_path_recs);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	memset(&context, 0, sizeof(context));
 
@@ -2717,7 +2717,7 @@ osmtest_create_inventory_file(IN osmtest_t * const p_osmt)
 	FILE *fh;
 	ib_api_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_create_inventory_file);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	fh = fopen(p_osmt->opt.file_name, "w");
 	if (fh == NULL) {
@@ -2769,7 +2769,7 @@ static ib_api_status_t osmtest_stress_large_rmpp_pr(IN osmtest_t * const p_osmt)
 	long sec_diff, usec_diff;
 	float ratio;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_stress_large_rmpp_pr);
+	OSM_LOG_ENTER(&p_osmt->log);
 	gettimeofday(&start_tv, NULL);
 	printf("-I- Start time is : %09ld:%06ld [sec:usec]\n", start_tv.tv_sec,
 	       (long)start_tv.tv_usec);
@@ -2847,7 +2847,7 @@ static ib_api_status_t osmtest_stress_large_rmpp(IN osmtest_t * const p_osmt)
 	struct timeval start_tv, end_tv;
 	long sec_diff, usec_diff;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_stress_large_rmpp);
+	OSM_LOG_ENTER(&p_osmt->log);
 	gettimeofday(&start_tv, NULL);
 	printf("-I- Start time is : %09ld:%06ld [sec:usec]\n", start_tv.tv_sec,
 	       (long)start_tv.tv_usec);
@@ -2932,7 +2932,7 @@ static ib_api_status_t osmtest_stress_small_rmpp(IN osmtest_t * const p_osmt)
 	struct timeval start_tv, end_tv;
 	long sec_diff, usec_diff;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_stress_small_rmpp);
+	OSM_LOG_ENTER(&p_osmt->log);
 	gettimeofday(&start_tv, NULL);
 	printf("-I- Start time is : %09ld:%06ld [sec:usec]\n",
 	       start_tv.tv_sec, (long)start_tv.tv_usec);
@@ -3003,7 +3003,7 @@ osmtest_prepare_db_generic(IN osmtest_t * const p_osmt,
 {
 	generic_t *p_generic;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_prepare_db_generic);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	p_generic = (generic_t *) cl_qmap_head(p_tbl);
 
@@ -3019,7 +3019,7 @@ osmtest_prepare_db_generic(IN osmtest_t * const p_osmt,
  **********************************************************************/
 static void osmtest_prepare_db(IN osmtest_t * const p_osmt)
 {
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_prepare_db);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	osmtest_prepare_db_generic(p_osmt, &p_osmt->exp_subn.node_lid_tbl);
 	osmtest_prepare_db_generic(p_osmt, &p_osmt->exp_subn.path_tbl);
@@ -3035,7 +3035,7 @@ static ib_api_status_t osmtest_check_missing_nodes(IN osmtest_t * const p_osmt)
 	cl_status_t status = IB_SUCCESS;
 	cl_qmap_t *p_tbl;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_check_missing_nodes);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	p_tbl = &p_osmt->exp_subn.node_lid_tbl;
 
@@ -3068,7 +3068,7 @@ static ib_api_status_t osmtest_check_missing_ports(IN osmtest_t * const p_osmt)
 	cl_status_t status = IB_SUCCESS;
 	cl_qmap_t *p_tbl;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_check_missing_ports);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	p_tbl = &p_osmt->exp_subn.port_key_tbl;
 
@@ -3102,7 +3102,7 @@ static ib_api_status_t osmtest_check_missing_paths(IN osmtest_t * const p_osmt)
 	cl_status_t status = IB_SUCCESS;
 	cl_qmap_t *p_tbl;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_check_missing_paths);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	p_tbl = &p_osmt->exp_subn.path_tbl;
 
@@ -3163,7 +3163,7 @@ osmtest_validate_path_data(IN osmtest_t * const p_osmt,
 	cl_status_t status = IB_SUCCESS;
 	uint8_t lmc = 0;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_validate_path_data);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
 		osm_log(&p_osmt->log, OSM_LOG_ERROR,
@@ -3281,7 +3281,7 @@ osmtest_validate_node_data(IN osmtest_t * const p_osmt,
 {
 	cl_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_validate_node_data);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
 		osm_log(&p_osmt->log, OSM_LOG_ERROR,
@@ -3479,7 +3479,7 @@ osmtest_validate_node_rec(IN osmtest_t * const p_osmt,
 	node_t *p_node;
 	const cl_qmap_t *p_tbl;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_validate_node_rec);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	/*
 	 * Find proper node record in the database.
@@ -3512,7 +3512,7 @@ osmtest_validate_port_data(IN osmtest_t * const p_osmt,
 {
 	cl_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_validate_port_data);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
 		osm_log(&p_osmt->log, OSM_LOG_ERROR,
@@ -4029,7 +4029,7 @@ osmtest_validate_port_rec(IN osmtest_t * const p_osmt,
 	port_t *p_port;
 	const cl_qmap_t *p_tbl;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_validate_port_rec);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	/*
 	 * Find proper port record in the database.
@@ -4065,7 +4065,7 @@ osmtest_validate_path_rec(IN osmtest_t * const p_osmt,
 	path_t *p_path;
 	const cl_qmap_t *p_tbl;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_validate_path_rec);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	/*
 	 * Find proper path record in the database.
@@ -4102,7 +4102,7 @@ osmtest_validate_all_node_recs(IN osmtest_t * const p_osmt)
 	cl_status_t status;
 	size_t num_recs;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_validate_all_node_recs);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	memset(&context, 0, sizeof(context));
 
@@ -4182,7 +4182,7 @@ osmtest_validate_all_guidinfo_recs(IN osmtest_t * const p_osmt)
 	cl_status_t status;
 	size_t num_recs;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_validate_all_guidinfo_recs);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	memset(&context, 0, sizeof(context));
 
@@ -4235,7 +4235,7 @@ osmtest_validate_all_path_recs(IN osmtest_t * const p_osmt)
 	cl_status_t status;
 	size_t num_recs;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_validate_all_path_recs);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	memset(&context, 0, sizeof(context));
 
@@ -4318,7 +4318,7 @@ osmtest_get_link_rec_by_lid(IN osmtest_t * const p_osmt,
 	ib_link_record_t record;
 	ib_mad_t *p_mad;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_get_link_rec_by_lid);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	if (osm_log_is_active(&p_osmt->log, OSM_LOG_VERBOSE)) {
 		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
@@ -4406,7 +4406,7 @@ osmtest_get_guidinfo_rec_by_lid(IN osmtest_t * const p_osmt,
 	ib_guidinfo_record_t record;
 	ib_mad_t *p_mad;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_get_guidinfo_rec_by_lid);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	if (osm_log_is_active(&p_osmt->log, OSM_LOG_VERBOSE)) {
 		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
@@ -4492,7 +4492,7 @@ osmtest_get_pkeytbl_rec_by_lid(IN osmtest_t * const p_osmt,
 	ib_pkey_table_record_t record;
 	ib_mad_t *p_mad;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_get_pkeytbl_rec_by_lid);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	if (osm_log_is_active(&p_osmt->log, OSM_LOG_VERBOSE)) {
 		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
@@ -4577,7 +4577,7 @@ osmtest_get_sw_info_rec_by_lid(IN osmtest_t * const p_osmt,
 	ib_switch_info_record_t record;
 	ib_mad_t *p_mad;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_get_sw_info_rec_by_lid);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	if (osm_log_is_active(&p_osmt->log, OSM_LOG_VERBOSE)) {
 		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
@@ -4663,7 +4663,7 @@ osmtest_get_lft_rec_by_lid(IN osmtest_t * const p_osmt,
 	ib_lft_record_t record;
 	ib_mad_t *p_mad;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_get_lft_rec_by_lid);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	if (osm_log_is_active(&p_osmt->log, OSM_LOG_VERBOSE)) {
 		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
@@ -4748,7 +4748,7 @@ osmtest_get_mft_rec_by_lid(IN osmtest_t * const p_osmt,
 	ib_mft_record_t record;
 	ib_mad_t *p_mad;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_get_mft_rec_by_lid);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	if (osm_log_is_active(&p_osmt->log, OSM_LOG_VERBOSE)) {
 		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
@@ -4834,7 +4834,7 @@ osmtest_sminfo_record_request(IN osmtest_t * const p_osmt,
 	ib_mad_t *p_mad;
 	osmtest_sm_info_rec_t *p_sm_info_opt;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_sminfo_record_request);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	/*
 	 * Do a blocking query for these records in the subnet.
@@ -4937,7 +4937,7 @@ osmtest_informinfo_request(IN osmtest_t * const p_osmt,
 	osmtest_inform_info_t *p_inform_info_opt;
 	osmtest_inform_info_rec_t *p_inform_info_rec_opt;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_informinfo_request);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	/*
 	 * Do a blocking query for these records in the subnet.
@@ -5047,7 +5047,7 @@ osmtest_validate_single_path_rec_lid_pair(IN osmtest_t * const p_osmt,
 	cl_status_t status = IB_SUCCESS;
 	size_t num_recs;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_validate_single_path_rec_lid_pair);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	memset(&context, 0, sizeof(context));
 
@@ -5112,7 +5112,7 @@ osmtest_validate_single_node_rec_lid(IN osmtest_t * const p_osmt,
 	const ib_node_record_t *p_rec;
 	int num_recs, i;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_validate_single_node_rec_lid);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
 		osm_log(&p_osmt->log, OSM_LOG_DEBUG,
@@ -5214,7 +5214,7 @@ osmtest_validate_single_port_rec_lid(IN osmtest_t * const p_osmt,
 	const ib_portinfo_record_t *p_rec;
 	cl_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_validate_single_port_rec_lid);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	memset(&context, 0, sizeof(context));
 
@@ -5269,7 +5269,7 @@ osmtest_validate_single_path_rec_guid_pair(IN osmtest_t * const p_osmt,
 	uint32_t i;
 	boolean_t got_error = FALSE;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_validate_single_path_rec_guid_pair);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	memset(&req, 0, sizeof(req));
 	memset(&context, 0, sizeof(context));
@@ -5399,7 +5399,7 @@ osmtest_validate_single_path_recs(IN osmtest_t * const p_osmt)
 	osmv_guid_pair_t guid_pair;
 	uint16_t cnt;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_validate_single_path_recs);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	if (osm_log_is_active(&p_osmt->log, OSM_LOG_VERBOSE)) {
 		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
@@ -5491,7 +5491,7 @@ osmtest_validate_single_node_recs(IN osmtest_t * const p_osmt)
 	const cl_qmap_t *p_node_lid_tbl;
 	uint16_t cnt = 0;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_validate_single_node_recs);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	p_node_lid_tbl = &p_osmt->exp_subn.node_lid_tbl;
 
@@ -5553,7 +5553,7 @@ osmtest_validate_single_port_recs(IN osmtest_t * const p_osmt)
 	const cl_qmap_t *p_port_key_tbl;
 	uint16_t cnt = 0;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_validate_single_port_recs);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	p_port_key_tbl = &p_osmt->exp_subn.port_key_tbl;
 
@@ -5623,7 +5623,7 @@ static ib_api_status_t osmtest_validate_against_db(IN osmtest_t * const p_osmt)
 	uint8_t i;
 #endif
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_validate_against_db);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 #ifdef VENDOR_RMPP_SUPPORT
 	status = osmtest_validate_all_node_recs(p_osmt);
@@ -6421,7 +6421,7 @@ osmtest_parse_node(IN osmtest_t * const p_osmt,
 	node_t *p_guid_node;
 	const osmtest_token_t *p_tok;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_parse_node);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	p_node = node_new();
 	CL_ASSERT(p_node != NULL);
@@ -6701,7 +6701,7 @@ osmtest_parse_port(IN osmtest_t * const p_osmt,
 	port_t *p_port;
 	const osmtest_token_t *p_tok;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_parse_port);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	p_port = port_new();
 	CL_ASSERT(p_port != NULL);
@@ -7244,7 +7244,7 @@ osmtest_parse_path(IN osmtest_t * const p_osmt,
 	const osmtest_token_t *p_tok;
 	boolean_t got_error = FALSE;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_parse_path);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	p_path = path_new();
 	CL_ASSERT(p_path != NULL);
@@ -7435,7 +7435,7 @@ osmtest_parse_link(IN osmtest_t * const p_osmt,
 	const osmtest_token_t *p_tok;
 	boolean_t got_error = FALSE;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_parse_link);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	/*
 	 * Parse the inventory file and create the database.
@@ -7522,7 +7522,7 @@ static ib_api_status_t osmtest_create_db(IN osmtest_t * const p_osmt)
 	const osmtest_token_t *p_tok;
 	boolean_t got_error = FALSE;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_create_db);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	fh = fopen(p_osmt->opt.file_name, "r");
 	if (fh == NULL) {
@@ -7625,7 +7625,7 @@ osmtest_get_user_port(IN osmtest_t * const p_osmt,
 	uint32_t choice = 0;
 	boolean_t done_flag = FALSE;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_get_user_port);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	/*
 	 * User needs prompting for the local port GUID with which
@@ -7672,7 +7672,7 @@ osmtest_bind(IN osmtest_t * p_osmt,
 	uint32_t num_ports = GUID_ARRAY_SIZE;
 	ib_port_attr_t attr_array[GUID_ARRAY_SIZE];
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_bind);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	/*
 	 * Call the transport layer for a list of local port
@@ -7752,7 +7752,7 @@ ib_api_status_t osmtest_run(IN osmtest_t * const p_osmt)
 {
 	ib_api_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmtest_run);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	status = osmtest_validate_sa_class_port_info(p_osmt);
 	if (status != IB_SUCCESS) {

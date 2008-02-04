@@ -120,7 +120,7 @@ osm_trap_rcv_aging_tracker_callback(IN uint64_t key,
 	uint8_t port_num;
 	osm_physp_t *p_physp;
 
-	OSM_LOG_ENTER(sm->p_log, osm_trap_rcv_aging_tracker_callback);
+	OSM_LOG_ENTER(sm->p_log);
 
 	if (osm_exit_flag)
 		/* We got an exit flag - do nothing */
@@ -260,7 +260,7 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 	uint64_t event_wheel_timeout = OSM_DEFAULT_TRAP_SUPRESSION_TIMEOUT;
 	boolean_t run_heavy_sweep = FALSE;
 
-	OSM_LOG_ENTER(sm->p_log, __osm_trap_rcv_process_request);
+	OSM_LOG_ENTER(sm->p_log);
 
 	CL_ASSERT(p_madw);
 
@@ -694,7 +694,7 @@ __osm_trap_rcv_process_sm(IN osm_sm_t * sm,
 {
 	/* const ib_sm_info_t*        p_smi; */
 
-	OSM_LOG_ENTER(sm->p_log, __osm_trap_rcv_process_sm);
+	OSM_LOG_ENTER(sm->p_log);
 
 	osm_log(sm->p_log, OSM_LOG_ERROR,
 		"__osm_trap_rcv_process_sm: ERR 3807: "
@@ -712,7 +712,7 @@ __osm_trap_rcv_process_response(IN osm_sm_t * sm,
 				IN const osm_madw_t * const p_madw)
 {
 
-	OSM_LOG_ENTER(sm->p_log, __osm_trap_rcv_process_response);
+	OSM_LOG_ENTER(sm->p_log);
 
 	osm_log(sm->p_log, OSM_LOG_ERROR,
 		"__osm_trap_rcv_process_response: ERR 3808: "
@@ -729,7 +729,7 @@ void osm_trap_rcv_process(IN void *context, IN void *data)
 	osm_madw_t *p_madw = data;
 	ib_smp_t *p_smp;
 
-	OSM_LOG_ENTER(sm->p_log, osm_trap_rcv_process);
+	OSM_LOG_ENTER(sm->p_log);
 
 	CL_ASSERT(p_madw);
 

@@ -137,7 +137,7 @@ osm_vendor_t *osm_vendor_new(IN osm_log_t * const p_log,
 	ib_api_status_t status;
 	umadt_obj_t *p_umadt_obj;
 
-	OSM_LOG_ENTER(p_log, osm_vendor_new);
+	OSM_LOG_ENTER(p_log);
 
 	p_umadt_obj = malloc(sizeof(umadt_obj_t));
 	if (p_umadt_obj) {
@@ -165,7 +165,7 @@ void osm_vendor_delete(IN osm_vendor_t ** const pp_vend)
 	uint32_t count, i;
 	mad_bind_info_t *p_mad_bind_info;
 
-	OSM_LOG_ENTER(p_umadt_obj->p_log, osm_vendor_delete);
+	OSM_LOG_ENTER(p_umadt_obj->p_log);
 
 	cl_spinlock_acquire(&p_umadt_obj->register_lock);
 	p_mad_bind_info =
@@ -202,7 +202,7 @@ osm_vendor_init(IN osm_vendor_t * const p_vend,
 	char *error;
 	umadt_obj_t *p_umadt_obj = (umadt_obj_t *) p_vend;
 
-	OSM_LOG_ENTER(p_log, osm_vendor_init);
+	OSM_LOG_ENTER(p_log);
 
 	p_umadt_obj->p_log = p_log;
 	p_umadt_obj->timeout = timeout;
@@ -265,7 +265,7 @@ osm_vendor_get_ports(IN osm_vendor_t * const p_vend,
 
 	umadt_obj_t *p_umadt_obj = (umadt_obj_t *) p_vend;
 
-	OSM_LOG_ENTER(p_umadt_obj->p_log, osm_vendor_get_ports);
+	OSM_LOG_ENTER(p_umadt_obj->p_log);
 
 	CL_ASSERT(p_guids);
 	CL_ASSERT(p_num_guids);
@@ -388,7 +388,7 @@ ib_mad_t *osm_vendor_get(IN osm_bind_handle_t h_bind,
 	mad_bind_info_t *p_mad_bind_info = (mad_bind_info_t *) h_bind;
 	umadt_obj_t *p_umadt_obj = p_mad_bind_info->p_umadt_obj;
 	ib_mad_t *p_mad;
-	OSM_LOG_ENTER(p_umadt_obj->p_log, osm_vendor_get);
+	OSM_LOG_ENTER(p_umadt_obj->p_log);
 
 	CL_ASSERT(h_bind);
 
@@ -743,7 +743,7 @@ osm_vendor_bind(IN osm_vendor_t * const p_vend,
 	RegisterClassStruct *p_umadt_reg_class;
 
 	umadt_obj_t *p_umadt_obj;
-	OSM_LOG_ENTER(((umadt_obj_t *) p_vend)->p_log, osm_vendor_bind);
+	OSM_LOG_ENTER(((umadt_obj_t *) p_vend)->p_log);
 
 	CL_ASSERT(p_vend);
 

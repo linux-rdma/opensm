@@ -315,7 +315,7 @@ osm_physp_calc_link_mtu(IN osm_log_t * p_log, IN const osm_physp_t * p_physp)
 	uint8_t mtu;
 	uint8_t remote_mtu;
 
-	OSM_LOG_ENTER(p_log, osm_physp_calc_link_mtu);
+	OSM_LOG_ENTER(p_log);
 
 	p_remote_physp = osm_physp_get_remote(p_physp);
 	if (p_remote_physp) {
@@ -380,7 +380,7 @@ osm_physp_calc_link_op_vls(IN osm_log_t * p_log,
 	uint8_t op_vls;
 	uint8_t remote_op_vls;
 
-	OSM_LOG_ENTER(p_log, osm_physp_calc_link_op_vls);
+	OSM_LOG_ENTER(p_log);
 
 	p_remote_physp = osm_physp_get_remote(p_physp);
 	if (p_remote_physp) {
@@ -471,7 +471,7 @@ __osm_physp_get_dr_physp_set(IN osm_log_t * p_log,
 	uint8_t hop;
 	cl_status_t status = CL_SUCCESS;
 
-	OSM_LOG_ENTER(p_log, __osm_physp_get_dr_physp_set);
+	OSM_LOG_ENTER(p_log);
 
 	/* find the OSM node */
 	p_port = osm_get_port_by_guid(p_subn, p_subn->sm_port_guid);

@@ -156,7 +156,7 @@ __get_new_mlid(IN osm_sa_t * sa, IN ib_net16_t requested_mlid)
 	uint16_t mlid;		/* the result */
 	uint16_t max_num_mlids;
 
-	OSM_LOG_ENTER(sa->p_log, __get_new_mlid);
+	OSM_LOG_ENTER(sa->p_log);
 
 	if (requested_mlid && cl_ntoh16(requested_mlid) >= IB_LID_MCAST_START_HO
 	    && cl_ntoh16(requested_mlid) < p_subn->max_multicast_lid_ho
@@ -358,7 +358,7 @@ __osm_mcmr_rcv_respond(IN osm_sa_t * sa,
 	ib_member_rec_t *p_resp_mcmember_rec;
 	ib_api_status_t status;
 
-	OSM_LOG_ENTER(sa->p_log, __osm_mcmr_rcv_respond);
+	OSM_LOG_ENTER(sa->p_log);
 
 	/*
 	 *  Get a MAD to reply. Address of Mad is in the received mad_wrapper
@@ -771,7 +771,7 @@ __validate_requested_mgid(IN osm_sa_t * sa,
 	uint16_t signature;
 	boolean_t valid = TRUE;
 
-	OSM_LOG_ENTER(sa->p_log, __validate_requested_mgid);
+	OSM_LOG_ENTER(sa->p_log);
 
 	/* 14-a: mcast GID must start with 0xFF */
 	if (p_mcm_rec->mgid.multicast.header[0] != 0xFF) {
@@ -869,7 +869,7 @@ __mgrp_request_is_realizable(IN osm_sa_t * sa,
 	uint8_t rate_required, rate, port_rate;
 	osm_log_t *p_log = sa->p_log;
 
-	OSM_LOG_ENTER(sa->p_log, __mgrp_request_is_realizable);
+	OSM_LOG_ENTER(sa->p_log);
 
 	/*
 	 * End of o15-0.2.3 specifies:
@@ -1002,7 +1002,7 @@ osm_mcmr_rcv_create_new_mgrp(IN osm_sa_t * sa,
 	ib_api_status_t status = IB_SUCCESS;
 	ib_member_rec_t mcm_rec = *p_recvd_mcmember_rec;	/* copy for modifications */
 
-	OSM_LOG_ENTER(sa->p_log, osm_mcmr_rcv_create_new_mgrp);
+	OSM_LOG_ENTER(sa->p_log);
 
 	/* but what if the given MGID was not 0 ? */
 	zero_mgid = 1;
@@ -1268,7 +1268,7 @@ __osm_mcmr_rcv_leave_mgrp(IN osm_sa_t * sa,
 	uint8_t port_join_state;
 	uint8_t new_join_state;
 
-	OSM_LOG_ENTER(sa->p_log, __osm_mcmr_rcv_leave_mgrp);
+	OSM_LOG_ENTER(sa->p_log);
 
 	p_mgrp = NULL;
 	p_sa_mad = osm_madw_get_sa_mad_ptr(p_madw);
@@ -1400,7 +1400,7 @@ __osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa,
 	osm_mcast_req_type_t req_type;
 	uint8_t join_state;
 
-	OSM_LOG_ENTER(sa->p_log, __osm_mcmr_rcv_join_mgrp);
+	OSM_LOG_ENTER(sa->p_log);
 
 	p_mgrp = NULL;
 	p_sa_mad = osm_madw_get_sa_mad_ptr(p_madw);
@@ -1693,7 +1693,7 @@ __osm_mcmr_rcv_new_mcmr(IN osm_sa_t * sa,
 	osm_mcmr_item_t *p_rec_item;
 	ib_api_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(sa->p_log, __osm_mcmr_rcv_new_mcmr);
+	OSM_LOG_ENTER(sa->p_log);
 
 	p_rec_item = malloc(sizeof(*p_rec_item));
 	if (p_rec_item == NULL) {
@@ -1742,7 +1742,7 @@ __osm_sa_mcm_by_comp_mask_cb(IN cl_map_item_t * const p_map_item,
 	ib_gid_t port_gid;
 	boolean_t proxy_join = FALSE;
 
-	OSM_LOG_ENTER(sa->p_log, __osm_sa_mcm_by_comp_mask_cb);
+	OSM_LOG_ENTER(sa->p_log);
 
 	osm_log(sa->p_log, OSM_LOG_DEBUG,
 		"__osm_sa_mcm_by_comp_mask_cb: "
@@ -1930,7 +1930,7 @@ __osm_mcmr_query_mgrp(IN osm_sa_t * sa,
 	osm_physp_t *p_req_physp;
 	boolean_t trusted_req;
 
-	OSM_LOG_ENTER(sa->p_log, __osm_mcmr_query_mgrp);
+	OSM_LOG_ENTER(sa->p_log);
 
 	p_rcvd_mad = osm_madw_get_sa_mad_ptr(p_madw);
 	p_rcvd_rec = (ib_member_rec_t *) ib_sa_mad_get_payload_ptr(p_rcvd_mad);
@@ -2134,7 +2134,7 @@ void osm_mcmr_rcv_process(IN void *context, IN void *data)
 
 	CL_ASSERT(sa);
 
-	OSM_LOG_ENTER(sa->p_log, osm_mcmr_rcv_process);
+	OSM_LOG_ENTER(sa->p_log);
 
 	CL_ASSERT(p_madw);
 

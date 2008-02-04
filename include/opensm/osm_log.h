@@ -74,7 +74,7 @@ BEGIN_C_DECLS
 #define LOG_ENTRY_SIZE_MAX		4096
 #define BUF_SIZE			LOG_ENTRY_SIZE_MAX
 #define __func__ __FUNCTION__
-#define OSM_LOG_ENTER( OSM_LOG_PTR, NAME ) \
+#define OSM_LOG_ENTER( OSM_LOG_PTR ) \
 	osm_log( OSM_LOG_PTR, OSM_LOG_FUNCS, \
 		 "%s: [\n", __func__);
 #define OSM_LOG_EXIT( OSM_LOG_PTR ) \

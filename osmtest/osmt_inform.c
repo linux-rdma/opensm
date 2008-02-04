@@ -75,7 +75,7 @@ osmt_bind_inform_qp(IN osmtest_t * const p_osmt, OUT osmt_qp_ctx_t * p_qp_ctx)
 	osm_log_t *p_log = &p_osmt->log;
 	ib_api_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(p_log, osmt_bind_inform_qp);
+	OSM_LOG_ENTER(p_log);
 
 	port_guid = p_osmt->local_port.port_guid;
 
@@ -165,7 +165,7 @@ osmt_unbind_inform_qp(IN osmtest_t * const p_osmt, IN osmt_qp_ctx_t * p_qp_ctx)
 {
 	osm_log_t *p_log = &p_osmt->log;
 
-	OSM_LOG_ENTER(p_log, osmt_unbind_inform_qp);
+	OSM_LOG_ENTER(p_log);
 
 	osmt_mtl_mad_cleanup(&p_qp_ctx->qp_bind_hndl);
 
@@ -198,7 +198,7 @@ osmt_reg_unreg_inform_info(IN osmtest_t * p_osmt,
 	osm_log_t *p_log = &p_osmt->log;
 	ib_api_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmt_reg_unreg_inform_info);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	/* init the MAD */
 	ib_mad_init_new((ib_mad_t *) p_sa_mad,
@@ -399,7 +399,7 @@ osmt_send_trap_wait_for_forward(IN osmtest_t * const p_osmt,
 	osm_log_t *p_log = &p_osmt->log;
 	ib_api_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(p_log, osmt_send_trap_wait_for_forward);
+	OSM_LOG_ENTER(p_log);
 
 	osm_log(p_log, OSM_LOG_INFO,
 		"osmt_send_trap_wait_for_forward: "
@@ -545,7 +545,7 @@ osmt_trap_wait(IN osmtest_t * const p_osmt, IN osmt_qp_ctx_t * p_qp_ctx)
 	osm_log_t *p_log = &p_osmt->log;
 	ib_api_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(p_log, osmt_trap_wait);
+	OSM_LOG_ENTER(p_log);
 
 	osm_log(p_log, OSM_LOG_INFO,
 		"osmt_trap_wait: "
@@ -659,7 +659,7 @@ ib_api_status_t osmt_run_inform_info_flow(IN osmtest_t * const p_osmt)
 	ib_api_status_t status;
 	osmt_qp_ctx_t qp_ctx;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmt_run_inform_info_flow);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	/* bind the QP */
 	status = osmt_bind_inform_qp(p_osmt, &qp_ctx);
@@ -746,7 +746,7 @@ ib_api_status_t osmt_run_trap64_65_flow(IN osmtest_t * const p_osmt)
 	ib_api_status_t status;
 	osmt_qp_ctx_t qp_ctx;
 
-	OSM_LOG_ENTER(&p_osmt->log, osmt_run_trap64_65_flow);
+	OSM_LOG_ENTER(&p_osmt->log);
 
 	/* bind the QP */
 	status = osmt_bind_inform_qp(p_osmt, &qp_ctx);

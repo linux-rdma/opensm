@@ -77,7 +77,7 @@ __osm_link_mgr_set_physp_pi(osm_sm_t * sm,
 	boolean_t send_set = FALSE;
 	osm_physp_t *p_remote_physp;
 
-	OSM_LOG_ENTER(sm->p_log, __osm_link_mgr_set_physp_pi);
+	OSM_LOG_ENTER(sm->p_log);
 
 	p_node = osm_physp_get_node_ptr(p_physp);
 
@@ -352,7 +352,7 @@ __osm_link_mgr_process_node(osm_sm_t * sm,
 	uint8_t current_state;
 	osm_signal_t signal = OSM_SIGNAL_DONE;
 
-	OSM_LOG_ENTER(sm->p_log, __osm_link_mgr_process_node);
+	OSM_LOG_ENTER(sm->p_log);
 
 	if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG))
 		osm_log(sm->p_log, OSM_LOG_DEBUG,
@@ -409,7 +409,7 @@ osm_signal_t osm_link_mgr_process(osm_sm_t * sm, IN const uint8_t link_state)
 	osm_node_t *p_node;
 	osm_signal_t signal = OSM_SIGNAL_DONE;
 
-	OSM_LOG_ENTER(sm->p_log, osm_link_mgr_process);
+	OSM_LOG_ENTER(sm->p_log);
 
 	p_node_guid_tbl = &sm->p_subn->node_guid_tbl;
 

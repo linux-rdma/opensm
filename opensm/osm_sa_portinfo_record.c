@@ -87,7 +87,7 @@ __osm_pir_rcv_new_pir(IN osm_sa_t * sa,
 	osm_pir_item_t *p_rec_item;
 	ib_api_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(sa->p_log, __osm_pir_rcv_new_pir);
+	OSM_LOG_ENTER(sa->p_log);
 
 	p_rec_item = malloc(sizeof(*p_rec_item));
 	if (p_rec_item == NULL) {
@@ -132,7 +132,7 @@ __osm_sa_pir_create(IN osm_sa_t * sa,
 	uint16_t match_lid_ho;
 	osm_physp_t *p_node_physp;
 
-	OSM_LOG_ENTER(sa->p_log, __osm_sa_pir_create);
+	OSM_LOG_ENTER(sa->p_log);
 
 	if (p_physp->p_node->sw) {
 		p_node_physp = osm_node_get_physp_ptr(p_physp->p_node, 0);
@@ -183,7 +183,7 @@ __osm_sa_pir_check_physp(IN osm_sa_t * sa,
 	const ib_port_info_t *p_comp_pi;
 	const ib_port_info_t *p_pi;
 
-	OSM_LOG_ENTER(sa->p_log, __osm_sa_pir_check_physp);
+	OSM_LOG_ENTER(sa->p_log);
 
 	p_rcvd_rec = p_ctxt->p_rcvd_rec;
 	comp_mask = p_ctxt->comp_mask;
@@ -417,7 +417,7 @@ __osm_sa_pir_by_comp_mask(IN osm_sa_t * sa,
 	uint8_t num_ports;
 	const osm_physp_t *p_req_physp;
 
-	OSM_LOG_ENTER(sa->p_log, __osm_sa_pir_by_comp_mask);
+	OSM_LOG_ENTER(sa->p_log);
 
 	p_rcvd_rec = p_ctxt->p_rcvd_rec;
 	comp_mask = p_ctxt->comp_mask;
@@ -499,7 +499,7 @@ void osm_pir_rcv_process(IN void *ctx, IN void *data)
 
 	CL_ASSERT(sa);
 
-	OSM_LOG_ENTER(sa->p_log, osm_pir_rcv_process);
+	OSM_LOG_ENTER(sa->p_log);
 
 	CL_ASSERT(p_madw);
 

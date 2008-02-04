@@ -84,7 +84,7 @@ void __osmv_TOPSPIN_receiver_thr(void *p_ctx)
 	osmv_bind_obj_t *const p_bo = (osmv_bind_obj_t *) p_ctx;
 	ib_api_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(p_bo->p_vendor->p_log, __osmv_TOPSPIN_receiver_thr);
+	OSM_LOG_ENTER(p_bo->p_vendor->p_log);
 
 	/* Make sure the p_bo object is still relevant */
 	if ((p_bo->magic_ptr != p_bo) || p_bo->is_closing)
@@ -285,7 +285,7 @@ osmv_transport_mad_send(IN const osm_bind_handle_t h_bind,
 
 	const ib_mad_t *p_mad_hdr = p_mad;
 
-	OSM_LOG_ENTER(p_vend->p_log, osmv_transport_mad_send);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	memset(&ts_mad, 0, sizeof(ts_mad));
 
@@ -484,7 +484,7 @@ void osm_vendor_set_sm(IN osm_bind_handle_t h_bind, IN boolean_t is_sm_val)
 	    ((osmv_TOPSPIN_transport_mgr_t *) (p_bo->p_transp_mgr))->device_fd;
 	struct ib_set_port_info_ioctl set_port_data;
 
-	OSM_LOG_ENTER(p_vend->p_log, osm_vendor_set_sm);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	memset(&set_port_data, 0, sizeof(set_port_data));
 

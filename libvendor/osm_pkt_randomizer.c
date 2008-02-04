@@ -75,7 +75,7 @@ __osm_pkt_randomizer_is_path_in_fault_paths(IN osm_log_t * p_log,
 	osm_dr_path_t *p_found_dr_path;
 	uint8_t ind1, ind2;
 
-	OSM_LOG_ENTER(p_log, __osm_pkt_randomizer_is_path_in_fault_paths);
+	OSM_LOG_ENTER(p_log);
 
 	for (ind1 = 0; ind1 < p_pkt_rand->num_paths_initialized; ind1++) {
 		found_path = TRUE;
@@ -131,7 +131,7 @@ __osm_pkt_randomizer_process_path(IN osm_log_t * p_log,
 	char buf[BUF_SIZE];
 	char line[BUF_SIZE];
 
-	OSM_LOG_ENTER(p_log, __osm_pkt_randomizer_process_path);
+	OSM_LOG_ENTER(p_log);
 
 	if (rand_value_init == FALSE) {
 		int seed;
@@ -238,7 +238,7 @@ osm_pkt_randomizer_mad_drop(IN osm_log_t * p_log,
 	boolean_t res = FALSE;
 	osm_dr_path_t dr_path;
 
-	OSM_LOG_ENTER(p_log, osm_pkt_randomizer_mad_drop);
+	OSM_LOG_ENTER(p_log);
 
 	p_smp = (ib_smp_t *) p_mad;
 
@@ -273,7 +273,7 @@ osm_pkt_randomizer_init(IN OUT osm_pkt_randomizer_t ** pp_pkt_randomizer,
 	uint8_t tmp;
 	ib_api_status_t res = IB_SUCCESS;
 
-	OSM_LOG_ENTER(p_log, osm_pkt_randomizer_init);
+	OSM_LOG_ENTER(p_log);
 
 	*pp_pkt_randomizer = malloc(sizeof(osm_pkt_randomizer_t));
 	if (*pp_pkt_randomizer == NULL) {
@@ -332,7 +332,7 @@ void
 osm_pkt_randomizer_destroy(IN OUT osm_pkt_randomizer_t ** pp_pkt_randomizer,
 			   IN osm_log_t * p_log)
 {
-	OSM_LOG_ENTER(p_log, osm_pkt_randomizer_destroy);
+	OSM_LOG_ENTER(p_log);
 
 	if (*pp_pkt_randomizer != NULL) {
 		free((*pp_pkt_randomizer)->fault_dr_paths);

@@ -165,7 +165,7 @@ static void __osm_state_mgr_get_sw_info(IN cl_map_item_t * const p_object,
 	osm_sm_t *sm = context;
 	ib_api_status_t status;
 
-	OSM_LOG_ENTER(sm->p_log, __osm_state_mgr_get_sw_info);
+	OSM_LOG_ENTER(sm->p_log);
 
 	p_node = p_sw->p_node;
 	p_dr_path = osm_node_get_any_dr_path_ptr(p_node);
@@ -200,7 +200,7 @@ __osm_state_mgr_get_remote_port_info(IN osm_sm_t * sm,
 	osm_madw_context_t mad_context;
 	ib_api_status_t status;
 
-	OSM_LOG_ENTER(sm->p_log, __osm_state_mgr_get_remote_port_info);
+	OSM_LOG_ENTER(sm->p_log);
 
 	/* generate a dr path leaving on the physp to the remote node */
 	p_dr_path = osm_physp_get_dr_path_ptr(p_physp);
@@ -244,7 +244,7 @@ static ib_api_status_t __osm_state_mgr_sweep_hop_0(IN osm_sm_t * sm)
 	osm_bind_handle_t h_bind;
 	uint8_t path_array[IB_SUBNET_PATH_HOPS_MAX];
 
-	OSM_LOG_ENTER(sm->p_log, __osm_state_mgr_sweep_hop_0);
+	OSM_LOG_ENTER(sm->p_log);
 
 	memset(path_array, 0, sizeof(path_array));
 
@@ -310,7 +310,7 @@ static ib_api_status_t __osm_state_mgr_clean_known_lids(IN osm_sm_t * sm)
 	cl_ptr_vector_t *p_vec = &(sm->p_subn->port_lid_tbl);
 	uint32_t i;
 
-	OSM_LOG_ENTER(sm->p_log, __osm_state_mgr_clean_known_lids);
+	OSM_LOG_ENTER(sm->p_log);
 
 	/* we need a lock here! */
 	CL_PLOCK_ACQUIRE(sm->p_lock);
@@ -333,7 +333,7 @@ static ib_api_status_t __osm_state_mgr_notify_lid_change(IN osm_sm_t * sm)
 	ib_api_status_t status;
 	osm_bind_handle_t h_bind;
 
-	OSM_LOG_ENTER(sm->p_log, __osm_state_mgr_notify_lid_change);
+	OSM_LOG_ENTER(sm->p_log);
 
 	/*
 	 * First, get the bind handle.
@@ -374,7 +374,7 @@ static boolean_t __osm_state_mgr_is_sm_port_down(IN osm_sm_t * sm)
 	osm_physp_t *p_physp;
 	uint8_t state;
 
-	OSM_LOG_ENTER(sm->p_log, __osm_state_mgr_is_sm_port_down);
+	OSM_LOG_ENTER(sm->p_log);
 
 	port_guid = sm->p_subn->sm_port_guid;
 
@@ -438,7 +438,7 @@ static ib_api_status_t __osm_state_mgr_sweep_hop_1(IN osm_sm_t * sm)
 	uint8_t num_ports;
 	osm_physp_t *p_ext_physp;
 
-	OSM_LOG_ENTER(sm->p_log, __osm_state_mgr_sweep_hop_1);
+	OSM_LOG_ENTER(sm->p_log);
 
 	/*
 	 * First, get our own port and node objects.
@@ -568,7 +568,7 @@ static ib_api_status_t __osm_state_mgr_light_sweep_start(IN osm_sm_t * sm)
 	osm_physp_t *p_physp;
 	uint8_t port_num;
 
-	OSM_LOG_ENTER(sm->p_log, __osm_state_mgr_light_sweep_start);
+	OSM_LOG_ENTER(sm->p_log);
 
 	p_sw_tbl = &sm->p_subn->sw_guid_tbl;
 
@@ -642,7 +642,7 @@ static osm_remote_sm_t *__osm_state_mgr_exists_other_master_sm(IN osm_sm_t * sm)
 	osm_remote_sm_t *p_sm;
 	osm_remote_sm_t *p_sm_res = NULL;
 
-	OSM_LOG_ENTER(sm->p_log, __osm_state_mgr_exists_other_master_sm);
+	OSM_LOG_ENTER(sm->p_log);
 
 	p_sm_tbl = &sm->p_subn->sm_guid_tbl;
 
@@ -682,7 +682,7 @@ static osm_remote_sm_t *__osm_state_mgr_get_highest_sm(IN osm_sm_t * sm)
 	uint8_t highest_sm_priority;
 	ib_net64_t highest_sm_guid;
 
-	OSM_LOG_ENTER(sm->p_log, __osm_state_mgr_get_highest_sm);
+	OSM_LOG_ENTER(sm->p_log);
 
 	p_sm_tbl = &sm->p_subn->sm_guid_tbl;
 
@@ -740,7 +740,7 @@ __osm_state_mgr_send_handover(IN osm_sm_t * const sm,
 	const osm_port_t *p_port;
 	ib_api_status_t status;
 
-	OSM_LOG_ENTER(sm->p_log, __osm_state_mgr_send_handover);
+	OSM_LOG_ENTER(sm->p_log);
 
 	/*
 	 * Send a query of SubnSet(SMInfo) HANDOVER to the remote sm given.
@@ -819,7 +819,7 @@ static void __osm_state_mgr_report_new_ports(IN osm_sm_t * sm)
 	uint16_t min_lid_ho;
 	uint16_t max_lid_ho;
 
-	OSM_LOG_ENTER(sm->p_log, __osm_state_mgr_report_new_ports);
+	OSM_LOG_ENTER(sm->p_log);
 
 	CL_PLOCK_ACQUIRE(sm->p_lock);
 	p_next = cl_qmap_head(&sm->p_subn->port_guid_tbl);
@@ -902,7 +902,7 @@ static void __osm_state_mgr_check_tbl_consistency(IN osm_sm_t * sm)
 	uint16_t max_lid_ho;
 	uint16_t lid_ho;
 
-	OSM_LOG_ENTER(sm->p_log, __osm_state_mgr_check_tbl_consistency);
+	OSM_LOG_ENTER(sm->p_log);
 
 	cl_ptr_vector_construct(&ref_port_lid_tbl);
 	cl_ptr_vector_init(&ref_port_lid_tbl,
@@ -1295,7 +1295,7 @@ void osm_state_mgr_process(IN osm_sm_t * sm, IN osm_signal_t signal)
 {
 	CL_ASSERT(sm);
 
-	OSM_LOG_ENTER(sm->p_log, osm_state_mgr_process);
+	OSM_LOG_ENTER(sm->p_log);
 
 	if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG))
 		osm_log(sm->p_log, OSM_LOG_DEBUG,

@@ -288,7 +288,7 @@ osm_mgrp_send_delete_notice(IN osm_subn_t * const p_subn,
 	ib_mad_notice_attr_t notice;
 	ib_api_status_t status;
 
-	OSM_LOG_ENTER(p_log, osm_mgrp_send_delete_notice);
+	OSM_LOG_ENTER(p_log);
 
 	/* prepare the needed info */
 
@@ -330,7 +330,7 @@ osm_mgrp_send_create_notice(IN osm_subn_t * const p_subn,
 	ib_mad_notice_attr_t notice;
 	ib_api_status_t status;
 
-	OSM_LOG_ENTER(p_log, osm_mgrp_send_create_notice);
+	OSM_LOG_ENTER(p_log);
 
 	/* prepare the needed info */
 

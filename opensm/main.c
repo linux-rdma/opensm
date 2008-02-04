@@ -453,7 +453,7 @@ parse_ignore_guids_file(IN char *guids_file_name, IN osm_opensm_t * p_osm)
 	ib_api_status_t status = IB_SUCCESS;
 	unsigned int port_num;
 
-	OSM_LOG_ENTER(&p_osm->log, parse_ignore_guids_file);
+	OSM_LOG_ENTER(&p_osm->log);
 
 	fh = fopen(guids_file_name, "r");
 	if (fh == NULL) {

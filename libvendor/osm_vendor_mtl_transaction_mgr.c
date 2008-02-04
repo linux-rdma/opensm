@@ -73,7 +73,7 @@ void __osm_transaction_mgr_callback(IN void *context)
 	cl_list_t retry_madw_p_list;	/*  this list will include all the madw_p that were retried and need to be removed. */
 	osm_madw_t *madw_p;
 
-	OSM_LOG_ENTER(p_vend->p_log, __osm_transaction_mgr_callback);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	trans_mgr_p = (osm_transaction_mgr_t *) p_vend->p_transaction_mgr;
 
@@ -273,7 +273,7 @@ void osm_transaction_mgr_init(IN osm_vendor_t * const p_vend)
 {
 	cl_status_t cl_status;
 	osm_transaction_mgr_t *trans_mgr_p;
-	OSM_LOG_ENTER(p_vend->p_log, osm_transaction_mgr_init);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	CL_ASSERT(p_vend->p_transaction_mgr == NULL);
 
@@ -319,7 +319,7 @@ void osm_transaction_mgr_destroy(IN osm_vendor_t * const p_vend)
 	cl_map_item_t *p_map_item;
 	osm_madw_req_t *osm_madw_req_p;
 
-	OSM_LOG_ENTER(p_vend->p_log, osm_transaction_mgr_destroy);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	trans_mgr_p = (osm_transaction_mgr_t *) p_vend->p_transaction_mgr;
 
@@ -390,7 +390,7 @@ osm_transaction_mgr_insert_madw(IN osm_bind_handle_t * const p_bind,
 	uint64_t key;
 	const ib_mad_t *mad_p = p_madw->p_mad;
 
-	OSM_LOG_ENTER(p_vend->p_log, osm_transaction_mgr_insert_madw);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	CL_ASSERT(mad_p);
 
@@ -450,7 +450,7 @@ osm_transaction_mgr_erase_madw(IN osm_vendor_t * const p_vend,
 	osm_madw_req_t *osm_madw_req_p;
 	uint64_t key;
 	cl_map_item_t *p_map_item;
-	OSM_LOG_ENTER(p_vend->p_log, osm_transaction_mgr_erase_madw);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	trans_mgr_p = (osm_transaction_mgr_t *) p_vend->p_transaction_mgr;
 
@@ -501,7 +501,7 @@ osm_transaction_mgr_get_madw_for_tid(IN osm_vendor_t * const p_vend,
 	osm_madw_req_t *osm_madw_req_p;
 	cl_map_item_t *p_map_item;
 	uint64_t key;
-	OSM_LOG_ENTER(p_vend->p_log, osm_transaction_mgr_get_madw_for_tid);
+	OSM_LOG_ENTER(p_vend->p_log);
 
 	trans_mgr_p = (osm_transaction_mgr_t *) p_vend->p_transaction_mgr;
 

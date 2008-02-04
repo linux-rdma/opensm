@@ -70,7 +70,7 @@ __osm_nd_rcv_process_nd(IN osm_sm_t * sm,
 	char *tmp_desc;
 	char print_desc[IB_NODE_DESCRIPTION_SIZE + 1];
 
-	OSM_LOG_ENTER(sm->p_log, __osm_nd_rcv_process_nd);
+	OSM_LOG_ENTER(sm->p_log);
 
 	memcpy(&p_node->node_desc.description, p_nd, sizeof(*p_nd));
 
@@ -110,7 +110,7 @@ void osm_nd_rcv_process(IN void *context, IN void *data)
 
 	CL_ASSERT(sm);
 
-	OSM_LOG_ENTER(sm->p_log, osm_nd_rcv_process);
+	OSM_LOG_ENTER(sm->p_log);
 
 	CL_ASSERT(p_madw);
 
