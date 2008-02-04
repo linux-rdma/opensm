@@ -200,14 +200,14 @@ is accumulative.
 .TP
 \fB\-P\fR, \fB\-\-Pconfig\fR
 This option defines the optional partition configuration file.
-The default name is \'/etc/opensm/opensm-partitions.conf\'.
+The default name is \fB\%@CONF_DIR@/@PARTITION_CONFIG_FILE@\fP.
 .TP
 .BI --prefix_routes_file= path
 Prefix routes control how the SA responds to path record queries for
 off-subnet DGIDs.  By default, the SA fails such queries. The
 .B PREFIX ROUTES
 section below describes the format of the configuration file.
-The default path is \fB\%/etc/ofa/opensm\-prefix\-routes.conf\fP.
+The default path is \fB\%@CONF_DIR@/prefix\-routes.conf\fP.
 .TP
 \fB\-Q\fR, \fB\-\-qos\fR
 This option enables QoS setup. It is disabled by default.
@@ -326,7 +326,7 @@ logrotate purposes.
 .SH PARTITION CONFIGURATION
 .PP
 The default name of OpenSM partitions configuration file is
-\'/etc/ofa/opensm-partitions.conf\'. The default may be changed by using
+\fB\%@CONF_DIR@/@PARTITION_CONFIG_FILE@\fP. The default may be changed by using
 --Pconfig (-P) option with OpenSM.
 
 The default partition will be created by OpenSM unconditionally even
@@ -920,7 +920,7 @@ Both or one of options -U and -M can be specified together with \'-R file\'.
 
 .SH FILES
 .TP
-.B /etc/opensm/prefix-routes.conf
+.B @CONF_DIR@/prefix-routes.conf
 default prefix routes file.
 
 .SH AUTHORS

@@ -95,6 +95,7 @@ CONF_DIR="`eval echo $CONF_DIR_TMP2`"
 AC_DEFINE_UNQUOTED(OPENSM_CONFIG_DIR,
 	["$CONF_DIR"],
 	[Define OpenSM config directory])
+AC_SUBST(CONF_DIR)
 
 dnl Check for a different default node name map file
 NODENAMEMAPFILE=ib-node-name-map
@@ -135,6 +136,7 @@ AC_MSG_RESULT(${withpartitionsconf=no})
 AC_DEFINE_UNQUOTED(HAVE_DEFAULT_PARTITION_CONFIG_FILE,
 	["$CONF_DIR/$PARTITION_CONFIG_FILE"],
 	[Define a QOS policy config file])
+AC_SUBST(PARTITION_CONFIG_FILE)
 
 dnl Check for a different QOS policy file
 QOS_POLICY_FILE=qos-policy.conf
