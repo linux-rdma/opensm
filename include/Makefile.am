@@ -26,7 +26,6 @@ EXTRA_DIST = \
 	$(srcdir)/opensm/osm_port_profile.h \
 	$(srcdir)/opensm/osm_multicast.h \
 	$(srcdir)/opensm/osm_base.h \
-	$(srcdir)/opensm/osm_mcast_mgr.h \
 	$(srcdir)/opensm/osm_errors.h \
 	$(srcdir)/opensm/osm_event_plugin.h \
 	$(srcdir)/opensm/osm_mtree.h \
@@ -36,7 +35,6 @@ EXTRA_DIST = \
 	$(srcdir)/opensm/osm_db.h \
 	$(srcdir)/opensm/osm_mad_pool.h \
 	$(srcdir)/opensm/osm_remote_sm.h \
-	$(srcdir)/opensm/osm_link_mgr.h \
 	$(srcdir)/opensm/osm_msgdef.h \
 	$(srcdir)/opensm/st.h \
 	$(srcdir)/opensm/osm_mcast_tbl.h \
@@ -51,7 +49,6 @@ EXTRA_DIST = \
 	$(srcdir)/opensm/osm_attrib_req.h \
 	$(srcdir)/opensm/osm_stats.h \
 	$(srcdir)/opensm/osm_vl15intf.h \
-	$(srcdir)/opensm/osm_drop_mgr.h \
 	$(srcdir)/opensm/osm_perfmgr.h \
 	$(srcdir)/opensm/osm_perfmgr_db.h \
 	$(srcdir)/opensm/osm_qos_policy.h \
