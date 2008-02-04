@@ -920,6 +920,18 @@ Both or one of options -U and -M can be specified together with \'-R file\'.
 
 .SH FILES
 .TP
+.B @CONF_DIR@/@NODENAMEMAPFILE@
+default node name map file.  See ibnetdiscover for more information on format.
+
+.TP
+.B @CONF_DIR@/@PARTITION_CONFIG_FILE@
+default partition config file
+
+.TP
+.B @CONF_DIR@/@QOS_POLICY_FILE@
+default QOS policy config file
+
+.TP
 .B @CONF_DIR@/prefix-routes.conf
 default prefix routes file.
 
@@ -939,3 +951,6 @@ Yevgeny Kliteynik
 .TP
 Thomas Sodring
 .RI < tsodring@simula.no >
+.TP
+Ira Weiny
+.RI < weiny2@llnl.gov >

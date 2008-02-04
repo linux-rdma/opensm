@@ -116,6 +116,7 @@ AC_MSG_RESULT(${withnodenamemap=no})
 AC_DEFINE_UNQUOTED(HAVE_DEFAULT_NODENAME_MAP,
 	["$CONF_DIR/$NODENAMEMAPFILE"],
 	[Define a default node name map file])
+AC_SUBST(NODENAMEMAPFILE)
 
 dnl Check for a different partition conf file
 PARTITION_CONFIG_FILE=partitions.conf
@@ -157,6 +158,7 @@ AC_MSG_RESULT(${withqospolicyconf=no})
 AC_DEFINE_UNQUOTED(HAVE_DEFAULT_QOS_POLICY_FILE,
 	["$CONF_DIR/$QOS_POLICY_FILE"],
 	[Define a QOS policy config file])
+AC_SUBST(QOS_POLICY_FILE)
 
 dnl select example event plugin or not
 OPENIB_OSM_DEFAULT_EVENT_PLUGIN_SEL
