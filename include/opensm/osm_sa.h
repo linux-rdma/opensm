@@ -61,6 +61,7 @@
 #include <opensm/osm_log.h>
 #include <opensm/osm_sa_mad_ctrl.h>
 #include <opensm/osm_sm.h>
+#include <opensm/osm_multicast.h>
 
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {

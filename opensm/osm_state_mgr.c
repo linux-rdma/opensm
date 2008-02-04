@@ -68,7 +68,12 @@
 #include <opensm/osm_inform.h>
 #include <opensm/osm_opensm.h>
 
-osm_signal_t osm_qos_setup(IN osm_opensm_t * p_osm);
+extern void osm_drop_mgr_process(IN osm_sm_t *sm);
+extern osm_signal_t osm_qos_setup(IN osm_opensm_t * p_osm);
+extern osm_signal_t osm_pkey_mgr_process(IN osm_opensm_t * p_osm);
+extern osm_signal_t osm_mcast_mgr_process(IN osm_sm_t *sm);
+extern osm_signal_t osm_mcast_mgr_process_mgroups(IN osm_sm_t *sm);
+extern osm_signal_t osm_link_mgr_process(IN osm_sm_t *sm, IN uint8_t state);
 
 /**********************************************************************
  **********************************************************************/
@@ -1078,7 +1083,7 @@ _repeat_discovery:
 				"SM PORT DOWN");
 
 		/* Run the drop manager - we want to clear all records */
-		osm_drop_mgr_process(&sm->drop_mgr);
+		osm_drop_mgr_process(sm);
 
 		/* Move to DISCOVERING state */
 		osm_sm_state_mgr_process(sm, OSM_SM_SIGNAL_DISCOVER);
@@ -1144,7 +1149,7 @@ _repeat_discovery:
 	}
 
 	/* Need to continue with lid assignment */
-	osm_drop_mgr_process(&sm->drop_mgr);
+	osm_drop_mgr_process(sm);
 
 	/*
 	 * If we are not MASTER already - this means that we are
@@ -1206,7 +1211,7 @@ _repeat_discovery:
 			"SWITCHES CONFIGURED FOR UNICAST");
 
 	if (!sm->p_subn->opt.disable_multicast) {
-		osm_mcast_mgr_process(&sm->mcast_mgr);
+		osm_mcast_mgr_process(sm);
 		if (wait_for_pending_transactions(&sm->p_subn->p_osm->stats))
 			return;
 		osm_log_msg_box(sm->p_log, OSM_LOG_VERBOSE, __FUNCTION__,
@@ -1221,21 +1226,21 @@ _repeat_discovery:
 	 * other parameters provided by the Set(PortInfo) Packet.
 	 */
 
-	osm_link_mgr_process(&sm->link_mgr, IB_LINK_NO_CHANGE);
+	osm_link_mgr_process(sm, IB_LINK_NO_CHANGE);
 	if (wait_for_pending_transactions(&sm->p_subn->p_osm->stats))
 		return;
 
 	osm_log_msg_box(sm->p_log, OSM_LOG_VERBOSE, __FUNCTION__,
 			"LINKS PORTS CONFIGURED - SET LINKS TO ARMED STATE");
 
-	osm_link_mgr_process(&sm->link_mgr, IB_LINK_ARMED);
+	osm_link_mgr_process(sm, IB_LINK_ARMED);
 	if (wait_for_pending_transactions(&sm->p_subn->p_osm->stats))
 		return;
 
 	osm_log_msg_box(sm->p_log, OSM_LOG_VERBOSE, __FUNCTION__,
 			"LINKS ARMED - SET LINKS TO ACTIVE STATE");
 
-	osm_link_mgr_process(&sm->link_mgr, IB_LINK_ACTIVE);
+	osm_link_mgr_process(sm, IB_LINK_ACTIVE);
 	if (wait_for_pending_transactions(&sm->p_subn->p_osm->stats))
 		return;
 
@@ -1277,7 +1282,7 @@ static void do_process_mgrp_queue(osm_sm_t * sm)
 {
 	if (sm->p_subn->sm_state != IB_SMINFO_STATE_MASTER)
 		return;
-	osm_mcast_mgr_process_mgroups(&sm->mcast_mgr);
+	osm_mcast_mgr_process_mgroups(sm);
 	wait_for_pending_transactions(&sm->p_subn->p_osm->stats);
 }
 

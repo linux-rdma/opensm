@@ -561,6 +561,8 @@ __osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context)
  * Discovery stuff.
  * Basically this code should not be here, but merged with main OpenSM
  **********************************************************************/
+extern void osm_drop_mgr_process(IN osm_sm_t *sm);
+
 static int sweep_hop_1(osm_sm_t * sm)
 {
 	ib_api_status_t status = IB_SUCCESS;
@@ -772,7 +774,7 @@ static int perfmgr_discovery(osm_opensm_t * osm)
 		goto _exit;
 
 _drop:
-	osm_drop_mgr_process(&osm->sm.drop_mgr);
+	osm_drop_mgr_process(&osm->sm);
 
 _exit:
 	return ret;

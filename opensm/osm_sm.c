@@ -61,7 +61,6 @@
 #include <opensm/osm_log.h>
 #include <opensm/osm_node.h>
 #include <opensm/osm_msgdef.h>
-#include <opensm/osm_mcast_mgr.h>
 #include <opensm/osm_mcm_info.h>
 #include <opensm/osm_perfmgr.h>
 #include <opensm/osm_opensm.h>
@@ -169,10 +168,7 @@ void osm_sm_construct(IN osm_sm_t * const p_sm)
 	osm_sm_mad_ctrl_construct(&p_sm->mad_ctrl);
 	osm_lid_mgr_construct(&p_sm->lid_mgr);
 	osm_ucast_mgr_construct(&p_sm->ucast_mgr);
-	osm_link_mgr_construct(&p_sm->link_mgr);
-	osm_drop_mgr_construct(&p_sm->drop_mgr);
 	osm_sweep_fail_ctrl_construct(&p_sm->sweep_fail_ctrl);
-	osm_mcast_mgr_construct(&p_sm->mcast_mgr);
 }
 
 /**********************************************************************
@@ -231,9 +227,6 @@ void osm_sm_destroy(IN osm_sm_t * const p_sm)
 	OSM_LOG_ENTER(p_sm->p_log, osm_sm_destroy);
 	osm_lid_mgr_destroy(&p_sm->lid_mgr);
 	osm_ucast_mgr_destroy(&p_sm->ucast_mgr);
-	osm_link_mgr_destroy(&p_sm->link_mgr);
-	osm_drop_mgr_destroy(&p_sm->drop_mgr);
-	osm_mcast_mgr_destroy(&p_sm->mcast_mgr);
 	cl_event_wheel_destroy(&p_sm->trap_aging_tracker);
 	cl_timer_destroy(&p_sm->sweep_timer);
 	cl_timer_destroy(&p_sm->polling_timer);
@@ -325,19 +318,7 @@ osm_sm_init(IN osm_sm_t * const p_sm,
 	if (status != IB_SUCCESS)
 		goto Exit;
 
-	status = osm_link_mgr_init(&p_sm->link_mgr, p_sm);
-	if (status != IB_SUCCESS)
-		goto Exit;
-
-	status = osm_drop_mgr_init(&p_sm->drop_mgr, p_sm);
-	if (status != IB_SUCCESS)
-		goto Exit;
-
 	status = osm_sweep_fail_ctrl_init(&p_sm->sweep_fail_ctrl, p_sm);
-	if (status != IB_SUCCESS)
-		goto Exit;
-
-	status = osm_mcast_mgr_init(&p_sm->mcast_mgr, p_sm);
 	if (status != IB_SUCCESS)
 		goto Exit;
 

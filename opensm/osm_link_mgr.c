@@ -51,7 +51,6 @@
 #include <string.h>
 #include <iba/ib_types.h>
 #include <complib/cl_debug.h>
-#include <opensm/osm_link_mgr.h>
 #include <opensm/osm_sm.h>
 #include <opensm/osm_node.h>
 #include <opensm/osm_switch.h>
@@ -60,44 +59,8 @@
 
 /**********************************************************************
  **********************************************************************/
-void osm_link_mgr_construct(IN osm_link_mgr_t * const p_mgr)
-{
-	memset(p_mgr, 0, sizeof(*p_mgr));
-}
-
-/**********************************************************************
- **********************************************************************/
-void osm_link_mgr_destroy(IN osm_link_mgr_t * const p_mgr)
-{
-	OSM_LOG_ENTER(p_mgr->p_log, osm_link_mgr_destroy);
-
-	OSM_LOG_EXIT(p_mgr->p_log);
-}
-
-/**********************************************************************
- **********************************************************************/
-ib_api_status_t
-osm_link_mgr_init(IN osm_link_mgr_t * const p_mgr, IN osm_sm_t * sm)
-{
-	ib_api_status_t status = IB_SUCCESS;
-
-	OSM_LOG_ENTER(sm->p_log, osm_link_mgr_init);
-
-	osm_link_mgr_construct(p_mgr);
-
-	p_mgr->sm = sm;
-	p_mgr->p_log = sm->p_log;
-	p_mgr->p_subn = sm->p_subn;
-	p_mgr->p_lock = sm->p_lock;
-
-	OSM_LOG_EXIT(p_mgr->p_log);
-	return (status);
-}
-
-/**********************************************************************
- **********************************************************************/
 static boolean_t
-__osm_link_mgr_set_physp_pi(IN osm_link_mgr_t * const p_mgr,
+__osm_link_mgr_set_physp_pi(osm_sm_t *sm,
 			    IN osm_physp_t * const p_physp,
 			    IN uint8_t const port_state)
 {
@@ -114,7 +77,7 @@ __osm_link_mgr_set_physp_pi(IN osm_link_mgr_t * const p_mgr,
 	boolean_t send_set = FALSE;
 	osm_physp_t *p_remote_physp;
 
-	OSM_LOG_ENTER(p_mgr->p_log, __osm_link_mgr_set_physp_pi);
+	OSM_LOG_ENTER(sm->p_log, __osm_link_mgr_set_physp_pi);
 
 	p_node = osm_physp_get_node_ptr(p_physp);
 
@@ -127,7 +90,7 @@ __osm_link_mgr_set_physp_pi(IN osm_link_mgr_t * const p_mgr,
 		   For base port 0 the following parameters are not valid (p822, table 145).
 		 */
 		if (!p_node->sw) {
-			osm_log(p_mgr->p_log, OSM_LOG_ERROR,
+			osm_log(sm->p_log, OSM_LOG_ERROR,
 				"__osm_link_mgr_set_physp_pi: ERR 4201: "
 				"Cannot find switch by guid: 0x%" PRIx64 "\n",
 				cl_ntoh64(p_node->node_info.node_guid));
@@ -138,8 +101,8 @@ __osm_link_mgr_set_physp_pi(IN osm_link_mgr_t * const p_mgr,
 		    == FALSE) {
 			/* This means the switch doesn't support enhanced port 0.
 			   Can skip it. */
-			if (osm_log_is_active(p_mgr->p_log, OSM_LOG_DEBUG))
-				osm_log(p_mgr->p_log, OSM_LOG_DEBUG,
+			if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG))
+				osm_log(sm->p_log, OSM_LOG_DEBUG,
 					"__osm_link_mgr_set_physp_pi: "
 					"Skipping port 0, GUID 0x%016" PRIx64
 					"\n",
@@ -184,12 +147,12 @@ __osm_link_mgr_set_physp_pi(IN osm_link_mgr_t * const p_mgr,
 		/* The following fields are relevant only for CA port, router, or Enh. SP0 */
 		if (osm_node_get_type(p_node) != IB_NODE_TYPE_SWITCH ||
 		    port_num == 0) {
-			p_pi->m_key = p_mgr->p_subn->opt.m_key;
+			p_pi->m_key = sm->p_subn->opt.m_key;
 			if (memcmp(&p_pi->m_key, &p_old_pi->m_key,
 				   sizeof(p_pi->m_key)))
 				send_set = TRUE;
 
-			p_pi->subnet_prefix = p_mgr->p_subn->opt.subnet_prefix;
+			p_pi->subnet_prefix = sm->p_subn->opt.subnet_prefix;
 			if (memcmp(&p_pi->subnet_prefix,
 				   &p_old_pi->subnet_prefix,
 				   sizeof(p_pi->subnet_prefix)))
@@ -201,24 +164,24 @@ __osm_link_mgr_set_physp_pi(IN osm_link_mgr_t * const p_mgr,
 				send_set = TRUE;
 
 			/* we are initializing the ports with our local sm_base_lid */
-			p_pi->master_sm_base_lid = p_mgr->p_subn->sm_base_lid;
+			p_pi->master_sm_base_lid = sm->p_subn->sm_base_lid;
 			if (memcmp(&p_pi->master_sm_base_lid,
 				   &p_old_pi->master_sm_base_lid,
 				   sizeof(p_pi->master_sm_base_lid)))
 				send_set = TRUE;
 
 			p_pi->m_key_lease_period =
-			    p_mgr->p_subn->opt.m_key_lease_period;
+			    sm->p_subn->opt.m_key_lease_period;
 			if (memcmp(&p_pi->m_key_lease_period,
 				   &p_old_pi->m_key_lease_period,
 				   sizeof(p_pi->m_key_lease_period)))
 				send_set = TRUE;
 
 			if (esp0 == FALSE)
-				p_pi->mkey_lmc = p_mgr->p_subn->opt.lmc;
+				p_pi->mkey_lmc = sm->p_subn->opt.lmc;
 			else {
-				if (p_mgr->p_subn->opt.lmc_esp0)
-					p_pi->mkey_lmc = p_mgr->p_subn->opt.lmc;
+				if (sm->p_subn->opt.lmc_esp0)
+					p_pi->mkey_lmc = sm->p_subn->opt.lmc;
 				else
 					p_pi->mkey_lmc = 0;
 			}
@@ -227,7 +190,7 @@ __osm_link_mgr_set_physp_pi(IN osm_link_mgr_t * const p_mgr,
 				send_set = TRUE;
 
 			ib_port_info_set_timeout(p_pi,
-						 p_mgr->p_subn->opt.
+						 sm->p_subn->opt.
 						 subnet_timeout);
 			if (ib_port_info_get_timeout(p_pi) !=
 			    ib_port_info_get_timeout(p_old_pi))
@@ -242,7 +205,7 @@ __osm_link_mgr_set_physp_pi(IN osm_link_mgr_t * const p_mgr,
 			if (osm_node_get_type(osm_physp_get_node_ptr(p_physp))
 			    == IB_NODE_TYPE_ROUTER) {
 				ib_port_info_set_hoq_lifetime(p_pi,
-							      p_mgr->p_subn->
+							      sm->p_subn->
 							      opt.
 							      leaf_head_of_queue_lifetime);
 			} else
@@ -254,23 +217,23 @@ __osm_link_mgr_set_physp_pi(IN osm_link_mgr_t * const p_mgr,
 				    (osm_physp_get_node_ptr(p_remote_physp)) !=
 				    IB_NODE_TYPE_SWITCH) {
 					ib_port_info_set_hoq_lifetime(p_pi,
-								      p_mgr->
+								      sm->
 								      p_subn->
 								      opt.
 								      leaf_head_of_queue_lifetime);
 					ib_port_info_set_vl_stall_count(p_pi,
-									p_mgr->
+									sm->
 									p_subn->
 									opt.
 									leaf_vl_stall_count);
 				} else {
 					ib_port_info_set_hoq_lifetime(p_pi,
-								      p_mgr->
+								      sm->
 								      p_subn->
 								      opt.
 								      head_of_queue_lifetime);
 					ib_port_info_set_vl_stall_count(p_pi,
-									p_mgr->
+									sm->
 									p_subn->
 									opt.
 									vl_stall_count);
@@ -284,9 +247,9 @@ __osm_link_mgr_set_physp_pi(IN osm_link_mgr_t * const p_mgr,
 		}
 
 		ib_port_info_set_phy_and_overrun_err_thd(p_pi,
-							 p_mgr->p_subn->opt.
+							 sm->p_subn->opt.
 							 local_phy_errors_threshold,
-							 p_mgr->p_subn->opt.
+							 sm->p_subn->opt.
 							 overrun_errors_threshold);
 		if (memcmp(&p_pi->error_threshold, &p_old_pi->error_threshold,
 			   sizeof(p_pi->error_threshold)))
@@ -302,12 +265,12 @@ __osm_link_mgr_set_physp_pi(IN osm_link_mgr_t * const p_mgr,
 			   sizeof(p_pi->link_width_enabled)))
 			send_set = TRUE;
 
-		if (p_mgr->p_subn->opt.force_link_speed &&
-		    (p_mgr->p_subn->opt.force_link_speed != 15 ||
+		if (sm->p_subn->opt.force_link_speed &&
+		    (sm->p_subn->opt.force_link_speed != 15 ||
 		     ib_port_info_get_link_speed_enabled(p_pi) !=
 		     ib_port_info_get_link_speed_sup(p_pi))) {
 			ib_port_info_set_link_speed_enabled(p_pi,
-							    p_mgr->p_subn->opt.
+							    sm->p_subn->opt.
 							    force_link_speed);
 			if (memcmp(&p_pi->link_speed, &p_old_pi->link_speed,
 				   sizeof(p_pi->link_speed)))
@@ -316,9 +279,9 @@ __osm_link_mgr_set_physp_pi(IN osm_link_mgr_t * const p_mgr,
 
 		/* calc new op_vls and mtu */
 		op_vls =
-		    osm_physp_calc_link_op_vls(p_mgr->p_log, p_mgr->p_subn,
+		    osm_physp_calc_link_op_vls(sm->p_log, sm->p_subn,
 					       p_physp);
-		mtu = osm_physp_calc_link_mtu(p_mgr->p_log, p_physp);
+		mtu = osm_physp_calc_link_mtu(sm->p_log, p_physp);
 
 		ib_port_info_set_neighbor_mtu(p_pi, mtu);
 		if (ib_port_info_get_neighbor_mtu(p_pi) !=
@@ -331,7 +294,7 @@ __osm_link_mgr_set_physp_pi(IN osm_link_mgr_t * const p_mgr,
 			send_set = TRUE;
 
 		/* provide the vl_high_limit from the qos mgr */
-		if (p_mgr->p_subn->opt.qos &&
+		if (sm->p_subn->opt.qos &&
 		    p_physp->vl_high_limit != p_old_pi->vl_high_limit) {
 			send_set = TRUE;
 			p_pi->vl_high_limit = p_physp->vl_high_limit;
@@ -362,27 +325,25 @@ __osm_link_mgr_set_physp_pi(IN osm_link_mgr_t * const p_mgr,
 	   PortInfoSet to every port.
 	 */
 	if (osm_node_get_type(p_node) == IB_NODE_TYPE_SWITCH && port_num
-	    && p_mgr->p_subn->first_time_master_sweep == TRUE)
+	    && sm->p_subn->first_time_master_sweep == TRUE)
 		send_set = TRUE;
 
 	if (send_set)
-		status = osm_req_set(p_mgr->sm,
-				     osm_physp_get_dr_path_ptr(p_physp),
-				     payload,
-				     sizeof(payload),
+		status = osm_req_set(sm, osm_physp_get_dr_path_ptr(p_physp),
+				     payload, sizeof(payload),
 				     IB_MAD_ATTR_PORT_INFO,
 				     cl_hton32(port_num),
 				     CL_DISP_MSGID_NONE, &context);
 
       Exit:
-	OSM_LOG_EXIT(p_mgr->p_log);
+	OSM_LOG_EXIT(sm->p_log);
 	return send_set;
 }
 
 /**********************************************************************
  **********************************************************************/
 static osm_signal_t
-__osm_link_mgr_process_node(IN osm_link_mgr_t * const p_mgr,
+__osm_link_mgr_process_node(osm_sm_t *sm,
 			    IN osm_node_t * const p_node,
 			    IN const uint8_t link_state)
 {
@@ -392,10 +353,10 @@ __osm_link_mgr_process_node(IN osm_link_mgr_t * const p_mgr,
 	uint8_t current_state;
 	osm_signal_t signal = OSM_SIGNAL_DONE;
 
-	OSM_LOG_ENTER(p_mgr->p_log, __osm_link_mgr_process_node);
+	OSM_LOG_ENTER(sm->p_log, __osm_link_mgr_process_node);
 
-	if (osm_log_is_active(p_mgr->p_log, OSM_LOG_DEBUG))
-		osm_log(p_mgr->p_log, OSM_LOG_DEBUG,
+	if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG))
+		osm_log(sm->p_log, OSM_LOG_DEBUG,
 			"__osm_link_mgr_process_node: "
 			"Node 0x%" PRIx64 " going to %s\n",
 			cl_ntoh64(osm_node_get_node_guid(p_node)),
@@ -428,46 +389,46 @@ __osm_link_mgr_process_node(IN osm_link_mgr_t * const p_mgr,
 		 */
 		if (link_state != IB_LINK_NO_CHANGE &&
 		    link_state <= current_state)
-			osm_log(p_mgr->p_log, OSM_LOG_DEBUG,
+			osm_log(sm->p_log, OSM_LOG_DEBUG,
 				"__osm_link_mgr_process_node: "
 				"Physical port 0x%X already %s. Skipping\n",
 				p_physp->port_num,
 				ib_get_port_state_str(current_state));
-		else if (__osm_link_mgr_set_physp_pi(p_mgr, p_physp,
+		else if (__osm_link_mgr_set_physp_pi(sm, p_physp,
 						     link_state))
 			signal = OSM_SIGNAL_DONE_PENDING;
 	}
 
-	OSM_LOG_EXIT(p_mgr->p_log);
+	OSM_LOG_EXIT(sm->p_log);
 	return (signal);
 }
 
 /**********************************************************************
  **********************************************************************/
 osm_signal_t
-osm_link_mgr_process(IN osm_link_mgr_t * const p_mgr,
+osm_link_mgr_process(osm_sm_t *sm,
 		     IN const uint8_t link_state)
 {
 	cl_qmap_t *p_node_guid_tbl;
 	osm_node_t *p_node;
 	osm_signal_t signal = OSM_SIGNAL_DONE;
 
-	OSM_LOG_ENTER(p_mgr->p_log, osm_link_mgr_process);
+	OSM_LOG_ENTER(sm->p_log, osm_link_mgr_process);
 
-	p_node_guid_tbl = &p_mgr->p_subn->node_guid_tbl;
+	p_node_guid_tbl = &sm->p_subn->node_guid_tbl;
 
-	CL_PLOCK_EXCL_ACQUIRE(p_mgr->p_lock);
+	CL_PLOCK_EXCL_ACQUIRE(sm->p_lock);
 
 	for (p_node = (osm_node_t *) cl_qmap_head(p_node_guid_tbl);
 	     p_node != (osm_node_t *) cl_qmap_end(p_node_guid_tbl);
 	     p_node = (osm_node_t *) cl_qmap_next(&p_node->map_item)) {
-		if (__osm_link_mgr_process_node(p_mgr, p_node, link_state) ==
+		if (__osm_link_mgr_process_node(sm, p_node, link_state) ==
 		    OSM_SIGNAL_DONE_PENDING)
 			signal = OSM_SIGNAL_DONE_PENDING;
 	}
 
-	CL_PLOCK_RELEASE(p_mgr->p_lock);
+	CL_PLOCK_RELEASE(sm->p_lock);
 
-	OSM_LOG_EXIT(p_mgr->p_log);
+	OSM_LOG_EXIT(sm->p_log);
 	return (signal);
 }

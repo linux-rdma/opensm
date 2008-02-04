@@ -63,11 +63,8 @@
 #include <opensm/osm_sm_mad_ctrl.h>
 #include <opensm/osm_lid_mgr.h>
 #include <opensm/osm_ucast_mgr.h>
-#include <opensm/osm_link_mgr.h>
-#include <opensm/osm_drop_mgr.h>
 #include <opensm/osm_sweep_fail_ctrl.h>
 #include <opensm/osm_port.h>
-#include <opensm/osm_mcast_mgr.h>
 #include <opensm/osm_db.h>
 #include <opensm/osm_remote_sm.h>
 
@@ -139,10 +136,7 @@ typedef struct osm_sm {
 	osm_sm_mad_ctrl_t mad_ctrl;
 	osm_lid_mgr_t lid_mgr;
 	osm_ucast_mgr_t ucast_mgr;
-	osm_link_mgr_t link_mgr;
-	osm_drop_mgr_t drop_mgr;
 	osm_sweep_fail_ctrl_t sweep_fail_ctrl;
-	osm_mcast_mgr_t mcast_mgr;
 	cl_disp_reg_handle_t ni_disp_h;
 	cl_disp_reg_handle_t pi_disp_h;
 	cl_disp_reg_handle_t nd_disp_h;
