@@ -60,7 +60,7 @@
 /**********************************************************************
  **********************************************************************/
 static boolean_t
-__osm_link_mgr_set_physp_pi(osm_sm_t *sm,
+__osm_link_mgr_set_physp_pi(osm_sm_t * sm,
 			    IN osm_physp_t * const p_physp,
 			    IN uint8_t const port_state)
 {
@@ -279,8 +279,7 @@ __osm_link_mgr_set_physp_pi(osm_sm_t *sm,
 
 		/* calc new op_vls and mtu */
 		op_vls =
-		    osm_physp_calc_link_op_vls(sm->p_log, sm->p_subn,
-					       p_physp);
+		    osm_physp_calc_link_op_vls(sm->p_log, sm->p_subn, p_physp);
 		mtu = osm_physp_calc_link_mtu(sm->p_log, p_physp);
 
 		ib_port_info_set_neighbor_mtu(p_pi, mtu);
@@ -335,7 +334,7 @@ __osm_link_mgr_set_physp_pi(osm_sm_t *sm,
 				     cl_hton32(port_num),
 				     CL_DISP_MSGID_NONE, &context);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sm->p_log);
 	return send_set;
 }
@@ -343,7 +342,7 @@ __osm_link_mgr_set_physp_pi(osm_sm_t *sm,
 /**********************************************************************
  **********************************************************************/
 static osm_signal_t
-__osm_link_mgr_process_node(osm_sm_t *sm,
+__osm_link_mgr_process_node(osm_sm_t * sm,
 			    IN osm_node_t * const p_node,
 			    IN const uint8_t link_state)
 {
@@ -394,8 +393,7 @@ __osm_link_mgr_process_node(osm_sm_t *sm,
 				"Physical port 0x%X already %s. Skipping\n",
 				p_physp->port_num,
 				ib_get_port_state_str(current_state));
-		else if (__osm_link_mgr_set_physp_pi(sm, p_physp,
-						     link_state))
+		else if (__osm_link_mgr_set_physp_pi(sm, p_physp, link_state))
 			signal = OSM_SIGNAL_DONE_PENDING;
 	}
 
@@ -405,9 +403,7 @@ __osm_link_mgr_process_node(osm_sm_t *sm,
 
 /**********************************************************************
  **********************************************************************/
-osm_signal_t
-osm_link_mgr_process(osm_sm_t *sm,
-		     IN const uint8_t link_state)
+osm_signal_t osm_link_mgr_process(osm_sm_t * sm, IN const uint8_t link_state)
 {
 	cl_qmap_t *p_node_guid_tbl;
 	osm_node_t *p_node;

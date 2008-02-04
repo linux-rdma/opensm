@@ -69,8 +69,7 @@
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_drop_mgr_remove_router(osm_sm_t *sm,
-			     IN const ib_net64_t portguid)
+__osm_drop_mgr_remove_router(osm_sm_t * sm, IN const ib_net64_t portguid)
 {
 	osm_router_t *p_rtr;
 	cl_qmap_t *p_rtr_guid_tbl;
@@ -88,9 +87,7 @@ __osm_drop_mgr_remove_router(osm_sm_t *sm,
 
 /**********************************************************************
  **********************************************************************/
-static void
-drop_mgr_clean_physp(osm_sm_t *sm,
-		     IN osm_physp_t * p_physp)
+static void drop_mgr_clean_physp(osm_sm_t * sm, IN osm_physp_t * p_physp)
 {
 	osm_physp_t *p_remote_physp;
 	osm_port_t *p_remote_port;
@@ -159,9 +156,7 @@ drop_mgr_clean_physp(osm_sm_t *sm,
 
 /**********************************************************************
  **********************************************************************/
-static void
-__osm_drop_mgr_remove_port(osm_sm_t *sm,
-			   IN osm_port_t * p_port)
+static void __osm_drop_mgr_remove_port(osm_sm_t * sm, IN osm_port_t * p_port)
 {
 	ib_net64_t port_guid;
 	osm_port_t *p_port_check;
@@ -282,15 +277,13 @@ __osm_drop_mgr_remove_port(osm_sm_t *sm,
 			p_node ? p_node->print_desc : "UNKNOWN");
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sm->p_log);
 }
 
 /**********************************************************************
  **********************************************************************/
-static void
-__osm_drop_mgr_remove_switch(osm_sm_t *sm,
-			     IN osm_node_t * p_node)
+static void __osm_drop_mgr_remove_switch(osm_sm_t * sm, IN osm_node_t * p_node)
 {
 	osm_switch_t *p_sw;
 	cl_qmap_t *p_sw_guid_tbl;
@@ -318,8 +311,7 @@ __osm_drop_mgr_remove_switch(osm_sm_t *sm,
 /**********************************************************************
  **********************************************************************/
 static boolean_t
-__osm_drop_mgr_process_node(osm_sm_t *sm,
-			    IN osm_node_t * p_node)
+__osm_drop_mgr_process_node(osm_sm_t * sm, IN osm_node_t * p_node)
 {
 	osm_physp_t *p_physp;
 	osm_port_t *p_port;
@@ -379,9 +371,7 @@ __osm_drop_mgr_process_node(osm_sm_t *sm,
 
 /**********************************************************************
  **********************************************************************/
-static void
-__osm_drop_mgr_check_node(osm_sm_t *sm,
-			  IN osm_node_t * p_node)
+static void __osm_drop_mgr_check_node(osm_sm_t * sm, IN osm_node_t * p_node)
 {
 	ib_net64_t node_guid;
 	osm_physp_t *p_physp;
@@ -448,14 +438,14 @@ __osm_drop_mgr_check_node(osm_sm_t *sm,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sm->p_log);
 	return;
 }
 
 /**********************************************************************
  **********************************************************************/
-void osm_drop_mgr_process(osm_sm_t *sm)
+void osm_drop_mgr_process(osm_sm_t * sm)
 {
 	cl_qmap_t *p_node_guid_tbl;
 	cl_qmap_t *p_port_guid_tbl;

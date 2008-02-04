@@ -120,8 +120,7 @@ static void __osm_mcast_mgr_purge_tree_node(IN osm_mtree_node_t * p_mtn)
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_mcast_mgr_purge_tree(osm_sm_t *sm,
-			   IN osm_mgrp_t * const p_mgrp)
+__osm_mcast_mgr_purge_tree(osm_sm_t * sm, IN osm_mgrp_t * const p_mgrp)
 {
 	OSM_LOG_ENTER(sm->p_log, __osm_mcast_mgr_purge_tree);
 
@@ -136,7 +135,7 @@ __osm_mcast_mgr_purge_tree(osm_sm_t *sm,
 /**********************************************************************
  **********************************************************************/
 static float
-osm_mcast_mgr_compute_avg_hops(osm_sm_t *sm,
+osm_mcast_mgr_compute_avg_hops(osm_sm_t * sm,
 			       const osm_mgrp_t * const p_mgrp,
 			       const osm_switch_t * const p_sw)
 {
@@ -197,7 +196,7 @@ osm_mcast_mgr_compute_avg_hops(osm_sm_t *sm,
  of the group HCAs
  **********************************************************************/
 static float
-osm_mcast_mgr_compute_max_hops(osm_sm_t *sm,
+osm_mcast_mgr_compute_max_hops(osm_sm_t * sm,
 			       const osm_mgrp_t * const p_mgrp,
 			       const osm_switch_t * const p_sw)
 {
@@ -258,7 +257,7 @@ osm_mcast_mgr_compute_max_hops(osm_sm_t *sm,
    a switch with the lowest average hop count to the members
    of the multicast group.
 **********************************************************************/
-static osm_switch_t *__osm_mcast_mgr_find_optimal_switch(osm_sm_t *sm,
+static osm_switch_t *__osm_mcast_mgr_find_optimal_switch(osm_sm_t * sm,
 							 const osm_mgrp_t *
 							 const p_mgrp)
 {
@@ -287,11 +286,9 @@ static osm_switch_t *__osm_mcast_mgr_find_optimal_switch(osm_sm_t *sm,
 			continue;
 
 		if (use_avg_hops)
-			hops =
-			    osm_mcast_mgr_compute_avg_hops(sm, p_mgrp, p_sw);
+			hops = osm_mcast_mgr_compute_avg_hops(sm, p_mgrp, p_sw);
 		else
-			hops =
-			    osm_mcast_mgr_compute_max_hops(sm, p_mgrp, p_sw);
+			hops = osm_mcast_mgr_compute_max_hops(sm, p_mgrp, p_sw);
 
 		if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
 			sw_guid_ho =
@@ -331,7 +328,7 @@ static osm_switch_t *__osm_mcast_mgr_find_optimal_switch(osm_sm_t *sm,
 /**********************************************************************
    This function returns the existing or optimal root swtich for the tree.
 **********************************************************************/
-static osm_switch_t *__osm_mcast_mgr_find_root_switch(osm_sm_t *sm,
+static osm_switch_t *__osm_mcast_mgr_find_root_switch(osm_sm_t * sm,
 						      const osm_mgrp_t *
 						      const p_mgrp)
 {
@@ -354,8 +351,7 @@ static osm_switch_t *__osm_mcast_mgr_find_root_switch(osm_sm_t *sm,
 /**********************************************************************
  **********************************************************************/
 static osm_signal_t
-__osm_mcast_mgr_set_tbl(osm_sm_t *sm,
-			IN osm_switch_t * const p_sw)
+__osm_mcast_mgr_set_tbl(osm_sm_t * sm, IN osm_switch_t * const p_sw)
 {
 	osm_node_t *p_node;
 	osm_dr_path_t *p_path;
@@ -435,7 +431,7 @@ __osm_mcast_mgr_set_tbl(osm_sm_t *sm,
   contains the group members that must be routed from this switch.
 **********************************************************************/
 static void
-__osm_mcast_mgr_subdivide(osm_sm_t *sm,
+__osm_mcast_mgr_subdivide(osm_sm_t * sm,
 			  osm_mgrp_t * const p_mgrp,
 			  osm_switch_t * const p_sw,
 			  cl_qlist_t * const p_list,
@@ -517,9 +513,7 @@ __osm_mcast_mgr_subdivide(osm_sm_t *sm,
 
 /**********************************************************************
  **********************************************************************/
-static void
-__osm_mcast_mgr_purge_list(osm_sm_t *sm,
-			   cl_qlist_t * const p_list)
+static void __osm_mcast_mgr_purge_list(osm_sm_t * sm, cl_qlist_t * const p_list)
 {
 	osm_mcast_work_obj_t *p_wobj;
 
@@ -544,7 +538,7 @@ __osm_mcast_mgr_purge_list(osm_sm_t *sm,
 
   The function returns the newly created mtree node element.
 **********************************************************************/
-static osm_mtree_node_t *__osm_mcast_mgr_branch(osm_sm_t *sm,
+static osm_mtree_node_t *__osm_mcast_mgr_branch(osm_sm_t * sm,
 						osm_mgrp_t * const p_mgrp,
 						osm_switch_t * const p_sw,
 						cl_qlist_t * const p_list,
@@ -772,8 +766,7 @@ Exit:
 /**********************************************************************
  **********************************************************************/
 static ib_api_status_t
-__osm_mcast_mgr_build_spanning_tree(osm_sm_t *sm,
-				    osm_mgrp_t * const p_mgrp)
+__osm_mcast_mgr_build_spanning_tree(osm_sm_t * sm, osm_mgrp_t * const p_mgrp)
 {
 	const cl_qmap_t *p_mcm_tbl;
 	const osm_port_t *p_port;
@@ -891,7 +884,7 @@ Exit:
 /**********************************************************************
  **********************************************************************/
 void
-osm_mcast_mgr_set_table(osm_sm_t *sm,
+osm_mcast_mgr_set_table(osm_sm_t * sm,
 			IN const osm_mgrp_t * const p_mgrp,
 			IN const osm_mtree_node_t * const p_mtn)
 {
@@ -941,9 +934,7 @@ osm_mcast_mgr_set_table(osm_sm_t *sm,
 
 /**********************************************************************
  **********************************************************************/
-static void
-__osm_mcast_mgr_clear(osm_sm_t *sm,
-		      IN osm_mgrp_t * const p_mgrp)
+static void __osm_mcast_mgr_clear(osm_sm_t * sm, IN osm_mgrp_t * const p_mgrp)
 {
 	osm_switch_t *p_sw;
 	cl_qmap_t *p_sw_tbl;
@@ -972,7 +963,7 @@ __osm_mcast_mgr_clear(osm_sm_t *sm,
    Lock must be held on entry.
 **********************************************************************/
 ib_api_status_t
-osm_mcast_mgr_process_single(osm_sm_t *sm,
+osm_mcast_mgr_process_single(osm_sm_t * sm,
 			     IN ib_net16_t const mlid,
 			     IN ib_net64_t const port_guid,
 			     IN uint8_t const join_state)
@@ -1078,8 +1069,7 @@ osm_mcast_mgr_process_single(osm_sm_t *sm,
 			osm_mcast_tbl_set(p_mcast_tbl, mlid_ho, port_num);
 		} else {
 			if (join_state & IB_JOIN_STATE_SEND_ONLY) {
-				if (osm_log_is_active
-				    (sm->p_log, OSM_LOG_DEBUG)) {
+				if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
 					osm_log(sm->p_log, OSM_LOG_DEBUG,
 						"osm_mcast_mgr_process_single: "
 						"Success.  Nothing to do for send"
@@ -1112,7 +1102,7 @@ Exit:
    lock must already be held on entry
 **********************************************************************/
 static ib_api_status_t
-osm_mcast_mgr_process_tree(osm_sm_t *sm,
+osm_mcast_mgr_process_tree(osm_sm_t * sm,
 			   IN osm_mgrp_t * const p_mgrp,
 			   IN osm_mcast_req_type_t req_type,
 			   ib_net64_t port_guid)
@@ -1180,9 +1170,9 @@ osm_mcast_mgr_process_tree(osm_sm_t *sm,
 		}
 
 		sm->p_subn->opt.pfn_ui_mcast_fdb_assign(sm->p_subn->opt.
-							   ui_mcast_fdb_assign_ctx,
-							   mlid, req_type,
-							   port_guid);
+							ui_mcast_fdb_assign_ctx,
+							mlid, req_type,
+							port_guid);
 	}
 
 Exit:
@@ -1195,7 +1185,7 @@ Exit:
  NOTE : The lock should be held externally!
  **********************************************************************/
 static ib_api_status_t
-mcast_mgr_process_mgrp(osm_sm_t *sm,
+mcast_mgr_process_mgrp(osm_sm_t * sm,
 		       IN osm_mgrp_t * const p_mgrp,
 		       IN osm_mcast_req_type_t req_type,
 		       IN ib_net64_t port_guid)
@@ -1224,8 +1214,7 @@ mcast_mgr_process_mgrp(osm_sm_t *sm,
 			cl_ntoh16(p_mgrp->mlid));
 		/* Send a Report to any InformInfo registered for
 		   Trap 67 : MCGroup delete */
-		osm_mgrp_send_delete_notice(sm->p_subn, sm->p_log,
-					    p_mgrp);
+		osm_mgrp_send_delete_notice(sm->p_subn, sm->p_log, p_mgrp);
 		cl_qmap_remove_item(&sm->p_subn->mgrp_mlid_tbl,
 				    (cl_map_item_t *) p_mgrp);
 		osm_mgrp_delete(p_mgrp);
@@ -1238,7 +1227,7 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-osm_signal_t osm_mcast_mgr_process(osm_sm_t *sm)
+osm_signal_t osm_mcast_mgr_process(osm_sm_t * sm)
 {
 	osm_signal_t signal;
 	osm_switch_t *p_sw;
@@ -1301,8 +1290,7 @@ osm_signal_t osm_mcast_mgr_process(osm_sm_t *sm)
 /**********************************************************************
  **********************************************************************/
 static
-osm_mgrp_t *__get_mgrp_by_mlid(osm_sm_t *sm,
-			       IN ib_net16_t const mlid)
+osm_mgrp_t *__get_mgrp_by_mlid(osm_sm_t * sm, IN ib_net16_t const mlid)
 {
 	cl_map_item_t *map_item;
 
@@ -1317,7 +1305,7 @@ osm_mgrp_t *__get_mgrp_by_mlid(osm_sm_t *sm,
   This is the function that is invoked during idle time to handle the
   process request for mcast groups where join/leave/delete was required.
  **********************************************************************/
-osm_signal_t osm_mcast_mgr_process_mgroups(osm_sm_t *sm)
+osm_signal_t osm_mcast_mgr_process_mgroups(osm_sm_t * sm)
 {
 	cl_qlist_t *p_list = &sm->mgrp_list;
 	osm_switch_t *p_sw;

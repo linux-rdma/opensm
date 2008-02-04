@@ -68,16 +68,16 @@
 #include <opensm/osm_inform.h>
 #include <opensm/osm_opensm.h>
 
-extern void osm_drop_mgr_process(IN osm_sm_t *sm);
+extern void osm_drop_mgr_process(IN osm_sm_t * sm);
 extern osm_signal_t osm_qos_setup(IN osm_opensm_t * p_osm);
 extern osm_signal_t osm_pkey_mgr_process(IN osm_opensm_t * p_osm);
-extern osm_signal_t osm_mcast_mgr_process(IN osm_sm_t *sm);
-extern osm_signal_t osm_mcast_mgr_process_mgroups(IN osm_sm_t *sm);
-extern osm_signal_t osm_link_mgr_process(IN osm_sm_t *sm, IN uint8_t state);
+extern osm_signal_t osm_mcast_mgr_process(IN osm_sm_t * sm);
+extern osm_signal_t osm_mcast_mgr_process_mgroups(IN osm_sm_t * sm);
+extern osm_signal_t osm_link_mgr_process(IN osm_sm_t * sm, IN uint8_t state);
 
 /**********************************************************************
  **********************************************************************/
-static void __osm_state_mgr_up_msg(IN const osm_sm_t *sm)
+static void __osm_state_mgr_up_msg(IN const osm_sm_t * sm)
 {
 	/*
 	 * This message should be written only once - when the
@@ -89,7 +89,7 @@ static void __osm_state_mgr_up_msg(IN const osm_sm_t *sm)
 
 	osm_log_msg_box(sm->p_log, OSM_LOG_VERBOSE, __FUNCTION__,
 			sm->p_subn->opt.sweep_interval ?
-				"SUBNET UP" : "SUBNET UP (sweep disabled)");
+			"SUBNET UP" : "SUBNET UP (sweep disabled)");
 }
 
 /**********************************************************************
@@ -103,8 +103,8 @@ static void __osm_state_mgr_reset_node_count(IN cl_map_item_t *
 	if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
 		osm_log(sm->p_log, OSM_LOG_DEBUG,
 			"__osm_state_mgr_reset_node_count: "
-			"Resetting discovery count for node 0x%" PRIx64 "(%s)\n",
-			cl_ntoh64(osm_node_get_node_guid(p_node)),
+			"Resetting discovery count for node 0x%" PRIx64
+			"(%s)\n", cl_ntoh64(osm_node_get_node_guid(p_node)),
 			p_node->print_desc);
 	}
 
@@ -122,9 +122,10 @@ static void __osm_state_mgr_reset_port_count(IN cl_map_item_t *
 	if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
 		osm_log(sm->p_log, OSM_LOG_DEBUG,
 			"__osm_state_mgr_reset_port_count: "
-			"Resetting discovery count for port 0x%" PRIx64 "(node %s)\n",
-			cl_ntoh64(osm_port_get_guid(p_port)),
-			p_port->p_node ? p_port->p_node->print_desc : "UNKNOWN");
+			"Resetting discovery count for port 0x%" PRIx64
+			"(node %s)\n", cl_ntoh64(osm_port_get_guid(p_port)),
+			p_port->p_node ? p_port->p_node->
+			print_desc : "UNKNOWN");
 	}
 
 	p_port->discovery_count = 0;
@@ -142,7 +143,8 @@ __osm_state_mgr_reset_switch_count(IN cl_map_item_t * const p_map_item,
 	if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
 		osm_log(sm->p_log, OSM_LOG_DEBUG,
 			"__osm_state_mgr_reset_switch_count: "
-			"Resetting discovery count for switch 0x%" PRIx64 " (%s)\n",
+			"Resetting discovery count for switch 0x%" PRIx64
+			" (%s)\n",
 			cl_ntoh64(osm_node_get_node_guid(p_sw->p_node)),
 			p_sw->p_node->print_desc);
 	}
@@ -190,7 +192,7 @@ static void __osm_state_mgr_get_sw_info(IN cl_map_item_t * const p_object,
  Initiate a remote port info request for the given physical port
  **********************************************************************/
 static void
-__osm_state_mgr_get_remote_port_info(IN osm_sm_t *sm,
+__osm_state_mgr_get_remote_port_info(IN osm_sm_t * sm,
 				     IN osm_physp_t * const p_physp)
 {
 	osm_dr_path_t *p_dr_path;
@@ -235,7 +237,7 @@ __osm_state_mgr_get_remote_port_info(IN osm_sm_t *sm,
  Initiates a thorough sweep of the subnet.
  Used when there is suspicion that something on the subnet has changed.
 **********************************************************************/
-static ib_api_status_t __osm_state_mgr_sweep_hop_0(IN osm_sm_t *sm)
+static ib_api_status_t __osm_state_mgr_sweep_hop_0(IN osm_sm_t * sm)
 {
 	ib_api_status_t status;
 	osm_dr_path_t dr_path;
@@ -302,7 +304,7 @@ static ib_api_status_t __osm_state_mgr_sweep_hop_0(IN osm_sm_t *sm)
 /**********************************************************************
  Clear out all existing port lid assignments
 **********************************************************************/
-static ib_api_status_t __osm_state_mgr_clean_known_lids(IN osm_sm_t *sm)
+static ib_api_status_t __osm_state_mgr_clean_known_lids(IN osm_sm_t * sm)
 {
 	ib_api_status_t status = IB_SUCCESS;
 	cl_ptr_vector_t *p_vec = &(sm->p_subn->port_lid_tbl);
@@ -326,7 +328,7 @@ static ib_api_status_t __osm_state_mgr_clean_known_lids(IN osm_sm_t *sm)
  Notifies the transport layer that the local LID has changed,
  which give it a chance to update address vectors, etc..
 **********************************************************************/
-static ib_api_status_t __osm_state_mgr_notify_lid_change(IN osm_sm_t *sm)
+static ib_api_status_t __osm_state_mgr_notify_lid_change(IN osm_sm_t * sm)
 {
 	ib_api_status_t status;
 	osm_bind_handle_t h_bind;
@@ -356,7 +358,7 @@ static ib_api_status_t __osm_state_mgr_notify_lid_change(IN osm_sm_t *sm)
 			ib_get_err_str(status));
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sm->p_log);
 	return (status);
 }
@@ -365,7 +367,7 @@ static ib_api_status_t __osm_state_mgr_notify_lid_change(IN osm_sm_t *sm)
  Returns true if the SM port is down.
  The SM's port object must exist in the port_guid table.
 **********************************************************************/
-static boolean_t __osm_state_mgr_is_sm_port_down(IN osm_sm_t *sm)
+static boolean_t __osm_state_mgr_is_sm_port_down(IN osm_sm_t * sm)
 {
 	ib_net64_t port_guid;
 	osm_port_t *p_port;
@@ -396,7 +398,8 @@ static boolean_t __osm_state_mgr_is_sm_port_down(IN osm_sm_t *sm)
 			"__osm_state_mgr_is_sm_port_down: ERR 3309: "
 			"SM port with GUID:%016" PRIx64 " (%s) is unknown\n",
 			cl_ntoh64(port_guid),
-			p_port->p_node ? p_port->p_node->print_desc : "UNKNOWN");
+			p_port->p_node ? p_port->p_node->
+			print_desc : "UNKNOWN");
 		state = IB_LINK_DOWN;
 		CL_PLOCK_RELEASE(sm->p_lock);
 		goto Exit;
@@ -409,7 +412,7 @@ static boolean_t __osm_state_mgr_is_sm_port_down(IN osm_sm_t *sm)
 	state = osm_physp_get_port_state(p_physp);
 	CL_PLOCK_RELEASE(sm->p_lock);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sm->p_log);
 	return (state == IB_LINK_DOWN);
 }
@@ -419,7 +422,7 @@ static boolean_t __osm_state_mgr_is_sm_port_down(IN osm_sm_t *sm)
  This sets off a "chain reaction" that causes discovery of the subnet.
  Used when there is suspicion that something on the subnet has changed.
 **********************************************************************/
-static ib_api_status_t __osm_state_mgr_sweep_hop_1(IN osm_sm_t *sm)
+static ib_api_status_t __osm_state_mgr_sweep_hop_1(IN osm_sm_t * sm)
 {
 	ib_api_status_t status = IB_SUCCESS;
 	osm_bind_handle_t h_bind;
@@ -543,11 +546,10 @@ static ib_api_status_t __osm_state_mgr_sweep_hop_1(IN osm_sm_t *sm)
 	default:
 		osm_log(sm->p_log, OSM_LOG_ERROR,
 			"__osm_state_mgr_sweep_hop_1: ERR 3313: Unknown node type %d (%s)\n",
-			osm_node_get_type(p_node),
-			p_node->print_desc);
+			osm_node_get_type(p_node), p_node->print_desc);
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sm->p_log);
 	return (status);
 }
@@ -556,7 +558,7 @@ static ib_api_status_t __osm_state_mgr_sweep_hop_1(IN osm_sm_t *sm)
  Initiates a lightweight sweep of the subnet.
  Used during normal sweeps after the subnet is up.
 **********************************************************************/
-static ib_api_status_t __osm_state_mgr_light_sweep_start(IN osm_sm_t *sm)
+static ib_api_status_t __osm_state_mgr_light_sweep_start(IN osm_sm_t * sm)
 {
 	ib_api_status_t status = IB_SUCCESS;
 	osm_bind_handle_t h_bind;
@@ -603,7 +605,8 @@ static ib_api_status_t __osm_state_mgr_light_sweep_start(IN osm_sm_t *sm)
 						PRIx64
 						"(%s) port %u. Adding to light sweep sampling list\n",
 						cl_ntoh64(osm_node_get_node_guid
-							  (p_node)), p_node->print_desc, port_num);
+							  (p_node)),
+						p_node->print_desc, port_num);
 
 					osm_dump_dr_path(sm->p_log,
 							 osm_physp_get_dr_path_ptr
@@ -633,7 +636,7 @@ static ib_api_status_t __osm_state_mgr_light_sweep_start(IN osm_sm_t *sm)
  * If there is a remote master SM - return a pointer to it,
  * else - return NULL.
  **********************************************************************/
-static osm_remote_sm_t *__osm_state_mgr_exists_other_master_sm(IN osm_sm_t *sm)
+static osm_remote_sm_t *__osm_state_mgr_exists_other_master_sm(IN osm_sm_t * sm)
 {
 	cl_qmap_t *p_sm_tbl;
 	osm_remote_sm_t *p_sm;
@@ -653,13 +656,14 @@ static osm_remote_sm_t *__osm_state_mgr_exists_other_master_sm(IN osm_sm_t *sm)
 				"__osm_state_mgr_exists_other_master_sm: "
 				"Found remote master SM with guid:0x%016" PRIx64
 				" (node %s)\n", cl_ntoh64(p_sm->smi.guid),
-				p_sm->p_port->p_node ? p_sm->p_port->p_node->print_desc : "UNKNOWN");
+				p_sm->p_port->p_node ? p_sm->p_port->p_node->
+				print_desc : "UNKNOWN");
 			p_sm_res = p_sm;
 			goto Exit;
 		}
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sm->p_log);
 	return (p_sm_res);
 }
@@ -670,7 +674,7 @@ static osm_remote_sm_t *__osm_state_mgr_exists_other_master_sm(IN osm_sm_t *sm)
  * Compare this SM to the local SM. If the local SM is higher -
  * return NULL, if the remote SM is higher - return a pointer to it.
  **********************************************************************/
-static osm_remote_sm_t *__osm_state_mgr_get_highest_sm(IN osm_sm_t *sm)
+static osm_remote_sm_t *__osm_state_mgr_get_highest_sm(IN osm_sm_t * sm)
 {
 	cl_qmap_t *p_sm_tbl;
 	osm_remote_sm_t *p_sm = NULL;
@@ -797,14 +801,14 @@ __osm_state_mgr_send_handover(IN osm_sm_t * const sm,
 			ib_get_err_str(status));
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sm->p_log);
 }
 
 /**********************************************************************
  * Send Trap 64 on all new ports.
  **********************************************************************/
-static void __osm_state_mgr_report_new_ports(IN osm_sm_t *sm)
+static void __osm_state_mgr_report_new_ports(IN osm_sm_t * sm)
 {
 	ib_gid_t port_gid;
 	ib_mad_notice_attr_t notice;
@@ -885,7 +889,7 @@ static void __osm_state_mgr_report_new_ports(IN osm_sm_t *sm)
  * initialization), but here we'll clean the database from incorrect
  * information.
  **********************************************************************/
-static void __osm_state_mgr_check_tbl_consistency(IN osm_sm_t *sm)
+static void __osm_state_mgr_check_tbl_consistency(IN osm_sm_t * sm)
 {
 	cl_qmap_t *p_port_guid_tbl;
 	osm_port_t *p_port;
@@ -1049,8 +1053,8 @@ static void do_sweep(osm_sm_t * sm)
 		if (wait_for_pending_transactions(&sm->p_subn->p_osm->stats))
 			return;
 		if (!sm->p_subn->force_heavy_sweep) {
-			osm_log_msg_box(sm->p_log, OSM_LOG_VERBOSE, __FUNCTION__,
-					"LIGHT SWEEP COMPLETE");
+			osm_log_msg_box(sm->p_log, OSM_LOG_VERBOSE,
+					__FUNCTION__, "LIGHT SWEEP COMPLETE");
 			return;
 		}
 	}
@@ -1142,7 +1146,7 @@ _repeat_discovery:
 				 * Also - need to start polling on that SM. */
 				sm->p_polling_sm = p_remote_sm;
 				osm_sm_state_mgr_process(sm,
-				     OSM_SM_SIGNAL_WAIT_FOR_HANDOVER);
+							 OSM_SM_SIGNAL_WAIT_FOR_HANDOVER);
 				return;
 			}
 		}
@@ -1253,7 +1257,8 @@ _repeat_discovery:
 
 	/* If there were errors - then the subnet is not really up */
 	if (sm->p_subn->subnet_initialization_error == TRUE) {
-		osm_log(sm->p_log, OSM_LOG_SYS, "Errors during initialization\n");
+		osm_log(sm->p_log, OSM_LOG_SYS,
+			"Errors during initialization\n");
 		osm_log_msg_box(sm->p_log, OSM_LOG_ERROR, __FUNCTION__,
 				"ERRORS DURING INITIALIZATION");
 	} else {
@@ -1286,7 +1291,7 @@ static void do_process_mgrp_queue(osm_sm_t * sm)
 	wait_for_pending_transactions(&sm->p_subn->p_osm->stats);
 }
 
-void osm_state_mgr_process(IN osm_sm_t *sm, IN osm_signal_t signal)
+void osm_state_mgr_process(IN osm_sm_t * sm, IN osm_signal_t signal)
 {
 	CL_ASSERT(sm);
 
