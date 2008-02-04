@@ -61,8 +61,7 @@
 BEGIN_C_DECLS
 void osm_console_init(osm_subn_opt_t * opt, osm_opensm_t * p_osm);
 void osm_console(osm_opensm_t * p_osm);
-void osm_console_prompt(FILE * out);
-void osm_console_close_socket(osm_opensm_t * p_osm);
-
+void osm_console_exit(osm_opensm_t * p_osm);
+int is_console_enabled(osm_subn_opt_t *p_opt);
 END_C_DECLS
 #endif				/* _OSM_CONSOLE_H_ */

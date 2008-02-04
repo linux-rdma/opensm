@@ -553,18 +553,14 @@ static int daemonize(osm_opensm_t * osm)
  **********************************************************************/
 int osm_manager_loop(osm_subn_opt_t * p_opt, osm_opensm_t * p_osm)
 {
-	osm_console_init(p_opt, p_osm);
+	if(is_console_enabled(p_opt))
+	  osm_console_init(p_opt, p_osm);
 
 	/*
-	   Sit here forever
+	   Sit here forever - dwell or do console i/o & cmds
 	 */
 	while (!osm_exit_flag) {
-		if (strcmp(p_opt->console, OSM_LOCAL_CONSOLE) == 0
-#ifdef ENABLE_OSM_CONSOLE_SOCKET
-		    || strcmp(p_opt->console, OSM_REMOTE_CONSOLE) == 0
-		    || strcmp(p_opt->console, OSM_LOOPBACK_CONSOLE) == 0
-#endif
-		    )
+		if (is_console_enabled(p_opt))
 			osm_console(p_osm);
 		else
 			cl_thread_suspend(10000);
@@ -580,7 +576,8 @@ int osm_manager_loop(osm_subn_opt_t * p_opt, osm_opensm_t * p_osm)
 			osm_opensm_sweep(p_osm);
 		}
 	}
-	osm_console_close_socket(p_osm);
+	if(is_console_enabled(p_opt))
+	  osm_console_exit(p_osm);
 	return 0;
 }
 /**********************************************************************

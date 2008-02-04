@@ -773,6 +773,42 @@ static void portstatus_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 	fprintf(out, "\n");
 }
 
+static int is_local(char* str)
+{
+  // convenience - checks if just stdin/stdout
+ if(str)
+   return (strcmp(str, OSM_LOCAL_CONSOLE) == 0);
+return 0;
+}
+
+static int is_loopback(char* str)
+{
+  // convenience - checks if socket based connection
+ if(str)
+   return (strcmp(str, OSM_LOOPBACK_CONSOLE) == 0);
+return 0;
+}
+
+static int is_remote(char* str)
+{
+  // convenience - checks if socket based connection
+ if(str)
+   return (strcmp(str, OSM_REMOTE_CONSOLE) == 0)
+       || is_loopback(str);
+return 0;
+}
+
+int is_console_enabled(osm_subn_opt_t *p_opt)
+{
+  // checks for a variety of types of consoles - default is off or 0
+ if(p_opt)
+   return (is_local(p_opt->console)
+       || is_loopback(p_opt->console)
+       || is_remote(p_opt->console));
+return 0;
+}
+
+
 #ifdef ENABLE_OSM_PERF_MGR
 static void perfmgr_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 {
@@ -924,7 +960,7 @@ static void parse_cmd_line(char *line, osm_opensm_t * p_osm)
 	}
 }
 
-void osm_console_prompt(FILE * out)
+static void osm_console_prompt(FILE * out)
 {
 	if (out) {
 		fprintf(out, "OpenSM %s", OSM_COMMAND_PROMPT);
@@ -987,6 +1023,13 @@ void osm_console_init(osm_subn_opt_t * opt, osm_opensm_t * p_osm)
 			opt->console_port);
 #endif
 	}
+}
+
+/* clean up and release resouces */
+void osm_console_exit(osm_opensm_t * p_osm)
+{
+	// clean up and release resouces, currently just close the socket
+	osm_console_close_socket(p_osm);
 }
 
 #ifdef ENABLE_OSM_CONSOLE_SOCKET
