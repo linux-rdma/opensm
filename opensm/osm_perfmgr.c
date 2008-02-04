@@ -790,13 +790,8 @@ void osm_perfmgr_process(osm_perfmgr_t * pm)
 	if (pm->state != PERFMGR_STATE_ENABLED)
 		return;
 
-	if (pm->sm->state != OSM_SM_STATE_IDLE &&
-	    pm->sm->state != OSM_SM_STATE_STANDBY)
-		return;
-
-	if (pm->sm->state == OSM_SM_STATE_STANDBY ||
-	    (pm->sm->state == OSM_SM_STATE_IDLE &&
-	     pm->subn->sm_state == IB_SMINFO_STATE_NOTACTIVE))
+	if (pm->subn->sm_state == IB_SMINFO_STATE_STANDBY ||
+	    pm->subn->sm_state == IB_SMINFO_STATE_NOTACTIVE)
 		perfmgr_discovery(pm->subn->p_osm);
 
 #if ENABLE_OSM_PERF_MGR_PROFILE

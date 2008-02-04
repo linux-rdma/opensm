@@ -740,24 +740,6 @@ typedef enum _osm_thread_state {
 #define OSM_CAP2_IS_QOS_SUPPORTED (1 << 1)
 /***********/
 
-/****d* OpenSM: Base/osm_sm_state_t
-* NAME
-*	osm_sm_state_t
-*
-* DESCRIPTION
-*	Enumerates the possible states of the SM object.
-*
-* SYNOPSIS
-*/
-typedef enum _osm_sm_state {
-	OSM_SM_STATE_NO_STATE = 0,
-	OSM_SM_STATE_INIT,
-	OSM_SM_STATE_IDLE,
-	OSM_SM_STATE_STANDBY,
-	OSM_SM_STATE_MAX
-} osm_sm_state_t;
-/***********/
-
 /****d* OpenSM: Base/osm_signal_t
 * NAME
 *	osm_signal_t
@@ -773,15 +755,14 @@ typedef enum _osm_sm_state {
 #define OSM_SIGNAL_NONE				0
 #define OSM_SIGNAL_SWEEP			1
 #define OSM_SIGNAL_IDLE_TIME_PROCESS_REQUEST	2
-#define OSM_SIGNAL_EXIT_STBY			3
-#define OSM_SIGNAL_PERFMGR_SWEEP		4
-#define OSM_SIGNAL_MAX				4
+#define OSM_SIGNAL_PERFMGR_SWEEP		3
+#define OSM_SIGNAL_MAX				3
 
 /* status values for sweep managers - can be removed later */
 #define OSM_SIGNAL_DONE		16
 #define OSM_SIGNAL_DONE_PENDING	17
 
-typedef uintn_t osm_signal_t;
+typedef unsigned int osm_signal_t;
 /***********/
 
 /****d* OpenSM: Base/osm_sm_signal_t

@@ -112,7 +112,6 @@ BEGIN_C_DECLS
 */
 typedef struct osm_sm {
 	osm_thread_state_t thread_state;
-	osm_sm_state_t state;
 	unsigned signal_mask;
 	cl_spinlock_t signal_lock;
 	cl_spinlock_t state_lock;

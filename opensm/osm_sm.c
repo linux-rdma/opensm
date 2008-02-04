@@ -157,7 +157,6 @@ void osm_sm_construct(IN osm_sm_t * const p_sm)
 {
 	memset(p_sm, 0, sizeof(*p_sm));
 	p_sm->thread_state = OSM_THREAD_STATE_NONE;
-	p_sm->state = OSM_SM_STATE_INIT;
 	p_sm->sm_trans_id = OSM_SM_INITIAL_TID_VALUE;
 	cl_spinlock_construct(&p_sm->signal_lock);
 	cl_spinlock_construct(&p_sm->state_lock);
@@ -406,7 +405,6 @@ osm_sm_init(IN osm_sm_t * const p_sm,
 	 * the sweeper thread if the user wants sweeping.
 	 */
 	p_sm->thread_state = OSM_THREAD_STATE_RUN;
-	p_sm->state = OSM_SM_STATE_IDLE;
 	status = cl_thread_init(&p_sm->sweeper, __osm_sm_sweeper, p_sm,
 				"opensm sweeper");
 	if (status != IB_SUCCESS)

@@ -94,37 +94,6 @@ static void __osm_state_mgr_up_msg(IN const osm_sm_t *sm)
 
 /**********************************************************************
  **********************************************************************/
-static void
-__osm_state_mgr_signal_warning(IN osm_sm_t *sm,
-			       IN const osm_signal_t signal)
-{
-	osm_log(sm->p_log, OSM_LOG_VERBOSE,
-		"__osm_state_mgr_signal_warning: "
-		"Invalid signal %s(%lu) in state %s\n",
-		osm_get_sm_signal_str(signal), signal,
-		osm_get_sm_state_str(sm->state));
-}
-
-/**********************************************************************
- **********************************************************************/
-static void
-__osm_state_mgr_signal_error(IN osm_sm_t *sm,
-			     IN const osm_signal_t signal)
-{
-	/* the Request for IDLE processing can come async to the state so it
-	 * really is just verbose ... */
-	if (signal == OSM_SIGNAL_IDLE_TIME_PROCESS_REQUEST)
-		__osm_state_mgr_signal_warning(sm, signal);
-	else
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_state_mgr_signal_error: ERR 3303: "
-			"Invalid signal %s(%lu) in state %s\n",
-			osm_get_sm_signal_str(signal), signal,
-			osm_get_sm_state_str(sm->state));
-}
-
-/**********************************************************************
- **********************************************************************/
 static void __osm_state_mgr_reset_node_count(IN cl_map_item_t *
 					     const p_map_item, IN void *context)
 {
@@ -1046,6 +1015,18 @@ static void do_sweep(osm_sm_t * sm)
 	ib_api_status_t status;
 	osm_remote_sm_t *p_remote_sm;
 
+	if (sm->p_subn->sm_state != IB_SMINFO_STATE_MASTER &&
+	    sm->p_subn->sm_state != IB_SMINFO_STATE_DISCOVERING)
+		return;
+
+	if (sm->p_subn->coming_out_of_standby)
+		/*
+		 * Need to force re-write of sm_base_lid to all ports
+		 * to do that we want all the ports to be considered
+		 * foriegn
+		 */
+		__osm_state_mgr_clean_known_lids(sm);
+
 	sm->master_sm_found = 0;
 
 	/*
@@ -1116,7 +1097,6 @@ _repeat_discovery:
 
 	/* discovery completed - check other sm presense */
 	if (sm->master_sm_found) {
-		sm->state = OSM_SM_STATE_STANDBY;
 		/*
 		 * Call the sm_state_mgr with signal
 		 * MASTER_OR_HIGHER_SM_DETECTED_DONE
@@ -1149,7 +1129,6 @@ _repeat_discovery:
 			__osm_state_mgr_send_handover(sm, p_remote_sm);
 			osm_sm_state_mgr_process(sm,
 						 OSM_SM_SIGNAL_HANDOVER_SENT);
-			sm->state = OSM_SM_STATE_STANDBY;
 			return;
 		} else {
 			/* We are the highest sm - check to see if there is
@@ -1305,6 +1284,8 @@ _repeat_discovery:
 
 static void do_process_mgrp_queue(osm_sm_t * sm)
 {
+	if (sm->p_subn->sm_state != IB_SMINFO_STATE_MASTER)
+		return;
 	osm_mcast_mgr_process_mgroups(&sm->mcast_mgr);
 	wait_for_pending_transactions(&sm->p_subn->p_osm->stats);
 }
@@ -1320,58 +1301,22 @@ void osm_state_mgr_process(IN osm_sm_t *sm, IN osm_signal_t signal)
 			"osm_state_mgr_process: "
 			"Received signal %s in state %s\n",
 			osm_get_sm_signal_str(signal),
-			osm_get_sm_state_str(sm->state));
+			osm_get_sm_mgr_state_str(sm->p_subn->sm_state));
 
-	switch (sm->state) {
-	case OSM_SM_STATE_IDLE:
-		switch (signal) {
-		case OSM_SIGNAL_SWEEP:
-			/*
-			 * If the osm_sm_state_mgr is in NOT-ACTIVE state -
-			 * stay in IDLE
-			 */
-			if (sm->p_subn->sm_state == IB_SMINFO_STATE_NOTACTIVE) {
-				osm_vendor_set_sm(sm->mad_ctrl.h_bind, FALSE);
-				break;
-			}
-
-			do_sweep(sm);
-			break;
-
-		case OSM_SIGNAL_IDLE_TIME_PROCESS_REQUEST:
-			do_process_mgrp_queue(sm);
-			break;
-
-		default:
-			__osm_state_mgr_signal_error(sm, signal);
-			break;
-		}
+	switch (signal) {
+	case OSM_SIGNAL_SWEEP:
+		do_sweep(sm);
 		break;
 
-	case OSM_SM_STATE_STANDBY:
-		switch (signal) {
-		case OSM_SIGNAL_EXIT_STBY:
-			/*
-			 * Need to force re-write of sm_base_lid to all ports
-			 * to do that we want all the ports to be considered
-			 * foriegn
-			 */
-			__osm_state_mgr_clean_known_lids(sm);
-			sm->state = OSM_SM_STATE_IDLE;
-			osm_sm_signal(sm, OSM_SIGNAL_SWEEP);
-			break;
-		default:
-			__osm_state_mgr_signal_error(sm, signal);
-			break;
-		}
-		/* stay with the same signal - so we can start the sweep */
+	case OSM_SIGNAL_IDLE_TIME_PROCESS_REQUEST:
+		do_process_mgrp_queue(sm);
 		break;
 
 	default:
 		CL_ASSERT(FALSE);
 		osm_log(sm->p_log, OSM_LOG_ERROR,
 			"osm_state_mgr_process: ERR 3320: "
-			"Invalid SM state %u\n", sm->state);
+			"Invalid SM signal %u\n", signal);
 		break;
 	}
 

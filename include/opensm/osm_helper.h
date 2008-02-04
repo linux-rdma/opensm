@@ -446,29 +446,6 @@ void osm_dump_sa_mad(IN osm_log_t * const p_log,
 		     IN const ib_sa_mad_t * const p_smp,
 		     IN const osm_log_level_t level);
 
-/****f* IBA Base: Types/osm_get_sm_state_str
-* NAME
-*	osm_get_sm_state_str
-*
-* DESCRIPTION
-*	Returns a string for the specified SM state.
-*
-* SYNOPSIS
-*/
-const char *osm_get_sm_state_str(IN osm_sm_state_t state);
-/*
-* PARAMETERS
-*	state
-*		[in] SM State value
-*
-* RETURN VALUES
-*	Pointer to the state discription string.
-*
-* NOTES
-*
-* SEE ALSO
-*********/
-
 /****f* IBA Base: Types/osm_get_sm_signal_str
 * NAME
 *	osm_get_sm_signal_str

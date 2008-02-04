@@ -391,7 +391,7 @@ ib_api_status_t osm_sm_state_mgr_process(osm_sm_t *sm,
 			sm->p_subn->sm_state = IB_SMINFO_STATE_DISCOVERING;
 			osm_report_sm_state(sm);
 			sm->p_subn->coming_out_of_standby = TRUE;
-			osm_sm_signal(sm, OSM_SIGNAL_EXIT_STBY);
+			osm_sm_signal(sm, OSM_SIGNAL_SWEEP);
 			break;
 		case OSM_SM_SIGNAL_DISABLE:
 			/*
@@ -399,6 +399,7 @@ ib_api_status_t osm_sm_state_mgr_process(osm_sm_t *sm,
 			 */
 			sm->p_subn->sm_state = IB_SMINFO_STATE_NOTACTIVE;
 			osm_report_sm_state(sm);
+			osm_vendor_set_sm(sm->mad_ctrl.h_bind, FALSE);
 			break;
 		case OSM_SM_SIGNAL_HANDOVER:
 			/*
@@ -423,7 +424,7 @@ ib_api_status_t osm_sm_state_mgr_process(osm_sm_t *sm,
 			sm->p_subn->master_sm_base_lid =
 			    sm->p_subn->sm_base_lid;
 			sm->p_subn->coming_out_of_standby = TRUE;
-			osm_sm_signal(sm, OSM_SIGNAL_EXIT_STBY);
+			osm_sm_signal(sm, OSM_SIGNAL_SWEEP);
 			break;
 		case OSM_SM_SIGNAL_ACKNOWLEDGE:
 			/*

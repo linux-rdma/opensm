@@ -2060,15 +2060,7 @@ osm_dump_smp_dr_path(IN osm_log_t * const p_log,
 	}
 }
 
-const char *const __osm_sm_state_str[] = {
-	"OSM_SM_STATE_NO_STATE",	/* 0 */
-	"OSM_SM_STATE_INIT",	/* 1 */
-	"OSM_SM_STATE_IDLE",	/* 2 */
-	"OSM_SM_STATE_STANDBY",	/* 3 */
-	"UNKNOWN STATE!!"	/* 4 */
-};
-
-const char *const __osm_sm_signal_str[] = {
+static const char *const __osm_sm_signal_str[] = {
 	"OSM_SIGNAL_NONE",	/* 0 */
 	"OSM_SIGNAL_SWEEP",	/* 1 */
 	"OSM_SIGNAL_IDLE_TIME_PROCESS_REQUEST",	/* 2 */
@@ -2076,15 +2068,6 @@ const char *const __osm_sm_signal_str[] = {
 	"OSM_SIGNAL_PERFMGR_SWEEP",	/* 4 */
 	"UNKNOWN SIGNAL!!"	/* 5 */
 };
-
-/**********************************************************************
- **********************************************************************/
-const char *osm_get_sm_state_str(IN osm_sm_state_t state)
-{
-	if (state > OSM_SM_STATE_MAX)
-		state = OSM_SM_STATE_MAX;
-	return (__osm_sm_state_str[state]);
-}
 
 /**********************************************************************
  **********************************************************************/
