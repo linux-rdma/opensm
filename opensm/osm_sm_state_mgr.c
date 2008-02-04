@@ -334,11 +334,8 @@ ib_api_status_t osm_sm_state_mgr_process(osm_sm_t *sm,
 			/*
 			 * Update the state of the SM to MASTER
 			 */
-			/* Turn on the moved_to_master_state flag */
-			sm->p_subn->moved_to_master_state = TRUE;
 			/* Turn on the first_time_master_sweep flag */
-			if (sm->p_subn->first_time_master_sweep == FALSE)
-				sm->p_subn->first_time_master_sweep = TRUE;
+			sm->p_subn->first_time_master_sweep = TRUE;
 			sm->p_subn->sm_state = IB_SMINFO_STATE_MASTER;
 			osm_report_sm_state(sm);
 			/*
@@ -406,11 +403,8 @@ ib_api_status_t osm_sm_state_mgr_process(osm_sm_t *sm,
 			 * Update the state to MASTER, and start sweeping
 			 * OPTIONAL: send ACKNOWLEDGE
 			 */
-			/* Turn on the moved_to_master_state flag */
-			sm->p_subn->moved_to_master_state = TRUE;
 			/* Turn on the first_time_master_sweep flag */
-			if (sm->p_subn->first_time_master_sweep == FALSE)
-				sm->p_subn->first_time_master_sweep = TRUE;
+			sm->p_subn->first_time_master_sweep = TRUE;
 			/* Turn on the force_heavy_sweep - we want a
 			 * heavy sweep to occur on the first sweep of this SM. */
 			sm->p_subn->force_heavy_sweep = TRUE;

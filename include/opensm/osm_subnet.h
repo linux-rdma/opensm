@@ -561,7 +561,6 @@ typedef struct _osm_subn {
 	boolean_t subnet_initialization_error;
 	boolean_t force_heavy_sweep;
 	boolean_t in_sweep_hop_0;
-	boolean_t moved_to_master_state;
 	boolean_t first_time_master_sweep;
 	boolean_t coming_out_of_standby;
 	unsigned need_update;
@@ -664,11 +663,6 @@ typedef struct _osm_subn {
 *     This is relevant for the case of SM on switch, since in the
 *     switch info we need to signal somehow not to continue
 *     the sweeping.
-*
-*  moved_to_master_state
-*     Used for the writing of "SUBNET UP" into /var/log/messages.
-*     Will be TRUE when the SM switches to Master state, and returned
-*     to FALSE once the sunbet is up.
 *
 *  first_time_master_sweep
 *     This flag is used for the PortInfo setting. On the first sweep as master

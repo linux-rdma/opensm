@@ -77,15 +77,10 @@ static void __osm_state_mgr_up_msg(IN const osm_sm_t *sm)
 	/*
 	 * This message should be written only once - when the
 	 * SM moves to Master state and the subnet is up for
-	 * the first time. The change of state is marked with
-	 * the subnet flag moved_to_master_state
+	 * the first time.
 	 */
-	if (sm->p_subn->moved_to_master_state == TRUE) {
-		osm_log(sm->p_log, OSM_LOG_SYS, "SUBNET UP\n");	/* Format Waived */
-		/* clear the signal */
-		sm->p_subn->moved_to_master_state = FALSE;
-	} else
-		osm_log(sm->p_log, OSM_LOG_INFO, "SUBNET UP\n");	/* Format Waived */
+	osm_log(sm->p_log, sm->p_subn->first_time_master_sweep ?
+		OSM_LOG_SYS : OSM_LOG_INFO, "SUBNET UP\n");
 
 	osm_log_msg_box(sm->p_log, OSM_LOG_VERBOSE, __FUNCTION__,
 			sm->p_subn->opt.sweep_interval ?
@@ -1257,14 +1252,10 @@ _repeat_discovery:
 		osm_log_msg_box(sm->p_log, OSM_LOG_ERROR, __FUNCTION__,
 				"ERRORS DURING INITIALIZATION");
 	} else {
-		/* The subnet is up correctly - set the first_time_master_sweep
-		 * flag (if it is on) to FALSE. */
-		if (sm->p_subn->first_time_master_sweep == TRUE)
-			sm->p_subn->first_time_master_sweep = FALSE;
-			sm->p_subn->need_update = 0;
-
+		sm->p_subn->need_update = 0;
 		osm_dump_all(sm->p_subn->p_osm);
 		__osm_state_mgr_up_msg(sm);
+		sm->p_subn->first_time_master_sweep = FALSE;
 
 		if (osm_log_is_active(sm->p_log, OSM_LOG_VERBOSE))
 			osm_sa_db_file_dump(sm->p_subn->p_osm);

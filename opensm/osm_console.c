@@ -335,13 +335,11 @@ static void print_status(osm_opensm_t * p_osm, FILE * out)
 			"   Ignore existing lfts           : %d\n"
 			"   Subnet Init errors             : %d\n"
 			"   In sweep hop 0                 : %d\n"
-			"   Moved to master state          : %d\n"
 			"   First time master sweep        : %d\n"
 			"   Coming out of standby          : %d\n",
 			p_osm->subn.ignore_existing_lfts,
 			p_osm->subn.subnet_initialization_error,
 			p_osm->subn.in_sweep_hop_0,
-			p_osm->subn.moved_to_master_state,
 			p_osm->subn.first_time_master_sweep,
 			p_osm->subn.coming_out_of_standby);
 		fprintf(out, "\n");
