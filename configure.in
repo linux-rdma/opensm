@@ -172,5 +172,7 @@ OPENIB_APP_OSMV_CHECK_LIB
 # overrides.
 CFLAGS=$ac_env_CFLAGS_value
 
+AC_CONFIG_FILES([man/opensm.8])
+
 dnl Create the following Makefiles
 AC_OUTPUT([include/opensm/osm_version.h Makefile include/Makefile complib/Makefile libvendor/Makefile opensm/Makefile osmeventplugin/Makefile osmtest/Makefile opensm.spec])
