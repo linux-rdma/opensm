@@ -39,7 +39,7 @@ fi
 
 CONFIG=/etc/opensm.conf
 
-prog=/usr/bin/opensm
+prog=/usr/sbin/opensm
 bin=${prog##*/}
 
 # Handover daemon for updating guid2lid cache file
