@@ -530,7 +530,7 @@ static void querylid_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 	cl_plock_release(&p_osm->lock);
 	return;
 
-      invalid_lid:
+invalid_lid:
 	cl_plock_release(&p_osm->lock);
 	fprintf(out, "Invalid lid %d\n", lid);
 	return;
@@ -773,41 +773,40 @@ static void portstatus_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 	fprintf(out, "\n");
 }
 
-static int is_local(char* str)
+static int is_local(char *str)
 {
-  // convenience - checks if just stdin/stdout
- if(str)
-   return (strcmp(str, OSM_LOCAL_CONSOLE) == 0);
-return 0;
+	// convenience - checks if just stdin/stdout
+	if (str)
+		return (strcmp(str, OSM_LOCAL_CONSOLE) == 0);
+	return 0;
 }
 
-static int is_loopback(char* str)
+static int is_loopback(char *str)
 {
-  // convenience - checks if socket based connection
- if(str)
-   return (strcmp(str, OSM_LOOPBACK_CONSOLE) == 0);
-return 0;
+	// convenience - checks if socket based connection
+	if (str)
+		return (strcmp(str, OSM_LOOPBACK_CONSOLE) == 0);
+	return 0;
 }
 
-static int is_remote(char* str)
+static int is_remote(char *str)
 {
-  // convenience - checks if socket based connection
- if(str)
-   return (strcmp(str, OSM_REMOTE_CONSOLE) == 0)
-       || is_loopback(str);
-return 0;
+	// convenience - checks if socket based connection
+	if (str)
+		return (strcmp(str, OSM_REMOTE_CONSOLE) == 0)
+		    || is_loopback(str);
+	return 0;
 }
 
-int is_console_enabled(osm_subn_opt_t *p_opt)
+int is_console_enabled(osm_subn_opt_t * p_opt)
 {
-  // checks for a variety of types of consoles - default is off or 0
- if(p_opt)
-   return (is_local(p_opt->console)
-       || is_loopback(p_opt->console)
-       || is_remote(p_opt->console));
-return 0;
+	// checks for a variety of types of consoles - default is off or 0
+	if (p_opt)
+		return (is_local(p_opt->console)
+			|| is_loopback(p_opt->console)
+			|| is_remote(p_opt->console));
+	return 0;
 }
-
 
 #ifdef ENABLE_OSM_PERF_MGR
 static void perfmgr_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
@@ -836,7 +835,8 @@ static void perfmgr_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 		} else if (strcmp(p_cmd, "print_counters") == 0) {
 			p_cmd = next_token(p_last);
 			if (p_cmd) {
-				osm_perfmgr_print_counters(&(p_osm->perfmgr), p_cmd, out);
+				osm_perfmgr_print_counters(&(p_osm->perfmgr),
+							   p_cmd, out);
 			} else {
 				fprintf(out,
 					"print_counters requires a node name to be specified\n");

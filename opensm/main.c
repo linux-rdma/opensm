@@ -295,7 +295,7 @@ static void show_usage(void)
 	       "          This option specifies the prefix routes file.\n"
 	       "          Prefix routes control how the SA responds to path record\n"
 	       "          queries for off-subnet DGIDs.  Default file is:\n"
-	       "              "OSM_DEFAULT_PREFIX_ROUTES_FILE"\n\n");
+	       "              " OSM_DEFAULT_PREFIX_ROUTES_FILE "\n\n");
 	printf("--consolidate_ipv6_snm_req\n"
 	       "          Consolidate IPv6 Solicited Node Multicast group joins\n"
 	       "          into 1 IB multicast group.\n\n");
@@ -419,8 +419,7 @@ static ib_net64_t get_port_guid(IN osm_opensm_t * p_osm, uint64_t port_guid)
 		printf("\nEnter choice (1-%u): ", i);
 		fflush(stdout);
 		if (scanf("%u", &choice)) {
-			if (choice > num_ports || choice < 1)
-			{
+			if (choice > num_ports || choice < 1) {
 				printf("\nError: Lame choice!\n");
 				fflush(stdin);
 			} else {
@@ -553,8 +552,8 @@ static int daemonize(osm_opensm_t * osm)
  **********************************************************************/
 int osm_manager_loop(osm_subn_opt_t * p_opt, osm_opensm_t * p_osm)
 {
-	if(is_console_enabled(p_opt))
-	  osm_console_init(p_opt, p_osm);
+	if (is_console_enabled(p_opt))
+		osm_console_init(p_opt, p_osm);
 
 	/*
 	   Sit here forever - dwell or do console i/o & cmds
@@ -576,10 +575,11 @@ int osm_manager_loop(osm_subn_opt_t * p_opt, osm_opensm_t * p_osm)
 			osm_opensm_sweep(p_osm);
 		}
 	}
-	if(is_console_enabled(p_opt))
-	  osm_console_exit(p_osm);
+	if (is_console_enabled(p_opt))
+		osm_console_exit(p_osm);
 	return 0;
 }
+
 /**********************************************************************
  **********************************************************************/
 int main(int argc, char *argv[])
@@ -1041,9 +1041,9 @@ int main(int argc, char *argv[])
 				osm_exit_flag = 1;
 		}
 	} else {
-	/*
-	 *	   Sit here until signaled to exit
-	 */
+		/*
+		 *         Sit here until signaled to exit
+		 */
 		osm_manager_loop(&opt, &osm);
 	}
 
