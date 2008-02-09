@@ -308,9 +308,8 @@ __osm_sminfo_rcv_process_set_request(IN osm_sm_t * sm,
 
 	/* it is a legal packet - act according to it */
 
-	/* if the AttributeModifier is STANDBY - need to save on the */
-	/* p_sm_state_mgr in the master_guid variable - the guid of the */
-	/* current master. */
+	/* if the AttributeModifier is STANDBY - need to save on the sm in */
+	/* the master_sm_guid variable - the guid of the current master. */
 	if (p_smp->attr_mod == IB_SMINFO_ATTR_MOD_STANDBY) {
 		osm_log(sm->p_log, OSM_LOG_VERBOSE,
 			"__osm_sminfo_rcv_process_set_request: "
@@ -365,7 +364,7 @@ __osm_sminfo_rcv_process_get_sm(IN osm_sm_t * sm,
 			break;
 		case IB_SMINFO_STATE_MASTER:
 			sm->master_sm_found = 1;
-			/* save on the p_sm_state_mgr the guid of the current master. */
+			/* save on the sm the guid of the current master. */
 			osm_log(sm->p_log, OSM_LOG_VERBOSE,
 				"__osm_sminfo_rcv_process_get_sm: "
 				"Found master SM. Updating sm_state_mgr master_guid: 0x%016"
@@ -378,7 +377,7 @@ __osm_sminfo_rcv_process_get_sm(IN osm_sm_t * sm,
 			    == TRUE) {
 				/* the remote is a higher sm - need to stop sweeping */
 				sm->master_sm_found = 1;
-				/* save on the sm_state_mgr the guid of the higher SM we found - */
+				/* save on the sm the guid of the higher SM we found - */
 				/* we will poll it - as long as it lives - we should be in Standby. */
 				osm_log(sm->p_log, OSM_LOG_VERBOSE,
 					"__osm_sminfo_rcv_process_get_sm: "
