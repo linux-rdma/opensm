@@ -60,7 +60,7 @@
 #define ARR_SIZE(a) (sizeof(a)/sizeof((a)[0]))
 
 /* we use two tables - one for queries and one for responses */
-const char *const __ib_sa_method_str[] = {
+static const char *const __ib_sa_method_str[] = {
 	"RESERVED",		/* 0 */
 	"SubnAdmGet",		/* 1 */
 	"SubnAdmSet",		/* 2 */
@@ -86,7 +86,7 @@ const char *const __ib_sa_method_str[] = {
 	"UNKNOWN"		/* 16 */
 };
 
-const char *const __ib_sa_resp_method_str[] = {
+static const char *const __ib_sa_resp_method_str[] = {
 	"RESERVED",		/* 80 */
 	"SubnAdmGetResp",	/* 81 */
 	"RESERVED (SetResp?)",	/* 82 */
@@ -114,7 +114,7 @@ const char *const __ib_sa_resp_method_str[] = {
 
 #define OSM_SA_METHOD_STR_UNKNOWN_VAL 0x16
 
-const char *const __ib_sm_method_str[] = {
+static const char *const __ib_sm_method_str[] = {
 	"RESERVED0",		/* 0 */
 	"SubnGet",		/* 1 */
 	"SubnSet",		/* 2 */
@@ -152,7 +152,7 @@ const char *const __ib_sm_method_str[] = {
 
 #define OSM_SM_METHOD_STR_UNKNOWN_VAL 0x21
 
-const char *const __ib_sm_attr_str[] = {
+static const char *const __ib_sm_attr_str[] = {
 	"RESERVED",		/* 0 */
 	"ClassPortInfo",	/* 1 */
 	"Notice",		/* 2 */
@@ -191,7 +191,7 @@ const char *const __ib_sm_attr_str[] = {
 
 #define OSM_SM_ATTR_STR_UNKNOWN_VAL 0x21
 
-const char *const __ib_sa_attr_str[] = {
+static const char *const __ib_sa_attr_str[] = {
 	"RESERVED",		/* 0 */
 	"ClassPortInfo",	/* 1 */
 	"Notice",		/* 2 */
@@ -2304,7 +2304,7 @@ const char *osm_get_lsa_str(IN uint8_t const lsa)
 /**********************************************************************
  **********************************************************************/
 
-const char *const __osm_sm_mgr_signal_str[] = {
+static const char *const __osm_sm_mgr_signal_str[] = {
 	"OSM_SM_SIGNAL_NONE",	/* 0 */
 	"OSM_SM_SIGNAL_DISCOVERY_COMPLETED",	/* 2 */
 	"OSM_SM_SIGNAL_POLLING_TIMEOUT",	/* 3 */
@@ -2328,7 +2328,7 @@ const char *osm_get_sm_mgr_signal_str(IN osm_sm_signal_t signal)
 	return (__osm_sm_mgr_signal_str[signal]);
 }
 
-const char *const __osm_sm_mgr_state_str[] = {
+static const char *const __osm_sm_mgr_state_str[] = {
 	"NOTACTIVE",	/* 0 */
 	"DISCOVERING",	/* 1 */
 	"STANDBY",	/* 2 */
