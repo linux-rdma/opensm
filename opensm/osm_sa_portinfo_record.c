@@ -114,7 +114,7 @@ __osm_pir_rcv_new_pir(IN osm_sa_t * sa,
 
 	cl_qlist_insert_tail(p_list, &p_rec_item->list_item);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 	return (status);
 }
@@ -167,7 +167,7 @@ __osm_sa_pir_create(IN osm_sa_t * sa,
 	__osm_pir_rcv_new_pir(sa, p_physp, p_ctxt->p_list,
 			      cl_hton16(base_lid_ho));
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }
 
@@ -399,7 +399,7 @@ __osm_sa_pir_check_physp(IN osm_sa_t * sa,
 
 	__osm_sa_pir_create(sa, p_physp, p_ctxt);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }
 
@@ -747,6 +747,6 @@ void osm_pir_rcv_process(IN void *ctx, IN void *data)
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }

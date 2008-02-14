@@ -773,7 +773,7 @@ __osm_pr_rcv_get_path_parms(IN osm_sa_t * sa,
 			" mtu = %u, rate = %u, packet lifetime = %u,"
 			" pkey = 0x%04X, sl = %u\n",
 			mtu, rate, pkt_life, cl_ntoh16(pkey), sl);
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 	return (status);
 }
@@ -923,7 +923,7 @@ __osm_pr_rcv_get_lid_pair_path(IN osm_sa_t * sa,
 			      src_lid_ho, dest_lid_ho, preference, &path_parms,
 			      &p_pr_item->path_rec);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 	return (p_pr_item);
 }
@@ -1165,7 +1165,7 @@ __osm_pr_rcv_get_port_pair_paths(IN osm_sa_t * sa,
 		}
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }
 
@@ -1379,7 +1379,7 @@ __osm_pr_rcv_get_end_points(IN osm_sa_t * sa,
 		}
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 	return (sa_status);
 }
@@ -1570,7 +1570,7 @@ __osm_pr_get_mgrp(IN osm_sa_t * sa,
 		}
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }
 
@@ -1635,7 +1635,7 @@ __osm_pr_match_mgrp_attributes(IN osm_sa_t * sa,
 
 	status = IB_SUCCESS;
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 	return (status);
 }
@@ -1676,7 +1676,7 @@ __osm_pr_rcv_check_mcast_dest(IN osm_sa_t * sa,
 		}
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 	return (is_multicast);
 }
@@ -1829,7 +1829,7 @@ __osm_pr_rcv_respond(IN osm_sa_t * sa,
 		/*  osm_mad_pool_put( sa->p_mad_pool, p_resp_madw ); */
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }
 
@@ -1951,7 +1951,7 @@ void osm_pr_rcv_process(IN void *context, IN void *data)
 	}
 	goto Unlock;
 
-      McastDest:
+McastDest:
 	osm_log(sa->p_log, OSM_LOG_DEBUG,
 		"osm_pr_rcv_process: " "Multicast destination requested\n");
 	{
@@ -2024,12 +2024,12 @@ void osm_pr_rcv_process(IN void *context, IN void *data)
 		cl_qlist_insert_tail(&pr_list, &p_pr_item->list_item);
 	}
 
-      Unlock:
+Unlock:
 	cl_plock_release(sa->p_lock);
 
 	/* Now, (finally) respond to the PathRecord request */
 	__osm_pr_rcv_respond(sa, p_madw, &pr_list);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }

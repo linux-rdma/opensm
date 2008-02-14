@@ -258,7 +258,7 @@ osm_db_domain_t *osm_db_domain_init(IN osm_db_t * const p_db,
 	cl_spinlock_construct(&p_domain_imp->lock);
 	cl_spinlock_init(&p_domain_imp->lock);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_log);
 	return p_domain;
 }
@@ -423,10 +423,10 @@ int osm_db_restore(IN osm_db_domain_t * p_domain)
 		}		/* in key */
 	}			/* while lines or last line */
 
-      EndParsing:
+EndParsing:
 	fclose(p_file);
 
-      Exit:
+Exit:
 	cl_spinlock_release(&p_domain_imp->lock);
 	OSM_LOG_EXIT(p_log);
 	return status;
@@ -494,7 +494,7 @@ int osm_db_store(IN osm_db_domain_t * p_domain)
 			" Failed to rename the db file to:%s (err:%u)\n",
 			p_domain_imp->file_name, status);
 	}
-      Exit:
+Exit:
 	cl_spinlock_release(&p_domain_imp->lock);
 	free(p_tmp_file_name);
 	OSM_LOG_EXIT(p_log);

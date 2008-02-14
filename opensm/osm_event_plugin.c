@@ -120,9 +120,9 @@ osm_epi_plugin_t *osm_epi_construct(osm_log_t * p_log, char *plugin_name)
 	rc->plugin_name = strdup(plugin_name);
 	return (rc);
 
-      Exit:
+Exit:
 	dlclose(rc->handle);
-      DLOPENFAIL:
+DLOPENFAIL:
 	free(rc);
 	return (NULL);
 }

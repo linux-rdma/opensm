@@ -88,7 +88,7 @@ osm_fwd_tbl_init(IN osm_fwd_tbl_t * const p_tbl,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	return (status);
 }
 

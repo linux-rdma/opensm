@@ -680,7 +680,7 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sm->p_log);
 }
 

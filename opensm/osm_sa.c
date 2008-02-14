@@ -289,7 +289,7 @@ osm_sa_init(IN osm_sm_t * const p_sm,
 	if (p_sa->mft_disp_h == CL_DISP_INVALID_HANDLE)
 		goto Exit;
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_log);
 	return (status);
 }
@@ -313,7 +313,7 @@ osm_sa_bind(IN osm_sa_t * const p_sa, IN const ib_net64_t port_guid)
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_sa->p_log);
 	return (status);
 }
@@ -596,7 +596,7 @@ static osm_mgrp_t *load_mcgroup(osm_opensm_t * p_osm, ib_net16_t mlid,
 	} else if (well_known)
 		p_mgrp->well_known = TRUE;
 
-      _out:
+_out:
 	cl_plock_release(&p_osm->lock);
 
 	return p_mgrp;
@@ -634,7 +634,7 @@ static int load_svcr(osm_opensm_t * p_osm, ib_service_record_t * sr,
 	if (lease_period != 0xffffffff)
 		cl_timer_trim(&p_osm->sa.sr_timer, 1000);
 
-      _out:
+_out:
 	cl_plock_release(&p_osm->lock);
 
 	return ret;
@@ -672,7 +672,7 @@ static int load_infr(osm_opensm_t * p_osm, ib_inform_info_record_t * iir,
 
 	osm_infr_insert_to_db(&p_osm->subn, &p_osm->log, p_infr);
 
-      _out:
+_out:
 	cl_plock_release(&p_osm->lock);
 
 	return ret;
@@ -945,7 +945,7 @@ int osm_sa_db_file_load(osm_opensm_t * p_osm)
 	if (!rereg_clients)
 		p_osm->subn.opt.no_clients_rereg = TRUE;
 
-      _error:
+_error:
 	fclose(file);
 	return ret;
 }

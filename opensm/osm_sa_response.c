@@ -128,6 +128,6 @@ osm_sa_send_error(IN osm_sa_t * sa,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }

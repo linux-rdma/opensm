@@ -622,6 +622,6 @@ int main(int argc, char *argv[])
 
 	complib_exit();
 
-      Exit:
+Exit:
 	return (status);
 }

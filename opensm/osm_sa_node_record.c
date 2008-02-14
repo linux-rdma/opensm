@@ -113,7 +113,7 @@ __osm_nr_rcv_new_nr(IN osm_sa_t * sa,
 	       IB_NODE_DESCRIPTION_SIZE);
 	cl_qlist_insert_tail(p_list, &p_rec_item->list_item);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 	return (status);
 }
@@ -308,7 +308,7 @@ __osm_nr_rcv_by_comp_mask(IN cl_map_item_t * const p_map_item, IN void *context)
 	__osm_nr_rcv_create_nr(sa, p_node, p_ctxt->p_list,
 			       match_port_guid, match_lid, p_req_physp);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_ctxt->sa->p_log);
 }
 
@@ -514,6 +514,6 @@ void osm_nr_rcv_process(IN void *ctx, IN void *data)
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }

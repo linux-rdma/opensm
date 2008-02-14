@@ -152,7 +152,7 @@ osmt_bind_inform_qp(IN osmtest_t * const p_osmt, OUT osmt_qp_ctx_t * p_qp_ctx)
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_log);
 	return status;
 }
@@ -372,7 +372,7 @@ osmt_reg_unreg_inform_info(IN osmtest_t * p_osmt,
 		status = IB_REMOTE_ERROR;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return status;
 }
@@ -526,7 +526,7 @@ osmt_send_trap_wait_for_forward(IN osmtest_t * const p_osmt,
 		status = IB_ERROR;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_log);
 	return status;
 }
@@ -599,7 +599,7 @@ osmt_trap_wait(IN osmtest_t * const p_osmt, IN osmt_qp_ctx_t * p_qp_ctx)
 		status = IB_ERROR;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_log);
 	return status;
 }
@@ -724,7 +724,7 @@ ib_api_status_t osmt_run_inform_info_flow(IN osmtest_t * const p_osmt)
 		}
 	}
 
-      Exit:
+Exit:
 	osmt_unbind_inform_qp(p_osmt, &qp_ctx);
 	OSM_LOG_EXIT(&p_osmt->log);
 	return status;
@@ -823,7 +823,7 @@ ib_api_status_t osmt_run_trap64_65_flow(IN osmtest_t * const p_osmt)
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	osmt_unbind_inform_qp(p_osmt, &qp_ctx);
 	OSM_LOG_EXIT(&p_osmt->log);
 	return status;

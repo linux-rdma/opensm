@@ -187,7 +187,7 @@ __osm_cpi_rcv_respond(IN osm_sa_t * sa,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }
 
@@ -225,6 +225,6 @@ void osm_cpi_rcv_process(IN void *context, IN void *data)
 
 	__osm_cpi_rcv_respond(sa, p_madw);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }

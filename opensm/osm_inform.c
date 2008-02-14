@@ -102,7 +102,7 @@ static void dump_all_informs(IN osm_subn_t const *p_subn, IN osm_log_t * p_log)
 		p_list_item = cl_qlist_next(p_list_item);
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_log);
 }
 
@@ -228,7 +228,7 @@ __match_inf_rec(IN const cl_list_item_t * const p_list_item, IN void *context)
 			status = CL_SUCCESS;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_log);
 	return status;
 }
@@ -395,7 +395,7 @@ static ib_api_status_t __osm_send_report(IN osm_infr_t * p_infr_rec,	/* the info
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_log);
 	return (status);
 }
@@ -595,7 +595,7 @@ __match_notice_to_inf_rec(IN cl_list_item_t * const p_list_item,
 	__osm_send_report(p_infr_rec, p_ntc);
 	status = CL_SUCCESS;
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_log);
 }
 

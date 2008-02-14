@@ -156,7 +156,7 @@ void osm_slvl_rcv_process(IN void *context, IN void *p_data)
 
 	osm_physp_set_slvl_tbl(p_physp, p_slvl_tbl, in_port_num);
 
-      Exit:
+Exit:
 	cl_plock_release(sm->p_lock);
 
 	OSM_LOG_EXIT(sm->p_log);

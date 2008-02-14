@@ -116,7 +116,7 @@ __osm_gir_rcv_new_gir(IN osm_sa_t * sa,
 
 	cl_qlist_insert_tail(p_list, &p_rec_item->list_item);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 	return (status);
 }
@@ -305,7 +305,7 @@ __osm_sa_gir_by_comp_mask_cb(IN cl_map_item_t * const p_map_item,
 				match_port_guid, match_lid, p_req_physp,
 				match_block_num);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_ctxt->sa->p_log);
 }
 
@@ -522,6 +522,6 @@ void osm_gir_rcv_process(IN void *ctx, IN void *data)
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }

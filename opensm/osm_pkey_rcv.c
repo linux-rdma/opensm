@@ -143,7 +143,7 @@ void osm_pkey_rcv_process(IN void *context, IN void *data)
 	osm_physp_set_pkey_tbl(sm->p_log, sm->p_subn,
 			       p_physp, p_pkey_tbl, block_num);
 
-      Exit:
+Exit:
 	cl_plock_release(sm->p_lock);
 
 	OSM_LOG_EXIT(sm->p_log);

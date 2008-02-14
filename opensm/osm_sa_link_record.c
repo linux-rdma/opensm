@@ -217,7 +217,7 @@ __osm_lr_rcv_get_physp_link(IN osm_sa_t * sa,
 	__osm_lr_rcv_build_physp_link(sa, from_base_lid, to_base_lid,
 				      src_port_num, dest_port_num, p_list);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }
 
@@ -444,7 +444,7 @@ __osm_lr_rcv_get_end_points(IN osm_sa_t * sa,
 		}
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 	return (sa_status);
 }
@@ -595,7 +595,7 @@ __osm_lr_rcv_respond(IN osm_sa_t * sa,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }
 
@@ -676,7 +676,7 @@ void osm_lr_rcv_process(IN void *context, IN void *data)
 
 	__osm_lr_rcv_respond(sa, p_madw, &lr_list);
 
-      Exit:
+Exit:
 
 	OSM_LOG_EXIT(sa->p_log);
 }

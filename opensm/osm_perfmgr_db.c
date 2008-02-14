@@ -118,7 +118,7 @@ static _db_node_t *__malloc_node(uint64_t guid, uint8_t num_ports, char *name)
 
 	return (rc);
 
-      free_rc:
+free_rc:
 	free(rc);
 	return (NULL);
 }
@@ -166,7 +166,7 @@ perfmgr_db_create_entry(perfmgr_db_t * db, uint64_t guid,
 			goto Exit;
 		}
 	}
-      Exit:
+Exit:
 	cl_plock_release(&(db->lock));
 	return (rc);
 }
@@ -305,7 +305,7 @@ perfmgr_db_add_err_reading(perfmgr_db_t * db, uint64_t guid,
 	osm_epi_report(db->event_plugin, OSM_EVENT_ID_PORT_ERRORS,
 		       (void *)&epi_pe_data);
 
-      Exit:
+Exit:
 	cl_plock_release(&(db->lock));
 	return (rc);
 }
@@ -325,7 +325,7 @@ perfmgr_db_err_t perfmgr_db_get_prev_err(perfmgr_db_t * db, uint64_t guid,
 
 	*reading = node->ports[port].err_previous;
 
-      Exit:
+Exit:
 	cl_plock_release(&(db->lock));
 	return (rc);
 }
@@ -347,7 +347,7 @@ perfmgr_db_clear_prev_err(perfmgr_db_t * db, uint64_t guid, uint8_t port)
 	memset(previous, 0, sizeof(*previous));
 	node->ports[port].err_previous.time = time(NULL);
 
-      Exit:
+Exit:
 	cl_plock_release(&(db->lock));
 	return (rc);
 }
@@ -429,7 +429,7 @@ perfmgr_db_add_dc_reading(perfmgr_db_t * db, uint64_t guid,
 	osm_epi_report(db->event_plugin, OSM_EVENT_ID_PORT_DATA_COUNTERS,
 		       (void *)&epi_dc_data);
 
-      Exit:
+Exit:
 	cl_plock_release(&(db->lock));
 	return (rc);
 }
@@ -449,7 +449,7 @@ perfmgr_db_err_t perfmgr_db_get_prev_dc(perfmgr_db_t * db, uint64_t guid,
 
 	*reading = node->ports[port].dc_previous;
 
-      Exit:
+Exit:
 	cl_plock_release(&(db->lock));
 	return (rc);
 }
@@ -471,7 +471,7 @@ perfmgr_db_clear_prev_dc(perfmgr_db_t * db, uint64_t guid, uint8_t port)
 	memset(previous, 0, sizeof(*previous));
 	node->ports[port].dc_previous.time = time(NULL);
 
-      Exit:
+Exit:
 	cl_plock_release(&(db->lock));
 	return (rc);
 }

@@ -289,7 +289,7 @@ osm_vl15_init(IN osm_vl15_t * const p_vl,
 	if (status != IB_SUCCESS)
 		goto Exit;
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_log);
 	return (status);
 }

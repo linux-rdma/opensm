@@ -208,7 +208,7 @@ static uint8_t find_port_from_lid(IN const ib_net16_t lid_no,
 		}
 	}			// for
 
-      Exit:
+Exit:
 	return egress_port;
 }
 
@@ -919,14 +919,14 @@ static int init_lash_structures(lash_t * p_lash)
 
 	goto Exit;
 
-      Exit_Mem_Error:
+Exit_Mem_Error:
 	status = IB_ERROR;
 	osm_log(p_log, OSM_LOG_ERROR,
 		"lash_init_structures: ERR 4D01: "
 		"Could not allocate required memory for LASH errno %d, errno %d for lack of memory\n",
 		errno, ENOMEM);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_log);
 	return status;
 }
@@ -1099,13 +1099,13 @@ static int lash_core(lash_t * p_lash)
 
 	goto Exit;
 
-      Error_Not_Enough_Lanes:
+Error_Not_Enough_Lanes:
 	status = IB_ERROR;
 	osm_log(p_log, OSM_LOG_ERROR,
 		"lash_core: ERR 4D02: "
 		"Lane requirements (%d) exceed available lanes (%d)\n",
 		p_lash->vl_min, lanes_needed);
-      Exit:
+Exit:
 	if (switch_bitmap)
 		free(switch_bitmap);
 	OSM_LOG_EXIT(p_log);
@@ -1380,7 +1380,7 @@ static int lash_process(void *context)
 
 	populate_fwd_tbls(p_lash);
 
-      Exit:
+Exit:
 	free_lash_structures(p_lash);
 	OSM_LOG_EXIT(p_log);
 

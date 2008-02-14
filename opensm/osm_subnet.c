@@ -312,7 +312,7 @@ osm_physp_t *osm_get_physp_by_mad_addr(IN osm_log_t * p_log,
 		    );
 	}
 
-      Exit:
+Exit:
 	return p_physp;
 }
 

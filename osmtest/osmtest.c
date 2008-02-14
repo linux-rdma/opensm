@@ -542,7 +542,7 @@ osmtest_init(IN osmtest_t * const p_osmt,
 	if (status != IB_SUCCESS)
 		goto Exit;
 
-      Exit:
+Exit:
 	osm_log(&p_osmt->log, OSM_LOG_FUNCS, "osmtest_init: ]\n");
 	return (status);
 }
@@ -638,7 +638,7 @@ osmtest_get_all_recs(IN osmtest_t * const p_osmt,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return (status);
 }
@@ -725,7 +725,7 @@ ib_api_status_t osmtest_validate_sa_class_port_info(IN osmtest_t * const p_osmt)
 		p_cpi->base_ver, p_cpi->class_ver, cl_ntoh16(p_cpi->cap_mask),
 		ib_class_cap_mask2(p_cpi), ib_class_resp_time_val(p_cpi));
 
-      Exit:
+Exit:
 #if 0
 	if (context.result.p_result_madw != NULL) {
 		osm_mad_pool_put(&p_osmt->mad_pool,
@@ -812,7 +812,7 @@ osmtest_get_node_rec(IN osmtest_t * const p_osmt,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return (status);
 }
@@ -896,7 +896,7 @@ osmtest_get_node_rec_by_lid(IN osmtest_t * const p_osmt,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return (status);
 }
@@ -964,7 +964,7 @@ osmtest_get_path_rec_by_guid_pair(IN osmtest_t * const p_osmt,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 
 	OSM_LOG_EXIT(&p_osmt->log);
 	return (status);
@@ -1035,7 +1035,7 @@ osmtest_get_path_rec_by_gid_pair(IN osmtest_t * const p_osmt,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 
 	OSM_LOG_EXIT(&p_osmt->log);
 	return (status);
@@ -1101,7 +1101,7 @@ osmtest_get_multipath_rec(IN osmtest_t * const p_osmt,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return (status);
 }
@@ -1182,7 +1182,7 @@ osmtest_get_port_rec(IN osmtest_t * const p_osmt,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return (status);
 }
@@ -1265,7 +1265,7 @@ osmtest_get_port_rec_by_num(IN osmtest_t * const p_osmt,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return (status);
 }
@@ -1321,7 +1321,7 @@ osmtest_stress_port_recs_large(IN osmtest_t * const p_osmt,
 		}
 	}
 
-      Exit:
+Exit:
 	/*
 	 * Return the IB query MAD to the pool as necessary.
 	 */
@@ -1387,7 +1387,7 @@ osmtest_stress_node_recs_large(IN osmtest_t * const p_osmt,
 		}
 	}
 
-      Exit:
+Exit:
 	/*
 	 * Return the IB query MAD to the pool as necessary.
 	 */
@@ -1452,7 +1452,7 @@ osmtest_stress_path_recs_large(IN osmtest_t * const p_osmt,
 		}
 	}
 
-      Exit:
+Exit:
 	/*
 	 * Return the IB query MAD to the pool as necessary.
 	 */
@@ -1579,7 +1579,7 @@ osmtest_stress_path_recs_by_guid(IN osmtest_t * const p_osmt,
 		p_src_node = (node_t *) cl_qmap_next(&p_src_node->map_item);
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return (status);
 }
@@ -1637,7 +1637,7 @@ osmtest_stress_port_recs_small(IN osmtest_t * const p_osmt,
 		}
 	}
 
-      Exit:
+Exit:
 	/*
 	 * Return the IB query MAD to the pool as necessary.
 	 */
@@ -1701,7 +1701,7 @@ osmtest_get_local_port_lmc(IN osmtest_t * const p_osmt,
 		}
 	}
 
-      Exit:
+Exit:
 	/*
 	 * Return the IB query MAD to the pool as necessary.
 	 */
@@ -1786,7 +1786,7 @@ ib_api_status_t osmtest_wrong_sm_key_ignored(IN osmtest_t * const p_osmt)
 		status = IB_SUCCESS;
 	}
 
-      Exit:
+Exit:
 	if (context.result.p_result_madw != NULL) {
 		osm_mad_pool_put(&p_osmt->mad_pool,
 				 context.result.p_result_madw);
@@ -1888,7 +1888,7 @@ osmtest_write_port_info(IN osmtest_t * const p_osmt,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return (status);
 }
@@ -1938,7 +1938,7 @@ osmtest_write_path_info(IN osmtest_t * const p_osmt,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return (status);
 }
@@ -1998,7 +1998,7 @@ osmtest_write_node_info(IN osmtest_t * const p_osmt,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return (status);
 }
@@ -2032,7 +2032,7 @@ osmtest_write_link(IN osmtest_t * const p_osmt,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return (status);
 }
@@ -2096,7 +2096,7 @@ osmtest_write_all_link_recs(IN osmtest_t * const p_osmt, IN FILE * fh)
 		osmtest_write_link(p_osmt, fh, p_rec);
 	}
 
-      Exit:
+Exit:
 	/*
 	 * Return the IB query MAD to the pool as necessary.
 	 */
@@ -2171,7 +2171,7 @@ osmtest_get_path_rec_by_lid_pair(IN osmtest_t * const p_osmt,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return (status);
 }
@@ -2234,7 +2234,7 @@ osmtest_write_all_node_recs(IN osmtest_t * const p_osmt, IN FILE * fh)
 		osmtest_write_node_info(p_osmt, fh, p_rec);
 	}
 
-      Exit:
+Exit:
 	/*
 	 * Return the IB query MAD to the pool as necessary.
 	 */
@@ -2306,7 +2306,7 @@ osmtest_write_all_port_recs(IN osmtest_t * const p_osmt, IN FILE * fh)
 		osmtest_write_port_info(p_osmt, fh, p_rec);
 	}
 
-      Exit:
+Exit:
 	/*
 	 * Return the IB query MAD to the pool as necessary.
 	 */
@@ -2377,7 +2377,7 @@ osmtest_write_all_path_recs(IN osmtest_t * const p_osmt, IN FILE * fh)
 		osmtest_write_path_info(p_osmt, fh, p_rec);
 	}
 
-      Exit:
+Exit:
 	/*
 	 * Return the IB query MAD to the pool as necessary.
 	 */
@@ -2477,7 +2477,7 @@ osmtest_write_all_node_recs(IN osmtest_t * const p_osmt, IN FILE * fh)
 		}
 	}
 
-      Exit:
+Exit:
 	if (context.result.p_result_madw != NULL) {
 		osm_mad_pool_put(&p_osmt->mad_pool,
 				 context.result.p_result_madw);
@@ -2589,7 +2589,7 @@ osmtest_write_all_port_recs(IN osmtest_t * const p_osmt, IN FILE * fh)
 
 	/* we must set the exist status to avoid abort of the over all algorith */
 
-      Exit:
+Exit:
 	/*
 	 * Return the IB query MAD to the pool as necessary.
 	 */
@@ -2750,7 +2750,7 @@ osmtest_create_inventory_file(IN osmtest_t * const p_osmt)
 
 	fclose(fh);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return (status);
 }
@@ -2814,7 +2814,7 @@ static ib_api_status_t osmtest_stress_large_rmpp_pr(IN osmtest_t * const p_osmt)
 		}
 	}
 
-      Exit:
+Exit:
 	gettimeofday(&end_tv, NULL);
 	printf("-I- End time is : %09ld:%06ld [sec:usec]\n",
 	       end_tv.tv_sec, (long)end_tv.tv_usec);
@@ -2898,7 +2898,7 @@ static ib_api_status_t osmtest_stress_large_rmpp(IN osmtest_t * const p_osmt)
 		}
 	}
 
-      Exit:
+Exit:
 	gettimeofday(&end_tv, NULL);
 	printf("-I- End time is : %09ld:%06ld [sec:usec]\n",
 	       end_tv.tv_sec, (long)end_tv.tv_usec);
@@ -2972,7 +2972,7 @@ static ib_api_status_t osmtest_stress_small_rmpp(IN osmtest_t * const p_osmt)
 		}
 	}
 
-      Exit:
+Exit:
 	gettimeofday(&end_tv, NULL);
 	printf("-I- End time is : %09ld:%06ld [sec:usec]\n",
 	       end_tv.tv_sec, (long)end_tv.tv_usec);
@@ -3125,7 +3125,7 @@ static ib_api_status_t osmtest_check_missing_paths(IN osmtest_t * const p_osmt)
 		p_path = (path_t *) cl_qmap_next(&p_path->map_item);
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return (status);
 }
@@ -3267,7 +3267,7 @@ osmtest_validate_path_data(IN osmtest_t * const p_osmt,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return (status);
 }
@@ -3464,7 +3464,7 @@ osmtest_validate_node_data(IN osmtest_t * const p_osmt,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return (status);
 }
@@ -3498,7 +3498,7 @@ osmtest_validate_node_rec(IN osmtest_t * const p_osmt,
 
 	status = osmtest_validate_node_data(p_osmt, p_node, p_rec);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return (status);
 }
@@ -4014,7 +4014,7 @@ osmtest_validate_port_data(IN osmtest_t * const p_osmt,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return (status);
 }
@@ -4050,7 +4050,7 @@ osmtest_validate_port_rec(IN osmtest_t * const p_osmt,
 
 	status = osmtest_validate_port_data(p_osmt, p_port, p_rec);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return (status);
 }
@@ -4083,7 +4083,7 @@ osmtest_validate_path_rec(IN osmtest_t * const p_osmt,
 
 	status = osmtest_validate_path_data(p_osmt, p_path, p_rec);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return (status);
 }
@@ -4158,7 +4158,7 @@ osmtest_validate_all_node_recs(IN osmtest_t * const p_osmt)
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	/*
 	 * Return the IB query MAD to the pool as necessary.
 	 */
@@ -4210,7 +4210,7 @@ osmtest_validate_all_guidinfo_recs(IN osmtest_t * const p_osmt)
 
 	/* No validation as yet */
 
-      Exit:
+Exit:
 	/*
 	 * Return the IB query MAD to the pool as necessary.
 	 */
@@ -4289,7 +4289,7 @@ osmtest_validate_all_path_recs(IN osmtest_t * const p_osmt)
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	/*
 	 * Return the IB query MAD to the pool as necessary.
 	 */
@@ -4387,7 +4387,7 @@ osmtest_get_link_rec_by_lid(IN osmtest_t * const p_osmt,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return (status);
 }
@@ -4472,7 +4472,7 @@ osmtest_get_guidinfo_rec_by_lid(IN osmtest_t * const p_osmt,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return (status);
 }
@@ -4558,7 +4558,7 @@ osmtest_get_pkeytbl_rec_by_lid(IN osmtest_t * const p_osmt,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return (status);
 }
@@ -4644,7 +4644,7 @@ osmtest_get_sw_info_rec_by_lid(IN osmtest_t * const p_osmt,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return (status);
 }
@@ -4729,7 +4729,7 @@ osmtest_get_lft_rec_by_lid(IN osmtest_t * const p_osmt,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return (status);
 }
@@ -4814,7 +4814,7 @@ osmtest_get_mft_rec_by_lid(IN osmtest_t * const p_osmt,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return (status);
 }
@@ -4914,7 +4914,7 @@ osmtest_sminfo_record_request(IN osmtest_t * const p_osmt,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return (status);
 }
@@ -5030,7 +5030,7 @@ osmtest_informinfo_request(IN osmtest_t * const p_osmt,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return (status);
 }
@@ -5082,7 +5082,7 @@ osmtest_validate_single_path_rec_lid_pair(IN osmtest_t * const p_osmt,
 		}
 	}
 
-      Exit:
+Exit:
 	/*
 	 * Return the IB query MAD to the pool as necessary.
 	 */
@@ -5189,7 +5189,7 @@ osmtest_validate_single_node_rec_lid(IN osmtest_t * const p_osmt,
 		}
 	}
 
-      Exit:
+Exit:
 	/*
 	 * Return the IB query MAD to the pool as necessary.
 	 */
@@ -5240,7 +5240,7 @@ osmtest_validate_single_port_rec_lid(IN osmtest_t * const p_osmt,
 			ib_get_err_str(status));
 	}
 
-      Exit:
+Exit:
 	/*
 	 * Return the IB query MAD to the pool as necessary.
 	 */
@@ -5372,7 +5372,7 @@ osmtest_validate_single_path_rec_guid_pair(IN osmtest_t * const p_osmt,
 		}
 	}
 
-      Exit:
+Exit:
 	/*
 	 * Return the IB query MAD to the pool as necessary.
 	 */
@@ -5476,7 +5476,7 @@ osmtest_validate_single_path_recs(IN osmtest_t * const p_osmt)
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return (status);
 }
@@ -5538,7 +5538,7 @@ osmtest_validate_single_node_recs(IN osmtest_t * const p_osmt)
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return (status);
 }
@@ -5598,7 +5598,7 @@ osmtest_validate_single_port_recs(IN osmtest_t * const p_osmt)
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return (status);
 }
@@ -6354,7 +6354,7 @@ static ib_api_status_t osmtest_validate_against_db(IN osmtest_t * const p_osmt)
 			goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return (status);
 }
@@ -6683,7 +6683,7 @@ osmtest_parse_node(IN osmtest_t * const p_osmt,
 		       p_guid_node->rec.node_info.node_guid,
 		       &p_guid_node->map_item);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return (status);
 }
@@ -7225,7 +7225,7 @@ osmtest_parse_port(IN osmtest_t * const p_osmt,
 		       port_gen_id(p_port->rec.lid, p_port->rec.port_num),
 		       &p_port->map_item);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return (status);
 }
@@ -7417,7 +7417,7 @@ osmtest_parse_path(IN osmtest_t * const p_osmt,
 		       osmtest_path_rec_key_get(&p_path->rec),
 		       &p_path->map_item);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return (status);
 }
@@ -7505,7 +7505,7 @@ osmtest_parse_link(IN osmtest_t * const p_osmt,
 	if (got_error)
 		status = IB_ERROR;
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return (status);
 }
@@ -7607,7 +7607,7 @@ static ib_api_status_t osmtest_create_db(IN osmtest_t * const p_osmt)
 
 	fclose(fh);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return (status);
 }
@@ -7741,7 +7741,7 @@ osmtest_bind(IN osmtest_t * p_osmt,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return (status);
 }
@@ -7979,7 +7979,7 @@ ib_api_status_t osmtest_run(IN osmtest_t * const p_osmt)
 		}
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return (status);
 }

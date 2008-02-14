@@ -70,7 +70,7 @@ void complib_init(void)
 		goto _error;
 	return;
 
-      _error:
+_error:
 	cl_msg_out("__init: failed to create complib (%s)\n",
 		   CL_STATUS_MSG(status));
 	exit(1);

@@ -276,7 +276,7 @@ __osm_si_rcv_get_mcast_fwd_tbl(IN osm_sm_t * sm,
 		}
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sm->p_log);
 }
 #endif
@@ -386,7 +386,7 @@ __osm_si_rcv_process_new(IN osm_sm_t * sm,
 		__osm_si_rcv_get_mcast_fwd_tbl(sm, p_sw);
 #endif
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sm->p_log);
 }
 
@@ -569,6 +569,6 @@ void osm_si_rcv_process(IN void *context, IN void *data)
 	}
 
 	CL_PLOCK_RELEASE(sm->p_lock);
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sm->p_log);
 }

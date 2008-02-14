@@ -373,7 +373,7 @@ static int parse_part_conf(struct part_conf *conf, char *str, int lineno)
 		return -1;
 	}
 
-      skip_header:
+skip_header:
 	do {
 		name = flag = NULL;
 		q = strchr(p, ',');

@@ -180,7 +180,7 @@ static void __cl_event_wheel_callback(IN void *context)
 	}
 
 	/* release the lock */
-      Exit:
+Exit:
 	cl_spinlock_release(&p_event_wheel->lock);
 	if (NULL != p_event_wheel->p_external_lock)
 		cl_spinlock_release(p_event_wheel->p_external_lock);
@@ -395,7 +395,7 @@ cl_event_wheel_reg(IN cl_event_wheel_t * const p_event_wheel,
 
 	cl_qmap_insert(&p_event_wheel->events_map, key, &(p_event->map_item));
 
-      Exit:
+Exit:
 	cl_spinlock_release(&p_event_wheel->lock);
 
 	return cl_status;

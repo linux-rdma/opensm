@@ -123,7 +123,7 @@ __osm_sa_slvl_create(IN osm_sa_t * sa,
 
 	cl_qlist_insert_tail(p_ctxt->p_list, &p_rec_item->list_item);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }
 
@@ -476,6 +476,6 @@ void osm_slvl_rec_rcv_process(IN void *ctx, IN void *data)
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }

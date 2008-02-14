@@ -241,7 +241,7 @@ osm_perfmgr_mad_send_err_callback(void *bind_context, osm_madw_t * p_madw)
 		cl_plock_release(pm->lock);
 	}
 
-      Exit:
+Exit:
 	osm_mad_pool_put(pm->mad_pool, p_madw);
 
 	__decrement_outstanding_queries(pm);
@@ -295,7 +295,7 @@ osm_perfmgr_bind(osm_perfmgr_t * const pm, const ib_net64_t port_guid)
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(pm->log);
 	return (status);
 }
@@ -312,7 +312,7 @@ static void osm_perfmgr_mad_unbind(osm_perfmgr_t * const pm)
 		goto Exit;
 	}
 	osm_vendor_unbind(pm->bind_handle);
-      Exit:
+Exit:
 	OSM_LOG_EXIT(pm->log);
 }
 
@@ -459,7 +459,7 @@ static void __collect_guids(cl_map_item_t * const p_map_item, void *context)
 			       (cl_map_item_t *) mon_node);
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(pm->log);
 }
 
@@ -552,7 +552,7 @@ __osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context)
 				node->node_info.node_guid, port,
 				node->print_desc);
 	}
-      Exit:
+Exit:
 	cl_plock_release(pm->lock);
 	OSM_LOG_EXIT(pm->log);
 }
@@ -1032,7 +1032,7 @@ osm_perfmgr_check_overflow(osm_perfmgr_t * pm, __monitored_node_t *mon_node,
 		perfmgr_db_clear_prev_dc(pm->db, mon_node->guid, port);
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(pm->log);
 }
 
@@ -1222,7 +1222,7 @@ static void osm_pc_rcv_process(void *context, void *data)
 	} while (0);
 #endif
 
-      Exit:
+Exit:
 	osm_mad_pool_put(pm->mad_pool, p_madw);
 
 	OSM_LOG_EXIT(pm->log);
@@ -1286,7 +1286,7 @@ osm_perfmgr_init(osm_perfmgr_t * const pm,
 
 	cl_timer_start(&pm->sweep_timer, pm->sweep_time_s * 1000);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(log);
 	return (status);
 }

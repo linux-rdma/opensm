@@ -315,7 +315,7 @@ __osm_sm_mad_ctrl_process_get_resp(IN osm_sm_mad_ctrl_t * const p_ctrl,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_ctrl->p_log);
 }
 
@@ -389,7 +389,7 @@ __osm_sm_mad_ctrl_process_get(IN osm_sm_mad_ctrl_t * const p_ctrl,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_ctrl->p_log);
 }
 
@@ -474,7 +474,7 @@ __osm_sm_mad_ctrl_process_set(IN osm_sm_mad_ctrl_t * const p_ctrl,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_ctrl->p_log);
 }
 
@@ -569,7 +569,7 @@ __osm_sm_mad_ctrl_process_trap(IN osm_sm_mad_ctrl_t * const p_ctrl,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_ctrl->p_log);
 }
 
@@ -689,7 +689,7 @@ __osm_sm_mad_ctrl_rcv_callback(IN osm_madw_t * p_madw,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_ctrl->p_log);
 }
 
@@ -880,7 +880,7 @@ osm_sm_mad_ctrl_init(IN osm_sm_mad_ctrl_t * const p_ctrl,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_log);
 	return (status);
 }
@@ -931,7 +931,7 @@ osm_sm_mad_ctrl_bind(IN osm_sm_mad_ctrl_t * const p_ctrl,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_ctrl->p_log);
 	return (status);
 }

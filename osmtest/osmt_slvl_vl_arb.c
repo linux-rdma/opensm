@@ -177,7 +177,7 @@ osmt_query_vl_arb(IN osmtest_t * const p_osmt,
 		osmtest_write_vl_arb_table(p_osmt, fh, p_rec);
 	}
 
-      Exit:
+Exit:
 	/*
 	 * Return the IB query MAD to the pool as necessary.
 	 */
@@ -385,7 +385,7 @@ osmt_query_slvl_map(IN osmtest_t * const p_osmt,
 		osmtest_write_slvl_map_table(p_osmt, fh, p_rec);
 	}
 
-      Exit:
+Exit:
 	/*
 	 * Return the IB query MAD to the pool as necessary.
 	 */
@@ -481,7 +481,7 @@ osmt_query_all_ports_slvl_map(IN osmtest_t * const p_osmt, IN FILE * fh)
 		p_src_port = (port_t *) cl_qmap_next(&p_src_port->map_item);
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_osmt->log);
 	if (anyErr) {
 		status = IB_ERROR;
@@ -541,7 +541,7 @@ osmt_run_slvl_and_vlarb_records_flow(IN osmtest_t * const p_osmt)
 			goto Exit;
 	}
 
-      Exit:
+Exit:
 	fclose(fh);
 	OSM_LOG_EXIT(&p_osmt->log);
 	return status;

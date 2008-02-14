@@ -237,7 +237,7 @@ __get_new_mlid(IN osm_sa_t * sa, IN ib_net16_t requested_mlid)
 
 	free(used_mlids_array);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 	return cl_hton16(mlid);
 }
@@ -414,7 +414,7 @@ __osm_mcmr_rcv_respond(IN osm_sa_t * sa,
 			ib_get_err_str(status), p_resp_sa_mad->trans_id);
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 	return;
 }
@@ -848,7 +848,7 @@ __validate_requested_mgid(IN osm_sa_t * sa,
 	 * have been nice. But the spec does not require it.
 	 */
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 	return (valid);
 }
@@ -1134,7 +1134,7 @@ osm_mcmr_rcv_create_new_mgrp(IN osm_sa_t * sa,
 	   Trap 66: MCGroup create */
 	osm_mgrp_send_create_notice(sa->p_subn, sa->p_log, *pp_mgrp);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 	return status;
 
@@ -1371,7 +1371,7 @@ __osm_mcmr_rcv_leave_mgrp(IN osm_sa_t * sa,
 	/* Send an SA response */
 	__osm_mcmr_rcv_respond(sa, p_madw, &mcmember_rec);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 	return;
 }
@@ -1677,7 +1677,7 @@ __osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa,
 
 	__osm_mcmr_rcv_respond(sa, p_madw, &mcmember_rec);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 	return;
 }
@@ -1711,7 +1711,7 @@ __osm_mcmr_rcv_new_mcmr(IN osm_sa_t * sa,
 	p_rec_item->rec = *p_rcvd_rec;
 	cl_qlist_insert_tail(p_list, &p_rec_item->list_item);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 	return (status);
 }
@@ -1901,7 +1901,7 @@ __osm_sa_mcm_by_comp_mask_cb(IN cl_map_item_t * const p_map_item,
 		__osm_mcmr_rcv_new_mcmr(sa, &match_rec, p_ctxt->p_list);
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }
 
@@ -2117,7 +2117,7 @@ __osm_mcmr_query_mgrp(IN osm_sa_t * sa,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }
 
@@ -2212,7 +2212,7 @@ void osm_mcmr_rcv_process(IN void *context, IN void *data)
 		break;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 	return;
 }

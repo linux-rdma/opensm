@@ -121,7 +121,7 @@ __osm_sa_vl_arb_create(IN osm_sa_t * sa,
 
 	cl_qlist_insert_tail(p_ctxt->p_list, &p_rec_item->list_item);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }
 
@@ -217,7 +217,7 @@ __osm_sa_vl_arb_by_comp_mask(IN osm_sa_t * sa,
 			__osm_sa_vl_arb_check_physp(sa, p_physp, p_ctxt);
 		}
 	}
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }
 
@@ -495,6 +495,6 @@ void osm_vlarb_rec_rcv_process(IN void *ctx, IN void *data)
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }

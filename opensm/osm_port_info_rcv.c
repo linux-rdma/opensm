@@ -436,7 +436,7 @@ static void get_pkey_table(IN osm_log_t * p_log,
 		}
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_log);
 }
 
@@ -714,7 +714,7 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 
 	CL_PLOCK_RELEASE(sm->p_lock);
 
-      Exit:
+Exit:
 	/*
 	   Release the lock before jumping here!!
 	 */

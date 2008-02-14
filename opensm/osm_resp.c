@@ -98,7 +98,7 @@ osm_resp_make_resp_smp(IN osm_sm_t * sm,
 	p_dest_smp->dr_slid = p_dest_smp->dr_dlid;
 	memcpy(&p_dest_smp->data, p_payload, IB_SMP_DATA_SIZE);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sm->p_log);
 }
 
@@ -162,7 +162,7 @@ osm_resp_send(IN osm_sm_t * sm,
 
 	osm_vl15_post(sm->p_vl15, p_madw);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sm->p_log);
 	return (status);
 }

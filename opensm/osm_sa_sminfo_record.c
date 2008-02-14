@@ -119,7 +119,7 @@ __osm_smir_rcv_new_smir(IN osm_sa_t * sa,
 
 	cl_qlist_insert_tail(p_list, &p_rec_item->list_item);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 	return (status);
 }
@@ -161,7 +161,7 @@ __osm_sa_smir_by_comp_mask(IN osm_sa_t * sa,
 				p_rem_sm->smi.act_count,
 				p_rem_sm->smi.pri_state, p_req_physp);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }
 
@@ -498,6 +498,6 @@ void osm_smir_rcv_process(IN void *ctx, IN void *data)
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }

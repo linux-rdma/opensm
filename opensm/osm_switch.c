@@ -123,7 +123,7 @@ osm_switch_init(IN osm_switch_t * const p_sw,
 	for (port_num = 0; port_num < num_ports; port_num++)
 		osm_port_prof_construct(&p_sw->p_prof[port_num]);
 
-      Exit:
+Exit:
 	return (status);
 }
 

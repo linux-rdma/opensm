@@ -421,7 +421,7 @@ osm_port_share_pkey(IN osm_log_t * p_log,
 
 	ret = osm_physp_share_pkey(p_log, p_physp1, p_physp2);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_log);
 	return ret;
 }
@@ -507,7 +507,7 @@ osm_physp_has_pkey(IN osm_log_t * p_log,
 			"PKey 0x%04x was not found\n", cl_ntoh16(pkey));
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_log);
 	return res;
 }

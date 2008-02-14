@@ -260,7 +260,7 @@ __osm_ni_rcv_set_links(IN osm_sm_t * sm,
 	osm_node_link(p_node, port_num, p_neighbor_node,
 		      p_ni_context->port_num);
 
-      _exit:
+_exit:
 	OSM_LOG_EXIT(sm->p_log);
 }
 
@@ -490,7 +490,7 @@ __osm_ni_rcv_process_existing_ca_or_router(IN osm_sm_t * sm,
 			"Failure initiating PortInfo request (%s)\n",
 			ib_get_err_str(status));
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sm->p_log);
 }
 
@@ -742,7 +742,7 @@ __osm_ni_rcv_process_new(IN osm_sm_t * sm,
 		break;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sm->p_log);
 }
 
@@ -860,6 +860,6 @@ void osm_ni_rcv_process(IN void *context, IN void *data)
 
 	CL_PLOCK_RELEASE(sm->p_lock);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sm->p_log);
 }

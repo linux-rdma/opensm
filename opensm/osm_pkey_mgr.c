@@ -547,7 +547,7 @@ osm_signal_t osm_pkey_mgr_process(IN osm_opensm_t * p_osm)
 			signal = OSM_SIGNAL_DONE_PENDING;
 	}
 
-      _err:
+_err:
 	CL_PLOCK_RELEASE(&p_osm->lock);
 	OSM_LOG_EXIT(&p_osm->log);
 	return (signal);

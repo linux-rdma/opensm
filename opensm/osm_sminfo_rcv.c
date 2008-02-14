@@ -137,7 +137,7 @@ __osm_sminfo_rcv_process_get_request(IN osm_sm_t * sm,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sm->p_log);
 }
 
@@ -329,7 +329,7 @@ __osm_sminfo_rcv_process_set_request(IN osm_sm_t * sm,
 			"Error in SM state transition (%s)\n",
 			ib_get_err_str(status));
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sm->p_log);
 }
 
@@ -548,10 +548,10 @@ __osm_sminfo_rcv_process_get_response(IN osm_sm_t * sm,
 
 	__osm_sminfo_rcv_process_get_sm(sm, p_sm);
 
-      _unlock_and_exit:
+_unlock_and_exit:
 	CL_PLOCK_RELEASE(sm->p_lock);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sm->p_log);
 }
 
@@ -594,7 +594,7 @@ __osm_sminfo_rcv_process_set_response(IN osm_sm_t * sm,
 	   Nothing to do.
 	 */
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sm->p_log);
 }
 
@@ -653,6 +653,6 @@ void osm_sminfo_rcv_process(IN void *context, IN void *data)
 		/* This should be a SubnSet request */
 		__osm_sminfo_rcv_process_set_request(sm, p_madw);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sm->p_log);
 }

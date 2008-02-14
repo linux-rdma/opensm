@@ -114,7 +114,7 @@ __osm_lftr_rcv_new_lftr(IN osm_sa_t * sa,
 
 	cl_qlist_insert_tail(p_list, &p_rec_item->list_item);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 	return (status);
 }
@@ -428,6 +428,6 @@ void osm_lftr_rcv_process(IN void *ctx, IN void *data)
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }

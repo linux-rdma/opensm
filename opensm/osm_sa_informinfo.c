@@ -190,7 +190,7 @@ __validate_ports_access_rights(IN osm_sa_t * sa,
 		}
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 	return valid;
 }
@@ -274,7 +274,7 @@ __osm_infr_rcv_respond(IN osm_sa_t * sa,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }
 
@@ -349,7 +349,7 @@ __osm_sa_inform_info_rec_by_comp_mask(IN osm_sa_t * sa,
 	       sizeof(ib_inform_info_record_t));
 	cl_qlist_insert_tail(p_ctxt->p_list, &p_rec_item->list_item);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }
 
@@ -578,7 +578,7 @@ osm_infr_rcv_process_get_method(IN osm_sa_t * sa,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }
 
@@ -762,7 +762,7 @@ osm_infr_rcv_process_set_method(IN osm_sa_t * sa,
 	/* send the success response */
 	__osm_infr_rcv_respond(sa, p_madw);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }
 
@@ -794,7 +794,7 @@ void osm_infr_rcv_process(IN void *context, IN void *data)
 
 	osm_infr_rcv_process_set_method(sa, p_madw);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }
 
@@ -827,6 +827,6 @@ void osm_infir_rcv_process(IN void *context, IN void *data)
 
 	osm_infr_rcv_process_get_method(sa, p_madw);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }

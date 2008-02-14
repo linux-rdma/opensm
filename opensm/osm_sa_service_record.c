@@ -141,7 +141,7 @@ __match_service_pkey_with_ports_pkey(IN osm_sa_t * sa,
 		}
 	}
 
-      Exit:
+Exit:
 	return valid;
 }
 
@@ -205,7 +205,7 @@ __validate_sr(IN osm_sa_t * sa, IN const osm_madw_t * const p_madw)
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 	return valid;
 }
@@ -380,7 +380,7 @@ __osm_sr_rcv_respond(IN osm_sa_t * sa,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }
 
@@ -611,7 +611,7 @@ __get_matching_sr(IN cl_list_item_t * const p_list_item, IN void *context)
 
 	cl_qlist_insert_tail(&p_sr_item->sr_list, &p_sr_pool_item->list_item);
 
-      Exit:
+Exit:
 	return;
 }
 
@@ -681,7 +681,7 @@ osm_sr_rcv_process_get_method(IN osm_sa_t * sa,
 
 	__osm_sr_rcv_respond(sa, p_madw, &sr_match_item.sr_list);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 	return;
 }
@@ -798,7 +798,7 @@ osm_sr_rcv_process_set_method(IN osm_sa_t * sa,
 
 	__osm_sr_rcv_respond(sa, p_madw, &sr_list);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 	return;
 }
@@ -873,7 +873,7 @@ osm_sr_rcv_process_delete_method(IN osm_sa_t * sa,
 
 	__osm_sr_rcv_respond(sa, p_madw, &sr_list);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 	return;
 }
@@ -933,7 +933,7 @@ void osm_sr_rcv_process(IN void *context, IN void *data)
 		break;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 	return;
 }

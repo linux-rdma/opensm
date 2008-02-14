@@ -234,7 +234,7 @@ static void __osm_lid_mgr_validate_db(IN osm_lid_mgr_t * p_mgr)
 		free(p_item);
 		p_item = (osm_db_guid_elem_t *) cl_qlist_remove_head(&guids);
 	}			/* all guids */
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_mgr->p_log);
 }
 
@@ -287,7 +287,7 @@ osm_lid_mgr_init(IN osm_lid_mgr_t * const p_mgr, IN osm_sm_t *sm)
 		__osm_lid_mgr_validate_db(p_mgr);
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_mgr->p_log);
 	return (status);
 }
@@ -590,7 +590,7 @@ static int __osm_lid_mgr_init_sweep(IN osm_lid_mgr_t * const p_mgr)
 		}
 	}
 
-      AfterScanningLids:
+AfterScanningLids:
 	/* after scanning all known lids we need to extend the last range
 	   to the max allowed lid */
 	if (!p_range) {
@@ -856,13 +856,13 @@ __osm_lid_mgr_get_port_lid(IN osm_lid_mgr_t * const p_mgr,
 		*p_max_lid);
 	lid_changed = 1;
 
-      NewLidSet:
+NewLidSet:
 	/* update the guid2lid db and used_lids */
 	osm_db_guid2lid_set(p_mgr->p_g2l, guid, *p_min_lid, *p_max_lid);
 	for (lid = *p_min_lid; lid <= *p_max_lid; lid++)
 		cl_ptr_vector_set(&p_mgr->used_lids, lid, (void *)1);
 
-      Exit:
+Exit:
 	/* make sure the assigned lids are marked in port_lid_tbl */
 	for (lid = *p_min_lid; lid <= *p_max_lid; lid++)
 		cl_ptr_vector_set(&p_mgr->p_subn->port_lid_tbl, lid, p_port);
@@ -1155,7 +1155,7 @@ __osm_lid_mgr_set_physp_pi(IN osm_lid_mgr_t * const p_mgr,
 				     CL_DISP_MSGID_NONE, &context);
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_mgr->p_log);
 	return send_set;
 }
@@ -1220,7 +1220,7 @@ __osm_lid_mgr_process_our_sm_node(IN osm_lid_mgr_t * const p_mgr)
 	__osm_lid_mgr_set_physp_pi(p_mgr, p_port, p_port->p_physp,
 				   cl_hton16(min_lid_ho));
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_mgr->p_log);
 	return res;
 }

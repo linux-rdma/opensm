@@ -158,7 +158,7 @@ void osm_vla_rcv_process(IN void *context, IN void *data)
 	}
 	osm_physp_set_vla_tbl(p_physp, p_vla_tbl, block_num);
 
-      Exit:
+Exit:
 	cl_plock_release(sm->p_lock);
 
 	OSM_LOG_EXIT(sm->p_log);

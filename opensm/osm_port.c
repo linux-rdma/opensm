@@ -243,7 +243,7 @@ osm_get_port_by_base_lid(IN const osm_subn_t * const p_subn,
 	*pp_port = NULL;
 	status = IB_NOT_FOUND;
 
-      Found:
+Found:
 	return status;
 }
 
@@ -529,7 +529,7 @@ __osm_physp_get_dr_physp_set(IN osm_log_t * p_log,
 		p_node = osm_physp_get_node_ptr(p_physp);
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_log);
 	return status;
 }
@@ -732,7 +732,7 @@ osm_physp_replace_dr_path_with_alternate_dr_path(IN osm_log_t * p_log,
 	}
 
 	/* cleanup */
-      Exit:
+Exit:
 	cl_list_destroy(p_nextPortsList);
 	free(p_nextPortsList);
 	cl_map_destroy(&physp_map);

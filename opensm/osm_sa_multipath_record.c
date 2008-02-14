@@ -766,7 +766,7 @@ __osm_mpr_rcv_get_path_parms(IN osm_sa_t * sa,
 			" pkey = 0x%04X, sl = %u, hops = %u\n", mtu, rate,
 			pkt_life, cl_ntoh16(required_pkey), required_sl, hops);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 	return (status);
 }
@@ -901,7 +901,7 @@ __osm_mpr_rcv_get_lid_pair_path(IN osm_sa_t * sa,
 			       dest_lid_ho, preference, &path_parms,
 			       &p_pr_item->path_rec);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 	return (p_pr_item);
 }
@@ -1099,7 +1099,7 @@ __osm_mpr_rcv_get_port_pair_paths(IN osm_sa_t * sa,
 		}
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 	return path_num;
 }
@@ -1246,7 +1246,7 @@ __osm_mpr_rcv_get_gids(IN osm_sa_t * sa,
 		pp_port[i] = p_port;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 
 	return ib_status;
@@ -1303,7 +1303,7 @@ __osm_mpr_rcv_get_end_points(IN osm_sa_t * sa,
 					   pp_ports + *nsrc);
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 	return (sa_status);
 }
@@ -1481,7 +1481,7 @@ __osm_mpr_rcv_process_pairs(IN osm_sa_t * sa,
 		}
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }
 
@@ -1583,7 +1583,7 @@ __osm_mpr_rcv_respond(IN osm_sa_t * sa,
 		/*  osm_mad_pool_put( sa->p_mad_pool, p_resp_madw ); */
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }
 
@@ -1683,7 +1683,7 @@ void osm_mpr_rcv_process(IN void *context, IN void *data)
 	cl_plock_release(sa->p_lock);
 	__osm_mpr_rcv_respond(sa, p_madw, &pr_list);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }
 #endif

@@ -1522,7 +1522,7 @@ static int __osm_ftree_fabric_mark_leaf_switches(IN ftree_fabric_t * p_ftree)
 		}
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_ftree->p_osm->log);
 	return res;
 }				/* __osm_ftree_fabric_mark_leaf_switches() */
@@ -1780,7 +1780,7 @@ static int __osm_ftree_fabric_create_leaf_switch_array(IN ftree_fabric_t *
 		"Created array of %u leaf switches\n",
 		p_ftree->leaf_switches_num);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_ftree->p_osm->log);
 	return res;
 }				/* __osm_ftree_fabric_create_leaf_switch_array() */
@@ -2952,7 +2952,7 @@ __osm_ftree_rank_leaf_switches(IN ftree_fabric_t * p_ftree,
 		cl_list_insert_tail(p_ranking_bfs_list, p_sw);
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_ftree->p_osm->log);
 	return res;
 }				/* __osm_ftree_rank_leaf_switches() */
@@ -3082,7 +3082,7 @@ __osm_ftree_fabric_construct_hca_ports(IN ftree_fabric_t * p_ftree,
 					 is_cn);	/* whether this port is compute node */
 	}
 
-      Exit:
+Exit:
 	return res;
 }				/* __osm_ftree_fabric_construct_hca_ports() */
 
@@ -3221,7 +3221,7 @@ static int __osm_ftree_fabric_construct_sw_ports(IN ftree_fabric_t * p_ftree,
 			p_ftree->lft_max_lid_ho = cl_ntoh16(remote_base_lid);
 	}
 
-      Exit:
+Exit:
 	return res;
 }				/* __osm_ftree_fabric_construct_sw_ports() */
 
@@ -3337,7 +3337,7 @@ static int __osm_ftree_fabric_rank_from_roots(IN ftree_fabric_t * p_ftree)
 	/* set FatTree maximal switch rank */
 	p_ftree->max_switch_rank = max_rank;
 
-      Exit:
+Exit:
 	cl_list_destroy(&ranking_bfs_list);
 	OSM_LOG_EXIT(&p_ftree->p_osm->log);
 	return res;
@@ -3382,7 +3382,7 @@ static int __osm_ftree_fabric_rank_from_hcas(IN ftree_fabric_t * p_ftree)
 	cl_qmap_apply_func(&p_ftree->sw_tbl, __osm_ftree_sw_reverse_rank,
 			   (void *)p_ftree);
 
-      Exit:
+Exit:
 	cl_list_destroy(&ranking_bfs_list);
 	OSM_LOG_EXIT(&p_ftree->p_osm->log);
 	return res;
@@ -3409,7 +3409,7 @@ static int __osm_ftree_fabric_rank(IN ftree_fabric_t * p_ftree)
 		"__osm_ftree_fabric_rank: "
 		"FatTree max switch rank is %u\n", p_ftree->max_switch_rank);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_ftree->p_osm->log);
 	return res;
 }				/* __osm_ftree_fabric_rank() */
@@ -3504,7 +3504,7 @@ static int __osm_ftree_fabric_populate_ports(IN ftree_fabric_t * p_ftree)
 			goto Exit;
 		}
 	}
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_ftree->p_osm->log);
 	return res;
 }				/* __osm_ftree_fabric_populate_ports() */
@@ -3594,7 +3594,7 @@ static int __osm_ftree_fabric_read_guid_files(IN ftree_fabric_t * p_ftree)
 		CL_ASSERT(cl_qmap_count(&p_ftree->cn_guid_tbl));
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_ftree->p_osm->log);
 	return status;
 } /*__osm_ftree_fabric_read_guid_files() */
@@ -3784,7 +3784,7 @@ static int __osm_ftree_construct_fabric(IN void *context)
 		"Max LID in switch LFTs (in host order): 0x%04x\n",
 		p_ftree->lft_max_lid_ho);
 
-      Exit:
+Exit:
 	if (status != 0) {
 		osm_log(&p_ftree->p_osm->log, OSM_LOG_VERBOSE,
 			"__osm_ftree_construct_fabric: "
@@ -3847,7 +3847,7 @@ static int __osm_ftree_do_routing(IN void *context)
 	osm_log(&p_ftree->p_osm->log, OSM_LOG_VERBOSE,
 		"__osm_ftree_do_routing: " "FatTree routing is done\n");
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_ftree->p_osm->log);
 	return status;
 }

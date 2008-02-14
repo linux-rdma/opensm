@@ -138,7 +138,7 @@ osm_madw_t *osm_mad_pool_get(IN osm_mad_pool_t * const p_pool,
 		"osm_mad_pool_get: Acquired p_madw = %p, p_mad = %p, "
 		"size = %u\n", p_madw, p_madw->p_mad, total_size);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_pool->p_log);
 	return (p_madw);
 }
@@ -181,7 +181,7 @@ osm_madw_t *osm_mad_pool_get_wrapper(IN osm_mad_pool_t * const p_pool,
 		"osm_mad_pool_get_wrapper: Acquired p_madw = %p, p_mad = %p "
 		"size = %u\n", p_madw, p_madw->p_mad, total_size);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_pool->p_log);
 	return (p_madw);
 }

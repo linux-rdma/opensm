@@ -942,7 +942,7 @@ int osm_qos_policy_validate(osm_qos_policy_t * p_qos_policy,
 		i++;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_log);
 	return res;
 }				/* osm_qos_policy_validate() */
@@ -990,7 +990,7 @@ static osm_qos_level_t * __qos_policy_get_qos_level_by_params(
 		p_qos_level->name,
 		(p_qos_level->use) ? p_qos_level->use : "no description");
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_qos_policy->p_subn->p_osm->log);
 	return p_qos_level;
 }				/* __qos_policy_get_qos_level_by_params() */

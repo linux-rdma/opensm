@@ -275,7 +275,7 @@ ib_api_status_t osmt_query_mcast(IN osmtest_t * const p_osmt)
 			       cl_ntoh16(p_rec->mlid), &p_mgrp->map_item);
 	}
 
-      Exit:
+Exit:
 	if (context.result.p_result_madw != NULL) {
 		osm_mad_pool_put(&p_osmt->mad_pool,
 				 context.result.p_result_madw);
@@ -386,7 +386,7 @@ osmt_send_mcast_request(IN osmtest_t * const p_osmt,
 		}
 	}
 
-      Exit:
+Exit:
 	/*
 	 * Return the IB query MAD to the pool as necessary.
 	 */
@@ -2997,7 +2997,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 			status = IB_ERROR;
 		}
 	}
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return status;
 }

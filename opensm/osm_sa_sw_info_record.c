@@ -105,7 +105,7 @@ __osm_sir_rcv_new_sir(IN osm_sa_t * sa,
 
 	cl_qlist_insert_tail(p_list, &p_rec_item->list_item);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 	return (status);
 }
@@ -207,7 +207,7 @@ __osm_sir_rcv_create_sir(IN osm_sa_t * sa,
 	__osm_sir_rcv_new_sir(sa, p_sw, p_list,
 			      osm_port_get_base_lid(p_port));
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }
 
@@ -240,7 +240,7 @@ __osm_sir_rcv_by_comp_mask(IN cl_map_item_t * const p_map_item,
 	__osm_sir_rcv_create_sir(sa, p_sw, p_ctxt->p_list,
 				 match_lid, p_req_physp);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_ctxt->sa->p_log);
 }
 
@@ -451,6 +451,6 @@ void osm_sir_rcv_process(IN void *ctx, IN void *data)
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }

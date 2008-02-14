@@ -265,7 +265,7 @@ __osm_sa_mad_ctrl_process(IN osm_sa_mad_ctrl_t * const p_ctrl,
 		osm_mad_pool_put(p_ctrl->p_mad_pool, p_madw);
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_ctrl->p_log);
 }
 
@@ -391,7 +391,7 @@ __osm_sa_mad_ctrl_rcv_callback(IN osm_madw_t * p_madw,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_ctrl->p_log);
 }
 
@@ -539,7 +539,7 @@ osm_sa_mad_ctrl_init(IN osm_sa_mad_ctrl_t * const p_ctrl,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_log);
 	return (status);
 }
@@ -592,7 +592,7 @@ osm_sa_mad_ctrl_bind(IN osm_sa_mad_ctrl_t * const p_ctrl,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_ctrl->p_log);
 	return (status);
 }
@@ -614,7 +614,7 @@ ib_api_status_t osm_sa_mad_ctrl_unbind(IN osm_sa_mad_ctrl_t * const p_ctrl)
 	}
 
 	osm_vendor_unbind(p_ctrl->h_bind);
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_ctrl->p_log);
 	return (status);
 }

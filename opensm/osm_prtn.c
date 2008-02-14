@@ -157,7 +157,7 @@ ib_api_status_t osm_prtn_add_all(osm_log_t * p_log, osm_subn_t * p_subn,
 			goto _err;
 	}
 
-      _err:
+_err:
 	return status;
 }
 
@@ -338,7 +338,7 @@ static ib_api_status_t osm_prtn_make_default(osm_log_t * const p_log,
 	if (no_config)
 		osm_prtn_add_mcgroup(p_log, p_subn, p, 0, 0, 0);
 
-      _err:
+_err:
 	return status;
 }
 
@@ -391,6 +391,6 @@ ib_api_status_t osm_prtn_make_partitions(osm_log_t * const p_log,
 		}
 	}
 
-      _err:
+_err:
 	return status;
 }

@@ -317,7 +317,7 @@ osm_mgrp_send_delete_notice(IN osm_subn_t * const p_subn,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_log);
 }
 
@@ -359,6 +359,6 @@ osm_mgrp_send_create_notice(IN osm_subn_t * const p_subn,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_log);
 }

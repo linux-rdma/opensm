@@ -135,7 +135,7 @@ osm_req_get(IN osm_sm_t * sm,
 
 	osm_vl15_post(sm->p_vl15, p_madw);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sm->p_log);
 	return (status);
 }
@@ -219,7 +219,7 @@ osm_req_set(IN osm_sm_t * sm,
 
 	osm_vl15_post(sm->p_vl15, p_madw);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sm->p_log);
 	return (status);
 }

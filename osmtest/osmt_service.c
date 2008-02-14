@@ -157,7 +157,7 @@ osmt_register_service(IN osmtest_t * const p_osmt,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	if (context.result.p_result_madw != NULL) {
 		osm_mad_pool_put(&p_osmt->mad_pool,
 				 context.result.p_result_madw);
@@ -286,7 +286,7 @@ osmt_register_service_with_full_key(IN osmtest_t * const p_osmt,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	if (context.result.p_result_madw != NULL) {
 		osm_mad_pool_put(&p_osmt->mad_pool,
 				 context.result.p_result_madw);
@@ -448,7 +448,7 @@ osmt_register_service_with_data(IN osmtest_t * const p_osmt,
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	if (context.result.p_result_madw != NULL) {
 		osm_mad_pool_put(&p_osmt->mad_pool,
 				 context.result.p_result_madw);
@@ -581,7 +581,7 @@ osmt_get_service_by_id_and_name(IN osmtest_t * const p_osmt,
 		osm_dump_service_record(&p_osmt->log, p_rec, OSM_LOG_DEBUG);
 	}
 
-      Exit:
+Exit:
 	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
 		"osmt_get_service_by_id_and_name: "
 		"Expected and found %d records\n", rec_num);
@@ -714,7 +714,7 @@ osmt_get_service_by_id(IN osmtest_t * const p_osmt,
 		osm_dump_service_record(&p_osmt->log, p_rec, OSM_LOG_DEBUG);
 	}
 
-      Exit:
+Exit:
 	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
 		"osmt_get_service_by_id: "
 		"Expected and found %d records\n", rec_num);
@@ -862,7 +862,7 @@ osmt_get_service_by_name_and_key(IN osmtest_t * const p_osmt,
 		osm_dump_service_record(&p_osmt->log, p_rec, OSM_LOG_DEBUG);
 	}
 
-      Exit:
+Exit:
 	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
 		"osmt_get_service_by_name_and_key: "
 		"Expected and found %d records\n", rec_num);
@@ -987,7 +987,7 @@ osmt_get_service_by_name(IN osmtest_t * const p_osmt,
 		osm_dump_service_record(&p_osmt->log, p_rec, OSM_LOG_DEBUG);
 	}
 
-      Exit:
+Exit:
 	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
 		"osmt_get_service_by_name: "
 		"Expected and found %d records\n", rec_num);
@@ -1125,7 +1125,7 @@ osmt_get_all_services_and_check_names(IN osmtest_t * const p_osmt,
 		}
 	*num_services = num_recs;
 
-      Exit:
+Exit:
 	if (context.result.p_result_madw != NULL) {
 		osm_mad_pool_put(&p_osmt->mad_pool,
 				 context.result.p_result_madw);
@@ -1239,14 +1239,14 @@ osmt_delete_service_by_name(IN osmtest_t * const p_osmt,
 		}
 	}
 
-      Exit:
+Exit:
 	if (context.result.p_result_madw != NULL) {
 		osm_mad_pool_put(&p_osmt->mad_pool,
 				 context.result.p_result_madw);
 		context.result.p_result_madw = NULL;
 	}
 
-      ExitNoDel:
+ExitNoDel:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return status;
 }
@@ -1711,7 +1711,7 @@ ib_api_status_t osmt_run_service_records_flow(IN osmtest_t * const p_osmt)
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return status;
 }
