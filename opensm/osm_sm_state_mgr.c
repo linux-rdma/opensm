@@ -78,56 +78,6 @@ void osm_report_sm_state(osm_sm_t *sm)
 	osm_log_msg_box(sm->p_log, OSM_LOG_VERBOSE, __FUNCTION__, buf);
 }
 
-#if 0
-/**********************************************************************
- **********************************************************************/
-static void __osm_sm_state_mgr_send_local_port_info_req(osm_sm_t *sm)
-{
-	osm_madw_context_t context;
-	osm_port_t *p_port;
-	ib_net64_t port_guid = sm->p_subn->sm_port_guid;
-	ib_api_status_t status;
-
-	OSM_LOG_ENTER(sm->p_log, __osm_sm_state_mgr_send_local_port_info_req);
-	/*
-	 * Send a query of SubnGet(PortInfo) to our own port, in order to
-	 * update the master_sm_base_lid of the subnet.
-	 */
-	memset(&context, 0, sizeof(context));
-	p_port = osm_get_port_by_guid(sm->p_subn, port_guid);
-	if (!p_port) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_sm_state_mgr_send_local_port_info_req: ERR 3205: "
-			"No port object for port 0x%016" PRIx64 "\n",
-			cl_ntoh64(port_guid));
-		goto Exit;
-	}
-
-	context.pi_context.port_guid = port_guid;
-	context.pi_context.node_guid = p_port->p_node->node_info.node_guid;
-	context.pi_context.set_method = FALSE;
-	/* mark the update_master_sm_base_lid with TRUE - we want to update it */
-	/* with the new master lid value. */
-	context.pi_context.update_master_sm_base_lid = TRUE;
-	context.pi_context.light_sweep = FALSE;
-	context.pi_context.active_transition = FALSE;
-
-	status = osm_req_get(sm, osm_physp_get_dr_path_ptr(p_port->p_physp),
-			     IB_MAD_ATTR_PORT_INFO,
-			     cl_hton32(p_port->p_physp->port_num),
-			     CL_DISP_MSGID_NONE, &context);
-
-	if (status != IB_SUCCESS)
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_sm_state_mgr_send_local_port_info_req: ERR 3202: "
-			"Failure requesting PortInfo (%s)\n",
-			ib_get_err_str(status));
-
-      Exit:
-	OSM_LOG_EXIT(sm->p_log);
-}
-#endif
-
 /**********************************************************************
  **********************************************************************/
 static void __osm_sm_state_mgr_send_master_sm_info_req(osm_sm_t *sm)
