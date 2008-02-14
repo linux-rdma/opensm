@@ -79,7 +79,7 @@ extern void osm_si_rcv_process(IN void *context, IN void *data);
 extern void osm_trap_rcv_process(IN void *context, IN void *data);
 extern void osm_vla_rcv_process(IN void *context, IN void *data);
 
-extern void osm_state_mgr_process(IN osm_sm_t *sm, IN osm_signal_t signal);
+extern void osm_state_mgr_process(IN osm_sm_t * sm, IN osm_signal_t signal);
 extern void osm_sm_state_mgr_polling_callback(IN void *context);
 
 /**********************************************************************
@@ -378,7 +378,7 @@ osm_sm_init(IN osm_sm_t * const p_sm,
 		goto Exit;
 
 	p_subn->sm_state = p_subn->opt.sm_inactive ?
-		IB_SMINFO_STATE_NOTACTIVE : IB_SMINFO_STATE_DISCOVERING;
+	    IB_SMINFO_STATE_NOTACTIVE : IB_SMINFO_STATE_DISCOVERING;
 	osm_report_sm_state(p_sm);
 
 	/*
@@ -395,7 +395,7 @@ osm_sm_init(IN osm_sm_t * const p_sm,
 		cl_timer_start(&p_sm->sweep_timer,
 			       p_sm->p_subn->opt.sweep_interval * 1000);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_log);
 	return (status);
 }
@@ -438,7 +438,7 @@ osm_sm_bind(IN osm_sm_t * const p_sm, IN const ib_net64_t port_guid)
 		goto Exit;
 	}
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_sm->p_log);
 	return (status);
 }
@@ -492,7 +492,8 @@ __osm_sm_mgrp_disconnect(IN osm_sm_t * const p_sm,
 			 IN osm_mgrp_t * const p_mgrp,
 			 IN const ib_net64_t port_guid)
 {
-	__osm_sm_mgrp_process(p_sm, p_mgrp, port_guid, OSM_MCAST_REQ_TYPE_LEAVE);
+	__osm_sm_mgrp_process(p_sm, p_mgrp, port_guid,
+			      OSM_MCAST_REQ_TYPE_LEAVE);
 }
 
 /**********************************************************************
@@ -604,7 +605,7 @@ osm_sm_mcgrp_join(IN osm_sm_t * const p_sm,
 	status = __osm_sm_mgrp_connect(p_sm, p_mgrp, port_guid, req_type);
 	CL_PLOCK_RELEASE(p_sm->p_lock);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_sm->p_log);
 	return (status);
 }
@@ -667,7 +668,7 @@ osm_sm_mcgrp_leave(IN osm_sm_t * const p_sm,
 	__osm_sm_mgrp_disconnect(p_sm, p_mgrp, port_guid);
 	CL_PLOCK_RELEASE(p_sm->p_lock);
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(p_sm->p_log);
 	return (status);
 }

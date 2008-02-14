@@ -68,7 +68,7 @@
 
 /**********************************************************************
  **********************************************************************/
-void osm_report_sm_state(osm_sm_t *sm)
+void osm_report_sm_state(osm_sm_t * sm)
 {
 	char buf[64];
 	const char *state_str = osm_get_sm_mgr_state_str(sm->p_subn->sm_state);
@@ -80,7 +80,7 @@ void osm_report_sm_state(osm_sm_t *sm)
 
 /**********************************************************************
  **********************************************************************/
-static void __osm_sm_state_mgr_send_master_sm_info_req(osm_sm_t *sm)
+static void __osm_sm_state_mgr_send_master_sm_info_req(osm_sm_t * sm)
 {
 	osm_madw_context_t context;
 	const osm_port_t *p_port;
@@ -125,13 +125,13 @@ static void __osm_sm_state_mgr_send_master_sm_info_req(osm_sm_t *sm)
 			"Failure requesting SMInfo (%s)\n",
 			ib_get_err_str(status));
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sm->p_log);
 }
 
 /**********************************************************************
  **********************************************************************/
-static void __osm_sm_state_mgr_start_polling(osm_sm_t *sm)
+static void __osm_sm_state_mgr_start_polling(osm_sm_t * sm)
 {
 	uint32_t timeout = sm->p_subn->opt.sminfo_polling_timeout;
 	cl_status_t cl_status;
@@ -227,14 +227,14 @@ void osm_sm_state_mgr_polling_callback(IN void *context)
 			"__osm_sm_state_mgr_polling_callback: ERR 3211: "
 			"Failed to restart timer\n");
 
-      Exit:
+Exit:
 	OSM_LOG_EXIT(sm->p_log);
 	return;
 }
 
 /**********************************************************************
  **********************************************************************/
-static void __osm_sm_state_mgr_signal_error(osm_sm_t *sm,
+static void __osm_sm_state_mgr_signal_error(osm_sm_t * sm,
 					    IN const osm_sm_signal_t signal)
 {
 	osm_log(sm->p_log, OSM_LOG_ERROR,
@@ -246,7 +246,7 @@ static void __osm_sm_state_mgr_signal_error(osm_sm_t *sm,
 
 /**********************************************************************
  **********************************************************************/
-void osm_sm_state_mgr_signal_master_is_alive(osm_sm_t *sm)
+void osm_sm_state_mgr_signal_master_is_alive(osm_sm_t * sm)
 {
 	OSM_LOG_ENTER(sm->p_log, osm_sm_state_mgr_signal_master_is_alive);
 	sm->retry_number = 0;
@@ -255,7 +255,7 @@ void osm_sm_state_mgr_signal_master_is_alive(osm_sm_t *sm)
 
 /**********************************************************************
  **********************************************************************/
-ib_api_status_t osm_sm_state_mgr_process(osm_sm_t *sm,
+ib_api_status_t osm_sm_state_mgr_process(osm_sm_t * sm,
 					 IN osm_sm_signal_t signal)
 {
 	ib_api_status_t status = IB_SUCCESS;
@@ -477,7 +477,7 @@ ib_api_status_t osm_sm_state_mgr_process(osm_sm_t *sm,
 
 /**********************************************************************
  **********************************************************************/
-ib_api_status_t osm_sm_state_mgr_check_legality(osm_sm_t *sm,
+ib_api_status_t osm_sm_state_mgr_check_legality(osm_sm_t * sm,
 						IN osm_sm_signal_t signal)
 {
 	ib_api_status_t status = IB_SUCCESS;
