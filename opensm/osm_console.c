@@ -902,18 +902,16 @@ static void parse_cmd_line(char *line, osm_opensm_t * p_osm)
 /**********************************************************************
  * Do authentication & authorization check
  **********************************************************************/
+#ifdef ENABLE_OSM_CONSOLE_SOCKET
 static int is_authorized(osm_console_t * p_oct)
 {
-#ifdef ENABLE_OSM_CONSOLE_SOCKET
 	/* allowed to use the console? */
 	p_oct->authorized = !is_remote(p_oct->client_type) ||
 	    hosts_ctl(OSM_DAEMON_NAME, p_oct->client_hn, p_oct->client_ip,
 		      "STRING_UNKNOWN");
-#else
-	p_oct->authorized = 1;
-#endif
 	return p_oct->authorized;
 }
+#endif
 
 static void osm_console_prompt(FILE * out)
 {
