@@ -157,8 +157,12 @@ typedef struct _osm_console_t {
 	int socket;
 	int in_fd;
 	int out_fd;
+	int authorized;
 	FILE *in;
 	FILE *out;
+	char client_type[32];
+	char client_ip[64];
+	char client_hn[128];
 } osm_console_t;
 
 /****s* OpenSM: OpenSM/osm_opensm_t

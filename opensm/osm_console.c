@@ -44,9 +44,9 @@
 #include <netdb.h>
 #ifdef ENABLE_OSM_CONSOLE_SOCKET
 #include <tcpd.h>
-#endif
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#endif
 #include <unistd.h>
 #include <errno.h>
 #include <ctype.h>
@@ -795,21 +795,38 @@ static void perfmgr_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 }
 #endif				/* ENABLE_OSM_PERF_MGR */
 
-/* This is public to be able to close it on exit */
-void osm_console_close_socket(osm_opensm_t * p_osm)
+#ifdef ENABLE_OSM_CONSOLE_SOCKET
+static int cio_close( osm_console_t *p_oct)
 {
-	if (p_osm->console.socket > 0) {
-		close(p_osm->console.in_fd);
-		p_osm->console.in_fd = -1;
-		p_osm->console.out_fd = -1;
-		p_osm->console.in = NULL;
-		p_osm->console.out = NULL;
+  int rtnval = -1;
+  if(p_oct && (p_oct->in_fd > 0))
+  {
+    rtnval = close(p_oct->in_fd);
+	p_oct->in_fd = -1;
+	p_oct->out_fd = -1;
+	p_oct->in = NULL;
+	p_oct->out = NULL;
+  }
+  return rtnval;
+}
+#endif
+
+/* close the connection */
+static void osm_console_close(osm_opensm_t * p_osm)
+{
+#ifdef ENABLE_OSM_CONSOLE_SOCKET
+	if ((p_osm->console.socket > 0) && (p_osm->console.in_fd != -1)) {
+			osm_log(&(p_osm->log), OSM_LOG_INFO,
+					"cio_close: Console connection closed: %s (%s)\n",
+					p_osm->console.client_hn, p_osm->console.client_ip);
+		cio_close( &p_osm->console);
 	}
+#endif
 }
 
 static void quit_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 {
-	osm_console_close_socket(p_osm);
+	osm_console_close(p_osm);
 }
 
 static void help_version(FILE * out, int detail)
@@ -883,6 +900,21 @@ static void parse_cmd_line(char *line, osm_opensm_t * p_osm)
 	}
 }
 
+/**********************************************************************
+ * Do authentication & authorization check
+ **********************************************************************/
+static int is_authorized(osm_console_t *p_oct)
+{
+#ifdef ENABLE_OSM_CONSOLE_SOCKET
+  /* allowed to use the console? */
+  p_oct->authorized = !is_remote(p_oct->client_type) ||
+                       hosts_ctl(OSM_DAEMON_NAME, p_oct->client_hn, p_oct->client_ip, "STRING_UNKNOWN");
+#else
+  p_oct->authorized = 1;
+#endif
+  return p_oct->authorized;
+}
+
 static void osm_console_prompt(FILE * out)
 {
 	if (out) {
@@ -893,29 +925,32 @@ static void osm_console_prompt(FILE * out)
 
 void osm_console_init(osm_subn_opt_t * opt, osm_opensm_t * p_osm)
 {
-	p_osm->console.socket = -1;
+	osm_console_t *p_oct = &p_osm->console;
+	p_oct->socket = -1;
+	strncpy(p_oct->client_type, opt->console, sizeof(p_oct->client_type));
+
 	/* set up the file descriptors for the console */
 	if (strcmp(opt->console, OSM_LOCAL_CONSOLE) == 0) {
-		p_osm->console.in = stdin;
-		p_osm->console.out = stdout;
-		p_osm->console.in_fd = fileno(stdin);
-		p_osm->console.out_fd = fileno(stdout);
+		p_oct->in = stdin;
+		p_oct->out = stdout;
+		p_oct->in_fd = fileno(stdin);
+		p_oct->out_fd = fileno(stdout);
 
-		osm_console_prompt(p_osm->console.out);
+		osm_console_prompt(p_oct->out);
 #ifdef ENABLE_OSM_CONSOLE_SOCKET
 	} else if (strcmp(opt->console, OSM_REMOTE_CONSOLE) == 0
 		   || strcmp(opt->console, OSM_LOOPBACK_CONSOLE) == 0) {
 		struct sockaddr_in sin;
 		int optval = 1;
 
-		if ((p_osm->console.socket =
+		if ((p_oct->socket =
 		     socket(AF_INET, SOCK_STREAM, 0)) < 0) {
 			osm_log(&(p_osm->log), OSM_LOG_ERROR,
 				"osm_console_init: ERR 4B01: Failed to open console socket: %s\n",
 				strerror(errno));
 			return;
 		}
-		setsockopt(p_osm->console.socket, SOL_SOCKET, SO_REUSEADDR,
+		setsockopt(p_oct->socket, SOL_SOCKET, SO_REUSEADDR,
 			   &optval, sizeof(optval));
 		sin.sin_family = AF_INET;
 		sin.sin_port = htons(opt->console_port);
@@ -923,13 +958,13 @@ void osm_console_init(osm_subn_opt_t * opt, osm_opensm_t * p_osm)
 			sin.sin_addr.s_addr = htonl(INADDR_ANY);
 		else
 			sin.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-		if (bind(p_osm->console.socket, &sin, sizeof(sin)) < 0) {
+		if (bind(p_oct->socket, &sin, sizeof(sin)) < 0) {
 			osm_log(&(p_osm->log), OSM_LOG_ERROR,
 				"osm_console_init: ERR 4B02: Failed to bind console socket: %s\n",
 				strerror(errno));
 			return;
 		}
-		if (listen(p_osm->console.socket, 1) < 0) {
+		if (listen(p_oct->socket, 1) < 0) {
 			osm_log(&(p_osm->log), OSM_LOG_ERROR,
 				"osm_console_init: ERR 4B03: Failed to listen on socket: %s\n",
 				strerror(errno));
@@ -937,10 +972,10 @@ void osm_console_init(osm_subn_opt_t * opt, osm_opensm_t * p_osm)
 		}
 
 		signal(SIGPIPE, SIG_IGN);	/* protect ourselves from closed pipes */
-		p_osm->console.in = NULL;
-		p_osm->console.out = NULL;
-		p_osm->console.in_fd = -1;
-		p_osm->console.out_fd = -1;
+		p_oct->in = NULL;
+		p_oct->out = NULL;
+		p_oct->in_fd = -1;
+		p_oct->out_fd = -1;
 		osm_log(&(p_osm->log), OSM_LOG_INFO,
 			"osm_console_init: Console listening on port %d\n",
 			opt->console_port);
@@ -948,22 +983,23 @@ void osm_console_init(osm_subn_opt_t * opt, osm_opensm_t * p_osm)
 	}
 }
 
-/* clean up and release resouces */
+/* clean up and release resources */
 void osm_console_exit(osm_opensm_t * p_osm)
 {
-	// clean up and release resouces, currently just close the socket
-	osm_console_close_socket(p_osm);
+	// clean up and release resources, currently just close the socket
+	osm_console_close(p_osm);
 }
 
 #ifdef ENABLE_OSM_CONSOLE_SOCKET
-static void handle_osm_connection(osm_opensm_t * p_osm, int new_fd,
-				  char *client_ip, char *client_hn)
+static int cio_open( osm_opensm_t * p_osm, int new_fd)
 {
+  // returns zero if opened fine, -1 otherwise
+	osm_console_t *p_oct = &p_osm->console;
 	char *p_line;
 	size_t len;
 	ssize_t n;
 
-	if (p_osm->console.in_fd >= 0) {
+	if (p_oct->in_fd >= 0) {
 		FILE *file = fdopen(new_fd, "w+");
 
 		fprintf(file, "OpenSM Console connection already in use\n"
@@ -972,28 +1008,28 @@ static void handle_osm_connection(osm_opensm_t * p_osm, int new_fd,
 		p_line = NULL;
 		n = getline(&p_line, &len, file);
 		if (n > 0 && (p_line[0] == 'y' || p_line[0] == 'Y')) {
-			osm_console_close_socket(p_osm);
+			osm_console_close(p_osm);
 		} else {
+			osm_log(&(p_osm->log), OSM_LOG_INFO,
+					"cio_open: Console connection aborted: %s (%s)\n",
+					p_oct->client_hn, p_oct->client_ip);
 			close(new_fd);
-			return;
+			return -1;
 		}
 	}
-	p_osm->console.in_fd = new_fd;
-	p_osm->console.out_fd = p_osm->console.in_fd;
-	p_osm->console.in = fdopen(p_osm->console.in_fd, "w+");
-	p_osm->console.out = p_osm->console.in;
-	osm_console_prompt(p_osm->console.out);
+	p_oct->in_fd = new_fd;
+	p_oct->out_fd = p_oct->in_fd;
+	p_oct->in = fdopen(p_oct->in_fd, "w+");
+	p_oct->out = p_oct->in;
+	osm_console_prompt(p_oct->out);
 	osm_log(&(p_osm->log), OSM_LOG_INFO,
-		"osm_console_init: Console connection accepted: %s (%s)\n",
-		client_hn, client_ip);
-}
+		"cio_open: Console connection accepted: %s (%s)\n",
+		p_oct->client_hn, p_oct->client_ip);
 
-static int connection_ok(char *client_ip, char *client_hn)
-{
-	return (hosts_ctl
-		(OSM_DAEMON_NAME, client_hn, client_ip, "STRING_UNKNOWN"));
+  return (p_oct->in == NULL) ? -1 : 0;
 }
 #endif
+
 
 void osm_console(osm_opensm_t * p_osm)
 {
@@ -1003,23 +1039,24 @@ void osm_console(osm_opensm_t * p_osm)
 	ssize_t n;
 	struct pollfd *fds;
 	nfds_t nfds;
+	osm_console_t *p_oct = &p_osm->console;
 
-	pollfd[0].fd = p_osm->console.socket;
+	pollfd[0].fd = p_oct->socket;
 	pollfd[0].events = POLLIN;
 	pollfd[0].revents = 0;
 
-	pollfd[1].fd = p_osm->console.in_fd;
+	pollfd[1].fd = p_oct->in_fd;
 	pollfd[1].events = POLLIN;
 	pollfd[1].revents = 0;
 
-	fds = p_osm->console.socket < 0 ? &pollfd[1] : pollfd;
-	nfds = p_osm->console.socket < 0 || pollfd[1].fd < 0 ? 1 : 2;
+	fds = p_oct->socket < 0 ? &pollfd[1] : pollfd;
+	nfds = p_oct->socket < 0 || pollfd[1].fd < 0 ? 1 : 2;
 
 	if (loop_command.on && loop_command_check_time() &&
 	    loop_command.loop_function) {
-		if (p_osm->console.out) {
-			loop_command.loop_function(p_osm, p_osm->console.out);
-			fflush(p_osm->console.out);
+		if (p_oct->out) {
+			loop_command.loop_function(p_osm, p_oct->out);
+			fflush(p_oct->out);
 		} else {
 			loop_command.on = 0;
 		}
@@ -1033,35 +1070,32 @@ void osm_console(osm_opensm_t * p_osm)
 		int new_fd = 0;
 		struct sockaddr_in sin;
 		socklen_t len = sizeof(sin);
-		char client_ip[64];
-		char client_hn[128];
 		struct hostent *hent;
-		if ((new_fd = accept(p_osm->console.socket, &sin, &len)) < 0) {
+		if ((new_fd = accept(p_oct->socket, &sin, &len)) < 0) {
 			osm_log(&(p_osm->log), OSM_LOG_ERROR,
 				"osm_console: ERR 4B04: Failed to accept console socket: %s\n",
 				strerror(errno));
-			p_osm->console.in_fd = -1;
+			p_oct->in_fd = -1;
 			return;
 		}
 		if (inet_ntop
-		    (AF_INET, &sin.sin_addr, client_ip,
-		     sizeof(client_ip)) == NULL) {
-			snprintf(client_ip, 64, "STRING_UNKNOWN");
+		    (AF_INET, &sin.sin_addr, p_oct->client_ip,
+		     sizeof(p_oct->client_ip)) == NULL) {
+			snprintf(p_oct->client_ip, 64, "STRING_UNKNOWN");
 		}
 		if ((hent = gethostbyaddr((const char *)&sin.sin_addr,
 					  sizeof(struct in_addr),
 					  AF_INET)) == NULL) {
-			snprintf(client_hn, 128, "STRING_UNKNOWN");
+			snprintf(p_oct->client_hn, 128, "STRING_UNKNOWN");
 		} else {
-			snprintf(client_hn, 128, "%s", hent->h_name);
+			snprintf(p_oct->client_hn, 128, "%s", hent->h_name);
 		}
-		if (connection_ok(client_ip, client_hn)) {
-			handle_osm_connection(p_osm, new_fd, client_ip,
-					      client_hn);
+		if (is_authorized(&p_osm->console)) {
+			cio_open( p_osm, new_fd);
 		} else {
 			osm_log(&(p_osm->log), OSM_LOG_ERROR,
 				"osm_console: ERR 4B05: Console connection denied: %s (%s)\n",
-				client_hn, client_ip);
+				p_oct->client_hn, p_oct->client_ip);
 			close(new_fd);
 		}
 		return;
@@ -1071,15 +1105,15 @@ void osm_console(osm_opensm_t * p_osm)
 	if (pollfd[1].revents & POLLIN) {
 		p_line = NULL;
 		/* Get input line */
-		n = getline(&p_line, &len, p_osm->console.in);
+		n = getline(&p_line, &len, p_oct->in);
 		if (n > 0) {
 			/* Parse and act on input */
 			parse_cmd_line(p_line, p_osm);
 			if (!loop_command.on) {
-				osm_console_prompt(p_osm->console.out);
+				osm_console_prompt(p_oct->out);
 			}
 		} else
-			osm_console_close_socket(p_osm);
+			osm_console_close(p_osm);
 		if (p_line)
 			free(p_line);
 	}
