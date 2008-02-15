@@ -796,18 +796,17 @@ static void perfmgr_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 #endif				/* ENABLE_OSM_PERF_MGR */
 
 #ifdef ENABLE_OSM_CONSOLE_SOCKET
-static int cio_close( osm_console_t *p_oct)
+static int cio_close(osm_console_t * p_oct)
 {
-  int rtnval = -1;
-  if(p_oct && (p_oct->in_fd > 0))
-  {
-    rtnval = close(p_oct->in_fd);
-	p_oct->in_fd = -1;
-	p_oct->out_fd = -1;
-	p_oct->in = NULL;
-	p_oct->out = NULL;
-  }
-  return rtnval;
+	int rtnval = -1;
+	if (p_oct && (p_oct->in_fd > 0)) {
+		rtnval = close(p_oct->in_fd);
+		p_oct->in_fd = -1;
+		p_oct->out_fd = -1;
+		p_oct->in = NULL;
+		p_oct->out = NULL;
+	}
+	return rtnval;
 }
 #endif
 
@@ -816,10 +815,10 @@ static void osm_console_close(osm_opensm_t * p_osm)
 {
 #ifdef ENABLE_OSM_CONSOLE_SOCKET
 	if ((p_osm->console.socket > 0) && (p_osm->console.in_fd != -1)) {
-			osm_log(&(p_osm->log), OSM_LOG_INFO,
-					"cio_close: Console connection closed: %s (%s)\n",
-					p_osm->console.client_hn, p_osm->console.client_ip);
-		cio_close( &p_osm->console);
+		osm_log(&(p_osm->log), OSM_LOG_INFO,
+			"cio_close: Console connection closed: %s (%s)\n",
+			p_osm->console.client_hn, p_osm->console.client_ip);
+		cio_close(&p_osm->console);
 	}
 #endif
 }
@@ -903,16 +902,17 @@ static void parse_cmd_line(char *line, osm_opensm_t * p_osm)
 /**********************************************************************
  * Do authentication & authorization check
  **********************************************************************/
-static int is_authorized(osm_console_t *p_oct)
+static int is_authorized(osm_console_t * p_oct)
 {
 #ifdef ENABLE_OSM_CONSOLE_SOCKET
-  /* allowed to use the console? */
-  p_oct->authorized = !is_remote(p_oct->client_type) ||
-                       hosts_ctl(OSM_DAEMON_NAME, p_oct->client_hn, p_oct->client_ip, "STRING_UNKNOWN");
+	/* allowed to use the console? */
+	p_oct->authorized = !is_remote(p_oct->client_type) ||
+	    hosts_ctl(OSM_DAEMON_NAME, p_oct->client_hn, p_oct->client_ip,
+		      "STRING_UNKNOWN");
 #else
-  p_oct->authorized = 1;
+	p_oct->authorized = 1;
 #endif
-  return p_oct->authorized;
+	return p_oct->authorized;
 }
 
 static void osm_console_prompt(FILE * out)
@@ -943,8 +943,7 @@ void osm_console_init(osm_subn_opt_t * opt, osm_opensm_t * p_osm)
 		struct sockaddr_in sin;
 		int optval = 1;
 
-		if ((p_oct->socket =
-		     socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+		if ((p_oct->socket = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
 			osm_log(&(p_osm->log), OSM_LOG_ERROR,
 				"osm_console_init: ERR 4B01: Failed to open console socket: %s\n",
 				strerror(errno));
@@ -991,9 +990,9 @@ void osm_console_exit(osm_opensm_t * p_osm)
 }
 
 #ifdef ENABLE_OSM_CONSOLE_SOCKET
-static int cio_open( osm_opensm_t * p_osm, int new_fd)
+static int cio_open(osm_opensm_t * p_osm, int new_fd)
 {
-  // returns zero if opened fine, -1 otherwise
+	// returns zero if opened fine, -1 otherwise
 	osm_console_t *p_oct = &p_osm->console;
 	char *p_line;
 	size_t len;
@@ -1011,8 +1010,8 @@ static int cio_open( osm_opensm_t * p_osm, int new_fd)
 			osm_console_close(p_osm);
 		} else {
 			osm_log(&(p_osm->log), OSM_LOG_INFO,
-					"cio_open: Console connection aborted: %s (%s)\n",
-					p_oct->client_hn, p_oct->client_ip);
+				"cio_open: Console connection aborted: %s (%s)\n",
+				p_oct->client_hn, p_oct->client_ip);
 			close(new_fd);
 			return -1;
 		}
@@ -1026,10 +1025,9 @@ static int cio_open( osm_opensm_t * p_osm, int new_fd)
 		"cio_open: Console connection accepted: %s (%s)\n",
 		p_oct->client_hn, p_oct->client_ip);
 
-  return (p_oct->in == NULL) ? -1 : 0;
+	return (p_oct->in == NULL) ? -1 : 0;
 }
 #endif
-
 
 void osm_console(osm_opensm_t * p_osm)
 {
@@ -1091,7 +1089,7 @@ void osm_console(osm_opensm_t * p_osm)
 			snprintf(p_oct->client_hn, 128, "%s", hent->h_name);
 		}
 		if (is_authorized(&p_osm->console)) {
-			cio_open( p_osm, new_fd);
+			cio_open(p_osm, new_fd);
 		} else {
 			osm_log(&(p_osm->log), OSM_LOG_ERROR,
 				"osm_console: ERR 4B05: Console connection denied: %s (%s)\n",
