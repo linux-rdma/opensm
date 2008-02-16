@@ -155,8 +155,7 @@ __osm_ucast_mgr_process_neighbor(IN osm_ucast_mgr_t * const p_mgr,
 	OSM_LOG_ENTER(p_mgr->p_log);
 
 	if (osm_log_is_active(p_mgr->p_log, OSM_LOG_DEBUG)) {
-		osm_log(p_mgr->p_log, OSM_LOG_DEBUG,
-			"__osm_ucast_mgr_process_neighbor: "
+		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 			"Node 0x%" PRIx64 ", remote node 0x%" PRIx64
 			", port 0x%X, remote port 0x%X\n",
 			cl_ntoh64(osm_node_get_node_guid(p_this_sw->p_node)),
@@ -179,8 +178,7 @@ __osm_ucast_mgr_process_neighbor(IN osm_ucast_mgr_t * const p_mgr,
 		    osm_switch_get_hop_count(p_this_sw, lid_ho, port_num)) {
 			if (osm_switch_set_hops
 			    (p_this_sw, lid_ho, port_num, hops) != 0)
-				osm_log(p_mgr->p_log, OSM_LOG_ERROR,
-					"__osm_ucast_mgr_process_neighbor: "
+				OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR,
 					"cannot set hops for lid %u at switch 0x%"
 					PRIx64 "\n", lid_ho,
 					cl_ntoh64(osm_node_get_node_guid
@@ -221,8 +219,7 @@ __osm_ucast_mgr_process_port(IN osm_ucast_mgr_t * const p_mgr,
 	if (lids_per_port > 1) {
 		remote_sys_guids = malloc(sizeof(uint64_t) * lids_per_port);
 		if (remote_sys_guids == NULL) {
-			osm_log(p_mgr->p_log, OSM_LOG_ERROR,
-				"__osm_ucast_mgr_process_port: ERR 3A09: "
+			OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 3A09: "
 				"Cannot allocate array. Insufficient memory\n");
 			goto Exit;
 		}
@@ -231,8 +228,7 @@ __osm_ucast_mgr_process_port(IN osm_ucast_mgr_t * const p_mgr,
 
 		remote_node_guids = malloc(sizeof(uint64_t) * lids_per_port);
 		if (remote_node_guids == NULL) {
-			osm_log(p_mgr->p_log, OSM_LOG_ERROR,
-				"__osm_ucast_mgr_process_port: ERR 3A0A: "
+			OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 3A0A: "
 				"Cannot allocate array. Insufficient memory\n");
 			goto Exit;
 		}
@@ -245,8 +241,7 @@ __osm_ucast_mgr_process_port(IN osm_ucast_mgr_t * const p_mgr,
 	/* If the lids are zero - then there was some problem with the initialization.
 	   Don't handle this port. */
 	if (min_lid_ho == 0 || max_lid_ho == 0) {
-		osm_log(p_mgr->p_log, OSM_LOG_ERROR,
-			"__osm_ucast_mgr_process_port: ERR 3A04: "
+		OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 3A04: "
 			"Port 0x%" PRIx64 " has LID 0. An initialization "
 			"error occurred. Ignoring port\n",
 			cl_ntoh64(osm_port_get_guid(p_port)));
@@ -254,10 +249,8 @@ __osm_ucast_mgr_process_port(IN osm_ucast_mgr_t * const p_mgr,
 	}
 
 	if (osm_log_is_active(p_mgr->p_log, OSM_LOG_DEBUG)) {
-		osm_log(p_mgr->p_log, OSM_LOG_DEBUG,
-			"__osm_ucast_mgr_process_port: "
-			"Processing port 0x%" PRIx64
-			", LIDs [0x%X,0x%X]\n",
+		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
+			"Processing port 0x%" PRIx64 ", LIDs [0x%X,0x%X]\n",
 			cl_ntoh64(osm_port_get_guid(p_port)),
 			min_lid_ho, max_lid_ho);
 	}
@@ -306,8 +299,7 @@ __osm_ucast_mgr_process_port(IN osm_ucast_mgr_t * const p_mgr,
 			/* Up/Down routing can cause unreachable routes between some
 			   switches so we do not report that as an error in that case */
 			if (!p_routing_eng->build_lid_matrices) {
-				osm_log(p_mgr->p_log, OSM_LOG_ERROR,
-					"__osm_ucast_mgr_process_port: ERR 3A08: "
+				OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 3A08: "
 					"No path to get to LID 0x%X from switch 0x%"
 					PRIx64 "\n", lid_ho,
 					cl_ntoh64(node_guid));
@@ -315,14 +307,12 @@ __osm_ucast_mgr_process_port(IN osm_ucast_mgr_t * const p_mgr,
 				p_mgr->p_subn->subnet_initialization_error =
 				    TRUE;
 			} else
-				osm_log(p_mgr->p_log, OSM_LOG_DEBUG,
-					"__osm_ucast_mgr_process_port: "
+				OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 					"No path to get to LID 0x%X from switch 0x%"
 					PRIx64 "\n", lid_ho,
 					cl_ntoh64(node_guid));
 		} else {
-			osm_log(p_mgr->p_log, OSM_LOG_DEBUG,
-				"__osm_ucast_mgr_process_port: "
+			OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 				"Routing LID 0x%X to port 0x%X"
 				" for switch 0x%" PRIx64 "\n",
 				lid_ho, port, cl_ntoh64(node_guid));
@@ -420,8 +410,7 @@ osm_ucast_mgr_set_fwd_table(IN osm_ucast_mgr_t * const p_mgr,
 
 	if (set_swinfo_require) {
 		if (osm_log_is_active(p_mgr->p_log, OSM_LOG_DEBUG)) {
-			osm_log(p_mgr->p_log, OSM_LOG_DEBUG,
-				"osm_ucast_mgr_set_fwd_table: "
+			OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 				"Setting switch FT top to LID 0x%X\n",
 				p_sw->max_lid_ho);
 		}
@@ -436,8 +425,7 @@ osm_ucast_mgr_set_fwd_table(IN osm_ucast_mgr_t * const p_mgr,
 				     0, CL_DISP_MSGID_NONE, &context);
 
 		if (status != IB_SUCCESS) {
-			osm_log(p_mgr->p_log, OSM_LOG_ERROR,
-				"osm_ucast_mgr_set_fwd_table: ERR 3A06: "
+			OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 3A06: "
 				"Sending SwitchInfo attribute failed (%s)\n",
 				ib_get_err_str(status));
 		} else
@@ -461,8 +449,7 @@ osm_ucast_mgr_set_fwd_table(IN osm_ucast_mgr_t * const p_mgr,
 			continue;
 
 		if (osm_log_is_active(p_mgr->p_log, OSM_LOG_DEBUG)) {
-			osm_log(p_mgr->p_log, OSM_LOG_DEBUG,
-				"osm_ucast_mgr_set_fwd_table: "
+			OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 				"Writing FT block %u\n", block_id_ho);
 		}
 
@@ -474,8 +461,7 @@ osm_ucast_mgr_set_fwd_table(IN osm_ucast_mgr_t * const p_mgr,
 				     CL_DISP_MSGID_NONE, &context);
 
 		if (status != IB_SUCCESS) {
-			osm_log(p_mgr->p_log, OSM_LOG_ERROR,
-				"osm_ucast_mgr_set_fwd_table: ERR 3A05: "
+			OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 3A05: "
 				"Sending linear fwd. tbl. block failed (%s)\n",
 				ib_get_err_str(status));
 		} else {
@@ -506,8 +492,7 @@ __osm_ucast_mgr_process_tbl(IN cl_map_item_t * const p_map_item,
 	CL_ASSERT(osm_node_get_type(p_node) == IB_NODE_TYPE_SWITCH);
 
 	if (osm_log_is_active(p_mgr->p_log, OSM_LOG_DEBUG)) {
-		osm_log(p_mgr->p_log, OSM_LOG_DEBUG,
-			"__osm_ucast_mgr_process_tbl: "
+		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 			"Processing switch 0x%" PRIx64 "\n",
 			cl_ntoh64(osm_node_get_node_guid(p_node)));
 	}
@@ -556,8 +541,7 @@ __osm_ucast_mgr_process_neighbors(IN cl_map_item_t * const p_map_item,
 	CL_ASSERT(osm_node_get_type(p_node) == IB_NODE_TYPE_SWITCH);
 
 	if (osm_log_is_active(p_mgr->p_log, OSM_LOG_DEBUG)) {
-		osm_log(p_mgr->p_log, OSM_LOG_DEBUG,
-			"__osm_ucast_mgr_process_neighbors: "
+		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 			"Processing switch with GUID 0x%" PRIx64 "\n",
 			cl_ntoh64(osm_node_get_node_guid(p_node)));
 	}
@@ -601,8 +585,7 @@ void osm_ucast_mgr_build_lid_matrices(IN osm_ucast_mgr_t * const p_mgr)
 
 	p_sw_guid_tbl = &p_mgr->p_subn->sw_guid_tbl;
 
-	osm_log(p_mgr->p_log, OSM_LOG_VERBOSE,
-		"osm_ucast_mgr_build_lid_matrices: "
+	OSM_LOG(p_mgr->p_log, OSM_LOG_VERBOSE,
 		"Starting switches' Min Hop Table Assignment\n");
 
 	/*
@@ -654,8 +637,7 @@ void osm_ucast_mgr_build_lid_matrices(IN osm_ucast_mgr_t * const p_mgr)
 					   __osm_ucast_mgr_process_neighbors,
 					   p_mgr);
 		}
-		osm_log(p_mgr->p_log, OSM_LOG_DEBUG,
-			"osm_ucast_mgr_build_lid_matrices: "
+		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 			"Min-hop propagated in %d steps\n", i);
 	}
 }
@@ -674,8 +656,7 @@ static int ucast_mgr_setup_all_switches(osm_subn_t * p_subn)
 	     p_sw != (osm_switch_t *) cl_qmap_end(&p_subn->sw_guid_tbl);
 	     p_sw = (osm_switch_t *) cl_qmap_next(&p_sw->map_item))
 		if (osm_switch_prepare_path_rebuild(p_sw, lids)) {
-			osm_log(&p_subn->p_osm->log, OSM_LOG_ERROR,
-				"ucast_mgr_setup_all_switches: ERR 3A0B: "
+			OSM_LOG(&p_subn->p_osm->log, OSM_LOG_ERROR, "ERR 3A0B: "
 				"cannot setup switch 0x%016" PRIx64 "\n",
 				cl_ntoh64(osm_node_get_node_guid
 					  (p_sw->p_node)));
@@ -702,8 +683,7 @@ osm_ucast_mgr_read_guid_file(IN osm_ucast_mgr_t * const p_mgr,
 
 	guid_file = fopen(guid_file_name, "r");
 	if (guid_file == NULL) {
-		osm_log(p_mgr->p_log, OSM_LOG_ERROR,
-			"osm_ucast_mgr_read_guid_file: ERR 3A13: "
+		OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 3A13: "
 			"Failed to open guid list file (%s)\n", guid_file_name);
 		status = IB_NOT_FOUND;
 		goto Exit;
@@ -711,8 +691,7 @@ osm_ucast_mgr_read_guid_file(IN osm_ucast_mgr_t * const p_mgr,
 
 	while (fgets(line, sizeof(line), guid_file)) {
 		if (strcspn(line, " ,;.") != strlen(line)) {
-			osm_log(p_mgr->p_log, OSM_LOG_ERROR,
-				"osm_ucast_mgr_read_guid_file: ERR 3A14: "
+			OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 3A14: "
 				"Poorly formatted guid in file (%s): %s\n",
 				guid_file_name, line);
 			status = IB_NOT_FOUND;
@@ -734,8 +713,7 @@ osm_ucast_mgr_read_guid_file(IN osm_ucast_mgr_t * const p_mgr,
 
 		/* check that the string is a number */
 		if (!(*p_guid) && (*endptr != '\0')) {
-			osm_log(p_mgr->p_log, OSM_LOG_ERROR,
-				"osm_ucast_mgr_read_guid_file: ERR 3A15: "
+			OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 3A15: "
 				"Poorly formatted guid in file (%s): %s\n",
 				guid_file_name, line);
 			status = IB_NOT_FOUND;
@@ -808,20 +786,17 @@ osm_signal_t osm_ucast_mgr_process(IN osm_ucast_mgr_t * const p_mgr)
 	else
 		p_osm->routing_engine_used = OSM_ROUTING_ENGINE_TYPE_MINHOP;
 
-	osm_log(p_mgr->p_log, OSM_LOG_INFO,
-		"osm_ucast_mgr_process: "
+	OSM_LOG(p_mgr->p_log, OSM_LOG_INFO,
 		"%s tables configured on all switches\n",
 		osm_routing_engine_type_str(p_osm->routing_engine_used));
 
 	if (p_mgr->any_change) {
 		signal = OSM_SIGNAL_DONE_PENDING;
-		osm_log(p_mgr->p_log, OSM_LOG_VERBOSE,
-			"osm_ucast_mgr_process: "
+		OSM_LOG(p_mgr->p_log, OSM_LOG_VERBOSE,
 			"LFT Tables configured on all switches\n");
 	} else {
 		signal = OSM_SIGNAL_DONE;
-		osm_log(p_mgr->p_log, OSM_LOG_VERBOSE,
-			"osm_ucast_mgr_process: "
+		OSM_LOG(p_mgr->p_log, OSM_LOG_VERBOSE,
 			"No need to set any LFT Tables on any switches\n");
 	}
 

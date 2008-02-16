@@ -234,8 +234,7 @@ osm_get_gid_by_mad_addr(IN osm_log_t * p_log,
 	const osm_port_t *p_port = NULL;
 
 	if (p_gid == NULL) {
-		osm_log(p_log, OSM_LOG_ERROR,
-			"osm_get_gid_by_mad_addr: ERR 7505: "
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 7505: "
 			"Provided output GID is NULL\n");
 		return (IB_INVALID_PARAMETER);
 	}
@@ -250,22 +249,18 @@ osm_get_gid_by_mad_addr(IN osm_log_t * p_log,
 		p_port =
 		    cl_ptr_vector_get(p_tbl, cl_ntoh16(p_mad_addr->dest_lid));
 		if (p_port == NULL) {
-			osm_log(p_log, OSM_LOG_DEBUG,
-				"osm_get_gid_by_mad_addr: "
+			OSM_LOG(p_log, OSM_LOG_DEBUG,
 				"Did not find any port with LID: 0x%X\n",
-				cl_ntoh16(p_mad_addr->dest_lid)
-			    );
+				cl_ntoh16(p_mad_addr->dest_lid));
 			return (IB_INVALID_PARAMETER);
 		}
 		p_gid->unicast.interface_id = p_port->p_physp->port_guid;
 		p_gid->unicast.prefix = p_subn->opt.subnet_prefix;
 	} else {
 		/* The dest_lid is not in the subnet table - this is an error */
-		osm_log(p_log, OSM_LOG_ERROR,
-			"osm_get_gid_by_mad_addr: ERR 7501: "
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 7501: "
 			"LID is out of range: 0x%X\n",
-			cl_ntoh16(p_mad_addr->dest_lid)
-		    );
+			cl_ntoh16(p_mad_addr->dest_lid));
 		return (IB_INVALID_PARAMETER);
 	}
 
@@ -294,22 +289,18 @@ osm_physp_t *osm_get_physp_by_mad_addr(IN osm_log_t * p_log,
 				      cl_ntoh16(p_mad_addr->dest_lid));
 		if (p_port == NULL) {
 			/* The port is not in the port_lid table - this is an error */
-			osm_log(p_log, OSM_LOG_ERROR,
-				"osm_get_physp_by_mad_addr: ERR 7502: "
+			OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 7502: "
 				"Cannot locate port object by lid: 0x%X\n",
-				cl_ntoh16(p_mad_addr->dest_lid)
-			    );
+				cl_ntoh16(p_mad_addr->dest_lid));
 
 			goto Exit;
 		}
 		p_physp = p_port->p_physp;
 	} else {
 		/* The dest_lid is not in the subnet table - this is an error */
-		osm_log(p_log, OSM_LOG_ERROR,
-			"osm_get_physp_by_mad_addr: ERR 7503: "
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 7503: "
 			"Lid is out of range: 0x%X\n",
-			cl_ntoh16(p_mad_addr->dest_lid)
-		    );
+			cl_ntoh16(p_mad_addr->dest_lid));
 	}
 
 Exit:
@@ -337,11 +328,9 @@ osm_port_t *osm_get_port_by_mad_addr(IN osm_log_t * p_log,
 				      cl_ntoh16(p_mad_addr->dest_lid));
 	} else {
 		/* The dest_lid is not in the subnet table - this is an error */
-		osm_log(p_log, OSM_LOG_ERROR,
-			"osm_get_port_by_mad_addr: ERR 7504: "
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 7504: "
 			"Lid is out of range: 0x%X\n",
-			cl_ntoh16(p_mad_addr->dest_lid)
-		    );
+			cl_ntoh16(p_mad_addr->dest_lid));
 	}
 
 	return p_port;
@@ -696,7 +685,7 @@ append_prefix_route(IN osm_subn_t * const p_subn, uint64_t prefix, uint64_t guid
 
 	route = malloc(sizeof *route);
 	if (! route) {
-		osm_log(&p_subn->p_osm->log, OSM_LOG_ERROR, "%s: out of memory", __FUNCTION__);
+		OSM_LOG(&p_subn->p_osm->log, OSM_LOG_ERROR, "out of memory");
 		return IB_ERROR;
 	}
 
@@ -725,8 +714,8 @@ osm_parse_prefix_routes_file(IN osm_subn_t * const p_subn)
 		if (errno == ENOENT)
 			return IB_SUCCESS;
 
-		osm_log(log, OSM_LOG_ERROR, "%s: fopen(%s) failed: %s",
-			__FUNCTION__, p_subn->opt.prefix_routes_file, strerror(errno));
+		OSM_LOG(log, OSM_LOG_ERROR, "fopen(%s) failed: %s",
+			p_subn->opt.prefix_routes_file, strerror(errno));
 		return IB_ERROR;
 	}
 
@@ -747,7 +736,7 @@ osm_parse_prefix_routes_file(IN osm_subn_t * const p_subn)
 
 		p_guid = strtok_r(NULL, " \t\n", &p_last);
 		if (! p_guid) {
-			osm_log(log, OSM_LOG_ERROR, "%s:%d: missing GUID\n",
+			OSM_LOG(log, OSM_LOG_ERROR, "%s:%d: missing GUID\n",
 				p_subn->opt.prefix_routes_file, line);
 			errors++;
 			continue;
@@ -755,7 +744,7 @@ osm_parse_prefix_routes_file(IN osm_subn_t * const p_subn)
 
 		p_extra = strtok_r(NULL, " \t\n", &p_last);
 		if (p_extra && *p_extra != '#') {
-			osm_log(log, OSM_LOG_INFO, "%s:%d: extra tokens ignored\n",
+			OSM_LOG(log, OSM_LOG_INFO, "%s:%d: extra tokens ignored\n",
 				p_subn->opt.prefix_routes_file, line);
 		}
 
@@ -764,7 +753,7 @@ osm_parse_prefix_routes_file(IN osm_subn_t * const p_subn)
 		else {
 			prefix = strtoull(p_prefix, &p_end, 16);
 			if (*p_end != '\0') {
-				osm_log(log, OSM_LOG_ERROR, "%s:%d: illegal prefix: %s\n",
+				OSM_LOG(log, OSM_LOG_ERROR, "%s:%d: illegal prefix: %s\n",
 					p_subn->opt.prefix_routes_file, line, p_prefix);
 				errors++;
 				continue;
@@ -776,7 +765,7 @@ osm_parse_prefix_routes_file(IN osm_subn_t * const p_subn)
 		else {
 			guid = strtoull(p_guid, &p_end, 16);
 			if (*p_end != '\0' && *p_end != '#') {
-				osm_log(log, OSM_LOG_ERROR, "%s:%d: illegal GUID: %s\n",
+				OSM_LOG(log, OSM_LOG_ERROR, "%s:%d: illegal GUID: %s\n",
 					p_subn->opt.prefix_routes_file, line, p_guid);
 				errors++;
 				continue;
@@ -814,7 +803,7 @@ ib_api_status_t osm_subn_rescan_conf_files(IN osm_subn_t * const p_subn)
 	if (!opts_file) {
 		if (errno == ENOENT)
 			return IB_SUCCESS;
-		osm_log(&p_subn->p_osm->log, OSM_LOG_ERROR,
+		OSM_LOG(&p_subn->p_osm->log, OSM_LOG_ERROR,
 			"cannot open file \'%s\': %s\n",
 			file_name, strerror(errno));
 		return IB_ERROR;

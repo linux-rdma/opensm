@@ -78,8 +78,7 @@ __osm_lr_rcv_build_physp_link(IN osm_sa_t * sa,
 
 	p_lr_item = malloc(sizeof(*p_lr_item));
 	if (p_lr_item == NULL) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"__osm_lr_rcv_build_physp_link: ERR 1801: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1801: "
 			"Unable to acquire link record\n"
 			"\t\t\t\tFrom port 0x%u\n"
 			"\t\t\t\tTo port   0x%u\n"
@@ -159,20 +158,17 @@ __osm_lr_rcv_get_physp_link(IN osm_sa_t * sa,
 	/* Check that the p_src_physp, p_dest_physp and p_req_physp
 	   all share a pkey (doesn't have to be the same p_key). */
 	if (!osm_physp_share_pkey(sa->p_log, p_src_physp, p_dest_physp)) {
-		osm_log(sa->p_log, OSM_LOG_DEBUG,
-			"__osm_lr_rcv_get_physp_link: "
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Source and Dest PhysPorts do not share PKey\n");
 		goto Exit;
 	}
 	if (!osm_physp_share_pkey(sa->p_log, p_src_physp, p_req_physp)) {
-		osm_log(sa->p_log, OSM_LOG_DEBUG,
-			"__osm_lr_rcv_get_physp_link: "
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Source and Requester PhysPorts do not share PKey\n");
 		goto Exit;
 	}
 	if (!osm_physp_share_pkey(sa->p_log, p_req_physp, p_dest_physp)) {
-		osm_log(sa->p_log, OSM_LOG_DEBUG,
-			"__osm_lr_rcv_get_physp_link: "
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Requester and Dest PhysPorts do not share PKey\n");
 		goto Exit;
 	}
@@ -203,9 +199,7 @@ __osm_lr_rcv_get_physp_link(IN osm_sa_t * sa,
 			goto Exit;
 
 	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
-		osm_log(sa->p_log, OSM_LOG_DEBUG,
-			"__osm_lr_rcv_get_physp_link: "
-			"Acquiring link record\n"
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Acquiring link record\n"
 			"\t\t\t\tsrc port 0x%" PRIx64 " (port 0x%X)"
 			", dest port 0x%" PRIx64 " (port 0x%X)\n",
 			cl_ntoh64(osm_physp_get_port_guid(p_src_physp)),
@@ -414,8 +408,7 @@ __osm_lr_rcv_get_end_points(IN osm_sa_t * sa,
 			   don't enter it as an error in our own log.
 			   Return an error response to the client.
 			 */
-			osm_log(sa->p_log, OSM_LOG_VERBOSE,
-				"__osm_lr_rcv_get_end_points: "
+			OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
 				"No source port with LID = 0x%X\n",
 				cl_ntoh16(p_lr->from_lid));
 
@@ -434,8 +427,7 @@ __osm_lr_rcv_get_end_points(IN osm_sa_t * sa,
 			   don't enter it as an error in our own log.
 			   Return an error response to the client.
 			 */
-			osm_log(sa->p_log, OSM_LOG_VERBOSE,
-				"__osm_lr_rcv_get_end_points: "
+			OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
 				"No dest port with LID = 0x%X\n",
 				cl_ntoh16(p_lr->to_lid));
 
@@ -476,8 +468,7 @@ __osm_lr_rcv_respond(IN osm_sa_t * sa,
 	 * If we do a SubnAdmGet and got more than one record it is an error !
 	 */
 	if ((p_rcvd_mad->method == IB_MAD_METHOD_GET) && (num_rec > 1)) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"__osm_lr_rcv_respond: ERR 1806: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1806: "
 			"Got more than one record for SubnAdmGet (%zu)\n",
 			num_rec);
 		osm_sa_send_error(sa, p_madw,
@@ -497,8 +488,7 @@ __osm_lr_rcv_respond(IN osm_sa_t * sa,
 	trim_num_rec =
 	    (MAD_BLOCK_SIZE - IB_SA_MAD_HDR_SIZE) / sizeof(ib_link_record_t);
 	if (trim_num_rec < num_rec) {
-		osm_log(sa->p_log, OSM_LOG_VERBOSE,
-			"__osm_lr_rcv_respond: "
+		OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
 			"Number of records:%u trimmed to:%u to fit in one MAD\n",
 			num_rec, trim_num_rec);
 		num_rec = trim_num_rec;
@@ -506,8 +496,7 @@ __osm_lr_rcv_respond(IN osm_sa_t * sa,
 #endif
 
 	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG)) {
-		osm_log(sa->p_log, OSM_LOG_DEBUG,
-			"__osm_lr_rcv_respond: "
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Generating response with %zu records", num_rec);
 	}
 
@@ -519,8 +508,7 @@ __osm_lr_rcv_respond(IN osm_sa_t * sa,
 				       num_rec * sizeof(ib_link_record_t) +
 				       IB_SA_MAD_HDR_SIZE, &p_madw->mad_addr);
 	if (!p_resp_madw) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"__osm_lr_rcv_respond: ERR 1802: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1802: "
 			"Unable to allocate MAD\n");
 		/* Release the quick pool items */
 		p_lr_item = (osm_lr_item_t *) cl_qlist_remove_head(p_list);
@@ -588,8 +576,7 @@ __osm_lr_rcv_respond(IN osm_sa_t * sa,
 	status = osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE,
 				    sa->p_subn);
 	if (status != IB_SUCCESS) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"__osm_lr_rcv_respond: ERR 1803: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1803: "
 			"Unable to send MAD (%s)\n", ib_get_err_str(status));
 		/*       osm_mad_pool_put( sa->p_mad_pool, p_resp_madw ); */
 		goto Exit;
@@ -625,8 +612,7 @@ void osm_lr_rcv_process(IN void *context, IN void *data)
 	/* we only support SubnAdmGet and SubnAdmGetTable methods */
 	if ((p_sa_mad->method != IB_MAD_METHOD_GET) &&
 	    (p_sa_mad->method != IB_MAD_METHOD_GETTABLE)) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"osm_lr_rcv_process: ERR 1804: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1804: "
 			"Unsupported Method (%s)\n",
 			ib_get_sa_method_str(p_sa_mad->method));
 		osm_sa_send_error(sa, p_madw,
@@ -640,8 +626,7 @@ void osm_lr_rcv_process(IN void *context, IN void *data)
 						osm_madw_get_mad_addr_ptr
 						(p_madw));
 	if (p_req_physp == NULL) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"osm_lr_rcv_process: ERR 1805: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1805: "
 			"Cannot find requester physical port\n");
 		goto Exit;
 	}

@@ -85,8 +85,7 @@ osm_resp_make_resp_smp(IN osm_sm_t * sm,
 		p_dest_smp->method = IB_MAD_METHOD_TRAP_REPRESS;
 		p_dest_smp->status = 0;
 	} else {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"osm_resp_make_resp_smp: ERR 1302: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 1302: "
 			"src smp method unsupported 0x%X\n", p_src_smp->method);
 		goto Exit;
 	}
@@ -129,8 +128,8 @@ osm_resp_send(IN osm_sm_t * sm,
 				  MAD_BLOCK_SIZE, NULL);
 
 	if (p_madw == NULL) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"osm_resp_send: ERR 1301: " "Unable to acquire MAD\n");
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR,
+			"ERR 1301: Unable to acquire MAD\n");
 		status = IB_INSUFFICIENT_RESOURCES;
 		goto Exit;
 	}
@@ -151,9 +150,7 @@ osm_resp_send(IN osm_sm_t * sm,
 	p_madw->fail_msg = CL_DISP_MSGID_NONE;
 
 	if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
-		osm_log(sm->p_log, OSM_LOG_DEBUG,
-			"osm_resp_send: "
-			"Responding to %s (0x%X)"
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG, "Responding to %s (0x%X)"
 			"\n\t\t\t\tattribute modifier 0x%X, TID 0x%" PRIx64
 			"\n", ib_get_sm_attr_str(p_smp->attr_id),
 			cl_ntoh16(p_smp->attr_id), cl_ntoh32(p_smp->attr_mod),

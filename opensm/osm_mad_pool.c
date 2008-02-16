@@ -105,8 +105,7 @@ osm_madw_t *osm_mad_pool_get(IN osm_mad_pool_t * const p_pool,
 	 */
 	p_madw = malloc(sizeof(*p_madw));
 	if (p_madw == NULL) {
-		osm_log(p_pool->p_log, OSM_LOG_ERROR,
-			"osm_mad_pool_get: ERR 0703: "
+		OSM_LOG(p_pool->p_log, OSM_LOG_ERROR, "ERR 0703: "
 			"Unable to acquire MAD wrapper object\n");
 		goto Exit;
 	}
@@ -118,8 +117,7 @@ osm_madw_t *osm_mad_pool_get(IN osm_mad_pool_t * const p_pool,
 	 */
 	p_mad = osm_vendor_get(h_bind, total_size, &p_madw->vend_wrap);
 	if (p_mad == NULL) {
-		osm_log(p_pool->p_log, OSM_LOG_ERROR,
-			"osm_mad_pool_get: ERR 0704: "
+		OSM_LOG(p_pool->p_log, OSM_LOG_ERROR, "ERR 0704: "
 			"Unable to acquire wire MAD\n");
 
 		/* Don't leak wrappers! */
@@ -134,9 +132,9 @@ osm_madw_t *osm_mad_pool_get(IN osm_mad_pool_t * const p_pool,
 	 */
 	osm_madw_set_mad(p_madw, p_mad);
 
-	osm_log(p_pool->p_log, OSM_LOG_DEBUG,
-		"osm_mad_pool_get: Acquired p_madw = %p, p_mad = %p, "
-		"size = %u\n", p_madw, p_madw->p_mad, total_size);
+	OSM_LOG(p_pool->p_log, OSM_LOG_DEBUG,
+		"Acquired p_madw = %p, p_mad = %p, size = %u\n",
+		p_madw, p_madw->p_mad, total_size);
 
 Exit:
 	OSM_LOG_EXIT(p_pool->p_log);
@@ -164,8 +162,7 @@ osm_madw_t *osm_mad_pool_get_wrapper(IN osm_mad_pool_t * const p_pool,
 	 */
 	p_madw = malloc(sizeof(*p_madw));
 	if (p_madw == NULL) {
-		osm_log(p_pool->p_log, OSM_LOG_ERROR,
-			"osm_mad_pool_get_wrapper: ERR 0705: "
+		OSM_LOG(p_pool->p_log, OSM_LOG_ERROR, "ERR 0705: "
 			"Unable to acquire MAD wrapper object\n");
 		goto Exit;
 	}
@@ -177,9 +174,9 @@ osm_madw_t *osm_mad_pool_get_wrapper(IN osm_mad_pool_t * const p_pool,
 	osm_madw_init(p_madw, h_bind, total_size, p_mad_addr);
 	osm_madw_set_mad(p_madw, p_mad);
 
-	osm_log(p_pool->p_log, OSM_LOG_DEBUG,
-		"osm_mad_pool_get_wrapper: Acquired p_madw = %p, p_mad = %p "
-		"size = %u\n", p_madw, p_madw->p_mad, total_size);
+	OSM_LOG(p_pool->p_log, OSM_LOG_DEBUG,
+		"Acquired p_madw = %p, p_mad = %p size = %u\n",
+		p_madw, p_madw->p_mad, total_size);
 
 Exit:
 	OSM_LOG_EXIT(p_pool->p_log);
@@ -198,9 +195,7 @@ osm_madw_t *osm_mad_pool_get_wrapper_raw(IN osm_mad_pool_t * const p_pool)
 	if (!p_madw)
 		return NULL;
 
-	osm_log(p_pool->p_log, OSM_LOG_DEBUG,
-		"osm_mad_pool_get_wrapper_raw: "
-		"Getting p_madw = %p\n", p_madw);
+	OSM_LOG(p_pool->p_log, OSM_LOG_DEBUG, "Getting p_madw = %p\n", p_madw);
 
 	osm_madw_init(p_madw, 0, 0, 0);
 	osm_madw_set_mad(p_madw, 0);
@@ -219,9 +214,8 @@ osm_mad_pool_put(IN osm_mad_pool_t * const p_pool, IN osm_madw_t * const p_madw)
 
 	CL_ASSERT(p_madw);
 
-	osm_log(p_pool->p_log, OSM_LOG_DEBUG,
-		"osm_mad_pool_put: Releasing p_madw = %p, p_mad = %p\n",
-		p_madw, p_madw->p_mad);
+	OSM_LOG(p_pool->p_log, OSM_LOG_DEBUG,
+		"Releasing p_madw = %p, p_mad = %p\n", p_madw, p_madw->p_mad);
 
 	/*
 	   First, return the wire mad to the pool

@@ -122,8 +122,7 @@ __match_inf_rec(IN const cl_list_item_t * const p_list_item, IN void *context)
 
 	if (memcmp(&p_infr->report_addr,
 		   &p_infr_rec->report_addr, sizeof(p_infr_rec->report_addr))) {
-		osm_log(p_log, OSM_LOG_DEBUG,
-			"__match_inf_rec: " "Differ by Address\n");
+		OSM_LOG(p_log, OSM_LOG_DEBUG, "Differ by Address\n");
 		goto Exit;
 	}
 
@@ -136,8 +135,7 @@ __match_inf_rec(IN const cl_list_item_t * const p_list_item, IN void *context)
 		if (memcmp(&p_infr->inform_record.inform_info.gid,
 			   &p_infr_rec->inform_record.inform_info.gid,
 			   sizeof(p_infr->inform_record.inform_info.gid))) {
-			osm_log(p_log, OSM_LOG_DEBUG,
-				"__match_inf_rec: "
+			OSM_LOG(p_log, OSM_LOG_DEBUG,
 				"Differ by InformInfo.gid\n");
 			goto Exit;
 		}
@@ -146,8 +144,7 @@ __match_inf_rec(IN const cl_list_item_t * const p_list_item, IN void *context)
 		     p_infr_rec->inform_record.inform_info.lid_range_begin) ||
 		    (p_infr->inform_record.inform_info.lid_range_end !=
 		     p_infr_rec->inform_record.inform_info.lid_range_end)) {
-			osm_log(p_log, OSM_LOG_DEBUG,
-				"__match_inf_rec: "
+			OSM_LOG(p_log, OSM_LOG_DEBUG,
 				"Differ by InformInfo.LIDRange\n");
 			goto Exit;
 		}
@@ -155,15 +152,15 @@ __match_inf_rec(IN const cl_list_item_t * const p_list_item, IN void *context)
 
 	if (p_infr->inform_record.inform_info.trap_type !=
 	    p_infr_rec->inform_record.inform_info.trap_type) {
-		osm_log(p_log, OSM_LOG_DEBUG,
-			"__match_inf_rec: " "Differ by InformInfo.TrapType\n");
+		OSM_LOG(p_log, OSM_LOG_DEBUG,
+			"Differ by InformInfo.TrapType\n");
 		goto Exit;
 	}
 
 	if (p_infr->inform_record.inform_info.is_generic !=
 	    p_infr_rec->inform_record.inform_info.is_generic) {
-		osm_log(p_log, OSM_LOG_DEBUG,
-			"__match_inf_rec: " "Differ by InformInfo.IsGeneric\n");
+		OSM_LOG(p_log, OSM_LOG_DEBUG,
+			"Differ by InformInfo.IsGeneric\n");
 		goto Exit;
 	}
 
@@ -171,58 +168,50 @@ __match_inf_rec(IN const cl_list_item_t * const p_list_item, IN void *context)
 		if (p_infr->inform_record.inform_info.g_or_v.generic.trap_num !=
 		    p_infr_rec->inform_record.inform_info.g_or_v.generic.
 		    trap_num)
-			osm_log(p_log, OSM_LOG_DEBUG,
-				"__match_inf_rec: "
+			OSM_LOG(p_log, OSM_LOG_DEBUG,
 				"Differ by InformInfo.Generic.TrapNumber\n");
 		else if (p_infr->inform_record.inform_info.g_or_v.generic.
 			 qpn_resp_time_val !=
 			 p_infr_rec->inform_record.inform_info.g_or_v.generic.
 			 qpn_resp_time_val)
-			osm_log(p_log, OSM_LOG_DEBUG,
-				"__match_inf_rec: "
+			OSM_LOG(p_log, OSM_LOG_DEBUG,
 				"Differ by InformInfo.Generic.QPNRespTimeVal\n");
 		else if (p_infr->inform_record.inform_info.g_or_v.generic.
 			 node_type_msb !=
 			 p_infr_rec->inform_record.inform_info.g_or_v.generic.
 			 node_type_msb)
-			osm_log(p_log, OSM_LOG_DEBUG,
-				"__match_inf_rec: "
+			OSM_LOG(p_log, OSM_LOG_DEBUG,
 				"Differ by InformInfo.Generic.NodeTypeMSB\n");
 		else if (p_infr->inform_record.inform_info.g_or_v.generic.
 			 node_type_lsb !=
 			 p_infr_rec->inform_record.inform_info.g_or_v.generic.
 			 node_type_lsb)
-			osm_log(p_log, OSM_LOG_DEBUG,
-				"__match_inf_rec: "
+			OSM_LOG(p_log, OSM_LOG_DEBUG,
 				"Differ by InformInfo.Generic.NodeTypeLSB\n");
 		else
 			status = CL_SUCCESS;
 	} else {
 		if (p_infr->inform_record.inform_info.g_or_v.vend.dev_id !=
 		    p_infr_rec->inform_record.inform_info.g_or_v.vend.dev_id)
-			osm_log(p_log, OSM_LOG_DEBUG,
-				"__match_inf_rec: "
+			OSM_LOG(p_log, OSM_LOG_DEBUG,
 				"Differ by InformInfo.Vendor.DeviceID\n");
 		else if (p_infr->inform_record.inform_info.g_or_v.vend.
 			 qpn_resp_time_val !=
 			 p_infr_rec->inform_record.inform_info.g_or_v.vend.
 			 qpn_resp_time_val)
-			osm_log(p_log, OSM_LOG_DEBUG,
-				"__match_inf_rec: "
+			OSM_LOG(p_log, OSM_LOG_DEBUG,
 				"Differ by InformInfo.Vendor.QPNRespTimeVal\n");
 		else if (p_infr->inform_record.inform_info.g_or_v.vend.
 			 vendor_id_msb !=
 			 p_infr_rec->inform_record.inform_info.g_or_v.vend.
 			 vendor_id_msb)
-			osm_log(p_log, OSM_LOG_DEBUG,
-				"__match_inf_rec: "
+			OSM_LOG(p_log, OSM_LOG_DEBUG,
 				"Differ by InformInfo.Vendor.VendorIdMSB\n");
 		else if (p_infr->inform_record.inform_info.g_or_v.vend.
 			 vendor_id_lsb !=
 			 p_infr_rec->inform_record.inform_info.g_or_v.vend.
 			 vendor_id_lsb)
-			osm_log(p_log, OSM_LOG_DEBUG,
-				"__match_inf_rec: "
+			OSM_LOG(p_log, OSM_LOG_DEBUG,
 				"Differ by InformInfo.Vendor.VendorIdLSB\n");
 		else
 			status = CL_SUCCESS;
@@ -245,13 +234,10 @@ osm_infr_t *osm_infr_get_by_rec(IN osm_subn_t const *p_subn,
 
 	dump_all_informs(p_subn, p_log);
 
-	osm_log(p_log, OSM_LOG_DEBUG,
-		"osm_infr_get_by_rec: " "Looking for Inform Record\n");
+	OSM_LOG(p_log, OSM_LOG_DEBUG, "Looking for Inform Record\n");
 	osm_dump_inform_info(p_log, &(p_infr_rec->inform_record.inform_info),
 			     OSM_LOG_DEBUG);
-	osm_log(p_log, OSM_LOG_DEBUG,
-		"osm_infr_get_by_rec: "
-		"InformInfo list size %d\n",
+	OSM_LOG(p_log, OSM_LOG_DEBUG, "InformInfo list size %d\n",
 		cl_qlist_count(&p_subn->sa_infr_list));
 
 	p_list_item = cl_qlist_find_from_head(&p_subn->sa_infr_list,
@@ -272,11 +258,9 @@ osm_infr_insert_to_db(IN osm_subn_t * p_subn,
 {
 	OSM_LOG_ENTER(p_log);
 
-	osm_log(p_log, OSM_LOG_DEBUG,
-		"osm_infr_insert_to_db: "
+	OSM_LOG(p_log, OSM_LOG_DEBUG,
 		"Inserting new InformInfo Record into Database\n");
-	osm_log(p_log, OSM_LOG_DEBUG,
-		"osm_infr_insert_to_db: "
+	OSM_LOG(p_log, OSM_LOG_DEBUG,
 		"Dump before insertion (size %d)\n",
 		cl_qlist_count(&p_subn->sa_infr_list));
 	dump_all_informs(p_subn, p_log);
@@ -289,8 +273,7 @@ osm_infr_insert_to_db(IN osm_subn_t * p_subn,
 
 	cl_qlist_insert_head(&p_subn->sa_infr_list, &p_infr->list_item);
 
-	osm_log(p_log, OSM_LOG_DEBUG,
-		"osm_infr_insert_to_db: "
+	OSM_LOG(p_log, OSM_LOG_DEBUG,
 		"Dump after insertion (size %d)\n",
 		cl_qlist_count(&p_subn->sa_infr_list));
 	dump_all_informs(p_subn, p_log);
@@ -305,8 +288,7 @@ osm_infr_remove_from_db(IN osm_subn_t * p_subn,
 {
 	OSM_LOG_ENTER(p_log);
 
-	osm_log(p_log, OSM_LOG_DEBUG,
-		"osm_infr_remove_from_db: "
+	OSM_LOG(p_log, OSM_LOG_DEBUG,
 		"Removing InformInfo Subscribing GID:0x%016" PRIx64 " : 0x%016"
 		PRIx64 " Enum:0x%X from Database\n",
 		cl_ntoh64(p_infr->inform_record.subscriber_gid.unicast.prefix),
@@ -345,8 +327,7 @@ static ib_api_status_t __osm_send_report(IN osm_infr_t * p_infr_rec,	/* the info
 	/* HACK: who switches or uses the src and dest GIDs in the grh_info ?? */
 
 	/* it is better to use LIDs since the GIDs might not be there for SMI traps */
-	osm_log(p_log, OSM_LOG_DEBUG,
-		"__osm_send_report: "
+	OSM_LOG(p_log, OSM_LOG_DEBUG,
 		"Forwarding Notice Event from LID:0x%X"
 		" to InformInfo LID: 0x%X TID:0x%X\n",
 		cl_ntoh16(p_ntc->issuer_lid),
@@ -361,8 +342,7 @@ static ib_api_status_t __osm_send_report(IN osm_infr_t * p_infr_rec,	/* the info
 	p_report_madw->resp_expected = TRUE;
 
 	if (!p_report_madw) {
-		osm_log(p_log, OSM_LOG_ERROR,
-			"__osm_send_report: ERR 0203: "
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0203"
 			"osm_mad_pool_get failed\n");
 		status = IB_ERROR;
 		goto Exit;
@@ -388,8 +368,7 @@ static ib_api_status_t __osm_send_report(IN osm_infr_t * p_infr_rec,	/* the info
 	status = osm_sa_vendor_send(p_report_madw->h_bind, p_report_madw, TRUE,
 				    p_infr_rec->sa->p_subn);
 	if (status != IB_SUCCESS) {
-		osm_log(p_log, OSM_LOG_ERROR,
-			"__osm_send_report: ERR 0204: "
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0204: "
 			"osm_sa_vendor_send status = %s\n",
 			ib_get_err_str(status));
 		goto Exit;
@@ -442,9 +421,7 @@ __match_notice_to_inf_rec(IN cl_list_item_t * const p_list_item,
 		/* match by GID */
 		if (memcmp
 		    (&(p_ii->gid), &(p_ntc->issuer_gid), sizeof(ib_gid_t))) {
-			osm_log(p_log, OSM_LOG_DEBUG,
-				"__match_notice_to_inf_rec: "
-				"Mismatch by GID\n");
+			OSM_LOG(p_log, OSM_LOG_DEBUG, "Mismatch by GID\n");
 			goto Exit;
 		}
 	} else {
@@ -456,8 +433,7 @@ __match_notice_to_inf_rec(IN cl_list_item_t * const p_list_item,
 			     cl_hton16(p_ntc->issuer_lid))
 			    || (cl_hton16(p_ntc->issuer_lid) >
 				cl_hton16(p_ii->lid_range_end))) {
-				osm_log(p_log, OSM_LOG_DEBUG,
-					"__match_notice_to_inf_rec: "
+				OSM_LOG(p_log, OSM_LOG_DEBUG,
 					"Mismatch by LID Range. Needed: 0x%X <= 0x%X <= 0x%X\n",
 					cl_hton16(p_ii->lid_range_begin),
 					cl_hton16(p_ntc->issuer_lid),
@@ -471,17 +447,14 @@ __match_notice_to_inf_rec(IN cl_list_item_t * const p_list_item,
 	/* IsGeneric    IsGeneric    is compulsory and must match the trap  */
 	if ((p_ii->is_generic && !ib_notice_is_generic(p_ntc)) ||
 	    (!p_ii->is_generic && ib_notice_is_generic(p_ntc))) {
-		osm_log(p_log, OSM_LOG_DEBUG,
-			"__match_notice_to_inf_rec: "
-			"Mismatch by Generic/Vendor\n");
+		OSM_LOG(p_log, OSM_LOG_DEBUG, "Mismatch by Generic/Vendor\n");
 		goto Exit;
 	}
 
 	/* Type         Type         if not 0xFFFF must match */
 	if ((p_ii->trap_type != 0xFFFF) &&
 	    (cl_ntoh16(p_ii->trap_type) != ib_notice_get_type(p_ntc))) {
-		osm_log(p_log, OSM_LOG_DEBUG,
-			"__match_notice_to_inf_rec: " "Mismatch by Type\n");
+		OSM_LOG(p_log, OSM_LOG_DEBUG, "Mismatch by Type\n");
 		goto Exit;
 	}
 
@@ -491,9 +464,7 @@ __match_notice_to_inf_rec(IN cl_list_item_t * const p_list_item,
 		if ((p_ii->g_or_v.generic.trap_num != 0xFFFF) &&
 		    (p_ii->g_or_v.generic.trap_num !=
 		     p_ntc->g_or_v.generic.trap_num)) {
-			osm_log(p_log, OSM_LOG_DEBUG,
-				"__match_notice_to_inf_rec: "
-				"Mismatch by Trap Num\n");
+			OSM_LOG(p_log, OSM_LOG_DEBUG, "Mismatch by Trap Num\n");
 			goto Exit;
 		}
 
@@ -501,8 +472,7 @@ __match_notice_to_inf_rec(IN cl_list_item_t * const p_list_item,
 		if ((cl_ntoh32(ib_inform_info_get_prod_type(p_ii)) != 0xFFFFFF)
 		    && (ib_inform_info_get_prod_type(p_ii) !=
 			ib_notice_get_prod_type(p_ntc))) {
-			osm_log(p_log, OSM_LOG_DEBUG,
-				"__match_notice_to_inf_rec: "
+			OSM_LOG(p_log, OSM_LOG_DEBUG,
 				"Mismatch by Node Type: II=0x%06X (%s) Trap=0x%06X (%s)\n",
 				cl_ntoh32(ib_inform_info_get_prod_type(p_ii)),
 				ib_get_producer_type_str
@@ -517,9 +487,7 @@ __match_notice_to_inf_rec(IN cl_list_item_t * const p_list_item,
 		/* DeviceId     DeviceID     if not 0xFFFF must match */
 		if ((p_ii->g_or_v.vend.dev_id != 0xFFFF) &&
 		    (p_ii->g_or_v.vend.dev_id != p_ntc->g_or_v.vend.dev_id)) {
-			osm_log(p_log, OSM_LOG_DEBUG,
-				"__match_notice_to_inf_rec: "
-				"Mismatch by Dev Id\n");
+			OSM_LOG(p_log, OSM_LOG_DEBUG, "Mismatch by Dev Id\n");
 			goto Exit;
 		}
 
@@ -527,9 +495,7 @@ __match_notice_to_inf_rec(IN cl_list_item_t * const p_list_item,
 		if ((ib_inform_info_get_vend_id(p_ii) != CL_HTON32(0xFFFFFF)) &&
 		    (ib_inform_info_get_vend_id(p_ii) !=
 		     ib_notice_get_vend_id(p_ntc))) {
-			osm_log(p_log, OSM_LOG_DEBUG,
-				"__match_notice_to_inf_rec: "
-				"Mismatch by Vendor ID\n");
+			OSM_LOG(p_log, OSM_LOG_DEBUG, "Mismatch by Vendor ID\n");
 			goto Exit;
 		}
 	}
@@ -554,8 +520,7 @@ __match_notice_to_inf_rec(IN cl_list_item_t * const p_list_item,
 	p_src_port =
 	    osm_get_port_by_guid(p_subn, source_gid.unicast.interface_id);
 	if (!p_src_port) {
-		osm_log(p_log, OSM_LOG_INFO,
-			"__match_notice_to_inf_rec: "
+		OSM_LOG(p_log, OSM_LOG_INFO,
 			"Cannot find source port with GUID:0x%016" PRIx64 "\n",
 			cl_ntoh64(source_gid.unicast.interface_id));
 		goto Exit;
@@ -565,22 +530,19 @@ __match_notice_to_inf_rec(IN cl_list_item_t * const p_list_item,
 	    cl_ptr_vector_get(&p_subn->port_lid_tbl,
 			      cl_ntoh16(p_infr_rec->report_addr.dest_lid));
 	if (!p_dest_port) {
-		osm_log(p_log, OSM_LOG_INFO,
-			"__match_notice_to_inf_rec: "
+		OSM_LOG(p_log, OSM_LOG_INFO,
 			"Cannot find destination port with LID:0x%04x\n",
 			cl_ntoh16(p_infr_rec->report_addr.dest_lid));
 		goto Exit;
 	}
 
 	if (osm_port_share_pkey(p_log, p_src_port, p_dest_port) == FALSE) {
-		osm_log(p_log, OSM_LOG_DEBUG,
-			"__match_notice_to_inf_rec: " "Mismatch by Pkey\n");
+		OSM_LOG(p_log, OSM_LOG_DEBUG, "Mismatch by Pkey\n");
 		/* According to o13-17.1.2 - If this informInfo does not have
 		   lid_range_begin of 0xFFFF, then this informInfo request
 		   should be removed from database */
 		if (p_ii->lid_range_begin != 0xFFFF) {
-			osm_log(p_log, OSM_LOG_VERBOSE,
-				"__match_notice_to_inf_rec: "
+			OSM_LOG(p_log, OSM_LOG_VERBOSE,
 				"Pkey mismatch on lid_range_begin != 0xFFFF. "
 				"Need to remove this informInfo from db\n");
 			/* add the informInfo record to the remove_infr list */
@@ -590,8 +552,7 @@ __match_notice_to_inf_rec(IN cl_list_item_t * const p_list_item,
 	}
 
 	/* send the report to the address provided in the inform record */
-	osm_log(p_log, OSM_LOG_DEBUG,
-		"__match_notice_to_inf_rec: " "MATCH! Sending Report...\n");
+	OSM_LOG(p_log, OSM_LOG_DEBUG, "MATCH! Sending Report...\n");
 	__osm_send_report(p_infr_rec, p_ntc);
 	status = CL_SUCCESS;
 
@@ -624,16 +585,14 @@ osm_report_notice(IN osm_log_t * const p_log,
 	 * the osm_infr_init call is performed.
 	 */
 	if (p_subn->sa_infr_list.state != CL_INITIALIZED) {
-		osm_log(p_log, OSM_LOG_DEBUG,
-			"osm_report_notice: "
+		OSM_LOG(p_log, OSM_LOG_DEBUG,
 			"Ignoring Notice Reports since Inform List is not initialized yet!\n");
 		return (IB_ERROR);
 	}
 
 	/* an official Event information log */
 	if (ib_notice_is_generic(p_ntc)) {
-		osm_log(p_log, OSM_LOG_INFO,
-			"osm_report_notice: "
+		OSM_LOG(p_log, OSM_LOG_INFO,
 			"Reporting Generic Notice type:%u num:%u"
 			" from LID:0x%04X GID:0x%016" PRIx64
 			",0x%016" PRIx64 "\n",
@@ -644,8 +603,7 @@ osm_report_notice(IN osm_log_t * const p_log,
 			cl_ntoh64(p_ntc->issuer_gid.unicast.interface_id)
 		    );
 	} else {
-		osm_log(p_log, OSM_LOG_INFO,
-			"osm_report_notice: "
+		OSM_LOG(p_log, OSM_LOG_INFO,
 			"Reporting Vendor Notice type:%u vend:%u dev:%u"
 			" from LID:0x%04X GID:0x%016" PRIx64
 			",0x%016" PRIx64 "\n",

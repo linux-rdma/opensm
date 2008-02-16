@@ -89,8 +89,7 @@ static void vl15_send_mad(osm_vl15_t * p_vl, osm_madw_t * p_madw)
 
 	if (status == IB_SUCCESS) {
 		if (osm_log_is_active(p_vl->p_log, OSM_LOG_DEBUG))
-			osm_log(p_vl->p_log, OSM_LOG_DEBUG,
-				"__osm_vl15_poller: "
+			OSM_LOG(p_vl->p_log, OSM_LOG_DEBUG,
 				"%u QP0 MADs on wire, %u outstanding, "
 				"%u unicasts sent, %u total sent\n",
 				p_vl->p_stats->qp0_mads_outstanding_on_wire,
@@ -100,8 +99,7 @@ static void vl15_send_mad(osm_vl15_t * p_vl, osm_madw_t * p_madw)
 		return;
 	}
 
-	osm_log(p_vl->p_log, OSM_LOG_ERROR,
-		"__osm_vl15_poller: ERR 3E03: "
+	OSM_LOG(p_vl->p_log, OSM_LOG_ERROR, "ERR 3E03: "
 		"MAD send failed (%s)\n", ib_get_err_str(status));
 
 	/*
@@ -151,8 +149,7 @@ static void __osm_vl15_poller(IN void *p_ptr)
 
 		if (p_madw != (osm_madw_t *) cl_qlist_end(p_fifo)) {
 			if (osm_log_is_active(p_vl->p_log, OSM_LOG_DEBUG))
-				osm_log(p_vl->p_log, OSM_LOG_DEBUG,
-					"__osm_vl15_poller: "
+				OSM_LOG(p_vl->p_log, OSM_LOG_DEBUG,
 					"Servicing p_madw = %p\n", p_madw);
 
 			if (osm_log_is_active(p_vl->p_log, OSM_LOG_FRAMES))
@@ -174,8 +171,7 @@ static void __osm_vl15_poller(IN void *p_ptr)
 			status = cl_event_wait_on(&p_vl->signal,
 						  EVENT_NO_TIMEOUT, TRUE);
 			if (status != CL_SUCCESS) {
-				osm_log(p_vl->p_log, OSM_LOG_ERROR,
-					"__osm_vl15_poller: ERR 3E02: "
+				OSM_LOG(p_vl->p_log, OSM_LOG_ERROR, "ERR 3E02: "
 					"Event wait failed (%s)\n",
 					CL_STATUS_MSG(status));
 				break;
@@ -314,8 +310,8 @@ void osm_vl15_poll(IN osm_vl15_t * const p_vl)
 	if (p_vl->p_stats->qp0_mads_outstanding_on_wire <
 	    (int32_t) p_vl->max_wire_smps) {
 		if (osm_log_is_active(p_vl->p_log, OSM_LOG_DEBUG))
-			osm_log(p_vl->p_log, OSM_LOG_DEBUG,
-				"osm_vl15_poll: " "Signalling poller thread\n");
+			OSM_LOG(p_vl->p_log, OSM_LOG_DEBUG,
+				"Signalling poller thread\n");
 
 		cl_event_signal(&p_vl->signal);
 	}
@@ -332,8 +328,8 @@ void osm_vl15_post(IN osm_vl15_t * const p_vl, IN osm_madw_t * const p_madw)
 	CL_ASSERT(p_vl->state == OSM_VL15_STATE_READY);
 
 	if (osm_log_is_active(p_vl->p_log, OSM_LOG_DEBUG))
-		osm_log(p_vl->p_log, OSM_LOG_DEBUG,
-			"osm_vl15_post: " "Posting p_madw = 0x%p\n", p_madw);
+		OSM_LOG(p_vl->p_log, OSM_LOG_DEBUG,
+			"Posting p_madw = 0x%p\n", p_madw);
 
 	/*
 	   Determine in which fifo to place the pending madw.
@@ -347,8 +343,7 @@ void osm_vl15_post(IN osm_vl15_t * const p_vl, IN osm_madw_t * const p_madw)
 	cl_spinlock_release(&p_vl->lock);
 
 	if (osm_log_is_active(p_vl->p_log, OSM_LOG_DEBUG))
-		osm_log(p_vl->p_log, OSM_LOG_DEBUG,
-			"osm_vl15_post: "
+		OSM_LOG(p_vl->p_log, OSM_LOG_DEBUG,
 			"%u QP0 MADs on wire, %u QP0 MADs outstanding\n",
 			p_vl->p_stats->qp0_mads_outstanding_on_wire,
 			p_vl->p_stats->qp0_mads_outstanding);
@@ -378,8 +373,7 @@ osm_vl15_shutdown(IN osm_vl15_t * const p_vl,
 	p_madw = (osm_madw_t *) cl_qlist_remove_head(&p_vl->ufifo);
 	while (p_madw != (osm_madw_t *) cl_qlist_end(&p_vl->ufifo)) {
 		if (osm_log_is_active(p_vl->p_log, OSM_LOG_DEBUG))
-			osm_log(p_vl->p_log, OSM_LOG_DEBUG,
-				"osm_vl15_shutdown: "
+			OSM_LOG(p_vl->p_log, OSM_LOG_DEBUG,
 				"Releasing Response p_madw = %p\n", p_madw);
 
 		osm_mad_pool_put(p_mad_pool, p_madw);
@@ -391,8 +385,7 @@ osm_vl15_shutdown(IN osm_vl15_t * const p_vl,
 	p_madw = (osm_madw_t *) cl_qlist_remove_head(&p_vl->rfifo);
 	while (p_madw != (osm_madw_t *) cl_qlist_end(&p_vl->rfifo)) {
 		if (osm_log_is_active(p_vl->p_log, OSM_LOG_DEBUG))
-			osm_log(p_vl->p_log, OSM_LOG_DEBUG,
-				"osm_vl15_shutdown: "
+			OSM_LOG(p_vl->p_log, OSM_LOG_DEBUG,
 				"Releasing Request p_madw = %p\n", p_madw);
 
 		osm_mad_pool_put(p_mad_pool, p_madw);

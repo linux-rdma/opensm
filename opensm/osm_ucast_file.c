@@ -64,8 +64,8 @@ static uint16_t remap_lid(osm_opensm_t * p_osm, uint16_t lid, ib_net64_t guid)
 
 	p_port = osm_get_port_by_guid(&p_osm->subn, guid);
 	if (!p_port) {
-		osm_log(&p_osm->log, OSM_LOG_VERBOSE,
-			"remap_lid: cannot find port guid 0x%016" PRIx64
+		OSM_LOG(&p_osm->log, OSM_LOG_VERBOSE,
+			"cannot find port guid 0x%016" PRIx64
 			" , will use the same lid\n", cl_ntoh64(guid));
 		return lid;
 	}
@@ -88,8 +88,8 @@ static void add_path(osm_opensm_t * p_osm,
 	new_lid = port_guid ? remap_lid(p_osm, lid, port_guid) : lid;
 	old_port = osm_fwd_tbl_get(osm_switch_get_fwd_tbl_ptr(p_sw), new_lid);
 	if (old_port != OSM_NO_PATH && old_port != port_num) {
-		osm_log(&p_osm->log, OSM_LOG_VERBOSE,
-			"add_path: LID collision is detected on switch "
+		OSM_LOG(&p_osm->log, OSM_LOG_VERBOSE,
+			"LID collision is detected on switch "
 			"0x016%" PRIx64 ", will overwrite LID 0x%x entry\n",
 			cl_ntoh64(osm_node_get_node_guid(p_sw->p_node)),
 			new_lid);
@@ -100,8 +100,8 @@ static void add_path(osm_opensm_t * p_osm,
 	      osm_get_switch_by_guid(&p_osm->subn, port_guid)))
 		osm_switch_count_path(p_sw, port_num);
 
-	osm_log(&p_osm->log, OSM_LOG_DEBUG,
-		"add_path: route 0x%04x(was 0x%04x) %u 0x%016" PRIx64
+	OSM_LOG(&p_osm->log, OSM_LOG_DEBUG,
+		"route 0x%04x(was 0x%04x) %u 0x%016" PRIx64
 		" is added to switch 0x%016" PRIx64 "\n",
 		new_lid, lid, port_num, cl_ntoh64(port_guid),
 		cl_ntoh64(osm_node_get_node_guid(p_sw->p_node)));
@@ -136,7 +136,7 @@ static int do_ucast_file_load(void *context)
 
 	file_name = p_osm->subn.opt.ucast_dump_file;
 	if (!file_name) {
-		osm_log(&p_osm->log, OSM_LOG_VERBOSE, "do_ucast_file_load: "
+		OSM_LOG(&p_osm->log, OSM_LOG_VERBOSE,
 			"ucast dump file name is not given; "
 			"using default routing algorithm\n");
 		return -1;
@@ -144,8 +144,7 @@ static int do_ucast_file_load(void *context)
 
 	file = fopen(file_name, "r");
 	if (!file) {
-		osm_log(&p_osm->log, OSM_LOG_ERROR | OSM_LOG_SYS,
-			"do_ucast_file_load: ERR 6302: "
+		OSM_LOG(&p_osm->log, OSM_LOG_ERROR | OSM_LOG_SYS, "ERR 6302: "
 			"cannot open ucast dump file \'%s\'; "
 			"using default routing algorithm\n", file_name);
 		return -1;
@@ -166,8 +165,8 @@ static int do_ucast_file_load(void *context)
 			continue;
 
 		if (!strncmp(p, "Multicast mlids", 15)) {
-			osm_log(&p_osm->log, OSM_LOG_ERROR | OSM_LOG_SYS,
-				"do_ucast_file_load: ERR 6303: "
+			OSM_LOG(&p_osm->log, OSM_LOG_ERROR | OSM_LOG_SYS,
+				"ERR 6303: "
 				"Multicast dump file detected; "
 				"skipping parsing. Using default "
 				"routing algorithm\n");
@@ -177,7 +176,7 @@ static int do_ucast_file_load(void *context)
 							    ucast_mgr, p_sw);
 			q = strstr(p, " guid 0x");
 			if (!q) {
-				osm_log(&p_osm->log, OSM_LOG_ERROR,
+				OSM_LOG(&p_osm->log, OSM_LOG_ERROR,
 					"PARSE ERROR: %s:%u: "
 					"cannot parse switch definition\n",
 					file_name, lineno);
@@ -186,7 +185,7 @@ static int do_ucast_file_load(void *context)
 			p = q + 8;
 			sw_guid = strtoull(p, &q, 16);
 			if (q == p || !isspace(*q)) {
-				osm_log(&p_osm->log, OSM_LOG_ERROR,
+				OSM_LOG(&p_osm->log, OSM_LOG_ERROR,
 					"PARSE ERROR: %s:%u: "
 					"cannot parse switch guid: \'%s\'\n",
 					file_name, lineno, p);
@@ -196,8 +195,7 @@ static int do_ucast_file_load(void *context)
 
 			p_sw = osm_get_switch_by_guid(&p_osm->subn, sw_guid);
 			if (!p_sw) {
-				osm_log(&p_osm->log, OSM_LOG_VERBOSE,
-					"do_ucast_file_load: "
+				OSM_LOG(&p_osm->log, OSM_LOG_VERBOSE,
 					"cannot find switch %016" PRIx64 "\n",
 					cl_ntoh64(sw_guid));
 				continue;
@@ -208,7 +206,7 @@ static int do_ucast_file_load(void *context)
 			p += 2;
 			lid = (uint16_t) strtoul(p, &q, 16);
 			if (q == p || !isspace(*q)) {
-				osm_log(&p_osm->log, OSM_LOG_ERROR,
+				OSM_LOG(&p_osm->log, OSM_LOG_ERROR,
 					"PARSE ERROR: %s:%u: "
 					"cannot parse lid: \'%s\'\n",
 					file_name, lineno, p);
@@ -219,7 +217,7 @@ static int do_ucast_file_load(void *context)
 				p++;
 			port_num = (uint8_t) strtoul(p, &q, 10);
 			if (q == p || !isspace(*q)) {
-				osm_log(&p_osm->log, OSM_LOG_ERROR,
+				OSM_LOG(&p_osm->log, OSM_LOG_ERROR,
 					"PARSE ERROR: %s:%u: "
 					"cannot parse port: \'%s\'\n",
 					file_name, lineno, p);
@@ -229,7 +227,7 @@ static int do_ucast_file_load(void *context)
 			/* additionally try to exract guid */
 			q = strstr(p, " portguid 0x");
 			if (!q) {
-				osm_log(&p_osm->log, OSM_LOG_VERBOSE,
+				OSM_LOG(&p_osm->log, OSM_LOG_VERBOSE,
 					"PARSE WARNING: %s:%u: "
 					"cannot find port guid "
 					"(maybe broken dump): \'%s\'\n",
@@ -239,7 +237,7 @@ static int do_ucast_file_load(void *context)
 				p = q + 12;
 				port_guid = strtoull(p, &q, 16);
 				if (q == p || (!isspace(*q) && *q != ':')) {
-					osm_log(&p_osm->log, OSM_LOG_VERBOSE,
+					OSM_LOG(&p_osm->log, OSM_LOG_VERBOSE,
 						"PARSE WARNING: %s:%u: "
 						"cannot parse port guid "
 						"(maybe broken dump): \'%s\'\n",
@@ -273,8 +271,7 @@ static int do_lid_matrix_file_load(void *context)
 
 	file_name = p_osm->subn.opt.lid_matrix_dump_file;
 	if (!file_name) {
-		osm_log(&p_osm->log, OSM_LOG_VERBOSE,
-			"do_lid_matrix_file_load: "
+		OSM_LOG(&p_osm->log, OSM_LOG_VERBOSE,
 			"lid matrix file name is not given; "
 			"using default lid matrix generation algorithm\n");
 		return -1;
@@ -282,8 +279,7 @@ static int do_lid_matrix_file_load(void *context)
 
 	file = fopen(file_name, "r");
 	if (!file) {
-		osm_log(&p_osm->log, OSM_LOG_ERROR | OSM_LOG_SYS,
-			"do_lid_matrix_file_load: ERR 6305: "
+		OSM_LOG(&p_osm->log, OSM_LOG_ERROR | OSM_LOG_SYS, "ERR 6305: "
 			"cannot open lid matrix file \'%s\'; "
 			"using default lid matrix generation algorithm\n",
 			file_name);
@@ -307,7 +303,7 @@ static int do_lid_matrix_file_load(void *context)
 		if (!strncmp(p, "Switch", 6)) {
 			q = strstr(p, " guid 0x");
 			if (!q) {
-				osm_log(&p_osm->log, OSM_LOG_ERROR,
+				OSM_LOG(&p_osm->log, OSM_LOG_ERROR,
 					"PARSE ERROR: %s:%u: "
 					"cannot parse switch definition\n",
 					file_name, lineno);
@@ -316,7 +312,7 @@ static int do_lid_matrix_file_load(void *context)
 			p = q + 8;
 			guid = strtoull(p, &q, 16);
 			if (q == p || !isspace(*q)) {
-				osm_log(&p_osm->log, OSM_LOG_ERROR,
+				OSM_LOG(&p_osm->log, OSM_LOG_ERROR,
 					"PARSE ERROR: %s:%u: "
 					"cannot parse switch guid: \'%s\'\n",
 					file_name, lineno, p);
@@ -326,8 +322,7 @@ static int do_lid_matrix_file_load(void *context)
 
 			p_sw = osm_get_switch_by_guid(&p_osm->subn, guid);
 			if (!p_sw) {
-				osm_log(&p_osm->log, OSM_LOG_VERBOSE,
-					"do_lid_matrix_file_load: "
+				OSM_LOG(&p_osm->log, OSM_LOG_VERBOSE,
 					"cannot find switch %016" PRIx64 "\n",
 					cl_ntoh64(guid));
 				continue;
@@ -342,7 +337,7 @@ static int do_lid_matrix_file_load(void *context)
 			num = strtoul(p, &q, 16);
 			if (num > 0xffff || q == p ||
 			    (*q != ':' && !isspace(*q))) {
-				osm_log(&p_osm->log, OSM_LOG_ERROR,
+				OSM_LOG(&p_osm->log, OSM_LOG_ERROR,
 					"PARSE ERROR: %s:%u: "
 					"cannot parse lid: \'%s\'\n",
 					file_name, lineno, p);
@@ -356,7 +351,7 @@ static int do_lid_matrix_file_load(void *context)
 			while (len < 256 && *p && *p != '#') {
 				num = strtoul(p, &q, 16);
 				if (num > 0xff || q == p) {
-					osm_log(&p_osm->log, OSM_LOG_ERROR,
+					OSM_LOG(&p_osm->log, OSM_LOG_ERROR,
 						"PARSE ERROR: %s:%u: "
 						"cannot parse hops number: \'%s\'\n",
 						file_name, lineno, p);
@@ -371,7 +366,7 @@ static int do_lid_matrix_file_load(void *context)
 			/* additionally try to extract guid */
 			q = strstr(p, " portguid 0x");
 			if (!q) {
-				osm_log(&p_osm->log, OSM_LOG_VERBOSE,
+				OSM_LOG(&p_osm->log, OSM_LOG_VERBOSE,
 					"PARSE WARNING: %s:%u: "
 					"cannot find port guid "
 					"(maybe broken dump): \'%s\'\n",
@@ -381,7 +376,7 @@ static int do_lid_matrix_file_load(void *context)
 				p = q + 12;
 				guid = strtoull(p, &q, 16);
 				if (q == p || !isspace(*q)) {
-					osm_log(&p_osm->log, OSM_LOG_VERBOSE,
+					OSM_LOG(&p_osm->log, OSM_LOG_VERBOSE,
 						"PARSE WARNING: %s:%u: "
 						"cannot parse port guid "
 						"(maybe broken dump): \'%s\'\n",

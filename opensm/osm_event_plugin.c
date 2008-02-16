@@ -76,7 +76,7 @@ osm_epi_plugin_t *osm_epi_construct(osm_log_t * p_log, char *plugin_name)
 
 	rc->handle = dlopen(lib_name, RTLD_LAZY);
 	if (!rc->handle) {
-		osm_log(p_log, OSM_LOG_ERROR,
+		OSM_LOG(p_log, OSM_LOG_ERROR,
 			"Failed to open event plugin \"%s\" : \"%s\"\n",
 			lib_name, dlerror());
 		goto DLOPENFAIL;
@@ -86,7 +86,7 @@ osm_epi_plugin_t *osm_epi_construct(osm_log_t * p_log, char *plugin_name)
 	    (osm_event_plugin_t *) dlsym(rc->handle,
 					 OSM_EVENT_PLUGIN_IMPL_NAME);
 	if (!rc->impl) {
-		osm_log(p_log, OSM_LOG_ERROR,
+		OSM_LOG(p_log, OSM_LOG_ERROR,
 			"Failed to find \"%s\" symbol in \"%s\" : \"%s\"\n",
 			OSM_EVENT_PLUGIN_IMPL_NAME, lib_name, dlerror());
 		goto Exit;
@@ -94,7 +94,7 @@ osm_epi_plugin_t *osm_epi_construct(osm_log_t * p_log, char *plugin_name)
 
 	/* Check the version to make sure this module will work with us */
 	if (rc->impl->interface_version != OSM_EVENT_PLUGIN_INTERFACE_VER) {
-		osm_log(p_log, OSM_LOG_ERROR,
+		OSM_LOG(p_log, OSM_LOG_ERROR,
 			"Error opening %s: "
 			"%s symbol is the wrong version %d != %d\n",
 			plugin_name,
@@ -105,7 +105,7 @@ osm_epi_plugin_t *osm_epi_construct(osm_log_t * p_log, char *plugin_name)
 	}
 
 	if (!rc->impl->construct) {
-		osm_log(p_log, OSM_LOG_ERROR,
+		OSM_LOG(p_log, OSM_LOG_ERROR,
 			"%s symbol has no construct function\n",
 			OSM_EVENT_PLUGIN_IMPL_NAME);
 		goto Exit;

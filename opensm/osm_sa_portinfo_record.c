@@ -91,16 +91,14 @@ __osm_pir_rcv_new_pir(IN osm_sa_t * sa,
 
 	p_rec_item = malloc(sizeof(*p_rec_item));
 	if (p_rec_item == NULL) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"__osm_pir_rcv_new_pir: ERR 2102: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2102: "
 			"rec_item alloc failed\n");
 		status = IB_INSUFFICIENT_RESOURCES;
 		goto Exit;
 	}
 
 	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
-		osm_log(sa->p_log, OSM_LOG_DEBUG,
-			"__osm_pir_rcv_new_pir: "
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"New PortInfoRecord: port 0x%016" PRIx64
 			", lid 0x%X, port 0x%X\n",
 			cl_ntoh64(osm_physp_get_port_guid(p_physp)),
@@ -155,8 +153,7 @@ __osm_sa_pir_create(IN osm_sa_t * sa,
 		   We validate that the lid belongs to this node.
 		 */
 		if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
-			osm_log(sa->p_log, OSM_LOG_DEBUG,
-				"__osm_sa_pir_create: "
+			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 				"Comparing LID: 0x%X <= 0x%X <= 0x%X\n",
 				base_lid_ho, match_lid_ho, max_lid_ho);
 
@@ -513,8 +510,7 @@ void osm_pir_rcv_process(IN void *ctx, IN void *data)
 	/* we only support SubnAdmGet and SubnAdmGetTable methods */
 	if ((p_rcvd_mad->method != IB_MAD_METHOD_GET) &&
 	    (p_rcvd_mad->method != IB_MAD_METHOD_GETTABLE)) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"osm_pir_rcv_process: ERR 2105: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2105: "
 			"Unsupported Method (%s)\n",
 			ib_get_sa_method_str(p_rcvd_mad->method));
 		osm_sa_send_error(sa, p_madw,
@@ -528,8 +524,7 @@ void osm_pir_rcv_process(IN void *ctx, IN void *data)
 						osm_madw_get_mad_addr_ptr
 						(p_madw));
 	if (p_req_physp == NULL) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"osm_pir_rcv_process: ERR 2104: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2104: "
 			"Cannot find requester physical port\n");
 		goto Exit;
 	}
@@ -565,8 +560,7 @@ void osm_pir_rcv_process(IN void *ctx, IN void *data)
 					     &p_port);
 		if ((status != IB_SUCCESS) || (p_port == NULL)) {
 			status = IB_NOT_FOUND;
-			osm_log(sa->p_log, OSM_LOG_ERROR,
-				"osm_pir_rcv_process: ERR 2109: "
+			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2109: "
 				"No port found with LID 0x%x\n",
 				cl_ntoh16(p_rcvd_rec->lid));
 		}
@@ -577,8 +571,7 @@ void osm_pir_rcv_process(IN void *ctx, IN void *data)
 						   cl_ntoh16(p_pi->base_lid));
 		else {
 			status = IB_NOT_FOUND;
-			osm_log(sa->p_log, OSM_LOG_ERROR,
-				"osm_pir_rcv_process: ERR 2103: "
+			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2103: "
 				"Given LID (0x%X) is out of range:0x%X\n",
 				cl_ntoh16(p_pi->base_lid),
 				cl_ptr_vector_get_size(p_tbl));
@@ -610,8 +603,7 @@ void osm_pir_rcv_process(IN void *ctx, IN void *data)
 			goto Exit;
 		}
 		if (num_rec > 1) {
-			osm_log(sa->p_log, OSM_LOG_ERROR,
-				"osm_pir_rcv_process: ERR 2108: "
+			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2108: "
 				"Got more than one record for SubnAdmGet (%u)\n",
 				num_rec);
 			osm_sa_send_error(sa, p_madw,
@@ -637,16 +629,14 @@ void osm_pir_rcv_process(IN void *ctx, IN void *data)
 	    (MAD_BLOCK_SIZE -
 	     IB_SA_MAD_HDR_SIZE) / sizeof(ib_portinfo_record_t);
 	if (trim_num_rec < num_rec) {
-		osm_log(sa->p_log, OSM_LOG_VERBOSE,
-			"osm_pir_rcv_process: "
+		OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
 			"Number of records:%u trimmed to:%u to fit in one MAD\n",
 			num_rec, trim_num_rec);
 		num_rec = trim_num_rec;
 	}
 #endif
 
-	osm_log(sa->p_log, OSM_LOG_DEBUG,
-		"osm_pir_rcv_process: " "Returning %u records\n", num_rec);
+	OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Returning %u records\n", num_rec);
 
 	if ((p_rcvd_mad->method == IB_MAD_METHOD_GET) && (num_rec == 0)) {
 		osm_sa_send_error(sa, p_madw,
@@ -663,8 +653,7 @@ void osm_pir_rcv_process(IN void *ctx, IN void *data)
 				       IB_SA_MAD_HDR_SIZE, &p_madw->mad_addr);
 
 	if (!p_resp_madw) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"osm_pir_rcv_process: ERR 2106: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2106: "
 			"osm_mad_pool_get failed\n");
 
 		for (i = 0; i < num_rec; i++) {
@@ -740,8 +729,7 @@ void osm_pir_rcv_process(IN void *ctx, IN void *data)
 	status = osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE,
 				    sa->p_subn);
 	if (status != IB_SUCCESS) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"osm_pir_rcv_process: ERR 2107: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2107: "
 			"osm_sa_vendor_send status = %s\n",
 			ib_get_err_str(status));
 		goto Exit;

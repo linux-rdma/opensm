@@ -99,8 +99,7 @@ void osm_slvl_rcv_process(IN void *context, IN void *p_data)
 
 	if (!p_port) {
 		cl_plock_release(sm->p_lock);
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"osm_slvl_rcv_process: ERR 2C06: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 2C06: "
 			"No port object for port with GUID 0x%" PRIx64
 			"\n\t\t\t\tfor parent node GUID 0x%" PRIx64
 			", TID 0x%" PRIx64 "\n",
@@ -130,8 +129,7 @@ void osm_slvl_rcv_process(IN void *context, IN void *p_data)
 	   the subnet.
 	 */
 	if (osm_log_is_active(sm->p_log, OSM_LOG_VERBOSE)) {
-		osm_log(sm->p_log, OSM_LOG_VERBOSE,
-			"osm_slvl_rcv_process: "
+		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 			"Got SLtoVL get response in_port_num %u out_port_num %u with GUID 0x%"
 			PRIx64 " for parent node GUID 0x%" PRIx64 ", TID 0x%"
 			PRIx64 "\n", in_port_num, out_port_num,
@@ -144,8 +142,7 @@ void osm_slvl_rcv_process(IN void *context, IN void *p_data)
 	   If so, Ignore it.
 	 */
 	if (!p_physp) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"osm_slvl_rcv_process: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR,
 			"Got invalid port number 0x%X\n", out_port_num);
 		goto Exit;
 	}

@@ -1942,7 +1942,7 @@ osm_dump_sa_mad(IN osm_log_t * const p_log,
 
 	/* make sure the mad is valid */
 	if (p_mad == NULL) {
-		osm_log(p_log, log_level, "NULL MAD POINTER\n");
+		OSM_LOG(p_log, log_level, "NULL MAD POINTER\n");
 		return;
 	}
 

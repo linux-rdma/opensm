@@ -326,8 +326,7 @@ osm_physp_calc_link_mtu(IN osm_log_t * p_log, IN const osm_physp_t * p_physp)
 		    ib_port_info_get_mtu_cap(&p_remote_physp->port_info);
 
 		if (osm_log_is_active(p_log, OSM_LOG_DEBUG))
-			osm_log(p_log, OSM_LOG_DEBUG,
-				"osm_physp_calc_link_mtu: "
+			OSM_LOG(p_log, OSM_LOG_DEBUG,
 				"Remote port 0x%016" PRIx64 " port = 0x%X : "
 				"MTU = %u. This Port MTU: %u\n",
 				cl_ntoh64(osm_physp_get_port_guid
@@ -340,8 +339,7 @@ osm_physp_calc_link_mtu(IN osm_log_t * p_log, IN const osm_physp_t * p_physp)
 				mtu = remote_mtu;
 
 			if (osm_log_is_active(p_log, OSM_LOG_VERBOSE))
-				osm_log(p_log, OSM_LOG_VERBOSE,
-					"osm_physp_calc_link_mtu: "
+				OSM_LOG(p_log, OSM_LOG_VERBOSE,
 					"MTU mismatch between ports."
 					"\n\t\t\t\tPort 0x%016" PRIx64
 					", port 0x%X" " and port 0x%016" PRIx64
@@ -359,8 +357,7 @@ osm_physp_calc_link_mtu(IN osm_log_t * p_log, IN const osm_physp_t * p_physp)
 		mtu = ib_port_info_get_neighbor_mtu(&p_physp->port_info);
 
 	if (mtu == 0) {
-		osm_log(p_log, OSM_LOG_DEBUG,
-			"osm_physp_calc_link_mtu: ERR 4101: "
+		OSM_LOG(p_log, OSM_LOG_DEBUG, "ERR 4101: "
 			"Invalid MTU = 0. Forcing correction to 256\n");
 		mtu = 1;
 	}
@@ -391,8 +388,7 @@ osm_physp_calc_link_op_vls(IN osm_log_t * p_log,
 		    ib_port_info_get_vl_cap(&p_remote_physp->port_info);
 
 		if (osm_log_is_active(p_log, OSM_LOG_DEBUG))
-			osm_log(p_log, OSM_LOG_DEBUG,
-				"osm_physp_calc_link_op_vls: "
+			OSM_LOG(p_log, OSM_LOG_DEBUG,
 				"Remote port 0x%016" PRIx64 " port = 0x%X : "
 				"VL_CAP = %u. This port VL_CAP = %u\n",
 				cl_ntoh64(osm_physp_get_port_guid
@@ -405,8 +401,7 @@ osm_physp_calc_link_op_vls(IN osm_log_t * p_log,
 				op_vls = remote_op_vls;
 
 			if (osm_log_is_active(p_log, OSM_LOG_VERBOSE))
-				osm_log(p_log, OSM_LOG_VERBOSE,
-					"osm_physp_calc_link_op_vls: "
+				OSM_LOG(p_log, OSM_LOG_VERBOSE,
 					"OP_VLS mismatch between ports."
 					"\n\t\t\t\tPort 0x%016" PRIx64
 					", port 0x%X" " and port 0x%016" PRIx64
@@ -428,8 +423,7 @@ osm_physp_calc_link_op_vls(IN osm_log_t * p_log,
 		op_vls = p_subn->opt.max_op_vls;
 
 	if (op_vls == 0) {
-		osm_log(p_log, OSM_LOG_DEBUG,
-			"osm_physp_calc_link_op_vls: ERR 4102: "
+		OSM_LOG(p_log, OSM_LOG_DEBUG, "ERR 4102: "
 			"Invalid OP_VLS = 0. Forcing correction to 1 (VL0)\n");
 		op_vls = 1;
 	}
@@ -476,8 +470,7 @@ __osm_physp_get_dr_physp_set(IN osm_log_t * p_log,
 	/* find the OSM node */
 	p_port = osm_get_port_by_guid(p_subn, p_subn->sm_port_guid);
 	if (!p_port) {
-		osm_log(p_log, OSM_LOG_ERROR,
-			"__osm_physp_get_dr_nodes_set: ERR 4103: "
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 4103: "
 			"Failed to find the SM own port by guid\n");
 		status = CL_ERROR;
 		goto Exit;
@@ -500,8 +493,7 @@ __osm_physp_get_dr_physp_set(IN osm_log_t * p_log,
 			cl_map_insert(p_physp_map, __osm_ptr_to_key(p_physp),
 				      NULL);
 
-		osm_log(p_log, OSM_LOG_DEBUG,
-			"__osm_physp_get_dr_nodes_set: "
+		OSM_LOG(p_log, OSM_LOG_DEBUG,
 			"Traversed through node: 0x%016" PRIx64
 			" port:%u\n",
 			cl_ntoh64(p_node->node_info.node_guid),
@@ -509,8 +501,7 @@ __osm_physp_get_dr_physp_set(IN osm_log_t * p_log,
 
 		/* make sure we got a valid port and it has a remote port */
 		if (!p_physp) {
-			osm_log(p_log, OSM_LOG_ERROR,
-				"__osm_physp_get_dr_nodes_set: ERR 4104: "
+			OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 4104: "
 				"DR Traversal stopped on invalid port at hop:%u\n",
 				hop);
 			status = CL_ERROR;
@@ -518,8 +509,7 @@ __osm_physp_get_dr_physp_set(IN osm_log_t * p_log,
 		}
 
 		if (!(p_physp = osm_physp_get_remote(p_physp))) {
-			osm_log(p_log, OSM_LOG_ERROR,
-				"__osm_physp_get_dr_nodes_set: ERR 4106: "
+			OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 4106: "
 				"DR Traversal stopped on missing remote physp at hop:%u\n",
 				hop);
 			status = CL_ERROR;
@@ -629,9 +619,7 @@ osm_physp_replace_dr_path_with_alternate_dr_path(IN osm_log_t * p_log,
 
 	p_port = osm_get_port_by_guid(p_subn, port_guid);
 	if (!p_port) {
-		osm_log(p_log, OSM_LOG_ERROR,
-			"osm_physp_replace_dr_path_with_alternate_dr_path: ERR 4105: "
-			"No SM port object\n");
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 4105: No SM port object\n");
 		goto Exit;
 	}
 
@@ -789,8 +777,7 @@ osm_physp_set_pkey_tbl(IN osm_log_t * p_log,
 		     1) / IB_NUM_PKEY_ELEMENTS_IN_BLOCK;
 
 	if (block_num >= max_blocks) {
-		osm_log(p_log, OSM_LOG_ERROR,
-			"osm_physp_set_pkey_tbl: ERR 4108: "
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 4108: "
 			"Got illegal set for block number:%u "
 			"For GUID: %" PRIx64 " port number:0x%X\n",
 			block_num,

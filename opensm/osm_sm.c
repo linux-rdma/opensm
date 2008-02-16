@@ -112,12 +112,10 @@ static void __osm_sm_sweeper(IN void *p_ptr)
 					  EVENT_NO_TIMEOUT, TRUE);
 
 		if (status == CL_SUCCESS)
-			osm_log(p_sm->p_log, OSM_LOG_DEBUG,
-				"__osm_sm_sweeper: "
+			OSM_LOG(p_sm->p_log, OSM_LOG_DEBUG,
 				"Off schedule sweep signalled\n");
 		else if (status != CL_TIMEOUT) {
-			osm_log(p_sm->p_log, OSM_LOG_ERROR,
-				"__osm_sm_sweeper: ERR 2E01: "
+			OSM_LOG(p_sm->p_log, OSM_LOG_ERROR, "ERR 2E01: "
 				"Event wait failed (%s)\n",
 				CL_STATUS_MSG(status));
 			continue;
@@ -431,8 +429,7 @@ osm_sm_bind(IN osm_sm_t * const p_sm, IN const ib_net64_t port_guid)
 	status = osm_sm_mad_ctrl_bind(&p_sm->mad_ctrl, port_guid);
 
 	if (status != IB_SUCCESS) {
-		osm_log(p_sm->p_log, OSM_LOG_ERROR,
-			"osm_sm_bind: ERR 2E10: "
+		OSM_LOG(p_sm->p_log, OSM_LOG_ERROR, "ERR 2E10: "
 			"SM MAD Controller bind failed (%s)\n",
 			ib_get_err_str(status));
 		goto Exit;
@@ -512,8 +509,7 @@ osm_sm_mcgrp_join(IN osm_sm_t * const p_sm,
 
 	OSM_LOG_ENTER(p_sm->p_log);
 
-	osm_log(p_sm->p_log, OSM_LOG_VERBOSE,
-		"osm_sm_mcgrp_join: "
+	OSM_LOG(p_sm->p_log, OSM_LOG_VERBOSE,
 		"Port 0x%016" PRIx64 " joining MLID 0x%X\n",
 		cl_ntoh64(port_guid), cl_ntoh16(mlid));
 
@@ -524,8 +520,7 @@ osm_sm_mcgrp_join(IN osm_sm_t * const p_sm,
 	p_port = osm_get_port_by_guid(p_sm->p_subn, port_guid);
 	if (!p_port) {
 		CL_PLOCK_RELEASE(p_sm->p_lock);
-		osm_log(p_sm->p_log, OSM_LOG_ERROR,
-			"osm_sm_mcgrp_join: ERR 2E05: "
+		OSM_LOG(p_sm->p_log, OSM_LOG_ERROR, "ERR 2E05: "
 			"No port object for port 0x%016" PRIx64 "\n",
 			cl_ntoh64(port_guid));
 		status = IB_INVALID_PARAMETER;
@@ -538,15 +533,13 @@ osm_sm_mcgrp_join(IN osm_sm_t * const p_sm,
 	p_tbl = &p_sm->p_subn->mgrp_mlid_tbl;
 	p_mgrp = (osm_mgrp_t *) cl_qmap_get(p_tbl, mlid);
 	if (p_mgrp == (osm_mgrp_t *) cl_qmap_end(p_tbl)) {
-		osm_log(p_sm->p_log, OSM_LOG_VERBOSE,
-			"osm_sm_mcgrp_join: "
+		OSM_LOG(p_sm->p_log, OSM_LOG_VERBOSE,
 			"Creating group, MLID 0x%X\n", cl_ntoh16(mlid));
 
 		p_mgrp = osm_mgrp_new(mlid);
 		if (p_mgrp == NULL) {
 			CL_PLOCK_RELEASE(p_sm->p_lock);
-			osm_log(p_sm->p_log, OSM_LOG_ERROR,
-				"osm_sm_mcgrp_join: ERR 2E06: "
+			OSM_LOG(p_sm->p_log, OSM_LOG_ERROR, "ERR 2E06: "
 				"Unable to allocate multicast group object\n");
 			status = IB_INSUFFICIENT_MEMORY;
 			goto Exit;
@@ -562,8 +555,7 @@ osm_sm_mcgrp_join(IN osm_sm_t * const p_sm,
 		 */
 		if (!osm_mgrp_is_guid(p_mgrp, port_guid)) {
 			CL_PLOCK_RELEASE(p_sm->p_lock);
-			osm_log(p_sm->p_log, OSM_LOG_ERROR,
-				"osm_sm_mcgrp_join: ERR 2E12: "
+			OSM_LOG(p_sm->p_log, OSM_LOG_ERROR, "ERR 2E12: "
 				"Port 0x%016" PRIx64
 				" not in mcast group 0x%X\n",
 				cl_ntoh64(port_guid), cl_ntoh16(mlid));
@@ -581,8 +573,7 @@ osm_sm_mcgrp_join(IN osm_sm_t * const p_sm,
 	while (p_mcm != (osm_mcm_info_t *) cl_qlist_end(&p_port->mcm_list)) {
 		if (p_mcm->mlid == mlid) {
 			CL_PLOCK_RELEASE(p_sm->p_lock);
-			osm_log(p_sm->p_log, OSM_LOG_DEBUG,
-				"osm_sm_mcgrp_join: "
+			OSM_LOG(p_sm->p_log, OSM_LOG_DEBUG,
 				"Found mlid object for Port:"
 				"0x%016" PRIx64 " lid:0x%X\n",
 				cl_ntoh64(port_guid), cl_ntoh16(mlid));
@@ -594,8 +585,7 @@ osm_sm_mcgrp_join(IN osm_sm_t * const p_sm,
 	status = osm_port_add_mgrp(p_port, mlid);
 	if (status != IB_SUCCESS) {
 		CL_PLOCK_RELEASE(p_sm->p_lock);
-		osm_log(p_sm->p_log, OSM_LOG_ERROR,
-			"osm_sm_mcgrp_join: ERR 2E03: "
+		OSM_LOG(p_sm->p_log, OSM_LOG_ERROR, "ERR 2E03: "
 			"Unable to associate port 0x%" PRIx64 " to mlid 0x%X\n",
 			cl_ntoh64(osm_port_get_guid(p_port)),
 			cl_ntoh16(osm_mgrp_get_mlid(p_mgrp)));
@@ -623,8 +613,7 @@ osm_sm_mcgrp_leave(IN osm_sm_t * const p_sm,
 
 	OSM_LOG_ENTER(p_sm->p_log);
 
-	osm_log(p_sm->p_log, OSM_LOG_VERBOSE,
-		"osm_sm_mcgrp_leave: "
+	OSM_LOG(p_sm->p_log, OSM_LOG_VERBOSE,
 		"Port 0x%" PRIx64 " leaving MLID 0x%X\n",
 		cl_ntoh64(port_guid), cl_ntoh16(mlid));
 
@@ -636,8 +625,7 @@ osm_sm_mcgrp_leave(IN osm_sm_t * const p_sm,
 	p_port = osm_get_port_by_guid(p_sm->p_subn, port_guid);
 	if (!p_port) {
 		CL_PLOCK_RELEASE(p_sm->p_lock);
-		osm_log(p_sm->p_log, OSM_LOG_ERROR,
-			"osm_sm_mcgrp_leave: ERR 2E04: "
+		OSM_LOG(p_sm->p_log, OSM_LOG_ERROR, "ERR 2E04: "
 			"No port object for port 0x%" PRIx64 "\n",
 			cl_ntoh64(port_guid));
 		status = IB_INVALID_PARAMETER;
@@ -651,8 +639,7 @@ osm_sm_mcgrp_leave(IN osm_sm_t * const p_sm,
 	p_mgrp = (osm_mgrp_t *) cl_qmap_get(p_tbl, mlid);
 	if (p_mgrp == (osm_mgrp_t *) cl_qmap_end(p_tbl)) {
 		CL_PLOCK_RELEASE(p_sm->p_lock);
-		osm_log(p_sm->p_log, OSM_LOG_ERROR,
-			"osm_sm_mcgrp_leave: ERR 2E08: "
+		OSM_LOG(p_sm->p_log, OSM_LOG_ERROR, "ERR 2E08: "
 			"No multicast group for MLID 0x%X\n", cl_ntoh16(mlid));
 		status = IB_INVALID_PARAMETER;
 		goto Exit;

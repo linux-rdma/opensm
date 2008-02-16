@@ -131,15 +131,13 @@ osm_trap_rcv_aging_tracker_callback(IN uint64_t key,
 
 	p_physp = get_physp_by_lid_and_num(sm, lid, port_num);
 	if (!p_physp)
-		osm_log(sm->p_log, OSM_LOG_VERBOSE,
-			"osm_trap_rcv_aging_tracker_callback: "
+		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 			"Cannot find port num:0x%X with lid:%u\n",
 			port_num, lid);
 	/* make sure the physp is still valid */
 	/* If the health port was false - set it to true */
 	else if (!osm_physp_is_healthy(p_physp)) {
-		osm_log(sm->p_log, OSM_LOG_VERBOSE,
-			"osm_trap_rcv_aging_tracker_callback: "
+		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 			"Clearing health bit of port num:%u with lid:%u\n",
 			port_num, lid);
 
@@ -286,8 +284,7 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 	p_smp = osm_madw_get_smp_ptr(p_madw);
 
 	if (p_smp->method != IB_MAD_METHOD_TRAP) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_trap_rcv_process_request: ERR 3801: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3801: "
 			"Unsupported method 0x%X\n", p_smp->method);
 		goto Exit;
 	}
@@ -313,13 +310,11 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 			   the local lid wasn't configured yet. Don't send a response
 			   to the trap. */
 			if (sm->p_subn->sm_base_lid == 0) {
-				osm_log(sm->p_log, OSM_LOG_DEBUG,
-					"__osm_trap_rcv_process_request: "
+				OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 					"Received SLID=0 Trap with local LID=0. Ignoring MAD\n");
 				goto Exit;
 			}
-			osm_log(sm->p_log, OSM_LOG_DEBUG,
-				"__osm_trap_rcv_process_request: "
+			OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 				"Received SLID=0 Trap. Using local LID:0x%04X instead\n",
 				cl_ntoh16(sm->p_subn->sm_base_lid)
 			    );
@@ -336,8 +331,7 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 				CL_HTON16(130))
 			    || (p_ntci->g_or_v.generic.trap_num ==
 				CL_HTON16(131)))
-				osm_log(sm->p_log, OSM_LOG_ERROR,
-					"__osm_trap_rcv_process_request: "
+				OSM_LOG(sm->p_log, OSM_LOG_ERROR,
 					"Received Generic Notice type:0x%02X num:%u Producer:%u (%s) "
 					"from LID:0x%04X Port %d TID:0x%016"
 					PRIx64 "\n", ib_notice_get_type(p_ntci),
@@ -352,8 +346,7 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 					port_num, cl_ntoh64(p_smp->trans_id)
 				    );
 			else
-				osm_log(sm->p_log, OSM_LOG_ERROR,
-					"__osm_trap_rcv_process_request: "
+				OSM_LOG(sm->p_log, OSM_LOG_ERROR,
 					"Received Generic Notice type:0x%02X num:%u Producer:%u (%s) "
 					"from LID:0x%04X TID:0x%016" PRIx64
 					"\n", ib_notice_get_type(p_ntci),
@@ -367,8 +360,7 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 					cl_ntoh64(p_smp->trans_id)
 				    );
 		} else
-			osm_log(sm->p_log, OSM_LOG_ERROR,
-				"__osm_trap_rcv_process_request: "
+			OSM_LOG(sm->p_log, OSM_LOG_ERROR,
 				"Received Vendor Notice type:0x%02X vend:0x%06X dev:%u "
 				"from LID:0x%04X TID:0x%016" PRIx64 "\n",
 				ib_notice_get_type(p_ntci),
@@ -386,14 +378,12 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 	if (p_physp)
 		p_smp->m_key = p_physp->port_info.m_key;
 	else
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_trap_rcv_process_request: ERR 3809: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3809: "
 			"Failed to find source physical port for trap\n");
 
 	status = osm_resp_send(sm, &tmp_madw, 0, payload);
 	if (status != IB_SUCCESS) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_trap_rcv_process_request: ERR 3802: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3802: "
 			"Error sending response (%s)\n",
 			ib_get_err_str(status));
 		goto Exit;
@@ -437,8 +427,7 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 		/* Now we know how many times it provided this trap */
 		if (num_received > 10) {
 			if (__print_num_received(num_received))
-				osm_log(sm->p_log, OSM_LOG_ERROR,
-					"__osm_trap_rcv_process_request: ERR 3804: "
+				OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3804: "
 					"Received trap %u times consecutively\n",
 					num_received);
 			/*
@@ -456,8 +445,8 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 								   port_num);
 
 				if (!p_physp)
-					osm_log(sm->p_log, OSM_LOG_ERROR,
-						"__osm_trap_rcv_process_request: ERR 3805: "
+					OSM_LOG(sm->p_log, OSM_LOG_ERROR,
+						"ERR 3805: "
 						"Failed to find physical port by lid:0x%02X num:%u\n",
 						cl_ntoh16(p_ntci->data_details.
 							  ntc_129_131.lid),
@@ -479,10 +468,9 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 						/* If trap 131, might want to disable peer port if available */
 						/* but peer port has been observed not to respond to SM requests */
 
-						osm_log(sm->p_log,
-							OSM_LOG_ERROR,
-							"__osm_trap_rcv_process_request: ERR 3810: "
-							" Disabling physical port lid:0x%02X num:%u\n",
+						OSM_LOG(sm->p_log, OSM_LOG_ERROR,
+							"ERR 3810: "
+							"Disabling physical port lid:0x%02X num:%u\n",
 							cl_ntoh16(p_ntci->
 								  data_details.
 								  ntc_129_131.
@@ -535,14 +523,12 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 						if (status == IB_SUCCESS)
 							goto Exit;
 
-						osm_log(sm->p_log,
-							OSM_LOG_ERROR,
-							"__osm_trap_rcv_process_request: ERR 3811: "
+						OSM_LOG(sm->p_log,
+							OSM_LOG_ERROR, "ERR 3811: "
 							"Request to set PortInfo failed\n");
 					}
 
-					osm_log(sm->p_log, OSM_LOG_VERBOSE,
-						"__osm_trap_rcv_process_request: "
+					OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 						"Marking unhealthy physical port by lid:0x%02X num:%u\n",
 						cl_ntoh16(p_ntci->data_details.
 							  ntc_129_131.lid),
@@ -584,8 +570,7 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 		/* If was already registered do nothing more */
 		if (num_received > 10 && run_heavy_sweep == FALSE) {
 			if (__print_num_received(num_received))
-				osm_log(sm->p_log, OSM_LOG_VERBOSE,
-					"__osm_trap_rcv_process_request: "
+				OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 					"Continuously received this trap %u times. Ignoring\n",
 					num_received);
 			goto Exit;
@@ -605,10 +590,8 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 		     (cl_ntoh16(p_ntci->g_or_v.generic.trap_num) == 144) ||
 		     (cl_ntoh16(p_ntci->g_or_v.generic.trap_num) == 145) ||
 		     run_heavy_sweep)) {
-			osm_log(sm->p_log, OSM_LOG_VERBOSE,
-				"__osm_trap_rcv_process_request: "
-				"Forcing heavy sweep. "
-				"Received trap:%u\n",
+			OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
+				"Forcing heavy sweep. Received trap:%u\n",
 				cl_ntoh16(p_ntci->g_or_v.generic.trap_num));
 
 			sm->p_subn->force_heavy_sweep = TRUE;
@@ -627,8 +610,7 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 	   accordingly. See IBA 1.2 p.739 or IBA 1.1 p.653 for details. */
 	if (is_gsi) {
 		if (!tmp_madw.mad_addr.addr_type.gsi.global_route) {
-			osm_log(sm->p_log, OSM_LOG_ERROR,
-				"__osm_trap_rcv_process_request: ERR 3806: "
+			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3806: "
 				"Received gsi trap with global_route FALSE. "
 				"Cannot update issuer_gid!\n");
 			goto Exit;
@@ -645,8 +627,7 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 		if ((uint16_t) cl_ptr_vector_get_size(p_tbl) <=
 		    cl_ntoh16(source_lid)) {
 			/*  the source lid is out of range */
-			osm_log(sm->p_log, OSM_LOG_VERBOSE,
-				"__osm_trap_rcv_process_request: "
+			OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 				"source lid is out of range:0x%X\n",
 				cl_ntoh16(source_lid));
 
@@ -655,8 +636,7 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 		p_port = cl_ptr_vector_get(p_tbl, cl_ntoh16(source_lid));
 		if (p_port == 0) {
 			/* We have the lid - but no corresponding port */
-			osm_log(sm->p_log, OSM_LOG_VERBOSE,
-				"__osm_trap_rcv_process_request: "
+			OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 				"Cannot find port corresponding to lid:0x%X\n",
 				cl_ntoh16(source_lid));
 
@@ -673,8 +653,7 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 	status = osm_report_notice(sm->p_log, sm->p_subn, p_ntci);
 	CL_PLOCK_RELEASE(sm->p_lock);
 	if (status != IB_SUCCESS) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_trap_rcv_process_request: ERR 3803: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3803: "
 			"Error sending trap reports (%s)\n",
 			ib_get_err_str(status));
 		goto Exit;
@@ -696,8 +675,7 @@ __osm_trap_rcv_process_sm(IN osm_sm_t * sm,
 
 	OSM_LOG_ENTER(sm->p_log);
 
-	osm_log(sm->p_log, OSM_LOG_ERROR,
-		"__osm_trap_rcv_process_sm: ERR 3807: "
+	OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3807: "
 		"This function is not supported yet\n");
 
 	OSM_LOG_EXIT(sm->p_log);
@@ -714,7 +692,7 @@ __osm_trap_rcv_process_response(IN osm_sm_t * sm,
 
 	OSM_LOG_ENTER(sm->p_log);
 
-	osm_log(sm->p_log, OSM_LOG_ERROR,
+	OSM_LOG(sm->p_log, OSM_LOG_ERROR,
 		"__osm_trap_rcv_process_response: ERR 3808: "
 		"This function is not supported yet\n");
 

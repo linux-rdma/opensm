@@ -78,8 +78,7 @@ __osm_pi_rcv_set_sm(IN osm_sm_t * sm,
 	OSM_LOG_ENTER(sm->p_log);
 
 	if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG))
-		osm_log(sm->p_log, OSM_LOG_DEBUG,
-			"__osm_pi_rcv_set_sm: "
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 			"Setting IS_SM bit in port attributes\n");
 
 	p_dr_path = osm_physp_get_dr_path_ptr(p_physp);
@@ -99,8 +98,7 @@ static void pi_rcv_check_and_fix_lid(osm_log_t *log, ib_port_info_t * const pi,
 				     osm_physp_t * p)
 {
 	if (cl_ntoh16(pi->base_lid) > IB_LID_UCAST_END_HO) {
-		osm_log(log, OSM_LOG_ERROR,
-			"pi_rcv_check_and_fix_lid: ERR 0F04: "
+		OSM_LOG(log, OSM_LOG_ERROR, "ERR 0F04: "
 			"Got invalid base LID 0x%x from the network. "
 			"Corrected to 0x%x.\n", cl_ntoh16(pi->base_lid),
 			cl_ntoh16(p->port_info.base_lid));
@@ -131,8 +129,7 @@ __osm_pi_rcv_process_endport(IN osm_sm_t * sm,
 		/* track the minimal endport MTU and rate */
 		mtu = ib_port_info_get_mtu_cap(p_pi);
 		if (mtu < sm->p_subn->min_ca_mtu) {
-			osm_log(sm->p_log, OSM_LOG_VERBOSE,
-				"__osm_pi_rcv_process_endport: "
+			OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 				"Setting endport minimal MTU to:%u defined by port:0x%"
 				PRIx64 "\n", mtu, cl_ntoh64(port_guid));
 			sm->p_subn->min_ca_mtu = mtu;
@@ -140,8 +137,7 @@ __osm_pi_rcv_process_endport(IN osm_sm_t * sm,
 
 		rate = ib_port_info_compute_rate(p_pi);
 		if (rate < sm->p_subn->min_ca_rate) {
-			osm_log(sm->p_log, OSM_LOG_VERBOSE,
-				"__osm_pi_rcv_process_endport: "
+			OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 				"Setting endport minimal rate to:%u defined by port:0x%"
 				PRIx64 "\n", rate, cl_ntoh64(port_guid));
 			sm->p_subn->min_ca_rate = rate;
@@ -170,15 +166,13 @@ __osm_pi_rcv_process_endport(IN osm_sm_t * sm,
 
 		if (p_pi->capability_mask & IB_PORT_CAP_IS_SM) {
 			if (sm->p_subn->opt.ignore_other_sm)
-				osm_log(sm->p_log, OSM_LOG_VERBOSE,
-					"__osm_pi_rcv_process_endport: "
+				OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 					"Ignoring SM on port 0x%" PRIx64 "\n",
 					cl_ntoh64(port_guid));
 			else {
 				if (osm_log_is_active
 				    (sm->p_log, OSM_LOG_VERBOSE))
-					osm_log(sm->p_log, OSM_LOG_VERBOSE,
-						"__osm_pi_rcv_process_endport: "
+					OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 						"Detected another SM. Requesting SMInfo"
 						"\n\t\t\t\tPort 0x%" PRIx64
 						"\n", cl_ntoh64(port_guid));
@@ -198,8 +192,8 @@ __osm_pi_rcv_process_endport(IN osm_sm_t * sm,
 						     &context);
 
 				if (status != IB_SUCCESS)
-					osm_log(sm->p_log, OSM_LOG_ERROR,
-						"__osm_pi_rcv_process_endport: ERR 0F05: "
+					OSM_LOG(sm->p_log, OSM_LOG_ERROR,
+						"ERR 0F05: "
 						"Failure requesting SMInfo (%s)\n",
 						ib_get_err_str(status));
 			}
@@ -247,8 +241,7 @@ __osm_pi_rcv_process_switch_port(IN osm_sm_t * sm,
 				remote_port_num =
 				    osm_physp_get_port_num(p_remote_physp);
 
-				osm_log(sm->p_log, OSM_LOG_VERBOSE,
-					"__osm_pi_rcv_process_switch_port: "
+				OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 					"Unlinking local node 0x%" PRIx64
 					", port 0x%X"
 					"\n\t\t\t\tand remote node 0x%" PRIx64
@@ -301,21 +294,19 @@ __osm_pi_rcv_process_switch_port(IN osm_sm_t * sm,
 						     &context);
 
 				if (status != IB_SUCCESS)
-					osm_log(sm->p_log, OSM_LOG_ERROR,
-						"__osm_pi_rcv_process_switch_port: ERR 0F02: "
+					OSM_LOG(sm->p_log, OSM_LOG_ERROR,
+						"ERR 0F02: "
 						"Failure initiating NodeInfo request (%s)\n",
 						ib_get_err_str(status));
 			} else
 			    if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG))
-				osm_log(sm->p_log, OSM_LOG_DEBUG,
-					"__osm_pi_rcv_process_switch_port: "
+				OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 					"Skipping SMP responder port 0x%X\n",
 					p_pi->local_port_num);
 			break;
 
 		default:
-			osm_log(sm->p_log, OSM_LOG_ERROR,
-				"__osm_pi_rcv_process_switch_port: ERR 0F03: "
+			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0F03: "
 				"Unknown link state = %u, port = 0x%X\n",
 				ib_port_info_get_port_state(p_pi),
 				p_pi->local_port_num);
@@ -428,8 +419,7 @@ static void get_pkey_table(IN osm_log_t * p_log,
 				     CL_DISP_MSGID_NONE, &context);
 
 		if (status != IB_SUCCESS) {
-			osm_log(p_log, OSM_LOG_ERROR,
-				"osm_physp_has_pkey: ERR 0F12: "
+			OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0F12: "
 				"Failure initiating PKeyTable request (%s)\n",
 				ib_get_err_str(status));
 			goto Exit;
@@ -487,15 +477,13 @@ osm_pi_rcv_process_set(IN osm_sm_t * sm, IN osm_node_t * const p_node,
 		if (p_context->active_transition &&
 		    (cl_ntoh16(p_smp->status) & 0x7fff) == 0x1c) {
 			level = OSM_LOG_INFO;
-			osm_log(sm->p_log, OSM_LOG_INFO,
-				"osm_pi_rcv_process_set: "
+			OSM_LOG(sm->p_log, OSM_LOG_INFO,
 				"Received error status 0x%x for SetResp() during ACTIVE transition\n",
 				cl_ntoh16(p_smp->status) & 0x7fff);
 			/* Should there be a subsequent Get to validate that port is ACTIVE ? */
 		} else {
 			level = OSM_LOG_ERROR;
-			osm_log(sm->p_log, OSM_LOG_ERROR,
-				"osm_pi_rcv_process_set: ERR 0F10: "
+			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0F10: "
 				"Received error status for SetResp()\n");
 		}
 		osm_dump_port_info(sm->p_log,
@@ -504,8 +492,7 @@ osm_pi_rcv_process_set(IN osm_sm_t * sm, IN osm_node_t * const p_node,
 	}
 
 	if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG))
-		osm_log(sm->p_log, OSM_LOG_DEBUG,
-			"osm_pi_rcv_process_set: "
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 			"Received logical SetResp() for GUID 0x%" PRIx64
 			", port num 0x%X"
 			"\n\t\t\t\tfor parent node GUID 0x%" PRIx64
@@ -559,8 +546,7 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 	/* On receipt of client reregister, clear the reregister bit so
 	   reregistering won't be sent again and again */
 	if (ib_port_info_get_client_rereg(p_pi)) {
-		osm_log(sm->p_log, OSM_LOG_DEBUG,
-			"osm_pi_rcv_process: "
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 			"Client reregister received on response\n");
 		ib_port_info_set_client_rereg(p_pi, 0);
 	}
@@ -572,8 +558,7 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 	   do anything with the response - just flag that we need a heavy sweep
 	 */
 	if (p_context->light_sweep == TRUE) {
-		osm_log(sm->p_log, OSM_LOG_VERBOSE,
-			"osm_pi_rcv_process: "
+		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 			"Got light sweep response from remote port of parent node "
 			"GUID 0x%" PRIx64 " port 0x%016" PRIx64
 			", Commencing heavy sweep\n",
@@ -586,8 +571,7 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 	p_port = osm_get_port_by_guid(sm->p_subn, port_guid);
 	if (!p_port) {
 		CL_PLOCK_RELEASE(sm->p_lock);
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"osm_pi_rcv_process: ERR 0F06: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0F06: "
 			"No port object for port with GUID 0x%" PRIx64
 			"\n\t\t\t\tfor parent node GUID 0x%" PRIx64
 			", TID 0x%" PRIx64 "\n",
@@ -620,8 +604,7 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 		   most likely due to a subnet sweep in progress.
 		 */
 		if (osm_log_is_active(sm->p_log, OSM_LOG_VERBOSE))
-			osm_log(sm->p_log, OSM_LOG_VERBOSE,
-				"osm_pi_rcv_process: "
+			OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 				"Discovered port num 0x%X with GUID 0x%" PRIx64
 				" for parent node GUID 0x%" PRIx64
 				", TID 0x%" PRIx64 "\n",
@@ -639,8 +622,7 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 		 */
 		if (!p_physp) {
 			if (osm_log_is_active(sm->p_log, OSM_LOG_VERBOSE))
-				osm_log(sm->p_log, OSM_LOG_VERBOSE,
-					"osm_pi_rcv_process: "
+				OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 					"Initializing port number 0x%X\n",
 					port_num);
 			p_physp = &p_node->physp_table[port_num];
@@ -667,8 +649,7 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 		   in the subnet.
 		 */
 		if (p_context->update_master_sm_base_lid == TRUE) {
-			osm_log(sm->p_log, OSM_LOG_VERBOSE,
-				"osm_pi_rcv_process: "
+			OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 				"update_master_sm is TRUE. "
 				"Updating master_sm_base_lid to:%u\n",
 				p_pi->master_sm_base_lid);
@@ -695,8 +676,7 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 							 p_node, p_physp, p_pi);
 			break;
 		default:
-			osm_log(sm->p_log, OSM_LOG_ERROR,
-				"osm_pi_rcv_process: ERR 0F07: "
+			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0F07: "
 				"Unknown node type %u with GUID 0x%" PRIx64
 				"\n", osm_node_get_type(p_node),
 				cl_ntoh64(node_guid));

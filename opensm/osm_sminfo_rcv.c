@@ -116,22 +116,19 @@ __osm_sminfo_rcv_process_get_request(IN osm_sm_t * sm,
 	 */
 	p_remote_smi = ib_smp_get_payload_ptr(osm_madw_get_smp_ptr(p_madw));
 	if (ib_sminfo_get_state(p_remote_smi) == IB_SMINFO_STATE_MASTER) {
-		osm_log(sm->p_log, OSM_LOG_DEBUG,
-			"__osm_sminfo_rcv_process_get_request: "
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 			"Responding to master SM with real sm_key\n");
 		p_smi->sm_key = sm->p_subn->opt.sm_key;
 	} else {
 		/* The requester is not authenticated as master - set sm_key to zero. */
-		osm_log(sm->p_log, OSM_LOG_DEBUG,
-			"__osm_sminfo_rcv_process_get_request: "
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 			"Responding to SM not master with zero sm_key\n");
 		p_smi->sm_key = 0;
 	}
 
 	status = osm_resp_send(sm, p_madw, 0, payload);
 	if (status != IB_SUCCESS) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_sminfo_rcv_process_get_request: ERR 2F02: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 2F02: "
 			"Error sending response (%s)\n",
 			ib_get_err_str(status));
 		goto Exit;
@@ -202,8 +199,7 @@ __osm_sminfo_rcv_process_set_request(IN osm_sm_t * sm,
 	sm_smi = ib_smp_get_payload_ptr(p_smp);
 
 	if (p_smp->method != IB_MAD_METHOD_SET) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_sminfo_rcv_process_set_request: ERR 2F03: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 2F03: "
 			"Unsupported method 0x%X\n", p_smp->method);
 		CL_PLOCK_RELEASE(sm->p_lock);
 		goto Exit;
@@ -219,14 +215,12 @@ __osm_sminfo_rcv_process_set_request(IN osm_sm_t * sm,
 	 */
 	p_remote_smi = ib_smp_get_payload_ptr(osm_madw_get_smp_ptr(p_madw));
 	if (ib_sminfo_get_state(p_remote_smi) == IB_SMINFO_STATE_MASTER) {
-		osm_log(sm->p_log, OSM_LOG_DEBUG,
-			"__osm_sminfo_rcv_process_set_request: "
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 			"Responding to master SM with real sm_key\n");
 		p_smi->sm_key = sm->p_subn->opt.sm_key;
 	} else {
 		/* The requester is not authenticated as master - set sm_key to zero. */
-		osm_log(sm->p_log, OSM_LOG_DEBUG,
-			"__osm_sminfo_rcv_process_set_request: "
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 			"Responding to SM not master with zero sm_key\n");
 		p_smi->sm_key = 0;
 	}
@@ -234,16 +228,14 @@ __osm_sminfo_rcv_process_set_request(IN osm_sm_t * sm,
 	/* Check the legality of the packet */
 	status = __osm_sminfo_rcv_check_set_req_legality(p_smp);
 	if (status != IB_SUCCESS) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_sminfo_rcv_process_set_request: ERR 2F04: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 2F04: "
 			"Check legality failed. AttributeModifier:0x%X RemoteState:%s\n",
 			p_smp->attr_mod,
 			osm_get_sm_mgr_state_str(ib_sminfo_get_state(sm_smi)));
 		/* send a response with error code */
 		status = osm_resp_send(sm, p_madw, 7, payload);
 		if (status != IB_SUCCESS)
-			osm_log(sm->p_log, OSM_LOG_ERROR,
-				"__osm_sminfo_rcv_process_set_request: ERR 2F05: "
+			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 2F05: "
 				"Error sending response (%s)\n",
 				ib_get_err_str(status));
 		CL_PLOCK_RELEASE(sm->p_lock);
@@ -272,8 +264,7 @@ __osm_sminfo_rcv_process_set_request(IN osm_sm_t * sm,
 		   This code shouldn't be reached - checked in the
 		   check legality
 		 */
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_sminfo_rcv_process_set_request: ERR 2F06: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 2F06: "
 			"THIS CODE SHOULD NOT BE REACHED!!\n");
 		CL_PLOCK_RELEASE(sm->p_lock);
 		goto Exit;
@@ -282,16 +273,14 @@ __osm_sminfo_rcv_process_set_request(IN osm_sm_t * sm,
 	/* check legality of the needed transition in the SM state machine */
 	status = osm_sm_state_mgr_check_legality(sm, sm_signal);
 	if (status != IB_SUCCESS) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_sminfo_rcv_process_set_request: ERR 2F07: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 2F07: "
 			"Failed check of legality of needed SM transition. AttributeModifier:0x%X RemoteState:%s\n",
 			p_smp->attr_mod,
 			osm_get_sm_mgr_state_str(ib_sminfo_get_state(sm_smi)));
 		/* send a response with error code */
 		status = osm_resp_send(sm, p_madw, 7, payload);
 		if (status != IB_SUCCESS)
-			osm_log(sm->p_log, OSM_LOG_ERROR,
-				"__osm_sminfo_rcv_process_set_request: ERR 2F08: "
+			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 2F08: "
 				"Error sending response (%s)\n",
 				ib_get_err_str(status));
 		CL_PLOCK_RELEASE(sm->p_lock);
@@ -301,8 +290,7 @@ __osm_sminfo_rcv_process_set_request(IN osm_sm_t * sm,
 	/* the SubnSet(SMInfo) command is ok. Send a response. */
 	status = osm_resp_send(sm, p_madw, 0, payload);
 	if (status != IB_SUCCESS)
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_sminfo_rcv_process_set_request: ERR 2F09: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 2F09: "
 			"Error sending response (%s)\n",
 			ib_get_err_str(status));
 
@@ -311,8 +299,7 @@ __osm_sminfo_rcv_process_set_request(IN osm_sm_t * sm,
 	/* if the AttributeModifier is STANDBY - need to save on the sm in */
 	/* the master_sm_guid variable - the guid of the current master. */
 	if (p_smp->attr_mod == IB_SMINFO_ATTR_MOD_STANDBY) {
-		osm_log(sm->p_log, OSM_LOG_VERBOSE,
-			"__osm_sminfo_rcv_process_set_request: "
+		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 			"Received a STANDBY signal. Updating "
 			"sm_state_mgr master_guid: 0x%016" PRIx64 "\n",
 			cl_ntoh64(sm_smi->guid));
@@ -324,8 +311,7 @@ __osm_sminfo_rcv_process_set_request(IN osm_sm_t * sm,
 	status = osm_sm_state_mgr_process(sm, sm_signal);
 
 	if (status != IB_SUCCESS)
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_sminfo_rcv_process_set_request: ERR 2F10: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 2F10: "
 			"Error in SM state transition (%s)\n",
 			ib_get_err_str(status));
 
@@ -346,8 +332,7 @@ __osm_sminfo_rcv_process_get_sm(IN osm_sm_t * sm,
 	p_smi = &p_sm->smi;
 
 	if (osm_log_is_active(sm->p_log, OSM_LOG_VERBOSE))
-		osm_log(sm->p_log, OSM_LOG_VERBOSE,
-			"__osm_sminfo_rcv_process_get_sm: "
+		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 			"Detected SM 0x%016" PRIx64 " in state %u\n",
 			cl_ntoh64(p_smi->guid), ib_sminfo_get_state(p_smi));
 
@@ -365,8 +350,7 @@ __osm_sminfo_rcv_process_get_sm(IN osm_sm_t * sm,
 		case IB_SMINFO_STATE_MASTER:
 			sm->master_sm_found = 1;
 			/* save on the sm the guid of the current master. */
-			osm_log(sm->p_log, OSM_LOG_VERBOSE,
-				"__osm_sminfo_rcv_process_get_sm: "
+			OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 				"Found master SM. Updating sm_state_mgr master_guid: 0x%016"
 				PRIx64 "\n", cl_ntoh64(p_sm->p_port->guid));
 			sm->master_sm_guid = p_sm->p_port->guid;
@@ -379,8 +363,7 @@ __osm_sminfo_rcv_process_get_sm(IN osm_sm_t * sm,
 				sm->master_sm_found = 1;
 				/* save on the sm the guid of the higher SM we found - */
 				/* we will poll it - as long as it lives - we should be in Standby. */
-				osm_log(sm->p_log, OSM_LOG_VERBOSE,
-					"__osm_sminfo_rcv_process_get_sm: "
+				OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 					"Found higher SM. Updating sm_state_mgr master_guid:"
 					" 0x%016" PRIx64 "\n",
 					cl_ntoh64(p_sm->p_port->guid));
@@ -468,8 +451,7 @@ __osm_sminfo_rcv_process_get_response(IN osm_sm_t * sm,
 	p_smp = osm_madw_get_smp_ptr(p_madw);
 
 	if (p_smp->method != IB_MAD_METHOD_GET_RESP) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_sminfo_rcv_process_get_response: ERR 2F11: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 2F11: "
 			"Unsupported method 0x%X\n", p_smp->method);
 		goto Exit;
 	}
@@ -484,8 +466,7 @@ __osm_sminfo_rcv_process_get_response(IN osm_sm_t * sm,
 	   Check that the sm_key of the found SM is the same as ours,
 	   or is zero. If not - OpenSM cannot continue with configuration!. */
 	if (p_smi->sm_key != 0 && p_smi->sm_key != sm->p_subn->opt.sm_key) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_sminfo_rcv_process_get_response: ERR 2F18: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 2F18: "
 			"Got SM with sm_key that doesn't match our "
 			"local key. Exiting\n");
 		osm_log(sm->p_log, OSM_LOG_SYS,
@@ -501,17 +482,14 @@ __osm_sminfo_rcv_process_get_response(IN osm_sm_t * sm,
 
 	p_port = osm_get_port_by_guid(sm->p_subn, port_guid);
 	if (!p_port) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_sminfo_rcv_process_get_response: ERR 2F12: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 2F12: "
 			"No port object for this SM\n");
 		goto _unlock_and_exit;
 	}
 
 	if (osm_port_get_guid(p_port) != p_smi->guid) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_sminfo_rcv_process_get_response: ERR 2F13: "
-			"Bogus SM port GUID"
-			"\n\t\t\t\tExpected 0x%016" PRIx64
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 2F13: "
+			"Bogus SM port GUID\n\t\t\t\tExpected 0x%016" PRIx64
 			", Received 0x%016" PRIx64 "\n",
 			cl_ntoh64(osm_port_get_guid(p_port)),
 			cl_ntoh64(p_smi->guid));
@@ -519,8 +497,7 @@ __osm_sminfo_rcv_process_get_response(IN osm_sm_t * sm,
 	}
 
 	if (port_guid == sm->p_subn->sm_port_guid) {
-		osm_log(sm->p_log, OSM_LOG_VERBOSE,
-			"__osm_sminfo_rcv_process_get_response: "
+		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 			"Self query response received - SM port 0x%016" PRIx64
 			"\n", cl_ntoh64(port_guid));
 		goto _unlock_and_exit;
@@ -530,8 +507,7 @@ __osm_sminfo_rcv_process_get_response(IN osm_sm_t * sm,
 	if (p_sm == (osm_remote_sm_t *) cl_qmap_end(p_sm_tbl)) {
 		p_sm = malloc(sizeof(*p_sm));
 		if (p_sm == NULL) {
-			osm_log(sm->p_log, OSM_LOG_ERROR,
-				"__osm_sminfo_rcv_process_get_response: ERR 2F14: "
+			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 2F14: "
 				"Unable to allocate SM object\n");
 			goto _unlock_and_exit;
 		}
@@ -571,8 +547,7 @@ __osm_sminfo_rcv_process_set_response(IN osm_sm_t * sm,
 	p_smp = osm_madw_get_smp_ptr(p_madw);
 
 	if (p_smp->method != IB_MAD_METHOD_GET_RESP) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_sminfo_rcv_process_set_response: ERR 2F16: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 2F16: "
 			"Unsupported method 0x%X\n", p_smp->method);
 		goto Exit;
 	}
@@ -582,8 +557,7 @@ __osm_sminfo_rcv_process_set_response(IN osm_sm_t * sm,
 
 	/* Check the AttributeModifier */
 	if (p_smp->attr_mod != IB_SMINFO_ATTR_MOD_HANDOVER) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_sminfo_rcv_process_set_response: ERR 2F17: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 2F17: "
 			"Unsupported attribute modifier 0x%X\n",
 			p_smp->attr_mod);
 		goto Exit;
@@ -629,8 +603,7 @@ void osm_sminfo_rcv_process(IN void *context, IN void *data)
 		   moving issue.
 		 */
 		if (p_smi_context->port_guid != p_smi->guid) {
-			osm_log(sm->p_log, OSM_LOG_ERROR,
-				"osm_sminfo_rcv_process: ERR 2F19: "
+			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 2F19: "
 				"Unexpected SM port GUID in response"
 				"\n\t\t\t\tExpected 0x%016" PRIx64
 				", Received 0x%016" PRIx64 "\n",

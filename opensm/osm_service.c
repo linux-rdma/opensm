@@ -146,8 +146,7 @@ osm_svcr_insert_to_db(IN osm_subn_t * p_subn,
 {
 	OSM_LOG_ENTER(p_log);
 
-	osm_log(p_log, OSM_LOG_DEBUG,
-		"osm_svcr_insert_to_db: "
+	OSM_LOG(p_log, OSM_LOG_DEBUG,
 		"Inserting new Service Record into Database\n");
 
 	cl_qlist_insert_head(&p_subn->sa_sr_list, &p_svcr->list_item);
@@ -161,8 +160,7 @@ osm_svcr_remove_from_db(IN osm_subn_t * p_subn,
 {
 	OSM_LOG_ENTER(p_log);
 
-	osm_log(p_log, OSM_LOG_DEBUG,
-		"osm_svcr_remove_from_db: "
+	OSM_LOG(p_log, OSM_LOG_DEBUG,
 		"Removing Service Record Name:%s ID:0x%016" PRIx64
 		" from Database\n", p_svcr->service_record.service_name,
 		p_svcr->service_record.service_id);

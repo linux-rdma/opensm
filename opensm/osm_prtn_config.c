@@ -103,8 +103,7 @@ static int partition_create(unsigned lineno, struct part_conf *conf,
 		return -1;
 
 	if (!conf->p_subn->opt.qos && conf->sl != OSM_DEFAULT_SL) {
-		osm_log(conf->p_log, OSM_LOG_DEBUG,
-			"partition_create: Overriding SL %d"
+		OSM_LOG(conf->p_log, OSM_LOG_DEBUG, "Overriding SL %d"
 			" to default SL %d on partition %s"
 			" as QoS is not enabled.\n",
 			conf->sl, OSM_DEFAULT_SL, name);
@@ -143,20 +142,20 @@ static int partition_add_flag(unsigned lineno, struct part_conf *conf,
 		conf->is_ipoib = 1;
 	} else if (!strncmp(flag, "mtu", len)) {
 		if (!val || (conf->mtu = strtoul(val, NULL, 0)) == 0)
-			osm_log(conf->p_log, OSM_LOG_VERBOSE,
+			OSM_LOG(conf->p_log, OSM_LOG_VERBOSE,
 				"PARSE WARN: line %d: "
 				"flag \'mtu\' requires valid value"
 				" - skipped\n", lineno);
 	} else if (!strncmp(flag, "rate", len)) {
 		if (!val || (conf->rate = strtoul(val, NULL, 0)) == 0)
-			osm_log(conf->p_log, OSM_LOG_VERBOSE,
+			OSM_LOG(conf->p_log, OSM_LOG_VERBOSE,
 				"PARSE WARN: line %d: "
 				"flag \'rate\' requires valid value"
 				" - skipped\n", lineno);
 	} else if (!strncmp(flag, "scope", len)) {
 		unsigned int scope;
 		if (!val || (scope = strtoul(val, NULL, 0)) == 0 || scope > 0xF)
-			osm_log(conf->p_log, OSM_LOG_VERBOSE,
+			OSM_LOG(conf->p_log, OSM_LOG_VERBOSE,
 				"PARSE WARN: line %d: "
 				"flag \'scope\' requires valid value"
 				" - skipped\n", lineno);
@@ -168,7 +167,7 @@ static int partition_add_flag(unsigned lineno, struct part_conf *conf,
 
 		if (!val || !*val || (sl = strtoul(val, &end, 0)) > 15 ||
 		    (*end && !isspace(*end)))
-			osm_log(conf->p_log, OSM_LOG_VERBOSE,
+			OSM_LOG(conf->p_log, OSM_LOG_VERBOSE,
 				"PARSE WARN: line %d: "
 				"flag \'sl\' requires valid value"
 				" - skipped\n", lineno);
@@ -177,14 +176,14 @@ static int partition_add_flag(unsigned lineno, struct part_conf *conf,
 	} else if (!strncmp(flag, "defmember", len)) {
 		if (!val || (strncmp(val, "limited", strlen(val))
 			     && strncmp(val, "full", strlen(val))))
-			osm_log(conf->p_log, OSM_LOG_VERBOSE,
+			OSM_LOG(conf->p_log, OSM_LOG_VERBOSE,
 				"PARSE WARN: line %d: "
 				"flag \'defmember\' requires valid value (limited or full)"
 				" - skipped\n", lineno);
 		else
 			conf->full = strncmp(val, "full", strlen(val)) == 0;
 	} else {
-		osm_log(conf->p_log, OSM_LOG_VERBOSE,
+		OSM_LOG(conf->p_log, OSM_LOG_VERBOSE,
 			"PARSE WARN: line %d: "
 			"unrecognized partition flag \'%s\'"
 			" - ignored\n", lineno, flag);
@@ -208,7 +207,7 @@ static int partition_add_port(unsigned lineno, struct part_conf *conf,
 		if (!strncmp(flag, "full", strlen(flag)))
 			full = TRUE;
 		else if (strncmp(flag, "limited", strlen(flag))) {
-			osm_log(conf->p_log, OSM_LOG_VERBOSE,
+			OSM_LOG(conf->p_log, OSM_LOG_VERBOSE,
 				"PARSE WARN: line %d: "
 				"unrecognized port flag \'%s\'."
 				" Assume \'limited\'\n", lineno, flag);
@@ -323,8 +322,7 @@ static int parse_part_conf(struct part_conf *conf, char *str, int lineno)
 
 	q = strchr(p, ':');
 	if (!q) {
-		osm_log(conf->p_log, OSM_LOG_ERROR,
-			"PARSE ERROR: line %d: "
+		OSM_LOG(conf->p_log, OSM_LOG_ERROR, "PARSE ERROR: line %d: "
 			"no partition definition found\n", lineno);
 		fprintf(stderr, "\nPARSE ERROR: line %d: "
 			"no partition definition found\n", lineno);
@@ -351,7 +349,7 @@ static int parse_part_conf(struct part_conf *conf, char *str, int lineno)
 			*q++ = '\0';
 		ret = parse_name_token(p, &flag, &flval);
 		if (!flag) {
-			osm_log(conf->p_log, OSM_LOG_ERROR,
+			OSM_LOG(conf->p_log, OSM_LOG_ERROR,
 				"PARSE ERROR: line %d: "
 				"bad partition flags\n", lineno);
 			fprintf(stderr, "\nPARSE ERROR: line %d: "
@@ -365,8 +363,7 @@ static int parse_part_conf(struct part_conf *conf, char *str, int lineno)
 
 	if (p != str || (partition_create(lineno, conf,
 					  name, id, flag, flval) < 0)) {
-		osm_log(conf->p_log, OSM_LOG_ERROR,
-			"PARSE ERROR: line %d: "
+		OSM_LOG(conf->p_log, OSM_LOG_ERROR, "PARSE ERROR: line %d: "
 			"bad partition definition\n", lineno);
 		fprintf(stderr, "\nPARSE ERROR: line %d: "
 			"bad partition definition\n", lineno);
@@ -381,7 +378,7 @@ skip_header:
 			*q++ = '\0';
 		ret = parse_name_token(p, &name, &flag);
 		if (partition_add_port(lineno, conf, name, flag) < 0) {
-			osm_log(conf->p_log, OSM_LOG_ERROR,
+			OSM_LOG(conf->p_log, OSM_LOG_ERROR,
 				"PARSE ERROR: line %d: "
 				"bad PortGUID\n", lineno);
 			fprintf(stderr, "PARSE ERROR: line %d: "
@@ -405,8 +402,7 @@ int osm_prtn_config_parse_file(osm_log_t * p_log, osm_subn_t * p_subn,
 
 	file = fopen(file_name, "r");
 	if (!file) {
-		osm_log(p_log, OSM_LOG_VERBOSE,
-			"osm_prtn_config_parse_file: "
+		OSM_LOG(p_log, OSM_LOG_VERBOSE,
 			"Cannot open config file \'%s\': %s\n",
 			file_name, strerror(errno));
 		return -1;
@@ -433,7 +429,7 @@ int osm_prtn_config_parse_file(osm_log_t * p_log, osm_subn_t * p_subn,
 				break;
 
 			if (!conf && !(conf = new_part_conf(p_log, p_subn))) {
-				osm_log(conf->p_log, OSM_LOG_ERROR,
+				OSM_LOG(conf->p_log, OSM_LOG_ERROR,
 					"PARSE ERROR: line %d: "
 					"internal: cannot create config\n",
 					lineno);

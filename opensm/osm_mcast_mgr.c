@@ -167,8 +167,7 @@ osm_mcast_mgr_compute_avg_hops(osm_sm_t * sm,
 							      port_gid));
 
 		if (!p_port) {
-			osm_log(sm->p_log, OSM_LOG_ERROR,
-				"osm_mcast_mgr_compute_avg_hops: ERR 0A18: "
+			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A18: "
 				"No port object for port 0x%016" PRIx64 "\n",
 				cl_ntoh64(ib_gid_get_guid
 					  (&p_mcm_port->port_gid)));
@@ -227,8 +226,7 @@ osm_mcast_mgr_compute_max_hops(osm_sm_t * sm,
 							      port_gid));
 
 		if (!p_port) {
-			osm_log(sm->p_log, OSM_LOG_ERROR,
-				"osm_mcast_mgr_compute_max_hops: ERR 0A1A: "
+			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A1A: "
 				"No port object for port 0x%016" PRIx64 "\n",
 				cl_ntoh64(ib_gid_get_guid
 					  (&p_mcm_port->port_gid)));
@@ -293,8 +291,7 @@ static osm_switch_t *__osm_mcast_mgr_find_optimal_switch(osm_sm_t * sm,
 		if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
 			sw_guid_ho =
 			    cl_ntoh64(osm_node_get_node_guid(p_sw->p_node));
-			osm_log(sm->p_log, OSM_LOG_DEBUG,
-				"__osm_mcast_mgr_find_optimal_switch: "
+			OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 				"Switch 0x%016" PRIx64 ", hops = %f\n",
 				sw_guid_ho, hops);
 		}
@@ -310,13 +307,11 @@ static osm_switch_t *__osm_mcast_mgr_find_optimal_switch(osm_sm_t * sm,
 			sw_guid_ho =
 			    cl_ntoh64(osm_node_get_node_guid
 				      (p_best_sw->p_node));
-			osm_log(sm->p_log, OSM_LOG_VERBOSE,
-				"__osm_mcast_mgr_find_optimal_switch: "
+			OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 				"Best switch is 0x%" PRIx64 ", hops = %f\n",
 				sw_guid_ho, best_hops);
 		} else {
-			osm_log(sm->p_log, OSM_LOG_VERBOSE,
-				"__osm_mcast_mgr_find_optimal_switch: "
+			OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 				"No multicast capable switches detected\n");
 		}
 	}
@@ -394,8 +389,7 @@ __osm_mcast_mgr_set_tbl(osm_sm_t * sm, IN osm_switch_t * const p_sw)
 	while (osm_mcast_tbl_get_block(p_tbl, block_num,
 				       (uint8_t) position, block)) {
 		if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
-			osm_log(sm->p_log, OSM_LOG_DEBUG,
-				"__osm_mcast_mgr_set_tbl: "
+			OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 				"Writing MFT block 0x%X\n", block_id_ho);
 		}
 
@@ -407,8 +401,7 @@ __osm_mcast_mgr_set_tbl(osm_sm_t * sm, IN osm_switch_t * const p_sw)
 				     CL_DISP_MSGID_NONE, &mad_context);
 
 		if (status != IB_SUCCESS) {
-			osm_log(sm->p_log, OSM_LOG_ERROR,
-				"__osm_mcast_mgr_set_tbl: ERR 0A02: "
+			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A02: "
 				"Sending multicast fwd. tbl. block failed (%s)\n",
 				ib_get_err_str(status));
 		}
@@ -473,8 +466,7 @@ __osm_mcast_mgr_subdivide(osm_sm_t * sm,
 			 */
 			uint64_t node_guid_ho =
 			    cl_ntoh64(osm_node_get_node_guid(p_sw->p_node));
-			osm_log(sm->p_log, OSM_LOG_ERROR,
-				"__osm_mcast_mgr_subdivide: ERR 0A03: "
+			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A03: "
 				"Error routing MLID 0x%X through switch 0x%"
 				PRIx64 "\n"
 				"\t\t\t\tNo multicast paths from this switch for port "
@@ -489,8 +481,7 @@ __osm_mcast_mgr_subdivide(osm_sm_t * sm,
 		if (port_num > array_size) {
 			uint64_t node_guid_ho =
 			    cl_ntoh64(osm_node_get_node_guid(p_sw->p_node));
-			osm_log(sm->p_log, OSM_LOG_ERROR,
-				"__osm_mcast_mgr_subdivide: ERR 0A04: "
+			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A04: "
 				"Error routing MLID 0x%X through switch 0x%"
 				PRIx64 "\n"
 				"\t\t\t\tNo multicast paths from this switch to port "
@@ -521,8 +512,7 @@ static void __osm_mcast_mgr_purge_list(osm_sm_t * sm, cl_qlist_t * const p_list)
 
 	while ((p_wobj = (osm_mcast_work_obj_t *) cl_qlist_remove_head(p_list))
 	       != (osm_mcast_work_obj_t *) cl_qlist_end(p_list)) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_mcast_mgr_purge_list: ERR 0A06: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A06: "
 			"Unable to route for port 0x%" PRIx64 "\n",
 			osm_port_get_guid(p_wobj->p_port));
 		__osm_mcast_work_obj_delete(p_wobj);
@@ -569,8 +559,7 @@ static osm_mtree_node_t *__osm_mcast_mgr_branch(osm_sm_t * sm,
 	mlid_ho = cl_ntoh16(osm_mgrp_get_mlid(p_mgrp));
 
 	if (osm_log_is_active(sm->p_log, OSM_LOG_VERBOSE)) {
-		osm_log(sm->p_log, OSM_LOG_VERBOSE,
-			"__osm_mcast_mgr_branch: "
+		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 			"Routing MLID 0x%X through switch 0x%" PRIx64
 			", %u nodes at depth %u\n",
 			mlid_ho, node_guid_ho, cl_qlist_count(p_list), depth);
@@ -589,8 +578,7 @@ static osm_mtree_node_t *__osm_mcast_mgr_branch(osm_sm_t * sm,
 		/*
 		   This switch doesn't do multicast.  Clean-up.
 		 */
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_mcast_mgr_branch: ERR 0A14: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A14: "
 			"Switch 0x%" PRIx64 " does not support multicast\n",
 			node_guid_ho);
 
@@ -607,8 +595,7 @@ static osm_mtree_node_t *__osm_mcast_mgr_branch(osm_sm_t * sm,
 		   We are unable to continue routing down this
 		   leg of the tree.  Clean-up.
 		 */
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_mcast_mgr_branch: ERR 0A15: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A15: "
 			"Insufficient memory to build multicast tree\n");
 
 		/*
@@ -629,8 +616,7 @@ static osm_mtree_node_t *__osm_mcast_mgr_branch(osm_sm_t * sm,
 	 */
 	list_array = malloc(sizeof(cl_qlist_t) * max_children);
 	if (list_array == NULL) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_mcast_mgr_branch: ERR 0A16: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A16: "
 			"Unable to allocate list array\n");
 		__osm_mcast_mgr_purge_list(sm, p_list);
 		goto Exit;
@@ -652,8 +638,7 @@ static osm_mtree_node_t *__osm_mcast_mgr_branch(osm_sm_t * sm,
 	 */
 	if (depth > 1) {
 		if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
-			osm_log(sm->p_log, OSM_LOG_DEBUG,
-				"__osm_mcast_mgr_branch: "
+			OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 				"Adding upstream port 0x%X\n", upstream_port);
 		}
 
@@ -689,8 +674,7 @@ static osm_mtree_node_t *__osm_mcast_mgr_branch(osm_sm_t * sm,
 			continue;	/* No routes down this port. */
 
 		if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
-			osm_log(sm->p_log, OSM_LOG_DEBUG,
-				"__osm_mcast_mgr_branch: "
+			OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 				"Routing %zu destinations via switch port 0x%X\n",
 				count, i);
 		}
@@ -745,8 +729,7 @@ static osm_mtree_node_t *__osm_mcast_mgr_branch(osm_sm_t * sm,
 			CL_ASSERT(cl_is_qlist_empty(p_port_list));
 
 			if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
-				osm_log(sm->p_log, OSM_LOG_DEBUG,
-					"__osm_mcast_mgr_branch: "
+				OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 					"Found leaf for port 0x%016" PRIx64
 					" on switch port 0x%X\n",
 					cl_ntoh64(osm_port_get_guid
@@ -795,8 +778,7 @@ __osm_mcast_mgr_build_spanning_tree(osm_sm_t * sm, osm_mgrp_t * const p_mgrp)
 	num_ports = cl_qmap_count(p_mcm_tbl);
 	if (num_ports == 0) {
 		if (osm_log_is_active(sm->p_log, OSM_LOG_VERBOSE)) {
-			osm_log(sm->p_log, OSM_LOG_VERBOSE,
-				"__osm_mcast_mgr_build_spanning_tree: "
+			OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 				"MLID 0x%X has no members - nothing to do\n",
 				cl_ntoh16(osm_mgrp_get_mlid(p_mgrp)));
 		}
@@ -821,8 +803,7 @@ __osm_mcast_mgr_build_spanning_tree(osm_sm_t * sm, osm_mgrp_t * const p_mgrp)
 	 */
 	p_sw = __osm_mcast_mgr_find_root_switch(sm, p_mgrp);
 	if (p_sw == NULL) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_mcast_mgr_build_spanning_tree: ERR 0A08: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A08: "
 			"Unable to locate a suitable switch for group 0x%X\n",
 			cl_ntoh16(osm_mgrp_get_mlid(p_mgrp)));
 		status = IB_ERROR;
@@ -844,8 +825,7 @@ __osm_mcast_mgr_build_spanning_tree(osm_sm_t * sm, osm_mgrp_t * const p_mgrp)
 					      ib_gid_get_guid(&p_mcm_port->
 							      port_gid));
 		if (!p_port) {
-			osm_log(sm->p_log, OSM_LOG_ERROR,
-				"__osm_mcast_mgr_build_spanning_tree: ERR 0A09: "
+			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A09: "
 				"No port object for port 0x%016" PRIx64 "\n",
 				cl_ntoh64(ib_gid_get_guid
 					  (&p_mcm_port->port_gid)));
@@ -854,8 +834,7 @@ __osm_mcast_mgr_build_spanning_tree(osm_sm_t * sm, osm_mgrp_t * const p_mgrp)
 
 		p_wobj = __osm_mcast_work_obj_new(p_port);
 		if (p_wobj == NULL) {
-			osm_log(sm->p_log, OSM_LOG_ERROR,
-				"__osm_mcast_mgr_build_spanning_tree: ERR 0A10: "
+			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A10: "
 				"Insufficient memory to route port 0x%016"
 				PRIx64 "\n",
 				cl_ntoh64(osm_port_get_guid(p_port)));
@@ -869,8 +848,7 @@ __osm_mcast_mgr_build_spanning_tree(osm_sm_t * sm, osm_mgrp_t * const p_mgrp)
 	p_mgrp->p_root = __osm_mcast_mgr_branch(sm, p_mgrp, p_sw,
 						&port_list, 0, 0, &max_depth);
 
-	osm_log(sm->p_log, OSM_LOG_VERBOSE,
-		"__osm_mcast_mgr_build_spanning_tree: "
+	OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 		"Configured MLID 0x%X for %u ports, max tree depth = %u\n",
 		cl_ntoh16(osm_mgrp_get_mlid(p_mgrp)), count, max_depth);
 
@@ -903,8 +881,7 @@ osm_mcast_mgr_set_table(osm_sm_t * sm,
 	CL_ASSERT(p_sw);
 
 	if (osm_log_is_active(sm->p_log, OSM_LOG_VERBOSE)) {
-		osm_log(sm->p_log, OSM_LOG_VERBOSE,
-			"osm_mcast_mgr_set_table: "
+		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 			"Configuring MLID 0x%X on switch 0x%" PRIx64 "\n",
 			mlid_ho, osm_node_get_node_guid(p_sw->p_node));
 	}
@@ -986,8 +963,7 @@ osm_mcast_mgr_process_single(osm_sm_t * sm,
 	mlid_ho = cl_ntoh16(mlid);
 
 	if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
-		osm_log(sm->p_log, OSM_LOG_DEBUG,
-			"osm_mcast_mgr_process_single: "
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 			"Attempting to add port 0x%" PRIx64 " to MLID 0x%X, "
 			"\n\t\t\t\tjoin state = 0x%X\n",
 			cl_ntoh64(port_guid), mlid_ho, join_state);
@@ -998,8 +974,7 @@ osm_mcast_mgr_process_single(osm_sm_t * sm,
 	 */
 	p_port = osm_get_port_by_guid(sm->p_subn, port_guid);
 	if (!p_port) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"osm_mcast_mgr_process_single: ERR 0A01: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A01: "
 			"Unable to acquire port object for 0x%" PRIx64 "\n",
 			cl_ntoh64(port_guid));
 		status = IB_ERROR;
@@ -1008,8 +983,7 @@ osm_mcast_mgr_process_single(osm_sm_t * sm,
 
 	p_physp = p_port->p_physp;
 	if (p_physp == NULL) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"osm_mcast_mgr_process_single: ERR 0A05: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A05: "
 			"Unable to acquire phsyical port object for 0x%" PRIx64
 			"\n", cl_ntoh64(port_guid));
 		status = IB_ERROR;
@@ -1018,8 +992,7 @@ osm_mcast_mgr_process_single(osm_sm_t * sm,
 
 	p_remote_physp = osm_physp_get_remote(p_physp);
 	if (p_remote_physp == NULL) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"osm_mcast_mgr_process_single: ERR 0A11: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A11: "
 			"Unable to acquire remote phsyical port object "
 			"for 0x%" PRIx64 "\n", cl_ntoh64(port_guid));
 		status = IB_ERROR;
@@ -1033,8 +1006,7 @@ osm_mcast_mgr_process_single(osm_sm_t * sm,
 	sw_guid = osm_node_get_node_guid(p_remote_node);
 
 	if (osm_node_get_type(p_remote_node) != IB_NODE_TYPE_SWITCH) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"osm_mcast_mgr_process_single: ERR 0A22: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A22: "
 			"Remote node not a switch node 0x%" PRIx64 "\n",
 			cl_ntoh64(sw_guid));
 		status = IB_ERROR;
@@ -1042,8 +1014,7 @@ osm_mcast_mgr_process_single(osm_sm_t * sm,
 	}
 
 	if (!p_remote_node->sw) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"osm_mcast_mgr_process_single: ERR 0A12: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A12: "
 			"No switch object 0x%" PRIx64 "\n", cl_ntoh64(sw_guid));
 		status = IB_ERROR;
 		goto Exit;
@@ -1070,14 +1041,12 @@ osm_mcast_mgr_process_single(osm_sm_t * sm,
 		} else {
 			if (join_state & IB_JOIN_STATE_SEND_ONLY) {
 				if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
-					osm_log(sm->p_log, OSM_LOG_DEBUG,
-						"osm_mcast_mgr_process_single: "
+					OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 						"Success.  Nothing to do for send"
 						"only member\n");
 				}
 			} else {
-				osm_log(sm->p_log, OSM_LOG_ERROR,
-					"osm_mcast_mgr_process_single: ERR 0A13: "
+				OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A13: "
 					"Unknown join state 0x%X\n",
 					join_state);
 				status = IB_ERROR;
@@ -1086,8 +1055,7 @@ osm_mcast_mgr_process_single(osm_sm_t * sm,
 		}
 	} else {
 		if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
-			osm_log(sm->p_log, OSM_LOG_DEBUG,
-				"osm_mcast_mgr_process_single: "
+			OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 				"Unable to add port\n");
 		}
 	}
@@ -1116,8 +1084,7 @@ osm_mcast_mgr_process_tree(osm_sm_t * sm,
 	mlid = osm_mgrp_get_mlid(p_mgrp);
 
 	if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
-		osm_log(sm->p_log, OSM_LOG_DEBUG,
-			"osm_mcast_mgr_process_tree: "
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 			"Processing multicast group 0x%X\n", cl_ntoh16(mlid));
 	}
 
@@ -1126,8 +1093,7 @@ osm_mcast_mgr_process_tree(osm_sm_t * sm,
 	 */
 	if (cl_qmap_count(&sm->p_subn->sw_guid_tbl) == 0) {
 		if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
-			osm_log(sm->p_log, OSM_LOG_DEBUG,
-				"osm_mcast_mgr_process_tree: "
+			OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 				"No switches in subnet. Nothing to do\n");
 		}
 		goto Exit;
@@ -1156,16 +1122,14 @@ osm_mcast_mgr_process_tree(osm_sm_t * sm,
 	if (ui_mcast_fdb_assign_func_defined == FALSE) {
 		status = __osm_mcast_mgr_build_spanning_tree(sm, p_mgrp);
 		if (status != IB_SUCCESS) {
-			osm_log(sm->p_log, OSM_LOG_ERROR,
-				"osm_mcast_mgr_process_tree: ERR 0A17: "
+			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A17: "
 				"Unable to create spanning tree (%s)\n",
 				ib_get_err_str(status));
 			goto Exit;
 		}
 	} else {
 		if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
-			osm_log(sm->p_log, OSM_LOG_DEBUG,
-				"osm_mcast_mgr_process_tree: "
+			OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 				"Invoking UI function pfn_ui_mcast_fdb_assign\n");
 		}
 
@@ -1196,8 +1160,7 @@ mcast_mgr_process_mgrp(osm_sm_t * sm,
 
 	status = osm_mcast_mgr_process_tree(sm, p_mgrp, req_type, port_guid);
 	if (status != IB_SUCCESS) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"mcast_mgr_process_mgrp: ERR 0A19: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A19: "
 			"Unable to create spanning tree (%s)\n",
 			ib_get_err_str(status));
 		goto Exit;
@@ -1208,8 +1171,7 @@ mcast_mgr_process_mgrp(osm_sm_t * sm,
 	 * Not a well known group
 	 */
 	if (cl_qmap_count(&p_mgrp->mcm_port_tbl) == 0 && !p_mgrp->well_known) {
-		osm_log(sm->p_log, OSM_LOG_DEBUG,
-			"mcast_mgr_process_mgrp: "
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 			"Destroying mgrp with lid:0x%X\n",
 			cl_ntoh16(p_mgrp->mlid));
 		/* Send a Report to any InformInfo registered for
@@ -1343,15 +1305,13 @@ osm_signal_t osm_mcast_mgr_process_mgroups(osm_sm_t * sm)
 		 * we processed the group we can skip doing anything
 		 */
 		if (p_mgrp->last_change_id == p_mgrp->last_tree_id) {
-			osm_log(sm->p_log, OSM_LOG_DEBUG,
-				"osm_mcast_mgr_process_mgroups: "
+			OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 				"Skip processing mgrp with lid:0x%X change id:%u\n",
 				cl_ntoh16(mlid), p_mgrp->last_change_id);
 			continue;
 		}
 
-		osm_log(sm->p_log, OSM_LOG_DEBUG,
-			"osm_mcast_mgr_process_mgroups: "
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 			"Processing mgrp with lid:0x%X change id:%u\n",
 			cl_ntoh16(mlid), p_mgrp->last_change_id);
 		mcast_mgr_process_mgrp(sm, p_mgrp, req_type, port_guid);

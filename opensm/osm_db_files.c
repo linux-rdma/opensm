@@ -182,9 +182,8 @@ int osm_db_init(IN osm_db_t * const p_db, IN osm_log_t * p_log)
 	/* make sure the directory exists */
 	if (lstat(p_db_imp->db_dir_name, &dstat)) {
 		if (mkdir(p_db_imp->db_dir_name, 0755)) {
-			osm_log(p_log, OSM_LOG_ERROR,
-				"osm_db_init: ERR 6101: "
-				" Failed to create the db directory:%s\n",
+			OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 6101: "
+				"Failed to create the db directory:%s\n",
 				p_db_imp->db_dir_name);
 			OSM_LOG_EXIT(p_log);
 			return 1;
@@ -237,9 +236,8 @@ osm_db_domain_t *osm_db_domain_init(IN osm_db_t * const p_db,
 	/* make sure the file exists - or exit if not writable */
 	p_file = fopen(p_domain_imp->file_name, "a+");
 	if (!p_file) {
-		osm_log(p_log, OSM_LOG_ERROR,
-			"osm_db_domain_init: ERR 6102: "
-			" Failed to open the db file:%s\n",
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 6102: "
+			"Failed to open the db file:%s\n",
 			p_domain_imp->file_name);
 		free(p_domain_imp);
 		free(p_domain);
@@ -290,9 +288,8 @@ int osm_db_restore(IN osm_db_domain_t * p_domain)
 	p_file = fopen(p_domain_imp->file_name, "r");
 
 	if (!p_file) {
-		osm_log(p_log, OSM_LOG_ERROR,
-			"osm_db_restore: ERR 6103: "
-			" Failed to open the db file:%s\n",
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 6103: "
+			"Failed to open the db file:%s\n",
 			p_domain_imp->file_name);
 		status = 1;
 		goto Exit;
@@ -326,18 +323,16 @@ int osm_db_restore(IN osm_db_domain_t * p_domain)
 				p_first_word =
 				    strtok_r(sLine, " \t\n", &p_last);
 				if (!p_first_word) {
-					osm_log(p_log, OSM_LOG_ERROR,
-						"osm_db_restore: ERR 6104: "
-						" Failed to get key from line:%u : %s (file:%s)\n",
+					OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 6104: "
+						"Failed to get key from line:%u : %s (file:%s)\n",
 						line_num, sLine,
 						p_domain_imp->file_name);
 					status = 1;
 					goto EndParsing;
 				}
 				if (strlen(p_first_word) > OSM_DB_MAX_GUID_LEN) {
-					osm_log(p_log, OSM_LOG_ERROR,
-						"osm_db_restore: ERR 610A: "
-						" Illegal key from line:%u : %s (file:%s)\n",
+					OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 610A: "
+						"Illegal key from line:%u : %s (file:%s)\n",
 						line_num, sLine,
 						p_domain_imp->file_name);
 					status = 1;
@@ -362,9 +357,8 @@ int osm_db_restore(IN osm_db_domain_t * p_domain)
 					strcpy(p_accum_val, "\0");
 				}
 			} else if (sLine[0] != '\n') {
-				osm_log(p_log, OSM_LOG_ERROR,
-					"osm_db_restore: ERR 6105: "
-					" How did we get here? line:%u : %s (file:%s)\n",
+				OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 6105: "
+					"How did we get here? line:%u : %s (file:%s)\n",
 					line_num, sLine,
 					p_domain_imp->file_name);
 				status = 1;
@@ -382,9 +376,8 @@ int osm_db_restore(IN osm_db_domain_t * p_domain)
 				if (st_lookup(p_domain_imp->p_hash,
 					      (st_data_t) p_key,
 					      (st_data_t *) & p_prev_val)) {
-					osm_log(p_log, OSM_LOG_ERROR,
-						"osm_db_restore: ERR 6106: "
-						" Key:%s already exists in:%s with value:%s."
+					OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 6106: "
+						"Key:%s already exists in:%s with value:%s."
 						" Removing it\n",
 						p_key,
 						p_domain_imp->file_name,
@@ -393,16 +386,14 @@ int osm_db_restore(IN osm_db_domain_t * p_domain)
 					p_prev_val = NULL;
 				}
 
-				osm_log(p_log, OSM_LOG_DEBUG,
-					"osm_db_restore: "
+				OSM_LOG(p_log, OSM_LOG_DEBUG,
 					"Got key:%s value:%s\n", p_key,
 					p_accum_val);
 
 				/* check that the key is a number */
 				if (!strtouq(p_key, &endptr, 0)
 				    && *endptr != '\0') {
-					osm_log(p_log, OSM_LOG_ERROR,
-						"osm_db_restore: ERR 610B: "
+					OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 610B: "
 						"Key:%s is invalid\n", p_key);
 				} else {
 					/* store our key and value */
@@ -466,9 +457,8 @@ int osm_db_store(IN osm_db_domain_t * p_domain)
 	/* open up the output file */
 	p_file = fopen(p_tmp_file_name, "w");
 	if (!p_file) {
-		osm_log(p_log, OSM_LOG_ERROR,
-			"osm_db_store: ERR 6107: "
-			" Failed to open the db file:%s for writing\n",
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 6107: "
+			"Failed to open the db file:%s for writing\n",
 			p_domain_imp->file_name);
 		status = 1;
 		goto Exit;
@@ -481,17 +471,15 @@ int osm_db_store(IN osm_db_domain_t * p_domain)
 	/* move the domain file */
 	status = remove(p_domain_imp->file_name);
 	if (status) {
-		osm_log(p_log, OSM_LOG_ERROR,
-			"osm_db_store: ERR 6109: "
-			" Failed to remove file:%s (err:%u)\n",
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 6109: "
+			"Failed to remove file:%s (err:%u)\n",
 			p_domain_imp->file_name, status);
 	}
 
 	status = rename(p_tmp_file_name, p_domain_imp->file_name);
 	if (status) {
-		osm_log(p_log, OSM_LOG_ERROR,
-			"osm_db_store: ERR 6108: "
-			" Failed to rename the db file to:%s (err:%u)\n",
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 6108: "
+			"Failed to rename the db file to:%s (err:%u)\n",
 			p_domain_imp->file_name, status);
 	}
 Exit:
@@ -586,9 +574,8 @@ osm_db_update(IN osm_db_domain_t * p_domain,
 
 	if (st_lookup(p_domain_imp->p_hash,
 		      (st_data_t) p_key, (st_data_t *) & p_prev_val)) {
-		osm_log(p_log, OSM_LOG_DEBUG,
-			"osm_db_update: "
-			" Key:%s previously exists in:%s with value:%s\n",
+		OSM_LOG(p_log, OSM_LOG_DEBUG,
+			"Key:%s previously exists in:%s with value:%s\n",
 			p_key, p_domain_imp->file_name, p_prev_val);
 		p_new_key = p_key;
 	} else {
@@ -629,9 +616,8 @@ int osm_db_delete(IN osm_db_domain_t * p_domain, IN char *const p_key)
 		      (st_data_t *) & p_key, (st_data_t *) & p_prev_val)) {
 		if (st_lookup(p_domain_imp->p_hash,
 			      (st_data_t) p_key, (st_data_t *) & p_prev_val)) {
-			osm_log(p_log, OSM_LOG_ERROR,
-				"osm_db_delete: "
-				" key:%s still exists in:%s with value:%s\n",
+			OSM_LOG(p_log, OSM_LOG_ERROR,
+				"key:%s still exists in:%s with value:%s\n",
 				p_key, p_domain_imp->file_name, p_prev_val);
 			res = 1;
 		} else {
@@ -640,9 +626,8 @@ int osm_db_delete(IN osm_db_domain_t * p_domain, IN char *const p_key)
 			res = 0;
 		}
 	} else {
-		osm_log(p_log, OSM_LOG_DEBUG,
-			"osm_db_update: "
-			" fail to find key:%s. delete failed\n", p_key);
+		OSM_LOG(p_log, OSM_LOG_DEBUG,
+			"fail to find key:%s. delete failed\n", p_key);
 		res = 1;
 	}
 	cl_spinlock_release(&p_domain_imp->lock);

@@ -306,8 +306,7 @@ osm_sa_bind(IN osm_sa_t * const p_sa, IN const ib_net64_t port_guid)
 	status = osm_sa_mad_ctrl_bind(&p_sa->mad_ctrl, port_guid);
 
 	if (status != IB_SUCCESS) {
-		osm_log(p_sa->p_log, OSM_LOG_ERROR,
-			"osm_sa_bind: ERR 4C03: "
+		OSM_LOG(p_sa->p_log, OSM_LOG_ERROR, "ERR 4C03: "
 			"SA MAD Controller bind failed (%s)\n",
 			ib_get_err_str(status));
 		goto Exit;
@@ -357,8 +356,7 @@ opensm_dump_to_file(osm_opensm_t * p_osm, const char *file_name,
 
 	file = fopen(path, "w");
 	if (!file) {
-		osm_log(&p_osm->log, OSM_LOG_ERROR,
-			"opensm_dump_to_file: ERR 4C01: "
+		OSM_LOG(&p_osm->log, OSM_LOG_ERROR, "ERR 4C01: "
 			"cannot open file \'%s\': %s\n",
 			file_name, strerror(errno));
 		return -1;
@@ -530,15 +528,14 @@ static void sa_dump_all_sa(osm_opensm_t * p_osm, FILE * file)
 
 	dump_context.p_osm = p_osm;
 	dump_context.file = file;
-	osm_log(&p_osm->log, OSM_LOG_DEBUG,
-		"sa_dump_all_sa: Dump multicast:\n");
+	OSM_LOG(&p_osm->log, OSM_LOG_DEBUG, "Dump multicast:\n");
 	cl_plock_acquire(&p_osm->lock);
 	cl_qmap_apply_func(&p_osm->subn.mgrp_mlid_tbl,
 			   sa_dump_one_mgrp, &dump_context);
-	osm_log(&p_osm->log, OSM_LOG_DEBUG, "sa_dump_all_sa: Dump inform:\n");
+	OSM_LOG(&p_osm->log, OSM_LOG_DEBUG, "Dump inform:\n");
 	cl_qlist_apply_func(&p_osm->subn.sa_infr_list,
 			    sa_dump_one_inform, &dump_context);
-	osm_log(&p_osm->log, OSM_LOG_DEBUG, "sa_dump_all_sa: Dump services:\n");
+	OSM_LOG(&p_osm->log, OSM_LOG_DEBUG, "Dump services:\n");
 	cl_qlist_apply_func(&p_osm->subn.sa_sr_list,
 			    sa_dump_one_service, &dump_context);
 	cl_plock_release(&p_osm->lock);
@@ -567,15 +564,13 @@ static osm_mgrp_t *load_mcgroup(osm_opensm_t * p_osm, ib_net16_t mlid,
 		p_mgrp = (osm_mgrp_t *) p_next;
 		if (!memcmp(&p_mgrp->mcmember_rec.mgid, &p_mcm_rec->mgid,
 			    sizeof(ib_gid_t))) {
-			osm_log(&p_osm->log, OSM_LOG_DEBUG,
-				"load_mcgroup: mgrp %04x is already here.",
-				cl_ntoh16(mlid));
+			OSM_LOG(&p_osm->log, OSM_LOG_DEBUG,
+				"mgrp %04x is already here.", cl_ntoh16(mlid));
 			goto _out;
 		}
-		osm_log(&p_osm->log, OSM_LOG_VERBOSE,
-			"load_mcgroup: mlid %04x is already used by another "
-			"MC group. Will request clients reregistration.\n",
-			cl_ntoh16(mlid));
+		OSM_LOG(&p_osm->log, OSM_LOG_VERBOSE,
+			"mlid %04x is already used by another MC group. Will "
+			"request clients reregistration.\n", cl_ntoh16(mlid));
 		p_mgrp = NULL;
 		goto _out;
 	}
@@ -586,10 +581,9 @@ static osm_mgrp_t *load_mcgroup(osm_opensm_t * p_osm, ib_net16_t mlid,
 						 comp_mask, p_mcm_rec,
 						 &p_mgrp) != IB_SUCCESS ||
 	    !p_mgrp || p_mgrp->mlid != mlid) {
-		osm_log(&p_osm->log, OSM_LOG_ERROR,
-			"load_mcgroup: cannot create MC group with mlid "
-			"0x%04x and mgid 0x%016" PRIx64 ":0x%016" PRIx64 "\n",
-			cl_ntoh16(mlid),
+		OSM_LOG(&p_osm->log, OSM_LOG_ERROR,
+			"cannot create MC group with mlid 0x%04x and mgid "
+			"0x%016" PRIx64 ":0x%016" PRIx64 "\n", cl_ntoh16(mlid),
 			cl_ntoh64(p_mcm_rec->mgid.unicast.prefix),
 			cl_ntoh64(p_mcm_rec->mgid.unicast.interface_id));
 		p_mgrp = NULL;
@@ -611,14 +605,14 @@ static int load_svcr(osm_opensm_t * p_osm, ib_service_record_t * sr,
 	cl_plock_excl_acquire(&p_osm->lock);
 
 	if (osm_svcr_get_by_rid(&p_osm->subn, &p_osm->log, sr)) {
-		osm_log(&p_osm->log, OSM_LOG_VERBOSE,
-			"load_svcr: ServiceRecord already exists\n");
+		OSM_LOG(&p_osm->log, OSM_LOG_VERBOSE,
+			"ServiceRecord already exists\n");
 		goto _out;
 	}
 
 	if (!(p_svcr = osm_svcr_new(sr))) {
-		osm_log(&p_osm->log, OSM_LOG_ERROR,
-			"load_svcr: cannot allocate new service struct\n");
+		OSM_LOG(&p_osm->log, OSM_LOG_ERROR,
+			"cannot allocate new service struct\n");
 		ret = -1;
 		goto _out;
 	}
@@ -626,8 +620,7 @@ static int load_svcr(osm_opensm_t * p_osm, ib_service_record_t * sr,
 	p_svcr->modified_time = modified_time;
 	p_svcr->lease_period = lease_period;
 
-	osm_log(&p_osm->log, OSM_LOG_DEBUG,
-		"load_svcr: adding ServiceRecord...\n");
+	OSM_LOG(&p_osm->log, OSM_LOG_DEBUG, "adding ServiceRecord...\n");
 
 	osm_svcr_insert_to_db(&p_osm->subn, &p_osm->log, p_svcr);
 
@@ -655,20 +648,19 @@ static int load_infr(osm_opensm_t * p_osm, ib_inform_info_record_t * iir,
 
 	cl_plock_excl_acquire(&p_osm->lock);
 	if (osm_infr_get_by_rec(&p_osm->subn, &p_osm->log, &infr)) {
-		osm_log(&p_osm->log, OSM_LOG_VERBOSE,
-			"load_infr: InformInfo Record already exists\n");
+		OSM_LOG(&p_osm->log, OSM_LOG_VERBOSE,
+			"InformInfo Record already exists\n");
 		goto _out;
 	}
 
 	if (!(p_infr = osm_infr_new(&infr))) {
-		osm_log(&p_osm->log, OSM_LOG_ERROR,
-			"load_infr: cannot allocate new infr struct\n");
+		OSM_LOG(&p_osm->log, OSM_LOG_ERROR,
+			"cannot allocate new infr struct\n");
 		ret = -1;
 		goto _out;
 	}
 
-	osm_log(&p_osm->log, OSM_LOG_DEBUG,
-		"load_infr: adding InformInfo Record...\n");
+	OSM_LOG(&p_osm->log, OSM_LOG_DEBUG, "adding InformInfo Record...\n");
 
 	osm_infr_insert_to_db(&p_osm->subn, &p_osm->log, p_infr);
 
@@ -723,7 +715,7 @@ static int unpack_string64(char *p, uint8_t * buf)
 #define PARSE_AHEAD(p, x, name, val_ptr) { int _ret; \
 	p = strstr(p, name); \
 	if (!p) { \
-		osm_log(&p_osm->log, OSM_LOG_ERROR, \
+		OSM_LOG(&p_osm->log, OSM_LOG_ERROR, \
 			"PARSE ERROR: %s:%u: cannot find \"%s\" string\n", \
 			file_name, lineno, (name)); \
 		ret = -2; \
@@ -732,7 +724,7 @@ static int unpack_string64(char *p, uint8_t * buf)
 	p += strlen(name); \
 	_ret = unpack_##x(p, (val_ptr)); \
 	if (_ret < 0) { \
-		osm_log(&p_osm->log, OSM_LOG_ERROR, \
+		OSM_LOG(&p_osm->log, OSM_LOG_ERROR, \
 			"PARSE ERROR: %s:%u: cannot parse "#x" value " \
 			"after \"%s\"\n", file_name, lineno, (name)); \
 		ret = _ret; \
@@ -753,18 +745,16 @@ int osm_sa_db_file_load(osm_opensm_t * p_osm)
 
 	file_name = p_osm->subn.opt.sa_db_file;
 	if (!file_name) {
-		osm_log(&p_osm->log, OSM_LOG_VERBOSE,
-			"osm_sa_db_file_load: sa db file name is not "
-			"specifed. Skip restore\n");
+		OSM_LOG(&p_osm->log, OSM_LOG_VERBOSE,
+			"sa db file name is not specifed. Skip restore\n");
 		return 0;
 	}
 
 	file = fopen(file_name, "r");
 	if (!file) {
-		osm_log(&p_osm->log, OSM_LOG_ERROR | OSM_LOG_SYS,
-			"osm_sa_db_file_load: ERR 4C02: "
-			"cannot open sa db file \'%s\'. "
-			"Skip restoring\n", file_name);
+		OSM_LOG(&p_osm->log, OSM_LOG_ERROR | OSM_LOG_SYS, "ERR 4C02: "
+			"cannot open sa db file \'%s\'. Skip restoring\n",
+			file_name);
 		return -1;
 	}
 

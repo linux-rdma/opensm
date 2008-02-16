@@ -100,8 +100,7 @@ pkey_mgr_process_physical_port(IN osm_log_t * p_log,
 	p_pkey_tbl = &p_physp->pkeys;
 	p_pending = (osm_pending_pkey_t *) malloc(sizeof(osm_pending_pkey_t));
 	if (!p_pending) {
-		osm_log(p_log, OSM_LOG_ERROR,
-			"pkey_mgr_process_physical_port: ERR 0502: "
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0502: "
 			"Failed to allocate new pending pkey entry for node "
 			"0x%016" PRIx64 " port %u\n",
 			cl_ntoh64(osm_node_get_node_guid(p_node)),
@@ -123,8 +122,7 @@ pkey_mgr_process_physical_port(IN osm_log_t * p_log,
 						   &p_pending->block,
 						   &p_pending->index) !=
 		    IB_SUCCESS) {
-			osm_log(p_log, OSM_LOG_ERROR,
-				"pkey_mgr_process_physical_port: ERR 0503: "
+			OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0503: "
 				"Failed to obtain P_Key 0x%04x block and index for node "
 				"0x%016" PRIx64 " port %u\n",
 				ib_pkey_get_base(pkey),
@@ -137,10 +135,8 @@ pkey_mgr_process_physical_port(IN osm_log_t * p_log,
 		stat = "updated";
 	}
 
-	osm_log(p_log, OSM_LOG_DEBUG,
-		"pkey_mgr_process_physical_port: "
-		"pkey 0x%04x was %s for node 0x%016" PRIx64
-		" port %u\n",
+	OSM_LOG(p_log, OSM_LOG_DEBUG,
+		"pkey 0x%04x was %s for node 0x%016" PRIx64 " port %u\n",
 		cl_ntoh16(pkey), stat,
 		cl_ntoh64(osm_node_get_node_guid(p_node)),
 		osm_physp_get_port_num(p_physp));
@@ -211,8 +207,7 @@ pkey_mgr_enforce_partition(IN osm_log_t * p_log, osm_sm_t * sm,
 	p_pi = &p_physp->port_info;
 
 	if ((p_pi->vl_enforce & 0xc) == (0xc) * (enforce == TRUE)) {
-		osm_log(p_log, OSM_LOG_DEBUG,
-			"pkey_mgr_enforce_partition: "
+		OSM_LOG(p_log, OSM_LOG_DEBUG,
 			"No need to update PortInfo for "
 			"node 0x%016" PRIx64 " port %u\n",
 			cl_ntoh64(osm_node_get_node_guid
@@ -246,8 +241,7 @@ pkey_mgr_enforce_partition(IN osm_log_t * p_log, osm_sm_t * sm,
 			     cl_hton32(osm_physp_get_port_num(p_physp)),
 			     CL_DISP_MSGID_NONE, &context);
 	if (status != IB_SUCCESS) {
-		osm_log(p_log, OSM_LOG_ERROR,
-			"pkey_mgr_enforce_partition: ERR 0511: "
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0511: "
 			"Failed to set PortInfo for "
 			"node 0x%016" PRIx64 " port %u\n",
 			cl_ntoh64(osm_node_get_node_guid
@@ -255,10 +249,8 @@ pkey_mgr_enforce_partition(IN osm_log_t * p_log, osm_sm_t * sm,
 			osm_physp_get_port_num(p_physp));
 		return FALSE;
 	} else {
-		osm_log(p_log, OSM_LOG_DEBUG,
-			"pkey_mgr_enforce_partition: "
-			"Set PortInfo for "
-			"node 0x%016" PRIx64 " port %u\n",
+		OSM_LOG(p_log, OSM_LOG_DEBUG,
+			"Set PortInfo for node 0x%016" PRIx64 " port %u\n",
 			cl_ntoh64(osm_node_get_node_guid
 				  (osm_physp_get_node_ptr(p_physp))),
 			osm_physp_get_port_num(p_physp));
@@ -299,8 +291,7 @@ static boolean_t pkey_mgr_update_port(osm_log_t * p_log, osm_sm_t * sm,
 	max_num_of_blocks =
 	    pkey_mgr_get_physp_max_blocks(sm->p_subn, p_physp);
 	if (p_pkey_tbl->max_blocks > max_num_of_blocks) {
-		osm_log(p_log, OSM_LOG_INFO,
-			"pkey_mgr_update_port: "
+		OSM_LOG(p_log, OSM_LOG_INFO,
 			"Max number of blocks reduced from %u to %u "
 			"for node 0x%016" PRIx64 " port %u\n",
 			p_pkey_tbl->max_blocks, max_num_of_blocks,
@@ -329,8 +320,7 @@ static boolean_t pkey_mgr_update_port(osm_log_t * p_log, osm_sm_t * sm,
 							      &last_free_block_index,
 							      &last_free_pkey_index);
 			if (!found) {
-				osm_log(p_log, OSM_LOG_ERROR,
-					"pkey_mgr_update_port: ERR 0504: "
+				OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0504: "
 					"Failed to find empty space for new pkey 0x%04x "
 					"for node 0x%016" PRIx64 " port %u\n",
 					cl_ntoh16(p_pending->pkey),
@@ -348,8 +338,7 @@ static boolean_t pkey_mgr_update_port(osm_log_t * p_log, osm_sm_t * sm,
 			    osm_pkey_tbl_set_new_entry(p_pkey_tbl, block_index,
 						       pkey_index,
 						       p_pending->pkey)) {
-				osm_log(p_log, OSM_LOG_ERROR,
-					"pkey_mgr_update_port: ERR 0505: "
+				OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0505: "
 					"Failed to set PKey 0x%04x in block %u idx %u "
 					"for node 0x%016" PRIx64 " port %u\n",
 					cl_ntoh16(p_pending->pkey), block_index,
@@ -379,17 +368,14 @@ static boolean_t pkey_mgr_update_port(osm_log_t * p_log, osm_sm_t * sm,
 		    pkey_mgr_update_pkey_entry(sm, p_physp, new_block,
 					       block_index);
 		if (status == IB_SUCCESS) {
-			osm_log(p_log, OSM_LOG_DEBUG,
-				"pkey_mgr_update_port: "
-				"Updated "
-				"pkey table block %d for node 0x%016" PRIx64
-				" port %u\n", block_index,
+			OSM_LOG(p_log, OSM_LOG_DEBUG,
+				"Updated pkey table block %d for node 0x%016"
+				PRIx64 " port %u\n", block_index,
 				cl_ntoh64(osm_node_get_node_guid(p_node)),
 				osm_physp_get_port_num(p_physp));
 			ret_val = TRUE;
 		} else {
-			osm_log(p_log, OSM_LOG_ERROR,
-				"pkey_mgr_update_port: ERR 0506: "
+			OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0506: "
 				"pkey_mgr_update_pkey_entry() failed to update "
 				"pkey table block %d for node 0x%016" PRIx64
 				" port %u\n", block_index,
@@ -438,8 +424,7 @@ pkey_mgr_update_peer_port(osm_log_t * p_log, osm_sm_t * sm,
 	num_of_blocks = osm_pkey_tbl_get_num_blocks(p_pkey_tbl);
 	peer_max_blocks = pkey_mgr_get_physp_max_blocks(p_subn, peer);
 	if (peer_max_blocks < p_pkey_tbl->used_blocks) {
-		osm_log(p_log, OSM_LOG_ERROR,
-			"pkey_mgr_update_peer_port: ERR 0508: "
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0508: "
 			"Not enough pkey entries (%u < %u) on switch 0x%016"
 			PRIx64 " port %u. Clearing Enforcement bit\n",
 			peer_max_blocks, num_of_blocks,
@@ -471,8 +456,7 @@ pkey_mgr_update_peer_port(osm_log_t * p_log, osm_sm_t * sm,
 			if (status == IB_SUCCESS)
 				ret_val = TRUE;
 			else
-				osm_log(p_log, OSM_LOG_ERROR,
-					"pkey_mgr_update_peer_port: ERR 0509: "
+				OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0509: "
 					"pkey_mgr_update_pkey_entry() failed to update "
 					"pkey table block %d for node 0x%016"
 					PRIx64 " port %u\n", block_index,
@@ -483,8 +467,7 @@ pkey_mgr_update_peer_port(osm_log_t * p_log, osm_sm_t * sm,
 	}
 
 	if ((ret_val == TRUE) && osm_log_is_active(p_log, OSM_LOG_DEBUG)) {
-		osm_log(p_log, OSM_LOG_DEBUG,
-			"pkey_mgr_update_peer_port: "
+		OSM_LOG(p_log, OSM_LOG_DEBUG,
 			"Pkey table was updated for node 0x%016" PRIx64
 			" port %u\n",
 			cl_ntoh64(osm_node_get_node_guid(p_node)),
@@ -513,8 +496,7 @@ osm_signal_t osm_pkey_mgr_process(IN osm_opensm_t * p_osm)
 	CL_PLOCK_EXCL_ACQUIRE(&p_osm->lock);
 
 	if (osm_prtn_make_partitions(&p_osm->log, &p_osm->subn) != IB_SUCCESS) {
-		osm_log(&p_osm->log, OSM_LOG_ERROR,
-			"osm_pkey_mgr_process: ERR 0510: "
+		OSM_LOG(&p_osm->log, OSM_LOG_ERROR, "ERR 0510: "
 			"osm_prtn_make_partitions() failed\n");
 		goto _err;
 	}

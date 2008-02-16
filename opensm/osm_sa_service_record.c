@@ -100,8 +100,7 @@ __match_service_pkey_with_ports_pkey(IN osm_sa_t * sa,
 						osm_madw_get_mad_addr_ptr
 						(p_madw));
 	if (p_req_physp == NULL) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"__match_service_pkey_with_ports_pkey: ERR 2404: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2404: "
 			"Cannot find requester physical port\n");
 		valid = FALSE;
 		goto Exit;
@@ -124,8 +123,7 @@ __match_service_pkey_with_ports_pkey(IN osm_sa_t * sa,
 			service_port =
 			    osm_get_port_by_guid(sa->p_subn, service_guid);
 			if (!service_port) {
-				osm_log(sa->p_log, OSM_LOG_ERROR,
-					"__match_service_pkey_with_ports_pkey: ERR 2405: "
+				OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2405: "
 					"No port object for port 0x%016" PRIx64
 					"\n", cl_ntoh64(service_guid));
 				valid = FALSE;
@@ -187,8 +185,8 @@ __validate_sr(IN osm_sa_t * sa, IN const osm_madw_t * const p_madw)
 						     p_sa_mad->comp_mask);
 
 	if (!valid) {
-		osm_log(sa->p_log, OSM_LOG_DEBUG,
-			"__validate_sr: " "No Match for Service Pkey\n");
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
+			"No Match for Service Pkey\n");
 		valid = FALSE;
 		goto Exit;
 	}
@@ -198,8 +196,7 @@ __validate_sr(IN osm_sa_t * sa, IN const osm_madw_t * const p_madw)
 						p_sa_mad->comp_mask);
 
 	if (!valid) {
-		osm_log(sa->p_log, OSM_LOG_DEBUG,
-			"__validate_sr: "
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Service Record Name to key matching failed\n");
 		valid = FALSE;
 		goto Exit;
@@ -239,8 +236,7 @@ __osm_sr_rcv_respond(IN osm_sa_t * sa,
 	 * If we do a SubnAdmGet and got more than one record it is an error !
 	 */
 	if ((p_rcvd_mad->method == IB_MAD_METHOD_GET) && (num_rec > 1)) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"__osm_sr_rcv_respond: ERR 2406: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2406: "
 			"Got more than one record for SubnAdmGet (%u).\n",
 			num_rec);
 		osm_sa_send_error(sa, p_madw,
@@ -260,8 +256,7 @@ __osm_sr_rcv_respond(IN osm_sa_t * sa,
 	trim_num_rec =
 	    (MAD_BLOCK_SIZE - IB_SA_MAD_HDR_SIZE) / sizeof(ib_service_record_t);
 	if (trim_num_rec < num_rec) {
-		osm_log(sa->p_log, OSM_LOG_VERBOSE,
-			"__osm_sr_rcv_respond: "
+		OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
 			"Number of records:%u trimmed to:%u to fit in one MAD\n",
 			num_rec, trim_num_rec);
 		num_rec = trim_num_rec;
@@ -269,8 +264,7 @@ __osm_sr_rcv_respond(IN osm_sa_t * sa,
 #endif
 
 	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG)) {
-		osm_log(sa->p_log, OSM_LOG_DEBUG,
-			"__osm_sr_rcv_respond: "
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Generating response with %u records\n", num_rec);
 	}
 
@@ -282,8 +276,7 @@ __osm_sr_rcv_respond(IN osm_sa_t * sa,
 				       num_rec * sizeof(ib_service_record_t) +
 				       IB_SA_MAD_HDR_SIZE, &p_madw->mad_addr);
 	if (!p_resp_madw) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"__osm_sr_rcv_respond: ERR 2402: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2402: "
 			"Unable to allocate MAD\n");
 		/* Release the quick pool items */
 		p_sr_item = (osm_sr_item_t *) cl_qlist_remove_head(p_list);
@@ -373,8 +366,7 @@ __osm_sr_rcv_respond(IN osm_sa_t * sa,
 				    sa->p_subn);
 
 	if (status != IB_SUCCESS) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"__osm_sr_rcv_respond: ERR 2407: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2407: "
 			"Unable to send MAD (%s)\n", ib_get_err_str(status));
 		/*  osm_mad_pool_put( sa->p_mad_pool, p_resp_madw ); */
 		goto Exit;
@@ -591,8 +583,7 @@ __get_matching_sr(IN cl_list_item_t * const p_list_item, IN void *context)
 		if (!osm_physp_has_pkey(p_sr_item->sa->p_log,
 					p_svcr->service_record.service_pkey,
 					p_req_physp)) {
-			osm_log(p_sr_item->sa->p_log, OSM_LOG_VERBOSE,
-				"__get_matching_sr: "
+			OSM_LOG(p_sr_item->sa->p_log, OSM_LOG_VERBOSE,
 				"requester port doesn't have the service_pkey: 0x%X\n",
 				cl_ntoh16(p_svcr->service_record.service_pkey));
 			return;
@@ -601,8 +592,7 @@ __get_matching_sr(IN cl_list_item_t * const p_list_item, IN void *context)
 
 	p_sr_pool_item = malloc(sizeof(*p_sr_pool_item));
 	if (p_sr_pool_item == NULL) {
-		osm_log(p_sr_item->sa->p_log, OSM_LOG_ERROR,
-			"__get_matching_sr: ERR 2408: "
+		OSM_LOG(p_sr_item->sa->p_log, OSM_LOG_ERROR, "ERR 2408: "
 			"Unable to acquire Service Record from pool\n");
 		goto Exit;
 	}
@@ -637,8 +627,7 @@ osm_sr_rcv_process_get_method(IN osm_sa_t * sa,
 						osm_madw_get_mad_addr_ptr
 						(p_madw));
 	if (p_req_physp == NULL) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"osm_sr_rcv_process_get_method: ERR 2409: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2409: "
 			"Cannot find requester physical port\n");
 		goto Exit;
 	}
@@ -670,8 +659,7 @@ osm_sr_rcv_process_get_method(IN osm_sa_t * sa,
 
 	if ((p_sa_mad->method == IB_MAD_METHOD_GET) &&
 	    (cl_qlist_count(&sr_match_item.sr_list) == 0)) {
-		osm_log(sa->p_log, OSM_LOG_DEBUG,
-			"osm_sr_rcv_process_get_method: "
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"No records matched the Service Record query\n");
 
 		osm_sa_send_error(sa, p_madw,
@@ -717,8 +705,7 @@ osm_sr_rcv_process_set_method(IN osm_sa_t * sa,
 
 	if ((comp_mask & (IB_SR_COMPMASK_SID | IB_SR_COMPMASK_SGID)) !=
 	    (IB_SR_COMPMASK_SID | IB_SR_COMPMASK_SGID)) {
-		osm_log(sa->p_log, OSM_LOG_VERBOSE,
-			"osm_sr_rcv_process_set_method: "
+		OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
 			"Component Mask RID check failed for METHOD_SET\n");
 		osm_sa_send_error(sa, p_madw, sa_status);
 		goto Exit;
@@ -727,8 +714,7 @@ osm_sr_rcv_process_set_method(IN osm_sa_t * sa,
 	/* if we were not provided with a service lease make it
 	   infinite */
 	if ((comp_mask & IB_SR_COMPMASK_SLEASE) != IB_SR_COMPMASK_SLEASE) {
-		osm_log(sa->p_log, OSM_LOG_DEBUG,
-			"osm_sr_rcv_process_set_method: "
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"ServiceLease Component Mask not set - using infinite lease\n");
 		p_recvd_service_rec->service_lease = 0xFFFFFFFF;
 	}
@@ -746,8 +732,7 @@ osm_sr_rcv_process_set_method(IN osm_sa_t * sa,
 		if (p_svcr == NULL) {
 			cl_plock_release(sa->p_lock);
 
-			osm_log(sa->p_log, OSM_LOG_ERROR,
-				"osm_sr_rcv_process_set_method: ERR 2411: "
+			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2411: "
 				"osm_svcr_get_by_rid failed\n");
 
 			osm_sa_send_error(sa, p_madw,
@@ -778,8 +763,7 @@ osm_sr_rcv_process_set_method(IN osm_sa_t * sa,
 
 	p_sr_item = malloc(sizeof(*p_sr_item));
 	if (p_sr_item == NULL) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"osm_sr_rcv_process_set_method: ERR 2412: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2412: "
 			"Unable to acquire Service record\n");
 		osm_sa_send_error(sa, p_madw,
 				  IB_SA_MAD_STATUS_NO_RESOURCES);
@@ -840,8 +824,7 @@ osm_sr_rcv_process_delete_method(IN osm_sa_t * sa,
 
 	if (p_svcr == NULL) {
 		cl_plock_release(sa->p_lock);
-		osm_log(sa->p_log, OSM_LOG_DEBUG,
-			"osm_sr_rcv_process_delete_method: "
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"No records matched the RID\n");
 		osm_sa_send_error(sa, p_madw,
 				  IB_SA_MAD_STATUS_NO_RECORDS);
@@ -854,8 +837,7 @@ osm_sr_rcv_process_delete_method(IN osm_sa_t * sa,
 
 	p_sr_item = malloc(sizeof(*p_sr_item));
 	if (p_sr_item == NULL) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"osm_sr_rcv_process_delete_method: ERR 2413: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2413: "
 			"Unable to acquire Service record\n");
 		osm_sa_send_error(sa, p_madw,
 				  IB_SA_MAD_STATUS_NO_RESOURCES);
@@ -900,8 +882,7 @@ void osm_sr_rcv_process(IN void *context, IN void *data)
 	case IB_MAD_METHOD_SET:
 		valid = __validate_sr(sa, p_madw);
 		if (!valid) {
-			osm_log(sa->p_log, OSM_LOG_VERBOSE,
-				"osm_sr_rcv_process: "
+			OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
 				"Component Mask check failed for set request\n");
 			osm_sa_send_error(sa, p_madw, sa_status);
 			goto Exit;
@@ -911,8 +892,7 @@ void osm_sr_rcv_process(IN void *context, IN void *data)
 	case IB_MAD_METHOD_DELETE:
 		valid = __validate_sr(sa, p_madw);
 		if (!valid) {
-			osm_log(sa->p_log, OSM_LOG_DEBUG,
-				"osm_sr_rcv_process: "
+			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 				"Component Mask check failed for delete request\n");
 			osm_sa_send_error(sa, p_madw, sa_status);
 			goto Exit;
@@ -924,8 +904,7 @@ void osm_sr_rcv_process(IN void *context, IN void *data)
 		osm_sr_rcv_process_get_method(sa, p_madw);
 		break;
 	default:
-		osm_log(sa->p_log, OSM_LOG_DEBUG,
-			"osm_sr_rcv_process: "
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Unsupported Method (%s)\n",
 			ib_get_sa_method_str(p_sa_mad->method));
 		osm_sa_send_error(sa, p_madw,
@@ -980,8 +959,7 @@ void osm_sr_rcv_lease_cb(IN void *context)
 			 */
 			p_svcr->lease_period -= elapsed_time;
 
-			osm_log(sa->p_log, OSM_LOG_DEBUG,
-				"osm_sr_rcv_lease_cb: "
+			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 				"Remaining time for Service Name:%s is:0x%X\n",
 				p_svcr->service_record.service_name,
 				p_svcr->lease_period);

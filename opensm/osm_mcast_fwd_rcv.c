@@ -95,8 +95,7 @@ void osm_mft_rcv_process(IN void *context, IN void *data)
 	node_guid = p_mft_context->node_guid;
 
 	if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
-		osm_log(sm->p_log, OSM_LOG_DEBUG,
-			"osm_mft_rcv_process: "
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 			"Setting MFT block %u, position %u, "
 			"Switch 0x%016" PRIx64 ", TID 0x%" PRIx64 "\n",
 			block_num, position, cl_ntoh64(node_guid),
@@ -107,8 +106,7 @@ void osm_mft_rcv_process(IN void *context, IN void *data)
 	p_sw = osm_get_switch_by_guid(sm->p_subn, node_guid);
 
 	if (!p_sw) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"osm_mft_rcv_process: ERR 0801: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0801: "
 			"MFT received for nonexistent node "
 			"0x%016" PRIx64 "\n", cl_ntoh64(node_guid));
 	} else {
@@ -116,8 +114,7 @@ void osm_mft_rcv_process(IN void *context, IN void *data)
 						  (uint16_t) block_num,
 						  position);
 		if (status != IB_SUCCESS) {
-			osm_log(sm->p_log, OSM_LOG_ERROR,
-				"osm_mft_rcv_process: ERR 0802: "
+			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0802: "
 				"Setting MFT block failed (%s)"
 				"\n\t\t\t\tSwitch 0x%016" PRIx64
 				", block %u, position %u\n",

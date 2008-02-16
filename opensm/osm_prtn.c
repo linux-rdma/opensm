@@ -110,14 +110,14 @@ ib_api_status_t osm_prtn_add_port(osm_log_t * p_log, osm_subn_t * p_subn,
 
 	p_port = osm_get_port_by_guid(p_subn, guid);
 	if (!p_port) {
-		osm_log(p_log, OSM_LOG_VERBOSE, "osm_prtn_add_port: "
+		OSM_LOG(p_log, OSM_LOG_VERBOSE,
 			"port 0x%" PRIx64 " not found\n", cl_ntoh64(guid));
 		return status;
 	}
 
 	p_physp = p_port->p_physp;
 	if (!p_physp) {
-		osm_log(p_log, OSM_LOG_VERBOSE, "osm_prtn_add_port: "
+		OSM_LOG(p_log, OSM_LOG_VERBOSE,
 			"no physical for port 0x%" PRIx64 "\n",
 			cl_ntoh64(guid));
 		return status;
@@ -125,7 +125,7 @@ ib_api_status_t osm_prtn_add_port(osm_log_t * p_log, osm_subn_t * p_subn,
 
 	if (cl_map_remove(&p->part_guid_tbl, guid) ||
 	    cl_map_remove(&p->full_guid_tbl, guid)) {
-		osm_log(p_log, OSM_LOG_VERBOSE, "osm_prtn_add_port: "
+		OSM_LOG(p_log, OSM_LOG_VERBOSE,
 			"port 0x%" PRIx64 " already in "
 			"partition \'%s\' (0x%04x). Will overwrite\n",
 			cl_ntoh64(guid), p->name, cl_ntoh16(p->pkey));
@@ -227,8 +227,7 @@ ib_api_status_t osm_prtn_add_mcgroup(osm_log_t * p_log,
 	status = osm_mcmr_rcv_find_or_create_new_mgrp(p_sa, comp_mask, &mc_rec,
 						      &p_mgrp);
 	if (!p_mgrp || status != IB_SUCCESS)
-		osm_log(p_log, OSM_LOG_ERROR,
-			"osm_prtn_add_mcgroup: "
+		OSM_LOG(p_log, OSM_LOG_ERROR,
 			"Failed to create MC group with pkey 0x%04x\n",
 			cl_ntoh16(pkey));
 	if (p_mgrp)
@@ -296,8 +295,7 @@ osm_prtn_t *osm_prtn_make_new(osm_log_t * p_log, osm_subn_t * p_subn,
 
 	p = osm_prtn_new(name, pkey);
 	if (!p) {
-		osm_log(p_log, OSM_LOG_ERROR,
-			"osm_prtn_make_new: Unable to create"
+		OSM_LOG(p_log, OSM_LOG_ERROR, "Unable to create"
 			" partition \'%s\' (0x%04x)\n", name, cl_ntoh16(pkey));
 		return NULL;
 	}
@@ -305,8 +303,7 @@ osm_prtn_t *osm_prtn_make_new(osm_log_t * p_log, osm_subn_t * p_subn,
 	p_check = (osm_prtn_t *) cl_qmap_insert(&p_subn->prtn_pkey_tbl,
 						p->pkey, &p->map_item);
 	if (p != p_check) {
-		osm_log(p_log, OSM_LOG_VERBOSE,
-			"osm_prtn_make_new: Duplicated partition"
+		OSM_LOG(p_log, OSM_LOG_VERBOSE, "Duplicated partition"
 			" definition: \'%s\' (0x%04x) prev name \'%s\'"
 			".  Will use it\n",
 			name, cl_ntoh16(pkey), p_check->name);
@@ -373,8 +370,7 @@ ib_api_status_t osm_prtn_make_partitions(osm_log_t * const p_log,
 		goto _err;
 
 	if (is_config && osm_prtn_config_parse_file(p_log, p_subn, file_name)) {
-		osm_log(p_log, OSM_LOG_VERBOSE,
-			"osm_prtn_make_partitions: Partition configuration "
+		OSM_LOG(p_log, OSM_LOG_VERBOSE, "Partition configuration "
 			"was not fully processed\n");
 	}
 

@@ -80,8 +80,7 @@ __osm_sa_pkey_create(IN osm_sa_t * sa,
 
 	p_rec_item = malloc(sizeof(*p_rec_item));
 	if (p_rec_item == NULL) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"__osm_sa_pkey_create: ERR 4602: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4602: "
 			"rec_item alloc failed\n");
 		status = IB_INSUFFICIENT_RESOURCES;
 		goto Exit;
@@ -93,8 +92,7 @@ __osm_sa_pkey_create(IN osm_sa_t * sa,
 		lid = osm_node_get_base_lid(p_physp->p_node, 0);
 
 	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG)) {
-		osm_log(sa->p_log, OSM_LOG_DEBUG,
-			"__osm_sa_pkey_create: "
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"New P_Key table for: port 0x%016" PRIx64
 			", lid 0x%X, port 0x%X Block:%u\n",
 			cl_ntoh64(osm_physp_get_port_guid(p_physp)),
@@ -168,8 +166,7 @@ __osm_sa_pkey_by_comp_mask(IN osm_sa_t * sa,
 	if (p_port->p_node->node_info.node_type != IB_NODE_TYPE_SWITCH) {
 		/* we put it in the comp mask and port num */
 		port_num = p_port->p_physp->port_num;
-		osm_log(sa->p_log, OSM_LOG_DEBUG,
-			"__osm_sa_pkey_by_comp_mask:  "
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Using Physical Default Port Number: 0x%X (for End Node)\n",
 			port_num);
 		comp_mask |= IB_PKEY_COMPMASK_PORT;
@@ -187,8 +184,7 @@ __osm_sa_pkey_by_comp_mask(IN osm_sa_t * sa,
 				__osm_sa_pkey_check_physp(sa, p_physp,
 							  p_ctxt);
 		} else {
-			osm_log(sa->p_log, OSM_LOG_ERROR,
-				"__osm_sa_pkey_by_comp_mask: ERR 4603: "
+			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4603: "
 				"Given Physical Port Number: 0x%X is out of range should be < 0x%X\n",
 				port_num,
 				osm_node_get_num_physp(p_port->p_node));
@@ -270,8 +266,7 @@ void osm_pkey_rec_rcv_process(IN void *ctx, IN void *data)
 	/* we only support SubnAdmGet and SubnAdmGetTable methods */
 	if ((p_rcvd_mad->method != IB_MAD_METHOD_GET) &&
 	    (p_rcvd_mad->method != IB_MAD_METHOD_GETTABLE)) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"osm_pkey_rec_rcv_process: ERR 4605: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4605: "
 			"Unsupported Method (%s)\n",
 			ib_get_sa_method_str(p_rcvd_mad->method));
 		osm_sa_send_error(sa, p_madw,
@@ -286,8 +281,7 @@ void osm_pkey_rec_rcv_process(IN void *ctx, IN void *data)
 	 */
 	if (p_rcvd_mad->sm_key != sa->p_subn->opt.sm_key) {
 		/* This is not a trusted requester! */
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"osm_pkey_rec_rcv_process ERR 4608: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4608: "
 			"Request from non-trusted requester: "
 			"Given SM_Key:0x%016" PRIx64 "\n",
 			cl_ntoh64(p_rcvd_mad->sm_key));
@@ -302,8 +296,7 @@ void osm_pkey_rec_rcv_process(IN void *ctx, IN void *data)
 						osm_madw_get_mad_addr_ptr
 						(p_madw));
 	if (p_req_physp == NULL) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"osm_pkey_rec_rcv_process: ERR 4604: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4604: "
 			"Cannot find requester physical port\n");
 		goto Exit;
 	}
@@ -319,8 +312,7 @@ void osm_pkey_rec_rcv_process(IN void *ctx, IN void *data)
 	context.block_num = p_rcvd_rec->block_num;
 	context.p_req_physp = p_req_physp;
 
-	osm_log(sa->p_log, OSM_LOG_DEBUG,
-		"osm_pkey_rec_rcv_process: "
+	OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 		"Got Query Lid:0x%04X(%02X), Block:0x%02X(%02X), Port:0x%02X(%02X)\n",
 		cl_ntoh16(p_rcvd_rec->lid),
 		(comp_mask & IB_PKEY_COMPMASK_LID) != 0, p_rcvd_rec->port_num,
@@ -344,8 +336,7 @@ void osm_pkey_rec_rcv_process(IN void *ctx, IN void *data)
 					     &p_port);
 		if ((status != IB_SUCCESS) || (p_port == NULL)) {
 			status = IB_NOT_FOUND;
-			osm_log(sa->p_log, OSM_LOG_ERROR,
-				"osm_pkey_rec_rcv_process: ERR 460B: "
+			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 460B: "
 				"No port found with LID 0x%x\n",
 				cl_ntoh16(p_rcvd_rec->lid));
 		}
@@ -378,8 +369,7 @@ void osm_pkey_rec_rcv_process(IN void *ctx, IN void *data)
 			goto Exit;
 		}
 		if (num_rec > 1) {
-			osm_log(sa->p_log, OSM_LOG_ERROR,
-				"osm_pkey_rec_rcv_process: ERR 460A: "
+			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 460A: "
 				"Got more than one record for SubnAdmGet (%u)\n",
 				num_rec);
 			osm_sa_send_error(sa, p_madw,
@@ -405,16 +395,14 @@ void osm_pkey_rec_rcv_process(IN void *ctx, IN void *data)
 	    (MAD_BLOCK_SIZE -
 	     IB_SA_MAD_HDR_SIZE) / sizeof(ib_pkey_table_record_t);
 	if (trim_num_rec < num_rec) {
-		osm_log(sa->p_log, OSM_LOG_VERBOSE,
-			"osm_pkey_rec_rcv_process: "
+		OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
 			"Number of records:%u trimmed to:%u to fit in one MAD\n",
 			num_rec, trim_num_rec);
 		num_rec = trim_num_rec;
 	}
 #endif
 
-	osm_log(sa->p_log, OSM_LOG_DEBUG,
-		"osm_pkey_rec_rcv_process: " "Returning %u records\n", num_rec);
+	OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Returning %u records\n", num_rec);
 
 	if ((p_rcvd_mad->method == IB_MAD_METHOD_GET) && (num_rec == 0)) {
 		osm_sa_send_error(sa, p_madw,
@@ -432,8 +420,7 @@ void osm_pkey_rec_rcv_process(IN void *ctx, IN void *data)
 				       IB_SA_MAD_HDR_SIZE, &p_madw->mad_addr);
 
 	if (!p_resp_madw) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"osm_pkey_rec_rcv_process: ERR 4606: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4606: "
 			"osm_mad_pool_get failed\n");
 
 		for (i = 0; i < num_rec; i++) {
@@ -497,8 +484,7 @@ void osm_pkey_rec_rcv_process(IN void *ctx, IN void *data)
 	status = osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE,
 				    sa->p_subn);
 	if (status != IB_SUCCESS) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"osm_pkey_rec_rcv_process: ERR 4607: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4607: "
 			"osm_sa_vendor_send status = %s\n",
 			ib_get_err_str(status));
 		goto Exit;

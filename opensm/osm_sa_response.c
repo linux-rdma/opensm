@@ -73,8 +73,7 @@ osm_sa_send_error(IN osm_sa_t * sa,
 
 	/* avoid races - if we are exiting - exit */
 	if (osm_exit_flag) {
-		osm_log(sa->p_log, OSM_LOG_DEBUG,
-			"osm_sa_send_error: "
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Ignoring requested send after exit\n");
 		goto Exit;
 	}
@@ -84,8 +83,7 @@ osm_sa_send_error(IN osm_sa_t * sa,
 				       &p_madw->mad_addr);
 
 	if (p_resp_madw == NULL) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"osm_sa_send_error: ERR 2301: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2301: "
 			"Unable to acquire response MAD\n");
 		goto Exit;
 	}
@@ -121,8 +119,7 @@ osm_sa_send_error(IN osm_sa_t * sa,
 				    p_resp_madw, FALSE, sa->p_subn);
 
 	if (status != IB_SUCCESS) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"osm_sa_send_error: ERR 2302: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2302: "
 			"Error sending MAD (%s)\n", ib_get_err_str(status));
 		/*  osm_mad_pool_put( sa->p_mad_pool, p_resp_madw ); */
 		goto Exit;

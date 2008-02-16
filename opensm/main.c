@@ -457,8 +457,7 @@ parse_ignore_guids_file(IN char *guids_file_name, IN osm_opensm_t * p_osm)
 
 	fh = fopen(guids_file_name, "r");
 	if (fh == NULL) {
-		osm_log(&p_osm->log, OSM_LOG_ERROR,
-			"parse_ignore_guids_file: ERR 0601: "
+		OSM_LOG(&p_osm->log, OSM_LOG_ERROR, "ERR 0601: "
 			"Unable to open ignore guids file (%s)\n",
 			guids_file_name);
 		status = IB_ERROR;
@@ -475,8 +474,7 @@ parse_ignore_guids_file(IN char *guids_file_name, IN osm_opensm_t * p_osm)
 			p_c++;
 		port_guid = strtoull(p_c, &p_ec, 16);
 		if (p_ec == p_c) {
-			osm_log(&p_osm->log, OSM_LOG_ERROR,
-				"parse_ignore_guids_file: ERR 0602: "
+			OSM_LOG(&p_osm->log, OSM_LOG_ERROR, "ERR 0602: "
 				"Error in line (%u): %s\n", line_num, line);
 			status = IB_ERROR;
 			goto Exit;
@@ -485,8 +483,7 @@ parse_ignore_guids_file(IN char *guids_file_name, IN osm_opensm_t * p_osm)
 		while ((*p_ec == ' ') && (*p_ec != '\0'))
 			p_ec++;
 		if (!sscanf(p_ec, "%d", &port_num)) {
-			osm_log(&p_osm->log, OSM_LOG_ERROR,
-				"parse_ignore_guids_file: ERR 0603: "
+			OSM_LOG(&p_osm->log, OSM_LOG_ERROR, "ERR 0603: "
 				"Error in line (%u): %s\n", line_num, p_ec);
 			status = IB_ERROR;
 			goto Exit;
@@ -495,8 +492,8 @@ parse_ignore_guids_file(IN char *guids_file_name, IN osm_opensm_t * p_osm)
 		/* ok insert it */
 		osm_port_prof_set_ignored_port(&p_osm->subn,
 					       cl_hton64(port_guid), port_num);
-		osm_log(&p_osm->log, OSM_LOG_DEBUG,
-			"parse_ignore_guids_file: " "Inserted Port: 0x%" PRIx64
+		OSM_LOG(&p_osm->log, OSM_LOG_DEBUG,
+			"Inserted Port: 0x%" PRIx64
 			" PortNum: 0x%X into ignored guids list\n", port_guid,
 			port_num);
 

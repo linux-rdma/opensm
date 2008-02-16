@@ -245,8 +245,7 @@ static ib_api_status_t qos_physp_setup(osm_log_t * p_log, osm_sm_t * sm,
 	/* setup VLArbitration */
 	status = vlarb_update(sm, p, port_num, force_update, qcfg);
 	if (status != IB_SUCCESS) {
-		osm_log(p_log, OSM_LOG_ERROR,
-			"qos_physp_setup: ERR 6202 : "
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 6202 : "
 			"failed to update VLArbitration tables "
 			"for port %" PRIx64 " #%d\n",
 			cl_ntoh64(p->port_guid), port_num);
@@ -256,8 +255,7 @@ static ib_api_status_t qos_physp_setup(osm_log_t * p_log, osm_sm_t * sm,
 	/* setup SL2VL tables */
 	status = sl2vl_update(sm, p_port, p, port_num, force_update, qcfg);
 	if (status != IB_SUCCESS) {
-		osm_log(p_log, OSM_LOG_ERROR,
-			"qos_physp_setup: ERR 6203 : "
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 6203 : "
 			"failed to update SL2VLMapping tables "
 			"for port %" PRIx64 " #%d\n",
 			cl_ntoh64(p->port_guid), port_num);

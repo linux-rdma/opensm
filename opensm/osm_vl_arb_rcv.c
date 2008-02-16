@@ -99,8 +99,7 @@ void osm_vla_rcv_process(IN void *context, IN void *data)
 	p_port = osm_get_port_by_guid(sm->p_subn, port_guid);
 	if (!p_port) {
 		cl_plock_release(sm->p_lock);
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"osm_vla_rcv_process: ERR 3F06: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3F06: "
 			"No port object for port with GUID 0x%" PRIx64
 			"\n\t\t\t\tfor parent node GUID 0x%" PRIx64
 			", TID 0x%" PRIx64 "\n",
@@ -127,8 +126,7 @@ void osm_vla_rcv_process(IN void *context, IN void *data)
 	   the subnet.
 	 */
 	if (osm_log_is_active(sm->p_log, OSM_LOG_VERBOSE)) {
-		osm_log(sm->p_log, OSM_LOG_VERBOSE,
-			"osm_vla_rcv_process: "
+		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 			"Got GetResp(VLArb) block:%u port_num %u with GUID 0x%"
 			PRIx64 " for parent node GUID 0x%" PRIx64 ", TID 0x%"
 			PRIx64 "\n", block_num, port_num, cl_ntoh64(port_guid),
@@ -140,8 +138,7 @@ void osm_vla_rcv_process(IN void *context, IN void *data)
 	   If so, Ignore it.
 	 */
 	if (!p_physp) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"osm_vla_rcv_process: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR,
 			"Got invalid port number 0x%X\n", port_num);
 		goto Exit;
 	}
@@ -151,8 +148,7 @@ void osm_vla_rcv_process(IN void *context, IN void *data)
 			      port_num, p_vla_tbl, OSM_LOG_DEBUG);
 
 	if ((block_num < 1) || (block_num > 4)) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"osm_vla_rcv_process: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR,
 			"Got invalid block number 0x%X\n", block_num);
 		goto Exit;
 	}

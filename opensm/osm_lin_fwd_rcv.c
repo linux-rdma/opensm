@@ -88,15 +88,13 @@ void osm_lft_rcv_process(IN void *context, IN void *data)
 	p_sw = osm_get_switch_by_guid(sm->p_subn, node_guid);
 
 	if (!p_sw) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"osm_lft_rcv_process: ERR 0401: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0401: "
 			"LFT received for nonexistent node "
 			"0x%" PRIx64 "\n", cl_ntoh64(node_guid));
 	} else {
 		status = osm_switch_set_ft_block(p_sw, p_block, block_num);
 		if (status != IB_SUCCESS) {
-			osm_log(sm->p_log, OSM_LOG_ERROR,
-				"osm_lft_rcv_process: ERR 0402: "
+			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0402: "
 				"Setting forwarding table block failed (%s)"
 				"\n\t\t\t\tSwitch 0x%" PRIx64 "\n",
 				ib_get_err_str(status), cl_ntoh64(node_guid));

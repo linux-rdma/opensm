@@ -310,8 +310,7 @@ osm_mgrp_send_delete_notice(IN osm_subn_t * const p_subn,
 
 	status = osm_report_notice(p_log, p_subn, &notice);
 	if (status != IB_SUCCESS) {
-		osm_log(p_log, OSM_LOG_ERROR,
-			"osm_mgrp_send_delete_notice: ERR 7601: "
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 7601: "
 			"Error sending trap reports (%s)\n",
 			ib_get_err_str(status));
 		goto Exit;
@@ -352,8 +351,7 @@ osm_mgrp_send_create_notice(IN osm_subn_t * const p_subn,
 
 	status = osm_report_notice(p_log, p_subn, &notice);
 	if (status != IB_SUCCESS) {
-		osm_log(p_log, OSM_LOG_ERROR,
-			"osm_mgrp_send_create_notice: ERR 7602: "
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 7602: "
 			"Error sending trap reports (%s)\n",
 			ib_get_err_str(status));
 		goto Exit;

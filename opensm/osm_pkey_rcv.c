@@ -87,8 +87,7 @@ void osm_pkey_rcv_process(IN void *context, IN void *data)
 	cl_plock_excl_acquire(sm->p_lock);
 	p_port = osm_get_port_by_guid(sm->p_subn, port_guid);
 	if (!p_port) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"osm_pkey_rcv_process: ERR 4806: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 4806: "
 			"No port object for port with GUID 0x%" PRIx64
 			"\n\t\t\t\tfor parent node GUID 0x%" PRIx64
 			", TID 0x%" PRIx64 "\n",
@@ -117,8 +116,7 @@ void osm_pkey_rcv_process(IN void *context, IN void *data)
 	   update the subnet.
 	 */
 	if (osm_log_is_active(sm->p_log, OSM_LOG_VERBOSE)) {
-		osm_log(sm->p_log, OSM_LOG_VERBOSE,
-			"osm_pkey_rcv_process: "
+		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 			"Got GetResp(PKey) block:%u port_num %u with GUID 0x%"
 			PRIx64 " for parent node GUID 0x%" PRIx64 ", TID 0x%"
 			PRIx64 "\n", block_num, port_num, cl_ntoh64(port_guid),
@@ -130,8 +128,7 @@ void osm_pkey_rcv_process(IN void *context, IN void *data)
 	   If so, ignore it.
 	 */
 	if (!p_physp) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"osm_pkey_rcv_process: ERR 4807: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 4807: "
 			"Got invalid port number 0x%X\n", port_num);
 		goto Exit;
 	}

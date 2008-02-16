@@ -171,8 +171,7 @@ __get_new_mlid(IN osm_sa_t * sa, IN ib_net16_t requested_mlid)
 	p_mgrp = (osm_mgrp_t *) cl_qmap_head(&p_subn->mgrp_mlid_tbl);
 	if (p_mgrp == (osm_mgrp_t *) cl_qmap_end(&p_subn->mgrp_mlid_tbl)) {
 		mlid = IB_LID_MCAST_START_HO;
-		osm_log(sa->p_log, OSM_LOG_VERBOSE,
-			"__get_new_mlid: "
+		OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
 			"No multicast groups found using minimal mlid:0x%04X\n",
 			mlid);
 		goto Exit;
@@ -192,8 +191,7 @@ __get_new_mlid(IN osm_sa_t * sa, IN ib_net16_t requested_mlid)
 	while (p_mgrp != (osm_mgrp_t *) cl_qmap_end(&p_subn->mgrp_mlid_tbl)) {
 		/* ignore mgrps marked for deletion */
 		if (p_mgrp->to_be_deleted == FALSE) {
-			osm_log(sa->p_log, OSM_LOG_DEBUG,
-				"__get_new_mlid: "
+			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 				"Found mgrp with lid:0x%X MGID: 0x%016" PRIx64
 				" : " "0x%016" PRIx64 "\n",
 				cl_ntoh16(p_mgrp->mlid),
@@ -205,8 +203,7 @@ __get_new_mlid(IN osm_sa_t * sa, IN ib_net16_t requested_mlid)
 			/* Map in table */
 			if (cl_ntoh16(p_mgrp->mlid) >
 			    sa->p_subn->max_multicast_lid_ho) {
-				osm_log(sa->p_log, OSM_LOG_ERROR,
-					"__get_new_mlid: ERR 1B27: "
+				OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B27: "
 					"Found mgrp with mlid:0x%04X > max allowed mlid:0x%04X\n",
 					cl_ntoh16(p_mgrp->mlid),
 					max_num_mlids + IB_LID_MCAST_START_HO);
@@ -225,12 +222,10 @@ __get_new_mlid(IN osm_sa_t * sa, IN ib_net16_t requested_mlid)
 	/* did it go above the maximal mlid allowed */
 	if (idx < max_num_mlids) {
 		mlid = idx + IB_LID_MCAST_START_HO;
-		osm_log(sa->p_log, OSM_LOG_VERBOSE,
-			"__get_new_mlid: "
+		OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
 			"Found available mlid:0x%04X at idx:%u\n", mlid, idx);
 	} else {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"__get_new_mlid: ERR 1B23: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B23: "
 			"All available:%u mlids are taken\n", max_num_mlids);
 		mlid = 0;
 	}
@@ -289,8 +284,7 @@ __add_new_mgrp_port(IN osm_sa_t * sa,
 				      sa->p_subn,
 				      p_mad_addr, &requester_gid);
 	if (res != IB_SUCCESS) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"__add_new_mgrp_port: ERR 1B29: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B29: "
 			"Could not find GID for requester\n");
 
 		return IB_INVALID_PARAMETER;
@@ -299,16 +293,14 @@ __add_new_mgrp_port(IN osm_sa_t * sa,
 	if (!memcmp(&p_recvd_mcmember_rec->port_gid, &requester_gid,
 		    sizeof(ib_gid_t))) {
 		proxy_join = FALSE;
-		osm_log(sa->p_log, OSM_LOG_DEBUG,
-			"__add_new_mgrp_port: "
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Create new port with proxy_join FALSE\n");
 	} else {
 		/* The port is not the one specified in PortGID.
 		   The check that the requester is in the same partition as
 		   the PortGID is done before - just need to update the proxy_join. */
 		proxy_join = TRUE;
-		osm_log(sa->p_log, OSM_LOG_DEBUG,
-			"__add_new_mgrp_port: "
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Create new port with proxy_join TRUE\n");
 	}
 
@@ -317,8 +309,7 @@ __add_new_mgrp_port(IN osm_sa_t * sa,
 					  p_recvd_mcmember_rec->scope_state,
 					  proxy_join);
 	if (*pp_mcmr_port == NULL) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"__add_new_mgrp_port: ERR 1B06: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B06: "
 			"osm_mgrp_add_port failed\n");
 
 		return IB_INSUFFICIENT_MEMORY;
@@ -408,8 +399,7 @@ __osm_mcmr_rcv_respond(IN osm_sa_t * sa,
 				    sa->p_subn);
 
 	if (status != IB_SUCCESS) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"__osm_mcmr_rcv_respond: ERR 1B07: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B07: "
 			"Unable to send MAD (%s) for TID <0x%" PRIx64 ">\n",
 			ib_get_err_str(status), p_resp_sa_mad->trans_id);
 	}
@@ -445,8 +435,7 @@ __validate_more_comp_fields(osm_log_t * p_log,
 		switch (mtu_sel) {
 		case 0:	/* Greater than MTU specified */
 			if (mtu_mgrp <= mtu_required) {
-				osm_log(p_log, OSM_LOG_DEBUG,
-					"__validate_more_comp_fields: "
+				OSM_LOG(p_log, OSM_LOG_DEBUG,
 					"Requested mcast group has MTU %x, which is not greater than %x\n",
 					mtu_mgrp, mtu_required);
 				return FALSE;
@@ -454,8 +443,7 @@ __validate_more_comp_fields(osm_log_t * p_log,
 			break;
 		case 1:	/* Less than MTU specified */
 			if (mtu_mgrp >= mtu_required) {
-				osm_log(p_log, OSM_LOG_DEBUG,
-					"__validate_more_comp_fields: "
+				OSM_LOG(p_log, OSM_LOG_DEBUG,
 					"Requested mcast group has MTU %x, which is not less than %x\n",
 					mtu_mgrp, mtu_required);
 				return FALSE;
@@ -463,8 +451,7 @@ __validate_more_comp_fields(osm_log_t * p_log,
 			break;
 		case 2:	/* Exactly MTU specified */
 			if (mtu_mgrp != mtu_required) {
-				osm_log(p_log, OSM_LOG_DEBUG,
-					"__validate_more_comp_fields: "
+				OSM_LOG(p_log, OSM_LOG_DEBUG,
 					"Requested mcast group has MTU %x, which is not equal to %x\n",
 					mtu_mgrp, mtu_required);
 				return FALSE;
@@ -484,8 +471,7 @@ __validate_more_comp_fields(osm_log_t * p_log,
 		switch (rate_sel) {
 		case 0:	/* Greater than RATE specified */
 			if (rate_mgrp <= rate_required) {
-				osm_log(p_log, OSM_LOG_DEBUG,
-					"__validate_more_comp_fields: "
+				OSM_LOG(p_log, OSM_LOG_DEBUG,
 					"Requested mcast group has RATE %x, which is not greater than %x\n",
 					rate_mgrp, rate_required);
 				return FALSE;
@@ -493,8 +479,7 @@ __validate_more_comp_fields(osm_log_t * p_log,
 			break;
 		case 1:	/* Less than RATE specified */
 			if (rate_mgrp >= rate_required) {
-				osm_log(p_log, OSM_LOG_DEBUG,
-					"__validate_more_comp_fields: "
+				OSM_LOG(p_log, OSM_LOG_DEBUG,
 					"Requested mcast group has RATE %x, which is not less than %x\n",
 					rate_mgrp, rate_required);
 				return FALSE;
@@ -502,8 +487,7 @@ __validate_more_comp_fields(osm_log_t * p_log,
 			break;
 		case 2:	/* Exactly RATE specified */
 			if (rate_mgrp != rate_required) {
-				osm_log(p_log, OSM_LOG_DEBUG,
-					"__validate_more_comp_fields: "
+				OSM_LOG(p_log, OSM_LOG_DEBUG,
 					"Requested mcast group has RATE %x, which is not equal to %x\n",
 					rate_mgrp, rate_required);
 				return FALSE;
@@ -533,8 +517,7 @@ __validate_port_caps(osm_log_t * const p_log,
 	mtu_required = ib_port_info_get_mtu_cap(&p_physp->port_info);
 	mtu_mgrp = (uint8_t) (p_mgrp->mcmember_rec.mtu & 0x3F);
 	if (mtu_required < mtu_mgrp) {
-		osm_log(p_log, OSM_LOG_DEBUG,
-			"__validate_port_caps: "
+		OSM_LOG(p_log, OSM_LOG_DEBUG,
 			"Port's MTU %x is less than %x\n",
 			mtu_required, mtu_mgrp);
 		return FALSE;
@@ -543,8 +526,7 @@ __validate_port_caps(osm_log_t * const p_log,
 	rate_required = ib_port_info_compute_rate(&p_physp->port_info);
 	rate_mgrp = (uint8_t) (p_mgrp->mcmember_rec.rate & 0x3F);
 	if (rate_required < rate_mgrp) {
-		osm_log(p_log, OSM_LOG_DEBUG,
-			"__validate_port_caps: "
+		OSM_LOG(p_log, OSM_LOG_DEBUG,
 			"Port's RATE %x is less than %x\n",
 			rate_required, rate_mgrp);
 		return FALSE;
@@ -582,8 +564,7 @@ __validate_modify(IN osm_sa_t * sa,
 
 	/* o15-0.2.1: If this is a new port being added - nothing to check */
 	if (!osm_mgrp_is_port_present(p_mgrp, portguid, pp_mcm_port)) {
-		osm_log(sa->p_log, OSM_LOG_DEBUG,
-			"__validate_modify: "
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"This is a new port in the MC group\n");
 		return TRUE;
 	}
@@ -598,8 +579,7 @@ __validate_modify(IN osm_sa_t * sa,
 					      p_mad_addr, &request_gid);
 
 		if (res != IB_SUCCESS) {
-			osm_log(sa->p_log, OSM_LOG_DEBUG,
-				"__validate_modify: "
+			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 				"Could not find port for requested address\n");
 			return FALSE;
 		}
@@ -607,8 +587,7 @@ __validate_modify(IN osm_sa_t * sa,
 		if (memcmp
 		    (&((*pp_mcm_port)->port_gid), &request_gid,
 		     sizeof(ib_gid_t))) {
-			osm_log(sa->p_log, OSM_LOG_DEBUG,
-				"__validate_modify: "
+			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 				"No ProxyJoin but different ports: stored:0x%016"
 				PRIx64 " request:0x%016" PRIx64 "\n",
 				cl_ntoh64((*pp_mcm_port)->port_gid.unicast.
@@ -630,8 +609,7 @@ __validate_modify(IN osm_sa_t * sa,
 		if (!osm_physp_has_pkey(sa->p_log, p_mgrp->mcmember_rec.pkey,
 					p_request_physp)) {
 			/* the request port is not part of the partition for this mgrp */
-			osm_log(sa->p_log, OSM_LOG_DEBUG,
-				"__validate_modify: "
+			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 				"ProxyJoin but port not in partition. stored:0x%016"
 				PRIx64 " request:0x%016" PRIx64 "\n",
 				cl_ntoh64((*pp_mcm_port)->port_gid.unicast.
@@ -682,8 +660,7 @@ __validate_delete(IN osm_sa_t * sa,
 
 	/* 1 */
 	if (!osm_mgrp_is_port_present(p_mgrp, portguid, pp_mcm_port)) {
-		osm_log(sa->p_log, OSM_LOG_DEBUG,
-			"__validate_delete: "
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Failed to find the port in the MC group\n");
 		return FALSE;
 	}
@@ -691,8 +668,7 @@ __validate_delete(IN osm_sa_t * sa,
 	/* 2 */
 	if (!(p_recvd_mcmember_rec->scope_state & 0x0F &
 	      (*pp_mcm_port)->scope_state)) {
-		osm_log(sa->p_log, OSM_LOG_DEBUG,
-			"__validate_delete: "
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Could not find any matching bits in the stored and requested JoinStates\n");
 		return FALSE;
 	}
@@ -701,8 +677,7 @@ __validate_delete(IN osm_sa_t * sa,
 	if (((p_recvd_mcmember_rec->scope_state & 0x0F) |
 	     (0x0F & (*pp_mcm_port)->scope_state)) !=
 	    (0x0F & (*pp_mcm_port)->scope_state)) {
-		osm_log(sa->p_log, OSM_LOG_DEBUG,
-			"__validate_delete: "
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Some bits in the request JoinState (0x%X) are not set in the stored port (0x%X)\n",
 			(p_recvd_mcmember_rec->scope_state & 0x0F),
 			(0x0F & (*pp_mcm_port)->scope_state)
@@ -714,8 +689,7 @@ __validate_delete(IN osm_sa_t * sa,
 	/* Validate according the the proxy_join (o15-0.1.2) */
 	if (__validate_modify(sa, p_mgrp, p_mad_addr, p_recvd_mcmember_rec,
 			      pp_mcm_port) == FALSE) {
-		osm_log(sa->p_log, OSM_LOG_DEBUG,
-			"__validate_delete: "
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"proxy_join validation failure\n");
 		return FALSE;
 	}
@@ -775,8 +749,7 @@ __validate_requested_mgid(IN osm_sa_t * sa,
 
 	/* 14-a: mcast GID must start with 0xFF */
 	if (p_mcm_rec->mgid.multicast.header[0] != 0xFF) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"__validate_requested_mgid: ERR 1B01: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B01: "
 			"Wrong MGID Prefix 0x%02X must be 0xFF\n",
 			cl_ntoh16(p_mcm_rec->mgid.multicast.header[0])
 		    );
@@ -788,8 +761,7 @@ __validate_requested_mgid(IN osm_sa_t * sa,
 	memcpy(&signature, &(p_mcm_rec->mgid.multicast.raw_group_id),
 	       sizeof(signature));
 	signature = cl_ntoh16(signature);
-	osm_log(sa->p_log, OSM_LOG_DEBUG,
-		"__validate_requested_mgid:  "
+	OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 		"MGID Signed as 0x%04X\n", signature);
 
 	/*
@@ -812,8 +784,7 @@ __validate_requested_mgid(IN osm_sa_t * sa,
 	 *
 	 */
 	if (signature == 0x401B || signature == 0x601B) {
-		osm_log(sa->p_log, OSM_LOG_DEBUG,
-			"__validate_requested_mgid:  "
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Skipping MGID Validation for IPoIB Signed (0x%04X) MGIDs\n",
 			signature);
 		goto Exit;
@@ -821,8 +792,7 @@ __validate_requested_mgid(IN osm_sa_t * sa,
 
 	/* 14-b: the 3 upper bits in the "flags" should be zero: */
 	if (p_mcm_rec->mgid.multicast.header[1] & 0xE0) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"__validate_requested_mgid: ERR 1B28: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B28: "
 			"MGID uses Reserved Flags: flags=0x%X\n",
 			(p_mcm_rec->mgid.multicast.header[1] & 0xE0) >> 4);
 		valid = FALSE;
@@ -834,8 +804,7 @@ __validate_requested_mgid(IN osm_sa_t * sa,
 	if ((signature == 0xA01B) &&
 	    ((p_mcm_rec->mgid.multicast.header[1] & 0x0F) ==
 	     IB_MC_SCOPE_LINK_LOCAL)) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"__validate_requested_mgid: ERR 1B24: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B24: "
 			"MGID uses 0xA01B signature but with link-local scope\n");
 		valid = FALSE;
 		goto Exit;
@@ -893,8 +862,7 @@ __mgrp_request_is_realizable(IN osm_sa_t * sa,
 		switch (mtu_sel) {
 		case 0:	/* Greater than MTU specified */
 			if (port_mtu && mtu_required >= port_mtu) {
-				osm_log(p_log, OSM_LOG_DEBUG,
-					"__mgrp_request_is_realizable: "
+				OSM_LOG(p_log, OSM_LOG_DEBUG,
 					"Requested MTU %x >= the port\'s mtu:%x\n",
 					mtu_required, port_mtu);
 				return FALSE;
@@ -922,8 +890,7 @@ __mgrp_request_is_realizable(IN osm_sa_t * sa,
 		}
 		/* make sure it still be in the range */
 		if (mtu < IB_MIN_MTU || mtu > IB_MAX_MTU) {
-			osm_log(p_log, OSM_LOG_DEBUG,
-				"__mgrp_request_is_realizable: "
+			OSM_LOG(p_log, OSM_LOG_DEBUG,
 				"Calculated MTU %x is out of range\n", mtu);
 			return FALSE;
 		}
@@ -942,8 +909,7 @@ __mgrp_request_is_realizable(IN osm_sa_t * sa,
 		switch (rate_sel) {
 		case 0:	/* Greater than RATE specified */
 			if (port_rate && rate_required >= port_rate) {
-				osm_log(p_log, OSM_LOG_DEBUG,
-					"__mgrp_request_is_realizable: "
+				OSM_LOG(p_log, OSM_LOG_DEBUG,
 					"Requested RATE %x >= the port\'s rate:%x\n",
 					rate_required, port_rate);
 				return FALSE;
@@ -971,8 +937,7 @@ __mgrp_request_is_realizable(IN osm_sa_t * sa,
 		}
 		/* make sure it still is in the range */
 		if (rate < IB_MIN_RATE || rate > IB_MAX_RATE) {
-			osm_log(p_log, OSM_LOG_DEBUG,
-				"__mgrp_request_is_realizable: "
+			OSM_LOG(p_log, OSM_LOG_DEBUG,
 				"Calculated RATE %x is out of range\n", rate);
 			return FALSE;
 		}
@@ -1019,15 +984,13 @@ osm_mcmr_rcv_create_new_mgrp(IN osm_sa_t * sa,
 	 */
 	mlid = __get_new_mlid(sa, mcm_rec.mlid);
 	if (mlid == 0) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"osm_mcmr_rcv_create_new_mgrp: ERR 1B19: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B19: "
 			"__get_new_mlid failed\n");
 		status = IB_SA_MAD_STATUS_NO_RESOURCES;
 		goto Exit;
 	}
 
-	osm_log(sa->p_log, OSM_LOG_DEBUG,
-		"osm_mcmr_rcv_create_new_mgrp: "
+	OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 		"Obtained new mlid 0x%X\n", cl_ntoh16(mlid));
 
 	/* we need to create the new MGID if it was not defined */
@@ -1056,8 +1019,7 @@ osm_mcmr_rcv_create_new_mgrp(IN osm_sa_t * sa,
 		/* HACK: how do we get a unique number - use the mlid twice */
 		memcpy(&p_mgid->raw[10], &mlid, sizeof(uint16_t));
 		memcpy(&p_mgid->raw[12], &mlid, sizeof(uint16_t));
-		osm_log(sa->p_log, OSM_LOG_DEBUG,
-			"osm_mcmr_rcv_create_new_mgrp: "
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Allocated new MGID:0x%016" PRIx64 " : "
 			"0x%016" PRIx64 "\n",
 			cl_ntoh64(p_mgid->unicast.prefix),
@@ -1066,8 +1028,7 @@ osm_mcmr_rcv_create_new_mgrp(IN osm_sa_t * sa,
 		/* a specific MGID was requested so validate the resulting MGID */
 		valid = __validate_requested_mgid(sa, &mcm_rec);
 		if (!valid) {
-			osm_log(sa->p_log, OSM_LOG_ERROR,
-				"osm_mcmr_rcv_create_new_mgrp: ERR 1B22: "
+			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B22: "
 				"Invalid requested MGID\n");
 			__free_mlid(sa, mlid);
 			status = IB_SA_MAD_STATUS_REQ_INVALID;
@@ -1078,8 +1039,7 @@ osm_mcmr_rcv_create_new_mgrp(IN osm_sa_t * sa,
 	/* check the requested parameters are realizable */
 	if (__mgrp_request_is_realizable(sa, comp_mask, &mcm_rec, p_physp) ==
 	    FALSE) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"osm_mcmr_rcv_create_new_mgrp: ERR 1B26: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B26: "
 			"Requested MGRP parameters are not realizable\n");
 		__free_mlid(sa, mlid);
 		status = IB_SA_MAD_STATUS_REQ_INVALID;
@@ -1089,8 +1049,7 @@ osm_mcmr_rcv_create_new_mgrp(IN osm_sa_t * sa,
 	/* create a new MC Group */
 	*pp_mgrp = osm_mgrp_new(mlid);
 	if (*pp_mgrp == NULL) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"osm_mcmr_rcv_create_new_mgrp: ERR 1B08: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B08: "
 			"osm_mgrp_new failed\n");
 		__free_mlid(sa, mlid);
 		status = IB_SA_MAD_STATUS_NO_RESOURCES;
@@ -1118,8 +1077,7 @@ osm_mcmr_rcv_create_new_mgrp(IN osm_sa_t * sa,
 	    (osm_mgrp_t *) cl_qmap_get(&sa->p_subn->mgrp_mlid_tbl, mlid);
 	if (p_prev_mgrp !=
 	    (osm_mgrp_t *) cl_qmap_end(&sa->p_subn->mgrp_mlid_tbl)) {
-		osm_log(sa->p_log, OSM_LOG_DEBUG,
-			"osm_mcmr_rcv_create_new_mgrp: "
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Found previous group for mlid:0x%04x - Need to destroy it\n",
 			cl_ntoh16(mlid));
 		cl_qmap_remove_item(&sa->p_subn->mgrp_mlid_tbl,
@@ -1186,7 +1144,7 @@ __search_mgrp_by_mgid(IN cl_map_item_t * const p_map_item, IN void *context)
 			    g_prefix == rcv_prefix &&
 			    (g_interface_id & INT_ID_MASK) ==
 			     (rcv_interface_id & INT_ID_MASK)) {
-				osm_log(sa->p_log, OSM_LOG_INFO,
+				OSM_LOG(sa->p_log, OSM_LOG_INFO,
 					"Special Case Mcast Join for MGID "
 					" MGID 0x%016"PRIx64" : 0x%016"PRIx64"\n",
 					rcv_prefix, rcv_interface_id);
@@ -1197,8 +1155,7 @@ __search_mgrp_by_mgid(IN cl_map_item_t * const p_map_item, IN void *context)
 	}
 
 	if (p_ctxt->p_mgrp) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"__search_mgrp_by_mgid: ERR 1B30: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B30: "
 			"Multiple MC groups for same MGID\n");
 		return;
 	}
@@ -1278,8 +1235,7 @@ __osm_mcmr_rcv_leave_mgrp(IN osm_sa_t * sa,
 	mcmember_rec = *p_recvd_mcmember_rec;
 
 	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG)) {
-		osm_log(sa->p_log, OSM_LOG_DEBUG,
-			"__osm_mcmr_rcv_leave_mgrp: Dump of record\n");
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Dump of record\n");
 		osm_dump_mc_record(sa->p_log, &mcmember_rec, OSM_LOG_DEBUG);
 	}
 
@@ -1316,8 +1272,7 @@ __osm_mcmr_rcv_leave_mgrp(IN osm_sa_t * sa,
 
 				CL_PLOCK_RELEASE(sa->p_lock);
 
-				osm_log(sa->p_log, OSM_LOG_DEBUG,
-					"__osm_mcmr_rcv_leave_mgrp: "
+				OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 					"After update JoinState != 0. Updating from 0x%X to 0x%X\n",
 					port_join_state, new_join_state);
 			} else {
@@ -1332,15 +1287,13 @@ __osm_mcmr_rcv_leave_mgrp(IN osm_sa_t * sa,
 				    osm_sm_mcgrp_leave(sa->sm, mlid,
 						       portguid);
 				if (status != IB_SUCCESS) {
-					osm_log(sa->p_log, OSM_LOG_ERROR,
-						"__osm_mcmr_rcv_leave_mgrp: ERR 1B09: "
+					OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B09: "
 						"osm_sm_mcgrp_leave failed\n");
 				}
 			}
 		} else {
 			CL_PLOCK_RELEASE(sa->p_lock);
-			osm_log(sa->p_log, OSM_LOG_ERROR,
-				"__osm_mcmr_rcv_leave_mgrp: ERR 1B25: "
+			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B25: "
 				"Received an invalid delete request for "
 				"MGID: 0x%016" PRIx64 " : "
 				"0x%016" PRIx64 " for "
@@ -1360,8 +1313,7 @@ __osm_mcmr_rcv_leave_mgrp(IN osm_sa_t * sa,
 		}
 	} else {
 		CL_PLOCK_RELEASE(sa->p_lock);
-		osm_log(sa->p_log, OSM_LOG_DEBUG,
-			"__osm_mcmr_rcv_leave_mgrp: "
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Failed since multicast group not present\n");
 		sa_status = IB_SA_MAD_STATUS_REQ_INVALID;
 		osm_sa_send_error(sa, p_madw, sa_status);
@@ -1412,9 +1364,7 @@ __osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa,
 	mcmember_rec = *p_recvd_mcmember_rec;
 
 	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG)) {
-		osm_log(sa->p_log, OSM_LOG_DEBUG,
-			"__osm_mcmr_rcv_join_mgrp: "
-			"Dump of incoming record\n");
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Dump of incoming record\n");
 		osm_dump_mc_record(sa->p_log, &mcmember_rec, OSM_LOG_DEBUG);
 	}
 
@@ -1425,8 +1375,7 @@ __osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa,
 	if (!p_port) {
 		CL_PLOCK_RELEASE(sa->p_lock);
 
-		osm_log(sa->p_log, OSM_LOG_DEBUG,
-			"__osm_mcmr_rcv_join_mgrp: "
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Unknown port GUID 0x%016" PRIx64 "\n", portguid);
 		sa_status = IB_SA_MAD_STATUS_REQ_INVALID;
 		osm_sa_send_error(sa, p_madw, sa_status);
@@ -1448,8 +1397,7 @@ __osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa,
 	if (!osm_physp_share_pkey(sa->p_log, p_physp, p_request_physp)) {
 		CL_PLOCK_RELEASE(sa->p_lock);
 
-		osm_log(sa->p_log, OSM_LOG_DEBUG,
-			"__osm_mcmr_rcv_join_mgrp: "
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Port and requester don't share pkey\n");
 		sa_status = IB_SA_MAD_STATUS_REQ_INVALID;
 		osm_sa_send_error(sa, p_madw, sa_status);
@@ -1465,8 +1413,7 @@ __osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa,
 		/* check for JoinState.FullMember = 1 o15.0.1.9 */
 		if ((join_state & 0x01) != 0x01) {
 			CL_PLOCK_RELEASE(sa->p_lock);
-			osm_log(sa->p_log, OSM_LOG_ERROR,
-				"__osm_mcmr_rcv_join_mgrp: ERR 1B10: "
+			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B10: "
 				"Provided Join State != FullMember - required for create, "
 				"MGID: 0x%016" PRIx64 " : "
 				"0x%016" PRIx64 " from port 0x%016" PRIx64
@@ -1502,15 +1449,12 @@ __osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa,
 		} else {
 			CL_PLOCK_RELEASE(sa->p_lock);
 
-			osm_log(sa->p_log, OSM_LOG_ERROR,
-				"__osm_mcmr_rcv_join_mgrp: ERR 1B11: "
-				"method = %s, "
-				"scope_state = 0x%x, "
+			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B11: "
+				"method = %s, scope_state = 0x%x, "
 				"component mask = 0x%016" PRIx64 ", "
 				"expected comp mask = 0x%016" PRIx64 ", "
-				"MGID: 0x%016" PRIx64 " : "
-				"0x%016" PRIx64 " from port 0x%016" PRIx64
-				" (%s)\n",
+				"MGID: 0x%016" PRIx64 " : 0x%016" PRIx64
+				" from port 0x%016" PRIx64 " (%s)\n",
 				ib_get_sa_method_str(p_sa_mad->method),
 				p_recvd_mcmember_rec->scope_state,
 				cl_ntoh64(p_sa_mad->comp_mask),
@@ -1568,8 +1512,7 @@ __osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa,
 
 		CL_PLOCK_RELEASE(sa->p_lock);
 
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"__osm_mcmr_rcv_join_mgrp: ERR 1B12: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B12: "
 			"__validate_more_comp_fields, __validate_port_caps, "
 			"or JoinState = 0 failed from port 0x%016" PRIx64
 			" (%s), " "sending IB_SA_MAD_STATUS_REQ_INVALID\n",
@@ -1595,8 +1538,7 @@ __osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa,
 		if (!valid) {
 			CL_PLOCK_RELEASE(sa->p_lock);
 
-			osm_log(sa->p_log, OSM_LOG_ERROR,
-				"__osm_mcmr_rcv_join_mgrp: ERR 1B13: "
+			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B13: "
 				"__validate_modify failed from port 0x%016"
 				PRIx64 " (%s), "
 				"sending IB_SA_MAD_STATUS_REQ_INVALID\n",
@@ -1647,8 +1589,7 @@ __osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa,
 			      interface_id, req_type);
 
 	if (status != IB_SUCCESS) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"__osm_mcmr_rcv_join_mgrp: ERR 1B14: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B14: "
 			"osm_sm_mcgrp_join failed from port 0x%016" PRIx64
 			" (%s), " "sending IB_SA_MAD_STATUS_NO_RESOURCES\n",
 			cl_ntoh64(portguid), p_port->p_node->print_desc);
@@ -1697,8 +1638,7 @@ __osm_mcmr_rcv_new_mcmr(IN osm_sa_t * sa,
 
 	p_rec_item = malloc(sizeof(*p_rec_item));
 	if (p_rec_item == NULL) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"__osm_mcmr_rcv_new_mcmr: ERR 1B15: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B15: "
 			"rec_item alloc failed\n");
 		status = IB_INSUFFICIENT_RESOURCES;
 		goto Exit;
@@ -1744,14 +1684,12 @@ __osm_sa_mcm_by_comp_mask_cb(IN cl_map_item_t * const p_map_item,
 
 	OSM_LOG_ENTER(sa->p_log);
 
-	osm_log(sa->p_log, OSM_LOG_DEBUG,
-		"__osm_sa_mcm_by_comp_mask_cb: "
+	OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 		"Checking mlid:0x%X\n", cl_ntoh16(p_mgrp->mlid));
 
 	/* the group might be marked for deletion */
 	if (p_mgrp->to_be_deleted) {
-		osm_log(sa->p_log, OSM_LOG_DEBUG,
-			"__osm_sa_mcm_by_comp_mask_cb: "
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Group mlid:0x%X is marked to be deleted\n",
 			cl_ntoh16(p_mgrp->mlid));
 		goto Exit;
@@ -1848,8 +1786,7 @@ __osm_sa_mcm_by_comp_mask_cb(IN cl_map_item_t * const p_map_item,
 	/* Many MC records returned */
 	if ((p_ctxt->trusted_req == TRUE)
 	    && !(IB_MCR_COMPMASK_PORT_GID & comp_mask)) {
-		osm_log(sa->p_log, OSM_LOG_DEBUG,
-			"__osm_sa_mcm_by_comp_mask_cb: "
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Trusted req is TRUE and no specific port defined\n");
 
 		/* return all the ports that match in this MC group */
@@ -1865,8 +1802,7 @@ __osm_sa_mcm_by_comp_mask_cb(IN cl_map_item_t * const p_map_item,
 				memcpy(&(match_rec.port_gid),
 				       &(p_mcm_port->port_gid),
 				       sizeof(ib_gid_t));
-				osm_log(sa->p_log, OSM_LOG_DEBUG,
-					"__osm_sa_mcm_by_comp_mask_cb: "
+				OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 					"Record of port_gid: 0x%016" PRIx64
 					"0x%016" PRIx64
 					" in multicast_lid: 0x%X is returned\n",
@@ -1948,8 +1884,7 @@ __osm_mcmr_query_mgrp(IN osm_sa_t * sa,
 						osm_madw_get_mad_addr_ptr
 						(p_madw));
 	if (p_req_physp == NULL) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"__osm_mcmr_query_mgrp: ERR 1B04: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B04: "
 			"Cannot find requester physical port\n");
 		goto Exit;
 	}
@@ -1978,8 +1913,7 @@ __osm_mcmr_query_mgrp(IN osm_sa_t * sa,
 	 * If we do a SubnAdmGet and got more than one record it is an error !
 	 */
 	if ((p_rcvd_mad->method == IB_MAD_METHOD_GET) && (num_rec > 1)) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"__osm_mcmr_query_mgrp: ERR 1B05: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B05: "
 			"Got more than one record for SubnAdmGet (%u)\n",
 			num_rec);
 		osm_sa_send_error(sa, p_madw,
@@ -2003,16 +1937,14 @@ __osm_mcmr_query_mgrp(IN osm_sa_t * sa,
 	trim_num_rec =
 	    (MAD_BLOCK_SIZE - IB_SA_MAD_HDR_SIZE) / sizeof(ib_member_rec_t);
 	if (trim_num_rec < num_rec) {
-		osm_log(sa->p_log, OSM_LOG_VERBOSE,
-			"__osm_mcmr_query_mgrp: "
+		OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
 			"Number of records:%u trimmed to:%u to fit in one MAD\n",
 			num_rec, trim_num_rec);
 		num_rec = trim_num_rec;
 	}
 #endif
 
-	osm_log(sa->p_log, OSM_LOG_DEBUG,
-		"__osm_mcmr_query_mgrp: " "Returning %u records\n", num_rec);
+	OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Returning %u records\n", num_rec);
 
 	if ((p_rcvd_mad->method == IB_MAD_METHOD_GET) && (num_rec == 0)) {
 		osm_sa_send_error(sa, p_madw,
@@ -2030,8 +1962,7 @@ __osm_mcmr_query_mgrp(IN osm_sa_t * sa,
 				       osm_madw_get_mad_addr_ptr(p_madw));
 
 	if (!p_resp_madw) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"__osm_mcmr_query_mgrp: ERR 1B16: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B16: "
 			"osm_mad_pool_get failed\n");
 
 		for (i = 0; i < num_rec; i++) {
@@ -2110,8 +2041,7 @@ __osm_mcmr_query_mgrp(IN osm_sa_t * sa,
 	status = osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE,
 				    sa->p_subn);
 	if (status != IB_SUCCESS) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"__osm_mcmr_query_mgrp: ERR 1B17: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B17: "
 			"osm_sa_vendor_send status = %s\n",
 			ib_get_err_str(status));
 		goto Exit;
@@ -2148,15 +2078,12 @@ void osm_mcmr_rcv_process(IN void *context, IN void *data)
 	case IB_MAD_METHOD_SET:
 		valid = __check_join_comp_mask(p_sa_mad->comp_mask);
 		if (!valid) {
-			osm_log(sa->p_log, OSM_LOG_ERROR,
-				"osm_mcmr_rcv_process: ERR 1B18: "
+			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B18: "
 				"component mask = 0x%016" PRIx64 ", "
 				"expected comp mask = 0x%016" PRIx64 " ,"
-				"MGID: 0x%016" PRIx64 " : "
-				"0x%016" PRIx64 " for "
-				"PortGID: 0x%016" PRIx64 " : "
-				"0x%016" PRIx64 "\n",
-				cl_ntoh64(p_sa_mad->comp_mask),
+				"MGID: 0x%016" PRIx64 " : 0x%016" PRIx64
+				" for PortGID: 0x%016" PRIx64 " : 0x%016"
+				PRIx64 "\n", cl_ntoh64(p_sa_mad->comp_mask),
 				CL_NTOH64(JOIN_MC_COMP_MASK),
 				cl_ntoh64(p_recvd_mcmember_rec->mgid.unicast.
 					  prefix),
@@ -2179,8 +2106,7 @@ void osm_mcmr_rcv_process(IN void *context, IN void *data)
 	case IB_MAD_METHOD_DELETE:
 		valid = __check_join_comp_mask(p_sa_mad->comp_mask);
 		if (!valid) {
-			osm_log(sa->p_log, OSM_LOG_ERROR,
-				"osm_mcmr_rcv_process: ERR 1B20: "
+			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B20: "
 				"component mask = 0x%016" PRIx64 ", "
 				"expected comp mask = 0x%016" PRIx64 "\n",
 				cl_ntoh64(p_sa_mad->comp_mask),
@@ -2203,8 +2129,7 @@ void osm_mcmr_rcv_process(IN void *context, IN void *data)
 		__osm_mcmr_query_mgrp(sa, p_madw);
 		break;
 	default:
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"osm_mcmr_rcv_process: ERR 1B21: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B21: "
 			"Unsupported Method (%s)\n",
 			ib_get_sa_method_str(p_sa_mad->method));
 		osm_sa_send_error(sa, p_madw,

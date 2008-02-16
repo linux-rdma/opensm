@@ -135,8 +135,8 @@ static void connect_switches(lash_t * p_lash, int sw1, int sw2, int phy_port_1)
 	p_lash->switches[sw1]->virtual_physical_port_table[num] = phy_port_1;
 	p_lash->switches[sw1]->num_connections++;
 
-	osm_log(p_log, OSM_LOG_VERBOSE,
-		"connect_switches: " "LASH connect: %d, %d, %d\n", sw1, sw2,
+	OSM_LOG(p_log, OSM_LOG_VERBOSE,
+		"LASH connect: %d, %d, %d\n", sw1, sw2,
 		phy_port_1);
 
 }
@@ -921,8 +921,7 @@ static int init_lash_structures(lash_t * p_lash)
 
 Exit_Mem_Error:
 	status = IB_ERROR;
-	osm_log(p_log, OSM_LOG_ERROR,
-		"lash_init_structures: ERR 4D01: "
+	OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 4D01: "
 		"Could not allocate required memory for LASH errno %d, errno %d for lack of memory\n",
 		errno, ENOMEM);
 
@@ -952,8 +951,7 @@ static int lash_core(lash_t * p_lash)
 	switch_bitmap =
 	    (int *)malloc(num_switches * num_switches * sizeof(int));
 	if (!switch_bitmap) {
-		osm_log(p_log, OSM_LOG_ERROR,
-			"lash_core: ERR 4D04: "
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 4D04: "
 			"Failed allocating switch_bitmap - out of memory\n");
 		goto Exit;
 	}
@@ -1080,29 +1078,26 @@ static int lash_core(lash_t * p_lash)
 		}
 	}
 
-	osm_log(p_log, OSM_LOG_INFO,
-		"lash_core: " "Lanes needed: %d, Balancing\n", lanes_needed);
+	OSM_LOG(p_log, OSM_LOG_INFO,
+		"Lanes needed: %d, Balancing\n", lanes_needed);
 
 	for (i = 0; i < lanes_needed; i++) {
-		osm_log(p_log, OSM_LOG_INFO,
-			"lash_core: " "Lanes in layer %d: %d\n", i,
-			p_lash->num_mst_in_lane[i]);
+		OSM_LOG(p_log, OSM_LOG_INFO, "Lanes in layer %d: %d\n",
+			i, p_lash->num_mst_in_lane[i]);
 	}
 
 	balance_virtual_lanes(p_lash, lanes_needed);
 
 	for (i = 0; i < lanes_needed; i++) {
-		osm_log(p_log, OSM_LOG_INFO,
-			"lash_core: " "Lanes in layer %d: %d\n", i,
-			p_lash->num_mst_in_lane[i]);
+		OSM_LOG(p_log, OSM_LOG_INFO, "Lanes in layer %d: %d\n",
+			i, p_lash->num_mst_in_lane[i]);
 	}
 
 	goto Exit;
 
 Error_Not_Enough_Lanes:
 	status = IB_ERROR;
-	osm_log(p_log, OSM_LOG_ERROR,
-		"lash_core: ERR 4D02: "
+	OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 4D02: "
 		"Lane requirements (%d) exceed available lanes (%d)\n",
 		p_lash->vl_min, lanes_needed);
 Exit:
@@ -1147,8 +1142,7 @@ static void populate_fwd_tbls(lash_t * p_lash)
 			p_dst_sw = get_osm_switch_from_lid(p_lash->p_osm, lid);
 
 			if (p_dst_sw == NULL) {
-				osm_log(p_log, OSM_LOG_ERROR,
-					"populate_fwd_tbls: ERR 4D03: "
+				OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 4D03: "
 					"LASH fwd NULL Cannot find GUID 0x%016"
 					PRIx64
 					" src lash id (%d), src lid no (0x%04X)\n",
@@ -1157,8 +1151,7 @@ static void populate_fwd_tbls(lash_t * p_lash)
 				uint8_t egress_port =
 				    find_port_from_lid(cl_hton16(lid), p_sw);
 				p_osm->sm.ucast_mgr.lft_buf[lid] = egress_port;
-				osm_log(p_log, OSM_LOG_VERBOSE,
-					"populate_fwd_tbls: "
+				OSM_LOG(p_log, OSM_LOG_VERBOSE,
 					"LASH fwd MY SRC SRC GUID 0x%016" PRIx64
 					" src lash id (%d), src lid no (0x%04X) src lash port (%d) "
 					"DST GUID 0x%016" PRIx64
@@ -1179,8 +1172,7 @@ static void populate_fwd_tbls(lash_t * p_lash)
 
 				p_osm->sm.ucast_mgr.lft_buf[lid] =
 				    physical_egress_port;
-				osm_log(p_log, OSM_LOG_VERBOSE,
-					"populate_fwd_tbls: "
+				OSM_LOG(p_log, OSM_LOG_VERBOSE,
 					"LASH fwd SRC GUID 0x%016" PRIx64
 					" src lash id (%d), "
 					"src lid no ( 0x%04X ) src lash port (%d) "
@@ -1228,8 +1220,7 @@ static void osm_lash_process_switch(lash_t * p_lash, osm_switch_t * p_sw)
 				connect_switches(p_lash, switch_a_lash_id,
 						 switch_b_lash_id,
 						 physical_port_a_num);
-				osm_log(p_log, OSM_LOG_VERBOSE,
-					"osm_lash_process_switch: "
+				OSM_LOG(p_log, OSM_LOG_VERBOSE,
 					"LASH SUCCESS connected G 0x%016" PRIx64
 					" , lash_id(%u), P(%u) " " to G 0x%016"
 					PRIx64 " , lash_id(%u) , P(%u)\n",
@@ -1330,8 +1321,7 @@ static int discover_network_properties(lash_t * p_lash)
 
 	p_lash->vl_min = vl_min;
 
-	osm_log(p_log, OSM_LOG_INFO,
-		"lash discover_network_properties: "
+	OSM_LOG(p_log, OSM_LOG_INFO,
 		"min operational vl(%d) max_switches(%d)\n", p_lash->vl_min,
 		p_lash->num_switches);
 	return 0;

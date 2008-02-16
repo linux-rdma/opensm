@@ -478,14 +478,12 @@ osm_physp_has_pkey(IN osm_log_t * p_log,
 
 	OSM_LOG_ENTER(p_log);
 
-	osm_log(p_log, OSM_LOG_DEBUG,
-		"osm_physp_has_pkey: "
+	OSM_LOG(p_log, OSM_LOG_DEBUG,
 		"Search for PKey: 0x%4x\n", cl_ntoh16(pkey));
 
 	/* if the pkey given is an invalid pkey - return TRUE. */
 	if (ib_pkey_is_invalid(pkey)) {
-		osm_log(p_log, OSM_LOG_DEBUG,
-			"osm_physp_has_pkey: "
+		OSM_LOG(p_log, OSM_LOG_DEBUG,
 			"Given invalid PKey - we treat it loosely and allow it\n");
 		res = TRUE;
 		goto Exit;
@@ -498,12 +496,10 @@ osm_physp_has_pkey(IN osm_log_t * p_log,
 	p_pkey = cl_map_get(&pkey_tbl->keys, pkey_base);
 	if (p_pkey) {
 		res = TRUE;
-		osm_log(p_log, OSM_LOG_DEBUG,
-			"osm_physp_has_pkey: "
+		OSM_LOG(p_log, OSM_LOG_DEBUG,
 			"PKey 0x%04x was found\n", cl_ntoh16(pkey));
 	} else {
-		osm_log(p_log, OSM_LOG_DEBUG,
-			"osm_physp_has_pkey: "
+		OSM_LOG(p_log, OSM_LOG_DEBUG,
 			"PKey 0x%04x was not found\n", cl_ntoh16(pkey));
 	}
 

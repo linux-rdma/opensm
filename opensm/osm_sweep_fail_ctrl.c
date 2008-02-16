@@ -105,8 +105,7 @@ osm_sweep_fail_ctrl_init(IN osm_sweep_fail_ctrl_t * const p_ctrl,
 					  p_ctrl);
 
 	if (p_ctrl->h_disp == CL_DISP_INVALID_HANDLE) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"osm_sweep_fail_ctrl_init: ERR 3501: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3501: "
 			"Dispatcher registration failed\n");
 		status = IB_INSUFFICIENT_RESOURCES;
 		goto Exit;

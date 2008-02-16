@@ -77,8 +77,7 @@ __osm_drop_mgr_remove_router(osm_sm_t * sm, IN const ib_net64_t portguid)
 	p_rtr_guid_tbl = &sm->p_subn->rtr_guid_tbl;
 	p_rtr = (osm_router_t *) cl_qmap_remove(p_rtr_guid_tbl, portguid);
 	if (p_rtr != (osm_router_t *) cl_qmap_end(p_rtr_guid_tbl)) {
-		osm_log(sm->p_log, OSM_LOG_VERBOSE,
-			"__osm_drop_mgr_remove_router: "
+		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 			"Cleaned router for port guid 0x%016" PRIx64 "\n",
 			cl_ntoh64(portguid));
 		osm_router_delete(&p_rtr);
@@ -106,8 +105,7 @@ static void drop_mgr_clean_physp(osm_sm_t * sm, IN osm_physp_t * p_physp)
 			if (p_remote_port->discovery_count &&
 			    osm_physp_get_port_state(p_remote_physp) ==
 			    IB_LINK_ACTIVE) {
-				osm_log(sm->p_log, OSM_LOG_VERBOSE,
-					"drop_mgr_clean_physp: "
+				OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 					"Forcing new heavy sweep. Remote "
 					"port 0x%016" PRIx64 " port num: 0x%X "
 					"was recognized in ACTIVE state\n",
@@ -121,8 +119,8 @@ static void drop_mgr_clean_physp(osm_sm_t * sm, IN osm_physp_t * p_physp)
 			   discovery count of the remote port. */
 			if (!p_remote_physp->p_node->sw) {
 				p_remote_port->discovery_count = 0;
-				osm_log(sm->p_log, OSM_LOG_DEBUG,
-					"drop_mgr_clean_physp: Resetting discovery count of node: "
+				OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
+					"Resetting discovery count of node: "
 					"0x%016" PRIx64 " port num:0x%X\n",
 					cl_ntoh64(osm_node_get_node_guid
 						  (p_remote_physp->p_node)),
@@ -130,8 +128,7 @@ static void drop_mgr_clean_physp(osm_sm_t * sm, IN osm_physp_t * p_physp)
 			}
 		}
 
-		osm_log(sm->p_log, OSM_LOG_VERBOSE,
-			"drop_mgr_clean_physp: "
+		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 			"Unlinking local node 0x%016" PRIx64 ", port 0x%X"
 			"\n\t\t\t\tand remote node 0x%016" PRIx64
 			", port 0x%X\n",
@@ -145,9 +142,8 @@ static void drop_mgr_clean_physp(osm_sm_t * sm, IN osm_physp_t * p_physp)
 
 	}
 
-	osm_log(sm->p_log, OSM_LOG_DEBUG,
-		"drop_mgr_clean_physp: Clearing node 0x%016" PRIx64
-		" physical port number 0x%X\n",
+	OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
+		"Clearing node 0x%016" PRIx64 " physical port number 0x%X\n",
 		cl_ntoh64(osm_node_get_node_guid(p_physp->p_node)),
 		p_physp->port_num);
 
@@ -176,16 +172,14 @@ static void __osm_drop_mgr_remove_port(osm_sm_t * sm, IN osm_port_t * p_port)
 	OSM_LOG_ENTER(sm->p_log);
 
 	port_guid = osm_port_get_guid(p_port);
-	osm_log(sm->p_log, OSM_LOG_VERBOSE,
-		"__osm_drop_mgr_remove_port: "
+	OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 		"Unreachable port 0x%016" PRIx64 "\n", cl_ntoh64(port_guid));
 
 	p_port_check =
 	    (osm_port_t *) cl_qmap_remove(&sm->p_subn->port_guid_tbl,
 					  port_guid);
 	if (p_port_check != p_port) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_drop_mgr_remove_port: ERR 0101: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0101: "
 			"Port 0x%016" PRIx64 " not in guid table\n",
 			cl_ntoh64(port_guid));
 		goto Exit;
@@ -195,8 +189,7 @@ static void __osm_drop_mgr_remove_port(osm_sm_t * sm, IN osm_port_t * p_port)
 	p_sm = (osm_remote_sm_t *) cl_qmap_remove(p_sm_guid_tbl, port_guid);
 	if (p_sm != (osm_remote_sm_t *) cl_qmap_end(p_sm_guid_tbl)) {
 		/* need to remove this item */
-		osm_log(sm->p_log, OSM_LOG_VERBOSE,
-			"__osm_drop_mgr_remove_port: "
+		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 			"Cleaned SM for port guid\n");
 
 		free(p_sm);
@@ -206,8 +199,7 @@ static void __osm_drop_mgr_remove_port(osm_sm_t * sm, IN osm_port_t * p_port)
 
 	osm_port_get_lid_range_ho(p_port, &min_lid_ho, &max_lid_ho);
 
-	osm_log(sm->p_log, OSM_LOG_VERBOSE,
-		"__osm_drop_mgr_remove_port: "
+	OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 		"Clearing abandoned LID range [0x%X,0x%X]\n",
 		min_lid_ho, max_lid_ho);
 
@@ -260,16 +252,14 @@ static void __osm_drop_mgr_remove_port(osm_sm_t * sm, IN osm_port_t * p_port)
 
 	status = osm_report_notice(sm->p_log, sm->p_subn, &notice);
 	if (status != IB_SUCCESS) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_drop_mgr_remove_port: ERR 0103: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0103: "
 			"Error sending trap reports (%s)\n",
 			ib_get_err_str(status));
 		goto Exit;
 	}
 
 	if (osm_log_is_active(sm->p_log, OSM_LOG_INFO)) {
-		osm_log(sm->p_log, OSM_LOG_INFO,
-			"__osm_drop_mgr_remove_port: "
+		OSM_LOG(sm->p_log, OSM_LOG_INFO,
 			"Removed port with GUID:0x%016" PRIx64
 			" LID range [0x%X,0x%X] of node:%s\n",
 			cl_ntoh64(port_gid.unicast.interface_id),
@@ -296,8 +286,7 @@ static void __osm_drop_mgr_remove_switch(osm_sm_t * sm, IN osm_node_t * p_node)
 
 	p_sw = (osm_switch_t *) cl_qmap_remove(p_sw_guid_tbl, node_guid);
 	if (p_sw == (osm_switch_t *) cl_qmap_end(p_sw_guid_tbl)) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_drop_mgr_remove_switch: ERR 0102: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0102: "
 			"Node 0x%016" PRIx64 " not in switch table\n",
 			cl_ntoh64(osm_node_get_node_guid(p_node)));
 	} else {
@@ -323,8 +312,7 @@ __osm_drop_mgr_process_node(osm_sm_t * sm, IN osm_node_t * p_node)
 
 	OSM_LOG_ENTER(sm->p_log);
 
-	osm_log(sm->p_log, OSM_LOG_VERBOSE,
-		"__osm_drop_mgr_process_node: "
+	OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 		"Unreachable node 0x%016" PRIx64 "\n",
 		cl_ntoh64(osm_node_get_node_guid(p_node)));
 
@@ -356,8 +344,7 @@ __osm_drop_mgr_process_node(osm_sm_t * sm, IN osm_node_t * p_node)
 	    (osm_node_t *) cl_qmap_remove(&sm->p_subn->node_guid_tbl,
 					  osm_node_get_node_guid(p_node));
 	if (p_node_check != p_node) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_drop_mgr_process_node: ERR 0105: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0105: "
 			"Node 0x%016" PRIx64 " not in guid table\n",
 			cl_ntoh64(osm_node_get_node_guid(p_node)));
 	}
@@ -383,8 +370,7 @@ static void __osm_drop_mgr_check_node(osm_sm_t * sm, IN osm_node_t * p_node)
 	node_guid = osm_node_get_node_guid(p_node);
 
 	if (osm_node_get_type(p_node) != IB_NODE_TYPE_SWITCH) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_drop_mgr_check_node: ERR 0107: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0107: "
 			"Node 0x%016" PRIx64 " is not a switch node\n",
 			cl_ntoh64(node_guid));
 		goto Exit;
@@ -393,8 +379,7 @@ static void __osm_drop_mgr_check_node(osm_sm_t * sm, IN osm_node_t * p_node)
 	/* Make sure we have a switch object for this node */
 	if (!p_node->sw) {
 		/* We do not have switch info for this node */
-		osm_log(sm->p_log, OSM_LOG_VERBOSE,
-			"__osm_drop_mgr_check_node: "
+		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 			"Node 0x%016" PRIx64 " no switch in table\n",
 			cl_ntoh64(node_guid));
 
@@ -405,8 +390,7 @@ static void __osm_drop_mgr_check_node(osm_sm_t * sm, IN osm_node_t * p_node)
 	/* Make sure we have a port object for port zero */
 	p_physp = osm_node_get_physp_ptr(p_node, 0);
 	if (!p_physp) {
-		osm_log(sm->p_log, OSM_LOG_VERBOSE,
-			"__osm_drop_mgr_check_node: "
+		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 			"Node 0x%016" PRIx64 " no valid physical port 0\n",
 			cl_ntoh64(node_guid));
 
@@ -419,8 +403,7 @@ static void __osm_drop_mgr_check_node(osm_sm_t * sm, IN osm_node_t * p_node)
 	p_port = osm_get_port_by_guid(sm->p_subn, port_guid);
 
 	if (!p_port) {
-		osm_log(sm->p_log, OSM_LOG_VERBOSE,
-			"__osm_drop_mgr_check_node: "
+		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 			"Node 0x%016" PRIx64 " has no port object\n",
 			cl_ntoh64(node_guid));
 
@@ -429,8 +412,7 @@ static void __osm_drop_mgr_check_node(osm_sm_t * sm, IN osm_node_t * p_node)
 	}
 
 	if (p_port->discovery_count == 0) {
-		osm_log(sm->p_log, OSM_LOG_VERBOSE,
-			"__osm_drop_mgr_check_node: "
+		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 			"Node 0x%016" PRIx64 " port has discovery count zero\n",
 			cl_ntoh64(node_guid));
 
@@ -476,8 +458,7 @@ void osm_drop_mgr_process(osm_sm_t * sm)
 
 		if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
 			node_guid = osm_node_get_node_guid(p_node);
-			osm_log(sm->p_log, OSM_LOG_DEBUG,
-				"osm_drop_mgr_process: "
+			OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 				"Checking node 0x%016" PRIx64 "\n",
 				cl_ntoh64(node_guid));
 		}
@@ -506,8 +487,7 @@ void osm_drop_mgr_process(osm_sm_t * sm)
 
 		if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
 			node_guid = osm_node_get_node_guid(p_node);
-			osm_log(sm->p_log, OSM_LOG_DEBUG,
-				"osm_drop_mgr_process: "
+			OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 				"Checking full discovery of node 0x%016" PRIx64
 				"\n", cl_ntoh64(node_guid));
 		}
@@ -530,8 +510,7 @@ void osm_drop_mgr_process(osm_sm_t * sm)
 
 		if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
 			port_guid = osm_port_get_guid(p_port);
-			osm_log(sm->p_log, OSM_LOG_DEBUG,
-				"osm_drop_mgr_process: "
+			OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 				"Checking port 0x%016" PRIx64 "\n",
 				cl_ntoh64(port_guid));
 		}

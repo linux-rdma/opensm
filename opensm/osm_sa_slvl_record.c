@@ -92,8 +92,7 @@ __osm_sa_slvl_create(IN osm_sa_t * sa,
 
 	p_rec_item = malloc(sizeof(*p_rec_item));
 	if (p_rec_item == NULL) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"__osm_sa_slvl_create: ERR 2602: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2602: "
 			"rec_item alloc failed\n");
 		status = IB_INSUFFICIENT_RESOURCES;
 		goto Exit;
@@ -105,8 +104,7 @@ __osm_sa_slvl_create(IN osm_sa_t * sa,
 		lid = osm_node_get_base_lid(p_physp->p_node, 0);
 
 	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
-		osm_log(sa->p_log, OSM_LOG_DEBUG,
-			"__osm_sa_slvl_create: "
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"New SLtoVL Map for: OUT port 0x%016" PRIx64
 			", lid 0x%X, port 0x%X to In Port:%u\n",
 			cl_ntoh64(osm_physp_get_port_guid(p_physp)),
@@ -155,8 +153,7 @@ __osm_sa_slvl_by_comp_mask(IN osm_sa_t * sa,
 	p_req_physp = p_ctxt->p_req_physp;
 
 	if (p_port->p_node->node_info.node_type != IB_NODE_TYPE_SWITCH) {
-		osm_log(sa->p_log, OSM_LOG_DEBUG,
-			"__osm_sa_slvl_by_comp_mask:  "
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Using Physical Default Port Number: 0x%X (for End Node)\n",
 			p_port->p_physp->port_num);
 		p_out_physp = p_port->p_physp;
@@ -260,8 +257,7 @@ void osm_slvl_rec_rcv_process(IN void *ctx, IN void *data)
 	/* we only support SubnAdmGet and SubnAdmGetTable methods */
 	if ((p_rcvd_mad->method != IB_MAD_METHOD_GET) &&
 	    (p_rcvd_mad->method != IB_MAD_METHOD_GETTABLE)) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"osm_slvl_rec_rcv_process: ERR 2604: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2604: "
 			"Unsupported Method (%s)\n",
 			ib_get_sa_method_str(p_rcvd_mad->method));
 		osm_sa_send_error(sa, p_madw,
@@ -275,8 +271,7 @@ void osm_slvl_rec_rcv_process(IN void *ctx, IN void *data)
 						osm_madw_get_mad_addr_ptr
 						(p_madw));
 	if (p_req_physp == NULL) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"osm_slvl_rec_rcv_process: ERR 2603: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2603: "
 			"Cannot find requester physical port\n");
 		goto Exit;
 	}
@@ -292,8 +287,7 @@ void osm_slvl_rec_rcv_process(IN void *ctx, IN void *data)
 
 	cl_plock_acquire(sa->p_lock);
 
-	osm_log(sa->p_log, OSM_LOG_DEBUG,
-		"osm_slvl_rec_rcv_process: "
+	OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 		"Got Query Lid:0x%04X(%02X), In-Port:0x%02X(%02X), Out-Port:0x%02X(%02X)\n",
 		cl_ntoh16(p_rcvd_rec->lid),
 		(comp_mask & IB_SLVL_COMPMASK_LID) != 0,
@@ -317,8 +311,7 @@ void osm_slvl_rec_rcv_process(IN void *ctx, IN void *data)
 					     &p_port);
 		if ((status != IB_SUCCESS) || (p_port == NULL)) {
 			status = IB_NOT_FOUND;
-			osm_log(sa->p_log, OSM_LOG_ERROR,
-				"osm_slvl_rec_rcv_process: ERR 2608: "
+			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2608: "
 				"No port found with LID 0x%x\n",
 				cl_ntoh16(p_rcvd_rec->lid));
 		}
@@ -350,8 +343,7 @@ void osm_slvl_rec_rcv_process(IN void *ctx, IN void *data)
 			goto Exit;
 		}
 		if (num_rec > 1) {
-			osm_log(sa->p_log, OSM_LOG_ERROR,
-				"osm_slvl_rec_rcv_process: ERR 2607: "
+			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2607: "
 				"Got more than one record for SubnAdmGet (%u)\n",
 				num_rec);
 			osm_sa_send_error(sa, p_madw,
@@ -377,16 +369,14 @@ void osm_slvl_rec_rcv_process(IN void *ctx, IN void *data)
 	    (MAD_BLOCK_SIZE -
 	     IB_SA_MAD_HDR_SIZE) / sizeof(ib_slvl_table_record_t);
 	if (trim_num_rec < num_rec) {
-		osm_log(sa->p_log, OSM_LOG_VERBOSE,
-			"osm_slvl_rec_rcv_process: "
+		OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
 			"Number of records:%u trimmed to:%u to fit in one MAD\n",
 			num_rec, trim_num_rec);
 		num_rec = trim_num_rec;
 	}
 #endif
 
-	osm_log(sa->p_log, OSM_LOG_DEBUG,
-		"osm_slvl_rec_rcv_process: " "Returning %u records\n", num_rec);
+	OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Returning %u records\n", num_rec);
 
 	if ((p_rcvd_mad->method == IB_MAD_METHOD_GET) && (num_rec == 0)) {
 		osm_sa_send_error(sa, p_madw,
@@ -404,8 +394,7 @@ void osm_slvl_rec_rcv_process(IN void *ctx, IN void *data)
 				       IB_SA_MAD_HDR_SIZE, &p_madw->mad_addr);
 
 	if (!p_resp_madw) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"osm_slvl_rec_rcv_process: ERR 2605: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2605: "
 			"osm_mad_pool_get failed\n");
 
 		for (i = 0; i < num_rec; i++) {
@@ -469,8 +458,7 @@ void osm_slvl_rec_rcv_process(IN void *ctx, IN void *data)
 	status = osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE,
 				    sa->p_subn);
 	if (status != IB_SUCCESS) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"osm_slvl_rec_rcv_process: ERR 2606: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2606: "
 			"osm_vendor_send status = %s\n",
 			ib_get_err_str(status));
 		goto Exit;

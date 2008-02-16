@@ -97,18 +97,15 @@ __osm_smir_rcv_new_smir(IN osm_sa_t * sa,
 
 	p_rec_item = malloc(sizeof(*p_rec_item));
 	if (p_rec_item == NULL) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"__osm_smir_rcv_new_smir: ERR 2801: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2801: "
 			"rec_item alloc failed\n");
 		status = IB_INSUFFICIENT_RESOURCES;
 		goto Exit;
 	}
 
 	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
-		osm_log(sa->p_log, OSM_LOG_DEBUG,
-			"__osm_smir_rcv_new_smir: "
-			"New SMInfo: GUID 0x%016" PRIx64 "\n", cl_ntoh64(guid)
-		    );
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
+			"New SMInfo: GUID 0x%016" PRIx64 "\n", cl_ntoh64(guid));
 
 	memset(p_rec_item, 0, sizeof(*p_rec_item));
 
@@ -225,8 +222,7 @@ void osm_smir_rcv_process(IN void *ctx, IN void *data)
 	/* we only support SubnAdmGet and SubnAdmGetTable methods */
 	if ((sad_mad->method != IB_MAD_METHOD_GET) &&
 	    (sad_mad->method != IB_MAD_METHOD_GETTABLE)) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"osm_smir_rcv_process: ERR 2804: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2804: "
 			"Unsupported Method (%s)\n",
 			ib_get_sa_method_str(sad_mad->method));
 		osm_sa_send_error(sa, p_madw,
@@ -240,8 +236,7 @@ void osm_smir_rcv_process(IN void *ctx, IN void *data)
 						osm_madw_get_mad_addr_ptr
 						(p_madw));
 	if (p_req_physp == NULL) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"osm_smir_rcv_process: ERR 2803: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2803: "
 			"Cannot find requester physical port\n");
 		goto Exit;
 	}
@@ -273,8 +268,7 @@ void osm_smir_rcv_process(IN void *ctx, IN void *data)
 					     &p_port);
 		if ((status != IB_SUCCESS) || (p_port == NULL)) {
 			status = IB_NOT_FOUND;
-			osm_log(sa->p_log, OSM_LOG_ERROR,
-				"osm_smir_rcv_process: ERR 2806: "
+			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2806: "
 				"No port found with LID 0x%x\n",
 				cl_ntoh16(p_rcvd_rec->lid));
 		}
@@ -287,8 +281,7 @@ void osm_smir_rcv_process(IN void *ctx, IN void *data)
 					 sa->p_subn->sm_port_guid);
 		if (!local_port) {
 			cl_plock_release(sa->p_lock);
-			osm_log(sa->p_log, OSM_LOG_ERROR,
-				"osm_smir_rcv_process: ERR 2809: "
+			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2809: "
 				"No port found with GUID 0x%016" PRIx64 "\n",
 				cl_ntoh64(sa->p_subn->sm_port_guid));
 			goto Exit;
@@ -299,8 +292,7 @@ void osm_smir_rcv_process(IN void *ctx, IN void *data)
 			    osm_physp_share_pkey(sa->p_log, p_req_physp,
 						 local_port->p_physp)) {
 				cl_plock_release(sa->p_lock);
-				osm_log(sa->p_log, OSM_LOG_ERROR,
-					"osm_smir_rcv_process: ERR 2805: "
+				OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2805: "
 					"Cannot get SMInfo record due to pkey violation\n");
 				goto Exit;
 			}
@@ -345,8 +337,7 @@ void osm_smir_rcv_process(IN void *ctx, IN void *data)
 				__osm_sa_smir_by_comp_mask(sa, p_rem_sm,
 							   &context);
 			else {
-				osm_log(sa->p_log, OSM_LOG_ERROR,
-					"osm_smir_rcv_process: ERR 280A: "
+				OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 280A: "
 					"No remote SM for GUID 0x%016" PRIx64
 					"\n", cl_ntoh64(port_guid));
 			}
@@ -373,8 +364,7 @@ void osm_smir_rcv_process(IN void *ctx, IN void *data)
 			goto Exit;
 		}
 		if (num_rec > 1) {
-			osm_log(sa->p_log, OSM_LOG_ERROR,
-				"osm_smir_rcv_process: ERR 2808: "
+			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2808: "
 				"Got more than one record for SubnAdmGet (%u)\n",
 				num_rec);
 			osm_sa_send_error(sa, p_madw,
@@ -399,16 +389,14 @@ void osm_smir_rcv_process(IN void *ctx, IN void *data)
 	trim_num_rec =
 	    (MAD_BLOCK_SIZE - IB_SA_MAD_HDR_SIZE) / sizeof(ib_sminfo_record_t);
 	if (trim_num_rec < num_rec) {
-		osm_log(sa->p_log, OSM_LOG_VERBOSE,
-			"osm_smir_rcv_process: "
+		OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
 			"Number of records:%u trimmed to:%u to fit in one MAD\n",
 			num_rec, trim_num_rec);
 		num_rec = trim_num_rec;
 	}
 #endif
 
-	osm_log(sa->p_log, OSM_LOG_DEBUG,
-		"osm_smir_rcv_process: " "Returning %u records\n", num_rec);
+	OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Returning %u records\n", num_rec);
 
 	if ((sad_mad->method == IB_MAD_METHOD_GET) && (num_rec == 0)) {
 		osm_sa_send_error(sa, p_madw,
@@ -425,8 +413,7 @@ void osm_smir_rcv_process(IN void *ctx, IN void *data)
 				       IB_SA_MAD_HDR_SIZE, &p_madw->mad_addr);
 
 	if (!p_resp_madw) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"osm_smir_rcv_process: ERR 2807: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2807: "
 			"osm_mad_pool_get failed\n");
 
 		for (i = 0; i < num_rec; i++) {
@@ -492,8 +479,7 @@ void osm_smir_rcv_process(IN void *ctx, IN void *data)
 	status = osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE,
 				    sa->p_subn);
 	if (status != IB_SUCCESS) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"osm_smir_rcv_process: ERR 2802: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2802: "
 			"Error sending MAD (%s)\n", ib_get_err_str(status));
 		goto Exit;
 	}

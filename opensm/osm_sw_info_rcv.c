@@ -114,8 +114,7 @@ __osm_si_rcv_get_port_info(IN osm_sm_t * sm,
 				     CL_DISP_MSGID_NONE, &context);
 		if (status != IB_SUCCESS) {
 			/* continue the loop despite the error */
-			osm_log(sm->p_log, OSM_LOG_ERROR,
-				"__osm_si_rcv_get_port_info: ERR 3602: "
+			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3602: "
 				"Failure initiating PortInfo request (%s)\n",
 				ib_get_err_str(status));
 		}
@@ -159,8 +158,7 @@ __osm_si_rcv_get_fwd_tbl(IN osm_sm_t * sm,
 
 	for (block_id_ho = 0; block_id_ho <= max_block_id_ho; block_id_ho++) {
 		if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
-			osm_log(sm->p_log, OSM_LOG_DEBUG,
-				"__osm_si_rcv_get_fwd_tbl: "
+			OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 				"Retrieving FT block %u\n", block_id_ho);
 		}
 
@@ -171,8 +169,7 @@ __osm_si_rcv_get_fwd_tbl(IN osm_sm_t * sm,
 				     CL_DISP_MSGID_NONE, &context);
 		if (status != IB_SUCCESS) {
 			/* continue the loop despite the error */
-			osm_log(sm->p_log, OSM_LOG_ERROR,
-				"__osm_si_rcv_get_fwd_tbl: ERR 3603: "
+			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3603: "
 				"Failure initiating PortInfo request (%s)\n",
 				ib_get_err_str(status));
 		}
@@ -209,8 +206,7 @@ __osm_si_rcv_get_mcast_fwd_tbl(IN osm_sm_t * sm,
 	CL_ASSERT(osm_node_get_type(p_node) == IB_NODE_TYPE_SWITCH);
 
 	if (osm_switch_get_mcast_fwd_tbl_size(p_sw) == 0) {
-		osm_log(sm->p_log, OSM_LOG_DEBUG,
-			"__osm_si_rcv_get_mcast_fwd_tbl: "
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 			"Multicast not supported by switch 0x%016" PRIx64 "\n",
 			cl_ntoh64(osm_node_get_node_guid(p_node)));
 		goto Exit;
@@ -225,8 +221,7 @@ __osm_si_rcv_get_mcast_fwd_tbl(IN osm_sm_t * sm,
 	max_block_id_ho = osm_mcast_tbl_get_max_block(p_tbl);
 
 	if (max_block_id_ho > IB_MCAST_MAX_BLOCK_ID) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_si_rcv_get_mcast_fwd_tbl: ERR 3609: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3609: "
 			"Out-of-range mcast block size = %u on switch 0x%016"
 			PRIx64 "\n", max_block_id_ho,
 			cl_ntoh64(osm_node_get_node_guid(p_node)));
@@ -237,8 +232,7 @@ __osm_si_rcv_get_mcast_fwd_tbl(IN osm_sm_t * sm,
 
 	CL_ASSERT(max_position <= IB_MCAST_POSITION_MAX);
 
-	osm_log(sm->p_log, OSM_LOG_DEBUG,
-		"__osm_si_rcv_get_mcast_fwd_tbl: "
+	OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 		"Max MFT block = %u, Max position = %u\n", max_block_id_ho,
 		max_position);
 
@@ -246,15 +240,13 @@ __osm_si_rcv_get_mcast_fwd_tbl(IN osm_sm_t * sm,
 
 	for (block_id_ho = 0; block_id_ho <= max_block_id_ho; block_id_ho++) {
 		if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
-			osm_log(sm->p_log, OSM_LOG_DEBUG,
-				"__osm_si_rcv_get_mcast_fwd_tbl: "
+			OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 				"Retrieving MFT block %u\n", block_id_ho);
 		}
 
 		for (position = 0; position <= max_position; position++) {
 			if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
-				osm_log(sm->p_log, OSM_LOG_DEBUG,
-					"__osm_si_rcv_get_mcast_fwd_tbl: "
+				OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 					"Retrieving MFT position %u\n",
 					position);
 			}
@@ -268,8 +260,7 @@ __osm_si_rcv_get_mcast_fwd_tbl(IN osm_sm_t * sm,
 					CL_DISP_MSGID_NONE, &context);
 			if (status != IB_SUCCESS) {
 				/* continue the loop despite the error */
-				osm_log(sm->p_log, OSM_LOG_ERROR,
-					"__osm_si_rcv_get_mcast_fwd_tbl: ERR 3607: "
+				OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3607: "
 					"Failure initiating PortInfo request (%s)\n",
 					ib_get_err_str(status));
 			}
@@ -314,8 +305,7 @@ __osm_si_rcv_process_new(IN osm_sm_t * sm,
 	 */
 	p_sw = osm_switch_new(p_node, p_madw);
 	if (p_sw == NULL) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_si_rcv_process_new: ERR 3608: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3608: "
 			"Unable to allocate new switch object\n");
 		goto Exit;
 	}
@@ -324,8 +314,7 @@ __osm_si_rcv_process_new(IN osm_sm_t * sm,
 	if (p_sw->mcast_tbl.max_mlid_ho < sm->p_subn->max_multicast_lid_ho) {
 		sm->p_subn->max_multicast_lid_ho =
 		    p_sw->mcast_tbl.max_mlid_ho;
-		osm_log(sm->p_log, OSM_LOG_VERBOSE,
-			"__osm_si_rcv_process_new: "
+		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 			"Subnet max multicast lid is 0x%X\n",
 			sm->p_subn->max_multicast_lid_ho);
 	}
@@ -334,8 +323,7 @@ __osm_si_rcv_process_new(IN osm_sm_t * sm,
 	if (p_sw->fwd_tbl.p_lin_tbl->size < sm->p_subn->max_unicast_lid_ho) {
 		sm->p_subn->max_unicast_lid_ho =
 		    p_sw->fwd_tbl.p_lin_tbl->size;
-		osm_log(sm->p_log, OSM_LOG_VERBOSE,
-			"__osm_si_rcv_process_new: "
+		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 			"Subnet max unicast lid is 0x%X\n",
 			sm->p_subn->max_unicast_lid_ho);
 	}
@@ -348,8 +336,7 @@ __osm_si_rcv_process_new(IN osm_sm_t * sm,
 		/*
 		   This shouldn't happen since we hold the lock!
 		 */
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_si_rcv_process_new: ERR 3605: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3605: "
 			"Unable to add new switch object to database\n");
 		osm_switch_delete(&p_sw);
 		goto Exit;
@@ -416,16 +403,14 @@ __osm_si_rcv_process_existing(IN osm_sm_t * sm,
 
 	if (p_si_context->set_method) {
 		if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
-			osm_log(sm->p_log, OSM_LOG_DEBUG,
-				"__osm_si_rcv_process_existing: "
+			OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 				"Received logical SetResp()\n");
 		}
 
 		osm_switch_set_switch_info(p_sw, p_si);
 	} else {
 		if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
-			osm_log(sm->p_log, OSM_LOG_DEBUG,
-				"__osm_si_rcv_process_existing: "
+			OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 				"Received logical GetResp()\n");
 		}
 
@@ -440,8 +425,7 @@ __osm_si_rcv_process_existing(IN osm_sm_t * sm,
 			/* If the mad was returned with an error -
 			   signal a change to the state manager. */
 			if (ib_smp_get_status(p_smp) != 0) {
-				osm_log(sm->p_log, OSM_LOG_VERBOSE,
-					"__osm_si_rcv_process_existing: "
+				OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 					"GetResp() received with error in light sweep. "
 					"Commencing heavy sweep\n");
 				is_change_detected = TRUE;
@@ -463,8 +447,7 @@ __osm_si_rcv_process_existing(IN osm_sm_t * sm,
 			   of the state change bit.
 			 */
 			p_sw->discovery_count++;
-			osm_log(sm->p_log, OSM_LOG_VERBOSE,
-				"__osm_si_rcv_process_existing: "
+			OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 				"discovery_count is:%u\n",
 				p_sw->discovery_count);
 
@@ -472,8 +455,7 @@ __osm_si_rcv_process_existing(IN osm_sm_t * sm,
 			if (p_sw->discovery_count == 1)
 				__osm_si_rcv_get_port_info(sm, p_sw, p_madw);
 			else {
-				osm_log(sm->p_log, OSM_LOG_DEBUG,
-					"__osm_si_rcv_process_existing: "
+				OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 					"Not discovering again through switch:0x%"
 					PRIx64 "\n",
 					osm_node_get_node_guid(p_sw->p_node));
@@ -515,10 +497,8 @@ void osm_si_rcv_process(IN void *context, IN void *data)
 	node_guid = p_context->node_guid;
 
 	if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
-		osm_log(sm->p_log, OSM_LOG_DEBUG,
-			"osm_si_rcv_process: "
-			"Switch GUID 0x%016" PRIx64
-			", TID 0x%" PRIx64 "\n",
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
+			"Switch GUID 0x%016" PRIx64 ", TID 0x%" PRIx64 "\n",
 			cl_ntoh64(node_guid), cl_ntoh64(p_smp->trans_id));
 	}
 
@@ -526,8 +506,7 @@ void osm_si_rcv_process(IN void *context, IN void *data)
 
 	p_node = osm_get_node_by_guid(sm->p_subn, node_guid);
 	if (!p_node) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"osm_si_rcv_process: ERR 3606: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3606: "
 			"SwitchInfo received for nonexistent node "
 			"with GUID 0x%" PRIx64 "\n", cl_ntoh64(node_guid));
 	} else {
@@ -536,8 +515,7 @@ void osm_si_rcv_process(IN void *context, IN void *data)
 		   Hack for bad value in Mellanox switch
 		 */
 		if (cl_ntoh16(p_si->lin_top) > IB_LID_UCAST_END_HO) {
-			osm_log(sm->p_log, OSM_LOG_ERROR,
-				"osm_si_rcv_process: ERR 3610: "
+			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3610: "
 				"\n\t\t\t\tBad LinearFDBTop value = 0x%X "
 				"on switch 0x%" PRIx64
 				"\n\t\t\t\tForcing correction to 0x%X\n",

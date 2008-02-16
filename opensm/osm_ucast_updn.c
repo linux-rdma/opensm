@@ -140,8 +140,7 @@ __updn_bfs_by_node(IN osm_log_t * p_log,
 	lid = cl_ntoh16(lid);
 	osm_switch_set_hops(p_sw, lid, 0, 0);
 
-	osm_log(p_log, OSM_LOG_DEBUG,
-		"__updn_bfs_by_node: "
+	OSM_LOG(p_log, OSM_LOG_DEBUG,
 		"Starting from switch - port GUID 0x%" PRIx64 " lid %u\n",
 		cl_ntoh64(p_sw->p_node->node_info.port_guid), lid);
 
@@ -186,8 +185,7 @@ __updn_bfs_by_node(IN osm_log_t * p_log,
 			/* Check if this is a legal step : the only illegal step is going
 			   from DOWN to UP */
 			if ((current_dir == DOWN) && (next_dir == UP)) {
-				osm_log(p_log, OSM_LOG_DEBUG,
-					"__updn_bfs_by_node: "
+				OSM_LOG(p_log, OSM_LOG_DEBUG,
 					"Avoiding move from 0x%016" PRIx64
 					" to 0x%016" PRIx64 "\n",
 					cl_ntoh64(current_guid),
@@ -207,8 +205,7 @@ __updn_bfs_by_node(IN osm_log_t * p_log,
 							pn_rem,
 							current_min_hop + 1);
 				if (set_hop_return_value) {
-					osm_log(p_log, OSM_LOG_ERROR,
-						"__updn_bfs_by_node (less) ERR AA01: "
+					OSM_LOG(p_log, OSM_LOG_ERROR, "ERR AA01: "
 						"Invalid value returned from set min hop is: %d\n",
 						set_hop_return_value);
 				}
@@ -303,14 +300,12 @@ static cl_status_t updn_init(IN updn_t * const p_updn, IN osm_opensm_t * p_osm)
 			goto Exit;
 
 		/* For Debug Purposes ... */
-		osm_log(&p_osm->log, OSM_LOG_DEBUG,
-			"updn_init: "
+		OSM_LOG(&p_osm->log, OSM_LOG_DEBUG,
 			"UPDN - Fetching root nodes from file %s\n",
 			p_osm->subn.opt.root_guid_file);
 		guid_iterator = cl_list_head(p_updn->p_root_nodes);
 		while (guid_iterator != cl_list_end(p_updn->p_root_nodes)) {
-			osm_log(&p_osm->log, OSM_LOG_DEBUG,
-				"updn_init: "
+			OSM_LOG(&p_osm->log, OSM_LOG_DEBUG,
 				"Inserting GUID 0x%" PRIx64 " as root node\n",
 				*((uint64_t *) cl_list_obj(guid_iterator)));
 			guid_iterator = cl_list_next(guid_iterator);
@@ -353,16 +348,14 @@ updn_subn_rank(IN unsigned num_guids,
 		    osm_get_switch_by_guid(&p_updn->p_osm->subn,
 					   cl_hton64(guid_list[idx]));
 		if (!p_sw) {
-			osm_log(p_log, OSM_LOG_ERROR,
-				"updn_subn_rank: ERR AA05: "
+			OSM_LOG(p_log, OSM_LOG_ERROR, "ERR AA05: "
 				"Root switch GUID 0x%" PRIx64 " not found\n",
 				guid_list[idx]);
 			continue;
 		}
 
 		u = p_sw->priv;
-		osm_log(p_log, OSM_LOG_DEBUG,
-			"updn_subn_rank: "
+		OSM_LOG(p_log, OSM_LOG_DEBUG,
 			"Ranking root port GUID 0x%" PRIx64 "\n",
 			guid_list[idx]);
 		u->rank = 0;
@@ -375,8 +368,7 @@ updn_subn_rank(IN unsigned num_guids,
 		/* Go over all remote nodes and rank them (if not already visited) */
 		p_sw = u->sw;
 		num_ports = p_sw->num_ports;
-		osm_log(p_log, OSM_LOG_DEBUG,
-			"updn_subn_rank: "
+		OSM_LOG(p_log, OSM_LOG_DEBUG,
 			"Handling switch GUID 0x%" PRIx64 "\n",
 			cl_ntoh64(osm_node_get_node_guid(p_sw->p_node)));
 		for (port_num = 1; port_num < num_ports; port_num++) {
@@ -403,8 +395,7 @@ updn_subn_rank(IN unsigned num_guids,
 							     &remote_u->list);
 				}
 
-				osm_log(p_log, OSM_LOG_DEBUG,
-					"updn_subn_rank: "
+				OSM_LOG(p_log, OSM_LOG_DEBUG,
 					"Rank of port GUID 0x%" PRIx64
 					" = %u\n", cl_ntoh64(port_guid),
 					remote_u->rank);
@@ -414,8 +405,7 @@ updn_subn_rank(IN unsigned num_guids,
 	}
 
 	/* Print Summary of ranking */
-	osm_log(p_log, OSM_LOG_VERBOSE,
-		"updn_subn_rank: "
+	OSM_LOG(p_log, OSM_LOG_VERBOSE,
 		"Subnet ranking completed. Max Node Rank = %d\n", max_rank);
 	OSM_LOG_EXIT(p_log);
 	return 0;
@@ -453,8 +443,7 @@ static int __osm_subn_set_up_down_min_hop_table(IN updn_t * p_updn)
 
 	/* Go over all the switches in the subnet - for each init their Min Hop
 	   Table */
-	osm_log(p_log, OSM_LOG_VERBOSE,
-		"__osm_subn_set_up_down_min_hop_table: "
+	OSM_LOG(p_log, OSM_LOG_VERBOSE,
 		"Init Min Hop Table of all switches [\n");
 
 	p_next_sw = (osm_switch_t *) cl_qmap_head(&p_subn->sw_guid_tbl);
@@ -469,13 +458,11 @@ static int __osm_subn_set_up_down_min_hop_table(IN updn_t * p_updn)
 			osm_switch_clear_hops(p_sw);
 	}
 
-	osm_log(p_log, OSM_LOG_VERBOSE,
-		"__osm_subn_set_up_down_min_hop_table: "
+	OSM_LOG(p_log, OSM_LOG_VERBOSE,
 		"Init Min Hop Table of all switches ]\n");
 
 	/* Now do the BFS for each port  in the subnet */
-	osm_log(p_log, OSM_LOG_VERBOSE,
-		"__osm_subn_set_up_down_min_hop_table: "
+	OSM_LOG(p_log, OSM_LOG_VERBOSE,
 		"BFS through all port guids in the subnet [\n");
 
 	p_next_sw = (osm_switch_t *) cl_qmap_head(&p_subn->sw_guid_tbl);
@@ -485,8 +472,7 @@ static int __osm_subn_set_up_down_min_hop_table(IN updn_t * p_updn)
 		__updn_bfs_by_node(p_log, p_subn, p_sw);
 	}
 
-	osm_log(p_log, OSM_LOG_VERBOSE,
-		"__osm_subn_set_up_down_min_hop_table: "
+	OSM_LOG(p_log, OSM_LOG_VERBOSE,
 		"BFS through all port guids in the subnet ]\n");
 	/* Cleanup */
 	OSM_LOG_EXIT(p_log);
@@ -503,12 +489,10 @@ updn_build_lid_matrices(IN uint32_t num_guids,
 
 	OSM_LOG_ENTER(&p_updn->p_osm->log);
 
-	osm_log(&p_updn->p_osm->log, OSM_LOG_VERBOSE,
-		"updn_build_lid_matrices: "
+	OSM_LOG(&p_updn->p_osm->log, OSM_LOG_VERBOSE,
 		"Ranking all port guids in the list\n");
 	if (num_guids == 0) {
-		osm_log(&p_updn->p_osm->log, OSM_LOG_ERROR,
-			"updn_build_lid_matrices: ERR AA0A: "
+		OSM_LOG(&p_updn->p_osm->log, OSM_LOG_ERROR, "ERR AA0A: "
 			"No guids were provided or number of guids is 0\n");
 		status = -1;
 		goto _exit;
@@ -516,8 +500,7 @@ updn_build_lid_matrices(IN uint32_t num_guids,
 
 	/* Check if it's not a switched subnet */
 	if (cl_is_qmap_empty(&p_updn->p_osm->subn.sw_guid_tbl)) {
-		osm_log(&p_updn->p_osm->log, OSM_LOG_ERROR,
-			"updn_build_lid_matrices: ERR AAOB: "
+		OSM_LOG(&p_updn->p_osm->log, OSM_LOG_ERROR, "ERR AAOB: "
 			"This is not a switched subnet, cannot perform UPDN algorithm\n");
 		status = -1;
 		goto _exit;
@@ -527,8 +510,7 @@ updn_build_lid_matrices(IN uint32_t num_guids,
 	updn_subn_rank(num_guids, guid_list, p_updn);
 
 	/* After multiple ranking need to set Min Hop Table by UpDn algorithm  */
-	osm_log(&p_updn->p_osm->log, OSM_LOG_VERBOSE,
-		"updn_build_lid_matrices: "
+	OSM_LOG(&p_updn->p_osm->log, OSM_LOG_VERBOSE,
 		"Setting all switches' Min Hop Table\n");
 	status = __osm_subn_set_up_down_min_hop_table(p_updn);
 
@@ -576,9 +558,8 @@ static int __osm_updn_call(void *ctx)
 		p_item = cl_qmap_next(p_item);
 		p_sw->priv = create_updn_node(p_sw);
 		if (!p_sw->priv) {
-			osm_log(&(p_updn->p_osm->log), OSM_LOG_ERROR,
-				"__osm_updn_call: ERR AA0C: "
-				" cannot create updn node\n");
+			OSM_LOG(&(p_updn->p_osm->log), OSM_LOG_ERROR, "ERR AA0C: "
+				"cannot create updn node\n");
 			OSM_LOG_EXIT(&p_updn->p_osm->log);
 			return -1;
 		}
@@ -595,15 +576,14 @@ static int __osm_updn_call(void *ctx)
 	/* printf ("-V- after osm_updn_find_root_nodes_by_min_hop\n"); */
 	/* Only if there are assigned root nodes do the algorithm, otherwise perform do nothing */
 	if (p_updn->updn_ucast_reg_inputs.num_guids > 0) {
-		osm_log(&(p_updn->p_osm->log), OSM_LOG_DEBUG,
-			"__osm_updn_call: " "activating UPDN algorithm\n");
+		OSM_LOG(&p_updn->p_osm->log, OSM_LOG_DEBUG,
+			"activating UPDN algorithm\n");
 		ret = updn_build_lid_matrices(p_updn->updn_ucast_reg_inputs.
 					      num_guids,
 					      p_updn->updn_ucast_reg_inputs.
 					      guid_list, p_updn);
 	} else {
-		osm_log(&p_updn->p_osm->log, OSM_LOG_INFO,
-			"__osm_updn_call: "
+		OSM_LOG(&p_updn->p_osm->log, OSM_LOG_INFO,
 			"disabling UPDN algorithm, no root nodes were found\n");
 		ret = 1;
 	}
@@ -650,8 +630,7 @@ static void __osm_updn_convert_list2array(IN updn_t * p_updn)
 		}
 		max_num = i;
 		for (i = 0; i < max_num; i++)
-			osm_log(&p_updn->p_osm->log, OSM_LOG_DEBUG,
-				"__osm_updn_convert_list2array: "
+			OSM_LOG(&p_updn->p_osm->log, OSM_LOG_DEBUG,
 				"Map GUID 0x%" PRIx64 " into UPDN array\n",
 				p_updn->updn_ucast_reg_inputs.guid_list[i]);
 	}
@@ -677,23 +656,20 @@ static void __osm_updn_find_root_nodes_by_min_hop(OUT updn_t * p_updn)
 
 	OSM_LOG_ENTER(&p_osm->log);
 
-	osm_log(&p_osm->log, OSM_LOG_DEBUG,
-		"__osm_updn_find_root_nodes_by_min_hop: "
+	OSM_LOG(&p_osm->log, OSM_LOG_DEBUG,
 		"Current number of ports in the subnet is %d\n",
 		cl_qmap_count(&p_osm->subn.port_guid_tbl));
 
 	cas_per_sw = malloc((IB_LID_UCAST_END_HO + 1) * sizeof(*cas_per_sw));
 	if (!cas_per_sw) {
-		osm_log(&p_osm->log, OSM_LOG_ERROR,
-			"__osm_updn_find_root_nodes_by_min_hop: ERR AA14: "
+		OSM_LOG(&p_osm->log, OSM_LOG_ERROR, "ERR AA14: "
 			"cannot alloc mem for CAs per switch counter array\n");
 		goto _exit;
 	}
 	memset(cas_per_sw, 0, (IB_LID_UCAST_END_HO + 1) * sizeof(*cas_per_sw));
 
 	/* Find the Maximum number of CAs (and routers) for histogram normalization */
-	osm_log(&p_osm->log, OSM_LOG_VERBOSE,
-		"__osm_updn_find_root_nodes_by_min_hop: "
+	OSM_LOG(&p_osm->log, OSM_LOG_VERBOSE,
 		"Finding the number of CAs and storing them in cl_map\n");
 	p_next_port = (osm_port_t *) cl_qmap_head(&p_osm->subn.port_guid_tbl);
 	while (p_next_port !=
@@ -707,8 +683,7 @@ static void __osm_updn_find_root_nodes_by_min_hop(OUT updn_t * p_updn)
 				continue;
 			lid_ho = osm_node_get_base_lid(p_physp->p_node, 0);
 			lid_ho = cl_ntoh16(lid_ho);
-			osm_log(&p_osm->log, OSM_LOG_DEBUG,
-				"__osm_updn_find_root_nodes_by_min_hop: "
+			OSM_LOG(&p_osm->log, OSM_LOG_DEBUG,
 				"Inserting GUID 0x%" PRIx64
 				", sw lid: 0x%X into array\n",
 				cl_ntoh64(osm_port_get_guid(p_port)), lid_ho);
@@ -719,15 +694,13 @@ static void __osm_updn_find_root_nodes_by_min_hop(OUT updn_t * p_updn)
 
 	thd1 = cas_num * 0.9;
 	thd2 = cas_num * 0.05;
-	osm_log(&p_osm->log, OSM_LOG_DEBUG,
-		"__osm_updn_find_root_nodes_by_min_hop: "
+	OSM_LOG(&p_osm->log, OSM_LOG_DEBUG,
 		"Found %u CAs and RTRs, %u SWs in the subnet. "
 		"Thresholds are thd1 = %f && thd2 = %f\n",
 		cas_num, cl_qmap_count(&p_osm->subn.sw_guid_tbl), thd1, thd2);
 
 	p_next_sw = (osm_switch_t *) cl_qmap_head(&p_osm->subn.sw_guid_tbl);
-	osm_log(&p_osm->log, OSM_LOG_VERBOSE,
-		"__osm_updn_find_root_nodes_by_min_hop: "
+	OSM_LOG(&p_osm->log, OSM_LOG_VERBOSE,
 		"Passing through all switches to collect Min Hop info\n");
 	while (p_next_sw !=
 	       (osm_switch_t *) cl_qmap_end(&p_osm->subn.sw_guid_tbl)) {
@@ -745,8 +718,7 @@ static void __osm_updn_find_root_nodes_by_min_hop(OUT updn_t * p_updn)
 
 		max_lid_ho = p_sw->max_lid_ho;
 		/* Get base lid of switch by retrieving port 0 lid of node pointer */
-		osm_log(&p_osm->log, OSM_LOG_DEBUG,
-			"__osm_updn_find_root_nodes_by_min_hop: "
+		OSM_LOG(&p_osm->log, OSM_LOG_DEBUG,
 			"Passing through switch lid 0x%X\n",
 			cl_ntoh16(osm_node_get_base_lid(p_sw->p_node, 0)));
 		for (lid_ho = 1; lid_ho <= max_lid_ho; lid_ho++)
@@ -775,14 +747,12 @@ static void __osm_updn_find_root_nodes_by_min_hop(OUT updn_t * p_updn)
 				*p_guid =
 				    cl_ntoh64(osm_node_get_node_guid
 					      (p_sw->p_node));
-				osm_log(&p_osm->log, OSM_LOG_DEBUG,
-					"__osm_updn_find_root_nodes_by_min_hop: "
+				OSM_LOG(&p_osm->log, OSM_LOG_DEBUG,
 					"Inserting GUID 0x%" PRIx64
 					" as root node\n", *p_guid);
 				cl_list_insert_tail(p_root_nodes_list, p_guid);
 			} else {
-				osm_log(&p_osm->log, OSM_LOG_ERROR,
-					"__osm_updn_find_root_nodes_by_min_hop: ERR AA13: "
+				OSM_LOG(&p_osm->log, OSM_LOG_ERROR, "ERR AA13: "
 					"No memory for p_guid\n");
 			}
 		}

@@ -82,8 +82,7 @@ __osm_sm_mad_ctrl_retire_trans_mad(IN osm_sm_mad_ctrl_t * const p_ctrl,
 	   Return the MAD & wrapper to the pool.
 	 */
 	if (osm_log_is_active(p_ctrl->p_log, OSM_LOG_DEBUG))
-		osm_log(p_ctrl->p_log, OSM_LOG_DEBUG,
-			"__osm_sm_mad_ctrl_retire_trans_mad: "
+		OSM_LOG(p_ctrl->p_log, OSM_LOG_DEBUG,
 			"Retiring MAD with TID 0x%" PRIx64 "\n",
 			cl_ntoh64(osm_madw_get_smp_ptr(p_madw)->trans_id));
 
@@ -92,8 +91,7 @@ __osm_sm_mad_ctrl_retire_trans_mad(IN osm_sm_mad_ctrl_t * const p_ctrl,
 	outstanding = cl_atomic_dec(&p_ctrl->p_stats->qp0_mads_outstanding);
 
 	if (osm_log_is_active(p_ctrl->p_log, OSM_LOG_DEBUG))
-		osm_log(p_ctrl->p_log, OSM_LOG_DEBUG,
-			"__osm_sm_mad_ctrl_retire_trans_mad: "
+		OSM_LOG(p_ctrl->p_log, OSM_LOG_DEBUG,
 			"%u QP0 MADs outstanding\n",
 			p_ctrl->p_stats->qp0_mads_outstanding);
 
@@ -102,8 +100,7 @@ __osm_sm_mad_ctrl_retire_trans_mad(IN osm_sm_mad_ctrl_t * const p_ctrl,
 		   The wire is clean.
 		   Signal the subnet manager.
 		 */
-		osm_log(p_ctrl->p_log, OSM_LOG_DEBUG,
-			"__osm_sm_mad_ctrl_retire_trans_mad: wire is clean.\n");
+		OSM_LOG(p_ctrl->p_log, OSM_LOG_DEBUG, "wire is clean.\n");
 #ifdef HAVE_LIBPTHREAD
 		pthread_cond_signal(&p_ctrl->p_stats->cond);
 #else
@@ -179,8 +176,7 @@ __osm_sm_mad_ctrl_update_wire_stats(IN osm_sm_mad_ctrl_t * const p_ctrl)
 	    cl_atomic_dec(&p_ctrl->p_stats->qp0_mads_outstanding_on_wire);
 
 	if (osm_log_is_active(p_ctrl->p_log, OSM_LOG_DEBUG))
-		osm_log(p_ctrl->p_log, OSM_LOG_DEBUG,
-			"__osm_sm_mad_ctrl_update_wire_stats: "
+		OSM_LOG(p_ctrl->p_log, OSM_LOG_DEBUG,
 			"%u SMPs on the wire, %u outstanding\n", mads_on_wire,
 			p_ctrl->p_stats->qp0_mads_outstanding);
 
@@ -220,8 +216,7 @@ __osm_sm_mad_ctrl_process_get_resp(IN osm_sm_mad_ctrl_t * const p_ctrl,
 	p_smp = osm_madw_get_smp_ptr(p_madw);
 
 	if (p_smp->mgmt_class == IB_MCLASS_SUBN_DIR && !ib_smp_is_d(p_smp)) {
-		osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
-			"__osm_sm_mad_ctrl_process_get_resp: ERR 3102: "
+		OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 3102: "
 			"'D' bit not set in returned SMP\n");
 		osm_dump_dr_smp(p_ctrl->p_log, p_smp, OSM_LOG_ERROR);
 	}
@@ -282,8 +277,7 @@ __osm_sm_mad_ctrl_process_get_resp(IN osm_sm_mad_ctrl_t * const p_ctrl,
 	case IB_MAD_ATTR_INFORM_INFO:
 	default:
 		cl_atomic_inc(&p_ctrl->p_stats->qp0_mads_rcvd_unknown);
-		osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
-			"__osm_sm_mad_ctrl_process_get_resp: ERR 3103: "
+		OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 3103: "
 			"Unsupported attribute = 0x%X\n",
 			cl_ntoh16(p_smp->attr_id));
 		osm_dump_dr_smp(p_ctrl->p_log, p_smp, OSM_LOG_ERROR);
@@ -299,8 +293,7 @@ __osm_sm_mad_ctrl_process_get_resp(IN osm_sm_mad_ctrl_t * const p_ctrl,
 	 */
 
 	if (osm_log_is_active(p_ctrl->p_log, OSM_LOG_DEBUG))
-		osm_log(p_ctrl->p_log, OSM_LOG_DEBUG,
-			"__osm_sm_mad_ctrl_process_get_resp: "
+		OSM_LOG(p_ctrl->p_log, OSM_LOG_DEBUG,
 			"Posting Dispatcher message %s\n",
 			osm_get_disp_msg_str(msg_id));
 
@@ -308,8 +301,7 @@ __osm_sm_mad_ctrl_process_get_resp(IN osm_sm_mad_ctrl_t * const p_ctrl,
 			      __osm_sm_mad_ctrl_disp_done_callback, p_ctrl);
 
 	if (status != CL_SUCCESS) {
-		osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
-			"__osm_sm_mad_ctrl_process_get_resp: ERR 3104: "
+		OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 3104: "
 			"Dispatcher post message failed (%s) for attribute = 0x%X\n",
 			CL_STATUS_MSG(status), cl_ntoh16(p_smp->attr_id));
 		goto Exit;
@@ -351,8 +343,7 @@ __osm_sm_mad_ctrl_process_get(IN osm_sm_mad_ctrl_t * const p_ctrl,
 
 	default:
 		cl_atomic_inc(&p_ctrl->p_stats->qp0_mads_rcvd_unknown);
-		osm_log(p_ctrl->p_log, OSM_LOG_VERBOSE,
-			"__osm_sm_mad_ctrl_process_get: "
+		OSM_LOG(p_ctrl->p_log, OSM_LOG_VERBOSE,
 			"Ignoring SubnGet MAD - unsupported attribute = 0x%X\n",
 			cl_ntoh16(p_smp->attr_id));
 		break;
@@ -373,8 +364,7 @@ __osm_sm_mad_ctrl_process_get(IN osm_sm_mad_ctrl_t * const p_ctrl,
 	 */
 
 	if (osm_log_is_active(p_ctrl->p_log, OSM_LOG_DEBUG))
-		osm_log(p_ctrl->p_log, OSM_LOG_DEBUG,
-			"__osm_sm_mad_ctrl_process_get: "
+		OSM_LOG(p_ctrl->p_log, OSM_LOG_DEBUG,
 			"Posting Dispatcher message %s\n",
 			osm_get_disp_msg_str(msg_id));
 
@@ -382,8 +372,7 @@ __osm_sm_mad_ctrl_process_get(IN osm_sm_mad_ctrl_t * const p_ctrl,
 			      __osm_sm_mad_ctrl_disp_done_callback, p_ctrl);
 
 	if (status != CL_SUCCESS) {
-		osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
-			"__osm_sm_mad_ctrl_process_get: ERR 3106: "
+		OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 3106: "
 			"Dispatcher post message failed (%s)\n",
 			CL_STATUS_MSG(status));
 		goto Exit;
@@ -435,8 +424,7 @@ __osm_sm_mad_ctrl_process_set(IN osm_sm_mad_ctrl_t * const p_ctrl,
 
 	default:
 		cl_atomic_inc(&p_ctrl->p_stats->qp0_mads_rcvd_unknown);
-		osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
-			"__osm_sm_mad_ctrl_process_set: ERR  3107: "
+		OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 3107: "
 			"Unsupported attribute = 0x%X\n",
 			cl_ntoh16(p_smp->attr_id));
 		osm_dump_dr_smp(p_ctrl->p_log, p_smp, OSM_LOG_ERROR);
@@ -458,8 +446,7 @@ __osm_sm_mad_ctrl_process_set(IN osm_sm_mad_ctrl_t * const p_ctrl,
 	 */
 
 	if (osm_log_is_active(p_ctrl->p_log, OSM_LOG_DEBUG))
-		osm_log(p_ctrl->p_log, OSM_LOG_DEBUG,
-			"__osm_sm_mad_ctrl_process_set: "
+		OSM_LOG(p_ctrl->p_log, OSM_LOG_DEBUG,
 			"Posting Dispatcher message %s\n",
 			osm_get_disp_msg_str(msg_id));
 
@@ -467,8 +454,7 @@ __osm_sm_mad_ctrl_process_set(IN osm_sm_mad_ctrl_t * const p_ctrl,
 			      __osm_sm_mad_ctrl_disp_done_callback, p_ctrl);
 
 	if (status != CL_SUCCESS) {
-		osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
-			"__osm_sm_mad_ctrl_process_set: ERR 3108: "
+		OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 3108: "
 			"Dispatcher post message failed (%s)\n",
 			CL_STATUS_MSG(status));
 		goto Exit;
@@ -511,8 +497,7 @@ __osm_sm_mad_ctrl_process_trap(IN osm_sm_mad_ctrl_t * const p_ctrl,
 
 	/* Make sure OpenSM is master. If not - then we should not process the trap */
 	if (p_ctrl->p_subn->sm_state != IB_SMINFO_STATE_MASTER) {
-		osm_log(p_ctrl->p_log, OSM_LOG_DEBUG,
-			"__osm_sm_mad_ctrl_process_trap: "
+		OSM_LOG(p_ctrl->p_log, OSM_LOG_DEBUG,
 			"Received trap but OpenSM is not in MASTER state. "
 			"Dropping mad\n");
 		osm_mad_pool_put(p_ctrl->p_mad_pool, p_madw);
@@ -530,8 +515,7 @@ __osm_sm_mad_ctrl_process_trap(IN osm_sm_mad_ctrl_t * const p_ctrl,
 
 	default:
 		cl_atomic_inc(&p_ctrl->p_stats->qp0_mads_rcvd_unknown);
-		osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
-			"__osm_sm_mad_ctrl_process_trap: ERR 3109: "
+		OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 3109: "
 			"Unsupported attribute = 0x%X\n",
 			cl_ntoh16(p_smp->attr_id));
 		osm_dump_dr_smp(p_ctrl->p_log, p_smp, OSM_LOG_ERROR);
@@ -553,8 +537,7 @@ __osm_sm_mad_ctrl_process_trap(IN osm_sm_mad_ctrl_t * const p_ctrl,
 	 */
 
 	if (osm_log_is_active(p_ctrl->p_log, OSM_LOG_DEBUG))
-		osm_log(p_ctrl->p_log, OSM_LOG_DEBUG,
-			"__osm_sm_mad_ctrl_process_trap: "
+		OSM_LOG(p_ctrl->p_log, OSM_LOG_DEBUG,
 			"Posting Dispatcher message %s\n",
 			osm_get_disp_msg_str(msg_id));
 
@@ -562,8 +545,7 @@ __osm_sm_mad_ctrl_process_trap(IN osm_sm_mad_ctrl_t * const p_ctrl,
 			      __osm_sm_mad_ctrl_disp_done_callback, p_ctrl);
 
 	if (status != CL_SUCCESS) {
-		osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
-			"__osm_sm_mad_ctrl_process_trap: ERR 3110: "
+		OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 3110: "
 			"Dispatcher post message failed (%s)\n",
 			CL_STATUS_MSG(status));
 		goto Exit;
@@ -611,8 +593,7 @@ __osm_sm_mad_ctrl_rcv_callback(IN osm_madw_t * p_madw,
 	cl_atomic_inc(&p_ctrl->p_stats->qp0_mads_rcvd);
 
 	if (osm_log_is_active(p_ctrl->p_log, OSM_LOG_DEBUG))
-		osm_log(p_ctrl->p_log, OSM_LOG_DEBUG,
-			"__osm_sm_mad_ctrl_rcv_callback: "
+		OSM_LOG(p_ctrl->p_log, OSM_LOG_DEBUG,
 			"%u QP0 MADs received\n",
 			p_ctrl->p_stats->qp0_mads_rcvd);
 
@@ -620,8 +601,7 @@ __osm_sm_mad_ctrl_rcv_callback(IN osm_madw_t * p_madw,
 
 	/* if we are closing down simply do nothing */
 	if (osm_exit_flag) {
-		osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
-			"__osm_sm_mad_ctrl_rcv_callback: "
+		OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR,
 			"Ignoring received mad - since we are exiting\n");
 
 		osm_dump_dr_smp(p_ctrl->p_log, p_smp, OSM_LOG_DEBUG);
@@ -648,8 +628,7 @@ __osm_sm_mad_ctrl_rcv_callback(IN osm_madw_t * p_madw,
 		status = p_smp->status;
 
 	if (status != 0) {
-		osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
-			"__osm_sm_mad_ctrl_rcv_callback: ERR 3111: "
+		OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 3111: "
 			"Error status = 0x%X\n", status);
 		osm_dump_dr_smp(p_ctrl->p_log, p_smp, OSM_LOG_ERROR);
 	}
@@ -681,8 +660,7 @@ __osm_sm_mad_ctrl_rcv_callback(IN osm_madw_t * p_madw,
 	case IB_MAD_METHOD_TRAP_REPRESS:
 	default:
 		cl_atomic_inc(&p_ctrl->p_stats->qp0_mads_rcvd_unknown);
-		osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
-			"__osm_sm_mad_ctrl_rcv_callback: ERR 3112: "
+		OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 3112: "
 			"Unsupported method = 0x%X\n", p_smp->method);
 		osm_dump_dr_smp(p_ctrl->p_log, p_smp, OSM_LOG_ERROR);
 		osm_mad_pool_put(p_ctrl->p_mad_pool, p_madw);
@@ -724,8 +702,7 @@ __osm_sm_mad_ctrl_send_err_cb(IN void *bind_context, IN osm_madw_t * p_madw)
 
 	CL_ASSERT(p_madw);
 
-	osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
-		"__osm_sm_mad_ctrl_send_err_cb: ERR 3113: "
+	OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 3113: "
 		"MAD completed in error (%s)\n",
 		ib_get_err_str(p_madw->status));
 
@@ -741,8 +718,7 @@ __osm_sm_mad_ctrl_send_err_cb(IN void *bind_context, IN osm_madw_t * p_madw)
 	     p_smp->attr_id == IB_MAD_ATTR_MCAST_FWD_TBL ||
 	     p_smp->attr_id == IB_MAD_ATTR_SWITCH_INFO ||
 	     p_smp->attr_id == IB_MAD_ATTR_LIN_FWD_TBL)) {
-		osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
-			"__osm_sm_mad_ctrl_send_err_cb: ERR 3119: "
+		OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 3119: "
 			"Set method failed\n");
 		p_ctrl->p_subn->subnet_initialization_error = TRUE;
 	}
@@ -763,8 +739,7 @@ __osm_sm_mad_ctrl_send_err_cb(IN void *bind_context, IN osm_madw_t * p_madw)
 					      p_ctrl->p_subn,
 					      &(p_madw->mad_addr));
 		if (!p_physp) {
-			osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
-				"__osm_sm_mad_ctrl_send_err_cb: ERR 3114: "
+			OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 3114: "
 				"Failed to find the corresponding phys port\n");
 		} else {
 			osm_physp_replace_dr_path_with_alternate_dr_path
@@ -786,8 +761,7 @@ __osm_sm_mad_ctrl_send_err_cb(IN void *bind_context, IN osm_madw_t * p_madw)
 
 	if (osm_madw_get_err_msg(p_madw) != CL_DISP_MSGID_NONE) {
 		if (osm_log_is_active(p_ctrl->p_log, OSM_LOG_DEBUG))
-			osm_log(p_ctrl->p_log, OSM_LOG_DEBUG,
-				"__osm_sm_mad_ctrl_send_err_cb: "
+			OSM_LOG(p_ctrl->p_log, OSM_LOG_DEBUG,
 				"Posting Dispatcher message %s\n",
 				osm_get_disp_msg_str(osm_madw_get_err_msg
 						     (p_madw)));
@@ -798,8 +772,7 @@ __osm_sm_mad_ctrl_send_err_cb(IN void *bind_context, IN osm_madw_t * p_madw)
 				      __osm_sm_mad_ctrl_disp_done_callback,
 				      p_ctrl);
 		if (status != CL_SUCCESS)
-			osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
-				"__osm_sm_mad_ctrl_send_err_cb: ERR 3115: "
+			OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 3115: "
 				"Dispatcher post message failed (%s)\n",
 				CL_STATUS_MSG(status));
 	} else
@@ -873,8 +846,7 @@ osm_sm_mad_ctrl_init(IN osm_sm_mad_ctrl_t * const p_ctrl,
 					  CL_DISP_MSGID_NONE, NULL, NULL);
 
 	if (p_ctrl->h_disp == CL_DISP_INVALID_HANDLE) {
-		osm_log(p_log, OSM_LOG_ERROR,
-			"osm_sm_mad_ctrl_init: ERR 3116: "
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 3116: "
 			"Dispatcher registration failed\n");
 		status = IB_INSUFFICIENT_RESOURCES;
 		goto Exit;
@@ -897,8 +869,7 @@ osm_sm_mad_ctrl_bind(IN osm_sm_mad_ctrl_t * const p_ctrl,
 	OSM_LOG_ENTER(p_ctrl->p_log);
 
 	if (p_ctrl->h_bind != OSM_BIND_INVALID_HANDLE) {
-		osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
-			"osm_sm_mad_ctrl_bind: ERR 3117: "
+		OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 3117: "
 			"Multiple binds not allowed\n");
 		status = IB_ERROR;
 		goto Exit;
@@ -913,8 +884,7 @@ osm_sm_mad_ctrl_bind(IN osm_sm_mad_ctrl_t * const p_ctrl,
 	bind_info.recv_q_size = OSM_SM_DEFAULT_QP0_RCV_SIZE;
 	bind_info.send_q_size = OSM_SM_DEFAULT_QP0_SEND_SIZE;
 
-	osm_log(p_ctrl->p_log, OSM_LOG_VERBOSE,
-		"osm_sm_mad_ctrl_bind: "
+	OSM_LOG(p_ctrl->p_log, OSM_LOG_VERBOSE,
 		"Binding to port 0x%" PRIx64 "\n", cl_ntoh64(port_guid));
 
 	p_ctrl->h_bind = osm_vendor_bind(p_ctrl->p_vendor,
@@ -925,8 +895,7 @@ osm_sm_mad_ctrl_bind(IN osm_sm_mad_ctrl_t * const p_ctrl,
 
 	if (p_ctrl->h_bind == OSM_BIND_INVALID_HANDLE) {
 		status = IB_ERROR;
-		osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
-			"osm_sm_mad_ctrl_bind: ERR 3118: "
+		OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 3118: "
 			"Vendor specific bind failed\n");
 		goto Exit;
 	}

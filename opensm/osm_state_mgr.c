@@ -101,8 +101,7 @@ static void __osm_state_mgr_reset_node_count(IN cl_map_item_t *
 	osm_sm_t *sm = context;
 
 	if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
-		osm_log(sm->p_log, OSM_LOG_DEBUG,
-			"__osm_state_mgr_reset_node_count: "
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 			"Resetting discovery count for node 0x%" PRIx64
 			"(%s)\n", cl_ntoh64(osm_node_get_node_guid(p_node)),
 			p_node->print_desc);
@@ -120,8 +119,7 @@ static void __osm_state_mgr_reset_port_count(IN cl_map_item_t *
 	osm_sm_t *sm = context;
 
 	if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
-		osm_log(sm->p_log, OSM_LOG_DEBUG,
-			"__osm_state_mgr_reset_port_count: "
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 			"Resetting discovery count for port 0x%" PRIx64
 			"(node %s)\n", cl_ntoh64(osm_port_get_guid(p_port)),
 			p_port->p_node ? p_port->p_node->
@@ -141,8 +139,7 @@ __osm_state_mgr_reset_switch_count(IN cl_map_item_t * const p_map_item,
 	osm_sm_t *sm = context;
 
 	if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
-		osm_log(sm->p_log, OSM_LOG_DEBUG,
-			"__osm_state_mgr_reset_switch_count: "
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 			"Resetting discovery count for switch 0x%" PRIx64
 			" (%s)\n",
 			cl_ntoh64(osm_node_get_node_guid(p_sw->p_node)),
@@ -180,8 +177,7 @@ static void __osm_state_mgr_get_sw_info(IN cl_map_item_t * const p_object,
 			     OSM_MSG_LIGHT_SWEEP_FAIL, &mad_context);
 
 	if (status != IB_SUCCESS) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_state_mgr_get_sw_info: ERR 3304: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3304: "
 			"Request for SwitchInfo failed\n");
 	}
 
@@ -225,8 +221,7 @@ __osm_state_mgr_get_remote_port_info(IN osm_sm_t * sm,
 			     &mad_context);
 
 	if (status != IB_SUCCESS) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_state_mgr_get_remote_port_info: ERR 332E: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 332E: "
 			"Request for PortInfo failed\n");
 	}
 
@@ -286,13 +281,11 @@ static ib_api_status_t __osm_state_mgr_sweep_hop_0(IN osm_sm_t * sm)
 				     CL_DISP_MSGID_NONE, NULL);
 
 		if (status != IB_SUCCESS) {
-			osm_log(sm->p_log, OSM_LOG_ERROR,
-				"__osm_state_mgr_sweep_hop_0: ERR 3305: "
+			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3305: "
 				"Request for NodeInfo failed\n");
 		}
 	} else {
-		osm_log(sm->p_log, OSM_LOG_DEBUG,
-			"__osm_state_mgr_sweep_hop_0: "
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 			"No bound ports. Deferring sweep...\n");
 		status = IB_INVALID_STATE;
 	}
@@ -340,8 +333,7 @@ static ib_api_status_t __osm_state_mgr_notify_lid_change(IN osm_sm_t * sm)
 	 */
 	h_bind = osm_sm_mad_ctrl_get_bind_handle(&sm->mad_ctrl);
 	if (h_bind == OSM_BIND_INVALID_HANDLE) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_state_mgr_notify_lid_change: ERR 3306: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3306: "
 			"No bound ports\n");
 		status = IB_ERROR;
 		goto Exit;
@@ -352,8 +344,7 @@ static ib_api_status_t __osm_state_mgr_notify_lid_change(IN osm_sm_t * sm)
 	 */
 	status = osm_vendor_local_lid_change(h_bind);
 	if (status != IB_SUCCESS) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_state_mgr_notify_lid_change: ERR 3307: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3307: "
 			"Vendor LID update failed (%s)\n",
 			ib_get_err_str(status));
 	}
@@ -382,8 +373,7 @@ static boolean_t __osm_state_mgr_is_sm_port_down(IN osm_sm_t * sm)
 	 * If we don't know our own port guid yet, assume the port is down.
 	 */
 	if (port_guid == 0) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_state_mgr_is_sm_port_down: ERR 3308: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3308: "
 			"SM port GUID unknown\n");
 		state = IB_LINK_DOWN;
 		goto Exit;
@@ -394,8 +384,7 @@ static boolean_t __osm_state_mgr_is_sm_port_down(IN osm_sm_t * sm)
 	CL_PLOCK_ACQUIRE(sm->p_lock);
 	p_port = osm_get_port_by_guid(sm->p_subn, port_guid);
 	if (!p_port) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_state_mgr_is_sm_port_down: ERR 3309: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3309: "
 			"SM port with GUID:%016" PRIx64 " (%s) is unknown\n",
 			cl_ntoh64(port_guid),
 			p_port->p_node ? p_port->p_node->
@@ -457,8 +446,7 @@ static ib_api_status_t __osm_state_mgr_sweep_hop_1(IN osm_sm_t * sm)
 
 	p_port = osm_get_port_by_guid(sm->p_subn, port_guid);
 	if (!p_port) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_state_mgr_sweep_hop_1: ERR 3310: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3310: "
 			"No SM port object\n");
 		status = IB_ERROR;
 		goto Exit;
@@ -469,8 +457,7 @@ static ib_api_status_t __osm_state_mgr_sweep_hop_1(IN osm_sm_t * sm)
 
 	port_num = ib_node_info_get_local_port_num(&p_node->node_info);
 
-	osm_log(sm->p_log, OSM_LOG_DEBUG,
-		"__osm_state_mgr_sweep_hop_1: "
+	OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 		"Probing hop 1 on local port %u\n", port_num);
 
 	p_physp = osm_node_get_physp_ptr(p_node, port_num);
@@ -500,8 +487,7 @@ static ib_api_status_t __osm_state_mgr_sweep_hop_1(IN osm_sm_t * sm)
 				     CL_DISP_MSGID_NONE, &context);
 
 		if (status != IB_SUCCESS) {
-			osm_log(sm->p_log, OSM_LOG_ERROR,
-				"__osm_state_mgr_sweep_hop_1: ERR 3311: "
+			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3311: "
 				"Request for NodeInfo failed\n");
 		}
 		break;
@@ -535,8 +521,7 @@ static ib_api_status_t __osm_state_mgr_sweep_hop_1(IN osm_sm_t * sm)
 						CL_DISP_MSGID_NONE, &context);
 
 				if (status != IB_SUCCESS) {
-					osm_log(sm->p_log, OSM_LOG_ERROR,
-						"__osm_state_mgr_sweep_hop_1: ERR 3312: "
+					OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3312: "
 						"Request for NodeInfo failed\n");
 				}
 			}
@@ -544,8 +529,8 @@ static ib_api_status_t __osm_state_mgr_sweep_hop_1(IN osm_sm_t * sm)
 		break;
 
 	default:
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_state_mgr_sweep_hop_1: ERR 3313: Unknown node type %d (%s)\n",
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR,
+			"ERR 3313: Unknown node type %d (%s)\n",
 			osm_node_get_type(p_node), p_node->print_desc);
 	}
 
@@ -599,8 +584,8 @@ static ib_api_status_t __osm_state_mgr_light_sweep_start(IN osm_sm_t * sm)
 				    && (osm_physp_get_port_state(p_physp) !=
 					IB_LINK_DOWN)
 				    && !osm_physp_get_remote(p_physp)) {
-					osm_log(sm->p_log, OSM_LOG_ERROR,
-						"__osm_state_mgr_light_sweep_start: ERR 0108: "
+					OSM_LOG(sm->p_log, OSM_LOG_ERROR,
+						"ERR 0108: "
 						"Unknown remote side for node 0x%016"
 						PRIx64
 						"(%s) port %u. Adding to light sweep sampling list\n",
@@ -620,8 +605,7 @@ static ib_api_status_t __osm_state_mgr_light_sweep_start(IN osm_sm_t * sm)
 		}
 		CL_PLOCK_RELEASE(sm->p_lock);
 	} else {
-		osm_log(sm->p_log, OSM_LOG_DEBUG,
-			"__osm_state_mgr_light_sweep_start: "
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 			"No bound ports. Deferring sweep...\n");
 		status = IB_INVALID_STATE;
 	}
@@ -652,8 +636,7 @@ static osm_remote_sm_t *__osm_state_mgr_exists_other_master_sm(IN osm_sm_t * sm)
 	     p_sm = (osm_remote_sm_t *) cl_qmap_next(&p_sm->map_item)) {
 		/* If the sm is in MASTER state - return a pointer to it */
 		if (ib_sminfo_get_state(&p_sm->smi) == IB_SMINFO_STATE_MASTER) {
-			osm_log(sm->p_log, OSM_LOG_VERBOSE,
-				"__osm_state_mgr_exists_other_master_sm: "
+			OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 				"Found remote master SM with guid:0x%016" PRIx64
 				" (node %s)\n", cl_ntoh64(p_sm->smi.guid),
 				p_sm->p_port->p_node ? p_sm->p_port->p_node->
@@ -714,8 +697,7 @@ static osm_remote_sm_t *__osm_state_mgr_get_highest_sm(IN osm_sm_t * sm)
 	}
 
 	if (p_highest_sm != NULL) {
-		osm_log(sm->p_log, OSM_LOG_DEBUG,
-			"__osm_state_mgr_get_highest_sm: "
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 			"Found higher SM with guid: %016" PRIx64 " (node %s)\n",
 			cl_ntoh64(p_highest_sm->smi.guid),
 			p_highest_sm->p_port->p_node ?
@@ -749,16 +731,14 @@ __osm_state_mgr_send_handover(IN osm_sm_t * const sm,
 	memset(&context, 0, sizeof(context));
 	p_port = p_sm->p_port;
 	if (p_port == NULL) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_state_mgr_send_handover: ERR 3316: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3316: "
 			"No port object on given remote_sm object\n");
 		goto Exit;
 	}
 
 	/* update the master_guid in the sm_state_mgr object according to */
 	/* the guid of the port where the new Master SM should reside. */
-	osm_log(sm->p_log, OSM_LOG_VERBOSE,
-		"__osm_state_mgr_send_handover: "
+	OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 		"Handing over mastership. Updating sm_state_mgr master_guid: %016"
 		PRIx64 " (node %s)\n", cl_ntoh64(p_port->guid),
 		p_port->p_node ? p_port->p_node->print_desc : "UNKNOWN");
@@ -776,14 +756,12 @@ __osm_state_mgr_send_handover(IN osm_sm_t * const sm,
 	 * as the master SM.
 	 */
 	if (ib_sminfo_get_state(&p_sm->smi) == IB_SMINFO_STATE_MASTER) {
-		osm_log(sm->p_log, OSM_LOG_DEBUG,
-			"__osm_state_mgr_send_handover: "
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 			"Responding to master SM with real sm_key\n");
 		p_smi->sm_key = sm->p_subn->opt.sm_key;
 	} else {
 		/* The requester is not authenticated as master - set sm_key to zero */
-		osm_log(sm->p_log, OSM_LOG_DEBUG,
-			"__osm_state_mgr_send_handover: "
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 			"Responding to SM not master with zero sm_key\n");
 		p_smi->sm_key = 0;
 	}
@@ -795,8 +773,7 @@ __osm_state_mgr_send_handover(IN osm_sm_t * const sm,
 			     CL_DISP_MSGID_NONE, &context);
 
 	if (status != IB_SUCCESS) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_state_mgr_send_handover: ERR 3317: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3317: "
 			"Failure requesting SMInfo (%s)\n",
 			ib_get_err_str(status));
 	}
@@ -856,15 +833,13 @@ static void __osm_state_mgr_report_new_ports(IN osm_sm_t * sm)
 
 		status = osm_report_notice(sm->p_log, sm->p_subn, &notice);
 		if (status != IB_SUCCESS) {
-			osm_log(sm->p_log, OSM_LOG_ERROR,
-				"__osm_state_mgr_report_new_ports: ERR 3318: "
+			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3318: "
 				"Error sending trap reports on GUID:0x%016"
 				PRIx64 " (%s)\n", port_gid.unicast.interface_id,
 				ib_get_err_str(status));
 		}
 		osm_port_get_lid_range_ho(p_port, &min_lid_ho, &max_lid_ho);
-		osm_log(sm->p_log, OSM_LOG_INFO,
-			"__osm_state_mgr_report_new_ports: "
+		OSM_LOG(sm->p_log, OSM_LOG_INFO,
 			"Discovered new port with GUID:0x%016" PRIx64
 			" LID range [0x%X,0x%X] of node:%s\n",
 			cl_ntoh64(port_gid.unicast.interface_id),
@@ -950,8 +925,7 @@ static void __osm_state_mgr_check_tbl_consistency(IN osm_sm_t * sm)
 			 * didn't get the PortInfo Set request. Due to this, the port
 			 * is updated with its original lid in our database, but with the
 			 * new lid we wanted to give it in our port_lid_tbl. */
-			osm_log(sm->p_log, OSM_LOG_ERROR,
-				"__osm_state_mgr_check_tbl_consistency: ERR 3322: "
+			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3322: "
 				"lid 0x%zX is wrongly assigned to port 0x%016"
 				PRIx64 " in port_lid_tbl\n", lid,
 				cl_ntoh64(osm_port_get_guid(p_port_stored)));
@@ -960,11 +934,10 @@ static void __osm_state_mgr_check_tbl_consistency(IN osm_sm_t * sm)
 				/* There is an object in the new database, but no object in our subnet
 				 * database. This is the matching case of the prior check - the port
 				 * still has its original lid. */
-				osm_log(sm->p_log, OSM_LOG_ERROR,
-					"__osm_state_mgr_check_tbl_consistency: ERR 3323: "
-					"port 0x%016" PRIx64
-					" exists in new port_lid_tbl under "
-					"lid 0x%zX, but missing in subnet port_lid_tbl db\n",
+				OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3323: "
+					"port 0x%016" PRIx64 " exists in new "
+					"port_lid_tbl under lid 0x%zX, but "
+					"missing in subnet port_lid_tbl db\n",
 					cl_ntoh64(osm_port_get_guid
 						  (p_port_ref)), lid);
 			} else {
@@ -972,8 +945,7 @@ static void __osm_state_mgr_check_tbl_consistency(IN osm_sm_t * sm)
 				/* if we reached here then p_port_stored != p_port_ref.
 				 * We were trying to set a lid to p_port_stored, but it didn't reach it,
 				 * and p_port_ref also didn't get the lid update. */
-				osm_log(sm->p_log, OSM_LOG_ERROR,
-					"__osm_state_mgr_check_tbl_consistency: ERR 3324: "
+				OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3324: "
 					"lid 0x%zX has port 0x%016" PRIx64
 					" in new port_lid_tbl db, "
 					"and port 0x%016" PRIx64
@@ -1069,8 +1041,7 @@ _repeat_discovery:
 	/* rescan configuration updates */
 	status = osm_subn_rescan_conf_files(sm->p_subn);
 	if (status != IB_SUCCESS)
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"do_sweep: ERR 331A: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 331A: "
 			"osm_subn_rescan_conf_file failed\n");
 
 	if (sm->p_subn->sm_state != IB_SMINFO_STATE_MASTER)
@@ -1298,8 +1269,7 @@ void osm_state_mgr_process(IN osm_sm_t * sm, IN osm_signal_t signal)
 	OSM_LOG_ENTER(sm->p_log);
 
 	if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG))
-		osm_log(sm->p_log, OSM_LOG_DEBUG,
-			"osm_state_mgr_process: "
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 			"Received signal %s in state %s\n",
 			osm_get_sm_signal_str(signal),
 			osm_get_sm_mgr_state_str(sm->p_subn->sm_state));
@@ -1315,8 +1285,7 @@ void osm_state_mgr_process(IN osm_sm_t * sm, IN osm_signal_t signal)
 
 	default:
 		CL_ASSERT(FALSE);
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"osm_state_mgr_process: ERR 3320: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3320: "
 			"Invalid SM signal %u\n", signal);
 		break;
 	}

@@ -93,8 +93,8 @@ osm_req_get(IN osm_sm_t * sm,
 				  p_path->h_bind, MAD_BLOCK_SIZE, NULL);
 
 	if (p_madw == NULL) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"osm_req_get: ERR 1101: " "Unable to acquire MAD\n");
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR,
+			"ERR 1101: Unable to acquire MAD\n");
 		status = IB_INSUFFICIENT_RESOURCES;
 		goto Exit;
 	}
@@ -102,8 +102,7 @@ osm_req_get(IN osm_sm_t * sm,
 	tid = cl_hton64((uint64_t) cl_atomic_inc(&sm->sm_trans_id));
 
 	if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
-		osm_log(sm->p_log, OSM_LOG_DEBUG,
-			"osm_req_get: "
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 			"Getting %s (0x%X), modifier 0x%X, TID 0x%" PRIx64 "\n",
 			ib_get_sm_attr_str(attr_id),
 			cl_ntoh16(attr_id),
@@ -175,8 +174,8 @@ osm_req_set(IN osm_sm_t * sm,
 				  p_path->h_bind, MAD_BLOCK_SIZE, NULL);
 
 	if (p_madw == NULL) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"osm_req_set: ERR 1102: " "Unable to acquire MAD\n");
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR,
+			"ERR 1102: Unable to acquire MAD\n");
 		status = IB_INSUFFICIENT_RESOURCES;
 		goto Exit;
 	}
@@ -184,8 +183,7 @@ osm_req_set(IN osm_sm_t * sm,
 	tid = cl_hton64((uint64_t) cl_atomic_inc(&sm->sm_trans_id));
 
 	if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
-		osm_log(sm->p_log, OSM_LOG_DEBUG,
-			"osm_req_set: "
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 			"Setting %s (0x%X), modifier 0x%X, TID 0x%" PRIx64 "\n",
 			ib_get_sm_attr_str(attr_id),
 			cl_ntoh16(attr_id),

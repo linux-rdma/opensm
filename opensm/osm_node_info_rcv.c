@@ -76,8 +76,7 @@ report_duplicated_guid(IN osm_sm_t * sm,
 	p_old = p_physp->p_remote_physp;
 	p_new = osm_node_get_physp_ptr(p_neighbor_node, port_num);
 
-	osm_log(sm->p_log, OSM_LOG_ERROR,
-		"report_duplicated_guid: ERR 0D01: "
+	OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D01: "
 		"Found duplicated node.\n"
 		"Node 0x%" PRIx64 " port %u is reachable from remote node "
 		"0x%" PRIx64 " port %u and remote node 0x%" PRIx64 " port %u.\n"
@@ -119,8 +118,7 @@ static void requery_dup_node_info(IN osm_sm_t * sm,
 			     0, CL_DISP_MSGID_NONE, &context);
 
 	if (status != IB_SUCCESS)
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"requery_dup_node_info: ERR 0D02: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D02: "
 			"Failure initiating NodeInfo request (%s)\n",
 			ib_get_err_str(status));
 }
@@ -145,8 +143,7 @@ __osm_ni_rcv_set_links(IN osm_sm_t * sm,
 	   the ni_context will be zero.
 	 */
 	if (p_ni_context->node_guid == 0) {
-		osm_log(sm->p_log, OSM_LOG_DEBUG,
-			"__osm_ni_rcv_set_links: "
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 			"Nothing to link for our own node 0x%" PRIx64 "\n",
 			cl_ntoh64(osm_node_get_node_guid(p_node)));
 		goto _exit;
@@ -155,8 +152,7 @@ __osm_ni_rcv_set_links(IN osm_sm_t * sm,
 	p_neighbor_node = osm_get_node_by_guid(sm->p_subn,
 					       p_ni_context->node_guid);
 	if (!p_neighbor_node) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_ni_rcv_set_links: ERR 0D10: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D10: "
 			"Unexpected removal of neighbor node "
 			"0x%" PRIx64 "\n", cl_ntoh64(p_ni_context->node_guid));
 		goto _exit;
@@ -177,8 +173,7 @@ __osm_ni_rcv_set_links(IN osm_sm_t * sm,
 
 	if (osm_node_link_exists(p_node, port_num,
 				 p_neighbor_node, p_ni_context->port_num)) {
-		osm_log(sm->p_log, OSM_LOG_DEBUG,
-			"__osm_ni_rcv_set_links: " "Link already exists\n");
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG, "Link already exists\n");
 		goto _exit;
 	}
 
@@ -225,8 +220,7 @@ __osm_ni_rcv_set_links(IN osm_sm_t * sm,
 	if ((osm_node_get_node_guid(p_node) == p_ni_context->node_guid) &&
 	    (port_num == p_ni_context->port_num) &&
 	    port_num != 0 && cl_qmap_count(&sm->p_subn->sw_guid_tbl) == 0) {
-		osm_log(sm->p_log, OSM_LOG_VERBOSE,
-			"__osm_ni_rcv_set_links: "
+		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 			"Duplicate GUID found by link from a port to itself:"
 			"node 0x%" PRIx64 ", port number 0x%X\n",
 			cl_ntoh64(osm_node_get_node_guid(p_node)), port_num);
@@ -245,15 +239,11 @@ __osm_ni_rcv_set_links(IN osm_sm_t * sm,
 	}
 
 	if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG))
-		osm_log(sm->p_log, OSM_LOG_DEBUG,
-			"__osm_ni_rcv_set_links: "
-			"Creating new link between: "
-			"\n\t\t\t\tnode 0x%" PRIx64 ", "
-			"port number 0x%X and"
-			"\n\t\t\t\tnode 0x%" PRIx64 ", "
-			"port number 0x%X\n",
-			cl_ntoh64(osm_node_get_node_guid(p_node)),
-			port_num,
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
+			"Creating new link between:\n\t\t\t\tnode 0x%" PRIx64
+			", port number 0x%X and\n\t\t\t\tnode 0x%" PRIx64
+			", port number 0x%X\n",
+			cl_ntoh64(osm_node_get_node_guid(p_node)), port_num,
 			cl_ntoh64(p_ni_context->node_guid),
 			p_ni_context->port_num);
 
@@ -306,8 +296,7 @@ __osm_ni_rcv_process_new_node(IN osm_sm_t * sm,
 			     IB_MAD_ATTR_PORT_INFO,
 			     cl_hton32(port_num), CL_DISP_MSGID_NONE, &context);
 	if (status != IB_SUCCESS)
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_ni_rcv_process_new_node: ERR 0D02: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D02: "
 			"Failure initiating PortInfo request (%s)\n",
 			ib_get_err_str(status));
 
@@ -351,8 +340,7 @@ __osm_ni_rcv_get_node_desc(IN osm_sm_t * sm,
 			     IB_MAD_ATTR_NODE_DESC,
 			     0, CL_DISP_MSGID_NONE, &context);
 	if (status != IB_SUCCESS)
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_ni_rcv_get_node_desc: ERR 0D03: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D03: "
 			"Failure initiating NodeDescription request (%s)\n",
 			ib_get_err_str(status));
 
@@ -415,8 +403,7 @@ __osm_ni_rcv_process_existing_ca_or_router(IN osm_sm_t * sm,
 	 */
 	p_port = osm_get_port_by_guid(sm->p_subn, p_ni->port_guid);
 	if (!p_port) {
-		osm_log(sm->p_log, OSM_LOG_VERBOSE,
-			"__osm_ni_rcv_process_existing_ca_or_router: "
+		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 			"Creating new port object with GUID 0x%" PRIx64 "\n",
 			cl_ntoh64(p_ni->port_guid));
 
@@ -424,8 +411,7 @@ __osm_ni_rcv_process_existing_ca_or_router(IN osm_sm_t * sm,
 
 		p_port = osm_port_new(p_ni, p_node);
 		if (p_port == NULL) {
-			osm_log(sm->p_log, OSM_LOG_ERROR,
-				"__osm_ni_rcv_process_existing_ca_or_router: ERR 0D04: "
+			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D04: "
 				"Unable to create new port object\n");
 			goto Exit;
 		}
@@ -442,8 +428,7 @@ __osm_ni_rcv_process_existing_ca_or_router(IN osm_sm_t * sm,
 			   We should never be here!
 			   Somehow, this port GUID already exists in the table.
 			 */
-			osm_log(sm->p_log, OSM_LOG_ERROR,
-				"__osm_ni_rcv_process_existing_ca_or_router: ERR 0D12: "
+			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D12: "
 				"Port 0x%" PRIx64 " already in the database!\n",
 				cl_ntoh64(p_ni->port_guid));
 
@@ -485,8 +470,7 @@ __osm_ni_rcv_process_existing_ca_or_router(IN osm_sm_t * sm,
 			     cl_hton32(port_num), CL_DISP_MSGID_NONE, &context);
 
 	if (status != IB_SUCCESS)
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_ni_rcv_process_existing_ca_or_router: ERR 0D13: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D13: "
 			"Failure initiating PortInfo request (%s)\n",
 			ib_get_err_str(status));
 
@@ -523,8 +507,7 @@ __osm_ni_rcv_process_switch(IN osm_sm_t * sm,
 			     0, CL_DISP_MSGID_NONE, &context);
 	if (status != IB_SUCCESS)
 		/* continue despite error */
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_ni_rcv_process_switch: ERR 0D06: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D06: "
 			"Failure initiating SwitchInfo request (%s)\n",
 			ib_get_err_str(status));
 
@@ -553,8 +536,7 @@ __osm_ni_rcv_process_existing_switch(IN osm_sm_t * sm,
 		__osm_ni_rcv_process_switch(sm, p_node, p_madw);
 	else if (!p_node->sw || p_node->sw->discovery_count == 0) {
 		/* we don't have the SwitchInfo - retry to get it */
-		osm_log(sm->p_log, OSM_LOG_DEBUG,
-			"__osm_ni_rcv_process_existing_switch: "
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 			"Retry to get SwitchInfo on node GUID:0x%"
 			PRIx64 "\n", cl_ntoh64(osm_node_get_node_guid(p_node)));
 		__osm_ni_rcv_process_switch(sm, p_node, p_madw);
@@ -614,8 +596,7 @@ __osm_ni_rcv_process_new(IN osm_sm_t * sm,
 
 	osm_dump_smp_dr_path(sm->p_log, p_smp, OSM_LOG_VERBOSE);
 
-	osm_log(sm->p_log, OSM_LOG_VERBOSE,
-		"__osm_ni_rcv_process_new: "
+	OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 		"Discovered new %s node,"
 		"\n\t\t\t\tGUID 0x%" PRIx64 ", TID 0x%" PRIx64 "\n",
 		ib_get_node_type_str(p_ni->node_type),
@@ -623,8 +604,7 @@ __osm_ni_rcv_process_new(IN osm_sm_t * sm,
 
 	p_node = osm_node_new(p_madw);
 	if (p_node == NULL) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_ni_rcv_process_new: ERR 0D07: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D07: "
 			"Unable to create new node object\n");
 		goto Exit;
 	}
@@ -635,8 +615,7 @@ __osm_ni_rcv_process_new(IN osm_sm_t * sm,
 	 */
 	p_port = osm_port_new(p_ni, p_node);
 	if (p_port == NULL) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_ni_rcv_process_new: ERR 0D14: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D14: "
 			"Unable to create new port object\n");
 		osm_node_delete(&p_node);
 		goto Exit;
@@ -653,8 +632,7 @@ __osm_ni_rcv_process_new(IN osm_sm_t * sm,
 		   We should never be here!
 		   Somehow, this port GUID already exists in the table.
 		 */
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_ni_rcv_process_new: ERR 0D15: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D15: "
 			"Duplicate Port GUID 0x%" PRIx64
 			"! Found by the two directed routes:\n",
 			cl_ntoh64(p_ni->port_guid));
@@ -684,8 +662,7 @@ __osm_ni_rcv_process_new(IN osm_sm_t * sm,
 	   this would be elsewhere */
 	if (p_ni->node_type == IB_NODE_TYPE_ROUTER) {
 		if ((p_rtr = osm_router_new(p_port)) == NULL)
-			osm_log(sm->p_log, OSM_LOG_ERROR,
-				"__osm_ni_rcv_process_new: ERR 0D1A: "
+			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D1A: "
 				"Unable to create new router object\n");
 		else {
 			p_rtr_guid_tbl = &sm->p_subn->rtr_guid_tbl;
@@ -694,8 +671,7 @@ __osm_ni_rcv_process_new(IN osm_sm_t * sm,
 							    p_ni->port_guid,
 							    &p_rtr->map_item);
 			if (p_rtr_check != p_rtr)
-				osm_log(sm->p_log, OSM_LOG_ERROR,
-					"__osm_ni_rcv_process_new: ERR 0D1B: "
+				OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D1B: "
 					"Unable to add port GUID:0x%016" PRIx64
 					" to router table\n",
 					cl_ntoh64(p_ni->port_guid));
@@ -712,8 +688,7 @@ __osm_ni_rcv_process_new(IN osm_sm_t * sm,
 		   We can simply clean-up, since the other thread will
 		   see this processing through to completion.
 		 */
-		osm_log(sm->p_log, OSM_LOG_VERBOSE,
-			"__osm_ni_rcv_process_new: "
+		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 			"Discovery race detected at node 0x%" PRIx64 "\n",
 			cl_ntoh64(p_ni->node_guid));
 		osm_node_delete(&p_node);
@@ -735,8 +710,7 @@ __osm_ni_rcv_process_new(IN osm_sm_t * sm,
 		__osm_ni_rcv_process_new_switch(sm, p_node, p_madw);
 		break;
 	default:
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_ni_rcv_process_new: ERR 0D16: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D16: "
 			"Unknown node type %u with GUID 0x%" PRIx64 "\n",
 			p_ni->node_type, cl_ntoh64(p_ni->node_guid));
 		break;
@@ -767,8 +741,7 @@ __osm_ni_rcv_process_existing(IN osm_sm_t * sm,
 	port_num = ib_node_info_get_local_port_num(p_ni);
 
 	if (osm_log_is_active(sm->p_log, OSM_LOG_VERBOSE))
-		osm_log(sm->p_log, OSM_LOG_VERBOSE,
-			"__osm_ni_rcv_process_existing: "
+		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 			"Rediscovered %s node 0x%" PRIx64
 			" TID 0x%" PRIx64 ", discovered %u times already\n",
 			ib_get_node_type_str(p_ni->node_type),
@@ -793,8 +766,7 @@ __osm_ni_rcv_process_existing(IN osm_sm_t * sm,
 		break;
 
 	default:
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_ni_rcv_process_existing: ERR 0D09: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D09: "
 			"Unknown node type %u with GUID 0x%" PRIx64 "\n",
 			p_ni->node_type, cl_ntoh64(p_ni->node_guid));
 		break;
@@ -827,16 +799,14 @@ void osm_ni_rcv_process(IN void *context, IN void *data)
 	CL_ASSERT(p_smp->attr_id == IB_MAD_ATTR_NODE_INFO);
 
 	if (p_ni->node_guid == 0) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"osm_ni_rcv_process: ERR 0D16: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D16: "
 			"Got Zero Node GUID! Found on the directed route:\n");
 		osm_dump_smp_dr_path(sm->p_log, p_smp, OSM_LOG_ERROR);
 		goto Exit;
 	}
 
 	if (p_ni->port_guid == 0) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"osm_ni_rcv_process: ERR 0D17: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D17: "
 			"Got Zero Port GUID! Found on the directed route:\n");
 		osm_dump_smp_dr_path(sm->p_log, p_smp, OSM_LOG_ERROR);
 		goto Exit;

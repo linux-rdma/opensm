@@ -119,8 +119,7 @@ __validate_ports_access_rights(IN osm_sa_t * sa,
 		p_port = osm_get_port_by_guid(sa->p_subn, portguid);
 
 		if (p_port == NULL) {
-			osm_log(sa->p_log, OSM_LOG_ERROR,
-				"__validate_ports_access_rights: ERR 4301: "
+			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4301: "
 				"Invalid port guid: 0x%016" PRIx64 "\n",
 				cl_ntoh64(portguid));
 			valid = FALSE;
@@ -134,8 +133,7 @@ __validate_ports_access_rights(IN osm_sa_t * sa,
 		   according to the current partitioning. */
 		if (!osm_physp_share_pkey
 		    (sa->p_log, p_physp, p_requester_physp)) {
-			osm_log(sa->p_log, OSM_LOG_DEBUG,
-				"__validate_ports_access_rights: "
+			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 				"port and requester don't share pkey\n");
 			valid = FALSE;
 			goto Exit;
@@ -166,8 +164,7 @@ __validate_ports_access_rights(IN osm_sa_t * sa,
 				p_port = cl_ptr_vector_get(p_tbl, lid);
 			} else {
 				/* lid requested is out of range */
-				osm_log(sa->p_log, OSM_LOG_ERROR,
-					"__validate_ports_access_rights: ERR 4302: "
+				OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4302: "
 					"Given LID (0x%X) is out of range:0x%X\n",
 					lid, cl_ptr_vector_get_size(p_tbl));
 				valid = FALSE;
@@ -181,8 +178,7 @@ __validate_ports_access_rights(IN osm_sa_t * sa,
 			   each other according to the current partitioning. */
 			if (!osm_physp_share_pkey
 			    (sa->p_log, p_physp, p_requester_physp)) {
-				osm_log(sa->p_log, OSM_LOG_DEBUG,
-					"__validate_ports_access_rights: "
+				OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 					"port and requester don't share pkey\n");
 				valid = FALSE;
 				goto Exit;
@@ -206,8 +202,8 @@ __validate_infr(IN osm_sa_t * sa, IN osm_infr_t * p_infr_rec)
 
 	valid = __validate_ports_access_rights(sa, p_infr_rec);
 	if (!valid) {
-		osm_log(sa->p_log, OSM_LOG_DEBUG,
-			"__validate_infr: " "Invalid Access for InformInfo\n");
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
+			"Invalid Access for InformInfo\n");
 		valid = FALSE;
 	}
 
@@ -233,8 +229,7 @@ __osm_infr_rcv_respond(IN osm_sa_t * sa,
 	OSM_LOG_ENTER(sa->p_log);
 
 	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG)) {
-		osm_log(sa->p_log, OSM_LOG_DEBUG,
-			"__osm_infr_rcv_respond: "
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Generating successful InformInfo response\n");
 	}
 
@@ -245,8 +240,7 @@ __osm_infr_rcv_respond(IN osm_sa_t * sa,
 				       p_madw->h_bind,
 				       MAD_BLOCK_SIZE, &p_madw->mad_addr);
 	if (!p_resp_madw) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"__osm_infr_rcv_respond: ERR 4303: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4303: "
 			"Unable to allocate MAD\n");
 		goto Exit;
 	}
@@ -267,8 +261,7 @@ __osm_infr_rcv_respond(IN osm_sa_t * sa,
 				    sa->p_subn);
 
 	if (status != IB_SUCCESS) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"__osm_infr_rcv_respond: ERR 4304: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4304: "
 			"Unable to send MAD (%s)\n", ib_get_err_str(status));
 		/* osm_mad_pool_put( sa->p_mad_pool, p_resp_madw ); */
 		goto Exit;
@@ -318,8 +311,7 @@ __osm_sa_inform_info_rec_by_comp_mask(IN osm_sa_t * sa,
 	portguid = p_infr->inform_record.subscriber_gid.unicast.interface_id;
 	p_subscriber_port = osm_get_port_by_guid(sa->p_subn, portguid);
 	if (p_subscriber_port == NULL) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"__osm_sa_inform_info_rec_by_comp_mask: ERR 430D: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 430D: "
 			"Invalid subscriber port guid: 0x%016" PRIx64 "\n",
 			cl_ntoh64(portguid));
 		goto Exit;
@@ -331,16 +323,14 @@ __osm_sa_inform_info_rec_by_comp_mask(IN osm_sa_t * sa,
 	   according to the current partitioning. */
 	if (!osm_physp_share_pkey
 	    (sa->p_log, p_req_physp, p_subscriber_physp)) {
-		osm_log(sa->p_log, OSM_LOG_DEBUG,
-			"__osm_sa_inform_info_rec_by_comp_mask: "
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"requester and subscriber ports don't share pkey\n");
 		goto Exit;
 	}
 
 	p_rec_item = malloc(sizeof(*p_rec_item));
 	if (p_rec_item == NULL) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"__osm_sa_inform_info_rec_by_comp_mask: ERR 430E: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 430E: "
 			"rec_item alloc failed\n");
 		goto Exit;
 	}
@@ -401,8 +391,7 @@ osm_infr_rcv_process_get_method(IN osm_sa_t * sa,
 						osm_madw_get_mad_addr_ptr
 						(p_madw));
 	if (p_req_physp == NULL) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"osm_infr_rcv_process_get_method: ERR 4309: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4309: "
 			"Cannot find requester physical port\n");
 		goto Exit;
 	}
@@ -421,8 +410,7 @@ osm_infr_rcv_process_get_method(IN osm_sa_t * sa,
 	context.sa = sa;
 	context.p_req_physp = p_req_physp;
 
-	osm_log(sa->p_log, OSM_LOG_DEBUG,
-		"osm_infr_rcv_process_get_method: "
+	OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 		"Query Subscriber GID:0x%016" PRIx64 " : 0x%016" PRIx64
 		"(%02X) Enum:0x%X(%02X)\n",
 		cl_ntoh64(p_rcvd_rec->subscriber_gid.unicast.prefix),
@@ -451,8 +439,7 @@ osm_infr_rcv_process_get_method(IN osm_sa_t * sa,
 			goto Exit;
 		}
 		if (num_rec > 1) {
-			osm_log(sa->p_log, OSM_LOG_ERROR,
-				"osm_infr_rcv_process_get_method: ERR 430A: "
+			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 430A: "
 				"More than one record for SubnAdmGet (%u)\n",
 				num_rec);
 			osm_sa_send_error(sa, p_madw,
@@ -479,17 +466,14 @@ osm_infr_rcv_process_get_method(IN osm_sa_t * sa,
 	    (MAD_BLOCK_SIZE -
 	     IB_SA_MAD_HDR_SIZE) / sizeof(ib_inform_info_record_t);
 	if (trim_num_rec < num_rec) {
-		osm_log(sa->p_log, OSM_LOG_VERBOSE,
-			"osm_infr_rcv_process_get_method: "
+		OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
 			"Number of records:%u trimmed to:%u to fit in one MAD\n",
 			num_rec, trim_num_rec);
 		num_rec = trim_num_rec;
 	}
 #endif
 
-	osm_log(sa->p_log, OSM_LOG_DEBUG,
-		"osm_infr_rcv_process_get_method: "
-		"Returning %u records\n", num_rec);
+	OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Returning %u records\n", num_rec);
 
 	/*
 	 * Get a MAD to reply. Address of Mad is in the received mad_wrapper
@@ -501,8 +485,7 @@ osm_infr_rcv_process_get_method(IN osm_sa_t * sa,
 				       IB_SA_MAD_HDR_SIZE, &p_madw->mad_addr);
 
 	if (!p_resp_madw) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"osm_infr_rcv_process_get_method: ERR 430B: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 430B: "
 			"osm_mad_pool_get failed\n");
 
 		for (i = 0; i < num_rec; i++) {
@@ -571,8 +554,7 @@ osm_infr_rcv_process_get_method(IN osm_sa_t * sa,
 	status = osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE,
 				    sa->p_subn);
 	if (status != IB_SUCCESS) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"osm_infr_rcv_process_get_method: ERR 430C: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 430C: "
 			"osm_sa_vendor_send status = %s\n",
 			ib_get_err_str(status));
 		goto Exit;
@@ -633,8 +615,7 @@ osm_infr_rcv_process_set_method(IN osm_sa_t * sa,
 	if (res != IB_SUCCESS) {
 		cl_plock_release(sa->p_lock);
 
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"osm_infr_rcv_process_set_method: ERR 4308 "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4308 "
 			"Subscribe Request from unknown LID: 0x%04X\n",
 			cl_ntoh16(p_madw->mad_addr.dest_lid)
 		    );
@@ -650,8 +631,7 @@ osm_infr_rcv_process_set_method(IN osm_sa_t * sa,
 	if (p_recvd_inform_info->subscribe > 1) {
 		cl_plock_release(sa->p_lock);
 
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"osm_infr_rcv_process_set_method: ERR 4308 "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4308 "
 			"Invalid subscribe: %d\n",
 			p_recvd_inform_info->subscribe);
 		osm_sa_send_error(sa, p_madw,
@@ -672,21 +652,18 @@ osm_infr_rcv_process_set_method(IN osm_sa_t * sa,
 				       inform_info_rec.report_addr.addr_type.
 				       gsi.remote_qp);
 
-		osm_log(sa->p_log, OSM_LOG_DEBUG,
-			"osm_infr_rcv_process_set_method: "
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Subscribe Request with QPN: 0x%06X\n",
 			cl_ntoh32(inform_info_rec.report_addr.addr_type.gsi.
-				  remote_qp)
-		    );
+				  remote_qp));
 	} else {
 		ib_inform_info_get_qpn_resp_time(p_recvd_inform_info->g_or_v.
 						 generic.qpn_resp_time_val,
 						 &qpn, &resp_time_val);
 
-		osm_log(sa->p_log, OSM_LOG_DEBUG,
-			"osm_infr_rcv_process_set_method: "
-			"UnSubscribe Request with QPN: 0x%06X\n", cl_ntoh32(qpn)
-		    );
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
+			"UnSubscribe Request with QPN: 0x%06X\n",
+			cl_ntoh32(qpn));
 	}
 
 	/* If record exists with matching InformInfo */
@@ -699,8 +676,7 @@ osm_infr_rcv_process_set_method(IN osm_sa_t * sa,
 		if (__validate_infr(sa, &inform_info_rec) != TRUE) {
 			cl_plock_release(sa->p_lock);
 
-			osm_log(sa->p_log, OSM_LOG_ERROR,
-				"osm_infr_rcv_process_set_method: ERR 4305: "
+			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4305: "
 				"Failed to validate a new inform object\n");
 
 			/* o13-13.1.1: we need to set the subscribe bit to 0 */
@@ -717,8 +693,7 @@ osm_infr_rcv_process_set_method(IN osm_sa_t * sa,
 			if (p_infr == NULL) {
 				cl_plock_release(sa->p_lock);
 
-				osm_log(sa->p_log, OSM_LOG_ERROR,
-					"osm_infr_rcv_process_set_method: ERR 4306: "
+				OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4306: "
 					"Failed to create a new inform object\n");
 
 				/* o13-13.1.1: we need to set the subscribe bit to 0 */
@@ -741,8 +716,7 @@ osm_infr_rcv_process_set_method(IN osm_sa_t * sa,
 			cl_plock_release(sa->p_lock);
 
 			/* No Such Item - So Error */
-			osm_log(sa->p_log, OSM_LOG_ERROR,
-				"osm_infr_rcv_process_set_method: ERR 4307: "
+			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4307: "
 				"Failed to UnSubscribe to non existing inform object\n");
 
 			/* o13-13.1.1: we need to set the subscribe bit to 0 */
@@ -783,8 +757,7 @@ void osm_infr_rcv_process(IN void *context, IN void *data)
 	CL_ASSERT(p_sa_mad->attr_id == IB_MAD_ATTR_INFORM_INFO);
 
 	if (p_sa_mad->method != IB_MAD_METHOD_SET) {
-		osm_log(sa->p_log, OSM_LOG_DEBUG,
-			"osm_infr_rcv_process: "
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Unsupported Method (%s)\n",
 			ib_get_sa_method_str(p_sa_mad->method));
 		osm_sa_send_error(sa, p_madw,
@@ -816,9 +789,7 @@ void osm_infir_rcv_process(IN void *context, IN void *data)
 
 	if ((p_sa_mad->method != IB_MAD_METHOD_GET) &&
 	    (p_sa_mad->method != IB_MAD_METHOD_GETTABLE)) {
-		osm_log(sa->p_log, OSM_LOG_DEBUG,
-			"osm_infir_rcv_process: "
-			"Unsupported Method (%s)\n",
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Unsupported Method (%s)\n",
 			ib_get_sa_method_str(p_sa_mad->method));
 		osm_sa_send_error(sa, p_madw,
 				  IB_MAD_STATUS_UNSUP_METHOD_ATTR);

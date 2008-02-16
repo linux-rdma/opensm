@@ -147,13 +147,12 @@ static int setup_routing_engine(osm_opensm_t * p_osm, const char *name)
 		if (!strcmp(r->name, name)) {
 			p_osm->routing_engine.name = r->name;
 			if (r->setup(p_osm)) {
-				osm_log(&p_osm->log, OSM_LOG_VERBOSE,
-					"setup_routing_engine: setup of routing"
+				OSM_LOG(&p_osm->log, OSM_LOG_VERBOSE,
+					"setup of routing"
 					" engine \'%s\' failed\n", name);
 				return -2;
 			}
-			osm_log(&p_osm->log, OSM_LOG_DEBUG,
-				"setup_routing_engine: "
+			OSM_LOG(&p_osm->log, OSM_LOG_DEBUG,
 				"\'%s\' routing engine set up\n",
 				p_osm->routing_engine.name);
 			return 0;
@@ -164,9 +163,8 @@ static int setup_routing_engine(osm_opensm_t * p_osm, const char *name)
 
 static int osm_ucast_null_setup(osm_opensm_t * p_osm)
 {
-	osm_log(&p_osm->log, OSM_LOG_VERBOSE,
-		"osm_ucast_null_setup: nothing yet - "
-		"using default (minhop) routing engine\n");
+	OSM_LOG(&p_osm->log, OSM_LOG_VERBOSE,
+		"nothing yet - using default (minhop) routing engine\n");
 	return 0;
 }
 
@@ -276,7 +274,7 @@ osm_opensm_init(IN osm_opensm_t * const p_osm,
 	/* Write the OSM_VERSION to the SYS_LOG */
 	osm_log(&p_osm->log, OSM_LOG_SYS, "%s\n", OSM_VERSION);	/* Format Waived */
 
-	osm_log(&p_osm->log, OSM_LOG_FUNCS, "osm_opensm_init: [\n");	/* Format Waived */
+	OSM_LOG(&p_osm->log, OSM_LOG_FUNCS, "[\n");	/* Format Waived */
 
 	status = cl_plock_init(&p_osm->lock);
 	if (status != IB_SUCCESS)
@@ -292,8 +290,8 @@ osm_opensm_init(IN osm_opensm_t * const p_osm,
 #endif
 
 	if (p_opt->single_thread) {
-		osm_log(&p_osm->log, OSM_LOG_INFO,
-			"osm_opensm_init: Forcing single threaded dispatcher\n");
+		OSM_LOG(&p_osm->log, OSM_LOG_INFO,
+			"Forcing single threaded dispatcher\n");
 		status = cl_disp_init(&p_osm->disp, 1, "opensm");
 	} else {
 		/*
@@ -373,8 +371,8 @@ osm_opensm_init(IN osm_opensm_t * const p_osm,
 
 	if (p_opt->routing_engine_name &&
 	    setup_routing_engine(p_osm, p_opt->routing_engine_name))
-		osm_log(&p_osm->log, OSM_LOG_VERBOSE,
-			"osm_opensm_init: cannot find or setup routing engine"
+		OSM_LOG(&p_osm->log, OSM_LOG_VERBOSE,
+			"cannot find or setup routing engine"
 			" \'%s\'. Default will be used instead\n",
 			p_opt->routing_engine_name);
 
@@ -383,7 +381,7 @@ osm_opensm_init(IN osm_opensm_t * const p_osm,
 	p_osm->node_name_map = open_node_name_map(p_opt->node_name_map_name);
 
 Exit:
-	osm_log(&p_osm->log, OSM_LOG_FUNCS, "osm_opensm_init: ]\n");	/* Format Waived */
+	OSM_LOG(&p_osm->log, OSM_LOG_FUNCS, "]\n");	/* Format Waived */
 	return (status);
 }
 

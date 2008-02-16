@@ -183,8 +183,7 @@ osm_perfmgr_mad_recv_callback(osm_madw_t * p_madw, void *bind_context,
 	/* post this message for later processing. */
 	if (cl_disp_post(pm->pc_disp_h, OSM_MSG_MAD_PORT_COUNTERS,
 			 (void *)p_madw, NULL, NULL) != CL_SUCCESS) {
-		osm_log(pm->log, OSM_LOG_ERROR,
-			"osm_perfmgr_mad_recv_callback: ERR 4C01: "
+		OSM_LOG(pm->log, OSM_LOG_ERROR, "ERR 4C01: "
 			"PerfMgr Dispatcher post failed\n");
 		osm_mad_pool_put(pm->mad_pool, p_madw);
 	}
@@ -211,16 +210,14 @@ osm_perfmgr_mad_send_err_callback(void *bind_context, osm_madw_t * p_madw)
 	 */
 	if ((p_node = cl_qmap_get(&(pm->monitored_map), node_guid)) ==
 	    cl_qmap_end(&(pm->monitored_map))) {
-		osm_log(pm->log, OSM_LOG_ERROR,
-			"osm_pc_rcv_process: ERR 4C15: GUID 0x%016"
+		OSM_LOG(pm->log, OSM_LOG_ERROR, "ERR 4C15: GUID 0x%016"
 			PRIx64 " not found in monitored map\n",
 			node_guid);
 		goto Exit;
 	}
 	p_mon_node = (__monitored_node_t *) p_node;
 
-	osm_log(pm->log, OSM_LOG_ERROR,
-		"osm_perfmgr_mad_send_err_callback: ERR 4C02: %s (0x%" PRIx64
+	OSM_LOG(pm->log, OSM_LOG_ERROR, "ERR 4C02: %s (0x%" PRIx64
 		") port %d\n", p_mon_node->name, p_mon_node->guid, port);
 
 	if (pm->subn->opt.perfmgr_redir && p_madw->status == IB_TIMEOUT) {
@@ -229,8 +226,8 @@ osm_perfmgr_mad_send_err_callback(void *bind_context, osm_madw_t * p_madw)
 		/* Now, validate port number */
 		if (port > p_mon_node->redir_tbl_size) {
 			cl_plock_release(pm->lock);
-			osm_log(pm->log, OSM_LOG_ERROR,
-				"osm_perfmgr_mad_send_err_callback: ERR 4C16: Invalid port num %d for %s (GUID 0x%016"
+			OSM_LOG(pm->log, OSM_LOG_ERROR, "ERR 4C16: "
+				"Invalid port num %d for %s (GUID 0x%016"
 				PRIx64 ") num ports %d\n", port, p_mon_node->name,
 				p_mon_node->guid, p_mon_node->redir_tbl_size);
 			goto Exit;
@@ -261,8 +258,8 @@ osm_perfmgr_bind(osm_perfmgr_t * const pm, const ib_net64_t port_guid)
 	OSM_LOG_ENTER(pm->log);
 
 	if (pm->bind_handle != OSM_BIND_INVALID_HANDLE) {
-		osm_log(pm->log, OSM_LOG_ERROR,
-			"osm_perfmgr_bind: ERR 4C03: Multiple binds not allowed\n");
+		OSM_LOG(pm->log, OSM_LOG_ERROR,
+			"ERR 4C03: Multiple binds not allowed\n");
 		status = IB_ERROR;
 		goto Exit;
 	}
@@ -276,8 +273,7 @@ osm_perfmgr_bind(osm_perfmgr_t * const pm, const ib_net64_t port_guid)
 	bind_info.recv_q_size = OSM_PM_DEFAULT_QP1_RCV_SIZE;
 	bind_info.send_q_size = OSM_PM_DEFAULT_QP1_SEND_SIZE;
 
-	osm_log(pm->log, OSM_LOG_VERBOSE,
-		"osm_perfmgr_bind: "
+	OSM_LOG(pm->log, OSM_LOG_VERBOSE,
 		"Binding to port GUID 0x%" PRIx64 "\n", cl_ntoh64(port_guid));
 
 	pm->bind_handle = osm_vendor_bind(pm->vendor,
@@ -289,8 +285,8 @@ osm_perfmgr_bind(osm_perfmgr_t * const pm, const ib_net64_t port_guid)
 
 	if (pm->bind_handle == OSM_BIND_INVALID_HANDLE) {
 		status = IB_ERROR;
-		osm_log(pm->log, OSM_LOG_ERROR,
-			"osm_perfmgr_bind: ERR 4C04: Vendor specific bind failed (%s)\n",
+		OSM_LOG(pm->log, OSM_LOG_ERROR,
+			"ERR 4C04: Vendor specific bind failed (%s)\n",
 			ib_get_err_str(status));
 		goto Exit;
 	}
@@ -307,8 +303,7 @@ static void osm_perfmgr_mad_unbind(osm_perfmgr_t * const pm)
 {
 	OSM_LOG_ENTER(pm->log);
 	if (pm->bind_handle == OSM_BIND_INVALID_HANDLE) {
-		osm_log(pm->log, OSM_LOG_ERROR,
-			"osm_perfmgr_mad_unbind: ERR 4C05: No previous bind\n");
+		OSM_LOG(pm->log, OSM_LOG_ERROR, "ERR 4C05: No previous bind\n");
 		goto Exit;
 	}
 	osm_vendor_unbind(pm->bind_handle);
@@ -446,8 +441,8 @@ static void __collect_guids(cl_map_item_t * const p_map_item, void *context)
 		size = node->node_info.num_ports;
 		mon_node = malloc(sizeof(*mon_node) + sizeof(redir_t) * size);
 		if (!mon_node) {
-			osm_log(pm->log, OSM_LOG_ERROR,
-				"PerfMgr: __collect_guids ERR 4C06: malloc failed: not handling node %s"
+			OSM_LOG(pm->log, OSM_LOG_ERROR, "PerfMgr: ERR 4C06: "
+				"malloc failed: not handling node %s"
 				"(GUID 0x%" PRIx64 ")\n", node->print_desc, node_guid);
 			goto Exit;
 		}
@@ -484,9 +479,8 @@ __osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context)
 	cl_plock_acquire(pm->lock);
 	node = osm_get_node_by_guid(pm->subn, cl_hton64(mon_node->guid));
 	if (!node) {
-		osm_log(pm->log, OSM_LOG_ERROR,
-			"__osm_perfmgr_query_counters: ERR 4C07: Node \"%s\" (guid 0x%"
-			PRIx64
+		OSM_LOG(pm->log, OSM_LOG_ERROR,
+			"ERR 4C07: Node \"%s\" (guid 0x%" PRIx64
 			") no longer exists so removing from PerfMgr monitoring\n",
 			mon_node->name, mon_node->guid);
 		__mark_for_removal(pm, mon_node);
@@ -500,8 +494,8 @@ __osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context)
 	if (perfmgr_db_create_entry(pm->db, node_guid, num_ports,
 				    node->print_desc) !=
 	    PERFMGR_EVENT_DB_SUCCESS) {
-		osm_log(pm->log, OSM_LOG_ERROR,
-			"__osm_perfmgr_query_counters: ERR 4C08: DB create entry failed for 0x%"
+		OSM_LOG(pm->log, OSM_LOG_ERROR,
+			"ERR 4C08: DB create entry failed for 0x%"
 			PRIx64 " (%s) : %s\n", node_guid, node->print_desc,
 			strerror(errno));
 		goto Exit;
@@ -522,8 +516,7 @@ __osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context)
 
 		lid = get_lid(node, port, mon_node);
 		if (lid == 0) {
-			osm_log(pm->log, OSM_LOG_DEBUG,
-				"__osm_perfmgr_query_counters: WARN: node 0x%" PRIx64
+			OSM_LOG(pm->log, OSM_LOG_DEBUG, "WARN: node 0x%" PRIx64
 				" port %d (%s): port out of range, skipping\n",
 				cl_ntoh64(node->node_info.node_guid), port,
 				node->print_desc);
@@ -538,16 +531,15 @@ __osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context)
 #if ENABLE_OSM_PERF_MGR_PROFILE
 		gettimeofday(&(mad_context.perfmgr_context.query_start), NULL);
 #endif
-		osm_log(pm->log, OSM_LOG_VERBOSE,
-			"__osm_perfmgr_query_counters: Getting stats for node 0x%"
+		OSM_LOG(pm->log, OSM_LOG_VERBOSE, "Getting stats for node 0x%"
 			PRIx64 " port %d (lid %X) (%s)\n", node_guid, port,
 			cl_ntoh16(lid), node->print_desc);
 		status =
 		    osm_perfmgr_send_pc_mad(pm, lid, remote_qp, port,
 					    IB_MAD_METHOD_GET, &mad_context);
 		if (status != IB_SUCCESS)
-			osm_log(pm->log, OSM_LOG_ERROR,
-				"__osm_perfmgr_query_counters: ERR 4C09: Failed to issue port counter query for node 0x%"
+			OSM_LOG(pm->log, OSM_LOG_ERROR, "ERR 4C09: "
+				"Failed to issue port counter query for node 0x%"
 				PRIx64 " port %d (%s)\n",
 				node->node_info.node_guid, port,
 				node->print_desc);
@@ -583,16 +575,16 @@ static int sweep_hop_1(osm_sm_t * sm)
 
 	p_port = osm_get_port_by_guid(sm->p_subn, port_guid);
 	if (!p_port) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"sweep_hop_1: ERR 4C81: No SM port object\n");
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR,
+			"ERR 4C81: No SM port object\n");
 		return -1;
 	}
 
 	p_node = p_port->p_node;
 	port_num = ib_node_info_get_local_port_num(&p_node->node_info);
 
-	osm_log(sm->p_log, OSM_LOG_DEBUG,
-		"sweep_hop_1: Probing hop 1 on local port %u\n", port_num);
+	OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
+		"Probing hop 1 on local port %u\n", port_num);
 
 	p_physp = osm_node_get_physp_ptr(p_node, port_num);
 
@@ -621,8 +613,7 @@ static int sweep_hop_1(osm_sm_t * sm)
 				     CL_DISP_MSGID_NONE, &context);
 
 		if (status != IB_SUCCESS)
-			osm_log(sm->p_log, OSM_LOG_ERROR,
-				"sweep_hop_1: ERR 4C82: "
+			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 4C82: "
 				"Request for NodeInfo failed\n");
 		break;
 
@@ -655,15 +646,14 @@ static int sweep_hop_1(osm_sm_t * sm)
 					     CL_DISP_MSGID_NONE, &context);
 
 			if (status != IB_SUCCESS)
-				osm_log(sm->p_log, OSM_LOG_ERROR,
-					"sweep_hop_1: ERR 4C82: "
+				OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 4C82: "
 					"Request for NodeInfo failed\n");
 		}
 		break;
 
 	default:
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"sweep_hop_1: ERR 4C83: Unknown node type %d\n",
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR,
+			"ERR 4C83: Unknown node type %d\n",
 			osm_node_get_type(p_node));
 	}
 
@@ -683,8 +673,7 @@ static unsigned is_sm_port_down(osm_sm_t * const sm)
 	p_port = osm_get_port_by_guid(sm->p_subn, port_guid);
 	if (!p_port) {
 		CL_PLOCK_RELEASE(sm->p_lock);
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"is_sm_port_down: ERR 4C85: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 4C85: "
 			"SM port with GUID:%016" PRIx64 " is unknown\n",
 			cl_ntoh64(port_guid));
 		return 1;
@@ -705,8 +694,7 @@ static int sweep_hop_0(osm_sm_t * const sm)
 
 	h_bind = osm_sm_mad_ctrl_get_bind_handle(&sm->mad_ctrl);
 	if (h_bind == OSM_BIND_INVALID_HANDLE) {
-		osm_log(sm->p_log, OSM_LOG_DEBUG,
-			"sweep_hop_0: No bound ports.\n");
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG, "No bound ports.\n");
 		return -1;
 	}
 
@@ -715,8 +703,8 @@ static int sweep_hop_0(osm_sm_t * const sm)
 			     CL_DISP_MSGID_NONE, NULL);
 
 	if (status != IB_SUCCESS)
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"sweep_hop_0: ERR 4C86: Request for NodeInfo failed\n");
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR,
+			"ERR 4C86: Request for NodeInfo failed\n");
 
 	return (status);
 }
@@ -760,7 +748,7 @@ static int perfmgr_discovery(osm_opensm_t * osm)
 		goto _exit;
 
 	if (is_sm_port_down(&osm->sm)) {
-		osm_log(&osm->log, OSM_LOG_VERBOSE, "SM port is down\n");
+		OSM_LOG(&osm->log, OSM_LOG_VERBOSE, "SM port is down\n");
 		goto _drop;
 	}
 
@@ -804,7 +792,7 @@ void osm_perfmgr_process(osm_perfmgr_t * pm)
 	/* FIXME we should be able to track SA notices
 	 * and not have to sweep the node_guid_tbl each pass
 	 */
-	osm_log(pm->log, OSM_LOG_VERBOSE, "Gathering PerfMgr stats\n");
+	OSM_LOG(pm->log, OSM_LOG_VERBOSE, "Gathering PerfMgr stats\n");
 	cl_plock_acquire(pm->lock);
 	cl_qmap_apply_func(&(pm->subn->node_guid_tbl),
 			   __collect_guids, (void *)pm);
@@ -893,8 +881,7 @@ osm_perfmgr_check_oob_clear(osm_perfmgr_t * pm, __monitored_node_t *mon_node,
 
 	if (perfmgr_db_get_prev_err(pm->db, mon_node->guid, port, &prev_err)
 	    != PERFMGR_EVENT_DB_SUCCESS) {
-		osm_log(pm->log, OSM_LOG_VERBOSE,
-			"osm_perfmgr_check_oob_clear: Failed to find previous "
+		OSM_LOG(pm->log, OSM_LOG_VERBOSE, "Failed to find previous "
 			"error reading for %s (guid 0x%" PRIx64 ") port %u\n",
 			mon_node->name, mon_node->guid, port);
 		return;
@@ -912,8 +899,8 @@ osm_perfmgr_check_oob_clear(osm_perfmgr_t * pm, __monitored_node_t *mon_node,
 	    cr->link_integrity < prev_err.link_integrity ||
 	    cr->buffer_overrun < prev_err.buffer_overrun ||
 	    cr->vl15_dropped < prev_err.vl15_dropped) {
-		osm_log(pm->log, OSM_LOG_ERROR,
-			"PerfMgr: ERR 4C0A: Detected an out of band error clear "
+		OSM_LOG(pm->log, OSM_LOG_ERROR, "PerfMgr: ERR 4C0A: "
+			"Detected an out of band error clear "
 			"on %s (0x%" PRIx64 ") port %u\n",
 			mon_node->name, mon_node->guid, port);
 		perfmgr_db_clear_prev_err(pm->db, mon_node->guid, port);
@@ -922,8 +909,8 @@ osm_perfmgr_check_oob_clear(osm_perfmgr_t * pm, __monitored_node_t *mon_node,
 	/* FIXME handle extended counters */
 	if (perfmgr_db_get_prev_dc(pm->db, mon_node->guid, port, &prev_dc)
 	    != PERFMGR_EVENT_DB_SUCCESS) {
-		osm_log(pm->log, OSM_LOG_VERBOSE,
-			"osm_perfmgr_check_oob_clear: Failed to find previous data count "
+		OSM_LOG(pm->log, OSM_LOG_VERBOSE,
+			"Failed to find previous data count "
 			"reading for %s (0x%" PRIx64 ") port %u\n",
 			mon_node->name, mon_node->guid, port);
 		return;
@@ -933,7 +920,7 @@ osm_perfmgr_check_oob_clear(osm_perfmgr_t * pm, __monitored_node_t *mon_node,
 	    dc->rcv_data < prev_dc.rcv_data ||
 	    dc->xmit_pkts < prev_dc.xmit_pkts ||
 	    dc->rcv_pkts < prev_dc.rcv_pkts) {
-		osm_log(pm->log, OSM_LOG_ERROR,
+		OSM_LOG(pm->log, OSM_LOG_ERROR,
 			"PerfMgr: ERR 4C0B: Detected an out of band data counter "
 			"clear on node %s (0x%" PRIx64 ") port %u\n",
 			mon_node->name, mon_node->guid, port);
@@ -1007,8 +994,8 @@ osm_perfmgr_check_overflow(osm_perfmgr_t * pm, __monitored_node_t *mon_node,
 		lid = get_lid(p_node, port, mon_node);
 		cl_plock_release(pm->lock);
 		if (lid == 0) {
-			osm_log(pm->log, OSM_LOG_ERROR,
-				"PerfMgr: ERR 4C0C: Failed to clear counters for %s (0x%"
+			OSM_LOG(pm->log, OSM_LOG_ERROR, "PerfMgr: ERR 4C0C: "
+				"Failed to clear counters for %s (0x%"
 				PRIx64 ") port %d; failed to get lid\n",
 				mon_node->name, mon_node->guid, port);
 			goto Exit;
@@ -1024,8 +1011,8 @@ osm_perfmgr_check_overflow(osm_perfmgr_t * pm, __monitored_node_t *mon_node,
 		    osm_perfmgr_send_pc_mad(pm, lid, remote_qp, port,
 					    IB_MAD_METHOD_SET, &mad_context);
 		if (status != IB_SUCCESS)
-			osm_log(pm->log, OSM_LOG_ERROR,
-				"PerfMgr: ERR 4C11: Failed to send clear counters MAD for %s (0x%"
+			OSM_LOG(pm->log, OSM_LOG_ERROR, "PerfMgr: ERR 4C11: "
+				"Failed to send clear counters MAD for %s (0x%"
 				PRIx64 ") port %d\n",
 				mon_node->name, mon_node->guid, port);
 
@@ -1049,8 +1036,7 @@ osm_perfmgr_log_events(osm_perfmgr_t * pm, __monitored_node_t *mon_node, uint8_t
 	    perfmgr_db_get_prev_err(pm->db, mon_node->guid, port, &prev_read);
 
 	if (err != PERFMGR_EVENT_DB_SUCCESS) {
-		osm_log(pm->log, OSM_LOG_VERBOSE,
-			"osm_perfmgr_log_events: Failed to find previous "
+		OSM_LOG(pm->log, OSM_LOG_VERBOSE, "Failed to find previous "
 			"reading for %s (0x%" PRIx64 ") port %u\n",
 			mon_node->name, mon_node->guid, port);
 		return;
@@ -1060,24 +1046,21 @@ osm_perfmgr_log_events(osm_perfmgr_t * pm, __monitored_node_t *mon_node, uint8_t
 	/* FIXME these events should be defineable by the user in a config
 	 * file somewhere. */
 	if (reading->symbol_err_cnt > prev_read.symbol_err_cnt)
-		osm_log(pm->log, OSM_LOG_ERROR,
-			"osm_perfmgr_log_events: ERR 4C0D: "
+		OSM_LOG(pm->log, OSM_LOG_ERROR, "ERR 4C0D: "
 			"Found %" PRIu64 " Symbol errors in %lu sec on %s (0x%"
 			PRIx64 ") port %u\n",
 			(reading->symbol_err_cnt - prev_read.symbol_err_cnt),
 			time_diff, mon_node->name, mon_node->guid, port);
 
 	if (reading->rcv_err > prev_read.rcv_err)
-		osm_log(pm->log, OSM_LOG_ERROR,
-			"osm_perfmgr_log_events: ERR 4C0E: "
+		OSM_LOG(pm->log, OSM_LOG_ERROR, "ERR 4C0E: "
 			"Found %" PRIu64
 			" Receive errors in %lu sec on %s (0x%" PRIx64
 			") port %u\n", (reading->rcv_err - prev_read.rcv_err),
 			time_diff, mon_node->name, mon_node->guid, port);
 
 	if (reading->xmit_discards > prev_read.xmit_discards)
-		osm_log(pm->log, OSM_LOG_ERROR,
-			"osm_perfmgr_log_events: ERR 4C0F: "
+		OSM_LOG(pm->log, OSM_LOG_ERROR, "ERR 4C0F: "
 			"Found %" PRIu64 " Xmit Discards in %lu sec on %s (0x%"
 			PRIx64 ") port %u\n",
 			(reading->xmit_discards - prev_read.xmit_discards),
@@ -1111,16 +1094,15 @@ static void osm_pc_rcv_process(void *context, void *data)
 	 */
 	if ((p_node = cl_qmap_get(&(pm->monitored_map), node_guid)) ==
 	    cl_qmap_end(&(pm->monitored_map))) {
-		osm_log(pm->log, OSM_LOG_ERROR,
-			"osm_pc_rcv_process: ERR 4C12: GUID 0x%016"
+		OSM_LOG(pm->log, OSM_LOG_ERROR, "ERR 4C12: GUID 0x%016"
 			PRIx64 " not found in monitored map\n",
 			node_guid);
 		goto Exit;
 	}
 	p_mon_node = (__monitored_node_t *) p_node;
 
-	osm_log(pm->log, OSM_LOG_VERBOSE,
-		"osm_pc_rcv_process: Processing received MAD status 0x%x context 0x%"
+	OSM_LOG(pm->log, OSM_LOG_VERBOSE,
+		"Processing received MAD status 0x%x context 0x%"
 		PRIx64 " port %u\n", p_mad->status, node_guid, port);
 
 	/* Response could also be redirection (IBM eHCA PMA does this) */
@@ -1131,8 +1113,8 @@ static void osm_pc_rcv_process(void *context, void *data)
 		    (osm_madw_get_perfmgt_mad_ptr(p_madw)->data);
 		ib_api_status_t status;
 
-		osm_log(pm->log, OSM_LOG_VERBOSE,
-			"osm_pc_rcv_process: Redirection to LID 0x%x "
+		OSM_LOG(pm->log, OSM_LOG_VERBOSE,
+			"Redirection to LID 0x%x "
 			"GID 0x%016" PRIx64 " : 0x%016" PRIx64
 			" QP 0x%x received\n",
 			cl_ntoh16(cpi->redir_lid),
@@ -1143,14 +1125,14 @@ static void osm_pc_rcv_process(void *context, void *data)
 		/* LID or GID redirection ? */
 		/* For GID redirection, need to get PathRecord from SA */
 		if (cpi->redir_lid == 0) {
-			osm_log(pm->log, OSM_LOG_VERBOSE,
-				"osm_pc_rcv_process: GID redirection not currently implemented!\n");
+			OSM_LOG(pm->log, OSM_LOG_VERBOSE,
+				"GID redirection not currently implemented!\n");
 			goto Exit;
 		}
 
 		if (!pm->subn->opt.perfmgr_redir) {
-				osm_log(pm->log, OSM_LOG_ERROR,
-				       "osm_pc_rcv_process: ERR 4C16: redirection requested but disabled\n");
+				OSM_LOG(pm->log, OSM_LOG_ERROR, "ERR 4C16: "
+				       "redirection requested but disabled\n");
 			goto Exit;
 		}
 
@@ -1159,8 +1141,8 @@ static void osm_pc_rcv_process(void *context, void *data)
 		/* Now, validate port number */
 		if (port > p_mon_node->redir_tbl_size) {
 			cl_plock_release(pm->lock);
-			osm_log(pm->log, OSM_LOG_ERROR,
-				"osm_pc_rcv_process: ERR 4C13: Invalid port num %d for GUID 0x%016"
+			OSM_LOG(pm->log, OSM_LOG_ERROR, "ERR 4C13: "
+				"Invalid port num %d for GUID 0x%016"
 				PRIx64 " num ports %d\n", port, node_guid,
 				p_mon_node->redir_tbl_size);
 			goto Exit;
@@ -1176,8 +1158,8 @@ static void osm_pc_rcv_process(void *context, void *data)
 					    mad_context->perfmgr_context.
 					    mad_method, mad_context);
 		if (status != IB_SUCCESS)
-			osm_log(pm->log, OSM_LOG_ERROR,
-				"osm_pc_rcv_process: ERR 4C14: Failed to send redirected MAD with method 0x%x for node 0x%"
+			OSM_LOG(pm->log, OSM_LOG_ERROR, "ERR 4C14: "
+				"Failed to send redirected MAD with method 0x%x for node 0x%"
 				PRIx64 " port %d\n",
 				mad_context->perfmgr_context.mad_method,
 				node_guid, port);
@@ -1247,7 +1229,7 @@ osm_perfmgr_init(osm_perfmgr_t * const pm,
 
 	OSM_LOG_ENTER(log);
 
-	osm_log(log, OSM_LOG_VERBOSE, "Initializing PerfMgr\n");
+	OSM_LOG(log, OSM_LOG_VERBOSE, "Initializing PerfMgr\n");
 
 	memset(pm, 0, sizeof(*pm));
 
@@ -1309,8 +1291,7 @@ void osm_perfmgr_clear_counters(osm_perfmgr_t * pm)
 void osm_perfmgr_dump_counters(osm_perfmgr_t * pm, perfmgr_db_dump_t dump_type)
 {
 	if (perfmgr_db_dump(pm->db, pm->event_db_dump_file, dump_type) != 0)
-		osm_log(pm->log, OSM_LOG_ERROR,
-			"PB dump port counters: ERR 4C10: Failed to dump file %s : %s",
+		OSM_LOG(pm->log, OSM_LOG_ERROR, "Failed to dump file %s : %s",
 			pm->event_db_dump_file, strerror(errno));
 }
 

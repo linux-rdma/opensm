@@ -2281,15 +2281,13 @@ int osm_qos_parse_policy_file(IN osm_subn_t * const p_subn)
     if (!__qos_parser_in)
     {
         if (strcmp(p_subn->opt.qos_policy_file,OSM_DEFAULT_QOS_POLICY_FILE)) {
-            osm_log(p_qos_parser_osm_log, OSM_LOG_ERROR,
-                    "osm_qos_parse_policy_file: ERR AC01: "
+            OSM_LOG(p_qos_parser_osm_log, OSM_LOG_ERROR, "ERR AC01: "
                     "Failed opening QoS policy file %s - %s\n",
                     p_subn->opt.qos_policy_file, strerror(errno));
             res = 1;
         }
         else
-            osm_log(p_qos_parser_osm_log, OSM_LOG_VERBOSE,
-                    "osm_qos_parse_policy_file: "
+            OSM_LOG(p_qos_parser_osm_log, OSM_LOG_VERBOSE,
                     "QoS policy file not found (%s)\n",
                     p_subn->opt.qos_policy_file);
 
@@ -2301,8 +2299,8 @@ int osm_qos_parse_policy_file(IN osm_subn_t * const p_subn)
         first_time = FALSE;
         __setup_simple_qos_levels();
         __setup_ulp_match_rules();
-        osm_log(p_qos_parser_osm_log, OSM_LOG_INFO,
-                "osm_qos_parse_policy_file: Loading QoS policy file (%s)\n",
+        OSM_LOG(p_qos_parser_osm_log, OSM_LOG_INFO,
+		"Loading QoS policy file (%s)\n",
                 p_subn->opt.qos_policy_file);
     }
     else
@@ -2327,8 +2325,7 @@ int osm_qos_parse_policy_file(IN osm_subn_t * const p_subn)
 
     if (res != 0)
     {
-        osm_log(p_qos_parser_osm_log, OSM_LOG_ERROR,
-                "osm_qos_parse_policy_file: ERR AC03: "
+        OSM_LOG(p_qos_parser_osm_log, OSM_LOG_ERROR, "ERR AC03: "
                 "Failed parsing QoS policy file (%s)\n",
                 p_subn->opt.qos_policy_file);
         osm_qos_policy_destroy(p_subn->p_qos_policy);
@@ -2342,12 +2339,10 @@ int osm_qos_parse_policy_file(IN osm_subn_t * const p_subn)
 
     if (osm_qos_policy_validate(p_subn->p_qos_policy,p_qos_parser_osm_log))
     {
-        osm_log(p_qos_parser_osm_log, OSM_LOG_ERROR,
-                "osm_qos_parse_policy_file: ERR AC04: "
+        OSM_LOG(p_qos_parser_osm_log, OSM_LOG_ERROR, "ERR AC04: "
                 "Error(s) in QoS policy file (%s)\n",
                 p_subn->opt.qos_policy_file);
-        fprintf(stderr,
-                "Error(s) in QoS policy file (%s)\n",
+        fprintf(stderr, "Error(s) in QoS policy file (%s)\n",
                 p_subn->opt.qos_policy_file);
         osm_qos_policy_destroy(p_subn->p_qos_policy);
         p_subn->p_qos_policy = NULL;
@@ -2384,12 +2379,10 @@ static void __qos_parser_error(const char *format, ...)
     vsnprintf(s, 256, format, pvar);
     va_end(pvar);
 
-    osm_log(p_qos_parser_osm_log, OSM_LOG_ERROR,
-            "__qos_parser_error: ERR AC05: "
+    OSM_LOG(p_qos_parser_osm_log, OSM_LOG_ERROR, "ERR AC05: "
             "Syntax error (line %d:%d): %s",
             line_num, column_num, s);
-    fprintf(stderr,
-            "Error in QoS Policy File (line %d:%d): %s.\n",
+    fprintf(stderr, "Error in QoS Policy File (line %d:%d): %s.\n",
             line_num, column_num, s);
     OSM_LOG_EXIT(p_qos_parser_osm_log);
 }
@@ -3055,9 +3048,8 @@ static int __validate_pkeys( uint64_t ** range_arr,
                  * And even if it doesn't, don't exit - just print
                  * error message and continue.
                  */
-                 osm_log(p_qos_parser_osm_log, OSM_LOG_ERROR,
-                         "__validate_pkeys: ERR AC02: pkey 0x%04X - "
-                         "partition doesn't exist",
+                 OSM_LOG(p_qos_parser_osm_log, OSM_LOG_ERROR, "ERR AC02: "
+			 "pkey 0x%04X - partition doesn't exist",
                          cl_ntoh16(pkey));
             }
         }

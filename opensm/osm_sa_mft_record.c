@@ -88,16 +88,14 @@ __osm_mftr_rcv_new_mftr(IN osm_sa_t * sa,
 
 	p_rec_item = malloc(sizeof(*p_rec_item));
 	if (p_rec_item == NULL) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"__osm_mftr_rcv_new_mftr: ERR 4A02: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4A02: "
 			"rec_item alloc failed\n");
 		status = IB_INSUFFICIENT_RESOURCES;
 		goto Exit;
 	}
 
 	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG)) {
-		osm_log(sa->p_log, OSM_LOG_DEBUG,
-			"__osm_mftr_rcv_new_mftr: "
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"New MulticastForwardingTable: sw 0x%016" PRIx64
 			"\n\t\t\t\tblock %u position %u lid 0x%02X\n",
 			cl_ntoh64(osm_node_get_node_guid(p_sw->p_node)),
@@ -134,8 +132,7 @@ static osm_port_t *__osm_mftr_get_port_by_guid(IN osm_sa_t * sa,
 
 	p_port = osm_get_port_by_guid(sa->p_subn, port_guid);
 	if (!p_port) {
-		osm_log(sa->p_log, OSM_LOG_DEBUG,
-			"__osm_mftr_get_port_by_guid ERR 4A04: "
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "ERR 4A04: "
 			"Invalid port GUID 0x%016" PRIx64 "\n", port_guid);
 	}
 
@@ -168,8 +165,7 @@ __osm_mftr_rcv_by_comp_mask(IN cl_map_item_t * const p_map_item,
 	    __osm_mftr_get_port_by_guid(sa,
 					p_sw->p_node->node_info.port_guid);
 	if (!p_port) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"__osm_mftr_rcv_by_comp_mask: ERR 4A05: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4A05: "
 			"Failed to find Port by Node Guid:0x%016" PRIx64
 			"\n", cl_ntoh64(p_sw->p_node->node_info.node_guid)
 		    );
@@ -180,8 +176,7 @@ __osm_mftr_rcv_by_comp_mask(IN cl_map_item_t * const p_map_item,
 	   the same partition. */
 	p_physp = p_port->p_physp;
 	if (!p_physp) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"__osm_mftr_rcv_by_comp_mask: ERR 4A06: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4A06: "
 			"Failed to find default physical Port by Node Guid:0x%016"
 			PRIx64 "\n",
 			cl_ntoh64(p_sw->p_node->node_info.node_guid)
@@ -196,8 +191,7 @@ __osm_mftr_rcv_by_comp_mask(IN cl_map_item_t * const p_map_item,
 
 	/* compare the lids - if required */
 	if (comp_mask & IB_MFTR_COMPMASK_LID) {
-		osm_log(sa->p_log, OSM_LOG_DEBUG,
-			"__osm_mftr_rcv_by_comp_mask: "
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Comparing lid:0x%02X to port lid range: 0x%02X .. 0x%02X\n",
 			cl_ntoh16(p_rcvd_rec->lid), min_lid_ho, max_lid_ho);
 		/* ok we are ready for range check */
@@ -284,8 +278,7 @@ void osm_mftr_rcv_process(IN void *ctx, IN void *data)
 	/* we only support SubnAdmGet and SubnAdmGetTable methods */
 	if ((p_rcvd_mad->method != IB_MAD_METHOD_GET) &&
 	    (p_rcvd_mad->method != IB_MAD_METHOD_GETTABLE)) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"osm_mftr_rcv_process: ERR 4A08: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4A08: "
 			"Unsupported Method (%s)\n",
 			ib_get_sa_method_str(p_rcvd_mad->method));
 		osm_sa_send_error(sa, p_madw,
@@ -299,8 +292,7 @@ void osm_mftr_rcv_process(IN void *ctx, IN void *data)
 						osm_madw_get_mad_addr_ptr
 						(p_madw));
 	if (p_req_physp == NULL) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"osm_mftr_rcv_process: ERR 4A07: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4A07: "
 			"Cannot find requester physical port\n");
 		goto Exit;
 	}
@@ -334,8 +326,7 @@ void osm_mftr_rcv_process(IN void *ctx, IN void *data)
 			goto Exit;
 		}
 		if (num_rec > 1) {
-			osm_log(sa->p_log, OSM_LOG_ERROR,
-				"osm_mftr_rcv_process: ERR 4A09: "
+			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4A09: "
 				"Got more than one record for SubnAdmGet (%u)\n",
 				num_rec);
 			osm_sa_send_error(sa, p_madw,
@@ -361,16 +352,14 @@ void osm_mftr_rcv_process(IN void *ctx, IN void *data)
 	trim_num_rec =
 	    (MAD_BLOCK_SIZE - IB_SA_MAD_HDR_SIZE) / sizeof(ib_mft_record_t);
 	if (trim_num_rec < num_rec) {
-		osm_log(sa->p_log, OSM_LOG_VERBOSE,
-			"osm_mftr_rcv_process: "
+		OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
 			"Number of records:%u trimmed to:%u to fit in one MAD\n",
 			num_rec, trim_num_rec);
 		num_rec = trim_num_rec;
 	}
 #endif
 
-	osm_log(sa->p_log, OSM_LOG_DEBUG,
-		"osm_mftr_rcv_process: " "Returning %u records\n", num_rec);
+	OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Returning %u records\n", num_rec);
 
 	if ((p_rcvd_mad->method != IB_MAD_METHOD_GETTABLE) && (num_rec == 0)) {
 		osm_sa_send_error(sa, p_madw,
@@ -387,8 +376,7 @@ void osm_mftr_rcv_process(IN void *ctx, IN void *data)
 				       IB_SA_MAD_HDR_SIZE, &p_madw->mad_addr);
 
 	if (!p_resp_madw) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"osm_mftr_rcv_process: ERR 4A10: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4A10: "
 			"osm_mad_pool_get failed\n");
 
 		for (i = 0; i < num_rec; i++) {
@@ -452,8 +440,7 @@ void osm_mftr_rcv_process(IN void *ctx, IN void *data)
 	status = osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE,
 				    sa->p_subn);
 	if (status != IB_SUCCESS) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"osm_mftr_rcv_process: ERR 4A11: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4A11: "
 			"osm_sa_vendor_send status = %s\n",
 			ib_get_err_str(status));
 		goto Exit;

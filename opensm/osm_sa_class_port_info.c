@@ -95,8 +95,7 @@ __osm_cpi_rcv_respond(IN osm_sa_t * sa,
 				       p_madw->h_bind,
 				       MAD_BLOCK_SIZE, &p_madw->mad_addr);
 	if (!p_resp_madw) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"__osm_cpi_rcv_respond: ERR 1408: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1408: "
 			"Unable to allocate MAD\n");
 		goto Exit;
 	}
@@ -180,8 +179,7 @@ __osm_cpi_rcv_respond(IN osm_sa_t * sa,
 	status = osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE,
 				    sa->p_subn);
 	if (status != IB_SUCCESS) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"__osm_cpi_rcv_respond: ERR 1409: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1409: "
 			"Unable to send MAD (%s)\n", ib_get_err_str(status));
 		/*  osm_mad_pool_put( sa->p_mad_pool, p_resp_madw ); */
 		goto Exit;
@@ -208,8 +206,7 @@ void osm_cpi_rcv_process(IN void *context, IN void *data)
 
 	/* we only support GET */
 	if (p_sa_mad->method != IB_MAD_METHOD_GET) {
-		osm_log(sa->p_log, OSM_LOG_ERROR,
-			"osm_cpi_rcv_process: ERR 1403: "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1403: "
 			"Unsupported Method (%s)\n",
 			ib_get_sa_method_str(p_sa_mad->method));
 		osm_sa_send_error(sa, p_madw,

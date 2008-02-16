@@ -493,7 +493,7 @@ static void print_node_report(cl_map_item_t * p_map_item, void *cxt)
 	uint8_t node_type;
 
 	if (osm_log_is_active(log, OSM_LOG_DEBUG))
-		osm_log(log, OSM_LOG_DEBUG, "__osm_state_mgr_report: "
+		OSM_LOG(log, OSM_LOG_DEBUG,
 			"Processing node 0x%016" PRIx64 "\n",
 			cl_ntoh64(osm_node_get_node_guid(p_node)));
 
@@ -609,8 +609,7 @@ static void dump_qmap_to_file(osm_opensm_t * p_osm, const char *file_name,
 
 	file = fopen(path, "w");
 	if (!file) {
-		osm_log(&p_osm->log, OSM_LOG_ERROR,
-			"dump_qmap_to_file: "
+		OSM_LOG(&p_osm->log, OSM_LOG_ERROR,
 			"cannot create file \'%s\': %s\n",
 			path, strerror(errno));
 		return;

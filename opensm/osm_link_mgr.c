@@ -90,8 +90,7 @@ __osm_link_mgr_set_physp_pi(osm_sm_t * sm,
 		   For base port 0 the following parameters are not valid (p822, table 145).
 		 */
 		if (!p_node->sw) {
-			osm_log(sm->p_log, OSM_LOG_ERROR,
-				"__osm_link_mgr_set_physp_pi: ERR 4201: "
+			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 4201: "
 				"Cannot find switch by guid: 0x%" PRIx64 "\n",
 				cl_ntoh64(p_node->node_info.node_guid));
 			goto Exit;
@@ -102,8 +101,7 @@ __osm_link_mgr_set_physp_pi(osm_sm_t * sm,
 			/* This means the switch doesn't support enhanced port 0.
 			   Can skip it. */
 			if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG))
-				osm_log(sm->p_log, OSM_LOG_DEBUG,
-					"__osm_link_mgr_set_physp_pi: "
+				OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 					"Skipping port 0, GUID 0x%016" PRIx64
 					"\n",
 					cl_ntoh64(osm_physp_get_port_guid
@@ -355,8 +353,7 @@ __osm_link_mgr_process_node(osm_sm_t * sm,
 	OSM_LOG_ENTER(sm->p_log);
 
 	if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG))
-		osm_log(sm->p_log, OSM_LOG_DEBUG,
-			"__osm_link_mgr_process_node: "
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 			"Node 0x%" PRIx64 " going to %s\n",
 			cl_ntoh64(osm_node_get_node_guid(p_node)),
 			ib_get_port_state_str(link_state));
@@ -388,8 +385,7 @@ __osm_link_mgr_process_node(osm_sm_t * sm,
 		 */
 		if (link_state != IB_LINK_NO_CHANGE &&
 		    link_state <= current_state)
-			osm_log(sm->p_log, OSM_LOG_DEBUG,
-				"__osm_link_mgr_process_node: "
+			OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 				"Physical port 0x%X already %s. Skipping\n",
 				p_physp->port_num,
 				ib_get_port_state_str(current_state));

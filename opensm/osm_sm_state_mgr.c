@@ -105,8 +105,7 @@ static void __osm_sm_state_mgr_send_master_sm_info_req(osm_sm_t * sm)
 		p_port = sm->p_polling_sm->p_port;
 	}
 	if (p_port == NULL) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_sm_state_mgr_send_master_sm_info_req: ERR 3203: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3203: "
 			"No port object for GUID 0x%016" PRIx64 "\n",
 			cl_ntoh64(sm->master_sm_guid));
 		goto Exit;
@@ -120,8 +119,7 @@ static void __osm_sm_state_mgr_send_master_sm_info_req(osm_sm_t * sm)
 			     &context);
 
 	if (status != IB_SUCCESS)
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_sm_state_mgr_send_master_sm_info_req: ERR 3204: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3204: "
 			"Failure requesting SMInfo (%s)\n",
 			ib_get_err_str(status));
 
@@ -155,8 +153,7 @@ static void __osm_sm_state_mgr_start_polling(osm_sm_t * sm)
 	 */
 	cl_status = cl_timer_start(&sm->polling_timer, timeout);
 	if (cl_status != CL_SUCCESS)
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_sm_state_mgr_start_polling: ERR 3210: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3210: "
 			"Failed to start timer\n");
 
 	OSM_LOG_EXIT(sm->p_log);
@@ -191,8 +188,7 @@ void osm_sm_state_mgr_polling_callback(IN void *context)
 	 * signal is on - since we are currently in exit flow
 	 */
 	if (sm->p_subn->sm_state == IB_SMINFO_STATE_STANDBY && osm_exit_flag) {
-		osm_log(sm->p_log, OSM_LOG_VERBOSE,
-			"osm_sm_state_mgr_polling_callback: "
+		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 			"Signalling subnet_up_event\n");
 		cl_event_signal(&sm->subnet_up_event);
 		goto Exit;
@@ -204,13 +200,11 @@ void osm_sm_state_mgr_polling_callback(IN void *context)
 	 * osm_sm_state_mgr_process with signal OSM_SM_SIGNAL_POLLING_TIMEOUT
 	 */
 	sm->retry_number++;
-	osm_log(sm->p_log, OSM_LOG_VERBOSE,
-		"__osm_sm_state_mgr_polling_callback: "
+	OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 		"Retry number:%d\n", sm->retry_number);
 
 	if (sm->retry_number >= sm->p_subn->opt.polling_retry_number) {
-		osm_log(sm->p_log, OSM_LOG_DEBUG,
-			"__osm_sm_state_mgr_polling_callback: "
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 			"Reached polling_retry_number value in retry_number. "
 			"Go to DISCOVERY state\n");
 		osm_sm_state_mgr_process(sm, OSM_SM_SIGNAL_POLLING_TIMEOUT);
@@ -223,8 +217,7 @@ void osm_sm_state_mgr_polling_callback(IN void *context)
 	/* restart the timer */
 	cl_status = cl_timer_start(&sm->polling_timer, timeout);
 	if (cl_status != CL_SUCCESS)
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"__osm_sm_state_mgr_polling_callback: ERR 3211: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3211: "
 			"Failed to restart timer\n");
 
 Exit:
@@ -237,8 +230,7 @@ Exit:
 static void __osm_sm_state_mgr_signal_error(osm_sm_t * sm,
 					    IN const osm_sm_signal_t signal)
 {
-	osm_log(sm->p_log, OSM_LOG_ERROR,
-		"__osm_sm_state_mgr_signal_error: ERR 3207: "
+	OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3207: "
 		"Invalid signal %s in state %s\n",
 		osm_get_sm_mgr_signal_str(signal),
 		osm_get_sm_mgr_state_str(sm->p_subn->sm_state));
@@ -271,8 +263,7 @@ ib_api_status_t osm_sm_state_mgr_process(osm_sm_t * sm,
 	cl_spinlock_acquire(&sm->state_lock);
 
 	if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG))
-		osm_log(sm->p_log, OSM_LOG_DEBUG,
-			"osm_sm_state_mgr_process: "
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 			"Received signal %s in state %s\n",
 			osm_get_sm_mgr_signal_str(signal),
 			osm_get_sm_mgr_state_str(sm->p_subn->sm_state));
@@ -423,8 +414,7 @@ ib_api_status_t osm_sm_state_mgr_process(osm_sm_t * sm,
 			 * We also want to clear the p_polling_sm object - since we are
 			 * done polling on that remote sm - we got a handover from it.
 			 */
-			osm_log(sm->p_log, OSM_LOG_VERBOSE,
-				"osm_sm_state_mgr_process: "
+			OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 				"Forcing heavy sweep. "
 				"Received OSM_SM_SIGNAL_HANDOVER or OSM_SM_SIGNAL_POLLING_TIMEOUT\n");
 			sm->p_polling_sm = NULL;
@@ -462,8 +452,7 @@ ib_api_status_t osm_sm_state_mgr_process(osm_sm_t * sm,
 		break;
 
 	default:
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"osm_sm_state_mgr_process: ERR 3208: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3208: "
 			"Invalid state %s\n",
 			osm_get_sm_mgr_state_str(sm->p_subn->sm_state));
 
@@ -493,8 +482,7 @@ ib_api_status_t osm_sm_state_mgr_check_legality(osm_sm_t * sm,
 	cl_spinlock_acquire(&sm->state_lock);
 
 	if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG))
-		osm_log(sm->p_log, OSM_LOG_DEBUG,
-			"osm_sm_state_mgr_check_legality: "
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 			"Received signal %s in state %s\n",
 			osm_get_sm_mgr_signal_str(signal),
 			osm_get_sm_mgr_state_str(sm->p_subn->sm_state));
@@ -556,8 +544,7 @@ ib_api_status_t osm_sm_state_mgr_check_legality(osm_sm_t * sm,
 		break;
 
 	default:
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"osm_sm_state_mgr_check_legality: ERR 3209: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3209: "
 			"Invalid state %s\n",
 			osm_get_sm_mgr_state_str(sm->p_subn->sm_state));
 		status = IB_INVALID_PARAMETER;

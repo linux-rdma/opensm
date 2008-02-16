@@ -791,8 +791,7 @@ int osm_qos_policy_validate(osm_qos_policy_t * p_qos_policy,
 			p_qos_policy->p_default_qos_level = &__default_simple_qos_level;
 		}
 		else {
-			osm_log(p_log, OSM_LOG_ERROR,
-				"osm_qos_policy_validate: ERR AC10: "
+			OSM_LOG(p_log, OSM_LOG_ERROR, "ERR AC10: "
 				"Default qos-level (%s) not defined.\n",
 				OSM_QOS_POLICY_DEFAULT_LEVEL_NAME);
 			res = 1;
@@ -821,8 +820,7 @@ int osm_qos_policy_validate(osm_qos_policy_t * p_qos_policy,
 					       p_qos_match_rule->qos_level_name);
 
 		if (!p_qos_match_rule->p_qos_level) {
-			osm_log(p_log, OSM_LOG_ERROR,
-				"osm_qos_policy_validate: ERR AC11: "
+			OSM_LOG(p_log, OSM_LOG_ERROR, "ERR AC11: "
 				"qos-match-rule num %u: qos-level '%s' not found\n",
 				i, p_qos_match_rule->qos_level_name);
 			res = 1;
@@ -842,9 +840,7 @@ int osm_qos_policy_validate(osm_qos_policy_t * p_qos_policy,
 				p_port_group =
 				    __qos_policy_get_port_group_by_name(p_qos_policy, str);
 				if (!p_port_group) {
-					osm_log(p_log,
-						OSM_LOG_ERROR,
-						"osm_qos_policy_validate: ERR AC12: "
+					OSM_LOG(p_log, OSM_LOG_ERROR, "ERR AC12: "
 						"qos-match-rule num %u: source port-group '%s' not found\n",
 						i, str);
 					res = 1;
@@ -873,9 +869,7 @@ int osm_qos_policy_validate(osm_qos_policy_t * p_qos_policy,
 				p_port_group =
 				    __qos_policy_get_port_group_by_name(p_qos_policy,str);
 				if (!p_port_group) {
-					osm_log(p_log,
-						OSM_LOG_ERROR,
-						"osm_qos_policy_validate: ERR AC13: "
+					OSM_LOG(p_log, OSM_LOG_ERROR, "ERR AC13: "
 						"qos-match-rule num %u: destination port-group '%s' not found\n",
 						i, str);
 					res = 1;
@@ -909,9 +903,7 @@ int osm_qos_policy_validate(osm_qos_policy_t * p_qos_policy,
 				if (p_prtn == (osm_prtn_t *)cl_qmap_end(
 					&p_qos_policy->p_subn->prtn_pkey_tbl)) {
 					/* partition for this pkey not found */
-					osm_log(p_log,
-						OSM_LOG_ERROR,
-						"osm_qos_policy_validate: ERR AC14: "
+					OSM_LOG(p_log, OSM_LOG_ERROR, "ERR AC14: "
 						"pkey 0x%04X in match rule - "
 						"partition doesn't exist\n",
 						cl_ntoh16(pkey));
@@ -921,9 +913,7 @@ int osm_qos_policy_validate(osm_qos_policy_t * p_qos_policy,
 				if (p_qos_match_rule->p_qos_level->sl_set &&
                                     p_prtn->sl != p_qos_match_rule->p_qos_level->sl) {
 					/* overriding partition's SL */
-					osm_log(p_log,
-						OSM_LOG_ERROR,
-						"osm_qos_policy_validate: ERR AC15: "
+					OSM_LOG(p_log, OSM_LOG_ERROR, "ERR AC15: "
 						"pkey 0x%04X in match rule - "
 						"overriding partition SL (%u) "
 						"with QoS Level SL (%u)\n",
@@ -976,15 +966,13 @@ static osm_qos_level_t * __qos_policy_get_qos_level_by_params(
 	else
 		p_qos_level = p_qos_policy->p_default_qos_level;
 
-	osm_log(&p_qos_policy->p_subn->p_osm->log, OSM_LOG_DEBUG,
-		"__qos_policy_get_qos_level_by_params: "
+	OSM_LOG(&p_qos_policy->p_subn->p_osm->log, OSM_LOG_DEBUG,
 		"PathRecord request:"
 		"Src port 0x%016" PRIx64 ", "
 		"Dst port 0x%016" PRIx64 "\n",
 		cl_ntoh64(osm_physp_get_port_guid(p_src_physp)),
 		cl_ntoh64(osm_physp_get_port_guid(p_dest_physp)));
-	osm_log(&p_qos_policy->p_subn->p_osm->log, OSM_LOG_DEBUG,
-		"__qos_policy_get_qos_level_by_params: "
+	OSM_LOG(&p_qos_policy->p_subn->p_osm->log, OSM_LOG_DEBUG,
 		"Applying QoS Level %s (%s)\n",
 		p_qos_level->name,
 		(p_qos_level->use) ? p_qos_level->use : "no description");

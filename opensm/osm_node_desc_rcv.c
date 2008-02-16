@@ -87,8 +87,7 @@ __osm_nd_rcv_process_nd(IN osm_sm_t * sm,
 	p_node->print_desc = tmp_desc;
 
 	if (osm_log_is_active(sm->p_log, OSM_LOG_VERBOSE)) {
-		osm_log(sm->p_log, OSM_LOG_VERBOSE,
-			"__osm_nd_rcv_process_nd: "
+		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 			"Node 0x%" PRIx64 "\n\t\t\t\tDescription = %s\n",
 			cl_ntoh64(osm_node_get_node_guid(p_node)),
 			p_node->print_desc);
@@ -125,8 +124,7 @@ void osm_nd_rcv_process(IN void *context, IN void *data)
 	CL_PLOCK_EXCL_ACQUIRE(sm->p_lock);
 	p_node = osm_get_node_by_guid(sm->p_subn, node_guid);
 	if (!p_node) {
-		osm_log(sm->p_log, OSM_LOG_ERROR,
-			"osm_nd_rcv_process: ERR 0B01: "
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0B01: "
 			"NodeDescription received for nonexistent node "
 			"0x%" PRIx64 "\n", cl_ntoh64(node_guid));
 	} else {

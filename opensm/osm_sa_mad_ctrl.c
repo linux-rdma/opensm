@@ -123,8 +123,7 @@ __osm_sa_mad_ctrl_process(IN osm_sa_mad_ctrl_t * const p_ctrl,
 	    (p_ctrl->p_subn->opt.max_msg_fifo_timeout) &&
 	    (last_dispatched_msg_queue_time_msec >
 	     p_ctrl->p_subn->opt.max_msg_fifo_timeout)) {
-		osm_log(p_ctrl->p_log, OSM_LOG_INFO,
-			"__osm_sa_mad_ctrl_process: "
+		OSM_LOG(p_ctrl->p_log, OSM_LOG_INFO,
 			/*             "Responding BUSY status since the dispatcher is already" */
 			"Dropping MAD since the dispatcher is already"
 			" overloaded with %u messages and queue time of:"
@@ -222,8 +221,7 @@ __osm_sa_mad_ctrl_process(IN osm_sa_mad_ctrl_t * const p_ctrl,
 #endif
 
 	default:
-		osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
-			"__osm_sa_mad_ctrl_process: ERR 1A01: "
+		OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 1A01: "
 			"Unsupported attribute = 0x%X\n",
 			cl_ntoh16(p_sa_mad->attr_id));
 		osm_dump_sa_mad(p_ctrl->p_log, p_sa_mad, OSM_LOG_ERROR);
@@ -235,8 +233,7 @@ __osm_sa_mad_ctrl_process(IN osm_sa_mad_ctrl_t * const p_ctrl,
 		   processing by the appropriate controller.
 		 */
 
-		osm_log(p_ctrl->p_log, OSM_LOG_DEBUG,
-			"__osm_sa_mad_ctrl_process: "
+		OSM_LOG(p_ctrl->p_log, OSM_LOG_DEBUG,
 			"Posting Dispatcher message %s\n",
 			osm_get_disp_msg_str(msg_id));
 
@@ -247,8 +244,7 @@ __osm_sa_mad_ctrl_process(IN osm_sa_mad_ctrl_t * const p_ctrl,
 				      p_ctrl);
 
 		if (status != CL_SUCCESS) {
-			osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
-				"__osm_sa_mad_ctrl_process: ERR 1A02: "
+			OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 1A02: "
 				"Dispatcher post message failed (%s) for attribute = 0x%X\n",
 				CL_STATUS_MSG(status),
 				cl_ntoh16(p_sa_mad->attr_id));
@@ -306,8 +302,7 @@ __osm_sa_mad_ctrl_rcv_callback(IN osm_madw_t * p_madw,
 	cl_atomic_inc(&p_ctrl->p_stats->sa_mads_rcvd);
 
 	if (osm_log_is_active(p_ctrl->p_log, OSM_LOG_DEBUG)) {
-		osm_log(p_ctrl->p_log, OSM_LOG_DEBUG,
-			"__osm_sa_mad_ctrl_rcv_callback: "
+		OSM_LOG(p_ctrl->p_log, OSM_LOG_DEBUG,
 			"%u SA MADs received\n", p_ctrl->p_stats->sa_mads_rcvd);
 	}
 
@@ -321,16 +316,14 @@ __osm_sa_mad_ctrl_rcv_callback(IN osm_madw_t * p_madw,
 	 */
 	if (p_ctrl->p_subn->sm_state != IB_SMINFO_STATE_MASTER) {
 		cl_atomic_inc(&p_ctrl->p_stats->sa_mads_ignored);
-		osm_log(p_ctrl->p_log, OSM_LOG_VERBOSE,
-			"__osm_sa_mad_ctrl_rcv_callback: "
+		OSM_LOG(p_ctrl->p_log, OSM_LOG_VERBOSE,
 			"Received SA MAD while SM not MASTER. MAD ignored\n");
 		osm_mad_pool_put(p_ctrl->p_mad_pool, p_madw);
 		goto Exit;
 	}
 	if (p_ctrl->p_subn->first_time_master_sweep == TRUE) {
 		cl_atomic_inc(&p_ctrl->p_stats->sa_mads_ignored);
-		osm_log(p_ctrl->p_log, OSM_LOG_VERBOSE,
-			"__osm_sa_mad_ctrl_rcv_callback: "
+		OSM_LOG(p_ctrl->p_log, OSM_LOG_VERBOSE,
 			"Received SA MAD while SM in first sweep. MAD ignored\n");
 		osm_mad_pool_put(p_ctrl->p_mad_pool, p_madw);
 		goto Exit;
@@ -348,8 +341,7 @@ __osm_sa_mad_ctrl_rcv_callback(IN osm_madw_t * p_madw,
 	 */
 	if ((p_sa_mad->sm_key != 0) &&
 	    (p_sa_mad->sm_key != p_ctrl->p_subn->opt.sm_key)) {
-		osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
-			"__osm_sa_mad_ctrl_rcv_callback: ERR 1A04: "
+		OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 1A04: "
 			"Non-Zero SA MAD SM_Key: 0x%" PRIx64 " != SM_Key: 0x%"
 			PRIx64 "; MAD ignored\n", cl_ntoh64(p_sa_mad->sm_key),
 			cl_ntoh64(p_ctrl->p_subn->opt.sm_key)
@@ -362,8 +354,7 @@ __osm_sa_mad_ctrl_rcv_callback(IN osm_madw_t * p_madw,
 	case IB_MAD_METHOD_REPORT_RESP:
 		/* we do not really do anything with report represses -
 		   just retire the transaction */
-		osm_log(p_ctrl->p_log, OSM_LOG_DEBUG,
-			"__osm_sa_mad_ctrl_rcv_callback: "
+		OSM_LOG(p_ctrl->p_log, OSM_LOG_DEBUG,
 			"Received Report Repress. Retiring the transaction\n");
 
 		if (p_req_madw)
@@ -384,8 +375,7 @@ __osm_sa_mad_ctrl_rcv_callback(IN osm_madw_t * p_madw,
 
 	default:
 		cl_atomic_inc(&p_ctrl->p_stats->sa_mads_rcvd_unknown);
-		osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
-			"__osm_sa_mad_ctrl_rcv_callback: ERR 1A05: "
+		OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 1A05: "
 			"Unsupported method = 0x%X\n", p_sa_mad->method);
 		osm_mad_pool_put(p_ctrl->p_mad_pool, p_madw);
 		goto Exit;
@@ -424,8 +414,7 @@ __osm_sa_mad_ctrl_send_err_callback(IN void *bind_context,
 
 	OSM_LOG_ENTER(p_ctrl->p_log);
 
-	osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
-		"__osm_sa_mad_ctrl_send_err_callback: ERR 1A06: "
+	OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 1A06: "
 		"MAD transaction completed in error\n");
 
 	/*
@@ -447,8 +436,7 @@ __osm_sa_mad_ctrl_send_err_callback(IN void *bind_context,
 
 	if (osm_madw_get_err_msg(p_madw) != CL_DISP_MSGID_NONE) {
 		if (osm_log_is_active(p_ctrl->p_log, OSM_LOG_DEBUG)) {
-			osm_log(p_ctrl->p_log, OSM_LOG_DEBUG,
-				"__osm_sa_mad_ctrl_send_err_callback: "
+			OSM_LOG(p_ctrl->p_log, OSM_LOG_DEBUG,
 				"Posting Dispatcher message %s\n",
 				osm_get_disp_msg_str(osm_madw_get_err_msg
 						     (p_madw)));
@@ -460,8 +448,7 @@ __osm_sa_mad_ctrl_send_err_callback(IN void *bind_context,
 				      __osm_sa_mad_ctrl_disp_done_callback,
 				      p_ctrl);
 		if (status != CL_SUCCESS) {
-			osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
-				"__osm_sa_mad_ctrl_send_err_callback: ERR 1A07: "
+			OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 1A07: "
 				"Dispatcher post message failed (%s)\n",
 				CL_STATUS_MSG(status));
 		}
@@ -532,8 +519,7 @@ osm_sa_mad_ctrl_init(IN osm_sa_mad_ctrl_t * const p_ctrl,
 					  CL_DISP_MSGID_NONE, NULL, p_ctrl);
 
 	if (p_ctrl->h_disp == CL_DISP_INVALID_HANDLE) {
-		osm_log(p_log, OSM_LOG_ERROR,
-			"osm_sa_mad_ctrl_init: ERR 1A08: "
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 1A08: "
 			"Dispatcher registration failed\n");
 		status = IB_INSUFFICIENT_RESOURCES;
 		goto Exit;
@@ -556,8 +542,7 @@ osm_sa_mad_ctrl_bind(IN osm_sa_mad_ctrl_t * const p_ctrl,
 	OSM_LOG_ENTER(p_ctrl->p_log);
 
 	if (p_ctrl->h_bind != OSM_BIND_INVALID_HANDLE) {
-		osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
-			"osm_sa_mad_ctrl_bind: ERR 1A09: "
+		OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 1A09: "
 			"Multiple binds not allowed\n");
 		status = IB_ERROR;
 		goto Exit;
@@ -572,8 +557,7 @@ osm_sa_mad_ctrl_bind(IN osm_sa_mad_ctrl_t * const p_ctrl,
 	bind_info.recv_q_size = OSM_SM_DEFAULT_QP1_RCV_SIZE;
 	bind_info.send_q_size = OSM_SM_DEFAULT_QP1_SEND_SIZE;
 
-	osm_log(p_ctrl->p_log, OSM_LOG_VERBOSE,
-		"osm_sa_mad_ctrl_bind: "
+	OSM_LOG(p_ctrl->p_log, OSM_LOG_VERBOSE,
 		"Binding to port GUID 0x%" PRIx64 "\n", cl_ntoh64(port_guid));
 
 	p_ctrl->h_bind = osm_vendor_bind(p_ctrl->p_vendor,
@@ -585,8 +569,7 @@ osm_sa_mad_ctrl_bind(IN osm_sa_mad_ctrl_t * const p_ctrl,
 
 	if (p_ctrl->h_bind == OSM_BIND_INVALID_HANDLE) {
 		status = IB_ERROR;
-		osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
-			"osm_sa_mad_ctrl_bind: ERR 1A10: "
+		OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 1A10: "
 			"Vendor specific bind failed (%s)\n",
 			ib_get_err_str(status));
 		goto Exit;
@@ -606,8 +589,7 @@ ib_api_status_t osm_sa_mad_ctrl_unbind(IN osm_sa_mad_ctrl_t * const p_ctrl)
 	OSM_LOG_ENTER(p_ctrl->p_log);
 
 	if (p_ctrl->h_bind == OSM_BIND_INVALID_HANDLE) {
-		osm_log(p_ctrl->p_log, OSM_LOG_ERROR,
-			"osm_sa_mad_ctrl_unbind: ERR 1A11: "
+		OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 1A11: "
 			"No previous bind\n");
 		status = IB_ERROR;
 		goto Exit;
