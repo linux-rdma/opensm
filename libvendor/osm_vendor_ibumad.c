@@ -195,7 +195,7 @@ put_madw(osm_vendor_t * p_vend, osm_madw_t * p_madw, ib_net64_t * tid)
 	osm_log(p_vend->p_log, OSM_LOG_ERROR,
 		"put_madw: ERR 5402: "
 		"evicting entry %p (tid was 0x%" PRIx64 ")\n", old_lru,
-		old_tid);
+		cl_ntoh64(old_tid));
 }
 
 static void
