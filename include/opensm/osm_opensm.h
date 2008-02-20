@@ -53,6 +53,7 @@
 #include <complib/cl_passivelock.h>
 #include <complib/cl_atomic.h>
 #include <complib/cl_nodenamemap.h>
+#include <opensm/osm_console_io.h>
 #include <opensm/osm_stats.h>
 #include <opensm/osm_log.h>
 #include <opensm/osm_sm.h>
@@ -152,18 +153,6 @@ struct osm_routing_engine {
 *		The delete method, may be used for routing engine
 *		internals cleanup.
 */
-
-typedef struct _osm_console_t {
-	int socket;
-	int in_fd;
-	int out_fd;
-	int authorized;
-	FILE *in;
-	FILE *out;
-	char client_type[32];
-	char client_ip[64];
-	char client_hn[128];
-} osm_console_t;
 
 /****s* OpenSM: OpenSM/osm_opensm_t
 * NAME

@@ -30,11 +30,35 @@
  * SOFTWARE.
  *
  */
+/*
+ * Abstract:
+ * 	Declaration of osm_console_t.
+ *	This object represents the OpenSM Console object.
+ *	This object is part of the OpenSM family of objects.
+ *
+ * Environment:
+ * 	Linux User Mode
+ *
+ * $Revision: 1.0 $
+ */
 
-#ifndef _OSM_CONSOLE_H_
-#define _OSM_CONSOLE_H_
+#ifndef _OSM_CONSOLE_IO_H_
+#define _OSM_CONSOLE_IO_H_
 
-#include <opensm/osm_opensm.h>
+#include <opensm/osm_subnet.h>
+#include <opensm/osm_log.h>
+
+#define OSM_DISABLE_CONSOLE      "off"
+#define OSM_LOCAL_CONSOLE        "local"
+#define OSM_REMOTE_CONSOLE       "socket"
+#define OSM_LOOPBACK_CONSOLE     "loopback"
+#define OSM_CONSOLE_NAME         "OSM Console"
+
+#define OSM_DEFAULT_CONSOLE      OSM_DISABLE_CONSOLE
+#define OSM_DEFAULT_CONSOLE_PORT 10000
+#define OSM_DAEMON_NAME          "opensm"
+
+#define OSM_COMMAND_PROMPT	 "$ "
 
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
@@ -45,7 +69,27 @@
 #endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-// TODO replace p_osm
-void osm_console(osm_opensm_t * p_osm);
+typedef struct _osm_console_t {
+	int socket;
+	int in_fd;
+	int out_fd;
+	int authorized;
+	FILE *in;
+	FILE *out;
+	char client_type[32];
+	char client_ip[64];
+	char client_hn[128];
+} osm_console_t;
+
+void osm_console_prompt(FILE * out);
+void osm_console_init(osm_subn_opt_t * opt, osm_console_t * p_oct, osm_log_t * p_log);
+void osm_console_exit(osm_console_t * p_oct, osm_log_t * p_log);
+int is_console_enabled(osm_subn_opt_t *p_opt);
+
+#ifdef ENABLE_OSM_CONSOLE_SOCKET
+int cio_open(osm_console_t * p_oct, int new_fd, osm_log_t * p_log);
+int is_authorized(osm_console_t * p_oct);
+#endif
+
 END_C_DECLS
-#endif				/* _OSM_CONSOLE_H_ */
+#endif				/* _OSM_CONSOLE_IO_H_ */

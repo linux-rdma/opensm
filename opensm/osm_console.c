@@ -43,15 +43,12 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #ifdef ENABLE_OSM_CONSOLE_SOCKET
-#include <tcpd.h>
 #include <arpa/inet.h>
-#include <netinet/in.h>
 #endif
 #include <unistd.h>
 #include <errno.h>
 #include <ctype.h>
 #include <sys/time.h>
-#include <signal.h>
 #include <opensm/osm_console.h>
 #include <opensm/osm_version.h>
 #include <complib/cl_passivelock.h>
@@ -696,41 +693,6 @@ static void portstatus_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 	fprintf(out, "\n");
 }
 
-static int is_local(char *str)
-{
-	// convenience - checks if just stdin/stdout
-	if (str)
-		return (strcmp(str, OSM_LOCAL_CONSOLE) == 0);
-	return 0;
-}
-
-static int is_loopback(char *str)
-{
-	// convenience - checks if socket based connection
-	if (str)
-		return (strcmp(str, OSM_LOOPBACK_CONSOLE) == 0);
-	return 0;
-}
-
-static int is_remote(char *str)
-{
-	// convenience - checks if socket based connection
-	if (str)
-		return (strcmp(str, OSM_REMOTE_CONSOLE) == 0)
-		    || is_loopback(str);
-	return 0;
-}
-
-int is_console_enabled(osm_subn_opt_t * p_opt)
-{
-	// checks for a variety of types of consoles - default is off or 0
-	if (p_opt)
-		return (is_local(p_opt->console)
-			|| is_loopback(p_opt->console)
-			|| is_remote(p_opt->console));
-	return 0;
-}
-
 #ifdef ENABLE_OSM_PERF_MGR
 static void perfmgr_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 {
@@ -795,37 +757,9 @@ static void perfmgr_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 }
 #endif				/* ENABLE_OSM_PERF_MGR */
 
-#ifdef ENABLE_OSM_CONSOLE_SOCKET
-static int cio_close(osm_console_t * p_oct)
-{
-	int rtnval = -1;
-	if (p_oct && (p_oct->in_fd > 0)) {
-		rtnval = close(p_oct->in_fd);
-		p_oct->in_fd = -1;
-		p_oct->out_fd = -1;
-		p_oct->in = NULL;
-		p_oct->out = NULL;
-	}
-	return rtnval;
-}
-#endif
-
-/* close the connection */
-static void osm_console_close(osm_opensm_t * p_osm)
-{
-#ifdef ENABLE_OSM_CONSOLE_SOCKET
-	if ((p_osm->console.socket > 0) && (p_osm->console.in_fd != -1)) {
-		OSM_LOG(&(p_osm->log), OSM_LOG_INFO,
-			"Console connection closed: %s (%s)\n",
-			p_osm->console.client_hn, p_osm->console.client_ip);
-		cio_close(&p_osm->console);
-	}
-#endif
-}
-
 static void quit_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 {
-	osm_console_close(p_osm);
+	osm_console_exit(&p_osm->console, &p_osm->log);
 }
 
 static void help_version(FILE * out, int detail)
@@ -899,133 +833,6 @@ static void parse_cmd_line(char *line, osm_opensm_t * p_osm)
 	}
 }
 
-/**********************************************************************
- * Do authentication & authorization check
- **********************************************************************/
-#ifdef ENABLE_OSM_CONSOLE_SOCKET
-static int is_authorized(osm_console_t * p_oct)
-{
-	/* allowed to use the console? */
-	p_oct->authorized = !is_remote(p_oct->client_type) ||
-	    hosts_ctl(OSM_DAEMON_NAME, p_oct->client_hn, p_oct->client_ip,
-		      "STRING_UNKNOWN");
-	return p_oct->authorized;
-}
-#endif
-
-static void osm_console_prompt(FILE * out)
-{
-	if (out) {
-		fprintf(out, "OpenSM %s", OSM_COMMAND_PROMPT);
-		fflush(out);
-	}
-}
-
-void osm_console_init(osm_subn_opt_t * opt, osm_opensm_t * p_osm)
-{
-	osm_console_t *p_oct = &p_osm->console;
-	p_oct->socket = -1;
-	strncpy(p_oct->client_type, opt->console, sizeof(p_oct->client_type));
-
-	/* set up the file descriptors for the console */
-	if (strcmp(opt->console, OSM_LOCAL_CONSOLE) == 0) {
-		p_oct->in = stdin;
-		p_oct->out = stdout;
-		p_oct->in_fd = fileno(stdin);
-		p_oct->out_fd = fileno(stdout);
-
-		osm_console_prompt(p_oct->out);
-#ifdef ENABLE_OSM_CONSOLE_SOCKET
-	} else if (strcmp(opt->console, OSM_REMOTE_CONSOLE) == 0
-		   || strcmp(opt->console, OSM_LOOPBACK_CONSOLE) == 0) {
-		struct sockaddr_in sin;
-		int optval = 1;
-
-		if ((p_oct->socket = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-			OSM_LOG(&(p_osm->log), OSM_LOG_ERROR,
-				"ERR 4B01: Failed to open console socket: %s\n",
-				strerror(errno));
-			return;
-		}
-		setsockopt(p_oct->socket, SOL_SOCKET, SO_REUSEADDR,
-			   &optval, sizeof(optval));
-		sin.sin_family = AF_INET;
-		sin.sin_port = htons(opt->console_port);
-		if (strcmp(opt->console, OSM_REMOTE_CONSOLE) == 0)
-			sin.sin_addr.s_addr = htonl(INADDR_ANY);
-		else
-			sin.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-		if (bind(p_oct->socket, &sin, sizeof(sin)) < 0) {
-			OSM_LOG(&(p_osm->log), OSM_LOG_ERROR,
-				"ERR 4B02: Failed to bind console socket: %s\n",
-				strerror(errno));
-			return;
-		}
-		if (listen(p_oct->socket, 1) < 0) {
-			OSM_LOG(&(p_osm->log), OSM_LOG_ERROR,
-				"ERR 4B03: Failed to listen on socket: %s\n",
-				strerror(errno));
-			return;
-		}
-
-		signal(SIGPIPE, SIG_IGN);	/* protect ourselves from closed pipes */
-		p_oct->in = NULL;
-		p_oct->out = NULL;
-		p_oct->in_fd = -1;
-		p_oct->out_fd = -1;
-		OSM_LOG(&(p_osm->log), OSM_LOG_INFO,
-			"Console listening on port %d\n", opt->console_port);
-#endif
-	}
-}
-
-/* clean up and release resources */
-void osm_console_exit(osm_opensm_t * p_osm)
-{
-	// clean up and release resources, currently just close the socket
-	osm_console_close(p_osm);
-}
-
-#ifdef ENABLE_OSM_CONSOLE_SOCKET
-static int cio_open(osm_opensm_t * p_osm, int new_fd)
-{
-	// returns zero if opened fine, -1 otherwise
-	osm_console_t *p_oct = &p_osm->console;
-	char *p_line;
-	size_t len;
-	ssize_t n;
-
-	if (p_oct->in_fd >= 0) {
-		FILE *file = fdopen(new_fd, "w+");
-
-		fprintf(file, "OpenSM Console connection already in use\n"
-			"   kill other session (y/n)? ");
-		fflush(file);
-		p_line = NULL;
-		n = getline(&p_line, &len, file);
-		if (n > 0 && (p_line[0] == 'y' || p_line[0] == 'Y')) {
-			osm_console_close(p_osm);
-		} else {
-			OSM_LOG(&(p_osm->log), OSM_LOG_INFO,
-				"Console connection aborted: %s (%s)\n",
-				p_oct->client_hn, p_oct->client_ip);
-			close(new_fd);
-			return -1;
-		}
-	}
-	p_oct->in_fd = new_fd;
-	p_oct->out_fd = p_oct->in_fd;
-	p_oct->in = fdopen(p_oct->in_fd, "w+");
-	p_oct->out = p_oct->in;
-	osm_console_prompt(p_oct->out);
-	OSM_LOG(&(p_osm->log), OSM_LOG_INFO,
-		"Console connection accepted: %s (%s)\n",
-		p_oct->client_hn, p_oct->client_ip);
-
-	return (p_oct->in == NULL) ? -1 : 0;
-}
-#endif
-
 void osm_console(osm_opensm_t * p_osm)
 {
 	struct pollfd pollfd[2];
@@ -1035,6 +842,7 @@ void osm_console(osm_opensm_t * p_osm)
 	struct pollfd *fds;
 	nfds_t nfds;
 	osm_console_t *p_oct = &p_osm->console;
+	osm_log_t *p_log = &p_osm->log;
 
 	pollfd[0].fd = p_oct->socket;
 	pollfd[0].events = POLLIN;
@@ -1067,7 +875,7 @@ void osm_console(osm_opensm_t * p_osm)
 		socklen_t len = sizeof(sin);
 		struct hostent *hent;
 		if ((new_fd = accept(p_oct->socket, &sin, &len)) < 0) {
-			OSM_LOG(&(p_osm->log), OSM_LOG_ERROR,
+			OSM_LOG(p_log, OSM_LOG_ERROR,
 				"ERR 4B04: Failed to accept console socket: %s\n",
 				strerror(errno));
 			p_oct->in_fd = -1;
@@ -1085,10 +893,10 @@ void osm_console(osm_opensm_t * p_osm)
 		} else {
 			snprintf(p_oct->client_hn, 128, "%s", hent->h_name);
 		}
-		if (is_authorized(&p_osm->console)) {
-			cio_open(p_osm, new_fd);
+		if (is_authorized(p_oct)) {
+			cio_open(p_oct, new_fd, p_log);
 		} else {
-			OSM_LOG(&(p_osm->log), OSM_LOG_ERROR,
+			OSM_LOG(p_log, OSM_LOG_ERROR,
 				"ERR 4B05: Console connection denied: %s (%s)\n",
 				p_oct->client_hn, p_oct->client_ip);
 			close(new_fd);
@@ -1108,7 +916,7 @@ void osm_console(osm_opensm_t * p_osm)
 				osm_console_prompt(p_oct->out);
 			}
 		} else
-			osm_console_close(p_osm);
+			osm_console_exit(p_oct, p_log);
 		if (p_line)
 			free(p_line);
 	}

@@ -60,6 +60,7 @@
 #include <opensm/osm_version.h>
 #include <opensm/osm_opensm.h>
 #include <opensm/osm_console.h>
+#include <opensm/osm_console_io.h>
 #include <opensm/osm_perfmgr.h>
 
 volatile unsigned int osm_exit_flag = 0;
@@ -550,7 +551,7 @@ static int daemonize(osm_opensm_t * osm)
 int osm_manager_loop(osm_subn_opt_t * p_opt, osm_opensm_t * p_osm)
 {
 	if (is_console_enabled(p_opt))
-		osm_console_init(p_opt, p_osm);
+		osm_console_init(p_opt, &p_osm->console, &p_osm->log);
 
 	/*
 	   Sit here forever - dwell or do console i/o & cmds
@@ -573,7 +574,7 @@ int osm_manager_loop(osm_subn_opt_t * p_opt, osm_opensm_t * p_osm)
 		}
 	}
 	if (is_console_enabled(p_opt))
-		osm_console_exit(p_osm);
+		osm_console_exit(&p_osm->console, &p_osm->log);
 	return 0;
 }
 
