@@ -360,8 +360,9 @@ static void *umad_receiver(void *p_ptr)
 				osm_log(p_vend->p_log, OSM_LOG_ERROR,
 					"umad_receiver: ERR 5412: "
 					"Failed to obtain request madw for timed out MAD"
-					"(method=0x%X attr=0x%X) -- dropping\n",
-					mad->method, cl_ntoh16(mad->attr_id));
+					"(method=0x%X attr=0x%X tid=0x%"PRIx64") -- dropping\n",
+					mad->method, cl_ntoh16(mad->attr_id),
+					cl_ntoh64(mad->trans_id));
 			} else {
 				p_req_madw->status = IB_TIMEOUT;
 				/* cb frees req_madw */
@@ -384,8 +385,9 @@ static void *umad_receiver(void *p_ptr)
 			osm_log(p_vend->p_log, OSM_LOG_ERROR,
 				"umad_receiver: ERR 5413: "
 				"Failed to obtain request madw for received MAD"
-				"(method=0x%X attr=0x%X) -- dropping\n",
-				mad->method, cl_ntoh16((mad)->attr_id));
+				"(method=0x%X attr=0x%X tid=0x%"PRIx64") -- dropping\n",
+				mad->method, cl_ntoh16((mad)->attr_id),
+				cl_ntoh64(mad->trans_id));
 			osm_mad_pool_put(p_bind->p_mad_pool, p_madw);
 			continue;
 		}
