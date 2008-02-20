@@ -377,6 +377,10 @@ updn_subn_rank(IN unsigned num_guids,
 			/* Current port fetched in order to get remote side */
 			p_physp =
 			    osm_node_get_physp_ptr(p_sw->p_node, port_num);
+
+			if (!p_physp)
+				continue;
+
 			p_remote_physp = p_physp->p_remote_physp;
 
 			/*
