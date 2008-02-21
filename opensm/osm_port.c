@@ -488,6 +488,15 @@ __osm_physp_get_dr_physp_set(IN osm_log_t * p_log,
 		/* go out using the phys port of the path */
 		p_physp = osm_node_get_physp_ptr(p_node, p_path->path[hop]);
 
+		/* make sure we got a valid port and it has a remote port */
+		if (!p_physp) {
+			OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 4104: "
+				"DR Traversal stopped on invalid port at hop:%u\n",
+				hop);
+			status = CL_ERROR;
+			goto Exit;
+		}
+
 		/* we track the ports we go out along the path */
 		if (hop > 1)
 			cl_map_insert(p_physp_map, __osm_ptr_to_key(p_physp),
@@ -498,15 +507,6 @@ __osm_physp_get_dr_physp_set(IN osm_log_t * p_log,
 			" port:%u\n",
 			cl_ntoh64(p_node->node_info.node_guid),
 			p_path->path[hop]);
-
-		/* make sure we got a valid port and it has a remote port */
-		if (!p_physp) {
-			OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 4104: "
-				"DR Traversal stopped on invalid port at hop:%u\n",
-				hop);
-			status = CL_ERROR;
-			goto Exit;
-		}
 
 		if (!(p_physp = osm_physp_get_remote(p_physp))) {
 			OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 4106: "
