@@ -285,10 +285,8 @@ osm_node_t *osm_node_get_remote_node(IN osm_node_t * const p_node,
 	osm_physp_t *p_remote_physp;
 
 	p_physp = osm_node_get_physp_ptr(p_node, port_num);
-	if (!p_physp)
-		return (NULL);
 
-	if (!osm_physp_has_any_link(p_physp))
+	if (!p_physp || !osm_physp_has_any_link(p_physp))
 		return (NULL);
 
 	p_remote_physp = osm_physp_get_remote(p_physp);
