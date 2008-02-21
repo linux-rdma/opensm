@@ -177,8 +177,9 @@ The fat-tree algorithm optimizes routing for "shift" communication pattern.
 It should be chosen if a subnet is a symmetrical or almost symmetrical
 fat-tree of various types.
 It supports not just K-ary-N-Trees, by handling for non-constant K,
-cases where not all leafs (CAs) are present, any CBB ratio.
-As in UPDN, fat-tree also prevents credit-loop-deadlocks.
+cases where not all leafs (CAs) are present, any Constant
+Bisectional Ratio (CBB) ratio.  As in UPDN, fat-tree also prevents
+credit-loop-deadlocks.
 
 If the root guid file is not provided ('-a' or '--root_guid_file' options),
 the topology has to be pure fat-tree that complies with the following rules:

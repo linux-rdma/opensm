@@ -526,8 +526,9 @@ loop in the subnet.
 3.  Fat Tree Unicast routing algorithm - this algorithm optimizes routing
 for congestion-free "shift" communication pattern.
 It should be chosen if a subnet is a symmetrical Fat Trees of various types,
-not just K-ary-N-Trees: non-constant K, not fully staffed, any CBB ratio.
-Similar to UPDN, Fat Tree routing is constrained to ranking rules.
+not just K-ary-N-Trees: non-constant K, not fully staffed, any Constant
+Bisectional Bandwidth (CBB) ratio.  Similar to UPDN, Fat Tree routing is
+constrained to ranking rules.
 
 4. LASH unicast routing algorithm - uses Infiniband virtual layers
 (SL) to provide deadlock-free shortest-path routing while also
