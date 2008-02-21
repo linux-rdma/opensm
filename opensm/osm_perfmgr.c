@@ -629,7 +629,7 @@ static int sweep_hop_1(osm_sm_t * sm)
 		for (port_num = 0; port_num < num_ports; port_num++) {
 			/* go through the port only if the port is not DOWN */
 			p_ext_physp = osm_node_get_physp_ptr(p_node, port_num);
-			if (ib_port_info_get_port_state
+			if (!p_ext_physp || ib_port_info_get_port_state
 			    (&p_ext_physp->port_info) <= IB_LINK_DOWN)
 				continue;
 

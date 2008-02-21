@@ -561,7 +561,7 @@ __osm_ucast_mgr_process_neighbors(IN cl_map_item_t * const p_map_item,
 			/* make sure the link is healthy. If it is not - don't
 			   propagate through it. */
 			p_physp = osm_node_get_physp_ptr(p_node, port_num);
-			if (!osm_link_is_healthy(p_physp))
+			if (!p_physp || !osm_link_is_healthy(p_physp))
 				continue;
 
 			__osm_ucast_mgr_process_neighbor(p_mgr, p_sw,
