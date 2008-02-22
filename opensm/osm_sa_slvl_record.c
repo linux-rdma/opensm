@@ -459,7 +459,7 @@ void osm_slvl_rec_rcv_process(IN void *ctx, IN void *data)
 				    sa->p_subn);
 	if (status != IB_SUCCESS) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2606: "
-			"osm_vendor_send status = %s\n",
+			"osm_sa_vendor_send status = %s\n",
 			ib_get_err_str(status));
 		goto Exit;
 	}
