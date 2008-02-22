@@ -154,7 +154,7 @@ static osm_madw_t *get_madw(osm_vendor_t * p_vend, ib_net64_t * tid)
 }
 
 static void
-put_madw(osm_vendor_t * p_vend, osm_madw_t * p_madw, ib_net64_t * tid)
+put_madw(osm_vendor_t * p_vend, osm_madw_t * p_madw, ib_net64_t tid)
 {
 	umad_match_t *m, *e, *old_lru, *lru = 0;
 	osm_madw_t *p_req_madw;
@@ -165,7 +165,7 @@ put_madw(osm_vendor_t * p_vend, osm_madw_t * p_madw, ib_net64_t * tid)
 	pthread_mutex_lock(&p_vend->match_tbl_mutex);
 	for (m = p_vend->mtbl.tbl, e = m + p_vend->mtbl.max; m < e; m++) {
 		if (m->tid == 0) {
-			m->tid = *tid;
+			m->tid = tid;
 			m->v = p_madw;
 			m->version =
 			    cl_atomic_inc((atomic32_t *) & p_vend->mtbl.
@@ -185,9 +185,9 @@ put_madw(osm_vendor_t * p_vend, osm_madw_t * p_madw, ib_net64_t * tid)
 	p_bind = p_req_madw->h_bind;
 	p_req_madw->status = IB_CANCELED;
 	pthread_mutex_lock(&p_vend->cb_mutex);
-	(*p_bind->send_err_callback) (p_bind->client_context, old_lru->v);
+	(*p_bind->send_err_callback) (p_bind->client_context, p_req_madw);
 	pthread_mutex_unlock(&p_vend->cb_mutex);
-	lru->tid = *tid;
+	lru->tid = tid;
 	lru->v = p_madw;
 	lru->version =
 	    cl_atomic_inc((atomic32_t *) & p_vend->mtbl.last_version);
@@ -1081,7 +1081,7 @@ osm_vendor_send(IN osm_bind_handle_t h_bind,
 
 Resp:
 	if (resp_expected)
-		put_madw(p_vend, p_madw, &p_mad->trans_id);
+		put_madw(p_vend, p_madw, p_mad->trans_id);
 
 #ifdef VENDOR_RMPP_SUPPORT
 	sent_mad_size = p_madw->mad_size;
