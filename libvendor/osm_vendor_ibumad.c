@@ -128,7 +128,7 @@ Exit:
 static osm_madw_t *get_madw(osm_vendor_t * p_vend, ib_net64_t * tid)
 {
 	umad_match_t *m, *e;
-	ib_net64_t mtid = (*tid & cl_ntoh64(0x00000000ffffffffllu));
+	ib_net64_t mtid = (*tid & CL_HTON64(0x00000000ffffffffllu));
 	osm_madw_t *res;
 
 	/*
