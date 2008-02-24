@@ -350,7 +350,7 @@ osm_switch_recommend_path(IN const osm_switch_t * const p_sw,
 	   So we must abort if not least hops.
 	 */
 
-	/* port number starts with zero and num_ports is 1 + num phys ports */
+	/* port number starts with one and num_ports is 1 + num phys ports */
 	for (port_num = 1; port_num < num_ports; port_num++) {
 		if (osm_switch_get_hop_count(p_sw, base_lid, port_num) !=
 		    least_hops)
