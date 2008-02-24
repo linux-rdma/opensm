@@ -38,10 +38,13 @@
 # the semi-static LID assignment table from the master SM to all standby SMs.
 # A standby SM, becoming a master . needs to obey the copied semi static LID assignment table.
 
-# config: /etc/opensm.conf
+prefix=@prefix@
+exec_prefix=@exec_prefix@
 
-[ -f /etc/sysconfig/opensm.conf ] && CONFIG=/etc/sysconfig/opensm.conf
-[ -f /etc/ofa/opensm.conf ] && CONFIG=/etc/ofa/opensm.conf
+# config: @sysconfdir@/ofa/opensm.conf
+
+[ -f @sysconfdir@/sysconfig/opensm.conf ] && CONFIG=@sysconfdir@/sysconfig/opensm.conf
+[ -f @sysconfdir@/ofa/opensm.conf ] && CONFIG=@sysconfdir@/ofa/opensm.conf
 
 SLDD_DEBUG=${SLDD_DEBUG:-0}
 

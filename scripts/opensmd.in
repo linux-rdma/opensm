@@ -27,23 +27,26 @@
 # and/or other materials provided with the distribution.
 #
 #
-# processname: /usr/sbin/opensm
-# config: /etc/opensm.conf
+# processname: @sbindir@/opensm
+# config: @sysconfig@/opensm.conf
 # pidfile: /var/run/opensm.pid
 
-if [ ! -f /etc/opensm.conf ]; then
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+
+CONFIG=@sysconfdir@/ofa/opensm.conf
+
+if [ ! -f @CONFIG@ ]; then
     exit 0
 fi
 
-. /etc/opensm.conf
+. @COFNIG
 
-CONFIG=/etc/opensm.conf
-
-prog=/usr/sbin/opensm
+prog=@sbindir@/opensm
 bin=${prog##*/}
 
 # Handover daemon for updating guid2lid cache file
-sldd_prog=/usr/sbin/sldd.sh
+sldd_prog=@sbindir@/sldd.sh
 sldd_bin=${sldd_prog##*/}
 sldd_pid_file=/var/run/sldd.pid
 
@@ -122,7 +125,7 @@ else
     TIMEOUT_FLAG="-t ${TIMEOUT}"
 fi
 
-if [[ -z $OSM_LOG || "$OSM_LOG" == "/var/log/osm.log" ]]; then
+if [[ -z $OSM_LOG || "$OSM_LOG" == "/var/log/opensm.log" ]]; then
     OSM_LOG_FLAG=""
 else
     OSM_LOG_FLAG="-f ${OSM_LOG}"

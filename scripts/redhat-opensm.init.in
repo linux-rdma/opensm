@@ -37,23 +37,27 @@
 #
 #  $Id: openib-1.0-opensm.init,v 1.5 2006/08/02 18:18:23 dledford Exp $
 #
-# processname: /usr/sbin/opensm
-# config: /etc/ofa/opensm.conf
+# processname: @sbindir@/opensm
+# config: @sysconfdir@/ofa/opensm.conf
 # pidfile: /var/run/opensm.pid
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+
 . /etc/rc.d/init.d/functions
 
-CONFIG=/etc/ofa/opensm.conf
+CONFIG=@sysconfdir@/ofa/opensm.conf
 if [ ! -f $CONFIG ]; then
     exit 0
 fi
 
 . $CONFIG
 
-prog=/usr/sbin/opensm
+prog=@sbindir@/opensm
 bin=${prog##*/}
 
 # Handover daemon for updating guid2lid cache file
-sldd_prog=/usr/sbin/sldd.sh
+sldd_prog=@sbindir@/sldd.sh
 sldd_bin=${sldd_prog##*/}
 sldd_pid_file=/var/run/sldd.pid
 
