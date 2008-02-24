@@ -95,7 +95,7 @@ else
     REDHAT=""
 fi
 mkdir -p $etc/{init.d,ofa,logrotate.d}
-install -m 755 scripts/${REDHAT}opensm.init $etc/init.d/opensm
+install -m 755 scripts/${REDHAT}opensm.init $etc/init.d/opensmd
 install -m 644 scripts/opensm.conf $etc/ofa/opensm.conf
 install -m 644 scripts/opensm.logrotate $etc/logrotate.d/opensm
 install -m 755 scripts/sldd.sh $RPM_BUILD_ROOT%{_sbindir}/sldd.sh
@@ -105,15 +105,15 @@ rm -rf $RPM_BUILD_ROOT
 
 %post
 if [ $1 = 1 ]; then
-    /sbin/chkconfig --add opensm
+    /sbin/chkconfig --add opensmd
 else
-    /sbin/service opensm condrestart
+    /sbin/service opensmd condrestart
 fi
 
 %preun
 if [ $1 = 0 ]; then
-    /sbin/service opensm stop
-    /sbin/chkconfig --del opensm
+    /sbin/service opensmd stop
+    /sbin/chkconfig --del opensmd
     rm -f /var/cache/opensm/*
 fi
 
@@ -126,7 +126,7 @@ fi
 %{_sbindir}/osmtest
 %{_mandir}/man8/*
 %doc AUTHORS COPYING README
-%{_sysconfdir}/init.d/opensm
+%{_sysconfdir}/init.d/opensmd
 %{_sbindir}/sldd.sh
 %config(noreplace) %{_sysconfdir}/ofa/opensm.conf
 %config(noreplace) %{_sysconfdir}/logrotate.d/opensm

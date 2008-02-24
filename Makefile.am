@@ -17,8 +17,8 @@ else
 	echo "define osm_build_type \"free\"" > $(DESTDIR)/$(includedir)/infiniband/opensm/osm_build_id.h
 endif
 	$(top_srcdir)/config/install-sh -m 755 -d $(DESTDIR)/$(sysconfdir)/init.d
-	cp $(top_srcdir)/scripts/opensm.init $(DESTDIR)/$(sysconfdir)/init.d/opensm
-	chmod 755 $(DESTDIR)/$(sysconfdir)/init.d/opensm
+	cp $(top_srcdir)/scripts/opensm.init $(DESTDIR)/$(sysconfdir)/init.d/opensmd
+	chmod 755 $(DESTDIR)/$(sysconfdir)/init.d/opensmd
 
 
 man_MANS = man/opensm.8 man/osmtest.8
