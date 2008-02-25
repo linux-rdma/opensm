@@ -141,12 +141,12 @@ typedef struct _umad_match {
 	uint32_t version;
 } umad_match_t;
 
-#define OSM_UMAD_MAX_PENDING	1000
+#define DEFAULT_OSM_UMAD_MAX_PENDING	1000
 
 typedef struct vendor_match_tbl {
-	umad_match_t tbl[OSM_UMAD_MAX_PENDING];
 	uint32_t last_version;
 	int max;
+	umad_match_t *tbl;
 } vendor_match_tbl_t;
 
 typedef struct _osm_vendor {

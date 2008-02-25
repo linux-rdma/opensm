@@ -451,6 +451,7 @@ ib_api_status_t
 osm_vendor_init(IN osm_vendor_t * const p_vend,
 		IN osm_log_t * const p_log, IN const uint32_t timeout)
 {
+	char *max = NULL;
 	int r, n_cas;
 
 	OSM_LOG_ENTER(p_log);
@@ -480,7 +481,31 @@ osm_vendor_init(IN osm_vendor_t * const p_vend,
 	}
 
 	p_vend->ca_count = n_cas;
-	p_vend->mtbl.max = OSM_UMAD_MAX_PENDING;
+	p_vend->mtbl.max = DEFAULT_OSM_UMAD_MAX_PENDING;
+
+	if ((max = getenv("OSM_UMAD_MAX_PENDING")) != NULL) {
+		int tmp = strtol(max, NULL, 0);
+		if (tmp > 0)
+			p_vend->mtbl.max = tmp;
+		else
+			osm_log(p_vend->p_log, OSM_LOG_ERROR,
+				"osm_vendor_init: Error:"
+				"OSM_UMAD_MAX_PENDING=%d is invalid",
+				tmp);
+	}
+
+	osm_log(p_vend->p_log, OSM_LOG_INFO,
+		"osm_vendor_init: %d pending umads specified\n",
+		p_vend->mtbl.max);
+
+	p_vend->mtbl.tbl = calloc(p_vend->mtbl.max, sizeof(*(p_vend->mtbl.tbl)));
+	if (!p_vend->mtbl.tbl) {
+		osm_log(p_vend->p_log, OSM_LOG_ERROR,
+			"osm_vendor_init: Error:"
+			"failed to allocate vendor match table\n");
+		r = IB_INSUFFICIENT_MEMORY;
+		goto Exit;
+	}
 
 Exit:
 	OSM_LOG_EXIT(p_log);
@@ -535,6 +560,7 @@ void osm_vendor_delete(IN osm_vendor_t ** const pp_vend)
 
 	pthread_mutex_destroy(&(*pp_vend)->cb_mutex);
 	pthread_mutex_destroy(&(*pp_vend)->match_tbl_mutex);
+	free((*pp_vend)->mtbl.tbl);
 	free(*pp_vend);
 	*pp_vend = NULL;
 }
