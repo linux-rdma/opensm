@@ -1,4 +1,4 @@
-                        OpenSM Release Notes 3.1.9
+                        OpenSM Release Notes 3.1.10
                        =============================
 
 Version: OpenFabrics Enterprise Distribution (OFED) 1.3
@@ -11,7 +11,7 @@ Date:    February 2008
 This document describes the contents of the OpenSM OFED 1.3 release.
 OpenSM is an InfiniBand compliant Subnet Manager and Administration,
 and runs on top of OpenIB. The OpenSM version for this release
-is openib-3.1.9
+is openib-3.1.10
 
 This document includes the following sections:
 1 This Overview section (describing new features and software
