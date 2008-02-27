@@ -1,4 +1,4 @@
-.TH OPENSM 8 "Aug 16, 2007" "OpenIB" "OpenIB Management"
+.TH OPENSM 8 "Feb 27, 2008" "OpenIB" "OpenIB Management"
 
 .SH NAME
 opensm \- InfiniBand subnet manager and administration (SM/SA)
@@ -17,7 +17,8 @@ opensm \- InfiniBand subnet manager and administration (SM/SA)
 [\-console [off | local | socket | loopback]] [\-console-port <port>]
 [\-i(gnore-guids) <equalize-ignore-guids-file>] [\-f | \-\-log_file]
 [\-L | \-\-log_limit <size in MB>] [\-e(rase_log_file)] [\-P(config)]
-[\-Q | \-\-qos] [\-N | \-\-no_part_enforce] [\-y | \-\-stay_on_fatal]
+[\-Q | \-\-qos [\-Y | \-\-qos_policy_file <file name>]]
+[\-N | \-\-no_part_enforce] [\-y | \-\-stay_on_fatal]
 [\-B | \-\-daemon] [\-I | \-\-inactive]
 [\-\-perfmgr] [\-\-perfmgr_sweep_time_s <seconds>]
 [\-\-prefix_routes_file <path>]
@@ -211,6 +212,10 @@ The default path is \fB\%@CONF_DIR@/prefix\-routes.conf\fP.
 .TP
 \fB\-Q\fR, \fB\-\-qos\fR
 This option enables QoS setup. It is disabled by default.
+.TP
+\fB\-Y\fR, \fB\-\-qos_policy_file\fR
+This option defines the optional QoS policy file. The default
+name is \fB\%@CONF_DIR@/@QOS_POLICY_FILE@\fP.
 .TP
 \fB\-N\fR, \fB\-\-no_part_enforce\fR
 This option disables partition enforcement on switch external ports.
