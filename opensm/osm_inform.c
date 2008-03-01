@@ -365,14 +365,8 @@ static ib_api_status_t __osm_send_report(IN osm_infr_t * p_infr_rec,	/* the info
 	*p_report_ntc = *p_ntc;
 
 	/* The TRUE is for: response is expected */
-	status = osm_sa_vendor_send(p_report_madw->h_bind, p_report_madw, TRUE,
-				    p_infr_rec->sa->p_subn);
-	if (status != IB_SUCCESS) {
-		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0204: "
-			"osm_sa_vendor_send status = %s\n",
-			ib_get_err_str(status));
-		goto Exit;
-	}
+	osm_sa_vendor_send(p_report_madw->h_bind, p_report_madw, TRUE,
+			   p_infr_rec->sa->p_subn);
 
 Exit:
 	OSM_LOG_EXIT(p_log);

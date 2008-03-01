@@ -1465,7 +1465,6 @@ __osm_mpr_rcv_respond(IN osm_sa_t * sa,
 	size_t mad_size;
 	ib_path_rec_t *p_resp_pr;
 	ib_multipath_rec_t *p_mpr;
-	ib_api_status_t status;
 	osm_mpr_item_t *p_mpr_item;
 	uint32_t i;
 
@@ -1537,14 +1536,7 @@ __osm_mpr_rcv_respond(IN osm_sa_t * sa,
 
 	osm_dump_sa_mad(sa->p_log, p_resp_sa_mad, OSM_LOG_FRAMES);
 
-	status = osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE,
-				    sa->p_subn);
-
-	if (status != IB_SUCCESS) {
-		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4507: "
-			"Unable to send MAD (%s)\n", ib_get_err_str(status));
-		/*  osm_mad_pool_put( sa->p_mad_pool, p_resp_madw ); */
-	}
+	osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE, sa->p_subn);
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);

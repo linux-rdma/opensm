@@ -222,7 +222,6 @@ __osm_sr_rcv_respond(IN osm_sa_t * sa,
 	uint32_t trim_num_rec;
 #endif
 	ib_service_record_t *p_resp_sr;
-	ib_api_status_t status;
 	osm_sr_item_t *p_sr_item;
 	const ib_sa_mad_t *p_rcvd_mad = osm_madw_get_sa_mad_ptr(p_madw);
 	boolean_t trusted_req = TRUE;
@@ -362,15 +361,7 @@ __osm_sr_rcv_respond(IN osm_sa_t * sa,
 		}
 	}
 
-	status = osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE,
-				    sa->p_subn);
-
-	if (status != IB_SUCCESS) {
-		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2407: "
-			"Unable to send MAD (%s)\n", ib_get_err_str(status));
-		/*  osm_mad_pool_put( sa->p_mad_pool, p_resp_madw ); */
-		goto Exit;
-	}
+	osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE, sa->p_subn);
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);

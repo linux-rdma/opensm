@@ -224,7 +224,6 @@ __osm_infr_rcv_respond(IN osm_sa_t * sa,
 	const ib_sa_mad_t *p_sa_mad;
 	ib_sa_mad_t *p_resp_sa_mad;
 	ib_inform_info_t *p_resp_infr;
-	ib_api_status_t status;
 
 	OSM_LOG_ENTER(sa->p_log);
 
@@ -257,15 +256,7 @@ __osm_infr_rcv_respond(IN osm_sa_t * sa,
 	p_resp_infr =
 	    (ib_inform_info_t *) ib_sa_mad_get_payload_ptr(p_resp_sa_mad);
 
-	status = osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE,
-				    sa->p_subn);
-
-	if (status != IB_SUCCESS) {
-		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4304: "
-			"Unable to send MAD (%s)\n", ib_get_err_str(status));
-		/* osm_mad_pool_put( sa->p_mad_pool, p_resp_madw ); */
-		goto Exit;
-	}
+	osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE, sa->p_subn);
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);
@@ -375,7 +366,6 @@ osm_infr_rcv_process_get_method(IN osm_sa_t * sa,
 	uint32_t i, j;
 	osm_iir_search_ctxt_t context;
 	osm_iir_item_t *p_rec_item;
-	ib_api_status_t status = IB_SUCCESS;
 	osm_physp_t *p_req_physp;
 
 	OSM_LOG_ENTER(sa->p_log);
@@ -551,14 +541,7 @@ osm_infr_rcv_process_get_method(IN osm_sa_t * sa,
 
 	CL_ASSERT(cl_is_qlist_empty(&rec_list));
 
-	status = osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE,
-				    sa->p_subn);
-	if (status != IB_SUCCESS) {
-		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 430C: "
-			"osm_sa_vendor_send status = %s\n",
-			ib_get_err_str(status));
-		goto Exit;
-	}
+	osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE, sa->p_subn);
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);

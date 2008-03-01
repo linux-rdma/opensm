@@ -326,7 +326,6 @@ void osm_nr_rcv_process(IN void *ctx, IN void *data)
 	uint32_t i;
 	osm_nr_search_ctxt_t context;
 	osm_nr_item_t *p_rec_item;
-	ib_api_status_t status;
 	osm_physp_t *p_req_physp;
 
 	CL_ASSERT(sa);
@@ -493,14 +492,7 @@ void osm_nr_rcv_process(IN void *ctx, IN void *data)
 
 	CL_ASSERT(cl_is_qlist_empty(&rec_list));
 
-	status = osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE,
-				    sa->p_subn);
-	if (status != IB_SUCCESS) {
-		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1D07: "
-			"osm_sa_vendor_send status = %s\n",
-			ib_get_err_str(status));
-		goto Exit;
-	}
+	osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE, sa->p_subn);
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);

@@ -327,8 +327,12 @@ osm_sa_vendor_send(IN osm_bind_handle_t h_bind,
 
 	cl_atomic_inc(&p_subn->p_osm->stats.sa_mads_sent);
 	status = osm_vendor_send(h_bind, p_madw, resp_expected);
-	if (status != IB_SUCCESS)
+	if (status != IB_SUCCESS) {
 		cl_atomic_dec(&p_subn->p_osm->stats.sa_mads_sent);
+		OSM_LOG(&p_subn->p_osm->log, OSM_LOG_ERROR, "ERR 4C04: "
+			"osm_vendor_send failed, status = %s\n",
+			ib_get_err_str(status));
+	}
 	return status;
 }
 

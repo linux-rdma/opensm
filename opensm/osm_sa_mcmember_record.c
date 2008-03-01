@@ -347,7 +347,6 @@ __osm_mcmr_rcv_respond(IN osm_sa_t * sa,
 	osm_madw_t *p_resp_madw;
 	ib_sa_mad_t *p_sa_mad, *p_resp_sa_mad;
 	ib_member_rec_t *p_resp_mcmember_rec;
-	ib_api_status_t status;
 
 	OSM_LOG_ENTER(sa->p_log);
 
@@ -395,14 +394,7 @@ __osm_mcmr_rcv_respond(IN osm_sa_t * sa,
 	p_resp_mcmember_rec->pkt_life &= 0x3f;
 	p_resp_mcmember_rec->pkt_life |= 2 << 6;	/* exactly */
 
-	status = osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE,
-				    sa->p_subn);
-
-	if (status != IB_SUCCESS) {
-		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B07: "
-			"Unable to send MAD (%s) for TID <0x%" PRIx64 ">\n",
-			ib_get_err_str(status), p_resp_sa_mad->trans_id);
-	}
+	osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE, sa->p_subn);
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);
@@ -1861,7 +1853,6 @@ __osm_mcmr_query_mgrp(IN osm_sa_t * sa,
 	uint32_t i;
 	osm_sa_mcmr_search_ctxt_t context;
 	osm_mcmr_item_t *p_rec_item;
-	ib_api_status_t status;
 	ib_net64_t comp_mask;
 	osm_physp_t *p_req_physp;
 	boolean_t trusted_req;
@@ -2038,14 +2029,7 @@ __osm_mcmr_query_mgrp(IN osm_sa_t * sa,
 
 	CL_ASSERT(cl_is_qlist_empty(&rec_list));
 
-	status = osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE,
-				    sa->p_subn);
-	if (status != IB_SUCCESS) {
-		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B17: "
-			"osm_sa_vendor_send status = %s\n",
-			ib_get_err_str(status));
-		goto Exit;
-	}
+	osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE, sa->p_subn);
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);

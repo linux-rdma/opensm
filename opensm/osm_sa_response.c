@@ -67,7 +67,6 @@ osm_sa_send_error(IN osm_sa_t * sa,
 	osm_madw_t *p_resp_madw;
 	ib_sa_mad_t *p_resp_sa_mad;
 	ib_sa_mad_t *p_sa_mad;
-	ib_api_status_t status;
 
 	OSM_LOG_ENTER(sa->p_log);
 
@@ -115,15 +114,8 @@ osm_sa_send_error(IN osm_sa_t * sa,
 	if (osm_log_is_active(sa->p_log, OSM_LOG_FRAMES))
 		osm_dump_sa_mad(sa->p_log, p_resp_sa_mad, OSM_LOG_FRAMES);
 
-	status = osm_sa_vendor_send(osm_madw_get_bind_handle(p_resp_madw),
-				    p_resp_madw, FALSE, sa->p_subn);
-
-	if (status != IB_SUCCESS) {
-		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2302: "
-			"Error sending MAD (%s)\n", ib_get_err_str(status));
-		/*  osm_mad_pool_put( sa->p_mad_pool, p_resp_madw ); */
-		goto Exit;
-	}
+	osm_sa_vendor_send(osm_madw_get_bind_handle(p_resp_madw),
+			   p_resp_madw, FALSE, sa->p_subn);
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);

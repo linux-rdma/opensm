@@ -80,7 +80,6 @@ __osm_cpi_rcv_respond(IN osm_sa_t * sa,
 	const ib_sa_mad_t *p_sa_mad;
 	ib_sa_mad_t *p_resp_sa_mad;
 	ib_class_port_info_t *p_resp_cpi;
-	ib_api_status_t status;
 	ib_gid_t zero_gid;
 	uint8_t rtv;
 
@@ -176,14 +175,7 @@ __osm_cpi_rcv_respond(IN osm_sa_t * sa,
 	if (osm_log_is_active(sa->p_log, OSM_LOG_FRAMES))
 		osm_dump_sa_mad(sa->p_log, p_resp_sa_mad, OSM_LOG_FRAMES);
 
-	status = osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE,
-				    sa->p_subn);
-	if (status != IB_SUCCESS) {
-		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1409: "
-			"Unable to send MAD (%s)\n", ib_get_err_str(status));
-		/*  osm_mad_pool_put( sa->p_mad_pool, p_resp_madw ); */
-		goto Exit;
-	}
+	osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE, sa->p_subn);
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);

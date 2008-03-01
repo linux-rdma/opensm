@@ -481,14 +481,7 @@ void osm_pkey_rec_rcv_process(IN void *ctx, IN void *data)
 
 	CL_ASSERT(cl_is_qlist_empty(&rec_list));
 
-	status = osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE,
-				    sa->p_subn);
-	if (status != IB_SUCCESS) {
-		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4607: "
-			"osm_sa_vendor_send status = %s\n",
-			ib_get_err_str(status));
-		goto Exit;
-	}
+	osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE, sa->p_subn);
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);

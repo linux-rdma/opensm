@@ -456,7 +456,6 @@ __osm_lr_rcv_respond(IN osm_sa_t * sa,
 	size_t trim_num_rec;
 #endif
 	ib_link_record_t *p_resp_lr;
-	ib_api_status_t status;
 	osm_lr_item_t *p_lr_item;
 	const ib_sa_mad_t *p_rcvd_mad = osm_madw_get_sa_mad_ptr(p_madw);
 
@@ -573,14 +572,7 @@ __osm_lr_rcv_respond(IN osm_sa_t * sa,
 		}
 	}
 
-	status = osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE,
-				    sa->p_subn);
-	if (status != IB_SUCCESS) {
-		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1803: "
-			"Unable to send MAD (%s)\n", ib_get_err_str(status));
-		/*       osm_mad_pool_put( sa->p_mad_pool, p_resp_madw ); */
-		goto Exit;
-	}
+	osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE, sa->p_subn);
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);
