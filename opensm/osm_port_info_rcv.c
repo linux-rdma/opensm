@@ -317,6 +317,9 @@ __osm_pi_rcv_process_switch_port(IN osm_sm_t * sm,
 	if (ib_port_info_get_port_state(p_pi) > IB_LINK_INIT && p_node->sw)
 		p_node->sw->need_update = 0;
 
+	if (p_physp->need_update)
+		sm->p_subn->ignore_existing_lfts = 1;
+
 	if (port_num == 0)
 		pi_rcv_check_and_fix_lid(sm->p_log, p_pi, p_physp);
 
