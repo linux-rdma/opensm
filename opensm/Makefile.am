@@ -46,7 +46,7 @@ opensm_SOURCES = main.c osm_console_io.c osm_console.c osm_db_files.c \
 		 osm_sa_mcmember_record.c osm_sa_node_record.c \
 		 osm_sa_path_record.c osm_sa_pkey_record.c \
 		 osm_sa_portinfo_record.c osm_sa_guidinfo_record.c \
-		 osm_sa_multipath_record.c osm_sa_response.c \
+		 osm_sa_multipath_record.c \
 		 osm_sa_service_record.c osm_sa_slvl_record.c \
 		 osm_sa_sminfo_record.c osm_sa_vlarb_record.c \
 		 osm_sa_sw_info_record.c osm_service.c \
