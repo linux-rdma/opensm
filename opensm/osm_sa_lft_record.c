@@ -244,19 +244,17 @@ void osm_lftr_rcv_process(IN void *ctx, IN void *data)
 	CL_ASSERT(p_rcvd_mad->attr_id == IB_MAD_ATTR_LFT_RECORD);
 
 	/* we only support SubnAdmGet and SubnAdmGetTable methods */
-	if ((p_rcvd_mad->method != IB_MAD_METHOD_GET) &&
-	    (p_rcvd_mad->method != IB_MAD_METHOD_GETTABLE)) {
+	if (p_rcvd_mad->method != IB_MAD_METHOD_GET &&
+	    p_rcvd_mad->method != IB_MAD_METHOD_GETTABLE) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4408: "
 			"Unsupported Method (%s)\n",
 			ib_get_sa_method_str(p_rcvd_mad->method));
-		osm_sa_send_error(sa, p_madw,
-				  IB_MAD_STATUS_UNSUP_METHOD_ATTR);
+		osm_sa_send_error(sa, p_madw, IB_MAD_STATUS_UNSUP_METHOD_ATTR);
 		goto Exit;
 	}
 
 	/* update the requester physical port. */
-	p_req_physp = osm_get_physp_by_mad_addr(sa->p_log,
-						sa->p_subn,
+	p_req_physp = osm_get_physp_by_mad_addr(sa->p_log, sa->p_subn,
 						osm_madw_get_mad_addr_ptr
 						(p_madw));
 	if (p_req_physp == NULL) {
@@ -329,17 +327,15 @@ void osm_lftr_rcv_process(IN void *ctx, IN void *data)
 
 	OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Returning %u records\n", num_rec);
 
-	if ((p_rcvd_mad->method != IB_MAD_METHOD_GETTABLE) && (num_rec == 0)) {
-		osm_sa_send_error(sa, p_madw,
-				  IB_SA_MAD_STATUS_NO_RECORDS);
+	if (p_rcvd_mad->method != IB_MAD_METHOD_GETTABLE && num_rec == 0) {
+		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_NO_RECORDS);
 		goto Exit;
 	}
 
 	/*
 	 * Get a MAD to reply. Address of Mad is in the received mad_wrapper
 	 */
-	p_resp_madw = osm_mad_pool_get(sa->p_mad_pool,
-				       p_madw->h_bind,
+	p_resp_madw = osm_mad_pool_get(sa->p_mad_pool, p_madw->h_bind,
 				       num_rec * sizeof(ib_lft_record_t) +
 				       IB_SA_MAD_HDR_SIZE, &p_madw->mad_addr);
 
@@ -353,8 +349,7 @@ void osm_lftr_rcv_process(IN void *ctx, IN void *data)
 			free(p_rec_item);
 		}
 
-		osm_sa_send_error(sa, p_madw,
-				  IB_SA_MAD_STATUS_NO_RESOURCES);
+		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_NO_RESOURCES);
 
 		goto Exit;
 	}

@@ -1496,8 +1496,7 @@ __osm_mpr_rcv_respond(IN osm_sa_t * sa,
 			free(p_mpr_item);
 		}
 
-		osm_sa_send_error(sa, p_madw,
-				  IB_SA_MAD_STATUS_NO_RESOURCES);
+		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_NO_RESOURCES);
 		goto Exit;
 	}
 
@@ -1568,8 +1567,7 @@ void osm_mpr_rcv_process(IN void *context, IN void *data)
 	if ((p_sa_mad->rmpp_flags & IB_RMPP_FLAG_ACTIVE) != IB_RMPP_FLAG_ACTIVE) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4510: "
 			"Invalid request since RMPP_FLAG_ACTIVE is not set\n");
-		osm_sa_send_error(sa, p_madw,
-				  IB_SA_MAD_STATUS_REQ_INVALID);
+		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_REQ_INVALID);
 		goto Exit;
 	}
 
@@ -1578,8 +1576,7 @@ void osm_mpr_rcv_process(IN void *context, IN void *data)
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4513: "
 			"Unsupported Method (%s)\n",
 			ib_get_sa_method_str(p_sa_mad->method));
-		osm_sa_send_error(sa, p_madw,
-				  IB_MAD_STATUS_UNSUP_METHOD_ATTR);
+		osm_sa_send_error(sa, p_madw, IB_MAD_STATUS_UNSUP_METHOD_ATTR);
 		goto Exit;
 	}
 

@@ -466,7 +466,7 @@ __osm_lr_rcv_respond(IN osm_sa_t * sa,
 	 * C15-0.1.30:
 	 * If we do a SubnAdmGet and got more than one record it is an error !
 	 */
-	if ((p_rcvd_mad->method == IB_MAD_METHOD_GET) && (num_rec > 1)) {
+	if (p_rcvd_mad->method == IB_MAD_METHOD_GET && num_rec > 1) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1806: "
 			"Got more than one record for SubnAdmGet (%zu)\n",
 			num_rec);
@@ -502,8 +502,7 @@ __osm_lr_rcv_respond(IN osm_sa_t * sa,
 	/*
 	   Get a MAD to reply. Address of Mad is in the received mad_wrapper
 	 */
-	p_resp_madw = osm_mad_pool_get(sa->p_mad_pool,
-				       p_madw->h_bind,
+	p_resp_madw = osm_mad_pool_get(sa->p_mad_pool, p_madw->h_bind,
 				       num_rec * sizeof(ib_link_record_t) +
 				       IB_SA_MAD_HDR_SIZE, &p_madw->mad_addr);
 	if (!p_resp_madw) {
@@ -602,19 +601,17 @@ void osm_lr_rcv_process(IN void *context, IN void *data)
 	CL_ASSERT(p_sa_mad->attr_id == IB_MAD_ATTR_LINK_RECORD);
 
 	/* we only support SubnAdmGet and SubnAdmGetTable methods */
-	if ((p_sa_mad->method != IB_MAD_METHOD_GET) &&
-	    (p_sa_mad->method != IB_MAD_METHOD_GETTABLE)) {
+	if (p_sa_mad->method != IB_MAD_METHOD_GET &&
+	    p_sa_mad->method != IB_MAD_METHOD_GETTABLE) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1804: "
 			"Unsupported Method (%s)\n",
 			ib_get_sa_method_str(p_sa_mad->method));
-		osm_sa_send_error(sa, p_madw,
-				  IB_MAD_STATUS_UNSUP_METHOD_ATTR);
+		osm_sa_send_error(sa, p_madw, IB_MAD_STATUS_UNSUP_METHOD_ATTR);
 		goto Exit;
 	}
 
 	/* update the requester physical port. */
-	p_req_physp = osm_get_physp_by_mad_addr(sa->p_log,
-						sa->p_subn,
+	p_req_physp = osm_get_physp_by_mad_addr(sa->p_log, sa->p_subn,
 						osm_madw_get_mad_addr_ptr
 						(p_madw));
 	if (p_req_physp == NULL) {
@@ -644,10 +641,9 @@ void osm_lr_rcv_process(IN void *context, IN void *data)
 
 	cl_plock_release(sa->p_lock);
 
-	if ((cl_qlist_count(&lr_list) == 0) &&
-	    (p_sa_mad->method == IB_MAD_METHOD_GET)) {
-		osm_sa_send_error(sa, p_madw,
-				  IB_SA_MAD_STATUS_NO_RECORDS);
+	if (cl_qlist_count(&lr_list) == 0 &&
+	    p_sa_mad->method == IB_MAD_METHOD_GET) {
+		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_NO_RECORDS);
 		goto Exit;
 	}
 

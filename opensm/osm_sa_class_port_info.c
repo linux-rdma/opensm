@@ -90,8 +90,7 @@ __osm_cpi_rcv_respond(IN osm_sa_t * sa,
 	/*
 	   Get a MAD to reply. Address of Mad is in the received mad_wrapper
 	 */
-	p_resp_madw = osm_mad_pool_get(sa->p_mad_pool,
-				       p_madw->h_bind,
+	p_resp_madw = osm_mad_pool_get(sa->p_mad_pool, p_madw->h_bind,
 				       MAD_BLOCK_SIZE, &p_madw->mad_addr);
 	if (!p_resp_madw) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1408: "
@@ -201,8 +200,7 @@ void osm_cpi_rcv_process(IN void *context, IN void *data)
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1403: "
 			"Unsupported Method (%s)\n",
 			ib_get_sa_method_str(p_sa_mad->method));
-		osm_sa_send_error(sa, p_madw,
-				  IB_SA_MAD_STATUS_REQ_INVALID);
+		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_REQ_INVALID);
 		goto Exit;
 	}
 

@@ -1710,9 +1710,8 @@ __osm_pr_rcv_respond(IN osm_sa_t * sa,
 	OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 		"Generating response with %zu records\n", num_rec);
 
-	if ((sad_mad->method == IB_MAD_METHOD_GET) && (num_rec == 0)) {
-		osm_sa_send_error(sa, p_madw,
-				  IB_SA_MAD_STATUS_NO_RECORDS);
+	if (sad_mad->method == IB_MAD_METHOD_GET && num_rec == 0) {
+		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_NO_RECORDS);
 		goto Exit;
 	}
 
@@ -1732,8 +1731,7 @@ __osm_pr_rcv_respond(IN osm_sa_t * sa,
 			free(p_pr_item);
 		}
 
-		osm_sa_send_error(sa, p_madw,
-				  IB_SA_MAD_STATUS_NO_RESOURCES);
+		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_NO_RESOURCES);
 		goto Exit;
 	}
 
@@ -1808,13 +1806,12 @@ void osm_pr_rcv_process(IN void *context, IN void *data)
 	CL_ASSERT(p_sa_mad->attr_id == IB_MAD_ATTR_PATH_RECORD);
 
 	/* we only support SubnAdmGet and SubnAdmGetTable methods */
-	if ((p_sa_mad->method != IB_MAD_METHOD_GET) &&
-	    (p_sa_mad->method != IB_MAD_METHOD_GETTABLE)) {
+	if (p_sa_mad->method != IB_MAD_METHOD_GET &&
+	    p_sa_mad->method != IB_MAD_METHOD_GETTABLE) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F17: "
 			"Unsupported Method (%s)\n",
 			ib_get_sa_method_str(p_sa_mad->method));
-		osm_sa_send_error(sa, p_madw,
-				  IB_MAD_STATUS_UNSUP_METHOD_ATTR);
+		osm_sa_send_error(sa, p_madw, IB_MAD_STATUS_UNSUP_METHOD_ATTR);
 		goto Exit;
 	}
 
@@ -1843,8 +1840,7 @@ void osm_pr_rcv_process(IN void *context, IN void *data)
 	if ((ret = __osm_pr_rcv_check_mcast_dest(sa, p_madw)) < 0) {
 		/* Multicast DGID with unicast DLID */
 		cl_plock_release(sa->p_lock);
-		osm_sa_send_error(sa, p_madw,
-				  IB_MAD_STATUS_INVALID_FIELD);
+		osm_sa_send_error(sa, p_madw, IB_MAD_STATUS_INVALID_FIELD);
 		goto Exit;
 	}
 
@@ -1949,9 +1945,7 @@ McastDest:
 		    (2 << 6) | p_mgrp->mcmember_rec.pkt_life;
 
 		/* SL, Hop Limit, and Flow Label */
-		ib_member_get_sl_flow_hop(p_mgrp->
-					  mcmember_rec.
-					  sl_flow_hop,
+		ib_member_get_sl_flow_hop(p_mgrp->mcmember_rec.sl_flow_hop,
 					  &sl, &flow_label, &hop_limit);
 		ib_path_rec_set_sl(&p_pr_item->path_rec, sl);
 		ib_path_rec_set_qos_class(&p_pr_item->path_rec, 0);

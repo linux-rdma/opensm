@@ -220,19 +220,17 @@ void osm_smir_rcv_process(IN void *ctx, IN void *data)
 	CL_ASSERT(sad_mad->attr_id == IB_MAD_ATTR_SMINFO_RECORD);
 
 	/* we only support SubnAdmGet and SubnAdmGetTable methods */
-	if ((sad_mad->method != IB_MAD_METHOD_GET) &&
-	    (sad_mad->method != IB_MAD_METHOD_GETTABLE)) {
+	if (sad_mad->method != IB_MAD_METHOD_GET &&
+	    sad_mad->method != IB_MAD_METHOD_GETTABLE) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2804: "
 			"Unsupported Method (%s)\n",
 			ib_get_sa_method_str(sad_mad->method));
-		osm_sa_send_error(sa, p_madw,
-				  IB_MAD_STATUS_UNSUP_METHOD_ATTR);
+		osm_sa_send_error(sa, p_madw, IB_MAD_STATUS_UNSUP_METHOD_ATTR);
 		goto Exit;
 	}
 
 	/* update the requester physical port. */
-	p_req_physp = osm_get_physp_by_mad_addr(sa->p_log,
-						sa->p_subn,
+	p_req_physp = osm_get_physp_by_mad_addr(sa->p_log, sa->p_subn,
 						osm_madw_get_mad_addr_ptr
 						(p_madw));
 	if (p_req_physp == NULL) {
@@ -242,8 +240,7 @@ void osm_smir_rcv_process(IN void *ctx, IN void *data)
 	}
 
 	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
-		osm_dump_sm_info_record(sa->p_log, p_rcvd_rec,
-					OSM_LOG_DEBUG);
+		osm_dump_sm_info_record(sa->p_log, p_rcvd_rec, OSM_LOG_DEBUG);
 
 	p_tbl = &sa->p_subn->sm_guid_tbl;
 	p_smi = &p_rcvd_rec->sm_info;
@@ -276,9 +273,8 @@ void osm_smir_rcv_process(IN void *ctx, IN void *data)
 
 	if (status == IB_SUCCESS) {
 		/* Handle our own SM first */
-		local_port =
-		    osm_get_port_by_guid(sa->p_subn,
-					 sa->p_subn->sm_port_guid);
+		local_port = osm_get_port_by_guid(sa->p_subn,
+						  sa->p_subn->sm_port_guid);
 		if (!local_port) {
 			cl_plock_release(sa->p_lock);
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2809: "
@@ -298,27 +294,22 @@ void osm_smir_rcv_process(IN void *ctx, IN void *data)
 			}
 
 			/* Check that other search components specified match */
-			if (comp_mask & IB_SMIR_COMPMASK_GUID) {
-				if (sa->p_subn->sm_port_guid != p_smi->guid)
-					goto Remotes;
-			}
-			if (comp_mask & IB_SMIR_COMPMASK_PRIORITY) {
-				if (sa->p_subn->opt.sm_priority !=
-				    ib_sminfo_get_priority(p_smi))
-					goto Remotes;
-			}
-			if (comp_mask & IB_SMIR_COMPMASK_SMSTATE) {
-				if (sa->p_subn->sm_state !=
-				    ib_sminfo_get_state(p_smi))
-					goto Remotes;
-			}
+			if ((comp_mask & IB_SMIR_COMPMASK_GUID) &&
+			    sa->p_subn->sm_port_guid != p_smi->guid)
+				goto Remotes;
+			if ((comp_mask & IB_SMIR_COMPMASK_PRIORITY) &&
+			    sa->p_subn->opt.sm_priority !=
+			       ib_sminfo_get_priority(p_smi))
+				goto Remotes;
+			if ((comp_mask & IB_SMIR_COMPMASK_SMSTATE) &&
+			    sa->p_subn->sm_state != ib_sminfo_get_state(p_smi))
+				goto Remotes;
 
 			/* Now, add local SMInfo to list */
 			pri_state = sa->p_subn->sm_state & 0x0F;
 			pri_state |=
 			    (sa->p_subn->opt.sm_priority & 0x0F) << 4;
-			__osm_smir_rcv_new_smir(sa, local_port,
-						context.p_list,
+			__osm_smir_rcv_new_smir(sa, local_port, context.p_list,
 						sa->p_subn->sm_port_guid,
 						cl_ntoh32(sa->p_subn->p_osm->stats.qp0_mads_sent),
 						pri_state, p_req_physp);
@@ -336,11 +327,10 @@ void osm_smir_rcv_process(IN void *ctx, IN void *data)
 			    (osm_remote_sm_t *) cl_qmap_end(p_sm_guid_tbl))
 				__osm_sa_smir_by_comp_mask(sa, p_rem_sm,
 							   &context);
-			else {
+			else
 				OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 280A: "
 					"No remote SM for GUID 0x%016" PRIx64
 					"\n", cl_ntoh64(port_guid));
-			}
 		} else {
 			/* Go over all other known (remote) SMs */
 			cl_qmap_apply_func(&sa->p_subn->sm_guid_tbl,
@@ -398,17 +388,15 @@ void osm_smir_rcv_process(IN void *ctx, IN void *data)
 
 	OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Returning %u records\n", num_rec);
 
-	if ((sad_mad->method == IB_MAD_METHOD_GET) && (num_rec == 0)) {
-		osm_sa_send_error(sa, p_madw,
-				  IB_SA_MAD_STATUS_NO_RECORDS);
+	if (sad_mad->method == IB_MAD_METHOD_GET && num_rec == 0) {
+		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_NO_RECORDS);
 		goto Exit;
 	}
 
 	/*
 	 * Get a MAD to reply. Address of Mad is in the received mad_wrapper
 	 */
-	p_resp_madw = osm_mad_pool_get(sa->p_mad_pool,
-				       p_madw->h_bind,
+	p_resp_madw = osm_mad_pool_get(sa->p_mad_pool, p_madw->h_bind,
 				       num_rec * sizeof(ib_sminfo_record_t) +
 				       IB_SA_MAD_HDR_SIZE, &p_madw->mad_addr);
 
@@ -422,8 +410,7 @@ void osm_smir_rcv_process(IN void *ctx, IN void *data)
 			free(p_rec_item);
 		}
 
-		osm_sa_send_error(sa, p_madw,
-				  IB_SA_MAD_STATUS_NO_RESOURCES);
+		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_NO_RESOURCES);
 
 		goto Exit;
 	}

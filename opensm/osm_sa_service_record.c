@@ -234,7 +234,7 @@ __osm_sr_rcv_respond(IN osm_sa_t * sa,
 	 * C15-0.1.30:
 	 * If we do a SubnAdmGet and got more than one record it is an error !
 	 */
-	if ((p_rcvd_mad->method == IB_MAD_METHOD_GET) && (num_rec > 1)) {
+	if (p_rcvd_mad->method == IB_MAD_METHOD_GET && num_rec > 1) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2406: "
 			"Got more than one record for SubnAdmGet (%u).\n",
 			num_rec);
@@ -270,8 +270,7 @@ __osm_sr_rcv_respond(IN osm_sa_t * sa,
 	/*
 	   Get a MAD to reply. Address of Mad is in the received mad_wrapper
 	 */
-	p_resp_madw = osm_mad_pool_get(sa->p_mad_pool,
-				       p_madw->h_bind,
+	p_resp_madw = osm_mad_pool_get(sa->p_mad_pool, p_madw->h_bind,
 				       num_rec * sizeof(ib_service_record_t) +
 				       IB_SA_MAD_HDR_SIZE, &p_madw->mad_addr);
 	if (!p_resp_madw) {
@@ -294,9 +293,8 @@ __osm_sr_rcv_respond(IN osm_sa_t * sa,
 	memcpy(p_resp_sa_mad, p_sa_mad, IB_SA_MAD_HDR_SIZE);
 
 	/* but what if it was a SET ? setting the response bit is not enough */
-	if (p_rcvd_mad->method == IB_MAD_METHOD_SET) {
+	if (p_rcvd_mad->method == IB_MAD_METHOD_SET)
 		p_resp_sa_mad->method = IB_MAD_METHOD_GET;
-	}
 	p_resp_sa_mad->method |= IB_MAD_METHOD_RESP_MASK;
 	/* C15-0.1.5 - always return SM_Key = 0 (table 185 p 884) */
 	p_resp_sa_mad->sm_key = 0;
@@ -648,13 +646,12 @@ osm_sr_rcv_process_get_method(IN osm_sa_t * sa,
 
 	cl_plock_release(sa->p_lock);
 
-	if ((p_sa_mad->method == IB_MAD_METHOD_GET) &&
-	    (cl_qlist_count(&sr_match_item.sr_list) == 0)) {
+	if (p_sa_mad->method == IB_MAD_METHOD_GET &&
+	    cl_qlist_count(&sr_match_item.sr_list) == 0) {
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"No records matched the Service Record query\n");
 
-		osm_sa_send_error(sa, p_madw,
-				  IB_SA_MAD_STATUS_NO_RECORDS);
+		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_NO_RECORDS);
 		goto Exit;
 	}
 
@@ -672,7 +669,6 @@ osm_sr_rcv_process_set_method(IN osm_sa_t * sa,
 			      IN const osm_madw_t * const p_madw)
 {
 	ib_sa_mad_t *p_sa_mad;
-	ib_net16_t sa_status = IB_SA_MAD_STATUS_REQ_INVALID;
 	ib_service_record_t *p_recvd_service_rec;
 	ib_net64_t comp_mask;
 	osm_svcr_t *p_svcr;
@@ -698,7 +694,7 @@ osm_sr_rcv_process_set_method(IN osm_sa_t * sa,
 	    (IB_SR_COMPMASK_SID | IB_SR_COMPMASK_SGID)) {
 		OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
 			"Component Mask RID check failed for METHOD_SET\n");
-		osm_sa_send_error(sa, p_madw, sa_status);
+		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_REQ_INVALID);
 		goto Exit;
 	}
 
@@ -756,8 +752,7 @@ osm_sr_rcv_process_set_method(IN osm_sa_t * sa,
 	if (p_sr_item == NULL) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2412: "
 			"Unable to acquire Service record\n");
-		osm_sa_send_error(sa, p_madw,
-				  IB_SA_MAD_STATUS_NO_RESOURCES);
+		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_NO_RESOURCES);
 		goto Exit;
 	}
 
@@ -775,7 +770,6 @@ osm_sr_rcv_process_set_method(IN osm_sa_t * sa,
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);
-	return;
 }
 
 /**********************************************************************
@@ -817,8 +811,7 @@ osm_sr_rcv_process_delete_method(IN osm_sa_t * sa,
 		cl_plock_release(sa->p_lock);
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"No records matched the RID\n");
-		osm_sa_send_error(sa, p_madw,
-				  IB_SA_MAD_STATUS_NO_RECORDS);
+		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_NO_RECORDS);
 		goto Exit;
 	} else {
 		osm_svcr_remove_from_db(sa->p_subn, sa->p_log, p_svcr);
@@ -830,8 +823,7 @@ osm_sr_rcv_process_delete_method(IN osm_sa_t * sa,
 	if (p_sr_item == NULL) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2413: "
 			"Unable to acquire Service record\n");
-		osm_sa_send_error(sa, p_madw,
-				  IB_SA_MAD_STATUS_NO_RESOURCES);
+		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_NO_RESOURCES);
 		goto Exit;
 	}
 
@@ -858,7 +850,6 @@ void osm_sr_rcv_process(IN void *context, IN void *data)
 	osm_sa_t *sa = context;
 	osm_madw_t *p_madw = data;
 	ib_sa_mad_t *p_sa_mad;
-	ib_net16_t sa_status = IB_SA_MAD_STATUS_REQ_INVALID;
 	boolean_t valid;
 
 	OSM_LOG_ENTER(sa->p_log);
@@ -875,7 +866,8 @@ void osm_sr_rcv_process(IN void *context, IN void *data)
 		if (!valid) {
 			OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
 				"Component Mask check failed for set request\n");
-			osm_sa_send_error(sa, p_madw, sa_status);
+			osm_sa_send_error(sa, p_madw,
+					  IB_SA_MAD_STATUS_REQ_INVALID);
 			goto Exit;
 		}
 		osm_sr_rcv_process_set_method(sa, p_madw);
@@ -885,7 +877,8 @@ void osm_sr_rcv_process(IN void *context, IN void *data)
 		if (!valid) {
 			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 				"Component Mask check failed for delete request\n");
-			osm_sa_send_error(sa, p_madw, sa_status);
+			osm_sa_send_error(sa, p_madw,
+					  IB_SA_MAD_STATUS_REQ_INVALID);
 			goto Exit;
 		}
 		osm_sr_rcv_process_delete_method(sa, p_madw);
@@ -898,14 +891,12 @@ void osm_sr_rcv_process(IN void *context, IN void *data)
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Unsupported Method (%s)\n",
 			ib_get_sa_method_str(p_sa_mad->method));
-		osm_sa_send_error(sa, p_madw,
-				  IB_MAD_STATUS_UNSUP_METHOD_ATTR);
+		osm_sa_send_error(sa, p_madw, IB_MAD_STATUS_UNSUP_METHOD_ATTR);
 		break;
 	}
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);
-	return;
 }
 
 /**********************************************************************

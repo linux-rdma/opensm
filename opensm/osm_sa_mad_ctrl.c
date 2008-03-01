@@ -131,7 +131,7 @@ __osm_sa_mad_ctrl_process(IN osm_sa_mad_ctrl_t * const p_ctrl,
 			num_messages, last_dispatched_msg_queue_time_msec);
 
 		/* send a busy response */
-		/*    osm_sa_send_error( p_ctrl->p_resp, p_madw, IB_RESOURCE_BUSY ); */
+		/* osm_sa_send_error(p_ctrl->p_resp, p_madw, IB_RESOURCE_BUSY); */
 
 		/* return the request to the pool */
 		osm_mad_pool_put(p_ctrl->p_mad_pool, p_madw);

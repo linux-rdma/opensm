@@ -108,7 +108,6 @@ static osm_mgrp_t *__get_mgrp_by_mlid(IN osm_sa_t * sa,
 		return NULL;
 	}
 	return (osm_mgrp_t *) map_item;
-
 }
 
 /*********************************************************************
@@ -247,19 +246,15 @@ re-route it.
 static void
 __cleanup_mgrp(IN osm_sa_t * sa, IN ib_net16_t const mlid)
 {
-	osm_mgrp_t *p_mgrp;
+	osm_mgrp_t *p_mgrp = __get_mgrp_by_mlid(sa, mlid);
 
-	p_mgrp = __get_mgrp_by_mlid(sa, mlid);
-	if (p_mgrp) {
-		/* Remove MGRP only if osm_mcm_port_t count is 0 and
-		 * Not a well known group
-		 */
-		if (cl_is_qmap_empty(&p_mgrp->mcm_port_tbl) &&
-		    (p_mgrp->well_known == FALSE)) {
-			cl_qmap_remove_item(&sa->p_subn->mgrp_mlid_tbl,
-					    (cl_map_item_t *) p_mgrp);
-			osm_mgrp_delete(p_mgrp);
-		}
+	/* Remove MGRP only if osm_mcm_port_t count is 0 and
+	 * Not a well known group */
+	if (p_mgrp && cl_is_qmap_empty(&p_mgrp->mcm_port_tbl) &&
+	    p_mgrp->well_known == FALSE) {
+		cl_qmap_remove_item(&sa->p_subn->mgrp_mlid_tbl,
+				    (cl_map_item_t *) p_mgrp);
+		osm_mgrp_delete(p_mgrp);
 	}
 }
 
@@ -280,8 +275,7 @@ __add_new_mgrp_port(IN osm_sa_t * sa,
 
 	/* set the proxy_join if the requester gid is not identical to the
 	   joined gid */
-	res = osm_get_gid_by_mad_addr(sa->p_log,
-				      sa->p_subn,
+	res = osm_get_gid_by_mad_addr(sa->p_log, sa->p_subn,
 				      p_mad_addr, &requester_gid);
 	if (res != IB_SUCCESS) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B29: "
@@ -331,9 +325,8 @@ static inline boolean_t
 __check_create_comp_mask(ib_net64_t comp_mask,
 			 ib_member_rec_t * p_recvd_mcmember_rec)
 {
-	return (((comp_mask & REQUIRED_MC_CREATE_COMP_MASK) ==
-		 REQUIRED_MC_CREATE_COMP_MASK)
-	    );
+	return ((comp_mask & REQUIRED_MC_CREATE_COMP_MASK) ==
+		 REQUIRED_MC_CREATE_COMP_MASK);
 }
 
 /**********************************************************************
@@ -358,21 +351,20 @@ __osm_mcmr_rcv_respond(IN osm_sa_t * sa,
 				       sizeof(ib_member_rec_t) +
 				       IB_SA_MAD_HDR_SIZE,
 				       osm_madw_get_mad_addr_ptr(p_madw));
-	if (!p_resp_madw) {
+	if (!p_resp_madw)
 		goto Exit;
-	}
 
 	p_resp_sa_mad = (ib_sa_mad_t *) p_resp_madw->p_mad;
 	p_sa_mad = (ib_sa_mad_t *) p_madw->p_mad;
 	/*  Copy the MAD header back into the response mad */
 	memcpy(p_resp_sa_mad, p_sa_mad, IB_SA_MAD_HDR_SIZE);
 	/*  based on the current method decide about the response: */
-	if ((p_resp_sa_mad->method == IB_MAD_METHOD_GET) ||
-	    (p_resp_sa_mad->method == IB_MAD_METHOD_SET)) {
+	if (p_resp_sa_mad->method == IB_MAD_METHOD_GET ||
+	    p_resp_sa_mad->method == IB_MAD_METHOD_SET)
 		p_resp_sa_mad->method = IB_MAD_METHOD_GET_RESP;
-	} else if (p_resp_sa_mad->method == IB_MAD_METHOD_DELETE) {
+	else if (p_resp_sa_mad->method == IB_MAD_METHOD_DELETE)
 		p_resp_sa_mad->method |= IB_MAD_METHOD_RESP_MASK;
-	} else {
+	else {
 		CL_ASSERT(p_resp_sa_mad->method == 0);
 	}
 
@@ -398,7 +390,6 @@ __osm_mcmr_rcv_respond(IN osm_sa_t * sa,
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);
-	return;
 }
 
 /*********************************************************************
@@ -576,17 +567,15 @@ __validate_modify(IN osm_sa_t * sa,
 			return FALSE;
 		}
 
-		if (memcmp
-		    (&((*pp_mcm_port)->port_gid), &request_gid,
-		     sizeof(ib_gid_t))) {
+		if (memcmp(&((*pp_mcm_port)->port_gid), &request_gid,
+			   sizeof(ib_gid_t))) {
 			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 				"No ProxyJoin but different ports: stored:0x%016"
 				PRIx64 " request:0x%016" PRIx64 "\n",
 				cl_ntoh64((*pp_mcm_port)->port_gid.unicast.
 					  interface_id),
 				cl_ntoh64(p_mad_addr->addr_type.gsi.grh_info.
-					  src_gid.unicast.interface_id)
-			    );
+					  src_gid.unicast.interface_id));
 			return FALSE;
 		}
 	} else {
@@ -607,8 +596,7 @@ __validate_modify(IN osm_sa_t * sa,
 				cl_ntoh64((*pp_mcm_port)->port_gid.unicast.
 					  interface_id),
 				cl_ntoh64(p_mad_addr->addr_type.gsi.grh_info.
-					  src_gid.unicast.interface_id)
-			    );
+					  src_gid.unicast.interface_id));
 			return FALSE;
 		}
 	}
@@ -672,8 +660,7 @@ __validate_delete(IN osm_sa_t * sa,
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Some bits in the request JoinState (0x%X) are not set in the stored port (0x%X)\n",
 			(p_recvd_mcmember_rec->scope_state & 0x0F),
-			(0x0F & (*pp_mcm_port)->scope_state)
-		    );
+			(0x0F & (*pp_mcm_port)->scope_state));
 		return FALSE;
 	}
 
@@ -743,8 +730,7 @@ __validate_requested_mgid(IN osm_sa_t * sa,
 	if (p_mcm_rec->mgid.multicast.header[0] != 0xFF) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B01: "
 			"Wrong MGID Prefix 0x%02X must be 0xFF\n",
-			cl_ntoh16(p_mcm_rec->mgid.multicast.header[0])
-		    );
+			cl_ntoh16(p_mcm_rec->mgid.multicast.header[0]));
 		valid = FALSE;
 		goto Exit;
 	}
@@ -793,9 +779,9 @@ __validate_requested_mgid(IN osm_sa_t * sa,
 
 	/* 2 - now what if the link local format 0xA01B is used -
 	   the scope should not be link local */
-	if ((signature == 0xA01B) &&
-	    ((p_mcm_rec->mgid.multicast.header[1] & 0x0F) ==
-	     IB_MC_SCOPE_LINK_LOCAL)) {
+	if (signature == 0xA01B &&
+	    (p_mcm_rec->mgid.multicast.header[1] & 0x0F) ==
+	     IB_MC_SCOPE_LINK_LOCAL) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B24: "
 			"MGID uses 0xA01B signature but with link-local scope\n");
 		valid = FALSE;
@@ -1211,7 +1197,6 @@ __osm_mcmr_rcv_leave_mgrp(IN osm_sa_t * sa,
 	ib_member_rec_t *p_recvd_mcmember_rec;
 	ib_member_rec_t mcmember_rec;
 	ib_net16_t mlid;
-	ib_net16_t sa_status;
 	ib_net64_t portguid;
 	osm_mcm_port_t *p_mcm_port;
 	uint8_t port_join_state;
@@ -1238,8 +1223,7 @@ __osm_mcmr_rcv_leave_mgrp(IN osm_sa_t * sa,
 		portguid = p_recvd_mcmember_rec->port_gid.unicast.interface_id;
 
 		/* check validity of the delete request o15-0.1.14 */
-		valid = __validate_delete(sa,
-					  p_mgrp,
+		valid = __validate_delete(sa, p_mgrp,
 					  osm_madw_get_mad_addr_ptr(p_madw),
 					  p_recvd_mcmember_rec, &p_mcm_port);
 
@@ -1299,16 +1283,15 @@ __osm_mcmr_rcv_leave_mgrp(IN osm_sa_t * sa,
 					  unicast.prefix),
 				cl_ntoh64(p_recvd_mcmember_rec->port_gid.
 					  unicast.interface_id));
-			sa_status = IB_SA_MAD_STATUS_REQ_INVALID;
-			osm_sa_send_error(sa, p_madw, sa_status);
+			osm_sa_send_error(sa, p_madw,
+					  IB_SA_MAD_STATUS_REQ_INVALID);
 			goto Exit;
 		}
 	} else {
 		CL_PLOCK_RELEASE(sa->p_lock);
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Failed since multicast group not present\n");
-		sa_status = IB_SA_MAD_STATUS_REQ_INVALID;
-		osm_sa_send_error(sa, p_madw, sa_status);
+		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_REQ_INVALID);
 		goto Exit;
 	}
 
@@ -1317,7 +1300,6 @@ __osm_mcmr_rcv_leave_mgrp(IN osm_sa_t * sa,
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);
-	return;
 }
 
 /**********************************************************************
@@ -1333,7 +1315,6 @@ __osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa,
 	ib_sa_mad_t *p_sa_mad;
 	ib_member_rec_t *p_recvd_mcmember_rec;
 	ib_member_rec_t mcmember_rec;
-	ib_net16_t sa_status;
 	ib_net16_t mlid;
 	osm_mcm_port_t *p_mcmr_port;
 	ib_net64_t portguid;
@@ -1369,8 +1350,7 @@ __osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa,
 
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Unknown port GUID 0x%016" PRIx64 "\n", portguid);
-		sa_status = IB_SA_MAD_STATUS_REQ_INVALID;
-		osm_sa_send_error(sa, p_madw, sa_status);
+		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_REQ_INVALID);
 		goto Exit;
 	}
 
@@ -1391,8 +1371,7 @@ __osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa,
 
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Port and requester don't share pkey\n");
-		sa_status = IB_SA_MAD_STATUS_REQ_INVALID;
-		osm_sa_send_error(sa, p_madw, sa_status);
+		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_REQ_INVALID);
 		goto Exit;
 	}
 
@@ -1401,7 +1380,7 @@ __osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa,
 
 	/* do we need to create a new group? */
 	status = osm_get_mgrp_by_mgid(sa, &p_recvd_mcmember_rec->mgid, &p_mgrp);
-	if ((status == IB_NOT_FOUND) || p_mgrp->to_be_deleted) {
+	if (status == IB_NOT_FOUND || p_mgrp->to_be_deleted) {
 		/* check for JoinState.FullMember = 1 o15.0.1.9 */
 		if ((join_state & 0x01) != 0x01) {
 			CL_PLOCK_RELEASE(sa->p_lock);
@@ -1415,8 +1394,8 @@ __osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa,
 				cl_ntoh64(p_recvd_mcmember_rec->mgid.unicast.
 					  interface_id), cl_ntoh64(portguid),
 				p_port->p_node->print_desc);
-			sa_status = IB_SA_MAD_STATUS_REQ_INVALID;
-			osm_sa_send_error(sa, p_madw, sa_status);
+			osm_sa_send_error(sa, p_madw,
+					  IB_SA_MAD_STATUS_REQ_INVALID);
 			goto Exit;
 		}
 
@@ -1431,9 +1410,7 @@ __osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa,
 							      p_physp, &p_mgrp);
 			if (status != IB_SUCCESS) {
 				CL_PLOCK_RELEASE(sa->p_lock);
-				sa_status = status;
-				osm_sa_send_error(sa, p_madw,
-						  sa_status);
+				osm_sa_send_error(sa, p_madw, status);
 				goto Exit;
 			}
 			/* copy the MGID to the result */
@@ -1457,8 +1434,8 @@ __osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa,
 					  interface_id), cl_ntoh64(portguid),
 				p_port->p_node->print_desc);
 
-			sa_status = IB_SA_MAD_STATUS_INSUF_COMPS;
-			osm_sa_send_error(sa, p_madw, sa_status);
+			osm_sa_send_error(sa, p_madw,
+					  IB_SA_MAD_STATUS_INSUF_COMPS);
 			goto Exit;
 		}
 		is_new_group = 1;
@@ -1510,8 +1487,7 @@ __osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa,
 			" (%s), " "sending IB_SA_MAD_STATUS_REQ_INVALID\n",
 			cl_ntoh64(portguid), p_port->p_node->print_desc);
 
-		sa_status = IB_SA_MAD_STATUS_REQ_INVALID;
-		osm_sa_send_error(sa, p_madw, sa_status);
+		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_REQ_INVALID);
 		goto Exit;
 	}
 
@@ -1523,8 +1499,7 @@ __osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa,
 		 * o15-0.2.1 requires validation of the requesting port
 		 * in the case of modification:
 		 */
-		valid = __validate_modify(sa,
-					  p_mgrp,
+		valid = __validate_modify(sa, p_mgrp,
 					  osm_madw_get_mad_addr_ptr(p_madw),
 					  p_recvd_mcmember_rec, &p_mcmr_port);
 		if (!valid) {
@@ -1537,8 +1512,8 @@ __osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa,
 				cl_ntoh64(portguid),
 				p_port->p_node->print_desc);
 
-			sa_status = IB_SA_MAD_STATUS_REQ_INVALID;
-			osm_sa_send_error(sa, p_madw, sa_status);
+			osm_sa_send_error(sa, p_madw,
+					  IB_SA_MAD_STATUS_REQ_INVALID);
 			goto Exit;
 		}
 	}
@@ -1555,12 +1530,10 @@ __osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa,
 		__cleanup_mgrp(sa, mlid);
 
 		CL_PLOCK_RELEASE(sa->p_lock);
-		if (status == IB_INVALID_PARAMETER)
-			sa_status = IB_SA_MAD_STATUS_REQ_INVALID;
-		else
-			sa_status = IB_SA_MAD_STATUS_NO_RESOURCES;
 
-		osm_sa_send_error(sa, p_madw, sa_status);
+		osm_sa_send_error(sa, p_madw, status == IB_INVALID_PARAMETER ?
+				  IB_SA_MAD_STATUS_REQ_INVALID :
+				  IB_SA_MAD_STATUS_NO_RESOURCES);
 		goto Exit;
 	}
 
@@ -1574,11 +1547,9 @@ __osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa,
 	CL_PLOCK_RELEASE(sa->p_lock);
 
 	/* do the actual routing (actually schedule the update) */
-	status =
-	    osm_sm_mcgrp_join(sa->sm,
-			      mlid,
-			      p_recvd_mcmember_rec->port_gid.unicast.
-			      interface_id, req_type);
+	status = osm_sm_mcgrp_join(sa->sm, mlid,
+				   p_recvd_mcmember_rec->port_gid.unicast.
+				   interface_id, req_type);
 
 	if (status != IB_SUCCESS) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B14: "
@@ -1599,8 +1570,7 @@ __osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa,
 			__cleanup_mgrp(sa, mlid);
 		}
 		CL_PLOCK_RELEASE(sa->p_lock);
-		sa_status = IB_SA_MAD_STATUS_NO_RESOURCES;
-		osm_sa_send_error(sa, p_madw, sa_status);
+		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_NO_RESOURCES);
 		goto Exit;
 
 	}
@@ -1612,7 +1582,6 @@ __osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa,
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);
-	return;
 }
 
 /**********************************************************************
@@ -1706,15 +1675,15 @@ __osm_sa_mcm_by_comp_mask_cb(IN cl_map_item_t * const p_map_item,
 
 	/* now do the rest of the match */
 	if ((IB_MCR_COMPMASK_QKEY & comp_mask) &&
-	    (p_rcvd_rec->qkey != p_mgrp->mcmember_rec.qkey))
+	    p_rcvd_rec->qkey != p_mgrp->mcmember_rec.qkey)
 		goto Exit;
 
 	if ((IB_MCR_COMPMASK_PKEY & comp_mask) &&
-	    (p_rcvd_rec->pkey != p_mgrp->mcmember_rec.pkey))
+	    p_rcvd_rec->pkey != p_mgrp->mcmember_rec.pkey)
 		goto Exit;
 
 	if ((IB_MCR_COMPMASK_TCLASS & comp_mask) &&
-	    (p_rcvd_rec->tclass != p_mgrp->mcmember_rec.tclass))
+	    p_rcvd_rec->tclass != p_mgrp->mcmember_rec.tclass)
 		goto Exit;
 
 	/* check SL, Flow, and Hop limit */
@@ -1729,26 +1698,24 @@ __osm_sa_mcm_by_comp_mask_cb(IN cl_map_item_t * const p_map_item,
 		ib_member_get_sl_flow_hop(p_mgrp->mcmember_rec.sl_flow_hop,
 					  &mgrp_sl, &mgrp_flow, &mgrp_hop);
 
-		if (IB_MCR_COMPMASK_SL & comp_mask)
-			if (query_sl != mgrp_sl)
-				goto Exit;
+		if ((IB_MCR_COMPMASK_SL & comp_mask) && query_sl != mgrp_sl)
+			goto Exit;
 
-		if (IB_MCR_COMPMASK_FLOW & comp_mask)
-			if (query_flow != mgrp_flow)
-				goto Exit;
+		if ((IB_MCR_COMPMASK_FLOW & comp_mask) &&
+		     query_flow != mgrp_flow)
+			goto Exit;
 
-		if (IB_MCR_COMPMASK_HOP & comp_mask)
-			if (query_hop != mgrp_hop)
-				goto Exit;
+		if ((IB_MCR_COMPMASK_HOP & comp_mask) && query_hop != mgrp_hop)
+			goto Exit;
 	}
 
 	if ((IB_MCR_COMPMASK_PROXY & comp_mask) &&
-	    (p_rcvd_rec->proxy_join != p_mgrp->mcmember_rec.proxy_join))
+	    p_rcvd_rec->proxy_join != p_mgrp->mcmember_rec.proxy_join)
 		goto Exit;
 
 	/* need to validate mtu, rate, and pkt_lifetime fields */
-	if (__validate_more_comp_fields(sa->p_log,
-					p_mgrp, p_rcvd_rec, comp_mask) == FALSE)
+	if (__validate_more_comp_fields(sa->p_log, p_mgrp, p_rcvd_rec,
+					comp_mask) == FALSE)
 		goto Exit;
 
 	/* Port specific fields */
@@ -1776,7 +1743,7 @@ __osm_sa_mcm_by_comp_mask_cb(IN cl_map_item_t * const p_map_item,
 		scope_state_mask = scope_state_mask | 0x0F;
 
 	/* Many MC records returned */
-	if ((p_ctxt->trusted_req == TRUE)
+	if (p_ctxt->trusted_req == TRUE
 	    && !(IB_MCR_COMPMASK_PORT_GID & comp_mask)) {
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Trusted req is TRUE and no specific port defined\n");
@@ -1802,8 +1769,7 @@ __osm_sa_mcm_by_comp_mask_cb(IN cl_map_item_t * const p_map_item,
 						  prefix),
 					cl_ntoh64(match_rec.port_gid.unicast.
 						  interface_id),
-					cl_ntoh16(p_mgrp->mlid)
-				    );
+					cl_ntoh16(p_mgrp->mlid));
 
 				match_rec.proxy_join =
 				    (uint8_t) (p_mcm_port->proxy_join);
@@ -1870,8 +1836,7 @@ __osm_mcmr_query_mgrp(IN osm_sa_t * sa,
 	trusted_req = (p_rcvd_mad->sm_key != 0);
 
 	/* update the requester physical port. */
-	p_req_physp = osm_get_physp_by_mad_addr(sa->p_log,
-						sa->p_subn,
+	p_req_physp = osm_get_physp_by_mad_addr(sa->p_log, sa->p_subn,
 						osm_madw_get_mad_addr_ptr
 						(p_madw));
 	if (p_req_physp == NULL) {
@@ -1903,7 +1868,7 @@ __osm_mcmr_query_mgrp(IN osm_sa_t * sa,
 	 * C15-0.1.30:
 	 * If we do a SubnAdmGet and got more than one record it is an error !
 	 */
-	if ((p_rcvd_mad->method == IB_MAD_METHOD_GET) && (num_rec > 1)) {
+	if (p_rcvd_mad->method == IB_MAD_METHOD_GET && num_rec > 1) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B05: "
 			"Got more than one record for SubnAdmGet (%u)\n",
 			num_rec);
@@ -1937,17 +1902,15 @@ __osm_mcmr_query_mgrp(IN osm_sa_t * sa,
 
 	OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Returning %u records\n", num_rec);
 
-	if ((p_rcvd_mad->method == IB_MAD_METHOD_GET) && (num_rec == 0)) {
-		osm_sa_send_error(sa, p_madw,
-				  IB_SA_MAD_STATUS_NO_RECORDS);
+	if (p_rcvd_mad->method == IB_MAD_METHOD_GET && num_rec == 0) {
+		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_NO_RECORDS);
 		goto Exit;
 	}
 
 	/*
 	 * Get a MAD to reply. Address of Mad is in the received mad_wrapper
 	 */
-	p_resp_madw = osm_mad_pool_get(sa->p_mad_pool,
-				       p_madw->h_bind,
+	p_resp_madw = osm_mad_pool_get(sa->p_mad_pool, p_madw->h_bind,
 				       num_rec * sizeof(ib_member_rec_t) +
 				       IB_SA_MAD_HDR_SIZE,
 				       osm_madw_get_mad_addr_ptr(p_madw));
@@ -1962,8 +1925,7 @@ __osm_mcmr_query_mgrp(IN osm_sa_t * sa,
 			free(p_rec_item);
 		}
 
-		osm_sa_send_error(sa, p_madw,
-				  IB_SA_MAD_STATUS_NO_RESOURCES);
+		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_NO_RESOURCES);
 		goto Exit;
 	}
 
@@ -2042,7 +2004,6 @@ void osm_mcmr_rcv_process(IN void *context, IN void *data)
 	osm_sa_t *sa = context;
 	osm_madw_t *p_madw = data;
 	ib_sa_mad_t *p_sa_mad;
-	ib_net16_t sa_status = IB_SA_MAD_STATUS_REQ_INVALID;
 	ib_member_rec_t *p_recvd_mcmember_rec;
 	boolean_t valid;
 
@@ -2078,7 +2039,8 @@ void osm_mcmr_rcv_process(IN void *context, IN void *data)
 				cl_ntoh64(p_recvd_mcmember_rec->port_gid.
 					  unicast.interface_id));
 
-			osm_sa_send_error(sa, p_madw, sa_status);
+			osm_sa_send_error(sa, p_madw,
+					  IB_SA_MAD_STATUS_REQ_INVALID);
 			goto Exit;
 		}
 
@@ -2096,7 +2058,8 @@ void osm_mcmr_rcv_process(IN void *context, IN void *data)
 				cl_ntoh64(p_sa_mad->comp_mask),
 				CL_NTOH64(JOIN_MC_COMP_MASK));
 
-			osm_sa_send_error(sa, p_madw, sa_status);
+			osm_sa_send_error(sa, p_madw,
+					  IB_SA_MAD_STATUS_REQ_INVALID);
 			goto Exit;
 		}
 
