@@ -211,158 +211,25 @@ Exit:
  **********************************************************************/
 static void
 __osm_sr_rcv_respond(IN osm_sa_t * sa,
-		     IN const osm_madw_t * const p_madw,
+		     IN osm_madw_t * const p_madw,
 		     IN cl_qlist_t * const p_list)
 {
-	osm_madw_t *p_resp_madw;
-	const ib_sa_mad_t *p_sa_mad;
-	ib_sa_mad_t *p_resp_sa_mad;
-	uint32_t num_rec, num_copied;
-#ifndef VENDOR_RMPP_SUPPORT
-	uint32_t trim_num_rec;
-#endif
-	ib_service_record_t *p_resp_sr;
-	osm_sr_item_t *p_sr_item;
-	const ib_sa_mad_t *p_rcvd_mad = osm_madw_get_sa_mad_ptr(p_madw);
-	boolean_t trusted_req = TRUE;
-
-	OSM_LOG_ENTER(sa->p_log);
-
-	num_rec = cl_qlist_count(p_list);
-
-	/*
-	 * C15-0.1.30:
-	 * If we do a SubnAdmGet and got more than one record it is an error !
+	/* p923 - The ServiceKey shall be set to 0, except in the case of
+	   a trusted request.
+	   Note: In the mad controller we check that the SM_Key received on
+	   the mad is valid. Meaning - is either zero or equal to the local
+	   sm_key.
 	 */
-	if (p_rcvd_mad->method == IB_MAD_METHOD_GET && num_rec > 1) {
-		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2406: "
-			"Got more than one record for SubnAdmGet (%u).\n",
-			num_rec);
-		osm_sa_send_error(sa, p_madw,
-				  IB_SA_MAD_STATUS_TOO_MANY_RECORDS);
-
-		/* need to set the mem free ... */
-		p_sr_item = (osm_sr_item_t *) cl_qlist_remove_head(p_list);
-		while (p_sr_item != (osm_sr_item_t *) cl_qlist_end(p_list)) {
-			free(p_sr_item);
-			p_sr_item =
-			    (osm_sr_item_t *) cl_qlist_remove_head(p_list);
-		}
-
-		goto Exit;
-	}
-#ifndef VENDOR_RMPP_SUPPORT
-	trim_num_rec =
-	    (MAD_BLOCK_SIZE - IB_SA_MAD_HDR_SIZE) / sizeof(ib_service_record_t);
-	if (trim_num_rec < num_rec) {
-		OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
-			"Number of records:%u trimmed to:%u to fit in one MAD\n",
-			num_rec, trim_num_rec);
-		num_rec = trim_num_rec;
-	}
-#endif
-
-	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG)) {
-		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-			"Generating response with %u records\n", num_rec);
+	if (!osm_madw_get_sa_mad_ptr(p_madw)->sm_key) {
+		osm_sr_item_t *item;
+		for (item = (osm_sr_item_t *) cl_qlist_head(p_list);
+		     item != (osm_sr_item_t *) cl_qlist_end(p_list);
+		     item = (osm_sr_item_t *)cl_qlist_next(&item->list_item))
+			memset(item->service_rec.service_key, 0,
+			       sizeof(item->service_rec.service_key));
 	}
 
-	/*
-	   Get a MAD to reply. Address of Mad is in the received mad_wrapper
-	 */
-	p_resp_madw = osm_mad_pool_get(sa->p_mad_pool, p_madw->h_bind,
-				       num_rec * sizeof(ib_service_record_t) +
-				       IB_SA_MAD_HDR_SIZE, &p_madw->mad_addr);
-	if (!p_resp_madw) {
-		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2402: "
-			"Unable to allocate MAD\n");
-		/* Release the quick pool items */
-		p_sr_item = (osm_sr_item_t *) cl_qlist_remove_head(p_list);
-		while (p_sr_item != (osm_sr_item_t *) cl_qlist_end(p_list)) {
-			free(p_sr_item);
-			p_sr_item =
-			    (osm_sr_item_t *) cl_qlist_remove_head(p_list);
-		}
-
-		goto Exit;
-	}
-
-	p_sa_mad = osm_madw_get_sa_mad_ptr(p_madw);
-	p_resp_sa_mad = osm_madw_get_sa_mad_ptr(p_resp_madw);
-
-	memcpy(p_resp_sa_mad, p_sa_mad, IB_SA_MAD_HDR_SIZE);
-
-	/* but what if it was a SET ? setting the response bit is not enough */
-	if (p_rcvd_mad->method == IB_MAD_METHOD_SET)
-		p_resp_sa_mad->method = IB_MAD_METHOD_GET;
-	p_resp_sa_mad->method |= IB_MAD_METHOD_RESP_MASK;
-	/* C15-0.1.5 - always return SM_Key = 0 (table 185 p 884) */
-	p_resp_sa_mad->sm_key = 0;
-
-	/* Fill in the offset (paylen will be done by the rmpp SAR) */
-	p_resp_sa_mad->attr_offset =
-	    ib_get_attr_offset(sizeof(ib_service_record_t));
-
-#ifndef VENDOR_RMPP_SUPPORT
-	/* we support only one packet RMPP - so we will set the first and
-	   last flags for gettable */
-	if (p_resp_sa_mad->method == IB_MAD_METHOD_GETTABLE_RESP) {
-		p_resp_sa_mad->rmpp_type = IB_RMPP_TYPE_DATA;
-		p_resp_sa_mad->rmpp_flags =
-		    IB_RMPP_FLAG_FIRST | IB_RMPP_FLAG_LAST |
-		    IB_RMPP_FLAG_ACTIVE;
-	}
-#else
-	/* forcefully define the packet as RMPP one */
-	if (p_resp_sa_mad->method == IB_MAD_METHOD_GETTABLE_RESP)
-		p_resp_sa_mad->rmpp_flags = IB_RMPP_FLAG_ACTIVE;
-#endif
-
-	p_resp_sr =
-	    (ib_service_record_t *) ib_sa_mad_get_payload_ptr(p_resp_sa_mad);
-
-	if (p_resp_sa_mad->method != IB_MAD_METHOD_GETTABLE_RESP &&
-	    num_rec == 0) {
-		p_resp_sa_mad->status = IB_SA_MAD_STATUS_NO_RECORDS;
-		memset(p_resp_sr, 0, sizeof(*p_resp_sr));
-	} else {
-		/*
-		   p923 - The ServiceKey shall be set to 0, except in the case of a trusted
-		   request.
-		   Note: In the mad controller we check that the SM_Key received on
-		   the mad is valid. Meaning - is either zero or equal to the local
-		   sm_key.
-		 */
-		if (p_sa_mad->sm_key == 0)
-			trusted_req = FALSE;
-
-		p_sr_item = (osm_sr_item_t *) cl_qlist_remove_head(p_list);
-
-		/* we need to track the number of copied items so we can
-		 * stop the copy - but clear them all
-		 */
-		num_copied = 0;
-		while (p_sr_item != (osm_sr_item_t *) cl_qlist_end(p_list)) {
-			/*  Copy the Link Records from the list into the MAD */
-			if (num_copied < num_rec) {
-				*p_resp_sr = p_sr_item->service_rec;
-				if (trusted_req == FALSE)
-					memset(p_resp_sr->service_key, 0,
-					       sizeof(p_resp_sr->service_key));
-
-				num_copied++;
-			}
-			free(p_sr_item);
-			p_resp_sr++;
-			p_sr_item =
-			    (osm_sr_item_t *) cl_qlist_remove_head(p_list);
-		}
-	}
-
-	osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE, sa->p_subn);
-
-Exit:
-	OSM_LOG_EXIT(sa->p_log);
+	osm_sa_respond(sa, p_madw, sizeof(ib_service_record_t), p_list);
 }
 
 /**********************************************************************
@@ -598,7 +465,7 @@ Exit:
  **********************************************************************/
 static void
 osm_sr_rcv_process_get_method(IN osm_sa_t * sa,
-			      IN const osm_madw_t * const p_madw)
+			      IN osm_madw_t * const p_madw)
 {
 	ib_sa_mad_t *p_sa_mad;
 	ib_service_record_t *p_recvd_service_rec;
@@ -666,7 +533,7 @@ Exit:
  **********************************************************************/
 static void
 osm_sr_rcv_process_set_method(IN osm_sa_t * sa,
-			      IN const osm_madw_t * const p_madw)
+			      IN osm_madw_t * const p_madw)
 {
 	ib_sa_mad_t *p_sa_mad;
 	ib_service_record_t *p_recvd_service_rec;
@@ -776,7 +643,7 @@ Exit:
  **********************************************************************/
 static void
 osm_sr_rcv_process_delete_method(IN osm_sa_t * sa,
-				 IN const osm_madw_t * const p_madw)
+				 IN osm_madw_t * const p_madw)
 {
 	ib_sa_mad_t *p_sa_mad;
 	ib_service_record_t *p_recvd_service_rec;

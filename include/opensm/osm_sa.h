@@ -398,6 +398,37 @@ osm_sa_send_error(IN osm_sa_t * sa,
 *	SA object
 *********/
 
+/****f* OpenSM: SA/osm_sa_respond
+* NAME
+*	osm_sa_respond
+*
+* DESCRIPTION
+*	Sends SA MAD response
+*/
+void osm_sa_respond(osm_sa_t *sa, osm_madw_t *madw, size_t attr_size,
+		    cl_qlist_t *list);
+/*
+* PARAMETERS
+*	sa
+*		[in] Pointer to an osm_sa_t object.
+*
+*	p_madw
+*		[in] Original MAD to which the response must be sent.
+*
+*	attr_size
+*		[in] Size of this SA attribute.
+*
+*	list
+*		[in] List of attribute to respond - it will be freed after
+*		sending.
+*
+* RETURN VALUES
+*	None.
+*
+* SEE ALSO
+*	SA object
+*********/
+
 struct _osm_opensm_t;
 /****f* OpenSM: SA/osm_sa_db_file_dump
 * NAME

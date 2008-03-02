@@ -479,20 +479,10 @@ void osm_pir_rcv_process(IN void *ctx, IN void *data)
 	const osm_port_t *p_port = NULL;
 	const ib_port_info_t *p_pi;
 	cl_qlist_t rec_list;
-	osm_madw_t *p_resp_madw;
-	ib_sa_mad_t *p_resp_sa_mad;
-	ib_portinfo_record_t *p_resp_rec;
-	uint32_t num_rec, pre_trim_num_rec;
-#ifndef VENDOR_RMPP_SUPPORT
-	uint32_t trim_num_rec;
-#endif
-	uint32_t i;
 	osm_pir_search_ctxt_t context;
-	osm_pir_item_t *p_rec_item;
 	ib_api_status_t status = IB_SUCCESS;
 	ib_net64_t comp_mask;
 	osm_physp_t *p_req_physp;
-	boolean_t trusted_req = TRUE;
 
 	CL_ASSERT(sa);
 
@@ -587,115 +577,6 @@ void osm_pir_rcv_process(IN void *ctx, IN void *data)
 
 	cl_plock_release(sa->p_lock);
 
-	num_rec = cl_qlist_count(&rec_list);
-
-	/*
-	 * C15-0.1.30:
-	 * If we do a SubnAdmGet and got more than one record it is an error !
-	 */
-	if (p_rcvd_mad->method == IB_MAD_METHOD_GET) {
-		if (num_rec == 0) {
-			osm_sa_send_error(sa, p_madw,
-					  IB_SA_MAD_STATUS_NO_RECORDS);
-			goto Exit;
-		}
-		if (num_rec > 1) {
-			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2108: "
-				"Got more than one record for SubnAdmGet (%u)\n",
-				num_rec);
-			osm_sa_send_error(sa, p_madw,
-					  IB_SA_MAD_STATUS_TOO_MANY_RECORDS);
-
-			/* need to set the mem free ... */
-			p_rec_item =
-			    (osm_pir_item_t *) cl_qlist_remove_head(&rec_list);
-			while (p_rec_item !=
-			       (osm_pir_item_t *) cl_qlist_end(&rec_list)) {
-				free(p_rec_item);
-				p_rec_item = (osm_pir_item_t *)
-				    cl_qlist_remove_head(&rec_list);
-			}
-
-			goto Exit;
-		}
-	}
-
-	pre_trim_num_rec = num_rec;
-#ifndef VENDOR_RMPP_SUPPORT
-	trim_num_rec =
-	    (MAD_BLOCK_SIZE -
-	     IB_SA_MAD_HDR_SIZE) / sizeof(ib_portinfo_record_t);
-	if (trim_num_rec < num_rec) {
-		OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
-			"Number of records:%u trimmed to:%u to fit in one MAD\n",
-			num_rec, trim_num_rec);
-		num_rec = trim_num_rec;
-	}
-#endif
-
-	OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Returning %u records\n", num_rec);
-
-	if (p_rcvd_mad->method == IB_MAD_METHOD_GET && num_rec == 0) {
-		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_NO_RECORDS);
-		goto Exit;
-	}
-
-	/*
-	 * Get a MAD to reply. Address of Mad is in the received mad_wrapper
-	 */
-	p_resp_madw = osm_mad_pool_get(sa->p_mad_pool, p_madw->h_bind,
-				       num_rec * sizeof(ib_portinfo_record_t) +
-				       IB_SA_MAD_HDR_SIZE, &p_madw->mad_addr);
-
-	if (!p_resp_madw) {
-		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2106: "
-			"osm_mad_pool_get failed\n");
-
-		for (i = 0; i < num_rec; i++) {
-			p_rec_item =
-			    (osm_pir_item_t *) cl_qlist_remove_head(&rec_list);
-			free(p_rec_item);
-		}
-
-		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_NO_RESOURCES);
-
-		goto Exit;
-	}
-
-	p_resp_sa_mad = osm_madw_get_sa_mad_ptr(p_resp_madw);
-
-	/*
-	   Copy the MAD header back into the response mad.
-	   Set the 'R' bit and the payload length,
-	   Then copy all records from the list into the response payload.
-	 */
-
-	memcpy(p_resp_sa_mad, p_rcvd_mad, IB_SA_MAD_HDR_SIZE);
-	p_resp_sa_mad->method |= IB_MAD_METHOD_RESP_MASK;
-	/* C15-0.1.5 - always return SM_Key = 0 (table 185 p 884) */
-	p_resp_sa_mad->sm_key = 0;
-	/* Fill in the offset (paylen will be done by the rmpp SAR) */
-	p_resp_sa_mad->attr_offset =
-	    ib_get_attr_offset(sizeof(ib_portinfo_record_t));
-
-	p_resp_rec = (ib_portinfo_record_t *)
-	    ib_sa_mad_get_payload_ptr(p_resp_sa_mad);
-
-#ifndef VENDOR_RMPP_SUPPORT
-	/* we support only one packet RMPP - so we will set the first and
-	   last flags for gettable */
-	if (p_resp_sa_mad->method == IB_MAD_METHOD_GETTABLE_RESP) {
-		p_resp_sa_mad->rmpp_type = IB_RMPP_TYPE_DATA;
-		p_resp_sa_mad->rmpp_flags =
-		    IB_RMPP_FLAG_FIRST | IB_RMPP_FLAG_LAST |
-		    IB_RMPP_FLAG_ACTIVE;
-	}
-#else
-	/* forcefully define the packet as RMPP one */
-	if (p_resp_sa_mad->method == IB_MAD_METHOD_GETTABLE_RESP)
-		p_resp_sa_mad->rmpp_flags = IB_RMPP_FLAG_ACTIVE;
-#endif
-
 	/*
 	   p922 - The M_Key returned shall be zero, except in the case of a
 	   trusted request.
@@ -703,24 +584,15 @@ void osm_pir_rcv_process(IN void *ctx, IN void *data)
 	   the mad is valid. Meaning - is either zero or equal to the local
 	   sm_key.
 	 */
-	if (p_rcvd_mad->sm_key == 0)
-		trusted_req = FALSE;
-
-	for (i = 0; i < pre_trim_num_rec; i++) {
-		p_rec_item = (osm_pir_item_t *) cl_qlist_remove_head(&rec_list);
-		/* copy only if not trimmed */
-		if (i < num_rec) {
-			*p_resp_rec = p_rec_item->rec;
-			if (trusted_req == FALSE)
-				p_resp_rec->port_info.m_key = 0;
-		}
-		free(p_rec_item);
-		p_resp_rec++;
+	if (!p_rcvd_mad->sm_key) {
+		osm_pir_item_t *item;
+		for (item = (osm_pir_item_t *) cl_qlist_head(&rec_list);
+		     item != (osm_pir_item_t *) cl_qlist_end(&rec_list);
+		     item = (osm_pir_item_t *)cl_qlist_next(&item->list_item))
+			item->rec.port_info.m_key = 0;
 	}
 
-	CL_ASSERT(cl_is_qlist_empty(&rec_list));
-
-	osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE, sa->p_subn);
+	osm_sa_respond(sa, p_madw, sizeof(ib_portinfo_record_t), &rec_list);
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);

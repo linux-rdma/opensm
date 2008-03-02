@@ -69,10 +69,10 @@
 
 typedef struct _osm_mpr_item {
 	cl_list_item_t list_item;
+	ib_path_rec_t path_rec;
 	const osm_port_t *p_src_port;
 	const osm_port_t *p_dest_port;
 	int hops;
-	ib_path_rec_t path_rec;
 } osm_mpr_item_t;
 
 typedef struct _osm_path_parms {
@@ -1453,102 +1453,12 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-static void
-__osm_mpr_rcv_respond(IN osm_sa_t * sa,
-		      IN const osm_madw_t * const p_madw,
-		      IN cl_qlist_t * const p_list)
-{
-	osm_madw_t *p_resp_madw;
-	const ib_sa_mad_t *p_sa_mad;
-	ib_sa_mad_t *p_resp_sa_mad;
-	size_t num_rec;
-	size_t mad_size;
-	ib_path_rec_t *p_resp_pr;
-	ib_multipath_rec_t *p_mpr;
-	osm_mpr_item_t *p_mpr_item;
-	uint32_t i;
-
-	OSM_LOG_ENTER(sa->p_log);
-
-	p_sa_mad = osm_madw_get_sa_mad_ptr(p_madw);
-	p_mpr = (ib_multipath_rec_t *) ib_sa_mad_get_payload_ptr(p_sa_mad);
-
-	num_rec = cl_qlist_count(p_list);
-
-	OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-		"Generating response with %zu records\n", num_rec);
-
-	mad_size = IB_SA_MAD_HDR_SIZE + num_rec * sizeof(ib_path_rec_t);
-
-	/*
-	   Get a MAD to reply. Address of Mad is in the received mad_wrapper
-	 */
-	p_resp_madw = osm_mad_pool_get(sa->p_mad_pool, p_madw->h_bind,
-				       mad_size, &p_madw->mad_addr);
-
-	if (!p_resp_madw) {
-		OSM_LOG(sa->p_log, OSM_LOG_ERROR,
-			"ERR 4502: Unable to allocate MAD\n");
-
-		for (i = 0; i < num_rec; i++) {
-			p_mpr_item =
-			    (osm_mpr_item_t *) cl_qlist_remove_head(p_list);
-			free(p_mpr_item);
-		}
-
-		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_NO_RESOURCES);
-		goto Exit;
-	}
-
-	p_resp_sa_mad = osm_madw_get_sa_mad_ptr(p_resp_madw);
-
-	memcpy(p_resp_sa_mad, p_sa_mad, IB_SA_MAD_HDR_SIZE);
-	p_resp_sa_mad->method |= IB_MAD_METHOD_RESP_MASK;
-	/* C15-0.1.5 - always return SM_Key = 0 (table 185 p 884) */
-	p_resp_sa_mad->sm_key = 0;
-
-	/*
-	   o15-0.2.7: If MultiPath is supported, then SA shall respond to a
-	   SubnAdmGetMulti() containing a valid MultiPathRecord attribute with
-	   a set of zero or more PathRecords satisfying the constraints indicated
-	   in the MultiPathRecord received. The PathRecord Attribute ID shall be
-	   used in the response.
-	 */
-	p_resp_sa_mad->attr_id = IB_MAD_ATTR_PATH_RECORD;
-	p_resp_sa_mad->attr_offset = ib_get_attr_offset(sizeof(ib_path_rec_t));
-
-	p_resp_sa_mad->rmpp_flags = IB_RMPP_FLAG_ACTIVE;
-
-	p_resp_pr = (ib_path_rec_t *) ib_sa_mad_get_payload_ptr(p_resp_sa_mad);
-
-	for (i = 0; i < num_rec; i++) {
-		p_mpr_item = (osm_mpr_item_t *) cl_qlist_remove_head(p_list);
-
-		/* Copy the Path Records from the list into the MAD */
-		*p_resp_pr = p_mpr_item->path_rec;
-
-		free(p_mpr_item);
-		p_resp_pr++;
-	}
-
-	CL_ASSERT(cl_is_qlist_empty(p_list));
-
-	osm_dump_sa_mad(sa->p_log, p_resp_sa_mad, OSM_LOG_FRAMES);
-
-	osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE, sa->p_subn);
-
-Exit:
-	OSM_LOG_EXIT(sa->p_log);
-}
-
-/**********************************************************************
- **********************************************************************/
 void osm_mpr_rcv_process(IN void *context, IN void *data)
 {
 	osm_sa_t *sa = context;
 	osm_madw_t *p_madw = data;
 	const ib_multipath_rec_t *p_mpr;
-	const ib_sa_mad_t *p_sa_mad;
+	ib_sa_mad_t *p_sa_mad;
 	osm_port_t *requester_port;
 	osm_port_t *pp_ports[IB_MULTIPATH_MAX_GIDS];
 	cl_qlist_t pr_list;
@@ -1629,7 +1539,15 @@ void osm_mpr_rcv_process(IN void *context, IN void *data)
 					    p_sa_mad->comp_mask, &pr_list);
 
 	cl_plock_release(sa->p_lock);
-	__osm_mpr_rcv_respond(sa, p_madw, &pr_list);
+
+	/* o15-0.2.7: If MultiPath is supported, then SA shall respond to a
+	   SubnAdmGetMulti() containing a valid MultiPathRecord attribute with
+	   a set of zero or more PathRecords satisfying the constraints
+	   indicated in the MultiPathRecord received. The PathRecord Attribute
+	   ID shall be used in the response.
+	 */
+	p_sa_mad->attr_id = IB_MAD_ATTR_PATH_RECORD;
+	osm_sa_respond(sa, p_madw, sizeof(ib_path_rec_t), &pr_list);
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);

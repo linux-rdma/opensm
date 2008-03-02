@@ -334,59 +334,35 @@ Generate the response MAD
 **********************************************************************/
 static void
 __osm_mcmr_rcv_respond(IN osm_sa_t * sa,
-		       IN const osm_madw_t * const p_madw,
+		       IN osm_madw_t * const p_madw,
 		       IN ib_member_rec_t * p_mcmember_rec)
 {
-	osm_madw_t *p_resp_madw;
-	ib_sa_mad_t *p_sa_mad, *p_resp_sa_mad;
-	ib_member_rec_t *p_resp_mcmember_rec;
+	cl_qlist_t rec_list;
+	osm_mcmr_item_t *item;
 
 	OSM_LOG_ENTER(sa->p_log);
 
-	/*
-	 *  Get a MAD to reply. Address of Mad is in the received mad_wrapper
-	 */
-	p_resp_madw = osm_mad_pool_get(sa->p_mad_pool,
-				       p_madw->h_bind,
-				       sizeof(ib_member_rec_t) +
-				       IB_SA_MAD_HDR_SIZE,
-				       osm_madw_get_mad_addr_ptr(p_madw));
-	if (!p_resp_madw)
+	item = malloc(sizeof(*item));
+	if (!item) {
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B16: "
+			"rec_item alloc failed\n");
 		goto Exit;
-
-	p_resp_sa_mad = (ib_sa_mad_t *) p_resp_madw->p_mad;
-	p_sa_mad = (ib_sa_mad_t *) p_madw->p_mad;
-	/*  Copy the MAD header back into the response mad */
-	memcpy(p_resp_sa_mad, p_sa_mad, IB_SA_MAD_HDR_SIZE);
-	/*  based on the current method decide about the response: */
-	if (p_resp_sa_mad->method == IB_MAD_METHOD_GET ||
-	    p_resp_sa_mad->method == IB_MAD_METHOD_SET)
-		p_resp_sa_mad->method = IB_MAD_METHOD_GET_RESP;
-	else if (p_resp_sa_mad->method == IB_MAD_METHOD_DELETE)
-		p_resp_sa_mad->method |= IB_MAD_METHOD_RESP_MASK;
-	else {
-		CL_ASSERT(p_resp_sa_mad->method == 0);
 	}
 
-	/* C15-0.1.5 - always return SM_Key = 0 (table 185 p 884) */
-	p_resp_sa_mad->sm_key = 0;
-
-	/* Fill in the offset (paylen will be done by the rmpp SAR) */
-	p_resp_sa_mad->attr_offset =
-	    ib_get_attr_offset(sizeof(ib_member_rec_t));
-	p_resp_mcmember_rec = (ib_member_rec_t *) & p_resp_sa_mad->data;
-
-	*p_resp_mcmember_rec = *p_mcmember_rec;
+	item->rec = *p_mcmember_rec;
 
 	/* Fill in the mtu, rate, and packet lifetime selectors */
-	p_resp_mcmember_rec->mtu &= 0x3f;
-	p_resp_mcmember_rec->mtu |= 2 << 6;	/* exactly */
-	p_resp_mcmember_rec->rate &= 0x3f;
-	p_resp_mcmember_rec->rate |= 2 << 6;	/* exactly */
-	p_resp_mcmember_rec->pkt_life &= 0x3f;
-	p_resp_mcmember_rec->pkt_life |= 2 << 6;	/* exactly */
+	item->rec.mtu &= 0x3f;
+	item->rec.mtu |= 2 << 6;	/* exactly */
+	item->rec.rate &= 0x3f;
+	item->rec.rate |= 2 << 6;	/* exactly */
+	item->rec.pkt_life &= 0x3f;
+	item->rec.pkt_life |= 2 << 6;	/* exactly */
 
-	osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE, sa->p_subn);
+	cl_qlist_init(&rec_list);
+	cl_qlist_insert_tail(&rec_list, &item->list_item);
+
+	osm_sa_respond(sa, p_madw, sizeof(ib_member_rec_t), &rec_list);
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);
@@ -1188,7 +1164,7 @@ Process a request for leaving the group
 **********************************************************************/
 static void
 __osm_mcmr_rcv_leave_mgrp(IN osm_sa_t * sa,
-			  IN const osm_madw_t * const p_madw)
+			  IN osm_madw_t * const p_madw)
 {
 	boolean_t valid;
 	osm_mgrp_t *p_mgrp;
@@ -1307,7 +1283,7 @@ Exit:
 **********************************************************************/
 static void
 __osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa,
-			 IN const osm_madw_t * const p_madw)
+			 IN osm_madw_t * const p_madw)
 {
 	boolean_t valid;
 	osm_mgrp_t *p_mgrp = NULL;
@@ -1804,21 +1780,12 @@ Exit:
 **********************************************************************/
 static void
 __osm_mcmr_query_mgrp(IN osm_sa_t * sa,
-		      IN const osm_madw_t * const p_madw)
+		      IN osm_madw_t * const p_madw)
 {
 	const ib_sa_mad_t *p_rcvd_mad;
 	const ib_member_rec_t *p_rcvd_rec;
 	cl_qlist_t rec_list;
-	osm_madw_t *p_resp_madw;
-	ib_sa_mad_t *p_resp_sa_mad;
-	ib_member_rec_t *p_resp_rec;
-	uint32_t num_rec, pre_trim_num_rec;
-#ifndef VENDOR_RMPP_SUPPORT
-	uint32_t trim_num_rec;
-#endif
-	uint32_t i;
 	osm_sa_mcmr_search_ctxt_t context;
-	osm_mcmr_item_t *p_rec_item;
 	ib_net64_t comp_mask;
 	osm_physp_t *p_req_physp;
 	boolean_t trusted_req;
@@ -1862,108 +1829,6 @@ __osm_mcmr_query_mgrp(IN osm_sa_t * sa,
 
 	CL_PLOCK_RELEASE(sa->p_lock);
 
-	num_rec = cl_qlist_count(&rec_list);
-
-	/*
-	 * C15-0.1.30:
-	 * If we do a SubnAdmGet and got more than one record it is an error !
-	 */
-	if (p_rcvd_mad->method == IB_MAD_METHOD_GET && num_rec > 1) {
-		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B05: "
-			"Got more than one record for SubnAdmGet (%u)\n",
-			num_rec);
-		osm_sa_send_error(sa, p_madw,
-				  IB_SA_MAD_STATUS_TOO_MANY_RECORDS);
-
-		/* need to set the mem free ... */
-		p_rec_item =
-		    (osm_mcmr_item_t *) cl_qlist_remove_head(&rec_list);
-		while (p_rec_item !=
-		       (osm_mcmr_item_t *) cl_qlist_end(&rec_list)) {
-			free(p_rec_item);
-			p_rec_item =
-			    (osm_mcmr_item_t *) cl_qlist_remove_head(&rec_list);
-		}
-
-		goto Exit;
-	}
-
-	pre_trim_num_rec = num_rec;
-#ifndef VENDOR_RMPP_SUPPORT
-	trim_num_rec =
-	    (MAD_BLOCK_SIZE - IB_SA_MAD_HDR_SIZE) / sizeof(ib_member_rec_t);
-	if (trim_num_rec < num_rec) {
-		OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
-			"Number of records:%u trimmed to:%u to fit in one MAD\n",
-			num_rec, trim_num_rec);
-		num_rec = trim_num_rec;
-	}
-#endif
-
-	OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Returning %u records\n", num_rec);
-
-	if (p_rcvd_mad->method == IB_MAD_METHOD_GET && num_rec == 0) {
-		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_NO_RECORDS);
-		goto Exit;
-	}
-
-	/*
-	 * Get a MAD to reply. Address of Mad is in the received mad_wrapper
-	 */
-	p_resp_madw = osm_mad_pool_get(sa->p_mad_pool, p_madw->h_bind,
-				       num_rec * sizeof(ib_member_rec_t) +
-				       IB_SA_MAD_HDR_SIZE,
-				       osm_madw_get_mad_addr_ptr(p_madw));
-
-	if (!p_resp_madw) {
-		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B16: "
-			"osm_mad_pool_get failed\n");
-
-		for (i = 0; i < num_rec; i++) {
-			p_rec_item =
-			    (osm_mcmr_item_t *) cl_qlist_remove_head(&rec_list);
-			free(p_rec_item);
-		}
-
-		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_NO_RESOURCES);
-		goto Exit;
-	}
-
-	p_resp_sa_mad = osm_madw_get_sa_mad_ptr(p_resp_madw);
-
-	/*
-	   Copy the MAD header back into the response mad.
-	   Set the 'R' bit and the payload length,
-	   Then copy all records from the list into the response payload.
-	 */
-
-	memcpy(p_resp_sa_mad, p_rcvd_mad, IB_SA_MAD_HDR_SIZE);
-	p_resp_sa_mad->method |= IB_MAD_METHOD_RESP_MASK;
-	/* C15-0.1.5 - always return SM_Key = 0 (table 185 p 884) */
-	p_resp_sa_mad->sm_key = 0;
-
-	/* Fill in the offset (paylen will be done by the rmpp SAR) */
-	p_resp_sa_mad->attr_offset =
-	    ib_get_attr_offset(sizeof(ib_member_rec_t));
-
-#ifndef VENDOR_RMPP_SUPPORT
-	/* we support only one packet RMPP - so we will set the first and
-	   last flags for gettable */
-	if (p_resp_sa_mad->method == IB_MAD_METHOD_GETTABLE_RESP) {
-		p_resp_sa_mad->rmpp_type = IB_RMPP_TYPE_DATA;
-		p_resp_sa_mad->rmpp_flags =
-		    IB_RMPP_FLAG_FIRST | IB_RMPP_FLAG_LAST |
-		    IB_RMPP_FLAG_ACTIVE;
-	}
-#else
-	/* forcefully define the packet as RMPP one */
-	if (p_resp_sa_mad->method == IB_MAD_METHOD_GETTABLE_RESP)
-		p_resp_sa_mad->rmpp_flags = IB_RMPP_FLAG_ACTIVE;
-#endif
-
-	p_resp_rec =
-	    (ib_member_rec_t *) ib_sa_mad_get_payload_ptr(p_resp_sa_mad);
-
 	/*
 	   p923 - The PortGID, JoinState and ProxyJoin shall be zero,
 	   except in the case of a trusted request.
@@ -1972,26 +1837,18 @@ __osm_mcmr_query_mgrp(IN osm_sa_t * sa,
 	   sm_key.
 	 */
 
-	for (i = 0; i < pre_trim_num_rec; i++) {
-		p_rec_item =
-		    (osm_mcmr_item_t *) cl_qlist_remove_head(&rec_list);
-		/* copy only if not trimmed */
-		if (i < num_rec) {
-			*p_resp_rec = p_rec_item->rec;
-			if (trusted_req == FALSE) {
-				memset(&p_resp_rec->port_gid, 0,
-				       sizeof(ib_gid_t));
-				ib_member_set_join_state(p_resp_rec, 0);
-				p_resp_rec->proxy_join = 0;
-			}
+	if (!p_rcvd_mad->sm_key) {
+		osm_mcmr_item_t *item;
+		for (item = (osm_mcmr_item_t *) cl_qlist_head(&rec_list);
+		     item != (osm_mcmr_item_t *) cl_qlist_end(&rec_list);
+		     item = (osm_mcmr_item_t *)cl_qlist_next(&item->list_item)) {
+			memset(&item->rec.port_gid, 0, sizeof(ib_gid_t));
+			ib_member_set_join_state(&item->rec, 0);
+			item->rec.proxy_join = 0;
 		}
-		free(p_rec_item);
-		p_resp_rec++;
 	}
 
-	CL_ASSERT(cl_is_qlist_empty(&rec_list));
-
-	osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE, sa->p_subn);
+	osm_sa_respond(sa, p_madw, sizeof(ib_member_rec_t), &rec_list);
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);

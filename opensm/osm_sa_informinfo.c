@@ -218,12 +218,10 @@ Set(InformInfo) request.
 **********************************************************************/
 static void
 __osm_infr_rcv_respond(IN osm_sa_t * sa,
-		       IN const osm_madw_t * const p_madw)
+		       IN osm_madw_t * const p_madw)
 {
-	osm_madw_t *p_resp_madw;
-	const ib_sa_mad_t *p_sa_mad;
-	ib_sa_mad_t *p_resp_sa_mad;
-	ib_inform_info_t *p_resp_infr;
+	cl_qlist_t rec_list;
+	osm_iir_item_t *item;
 
 	OSM_LOG_ENTER(sa->p_log);
 
@@ -232,31 +230,21 @@ __osm_infr_rcv_respond(IN osm_sa_t * sa,
 			"Generating successful InformInfo response\n");
 	}
 
-	/*
-	   Get a MAD to reply. Address of Mad is in the received mad_wrapper
-	 */
-	p_resp_madw = osm_mad_pool_get(sa->p_mad_pool,
-				       p_madw->h_bind,
-				       MAD_BLOCK_SIZE, &p_madw->mad_addr);
-	if (!p_resp_madw) {
+	item = malloc(sizeof(*item));
+	if (!item) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4303: "
-			"Unable to allocate MAD\n");
+			"rec_item alloc failed\n");
 		goto Exit;
 	}
 
-	p_sa_mad = osm_madw_get_sa_mad_ptr(p_madw);
-	p_resp_sa_mad = osm_madw_get_sa_mad_ptr(p_resp_madw);
+	memcpy(&item->rec,
+	       ib_sa_mad_get_payload_ptr(osm_madw_get_sa_mad_ptr(p_madw)),
+	       sizeof(item->rec));
 
-	/* copy the request InformInfo */
-	memcpy(p_resp_sa_mad, p_sa_mad, MAD_BLOCK_SIZE);
-	p_resp_sa_mad->method = IB_MAD_METHOD_GET_RESP;
-	/* C15-0.1.5 - always return SM_Key = 0 (table 185 p 884) */
-	p_resp_sa_mad->sm_key = 0;
+	cl_qlist_init(&rec_list);
+	cl_qlist_insert_tail(&rec_list, &item->list_item);
 
-	p_resp_infr =
-	    (ib_inform_info_t *) ib_sa_mad_get_payload_ptr(p_resp_sa_mad);
-
-	osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE, sa->p_subn);
+	osm_sa_respond(sa, p_madw, sizeof(ib_inform_info_t), &rec_list);
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);
@@ -351,22 +339,14 @@ Received a Get(InformInfoRecord) or GetTable(InformInfoRecord) MAD
 **********************************************************************/
 static void
 osm_infr_rcv_process_get_method(IN osm_sa_t * sa,
-				IN const osm_madw_t * const p_madw)
+				IN osm_madw_t * const p_madw)
 {
 	ib_sa_mad_t *p_rcvd_mad;
 	const ib_inform_info_record_t *p_rcvd_rec;
-	ib_inform_info_record_t *p_resp_rec;
 	cl_qlist_t rec_list;
-	osm_madw_t *p_resp_madw;
-	ib_sa_mad_t *p_resp_sa_mad;
-	uint32_t num_rec, pre_trim_num_rec;
-#ifndef VENDOR_RMPP_SUPPORT
-	uint32_t trim_num_rec;
-#endif
-	uint32_t i, j;
 	osm_iir_search_ctxt_t context;
-	osm_iir_item_t *p_rec_item;
 	osm_physp_t *p_req_physp;
+	osm_iir_item_t *item;
 
 	OSM_LOG_ENTER(sa->p_log);
 
@@ -416,131 +396,15 @@ osm_infr_rcv_process_get_method(IN osm_sa_t * sa,
 
 	cl_plock_release(sa->p_lock);
 
-	num_rec = cl_qlist_count(&rec_list);
-
-	/*
-	 * C15-0.1.30:
-	 * If we do a SubnAdmGet and got more than one record it is an error !
-	 */
-	if (p_rcvd_mad->method == IB_MAD_METHOD_GET) {
-		if (num_rec == 0) {
-			osm_sa_send_error(sa, p_madw,
-					  IB_SA_MAD_STATUS_NO_RECORDS);
-			goto Exit;
-		}
-		if (num_rec > 1) {
-			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 430A: "
-				"More than one record for SubnAdmGet (%u)\n",
-				num_rec);
-			osm_sa_send_error(sa, p_madw,
-					  IB_SA_MAD_STATUS_TOO_MANY_RECORDS);
-
-			/* need to set the mem free ... */
-			p_rec_item =
-			    (osm_iir_item_t *) cl_qlist_remove_head(&rec_list);
-			while (p_rec_item !=
-			       (osm_iir_item_t *) cl_qlist_end(&rec_list)) {
-				free(p_rec_item);
-				p_rec_item = (osm_iir_item_t *)
-				    cl_qlist_remove_head(&rec_list);
-			}
-
-			goto Exit;
-		}
+	/* clear reserved and pad fields in InformInfoRecord */
+	for (item = (osm_iir_item_t *) cl_qlist_head(&rec_list);
+	     item != (osm_iir_item_t *) cl_qlist_end(&rec_list);
+	     item = (osm_iir_item_t *)cl_qlist_next(&item->list_item)) {
+		memset(item->rec.reserved, 0, sizeof(item->rec.reserved));
+		memset(item->rec.pad, 0, sizeof(item->rec.pad));
 	}
 
-	pre_trim_num_rec = num_rec;
-#ifndef VENDOR_RMPP_SUPPORT
-	/* we limit the number of records to a single packet */
-	trim_num_rec =
-	    (MAD_BLOCK_SIZE -
-	     IB_SA_MAD_HDR_SIZE) / sizeof(ib_inform_info_record_t);
-	if (trim_num_rec < num_rec) {
-		OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
-			"Number of records:%u trimmed to:%u to fit in one MAD\n",
-			num_rec, trim_num_rec);
-		num_rec = trim_num_rec;
-	}
-#endif
-
-	OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Returning %u records\n", num_rec);
-
-	/*
-	 * Get a MAD to reply. Address of Mad is in the received mad_wrapper
-	 */
-	p_resp_madw = osm_mad_pool_get(sa->p_mad_pool,
-				       p_madw->h_bind,
-				       num_rec *
-				       sizeof(ib_inform_info_record_t) +
-				       IB_SA_MAD_HDR_SIZE, &p_madw->mad_addr);
-
-	if (!p_resp_madw) {
-		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 430B: "
-			"osm_mad_pool_get failed\n");
-
-		for (i = 0; i < num_rec; i++) {
-			p_rec_item =
-			    (osm_iir_item_t *) cl_qlist_remove_head(&rec_list);
-			free(p_rec_item);
-		}
-
-		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_NO_RESOURCES);
-
-		goto Exit;
-	}
-
-	p_resp_sa_mad = osm_madw_get_sa_mad_ptr(p_resp_madw);
-
-	/*
-	   Copy the MAD header back into the response mad.
-	   Set the 'R' bit and the payload length,
-	   Then copy all records from the list into the response payload.
-	 */
-
-	memcpy(p_resp_sa_mad, p_rcvd_mad, IB_SA_MAD_HDR_SIZE);
-	p_resp_sa_mad->method |= IB_MAD_METHOD_RESP_MASK;
-	/* C15-0.1.5 - always return SM_Key = 0 (table 185 p 884) */
-	p_resp_sa_mad->sm_key = 0;
-	/* Fill in the offset (paylen will be done by the rmpp SAR) */
-	p_resp_sa_mad->attr_offset =
-	    ib_get_attr_offset(sizeof(ib_inform_info_record_t));
-
-	p_resp_rec = (ib_inform_info_record_t *)
-	    ib_sa_mad_get_payload_ptr(p_resp_sa_mad);
-
-#ifndef VENDOR_RMPP_SUPPORT
-	/* we support only one packet RMPP - so we will set the first and
-	   last flags for gettable */
-	if (p_resp_sa_mad->method == IB_MAD_METHOD_GETTABLE_RESP) {
-		p_resp_sa_mad->rmpp_type = IB_RMPP_TYPE_DATA;
-		p_resp_sa_mad->rmpp_flags =
-		    IB_RMPP_FLAG_FIRST | IB_RMPP_FLAG_LAST |
-		    IB_RMPP_FLAG_ACTIVE;
-	}
-#else
-	/* forcefully define the packet as RMPP one */
-	if (p_resp_sa_mad->method == IB_MAD_METHOD_GETTABLE_RESP)
-		p_resp_sa_mad->rmpp_flags = IB_RMPP_FLAG_ACTIVE;
-#endif
-
-	for (i = 0; i < pre_trim_num_rec; i++) {
-		p_rec_item = (osm_iir_item_t *) cl_qlist_remove_head(&rec_list);
-		/* copy only if not trimmed */
-		if (i < num_rec) {
-			*p_resp_rec = p_rec_item->rec;
-			/* clear reserved and pad fields in InformInfoRecord */
-			for (j = 0; j < 6; j++)
-				p_resp_rec->reserved[j] = 0;
-			for (j = 0; j < 4; j++)
-				p_resp_rec->pad[j] = 0;
-		}
-		free(p_rec_item);
-		p_resp_rec++;
-	}
-
-	CL_ASSERT(cl_is_qlist_empty(&rec_list));
-
-	osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE, sa->p_subn);
+	osm_sa_respond(sa, p_madw, sizeof(ib_inform_info_record_t), &rec_list);
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);
@@ -551,7 +415,7 @@ Received a Set(InformInfo) MAD
 **********************************************************************/
 static void
 osm_infr_rcv_process_set_method(IN osm_sa_t * sa,
-				IN const osm_madw_t * const p_madw)
+				IN osm_madw_t * const p_madw)
 {
 	ib_sa_mad_t *p_sa_mad;
 	ib_inform_info_t *p_recvd_inform_info;
