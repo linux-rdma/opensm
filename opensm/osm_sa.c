@@ -372,6 +372,8 @@ osm_sa_send_error(IN osm_sa_t * sa,
 
 	if (p_resp_sa_mad->method == IB_MAD_METHOD_SET)
 		p_resp_sa_mad->method = IB_MAD_METHOD_GET;
+	else if (p_resp_sa_mad->method == IB_MAD_METHOD_GETTABLE)
+		p_resp_sa_mad->attr_offset = 0;
 
 	p_resp_sa_mad->method |= IB_MAD_METHOD_RESP_MASK;
 
@@ -473,7 +475,7 @@ void osm_sa_respond(osm_sa_t *sa, osm_madw_t *madw, size_t attr_size,
 	resp_sa_mad->sm_key = 0;
 
 	/* Fill in the offset (paylen will be done by the rmpp SAR) */
-	resp_sa_mad->attr_offset = ib_get_attr_offset(attr_size);
+	resp_sa_mad->attr_offset = num_rec ? ib_get_attr_offset(attr_size) : 0;
 
 	p = ib_sa_mad_get_payload_ptr(resp_sa_mad);
 
