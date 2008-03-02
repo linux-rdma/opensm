@@ -567,6 +567,7 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 			", Commencing heavy sweep\n",
 			cl_ntoh64(node_guid), cl_ntoh64(port_guid));
 		sm->p_subn->force_heavy_sweep = 1;
+		sm->p_subn->ignore_existing_lfts = 1;
 		goto Exit;
 	}
 
