@@ -318,19 +318,17 @@ Exit:
 	return (status);
 }
 
-ib_api_status_t
-osm_sa_vendor_send(IN osm_bind_handle_t h_bind,
-		   IN osm_madw_t * const p_madw,
-		   IN boolean_t const resp_expected,
-		   IN osm_subn_t * const p_subn)
+ib_api_status_t osm_sa_send(osm_sa_t *sa,
+			    IN osm_madw_t * const p_madw,
+			    IN boolean_t const resp_expected)
 {
 	ib_api_status_t status;
 
-	cl_atomic_inc(&p_subn->p_osm->stats.sa_mads_sent);
-	status = osm_vendor_send(h_bind, p_madw, resp_expected);
+	cl_atomic_inc(&sa->p_subn->p_osm->stats.sa_mads_sent);
+	status = osm_vendor_send(p_madw->h_bind, p_madw, resp_expected);
 	if (status != IB_SUCCESS) {
-		cl_atomic_dec(&p_subn->p_osm->stats.sa_mads_sent);
-		OSM_LOG(&p_subn->p_osm->log, OSM_LOG_ERROR, "ERR 4C04: "
+		cl_atomic_dec(&sa->p_subn->p_osm->stats.sa_mads_sent);
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4C04: "
 			"osm_vendor_send failed, status = %s\n",
 			ib_get_err_str(status));
 	}
@@ -392,8 +390,7 @@ osm_sa_send_error(IN osm_sa_t * sa,
 	if (osm_log_is_active(sa->p_log, OSM_LOG_FRAMES))
 		osm_dump_sa_mad(sa->p_log, p_resp_sa_mad, OSM_LOG_FRAMES);
 
-	osm_sa_vendor_send(osm_madw_get_bind_handle(p_resp_madw),
-			   p_resp_madw, FALSE, sa->p_subn);
+	osm_sa_send(sa, p_resp_madw, FALSE);
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);
@@ -501,7 +498,7 @@ void osm_sa_respond(osm_sa_t *sa, osm_madw_t *madw, size_t attr_size,
 		p += attr_size;
 	}
 
-	osm_sa_vendor_send(resp_madw->h_bind, resp_madw, FALSE, sa->p_subn);
+	osm_sa_send(sa, resp_madw, FALSE);
 
 	osm_dump_sa_mad(sa->p_log, resp_sa_mad, OSM_LOG_FRAMES);
 Exit:

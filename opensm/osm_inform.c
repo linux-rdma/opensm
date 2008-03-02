@@ -365,8 +365,7 @@ static ib_api_status_t __osm_send_report(IN osm_infr_t * p_infr_rec,	/* the info
 	*p_report_ntc = *p_ntc;
 
 	/* The TRUE is for: response is expected */
-	osm_sa_vendor_send(p_report_madw->h_bind, p_report_madw, TRUE,
-			   p_infr_rec->sa->p_subn);
+	osm_sa_send(p_infr_rec->sa, p_report_madw, TRUE);
 
 Exit:
 	OSM_LOG_EXIT(p_log);

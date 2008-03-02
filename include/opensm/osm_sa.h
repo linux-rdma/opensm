@@ -351,20 +351,17 @@ osm_sa_bind(IN osm_sa_t * const p_sa, IN const ib_net64_t port_guid);
 * SEE ALSO
 *********/
 
-/****f* OpenSM: SA/osm_sa_vendor_send
+/****f* OpenSM: SA/osm_sa_send
 * NAME
-*	osm_sa_vendor_send
+*	osm_sa_send
 *
 * DESCRIPTION
 *	Sends SA MAD via osm_vendor_send and maintains the QP1 sent statistic
 *
 * SYNOPSIS
 */
-ib_api_status_t
-osm_sa_vendor_send(IN osm_bind_handle_t h_bind,
-		   IN osm_madw_t * const p_madw,
-		   IN boolean_t const resp_expected,
-		   IN osm_subn_t * const p_subn);
+ib_api_status_t osm_sa_send(osm_sa_t *sa, IN osm_madw_t * const p_madw,
+			    IN boolean_t const resp_expected);
 
 /****f* IBA Base: Types/osm_sa_send_error
 * NAME
@@ -376,10 +373,8 @@ osm_sa_vendor_send(IN osm_bind_handle_t h_bind,
 *
 * SYNOPSIS
 */
-void
-osm_sa_send_error(IN osm_sa_t * sa,
-		  IN const osm_madw_t * const p_madw,
-		  IN const ib_net16_t sa_status);
+void osm_sa_send_error(IN osm_sa_t * sa, IN const osm_madw_t * const p_madw,
+		       IN const ib_net16_t sa_status);
 /*
 * PARAMETERS
 *	sa

@@ -174,7 +174,7 @@ __osm_cpi_rcv_respond(IN osm_sa_t * sa,
 	if (osm_log_is_active(sa->p_log, OSM_LOG_FRAMES))
 		osm_dump_sa_mad(sa->p_log, p_resp_sa_mad, OSM_LOG_FRAMES);
 
-	osm_sa_vendor_send(p_resp_madw->h_bind, p_resp_madw, FALSE, sa->p_subn);
+	osm_sa_send(sa, p_resp_madw, FALSE);
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);
