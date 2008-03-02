@@ -112,9 +112,8 @@ __osmv_sa_mad_rcv_cb(IN osm_madw_t * p_madw,
 			"__osmv_sa_mad_rcv_cb: ERR 5501: "
 			"Remote error:0x%04X\n", mad_status);
 		query_res.status = IB_REMOTE_ERROR;
-	} else {
+	} else
 		query_res.status = IB_SUCCESS;
-	}
 
 	/* what if we have got back an empty mad ? */
 	if (!p_madw->mad_size) {
@@ -150,8 +149,7 @@ __osmv_sa_mad_rcv_cb(IN osm_madw_t * p_madw,
 					ib_get_attr_size(p_sa_mad->attr_offset),
 					(p_madw->mad_size -
 					 IB_SA_MAD_HDR_SIZE) %
-					ib_get_attr_size(p_sa_mad->attr_offset)
-				    );
+					ib_get_attr_size(p_sa_mad->attr_offset));
 			} else
 				query_res.result_cnt = 0;
 #endif
@@ -296,8 +294,7 @@ osmv_bind_sa(IN osm_vendor_t * const p_vend,
 	if (cl_status != CL_SUCCESS) {
 		osm_log(p_log, OSM_LOG_ERROR,
 			"osmv_bind_sa: ERR 5508: "
-			"cl_init_event failed: %s\n", ib_get_err_str(cl_status)
-		    );
+			"cl_init_event failed: %s\n", ib_get_err_str(cl_status));
 		free(p_sa_bind_info);
 		p_sa_bind_info = OSM_BIND_INVALID_HANDLE;
 	}
@@ -416,8 +413,7 @@ __osmv_send_sa_req(IN osmv_sa_bind_info_t * p_bind,
 			p_sa_mad_data->method,	/* method */
 			cl_hton64((uint64_t) trans_id),	/* tid */
 			p_sa_mad_data->attr_id,	/* attr id */
-			p_sa_mad_data->attr_mod	/* attr mod */
-	    );
+			p_sa_mad_data->attr_mod	/* attr mod */);
 
 	/* Set the query information. */
 	p_sa_mad->sm_key = p_query_req->sm_key;
