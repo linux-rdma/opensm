@@ -321,8 +321,8 @@ __osm_sr_rcv_respond(IN osm_sa_t * sa,
 	p_resp_sr =
 	    (ib_service_record_t *) ib_sa_mad_get_payload_ptr(p_resp_sa_mad);
 
-	if ((p_resp_sa_mad->method != IB_MAD_METHOD_GETTABLE_RESP) &&
-	    (num_rec == 0)) {
+	if (p_resp_sa_mad->method != IB_MAD_METHOD_GETTABLE_RESP &&
+	    num_rec == 0) {
 		p_resp_sa_mad->status = IB_SA_MAD_STATUS_NO_RECORDS;
 		memset(p_resp_sr, 0, sizeof(*p_resp_sr));
 	} else {
