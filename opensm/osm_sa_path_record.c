@@ -452,7 +452,7 @@ __osm_pr_rcv_get_path_parms(IN osm_sa_t * sa,
 	else if (p_qos_level && p_qos_level->pkt_life_set)
 		pkt_life = p_qos_level->pkt_life;
 	else
-		pkt_life = OSM_DEFAULT_SUBNET_TIMEOUT;
+		pkt_life = sa->p_subn->opt.subnet_timeout;
 
 	/*
 	   Determine if these values meet the user criteria

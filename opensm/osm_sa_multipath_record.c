@@ -533,7 +533,7 @@ __osm_mpr_rcv_get_path_parms(IN osm_sa_t * sa,
 	else if (p_qos_level && p_qos_level->pkt_life_set)
 		pkt_life = p_qos_level->pkt_life;
 	else
-		pkt_life = OSM_DEFAULT_SUBNET_TIMEOUT;
+		pkt_life = sa->p_subn->opt.subnet_timeout;
 
 	/* we silently ignore cases where only the PktLife selector is defined */
 	if ((comp_mask & IB_MPR_COMPMASK_PKTLIFETIMESELEC) &&

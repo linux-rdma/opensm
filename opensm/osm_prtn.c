@@ -215,7 +215,7 @@ ib_api_status_t osm_prtn_add_mcgroup(osm_log_t * p_log,
 	mc_rec.tclass = 0;
 	mc_rec.pkey = pkey;
 	mc_rec.rate = (rate ? rate : OSM_DEFAULT_MGRP_RATE) | (2 << 6);	/* 10Gb/sec */
-	mc_rec.pkt_life = OSM_DEFAULT_SUBNET_TIMEOUT;
+	mc_rec.pkt_life = p_subn->opt.subnet_timeout;
 	mc_rec.sl_flow_hop = ib_member_set_sl_flow_hop(p->sl, 0, hop_limit);
 	/* Scope in MCMemberRecord (if present) needs to be consistent with MGID */
 	mc_rec.scope_state = ib_member_set_scope_state(scope, IB_MC_REC_STATE_FULL_MEMBER);
