@@ -209,31 +209,21 @@ __osm_ucast_mgr_process_port(IN osm_ucast_mgr_t * const p_mgr,
 	   in providing better routing in LMC > 0 situations
 	 */
 	uint16_t lids_per_port = 1 << p_mgr->p_subn->opt.lmc;
-	uint64_t *remote_sys_guids = NULL;
-	uint64_t *remote_node_guids = NULL;
-	uint16_t num_used_sys = 0;
-	uint16_t num_used_nodes = 0;
+	osm_switch_guid_count_t *remote_guids = NULL;
+	uint16_t num_used_guids = 0;
+	osm_switch_guid_count_t *p_remote_guid_used = NULL;
 
 	OSM_LOG_ENTER(p_mgr->p_log);
 
 	if (lids_per_port > 1) {
-		remote_sys_guids = malloc(sizeof(uint64_t) * lids_per_port);
-		if (remote_sys_guids == NULL) {
-			OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 3A09: "
+		remote_guids = malloc(sizeof(osm_switch_guid_count_t) * lids_per_port);
+		if (remote_guids == NULL) {
+			osm_log(p_mgr->p_log, OSM_LOG_ERROR,
+				"__osm_ucast_mgr_process_port: ERR 3A0B: "
 				"Cannot allocate array. Insufficient memory\n");
 			goto Exit;
 		}
-
-		memset(remote_sys_guids, 0, sizeof(uint64_t) * lids_per_port);
-
-		remote_node_guids = malloc(sizeof(uint64_t) * lids_per_port);
-		if (remote_node_guids == NULL) {
-			OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 3A0A: "
-				"Cannot allocate array. Insufficient memory\n");
-			goto Exit;
-		}
-
-		memset(remote_node_guids, 0, sizeof(uint64_t) * lids_per_port);
+		memset(remote_guids, 0, sizeof(osm_switch_guid_count_t) * lids_per_port);
 	}
 
 	osm_port_get_lid_range_ho(p_port, &min_lid_ho, &max_lid_ho);
@@ -272,22 +262,22 @@ __osm_ucast_mgr_process_port(IN osm_ucast_mgr_t * const p_mgr,
 	 */
 	for (lid_ho = min_lid_ho; lid_ho <= max_lid_ho; lid_ho++) {
 		/* Use the enhanced algorithm only for LMC > 0 */
-		if (lids_per_port > 1)
+		if (lids_per_port > 1) {
+			p_remote_guid_used = NULL;
 			port = osm_switch_recommend_path(p_sw, p_port, lid_ho,
 							 p_mgr->p_subn->
 							 ignore_existing_lfts,
 							 p_mgr->is_dor,
-							 remote_sys_guids,
-							 &num_used_sys,
-							 remote_node_guids,
-							 &num_used_nodes);
+							 remote_guids,
+							 &num_used_guids,
+							 &p_remote_guid_used);
+		}
 		else
 			port = osm_switch_recommend_path(p_sw, p_port, lid_ho,
 							 p_mgr->p_subn->
 							 ignore_existing_lfts,
 							 p_mgr->is_dor,
-							 NULL, NULL, NULL,
-							 NULL);
+							 NULL, NULL, NULL);
 
 		/*
 		   There might be no path to the target
@@ -341,15 +331,16 @@ __osm_ucast_mgr_process_port(IN osm_ucast_mgr_t * const p_mgr,
 		   Write it to the forwarding tables.
 		 */
 		p_mgr->lft_buf[lid_ho] = port;
-		if (!is_ignored_by_port_prof)
+		if (!is_ignored_by_port_prof) {
 			osm_switch_count_path(p_sw, port);
+			if (p_remote_guid_used)
+				p_remote_guid_used->forwarded_to++;
+		}
 	}
 
 Exit:
-	if (remote_sys_guids)
-		free(remote_sys_guids);
-	if (remote_node_guids)
-		free(remote_node_guids);
+	if (remote_guids)
+		free(remote_guids);
 	OSM_LOG_EXIT(p_mgr->p_log);
 }
 

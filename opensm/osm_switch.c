@@ -219,16 +219,99 @@ osm_switch_get_fwd_tbl_block(IN const osm_switch_t * const p_sw,
 
 /**********************************************************************
  **********************************************************************/
+static osm_switch_guid_count_t *
+osm_switch_find_guid_common(IN const osm_switch_t * const p_sw,
+			    IN osm_switch_guid_count_t * remote_guids,
+			    IN uint16_t * p_num_remote_guids,
+			    IN uint8_t port_num,
+			    IN int find_sys_guid,
+			    IN int find_node_guid)
+{
+	osm_switch_guid_count_t *p_remote_guid = NULL;
+	osm_physp_t *p_physp;
+	osm_physp_t *p_rem_physp;
+	osm_node_t *p_rem_node;
+	uint64_t sys_guid;
+	uint64_t node_guid;
+	int i;
+
+	CL_ASSERT(p_sw);
+	CL_ASSERT(remote_guids);
+	CL_ASSERT(p_num_remote_guids);
+
+	p_physp = osm_node_get_physp_ptr(p_sw->p_node, port_num);
+	p_rem_physp = osm_physp_get_remote(p_physp);
+	p_rem_node = osm_physp_get_node_ptr(p_rem_physp);
+	sys_guid = p_rem_node->node_info.sys_guid;
+	node_guid = p_rem_node->node_info.node_guid;
+
+	for (i = 0; i < *p_num_remote_guids; i++) {
+		if ((!find_sys_guid
+		     || remote_guids[i].sys_guid == sys_guid)
+		    && (!find_node_guid
+			|| remote_guids[i].node_guid == node_guid)) {
+			p_remote_guid = &remote_guids[i];
+			break;
+		}
+	}
+
+	return p_remote_guid;
+}
+
+static osm_switch_guid_count_t *
+osm_switch_find_sys_guid_count(IN const osm_switch_t * const p_sw,
+			       IN osm_switch_guid_count_t * remote_guids,
+			       IN uint16_t * p_num_remote_guids,
+			       IN uint8_t port_num)
+{
+	return osm_switch_find_guid_common(p_sw,
+					   remote_guids,
+					   p_num_remote_guids,
+					   port_num,
+					   1,
+					   0);
+}
+
+static osm_switch_guid_count_t *
+osm_switch_find_node_guid_count(IN const osm_switch_t * const p_sw,
+				IN osm_switch_guid_count_t * remote_guids,
+				IN uint16_t * p_num_remote_guids,
+				IN uint8_t port_num)
+{
+	return osm_switch_find_guid_common(p_sw,
+					   remote_guids,
+					   p_num_remote_guids,
+					   port_num,
+					   0,
+					   1);
+}
+
+static osm_switch_guid_count_t *
+osm_switch_find_guid_count(IN const osm_switch_t * const p_sw,
+			   IN osm_switch_guid_count_t * remote_guids,
+			   IN uint16_t * p_num_remote_guids,
+			   IN uint8_t port_num)
+{
+	return osm_switch_find_guid_common(p_sw,
+					   remote_guids,
+					   p_num_remote_guids,
+					   port_num,
+					   1,
+					   1);
+}
+
+
+/**********************************************************************
+ **********************************************************************/
 uint8_t
 osm_switch_recommend_path(IN const osm_switch_t * const p_sw,
 			  IN osm_port_t * p_port,
 			  IN const uint16_t lid_ho,
 			  IN const boolean_t ignore_existing,
 			  IN const boolean_t dor,
-			  IN OUT uint64_t * remote_sys_guids,
-			  IN OUT uint16_t * p_num_used_sys,
-			  IN OUT uint64_t * remote_node_guids,
-			  IN OUT uint16_t * p_num_used_nodes)
+			  IN OUT osm_switch_guid_count_t * remote_guids,
+			  IN OUT uint16_t * p_num_remote_guids,
+			  IN OUT osm_switch_guid_count_t ** p_remote_guid_count_used)
 {
 	/*
 	   We support an enhanced LMC aware routing mode:
@@ -237,14 +320,12 @@ osm_switch_recommend_path(IN const osm_switch_t * const p_sw,
 	   and try and avoid routing again through the same
 	   system / node.
 
-	   If the procedure is provided with the tracking arrays
-	   and counters we can conduct this algorithm.
+	   If this procedure is provided with the tracking array
+	   and counter we can conduct this algorithm.
 	 */
-	boolean_t routing_for_lmc = remote_sys_guids && remote_node_guids &&
-	    p_num_used_sys && p_num_used_nodes;
-	boolean_t sys_used, node_used;
+	boolean_t routing_for_lmc = remote_guids && p_num_remote_guids
+		&& p_remote_guid_count_used;
 	uint16_t base_lid;
-	uint16_t i;
 	uint8_t hops;
 	uint8_t least_hops;
 	uint8_t port_num;
@@ -256,6 +337,7 @@ osm_switch_recommend_path(IN const osm_switch_t * const p_sw,
 	 */
 	uint32_t least_paths_other_sys = 0xFFFFFFFF;
 	uint32_t least_paths_other_nodes = 0xFFFFFFFF;
+	uint32_t least_forwarded_to = 0xFFFFFFFF;
 	uint32_t check_count;
 	uint8_t best_port = 0;
 	/*
@@ -269,6 +351,7 @@ osm_switch_recommend_path(IN const osm_switch_t * const p_sw,
 	osm_physp_t *p_rem_physp;
 	osm_node_t *p_rem_node;
 	osm_node_t *p_rem_node_first = NULL;
+	osm_switch_guid_count_t *p_remote_guid = NULL;
 
 	CL_ASSERT(lid_ho > 0);
 
@@ -381,46 +464,34 @@ osm_switch_recommend_path(IN const osm_switch_t * const p_sw,
 		   it.
 		 */
 		if (routing_for_lmc) {
-#if 0
-			printf("LID:0x%X SYS:%d NODE:%d\n", lid_ho,
-			       *p_num_used_sys, *p_num_used_nodes);
-#endif
-
-			/* Get the Remote Node */
-			p_rem_physp = osm_physp_get_remote(p_physp);
-			p_rem_node = osm_physp_get_node_ptr(p_rem_physp);
-
 			/* Is the sys guid already used ? */
-			sys_used = FALSE;
-			for (i = 0; !sys_used && (i < *p_num_used_sys); i++)
-				if (!memcmp(&p_rem_node->node_info.sys_guid,
-					    &remote_sys_guids[i],
-					    sizeof(uint64_t)))
-					sys_used = TRUE;
+			p_remote_guid = osm_switch_find_sys_guid_count(p_sw,
+								       remote_guids,
+								       p_num_remote_guids,
+								       port_num);
 
 			/* If not update the least hops for this case */
-			if (!sys_used) {
+			if (!p_remote_guid) {
 				if (check_count < least_paths_other_sys) {
 					least_paths_other_sys = check_count;
 					best_port_other_sys = port_num;
+					least_forwarded_to = 0;
 				}
 			} else {	/* same sys found - try node */
 				/* Else is the node guid already used ? */
-				node_used = FALSE;
-				for (i = 0;
-				     !node_used && (i < *p_num_used_nodes); i++)
-					if (!memcmp
-					    (&p_rem_node->node_info.node_guid,
-					     &remote_node_guids[i],
-					     sizeof(uint64_t)))
-						node_used = TRUE;
+				p_remote_guid = osm_switch_find_node_guid_count(p_sw,
+										remote_guids,
+										p_num_remote_guids,
+										port_num);
 
 				/* If not update the least hops for this case */
-				if (!node_used
+				if (!p_remote_guid
 				    && check_count < least_paths_other_nodes) {
 					least_paths_other_nodes = check_count;
 					best_port_other_node = port_num;
+					least_forwarded_to = 0;
 				}
+				/* else prior sys and node guid already used */
 
 			}	/* same sys found */
 		}
@@ -447,6 +518,17 @@ osm_switch_recommend_path(IN const osm_switch_t * const p_sw,
 			port_found = TRUE;
 			best_port = port_num;
 			least_paths = check_count;
+			if (routing_for_lmc
+			    && p_remote_guid
+			    && p_remote_guid->forwarded_to < least_forwarded_to)
+				least_forwarded_to = p_remote_guid->forwarded_to;
+		}
+		else if (routing_for_lmc
+			 && p_remote_guid
+			 && check_count == least_paths
+			 && p_remote_guid->forwarded_to < least_forwarded_to) {
+			least_forwarded_to = p_remote_guid->forwarded_to;
+			best_port = port_num;
 		}
 	}
 
@@ -465,15 +547,26 @@ osm_switch_recommend_path(IN const osm_switch_t * const p_sw,
 			best_port = best_port_other_node;
 
 		/* track the remote node and system of the port used. */
-		p_physp = osm_node_get_physp_ptr(p_sw->p_node, best_port);
-		p_rem_physp = osm_physp_get_remote(p_physp);
-		p_rem_node = osm_physp_get_node_ptr(p_rem_physp);
-		memcpy(&remote_node_guids[*p_num_used_nodes],
-		       &(p_rem_node->node_info.node_guid), sizeof(uint64_t));
-		(*p_num_used_nodes)++;
-		memcpy(&remote_sys_guids[*p_num_used_sys],
-		       &(p_rem_node->node_info.sys_guid), sizeof(uint64_t));
-		(*p_num_used_sys)++;
+		p_remote_guid = osm_switch_find_guid_count(p_sw,
+							   remote_guids,
+							   p_num_remote_guids,
+							   best_port);
+
+		if (!p_remote_guid) {
+			/* track the remote node and system of the port used. */
+			p_physp = osm_node_get_physp_ptr(p_sw->p_node, best_port);
+			p_rem_physp = osm_physp_get_remote(p_physp);
+			p_rem_node = osm_physp_get_node_ptr(p_rem_physp);
+			memcpy(&(remote_guids[*p_num_remote_guids].sys_guid),
+			       &(p_rem_node->node_info.sys_guid),
+			       sizeof(uint64_t));
+			memcpy(&(remote_guids[*p_num_remote_guids].node_guid),
+				       &(p_rem_node->node_info.node_guid),
+			       sizeof(uint64_t));
+			remote_guids[*p_num_remote_guids].forwarded_to = 0;
+			(*p_num_remote_guids)++;
+		}
+		*p_remote_guid_count_used = p_remote_guid;
 	}
 
 	return (best_port);

@@ -158,6 +158,33 @@ typedef struct _osm_switch {
 *	Switch object
 *********/
 
+/****s* OpenSM: Switch/osm_switch_guid_count_t
+* NAME
+*       osm_switch_guid_count_t
+*
+* DESCRIPTION
+*       Stores system and node guids and the number of
+*	times a switch has forwarded to it.
+*
+* SYNOPSIS
+*/
+typedef struct _osm_switch_guid_count {
+	uint64_t sys_guid;
+	uint64_t node_guid;
+	unsigned int forwarded_to;
+} osm_switch_guid_count_t;
+/*
+* FIELDS
+*       sys_guid
+*               A system guid.
+*
+*       node_guid
+*               A node guid.
+*
+*       forwarded_to
+*               A count of lids forwarded to the sys_guid/node_guid.
+*********/
+
 /****f* OpenSM: Switch/osm_switch_delete
 * NAME
 *	osm_switch_delete
@@ -959,10 +986,9 @@ osm_switch_recommend_path(IN const osm_switch_t * const p_sw,
 			  IN const uint16_t lid_ho,
 			  IN const boolean_t ignore_existing,
 			  IN const boolean_t dor,
-			  IN OUT uint64_t * remote_sys_guids,
-			  IN OUT uint16_t * p_num_used_sys,
-			  IN OUT uint64_t * remote_node_guids,
-			  IN OUT uint16_t * p_num_used_nodes);
+			  IN OUT osm_switch_guid_count_t * remote_guids,
+			  IN OUT uint16_t * p_num_remote_guids,
+			  IN OUT osm_switch_guid_count_t ** p_remote_guid_count_used);
 /*
 * PARAMETERS
 *	p_sw
@@ -984,21 +1010,17 @@ osm_switch_recommend_path(IN const osm_switch_t * const p_sw,
 *	dor
 *		[in] If TRUE, Dimension Order Routing will be done.
 *
-*	remote_sys_guids
-*		[in out] The array of remote system guids already used to
-*		route the other lids of the same target port (if LMC > 0).
+*	remote_guids
+*		[in out] The array of remote guids already used to route
+*		the other lids of the same target port (if LMC > 0)
 *
-*	p_num_used_sys
-*		[in out] The number of remote systems used for routing to
+*	p_num_remote_guids
+*		[in out] The number of remote guids used for routing to
 *		the port.
 *
-*	remote_node_guids
-*		[in out] The array of remote node guids already used to route
-*		the other lids of the same target port (if LMC > 0).
-*
-*	p_num_used_nodes
-*		[in out] The number of remote nodes used for routing to
-*		the port.
+*	p_remote_guid_count_used
+*		[in out] The specific osm_switch_guid_count_t used
+*		in switch recommendations.
 *
 * RETURN VALUE
 *	Returns the recommended port on which to route this LID.
