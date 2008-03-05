@@ -1169,10 +1169,7 @@ _repeat_discovery:
 
 	/*
 	 * Proceed with unicast forwarding table configuration.
-	 * First - send trap 64 on newly discovered endports
 	 */
-	__osm_state_mgr_report_new_ports(sm);
-
 	osm_ucast_mgr_process(&sm->ucast_mgr);
 	if (wait_for_pending_transactions(&sm->p_subn->p_osm->stats))
 		return;
@@ -1222,6 +1219,11 @@ _repeat_discovery:
 	/*
 	 * The sweep completed!
 	 */
+
+	/*
+	 * Send trap 64 on newly discovered endports
+	 */
+	__osm_state_mgr_report_new_ports(sm);
 
 	/* in any case we zero this flag */
 	sm->p_subn->coming_out_of_standby = FALSE;
