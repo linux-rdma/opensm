@@ -104,8 +104,7 @@ __osm_si_rcv_get_port_info(IN osm_sm_t * sm,
 	context.pi_context.active_transition = FALSE;
 
 	num_ports = osm_node_get_num_physp(p_node);
-	osm_dr_path_init(&dr_path,
-			 osm_madw_get_bind_handle(p_madw),
+	osm_dr_path_init(&dr_path, osm_madw_get_bind_handle(p_madw),
 			 p_smp->hop_count, p_smp->initial_path);
 
 	for (port_num = 0; port_num < num_ports; port_num++) {
