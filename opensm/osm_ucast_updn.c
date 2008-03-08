@@ -397,13 +397,11 @@ updn_subn_rank(IN unsigned num_guids,
 					max_rank = remote_u->rank;
 					cl_qlist_insert_tail(&list,
 							     &remote_u->list);
+					OSM_LOG(p_log, OSM_LOG_DEBUG,
+						"Rank of port GUID 0x%" PRIx64
+						" = %u\n", cl_ntoh64(port_guid),
+						remote_u->rank);
 				}
-
-				OSM_LOG(p_log, OSM_LOG_DEBUG,
-					"Rank of port GUID 0x%" PRIx64
-					" = %u\n", cl_ntoh64(port_guid),
-					remote_u->rank);
-
 			}
 		}
 	}
