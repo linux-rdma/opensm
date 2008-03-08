@@ -334,7 +334,7 @@ static void dump_lid_matrix(cl_map_item_t * p_map_item, void *cxt)
 				osm_switch_get_hop_count(p_sw, lid, port));
 		p_port = cl_ptr_vector_get(&p_osm->subn.port_lid_tbl, lid);
 		if (p_port)
-			fprintf(file, " # portguid 0x%" PRIx64,
+			fprintf(file, " # portguid 0x016%" PRIx64,
 				cl_ntoh64(osm_port_get_guid(p_port)));
 		fprintf(file, "\n");
 	}
@@ -353,7 +353,7 @@ static void dump_ucast_lfts(cl_map_item_t * p_map_item, void *cxt)
 
 	fprintf(file, "Unicast lids [0x0-0x%x] of switch Lid %u guid 0x%016"
 		PRIx64 " (\'%s\'):\n",
-		max_lid, osm_node_get_base_lid(p_node, 0),
+		max_lid, cl_ntoh16(osm_node_get_base_lid(p_node, 0)),
 		cl_ntoh64(osm_node_get_node_guid(p_node)), p_node->print_desc);
 	for (lid = 0; lid <= max_lid; lid++) {
 		osm_port_t *p_port;
@@ -367,7 +367,7 @@ static void dump_ucast_lfts(cl_map_item_t * p_map_item, void *cxt)
 		p_port = cl_ptr_vector_get(&p_osm->subn.port_lid_tbl, lid);
 		if (p_port) {
 			p_node = p_port->p_node;
-			fprintf(file, "%s portguid 0x016%" PRIx64 ": \'%s\'",
+			fprintf(file, "%s portguid 0x%016" PRIx64 ": \'%s\'",
 				ib_get_node_type_str(osm_node_get_type(p_node)),
 				cl_ntoh64(osm_port_get_guid(p_port)),
 				p_node->print_desc);
