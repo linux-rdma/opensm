@@ -180,7 +180,8 @@ __updn_bfs_by_node(IN osm_log_t * p_log,
 			rem_u = p_remote_sw->priv;
 			/* Decide which direction to mark it (UP/DOWN) */
 			next_dir = __updn_get_dir(u->rank, rem_u->rank,
-						  current_guid, remote_guid);
+						  cl_ntoh64(current_guid),
+						  cl_ntoh64(remote_guid));
 
 			/* Check if this is a legal step : the only illegal step is going
 			   from DOWN to UP */
