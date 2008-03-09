@@ -160,10 +160,10 @@ typedef struct _osm_switch {
 
 /****s* OpenSM: Switch/osm_switch_guid_count_t
 * NAME
-*       osm_switch_guid_count_t
+*	osm_switch_guid_count_t
 *
 * DESCRIPTION
-*       Stores system and node guids and the number of
+*	Stores system and node guids and the number of
 *	times a switch has forwarded to it.
 *
 * SYNOPSIS
@@ -175,14 +175,14 @@ typedef struct _osm_switch_guid_count {
 } osm_switch_guid_count_t;
 /*
 * FIELDS
-*       sys_guid
-*               A system guid.
+*	sys_guid
+*		A system guid.
 *
-*       node_guid
-*               A node guid.
+*	node_guid
+*		A node guid.
 *
-*       forwarded_to
-*               A count of lids forwarded to the sys_guid/node_guid.
+*	forwarded_to
+*		A count of lids forwarded to the sys_guid/node_guid.
 *********/
 
 /****f* OpenSM: Switch/osm_switch_delete
