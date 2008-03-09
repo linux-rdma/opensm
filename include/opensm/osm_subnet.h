@@ -965,14 +965,14 @@ struct _osm_node *osm_get_node_by_guid(IN osm_subn_t const *p_subn,
 * SYNOPSIS
 */
 struct _osm_port *osm_get_port_by_guid(IN osm_subn_t const *p_subn,
-				       IN uint64_t guid);
+				       IN ib_net64_t guid);
 /*
 * PARAMETERS
 *	p_subn
 *		[in] Pointer to an osm_subn_t object
 *
 *	guid
-*		[in] The port guid in host order
+*		[in] The port guid in network order
 *
 * RETURN VALUES
 *	The port structure pointer if found. NULL otherwise.

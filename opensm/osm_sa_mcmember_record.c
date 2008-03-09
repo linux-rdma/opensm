@@ -1325,7 +1325,8 @@ __osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa,
 		CL_PLOCK_RELEASE(sa->p_lock);
 
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-			"Unknown port GUID 0x%016" PRIx64 "\n", portguid);
+			"Unknown port GUID 0x%016" PRIx64 "\n",
+			cl_ntoh64(portguid));
 		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_REQ_INVALID);
 		goto Exit;
 	}
