@@ -219,7 +219,7 @@ __osm_ucast_mgr_process_port(IN osm_ucast_mgr_t * const p_mgr,
 		remote_guids = malloc(sizeof(osm_switch_guid_count_t) * lids_per_port);
 		if (remote_guids == NULL) {
 			osm_log(p_mgr->p_log, OSM_LOG_ERROR,
-				"__osm_ucast_mgr_process_port: ERR 3A0B: "
+				"__osm_ucast_mgr_process_port: ERR 3A09: "
 				"Cannot allocate array. Insufficient memory\n");
 			goto Exit;
 		}
