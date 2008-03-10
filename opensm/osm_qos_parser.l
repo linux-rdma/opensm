@@ -56,6 +56,7 @@ static void save_pos();
 extern int column_num;
 extern int line_num;
 extern FILE * __qos_parser_in;
+extern YYSTYPE __qos_parser_lval;
 
 boolean_t in_description = FALSE;
 boolean_t in_list_of_hex_num_ranges = FALSE;

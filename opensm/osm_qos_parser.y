@@ -149,6 +149,7 @@ extern char * __qos_parser_text;
 extern int __qos_parser_lex (void);
 extern FILE * __qos_parser_in;
 extern int errno;
+int __qos_parser_parse();
 
 #define RESET_BUFFER  __parser_tmp_struct_reset()
 
