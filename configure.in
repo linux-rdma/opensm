@@ -28,6 +28,18 @@ AC_PROG_MAKE_SET
 AC_PROG_YACC
 AC_PROG_LEX
 
+AC_CHECK_PROGS(_YACC_,$YACC,none)
+if test "$_YACC_" = "none"
+then
+  AC_MSG_ERROR([No bison/byacc/yacc found.])
+fi
+
+AC_CHECK_PROGS(_LEX_,$LEX,none)
+if test "$_LEX_" = "none"
+then
+  AC_MSG_ERROR([No flex/lex found.])
+fi
+
 dnl Checks for libraries
 AC_CHECK_LIB(pthread, pthread_mutex_init, [],
 	AC_MSG_ERROR([pthread_mutex_init() not found.  libosmcomp requires libpthread.]))
