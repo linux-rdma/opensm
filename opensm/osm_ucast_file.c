@@ -200,7 +200,7 @@ static int do_ucast_file_load(void *context)
 					cl_ntoh64(sw_guid));
 				continue;
 			}
-			memset(p_osm->sm.ucast_mgr.lft_buf, 0xff,
+			memset(p_osm->sm.ucast_mgr.lft_buf, OSM_NO_PATH,
 			       IB_LID_UCAST_END_HO + 1);
 		} else if (p_sw && !strncmp(p, "0x", 2)) {
 			p += 2;

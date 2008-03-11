@@ -210,7 +210,7 @@ osm_lin_fwd_tbl_get(IN const osm_lin_fwd_tbl_t * const p_tbl,
 	if (lid_ho < p_tbl->size)
 		return (p_tbl->port_tbl[lid_ho]);
 	else
-		return (0xFF);
+		return (OSM_NO_PATH);
 }
 
 /*

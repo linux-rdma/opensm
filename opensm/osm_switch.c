@@ -68,7 +68,7 @@ osm_switch_set_hops(IN osm_switch_t * const p_sw,
 		p_sw->hops[lid_ho] = malloc(p_sw->num_ports);
 		if (!p_sw->hops[lid_ho])
 			return -1;
-		memset(p_sw->hops[lid_ho], 0xff, p_sw->num_ports);
+		memset(p_sw->hops[lid_ho], OSM_NO_PATH, p_sw->num_ports);
 	}
 
 	p_sw->hops[lid_ho][port_num] = num_hops;
@@ -194,7 +194,7 @@ osm_switch_get_fwd_tbl_block(IN const osm_switch_t * const p_sw,
 
 	if (base_lid_ho <= max_lid_ho) {
 		/* Initialize LIDs in block to invalid port number. */
-		memset(p_block, 0xff, IB_SMP_DATA_SIZE);
+		memset(p_block, OSM_NO_PATH, IB_SMP_DATA_SIZE);
 		/*
 		   Determine the range of LIDs we can return with this block.
 		 */
@@ -580,7 +580,7 @@ void osm_switch_clear_hops(IN osm_switch_t * p_sw)
 
 	for (i = 0; i < p_sw->num_hops; i++)
 		if (p_sw->hops[i])
-			memset(p_sw->hops[i], 0xff, p_sw->num_ports);
+			memset(p_sw->hops[i], OSM_NO_PATH, p_sw->num_ports);
 }
 
 /**********************************************************************

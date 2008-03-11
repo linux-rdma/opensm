@@ -489,7 +489,7 @@ __osm_ucast_mgr_process_tbl(IN cl_map_item_t * const p_map_item,
 	}
 
 	/* Initialize LIDs in buffer to invalid port number. */
-	memset(p_mgr->lft_buf, 0xff, IB_LID_UCAST_END_HO + 1);
+	memset(p_mgr->lft_buf, OSM_NO_PATH, IB_LID_UCAST_END_HO + 1);
 
 	p_port_tbl = &p_mgr->p_subn->port_guid_tbl;
 
