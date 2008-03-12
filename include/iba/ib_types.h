@@ -7158,13 +7158,13 @@ typedef struct _ib_mad_notice_attr	// Total Size calc  Accumulated
 		struct _ntc_256 {	// total: 54
 			ib_net16_t pad1;	// 2
 			ib_net16_t lid;	// 2
-			ib_net16_t pad2;	// 2
+			ib_net16_t dr_slid;	// 2
 			uint8_t method;	// 1
-			uint8_t pad3;	// 1
+			uint8_t pad2;	// 1
 			ib_net16_t attr_id;	// 2
 			ib_net32_t attr_mod;	// 4
 			ib_net64_t mkey;	// 8
-			uint8_t dr_slid;	// 1
+			uint8_t pad3;	// 1
 			uint8_t dr_trunc_hop;	// 1
 			uint8_t dr_rtn_path[30];	// 30
 		} PACK_SUFFIX ntc_256;
@@ -7182,16 +7182,14 @@ typedef struct _ib_mad_notice_attr	// Total Size calc  Accumulated
 			ib_gid_t gid2;	// 16
 		} PACK_SUFFIX ntc_257_258;
 
-		struct _ntc_259	// p/q_key violation with sw info 53
+		struct _ntc_259	// pkey violation from switch 51
 		{
 			ib_net16_t data_valid;	// 2
 			ib_net16_t lid1;	// 2
 			ib_net16_t lid2;	// 2
-			ib_net32_t key;	// 4
-			uint8_t sl;	// 1
-			ib_net32_t qp1;	// 4
-			uint8_t qp2_msb;	// 1
-			ib_net16_t qp2_lsb;	// 2
+			ib_net16_t pkey;	// 2
+			ib_net32_t sl_qp1; // 4b sl, 4b pad, 24b qp1
+			ib_net32_t qp2; // 8b pad, 24b qp2
 			ib_gid_t gid1;	// 16
 			ib_gid_t gid2;	// 16
 			ib_net16_t sw_lid;	// 2
@@ -7204,6 +7202,12 @@ typedef struct _ib_mad_notice_attr	// Total Size calc  Accumulated
 
 } PACK_SUFFIX ib_mad_notice_attr_t;
 #include <complib/cl_packoff.h>
+
+/**
+ * Trap 259 masks
+ */
+#define TRAP_259_MASK_SL (CL_HTON32(0xF0000000))
+#define TRAP_259_MASK_QP (CL_HTON32(0x00FFFFFF))
 
 /****f* IBA Base: Types/ib_notice_is_generic
 * NAME
