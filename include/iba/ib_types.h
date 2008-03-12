@@ -7143,9 +7143,11 @@ typedef struct _ib_mad_notice_attr	// Total Size calc  Accumulated
 
 		struct _ntc_144 {
 			ib_net16_t pad1;
-			ib_net16_t lid;	// lid where capability mask changed
-			ib_net16_t pad2;
-			ib_net32_t new_cap_mask;	// new capability mask
+			ib_net16_t lid;             // lid where change occured
+			uint8_t    pad2;            // reserved
+			uint8_t    local_changes;   // 7b reserved 1b local changes
+			ib_net32_t new_cap_mask;    // new capability mask
+			ib_net16_t change_flgs;     // 13b reserved 3b change flags
 		} PACK_SUFFIX ntc_144;
 
 		struct _ntc_145 {
@@ -7208,6 +7210,14 @@ typedef struct _ib_mad_notice_attr	// Total Size calc  Accumulated
  */
 #define TRAP_259_MASK_SL (CL_HTON32(0xF0000000))
 #define TRAP_259_MASK_QP (CL_HTON32(0x00FFFFFF))
+
+/**
+ * Trap 144 masks
+ */
+#define TRAP_144_MASK_OTHER_LOCAL_CHANGES      0x01
+#define TRAP_144_MASK_LINK_SPEED_ENABLE_CHANGE (CL_HTON16(0x0004))
+#define TRAP_144_MASK_LINK_WIDTH_ENABLE_CHANGE (CL_HTON16(0x0002))
+#define TRAP_144_MASK_NODE_DESCRIPTION_CHANGE  (CL_HTON16(0x0001))
 
 /****f* IBA Base: Types/ib_notice_is_generic
 * NAME
