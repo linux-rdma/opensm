@@ -765,10 +765,10 @@ static void switchbalance_check(osm_opensm_t * p_osm,
 		p_rem_physp = osm_physp_get_remote(p_physp);
 		p_rem_node = osm_physp_get_node_ptr(p_rem_physp);
 
-		/* If we are directly connected to a CA, its not really
+		/* If we are directly connected to a CA/router, its not really
 		 * up for balancing consideration.
 		 */
-		if (osm_node_get_type(p_rem_node) == IB_NODE_TYPE_CA)
+		if (osm_node_get_type(p_rem_node) != IB_NODE_TYPE_SWITCH)
 			continue;
 
 		output_ports[output_ports_count] = port_num;
