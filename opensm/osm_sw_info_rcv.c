@@ -517,7 +517,7 @@ void osm_si_rcv_process(IN void *context, IN void *data)
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3610: "
 				"\n\t\t\t\tBad LinearFDBTop value = 0x%X "
 				"on switch 0x%" PRIx64
-				"\n\t\t\t\tForcing correction to 0x%X\n",
+				"\n\t\t\t\tForcing internal correction to 0x%X\n",
 				cl_ntoh16(p_si->lin_top),
 				cl_ntoh64(osm_node_get_node_guid(p_node)), 0);
 
