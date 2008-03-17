@@ -708,6 +708,7 @@ osm_ucast_mgr_read_guid_file(IN osm_ucast_mgr_t * const p_mgr,
 				"Poorly formatted guid in file (%s): %s\n",
 				guid_file_name, line);
 			status = IB_NOT_FOUND;
+			free(p_guid);
 			break;
 		}
 
