@@ -35,7 +35,7 @@ This document includes the following sections:
   When enabled it collects a fabric port counters and able to log it or
   to pass to external program via event plugin interface. It handles
   counters overflow, supports LID/QP redirection and is able to work
-  when OpenSM is in master. standby and inactive states.
+  when OpenSM is in master, standby, and inactive states.
 
 * Dimension Order routing (DOR) algorithm
   DOR Unicast routing algorithm - based on the Min Hop algorithm,  but
@@ -61,7 +61,7 @@ This document includes the following sections:
 * PKey index support
   Proper support for PKey index in GSI queries.
 
-* Incremental LFTs. PKey, SL2VL, VLarbitration table update
+* Incremental LFTs, PKey, SL2VL, and VLarbitration table updates
   OpenSM will only fetch those tables in first heavy sweep and then
   will maintain this internally.
 
@@ -70,7 +70,7 @@ This document includes the following sections:
   doesn't find this device as disconnected OpenSM will detect this by
   changed port states and handle accordingly.
 
-* Duplicated GUIDs/port moving detector.
+* Duplicated GUIDs/port moving detector
   OpenSM will be able to detect port moving during a fabric discovery
   and will not report duplicated GUIDs in this case.
 
@@ -475,5 +475,15 @@ iPath   | QHT6040 (PathScale InfiniPath HT-460)
 iPath   | QHT6140 (PathScale InfiniPath HT-465)
 iPath   | QLE6140 (PathScale InfiniPath PE-880)
 
-Note: OpenSM does not run on an IBM Galaxy (eHCA) as it does not expose
+Note 1: OpenSM does not run on an IBM Galaxy (eHCA) as it does not expose
 QP0 and QP1. However, it does support it as a device on the subnet.
+
+Note 2: QoS firmware and Mellanox devices
+
+HCAs: QoS supported by ConnectX. The current FW release
+doesn't support QoS. QoS-enabled FW release (2_5_000) is
+planned for May. If someone wishes to get QoS-enabled FW
+before the official release, they should contact Mellanox FAE.
+
+Switches: QoS supported by InfiniScale III
+Any InfiniScale III FW that is supported by OpenSM supports QoS.
