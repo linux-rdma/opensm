@@ -34,7 +34,7 @@
 prefix=@prefix@
 exec_prefix=@exec_prefix@
 
-CONFIG=@sysconfdir@/ofa/opensm.conf
+CONFIG=@sysconfdir@/@OPENSM_CONF_SUB_DIR@/opensm.conf
 
 if [ ! -f @CONFIG@ ]; then
     exit 0

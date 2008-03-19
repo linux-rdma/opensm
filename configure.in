@@ -98,6 +98,7 @@ AC_ARG_WITH(opensm-conf-sub-dir,
     esac ]
 )
 AC_MSG_RESULT(${withopensmconfsubdir=no})
+AC_SUBST(OPENSM_CONF_SUB_DIR)
 
 dnl Set up <sysconfdir>/opensm config dir.
 CONF_DIR_TMP1="`eval echo ${sysconfdir}/$OPENSM_CONF_SUB_DIR`"
