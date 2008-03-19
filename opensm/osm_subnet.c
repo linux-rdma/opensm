@@ -1471,14 +1471,14 @@ ib_api_status_t osm_subn_write_conf_file(IN osm_subn_opt_t * const p_opts)
 		"#    5: 2.5 or 10.0 Gbps\n"
 		"#    7: 2.5 or 5.0 or 10.0 Gbps\n"
 		"#    2,4,6,8-14 Reserved\n"
-		"#    Default 15: set to PortInfo:LinkSpeedSupported\n\n"
+		"#    Default 15: set to PortInfo:LinkSpeedSupported\n"
 		"force_link_speed %u\n\n"
 		"# The subnet_timeout code that will be set for all the ports\n"
 		"# The actual timeout is 4.096usec * 2^<subnet_timeout>\n"
 		"subnet_timeout %u\n\n"
 		"# Threshold of local phy errors for sending Trap 129\n"
 		"local_phy_errors_threshold 0x%02x\n\n"
-		"# Threshold of credits overrun errors for sending Trap 130\n"
+		"# Threshold of credit overrun errors for sending Trap 130\n"
 		"overrun_errors_threshold 0x%02x\n\n",
 		cl_ntoh64(p_opts->guid),
 		cl_ntoh64(p_opts->m_key),
@@ -1718,6 +1718,7 @@ ib_api_status_t osm_subn_write_conf_file(IN osm_subn_opt_t * const p_opts)
 	subn_dump_qos_options(opts_file,
 			      "QoS Router ports options", "qos_rtr",
 			      &p_opts->qos_rtr_options);
+	fprintf(opts_file, "\n");
 
 	fprintf(opts_file,
 		"# Prefix routes file name\n"
