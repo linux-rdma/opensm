@@ -128,8 +128,8 @@ OFED 1.0, OpenIB gen2 (e.g. IBG2 distribution), OpenIB gen1 (e.g. IBGD
 distribution), or Mellanox VAPI stacks. The qualified driver versions
 are provided in Table 2, "Qualified IB Stacks".
 
-Also building of QoS manager policy file parser requires flex and bison
-installed.
+Also building of QoS manager policy file parser requires flex, and either
+bison or byacc installed.
 
 1.5 Supported Devices Firmware
 
