@@ -61,6 +61,8 @@
 #include <opensm/osm_inform.h>
 #include <opensm/osm_opensm.h>
 
+extern void osm_req_get_node_desc(IN osm_sm_t * sm, osm_physp_t *p_physp);
+
 /**********************************************************************
  *
  * TRAP HANDLING:
@@ -574,6 +576,26 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 					"Continuously received this trap %u times. Ignoring\n",
 					num_received);
 			goto Exit;
+		}
+	}
+
+	/* Check for node descriptor update. IB Spec v1.2.1 pg 823*/
+	if ((p_ntci->data_details.ntc_144.local_changes & TRAP_144_MASK_OTHER_LOCAL_CHANGES) &&
+		(p_ntci->data_details.ntc_144.change_flgs & TRAP_144_MASK_NODE_DESCRIPTION_CHANGE)
+		) {
+
+		osm_node_t *p_node = NULL;
+
+		OSM_LOG(sm->p_log, OSM_LOG_INFO, "Trap 144 Node description update\n");
+
+		if (p_physp) {
+			CL_PLOCK_ACQUIRE(sm->p_lock);
+			osm_req_get_node_desc(sm, p_physp);
+			CL_PLOCK_RELEASE(sm->p_lock);
+		} else {
+			OSM_LOG(sm->p_log, OSM_LOG_ERROR,
+				"ERR 3812: No physical port found for "
+				"trap 144: \"node description update\"\n");
 		}
 	}
 

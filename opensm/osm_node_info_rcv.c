@@ -306,17 +306,41 @@ __osm_ni_rcv_process_new_node(IN osm_sm_t * sm,
 /**********************************************************************
  The plock must be held before calling this function.
 **********************************************************************/
+void
+osm_req_get_node_desc(IN osm_sm_t * sm,
+			osm_physp_t *p_physp)
+{
+	ib_api_status_t status = IB_SUCCESS;
+	osm_madw_context_t context;
+
+	OSM_LOG_ENTER(sm->p_log);
+
+	context.nd_context.node_guid =
+		osm_node_get_node_guid(osm_physp_get_node_ptr(p_physp));
+
+	status = osm_req_get(sm, osm_physp_get_dr_path_ptr(p_physp),
+			     IB_MAD_ATTR_NODE_DESC,
+			     0, CL_DISP_MSGID_NONE, &context);
+	if (status != IB_SUCCESS)
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D03: "
+			"Failure initiating NodeDescription request (%s)\n",
+			ib_get_err_str(status));
+
+	OSM_LOG_EXIT(sm->p_log);
+}
+
+/**********************************************************************
+ The plock must be held before calling this function.
+**********************************************************************/
 static void
 __osm_ni_rcv_get_node_desc(IN osm_sm_t * sm,
 			   IN osm_node_t * const p_node,
 			   IN const osm_madw_t * const p_madw)
 {
-	ib_api_status_t status = IB_SUCCESS;
-	osm_madw_context_t context;
-	osm_physp_t *p_physp;
 	ib_node_info_t *p_ni;
 	ib_smp_t *p_smp;
 	uint8_t port_num;
+	osm_physp_t *p_physp = NULL;
 
 	OSM_LOG_ENTER(sm->p_log);
 
@@ -334,15 +358,7 @@ __osm_ni_rcv_get_node_desc(IN osm_sm_t * sm,
 	 */
 	p_physp = osm_node_get_physp_ptr(p_node, port_num);
 
-	context.nd_context.node_guid = osm_node_get_node_guid(p_node);
-
-	status = osm_req_get(sm, osm_physp_get_dr_path_ptr(p_physp),
-			     IB_MAD_ATTR_NODE_DESC,
-			     0, CL_DISP_MSGID_NONE, &context);
-	if (status != IB_SUCCESS)
-		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D03: "
-			"Failure initiating NodeDescription request (%s)\n",
-			ib_get_err_str(status));
+	osm_req_get_node_desc(sm, p_physp);
 
 	OSM_LOG_EXIT(sm->p_log);
 }
