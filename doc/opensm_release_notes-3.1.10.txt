@@ -474,6 +474,8 @@ Device  |   Note
 iPath   | QHT6040 (PathScale InfiniPath HT-460)
 iPath   | QHT6140 (PathScale InfiniPath HT-465)
 iPath   | QLE6140 (PathScale InfiniPath PE-880)
+iPath   | QLE7240
+iPath   | QLE7280
 
 Note 1: OpenSM does not run on an IBM Galaxy (eHCA) as it does not expose
 QP0 and QP1. However, it does support it as a device on the subnet.
