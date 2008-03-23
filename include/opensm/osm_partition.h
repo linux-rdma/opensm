@@ -96,7 +96,7 @@ BEGIN_C_DECLS
 */
 typedef struct _osm_prtn {
 	cl_map_item_t map_item;
-	uint16_t pkey;
+	ib_net16_t pkey;
 	uint8_t sl;
 	cl_map_t full_guid_tbl;
 	cl_map_t part_guid_tbl;
