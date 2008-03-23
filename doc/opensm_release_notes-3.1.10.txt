@@ -459,14 +459,15 @@ Table 3 - Qualified Devices and Corresponding Firmware
 ======================================================
 
 Mellanox
-Device  |   FW versions
---------|-----------------------------------------------------------
-MT43132 |   InfiniScale - fw-43132  5.2.0 (and later)
-MT47396 |   InfiniScale III - fw-47396 0.5.0 (and later)
-MT23108 |   InfiniHost - fw-23108   3.3.2 (and later)
-MT25204 |   InfiniHost III Lx - fw-25204  1.0.1i (and later)
-MT25208 |   InfiniHost III Ex (InfiniHost Mode) - fw-25208  4.6.2 (and later)
-MT25208 |   InfiniHost III Ex (MemFree Mode) - fw-25218  5.0.1 (and later)
+Device                              |   FW versions
+------------------------------------|-------------------------------
+InfiniScale                         | fw-43132  5.2.000 (and later)
+InfiniScale III                     | fw-47396  0.5.000 (and later)
+InfiniHost                          | fw-23108  3.5.000 (and later)
+InfiniHost III Lx                   | fw-25204  1.2.000 (and later)
+InfiniHost III Ex (InfiniHost Mode) | fw-25208  4.8.200 (and later)
+InfiniHost III Ex (MemFree Mode)    | fw-25218  5.3.000 (and later)
+ConnectX IB                         | fw-25408  2.3.000 (and later)
 
 QLogic/PathScale
 Device  |   Note
