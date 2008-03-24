@@ -763,6 +763,69 @@ static osm_qos_port_group_t *__qos_policy_get_port_group_by_name(
 /***************************************************
  ***************************************************/
 
+static void __qos_policy_validate_pkey(
+			osm_qos_policy_t * p_qos_policy,
+			osm_qos_match_rule_t * p_qos_match_rule,
+			osm_prtn_t * p_prtn)
+{
+	uint8_t sl;
+	uint32_t flow;
+	uint8_t hop;
+	osm_mgrp_t * p_mgrp;
+
+	if (!p_qos_policy || !p_qos_match_rule || !p_prtn)
+		return;
+
+	if (!p_qos_match_rule->p_qos_level->sl_set ||
+	    p_prtn->sl == p_qos_match_rule->p_qos_level->sl)
+		return;
+
+	/* overriding partition's SL */
+	OSM_LOG(&p_qos_policy->p_subn->p_osm->log, OSM_LOG_ERROR,
+		"ERR AC15: pkey 0x%04X in match rule - "
+		"overriding partition SL (%u) with QoS Level SL (%u)\n",
+		cl_ntoh16(p_prtn->pkey), p_prtn->sl,
+		p_qos_match_rule->p_qos_level->sl);
+	p_prtn->sl = p_qos_match_rule->p_qos_level->sl;
+
+
+	/* If this partition is an IPoIB partition, there should
+	   be a matching MCast group. Fix this group's SL too */
+
+	if (!p_prtn->mlid)
+		return;
+
+	p_mgrp = (osm_mgrp_t *) cl_qmap_get(
+		&p_qos_policy->p_subn->mgrp_mlid_tbl,
+		p_prtn->mlid);
+	if (p_mgrp == (osm_mgrp_t *)
+		cl_qmap_end(&p_qos_policy->p_subn->mgrp_mlid_tbl)) {
+		OSM_LOG(&p_qos_policy->p_subn->p_osm->log, OSM_LOG_ERROR,
+			"ERR AC16: MCast group for partition with "
+			"pkey 0x%04X not found\n",
+			cl_ntoh16(p_prtn->pkey));
+		return;
+	}
+
+	CL_ASSERT((cl_ntoh16(p_mgrp->mcmember_rec.pkey) & 0x7fff) ==
+		  (cl_ntoh16(p_prtn->pkey) & 0x7fff));
+
+	ib_member_get_sl_flow_hop(p_mgrp->mcmember_rec.sl_flow_hop,
+				  &sl, &flow, &hop);
+	if (sl != p_prtn->sl) {
+		OSM_LOG(&p_qos_policy->p_subn->p_osm->log, OSM_LOG_DEBUG,
+			"Updating MCGroup (MLID 0x%04x) SL to "
+			"match partition SL (%u)\n",
+			cl_hton16(p_mgrp->mcmember_rec.mlid),
+			p_prtn->sl);
+		p_mgrp->mcmember_rec.sl_flow_hop =
+			ib_member_set_sl_flow_hop(p_prtn->sl, flow, hop);
+	}
+}
+
+/***************************************************
+ ***************************************************/
+
 int osm_qos_policy_validate(osm_qos_policy_t * p_qos_policy,
 			    osm_log_t *p_log)
 {
@@ -901,27 +964,16 @@ int osm_qos_policy_validate(osm_qos_policy_t * p_qos_policy,
 					&p_qos_policy->p_subn->prtn_pkey_tbl, pkey);
 
 				if (p_prtn == (osm_prtn_t *)cl_qmap_end(
-					&p_qos_policy->p_subn->prtn_pkey_tbl)) {
+					&p_qos_policy->p_subn->prtn_pkey_tbl))
 					/* partition for this pkey not found */
 					OSM_LOG(p_log, OSM_LOG_ERROR, "ERR AC14: "
 						"pkey 0x%04X in match rule - "
 						"partition doesn't exist\n",
 						cl_ntoh16(pkey));
-					continue;
-				}
-
-				if (p_qos_match_rule->p_qos_level->sl_set &&
-                                    p_prtn->sl != p_qos_match_rule->p_qos_level->sl) {
-					/* overriding partition's SL */
-					OSM_LOG(p_log, OSM_LOG_ERROR, "ERR AC15: "
-						"pkey 0x%04X in match rule - "
-						"overriding partition SL (%u) "
-						"with QoS Level SL (%u)\n",
-						cl_ntoh16(pkey),
-						p_prtn->sl,
-						p_qos_match_rule->p_qos_level->sl);
-					p_prtn->sl = p_qos_match_rule->p_qos_level->sl;
-				}
+				else
+					__qos_policy_validate_pkey(p_qos_policy,
+							p_qos_match_rule,
+							p_prtn);
 			}
 		}
 

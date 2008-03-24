@@ -97,6 +97,7 @@ BEGIN_C_DECLS
 typedef struct _osm_prtn {
 	cl_map_item_t map_item;
 	ib_net16_t pkey;
+	ib_net16_t mlid;
 	uint8_t sl;
 	cl_map_t full_guid_tbl;
 	cl_map_t part_guid_tbl;
@@ -109,6 +110,10 @@ typedef struct _osm_prtn {
 *
 *	pkey
 *		The IBA defined P_KEY of this Partition.
+*
+*	mlid
+*		The network ordered LID of the well known Multicast Group
+*		that was created for this partition.
 *
 *	sl
 *		The Service Level (SL) associated with this Partiton.

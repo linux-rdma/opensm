@@ -230,8 +230,10 @@ ib_api_status_t osm_prtn_add_mcgroup(osm_log_t * p_log,
 		OSM_LOG(p_log, OSM_LOG_ERROR,
 			"Failed to create MC group with pkey 0x%04x\n",
 			cl_ntoh16(pkey));
-	if (p_mgrp)
+	if (p_mgrp) {
 		p_mgrp->well_known = TRUE;
+		p->mlid = p_mgrp->mlid;
+	}
 
 	/* workaround for TS */
 	/* FIXME: remove this upon TS fixes */
@@ -243,8 +245,11 @@ ib_api_status_t osm_prtn_add_mcgroup(osm_log_t * p_log,
 
 	status = osm_mcmr_rcv_find_or_create_new_mgrp(p_sa, comp_mask, &mc_rec,
 						      &p_mgrp);
-	if (p_mgrp)
+	if (p_mgrp) {
 		p_mgrp->well_known = TRUE;
+		if (!p->mlid)
+			p->mlid = p_mgrp->mlid;
+	}
 
 	return status;
 }
