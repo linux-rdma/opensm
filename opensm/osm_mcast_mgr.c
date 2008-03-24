@@ -569,6 +569,14 @@ static osm_mtree_node_t *__osm_mcast_mgr_branch(osm_sm_t * sm,
 
 	depth++;
 
+	if (depth >= 64) {
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR,
+			"Maximal hops number is reached MLID 0x%x."
+			" Break processing.", mlid_ho);
+		__osm_mcast_mgr_purge_list(sm, p_list);
+		goto Exit;
+	}
+
 	if (depth > *p_max_depth) {
 		CL_ASSERT(depth == *p_max_depth + 1);
 		*p_max_depth = depth;
