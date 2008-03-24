@@ -454,8 +454,7 @@ static int __osm_subn_set_up_down_min_hop_table(IN updn_t * p_updn)
 		p_sw = p_next_sw;
 		p_next_sw = (osm_switch_t *) cl_qmap_next(&p_sw->map_item);
 		/* Clear Min Hop Table */
-		if (p_subn->opt.connect_roots
-		    && !((struct updn_node *)p_sw->priv)->rank)
+		if (p_subn->opt.connect_roots)
 			updn_clear_root_hops(p_updn, p_sw);
 		else
 			osm_switch_clear_hops(p_sw);
