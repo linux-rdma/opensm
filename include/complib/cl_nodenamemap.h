@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2008 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2007 Lawrence Livermore National Lab
  *
  * This software is available to you under a choice of one of two
@@ -60,5 +61,7 @@ void  close_node_name_map(nn_map_t *map);
 char *remap_node_name(nn_map_t *map, uint64_t target_guid,
 			char *nodedesc);
 	/* NOTE: parameter "nodedesc" may be modified here. */
+int parse_node_map(const char *file_name,
+		   int (*create)(void *, uint64_t, char *), void *cxt);
 
 #endif				/* _CL_NODE_NAME_MAP_H_ */

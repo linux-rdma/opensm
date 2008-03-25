@@ -147,6 +147,7 @@ OSMCOMP_2.3 {
 		ib_wc_status_str;
 		open_node_name_map;
 		close_node_name_map;
+		parse_node_map;
 		remap_node_name;
 		clean_nodedesc;
 	local: *;
