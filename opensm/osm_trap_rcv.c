@@ -583,9 +583,6 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 	if ((p_ntci->data_details.ntc_144.local_changes & TRAP_144_MASK_OTHER_LOCAL_CHANGES) &&
 		(p_ntci->data_details.ntc_144.change_flgs & TRAP_144_MASK_NODE_DESCRIPTION_CHANGE)
 		) {
-
-		osm_node_t *p_node = NULL;
-
 		OSM_LOG(sm->p_log, OSM_LOG_INFO, "Trap 144 Node description update\n");
 
 		if (p_physp) {
