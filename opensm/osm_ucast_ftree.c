@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2008 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2007 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -105,6 +105,11 @@ struct ftree_fabric_t_;
 typedef uint8_t ftree_tuple_t[FTREE_TUPLE_LEN];
 typedef uint64_t ftree_tuple_key_t;
 
+struct guid_list_item {
+	cl_list_item_t list;
+	uint64_t guid;
+};
+
 /***************************************************
  **
  **  ftree_sw_table_element_t definition
@@ -115,17 +120,6 @@ typedef struct {
 	cl_map_item_t map_item;
 	struct ftree_sw_t_ *p_sw;
 } ftree_sw_tbl_element_t;
-
-/***************************************************
- **
- **  ftree_guid_tbl_element_t definition
- **
- ***************************************************/
-
-typedef struct {
-	cl_map_item_t map_item;
-	uint64_t guid_ho;
-} ftree_guid_tbl_element_t;
 
 /***************************************************
  **
@@ -224,7 +218,7 @@ typedef struct ftree_fabric_t_ {
 	cl_qmap_t hca_tbl;
 	cl_qmap_t sw_tbl;
 	cl_qmap_t sw_by_tuple_tbl;
-	cl_list_t root_guid_list;
+	cl_qlist_t root_guid_list;
 	cl_qmap_t cn_guid_tbl;
 	unsigned cn_num;
 	uint8_t leaf_switch_rank;
@@ -364,35 +358,6 @@ static ftree_sw_tbl_element_t *__osm_ftree_sw_tbl_element_create(IN ftree_sw_t *
 
 static void __osm_ftree_sw_tbl_element_destroy(IN ftree_sw_tbl_element_t *
 					       p_element)
-{
-	if (!p_element)
-		return;
-	free(p_element);
-}
-
-/***************************************************
- **
- ** ftree_guid_tbl_element_t functions
- **
- ***************************************************/
-
-static ftree_guid_tbl_element_t *__osm_ftree_guid_tbl_element_create(IN uint64_t
-								     guid)
-{
-	ftree_guid_tbl_element_t *p_element = (ftree_guid_tbl_element_t *)
-	    malloc(sizeof(ftree_guid_tbl_element_t));
-	if (!p_element)
-		return NULL;
-	memset(p_element, 0, sizeof(ftree_guid_tbl_element_t));
-
-	memcpy(&p_element->guid_ho, &guid, sizeof(uint64_t));
-	return p_element;
-}
-
-/***************************************************/
-
-static void __osm_ftree_guid_tbl_element_destroy(IN ftree_guid_tbl_element_t *
-						 p_element)
 {
 	if (!p_element)
 		return;
@@ -962,8 +927,7 @@ static ftree_fabric_t *__osm_ftree_fabric_create()
 	cl_qmap_init(&p_ftree->sw_by_tuple_tbl);
 	cl_qmap_init(&p_ftree->cn_guid_tbl);
 
-	cl_list_construct(&p_ftree->root_guid_list);
-	cl_list_init(&p_ftree->root_guid_list, 10);
+	cl_qlist_init(&p_ftree->root_guid_list);
 
 	status = cl_pool_init(&p_ftree->sw_fwd_tbl_pool, 8,	/* min pool size */
 			      0,	/* max pool size - unlimited */
@@ -988,9 +952,7 @@ static void __osm_ftree_fabric_clear(ftree_fabric_t * p_ftree)
 	ftree_sw_t *p_next_sw;
 	ftree_sw_tbl_element_t *p_element;
 	ftree_sw_tbl_element_t *p_next_element;
-	ftree_guid_tbl_element_t *p_guid_element;
-	ftree_guid_tbl_element_t *p_next_guid_element;
-	uint64_t *p_guid;
+	name_map_item_t *p_guid_element, *p_next_guid_element;
 
 	if (!p_ftree)
 		return;
@@ -1031,25 +993,20 @@ static void __osm_ftree_fabric_clear(ftree_fabric_t * p_ftree)
 	cl_qmap_remove_all(&p_ftree->sw_by_tuple_tbl);
 
 	/* remove all the elements of cn_guid_tbl */
-
 	p_next_guid_element =
-	    (ftree_guid_tbl_element_t *) cl_qmap_head(&p_ftree->cn_guid_tbl);
+	    (name_map_item_t *) cl_qmap_head(&p_ftree->cn_guid_tbl);
 	while (p_next_guid_element !=
-	       (ftree_guid_tbl_element_t *) cl_qmap_end(&p_ftree->
-							cn_guid_tbl)) {
+	       (name_map_item_t *) cl_qmap_end(&p_ftree->cn_guid_tbl)) {
 		p_guid_element = p_next_guid_element;
 		p_next_guid_element =
-		    (ftree_guid_tbl_element_t *) cl_qmap_next(&p_guid_element->
-							      map_item);
-		__osm_ftree_guid_tbl_element_destroy(p_guid_element);
+		    (name_map_item_t *) cl_qmap_next(&p_guid_element->item);
+		free(p_guid_element);
 	}
 	cl_qmap_remove_all(&p_ftree->cn_guid_tbl);
 
 	/* remove all the elements of root_guid_list */
-
-	while ((p_guid =
-		(uint64_t *) cl_list_remove_head(&p_ftree->root_guid_list)))
-		free(p_guid);
+	while (!cl_is_qlist_empty(&p_ftree->root_guid_list))
+		free(cl_qlist_remove_head(&p_ftree->root_guid_list));
 
 	/* free the leaf switches array */
 	if ((p_ftree->leaf_switches_num > 0) && (p_ftree->leaf_switches))
@@ -1073,7 +1030,6 @@ static void __osm_ftree_fabric_destroy(ftree_fabric_t * p_ftree)
 	if (!p_ftree)
 		return;
 	__osm_ftree_fabric_clear(p_ftree);
-	cl_list_destroy(&p_ftree->root_guid_list);
 	cl_pool_destroy(&p_ftree->sw_fwd_tbl_pool);
 	free(p_ftree);
 }
@@ -2992,14 +2948,14 @@ __osm_ftree_fabric_construct_hca_ports(IN ftree_fabric_t * p_ftree,
 		if (!__osm_ftree_fabric_cns_provided(p_ftree)) {
 			is_cn = TRUE;
 		} else {
-			ftree_guid_tbl_element_t *p_elem =
-			    (ftree_guid_tbl_element_t *) cl_qmap_get(&p_ftree->
-								     cn_guid_tbl,
-								     osm_physp_get_port_guid
-								     (p_osm_port));
+			name_map_item_t *p_elem =
+			    (name_map_item_t *) cl_qmap_get(&p_ftree->
+							    cn_guid_tbl,
+							    osm_physp_get_port_guid
+							    (p_osm_port));
 			if (p_elem !=
-			    (ftree_guid_tbl_element_t *) cl_qmap_end(&p_ftree->
-								     cn_guid_tbl))
+			    (name_map_item_t *) cl_qmap_end(&p_ftree->
+							    cn_guid_tbl))
 				is_cn = TRUE;
 		}
 
@@ -3180,37 +3136,33 @@ static int __osm_ftree_fabric_rank_from_roots(IN ftree_fabric_t * p_ftree)
 	ftree_sw_t *p_sw;
 	ftree_sw_t *p_remote_sw;
 	cl_list_t ranking_bfs_list;
-	uint64_t *p_guid;
+	struct guid_list_item *item;
 	int res = 0;
 	unsigned num_roots;
 	unsigned max_rank = 0;
 	unsigned i;
-	cl_list_iterator_t guid_iterator;
 
 	OSM_LOG_ENTER(&p_ftree->p_osm->log);
 	cl_list_init(&ranking_bfs_list, 10);
 
 	/* Rank all the roots and add them to list */
-
-	guid_iterator = cl_list_head(&p_ftree->root_guid_list);
-	while (guid_iterator != cl_list_end(&p_ftree->root_guid_list)) {
-		p_guid = (uint64_t *) cl_list_obj(guid_iterator);
-		guid_iterator = cl_list_next(guid_iterator);
-
+	for (item = (void *)cl_qlist_head(&p_ftree->root_guid_list);
+	     item != (void *)cl_qlist_end(&p_ftree->root_guid_list);
+	     item = (void *)cl_qlist_next(&item->list)) {
 		p_sw =
 		    __osm_ftree_fabric_get_sw_by_guid(p_ftree,
-						      cl_hton64(*p_guid));
+						      cl_hton64(item->guid));
 		if (!p_sw) {
 			/* the specified root guid wasn't found in the fabric */
 			OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_ERROR, "ERR AB24: "
 				"Root switch GUID 0x%" PRIx64 " not found\n",
-				*p_guid);
+				item->guid);
 			continue;
 		}
 
 		OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
 			"Ranking root switch with GUID 0x%" PRIx64 "\n",
-			*p_guid);
+			item->guid);
 		p_sw->rank = 0;
 		cl_list_insert_tail(&ranking_bfs_list, p_sw);
 	}
@@ -3444,28 +3396,35 @@ Exit:
 
 /***************************************************
  ***************************************************/
-
-static void __osm_ftree_convert_list2qmap(cl_list_t * p_guid_list,
-					  cl_qmap_t * p_map)
+static int add_guid_item_to_list(void *cxt, uint64_t guid, char *p)
 {
-	uint64_t *p_guid;
-	CL_ASSERT(p_map);
-	if (!p_guid_list || !cl_list_count(p_guid_list))
-		return;
+	cl_qlist_t *list = cxt;
+	struct guid_list_item *item;
 
-	while ((p_guid = (uint64_t *) cl_list_remove_head(p_guid_list))) {
-		/* object key is guid in network order */
-		cl_qmap_insert(p_map, cl_hton64(*p_guid),
-			       &((__osm_ftree_guid_tbl_element_create
-				  (*p_guid))->map_item));
-		free(p_guid);
-	}
-	CL_ASSERT(cl_is_list_empty(p_guid_list));
+	item = malloc(sizeof(*item));
+	if (!item)
+		return -1;
 
-}				/* __osm_ftree_convert_list2qmap() */
+	item->guid = guid;
+	cl_qlist_insert_tail(list, &item->list);
 
-/***************************************************
- ***************************************************/
+	return 0;
+}
+
+static int add_guid_item_to_map(void *cxt, uint64_t guid, char *p)
+{
+	cl_qmap_t *map = cxt;
+	name_map_item_t *item;
+
+	item = malloc(sizeof(*item));
+	if (!item)
+		return -1;
+
+	item->guid = guid;
+	cl_qmap_insert(map, guid, &item->item);
+
+	return 0;
+}
 
 static int __osm_ftree_fabric_read_guid_files(IN ftree_fabric_t * p_ftree)
 {
@@ -3478,15 +3437,14 @@ static int __osm_ftree_fabric_read_guid_files(IN ftree_fabric_t * p_ftree)
 			"Fetching root nodes from file %s\n",
 			p_ftree->p_osm->subn.opt.root_guid_file);
 
-		if (osm_ucast_mgr_read_guid_file(&p_ftree->p_osm->sm.ucast_mgr,
-						 p_ftree->p_osm->subn.opt.
-						 root_guid_file,
-						 &p_ftree->root_guid_list)) {
+		if (parse_node_map(p_ftree->p_osm->subn.opt.root_guid_file,
+				   add_guid_item_to_list,
+				   &p_ftree->root_guid_list)) {
 			status = -1;
 			goto Exit;
 		}
 
-		if (!cl_list_count(&p_ftree->root_guid_list)) {
+		if (!cl_qlist_count(&p_ftree->root_guid_list)) {
 			OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_ERROR, "ERR AB22: "
 				"Root guids file has no valid guids\n");
 			status = -1;
@@ -3495,32 +3453,23 @@ static int __osm_ftree_fabric_read_guid_files(IN ftree_fabric_t * p_ftree)
 	}
 
 	if (__osm_ftree_fabric_cns_provided(p_ftree)) {
-		cl_list_t cn_guid_list;
-		cl_list_construct(&cn_guid_list);
-		cl_list_init(&cn_guid_list, 10);
-
 		OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
 			"Fetching compute nodes from file %s\n",
 			p_ftree->p_osm->subn.opt.cn_guid_file);
 
-		if (osm_ucast_mgr_read_guid_file(&p_ftree->p_osm->sm.ucast_mgr,
-						 p_ftree->p_osm->subn.opt.
-						 cn_guid_file, &cn_guid_list)) {
+		if (parse_node_map(p_ftree->p_osm->subn.opt.cn_guid_file,
+				   add_guid_item_to_map,
+				   &p_ftree->cn_guid_tbl)) {
 			status = -1;
 			goto Exit;
 		}
 
-		if (!cl_list_count(&cn_guid_list)) {
+		if (!cl_qmap_count(&p_ftree->cn_guid_tbl)) {
 			OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_ERROR, "ERR AB23: "
 				"Compute node guids file has no valid guids\n");
 			status = -1;
 			goto Exit;
 		}
-
-		__osm_ftree_convert_list2qmap(&cn_guid_list,
-					      &p_ftree->cn_guid_tbl);
-		cl_list_destroy(&cn_guid_list);
-		CL_ASSERT(cl_qmap_count(&p_ftree->cn_guid_tbl));
 	}
 
 Exit:
