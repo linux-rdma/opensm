@@ -75,7 +75,7 @@ typedef struct _updn_input {
 typedef struct _updn {
 	boolean_t auto_detect_root_nodes;
 	updn_input_t updn_ucast_reg_inputs;
-	cl_list_t *p_root_nodes;
+	cl_qlist_t root_nodes_list;
 	osm_opensm_t *p_osm;
 } updn_t;
 
@@ -230,21 +230,14 @@ __updn_bfs_by_node(IN osm_log_t * p_log,
  **********************************************************************/
 static void updn_destroy(IN updn_t * const p_updn)
 {
-	uint64_t *p_guid_list_item;
-
 	/* free the array of guids */
 	if (p_updn->updn_ucast_reg_inputs.guid_list)
 		free(p_updn->updn_ucast_reg_inputs.guid_list);
 
 	/* destroy the list of root nodes */
-	if (p_updn->p_root_nodes) {
-		while ((p_guid_list_item =
-			cl_list_remove_head(p_updn->p_root_nodes)))
-			free(p_guid_list_item);
-		cl_list_remove_all(p_updn->p_root_nodes);
-		cl_list_destroy(p_updn->p_root_nodes);
-		free(p_updn->p_root_nodes);
-	}
+	while (!cl_is_qlist_empty(&p_updn->root_nodes_list))
+		free(cl_qlist_remove_head(&p_updn->root_nodes_list));
+
 	free(p_updn);
 }
 
@@ -266,24 +259,38 @@ static updn_t *updn_construct(osm_log_t * p_log)
 
 /**********************************************************************
  **********************************************************************/
+struct guid_list_item {
+	cl_list_item_t list;
+	uint64_t guid;
+};
+
+static int add_guid_item_to_list(void *cxt, uint64_t guid, char *p)
+{
+	updn_t *updn = cxt;
+	struct guid_list_item *item;
+
+	item = malloc(sizeof(*item));
+	if (!item)
+		return -1;
+
+	item->guid = guid;
+	cl_qlist_insert_tail(&updn->root_nodes_list, &item->list);
+
+	OSM_LOG(&updn->p_osm->log, OSM_LOG_DEBUG,
+		"Inserting GUID 0x%" PRIx64 " as root node\n", guid);
+
+	return 0;
+}
+
 static cl_status_t updn_init(IN updn_t * const p_updn, IN osm_opensm_t * p_osm)
 {
-	cl_list_t *p_list;
-	cl_list_iterator_t guid_iterator;
 	ib_api_status_t status = IB_SUCCESS;
 
 	OSM_LOG_ENTER(&p_osm->log);
 
 	p_updn->p_osm = p_osm;
-	p_list = (cl_list_t *) malloc(sizeof(cl_list_t));
-	if (!p_list) {
-		status = IB_ERROR;
-		goto Exit;
-	}
 
-	cl_list_construct(p_list);
-	cl_list_init(p_list, 10);
-	p_updn->p_root_nodes = p_list;
+	cl_qlist_init(&p_updn->root_nodes_list);
 	p_updn->updn_ucast_reg_inputs.num_guids = 0;
 	p_updn->updn_ucast_reg_inputs.guid_list = NULL;
 	p_updn->auto_detect_root_nodes = FALSE;
@@ -293,27 +300,20 @@ static cl_status_t updn_init(IN updn_t * const p_updn, IN osm_opensm_t * p_osm)
 	   wait for a callback to activate auto detection
 	 */
 	if (p_osm->subn.opt.root_guid_file) {
-		status = osm_ucast_mgr_read_guid_file(&p_osm->sm.ucast_mgr,
-						      p_osm->subn.opt.
-						      root_guid_file,
-						      p_updn->p_root_nodes);
-		if (status != IB_SUCCESS)
-			goto Exit;
-
 		/* For Debug Purposes ... */
 		OSM_LOG(&p_osm->log, OSM_LOG_DEBUG,
 			"UPDN - Fetching root nodes from file %s\n",
 			p_osm->subn.opt.root_guid_file);
-		guid_iterator = cl_list_head(p_updn->p_root_nodes);
-		while (guid_iterator != cl_list_end(p_updn->p_root_nodes)) {
-			OSM_LOG(&p_osm->log, OSM_LOG_DEBUG,
-				"Inserting GUID 0x%" PRIx64 " as root node\n",
-				*((uint64_t *) cl_list_obj(guid_iterator)));
-			guid_iterator = cl_list_next(guid_iterator);
+
+		if (parse_node_map(p_osm->subn.opt.root_guid_file,
+				   add_guid_item_to_list, p_updn)) {
+			OSM_LOG(&p_osm->log, OSM_LOG_ERROR, "ERR : "
+				"cannot parse root guids file \'%s\'\n",
+				p_osm->subn.opt.root_guid_file);
+			goto Exit;
 		}
-	} else {
+	} else
 		p_updn->auto_detect_root_nodes = TRUE;
-	}
 	/* If auto mode detection required - will be executed in main b4 the assignment of UI Ucast */
 
 Exit:
@@ -619,13 +619,12 @@ static int __osm_updn_call(void *ctx)
 /* UPDN convert cl_list to guid array in updn struct */
 static void __osm_updn_convert_list2array(IN updn_t * p_updn)
 {
-	uint32_t i = 0, max_num = 0;
-	uint64_t *p_guid;
+	unsigned i;
 
 	OSM_LOG_ENTER(&p_updn->p_osm->log);
 
 	p_updn->updn_ucast_reg_inputs.num_guids =
-	    cl_list_count(p_updn->p_root_nodes);
+	    cl_qlist_count(&p_updn->root_nodes_list);
 	if (p_updn->updn_ucast_reg_inputs.guid_list)
 		free(p_updn->updn_ucast_reg_inputs.guid_list);
 	p_updn->updn_ucast_reg_inputs.guid_list =
@@ -635,19 +634,14 @@ static void __osm_updn_convert_list2array(IN updn_t * p_updn)
 		memset(p_updn->updn_ucast_reg_inputs.guid_list, 0,
 		       p_updn->updn_ucast_reg_inputs.num_guids *
 		       sizeof(uint64_t));
-	if (!cl_is_list_empty(p_updn->p_root_nodes)) {
-		while ((p_guid =
-			(uint64_t *) cl_list_remove_head(p_updn->
-							 p_root_nodes))) {
-			p_updn->updn_ucast_reg_inputs.guid_list[i] = *p_guid;
-			free(p_guid);
-			i++;
-		}
-		max_num = i;
-		for (i = 0; i < max_num; i++)
-			OSM_LOG(&p_updn->p_osm->log, OSM_LOG_DEBUG,
-				"Map GUID 0x%" PRIx64 " into UPDN array\n",
-				p_updn->updn_ucast_reg_inputs.guid_list[i]);
+	for (i = 0; !cl_is_qlist_empty(&p_updn->root_nodes_list); i++) {
+		struct guid_list_item *item;
+		item = (void *)cl_qlist_remove_head(&p_updn->root_nodes_list);
+		p_updn->updn_ucast_reg_inputs.guid_list[i] = item->guid;
+		OSM_LOG(&p_updn->p_osm->log, OSM_LOG_DEBUG,
+			"Map GUID 0x%" PRIx64 " into UPDN array\n",
+			p_updn->updn_ucast_reg_inputs.guid_list[i]);
+		free(item);
 	}
 	/* Since we need the template list for other sweeps, we wont destroy & free it */
 	OSM_LOG_EXIT(&p_updn->p_osm->log);
@@ -662,8 +656,6 @@ static void __osm_updn_find_root_nodes_by_min_hop(OUT updn_t * p_updn)
 	osm_switch_t *p_next_sw, *p_sw;
 	osm_port_t *p_next_port, *p_port;
 	osm_physp_t *p_physp;
-	uint64_t *p_guid;
-	cl_list_t *p_root_nodes_list = p_updn->p_root_nodes;
 	double thd1, thd2;
 	unsigned i, cas_num = 0;
 	unsigned *cas_per_sw;
@@ -757,19 +749,19 @@ static void __osm_updn_find_root_nodes_by_min_hop(OUT updn_t * p_updn)
 
 		/* If thd conditions are valid insert the root node to the list */
 		if ((numHopBarsOverThd1 == 1) && (numHopBarsOverThd2 == 1)) {
-			p_guid = malloc(sizeof(uint64_t));
-			if (p_guid) {
-				*p_guid =
-				    cl_ntoh64(osm_node_get_node_guid
-					      (p_sw->p_node));
+			struct guid_list_item *item;
+			item = malloc(sizeof(*item));
+			if (item) {
+				item->guid = cl_ntoh64(osm_node_get_node_guid
+							(p_sw->p_node));
 				OSM_LOG(&p_osm->log, OSM_LOG_DEBUG,
 					"Inserting GUID 0x%" PRIx64
-					" as root node\n", *p_guid);
-				cl_list_insert_tail(p_root_nodes_list, p_guid);
-			} else {
+					" as root node\n", item->guid);
+				cl_qlist_insert_tail(&p_updn->root_nodes_list,
+						     &item->list);
+			} else
 				OSM_LOG(&p_osm->log, OSM_LOG_ERROR, "ERR AA13: "
 					"No memory for p_guid\n");
-			}
 		}
 	}
 
