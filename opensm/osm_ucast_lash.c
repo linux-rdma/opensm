@@ -911,7 +911,7 @@ static int init_lash_structures(lash_t * p_lash)
 	}
 
 	// initialise num_mst_in_lane[num_switches], default 0
-	p_lash->num_mst_in_lane = (int *)malloc(num_switches * sizeof(int));;
+	p_lash->num_mst_in_lane = (int *)malloc(num_switches * sizeof(int));
 	if (p_lash->num_mst_in_lane == NULL)
 		goto Exit_Mem_Error;
 	memset(p_lash->num_mst_in_lane, 0,
