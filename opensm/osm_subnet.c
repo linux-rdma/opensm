@@ -465,6 +465,7 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * const p_opt)
 	p_opt->ucast_dump_file = NULL;
 	p_opt->root_guid_file = NULL;
 	p_opt->cn_guid_file = NULL;
+	p_opt->ids_guid_file = NULL;
 	p_opt->sa_db_file = NULL;
 	p_opt->exit_on_fatal = TRUE;
 	p_opt->enable_quirks = FALSE;
@@ -1324,6 +1325,9 @@ ib_api_status_t osm_subn_parse_conf_file(IN osm_subn_opt_t * const p_opts)
 		opts_unpack_charp("cn_guid_file",
 				  p_key, p_val, &p_opts->cn_guid_file);
 
+		opts_unpack_charp("ids_guid_file",
+				  p_key, p_val, &p_opts->ids_guid_file);
+
 		opts_unpack_charp("sa_db_file",
 				  p_key, p_val, &p_opts->sa_db_file);
 
@@ -1558,6 +1562,12 @@ ib_api_status_t osm_subn_write_conf_file(IN osm_subn_opt_t * const p_opts)
 			"# The file holding the fat-tree compute node guids\n"
 			"# One guid in each line\n"
 			"cn_guid_file %s\n\n", p_opts->cn_guid_file);
+	if (p_opts->ids_guid_file)
+		fprintf(opts_file,
+			"# The file holding the node ids which will be used by"
+			" Up/Down algorithm instead\n# of GUIDs (one guid and"
+			" id in each line)\n"
+			"ids_guid_file %s\n\n", p_opts->ids_guid_file);
 	if (p_opts->sa_db_file)
 		fprintf(opts_file,
 			"# SA database file name\n"

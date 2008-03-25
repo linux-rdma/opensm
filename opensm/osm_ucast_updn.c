@@ -74,6 +74,7 @@ typedef struct _updn {
 struct updn_node {
 	cl_list_item_t list;
 	osm_switch_t *sw;
+	uint64_t id;
 	updn_switch_dir_t dir;
 	unsigned rank;
 	unsigned visited;
@@ -90,7 +91,7 @@ static void __osm_updn_find_root_nodes_by_min_hop(OUT updn_t * p_updn);
    remote ports */
 static updn_switch_dir_t
 __updn_get_dir(IN unsigned cur_rank,
-	       IN unsigned rem_rank, IN uint64_t cur_guid, IN uint64_t rem_guid)
+	       IN unsigned rem_rank, IN uint64_t cur_id, IN uint64_t rem_id)
 {
 	/* HACK: comes to solve root nodes connection, in a classic subnet root nodes do not connect
 	   directly, but in case they are we assign to root node an UP direction to allow UPDN to discover
@@ -104,8 +105,8 @@ __updn_get_dir(IN unsigned cur_rank,
 	else if (cur_rank > rem_rank)
 		return UP;
 	else {
-		/* Equal rank, decide by guid number, bigger == UP direction */
-		if (cur_guid > rem_guid)
+		/* Equal rank, decide by id number, bigger == UP direction */
+		if (cur_id > rem_id)
 			return UP;
 		else
 			return DOWN;
@@ -145,12 +146,9 @@ __updn_bfs_by_node(IN osm_log_t * p_log,
 
 	/* BFS the list till no next element */
 	while (!cl_is_qlist_empty(&list)) {
-		ib_net64_t remote_guid, current_guid;
-
 		u = (struct updn_node *)cl_qlist_remove_head(&list);
 		u->visited = 0;	/* cleanup */
 		current_dir = u->dir;
-		current_guid = osm_node_get_node_guid(u->sw->p_node);
 		/* Go over all ports of the switch and find unvisited remote nodes */
 		for (pn = 1; pn < u->sw->num_ports; pn++) {
 			osm_node_t *p_remote_node;
@@ -167,13 +165,11 @@ __updn_bfs_by_node(IN osm_log_t * p_log,
 			if (!p_remote_node || !p_remote_node->sw)
 				continue;
 			/* Fetch remote guid only after validation of remote node */
-			remote_guid = osm_node_get_node_guid(p_remote_node);
 			p_remote_sw = p_remote_node->sw;
 			rem_u = p_remote_sw->priv;
 			/* Decide which direction to mark it (UP/DOWN) */
 			next_dir = __updn_get_dir(u->rank, rem_u->rank,
-						  cl_ntoh64(current_guid),
-						  cl_ntoh64(remote_guid));
+						  u->id, rem_u->id);
 
 			/* Check if this is a legal step : the only illegal step is going
 			   from DOWN to UP */
@@ -181,8 +177,8 @@ __updn_bfs_by_node(IN osm_log_t * p_log,
 				OSM_LOG(p_log, OSM_LOG_DEBUG,
 					"Avoiding move from 0x%016" PRIx64
 					" to 0x%016" PRIx64 "\n",
-					cl_ntoh64(current_guid),
-					cl_ntoh64(remote_guid));
+					cl_ntoh64(osm_node_get_node_guid(u->sw->p_node)),
+					cl_ntoh64(osm_node_get_node_guid(p_remote_node)));
 				/* Illegal step */
 				continue;
 			}
@@ -414,6 +410,7 @@ static struct updn_node *create_updn_node(osm_switch_t * sw)
 		return NULL;
 	memset(u, 0, sizeof(*u));
 	u->sw = sw;
+	u->id = cl_ntoh64(osm_node_get_node_guid(sw->p_node));
 	u->rank = 0xffffffff;
 	return u;
 }
@@ -432,6 +429,35 @@ static void dump_roots(cl_map_item_t *item, FILE *file, void *cxt)
 	if (!((struct updn_node *)sw->priv)->rank)
 		fprintf(file, "0x%" PRIx64 "\n",
 			cl_ntoh64(osm_node_get_node_guid(sw->p_node)));
+}
+
+static int update_id(void *cxt, uint64_t guid, char *p)
+{
+	osm_opensm_t *osm = cxt;
+	osm_switch_t *sw;
+	uint64_t id;
+	char *e;
+
+	sw = osm_get_switch_by_guid(&osm->subn, cl_hton64(guid));
+	if (!sw) {
+		OSM_LOG(&osm->log, OSM_LOG_VERBOSE,
+			"switch with guid 0x%" PRIx64 " is not found\n", guid);
+		return 0;
+	}
+
+	id = strtoull(p, &e, 0);
+	if (*e) {
+		OSM_LOG(&osm->log, OSM_LOG_ERROR,
+			"ERR: cannot parse node id \'%s\'", p);
+		return -1;
+	}
+
+	OSM_LOG(&osm->log, OSM_LOG_DEBUG,
+		"update node 0x%" PRIx64 " id to 0x%" PRIx64 "\n", guid, id);
+
+	((struct updn_node *)sw->priv)->id = id;
+
+	return 0;
 }
 
 static int rank_root_node(void *cxt, uint64_t guid, char *p)
@@ -483,7 +509,7 @@ static int __osm_updn_call(void *ctx)
 
 	if (p_updn->p_osm->subn.opt.root_guid_file) {
 		OSM_LOG(&p_updn->p_osm->log, OSM_LOG_DEBUG,
-			"UPDN - Fetching root nodes from file %s\n",
+			"UPDN - Fetching root nodes from file \'%s\'\n",
 			p_updn->p_osm->subn.opt.root_guid_file);
 
 		ret = parse_node_map(p_updn->p_osm->subn.opt.root_guid_file,
@@ -498,6 +524,19 @@ static int __osm_updn_call(void *ctx)
 	} else {
 		osm_ucast_mgr_build_lid_matrices(&p_updn->p_osm->sm.ucast_mgr);
 		__osm_updn_find_root_nodes_by_min_hop(p_updn);
+	}
+
+	if (p_updn->p_osm->subn.opt.ids_guid_file) {
+		OSM_LOG(&p_updn->p_osm->log, OSM_LOG_DEBUG,
+			"UPDN - update node ids from file \'%s\'\n",
+			p_updn->p_osm->subn.opt.ids_guid_file);
+
+		ret = parse_node_map(p_updn->p_osm->subn.opt.ids_guid_file,
+				     update_id, p_updn->p_osm);
+		if (ret)
+			OSM_LOG(&p_updn->p_osm->log, OSM_LOG_ERROR, "ERR : "
+				"cannot parse node ids file \'%s\'\n",
+				p_updn->p_osm->subn.opt.ids_guid_file);
 	}
 
 	/* Only if there are assigned root nodes do the algorithm, otherwise perform do nothing */

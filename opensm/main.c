@@ -206,6 +206,11 @@ static void show_usage(void)
 	       "          Set the compute nodes for the Fat-Tree routing algorithm\n"
 	       "          to the guids provided in the given file (one to a line)\n"
 	       "\n");
+	printf("-m\n"
+	       "--ids_guid_file <path to file>\n"
+	       "          Name of the map file with set of the IDs which will be used\n"
+	       "          by Up/Down routing algorithm instead of node GUIDs\n"
+	       "          (format: <guid> <id> per line)\n");
 	printf("-o\n"
 	       "--once\n"
 	       "          This option causes OpenSM to configure the subnet\n"
@@ -594,7 +599,7 @@ int main(int argc, char *argv[])
 	char *ignore_guids_file_name = NULL;
 	uint32_t val;
 	const char *const short_option =
-	    "i:f:ed:g:l:L:s:t:a:u:R:zM:U:S:P:Y:NBIQvVhorcyxp:n:q:k:C:";
+	    "i:f:ed:g:l:L:s:t:a:u:m:R:zM:U:S:P:Y:NBIQvVhorcyxp:n:q:k:C:";
 
 	/*
 	   In the array below, the 2nd parameter specifies the number
@@ -634,6 +639,7 @@ int main(int argc, char *argv[])
 		{"sadb_file", 1, NULL, 'S'},
 		{"root_guid_file", 1, NULL, 'a'},
 		{"cn_guid_file", 1, NULL, 'u'},
+		{"ids_guid_file", 1, NULL, 'm'},
 		{"cache-options", 0, NULL, 'c'},
 		{"stay_on_fatal", 0, NULL, 'y'},
 		{"honor_guid2lid", 0, NULL, 'x'},
@@ -915,6 +921,12 @@ int main(int argc, char *argv[])
 			opt.cn_guid_file = optarg;
 			printf(" Compute Node Guid File: %s\n",
 			       opt.cn_guid_file);
+			break;
+
+		case 'm':
+			/* Specifies ids guid file */
+			opt.ids_guid_file = optarg;
+			printf(" IDs Guid File: %s\n", opt.ids_guid_file);
 			break;
 
 		case 'c':

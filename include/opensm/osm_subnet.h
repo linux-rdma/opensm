@@ -260,6 +260,7 @@ typedef struct _osm_subn_opt {
 	char *ucast_dump_file;
 	char *root_guid_file;
 	char *cn_guid_file;
+	char *ids_guid_file;
 	char *sa_db_file;
 	boolean_t exit_on_fatal;
 	boolean_t honor_guid2lid_file;
@@ -455,6 +456,10 @@ typedef struct _osm_subn_opt {
 *	cn_guid_file
 *		Name of the file that contains list of compute node guids that
 *		will be used by fat-tree routing (provided by User)
+*
+*	ids_guid_file
+*		Name of the file that contains list of ids which should be
+*		used by Up/Down algorithm instead of node GUIDs
 *
 *	sa_db_file
 *		Name of the SA database file.
