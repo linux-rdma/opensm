@@ -65,17 +65,9 @@ typedef enum _updn_switch_dir {
 	DOWN
 } updn_switch_dir_t;
 
-/* guids list */
-typedef struct _updn_input {
-	uint32_t num_guids;
-	uint64_t *guid_list;
-} updn_input_t;
-
 /* updn structure */
 typedef struct _updn {
-	boolean_t auto_detect_root_nodes;
-	updn_input_t updn_ucast_reg_inputs;
-	cl_qlist_t root_nodes_list;
+	unsigned num_roots;
 	osm_opensm_t *p_osm;
 } updn_t;
 
@@ -228,139 +220,30 @@ __updn_bfs_by_node(IN osm_log_t * p_log,
 
 /**********************************************************************
  **********************************************************************/
-static void updn_destroy(IN updn_t * const p_updn)
-{
-	/* free the array of guids */
-	if (p_updn->updn_ucast_reg_inputs.guid_list)
-		free(p_updn->updn_ucast_reg_inputs.guid_list);
-
-	/* destroy the list of root nodes */
-	while (!cl_is_qlist_empty(&p_updn->root_nodes_list))
-		free(cl_qlist_remove_head(&p_updn->root_nodes_list));
-
-	free(p_updn);
-}
-
-/**********************************************************************
- **********************************************************************/
-static updn_t *updn_construct(osm_log_t * p_log)
-{
-	updn_t *p_updn;
-
-	OSM_LOG_ENTER(p_log);
-
-	p_updn = malloc(sizeof(updn_t));
-	if (p_updn)
-		memset(p_updn, 0, sizeof(updn_t));
-
-	OSM_LOG_EXIT(p_log);
-	return (p_updn);
-}
-
-/**********************************************************************
- **********************************************************************/
-struct guid_list_item {
-	cl_list_item_t list;
-	uint64_t guid;
-};
-
-static int add_guid_item_to_list(void *cxt, uint64_t guid, char *p)
-{
-	updn_t *updn = cxt;
-	struct guid_list_item *item;
-
-	item = malloc(sizeof(*item));
-	if (!item)
-		return -1;
-
-	item->guid = guid;
-	cl_qlist_insert_tail(&updn->root_nodes_list, &item->list);
-
-	OSM_LOG(&updn->p_osm->log, OSM_LOG_DEBUG,
-		"Inserting GUID 0x%" PRIx64 " as root node\n", guid);
-
-	return 0;
-}
-
-static cl_status_t updn_init(IN updn_t * const p_updn, IN osm_opensm_t * p_osm)
-{
-	ib_api_status_t status = IB_SUCCESS;
-
-	OSM_LOG_ENTER(&p_osm->log);
-
-	p_updn->p_osm = p_osm;
-
-	cl_qlist_init(&p_updn->root_nodes_list);
-	p_updn->updn_ucast_reg_inputs.num_guids = 0;
-	p_updn->updn_ucast_reg_inputs.guid_list = NULL;
-	p_updn->auto_detect_root_nodes = FALSE;
-
-	/*
-	   Check the source for root node list, if file parse it, otherwise
-	   wait for a callback to activate auto detection
-	 */
-	if (p_osm->subn.opt.root_guid_file) {
-		/* For Debug Purposes ... */
-		OSM_LOG(&p_osm->log, OSM_LOG_DEBUG,
-			"UPDN - Fetching root nodes from file %s\n",
-			p_osm->subn.opt.root_guid_file);
-
-		if (parse_node_map(p_osm->subn.opt.root_guid_file,
-				   add_guid_item_to_list, p_updn)) {
-			OSM_LOG(&p_osm->log, OSM_LOG_ERROR, "ERR : "
-				"cannot parse root guids file \'%s\'\n",
-				p_osm->subn.opt.root_guid_file);
-			goto Exit;
-		}
-	} else
-		p_updn->auto_detect_root_nodes = TRUE;
-	/* If auto mode detection required - will be executed in main b4 the assignment of UI Ucast */
-
-Exit:
-	OSM_LOG_EXIT(&p_osm->log);
-	return (status);
-}
-
-/**********************************************************************
- **********************************************************************/
 /* NOTE : PLS check if we need to decide that the first */
 /*        rank is a SWITCH for BFS purpose */
-static int
-updn_subn_rank(IN unsigned num_guids,
-	       IN uint64_t * guid_list, IN updn_t * p_updn)
+static int updn_subn_rank(IN updn_t * p_updn)
 {
 	osm_switch_t *p_sw;
 	osm_physp_t *p_physp, *p_remote_physp;
 	cl_qlist_t list;
+	cl_map_item_t *item;
 	struct updn_node *u, *remote_u;
 	uint8_t num_ports, port_num;
 	osm_log_t *p_log = &p_updn->p_osm->log;
-	unsigned idx = 0;
 	unsigned max_rank = 0;
 
 	OSM_LOG_ENTER(p_log);
 	cl_qlist_init(&list);
 
-	/* Rank all the roots and add them to list */
-
-	for (idx = 0; idx < num_guids; idx++) {
-		/* Apply the ranking for each guid given by user - bypass illegal ones */
-		p_sw =
-		    osm_get_switch_by_guid(&p_updn->p_osm->subn,
-					   cl_hton64(guid_list[idx]));
-		if (!p_sw) {
-			OSM_LOG(p_log, OSM_LOG_ERROR, "ERR AA05: "
-				"Root switch GUID 0x%" PRIx64 " not found\n",
-				guid_list[idx]);
-			continue;
-		}
-
+	/* add all roots to the list */
+	for (item = cl_qmap_head(&p_updn->p_osm->subn.sw_guid_tbl);
+	     item != cl_qmap_end(&p_updn->p_osm->subn.sw_guid_tbl);
+	     item = cl_qmap_next(item)) {
+		p_sw = (osm_switch_t *)item;
 		u = p_sw->priv;
-		OSM_LOG(p_log, OSM_LOG_DEBUG,
-			"Ranking root port GUID 0x%" PRIx64 "\n",
-			guid_list[idx]);
-		u->rank = 0;
-		cl_qlist_insert_tail(&list, &u->list);
+		if (!u->rank)
+			cl_qlist_insert_tail(&list, &u->list);
 	}
 
 	/* BFS the list till it's empty */
@@ -440,7 +323,8 @@ static int __osm_subn_set_up_down_min_hop_table(IN updn_t * p_updn)
 {
 	osm_subn_t *p_subn = &p_updn->p_osm->subn;
 	osm_log_t *p_log = &p_updn->p_osm->log;
-	osm_switch_t *p_next_sw, *p_sw;
+	osm_switch_t *p_sw;
+	cl_map_item_t *item;
 
 	OSM_LOG_ENTER(p_log);
 
@@ -449,10 +333,10 @@ static int __osm_subn_set_up_down_min_hop_table(IN updn_t * p_updn)
 	OSM_LOG(p_log, OSM_LOG_VERBOSE,
 		"Init Min Hop Table of all switches [\n");
 
-	p_next_sw = (osm_switch_t *) cl_qmap_head(&p_subn->sw_guid_tbl);
-	while (p_next_sw != (osm_switch_t *) cl_qmap_end(&p_subn->sw_guid_tbl)) {
-		p_sw = p_next_sw;
-		p_next_sw = (osm_switch_t *) cl_qmap_next(&p_sw->map_item);
+	for (item = cl_qmap_head(&p_updn->p_osm->subn.sw_guid_tbl);
+	     item != cl_qmap_end(&p_updn->p_osm->subn.sw_guid_tbl);
+	     item = cl_qmap_next(item)) {
+		p_sw = (osm_switch_t *)item;
 		/* Clear Min Hop Table */
 		if (p_subn->opt.connect_roots)
 			updn_clear_root_hops(p_updn, p_sw);
@@ -467,10 +351,10 @@ static int __osm_subn_set_up_down_min_hop_table(IN updn_t * p_updn)
 	OSM_LOG(p_log, OSM_LOG_VERBOSE,
 		"BFS through all port guids in the subnet [\n");
 
-	p_next_sw = (osm_switch_t *) cl_qmap_head(&p_subn->sw_guid_tbl);
-	while (p_next_sw != (osm_switch_t *) cl_qmap_end(&p_subn->sw_guid_tbl)) {
-		p_sw = p_next_sw;
-		p_next_sw = (osm_switch_t *) cl_qmap_next(&p_sw->map_item);
+	for (item = cl_qmap_head(&p_updn->p_osm->subn.sw_guid_tbl);
+	     item != cl_qmap_end(&p_updn->p_osm->subn.sw_guid_tbl);
+	     item = cl_qmap_next(item)) {
+		p_sw = (osm_switch_t *)item;
 		__updn_bfs_by_node(p_log, p_subn, p_sw);
 	}
 
@@ -483,9 +367,7 @@ static int __osm_subn_set_up_down_min_hop_table(IN updn_t * p_updn)
 
 /**********************************************************************
  **********************************************************************/
-static int
-updn_build_lid_matrices(IN uint32_t num_guids,
-			IN uint64_t * guid_list, IN updn_t * p_updn)
+static int updn_build_lid_matrices(IN updn_t * p_updn)
 {
 	int status;
 
@@ -493,7 +375,7 @@ updn_build_lid_matrices(IN uint32_t num_guids,
 
 	OSM_LOG(&p_updn->p_osm->log, OSM_LOG_VERBOSE,
 		"Ranking all port guids in the list\n");
-	if (num_guids == 0) {
+	if (!p_updn->num_roots) {
 		OSM_LOG(&p_updn->p_osm->log, OSM_LOG_ERROR, "ERR AA0A: "
 			"No guids were provided or number of guids is 0\n");
 		status = -1;
@@ -509,7 +391,7 @@ updn_build_lid_matrices(IN uint32_t num_guids,
 	}
 
 	/* Rank the subnet switches */
-	updn_subn_rank(num_guids, guid_list, p_updn);
+	updn_subn_rank(p_updn);
 
 	/* After multiple ranking need to set Min Hop Table by UpDn algorithm  */
 	OSM_LOG(&p_updn->p_osm->log, OSM_LOG_VERBOSE,
@@ -552,20 +434,41 @@ static void dump_roots(cl_map_item_t *item, FILE *file, void *cxt)
 			cl_ntoh64(osm_node_get_node_guid(sw->p_node)));
 }
 
+static int rank_root_node(void *cxt, uint64_t guid, char *p)
+{
+	updn_t *updn = cxt;
+	osm_switch_t *sw;
+
+	sw = osm_get_switch_by_guid(&updn->p_osm->subn, cl_hton64(guid));
+	if (!sw) {
+		OSM_LOG(&updn->p_osm->log, OSM_LOG_VERBOSE,
+			"switch with guid 0x%" PRIx64 " is not found\n", guid);
+		return 0;
+	}
+
+	OSM_LOG(&updn->p_osm->log, OSM_LOG_DEBUG,
+		"Ranking root port GUID 0x%" PRIx64 "\n", guid);
+
+	((struct updn_node *)sw->priv)->rank = 0;
+	updn->num_roots++;
+
+	return 0;
+}
+
 /* UPDN callback function */
 static int __osm_updn_call(void *ctx)
 {
 	updn_t *p_updn = ctx;
-	cl_map_item_t *p_item;
+	cl_map_item_t *item;
 	osm_switch_t *p_sw;
 	int ret = 0;
 
 	OSM_LOG_ENTER(&p_updn->p_osm->log);
 
-	p_item = cl_qmap_head(&p_updn->p_osm->subn.sw_guid_tbl);
-	while (p_item != cl_qmap_end(&p_updn->p_osm->subn.sw_guid_tbl)) {
-		p_sw = (osm_switch_t *) p_item;
-		p_item = cl_qmap_next(p_item);
+	for (item = cl_qmap_head(&p_updn->p_osm->subn.sw_guid_tbl);
+	     item != cl_qmap_end(&p_updn->p_osm->subn.sw_guid_tbl);
+	     item = cl_qmap_next(item)) {
+		p_sw = (osm_switch_t *)item;
 		p_sw->priv = create_updn_node(p_sw);
 		if (!p_sw->priv) {
 			OSM_LOG(&(p_updn->p_osm->log), OSM_LOG_ERROR, "ERR AA0C: "
@@ -575,23 +478,33 @@ static int __osm_updn_call(void *ctx)
 		}
 	}
 
-	/* First auto detect root nodes - if required */
-	if (p_updn->auto_detect_root_nodes) {
+	/* First setup root nodes */
+	p_updn->num_roots = 0;
+
+	if (p_updn->p_osm->subn.opt.root_guid_file) {
+		OSM_LOG(&p_updn->p_osm->log, OSM_LOG_DEBUG,
+			"UPDN - Fetching root nodes from file %s\n",
+			p_updn->p_osm->subn.opt.root_guid_file);
+
+		ret = parse_node_map(p_updn->p_osm->subn.opt.root_guid_file,
+				     rank_root_node, p_updn);
+		if (ret)
+			OSM_LOG(&p_updn->p_osm->log, OSM_LOG_ERROR, "ERR : "
+				"cannot parse root guids file \'%s\'\n",
+				p_updn->p_osm->subn.opt.root_guid_file);
+		if (p_updn->p_osm->subn.opt.connect_roots &&
+		    p_updn->num_roots > 1)
+			osm_ucast_mgr_build_lid_matrices(&p_updn->p_osm->sm.ucast_mgr);
+	} else {
 		osm_ucast_mgr_build_lid_matrices(&p_updn->p_osm->sm.ucast_mgr);
 		__osm_updn_find_root_nodes_by_min_hop(p_updn);
-	} else if (p_updn->p_osm->subn.opt.connect_roots &&
-		   p_updn->updn_ucast_reg_inputs.num_guids > 1)
-		osm_ucast_mgr_build_lid_matrices(&p_updn->p_osm->sm.ucast_mgr);
+	}
 
-	/* printf ("-V- after osm_updn_find_root_nodes_by_min_hop\n"); */
 	/* Only if there are assigned root nodes do the algorithm, otherwise perform do nothing */
-	if (p_updn->updn_ucast_reg_inputs.num_guids > 0) {
+	if (p_updn->num_roots) {
 		OSM_LOG(&p_updn->p_osm->log, OSM_LOG_DEBUG,
 			"activating UPDN algorithm\n");
-		ret = updn_build_lid_matrices(p_updn->updn_ucast_reg_inputs.
-					      num_guids,
-					      p_updn->updn_ucast_reg_inputs.
-					      guid_list, p_updn);
+		ret = updn_build_lid_matrices(p_updn);
 	} else {
 		OSM_LOG(&p_updn->p_osm->log, OSM_LOG_INFO,
 			"disabling UPDN algorithm, no root nodes were found\n");
@@ -603,10 +516,10 @@ static int __osm_updn_call(void *ctx)
 				      &p_updn->p_osm->subn.sw_guid_tbl,
 				      dump_roots, NULL);
 
-	p_item = cl_qmap_head(&p_updn->p_osm->subn.sw_guid_tbl);
-	while (p_item != cl_qmap_end(&p_updn->p_osm->subn.sw_guid_tbl)) {
-		p_sw = (osm_switch_t *) p_item;
-		p_item = cl_qmap_next(p_item);
+	for (item = cl_qmap_head(&p_updn->p_osm->subn.sw_guid_tbl);
+	     item != cl_qmap_end(&p_updn->p_osm->subn.sw_guid_tbl);
+	     item = cl_qmap_next(item)) {
+		p_sw = (osm_switch_t *) item;
 		delete_updn_node(p_sw->priv);
 	}
 
@@ -616,46 +529,14 @@ static int __osm_updn_call(void *ctx)
 
 /**********************************************************************
  **********************************************************************/
-/* UPDN convert cl_list to guid array in updn struct */
-static void __osm_updn_convert_list2array(IN updn_t * p_updn)
-{
-	unsigned i;
-
-	OSM_LOG_ENTER(&p_updn->p_osm->log);
-
-	p_updn->updn_ucast_reg_inputs.num_guids =
-	    cl_qlist_count(&p_updn->root_nodes_list);
-	if (p_updn->updn_ucast_reg_inputs.guid_list)
-		free(p_updn->updn_ucast_reg_inputs.guid_list);
-	p_updn->updn_ucast_reg_inputs.guid_list =
-	    (uint64_t *) malloc(p_updn->updn_ucast_reg_inputs.num_guids *
-				sizeof(uint64_t));
-	if (p_updn->updn_ucast_reg_inputs.guid_list)
-		memset(p_updn->updn_ucast_reg_inputs.guid_list, 0,
-		       p_updn->updn_ucast_reg_inputs.num_guids *
-		       sizeof(uint64_t));
-	for (i = 0; !cl_is_qlist_empty(&p_updn->root_nodes_list); i++) {
-		struct guid_list_item *item;
-		item = (void *)cl_qlist_remove_head(&p_updn->root_nodes_list);
-		p_updn->updn_ucast_reg_inputs.guid_list[i] = item->guid;
-		OSM_LOG(&p_updn->p_osm->log, OSM_LOG_DEBUG,
-			"Map GUID 0x%" PRIx64 " into UPDN array\n",
-			p_updn->updn_ucast_reg_inputs.guid_list[i]);
-		free(item);
-	}
-	/* Since we need the template list for other sweeps, we wont destroy & free it */
-	OSM_LOG_EXIT(&p_updn->p_osm->log);
-}
-
-/**********************************************************************
- **********************************************************************/
 /* Find Root nodes automatically by Min Hop Table info */
 static void __osm_updn_find_root_nodes_by_min_hop(OUT updn_t * p_updn)
 {
 	osm_opensm_t *p_osm = p_updn->p_osm;
-	osm_switch_t *p_next_sw, *p_sw;
-	osm_port_t *p_next_port, *p_port;
+	osm_switch_t *p_sw;
+	osm_port_t *p_port;
 	osm_physp_t *p_physp;
+	cl_map_item_t *item;
 	double thd1, thd2;
 	unsigned i, cas_num = 0;
 	unsigned *cas_per_sw;
@@ -678,12 +559,10 @@ static void __osm_updn_find_root_nodes_by_min_hop(OUT updn_t * p_updn)
 	/* Find the Maximum number of CAs (and routers) for histogram normalization */
 	OSM_LOG(&p_osm->log, OSM_LOG_VERBOSE,
 		"Finding the number of CAs and storing them in cl_map\n");
-	p_next_port = (osm_port_t *) cl_qmap_head(&p_osm->subn.port_guid_tbl);
-	while (p_next_port !=
-	       (osm_port_t *) cl_qmap_end(&p_osm->subn.port_guid_tbl)) {
-		p_port = p_next_port;
-		p_next_port =
-		    (osm_port_t *) cl_qmap_next(&p_next_port->map_item);
+	for (item = cl_qmap_head(&p_updn->p_osm->subn.port_guid_tbl);
+	     item != cl_qmap_end(&p_updn->p_osm->subn.port_guid_tbl);
+	     item = cl_qmap_next(item)) {
+		p_port = (osm_port_t *)item;
 		if (!p_port->p_node->sw) {
 			p_physp = p_port->p_physp->p_remote_physp;
 			if (!p_physp || !p_physp->p_node->sw)
@@ -706,20 +585,18 @@ static void __osm_updn_find_root_nodes_by_min_hop(OUT updn_t * p_updn)
 		"Thresholds are thd1 = %f && thd2 = %f\n",
 		cas_num, cl_qmap_count(&p_osm->subn.sw_guid_tbl), thd1, thd2);
 
-	p_next_sw = (osm_switch_t *) cl_qmap_head(&p_osm->subn.sw_guid_tbl);
 	OSM_LOG(&p_osm->log, OSM_LOG_VERBOSE,
 		"Passing through all switches to collect Min Hop info\n");
-	while (p_next_sw !=
-	       (osm_switch_t *) cl_qmap_end(&p_osm->subn.sw_guid_tbl)) {
+	for (item = cl_qmap_head(&p_updn->p_osm->subn.sw_guid_tbl);
+	     item != cl_qmap_end(&p_updn->p_osm->subn.sw_guid_tbl);
+	     item = cl_qmap_next(item)) {
 		unsigned hop_hist[IB_SUBNET_PATH_HOPS_MAX];
 		uint16_t max_lid_ho;
 		uint8_t hop_val;
 		uint16_t numHopBarsOverThd1 = 0;
 		uint16_t numHopBarsOverThd2 = 0;
 
-		p_sw = p_next_sw;
-		/* Roll to the next switch */
-		p_next_sw = (osm_switch_t *) cl_qmap_next(&p_sw->map_item);
+		p_sw = (osm_switch_t *) item;
 
 		memset(hop_hist, 0, sizeof(hop_hist));
 
@@ -747,28 +624,17 @@ static void __osm_updn_find_root_nodes_by_min_hop(OUT updn_t * p_updn)
 				numHopBarsOverThd2++;
 		}
 
-		/* If thd conditions are valid insert the root node to the list */
+		/* If thd conditions are valid - rank the root node */
 		if ((numHopBarsOverThd1 == 1) && (numHopBarsOverThd2 == 1)) {
-			struct guid_list_item *item;
-			item = malloc(sizeof(*item));
-			if (item) {
-				item->guid = cl_ntoh64(osm_node_get_node_guid
-							(p_sw->p_node));
-				OSM_LOG(&p_osm->log, OSM_LOG_DEBUG,
-					"Inserting GUID 0x%" PRIx64
-					" as root node\n", item->guid);
-				cl_qlist_insert_tail(&p_updn->root_nodes_list,
-						     &item->list);
-			} else
-				OSM_LOG(&p_osm->log, OSM_LOG_ERROR, "ERR AA13: "
-					"No memory for p_guid\n");
+			OSM_LOG(&p_osm->log, OSM_LOG_DEBUG,
+				"Ranking GUID 0x%" PRIx64 " as root node\n",
+				cl_ntoh64(osm_node_get_node_guid(p_sw->p_node)));
+			((struct updn_node *)p_sw->priv)->rank = 0;
+			p_updn->num_roots++;
 		}
 	}
 
 	free(cas_per_sw);
-	/* Now convert the cl_list to array */
-	__osm_updn_convert_list2array(p_updn);
-
 _exit:
 	OSM_LOG_EXIT(&p_osm->log);
 	return;
@@ -778,30 +644,23 @@ _exit:
  **********************************************************************/
 static void __osm_updn_delete(void *context)
 {
-	updn_t *p_updn = context;
-
-	updn_destroy(p_updn);
+	free(context);
 }
 
 int osm_ucast_updn_setup(osm_opensm_t * p_osm)
 {
 	updn_t *p_updn;
 
-	p_updn = updn_construct(&p_osm->log);
+	p_updn = malloc(sizeof(updn_t));
 	if (!p_updn)
 		return -1;
+	memset(p_updn, 0, sizeof(updn_t));
 
-	if (updn_init(p_updn, p_osm) != IB_SUCCESS) {
-		updn_destroy(p_updn);
-		return -1;
-	}
+	p_updn->p_osm = p_osm;
 
 	p_osm->routing_engine.context = p_updn;
 	p_osm->routing_engine.delete = __osm_updn_delete;
 	p_osm->routing_engine.build_lid_matrices = __osm_updn_call;
-
-	if (!p_updn->auto_detect_root_nodes)
-		__osm_updn_convert_list2array(p_updn);
 
 	return 0;
 }
