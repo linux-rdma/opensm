@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2008 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2006 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -655,72 +655,6 @@ static int ucast_mgr_setup_all_switches(osm_subn_t * p_subn)
 		}
 
 	return 0;
-}
-
-/**********************************************************************
- **********************************************************************/
-cl_status_t
-osm_ucast_mgr_read_guid_file(IN osm_ucast_mgr_t * const p_mgr,
-			     IN const char *guid_file_name,
-			     IN cl_list_t * p_list)
-{
-	cl_status_t status = IB_SUCCESS;
-	FILE *guid_file;
-	char line[MAX_GUID_FILE_LINE_LENGTH];
-	char *endptr;
-	uint64_t *p_guid;
-
-	OSM_LOG_ENTER(p_mgr->p_log);
-
-	guid_file = fopen(guid_file_name, "r");
-	if (guid_file == NULL) {
-		OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 3A13: "
-			"Failed to open guid list file (%s)\n", guid_file_name);
-		status = IB_NOT_FOUND;
-		goto Exit;
-	}
-
-	while (fgets(line, sizeof(line), guid_file)) {
-		if (strcspn(line, " ,;.") != strlen(line)) {
-			OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 3A14: "
-				"Poorly formatted guid in file (%s): %s\n",
-				guid_file_name, line);
-			status = IB_NOT_FOUND;
-			break;
-		}
-
-		/* Skip empty lines anywhere in the file - only one
-		   char means the null termination */
-		if (strlen(line) <= 1)
-			continue;
-
-		p_guid = malloc(sizeof(uint64_t));
-		if (!p_guid) {
-			status = IB_ERROR;
-			goto Exit;
-		}
-
-		*p_guid = strtoull(line, &endptr, 16);
-
-		/* check that the string is a number */
-		if (!(*p_guid) && (*endptr != '\0')) {
-			OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 3A15: "
-				"Poorly formatted guid in file (%s): %s\n",
-				guid_file_name, line);
-			status = IB_NOT_FOUND;
-			free(p_guid);
-			break;
-		}
-
-		/* store the parsed guid */
-		cl_list_insert_tail(p_list, p_guid);
-	}
-
-Exit:
-	if (guid_file)
-		fclose(guid_file);
-	OSM_LOG_EXIT(p_mgr->p_log);
-	return (status);
 }
 
 /**********************************************************************
