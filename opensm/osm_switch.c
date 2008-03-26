@@ -100,7 +100,7 @@ osm_switch_init(IN osm_switch_t * const p_sw,
 	p_sw->p_node = p_node;
 	p_sw->switch_info = *p_si;
 	p_sw->num_ports = num_ports;
-	p_sw->need_update = 1;
+	p_sw->need_update = 2;
 
 	status = osm_fwd_tbl_init(&p_sw->fwd_tbl, p_si);
 	if (status != IB_SUCCESS)
