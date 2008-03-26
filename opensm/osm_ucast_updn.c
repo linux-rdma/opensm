@@ -544,6 +544,14 @@ static void delete_updn_node(struct updn_node *u)
 
 /**********************************************************************
  **********************************************************************/
+static void dump_roots(cl_map_item_t *item, FILE *file, void *cxt)
+{
+	osm_switch_t *sw = (osm_switch_t *)item;
+	if (!((struct updn_node *)sw->priv)->rank)
+		fprintf(file, "0x%" PRIx64 "\n",
+			cl_ntoh64(osm_node_get_node_guid(sw->p_node)));
+}
+
 /* UPDN callback function */
 static int __osm_updn_call(void *ctx)
 {
@@ -589,6 +597,11 @@ static int __osm_updn_call(void *ctx)
 			"disabling UPDN algorithm, no root nodes were found\n");
 		ret = 1;
 	}
+
+	if (osm_log_is_active(&p_updn->p_osm->log, OSM_LOG_ROUTING))
+		osm_dump_qmap_to_file(p_updn->p_osm, "opensm-updn-roots.dump",
+				      &p_updn->p_osm->subn.sw_guid_tbl,
+				      dump_roots, NULL);
 
 	p_item = cl_qmap_head(&p_updn->p_osm->subn.sw_guid_tbl);
 	while (p_item != cl_qmap_end(&p_updn->p_osm->subn.sw_guid_tbl)) {
