@@ -503,6 +503,10 @@ osm_routing_engine_type_t osm_routing_engine_type(IN const char *str);
 /* dump helpers */
 void osm_dump_mcast_routes(osm_opensm_t * osm);
 void osm_dump_all(osm_opensm_t * osm);
+void osm_dump_qmap_to_file(osm_opensm_t * p_osm, const char *file_name,
+			   cl_qmap_t * map,
+			   void (*func) (cl_map_item_t *, FILE *, void *),
+			   void *cxt);
 
 /****v* OpenSM/osm_exit_flag
 */
