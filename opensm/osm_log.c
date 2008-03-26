@@ -106,25 +106,6 @@ static void truncate_log_file(osm_log_t * const p_log)
 }
 #endif				/* ndef WIN32 */
 
-int osm_log_printf(osm_log_t * p_log, osm_log_level_t level,
-		   const char *fmt, ...)
-{
-	va_list args;
-	int ret;
-
-	if (!(p_log->level & level))
-		return 0;
-
-	va_start(args, fmt);
-	ret = vfprintf(stdout, fmt, args);
-	va_end(args);
-
-	if (p_log->flush || level & OSM_LOG_ERROR)
-		fflush(stdout);
-
-	return ret;
-}
-
 void
 osm_log(IN osm_log_t * const p_log,
 	IN const osm_log_level_t verbosity, IN const char *p_str, ...)

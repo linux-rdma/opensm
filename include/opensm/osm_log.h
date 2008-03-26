@@ -389,8 +389,6 @@ osm_log_is_active(IN const osm_log_t * const p_log,
 *	osm_log_destroy
 *********/
 
-extern int osm_log_printf(osm_log_t * p_log, osm_log_level_t level,
-			  const char *fmt, ...) STRICT_OSM_LOG_FORMAT;
 extern void osm_log_msg_box(osm_log_t *log, osm_log_level_t level,
 			    const char *func_name, const char *msg);
 extern void osm_log_raw(IN osm_log_t * const p_log,
