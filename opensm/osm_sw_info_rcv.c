@@ -161,9 +161,7 @@ __osm_si_rcv_get_fwd_tbl(IN osm_sm_t * sm,
 				"Retrieving FT block %u\n", block_id_ho);
 		}
 
-		status = osm_req_get(&sm->req,
-				     p_dr_path,
-				     IB_MAD_ATTR_LIN_FWD_TBL,
+		status = osm_req_get(sm, p_dr_path, IB_MAD_ATTR_LIN_FWD_TBL,
 				     cl_hton32(block_id_ho),
 				     CL_DISP_MSGID_NONE, &context);
 		if (status != IB_SUCCESS) {
@@ -253,7 +251,7 @@ __osm_si_rcv_get_mcast_fwd_tbl(IN osm_sm_t * sm,
 			attr_mod_ho =
 			    block_id_ho | position << IB_MCAST_POSITION_SHIFT;
 			status =
-			    osm_req_get(&sm->req, p_dr_path,
+			    osm_req_get(sm, p_dr_path,
 					IB_MAD_ATTR_MCAST_FWD_TBL,
 					cl_hton32(attr_mod_ho),
 					CL_DISP_MSGID_NONE, &context);
