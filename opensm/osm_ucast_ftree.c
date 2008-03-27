@@ -2195,14 +2195,14 @@ __osm_ftree_fabric_route_upgoing_by_going_down(IN ftree_fabric_t * p_ftree,
 /***************************************************/
 
 /*
- * Function: assign-down-going-port-by-descending-up
+ * Function: assign-down-going-port-by-ascending-up
  * Given   : a switch and a LID
  * Pseudo code:
  *    find the least loaded port of all the upgoing groups (scan in indexing order)
  *    assign the LFT(LID) of remote switch to that port
  *    track that port usage
  *    assign-up-going-port-by-descending-down on CURRENT switch
- *    assign-down-going-port-by-descending-up on REMOTE switch (recursion)
+ *    assign-down-going-port-by-ascending-up on REMOTE switch (recursion)
  */
 
 static void
@@ -2459,9 +2459,9 @@ __osm_ftree_fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
  *       for each compute node (in indexing order)
  *          obtain the LID of the compute node
  *          set local LFT(LID) of the port connecting to compute node
- *          call assign-down-going-port-by-descending-up(TRUE,TRUE) on CURRENT switch
+ *          call assign-down-going-port-by-ascending-up(TRUE,TRUE) on CURRENT switch
  *       for each MISSING compute node
- *          call assign-down-going-port-by-descending-up(FALSE,TRUE) on CURRENT switch
+ *          call assign-down-going-port-by-ascending-up(FALSE,TRUE) on CURRENT switch
  */
 
 static void __osm_ftree_fabric_route_to_cns(IN ftree_fabric_t * p_ftree)
@@ -2576,7 +2576,7 @@ static void __osm_ftree_fabric_route_to_cns(IN ftree_fabric_t * p_ftree)
  *       obtain the LID of the HCA port
  *       get switch that is connected to this HCA port
  *       set switch LFT(LID) to the port connecting to compute node
- *       call assign-down-going-port-by-descending-up(TRUE,FALSE) on CURRENT switch
+ *       call assign-down-going-port-by-ascending-up(TRUE,FALSE) on CURRENT switch
  *
  * Routing to these HCAs is routing a REAL hca lid on SECONDARY path.
  * However, we do want to allow load-leveling of the traffic to the non-CNs,
@@ -2662,7 +2662,7 @@ static void __osm_ftree_fabric_route_to_non_cns(IN ftree_fabric_t * p_ftree)
  *    foreach switch in fabric
  *       obtain its LID
  *       set local LFT(LID) to port 0
- *       call assign-down-going-port-by-descending-up(TRUE,FALSE) on CURRENT switch
+ *       call assign-down-going-port-by-ascending-up(TRUE,FALSE) on CURRENT switch
  *
  * Routing to switch is similar to routing a REAL hca lid on SECONDARY path:
  *   - we should set fwd tables
