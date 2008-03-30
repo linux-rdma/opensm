@@ -38,73 +38,61 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <unistd.h>
 #include <ctype.h>
 #include <config.h>
 
 #include <complib/cl_nodenamemap.h>
 
-static void
-read_names(nn_map_t *map)
+static int map_name(void *cxt, uint64_t guid, char *p)
 {
-	char *line = NULL;
-	size_t len = 0;
+	cl_qmap_t *map = cxt;
 	name_map_item_t *item;
 
-	rewind(map->fp);
-	while (getline(&line, &len, map->fp) != -1) {
-		char *guid_str = NULL;
-		char *name = NULL;
-		line[len-1] = '\0';
-		if (line[0] == '#')
-			continue;
+	p = strtok(p, "\"#");
+	if (!p)
+		return 0;
 
-		guid_str = strtok(line, "\"#");
-		name = strtok(NULL, "\"#");
-		if (!guid_str || !name)
-			continue;
-
-		item = malloc(sizeof(*item));
-		if (!item) {
-			goto error;
-		}
-		item->guid = strtoull(guid_str, NULL, 0);
-		item->name = strdup(name);
-		cl_qmap_insert(&(map->map), item->guid, (cl_map_item_t *)item);
-	}
-
-error:
-	free (line);
+	item = malloc(sizeof(*item));
+	if (!item)
+		return -1;
+	item->guid = guid;
+	item->name = strdup(p);
+	cl_qmap_insert(map, item->guid, (cl_map_item_t *)item);
+	return 0;
 }
 
 nn_map_t *
 open_node_name_map(char *node_name_map)
 {
-	FILE *tmp_fp = NULL;
-	nn_map_t *rc = NULL;
+	nn_map_t *map;
 
-	if (node_name_map != NULL) {
-		tmp_fp = fopen(node_name_map, "r");
-		if (tmp_fp == NULL) {
-			fprintf(stderr,
-				"WARNING failed to open switch map \"%s\" (%s)\n",
-				node_name_map, strerror(errno));
-		}
+	if (!node_name_map) {
 #ifdef HAVE_DEFAULT_NODENAME_MAP
-	} else {
-		tmp_fp = fopen(HAVE_DEFAULT_NODENAME_MAP, "r");
+		struct stat buf;
+		node_name_map = HAVE_DEFAULT_NODENAME_MAP;
+		if (stat(node_name_map, &buf))
+			return NULL;
+#else
+		return NULL;
 #endif /* HAVE_DEFAULT_NODENAME_MAP */
 	}
-	if (!tmp_fp)
-		return (NULL);
 
-	rc = malloc(sizeof(*rc));
-	if (!rc)
-		return (NULL);
-	rc->fp = tmp_fp;
-	cl_qmap_init(&(rc->map));
-	read_names(rc);
-	return (rc);
+	map = malloc(sizeof(*map));
+	if (!map)
+		return NULL;
+	cl_qmap_init(map);
+
+	if (parse_node_map(node_name_map, map_name, map)) {
+		fprintf(stderr,
+			"WARNING failed to open node name map \"%s\" (%s)\n",
+			node_name_map, strerror(errno));
+			close_node_name_map(map);
+			return NULL;
+	}
+
+	return map;
 }
 
 void
@@ -115,15 +103,13 @@ close_node_name_map(nn_map_t *map)
 	if (!map)
 		return;
 
-	item = (name_map_item_t *)cl_qmap_head(&(map->map));
-	while (item != (name_map_item_t *)cl_qmap_end(&(map->map))) {
-		item = (name_map_item_t *)cl_qmap_remove(&(map->map), item->guid);
+	item = (name_map_item_t *)cl_qmap_head(map);
+	while (item != (name_map_item_t *)cl_qmap_end(map)) {
+		item = (name_map_item_t *)cl_qmap_remove(map, item->guid);
 		free(item->name);
 		free(item);
-		item = (name_map_item_t *)cl_qmap_head(&(map->map));
+		item = (name_map_item_t *)cl_qmap_head(map);
 	}
-	if (map->fp)
-		fclose(map->fp);
 	free(map);
 }
 
@@ -136,8 +122,8 @@ remap_node_name(nn_map_t *map, uint64_t target_guid, char *nodedesc)
 	if (!map)
 		goto done;
 
-	item = (name_map_item_t *)cl_qmap_get(&(map->map), target_guid);
-	if (item != (name_map_item_t *)cl_qmap_end(&(map->map)))
+	item = (name_map_item_t *)cl_qmap_get(map, target_guid);
+	if (item != (name_map_item_t *)cl_qmap_end(map))
 		rc = strdup(item->name);
 
 done:

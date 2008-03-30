@@ -47,10 +47,8 @@ typedef struct _name_map_item {
 	uint64_t guid;
 	char *name;
 } name_map_item_t;
-typedef struct _node_name_map {
-	FILE *fp;
-	cl_qmap_t map;
-} nn_map_t;
+
+typedef cl_qmap_t nn_map_t;
 
 /**
  * Node name map interface.
