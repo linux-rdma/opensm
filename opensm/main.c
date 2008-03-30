@@ -133,8 +133,7 @@ static void show_usage(void)
 	printf("-F <file-name>, --config <file-name>\n"
 	       "          The name of the OpenSM config file. It has a same format\n"
 	       "          as opensm.opts option cache file. When not specified\n"
-	       "          $OSM_CACHE_DIR/opensm.opts (or /var/cache/opensm/opensm.opts)\n"
-	       "          will be used (if exists).\n\n");
+	       "          " OSM_DEFAULT_CONFIG_FILE " will be used (if exists).\n\n");
 	printf("-c\n"
 	       "--cache-options\n"
 	       "          Cache the given command line options into the file\n"
@@ -594,8 +593,6 @@ int main(int argc, char *argv[])
 {
 	osm_opensm_t osm;
 	osm_subn_opt_t opt;
-	char conf_file[256];
-	char *cache_dir;
 	ib_net64_t sm_key = 0;
 	ib_api_status_t status;
 	uint32_t temp, dbg_lvl;
@@ -683,13 +680,7 @@ int main(int argc, char *argv[])
 
 	osm_subn_set_default_opt(&opt);
 
-	/* try to open the options file from the cache dir */
-	cache_dir = getenv("OSM_CACHE_DIR");
-	if (!cache_dir || !(*cache_dir))
-		cache_dir = OSM_DEFAULT_CACHE_DIR;
-	snprintf(conf_file, sizeof(conf_file), "%s/opensm.opts", cache_dir);
-
-	if (osm_subn_parse_conf_file(conf_file, &opt) < 0)
+	if (osm_subn_parse_conf_file(OSM_DEFAULT_CONFIG_FILE, &opt) < 0)
 		printf("\nosm_subn_parse_conf_file failed!\n");
 
 	printf("Command Line Arguments:\n");
@@ -1039,9 +1030,15 @@ int main(int argc, char *argv[])
 	if (opt.guid == 0 || cl_hton64(opt.guid) == CL_HTON64(INVALID_GUID))
 		opt.guid = get_port_guid(&osm, opt.guid);
 
-	if (cache_options == TRUE
-	    && osm_subn_write_conf_file(conf_file, &opt))
-		printf("\nosm_subn_write_conf_file failed!\n");
+	if (cache_options == TRUE) {
+		char conf_file[256];
+		char *cache_dir = getenv("OSM_CACHE_DIR");
+		if (!cache_dir || !(*cache_dir))
+			cache_dir = OSM_DEFAULT_CACHE_DIR;
+		snprintf(conf_file, sizeof(conf_file), "%s/opensm.opts", cache_dir);
+		if (osm_subn_write_conf_file(conf_file, &opt))
+			printf("\nosm_subn_write_conf_file failed!\n");
+	}
 
 	status = osm_opensm_bind(&osm, opt.guid);
 	if (status != IB_SUCCESS) {

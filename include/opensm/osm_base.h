@@ -213,6 +213,27 @@ BEGIN_C_DECLS
 #define OSM_DEFAULT_LOG_FILE "/var/log/opensm.log"
 #endif
 /***********/
+
+/****d* OpenSM: Base/OSM_DEFAULT_CONFIG_FILE
+* NAME
+*	OSM_DEFAULT_CONFIG_FILE
+*
+* DESCRIPTION
+*	Specifies the default OpenSM config file name
+*
+* SYNOPSIS
+*/
+#ifdef __WIN__
+#define OSM_DEFAULT_CONFIG_FILE strcat(GetOsmCachePath(), "opensm.conf")
+#elif defined(HAVE_DEFAULT_OPENSM_CONFIG_FILE)
+#define OSM_DEFAULT_CONFIG_FILE HAVE_DEFAULT_OPENSM_CONFIG_FILE
+#elif defined (OPENSM_CONFIG_DIR)
+#define OSM_DEFAULT_CONFIG_FILE OPENSM_CONFIG_DIR "/opensm.conf"
+#else
+#define OSM_DEFAULT_CONFIG_FILE "/etc/opensm/opensm.conf"
+#endif /* __WIN__ */
+/***********/
+
 /****d* OpenSM: Base/OSM_DEFAULT_PARTITION_CONFIG_FILE
 * NAME
 *	OSM_DEFAULT_PARTITION_CONFIG_FILE

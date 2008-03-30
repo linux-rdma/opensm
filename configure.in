@@ -111,6 +111,26 @@ AC_DEFINE_UNQUOTED(OPENSM_CONFIG_DIR,
 	[Define OpenSM config directory])
 AC_SUBST(OPENSM_CONFIG_DIR)
 
+dnl Check for a different default OpenSm config file
+OPENSM_CONFIG_FILE=opensm.conf
+AC_MSG_CHECKING(for --with-opensm-conf-file )
+AC_ARG_WITH(opensm-conf-file,
+    AC_HELP_STRING([--with-opensm-conf-file=file],
+                   [define a default OpenSM config file (default opensm.conf)]),
+    [ case "$withval" in
+    no)
+        ;;
+    *)
+        OPENSM_CONFIG_FILE=$withval
+        ;;
+    esac ]
+)
+AC_MSG_RESULT(${OPENSM_CONFIG_FILE})
+AC_DEFINE_UNQUOTED(HAVE_DEFAULT_OPENSM_CONFIG_FILE,
+	["$CONF_DIR/$OPENSM_CONFIG_FILE"],
+	[Define a default OpenSM config file])
+AC_SUBST(OPENSM_CONFIG_FILE)
+
 dnl Check for a different default node name map file
 NODENAMEMAPFILE=ib-node-name-map
 AC_MSG_CHECKING(for --with-node-name-map )
