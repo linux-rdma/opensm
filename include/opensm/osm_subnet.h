@@ -205,6 +205,7 @@ typedef struct _osm_qos_options_t {
 * SYNOPSIS
 */
 typedef struct _osm_subn_opt {
+	char *config_file;
 	ib_net64_t guid;
 	ib_net64_t m_key;
 	ib_net64_t sm_key;
@@ -283,6 +284,9 @@ typedef struct _osm_subn_opt {
 } osm_subn_opt_t;
 /*
 * FIELDS
+*
+*	config_file
+*		The name of the config file.
 *
 *	guid
 *		The port guid that the SM is binding to.
@@ -1040,7 +1044,8 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * const p_opt);
 *
 * SYNOPSIS
 */
-ib_api_status_t osm_subn_parse_conf_file(IN osm_subn_opt_t * const p_opt);
+ib_api_status_t osm_subn_parse_conf_file(char *conf_file,
+					 IN osm_subn_opt_t * const p_opt);
 /*
 * PARAMETERS
 *
@@ -1092,7 +1097,8 @@ ib_api_status_t osm_subn_rescan_conf_files(IN osm_subn_t * const p_subn);
 *
 * SYNOPSIS
 */
-ib_api_status_t osm_subn_write_conf_file(IN osm_subn_opt_t * const p_opt);
+ib_api_status_t osm_subn_write_conf_file(char *file_name,
+					 IN osm_subn_opt_t * const p_opt);
 /*
 * PARAMETERS
 *

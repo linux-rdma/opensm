@@ -71,14 +71,6 @@
 #include <opensm/osm_event_plugin.h>
 #include <opensm/osm_qos_policy.h>
 
-#if defined(PATH_MAX)
-#define OSM_PATH_MAX	(PATH_MAX + 1)
-#elif defined (_POSIX_PATH_MAX)
-#define OSM_PATH_MAX	(_POSIX_PATH_MAX + 1)
-#else
-#define OSM_PATH_MAX	256
-#endif
-
 static const char null_str[] = "(null)";
 
 /**********************************************************************
@@ -786,26 +778,20 @@ osm_parse_prefix_routes_file(IN osm_subn_t * const p_subn)
  **********************************************************************/
 ib_api_status_t osm_subn_rescan_conf_files(IN osm_subn_t * const p_subn)
 {
-	char *p_cache_dir = getenv("OSM_CACHE_DIR");
-	char file_name[OSM_PATH_MAX];
 	FILE *opts_file;
 	char line[1024];
 	char *p_key, *p_val, *p_last;
 
-	/* try to open the options file from the cache dir */
-	if (!p_cache_dir || !(*p_cache_dir))
-		p_cache_dir = OSM_DEFAULT_CACHE_DIR;
+	if (!p_subn->opt.config_file)
+		return 0;
 
-	strcpy(file_name, p_cache_dir);
-	strcat(file_name, "/opensm.opts");
-
-	opts_file = fopen(file_name, "r");
+	opts_file = fopen(p_subn->opt.config_file, "r");
 	if (!opts_file) {
 		if (errno == ENOENT)
 			return IB_SUCCESS;
 		OSM_LOG(&p_subn->p_osm->log, OSM_LOG_ERROR,
 			"cannot open file \'%s\': %s\n",
-			file_name, strerror(errno));
+			p_subn->opt.config_file, strerror(errno));
 		return IB_ERROR;
 	}
 
@@ -1141,20 +1127,12 @@ static void subn_verify_conf_file(IN osm_subn_opt_t * const p_opts)
 
 /**********************************************************************
  **********************************************************************/
-ib_api_status_t osm_subn_parse_conf_file(IN osm_subn_opt_t * const p_opts)
+ib_api_status_t osm_subn_parse_conf_file(char *file_name,
+					 IN osm_subn_opt_t * const p_opts)
 {
-	char *p_cache_dir = getenv("OSM_CACHE_DIR");
-	char file_name[OSM_PATH_MAX];
-	FILE *opts_file;
 	char line[1024];
+	FILE *opts_file;
 	char *p_key, *p_val, *p_last;
-
-	/* try to open the options file from the cache dir */
-	if (!p_cache_dir || !(*p_cache_dir))
-		p_cache_dir = OSM_DEFAULT_CACHE_DIR;
-
-	strcpy(file_name, p_cache_dir);
-	strcat(file_name, "/opensm.opts");
 
 	opts_file = fopen(file_name, "r");
 	if (!opts_file) {
@@ -1165,9 +1143,10 @@ ib_api_status_t osm_subn_parse_conf_file(IN osm_subn_opt_t * const p_opts)
 		return IB_ERROR;
 	}
 
-	sprintf(line, " Reading Cached Option File: %s\n", file_name);
-	printf(line);
+	printf(" Reading Cached Option File: %s\n", file_name);
 	cl_log_event("OpenSM", CL_LOG_INFO, line, NULL, 0);
+
+	p_opts->config_file = file_name;
 
 	while (fgets(line, 1023, opts_file) != NULL) {
 		/* get the first token */
@@ -1404,18 +1383,10 @@ ib_api_status_t osm_subn_parse_conf_file(IN osm_subn_opt_t * const p_opts)
 
 /**********************************************************************
  **********************************************************************/
-ib_api_status_t osm_subn_write_conf_file(IN osm_subn_opt_t * const p_opts)
+ib_api_status_t osm_subn_write_conf_file(char *file_name,
+					 IN osm_subn_opt_t * const p_opts)
 {
-	char *p_cache_dir = getenv("OSM_CACHE_DIR");
-	char file_name[OSM_PATH_MAX];
 	FILE *opts_file;
-
-	/* try to open the options file from the cache dir */
-	if (!p_cache_dir || !(*p_cache_dir))
-		p_cache_dir = OSM_DEFAULT_CACHE_DIR;
-
-	strcpy(file_name, p_cache_dir);
-	strcat(file_name, "/opensm.opts");
 
 	opts_file = fopen(file_name, "w");
 	if (!opts_file) {
