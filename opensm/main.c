@@ -130,6 +130,11 @@ static void show_usage(void)
 	printf("\n------- OpenSM - Usage and options ----------------------\n");
 	printf("Usage:   opensm [options]\n");
 	printf("Options:\n");
+	printf("-F <file-name>, --config <file-name>\n"
+	       "          The name of the OpenSM config file. It has a same format\n"
+	       "          as opensm.opts option cache file. When not specified\n"
+	       "          $OSM_CACHE_DIR/opensm.opts (or /var/cache/opensm/opensm.opts)\n"
+	       "          will be used (if exists).\n\n");
 	printf("-c\n"
 	       "--cache-options\n"
 	       "          Cache the given command line options into the file\n"
@@ -599,8 +604,9 @@ int main(int argc, char *argv[])
 	uint32_t next_option;
 	boolean_t cache_options = FALSE;
 	uint32_t val;
+	unsigned config_file_done = 0;
 	const char *const short_option =
-	    "i:f:ed:g:l:L:s:t:a:u:m:R:zM:U:S:P:Y:NBIQvVhorcyxp:n:q:k:C:";
+	    "F:i:f:ed:g:l:L:s:t:a:u:m:R:zM:U:S:P:Y:NBIQvVhorcyxp:n:q:k:C:";
 
 	/*
 	   In the array below, the 2nd parameter specifies the number
@@ -610,6 +616,7 @@ int main(int argc, char *argv[])
 	   2: optional
 	 */
 	const struct option long_option[] = {
+		{"config", 1, NULL, 'F'},
 		{"debug", 1, NULL, 'd'},
 		{"guid", 1, NULL, 'g'},
 		{"ignore_guids", 1, NULL, 'i'},
@@ -690,6 +697,18 @@ int main(int argc, char *argv[])
 		next_option = getopt_long_only(argc, argv, short_option,
 					       long_option, NULL);
 		switch (next_option) {
+		case 'F':
+			if (config_file_done)
+				break;
+			printf("Reloading config from `%s`:\n", optarg);
+			if (osm_subn_parse_conf_file(optarg, &opt)) {
+				printf("cannot parse config file.\n");
+				exit(1);
+			}
+			printf("Rescaning command line:\n");
+			config_file_done = 1;
+			optind = 0;
+			break;
 		case 'o':
 			/*
 			   Run once option.
