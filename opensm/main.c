@@ -682,7 +682,7 @@ int main(int argc, char *argv[])
 		cache_dir = OSM_DEFAULT_CACHE_DIR;
 	snprintf(conf_file, sizeof(conf_file), "%s/opensm.opts", cache_dir);
 
-	if (osm_subn_parse_conf_file(conf_file, &opt) != IB_SUCCESS)
+	if (osm_subn_parse_conf_file(conf_file, &opt) < 0)
 		printf("\nosm_subn_parse_conf_file failed!\n");
 
 	printf("Command Line Arguments:\n");
@@ -1021,7 +1021,7 @@ int main(int argc, char *argv[])
 		opt.guid = get_port_guid(&osm, opt.guid);
 
 	if (cache_options == TRUE
-	    && osm_subn_write_conf_file(conf_file, &opt) != IB_SUCCESS)
+	    && osm_subn_write_conf_file(conf_file, &opt))
 		printf("\nosm_subn_write_conf_file failed!\n");
 
 	status = osm_opensm_bind(&osm, opt.guid);

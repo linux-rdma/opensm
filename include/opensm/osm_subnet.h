@@ -1044,8 +1044,7 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * const p_opt);
 *
 * SYNOPSIS
 */
-ib_api_status_t osm_subn_parse_conf_file(char *conf_file,
-					 IN osm_subn_opt_t * const p_opt);
+int osm_subn_parse_conf_file(char *conf_file, osm_subn_opt_t * const p_opt);
 /*
 * PARAMETERS
 *
@@ -1053,14 +1052,8 @@ ib_api_status_t osm_subn_parse_conf_file(char *conf_file,
 *		[in] Pointer to the subnet options structure.
 *
 * RETURN VALUES
-*	IB_SUCCESS, IB_ERROR
-*
-* NOTES
-*  Assumes the conf file is part of the cache dir which defaults to
-*  OSM_DEFAULT_CACHE_DIR or OSM_CACHE_DIR the name is opensm.opts
-*
-* SEE ALSO
-*	Subnet object, osm_subn_construct, osm_subn_destroy
+*	0 on success, positive value if file doesn't exist,
+*	negative value otherwise
 *********/
 
 /****f* OpenSM: Subnet/osm_subn_rescan_conf_files
@@ -1073,7 +1066,7 @@ ib_api_status_t osm_subn_parse_conf_file(char *conf_file,
 *
 * SYNOPSIS
 */
-ib_api_status_t osm_subn_rescan_conf_files(IN osm_subn_t * const p_subn);
+int osm_subn_rescan_conf_files(IN osm_subn_t * const p_subn);
 /*
 * PARAMETERS
 *
@@ -1081,10 +1074,8 @@ ib_api_status_t osm_subn_rescan_conf_files(IN osm_subn_t * const p_subn);
 *		[in] Pointer to the subnet structure.
 *
 * RETURN VALUES
-*	IB_SUCCESS, IB_ERROR
-*
-* NOTES
-*  This uses the same file as osm_subn_parse_conf_files()
+*	0 on success, positive value if file doesn't exist,
+*	negative value otherwise
 *
 *********/
 
@@ -1093,12 +1084,11 @@ ib_api_status_t osm_subn_rescan_conf_files(IN osm_subn_t * const p_subn);
 *	osm_subn_write_conf_file
 *
 * DESCRIPTION
-*  Write the configuration file into the cache
+*	Write the configuration file into the cache
 *
 * SYNOPSIS
 */
-ib_api_status_t osm_subn_write_conf_file(char *file_name,
-					 IN osm_subn_opt_t * const p_opt);
+int osm_subn_write_conf_file(char *file_name, IN osm_subn_opt_t * const p_opt);
 /*
 * PARAMETERS
 *
@@ -1106,14 +1096,11 @@ ib_api_status_t osm_subn_write_conf_file(char *file_name,
 *		[in] Pointer to the subnet options structure.
 *
 * RETURN VALUES
-*	IB_SUCCESS, IB_ERROR
+*	0 on success, negative value otherwise
 *
 * NOTES
-*  Assumes the conf file is part of the cache dir which defaults to
-*  OSM_DEFAULT_CACHE_DIR or OSM_CACHE_DIR the name is opensm.opts
-*
-* SEE ALSO
-*	Subnet object, osm_subn_construct, osm_subn_destroy
+*	Assumes the conf file is part of the cache dir which defaults to
+*	OSM_DEFAULT_CACHE_DIR or OSM_CACHE_DIR the name is opensm.opts
 *********/
 
 END_C_DECLS

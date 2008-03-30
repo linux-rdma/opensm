@@ -1037,8 +1037,7 @@ _repeat_discovery:
 	sm->p_subn->subnet_initialization_error = FALSE;
 
 	/* rescan configuration updates */
-	status = osm_subn_rescan_conf_files(sm->p_subn);
-	if (status != IB_SUCCESS)
+	if (osm_subn_rescan_conf_files(sm->p_subn) < 0)
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 331A: "
 			"osm_subn_rescan_conf_file failed\n");
 

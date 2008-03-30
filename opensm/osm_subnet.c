@@ -776,7 +776,7 @@ osm_parse_prefix_routes_file(IN osm_subn_t * const p_subn)
 
 /**********************************************************************
  **********************************************************************/
-ib_api_status_t osm_subn_rescan_conf_files(IN osm_subn_t * const p_subn)
+int osm_subn_rescan_conf_files(IN osm_subn_t * const p_subn)
 {
 	FILE *opts_file;
 	char line[1024];
@@ -788,11 +788,11 @@ ib_api_status_t osm_subn_rescan_conf_files(IN osm_subn_t * const p_subn)
 	opts_file = fopen(p_subn->opt.config_file, "r");
 	if (!opts_file) {
 		if (errno == ENOENT)
-			return IB_SUCCESS;
+			return 1;
 		OSM_LOG(&p_subn->p_osm->log, OSM_LOG_ERROR,
 			"cannot open file \'%s\': %s\n",
 			p_subn->opt.config_file, strerror(errno));
-		return IB_ERROR;
+		return -1;
 	}
 
 	while (fgets(line, 1023, opts_file) != NULL) {
@@ -827,7 +827,7 @@ ib_api_status_t osm_subn_rescan_conf_files(IN osm_subn_t * const p_subn)
 
 	osm_parse_prefix_routes_file(p_subn);
 
-	return IB_SUCCESS;
+	return 0;
 }
 
 /**********************************************************************
@@ -1127,8 +1127,7 @@ static void subn_verify_conf_file(IN osm_subn_opt_t * const p_opts)
 
 /**********************************************************************
  **********************************************************************/
-ib_api_status_t osm_subn_parse_conf_file(char *file_name,
-					 IN osm_subn_opt_t * const p_opts)
+int osm_subn_parse_conf_file(char *file_name, osm_subn_opt_t * const p_opts)
 {
 	char line[1024];
 	FILE *opts_file;
@@ -1137,10 +1136,10 @@ ib_api_status_t osm_subn_parse_conf_file(char *file_name,
 	opts_file = fopen(file_name, "r");
 	if (!opts_file) {
 		if (errno == ENOENT)
-			return IB_SUCCESS;
+			return 1;
 		printf("cannot open file \'%s\': %s\n",
 		       file_name, strerror(errno));
-		return IB_ERROR;
+		return -1;
 	}
 
 	printf(" Reading Cached Option File: %s\n", file_name);
@@ -1378,13 +1377,12 @@ ib_api_status_t osm_subn_parse_conf_file(char *file_name,
 
 	subn_verify_conf_file(p_opts);
 
-	return IB_SUCCESS;
+	return 0;
 }
 
 /**********************************************************************
  **********************************************************************/
-ib_api_status_t osm_subn_write_conf_file(char *file_name,
-					 IN osm_subn_opt_t * const p_opts)
+int osm_subn_write_conf_file(char *file_name, IN osm_subn_opt_t *const p_opts)
 {
 	FILE *opts_file;
 
@@ -1392,7 +1390,7 @@ ib_api_status_t osm_subn_write_conf_file(char *file_name,
 	if (!opts_file) {
 		printf("cannot open file \'%s\' for writing: %s\n",
 		       file_name, strerror(errno));
-		return IB_ERROR;
+		return -1;
 	}
 
 	fprintf(opts_file,
@@ -1717,5 +1715,5 @@ ib_api_status_t osm_subn_write_conf_file(char *file_name,
 
 	fclose(opts_file);
 
-	return IB_SUCCESS;
+	return 0;
 }
