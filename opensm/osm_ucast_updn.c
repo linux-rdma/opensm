@@ -49,6 +49,7 @@
 #endif				/* HAVE_CONFIG_H */
 
 #include <stdlib.h>
+#include <ctype.h>
 #include <complib/cl_debug.h>
 #include <complib/cl_qmap.h>
 #include <opensm/osm_switch.h>
@@ -446,7 +447,7 @@ static int update_id(void *cxt, uint64_t guid, char *p)
 	}
 
 	id = strtoull(p, &e, 0);
-	if (*e) {
+	if (*e && !isspace(*e)) {
 		OSM_LOG(&osm->log, OSM_LOG_ERROR,
 			"ERR: cannot parse node id \'%s\'", p);
 		return -1;

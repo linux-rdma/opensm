@@ -170,7 +170,7 @@ int parse_node_map(const char *file_name,
 	if (!(f = fopen(file_name, "r")))
 		return -1;
 
-	while (fgets(line, sizeof(line),f)) {
+	while (fgets(line, sizeof(line), f)) {
 		uint64_t guid;
 		char *p, *e;
 
@@ -181,18 +181,16 @@ int parse_node_map(const char *file_name,
 			continue;
 
 		guid = strtoull(p, &e, 0);
-		if (e == p || !isspace(*e)) {
+		if (e == p || (!isspace(*e) && *e != '#' && *e != '\0')) {
 			fclose(f);
 			return -1;
 		}
 
 		p = e;
-		if (*e)
-			e++;
 		while (isspace(*p))
 			p++;
 
-		e = strpbrk(p, "# \t\n");
+		e = strpbrk(p, "\n");
 		if (e)
 			*e = '\0';
 
