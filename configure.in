@@ -82,6 +82,10 @@ OPENIB_OSM_CONSOLE_SOCKET_SEL
 dnl select performance manager or not
 OPENIB_OSM_PERF_MGR_SEL
 
+dnl resolve <sysconfdir> config dir.
+conf_dir_tmp1="`eval echo ${sysconfdir} | sed 's/^NONE/$ac_default_prefix/'`"
+SYS_CONFIG_DIR="`eval echo $conf_dir_tmp1`"
+
 dnl Check for a different subdir for the config files.
 OPENSM_CONF_SUB_DIR=opensm
 AC_MSG_CHECKING(for --with-opensm-conf-sub-dir)
@@ -92,23 +96,17 @@ AC_ARG_WITH(opensm-conf-sub-dir,
     no)
         ;;
     *)
-        withopensmconfsubdir=yes
         OPENSM_CONF_SUB_DIR=$withval
         ;;
     esac ]
 )
-AC_MSG_RESULT(${withopensmconfsubdir=no})
-AC_SUBST(OPENSM_CONF_SUB_DIR)
-
-dnl Set up <sysconfdir>/opensm config dir.
-CONF_DIR_TMP1="`eval echo ${sysconfdir}/$OPENSM_CONF_SUB_DIR`"
-CONF_DIR_TMP2="`echo $CONF_DIR_TMP1 | sed 's/^NONE/$ac_default_prefix/'`"
-CONF_DIR="`eval echo $CONF_DIR_TMP2`"
-
+OPENSM_CONFIG_DIR=$SYS_CONFIG_DIR/$OPENSM_CONF_SUB_DIR
+AC_MSG_RESULT($OPENSM_CONFIG_DIR)
 AC_DEFINE_UNQUOTED(OPENSM_CONFIG_DIR,
-	["$CONF_DIR"],
+	["$OPENSM_CONFIG_DIR"],
 	[Define OpenSM config directory])
-AC_SUBST(CONF_DIR)
+AC_SUBST(OPENSM_CONF_SUB_DIR)
+AC_SUBST(CONF_DIR,$OPENSM_CONFIG_DIR)
 
 dnl Check for a different default node name map file
 NODENAMEMAPFILE=ib-node-name-map
@@ -120,14 +118,13 @@ AC_ARG_WITH(node-name-map,
     no)
         ;;
     *)
-        withnodenamemap=yes
         NODENAMEMAPFILE=$withval
         ;;
     esac ]
 )
-AC_MSG_RESULT(${withnodenamemap=no})
+AC_MSG_RESULT($NODENAMEMAPFILE)
 AC_DEFINE_UNQUOTED(HAVE_DEFAULT_NODENAME_MAP,
-	["$CONF_DIR/$NODENAMEMAPFILE"],
+	["$OPENSM_CONFIG_DIR/$NODENAMEMAPFILE"],
 	[Define a default node name map file])
 AC_SUBST(NODENAMEMAPFILE)
 
@@ -141,14 +138,13 @@ AC_ARG_WITH(partitions-conf,
     no)
         ;;
     *)
-        withpartitionsconf=yes
         PARTITION_CONFIG_FILE=$withval
         ;;
     esac ]
 )
-AC_MSG_RESULT(${withpartitionsconf=no})
+AC_MSG_RESULT($PARTITION_CONFIG_FILE)
 AC_DEFINE_UNQUOTED(HAVE_DEFAULT_PARTITION_CONFIG_FILE,
-	["$CONF_DIR/$PARTITION_CONFIG_FILE"],
+	["$OPENSM_CONFIG_DIR/$PARTITION_CONFIG_FILE"],
 	[Define a Partition config file])
 AC_SUBST(PARTITION_CONFIG_FILE)
 
@@ -162,14 +158,13 @@ AC_ARG_WITH(qos-policy-conf,
     no)
         ;;
     *)
-        withqospolicyconf=yes
         QOS_POLICY_FILE=$withval
         ;;
     esac ]
 )
-AC_MSG_RESULT(${withqospolicyconf=no})
+AC_MSG_RESULT($QOS_POLICY_FILE)
 AC_DEFINE_UNQUOTED(HAVE_DEFAULT_QOS_POLICY_FILE,
-	["$CONF_DIR/$QOS_POLICY_FILE"],
+	["$OPENSM_CONFIG/$QOS_POLICY_FILE"],
 	[Define a QOS policy config file])
 AC_SUBST(QOS_POLICY_FILE)
 
