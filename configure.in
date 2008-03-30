@@ -149,7 +149,7 @@ AC_ARG_WITH(partitions-conf,
 AC_MSG_RESULT(${withpartitionsconf=no})
 AC_DEFINE_UNQUOTED(HAVE_DEFAULT_PARTITION_CONFIG_FILE,
 	["$CONF_DIR/$PARTITION_CONFIG_FILE"],
-	[Define a QOS policy config file])
+	[Define a Partition config file])
 AC_SUBST(PARTITION_CONFIG_FILE)
 
 dnl Check for a different QOS policy file
