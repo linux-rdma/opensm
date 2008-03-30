@@ -1047,31 +1047,6 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * const p_opt);
 *	Subnet object, osm_subn_construct, osm_subn_destroy
 *********/
 
-/****f* OpenSM: Subnet/osm_subn_set_default_opt
-* NAME
-*	osm_subn_set_default_opt
-*
-* DESCRIPTION
-*	The osm_subn_set_default_opt function sets the default options.
-*
-* SYNOPSIS
-*/
-void osm_subn_set_default_opt(IN osm_subn_opt_t * const p_opt);
-/*
-* PARAMETERS
-*
-*	p_opt
-*		[in] Pointer to the subnet options structure.
-*
-* RETURN VALUES
-*	None
-*
-* NOTES
-*
-* SEE ALSO
-*	Subnet object, osm_subn_construct, osm_subn_destroy
-*********/
-
 /****f* OpenSM: Subnet/osm_subn_parse_conf_file
 * NAME
 *	osm_subn_parse_conf_file
@@ -1100,7 +1075,7 @@ ib_api_status_t osm_subn_parse_conf_file(IN osm_subn_opt_t * const p_opt);
 *	Subnet object, osm_subn_construct, osm_subn_destroy
 *********/
 
-/****f* OpenSM: Subnet/osm_subn_parse_conf_files
+/****f* OpenSM: Subnet/osm_subn_rescan_conf_files
 * NAME
 *	osm_subn_rescan_conf_files
 *
