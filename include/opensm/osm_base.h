@@ -224,12 +224,12 @@ BEGIN_C_DECLS
 */
 #ifdef __WIN__
 #define OSM_DEFAULT_PARTITION_CONFIG_FILE strcat(GetOsmCachePath(), "osm-partitions.conf")
-#else /* !__WIN__ */
-#   ifdef HAVE_DEFAULT_PARTITION_CONFIG_FILE
-#      define OSM_DEFAULT_PARTITION_CONFIG_FILE HAVE_DEFAULT_PARTITION_CONFIG_FILE
-#   else /* !HAVE_DEFAULT_PARTITION_CONFIG_FILE */
-#      define OSM_DEFAULT_PARTITION_CONFIG_FILE "/etc/ofa/opensm-partitions.conf"
-#   endif /* HAVE_DEFAULT_PARTITION_CONFIG_FILE */
+#elif defined(HAVE_DEFAULT_PARTITION_CONFIG_FILE)
+#define OSM_DEFAULT_PARTITION_CONFIG_FILE HAVE_DEFAULT_PARTITION_CONFIG_FILE
+#elif defined(OSM_CONFIG_DIR)
+#define OSM_DEFAULT_PARTITION_CONFIG_FILE OPENSM_CONFIG_DIR "/partitions.conf"
+#else
+#define OSM_DEFAULT_PARTITION_CONFIG_FILE "/etc/opensm/partitions.conf"
 #endif /* __WIN__ */
 /***********/
 
@@ -244,12 +244,12 @@ BEGIN_C_DECLS
 */
 #ifdef __WIN__
 #define OSM_DEFAULT_QOS_POLICY_FILE strcat(GetOsmCachePath(), "osm-qos-policy.conf")
-#else /* !__WIN__ */
-#   ifdef HAVE_DEFAULT_QOS_POLICY_FILE
-#      define OSM_DEFAULT_QOS_POLICY_FILE HAVE_DEFAULT_QOS_POLICY_FILE
-#   else /* !HAVE_DEFAULT_QOS_POLICY_FILE */
-#      define OSM_DEFAULT_QOS_POLICY_FILE "/etc/ofa/opensm-qos-policy.conf"
-#   endif /* HAVE_DEFAULT_QOS_POLICY_FILE */
+#elif defined(HAVE_DEFAULT_QOS_POLICY_FILE)
+#define OSM_DEFAULT_QOS_POLICY_FILE HAVE_DEFAULT_QOS_POLICY_FILE
+#elif defined(OSM_CONFIG_DIR)
+#define OSM_DEFAULT_QOS_POLICY_FILE OPENSM_CONFIG_DIR "/qos-policy.conf"
+#else
+#define OSM_DEFAULT_QOS_POLICY_FILE "/etc/opensm/qos-policy.conf"
 #endif /* __WIN__ */
 /***********/
 
@@ -264,12 +264,12 @@ BEGIN_C_DECLS
 */
 #ifdef __WIN__
 #define OSM_DEFAULT_PREFIX_ROUTES_FILE strcat(GetOsmCachePath(), "osm-prefix-routes.conf")
-#else
-#ifdef OPENSM_CONFIG_DIR
+#elif defined(HAVE_DEFAULT_PREFIX_ROUTES_FILE)
+#define OSM_DEFAULT_PREFIX_ROUTES_FILE HAVE_DEFAULT_PREFIX_ROUTES_FILE
+#elif defined(OPENSM_CONFIG_DIR)
 #define OSM_DEFAULT_PREFIX_ROUTES_FILE OPENSM_CONFIG_DIR "/prefix-routes.conf"
 #else
-#define OSM_DEFAULT_PREFIX_ROUTES_FILE "/etc/ofa/opensm-prefix-routes.conf"
-#endif
+#define OSM_DEFAULT_PREFIX_ROUTES_FILE "/etc/opensm/prefix-routes.conf"
 #endif
 /***********/
 
