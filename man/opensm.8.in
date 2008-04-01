@@ -938,7 +938,7 @@ default partition config file
 default QOS policy config file
 
 .TP
-.B @OPENSM_CONFIG_DIR@/prefix-routes.conf
+.B @OPENSM_CONFIG_DIR@/@PREFIX_ROUTES_FILE@
 default prefix routes file.
 
 .SH AUTHORS

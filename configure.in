@@ -166,6 +166,26 @@ AC_DEFINE_UNQUOTED(HAVE_DEFAULT_QOS_POLICY_FILE,
 	[Define a QOS policy config file])
 AC_SUBST(QOS_POLICY_FILE)
 
+dnl Check for a different prefix-routes file
+PREFIX_ROUTES_FILE=prefix-routes.conf
+AC_MSG_CHECKING(for --with-prefix-routes-conf)
+AC_ARG_WITH(prefix-routes-conf,
+    AC_HELP_STRING([--with-prefix-routes-conf=file],
+                   [define a Prefix Routes config file (default is prefix-routes.conf)]),
+    [ case "$withval" in
+    no)
+        ;;
+    *)
+        PREFIX_ROUTES_FILE=$withval
+        ;;
+    esac ]
+)
+AC_MSG_RESULT($PREFIX_ROUTES_FILE)
+AC_DEFINE_UNQUOTED(HAVE_DEFAULT_PREFIX_ROUTES_FILE,
+	["$OPENSM_CONFIG/$PREFIX_ROUTES_FILE"],
+	[Define a Prefix Routes config file])
+AC_SUBST(PREFIX_ROUTES_FILE)
+
 dnl select example event plugin or not
 OPENIB_OSM_DEFAULT_EVENT_PLUGIN_SEL
 
