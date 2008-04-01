@@ -38,7 +38,7 @@
 #  $Id: openib-1.0-opensm.init,v 1.5 2006/08/02 18:18:23 dledford Exp $
 #
 # processname: @sbindir@/opensm
-# config: @sysconfdir@/@OPENSM_CONF_SUB_DIR@/opensm.conf
+# config: @OPENSM_CONFIG_DIR@/opensm.conf
 # pidfile: /var/run/opensm.pid
 
 prefix=@prefix@
@@ -46,7 +46,7 @@ exec_prefix=@exec_prefix@
 
 . /etc/rc.d/init.d/functions
 
-CONFIG=@sysconfdir@/@OPENSM_CONF_SUB_DIR@/opensm.conf
+CONFIG=@OPENSM_CONFIG_DIR@/opensm.conf
 if [ ! -f $CONFIG ]; then
     exit 0
 fi

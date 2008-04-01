@@ -28,13 +28,13 @@
 #
 #
 # processname: @sbindir@/opensm
-# config: @sysconfig@/opensm.conf
+# config: @OPENSM_CONFIG_DIR@/opensm.conf
 # pidfile: /var/run/opensm.pid
 
 prefix=@prefix@
 exec_prefix=@exec_prefix@
 
-CONFIG=@sysconfdir@/@OPENSM_CONF_SUB_DIR@/opensm.conf
+CONFIG=@OPENSM_CONFIG_DIR@/opensm.conf
 
 if [ ! -f $CONFIG ]; then
     exit 0

@@ -87,7 +87,7 @@ conf_dir_tmp1="`eval echo ${sysconfdir} | sed 's/^NONE/$ac_default_prefix/'`"
 SYS_CONFIG_DIR="`eval echo $conf_dir_tmp1`"
 
 dnl Check for a different subdir for the config files.
-OPENSM_CONF_SUB_DIR=opensm
+OPENSM_CONFIG_DIR=$SYS_CONFIG_DIR/opensm
 AC_MSG_CHECKING(for --with-opensm-conf-sub-dir)
 AC_ARG_WITH(opensm-conf-sub-dir,
     AC_HELP_STRING([--with-opensm-conf-sub-dir=dir],
@@ -96,17 +96,15 @@ AC_ARG_WITH(opensm-conf-sub-dir,
     no)
         ;;
     *)
-        OPENSM_CONF_SUB_DIR=$withval
+        OPENSM_CONFIG_DIR=$SYS_CONFIG_DIR/$withval
         ;;
     esac ]
 )
-OPENSM_CONFIG_DIR=$SYS_CONFIG_DIR/$OPENSM_CONF_SUB_DIR
 AC_MSG_RESULT($OPENSM_CONFIG_DIR)
 AC_DEFINE_UNQUOTED(OPENSM_CONFIG_DIR,
 	["$OPENSM_CONFIG_DIR"],
 	[Define OpenSM config directory])
-AC_SUBST(OPENSM_CONF_SUB_DIR)
-AC_SUBST(CONF_DIR,$OPENSM_CONFIG_DIR)
+AC_SUBST(OPENSM_CONFIG_DIR)
 
 dnl Check for a different default node name map file
 NODENAMEMAPFILE=ib-node-name-map
