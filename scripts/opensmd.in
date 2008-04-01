@@ -36,11 +36,11 @@ exec_prefix=@exec_prefix@
 
 CONFIG=@sysconfdir@/@OPENSM_CONF_SUB_DIR@/opensm.conf
 
-if [ ! -f @CONFIG@ ]; then
+if [ ! -f $CONFIG ]; then
     exit 0
 fi
 
-. @COFNIG
+. $COFNIG
 
 prog=@sbindir@/opensm
 bin=${prog##*/}
