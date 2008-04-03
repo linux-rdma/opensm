@@ -984,7 +984,7 @@ osm_perfmgr_check_overflow(osm_perfmgr_t * pm, __monitored_node_t *mon_node,
 		osm_node_t *p_node = NULL;
 		ib_net16_t lid = 0;
 
-		osm_log(pm->log, OSM_LOG_INFO,
+		osm_log(pm->log, OSM_LOG_VERBOSE,
 			"PerfMgr: Counter overflow: %s (0x%" PRIx64
 			") port %d; clearing counters\n",
 			mon_node->name, mon_node->guid, port);
