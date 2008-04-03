@@ -14,6 +14,7 @@ EXTRA_DIST = \
 	$(srcdir)/opensm/osm_helper.h \
 	$(srcdir)/opensm/osm_node.h \
 	$(srcdir)/opensm/osm_console.h \
+	$(srcdir)/opensm/osm_console_io.h \
 	$(srcdir)/opensm/osm_mcm_info.h \
 	$(srcdir)/opensm/osm_inform.h \
 	$(srcdir)/opensm/osm_path.h \
