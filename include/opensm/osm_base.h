@@ -226,7 +226,7 @@ BEGIN_C_DECLS
 #define OSM_DEFAULT_PARTITION_CONFIG_FILE strcat(GetOsmCachePath(), "osm-partitions.conf")
 #elif defined(HAVE_DEFAULT_PARTITION_CONFIG_FILE)
 #define OSM_DEFAULT_PARTITION_CONFIG_FILE HAVE_DEFAULT_PARTITION_CONFIG_FILE
-#elif defined(OSM_CONFIG_DIR)
+#elif defined(OPENSM_CONFIG_DIR)
 #define OSM_DEFAULT_PARTITION_CONFIG_FILE OPENSM_CONFIG_DIR "/partitions.conf"
 #else
 #define OSM_DEFAULT_PARTITION_CONFIG_FILE "/etc/opensm/partitions.conf"
@@ -246,7 +246,7 @@ BEGIN_C_DECLS
 #define OSM_DEFAULT_QOS_POLICY_FILE strcat(GetOsmCachePath(), "osm-qos-policy.conf")
 #elif defined(HAVE_DEFAULT_QOS_POLICY_FILE)
 #define OSM_DEFAULT_QOS_POLICY_FILE HAVE_DEFAULT_QOS_POLICY_FILE
-#elif defined(OSM_CONFIG_DIR)
+#elif defined(OPENSM_CONFIG_DIR)
 #define OSM_DEFAULT_QOS_POLICY_FILE OPENSM_CONFIG_DIR "/qos-policy.conf"
 #else
 #define OSM_DEFAULT_QOS_POLICY_FILE "/etc/opensm/qos-policy.conf"
