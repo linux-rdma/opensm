@@ -385,10 +385,8 @@ static boolean_t __osm_state_mgr_is_sm_port_down(IN osm_sm_t * sm)
 	p_port = osm_get_port_by_guid(sm->p_subn, port_guid);
 	if (!p_port) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3309: "
-			"SM port with GUID:%016" PRIx64 " (%s) is unknown\n",
-			cl_ntoh64(port_guid),
-			p_port->p_node ? p_port->p_node->
-			print_desc : "UNKNOWN");
+			"SM port with GUID:%016" PRIx64 " is unknown\n",
+			cl_ntoh64(port_guid));
 		state = IB_LINK_DOWN;
 		CL_PLOCK_RELEASE(sm->p_lock);
 		goto Exit;
