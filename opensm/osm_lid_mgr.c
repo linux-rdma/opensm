@@ -1098,8 +1098,7 @@ __osm_lid_mgr_set_physp_pi(IN osm_lid_mgr_t * const p_mgr,
 	 */
 	if ((p_mgr->p_subn->first_time_master_sweep == TRUE || p_port->is_new)
 	    && !p_mgr->p_subn->opt.no_clients_rereg
-	    && ((p_old_pi->capability_mask & IB_PORT_CAP_HAS_CLIENT_REREG) !=
-		0)) {
+	    && (p_old_pi->capability_mask & IB_PORT_CAP_HAS_CLIENT_REREG)) {
 		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 			"Seting client rereg on %s, port %d\n",
 			p_port->p_node->print_desc,
