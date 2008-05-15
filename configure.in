@@ -87,7 +87,7 @@ conf_dir_tmp1="`eval echo ${sysconfdir} | sed 's/^NONE/$ac_default_prefix/'`"
 SYS_CONFIG_DIR="`eval echo $conf_dir_tmp1`"
 
 dnl Check for a different subdir for the config files.
-OPENSM_CONFIG_DIR=$SYS_CONFIG_DIR/opensm
+OPENSM_CONFIG_SUB_DIR=opensm
 AC_MSG_CHECKING(for --with-opensm-conf-sub-dir)
 AC_ARG_WITH(opensm-conf-sub-dir,
     AC_HELP_STRING([--with-opensm-conf-sub-dir=dir],
@@ -96,10 +96,15 @@ AC_ARG_WITH(opensm-conf-sub-dir,
     no)
         ;;
     *)
-        OPENSM_CONFIG_DIR=$SYS_CONFIG_DIR/$withval
+        OPENSM_CONFIG_SUB_DIR=$withval
         ;;
     esac ]
 )
+dnl this needs to be configured for rpmbuilds separate from the full path
+dnl "OPENSM_CONFIG_DIR"
+AC_SUBST(OPENSM_CONFIG_SUB_DIR)
+
+OPENSM_CONFIG_DIR=$SYS_CONFIG_DIR/$OPENSM_CONFIG_SUB_DIR
 AC_MSG_RESULT($OPENSM_CONFIG_DIR)
 AC_DEFINE_UNQUOTED(OPENSM_CONFIG_DIR,
 	["$OPENSM_CONFIG_DIR"],
