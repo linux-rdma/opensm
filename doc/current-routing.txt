@@ -1,7 +1,7 @@
 Current OpenSM Routing
 7/9/07
 
-OpenSM offers four routing engines:
+OpenSM offers five routing engines:
 
 1.  Min Hop Algorithm - based on the minimum hops to each node where the
 path length is optimized.
@@ -21,6 +21,12 @@ Similar to UPDN routing, Fat-tree routing is credit-loop-free.
 distributing the paths between layers. LASH is an alternative
 deadlock-free topology-agnostic routing algorithm to the non-minimal
 UPDN algorithm avoiding the use of a potentially congested root node.
+
+5. DOR Unicast routing algorithm - based on the Min Hop algorithm, but
+avoids port equalization except for redundant links between the same
+two switches.  This provides deadlock free routes for hypercubes when
+the fabric is cabled as a hypercube and for meshes when cabled as a
+mesh (see details below).
 
 OpenSM also supports a file method which can load routes from a table. See
 modular-routing.txt for more information on this.
@@ -232,6 +238,7 @@ specified, the default routing algorithm is invoked instead.
 
 
 LASH Routing Algorithm
+----------------------
 
 LASH is an acronym for LAyered SHortest Path Routing. It is a
 deterministic shortest path routing algorithm that enables topology
@@ -303,3 +310,26 @@ used.
 
 Note: LMC > 0 is not supported by the LASH routing. If this is
 specified, the default routing algorithm is invoked instead.
+
+
+DOR Routing Algorithm
+---------------------
+
+The Dimension Order Routing algorithm is based on the Min Hop
+algorithm and so uses shortest paths.  Instead of spreading traffic
+out across different paths with the same shortest distance, it chooses
+among the available shortest paths based on an ordering of dimensions.
+Each port must be consistently cabled to represent a hypercube
+dimension or a mesh dimension.  Paths are grown from a destination
+back to a source using the lowest dimension (port) of available paths
+at each step.  This provides the ordering necessary to avoid deadlock.
+When there are multiple links between any two switches, they still
+represent only one dimension and traffic is balanced across them
+unless port equalization is turned off.  In the case of hypercubes,
+the same port must be used throughout the fabric to represent the
+hypercube dimension and match on both ends of the cable.  In the case
+of meshes, the dimension should consistently use the same pair of
+ports, one port on one end of the cable, and the other port on the
+other end, continuing along the mesh dimension.
+
+Use '-R dor' option to activate the DOR algorithm.
