@@ -974,7 +974,7 @@ static inline boolean_t OSM_API ib_class_is_rmpp(IN const uint8_t class_code)
 *	IB_MAD_ATTR_PORT_SMPL_CTRL
 *
 * DESCRIPTION
-*	NodeDescription attribute (16.1.2)
+*	PortSamplesControl attribute (16.1.3)
 *
 * SOURCE
 */
@@ -998,7 +998,7 @@ static inline boolean_t OSM_API ib_class_is_rmpp(IN const uint8_t class_code)
 *	IB_MAD_ATTR_PORT_SMPL_RSLT
 *
 * DESCRIPTION
-*	NodeInfo attribute (16.1.2)
+*	PortSamplesResult attribute (16.1.3)
 *
 * SOURCE
 */
@@ -1022,7 +1022,7 @@ static inline boolean_t OSM_API ib_class_is_rmpp(IN const uint8_t class_code)
 *	IB_MAD_ATTR_PORT_CNTRS
 *
 * DESCRIPTION
-*	SwitchInfo attribute (16.1.2)
+*	PortCounters attribute (16.1.3)
 *
 * SOURCE
 */
