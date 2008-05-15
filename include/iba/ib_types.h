@@ -3099,7 +3099,7 @@ ib_path_rec_pkt_life(IN const ib_path_rec_t * const p_rec)
 *		[in] Pointer to the path record object.
 *
 * RETURN VALUES
-*	Encoded path pkt_life = 4.096 µsec * 2 ** PacketLifeTime.
+*	Encoded path pkt_life = 4.096 usec * 2 ** PacketLifeTime.
 *
 * NOTES
 *
@@ -6391,7 +6391,7 @@ ib_multipath_rec_pkt_life(IN const ib_multipath_rec_t * const p_rec)
 *               [in] Pointer to the multipath record object.
 *
 * RETURN VALUES
-*       Encoded multipath pkt_life = 4.096 µsec * 2 ** PacketLifeTime.
+*       Encoded multipath pkt_life = 4.096 usec * 2 ** PacketLifeTime.
 *
 * NOTES
 *
