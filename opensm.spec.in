@@ -125,7 +125,7 @@ fi
 %{_sbindir}/opensm
 %{_sbindir}/osmtest
 %{_mandir}/man8/*
-%doc AUTHORS COPYING README
+%doc AUTHORS COPYING README doc/performance-manager-HOWTO.txt
 %{_sysconfdir}/init.d/opensmd
 %{_sbindir}/sldd.sh
 %config(noreplace) %{_sysconfdir}/@OPENSM_CONFIG_SUB_DIR@/opensm.conf

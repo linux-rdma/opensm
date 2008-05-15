@@ -24,8 +24,9 @@ endif
 man_MANS = man/opensm.8 man/osmtest.8
 
 various_scripts = $(wildcard scripts/*)
+docs = doc/performance-manager-HOWTO.txt
 
-EXTRA_DIST = autogen.sh opensm.spec $(various_scripts) $(man_MANS)
+EXTRA_DIST = autogen.sh opensm.spec $(various_scripts) $(man_MANS) $(docs)
 
 dist-hook: $(EXTRA_DIST)
 	if [ -x $(top_srcdir)/../gen_chlog.sh ] ; then \
