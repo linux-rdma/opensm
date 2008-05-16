@@ -64,7 +64,7 @@ standard opensm dump directory (/var/log by default) when
 OSM_LOG_ROUTING logging flag is set.
 
 When routing engine 'file' is activated, but dump file is not specified
-or not cannot be open default lid matrix algorithm will be used.
+or cannot be opened, the default lid matrix algorithm will be used.
 
 There is also a switch forwarding tables dumper which generates
 a file compatible with dump_lfts.sh output. This file can be used
