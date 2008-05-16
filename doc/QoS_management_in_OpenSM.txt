@@ -65,7 +65,7 @@ matching rules (see below). Port group lists ports by:
 II) QoS Setup (denoted by qos-setup).
 This section describes how to set up SL2VL and VL Arbitration tables on
 various nodes in the fabric.
-However, this is not supported in OFED 1.3.
+However, this is not supported in OpenSM currently.
 SL2VL and VLArb tables should be configured in the OpenSM options file
 (default location - /var/cache/opensm/opensm.opts).
 
@@ -203,8 +203,8 @@ policy file and their syntax:
     qos-setup
         # This section of the policy file describes how to set up SL2VL and VL
         # Arbitration tables on various nodes in the fabric.
-        # However, this is not supported in OFED 1.3 - the section is parsed
-        # and ignored. SL2VL and VLArb tables should be configured in the
+        # However, this is not supported in OpenSM currently - the section is
+        # parsed and ignored. SL2VL and VLArb tables should be configured in the
         # OpenSM options file (by default - /var/cache/opensm/opensm.opts).
     end-qos-setup
 
