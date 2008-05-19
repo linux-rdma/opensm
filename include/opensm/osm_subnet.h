@@ -246,7 +246,7 @@ typedef struct _osm_subn_opt {
 	boolean_t accum_log_file;
 	char *console;
 	uint16_t console_port;
-	cl_map_t port_prof_ignore_guids;
+	char *port_prof_ignore_file;
 	boolean_t port_profile_switch_nodes;
 	boolean_t sweep_on_trap;
 	char *routing_engine_name;
@@ -401,8 +401,8 @@ typedef struct _osm_subn_opt {
 *		If TRUE (default) - the log file will be accumulated.
 *		If FALSE - the log file will be erased before starting current opensm run.
 *
-*	port_prof_ignore_guids
-*		A map of guids to be ignored by port profiling.
+*	port_prof_ignore_file
+*		Name of file with port guids to be ignored by port profiling.
 *
 *	port_profile_switch_nodes
 *		If TRUE will count the number of switch nodes routed through
@@ -531,6 +531,7 @@ typedef struct _osm_subn {
 	cl_qlist_t sa_sr_list;
 	cl_qlist_t sa_infr_list;
 	cl_ptr_vector_t port_lid_tbl;
+	cl_map_t port_prof_ignore_guids;
 	ib_net16_t master_sm_base_lid;
 	ib_net16_t sm_base_lid;
 	ib_net64_t sm_port_guid;
@@ -586,6 +587,9 @@ typedef struct _osm_subn {
 *	port_ptr_tbl
 *		Container of pointers to all Port objects in the subent.
 *		Indexed by port LID.
+*
+*	port_prof_ignore_guids
+*		A map of guids to be ignored by port profiling.
 *
 *	master_sm_base_lid
 *		The base LID owned by the subnet's master SM.

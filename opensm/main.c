@@ -596,7 +596,6 @@ int main(int argc, char *argv[])
 	int32_t vendor_debug = 0;
 	uint32_t next_option;
 	boolean_t cache_options = FALSE;
-	char *ignore_guids_file_name = NULL;
 	uint32_t val;
 	const char *const short_option =
 	    "i:f:ed:g:l:L:s:t:a:u:m:R:zM:U:S:P:Y:NBIQvVhorcyxp:n:q:k:C:";
@@ -702,9 +701,9 @@ int main(int argc, char *argv[])
 			/*
 			   Specifies ignore guids file.
 			 */
-			ignore_guids_file_name = optarg;
+			opt.port_prof_ignore_file = optarg;
 			printf(" Ignore Guids File = %s\n",
-			       ignore_guids_file_name);
+			       opt.port_prof_ignore_file);
 			break;
 
 		case 'g':
@@ -1027,8 +1026,8 @@ int main(int argc, char *argv[])
 	/*
 	 * Define some port guids to ignore during path equalization
 	 */
-	if (ignore_guids_file_name != NULL) {
-		status = parse_ignore_guids_file(ignore_guids_file_name, &osm);
+	if (opt.port_prof_ignore_file != NULL) {
+		status = parse_ignore_guids_file(opt.port_prof_ignore_file, &osm);
 		if (status != IB_SUCCESS) {
 			printf("\nError from parse_ignore_guids_file (0x%X)\n",
 			       status);

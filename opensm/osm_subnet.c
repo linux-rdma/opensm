@@ -166,8 +166,9 @@ void osm_subn_destroy(IN osm_subn_t * const p_subn)
 	}
 
 	cl_ptr_vector_destroy(&p_subn->port_lid_tbl);
-	cl_map_remove_all(&(p_subn->opt.port_prof_ignore_guids));
-	cl_map_destroy(&(p_subn->opt.port_prof_ignore_guids));
+
+	cl_map_remove_all(&p_subn->port_prof_ignore_guids);
+	cl_map_destroy(&p_subn->port_prof_ignore_guids);
 
 	osm_qos_policy_destroy(p_subn->p_qos_policy);
 
@@ -212,7 +213,7 @@ osm_subn_init(IN osm_subn_t * const p_subn,
 	p_subn->min_ca_rate = IB_MAX_RATE;
 
 	/* note that insert and remove are part of the port_profile thing */
-	cl_map_init(&(p_subn->opt.port_prof_ignore_guids), 10);
+	cl_map_init(&p_subn->port_prof_ignore_guids, 10);
 
 	p_subn->ignore_existing_lfts = TRUE;
 
@@ -452,6 +453,7 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * const p_opt)
 	p_opt->qos = FALSE;
 	p_opt->qos_policy_file = OSM_DEFAULT_QOS_POLICY_FILE;
 	p_opt->accum_log_file = TRUE;
+	p_opt->port_prof_ignore_file = NULL;
 	p_opt->port_profile_switch_nodes = FALSE;
 	p_opt->sweep_on_trap = TRUE;
 	p_opt->routing_engine_name = NULL;
@@ -1270,6 +1272,9 @@ ib_api_status_t osm_subn_parse_conf_file(IN osm_subn_opt_t * const p_opts)
 		opts_unpack_uint8("log_flags",
 				  p_key, p_val, &p_opts->log_flags);
 
+		opts_unpack_charp("port_prof_ignore_file", p_key, p_val,
+				  &p_opts->port_prof_ignore_file);
+
 		opts_unpack_boolean("port_profile_switch_nodes", p_key, p_val,
 				    &p_opts->port_profile_switch_nodes);
 
@@ -1524,6 +1529,12 @@ ib_api_status_t osm_subn_write_conf_file(IN osm_subn_opt_t * const p_opts)
 		"# If TRUE count switches as link subscriptions\n"
 		"port_profile_switch_nodes %s\n\n",
 		p_opts->port_profile_switch_nodes ? "TRUE" : "FALSE");
+
+	if (p_opts->port_prof_ignore_file)
+		fprintf(opts_file,
+			"# Name of file with port guids to be ignored by port profiling\n"
+			"port_prof_ignore_file %s\n\n",
+			p_opts->port_prof_ignore_file);
 
 	if (p_opts->routing_engine_name)
 		fprintf(opts_file,

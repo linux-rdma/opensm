@@ -205,7 +205,7 @@ static inline boolean_t
 osm_port_prof_is_ignored_port(IN const osm_subn_t * p_subn,
 			      IN ib_net64_t port_guid, IN uint8_t port_num)
 {
-	const cl_map_t *p_map = &(p_subn->opt.port_prof_ignore_guids);
+	const cl_map_t *p_map = &p_subn->port_prof_ignore_guids;
 	const void *p_obj = cl_map_get(p_map, port_guid);
 	size_t res;
 
@@ -246,7 +246,7 @@ static inline void
 osm_port_prof_set_ignored_port(IN osm_subn_t * p_subn,
 			       IN ib_net64_t port_guid, IN uint8_t port_num)
 {
-	cl_map_t *p_map = &(p_subn->opt.port_prof_ignore_guids);
+	cl_map_t *p_map = &p_subn->port_prof_ignore_guids;
 	const void *p_obj = cl_map_get(p_map, port_guid);
 	size_t value = 0;
 
@@ -259,8 +259,7 @@ osm_port_prof_set_ignored_port(IN osm_subn_t * p_subn,
 	}
 
 	value = value | (1 << port_num);
-	cl_map_insert(&(p_subn->opt.port_prof_ignore_guids),
-		      port_guid, (void *)value);
+	cl_map_insert(p_map, port_guid, (void *)value);
 }
 
 /*
