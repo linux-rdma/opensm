@@ -409,7 +409,6 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * const p_opt)
 	p_opt->reassign_lids = FALSE;
 	p_opt->ignore_other_sm = FALSE;
 	p_opt->single_thread = FALSE;
-	p_opt->no_multicast_option = FALSE;
 	p_opt->disable_multicast = FALSE;
 	p_opt->force_log_flush = FALSE;
 	p_opt->subnet_timeout = OSM_DEFAULT_SUBNET_TIMEOUT;
@@ -1230,9 +1229,6 @@ ib_api_status_t osm_subn_parse_conf_file(IN osm_subn_opt_t * const p_opts)
 		opts_unpack_boolean("single_thread",
 				    p_key, p_val, &p_opts->single_thread);
 
-		opts_unpack_boolean("no_multicast_option",
-				    p_key, p_val, &p_opts->no_multicast_option);
-
 		opts_unpack_boolean("disable_multicast",
 				    p_key, p_val, &p_opts->disable_multicast);
 
@@ -1673,9 +1669,8 @@ ib_api_status_t osm_subn_write_conf_file(IN osm_subn_opt_t * const p_opts)
 		"enable_quirks %s\n\n"
 		"# If TRUE disables client reregistration\n"
 		"no_clients_rereg %s\n\n"
-		"# If TRUE OpenSM should disable multicast support\n"
-		"no_multicast_option %s\n\n"
-		"# No multicast routing is performed if TRUE\n"
+		"# If TRUE OpenSM should disable multicast support and\n"
+		"# no multicast routing is performed if TRUE\n"
 		"disable_multicast %s\n\n"
 		"# If TRUE opensm will exit on fatal initialization issues\n"
 		"exit_on_fatal %s\n\n" "# console [off|local"
@@ -1695,7 +1690,6 @@ ib_api_status_t osm_subn_write_conf_file(IN osm_subn_opt_t * const p_opts)
 		p_opts->dump_files_dir,
 		p_opts->enable_quirks ? "TRUE" : "FALSE",
 		p_opts->no_clients_rereg ? "TRUE" : "FALSE",
-		p_opts->no_multicast_option ? "TRUE" : "FALSE",
 		p_opts->disable_multicast ? "TRUE" : "FALSE",
 		p_opts->exit_on_fatal ? "TRUE" : "FALSE",
 		p_opts->console,

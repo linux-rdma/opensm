@@ -221,7 +221,6 @@ typedef struct _osm_subn_opt {
 	boolean_t reassign_lids;
 	boolean_t ignore_other_sm;
 	boolean_t single_thread;
-	boolean_t no_multicast_option;
 	boolean_t disable_multicast;
 	boolean_t force_log_flush;
 	uint8_t subnet_timeout;
@@ -338,7 +337,7 @@ typedef struct _osm_subn_opt {
 *	ignore_other_sm_option
 *		This flag is TRUE if other SMs on the subnet should be ignored.
 *
-*	no_multicast_option
+*	disable_multicast
 *		This flag is TRUE if OpenSM should disable multicast support.
 *
 *	max_msg_fifo_timeout

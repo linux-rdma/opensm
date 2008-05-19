@@ -167,7 +167,7 @@ __osm_cpi_rcv_respond(IN osm_sa_t * sa,
 	if (sa->p_subn->opt.qos)
 		ib_class_set_cap_mask2(p_resp_cpi, OSM_CAP2_IS_QOS_SUPPORTED);
 
-	if (sa->p_subn->opt.no_multicast_option != TRUE)
+	if (!sa->p_subn->opt.disable_multicast)
 		p_resp_cpi->cap_mask |= OSM_CAP_IS_UD_MCAST_SUP;
 	p_resp_cpi->cap_mask = cl_hton16(p_resp_cpi->cap_mask);
 
