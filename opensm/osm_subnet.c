@@ -79,6 +79,8 @@
 #define OSM_PATH_MAX	256
 #endif
 
+static const char null_str[] = "(null)";
+
 /**********************************************************************
  **********************************************************************/
 void osm_subn_construct(IN osm_subn_t * const p_subn)
@@ -621,7 +623,7 @@ opts_unpack_charp(IN char *p_req_key,
 			cl_log_event("OpenSM", CL_LOG_INFO, buff, NULL, 0);
 
 			/* special case the "(null)" string */
-			if (strcmp("(null)", p_val_str) == 0) {
+			if (strcmp(null_str, p_val_str) == 0) {
 				*p_val = NULL;
 			} else {
 				/*
@@ -1530,51 +1532,50 @@ ib_api_status_t osm_subn_write_conf_file(IN osm_subn_opt_t * const p_opts)
 		"port_profile_switch_nodes %s\n\n",
 		p_opts->port_profile_switch_nodes ? "TRUE" : "FALSE");
 
-	if (p_opts->port_prof_ignore_file)
-		fprintf(opts_file,
-			"# Name of file with port guids to be ignored by port profiling\n"
-			"port_prof_ignore_file %s\n\n",
-			p_opts->port_prof_ignore_file);
+	fprintf(opts_file,
+		"# Name of file with port guids to be ignored by port profiling\n"
+		"port_prof_ignore_file %s\n\n", p_opts->port_prof_ignore_file ?
+		p_opts->port_prof_ignore_file : null_str);
 
-	if (p_opts->routing_engine_name)
-		fprintf(opts_file,
-			"# Routing engine\n"
-                        "# Supported engines: minhop, updn, file, ftree, lash, dor\n"
-			"routing_engine %s\n\n", p_opts->routing_engine_name);
-	if (p_opts->connect_roots)
-		fprintf(opts_file,
-			"# Connect roots (use FALSE if unsure)\n"
-			"connect_roots %s\n\n",
-			p_opts->connect_roots ? "TRUE" : "FALSE");
-	if (p_opts->lid_matrix_dump_file)
-		fprintf(opts_file,
-			"# Lid matrix dump file name\n"
-			"lid_matrix_dump_file %s\n\n",
-			p_opts->lid_matrix_dump_file);
-	if (p_opts->ucast_dump_file)
-		fprintf(opts_file,
-			"# Ucast dump file name\n"
-			"ucast_dump_file %s\n\n", p_opts->ucast_dump_file);
-	if (p_opts->root_guid_file)
-		fprintf(opts_file,
-			"# The file holding the root node guids (for fat-tree or Up/Down)\n"
-			"# One guid in each line\n"
-			"root_guid_file %s\n\n", p_opts->root_guid_file);
-	if (p_opts->cn_guid_file)
-		fprintf(opts_file,
-			"# The file holding the fat-tree compute node guids\n"
-			"# One guid in each line\n"
-			"cn_guid_file %s\n\n", p_opts->cn_guid_file);
-	if (p_opts->ids_guid_file)
-		fprintf(opts_file,
-			"# The file holding the node ids which will be used by"
-			" Up/Down algorithm instead\n# of GUIDs (one guid and"
-			" id in each line)\n"
-			"ids_guid_file %s\n\n", p_opts->ids_guid_file);
-	if (p_opts->sa_db_file)
-		fprintf(opts_file,
-			"# SA database file name\n"
-			"sa_db_file %s\n\n", p_opts->sa_db_file);
+	fprintf(opts_file,
+		"# Routing engine\n"
+		"# Supported engines: minhop, updn, file, ftree, lash, dor\n"
+		"routing_engine %s\n\n", p_opts->routing_engine_name ?
+		p_opts->routing_engine_name : null_str);
+
+	fprintf(opts_file,
+		"# Connect roots (use FALSE if unsure)\n"
+		"connect_roots %s\n\n",
+		p_opts->connect_roots ? "TRUE" : "FALSE");
+
+	fprintf(opts_file,
+		"# Lid matrix dump file name\n"
+		"lid_matrix_dump_file %s\n\n", p_opts->lid_matrix_dump_file ?
+		p_opts->lid_matrix_dump_file : null_str);
+
+	fprintf(opts_file,
+		"# Ucast dump file name\nucast_dump_file %s\n\n",
+		p_opts->ucast_dump_file ? p_opts->ucast_dump_file : null_str);
+
+	fprintf(opts_file,
+		"# The file holding the root node guids (for fat-tree or Up/Down)\n"
+		"# One guid in each line\nroot_guid_file %s\n\n",
+		p_opts->root_guid_file ? p_opts->root_guid_file : null_str);
+
+	fprintf(opts_file,
+		"# The file holding the fat-tree compute node guids\n"
+		"# One guid in each line\ncn_guid_file %s\n\n",
+		p_opts->cn_guid_file ? p_opts->cn_guid_file : null_str);
+
+	fprintf(opts_file,
+		"# The file holding the node ids which will be used by"
+		" Up/Down algorithm instead\n# of GUIDs (one guid and"
+		" id in each line)\nids_guid_file %s\n\n",
+		p_opts->ids_guid_file ? p_opts->ids_guid_file : null_str);
+
+	fprintf(opts_file,
+		"# SA database file name\nsa_db_file %s\n\n",
+		p_opts->sa_db_file ? p_opts->sa_db_file : null_str);
 
 	fprintf(opts_file,
 		"#\n# HANDOVER - MULTIPLE SMs OPTIONS\n#\n"
