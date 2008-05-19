@@ -453,10 +453,6 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * const p_opt)
 	p_opt->qos_policy_file = OSM_DEFAULT_QOS_POLICY_FILE;
 	p_opt->accum_log_file = TRUE;
 	p_opt->port_profile_switch_nodes = FALSE;
-	p_opt->pfn_ui_pre_lid_assign = NULL;
-	p_opt->ui_pre_lid_assign_ctx = NULL;
-	p_opt->pfn_ui_mcast_fdb_assign = NULL;
-	p_opt->ui_mcast_fdb_assign_ctx = NULL;
 	p_opt->sweep_on_trap = TRUE;
 	p_opt->routing_engine_name = NULL;
 	p_opt->connect_roots = FALSE;

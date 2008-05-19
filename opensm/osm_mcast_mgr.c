@@ -1085,7 +1085,6 @@ osm_mcast_mgr_process_tree(osm_sm_t * sm,
 {
 	ib_api_status_t status = IB_SUCCESS;
 	ib_net16_t mlid;
-	boolean_t ui_mcast_fdb_assign_func_defined;
 
 	OSM_LOG_ENTER(sm->p_log);
 
@@ -1107,44 +1106,19 @@ osm_mcast_mgr_process_tree(osm_sm_t * sm,
 		goto Exit;
 	}
 
-	if (sm->p_subn->opt.pfn_ui_mcast_fdb_assign)
-		ui_mcast_fdb_assign_func_defined = TRUE;
-	else
-		ui_mcast_fdb_assign_func_defined = FALSE;
-
 	/*
 	   Clear the multicast tables to start clean, then build
 	   the spanning tree which sets the mcast table bits for each
 	   port in the group.
-	   We will clean the multicast tables if a ui_mcast function isn't
-	   defined, or if such function is defined, but we got here
-	   through a MC_CREATE request - this means we are creating a new
-	   multicast group - clean all old data.
 	 */
-	if (ui_mcast_fdb_assign_func_defined == FALSE ||
-	    req_type == OSM_MCAST_REQ_TYPE_CREATE)
-		__osm_mcast_mgr_clear(sm, p_mgrp);
+	__osm_mcast_mgr_clear(sm, p_mgrp);
 
-	/* If a UI function is defined, then we will call it here.
-	   If not - the use the regular build spanning tree function */
-	if (ui_mcast_fdb_assign_func_defined == FALSE) {
-		status = __osm_mcast_mgr_build_spanning_tree(sm, p_mgrp);
-		if (status != IB_SUCCESS) {
-			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A17: "
-				"Unable to create spanning tree (%s)\n",
-				ib_get_err_str(status));
-			goto Exit;
-		}
-	} else {
-		if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
-			OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-				"Invoking UI function pfn_ui_mcast_fdb_assign\n");
-		}
-
-		sm->p_subn->opt.pfn_ui_mcast_fdb_assign(sm->p_subn->opt.
-							ui_mcast_fdb_assign_ctx,
-							mlid, req_type,
-							port_guid);
+	status = __osm_mcast_mgr_build_spanning_tree(sm, p_mgrp);
+	if (status != IB_SUCCESS) {
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A17: "
+			"Unable to create spanning tree (%s)\n",
+			ib_get_err_str(status));
+		goto Exit;
 	}
 
 Exit:

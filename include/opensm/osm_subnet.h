@@ -248,10 +248,6 @@ typedef struct _osm_subn_opt {
 	uint16_t console_port;
 	cl_map_t port_prof_ignore_guids;
 	boolean_t port_profile_switch_nodes;
-	osm_pfn_ui_extension_t pfn_ui_pre_lid_assign;
-	void *ui_pre_lid_assign_ctx;
-	osm_pfn_ui_mcast_extension_t pfn_ui_mcast_fdb_assign;
-	void *ui_mcast_fdb_assign_ctx;
 	boolean_t sweep_on_trap;
 	char *routing_engine_name;
 	boolean_t connect_roots;
@@ -411,22 +407,6 @@ typedef struct _osm_subn_opt {
 *	port_profile_switch_nodes
 *		If TRUE will count the number of switch nodes routed through
 *		the link. If FALSE - only CA/RT nodes are counted.
-*
-*	pfn_ui_pre_lid_assign
-*		A UI function to be invoked prior to lid assigment. It should
-*		return 1 if any change was made to any lid or 0 otherwise.
-*
-*	ui_pre_lid_assign_ctx
-*		A UI context (void *) to be provided to the pfn_ui_pre_lid_assign
-*
-*	pfn_ui_mcast_fdb_assign
-*		A UI function to be called inside the mcast manager instead of
-*		the call for the build spanning tree. This will be called on
-*		every multicast call for create, join and leave, and is
-*		responsible for the mcast FDB configuration.
-*
-*	ui_mcast_fdb_assign_ctx
-*		A UI context (void *) to be provided to the pfn_ui_mcast_fdb_assign
 *
 *	sweep_on_trap
 *		Received traps will initiate a new sweep.

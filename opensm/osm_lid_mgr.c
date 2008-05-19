@@ -1212,13 +1212,6 @@ osm_signal_t osm_lid_mgr_process_sm(IN osm_lid_mgr_t * const p_mgr)
 	   persistent db */
 	__osm_lid_mgr_init_sweep(p_mgr);
 
-	if (p_mgr->p_subn->opt.pfn_ui_pre_lid_assign) {
-		OSM_LOG(p_mgr->p_log, OSM_LOG_VERBOSE,
-			"Invoking UI function pfn_ui_pre_lid_assign\n");
-		p_mgr->p_subn->opt.pfn_ui_pre_lid_assign(p_mgr->p_subn->opt.
-							 ui_pre_lid_assign_ctx);
-	}
-
 	/* Set the send_set_reqs of the p_mgr to FALSE, and
 	   we'll see if any set requests were sent. If not -
 	   can signal OSM_SIGNAL_DONE */
