@@ -81,7 +81,13 @@ stop () {
 }
 
 Xstatus () {
-    status opensm
+	pid="`pidof opensm`"
+	ret=$?
+	if [ $ret -eq 0 ] ; then
+		echo "OpenSM is running... pid=$pid"
+	else
+		echo "OpenSM is not running."
+	fi
 }
 
 restart() {
