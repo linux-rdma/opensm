@@ -112,7 +112,7 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-#define OSM_DEFAULT_SM_KEY 1
+#define OSM_DEFAULT_SM_KEY CL_HTON64(1)
 /********/
 /****s* OpenSM: Base/OSM_DEFAULT_SA_KEY
 * NAME
@@ -123,7 +123,7 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-#define OSM_DEFAULT_SA_KEY 1
+#define OSM_DEFAULT_SA_KEY OSM_DEFAULT_SM_KEY
 /********/
 /****s* OpenSM: Base/OSM_DEFAULT_LMC
 * NAME
