@@ -38,7 +38,7 @@
 #  $Id: openib-1.0-opensm.init,v 1.5 2006/08/02 18:18:23 dledford Exp $
 #
 # processname: @sbindir@/opensm
-# config: @OPENSM_CONFIG_DIR@/opensm.conf
+# config: @sysconfdir@/sysconfig/opensm.conf
 # pidfile: /var/run/opensm.pid
 
 prefix=@prefix@
@@ -46,7 +46,7 @@ exec_prefix=@exec_prefix@
 
 . /etc/rc.d/init.d/functions
 
-CONFIG=@OPENSM_CONFIG_DIR@/opensm.conf
+CONFIG=@sysconfdir@/sysconfig/opensm.conf
 if [ ! -f $CONFIG ]; then
     exit 0
 fi
@@ -67,96 +67,9 @@ ACTION=$1
 PID_FILE=/var/run/${bin}.pid
 touch $PID_FILE
 
-if [[ -z $DEBUG || "$DEBUG" == "none" ]]; then
-    DEBUG_FLAG=""
-else
-    DEBUG_FLAG="-d ${DEBUG}"
-fi
-
-if [[ -z $LMC || "$LMC" == "0" ]]; then
-    LMC_FLAG=""
-else
-    LMC_FLAG="-l ${LMC}"
-fi
-
-if [[ -z $MAXSMPS || "$MAXSMPS" == "4" ]]; then
-    MAXSMPS_FLAG=""
-else
-    MAXSMPS_FLAG="-maxsmps ${MAXSMPS}"
-fi
-
-if [[ -z $REASSIGN_LIDS || "$REASSIGN_LIDS" == "no" ]]; then
-    REASSIGN_LIDS_FLAG=""
-else
-    REASSIGN_LIDS_FLAG="-r"
-fi
-
-if [[ -z $SWEEP || "$SWEEP" == "10" ]]; then
-    SWEEP_FLAG=""
-else
-    SWEEP_FLAG="-s ${SWEEP}"
-fi
-
-if [[ -z $TIMEOUT || "$TIMEOUT" == "100" ]]; then
-    TIMEOUT_FLAG=""
-else
-    TIMEOUT_FLAG="-t ${TIMEOUT}"
-fi
-
-if [[ -z $OSM_LOG || "$OSM_LOG" == "/tmp/osm.log" ]]; then
-    OSM_LOG_FLAG=""
-else
-    OSM_LOG_FLAG="-f ${OSM_LOG}"
-fi
-
-if [[ -z $VERBOSE || "$VERBOSE" == "none" ]]; then
-    VERBOSE_FLAG=""
-else
-    VERBOSE_FLAG="${VERBOSE}"
-fi
-
-if [[ -z $UPDN || "$UPDN" == "off" ]]; then
-    UPDN_FLAG=""
-else
-    UPDN_FLAG="-u"
-fi
-
-if [[ -z $GUID_FILE || "$GUID_FILE" == "none" ]]; then
-    GUID_FILE_FLAG=""
-else
-    GUID_FILE_FLAG="-a ${GUID_FILE}"
-fi
-
-if [[ -z $GUID || "$GUID" == "none" ]]; then
-    GUID_FLAG=""
-else
-    GUID_FLAG="-g ${GUID}"
-fi
-
-if [[ -z $HONORE_GUID2LID || "$HONORE_GUID2LID" == "none" ]]; then
-    HONORE_GUID2LID_FLAG=""
-else
-    HONORE_GUID2LID_FLAG="--honor_guid2lid"
-fi
-
 if [[ -n "${OSM_HOSTS}" && $(echo -n ${OSM_HOSTS} | wc -w | tr -d '[:space:]') -gt 1  ]]; then
-    HONORE_GUID2LID_FLAG="--honor_guid2lid"
+    HONORE_GUID2LID="--honor_guid2lid"
 fi
-
-
-if [[ -z $CACHE_OPTIONS || "$CACHE_OPTIONS" == "none" ]]; then
-    CACHE_OPTIONS_FLAG=""
-else
-    CACHE_OPTIONS_FLAG="--cache-options"
-fi
-
-
-if [ -z $PORT_NUM ]; then
-    PORT_FLAG=1
-else
-    PORT_FLAG="${PORT_NUM}"
-fi
-
 
 #########################################################################
 
@@ -228,20 +141,14 @@ start()
         echo $"${bin} (pid $pid) is already running..."
     else
 
-	if [ -n "${HONORE_GUID2LID_FLAG}" ]; then
+	if [ -n "${HONORE_GUID2LID}" ]; then
 		# Run sldd daemod
 		start_sldd
 	fi
 
         # Start opensm
-        local START_FLAGS=""
-        for flag in "$DEBUG_FLAG" "$LMC_FLAG" "$MAXSMPS_FLAG" "$REASSIGN_LIDS_FLAG" "$SWEEP_FLAG" "$TIMEOUT_FLAG" "$OSM_LOG_FLAG" "$VERBOSE_FLAG" "$UPDN_FLAG" "$GUID_FILE_FLAG" "$GUID_FLAG" "$HONORE_GUID2LID_FLAG" "$CACHE_OPTIONS_FLAG"
-        do
-            [ ! -z "$flag" ] && START_FLAGS="$START_FLAGS $flag"
-        done
-
 	echo -n "Starting IB Subnet Manager"
-        echo $PORT_FLAG | $prog $START_FLAGS > /dev/null 2>&1 &
+        $prog --daemon ${HONORE_GUID2LID} > /dev/null
         cnt=0; alive=0
         while [ $cnt -lt 6 -a $alive -ne 1 ]; do
 		echo -n ".";

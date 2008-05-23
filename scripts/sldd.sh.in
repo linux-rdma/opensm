@@ -41,10 +41,9 @@
 prefix=@prefix@
 exec_prefix=@exec_prefix@
 
-# config: @sysconfdir@/ofa/opensm.conf
+# config: @sysconfdir@/sysconfig/opensm.conf
 
 [ -f @sysconfdir@/sysconfig/opensm.conf ] && CONFIG=@sysconfdir@/sysconfig/opensm.conf
-[ -f @sysconfdir@/ofa/opensm.conf ] && CONFIG=@sysconfdir@/ofa/opensm.conf
 
 SLDD_DEBUG=${SLDD_DEBUG:-0}
 
