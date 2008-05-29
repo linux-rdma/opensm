@@ -1082,10 +1082,10 @@ __search_mgrp_by_mgid(IN cl_map_item_t * const p_map_item, IN void *context)
 	if (memcmp(&p_mgrp->mcmember_rec.mgid, p_recvd_mgid, sizeof(ib_gid_t))) {
 
 		if (sa->p_subn->opt.consolidate_ipv6_snm_req) {
-			/* Special Case IPV6 Multicast Loopback addresses */
+			/* Special Case IPv6 Solicited Node Multicast (SNM) addresses */
 			/* 0xff12601bXXXX0000 : 0x00000001ffYYYYYY */
-			/* Where XXXX is the partition and YYYYYY is the last 24 bits
-			 * of the port guid */
+			/* Where XXXX is the P_Key and
+			 * YYYYYY is the last 24 bits of the port guid */
 #define PREFIX_MASK (0xff12601b00000000ULL)
 #define INT_ID_MASK (0x00000001ff000000ULL)
 			uint64_t g_prefix = cl_ntoh64(p_mgrp->mcmember_rec.mgid.unicast.prefix);
@@ -1099,8 +1099,8 @@ __search_mgrp_by_mgid(IN cl_map_item_t * const p_map_item, IN void *context)
 			    (g_interface_id & INT_ID_MASK) ==
 			     (rcv_interface_id & INT_ID_MASK)) {
 				OSM_LOG(sa->p_log, OSM_LOG_INFO,
-					"Special Case Mcast Join for MGID "
-					" MGID 0x%016"PRIx64" : 0x%016"PRIx64"\n",
+					"Special Case Solicited Node Mcast Join "
+					" for MGID 0x%016"PRIx64" : 0x%016"PRIx64"\n",
 					rcv_prefix, rcv_interface_id);
 			} else
 				return;
