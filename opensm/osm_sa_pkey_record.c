@@ -269,7 +269,7 @@ void osm_pkey_rec_rcv_process(IN void *ctx, IN void *data)
 	   to trusted requests.
 	   Check that the requester is a trusted one.
 	 */
-	if (p_rcvd_mad->sm_key != sa->p_subn->opt.sm_key) {
+	if (p_rcvd_mad->sm_key != sa->p_subn->opt.sa_key) {
 		/* This is not a trusted requester! */
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4608: "
 			"Request from non-trusted requester: "

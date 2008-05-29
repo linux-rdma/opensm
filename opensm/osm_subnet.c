@@ -387,6 +387,7 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * const p_opt)
 	p_opt->guid = 0;
 	p_opt->m_key = OSM_DEFAULT_M_KEY;
 	p_opt->sm_key = OSM_DEFAULT_SM_KEY;
+	p_opt->sa_key = OSM_DEFAULT_SA_KEY;
 	p_opt->subnet_prefix = IB_DEFAULT_SUBNET_PREFIX;
 	p_opt->m_key_lease_period = 0;
 	p_opt->sweep_interval = OSM_DEFAULT_SWEEP_INTERVAL_SECS;
@@ -1161,6 +1162,8 @@ int osm_subn_parse_conf_file(char *file_name, osm_subn_opt_t * const p_opts)
 
 		opts_unpack_net64("sm_key", p_key, p_val, &p_opts->sm_key);
 
+		opts_unpack_net64("sa_key", p_key, p_val, &p_opts->sa_key);
+
 		opts_unpack_net64("subnet_prefix",
 				  p_key, p_val, &p_opts->subnet_prefix);
 
@@ -1401,8 +1404,10 @@ int osm_subn_write_conf_file(char *file_name, IN osm_subn_opt_t *const p_opts)
 		"m_key 0x%016" PRIx64 "\n\n"
 		"# The lease period used for the M_Key on this subnet in [sec]\n"
 		"m_key_lease_period %u\n\n"
-		"# SM_Key value of the SM to qualify rcv SA queries as 'trusted'\n"
+		"# SM_Key value of the SM used for SM authentication\n"
 		"sm_key 0x%016" PRIx64 "\n\n"
+		"# SM_Key value to qualify rcv SA queries as 'trusted'\n"
+		"sa_key 0x%016" PRIx64 "\n\n"
 		"# Subnet prefix used on this subnet\n"
 		"subnet_prefix 0x%016" PRIx64 "\n\n"
 		"# The LMC value used on this subnet\n"
@@ -1456,6 +1461,7 @@ int osm_subn_write_conf_file(char *file_name, IN osm_subn_opt_t *const p_opts)
 		cl_ntoh64(p_opts->m_key),
 		cl_ntoh16(p_opts->m_key_lease_period),
 		cl_ntoh64(p_opts->sm_key),
+		cl_ntoh64(p_opts->sa_key),
 		cl_ntoh64(p_opts->subnet_prefix),
 		p_opts->lmc,
 		p_opts->lmc_esp0 ? "TRUE" : "FALSE",

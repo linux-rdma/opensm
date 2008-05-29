@@ -209,6 +209,7 @@ typedef struct _osm_subn_opt {
 	ib_net64_t guid;
 	ib_net64_t m_key;
 	ib_net64_t sm_key;
+	ib_net64_t sa_key;
 	ib_net64_t subnet_prefix;
 	ib_net16_t m_key_lease_period;
 	uint32_t sweep_interval;
@@ -295,7 +296,10 @@ typedef struct _osm_subn_opt {
 *		M_Key value sent to all ports qualifing all Set(PortInfo).
 *
 *	sm_key
-*		SM_Key value of the SM to qualify rcv SA queries as "trusted".
+*		SM_Key value of the SM used for SM authentication.
+*
+*	sa_key
+*		SM_Key value to qualify rcv SA queries as "trusted".
 *
 *	subnet_prefix
 *		Subnet prefix used on this subnet.

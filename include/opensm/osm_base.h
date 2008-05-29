@@ -119,6 +119,17 @@ BEGIN_C_DECLS
 */
 #define OSM_DEFAULT_SM_KEY 1
 /********/
+/****s* OpenSM: Base/OSM_DEFAULT_SA_KEY
+* NAME
+*	OSM_DEFAULT_SA_KEY
+*
+* DESCRIPTION
+*	Subnet Adminstration key value.
+*
+* SYNOPSIS
+*/
+#define OSM_DEFAULT_SA_KEY 1
+/********/
 /****s* OpenSM: Base/OSM_DEFAULT_LMC
 * NAME
 *	OSM_DEFAULT_LMC

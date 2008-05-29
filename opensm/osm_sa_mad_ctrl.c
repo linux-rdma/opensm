@@ -340,11 +340,11 @@ __osm_sa_mad_ctrl_rcv_callback(IN osm_madw_t * p_madw,
 	 * otherwise discard the MAD.
 	 */
 	if ((p_sa_mad->sm_key != 0) &&
-	    (p_sa_mad->sm_key != p_ctrl->p_subn->opt.sm_key)) {
+	    (p_sa_mad->sm_key != p_ctrl->p_subn->opt.sa_key)) {
 		OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 1A04: "
 			"Non-Zero SA MAD SM_Key: 0x%" PRIx64 " != SM_Key: 0x%"
 			PRIx64 "; MAD ignored\n", cl_ntoh64(p_sa_mad->sm_key),
-			cl_ntoh64(p_ctrl->p_subn->opt.sm_key)
+			cl_ntoh64(p_ctrl->p_subn->opt.sa_key)
 		    );
 		osm_mad_pool_put(p_ctrl->p_mad_pool, p_madw);
 		goto Exit;
