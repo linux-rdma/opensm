@@ -658,7 +658,7 @@ int main(int argc, char *argv[])
 		{"perfmgr_sweep_time_s", 1, NULL, 2},
 #endif
 		{"prefix_routes_file", 1, NULL, 3},
-		{"consolidate_ipv6_snm_reqests", 0, NULL, 4},
+		{"consolidate_ipv6_snm_req", 0, NULL, 4},
 		{NULL, 0, NULL, 0}	/* Required at the end of the array */
 	};
 
