@@ -1713,7 +1713,7 @@ int osm_subn_write_conf_file(char *file_name, IN osm_subn_opt_t *const p_opts)
 		p_opts->prefix_routes_file);
 
 	fprintf(opts_file,
-		"#\n# IPv6 MCast Options\n#\n"
+		"#\n# IPv6 Solicited Node Multicast (SNM) Options\n#\n"
 		"consolidate_ipv6_snm_req %s\n\n",
 		p_opts->consolidate_ipv6_snm_req ? "TRUE" : "FALSE");
 
