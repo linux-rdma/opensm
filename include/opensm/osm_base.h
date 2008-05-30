@@ -884,6 +884,7 @@ typedef enum _osm_mcast_req_type {
 #define OSM_VENDOR_ID_SUN           0x0003BA
 #define OSM_VENDOR_ID_3LEAFNTWKS    0x0016A1
 #define OSM_VENDOR_ID_XSIGO         0x001397
+#define OSM_VENDOR_ID_HP2           0x0018FE
 
 /**********/
 

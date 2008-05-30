@@ -2228,6 +2228,7 @@ const char *osm_get_manufacturer_str(IN uint64_t const guid_ho)
 	case OSM_VENDOR_ID_PANTA:
 		return (panta_str);
 	case OSM_VENDOR_ID_HP:
+	case OSM_VENDOR_ID_HP2:
 		return (hp_str);
 	case OSM_VENDOR_ID_RIOWORKS:
 		return (rioworks_str);
