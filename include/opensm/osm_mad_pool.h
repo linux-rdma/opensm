@@ -53,7 +53,6 @@
 #include <opensm/osm_base.h>
 #include <vendor/osm_vendor.h>
 #include <opensm/osm_madw.h>
-#include <opensm/osm_log.h>
 
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
@@ -95,14 +94,10 @@ BEGIN_C_DECLS
 * SYNOPSIS
 */
 typedef struct _osm_mad_pool {
-	osm_log_t *p_log;
 	atomic32_t mads_out;
 } osm_mad_pool_t;
 /*
 * FIELDS
-*	p_log
-*		Pointer to the log object.
-*
 *	mads_out
 *		Running total of the number of MADs outstanding.
 *
@@ -176,16 +171,11 @@ void osm_mad_pool_destroy(IN osm_mad_pool_t * const p_pool);
 *
 * SYNOPSIS
 */
-ib_api_status_t osm_mad_pool_init(IN osm_mad_pool_t * const p_pool,
-				  IN osm_log_t * const p_log);
+ib_api_status_t osm_mad_pool_init(IN osm_mad_pool_t * const p_pool);
 /*
 * PARAMETERS
 *	p_pool
 *		[in] Pointer to an osm_mad_pool_t object to initialize.
-*
-*	p_log
-*		[in] Pointer to the log object.
-*
 *
 * RETURN VALUES
 *	CL_SUCCESS if the MAD Pool was initialized successfully.

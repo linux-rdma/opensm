@@ -538,7 +538,7 @@ osmtest_init(IN osmtest_t * const p_osmt,
 	}
 
 	osm_mad_pool_construct(&p_osmt->mad_pool);
-	status = osm_mad_pool_init(&p_osmt->mad_pool, &p_osmt->log);
+	status = osm_mad_pool_init(&p_osmt->mad_pool);
 	if (status != IB_SUCCESS)
 		goto Exit;
 

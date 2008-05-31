@@ -314,7 +314,7 @@ osm_opensm_init(IN osm_opensm_t * const p_osm,
 		goto Exit;
 	}
 
-	status = osm_mad_pool_init(&p_osm->mad_pool, &p_osm->log);
+	status = osm_mad_pool_init(&p_osm->mad_pool);
 	if (status != IB_SUCCESS)
 		goto Exit;
 
