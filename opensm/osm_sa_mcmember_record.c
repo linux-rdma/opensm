@@ -1088,14 +1088,15 @@ __search_mgrp_by_mgid(IN cl_map_item_t * const p_map_item, IN void *context)
 			 * YYYYYY is the last 24 bits of the port guid */
 #define PREFIX_MASK (0xff10ffff0000ffffULL)
 #define PREFIX_SIGNATURE (0xff10601b00000000ULL)
-#define INT_ID_MASK (0x00000001ff000000ULL)
+#define INT_ID_MASK (0xfffffff1ff000000ULL)
+#define INT_ID_SIGNATURE (0x00000001ff000000ULL)
 			uint64_t g_prefix = cl_ntoh64(p_mgrp->mcmember_rec.mgid.unicast.prefix);
 			uint64_t g_interface_id = cl_ntoh64(p_mgrp->mcmember_rec.mgid.unicast.interface_id);
 			uint64_t rcv_prefix = cl_ntoh64(p_recvd_mgid->unicast.prefix);
 			uint64_t rcv_interface_id = cl_ntoh64(p_recvd_mgid->unicast.interface_id);
 
 			if ((rcv_prefix & PREFIX_MASK) == PREFIX_SIGNATURE &&
-			    (rcv_interface_id & INT_ID_MASK) == INT_ID_MASK &&
+			    (rcv_interface_id & INT_ID_MASK) == INT_ID_SIGNATURE &&
 			    (g_prefix & PREFIX_MASK) ==
 			     (rcv_prefix && PREFIX_MASK) &&
 			    (g_interface_id & INT_ID_MASK) ==
