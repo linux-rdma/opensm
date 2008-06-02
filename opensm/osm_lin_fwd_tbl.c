@@ -77,8 +77,8 @@ osm_lin_fwd_tbl_t *osm_lin_tbl_new(IN uint16_t const size)
 	/*
 	   Initialize the table to OSM_NO_PATH, which means "invalid port"
 	 */
-	memset(p_tbl, OSM_NO_PATH, __osm_lin_tbl_compute_obj_size(size));
 	if (p_tbl != NULL) {
+		memset(p_tbl, OSM_NO_PATH, __osm_lin_tbl_compute_obj_size(size));
 		p_tbl->size = (uint16_t) size;
 	}
 	return (p_tbl);
