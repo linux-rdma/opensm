@@ -370,7 +370,8 @@ static int __osm_lid_mgr_init_sweep(IN osm_lid_mgr_t * const p_mgr)
 			"Skipping all lids as we are reassigning them\n");
 		p_range =
 		    (osm_lid_mgr_range_t *) malloc(sizeof(osm_lid_mgr_range_t));
-		p_range->min_lid = 1;
+		if (p_range)
+		    p_range->min_lid = 1;
 		goto AfterScanningLids;
 	}
 
@@ -557,8 +558,10 @@ static int __osm_lid_mgr_init_sweep(IN osm_lid_mgr_t * const p_mgr)
 			else {
 				p_range = (osm_lid_mgr_range_t *)
 				    malloc(sizeof(osm_lid_mgr_range_t));
-				p_range->min_lid = lid;
-				p_range->max_lid = lid;
+				if (p_range) {
+				    p_range->min_lid = lid;
+				    p_range->max_lid = lid;
+				}
 			}
 		} else {
 			/* this lid is used so we need to finalize the previous free range */
@@ -586,13 +589,16 @@ AfterScanningLids:
 		   no free range exists and we want to define it after the last
 		   mapped lid.
 		 */
-		p_range->min_lid = lid;
+		if (p_range)
+		    p_range->min_lid = lid;
 	}
-	p_range->max_lid = p_mgr->p_subn->max_unicast_lid_ho - 1;
-	cl_qlist_insert_tail(&p_mgr->free_ranges, &p_range->item);
-	OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-		"final free lid range [0x%x:0x%x]\n",
-		p_range->min_lid, p_range->max_lid);
+	if (p_range) {
+	    p_range->max_lid = p_mgr->p_subn->max_unicast_lid_ho - 1;
+	    cl_qlist_insert_tail(&p_mgr->free_ranges, &p_range->item);
+	    OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
+		    "final free lid range [0x%x:0x%x]\n",
+		    p_range->min_lid, p_range->max_lid);
+	}
 
 	OSM_LOG_EXIT(p_mgr->p_log);
 	return status;
