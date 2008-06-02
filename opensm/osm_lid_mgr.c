@@ -371,7 +371,7 @@ static int __osm_lid_mgr_init_sweep(IN osm_lid_mgr_t * const p_mgr)
 		p_range =
 		    (osm_lid_mgr_range_t *) malloc(sizeof(osm_lid_mgr_range_t));
 		if (p_range)
-		    p_range->min_lid = 1;
+			p_range->min_lid = 1;
 		goto AfterScanningLids;
 	}
 
@@ -559,8 +559,8 @@ static int __osm_lid_mgr_init_sweep(IN osm_lid_mgr_t * const p_mgr)
 				p_range = (osm_lid_mgr_range_t *)
 				    malloc(sizeof(osm_lid_mgr_range_t));
 				if (p_range) {
-				    p_range->min_lid = lid;
-				    p_range->max_lid = lid;
+					p_range->min_lid = lid;
+					p_range->max_lid = lid;
 				}
 			}
 		} else {
@@ -590,14 +590,14 @@ AfterScanningLids:
 		   mapped lid.
 		 */
 		if (p_range)
-		    p_range->min_lid = lid;
+			p_range->min_lid = lid;
 	}
 	if (p_range) {
-	    p_range->max_lid = p_mgr->p_subn->max_unicast_lid_ho - 1;
-	    cl_qlist_insert_tail(&p_mgr->free_ranges, &p_range->item);
-	    OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-		    "final free lid range [0x%x:0x%x]\n",
-		    p_range->min_lid, p_range->max_lid);
+		p_range->max_lid = p_mgr->p_subn->max_unicast_lid_ho - 1;
+		cl_qlist_insert_tail(&p_mgr->free_ranges, &p_range->item);
+		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
+			"final free lid range [0x%x:0x%x]\n",
+			p_range->min_lid, p_range->max_lid);
 	}
 
 	OSM_LOG_EXIT(p_mgr->p_log);
@@ -897,8 +897,7 @@ __osm_lid_mgr_set_physp_pi(IN osm_lid_mgr_t * const p_mgr,
 	port_num = osm_physp_get_port_num(p_physp);
 	p_node = osm_physp_get_node_ptr(p_physp);
 
-	if (osm_node_get_type(p_node) == IB_NODE_TYPE_SWITCH &&
-	    port_num != 0) {
+	if (osm_node_get_type(p_node) == IB_NODE_TYPE_SWITCH && port_num != 0) {
 		/*
 		   Switch ports that are not numbered 0 should not be set
 		   with the following attributes as they are set later
@@ -1107,8 +1106,7 @@ __osm_lid_mgr_set_physp_pi(IN osm_lid_mgr_t * const p_mgr,
 	    && (p_old_pi->capability_mask & IB_PORT_CAP_HAS_CLIENT_REREG)) {
 		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 			"Seting client rereg on %s, port %d\n",
-			p_port->p_node->print_desc,
-			p_port->p_physp->port_num);
+			p_port->p_node->print_desc, p_port->p_physp->port_num);
 		ib_port_info_set_client_rereg(p_pi, 1);
 		send_set = TRUE;
 	} else
