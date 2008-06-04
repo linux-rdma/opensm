@@ -127,8 +127,9 @@ osm_physp_init(IN osm_physp_t * const p_physp,
 	cl_ptr_vector_init(&p_physp->slvl_by_port, num_slvl, 1);
 	for (i = 0; i < num_slvl; i++) {
 		p_slvl = (ib_slvl_table_t *) malloc(sizeof(ib_slvl_table_t));
-		if (p_slvl)
-			memset(p_slvl, 0, sizeof(ib_slvl_table_t));
+		if (!p_slvl)
+			break;
+		memset(p_slvl, 0, sizeof(ib_slvl_table_t));
 		cl_ptr_vector_set(&p_physp->slvl_by_port, i, p_slvl);
 	}
 
@@ -594,6 +595,10 @@ osm_physp_replace_dr_path_with_alternate_dr_path(IN osm_log_t * p_log,
 	boolean_t next_list_is_full = TRUE, reached_dest = FALSE;
 	uint8_t num_ports, port_num;
 
+	p_nextPortsList = (cl_list_t *) malloc(sizeof(cl_list_t));
+	if (!p_nextPortsList)
+		return;
+
 	/*
 	   initialize the map of all port participating in current dr path
 	   not including first and last switches
@@ -609,7 +614,6 @@ osm_physp_replace_dr_path_with_alternate_dr_path(IN osm_log_t * p_log,
 	   BFS from OSM port until we find the target physp but avoid
 	   going through mapped ports
 	 */
-	p_nextPortsList = (cl_list_t *) malloc(sizeof(cl_list_t));
 	cl_list_construct(p_nextPortsList);
 	cl_list_init(p_nextPortsList, 10);
 
@@ -638,12 +642,16 @@ osm_physp_replace_dr_path_with_alternate_dr_path(IN osm_log_t * p_log,
 		next_list_is_full = FALSE;
 		p_currPortsList = p_nextPortsList;
 		p_nextPortsList = (cl_list_t *) malloc(sizeof(cl_list_t));
+		if (!p_nextPortsList) {
+			p_nextPortsList = p_currPortsList;
+			goto Exit;
+		}
 		cl_list_construct(p_nextPortsList);
 		cl_list_init(p_nextPortsList, 10);
 		p_physp = (osm_physp_t *) cl_list_remove_head(p_currPortsList);
 		while (p_physp != NULL) {
-			/* If we are in a switch - need to go out through all the other
-			   physical ports of the switch */
+			/* If we are in a switch - need to go out through all
+			   the other physical ports of the switch */
 			num_ports = osm_node_get_num_physp(p_physp->p_node);
 
 			for (port_num = 1; port_num < num_ports; port_num++) {
