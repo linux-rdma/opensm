@@ -349,8 +349,7 @@ static ftree_sw_tbl_element_t *__osm_ftree_sw_tbl_element_create(IN ftree_sw_t *
 		return NULL;
 	memset(p_element, 0, sizeof(ftree_sw_tbl_element_t));
 
-	if (p_element)
-		p_element->p_sw = p_sw;
+	p_element->p_sw = p_sw;
 	return p_element;
 }
 
