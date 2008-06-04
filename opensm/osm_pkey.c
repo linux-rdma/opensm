@@ -151,8 +151,9 @@ osm_pkey_tbl_set(IN osm_pkey_tbl_t * p_pkey_tbl,
 	if (!p_pkey_block) {
 		p_pkey_block =
 		    (ib_pkey_table_t *) malloc(sizeof(ib_pkey_table_t));
-		if (p_pkey_block)
-			memset(p_pkey_block, 0, sizeof(ib_pkey_table_t));
+		if (!p_pkey_block)
+			return (IB_ERROR);
+		memset(p_pkey_block, 0, sizeof(ib_pkey_table_t));
 		cl_ptr_vector_set(&p_pkey_tbl->blocks, block, p_pkey_block);
 	}
 
@@ -163,8 +164,8 @@ osm_pkey_tbl_set(IN osm_pkey_tbl_t * p_pkey_tbl,
 	   NOTE: as the spec does not require uniqueness of PKeys in
 	   tables there is no other way but to refresh the entire keys map.
 
-	   Moreover, if the same key exists but with full membership it should have
-	   precedence on the key with limited membership !
+	   Moreover, if the same key exists but with full membership it should
+	   have precedence on the key with limited membership !
 	 */
 	cl_map_remove_all(&p_pkey_tbl->keys);
 
