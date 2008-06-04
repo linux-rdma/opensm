@@ -181,10 +181,9 @@ __get_new_mlid(IN osm_sa_t * sa, IN ib_net16_t requested_mlid)
 
 	/* track all used mlids in the array (by mlid index) */
 	used_mlids_array = (uint8_t *) malloc(sizeof(uint8_t) * max_num_mlids);
-	if (used_mlids_array)
-		memset(used_mlids_array, 0, sizeof(uint8_t) * max_num_mlids);
 	if (!used_mlids_array)
 		return 0;
+	memset(used_mlids_array, 0, sizeof(uint8_t) * max_num_mlids);
 
 	/* scan all available multicast groups in the DB and fill in the table */
 	while (p_mgrp != (osm_mgrp_t *) cl_qmap_end(&p_subn->mgrp_mlid_tbl)) {
