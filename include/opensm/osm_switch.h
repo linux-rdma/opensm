@@ -153,31 +153,33 @@ typedef struct _osm_switch {
 *	Switch object
 *********/
 
-/****s* OpenSM: Switch/osm_switch_guid_count_t
+/****s* OpenSM: Switch/struct osm_remote_guids_count
 * NAME
-*	osm_switch_guid_count_t
+*	struct osm_remote_guids_count
 *
 * DESCRIPTION
-*	Stores system and node guids and the number of
+*	Stores array of pointers to remote node and the numbers of
 *	times a switch has forwarded to it.
 *
 * SYNOPSIS
 */
-typedef struct _osm_switch_guid_count {
-	uint64_t sys_guid;
-	uint64_t node_guid;
-	unsigned int forwarded_to;
-} osm_switch_guid_count_t;
+struct osm_remote_guids_count {
+	unsigned count;
+	struct osm_remote_node {
+		osm_node_t *node;
+		unsigned forwarded_to;
+	} guids[0];
+};
 /*
 * FIELDS
-*	sys_guid
-*		A system guid.
+*	count
+*		A number of used entries in array.
 *
-*	node_guid
-*		A node guid.
+*	node
+*		A pointer to node.
 *
 *	forwarded_to
-*		A count of lids forwarded to the sys_guid/node_guid.
+*		A count of lids forwarded to this node.
 *********/
 
 /****f* OpenSM: Switch/osm_switch_delete
@@ -980,10 +982,7 @@ osm_switch_recommend_path(IN const osm_switch_t * const p_sw,
 			  IN osm_port_t * p_port,
 			  IN const uint16_t lid_ho,
 			  IN const boolean_t ignore_existing,
-			  IN const boolean_t dor,
-			  IN OUT osm_switch_guid_count_t * remote_guids,
-			  IN OUT uint16_t * p_num_remote_guids,
-			  IN OUT osm_switch_guid_count_t ** p_remote_guid_count_used);
+			  IN const boolean_t dor);
 /*
 * PARAMETERS
 *	p_sw
@@ -1004,18 +1003,6 @@ osm_switch_recommend_path(IN const osm_switch_t * const p_sw,
 *
 *	dor
 *		[in] If TRUE, Dimension Order Routing will be done.
-*
-*	remote_guids
-*		[in out] The array of remote guids already used to route
-*		the other lids of the same target port (if LMC > 0)
-*
-*	p_num_remote_guids
-*		[in out] The number of remote guids used for routing to
-*		the port.
-*
-*	p_remote_guid_count_used
-*		[in out] The specific osm_switch_guid_count_t used
-*		in switch recommendations.
 *
 * RETURN VALUE
 *	Returns the recommended port on which to route this LID.

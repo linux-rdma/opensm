@@ -1149,6 +1149,7 @@ typedef struct _osm_port {
 	unsigned is_new;
 	osm_physp_t *p_physp;
 	cl_qlist_t mcm_list;
+	void *priv;
 } osm_port_t;
 /*
 * FIELDS

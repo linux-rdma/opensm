@@ -187,6 +187,24 @@ __osm_ucast_mgr_process_neighbor(IN osm_ucast_mgr_t * const p_mgr,
 
 /**********************************************************************
  **********************************************************************/
+static struct osm_remote_node *
+find_and_add_remote_sys(osm_switch_t *sw, uint8_t port,
+			struct osm_remote_guids_count *r)
+{
+	unsigned i;
+	osm_physp_t *p = osm_node_get_physp_ptr(sw->p_node, port);
+	osm_node_t *node = p->p_remote_physp->p_node;
+
+	for (i = 0; i < r->count; i++)
+		if (r->guids[i].node == node)
+			return &r->guids[i];
+
+	r->guids[i].node = node;
+	r->guids[i].forwarded_to = 0;
+	r->count++;
+	return &r->guids[i];
+}
+
 static void
 __osm_ucast_mgr_process_port(IN osm_ucast_mgr_t * const p_mgr,
 			     IN osm_switch_t * const p_sw,
@@ -204,22 +222,9 @@ __osm_ucast_mgr_process_port(IN osm_ucast_mgr_t * const p_mgr,
 	   in providing better routing in LMC > 0 situations
 	 */
 	uint16_t lids_per_port = 1 << p_mgr->p_subn->opt.lmc;
-	osm_switch_guid_count_t *remote_guids = NULL;
-	uint16_t num_used_guids = 0;
-	osm_switch_guid_count_t *p_remote_guid_used = NULL;
+	struct osm_remote_node *p_remote_guid_used = NULL;
 
 	OSM_LOG_ENTER(p_mgr->p_log);
-
-	if (lids_per_port > 1) {
-		remote_guids = malloc(sizeof(osm_switch_guid_count_t) * lids_per_port);
-		if (remote_guids == NULL) {
-			osm_log(p_mgr->p_log, OSM_LOG_ERROR,
-				"__osm_ucast_mgr_process_port: ERR 3A09: "
-				"Cannot allocate array. Insufficient memory\n");
-			goto Exit;
-		}
-		memset(remote_guids, 0, sizeof(osm_switch_guid_count_t) * lids_per_port);
-	}
 
 	osm_port_get_lid_range_ho(p_port, &min_lid_ho, &max_lid_ho);
 
@@ -258,21 +263,19 @@ __osm_ucast_mgr_process_port(IN osm_ucast_mgr_t * const p_mgr,
 	for (lid_ho = min_lid_ho; lid_ho <= max_lid_ho; lid_ho++) {
 		/* Use the enhanced algorithm only for LMC > 0 */
 		if (lids_per_port > 1) {
-			p_remote_guid_used = NULL;
 			port = osm_switch_recommend_path(p_sw, p_port, lid_ho,
 							 p_mgr->p_subn->
 							 ignore_existing_lfts,
-							 p_mgr->is_dor,
-							 remote_guids,
-							 &num_used_guids,
-							 &p_remote_guid_used);
-		}
-		else
+							 p_mgr->is_dor);
+			if (port > 0 && port != OSM_NO_PATH && p_port->priv)
+				p_remote_guid_used =
+				    find_and_add_remote_sys(p_sw, port,
+							    p_port->priv);
+		} else
 			port = osm_switch_recommend_path(p_sw, p_port, lid_ho,
 							 p_mgr->p_subn->
 							 ignore_existing_lfts,
-							 p_mgr->is_dor,
-							 NULL, NULL, NULL);
+							 p_mgr->is_dor);
 
 		/*
 		   There might be no path to the target
@@ -334,8 +337,6 @@ __osm_ucast_mgr_process_port(IN osm_ucast_mgr_t * const p_mgr,
 	}
 
 Exit:
-	if (remote_guids)
-		free(remote_guids);
 	OSM_LOG_EXIT(p_mgr->p_log);
 }
 
@@ -460,6 +461,48 @@ osm_ucast_mgr_set_fwd_table(IN osm_ucast_mgr_t * const p_mgr,
 
 /**********************************************************************
  **********************************************************************/
+static void alloc_ports_priv(osm_ucast_mgr_t *mgr)
+{
+	cl_qmap_t *port_tbl = &mgr->p_subn->port_guid_tbl;
+	struct osm_remote_guids_count *r;
+	osm_port_t *port;
+	cl_map_item_t *item;
+	unsigned lmc;
+
+	for (item = cl_qmap_head(port_tbl); item != cl_qmap_end(port_tbl);
+	     item = cl_qmap_next(item)) {
+		port = (osm_port_t *)item;
+		lmc = ib_port_info_get_lmc(&port->p_physp->port_info);
+		if (!lmc)
+			continue;
+		r = malloc(sizeof(*r) + sizeof(r->guids[0]) * (1 << lmc));
+		if (!r) {
+			OSM_LOG(mgr->p_log, OSM_LOG_ERROR, "ERR 3A09: "
+				"cannot allocate memory to track remote"
+				" systems for lmc > 0\n");
+			port->priv = NULL;
+			continue;
+		}
+		memset(r, 0, sizeof(*r) + sizeof(r->guids[0]) * (1 << lmc));
+		port->priv = r;
+	}
+}
+
+static void free_ports_priv(osm_ucast_mgr_t *mgr)
+{
+	cl_qmap_t *port_tbl = &mgr->p_subn->port_guid_tbl;
+	osm_port_t *port;
+	cl_map_item_t *item;
+	for (item = cl_qmap_head(port_tbl); item != cl_qmap_end(port_tbl);
+	     item = cl_qmap_next(item)) {
+		port = (osm_port_t *)item;
+		if (port->priv) {
+			free(port->priv);
+			port->priv = NULL;
+		}
+	}
+}
+
 static void
 __osm_ucast_mgr_process_tbl(IN cl_map_item_t * const p_map_item,
 			    IN void *context)
@@ -488,6 +531,9 @@ __osm_ucast_mgr_process_tbl(IN cl_map_item_t * const p_map_item,
 
 	p_port_tbl = &p_mgr->p_subn->port_guid_tbl;
 
+	if (p_mgr->p_subn->opt.lmc)
+		alloc_ports_priv(p_mgr);
+
 	/*
 	   Iterate through every port setting LID routes for each
 	   port based on base LID and LMC value.
@@ -500,6 +546,9 @@ __osm_ucast_mgr_process_tbl(IN cl_map_item_t * const p_map_item,
 	}
 
 	osm_ucast_mgr_set_fwd_table(p_mgr, p_sw);
+
+	if (p_mgr->p_subn->opt.lmc)
+		free_ports_priv(p_mgr);
 
 	OSM_LOG_EXIT(p_mgr->p_log);
 }
