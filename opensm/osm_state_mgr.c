@@ -906,51 +906,59 @@ static void __osm_state_mgr_check_tbl_consistency(IN osm_sm_t * sm)
 		cl_ptr_vector_at(&ref_port_lid_tbl, lid, (void *)&p_port_ref);
 
 		if (p_port_stored == p_port_ref)
-			/* This is the "good" case - both entries are the same for this lid.
-			 * Nothing to do. */
+			/* This is the "good" case - both entries are the
+			 * same for this lid. Nothing to do. */
 			continue;
 
-		if (p_port_ref == NULL) {
-			/* There is an object in the subnet database for this lid,
-			 * but no such object exists in the reference port_list_tbl.
-			 * This can occur if we wanted to assign a certain port with some
-			 * lid (different than the one pre-assigned to it), and the port
-			 * didn't get the PortInfo Set request. Due to this, the port
-			 * is updated with its original lid in our database, but with the
-			 * new lid we wanted to give it in our port_lid_tbl. */
+		if (p_port_ref == NULL)
+			/* There is an object in the subnet database for this
+			 * lid, but no such object exists in the reference
+			 * port_list_tbl. This can occur if we wanted to assign
+			 * a certain port with some lid (different than the one
+			 * pre-assigned to it), and the port didn't get the
+			 * PortInfo Set request. Due to this, the port is
+			 * updated with its original lid in our database, but
+			 * with the new lid we wanted to give it in our
+			 * port_lid_tbl. */
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3322: "
-				"lid 0x%zX is wrongly assigned to port 0x%016"
-				PRIx64 " in port_lid_tbl\n", lid,
-				cl_ntoh64(osm_port_get_guid(p_port_stored)));
-		} else {
-			if (p_port_stored == NULL) {
-				/* There is an object in the new database, but no object in our subnet
-				 * database. This is the matching case of the prior check - the port
-				 * still has its original lid. */
-				OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3323: "
-					"port 0x%016" PRIx64 " exists in new "
-					"port_lid_tbl under lid 0x%zX, but "
-					"missing in subnet port_lid_tbl db\n",
-					cl_ntoh64(osm_port_get_guid
-						  (p_port_ref)), lid);
-			} else {
+				"lid %u is wrongly assigned to port 0x%016"
+				PRIx64 " (\'%s\' port %u) in port_lid_tbl\n",
+				lid,
+				cl_ntoh64(osm_port_get_guid(p_port_stored)),
+				p_port_stored->p_node->print_desc,
+				p_port_stored->p_physp->port_num);
+		else if (p_port_stored == NULL)
+			/* There is an object in the new database, but no
+			 * object in our subnet database. This is the matching
+			 * case of the prior check - the port still has its
+			 * original lid. */
+			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3323: "
+				"port 0x%016" PRIx64 " (\'%s\' port %u)"
+				" exists in new port_lid_tbl under lid %u,"
+				" but missing in subnet port_lid_tbl db\n",
+				cl_ntoh64(osm_port_get_guid(p_port_ref)),
+				p_port_ref->p_node->print_desc,
+				p_port_ref->p_physp->port_num, lid);
+		else
+			/* if we reached here then p_port_stored != p_port_ref.
+			 * We were trying to set a lid to p_port_stored, but
+			 * it didn't reach it, and p_port_ref also didn't get
+			 * the lid update. */
+			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3324: "
+				"lid %u has port 0x%016" PRIx64
+				" (\'%s\' port %u) in new port_lid_tbl db, "
+				"and port 0x%016" PRIx64 " (\'%s\' port %u)"
+				" in subnet port_lid_tbl db\n", lid,
+				cl_ntoh64(osm_port_get_guid(p_port_ref)),
+				p_port_ref->p_node->print_desc,
+				p_port_ref->p_physp->port_num,
+				cl_ntoh64(osm_port_get_guid(p_port_stored)),
+				p_port_ref->p_node->print_desc,
+				p_port_ref->p_physp->port_num);
 
-				/* if we reached here then p_port_stored != p_port_ref.
-				 * We were trying to set a lid to p_port_stored, but it didn't reach it,
-				 * and p_port_ref also didn't get the lid update. */
-				OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3324: "
-					"lid 0x%zX has port 0x%016" PRIx64
-					" in new port_lid_tbl db, "
-					"and port 0x%016" PRIx64
-					" in subnet port_lid_tbl db\n", lid,
-					cl_ntoh64(osm_port_get_guid
-						  (p_port_ref)),
-					cl_ntoh64(osm_port_get_guid
-						  (p_port_stored)));
-			}
-		}
-		/* In any of these cases we want to set NULL in the port_lid_tbl, since this
-		 * entry is invalid. Also, make sure we'll do another heavy sweep. */
+		/* In any of these cases we want to set NULL in the
+		 * port_lid_tbl, since this entry is invalid. Also, make sure
+		 * we'll do another heavy sweep. */
 		cl_ptr_vector_set(p_port_lid_tbl, lid, NULL);
 		sm->p_subn->subnet_initialization_error = TRUE;
 	}
