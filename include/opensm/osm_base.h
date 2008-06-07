@@ -38,11 +38,6 @@
  * 	Basic OpenSM definitions and structures.
  *	This object represents an OpenSM "base class".
  *	This object is part of the OpenSM family of objects.
- *
- * Environment:
- * 	Linux User Mode
- *
- * $Revision: 1.15 $
  */
 
 #ifndef _OSM_BASE_H_

@@ -39,13 +39,8 @@
  *	This object represents an IBA Inform Record.
  *	This object is part of the OpenSM family of objects.
  *
- * Environment:
- * 	Linux User Mode
- *
  * Author:
  *    Eitan Zahavi, Mellanox
- *
- * $Revision: 1.5 $
  */
 
 #ifndef _OSM_INFR_H_

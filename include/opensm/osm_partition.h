@@ -38,11 +38,6 @@
  * 	Declaration of osm_prtn_t.
  *	This object represents an IBA Partition.
  *	This object is part of the OpenSM family of objects.
- *
- * Environment:
- * 	Linux User Mode
- *
- * $Revision: 1.4 $
  */
 
 #ifndef _OSM_PARTITION_H_

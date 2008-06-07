@@ -37,11 +37,6 @@
  * Abstract:
  *	This file contains pointer vector definitions.  Pointer Vector provides
  *  dynmically resizable array functionality.
- *
- * Environment:
- *	All
- *
- * $Revision: 1.3 $
  */
 
 #ifndef _CL_PTR_VECTOR_H_

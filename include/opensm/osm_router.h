@@ -38,10 +38,6 @@
  * 	Declaration of osm_router_t.
  *	This object represents an IBA router.
  *	This object is part of the OpenSM family of objects.
- *
- * Environment:
- * 	Linux User Mode
- *
  */
 
 #ifndef _OSM_ROUTER_H_

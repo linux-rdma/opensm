@@ -38,11 +38,6 @@
  *    Implementation of osm_sa_t.
  * This object represents the Subnet Administration object.
  * This object is part of the opensm family of objects.
- *
- * Environment:
- *    Linux User Mode
- *
- * $Revision: 1.14 $
  */
 
 #if HAVE_CONFIG_H

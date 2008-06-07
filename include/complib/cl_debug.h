@@ -36,11 +36,6 @@
 /*
  * Abstract:
  *	Declaration of functions for reporting debug output.
- *
- * Environment:
- *	All
- *
- * $Revision: 1.4 $
  */
 
 #ifndef _CL_DEBUG_H_

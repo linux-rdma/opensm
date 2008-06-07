@@ -53,11 +53,6 @@ BEGIN_C_DECLS
  *  encapsulates information needed by the generic request controller
  *  to request an attribute from a node.
  *	These objects are part of the OpenSM family of objects.
- *
- * Environment:
- * 	Linux User Mode
- *
- * $Revision: 1.4 $
  */
 /****h* OpenSM/Attribute Request
 * NAME

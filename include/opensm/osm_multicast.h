@@ -38,11 +38,6 @@
  * 	Declaration of osm_mgrp_t.
  *	This object represents an IBA Multicast Group.
  *	This object is part of the OpenSM family of objects.
- *
- * Environment:
- * 	Linux User Mode
- *
- * $Revision: 1.4 $
  */
 
 #ifndef _OSM_MULTICAST_H_

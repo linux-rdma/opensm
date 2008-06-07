@@ -37,11 +37,6 @@
  * Abstract:
  * Implementation of the P_Key Manager (Partititon Manager).
  * This is part of the OpenSM.
- *
- * Environment:
- *    Linux User Mode
- *
- * $Revision: 1.7 $
  */
 
 #if HAVE_CONFIG_H

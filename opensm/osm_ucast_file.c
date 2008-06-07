@@ -35,10 +35,6 @@
  * Abstract:
  *    Implementation of OpenSM unicast routing module which loads
  *    routes from the dump file
- *
- * Environment:
- *    Linux User Mode
- *
  */
 
 #if HAVE_CONFIG_H

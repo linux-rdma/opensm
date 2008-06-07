@@ -36,11 +36,6 @@
 /*
  * Abstract:
  *	Debug Macros.
- *
- * Environment:
- *	Linux User Mode
- *
- * $Revision: 1.7 $
  */
 
 #ifndef _CL_DEBUG_OSD_H_

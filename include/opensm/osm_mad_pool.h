@@ -38,11 +38,6 @@
  * 	Declaration of osm_mad_pool_t.
  *	This object represents a pool of management datagram (MAD) objects.
  *	This object is part of the OpenSM family of objects.
- *
- * Environment:
- * 	Linux User Mode
- *
- * $Revision: 1.5 $
  */
 
 #ifndef _OSM_MAD_POOL_H_

@@ -36,11 +36,6 @@
 /*
  * Abstract:
  * 	Include file used by OpenSM to pull in the correct vendor file.
- *
- * Environment:
- * 	Linux User Mode
- *
- * $Revision: 1.6 $
  */
 
 /*

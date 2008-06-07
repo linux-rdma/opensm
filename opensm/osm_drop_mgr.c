@@ -38,11 +38,6 @@
  *    Implementation of osm_drop_mgr_t.
  * This object represents the Drop Manager object.
  * This object is part of the opensm family of objects.
- *
- * Environment:
- *    Linux User Mode
- *
- * $Revision: 1.7 $
  */
 
 #if HAVE_CONFIG_H

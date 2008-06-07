@@ -39,11 +39,6 @@
  *  exported sizes are int8_t, uint8_t, int16_t, uint16_t, int32_t, uint32_t
  *  int64_t, uint64_t. uintn_t is a polymorphic type, size is native size and
  *  also size of the pointer.
- *
- * Environment:
- *	Linux User Mode
- *
- * $Revision: 1.7 $
  */
 
 #ifndef _CL_TYPES_OSD_H_

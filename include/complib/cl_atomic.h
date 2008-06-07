@@ -36,11 +36,6 @@
 /*
  * Abstract:
  *	Declaration of atomic manipulation functions.
- *
- * Environment:
- *	All
- *
- * $Revision: 1.4 $
  */
 
 #ifndef _CL_ATOMIC_H_

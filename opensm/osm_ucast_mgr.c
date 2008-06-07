@@ -37,11 +37,6 @@
  * Abstract:
  *    Implementation of osm_ucast_mgr_t.
  * This file implements the Unicast Manager object.
- *
- * Environment:
- *    Linux User Mode
- *
- * $Revision: 1.14 $
  */
 
 #if HAVE_CONFIG_H

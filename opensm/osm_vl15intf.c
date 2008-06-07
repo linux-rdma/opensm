@@ -38,11 +38,6 @@
  *    Implementation of osm_vl15_t.
  * This object represents the VL15 Interface object.
  * This object is part of the opensm family of objects.
- *
- * Environment:
- *    Linux User Mode
- *
- * $Revision: 1.6 $
  */
 
 #if HAVE_CONFIG_H

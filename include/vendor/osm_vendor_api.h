@@ -37,11 +37,6 @@
  * Abstract:
  *  Specification of the OpenSM transport API. This API is OpenSM's view
  *  of the Infiniband transport.
- *
- * Environment:
- *    Linux User Mode
- *
- * $Revision: 1.4 $
  */
 
 #ifndef _OSM_VENDOR_API_H_

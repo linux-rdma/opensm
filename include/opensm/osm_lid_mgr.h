@@ -38,11 +38,6 @@
  * 	Declaration of osm_lid_mgr_t.
  *	This object represents the LID Manager object.
  *	This object is part of the OpenSM family of objects.
- *
- * Environment:
- * 	Linux User Mode
- *
- * $Revision: 1.4 $
  */
 
 #ifndef _OSM_LID_MGR_H_

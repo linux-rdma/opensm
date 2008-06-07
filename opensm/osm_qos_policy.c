@@ -37,9 +37,6 @@
  * Abstract:
  *    OSM QoS Policy functions.
  *
- * Environment:
- *    Linux User Mode
- *
  * Author:
  *    Yevgeny Kliteynik, Mellanox
  */

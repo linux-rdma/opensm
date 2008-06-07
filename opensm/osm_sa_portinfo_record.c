@@ -38,11 +38,6 @@
  *    Implementation of osm_pir_rcv_t.
  * This object represents the PortInfoRecord Receiver object.
  * This object is part of the opensm family of objects.
- *
- * Environment:
- *    Linux User Mode
- *
- * $Revision: 1.10 $
  */
 
 #if HAVE_CONFIG_H

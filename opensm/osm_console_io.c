@@ -30,6 +30,7 @@
  * SOFTWARE.
  *
  */
+
 /*
  * Abstract:
  *    Provide a framework for the Console which decouples the connection
@@ -37,11 +38,6 @@
  *
  *    Extensible - allows a variety of connection methods independent of
  *    the console commands.
- *
- * Environment:
- *    Linux User Mode
- *
- * $Revision: 1.0 $
  */
 
 #if HAVE_CONFIG_H

@@ -36,11 +36,6 @@
 /*
  * Abstract:
  *    Implementation of multicast functions.
- *
- * Environment:
- *    Linux User Mode
- *
- * $Revision: 1.5 $
  */
 
 #if HAVE_CONFIG_H

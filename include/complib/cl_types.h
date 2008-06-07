@@ -36,11 +36,6 @@
 /*
  * Abstract:
  *	Defines standard return codes, keywords, macros, and debug levels.
- *
- * Environment:
- *	All supported platforms
- *
- * $Revision: 1.4 $
  */
 
 #ifdef __WIN__

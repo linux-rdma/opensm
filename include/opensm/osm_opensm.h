@@ -38,11 +38,6 @@
  * 	Declaration of osm_opensm_t.
  *	This object represents the OpenSM super object.
  *	This object is part of the OpenSM family of objects.
- *
- * Environment:
- * 	Linux User Mode
- *
- * $Revision: 1.6 $
  */
 
 #ifndef _OSM_OPENSM_H_

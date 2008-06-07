@@ -34,10 +34,6 @@
 /*
  * Abstract:
  *    Implementation of OpenSM QoS infrastructure primitives
- *
- * Environment:
- *    Linux User Mode
- *
  */
 
 #if HAVE_CONFIG_H

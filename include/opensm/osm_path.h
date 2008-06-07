@@ -53,11 +53,6 @@ BEGIN_C_DECLS
  * Abstract:
  * 	Declaration of path related objects.
  *	These objects are part of the OpenSM family of objects.
- *
- * Environment:
- * 	Linux User Mode
- *
- * $Revision: 1.4 $
  */
 /****h* OpenSM/DR Path
 * NAME

@@ -39,11 +39,6 @@
  *	The passive lock allows multiple readers to access a resource
  *	simultaneously, exclusive from a single thread allowed writing.
  * Several writer threads are allowed - but only one can write at a given time
- *
- * Environment:
- *	All
- *
- * $Revision: 1.3 $
  */
 
 #ifndef _CL_PASSIVE_LOCK_H_

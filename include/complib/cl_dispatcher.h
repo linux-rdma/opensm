@@ -36,11 +36,6 @@
 /*
  * Abstract:
  * 	Declaration of dispatcher abstraction.
- *
- * Environment:
- * 	All
- *
- * $Revision: 1.4 $
  */
 
 #ifndef _CL_DISPATCHER_H_

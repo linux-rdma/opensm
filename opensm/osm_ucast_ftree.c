@@ -36,10 +36,6 @@
 /*
  * Abstract:
  *    Implementation of OpenSM FatTree routing
- *
- * Environment:
- *    Linux User Mode
- *
  */
 
 #if HAVE_CONFIG_H

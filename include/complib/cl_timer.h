@@ -36,11 +36,6 @@
 /*
  * Abstract:
  *	Declaration of timer abstraction.
- *
- * Environment:
- *	All
- *
- * $Revision: 1.3 $
  */
 
 #ifndef _CL_TIMER_H_

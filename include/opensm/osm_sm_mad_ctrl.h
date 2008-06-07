@@ -39,11 +39,6 @@
  *	This object represents a controller that receives the IBA NodeInfo
  *	attribute from a node.
  *	This object is part of the OpenSM family of objects.
- *
- * Environment:
- * 	Linux User Mode
- *
- * $Revision: 1.4 $
  */
 
 #ifndef _OSM_SM_MAD_CTRL_H_

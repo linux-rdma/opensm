@@ -37,11 +37,6 @@
  * Abstract:
  *    Implementation of osm_sa_mad_ctrl_t.
  * This object is part of the SA object.
- *
- * Environment:
- *    Linux User Mode
- *
- * $Revision: 1.7 $
  */
 
 #if HAVE_CONFIG_H

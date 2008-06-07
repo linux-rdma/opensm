@@ -38,10 +38,6 @@
  * 	Implementation of osm_mpr_rcv_t.
  *	This object represents the MultiPath Record Receiver object.
  *	This object is part of the opensm family of objects.
- *
- * Environment:
- * 	Linux User Mode
- *
  */
 
 #if defined (VENDOR_RMPP_SUPPORT) && defined (DUAL_SIDED_RMPP)

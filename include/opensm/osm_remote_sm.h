@@ -38,11 +38,6 @@
  * 	Declaration of osm_sm_t, osm_remote_sm_t.
  *	This object represents an IBA subnet.
  *	This object is part of the OpenSM family of objects.
- *
- * Environment:
- * 	Linux User Mode
- *
- * $Revision: 1.4 $
  */
 
 #ifndef _OSM_REMOTE_SM_H_

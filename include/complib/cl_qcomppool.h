@@ -39,11 +39,6 @@
  *	manages a pool of composite objects.  A composite object is an object
  *	that is made of multiple sub objects.
  *	It can grow to meet demand, limited only by system memory.
- *
- * Environment:
- *	All
- *
- * $Revision: 1.3 $
  */
 
 #ifndef _CL_QUICK_COMPOSITE_POOL_H_

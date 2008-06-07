@@ -36,11 +36,6 @@
 /*
  * Abstract:
  *	Declaration of thread abstraction and thread related operations.
- *
- * Environment:
- *	Linux User Mode
- *
- * $Revision: 1.4 $
  */
 
 #ifndef _CL_THREAD_OSD_H_

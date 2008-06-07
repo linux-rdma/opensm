@@ -38,11 +38,6 @@
  *    Implementation of osm_mcm_port_t.
  * This object represents the membership of a port in a multicast group.
  * This object is part of the OpenSM family of objects.
- *
- * Environment:
- *    Linux User Mode
- *
- * $Revision: 1.5 $
  */
 
 #if HAVE_CONFIG_H

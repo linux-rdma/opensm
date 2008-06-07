@@ -36,11 +36,6 @@
 /*
  * Abstract:
  *	Declaration of event object.
- *
- * Environment:
- *	Linux User Mode
- *
- * $Revision: 1.3 $
  */
 
 #ifndef _CL_EVENT_OSD_H_

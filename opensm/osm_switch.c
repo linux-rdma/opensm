@@ -38,11 +38,6 @@
  *    Implementation of osm_switch_t.
  * This object represents an Infiniband switch.
  * This object is part of the opensm family of objects.
- *
- * Environment:
- *    Linux User Mode
- *
- * $Revision: 1.13 $
  */
 
 #if HAVE_CONFIG_H

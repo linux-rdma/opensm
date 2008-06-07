@@ -36,11 +36,6 @@
 /*
  * Abstract:
  *	Declaration of spin lock object.
- *
- * Environment:
- *	All
- *
- * $Revision: 1.4 $
  */
 
 #ifndef _CL_SPINLOCK_H_

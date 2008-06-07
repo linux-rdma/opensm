@@ -39,8 +39,6 @@
 /*
  * Abstract:
  * Declaration of the DB interface.
- *
- * $Revision: 1.4 $
  */
 
 #include <complib/cl_list.h>

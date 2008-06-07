@@ -36,11 +36,6 @@
 /*
  * Abstract:
  *	Declaration of thread abstraction and thread related operations.
- *
- * Environment:
- *	All
- *
- * $Revision: 1.7 $
  */
 
 #ifndef _CL_THREAD_H_

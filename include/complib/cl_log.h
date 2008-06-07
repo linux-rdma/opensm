@@ -36,11 +36,6 @@
 /*
  * Abstract:
  *	Declaration of logging mechanisms.
- *
- * Environment:
- *	All
- *
- * $Revision: 1.3 $
  */
 
 #ifndef _CL_LOG_H_

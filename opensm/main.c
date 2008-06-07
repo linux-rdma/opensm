@@ -36,12 +36,8 @@
 /*
  * Abstract:
  *    Command line interface for opensm.
- *
- * Environment:
- *    Linux User Mode
- *
- * $Revision: 1.23 $
  */
+
 #if HAVE_CONFIG_H
 #  include <config.h>
 #endif				/* HAVE_CONFIG_H */

@@ -36,11 +36,6 @@
 /*
  * Abstract:
  *	Provides common macros for dealing with byte swapping issues.
- *
- * Environment:
- *	Linux User Mode
- *
- * $Revision: 1.6 $
  */
 
 #ifndef _CL_BYTESWAP_OSD_H_

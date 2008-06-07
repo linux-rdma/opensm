@@ -36,11 +36,6 @@
 /*
  * Abstract:
  * 	Declaration of error code ranges for the various OpenSM modules.
- *
- * Environment:
- * 	Linux User Mode
- *
- * $Revision: 1.4 $
  */
 
 #ifndef _OSM_ERRORS_H_

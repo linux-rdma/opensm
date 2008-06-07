@@ -36,11 +36,6 @@
 /*
  * Abstract:
  * 	Declaration of event wheel abstraction.
- *
- * Environment:
- * 	All
- *
- * $Revision: 1.4 $
  */
 
 #ifndef _CL_EVENT_WHEEL_H_

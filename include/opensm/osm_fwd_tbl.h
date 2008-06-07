@@ -38,11 +38,6 @@
  * 	Declaration of osm_fwd_tbl_t.
  *	This object represents a unicast forwarding table.
  *	This object is part of the OpenSM family of objects.
- *
- * Environment:
- * 	Linux User Mode
- *
- * $Revision: 1.4 $
  */
 
 #ifndef _OSM_FWD_TBL_H_

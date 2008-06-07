@@ -36,11 +36,6 @@
 /*
  * Abstract:
  *	Declaration of thread pool.
- *
- * Environment:
- *	All
- *
- * $Revision: 1.3 $
  */
 
 #ifndef _CL_THREAD_POOL_H_

@@ -38,10 +38,6 @@
 /*
  * Abstract:
  *      Implementation of LASH algorithm Calculation functions
- *
- * Environment:
- *      Linux User Mode
- *
  */
 
 #if HAVE_CONFIG_H

@@ -36,11 +36,6 @@
 /*
  * Abstract:
  *	Declaration of map, a binary tree.
- *
- * Environment:
- *	All
- *
- * $Revision: 1.3 $
  */
 
 #ifndef _CL_MAP_H_

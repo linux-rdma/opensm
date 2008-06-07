@@ -37,11 +37,6 @@
  * Abstract:
  * 	Definition of interface for the MTL Vendor
  *	   This object is part of the OpenSM family of objects.
- *
- * Environment:
- * 	Linux User Mode
- *
- * $Revision: 1.4 $
  */
 
 #ifndef _OSM_TRANSACTION_MGR_H_

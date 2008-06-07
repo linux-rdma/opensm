@@ -38,11 +38,6 @@
  *    Implementation of osm_sr_rcv_t.
  * This object represents the ServiceRecord Receiver object.
  * This object is part of the opensm family of objects.
- *
- * Environment:
- *    Linux User Mode
- *
- * $Revision: 1.9 $
  */
 
 #if HAVE_CONFIG_H

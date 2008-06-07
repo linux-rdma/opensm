@@ -36,11 +36,6 @@
 /*
  * Abstract:
  *    Implementation of opensm pkey manipulation functions.
- *
- * Environment:
- *    Linux User Mode
- *
- * $Revision: 1.1 $
  */
 
 #if HAVE_CONFIG_H

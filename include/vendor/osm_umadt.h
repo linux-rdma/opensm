@@ -38,11 +38,6 @@
  * 	Declaration of osm_mad_wrapper_t.
  *	This object represents the context wrapper for OpenSM MAD processing.
  *	This object is part of the OpenSM family of objects.
- *
- * Environment:
- * 	Linux User Mode
- *
- * $Revision: 1.4 $
  */
 
 #ifndef _OSM_UMADT_h_

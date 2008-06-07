@@ -38,11 +38,6 @@
  *    Implementation of osm_mcmr_recv_t.
  * This object represents the MCMemberRecord Receiver object.
  * This object is part of the opensm family of objects.
- *
- * Environment:
- *    Linux User Mode
- *
- * $Revision: 1.15 $
  */
 
 #if HAVE_CONFIG_H

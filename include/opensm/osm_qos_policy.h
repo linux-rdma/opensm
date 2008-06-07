@@ -37,9 +37,6 @@
  * Abstract:
  *    Declaration of OSM QoS Policy data types and functions.
  *
- * Environment:
- *    Linux User Mode
- *
  * Author:
  *    Yevgeny Kliteynik, Mellanox
  */

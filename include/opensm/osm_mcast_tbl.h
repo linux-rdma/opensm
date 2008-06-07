@@ -38,11 +38,6 @@
  * 	Declaration of osm_mcast_tbl_t.
  *	This object represents a multicast forwarding table.
  *	This object is part of the OpenSM family of objects.
- *
- * Environment:
- * 	Linux User Mode
- *
- * $Revision: 1.5 $
  */
 
 #ifndef _OSM_MCAST_TBL_H_

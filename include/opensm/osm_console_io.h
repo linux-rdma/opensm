@@ -35,11 +35,6 @@
  * 	Declaration of osm_console_t.
  *	This object represents the OpenSM Console object.
  *	This object is part of the OpenSM family of objects.
- *
- * Environment:
- * 	Linux User Mode
- *
- * $Revision: 1.0 $
  */
 
 #ifndef _OSM_CONSOLE_IO_H_

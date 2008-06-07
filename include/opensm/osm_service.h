@@ -41,11 +41,6 @@
  * 	Declaration of osm_service_rec_t.
  *	This object represents an IBA Service Record.
  *	This object is part of the OpenSM family of objects.
- *
- * Environment:
- * 	Linux User Mode
- *
- * $Revision: 1.4 $
  */
 
 #include <iba/ib_types.h>

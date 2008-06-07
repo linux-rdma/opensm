@@ -38,11 +38,6 @@
  *    Implementation of osm_subn_t.
  * This object represents an IBA subnet.
  * This object is part of the opensm family of objects.
- *
- * Environment:
- *    Linux User Mode
- *
- * $Revision: 1.9 $
  */
 
 #if HAVE_CONFIG_H

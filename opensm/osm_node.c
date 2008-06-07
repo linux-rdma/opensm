@@ -38,11 +38,6 @@
  *    Implementation of osm_node_t.
  * This object represents an Infiniband Node.
  * This object is part of the opensm family of objects.
- *
- * Environment:
- *    Linux User Mode
- *
- * $Revision: 1.5 $
  */
 
 #if HAVE_CONFIG_H

@@ -36,11 +36,6 @@
 /*
  * Abstract:
  * 	Declaration of Dispatcher message values.
- *
- * Environment:
- * 	Linux User Mode
- *
- * $Revision: 1.5 $
  */
 
 #ifndef _OSM_MSGDEF_H_

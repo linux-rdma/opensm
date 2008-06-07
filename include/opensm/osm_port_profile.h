@@ -38,11 +38,6 @@
  * 	Declaration of Switch/osm_port_profile_t.
  *	This object represents a port profile for an IBA switch.
  *	This object is part of the OpenSM family of objects.
- *
- * Environment:
- * 	Linux User Mode
- *
- * $Revision: 1.7 $
  */
 
 #ifndef _OSM_PORT_PROFILE_H_

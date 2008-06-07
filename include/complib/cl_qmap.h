@@ -37,11 +37,6 @@
  * Abstract:
  *	Declaration of quick map, a binary tree where the caller always provides
  *	all necessary storage.
- *
- * Environment:
- *	All
- *
- * $Revision: 1.3 $
  */
 
 #ifndef _CL_QMAP_H_

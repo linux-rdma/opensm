@@ -64,11 +64,6 @@ struct _osm_physp;
 /*
  * Abstract:
  * 	Declaration of pkey manipulation functions.
- *
- * Environment:
- * 	Linux User Mode
- *
- * $Revision: 1.1 $
  */
 
 /****s* OpenSM: osm_pkey_tbl_t

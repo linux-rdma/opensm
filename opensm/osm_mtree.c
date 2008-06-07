@@ -37,11 +37,6 @@
  * Abstract:
  *    Implementation of osm_mtree_node_t.
  * This file implements the Multicast Tree object.
- *
- * Environment:
- *    Linux User Mode
- *
- * $Revision: 1.5 $
  */
 
 #if HAVE_CONFIG_H

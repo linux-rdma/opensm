@@ -37,11 +37,6 @@
  * Abstract:
  * 	Definition of interface for the TS Vendor
  *	   This object is part of the OpenSM family of objects.
- *
- * Environment:
- * 	Linux User Mode
- *
- * $Revision: 1.3 $
  */
 
 #ifndef _OSM_VENDOR_TS_H_

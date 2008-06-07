@@ -36,11 +36,6 @@
 /*
  * Abstract:
  *    Implementation of osm_sweep_fail_ctrl_t.
- *
- * Environment:
- *    Linux User Mode
- *
- * $Revision: 1.5 $
  */
 
 #if HAVE_CONFIG_H

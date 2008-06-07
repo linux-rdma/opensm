@@ -36,11 +36,6 @@
  * Abstract:
  * 	Prototype for osm_pkey_mgr_process() function
  *	This is part of the OpenSM family of objects.
- *
- * Environment:
- * 	Linux User Mode
- *
- * $Revision: 1.4 $
  */
 
 #ifndef _OSM_PKEY_MGR_H_

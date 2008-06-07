@@ -38,11 +38,6 @@
  * 	Declaration of osm_sa_t.
  *	This object represents an IBA subnet.
  *	This object is part of the OpenSM family of objects.
- *
- * Environment:
- * 	Linux User Mode
- *
- * $Revision: 1.6 $
  */
 
 #ifndef _OSM_SA_H_

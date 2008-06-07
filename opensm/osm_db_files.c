@@ -35,9 +35,7 @@
 
 /*
  * Abstract:
- * Implemntation of the osm_db interface using simple text files
- *
- * $Revision: 1.4 $
+ * Implementation of the osm_db interface using simple text files
  */
 
 #if HAVE_CONFIG_H

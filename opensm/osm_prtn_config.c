@@ -34,10 +34,6 @@
 /*
  * Abstract:
  *    Implementation of opensm partition management configuration
- *
- * Environment:
- *    Linux User Mode
- *
  */
 
 #if HAVE_CONFIG_H

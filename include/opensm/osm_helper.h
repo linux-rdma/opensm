@@ -55,11 +55,6 @@ BEGIN_C_DECLS
 /*
  * Abstract:
  * 	Declaration of helpful functions.
- *
- * Environment:
- * 	Linux User Mode
- *
- * $Revision: 1.7 $
  */
 /****f* OpenSM: Helper/ib_get_sa_method_str
  * NAME

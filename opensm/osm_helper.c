@@ -36,11 +36,6 @@
 /*
  * Abstract:
  *    Implementation of opensm helper functions.
- *
- * Environment:
- *    Linux User Mode
- *
- * $Revision: 1.19 $
  */
 
 #if HAVE_CONFIG_H

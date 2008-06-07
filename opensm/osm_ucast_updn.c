@@ -37,11 +37,6 @@
  * Abstract:
  *      Implementation of Up Down Algorithm using ranking & Min Hop
  *      Calculation functions
- *
- * Environment:
- *      Linux User Mode
- *
- * $Revision: 1.0 $
  */
 
 #if HAVE_CONFIG_H

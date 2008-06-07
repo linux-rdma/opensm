@@ -38,11 +38,6 @@
  * 	Declaration of osm_vl15_t.
  *	This object represents an IBA subnet.
  *	This object is part of the OpenSM family of objects.
- *
- * Environment:
- * 	Linux User Mode
- *
- * $Revision: 1.5 $
  */
 
 #ifndef _OSM_VL15INTF_H_

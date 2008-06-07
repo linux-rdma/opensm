@@ -36,11 +36,6 @@
 /*
  * Abstract:
  *	Declaration of event abstraction.
- *
- * Environment:
- *	All
- *
- * $Revision: 1.3 $
  */
 
 #ifndef _CL_EVENT_H_

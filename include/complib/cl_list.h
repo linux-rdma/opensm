@@ -36,11 +36,6 @@
 /*
  * Abstract:
  *	Declaration of list.
- *
- * Environment:
- *	All
- *
- * $Revision: 1.3 $
  */
 
 #ifndef _CL_LIST_H_

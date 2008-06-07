@@ -36,11 +36,6 @@
 /*
  * Abstract:
  *	Declaration of quick list.
- *
- * Environment:
- *	All
- *
- * $Revision: 1.3 $
  */
 
 #ifndef _CL_QUICK_LIST_H_

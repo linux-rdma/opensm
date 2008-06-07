@@ -74,11 +74,6 @@
  *   3.2 if any change send the signal PENDING...
  *
  * 4. Store the guid2lid
- *
- * Environment:
- *    Linux User Mode
- *
- * $Revision: 1.15 $
  */
 
 #if HAVE_CONFIG_H

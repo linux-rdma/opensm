@@ -37,11 +37,6 @@
  * Abstract:
  * 	Specification of the OpenSM SA Client API. This API uses the basic osm
  *    vendor API to provide SA Client interface.
- *
- * Environment:
- * 	Linux User Mode
- *
- * $Revision: 1.4 $
  */
 
 #ifndef _OSM_VENDOR_SA_API_H_

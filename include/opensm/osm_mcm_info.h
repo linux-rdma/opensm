@@ -38,11 +38,6 @@
  * 	Declaration of osm_mcm_info_t.
  *	This object represents a Multicast Forwarding Information object.
  *	This object is part of the OpenSM family of objects.
- *
- * Environment:
- * 	Linux User Mode
- *
- * $Revision: 1.4 $
  */
 
 #ifndef _OSM_MCM_INFO_H_

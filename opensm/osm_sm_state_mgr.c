@@ -37,11 +37,6 @@
  * Abstract:
  *    Implementation of osm_sm_state_mgr_t.
  * This file implements the SM State Manager object.
- *
- * Environment:
- *    Linux User Mode
- *
- * $Revision: 1.7 $
  */
 
 #if HAVE_CONFIG_H

@@ -38,10 +38,6 @@
  *    Implementation of osm_router_t.
  * This object represents an Infiniband router.
  * This object is part of the opensm family of objects.
- *
- * Environment:
- *    Linux User Mode
- *
  */
 
 #if HAVE_CONFIG_H

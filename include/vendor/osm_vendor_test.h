@@ -57,11 +57,6 @@ BEGIN_C_DECLS
  *  This is the "Test" vendor which allows compilation and some
  *  testing without a real vendor interface.
  *	These objects are part of the OpenSM family of objects.
- *
- * Environment:
- * 	Linux User Mode
- *
- * $Revision: 1.4 $
  */
 /****h* OpenSM/Vendor Test
 * NAME

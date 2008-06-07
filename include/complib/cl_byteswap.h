@@ -37,11 +37,6 @@
  * Abstract:
  *	provides byteswapping utilities. Basic functions are obtained from
  *  platform specific implementations from byteswap_osd.h.
- *
- * Environment:
- *	All
- *
- * $Revision: 1.5 $
  */
 
 #ifndef _CL_BYTESWAP_H_

@@ -37,11 +37,6 @@
  * Abstract:
  * 	Provides interface over VAPI for obtaining the local ports guids or from guid
  *    obtaining the HCA and port number.
- *
- * Environment:
- * 	Linux User Mode
- *
- * $Revision: 1.3 $
  */
 
 #ifndef _OSM_VENDOR_HCA_GUID_H_

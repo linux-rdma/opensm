@@ -38,11 +38,6 @@
  *  Turns off byte packing, which is necessary for passing information from
  *	system to system over a network to ensure no padding by the compiler has
  *	taken place.
- *
- * Environment:
- *	Linux platforms (User mode)
- *
- * $Revision: 1.3 $
  */
 
 #ifdef PACK_SUFFIX

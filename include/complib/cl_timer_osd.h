@@ -36,11 +36,6 @@
 /*
  * Abstract:
  *	Declaration of timer object.
- *
- * Environment:
- *	Linux User Mode
- *
- * $Revision: 1.3 $
  */
 
 #ifndef _CL_TIMER_OSD_H_

@@ -36,11 +36,6 @@
 /*
  * Abstract:
  *	Implementation specific header files for atomic operations.
- *
- * Environment:
- *	Linux User Mode
- *
- * $Revision: 1.7 $
  */
 
 #ifndef _CL_ATOMIC_OSD_H_

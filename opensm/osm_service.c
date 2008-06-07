@@ -36,11 +36,6 @@
 /*
  * Abstract:
  *    Implementation of service record functions.
- *
- * Environment:
- *    Linux User Mode
- *
- * $Revision: 1.7 $
  */
 
 #if HAVE_CONFIG_H

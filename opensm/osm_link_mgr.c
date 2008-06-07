@@ -37,11 +37,6 @@
  * Abstract:
  *    Implementation of osm_link_mgr_t.
  * This file implements the Link Manager object.
- *
- * Environment:
- *    Linux User Mode
- *
- * $Revision: 1.15 $
  */
 
 #if HAVE_CONFIG_H

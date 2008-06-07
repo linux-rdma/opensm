@@ -38,11 +38,6 @@
  *	This file contains vector definitions.  Vector provides dynmically
  *	resizable array functionality.  Objects in a Vector are not relocated
  *	when the array is resized.
- *
- * Environment:
- *	All
- *
- * $Revision: 1.3 $
  */
 
 #ifndef _CL_VECTOR_H_

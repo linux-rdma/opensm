@@ -36,11 +36,6 @@
  *    Implementation of osm_prtn_t.
  * This object represents an IBA partition.
  * This object is part of the opensm family of objects.
- *
- * Environment:
- *    Linux User Mode
- *
- * $Revision$
  */
 
 #if HAVE_CONFIG_H

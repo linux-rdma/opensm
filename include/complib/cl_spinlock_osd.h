@@ -36,11 +36,6 @@
 /*
  * Abstract:
  *	Implementation of spin lock object.
- *
- * Environment:
- *	Linux User Mode
- *
- * $Revision: 1.4 $
  */
 
 #ifndef _CL_SPINLOCK_OSD_H_

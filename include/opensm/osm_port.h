@@ -38,11 +38,6 @@
  * 	Declaration of port related objects.
  *	These objects comprise an IBA port.
  *	These objects are part of the OpenSM family of objects.
- *
- * Environment:
- * 	Linux User Mode
- *
- * $Revision: 1.8 $
  */
 
 #ifndef _OSM_PORT_H_

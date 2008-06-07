@@ -37,11 +37,6 @@
  * Abstract:
  *    Implementation of osm_mcast_mgr_t.
  * This file implements the Multicast Manager object.
- *
- * Environment:
- *    Linux User Mode
- *
- * $Revision: 1.9 $
  */
 
 #if HAVE_CONFIG_H

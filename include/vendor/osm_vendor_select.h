@@ -36,11 +36,6 @@
 /*
  * Abstract:
  * 	Include file that defines which vendor files to compile.
- *
- * Environment:
- * 	Linux User Mode
- *
- * $Revision: 1.6 $
  */
 
 #ifndef _OSM_VENDOR_SELECT_H_

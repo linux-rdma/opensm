@@ -38,11 +38,6 @@
  *	Declaration of the pool.
  *	The pool manages a pool of objects.
  *	The pool can grow to meet demand, limited only by system memory.
- *
- * Environment:
- *	All
- *
- * $Revision: 1.3 $
  */
 
 #ifndef _CL_POOL_H_

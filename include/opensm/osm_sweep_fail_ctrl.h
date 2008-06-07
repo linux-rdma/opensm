@@ -39,11 +39,6 @@
  *	This object represents a controller that
  *	handles transport failures during sweeps.
  *	This object is part of the OpenSM family of objects.
- *
- * Environment:
- * 	Linux User Mode
- *
- * $Revision: 1.4 $
  */
 
 #ifndef _OSM_SWEEP_FAIL_CTRL_H_
