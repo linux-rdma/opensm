@@ -274,6 +274,7 @@ uint8_t
 osm_switch_recommend_path(IN const osm_switch_t * const p_sw,
 			  IN osm_port_t * p_port,
 			  IN const uint16_t lid_ho,
+			  IN unsigned start_from,
 			  IN const boolean_t ignore_existing,
 			  IN const boolean_t dor)
 {
@@ -294,6 +295,7 @@ osm_switch_recommend_path(IN const osm_switch_t * const p_sw,
 	uint8_t port_num;
 	uint8_t num_ports;
 	uint32_t least_paths = 0xFFFFFFFF;
+	unsigned i;
 	/*
 	   The follwing will track the least paths if the
 	   route should go through a new system/node
@@ -397,8 +399,10 @@ osm_switch_recommend_path(IN const osm_switch_t * const p_sw,
 	 */
 
 	/* port number starts with one and num_ports is 1 + num phys ports */
-	for (port_num = 1; port_num < num_ports; port_num++) {
-		if (osm_switch_get_hop_count(p_sw, base_lid, port_num) !=
+	for (i = start_from; i < start_from + num_ports; i++) {
+		port_num = i%num_ports;
+		if (!port_num ||
+		    osm_switch_get_hop_count(p_sw, base_lid, port_num) !=
 		    least_hops)
 			continue;
 

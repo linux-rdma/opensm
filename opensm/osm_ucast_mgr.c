@@ -208,7 +208,8 @@ find_and_add_remote_sys(osm_switch_t *sw, uint8_t port,
 static void
 __osm_ucast_mgr_process_port(IN osm_ucast_mgr_t * const p_mgr,
 			     IN osm_switch_t * const p_sw,
-			     IN osm_port_t * const p_port)
+			     IN osm_port_t * const p_port,
+			     IN unsigned lid_offset)
 {
 	uint16_t min_lid_ho;
 	uint16_t max_lid_ho;
@@ -217,19 +218,14 @@ __osm_ucast_mgr_process_port(IN osm_ucast_mgr_t * const p_mgr,
 	boolean_t is_ignored_by_port_prof;
 	ib_net64_t node_guid;
 	struct osm_routing_engine *p_routing_eng;
-	/*
-	   The following are temporary structures that will aid
-	   in providing better routing in LMC > 0 situations
-	 */
-	uint16_t lids_per_port = 1 << p_mgr->p_subn->opt.lmc;
-	struct osm_remote_node *p_remote_guid_used = NULL;
+	unsigned start_from = 1;
 
 	OSM_LOG_ENTER(p_mgr->p_log);
 
 	osm_port_get_lid_range_ho(p_port, &min_lid_ho, &max_lid_ho);
 
-	/* If the lids are zero - then there was some problem with the initialization.
-	   Don't handle this port. */
+	/* If the lids are zero - then there was some problem with
+	 * the initialization. Don't handle this port. */
 	if (min_lid_ho == 0 || max_lid_ho == 0) {
 		OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 3A04: "
 			"Port 0x%" PRIx64 " has LID 0. An initialization "
@@ -238,16 +234,22 @@ __osm_ucast_mgr_process_port(IN osm_ucast_mgr_t * const p_mgr,
 		goto Exit;
 	}
 
-	if (osm_log_is_active(p_mgr->p_log, OSM_LOG_DEBUG)) {
-		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-			"Processing port 0x%" PRIx64 ", LIDs [0x%X,0x%X]\n",
-			cl_ntoh64(osm_port_get_guid(p_port)),
-			min_lid_ho, max_lid_ho);
-	}
+	lid_ho = min_lid_ho + lid_offset;
 
-	/*
-	   TO DO - This should be runtime error, not a CL_ASSERT()
-	 */
+	if (lid_ho > max_lid_ho)
+		goto Exit;
+
+	if (lid_offset)
+		/* ignore potential overflow - it is handled in osm_switch.c */
+		start_from = osm_switch_get_port_by_lid(p_sw, lid_ho - 1) + 1;
+
+	if (osm_log_is_active(p_mgr->p_log, OSM_LOG_DEBUG))
+		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
+			"Processing port 0x%" PRIx64 ", LID %u [0x%X,0x%X]\n",
+			cl_ntoh64(osm_port_get_guid(p_port)), lid_ho,
+			min_lid_ho, max_lid_ho);
+
+	/* TODO - This should be runtime error, not a CL_ASSERT() */
 	CL_ASSERT(max_lid_ho < osm_switch_get_fwd_tbl_size(p_sw));
 
 	node_guid = osm_node_get_node_guid(p_sw->p_node);
@@ -260,80 +262,62 @@ __osm_ucast_mgr_process_port(IN osm_ucast_mgr_t * const p_mgr,
 	   how best to distribute the LID range across the ports
 	   that can reach those LIDs.
 	 */
-	for (lid_ho = min_lid_ho; lid_ho <= max_lid_ho; lid_ho++) {
-		/* Use the enhanced algorithm only for LMC > 0 */
-		if (lids_per_port > 1) {
-			port = osm_switch_recommend_path(p_sw, p_port, lid_ho,
-							 p_mgr->p_subn->
-							 ignore_existing_lfts,
-							 p_mgr->is_dor);
-			if (port > 0 && port != OSM_NO_PATH && p_port->priv)
-				p_remote_guid_used =
-				    find_and_add_remote_sys(p_sw, port,
-							    p_port->priv);
+	port = osm_switch_recommend_path(p_sw, p_port, lid_ho, start_from,
+					 p_mgr->p_subn->ignore_existing_lfts,
+					 p_mgr->is_dor);
+
+	if (port == OSM_NO_PATH) {
+		/* do not try to overwrite the ppro of non existing port ... */
+		is_ignored_by_port_prof = TRUE;
+
+		/* Up/Down routing can cause unreachable routes between some
+		   switches so we do not report that as an error in that case */
+		if (!p_routing_eng->build_lid_matrices) {
+			OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 3A08: "
+				"No path to get to LID 0x%X from switch 0x%"
+				PRIx64 "\n", lid_ho, cl_ntoh64(node_guid));
+			/* trigger a new sweep - try again ... */
+			p_mgr->p_subn->subnet_initialization_error = TRUE;
 		} else
-			port = osm_switch_recommend_path(p_sw, p_port, lid_ho,
-							 p_mgr->p_subn->
-							 ignore_existing_lfts,
-							 p_mgr->is_dor);
-
-		/*
-		   There might be no path to the target
-		 */
-		if (port == OSM_NO_PATH) {
-			/* do not try to overwrite the ppro of non existing port ... */
-			is_ignored_by_port_prof = TRUE;
-
-			/* Up/Down routing can cause unreachable routes between some
-			   switches so we do not report that as an error in that case */
-			if (!p_routing_eng->build_lid_matrices) {
-				OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 3A08: "
-					"No path to get to LID 0x%X from switch 0x%"
-					PRIx64 "\n", lid_ho,
-					cl_ntoh64(node_guid));
-				/* trigger a new sweep - try again ... */
-				p_mgr->p_subn->subnet_initialization_error =
-				    TRUE;
-			} else
-				OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-					"No path to get to LID 0x%X from switch 0x%"
-					PRIx64 "\n", lid_ho,
-					cl_ntoh64(node_guid));
-		} else {
 			OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-				"Routing LID 0x%X to port 0x%X"
-				" for switch 0x%" PRIx64 "\n",
-				lid_ho, port, cl_ntoh64(node_guid));
-
-			/*
-			   we would like to optionally ignore this port in equalization
-			   as in the case of the Mellanox Anafa Internal PCI TCA port
-			 */
-			is_ignored_by_port_prof =
-			    osm_port_prof_is_ignored_port(p_mgr->p_subn,
-							  node_guid, port);
-
-			/*
-			   We also would ignore this route if the target lid is of a switch
-			   and the port_profile_switch_node is not TRUE
-			 */
-			if (!p_mgr->p_subn->opt.port_profile_switch_nodes) {
-				is_ignored_by_port_prof |=
-				    (osm_node_get_type(p_port->p_node) ==
-				     IB_NODE_TYPE_SWITCH);
-			}
-		}
+				"No path to get to LID 0x%X from switch 0x%"
+				PRIx64 "\n", lid_ho, cl_ntoh64(node_guid));
+	} else {
+		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
+			"Routing LID 0x%X to port 0x%X"
+			" for switch 0x%" PRIx64 "\n",
+			lid_ho, port, cl_ntoh64(node_guid));
 
 		/*
-		   We have selected the port for this LID.
-		   Write it to the forwarding tables.
+		   we would like to optionally ignore this port in equalization
+		   as in the case of the Mellanox Anafa Internal PCI TCA port
 		 */
-		p_mgr->lft_buf[lid_ho] = port;
-		if (!is_ignored_by_port_prof) {
-			osm_switch_count_path(p_sw, port);
-			if (p_remote_guid_used)
-				p_remote_guid_used->forwarded_to++;
-		}
+		is_ignored_by_port_prof =
+		    osm_port_prof_is_ignored_port(p_mgr->p_subn,
+						  node_guid, port);
+
+		/*
+		   We also would ignore this route if the target lid is of
+		   a switch and the port_profile_switch_node is not TRUE
+		 */
+		if (!p_mgr->p_subn->opt.port_profile_switch_nodes)
+			is_ignored_by_port_prof |=
+			    (osm_node_get_type(p_port->p_node) ==
+			     IB_NODE_TYPE_SWITCH);
+	}
+
+	/*
+	   We have selected the port for this LID.
+	   Write it to the forwarding tables.
+	 */
+	p_mgr->lft_buf[lid_ho] = port;
+	if (!is_ignored_by_port_prof) {
+		struct osm_remote_node *rem_node_used;
+		osm_switch_count_path(p_sw, port);
+		if (port > 0 && p_port->priv &&
+		    (rem_node_used = find_and_add_remote_sys(p_sw, port,
+							     p_port->priv)))
+			rem_node_used->forwarded_to++;
 	}
 
 Exit:
@@ -512,6 +496,7 @@ __osm_ucast_mgr_process_tbl(IN cl_map_item_t * const p_map_item,
 	osm_node_t *p_node;
 	osm_port_t *p_port;
 	const cl_qmap_t *p_port_tbl;
+	unsigned i, lids_per_port;
 
 	OSM_LOG_ENTER(p_mgr->p_log);
 
@@ -538,12 +523,12 @@ __osm_ucast_mgr_process_tbl(IN cl_map_item_t * const p_map_item,
 	   Iterate through every port setting LID routes for each
 	   port based on base LID and LMC value.
 	 */
-
-	for (p_port = (osm_port_t *) cl_qmap_head(p_port_tbl);
-	     p_port != (osm_port_t *) cl_qmap_end(p_port_tbl);
-	     p_port = (osm_port_t *) cl_qmap_next(&p_port->map_item)) {
-		__osm_ucast_mgr_process_port(p_mgr, p_sw, p_port);
-	}
+	lids_per_port = 1 << p_mgr->p_subn->opt.lmc;
+	for (i = 0; i < lids_per_port; i++)
+		for (p_port = (osm_port_t *) cl_qmap_head(p_port_tbl);
+		     p_port != (osm_port_t *) cl_qmap_end(p_port_tbl);
+		     p_port = (osm_port_t *) cl_qmap_next(&p_port->map_item))
+			__osm_ucast_mgr_process_port(p_mgr, p_sw, p_port, i);
 
 	osm_ucast_mgr_set_fwd_table(p_mgr, p_sw);
 

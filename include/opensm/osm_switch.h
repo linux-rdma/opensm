@@ -981,6 +981,7 @@ uint8_t
 osm_switch_recommend_path(IN const osm_switch_t * const p_sw,
 			  IN osm_port_t * p_port,
 			  IN const uint16_t lid_ho,
+			  IN unsigned start_from,
 			  IN const boolean_t ignore_existing,
 			  IN const boolean_t dor);
 /*
@@ -994,6 +995,9 @@ osm_switch_recommend_path(IN const osm_switch_t * const p_sw,
 *
 *	lid_ho
 *		[in] LID value (host order) for which to get a path advisory.
+*
+*	start_from
+*		[in] Port number from where to start balance counting.
 *
 *	ignore_existing
 *		[in] Set to cause the switch to choose the optimal route
