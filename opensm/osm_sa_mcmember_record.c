@@ -111,9 +111,9 @@ static osm_mgrp_t *__get_mgrp_by_mlid(IN osm_sa_t * sa,
 }
 
 /*********************************************************************
-Copy certain fields between two mcmember records
-used during the process of join request to copy data from the mgrp to the
-port record.
+ Copy certain fields between two mcmember records
+ used during the process of join request to copy data from the mgrp
+ to the port record.
 **********************************************************************/
 static inline void
 __copy_from_create_mc_rec(IN ib_member_rec_t * const dest,
@@ -130,9 +130,9 @@ __copy_from_create_mc_rec(IN ib_member_rec_t * const dest,
 }
 
 /*********************************************************************
-Return an mlid to the pool of free mlids.
-But this implementation is not a pool - it simply scans through
-the MGRP database for unused mlids...
+ Return mlid to the pool of free mlids.
+ But this implementation is not a pool - it simply scans through
+ the MGRP database for unused mlids...
 *********************************************************************/
 static void __free_mlid(IN osm_sa_t * sa, IN uint16_t mlid)
 {
@@ -141,9 +141,9 @@ static void __free_mlid(IN osm_sa_t * sa, IN uint16_t mlid)
 }
 
 /*********************************************************************
-Get a new unused mlid by scanning all the used ones in the subnet.
-TODO: Implement a more scalable - O(1) solution based on pool of
-available mlids.
+ Get a new unused mlid by scanning all the used ones in the subnet.
+ TODO: Implement a more scalable - O(1) solution based on pool of
+ available mlids.
 **********************************************************************/
 static ib_net16_t
 __get_new_mlid(IN osm_sa_t * sa, IN ib_net16_t requested_mlid)
@@ -166,7 +166,7 @@ __get_new_mlid(IN osm_sa_t * sa, IN ib_net16_t requested_mlid)
 		goto Exit;
 	}
 
-	/* If MCGroups table empty, first return the min mlid */
+	/* If MCGroups table is empty, first return the min mlid */
 	p_mgrp = (osm_mgrp_t *) cl_qmap_head(&p_subn->mgrp_mlid_tbl);
 	if (p_mgrp == (osm_mgrp_t *) cl_qmap_end(&p_subn->mgrp_mlid_tbl)) {
 		mlid = IB_LID_MCAST_START_HO;
@@ -236,11 +236,11 @@ Exit:
 }
 
 /*********************************************************************
-This procedure is only invoked to cleanup an INTERMEDIATE mgrp.
-If there is only one port on the mgrp it means that the current
-request was the only member and the group is not really needed. So we
-silently drop it. Since it was an intermediate group no need to
-re-route it.
+ This procedure is only invoked to cleanup an INTERMEDIATE mgrp.
+ If there is only one port on the mgrp it means that the current
+ request was the only member and the group is not really needed. So
+ we silently drop it. Since it was an intermediate group no need to
+ re-route it.
 **********************************************************************/
 static void
 __cleanup_mgrp(IN osm_sa_t * sa, IN ib_net16_t const mlid)
@@ -258,8 +258,8 @@ __cleanup_mgrp(IN osm_sa_t * sa, IN ib_net16_t const mlid)
 }
 
 /*********************************************************************
-Add a port to the group. Calculating its PROXY_JOIN by the Port and
-requester gids.
+ Add a port to the group. Calculating its PROXY_JOIN by the Port and
+ requester gids.
 **********************************************************************/
 static ib_api_status_t
 __add_new_mgrp_port(IN osm_sa_t * sa,
@@ -329,7 +329,7 @@ __check_create_comp_mask(ib_net64_t comp_mask,
 }
 
 /**********************************************************************
-Generate the response MAD
+ Generate the response MAD
 **********************************************************************/
 static void
 __osm_mcmr_rcv_respond(IN osm_sa_t * sa,
@@ -368,9 +368,9 @@ Exit:
 }
 
 /*********************************************************************
-In joining an existing group, or when querying the mc groups,
-we make sure the following components provided match: MTU and RATE
-HACK: Currently we ignore the PKT_LIFETIME field.
+ In joining an existing group, or when querying the mc groups,
+ we make sure the following components provided match: MTU and RATE
+ HACK: Currently we ignore the PKT_LIFETIME field.
 **********************************************************************/
 static boolean_t
 __validate_more_comp_fields(osm_log_t * p_log,
@@ -460,8 +460,8 @@ __validate_more_comp_fields(osm_log_t * p_log,
 }
 
 /*********************************************************************
-In joining an existing group, we make sure the following components
-are physically realizable: MTU and RATE
+ In joining an existing group, we make sure the following components
+ are physically realizable: MTU and RATE
 **********************************************************************/
 static boolean_t
 __validate_port_caps(osm_log_t * const p_log,
@@ -796,12 +796,14 @@ __mgrp_request_is_realizable(IN osm_sa_t * sa,
 	/*
 	 * End of o15-0.2.3 specifies:
 	 * ....
-	 * The entity may also supply the other components such as HopLimit, MTU,
-	 * etc. during group creation time. If these components are not provided
-	 * during group creation time, SA will provide them for the group. The values
-	 * chosen are vendor-dependent and beyond the scope of the specification.
+	 * The entity may also supply the other components such as HopLimit,
+	 * MTU, etc. during group creation time. If these components are not
+	 * provided during group creation time, SA will provide them for the
+	 * group. The values chosen are vendor-dependent and beyond the scope
+	 * of the specification.
 	 *
-	 * so we might also need to assign RATE/MTU if they are not comp masked in.
+	 * so we might also need to assign RATE/MTU if they are not comp
+	 * masked in.
 	 */
 
 	port_mtu = p_physp ? ib_port_info_get_mtu_cap(&p_physp->port_info) : 0;
