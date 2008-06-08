@@ -37,10 +37,6 @@
  * Abstract:
  *	This file contains ivector and isvector implementations.
  *
- * Environment:
- *	All
- *
- * $Revision: 1.3 $
  */
 
 #if HAVE_CONFIG_H

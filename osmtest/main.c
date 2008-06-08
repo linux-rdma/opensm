@@ -36,10 +36,6 @@
  * Abstract:
  * 	Command line interface for osmtest.
  *
- * Environment:
- * 	Linux User Mode
- *
- * $Revision: 1.3 $
  */
 
 #include <stdio.h>

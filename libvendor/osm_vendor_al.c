@@ -39,10 +39,6 @@
  * This object represents the generic attribute requester.
  * This object is part of the opensm family of objects.
  *
- * Environment:
- *    Linux User Mode
- *
- * $Revision: 1.8 $
  */
 
 /*

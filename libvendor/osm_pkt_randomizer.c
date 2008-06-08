@@ -37,10 +37,6 @@
  * Abstract:
  *    Implementation of osm_pkt_randomizer_t.
  *
- * Environment:
- *    Linux User Mode
- *
- * $Revision: 1.9 $
  */
 
 #if HAVE_CONFIG_H

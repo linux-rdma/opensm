@@ -37,10 +37,6 @@
  * Abstract:
  *	Implementation of quick list, and list.
  *
- * Environment:
- *	All
- *
- * $Revision: 1.3 $
  */
 
 #if HAVE_CONFIG_H

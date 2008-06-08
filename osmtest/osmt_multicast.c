@@ -37,10 +37,6 @@
  * Abstract:
  * 	Implementation of Multicast Member testing flow..
  *
- * Environment:
- * 	Linux User Mode
- *
- * $Revision: 1.2 $
  */
 
 #ifndef __WIN__

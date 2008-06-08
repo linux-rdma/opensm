@@ -42,10 +42,6 @@
  *     osmt_reg_unreg_inform_info
  *     osmt_send_trap_wait_for_forward
  *
- * Environment:
- *    Linux User Mode
- *
- * $Revision: 1.2 $
  */
 
 #include <unistd.h>

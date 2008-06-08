@@ -42,10 +42,6 @@
  *     osmt_get_all_services
  *     osmt_delete_service_by_name
  *
- * Environment:
- *    Linux User Mode
- *
- * $Revision: 1.1 $
  */
 
 #ifndef __WIN__

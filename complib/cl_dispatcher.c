@@ -37,10 +37,6 @@
  * Abstract:
  *    Implementation of Dispatcher abstraction.
  *
- * Environment:
- *    All
- *
- * $Revision: 1.5 $
  */
 
 #if HAVE_CONFIG_H

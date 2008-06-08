@@ -40,10 +40,6 @@
  *    Implementation of osmtest_t.
  *    This object represents the OSMTest Test object.
  *
- * Environment:
- *    Linux User Mode
- *
- * $Revision: 1.10 $
  */
 
 #ifdef __WIN__

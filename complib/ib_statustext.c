@@ -37,10 +37,6 @@
  * Abstract:
  *	Defines string to decode ib_api_status_t return values.
  *
- * Environment:
- *	All
- *
- * $Revision: 1.3 $
  */
 
 #if HAVE_CONFIG_H

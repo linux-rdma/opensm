@@ -40,10 +40,6 @@
  *     osmt_query_all_ports_vl_arb
  *     osmt_query_all_ports_slvl_map
  *
- * Environment:
- *    Linux User Mode
- *
- * $Revision: 1.2 $
  */
 
 #ifndef __WIN__

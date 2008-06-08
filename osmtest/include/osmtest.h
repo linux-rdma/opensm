@@ -38,10 +38,6 @@
  *    Declaration of osmtest_t.
  * This object represents the OSMTest Test object.
  *
- * Environment:
- *    Linux User Mode
- *
- * $Revision: 1.6 $
  */
 
 #ifndef _OSMTEST_H_

@@ -38,10 +38,6 @@
  *	Implementation of the grow pools.  The grow pools manage a pool of objects.
  *	The pools can grow to meet demand, limited only by system memory.
  *
- * Environment:
- *	All
- *
- * $Revision: 1.3 $
  */
 
 #if HAVE_CONFIG_H

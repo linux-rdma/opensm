@@ -35,13 +35,9 @@
 
 /*
  * Abstract:
- *	Implementation of quick map, a binary tree where the caller always provides
- *	all necessary storage.
+ *	Implementation of quick map, a binary tree where the caller always
+ *	provides all necessary storage.
  *
- * Environment:
- *	All
- *
- * $Revision: 1.4 $
  */
 
 /*****************************************************************************

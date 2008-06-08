@@ -37,10 +37,6 @@
  * Abstract:
  * Abstraction of Timer create, destroy functions.
  *
- * Environment
- * Linux User Mode
- *
- * $Revision: 1.3 $
  */
 
 #if HAVE_CONFIG_H

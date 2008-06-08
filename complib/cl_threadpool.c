@@ -37,10 +37,6 @@
  * Abstract:
  *	Implementation of thread pool.
  *
- * Environment:
- *	All
- *
- * $Revision: 1.4 $
  */
 
 #if HAVE_CONFIG_H
