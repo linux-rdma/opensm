@@ -13,11 +13,6 @@ AC_SUBST(TARBALL, ${TARBALL:-${PACKAGE}-${VERSION}.tar.gz})
 dnl Defines the Language
 AC_LANG_C
 
-dnl Provides control over re-making of all auto files
-dnl We also use it to define swig dependencies so end
-dnl users do not see them.
-AM_MAINTAINER_MODE
-
 dnl Required for cases make defines a MAKE=make ??? Why
 AC_PROG_MAKE_SET
 AC_PROG_CC
