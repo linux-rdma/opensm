@@ -1882,7 +1882,7 @@ void osm_mcmr_rcv_process(IN void *context, IN void *data)
 		if (!valid) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B18: "
 				"component mask = 0x%016" PRIx64 ", "
-				"expected comp mask = 0x%016" PRIx64 " ,"
+				"expected comp mask = 0x%016" PRIx64 ", "
 				"MGID: 0x%016" PRIx64 " : 0x%016" PRIx64
 				" for PortGID: 0x%016" PRIx64 " : 0x%016"
 				PRIx64 "\n", cl_ntoh64(p_sa_mad->comp_mask),
