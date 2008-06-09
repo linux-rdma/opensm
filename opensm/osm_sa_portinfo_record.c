@@ -422,8 +422,8 @@ __osm_sa_pir_by_comp_mask(IN osm_sa_t * sa,
 			p_physp =
 			    osm_node_get_physp_ptr(p_node,
 						   p_rcvd_rec->port_num);
-			/* Check that the p_physp is valid, and that the p_physp and the
-			   p_req_physp share a pkey. */
+			/* Check that the p_physp is valid, and that the
+			   p_physp and the p_req_physp share a pkey. */
 			if (p_physp &&
 			    osm_physp_share_pkey(sa->p_log, p_req_physp,
 						 p_physp))
