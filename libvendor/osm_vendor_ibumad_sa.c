@@ -369,7 +369,7 @@ __osmv_send_sa_req(IN osmv_sa_bind_info_t * p_bind,
 	/*
 	   since the sm_lid might change we obtain it every send
 	   (actually it is cached in the bind object and refreshed
-	   every 30sec by this proc )
+	   every 30sec by this proc)
 	 */
 	if (time(NULL) > p_bind->last_lids_update_sec + 30) {
 		status = update_umad_port(p_bind->p_vendor);
@@ -462,7 +462,7 @@ __osmv_send_sa_req(IN osmv_sa_bind_info_t * p_bind,
 	/* if synchronous - wait on the event */
 	if (sync) {
 		osm_log(p_log, OSM_LOG_DEBUG,
-			"__osmv_send_sa_req: " "Waiting for async event\n");
+			"__osmv_send_sa_req: Waiting for async event\n");
 		cl_event_wait_on(&p_bind->sync_event, EVENT_NO_TIMEOUT, FALSE);
 		cl_event_reset(&p_bind->sync_event);
 		status = p_madw->status;
