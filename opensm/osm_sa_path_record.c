@@ -1176,8 +1176,8 @@ __osm_pr_rcv_get_end_points(IN osm_sa_t * sa,
 			if (ib_gid_get_subnet_prefix(&p_pr->sgid) !=
 			    sa->p_subn->opt.subnet_prefix) {
 				/*
-				   This 'error' is the client's fault (bad gid) so
-				   don't enter it as an error in our own log.
+				   This 'error' is the client's fault (bad gid)
+				   so don't enter it as an error in our own log.
 				   Return an error response to the client.
 				 */
 				OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
@@ -1220,7 +1220,7 @@ __osm_pr_rcv_get_end_points(IN osm_sa_t * sa,
 				   Return an error response to the client.
 				 */
 				OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
-					"No source port with LID = 0x%X\n",
+					"No source port with LID 0x%X\n",
 					cl_ntoh16(p_pr->slid));
 
 				sa_status = IB_SA_MAD_STATUS_NO_RECORDS;
@@ -1243,8 +1243,8 @@ __osm_pr_rcv_get_end_points(IN osm_sa_t * sa,
 					PRIx64 "\n",
 					cl_ntoh64(p_pr->dgid.unicast.prefix));
 
-				/* Find the router port that is configured to handle
-				   this prefix, if any: */
+				/* Find the router port that is configured to
+				   handle this prefix, if any */
 				osm_prefix_route_t *route = NULL;
 				osm_prefix_route_t *r = (osm_prefix_route_t *)
 					cl_qlist_head(&sa->p_subn->prefix_routes_list);
@@ -1326,12 +1326,12 @@ __osm_pr_rcv_get_end_points(IN osm_sa_t * sa,
 
 			if ((status != CL_SUCCESS) || (*pp_dest_port == NULL)) {
 				/*
-				   This 'error' is the client's fault (bad lid) so
-				   don't enter it as an error in our own log.
+				   This 'error' is the client's fault (bad lid)
+				   so don't enter it as an error in our own log.
 				   Return an error response to the client.
 				 */
 				OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
-					"No dest port with LID = 0x%X\n",
+					"No dest port with LID 0x%X\n",
 					cl_ntoh16(p_pr->dlid));
 
 				sa_status = IB_SA_MAD_STATUS_NO_RECORDS;
@@ -1504,7 +1504,9 @@ __osm_pr_get_mgrp(IN osm_sa_t * sa,
 		status = osm_get_mgrp_by_mgid(sa, &p_pr->dgid, pp_mgrp);
 		if (status != IB_SUCCESS) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F09: "
-				"No MC group found for PathRecord destination GID\n");
+				"No MC group found for PathRecord destination GID 0x%016" PRIx64 " : " "0x%016" PRIx64 "\n",
+				cl_ntoh64(p_pr->dgid.unicast.prefix),
+				cl_ntoh64(p_pr->dgid.unicast.interface_id));
 			goto Exit;
 		}
 	}
@@ -1516,7 +1518,7 @@ __osm_pr_get_mgrp(IN osm_sa_t * sa,
 			if ((*pp_mgrp)->mlid != p_pr->dlid) {
 				/* Note: perhaps this might be better indicated as an invalid request */
 				OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F10: "
-					"MC group MLID does not match PathRecord destination LID\n");
+					"MC group MLID 0x%x does not match PathRecord destination LID 0x%x\n", (*pp_mgrp)->mlid, p_pr->dlid);
 				*pp_mgrp = NULL;
 				goto Exit;
 			}
@@ -1524,7 +1526,7 @@ __osm_pr_get_mgrp(IN osm_sa_t * sa,
 			*pp_mgrp = __get_mgrp_by_mlid(sa, p_pr->dlid);
 			if (*pp_mgrp == NULL)
 				OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F11: "
-					"No MC group found for PathRecord destination LID\n");
+					"No MC group found for PathRecord destination LID 0x%x\n", p_pr->dlid);
 		}
 	}
 

@@ -1177,8 +1177,8 @@ __osm_mpr_rcv_get_gids(IN osm_sa_t * sa,
 			    (ib_gid_get_subnet_prefix(gids) !=
 			     sa->p_subn->opt.subnet_prefix)) {
 				/*
-				   This 'error' is the client's fault (bad gid) so
-				   don't enter it as an error in our own log.
+				   This 'error' is the client's fault (bad gid)
+				   so don't enter it as an error in our own log.
 				   Return an error response to the client.
 				 */
 				OSM_LOG(sa->p_log, OSM_LOG_VERBOSE, "ERR 451B: "
