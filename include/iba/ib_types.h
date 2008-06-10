@@ -4272,7 +4272,7 @@ ib_sa_mad_get_payload_ptr(IN const ib_sa_mad_t * const p_sa_mad)
 
 /*
 * PARAMETERS
-*	p_smp
+*	p_sa_mad
 *		[in] Pointer to the SA MAD packet.
 *
 * RETURN VALUES
