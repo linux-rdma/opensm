@@ -163,7 +163,13 @@ static void show_usage(void)
 	       "          from 0 (lowest priority) to 15 (highest).\n\n");
 	printf("-smkey <SM_Key>\n"
 	       "          This option specifies the SM's SM_Key (64 bits).\n"
-	       "          This will effect SM authentication.\n\n");
+	       "          This will effect SM authentication.\n"
+	       "          Note that OpenSM version 3.2.1 and below used the\n"
+	       "          default value '1' in a host byte order, it is fixed\n"
+	       "          now but you may need this option to interoperate\n"
+	       "          with old OpenSM running on a little endian machine.\n"
+	       "\n");
+
 	printf("-r\n"
 	       "--reassign_lids\n"
 	       "          This option causes OpenSM to reassign LIDs to all\n"
