@@ -50,9 +50,9 @@
 #include <iba/ib_types.h>
 #include <opensm/osm_lin_fwd_tbl.h>
 
-static inline size_t __osm_lin_tbl_compute_obj_size(IN const uint32_t num_ports)
+static inline size_t __osm_lin_tbl_compute_obj_size(IN const uint16_t num_lids)
 {
-	return (sizeof(osm_lin_fwd_tbl_t) + (num_ports - 1));
+	return (sizeof(osm_lin_fwd_tbl_t) + (num_lids - 1));
 }
 
 /**********************************************************************
@@ -74,7 +74,7 @@ osm_lin_fwd_tbl_t *osm_lin_tbl_new(IN uint16_t const size)
 	 */
 	if (p_tbl != NULL) {
 		memset(p_tbl, OSM_NO_PATH, __osm_lin_tbl_compute_obj_size(size));
-		p_tbl->size = (uint16_t) size;
+		p_tbl->size = size;
 	}
 	return (p_tbl);
 }
