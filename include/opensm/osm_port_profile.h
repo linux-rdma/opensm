@@ -147,7 +147,7 @@ osm_port_prof_path_count_inc(IN osm_port_profile_t * const p_prof)
 
 /*
 * PARAMETERS
-*	p_pro
+*	p_prof
 *		[in] Pointer to the Port Profile object.
 *
 * RETURN VALUE
@@ -175,7 +175,7 @@ osm_port_prof_path_count_get(IN const osm_port_profile_t * const p_prof)
 
 /*
 * PARAMETERS
-*	p_pro
+*	p_prof
 *		[in] Pointer to the Port Profile object.
 *
 * RETURN VALUE
