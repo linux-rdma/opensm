@@ -181,10 +181,10 @@ typedef struct _osm_mgrp {
 *		representing the member ports of this multicast group.
 *
 *	mcmember_rec
-*		Hold the parameters of the Multicast Group.
+*		Holds the parameters of the Multicast Group.
 *
 *	well_known
-*		Indicates that this is the wellknow multicast group which
+*		Indicates that this is the wellknown multicast group which
 *		is created during the initialization of SM/SA and will be
 *		present even if there are no ports for this group
 *

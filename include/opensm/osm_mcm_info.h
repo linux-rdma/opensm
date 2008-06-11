@@ -63,7 +63,7 @@ BEGIN_C_DECLS
 *
 * DESCRIPTION
 *	Multicast Membership Info object.
-*	This object contains information about a nodes membership
+*	This object contains information about a node's membership
 *	in a particular multicast group.
 *
 *	This object should be treated as opaque and should
