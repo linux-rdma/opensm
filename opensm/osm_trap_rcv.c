@@ -262,8 +262,8 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 	if (osm_exit_flag)
 		/*
 		   We got an exit flag - do nothing
-		   Otherwise we start a sweep on the trap 144 caused by cleaning up
-		   SM Cap bit...
+		   Otherwise we start a sweep on the trap 144 caused by
+		   cleaning up SM Cap bit...
 		 */
 		goto Exit;
 
@@ -272,9 +272,7 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 	    p_madw->p_mad->mgmt_class == IB_MCLASS_SUBN_DIR)
 		is_gsi = FALSE;
 
-	/*
-	   No real need to grab the lock for this function.
-	 */
+	/* No real need to grab the lock for this function. */
 	memset(payload, 0, sizeof(payload));
 	memset(&tmp_madw, 0, sizeof(tmp_madw));
 
@@ -303,9 +301,9 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 		 */
 
 		if (p_madw->mad_addr.addr_type.smi.source_lid == 0) {
-			/* Check if the sm_base_lid is 0. If yes - this means that
-			   the local lid wasn't configured yet. Don't send a response
-			   to the trap. */
+			/* Check if the sm_base_lid is 0. If yes - this means
+			   that the local lid wasn't configured yet. Don't send
+			   a response to the trap. */
 			if (sm->p_subn->sm_base_lid == 0) {
 				OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 					"Received SLID=0 Trap with local LID=0. Ignoring MAD\n");
