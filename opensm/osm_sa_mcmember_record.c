@@ -197,7 +197,8 @@ __get_new_mlid(IN osm_sa_t * sa, IN ib_net16_t requested_mlid)
 			if (cl_ntoh16(p_mgrp->mlid) >
 			    sa->p_subn->max_multicast_lid_ho) {
 				OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B27: "
-					"Found mgrp with mlid:0x%04X > max allowed mlid:0x%04X\n",
+					"Found mgrp with mlid:0x%04X > "
+					"max allowed mlid:0x%04X\n",
 					cl_ntoh16(p_mgrp->mlid),
 					max_num_mlids + IB_LID_MCAST_START_HO);
 			} else {
@@ -286,7 +287,8 @@ __add_new_mgrp_port(IN osm_sa_t * sa,
 	} else {
 		/* The port is not the one specified in PortGID.
 		   The check that the requester is in the same partition as
-		   the PortGID is done before - just need to update the proxy_join. */
+		   the PortGID is done before - just need to update
+		   the proxy_join. */
 		proxy_join = TRUE;
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Create new port with proxy_join TRUE\n");
@@ -389,7 +391,8 @@ __validate_more_comp_fields(osm_log_t * p_log,
 		case 0:	/* Greater than MTU specified */
 			if (mtu_mgrp <= mtu_required) {
 				OSM_LOG(p_log, OSM_LOG_DEBUG,
-					"Requested mcast group has MTU %x, which is not greater than %x\n",
+					"Requested mcast group has MTU %x, "
+					"which is not greater than %x\n",
 					mtu_mgrp, mtu_required);
 				return FALSE;
 			}
@@ -397,7 +400,8 @@ __validate_more_comp_fields(osm_log_t * p_log,
 		case 1:	/* Less than MTU specified */
 			if (mtu_mgrp >= mtu_required) {
 				OSM_LOG(p_log, OSM_LOG_DEBUG,
-					"Requested mcast group has MTU %x, which is not less than %x\n",
+					"Requested mcast group has MTU %x, "
+					"which is not less than %x\n",
 					mtu_mgrp, mtu_required);
 				return FALSE;
 			}
@@ -405,7 +409,8 @@ __validate_more_comp_fields(osm_log_t * p_log,
 		case 2:	/* Exactly MTU specified */
 			if (mtu_mgrp != mtu_required) {
 				OSM_LOG(p_log, OSM_LOG_DEBUG,
-					"Requested mcast group has MTU %x, which is not equal to %x\n",
+					"Requested mcast group has MTU %x, "
+					"which is not equal to %x\n",
 					mtu_mgrp, mtu_required);
 				return FALSE;
 			}
@@ -425,7 +430,8 @@ __validate_more_comp_fields(osm_log_t * p_log,
 		case 0:	/* Greater than RATE specified */
 			if (rate_mgrp <= rate_required) {
 				OSM_LOG(p_log, OSM_LOG_DEBUG,
-					"Requested mcast group has RATE %x, which is not greater than %x\n",
+					"Requested mcast group has RATE %x, "
+					"which is not greater than %x\n",
 					rate_mgrp, rate_required);
 				return FALSE;
 			}
@@ -433,7 +439,8 @@ __validate_more_comp_fields(osm_log_t * p_log,
 		case 1:	/* Less than RATE specified */
 			if (rate_mgrp >= rate_required) {
 				OSM_LOG(p_log, OSM_LOG_DEBUG,
-					"Requested mcast group has RATE %x, which is not less than %x\n",
+					"Requested mcast group has RATE %x, "
+					"which is not less than %x\n",
 					rate_mgrp, rate_required);
 				return FALSE;
 			}
@@ -441,7 +448,8 @@ __validate_more_comp_fields(osm_log_t * p_log,
 		case 2:	/* Exactly RATE specified */
 			if (rate_mgrp != rate_required) {
 				OSM_LOG(p_log, OSM_LOG_DEBUG,
-					"Requested mcast group has RATE %x, which is not equal to %x\n",
+					"Requested mcast group has RATE %x, "
+					"which is not equal to %x\n",
 					rate_mgrp, rate_required);
 				return FALSE;
 			}
@@ -540,8 +548,8 @@ __validate_modify(IN osm_sa_t * sa,
 		if (memcmp(&((*pp_mcm_port)->port_gid), &request_gid,
 			   sizeof(ib_gid_t))) {
 			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-				"No ProxyJoin but different ports: stored:0x%016"
-				PRIx64 " request:0x%016" PRIx64 "\n",
+				"No ProxyJoin but different ports: stored:"
+				"0x%016" PRIx64 " request:0x%016" PRIx64 "\n",
 				cl_ntoh64((*pp_mcm_port)->port_gid.unicast.
 					  interface_id),
 				cl_ntoh64(p_mad_addr->addr_type.gsi.grh_info.
@@ -561,8 +569,8 @@ __validate_modify(IN osm_sa_t * sa,
 					p_request_physp)) {
 			/* the request port is not part of the partition for this mgrp */
 			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-				"ProxyJoin but port not in partition. stored:0x%016"
-				PRIx64 " request:0x%016" PRIx64 "\n",
+				"ProxyJoin but port not in partition. stored:"
+				"0x%016" PRIx64 " request:0x%016" PRIx64 "\n",
 				cl_ntoh64((*pp_mcm_port)->port_gid.unicast.
 					  interface_id),
 				cl_ntoh64(p_mad_addr->addr_type.gsi.grh_info.
@@ -619,7 +627,8 @@ __validate_delete(IN osm_sa_t * sa,
 	if (!(p_recvd_mcmember_rec->scope_state & 0x0F &
 	      (*pp_mcm_port)->scope_state)) {
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-			"Could not find any matching bits in the stored and requested JoinStates\n");
+			"Could not find any matching bits in the stored "
+			"and requested JoinStates\n");
 		return FALSE;
 	}
 
@@ -628,7 +637,8 @@ __validate_delete(IN osm_sa_t * sa,
 	     (0x0F & (*pp_mcm_port)->scope_state)) !=
 	    (0x0F & (*pp_mcm_port)->scope_state)) {
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-			"Some bits in the request JoinState (0x%X) are not set in the stored port (0x%X)\n",
+			"Some bits in the request JoinState (0x%X) are not "
+			"set in the stored port (0x%X)\n",
 			(p_recvd_mcmember_rec->scope_state & 0x0F),
 			(0x0F & (*pp_mcm_port)->scope_state));
 		return FALSE;
@@ -1028,7 +1038,8 @@ osm_mcmr_rcv_create_new_mgrp(IN osm_sa_t * sa,
 	if (p_prev_mgrp !=
 	    (osm_mgrp_t *) cl_qmap_end(&sa->p_subn->mgrp_mlid_tbl)) {
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-			"Found previous group for mlid:0x%04x - Need to destroy it\n",
+			"Found previous group for mlid:0x%04x - "
+			"Need to destroy it\n",
 			cl_ntoh16(mlid));
 		cl_qmap_remove_item(&sa->p_subn->mgrp_mlid_tbl,
 				    (cl_map_item_t *) p_prev_mgrp);
@@ -1038,7 +1049,7 @@ osm_mcmr_rcv_create_new_mgrp(IN osm_sa_t * sa,
 	cl_qmap_insert(&sa->p_subn->mgrp_mlid_tbl,
 		       mlid, &(*pp_mgrp)->map_item);
 
-	/* Send a Report to any InformInfo registerd for
+	/* Send a Report to any InformInfo registered for
 	   Trap 66: MCGroup create */
 	osm_mgrp_send_create_notice(sa->p_subn, sa->p_log, *pp_mgrp);
 
@@ -1098,8 +1109,9 @@ __search_mgrp_by_mgid(IN cl_map_item_t * const p_map_item, IN void *context)
 			    (g_interface_id & INT_ID_MASK) ==
 			     (rcv_interface_id & INT_ID_MASK)) {
 				OSM_LOG(sa->p_log, OSM_LOG_INFO,
-					"Special Case Solicited Node Mcast Join "
-					" for MGID 0x%016"PRIx64" : 0x%016"PRIx64"\n",
+					"Special Case Solicited Node Mcast "
+					" Join for MGID 0x%016" PRIx64
+					" : 0x%016" PRIx64 "\n",
 					rcv_prefix, rcv_interface_id);
 			} else
 				return;
@@ -1204,9 +1216,9 @@ __osm_mcmr_rcv_leave_mgrp(IN osm_sa_t * sa,
 
 		if (valid) {
 			/*
-			 * according to the same o15-0.1.14 we get the stored JoinState and the
-			 * request JoinState and they must be opposite to leave -
-			 * otherwise just update it
+			 * according to the same o15-0.1.14 we get the stored
+			 * JoinState and the request JoinState and they must be
+			 * opposite to leave - otherwise just update it
 			 */
 			port_join_state = p_mcm_port->scope_state & 0x0F;
 			new_join_state =
@@ -1224,7 +1236,8 @@ __osm_mcmr_rcv_leave_mgrp(IN osm_sa_t * sa,
 				CL_PLOCK_RELEASE(sa->p_lock);
 
 				OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-					"After update JoinState != 0. Updating from 0x%X to 0x%X\n",
+					"After update JoinState != 0. "
+					"Updating from 0x%X to 0x%X\n",
 					port_join_state, new_join_state);
 			} else {
 				/* we need to return the stored scope state */
@@ -1238,7 +1251,8 @@ __osm_mcmr_rcv_leave_mgrp(IN osm_sa_t * sa,
 				    osm_sm_mcgrp_leave(sa->sm, mlid,
 						       portguid);
 				if (status != IB_SUCCESS) {
-					OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B09: "
+					OSM_LOG(sa->p_log, OSM_LOG_ERROR,
+						"ERR 1B09: "
 						"osm_sm_mcgrp_leave failed\n");
 				}
 			}
@@ -1361,7 +1375,8 @@ __osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa,
 		if ((join_state & 0x01) != 0x01) {
 			CL_PLOCK_RELEASE(sa->p_lock);
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B10: "
-				"Provided Join State != FullMember - required for create, "
+				"Provided Join State != FullMember - "
+				"required for create, "
 				"MGID: 0x%016" PRIx64 " : "
 				"0x%016" PRIx64 " from port 0x%016" PRIx64
 				" (%s)\n",
