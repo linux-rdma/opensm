@@ -1504,7 +1504,8 @@ __osm_pr_get_mgrp(IN osm_sa_t * sa,
 		status = osm_get_mgrp_by_mgid(sa, &p_pr->dgid, pp_mgrp);
 		if (status != IB_SUCCESS) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F09: "
-				"No MC group found for PathRecord destination GID 0x%016" PRIx64 " : " "0x%016" PRIx64 "\n",
+				"No MC group found for PathRecord destination "
+				"GID 0x%016" PRIx64 " : " "0x%016" PRIx64 "\n",
 				cl_ntoh64(p_pr->dgid.unicast.prefix),
 				cl_ntoh64(p_pr->dgid.unicast.interface_id));
 			goto Exit;
@@ -1518,7 +1519,9 @@ __osm_pr_get_mgrp(IN osm_sa_t * sa,
 			if ((*pp_mgrp)->mlid != p_pr->dlid) {
 				/* Note: perhaps this might be better indicated as an invalid request */
 				OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F10: "
-					"MC group MLID 0x%x does not match PathRecord destination LID 0x%x\n", (*pp_mgrp)->mlid, p_pr->dlid);
+					"MC group MLID 0x%x does not match "
+					"PathRecord destination LID 0x%x\n",
+					(*pp_mgrp)->mlid, p_pr->dlid);
 				*pp_mgrp = NULL;
 				goto Exit;
 			}
@@ -1526,7 +1529,8 @@ __osm_pr_get_mgrp(IN osm_sa_t * sa,
 			*pp_mgrp = __get_mgrp_by_mlid(sa, p_pr->dlid);
 			if (*pp_mgrp == NULL)
 				OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F11: "
-					"No MC group found for PathRecord destination LID 0x%x\n", p_pr->dlid);
+					"No MC group found for PathRecord "
+					"destination LID 0x%x\n", p_pr->dlid);
 		}
 	}
 
