@@ -105,6 +105,7 @@ typedef struct _monitored_node {
 	redir_t redir_port[1];	/* redirection on a per port basis */
 } __monitored_node_t;
 
+struct osm_opensm;
 /****s* OpenSM: PerfMgr/osm_perfmgr_t
 *  This object should be treated as opaque and should
 *  be manipulated only through the provided functions.
@@ -112,6 +113,7 @@ typedef struct _monitored_node {
 typedef struct osm_perfmgr {
 	cl_event_t sig_sweep;
 	cl_timer_t sweep_timer;
+	struct osm_opensm *osm;
 	osm_subn_t *subn;
 	osm_sm_t *sm;
 	cl_plock_t *lock;
@@ -130,7 +132,6 @@ typedef struct osm_perfmgr {
 	uint32_t max_outstanding_queries;
 	cl_qmap_t monitored_map;	/* map the nodes we are tracking */
 	__monitored_node_t *remove_list;
-	osm_epi_plugin_t *event_plugin;
 } osm_perfmgr_t;
 /*
 * FIELDS
@@ -223,46 +224,18 @@ void osm_perfmgr_process(osm_perfmgr_t * pm);
 
 /****f* OpenSM: PerfMgr/osm_perfmgr_init */
 ib_api_status_t osm_perfmgr_init(osm_perfmgr_t * const perfmgr,
-				 osm_subn_t * const subn,
-				 osm_sm_t * const sm,
-				 osm_log_t * const log,
-				 osm_mad_pool_t * const mad_pool,
-				 osm_vendor_t * const vendor,
-				 cl_dispatcher_t * const disp,
-				 cl_plock_t * const lock,
-				 const osm_subn_opt_t * const p_opt,
-				 osm_epi_plugin_t * event_plugin);
+				 struct osm_opensm *osm,
+				 const osm_subn_opt_t * const p_opt);
 /*
 * PARAMETERS
 *	perfmgr
 *		[in] Pointer to an osm_perfmgr_t object to initialize.
 *
-*	subn
-*		[in] Pointer to the Subnet object for this subnet.
-*
-*	sm
-*		[in] Pointer to the Subnet object for this subnet.
-*
-*	log
-*		[in] Pointer to the log object.
-*
-*	mad_pool
-*		[in] Pointer to the MAD pool.
-*
-*	vendor
-*		[in] Pointer to the vendor specific interfaces object.
-*
-*	disp
-*		[in] Pointer to the OpenSM central Dispatcher.
-*
-*	lock
-*		[in] Pointer to the OpenSM serializing lock.
+*	osm
+*		[in] Pointer to the OpenSM object.
 *
 *	p_opt
 *		[in] Starting options
-*
-*	event_plugin
-*		[in] Event plugin (Can be NULL if not available)
 *
 * RETURN VALUES
 *	IB_SUCCESS if the PerfMgr object was initialized successfully.

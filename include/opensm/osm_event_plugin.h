@@ -173,8 +173,6 @@ typedef struct osm_epi_plugin {
  */
 osm_epi_plugin_t *osm_epi_construct(osm_log_t * p_log, char *plugin_name);
 void osm_epi_destroy(osm_epi_plugin_t * plugin);
-void osm_epi_report(osm_epi_plugin_t * plugin,
-		    osm_epi_event_id_t event_id, void *event_data);
 
 /** =========================================================================
  * Helper functions

@@ -495,6 +495,9 @@ osm_routing_engine_type_t osm_routing_engine_type(IN const char *str);
 * SEE ALSO
 *********/
 
+void osm_opensm_report_event(osm_opensm_t *osm, osm_epi_event_id_t event_id,
+			     void *event_data);
+
 /* dump helpers */
 void osm_dump_mcast_routes(osm_opensm_t * osm);
 void osm_dump_all(osm_opensm_t * osm);

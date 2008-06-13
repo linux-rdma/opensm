@@ -137,11 +137,3 @@ void osm_epi_destroy(osm_epi_plugin_t * plugin)
 		free(plugin);
 	}
 }
-
-void
-osm_epi_report(osm_epi_plugin_t * plugin, osm_epi_event_id_t event_id,
-	       void *event_data)
-{
-	if (plugin && plugin->impl->report)
-		plugin->impl->report(plugin->plugin_data, event_id, event_data);
-}

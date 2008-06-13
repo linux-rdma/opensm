@@ -51,18 +51,18 @@
 #include <stdint.h>
 #include <string.h>
 #include <poll.h>
-#include <netinet/in.h>
-#include <complib/cl_debug.h>
-#include <iba/ib_types.h>
 #include <errno.h>
 #include <sys/time.h>
+#include <netinet/in.h>
+#include <float.h>
+#include <iba/ib_types.h>
+#include <complib/cl_debug.h>
+#include <complib/cl_thread.h>
+#include <vendor/osm_vendor_api.h>
 #include <opensm/osm_perfmgr.h>
 #include <opensm/osm_log.h>
 #include <opensm/osm_node.h>
 #include <opensm/osm_opensm.h>
-#include <complib/cl_thread.h>
-#include <vendor/osm_vendor_api.h>
-#include <float.h>
 
 #define OSM_PERFMGR_INITIAL_TID_VALUE 0xcafe
 
@@ -1213,51 +1213,43 @@ Exit:
  * Initialize the PerfMgr object
  **********************************************************************/
 ib_api_status_t
-osm_perfmgr_init(osm_perfmgr_t * const pm,
-		 osm_subn_t * const subn,
-		 osm_sm_t * const sm,
-		 osm_log_t * const log,
-		 osm_mad_pool_t * const mad_pool,
-		 osm_vendor_t * const vendor,
-		 cl_dispatcher_t * const disp,
-		 cl_plock_t * const lock,
-		 const osm_subn_opt_t * const p_opt,
-		 osm_epi_plugin_t * event_plugin)
+osm_perfmgr_init(osm_perfmgr_t * const pm, osm_opensm_t *osm,
+		 const osm_subn_opt_t * const p_opt)
 {
 	ib_api_status_t status = IB_SUCCESS;
 
-	OSM_LOG_ENTER(log);
+	OSM_LOG_ENTER(&osm->log);
 
-	OSM_LOG(log, OSM_LOG_VERBOSE, "Initializing PerfMgr\n");
+	OSM_LOG(&osm->log, OSM_LOG_VERBOSE, "Initializing PerfMgr\n");
 
 	memset(pm, 0, sizeof(*pm));
 
 	cl_event_construct(&pm->sig_sweep);
 	cl_event_init(&pm->sig_sweep, FALSE);
-	pm->subn = subn;
-	pm->sm = sm;
-	pm->log = log;
-	pm->mad_pool = mad_pool;
-	pm->vendor = vendor;
+	pm->subn = &osm->subn;
+	pm->sm = &osm->sm;
+	pm->log = &osm->log;
+	pm->mad_pool = &osm->mad_pool;
+	pm->vendor = osm->p_vendor;
 	pm->trans_id = OSM_PERFMGR_INITIAL_TID_VALUE;
-	pm->lock = lock;
+	pm->lock = &osm->lock;
 	pm->state =
 	    p_opt->perfmgr ? PERFMGR_STATE_ENABLED : PERFMGR_STATE_DISABLE;
 	pm->sweep_time_s = p_opt->perfmgr_sweep_time_s;
 	pm->max_outstanding_queries = p_opt->perfmgr_max_outstanding_queries;
-	pm->event_plugin = event_plugin;
+	pm->osm = osm;
 
 	status = cl_timer_init(&pm->sweep_timer, perfmgr_sweep, pm);
 	if (status != IB_SUCCESS)
 		goto Exit;
 
-	pm->db = perfmgr_db_construct(pm->log, pm->event_plugin);
+	pm->db = perfmgr_db_construct(pm);
 	if (!pm->db) {
 		pm->state = PERFMGR_STATE_NO_DB;
 		goto Exit;
 	}
 
-	pm->pc_disp_h = cl_disp_register(disp, OSM_MSG_MAD_PORT_COUNTERS,
+	pm->pc_disp_h = cl_disp_register(&osm->disp, OSM_MSG_MAD_PORT_COUNTERS,
 					 osm_pc_rcv_process, pm);
 	if (pm->pc_disp_h == CL_DISP_INVALID_HANDLE)
 		goto Exit;
@@ -1267,7 +1259,7 @@ osm_perfmgr_init(osm_perfmgr_t * const pm,
 	cl_timer_start(&pm->sweep_timer, pm->sweep_time_s * 1000);
 
 Exit:
-	OSM_LOG_EXIT(log);
+	OSM_LOG_EXIT(pm->log);
 	return (status);
 }
 

@@ -57,6 +57,7 @@
 #include <opensm/osm_subnet.h>
 #include <opensm/osm_sm.h>
 #include <opensm/osm_vl15intf.h>
+#include <opensm/osm_event_plugin.h>
 
 struct routing_engine_module {
 	const char *name;
@@ -351,15 +352,7 @@ osm_opensm_init(IN osm_opensm_t * const p_osm,
 						p_opt->event_plugin_name);
 
 #ifdef ENABLE_OSM_PERF_MGR
-	status = osm_perfmgr_init(&p_osm->perfmgr,
-				  &p_osm->subn,
-				  &p_osm->sm,
-				  &p_osm->log,
-				  &p_osm->mad_pool,
-				  p_osm->p_vendor,
-				  &p_osm->disp,
-				  &p_osm->lock, p_opt, p_osm->event_plugin);
-
+	status = osm_perfmgr_init(&p_osm->perfmgr, p_osm, p_opt);
 	if (status != IB_SUCCESS)
 		goto Exit;
 #endif				/* ENABLE_OSM_PERF_MGR */
@@ -406,4 +399,14 @@ osm_opensm_bind(IN osm_opensm_t * const p_osm, IN const ib_net64_t guid)
 Exit:
 	OSM_LOG_EXIT(&p_osm->log);
 	return (status);
+}
+
+/**********************************************************************
+ **********************************************************************/
+void osm_opensm_report_event(osm_opensm_t *osm, osm_epi_event_id_t event_id,
+			     void *event_data)
+{
+	if (osm->event_plugin && osm->event_plugin->impl->report)
+		osm->event_plugin->impl->report(osm->event_plugin->plugin_data,
+						event_id, event_data);
 }

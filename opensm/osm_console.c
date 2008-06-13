@@ -1114,8 +1114,8 @@ static void perfmgr_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 			osm_perfmgr_get_sweep_time_s(&(p_osm->perfmgr)),
 			p_osm->perfmgr.outstanding_queries,
 			p_osm->perfmgr.max_outstanding_queries,
-			p_osm->perfmgr.event_plugin ?
-			p_osm->perfmgr.event_plugin->plugin_name : "NONE");
+			p_osm->event_plugin ?
+			p_osm->event_plugin->plugin_name : "NONE");
 	}
 }
 #endif				/* ENABLE_OSM_PERF_MGR */
