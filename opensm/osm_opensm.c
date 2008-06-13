@@ -243,6 +243,23 @@ void osm_opensm_destroy(IN osm_opensm_t * const p_osm)
 	osm_log_destroy(&p_osm->log);
 }
 
+static void load_plugins(osm_opensm_t *osm, char *plugin_names)
+{
+	osm_epi_plugin_t *epi;
+	char *name, *p;
+
+	name = strtok_r(plugin_names, " \t\n", &p);
+	while (name && *name) {
+		epi = osm_epi_construct(&osm->log, name);
+		if (!epi)
+			osm_log(&osm->log, OSM_LOG_ERROR,
+				"cannot load plugin \'%s\'\n", name);
+		else
+			cl_qlist_insert_tail(&osm->plugin_list, &epi->list);
+		name = strtok_r(NULL, " \t\n", &p);
+	}
+}
+
 /**********************************************************************
  **********************************************************************/
 ib_api_status_t
@@ -348,8 +365,10 @@ osm_opensm_init(IN osm_opensm_t * const p_osm,
 	if (status != IB_SUCCESS)
 		goto Exit;
 
-	p_osm->event_plugin = osm_epi_construct(&p_osm->log,
-						p_opt->event_plugin_name);
+	cl_qlist_init(&p_osm->plugin_list);
+
+	if (p_opt->event_plugin_name)
+		load_plugins(p_osm, p_opt->event_plugin_name);
 
 #ifdef ENABLE_OSM_PERF_MGR
 	status = osm_perfmgr_init(&p_osm->perfmgr, p_osm, p_opt);
@@ -406,7 +425,13 @@ Exit:
 void osm_opensm_report_event(osm_opensm_t *osm, osm_epi_event_id_t event_id,
 			     void *event_data)
 {
-	if (osm->event_plugin && osm->event_plugin->impl->report)
-		osm->event_plugin->impl->report(osm->event_plugin->plugin_data,
-						event_id, event_data);
+	cl_list_item_t *item;
+
+	for (item = cl_qlist_head(&osm->plugin_list);
+	     item != cl_qlist_end(&osm->plugin_list);
+	     item = cl_qlist_next(item)) {
+		osm_epi_plugin_t *p = (osm_epi_plugin_t *)item;
+		if (p->impl->report)
+			p->impl->report(p->plugin_data, event_id, event_data);
+	}
 }

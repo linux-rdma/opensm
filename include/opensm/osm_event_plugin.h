@@ -35,8 +35,9 @@
 #define _OSM_EVENT_PLUGIN_H_
 
 #include <time.h>
-#include <opensm/osm_log.h>
 #include <iba/ib_types.h>
+#include <complib/cl_qlist.h>
+#include <opensm/osm_log.h>
 
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
@@ -57,12 +58,7 @@ BEGIN_C_DECLS
 *	Ira Weiny, LLNL
 *
 *********/
-#define OSM_EVENT_PLUGIN_NAME_NONE "NONE"
-#ifdef ENABLE_OSM_DEFAULT_EVENT_PLUGIN
-#define OSM_DEFAULT_EVENT_PLUGIN_NAME "osmeventplugin"
-#else				/* !ENABLE_OSM_DEFAULT_EVENT_PLUGIN */
-#define OSM_DEFAULT_EVENT_PLUGIN_NAME OSM_EVENT_PLUGIN_NAME_NONE
-#endif				/* ENABLE_OSM_DEFAULT_EVENT_PLUGIN */
+
 #define OSM_EPI_NODE_NAME_LEN (128)
 /** =========================================================================
  * Event types
@@ -161,6 +157,7 @@ typedef struct osm_event_plugin {
  * The plugin structure should be considered opaque
  */
 typedef struct osm_epi_plugin {
+	cl_list_item_t list;
 	void *handle;
 	osm_event_plugin_t *impl;
 	void *plugin_data;

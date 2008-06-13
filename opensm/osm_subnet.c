@@ -431,7 +431,7 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * const p_opt)
 	p_opt->event_db_dump_file = NULL; /* use default */
 #endif				/* ENABLE_OSM_PERF_MGR */
 
-	p_opt->event_plugin_name = OSM_DEFAULT_EVENT_PLUGIN_NAME;
+	p_opt->event_plugin_name = NULL;
 	p_opt->node_name_map_name = NULL;
 
 	p_opt->dump_files_dir = getenv("OSM_TMP_DIR");
@@ -1631,7 +1631,8 @@ int osm_subn_write_conf_file(char *file_name, IN osm_subn_opt_t *const p_opts)
 
 	fprintf(opts_file,
 		"#\n# Event Plugin Options\n#\n"
-		"event_plugin_name %s\n\n", p_opts->event_plugin_name);
+		"event_plugin_name %s\n\n", p_opts->event_plugin_name ?
+		p_opts->event_plugin_name : null_str);
 
 	fprintf(opts_file,
 		"#\n# Node name map for mapping node's to more descriptive node descriptions\n"

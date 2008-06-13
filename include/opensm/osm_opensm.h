@@ -44,6 +44,7 @@
 #define _OSM_OPENSM_H_
 
 #include <stdio.h>
+#include <complib/cl_qlist.h>
 #include <complib/cl_dispatcher.h>
 #include <complib/cl_passivelock.h>
 #include <complib/cl_atomic.h>
@@ -168,7 +169,7 @@ typedef struct osm_opensm {
 #ifdef ENABLE_OSM_PERF_MGR
 	osm_perfmgr_t perfmgr;
 #endif				/* ENABLE_OSM_PERF_MGR */
-	osm_epi_plugin_t *event_plugin;
+	cl_qlist_t plugin_list;
 	osm_db_t db;
 	osm_mad_pool_t mad_pool;
 	osm_vendor_t *p_vendor;

@@ -1103,19 +1103,24 @@ static void perfmgr_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 			fprintf(out, "\"%s\" option not found\n", p_cmd);
 		}
 	} else {
+		cl_list_item_t *item;
 		fprintf(out, "Performance Manager status:\n"
 			"state                   : %s\n"
 			"sweep state             : %s\n"
 			"sweep time              : %us\n"
 			"outstanding queries/max : %d/%u\n"
-			"loaded event plugin     : %s\n",
+			"loaded event plugin     :",
 			osm_perfmgr_get_state_str(&(p_osm->perfmgr)),
 			osm_perfmgr_get_sweep_state_str(&(p_osm->perfmgr)),
 			osm_perfmgr_get_sweep_time_s(&(p_osm->perfmgr)),
 			p_osm->perfmgr.outstanding_queries,
-			p_osm->perfmgr.max_outstanding_queries,
-			p_osm->event_plugin ?
-			p_osm->event_plugin->plugin_name : "NONE");
+			p_osm->perfmgr.max_outstanding_queries);
+		for (item = cl_qlist_head(&p_osm->plugin_list);
+		     item != cl_qlist_end(&p_osm->plugin_list);
+		     item = cl_qlist_next(item))
+			fprintf(out, " %s",
+				((osm_epi_plugin_t *)item)->plugin_name);
+		fprintf(out, "\n");
 	}
 }
 #endif				/* ENABLE_OSM_PERF_MGR */
