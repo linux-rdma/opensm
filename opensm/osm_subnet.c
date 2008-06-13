@@ -46,6 +46,7 @@
 
 #include <string.h>
 #include <stdio.h>
+#include <stdarg.h>
 #include <limits.h>
 #include <errno.h>
 #include <complib/cl_debug.h>
@@ -468,21 +469,28 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * const p_opt)
 
 /**********************************************************************
  **********************************************************************/
+static void log_config_value(char *name, const char *fmt, ...)
+{
+	char buf[128];
+	va_list args;
+	unsigned n;
+	va_start(args, fmt);
+	n = snprintf(buf, sizeof(buf), " Loading Cached Option:%s = ", name);
+	n += vsnprintf(buf + n, sizeof(buf) - n, fmt, args);
+	snprintf(buf + n, sizeof(buf) - n, "\n");
+	va_end(args);
+	printf(buf);
+	cl_log_event("OpenSM", CL_LOG_INFO, buf, NULL, 0);
+}
+
 static void
 opts_unpack_net64(IN char *p_req_key,
 		  IN char *p_key, IN char *p_val_str, IN uint64_t * p_val)
 {
-	uint64_t val;
-
 	if (!strcmp(p_req_key, p_key)) {
-		val = strtoull(p_val_str, NULL, 0);
+		uint64_t val = strtoull(p_val_str, NULL, 0);
 		if (cl_hton64(val) != *p_val) {
-			char buff[128];
-			sprintf(buff,
-				" Loading Cached Option:%s = 0x%016" PRIx64
-				"\n", p_key, val);
-			printf(buff);
-			cl_log_event("OpenSM", CL_LOG_INFO, buff, NULL, 0);
+			log_config_value(p_key, "0x%016" PRIx64, val);
 			*p_val = cl_ntoh64(val);
 		}
 	}
@@ -494,16 +502,10 @@ static void
 opts_unpack_uint32(IN char *p_req_key,
 		   IN char *p_key, IN char *p_val_str, IN uint32_t * p_val)
 {
-	uint32_t val;
-
 	if (!strcmp(p_req_key, p_key)) {
-		val = strtoul(p_val_str, NULL, 0);
+		uint32_t val = strtoul(p_val_str, NULL, 0);
 		if (val != *p_val) {
-			char buff[128];
-			sprintf(buff, " Loading Cached Option:%s = %u\n",
-				p_key, val);
-			printf(buff);
-			cl_log_event("OpenSM", CL_LOG_INFO, buff, NULL, 0);
+			log_config_value(p_key, "%u", val);
 			*p_val = val;
 		}
 	}
@@ -515,16 +517,10 @@ static void
 opts_unpack_uint16(IN char *p_req_key,
 		   IN char *p_key, IN char *p_val_str, IN uint16_t * p_val)
 {
-	uint16_t val;
-
 	if (!strcmp(p_req_key, p_key)) {
-		val = (uint16_t) strtoul(p_val_str, NULL, 0);
+		uint16_t val = (uint16_t) strtoul(p_val_str, NULL, 0);
 		if (val != *p_val) {
-			char buff[128];
-			sprintf(buff, " Loading Cached Option:%s = %u\n",
-				p_key, val);
-			printf(buff);
-			cl_log_event("OpenSM", CL_LOG_INFO, buff, NULL, 0);
+			log_config_value(p_key, "%u", val);
 			*p_val = val;
 		}
 	}
@@ -541,11 +537,7 @@ opts_unpack_net16(IN char *p_req_key,
 		val = strtoul(p_val_str, NULL, 0);
 		CL_ASSERT(val < 0x10000);
 		if (cl_hton32(val) != *p_val) {
-			char buff[128];
-			sprintf(buff, " Loading Cached Option:%s = 0x%04x\n",
-				p_key, val);
-			printf(buff);
-			cl_log_event("OpenSM", CL_LOG_INFO, buff, NULL, 0);
+			log_config_value(p_key, "0x%04x", val);
 			*p_val = cl_hton16((uint16_t) val);
 		}
 	}
@@ -562,11 +554,7 @@ opts_unpack_uint8(IN char *p_req_key,
 		val = strtoul(p_val_str, NULL, 0);
 		CL_ASSERT(val < 0x100);
 		if (val != *p_val) {
-			char buff[128];
-			sprintf(buff, " Loading Cached Option:%s = %u\n",
-				p_key, val);
-			printf(buff);
-			cl_log_event("OpenSM", CL_LOG_INFO, buff, NULL, 0);
+			log_config_value(p_key, "%u", val);
 			*p_val = (uint8_t) val;
 		}
 	}
@@ -586,11 +574,7 @@ opts_unpack_boolean(IN char *p_req_key,
 			val = TRUE;
 
 		if (val != *p_val) {
-			char buff[128];
-			sprintf(buff, " Loading Cached Option:%s = %s\n",
-				p_key, p_val_str);
-			printf(buff);
-			cl_log_event("OpenSM", CL_LOG_INFO, buff, NULL, 0);
+			log_config_value(p_key, "%s", p_val_str);
 			*p_val = val;
 		}
 	}
@@ -604,12 +588,7 @@ opts_unpack_charp(IN char *p_req_key,
 {
 	if (!strcmp(p_req_key, p_key) && p_val_str) {
 		if ((*p_val == NULL) || strcmp(p_val_str, *p_val)) {
-			char buff[128];
-			sprintf(buff, " Loading Cached Option:%s = %s\n",
-				p_key, p_val_str);
-			printf(buff);
-			cl_log_event("OpenSM", CL_LOG_INFO, buff, NULL, 0);
-
+			log_config_value(p_key, "%s", p_val_str);
 			/* special case the "(null)" string */
 			if (strcmp(null_str, p_val_str) == 0) {
 				*p_val = NULL;
