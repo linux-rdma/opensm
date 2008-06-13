@@ -1093,7 +1093,8 @@ __search_mgrp_by_mgid(IN cl_map_item_t * const p_map_item, IN void *context)
 			/* 0xff1Z601bXXXX0000 : 0x00000001ffYYYYYY */
 			/* Where Z is the scope, XXXX is the P_Key, and
 			 * YYYYYY is the last 24 bits of the port guid */
-#define PREFIX_MASK (0xff10ffff0000ffffULL)
+#define PREFIX_NOPKEY_MASK (0xff10ffff0000ffffULL)
+#define PREFIX_MASK (0xff10ffffffffffffULL)
 #define PREFIX_SIGNATURE (0xff10601b00000000ULL)
 #define INT_ID_MASK (0xfffffff1ff000000ULL)
 #define INT_ID_SIGNATURE (0x00000001ff000000ULL)
@@ -1102,15 +1103,15 @@ __search_mgrp_by_mgid(IN cl_map_item_t * const p_map_item, IN void *context)
 			uint64_t rcv_prefix = cl_ntoh64(p_recvd_mgid->unicast.prefix);
 			uint64_t rcv_interface_id = cl_ntoh64(p_recvd_mgid->unicast.interface_id);
 
-			if ((rcv_prefix & PREFIX_MASK) == PREFIX_SIGNATURE &&
+			if ((rcv_prefix & PREFIX_NOPKEY_MASK) == PREFIX_SIGNATURE &&
 			    (rcv_interface_id & INT_ID_MASK) == INT_ID_SIGNATURE &&
 			    (g_prefix & PREFIX_MASK) ==
-			     (rcv_prefix && PREFIX_MASK) &&
+			     (rcv_prefix & PREFIX_MASK) &&
 			    (g_interface_id & INT_ID_MASK) ==
 			     (rcv_interface_id & INT_ID_MASK)) {
 				OSM_LOG(sa->p_log, OSM_LOG_INFO,
 					"Special Case Solicited Node Mcast "
-					" Join for MGID 0x%016" PRIx64
+					"Join for MGID 0x%016" PRIx64
 					" : 0x%016" PRIx64 "\n",
 					rcv_prefix, rcv_interface_id);
 			} else
