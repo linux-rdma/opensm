@@ -49,6 +49,7 @@
 #include <stdarg.h>
 #include <limits.h>
 #include <errno.h>
+#include <ctype.h>
 #include <complib/cl_debug.h>
 #include <complib/cl_log.h>
 #include <opensm/osm_subnet.h>
@@ -606,6 +607,30 @@ opts_unpack_charp(IN char *p_req_key,
 
 /**********************************************************************
  **********************************************************************/
+static char *clean_val(char *val)
+{
+	char *p = val;
+	/* clean leading spaces */
+	while (isspace(*p))
+		p++;
+	val = p;
+	if (!*val)
+		return val;
+	/* clean trailing spaces */
+	p = val + strlen(val) - 1;
+	while (p > val && isspace(*p))
+		p--;
+	p[1] = '\0';
+	/* clean quotas */
+	if ((*val == '\"' && *p == '\"') || (*val == '\'' && *p == '\'')) {
+		val++;
+		p--;
+	}
+	return val;
+}
+
+/**********************************************************************
+ **********************************************************************/
 static void
 subn_parse_qos_options(IN const char *prefix,
 		       IN char *p_key,
@@ -1106,7 +1131,7 @@ int osm_subn_parse_conf_file(char *file_name, osm_subn_opt_t * const p_opts)
 {
 	char line[1024];
 	FILE *opts_file;
-	char *p_key, *p_val, *p_last;
+	char *p_key, *p_val;
 
 	opts_file = fopen(file_name, "r");
 	if (!opts_file) {
@@ -1124,11 +1149,11 @@ int osm_subn_parse_conf_file(char *file_name, osm_subn_opt_t * const p_opts)
 
 	while (fgets(line, 1023, opts_file) != NULL) {
 		/* get the first token */
-		p_key = strtok_r(line, " \t\n", &p_last);
+		p_key = strtok_r(line, " \t\n", &p_val);
 		if (!p_key)
 			continue;
 
-		p_val = strtok_r(NULL, " \t\n", &p_last);
+		p_val = clean_val(p_val);
 
 		opts_unpack_net64("guid", p_key, p_val, &p_opts->guid);
 
