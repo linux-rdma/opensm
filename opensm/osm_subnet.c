@@ -1631,8 +1631,8 @@ int osm_subn_write_conf_file(char *file_name, IN osm_subn_opt_t *const p_opts)
 	fprintf(opts_file,
 		"#\n# Node name map for mapping node's to more descirptive node descriptors\n"
 		"# (man ibnetdiscover for more information)\n#\n"
-		"node_name_map_name %s\n\n",
-		p_opts->node_name_map_name ? p_opts->node_name_map_name : "(null)");
+		"node_name_map_name %s\n\n", p_opts->node_name_map_name ?
+		p_opts->node_name_map_name : null_str);
 
 	fprintf(opts_file,
 		"#\n# DEBUG FEATURES\n#\n"
