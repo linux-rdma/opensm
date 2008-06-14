@@ -856,7 +856,6 @@ void osm_perfmgr_shutdown(osm_perfmgr_t * const pm)
 void osm_perfmgr_destroy(osm_perfmgr_t * const pm)
 {
 	OSM_LOG_ENTER(pm->log);
-	free(pm->event_db_dump_file);
 	perfmgr_db_destroy(pm->db);
 	cl_timer_destroy(&pm->sweep_timer);
 	OSM_LOG_EXIT(pm->log);
@@ -1245,7 +1244,6 @@ osm_perfmgr_init(osm_perfmgr_t * const pm,
 	pm->state =
 	    p_opt->perfmgr ? PERFMGR_STATE_ENABLED : PERFMGR_STATE_DISABLE;
 	pm->sweep_time_s = p_opt->perfmgr_sweep_time_s;
-	pm->event_db_dump_file = strdup(p_opt->event_db_dump_file);
 	pm->max_outstanding_queries = p_opt->perfmgr_max_outstanding_queries;
 	pm->event_plugin = event_plugin;
 
@@ -1290,9 +1288,19 @@ void osm_perfmgr_clear_counters(osm_perfmgr_t * pm)
  *******************************************************************/
 void osm_perfmgr_dump_counters(osm_perfmgr_t * pm, perfmgr_db_dump_t dump_type)
 {
-	if (perfmgr_db_dump(pm->db, pm->event_db_dump_file, dump_type) != 0)
+	char path[256];
+	char *file_name;
+	if (pm->subn->opt.event_db_dump_file)
+		file_name = pm->subn->opt.event_db_dump_file;
+	else {
+		snprintf(path, sizeof(path), "%s/%s",
+			 pm->subn->opt.dump_files_dir,
+			 OSM_PERFMGR_DEFAULT_DUMP_FILE);
+		file_name = path;
+	}
+	if (perfmgr_db_dump(pm->db, file_name, dump_type) != 0)
 		OSM_LOG(pm->log, OSM_LOG_ERROR, "Failed to dump file %s : %s",
-			pm->event_db_dump_file, strerror(errno));
+			file_name, strerror(errno));
 }
 
 /*******************************************************************

@@ -72,7 +72,7 @@ extern "C" {
 *********/
 
 #define OSM_PERFMGR_DEFAULT_SWEEP_TIME_S 180
-#define OSM_PERFMGR_DEFAULT_DUMP_FILE OSM_DEFAULT_TMP_DIR "/opensm_port_counters.log"
+#define OSM_PERFMGR_DEFAULT_DUMP_FILE "opensm_port_counters.log"
 #define OSM_PERFMGR_DEFAULT_MAX_OUTSTANDING_QUERIES 500
 
 /****s* OpenSM: PerfMgr/osm_perfmgr_state_t */
@@ -124,8 +124,6 @@ typedef struct osm_perfmgr {
 	osm_perfmgr_state_t state;
 	osm_perfmgr_sweep_state_t sweep_state;
 	uint16_t sweep_time_s;
-	char *db_file;
-	char *event_db_dump_file;
 	perfmgr_db_t *db;
 	atomic32_t outstanding_queries;	/* this along with sig_query */
 	cl_event_t sig_query;	/* will throttle our querys */
@@ -144,9 +142,6 @@ typedef struct osm_perfmgr {
 *
 *	mad_pool
 *		Pointer to the MAD pool.
-*
-*       event_db_dump_file
-*               File to be used to dump the Port Counters
 *
 *	mad_ctrl
 *		Mad Controller

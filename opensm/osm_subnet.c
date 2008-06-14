@@ -427,7 +427,7 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * const p_opt)
 	p_opt->perfmgr_sweep_time_s = OSM_PERFMGR_DEFAULT_SWEEP_TIME_S;
 	p_opt->perfmgr_max_outstanding_queries =
 	    OSM_PERFMGR_DEFAULT_MAX_OUTSTANDING_QUERIES;
-	p_opt->event_db_dump_file = OSM_PERFMGR_DEFAULT_DUMP_FILE;
+	p_opt->event_db_dump_file = NULL; /* use default */
 #endif				/* ENABLE_OSM_PERF_MGR */
 
 	p_opt->event_plugin_name = OSM_DEFAULT_EVENT_PLUGIN_NAME;
@@ -1600,7 +1600,8 @@ int osm_subn_write_conf_file(char *file_name, IN osm_subn_opt_t *const p_opts)
 	fprintf(opts_file,
 		"#\n# Event DB Options\n#\n"
 		"# Dump file to dump the events to\n"
-		"event_db_dump_file %s\n\n", p_opts->event_db_dump_file);
+		"event_db_dump_file %s\n\n", p_opts->event_db_dump_file ?
+		p_opts->event_db_dump_file : null_str);
 #endif				/* ENABLE_OSM_PERF_MGR */
 
 	fprintf(opts_file,
