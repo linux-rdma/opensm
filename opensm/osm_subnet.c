@@ -1629,7 +1629,7 @@ int osm_subn_write_conf_file(char *file_name, IN osm_subn_opt_t *const p_opts)
 		"event_plugin_name %s\n\n", p_opts->event_plugin_name);
 
 	fprintf(opts_file,
-		"#\n# Node name map for mapping node's to more descirptive node descriptors\n"
+		"#\n# Node name map for mapping node's to more descriptive node descriptions\n"
 		"# (man ibnetdiscover for more information)\n#\n"
 		"node_name_map_name %s\n\n", p_opts->node_name_map_name ?
 		p_opts->node_name_map_name : null_str);
