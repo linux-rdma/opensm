@@ -98,7 +98,7 @@
 /**********************************************************************
   lid range item of qlist
  **********************************************************************/
-typedef struct _osm_lid_mgr_range {
+typedef struct osm_lid_mgr_range {
 	cl_list_item_t item;
 	uint16_t min_lid;
 	uint16_t max_lid;

@@ -89,7 +89,7 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_port_profile {
+typedef struct osm_port_profile {
 	uint32_t num_paths;
 } osm_port_profile_t;
 /*

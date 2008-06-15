@@ -89,7 +89,7 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_prtn {
+typedef struct osm_prtn {
 	cl_map_item_t map_item;
 	ib_net16_t pkey;
 	ib_net16_t mlid;

@@ -92,7 +92,7 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_switch {
+typedef struct osm_switch {
 	cl_map_item_t map_item;
 	osm_node_t *p_node;
 	ib_switch_info_t switch_info;

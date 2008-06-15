@@ -92,7 +92,7 @@ void
 osm_physp_init(IN osm_physp_t * const p_physp,
 	       IN const ib_net64_t port_guid,
 	       IN const uint8_t port_num,
-	       IN const struct _osm_node *const p_node,
+	       IN const struct osm_node *const p_node,
 	       IN const osm_bind_handle_t h_bind,
 	       IN const uint8_t hop_count,
 	       IN const uint8_t * const p_initial_path)
@@ -107,7 +107,7 @@ osm_physp_init(IN osm_physp_t * const p_physp,
 	p_physp->port_num = port_num;
 	p_physp->healthy = TRUE;
 	p_physp->need_update = 2;
-	p_physp->p_node = (struct _osm_node *)p_node;
+	p_physp->p_node = (struct osm_node *)p_node;
 
 	osm_dr_path_init(&p_physp->dr_path, h_bind, hop_count, p_initial_path);
 
@@ -159,7 +159,7 @@ osm_port_init(IN osm_port_t * const p_port,
 
 	memset(p_port, 0, sizeof(*p_port));
 	cl_qlist_init(&p_port->mcm_list);
-	p_port->p_node = (struct _osm_node *)p_parent_node;
+	p_port->p_node = (struct osm_node *)p_parent_node;
 	port_guid = p_ni->port_guid;
 	p_port->guid = port_guid;
 	port_num = p_ni->node_type == IB_NODE_TYPE_SWITCH ?

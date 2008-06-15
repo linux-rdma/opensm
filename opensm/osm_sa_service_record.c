@@ -59,7 +59,7 @@
 #include <opensm/osm_service.h>
 #include <opensm/osm_pkey.h>
 
-typedef struct _osm_sr_item {
+typedef struct osm_sr_item {
 	cl_list_item_t list_item;
 	ib_service_record_t service_rec;
 } osm_sr_item_t;
@@ -71,7 +71,7 @@ typedef struct osm_sr_match_item {
 	osm_sa_t *sa;
 } osm_sr_match_item_t;
 
-typedef struct _osm_sr_search_ctxt {
+typedef struct osm_sr_search_ctxt {
 	osm_sr_match_item_t *p_sr_item;
 	const osm_physp_t *p_req_physp;
 } osm_sr_search_ctxt_t;

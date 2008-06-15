@@ -161,7 +161,7 @@ struct osm_routing_engine {
 *
 * SYNOPSIS
 */
-typedef struct _osm_opensm_t {
+typedef struct osm_opensm {
 	osm_subn_t subn;
 	osm_sm_t sm;
 	osm_sa_t sa;

@@ -57,12 +57,12 @@
 #include <opensm/osm_pkey.h>
 #include <opensm/osm_sa.h>
 
-typedef struct _osm_slvl_item {
+typedef struct osm_slvl_item {
 	cl_list_item_t list_item;
 	ib_slvl_table_record_t rec;
 } osm_slvl_item_t;
 
-typedef struct _osm_slvl_search_ctxt {
+typedef struct osm_slvl_search_ctxt {
 	const ib_slvl_table_record_t *p_rcvd_rec;
 	ib_net64_t comp_mask;
 	uint8_t in_port_num;

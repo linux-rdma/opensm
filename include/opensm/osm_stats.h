@@ -81,7 +81,7 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_stats {
+typedef struct osm_stats {
 	atomic32_t qp0_mads_outstanding;
 	atomic32_t qp0_mads_outstanding_on_wire;
 	atomic32_t qp0_mads_rcvd;

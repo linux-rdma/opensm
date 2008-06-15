@@ -200,7 +200,7 @@ void osm_vl15_construct(IN osm_vl15_t * const p_vl)
 /**********************************************************************
  **********************************************************************/
 void
-osm_vl15_destroy(IN osm_vl15_t * const p_vl, IN struct _osm_mad_pool *p_pool)
+osm_vl15_destroy(IN osm_vl15_t * const p_vl, IN struct osm_mad_pool *p_pool)
 {
 	osm_madw_t *p_madw;
 

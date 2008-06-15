@@ -69,12 +69,12 @@ extern uint8_t osm_get_lash_sl(osm_opensm_t * p_osm,
 			       const osm_port_t * p_src_port,
 			       const osm_port_t * p_dst_port);
 
-typedef struct _osm_pr_item {
+typedef struct osm_pr_item {
 	cl_list_item_t list_item;
 	ib_path_rec_t path_rec;
 } osm_pr_item_t;
 
-typedef struct _osm_path_parms {
+typedef struct osm_path_parms {
 	ib_net16_t pkey;
 	uint8_t mtu;
 	uint8_t rate;

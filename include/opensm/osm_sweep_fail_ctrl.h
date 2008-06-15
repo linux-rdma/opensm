@@ -89,7 +89,7 @@ struct osm_sm;
 *
 * SYNOPSIS
 */
-typedef struct _osm_sweep_fail_ctrl {
+typedef struct osm_sweep_fail_ctrl {
 	struct osm_sm *sm;
 	cl_disp_reg_handle_t h_disp;
 } osm_sweep_fail_ctrl_t;

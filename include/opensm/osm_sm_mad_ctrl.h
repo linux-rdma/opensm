@@ -92,7 +92,7 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_sm_mad_ctrl {
+typedef struct osm_sm_mad_ctrl {
 	osm_log_t *p_log;
 	osm_subn_t *p_subn;
 	osm_mad_pool_t *p_mad_pool;

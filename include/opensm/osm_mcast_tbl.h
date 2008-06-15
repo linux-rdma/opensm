@@ -67,7 +67,7 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_mcast_fwd_tbl {
+typedef struct osm_mcast_fwdbl {
 	uint8_t num_ports;
 	uint8_t max_position;
 	uint16_t max_block;

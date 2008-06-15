@@ -110,7 +110,7 @@ typedef uint8_t osm_log_level_t;
 *
 * SYNOPSIS
 */
-typedef struct _osm_log {
+typedef struct osm_log {
 	osm_log_level_t level;
 	cl_spinlock_t lock;
 	unsigned long count;

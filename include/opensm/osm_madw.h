@@ -67,7 +67,7 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_bind_info {
+typedef struct osm_bind_info {
 	ib_net64_t port_guid;
 	uint8_t mad_class;
 	uint8_t class_version;
@@ -135,7 +135,7 @@ typedef struct _osm_bind_info {
 *
 * SYNOPSIS
 */
-typedef struct _osm_ni_context {
+typedef struct osm_ni_context {
 	ib_net64_t node_guid;
 	uint8_t port_num;
 	ib_net64_t dup_node_guid;
@@ -167,7 +167,7 @@ typedef struct _osm_ni_context {
 *
 * SYNOPSIS
 */
-typedef struct _osm_pi_context {
+typedef struct osm_pi_context {
 	ib_net64_t node_guid;
 	ib_net64_t port_guid;
 	boolean_t set_method;
@@ -186,7 +186,7 @@ typedef struct _osm_pi_context {
 *
 * SYNOPSIS
 */
-typedef struct _osm_nd_context {
+typedef struct osm_nd_context {
 	ib_net64_t node_guid;
 } osm_nd_context_t;
 /*********/
@@ -200,7 +200,7 @@ typedef struct _osm_nd_context {
 *
 * SYNOPSIS
 */
-typedef struct _osm_si_context {
+typedef struct osm_si_context {
 	ib_net64_t node_guid;
 	boolean_t set_method;
 	boolean_t light_sweep;
@@ -216,7 +216,7 @@ typedef struct _osm_si_context {
 *
 * SYNOPSIS
 */
-typedef struct _osm_lft_context {
+typedef struct osm_lft_context {
 	ib_net64_t node_guid;
 	boolean_t set_method;
 } osm_lft_context_t;
@@ -231,7 +231,7 @@ typedef struct _osm_lft_context {
 *
 * SYNOPSIS
 */
-typedef struct _osm_mft_context {
+typedef struct osm_mft_context {
 	ib_net64_t node_guid;
 	boolean_t set_method;
 } osm_mft_context_t;
@@ -246,7 +246,7 @@ typedef struct _osm_mft_context {
 *
 * SYNOPSIS
 */
-typedef struct _osm_smi_context {
+typedef struct osm_smi_context {
 	ib_net64_t port_guid;
 	boolean_t set_method;
 } osm_smi_context_t;
@@ -261,7 +261,7 @@ typedef struct _osm_smi_context {
 *
 * SYNOPSIS
 */
-typedef struct _osm_pkey_context {
+typedef struct osm_pkey_context {
 	ib_net64_t node_guid;
 	ib_net64_t port_guid;
 	boolean_t set_method;
@@ -277,7 +277,7 @@ typedef struct _osm_pkey_context {
 *
 * SYNOPSIS
 */
-typedef struct _osm_slvl_context {
+typedef struct osm_slvl_context {
 	ib_net64_t node_guid;
 	ib_net64_t port_guid;
 	boolean_t set_method;
@@ -293,7 +293,7 @@ typedef struct _osm_slvl_context {
 *
 * SYNOPSIS
 */
-typedef struct _osm_vla_context {
+typedef struct osm_vla_context {
 	ib_net64_t node_guid;
 	ib_net64_t port_guid;
 	boolean_t set_method;
@@ -304,7 +304,7 @@ typedef struct _osm_vla_context {
 * DESCRIPTION
 *	Context for Performance manager queries
 */
-typedef struct _osm_perfmgr_context {
+typedef struct osm_perfmgr_context {
 	uint64_t node_guid;
 	uint16_t port;
 	uint8_t mad_method;	/* was this a get or a set */
@@ -324,7 +324,7 @@ typedef struct _osm_perfmgr_context {
 *
 * SYNOPSIS
 */
-typedef struct _osm_arbitrary_context {
+typedef struct osm_arbitrary_context {
 	void *context1;
 	void *context2;
 } osm_arbitrary_context_t;
@@ -366,7 +366,7 @@ typedef union _osm_madw_context {
 *
 * SYNOPSIS
 */
-typedef struct _osm_mad_addr {
+typedef struct osm_mad_addr {
 	ib_net16_t dest_lid;
 	uint8_t path_bits;
 	uint8_t static_rate;
@@ -401,7 +401,7 @@ typedef struct _osm_mad_addr {
 *
 * SYNOPSIS
 */
-typedef struct _osm_madw {
+typedef struct osm_madw {
 	cl_list_item_t list_item;
 	osm_bind_handle_t h_bind;
 	osm_vend_wrap_t vend_wrap;

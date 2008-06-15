@@ -80,7 +80,7 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_attrib_req {
+typedef struct osm_attrib_req {
 	uint16_t attrib_id;
 	uint32_t attrib_mod;
 	osm_madw_context_t context;

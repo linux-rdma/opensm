@@ -54,12 +54,12 @@
 #include <opensm/osm_pkey.h>
 #include <opensm/osm_sa.h>
 
-typedef struct _osm_sir_item {
+typedef struct osm_sir_item {
 	cl_list_item_t list_item;
 	ib_switch_info_record_t rec;
 } osm_sir_item_t;
 
-typedef struct _osm_sir_search_ctxt {
+typedef struct osm_sir_search_ctxt {
 	const ib_switch_info_record_t *p_rcvd_rec;
 	ib_net64_t comp_mask;
 	cl_qlist_t *p_list;

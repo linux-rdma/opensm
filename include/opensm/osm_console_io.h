@@ -64,7 +64,7 @@
 #endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-typedef struct _osm_console_t {
+typedef struct osm_console {
 	int socket;
 	int in_fd;
 	int out_fd;

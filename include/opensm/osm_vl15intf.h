@@ -113,7 +113,7 @@ typedef enum _osm_vl15_state {
 *
 * SYNOPSIS
 */
-typedef struct _osm_vl15 {
+typedef struct osm_vl15 {
 	osm_thread_state_t thread_state;
 	osm_vl15_state_t state;
 	uint32_t max_wire_smps;
@@ -206,7 +206,7 @@ void osm_vl15_construct(IN osm_vl15_t * const p_vl15);
 * SYNOPSIS
 */
 void
-osm_vl15_destroy(IN osm_vl15_t * const p_vl15, IN struct _osm_mad_pool *p_pool);
+osm_vl15_destroy(IN osm_vl15_t * const p_vl15, IN struct osm_mad_pool *p_pool);
 /*
 * PARAMETERS
 *	p_vl15

@@ -69,7 +69,7 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_mcm_port {
+typedef struct osm_mcm_port {
 	cl_map_item_t map_item;
 	ib_gid_t port_gid;
 	uint8_t scope_state;

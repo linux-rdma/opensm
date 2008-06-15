@@ -90,7 +90,7 @@ struct osm_sm;
 *
 * SYNOPSIS
 */
-typedef struct _osm_lid_mgr {
+typedef struct osm_lid_mgr {
 	struct osm_sm *sm;
 	osm_subn_t *p_subn;
 	osm_db_t *p_db;

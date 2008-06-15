@@ -94,7 +94,7 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_infr_t {
+typedef struct osm_infr {
 	cl_list_item_t list_item;
 	osm_bind_handle_t h_bind;
 	osm_sa_t *sa;

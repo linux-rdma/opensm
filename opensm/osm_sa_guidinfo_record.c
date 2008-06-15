@@ -57,12 +57,12 @@
 #include <opensm/osm_pkey.h>
 #include <opensm/osm_sa.h>
 
-typedef struct _osm_gir_item {
+typedef struct osm_gir_item {
 	cl_list_item_t list_item;
 	ib_guidinfo_record_t rec;
 } osm_gir_item_t;
 
-typedef struct _osm_gir_search_ctxt {
+typedef struct osm_gir_search_ctxt {
 	const ib_guidinfo_record_t *p_rcvd_rec;
 	ib_net64_t comp_mask;
 	cl_qlist_t *p_list;

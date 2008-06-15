@@ -88,7 +88,7 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_mad_pool {
+typedef struct osm_mad_pool {
 	atomic32_t mads_out;
 } osm_mad_pool_t;
 /*

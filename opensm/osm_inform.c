@@ -51,7 +51,7 @@
 #include <opensm/osm_pkey.h>
 #include <opensm/osm_sa.h>
 
-typedef struct _osm_infr_match_ctxt {
+typedef struct osm_infr_match_ctxt {
 	cl_list_t *p_remove_infr_list;
 	ib_mad_notice_attr_t *p_ntc;
 } osm_infr_match_ctxt_t;

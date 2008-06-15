@@ -87,7 +87,7 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_rand_fwd_tbl {
+typedef struct osm_rand_fwdbl {
 	/* PLACE HOLDER STRUCTURE ONLY!! */
 	uint32_t size;
 } osm_rand_fwd_tbl_t;

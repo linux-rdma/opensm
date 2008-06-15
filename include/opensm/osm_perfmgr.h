@@ -109,7 +109,7 @@ typedef struct _monitored_node {
 *  This object should be treated as opaque and should
 *  be manipulated only through the provided functions.
 */
-typedef struct _osm_perfmgr {
+typedef struct osm_perfmgr {
 	cl_event_t sig_sweep;
 	cl_timer_t sweep_timer;
 	osm_subn_t *subn;

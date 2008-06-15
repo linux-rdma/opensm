@@ -78,7 +78,7 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_dr_path {
+typedef struct osm_dr_path {
 	osm_bind_handle_t h_bind;
 	uint8_t hop_count;
 	uint8_t path[IB_SUBNET_PATH_HOPS_MAX];

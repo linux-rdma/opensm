@@ -60,7 +60,7 @@
 
 BEGIN_C_DECLS
 
-struct _osm_switch;
+struct osm_switch;
 
 /****h* OpenSM/Node
 * NAME
@@ -94,9 +94,9 @@ struct _osm_switch;
 *
 * SYNOPSIS
 */
-typedef struct _osm_node {
+typedef struct osm_node {
 	cl_map_item_t map_item;
-	struct _osm_switch *sw;
+	struct osm_switch *sw;
 	ib_node_info_t node_info;
 	ib_node_desc_t node_desc;
 	uint32_t discovery_count;

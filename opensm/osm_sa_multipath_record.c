@@ -63,7 +63,7 @@
 
 #define OSM_SA_MPR_MAX_NUM_PATH        127
 
-typedef struct _osm_mpr_item {
+typedef struct osm_mpr_item {
 	cl_list_item_t list_item;
 	ib_path_rec_t path_rec;
 	const osm_port_t *p_src_port;
@@ -71,7 +71,7 @@ typedef struct _osm_mpr_item {
 	int hops;
 } osm_mpr_item_t;
 
-typedef struct _osm_path_parms {
+typedef struct osm_path_parms {
 	ib_net16_t pkey;
 	uint8_t mtu;
 	uint8_t rate;

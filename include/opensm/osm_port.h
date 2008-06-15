@@ -65,8 +65,8 @@ BEGIN_C_DECLS
 /*
 	Forward references.
 */
-struct _osm_port;
-struct _osm_node;
+struct osm_port;
+struct osm_node;
 
 /****h* OpenSM/Physical Port
 * NAME
@@ -103,12 +103,12 @@ struct _osm_node;
 *
 * SYNOPSIS
 */
-typedef struct _osm_physp {
+typedef struct osm_physp {
 	ib_port_info_t port_info;
 	ib_net64_t port_guid;
 	uint8_t port_num;
-	struct _osm_node *p_node;
-	struct _osm_physp *p_remote_physp;
+	struct osm_node *p_node;
+	struct osm_physp *p_remote_physp;
 	boolean_t healthy;
 	uint8_t vl_high_limit;
 	unsigned need_update;
@@ -209,7 +209,7 @@ void
 osm_physp_init(IN osm_physp_t * const p_physp,
 	       IN const ib_net64_t port_guid,
 	       IN const uint8_t port_num,
-	       IN const struct _osm_node *const p_node,
+	       IN const struct osm_node *const p_node,
 	       IN const osm_bind_handle_t h_bind,
 	       IN const uint8_t hop_count,
 	       IN const uint8_t * const p_initial_path);
@@ -963,12 +963,12 @@ osm_physp_get_port_num(IN const osm_physp_t * const p_physp)
 *
 * SYNOPSIS
 */
-static inline struct _osm_node *osm_physp_get_node_ptr(IN const osm_physp_t *
+static inline struct osm_node *osm_physp_get_node_ptr(IN const osm_physp_t *
 						       const p_physp)
 {
 	CL_ASSERT(p_physp);
 	CL_ASSERT(osm_physp_is_valid(p_physp));
-	return ((struct _osm_node *)p_physp->p_node);
+	return ((struct osm_node *)p_physp->p_node);
 }
 
 /*
@@ -1141,9 +1141,9 @@ static inline osm_dr_path_t *osm_physp_get_dr_path_ptr(IN const osm_physp_t *
 *
 * SYNOPSIS
 */
-typedef struct _osm_port {
+typedef struct osm_port {
 	cl_map_item_t map_item;
-	struct _osm_node *p_node;
+	struct osm_node *p_node;
 	ib_net64_t guid;
 	uint32_t discovery_count;
 	unsigned is_new;
@@ -1214,7 +1214,7 @@ void osm_port_delete(IN OUT osm_port_t ** const pp_port);
 * SYNOPSIS
 */
 osm_port_t *osm_port_new(IN const ib_node_info_t * p_ni,
-			 IN struct _osm_node *const p_parent_node);
+			 IN struct osm_node *const p_parent_node);
 /*
 * PARAMETERS
 *	p_ni

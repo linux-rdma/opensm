@@ -71,7 +71,7 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_mcm_info {
+typedef struct osm_mcm_info {
 	cl_list_item_t list_item;
 	ib_net16_t mlid;
 } osm_mcm_info_t;

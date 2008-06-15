@@ -55,11 +55,11 @@ BEGIN_C_DECLS
 /*
    Forward references.
 */
-struct _osm_physp;
-struct _osm_port;
-struct _osm_subn;
-struct _osm_node;
-struct _osm_physp;
+struct osm_physp;
+struct osm_port;
+struct osm_subn;
+struct osm_node;
+struct osm_physp;
 
 /*
  * Abstract:
@@ -80,7 +80,7 @@ struct _osm_physp;
 *
 * SYNOPSIS
 */
-typedef struct _osm_pkey_tbl {
+typedef struct osm_pkeybl {
 	cl_ptr_vector_t blocks;
 	cl_ptr_vector_t new_blocks;
 	cl_map_t keys;
@@ -132,7 +132,7 @@ typedef struct _osm_pkey_tbl {
 *
 * SYNOPSIS
 */
-typedef struct _osm_pending_pkey {
+typedef struct osm_pending_pkey {
 	cl_list_item_t list_item;
 	uint16_t pkey;
 	uint16_t block;
@@ -439,8 +439,8 @@ osm_pkey_tbl_set(IN osm_pkey_tbl_t * p_pkey_tbl,
 *
 * SYNOPSIS
 */
-boolean_t osm_physp_share_this_pkey(IN const struct _osm_physp *const p_physp1,
-				    IN const struct _osm_physp *const p_physp2,
+boolean_t osm_physp_share_this_pkey(IN const struct osm_physp *const p_physp1,
+				    IN const struct osm_physp *const p_physp2,
 				    IN const ib_net16_t pkey);
 /*
 * PARAMETERS
@@ -471,9 +471,9 @@ boolean_t osm_physp_share_this_pkey(IN const struct _osm_physp *const p_physp1,
 *
 * SYNOPSIS
 */
-ib_net16_t osm_physp_find_common_pkey(IN const struct _osm_physp *const
+ib_net16_t osm_physp_find_common_pkey(IN const struct osm_physp *const
 				      p_physp1,
-				      IN const struct _osm_physp *const
+				      IN const struct osm_physp *const
 				      p_physp2);
 /*
 * PARAMETERS
@@ -517,8 +517,8 @@ ib_net16_t osm_physp_find_common_pkey(IN const struct _osm_physp *const
 * SYNOPSIS
 */
 boolean_t osm_physp_share_pkey(IN osm_log_t * p_log,
-			       IN const struct _osm_physp *const p_physp_1,
-			       IN const struct _osm_physp *const p_physp_2);
+			       IN const struct osm_physp *const p_physp_1,
+			       IN const struct osm_physp *const p_physp_2);
 
 /*
 * PARAMETERS
@@ -564,8 +564,8 @@ boolean_t osm_physp_share_pkey(IN osm_log_t * p_log,
 * SYNOPSIS
 */
 boolean_t osm_port_share_pkey(IN osm_log_t * p_log,
-			      IN const struct _osm_port *const p_port_1,
-			      IN const struct _osm_port *const p_port_2);
+			      IN const struct osm_port *const p_port_1,
+			      IN const struct osm_port *const p_port_2);
 
 /*
 * PARAMETERS
@@ -611,7 +611,7 @@ boolean_t osm_port_share_pkey(IN osm_log_t * p_log,
 * SYNOPSIS
 */
 boolean_t osm_lid_share_pkey(IN osm_log_t * p_log,
-			     IN const struct _osm_subn *const p_subn,
+			     IN const struct osm_subn *const p_subn,
 			     IN const ib_net16_t lid1,
 			     IN const uint8_t port_num1,
 			     IN const ib_net16_t lid2,
@@ -671,7 +671,7 @@ boolean_t osm_lid_share_pkey(IN osm_log_t * p_log,
 */
 boolean_t osm_physp_has_pkey(IN osm_log_t * p_log,
 			     IN const ib_net16_t pkey,
-			     IN const struct _osm_physp *const p_physp);
+			     IN const struct osm_physp *const p_physp);
 
 /*
 * PARAMETERS

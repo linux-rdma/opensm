@@ -88,7 +88,7 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_svcr_t {
+typedef struct osm_svcr {
 	cl_list_item_t list_item;
 	ib_service_record_t service_record;
 	uint32_t modified_time;

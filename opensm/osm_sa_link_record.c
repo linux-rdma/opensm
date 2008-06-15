@@ -55,7 +55,7 @@
 #include <opensm/osm_pkey.h>
 #include <opensm/osm_sa.h>
 
-typedef struct _osm_lr_item {
+typedef struct osm_lr_item {
 	cl_list_item_t list_item;
 	ib_link_record_t link_rec;
 } osm_lr_item_t;

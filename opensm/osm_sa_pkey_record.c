@@ -50,12 +50,12 @@
 #include <opensm/osm_pkey.h>
 #include <opensm/osm_sa.h>
 
-typedef struct _osm_pkey_item {
+typedef struct osm_pkey_item {
 	cl_list_item_t list_item;
 	ib_pkey_table_record_t rec;
 } osm_pkey_item_t;
 
-typedef struct _osm_pkey_search_ctxt {
+typedef struct osm_pkey_search_ctxt {
 	const ib_pkey_table_record_t *p_rcvd_rec;
 	ib_net64_t comp_mask;
 	uint16_t block_num;

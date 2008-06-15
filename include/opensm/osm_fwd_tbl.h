@@ -88,7 +88,7 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_fwd_tbl_t {
+typedef struct osm_fwd_tbl {
 	osm_rand_fwd_tbl_t *p_rnd_tbl;
 	osm_lin_fwd_tbl_t *p_lin_tbl;
 } osm_fwd_tbl_t;

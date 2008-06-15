@@ -152,7 +152,7 @@ typedef struct osm_mcast_mgr_ctxt {
 *
 * SYNOPSIS
 */
-typedef struct _osm_mgrp {
+typedef struct osm_mgrp {
 	cl_map_item_t map_item;
 	ib_net16_t mlid;
 	osm_mtree_node_t *p_root;

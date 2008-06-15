@@ -75,7 +75,7 @@
 					IB_MCR_COMPMASK_FLOW | \
 					IB_MCR_COMPMASK_SL)
 
-typedef struct _osm_mcmr_item {
+typedef struct osm_mcmr_item {
 	cl_list_item_t list_item;
 	ib_member_rec_t rec;
 } osm_mcmr_item_t;

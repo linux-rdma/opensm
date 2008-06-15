@@ -66,12 +66,12 @@
 
 /***************************************************/
 
-typedef struct _osm_qos_port_t {
+typedef struct osm_qos_port {
 	cl_map_item_t map_item;
 	osm_physp_t * p_physp;
 } osm_qos_port_t;
 
-typedef struct _osm_qos_port_group_t {
+typedef struct osm_qos_port_group {
 	char *name;			/* single string (this port group name) */
 	char *use;			/* single string (description) */
 	uint8_t node_types;		/* node types bitmask */
@@ -80,7 +80,7 @@ typedef struct _osm_qos_port_group_t {
 
 /***************************************************/
 
-typedef struct _osm_qos_vlarb_scope_t {
+typedef struct osm_qos_vlarb_scope {
 	cl_list_t group_list;		/* list of group names (strings) */
 	cl_list_t across_list;		/* list of 'across' group names (strings) */
 	cl_list_t vlarb_high_list;	/* list of num pairs (n:m,...), 32-bit values */
@@ -91,7 +91,7 @@ typedef struct _osm_qos_vlarb_scope_t {
 
 /***************************************************/
 
-typedef struct _osm_qos_sl2vl_scope_t {
+typedef struct osm_qos_sl2vl_scope {
 	cl_list_t group_list;		/* list of strings (port group names) */
 	boolean_t from[OSM_QOS_POLICY_MAX_PORTS_ON_SWITCH];
 	boolean_t to[OSM_QOS_POLICY_MAX_PORTS_ON_SWITCH];
@@ -103,7 +103,7 @@ typedef struct _osm_qos_sl2vl_scope_t {
 
 /***************************************************/
 
-typedef struct _osm_qos_level_t {
+typedef struct osm_qos_level {
 	char *use;
 	char *name;
 	uint8_t sl;
@@ -123,7 +123,7 @@ typedef struct _osm_qos_level_t {
 
 /***************************************************/
 
-typedef struct _osm_qos_match_rule_t {
+typedef struct osm_qos_match_rule {
 	char *use;
 	cl_list_t source_list;			/* list of strings */
 	cl_list_t source_group_list;		/* list of pointers to relevant port-group */
@@ -141,7 +141,7 @@ typedef struct _osm_qos_match_rule_t {
 
 /***************************************************/
 
-typedef struct _osm_qos_policy_t {
+typedef struct osm_qos_policy {
 	cl_list_t port_groups;			/* list of osm_qos_port_group_t */
 	cl_list_t sl2vl_tables;			/* list of osm_qos_sl2vl_scope_t */
 	cl_list_t vlarb_tables;			/* list of osm_qos_vlarb_scope_t */

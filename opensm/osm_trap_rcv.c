@@ -80,7 +80,7 @@ extern void osm_req_get_node_desc(IN osm_sm_t * sm, osm_physp_t *p_physp);
  *
  **********************************************************************/
 
-typedef struct _osm_trap_aging_tracker_context {
+typedef struct osm_trap_agingracker_context {
 	osm_log_t *p_log;
 	osm_physp_t *p_physp;
 } osm_trap_aging_tracker_context_t;

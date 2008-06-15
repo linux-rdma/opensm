@@ -88,8 +88,8 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_db_domain {
-	struct _osm_db *p_db;
+typedef struct osm_db_domain {
+	struct osm_db *p_db;
 	void *p_domain_imp;
 } osm_db_domain_t;
 /*
@@ -116,7 +116,7 @@ typedef struct _osm_db_domain {
 *
 * SYNOPSIS
 */
-typedef struct _osm_db {
+typedef struct osm_db {
 	void *p_db_imp;
 	osm_log_t *p_log;
 	cl_list_t domains;

@@ -113,7 +113,7 @@ typedef enum _osm_sa_state {
 *
 * SYNOPSIS
 */
-typedef struct _osm_sa {
+typedef struct osm_sa {
 	osm_sa_state_t state;
 	osm_sm_t *sm;
 	osm_subn_t *p_subn;
@@ -418,7 +418,7 @@ void osm_sa_respond(osm_sa_t *sa, osm_madw_t *madw, size_t attr_size,
 *	SA object
 *********/
 
-struct _osm_opensm_t;
+struct osm_opensm;
 /****f* OpenSM: SA/osm_sa_db_file_dump
 * NAME
 *	osm_sa_db_file_dump
@@ -428,7 +428,7 @@ struct _osm_opensm_t;
 *
 * SYNOPSIS
 */
-int osm_sa_db_file_dump(struct _osm_opensm_t *p_osm);
+int osm_sa_db_file_dump(struct osm_opensm *p_osm);
 /*
 * PARAMETERS
 *	p_osm
@@ -448,7 +448,7 @@ int osm_sa_db_file_dump(struct _osm_opensm_t *p_osm);
 *
 * SYNOPSIS
 */
-int osm_sa_db_file_load(struct _osm_opensm_t *p_osm);
+int osm_sa_db_file_load(struct osm_opensm *p_osm);
 /*
 * PARAMETERS
 *	p_osm

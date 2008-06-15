@@ -57,7 +57,7 @@
 
 /**********************************************************************
  **********************************************************************/
-typedef struct _osm_mcast_work_obj {
+typedef struct osm_mcast_work_obj {
 	cl_list_item_t list_item;
 	osm_port_t *p_port;
 } osm_mcast_work_obj_t;

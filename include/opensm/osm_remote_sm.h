@@ -85,7 +85,7 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_remote_sm {
+typedef struct osm_remote_sm {
 	cl_map_item_t map_item;
 	const osm_port_t *p_port;
 	ib_sm_info_t smi;

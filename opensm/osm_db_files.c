@@ -83,7 +83,7 @@
  *
  * SYNOPSIS
  */
-typedef struct _osm_db_domain_imp {
+typedef struct osm_db_domain_imp {
 	char *file_name;
 	st_table *p_hash;
 	cl_spinlock_t lock;
@@ -104,7 +104,7 @@ typedef struct _osm_db_domain_imp {
  *
  * SYNOPSIS
  */
-typedef struct _osm_db_imp {
+typedef struct osm_db_imp {
 	char *db_dir_name;
 } osm_db_imp_t;
 /*

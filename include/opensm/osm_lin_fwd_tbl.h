@@ -84,7 +84,7 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_lin_fwd_tbl {
+typedef struct osm_lin_fwdbl {
 	uint16_t size;
 	uint8_t port_tbl[1];
 } osm_lin_fwd_tbl_t;

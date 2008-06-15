@@ -92,7 +92,7 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_router {
+typedef struct osm_router {
 	cl_map_item_t map_item;
 	osm_port_t *p_port;
 } osm_router_t;

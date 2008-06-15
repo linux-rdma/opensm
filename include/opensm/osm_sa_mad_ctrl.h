@@ -78,7 +78,7 @@ BEGIN_C_DECLS
 *
 *********/
 
-struct _osm_sa;
+struct osm_sa;
 /****s* OpenSM: SA MAD Controller/osm_sa_mad_ctrl_t
 * NAME
 *	osm_sa_mad_ctrl_t
@@ -91,8 +91,8 @@ struct _osm_sa;
 *
 * SYNOPSIS
 */
-typedef struct _osm_sa_mad_ctrl {
-	struct _osm_sa *sa;
+typedef struct osm_sa_mad_ctrl {
+	struct osm_sa *sa;
 	osm_log_t *p_log;
 	osm_mad_pool_t *p_mad_pool;
 	osm_vendor_t *p_vendor;
@@ -205,7 +205,7 @@ void osm_sa_mad_ctrl_destroy(IN osm_sa_mad_ctrl_t * const p_ctrl);
 * SYNOPSIS
 */
 ib_api_status_t osm_sa_mad_ctrl_init(IN osm_sa_mad_ctrl_t * const p_ctrl,
-				     IN struct _osm_sa * sa,
+				     IN struct osm_sa * sa,
 				     IN osm_mad_pool_t * const p_mad_pool,
 				     IN osm_vendor_t * const p_vendor,
 				     IN osm_subn_t * const p_subn,

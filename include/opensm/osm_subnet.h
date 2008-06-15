@@ -63,8 +63,8 @@ BEGIN_C_DECLS
 #define OSM_SUBNET_VECTOR_MIN_SIZE			0
 #define OSM_SUBNET_VECTOR_GROW_SIZE			1
 #define OSM_SUBNET_VECTOR_CAPACITY			256
-struct _osm_opensm_t;
-struct _osm_qos_policy_t;
+struct osm_opensm;
+struct osm_qos_policy;
 
 /****h* OpenSM/Subnet
 * NAME
@@ -96,7 +96,7 @@ struct _osm_qos_policy_t;
 *
 * SYNOPSIS
 */
-typedef struct _osm_qos_options_t {
+typedef struct osm_qos_options {
 	unsigned max_vls;
 	unsigned high_limit;
 	char *vlarb_high;
@@ -134,7 +134,7 @@ typedef struct _osm_qos_options_t {
 *
 * SYNOPSIS
 */
-typedef struct _osm_subn_opt {
+typedef struct osm_subn_opt {
 	char *config_file;
 	ib_net64_t guid;
 	ib_net64_t m_key;
@@ -456,8 +456,8 @@ typedef struct _osm_subn_opt {
 *
 * SYNOPSIS
 */
-typedef struct _osm_subn {
-	struct _osm_opensm_t *p_osm;
+typedef struct osm_subn {
+	struct osm_opensm *p_osm;
 	cl_qmap_t sw_guid_tbl;
 	cl_qmap_t node_guid_tbl;
 	cl_qmap_t port_guid_tbl;
@@ -475,7 +475,7 @@ typedef struct _osm_subn {
 	ib_net64_t sm_port_guid;
 	uint8_t sm_state;
 	osm_subn_opt_t opt;
-	struct _osm_qos_policy_t *p_qos_policy;
+	struct osm_qos_policy *p_qos_policy;
 	uint16_t max_unicast_lid_ho;
 	uint16_t max_multicast_lid_ho;
 	uint8_t min_ca_mtu;
@@ -684,7 +684,7 @@ void osm_subn_destroy(IN osm_subn_t * const p_subn);
 */
 ib_api_status_t
 osm_subn_init(IN osm_subn_t * const p_subn,
-	      IN struct _osm_opensm_t *const p_osm,
+	      IN struct osm_opensm *const p_osm,
 	      IN const osm_subn_opt_t * const p_opt);
 /*
 * PARAMETERS
@@ -707,11 +707,11 @@ osm_subn_init(IN osm_subn_t * const p_subn,
 /*
   Forward references.
 */
-struct _osm_mad_addr;
-struct _osm_log;
-struct _osm_switch;
-struct _osm_physp;
-struct _osm_port;
+struct osm_mad_addr;
+struct osm_log;
+struct osm_switch;
+struct osm_physp;
+struct osm_port;
 
 /****f* OpenSM: Helper/osm_get_gid_by_mad_addr
 * NAME
@@ -726,9 +726,9 @@ struct _osm_port;
 * SYNOPSIS
 */
 ib_api_status_t
-osm_get_gid_by_mad_addr(IN struct _osm_log *p_log,
+osm_get_gid_by_mad_addr(IN struct osm_log *p_log,
 			IN const osm_subn_t * p_subn,
-			IN const struct _osm_mad_addr *p_mad_addr,
+			IN const struct osm_mad_addr *p_mad_addr,
 			OUT ib_gid_t * p_gid);
 /*
 * PARAMETERS
@@ -764,9 +764,9 @@ osm_get_gid_by_mad_addr(IN struct _osm_log *p_log,
 *
 * SYNOPSIS
 */
-struct _osm_physp *osm_get_physp_by_mad_addr(IN struct _osm_log *p_log,
+struct osm_physp *osm_get_physp_by_mad_addr(IN struct osm_log *p_log,
 					     IN const osm_subn_t * p_subn,
-					     IN struct _osm_mad_addr
+					     IN struct osm_mad_addr
 					     *p_mad_addr);
 /*
 * PARAMETERS
@@ -799,9 +799,9 @@ struct _osm_physp *osm_get_physp_by_mad_addr(IN struct _osm_log *p_log,
 *
 * SYNOPSIS
 */
-struct _osm_port *osm_get_port_by_mad_addr(IN struct _osm_log *p_log,
+struct osm_port *osm_get_port_by_mad_addr(IN struct osm_log *p_log,
 					   IN const osm_subn_t * p_subn,
-					   IN struct _osm_mad_addr *p_mad_addr);
+					   IN struct osm_mad_addr *p_mad_addr);
 /*
 * PARAMETERS
 *  p_log
@@ -832,7 +832,7 @@ struct _osm_port *osm_get_port_by_mad_addr(IN struct _osm_log *p_log,
 *
 * SYNOPSIS
 */
-struct _osm_switch *osm_get_switch_by_guid(IN const osm_subn_t * p_subn,
+struct osm_switch *osm_get_switch_by_guid(IN const osm_subn_t * p_subn,
 					   IN uint64_t guid);
 /*
 * PARAMETERS
@@ -861,7 +861,7 @@ struct _osm_switch *osm_get_switch_by_guid(IN const osm_subn_t * p_subn,
 *
 * SYNOPSIS
 */
-struct _osm_node *osm_get_node_by_guid(IN osm_subn_t const *p_subn,
+struct osm_node *osm_get_node_by_guid(IN osm_subn_t const *p_subn,
 				       IN uint64_t guid);
 /*
 * PARAMETERS
@@ -890,7 +890,7 @@ struct _osm_node *osm_get_node_by_guid(IN osm_subn_t const *p_subn,
 *
 * SYNOPSIS
 */
-struct _osm_port *osm_get_port_by_guid(IN osm_subn_t const *p_subn,
+struct osm_port *osm_get_port_by_guid(IN osm_subn_t const *p_subn,
 				       IN ib_net64_t guid);
 /*
 * PARAMETERS
@@ -920,9 +920,9 @@ struct _osm_port *osm_get_port_by_guid(IN osm_subn_t const *p_subn,
 *
 * SYNOPSIS
 */
-struct _osm_physp *osm_get_physp_by_mad_addr(IN struct _osm_log *p_log,
+struct osm_physp *osm_get_physp_by_mad_addr(IN struct osm_log *p_log,
 					     IN const osm_subn_t * p_subn,
-					     IN struct _osm_mad_addr
+					     IN struct osm_mad_addr
 					     *p_mad_addr);
 /*
 * PARAMETERS

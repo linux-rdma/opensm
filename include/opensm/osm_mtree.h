@@ -97,12 +97,12 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct _osm_mtree_node {
+typedef struct osm_mtree_node {
 	cl_map_item_t map_item;
 	osm_switch_t *p_sw;
 	uint8_t max_children;
-	struct _osm_mtree_node *p_up;
-	struct _osm_mtree_node *child_array[1];
+	struct osm_mtree_node *p_up;
+	struct osm_mtree_node *child_array[1];
 } osm_mtree_node_t;
 /*
 * FIELDS

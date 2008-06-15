@@ -90,7 +90,7 @@ struct osm_sm;
 *
 * SYNOPSIS
 */
-typedef struct _osm_ucast_mgr {
+typedef struct osm_ucast_mgr {
 	struct osm_sm *sm;
 	osm_subn_t *p_subn;
 	osm_log_t *p_log;

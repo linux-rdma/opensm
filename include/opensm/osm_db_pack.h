@@ -100,7 +100,7 @@ static inline osm_db_domain_t *osm_db_guid2lid_init(IN osm_db_t * const p_db)
 *
 * SYNOPSIS
 */
-typedef struct _osm_db_guid_elem {
+typedef struct osm_db_guid_elem {
 	cl_list_item_t item;
 	uint64_t guid;
 } osm_db_guid_elem_t;
