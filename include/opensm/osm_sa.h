@@ -124,7 +124,6 @@ typedef struct _osm_sa {
 	cl_plock_t *p_lock;
 	atomic32_t sa_trans_id;
 	osm_sa_mad_ctrl_t mad_ctrl;
-
 	cl_timer_t sr_timer;
 	cl_disp_reg_handle_t cpi_disp_h;
 	cl_disp_reg_handle_t nr_disp_h;

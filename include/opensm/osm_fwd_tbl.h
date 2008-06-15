@@ -91,7 +91,6 @@ BEGIN_C_DECLS
 typedef struct _osm_fwd_tbl_t {
 	osm_rand_fwd_tbl_t *p_rnd_tbl;
 	osm_lin_fwd_tbl_t *p_lin_tbl;
-
 } osm_fwd_tbl_t;
 /*
 * FIELDS

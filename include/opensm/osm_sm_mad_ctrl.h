@@ -103,7 +103,6 @@ typedef struct _osm_sm_mad_ctrl {
 	cl_dispatcher_t *p_disp;
 	cl_disp_reg_handle_t h_disp;
 	osm_stats_t *p_stats;
-
 } osm_sm_mad_ctrl_t;
 /*
 * FIELDS

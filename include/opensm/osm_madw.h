@@ -370,7 +370,6 @@ typedef struct _osm_mad_addr {
 	ib_net16_t dest_lid;
 	uint8_t path_bits;
 	uint8_t static_rate;
-
 	union addr_type {
 		struct _smi {
 			ib_net16_t source_lid;
@@ -386,7 +385,6 @@ typedef struct _osm_mad_addr {
 			ib_grh_t grh_info;
 		} gsi;
 	} addr_type;
-
 } osm_mad_addr_t;
 /*
 * FIELDS

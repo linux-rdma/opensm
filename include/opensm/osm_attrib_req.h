@@ -86,7 +86,6 @@ typedef struct _osm_attrib_req {
 	osm_madw_context_t context;
 	osm_dr_path_t path;
 	cl_disp_msgid_t err_msg;
-
 } osm_attrib_req_t;
 /*
 * FIELDS
