@@ -35,6 +35,8 @@
 #  include <config.h>
 #endif				/* HAVE_CONFIG_H */
 
+#ifdef ENABLE_OSM_PERF_MGR
+
 #include <stdlib.h>
 #include <errno.h>
 #include <limits.h>
@@ -798,3 +800,4 @@ perfmgr_db_fill_data_cnt_read_epc(ib_port_counters_ext_t * wire_read,
 	reading->multicast_rcv_pkts = cl_ntoh64(wire_read->multicast_rcv_pkts);
 	reading->time = time(NULL);
 }
+#endif				/* ENABLE_OSM_PERF_MGR */

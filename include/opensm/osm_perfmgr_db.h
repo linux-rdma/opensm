@@ -34,6 +34,8 @@
 #ifndef _PERFMGR_EVENT_DB_H_
 #define _PERFMGR_EVENT_DB_H_
 
+#ifdef ENABLE_OSM_PERF_MGR
+
 #include <time.h>
 #include <opensm/osm_log.h>
 #include <iba/ib_types.h>
@@ -201,4 +203,7 @@ void perfmgr_db_fill_data_cnt_read_epc(ib_port_counters_ext_t * wire_read,
 				       perfmgr_db_data_cnt_reading_t * reading);
 
 END_C_DECLS
+
+#endif				/* ENABLE_OSM_PERF_MGR */
+
 #endif				/* _PERFMGR_PM_DB_H_ */
