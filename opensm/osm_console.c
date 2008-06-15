@@ -828,7 +828,7 @@ static void switchbalance_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 		}
 
 		if (p_cmd) {
-			guid = strtoul(p_cmd, &p_end, 0);
+			guid = strtoull(p_cmd, &p_end, 0);
 			if (!guid || *p_end != '\0') {
 				fprintf(out, "Invalid guid specified\n");
 				help_switchbalance(out, 1);
@@ -1031,7 +1031,7 @@ static void lidbalance_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 	if (p_cmd) {
 		char *p_end;
 
-		switchguid = strtoul(p_cmd, &p_end, 0);
+		switchguid = strtoull(p_cmd, &p_end, 0);
 		if (!switchguid || *p_end != '\0') {
 			fprintf(out, "Invalid switchguid specified\n");
 			help_lidbalance(out, 1);
