@@ -58,7 +58,7 @@
 #ifndef OSM_VENDOR_INTF_TS
 #ifndef OSM_VENDOR_INTF_SIM
 #ifndef OSM_VENDOR_INTF_AL
-#define OSM_VENDOR_INTF_AL
+#define OSM_VENDOR_INTF_OPENIB
 #endif				/* AL */
 #endif				/* TS */
 #endif				/* SIM */
