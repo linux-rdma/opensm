@@ -991,8 +991,8 @@ static void lidbalance_check(osm_opensm_t * p_osm,
 			fprintf(out, "\n");
 		}
 
-		/* Output if this CA/router is being forwarded through a port an unbalanced
-		 * number of times.
+		/* Output if this CA/router is being forwarded through a port
+		 * an unbalanced number of times.
 		 */
 		if ((port_max_count - port_min_count) > 1) {
 			fprintf(out,
