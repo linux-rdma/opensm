@@ -251,7 +251,7 @@ static void load_plugins(osm_opensm_t *osm, char *plugin_names)
 
 	name = strtok_r(plugin_names, " \t\n", &p);
 	while (name && *name) {
-		epi = osm_epi_construct(&osm->log, name);
+		epi = osm_epi_construct(osm, name);
 		if (!epi)
 			osm_log(&osm->log, OSM_LOG_ERROR,
 				"cannot load plugin \'%s\'\n", name);

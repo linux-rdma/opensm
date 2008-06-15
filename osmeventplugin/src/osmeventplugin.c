@@ -38,12 +38,15 @@
 #include <errno.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <time.h>
 #include <dlfcn.h>
 #include <stdint.h>
-#include <opensm/osm_event_plugin.h>
 #include <complib/cl_qmap.h>
 #include <complib/cl_passivelock.h>
+#include <opensm/osm_version.h>
+#include <opensm/osm_opensm.h>
+#include <opensm/osm_log.h>
 
 /** =========================================================================
  * This is a simple example plugin which logs some of the events the OSM
@@ -57,7 +60,7 @@ typedef struct _log_events {
 
 /** =========================================================================
  */
-static void *construct(osm_log_t * osmlog)
+static void *construct(osm_opensm_t *osm)
 {
 	_log_events_t *log = malloc(sizeof(*log));
 	if (!log)
@@ -66,14 +69,14 @@ static void *construct(osm_log_t * osmlog)
 	log->log_file = fopen(SAMPLE_PLUGIN_OUTPUT_FILE, "a+");
 
 	if (!(log->log_file)) {
-		osm_log(osmlog, OSM_LOG_ERROR,
+		osm_log(&osm->log, OSM_LOG_ERROR,
 			"Sample Event Plugin: Failed to open output file \"%s\"\n",
 			SAMPLE_PLUGIN_OUTPUT_FILE);
 		free(log);
 		return (NULL);
 	}
 
-	log->osmlog = osmlog;
+	log->osmlog = &osm->log;
 	return ((void *)log);
 }
 
@@ -171,9 +174,14 @@ static void report(void *_log, osm_epi_event_id_t event_id, void *event_data)
 /** =========================================================================
  * Define the object symbol for loading
  */
+
+#if OSM_EVENT_PLUGIN_INTERFACE_VER != 2
+#error OpenSM plugin interface version missmatch
+#endif
+
 osm_event_plugin_t osm_event_plugin = {
-      interface_version:OSM_EVENT_PLUGIN_INTERFACE_VER,
-      construct:construct,
-      destroy:destroy,
+      osm_version:OSM_VERSION,
+      create:construct,
+      delete:destroy,
       report:report
 };

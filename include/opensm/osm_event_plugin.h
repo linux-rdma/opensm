@@ -37,7 +37,6 @@
 #include <time.h>
 #include <iba/ib_types.h>
 #include <complib/cl_qlist.h>
-#include <opensm/osm_log.h>
 
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
@@ -60,6 +59,8 @@ BEGIN_C_DECLS
 *********/
 
 #define OSM_EPI_NODE_NAME_LEN (128)
+
+struct osm_opensm;
 /** =========================================================================
  * Event types
  */
@@ -144,11 +145,11 @@ typedef struct osm_epi_trap_event {
  * The version should be set to OSM_EVENT_PLUGIN_INTERFACE_VER
  */
 #define OSM_EVENT_PLUGIN_IMPL_NAME "osm_event_plugin"
-#define OSM_EVENT_PLUGIN_INTERFACE_VER (1)
+#define OSM_EVENT_PLUGIN_INTERFACE_VER 2
 typedef struct osm_event_plugin {
-	int interface_version;
-	void *(*construct) (osm_log_t * osm_log);
-	void (*destroy) (void *plugin_data);
+	const char *osm_version;
+	void *(*create) (struct osm_opensm *osm);
+	void (*delete) (void *plugin_data);
 	void (*report) (void *plugin_data,
 			osm_epi_event_id_t event_id, void *event_data);
 } osm_event_plugin_t;
@@ -161,14 +162,13 @@ typedef struct osm_epi_plugin {
 	void *handle;
 	osm_event_plugin_t *impl;
 	void *plugin_data;
-	osm_log_t *p_log;
 	char *plugin_name;
 } osm_epi_plugin_t;
 
 /**
  * functions
  */
-osm_epi_plugin_t *osm_epi_construct(osm_log_t * p_log, char *plugin_name);
+osm_epi_plugin_t *osm_epi_construct(struct osm_opensm *osm, char *plugin_name);
 void osm_epi_destroy(osm_epi_plugin_t * plugin);
 
 /** =========================================================================

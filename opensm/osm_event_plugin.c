@@ -44,8 +44,8 @@
 
 #include <stdlib.h>
 #include <dlfcn.h>
-
 #include <opensm/osm_event_plugin.h>
+#include <opensm/osm_opensm.h>
 
 #if defined(PATH_MAX)
 #define OSM_PATH_MAX	(PATH_MAX + 1)
@@ -58,7 +58,7 @@
 /**
  * functions
  */
-osm_epi_plugin_t *osm_epi_construct(osm_log_t * p_log, char *plugin_name)
+osm_epi_plugin_t *osm_epi_construct(osm_opensm_t *osm, char *plugin_name)
 {
 	char lib_name[OSM_PATH_MAX];
 	osm_epi_plugin_t *rc = NULL;
@@ -75,7 +75,7 @@ osm_epi_plugin_t *osm_epi_construct(osm_log_t * p_log, char *plugin_name)
 
 	rc->handle = dlopen(lib_name, RTLD_LAZY);
 	if (!rc->handle) {
-		OSM_LOG(p_log, OSM_LOG_ERROR,
+		OSM_LOG(&osm->log, OSM_LOG_ERROR,
 			"Failed to open event plugin \"%s\" : \"%s\"\n",
 			lib_name, dlerror());
 		goto DLOPENFAIL;
@@ -85,37 +85,33 @@ osm_epi_plugin_t *osm_epi_construct(osm_log_t * p_log, char *plugin_name)
 	    (osm_event_plugin_t *) dlsym(rc->handle,
 					 OSM_EVENT_PLUGIN_IMPL_NAME);
 	if (!rc->impl) {
-		OSM_LOG(p_log, OSM_LOG_ERROR,
+		OSM_LOG(&osm->log, OSM_LOG_ERROR,
 			"Failed to find \"%s\" symbol in \"%s\" : \"%s\"\n",
 			OSM_EVENT_PLUGIN_IMPL_NAME, lib_name, dlerror());
 		goto Exit;
 	}
 
 	/* Check the version to make sure this module will work with us */
-	if (rc->impl->interface_version != OSM_EVENT_PLUGIN_INTERFACE_VER) {
-		OSM_LOG(p_log, OSM_LOG_ERROR,
-			"Error opening %s: "
-			"%s symbol is the wrong version %d != %d\n",
-			plugin_name,
-			OSM_EVENT_PLUGIN_IMPL_NAME,
-			rc->impl->interface_version,
-			OSM_EVENT_PLUGIN_INTERFACE_VER);
+	if (strcmp(rc->impl->osm_version, osm->osm_version)) {
+		OSM_LOG(&osm->log, OSM_LOG_ERROR, "Error loading plugin"
+			" \'%s\': OpenSM version mismatch - plugin was built"
+			" against %s version of OpenSM. Skip loading.\n",
+			plugin_name, rc->impl->osm_version);
 		goto Exit;
 	}
 
-	if (!rc->impl->construct) {
-		OSM_LOG(p_log, OSM_LOG_ERROR,
-			"%s symbol has no construct function\n",
-			OSM_EVENT_PLUGIN_IMPL_NAME);
+	if (!rc->impl->create) {
+		OSM_LOG(&osm->log, OSM_LOG_ERROR,
+			"Error loading plugin \'%s\': no create() method.\n",
+			plugin_name);
 		goto Exit;
 	}
 
-	rc->plugin_data = rc->impl->construct(p_log);
+	rc->plugin_data = rc->impl->create(osm);
 
 	if (!rc->plugin_data)
 		goto Exit;
 
-	rc->p_log = p_log;
 	rc->plugin_name = strdup(plugin_name);
 	return (rc);
 
@@ -129,8 +125,8 @@ DLOPENFAIL:
 void osm_epi_destroy(osm_epi_plugin_t * plugin)
 {
 	if (plugin) {
-		if (plugin->impl->destroy)
-			plugin->impl->destroy(plugin->plugin_data);
+		if (plugin->impl->delete)
+			plugin->impl->delete(plugin->plugin_data);
 		dlclose(plugin->handle);
 		free(plugin->plugin_name);
 		free(plugin);
