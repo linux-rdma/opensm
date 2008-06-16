@@ -46,8 +46,8 @@
 #include <iba/ib_types.h>
 #include <complib/cl_atomic.h>
 #include <opensm/osm_base.h>
-#include <vendor/osm_vendor.h>
 #include <opensm/osm_madw.h>
+#include <vendor/osm_vendor.h>
 
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {

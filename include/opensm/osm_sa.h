@@ -51,7 +51,7 @@
 #include <complib/cl_dispatcher.h>
 #include <opensm/osm_stats.h>
 #include <opensm/osm_subnet.h>
-#include <vendor/osm_vendor.h>
+#include <vendor/osm_vendor_api.h>
 #include <opensm/osm_mad_pool.h>
 #include <opensm/osm_log.h>
 #include <opensm/osm_sa_mad_ctrl.h>

@@ -38,7 +38,7 @@
 
 #include <string.h>
 #include <opensm/osm_base.h>
-#include <vendor/osm_vendor.h>
+#include <vendor/osm_vendor_api.h>
 
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
