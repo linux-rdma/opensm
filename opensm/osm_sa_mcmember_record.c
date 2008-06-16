@@ -1122,7 +1122,10 @@ __search_mgrp_by_mgid(IN cl_map_item_t * const p_map_item, IN void *context)
 
 	if (p_ctxt->p_mgrp) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B30: "
-			"Multiple MC groups for same MGID\n");
+			"Multiple MC groups for MGID "
+			"0x%016" PRIx64 " : 0x%016" PRIx64 "\n",
+			cl_ntoh64(p_mgrp->mcmember_rec.mgid.unicast.prefix),
+			cl_ntoh64(p_mgrp->mcmember_rec.mgid.unicast.interface_id));
 		return;
 	}
 	p_ctxt->p_mgrp = p_mgrp;
@@ -1280,7 +1283,10 @@ __osm_mcmr_rcv_leave_mgrp(IN osm_sa_t * sa,
 	} else {
 		CL_PLOCK_RELEASE(sa->p_lock);
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-			"Failed since multicast group not present\n");
+			"Failed since multicast group 0x%16"
+			PRIx64 " : 0x%016" PRIx64 " not present\n",
+			cl_ntoh64(p_recvd_mcmember_rec->mgid.unicast.prefix),
+			cl_ntoh64(p_recvd_mcmember_rec->mgid.unicast.interface_id));
 		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_REQ_INVALID);
 		goto Exit;
 	}
