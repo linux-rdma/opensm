@@ -2381,7 +2381,7 @@ static void __qos_parser_error(const char *format, ...)
     va_end(pvar);
 
     OSM_LOG(p_qos_parser_osm_log, OSM_LOG_ERROR, "ERR AC05: "
-            "Syntax error (line %d:%d): %s",
+            "Syntax error (line %d:%d): %s\n",
             line_num, column_num, s);
     fprintf(stderr, "Error in QoS Policy File (line %d:%d): %s.\n",
             line_num, column_num, s);
