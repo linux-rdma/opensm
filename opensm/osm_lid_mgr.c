@@ -173,9 +173,9 @@ static void __osm_lid_mgr_validate_db(IN osm_lid_mgr_t * p_mgr)
 			    || (p_item->guid == 0)
 			    || (max_lid > p_mgr->p_subn->max_unicast_lid_ho)) {
 				OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 0312: "
-					"Illegal LID range [0x%x:0x%x] for guid:0x%016"
-					PRIx64 "\n", min_lid, max_lid,
-					p_item->guid);
+					"Illegal LID range [0x%x:0x%x] for "
+					"guid:0x%016" PRIx64 "\n", min_lid,
+					max_lid, p_item->guid);
 				lids_ok = FALSE;
 			} else if ((min_lid != max_lid)
 				   && ((min_lid & lmc_mask) != min_lid)) {
@@ -212,8 +212,9 @@ static void __osm_lid_mgr_validate_db(IN osm_lid_mgr_t * p_mgr)
 				    (p_mgr->p_g2l, p_item->guid))
 					OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR,
 						"ERR 0315: "
-						"failed to delete entry for guid:0x%016"
-						PRIx64 "\n", p_item->guid);
+						"failed to delete entry for "
+						"guid:0x%016" PRIx64 "\n",
+						p_item->guid);
 			} else {
 				/* mark it was visited */
 				for (lid = min_lid; lid <= max_lid; lid++)
@@ -262,12 +263,14 @@ osm_lid_mgr_init(IN osm_lid_mgr_t * const p_mgr, IN osm_sm_t *sm)
 		if (osm_db_restore(p_mgr->p_g2l)) {
 			if (p_mgr->p_subn->opt.exit_on_fatal) {
 				osm_log(p_mgr->p_log, OSM_LOG_SYS,
-					"FATAL: Error restoring Guid-to-Lid persistent database\n");
+					"FATAL: Error restoring Guid-to-Lid "
+					"persistent database\n");
 				status = IB_ERROR;
 				goto Exit;
 			} else
-				OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 0317: "
-					"Error restoring Guid-to-Lid persistent database\n");
+				OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR,
+					"ERR 0317: Error restoring Guid-to-Lid "
+					"persistent database\n");
 		}
 
 		/* we need to make sure we did not get duplicates with
@@ -337,11 +340,13 @@ static int __osm_lid_mgr_init_sweep(IN osm_lid_mgr_t * const p_mgr)
 				cl_ptr_vector_set(p_persistent_vec, lid, NULL);
 		} else {
 			OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-				"Honor current guid2lid file when coming out of standby\n");
+				"Honor current guid2lid file when coming out "
+				"of standby\n");
 			osm_db_clear(p_mgr->p_g2l);
 			if (osm_db_restore(p_mgr->p_g2l))
 				OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 0306: "
-					"Error restoring Guid-to-Lid persistent database. Ignoring it\n");
+					"Error restoring Guid-to-Lid "
+					"persistent database. Ignoring it\n");
 		}
 	}
 
@@ -397,8 +402,9 @@ static int __osm_lid_mgr_init_sweep(IN osm_lid_mgr_t * const p_mgr)
 			     (db_max_lid - db_min_lid + 1 < num_lids))) {
 				/* Not aligned, or not wide enough, then remove the entry */
 				OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-					"Cleaning persistent entry for guid:0x%016"
-					PRIx64 " illegal range:[0x%x:0x%x]\n",
+					"Cleaning persistent entry for guid:"
+					"0x%016" PRIx64 " illegal range:"
+					"[0x%x:0x%x]\n",
 					cl_ntoh64(osm_port_get_guid(p_port)),
 					db_min_lid, db_max_lid);
 				osm_db_guid2lid_delete(p_mgr->p_g2l,
@@ -452,8 +458,8 @@ static int __osm_lid_mgr_init_sweep(IN osm_lid_mgr_t * const p_mgr)
 		if ((lid <= max_persistent_lid)
 		    && cl_ptr_vector_get(p_persistent_vec, lid)) {
 			OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-				"0x%04x is not free as its mapped by the persistent db\n",
-				lid);
+				"0x%04x is not free as its mapped by the "
+				"persistent db\n", lid);
 			is_free = FALSE;
 		} else {
 			/* check this is a discovered port */
@@ -478,8 +484,9 @@ static int __osm_lid_mgr_init_sweep(IN osm_lid_mgr_t * const p_mgr)
 							 &db_min_lid,
 							 &db_max_lid)) {
 					OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-						"0x%04x is free as it was discovered "
-						"but mapped by the persistent db to [0x%04x:0x%04x]\n",
+						"0x%04x is free as it was "
+						"discovered but mapped by the "
+						"persistent db to [0x%04x:0x%04x]\n",
 						lid, db_min_lid, db_max_lid);
 				} else {
 					/* can the port keep its assignment ? */
@@ -507,8 +514,8 @@ static int __osm_lid_mgr_init_sweep(IN osm_lid_mgr_t * const p_mgr)
 						/* The lid cannot be used */
 						OSM_LOG(p_mgr->p_log,
 							OSM_LOG_DEBUG,
-							"0x%04x is free as it was discovered "
-							"but not aligned\n",
+							"0x%04x is free as it was "
+							"discovered but not aligned\n",
 							lid);
 					} else {
 						/* check that all needed lids are not persistently mapped */
@@ -579,10 +586,11 @@ AfterScanningLids:
 		    (osm_lid_mgr_range_t *) malloc(sizeof(osm_lid_mgr_range_t));
 		/*
 		   The p_range can be NULL in one of 2 cases:
-		   1. If max_defined_lid == 0. In this case, we want the entire range.
-		   2. If all lids discovered in the loop where mapped. In this case,
-		   no free range exists and we want to define it after the last
-		   mapped lid.
+		   1. If max_defined_lid == 0. In this case, we want the
+		   entire range.
+		   2. If all lids discovered in the loop where mapped. In this
+		   case, no free range exists and we want to define it after the
+		   last mapped lid.
 		 */
 		if (p_range)
 			p_range->min_lid = lid;
@@ -771,8 +779,8 @@ __osm_lid_mgr_get_port_lid(IN osm_lid_mgr_t * const p_mgr,
 			goto Exit;
 		} else {
 			OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-				"0x%016" PRIx64
-				" with lid:0x%04x does not match its known lid:0x%04x\n",
+				"0x%016" PRIx64 " with lid:0x%04x "
+				"does not match its known lid:0x%04x\n",
 				guid, cl_ntoh16(osm_port_get_base_lid(p_port)),
 				min_lid);
 			__osm_lid_mgr_cleanup_discovered_port_lid_range(p_mgr,
@@ -809,13 +817,13 @@ __osm_lid_mgr_get_port_lid(IN osm_lid_mgr_t * const p_mgr,
 				goto NewLidSet;
 			} else
 				OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-					"0x%016" PRIx64
-					" existing lid range:[0x%x:0x%x] is not free\n",
+					"0x%016" PRIx64 " existing lid "
+					"range:[0x%x:0x%x] is not free\n",
 					guid, min_lid, min_lid + num_lids - 1);
 		} else
 			OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-				"0x%016" PRIx64
-				" existing lid range:[0x%x:0x%x] is not lmc aligned\n",
+				"0x%016" PRIx64 " existing lid range:"
+				"0x%x:0x%x] is not lmc aligned\n",
 				guid, min_lid, min_lid + num_lids - 1);
 	}
 
@@ -1033,8 +1041,8 @@ __osm_lid_mgr_set_physp_pi(IN osm_lid_mgr_t * const p_mgr,
 			if (osm_log_is_active(p_mgr->p_log, OSM_LOG_DEBUG))
 				OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 					"Sending Link Down to GUID 0x%016"
-					PRIx64
-					"port %d due to op_vls or mtu change. MTU:%u,%u VL_CAP:%u,%u\n",
+					PRIx64 "port %d due to op_vls or "
+					"mtu change. MTU:%u,%u VL_CAP:%u,%u\n",
 					cl_ntoh64(osm_physp_get_port_guid
 						  (p_physp)), port_num, mtu,
 					ib_port_info_get_neighbor_mtu(p_old_pi),
@@ -1043,8 +1051,9 @@ __osm_lid_mgr_set_physp_pi(IN osm_lid_mgr_t * const p_mgr,
 				    );
 
 			/*
-			   we need to make sure the internal DB will follow the fact the remote
-			   port is also going through "down" state into "init"...
+			   we need to make sure the internal DB will follow the
+			   fact that the remote port is also going through
+			   "down" state into "init"...
 			 */
 			__osm_lid_mgr_set_remote_pi_state_to_init(p_mgr,
 								  p_physp);
@@ -1090,11 +1099,11 @@ __osm_lid_mgr_set_physp_pi(IN osm_lid_mgr_t * const p_mgr,
 	context.pi_context.active_transition = FALSE;
 
 	/*
-	   We need to set the cli_rereg bit when we are in first_time_master_sweep for
-	   ports supporting the ClientReregistration Vol1 (v1.2) p811 14.4.11
-	   Also, if this port was just now discovered, then we should also set the
-	   cli_rereg bit. We know that the port was just discovered if its is_new
-	   field is set.
+	   We need to set the cli_rereg bit when we are in first_time_master_sweep
+	   for ports supporting the ClientReregistration Vol1 (v1.2) p811 14.4.11
+	   Also, if this port was just now discovered, then we should also set
+	   the cli_rereg bit. We know that the port was just discovered if its
+	   is_new field is set.
 	 */
 	if ((p_mgr->p_subn->first_time_master_sweep == TRUE || p_port->is_new)
 	    && !p_mgr->p_subn->opt.no_clients_rereg
@@ -1279,15 +1288,17 @@ osm_signal_t osm_lid_mgr_process_subnet(IN osm_lid_mgr_t * const p_mgr)
 		}
 
 		/*
-		   get the port lid range - we need to send it on first active sweep or
-		   if there was a change (the result of the __osm_lid_mgr_get_port_lid)
+		   get the port lid range - we need to send it on first active
+		   sweep or if there was a change (the result of
+		   __osm_lid_mgr_get_port_lid)
 		 */
 		lid_changed =
 		    __osm_lid_mgr_get_port_lid(p_mgr, p_port, &min_lid_ho,
 					       &max_lid_ho);
 
-		/* we can call the function to update the port info as it known to
-		   look for any field change and will only send an updated if required */
+		/* we can call the function to update the port info as it known
+		   to look for any field change and will only send an updated
+		   if required */
 		OSM_LOG(p_mgr->p_log, OSM_LOG_VERBOSE,
 			"Assigned port 0x%016" PRIx64
 			", LID [0x%X,0x%X]\n", cl_ntoh64(port_guid),
