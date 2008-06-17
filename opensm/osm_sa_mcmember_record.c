@@ -244,7 +244,7 @@ __cleanup_mgrp(IN osm_sa_t * sa, IN ib_net16_t const mlid)
 	osm_mgrp_t *p_mgrp = __get_mgrp_by_mlid(sa, mlid);
 
 	/* Remove MGRP only if osm_mcm_port_t count is 0 and
-	 * Not a well known group */
+	   not a well known group */
 	if (p_mgrp && cl_is_qmap_empty(&p_mgrp->mcm_port_tbl) &&
 	    p_mgrp->well_known == FALSE) {
 		cl_qmap_remove_item(&sa->p_subn->mgrp_mlid_tbl,
@@ -1039,7 +1039,7 @@ osm_mcmr_rcv_create_new_mgrp(IN osm_sa_t * sa,
 	    (osm_mgrp_t *) cl_qmap_end(&sa->p_subn->mgrp_mlid_tbl)) {
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Found previous group for mlid:0x%04x - "
-			"Need to destroy it\n",
+			"Destroying it first\n",
 			cl_ntoh16(mlid));
 		cl_qmap_remove_item(&sa->p_subn->mgrp_mlid_tbl,
 				    (cl_map_item_t *) p_prev_mgrp);
@@ -1665,8 +1665,8 @@ __osm_sa_mcm_by_comp_mask_cb(IN cl_map_item_t * const p_map_item,
 		   sizeof(uint16_t)))
 		goto Exit;
 
-	/* if the requester physical port doesn't have the pkey that is defined for
-	   the group - exit. */
+	/* if the requester physical port doesn't have the pkey that is defined
+	   for the group - exit. */
 	if (!osm_physp_has_pkey(sa->p_log, p_mgrp->mcmember_rec.pkey,
 				p_req_physp))
 		goto Exit;
