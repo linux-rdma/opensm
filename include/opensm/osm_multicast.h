@@ -81,7 +81,7 @@ BEGIN_C_DECLS
 *	Steve King, Intel
 *
 *********/
-/****f* IBA Base: OpneSM: Multicast Group/osm_get_mcast_req_type_str
+/****f* IBA Base: OpenSM: Multicast Group/osm_get_mcast_req_type_str
 * NAME
 *	osm_get_mcast_req_type_str
 *
@@ -126,15 +126,16 @@ typedef struct osm_mcast_mgr_ctxt {
 * FIELDS
 *
 *	mlid
-*		The network ordered LID of this Multicast Group (must be >= 0xC000).
+*		The network ordered LID of this Multicast Group
+*		(must be >= 0xC000).
 *
 *	req_type
 *		The type of the request that caused this call
-*     (multicast create/join/leave).
+*		(multicast create/join/leave).
 *
 *	port_guid
 *		The port guid of the port that is being added/removed from
-*     the multicast group due to this call.
+*		the multicast group due to this call.
 *
 * SEE ALSO
 *********/
