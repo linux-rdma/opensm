@@ -33,11 +33,21 @@
  *
  */
 
-#ifndef _OSM_PREFIX_ROUTES_H_
-#define _OSM_PREFIX_ROUTES_H_
+#ifndef _OSM_PREFIX_ROUTE_H_
+#define _OSM_PREFIX_ROUTE_H_
 
 #include <complib/cl_types.h>
 #include <complib/cl_qlist.h>
+
+#ifdef __cplusplus
+#  define BEGIN_C_DECLS extern "C" {
+#  define END_C_DECLS   }
+#else				/* !__cplusplus */
+#  define BEGIN_C_DECLS
+#  define END_C_DECLS
+#endif				/* __cplusplus */
+
+BEGIN_C_DECLS
 
 typedef struct {
 	cl_list_item_t list_item;	/* must be first */
@@ -49,4 +59,5 @@ typedef struct {
 #error ROUTER_EXP is deprecated, specify prefix routes at runtime instead (see opensm man page for details)
 #endif
 
-#endif /* _OSM_PREFIX_ROUTES_H_ */
+END_C_DECLS
+#endif /* _OSM_PREFIX_ROUTE_H_ */
