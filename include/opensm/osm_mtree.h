@@ -43,7 +43,6 @@
 #ifndef _OSM_MTREE_H_
 #define _OSM_MTREE_H_
 
-#include <string.h>
 #include <iba/ib_types.h>
 #include <complib/cl_qmap.h>
 #include <opensm/osm_base.h>
@@ -192,7 +191,6 @@ osm_mtree_node_get_max_children(IN const osm_mtree_node_t * const p_mtn)
 {
 	return (p_mtn->max_children);
 }
-
 /*
 * PARAMETERS
 *	p_mtn
@@ -223,7 +221,6 @@ static inline osm_mtree_node_t *osm_mtree_node_get_child(IN const
 	CL_ASSERT(child < p_mtn->max_children);
 	return (p_mtn->child_array[child]);
 }
-
 /*
 * PARAMETERS
 *	p_mtn
@@ -256,7 +253,6 @@ static inline osm_switch_t *osm_mtree_node_get_switch_ptr(IN const
 {
 	return (p_mtn->p_sw);
 }
-
 /*
 * PARAMETERS
 *	p_mtn
