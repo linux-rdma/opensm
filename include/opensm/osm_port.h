@@ -43,8 +43,6 @@
 #ifndef _OSM_PORT_H_
 #define _OSM_PORT_H_
 
-#include <stdlib.h>
-#include <string.h>
 #include <complib/cl_qmap.h>
 #include <iba/ib_types.h>
 #include <opensm/osm_base.h>
@@ -511,8 +509,9 @@ static inline const osm_pkey_tbl_t *osm_physp_get_pkey_tbl(IN const osm_physp_t
 {
 	CL_ASSERT(osm_physp_is_valid(p_physp));
 	/*
-	   (14.2.5.7) - the block number valid values are 0-2047, and are further
-	   limited by the size of the P_Key table specified by the PartitionCap on the node.
+	   (14.2.5.7) - the block number valid values are 0-2047, and are
+	   further limited by the size of the P_Key table specified by the
+	   PartitionCap on the node.
 	 */
 	return (&p_physp->pkeys);
 };
@@ -558,7 +557,8 @@ osm_physp_set_slvl_tbl(IN osm_physp_t * const p_physp,
 *		[in] Pointer to an osm_physp_t object.
 *
 *	p_slvl_tbl
-*		[in] Pointer to the IBA defined SLtoVL map table for this port number.
+*		[in] Pointer to the IBA defined SLtoVL map table for this
+*		     port number.
 *
 *	in_port_num
 *		[in] Input Port Number for this SLtoVL.
@@ -634,7 +634,8 @@ osm_physp_set_vla_tbl(IN osm_physp_t * const p_physp,
 *		[in] Pointer to an osm_physp_t object.
 *
 *	p_vla_tbl
-*		[in] Pointer to the IBA defined VL Arbitration table for this port number.
+*		[in] Pointer to the IBA defined VL Arbitration table for this
+*		     port number.
 *
 *	block_num
 *		[in] The part of the VL arbitration as defined in the IBA
