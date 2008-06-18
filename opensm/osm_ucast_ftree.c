@@ -1267,7 +1267,6 @@ static void __osm_ftree_fabric_dump_hca_ordering(IN ftree_fabric_t * p_ftree)
 		OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_ERROR, "ERR AB01: "
 			"cannot open file \'%s\': %s\n", filename,
 			strerror(errno));
-		OSM_LOG_EXIT(&p_ftree->p_osm->log);
 		return;
 	}
 
