@@ -59,11 +59,11 @@ BEGIN_C_DECLS
 *	Database
 *
 * DESCRIPTION
-*	The OpenSM database interface provide the means to restore persistat
-*  data, query, modify, delete and evemtually commit it back to the
+*	The OpenSM database interface provide the means to restore persistent
+*  data, query, modify, delete and eventually commit it back to the
 *  persistent media.
 *
-*  The interface is defined such that it can is not "data dependant":
+*  The interface is defined such that it can is not "data dependent":
 *  All keys and data items are texts.
 *
 *	The DB implementation should be thread safe, thus callers do not need to
@@ -148,7 +148,7 @@ void osm_db_construct(IN osm_db_t * const p_db);
 /*
 * PARAMETERS
 *	p_db
-*		[in] Pointer to the database object to custruct
+*		[in] Pointer to the database object to construct
 *
 * RETURN VALUES
 *	NONE
@@ -244,7 +244,8 @@ int osm_db_restore(IN osm_db_domain_t * p_domain);
 * PARAMETERS
 *
 *	p_domain
-*		[in] Pointer to the database domain object to restore from persistent db
+*		[in] Pointer to the database domain object to restore
+*		     from persistent db
 *
 * RETURN VALUES
 *	0 if successful 1 otherwize
@@ -292,7 +293,8 @@ int osm_db_store(IN osm_db_domain_t * p_domain);
 * PARAMETERS
 *
 *	p_domain
-*		[in] Pointer to the database domain object to restore from persistent db
+*		[in] Pointer to the database domain object to restore from
+*		     persistent db
 *
 * RETURN VALUES
 *	0 if successful 1 otherwize
