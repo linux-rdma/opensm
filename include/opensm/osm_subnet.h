@@ -223,7 +223,7 @@ typedef struct osm_subn_opt {
 *		The port guid that the SM is binding to.
 *
 *	m_key
-*		M_Key value sent to all ports qualifing all Set(PortInfo).
+*		M_Key value sent to all ports qualifying all Set(PortInfo).
 *
 *	sm_key
 *		SM_Key value of the SM used for SM authentication.
@@ -313,7 +313,8 @@ typedef struct osm_subn_opt {
 *
 *	packet_life_time
 *		The maximal time a packet can stay in a switch.
-*		The value is send to all switches as SubnSet(SwitchInfo.life_state)
+*		The value is send to all switches as
+*		SubnSet(SwitchInfo.life_state)
 *
 *	dump_files_dir
 *		The directory to be used for opensm-subnet.lst, opensm.fdbs,
@@ -337,7 +338,8 @@ typedef struct osm_subn_opt {
 *
 *	accum_log_file
 *		If TRUE (default) - the log file will be accumulated.
-*		If FALSE - the log file will be erased before starting current opensm run.
+*		If FALSE - the log file will be erased before starting
+*		current opensm run.
 *
 *	port_prof_ignore_file
 *		Name of file with port guids to be ignored by port profiling.
@@ -382,7 +384,8 @@ typedef struct osm_subn_opt {
 *		Name of the SA database file.
 *
 *	exit_on_fatal
-*		If TRUE (default) - SM will exit on fatal subnet initialization issues.
+*		If TRUE (default) - SM will exit on fatal subnet initialization
+*		issues.
 *		If FALSE - SM will not exit.
 *		Fatal initialization issues:
 *		a. SM recognizes 2 different nodes with the same guid, or
@@ -666,8 +669,8 @@ void osm_subn_destroy(IN osm_subn_t * const p_subn);
 * NOTES
 *	Performs any necessary cleanup of the specified Subnet object.
 *	Further operations should not be attempted on the destroyed object.
-*	This function should only be called after a call to osm_subn_construct or
-*	osm_subn_init.
+*	This function should only be called after a call to osm_subn_construct
+*	or osm_subn_init.
 *
 * SEE ALSO
 *	Subnet object, osm_subn_construct, osm_subn_init
