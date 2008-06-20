@@ -756,14 +756,14 @@ osm_physp_set_pkey_tbl(IN osm_log_t * p_log,
 
 	CL_ASSERT(p_pkey_tbl);
 	/*
-	   (14.2.5.7) - the block number valid values are 0-2047, and are further
-	   limited by the size of the P_Key table specified by the PartitionCap on the
-	   node.
+	   (14.2.5.7) - the block number valid values are 0-2047, and are
+	   further limited by the size of the P_Key table specified by
+	   the PartitionCap on the node.
 	 */
 	if (!p_physp->p_node->sw || p_physp->port_num == 0)
 		/*
-		   The maximum blocks is defined in the node info: partition cap for CA,
-		   routers and switch management ports.
+		   The maximum blocks is defined in the node info: partition cap
+		   for CA, router, and switch management ports.
 		 */
 		max_blocks =
 		    (cl_ntoh16(p_physp->p_node->node_info.partition_cap) +
@@ -771,8 +771,9 @@ osm_physp_set_pkey_tbl(IN osm_log_t * p_log,
 		    / IB_NUM_PKEY_ELEMENTS_IN_BLOCK;
 	else
 		/*
-		   This is a switch, and not a management port. The maximum blocks is defined
-		   in the switch info: partition enforcement cap.
+		   This is a switch, and not a management port. The maximum
+		   blocks is defined in the switch info: partition enforcement
+		   cap.
 		 */
 		max_blocks =
 		    (cl_ntoh16(p_physp->p_node->sw->switch_info.enforce_cap) +
