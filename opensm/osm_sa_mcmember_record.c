@@ -153,7 +153,7 @@ __get_new_mlid(IN osm_sa_t * sa, IN ib_net16_t requested_mlid)
 	OSM_LOG_ENTER(sa->p_log);
 
 	if (requested_mlid && cl_ntoh16(requested_mlid) >= IB_LID_MCAST_START_HO
-	    && cl_ntoh16(requested_mlid) < p_subn->max_multicast_lid_ho
+	    && cl_ntoh16(requested_mlid) <= p_subn->max_multicast_lid_ho
 	    && cl_qmap_get(&p_subn->mgrp_mlid_tbl,
 			   requested_mlid) ==
 	    cl_qmap_end(&p_subn->mgrp_mlid_tbl)) {
@@ -172,7 +172,7 @@ __get_new_mlid(IN osm_sa_t * sa, IN ib_net16_t requested_mlid)
 	}
 
 	max_num_mlids =
-	    sa->p_subn->max_multicast_lid_ho - IB_LID_MCAST_START_HO;
+	    sa->p_subn->max_multicast_lid_ho - IB_LID_MCAST_START_HO + 1;
 
 	/* track all used mlids in the array (by mlid index) */
 	used_mlids_array = (uint8_t *) malloc(sizeof(uint8_t) * max_num_mlids);
