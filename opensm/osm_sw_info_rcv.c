@@ -304,8 +304,7 @@ __osm_si_rcv_process_new(IN osm_sm_t * sm,
 
 	/* set subnet max mlid to the minimum MulticastFDBCap of all switches */
 	if (p_sw->mcast_tbl.max_mlid_ho < sm->p_subn->max_multicast_lid_ho) {
-		sm->p_subn->max_multicast_lid_ho =
-		    p_sw->mcast_tbl.max_mlid_ho;
+		sm->p_subn->max_multicast_lid_ho = p_sw->mcast_tbl.max_mlid_ho;
 		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 			"Subnet max multicast lid is 0x%X\n",
 			sm->p_subn->max_multicast_lid_ho);
@@ -423,9 +422,9 @@ __osm_si_rcv_process_existing(IN osm_sm_t * sm,
 				is_change_detected = TRUE;
 			} else {
 				/*
-				   If something changed, then just signal the state
-				   manager.  Don't attempt to probe further during
-				   a light sweep.
+				   If something changed, then just signal the
+				   state manager.  Don't attempt to probe
+				   further during a light sweep.
 				 */
 				if (ib_switch_info_get_state_change(p_si)) {
 					osm_dump_switch_info(sm->p_log, p_si,
@@ -483,7 +482,6 @@ void osm_si_rcv_process(IN void *context, IN void *data)
 	/*
 	   Acquire the switch object and add the switch info.
 	 */
-
 	p_context = osm_madw_get_si_context_ptr(p_madw);
 
 	node_guid = p_context->node_guid;
