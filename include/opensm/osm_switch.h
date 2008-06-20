@@ -251,7 +251,6 @@ osm_switch_get_hop_count(IN const osm_switch_t * const p_sw,
 	return (lid_ho > p_sw->max_lid_ho || !p_sw->hops[lid_ho]) ?
 	    OSM_NO_PATH : p_sw->hops[lid_ho][port_num];
 }
-
 /*
 * PARAMETERS
 *	p_sw
@@ -285,7 +284,6 @@ static inline osm_fwd_tbl_t *osm_switch_get_fwd_tbl_ptr(IN const osm_switch_t *
 {
 	return ((osm_fwd_tbl_t *) & p_sw->fwd_tbl);
 }
-
 /*
 * PARAMETERS
 *	p_sw
@@ -371,7 +369,6 @@ osm_switch_get_least_hops(IN const osm_switch_t * const p_sw,
 	return (lid_ho > p_sw->max_lid_ho || !p_sw->hops[lid_ho]) ?
 	    OSM_NO_PATH : p_sw->hops[lid_ho][0];
 }
-
 /*
 * PARAMETERS
 *	p_sw
@@ -437,7 +434,6 @@ osm_switch_get_port_by_lid(IN const osm_switch_t * const p_sw,
 {
 	return (osm_fwd_tbl_get(&p_sw->fwd_tbl, lid_ho));
 }
-
 /*
 * PARAMETERS
 *	p_sw
@@ -517,7 +513,6 @@ static inline osm_physp_t *osm_switch_get_route_by_lid(IN const osm_switch_t *
 	else
 		return NULL;
 }
-
 /*
 * PARAMETERS
 *	p_sw
@@ -554,7 +549,6 @@ osm_switch_sp0_is_lmc_capable(IN const osm_switch_t * const p_sw,
 	return (p_subn->opt.lmc_esp0 &&
 		ib_switch_info_is_enhanced_port0(&p_sw->switch_info)) ? 1 : 0;
 }
-
 /*
 * PARAMETERS
 *	p_sw
@@ -588,7 +582,6 @@ osm_switch_get_max_block_id(IN const osm_switch_t * const p_sw)
 	return ((uint32_t) (osm_fwd_tbl_get_size(&p_sw->fwd_tbl) /
 			    osm_fwd_tbl_get_lids_per_block(&p_sw->fwd_tbl)));
 }
-
 /*
 * PARAMETERS
 *	p_sw
@@ -620,7 +613,6 @@ osm_switch_get_max_block_id_in_use(IN const osm_switch_t * const p_sw)
 						    cl_ntoh16(p_sw->switch_info.
 							      lin_top)));
 }
-
 /*
 * PARAMETERS
 *	p_sw
@@ -684,7 +676,6 @@ osm_switch_supports_mcast(IN const osm_switch_t * const p_sw)
 {
 	return (p_sw->switch_info.mcast_cap != 0);
 }
-
 /*
 * PARAMETERS
 *	p_sw
@@ -716,7 +707,6 @@ osm_switch_set_switch_info(IN osm_switch_t * const p_sw,
 	CL_ASSERT(p_si);
 	p_sw->switch_info = *p_si;
 }
-
 /*
 * PARAMETERS
 *	p_sw
@@ -747,7 +737,6 @@ osm_switch_count_path(IN osm_switch_t * const p_sw, IN const uint8_t port)
 {
 	osm_port_prof_path_count_inc(&p_sw->p_prof[port]);
 }
-
 /*
 * PARAMETERS
 *	p_sw
@@ -781,7 +770,6 @@ osm_switch_set_ft_block(IN osm_switch_t * const p_sw,
 	CL_ASSERT(p_sw);
 	return (osm_fwd_tbl_set_block(&p_sw->fwd_tbl, p_block, block_num));
 }
-
 /*
 * PARAMETERS
 *	p_sw
@@ -819,7 +807,6 @@ osm_switch_set_mft_block(IN osm_switch_t * const p_sw,
 	return (osm_mcast_tbl_set_block(&p_sw->mcast_tbl, p_block,
 					block_num, position));
 }
-
 /*
 * PARAMETERS
 *	p_sw
@@ -861,7 +848,6 @@ osm_switch_get_mft_block(IN osm_switch_t * const p_sw,
 	return (osm_mcast_tbl_get_block(&p_sw->mcast_tbl,
 					block_num, position, p_block));
 }
-
 /*
 * PARAMETERS
 *	p_sw
@@ -901,7 +887,6 @@ osm_switch_get_mft_max_block(IN osm_switch_t * const p_sw)
 	CL_ASSERT(p_sw);
 	return (osm_mcast_tbl_get_max_block(&p_sw->mcast_tbl));
 }
-
 /*
 * PARAMETERS
 *	p_sw
@@ -925,7 +910,6 @@ osm_switch_get_mft_max_block_in_use(IN osm_switch_t * const p_sw)
 	CL_ASSERT(p_sw);
 	return (osm_mcast_tbl_get_max_block_in_use(&p_sw->mcast_tbl));
 }
-
 /*
 * PARAMETERS
 *	p_sw
@@ -955,7 +939,6 @@ osm_switch_get_mft_max_position(IN osm_switch_t * const p_sw)
 	CL_ASSERT(p_sw);
 	return (osm_mcast_tbl_get_max_position(&p_sw->mcast_tbl));
 }
-
 /*
 * PARAMETERS
 *	p_sw
@@ -1070,7 +1053,6 @@ osm_switch_get_fwd_tbl_size(IN const osm_switch_t * const p_sw)
 {
 	return (osm_fwd_tbl_get_size(&p_sw->fwd_tbl));
 }
-
 /*
 * PARAMETERS
 *	p_sw
@@ -1098,7 +1080,6 @@ osm_switch_get_mcast_fwd_tbl_size(IN const osm_switch_t * const p_sw)
 {
 	return (cl_ntoh16(p_sw->switch_info.mcast_cap));
 }
-
 /*
 * PARAMETERS
 *	p_sw
@@ -1127,7 +1108,6 @@ osm_switch_path_count_get(IN const osm_switch_t * const p_sw,
 {
 	return (osm_port_prof_path_count_get(&p_sw->p_prof[port_num]));
 }
-
 /*
 * PARAMETERS
 *	p_sw
@@ -1186,7 +1166,6 @@ static inline osm_mcast_tbl_t *osm_switch_get_mcast_tbl_ptr(IN const
 {
 	return ((osm_mcast_tbl_t *) & p_sw->mcast_tbl);
 }
-
 /*
 * PARAMETERS
 *	p_sw
@@ -1222,7 +1201,6 @@ osm_switch_is_in_mcast_tree(IN const osm_switch_t * const p_sw,
 	else
 		return (FALSE);
 }
-
 /*
 * PARAMETERS
 *	p_sw

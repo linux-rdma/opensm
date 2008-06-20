@@ -370,13 +370,15 @@ osm_switch_recommend_path(IN const osm_switch_t * const p_sw,
 				    osm_switch_get_hop_count(p_sw, base_lid,
 							     port_num);
 				/*
-				   If we aren't using pre-defined user routes function, then
-				   we need to make sure that the current path is the minimum one.
-				   In case of having such a user function - this check will not
-				   be done, and the old routing will be used.
-				   Note: This means that it is the user's job to clean all data
-				   in the forwarding tables that he wants to be overridden by the
-				   minimum hop function.
+				   If we aren't using pre-defined user routes
+				   function, then we need to make sure that the
+				   current path is the minimum one. In case of
+				   having such a user function - this check will
+				   not be done, and the old routing will be used.
+				   Note: This means that it is the user's job to
+				   clean all data in the forwarding tables that
+				   he wants to be overridden by the minimum
+				   hop function.
 				 */
 				if (hops == least_hops)
 					return (port_num);
