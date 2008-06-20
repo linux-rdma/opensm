@@ -596,7 +596,7 @@ AfterScanningLids:
 			p_range->min_lid = lid;
 	}
 	if (p_range) {
-		p_range->max_lid = p_mgr->p_subn->max_unicast_lid_ho - 1;
+		p_range->max_lid = p_mgr->p_subn->max_unicast_lid_ho;
 		cl_qlist_insert_tail(&p_mgr->free_ranges, &p_range->item);
 		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 			"final free lid range [0x%x:0x%x]\n",
