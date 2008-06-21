@@ -50,7 +50,6 @@
 #include <ctype.h>
 #include <sys/time.h>
 #include <opensm/osm_console.h>
-#include <opensm/osm_version.h>
 #include <complib/cl_passivelock.h>
 #include <opensm/osm_perfmgr.h>
 #include <opensm/osm_fwd_tbl.h>
@@ -320,7 +319,7 @@ static void print_status(osm_opensm_t * p_osm, FILE * out)
 {
 	if (out) {
 		cl_plock_acquire(&p_osm->lock);
-		fprintf(out, "   OpenSM Version: %s\n", OSM_VERSION);
+		fprintf(out, "   OpenSM Version: %s\n", p_osm->osm_version);
 		fprintf(out, "   SM State      : %s\n",
 			sm_state_str(p_osm->subn.sm_state));
 		fprintf(out, "   SA State      : %s\n",
@@ -1151,7 +1150,7 @@ static void help_version(FILE * out, int detail)
 
 static void version_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 {
-	fprintf(out, "%s build %s %s\n", OSM_VERSION, __DATE__, __TIME__);
+	fprintf(out, "%s build %s %s\n", p_osm->osm_version, __DATE__, __TIME__);
 }
 
 /* more parse routines go here */

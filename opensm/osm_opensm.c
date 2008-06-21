@@ -169,6 +169,7 @@ static int osm_ucast_null_setup(osm_opensm_t * p_osm)
 void osm_opensm_construct(IN osm_opensm_t * const p_osm)
 {
 	memset(p_osm, 0, sizeof(*p_osm));
+	p_osm->osm_version = OSM_VERSION;
 	osm_subn_construct(&p_osm->subn);
 	osm_sm_construct(&p_osm->sm);
 	osm_sa_construct(&p_osm->sa);
@@ -283,9 +284,9 @@ osm_opensm_init(IN osm_opensm_t * const p_osm,
 	/* If there is a log level defined - add the OSM_VERSION to it */
 	osm_log(&p_osm->log,
 		osm_log_get_level(&p_osm->log) & (OSM_LOG_SYS ^ 0xFF), "%s\n",
-		OSM_VERSION);
+		p_osm->osm_version);
 	/* Write the OSM_VERSION to the SYS_LOG */
-	osm_log(&p_osm->log, OSM_LOG_SYS, "%s\n", OSM_VERSION);	/* Format Waived */
+	osm_log(&p_osm->log, OSM_LOG_SYS, "%s\n", p_osm->osm_version);	/* Format Waived */
 
 	OSM_LOG(&p_osm->log, OSM_LOG_FUNCS, "[\n");	/* Format Waived */
 

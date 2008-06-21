@@ -163,6 +163,7 @@ struct osm_routing_engine {
 * SYNOPSIS
 */
 typedef struct osm_opensm {
+	const char *osm_version;
 	osm_subn_t subn;
 	osm_sm_t sm;
 	osm_sa_t sa;
@@ -185,6 +186,9 @@ typedef struct osm_opensm {
 } osm_opensm_t;
 /*
 * FIELDS
+* 	osm_version
+* 		OpenSM version (as generated in osm_version.h)
+*
 *	subn
 *		Subnet object for this subnet.
 *
