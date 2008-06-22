@@ -223,7 +223,6 @@ typedef struct _cl_fmap {
 	cl_state_t state;
 	size_t count;
 	cl_pfn_fmap_cmp_t pfn_compare;
-
 } cl_fmap_t;
 /*
 * PARAMETERS

@@ -269,7 +269,6 @@ typedef struct _cl_disp_reg_info {
 	atomic32_t ref_cnt;
 	cl_disp_msgid_t msg_id;
 	cl_dispatcher_t *p_disp;
-
 } cl_disp_reg_info_t;
 /*
 * FIELDS

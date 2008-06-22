@@ -202,7 +202,6 @@ typedef struct _cl_cpool {
 	cl_pfn_cpool_init_t pfn_init;
 	cl_pfn_cpool_dtor_t pfn_dtor;
 	const void *context;
-
 } cl_cpool_t;
 /*
 * FIELDS

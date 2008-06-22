@@ -144,7 +144,6 @@ typedef struct _cl_list_item {
 typedef struct _cl_list_obj {
 	cl_list_item_t list_item;
 	const void *p_object;	/* User's context */
-
 } cl_list_obj_t;
 /*
 * FIELDS
@@ -180,7 +179,6 @@ typedef struct _cl_qlist {
 	cl_list_item_t end;
 	size_t count;
 	cl_state_t state;
-
 } cl_qlist_t;
 /*
 * FIELDS

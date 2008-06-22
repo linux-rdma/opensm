@@ -183,7 +183,6 @@ typedef struct _cl_ptr_vector {
 	size_t capacity;
 	const void **p_ptr_array;
 	cl_state_t state;
-
 } cl_ptr_vector_t;
 /*
 * FIELDS

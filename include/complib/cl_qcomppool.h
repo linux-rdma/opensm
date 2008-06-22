@@ -149,7 +149,6 @@ typedef struct _cl_pool_obj {
 	/* The pool item must be the first item to allow casting. */
 	cl_pool_item_t pool_item;
 	const void *p_object;
-
 } cl_pool_obj_t;
 /*
 * FIELDS
@@ -297,7 +296,6 @@ typedef struct _cl_qcpool {
 	cl_qlist_t free_list;
 	cl_qlist_t alloc_list;
 	cl_state_t state;
-
 } cl_qcpool_t;
 /*
 * FIELDS

@@ -149,7 +149,6 @@ typedef struct _cl_map_item {
 #ifdef _DEBUG_
 	struct _cl_qmap *p_map;
 #endif
-
 } cl_map_item_t;
 /*
 * FIELDS
@@ -209,7 +208,6 @@ typedef struct _cl_map_item {
 typedef struct _cl_map_obj {
 	cl_map_item_t item;
 	const void *p_object;
-
 } cl_map_obj_t;
 /*
 * FIELDS
@@ -250,7 +248,6 @@ typedef struct _cl_qmap {
 	cl_map_item_t nil;
 	cl_state_t state;
 	size_t count;
-
 } cl_qmap_t;
 /*
 * PARAMETERS

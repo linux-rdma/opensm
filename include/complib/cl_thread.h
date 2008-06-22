@@ -106,7 +106,6 @@ typedef struct _cl_thread {
 	cl_pfn_thread_callback_t pfn_callback;
 	const void *context;
 	char name[16];
-
 } cl_thread_t;
 /*
 * FIELDS

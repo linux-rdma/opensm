@@ -57,7 +57,6 @@ BEGIN_C_DECLS
 typedef struct _cl_thread_osd_t {
 	pthread_t id;
 	cl_state_t state;
-
 } cl_thread_osd_t;
 
 static inline boolean_t cl_is_blockable(void)

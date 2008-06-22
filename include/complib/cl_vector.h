@@ -303,7 +303,6 @@ typedef struct _cl_vector {
 	cl_qlist_t alloc_list;
 	void **p_ptr_array;
 	cl_state_t state;
-
 } cl_vector_t;
 /*
 * FIELDS

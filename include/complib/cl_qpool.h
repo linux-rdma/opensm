@@ -208,7 +208,6 @@ typedef struct _cl_qpool {
 	cl_pfn_qpool_init_t pfn_init;
 	cl_pfn_qpool_dtor_t pfn_dtor;
 	const void *context;
-
 } cl_qpool_t;
 /*
 * FIELDS
