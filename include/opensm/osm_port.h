@@ -1150,6 +1150,7 @@ typedef struct osm_port {
 	unsigned is_new;
 	osm_physp_t *p_physp;
 	cl_qlist_t mcm_list;
+	int flag;
 	void *priv;
 } osm_port_t;
 /*
@@ -1174,6 +1175,9 @@ typedef struct osm_port {
 *
 *	mcm_list
 *		Multicast member list
+*
+*	flag
+*		Utility flag for port management
 *
 * SEE ALSO
 *	Port, Physical Port, Physical Port Table
