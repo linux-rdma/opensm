@@ -59,28 +59,6 @@
 #include <opensm/osm_msgdef.h>
 #include <opensm/osm_opensm.h>
 
-struct osm_ucast_port_context {
-	osm_ucast_mgr_t *p_mgr;
-	cl_qmap_t *p_port_tbl;
-	cl_qlist_t *p_port_list;
-};
-
-struct guid_routing_order_list_ctx {
-	osm_ucast_mgr_t *p_mgr;
-	cl_qlist_t *p_list;
-};
-
-struct guid_routing_order_guid_list_item {
-	cl_list_item_t list;
-	uint64_t ho_guid;
-	uint64_t no_guid;
-};
-
-struct guid_routing_order_port_list_item {
-	cl_list_item_t list;
-	osm_port_t *p_port;
-};
-
 /**********************************************************************
  **********************************************************************/
 void osm_ucast_mgr_construct(IN osm_ucast_mgr_t * const p_mgr)
@@ -515,33 +493,18 @@ static void
 __osm_ucast_mgr_process_tbl(IN cl_map_item_t * const p_map_item,
 			    IN void *context)
 {
-	struct osm_ucast_port_context *p_ctx;
+	osm_ucast_mgr_t *p_mgr = context;
 	osm_switch_t *const p_sw = (osm_switch_t *) p_map_item;
-	osm_ucast_mgr_t *p_mgr;
-	osm_node_t *p_node;
-	osm_port_t *p_port;
-	struct guid_routing_order_port_list_item *p_item;
-	const cl_qmap_t *p_port_tbl = NULL;
-	const cl_qlist_t *p_port_list = NULL;
 	unsigned i, lids_per_port;
-
-	p_ctx = (struct osm_ucast_port_context *)context;
-	p_mgr = p_ctx->p_mgr;
 
 	OSM_LOG_ENTER(p_mgr->p_log);
 
-	p_port_tbl = p_ctx->p_port_tbl;
-	p_port_list = p_ctx->p_port_list;
-	p_node = p_sw->p_node;
-
-	CL_ASSERT(p_node);
-	CL_ASSERT(osm_node_get_type(p_node) == IB_NODE_TYPE_SWITCH);
-	CL_ASSERT(p_port_tbl || p_port_list);
+	CL_ASSERT(p_sw && p_sw->p_node);
 
 	if (osm_log_is_active(p_mgr->p_log, OSM_LOG_DEBUG)) {
 		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 			"Processing switch 0x%" PRIx64 "\n",
-			cl_ntoh64(osm_node_get_node_guid(p_node)));
+			cl_ntoh64(osm_node_get_node_guid(p_sw->p_node)));
 	}
 
 	/* Initialize LIDs in buffer to invalid port number. */
@@ -556,17 +519,12 @@ __osm_ucast_mgr_process_tbl(IN cl_map_item_t * const p_map_item,
 	 */
 	lids_per_port = 1 << p_mgr->p_subn->opt.lmc;
 	for (i = 0; i < lids_per_port; i++) {
-		if (p_port_tbl) {
-			for (p_port = (osm_port_t *) cl_qmap_head(p_port_tbl);
-			     p_port != (osm_port_t *) cl_qmap_end(p_port_tbl);
-			     p_port = (osm_port_t *) cl_qmap_next(&p_port->map_item))
-				__osm_ucast_mgr_process_port(p_mgr, p_sw, p_port, i);
-		}
-		else {
-			for (p_item = (void *)cl_qlist_head(p_port_list);
-			     p_item != (void *)cl_qlist_end(p_port_list);
-			     p_item = (void *)cl_qlist_next(&p_item->list))
-				__osm_ucast_mgr_process_port(p_mgr, p_sw, p_item->p_port, i);
+		cl_qlist_t *list = &p_mgr->port_order_list;
+		cl_list_item_t *item;
+		for (item = cl_qlist_head(list); item != cl_qlist_end(list);
+		     item = cl_qlist_next(item)) {
+			osm_port_t *port = cl_item_obj(item, port, list_item);
+			__osm_ucast_mgr_process_port(p_mgr, p_sw, port, i);
 		}
 	}
 
@@ -729,182 +687,62 @@ static int ucast_mgr_setup_all_switches(osm_subn_t * p_subn)
 /**********************************************************************
  **********************************************************************/
 
-static int
-__guid_qlist_insert(void *ctx, uint64_t guid, char *p)
+static int add_guid_to_order_list(void *ctx, uint64_t guid, char *p)
 {
-	struct guid_routing_order_list_ctx *list_ctx = ctx;
-	struct guid_routing_order_guid_list_item *item = NULL;
+	osm_ucast_mgr_t *m = ctx;
+	osm_port_t *port = osm_get_port_by_guid(m->p_subn, cl_hton64(guid));
 
-	item = malloc(sizeof(struct guid_routing_order_guid_list_item));
-	if (!item) {
-		OSM_LOG(list_ctx->p_mgr->p_log, OSM_LOG_DEBUG,
-			"__guid_qlist_insert: insufficient memory\n");
-		return -1;
+	if (!port) {
+		OSM_LOG(m->p_log, OSM_LOG_DEBUG,
+			"port guid not found: 0x%016" PRIx64 "\n", guid);
+		return 0;
 	}
 
-	item->ho_guid = guid;
-	item->no_guid = cl_ntoh64(guid);
-	cl_qlist_insert_tail(list_ctx->p_list, &item->list);
+	if (port->flag) {
+		OSM_LOG(m->p_log, OSM_LOG_DEBUG,
+			"port guid specified multiple times 0x%016" PRIx64 "\n",
+			guid);
+		return 0;
+	}
+
+	cl_qlist_insert_tail(&m->port_order_list, &port->list_item);
+	port->flag = 1;
 
 	return 0;
 }
 
-static void
-__clear_port_flag(IN cl_map_item_t * const p_map_item, void *context)
+static void add_port_to_order_list(cl_map_item_t * const p_map_item, void *ctx)
 {
-	osm_port_t *p_port = (osm_port_t *)p_map_item;
+	osm_port_t *port = (osm_port_t *)p_map_item;
+	osm_ucast_mgr_t *m = ctx;
 
-	p_port->flag = 0;
+	if (!port->flag)
+		cl_qlist_insert_tail(&m->port_order_list, &port->list_item);
+	else
+		port->flag = 0;
 }
 
-static void
-__find_non_specified_ports(IN cl_map_item_t * const p_map_item, void *context)
+static void ucast_mgr_build_lfts(osm_ucast_mgr_t *p_mgr)
 {
-	osm_port_t *p_port = (osm_port_t *)p_map_item;
-	struct guid_routing_order_list_ctx *list_ctx = context;
-	osm_ucast_mgr_t *p_mgr = list_ctx->p_mgr;
-	cl_qlist_t *port_routing_order_list = list_ctx->p_list;
+	cl_qlist_init(&p_mgr->port_order_list);
 
-	if (!p_port->flag) {
-		struct guid_routing_order_port_list_item *p_item = NULL;
-
-		p_item = malloc(sizeof(struct guid_routing_order_port_list_item));
-		if (!p_item) {
-			OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-				"__find_non_specified_ports: insufficient memory\n");
-			return;
-		}
-
-		p_item->p_port = p_port;
-		cl_qlist_insert_tail(port_routing_order_list, &p_item->list);
-	}
-}
-
-static int
-__port_qlist_create(osm_ucast_mgr_t *p_mgr,
-		    cl_qlist_t *guid_routing_order_list,
-		    cl_qlist_t *port_routing_order_list)
-{
-	cl_qmap_t *p_port_tbl = &p_mgr->p_subn->port_guid_tbl;
-	struct guid_routing_order_guid_list_item *g_item;
-	struct guid_routing_order_list_ctx list_ctx;
-	osm_port_t *p_port;
-
-	/* Set each osm_port_t flag to 0 */
-	cl_qmap_apply_func(p_port_tbl, __clear_port_flag, NULL);
-
-	/* Find the port of the guid input */
-	for (g_item = (void *)cl_qlist_head(guid_routing_order_list);
-	     g_item != (void *)cl_qlist_end(guid_routing_order_list);
-	     g_item = (void *)cl_qlist_next(&g_item->list)) {
-		struct guid_routing_order_port_list_item *p_item = NULL;
-
-		p_port = (void *)cl_qmap_get(p_port_tbl, g_item->no_guid);
-		if (p_port == (void *)cl_qmap_end(p_port_tbl)) {
-			OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-				"port guid not found: 0x%016" PRIx64 "\n",
-				g_item->ho_guid);
-			continue;
-		}
-
-		if (p_port->flag) {
-			OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-				"port guid specified multiple times"
-				"0x%016" PRIx64 "\n",
-				g_item->ho_guid);
-			continue;
-		}
-
-		p_item = malloc(sizeof(struct guid_routing_order_port_list_item));
-		if (!p_item) {
-			OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-				"__port_qlist_create: insufficient memory\n");
-			return -1;
-		}
-
-		p_item->p_port = p_port;
-		cl_qlist_insert_tail(port_routing_order_list, &p_item->list);
-		p_port->flag++;
-	}
-
-	/* Any ports not specified, add them to the end of the list */
-	list_ctx.p_mgr = p_mgr;
-	list_ctx.p_list = port_routing_order_list;
-
-	cl_qmap_apply_func(p_port_tbl, __find_non_specified_ports,
-			   &list_ctx);
-
-	return 0;
-}
-
-static void
-__osm_ucast_mgr_build_fwd_tables(IN osm_ucast_mgr_t * const p_mgr)
-{
-	struct osm_ucast_port_context ctx;
-	osm_opensm_t *p_osm;
-	cl_qmap_t *p_sw_guid_tbl;
-	cl_qlist_t guid_routing_order_list;
-	cl_qlist_t port_routing_order_list;
-	unsigned int lists_created = 0;
-	unsigned int use_routing_order = 0;
-	int ret = 0;
-
-	p_osm = p_mgr->p_subn->p_osm;
-	p_sw_guid_tbl = &p_mgr->p_subn->sw_guid_tbl;
-
-	if (p_osm->subn.opt.guid_routing_order_file) {
-		struct guid_routing_order_list_ctx list_ctx;
-
-		OSM_LOG(&p_osm->log, OSM_LOG_DEBUG,
+	if (p_mgr->p_subn->opt.guid_routing_order_file) {
+		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 			"Fetching guid routing order file %s\n",
-			p_osm->subn.opt.guid_routing_order_file);
+			p_mgr->p_subn->opt.guid_routing_order_file);
 
-		cl_qlist_init(&guid_routing_order_list);
-		cl_qlist_init(&port_routing_order_list);
-
-		lists_created++;
-
-		list_ctx.p_mgr = p_mgr;
-		list_ctx.p_list = &guid_routing_order_list;
-
-		ret = parse_node_map(p_osm->subn.opt.guid_routing_order_file,
-				     __guid_qlist_insert,
-				     &list_ctx);
-		if (!ret && cl_qlist_count(&guid_routing_order_list)) {
-			if (__port_qlist_create(p_mgr,
-						&guid_routing_order_list,
-						&port_routing_order_list) < 0)
-				goto cleanup;
-			use_routing_order++;
-		}
-		else
-			OSM_LOG(&p_osm->log, OSM_LOG_ERROR, "ERR : "
+		if (parse_node_map(p_mgr->p_subn->opt.guid_routing_order_file,
+				   add_guid_to_order_list, p_mgr))
+			OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR : "
 				"cannot parse guid routing order file %s\n",
-				p_osm->subn.opt.guid_routing_order_file);
+				p_mgr->p_subn->opt.guid_routing_order_file);
 	}
 
-	if (use_routing_order) {
-		ctx.p_mgr = p_mgr;
-		ctx.p_port_tbl = NULL;
-		ctx.p_port_list = &port_routing_order_list;
-	}
-	else {
-		ctx.p_mgr = p_mgr;
-		ctx.p_port_tbl = &p_mgr->p_subn->port_guid_tbl;
-		ctx.p_port_list = NULL;
-	}
+	cl_qmap_apply_func(&p_mgr->p_subn->port_guid_tbl,
+			   add_port_to_order_list, p_mgr);
 
-	cl_qmap_apply_func(p_sw_guid_tbl, __osm_ucast_mgr_process_tbl,
-			   &ctx);
-
-cleanup:
-	if (lists_created) {
-		while (!cl_is_qlist_empty(&guid_routing_order_list))
-			free(cl_qlist_remove_head(&guid_routing_order_list));
-
-		while (!cl_is_qlist_empty(&port_routing_order_list))
-			free(cl_qlist_remove_head(&port_routing_order_list));
-	}
+	cl_qmap_apply_func(&p_mgr->p_subn->sw_guid_tbl,
+			   __osm_ucast_mgr_process_tbl, p_mgr);
 }
 
 /**********************************************************************
@@ -949,7 +787,7 @@ osm_signal_t osm_ucast_mgr_process(IN osm_ucast_mgr_t * const p_mgr)
 	if (!p_routing_eng->ucast_build_fwd_tables ||
 	    (ubft =
 	     p_routing_eng->ucast_build_fwd_tables(p_routing_eng->context)))
-		__osm_ucast_mgr_build_fwd_tables(p_mgr);
+		ucast_mgr_build_lfts(p_mgr);
 
 	/* 'file' routing engine has one unique logic corner case */
 	if (p_routing_eng->name && (strcmp(p_routing_eng->name, "file") == 0)

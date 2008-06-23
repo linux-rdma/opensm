@@ -1144,6 +1144,7 @@ static inline osm_dr_path_t *osm_physp_get_dr_path_ptr(IN const osm_physp_t *
 */
 typedef struct osm_port {
 	cl_map_item_t map_item;
+	cl_list_item_t list_item;
 	struct osm_node *p_node;
 	ib_net64_t guid;
 	uint32_t discovery_count;
@@ -1157,6 +1158,9 @@ typedef struct osm_port {
 * FIELDS
 *	map_item
 *		Linkage structure for cl_qmap.  MUST BE FIRST MEMBER!
+*
+*	list_item
+*		Linkage structure for cl_qlist. Used by ucast mgr during LFT calculation.
 *
 *	p_node
 *		Points to the Node object that owns this port.

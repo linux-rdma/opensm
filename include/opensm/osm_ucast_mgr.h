@@ -44,6 +44,7 @@
 #define _OSM_UCAST_MGR_H_
 
 #include <complib/cl_passivelock.h>
+#include <complib/cl_qlist.h>
 #include <opensm/osm_base.h>
 #include <opensm/osm_madw.h>
 #include <opensm/osm_subnet.h>
@@ -95,6 +96,7 @@ typedef struct osm_ucast_mgr {
 	osm_subn_t *p_subn;
 	osm_log_t *p_log;
 	cl_plock_t *p_lock;
+	cl_qlist_t port_order_list;
 	boolean_t is_dor;
 	boolean_t any_change;
 	boolean_t some_hop_count_set;
@@ -116,6 +118,9 @@ typedef struct osm_ucast_mgr {
 *
 *	is_dor
 *		Dimension Order Routing (DOR) will be done
+*
+*	port_order_list
+*		List of ports ordered for routing.
 *
 *	any_change
 *		Initialized to FALSE at the beginning of the algorithm,
