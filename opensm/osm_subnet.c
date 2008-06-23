@@ -455,6 +455,7 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * const p_opt)
 	p_opt->root_guid_file = NULL;
 	p_opt->cn_guid_file = NULL;
 	p_opt->ids_guid_file = NULL;
+	p_opt->guid_routing_order_file = NULL;
 	p_opt->sa_db_file = NULL;
 	p_opt->exit_on_fatal = TRUE;
 	p_opt->enable_quirks = FALSE;
@@ -1307,6 +1308,9 @@ int osm_subn_parse_conf_file(char *file_name, osm_subn_opt_t * const p_opts)
 		opts_unpack_charp("ids_guid_file",
 				  p_key, p_val, &p_opts->ids_guid_file);
 
+		opts_unpack_charp("guid_routing_order_file",
+				  p_key, p_val, &p_opts->guid_routing_order_file);
+
 		opts_unpack_charp("sa_db_file",
 				  p_key, p_val, &p_opts->sa_db_file);
 
@@ -1551,6 +1555,11 @@ int osm_subn_write_conf_file(char *file_name, IN osm_subn_opt_t *const p_opts)
 		" Up/Down algorithm instead\n# of GUIDs (one guid and"
 		" id in each line)\nids_guid_file %s\n\n",
 		p_opts->ids_guid_file ? p_opts->ids_guid_file : null_str);
+
+	fprintf(opts_file,
+		"# The file holding guid routing order guids (for Up/Down)\n"
+		"guid_routing_order_file %s\n\n",
+		p_opts->guid_routing_order_file ? p_opts->guid_routing_order_file : null_str);
 
 	fprintf(opts_file,
 		"# SA database file name\nsa_db_file %s\n\n",

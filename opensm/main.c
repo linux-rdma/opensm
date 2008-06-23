@@ -217,6 +217,11 @@ static void show_usage(void)
 	       "          Name of the map file with set of the IDs which will be used\n"
 	       "          by Up/Down routing algorithm instead of node GUIDs\n"
 	       "          (format: <guid> <id> per line)\n");
+	printf("-X\n"
+	       "--guid_routing_order_file <path to file>\n"
+	       "          Set the order port guids will be routed for the MinHop\n"
+	       "          and Up/Down routing algorithms to the guids provided in the\n"
+	       "          given file (one to a line)\n\n");
 	printf("-o\n"
 	       "--once\n"
 	       "          This option causes OpenSM to configure the subnet\n"
@@ -605,7 +610,7 @@ int main(int argc, char *argv[])
 	uint32_t val;
 	unsigned config_file_done = 0;
 	const char *const short_option =
-	    "F:i:f:ed:g:l:L:s:t:a:u:m:R:zM:U:S:P:Y:NBIQvVhorcyxp:n:q:k:C:";
+	    "F:i:f:ed:g:l:L:s:t:a:u:m:X:R:zM:U:S:P:Y:NBIQvVhorcyxp:n:q:k:C:";
 
 	/*
 	   In the array below, the 2nd parameter specifies the number
@@ -647,6 +652,7 @@ int main(int argc, char *argv[])
 		{"root_guid_file", 1, NULL, 'a'},
 		{"cn_guid_file", 1, NULL, 'u'},
 		{"ids_guid_file", 1, NULL, 'm'},
+		{"guid_routing_order_file", 1, NULL, 'X'},
 		{"cache-options", 0, NULL, 'c'},
 		{"stay_on_fatal", 0, NULL, 'y'},
 		{"honor_guid2lid", 0, NULL, 'x'},
@@ -947,6 +953,12 @@ int main(int argc, char *argv[])
 			/* Specifies ids guid file */
 			opt.ids_guid_file = optarg;
 			printf(" IDs Guid File: %s\n", opt.ids_guid_file);
+			break;
+
+		case 'X':
+			/* Specifies guid routing order file */
+			opt.guid_routing_order_file = optarg;
+			printf(" GUID Routing Order File: %s\n", opt.guid_routing_order_file);
 			break;
 
 		case 'c':

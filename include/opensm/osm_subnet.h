@@ -188,6 +188,7 @@ typedef struct osm_subn_opt {
 	char *root_guid_file;
 	char *cn_guid_file;
 	char *ids_guid_file;
+	char *guid_routing_order_file;
 	char *sa_db_file;
 	boolean_t exit_on_fatal;
 	boolean_t honor_guid2lid_file;
@@ -379,6 +380,10 @@ typedef struct osm_subn_opt {
 *	ids_guid_file
 *		Name of the file that contains list of ids which should be
 *		used by Up/Down algorithm instead of node GUIDs
+*
+*	guid_routing_order_file
+*		Name of the file that contains list of guids for routing order
+*		that will be used by minhop and up/dn routing (provided by User).
 *
 *	sa_db_file
 *		Name of the SA database file.

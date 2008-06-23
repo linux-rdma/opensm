@@ -12,7 +12,9 @@ opensm \- InfiniBand subnet manager and administration (SM/SA)
 [\-M <file name> | \-\-lid_matrix_file <file name>]
 [\-U <file name> | \-\-ucast_file <file name>]
 [\-S | \-\-sadb_file <file name>] [\-a | \-\-root_guid_file <path to file>]
-[\-u | \-\-cn_guid_file <path to file>] [\-m | \-\-ids_guid_file <path to file>]
+[\-u | \-\-cn_guid_file <path to file>]
+[\-X | \-\-guid_routing_order_file <path to file>]
+[\-m | \-\-ids_guid_file <path to file>]
 [\-o(nce)] [\-s(weep) <interval>]
 [\-t(imeout) <milliseconds>] [\-maxsmps <number>]
 [\-console [off | local | socket | loopback]] [\-console-port <port>]
@@ -146,6 +148,11 @@ to the guids provided in the given file (one to a line).
 Name of the map file with set of the IDs which will be used
 by Up/Down routing algorithm instead of node GUIDs
 (format: <guid> <id> per line).
+.TP
+\fB\-X\fR, \fB\-\-guid_routing_order_file\fR
+Set the order port guids will be routed for the MinHop
+and Up/Down routing algorithms to the guids provided in the
+given file (one to a line).
 .TP
 \fB\-o\fR, \fB\-\-once\fR
 This option causes OpenSM to configure the subnet
