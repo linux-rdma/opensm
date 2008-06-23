@@ -132,6 +132,10 @@ typedef struct _cl_list_item {
 *	Quick List
 *********/
 
+#define cl_item_obj(item_ptr, obj_ptr, item_field) (typeof(obj_ptr)) \
+	((void *)item_ptr - (unsigned long)&((typeof(obj_ptr))0)->item_field)
+
+
 /****s* Component Library: Quick List/cl_list_obj_t
 * NAME
 *	cl_list_obj_t
