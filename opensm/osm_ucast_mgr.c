@@ -58,6 +58,11 @@
 #include <opensm/osm_msgdef.h>
 #include <opensm/osm_opensm.h>
 
+struct osm_ucast_port_context {
+	osm_ucast_mgr_t *p_mgr;
+	cl_qmap_t *p_port_tbl;
+};
+
 /**********************************************************************
  **********************************************************************/
 void osm_ucast_mgr_construct(IN osm_ucast_mgr_t * const p_mgr)
@@ -491,8 +496,9 @@ static void
 __osm_ucast_mgr_process_tbl(IN cl_map_item_t * const p_map_item,
 			    IN void *context)
 {
+	struct osm_ucast_port_context *p_ctx;
 	osm_switch_t *const p_sw = (osm_switch_t *) p_map_item;
-	osm_ucast_mgr_t *const p_mgr = (osm_ucast_mgr_t *) context;
+	osm_ucast_mgr_t *p_mgr;
 	osm_node_t *p_node;
 	osm_port_t *p_port;
 	const cl_qmap_t *p_port_tbl;
@@ -500,6 +506,9 @@ __osm_ucast_mgr_process_tbl(IN cl_map_item_t * const p_map_item,
 
 	OSM_LOG_ENTER(p_mgr->p_log);
 
+	p_ctx = (struct osm_ucast_port_context *)context;
+	p_mgr = p_ctx->p_mgr;
+	p_port_tbl = p_ctx->p_port_tbl;
 	p_node = p_sw->p_node;
 
 	CL_ASSERT(p_node);
@@ -513,8 +522,6 @@ __osm_ucast_mgr_process_tbl(IN cl_map_item_t * const p_map_item,
 
 	/* Initialize LIDs in buffer to invalid port number. */
 	memset(p_mgr->lft_buf, OSM_NO_PATH, IB_LID_UCAST_END_HO + 1);
-
-	p_port_tbl = &p_mgr->p_subn->port_guid_tbl;
 
 	if (p_mgr->p_subn->opt.lmc)
 		alloc_ports_priv(p_mgr);
@@ -688,6 +695,23 @@ static int ucast_mgr_setup_all_switches(osm_subn_t * p_subn)
 
 /**********************************************************************
  **********************************************************************/
+
+static void
+__osm_ucast_mgr_build_fwd_tables(IN osm_ucast_mgr_t * const p_mgr)
+{
+	struct osm_ucast_port_context ctx;
+	cl_qmap_t *p_sw_guid_tbl;
+
+	p_sw_guid_tbl = &p_mgr->p_subn->sw_guid_tbl;
+
+	ctx.p_mgr = p_mgr;
+	ctx.p_port_tbl = &p_mgr->p_subn->port_guid_tbl;
+	cl_qmap_apply_func(p_sw_guid_tbl, __osm_ucast_mgr_process_tbl,
+			   &ctx);
+}
+
+/**********************************************************************
+ **********************************************************************/
 osm_signal_t osm_ucast_mgr_process(IN osm_ucast_mgr_t * const p_mgr)
 {
 	osm_opensm_t *p_osm;
@@ -728,8 +752,7 @@ osm_signal_t osm_ucast_mgr_process(IN osm_ucast_mgr_t * const p_mgr)
 	if (!p_routing_eng->ucast_build_fwd_tables ||
 	    (ubft =
 	     p_routing_eng->ucast_build_fwd_tables(p_routing_eng->context)))
-		cl_qmap_apply_func(p_sw_guid_tbl, __osm_ucast_mgr_process_tbl,
-				   p_mgr);
+		__osm_ucast_mgr_build_fwd_tables(p_mgr);
 
 	/* 'file' routing engine has one unique logic corner case */
 	if (p_routing_eng->name && (strcmp(p_routing_eng->name, "file") == 0)
