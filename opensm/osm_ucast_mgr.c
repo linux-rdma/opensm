@@ -268,9 +268,10 @@ __osm_ucast_mgr_process_port(IN osm_ucast_mgr_t * const p_mgr,
 
 	if (osm_log_is_active(p_mgr->p_log, OSM_LOG_DEBUG))
 		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-			"Processing port 0x%" PRIx64 ", LID %u [0x%X,0x%X]\n",
-			cl_ntoh64(osm_port_get_guid(p_port)), lid_ho,
-			min_lid_ho, max_lid_ho);
+			"Processing port 0x%" PRIx64 " (\'%s\' port %u), LID %u [0x%X,0x%X]\n",
+			cl_ntoh64(osm_port_get_guid(p_port)),
+			p_port->p_node->print_desc, p_port->p_physp->port_num,
+			lid_ho, min_lid_ho, max_lid_ho);
 
 	/* TODO - This should be runtime error, not a CL_ASSERT() */
 	CL_ASSERT(max_lid_ho < osm_switch_get_fwd_tbl_size(p_sw));
