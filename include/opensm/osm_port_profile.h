@@ -217,8 +217,8 @@ osm_port_prof_is_ignored_port(IN const osm_subn_t * p_subn,
 *	p_subn
 *		[in] Pointer to the OSM Subnet object.
 *
-*  port_guid
-*     [in] The port guid
+*	port_guid
+*		[in] The port guid
 *
 * RETURN VALUE
 *	None.
@@ -262,8 +262,8 @@ osm_port_prof_set_ignored_port(IN osm_subn_t * p_subn,
 *	p_subn
 *		[in] Pointer to the OSM Subnet object.
 *
-*  port_guid
-*     [in] The port guid
+*	port_guid
+*		[in] The port guid
 *
 * RETURN VALUE
 *	None.
