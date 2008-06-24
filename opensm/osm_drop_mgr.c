@@ -2,6 +2,7 @@
  * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
+ * Copyright (c) 2008 Xsigo Systems Inc.  All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -206,11 +207,8 @@ static void __osm_drop_mgr_remove_port(osm_sm_t * sm, IN osm_port_t * p_port)
 
 	p_mcm = (osm_mcm_info_t *) cl_qlist_remove_head(&p_port->mcm_list);
 	while (p_mcm != (osm_mcm_info_t *) cl_qlist_end(&p_port->mcm_list)) {
-		p_mgrp =
-		    (osm_mgrp_t *) cl_qmap_get(&sm->p_subn->mgrp_mlid_tbl,
-					       p_mcm->mlid);
-		if (p_mgrp !=
-		    (osm_mgrp_t *) cl_qmap_end(&sm->p_subn->mgrp_mlid_tbl)) {
+		p_mgrp = sm->p_subn->mgrp_mlid_tbl[cl_ntoh16(p_mcm->mlid) - IB_LID_MCAST_START_HO];
+		if (p_mgrp) {
 			osm_mgrp_remove_port(sm->p_subn, sm->p_log,
 					     p_mgrp, p_port->guid);
 			osm_mcm_info_delete((osm_mcm_info_t *) p_mcm);

@@ -2,6 +2,7 @@
  * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
+ * Copyright (c) 2008 Xsigo Systems Inc.  All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -792,11 +793,8 @@ static void __qos_policy_validate_pkey(
 	if (!p_prtn->mlid)
 		return;
 
-	p_mgrp = (osm_mgrp_t *) cl_qmap_get(
-		&p_qos_policy->p_subn->mgrp_mlid_tbl,
-		p_prtn->mlid);
-	if (p_mgrp == (osm_mgrp_t *)
-		cl_qmap_end(&p_qos_policy->p_subn->mgrp_mlid_tbl)) {
+	p_mgrp = p_qos_policy->p_subn->mgrp_mlid_tbl[cl_ntoh16(p_prtn->mlid) - IB_LID_MCAST_START_HO];
+	if (!p_mgrp) {
 		OSM_LOG(&p_qos_policy->p_subn->p_osm->log, OSM_LOG_ERROR,
 			"ERR AC16: MCast group for partition with "
 			"pkey 0x%04X not found\n",

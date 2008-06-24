@@ -2,6 +2,7 @@
  * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
+ * Copyright (c) 2008 Xsigo Systems Inc.  All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -85,19 +86,19 @@ void osm_subn_construct(IN osm_subn_t * const p_subn)
 	cl_qlist_init(&p_subn->prefix_routes_list);
 	cl_qmap_init(&p_subn->rtr_guid_tbl);
 	cl_qmap_init(&p_subn->prtn_pkey_tbl);
-	cl_qmap_init(&p_subn->mgrp_mlid_tbl);
 }
 
 /**********************************************************************
  **********************************************************************/
 void osm_subn_destroy(IN osm_subn_t * const p_subn)
 {
+	int i;
 	osm_node_t *p_node, *p_next_node;
 	osm_port_t *p_port, *p_next_port;
 	osm_switch_t *p_sw, *p_next_sw;
 	osm_remote_sm_t *p_rsm, *p_next_rsm;
 	osm_prtn_t *p_prtn, *p_next_prtn;
-	osm_mgrp_t *p_mgrp, *p_next_mgrp;
+	osm_mgrp_t *p_mgrp;
 	osm_infr_t *p_infr, *p_next_infr;
 
 	/* it might be a good idea to de-allocate all known objects */
@@ -140,12 +141,14 @@ void osm_subn_destroy(IN osm_subn_t * const p_subn)
 		osm_prtn_delete(&p_prtn);
 	}
 
-	p_next_mgrp = (osm_mgrp_t *) cl_qmap_head(&p_subn->mgrp_mlid_tbl);
-	while (p_next_mgrp !=
-	       (osm_mgrp_t *) cl_qmap_end(&p_subn->mgrp_mlid_tbl)) {
-		p_mgrp = p_next_mgrp;
-		p_next_mgrp = (osm_mgrp_t *) cl_qmap_next(&p_mgrp->map_item);
-		osm_mgrp_delete(p_mgrp);
+	for (i = 0;
+	     i <= p_subn->max_multicast_lid_ho - IB_LID_MCAST_START_HO;
+	     i++) {
+		p_mgrp = p_subn->mgrp_mlid_tbl[i];
+		if (p_mgrp) {
+			osm_mgrp_delete(p_mgrp);
+			p_subn->mgrp_mlid_tbl[i] = NULL;
+		}
 	}
 
 	p_next_infr = (osm_infr_t *) cl_qlist_head(&p_subn->sa_infr_list);

@@ -2,6 +2,7 @@
  * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
+ * Copyright (c) 2008 Xsigo Systems Inc.  All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -472,7 +473,6 @@ typedef struct osm_subn {
 	cl_qmap_t rtr_guid_tbl;
 	cl_qlist_t prefix_routes_list;
 	cl_qmap_t prtn_pkey_tbl;
-	cl_qmap_t mgrp_mlid_tbl;
 	cl_qmap_t sm_guid_tbl;
 	cl_qlist_t sa_sr_list;
 	cl_qlist_t sa_infr_list;
@@ -495,6 +495,7 @@ typedef struct osm_subn {
 	boolean_t first_time_master_sweep;
 	boolean_t coming_out_of_standby;
 	unsigned need_update;
+	void *mgrp_mlid_tbl[IB_LID_MCAST_END_HO - IB_LID_MCAST_START_HO + 1];
 } osm_subn_t;
 /*
 * FIELDS
@@ -517,10 +518,6 @@ typedef struct osm_subn {
 *	prtn_pkey_tbl
 *		Container of pointers to all Partition objects in the subnet.
 *		Indexed by P_KEY.
-*
-*	mgrp_mlid_tbl
-*		Container of pointers to all Multicast Group objects in the subnet.
-*		Indexed by MLID.
 *
 *	sm_guid_tbl
 *		Container of pointers to SM objects representing other SMs
@@ -619,6 +616,10 @@ typedef struct osm_subn {
 *  need_update
 *     This flag should be on during first non-master heavy (including
 *     pre-master discovery stage)
+*
+*	mgrp_mlid_tbl
+*		Array of pointers to all Multicast Group objects in the subnet.
+*		Indexed by MLID offset from base MLID.
 *
 * SEE ALSO
 *	Subnet object

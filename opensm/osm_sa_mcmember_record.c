@@ -2,6 +2,7 @@
  * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
+ * Copyright (c) 2008 Xsigo Systems Inc.  All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -96,13 +97,7 @@ typedef struct osm_sa_mcmr_search_ctxt {
 static osm_mgrp_t *__get_mgrp_by_mlid(IN osm_sa_t * sa,
 				      IN ib_net16_t const mlid)
 {
-	cl_map_item_t *map_item;
-
-	map_item = cl_qmap_get(&sa->p_subn->mgrp_mlid_tbl, mlid);
-	if (map_item == cl_qmap_end(&sa->p_subn->mgrp_mlid_tbl)) {
-		return NULL;
-	}
-	return (osm_mgrp_t *) map_item;
+	return(sa->p_subn->mgrp_mlid_tbl[cl_ntoh16(mlid) - IB_LID_MCAST_START_HO]);
 }
 
 /*********************************************************************
@@ -154,25 +149,26 @@ __get_new_mlid(IN osm_sa_t * sa, IN ib_net16_t requested_mlid)
 
 	if (requested_mlid && cl_ntoh16(requested_mlid) >= IB_LID_MCAST_START_HO
 	    && cl_ntoh16(requested_mlid) <= p_subn->max_multicast_lid_ho
-	    && cl_qmap_get(&p_subn->mgrp_mlid_tbl,
-			   requested_mlid) ==
-	    cl_qmap_end(&p_subn->mgrp_mlid_tbl)) {
+	    && !p_subn->mgrp_mlid_tbl[cl_ntoh16(requested_mlid) - IB_LID_MCAST_START_HO]) {
 		mlid = cl_ntoh16(requested_mlid);
 		goto Exit;
 	}
 
 	/* If MCGroups table is empty, first return the min mlid */
-	p_mgrp = (osm_mgrp_t *) cl_qmap_head(&p_subn->mgrp_mlid_tbl);
-	if (p_mgrp == (osm_mgrp_t *) cl_qmap_end(&p_subn->mgrp_mlid_tbl)) {
+	max_num_mlids = sa->p_subn->max_multicast_lid_ho -
+			IB_LID_MCAST_START_HO + 1;
+	for (idx = 0; idx < max_num_mlids; idx++) {
+		p_mgrp = sa->p_subn->mgrp_mlid_tbl[idx];
+		if (p_mgrp)
+			break;
+	}
+	if (!p_mgrp) {
 		mlid = IB_LID_MCAST_START_HO;
 		OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
 			"No multicast groups found using minimal mlid:0x%04X\n",
 			mlid);
 		goto Exit;
 	}
-
-	max_num_mlids =
-	    sa->p_subn->max_multicast_lid_ho - IB_LID_MCAST_START_HO + 1;
 
 	/* track all used mlids in the array (by mlid index) */
 	used_mlids_array = (uint8_t *) malloc(sizeof(uint8_t) * max_num_mlids);
@@ -181,9 +177,10 @@ __get_new_mlid(IN osm_sa_t * sa, IN ib_net16_t requested_mlid)
 	memset(used_mlids_array, 0, sizeof(uint8_t) * max_num_mlids);
 
 	/* scan all available multicast groups in the DB and fill in the table */
-	while (p_mgrp != (osm_mgrp_t *) cl_qmap_end(&p_subn->mgrp_mlid_tbl)) {
+	for (idx = 0; idx < max_num_mlids; idx++) {
+		p_mgrp = sa->p_subn->mgrp_mlid_tbl[idx];
 		/* ignore mgrps marked for deletion */
-		if (p_mgrp->to_be_deleted == FALSE) {
+		if (p_mgrp && p_mgrp->to_be_deleted == FALSE) {
 			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 				"Found mgrp with lid:0x%X MGID: 0x%016" PRIx64
 				" : " "0x%016" PRIx64 "\n",
@@ -202,11 +199,9 @@ __get_new_mlid(IN osm_sa_t * sa, IN ib_net16_t requested_mlid)
 					cl_ntoh16(p_mgrp->mlid),
 					max_num_mlids + IB_LID_MCAST_START_HO);
 			} else {
-				used_mlids_array[cl_ntoh16(p_mgrp->mlid) -
-						 IB_LID_MCAST_START_HO] = 1;
+				used_mlids_array[idx] = 1;
 			}
 		}
-		p_mgrp = (osm_mgrp_t *) cl_qmap_next(&p_mgrp->map_item);
 	}
 
 	/* Find "mlid holes" in the mgrp table */
@@ -247,8 +242,7 @@ __cleanup_mgrp(IN osm_sa_t * sa, IN ib_net16_t const mlid)
 	   not a well known group */
 	if (p_mgrp && cl_is_qmap_empty(&p_mgrp->mcm_port_tbl) &&
 	    p_mgrp->well_known == FALSE) {
-		cl_qmap_remove_item(&sa->p_subn->mgrp_mlid_tbl,
-				    (cl_map_item_t *) p_mgrp);
+		sa->p_subn->mgrp_mlid_tbl[cl_ntoh16(mlid) - IB_LID_MCAST_START_HO] = NULL;
 		osm_mgrp_delete(p_mgrp);
 	}
 }
@@ -1033,21 +1027,17 @@ osm_mcmr_rcv_create_new_mgrp(IN osm_sa_t * sa,
 	/* since we might have an old group by that mlid
 	   one whose deletion was delayed for an idle time
 	   we need to deallocate it first */
-	p_prev_mgrp =
-	    (osm_mgrp_t *) cl_qmap_get(&sa->p_subn->mgrp_mlid_tbl, mlid);
-	if (p_prev_mgrp !=
-	    (osm_mgrp_t *) cl_qmap_end(&sa->p_subn->mgrp_mlid_tbl)) {
+	p_prev_mgrp = sa->p_subn->mgrp_mlid_tbl[cl_ntoh16(mlid) - IB_LID_MCAST_START_HO];
+	if (p_prev_mgrp) {
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Found previous group for mlid:0x%04x - "
 			"Destroying it first\n",
 			cl_ntoh16(mlid));
-		cl_qmap_remove_item(&sa->p_subn->mgrp_mlid_tbl,
-				    (cl_map_item_t *) p_prev_mgrp);
+		sa->p_subn->mgrp_mlid_tbl[cl_ntoh16(mlid) - IB_LID_MCAST_START_HO] = NULL;
 		osm_mgrp_delete(p_prev_mgrp);
 	}
 
-	cl_qmap_insert(&sa->p_subn->mgrp_mlid_tbl,
-		       mlid, &(*pp_mgrp)->map_item);
+	sa->p_subn->mgrp_mlid_tbl[cl_ntoh16(mlid) - IB_LID_MCAST_START_HO] = *pp_mgrp;
 
 	/* Send a Report to any InformInfo registered for
 	   Trap 66: MCGroup create */
@@ -1069,9 +1059,8 @@ typedef struct osm_sa_pr_mcmr_search_ctxt {
 /**********************************************************************
  *********************************************************************/
 static void
-__search_mgrp_by_mgid(IN cl_map_item_t * const p_map_item, IN void *context)
+__search_mgrp_by_mgid(IN osm_mgrp_t * const p_mgrp, IN void *context)
 {
-	osm_mgrp_t *p_mgrp = (osm_mgrp_t *) p_map_item;
 	osm_sa_pr_mcmr_search_ctxt_t *p_ctxt =
 	    (osm_sa_pr_mcmr_search_ctxt_t *) context;
 	const ib_gid_t *p_recvd_mgid;
@@ -1135,23 +1124,30 @@ __search_mgrp_by_mgid(IN cl_map_item_t * const p_map_item, IN void *context)
  **********************************************************************/
 ib_api_status_t
 osm_get_mgrp_by_mgid(IN osm_sa_t *sa,
-		   IN ib_gid_t *p_mgid,
-		   OUT osm_mgrp_t **pp_mgrp)
+		     IN ib_gid_t *p_mgid,
+		     OUT osm_mgrp_t **pp_mgrp)
 {
 	osm_sa_pr_mcmr_search_ctxt_t mcmr_search_context;
+	osm_mgrp_t *p_mgrp;
+	int i;
 
 	mcmr_search_context.p_mgid = p_mgid;
 	mcmr_search_context.sa = sa;
 	mcmr_search_context.p_mgrp = NULL;
 
-	cl_qmap_apply_func(&sa->p_subn->mgrp_mlid_tbl,
-			   __search_mgrp_by_mgid, &mcmr_search_context);
-
-	if (mcmr_search_context.p_mgrp == NULL)
-		return IB_NOT_FOUND;
-
-	*pp_mgrp = mcmr_search_context.p_mgrp;
-	return IB_SUCCESS;
+	for (i = 0;
+	     i <= sa->p_subn->max_multicast_lid_ho - IB_LID_MCAST_START_HO;
+	     i++) {
+		p_mgrp = sa->p_subn->mgrp_mlid_tbl[i];
+		if (p_mgrp) {
+			__search_mgrp_by_mgid(p_mgrp, &mcmr_search_context);
+			if (mcmr_search_context.p_mgrp) {
+				*pp_mgrp = mcmr_search_context.p_mgrp;
+				return IB_SUCCESS;
+			}
+		}
+	}
+	return IB_NOT_FOUND;
 }
 
 /**********************************************************************
@@ -1619,10 +1615,9 @@ Exit:
  Match the given mgrp to the requested mcmr
 **********************************************************************/
 static void
-__osm_sa_mcm_by_comp_mask_cb(IN cl_map_item_t * const p_map_item,
+__osm_sa_mcm_by_comp_mask_cb(IN osm_mgrp_t * const p_mgrp,
 			     IN void *context)
 {
-	const osm_mgrp_t *const p_mgrp = (osm_mgrp_t *) p_map_item;
 	osm_sa_mcmr_search_ctxt_t *const p_ctxt =
 	    (osm_sa_mcmr_search_ctxt_t *) context;
 	osm_sa_t *sa = p_ctxt->sa;
@@ -1811,6 +1806,8 @@ __osm_mcmr_query_mgrp(IN osm_sa_t * sa,
 	ib_net64_t comp_mask;
 	osm_physp_t *p_req_physp;
 	boolean_t trusted_req;
+	osm_mgrp_t *p_mgrp;
+	int i;
 
 	OSM_LOG_ENTER(sa->p_log);
 
@@ -1846,8 +1843,13 @@ __osm_mcmr_query_mgrp(IN osm_sa_t * sa,
 	CL_PLOCK_ACQUIRE(sa->p_lock);
 
 	/* simply go over all MCGs and match */
-	cl_qmap_apply_func(&sa->p_subn->mgrp_mlid_tbl,
-			   __osm_sa_mcm_by_comp_mask_cb, &context);
+	for (i = 0;
+	     i <= sa->p_subn->max_multicast_lid_ho - IB_LID_MCAST_START_HO;
+	     i++) {
+		p_mgrp = sa->p_subn->mgrp_mlid_tbl[i];
+		if (p_mgrp)
+			__osm_sa_mcm_by_comp_mask_cb(p_mgrp, &context);
+	}
 
 	CL_PLOCK_RELEASE(sa->p_lock);
 

@@ -2,6 +2,7 @@
  * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
+ * Copyright (c) 2008 Xsigo Systems Inc.  All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -498,7 +499,6 @@ osm_sm_mcgrp_join(IN osm_sm_t * const p_sm,
 {
 	osm_mgrp_t *p_mgrp;
 	osm_port_t *p_port;
-	cl_qmap_t *p_tbl;
 	ib_api_status_t status = IB_SUCCESS;
 	osm_mcm_info_t *p_mcm;
 
@@ -525,9 +525,8 @@ osm_sm_mcgrp_join(IN osm_sm_t * const p_sm,
 	/*
 	 * If this multicast group does not already exist, create it.
 	 */
-	p_tbl = &p_sm->p_subn->mgrp_mlid_tbl;
-	p_mgrp = (osm_mgrp_t *) cl_qmap_get(p_tbl, mlid);
-	if (p_mgrp == (osm_mgrp_t *) cl_qmap_end(p_tbl)) {
+	p_mgrp = p_sm->p_subn->mgrp_mlid_tbl[cl_ntoh16(mlid) - IB_LID_MCAST_START_HO];
+	if (!p_mgrp) {
 		OSM_LOG(p_sm->p_log, OSM_LOG_VERBOSE,
 			"Creating group, MLID 0x%X\n", cl_ntoh16(mlid));
 
@@ -540,7 +539,7 @@ osm_sm_mcgrp_join(IN osm_sm_t * const p_sm,
 			goto Exit;
 		}
 
-		cl_qmap_insert(p_tbl, mlid, &p_mgrp->map_item);
+		p_sm->p_subn->mgrp_mlid_tbl[cl_ntoh16(mlid) - IB_LID_MCAST_START_HO] = p_mgrp;
 	} else {
 		/*
 		 * The group already exists.  If the port is not a
@@ -603,7 +602,6 @@ osm_sm_mcgrp_leave(IN osm_sm_t * const p_sm,
 {
 	osm_mgrp_t *p_mgrp;
 	osm_port_t *p_port;
-	cl_qmap_t *p_tbl;
 	ib_api_status_t status = IB_SUCCESS;
 
 	OSM_LOG_ENTER(p_sm->p_log);
@@ -630,9 +628,8 @@ osm_sm_mcgrp_leave(IN osm_sm_t * const p_sm,
 	/*
 	 * Get the multicast group object for this group.
 	 */
-	p_tbl = &p_sm->p_subn->mgrp_mlid_tbl;
-	p_mgrp = (osm_mgrp_t *) cl_qmap_get(p_tbl, mlid);
-	if (p_mgrp == (osm_mgrp_t *) cl_qmap_end(p_tbl)) {
+	p_mgrp = p_sm->p_subn->mgrp_mlid_tbl[cl_ntoh16(mlid) - IB_LID_MCAST_START_HO];
+	if (!p_mgrp) {
 		CL_PLOCK_RELEASE(p_sm->p_lock);
 		OSM_LOG(p_sm->p_log, OSM_LOG_ERROR, "ERR 2E08: "
 			"No multicast group for MLID 0x%X\n", cl_ntoh16(mlid));

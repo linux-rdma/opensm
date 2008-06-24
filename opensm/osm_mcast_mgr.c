@@ -2,6 +2,7 @@
  * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2006 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
+ * Copyright (c) 2008 Xsigo Systems Inc.  All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -1154,8 +1155,7 @@ mcast_mgr_process_mgrp(osm_sm_t * sm,
 		/* Send a Report to any InformInfo registered for
 		   Trap 67 : MCGroup delete */
 		osm_mgrp_send_delete_notice(sm->p_subn, sm->p_log, p_mgrp);
-		cl_qmap_remove_item(&sm->p_subn->mgrp_mlid_tbl,
-				    (cl_map_item_t *) p_mgrp);
+		sm->p_subn->mgrp_mlid_tbl[cl_ntoh16(p_mgrp->mlid) - IB_LID_MCAST_START_HO] = NULL;
 		osm_mgrp_delete(p_mgrp);
 	}
 
@@ -1171,16 +1171,14 @@ osm_signal_t osm_mcast_mgr_process(osm_sm_t * sm)
 	osm_signal_t signal;
 	osm_switch_t *p_sw;
 	cl_qmap_t *p_sw_tbl;
-	cl_qmap_t *p_mcast_tbl;
 	cl_qlist_t *p_list = &sm->mgrp_list;
 	osm_mgrp_t *p_mgrp;
-	osm_mgrp_t *p_next_mgrp;
 	boolean_t pending_transactions = FALSE;
+	int i;
 
 	OSM_LOG_ENTER(sm->p_log);
 
 	p_sw_tbl = &sm->p_subn->sw_guid_tbl;
-	p_mcast_tbl = &sm->p_subn->mgrp_mlid_tbl;
 	/*
 	   While holding the lock, iterate over all the established
 	   multicast groups, servicing each in turn.
@@ -1189,17 +1187,19 @@ osm_signal_t osm_mcast_mgr_process(osm_sm_t * sm)
 	 */
 	CL_PLOCK_EXCL_ACQUIRE(sm->p_lock);
 
-	p_mgrp = (osm_mgrp_t *) cl_qmap_head(p_mcast_tbl);
-	while (p_mgrp != (osm_mgrp_t *) cl_qmap_end(p_mcast_tbl)) {
+	for (i = 0;
+	     i <= sm->p_subn->max_multicast_lid_ho - IB_LID_MCAST_START_HO;
+	     i++) {
 		/*
 		   We reached here due to some change that caused a heavy sweep
 		   of the subnet. Not due to a specific multicast request.
 		   So the request type is subnet_change and the port guid is 0.
 		 */
-		p_next_mgrp = (osm_mgrp_t *) cl_qmap_next(&p_mgrp->map_item);
-		mcast_mgr_process_mgrp(sm, p_mgrp,
-				       OSM_MCAST_REQ_TYPE_SUBNET_CHANGE, 0);
-		p_mgrp = p_next_mgrp;
+		p_mgrp = sm->p_subn->mgrp_mlid_tbl[i];
+		if (p_mgrp)
+			mcast_mgr_process_mgrp(sm, p_mgrp,
+					       OSM_MCAST_REQ_TYPE_SUBNET_CHANGE,
+					       0);
 	}
 
 	/*
@@ -1233,13 +1233,7 @@ osm_signal_t osm_mcast_mgr_process(osm_sm_t * sm)
 static
 osm_mgrp_t *__get_mgrp_by_mlid(osm_sm_t * sm, IN ib_net16_t const mlid)
 {
-	cl_map_item_t *map_item;
-
-	map_item = cl_qmap_get(&sm->p_subn->mgrp_mlid_tbl, mlid);
-	if (map_item == cl_qmap_end(&sm->p_subn->mgrp_mlid_tbl)) {
-		return NULL;
-	}
-	return (osm_mgrp_t *) map_item;
+	return(sm->p_subn->mgrp_mlid_tbl[cl_ntoh16(mlid) - IB_LID_MCAST_START_HO]);
 }
 
 /**********************************************************************

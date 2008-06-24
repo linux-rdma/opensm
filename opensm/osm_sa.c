@@ -2,6 +2,7 @@
  * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
+ * Copyright (c) 2008 Xsigo Systems Inc.  All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -558,12 +559,11 @@ static void mcast_mgr_dump_one_port(cl_map_item_t * p_map_item, void *cxt)
 		p_mcm_port->scope_state, p_mcm_port->proxy_join);
 }
 
-static void sa_dump_one_mgrp(cl_map_item_t * p_map_item, void *cxt)
+static void sa_dump_one_mgrp(osm_mgrp_t *p_mgrp, void *cxt)
 {
 	struct opensm_dump_context dump_context;
 	osm_opensm_t *p_osm = ((struct opensm_dump_context *)cxt)->p_osm;
 	FILE *file = ((struct opensm_dump_context *)cxt)->file;
-	osm_mgrp_t *p_mgrp = (osm_mgrp_t *) p_map_item;
 
 	fprintf(file, "MC Group 0x%04x %s:"
 		" mgid=0x%016" PRIx64 ":0x%016" PRIx64
@@ -700,13 +700,20 @@ static void sa_dump_one_service(cl_list_item_t * p_list_item, void *cxt)
 static void sa_dump_all_sa(osm_opensm_t * p_osm, FILE * file)
 {
 	struct opensm_dump_context dump_context;
+	osm_mgrp_t *p_mgrp;
+	int i;
 
 	dump_context.p_osm = p_osm;
 	dump_context.file = file;
 	OSM_LOG(&p_osm->log, OSM_LOG_DEBUG, "Dump multicast:\n");
 	cl_plock_acquire(&p_osm->lock);
-	cl_qmap_apply_func(&p_osm->subn.mgrp_mlid_tbl,
-			   sa_dump_one_mgrp, &dump_context);
+	for (i = 0;
+	     i <= p_osm->subn.max_multicast_lid_ho - IB_LID_MCAST_START_HO;
+	     i++) {
+		p_mgrp = p_osm->subn.mgrp_mlid_tbl[i];
+		if (p_mgrp)
+			sa_dump_one_mgrp(p_mgrp, &dump_context);
+	}
 	OSM_LOG(&p_osm->log, OSM_LOG_DEBUG, "Dump inform:\n");
 	cl_qlist_apply_func(&p_osm->subn.sa_infr_list,
 			    sa_dump_one_inform, &dump_context);
@@ -729,14 +736,12 @@ static osm_mgrp_t *load_mcgroup(osm_opensm_t * p_osm, ib_net16_t mlid,
 				unsigned well_known)
 {
 	ib_net64_t comp_mask;
-	cl_map_item_t *p_next;
 	osm_mgrp_t *p_mgrp;
 
 	cl_plock_excl_acquire(&p_osm->lock);
 
-	if ((p_next = cl_qmap_get(&p_osm->subn.mgrp_mlid_tbl, mlid)) !=
-	    cl_qmap_end(&p_osm->subn.mgrp_mlid_tbl)) {
-		p_mgrp = (osm_mgrp_t *) p_next;
+	p_mgrp = p_osm->subn.mgrp_mlid_tbl[cl_ntoh16(mlid) - IB_LID_MCAST_START_HO];
+	if (p_mgrp) {
 		if (!memcmp(&p_mgrp->mcmember_rec.mgid, &p_mcm_rec->mgid,
 			    sizeof(ib_gid_t))) {
 			OSM_LOG(&p_osm->log, OSM_LOG_DEBUG,

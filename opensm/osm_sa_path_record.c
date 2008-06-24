@@ -2,6 +2,7 @@
  * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2006 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
+ * Copyright (c) 2008 Xsigo Systems Inc.  All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -1472,14 +1473,7 @@ __osm_pr_rcv_process_pair(IN osm_sa_t * sa,
 static osm_mgrp_t *__get_mgrp_by_mlid(IN osm_sa_t * sa,
 				      IN ib_net16_t const mlid)
 {
-	cl_map_item_t *map_item;
-
-	map_item = cl_qmap_get(&sa->p_subn->mgrp_mlid_tbl, mlid);
-
-	if (map_item == cl_qmap_end(&sa->p_subn->mgrp_mlid_tbl))
-		return NULL;
-
-	return (osm_mgrp_t *) map_item;
+	return(sa->p_subn->mgrp_mlid_tbl[cl_ntoh16(mlid) - IB_LID_MCAST_START_HO]);
 }
 
 /**********************************************************************
