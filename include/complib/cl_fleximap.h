@@ -194,8 +194,8 @@ typedef intn_t
 *
 * RETURN VALUE
 *	Returns 0 if the keys match.
-*	Returns less than 0 if p_key1 is less than p_key2.
-*	Returns greater than 0 if p_key1 is greater than p_key2.
+*	Returns less than 0 if *p_key1 is less than *p_key2.
+*	Returns greater than 0 if *p_key1 is greater than *p_key2.
 *
 * NOTES
 *	This function type is provided as function prototype reference for the
