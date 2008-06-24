@@ -230,8 +230,6 @@ osm_switch_find_guid_common(IN const osm_switch_t * const p_sw,
 	int i;
 
 	CL_ASSERT(p_sw);
-	CL_ASSERT(remote_guids);
-	CL_ASSERT(p_num_remote_guids);
 
 	p_physp = osm_node_get_physp_ptr(p_sw->p_node, port_num);
 	p_rem_physp = osm_physp_get_remote(p_physp);
