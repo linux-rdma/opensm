@@ -744,6 +744,65 @@ static void clear_prof_ignore_flag(cl_map_item_t * const p_map_item, void *ctx)
 	}
 }
 
+static void add_sw_endports_to_order_list(osm_switch_t *sw, osm_ucast_mgr_t *m)
+{
+	osm_port_t *port;
+	osm_physp_t *p;
+	int i;
+
+	for (i = 1; i < sw->num_ports; i++) {
+		p = osm_node_get_physp_ptr(sw->p_node, i);
+		if (p && p->p_remote_physp && !p->p_remote_physp->p_node->sw) {
+			port = osm_get_port_by_guid(m->p_subn,
+						    p->p_remote_physp->port_guid);
+			cl_qlist_insert_tail(&m->port_order_list,
+					     &port->list_item);
+			port->flag = 1;
+		}
+	}
+}
+
+static void sw_count_endport_links(osm_switch_t *sw)
+{
+	osm_physp_t *p;
+	int i;
+
+	sw->endport_links = 0;
+	for (i = 1; i < sw->num_ports; i++) {
+		p = osm_node_get_physp_ptr(sw->p_node, i);
+		if (p && p->p_remote_physp && !p->p_remote_physp->p_node->sw)
+			sw->endport_links++;
+	}
+}
+
+static int compar_sw_load(const void *s1, const void *s2)
+{
+#define get_sw_endport_links(s) (*(osm_switch_t **)s)->endport_links
+	return get_sw_endport_links(s2) - get_sw_endport_links(s1);
+}
+
+static void sort_ports_by_switch_load(osm_ucast_mgr_t *m)
+{
+	int i, num = cl_qmap_count(&m->p_subn->sw_guid_tbl);
+	void **s = malloc(num * sizeof(*s));
+	if (!s) {
+		OSM_LOG(m->p_log, OSM_LOG_ERROR, "ERR: "
+			"No memory, skip by switch load sorting.\n");
+		return;
+	}
+	s[0] = cl_qmap_head(&m->p_subn->sw_guid_tbl);
+	for (i = 1; i < num; i++)
+		s[i] = cl_qmap_next(s[i-1]);
+
+	for (i = 0; i < num; i++)
+		sw_count_endport_links(s[i]);
+
+	qsort(s, num, sizeof(*s), compar_sw_load);
+
+	for (i = 0; i < num; i++)
+		add_sw_endports_to_order_list(s[i], m);
+}
+
 static int ucast_mgr_build_lfts(osm_ucast_mgr_t *p_mgr)
 {
 	cl_qlist_init(&p_mgr->port_order_list);
@@ -758,7 +817,8 @@ static int ucast_mgr_build_lfts(osm_ucast_mgr_t *p_mgr)
 			OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR : "
 				"cannot parse guid routing order file \'%s\'\n",
 				p_mgr->p_subn->opt.guid_routing_order_file);
-	}
+	} else
+		sort_ports_by_switch_load(p_mgr);
 
 	if (p_mgr->p_subn->opt.port_prof_ignore_file) {
 		cl_qmap_apply_func(&p_mgr->p_subn->sw_guid_tbl,

@@ -104,6 +104,7 @@ typedef struct osm_switch {
 	uint8_t *new_lft;
 	osm_mcast_tbl_t mcast_tbl;
 	uint32_t discovery_count;
+	unsigned endport_links;
 	unsigned need_update;
 	void *priv;
 } osm_switch_t;
