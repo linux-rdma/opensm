@@ -743,6 +743,9 @@ static void ucast_mgr_build_lfts(osm_ucast_mgr_t *p_mgr)
 
 	cl_qmap_apply_func(&p_mgr->p_subn->sw_guid_tbl,
 			   __osm_ucast_mgr_process_tbl, p_mgr);
+
+	while(cl_is_qlist_empty(&p_mgr->port_order_list))
+		cl_qlist_remove_head(&p_mgr->port_order_list);
 }
 
 /**********************************************************************
