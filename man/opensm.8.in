@@ -5,6 +5,7 @@ opensm \- InfiniBand subnet manager and administration (SM/SA)
 
 .SH SYNOPSIS
 .B opensm
+[\-\-version]]
 [\-c(ache-options)] [\-g(uid)[=]<GUID in hex>] [\-l(mc) <LMC>]
 [\-p(riority) <PRIORITY>] [\-smkey <SM_Key>] [\-r(eassign_lids)]
 [\-R <engine name> | \-\-routing_engine <engine name>]
@@ -62,6 +63,9 @@ setup the subnet correctly.
 .SH OPTIONS
 
 .PP
+.TP
+\fB\-\-version\fR
+Prints OpenSM version and exits.
 .TP
 \fB\-c\fR, \fB\-\-cache-options\fR
 Write out a list of all tunable OpenSM parameters,

@@ -126,6 +126,8 @@ static void show_usage(void)
 	printf("\n------- OpenSM - Usage and options ----------------------\n");
 	printf("Usage:   opensm [options]\n");
 	printf("Options:\n");
+	printf("--version\n"
+	       "          Prints OpenSM version and exits.\n\n");
 	printf("-F <file-name>, --config <file-name>\n"
 	       "          The name of the OpenSM config file. It has a same format\n"
 	       "          as opensm.opts option cache file. When not specified\n"
@@ -620,6 +622,7 @@ int main(int argc, char *argv[])
 	   2: optional
 	 */
 	const struct option long_option[] = {
+		{"version", 0, NULL, 12},
 		{"config", 1, NULL, 'F'},
 		{"debug", 1, NULL, 'd'},
 		{"guid", 1, NULL, 'g'},
@@ -696,6 +699,9 @@ int main(int argc, char *argv[])
 		next_option = getopt_long_only(argc, argv, short_option,
 					       long_option, NULL);
 		switch (next_option) {
+		case 12: /* --version - already printed above */
+			exit(0);
+			break;
 		case 'F':
 			if (config_file_done)
 				break;
