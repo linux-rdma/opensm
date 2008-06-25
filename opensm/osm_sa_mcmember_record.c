@@ -92,12 +92,12 @@ typedef struct osm_sa_mcmr_search_ctxt {
 } osm_sa_mcmr_search_ctxt_t;
 
 /**********************************************************************
- Look for a MGRP in the mgrp_mlid_tbl by mlid
+ Look for a MGRP in the mgroups by mlid
 **********************************************************************/
 static osm_mgrp_t *__get_mgrp_by_mlid(IN osm_sa_t * sa,
 				      IN ib_net16_t const mlid)
 {
-	return(sa->p_subn->mgrp_mlid_tbl[cl_ntoh16(mlid) - IB_LID_MCAST_START_HO]);
+	return(sa->p_subn->mgroups[cl_ntoh16(mlid) - IB_LID_MCAST_START_HO]);
 }
 
 /*********************************************************************
@@ -149,7 +149,7 @@ __get_new_mlid(IN osm_sa_t * sa, IN ib_net16_t requested_mlid)
 
 	if (requested_mlid && cl_ntoh16(requested_mlid) >= IB_LID_MCAST_START_HO
 	    && cl_ntoh16(requested_mlid) <= p_subn->max_multicast_lid_ho
-	    && !p_subn->mgrp_mlid_tbl[cl_ntoh16(requested_mlid) - IB_LID_MCAST_START_HO]) {
+	    && !p_subn->mgroups[cl_ntoh16(requested_mlid) - IB_LID_MCAST_START_HO]) {
 		mlid = cl_ntoh16(requested_mlid);
 		goto Exit;
 	}
@@ -158,7 +158,7 @@ __get_new_mlid(IN osm_sa_t * sa, IN ib_net16_t requested_mlid)
 	max_num_mlids = sa->p_subn->max_multicast_lid_ho -
 			IB_LID_MCAST_START_HO + 1;
 	for (idx = 0; idx < max_num_mlids; idx++) {
-		p_mgrp = sa->p_subn->mgrp_mlid_tbl[idx];
+		p_mgrp = sa->p_subn->mgroups[idx];
 		if (p_mgrp)
 			break;
 	}
@@ -178,7 +178,7 @@ __get_new_mlid(IN osm_sa_t * sa, IN ib_net16_t requested_mlid)
 
 	/* scan all available multicast groups in the DB and fill in the table */
 	for (idx = 0; idx < max_num_mlids; idx++) {
-		p_mgrp = sa->p_subn->mgrp_mlid_tbl[idx];
+		p_mgrp = sa->p_subn->mgroups[idx];
 		/* ignore mgrps marked for deletion */
 		if (p_mgrp && p_mgrp->to_be_deleted == FALSE) {
 			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
@@ -242,7 +242,7 @@ __cleanup_mgrp(IN osm_sa_t * sa, IN ib_net16_t const mlid)
 	   not a well known group */
 	if (p_mgrp && cl_is_qmap_empty(&p_mgrp->mcm_port_tbl) &&
 	    p_mgrp->well_known == FALSE) {
-		sa->p_subn->mgrp_mlid_tbl[cl_ntoh16(mlid) - IB_LID_MCAST_START_HO] = NULL;
+		sa->p_subn->mgroups[cl_ntoh16(mlid) - IB_LID_MCAST_START_HO] = NULL;
 		osm_mgrp_delete(p_mgrp);
 	}
 }
@@ -1027,17 +1027,17 @@ osm_mcmr_rcv_create_new_mgrp(IN osm_sa_t * sa,
 	/* since we might have an old group by that mlid
 	   one whose deletion was delayed for an idle time
 	   we need to deallocate it first */
-	p_prev_mgrp = sa->p_subn->mgrp_mlid_tbl[cl_ntoh16(mlid) - IB_LID_MCAST_START_HO];
+	p_prev_mgrp = sa->p_subn->mgroups[cl_ntoh16(mlid) - IB_LID_MCAST_START_HO];
 	if (p_prev_mgrp) {
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Found previous group for mlid:0x%04x - "
 			"Destroying it first\n",
 			cl_ntoh16(mlid));
-		sa->p_subn->mgrp_mlid_tbl[cl_ntoh16(mlid) - IB_LID_MCAST_START_HO] = NULL;
+		sa->p_subn->mgroups[cl_ntoh16(mlid) - IB_LID_MCAST_START_HO] = NULL;
 		osm_mgrp_delete(p_prev_mgrp);
 	}
 
-	sa->p_subn->mgrp_mlid_tbl[cl_ntoh16(mlid) - IB_LID_MCAST_START_HO] = *pp_mgrp;
+	sa->p_subn->mgroups[cl_ntoh16(mlid) - IB_LID_MCAST_START_HO] = *pp_mgrp;
 
 	/* Send a Report to any InformInfo registered for
 	   Trap 66: MCGroup create */
@@ -1138,7 +1138,7 @@ osm_get_mgrp_by_mgid(IN osm_sa_t *sa,
 	for (i = 0;
 	     i <= sa->p_subn->max_multicast_lid_ho - IB_LID_MCAST_START_HO;
 	     i++) {
-		p_mgrp = sa->p_subn->mgrp_mlid_tbl[i];
+		p_mgrp = sa->p_subn->mgroups[i];
 		if (p_mgrp) {
 			__search_mgrp_by_mgid(p_mgrp, &mcmr_search_context);
 			if (mcmr_search_context.p_mgrp) {
@@ -1846,7 +1846,7 @@ __osm_mcmr_query_mgrp(IN osm_sa_t * sa,
 	for (i = 0;
 	     i <= sa->p_subn->max_multicast_lid_ho - IB_LID_MCAST_START_HO;
 	     i++) {
-		p_mgrp = sa->p_subn->mgrp_mlid_tbl[i];
+		p_mgrp = sa->p_subn->mgroups[i];
 		if (p_mgrp)
 			__osm_sa_mcm_by_comp_mask_cb(p_mgrp, &context);
 	}

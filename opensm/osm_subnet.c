@@ -144,11 +144,10 @@ void osm_subn_destroy(IN osm_subn_t * const p_subn)
 	for (i = 0;
 	     i <= p_subn->max_multicast_lid_ho - IB_LID_MCAST_START_HO;
 	     i++) {
-		p_mgrp = p_subn->mgrp_mlid_tbl[i];
-		if (p_mgrp) {
+		p_mgrp = p_subn->mgroups[i];
+		p_subn->mgroups[i] = NULL;
+		if (p_mgrp)
 			osm_mgrp_delete(p_mgrp);
-			p_subn->mgrp_mlid_tbl[i] = NULL;
-		}
 	}
 
 	p_next_infr = (osm_infr_t *) cl_qlist_head(&p_subn->sa_infr_list);

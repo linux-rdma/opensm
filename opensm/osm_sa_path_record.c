@@ -1473,7 +1473,7 @@ __osm_pr_rcv_process_pair(IN osm_sa_t * sa,
 static osm_mgrp_t *__get_mgrp_by_mlid(IN osm_sa_t * sa,
 				      IN ib_net16_t const mlid)
 {
-	return(sa->p_subn->mgrp_mlid_tbl[cl_ntoh16(mlid) - IB_LID_MCAST_START_HO]);
+	return(sa->p_subn->mgroups[cl_ntoh16(mlid) - IB_LID_MCAST_START_HO]);
 }
 
 /**********************************************************************

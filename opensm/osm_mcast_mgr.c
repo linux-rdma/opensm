@@ -1155,7 +1155,7 @@ mcast_mgr_process_mgrp(osm_sm_t * sm,
 		/* Send a Report to any InformInfo registered for
 		   Trap 67 : MCGroup delete */
 		osm_mgrp_send_delete_notice(sm->p_subn, sm->p_log, p_mgrp);
-		sm->p_subn->mgrp_mlid_tbl[cl_ntoh16(p_mgrp->mlid) - IB_LID_MCAST_START_HO] = NULL;
+		sm->p_subn->mgroups[cl_ntoh16(p_mgrp->mlid) - IB_LID_MCAST_START_HO] = NULL;
 		osm_mgrp_delete(p_mgrp);
 	}
 
@@ -1195,7 +1195,7 @@ osm_signal_t osm_mcast_mgr_process(osm_sm_t * sm)
 		   of the subnet. Not due to a specific multicast request.
 		   So the request type is subnet_change and the port guid is 0.
 		 */
-		p_mgrp = sm->p_subn->mgrp_mlid_tbl[i];
+		p_mgrp = sm->p_subn->mgroups[i];
 		if (p_mgrp)
 			mcast_mgr_process_mgrp(sm, p_mgrp,
 					       OSM_MCAST_REQ_TYPE_SUBNET_CHANGE,
@@ -1233,7 +1233,7 @@ osm_signal_t osm_mcast_mgr_process(osm_sm_t * sm)
 static
 osm_mgrp_t *__get_mgrp_by_mlid(osm_sm_t * sm, IN ib_net16_t const mlid)
 {
-	return(sm->p_subn->mgrp_mlid_tbl[cl_ntoh16(mlid) - IB_LID_MCAST_START_HO]);
+	return(sm->p_subn->mgroups[cl_ntoh16(mlid) - IB_LID_MCAST_START_HO]);
 }
 
 /**********************************************************************

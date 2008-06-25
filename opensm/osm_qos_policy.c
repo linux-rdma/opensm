@@ -793,7 +793,7 @@ static void __qos_policy_validate_pkey(
 	if (!p_prtn->mlid)
 		return;
 
-	p_mgrp = p_qos_policy->p_subn->mgrp_mlid_tbl[cl_ntoh16(p_prtn->mlid) - IB_LID_MCAST_START_HO];
+	p_mgrp = p_qos_policy->p_subn->mgroups[cl_ntoh16(p_prtn->mlid) - IB_LID_MCAST_START_HO];
 	if (!p_mgrp) {
 		OSM_LOG(&p_qos_policy->p_subn->p_osm->log, OSM_LOG_ERROR,
 			"ERR AC16: MCast group for partition with "

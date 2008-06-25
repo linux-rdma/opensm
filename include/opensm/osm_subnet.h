@@ -495,7 +495,7 @@ typedef struct osm_subn {
 	boolean_t first_time_master_sweep;
 	boolean_t coming_out_of_standby;
 	unsigned need_update;
-	void *mgrp_mlid_tbl[IB_LID_MCAST_END_HO - IB_LID_MCAST_START_HO + 1];
+	void *mgroups[IB_LID_MCAST_END_HO - IB_LID_MCAST_START_HO + 1];
 } osm_subn_t;
 /*
 * FIELDS
@@ -617,7 +617,7 @@ typedef struct osm_subn {
 *     This flag should be on during first non-master heavy (including
 *     pre-master discovery stage)
 *
-*	mgrp_mlid_tbl
+*	mgroups
 *		Array of pointers to all Multicast Group objects in the subnet.
 *		Indexed by MLID offset from base MLID.
 *

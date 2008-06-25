@@ -525,7 +525,7 @@ osm_sm_mcgrp_join(IN osm_sm_t * const p_sm,
 	/*
 	 * If this multicast group does not already exist, create it.
 	 */
-	p_mgrp = p_sm->p_subn->mgrp_mlid_tbl[cl_ntoh16(mlid) - IB_LID_MCAST_START_HO];
+	p_mgrp = p_sm->p_subn->mgroups[cl_ntoh16(mlid) - IB_LID_MCAST_START_HO];
 	if (!p_mgrp) {
 		OSM_LOG(p_sm->p_log, OSM_LOG_VERBOSE,
 			"Creating group, MLID 0x%X\n", cl_ntoh16(mlid));
@@ -539,7 +539,7 @@ osm_sm_mcgrp_join(IN osm_sm_t * const p_sm,
 			goto Exit;
 		}
 
-		p_sm->p_subn->mgrp_mlid_tbl[cl_ntoh16(mlid) - IB_LID_MCAST_START_HO] = p_mgrp;
+		p_sm->p_subn->mgroups[cl_ntoh16(mlid) - IB_LID_MCAST_START_HO] = p_mgrp;
 	} else {
 		/*
 		 * The group already exists.  If the port is not a
@@ -628,7 +628,7 @@ osm_sm_mcgrp_leave(IN osm_sm_t * const p_sm,
 	/*
 	 * Get the multicast group object for this group.
 	 */
-	p_mgrp = p_sm->p_subn->mgrp_mlid_tbl[cl_ntoh16(mlid) - IB_LID_MCAST_START_HO];
+	p_mgrp = p_sm->p_subn->mgroups[cl_ntoh16(mlid) - IB_LID_MCAST_START_HO];
 	if (!p_mgrp) {
 		CL_PLOCK_RELEASE(p_sm->p_lock);
 		OSM_LOG(p_sm->p_log, OSM_LOG_ERROR, "ERR 2E08: "

@@ -710,7 +710,7 @@ static void sa_dump_all_sa(osm_opensm_t * p_osm, FILE * file)
 	for (i = 0;
 	     i <= p_osm->subn.max_multicast_lid_ho - IB_LID_MCAST_START_HO;
 	     i++) {
-		p_mgrp = p_osm->subn.mgrp_mlid_tbl[i];
+		p_mgrp = p_osm->subn.mgroups[i];
 		if (p_mgrp)
 			sa_dump_one_mgrp(p_mgrp, &dump_context);
 	}
@@ -740,7 +740,7 @@ static osm_mgrp_t *load_mcgroup(osm_opensm_t * p_osm, ib_net16_t mlid,
 
 	cl_plock_excl_acquire(&p_osm->lock);
 
-	p_mgrp = p_osm->subn.mgrp_mlid_tbl[cl_ntoh16(mlid) - IB_LID_MCAST_START_HO];
+	p_mgrp = p_osm->subn.mgroups[cl_ntoh16(mlid) - IB_LID_MCAST_START_HO];
 	if (p_mgrp) {
 		if (!memcmp(&p_mgrp->mcmember_rec.mgid, &p_mcm_rec->mgid,
 			    sizeof(ib_gid_t))) {
