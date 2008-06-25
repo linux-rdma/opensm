@@ -171,7 +171,7 @@ static void __osm_lid_mgr_validate_db(IN osm_lid_mgr_t * p_mgr)
 
 			if ((min_lid > max_lid) || (min_lid == 0)
 			    || (p_item->guid == 0)
-			    || (max_lid > p_mgr->p_subn->max_unicast_lid_ho)) {
+			    || (max_lid > p_mgr->p_subn->max_ucast_lid_ho)) {
 				OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 0312: "
 					"Illegal LID range [0x%x:0x%x] for "
 					"guid:0x%016" PRIx64 "\n", min_lid,
@@ -596,7 +596,7 @@ AfterScanningLids:
 			p_range->min_lid = lid;
 	}
 	if (p_range) {
-		p_range->max_lid = p_mgr->p_subn->max_unicast_lid_ho;
+		p_range->max_lid = p_mgr->p_subn->max_ucast_lid_ho;
 		cl_qlist_insert_tail(&p_mgr->free_ranges, &p_range->item);
 		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 			"final free lid range [0x%x:0x%x]\n",

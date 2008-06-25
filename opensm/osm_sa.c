@@ -707,8 +707,7 @@ static void sa_dump_all_sa(osm_opensm_t * p_osm, FILE * file)
 	dump_context.file = file;
 	OSM_LOG(&p_osm->log, OSM_LOG_DEBUG, "Dump multicast:\n");
 	cl_plock_acquire(&p_osm->lock);
-	for (i = 0;
-	     i <= p_osm->subn.max_multicast_lid_ho - IB_LID_MCAST_START_HO;
+	for (i = 0; i <= p_osm->subn.max_mcast_lid_ho - IB_LID_MCAST_START_HO;
 	     i++) {
 		p_mgrp = p_osm->subn.mgroups[i];
 		if (p_mgrp)

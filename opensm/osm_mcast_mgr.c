@@ -1187,8 +1187,7 @@ osm_signal_t osm_mcast_mgr_process(osm_sm_t * sm)
 	 */
 	CL_PLOCK_EXCL_ACQUIRE(sm->p_lock);
 
-	for (i = 0;
-	     i <= sm->p_subn->max_multicast_lid_ho - IB_LID_MCAST_START_HO;
+	for (i = 0; i <= sm->p_subn->max_mcast_lid_ho - IB_LID_MCAST_START_HO;
 	     i++) {
 		/*
 		   We reached here due to some change that caused a heavy sweep

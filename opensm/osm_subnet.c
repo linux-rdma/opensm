@@ -141,8 +141,7 @@ void osm_subn_destroy(IN osm_subn_t * const p_subn)
 		osm_prtn_delete(&p_prtn);
 	}
 
-	for (i = 0;
-	     i <= p_subn->max_multicast_lid_ho - IB_LID_MCAST_START_HO;
+	for (i = 0; i <= p_subn->max_mcast_lid_ho - IB_LID_MCAST_START_HO;
 	     i++) {
 		p_mgrp = p_subn->mgroups[i];
 		p_subn->mgroups[i] = NULL;
@@ -200,8 +199,8 @@ osm_subn_init(IN osm_subn_t * const p_subn,
 	cl_ptr_vector_set(&p_subn->port_lid_tbl, 0, NULL);
 
 	p_subn->opt = *p_opt;
-	p_subn->max_unicast_lid_ho = IB_LID_UCAST_END_HO;
-	p_subn->max_multicast_lid_ho = IB_LID_MCAST_END_HO;
+	p_subn->max_ucast_lid_ho = IB_LID_UCAST_END_HO;
+	p_subn->max_mcast_lid_ho = IB_LID_MCAST_END_HO;
 	p_subn->min_ca_mtu = IB_MAX_MTU;
 	p_subn->min_ca_rate = IB_MAX_RATE;
 

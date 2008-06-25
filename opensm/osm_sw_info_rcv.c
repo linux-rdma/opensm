@@ -303,19 +303,19 @@ __osm_si_rcv_process_new(IN osm_sm_t * sm,
 	}
 
 	/* set subnet max mlid to the minimum MulticastFDBCap of all switches */
-	if (p_sw->mcast_tbl.max_mlid_ho < sm->p_subn->max_multicast_lid_ho) {
-		sm->p_subn->max_multicast_lid_ho = p_sw->mcast_tbl.max_mlid_ho;
+	if (p_sw->mcast_tbl.max_mlid_ho < sm->p_subn->max_mcast_lid_ho) {
+		sm->p_subn->max_mcast_lid_ho = p_sw->mcast_tbl.max_mlid_ho;
 		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 			"Subnet max multicast lid is 0x%X\n",
-			sm->p_subn->max_multicast_lid_ho);
+			sm->p_subn->max_mcast_lid_ho);
 	}
 
 	/* set subnet max unicast lid to the minimum LinearFDBCap of all switches */
-	if (p_sw->fwd_tbl.p_lin_tbl->size < sm->p_subn->max_unicast_lid_ho) {
-		sm->p_subn->max_unicast_lid_ho = p_sw->fwd_tbl.p_lin_tbl->size;
+	if (p_sw->fwd_tbl.p_lin_tbl->size < sm->p_subn->max_ucast_lid_ho) {
+		sm->p_subn->max_ucast_lid_ho = p_sw->fwd_tbl.p_lin_tbl->size;
 		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 			"Subnet max unicast lid is 0x%X\n",
-			sm->p_subn->max_unicast_lid_ho);
+			sm->p_subn->max_ucast_lid_ho);
 	}
 
 	p_check = (osm_switch_t *) cl_qmap_insert(p_sw_guid_tbl,

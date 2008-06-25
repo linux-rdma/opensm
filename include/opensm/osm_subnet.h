@@ -484,8 +484,8 @@ typedef struct osm_subn {
 	uint8_t sm_state;
 	osm_subn_opt_t opt;
 	struct osm_qos_policy *p_qos_policy;
-	uint16_t max_unicast_lid_ho;
-	uint16_t max_multicast_lid_ho;
+	uint16_t max_ucast_lid_ho;
+	uint16_t max_mcast_lid_ho;
 	uint8_t min_ca_mtu;
 	uint8_t min_ca_rate;
 	boolean_t ignore_existing_lfts;
@@ -553,10 +553,10 @@ typedef struct osm_subn {
 *	p_qos_policy
 *		Subnet QoS policy structure.
 *
-*	max_unicast_lid_ho
+*	max_ucast_lid_ho
 *		The minimal max unicast lid reported by all switches
 *
-*	max_multicast_lid_ho
+*	max_mcast_lid_ho
 *		The minimal max multicast lid reported by all switches
 *
 *	min_ca_mtu

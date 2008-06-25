@@ -130,11 +130,11 @@ static ib_net16_t __get_new_mlid(osm_sa_t *sa, ib_net16_t requested_mlid)
 	unsigned i, max;
 
 	if (requested_mlid && cl_ntoh16(requested_mlid) >= IB_LID_MCAST_START_HO
-	    && cl_ntoh16(requested_mlid) <= p_subn->max_multicast_lid_ho
+	    && cl_ntoh16(requested_mlid) <= p_subn->max_mcast_lid_ho
 	    && !osm_get_mgrp_by_mlid(p_subn, requested_mlid))
 		return requested_mlid;
 
-	max = p_subn->max_multicast_lid_ho - IB_LID_MCAST_START_HO + 1;
+	max = p_subn->max_mcast_lid_ho - IB_LID_MCAST_START_HO + 1;
 	for (i = 0; i < max; i++) {
 		osm_mgrp_t *p_mgrp = sa->p_subn->mgroups[i];
 		if (!p_mgrp || p_mgrp->to_be_deleted)
@@ -1052,8 +1052,7 @@ osm_get_mgrp_by_mgid(IN osm_sa_t *sa,
 	mcmr_search_context.sa = sa;
 	mcmr_search_context.p_mgrp = NULL;
 
-	for (i = 0;
-	     i <= sa->p_subn->max_multicast_lid_ho - IB_LID_MCAST_START_HO;
+	for (i = 0; i <= sa->p_subn->max_mcast_lid_ho - IB_LID_MCAST_START_HO;
 	     i++) {
 		p_mgrp = sa->p_subn->mgroups[i];
 		if (p_mgrp) {
@@ -1760,8 +1759,7 @@ __osm_mcmr_query_mgrp(IN osm_sa_t * sa,
 	CL_PLOCK_ACQUIRE(sa->p_lock);
 
 	/* simply go over all MCGs and match */
-	for (i = 0;
-	     i <= sa->p_subn->max_multicast_lid_ho - IB_LID_MCAST_START_HO;
+	for (i = 0; i <= sa->p_subn->max_mcast_lid_ho - IB_LID_MCAST_START_HO;
 	     i++) {
 		p_mgrp = sa->p_subn->mgroups[i];
 		if (p_mgrp)
