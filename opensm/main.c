@@ -129,15 +129,11 @@ static void show_usage(void)
 	printf("--version\n"
 	       "          Prints OpenSM version and exits.\n\n");
 	printf("-F <file-name>, --config <file-name>\n"
-	       "          The name of the OpenSM config file. It has a same format\n"
-	       "          as opensm.opts option cache file. When not specified\n"
+	       "          The name of the OpenSM config file. When not specified\n"
 	       "          " OSM_DEFAULT_CONFIG_FILE " will be used (if exists).\n\n");
-	printf("-c\n"
-	       "--cache-options\n"
-	       "          Cache the given command line options into the file\n"
-	       "          /var/cache/opensm/opensm.opts for use on next invocation.\n"
-	       "          The cache directory can be changed by the environment\n"
-	       "          variable OSM_CACHE_DIR\n\n");
+	printf("-c <file-name>, --create-config <file-name>\n"
+	       "          OpenSM will dump its configuration to the specified file and exit.\n"
+	       "          This is a way to generate OpenSM configuration file template.\n\n");
 	printf("-g[=]<GUID in hex>\n"
 	       "--guid[=]<GUID in hex>\n"
 	       "          This option specifies the local port GUID value\n"
@@ -608,11 +604,11 @@ int main(int argc, char *argv[])
 	boolean_t run_once_flag = FALSE;
 	int32_t vendor_debug = 0;
 	uint32_t next_option;
-	boolean_t cache_options = FALSE;
+	char *conf_template = NULL;
 	uint32_t val;
 	unsigned config_file_done = 0;
 	const char *const short_option =
-	    "F:i:f:ed:g:l:L:s:t:a:u:m:X:R:zM:U:S:P:Y:NBIQvVhorcyxp:n:q:k:C:";
+	    "F:c:i:f:ed:g:l:L:s:t:a:u:m:X:R:zM:U:S:P:Y:NBIQvVhoryxp:n:q:k:C:";
 
 	/*
 	   In the array below, the 2nd parameter specifies the number
@@ -624,6 +620,7 @@ int main(int argc, char *argv[])
 	const struct option long_option[] = {
 		{"version", 0, NULL, 12},
 		{"config", 1, NULL, 'F'},
+		{"create-config", 1, NULL, 'c'},
 		{"debug", 1, NULL, 'd'},
 		{"guid", 1, NULL, 'g'},
 		{"ignore_guids", 1, NULL, 'i'},
@@ -656,7 +653,6 @@ int main(int argc, char *argv[])
 		{"cn_guid_file", 1, NULL, 'u'},
 		{"ids_guid_file", 1, NULL, 'm'},
 		{"guid_routing_order_file", 1, NULL, 'X'},
-		{"cache-options", 0, NULL, 'c'},
 		{"stay_on_fatal", 0, NULL, 'y'},
 		{"honor_guid2lid", 0, NULL, 'x'},
 #ifdef ENABLE_OSM_CONSOLE_SOCKET
@@ -713,6 +709,11 @@ int main(int argc, char *argv[])
 			printf("Rescaning command line:\n");
 			config_file_done = 1;
 			optind = 0;
+			break;
+		case 'c':
+			conf_template = optarg;
+			printf(" Creating config file template \'%s\'.\n",
+			       conf_template);
 			break;
 		case 'o':
 			/*
@@ -967,11 +968,6 @@ int main(int argc, char *argv[])
 			printf(" GUID Routing Order File: %s\n", opt.guid_routing_order_file);
 			break;
 
-		case 'c':
-			cache_options = TRUE;
-			printf(" Caching command line options\n");
-			break;
-
 		case 'x':
 			opt.honor_guid2lid_file = TRUE;
 			printf(" Honor guid2lid file, if possible\n");
@@ -1021,6 +1017,13 @@ int main(int argc, char *argv[])
 	/* Done with options description */
 	printf("-------------------------------------------------\n");
 
+	if (conf_template) {
+		status = osm_subn_write_conf_file(conf_template, &opt);
+		if (status)
+			printf("\nosm_subn_write_conf_file failed!\n");
+		exit(status);
+	}
+
 	if (vendor_debug)
 		osm_vendor_set_debug(osm.p_vendor, vendor_debug);
 
@@ -1049,16 +1052,6 @@ int main(int argc, char *argv[])
 	 */
 	if (opt.guid == 0 || cl_hton64(opt.guid) == CL_HTON64(INVALID_GUID))
 		opt.guid = get_port_guid(&osm, opt.guid);
-
-	if (cache_options == TRUE) {
-		char conf_file[256];
-		char *cache_dir = getenv("OSM_CACHE_DIR");
-		if (!cache_dir || !(*cache_dir))
-			cache_dir = OSM_DEFAULT_CACHE_DIR;
-		snprintf(conf_file, sizeof(conf_file), "%s/opensm.opts", cache_dir);
-		if (osm_subn_write_conf_file(conf_file, &opt))
-			printf("\nosm_subn_write_conf_file failed!\n");
-	}
 
 	status = osm_opensm_bind(&osm, opt.guid);
 	if (status != IB_SUCCESS) {

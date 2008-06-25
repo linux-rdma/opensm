@@ -6,7 +6,8 @@ opensm \- InfiniBand subnet manager and administration (SM/SA)
 .SH SYNOPSIS
 .B opensm
 [\-\-version]]
-[\-c(ache-options)] [\-g(uid)[=]<GUID in hex>] [\-l(mc) <LMC>]
+[\-c(reate-config) <file_name>]
+[\-g(uid)[=]<GUID in hex>] [\-l(mc) <LMC>]
 [\-p(riority) <PRIORITY>] [\-smkey <SM_Key>] [\-r(eassign_lids)]
 [\-R <engine name> | \-\-routing_engine <engine name>]
 [\-z | \-\-connect_roots]
@@ -67,15 +68,9 @@ setup the subnet correctly.
 \fB\-\-version\fR
 Prints OpenSM version and exits.
 .TP
-\fB\-c\fR, \fB\-\-cache-options\fR
-Write out a list of all tunable OpenSM parameters,
-including their current values from the command line
-as well as defaults for others, into the file
-OSM_CACHE_DIR/opensm.opts (OSM_CACHE_DIR defaults to
-/var/cache/opensm if the corresponding environment
-variable is not set). The options file is then
-used for subsequent OpenSM invocations but any
-command line options take precedence.
+\fB\-c\fR, \fB\-\-create-config\fR
+OpenSM will dump its configuration to the specified file and exit.
+This is a way to generate OpenSM configuration file template.
 .TP
 \fB\-g\fR, \fB\-\-guid\fR
 This option specifies the local port GUID value
