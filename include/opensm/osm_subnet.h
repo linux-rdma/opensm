@@ -277,10 +277,10 @@ typedef struct osm_subn_opt {
 *		This flag is TRUE if OpenSM should disable multicast support.
 *
 *	max_msg_fifo_timeout
-*		The maximal time a message can stay in the incoming message queue.
-*		If there is more than one message in the queue and the last
-*		message stayed in the queue more than this value the SA request
-*		will be immediately returned with a BUSY status.
+*		The maximal time a message can stay in the incoming message
+*		queue. If there is more than one message in the queue and the
+*		last message stayed in the queue more than this value the SA
+*		request will be immediately returned with a BUSY status.
 *
 *	subnet_timeout
 *		The subnet_timeout that will be set for all the ports in the
@@ -565,57 +565,59 @@ typedef struct osm_subn {
 *	min_ca_rate
 *		The minimal rate reported by all CA ports on the subnet
 *
-*  ignore_existing_lfts
-*     This flag is a dynamic flag to instruct the LFT assignment to
-*     ignore existing legal LFT settings.
-*     The value will be set according to :
-*     - Any change to the list of switches will set it to high
-*     - Coming out of STANDBY it will be cleared (other SM worked)
-*     - Set to FALSE upon end of all lft assignments.
+*	ignore_existing_lfts
+*		This flag is a dynamic flag to instruct the LFT assignment to
+*		ignore existing legal LFT settings.
+*		The value will be set according to :
+*		- Any change to the list of switches will set it to high
+*		- Coming out of STANDBY it will be cleared (other SM worked)
+*		- Set to FALSE upon end of all lft assignments.
 *
-*  subnet_initalization_error
-*     Similar to the force_immediate_heavy_sweep flag. If TRUE -
-*     means that we had errors during initialization (due to SubnSet requests
-*     that failed). We want to declare the subnet as unhealthy, and force
-*     another heavy sweep.
+*	subnet_initalization_error
+*		Similar to the force_immediate_heavy_sweep flag. If TRUE -
+*		means that we had errors during initialization (due to SubnSet
+*		requests that failed). We want to declare the subnet as
+*		unhealthy, and force another heavy sweep.
 *
-*  force_heavy_sweep
-*     If TRUE - we want to force a heavy sweep. This can be done either
-*     due to receiving of trap - meaning there is some change on the subnet,
-*     or we received a handover from a remote sm.
-*     In this case we want to sweep and reconfigure the entire subnet.
-*     This will cause another heavy sweep to occure when the current sweep
-*     is done.
+*	force_heavy_sweep
+*		If TRUE - we want to force a heavy sweep. This can be done
+*		either due to receiving of trap - meaning there is some change
+*		on the subnet, or we received a handover from a remote sm.
+*		In this case we want to sweep and reconfigure the entire
+*		subnet. This will cause another heavy sweep to occure when
+*		the current sweep is done.
 *
-*  in_sweep_hop_0
-*     When in_sweep_hop_0 flag is set to TRUE - this means we are
-*     in sweep_hop_0 - meaning we do not want to continue beyond
-*     the current node.
-*     This is relevant for the case of SM on switch, since in the
-*     switch info we need to signal somehow not to continue
-*     the sweeping.
+*	in_sweep_hop_0
+*		When in_sweep_hop_0 flag is set to TRUE - this means we are
+*		in sweep_hop_0 - meaning we do not want to continue beyond
+*		the current node.
+*		This is relevant for the case of SM on switch, since in the
+*		switch info we need to signal somehow not to continue
+*		the sweeping.
 *
-*  first_time_master_sweep
-*     This flag is used for the PortInfo setting. On the first sweep as master
-*     (meaning after moving from Standby|Discovering state), the SM must send
-*     a PortInfoSet to all ports. After that - we want to minimize the number of
-*     PortInfoSet requests sent, and to send only requests that change the value
-*     from what is updated in the port (or send a first request if this is a new
-*     port). We will set this flag to TRUE when entering the master state, and
-*     set it back to FALSE at the end of the drop manager. This is done since at
-*     the end of the drop manager we have updated all the ports that are
-*     reachable, and from now on these are the only ports we have data of. We
-*     don't want to send extra set requests to these ports anymore.
+*	first_time_master_sweep
+*		This flag is used for the PortInfo setting. On the first
+*		sweep as master (meaning after moving from Standby|Discovering
+*		state), the SM must send a PortInfoSet to all ports. After
+*		that - we want to minimize the number of PortInfoSet requests
+*		sent, and to send only requests that change the value from
+*		what is updated in the port (or send a first request if this
+*		is a new port). We will set this flag to TRUE when entering
+*		the master state, and set it back to FALSE at the end of the
+*		drop manager. This is done since at the end of the drop manager
+*		we have updated all the ports that are reachable, and from now
+*		on these are the only ports we have data of. We don't want
+*		to send extra set requests to these ports anymore.
 *
-*  coming_out_of_standby
-*     TRUE on the first sweep after the SM was in standby.
-*     Used for nulling any cache of LID and Routing.
-*     The flag is set true if the SM state was standby and now changed to MASTER
-*     it is reset at the end of the sweep.
+*	coming_out_of_standby
+*		TRUE on the first sweep after the SM was in standby.
+*		Used for nulling any cache of LID and Routing.
+*		The flag is set true if the SM state was standby and now
+*		changed to MASTER it is reset at the end of the sweep.
 *
-*  need_update
-*     This flag should be on during first non-master heavy (including
-*     pre-master discovery stage)
+*	need_update
+*		This flag should be on during first non-master heavy
+*		(including pre-master discovery stage)
 *
 *	mgroups
 *		Array of pointers to all Multicast Group objects in the subnet.
@@ -742,17 +744,17 @@ osm_get_gid_by_mad_addr(IN struct osm_log *p_log,
 			OUT ib_gid_t * p_gid);
 /*
 * PARAMETERS
-*  p_log
-*     [in] Pointer to a log object.
+*	p_log
+*		[in] Pointer to a log object.
 *
-*  p_subn
-*     [in] Pointer to subnet object.
+*	p_subn
+*		[in] Pointer to subnet object.
 *
-*  p_mad_addr
-*     [in] Pointer to mad address object.
+*	p_mad_addr
+*		[in] Pointer to mad address object.
 *
-*  p_gid
-*     [out] Pointer to the GID structure to fill in.
+*	p_gid
+*		[out] Pointer to the GID structure to fill in.
 *
 * RETURN VALUES
 *     IB_SUCCESS if able to find the GID by address given.
@@ -780,14 +782,14 @@ struct osm_physp *osm_get_physp_by_mad_addr(IN struct osm_log *p_log,
 					     *p_mad_addr);
 /*
 * PARAMETERS
-*  p_log
-*     [in] Pointer to a log object.
+*	p_log
+*		[in] Pointer to a log object.
 *
-*  p_subn
-*     [in] Pointer to subnet object.
+*	p_subn
+*		[in] Pointer to subnet object.
 *
-*  p_mad_addr
-*     [in] Pointer to mad address object.
+*	p_mad_addr
+*		[in] Pointer to mad address object.
 *
 * RETURN VALUES
 *	Pointer to requester physical port object if found. Null otherwise.
@@ -814,14 +816,14 @@ struct osm_port *osm_get_port_by_mad_addr(IN struct osm_log *p_log,
 					   IN struct osm_mad_addr *p_mad_addr);
 /*
 * PARAMETERS
-*  p_log
-*     [in] Pointer to a log object.
+*	p_log
+*		[in] Pointer to a log object.
 *
-*  p_subn
-*     [in] Pointer to subnet object.
+*	p_subn
+*		[in] Pointer to subnet object.
 *
-*  p_mad_addr
-*     [in] Pointer to mad address object.
+*	p_mad_addr
+*		[in] Pointer to mad address object.
 *
 * RETURN VALUES
 *	Pointer to requester port object if found. Null otherwise.
@@ -964,14 +966,14 @@ struct osm_physp *osm_get_physp_by_mad_addr(IN struct osm_log *p_log,
 					     *p_mad_addr);
 /*
 * PARAMETERS
-*  p_log
-*     [in] Pointer to a log object.
+*	p_log
+*		[in] Pointer to a log object.
 *
-*  p_subn
-*     [in] Pointer to subnet object.
+*	p_subn
+*		[in] Pointer to subnet object.
 *
-*  p_mad_addr
-*     [in] Pointer to mad address object.
+*	p_mad_addr
+*		[in] Pointer to mad address object.
 *
 * RETURN VALUES
 *	Pointer to requester physical port object if found. Null otherwise.
