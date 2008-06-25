@@ -114,7 +114,6 @@ static inline void osm_port_prof_construct(IN osm_port_profile_t * const p_prof)
 	CL_ASSERT(p_prof);
 	memset(p_prof, 0, sizeof(*p_prof));
 }
-
 /*
 * PARAMETERS
 *	p_prof
@@ -144,7 +143,6 @@ osm_port_prof_path_count_inc(IN osm_port_profile_t * const p_prof)
 	CL_ASSERT(p_prof);
 	p_prof->num_paths++;
 }
-
 /*
 * PARAMETERS
 *	p_prof
@@ -172,7 +170,6 @@ osm_port_prof_path_count_get(IN const osm_port_profile_t * const p_prof)
 {
 	return (p_prof->num_paths);
 }
-
 /*
 * PARAMETERS
 *	p_prof
@@ -211,7 +208,6 @@ osm_port_prof_is_ignored_port(IN const osm_subn_t * p_subn,
 	}
 	return FALSE;
 }
-
 /*
 * PARAMETERS
 *	p_subn
@@ -256,7 +252,6 @@ osm_port_prof_set_ignored_port(IN osm_subn_t * p_subn,
 	value = value | (1 << port_num);
 	cl_map_insert(p_map, port_guid, (void *)value);
 }
-
 /*
 * PARAMETERS
 *	p_subn
