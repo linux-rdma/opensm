@@ -132,98 +132,25 @@ static void __free_mlid(IN osm_sa_t * sa, IN uint16_t mlid)
 
 /*********************************************************************
  Get a new unused mlid by scanning all the used ones in the subnet.
- TODO: Implement a more scalable - O(1) solution based on pool of
- available mlids.
 **********************************************************************/
-static ib_net16_t
-__get_new_mlid(IN osm_sa_t * sa, IN ib_net16_t requested_mlid)
+static ib_net16_t __get_new_mlid(osm_sa_t *sa, ib_net16_t requested_mlid)
 {
 	osm_subn_t *p_subn = sa->p_subn;
-	osm_mgrp_t *p_mgrp;
-	uint8_t *used_mlids_array;
-	uint16_t idx;
-	uint16_t mlid;		/* the result */
-	uint16_t max_num_mlids;
-
-	OSM_LOG_ENTER(sa->p_log);
+	unsigned i, max;
 
 	if (requested_mlid && cl_ntoh16(requested_mlid) >= IB_LID_MCAST_START_HO
 	    && cl_ntoh16(requested_mlid) <= p_subn->max_multicast_lid_ho
-	    && !p_subn->mgroups[cl_ntoh16(requested_mlid) - IB_LID_MCAST_START_HO]) {
-		mlid = cl_ntoh16(requested_mlid);
-		goto Exit;
+	    && !p_subn->mgroups[cl_ntoh16(requested_mlid) - IB_LID_MCAST_START_HO])
+		return requested_mlid;
+
+	max = p_subn->max_multicast_lid_ho - IB_LID_MCAST_START_HO + 1;
+	for (i = 0; i < max; i++) {
+		osm_mgrp_t *p_mgrp = sa->p_subn->mgroups[i];
+		if (!p_mgrp || p_mgrp->to_be_deleted)
+			return cl_hton16(i + IB_LID_MCAST_START_HO);
 	}
 
-	/* If MCGroups table is empty, first return the min mlid */
-	max_num_mlids = sa->p_subn->max_multicast_lid_ho -
-			IB_LID_MCAST_START_HO + 1;
-	for (idx = 0; idx < max_num_mlids; idx++) {
-		p_mgrp = sa->p_subn->mgroups[idx];
-		if (p_mgrp)
-			break;
-	}
-	if (!p_mgrp) {
-		mlid = IB_LID_MCAST_START_HO;
-		OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
-			"No multicast groups found using minimal mlid:0x%04X\n",
-			mlid);
-		goto Exit;
-	}
-
-	/* track all used mlids in the array (by mlid index) */
-	used_mlids_array = (uint8_t *) malloc(sizeof(uint8_t) * max_num_mlids);
-	if (!used_mlids_array)
-		return 0;
-	memset(used_mlids_array, 0, sizeof(uint8_t) * max_num_mlids);
-
-	/* scan all available multicast groups in the DB and fill in the table */
-	for (idx = 0; idx < max_num_mlids; idx++) {
-		p_mgrp = sa->p_subn->mgroups[idx];
-		/* ignore mgrps marked for deletion */
-		if (p_mgrp && p_mgrp->to_be_deleted == FALSE) {
-			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-				"Found mgrp with lid:0x%X MGID: 0x%016" PRIx64
-				" : " "0x%016" PRIx64 "\n",
-				cl_ntoh16(p_mgrp->mlid),
-				cl_ntoh64(p_mgrp->mcmember_rec.mgid.unicast.
-					  prefix),
-				cl_ntoh64(p_mgrp->mcmember_rec.mgid.unicast.
-					  interface_id));
-
-			/* Map in table */
-			if (cl_ntoh16(p_mgrp->mlid) >
-			    sa->p_subn->max_multicast_lid_ho) {
-				OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B27: "
-					"Found mgrp with mlid:0x%04X > "
-					"max allowed mlid:0x%04X\n",
-					cl_ntoh16(p_mgrp->mlid),
-					max_num_mlids + IB_LID_MCAST_START_HO);
-			} else {
-				used_mlids_array[idx] = 1;
-			}
-		}
-	}
-
-	/* Find "mlid holes" in the mgrp table */
-	for (idx = 0;
-	     (idx < max_num_mlids) && (used_mlids_array[idx] == 1); idx++) ;
-
-	/* did it go above the maximal mlid allowed */
-	if (idx < max_num_mlids) {
-		mlid = idx + IB_LID_MCAST_START_HO;
-		OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
-			"Found available mlid:0x%04X at idx:%u\n", mlid, idx);
-	} else {
-		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B23: "
-			"All available:%u mlids are taken\n", max_num_mlids);
-		mlid = 0;
-	}
-
-	free(used_mlids_array);
-
-Exit:
-	OSM_LOG_EXIT(sa->p_log);
-	return cl_hton16(mlid);
+	return 0;
 }
 
 /*********************************************************************
@@ -233,8 +160,7 @@ Exit:
  we silently drop it. Since it was an intermediate group no need to
  re-route it.
 **********************************************************************/
-static void
-__cleanup_mgrp(IN osm_sa_t * sa, IN ib_net16_t const mlid)
+static void __cleanup_mgrp(IN osm_sa_t * sa, IN ib_net16_t const mlid)
 {
 	osm_mgrp_t *p_mgrp = __get_mgrp_by_mlid(sa, mlid);
 
