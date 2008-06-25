@@ -6,7 +6,7 @@ opensm \- InfiniBand subnet manager and administration (SM/SA)
 .SH SYNOPSIS
 .B opensm
 [\-\-version]]
-[\-c(reate-config) <file_name>]
+[\-F | \-\-config <file_name>] [\-c(reate-config) <file_name>]
 [\-g(uid)[=]<GUID in hex>] [\-l(mc) <LMC>]
 [\-p(riority) <PRIORITY>] [\-smkey <SM_Key>] [\-r(eassign_lids)]
 [\-R <engine name> | \-\-routing_engine <engine name>]
@@ -67,6 +67,10 @@ setup the subnet correctly.
 .TP
 \fB\-\-version\fR
 Prints OpenSM version and exits.
+.TP
+\fB\-F\fR, \fB\-\-config\fR
+The name of the OpenSM config file. When not specified
+\fB\% @OPENSM_CONFIG_DIR@/@OPENSM_CONFIG_FILE@\fP will be used (if exists).
 .TP
 \fB\-c\fR, \fB\-\-create-config\fR
 OpenSM will dump its configuration to the specified file and exit.
@@ -940,6 +944,10 @@ as input for forwarding tables loading by 'file' routing engine.
 Both or one of options -U and -M can be specified together with \'-R file\'.
 
 .SH FILES
+.TP
+.B @OPENSM_CONFIG_DIR@/@OPENSM_CONFIG_FILE@
+default OpenSM config file.
+
 .TP
 .B @OPENSM_CONFIG_DIR@/@NODENAMEMAPFILE@
 default node name map file.  See ibnetdiscover for more information on format.
