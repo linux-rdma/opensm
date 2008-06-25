@@ -207,7 +207,7 @@ static void __osm_drop_mgr_remove_port(osm_sm_t * sm, IN osm_port_t * p_port)
 
 	p_mcm = (osm_mcm_info_t *) cl_qlist_remove_head(&p_port->mcm_list);
 	while (p_mcm != (osm_mcm_info_t *) cl_qlist_end(&p_port->mcm_list)) {
-		p_mgrp = sm->p_subn->mgroups[cl_ntoh16(p_mcm->mlid) - IB_LID_MCAST_START_HO];
+		p_mgrp = osm_get_mgrp_by_mlid(sm->p_subn, p_mcm->mlid);
 		if (p_mgrp) {
 			osm_mgrp_remove_port(sm->p_subn, sm->p_log,
 					     p_mgrp, p_port->guid);

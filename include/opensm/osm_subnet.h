@@ -721,6 +721,7 @@ struct osm_log;
 struct osm_switch;
 struct osm_physp;
 struct osm_port;
+struct osm_mgrp;
 
 /****f* OpenSM: Helper/osm_get_gid_by_mad_addr
 * NAME
@@ -915,6 +916,34 @@ struct osm_port *osm_get_port_by_guid(IN osm_subn_t const *p_subn,
 * SEE ALSO
 *	Subnet object, osm_subn_construct, osm_subn_destroy,
 *	osm_port_t
+*********/
+
+/****f* OpenSM: Subnet/osm_get_mgrp_by_mlid
+* NAME
+*	osm_get_mgrp_by_mlid
+*
+* DESCRIPTION
+*	The looks for the given multicast group in the subnet table by mlid.
+*	NOTE: this code is not thread safe. Need to grab the lock before
+*	calling it.
+*
+* SYNOPSIS
+*/
+static inline
+struct osm_mgrp *osm_get_mgrp_by_mlid(osm_subn_t const *p_subn, ib_net16_t mlid)
+{
+	return p_subn->mgroups[cl_ntoh16(mlid) - IB_LID_MCAST_START_HO];
+}
+/*
+* PARAMETERS
+*	p_subn
+*		[in] Pointer to an osm_subn_t object
+*
+*	mlid
+*		[in] The multicast group mlid in network order
+*
+* RETURN VALUES
+*	The multicast group structure pointer if found. NULL otherwise.
 *********/
 
 /****f* OpenSM: Helper/osm_get_physp_by_mad_addr

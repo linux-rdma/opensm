@@ -1470,14 +1470,6 @@ __osm_pr_rcv_process_pair(IN osm_sa_t * sa,
 
 /**********************************************************************
  **********************************************************************/
-static osm_mgrp_t *__get_mgrp_by_mlid(IN osm_sa_t * sa,
-				      IN ib_net16_t const mlid)
-{
-	return(sa->p_subn->mgroups[cl_ntoh16(mlid) - IB_LID_MCAST_START_HO]);
-}
-
-/**********************************************************************
- **********************************************************************/
 static void
 __osm_pr_get_mgrp(IN osm_sa_t * sa,
 		  IN const osm_madw_t * const p_madw, OUT osm_mgrp_t ** pp_mgrp)
@@ -1520,7 +1512,7 @@ __osm_pr_get_mgrp(IN osm_sa_t * sa,
 				goto Exit;
 			}
 		} else {
-			*pp_mgrp = __get_mgrp_by_mlid(sa, p_pr->dlid);
+			*pp_mgrp = osm_get_mgrp_by_mlid(sa->p_subn, p_pr->dlid);
 			if (*pp_mgrp == NULL)
 				OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F11: "
 					"No MC group found for PathRecord "

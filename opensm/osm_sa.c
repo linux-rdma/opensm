@@ -740,7 +740,7 @@ static osm_mgrp_t *load_mcgroup(osm_opensm_t * p_osm, ib_net16_t mlid,
 
 	cl_plock_excl_acquire(&p_osm->lock);
 
-	p_mgrp = p_osm->subn.mgroups[cl_ntoh16(mlid) - IB_LID_MCAST_START_HO];
+	p_mgrp = osm_get_mgrp_by_mlid(&p_osm->subn, mlid);
 	if (p_mgrp) {
 		if (!memcmp(&p_mgrp->mcmember_rec.mgid, &p_mcm_rec->mgid,
 			    sizeof(ib_gid_t))) {

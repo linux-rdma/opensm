@@ -1229,14 +1229,6 @@ osm_signal_t osm_mcast_mgr_process(osm_sm_t * sm)
 }
 
 /**********************************************************************
- **********************************************************************/
-static
-osm_mgrp_t *__get_mgrp_by_mlid(osm_sm_t * sm, IN ib_net16_t const mlid)
-{
-	return(sm->p_subn->mgroups[cl_ntoh16(mlid) - IB_LID_MCAST_START_HO]);
-}
-
-/**********************************************************************
   This is the function that is invoked during idle time to handle the
   process request for mcast groups where join/leave/delete was required.
  **********************************************************************/
@@ -1270,7 +1262,7 @@ osm_signal_t osm_mcast_mgr_process_mgroups(osm_sm_t * sm)
 
 		/* since we delayed the execution we prefer to pass the
 		   mlid as the mgrp identifier and then find it or abort */
-		p_mgrp = __get_mgrp_by_mlid(sm, mlid);
+		p_mgrp = osm_get_mgrp_by_mlid(sm->p_subn, mlid);
 		if (!p_mgrp)
 			continue;
 

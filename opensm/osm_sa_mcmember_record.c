@@ -91,15 +91,6 @@ typedef struct osm_sa_mcmr_search_ctxt {
 	boolean_t trusted_req;
 } osm_sa_mcmr_search_ctxt_t;
 
-/**********************************************************************
- Look for a MGRP in the mgroups by mlid
-**********************************************************************/
-static osm_mgrp_t *__get_mgrp_by_mlid(IN osm_sa_t * sa,
-				      IN ib_net16_t const mlid)
-{
-	return(sa->p_subn->mgroups[cl_ntoh16(mlid) - IB_LID_MCAST_START_HO]);
-}
-
 /*********************************************************************
  Copy certain fields between two mcmember records
  used during the process of join request to copy data from the mgrp
@@ -140,7 +131,7 @@ static ib_net16_t __get_new_mlid(osm_sa_t *sa, ib_net16_t requested_mlid)
 
 	if (requested_mlid && cl_ntoh16(requested_mlid) >= IB_LID_MCAST_START_HO
 	    && cl_ntoh16(requested_mlid) <= p_subn->max_multicast_lid_ho
-	    && !p_subn->mgroups[cl_ntoh16(requested_mlid) - IB_LID_MCAST_START_HO])
+	    && !osm_get_mgrp_by_mlid(p_subn, requested_mlid))
 		return requested_mlid;
 
 	max = p_subn->max_multicast_lid_ho - IB_LID_MCAST_START_HO + 1;
@@ -162,7 +153,7 @@ static ib_net16_t __get_new_mlid(osm_sa_t *sa, ib_net16_t requested_mlid)
 **********************************************************************/
 static void __cleanup_mgrp(IN osm_sa_t * sa, IN ib_net16_t const mlid)
 {
-	osm_mgrp_t *p_mgrp = __get_mgrp_by_mlid(sa, mlid);
+	osm_mgrp_t *p_mgrp = osm_get_mgrp_by_mlid(sa->p_subn, mlid);
 
 	/* Remove MGRP only if osm_mcm_port_t count is 0 and
 	   not a well known group */
@@ -953,7 +944,7 @@ osm_mcmr_rcv_create_new_mgrp(IN osm_sa_t * sa,
 	/* since we might have an old group by that mlid
 	   one whose deletion was delayed for an idle time
 	   we need to deallocate it first */
-	p_prev_mgrp = sa->p_subn->mgroups[cl_ntoh16(mlid) - IB_LID_MCAST_START_HO];
+	p_prev_mgrp = osm_get_mgrp_by_mlid(sa->p_subn, mlid);
 	if (p_prev_mgrp) {
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Found previous group for mlid:0x%04x - "
@@ -1480,7 +1471,7 @@ __osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa,
 		CL_PLOCK_EXCL_ACQUIRE(sa->p_lock);
 
 		/* the request for routing failed so we need to remove the port */
-		p_mgrp = __get_mgrp_by_mlid(sa, mlid);
+		p_mgrp = osm_get_mgrp_by_mlid(sa->p_subn, mlid);
 		if (p_mgrp != NULL) {
 			osm_mgrp_remove_port(sa->p_subn,
 					     sa->p_log,
