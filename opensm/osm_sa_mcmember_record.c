@@ -968,7 +968,7 @@ Exit:
 
 
 typedef struct osm_sa_pr_mcmr_search_ctxt {
-	ib_gid_t *p_mgid;
+	ib_gid_t mgid;
 	osm_mgrp_t *p_mgrp;
 	osm_sa_t *sa;
 } osm_sa_pr_mcmr_search_ctxt_t;
@@ -978,13 +978,8 @@ typedef struct osm_sa_pr_mcmr_search_ctxt {
 static void
 __search_mgrp_by_mgid(IN osm_mgrp_t * const p_mgrp, IN void *context)
 {
-	osm_sa_pr_mcmr_search_ctxt_t *p_ctxt =
-	    (osm_sa_pr_mcmr_search_ctxt_t *) context;
-	const ib_gid_t *p_recvd_mgid;
-	osm_sa_t *sa;
-
-	p_recvd_mgid = p_ctxt->p_mgid;
-	sa = p_ctxt->sa;
+	osm_sa_pr_mcmr_search_ctxt_t *p_ctxt = context;
+	osm_sa_t *sa = p_ctxt->sa;
 
 	/* ignore groups marked for deletion */
 	if (p_mgrp->to_be_deleted)
@@ -992,39 +987,8 @@ __search_mgrp_by_mgid(IN osm_mgrp_t * const p_mgrp, IN void *context)
 
 	/* compare entire MGID so different scope will not sneak in for
 	   the same MGID */
-	if (memcmp(&p_mgrp->mcmember_rec.mgid, p_recvd_mgid, sizeof(ib_gid_t))) {
-
-		if (sa->p_subn->opt.consolidate_ipv6_snm_req) {
-			/* Special Case IPv6 Solicited Node Multicast (SNM) addresses */
-			/* 0xff1Z601bXXXX0000 : 0x00000001ffYYYYYY */
-			/* Where Z is the scope, XXXX is the P_Key, and
-			 * YYYYYY is the last 24 bits of the port guid */
-#define PREFIX_NOPKEY_MASK (0xff10ffff0000ffffULL)
-#define PREFIX_MASK (0xff10ffffffffffffULL)
-#define PREFIX_SIGNATURE (0xff10601b00000000ULL)
-#define INT_ID_MASK (0xfffffff1ff000000ULL)
-#define INT_ID_SIGNATURE (0x00000001ff000000ULL)
-			uint64_t g_prefix = cl_ntoh64(p_mgrp->mcmember_rec.mgid.unicast.prefix);
-			uint64_t g_interface_id = cl_ntoh64(p_mgrp->mcmember_rec.mgid.unicast.interface_id);
-			uint64_t rcv_prefix = cl_ntoh64(p_recvd_mgid->unicast.prefix);
-			uint64_t rcv_interface_id = cl_ntoh64(p_recvd_mgid->unicast.interface_id);
-
-			if ((rcv_prefix & PREFIX_NOPKEY_MASK) == PREFIX_SIGNATURE &&
-			    (rcv_interface_id & INT_ID_MASK) == INT_ID_SIGNATURE &&
-			    (g_prefix & PREFIX_MASK) ==
-			     (rcv_prefix & PREFIX_MASK) &&
-			    (g_interface_id & INT_ID_MASK) ==
-			     (rcv_interface_id & INT_ID_MASK)) {
-				OSM_LOG(sa->p_log, OSM_LOG_INFO,
-					"Special Case Solicited Node Mcast "
-					"Join for MGID 0x%016" PRIx64
-					" : 0x%016" PRIx64 "\n",
-					rcv_prefix, rcv_interface_id);
-			} else
-				return;
-		} else
-			return;
-	}
+	if (memcmp(&p_mgrp->mcmember_rec.mgid, &p_ctxt->mgid, sizeof(ib_gid_t)))
+		return;
 
 	if (p_ctxt->p_mgrp) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B30: "
@@ -1039,6 +1003,26 @@ __search_mgrp_by_mgid(IN osm_mgrp_t * const p_mgrp, IN void *context)
 
 /**********************************************************************
  **********************************************************************/
+#define PREFIX_MASK CL_HTON64(0xff10ffff0000ffffULL)
+#define PREFIX_SIGNATURE CL_HTON64(0xff10601b00000000ULL)
+#define INT_ID_MASK CL_HTON64(0xfffffff1ff000000ULL)
+#define INT_ID_SIGNATURE CL_HTON64(0x00000001ff000000ULL)
+
+/* Special Case IPv6 Solicited Node Multicast (SNM) addresses */
+/* 0xff1Z601bXXXX0000 : 0x00000001ffYYYYYY */
+/* Where Z is the scope, XXXX is the P_Key, and
+ * YYYYYY is the last 24 bits of the port guid */
+static unsigned match_and_update_ipv6_snm_mgid(ib_gid_t *mgid)
+{
+	if ((mgid->unicast.prefix & PREFIX_MASK) == PREFIX_SIGNATURE &&
+	    (mgid->unicast.interface_id & INT_ID_MASK) == INT_ID_SIGNATURE) {
+		mgid->unicast.prefix &= PREFIX_MASK;
+		mgid->unicast.interface_id &= INT_ID_MASK;
+		return 1;
+	}
+	return 0;
+}
+
 ib_api_status_t
 osm_get_mgrp_by_mgid(IN osm_sa_t *sa,
 		     IN ib_gid_t *p_mgid,
@@ -1048,9 +1032,18 @@ osm_get_mgrp_by_mgid(IN osm_sa_t *sa,
 	osm_mgrp_t *p_mgrp;
 	int i;
 
-	mcmr_search_context.p_mgid = p_mgid;
+	memcpy(&mcmr_search_context.mgid, p_mgid, sizeof(*p_mgid));
 	mcmr_search_context.sa = sa;
 	mcmr_search_context.p_mgrp = NULL;
+
+	if (sa->p_subn->opt.consolidate_ipv6_snm_req &&
+	    match_and_update_ipv6_snm_mgid(&mcmr_search_context.mgid)) {
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
+			"Special Case Solicited Node Mcast Join for MGID"
+			" 0x%016" PRIx64 " : 0x%016" PRIx64 "\n",
+			cl_ntoh64(p_mgid->unicast.prefix),
+			cl_ntoh64(p_mgid->unicast.interface_id));
+	}
 
 	for (i = 0; i <= sa->p_subn->max_mcast_lid_ho - IB_LID_MCAST_START_HO;
 	     i++) {
