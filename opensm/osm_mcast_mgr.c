@@ -1152,9 +1152,13 @@ mcast_mgr_process_mgrp(osm_sm_t * sm,
 		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 			"Destroying mgrp with lid:0x%X\n",
 			cl_ntoh16(p_mgrp->mlid));
-		/* Send a Report to any InformInfo registered for
-		   Trap 67 : MCGroup delete */
-		osm_mgrp_send_delete_notice(sm->p_subn, sm->p_log, p_mgrp);
+		if (p_mgrp->to_be_deleted == FALSE) {
+			p_mgrp->to_be_deleted = TRUE;
+			/* Send a Report to any InformInfo registered for
+			   Trap 67 : MCGroup delete */
+			osm_mgrp_send_delete_notice(sm->p_subn, sm->p_log,
+						    p_mgrp);
+		}
 		sm->p_subn->mgroups[cl_ntoh16(p_mgrp->mlid) - IB_LID_MCAST_START_HO] = NULL;
 		osm_mgrp_delete(p_mgrp);
 	}
