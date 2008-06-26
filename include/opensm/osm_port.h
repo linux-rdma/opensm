@@ -163,7 +163,7 @@ typedef struct osm_physp {
 *
 *	slvl_by_port
 *		A vector of pointers to the sl2vl tables (ordered by input port).
-*		On switches have an entry for every other input port (inc SMA=0).
+*		Switches have an entry for every other input port (inc SMA=0).
 *		On CAs only one per port.
 *
 * SEE ALSO
