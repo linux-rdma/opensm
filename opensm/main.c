@@ -464,7 +464,7 @@ parse_ignore_guids_file(IN char *guids_file_name, IN osm_opensm_t * p_osm)
 	char line[OSM_MAX_IGNORE_GUID_LINES_LEN];
 	char *p_c, *p_ec;
 	uint32_t line_num = 0;
-	uint64_t port_guid;
+	uint64_t node_guid;
 	ib_api_status_t status = IB_SUCCESS;
 	unsigned int port_num;
 
@@ -487,7 +487,7 @@ parse_ignore_guids_file(IN char *guids_file_name, IN osm_opensm_t * p_osm)
 		p_c = line;
 		while ((*p_c == ' ') && (*p_c != '\0'))
 			p_c++;
-		port_guid = strtoull(p_c, &p_ec, 16);
+		node_guid = strtoull(p_c, &p_ec, 16);
 		if (p_ec == p_c) {
 			OSM_LOG(&p_osm->log, OSM_LOG_ERROR, "ERR 0602: "
 				"Error in line (%u): %s\n", line_num, line);
@@ -506,10 +506,10 @@ parse_ignore_guids_file(IN char *guids_file_name, IN osm_opensm_t * p_osm)
 
 		/* ok insert it */
 		osm_port_prof_set_ignored_port(&p_osm->subn,
-					       cl_hton64(port_guid), port_num);
+					       cl_hton64(node_guid), port_num);
 		OSM_LOG(&p_osm->log, OSM_LOG_DEBUG,
-			"Inserted Port: 0x%" PRIx64
-			" PortNum: 0x%X into ignored guids list\n", port_guid,
+			"Inserted Node: 0x%" PRIx64
+			" PortNum: 0x%X into ignored guids list\n", node_guid,
 			port_num);
 
 	}

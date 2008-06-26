@@ -195,10 +195,10 @@ osm_port_prof_path_count_get(IN const osm_port_profile_t * const p_prof)
 */
 static inline boolean_t
 osm_port_prof_is_ignored_port(IN const osm_subn_t * p_subn,
-			      IN ib_net64_t port_guid, IN uint8_t port_num)
+			      IN ib_net64_t node_guid, IN uint8_t port_num)
 {
 	const cl_map_t *p_map = &p_subn->port_prof_ignore_guids;
-	const void *p_obj = cl_map_get(p_map, port_guid);
+	const void *p_obj = cl_map_get(p_map, node_guid);
 	size_t res;
 
 	// HACK: we currently support ignoring ports 0 - 31
@@ -213,8 +213,8 @@ osm_port_prof_is_ignored_port(IN const osm_subn_t * p_subn,
 *	p_subn
 *		[in] Pointer to the OSM Subnet object.
 *
-*	port_guid
-*		[in] The port guid
+*	node_guid
+*		[in] The node guid
 *
 * RETURN VALUE
 *	None.
@@ -229,16 +229,16 @@ osm_port_prof_is_ignored_port(IN const osm_subn_t * p_subn,
 *	osm_port_prof_set_ignored_port
 *
 * DESCRIPTION
-*	Set the ignored property of the port.
+*	Set the ignored property of a port.
 *
 * SYNOPSIS
 */
 static inline void
 osm_port_prof_set_ignored_port(IN osm_subn_t * p_subn,
-			       IN ib_net64_t port_guid, IN uint8_t port_num)
+			       IN ib_net64_t node_guid, IN uint8_t port_num)
 {
 	cl_map_t *p_map = &p_subn->port_prof_ignore_guids;
-	const void *p_obj = cl_map_get(p_map, port_guid);
+	const void *p_obj = cl_map_get(p_map, node_guid);
 	size_t value = 0;
 
 	// HACK: we currently support ignoring ports 0 - 31
@@ -246,19 +246,19 @@ osm_port_prof_set_ignored_port(IN osm_subn_t * p_subn,
 
 	if (p_obj != NULL) {
 		value = (size_t) p_obj;
-		cl_map_remove(p_map, port_guid);
+		cl_map_remove(p_map, node_guid);
 	}
 
 	value = value | (1 << port_num);
-	cl_map_insert(p_map, port_guid, (void *)value);
+	cl_map_insert(p_map, node_guid, (void *)value);
 }
 /*
 * PARAMETERS
 *	p_subn
 *		[in] Pointer to the OSM Subnet object.
 *
-*	port_guid
-*		[in] The port guid
+*	node_guid
+*		[in] The node guid
 *
 * RETURN VALUE
 *	None.
