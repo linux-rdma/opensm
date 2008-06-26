@@ -194,7 +194,7 @@ Note that this option only appears if OpenSM was built with
 .TP
 \fB\-i\fR, \fB\-ignore-guids\fR <equalize-ignore-guids-file>
 This option provides the means to define a set of ports
-(by guid) that will be ignored by the link load
+(by node guid and port number) that will be ignored by the link load
 equalization algorithm.
 .TP
 \fB\-x\fR, \fB\-\-honor_guid2lid\fR
