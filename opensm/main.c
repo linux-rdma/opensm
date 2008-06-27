@@ -504,13 +504,27 @@ parse_ignore_guids_file(IN char *guids_file_name, IN osm_opensm_t * p_osm)
 			goto Exit;
 		}
 
+		if (port_num > IB_NODE_NUM_PORTS_MAX) {
+			OSM_LOG(&p_osm->log, OSM_LOG_ERROR, "ERR 0604: "
+				"Invalid PortNum: 0x%X for Node: 0x%"
+				PRIx64 "\n", port_num, node_guid);
+			status = IB_ERROR;
+			goto Exit;
+		}
+
 		/* ok insert it */
-		osm_port_prof_set_ignored_port(&p_osm->subn,
-					       cl_hton64(node_guid), port_num);
-		OSM_LOG(&p_osm->log, OSM_LOG_DEBUG,
-			"Inserted Node: 0x%" PRIx64
-			" PortNum: 0x%X into ignored guids list\n", node_guid,
-			port_num);
+		if (!osm_port_prof_set_ignored_port(&p_osm->subn,
+						    cl_hton64(node_guid),
+						    port_num))
+			OSM_LOG(&p_osm->log, OSM_LOG_ERROR, "ERR 0605: "
+				"osm_port_prof_set_ignored_port failed for "
+				"Node: 0x%" PRIx64 " PortNum: 0x%X\n",
+				node_guid, port_num);
+		else
+			OSM_LOG(&p_osm->log, OSM_LOG_DEBUG,
+				"Inserted Node: 0x%" PRIx64
+				" PortNum: 0x%X into ignored guids list\n",
+				node_guid, port_num);
 
 	}
 

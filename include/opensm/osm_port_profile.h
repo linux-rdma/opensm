@@ -2,6 +2,7 @@
  * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
+ * Copyright (c) 2008 Xsigo Systems Inc. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -96,6 +97,26 @@ typedef struct osm_port_profile {
 * FIELDS
 *	num_paths
 *		The number of paths using this port.
+*
+* SEE ALSO
+*********/
+
+/****s* OpenSM: Switch/osm_port_mask_t
+* NAME
+*	osm_port_mask_t
+*
+* DESCRIPTION
+*       The Port Mask object contains a port numbered bit mask
+*	for whether the port should be ignored by the link load
+*	equalization algorithm.
+*
+* SYNOPSIS
+*/
+typedef long osm_port_mask_t[32 / sizeof(long)];
+/*
+* FIELDS
+*	osm_port_mask_t
+*		Bit mask by port number
 *
 * SEE ALSO
 *********/
@@ -198,13 +219,15 @@ osm_port_prof_is_ignored_port(IN const osm_subn_t * p_subn,
 			      IN ib_net64_t node_guid, IN uint8_t port_num)
 {
 	const cl_map_t *p_map = &p_subn->port_prof_ignore_guids;
-	const void *p_obj = cl_map_get(p_map, node_guid);
-	size_t res;
+	void *p_obj = cl_map_get(p_map, node_guid);
+	long mask, *addr;
 
-	// HACK: we currently support ignoring ports 0 - 31
 	if (p_obj != NULL) {
-		res = (size_t) p_obj & (size_t) (1 << port_num);
-		return (res != 0);
+		/* Test bit corresponding to port_num */
+		addr = p_obj;
+		addr += port_num / (8 * sizeof(long));
+		mask = 1L << (port_num % (8 * sizeof(long)));
+		return ((mask & *addr) != 0);
 	}
 	return FALSE;
 }
@@ -217,7 +240,8 @@ osm_port_prof_is_ignored_port(IN const osm_subn_t * p_subn,
 *		[in] The node guid
 *
 * RETURN VALUE
-*	None.
+*	Returns TRUE if ignore port mask for requested port number is set.
+*	FALSE otherwise;
 *
 * NOTES
 *
@@ -233,24 +257,36 @@ osm_port_prof_is_ignored_port(IN const osm_subn_t * p_subn,
 *
 * SYNOPSIS
 */
-static inline void
+static inline boolean_t
 osm_port_prof_set_ignored_port(IN osm_subn_t * p_subn,
 			       IN ib_net64_t node_guid, IN uint8_t port_num)
 {
 	cl_map_t *p_map = &p_subn->port_prof_ignore_guids;
-	const void *p_obj = cl_map_get(p_map, node_guid);
-	size_t value = 0;
+	void *p_obj = cl_map_get(p_map, node_guid);
+	long mask, *addr;
+	int insert = 0;
 
-	// HACK: we currently support ignoring ports 0 - 31
-	CL_ASSERT(port_num < 32);
-
-	if (p_obj != NULL) {
-		value = (size_t) p_obj;
-		cl_map_remove(p_map, node_guid);
+	if (!p_obj) {
+		p_obj = malloc(sizeof(osm_port_mask_t));
+		if (!p_obj)
+			return FALSE;
+		memset(p_obj, 0, sizeof(osm_port_mask_t));
+		insert = 1;
 	}
 
-	value = value | (1 << port_num);
-	cl_map_insert(p_map, node_guid, (void *)value);
+	/* Set bit corresponding to port_num */
+	addr = p_obj;
+	addr += port_num / (8 * sizeof(long));
+	mask = 1L << (port_num % (8 * sizeof(long)));
+	*addr |= mask;
+
+	if (insert) {
+		if (!cl_map_insert(p_map, node_guid, p_obj)) {
+			free(p_obj);
+			return FALSE;
+		}
+	}
+	return TRUE;
 }
 /*
 * PARAMETERS
@@ -261,7 +297,8 @@ osm_port_prof_set_ignored_port(IN osm_subn_t * p_subn,
 *		[in] The node guid
 *
 * RETURN VALUE
-*	None.
+*	Returns TRUE if the ignore port mask was properly updated.
+*       FALSE otherwise.
 *
 * NOTES
 *

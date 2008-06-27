@@ -100,6 +100,8 @@ void osm_subn_destroy(IN osm_subn_t * const p_subn)
 	osm_prtn_t *p_prtn, *p_next_prtn;
 	osm_mgrp_t *p_mgrp;
 	osm_infr_t *p_infr, *p_next_infr;
+	cl_map_iterator_t pmask_iter, next_pmask_iter;
+	osm_port_mask_t *p_port_mask;
 
 	/* it might be a good idea to de-allocate all known objects */
 	p_next_node = (osm_node_t *) cl_qmap_head(&p_subn->node_guid_tbl);
@@ -159,7 +161,15 @@ void osm_subn_destroy(IN osm_subn_t * const p_subn)
 
 	cl_ptr_vector_destroy(&p_subn->port_lid_tbl);
 
-	cl_map_remove_all(&p_subn->port_prof_ignore_guids);
+	next_pmask_iter = cl_map_head(&p_subn->port_prof_ignore_guids);
+	while (next_pmask_iter != cl_map_end(&p_subn->port_prof_ignore_guids)) {
+		pmask_iter = next_pmask_iter;
+		next_pmask_iter = cl_map_next(next_pmask_iter);
+		p_port_mask = cl_map_obj(pmask_iter);
+		cl_map_remove_item(&p_subn->port_prof_ignore_guids, pmask_iter);
+		free(p_port_mask);
+	}
+
 	cl_map_destroy(&p_subn->port_prof_ignore_guids);
 
 	osm_qos_policy_destroy(p_subn->p_qos_policy);
