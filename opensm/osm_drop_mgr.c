@@ -196,7 +196,7 @@ static void __osm_drop_mgr_remove_port(osm_sm_t * sm, IN osm_port_t * p_port)
 	osm_port_get_lid_range_ho(p_port, &min_lid_ho, &max_lid_ho);
 
 	OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
-		"Clearing abandoned LID range [0x%X,0x%X]\n",
+		"Clearing abandoned LID range [%u,%u]\n",
 		min_lid_ho, max_lid_ho);
 
 	p_port_lid_tbl = &sm->p_subn->port_lid_tbl;
@@ -254,7 +254,7 @@ static void __osm_drop_mgr_remove_port(osm_sm_t * sm, IN osm_port_t * p_port)
 	if (osm_log_is_active(sm->p_log, OSM_LOG_INFO)) {
 		OSM_LOG(sm->p_log, OSM_LOG_INFO,
 			"Removed port with GUID:0x%016" PRIx64
-			" LID range [0x%X,0x%X] of node:%s\n",
+			" LID range [%u, %u] of node:%s\n",
 			cl_ntoh64(port_gid.unicast.interface_id),
 			min_lid_ho, max_lid_ho,
 			p_node ? p_node->print_desc : "UNKNOWN");

@@ -243,7 +243,7 @@ osm_get_gid_by_mad_addr(IN osm_log_t * p_log,
 		    cl_ptr_vector_get(p_tbl, cl_ntoh16(p_mad_addr->dest_lid));
 		if (p_port == NULL) {
 			OSM_LOG(p_log, OSM_LOG_DEBUG,
-				"Did not find any port with LID: 0x%X\n",
+				"Did not find any port with LID: %u\n",
 				cl_ntoh16(p_mad_addr->dest_lid));
 			return (IB_INVALID_PARAMETER);
 		}
@@ -252,7 +252,7 @@ osm_get_gid_by_mad_addr(IN osm_log_t * p_log,
 	} else {
 		/* The dest_lid is not in the subnet table - this is an error */
 		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 7501: "
-			"LID is out of range: 0x%X\n",
+			"LID is out of range: %u\n",
 			cl_ntoh16(p_mad_addr->dest_lid));
 		return (IB_INVALID_PARAMETER);
 	}
@@ -283,7 +283,7 @@ osm_physp_t *osm_get_physp_by_mad_addr(IN osm_log_t * p_log,
 		if (p_port == NULL) {
 			/* The port is not in the port_lid table - this is an error */
 			OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 7502: "
-				"Cannot locate port object by lid: 0x%X\n",
+				"Cannot locate port object by lid: %u\n",
 				cl_ntoh16(p_mad_addr->dest_lid));
 
 			goto Exit;
@@ -292,7 +292,7 @@ osm_physp_t *osm_get_physp_by_mad_addr(IN osm_log_t * p_log,
 	} else {
 		/* The dest_lid is not in the subnet table - this is an error */
 		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 7503: "
-			"Lid is out of range: 0x%X\n",
+			"Lid is out of range: %u\n",
 			cl_ntoh16(p_mad_addr->dest_lid));
 	}
 
@@ -322,7 +322,7 @@ osm_port_t *osm_get_port_by_mad_addr(IN osm_log_t * p_log,
 	} else {
 		/* The dest_lid is not in the subnet table - this is an error */
 		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 7504: "
-			"Lid is out of range: 0x%X\n",
+			"Lid is out of range: %u\n",
 			cl_ntoh16(p_mad_addr->dest_lid));
 	}
 

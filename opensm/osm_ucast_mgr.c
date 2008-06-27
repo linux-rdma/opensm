@@ -246,7 +246,7 @@ __osm_ucast_mgr_process_port(IN osm_ucast_mgr_t * const p_mgr,
 
 	if (osm_log_is_active(p_mgr->p_log, OSM_LOG_DEBUG))
 		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-			"Processing port 0x%" PRIx64 " (\'%s\' port %u), LID %u [0x%X,0x%X]\n",
+			"Processing port 0x%" PRIx64 " (\'%s\' port %u), LID %u [%u,%u]\n",
 			cl_ntoh64(osm_port_get_guid(p_port)),
 			p_port->p_node->print_desc, p_port->p_physp->port_num,
 			lid_ho, min_lid_ho, max_lid_ho);
@@ -276,17 +276,17 @@ __osm_ucast_mgr_process_port(IN osm_ucast_mgr_t * const p_mgr,
 		   switches so we do not report that as an error in that case */
 		if (!p_routing_eng->build_lid_matrices) {
 			OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 3A08: "
-				"No path to get to LID 0x%X from switch 0x%"
+				"No path to get to LID %u from switch 0x%"
 				PRIx64 "\n", lid_ho, cl_ntoh64(node_guid));
 			/* trigger a new sweep - try again ... */
 			p_mgr->p_subn->subnet_initialization_error = TRUE;
 		} else
 			OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-				"No path to get to LID 0x%X from switch 0x%"
+				"No path to get to LID %u from switch 0x%"
 				PRIx64 "\n", lid_ho, cl_ntoh64(node_guid));
 	} else {
 		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-			"Routing LID 0x%X to port 0x%X"
+			"Routing LID %u to port 0x%X"
 			" for switch 0x%" PRIx64 "\n",
 			lid_ho, port, cl_ntoh64(node_guid));
 
@@ -384,7 +384,7 @@ osm_ucast_mgr_set_fwd_table(IN osm_ucast_mgr_t * const p_mgr,
 	if (set_swinfo_require) {
 		if (osm_log_is_active(p_mgr->p_log, OSM_LOG_DEBUG)) {
 			OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-				"Setting switch FT top to LID 0x%X\n",
+				"Setting switch FT top to LID %u\n",
 				p_sw->max_lid_ho);
 		}
 

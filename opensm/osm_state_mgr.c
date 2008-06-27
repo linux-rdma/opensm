@@ -833,7 +833,7 @@ static void __osm_state_mgr_report_new_ports(IN osm_sm_t * sm)
 		osm_port_get_lid_range_ho(p_port, &min_lid_ho, &max_lid_ho);
 		OSM_LOG(sm->p_log, OSM_LOG_INFO,
 			"Discovered new port with GUID:0x%016" PRIx64
-			" LID range [0x%X,0x%X] of node:%s\n",
+			" LID range [%u,%u] of node:%s\n",
 			cl_ntoh64(port_gid.unicast.interface_id),
 			min_lid_ho, max_lid_ho,
 			p_port->p_node ? p_port->p_node->

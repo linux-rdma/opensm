@@ -242,7 +242,7 @@ __osm_pr_rcv_get_path_parms(IN osm_sa_t * sa,
 		p_physp = osm_switch_get_route_by_lid(p_node->sw, dest_lid);
 		if (p_physp == 0) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F02: "
-				"Cannot find routing to LID 0x%X from switch for GUID 0x%016"
+				"Cannot find routing to LID %u from switch for GUID 0x%016"
 				PRIx64 "\n", dest_lid_ho,
 				cl_ntoh64(osm_node_get_node_guid(p_node)));
 			status = IB_NOT_FOUND;
@@ -286,7 +286,7 @@ __osm_pr_rcv_get_path_parms(IN osm_sa_t * sa,
 
 		if (p_dest_physp == 0) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F03: "
-				"Cannot find routing to LID 0x%X from switch for GUID 0x%016"
+				"Cannot find routing to LID %u from switch for GUID 0x%016"
 				PRIx64 "\n", dest_lid_ho,
 				cl_ntoh64(osm_node_get_node_guid(p_node)));
 			status = IB_NOT_FOUND;
@@ -306,7 +306,7 @@ __osm_pr_rcv_get_path_parms(IN osm_sa_t * sa,
 
 		if (p_physp == 0) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F05: "
-				"Cannot find remote phys port when routing to LID 0x%X from node GUID 0x%016"
+				"Cannot find remote phys port when routing to LID %u from node GUID 0x%016"
 				PRIx64 "\n", dest_lid_ho,
 				cl_ntoh64(osm_node_get_node_guid(p_node)));
 			status = IB_ERROR;
@@ -352,7 +352,7 @@ __osm_pr_rcv_get_path_parms(IN osm_sa_t * sa,
 		p_physp = osm_switch_get_route_by_lid(p_node->sw, dest_lid);
 		if (p_physp == 0) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F07: "
-				"Dead end on path to LID 0x%X from switch for GUID 0x%016"
+				"Dead end on path to LID %u from switch for GUID 0x%016"
 				PRIx64 "\n", dest_lid_ho,
 				cl_ntoh64(osm_node_get_node_guid(p_node)));
 			status = IB_ERROR;
@@ -847,7 +847,7 @@ __osm_pr_rcv_get_lid_pair_path(IN osm_sa_t * sa,
 
 	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-			"Src LID 0x%X, Dest LID 0x%X\n",
+			"Src LID %u, Dest LID %u\n",
 			src_lid_ho, dest_lid_ho);
 
 	p_pr_item = malloc(sizeof(*p_pr_item));
@@ -1026,7 +1026,7 @@ __osm_pr_rcv_get_port_pair_paths(IN osm_sa_t * sa,
 
 	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-			"Src LIDs [0x%X-0x%X], Dest LIDs [0x%X-0x%X]\n",
+			"Src LIDs [%u-%u], Dest LIDs [%u-%u]\n",
 			src_lid_min_ho, src_lid_max_ho,
 			dest_lid_min_ho, dest_lid_max_ho);
 
@@ -1221,7 +1221,7 @@ __osm_pr_rcv_get_end_points(IN osm_sa_t * sa,
 				   Return an error response to the client.
 				 */
 				OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
-					"No source port with LID 0x%X\n",
+					"No source port with LID %u\n",
 					cl_ntoh16(p_pr->slid));
 
 				sa_status = IB_SA_MAD_STATUS_NO_RECORDS;
@@ -1332,7 +1332,7 @@ __osm_pr_rcv_get_end_points(IN osm_sa_t * sa,
 				   Return an error response to the client.
 				 */
 				OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
-					"No dest port with LID 0x%X\n",
+					"No dest port with LID %u\n",
 					cl_ntoh16(p_pr->dlid));
 
 				sa_status = IB_SA_MAD_STATUS_NO_RECORDS;

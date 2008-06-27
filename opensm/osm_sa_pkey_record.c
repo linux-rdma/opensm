@@ -301,7 +301,7 @@ void osm_pkey_rec_rcv_process(IN void *ctx, IN void *data)
 	context.p_req_physp = p_req_physp;
 
 	OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-		"Got Query Lid:0x%04X(%02X), Block:0x%02X(%02X), Port:0x%02X(%02X)\n",
+		"Got Query Lid:%u(%02X), Block:0x%02X(%02X), Port:0x%02X(%02X)\n",
 		cl_ntoh16(p_rcvd_rec->lid),
 		(comp_mask & IB_PKEY_COMPMASK_LID) != 0, p_rcvd_rec->port_num,
 		(comp_mask & IB_PKEY_COMPMASK_PORT) != 0, p_rcvd_rec->block_num,
@@ -324,7 +324,7 @@ void osm_pkey_rec_rcv_process(IN void *ctx, IN void *data)
 		if (status != IB_SUCCESS || p_port == NULL) {
 			status = IB_NOT_FOUND;
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 460B: "
-				"No port found with LID 0x%x\n",
+				"No port found with LID %u\n",
 				cl_ntoh16(p_rcvd_rec->lid));
 		}
 	}

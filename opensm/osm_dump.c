@@ -330,7 +330,7 @@ static void dump_ucast_lfts(cl_map_item_t *p_map_item, FILE *file, void *cxt)
 	uint16_t lid;
 	uint8_t port;
 
-	fprintf(file, "Unicast lids [0x0-0x%x] of switch Lid %u guid 0x%016"
+	fprintf(file, "Unicast lids [0-%u] of switch Lid %u guid 0x%016"
 		PRIx64 " (\'%s\'):\n",
 		max_lid, cl_ntoh16(osm_node_get_base_lid(p_node, 0)),
 		cl_ntoh64(osm_node_get_node_guid(p_node)), p_node->print_desc);

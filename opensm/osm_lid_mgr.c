@@ -173,7 +173,7 @@ static void __osm_lid_mgr_validate_db(IN osm_lid_mgr_t * p_mgr)
 			    || (p_item->guid == 0)
 			    || (max_lid > p_mgr->p_subn->max_ucast_lid_ho)) {
 				OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 0312: "
-					"Illegal LID range [0x%x:0x%x] for "
+					"Illegal LID range [%u:%u] for "
 					"guid:0x%016" PRIx64 "\n", min_lid,
 					max_lid, p_item->guid);
 				lids_ok = FALSE;
@@ -182,7 +182,7 @@ static void __osm_lid_mgr_validate_db(IN osm_lid_mgr_t * p_mgr)
 				/* check that if the lids define a range that is valid
 				   for the current LMC mask */
 				OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 0313: "
-					"LID range [0x%x:0x%x] for guid:0x%016"
+					"LID range [%u:%u] for guid:0x%016"
 					PRIx64
 					" is not aligned according to mask:0x%04x\n",
 					min_lid, max_lid, p_item->guid,
@@ -774,13 +774,13 @@ __osm_lid_mgr_get_port_lid(IN osm_lid_mgr_t * const p_mgr,
 		if (min_lid == cl_ntoh16(osm_port_get_base_lid(p_port))) {
 			OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 				"0x%016" PRIx64
-				" matches its known lid:0x%04x\n", guid,
+				" matches its known lid:%u\n", guid,
 				min_lid);
 			goto Exit;
 		} else {
 			OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-				"0x%016" PRIx64 " with lid:0x%04x "
-				"does not match its known lid:0x%04x\n",
+				"0x%016" PRIx64 " with lid:%u "
+				"does not match its known lid:%u\n",
 				guid, cl_ntoh16(osm_port_get_base_lid(p_port)),
 				min_lid);
 			__osm_lid_mgr_cleanup_discovered_port_lid_range(p_mgr,
@@ -1179,7 +1179,7 @@ __osm_lid_mgr_process_our_sm_node(IN osm_lid_mgr_t * const p_mgr)
 	 */
 	__osm_lid_mgr_get_port_lid(p_mgr, p_port, &min_lid_ho, &max_lid_ho);
 	OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-		"Current base LID is 0x%X\n", min_lid_ho);
+		"Current base LID is %u\n", min_lid_ho);
 	/*
 	   Update subnet object.
 	 */
@@ -1189,7 +1189,7 @@ __osm_lid_mgr_process_our_sm_node(IN osm_lid_mgr_t * const p_mgr)
 	if (osm_log_is_active(p_mgr->p_log, OSM_LOG_VERBOSE))
 		OSM_LOG(p_mgr->p_log, OSM_LOG_VERBOSE,
 			"Assigning SM's port 0x%016" PRIx64
-			"\n\t\t\t\tto LID range [0x%X,0x%X]\n",
+			"\n\t\t\t\tto LID range [%u,%u]\n",
 			cl_ntoh64(osm_port_get_guid(p_port)),
 			min_lid_ho, max_lid_ho);
 
@@ -1301,7 +1301,7 @@ osm_signal_t osm_lid_mgr_process_subnet(IN osm_lid_mgr_t * const p_mgr)
 		   if required */
 		OSM_LOG(p_mgr->p_log, OSM_LOG_VERBOSE,
 			"Assigned port 0x%016" PRIx64
-			", LID [0x%X,0x%X]\n", cl_ntoh64(port_guid),
+			", LID [%u,%u]\n", cl_ntoh64(port_guid),
 			min_lid_ho, max_lid_ho);
 
 		/* the proc returns the fact it sent a set port info */

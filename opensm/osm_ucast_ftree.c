@@ -55,7 +55,7 @@
 
 /*
  * FatTree rank is bounded between 2 and 8:
- *  - Tree of rank 1 has only trivial routing pathes,
+ *  - Tree of rank 1 has only trivial routing paths,
  *    so no need to use FatTree routing.
  *  - Why maximum rank is 8:
  *    Each node (switch) is assigned a unique tuple.
@@ -1222,7 +1222,7 @@ static void __osm_ftree_fabric_dump_general_info(IN ftree_fabric_t * p_ftree)
 			if (p_sw->rank == 0)
 				OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_VERBOSE,
 					"      GUID: 0x%016" PRIx64
-					", LID: 0x%04x, Index %s\n",
+					", LID: %u, Index %s\n",
 					__osm_ftree_sw_get_guid_ho(p_sw),
 					cl_ntoh16(p_sw->base_lid),
 					__osm_ftree_tuple_to_str(p_sw->tuple));
@@ -1233,7 +1233,7 @@ static void __osm_ftree_fabric_dump_general_info(IN ftree_fabric_t * p_ftree)
 		for (i = 0; i < p_ftree->leaf_switches_num; i++) {
 			OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_VERBOSE,
 				"      GUID: 0x%016" PRIx64
-				", LID: 0x%04x, Index %s\n",
+				", LID: %u, Index %s\n",
 				__osm_ftree_sw_get_guid_ho(p_ftree->
 							   leaf_switches[i]),
 				cl_ntoh16(p_ftree->leaf_switches[i]->base_lid),
@@ -1492,7 +1492,7 @@ static void __osm_ftree_fabric_make_indexing(IN ftree_fabric_t * p_ftree)
 		"Indexing starting point:\n"
 		"                                            - Switch rank  : %u\n"
 		"                                            - Switch index : %s\n"
-		"                                            - Node LID     : 0x%04x\n"
+		"                                            - Node LID     : %u\n"
 		"                                            - Node GUID    : 0x%016"
 		PRIx64 "\n", p_sw->rank, __osm_ftree_tuple_to_str(p_sw->tuple),
 		cl_ntoh16(p_sw->base_lid), __osm_ftree_sw_get_guid_ho(p_sw));
@@ -1778,9 +1778,9 @@ static boolean_t __osm_ftree_fabric_validate_topology(IN ftree_fabric_t *
 				OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_ERROR,
 					"ERR AB09: Different number of upward port groups on switches:\n"
 					"       GUID 0x%016" PRIx64
-					", LID 0x%04x, Index %s - %u groups\n"
+					", LID %u, Index %s - %u groups\n"
 					"       GUID 0x%016" PRIx64
-					", LID 0x%04x, Index %s - %u groups\n",
+					", LID %u, Index %s - %u groups\n",
 					__osm_ftree_sw_get_guid_ho
 					(reference_sw_arr[p_sw->rank]),
 					cl_ntoh16(reference_sw_arr[p_sw->rank]->
@@ -1805,9 +1805,9 @@ static boolean_t __osm_ftree_fabric_validate_topology(IN ftree_fabric_t *
 				OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_ERROR,
 					"ERR AB0A: Different number of downward port groups on switches:\n"
 					"       GUID 0x%016" PRIx64
-					", LID 0x%04x, Index %s - %u port groups\n"
+					", LID %u, Index %s - %u port groups\n"
 					"       GUID 0x%016" PRIx64
-					", LID 0x%04x, Index %s - %u port groups\n",
+					", LID %u, Index %s - %u port groups\n",
 					__osm_ftree_sw_get_guid_ho
 					(reference_sw_arr[p_sw->rank]),
 					cl_ntoh16(reference_sw_arr[p_sw->rank]->
@@ -1840,10 +1840,10 @@ static boolean_t __osm_ftree_fabric_validate_topology(IN ftree_fabric_t *
 							"ERR AB0B: Different number of ports in an upward port group on switches:\n"
 							"       GUID 0x%016"
 							PRIx64
-							", LID 0x%04x, Index %s - %u ports\n"
+							", LID %u, Index %s - %u ports\n"
 							"       GUID 0x%016"
 							PRIx64
-							", LID 0x%04x, Index %s - %u ports\n",
+							", LID %u, Index %s - %u ports\n",
 							__osm_ftree_sw_get_guid_ho
 							(reference_sw_arr
 							 [p_sw->rank]),
@@ -1887,10 +1887,10 @@ static boolean_t __osm_ftree_fabric_validate_topology(IN ftree_fabric_t *
 							"ERR AB0C: Different number of ports in an downward port group on switches:\n"
 							"       GUID 0x%016"
 							PRIx64
-							", LID 0x%04x, Index %s - %u ports\n"
+							", LID %u, Index %s - %u ports\n"
 							"       GUID 0x%016"
 							PRIx64
-							", LID 0x%04x, Index %s - %u ports\n",
+							", LID %u, Index %s - %u ports\n",
 							__osm_ftree_sw_get_guid_ho
 							(reference_sw_arr
 							 [p_sw->rank]),
@@ -2045,7 +2045,7 @@ __osm_ftree_fabric_route_upgoing_by_going_down(IN ftree_fabric_t * p_ftree,
 			   on our way UP, and now we see it again on our way DOWN */
 			OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
 				"Loop of lenght %d in the fabric:\n                             "
-				"Switch %s (LID 0x%04x) closes loop through switch %s (LID 0x%04x)\n",
+				"Switch %s (LID %u) closes loop through switch %s (LID %u)\n",
 				(p_remote_sw->rank - highest_rank_in_route) * 2,
 				__osm_ftree_tuple_to_str(p_remote_sw->tuple),
 				cl_ntoh16(p_group->base_lid),
@@ -2097,7 +2097,7 @@ __osm_ftree_fabric_route_upgoing_by_going_down(IN ftree_fabric_t * p_ftree,
 							   p_min_port->
 							   remote_port_num);
 			OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
-				"Switch %s: set path to CA LID 0x%04x through port %u\n",
+				"Switch %s: set path to CA LID %u through port %u\n",
 				__osm_ftree_tuple_to_str(p_remote_sw->tuple),
 				cl_ntoh16(target_lid),
 				p_min_port->remote_port_num);
@@ -2260,7 +2260,7 @@ __osm_ftree_fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
 	if (is_main_path) {
 		if (p_sw->is_leaf) {
 			OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
-				" - Routing MAIN path for %s CA LID 0x%04x: %s --> %s\n",
+				" - Routing MAIN path for %s CA LID %u: %s --> %s\n",
 				(is_real_lid) ? "real" : "DUMMY",
 				cl_ntoh16(target_lid),
 				__osm_ftree_tuple_to_str(p_sw->tuple),
@@ -2279,7 +2279,7 @@ __osm_ftree_fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
 							   p_min_port->
 							   remote_port_num);
 			OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
-				"Switch %s: set path to CA LID 0x%04x through port %u\n",
+				"Switch %s: set path to CA LID %u through port %u\n",
 				__osm_ftree_tuple_to_str(p_remote_sw->tuple),
 				cl_ntoh16(target_lid),
 				p_min_port->remote_port_num);
@@ -2358,7 +2358,7 @@ __osm_ftree_fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
 
 		if (p_sw->is_leaf) {
 			OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
-				" - Routing SECONDARY path for LID 0x%04x: %s --> %s\n",
+				" - Routing SECONDARY path for LID %u: %s --> %s\n",
 				cl_ntoh16(target_lid),
 				__osm_ftree_tuple_to_str(p_sw->tuple),
 				__osm_ftree_tuple_to_str(p_remote_sw->tuple));
@@ -2368,7 +2368,7 @@ __osm_ftree_fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
 		   switch-to-switch or switch-to-CA paths.
 		   We can safely assume that switch will initiate very
 		   few traffic, so there's no point waisting runtime on
-		   trying to ballance these routes - always pick port 0. */
+		   trying to balance these routes - always pick port 0. */
 
 		cl_ptr_vector_at(&p_group->ports, 0, (void **)&p_port);
 		__osm_ftree_sw_set_fwd_table_block(p_remote_sw,
@@ -2468,7 +2468,7 @@ static void __osm_ftree_fabric_route_to_cns(IN ftree_fabric_t * p_ftree)
 							   cl_ntoh16(hca_lid),
 							   p_port->port_num);
 			OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
-				"Switch %s: set path to CN LID 0x%04x through port %u\n",
+				"Switch %s: set path to CN LID %u through port %u\n",
 				__osm_ftree_tuple_to_str(p_sw->tuple),
 				cl_ntoh16(hca_lid), p_port->port_num);
 
@@ -2479,7 +2479,7 @@ static void __osm_ftree_fabric_route_to_cns(IN ftree_fabric_t * p_ftree)
 
 			/* Assign downgoing ports by stepping up.
 			   Since we're routing here only CNs, we're routing it as REAL
-			   LID and updating fat-tree ballancing counters. */
+			   LID and updating fat-tree balancing counters. */
 			__osm_ftree_fabric_route_downgoing_by_going_up(p_ftree, p_sw,	/* local switch - used as a route-downgoing alg. start point */
 								       NULL,	/* prev. position switch */
 								       hca_lid,	/* LID that we're routing to */
@@ -2579,7 +2579,7 @@ static void __osm_ftree_fabric_route_to_non_cns(IN ftree_fabric_t * p_ftree)
 							   port_num_on_switch);
 
 			OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
-				"Switch %s: set path to non-CN HCA LID 0x%04x through port %u\n",
+				"Switch %s: set path to non-CN HCA LID %u through port %u\n",
 				__osm_ftree_tuple_to_str(p_sw->tuple),
 				cl_ntoh16(hca_lid), port_num_on_switch);
 
@@ -2637,7 +2637,7 @@ static void __osm_ftree_fabric_route_to_switches(IN ftree_fabric_t * p_ftree)
 						   0);
 
 		OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
-			"Switch %s (LID 0x%04x): routing switch-to-switch pathes\n",
+			"Switch %s (LID %u): routing switch-to-switch paths\n",
 			__osm_ftree_tuple_to_str(p_sw->tuple),
 			cl_ntoh16(p_sw->base_lid));
 
@@ -2845,7 +2845,7 @@ __osm_ftree_rank_leaf_switches(IN ftree_fabric_t * p_ftree,
 			PRIx64 "\n"
 			"                                            - Switch guid: 0x%016"
 			PRIx64 "\n"
-			"                                            - Switch LID : 0x%04x\n",
+			"                                            - Switch LID : %u\n",
 			__osm_ftree_hca_get_guid_ho(p_hca),
 			__osm_ftree_sw_get_guid_ho(p_sw),
 			cl_ntoh16(p_sw->base_lid));
@@ -3020,7 +3020,7 @@ static int __osm_ftree_fabric_construct_sw_ports(IN ftree_fabric_t * p_ftree,
 		if (p_node == p_remote_node) {
 			OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
 				"Ignoring loopback on switch GUID 0x%016" PRIx64
-				", LID 0x%04x, rank %u\n",
+				", LID %u, rank %u\n",
 				__osm_ftree_sw_get_guid_ho(p_sw),
 				cl_ntoh16(p_sw->base_lid),
 				p_sw->rank);
@@ -3065,9 +3065,9 @@ static int __osm_ftree_fabric_construct_sw_ports(IN ftree_fabric_t * p_ftree,
 					"ERR AB16: "
 					"Illegal link between switches with ranks %u and %u:\n"
 					"       GUID 0x%016" PRIx64
-					", LID 0x%04x, rank %u\n"
+					", LID %u, rank %u\n"
 					"       GUID 0x%016" PRIx64
-					", LID 0x%04x, rank %u\n", p_sw->rank,
+					", LID %u, rank %u\n", p_sw->rank,
 					p_remote_sw->rank,
 					__osm_ftree_sw_get_guid_ho(p_sw),
 					cl_ntoh16(p_sw->base_lid), p_sw->rank,
@@ -3647,7 +3647,7 @@ static int __osm_ftree_construct_fabric(IN void *context)
 	}
 
 	OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_VERBOSE,
-		"Max LID in switch LFTs (in host order): 0x%04x\n",
+		"Max LID in switch LFTs: %u\n",
 		p_ftree->lft_max_lid_ho);
 
 Exit:
@@ -3695,7 +3695,7 @@ static int __osm_ftree_do_routing(IN void *context)
 	__osm_ftree_fabric_route_to_non_cns(p_ftree);
 
 	OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_VERBOSE,
-		"Filling switch forwarding tables for switch-to-switch pathes\n");
+		"Filling switch forwarding tables for switch-to-switch paths\n");
 	__osm_ftree_fabric_route_to_switches(p_ftree);
 
 	/* for each switch, set its fwd table */

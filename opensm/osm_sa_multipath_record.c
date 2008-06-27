@@ -235,7 +235,7 @@ __osm_mpr_rcv_get_path_parms(IN osm_sa_t * sa,
 		p_physp = osm_switch_get_route_by_lid(p_node->sw, dest_lid);
 		if (p_physp == 0) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4514: "
-				"Can't find routing to LID 0x%X from switch for GUID 0x%016"
+				"Can't find routing to LID %u from switch for GUID 0x%016"
 				PRIx64 "\n", dest_lid_ho,
 				cl_ntoh64(osm_node_get_node_guid(p_node)));
 			status = IB_NOT_FOUND;
@@ -279,7 +279,7 @@ __osm_mpr_rcv_get_path_parms(IN osm_sa_t * sa,
 
 		if (p_dest_physp == 0) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4515: "
-				"Can't find routing to LID 0x%X from switch for GUID 0x%016"
+				"Can't find routing to LID %u from switch for GUID 0x%016"
 				PRIx64 "\n", dest_lid_ho,
 				cl_ntoh64(osm_node_get_node_guid(p_node)));
 			status = IB_NOT_FOUND;
@@ -299,7 +299,7 @@ __osm_mpr_rcv_get_path_parms(IN osm_sa_t * sa,
 
 		if (p_physp == 0) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4505: "
-				"Can't find remote phys port when routing to LID 0x%X from node GUID 0x%016"
+				"Can't find remote phys port when routing to LID %u from node GUID 0x%016"
 				PRIx64 "\n", dest_lid_ho,
 				cl_ntoh64(osm_node_get_node_guid(p_node)));
 			status = IB_ERROR;
@@ -346,7 +346,7 @@ __osm_mpr_rcv_get_path_parms(IN osm_sa_t * sa,
 		p_physp = osm_switch_get_route_by_lid(p_node->sw, dest_lid);
 		if (p_physp == 0) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4516: "
-				"Dead end on path to LID 0x%X from switch for GUID 0x%016"
+				"Dead end on path to LID %u from switch for GUID 0x%016"
 				PRIx64 "\n", dest_lid_ho,
 				cl_ntoh64(osm_node_get_node_guid(p_node)));
 			status = IB_ERROR;
@@ -822,7 +822,7 @@ __osm_mpr_rcv_get_lid_pair_path(IN osm_sa_t * sa,
 
 	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-			"Src LID 0x%X, Dest LID 0x%X\n",
+			"Src LID %u, Dest LID %u\n",
 			src_lid_ho, dest_lid_ho);
 
 	p_pr_item = malloc(sizeof(*p_pr_item));
@@ -974,7 +974,7 @@ __osm_mpr_rcv_get_port_pair_paths(IN osm_sa_t * sa,
 
 	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-			"Src LID [0x%X-0x%X], Dest LID [0x%X-0x%X]\n",
+			"Src LID [%u-%u], Dest LID [%u-%u]\n",
 			src_lid_min_ho, src_lid_max_ho,
 			dest_lid_min_ho, dest_lid_max_ho);
 
@@ -1122,8 +1122,8 @@ __osm_mpr_rcv_get_apm_port_pair_paths(IN osm_sa_t * sa,
 	dest_lid_ho += base_offs % dest_lids;
 
 	OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-		"Src LIDs [0x%X-0x%X] hashed %d, "
-		"Dest LIDs [0x%X-0x%X] hashed %d\n",
+		"Src LIDs [%u-%u] hashed %u, "
+		"Dest LIDs [%u-%u] hashed %u\n",
 		src_lid_min_ho, src_lid_max_ho, src_lid_ho,
 		dest_lid_min_ho, dest_lid_max_ho, dest_lid_ho);
 
@@ -1142,7 +1142,7 @@ __osm_mpr_rcv_get_apm_port_pair_paths(IN osm_sa_t * sa,
 
 		if (p_pr_item) {
 			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-				"Found matching path from Src LID 0x%X to Dest LID 0x%X with %d hops\n",
+				"Found matching path from Src LID %u to Dest LID %u with %d hops\n",
 				src_lid_ho, dest_lid_ho, p_pr_item->hops);
 			break;
 		}

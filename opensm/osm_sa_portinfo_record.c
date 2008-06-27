@@ -149,7 +149,7 @@ __osm_sa_pir_create(IN osm_sa_t * sa,
 		 */
 		if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
 			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-				"Comparing LID: 0x%X <= 0x%X <= 0x%X\n",
+				"Comparing LID: %u <= %u <= %u\n",
 				base_lid_ho, match_lid_ho, max_lid_ho);
 
 		if (match_lid_ho < base_lid_ho || match_lid_ho > max_lid_ho)
@@ -543,7 +543,7 @@ void osm_pir_rcv_process(IN void *ctx, IN void *data)
 		if ((status != IB_SUCCESS) || (p_port == NULL)) {
 			status = IB_NOT_FOUND;
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2109: "
-				"No port found with LID 0x%x\n",
+				"No port found with LID %u\n",
 				cl_ntoh16(p_rcvd_rec->lid));
 		}
 	} else if (comp_mask & IB_PIR_COMPMASK_BASELID) {
@@ -554,7 +554,7 @@ void osm_pir_rcv_process(IN void *ctx, IN void *data)
 		else {
 			status = IB_NOT_FOUND;
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2103: "
-				"Given LID (0x%X) is out of range:0x%X\n",
+				"Given LID (%u) is out of range:%u\n",
 				cl_ntoh16(p_pi->base_lid),
 				cl_ptr_vector_get_size(p_tbl));
 		}

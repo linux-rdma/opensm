@@ -740,8 +740,8 @@ osm_dump_port_info(IN osm_log_t * const p_log,
 			"\t\t\t\tport_guid...............0x%016" PRIx64 "\n"
 			"\t\t\t\tm_key...................0x%016" PRIx64 "\n"
 			"\t\t\t\tsubnet_prefix...........0x%016" PRIx64 "\n"
-			"\t\t\t\tbase_lid................0x%X\n"
-			"\t\t\t\tmaster_sm_base_lid......0x%X\n"
+			"\t\t\t\tbase_lid................%u\n"
+			"\t\t\t\tmaster_sm_base_lid......%u\n"
 			"\t\t\t\tcapability_mask.........0x%X\n"
 			"\t\t\t\tdiag_code...............0x%X\n"
 			"\t\t\t\tm_key_lease_period......0x%X\n"
@@ -824,14 +824,14 @@ osm_dump_portinfo_record(IN osm_log_t * const p_log,
 		osm_log(p_log, log_level,
 			"PortInfo Record dump:\n"
 			"\t\t\t\tRID\n"
-			"\t\t\t\tEndPortLid..............0x%X\n"
+			"\t\t\t\tEndPortLid..............%u\n"
 			"\t\t\t\tPortNum.................0x%X\n"
 			"\t\t\t\tReserved................0x%X\n"
 			"\t\t\t\tPortInfo dump:\n"
 			"\t\t\t\tm_key...................0x%016" PRIx64 "\n"
 			"\t\t\t\tsubnet_prefix...........0x%016" PRIx64 "\n"
-			"\t\t\t\tbase_lid................0x%X\n"
-			"\t\t\t\tmaster_sm_base_lid......0x%X\n"
+			"\t\t\t\tbase_lid................%u\n"
+			"\t\t\t\tmaster_sm_base_lid......%u\n"
 			"\t\t\t\tcapability_mask.........0x%X\n"
 			"\t\t\t\tdiag_code...............0x%X\n"
 			"\t\t\t\tm_key_lease_period......0x%X\n"
@@ -911,7 +911,7 @@ osm_dump_guidinfo_record(IN osm_log_t * const p_log,
 		osm_log(p_log, log_level,
 			"GUIDInfo Record dump:\n"
 			"\t\t\t\tRID\n"
-			"\t\t\t\tLid.....................0x%X\n"
+			"\t\t\t\tLid.....................%u\n"
 			"\t\t\t\tBlockNum................0x%X\n"
 			"\t\t\t\tReserved................0x%X\n"
 			"\t\t\t\tGUIDInfo dump:\n"
@@ -996,7 +996,7 @@ osm_dump_node_record(IN osm_log_t * const p_log,
 		osm_log(p_log, log_level,
 			"Node Record dump:\n"
 			"\t\t\t\tRID\n"
-			"\t\t\t\tLid.....................0x%X\n"
+			"\t\t\t\tLid.....................%u\n"
 			"\t\t\t\tReserved................0x%X\n"
 			"\t\t\t\tNodeInfo dump:\n"
 			"\t\t\t\tbase_version............0x%X\n"
@@ -1046,8 +1046,8 @@ osm_dump_path_record(IN osm_log_t * const p_log,
 			"0x%016" PRIx64 "\n"
 			"\t\t\t\tsgid....................0x%016" PRIx64 " : "
 			"0x%016" PRIx64 "\n"
-			"\t\t\t\tdlid....................0x%X\n"
-			"\t\t\t\tslid....................0x%X\n"
+			"\t\t\t\tdlid....................%u\n"
+			"\t\t\t\tslid....................%u\n"
 			"\t\t\t\thop_flow_raw............0x%X\n"
 			"\t\t\t\ttclass..................0x%X\n"
 			"\t\t\t\tnum_path_revers.........0x%X\n"
@@ -1322,8 +1322,8 @@ osm_dump_inform_info(IN osm_log_t * const p_log,
 				"InformInfo dump:\n"
 				"\t\t\t\tgid.....................0x%016" PRIx64
 				" : 0x%016" PRIx64 "\n"
-				"\t\t\t\tlid_range_begin.........0x%X\n"
-				"\t\t\t\tlid_range_end...........0x%X\n"
+				"\t\t\t\tlid_range_begin.........%u\n"
+				"\t\t\t\tlid_range_end...........%u\n"
 				"\t\t\t\tis_generic..............0x%X\n"
 				"\t\t\t\tsubscribe...............0x%X\n"
 				"\t\t\t\ttrap_type...............0x%X\n"
@@ -1346,8 +1346,8 @@ osm_dump_inform_info(IN osm_log_t * const p_log,
 				"InformInfo dump:\n"
 				"\t\t\t\tgid.....................0x%016" PRIx64
 				" : 0x%016" PRIx64 "\n"
-				"\t\t\t\tlid_range_begin.........0x%X\n"
-				"\t\t\t\tlid_range_end...........0x%X\n"
+				"\t\t\t\tlid_range_begin.........%u\n"
+				"\t\t\t\tlid_range_end...........%u\n"
 				"\t\t\t\tis_generic..............0x%X\n"
 				"\t\t\t\tsubscribe...............0x%X\n"
 				"\t\t\t\ttrap_type...............0x%X\n"
@@ -1395,8 +1395,8 @@ osm_dump_inform_info_record(IN osm_log_t * const p_log,
 				"\t\t\t\tInformInfo dump:\n"
 				"\t\t\t\tgid.....................0x%016" PRIx64
 				" : 0x%016" PRIx64 "\n"
-				"\t\t\t\tlid_range_begin.........0x%X\n"
-				"\t\t\t\tlid_range_end...........0x%X\n"
+				"\t\t\t\tlid_range_begin.........%u\n"
+				"\t\t\t\tlid_range_end...........%u\n"
 				"\t\t\t\tis_generic..............0x%X\n"
 				"\t\t\t\tsubscribe...............0x%X\n"
 				"\t\t\t\ttrap_type...............0x%X\n"
@@ -1433,8 +1433,8 @@ osm_dump_inform_info_record(IN osm_log_t * const p_log,
 				"\t\t\t\tInformInfo dump:\n"
 				"\t\t\t\tgid.....................0x%016" PRIx64
 				" : 0x%016" PRIx64 "\n"
-				"\t\t\t\tlid_range_begin.........0x%X\n"
-				"\t\t\t\tlid_range_end...........0x%X\n"
+				"\t\t\t\tlid_range_begin.........%u\n"
+				"\t\t\t\tlid_range_end...........%u\n"
 				"\t\t\t\tis_generic..............0x%X\n"
 				"\t\t\t\tsubscribe...............0x%X\n"
 				"\t\t\t\ttrap_type...............0x%X\n"
@@ -1475,10 +1475,10 @@ osm_dump_link_record(IN osm_log_t * const p_log,
 	if (osm_log_is_active(p_log, log_level)) {
 		osm_log(p_log, log_level,
 			"Link Record dump:\n"
-			"\t\t\t\tfrom_lid................0x%X\n"
+			"\t\t\t\tfrom_lid................%u\n"
 			"\t\t\t\tfrom_port_num...........0x%X\n"
 			"\t\t\t\tto_port_num.............0x%X\n"
-			"\t\t\t\tto_lid..................0x%X\n"
+			"\t\t\t\tto_lid..................%u\n"
 			"",
 			cl_ntoh16(p_lr->from_lid),
 			p_lr->from_port_num,
@@ -1533,7 +1533,7 @@ osm_dump_switch_info_record(IN osm_log_t * const p_log,
 		osm_log(p_log, log_level,
 			"SwitchInfo Record dump:\n"
 			"\t\t\t\tRID\n"
-			"\t\t\t\tlid.....................0x%X\n"
+			"\t\t\t\tlid.....................%u\n"
 			"\t\t\t\tSwitchInfo dump:\n"
 			"\t\t\t\tlin_cap.................0x%X\n"
 			"\t\t\t\trand_cap................0x%X\n"
@@ -1686,7 +1686,7 @@ osm_dump_sm_info_record(IN osm_log_t * const p_log,
 		osm_log(p_log, OSM_LOG_DEBUG,
 			"SMInfo Record dump:\n"
 			"\t\t\t\tRID\n"
-			"\t\t\t\tLid.....................0x%X\n"
+			"\t\t\t\tLid.....................%u\n"
 			"\t\t\t\tReserved................0x%X\n"
 			"\t\t\t\tSMInfo dump:\n"
 			"\t\t\t\tguid....................0x%016" PRIx64 "\n"
@@ -1735,7 +1735,7 @@ osm_dump_notice(IN osm_log_t * const p_log,
 				break;
 			case 128:
 				sprintf(buff,
-					"\t\t\t\tsw_lid...................0x%04X\n",
+					"\t\t\t\tsw_lid...................%u\n",
 					cl_ntoh16(p_ntci->data_details.ntc_128.
 						  sw_lid));
 				break;
@@ -1743,7 +1743,7 @@ osm_dump_notice(IN osm_log_t * const p_log,
 			case 130:
 			case 131:
 				sprintf(buff,
-					"\t\t\t\tlid......................0x%04X\n"
+					"\t\t\t\tlid......................%u\n"
 					"\t\t\t\tport_num.................%u\n",
 					cl_ntoh16(p_ntci->data_details.
 						  ntc_129_131.lid),
@@ -1752,7 +1752,7 @@ osm_dump_notice(IN osm_log_t * const p_log,
 				break;
 			case 144:
 				sprintf(buff,
-					"\t\t\t\tlid......................0x%04x\n"
+					"\t\t\t\tlid......................%u\n"
 					"\t\t\t\tnew_cap_mask.............0x%08x\n",
 					cl_ntoh16(p_ntci->data_details.ntc_144.
 						  lid),
@@ -1761,7 +1761,7 @@ osm_dump_notice(IN osm_log_t * const p_log,
 				break;
 			case 145:
 				sprintf(buff,
-					"\t\t\t\tlid......................0x%04X\n"
+					"\t\t\t\tlid......................%u\n"
 					"\t\t\t\tnew_sys_guid.............0x%016"
 					PRIx64 "\n",
 					cl_ntoh16(p_ntci->data_details.ntc_145.
@@ -1853,8 +1853,8 @@ osm_dump_dr_smp(IN osm_log_t * const p_log,
 
 		if (p_smp->mgmt_class == IB_MCLASS_SUBN_DIR) {
 			sprintf(line,
-				"\t\t\t\tdr_slid.................0x%X\n"
-				"\t\t\t\tdr_dlid.................0x%X\n",
+				"\t\t\t\tdr_slid.................%u\n"
+				"\t\t\t\tdr_dlid.................%u\n",
 				cl_ntoh16(p_smp->dr_slid),
 				cl_ntoh16(p_smp->dr_dlid)
 			    );

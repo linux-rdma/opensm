@@ -404,7 +404,7 @@ __osm_lr_rcv_get_end_points(IN osm_sa_t * sa,
 			   Return an error response to the client.
 			 */
 			OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
-				"No source port with LID = 0x%X\n",
+				"No source port with LID %u\n",
 				cl_ntoh16(p_lr->from_lid));
 
 			sa_status = IB_SA_MAD_STATUS_NO_RECORDS;
@@ -423,7 +423,7 @@ __osm_lr_rcv_get_end_points(IN osm_sa_t * sa,
 			   Return an error response to the client.
 			 */
 			OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
-				"No dest port with LID = 0x%X\n",
+				"No dest port with LID %u\n",
 				cl_ntoh16(p_lr->to_lid));
 
 			sa_status = IB_SA_MAD_STATUS_NO_RECORDS;

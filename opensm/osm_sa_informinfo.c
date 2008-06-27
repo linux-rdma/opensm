@@ -160,7 +160,7 @@ __validate_ports_access_rights(IN osm_sa_t * sa,
 			} else {
 				/* lid requested is out of range */
 				OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4302: "
-					"Given LID (0x%X) is out of range:0x%X\n",
+					"Given LID (%u) is out of range:%u\n",
 					lid, cl_ptr_vector_get_size(p_tbl));
 				valid = FALSE;
 				goto Exit;
@@ -457,7 +457,7 @@ osm_infr_rcv_process_set_method(IN osm_sa_t * sa,
 		cl_plock_release(sa->p_lock);
 
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4308 "
-			"Subscribe Request from unknown LID: 0x%04X\n",
+			"Subscribe Request from unknown LID: %u\n",
 			cl_ntoh16(p_madw->mad_addr.dest_lid));
 		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_REQ_INVALID);
 		goto Exit;

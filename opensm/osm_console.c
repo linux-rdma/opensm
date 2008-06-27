@@ -438,7 +438,7 @@ static void querylid_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 	if (!p_port)
 		goto invalid_lid;
 
-	fprintf(out, "Query results for LID %d\n", lid);
+	fprintf(out, "Query results for LID %u\n", lid);
 	fprintf(out,
 		"   GUID                : 0x%016" PRIx64 "\n"
 		"   Node Desc           : %s\n"

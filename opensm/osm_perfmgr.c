@@ -1113,7 +1113,7 @@ static void osm_pc_rcv_process(void *context, void *data)
 		ib_api_status_t status;
 
 		OSM_LOG(pm->log, OSM_LOG_VERBOSE,
-			"Redirection to LID 0x%x "
+			"Redirection to LID %u "
 			"GID 0x%016" PRIx64 " : 0x%016" PRIx64
 			" QP 0x%x received\n",
 			cl_ntoh16(cpi->redir_lid),

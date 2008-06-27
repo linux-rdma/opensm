@@ -94,8 +94,8 @@ static void pi_rcv_check_and_fix_lid(osm_log_t *log, ib_port_info_t * const pi,
 {
 	if (cl_ntoh16(pi->base_lid) > IB_LID_UCAST_END_HO) {
 		OSM_LOG(log, OSM_LOG_ERROR, "ERR 0F04: "
-			"Got invalid base LID 0x%x from the network. "
-			"Corrected to 0x%x.\n", cl_ntoh16(pi->base_lid),
+			"Got invalid base LID %u from the network. "
+			"Corrected to %u.\n", cl_ntoh16(pi->base_lid),
 			cl_ntoh16(p->port_info.base_lid));
 		pi->base_lid = p->port_info.base_lid;
 	}

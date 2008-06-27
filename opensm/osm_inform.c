@@ -323,8 +323,8 @@ static ib_api_status_t __osm_send_report(IN osm_infr_t * p_infr_rec,	/* the info
 
 	/* it is better to use LIDs since the GIDs might not be there for SMI traps */
 	OSM_LOG(p_log, OSM_LOG_DEBUG,
-		"Forwarding Notice Event from LID:0x%X"
-		" to InformInfo LID: 0x%X TID:0x%X\n",
+		"Forwarding Notice Event from LID:%u"
+		" to InformInfo LID: %u TID:0x%X\n",
 		cl_ntoh16(p_ntc->issuer_lid),
 		cl_ntoh16(p_infr_rec->report_addr.dest_lid), trap_fwd_trans_id);
 
@@ -422,7 +422,7 @@ __match_notice_to_inf_rec(IN cl_list_item_t * const p_list_item,
 			    || (cl_hton16(p_ntc->issuer_lid) >
 				cl_hton16(p_ii->lid_range_end))) {
 				OSM_LOG(p_log, OSM_LOG_DEBUG,
-					"Mismatch by LID Range. Needed: 0x%X <= 0x%X <= 0x%X\n",
+					"Mismatch by LID Range. Needed: %u <= %u <= %u\n",
 					cl_hton16(p_ii->lid_range_begin),
 					cl_hton16(p_ntc->issuer_lid),
 					cl_hton16(p_ii->lid_range_end)
@@ -519,7 +519,7 @@ __match_notice_to_inf_rec(IN cl_list_item_t * const p_list_item,
 			      cl_ntoh16(p_infr_rec->report_addr.dest_lid));
 	if (!p_dest_port) {
 		OSM_LOG(p_log, OSM_LOG_INFO,
-			"Cannot find destination port with LID:0x%04x\n",
+			"Cannot find destination port with LID:%u\n",
 			cl_ntoh16(p_infr_rec->report_addr.dest_lid));
 		goto Exit;
 	}
@@ -582,7 +582,7 @@ osm_report_notice(IN osm_log_t * const p_log,
 	if (ib_notice_is_generic(p_ntc)) {
 		OSM_LOG(p_log, OSM_LOG_INFO,
 			"Reporting Generic Notice type:%u num:%u"
-			" from LID:0x%04X GID:0x%016" PRIx64
+			" from LID:%u GID:0x%016" PRIx64
 			",0x%016" PRIx64 "\n",
 			ib_notice_get_type(p_ntc),
 			cl_ntoh16(p_ntc->g_or_v.generic.trap_num),
@@ -593,7 +593,7 @@ osm_report_notice(IN osm_log_t * const p_log,
 	} else {
 		OSM_LOG(p_log, OSM_LOG_INFO,
 			"Reporting Vendor Notice type:%u vend:%u dev:%u"
-			" from LID:0x%04X GID:0x%016" PRIx64
+			" from LID:%u GID:0x%016" PRIx64
 			",0x%016" PRIx64 "\n",
 			ib_notice_get_type(p_ntc),
 			cl_ntoh32(ib_notice_get_vend_id(p_ntc)),

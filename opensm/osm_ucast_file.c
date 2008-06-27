@@ -86,7 +86,7 @@ static void add_path(osm_opensm_t * p_osm,
 	if (old_port != OSM_NO_PATH && old_port != port_num) {
 		OSM_LOG(&p_osm->log, OSM_LOG_VERBOSE,
 			"LID collision is detected on switch "
-			"0x016%" PRIx64 ", will overwrite LID 0x%x entry\n",
+			"0x016%" PRIx64 ", will overwrite LID %u entry\n",
 			cl_ntoh64(osm_node_get_node_guid(p_sw->p_node)),
 			new_lid);
 	}

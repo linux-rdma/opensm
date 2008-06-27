@@ -310,7 +310,7 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 				goto Exit;
 			}
 			OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-				"Received SLID=0 Trap. Using local LID:0x%04X instead\n",
+				"Received SLID=0 Trap. Using local LID:%u instead\n",
 				cl_ntoh16(sm->p_subn->sm_base_lid)
 			    );
 			tmp_madw.mad_addr.addr_type.smi.source_lid =
@@ -328,7 +328,7 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 				CL_HTON16(131)))
 				OSM_LOG(sm->p_log, OSM_LOG_ERROR,
 					"Received Generic Notice type:0x%02X num:%u Producer:%u (%s) "
-					"from LID:0x%04X Port %d TID:0x%016"
+					"from LID:%u Port %d TID:0x%016"
 					PRIx64 "\n", ib_notice_get_type(p_ntci),
 					cl_ntoh16(p_ntci->g_or_v.generic.
 						  trap_num),
@@ -343,7 +343,7 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 			else
 				OSM_LOG(sm->p_log, OSM_LOG_ERROR,
 					"Received Generic Notice type:0x%02X num:%u Producer:%u (%s) "
-					"from LID:0x%04X TID:0x%016" PRIx64
+					"from LID:%u TID:0x%016" PRIx64
 					"\n", ib_notice_get_type(p_ntci),
 					cl_ntoh16(p_ntci->g_or_v.generic.
 						  trap_num),
@@ -357,7 +357,7 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 		} else
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR,
 				"Received Vendor Notice type:0x%02X vend:0x%06X dev:%u "
-				"from LID:0x%04X TID:0x%016" PRIx64 "\n",
+				"from LID:%u TID:0x%016" PRIx64 "\n",
 				ib_notice_get_type(p_ntci),
 				cl_ntoh32(ib_notice_get_vend_id(p_ntci)),
 				cl_ntoh16(p_ntci->g_or_v.vend.dev_id),
@@ -442,7 +442,7 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 				if (!p_physp)
 					OSM_LOG(sm->p_log, OSM_LOG_ERROR,
 						"ERR 3805: "
-						"Failed to find physical port by lid:0x%02X num:%u\n",
+						"Failed to find physical port by lid:%u num:%u\n",
 						cl_ntoh16(p_ntci->data_details.
 							  ntc_129_131.lid),
 						p_ntci->data_details.
@@ -465,7 +465,7 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 
 						OSM_LOG(sm->p_log, OSM_LOG_ERROR,
 							"ERR 3810: "
-							"Disabling physical port lid:0x%02X num:%u\n",
+							"Disabling physical port lid:%u num:%u\n",
 							cl_ntoh16(p_ntci->
 								  data_details.
 								  ntc_129_131.
@@ -524,7 +524,7 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 					}
 
 					OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
-						"Marking unhealthy physical port by lid:0x%02X num:%u\n",
+						"Marking unhealthy physical port by lid:%u num:%u\n",
 						cl_ntoh16(p_ntci->data_details.
 							  ntc_129_131.lid),
 						p_ntci->data_details.
@@ -640,7 +640,7 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 		    cl_ntoh16(source_lid)) {
 			/*  the source lid is out of range */
 			OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
-				"source lid is out of range:0x%X\n",
+				"source lid is out of range:%u\n",
 				cl_ntoh16(source_lid));
 
 			goto Exit;
@@ -649,7 +649,7 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 		if (p_port == 0) {
 			/* We have the lid - but no corresponding port */
 			OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
-				"Cannot find port corresponding to lid:0x%X\n",
+				"Cannot find port corresponding to lid:%u\n",
 				cl_ntoh16(source_lid));
 
 			goto Exit;

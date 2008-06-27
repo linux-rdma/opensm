@@ -135,7 +135,7 @@ __osm_nr_rcv_create_nr(IN osm_sa_t * sa,
 
 	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG)) {
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-			"Looking for NodeRecord with LID: 0x%X GUID:0x%016"
+			"Looking for NodeRecord with LID: %u GUID:0x%016"
 			PRIx64 "\n", cl_ntoh16(match_lid),
 			cl_ntoh64(match_port_guid)
 		    );
@@ -177,7 +177,7 @@ __osm_nr_rcv_create_nr(IN osm_sa_t * sa,
 			 */
 			if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG)) {
 				OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-					"Comparing LID: 0x%X <= 0x%X <= 0x%X\n",
+					"Comparing LID: %u <= %u <= %u\n",
 					base_lid_ho, match_lid_ho, max_lid_ho);
 			}
 

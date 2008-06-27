@@ -143,7 +143,7 @@ __osm_sir_rcv_create_sir(IN osm_sa_t * sa,
 
 	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG)) {
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-			"Looking for SwitchInfoRecord with LID: 0x%X\n",
+			"Looking for SwitchInfoRecord with LID: %u\n",
 			cl_ntoh16(match_lid)
 		    );
 	}
@@ -184,7 +184,7 @@ __osm_sir_rcv_create_sir(IN osm_sa_t * sa,
 		 */
 		if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG)) {
 			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-				"Comparing LID: 0x%X <= 0x%X <= 0x%X\n",
+				"Comparing LID: %u <= %u <= %u\n",
 				min_lid_ho, match_lid_ho, max_lid_ho);
 		}
 

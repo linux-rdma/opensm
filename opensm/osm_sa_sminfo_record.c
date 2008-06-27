@@ -252,7 +252,7 @@ void osm_smir_rcv_process(IN void *ctx, IN void *data)
 		if ((status != IB_SUCCESS) || (p_port == NULL)) {
 			status = IB_NOT_FOUND;
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2806: "
-				"No port found with LID 0x%x\n",
+				"No port found with LID %u\n",
 				cl_ntoh16(p_rcvd_rec->lid));
 		}
 	}

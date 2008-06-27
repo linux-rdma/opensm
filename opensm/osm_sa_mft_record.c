@@ -188,7 +188,7 @@ __osm_mftr_rcv_by_comp_mask(IN cl_map_item_t * const p_map_item,
 	/* compare the lids - if required */
 	if (comp_mask & IB_MFTR_COMPMASK_LID) {
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-			"Comparing lid:0x%02X to port lid range: 0x%02X .. 0x%02X\n",
+			"Comparing lid:%u to port lid range: %u .. %u\n",
 			cl_ntoh16(p_rcvd_rec->lid), min_lid_ho, max_lid_ho);
 		/* ok we are ready for range check */
 		if (min_lid_ho > cl_ntoh16(p_rcvd_rec->lid) ||

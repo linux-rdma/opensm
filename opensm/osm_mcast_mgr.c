@@ -466,7 +466,7 @@ __osm_mcast_mgr_subdivide(osm_sm_t * sm,
 				"Error routing MLID 0x%X through switch 0x%"
 				PRIx64 "\n"
 				"\t\t\t\tNo multicast paths from this switch for port "
-				"with LID 0x%X\n", mlid_ho, node_guid_ho,
+				"with LID %u\n", mlid_ho, node_guid_ho,
 				cl_ntoh16(osm_port_get_base_lid
 					  (p_wobj->p_port)));
 
@@ -481,7 +481,7 @@ __osm_mcast_mgr_subdivide(osm_sm_t * sm,
 				"Error routing MLID 0x%X through switch 0x%"
 				PRIx64 "\n"
 				"\t\t\t\tNo multicast paths from this switch to port "
-				"with LID 0x%X\n", mlid_ho, node_guid_ho,
+				"with LID %u\n", mlid_ho, node_guid_ho,
 				cl_ntoh16(osm_port_get_base_lid
 					  (p_wobj->p_port)));
 
@@ -567,7 +567,7 @@ static osm_mtree_node_t *__osm_mcast_mgr_branch(osm_sm_t * sm,
 
 	if (depth >= 64) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR,
-			"Maximal hops number is reached MLID 0x%x."
+			"Maximal hops number is reached for MLID 0x%x."
 			" Break processing.", mlid_ho);
 		__osm_mcast_mgr_purge_list(sm, p_list);
 		goto Exit;
