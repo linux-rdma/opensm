@@ -285,6 +285,8 @@ __osm_ucast_mgr_process_port(IN osm_ucast_mgr_t * const p_mgr,
 				"No path to get to LID %u from switch 0x%"
 				PRIx64 "\n", lid_ho, cl_ntoh64(node_guid));
 	} else {
+		osm_physp_t *p = osm_node_get_physp_ptr(p_sw->p_node, port);
+
 		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 			"Routing LID %u to port 0x%X"
 			" for switch 0x%" PRIx64 "\n",
@@ -294,9 +296,7 @@ __osm_ucast_mgr_process_port(IN osm_ucast_mgr_t * const p_mgr,
 		   we would like to optionally ignore this port in equalization
 		   as in the case of the Mellanox Anafa Internal PCI TCA port
 		 */
-		is_ignored_by_port_prof =
-		    osm_port_prof_is_ignored_port(p_mgr->p_subn,
-						  node_guid, port);
+		is_ignored_by_port_prof = p->is_prof_ignored;
 
 		/*
 		   We also would ignore this route if the target lid is of
@@ -722,20 +722,73 @@ static void add_port_to_order_list(cl_map_item_t * const p_map_item, void *ctx)
 		port->flag = 0;
 }
 
+static int mark_ignored_port(void *ctx, uint64_t guid, char *p)
+{
+	osm_ucast_mgr_t *m = ctx;
+	osm_node_t *node = osm_get_node_by_guid(m->p_subn, cl_hton64(guid));
+	osm_physp_t *physp;
+	unsigned port;
+
+	if (!node || !node->sw) {
+		OSM_LOG(m->p_log, OSM_LOG_DEBUG,
+			"switch with guid 0x%016" PRIx64 " is not found\n",
+			guid);
+		return 0;
+	}
+
+	if (!p || !*p || !(port = strtoul(p, NULL, 0)) ||
+	    port >= node->sw->num_ports) {
+		OSM_LOG(m->p_log, OSM_LOG_DEBUG,
+			"bad port specified for guid 0x%016" PRIx64 "\n", guid);
+		return 0;
+	}
+
+	physp = osm_node_get_physp_ptr(node, port);
+	if (!physp)
+		return 0;
+
+	physp->is_prof_ignored = 1;
+
+	return 0;
+}
+
+static void clear_prof_ignore_flag(cl_map_item_t * const p_map_item, void *ctx)
+{
+	osm_switch_t *sw = (osm_switch_t *)p_map_item;
+	int i;
+
+	for (i = 1; i < sw->num_ports; i++) {
+		osm_physp_t *p = osm_node_get_physp_ptr(sw->p_node, i);
+		if (p)
+			p->is_prof_ignored = 0;
+	}
+}
+
 static void ucast_mgr_build_lfts(osm_ucast_mgr_t *p_mgr)
 {
 	cl_qlist_init(&p_mgr->port_order_list);
 
 	if (p_mgr->p_subn->opt.guid_routing_order_file) {
 		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-			"Fetching guid routing order file %s\n",
+			"Fetching guid routing order file \'%s\'\n",
 			p_mgr->p_subn->opt.guid_routing_order_file);
 
 		if (parse_node_map(p_mgr->p_subn->opt.guid_routing_order_file,
 				   add_guid_to_order_list, p_mgr))
 			OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR : "
-				"cannot parse guid routing order file %s\n",
+				"cannot parse guid routing order file \'%s\'\n",
 				p_mgr->p_subn->opt.guid_routing_order_file);
+	}
+
+	if (p_mgr->p_subn->opt.port_prof_ignore_file) {
+		cl_qmap_apply_func(&p_mgr->p_subn->sw_guid_tbl,
+				   clear_prof_ignore_flag, NULL);
+		if (parse_node_map(p_mgr->p_subn->opt.port_prof_ignore_file,
+				   mark_ignored_port, p_mgr)) {
+			OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR : "
+				"cannot parse port prof ignore file \'%s\'\n",
+				p_mgr->p_subn->opt.port_prof_ignore_file);
+		}
 	}
 
 	cl_qmap_apply_func(&p_mgr->p_subn->port_guid_tbl,

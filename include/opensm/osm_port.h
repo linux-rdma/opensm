@@ -110,6 +110,7 @@ typedef struct osm_physp {
 	boolean_t healthy;
 	uint8_t vl_high_limit;
 	unsigned need_update;
+	unsigned is_prof_ignored;
 	osm_dr_path_t dr_path;
 	osm_pkey_tbl_t pkeys;
 	ib_vl_arb_table_t vl_arb[4];
@@ -151,6 +152,10 @@ typedef struct osm_physp {
 *	need_update
 *		When set indicates that port was probably reset and port
 *		related tables (PKey, SL2VL, VLArb) require refreshing.
+*
+*	is_prof_ignored
+*		When set indicates that switch port will be ignored by
+*		the link load equalization algorithm.
 *
 *	dr_path
 *		The directed route path to this port.
