@@ -223,11 +223,12 @@ osm_log_init_v2(IN osm_log_t * const p_log,
 *		immediately.  This severely degrades log performance,
 *		and is normally used for debugging only.
 *
-*  log_flags
-*     [in] The log verbosity level to be used.
+*	log_flags
+*		[in] The log verbosity level to be used.
 *
-*  log_file
-*     [in] if not NULL defines the name of the log file. Otherwise it is stdout.
+*	log_file
+*		[in] if not NULL defines the name of the log file. Otherwise
+*		it is stdout.
 *
 * RETURN VALUES
 *	CL_SUCCESS if the Log object was initialized
@@ -455,17 +456,17 @@ extern void osm_log_raw(IN osm_log_t * const p_log,
 *
 * DESCRIPTION
 *	The osm_is_debug function returns TRUE if the opensm was compiled
-*  in debug mode, and FALSE otherwise.
+*	in debug mode, and FALSE otherwise.
 *
 * SYNOPSIS
 */
 boolean_t osm_is_debug(void);
 /*
 * PARAMETERS
-*    None
+*	None
 *
 * RETURN VALUE
-*	  TRUE if compiled in debug version. FALSE otherwise.
+*	TRUE if compiled in debug version. FALSE otherwise.
 *
 * NOTES
 *
