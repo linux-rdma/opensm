@@ -93,8 +93,7 @@ __osm_lftr_rcv_new_lftr(IN osm_sa_t * sa,
 			"New LinearForwardingTable: sw 0x%016" PRIx64
 			"\n\t\t\t\tblock 0x%02X lid 0x%02X\n",
 			cl_ntoh64(osm_node_get_node_guid(p_sw->p_node)),
-			cl_ntoh16(block), cl_ntoh16(lid)
-		    );
+			cl_ntoh16(block), cl_ntoh16(lid));
 
 	memset(p_rec_item, 0, sizeof(*p_rec_item));
 
@@ -152,13 +151,11 @@ __osm_lftr_rcv_by_comp_mask(IN cl_map_item_t * const p_map_item,
 
 	/* In switches, the port guid is the node guid. */
 	p_port =
-	    __osm_lftr_get_port_by_guid(sa,
-					p_sw->p_node->node_info.port_guid);
+	    __osm_lftr_get_port_by_guid(sa, p_sw->p_node->node_info.port_guid);
 	if (!p_port) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4405: "
 			"Failed to find Port by Node Guid:0x%016" PRIx64
-			"\n", cl_ntoh64(p_sw->p_node->node_info.node_guid)
-		    );
+			"\n", cl_ntoh64(p_sw->p_node->node_info.node_guid));
 		return;
 	}
 
@@ -169,8 +166,7 @@ __osm_lftr_rcv_by_comp_mask(IN cl_map_item_t * const p_map_item,
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4406: "
 			"Failed to find default physical Port by Node Guid:0x%016"
 			PRIx64 "\n",
-			cl_ntoh64(p_sw->p_node->node_info.node_guid)
-		    );
+			cl_ntoh64(p_sw->p_node->node_info.node_guid));
 		return;
 	}
 	if (!osm_physp_share_pkey(sa->p_log, p_req_physp, p_physp))
