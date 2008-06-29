@@ -187,13 +187,14 @@ __osm_lftr_rcv_by_comp_mask(IN cl_map_item_t * const p_map_item,
 	}
 
 	/* now we need to decide which blocks to output */
+	max_block = osm_switch_get_max_block_id_in_use(p_sw);
 	if (comp_mask & IB_LFTR_COMPMASK_BLOCK) {
-		max_block = min_block = cl_ntoh16(p_rcvd_rec->block_num);
-	} else {
-		/* use as many blocks as "in use" */
+		min_block = cl_ntoh16(p_rcvd_rec->block_num);
+		if (min_block > max_block)
+			return;
+		max_block = min_block;
+	} else /* use as many blocks as "in use" */
 		min_block = 0;
-		max_block = osm_switch_get_max_block_id_in_use(p_sw);
-	}
 
 	/* so we can add these blocks one by one ... */
 	for (block = min_block; block <= max_block; block++)
