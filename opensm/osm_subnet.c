@@ -489,7 +489,11 @@ static void log_config_value(char *name, const char *fmt, ...)
 	unsigned n;
 	va_start(args, fmt);
 	n = snprintf(buf, sizeof(buf), " Loading Cached Option:%s = ", name);
+	if (n > sizeof(buf))
+		n = sizeof(buf);
 	n += vsnprintf(buf + n, sizeof(buf) - n, fmt, args);
+	if (n > sizeof(buf))
+		n = sizeof(buf);
 	snprintf(buf + n, sizeof(buf) - n, "\n");
 	va_end(args);
 	printf(buf);
