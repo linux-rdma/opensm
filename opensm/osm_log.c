@@ -236,7 +236,8 @@ void osm_log_msg_box(IN osm_log_t *log, osm_log_level_t level,
 		sprintf(buf + i, "*");
 	n += snprintf(buf + n, sizeof(buf) - n, " %s ", msg);
 	for (i = n; i < MSG_BOX_LENGTH; i++)
-		sprintf(buf + i, "*");
+		buf[i] = '*';
+	buf[i] = '\0';
 
 	osm_log(log, level, "%s:\n\n\n"
 		"*********************************************"

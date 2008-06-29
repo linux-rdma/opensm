@@ -2377,7 +2377,7 @@ static void __qos_parser_error(const char *format, ...)
     OSM_LOG_ENTER(p_qos_parser_osm_log);
 
     va_start(pvar, format);
-    vsnprintf(s, 256, format, pvar);
+    vsnprintf(s, sizeof(s), format, pvar);
     va_end(pvar);
 
     OSM_LOG(p_qos_parser_osm_log, OSM_LOG_ERROR, "ERR AC05: "
