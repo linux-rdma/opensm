@@ -107,7 +107,6 @@ void osm_log(IN osm_log_t * const p_log,
 	char buffer[LOG_ENTRY_SIZE_MAX];
 	va_list args;
 	int ret;
-
 #ifdef WIN32
 	SYSTEMTIME st;
 	uint32_t pid = GetCurrentThreadId();
@@ -117,11 +116,6 @@ void osm_log(IN osm_log_t * const p_log,
 	struct tm result;
 	uint64_t time_usecs;
 	uint32_t usecs;
-
-	time_usecs = cl_get_time_stamp();
-	tim = time_usecs / 1000000;
-	usecs = time_usecs % 1000000;
-	localtime_r(&tim, &result);
 #endif				/* WIN32 */
 
 	/* If this is a call to syslog - always print it */
@@ -165,6 +159,10 @@ _retry:
 		    st.wHour, st.wMinute, st.wSecond, st.wMilliseconds,
 		    pid, verbosity, buffer);
 #else
+	time_usecs = cl_get_time_stamp();
+	tim = time_usecs / 1000000;
+	usecs = time_usecs % 1000000;
+	localtime_r(&tim, &result);
 	pid = pthread_self();
 _retry:
 	ret =
