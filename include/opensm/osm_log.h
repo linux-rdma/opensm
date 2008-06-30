@@ -390,7 +390,10 @@ extern void osm_log_msg_box(osm_log_t *log, osm_log_level_t level,
 extern void osm_log_raw(IN osm_log_t * const p_log,
 	    IN const osm_log_level_t verbosity, IN const char *p_buf);
 
-#define OSM_LOG(log, level, fmt, arg...) osm_log(log, level, "%s: " fmt, __func__, ##arg)
+#define OSM_LOG(log, level, fmt, arg...) do { \
+		if (osm_log_is_active(log, (level))) \
+			osm_log(log, level, "%s: " fmt, __func__, ##arg); \
+	} while (0)
 
 #define DBG_CL_LOCK 0
 
