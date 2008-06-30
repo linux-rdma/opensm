@@ -73,7 +73,7 @@ static ib_api_status_t
 __osm_lftr_rcv_new_lftr(IN osm_sa_t * sa,
 			IN const osm_switch_t * const p_sw,
 			IN cl_qlist_t * const p_list,
-			IN ib_net16_t const lid, IN ib_net16_t const block)
+			IN ib_net16_t const lid, IN uint16_t const block)
 {
 	osm_lftr_item_t *p_rec_item;
 	ib_api_status_t status = IB_SUCCESS;
@@ -93,7 +93,7 @@ __osm_lftr_rcv_new_lftr(IN osm_sa_t * sa,
 			"New LinearForwardingTable: sw 0x%016" PRIx64
 			"\n\t\t\t\tblock 0x%02X lid 0x%02X\n",
 			cl_ntoh64(osm_node_get_node_guid(p_sw->p_node)),
-			cl_ntoh16(block), cl_ntoh16(lid));
+			block, cl_ntoh16(lid));
 
 	memset(p_rec_item, 0, sizeof(*p_rec_item));
 
@@ -101,8 +101,7 @@ __osm_lftr_rcv_new_lftr(IN osm_sa_t * sa,
 	p_rec_item->rec.block_num = block;
 
 	/* copy the lft block */
-	osm_switch_get_fwd_tbl_block(p_sw, cl_ntoh16(block),
-				     p_rec_item->rec.lft);
+	osm_switch_get_fwd_tbl_block(p_sw, block, p_rec_item->rec.lft);
 
 	cl_qlist_insert_tail(p_list, &p_rec_item->list_item);
 
@@ -173,14 +172,13 @@ __osm_lftr_rcv_by_comp_mask(IN cl_map_item_t * const p_map_item,
 		if (min_block > max_block)
 			return;
 		max_block = min_block;
-	} else /* use as many blocks as "in use" */
+	} else			/* use as many blocks as "in use" */
 		min_block = 0;
 
 	/* so we can add these blocks one by one ... */
 	for (block = min_block; block <= max_block; block++)
 		__osm_lftr_rcv_new_lftr(sa, p_sw, p_ctxt->p_list,
-					osm_port_get_base_lid(p_port),
-					cl_hton16(block));
+					osm_port_get_base_lid(p_port), block);
 }
 
 /**********************************************************************
