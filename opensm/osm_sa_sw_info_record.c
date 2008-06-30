@@ -89,8 +89,7 @@ __osm_sir_rcv_new_sir(IN osm_sa_t * sa,
 
 	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-			"New SwitchInfoRecord: lid 0x%X\n", cl_ntoh16(lid)
-		    );
+			"New SwitchInfoRecord: lid 0x%X\n", cl_ntoh16(lid));
 
 	memset(p_rec_item, 0, sizeof(*p_rec_item));
 
@@ -141,22 +140,18 @@ __osm_sir_rcv_create_sir(IN osm_sa_t * sa,
 
 	OSM_LOG_ENTER(sa->p_log);
 
-	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG)) {
+	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Looking for SwitchInfoRecord with LID: %u\n",
-			cl_ntoh16(match_lid)
-		    );
-	}
+			cl_ntoh16(match_lid));
 
 	/* In switches, the port guid is the node guid. */
 	p_port =
-	    __osm_sir_get_port_by_guid(sa,
-				       p_sw->p_node->node_info.port_guid);
+	    __osm_sir_get_port_by_guid(sa, p_sw->p_node->node_info.port_guid);
 	if (!p_port) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 530A: "
 			"Failed to find Port by Node Guid:0x%016" PRIx64
-			"\n", cl_ntoh64(p_sw->p_node->node_info.node_guid)
-		    );
+			"\n", cl_ntoh64(p_sw->p_node->node_info.node_guid));
 		goto Exit;
 	}
 
@@ -167,8 +162,7 @@ __osm_sir_rcv_create_sir(IN osm_sa_t * sa,
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 530B: "
 			"Failed to find default physical Port by Node Guid:0x%016"
 			PRIx64 "\n",
-			cl_ntoh64(p_sw->p_node->node_info.node_guid)
-		    );
+			cl_ntoh64(p_sw->p_node->node_info.node_guid));
 		goto Exit;
 	}
 	if (!osm_physp_share_pkey(sa->p_log, p_req_physp, p_physp))
@@ -182,19 +176,17 @@ __osm_sir_rcv_create_sir(IN osm_sa_t * sa,
 		/*
 		   We validate that the lid belongs to this switch.
 		 */
-		if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG)) {
+		if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
 			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 				"Comparing LID: %u <= %u <= %u\n",
 				min_lid_ho, match_lid_ho, max_lid_ho);
-		}
 
 		if (match_lid_ho < min_lid_ho || match_lid_ho > max_lid_ho)
 			goto Exit;
 
 	}
 
-	__osm_sir_rcv_new_sir(sa, p_sw, p_list,
-			      osm_port_get_base_lid(p_port));
+	__osm_sir_rcv_new_sir(sa, p_sw, p_list, osm_port_get_base_lid(p_port));
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);

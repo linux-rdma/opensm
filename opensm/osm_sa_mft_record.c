@@ -90,14 +90,12 @@ __osm_mftr_rcv_new_mftr(IN osm_sa_t * sa,
 		goto Exit;
 	}
 
-	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG)) {
+	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"New MulticastForwardingTable: sw 0x%016" PRIx64
 			"\n\t\t\t\tblock %u position %u lid 0x%02X\n",
 			cl_ntoh64(osm_node_get_node_guid(p_sw->p_node)),
-			block, position, cl_ntoh16(lid)
-		    );
-	}
+			block, position, cl_ntoh16(lid));
 
 	position_block_num = ((uint16_t) position << 12) |
 	    (block & IB_MCAST_BLOCK_ID_MASK_HO);
@@ -127,10 +125,9 @@ static osm_port_t *__osm_mftr_get_port_by_guid(IN osm_sa_t * sa,
 	CL_PLOCK_ACQUIRE(sa->p_lock);
 
 	p_port = osm_get_port_by_guid(sa->p_subn, port_guid);
-	if (!p_port) {
+	if (!p_port)
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "ERR 4A04: "
 			"Invalid port GUID 0x%016" PRIx64 "\n", port_guid);
-	}
 
 	CL_PLOCK_RELEASE(sa->p_lock);
 	return p_port;
@@ -158,13 +155,11 @@ __osm_mftr_rcv_by_comp_mask(IN cl_map_item_t * const p_map_item,
 
 	/* In switches, the port guid is the node guid. */
 	p_port =
-	    __osm_mftr_get_port_by_guid(sa,
-					p_sw->p_node->node_info.port_guid);
+	    __osm_mftr_get_port_by_guid(sa, p_sw->p_node->node_info.port_guid);
 	if (!p_port) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4A05: "
 			"Failed to find Port by Node Guid:0x%016" PRIx64
-			"\n", cl_ntoh64(p_sw->p_node->node_info.node_guid)
-		    );
+			"\n", cl_ntoh64(p_sw->p_node->node_info.node_guid));
 		return;
 	}
 
@@ -175,8 +170,7 @@ __osm_mftr_rcv_by_comp_mask(IN cl_map_item_t * const p_map_item,
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4A06: "
 			"Failed to find default physical Port by Node Guid:0x%016"
 			PRIx64 "\n",
-			cl_ntoh64(p_sw->p_node->node_info.node_guid)
-		    );
+			cl_ntoh64(p_sw->p_node->node_info.node_guid));
 		return;
 	}
 	if (!osm_physp_share_pkey(sa->p_log, p_req_physp, p_physp))
