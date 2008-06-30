@@ -920,7 +920,7 @@ static void __osm_state_mgr_check_tbl_consistency(IN osm_sm_t * sm)
 			 * with the new lid we wanted to give it in our
 			 * port_lid_tbl. */
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3322: "
-				"lid %u is wrongly assigned to port 0x%016"
+				"lid %zu is wrongly assigned to port 0x%016"
 				PRIx64 " (\'%s\' port %u) in port_lid_tbl\n",
 				lid,
 				cl_ntoh64(osm_port_get_guid(p_port_stored)),
@@ -933,7 +933,7 @@ static void __osm_state_mgr_check_tbl_consistency(IN osm_sm_t * sm)
 			 * original lid. */
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3323: "
 				"port 0x%016" PRIx64 " (\'%s\' port %u)"
-				" exists in new port_lid_tbl under lid %u,"
+				" exists in new port_lid_tbl under lid %zu,"
 				" but missing in subnet port_lid_tbl db\n",
 				cl_ntoh64(osm_port_get_guid(p_port_ref)),
 				p_port_ref->p_node->print_desc,
@@ -944,7 +944,7 @@ static void __osm_state_mgr_check_tbl_consistency(IN osm_sm_t * sm)
 			 * it didn't reach it, and p_port_ref also didn't get
 			 * the lid update. */
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3324: "
-				"lid %u has port 0x%016" PRIx64
+				"lid %zu has port 0x%016" PRIx64
 				" (\'%s\' port %u) in new port_lid_tbl db, "
 				"and port 0x%016" PRIx64 " (\'%s\' port %u)"
 				" in subnet port_lid_tbl db\n", lid,
