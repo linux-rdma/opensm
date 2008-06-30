@@ -117,24 +117,6 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-static osm_port_t *__osm_mftr_get_port_by_guid(IN osm_sa_t * sa,
-					       IN uint64_t port_guid)
-{
-	osm_port_t *p_port;
-
-	CL_PLOCK_ACQUIRE(sa->p_lock);
-
-	p_port = osm_get_port_by_guid(sa->p_subn, port_guid);
-	if (!p_port)
-		OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "ERR 4A04: "
-			"Invalid port GUID 0x%016" PRIx64 "\n", port_guid);
-
-	CL_PLOCK_RELEASE(sa->p_lock);
-	return p_port;
-}
-
-/**********************************************************************
- **********************************************************************/
 static void
 __osm_mftr_rcv_by_comp_mask(IN cl_map_item_t * const p_map_item,
 			    IN void *context)
@@ -155,7 +137,7 @@ __osm_mftr_rcv_by_comp_mask(IN cl_map_item_t * const p_map_item,
 
 	/* In switches, the port guid is the node guid. */
 	p_port =
-	    __osm_mftr_get_port_by_guid(sa, p_sw->p_node->node_info.port_guid);
+	    osm_get_port_by_guid(sa->p_subn, p_sw->p_node->node_info.port_guid);
 	if (!p_port) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4A05: "
 			"Failed to find Port by Node Guid:0x%016" PRIx64
