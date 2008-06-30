@@ -125,80 +125,79 @@ void osm_log(IN osm_log_t * const p_log,
 #endif				/* WIN32 */
 
 	/* If this is a call to syslog - always print it */
-	if (verbosity & (OSM_LOG_SYS | p_log->level)) {
-		va_start(args, p_str);
-		vsprintf(buffer, p_str, args);
-		va_end(args);
+	if (!(verbosity & (OSM_LOG_SYS | p_log->level)))
+		return;
 
-		/* this is a call to the syslog */
-		if (verbosity & OSM_LOG_SYS) {
-			syslog(LOG_INFO, "%s\n", buffer);
+	va_start(args, p_str);
+	vsprintf(buffer, p_str, args);
+	va_end(args);
 
-			/* SYSLOG should go to stdout too */
-			if (p_log->out_port != stdout) {
-				printf("%s\n", buffer);
-				fflush(stdout);
-			}
+	/* this is a call to the syslog */
+	if (verbosity & OSM_LOG_SYS) {
+		syslog(LOG_INFO, "%s\n", buffer);
+
+		/* SYSLOG should go to stdout too */
+		if (p_log->out_port != stdout) {
+			printf("%s\n", buffer);
+			fflush(stdout);
+		}
 #ifdef WIN32
-			OsmReportState(buffer);
+		OsmReportState(buffer);
 #endif				/* WIN32 */
-		}
+	}
 
-		/* regular log to default out_port */
-		cl_spinlock_acquire(&p_log->lock);
+	/* regular log to default out_port */
+	cl_spinlock_acquire(&p_log->lock);
 
-		if (p_log->max_size && p_log->count > p_log->max_size) {
-			/* truncate here */
-			fprintf(stderr,
-				"osm_log: log file exceeds the limit %lu. Truncating.\n",
-				p_log->max_size);
-			truncate_log_file(p_log);
-		}
+	if (p_log->max_size && p_log->count > p_log->max_size) {
+		/* truncate here */
+		fprintf(stderr,
+			"osm_log: log file exceeds the limit %lu. Truncating.\n",
+			p_log->max_size);
+		truncate_log_file(p_log);
+	}
 #ifdef WIN32
-		GetLocalTime(&st);
-	      _retry:
-		ret =
-		    fprintf(p_log->out_port,
-			    "[%02d:%02d:%02d:%03d][%04X] 0x%02x -> %s",
-			    st.wHour, st.wMinute, st.wSecond, st.wMilliseconds,
-			    pid, verbosity, buffer);
+	GetLocalTime(&st);
+_retry:
+	ret =
+	    fprintf(p_log->out_port,
+		    "[%02d:%02d:%02d:%03d][%04X] 0x%02x -> %s",
+		    st.wHour, st.wMinute, st.wSecond, st.wMilliseconds,
+		    pid, verbosity, buffer);
 #else
-		pid = pthread_self();
-	      _retry:
-		ret =
-		    fprintf(p_log->out_port,
-			    "%s %02d %02d:%02d:%02d %06d [%04X] 0x%02x -> %s",
-			    (result.tm_mon <
-			     12 ? month_str[result.tm_mon] : "???"),
-			    result.tm_mday, result.tm_hour, result.tm_min,
-			    result.tm_sec, usecs, pid, verbosity, buffer);
+	pid = pthread_self();
+_retry:
+	ret =
+	    fprintf(p_log->out_port,
+		    "%s %02d %02d:%02d:%02d %06d [%04X] 0x%02x -> %s",
+		    (result.tm_mon <
+		     12 ? month_str[result.tm_mon] : "???"),
+		    result.tm_mday, result.tm_hour, result.tm_min,
+		    result.tm_sec, usecs, pid, verbosity, buffer);
 #endif
 
-		/*  flush log */
-		if (ret > 0 &&
-		    (p_log->flush
-		     || (verbosity & (OSM_LOG_ERROR | OSM_LOG_SYS)))
-		    && fflush(p_log->out_port) < 0)
-			ret = -1;
+	/*  flush log */
+	if (ret > 0 &&
+	    (p_log->flush || (verbosity & (OSM_LOG_ERROR | OSM_LOG_SYS)))
+	    && fflush(p_log->out_port) < 0)
+		ret = -1;
 
-		if (ret >= 0) {
-			log_exit_count = 0;
-			p_log->count += ret;
-		} else if (log_exit_count < 3) {
-			log_exit_count++;
-			if (errno == ENOSPC && p_log->max_size) {
-				fprintf(stderr,
-					"osm_log: write failed: %s. Truncating log file.\n",
-					strerror(errno));
-				truncate_log_file(p_log);
-				goto _retry;
-			}
-			fprintf(stderr, "osm_log: write failed: %s\n",
+	if (ret >= 0) {
+		log_exit_count = 0;
+		p_log->count += ret;
+	} else if (log_exit_count < 3) {
+		log_exit_count++;
+		if (errno == ENOSPC && p_log->max_size) {
+			fprintf(stderr,
+				"osm_log: write failed: %s. Truncating log file.\n",
 				strerror(errno));
+			truncate_log_file(p_log);
+			goto _retry;
 		}
-
-		cl_spinlock_release(&p_log->lock);
+		fprintf(stderr, "osm_log: write failed: %s\n", strerror(errno));
 	}
+
+	cl_spinlock_release(&p_log->lock);
 }
 
 void osm_log_raw(IN osm_log_t * const p_log,
