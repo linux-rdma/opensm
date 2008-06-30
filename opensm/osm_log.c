@@ -101,9 +101,8 @@ static void truncate_log_file(osm_log_t * const p_log)
 }
 #endif				/* ndef WIN32 */
 
-void
-osm_log(IN osm_log_t * const p_log,
-	IN const osm_log_level_t verbosity, IN const char *p_str, ...)
+void osm_log(IN osm_log_t * const p_log,
+	     IN const osm_log_level_t verbosity, IN const char *p_str, ...)
 {
 	char buffer[LOG_ENTRY_SIZE_MAX];
 	va_list args;
@@ -160,9 +159,9 @@ osm_log(IN osm_log_t * const p_log,
 	      _retry:
 		ret =
 		    fprintf(p_log->out_port,
-			    "[%02d:%02d:%02d:%03d][%04X] 0x%02x -> %s", st.wHour,
-			    st.wMinute, st.wSecond, st.wMilliseconds, pid,
-			    verbosity, buffer);
+			    "[%02d:%02d:%02d:%03d][%04X] 0x%02x -> %s",
+			    st.wHour, st.wMinute, st.wSecond, st.wMilliseconds,
+			    pid, verbosity, buffer);
 #else
 		pid = pthread_self();
 	      _retry:
@@ -202,9 +201,8 @@ osm_log(IN osm_log_t * const p_log,
 	}
 }
 
-void
-osm_log_raw(IN osm_log_t * const p_log,
-	    IN const osm_log_level_t verbosity, IN const char *p_buf)
+void osm_log_raw(IN osm_log_t * const p_log,
+		 IN const osm_log_level_t verbosity, IN const char *p_buf)
 {
 	if (p_log->level & verbosity) {
 		cl_spinlock_acquire(&p_log->lock);
@@ -219,7 +217,7 @@ osm_log_raw(IN osm_log_t * const p_log,
 	}
 }
 
-void osm_log_msg_box(IN osm_log_t *log, osm_log_level_t level,
+void osm_log_msg_box(IN osm_log_t * log, osm_log_level_t level,
 		     const char *func_name, const char *msg)
 {
 #define MSG_BOX_LENGTH 66
@@ -229,10 +227,10 @@ void osm_log_msg_box(IN osm_log_t *log, osm_log_level_t level,
 	if (!osm_log_is_active(log, level))
 		return;
 
-	n = (MSG_BOX_LENGTH - strlen(msg))/2 - 1;
+	n = (MSG_BOX_LENGTH - strlen(msg)) / 2 - 1;
 	if (n < 0)
 		n = 0;
-	for (i = 0 ; i < n; i++)
+	for (i = 0; i < n; i++)
 		sprintf(buf + i, "*");
 	n += snprintf(buf + n, sizeof(buf) - n, " %s ", msg);
 	for (i = n; i < MSG_BOX_LENGTH; i++)
@@ -304,13 +302,12 @@ int osm_log_reopen_file(osm_log_t * p_log)
 	return ret;
 }
 
-ib_api_status_t
-osm_log_init_v2(IN osm_log_t * const p_log,
-		IN const boolean_t flush,
-		IN const uint8_t log_flags,
-		IN const char *log_file,
-		IN const unsigned long max_size,
-		IN const boolean_t accum_log_file)
+ib_api_status_t osm_log_init_v2(IN osm_log_t * const p_log,
+				IN const boolean_t flush,
+				IN const uint8_t log_flags,
+				IN const char *log_file,
+				IN const unsigned long max_size,
+				IN const boolean_t accum_log_file)
 {
 	p_log->level = log_flags;
 	p_log->flush = flush;
@@ -335,11 +332,11 @@ osm_log_init_v2(IN osm_log_t * const p_log,
 		return IB_ERROR;
 }
 
-ib_api_status_t
-osm_log_init(IN osm_log_t * const p_log,
-	     IN const boolean_t flush,
-	     IN const uint8_t log_flags,
-	     IN const char *log_file, IN const boolean_t accum_log_file)
+ib_api_status_t osm_log_init(IN osm_log_t * const p_log,
+			     IN const boolean_t flush,
+			     IN const uint8_t log_flags,
+			     IN const char *log_file,
+			     IN const boolean_t accum_log_file)
 {
 	return osm_log_init_v2(p_log, flush, log_flags, log_file, 0,
 			       accum_log_file);
