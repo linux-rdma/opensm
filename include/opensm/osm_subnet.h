@@ -574,10 +574,10 @@ typedef struct osm_subn {
 *		- Set to FALSE upon end of all lft assignments.
 *
 *	subnet_initalization_error
-*		Similar to the force_immediate_heavy_sweep flag. If TRUE -
-*		means that we had errors during initialization (due to SubnSet
-*		requests that failed). We want to declare the subnet as
-*		unhealthy, and force another heavy sweep.
+*		Similar to the force_heavy_sweep flag. If TRUE - means that
+*		we had errors during initialization (due to SubnSet requests
+*		that failed). We want to declare the subnet as unhealthy, and
+*		force another heavy sweep.
 *
 *	force_heavy_sweep
 *		If TRUE - we want to force a heavy sweep. This can be done
