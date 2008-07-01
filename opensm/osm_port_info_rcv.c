@@ -314,7 +314,7 @@ __osm_pi_rcv_process_switch_port(IN osm_sm_t * sm,
 		p_node->sw->need_update = 0;
 
 	if (p_physp->need_update)
-		sm->p_subn->ignore_existing_lfts = 1;
+		sm->p_subn->ignore_existing_lfts = TRUE;
 
 	if (port_num == 0)
 		pi_rcv_check_and_fix_lid(sm->p_log, p_pi, p_physp);
@@ -562,8 +562,8 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 			"GUID 0x%" PRIx64 " port 0x%016" PRIx64
 			", Commencing heavy sweep\n",
 			cl_ntoh64(node_guid), cl_ntoh64(port_guid));
-		sm->p_subn->force_heavy_sweep = 1;
-		sm->p_subn->ignore_existing_lfts = 1;
+		sm->p_subn->force_heavy_sweep = TRUE;
+		sm->p_subn->ignore_existing_lfts = TRUE;
 		goto Exit;
 	}
 

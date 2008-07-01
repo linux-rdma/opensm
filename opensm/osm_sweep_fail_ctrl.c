@@ -60,7 +60,7 @@ static void __osm_sweep_fail_ctrl_disp_callback(IN void *context,
 	/*
 	   Notify the state manager that we had a light sweep failure.
 	 */
-	p_ctrl->sm->p_subn->force_heavy_sweep = 1;
+	p_ctrl->sm->p_subn->force_heavy_sweep = TRUE;
 
 	OSM_LOG_EXIT(p_ctrl->sm->p_log);
 }

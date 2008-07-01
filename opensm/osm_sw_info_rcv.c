@@ -516,7 +516,7 @@ void osm_si_rcv_process(IN void *context, IN void *data)
 			/* we might get back a request for signaling change was detected */
 			if (__osm_si_rcv_process_existing(sm, p_node, p_madw)) {
 				CL_PLOCK_RELEASE(sm->p_lock);
-				sm->p_subn->force_heavy_sweep = 1;
+				sm->p_subn->force_heavy_sweep = TRUE;
 				goto Exit;
 			}
 		}
