@@ -29,7 +29,3 @@ dist-hook: $(EXTRA_DIST)
 	if [ -x $(top_srcdir)/../gen_chlog.sh ] ; then \
 		$(top_srcdir)/../gen_chlog.sh $(PACKAGE) > $(distdir)/ChangeLog ; \
 	fi
-	if [ -x $(top_srcdir)/../gen_ver.sh ] ; then \
-		ver=`$(top_srcdir)/../gen_ver.sh $(PACKAGE)` ; \
-		sed -e '/AC_INIT/s/$(PACKAGE), .*,/$(PACKAGE), '$$ver',/' $(top_srcdir)/configure.in > $(distdir)/configure.in ; \
-	fi
