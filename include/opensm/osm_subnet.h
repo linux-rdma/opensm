@@ -491,6 +491,7 @@ typedef struct osm_subn {
 	boolean_t ignore_existing_lfts;
 	boolean_t subnet_initialization_error;
 	boolean_t force_heavy_sweep;
+	boolean_t force_reroute;
 	boolean_t in_sweep_hop_0;
 	boolean_t first_time_master_sweep;
 	boolean_t coming_out_of_standby;
@@ -586,6 +587,10 @@ typedef struct osm_subn {
 *		In this case we want to sweep and reconfigure the entire
 *		subnet. This will cause another heavy sweep to occure when
 *		the current sweep is done.
+*
+*	force_reroute
+*		If TRUE - we want to force switches in the fabric to be
+*		rerouted.
 *
 *	in_sweep_hop_0
 *		When in_sweep_hop_0 flag is set to TRUE - this means we are

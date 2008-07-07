@@ -132,6 +132,14 @@ static void help_resweep(FILE * out, int detail)
 	fprintf(out, "resweep [heavy|light]\n");
 }
 
+static void help_reroute(FILE * out, int detail)
+{
+	fprintf(out, "reroute\n");
+	if (detail) {
+		fprintf(out, "reroute the fabric\n");
+	}
+}
+
 static void help_status(FILE * out, int detail)
 {
 	fprintf(out, "status [loop]\n");
@@ -410,6 +418,12 @@ static void resweep_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 			p_osm->subn.force_heavy_sweep = TRUE;
 		osm_opensm_sweep(p_osm);
 	}
+}
+
+static void reroute_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
+{
+	p_osm->subn.force_reroute = TRUE;
+	osm_opensm_sweep(p_osm);
 }
 
 static void logflush_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
@@ -1148,6 +1162,7 @@ static const struct command console_cmds[] = {
 	{"loglevel", &help_loglevel, &loglevel_parse},
 	{"priority", &help_priority, &priority_parse},
 	{"resweep", &help_resweep, &resweep_parse},
+	{"reroute", &help_reroute, &reroute_parse},
 	{"status", &help_status, &status_parse},
 	{"logflush", &help_logflush, &logflush_parse},
 	{"querylid", &help_querylid, &querylid_parse},

@@ -1020,6 +1020,7 @@ static void do_sweep(osm_sm_t * sm)
 	    && sm->p_subn->sm_state != IB_SMINFO_STATE_DISCOVERING
 	    && sm->p_subn->opt.force_heavy_sweep == FALSE
 	    && sm->p_subn->force_heavy_sweep == FALSE
+	    && sm->p_subn->force_reroute == FALSE
 	    && sm->p_subn->subnet_initialization_error == FALSE
 	    && (__osm_state_mgr_light_sweep_start(sm) == IB_SUCCESS)) {
 		if (wait_for_pending_transactions(&sm->p_subn->p_osm->stats))
@@ -1031,11 +1032,43 @@ static void do_sweep(osm_sm_t * sm)
 		}
 	}
 
+	/*
+	 * If we don't need to do a heavy sweep and we want to do a reroute,
+	 * just reroute only.
+	 */
+	if (cl_qmap_count(&sm->p_subn->sw_guid_tbl)
+	    && sm->p_subn->sm_state != IB_SMINFO_STATE_DISCOVERING
+	    && sm->p_subn->opt.force_heavy_sweep == FALSE
+	    && sm->p_subn->force_heavy_sweep == FALSE
+	    && sm->p_subn->force_reroute == TRUE
+	    && sm->p_subn->subnet_initialization_error == FALSE) {
+		/* Reset flag */
+		sm->p_subn->force_reroute = FALSE;
+
+		/* Re-program the switches fully */
+		sm->p_subn->ignore_existing_lfts = TRUE;
+
+		osm_ucast_mgr_process(&sm->ucast_mgr);
+
+		/* Reset flag */
+		sm->p_subn->ignore_existing_lfts = FALSE;
+
+		if (wait_for_pending_transactions(&sm->p_subn->p_osm->stats))
+			return;
+
+		if (!sm->p_subn->subnet_initialization_error) {
+			osm_log_msg_box(sm->p_log, OSM_LOG_VERBOSE,
+					__FUNCTION__, "REROUTE COMPLETE");
+			return;
+		}
+	}
+
 	/* go to heavy sweep */
 _repeat_discovery:
 
 	/* First of all - unset all flags */
 	sm->p_subn->force_heavy_sweep = FALSE;
+	sm->p_subn->force_reroute = FALSE;
 	sm->p_subn->subnet_initialization_error = FALSE;
 
 	/* rescan configuration updates */
