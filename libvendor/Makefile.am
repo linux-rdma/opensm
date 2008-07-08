@@ -88,14 +88,3 @@ libosmvendorinclude_HEADERS = $(HDRS)
 
 # headers are distributed as part of the include dir
 EXTRA_DIST = $(srcdir)/libosmvendor.map $(srcdir)/libosmvendor.ver
-
-# as we can not use libtool -release since it actually changes the SONAME
-# to the full release name instead of keeping it to the original
-# name. What we can do it create a link to the installed file such
-# that it will mark it with an alias...
-# we find the new lib by traversing the links
-install-exec-hook:
-	if test -L $(DESTDIR)/$(libdir)/libosmvendor-$(VERSION).so; then rm $(DESTDIR)/$(libdir)/libosmvendor-$(VERSION).so; fi; \
-	lname=`\ls -l $(DESTDIR)/$(libdir)/libosmvendor.so | awk '{print $$NF}'`; \
-	ln -s $$lname $(DESTDIR)/$(libdir)/libosmvendor_$(with_osmv).so; \
-	ln -s $$lname $(DESTDIR)/$(libdir)/libosmvendor-$(VERSION).so

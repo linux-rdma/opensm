@@ -119,16 +119,6 @@ EXTRA_DIST = $(srcdir)/libopensm.map $(srcdir)/libopensm.ver \
 	     $(srcdir)/ChangeLog \
 	     $(srcdir)/osm_qos_parser.y $(srcdir)/osm_qos_parser.l
 
-# as we can not use libtool -release since it actually changes the SONAME
-# to the full release name instead of keeping it to the original
-# name. What we can do it create a link to the installed file such
-# that it will mark it with an alias...
-# we find the new lib by traversing the links
-install-exec-hook:
-	if test -L $(DESTDIR)/$(libdir)/libopensm-$(VERSION).so; then rm $(DESTDIR)/$(libdir)/libopensm-$(VERSION).so; fi; \
-	lname=`\ls -l $(DESTDIR)/$(libdir)/libopensm.so | awk '{print $$NF}'`; \
-	ln -s $$lname $(DESTDIR)/$(libdir)/libopensm-$(VERSION).so
-
 # generate c and h files from the lex and yacc files
 dist-hook: $(srcdir)/osm_qos_parser_y.c $(srcdir)/osm_qos_parser_l.c
 
