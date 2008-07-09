@@ -1049,11 +1049,12 @@ static void subn_verify_conf_file(IN osm_subn_opt_t * const p_opts)
 	if (strcmp(p_opts->console, OSM_DISABLE_CONSOLE)
 	    && strcmp(p_opts->console, OSM_LOCAL_CONSOLE)
 #ifdef ENABLE_OSM_CONSOLE_SOCKET
+	    && strcmp(p_opts->console, OSM_LOOPBACK_CONSOLE)
 	    && strcmp(p_opts->console, OSM_REMOTE_CONSOLE)
 #endif
 	    ) {
 		sprintf(buff, " Invalid Cached Option Value:console = %s"
-			"Using Default:%s\n",
+			", Using Default:%s\n",
 			p_opts->console, OSM_DEFAULT_CONSOLE);
 		printf(buff);
 		cl_log_event("OpenSM", CL_LOG_INFO, buff, NULL, 0);
@@ -1688,7 +1689,7 @@ int osm_subn_write_conf_file(char *file_name, IN osm_subn_opt_t *const p_opts)
 		"# If TRUE opensm will exit on fatal initialization issues\n"
 		"exit_on_fatal %s\n\n" "# console [off|local"
 #ifdef ENABLE_OSM_CONSOLE_SOCKET
-		"|socket]\n"
+		"|loopback|socket]\n"
 #else
 		"]\n"
 #endif
