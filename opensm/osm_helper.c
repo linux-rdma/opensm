@@ -731,9 +731,9 @@ osm_dump_port_info(IN osm_log_t * const p_log,
 		   IN const ib_port_info_t * const p_pi,
 		   IN const osm_log_level_t log_level)
 {
-	char buf[BUF_SIZE];
-
 	if (osm_log_is_active(p_log, log_level)) {
+		char buf[BUF_SIZE];
+
 		osm_log(p_log, log_level,
 			"PortInfo dump:\n"
 			"\t\t\t\tport number.............0x%X\n"
@@ -818,10 +818,10 @@ osm_dump_portinfo_record(IN osm_log_t * const p_log,
 			 IN const ib_portinfo_record_t * const p_pir,
 			 IN const osm_log_level_t log_level)
 {
-	char buf[BUF_SIZE];
-	const ib_port_info_t *const p_pi = &p_pir->port_info;
-
 	if (osm_log_is_active(p_log, log_level)) {
+		char buf[BUF_SIZE];
+		const ib_port_info_t *const p_pi = &p_pir->port_info;
+
 		osm_log(p_log, log_level,
 			"PortInfo Record dump:\n"
 			"\t\t\t\tRID\n"
@@ -906,9 +906,9 @@ osm_dump_guidinfo_record(IN osm_log_t * const p_log,
 			 IN const ib_guidinfo_record_t * const p_gir,
 			 IN const osm_log_level_t log_level)
 {
-	const ib_guid_info_t *const p_gi = &p_gir->guid_info;
-
 	if (osm_log_is_active(p_log, log_level)) {
+		const ib_guid_info_t *const p_gi = &p_gir->guid_info;
+
 		osm_log(p_log, log_level,
 			"GUIDInfo Record dump:\n"
 			"\t\t\t\tRID\n"
@@ -935,8 +935,7 @@ osm_dump_guidinfo_record(IN osm_log_t * const p_log,
 			cl_ntoh64(p_gi->guid[3]),
 			cl_ntoh64(p_gi->guid[4]),
 			cl_ntoh64(p_gi->guid[5]),
-			cl_ntoh64(p_gi->guid[6]), cl_ntoh64(p_gi->guid[7])
-		    );
+			cl_ntoh64(p_gi->guid[6]), cl_ntoh64(p_gi->guid[7]));
 	}
 }
 
@@ -974,8 +973,7 @@ osm_dump_node_info(IN osm_log_t * const p_log,
 			cl_ntoh16(p_ni->device_id),
 			cl_ntoh32(p_ni->revision),
 			ib_node_info_get_local_port_num(p_ni),
-			cl_ntoh32(ib_node_info_get_vendor_id(p_ni))
-		    );
+			cl_ntoh32(ib_node_info_get_vendor_id(p_ni)));
 	}
 }
 
@@ -986,10 +984,9 @@ osm_dump_node_record(IN osm_log_t * const p_log,
 		     IN const ib_node_record_t * const p_nr,
 		     IN const osm_log_level_t log_level)
 {
-	const ib_node_info_t *const p_ni = &p_nr->node_info;
-
 	if (osm_log_is_active(p_log, log_level)) {
 		char desc[sizeof(p_nr->node_desc.description) + 1];
+		const ib_node_info_t *const p_ni = &p_nr->node_info;
 
 		memcpy(desc, p_nr->node_desc.description,
 		       sizeof(p_nr->node_desc.description));
@@ -1080,8 +1077,7 @@ osm_dump_path_record(IN osm_log_t * const p_log,
 			p_pr->pkt_life,
 			p_pr->preference,
 			*(uint32_t *) & p_pr->resv2,
-			*((uint16_t *) & p_pr->resv2 + 2)
-		    );
+			*((uint16_t *) & p_pr->resv2 + 2));
 	}
 }
 
@@ -1092,13 +1088,11 @@ osm_dump_multipath_record(IN osm_log_t * const p_log,
 			  IN const ib_multipath_rec_t * const p_mpr,
 			  IN const osm_log_level_t log_level)
 {
-	char buf_line[1024];
-	ib_gid_t const *p_gid;
-	int i, n;
-
 	if (osm_log_is_active(p_log, log_level)) {
-		n = 0;
-		p_gid = p_mpr->gids;
+		char buf_line[1024];
+		ib_gid_t const *p_gid = p_mpr->gids;
+		int i, n = 0;
+
 		if (p_mpr->sgid_count) {
 			for (i = 0; i < p_mpr->sgid_count; i++) {
 				n += sprintf(buf_line + n,
@@ -1296,8 +1290,7 @@ osm_dump_service_record(IN osm_log_t * const p_log,
 			cl_ntoh32(p_sr->service_data32[2]),
 			cl_ntoh32(p_sr->service_data32[3]),
 			cl_ntoh64(p_sr->service_data64[0]),
-			cl_ntoh64(p_sr->service_data64[1])
-		    );
+			cl_ntoh64(p_sr->service_data64[1]));
 	}
 }
 
@@ -1308,15 +1301,13 @@ osm_dump_inform_info(IN osm_log_t * const p_log,
 		     IN const ib_inform_info_t * const p_ii,
 		     IN const osm_log_level_t log_level)
 {
-	uint32_t qpn;
-	uint8_t resp_time_val;
-
 	if (osm_log_is_active(p_log, log_level)) {
+		uint32_t qpn;
+		uint8_t resp_time_val;
 
 		ib_inform_info_get_qpn_resp_time(p_ii->g_or_v.generic.
 						 qpn_resp_time_val, &qpn,
 						 &resp_time_val);
-
 		if (p_ii->is_generic) {
 			osm_log(p_log, log_level,
 				"InformInfo dump:\n"
@@ -1339,8 +1330,7 @@ osm_dump_inform_info(IN osm_log_t * const p_log,
 				cl_ntoh16(p_ii->trap_type),
 				cl_ntoh16(p_ii->g_or_v.generic.trap_num),
 				cl_ntoh32(qpn), resp_time_val,
-				cl_ntoh32(ib_inform_info_get_prod_type(p_ii))
-			    );
+				cl_ntoh32(ib_inform_info_get_prod_type(p_ii)));
 		} else {
 			osm_log(p_log, log_level,
 				"InformInfo dump:\n"
@@ -1363,8 +1353,7 @@ osm_dump_inform_info(IN osm_log_t * const p_log,
 				cl_ntoh16(p_ii->trap_type),
 				cl_ntoh16(p_ii->g_or_v.vend.dev_id),
 				cl_ntoh32(qpn), resp_time_val,
-				cl_ntoh32(ib_inform_info_get_prod_type(p_ii))
-			    );
+				cl_ntoh32(ib_inform_info_get_prod_type(p_ii)));
 		}
 	}
 }
@@ -1385,7 +1374,6 @@ osm_dump_inform_info_record(IN osm_log_t * const p_log,
 		ib_inform_info_get_qpn_resp_time(p_iir->inform_info.g_or_v.
 						 generic.qpn_resp_time_val,
 						 &qpn, &resp_time_val);
-
 		if (p_iir->inform_info.is_generic) {
 			osm_log(p_log, log_level,
 				"InformInfo Record dump:\n"
@@ -1417,8 +1405,7 @@ osm_dump_inform_info_record(IN osm_log_t * const p_log,
 					  trap_num), cl_ntoh32(qpn),
 				resp_time_val,
 				cl_ntoh32(ib_inform_info_get_prod_type
-					  (&p_iir->inform_info))
-			    );
+					  (&p_iir->inform_info)));
 		} else {
 			osm_log(p_log, log_level,
 				"InformInfo Record dump:\n"
@@ -1450,8 +1437,7 @@ osm_dump_inform_info_record(IN osm_log_t * const p_log,
 					  dev_id), cl_ntoh32(qpn),
 				resp_time_val,
 				cl_ntoh32(ib_inform_info_get_prod_type
-					  (&p_iir->inform_info))
-			    );
+					  (&p_iir->inform_info)));
 		}
 	}
 }
@@ -1473,8 +1459,7 @@ osm_dump_link_record(IN osm_log_t * const p_log,
 			"",
 			cl_ntoh16(p_lr->from_lid),
 			p_lr->from_port_num,
-			p_lr->to_port_num, cl_ntoh16(p_lr->to_lid)
-		    );
+			p_lr->to_port_num, cl_ntoh16(p_lr->to_lid));
 	}
 }
 
@@ -1563,10 +1548,10 @@ osm_dump_pkey_block(IN osm_log_t * const p_log,
 		    IN const ib_pkey_table_t * const p_pkey_tbl,
 		    IN const osm_log_level_t log_level)
 {
-	char buf_line[1024];
-	int i, n;
-
 	if (osm_log_is_active(p_log, log_level)) {
+		char buf_line[1024];
+		int i, n;
+
 		for (i = 0, n = 0; i < 32; i++)
 			n += sprintf(buf_line + n, " 0x%04x |",
 				     cl_ntoh16(p_pkey_tbl->pkey_entry[i]));
@@ -1590,12 +1575,11 @@ osm_dump_slvl_map_table(IN osm_log_t * const p_log,
 			IN const ib_slvl_table_t * const p_slvl_tbl,
 			IN const osm_log_level_t log_level)
 {
-	char buf_line1[1024];
-	char buf_line2[1024];
-	int n;
-	uint8_t i;
-
 	if (osm_log_is_active(p_log, log_level)) {
+		char buf_line1[1024], buf_line2[1024];
+		int n;
+		uint8_t i;
+
 		for (i = 0, n = 0; i < 16; i++)
 			n += sprintf(buf_line1 + n, " %-2u |", i);
 		for (i = 0, n = 0; i < 16; i++)
@@ -1621,11 +1605,10 @@ osm_dump_vl_arb_table(IN osm_log_t * const p_log,
 		      IN const ib_vl_arb_table_t * const p_vla_tbl,
 		      IN const osm_log_level_t log_level)
 {
-	char buf_line1[1024];
-	char buf_line2[1024];
-	int i, n;
-
 	if (osm_log_is_active(p_log, log_level)) {
+		char buf_line1[1024], buf_line2[1024];
+		int i, n;
+
 		for (i = 0, n = 0; i < 32; i++)
 			n += sprintf(buf_line1 + n, " 0x%01X |",
 				     p_vla_tbl->vl_entry[i].vl);
@@ -1661,8 +1644,7 @@ osm_dump_sm_info(IN osm_log_t * const p_log,
 			cl_ntoh64(p_smi->sm_key),
 			cl_ntoh32(p_smi->act_count),
 			ib_sminfo_get_priority(p_smi),
-			ib_sminfo_get_state(p_smi)
-		    );
+			ib_sminfo_get_state(p_smi));
 	}
 }
 
@@ -1692,8 +1674,7 @@ osm_dump_sm_info_record(IN osm_log_t * const p_log,
 			cl_ntoh64(p_smir->sm_info.sm_key),
 			cl_ntoh32(p_smir->sm_info.act_count),
 			ib_sminfo_get_priority(&p_smir->sm_info),
-			ib_sminfo_get_state(&p_smir->sm_info)
-		    );
+			ib_sminfo_get_state(&p_smir->sm_info));
 	}
 }
 
@@ -1704,11 +1685,11 @@ osm_dump_notice(IN osm_log_t * const p_log,
 		IN const ib_mad_notice_attr_t * p_ntci,
 		IN const osm_log_level_t log_level)
 {
-	char buff[1024];
-	buff[0] = '\0';
-
 	if (osm_log_is_active(p_log, log_level)) {
 		if (ib_notice_is_generic(p_ntci)) {
+			char buff[1024];
+			buff[0] = '\0';
+
 			/* immediate data based on the trap */
 			switch (cl_ntoh16(p_ntci->g_or_v.generic.trap_num)) {
 			case 64:
@@ -1766,8 +1747,7 @@ osm_dump_notice(IN osm_log_t * const p_log,
 				"Generic Notice dump:\n"
 				"\t\t\t\ttype.....................0x%02X\n"
 				"\t\t\t\tprod_type................%u (%s)\n"
-				"\t\t\t\ttrap_num.................%u\n%s"
-				"",
+				"\t\t\t\ttrap_num.................%u\n%s",
 				ib_notice_get_type(p_ntci),
 				cl_ntoh32(ib_notice_get_prod_type(p_ntci)),
 				ib_get_producer_type_str(ib_notice_get_prod_type
@@ -1779,12 +1759,10 @@ osm_dump_notice(IN osm_log_t * const p_log,
 				"Vendor Notice dump:\n"
 				"\t\t\t\ttype.....................0x%04x\n"
 				"\t\t\t\tvendor...................%u\n"
-				"\t\t\t\tdevice_id................%u\n"
-				"",
+				"\t\t\t\tdevice_id................%u\n",
 				cl_ntoh16(ib_notice_get_type(p_ntci)),
 				cl_ntoh32(ib_notice_get_vend_id(p_ntci)),
-				cl_ntoh16(p_ntci->g_or_v.vend.dev_id)
-			    );
+				cl_ntoh16(p_ntci->g_or_v.vend.dev_id));
 		}
 	}
 }
@@ -1796,11 +1774,10 @@ osm_dump_dr_smp(IN osm_log_t * const p_log,
 		IN const ib_smp_t * const p_smp,
 		IN const osm_log_level_t log_level)
 {
-	uint32_t i;
-	char buf[BUF_SIZE];
-	char line[BUF_SIZE];
-
 	if (osm_log_is_active(p_log, log_level)) {
+		char buf[BUF_SIZE], line[BUF_SIZE];
+		uint32_t i;
+
 		sprintf(buf,
 			"SMP dump:\n"
 			"\t\t\t\tbase_ver................0x%X\n"
@@ -1838,8 +1815,7 @@ osm_dump_dr_smp(IN osm_log_t * const p_log,
 			cl_ntoh16(p_smp->attr_id),
 			ib_get_sm_attr_str(p_smp->attr_id),
 			cl_ntoh16(p_smp->resv),
-			cl_ntoh32(p_smp->attr_mod), cl_ntoh64(p_smp->m_key)
-		    );
+			cl_ntoh32(p_smp->attr_mod), cl_ntoh64(p_smp->m_key));
 		strcat(buf, line);
 
 		if (p_smp->mgmt_class == IB_MCLASS_SUBN_DIR) {
@@ -1847,8 +1823,7 @@ osm_dump_dr_smp(IN osm_log_t * const p_log,
 				"\t\t\t\tdr_slid.................%u\n"
 				"\t\t\t\tdr_dlid.................%u\n",
 				cl_ntoh16(p_smp->dr_slid),
-				cl_ntoh16(p_smp->dr_dlid)
-			    );
+				cl_ntoh16(p_smp->dr_dlid));
 			strcat(buf, line);
 
 			strcat(buf, "\n\t\t\t\tInitial path: ");
@@ -1913,7 +1888,6 @@ osm_dump_dr_smp(IN osm_log_t * const p_log,
 		}
 
 		osm_log(p_log, log_level, "%s\n", buf);
-
 	}
 }
 
@@ -1924,15 +1898,15 @@ osm_dump_sa_mad(IN osm_log_t * const p_log,
 		IN const ib_sa_mad_t * const p_mad,
 		IN const osm_log_level_t log_level)
 {
-	char buf[BUF_SIZE];
-
-	/* make sure the mad is valid */
-	if (p_mad == NULL) {
-		OSM_LOG(p_log, log_level, "NULL MAD POINTER\n");
-		return;
-	}
-
 	if (osm_log_is_active(p_log, log_level)) {
+		char buf[BUF_SIZE];
+
+		/* make sure the mad is valid */
+		if (p_mad == NULL) {
+			OSM_LOG(p_log, log_level, "NULL MAD POINTER\n");
+			return;
+		}
+
 		sprintf(buf,
 			"SA MAD dump:\n"
 			"\t\t\t\tbase_ver................0x%X\n"
@@ -1974,8 +1948,7 @@ osm_dump_sa_mad(IN osm_log_t * const p_log,
 			cl_ntoh32(p_mad->paylen_newwin),
 			cl_ntoh64(p_mad->sm_key),
 			cl_ntoh16(p_mad->attr_offset),
-			cl_ntoh16(p_mad->resv3), cl_ntoh64(p_mad->comp_mask)
-		    );
+			cl_ntoh16(p_mad->resv3), cl_ntoh64(p_mad->comp_mask));
 
 		strcat(buf, "\n");
 
@@ -1990,11 +1963,10 @@ osm_dump_dr_path(IN osm_log_t * const p_log,
 		 IN const osm_dr_path_t * const p_path,
 		 IN const osm_log_level_t log_level)
 {
-	uint32_t i;
-	char buf[BUF_SIZE];
-	char line[BUF_SIZE];
-
 	if (osm_log_is_active(p_log, log_level)) {
+		char buf[BUF_SIZE], line[BUF_SIZE];
+		uint32_t i;
+
 		sprintf(buf, "Directed Path Dump of %u hop path:"
 			"\n\t\t\t\tPath = ", p_path->hop_count);
 
@@ -2016,11 +1988,10 @@ osm_dump_smp_dr_path(IN osm_log_t * const p_log,
 		     IN const ib_smp_t * const p_smp,
 		     IN const osm_log_level_t log_level)
 {
-	uint32_t i;
-	char buf[BUF_SIZE];
-	char line[BUF_SIZE];
-
 	if (osm_log_is_active(p_log, log_level)) {
+		char buf[BUF_SIZE], line[BUF_SIZE];
+		uint32_t i;
+
 		sprintf(buf, "Received SMP on a %u hop path:"
 			"\n\t\t\t\tInitial path = ", p_smp->hop_count);
 
