@@ -35,8 +35,8 @@
 
 /*
  * Abstract:
- * 	Declaration of osm_switch_t.
- *	This object represents an IBA switch.
+ * 	Declaration of osm_rand_fwd_tbl_t.
+ *	This object represents a random forwarding table.
  *	This object is part of the OpenSM family of objects.
  */
 
@@ -87,7 +87,7 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct osm_rand_fwdbl {
+typedef struct osm_rand_fwd_tbl {
 	/* PLACE HOLDER STRUCTURE ONLY!! */
 	uint32_t size;
 } osm_rand_fwd_tbl_t;
@@ -116,14 +116,13 @@ static inline void osm_rand_tbl_delete(IN osm_rand_fwd_tbl_t ** const pp_tbl)
 	free(*pp_tbl);
 	*pp_tbl = NULL;
 }
-
 /*
 * PARAMETERS
 *	pp_tbl
 *		[in] Pointer a Pointer to the Random Forwarding Table object.
 *
 * RETURN VALUE
-*	On success, returns a pointer to a new Linear Forwarding Table object
+*	On success, returns a pointer to a new Random Forwarding Table object
 *	of the specified size.
 *	NULL otherwise.
 *
@@ -151,7 +150,6 @@ osm_rand_fwd_tbl_set(IN osm_rand_fwd_tbl_t * const p_tbl,
 	UNUSED_PARAM(port);
 	CL_ASSERT(FALSE);
 }
-
 /*
 * PARAMETERS
 *	p_tbl
@@ -192,7 +190,6 @@ osm_rand_fwd_tbl_set_block(IN osm_rand_fwd_tbl_t * const p_tbl,
 	CL_ASSERT(FALSE);
 	return (IB_ERROR);
 }
-
 /*
 * PARAMETERS
 *	p_tbl
@@ -231,11 +228,10 @@ osm_rand_fwd_tbl_get(IN const osm_rand_fwd_tbl_t * const p_tbl,
 
 	return (OSM_NO_PATH);
 }
-
 /*
 * PARAMETERS
 *	p_tbl
-*		[in] Pointer to the Linear Forwarding Table object.
+*		[in] Pointer to the Random Forwarding Table object.
 *
 *	lid_ho
 *		[in] LID value (host order) for which to get the route.
@@ -263,7 +259,6 @@ osm_rand_fwd_tbl_get_lids_per_block(IN const osm_rand_fwd_tbl_t * const p_tbl)
 	UNUSED_PARAM(p_tbl);
 	return (16);
 }
-
 /*
 * PARAMETERS
 *	p_tbl
@@ -296,7 +291,6 @@ osm_rand_fwd_tbl_get_max_block_id_in_use(IN const osm_rand_fwd_tbl_t *
 	CL_ASSERT(FALSE);
 	return (0);
 }
-
 /*
 * PARAMETERS
 *	p_tbl
@@ -326,7 +320,6 @@ osm_rand_fwd_tbl_get_size(IN const osm_rand_fwd_tbl_t * const p_tbl)
 	CL_ASSERT(FALSE);
 	return (0);
 }
-
 /*
 * PARAMETERS
 *	p_tbl
