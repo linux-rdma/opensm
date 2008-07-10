@@ -84,7 +84,7 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-typedef struct osm_lin_fwdbl {
+typedef struct osm_lin_fwd_tbl {
 	uint16_t size;
 	uint8_t port_tbl[1];
 } osm_lin_fwd_tbl_t;
@@ -169,7 +169,6 @@ osm_lin_fwd_tbl_set(IN osm_lin_fwd_tbl_t * const p_tbl,
 	if (lid_ho < p_tbl->size)
 		p_tbl->port_tbl[lid_ho] = port;
 }
-
 /*
 * PARAMETERS
 *	p_tbl
@@ -207,7 +206,6 @@ osm_lin_fwd_tbl_get(IN const osm_lin_fwd_tbl_t * const p_tbl,
 	else
 		return (OSM_NO_PATH);
 }
-
 /*
 * PARAMETERS
 *	p_tbl
@@ -238,7 +236,6 @@ osm_lin_fwd_tbl_get_size(IN const osm_lin_fwd_tbl_t * const p_tbl)
 {
 	return (p_tbl->size);
 }
-
 /*
 * PARAMETERS
 *	p_tbl
@@ -267,7 +264,6 @@ osm_lin_fwd_tbl_get_lids_per_block(IN const osm_lin_fwd_tbl_t * const p_tbl)
 	UNUSED_PARAM(p_tbl);
 	return (64);
 }
-
 /*
 * PARAMETERS
 *	p_tbl
@@ -298,7 +294,6 @@ osm_lin_fwd_tbl_get_max_block_id_in_use(IN const osm_lin_fwd_tbl_t *
 	return ((uint16_t) (lid_top_ho /
 			    osm_lin_fwd_tbl_get_lids_per_block(p_tbl)));
 }
-
 /*
 * PARAMETERS
 *	p_tbl
@@ -341,7 +336,6 @@ osm_lin_fwd_tbl_set_block(IN osm_lin_fwd_tbl_t * const p_tbl,
 	memcpy(&p_tbl->port_tbl[lid_start], p_block, num_lids);
 	return (IB_SUCCESS);
 }
-
 /*
 * PARAMETERS
 *	p_tbl
