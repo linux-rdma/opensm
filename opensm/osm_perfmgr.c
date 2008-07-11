@@ -55,6 +55,7 @@
 #include <sys/time.h>
 #include <netinet/in.h>
 #include <float.h>
+#include <arpa/inet.h>
 #include <iba/ib_types.h>
 #include <complib/cl_debug.h>
 #include <complib/cl_thread.h>
@@ -1072,6 +1073,7 @@ osm_perfmgr_log_events(osm_perfmgr_t * pm, __monitored_node_t *mon_node, uint8_t
  **********************************************************************/
 static void osm_pc_rcv_process(void *context, void *data)
 {
+	char gid_str[INET6_ADDRSTRLEN];
 	osm_perfmgr_t *const pm = (osm_perfmgr_t *) context;
 	osm_madw_t *p_madw = (osm_madw_t *) data;
 	osm_madw_context_t *mad_context = &(p_madw->context);
@@ -1114,11 +1116,11 @@ static void osm_pc_rcv_process(void *context, void *data)
 
 		OSM_LOG(pm->log, OSM_LOG_VERBOSE,
 			"Redirection to LID %u "
-			"GID 0x%016" PRIx64 " : 0x%016" PRIx64
+			"GID %s"
 			" QP 0x%x received\n",
 			cl_ntoh16(cpi->redir_lid),
-			cl_ntoh64(cpi->redir_gid.unicast.prefix),
-			cl_ntoh64(cpi->redir_gid.unicast.interface_id),
+			inet_ntop(AF_INET6, cpi->redir_gid.raw, gid_str,
+				sizeof gid_str),
 			cl_ntoh32(cpi->redir_qp));
 
 		/* LID or GID redirection ? */

@@ -45,6 +45,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <arpa/inet.h>
 #include <complib/cl_debug.h>
 #include <iba/ib_types.h>
 #include <opensm/osm_helper.h>
@@ -1162,14 +1163,13 @@ osm_dump_mc_record(IN osm_log_t * const p_log,
 		   IN const ib_member_rec_t * const p_mcmr,
 		   IN const osm_log_level_t log_level)
 {
-
+	char gid_str[INET6_ADDRSTRLEN];
+	char gid_str2[INET6_ADDRSTRLEN];
 	if (osm_log_is_active(p_log, log_level)) {
 		osm_log(p_log, log_level,
 			"MCMember Record dump:\n"
-			"\t\t\t\tMGID....................0x%016" PRIx64 " : "
-			"0x%016" PRIx64 "\n"
-			"\t\t\t\tPortGid.................0x%016" PRIx64 " : "
-			"0x%016" PRIx64 "\n"
+			"\t\t\t\tMGID....................%s\n"
+			"\t\t\t\tPortGid.................%s\n"
 			"\t\t\t\tqkey....................0x%X\n"
 			"\t\t\t\tmlid....................0x%X\n"
 			"\t\t\t\tmtu.....................0x%X\n"
@@ -1181,10 +1181,10 @@ osm_dump_mc_record(IN osm_log_t * const p_log,
 			"\t\t\t\tScopeState..............0x%X\n"
 			"\t\t\t\tProxyJoin...............0x%X\n"
 			"",
-			cl_ntoh64(p_mcmr->mgid.unicast.prefix),
-			cl_ntoh64(p_mcmr->mgid.unicast.interface_id),
-			cl_ntoh64(p_mcmr->port_gid.unicast.prefix),
-			cl_ntoh64(p_mcmr->port_gid.unicast.interface_id),
+			inet_ntop(AF_INET6, p_mcmr->mgid.raw, gid_str,
+				sizeof gid_str),
+			inet_ntop(AF_INET6, p_mcmr->port_gid.raw, gid_str2,
+				sizeof gid_str2),
 			cl_ntoh32(p_mcmr->qkey),
 			cl_ntoh16(p_mcmr->mlid),
 			p_mcmr->mtu,
@@ -1204,6 +1204,7 @@ osm_dump_service_record(IN osm_log_t * const p_log,
 			IN const ib_service_record_t * const p_sr,
 			IN const osm_log_level_t log_level)
 {
+	char gid_str[INET6_ADDRSTRLEN];
 	char buf_service_key[35];
 	char buf_service_name[65];
 
@@ -1231,8 +1232,7 @@ osm_dump_service_record(IN osm_log_t * const p_log,
 		osm_log(p_log, log_level,
 			"Service Record dump:\n"
 			"\t\t\t\tServiceID...............0x%016" PRIx64 "\n"
-			"\t\t\t\tServiceGID..............0x%016" PRIx64 " : "
-			"0x%016" PRIx64 "\n"
+			"\t\t\t\tServiceGID..............%s\n"
 			"\t\t\t\tServiceP_Key............0x%X\n"
 			"\t\t\t\tServiceLease............0x%X\n"
 			"\t\t\t\tServiceKey..............%s\n"
@@ -1269,8 +1269,8 @@ osm_dump_service_record(IN osm_log_t * const p_log,
 			"\t\t\t\tServiceData64.2.........0x%016" PRIx64 "\n"
 			"",
 			cl_ntoh64(p_sr->service_id),
-			cl_ntoh64(p_sr->service_gid.unicast.prefix),
-			cl_ntoh64(p_sr->service_gid.unicast.interface_id),
+			inet_ntop(AF_INET6, p_sr->service_gid.raw, gid_str,
+				sizeof gid_str),
 			cl_ntoh16(p_sr->service_pkey),
 			cl_ntoh32(p_sr->service_lease),
 			buf_service_key,
@@ -1376,6 +1376,8 @@ osm_dump_inform_info_record(IN osm_log_t * const p_log,
 			    IN const ib_inform_info_record_t * const p_iir,
 			    IN const osm_log_level_t log_level)
 {
+	char gid_str[INET6_ADDRSTRLEN];
+	char gid_str2[INET6_ADDRSTRLEN];
 	uint32_t qpn;
 	uint8_t resp_time_val;
 
@@ -1389,12 +1391,10 @@ osm_dump_inform_info_record(IN osm_log_t * const p_log,
 			osm_log(p_log, log_level,
 				"InformInfo Record dump:\n"
 				"\t\t\t\tRID\n"
-				"\t\t\t\tSubscriberGID...........0x%016" PRIx64
-				" : " "0x%016" PRIx64 "\n"
+				"\t\t\t\tSubscriberGID...........%s\n"
 				"\t\t\t\tSubscriberEnum..........0x%X\n"
 				"\t\t\t\tInformInfo dump:\n"
-				"\t\t\t\tgid.....................0x%016" PRIx64
-				" : 0x%016" PRIx64 "\n"
+				"\t\t\t\tgid.....................%s\n"
 				"\t\t\t\tlid_range_begin.........%u\n"
 				"\t\t\t\tlid_range_end...........%u\n"
 				"\t\t\t\tis_generic..............0x%X\n"
@@ -1404,14 +1404,11 @@ osm_dump_inform_info_record(IN osm_log_t * const p_log,
 				"\t\t\t\tqpn.....................0x%06X\n"
 				"\t\t\t\tresp_time_val...........0x%X\n"
 				"\t\t\t\tnode_type...............0x%06X\n" "",
-				cl_ntoh64(p_iir->subscriber_gid.unicast.prefix),
-				cl_ntoh64(p_iir->subscriber_gid.unicast.
-					  interface_id),
+				inet_ntop(AF_INET6, p_iir->subscriber_gid.raw,
+					gid_str, sizeof gid_str),
 				cl_ntoh16(p_iir->subscriber_enum),
-				cl_ntoh64(p_iir->inform_info.gid.unicast.
-					  prefix),
-				cl_ntoh64(p_iir->inform_info.gid.unicast.
-					  interface_id),
+				inet_ntop(AF_INET6, p_iir->inform_info.gid.raw,
+					gid_str2, sizeof gid_str2),
 				cl_ntoh16(p_iir->inform_info.lid_range_begin),
 				cl_ntoh16(p_iir->inform_info.lid_range_end),
 				p_iir->inform_info.is_generic,
@@ -1427,12 +1424,10 @@ osm_dump_inform_info_record(IN osm_log_t * const p_log,
 			osm_log(p_log, log_level,
 				"InformInfo Record dump:\n"
 				"\t\t\t\tRID\n"
-				"\t\t\t\tSubscriberGID...........0x%016" PRIx64
-				" : " "0x%016" PRIx64 "\n"
+				"\t\t\t\tSubscriberGID...........%s\n"
 				"\t\t\t\tSubscriberEnum..........0x%X\n"
 				"\t\t\t\tInformInfo dump:\n"
-				"\t\t\t\tgid.....................0x%016" PRIx64
-				" : 0x%016" PRIx64 "\n"
+				"\t\t\t\tgid.....................%s\n"
 				"\t\t\t\tlid_range_begin.........%u\n"
 				"\t\t\t\tlid_range_end...........%u\n"
 				"\t\t\t\tis_generic..............0x%X\n"
@@ -1442,14 +1437,11 @@ osm_dump_inform_info_record(IN osm_log_t * const p_log,
 				"\t\t\t\tqpn.....................0x%06X\n"
 				"\t\t\t\tresp_time_val...........0x%X\n"
 				"\t\t\t\tvendor_id...............0x%06X\n" "",
-				cl_ntoh64(p_iir->subscriber_gid.unicast.prefix),
-				cl_ntoh64(p_iir->subscriber_gid.unicast.
-					  interface_id),
+				inet_ntop(AF_INET6, p_iir->subscriber_gid.raw,
+					gid_str, sizeof gid_str),
 				cl_ntoh16(p_iir->subscriber_enum),
-				cl_ntoh64(p_iir->inform_info.gid.unicast.
-					  prefix),
-				cl_ntoh64(p_iir->inform_info.gid.unicast.
-					  interface_id),
+				inet_ntop(AF_INET6, p_iir->inform_info.gid.raw,
+					gid_str2, sizeof gid_str2),
 				cl_ntoh16(p_iir->inform_info.lid_range_begin),
 				cl_ntoh16(p_iir->inform_info.lid_range_end),
 				p_iir->inform_info.is_generic,

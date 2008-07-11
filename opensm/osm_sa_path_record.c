@@ -46,6 +46,7 @@
 #endif				/* HAVE_CONFIG_H */
 
 #include <string.h>
+#include <arpa/inet.h>
 #include <iba/ib_types.h>
 #include <complib/cl_qmap.h>
 #include <complib/cl_passivelock.h>
@@ -1474,6 +1475,7 @@ static void
 __osm_pr_get_mgrp(IN osm_sa_t * sa,
 		  IN const osm_madw_t * const p_madw, OUT osm_mgrp_t ** pp_mgrp)
 {
+	char gid_str[INET6_ADDRSTRLEN];
 	ib_path_rec_t *p_pr;
 	const ib_sa_mad_t *p_sa_mad;
 	ib_net64_t comp_mask;
@@ -1491,9 +1493,9 @@ __osm_pr_get_mgrp(IN osm_sa_t * sa,
 		if (status != IB_SUCCESS) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F09: "
 				"No MC group found for PathRecord destination "
-				"GID 0x%016" PRIx64 " : " "0x%016" PRIx64 "\n",
-				cl_ntoh64(p_pr->dgid.unicast.prefix),
-				cl_ntoh64(p_pr->dgid.unicast.interface_id));
+				"GID %s\n",
+				inet_ntop(AF_INET6, p_pr->dgid.raw, gid_str,
+					sizeof gid_str));
 			goto Exit;
 		}
 	}

@@ -44,6 +44,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <arpa/inet.h>
 #include <complib/cl_debug.h>
 #include <opensm/osm_helper.h>
 #include <opensm/osm_inform.h>
@@ -281,14 +282,15 @@ void
 osm_infr_remove_from_db(IN osm_subn_t * p_subn,
 			IN osm_log_t * p_log, IN osm_infr_t * p_infr)
 {
+	char gid_str[INET6_ADDRSTRLEN];
 	OSM_LOG_ENTER(p_log);
 
 	OSM_LOG(p_log, OSM_LOG_DEBUG,
-		"Removing InformInfo Subscribing GID:0x%016" PRIx64 " : 0x%016"
-		PRIx64 " Enum:0x%X from Database\n",
-		cl_ntoh64(p_infr->inform_record.subscriber_gid.unicast.prefix),
-		cl_ntoh64(p_infr->inform_record.subscriber_gid.unicast.
-			  interface_id), p_infr->inform_record.subscriber_enum);
+		"Removing InformInfo Subscribing GID:%s"
+		" Enum:0x%X from Database\n",
+		inet_ntop(AF_INET6, p_infr->inform_record.subscriber_gid.raw,
+			gid_str, sizeof gid_str),
+		p_infr->inform_record.subscriber_enum);
 
 	osm_dump_inform_info(p_log, &(p_infr->inform_record.inform_info),
 			     OSM_LOG_DEBUG);
@@ -560,6 +562,7 @@ ib_api_status_t
 osm_report_notice(IN osm_log_t * const p_log,
 		  IN osm_subn_t * p_subn, IN ib_mad_notice_attr_t * p_ntc)
 {
+	char gid_str[INET6_ADDRSTRLEN];
 	osm_infr_match_ctxt_t context;
 	cl_list_t infr_to_remove_list;
 	osm_infr_t *p_infr_rec;
@@ -582,25 +585,23 @@ osm_report_notice(IN osm_log_t * const p_log,
 	if (ib_notice_is_generic(p_ntc)) {
 		OSM_LOG(p_log, OSM_LOG_INFO,
 			"Reporting Generic Notice type:%u num:%u"
-			" from LID:%u GID:0x%016" PRIx64
-			",0x%016" PRIx64 "\n",
+			" from LID:%u GID:%s\n",
 			ib_notice_get_type(p_ntc),
 			cl_ntoh16(p_ntc->g_or_v.generic.trap_num),
 			cl_ntoh16(p_ntc->issuer_lid),
-			cl_ntoh64(p_ntc->issuer_gid.unicast.prefix),
-			cl_ntoh64(p_ntc->issuer_gid.unicast.interface_id)
+			inet_ntop(AF_INET6, p_ntc->issuer_gid.raw, gid_str,
+				sizeof gid_str)
 		    );
 	} else {
 		OSM_LOG(p_log, OSM_LOG_INFO,
 			"Reporting Vendor Notice type:%u vend:%u dev:%u"
-			" from LID:%u GID:0x%016" PRIx64
-			",0x%016" PRIx64 "\n",
+			" from LID:%u GID:%s\n",
 			ib_notice_get_type(p_ntc),
 			cl_ntoh32(ib_notice_get_vend_id(p_ntc)),
 			cl_ntoh16(p_ntc->g_or_v.vend.dev_id),
 			cl_ntoh16(p_ntc->issuer_lid),
-			cl_ntoh64(p_ntc->issuer_gid.unicast.prefix),
-			cl_ntoh64(p_ntc->issuer_gid.unicast.interface_id)
+			inet_ntop(AF_INET6, p_ntc->issuer_gid.raw, gid_str,
+				sizeof gid_str)
 		    );
 	}
 

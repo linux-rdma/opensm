@@ -47,6 +47,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <arpa/inet.h>
 #include <iba/ib_types.h>
 #include <complib/cl_qmap.h>
 #include <complib/cl_passivelock.h>
@@ -830,6 +831,7 @@ osm_mcmr_rcv_create_new_mgrp(IN osm_sa_t * sa,
 			     IN const osm_physp_t * const p_physp,
 			     OUT osm_mgrp_t ** pp_mgrp)
 {
+	char gid_str[INET6_ADDRSTRLEN];
 	ib_net16_t mlid;
 	uint8_t zero_mgid, valid;
 	uint8_t scope, i;
@@ -891,10 +893,9 @@ osm_mcmr_rcv_create_new_mgrp(IN osm_sa_t * sa,
 		memcpy(&p_mgid->raw[10], &mlid, sizeof(uint16_t));
 		memcpy(&p_mgid->raw[12], &mlid, sizeof(uint16_t));
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-			"Allocated new MGID:0x%016" PRIx64 " : "
-			"0x%016" PRIx64 "\n",
-			cl_ntoh64(p_mgid->unicast.prefix),
-			cl_ntoh64(p_mgid->unicast.interface_id));
+			"Allocated new MGID:%s\n",
+			inet_ntop(AF_INET6, p_mgid->raw, gid_str,
+				sizeof gid_str));
 	} else {
 		/* a specific MGID was requested so validate the resulting MGID */
 		valid = __validate_requested_mgid(sa, &mcm_rec);
@@ -991,11 +992,11 @@ __search_mgrp_by_mgid(IN osm_mgrp_t * const p_mgrp, IN void *context)
 		return;
 
 	if (p_ctxt->p_mgrp) {
+		char gid_str[INET6_ADDRSTRLEN];
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B30: "
-			"Multiple MC groups for MGID "
-			"0x%016" PRIx64 " : 0x%016" PRIx64 "\n",
-			cl_ntoh64(p_mgrp->mcmember_rec.mgid.unicast.prefix),
-			cl_ntoh64(p_mgrp->mcmember_rec.mgid.unicast.interface_id));
+			"Multiple MC groups for MGID %s\n",
+			inet_ntop(AF_INET6, p_mgrp->mcmember_rec.mgid.raw,
+				gid_str, sizeof gid_str));
 		return;
 	}
 	p_ctxt->p_mgrp = p_mgrp;
@@ -1038,11 +1039,11 @@ osm_get_mgrp_by_mgid(IN osm_sa_t *sa,
 
 	if (sa->p_subn->opt.consolidate_ipv6_snm_req &&
 	    match_and_update_ipv6_snm_mgid(&mcmr_search_context.mgid)) {
+		char gid_str[INET6_ADDRSTRLEN];
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-			"Special Case Solicited Node Mcast Join for MGID"
-			" 0x%016" PRIx64 " : 0x%016" PRIx64 "\n",
-			cl_ntoh64(p_mgid->unicast.prefix),
-			cl_ntoh64(p_mgid->unicast.interface_id));
+			"Special Case Solicited Node Mcast Join for MGID %s\n",
+			inet_ntop(AF_INET6, p_mgrp->mcmember_rec.mgid.raw,
+				  gid_str, sizeof gid_str));
 	}
 
 	for (i = 0; i <= sa->p_subn->max_mcast_lid_ho - IB_LID_MCAST_START_HO;
@@ -1086,6 +1087,8 @@ static void
 __osm_mcmr_rcv_leave_mgrp(IN osm_sa_t * sa,
 			  IN osm_madw_t * const p_madw)
 {
+	char gid_str[INET6_ADDRSTRLEN];
+	char gid_str2[INET6_ADDRSTRLEN];
 	boolean_t valid;
 	osm_mgrp_t *p_mgrp;
 	ib_api_status_t status;
@@ -1169,18 +1172,12 @@ __osm_mcmr_rcv_leave_mgrp(IN osm_sa_t * sa,
 			CL_PLOCK_RELEASE(sa->p_lock);
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B25: "
 				"Received an invalid delete request for "
-				"MGID: 0x%016" PRIx64 " : "
-				"0x%016" PRIx64 " for "
-				"PortGID: 0x%016" PRIx64 " : "
-				"0x%016" PRIx64 "\n",
-				cl_ntoh64(p_recvd_mcmember_rec->mgid.unicast.
-					  prefix),
-				cl_ntoh64(p_recvd_mcmember_rec->mgid.unicast.
-					  interface_id),
-				cl_ntoh64(p_recvd_mcmember_rec->port_gid.
-					  unicast.prefix),
-				cl_ntoh64(p_recvd_mcmember_rec->port_gid.
-					  unicast.interface_id));
+				"MGID: %s for PortGID: %s\n",
+				inet_ntop(AF_INET6, p_recvd_mcmember_rec->mgid.raw,
+					gid_str, sizeof gid_str),
+				inet_ntop(AF_INET6,
+					p_recvd_mcmember_rec->port_gid.raw,
+					gid_str2, sizeof gid_str2));
 			osm_sa_send_error(sa, p_madw,
 					  IB_SA_MAD_STATUS_REQ_INVALID);
 			goto Exit;
@@ -1188,10 +1185,9 @@ __osm_mcmr_rcv_leave_mgrp(IN osm_sa_t * sa,
 	} else {
 		CL_PLOCK_RELEASE(sa->p_lock);
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-			"Failed since multicast group 0x%16"
-			PRIx64 " : 0x%016" PRIx64 " not present\n",
-			cl_ntoh64(p_recvd_mcmember_rec->mgid.unicast.prefix),
-			cl_ntoh64(p_recvd_mcmember_rec->mgid.unicast.interface_id));
+			"Failed since multicast group %s not present\n",
+			inet_ntop(AF_INET6, p_recvd_mcmember_rec->mgid.raw,
+				gid_str, sizeof gid_str));
 		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_REQ_INVALID);
 		goto Exit;
 	}
@@ -1210,6 +1206,7 @@ static void
 __osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa,
 			 IN osm_madw_t * const p_madw)
 {
+	char gid_str[INET6_ADDRSTRLEN];
 	boolean_t valid;
 	osm_mgrp_t *p_mgrp = NULL;
 	ib_api_status_t status;
@@ -1289,13 +1286,12 @@ __osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa,
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B10: "
 				"Provided Join State != FullMember - "
 				"required for create, "
-				"MGID: 0x%016" PRIx64 " : "
-				"0x%016" PRIx64 " from port 0x%016" PRIx64
+				"MGID: %s from port 0x%016" PRIx64
 				" (%s)\n",
-				cl_ntoh64(p_recvd_mcmember_rec->mgid.unicast.
-					  prefix),
-				cl_ntoh64(p_recvd_mcmember_rec->mgid.unicast.
-					  interface_id), cl_ntoh64(portguid),
+				inet_ntop(AF_INET6,
+					p_recvd_mcmember_rec->mgid.raw,
+					gid_str, sizeof gid_str),
+				cl_ntoh64(portguid),
 				p_port->p_node->print_desc);
 			osm_sa_send_error(sa, p_madw,
 					  IB_SA_MAD_STATUS_REQ_INVALID);
@@ -1325,16 +1321,15 @@ __osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa,
 				"method = %s, scope_state = 0x%x, "
 				"component mask = 0x%016" PRIx64 ", "
 				"expected comp mask = 0x%016" PRIx64 ", "
-				"MGID: 0x%016" PRIx64 " : 0x%016" PRIx64
-				" from port 0x%016" PRIx64 " (%s)\n",
+				"MGID: %s from port 0x%016" PRIx64 " (%s)\n",
 				ib_get_sa_method_str(p_sa_mad->method),
 				p_recvd_mcmember_rec->scope_state,
 				cl_ntoh64(p_sa_mad->comp_mask),
 				CL_NTOH64(REQUIRED_MC_CREATE_COMP_MASK),
-				cl_ntoh64(p_recvd_mcmember_rec->mgid.unicast.
-					  prefix),
-				cl_ntoh64(p_recvd_mcmember_rec->mgid.unicast.
-					  interface_id), cl_ntoh64(portguid),
+				inet_ntop(AF_INET6,
+					p_recvd_mcmember_rec->mgid.raw,
+					gid_str, sizeof gid_str),
+				cl_ntoh64(portguid),
 				p_port->p_node->print_desc);
 
 			osm_sa_send_error(sa, p_madw,
@@ -1527,6 +1522,7 @@ static void
 __osm_sa_mcm_by_comp_mask_cb(IN osm_mgrp_t * const p_mgrp,
 			     IN void *context)
 {
+	char gid_str[INET6_ADDRSTRLEN];
 	osm_sa_mcmr_search_ctxt_t *const p_ctxt =
 	    (osm_sa_mcmr_search_ctxt_t *) context;
 	osm_sa_t *sa = p_ctxt->sa;
@@ -1664,13 +1660,10 @@ __osm_sa_mcm_by_comp_mask_cb(IN osm_mgrp_t * const p_mgrp,
 				       &(p_mcm_port->port_gid),
 				       sizeof(ib_gid_t));
 				OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-					"Record of port_gid: 0x%016" PRIx64
-					"0x%016" PRIx64
+					"Record of port_gid: %s"
 					" in multicast_lid: 0x%X is returned\n",
-					cl_ntoh64(match_rec.port_gid.unicast.
-						  prefix),
-					cl_ntoh64(match_rec.port_gid.unicast.
-						  interface_id),
+					inet_ntop(AF_INET6, match_rec.port_gid.raw,
+						  gid_str, sizeof gid_str),
 					cl_ntoh16(p_mgrp->mlid));
 
 				match_rec.proxy_join =
@@ -1790,6 +1783,8 @@ Exit:
  **********************************************************************/
 void osm_mcmr_rcv_process(IN void *context, IN void *data)
 {
+	char gid_str[INET6_ADDRSTRLEN];
+	char gid_str2[INET6_ADDRSTRLEN];
 	osm_sa_t *sa = context;
 	osm_madw_t *p_madw = data;
 	ib_sa_mad_t *p_sa_mad;
@@ -1815,18 +1810,15 @@ void osm_mcmr_rcv_process(IN void *context, IN void *data)
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B18: "
 				"component mask = 0x%016" PRIx64 ", "
 				"expected comp mask = 0x%016" PRIx64 ", "
-				"MGID: 0x%016" PRIx64 " : 0x%016" PRIx64
-				" for PortGID: 0x%016" PRIx64 " : 0x%016"
-				PRIx64 "\n", cl_ntoh64(p_sa_mad->comp_mask),
+				"MGID: %s for PortGID: %s\n",
+				cl_ntoh64(p_sa_mad->comp_mask),
 				CL_NTOH64(JOIN_MC_COMP_MASK),
-				cl_ntoh64(p_recvd_mcmember_rec->mgid.unicast.
-					  prefix),
-				cl_ntoh64(p_recvd_mcmember_rec->mgid.unicast.
-					  interface_id),
-				cl_ntoh64(p_recvd_mcmember_rec->port_gid.
-					  unicast.prefix),
-				cl_ntoh64(p_recvd_mcmember_rec->port_gid.
-					  unicast.interface_id));
+				inet_ntop(AF_INET6,
+					p_recvd_mcmember_rec->mgid.raw,
+					gid_str, sizeof gid_str),
+				inet_ntop(AF_INET6,
+					p_recvd_mcmember_rec->port_gid.raw,
+					gid_str2, sizeof gid_str2));
 
 			osm_sa_send_error(sa, p_madw,
 					  IB_SA_MAD_STATUS_REQ_INVALID);

@@ -45,6 +45,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <arpa/inet.h>
 #include <complib/cl_debug.h>
 #include <complib/cl_map.h>
 #include <complib/cl_list.h>
@@ -149,6 +150,7 @@ __match_mgids(IN const void *const p_object, IN void *context)
 
 ib_api_status_t osmt_query_mcast(IN osmtest_t * const p_osmt)
 {
+	char gid_str[INET6_ADDRSTRLEN];
 	ib_api_status_t status = IB_SUCCESS;
 	osmv_user_query_t user;
 	osmv_query_req_t req;
@@ -240,10 +242,9 @@ ib_api_status_t osmt_query_mcast(IN osmtest_t * const p_osmt)
 		if (p_mgids_res != cl_list_end(p_mgids_list)) {
 			osm_log(&p_osmt->log, OSM_LOG_ERROR,
 				"osmt_query_mcast: ERR 0265: "
-				"MCG MGIDs are the same - invalid MGID : 0x%016"
-				PRIx64 " 0x%016" PRIx64 "\n",
-				cl_ntoh64(p_rec->mgid.unicast.prefix),
-				cl_ntoh64(p_rec->mgid.unicast.interface_id));
+				"MCG MGIDs are the same - invalid MGID : %s\n",
+				inet_ntop(AF_INET6, p_rec->mgid.raw, gid_str,
+					sizeof gid_str));
 			status = IB_ERROR;
 			goto Exit;
 
@@ -477,6 +478,8 @@ osmt_init_mc_query_rec(IN osmtest_t * const p_osmt,
 
 ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 {
+	char gid_str[INET6_ADDRSTRLEN];
+	char gid_str2[INET6_ADDRSTRLEN];
 	ib_api_status_t status;
 	ib_member_rec_t mc_req_rec;
 	ib_member_rec_t *p_mc_res;
@@ -595,12 +598,10 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 		} else {
 			osm_log(&p_osmt->log, OSM_LOG_INFO,
 				"osmt_run_mcast_flow: "
-				"Non-IPoIB MC Groups exist: mgid=0x%016" PRIx64
-				":0x%016" PRIx64 "\n",
-				cl_ntoh64(p_mgrp->mcmember_rec.mgid.unicast.
-					  prefix),
-				cl_ntoh64(p_mgrp->mcmember_rec.mgid.unicast.
-					  interface_id));
+				"Non-IPoIB MC Groups exist: mgid=%s\n",
+				inet_ntop(AF_INET6,
+					p_mgrp->mcmember_rec.mgid.raw,
+					gid_str, sizeof gid_str));
 			mcg_outside_test_cnt++;
 		}
 
@@ -635,13 +636,13 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 			"Joining an existing IPoIB multicast group\n");
 		osm_log(&p_osmt->log, OSM_LOG_INFO,
 			"osmt_run_mcast_flow: "
-			"Sent Join request with :\n\t\tport_gid=0x%016" PRIx64
-			":0x%016" PRIx64 ", mgid=0x%016" PRIx64 ":0x%016" PRIx64
-			"\n\t\tjoin state= 0x%x, response is : %s\n",
-			cl_ntoh64(mc_req_rec.port_gid.unicast.prefix),
-			cl_ntoh64(mc_req_rec.port_gid.unicast.interface_id),
-			cl_ntoh64(mc_req_rec.mgid.unicast.prefix),
-			cl_ntoh64(mc_req_rec.mgid.unicast.interface_id),
+			"Sent Join request with :\n\t\tport_gid=%s"
+			", mgid=%s\n"
+			"\t\tjoin state= 0x%x, response is : %s\n",
+			inet_ntop(AF_INET6, mc_req_rec.port_gid.raw,
+				gid_str, sizeof gid_str),
+			inet_ntop(AF_INET6, mc_req_rec.mgid.raw,
+				gid_str2, sizeof gid_str2),
 			(mc_req_rec.scope_state & 0x0F),
 			ib_get_err_str(status));
 		if (status != IB_SUCCESS) {
@@ -699,11 +700,10 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 		if (status != IB_SUCCESS) {
 			osm_log(&p_osmt->log, OSM_LOG_ERROR,
 				"osmt_run_mcast_flow: ERR 02EF: "
-				"Query as Full Member of already existing ipoib group 0x%016"
-				PRIx64 ":0x%016" PRIx64 " has failed\n",
-				cl_ntoh64(mc_req_rec.mgid.unicast.prefix),
-				cl_ntoh64(mc_req_rec.mgid.unicast.
-					  interface_id));
+				"Query as Full Member of already existing "
+				"ipoib group gid %s has failed\n",
+				inet_ntop(AF_INET6, mc_req_rec.mgid.raw,
+					gid_str, sizeof gid_str));
 
 			goto Exit;
 		}
@@ -1382,10 +1382,9 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	p_recvd_rec =
 	    (ib_member_rec_t *) ib_sa_mad_get_payload_ptr(&res_sa_mad);
 	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmt_run_mcast_flow: " "created MGID:0x%016" PRIx64 " : "
-		"0x%016" PRIx64 " MLID:0x%04X\n",
-		cl_ntoh64(p_recvd_rec->mgid.unicast.prefix),
-		cl_ntoh64(p_recvd_rec->mgid.unicast.interface_id),
+		"osmt_run_mcast_flow: " "created MGID:%s MLID:0x%04X\n",
+		inet_ntop(AF_INET6, p_recvd_rec->mgid.raw, gid_str,
+			sizeof gid_str),
 		cl_ntoh16(p_recvd_rec->mlid));
 	cl_map_insert(&test_created_mlids, cl_ntoh16(p_recvd_rec->mlid),
 		      p_recvd_rec);
@@ -1414,10 +1413,9 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	p_recvd_rec =
 	    (ib_member_rec_t *) ib_sa_mad_get_payload_ptr(&res_sa_mad);
 	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmt_run_mcast_flow: " "Created MGID:0x%016" PRIx64 " : "
-		"0x%016" PRIx64 " MLID:0x%04X\n",
-		cl_ntoh64(p_recvd_rec->mgid.unicast.prefix),
-		cl_ntoh64(p_recvd_rec->mgid.unicast.interface_id),
+		"osmt_run_mcast_flow: " "Created MGID:%s MLID:0x%04X\n",
+		inet_ntop(AF_INET6, p_recvd_rec->mgid.raw, gid_str,
+			sizeof gid_str),
 		cl_ntoh16(p_recvd_rec->mlid));
 	cl_map_insert(&test_created_mlids, cl_ntoh16(p_recvd_rec->mlid),
 		      p_recvd_rec);
@@ -1445,10 +1443,9 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	p_recvd_rec =
 	    (ib_member_rec_t *) ib_sa_mad_get_payload_ptr(&res_sa_mad);
 	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmt_run_mcast_flow: " "Created MGID:0x%016" PRIx64 " : "
-		"0x%016" PRIx64 " MLID:0x%04X\n",
-		cl_ntoh64(p_recvd_rec->mgid.unicast.prefix),
-		cl_ntoh64(p_recvd_rec->mgid.unicast.interface_id),
+		"osmt_run_mcast_flow: " "Created MGID:%s MLID:0x%04X\n",
+		inet_ntop(AF_INET6, p_recvd_rec->mgid.raw, gid_str,
+			sizeof gid_str),
 		cl_ntoh16(p_recvd_rec->mlid));
 	cl_map_insert(&test_created_mlids, cl_ntoh16(p_recvd_rec->mlid),
 		      p_recvd_rec);
@@ -1475,10 +1472,9 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	p_recvd_rec =
 	    (ib_member_rec_t *) ib_sa_mad_get_payload_ptr(&res_sa_mad);
 	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmt_run_mcast_flow: " "Created MGID:0x%016" PRIx64 " : "
-		"0x%016" PRIx64 " MLID:0x%04X\n",
-		cl_ntoh64(p_recvd_rec->mgid.unicast.prefix),
-		cl_ntoh64(p_recvd_rec->mgid.unicast.interface_id),
+		"osmt_run_mcast_flow: " "Created MGID:%s MLID:0x%04X\n",
+		inet_ntop(AF_INET6, p_recvd_rec->mgid.raw, gid_str,
+			sizeof gid_str),
 		cl_ntoh16(p_recvd_rec->mlid));
 	cl_map_insert(&test_created_mlids, cl_ntoh16(p_recvd_rec->mlid),
 		      p_recvd_rec);
@@ -1516,10 +1512,9 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	p_recvd_rec =
 	    (ib_member_rec_t *) ib_sa_mad_get_payload_ptr(&res_sa_mad);
 	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmt_run_mcast_flow: " "Created MGID:0x%016" PRIx64 " : "
-		"0x%016" PRIx64 " MLID:0x%04X\n",
-		cl_ntoh64(p_recvd_rec->mgid.unicast.prefix),
-		cl_ntoh64(p_recvd_rec->mgid.unicast.interface_id),
+		"osmt_run_mcast_flow: " "Created MGID:%s MLID:0x%04X\n",
+		inet_ntop(AF_INET6, p_recvd_rec->mgid.raw, gid_str,
+			sizeof gid_str),
 		cl_ntoh16(p_recvd_rec->mlid));
 	cl_map_insert(&test_created_mlids, cl_ntoh16(p_recvd_rec->mlid),
 		      p_recvd_rec);
@@ -1552,10 +1547,9 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	p_recvd_rec =
 	    (ib_member_rec_t *) ib_sa_mad_get_payload_ptr(&res_sa_mad);
 	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmt_run_mcast_flow: " "Created MGID:0x%016" PRIx64 " : "
-		"0x%016" PRIx64 " MLID:0x%04X\n",
-		cl_ntoh64(p_recvd_rec->mgid.unicast.prefix),
-		cl_ntoh64(p_recvd_rec->mgid.unicast.interface_id),
+		"osmt_run_mcast_flow: " "Created MGID:%s MLID:0x%04X\n",
+		inet_ntop(AF_INET6, p_recvd_rec->mgid.raw, gid_str,
+			sizeof gid_str),
 		cl_ntoh16(p_recvd_rec->mlid));
 	cl_map_insert(&test_created_mlids, cl_ntoh16(p_recvd_rec->mlid),
 		      p_recvd_rec);
@@ -1588,10 +1582,9 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	p_recvd_rec =
 	    (ib_member_rec_t *) ib_sa_mad_get_payload_ptr(&res_sa_mad);
 	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmt_run_mcast_flow: " "Created MGID:0x%016" PRIx64 " : "
-		"0x%016" PRIx64 " MLID:0x%04X\n",
-		cl_ntoh64(p_recvd_rec->mgid.unicast.prefix),
-		cl_ntoh64(p_recvd_rec->mgid.unicast.interface_id),
+		"osmt_run_mcast_flow: " "Created MGID:%s MLID:0x%04X\n",
+		inet_ntop(AF_INET6, p_recvd_rec->mgid.raw, gid_str,
+			sizeof gid_str),
 		cl_ntoh16(p_recvd_rec->mlid));
 	cl_map_insert(&test_created_mlids, cl_ntoh16(p_recvd_rec->mlid),
 		      p_recvd_rec);
@@ -1610,9 +1603,9 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	    (p_mc_res->mgid.multicast.raw_group_id[1] != 0x1B)) {
 		osm_log(&p_osmt->log, OSM_LOG_ERROR,
 			"osmt_run_mcast_flow: ERR 0209: "
-			"Validating MGID failed. MGID:0x%016" PRIx64 ":%016"
-			PRIx64 "\n", cl_ntoh64(p_mc_res->mgid.unicast.prefix),
-			cl_ntoh64(p_mc_res->mgid.unicast.interface_id)
+			"Validating MGID failed. MGID:%s\n",
+			inet_ntop(AF_INET6, p_mc_res->mgid.raw, gid_str,
+				sizeof gid_str)
 		    );
 		status = IB_ERROR;
 		goto Exit;
@@ -1656,10 +1649,9 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	p_recvd_rec =
 	    (ib_member_rec_t *) ib_sa_mad_get_payload_ptr(&res_sa_mad);
 	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmt_run_mcast_flow: " "Created MGID:0x%016" PRIx64 " : "
-		"0x%016" PRIx64 " MLID:0x%04X\n",
-		cl_ntoh64(p_recvd_rec->mgid.unicast.prefix),
-		cl_ntoh64(p_recvd_rec->mgid.unicast.interface_id),
+		"osmt_run_mcast_flow: " "Created MGID:%s MLID:0x%04X\n",
+		inet_ntop(AF_INET6, p_recvd_rec->mgid.raw, gid_str,
+			sizeof gid_str),
 		cl_ntoh16(p_recvd_rec->mlid));
 	cl_map_insert(&test_created_mlids, cl_ntoh16(p_recvd_rec->mlid),
 		      p_recvd_rec);
@@ -1671,10 +1663,9 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 
 	osm_log(&p_osmt->log, OSM_LOG_INFO,
 		"osmt_run_mcast_flow: "
-		"Checking Create given valid MGID=0x%016" PRIx64 " : "
-		"0x%016" PRIx64 " (o15.0.1.6)...\n",
-		cl_ntoh64(mc_req_rec.mgid.unicast.prefix),
-		cl_ntoh64(mc_req_rec.mgid.unicast.interface_id));
+		"Checking Create given valid MGID=%s (o15.0.1.6)...\n",
+		inet_ntop(AF_INET6, mc_req_rec.mgid.raw, gid_str,
+			sizeof gid_str));
 
 	/* Before creation, need to check that this group doesn't exist */
 	osm_log(&p_osmt->log, OSM_LOG_INFO,
@@ -1707,20 +1698,18 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 
 	osm_log(&p_osmt->log, OSM_LOG_INFO,
 		"osmt_run_mcast_flow: "
-		"Now creating group with given valid MGID=0x%016" PRIx64 " : "
-		"0x%016" PRIx64 " (o15.0.1.6)...\n",
-		cl_ntoh64(mc_req_rec.mgid.unicast.prefix),
-		cl_ntoh64(mc_req_rec.mgid.unicast.interface_id));
+		"Now creating group with given valid MGID=%s (o15.0.1.6)...\n",
+		inet_ntop(AF_INET6, mc_req_rec.mgid.raw, gid_str,
+			sizeof gid_str));
 
 	status = osmt_send_mcast_request(p_osmt, 1,
 					 &mc_req_rec, comp_mask, &res_sa_mad);
 	if (status != IB_SUCCESS) {
 		osm_log(&p_osmt->log, OSM_LOG_ERROR,
 			"osmt_run_mcast_flow: ERR 0211: "
-			"Failed to create MCG for MGID=0x%016" PRIx64 " : "
-			"0x%016" PRIx64 " (o15.0.1.6) - got %s/%s\n",
-			cl_ntoh64(good_mgid.unicast.prefix),
-			cl_ntoh64(good_mgid.unicast.interface_id),
+			"Failed to create MCG for MGID=%s (o15.0.1.6) - got %s/%s\n",
+			inet_ntop(AF_INET6, good_mgid.raw, gid_str,
+				sizeof gid_str),
 			ib_get_err_str(status),
 			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		goto Exit;
@@ -1730,10 +1719,9 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	p_recvd_rec =
 	    (ib_member_rec_t *) ib_sa_mad_get_payload_ptr(&res_sa_mad);
 	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmt_run_mcast_flow: " "Created MGID:0x%016" PRIx64 " : "
-		"0x%016" PRIx64 " MLID:0x%04X\n",
-		cl_ntoh64(p_recvd_rec->mgid.unicast.prefix),
-		cl_ntoh64(p_recvd_rec->mgid.unicast.interface_id),
+		"osmt_run_mcast_flow: " "Created MGID:%s MLID:0x%04X\n",
+		inet_ntop(AF_INET6, p_recvd_rec->mgid.raw, gid_str,
+			sizeof gid_str),
 		cl_ntoh16(p_recvd_rec->mlid));
 	cl_map_insert(&test_created_mlids, cl_ntoh16(p_recvd_rec->mlid),
 		      p_recvd_rec);
@@ -1747,9 +1735,9 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	    (p_mc_res->mgid.multicast.raw_group_id[1] != 0x1C)) {
 		osm_log(&p_osmt->log, OSM_LOG_ERROR,
 			"osmt_run_mcast_flow: ERR 0212: "
-			"Validating MGID failed. MGID:0x%016" PRIx64 ":%016"
-			PRIx64 "\n", cl_ntoh64(p_mc_res->mgid.unicast.prefix),
-			cl_ntoh64(p_mc_res->mgid.unicast.interface_id)
+			"Validating MGID failed. MGID:%s\n",
+			inet_ntop(AF_INET6, p_mc_res->mgid.raw, gid_str,
+				sizeof gid_str)
 		    );
 		status = IB_ERROR;
 		goto Exit;
@@ -1842,10 +1830,10 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 
 	osm_log(&p_osmt->log, OSM_LOG_INFO,
 		"osmt_run_mcast_flow: "
-		"Checking local scope with full member \n\t\tand valid mgid 0x%016"
-		PRIx64 ":0x%016" PRIx64 "  ... (o15.0.1.6)...\n",
-		cl_ntoh64(mc_req_rec.mgid.unicast.prefix),
-		cl_ntoh64(mc_req_rec.mgid.unicast.interface_id));
+		"Checking local scope with full member \n\t\tand valid mgid %s"
+		"  ... (o15.0.1.6)...\n",
+		inet_ntop(AF_INET6, mc_req_rec.mgid.raw, gid_str,
+			sizeof gid_str));
 
 	mc_req_rec.mgid = good_mgid;
 
@@ -1856,10 +1844,9 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	if (status != IB_SUCCESS) {
 		osm_log(&p_osmt->log, OSM_LOG_ERROR,
 			"osmt_run_mcast_flow: ERR 0216: "
-			"Failed to create MCG for MGID=0x%016" PRIx64 " : "
-			"0x%016" PRIx64 " - got %s/%s\n",
-			cl_ntoh64(good_mgid.unicast.prefix),
-			cl_ntoh64(good_mgid.unicast.interface_id),
+			"Failed to create MCG for MGID=%s - got %s/%s\n",
+			inet_ntop(AF_INET6, good_mgid.raw, gid_str,
+				sizeof gid_str),
 			ib_get_err_str(status),
 			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		goto Exit;
@@ -1869,10 +1856,9 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	p_recvd_rec =
 	    (ib_member_rec_t *) ib_sa_mad_get_payload_ptr(&res_sa_mad);
 	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmt_run_mcast_flow: " "Created MGID:0x%016" PRIx64 " : "
-		"0x%016" PRIx64 " MLID:0x%04X\n",
-		cl_ntoh64(p_recvd_rec->mgid.unicast.prefix),
-		cl_ntoh64(p_recvd_rec->mgid.unicast.interface_id),
+		"osmt_run_mcast_flow: " "Created MGID:%s MLID:0x%04X\n",
+		inet_ntop(AF_INET6, p_recvd_rec->mgid.raw, gid_str,
+			sizeof gid_str),
 		cl_ntoh16(p_recvd_rec->mlid));
 	cl_map_insert(&test_created_mlids, cl_ntoh16(p_recvd_rec->mlid),
 		      p_recvd_rec);
@@ -1932,10 +1918,9 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	p_recvd_rec =
 	    (ib_member_rec_t *) ib_sa_mad_get_payload_ptr(&res_sa_mad);
 	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmt_run_mcast_flow: " "Created MGID:0x%016" PRIx64 " : "
-		"0x%016" PRIx64 " MLID:0x%04X\n",
-		cl_ntoh64(p_recvd_rec->mgid.unicast.prefix),
-		cl_ntoh64(p_recvd_rec->mgid.unicast.interface_id),
+		"osmt_run_mcast_flow: " "Created MGID:%s MLID:0x%04X\n",
+		inet_ntop(AF_INET6, p_recvd_rec->mgid.raw, gid_str,
+			sizeof gid_str),
 		cl_ntoh16(p_recvd_rec->mlid));
 	cl_map_insert(&test_created_mlids, cl_ntoh16(p_recvd_rec->mlid),
 		      p_recvd_rec);
@@ -1999,10 +1984,9 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	p_recvd_rec =
 	    (ib_member_rec_t *) ib_sa_mad_get_payload_ptr(&res_sa_mad);
 	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmt_run_mcast_flow: " "Created MGID:0x%016" PRIx64 " : "
-		"0x%016" PRIx64 " MLID:0x%04X\n",
-		cl_ntoh64(p_recvd_rec->mgid.unicast.prefix),
-		cl_ntoh64(p_recvd_rec->mgid.unicast.interface_id),
+		"osmt_run_mcast_flow: " "Created MGID:%s MLID:0x%04X\n",
+		inet_ntop(AF_INET6, p_recvd_rec->mgid.raw, gid_str,
+			sizeof gid_str),
 		cl_ntoh16(p_recvd_rec->mlid));
 	cl_map_insert(&test_created_mlids, cl_ntoh16(p_recvd_rec->mlid),
 		      p_recvd_rec);
@@ -2065,10 +2049,9 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	p_recvd_rec =
 	    (ib_member_rec_t *) ib_sa_mad_get_payload_ptr(&res_sa_mad);
 	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmt_run_mcast_flow: " "Created MGID:0x%016" PRIx64 " : "
-		"0x%016" PRIx64 " MLID:0x%04X\n",
-		cl_ntoh64(p_recvd_rec->mgid.unicast.prefix),
-		cl_ntoh64(p_recvd_rec->mgid.unicast.interface_id),
+		"osmt_run_mcast_flow: " "Created MGID:%s MLID:0x%04X\n",
+		inet_ntop(AF_INET6, p_recvd_rec->mgid.raw, gid_str,
+			sizeof gid_str),
 		cl_ntoh16(p_recvd_rec->mlid));
 	cl_map_insert(&test_created_mlids, cl_ntoh16(p_recvd_rec->mlid),
 		      p_recvd_rec);
@@ -2476,10 +2459,9 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	/* Prepare another MCG for the following tests : */
 	osm_log(&p_osmt->log, OSM_LOG_INFO,
 		"osmt_run_mcast_flow: "
-		"Checking Create given MGID=0x%016" PRIx64 " : "
-		"0x%016" PRIx64 "\n\t\t(o15.0.1.4)...\n",
-		cl_ntoh64(osm_ipoib_mgid.unicast.prefix),
-		cl_ntoh64(osm_ipoib_mgid.unicast.interface_id));
+		"Checking Create given MGID=%s\n\t\t(o15.0.1.4)...\n",
+		inet_ntop(AF_INET6, osm_ipoib_mgid.raw, gid_str,
+			sizeof gid_str));
 
 	mc_req_rec.mgid = good_mgid;
 	mc_req_rec.mgid.raw[12] = 0xAA;
@@ -2493,10 +2475,9 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	if (status != IB_SUCCESS) {
 		osm_log(&p_osmt->log, OSM_LOG_ERROR,
 			"osmt_run_mcast_flow: ERR 02BE: "
-			"Failed to create MCG for 0x%016" PRIx64 " : "
-			"0x%016" PRIx64 " - got %s/%s\n",
-			cl_ntoh64(good_mgid.unicast.prefix),
-			cl_ntoh64(good_mgid.unicast.interface_id),
+			"Failed to create MCG for %s - got %s/%s\n",
+			inet_ntop(AF_INET6, good_mgid.raw, gid_str,
+				sizeof gid_str),
 			ib_get_err_str(status),
 			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		goto Exit;
@@ -2706,12 +2687,11 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 			osm_log(&p_osmt->log, OSM_LOG_ERROR,
 				"osmt_run_mcast_flow: ERR 02A9: "
 				"Successful deletion of remote port guid with local one MGID : "
-				"0x%016" PRIx64 " : 0x%016" PRIx64
-				", Got : %s/%s\n",
-				cl_ntoh64(p_mgrp->mcmember_rec.mgid.unicast.
-					  prefix),
-				cl_ntoh64(p_mgrp->mcmember_rec.mgid.unicast.
-					  interface_id), ib_get_err_str(status),
+				"%s, Got : %s/%s\n",
+				inet_ntop(AF_INET6,
+					p_mgrp->mcmember_rec.mgid.raw,
+					gid_str, sizeof gid_str),
+				ib_get_err_str(status),
 				ib_get_mad_status_str((ib_mad_t
 						       *) (&res_sa_mad)));
 			status = IB_ERROR;
@@ -2737,12 +2717,11 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 			osm_log(&p_osmt->log, OSM_LOG_ERROR,
 				"osmt_run_mcast_flow: ERR 02B0: "
 				"Failed to delete mgid with remote port guid MGID : "
-				"0x%016" PRIx64 " : 0x%016" PRIx64
-				", Got : %s/%s\n",
-				cl_ntoh64(p_mgrp->mcmember_rec.mgid.unicast.
-					  prefix),
-				cl_ntoh64(p_mgrp->mcmember_rec.mgid.unicast.
-					  interface_id), ib_get_err_str(status),
+				"%s, Got : %s/%s\n",
+				inet_ntop(AF_INET6,
+					p_mgrp->mcmember_rec.mgid.raw,
+					gid_str, sizeof gid_str),
+				ib_get_err_str(status),
 				ib_get_mad_status_str((ib_mad_t
 						       *) (&res_sa_mad)));
 			goto Exit;
@@ -2816,12 +2795,10 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 				    ib_sa_mad_get_payload_ptr(&res_sa_mad);
 				osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
 					"osmt_run_mcast_flow : "
-					"Created MGID:0x%016" PRIx64 " : "
-					"0x%016" PRIx64 " MLID:0x%04X\n",
-					cl_ntoh64(p_recvd_rec->mgid.unicast.
-						  prefix),
-					cl_ntoh64(p_recvd_rec->mgid.unicast.
-						  interface_id),
+					"Created MGID:%s MLID:0x%04X\n",
+					inet_ntop(AF_INET6,
+						p_recvd_rec->mgid.raw,
+						gid_str, sizeof gid_str),
 					cl_ntoh16(p_recvd_rec->mlid));
 				cl_map_insert(&test_created_mlids,
 					      cl_ntoh16(p_recvd_rec->mlid),
@@ -2881,10 +2858,10 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 
 			osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
 				"osmt_run_mcast_flow : "
-				"Sending request to delete MGID : 0x%016" PRIx64
-				" : 0x%016" PRIx64 ", scope_state : 0x%02X\n",
-				cl_ntoh64(mc_req_rec.mgid.unicast.prefix),
-				cl_ntoh64(mc_req_rec.mgid.unicast.interface_id),
+				"Sending request to delete MGID : %s"
+				", scope_state : 0x%02X\n",
+				inet_ntop(AF_INET6, mc_req_rec.mgid.raw,
+					gid_str, sizeof gid_str),
 				mc_req_rec.scope_state);
 			status = osmt_send_mcast_request(p_osmt, 0,	/* delete flag */
 							 &mc_req_rec,
@@ -2893,13 +2870,11 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 			if (status != IB_SUCCESS) {
 				osm_log(&p_osmt->log, OSM_LOG_ERROR,
 					"osmt_run_mcast_flow: ERR 02FF: "
-					"Failed to delete MGID : 0x%016" PRIx64
-					" : 0x%016" PRIx64
+					"Failed to delete MGID : %s"
 					" ,\n\t\t it is not our MCG, Status : %s/%s\n",
-					cl_ntoh64(p_mgrp->mcmember_rec.mgid.
-						  unicast.prefix),
-					cl_ntoh64(p_mgrp->mcmember_rec.mgid.
-						  unicast.interface_id),
+					inet_ntop(AF_INET6,
+						p_mgrp->mcmember_rec.mgid.raw,
+						gid_str, sizeof gid_str),
 					ib_get_err_str(status),
 					ib_get_mad_status_str((ib_mad_t
 							       *)
@@ -2963,26 +2938,23 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 				/* This means that we still have an mgrp that we created!! */
 				osm_log(&p_osmt->log, OSM_LOG_ERROR,
 					"osmt_run_mcast_flow: ERR 02FE: "
-					"Wasn't able to erase mgrp with MGID:0x%016"
-					PRIx64 " : 0x%016" PRIx64
+					"Wasn't able to erase mgrp with MGID:%s"
 					" MLID:0x%04X\n",
-					cl_ntoh64(p_mgrp->mcmember_rec.mgid.
-						  unicast.prefix),
-					cl_ntoh64(p_mgrp->mcmember_rec.mgid.
-						  unicast.interface_id), mlid);
+					inet_ntop(AF_INET6,
+						p_mgrp->mcmember_rec.mgid.raw,
+						gid_str, sizeof gid_str),
+					mlid);
 				got_error = TRUE;
 			} else {
 				osm_log(&p_osmt->log, OSM_LOG_INFO,
 					"osmt_run_mcast_flow: "
-					"Still exists %s MGID:0x%016" PRIx64
-					" : 0x%016" PRIx64 "\n",
+					"Still exists %s MGID:%s\n",
 					(IS_IPOIB_MGID
 					 (&p_mgrp->mcmember_rec.
 					  mgid)) ? "IPoIB" : "non-IPoIB",
-					cl_ntoh64(p_mgrp->mcmember_rec.mgid.
-						  unicast.prefix),
-					cl_ntoh64(p_mgrp->mcmember_rec.mgid.
-						  unicast.interface_id));
+					inet_ntop(AF_INET6,
+						p_mgrp->mcmember_rec.mgid.raw,
+						gid_str, sizeof gid_str));
 			}
 			p_mgrp =
 			    (osmtest_mgrp_t *) cl_qmap_next(&p_mgrp->map_item);

@@ -46,6 +46,7 @@
 
 #include <string.h>
 #include <iba/ib_types.h>
+#include <arpa/inet.h>
 #include <complib/cl_qmap.h>
 #include <complib/cl_passivelock.h>
 #include <complib/cl_debug.h>
@@ -336,6 +337,7 @@ static void
 osm_infr_rcv_process_get_method(IN osm_sa_t * sa,
 				IN osm_madw_t * const p_madw)
 {
+	char gid_str[INET6_ADDRSTRLEN];
 	ib_sa_mad_t *p_rcvd_mad;
 	const ib_inform_info_record_t *p_rcvd_rec;
 	cl_qlist_t rec_list;
@@ -376,10 +378,10 @@ osm_infr_rcv_process_get_method(IN osm_sa_t * sa,
 	context.p_req_physp = p_req_physp;
 
 	OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-		"Query Subscriber GID:0x%016" PRIx64 " : 0x%016" PRIx64
+		"Query Subscriber GID:%s"
 		"(%02X) Enum:0x%X(%02X)\n",
-		cl_ntoh64(p_rcvd_rec->subscriber_gid.unicast.prefix),
-		cl_ntoh64(p_rcvd_rec->subscriber_gid.unicast.interface_id),
+		inet_ntop(AF_INET6, p_rcvd_rec->subscriber_gid.raw,
+			gid_str, sizeof gid_str),
 		(p_rcvd_mad->comp_mask & IB_IIR_COMPMASK_SUBSCRIBERGID) != 0,
 		cl_ntoh16(p_rcvd_rec->subscriber_enum),
 		(p_rcvd_mad->comp_mask & IB_IIR_COMPMASK_ENUM) != 0);
