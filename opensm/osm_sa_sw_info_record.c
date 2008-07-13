@@ -87,9 +87,8 @@ __osm_sir_rcv_new_sir(IN osm_sa_t * sa,
 		goto Exit;
 	}
 
-	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
-		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-			"New SwitchInfoRecord: lid 0x%X\n", cl_ntoh16(lid));
+	OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
+		"New SwitchInfoRecord: lid 0x%X\n", cl_ntoh16(lid));
 
 	memset(p_rec_item, 0, sizeof(*p_rec_item));
 
@@ -120,10 +119,9 @@ __osm_sir_rcv_create_sir(IN osm_sa_t * sa,
 
 	OSM_LOG_ENTER(sa->p_log);
 
-	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
-		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-			"Looking for SwitchInfoRecord with LID: %u\n",
-			cl_ntoh16(match_lid));
+	OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
+		"Looking for SwitchInfoRecord with LID: %u\n",
+		cl_ntoh16(match_lid));
 
 	/* In switches, the port guid is the node guid. */
 	p_port =
@@ -156,10 +154,9 @@ __osm_sir_rcv_create_sir(IN osm_sa_t * sa,
 		/*
 		   We validate that the lid belongs to this switch.
 		 */
-		if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
-			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-				"Comparing LID: %u <= %u <= %u\n",
-				min_lid_ho, match_lid_ho, max_lid_ho);
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
+			"Comparing LID: %u <= %u <= %u\n",
+			min_lid_ho, match_lid_ho, max_lid_ho);
 
 		if (match_lid_ho < min_lid_ho || match_lid_ho > max_lid_ho)
 			goto Exit;

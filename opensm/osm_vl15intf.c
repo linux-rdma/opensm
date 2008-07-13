@@ -83,14 +83,13 @@ static void vl15_send_mad(osm_vl15_t * p_vl, osm_madw_t * p_madw)
 				 p_madw, p_madw->resp_expected);
 
 	if (status == IB_SUCCESS) {
-		if (osm_log_is_active(p_vl->p_log, OSM_LOG_DEBUG))
-			OSM_LOG(p_vl->p_log, OSM_LOG_DEBUG,
-				"%u QP0 MADs on wire, %u outstanding, "
-				"%u unicasts sent, %u total sent\n",
-				p_vl->p_stats->qp0_mads_outstanding_on_wire,
-				p_vl->p_stats->qp0_mads_outstanding,
-				p_vl->p_stats->qp0_unicasts_sent,
-				p_vl->p_stats->qp0_mads_sent);
+		OSM_LOG(p_vl->p_log, OSM_LOG_DEBUG,
+			"%u QP0 MADs on wire, %u outstanding, "
+			"%u unicasts sent, %u total sent\n",
+			p_vl->p_stats->qp0_mads_outstanding_on_wire,
+			p_vl->p_stats->qp0_mads_outstanding,
+			p_vl->p_stats->qp0_unicasts_sent,
+			p_vl->p_stats->qp0_mads_sent);
 		return;
 	}
 
@@ -143,10 +142,8 @@ static void __osm_vl15_poller(IN void *p_ptr)
 		cl_spinlock_release(&p_vl->lock);
 
 		if (p_madw != (osm_madw_t *) cl_qlist_end(p_fifo)) {
-			if (osm_log_is_active(p_vl->p_log, OSM_LOG_DEBUG))
-				OSM_LOG(p_vl->p_log, OSM_LOG_DEBUG,
-					"Servicing p_madw = %p\n", p_madw);
-
+			OSM_LOG(p_vl->p_log, OSM_LOG_DEBUG,
+				"Servicing p_madw = %p\n", p_madw);
 			if (osm_log_is_active(p_vl->p_log, OSM_LOG_FRAMES))
 				osm_dump_dr_smp(p_vl->p_log,
 						osm_madw_get_smp_ptr(p_madw),
@@ -304,10 +301,8 @@ void osm_vl15_poll(IN osm_vl15_t * const p_vl)
 	 */
 	if (p_vl->p_stats->qp0_mads_outstanding_on_wire <
 	    (int32_t) p_vl->max_wire_smps) {
-		if (osm_log_is_active(p_vl->p_log, OSM_LOG_DEBUG))
-			OSM_LOG(p_vl->p_log, OSM_LOG_DEBUG,
-				"Signalling poller thread\n");
-
+		OSM_LOG(p_vl->p_log, OSM_LOG_DEBUG,
+			"Signalling poller thread\n");
 		cl_event_signal(&p_vl->signal);
 	}
 
@@ -322,9 +317,7 @@ void osm_vl15_post(IN osm_vl15_t * const p_vl, IN osm_madw_t * const p_madw)
 
 	CL_ASSERT(p_vl->state == OSM_VL15_STATE_READY);
 
-	if (osm_log_is_active(p_vl->p_log, OSM_LOG_DEBUG))
-		OSM_LOG(p_vl->p_log, OSM_LOG_DEBUG,
-			"Posting p_madw = 0x%p\n", p_madw);
+	OSM_LOG(p_vl->p_log, OSM_LOG_DEBUG, "Posting p_madw = 0x%p\n", p_madw);
 
 	/*
 	   Determine in which fifo to place the pending madw.
@@ -337,11 +330,10 @@ void osm_vl15_post(IN osm_vl15_t * const p_vl, IN osm_madw_t * const p_madw)
 		cl_qlist_insert_tail(&p_vl->ufifo, &p_madw->list_item);
 	cl_spinlock_release(&p_vl->lock);
 
-	if (osm_log_is_active(p_vl->p_log, OSM_LOG_DEBUG))
-		OSM_LOG(p_vl->p_log, OSM_LOG_DEBUG,
-			"%u QP0 MADs on wire, %u QP0 MADs outstanding\n",
-			p_vl->p_stats->qp0_mads_outstanding_on_wire,
-			p_vl->p_stats->qp0_mads_outstanding);
+	OSM_LOG(p_vl->p_log, OSM_LOG_DEBUG,
+		"%u QP0 MADs on wire, %u QP0 MADs outstanding\n",
+		p_vl->p_stats->qp0_mads_outstanding_on_wire,
+		p_vl->p_stats->qp0_mads_outstanding);
 
 	osm_vl15_poll(p_vl);
 
@@ -367,9 +359,8 @@ osm_vl15_shutdown(IN osm_vl15_t * const p_vl,
 	/* first we handle the list of response MADs */
 	p_madw = (osm_madw_t *) cl_qlist_remove_head(&p_vl->ufifo);
 	while (p_madw != (osm_madw_t *) cl_qlist_end(&p_vl->ufifo)) {
-		if (osm_log_is_active(p_vl->p_log, OSM_LOG_DEBUG))
-			OSM_LOG(p_vl->p_log, OSM_LOG_DEBUG,
-				"Releasing Response p_madw = %p\n", p_madw);
+		OSM_LOG(p_vl->p_log, OSM_LOG_DEBUG,
+			"Releasing Response p_madw = %p\n", p_madw);
 
 		osm_mad_pool_put(p_mad_pool, p_madw);
 
@@ -379,9 +370,8 @@ osm_vl15_shutdown(IN osm_vl15_t * const p_vl,
 	/* Request MADs we send out */
 	p_madw = (osm_madw_t *) cl_qlist_remove_head(&p_vl->rfifo);
 	while (p_madw != (osm_madw_t *) cl_qlist_end(&p_vl->rfifo)) {
-		if (osm_log_is_active(p_vl->p_log, OSM_LOG_DEBUG))
-			OSM_LOG(p_vl->p_log, OSM_LOG_DEBUG,
-				"Releasing Request p_madw = %p\n", p_madw);
+		OSM_LOG(p_vl->p_log, OSM_LOG_DEBUG,
+			"Releasing Request p_madw = %p\n", p_madw);
 
 		osm_mad_pool_put(p_mad_pool, p_madw);
 		cl_atomic_dec(&p_vl->p_stats->qp0_mads_outstanding);

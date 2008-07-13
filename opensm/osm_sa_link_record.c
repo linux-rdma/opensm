@@ -193,14 +193,12 @@ __osm_lr_rcv_get_physp_link(IN osm_sa_t * sa,
 		if (to_base_lid != (p_lr->to_lid & lmc_mask))
 			goto Exit;
 
-	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
-		OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Acquiring link record\n"
-			"\t\t\t\tsrc port 0x%" PRIx64 " (port 0x%X)"
-			", dest port 0x%" PRIx64 " (port 0x%X)\n",
-			cl_ntoh64(osm_physp_get_port_guid(p_src_physp)),
-			src_port_num,
-			cl_ntoh64(osm_physp_get_port_guid(p_dest_physp)),
-			dest_port_num);
+	OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Acquiring link record\n"
+		"\t\t\t\tsrc port 0x%" PRIx64 " (port 0x%X)"
+		", dest port 0x%" PRIx64 " (port 0x%X)\n",
+		cl_ntoh64(osm_physp_get_port_guid(p_src_physp)), src_port_num,
+		cl_ntoh64(osm_physp_get_port_guid(p_dest_physp)),
+		dest_port_num);
 
 
 	__osm_lr_rcv_build_physp_link(sa, from_base_lid, to_base_lid,

@@ -95,12 +95,9 @@ __osm_link_mgr_set_physp_pi(osm_sm_t * sm,
 		    == FALSE) {
 			/* This means the switch doesn't support enhanced port 0.
 			   Can skip it. */
-			if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG))
-				OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-					"Skipping port 0, GUID 0x%016" PRIx64
-					"\n",
-					cl_ntoh64(osm_physp_get_port_guid
-						  (p_physp)));
+			OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
+				"Skipping port 0, GUID 0x%016" PRIx64 "\n",
+				cl_ntoh64(osm_physp_get_port_guid(p_physp)));
 			goto Exit;
 		}
 		esp0 = TRUE;
@@ -347,11 +344,10 @@ __osm_link_mgr_process_node(osm_sm_t * sm,
 
 	OSM_LOG_ENTER(sm->p_log);
 
-	if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG))
-		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-			"Node 0x%" PRIx64 " going to %s\n",
-			cl_ntoh64(osm_node_get_node_guid(p_node)),
-			ib_get_port_state_str(link_state));
+	OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
+		"Node 0x%" PRIx64 " going to %s\n",
+		cl_ntoh64(osm_node_get_node_guid(p_node)),
+		ib_get_port_state_str(link_state));
 
 	/*
 	   Set the PortInfo for every Physical Port associated

@@ -257,11 +257,10 @@ ib_api_status_t osm_sm_state_mgr_process(osm_sm_t * sm,
 	 */
 	cl_spinlock_acquire(&sm->state_lock);
 
-	if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG))
-		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-			"Received signal %s in state %s\n",
-			osm_get_sm_mgr_signal_str(signal),
-			osm_get_sm_mgr_state_str(sm->p_subn->sm_state));
+	OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
+		"Received signal %s in state %s\n",
+		osm_get_sm_mgr_signal_str(signal),
+		osm_get_sm_mgr_state_str(sm->p_subn->sm_state));
 
 	switch (sm->p_subn->sm_state) {
 	case IB_SMINFO_STATE_DISCOVERING:
@@ -476,11 +475,10 @@ ib_api_status_t osm_sm_state_mgr_check_legality(osm_sm_t * sm,
 	 */
 	cl_spinlock_acquire(&sm->state_lock);
 
-	if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG))
-		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-			"Received signal %s in state %s\n",
-			osm_get_sm_mgr_signal_str(signal),
-			osm_get_sm_mgr_state_str(sm->p_subn->sm_state));
+	OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
+		"Received signal %s in state %s\n",
+		osm_get_sm_mgr_signal_str(signal),
+		osm_get_sm_mgr_state_str(sm->p_subn->sm_state));
 
 	switch (sm->p_subn->sm_state) {
 	case IB_SMINFO_STATE_DISCOVERING:

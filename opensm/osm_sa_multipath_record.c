@@ -258,9 +258,8 @@ __osm_mpr_rcv_get_path_parms(IN osm_sa_t * sa,
 				valid_sl_mask &= ~(1 << i);
 		}
 		if (!valid_sl_mask) {
-			if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
-				OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-					"All the SLs lead to VL15 on this path\n");
+			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
+				"All the SLs lead to VL15 on this path\n");
 			status = IB_NOT_FOUND;
 			goto Exit;
 		}
@@ -372,10 +371,9 @@ __osm_mpr_rcv_get_path_parms(IN osm_sa_t * sa,
 					valid_sl_mask &= ~(1 << i);
 			}
 			if (!valid_sl_mask) {
-				if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
-					OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-						"All the SLs lead to VL15 "
-						"on this path\n");
+				OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
+					"All the SLs lead to VL15 "
+					"on this path\n");
 				status = IB_NOT_FOUND;
 				goto Exit;
 			}
@@ -393,10 +391,8 @@ __osm_mpr_rcv_get_path_parms(IN osm_sa_t * sa,
 	if (rate > ib_port_info_compute_rate(p_pi))
 		rate = ib_port_info_compute_rate(p_pi);
 
-	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG)) {
-		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-			"Path min MTU = %u, min rate = %u\n", mtu, rate);
-	}
+	OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
+		"Path min MTU = %u, min rate = %u\n", mtu, rate);
 
 	/*
 	 * Get QoS Level object according to the MultiPath request
@@ -409,12 +405,10 @@ __osm_mpr_rcv_get_path_parms(IN osm_sa_t * sa,
 						 p_mpr, p_src_physp,
 						 p_dest_physp, comp_mask))) {
 
-		if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
-			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-				"MultiPathRecord request matches QoS Level '%s' (%s)\n",
-				p_qos_level->name,
-				(p_qos_level->use) ? p_qos_level->
-				use : "no description");
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
+			"MultiPathRecord request matches QoS Level '%s' (%s)\n",
+			p_qos_level->name,
+			p_qos_level->use ? p_qos_level->use : "no description");
 
 		if (p_qos_level->mtu_limit_set
 		    && (mtu > p_qos_level->mtu_limit))
@@ -737,11 +731,10 @@ __osm_mpr_rcv_get_path_parms(IN osm_sa_t * sa,
 	p_parms->sl = required_sl;
 	p_parms->hops = hops;
 
-	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
-		OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "MultiPath params:"
-			" mtu = %u, rate = %u, packet lifetime = %u,"
-			" pkey = 0x%04X, sl = %u, hops = %u\n", mtu, rate,
-			pkt_life, cl_ntoh16(required_pkey), required_sl, hops);
+	OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "MultiPath params:"
+		" mtu = %u, rate = %u, packet lifetime = %u,"
+		" pkey = 0x%04X, sl = %u, hops = %u\n", mtu, rate,
+		pkt_life, cl_ntoh16(required_pkey), required_sl, hops);
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);
@@ -820,10 +813,8 @@ __osm_mpr_rcv_get_lid_pair_path(IN osm_sa_t * sa,
 
 	OSM_LOG_ENTER(sa->p_log);
 
-	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
-		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-			"Src LID %u, Dest LID %u\n",
-			src_lid_ho, dest_lid_ho);
+	OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Src LID %u, Dest LID %u\n",
+		src_lid_ho, dest_lid_ho);
 
 	p_pr_item = malloc(sizeof(*p_pr_item));
 	if (p_pr_item == NULL) {
@@ -906,12 +897,10 @@ __osm_mpr_rcv_get_port_pair_paths(IN osm_sa_t * sa,
 
 	OSM_LOG_ENTER(sa->p_log);
 
-	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
-		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-			"Src port 0x%016" PRIx64 ", "
-			"Dst port 0x%016" PRIx64 "\n",
-			cl_ntoh64(osm_port_get_guid(p_src_port)),
-			cl_ntoh64(osm_port_get_guid(p_dest_port)));
+	OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
+		"Src port 0x%016" PRIx64 ", Dst port 0x%016" PRIx64 "\n",
+		cl_ntoh64(osm_port_get_guid(p_src_port)),
+		cl_ntoh64(osm_port_get_guid(p_dest_port)));
 
 	/* Check that the req_port, src_port and dest_port all share a
 	   pkey. The check is done on the default physical port of the ports. */
@@ -972,11 +961,9 @@ __osm_mpr_rcv_get_port_pair_paths(IN osm_sa_t * sa,
 	osm_port_get_lid_range_ho(p_dest_port, &dest_lid_min_ho,
 				  &dest_lid_max_ho);
 
-	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
-		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-			"Src LID [%u-%u], Dest LID [%u-%u]\n",
-			src_lid_min_ho, src_lid_max_ho,
-			dest_lid_min_ho, dest_lid_max_ho);
+	OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Src LID [%u-%u], Dest LID [%u-%u]\n",
+		src_lid_min_ho, src_lid_max_ho,
+		dest_lid_min_ho, dest_lid_max_ho);
 
 	src_lid_ho = src_lid_min_ho;
 	dest_lid_ho = dest_lid_min_ho;
@@ -1101,12 +1088,10 @@ __osm_mpr_rcv_get_apm_port_pair_paths(IN osm_sa_t * sa,
 
 	OSM_LOG_ENTER(sa->p_log);
 
-	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
-		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-			"Src port 0x%016" PRIx64 ", "
-			"Dst port 0x%016" PRIx64 ", base offs %d\n",
-			cl_ntoh64(osm_port_get_guid(p_src_port)),
-			cl_ntoh64(osm_port_get_guid(p_dest_port)), base_offs);
+	OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Src port 0x%016" PRIx64 ", "
+		"Dst port 0x%016" PRIx64 ", base offs %d\n",
+		cl_ntoh64(osm_port_get_guid(p_src_port)),
+		cl_ntoh64(osm_port_get_guid(p_dest_port)), base_offs);
 
 	osm_port_get_lid_range_ho(p_src_port, &src_lid_min_ho, &src_lid_max_ho);
 	osm_port_get_lid_range_ho(p_dest_port, &dest_lid_min_ho,

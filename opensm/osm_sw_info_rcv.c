@@ -149,9 +149,8 @@ __osm_si_rcv_get_fwd_tbl(IN osm_sm_t * sm, IN osm_switch_t * const p_sw)
 	p_dr_path = osm_physp_get_dr_path_ptr(p_physp);
 
 	for (block_id_ho = 0; block_id_ho <= max_block_id_ho; block_id_ho++) {
-		if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG))
-			OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-				"Retrieving FT block %u\n", block_id_ho);
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
+			"Retrieving FT block %u\n", block_id_ho);
 
 		status = osm_req_get(sm, p_dr_path, IB_MAD_ATTR_LIN_FWD_TBL,
 				     cl_hton32(block_id_ho),
@@ -226,15 +225,12 @@ __osm_si_rcv_get_mcast_fwd_tbl(IN osm_sm_t * sm, IN osm_switch_t * const p_sw)
 	p_dr_path = osm_physp_get_dr_path_ptr(p_physp);
 
 	for (block_id_ho = 0; block_id_ho <= max_block_id_ho; block_id_ho++) {
-		if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG))
-			OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-				"Retrieving MFT block %u\n", block_id_ho);
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
+			"Retrieving MFT block %u\n", block_id_ho);
 
 		for (position = 0; position <= max_position; position++) {
-			if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG))
-				OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-					"Retrieving MFT position %u\n",
-					position);
+			OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
+				"Retrieving MFT position %u\n", position);
 
 			attr_mod_ho =
 			    block_id_ho | position << IB_MCAST_POSITION_SHIFT;
@@ -384,15 +380,13 @@ __osm_si_rcv_process_existing(IN osm_sm_t * sm,
 	p_si_context = osm_madw_get_si_context_ptr(p_madw);
 
 	if (p_si_context->set_method) {
-		if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG))
-			OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-				"Received logical SetResp()\n");
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
+			"Received logical SetResp()\n");
 
 		osm_switch_set_switch_info(p_sw, p_si);
 	} else {
-		if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG))
-			OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-				"Received logical GetResp()\n");
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
+			"Received logical GetResp()\n");
 
 		osm_switch_set_switch_info(p_sw, p_si);
 
@@ -474,10 +468,9 @@ void osm_si_rcv_process(IN void *context, IN void *data)
 
 	node_guid = p_context->node_guid;
 
-	if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG))
-		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-			"Switch GUID 0x%016" PRIx64 ", TID 0x%" PRIx64 "\n",
-			cl_ntoh64(node_guid), cl_ntoh64(p_smp->trans_id));
+	OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
+		"Switch GUID 0x%016" PRIx64 ", TID 0x%" PRIx64 "\n",
+		cl_ntoh64(node_guid), cl_ntoh64(p_smp->trans_id));
 
 	CL_PLOCK_EXCL_ACQUIRE(sm->p_lock);
 

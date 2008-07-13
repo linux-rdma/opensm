@@ -150,14 +150,12 @@ __osm_ucast_mgr_process_neighbor(IN osm_ucast_mgr_t * const p_mgr,
 
 	OSM_LOG_ENTER(p_mgr->p_log);
 
-	if (osm_log_is_active(p_mgr->p_log, OSM_LOG_DEBUG)) {
-		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-			"Node 0x%" PRIx64 ", remote node 0x%" PRIx64
-			", port 0x%X, remote port 0x%X\n",
-			cl_ntoh64(osm_node_get_node_guid(p_this_sw->p_node)),
-			cl_ntoh64(osm_node_get_node_guid(p_remote_sw->p_node)),
-			port_num, remote_port_num);
-	}
+	OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
+		"Node 0x%" PRIx64 ", remote node 0x%" PRIx64
+		", port 0x%X, remote port 0x%X\n",
+		cl_ntoh64(osm_node_get_node_guid(p_this_sw->p_node)),
+		cl_ntoh64(osm_node_get_node_guid(p_remote_sw->p_node)),
+		port_num, remote_port_num);
 
 	p_next_sw = (osm_switch_t *) cl_qmap_head(&p_mgr->p_subn->sw_guid_tbl);
 	while (p_next_sw !=
@@ -244,12 +242,11 @@ __osm_ucast_mgr_process_port(IN osm_ucast_mgr_t * const p_mgr,
 		/* ignore potential overflow - it is handled in osm_switch.c */
 		start_from = osm_switch_get_port_by_lid(p_sw, lid_ho - 1) + 1;
 
-	if (osm_log_is_active(p_mgr->p_log, OSM_LOG_DEBUG))
-		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-			"Processing port 0x%" PRIx64 " (\'%s\' port %u), LID %u [%u,%u]\n",
-			cl_ntoh64(osm_port_get_guid(p_port)),
-			p_port->p_node->print_desc, p_port->p_physp->port_num,
-			lid_ho, min_lid_ho, max_lid_ho);
+	OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
+		"Processing port 0x%" PRIx64 " (\'%s\' port %u), LID %u [%u,%u]\n",
+		cl_ntoh64(osm_port_get_guid(p_port)),
+		p_port->p_node->print_desc, p_port->p_physp->port_num,
+		lid_ho, min_lid_ho, max_lid_ho);
 
 	/* TODO - This should be runtime error, not a CL_ASSERT() */
 	CL_ASSERT(max_lid_ho < osm_switch_get_fwd_tbl_size(p_sw));
@@ -382,11 +379,8 @@ osm_ucast_mgr_set_fwd_table(IN osm_ucast_mgr_t * const p_mgr,
 	}
 
 	if (set_swinfo_require) {
-		if (osm_log_is_active(p_mgr->p_log, OSM_LOG_DEBUG)) {
-			OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-				"Setting switch FT top to LID %u\n",
-				p_sw->max_lid_ho);
-		}
+		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
+			"Setting switch FT top to LID %u\n", p_sw->max_lid_ho);
 
 		context.si_context.light_sweep = FALSE;
 		context.si_context.node_guid = osm_node_get_node_guid(p_node);
@@ -421,10 +415,8 @@ osm_ucast_mgr_set_fwd_table(IN osm_ucast_mgr_t * const p_mgr,
 		    !memcmp(block, p_mgr->lft_buf + block_id_ho * 64, 64))
 			continue;
 
-		if (osm_log_is_active(p_mgr->p_log, OSM_LOG_DEBUG)) {
-			OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-				"Writing FT block %u\n", block_id_ho);
-		}
+		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
+			"Writing FT block %u\n", block_id_ho);
 
 		status = osm_req_set(p_mgr->sm, p_path,
 				     p_mgr->lft_buf + block_id_ho * 64,
@@ -501,11 +493,9 @@ __osm_ucast_mgr_process_tbl(IN cl_map_item_t * const p_map_item,
 
 	CL_ASSERT(p_sw && p_sw->p_node);
 
-	if (osm_log_is_active(p_mgr->p_log, OSM_LOG_DEBUG)) {
-		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-			"Processing switch 0x%" PRIx64 "\n",
-			cl_ntoh64(osm_node_get_node_guid(p_sw->p_node)));
-	}
+	OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
+		"Processing switch 0x%" PRIx64 "\n",
+		cl_ntoh64(osm_node_get_node_guid(p_sw->p_node)));
 
 	/* Initialize LIDs in buffer to invalid port number. */
 	memset(p_mgr->lft_buf, OSM_NO_PATH, IB_LID_UCAST_END_HO + 1);
@@ -558,11 +548,9 @@ __osm_ucast_mgr_process_neighbors(IN cl_map_item_t * const p_map_item,
 	CL_ASSERT(p_node);
 	CL_ASSERT(osm_node_get_type(p_node) == IB_NODE_TYPE_SWITCH);
 
-	if (osm_log_is_active(p_mgr->p_log, OSM_LOG_DEBUG)) {
-		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-			"Processing switch with GUID 0x%" PRIx64 "\n",
-			cl_ntoh64(osm_node_get_node_guid(p_node)));
-	}
+	OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
+		"Processing switch with GUID 0x%" PRIx64 "\n",
+		cl_ntoh64(osm_node_get_node_guid(p_node)));
 
 	num_ports = osm_node_get_num_physp(p_node);
 

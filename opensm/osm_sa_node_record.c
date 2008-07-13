@@ -88,13 +88,11 @@ __osm_nr_rcv_new_nr(IN osm_sa_t * sa,
 		goto Exit;
 	}
 
-	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
-		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-			"New NodeRecord: node 0x%016" PRIx64
-			"\n\t\t\t\tport 0x%016" PRIx64 ", lid 0x%X\n",
-			cl_ntoh64(osm_node_get_node_guid(p_node)),
-			cl_ntoh64(port_guid), cl_ntoh16(lid)
-		    );
+	OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
+		"New NodeRecord: node 0x%016" PRIx64
+		"\n\t\t\t\tport 0x%016" PRIx64 ", lid 0x%X\n",
+		cl_ntoh64(osm_node_get_node_guid(p_node)),
+		cl_ntoh64(port_guid), cl_ntoh16(lid));
 
 	memset(p_rec_item, 0, sizeof(*p_rec_item));
 
@@ -133,13 +131,10 @@ __osm_nr_rcv_create_nr(IN osm_sa_t * sa,
 
 	OSM_LOG_ENTER(sa->p_log);
 
-	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG)) {
-		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-			"Looking for NodeRecord with LID: %u GUID:0x%016"
-			PRIx64 "\n", cl_ntoh16(match_lid),
-			cl_ntoh64(match_port_guid)
-		    );
-	}
+	OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
+		"Looking for NodeRecord with LID: %u GUID:0x%016"
+		PRIx64 "\n", cl_ntoh16(match_lid),
+		cl_ntoh64(match_port_guid));
 
 	/*
 	   For switches, do not return the NodeInfo record
@@ -175,11 +170,9 @@ __osm_nr_rcv_create_nr(IN osm_sa_t * sa,
 			/*
 			   We validate that the lid belongs to this node.
 			 */
-			if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG)) {
-				OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-					"Comparing LID: %u <= %u <= %u\n",
-					base_lid_ho, match_lid_ho, max_lid_ho);
-			}
+			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
+				"Comparing LID: %u <= %u <= %u\n",
+				base_lid_ho, match_lid_ho, max_lid_ho);
 
 			if (match_lid_ho < base_lid_ho
 			    || match_lid_ho > max_lid_ho)
@@ -217,20 +210,12 @@ __osm_nr_rcv_by_comp_mask(IN cl_map_item_t * const p_map_item, IN void *context)
 		match_lid = p_rcvd_rec->lid;
 
 	if (comp_mask & IB_NR_COMPMASK_NODEGUID) {
-		/*
-		   DEBUG TOP
-		 */
-		if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG)) {
-			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-				"Looking for node 0x%016" PRIx64
-				", found 0x%016" PRIx64 "\n",
-				cl_ntoh64(p_rcvd_rec->node_info.node_guid),
-				cl_ntoh64(osm_node_get_node_guid(p_node))
-			    );
-		}
-		/*
-		   DEBUG BOTTOM
-		 */
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
+			"Looking for node 0x%016" PRIx64
+			", found 0x%016" PRIx64 "\n",
+			cl_ntoh64(p_rcvd_rec->node_info.node_guid),
+			cl_ntoh64(osm_node_get_node_guid(p_node)));
+
 		if ((p_node->node_info.node_guid !=
 		     p_rcvd_rec->node_info.node_guid))
 			goto Exit;

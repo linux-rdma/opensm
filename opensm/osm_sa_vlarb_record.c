@@ -98,12 +98,11 @@ __osm_sa_vl_arb_create(IN osm_sa_t * sa,
 	else
 		lid = osm_node_get_base_lid(p_physp->p_node, 0);
 
-	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
-		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-			"New VLArbitration for: port 0x%016" PRIx64
-			", lid 0x%X, port 0x%X Block:%u\n",
-			cl_ntoh64(osm_physp_get_port_guid(p_physp)),
-			cl_ntoh16(lid), osm_physp_get_port_num(p_physp), block);
+	OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
+		"New VLArbitration for: port 0x%016" PRIx64
+		", lid 0x%X, port 0x%X Block:%u\n",
+		cl_ntoh64(osm_physp_get_port_guid(p_physp)),
+		cl_ntoh16(lid), osm_physp_get_port_num(p_physp), block);
 
 	memset(p_rec_item, 0, sizeof(*p_rec_item));
 

@@ -296,10 +296,8 @@ __osm_sa_mad_ctrl_rcv_callback(IN osm_madw_t * p_madw,
 	 */
 	cl_atomic_inc(&p_ctrl->p_stats->sa_mads_rcvd);
 
-	if (osm_log_is_active(p_ctrl->p_log, OSM_LOG_DEBUG)) {
-		OSM_LOG(p_ctrl->p_log, OSM_LOG_DEBUG,
-			"%u SA MADs received\n", p_ctrl->p_stats->sa_mads_rcvd);
-	}
+	OSM_LOG(p_ctrl->p_log, OSM_LOG_DEBUG,
+		"%u SA MADs received\n", p_ctrl->p_stats->sa_mads_rcvd);
 
 	/*
 	 * C15-0.1.3 requires not responding to any MAD if the SM is
@@ -430,12 +428,9 @@ __osm_sa_mad_ctrl_send_err_callback(IN void *bind_context,
 	/*  __osm_sm_mad_ctrl_update_wire_stats( p_ctrl ); */
 
 	if (osm_madw_get_err_msg(p_madw) != CL_DISP_MSGID_NONE) {
-		if (osm_log_is_active(p_ctrl->p_log, OSM_LOG_DEBUG)) {
-			OSM_LOG(p_ctrl->p_log, OSM_LOG_DEBUG,
-				"Posting Dispatcher message %s\n",
-				osm_get_disp_msg_str(osm_madw_get_err_msg
-						     (p_madw)));
-		}
+		OSM_LOG(p_ctrl->p_log, OSM_LOG_DEBUG,
+			"Posting Dispatcher message %s\n",
+			osm_get_disp_msg_str(osm_madw_get_err_msg(p_madw)));
 
 		status = cl_disp_post(p_ctrl->h_disp,
 				      osm_madw_get_err_msg(p_madw),

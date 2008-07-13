@@ -221,10 +221,8 @@ __osm_infr_rcv_respond(IN osm_sa_t * sa,
 
 	OSM_LOG_ENTER(sa->p_log);
 
-	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG)) {
-		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-			"Generating successful InformInfo response\n");
-	}
+	OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
+		"Generating successful InformInfo response\n");
 
 	item = malloc(sizeof(*item));
 	if (!item) {

@@ -85,10 +85,8 @@ static void dump_all_informs(IN osm_subn_t const *p_subn, IN osm_log_t * p_log)
 {
 	cl_list_item_t *p_list_item;
 
-	OSM_LOG_ENTER(p_log);
-
 	if (!osm_log_is_active(p_log, OSM_LOG_DEBUG))
-		goto Exit;
+		return;
 
 	p_list_item = cl_qlist_head(&p_subn->sa_infr_list);
 	while (p_list_item != cl_qlist_end(&p_subn->sa_infr_list)) {
@@ -97,9 +95,6 @@ static void dump_all_informs(IN osm_subn_t const *p_subn, IN osm_log_t * p_log)
 				     inform_record.inform_info, OSM_LOG_DEBUG);
 		p_list_item = cl_qlist_next(p_list_item);
 	}
-
-Exit:
-	OSM_LOG_EXIT(p_log);
 }
 
 /**********************************************************************

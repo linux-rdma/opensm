@@ -98,9 +98,8 @@ __osm_smir_rcv_new_smir(IN osm_sa_t * sa,
 		goto Exit;
 	}
 
-	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
-		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-			"New SMInfo: GUID 0x%016" PRIx64 "\n", cl_ntoh64(guid));
+	OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
+		"New SMInfo: GUID 0x%016" PRIx64 "\n", cl_ntoh64(guid));
 
 	memset(p_rec_item, 0, sizeof(*p_rec_item));
 

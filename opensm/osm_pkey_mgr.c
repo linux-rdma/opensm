@@ -461,13 +461,12 @@ pkey_mgr_update_peer_port(osm_log_t * p_log, osm_sm_t * sm,
 		}
 	}
 
-	if ((ret_val == TRUE) && osm_log_is_active(p_log, OSM_LOG_DEBUG)) {
+	if (ret_val)
 		OSM_LOG(p_log, OSM_LOG_DEBUG,
 			"Pkey table was updated for node 0x%016" PRIx64
 			" port %u\n",
 			cl_ntoh64(osm_node_get_node_guid(p_node)),
 			osm_physp_get_port_num(peer));
-	}
 
 	if (port_info_set)
 		return TRUE;

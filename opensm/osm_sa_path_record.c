@@ -266,9 +266,8 @@ __osm_pr_rcv_get_path_parms(IN osm_sa_t * sa,
 				valid_sl_mask &= ~(1 << i);
 		}
 		if (!valid_sl_mask) {
-			if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
-				OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-					"All the SLs lead to VL15 on this path\n");
+			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
+				"All the SLs lead to VL15 on this path\n");
 			status = IB_NOT_FOUND;
 			goto Exit;
 		}
@@ -379,10 +378,8 @@ __osm_pr_rcv_get_path_parms(IN osm_sa_t * sa,
 					valid_sl_mask &= ~(1 << i);
 			}
 			if (!valid_sl_mask) {
-				if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
-					OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-						"All the SLs lead to VL15 "
-						"on this path\n");
+				OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "All the SLs "
+					"lead to VL15 on this path\n");
 				status = IB_NOT_FOUND;
 				goto Exit;
 			}
@@ -400,9 +397,8 @@ __osm_pr_rcv_get_path_parms(IN osm_sa_t * sa,
 	if (rate > ib_port_info_compute_rate(p_pi))
 		rate = ib_port_info_compute_rate(p_pi);
 
-	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
-		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-			"Path min MTU = %u, min rate = %u\n", mtu, rate);
+	OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
+		"Path min MTU = %u, min rate = %u\n", mtu, rate);
 
 	/*
 	 * Get QoS Level object according to the path request
@@ -414,12 +410,10 @@ __osm_pr_rcv_get_path_parms(IN osm_sa_t * sa,
 	     osm_qos_policy_get_qos_level_by_pr(sa->p_subn->p_qos_policy,
 						p_pr, p_src_physp, p_dest_physp,
 						comp_mask))) {
-		if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
-			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-				"PathRecord request matches QoS Level '%s' (%s)\n",
-				p_qos_level->name,
-				(p_qos_level->use) ? p_qos_level->
-				use : "no description");
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
+			"PathRecord request matches QoS Level '%s' (%s)\n",
+			p_qos_level->name, p_qos_level->use ?
+			p_qos_level->use : "no description");
 
 		if (p_qos_level->mtu_limit_set
 		    && (mtu > p_qos_level->mtu_limit))
@@ -745,11 +739,9 @@ __osm_pr_rcv_get_path_parms(IN osm_sa_t * sa,
 	p_parms->pkey = pkey;
 	p_parms->sl = sl;
 
-	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
-		OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Path params:"
-			" mtu = %u, rate = %u, packet lifetime = %u,"
-			" pkey = 0x%04X, sl = %u\n",
-			mtu, rate, pkt_life, cl_ntoh16(pkey), sl);
+	OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Path params: mtu = %u, rate = %u,"
+		" packet lifetime = %u, pkey = 0x%04X, sl = %u\n",
+		mtu, rate, pkt_life, cl_ntoh16(pkey), sl);
 Exit:
 	OSM_LOG_EXIT(sa->p_log);
 	return (status);
@@ -846,10 +838,8 @@ __osm_pr_rcv_get_lid_pair_path(IN osm_sa_t * sa,
 
 	OSM_LOG_ENTER(sa->p_log);
 
-	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
-		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-			"Src LID %u, Dest LID %u\n",
-			src_lid_ho, dest_lid_ho);
+	OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Src LID %u, Dest LID %u\n",
+		src_lid_ho, dest_lid_ho);
 
 	p_pr_item = malloc(sizeof(*p_pr_item));
 	if (p_pr_item == NULL) {
@@ -931,12 +921,10 @@ __osm_pr_rcv_get_port_pair_paths(IN osm_sa_t * sa,
 
 	OSM_LOG_ENTER(sa->p_log);
 
-	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
-		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-			"Src port 0x%016" PRIx64 ", "
-			"Dst port 0x%016" PRIx64 "\n",
-			cl_ntoh64(osm_port_get_guid(p_src_port)),
-			cl_ntoh64(osm_port_get_guid(p_dest_port)));
+	OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
+		"Src port 0x%016" PRIx64 ", Dst port 0x%016" PRIx64 "\n",
+		cl_ntoh64(osm_port_get_guid(p_src_port)),
+		cl_ntoh64(osm_port_get_guid(p_dest_port)));
 
 	/* Check that the req_port, src_port and dest_port all share a
 	   pkey. The check is done on the default physical port of the ports. */
@@ -1025,11 +1013,10 @@ __osm_pr_rcv_get_port_pair_paths(IN osm_sa_t * sa,
 		goto Exit;
 	}
 
-	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
-		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-			"Src LIDs [%u-%u], Dest LIDs [%u-%u]\n",
-			src_lid_min_ho, src_lid_max_ho,
-			dest_lid_min_ho, dest_lid_max_ho);
+	OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
+		"Src LIDs [%u-%u], Dest LIDs [%u-%u]\n",
+		src_lid_min_ho, src_lid_max_ho,
+		dest_lid_min_ho, dest_lid_max_ho);
 
 	src_lid_ho = src_lid_min_ho;
 	dest_lid_ho = dest_lid_min_ho;

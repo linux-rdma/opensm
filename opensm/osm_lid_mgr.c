@@ -656,8 +656,7 @@ __osm_lid_mgr_find_free_lid_range(IN osm_lid_mgr_t * const p_mgr,
 	uint8_t lmc_num_lids;
 	uint16_t lmc_mask;
 
-	OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-		"LMC = %u, number LIDs = %u\n",
+	OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG, "LMC = %u, number LIDs = %u\n",
 		p_mgr->p_subn->opt.lmc, num_lids);
 
 	lmc_num_lids = (1 << p_mgr->p_subn->opt.lmc);
@@ -772,10 +771,8 @@ __osm_lid_mgr_get_port_lid(IN osm_lid_mgr_t * const p_mgr,
 		*p_min_lid = min_lid;
 		*p_max_lid = min_lid + num_lids - 1;
 		if (min_lid == cl_ntoh16(osm_port_get_base_lid(p_port))) {
-			OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-				"0x%016" PRIx64
-				" matches its known lid:%u\n", guid,
-				min_lid);
+			OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG, "0x%016" PRIx64
+				" matches its known lid:%u\n", guid, min_lid);
 			goto Exit;
 		} else {
 			OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
@@ -906,11 +903,9 @@ __osm_lid_mgr_set_physp_pi(IN osm_lid_mgr_t * const p_mgr,
 		   with the following attributes as they are set later
 		   (during NO_CHANGE state in link mgr).
 		 */
-		if (osm_log_is_active(p_mgr->p_log, OSM_LOG_DEBUG))
-			OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-				"Skipping switch port %u, GUID 0x%016" PRIx64
-				"\n", port_num,
-				cl_ntoh64(osm_physp_get_port_guid(p_physp)));
+		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
+			"Skipping switch port %u, GUID 0x%016" PRIx64 "\n",
+			port_num, cl_ntoh64(osm_physp_get_port_guid(p_physp)));
 		goto Exit;
 	}
 
@@ -1038,17 +1033,14 @@ __osm_lid_mgr_set_physp_pi(IN osm_lid_mgr_t * const p_mgr,
 		 */
 		if ((mtu != ib_port_info_get_neighbor_mtu(p_old_pi)) ||
 		    (op_vls != ib_port_info_get_op_vls(p_old_pi))) {
-			if (osm_log_is_active(p_mgr->p_log, OSM_LOG_DEBUG))
-				OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-					"Sending Link Down to GUID 0x%016"
-					PRIx64 "port %d due to op_vls or "
-					"mtu change. MTU:%u,%u VL_CAP:%u,%u\n",
-					cl_ntoh64(osm_physp_get_port_guid
-						  (p_physp)), port_num, mtu,
-					ib_port_info_get_neighbor_mtu(p_old_pi),
-					op_vls,
-					ib_port_info_get_op_vls(p_old_pi)
-				    );
+			OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
+				"Sending Link Down to GUID 0x%016"
+				PRIx64 "port %d due to op_vls or "
+				"mtu change. MTU:%u,%u VL_CAP:%u,%u\n",
+				cl_ntoh64(osm_physp_get_port_guid(p_physp)),
+				port_num, mtu,
+				ib_port_info_get_neighbor_mtu(p_old_pi),
+				op_vls, ib_port_info_get_op_vls(p_old_pi));
 
 			/*
 			   we need to make sure the internal DB will follow the
@@ -1186,12 +1178,10 @@ __osm_lid_mgr_process_our_sm_node(IN osm_lid_mgr_t * const p_mgr)
 	p_mgr->p_subn->master_sm_base_lid = cl_hton16(min_lid_ho);
 	p_mgr->p_subn->sm_base_lid = cl_hton16(min_lid_ho);
 
-	if (osm_log_is_active(p_mgr->p_log, OSM_LOG_VERBOSE))
-		OSM_LOG(p_mgr->p_log, OSM_LOG_VERBOSE,
-			"Assigning SM's port 0x%016" PRIx64
-			"\n\t\t\t\tto LID range [%u,%u]\n",
-			cl_ntoh64(osm_port_get_guid(p_port)),
-			min_lid_ho, max_lid_ho);
+	OSM_LOG(p_mgr->p_log, OSM_LOG_VERBOSE,
+		"Assigning SM's port 0x%016" PRIx64
+		"\n\t\t\t\tto LID range [%u,%u]\n",
+		cl_ntoh64(osm_port_get_guid(p_port)), min_lid_ho, max_lid_ho);
 
 	/*
 	   Set the PortInfo the Physical Port associated with this Port.

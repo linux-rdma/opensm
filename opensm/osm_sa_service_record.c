@@ -487,10 +487,9 @@ osm_sr_rcv_process_get_method(IN osm_sa_t * sa,
 	p_recvd_service_rec =
 	    (ib_service_record_t *) ib_sa_mad_get_payload_ptr(p_sa_mad);
 
-	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG)) {
-		osm_dump_service_record(sa->p_log,
-					p_recvd_service_rec, OSM_LOG_DEBUG);
-	}
+	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
+		osm_dump_service_record(sa->p_log, p_recvd_service_rec,
+					OSM_LOG_DEBUG);
 
 	cl_qlist_init(&sr_match_item.sr_list);
 	sr_match_item.p_service_rec = p_recvd_service_rec;
@@ -547,10 +546,9 @@ osm_sr_rcv_process_set_method(IN osm_sa_t * sa,
 
 	comp_mask = p_sa_mad->comp_mask;
 
-	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG)) {
-		osm_dump_service_record(sa->p_log,
-					p_recvd_service_rec, OSM_LOG_DEBUG);
-	}
+	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
+		osm_dump_service_record(sa->p_log, p_recvd_service_rec,
+					OSM_LOG_DEBUG);
 
 	if ((comp_mask & (IB_SR_COMPMASK_SID | IB_SR_COMPMASK_SGID)) !=
 	    (IB_SR_COMPMASK_SID | IB_SR_COMPMASK_SGID)) {
@@ -657,10 +655,9 @@ osm_sr_rcv_process_delete_method(IN osm_sa_t * sa,
 
 	comp_mask = p_sa_mad->comp_mask;
 
-	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG)) {
-		osm_dump_service_record(sa->p_log,
-					p_recvd_service_rec, OSM_LOG_DEBUG);
-	}
+	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
+		osm_dump_service_record(sa->p_log, p_recvd_service_rec,
+					OSM_LOG_DEBUG);
 
 	/* Grab the lock */
 	cl_plock_excl_acquire(sa->p_lock);

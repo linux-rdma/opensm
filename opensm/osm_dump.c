@@ -606,12 +606,11 @@ static void print_report(osm_opensm_t *osm, FILE *file)
 
 void osm_dump_mcast_routes(osm_opensm_t * osm)
 {
-	if (osm_log_is_active(&osm->log, OSM_LOG_ROUTING)) {
+	if (osm_log_is_active(&osm->log, OSM_LOG_ROUTING))
 		/* multicast routes */
 		osm_dump_qmap_to_file(osm, "opensm.mcfdbs",
 				      &osm->subn.sw_guid_tbl,
 				      dump_mcast_routes, osm);
-	}
 }
 
 void osm_dump_all(osm_opensm_t * osm)

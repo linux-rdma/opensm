@@ -115,13 +115,11 @@ void osm_pkey_rcv_process(IN void *context, IN void *data)
 	   We do not mind if this is a result of a set or get - all we want is to
 	   update the subnet.
 	 */
-	if (osm_log_is_active(sm->p_log, OSM_LOG_VERBOSE)) {
-		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
-			"Got GetResp(PKey) block:%u port_num %u with GUID 0x%"
-			PRIx64 " for parent node GUID 0x%" PRIx64 ", TID 0x%"
-			PRIx64 "\n", block_num, port_num, cl_ntoh64(port_guid),
-			cl_ntoh64(node_guid), cl_ntoh64(p_smp->trans_id));
-	}
+	OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
+		"Got GetResp(PKey) block:%u port_num %u with GUID 0x%"
+		PRIx64 " for parent node GUID 0x%" PRIx64 ", TID 0x%"
+		PRIx64 "\n", block_num, port_num, cl_ntoh64(port_guid),
+		cl_ntoh64(node_guid), cl_ntoh64(p_smp->trans_id));
 
 	/*
 	   Determine if we encountered a new Physical Port.

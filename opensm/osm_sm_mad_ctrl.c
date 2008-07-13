@@ -76,19 +76,16 @@ __osm_sm_mad_ctrl_retire_trans_mad(IN osm_sm_mad_ctrl_t * const p_ctrl,
 	/*
 	   Return the MAD & wrapper to the pool.
 	 */
-	if (osm_log_is_active(p_ctrl->p_log, OSM_LOG_DEBUG))
-		OSM_LOG(p_ctrl->p_log, OSM_LOG_DEBUG,
-			"Retiring MAD with TID 0x%" PRIx64 "\n",
-			cl_ntoh64(osm_madw_get_smp_ptr(p_madw)->trans_id));
+	OSM_LOG(p_ctrl->p_log, OSM_LOG_DEBUG,
+		"Retiring MAD with TID 0x%" PRIx64 "\n",
+		cl_ntoh64(osm_madw_get_smp_ptr(p_madw)->trans_id));
 
 	osm_mad_pool_put(p_ctrl->p_mad_pool, p_madw);
 
 	outstanding = cl_atomic_dec(&p_ctrl->p_stats->qp0_mads_outstanding);
 
-	if (osm_log_is_active(p_ctrl->p_log, OSM_LOG_DEBUG))
-		OSM_LOG(p_ctrl->p_log, OSM_LOG_DEBUG,
-			"%u QP0 MADs outstanding\n",
-			p_ctrl->p_stats->qp0_mads_outstanding);
+	OSM_LOG(p_ctrl->p_log, OSM_LOG_DEBUG, "%u QP0 MADs outstanding\n",
+		p_ctrl->p_stats->qp0_mads_outstanding);
 
 	if (outstanding == 0) {
 		/*
@@ -170,10 +167,9 @@ __osm_sm_mad_ctrl_update_wire_stats(IN osm_sm_mad_ctrl_t * const p_ctrl)
 	mads_on_wire =
 	    cl_atomic_dec(&p_ctrl->p_stats->qp0_mads_outstanding_on_wire);
 
-	if (osm_log_is_active(p_ctrl->p_log, OSM_LOG_DEBUG))
-		OSM_LOG(p_ctrl->p_log, OSM_LOG_DEBUG,
-			"%u SMPs on the wire, %u outstanding\n", mads_on_wire,
-			p_ctrl->p_stats->qp0_mads_outstanding);
+	OSM_LOG(p_ctrl->p_log, OSM_LOG_DEBUG,
+		"%u SMPs on the wire, %u outstanding\n", mads_on_wire,
+		p_ctrl->p_stats->qp0_mads_outstanding);
 
 	/*
 	   We can signal the VL15 controller to send another MAD
@@ -287,10 +283,8 @@ __osm_sm_mad_ctrl_process_get_resp(IN osm_sm_mad_ctrl_t * const p_ctrl,
 	   processing by the appropriate controller.
 	 */
 
-	if (osm_log_is_active(p_ctrl->p_log, OSM_LOG_DEBUG))
-		OSM_LOG(p_ctrl->p_log, OSM_LOG_DEBUG,
-			"Posting Dispatcher message %s\n",
-			osm_get_disp_msg_str(msg_id));
+	OSM_LOG(p_ctrl->p_log, OSM_LOG_DEBUG, "Posting Dispatcher message %s\n",
+		osm_get_disp_msg_str(msg_id));
 
 	status = cl_disp_post(p_ctrl->h_disp, msg_id, p_madw,
 			      __osm_sm_mad_ctrl_disp_done_callback, p_ctrl);
@@ -358,10 +352,8 @@ __osm_sm_mad_ctrl_process_get(IN osm_sm_mad_ctrl_t * const p_ctrl,
 	   processing by the appropriate controller.
 	 */
 
-	if (osm_log_is_active(p_ctrl->p_log, OSM_LOG_DEBUG))
-		OSM_LOG(p_ctrl->p_log, OSM_LOG_DEBUG,
-			"Posting Dispatcher message %s\n",
-			osm_get_disp_msg_str(msg_id));
+	OSM_LOG(p_ctrl->p_log, OSM_LOG_DEBUG, "Posting Dispatcher message %s\n",
+		osm_get_disp_msg_str(msg_id));
 
 	status = cl_disp_post(p_ctrl->h_disp, msg_id, p_madw,
 			      __osm_sm_mad_ctrl_disp_done_callback, p_ctrl);
@@ -440,10 +432,8 @@ __osm_sm_mad_ctrl_process_set(IN osm_sm_mad_ctrl_t * const p_ctrl,
 	   processing by the appropriate controller.
 	 */
 
-	if (osm_log_is_active(p_ctrl->p_log, OSM_LOG_DEBUG))
-		OSM_LOG(p_ctrl->p_log, OSM_LOG_DEBUG,
-			"Posting Dispatcher message %s\n",
-			osm_get_disp_msg_str(msg_id));
+	OSM_LOG(p_ctrl->p_log, OSM_LOG_DEBUG, "Posting Dispatcher message %s\n",
+		osm_get_disp_msg_str(msg_id));
 
 	status = cl_disp_post(p_ctrl->h_disp, msg_id, p_madw,
 			      __osm_sm_mad_ctrl_disp_done_callback, p_ctrl);
@@ -531,10 +521,8 @@ __osm_sm_mad_ctrl_process_trap(IN osm_sm_mad_ctrl_t * const p_ctrl,
 	   processing by the appropriate controller.
 	 */
 
-	if (osm_log_is_active(p_ctrl->p_log, OSM_LOG_DEBUG))
-		OSM_LOG(p_ctrl->p_log, OSM_LOG_DEBUG,
-			"Posting Dispatcher message %s\n",
-			osm_get_disp_msg_str(msg_id));
+	OSM_LOG(p_ctrl->p_log, OSM_LOG_DEBUG, "Posting Dispatcher message %s\n",
+		osm_get_disp_msg_str(msg_id));
 
 	status = cl_disp_post(p_ctrl->h_disp, msg_id, p_madw,
 			      __osm_sm_mad_ctrl_disp_done_callback, p_ctrl);
@@ -587,10 +575,8 @@ __osm_sm_mad_ctrl_rcv_callback(IN osm_madw_t * p_madw,
 	 */
 	cl_atomic_inc(&p_ctrl->p_stats->qp0_mads_rcvd);
 
-	if (osm_log_is_active(p_ctrl->p_log, OSM_LOG_DEBUG))
-		OSM_LOG(p_ctrl->p_log, OSM_LOG_DEBUG,
-			"%u QP0 MADs received\n",
-			p_ctrl->p_stats->qp0_mads_rcvd);
+	OSM_LOG(p_ctrl->p_log, OSM_LOG_DEBUG, "%u QP0 MADs received\n",
+		p_ctrl->p_stats->qp0_mads_rcvd);
 
 	p_smp = osm_madw_get_smp_ptr(p_madw);
 
@@ -755,11 +741,9 @@ __osm_sm_mad_ctrl_send_err_cb(IN void *bind_context, IN osm_madw_t * p_madw)
 	__osm_sm_mad_ctrl_update_wire_stats(p_ctrl);
 
 	if (osm_madw_get_err_msg(p_madw) != CL_DISP_MSGID_NONE) {
-		if (osm_log_is_active(p_ctrl->p_log, OSM_LOG_DEBUG))
-			OSM_LOG(p_ctrl->p_log, OSM_LOG_DEBUG,
-				"Posting Dispatcher message %s\n",
-				osm_get_disp_msg_str(osm_madw_get_err_msg
-						     (p_madw)));
+		OSM_LOG(p_ctrl->p_log, OSM_LOG_DEBUG,
+			"Posting Dispatcher message %s\n",
+			osm_get_disp_msg_str(osm_madw_get_err_msg(p_madw)));
 
 		status = cl_disp_post(p_ctrl->h_disp,
 				      osm_madw_get_err_msg(p_madw),

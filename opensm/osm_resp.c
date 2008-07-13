@@ -144,13 +144,10 @@ osm_resp_send(IN osm_sm_t * sm,
 	p_madw->resp_expected = FALSE;
 	p_madw->fail_msg = CL_DISP_MSGID_NONE;
 
-	if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
-		OSM_LOG(sm->p_log, OSM_LOG_DEBUG, "Responding to %s (0x%X)"
-			"\n\t\t\t\tattribute modifier 0x%X, TID 0x%" PRIx64
-			"\n", ib_get_sm_attr_str(p_smp->attr_id),
-			cl_ntoh16(p_smp->attr_id), cl_ntoh32(p_smp->attr_mod),
-			cl_ntoh64(p_smp->trans_id));
-	}
+	OSM_LOG(sm->p_log, OSM_LOG_DEBUG, "Responding to %s (0x%X)"
+		"\n\t\t\t\tattribute modifier 0x%X, TID 0x%" PRIx64 "\n",
+		ib_get_sm_attr_str(p_smp->attr_id), cl_ntoh16(p_smp->attr_id),
+		cl_ntoh32(p_smp->attr_mod), cl_ntoh64(p_smp->trans_id));
 
 	osm_vl15_post(sm->p_vl15, p_madw);
 

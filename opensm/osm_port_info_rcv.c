@@ -72,9 +72,8 @@ __osm_pi_rcv_set_sm(IN osm_sm_t * sm,
 
 	OSM_LOG_ENTER(sm->p_log);
 
-	if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG))
-		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-			"Setting IS_SM bit in port attributes\n");
+	OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
+		"Setting IS_SM bit in port attributes\n");
 
 	p_dr_path = osm_physp_get_dr_path_ptr(p_physp);
 	h_bind = osm_dr_path_get_bind_handle(p_dr_path);
@@ -165,12 +164,10 @@ __osm_pi_rcv_process_endport(IN osm_sm_t * sm,
 					"Ignoring SM on port 0x%" PRIx64 "\n",
 					cl_ntoh64(port_guid));
 			else {
-				if (osm_log_is_active
-				    (sm->p_log, OSM_LOG_VERBOSE))
-					OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
-						"Detected another SM. Requesting SMInfo"
-						"\n\t\t\t\tPort 0x%" PRIx64
-						"\n", cl_ntoh64(port_guid));
+				OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
+					"Detected another SM. Requesting SMInfo"
+					"\n\t\t\t\tPort 0x%" PRIx64 "\n",
+					cl_ntoh64(port_guid));
 
 				/*
 				   This port indicates it's an SM and it's not our own port.
@@ -294,7 +291,6 @@ __osm_pi_rcv_process_switch_port(IN osm_sm_t * sm,
 						"Failure initiating NodeInfo request (%s)\n",
 						ib_get_err_str(status));
 			} else
-			    if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG))
 				OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 					"Skipping SMP responder port 0x%X\n",
 					p_pi->local_port_num);
@@ -490,16 +486,14 @@ osm_pi_rcv_process_set(IN osm_sm_t * sm, IN osm_node_t * const p_node,
 				   port_guid, port_num, p_pi, level);
 	}
 
-	if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG))
-		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-			"Received logical SetResp() for GUID 0x%" PRIx64
-			", port num 0x%X"
-			"\n\t\t\t\tfor parent node GUID 0x%" PRIx64
-			" TID 0x%" PRIx64 "\n",
-			cl_ntoh64(port_guid),
-			port_num,
-			cl_ntoh64(osm_node_get_node_guid(p_node)),
-			cl_ntoh64(p_smp->trans_id));
+	OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
+		"Received logical SetResp() for GUID 0x%" PRIx64
+		", port num 0x%X"
+		"\n\t\t\t\tfor parent node GUID 0x%" PRIx64
+		" TID 0x%" PRIx64 "\n",
+		cl_ntoh64(port_guid), port_num,
+		cl_ntoh64(osm_node_get_node_guid(p_node)),
+		cl_ntoh64(p_smp->trans_id));
 
 	osm_physp_set_port_info(p_physp, p_pi);
 
@@ -603,15 +597,12 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 		   This PortInfo arrived because we did a Get() method,
 		   most likely due to a subnet sweep in progress.
 		 */
-		if (osm_log_is_active(sm->p_log, OSM_LOG_VERBOSE))
-			OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
-				"Discovered port num 0x%X with GUID 0x%" PRIx64
-				" for parent node GUID 0x%" PRIx64
-				", TID 0x%" PRIx64 "\n",
-				port_num,
-				cl_ntoh64(port_guid),
-				cl_ntoh64(node_guid),
-				cl_ntoh64(p_smp->trans_id));
+		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
+			"Discovered port num 0x%X with GUID 0x%" PRIx64
+			" for parent node GUID 0x%" PRIx64
+			", TID 0x%" PRIx64 "\n",
+			port_num, cl_ntoh64(port_guid),
+			cl_ntoh64(node_guid), cl_ntoh64(p_smp->trans_id));
 
 		p_physp = osm_node_get_physp_ptr(p_node, port_num);
 
@@ -621,10 +612,8 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 		   continue processing as normal.
 		 */
 		if (!p_physp) {
-			if (osm_log_is_active(sm->p_log, OSM_LOG_VERBOSE))
-				OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
-					"Initializing port number 0x%X\n",
-					port_num);
+			OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
+				"Initializing port number 0x%X\n", port_num);
 			p_physp = &p_node->physp_table[port_num];
 			osm_physp_init(p_physp,
 				       port_guid,

@@ -93,14 +93,6 @@ static void __osm_state_mgr_reset_node_count(IN cl_map_item_t *
 					     const p_map_item, IN void *context)
 {
 	osm_node_t *p_node = (osm_node_t *) p_map_item;
-	osm_sm_t *sm = context;
-
-	if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
-		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-			"Resetting discovery count for node 0x%" PRIx64
-			"(%s)\n", cl_ntoh64(osm_node_get_node_guid(p_node)),
-			p_node->print_desc);
-	}
 
 	p_node->discovery_count = 0;
 }
@@ -111,15 +103,6 @@ static void __osm_state_mgr_reset_port_count(IN cl_map_item_t *
 					     const p_map_item, IN void *context)
 {
 	osm_port_t *p_port = (osm_port_t *) p_map_item;
-	osm_sm_t *sm = context;
-
-	if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
-		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-			"Resetting discovery count for port 0x%" PRIx64
-			"(node %s)\n", cl_ntoh64(osm_port_get_guid(p_port)),
-			p_port->p_node ? p_port->p_node->
-			print_desc : "UNKNOWN");
-	}
 
 	p_port->discovery_count = 0;
 }
@@ -131,15 +114,6 @@ __osm_state_mgr_reset_switch_count(IN cl_map_item_t * const p_map_item,
 				   IN void *context)
 {
 	osm_switch_t *p_sw = (osm_switch_t *) p_map_item;
-	osm_sm_t *sm = context;
-
-	if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
-		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-			"Resetting discovery count for switch 0x%" PRIx64
-			" (%s)\n",
-			cl_ntoh64(osm_node_get_node_guid(p_sw->p_node)),
-			p_sw->p_node->print_desc);
-	}
 
 	p_sw->discovery_count = 0;
 	p_sw->need_update = 1;
@@ -1302,11 +1276,10 @@ void osm_state_mgr_process(IN osm_sm_t * sm, IN osm_signal_t signal)
 
 	OSM_LOG_ENTER(sm->p_log);
 
-	if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG))
-		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-			"Received signal %s in state %s\n",
-			osm_get_sm_signal_str(signal),
-			osm_get_sm_mgr_state_str(sm->p_subn->sm_state));
+	OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
+		"Received signal %s in state %s\n",
+		osm_get_sm_signal_str(signal),
+		osm_get_sm_mgr_state_str(sm->p_subn->sm_state));
 
 	switch (signal) {
 	case OSM_SIGNAL_SWEEP:

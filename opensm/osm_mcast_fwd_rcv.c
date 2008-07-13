@@ -89,13 +89,11 @@ void osm_mft_rcv_process(IN void *context, IN void *data)
 	p_mft_context = osm_madw_get_mft_context_ptr(p_madw);
 	node_guid = p_mft_context->node_guid;
 
-	if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
-		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-			"Setting MFT block %u, position %u, "
-			"Switch 0x%016" PRIx64 ", TID 0x%" PRIx64 "\n",
-			block_num, position, cl_ntoh64(node_guid),
-			cl_ntoh64(p_smp->trans_id));
-	}
+	OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
+		"Setting MFT block %u, position %u, "
+		"Switch 0x%016" PRIx64 ", TID 0x%" PRIx64 "\n",
+		block_num, position, cl_ntoh64(node_guid),
+		cl_ntoh64(p_smp->trans_id));
 
 	CL_PLOCK_EXCL_ACQUIRE(sm->p_lock);
 	p_sw = osm_get_switch_by_guid(sm->p_subn, node_guid);

@@ -92,12 +92,11 @@ __osm_pir_rcv_new_pir(IN osm_sa_t * sa,
 		goto Exit;
 	}
 
-	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
-		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-			"New PortInfoRecord: port 0x%016" PRIx64
-			", lid 0x%X, port 0x%X\n",
-			cl_ntoh64(osm_physp_get_port_guid(p_physp)),
-			cl_ntoh16(lid), osm_physp_get_port_num(p_physp));
+	OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
+		"New PortInfoRecord: port 0x%016" PRIx64
+		", lid 0x%X, port 0x%X\n",
+		cl_ntoh64(osm_physp_get_port_guid(p_physp)),
+		cl_ntoh16(lid), osm_physp_get_port_num(p_physp));
 
 	memset(p_rec_item, 0, sizeof(*p_rec_item));
 
@@ -147,10 +146,9 @@ __osm_sa_pir_create(IN osm_sa_t * sa,
 		/*
 		   We validate that the lid belongs to this node.
 		 */
-		if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
-			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-				"Comparing LID: %u <= %u <= %u\n",
-				base_lid_ho, match_lid_ho, max_lid_ho);
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
+			"Comparing LID: %u <= %u <= %u\n",
+			base_lid_ho, match_lid_ho, max_lid_ho);
 
 		if (match_lid_ho < base_lid_ho || match_lid_ho > max_lid_ho)
 			goto Exit;

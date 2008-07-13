@@ -251,14 +251,12 @@ static void __osm_drop_mgr_remove_port(osm_sm_t * sm, IN osm_port_t * p_port)
 		goto Exit;
 	}
 
-	if (osm_log_is_active(sm->p_log, OSM_LOG_INFO)) {
-		OSM_LOG(sm->p_log, OSM_LOG_INFO,
-			"Removed port with GUID:0x%016" PRIx64
-			" LID range [%u, %u] of node:%s\n",
-			cl_ntoh64(port_gid.unicast.interface_id),
-			min_lid_ho, max_lid_ho,
-			p_node ? p_node->print_desc : "UNKNOWN");
-	}
+	OSM_LOG(sm->p_log, OSM_LOG_INFO,
+		"Removed port with GUID:0x%016" PRIx64
+		" LID range [%u, %u] of node:%s\n",
+		cl_ntoh64(port_gid.unicast.interface_id),
+		min_lid_ho, max_lid_ho,
+		p_node ? p_node->print_desc : "UNKNOWN");
 
 Exit:
 	OSM_LOG_EXIT(sm->p_log);
@@ -428,8 +426,6 @@ void osm_drop_mgr_process(osm_sm_t * sm)
 	osm_port_t *p_next_port;
 	osm_node_t *p_node;
 	osm_node_t *p_next_node;
-	ib_net64_t port_guid;
-	ib_net64_t node_guid;
 
 	CL_ASSERT(sm);
 
@@ -449,12 +445,9 @@ void osm_drop_mgr_process(osm_sm_t * sm)
 		CL_ASSERT(cl_qmap_key(&p_node->map_item) ==
 			  osm_node_get_node_guid(p_node));
 
-		if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
-			node_guid = osm_node_get_node_guid(p_node);
-			OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-				"Checking node 0x%016" PRIx64 "\n",
-				cl_ntoh64(node_guid));
-		}
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
+			"Checking node 0x%016" PRIx64 "\n",
+			cl_ntoh64(osm_node_get_node_guid(p_node)));
 
 		/*
 		   Check if this node was discovered during the last sweep.
@@ -478,12 +471,9 @@ void osm_drop_mgr_process(osm_sm_t * sm)
 		p_next_node =
 		    (osm_node_t *) cl_qmap_next(&p_next_node->map_item);
 
-		if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
-			node_guid = osm_node_get_node_guid(p_node);
-			OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-				"Checking full discovery of node 0x%016" PRIx64
-				"\n", cl_ntoh64(node_guid));
-		}
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
+			"Checking full discovery of node 0x%016" PRIx64 "\n",
+			cl_ntoh64(osm_node_get_node_guid(p_node)));
 
 		if (osm_node_get_type(p_node) != IB_NODE_TYPE_SWITCH)
 			continue;
@@ -501,12 +491,9 @@ void osm_drop_mgr_process(osm_sm_t * sm)
 		CL_ASSERT(cl_qmap_key(&p_port->map_item) ==
 			  osm_port_get_guid(p_port));
 
-		if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG)) {
-			port_guid = osm_port_get_guid(p_port);
-			OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-				"Checking port 0x%016" PRIx64 "\n",
-				cl_ntoh64(port_guid));
-		}
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
+			"Checking port 0x%016" PRIx64 "\n",
+			cl_ntoh64(osm_port_get_guid(p_port)));
 
 		/*
 		   If the port is unreachable, remove it from the guid table.

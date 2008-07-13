@@ -81,12 +81,9 @@ __osm_nd_rcv_process_nd(IN osm_sm_t * sm,
 		free(p_node->print_desc);
 	p_node->print_desc = tmp_desc;
 
-	if (osm_log_is_active(sm->p_log, OSM_LOG_VERBOSE)) {
-		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
-			"Node 0x%" PRIx64 "\n\t\t\t\tDescription = %s\n",
-			cl_ntoh64(osm_node_get_node_guid(p_node)),
-			p_node->print_desc);
-	}
+	OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
+		"Node 0x%" PRIx64 "\n\t\t\t\tDescription = %s\n",
+		cl_ntoh64(osm_node_get_node_guid(p_node)), p_node->print_desc);
 
 	OSM_LOG_EXIT(sm->p_log);
 }

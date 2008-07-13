@@ -94,11 +94,9 @@ __osm_gir_rcv_new_gir(IN osm_sa_t * sa,
 		goto Exit;
 	}
 
-	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG)) {
-		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-			"New GUIDInfoRecord: lid 0x%X, block num %d\n",
-			cl_ntoh16(match_lid), block_num);
-	}
+	OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
+		"New GUIDInfoRecord: lid 0x%X, block num %d\n",
+		cl_ntoh16(match_lid), block_num);
 
 	memset(p_rec_item, 0, sizeof(*p_rec_item));
 
@@ -138,13 +136,9 @@ __osm_sa_gir_create_gir(IN osm_sa_t * sa,
 
 	OSM_LOG_ENTER(sa->p_log);
 
-	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG)) {
-		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-			"Looking for GUIDRecord with LID: %u GUID:0x%016"
-			PRIx64 "\n", cl_ntoh16(match_lid),
-			cl_ntoh64(match_port_guid)
-		    );
-	}
+	OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
+		"Looking for GUIDRecord with LID: %u GUID:0x%016"
+		PRIx64 "\n", cl_ntoh16(match_lid), cl_ntoh64(match_port_guid));
 
 	/*
 	   For switches, do not return the GUIDInfo record(s)
@@ -201,11 +195,9 @@ __osm_sa_gir_create_gir(IN osm_sa_t * sa,
 			/*
 			   We validate that the lid belongs to this node.
 			 */
-			if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG)) {
-				OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-					"Comparing LID: %u <= %u <= %u\n",
-					base_lid_ho, match_lid_ho, max_lid_ho);
-			}
+			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
+				"Comparing LID: %u <= %u <= %u\n",
+				base_lid_ho, match_lid_ho, max_lid_ho);
 
 			if (match_lid_ho < base_lid_ho
 			    || match_lid_ho > max_lid_ho)

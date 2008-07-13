@@ -326,10 +326,9 @@ __osm_sminfo_rcv_process_get_sm(IN osm_sm_t * sm,
 
 	p_smi = &p_sm->smi;
 
-	if (osm_log_is_active(sm->p_log, OSM_LOG_VERBOSE))
-		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
-			"Detected SM 0x%016" PRIx64 " in state %u\n",
-			cl_ntoh64(p_smi->guid), ib_sminfo_get_state(p_smi));
+	OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
+		"Detected SM 0x%016" PRIx64 " in state %u\n",
+		cl_ntoh64(p_smi->guid), ib_sminfo_get_state(p_smi));
 
 	/*
 	   Check the state of this SM vs. our own.

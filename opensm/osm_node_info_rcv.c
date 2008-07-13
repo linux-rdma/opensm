@@ -233,14 +233,12 @@ __osm_ni_rcv_set_links(IN osm_sm_t * sm,
 		}
 	}
 
-	if (osm_log_is_active(sm->p_log, OSM_LOG_DEBUG))
-		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-			"Creating new link between:\n\t\t\t\tnode 0x%" PRIx64
-			", port number 0x%X and\n\t\t\t\tnode 0x%" PRIx64
-			", port number 0x%X\n",
-			cl_ntoh64(osm_node_get_node_guid(p_node)), port_num,
-			cl_ntoh64(p_ni_context->node_guid),
-			p_ni_context->port_num);
+	OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
+		"Creating new link between:\n\t\t\t\tnode 0x%" PRIx64
+		", port number 0x%X and\n\t\t\t\tnode 0x%" PRIx64
+		", port number 0x%X\n",
+		cl_ntoh64(osm_node_get_node_guid(p_node)), port_num,
+		cl_ntoh64(p_ni_context->node_guid), p_ni_context->port_num);
 
 	osm_node_link(p_node, port_num, p_neighbor_node,
 		      p_ni_context->port_num);
@@ -751,13 +749,12 @@ __osm_ni_rcv_process_existing(IN osm_sm_t * sm,
 	p_ni_context = osm_madw_get_ni_context_ptr(p_madw);
 	port_num = ib_node_info_get_local_port_num(p_ni);
 
-	if (osm_log_is_active(sm->p_log, OSM_LOG_VERBOSE))
-		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
-			"Rediscovered %s node 0x%" PRIx64
-			" TID 0x%" PRIx64 ", discovered %u times already\n",
-			ib_get_node_type_str(p_ni->node_type),
-			cl_ntoh64(p_ni->node_guid),
-			cl_ntoh64(p_smp->trans_id), p_node->discovery_count);
+	OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
+		"Rediscovered %s node 0x%" PRIx64 " TID 0x%" PRIx64
+		", discovered %u times already\n",
+		ib_get_node_type_str(p_ni->node_type),
+		cl_ntoh64(p_ni->node_guid),
+		cl_ntoh64(p_smp->trans_id), p_node->discovery_count);
 
 	/*
 	   If we haven't already encountered this existing node
