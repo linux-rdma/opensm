@@ -507,7 +507,7 @@ osmtest_init(IN osmtest_t * const p_osmt,
 	/* but we do not want any extra stuff here */
 	osm_log_set_level(&p_osmt->log, log_flags);
 
-	osm_log(&p_osmt->log, OSM_LOG_FUNCS, "osmtest_init: [\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_FUNCS, "[\n");
 
 	p_osmt->opt = *p_opt;
 
@@ -526,8 +526,7 @@ osmtest_init(IN osmtest_t * const p_osmt,
 
 	if (p_osmt->p_vendor == NULL) {
 		status = IB_INSUFFICIENT_RESOURCES;
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_init: ERR 0001: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0001: "
 			"Unable to allocate vendor object");
 		status = IB_ERROR;
 		goto Exit;
@@ -539,7 +538,7 @@ osmtest_init(IN osmtest_t * const p_osmt,
 		goto Exit;
 
 Exit:
-	osm_log(&p_osmt->log, OSM_LOG_FUNCS, "osmtest_init: ]\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_FUNCS, "]\n");
 	return (status);
 }
 
@@ -556,8 +555,7 @@ void osmtest_query_res_cb(IN osmv_query_res_t * p_rec)
 	p_ctxt->result = *p_rec;
 
 	if (p_rec->status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_query_res_cb: ERR 0003: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0003: "
 			"Error on query (%s)\n", ib_get_err_str(p_rec->status));
 	}
 
@@ -578,12 +576,8 @@ osmtest_get_all_recs(IN osmtest_t * const p_osmt,
 
 	OSM_LOG_ENTER(&p_osmt->log);
 
-	if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-		osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-			"osmtest_get_all_recs: "
-			"Getting all %s records\n",
-			ib_get_sa_attr_str(attr_id));
-	}
+	OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG, "Getting all %s records\n",
+		ib_get_sa_attr_str(attr_id));
 
 	/*
 	 * Do a blocking query for all <attr_id> records in the subnet.
@@ -610,8 +604,7 @@ osmtest_get_all_recs(IN osmtest_t * const p_osmt,
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_get_all_recs: ERR 0004: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0004: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 		goto Exit;
 	}
@@ -619,13 +612,11 @@ osmtest_get_all_recs(IN osmtest_t * const p_osmt,
 	status = p_context->result.status;
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_get_all_recs: ERR 0064: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0064: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 
 		if (status == IB_REMOTE_ERROR) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_get_all_recs: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 				"Remote error = %s\n",
 				ib_get_mad_status_str(osm_madw_get_mad_ptr
 						      (p_context->result.
@@ -652,11 +643,7 @@ ib_api_status_t osmtest_validate_sa_class_port_info(IN osmtest_t * const p_osmt)
 
 	OSM_LOG_ENTER(&p_osmt->log);
 
-	if (osm_log_is_active(&p_osmt->log, OSM_LOG_VERBOSE)) {
-		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-			"osmtest_validate_sa_class_port_info: "
-			"Getting ClassPortInfo\n");
-	}
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE, "Getting ClassPortInfo\n");
 
 	/*
 	 * Do a blocking query for this record in the subnet.
@@ -679,8 +666,7 @@ ib_api_status_t osmtest_validate_sa_class_port_info(IN osmtest_t * const p_osmt)
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_sa_class_port_info: ERR 0065: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0065: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 		goto Exit;
 	}
@@ -688,12 +674,10 @@ ib_api_status_t osmtest_validate_sa_class_port_info(IN osmtest_t * const p_osmt)
 	status = p_context->result.status;
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_sa_class_port_info: ERR 0070: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0070: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 		if (status == IB_REMOTE_ERROR) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_validate_sa_class_port_info: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 				"Remote error = %s\n",
 				ib_get_mad_status_str(osm_madw_get_mad_ptr
 						      (p_context->result.
@@ -708,9 +692,8 @@ ib_api_status_t osmtest_validate_sa_class_port_info(IN osmtest_t * const p_osmt)
 	p_cpi =
 	    (ib_class_port_info_t *) ib_sa_mad_get_payload_ptr(p_resp_sa_madp);
 
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmtest_validate_sa_class_port_info:\n"
-		"-----------------------------\n"
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
+		"\n-----------------------------\n"
 		"SA Class Port Info:\n"
 		" base_ver:%u\n"
 		" class_ver:%u\n"
@@ -748,12 +731,9 @@ osmtest_get_node_rec(IN osmtest_t * const p_osmt,
 
 	OSM_LOG_ENTER(&p_osmt->log);
 
-	if (osm_log_is_active(&p_osmt->log, OSM_LOG_VERBOSE)) {
-		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-			"osmtest_get_node_rec: "
-			"Getting node record for 0x%016" PRIx64 "\n",
-			cl_ntoh64(node_guid));
-	}
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
+		"Getting node record for 0x%016" PRIx64 "\n",
+		cl_ntoh64(node_guid));
 
 	/*
 	 * Do a blocking query for this record in the subnet.
@@ -785,8 +765,7 @@ osmtest_get_node_rec(IN osmtest_t * const p_osmt,
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_get_node_rec: ERR 0071: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0071: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 		goto Exit;
 	}
@@ -794,12 +773,10 @@ osmtest_get_node_rec(IN osmtest_t * const p_osmt,
 	status = p_context->result.status;
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_get_node_rec: ERR 0072: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0072: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 		if (status == IB_REMOTE_ERROR) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_get_node_rec: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 				"Remote error = %s\n",
 				ib_get_mad_status_str(osm_madw_get_mad_ptr
 						      (p_context->result.
@@ -829,11 +806,8 @@ osmtest_get_node_rec_by_lid(IN osmtest_t * const p_osmt,
 
 	OSM_LOG_ENTER(&p_osmt->log);
 
-	if (osm_log_is_active(&p_osmt->log, OSM_LOG_VERBOSE)) {
-		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-			"osmtest_get_node_rec_by_lid: "
-			"Getting node record for LID 0x%02X\n", cl_ntoh16(lid));
-	}
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
+		"Getting node record for LID 0x%02X\n", cl_ntoh16(lid));
 
 	/*
 	 * Do a blocking query for this record in the subnet.
@@ -865,8 +839,7 @@ osmtest_get_node_rec_by_lid(IN osmtest_t * const p_osmt,
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_get_node_rec_by_lid: ERR 0073: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0073: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 		goto Exit;
 	}
@@ -874,15 +847,13 @@ osmtest_get_node_rec_by_lid(IN osmtest_t * const p_osmt,
 	status = p_context->result.status;
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_get_node_rec_by_lid: ERR 0074: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0074: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 		if (status == IB_REMOTE_ERROR) {
 			p_mad =
 			    osm_madw_get_mad_ptr(p_context->result.
 						 p_result_madw);
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_get_node_rec_by_lid: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 				"Remote error = %s\n",
 				ib_get_mad_status_str(p_mad));
 
@@ -929,15 +900,13 @@ osmtest_get_path_rec_by_guid_pair(IN osmtest_t * const p_osmt,
 	req.p_query_input = &guid_pair;
 	req.sm_key = 0;
 
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmtest_get_path_rec_by_guid_pair: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
 		"Query for path from 0x%" PRIx64 " to 0x%" PRIx64 "\n",
 		sguid, dguid);
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_get_path_rec_by_guid_pair: ERR 0063: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0063: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 		goto Exit;
 	}
@@ -945,13 +914,11 @@ osmtest_get_path_rec_by_guid_pair(IN osmtest_t * const p_osmt,
 	status = (*p_context).result.status;
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_get_path_rec_by_guid_pair: ERR 0066: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0066: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 
 		if (status == IB_REMOTE_ERROR) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_get_path_rec_by_guid_pair: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 				"Remote error = %s\n",
 				ib_get_mad_status_str(osm_madw_get_mad_ptr
 						      ((*p_context).result.
@@ -998,8 +965,7 @@ osmtest_get_path_rec_by_gid_pair(IN osmtest_t * const p_osmt,
 	req.p_query_input = &gid_pair;
 	req.sm_key = 0;
 
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmtest_get_path_rec_by_gid_pair: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
 		"Query for path from 0x%016" PRIx64 " 0x%016" PRIx64
 		" to 0x%016" PRIx64 " 0x%016" PRIx64 "\n", sgid.unicast.prefix,
 		sgid.unicast.interface_id, dgid.unicast.prefix,
@@ -1007,8 +973,7 @@ osmtest_get_path_rec_by_gid_pair(IN osmtest_t * const p_osmt,
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_get_path_rec_by_gid_pair: ERR 006A: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 006A: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 		goto Exit;
 	}
@@ -1016,13 +981,11 @@ osmtest_get_path_rec_by_gid_pair(IN osmtest_t * const p_osmt,
 	status = (*p_context).result.status;
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_get_path_rec_by_gid_pair: ERR 006B: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 006B: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 
 		if (status == IB_REMOTE_ERROR) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_get_path_rec_by_gid_pair: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 				"Remote error = %s\n",
 				ib_get_mad_status_str(osm_madw_get_mad_ptr
 						      ((*p_context).result.
@@ -1073,8 +1036,7 @@ osmtest_get_multipath_rec(IN osmtest_t * const p_osmt,
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_get_multipath_rec: ERR 0068: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0068: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 		goto Exit;
 	}
@@ -1082,13 +1044,11 @@ osmtest_get_multipath_rec(IN osmtest_t * const p_osmt,
 	status = p_context->result.status;
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_get_multipath_rec: ERR 0069: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0069: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 
 		if (status == IB_REMOTE_ERROR) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_get_multipath_rec: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 				"Remote error = %s\n",
 				ib_get_mad_status_str(osm_madw_get_mad_ptr
 						      (p_context->result.
@@ -1117,12 +1077,9 @@ osmtest_get_port_rec(IN osmtest_t * const p_osmt,
 
 	OSM_LOG_ENTER(&p_osmt->log);
 
-	if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-		osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-			"osmtest_get_port_rec: "
-			"Getting PortInfoRecord for port with LID 0x%X\n",
-			cl_ntoh16(lid));
-	}
+	OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+		"Getting PortInfoRecord for port with LID 0x%X\n",
+		cl_ntoh16(lid));
 
 	/*
 	 * Do a blocking query for this record in the subnet.
@@ -1154,8 +1111,7 @@ osmtest_get_port_rec(IN osmtest_t * const p_osmt,
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_get_port_rec: ERR 0075: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0075: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 		goto Exit;
 	}
@@ -1163,13 +1119,11 @@ osmtest_get_port_rec(IN osmtest_t * const p_osmt,
 	status = p_context->result.status;
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_get_port_rec: ERR 0076: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0076: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 
 		if (status == IB_REMOTE_ERROR) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_get_port_rec: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 				"Remote error = %s\n",
 				ib_get_mad_status_str(osm_madw_get_mad_ptr
 						      (p_context->result.
@@ -1199,12 +1153,9 @@ osmtest_get_port_rec_by_num(IN osmtest_t * const p_osmt,
 
 	OSM_LOG_ENTER(&p_osmt->log);
 
-	if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-		osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-			"osmtest_get_port_rec_by_num: "
-			"Getting PortInfoRecord for port with LID 0x%X Num:0x%X\n",
-			cl_ntoh16(lid), port_num);
-	}
+	OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+		"Getting PortInfoRecord for port with LID 0x%X Num:0x%X\n",
+		cl_ntoh16(lid), port_num);
 
 	/*
 	 * Do a blocking query for this record in the subnet.
@@ -1234,8 +1185,7 @@ osmtest_get_port_rec_by_num(IN osmtest_t * const p_osmt,
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_get_port_rec_by_num: ERR 0077: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0077: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 		goto Exit;
 	}
@@ -1243,16 +1193,14 @@ osmtest_get_port_rec_by_num(IN osmtest_t * const p_osmt,
 	status = p_context->result.status;
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_get_port_rec_by_num: ERR 0078: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0078: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 
 		if (status == IB_REMOTE_ERROR) {
 			p_mad =
 			    osm_madw_get_mad_ptr(p_context->result.
 						 p_result_madw);
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_get_port_rec_by_num: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 				"Remote error = %s\n",
 				ib_get_mad_status_str(p_mad));
 			status =
@@ -1289,8 +1237,7 @@ osmtest_stress_port_recs_large(IN osmtest_t * const p_osmt,
 				      sizeof(*p_rec), &context);
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_stress_port_recs_large: ERR 0006: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0006: "
 			"osmtest_get_all_recs failed (%s)\n",
 			ib_get_err_str(status));
 		goto Exit;
@@ -1304,8 +1251,7 @@ osmtest_stress_port_recs_large(IN osmtest_t * const p_osmt,
 	++*p_num_queries;
 
 	if (osm_log_is_active(&p_osmt->log, OSM_LOG_VERBOSE)) {
-		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-			"osmtest_stress_port_recs_large: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
 			"Received %u records\n", num_recs);
 
 		for (i = 0; i < num_recs; i++) {
@@ -1355,8 +1301,7 @@ osmtest_stress_node_recs_large(IN osmtest_t * const p_osmt,
 				      sizeof(*p_rec), &context);
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_stress_node_recs_large: ERR 0007: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0007: "
 			"osmtest_get_all_recs failed (%s)\n",
 			ib_get_err_str(status));
 		goto Exit;
@@ -1370,8 +1315,7 @@ osmtest_stress_node_recs_large(IN osmtest_t * const p_osmt,
 	++*p_num_queries;
 
 	if (osm_log_is_active(&p_osmt->log, OSM_LOG_VERBOSE)) {
-		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-			"osmtest_stress_node_recs_large: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
 			"Received %u records\n", num_recs);
 
 		for (i = 0; i < num_recs; i++) {
@@ -1420,8 +1364,7 @@ osmtest_stress_path_recs_large(IN osmtest_t * const p_osmt,
 	status = osmtest_get_all_recs(p_osmt, IB_MAD_ATTR_PATH_RECORD,
 				      sizeof(*p_rec), &context);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_stress_path_recs_large: ERR 0008: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0008: "
 			"osmtest_get_all_recs failed (%s)\n",
 			ib_get_err_str(status));
 		goto Exit;
@@ -1435,8 +1378,7 @@ osmtest_stress_path_recs_large(IN osmtest_t * const p_osmt,
 	++*p_num_queries;
 
 	if (osm_log_is_active(&p_osmt->log, OSM_LOG_VERBOSE)) {
-		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-			"osmtest_stress_path_recs_large: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
 			"Received %u records\n", num_recs);
 
 		for (i = 0; i < num_recs; i++) {
@@ -1498,8 +1440,7 @@ osmtest_stress_path_recs_by_guid(IN osmtest_t * const p_osmt,
 			/*
 			 * Do a blocking query for CA to CA Path Record
 			 */
-			osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-				"osmtest_stress_path_recs_by_guid:"
+			OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
 				"Source : guid = 0x%" PRIx64 " type = %d"
 				"Target : guid = 0x%" PRIx64 " type = %d\n",
 				cl_ntoh64(p_src_node->rec.node_info.port_guid),
@@ -1525,8 +1466,8 @@ osmtest_stress_path_recs_by_guid(IN osmtest_t * const p_osmt,
 
 				/* In a case of TIMEOUT you still can try sending but cant count, maybe its a temporary issue */
 				if (status != IB_SUCCESS) {
-					osm_log(&p_osmt->log, OSM_LOG_ERROR,
-						"osmtest_stress_path_recs_by_guid: ERR 0009: "
+					OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
+						"ERR 0009: "
 						"osmtest_get_path_rec_by_guid_pair failed (%s)\n",
 						ib_get_err_str(status));
 					if (status != IB_TIMEOUT)
@@ -1539,13 +1480,8 @@ osmtest_stress_path_recs_by_guid(IN osmtest_t * const p_osmt,
 					 */
 					*p_num_recs += num_recs;
 					++*p_num_queries;
-					if (osm_log_is_active
-					    (&p_osmt->log, OSM_LOG_VERBOSE))
-						osm_log(&p_osmt->log,
-							OSM_LOG_VERBOSE,
-							"osmtest_stress_path_recs_by_guid: "
-							"Received %u records\n",
-							num_recs);
+					OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
+						"Received %u records\n", num_recs);
 					/* Dont waste time if not VERBOSE and above */
 					if (p_osmt->log.level & OSM_LOG_VERBOSE) {
 						for (i = 0; i < num_recs; i++) {
@@ -1605,8 +1541,7 @@ osmtest_stress_port_recs_small(IN osmtest_t * const p_osmt,
 				      &context);
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_stress_port_recs_small: ERR 0010: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0010: "
 			"osmtest_get_port_rec failed (%s)\n",
 			ib_get_err_str(status));
 		goto Exit;
@@ -1620,8 +1555,7 @@ osmtest_stress_port_recs_small(IN osmtest_t * const p_osmt,
 	++*p_num_queries;
 
 	if (osm_log_is_active(&p_osmt->log, OSM_LOG_VERBOSE)) {
-		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-			"osmtest_stress_port_recs_small: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
 			"Received %u records\n", num_recs);
 
 		for (i = 0; i < num_recs; i++) {
@@ -1669,8 +1603,7 @@ osmtest_get_local_port_lmc(IN osmtest_t * const p_osmt,
 	status = osmtest_get_port_rec(p_osmt, cl_ntoh16(lid), &context);
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_get_local_port_lmc: ERR 001A: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 001A: "
 			"osmtest_get_port_rec failed (%s)\n",
 			ib_get_err_str(status));
 		goto Exit;
@@ -1678,11 +1611,7 @@ osmtest_get_local_port_lmc(IN osmtest_t * const p_osmt,
 
 	num_recs = context.result.result_cnt;
 
-	if (osm_log_is_active(&p_osmt->log, OSM_LOG_VERBOSE)) {
-		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-			"osmtest_get_local_port_lmc: "
-			"Received %u records\n", num_recs);
-	}
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE, "Received %u records\n", num_recs);
 
 	for (i = 0; i < num_recs; i++) {
 		p_rec =
@@ -1691,9 +1620,7 @@ osmtest_get_local_port_lmc(IN osmtest_t * const p_osmt,
 		osm_dump_portinfo_record(&p_osmt->log, p_rec, OSM_LOG_VERBOSE);
 		if (p_lmc) {
 			*p_lmc = ib_port_info_get_lmc(&p_rec->port_info);
-			osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-				"osmtest_get_local_port_lmc: "
-				"LMC %d\n", *p_lmc);
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG, "LMC %d\n", *p_lmc);
 		}
 	}
 
@@ -1727,12 +1654,9 @@ ib_api_status_t osmtest_wrong_sm_key_ignored(IN osmtest_t * const p_osmt)
 
 	OSM_LOG_ENTER(&p_osmt->log);
 
-	if (osm_log_is_active(&p_osmt->log, OSM_LOG_INFO)) {
-		osm_log(&p_osmt->log, OSM_LOG_INFO,
-			"osmtest_wrong_sm_key_ignored: "
-			"Trying PortInfoRecord for port with LID 0x%X Num:0x%X\n",
-			p_osmt->local_port.sm_lid, port_num);
-	}
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
+		"Trying PortInfoRecord for port with LID 0x%X Num:0x%X\n",
+		p_osmt->local_port.sm_lid, port_num);
 
 	/*
 	 * Do a blocking query for this record in the subnet.
@@ -1761,16 +1685,13 @@ ib_api_status_t osmtest_wrong_sm_key_ignored(IN osmtest_t * const p_osmt)
 	req.sm_key = 9999;
 	context.result.p_result_madw = NULL;
 
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmtest_wrong_sm_key_ignored: " EXPECTING_ERRORS_START "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_START "\n");
 	status = osmv_query_sa(p_osmt->h_bind, &req);
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmtest_wrong_sm_key_ignored: " EXPECTING_ERRORS_END "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_END "\n");
 
 	/* since we use a wrong sm_key we should get a timeout */
 	if (status != IB_TIMEOUT) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_wrong_sm_key_ignored: ERR 0011: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0011: "
 			"Did not get a timeout but got (%s)\n",
 			ib_get_err_str(status));
 		if (status == IB_SUCCESS) {
@@ -1878,8 +1799,8 @@ osmtest_write_port_info(IN osmtest_t * const p_osmt,
 			 p_rec->port_info.error_threshold);
 
 	if (result < 0) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_write_port_info: ERR 0161: " "Write failed\n");
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0161: "
+			"Write failed\n");
 		status = IB_ERROR;
 		goto Exit;
 	}
@@ -1928,8 +1849,8 @@ osmtest_write_path_info(IN osmtest_t * const p_osmt,
 			 p_rec->preference);
 
 	if (result < 0) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_write_path_info: ERR 0162: " "Write failed\n");
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0162: "
+			"Write failed\n");
 		status = IB_ERROR;
 		goto Exit;
 	}
@@ -1988,8 +1909,8 @@ osmtest_write_node_info(IN osmtest_t * const p_osmt,
 				   (&p_rec->node_info)), desc);
 
 	if (result < 0) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_write_node_info: ERR 0163: " "Write failed\n");
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0163: "
+			"Write failed\n");
 		status = IB_ERROR;
 		goto Exit;
 	}
@@ -2022,8 +1943,8 @@ osmtest_write_link(IN osmtest_t * const p_osmt,
 			 p_rec->to_port_num, cl_ntoh16(p_rec->to_lid));
 
 	if (result < 0) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_write_link: ERR 0164: " "Write failed\n");
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0164: "
+			"Write failed\n");
 		status = IB_ERROR;
 		goto Exit;
 	}
@@ -2056,8 +1977,7 @@ osmtest_write_all_link_recs(IN osmtest_t * const p_osmt, IN FILE * fh)
 				      sizeof(*p_rec), &context);
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_write_all_link_recs: ERR 0165: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0165: "
 			"osmtest_get_all_recs failed (%s)\n",
 			ib_get_err_str(status));
 		goto Exit;
@@ -2068,16 +1988,12 @@ osmtest_write_all_link_recs(IN osmtest_t * const p_osmt, IN FILE * fh)
 	 */
 	num_recs = context.result.result_cnt;
 
-	if (osm_log_is_active(&p_osmt->log, OSM_LOG_VERBOSE)) {
-		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-			"osmtest_write_all_link_recs: "
-			"Received %zu records\n", num_recs);
-	}
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
+		"Received %zu records\n", num_recs);
 
 	result = fprintf(fh, "#\n" "# Link Records\n" "#\n");
 	if (result < 0) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_write_all_link_recs: ERR 0166: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0166: "
 			"Write failed\n");
 		status = IB_ERROR;
 		goto Exit;
@@ -2138,13 +2054,11 @@ osmtest_get_path_rec_by_lid_pair(IN osmtest_t * const p_osmt,
 	req.p_query_input = &lid_pair;
 	req.sm_key = 0;
 
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmtest_get_path_rec_by_lid_pair: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
 		"Query for path from 0x%X to 0x%X\n", slid, dlid);
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_get_path_rec_by_lid_pair: ERR 0053: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0053: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 		goto Exit;
 	}
@@ -2152,13 +2066,11 @@ osmtest_get_path_rec_by_lid_pair(IN osmtest_t * const p_osmt,
 	status = (*p_context).result.status;
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_get_path_rec_by_lid_pair: ERR 0067: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0067: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 
 		if (status == IB_REMOTE_ERROR) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_get_path_rec_by_lid_pair: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 				"Remote error = %s\n",
 				ib_get_mad_status_str(osm_madw_get_mad_ptr
 						      ((*p_context).result.
@@ -2197,8 +2109,7 @@ osmtest_write_all_node_recs(IN osmtest_t * const p_osmt, IN FILE * fh)
 				      sizeof(*p_rec), &context);
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_write_all_node_recs: ERR 0022: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0022: "
 			"osmtest_get_all_recs failed (%s)\n",
 			ib_get_err_str(status));
 		goto Exit;
@@ -2209,16 +2120,11 @@ osmtest_write_all_node_recs(IN osmtest_t * const p_osmt, IN FILE * fh)
 	 */
 	num_recs = context.result.result_cnt;
 
-	if (osm_log_is_active(&p_osmt->log, OSM_LOG_VERBOSE)) {
-		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-			"osmtest_write_all_node_recs: "
-			"Received %zu records\n", num_recs);
-	}
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE, "Received %zu records\n", num_recs);
 
 	result = fprintf(fh, "#\n" "# Node Records\n" "#\n");
 	if (result < 0) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_write_all_node_recs: ERR 0023: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0023: "
 			"Write failed\n");
 		status = IB_ERROR;
 		goto Exit;
@@ -2268,8 +2174,7 @@ osmtest_write_all_port_recs(IN osmtest_t * const p_osmt, IN FILE * fh)
 				      sizeof(*p_rec), &context);
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_write_all_port_recs: ERR 0167: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0167: "
 			"osmtest_get_all_recs failed (%s)\n",
 			ib_get_err_str(status));
 		goto Exit;
@@ -2280,16 +2185,11 @@ osmtest_write_all_port_recs(IN osmtest_t * const p_osmt, IN FILE * fh)
 	 */
 	num_recs = context.result.result_cnt;
 
-	if (osm_log_is_active(&p_osmt->log, OSM_LOG_VERBOSE)) {
-		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-			"osmtest_write_all_port_recs: "
-			"Received %zu records\n", num_recs);
-	}
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE, "Received %zu records\n", num_recs);
 
 	result = fprintf(fh, "#\n" "# PortInfo Records\n" "#\n");
 	if (result < 0) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_write_all_port_recs: ERR 0024: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0024: "
 			"Write failed\n");
 		status = IB_ERROR;
 		goto Exit;
@@ -2340,8 +2240,7 @@ osmtest_write_all_path_recs(IN osmtest_t * const p_osmt, IN FILE * fh)
 				      sizeof(*p_rec), &context);
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_write_all_path_recs: ERR 0025: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0025: "
 			"osmtest_get_all_recs failed (%s)\n",
 			ib_get_err_str(status));
 		goto Exit;
@@ -2352,16 +2251,11 @@ osmtest_write_all_path_recs(IN osmtest_t * const p_osmt, IN FILE * fh)
 	 */
 	num_recs = context.result.result_cnt;
 
-	if (osm_log_is_active(&p_osmt->log, OSM_LOG_VERBOSE)) {
-		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-			"osmtest_write_all_path_recs: "
-			"Received %zu records\n", num_recs);
-	}
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE, "Received %zu records\n", num_recs);
 
 	result = fprintf(fh, "#\n" "# Path Records\n" "#\n");
 	if (result < 0) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_write_all_path_recs: ERR 0026: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0026: "
 			"Write failed\n");
 		status = IB_ERROR;
 		goto Exit;
@@ -2406,8 +2300,7 @@ osmtest_write_all_node_recs(IN osmtest_t * const p_osmt, IN FILE * fh)
 
 	result = fprintf(fh, "#\n" "# Node Records\n" "#\n");
 	if (result < 0) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_write_all_node_recs: ERR 0027: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0027: "
 			"Write failed\n");
 		status = IB_ERROR;
 		goto Exit;
@@ -2426,14 +2319,12 @@ osmtest_write_all_node_recs(IN osmtest_t * const p_osmt, IN FILE * fh)
 						&context);
 		if (status != IB_SUCCESS) {
 			if (status != IB_SA_MAD_STATUS_NO_RECORDS) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_write_all_node_recs: ERR 0028: "
+				OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG, "ERR 0028: "
 					"failed to get node info for LID:0x%02X (%s)\n",
 					cl_ntoh16(lid), ib_get_err_str(status));
 				goto Exit;
 			} else {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_write_all_node_recs: WRN 0121: "
+				OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG, "WRN 0121: "
 					"failed to get node info for LID:0x%02X (%s)\n",
 					cl_ntoh16(lid), ib_get_err_str(status));
 				status = IB_SUCCESS;
@@ -2508,8 +2399,7 @@ osmtest_write_all_port_recs(IN osmtest_t * const p_osmt, IN FILE * fh)
 	/* print header */
 	result = fprintf(fh, "#\n" "# PortInfo Records\n" "#\n");
 	if (result < 0) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_write_all_port_recs: ERR 0029: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0029: "
 			"Write failed\n");
 		status = IB_ERROR;
 		goto Exit;
@@ -2539,15 +2429,15 @@ osmtest_write_all_port_recs(IN osmtest_t * const p_osmt, IN FILE * fh)
 							     &context);
 			if (status != IB_SUCCESS) {
 				if (status != IB_SA_MAD_STATUS_NO_RECORDS) {
-					osm_log(&p_osmt->log, OSM_LOG_ERROR,
-						"osmtest_write_all_port_recs: WRN 0122: "
+					OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
+						"WRN 0122: "
 						"Error encountered getting port info for LID:0x%04X Num:0x%02X (%s)\n",
 						p_node_rec->lid, port_num,
 						ib_get_err_str(status));
 					goto Exit;
 				} else {
-					osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-						"osmtest_write_all_port_recs: WRN 0123: "
+					OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+						"WRN 0123: "
 						"failed to get port info for LID:0x%04X Num:0x%02X (%s)\n",
 						p_node_rec->lid, port_num,
 						ib_get_err_str(status));
@@ -2647,8 +2537,7 @@ osmtest_write_all_path_recs(IN osmtest_t * const p_osmt, IN FILE * fh)
 								  &context);
 
 			if (status != IB_SUCCESS) {
-				osm_log(&p_osmt->log, OSM_LOG_ERROR,
-					"osmtest_write_all_path_recs: ERR 012D: "
+				OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 012D: "
 					"failed to get path info from LID:0x%X To LID:0x%X (%s)\n",
 					p_src_node->rec.lid,
 					p_dst_node->rec.lid,
@@ -2717,8 +2606,7 @@ osmtest_create_inventory_file(IN osmtest_t * const p_osmt)
 
 	fh = fopen(p_osmt->opt.file_name, "w");
 	if (fh == NULL) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_create_inventory_file: ERR 0079: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0079: "
 			"Unable to open inventory file (%s)\n",
 			p_osmt->opt.file_name);
 		status = IB_ERROR;
@@ -3042,8 +2930,7 @@ static ib_api_status_t osmtest_check_missing_nodes(IN osmtest_t * const p_osmt)
 			/*
 			 * This node was not reported by the SA
 			 */
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_check_missing_nodes: ERR 0080: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0080: "
 				"Missing node 0x%016" PRIx64 "\n",
 				cl_ntoh64(p_node->rec.node_info.node_guid));
 			status = IB_ERROR;
@@ -3075,8 +2962,7 @@ static ib_api_status_t osmtest_check_missing_ports(IN osmtest_t * const p_osmt)
 			/*
 			 * This port was not reported by the SA
 			 */
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_check_missing_ports: ERR 0081: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0081: "
 				"Missing port LID:0x%X Num:0x%X\n",
 				cl_ntoh16(p_port->rec.lid),
 				p_port->rec.port_num);
@@ -3109,8 +2995,7 @@ static ib_api_status_t osmtest_check_missing_paths(IN osmtest_t * const p_osmt)
 			/*
 			 * This path was not reported by the SA
 			 */
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_check_missing_paths: ERR 0051: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0051: "
 				"SA did not return path SLID 0x%X to DLID 0x%X\n",
 				cl_ntoh16(p_path->rec.slid),
 				cl_ntoh16(p_path->rec.dlid));
@@ -3140,8 +3025,7 @@ osmtest_path_rec_kay_is_valid(IN osmtest_t * const p_osmt,
 			      IN const path_t * const p_path)
 {
 	if ((p_path->comp.dlid == 0) || (p_path->comp.slid == 0)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_path_rec_kay_is_valid: ERR 0168: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0168: "
 			"SLID and DLID must be specified for defined paths\n");
 		return (FALSE);
 	}
@@ -3161,12 +3045,9 @@ osmtest_validate_path_data(IN osmtest_t * const p_osmt,
 
 	OSM_LOG_ENTER(&p_osmt->log);
 
-	if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_path_data: "
-			"Checking path SLID 0x%X to DLID 0x%X\n",
-			cl_ntoh16(p_rec->slid), cl_ntoh16(p_rec->dlid));
-	}
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
+		"Checking path SLID 0x%X to DLID 0x%X\n",
+		cl_ntoh16(p_rec->slid), cl_ntoh16(p_rec->dlid));
 
 	status =
 	    osmtest_get_local_port_lmc(p_osmt, p_osmt->local_port.lid, &lmc);
@@ -3181,8 +3062,7 @@ osmtest_validate_path_data(IN osmtest_t * const p_osmt,
 		 * Has this record already been returned?
 		 */
 		if (p_path->count != 0) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_validate_path_data: ERR 0056: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0056: "
 				"Already received path SLID 0x%X to DLID 0x%X\n",
 				cl_ntoh16(p_rec->slid), cl_ntoh16(p_rec->dlid));
 			status = IB_ERROR;
@@ -3191,8 +3071,7 @@ osmtest_validate_path_data(IN osmtest_t * const p_osmt,
 	} else {
 		/* Also, this doesn't detect fewer than the correct number of paths being returned */
 		if (p_path->count >= (uint32_t) (1 << (2 * lmc))) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_validate_path_data: ERR 0052: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0052: "
 				"Already received path SLID 0x%X to DLID 0x%X count %d LMC %d\n",
 				cl_ntoh16(p_rec->slid), cl_ntoh16(p_rec->dlid),
 				p_path->count, lmc);
@@ -3210,8 +3089,7 @@ osmtest_validate_path_data(IN osmtest_t * const p_osmt,
 	     p_path->rec.dgid.unicast.interface_id) !=
 	    (p_path->comp.dgid.unicast.interface_id &
 	     p_rec->dgid.unicast.interface_id)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_path_data: ERR 0169: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0169: "
 			"DGID mismatch on path SLID 0x%X to DLID 0x%X\n"
 			"\t\t\t\tExpected 0x%016" PRIx64 " 0x%016" PRIx64 "\n"
 			"\t\t\t\tReceived 0x%016" PRIx64 " 0x%016" PRIx64 "\n",
@@ -3232,8 +3110,7 @@ osmtest_validate_path_data(IN osmtest_t * const p_osmt,
 	     p_path->rec.sgid.unicast.interface_id) !=
 	    (p_path->comp.sgid.unicast.interface_id &
 	     p_rec->sgid.unicast.interface_id)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_path_data: ERR 0057: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0057: "
 			"SGID mismatch on path SLID 0x%X to DLID 0x%X\n"
 			"\t\t\t\tExpected 0x%016" PRIx64 " 0x%016" PRIx64 ",\n"
 			"\t\t\t\tReceived 0x%016" PRIx64 " 0x%016" PRIx64 ".\n",
@@ -3252,8 +3129,7 @@ osmtest_validate_path_data(IN osmtest_t * const p_osmt,
 	 */
 	if ((p_path->comp.pkey & p_path->rec.pkey) !=
 	    (p_path->comp.pkey & p_rec->pkey)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_path_data: ERR 0012: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0012: "
 			"PKEY mismatch on path SLID 0x%X to DLID 0x%X\n"
 			"\t\t\t\tExpected 0x%X, received 0x%X\n",
 			cl_ntoh16(p_path->rec.slid),
@@ -3279,20 +3155,15 @@ osmtest_validate_node_data(IN osmtest_t * const p_osmt,
 
 	OSM_LOG_ENTER(&p_osmt->log);
 
-	if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_node_data: "
-			"Checking node 0x%016" PRIx64 ", LID 0x%X\n",
-			cl_ntoh64(p_rec->node_info.node_guid),
-			cl_ntoh16(p_rec->lid));
-	}
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
+		"Checking node 0x%016" PRIx64 ", LID 0x%X\n",
+		cl_ntoh64(p_rec->node_info.node_guid), cl_ntoh16(p_rec->lid));
 
 	/*
 	 * Has this record already been returned?
 	 */
 	if (p_node->count != 0) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_node_data: ERR 0013: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0013: "
 			"Already received node 0x%016" PRIx64 "\n",
 			cl_ntoh64(p_node->rec.node_info.node_guid));
 		status = IB_ERROR;
@@ -3306,8 +3177,7 @@ osmtest_validate_node_data(IN osmtest_t * const p_osmt,
 	 */
 	if ((p_node->comp.lid & p_node->rec.lid) !=
 	    (p_node->comp.lid & p_rec->lid)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_node_data: ERR 0014: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0014: "
 			"Field mismatch node 0x%016" PRIx64 ", LID 0x%X\n"
 			"\t\t\t\tExpected LID 0x%X, received 0x%X\n",
 			cl_ntoh64(p_rec->node_info.node_guid),
@@ -3320,8 +3190,7 @@ osmtest_validate_node_data(IN osmtest_t * const p_osmt,
 	     p_node->rec.node_info.base_version) !=
 	    (p_node->comp.node_info.base_version &
 	     p_rec->node_info.base_version)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_node_data: ERR 0015: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0015: "
 			"Field mismatch node 0x%016" PRIx64 ", LID 0x%X\n"
 			"\t\t\t\tExpected base_version 0x%X, received 0x%X\n",
 			cl_ntoh64(p_rec->node_info.node_guid),
@@ -3336,8 +3205,7 @@ osmtest_validate_node_data(IN osmtest_t * const p_osmt,
 	     p_node->rec.node_info.class_version) !=
 	    (p_node->comp.node_info.class_version &
 	     p_rec->node_info.class_version)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_node_data: ERR 0016: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0016: "
 			"Field mismatch node 0x%016" PRIx64 ", LID 0x%X\n"
 			"\t\t\t\tExpected class_version 0x%X, received 0x%X\n",
 			cl_ntoh64(p_rec->node_info.node_guid),
@@ -3351,8 +3219,7 @@ osmtest_validate_node_data(IN osmtest_t * const p_osmt,
 	if ((p_node->comp.node_info.node_type &
 	     p_node->rec.node_info.node_type) !=
 	    (p_node->comp.node_info.node_type & p_rec->node_info.node_type)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_node_data: ERR 0017: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0017: "
 			"Field mismatch node 0x%016" PRIx64 ", LID 0x%X\n"
 			"\t\t\t\tExpected node_type 0x%X, received 0x%X\n",
 			cl_ntoh64(p_rec->node_info.node_guid),
@@ -3366,8 +3233,7 @@ osmtest_validate_node_data(IN osmtest_t * const p_osmt,
 	if ((p_node->comp.node_info.sys_guid &
 	     p_node->rec.node_info.sys_guid) !=
 	    (p_node->comp.node_info.sys_guid & p_rec->node_info.sys_guid)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_node_data: ERR 0018: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0018: "
 			"Field mismatch node 0x%016" PRIx64 ", LID 0x%X\n"
 			"\t\t\t\tExpected sys_guid 0x%016" PRIx64
 			", received 0x%016" PRIx64 "\n",
@@ -3382,8 +3248,7 @@ osmtest_validate_node_data(IN osmtest_t * const p_osmt,
 	if ((p_node->comp.node_info.node_guid &
 	     p_node->rec.node_info.node_guid) !=
 	    (p_node->comp.node_info.node_guid & p_rec->node_info.node_guid)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_node_data: ERR 0019: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0019: "
 			"Field mismatch node 0x%016" PRIx64 ", LID 0x%X\n"
 			"\t\t\t\tExpected node_guid 0x%016" PRIx64
 			", received 0x%016" PRIx64 "\n",
@@ -3398,8 +3263,7 @@ osmtest_validate_node_data(IN osmtest_t * const p_osmt,
 	if ((p_node->comp.node_info.port_guid &
 	     p_node->rec.node_info.port_guid) !=
 	    (p_node->comp.node_info.port_guid & p_rec->node_info.port_guid)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_node_data: ERR 0031: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0031: "
 			"Field mismatch node 0x%016" PRIx64 ", LID 0x%X\n"
 			"\t\t\t\tExpected port_guid 0x%016" PRIx64
 			", received 0x%016" PRIx64 "\n",
@@ -3415,11 +3279,9 @@ osmtest_validate_node_data(IN osmtest_t * const p_osmt,
 	     p_node->rec.node_info.partition_cap) !=
 	    (p_node->comp.node_info.partition_cap &
 	     p_rec->node_info.partition_cap)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_node_data: ERR 0032: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0032: "
 			"Field mismatch node 0x%016" PRIx64 ", LID 0x%X\n"
-			"\t\t\t\tExpected partition_cap 0x%X"
-			", received 0x%X\n",
+			"\t\t\t\tExpected partition_cap 0x%X, received 0x%X\n",
 			cl_ntoh64(p_rec->node_info.node_guid),
 			cl_ntoh16(p_rec->lid),
 			cl_ntoh16(p_node->rec.node_info.partition_cap),
@@ -3431,11 +3293,9 @@ osmtest_validate_node_data(IN osmtest_t * const p_osmt,
 	if ((p_node->comp.node_info.device_id &
 	     p_node->rec.node_info.device_id) !=
 	    (p_node->comp.node_info.device_id & p_rec->node_info.device_id)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_node_data: ERR 0033: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0033: "
 			"Field mismatch node 0x%016" PRIx64 ", LID 0x%X\n"
-			"\t\t\t\tExpected device_id 0x%X"
-			", received 0x%X\n",
+			"\t\t\t\tExpected device_id 0x%X, received 0x%X\n",
 			cl_ntoh64(p_rec->node_info.node_guid),
 			cl_ntoh16(p_rec->lid),
 			cl_ntoh16(p_node->rec.node_info.device_id),
@@ -3447,11 +3307,9 @@ osmtest_validate_node_data(IN osmtest_t * const p_osmt,
 	if ((p_node->comp.node_info.revision &
 	     p_node->rec.node_info.revision) !=
 	    (p_node->comp.node_info.revision & p_rec->node_info.revision)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_node_data: ERR 0034: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0034: "
 			"Field mismatch node 0x%016" PRIx64 ", LID 0x%X\n"
-			"\t\t\t\tExpected revision 0x%X"
-			", received 0x%X\n",
+			"\t\t\t\tExpected revision 0x%X, received 0x%X\n",
 			cl_ntoh64(p_rec->node_info.node_guid),
 			cl_ntoh16(p_rec->lid),
 			cl_ntoh32(p_node->rec.node_info.revision),
@@ -3483,8 +3341,7 @@ osmtest_validate_node_rec(IN osmtest_t * const p_osmt,
 	p_tbl = &p_osmt->exp_subn.node_lid_tbl;
 	p_node = (node_t *) cl_qmap_get(p_tbl, p_rec->lid);
 	if (p_node == (node_t *) cl_qmap_end(p_tbl)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_node_rec: ERR 0035: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0035: "
 			"Unexpected node 0x%016" PRIx64 ", LID 0x%X\n",
 			cl_ntoh64(p_rec->node_info.node_guid),
 			cl_ntoh16(p_rec->lid));
@@ -3510,19 +3367,15 @@ osmtest_validate_port_data(IN osmtest_t * const p_osmt,
 
 	OSM_LOG_ENTER(&p_osmt->log);
 
-	if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_port_data: "
-			"Checking port LID 0x%X, Num 0x%X\n",
-			cl_ntoh16(p_rec->lid), p_rec->port_num);
-	}
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
+		"Checking port LID 0x%X, Num 0x%X\n",
+		cl_ntoh16(p_rec->lid), p_rec->port_num);
 
 	/*
 	 * Has this record already been returned?
 	 */
 	if (p_port->count != 0) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_port_data: ERR 0036: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0036: "
 			"Already received port LID 0x%X, Num 0x%X\n",
 			cl_ntoh16(p_rec->lid), p_rec->port_num);
 		status = IB_ERROR;
@@ -3536,8 +3389,7 @@ osmtest_validate_port_data(IN osmtest_t * const p_osmt,
 	 */
 	if ((p_port->comp.lid & p_port->rec.lid) !=
 	    (p_port->comp.lid & p_rec->lid)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_port_data: ERR 0037: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0037: "
 			"Field mismatch port LID 0x%X Num:0x%X\n"
 			"\t\t\t\tExpected LID 0x%X, received 0x%X\n",
 			cl_ntoh16(p_rec->lid), p_rec->port_num,
@@ -3548,8 +3400,7 @@ osmtest_validate_port_data(IN osmtest_t * const p_osmt,
 
 	if ((p_port->comp.port_num & p_port->rec.port_num) !=
 	    (p_port->comp.port_num & p_rec->port_num)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_port_data: ERR 0038: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0038: "
 			"Field mismatch port LID 0x%X Num:0x%X\n"
 			"\t\t\t\tExpected port_num 0x%X, received 0x%X\n",
 			cl_ntoh16(p_rec->lid), p_rec->port_num,
@@ -3560,8 +3411,7 @@ osmtest_validate_port_data(IN osmtest_t * const p_osmt,
 
 	if ((p_port->comp.port_info.m_key & p_port->rec.port_info.m_key) !=
 	    (p_port->comp.port_info.m_key & p_rec->port_info.m_key)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_port_data: ERR 0039: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0039: "
 			"Field mismatch port LID 0x%X Num:0x%X\n"
 			"\t\t\t\tExpected m_key 0x%016" PRIx64
 			", received 0x%016" PRIx64 "\n", cl_ntoh16(p_rec->lid),
@@ -3575,8 +3425,7 @@ osmtest_validate_port_data(IN osmtest_t * const p_osmt,
 	     subnet_prefix) !=
 	    (p_port->comp.port_info.subnet_prefix & p_rec->port_info.
 	     subnet_prefix)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_port_data: ERR 0040: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0040: "
 			"Field mismatch port LID 0x%X Num:0x%X\n"
 			"\t\t\t\tExpected subnet_prefix 0x%016" PRIx64
 			", received 0x%016" PRIx64 "\n", cl_ntoh16(p_rec->lid),
@@ -3589,8 +3438,7 @@ osmtest_validate_port_data(IN osmtest_t * const p_osmt,
 	if ((p_port->comp.port_info.base_lid & p_port->rec.port_info.
 	     base_lid) !=
 	    (p_port->comp.port_info.base_lid & p_rec->port_info.base_lid)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_port_data: ERR 0041: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0041: "
 			"Field mismatch port LID 0x%X Num:0x%X\n"
 			"\t\t\t\tExpected base_lid 0x%X, received 0x%X\n",
 			cl_ntoh16(p_rec->lid), p_rec->port_num,
@@ -3604,8 +3452,7 @@ osmtest_validate_port_data(IN osmtest_t * const p_osmt,
 	     master_sm_base_lid) !=
 	    (p_port->comp.port_info.master_sm_base_lid & p_rec->port_info.
 	     master_sm_base_lid)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_port_data: ERR 0042: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0042: "
 			"Field mismatch port LID 0x%X Num:0x%X\n"
 			"\t\t\t\tExpected master_sm_base_lid 0x%X, received 0x%X\n",
 			cl_ntoh16(p_rec->lid), p_rec->port_num,
@@ -3619,8 +3466,7 @@ osmtest_validate_port_data(IN osmtest_t * const p_osmt,
 	     capability_mask) !=
 	    (p_port->comp.port_info.capability_mask & p_rec->port_info.
 	     capability_mask)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_port_data: ERR 0043: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0043: "
 			"Field mismatch port LID 0x%X Num:0x%X\n"
 			"\t\t\t\tExpected capability_mask 0x%X, received 0x%X\n",
 			cl_ntoh16(p_rec->lid), p_rec->port_num,
@@ -3633,8 +3479,7 @@ osmtest_validate_port_data(IN osmtest_t * const p_osmt,
 	if ((p_port->comp.port_info.diag_code & p_port->rec.port_info.
 	     diag_code) !=
 	    (p_port->comp.port_info.diag_code & p_rec->port_info.diag_code)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_port_data: ERR 0044: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0044: "
 			"Field mismatch port LID 0x%X Num:0x%X\n"
 			"\t\t\t\tExpected diag_code 0x%X, received 0x%X\n",
 			cl_ntoh16(p_rec->lid), p_rec->port_num,
@@ -3648,8 +3493,7 @@ osmtest_validate_port_data(IN osmtest_t * const p_osmt,
 	     m_key_lease_period) !=
 	    (p_port->comp.port_info.m_key_lease_period & p_rec->port_info.
 	     m_key_lease_period)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_port_data: ERR 0045: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0045: "
 			"Field mismatch port LID 0x%X Num:0x%X\n"
 			"\t\t\t\tExpected m_key_lease_period 0x%X, received 0x%X\n",
 			cl_ntoh16(p_rec->lid), p_rec->port_num,
@@ -3663,8 +3507,7 @@ osmtest_validate_port_data(IN osmtest_t * const p_osmt,
 	     local_port_num) !=
 	    (p_port->comp.port_info.local_port_num & p_rec->port_info.
 	     local_port_num)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_port_data: ERR 0046: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0046: "
 			"Field mismatch port LID 0x%X Num:0x%X\n"
 			"\t\t\t\tExpected local_port_num 0x%X, received 0x%X\n",
 			cl_ntoh16(p_rec->lid), p_rec->port_num,
@@ -3678,8 +3521,7 @@ osmtest_validate_port_data(IN osmtest_t * const p_osmt,
 	     link_width_enabled) !=
 	    (p_port->comp.port_info.link_width_enabled & p_rec->port_info.
 	     link_width_enabled)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_port_data: ERR 0047: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0047: "
 			"Field mismatch port LID 0x%X Num:0x%X\n"
 			"\t\t\t\tExpected link_width_enabled 0x%X, received 0x%X\n",
 			cl_ntoh16(p_rec->lid), p_rec->port_num,
@@ -3693,8 +3535,7 @@ osmtest_validate_port_data(IN osmtest_t * const p_osmt,
 	     port_info.link_width_supported) !=
 	    (p_port->comp.port_info.link_width_supported & p_rec->port_info.
 	     link_width_supported)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_port_data: ERR 0048: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0048: "
 			"Field mismatch port LID 0x%X Num:0x%X\n"
 			"\t\t\t\tExpected link_width_supported 0x%X, received 0x%X\n",
 			cl_ntoh16(p_rec->lid), p_rec->port_num,
@@ -3708,8 +3549,7 @@ osmtest_validate_port_data(IN osmtest_t * const p_osmt,
 	     link_width_active) !=
 	    (p_port->comp.port_info.link_width_active & p_rec->port_info.
 	     link_width_active)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_port_data: ERR 0049: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0049: "
 			"Field mismatch port LID 0x%X Num:0x%X\n"
 			"\t\t\t\tExpected link_width_active 0x%X, received 0x%X\n",
 			cl_ntoh16(p_rec->lid), p_rec->port_num,
@@ -3722,8 +3562,7 @@ osmtest_validate_port_data(IN osmtest_t * const p_osmt,
 	if ((p_port->comp.port_info.link_speed & p_port->rec.port_info.
 	     link_speed) !=
 	    (p_port->comp.port_info.link_speed & p_rec->port_info.link_speed)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_port_data: ERR 0054: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0054: "
 			"Field mismatch port LID 0x%X Num:0x%X\n"
 			"\t\t\t\tExpected link_speed 0x%X, received 0x%X\n",
 			cl_ntoh16(p_rec->lid), p_rec->port_num,
@@ -3737,8 +3576,7 @@ osmtest_validate_port_data(IN osmtest_t * const p_osmt,
 	     state_info1) !=
 	    (p_port->comp.port_info.state_info1 & p_rec->port_info.
 	     state_info1)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_port_data: ERR 0055: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0055: "
 			"Field mismatch port LID 0x%X Num:0x%X\n"
 			"\t\t\t\tExpected state_info1 0x%X, received 0x%X\n",
 			cl_ntoh16(p_rec->lid), p_rec->port_num,
@@ -3752,8 +3590,7 @@ osmtest_validate_port_data(IN osmtest_t * const p_osmt,
 	     state_info2) !=
 	    (p_port->comp.port_info.state_info2 & p_rec->port_info.
 	     state_info2)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_port_data: ERR 0058: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0058: "
 			"Field mismatch port LID 0x%X Num:0x%X\n"
 			"\t\t\t\tExpected state_info2 0x%X, received 0x%X\n",
 			cl_ntoh16(p_rec->lid), p_rec->port_num,
@@ -3766,8 +3603,7 @@ osmtest_validate_port_data(IN osmtest_t * const p_osmt,
 	if ((p_port->comp.port_info.mkey_lmc & p_port->rec.port_info.
 	     mkey_lmc) !=
 	    (p_port->comp.port_info.mkey_lmc & p_rec->port_info.mkey_lmc)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_port_data: ERR 0059: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0059: "
 			"Field mismatch port LID 0x%X Num:0x%X\n"
 			"\t\t\t\tExpected mkey_lmc 0x%X, received 0x%X\n",
 			cl_ntoh16(p_rec->lid), p_rec->port_num,
@@ -3780,8 +3616,7 @@ osmtest_validate_port_data(IN osmtest_t * const p_osmt,
 	if ((p_port->comp.port_info.link_speed & p_port->rec.port_info.
 	     link_speed) !=
 	    (p_port->comp.port_info.link_speed & p_rec->port_info.link_speed)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_port_data: ERR 0060: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0060: "
 			"Field mismatch port LID 0x%X Num:0x%X\n"
 			"\t\t\t\tExpected link_speed 0x%X, received 0x%X\n",
 			cl_ntoh16(p_rec->lid), p_rec->port_num,
@@ -3794,8 +3629,7 @@ osmtest_validate_port_data(IN osmtest_t * const p_osmt,
 	if ((p_port->comp.port_info.mtu_smsl & p_port->rec.port_info.
 	     mtu_smsl) !=
 	    (p_port->comp.port_info.mtu_smsl & p_rec->port_info.mtu_smsl)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_port_data: ERR 0061: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0061: "
 			"Field mismatch port LID 0x%X Num:0x%X\n"
 			"\t\t\t\tExpected mtu_smsl 0x%X, received 0x%X\n",
 			cl_ntoh16(p_rec->lid), p_rec->port_num,
@@ -3807,8 +3641,7 @@ osmtest_validate_port_data(IN osmtest_t * const p_osmt,
 
 	if ((p_port->comp.port_info.vl_cap & p_port->rec.port_info.vl_cap) !=
 	    (p_port->comp.port_info.vl_cap & p_rec->port_info.vl_cap)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_port_data: ERR 0062: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0062: "
 			"Field mismatch port LID 0x%X Num:0x%X\n"
 			"\t\t\t\tExpected vl_cap 0x%X, received 0x%X\n",
 			cl_ntoh16(p_rec->lid), p_rec->port_num,
@@ -3821,8 +3654,7 @@ osmtest_validate_port_data(IN osmtest_t * const p_osmt,
 	     vl_high_limit) !=
 	    (p_port->comp.port_info.vl_high_limit & p_rec->port_info.
 	     vl_high_limit)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_port_data: ERR 0082: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0082: "
 			"Field mismatch port LID 0x%X Num:0x%X\n"
 			"\t\t\t\tExpected vl_high_limit 0x%X, received 0x%X\n",
 			cl_ntoh16(p_rec->lid), p_rec->port_num,
@@ -3836,8 +3668,7 @@ osmtest_validate_port_data(IN osmtest_t * const p_osmt,
 	     vl_arb_high_cap) !=
 	    (p_port->comp.port_info.vl_arb_high_cap & p_rec->port_info.
 	     vl_arb_high_cap)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_port_data: ERR 0083: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0083: "
 			"Field mismatch port LID 0x%X Num:0x%X\n"
 			"\t\t\t\tExpected vl_arb_high_cap 0x%X, received 0x%X\n",
 			cl_ntoh16(p_rec->lid), p_rec->port_num,
@@ -3851,8 +3682,7 @@ osmtest_validate_port_data(IN osmtest_t * const p_osmt,
 	     vl_arb_low_cap) !=
 	    (p_port->comp.port_info.vl_arb_low_cap & p_rec->port_info.
 	     vl_arb_low_cap)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_port_data: ERR 0084: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0084: "
 			"Field mismatch port LID 0x%X Num:0x%X\n"
 			"\t\t\t\tExpected vl_arb_low_cap 0x%X, received 0x%X\n",
 			cl_ntoh16(p_rec->lid), p_rec->port_num,
@@ -3864,8 +3694,7 @@ osmtest_validate_port_data(IN osmtest_t * const p_osmt,
 
 	if ((p_port->comp.port_info.mtu_cap & p_port->rec.port_info.mtu_cap) !=
 	    (p_port->comp.port_info.mtu_cap & p_rec->port_info.mtu_cap)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_port_data: ERR 0085: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0085: "
 			"Field mismatch port LID 0x%X Num:0x%X\n"
 			"\t\t\t\tExpected mtu_cap 0x%X, received 0x%X\n",
 			cl_ntoh16(p_rec->lid), p_rec->port_num,
@@ -3880,8 +3709,7 @@ osmtest_validate_port_data(IN osmtest_t * const p_osmt,
 	     vl_stall_life) !=
 	    (p_port->comp.port_info.vl_stall_life & p_rec->port_info.
 	     vl_stall_life)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_port_data: ERR 012F: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 012F: "
 			"Field mismatch port LID 0x%X Num:0x%X\n"
 			"\t\t\t\tExpected vl_stall_life 0x%X, received 0x%X\n",
 			cl_ntoh16(p_rec->lid), p_rec->port_num,
@@ -3895,8 +3723,7 @@ osmtest_validate_port_data(IN osmtest_t * const p_osmt,
 	if ((p_port->comp.port_info.vl_enforce & p_port->rec.port_info.
 	     vl_enforce) !=
 	    (p_port->comp.port_info.vl_enforce & p_rec->port_info.vl_enforce)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_port_data: ERR 0086: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0086: "
 			"Field mismatch port LID 0x%X Num:0x%X\n"
 			"\t\t\t\tExpected vl_enforce 0x%X, received 0x%X\n",
 			cl_ntoh16(p_rec->lid), p_rec->port_num,
@@ -3910,8 +3737,7 @@ osmtest_validate_port_data(IN osmtest_t * const p_osmt,
 	     m_key_violations) !=
 	    (p_port->comp.port_info.m_key_violations & p_rec->port_info.
 	     m_key_violations)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_port_data: ERR 0087: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0087: "
 			"Field mismatch port LID 0x%X Num:0x%X\n"
 			"\t\t\t\tExpected m_key_violations 0x%X, received 0x%X\n",
 			cl_ntoh16(p_rec->lid), p_rec->port_num,
@@ -3925,8 +3751,7 @@ osmtest_validate_port_data(IN osmtest_t * const p_osmt,
 	     p_key_violations) !=
 	    (p_port->comp.port_info.p_key_violations & p_rec->port_info.
 	     p_key_violations)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_port_data: ERR 0088: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0088: "
 			"Field mismatch port LID 0x%X Num:0x%X\n"
 			"\t\t\t\tExpected p_key_violations 0x%X, received 0x%X\n",
 			cl_ntoh16(p_rec->lid), p_rec->port_num,
@@ -3940,8 +3765,7 @@ osmtest_validate_port_data(IN osmtest_t * const p_osmt,
 	     q_key_violations) !=
 	    (p_port->comp.port_info.q_key_violations & p_rec->port_info.
 	     q_key_violations)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_port_data: ERR 0089: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0089: "
 			"Field mismatch port LID 0x%X Num:0x%X\n"
 			"\t\t\t\tExpected q_key_violations 0x%X, received 0x%X\n",
 			cl_ntoh16(p_rec->lid), p_rec->port_num,
@@ -3954,8 +3778,7 @@ osmtest_validate_port_data(IN osmtest_t * const p_osmt,
 	if ((p_port->comp.port_info.guid_cap & p_port->rec.port_info.
 	     guid_cap) !=
 	    (p_port->comp.port_info.guid_cap & p_rec->port_info.guid_cap)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_port_data: ERR 0090: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0090: "
 			"Field mismatch port LID 0x%X Num:0x%X\n"
 			"\t\t\t\tExpected guid_cap 0x%X, received 0x%X\n",
 			cl_ntoh16(p_rec->lid), p_rec->port_num,
@@ -3969,8 +3792,7 @@ osmtest_validate_port_data(IN osmtest_t * const p_osmt,
 	     subnet_timeout) !=
 	    (p_port->comp.port_info.subnet_timeout & p_rec->port_info.
 	     subnet_timeout)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_port_data: ERR 0091: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0091: "
 			"Field mismatch port LID 0x%X Num:0x%X\n"
 			"\t\t\t\tExpected subnet_timeout 0x%X, received 0x%X\n",
 			cl_ntoh16(p_rec->lid), p_rec->port_num,
@@ -3984,8 +3806,7 @@ osmtest_validate_port_data(IN osmtest_t * const p_osmt,
 	     resp_time_value) !=
 	    (p_port->comp.port_info.resp_time_value & p_rec->port_info.
 	     resp_time_value)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_port_data: ERR 0092: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0092: "
 			"Field mismatch port LID 0x%X Num:0x%X\n"
 			"\t\t\t\tExpected resp_time_value 0x%X, received 0x%X\n",
 			cl_ntoh16(p_rec->lid), p_rec->port_num,
@@ -3999,8 +3820,7 @@ osmtest_validate_port_data(IN osmtest_t * const p_osmt,
 	     error_threshold) !=
 	    (p_port->comp.port_info.error_threshold & p_rec->port_info.
 	     error_threshold)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_port_data: ERR 0093: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0093: "
 			"Field mismatch port LID 0x%X Num:0x%X\n"
 			"\t\t\t\tExpected error_threshold 0x%X, received 0x%X\n",
 			cl_ntoh16(p_rec->lid), p_rec->port_num,
@@ -4036,8 +3856,7 @@ osmtest_validate_port_rec(IN osmtest_t * const p_osmt,
 	    (port_t *) cl_qmap_get(p_tbl,
 				   port_gen_id(p_rec->lid, p_rec->port_num));
 	if (p_port == (port_t *) cl_qmap_end(p_tbl)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_port_rec: ERR 0094: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0094: "
 			"Unexpected port LID 0x%X, Num:0x%X\n",
 			cl_ntoh16(p_rec->lid), p_rec->port_num);
 		status = IB_ERROR;
@@ -4069,8 +3888,7 @@ osmtest_validate_path_rec(IN osmtest_t * const p_osmt,
 	p_tbl = &p_osmt->exp_subn.path_tbl;
 	p_path = (path_t *) cl_qmap_get(p_tbl, osmtest_path_rec_key_get(p_rec));
 	if (p_path == (path_t *) cl_qmap_end(p_tbl)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_path_rec: ERR 0095: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0095: "
 			"Unexpected path SLID 0x%X to DLID 0x%X\n",
 			cl_ntoh16(p_rec->slid), cl_ntoh16(p_rec->dlid));
 		status = IB_ERROR;
@@ -4109,8 +3927,7 @@ osmtest_validate_all_node_recs(IN osmtest_t * const p_osmt)
 				      sizeof(*p_rec), &context);
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_all_node_recs: ERR 0096: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0096: "
 			"osmtest_get_all_recs failed (%s)\n",
 			ib_get_err_str(status));
 		goto Exit;
@@ -4118,11 +3935,8 @@ osmtest_validate_all_node_recs(IN osmtest_t * const p_osmt)
 
 	num_recs = context.result.result_cnt;
 
-	if (osm_log_is_active(&p_osmt->log, OSM_LOG_VERBOSE)) {
-		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-			"osmtest_validate_all_node_recs: "
-			"Received %zu records\n", num_recs);
-	}
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE, "Received %zu records\n",
+		num_recs);
 
 	/*
 	 * Compare the received records to the database.
@@ -4135,8 +3949,7 @@ osmtest_validate_all_node_recs(IN osmtest_t * const p_osmt)
 
 		status = osmtest_validate_node_rec(p_osmt, p_rec);
 		if (status != IB_SUCCESS) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_validate_all_node_recs: ERR 0097: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0097: "
 				"osmtest_valid_node_rec failed (%s)\n",
 				ib_get_err_str(status));
 			goto Exit;
@@ -4147,8 +3960,7 @@ osmtest_validate_all_node_recs(IN osmtest_t * const p_osmt)
 
 	status = osmtest_check_missing_nodes(p_osmt);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_all_node_recs: ERR 0098: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0098: "
 			"osmtest_check_missing_nodes failed (%s)\n",
 			ib_get_err_str(status));
 		goto Exit;
@@ -4189,8 +4001,7 @@ osmtest_validate_all_guidinfo_recs(IN osmtest_t * const p_osmt)
 				      sizeof(*p_rec), &context);
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_all_guidinfo_recs: ERR 0099: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0099: "
 			"osmtest_get_all_recs failed (%s)\n",
 			ib_get_err_str(status));
 		goto Exit;
@@ -4198,11 +4009,8 @@ osmtest_validate_all_guidinfo_recs(IN osmtest_t * const p_osmt)
 
 	num_recs = context.result.result_cnt;
 
-	if (osm_log_is_active(&p_osmt->log, OSM_LOG_VERBOSE)) {
-		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-			"osmtest_validate_all_guidinfo_recs: "
-			"Received %zu records\n", num_recs);
-	}
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE, "Received %zu records\n",
+		num_recs);
 
 	/* No validation as yet */
 
@@ -4242,8 +4050,7 @@ osmtest_validate_all_path_recs(IN osmtest_t * const p_osmt)
 				      sizeof(*p_rec), &context);
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_all_path_recs: ERR 009A: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 009A: "
 			"osmtest_get_all_recs failed (%s)\n",
 			ib_get_err_str(status));
 		goto Exit;
@@ -4251,11 +4058,8 @@ osmtest_validate_all_path_recs(IN osmtest_t * const p_osmt)
 
 	num_recs = context.result.result_cnt;
 
-	if (osm_log_is_active(&p_osmt->log, OSM_LOG_VERBOSE)) {
-		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-			"osmtest_validate_all_path_recs: "
-			"Received %zu records\n", num_recs);
-	}
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE, "Received %zu records\n",
+		num_recs);
 
 	/*
 	 * Compare the received records to the database.
@@ -4268,8 +4072,7 @@ osmtest_validate_all_path_recs(IN osmtest_t * const p_osmt)
 
 		status = osmtest_validate_path_rec(p_osmt, p_rec);
 		if (status != IB_SUCCESS) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_validate_all_path_recs: ERR 0100: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0100: "
 				"osmtest_validate_path_rec failed (%s)\n",
 				ib_get_err_str(status));
 			goto Exit;
@@ -4278,8 +4081,7 @@ osmtest_validate_all_path_recs(IN osmtest_t * const p_osmt)
 
 	status = osmtest_check_missing_paths(p_osmt);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_all_path_recs: ERR 0101: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0101: "
 			"osmtest_check_missing_paths failed (%s)\n",
 			ib_get_err_str(status));
 		goto Exit;
@@ -4316,12 +4118,9 @@ osmtest_get_link_rec_by_lid(IN osmtest_t * const p_osmt,
 
 	OSM_LOG_ENTER(&p_osmt->log);
 
-	if (osm_log_is_active(&p_osmt->log, OSM_LOG_VERBOSE)) {
-		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-			"osmtest_get_link_rec_by_lid: "
-			"Getting link record from LID 0x%02X to LID 0x%02X\n",
-			cl_ntoh16(from_lid), cl_ntoh16(to_lid));
-	}
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
+		"Getting link record from LID 0x%02X to LID 0x%02X\n",
+		cl_ntoh16(from_lid), cl_ntoh16(to_lid));
 
 	/*
 	 * Do a blocking query for this record in the subnet.
@@ -4356,8 +4155,7 @@ osmtest_get_link_rec_by_lid(IN osmtest_t * const p_osmt,
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_get_link_rec_by_lid: ERR 007A: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 007A: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 		goto Exit;
 	}
@@ -4365,14 +4163,13 @@ osmtest_get_link_rec_by_lid(IN osmtest_t * const p_osmt,
 	status = p_context->result.status;
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_get_link_rec_by_lid: ERR 007B: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 007B: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 		if (status == IB_REMOTE_ERROR) {
 			p_mad =
 			    osm_madw_get_mad_ptr(p_context->result.
 						 p_result_madw);
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 				"osmtest_get_link_rec_by_lid: "
 				"Remote error = %s\n",
 				ib_get_mad_status_str(p_mad));
@@ -4404,12 +4201,8 @@ osmtest_get_guidinfo_rec_by_lid(IN osmtest_t * const p_osmt,
 
 	OSM_LOG_ENTER(&p_osmt->log);
 
-	if (osm_log_is_active(&p_osmt->log, OSM_LOG_VERBOSE)) {
-		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-			"osmtest_get_guidinfo_rec_by_lid: "
-			"Getting GUIDInfo record for LID 0x%02X\n",
-			cl_ntoh16(lid));
-	}
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
+		"Getting GUIDInfo record for LID 0x%02X\n", cl_ntoh16(lid));
 
 	/*
 	 * Do a blocking query for this record in the subnet.
@@ -4441,8 +4234,7 @@ osmtest_get_guidinfo_rec_by_lid(IN osmtest_t * const p_osmt,
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_get_guidinfo_rec_by_lid: ERR 007C: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 007C: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 		goto Exit;
 	}
@@ -4450,15 +4242,13 @@ osmtest_get_guidinfo_rec_by_lid(IN osmtest_t * const p_osmt,
 	status = p_context->result.status;
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_get_guidinfo_rec_by_lid: ERR 007D: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 007D: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 		if (status == IB_REMOTE_ERROR) {
 			p_mad =
 			    osm_madw_get_mad_ptr(p_context->result.
 						 p_result_madw);
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_get_guidinfo_rec_by_lid: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 				"Remote error = %s\n",
 				ib_get_mad_status_str(p_mad));
 
@@ -4490,12 +4280,8 @@ osmtest_get_pkeytbl_rec_by_lid(IN osmtest_t * const p_osmt,
 
 	OSM_LOG_ENTER(&p_osmt->log);
 
-	if (osm_log_is_active(&p_osmt->log, OSM_LOG_VERBOSE)) {
-		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-			"osmtest_get_pkeytbl_rec_by_lid: "
-			"Getting PKeyTable record for LID 0x%02X\n",
-			cl_ntoh16(lid));
-	}
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
+		"Getting PKeyTable record for LID 0x%02X\n", cl_ntoh16(lid));
 
 	/*
 	 * Do a blocking query for this record in the subnet.
@@ -4527,8 +4313,7 @@ osmtest_get_pkeytbl_rec_by_lid(IN osmtest_t * const p_osmt,
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_get_pkeytbl_rec_by_lid: ERR 007E: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 007E: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 		goto Exit;
 	}
@@ -4536,15 +4321,13 @@ osmtest_get_pkeytbl_rec_by_lid(IN osmtest_t * const p_osmt,
 	status = p_context->result.status;
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_get_pkeytbl_rec_by_lid: ERR 007F: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 007F: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 		if (status == IB_REMOTE_ERROR) {
 			p_mad =
 			    osm_madw_get_mad_ptr(p_context->result.
 						 p_result_madw);
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_get_pkeytbl_rec_by_lid: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 				"Remote error = %s\n",
 				ib_get_mad_status_str(p_mad));
 
@@ -4575,12 +4358,8 @@ osmtest_get_sw_info_rec_by_lid(IN osmtest_t * const p_osmt,
 
 	OSM_LOG_ENTER(&p_osmt->log);
 
-	if (osm_log_is_active(&p_osmt->log, OSM_LOG_VERBOSE)) {
-		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-			"osmtest_get_sw_info_rec_by_lid: "
-			"Getting SwitchInfo record for LID 0x%02X\n",
-			cl_ntoh16(lid));
-	}
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
+		"Getting SwitchInfo record for LID 0x%02X\n", cl_ntoh16(lid));
 
 	/*
 	 * Do a blocking query for this record in the subnet.
@@ -4613,8 +4392,7 @@ osmtest_get_sw_info_rec_by_lid(IN osmtest_t * const p_osmt,
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_get_sw_info_rec_by_lid: ERR 006C: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 006C: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 		goto Exit;
 	}
@@ -4622,15 +4400,13 @@ osmtest_get_sw_info_rec_by_lid(IN osmtest_t * const p_osmt,
 	status = p_context->result.status;
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_get_sw_info_rec_by_lid: ERR 006D: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 006D: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 		if (status == IB_REMOTE_ERROR) {
 			p_mad =
 			    osm_madw_get_mad_ptr(p_context->result.
 						 p_result_madw);
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_get_sw_info_rec_by_lid: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 				"Remote error = %s\n",
 				ib_get_mad_status_str(p_mad));
 
@@ -4661,11 +4437,8 @@ osmtest_get_lft_rec_by_lid(IN osmtest_t * const p_osmt,
 
 	OSM_LOG_ENTER(&p_osmt->log);
 
-	if (osm_log_is_active(&p_osmt->log, OSM_LOG_VERBOSE)) {
-		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-			"osmtest_get_lft_rec_by_lid: "
-			"Getting LFT record for LID 0x%02X\n", cl_ntoh16(lid));
-	}
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
+		"Getting LFT record for LID 0x%02X\n", cl_ntoh16(lid));
 
 	/*
 	 * Do a blocking query for this record in the subnet.
@@ -4698,8 +4471,7 @@ osmtest_get_lft_rec_by_lid(IN osmtest_t * const p_osmt,
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_get_lft_rec_by_lid: ERR 008A: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 008A: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 		goto Exit;
 	}
@@ -4707,15 +4479,13 @@ osmtest_get_lft_rec_by_lid(IN osmtest_t * const p_osmt,
 	status = p_context->result.status;
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_get_lft_rec_by_lid: ERR 008B: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 008B: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 		if (status == IB_REMOTE_ERROR) {
 			p_mad =
 			    osm_madw_get_mad_ptr(p_context->result.
 						 p_result_madw);
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_get_lft_rec_by_lid: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 				"Remote error = %s\n",
 				ib_get_mad_status_str(p_mad));
 
@@ -4746,11 +4516,8 @@ osmtest_get_mft_rec_by_lid(IN osmtest_t * const p_osmt,
 
 	OSM_LOG_ENTER(&p_osmt->log);
 
-	if (osm_log_is_active(&p_osmt->log, OSM_LOG_VERBOSE)) {
-		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-			"osmtest_get_mft_rec_by_lid: "
-			"Getting MFT record for LID 0x%02X\n", cl_ntoh16(lid));
-	}
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
+		"Getting MFT record for LID 0x%02X\n", cl_ntoh16(lid));
 
 	/*
 	 * Do a blocking query for this record in the subnet.
@@ -4783,8 +4550,7 @@ osmtest_get_mft_rec_by_lid(IN osmtest_t * const p_osmt,
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_get_mft_rec_by_lid: ERR 009B: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 009B: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 		goto Exit;
 	}
@@ -4792,15 +4558,13 @@ osmtest_get_mft_rec_by_lid(IN osmtest_t * const p_osmt,
 	status = p_context->result.status;
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_get_mft_rec_by_lid: ERR 009C: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 009C: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 		if (status == IB_REMOTE_ERROR) {
 			p_mad =
 			    osm_madw_get_mad_ptr(p_context->result.
 						 p_result_madw);
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_get_mft_rec_by_lid: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 				"Remote error = %s\n",
 				ib_get_mad_status_str(p_mad));
 
@@ -4880,8 +4644,7 @@ osmtest_sminfo_record_request(IN osmtest_t * const p_osmt,
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_sminfo_record_request: ERR 008C: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 008C: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 		goto Exit;
 	}
@@ -4890,8 +4653,7 @@ osmtest_sminfo_record_request(IN osmtest_t * const p_osmt,
 
 	if (status != IB_SUCCESS) {
 		if (status != IB_INVALID_PARAMETER) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_sminfo_record_request: ERR 008D: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 008D: "
 				"ib_query failed (%s)\n",
 				ib_get_err_str(status));
 		}
@@ -4899,8 +4661,7 @@ osmtest_sminfo_record_request(IN osmtest_t * const p_osmt,
 			p_mad =
 			    osm_madw_get_mad_ptr(p_context->result.
 						 p_result_madw);
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_sminfo_record_request: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 				"Remote error = %s\n",
 				ib_get_mad_status_str(p_mad));
 
@@ -4996,8 +4757,7 @@ osmtest_informinfo_request(IN osmtest_t * const p_osmt,
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_informinfo_request: ERR 008E: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 008E: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 		goto Exit;
 	}
@@ -5006,8 +4766,7 @@ osmtest_informinfo_request(IN osmtest_t * const p_osmt,
 
 	if (status != IB_SUCCESS) {
 		if (status != IB_INVALID_PARAMETER) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_informinfo_request: ERR 008F: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 008F: "
 				"ib_query failed (%s)\n",
 				ib_get_err_str(status));
 		}
@@ -5015,8 +4774,7 @@ osmtest_informinfo_request(IN osmtest_t * const p_osmt,
 			p_mad =
 			    osm_madw_get_mad_ptr(p_context->result.
 						 p_result_madw);
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_informinfo_request: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 				"Remote error = %s\n",
 				ib_get_mad_status_str(p_mad));
 
@@ -5051,16 +4809,14 @@ osmtest_validate_single_path_rec_lid_pair(IN osmtest_t * const p_osmt,
 						  p_path->rec.slid,
 						  p_path->rec.dlid, &context);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_single_path_rec_lid_pair: ERR 0102: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0102: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 		goto Exit;
 	}
 
 	num_recs = context.result.result_cnt;
 	if (num_recs != 1) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_single_path_rec_lid_pair: ERR 0103: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0103: "
 			"Too many records. Expected 1, received %zu\n",
 			num_recs);
 
@@ -5071,8 +4827,7 @@ osmtest_validate_single_path_rec_lid_pair(IN osmtest_t * const p_osmt,
 
 		status = osmtest_validate_path_data(p_osmt, p_path, p_rec);
 		if (status != IB_SUCCESS) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_validate_single_path_rec_lid_pair: ERR 0104: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0104: "
 				"osmtest_validate_path_data failed (%s)\n",
 				ib_get_err_str(status));
 		}
@@ -5110,12 +4865,8 @@ osmtest_validate_single_node_rec_lid(IN osmtest_t * const p_osmt,
 
 	OSM_LOG_ENTER(&p_osmt->log);
 
-	if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-		osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-			"osmtest_validate_single_node_rec_lid: "
-			"Getting NodeRecord for node with LID 0x%X\n",
-			cl_ntoh16(lid));
-	}
+	OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+		"Getting NodeRecord for node with LID 0x%X\n", cl_ntoh16(lid));
 
 	memset(&context, 0, sizeof(context));
 	memset(&req, 0, sizeof(req));
@@ -5142,8 +4893,7 @@ osmtest_validate_single_node_rec_lid(IN osmtest_t * const p_osmt,
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_single_node_rec_lid: ERR 0105: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0105: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 		goto Exit;
 	}
@@ -5151,13 +4901,11 @@ osmtest_validate_single_node_rec_lid(IN osmtest_t * const p_osmt,
 	status = context.result.status;
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_single_node_rec_lid: ERR 0106: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0106: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 
 		if (status == IB_REMOTE_ERROR) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_validate_single_node_rec_lid: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 				"Remote error = %s\n",
 				ib_get_mad_status_str(osm_madw_get_mad_ptr
 						      (context.result.
@@ -5167,8 +4915,7 @@ osmtest_validate_single_node_rec_lid(IN osmtest_t * const p_osmt,
 	}
 
 	num_recs = context.result.result_cnt;
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmtest_validate_single_node_rec_lid: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
 		"Received %d nodes\n", num_recs);
 
 	for (i = 0; i < num_recs; i++) {
@@ -5177,8 +4924,7 @@ osmtest_validate_single_node_rec_lid(IN osmtest_t * const p_osmt,
 
 		status = osmtest_validate_node_rec(p_osmt, p_rec);
 		if (status != IB_SUCCESS) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_validate_single_node_rec_lid: ERR 0107: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0107: "
 				"osmtest_validate_node_data failed (%s)\n",
 				ib_get_err_str(status));
 			goto Exit;
@@ -5219,8 +4965,7 @@ osmtest_validate_single_port_rec_lid(IN osmtest_t * const p_osmt,
 				    p_port->rec.lid,
 				    p_port->rec.port_num, &context);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_single_port_rec_lid: ERR 0108: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0108: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 
 		goto Exit;
@@ -5230,8 +4975,7 @@ osmtest_validate_single_port_rec_lid(IN osmtest_t * const p_osmt,
 	p_rec = osmv_get_query_portinfo_rec(context.result.p_result_madw, 0);
 	status = osmtest_validate_port_rec(p_osmt, p_rec);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_single_port_rec_lid: ERR 0109: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0109: "
 			"osmtest_validate_port_data failed (%s)\n",
 			ib_get_err_str(status));
 	}
@@ -5270,14 +5014,10 @@ osmtest_validate_single_path_rec_guid_pair(IN osmtest_t * const p_osmt,
 	memset(&req, 0, sizeof(req));
 	memset(&context, 0, sizeof(context));
 
-	if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_single_path_rec_guid_pair: "
-			"\n\t\t\t\tChecking src 0x%016" PRIx64
-			" to dest 0x%016" PRIx64 "\n",
-			cl_ntoh64(p_pair->src_guid),
-			cl_ntoh64(p_pair->dest_guid));
-	}
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
+		"\n\t\t\t\tChecking src 0x%016" PRIx64
+		" to dest 0x%016" PRIx64 "\n",
+		cl_ntoh64(p_pair->src_guid), cl_ntoh64(p_pair->dest_guid));
 
 	context.p_osmt = p_osmt;
 
@@ -5293,8 +5033,7 @@ osmtest_validate_single_path_rec_guid_pair(IN osmtest_t * const p_osmt,
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_single_path_rec_guid_pair: ERR 0110: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0110: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 		goto Exit;
 	}
@@ -5302,13 +5041,11 @@ osmtest_validate_single_path_rec_guid_pair(IN osmtest_t * const p_osmt,
 	status = context.result.status;
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_single_path_rec_guid_pair: ERR 0111: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0111: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 
 		if (status == IB_REMOTE_ERROR) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_validate_single_path_rec_guid_pair: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 				"Remote error = %s\n",
 				ib_get_mad_status_str(osm_madw_get_mad_ptr
 						      (context.result.
@@ -5318,9 +5055,7 @@ osmtest_validate_single_path_rec_guid_pair(IN osmtest_t * const p_osmt,
 	}
 
 	num_recs = context.result.result_cnt;
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmtest_validate_single_path_rec_guid_pair: %zu records\n",
-		num_recs);
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE, "%zu records\n", num_recs);
 
 	for (i = 0; i < num_recs; i++) {
 		p_rec =
@@ -5330,8 +5065,7 @@ osmtest_validate_single_path_rec_guid_pair(IN osmtest_t * const p_osmt,
 		 * Make sure the GUID values are correct
 		 */
 		if (p_rec->dgid.unicast.interface_id != p_pair->dest_guid) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_validate_single_path_rec_guid_pair: ERR 0112: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0112: "
 				"Destination GUID mismatch\n"
 				"\t\t\t\texpected 0x%016" PRIx64
 				", received 0x%016" PRIx64 "\n",
@@ -5341,8 +5075,7 @@ osmtest_validate_single_path_rec_guid_pair(IN osmtest_t * const p_osmt,
 		}
 
 		if (p_rec->sgid.unicast.interface_id != p_pair->src_guid) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_validate_single_path_rec_guid_pair: ERR 0113: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0113: "
 				"Source GUID mismatch\n"
 				"\t\t\t\texpected 0x%016" PRIx64
 				", received 0x%016" PRIx64 ".\n",
@@ -5353,8 +5086,7 @@ osmtest_validate_single_path_rec_guid_pair(IN osmtest_t * const p_osmt,
 
 		status = osmtest_validate_path_rec(p_osmt, p_rec);
 		if (status != IB_SUCCESS) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_validate_single_path_rec_guid_pair: ERR 0114: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0114: "
 				"osmtest_validate_path_rec failed (%s)\n",
 				ib_get_err_str(status));
 			got_error = TRUE;
@@ -5397,11 +5129,8 @@ osmtest_validate_single_path_recs(IN osmtest_t * const p_osmt)
 
 	OSM_LOG_ENTER(&p_osmt->log);
 
-	if (osm_log_is_active(&p_osmt->log, OSM_LOG_VERBOSE)) {
-		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-			"osmtest_validate_single_path_recs: "
-			"Validating individual path record queries\n");
-	}
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
+		"Validating individual path record queries\n");
 	p_path_tbl = &p_osmt->exp_subn.path_tbl;
 
 	osmtest_prepare_db(p_osmt);
@@ -5421,17 +5150,13 @@ osmtest_validate_single_path_recs(IN osmtest_t * const p_osmt)
 		p_path = (path_t *) cl_qmap_next(&p_path->map_item);
 	}
 
-	if (osm_log_is_active(&p_osmt->log, OSM_LOG_VERBOSE)) {
-		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-			"osmtest_validate_single_path_recs: "
-			"Total of %u path records validated using LID based query\n",
-			cnt);
-	}
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
+		"Total of %u path records validated using LID based query\n",
+		cnt);
 
 	status = osmtest_check_missing_paths(p_osmt);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_single_path_recs: ERR 0115: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0115: "
 			"osmtest_check_missing_paths failed (%s)\n",
 			ib_get_err_str(status));
 		goto Exit;
@@ -5456,17 +5181,13 @@ osmtest_validate_single_path_recs(IN osmtest_t * const p_osmt)
 		p_path = (path_t *) cl_qmap_next(&p_path->map_item);
 	}
 
-	if (osm_log_is_active(&p_osmt->log, OSM_LOG_VERBOSE)) {
-		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-			"osmtest_validate_single_path_recs: "
-			"Total of %u path records validated using GUID based query\n",
-			cnt);
-	}
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
+		"Total of %u path records validated using GUID based query\n",
+		cnt);
 
 	status = osmtest_check_missing_paths(p_osmt);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_single_path_recs: ERR 0116: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0116: "
 			"osmtest_check_missing_paths failed (%s)\n",
 			ib_get_err_str(status));
 		goto Exit;
@@ -5493,11 +5214,8 @@ osmtest_validate_single_node_recs(IN osmtest_t * const p_osmt)
 
 	osmtest_prepare_db(p_osmt);
 
-	if (osm_log_is_active(&p_osmt->log, OSM_LOG_VERBOSE)) {
-		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-			"osmtest_validate_single_node_recs: "
-			"Validating individual node record queries\n");
-	}
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
+		"Validating individual node record queries\n");
 
 	/*
 	 * Walk the list of all node records, and ask for each one
@@ -5509,8 +5227,7 @@ osmtest_validate_single_node_recs(IN osmtest_t * const p_osmt)
 							      (ib_net16_t)
 							      cl_qmap_key((cl_map_item_t *) p_node), p_node);
 		if (status != IB_SUCCESS) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_validate_single_node_recs: ERR 011A: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 011A: "
 				"osmtest_validate_single_node_rec_lid (%s)\n",
 				ib_get_err_str(status));
 			goto Exit;
@@ -5519,16 +5236,12 @@ osmtest_validate_single_node_recs(IN osmtest_t * const p_osmt)
 		p_node = (node_t *) cl_qmap_next(&p_node->map_item);
 	}
 
-	if (osm_log_is_active(&p_osmt->log, OSM_LOG_VERBOSE)) {
-		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-			"osmtest_validate_single_node_recs: "
-			"Total of %u node records validated\n", cnt);
-	}
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
+		"Total of %u node records validated\n", cnt);
 
 	status = osmtest_check_missing_nodes(p_osmt);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_single_node_recs: ERR 0117: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0117: "
 			"osmtest_check_missing_nodes (%s)\n",
 			ib_get_err_str(status));
 		goto Exit;
@@ -5555,11 +5268,8 @@ osmtest_validate_single_port_recs(IN osmtest_t * const p_osmt)
 
 	osmtest_prepare_db(p_osmt);
 
-	if (osm_log_is_active(&p_osmt->log, OSM_LOG_VERBOSE)) {
-		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-			"osmtest_validate_single_port_recs: "
-			"Validating individual port record queries\n");
-	}
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
+		"Validating individual port record queries\n");
 
 	/*
 	 * Walk the list of all port records, and ask for each one
@@ -5569,8 +5279,7 @@ osmtest_validate_single_port_recs(IN osmtest_t * const p_osmt)
 	while (p_port != (port_t *) cl_qmap_end(p_port_key_tbl)) {
 		status = osmtest_validate_single_port_rec_lid(p_osmt, p_port);
 		if (status != IB_SUCCESS) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_validate_single_port_recs: ERR 011B: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 011B: "
 				"osmtest_validate_single_port_rec_lid (%s)\n",
 				ib_get_err_str(status));
 			goto Exit;
@@ -5579,16 +5288,12 @@ osmtest_validate_single_port_recs(IN osmtest_t * const p_osmt)
 		p_port = (port_t *) cl_qmap_next(&p_port->map_item);
 	}
 
-	if (osm_log_is_active(&p_osmt->log, OSM_LOG_VERBOSE)) {
-		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-			"osmtest_validate_single_port_recs: "
-			"Total of %u port records validated\n", cnt);
-	}
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
+		"Total of %u port records validated\n", cnt);
 
 	status = osmtest_check_missing_ports(p_osmt);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_validate_single_port_recs: ERR 0118: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0118: "
 			"osmtest_check_missing_paths failed (%s)\n",
 			ib_get_err_str(status));
 		goto Exit;
@@ -5681,16 +5386,13 @@ static ib_api_status_t osmtest_validate_against_db(IN osmtest_t * const p_osmt)
 	memset(&context, 0, sizeof(context));
 	memset(&request, 0, sizeof(request));
 
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmtest_get_multipath_rec: " EXPECTING_ERRORS_START "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_START "\n");
 	status = osmtest_get_multipath_rec(p_osmt, &request, &context);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_get_multipath_rec: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 			"Got error %s\n", ib_get_err_str(status));
 	}
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmtest_get_multipath_rec: " EXPECTING_ERRORS_END "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_END "\n");
 
 	if (status == IB_SUCCESS) {
 		status = IB_ERROR;
@@ -5703,16 +5405,13 @@ static ib_api_status_t osmtest_validate_against_db(IN osmtest_t * const p_osmt)
 	request.sgid_count = 1;
 	ib_gid_set_default(&request.gids[0], portguid);
 
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmtest_get_multipath_rec: " EXPECTING_ERRORS_START "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_START "\n");
 	status = osmtest_get_multipath_rec(p_osmt, &request, &context);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_get_multipath_rec: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 			"Got error %s\n", ib_get_err_str(status));
 	}
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmtest_get_multipath_rec: " EXPECTING_ERRORS_END "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_END "\n");
 
 	if (status == IB_SUCCESS) {
 		status = IB_ERROR;
@@ -5730,16 +5429,13 @@ static ib_api_status_t osmtest_validate_against_db(IN osmtest_t * const p_osmt)
 	request.gids[1].unicast.prefix = CL_HTON64(0xff12401bffff0000ULL);
 	request.gids[1].unicast.interface_id = CL_HTON64(0x00000000ffffffffULL);
 
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmtest_get_multipath_rec: " EXPECTING_ERRORS_START "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_START "\n");
 	status = osmtest_get_multipath_rec(p_osmt, &request, &context);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_get_multipath_rec: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 			"Got error %s\n", ib_get_err_str(status));
 	}
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmtest_get_multipath_rec: " EXPECTING_ERRORS_END "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_END "\n");
 
 	if (status == IB_SUCCESS) {
 		status = IB_ERROR;
@@ -5756,16 +5452,13 @@ static ib_api_status_t osmtest_validate_against_db(IN osmtest_t * const p_osmt)
 	request.gids[0].unicast.interface_id = CL_HTON64(0x00000000ffffffffULL);
 	ib_gid_set_default(&request.gids[1], portguid);
 
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmtest_get_multipath_rec: " EXPECTING_ERRORS_START "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_START "\n");
 	status = osmtest_get_multipath_rec(p_osmt, &request, &context);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_get_multipath_rec: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 			"Got error %s\n", ib_get_err_str(status));
 	}
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmtest_get_multipath_rec: " EXPECTING_ERRORS_END "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_END "\n");
 
 	if (status == IB_SUCCESS) {
 		status = IB_ERROR;
@@ -5837,16 +5530,13 @@ static ib_api_status_t osmtest_validate_against_db(IN osmtest_t * const p_osmt)
 
 	memset(&context, 0, sizeof(context));
 
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmtest_get_multipath_rec: " EXPECTING_ERRORS_START "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_START "\n");
 	status = osmtest_get_pkeytbl_rec_by_lid(p_osmt, test_lid, 0, &context);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_get_multipath_rec: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 			"Got error %s\n", ib_get_err_str(status));
 	}
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmtest_get_multipath_rec: " EXPECTING_ERRORS_END "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_END "\n");
 
 	if (status == IB_SUCCESS) {
 		status = IB_ERROR;
@@ -5927,8 +5617,7 @@ static ib_api_status_t osmtest_validate_against_db(IN osmtest_t * const p_osmt)
 		status = IB_ERROR;
 		goto Exit;
 	} else {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_sminfo_request: " "IS EXPECTED ERROR ^^^^\n");
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "IS EXPECTED ERROR ^^^^\n");
 	}
 
 	memset(&sm_info_rec_opt, 0, sizeof(sm_info_rec_opt));
@@ -5983,8 +5672,7 @@ static ib_api_status_t osmtest_validate_against_db(IN osmtest_t * const p_osmt)
 	}
 
 	/* InformInfoRecord tests */
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmtest_informinfo_request: InformInfoRecord "
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE, "InformInfoRecord "
 		"Sending a BAD - Set Unsubscribe request\n");
 	memset(&inform_info_opt, 0, sizeof(inform_info_opt));
 	memset(&inform_info_rec_opt, 0, sizeof(inform_info_rec_opt));
@@ -5997,13 +5685,11 @@ static ib_api_status_t osmtest_validate_against_db(IN osmtest_t * const p_osmt)
 		status = IB_ERROR;
 		goto Exit;
 	} else {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_informinfo_request: InformInfoRecord "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "InformInfoRecord "
 			"IS EXPECTED ERROR ^^^^\n");
 	}
 
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmtest_informinfo_request: InformInfoRecord "
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE, "InformInfoRecord "
 		"Sending a Good - Empty GetTable request\n");
 	memset(&context, 0, sizeof(context));
 	status =
@@ -6014,8 +5700,7 @@ static ib_api_status_t osmtest_validate_against_db(IN osmtest_t * const p_osmt)
 		goto Exit;
 
 	/* InformInfo tests */
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmtest_informinfo_request: InformInfo "
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE, "InformInfo "
 		"Sending a BAD - Empty Get request "
 		"(should fail with NO_RECORDS)\n");
 	memset(&context, 0, sizeof(context));
@@ -6026,13 +5711,11 @@ static ib_api_status_t osmtest_validate_against_db(IN osmtest_t * const p_osmt)
 		status = IB_ERROR;
 		goto Exit;
 	} else {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_informinfo_request: InformInfo "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "InformInfo "
 			"IS EXPECTED ERROR ^^^^\n");
 	}
 
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmtest_informinfo_request: InformInfo "
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE, "InformInfo "
 		"Sending a BAD - Set Unsubscribe request\n");
 	memset(&context, 0, sizeof(context));
 	status = osmtest_informinfo_request(p_osmt, IB_MAD_ATTR_INFORM_INFO,
@@ -6042,14 +5725,12 @@ static ib_api_status_t osmtest_validate_against_db(IN osmtest_t * const p_osmt)
 		status = IB_ERROR;
 		goto Exit;
 	} else {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_informinfo_request: InformInfo UnSubscribe "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "InformInfo UnSubscribe "
 			"IS EXPECTED ERROR ^^^^\n");
 	}
 
 	/* Now subscribe */
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmtest_informinfo_request: InformInfo "
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE, "InformInfo "
 		"Sending a Good - Set Subscribe request\n");
 	inform_info_opt.subscribe = TRUE;
 	memset(&context, 0, sizeof(context));
@@ -6060,8 +5741,7 @@ static ib_api_status_t osmtest_validate_against_db(IN osmtest_t * const p_osmt)
 		goto Exit;
 
 	/* Now unsubscribe (QPN needs to be 1 to work) */
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmtest_informinfo_request: InformInfo "
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE, "InformInfo "
 		"Sending a Good - Set Unsubscribe request\n");
 	inform_info_opt.subscribe = FALSE;
 	inform_info_opt.qpn = 1;
@@ -6073,8 +5753,7 @@ static ib_api_status_t osmtest_validate_against_db(IN osmtest_t * const p_osmt)
 		goto Exit;
 
 	/* Now subscribe again */
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmtest_informinfo_request: InformInfo "
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE, "InformInfo "
 		"Sending a Good - Set Subscribe request\n");
 	inform_info_opt.subscribe = TRUE;
 	inform_info_opt.qpn = 1;
@@ -6086,8 +5765,7 @@ static ib_api_status_t osmtest_validate_against_db(IN osmtest_t * const p_osmt)
 		goto Exit;
 
 	/* Subscribe over existing subscription */
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmtest_informinfo_request: InformInfo "
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE, "InformInfo "
 		"Sending a Good - Set Subscribe (again) request\n");
 	inform_info_opt.qpn = 0;
 	memset(&context, 0, sizeof(context));
@@ -6099,8 +5777,7 @@ static ib_api_status_t osmtest_validate_against_db(IN osmtest_t * const p_osmt)
 
 	/* More InformInfoRecord tests */
 	/* RID lookup (with currently invalid enum) */
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmtest_informinfo_request: InformInfoRecord "
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE, "InformInfoRecord "
 		"Sending a Good - GetTable by GID\n");
 	ib_gid_set_default(&inform_info_rec_opt.subscriber_gid,
 			   p_osmt->local_port.port_guid);
@@ -6114,8 +5791,7 @@ static ib_api_status_t osmtest_validate_against_db(IN osmtest_t * const p_osmt)
 		goto Exit;
 
 	/* Enum lookup */
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmtest_informinfo_request: InformInfoRecord "
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE, "InformInfoRecord "
 		"Sending a Good - GetTable (subscriber_enum == 0) request\n");
 	inform_info_rec_opt.subscriber_enum = 0;
 	memset(&context, 0, sizeof(context));
@@ -6127,8 +5803,7 @@ static ib_api_status_t osmtest_validate_against_db(IN osmtest_t * const p_osmt)
 		goto Exit;
 
 	/* Get all InformInfoRecords */
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmtest_informinfo_request: InformInfoRecord "
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE, "InformInfoRecord "
 		"Sending a Good - GetTable (ALL records) request\n");
 	memset(&inform_info_rec_opt, 0, sizeof(inform_info_rec_opt));
 	memset(&context, 0, sizeof(context));
@@ -6140,8 +5815,7 @@ static ib_api_status_t osmtest_validate_against_db(IN osmtest_t * const p_osmt)
 		goto Exit;
 
 	/* Another subscription */
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmtest_informinfo_request: InformInfo "
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE, "InformInfo "
 		"Sending another Good - Set Subscribe (again) request\n");
 	inform_info_opt.qpn = 0;
 	inform_info_opt.trap = 0x1234;
@@ -6153,8 +5827,7 @@ static ib_api_status_t osmtest_validate_against_db(IN osmtest_t * const p_osmt)
 		goto Exit;
 
 	/* Get all InformInfoRecords again */
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmtest_informinfo_request: InformInfoRecord "
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE, "InformInfoRecord "
 		"Sending a Good - GetTable (ALL records) request\n");
 	memset(&inform_info_rec_opt, 0, sizeof(inform_info_rec_opt));
 	memset(&context, 0, sizeof(context));
@@ -6167,8 +5840,7 @@ static ib_api_status_t osmtest_validate_against_db(IN osmtest_t * const p_osmt)
 
 	/* Cleanup subscriptions before further testing */
 	/* Does order of deletion matter ? Test this !!! */
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmtest_informinfo_request: InformInfo "
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE, "InformInfo "
 		"Sending a Good - Set (cleanup) request\n");
 	inform_info_opt.subscribe = FALSE;
 	inform_info_opt.qpn = 1;
@@ -6180,8 +5852,7 @@ static ib_api_status_t osmtest_validate_against_db(IN osmtest_t * const p_osmt)
 		goto Exit;
 
 	/* Get all InformInfoRecords again */
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmtest_informinfo_request: InformInfoRecord "
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE, "InformInfoRecord "
 		"Sending a Good - GetTable (ALL records) request\n");
 	memset(&inform_info_rec_opt, 0, sizeof(inform_info_rec_opt));
 	memset(&context, 0, sizeof(context));
@@ -6192,8 +5863,7 @@ static ib_api_status_t osmtest_validate_against_db(IN osmtest_t * const p_osmt)
 	if (status != IB_SUCCESS)
 		goto Exit;
 
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmtest_informinfo_request: InformInfo"
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE, "InformInfo"
 		"Sending a Good - Set (cleanup) request\n");
 	inform_info_opt.subscribe = FALSE;
 	inform_info_opt.qpn = 1;
@@ -6206,8 +5876,7 @@ static ib_api_status_t osmtest_validate_against_db(IN osmtest_t * const p_osmt)
 		goto Exit;
 
 	/* Get all InformInfoRecords a final time */
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmtest_informinfo_request: InformInfoRecord "
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE, "InformInfoRecord "
 		"Sending a Good - GetTable (ALL records) request\n");
 	memset(&inform_info_rec_opt, 0, sizeof(inform_info_rec_opt));
 	memset(&context, 0, sizeof(context));
@@ -6294,20 +5963,17 @@ static ib_api_status_t osmtest_validate_against_db(IN osmtest_t * const p_osmt)
 				goto Exit;
 
 			memset(&context, 0, sizeof(context));
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_get_path_rec_by_lid_pair: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 				EXPECTING_ERRORS_START "\n");
 			status =
 			    osmtest_get_path_rec_by_lid_pair(p_osmt, 0xffff,
 							     0xffff, &context);
 			if (status != IB_SUCCESS) {
-				osm_log(&p_osmt->log, OSM_LOG_ERROR,
-					"osmtest_get_path_rec_by_lid_pair: "
+				OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 					"Got error %s\n",
 					ib_get_err_str(status));
 			}
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_get_path_rec_by_lid_pair: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 				EXPECTING_ERRORS_END "\n");
 
 			if (status == IB_SUCCESS) {
@@ -6315,21 +5981,18 @@ static ib_api_status_t osmtest_validate_against_db(IN osmtest_t * const p_osmt)
 				goto Exit;
 			}
 
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_get_path_rec_by_lid_pair: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 				EXPECTING_ERRORS_START "\n");
 
 			status =
 			    osmtest_get_path_rec_by_lid_pair(p_osmt, test_lid,
 							     0xffff, &context);
 			if (status != IB_SUCCESS) {
-				osm_log(&p_osmt->log, OSM_LOG_ERROR,
-					"osmtest_get_path_rec_by_lid_pair: "
+				OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 					"Got error %s\n",
 					ib_get_err_str(status));
 			}
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_get_path_rec_by_lid_pair: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 				EXPECTING_ERRORS_END "\n");
 
 			if (status == IB_SUCCESS) {
@@ -6430,8 +6093,7 @@ osmtest_parse_node(IN osmtest_t * const p_osmt,
 			/*
 			 * End of file in the middle of a definition.
 			 */
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_parse_node: ERR 0119: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0119: "
 				"Unexpected end of file\n");
 			status = IB_ERROR;
 			goto Exit;
@@ -6448,19 +6110,14 @@ osmtest_parse_node(IN osmtest_t * const p_osmt,
 
 		p_tok = str_get_token(&line[offset]);
 		if (p_tok == NULL) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_parse_node: ERR 0120: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0120: "
 				"Ignoring line %u with unknown token: %s\n",
 				*p_line_num, &line[offset]);
 			continue;
 		}
 
-		if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-			osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-				"osmtest_parse_node: "
-				"Found '%s' (line %u)\n", p_tok->str,
-				*p_line_num);
-		}
+		OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+			"Found '%s' (line %u)\n", p_tok->str, *p_line_num);
 
 		str_skip_token(line, &offset);
 
@@ -6473,73 +6130,53 @@ osmtest_parse_node(IN osmtest_t * const p_osmt,
 			p_node->rec.lid =
 			    cl_hton16((uint16_t)
 				      strtoul(&line[offset], NULL, 0));
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_node: "
-					"lid = 0x%X\n",
-					cl_ntoh16(p_node->rec.lid));
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG, "lid = 0x%X\n",
+				cl_ntoh16(p_node->rec.lid));
 			break;
 
 		case OSMTEST_TOKEN_BASE_VERSION:
 			p_node->comp.node_info.base_version = 0xFF;
 			p_node->rec.node_info.base_version =
 			    (uint8_t) strtoul(&line[offset], NULL, 0);
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_node: "
-					"base_version = 0x%X\n",
-					p_node->rec.node_info.base_version);
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+				"base_version = 0x%X\n",
+				p_node->rec.node_info.base_version);
 			break;
 
 		case OSMTEST_TOKEN_CLASS_VERSION:
 			p_node->comp.node_info.class_version = 0xFF;
 			p_node->rec.node_info.class_version =
 			    (uint8_t) strtoul(&line[offset], NULL, 0);
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_node: "
-					"class_version = 0x%X\n",
-					p_node->rec.node_info.class_version);
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+				"class_version = 0x%X\n",
+				p_node->rec.node_info.class_version);
 			break;
 
 		case OSMTEST_TOKEN_NODE_TYPE:
 			p_node->comp.node_info.node_type = 0xFF;
 			p_node->rec.node_info.node_type =
 			    (uint8_t) strtoul(&line[offset], NULL, 0);
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_node: "
-					"node_type = 0x%X\n",
-					p_node->rec.node_info.node_type);
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+				"node_type = 0x%X\n",
+				p_node->rec.node_info.node_type);
 			break;
 
 		case OSMTEST_TOKEN_NUM_PORTS:
 			p_node->comp.node_info.num_ports = 0xFF;
 			p_node->rec.node_info.num_ports =
 			    (uint8_t) strtoul(&line[offset], NULL, 0);
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_node: "
-					"num_ports = 0x%X\n",
-					p_node->rec.node_info.num_ports);
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+				"num_ports = 0x%X\n",
+				p_node->rec.node_info.num_ports);
 			break;
 
 		case OSMTEST_TOKEN_SYS_GUID:
 			p_node->comp.node_info.sys_guid = 0xFFFFFFFFFFFFFFFFULL;
 			p_node->rec.node_info.sys_guid =
 			    cl_hton64(strtoull(&line[offset], NULL, 0));
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_node: "
-					"sys_guid = 0x%016" PRIx64 "\n",
-					cl_ntoh64(p_node->rec.node_info.
-						  sys_guid));
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+				"sys_guid = 0x%016" PRIx64 "\n",
+				cl_ntoh64(p_node->rec.node_info.sys_guid));
 			break;
 
 		case OSMTEST_TOKEN_NODE_GUID:
@@ -6547,13 +6184,9 @@ osmtest_parse_node(IN osmtest_t * const p_osmt,
 			    0xFFFFFFFFFFFFFFFFULL;
 			p_node->rec.node_info.node_guid =
 			    cl_hton64(strtoull(&line[offset], NULL, 0));
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_node: "
-					"node_guid = 0x%016" PRIx64 "\n",
-					cl_ntoh64(p_node->rec.node_info.
-						  node_guid));
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+				"node_guid = 0x%016" PRIx64 "\n",
+				cl_ntoh64(p_node->rec.node_info.node_guid));
 			break;
 
 		case OSMTEST_TOKEN_PORT_GUID:
@@ -6561,13 +6194,9 @@ osmtest_parse_node(IN osmtest_t * const p_osmt,
 			    0xFFFFFFFFFFFFFFFFULL;
 			p_node->rec.node_info.port_guid =
 			    cl_hton64(strtoull(&line[offset], NULL, 0));
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_node: "
-					"port_guid = 0x%016" PRIx64 "\n",
-					cl_ntoh64(p_node->rec.node_info.
-						  port_guid));
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+				"port_guid = 0x%016" PRIx64 "\n",
+				cl_ntoh64(p_node->rec.node_info.port_guid));
 			break;
 
 		case OSMTEST_TOKEN_PARTITION_CAP:
@@ -6575,13 +6204,9 @@ osmtest_parse_node(IN osmtest_t * const p_osmt,
 			p_node->rec.node_info.partition_cap =
 			    cl_hton16((uint16_t)
 				      strtoul(&line[offset], NULL, 0));
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_node: "
-					"partition_cap = 0x%X\n",
-					cl_ntoh16(p_node->rec.node_info.
-						  partition_cap));
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+				"partition_cap = 0x%X\n",
+				cl_ntoh16(p_node->rec.node_info.partition_cap));
 			break;
 
 		case OSMTEST_TOKEN_DEVICE_ID:
@@ -6591,26 +6216,18 @@ osmtest_parse_node(IN osmtest_t * const p_osmt,
 								    (&line
 								     [offset],
 								     NULL, 0));
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_node: "
-					"device_id = 0x%X\n",
-					cl_ntoh16(p_node->rec.node_info.
-						  device_id));
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+				"device_id = 0x%X\n",
+				cl_ntoh16(p_node->rec.node_info.device_id));
 			break;
 
 		case OSMTEST_TOKEN_REVISION:
 			p_node->comp.node_info.revision = 0xFFFFFFFF;
 			p_node->rec.node_info.revision =
 			    cl_hton32(strtoul(&line[offset], NULL, 0));
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_node: "
-					"revision = 0x%X\n",
-					cl_ntoh32(p_node->rec.node_info.
-						  revision));
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+				"revision = 0x%X\n",
+				cl_ntoh32(p_node->rec.node_info.revision));
 			break;
 
 		case OSMTEST_TOKEN_PORT_NUM:
@@ -6618,13 +6235,10 @@ osmtest_parse_node(IN osmtest_t * const p_osmt,
 			    IB_NODE_INFO_PORT_NUM_MASK;
 			p_node->rec.node_info.port_num_vendor_id |=
 			    (uint8_t) strtoul(&line[offset], NULL, 0);
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_node: "
-					"local_port_num = 0x%X\n",
-					ib_node_info_get_local_port_num
-					(&p_node->rec.node_info));
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+				"local_port_num = 0x%X\n",
+				ib_node_info_get_local_port_num
+				(&p_node->rec.node_info));
 			break;
 
 		case OSMTEST_TOKEN_VENDOR_ID:
@@ -6632,13 +6246,10 @@ osmtest_parse_node(IN osmtest_t * const p_osmt,
 			    IB_NODE_INFO_VEND_ID_MASK;
 			p_node->rec.node_info.port_num_vendor_id |=
 			    cl_hton32(strtoul(&line[offset], NULL, 0));
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_node: "
-					"vendor_id = 0x%X\n",
-					cl_ntoh32(ib_node_info_get_vendor_id
-						  (&p_node->rec.node_info)));
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+				"vendor_id = 0x%X\n",
+				cl_ntoh32(ib_node_info_get_vendor_id
+					  (&p_node->rec.node_info)));
 			break;
 
 		case OSMTEST_TOKEN_END:
@@ -6646,8 +6257,7 @@ osmtest_parse_node(IN osmtest_t * const p_osmt,
 			break;
 
 		default:
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_parse_node: ERR 0121: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0121: "
 				"Ignoring line %u with unknown token: %s\n",
 				*p_line_num, &line[offset]);
 
@@ -6660,8 +6270,7 @@ osmtest_parse_node(IN osmtest_t * const p_osmt,
 	 * add this object to the database.
 	 */
 	if (p_node->comp.lid == 0) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_parse_node: ERR 0122: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0122: "
 			"LID must be specified for defined nodes\n");
 		node_delete(p_node);
 		goto Exit;
@@ -6710,8 +6319,7 @@ osmtest_parse_port(IN osmtest_t * const p_osmt,
 			/*
 			 * End of file in the middle of a definition.
 			 */
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_parse_port: ERR 0123: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0123: "
 				"Unexpected end of file\n");
 			status = IB_ERROR;
 			goto Exit;
@@ -6728,19 +6336,14 @@ osmtest_parse_port(IN osmtest_t * const p_osmt,
 
 		p_tok = str_get_token(&line[offset]);
 		if (p_tok == NULL) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_parse_port: ERR 0124: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0124: "
 				"Ignoring line %u with unknown token: %s\n",
 				*p_line_num, &line[offset]);
 			continue;
 		}
 
-		if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-			osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-				"osmtest_parse_port: "
-				"Found '%s' (line %u)\n", p_tok->str,
-				*p_line_num);
-		}
+		OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+			"Found '%s' (line %u)\n", p_tok->str, *p_line_num);
 
 		str_skip_token(line, &offset);
 
@@ -6753,36 +6356,25 @@ osmtest_parse_port(IN osmtest_t * const p_osmt,
 			p_port->rec.lid =
 			    cl_hton16((uint16_t)
 				      strtoul(&line[offset], NULL, 0));
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_port: "
-					"lid = 0x%X\n",
-					cl_ntoh16(p_port->rec.lid));
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG, "lid = 0x%X\n",
+				cl_ntoh16(p_port->rec.lid));
 			break;
 
 		case OSMTEST_TOKEN_PORT_NUM:
 			p_port->comp.port_num = 0xFF;
 			p_port->rec.port_num =
 			    (uint8_t) strtoul(&line[offset], NULL, 0);
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_port: "
-					"port_num = 0x%u\n",
-					p_port->rec.port_num);
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+				"port_num = 0x%u\n", p_port->rec.port_num);
 			break;
 
 		case OSMTEST_TOKEN_MKEY:
 			p_port->comp.port_info.m_key = 0xFFFFFFFFFFFFFFFFULL;
 			p_port->rec.port_info.m_key =
 			    cl_hton64(strtoull(&line[offset], NULL, 0));
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_port: "
-					"m_key = 0x%016" PRIx64 "\n",
-					cl_ntoh64(p_port->rec.port_info.m_key));
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+				"m_key = 0x%016" PRIx64 "\n",
+				cl_ntoh64(p_port->rec.port_info.m_key));
 			break;
 
 		case OSMTEST_TOKEN_SUBN_PREF:
@@ -6790,13 +6382,9 @@ osmtest_parse_port(IN osmtest_t * const p_osmt,
 			    0xFFFFFFFFFFFFFFFFULL;
 			p_port->rec.port_info.subnet_prefix =
 			    cl_hton64(strtoull(&line[offset], NULL, 0));
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_port: "
-					"subnet_prefix = 0x%016" PRIx64 "\n",
-					cl_ntoh64(p_port->rec.port_info.
-						  subnet_prefix));
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+				"subnet_prefix = 0x%016" PRIx64 "\n",
+				cl_ntoh64(p_port->rec.port_info.subnet_prefix));
 			break;
 
 		case OSMTEST_TOKEN_BASE_LID:
@@ -6804,13 +6392,9 @@ osmtest_parse_port(IN osmtest_t * const p_osmt,
 			p_port->rec.port_info.base_lid =
 			    cl_hton16((uint16_t)
 				      strtoul(&line[offset], NULL, 0));
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_port: "
-					"base_lid = 0x%X\n",
-					cl_ntoh16(p_port->rec.port_info.
-						  base_lid));
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+				"base_lid = 0x%X\n",
+				cl_ntoh16(p_port->rec.port_info.base_lid));
 			break;
 
 		case OSMTEST_TOKEN_SM_BASE_LID:
@@ -6818,13 +6402,9 @@ osmtest_parse_port(IN osmtest_t * const p_osmt,
 			p_port->rec.port_info.master_sm_base_lid =
 			    cl_hton16((uint16_t)
 				      strtoul(&line[offset], NULL, 0));
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_port: "
-					"master_sm_base_lid = 0x%X\n",
-					cl_ntoh16(p_port->rec.port_info.
-						  master_sm_base_lid));
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+				"master_sm_base_lid = 0x%X\n",
+				cl_ntoh16(p_port->rec.port_info.master_sm_base_lid));
 			break;
 
 		case OSMTEST_TOKEN_CAP_MASK:
@@ -6832,13 +6412,9 @@ osmtest_parse_port(IN osmtest_t * const p_osmt,
 			p_port->rec.port_info.capability_mask =
 			    cl_hton32((uint32_t)
 				      strtoul(&line[offset], NULL, 0));
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_port: "
-					"capability_mask = 0x%X\n",
-					cl_ntoh32(p_port->rec.port_info.
-						  capability_mask));
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+				"capability_mask = 0x%X\n",
+				cl_ntoh32(p_port->rec.port_info.capability_mask));
 			break;
 
 		case OSMTEST_TOKEN_DIAG_CODE:
@@ -6846,13 +6422,9 @@ osmtest_parse_port(IN osmtest_t * const p_osmt,
 			p_port->rec.port_info.diag_code =
 			    cl_hton16((uint16_t)
 				      strtoul(&line[offset], NULL, 0));
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_port: "
-					"diag_code = 0x%X\n",
-					cl_ntoh16(p_port->rec.port_info.
-						  diag_code));
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+				"diag_code = 0x%X\n",
+				cl_ntoh16(p_port->rec.port_info.diag_code));
 			break;
 
 		case OSMTEST_TOKEN_MKEY_LEASE_PER:
@@ -6860,64 +6432,45 @@ osmtest_parse_port(IN osmtest_t * const p_osmt,
 			p_port->rec.port_info.m_key_lease_period =
 			    cl_hton16((uint16_t)
 				      strtoul(&line[offset], NULL, 0));
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_port: "
-					"m_key_lease_period = 0x%X\n",
-					cl_ntoh16(p_port->rec.port_info.
-						  m_key_lease_period));
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+				"m_key_lease_period = 0x%X\n",
+				cl_ntoh16(p_port->rec.port_info.m_key_lease_period));
 			break;
 
 		case OSMTEST_TOKEN_LOC_PORT_NUM:
 			p_port->comp.port_info.local_port_num = 0xFF;
 			p_port->rec.port_info.local_port_num =
 			    (uint8_t) strtoul(&line[offset], NULL, 0);
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_port: "
-					"local_port_num = 0x%u\n",
-					p_port->rec.port_info.local_port_num);
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+				"local_port_num = 0x%u\n",
+				p_port->rec.port_info.local_port_num);
 			break;
 
 		case OSMTEST_TOKEN_LINK_WID_EN:
 			p_port->comp.port_info.link_width_enabled = 0xFF;
 			p_port->rec.port_info.link_width_enabled =
 			    (uint8_t) strtoul(&line[offset], NULL, 0);
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_port: "
-					"link_width_enabled = 0x%u\n",
-					p_port->rec.port_info.
-					link_width_enabled);
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+				"link_width_enabled = 0x%u\n",
+				p_port->rec.port_info.link_width_enabled);
 			break;
 
 		case OSMTEST_TOKEN_LINK_WID_SUP:
 			p_port->comp.port_info.link_width_supported = 0xFF;
 			p_port->rec.port_info.link_width_supported =
 			    (uint8_t) strtoul(&line[offset], NULL, 0);
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_port: "
-					"link_width_supported = 0x%u\n",
-					p_port->rec.port_info.
-					link_width_supported);
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+				"link_width_supported = 0x%u\n",
+				p_port->rec.port_info.link_width_supported);
 			break;
 
 		case OSMTEST_TOKEN_LINK_WID_ACT:
 			p_port->comp.port_info.link_width_active = 0xFF;
 			p_port->rec.port_info.link_width_active =
 			    (uint8_t) strtoul(&line[offset], NULL, 0);
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_port: "
-					"link_width_active = 0x%u\n",
-					p_port->rec.port_info.
-					link_width_active);
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+				"link_width_active = 0x%u\n",
+				p_port->rec.port_info.link_width_active);
 			break;
 
 		case OSMTEST_TOKEN_LINK_SPEED_SUP:
@@ -6926,13 +6479,9 @@ osmtest_parse_port(IN osmtest_t * const p_osmt,
 							strtoul(&line[offset],
 								NULL, 0),
 							&p_port->rec.port_info);
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_port: "
-					"link_speed_supported = 0x%u\n",
-					ib_port_info_get_link_speed_sup
-					(&p_port->rec.port_info));
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+				"link_speed_supported = 0x%u\n",
+				ib_port_info_get_link_speed_sup(&p_port->rec.port_info));
 			break;
 
 		case OSMTEST_TOKEN_PORT_STATE:
@@ -6941,26 +6490,18 @@ osmtest_parse_port(IN osmtest_t * const p_osmt,
 			ib_port_info_set_port_state(&p_port->rec.port_info,
 						    ib_get_port_state_from_str
 						    (&line[offset]));
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_port: "
-					"port_state = 0x%u\n",
-					ib_port_info_get_port_state(&p_port->
-								    rec.
-								    port_info));
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+				"port_state = 0x%u\n",
+				ib_port_info_get_port_state(&p_port->rec.port_info));
 			break;
 
 		case OSMTEST_TOKEN_STATE_INFO2:
 			p_port->comp.port_info.state_info2 = 0xFF;
 			p_port->rec.port_info.state_info2 =
 			    (uint8_t) strtoul(&line[offset], NULL, 0);
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_port: "
-					"state_info2 = 0x%u\n",
-					p_port->rec.port_info.state_info2);
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+				"state_info2 = 0x%u\n",
+				p_port->rec.port_info.state_info2);
 			break;
 
 		case OSMTEST_TOKEN_MKEY_PROT_BITS:
@@ -6968,13 +6509,8 @@ osmtest_parse_port(IN osmtest_t * const p_osmt,
 			ib_port_info_set_mpb(&p_port->rec.port_info,
 					     (uint8_t) strtoul(&line[offset],
 							       NULL, 0));
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_port: "
-					"mpb = 0x%u\n",
-					ib_port_info_get_mpb(&p_port->rec.
-							     port_info));
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG, "mpb = 0x%u\n",
+				ib_port_info_get_mpb(&p_port->rec.port_info));
 			break;
 
 		case OSMTEST_TOKEN_LMC:
@@ -6982,122 +6518,87 @@ osmtest_parse_port(IN osmtest_t * const p_osmt,
 			ib_port_info_set_lmc(&p_port->rec.port_info,
 					     (uint8_t) strtoul(&line[offset],
 							       NULL, 0));
-
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_port: "
-					"lmc = 0x%u\n",
-					ib_port_info_get_lmc(&p_port->rec.
-							     port_info));
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG, "lmc = 0x%u\n",
+				ib_port_info_get_lmc(&p_port->rec.port_info));
 			break;
 
 		case OSMTEST_TOKEN_LINK_SPEED:
 			p_port->comp.port_info.link_speed = 0xFF;
 			p_port->rec.port_info.link_speed =
 			    (uint8_t) strtoul(&line[offset], NULL, 0);
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_port: "
-					"link_speed = 0x%u\n",
-					p_port->rec.port_info.link_speed);
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+				"link_speed = 0x%u\n",
+				p_port->rec.port_info.link_speed);
 			break;
 
 		case OSMTEST_TOKEN_MTU_SMSL:
 			p_port->comp.port_info.mtu_smsl = 0xFF;
 			p_port->rec.port_info.mtu_smsl =
 			    (uint8_t) strtoul(&line[offset], NULL, 0);
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_port: "
-					"mtu_smsl = 0x%u\n",
-					p_port->rec.port_info.mtu_smsl);
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+				"mtu_smsl = 0x%u\n",
+				p_port->rec.port_info.mtu_smsl);
 			break;
 
 		case OSMTEST_TOKEN_VL_CAP:
 			p_port->comp.port_info.vl_cap = 0xFF;
 			p_port->rec.port_info.vl_cap =
 			    (uint8_t) strtoul(&line[offset], NULL, 0);
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_port: "
-					"vl_cap = 0x%u\n",
-					p_port->rec.port_info.vl_cap);
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG, "vl_cap = 0x%u\n",
+				p_port->rec.port_info.vl_cap);
 			break;
 
 		case OSMTEST_TOKEN_VL_HIGH_LIMIT:
 			p_port->comp.port_info.vl_high_limit = 0xFF;
 			p_port->rec.port_info.vl_high_limit =
 			    (uint8_t) strtoul(&line[offset], NULL, 0);
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_port: "
-					"vl_high_limit = 0x%u\n",
-					p_port->rec.port_info.vl_high_limit);
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+				"vl_high_limit = 0x%u\n",
+				p_port->rec.port_info.vl_high_limit);
 			break;
 
 		case OSMTEST_TOKEN_VL_ARB_HIGH_CAP:
 			p_port->comp.port_info.vl_arb_high_cap = 0xFF;
 			p_port->rec.port_info.vl_arb_high_cap =
 			    (uint8_t) strtoul(&line[offset], NULL, 0);
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_port: "
-					"vl_arb_high_cap = 0x%u\n",
-					p_port->rec.port_info.vl_arb_high_cap);
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+				"vl_arb_high_cap = 0x%u\n",
+				p_port->rec.port_info.vl_arb_high_cap);
 			break;
 
 		case OSMTEST_TOKEN_VL_ARB_LOW_CAP:
 			p_port->comp.port_info.vl_arb_low_cap = 0xFF;
 			p_port->rec.port_info.vl_arb_low_cap =
 			    (uint8_t) strtoul(&line[offset], NULL, 0);
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_port: "
-					"vl_arb_low_cap = 0x%u\n",
-					p_port->rec.port_info.vl_arb_low_cap);
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+				"vl_arb_low_cap = 0x%u\n",
+				p_port->rec.port_info.vl_arb_low_cap);
 			break;
 
 		case OSMTEST_TOKEN_MTU_CAP:
 			p_port->comp.port_info.mtu_cap = 0xFF;
 			p_port->rec.port_info.mtu_cap =
 			    (uint8_t) strtoul(&line[offset], NULL, 0);
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_port: "
-					"mtu_cap = 0x%u\n",
-					p_port->rec.port_info.mtu_cap);
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG, "mtu_cap = 0x%u\n",
+				p_port->rec.port_info.mtu_cap);
 			break;
 
 		case OSMTEST_TOKEN_VL_STALL_LIFE:
 			p_port->comp.port_info.vl_stall_life = 0xFF;
 			p_port->rec.port_info.vl_stall_life =
 			    (uint8_t) strtoul(&line[offset], NULL, 0);
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_port: "
-					"vl_stall_life = 0x%u\n",
-					p_port->rec.port_info.vl_stall_life);
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+				"vl_stall_life = 0x%u\n",
+				p_port->rec.port_info.vl_stall_life);
 			break;
 
 		case OSMTEST_TOKEN_VL_ENFORCE:
 			p_port->comp.port_info.vl_enforce = 0xFF;
 			p_port->rec.port_info.vl_enforce =
 			    (uint8_t) strtoul(&line[offset], NULL, 0);
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_port: "
-					"vl_enforce = 0x%u\n",
-					p_port->rec.port_info.vl_enforce);
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+				"vl_enforce = 0x%u\n",
+				p_port->rec.port_info.vl_enforce);
 			break;
 
 		case OSMTEST_TOKEN_MKEY_VIOL:
@@ -7105,13 +6606,9 @@ osmtest_parse_port(IN osmtest_t * const p_osmt,
 			p_port->rec.port_info.m_key_violations =
 			    cl_hton16((uint16_t)
 				      strtoul(&line[offset], NULL, 0));
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_port: "
-					"m_key_violations = 0x%X\n",
-					cl_ntoh16(p_port->rec.port_info.
-						  m_key_violations));
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+				"m_key_violations = 0x%X\n",
+				cl_ntoh16(p_port->rec.port_info.m_key_violations));
 			break;
 
 		case OSMTEST_TOKEN_PKEY_VIOL:
@@ -7119,13 +6616,9 @@ osmtest_parse_port(IN osmtest_t * const p_osmt,
 			p_port->rec.port_info.p_key_violations =
 			    cl_hton16((uint16_t)
 				      strtoul(&line[offset], NULL, 0));
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_port: "
-					"p_key_violations = 0x%X\n",
-					cl_ntoh16(p_port->rec.port_info.
-						  p_key_violations));
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+				"p_key_violations = 0x%X\n",
+				cl_ntoh16(p_port->rec.port_info.p_key_violations));
 			break;
 
 		case OSMTEST_TOKEN_QKEY_VIOL:
@@ -7133,62 +6626,45 @@ osmtest_parse_port(IN osmtest_t * const p_osmt,
 			p_port->rec.port_info.q_key_violations =
 			    cl_hton16((uint16_t)
 				      strtoul(&line[offset], NULL, 0));
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_port: "
-					"q_key_violations = 0x%X\n",
-					cl_ntoh16(p_port->rec.port_info.
-						  q_key_violations));
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+				"q_key_violations = 0x%X\n",
+				cl_ntoh16(p_port->rec.port_info.q_key_violations));
 			break;
 
 		case OSMTEST_TOKEN_GUID_CAP:
 			p_port->comp.port_info.guid_cap = 0xFF;
 			p_port->rec.port_info.guid_cap =
 			    (uint8_t) strtoul(&line[offset], NULL, 0);
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_port: "
-					"guid_cap = 0x%u\n",
-					p_port->rec.port_info.guid_cap);
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+				"guid_cap = 0x%u\n",
+				p_port->rec.port_info.guid_cap);
 			break;
 
 		case OSMTEST_TOKEN_SUBN_TIMEOUT:
 			p_port->comp.port_info.subnet_timeout = 0x1F;
 			p_port->rec.port_info.subnet_timeout =
 			    (uint8_t) strtoul(&line[offset], NULL, 0);
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_port: "
-					"subnet_timeout = 0x%u\n",
-					ib_port_info_get_timeout(&p_port->rec.
-								 port_info));
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+				"subnet_timeout = 0x%u\n",
+				ib_port_info_get_timeout(&p_port->rec.port_info));
 			break;
 
 		case OSMTEST_TOKEN_RESP_TIME_VAL:
 			p_port->comp.port_info.resp_time_value = 0xFF;
 			p_port->rec.port_info.resp_time_value =
 			    (uint8_t) strtoul(&line[offset], NULL, 0);
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_port: "
-					"resp_time_value = 0x%u\n",
-					p_port->rec.port_info.resp_time_value);
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+				"resp_time_value = 0x%u\n",
+				p_port->rec.port_info.resp_time_value);
 			break;
 
 		case OSMTEST_TOKEN_ERR_THRESHOLD:
 			p_port->comp.port_info.error_threshold = 0xFF;
 			p_port->rec.port_info.error_threshold =
 			    (uint8_t) strtoul(&line[offset], NULL, 0);
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_port: "
-					"error_threshold = 0x%u\n",
-					p_port->rec.port_info.error_threshold);
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+				"error_threshold = 0x%u\n",
+				p_port->rec.port_info.error_threshold);
 			break;
 
 		case OSMTEST_TOKEN_END:
@@ -7196,8 +6672,7 @@ osmtest_parse_port(IN osmtest_t * const p_osmt,
 			break;
 
 		default:
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_parse_port: ERR 0125: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0125: "
 				"Ignoring line %u with unknown token: %s\n",
 				*p_line_num, &line[offset]);
 			break;
@@ -7209,8 +6684,7 @@ osmtest_parse_port(IN osmtest_t * const p_osmt,
 	 * add this object to the database.
 	 */
 	if (p_port->comp.lid == 0) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_parse_port: ERR 0126: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0126: "
 			"LID must be specified for defined ports\n");
 		port_delete(p_port);
 		status = IB_ERROR;
@@ -7253,8 +6727,7 @@ osmtest_parse_path(IN osmtest_t * const p_osmt,
 			/*
 			 * End of file in the middle of a definition.
 			 */
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_parse_path: ERR 0127: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0127: "
 				"Unexpected end of file\n");
 			status = IB_ERROR;
 			goto Exit;
@@ -7271,20 +6744,15 @@ osmtest_parse_path(IN osmtest_t * const p_osmt,
 
 		p_tok = str_get_token(&line[offset]);
 		if (p_tok == NULL) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_parse_path: ERR 0128: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0128: "
 				"Ignoring line %u with unknown token: %s\n",
 				*p_line_num, &line[offset]);
 			got_error = TRUE;
 			continue;
 		}
 
-		if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-			osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-				"osmtest_parse_path: "
-				"Found '%s' (line %u)\n", p_tok->str,
-				*p_line_num);
-		}
+		OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+			"Found '%s' (line %u)\n", p_tok->str, *p_line_num);
 
 		str_skip_token(line, &offset);
 
@@ -7305,16 +6773,10 @@ osmtest_parse_path(IN osmtest_t * const p_osmt,
 			p_path->rec.dgid.unicast.interface_id =
 			    cl_hton64(strtoull(&line[offset], NULL, 0));
 
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_path: "
-					"dgid = 0x%016" PRIx64 " 0x%016" PRIx64
-					"\n",
-					cl_ntoh64(p_path->rec.dgid.unicast.
-						  prefix),
-					cl_ntoh64(p_path->rec.dgid.unicast.
-						  interface_id));
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+				"dgid = 0x%016" PRIx64 " 0x%016" PRIx64 "\n",
+				cl_ntoh64(p_path->rec.dgid.unicast.prefix),
+				cl_ntoh64(p_path->rec.dgid.unicast.interface_id));
 			break;
 
 		case OSMTEST_TOKEN_SGID:
@@ -7330,16 +6792,10 @@ osmtest_parse_path(IN osmtest_t * const p_osmt,
 			p_path->rec.sgid.unicast.interface_id =
 			    cl_hton64(strtoull(&line[offset], NULL, 0));
 
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_path: "
-					"sgid = 0x%016" PRIx64 " 0x%016" PRIx64
-					"\n",
-					cl_ntoh64(p_path->rec.sgid.unicast.
-						  prefix),
-					cl_ntoh64(p_path->rec.sgid.unicast.
-						  interface_id));
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+				"sgid = 0x%016" PRIx64 " 0x%016" PRIx64 "\n",
+				cl_ntoh64(p_path->rec.sgid.unicast.prefix),
+				cl_ntoh64(p_path->rec.sgid.unicast.interface_id));
 			break;
 
 		case OSMTEST_TOKEN_DLID:
@@ -7347,12 +6803,8 @@ osmtest_parse_path(IN osmtest_t * const p_osmt,
 			p_path->rec.dlid =
 			    cl_hton16((uint16_t)
 				      strtoul(&line[offset], NULL, 0));
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_path: "
-					"dlid = 0x%X\n",
-					cl_ntoh16(p_path->rec.dlid));
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG, "dlid = 0x%X\n",
+				cl_ntoh16(p_path->rec.dlid));
 			break;
 
 		case OSMTEST_TOKEN_SLID:
@@ -7360,12 +6812,8 @@ osmtest_parse_path(IN osmtest_t * const p_osmt,
 			p_path->rec.slid =
 			    cl_hton16((uint16_t)
 				      strtoul(&line[offset], NULL, 0));
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_path: "
-					"slid = 0x%X\n",
-					cl_ntoh16(p_path->rec.slid));
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG, "slid = 0x%X\n",
+				cl_ntoh16(p_path->rec.slid));
 			break;
 
 		case OSMTEST_TOKEN_PKEY:
@@ -7373,12 +6821,8 @@ osmtest_parse_path(IN osmtest_t * const p_osmt,
 			p_path->rec.pkey =
 			    cl_hton16((uint16_t)
 				      strtoul(&line[offset], NULL, 0));
-			if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-				osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-					"osmtest_parse_path: "
-					"pkey = 0x%X\n",
-					cl_ntoh16(p_path->rec.pkey));
-			}
+			OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG, "pkey = 0x%X\n",
+				cl_ntoh16(p_path->rec.pkey));
 			break;
 
 		case OSMTEST_TOKEN_END:
@@ -7386,8 +6830,7 @@ osmtest_parse_path(IN osmtest_t * const p_osmt,
 			break;
 
 		default:
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_parse_path: ERR 0129: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0129: "
 				"Ignoring line %u with unknown token: %s\n",
 				*p_line_num, &line[offset]);
 			got_error = TRUE;
@@ -7441,8 +6884,7 @@ osmtest_parse_link(IN osmtest_t * const p_osmt,
 			/*
 			 * End of file in the middle of a definition.
 			 */
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_parse_link: ERR 012A: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 012A: "
 				"Unexpected end of file\n");
 			status = IB_ERROR;
 			goto Exit;
@@ -7459,20 +6901,15 @@ osmtest_parse_link(IN osmtest_t * const p_osmt,
 
 		p_tok = str_get_token(&line[offset]);
 		if (p_tok == NULL) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_parse_link: ERR 012B: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 012B: "
 				"Ignoring line %u with unknown token: %s\n",
 				*p_line_num, &line[offset]);
 			got_error = TRUE;
 			continue;
 		}
 
-		if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-			osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-				"osmtest_parse_link: "
-				"Found '%s' (line %u)\n", p_tok->str,
-				*p_line_num);
-		}
+		OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+			"Found '%s' (line %u)\n", p_tok->str, *p_line_num);
 
 		str_skip_token(line, &offset);
 
@@ -7489,8 +6926,7 @@ osmtest_parse_link(IN osmtest_t * const p_osmt,
 			break;
 
 		default:
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_parse_link: ERR 012C: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 012C: "
 				"Ignoring line %u with unknown token: %s\n",
 				*p_line_num, &line[offset]);
 			got_error = TRUE;
@@ -7522,8 +6958,7 @@ static ib_api_status_t osmtest_create_db(IN osmtest_t * const p_osmt)
 
 	fh = fopen(p_osmt->opt.file_name, "r");
 	if (fh == NULL) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_create_db: ERR 0130: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0130: "
 			"Unable to open inventory file (%s)\n",
 			p_osmt->opt.file_name);
 		status = IB_ERROR;
@@ -7545,19 +6980,15 @@ static ib_api_status_t osmtest_create_db(IN osmtest_t * const p_osmt)
 
 		p_tok = str_get_token(&line[offset]);
 		if (p_tok == NULL) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_create_db: ERR 0131: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0131: "
 				"Ignoring line %u: %s\n", line_num,
 				&line[offset]);
 			got_error = TRUE;
 			continue;
 		}
 
-		if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-			osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-				"osmtest_create_db: "
-				"Found '%s' (line %u)\n", p_tok->str, line_num);
-		}
+		OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+			"Found '%s' (line %u)\n", p_tok->str, line_num);
 
 		switch (p_tok->val) {
 		case OSMTEST_TOKEN_COMMENT:
@@ -7580,8 +7011,7 @@ static ib_api_status_t osmtest_create_db(IN osmtest_t * const p_osmt)
 			break;
 
 		default:
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_create_db: ERR 0132: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0132: "
 				"Ignoring line %u: %s\n", line_num,
 				&line[offset]);
 			got_error = TRUE;
@@ -7592,8 +7022,7 @@ static ib_api_status_t osmtest_create_db(IN osmtest_t * const p_osmt)
 			status = IB_ERROR;
 
 		if (status != IB_SUCCESS) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_create_db: ERR 0133: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0133: "
 				"Bad status received during parsing (%s)\n",
 				ib_get_err_str(status));
 			fclose(fh);
@@ -7677,8 +7106,7 @@ osmtest_bind(IN osmtest_t * p_osmt,
 	status = osm_vendor_get_all_port_attr(p_osmt->p_vendor,
 					      attr_array, &num_ports);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_bind: ERR 0134: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0134: "
 			"Failure getting local port attributes (%s)\n",
 			ib_get_err_str(status));
 		goto Exit;
@@ -7693,8 +7121,7 @@ osmtest_bind(IN osmtest_t * p_osmt,
 		    osmtest_get_user_port(p_osmt, attr_array, num_ports);
 
 		if (num_ports == 0) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_bind: ERR 0135: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0135: "
 				"No local ports.  Unable to proceed\n");
 			goto Exit;
 		}
@@ -7706,8 +7133,7 @@ osmtest_bind(IN osmtest_t * p_osmt,
 		}
 
 		if (port_index == num_ports) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_bind: ERR 0136: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0136: "
 				"No local port with guid 0x%016" PRIx64 "\n",
 				cl_ntoh64(guid));
 			status = IB_NOT_FOUND;
@@ -7722,8 +7148,7 @@ osmtest_bind(IN osmtest_t * p_osmt,
 	       sizeof(p_osmt->local_port));
 
 	/* bind to the SA */
-	osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-		"osmtest_bind: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
 		"Using port with SM LID:0x%04X\n", p_osmt->local_port.sm_lid);
 	p_osmt->max_lid = max_lid;
 
@@ -7731,8 +7156,8 @@ osmtest_bind(IN osmtest_t * p_osmt,
 	    osmv_bind_sa(p_osmt->p_vendor, &p_osmt->mad_pool, guid);
 
 	if (p_osmt->h_bind == OSM_BIND_INVALID_HANDLE) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_bind: ERR 0137: " "Unable to bind to SA\n");
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0137: "
+			"Unable to bind to SA\n");
 		status = IB_ERROR;
 		goto Exit;
 	}
@@ -7752,8 +7177,7 @@ ib_api_status_t osmtest_run(IN osmtest_t * const p_osmt)
 
 	status = osmtest_validate_sa_class_port_info(p_osmt);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmtest_run: ERR 0138: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0138: "
 			"Could not obtain SA ClassPortInfo (%s)\n",
 			ib_get_err_str(status));
 		goto Exit;
@@ -7765,8 +7189,7 @@ ib_api_status_t osmtest_run(IN osmtest_t * const p_osmt)
 		 */
 		status = osmtest_create_inventory_file(p_osmt);
 		if (status != IB_SUCCESS) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmtest_run: ERR 0139: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0139: "
 				"Inventory file create failed (%s)\n",
 				ib_get_err_str(status));
 			goto Exit;
@@ -7781,8 +7204,8 @@ ib_api_status_t osmtest_run(IN osmtest_t * const p_osmt)
 			case 1:	/* small response SA query stress */
 				status = osmtest_stress_small_rmpp(p_osmt);
 				if (status != IB_SUCCESS) {
-					osm_log(&p_osmt->log, OSM_LOG_ERROR,
-						"osmtest_run: ERR 0140: "
+					OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
+						"ERR 0140: "
 						"Small RMPP stress test failed (%s)\n",
 						ib_get_err_str(status));
 					goto Exit;
@@ -7791,8 +7214,8 @@ ib_api_status_t osmtest_run(IN osmtest_t * const p_osmt)
 			case 2:	/* large response SA query stress */
 				status = osmtest_stress_large_rmpp(p_osmt);
 				if (status != IB_SUCCESS) {
-					osm_log(&p_osmt->log, OSM_LOG_ERROR,
-						"osmtest_run: ERR 0141: "
+					OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
+						"ERR 0141: "
 						"Large RMPP stress test failed (%s)\n",
 						ib_get_err_str(status));
 					goto Exit;
@@ -7801,8 +7224,8 @@ ib_api_status_t osmtest_run(IN osmtest_t * const p_osmt)
 			case 3:	/* large response Path Record SA query stress */
 				status = osmtest_create_db(p_osmt);
 				if (status != IB_SUCCESS) {
-					osm_log(&p_osmt->log, OSM_LOG_ERROR,
-						"osmtest_run: ERR 0142: "
+					OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
+						"ERR 0142: "
 						"Database creation failed (%s)\n",
 						ib_get_err_str(status));
 					goto Exit;
@@ -7810,16 +7233,16 @@ ib_api_status_t osmtest_run(IN osmtest_t * const p_osmt)
 
 				status = osmtest_stress_large_rmpp_pr(p_osmt);
 				if (status != IB_SUCCESS) {
-					osm_log(&p_osmt->log, OSM_LOG_ERROR,
-						"osmtest_run: ERR 0143: "
+					OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
+						"ERR 0143: "
 						"Large RMPP stress test failed (%s)\n",
 						ib_get_err_str(status));
 					goto Exit;
 				}
 				break;
 			default:
-				osm_log(&p_osmt->log, OSM_LOG_ERROR,
-					"osmtest_run: ERR 0144: "
+				OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
+					"ERR 0144: "
 					"Unknown stress test value %u\n",
 					p_osmt->opt.stress);
 				break;
@@ -7836,8 +7259,8 @@ ib_api_status_t osmtest_run(IN osmtest_t * const p_osmt)
 				 */
 				status = osmtest_create_db(p_osmt);
 				if (status != IB_SUCCESS) {
-					osm_log(&p_osmt->log, OSM_LOG_ERROR,
-						"osmtest_run: ERR 0145: "
+					OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
+						"ERR 0145: "
 						"Database creation failed (%s)\n",
 						ib_get_err_str(status));
 					goto Exit;
@@ -7845,8 +7268,8 @@ ib_api_status_t osmtest_run(IN osmtest_t * const p_osmt)
 
 				status = osmtest_validate_against_db(p_osmt);
 				if (status != IB_SUCCESS) {
-					osm_log(&p_osmt->log, OSM_LOG_ERROR,
-						"osmtest_run: ERR 0146: "
+					OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
+						"ERR 0146: "
 						"SA validation database failure (%s)\n",
 						ib_get_err_str(status));
 					goto Exit;
@@ -7856,8 +7279,8 @@ ib_api_status_t osmtest_run(IN osmtest_t * const p_osmt)
 			if (p_osmt->opt.flow == OSMT_FLOW_ALL) {
 				status = osmtest_wrong_sm_key_ignored(p_osmt);
 				if (status != IB_SUCCESS) {
-					osm_log(&p_osmt->log, OSM_LOG_ERROR,
-						"osmtest_run: ERR 0147: "
+					OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
+						"ERR 0147: "
 						"Try wrong SM_Key failed (%s)\n",
 						ib_get_err_str(status));
 					goto Exit;
@@ -7872,8 +7295,8 @@ ib_api_status_t osmtest_run(IN osmtest_t * const p_osmt)
 				 */
 				status = osmt_run_service_records_flow(p_osmt);
 				if (status != IB_SUCCESS) {
-					osm_log(&p_osmt->log, OSM_LOG_ERROR,
-						"osmtest_run: ERR 0148: "
+					OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
+						"ERR 0148: "
 						"Service Flow failed (%s)\n",
 						ib_get_err_str(status));
 					goto Exit;
@@ -7889,15 +7312,15 @@ ib_api_status_t osmtest_run(IN osmtest_t * const p_osmt)
 				status = osmt_run_inform_info_flow(p_osmt);
 
 				if (status != IB_SUCCESS) {
-					osm_log(&p_osmt->log, OSM_LOG_ERROR,
-						"osmtest_run: ERR 0149: "
+					OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
+						"ERR 0149: "
 						"Inform Info Flow failed: (%s)\n",
 						ib_get_err_str(status));
 					goto Exit;
 				}
 #else
-				osm_log(&p_osmt->log, OSM_LOG_INFO,
-					"osmtest_run: The event forwarding flow "
+				OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
+					"The event forwarding flow "
 					"is not implemented yet!\n");
 				status = IB_SUCCESS;
 				goto Exit;
@@ -7912,8 +7335,8 @@ ib_api_status_t osmtest_run(IN osmtest_t * const p_osmt)
 				 */
 				status = osmtest_create_db(p_osmt);
 				if (status != IB_SUCCESS) {
-					osm_log(&p_osmt->log, OSM_LOG_ERROR,
-						"osmtest_run: ERR 014A: "
+					OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
+						"ERR 014A: "
 						"Database creation failed (%s)\n",
 						ib_get_err_str(status));
 					goto Exit;
@@ -7923,8 +7346,8 @@ ib_api_status_t osmtest_run(IN osmtest_t * const p_osmt)
 				    osmt_run_slvl_and_vlarb_records_flow
 				    (p_osmt);
 				if (status != IB_SUCCESS) {
-					osm_log(&p_osmt->log, OSM_LOG_ERROR,
-						"osmtest_run: ERR 0150: "
+					OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
+						"ERR 0150: "
 						"Failed to get SLtoVL and VL Arbitration Tables (%s)\n",
 						ib_get_err_str(status));
 					goto Exit;
@@ -7938,15 +7361,15 @@ ib_api_status_t osmtest_run(IN osmtest_t * const p_osmt)
 #ifdef OSM_VENDOR_INTF_MTL
 				status = osmt_run_trap64_65_flow(p_osmt);
 				if (status != IB_SUCCESS) {
-					osm_log(&p_osmt->log, OSM_LOG_ERROR,
-						"osmtest_run: ERR 0151: "
+					OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
+						"ERR 0151: "
 						"Trap 64/65 Flow failed: (%s)\n",
 						ib_get_err_str(status));
 					goto Exit;
 				}
 #else
-				osm_log(&p_osmt->log, OSM_LOG_INFO,
-					"osmtest_run: The event forwarding flow "
+				OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
+					"The event forwarding flow "
 					"is not implemented yet!\n");
 				status = IB_SUCCESS;
 				goto Exit;
@@ -7960,16 +7383,15 @@ ib_api_status_t osmtest_run(IN osmtest_t * const p_osmt)
 				 */
 				status = osmt_run_mcast_flow(p_osmt);
 				if (status != IB_SUCCESS) {
-					osm_log(&p_osmt->log, OSM_LOG_ERROR,
-						"osmtest_run: ERR 0152: "
+					OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
+						"ERR 0152: "
 						"Multicast Flow failed: (%s)\n",
 						ib_get_err_str(status));
 					goto Exit;
 				}
 			}
 
-			osm_log(&p_osmt->log, OSM_LOG_INFO,
-				"osmtest_run: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 				"\n\n***************** ALL TESTS PASS *****************\n\n");
 
 		}

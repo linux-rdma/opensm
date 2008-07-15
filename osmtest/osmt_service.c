@@ -74,8 +74,7 @@ osmt_register_service(IN osmtest_t * const p_osmt,
 
 	OSM_LOG_ENTER(p_log);
 
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_register_service: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Registering service: name: %s id: 0x%" PRIx64 "\n",
 		service_name, cl_ntoh64(service_id));
 
@@ -129,8 +128,7 @@ osmt_register_service(IN osmtest_t * const p_osmt,
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_register_service: ERR 4A01: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A01: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 		goto Exit;
 	}
@@ -138,13 +136,11 @@ osmt_register_service(IN osmtest_t * const p_osmt,
 	status = context.result.status;
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_register_service: ERR 4A02: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A02: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 
 		if (status == IB_REMOTE_ERROR) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmt_register_service: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 				"Remote error = %s\n",
 				ib_get_mad_status_str(osm_madw_get_mad_ptr
 						      (context.result.
@@ -185,8 +181,7 @@ osmt_register_service_with_full_key(IN osmtest_t * const p_osmt,
 
 	OSM_LOG_ENTER(p_log);
 
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_register_service_with_full_key: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Registering service: name: %s id: 0x%" PRIx64 "\n",
 		service_name, cl_ntoh64(service_id));
 
@@ -241,21 +236,18 @@ osmt_register_service_with_full_key(IN osmtest_t * const p_osmt,
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_register_service_with_full_key: ERR 4A03: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A03: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 		goto Exit;
 	}
 
 	status = context.result.status;
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_register_service_with_full_key: ERR 4A04: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A04: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 
 		if (status == IB_REMOTE_ERROR) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmt_register_service_with_full_key: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 				"Remote error = %s\n",
 				ib_get_mad_status_str(osm_madw_get_mad_ptr
 						      (context.result.
@@ -266,18 +258,17 @@ osmt_register_service_with_full_key(IN osmtest_t * const p_osmt,
 
 	/*  Check service key on context to see if match */
 	p_rec = osmv_get_query_svc_rec(context.result.p_result_madw, 0);
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
 		"Comparing service key...\n" "return key is:\n");
 	for (i = 0; i <= 15; i++) {
-		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
+		OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
 			"service_key sent[%u] = %u, service_key returned[%u] = %u\n",
 			i, service_key[i], i, p_rec->service_key[i]);
 	}
 	/*  since c15-0.1.14 not supported all key association queries should bring in return zero in service key */
 	if (memcmp(skey, p_rec->service_key, 16 * sizeof(uint8_t)) != 0) {
 		status = IB_REMOTE_ERROR;
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_register_service_with_full_key: ERR 4A33: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A33: "
 			"Data mismatch in service_key\n");
 		goto Exit;
 	}
@@ -318,8 +309,7 @@ osmt_register_service_with_data(IN osmtest_t * const p_osmt,
 
 	OSM_LOG_ENTER(p_log);
 
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_register_service_with_data: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Registering service: name: %s id: 0x%" PRIx64 "\n",
 		service_name, cl_ntoh64(service_id));
 
@@ -395,15 +385,13 @@ osmt_register_service_with_data(IN osmtest_t * const p_osmt,
 	user.p_attr = &svc_rec;
 
 	/*  Dump to Service Data b4 send */
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmt_register_service_with_data:"
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
 		"Dumping service data b4 send\n");
 	osm_dump_service_record(&p_osmt->log, &svc_rec, OSM_LOG_VERBOSE);
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_register_service_with_data: ERR 4A05: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A05: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 		goto Exit;
 	}
@@ -411,13 +399,11 @@ osmt_register_service_with_data(IN osmtest_t * const p_osmt,
 	status = context.result.status;
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_register_service_with_data: ERR 4A06: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A06: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 
 		if (status == IB_REMOTE_ERROR) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmt_register_service_with_data: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 				"Remote error = %s\n",
 				ib_get_mad_status_str(osm_madw_get_mad_ptr
 						      (context.result.
@@ -428,7 +414,7 @@ osmt_register_service_with_data(IN osmtest_t * const p_osmt,
 
 	/*  Check data on context to see if match */
 	p_rec = osmv_get_query_svc_rec(context.result.p_result_madw, 0);
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE, "Comparing service data...\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE, "Comparing service data...\n");
 	if (memcmp(service_data8, p_rec->service_data8, 16 * sizeof(uint8_t)) !=
 	    0
 	    || memcmp(service_data16, p_rec->service_data16,
@@ -438,8 +424,7 @@ osmt_register_service_with_data(IN osmtest_t * const p_osmt,
 	    || memcmp(service_data64, p_rec->service_data64,
 		      2 * sizeof(uint64_t)) != 0) {
 		status = IB_REMOTE_ERROR;
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_register_service_with_data: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 			"Data mismatch in service_data8\n");
 		goto Exit;
 	}
@@ -475,11 +460,9 @@ osmt_get_service_by_id_and_name(IN osmtest_t * const p_osmt,
 
 	OSM_LOG_ENTER(&p_osmt->log);
 
-	if (osm_log_is_active(&p_osmt->log, OSM_LOG_VERBOSE))
-		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-			"osmt_get_service_by_id_and_name: "
-			"Getting service record: id: 0x%016" PRIx64
-			" and name: %s\n", cl_ntoh64(sid), sr_name);
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
+		"Getting service record: id: 0x%016" PRIx64
+		" and name: %s\n", cl_ntoh64(sid), sr_name);
 
 	/*
 	 * Do a blocking query for this record in the subnet.
@@ -519,8 +502,7 @@ osmt_get_service_by_id_and_name(IN osmtest_t * const p_osmt,
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_get_service_by_id_and_name: ERR 4A07: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A07: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 		goto Exit;
 	}
@@ -543,13 +525,11 @@ osmt_get_service_by_id_and_name(IN osmtest_t * const p_osmt,
 		if (status == IB_REMOTE_ERROR &&
 		    !strcmp(mad_stat_err, "IB_SA_MAD_STATUS_NO_RECORDS") &&
 		    rec_num == 0) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmt_get_service_by_id_and_name: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 				"IS EXPECTED ERROR ^^^^\n");
 			status = IB_SUCCESS;
 		} else {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmt_get_service_by_id_and_name: ERR 4A08: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A08: "
 				"Query failed: %s (%s)\n",
 				ib_get_err_str(status), mad_stat_err);
 			goto Exit;
@@ -557,8 +537,7 @@ osmt_get_service_by_id_and_name(IN osmtest_t * const p_osmt,
 	}
 
 	if (rec_num && num_recs != rec_num) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_get_service_by_id_and_name: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 			"Unmatched number of records: expected: %d, received: %d\n",
 			rec_num, num_recs);
 		status = IB_REMOTE_ERROR;
@@ -569,8 +548,7 @@ osmt_get_service_by_id_and_name(IN osmtest_t * const p_osmt,
 	*p_out_rec = *p_rec;
 
 	if (num_recs) {
-		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-			"osmt_get_service_by_id_and_name: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
 			"Found service record: name: %s id: 0x%016" PRIx64 "\n",
 			p_rec->service_name, cl_ntoh64(p_rec->service_id));
 
@@ -578,8 +556,7 @@ osmt_get_service_by_id_and_name(IN osmtest_t * const p_osmt,
 	}
 
 Exit:
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmt_get_service_by_id_and_name: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
 		"Expected and found %d records\n", rec_num);
 
 	if (context.result.p_result_madw != NULL) {
@@ -610,11 +587,9 @@ osmt_get_service_by_id(IN osmtest_t * const p_osmt,
 
 	OSM_LOG_ENTER(&p_osmt->log);
 
-	if (osm_log_is_active(&p_osmt->log, OSM_LOG_VERBOSE))
-		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-			"osmt_get_service_by_id: "
-			"Getting service record: id: 0x%016" PRIx64 "\n",
-			cl_ntoh64(sid));
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
+		"Getting service record: id: 0x%016" PRIx64 "\n",
+		cl_ntoh64(sid));
 
 	/*
 	 * Do a blocking query for this record in the subnet.
@@ -651,8 +626,7 @@ osmt_get_service_by_id(IN osmtest_t * const p_osmt,
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_get_service_by_id: ERR 4A09: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A09: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 		goto Exit;
 	}
@@ -676,13 +650,11 @@ osmt_get_service_by_id(IN osmtest_t * const p_osmt,
 		if (status == IB_REMOTE_ERROR &&
 		    !strcmp(mad_stat_err, "IB_SA_MAD_STATUS_NO_RECORDS") &&
 		    rec_num == 0) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmt_get_service_by_id: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 				"IS EXPECTED ERROR ^^^^\n");
 			status = IB_SUCCESS;
 		} else {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmt_get_service_by_id: ERR 4A0A: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A0A: "
 				"Query failed: %s (%s)\n",
 				ib_get_err_str(status), mad_stat_err);
 			goto Exit;
@@ -690,8 +662,7 @@ osmt_get_service_by_id(IN osmtest_t * const p_osmt,
 	}
 
 	if (rec_num && num_recs != rec_num) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_get_service_by_id: ERR 4A0B: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A0B: "
 			"Unmatched number of records: expected: %d received: %d\n",
 			rec_num, num_recs);
 		status = IB_REMOTE_ERROR;
@@ -702,8 +673,7 @@ osmt_get_service_by_id(IN osmtest_t * const p_osmt,
 	*p_out_rec = *p_rec;
 
 	if (num_recs) {
-		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-			"osmt_get_service_by_id: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
 			"Found service record: name: %s id: 0x%016" PRIx64 "\n",
 			p_rec->service_name, cl_ntoh64(p_rec->service_id));
 
@@ -711,8 +681,7 @@ osmt_get_service_by_id(IN osmtest_t * const p_osmt,
 	}
 
 Exit:
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmt_get_service_by_id: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
 		"Expected and found %d records\n", rec_num);
 
 	if (context.result.p_result_madw != NULL) {
@@ -745,20 +714,12 @@ osmt_get_service_by_name_and_key(IN osmtest_t * const p_osmt,
 
 	OSM_LOG_ENTER(&p_osmt->log);
 
-	if (osm_log_is_active(&p_osmt->log, OSM_LOG_VERBOSE)) {
-		char buf_service_key[33];
-
-		sprintf(buf_service_key,
-			"0x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
-			skey[0], skey[1], skey[2], skey[3], skey[4], skey[5],
-			skey[6], skey[7], skey[8], skey[9], skey[10], skey[11],
-			skey[12], skey[13], skey[14], skey[15]);
-
-		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-			"osmt_get_service_by_name_and_key: "
-			"Getting service record: name: %s and key: %s\n",
-			sr_name, buf_service_key);
-	}
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
+		"Getting service record: name: %s and key: "
+		"0x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\n",
+		sr_name, skey[0], skey[1], skey[2], skey[3], skey[4], skey[5],
+		skey[6], skey[7], skey[8], skey[9], skey[10], skey[11],
+		skey[12], skey[13], skey[14], skey[15]);
 
 	/*
 	 * Do a blocking query for this record in the subnet.
@@ -799,8 +760,7 @@ osmt_get_service_by_name_and_key(IN osmtest_t * const p_osmt,
 	user.p_attr = &svc_rec;
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_get_service_by_name_and_key: ERR 4A0C: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A0C: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 		goto Exit;
 	}
@@ -824,13 +784,11 @@ osmt_get_service_by_name_and_key(IN osmtest_t * const p_osmt,
 		if (status == IB_REMOTE_ERROR &&
 		    !strcmp(mad_stat_err, "IB_SA_MAD_STATUS_NO_RECORDS") &&
 		    rec_num == 0) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmt_get_service_by_name_and_key: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 				"IS EXPECTED ERROR ^^^^\n");
 			status = IB_SUCCESS;
 		} else {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmt_get_service_by_name_and_key: ERR 4A0D: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A0D: "
 				"Query failed:%s (%s)\n",
 				ib_get_err_str(status), mad_stat_err);
 			goto Exit;
@@ -838,8 +796,7 @@ osmt_get_service_by_name_and_key(IN osmtest_t * const p_osmt,
 	}
 
 	if (rec_num && num_recs != rec_num) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_get_service_by_name_and_key: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 			"Unmatched number of records: expected: %d, received: %d\n",
 			rec_num, num_recs);
 		status = IB_REMOTE_ERROR;
@@ -850,8 +807,7 @@ osmt_get_service_by_name_and_key(IN osmtest_t * const p_osmt,
 	*p_out_rec = *p_rec;
 
 	if (num_recs) {
-		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-			"osmt_get_service_by_name_and_key: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
 			"Found service record: name: %s id: 0x%016" PRIx64 "\n",
 			sr_name, cl_ntoh64(p_rec->service_id));
 
@@ -859,8 +815,7 @@ osmt_get_service_by_name_and_key(IN osmtest_t * const p_osmt,
 	}
 
 Exit:
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmt_get_service_by_name_and_key: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
 		"Expected and found %d records\n", rec_num);
 
 	if (context.result.p_result_madw != NULL) {
@@ -892,10 +847,8 @@ osmt_get_service_by_name(IN osmtest_t * const p_osmt,
 
 	OSM_LOG_ENTER(&p_osmt->log);
 
-	if (osm_log_is_active(&p_osmt->log, OSM_LOG_VERBOSE))
-		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-			"osmt_get_service_by_name: "
-			"Getting service record: name: %s\n", sr_name);
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
+		"Getting service record: name: %s\n", sr_name);
 
 	/*
 	 * Do a blocking query for this record in the subnet.
@@ -924,8 +877,7 @@ osmt_get_service_by_name(IN osmtest_t * const p_osmt,
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_get_service_by_name: ERR 4A0E: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A0E: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 		goto Exit;
 	}
@@ -949,13 +901,11 @@ osmt_get_service_by_name(IN osmtest_t * const p_osmt,
 		if (status == IB_REMOTE_ERROR &&
 		    !strcmp(mad_stat_err, "IB_SA_MAD_STATUS_NO_RECORDS") &&
 		    rec_num == 0) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmt_get_service_by_name: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 				"IS EXPECTED ERROR ^^^^\n");
 			status = IB_SUCCESS;
 		} else {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmt_get_service_by_name: ERR 4A0F: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A0F: "
 				"Query failed: %s (%s)\n",
 				ib_get_err_str(status), mad_stat_err);
 			goto Exit;
@@ -963,8 +913,7 @@ osmt_get_service_by_name(IN osmtest_t * const p_osmt,
 	}
 
 	if (rec_num && num_recs != rec_num) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_get_service_by_name: ERR 4A10: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A10: "
 			"Unmatched number of records: expected: %d, received: %d\n",
 			rec_num, num_recs);
 		status = IB_REMOTE_ERROR;
@@ -975,8 +924,7 @@ osmt_get_service_by_name(IN osmtest_t * const p_osmt,
 	*p_out_rec = *p_rec;
 
 	if (num_recs) {
-		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-			"osmt_get_service_by_name: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
 			"Found service record: name: %s id: 0x%016" PRIx64 "\n",
 			sr_name, cl_ntoh64(p_rec->service_id));
 
@@ -984,8 +932,7 @@ osmt_get_service_by_name(IN osmtest_t * const p_osmt,
 	}
 
 Exit:
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmt_get_service_by_name: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
 		"Expected and found %d records\n", rec_num);
 
 	if (context.result.p_result_madw != NULL) {
@@ -1025,11 +972,8 @@ osmt_get_all_services_and_check_names(IN osmtest_t * const p_osmt,
 		p_checked_names[j] = 0;
 	}
 
-	if (osm_log_is_active(&p_osmt->log, OSM_LOG_VERBOSE)) {
-		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-			"osmt_get_all_services_and_check_names: "
-			"Getting all service records\n");
-	}
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE, "Getting all service records\n");
+
 	/*
 	 * Do a blocking query for this record in the subnet.
 	 * The result is returned in the result field of the caller's
@@ -1052,8 +996,7 @@ osmt_get_all_services_and_check_names(IN osmtest_t * const p_osmt,
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_get_all_services_and_check_names: ERR 4A12: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A12: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 		goto Exit;
 	}
@@ -1062,14 +1005,11 @@ osmt_get_all_services_and_check_names(IN osmtest_t * const p_osmt,
 
 	if (status != IB_SUCCESS) {
 		if (status != IB_INVALID_PARAMETER) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmt_get_all_services_and_check_names: ERR 4A13: "
-				"ib_query failed (%s)\n",
-				ib_get_err_str(status));
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A13: "
+				"ib_query failed (%s)\n", ib_get_err_str(status));
 		}
 		if (status == IB_REMOTE_ERROR) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmt_get_all_services_and_check_names: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 				"Remote error = %s\n",
 				ib_get_mad_status_str(osm_madw_get_mad_ptr
 						      (context.result.
@@ -1079,29 +1019,25 @@ osmt_get_all_services_and_check_names(IN osmtest_t * const p_osmt,
 	}
 
 	num_recs = context.result.result_cnt;
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmt_get_all_services_and_check_names: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
 		"Received %u records\n", num_recs);
 
 	for (i = 0; i < num_recs; i++) {
 		p_rec = osmv_get_query_svc_rec(context.result.p_result_madw, i);
-		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-			"osmt_get_all_services_and_check_names: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
 			"Found service record: name: %s id: 0x%016" PRIx64 "\n",
 			p_rec->service_name, cl_ntoh64(p_rec->service_id));
 		osm_dump_service_record(&p_osmt->log, p_rec, OSM_LOG_VERBOSE);
 		for (j = 0; j < num_of_valid_names; j++) {
 			/* If the service names exist in the record, mark it as checked (1) */
-			osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-				"osmt_get_all_services_and_check_names: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
 				"-I- Comparing source name : >%s<, with record name : >%s<, idx : %d\n",
 				p_valid_service_names_arr[j],
 				p_rec->service_name, p_checked_names[j]);
 			if (strcmp
 			    ((char *)p_valid_service_names_arr[j],
 			     (char *)p_rec->service_name) == 0) {
-				osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-					"osmt_get_all_services_and_check_names: "
+				OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
 					"-I- The service %s is valid\n",
 					p_valid_service_names_arr[j]);
 				p_checked_names[j] = 1;
@@ -1112,8 +1048,7 @@ osmt_get_all_services_and_check_names(IN osmtest_t * const p_osmt,
 	/* Check that all service names have been identified */
 	for (j = 0; j < num_of_valid_names; j++)
 		if (p_checked_names[j] == 0) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmt_get_all_services_and_check_names: ERR 4A14: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A14: "
 				"Missing valid service: name: %s\n",
 				p_valid_service_names_arr[j]);
 			status = IB_ERROR;
@@ -1149,16 +1084,14 @@ osmt_delete_service_by_name(IN osmtest_t * const p_osmt,
 
 	OSM_LOG_ENTER(&p_osmt->log);
 
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_delete_service_by_name: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Trying to Delete service name: %s\n", sr_name);
 
 	memset(&svc_rec, 0, sizeof(svc_rec));
 
 	status = osmt_get_service_by_name(p_osmt, sr_name, rec_num, &svc_rec);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_delete_service_by_name: ERR 4A15: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A15: "
 			"Failed to get service: name: %s\n", sr_name);
 		goto ExitNoDel;
 	}
@@ -1190,8 +1123,7 @@ osmt_delete_service_by_name(IN osmtest_t * const p_osmt,
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_delete_service_by_name: ERR 4A16: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A16: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 		goto Exit;
 	}
@@ -1200,15 +1132,13 @@ osmt_delete_service_by_name(IN osmtest_t * const p_osmt,
 	if (IsServiceExist) {
 		/* If IsServiceExist = 1 then we should succeed here */
 		if (status != IB_SUCCESS) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmt_delete_service_by_name: ERR 4A17: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A17: "
 				"ib_query failed (%s)\n",
 				ib_get_err_str(status));
 
 			if (status == IB_REMOTE_ERROR) {
-				osm_log(&p_osmt->log, OSM_LOG_ERROR,
-					"osmt_delete_service_by_name: ERR 4A18: "
-					"Remote error = %s\n",
+				OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
+					"ERR 4A18: Remote error = %s\n",
 					ib_get_mad_status_str
 					(osm_madw_get_mad_ptr
 					 (context.result.p_result_madw)));
@@ -1217,19 +1147,16 @@ osmt_delete_service_by_name(IN osmtest_t * const p_osmt,
 	} else {
 		/* If IsServiceExist = 0 then we should fail here */
 		if (status == IB_SUCCESS) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmt_delete_service_by_name: ERR 4A19: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A19: "
 				"Succeeded to delete service: %s which "
 				"shouldn't exist", sr_name);
 			status = IB_ERROR;
 		} else {
 			/* The deletion should have failed, since the service_name
 			   shouldn't exist. */
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmt_run_service_records_flow: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 				"IS EXPECTED ERROR ^^^^\n");
-			osm_log(&p_osmt->log, OSM_LOG_INFO,
-				"osmt_delete_service_by_name: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 				"Failed to delete service_name: %s\n", sr_name);
 			status = IB_SUCCESS;
 		}
@@ -1386,8 +1313,7 @@ ib_api_status_t osmt_run_service_records_flow(IN osmtest_t * const p_osmt)
 	status = osmt_get_service_by_name(p_osmt,
 					  (char *)service_name[0], 1, &srv_rec);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_service_records_flow: ERR 4A1A: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A1A: "
 			"Fail to find service: name: %s\n",
 			(char *)service_name[0]);
 		status = IB_ERROR;
@@ -1398,8 +1324,7 @@ ib_api_status_t osmt_run_service_records_flow(IN osmtest_t * const p_osmt)
 	status = osmt_get_service_by_name(p_osmt,
 					  (char *)service_name[1], 1, &srv_rec);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_service_records_flow: ERR 4A1B: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A1B: "
 			"Fail to find service: name: %s\n",
 			(char *)service_name[1]);
 		status = IB_ERROR;
@@ -1410,8 +1335,7 @@ ib_api_status_t osmt_run_service_records_flow(IN osmtest_t * const p_osmt)
 	status = osmt_get_service_by_name(p_osmt,
 					  (char *)service_name[2], 1, &srv_rec);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_service_records_flow: ERR 4A1C: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A1C: "
 			"Fail to find service: name: %s\n",
 			(char *)service_name[2]);
 		status = IB_ERROR;
@@ -1423,8 +1347,7 @@ ib_api_status_t osmt_run_service_records_flow(IN osmtest_t * const p_osmt)
 	status = osmt_get_service_by_name(p_osmt,
 					  (char *)service_name[3], 1, &srv_rec);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_service_records_flow: ERR 4A1D: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A1D: "
 			"Fail to find service: name: %s\n",
 			(char *)service_name[3]);
 		status = IB_ERROR;
@@ -1436,8 +1359,7 @@ ib_api_status_t osmt_run_service_records_flow(IN osmtest_t * const p_osmt)
 	status = osmt_get_service_by_name(p_osmt,
 					  (char *)service_name[3], 0, &srv_rec);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_service_records_flow: ERR 4A1E: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A1E: "
 			"Found service: name: %s that should have been "
 			"deleted due to service lease expiring\n",
 			(char *)service_name[3]);
@@ -1448,8 +1370,7 @@ ib_api_status_t osmt_run_service_records_flow(IN osmtest_t * const p_osmt)
 	/*  Check that for service: id[5] only one record exists */
 	status = osmt_get_service_by_id(p_osmt, 1, cl_ntoh64(id[5]), &srv_rec);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_service_records_flow: ERR 4A1F: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A1F: "
 			"Found number of records != 1 for "
 			"service: id: 0x%016" PRIx64 "\n", id[5]);
 		status = IB_ERROR;
@@ -1459,8 +1380,7 @@ ib_api_status_t osmt_run_service_records_flow(IN osmtest_t * const p_osmt)
 	/*  Bad Flow of Get with invalid Service ID: id[7] */
 	status = osmt_get_service_by_id(p_osmt, 0, cl_ntoh64(id[7]), &srv_rec);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_service_records_flow: ERR 4A20: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A20: "
 			"Found service: id: 0x%016" PRIx64 " "
 			"that is invalid\n", id[7]);
 		status = IB_ERROR;
@@ -1472,8 +1392,7 @@ ib_api_status_t osmt_run_service_records_flow(IN osmtest_t * const p_osmt)
 						 (char *)service_name[0],
 						 &srv_rec);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_service_records_flow: ERR 4A21: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A21: "
 			"Fail to find service: id: 0x%016" PRIx64 " "
 			"name: %s\n", id[0], (char *)service_name[0]);
 		status = IB_ERROR;
@@ -1485,8 +1404,7 @@ ib_api_status_t osmt_run_service_records_flow(IN osmtest_t * const p_osmt)
 						 (char *)service_name[6],
 						 &srv_rec);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_service_records_flow: ERR 4A22: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A22: "
 			"Fail to find service: id: 0x%016" PRIx64 " "
 			"name: %s\n", id[5], (char *)service_name[6]);
 		status = IB_ERROR;
@@ -1498,8 +1416,7 @@ ib_api_status_t osmt_run_service_records_flow(IN osmtest_t * const p_osmt)
 						 (char *)service_name[3],
 						 &srv_rec);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_service_records_flow: ERR 4A23: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A23: "
 			"Found service: id: 0x%016" PRIx64
 			"name: %s which is an invalid service\n",
 			id[0], (char *)service_name[3]);
@@ -1512,8 +1429,7 @@ ib_api_status_t osmt_run_service_records_flow(IN osmtest_t * const p_osmt)
 						 (char *)service_name[5],
 						 &srv_rec);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_service_records_flow: ERR 4A24: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A24: "
 			"Found service: id: 0x%016" PRIx64
 			"name: %s which is an invalid service\n",
 			id[3], (char *)service_name[5]);
@@ -1525,8 +1441,7 @@ ib_api_status_t osmt_run_service_records_flow(IN osmtest_t * const p_osmt)
 	status = osmt_get_service_by_name(p_osmt,
 					  (char *)service_name[4], 0, &srv_rec);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_service_records_flow: ERR 4A25: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A25: "
 			"Found service: name: %s that shouldn't exist\n",
 			(char *)service_name[4]);
 		status = IB_ERROR;
@@ -1538,8 +1453,7 @@ ib_api_status_t osmt_run_service_records_flow(IN osmtest_t * const p_osmt)
 	status = osmt_get_service_by_name(p_osmt,
 					  (char *)service_name[5], 0, &srv_rec);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_service_records_flow: ERR 4A26: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A26: "
 			"Found service: name: %s which is an "
 			"invalid service\n", (char *)service_name[5]);
 		status = IB_ERROR;
@@ -1551,8 +1465,7 @@ ib_api_status_t osmt_run_service_records_flow(IN osmtest_t * const p_osmt)
 	status = osmt_get_service_by_name(p_osmt,
 					  (char *)service_name[6], 1, &srv_rec);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_service_records_flow: ERR 4A27: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A27: "
 			"Fail to find service: name: %s\n",
 			(char *)service_name[6]);
 		status = IB_ERROR;
@@ -1568,8 +1481,7 @@ ib_api_status_t osmt_run_service_records_flow(IN osmtest_t * const p_osmt)
 						  (char *)service_name[5],
 						  0, service_key, &srv_rec);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_service_records_flow: ERR 4A28: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A28: "
 			"Found service: name: %s key:0 which is an "
 			"invalid service (wrong name)\n",
 			(char *)service_name[5]);
@@ -1583,8 +1495,7 @@ ib_api_status_t osmt_run_service_records_flow(IN osmtest_t * const p_osmt)
 						  (char *)service_name[6],
 						  0, service_key, &srv_rec);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_service_records_flow: ERR 4A29: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A29: "
 			"Found service: name: %s key: 0 which is an "
 			"invalid service (wrong service_key)\n",
 			(char *)service_name[6]);
@@ -1599,8 +1510,7 @@ ib_api_status_t osmt_run_service_records_flow(IN osmtest_t * const p_osmt)
 						  (char *)service_name[6],
 						  1, service_key, &srv_rec);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_service_records_flow: ERR 4A2A: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A2A: "
 			"Fail to find service: name: %s with "
 			"correct service key\n", (char *)service_name[6]);
 		status = IB_ERROR;
@@ -1616,8 +1526,7 @@ ib_api_status_t osmt_run_service_records_flow(IN osmtest_t * const p_osmt)
 	    osmt_get_all_services_and_check_names(p_osmt, service_valid_names,
 						  3, &num_recs);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_service_records_flow: ERR 4A2B: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A2B: "
 			"Fail to find all services that should exist\n");
 		status = IB_ERROR;
 		goto Exit;
@@ -1628,8 +1537,7 @@ ib_api_status_t osmt_run_service_records_flow(IN osmtest_t * const p_osmt)
 	status = osmt_delete_service_by_name(p_osmt, 1,
 					     (char *)service_name[0], 1);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_service_records_flow: ERR 4A2C: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A2C: "
 			"Fail to delete service: name: %s\n",
 			(char *)service_name[0]);
 		status = IB_ERROR;
@@ -1640,8 +1548,7 @@ ib_api_status_t osmt_run_service_records_flow(IN osmtest_t * const p_osmt)
 	status = osmt_get_service_by_name(p_osmt,
 					  (char *)service_name[0], 0, &srv_rec);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_service_records_flow: ERR 4A2D: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A2D: "
 			"Found service: name: %s that was deleted\n",
 			(char *)service_name[0]);
 		status = IB_ERROR;
@@ -1652,8 +1559,7 @@ ib_api_status_t osmt_run_service_records_flow(IN osmtest_t * const p_osmt)
 	status = osmt_get_service_by_name(p_osmt,
 					  (char *)service_name[1], 0, &srv_rec);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_service_records_flow: ERR 4A2E: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A2E: "
 			"Found service: name: %s that should have expired\n",
 			(char *)service_name[1]);
 		status = IB_ERROR;
@@ -1664,8 +1570,7 @@ ib_api_status_t osmt_run_service_records_flow(IN osmtest_t * const p_osmt)
 	status = osmt_get_service_by_name(p_osmt,
 					  (char *)service_name[2], 1, &srv_rec);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_service_records_flow: ERR 4A2F: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A2F: "
 			"Fail to find service: name: %s\n",
 			(char *)service_name[2]);
 		status = IB_ERROR;
@@ -1676,8 +1581,7 @@ ib_api_status_t osmt_run_service_records_flow(IN osmtest_t * const p_osmt)
 	status = osmt_delete_service_by_name(p_osmt, 0,
 					     (char *)service_name[5], 0);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_service_records_flow: ERR 4A30: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A30: "
 			"Succeed to delete non-existent service: name: %s\n",
 			(char *)service_name[5]);
 		status = IB_ERROR;
@@ -1688,8 +1592,7 @@ ib_api_status_t osmt_run_service_records_flow(IN osmtest_t * const p_osmt)
 	status = osmt_delete_service_by_name(p_osmt, 1,
 					     (char *)service_name[2], 1);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_service_records_flow: ERR 4A31: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A31: "
 			"Fail to delete service: name: %s\n",
 			(char *)service_name[2]);
 		status = IB_ERROR;
@@ -1700,8 +1603,7 @@ ib_api_status_t osmt_run_service_records_flow(IN osmtest_t * const p_osmt)
 	status = osmt_delete_service_by_name(p_osmt, 1,
 					     (char *)service_name[6], 1);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_service_records_flow: ERR 4A32: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A32: "
 			"Failed to delete service name: %s\n",
 			(char *)service_name[6]);
 		goto Exit;

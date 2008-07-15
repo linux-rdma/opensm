@@ -83,8 +83,7 @@ static void __osmt_print_all_multicast_records(IN osmtest_t * const p_osmt)
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 
 	if (status != IB_SUCCESS || context.result.status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"__osmt_print_all_multicast_records: ERR 02B5: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02B5: "
 			"Failed getting the multicast groups records - %s/%s\n",
 			ib_get_err_str(status),
 			ib_get_err_str(context.result.status));
@@ -107,8 +106,7 @@ static void __osmt_print_all_multicast_records(IN osmtest_t * const p_osmt)
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 
 	if (status != IB_SUCCESS || context.result.status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"__osmt_print_all_multicast_records: ERR 02B6: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02B6: "
 			"Failed getting the multicast group members records - %s/%s\n",
 			ib_get_err_str(status),
 			ib_get_err_str(context.result.status));
@@ -191,8 +189,7 @@ ib_api_status_t osmt_query_mcast(IN osmtest_t * const p_osmt)
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_query_mcast: ERR 0203: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0203: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 		goto Exit;
 	}
@@ -200,12 +197,10 @@ ib_api_status_t osmt_query_mcast(IN osmtest_t * const p_osmt)
 	status = context.result.status;
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_query_mcast: ERR 0264: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0264: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 		if (status == IB_REMOTE_ERROR) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmt_query_mcast: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 				"Remote error = %s.\n",
 				ib_get_mad_status_str(osm_madw_get_mad_ptr
 						      (context.result.
@@ -229,8 +224,8 @@ ib_api_status_t osmt_query_mcast(IN osmtest_t * const p_osmt)
 	cl_list_init(&mgids_list, num_recs);
 	p_mgids_list = &mgids_list;
 	num_recs = context.result.result_cnt;
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmt_query_mcast: " "Received %u records\n", num_recs);
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE, "Received %u records\n",
+		num_recs);
 
 	for (i = 0; i < num_recs; i++) {
 		p_rec = osmv_get_query_result(context.result.p_result_madw, i);
@@ -240,11 +235,10 @@ ib_api_status_t osmt_query_mcast(IN osmtest_t * const p_osmt)
 		/* If returns iterator other than end of list, same mgid exists already */
 		if (p_mgids_res != cl_list_end(p_mgids_list)) {
 			char gid_str[INET6_ADDRSTRLEN];
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmt_query_mcast: ERR 0265: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0265: "
 				"MCG MGIDs are the same - invalid MGID : %s\n",
 				inet_ntop(AF_INET6, p_rec->mgid.raw, gid_str,
-					sizeof gid_str));
+					  sizeof gid_str));
 			status = IB_ERROR;
 			goto Exit;
 
@@ -252,16 +246,14 @@ ib_api_status_t osmt_query_mcast(IN osmtest_t * const p_osmt)
 		osm_dump_mc_record(&p_osmt->log, p_rec, OSM_LOG_VERBOSE);
 		cl_status = cl_list_insert_head(p_mgids_list, &(p_rec->mgid));
 		if (cl_status) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmt_query_mcast: ERR 0205: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0205: "
 				"Could not add MGID to cl_list\n");
 			status = IB_ERROR;
 			goto Exit;
 		}
 		p_mgrp = (osmtest_mgrp_t *) malloc(sizeof(*p_mgrp));
 		if (!p_mgrp) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmt_query_mcast: ERR 0204: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0204: "
 				"Could not allocate new MCG\n");
 			status = IB_ERROR;
 			goto Exit;
@@ -320,16 +312,15 @@ osmt_send_mcast_request(IN osmtest_t * const p_osmt,
 	} else if (is_set == 0) {
 		req.query_type = OSMV_QUERY_UD_MULTICAST_DELETE;
 	} else if (is_set == 0xee) {
-
-		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-			"osmt_send_mcast_request: Set USER DEFINED QUERY\n");
+		OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
+			"Set USER DEFINED QUERY\n");
 		req.query_type = OSMV_QUERY_USER_DEFINED;
 		user.method = IB_MAD_METHOD_GET;
 		user.attr_id = IB_MAD_ATTR_MCMEMBER_RECORD;
 		user.attr_offset = ib_get_attr_offset(sizeof(ib_member_rec_t));
 	} else if (is_set == 0xff) {
-		osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-			"osmt_send_mcast_request: Set USER DEFINED QUERY\n");
+		OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
+			"Set USER DEFINED QUERY\n");
 		req.query_type = OSMV_QUERY_USER_DEFINED;
 		user.method = IB_MAD_METHOD_SET;
 		user.attr_id = IB_MAD_ATTR_MCMEMBER_RECORD;
@@ -356,8 +347,7 @@ osmt_send_mcast_request(IN osmtest_t * const p_osmt,
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_send_mcast_request: ERR 0206: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0206: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 		goto Exit;
 	}
@@ -370,12 +360,10 @@ osmt_send_mcast_request(IN osmtest_t * const p_osmt,
 	status = context.result.status;
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_send_mcast_request: ERR 0224: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0224: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 		if (status == IB_REMOTE_ERROR) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmt_send_mcast_request: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 				"Remote error = %s\n",
 				ib_get_mad_status_str(osm_madw_get_mad_ptr
 						      (context.result.
@@ -550,12 +538,10 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 
 	OSM_LOG_ENTER(&p_osmt->log);
 
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: " "GetTable of all current MCGs...\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO, "GetTable of all current MCGs...\n");
 	status = osmt_query_mcast(p_osmt);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 2FF "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 2FF "
 			"GetTable of all records has failed!\n");
 		goto Exit;
 	}
@@ -572,8 +558,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	/* Only when we are on single mode check flow - do the count comparison, otherwise skip */
 	if (p_osmt->opt.mmode == 1 || p_osmt->opt.mmode == 3) {
 		start_cnt = cl_qmap_count(p_mgrp_mlid_tbl);
-		osm_log(&p_osmt->log, OSM_LOG_INFO,
-			"osmt_run_mcast_flow (start): "
+		OSM_LOG(&p_osmt->log, OSM_LOG_INFO, "(start): "
 			"Number of MC Records found in SA DB is %d\n",
 			start_cnt);
 	}
@@ -596,26 +581,23 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 		if (IS_IPOIB_MGID(&p_mgrp->mcmember_rec.mgid)) {
 			start_ipoib_cnt++;
 		} else {
-			osm_log(&p_osmt->log, OSM_LOG_INFO,
-				"osmt_run_mcast_flow: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 				"Non-IPoIB MC Groups exist: mgid=%s\n",
 				inet_ntop(AF_INET6,
-					p_mgrp->mcmember_rec.mgid.raw,
-					gid_str, sizeof gid_str));
+					  p_mgrp->mcmember_rec.mgid.raw,
+					  gid_str, sizeof gid_str));
 			mcg_outside_test_cnt++;
 		}
 
 		p_mgrp = (osmtest_mgrp_t *) cl_qmap_next(&p_mgrp->map_item);
 	}
 
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Found %d non-IPoIB MC Groups\n", mcg_outside_test_cnt);
 
 	if (start_ipoib_cnt) {
 		/* o15-0.2.4 - Check a join request to already created MCG */
-		osm_log(&p_osmt->log, OSM_LOG_INFO,
-			"osmt_run_mcast_flow: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 			"Found IPoIB MC Group, so we run SilverStorm Bug Flow...\n");
 		/* Try to join first like IPoIB of SilverStorm */
 		memcpy(&mc_req_rec.mgid, &osm_ipoib_good_mgid,
@@ -631,23 +613,19 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 						 &mc_req_rec,
 						 comp_mask, &res_sa_mad);
 
-		osm_log(&p_osmt->log, OSM_LOG_INFO,
-			"osmt_run_mcast_flow: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 			"Joining an existing IPoIB multicast group\n");
-		osm_log(&p_osmt->log, OSM_LOG_INFO,
-			"osmt_run_mcast_flow: "
-			"Sent Join request with :\n\t\tport_gid=%s"
-			", mgid=%s\n"
+		OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
+			"Sent Join request with :\n\t\tport_gid=%s, mgid=%s\n"
 			"\t\tjoin state= 0x%x, response is : %s\n",
 			inet_ntop(AF_INET6, mc_req_rec.port_gid.raw,
-				gid_str, sizeof gid_str),
+				  gid_str, sizeof gid_str),
 			inet_ntop(AF_INET6, mc_req_rec.mgid.raw,
-				gid_str2, sizeof gid_str2),
+				  gid_str2, sizeof gid_str2),
 			(mc_req_rec.scope_state & 0x0F),
 			ib_get_err_str(status));
 		if (status != IB_SUCCESS) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmt_run_mcast_flow: ERR 02B3: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02B3: "
 				"Failed joining existing IPoIB MCGroup - got %s\n",
 				ib_get_err_str(status));
 			goto Exit;
@@ -663,8 +641,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 		   has included some more fields but we know that problem was
 		   genereated by the RATE
 		 */
-		osm_log(&p_osmt->log, OSM_LOG_INFO,
-			"osmt_run_mcast_flow: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 			"Received attributes of MCG : \n\t\tMTU=0x%02X, RATE=0x%02X\n",
 			p_mc_res->mtu, p_mc_res->rate);
 
@@ -686,25 +663,21 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 		    IB_MCR_COMPMASK_MTU | IB_MCR_COMPMASK_RATE_SEL |
 		    IB_MCR_COMPMASK_RATE;
 
-		osm_log(&p_osmt->log, OSM_LOG_INFO,
-			"osmt_run_mcast_flow: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 			"Sending attributes of MCG : \n\t\tMTU=0x%02X, RATE=0x%02X\n",
 			mc_req_rec.mtu, mc_req_rec.rate);
 		status = osmt_send_mcast_request(p_osmt, 0xff,	/* User Defined query */
 						 &mc_req_rec,
 						 comp_mask, &res_sa_mad);
-		osm_log(&p_osmt->log, OSM_LOG_INFO,
-			"osmt_run_mcast_flow: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 			"Sent Join request using response values, response is : %s\n",
 			ib_get_err_str(status));
 		if (status != IB_SUCCESS) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmt_run_mcast_flow: ERR 02EF: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02EF: "
 				"Query as Full Member of already existing "
 				"ipoib group gid %s has failed\n",
 				inet_ntop(AF_INET6, mc_req_rec.mgid.raw,
-					gid_str, sizeof gid_str));
-
+					  gid_str, sizeof gid_str));
 			goto Exit;
 		}
 		/* We do not want to leave the MCG since its IPoIB */
@@ -713,23 +686,20 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
   /**************************************************************************/
 	/* Check Get with invalid mlid */
 
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: " "Checking Get with invalid mlid...\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
+		"Checking Get with invalid mlid...\n");
 	/* Request Get */
 	ib_member_set_join_state(&mc_req_rec, IB_MC_REC_STATE_FULL_MEMBER);
 	mc_req_rec.mlid = invalid_mlid;
 	comp_mask = IB_MCR_COMPMASK_MLID;
 
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_START "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_START "\n");
 	status = osmt_send_mcast_request(p_osmt, 0xee,	/* User Defined query Get */
 					 &mc_req_rec, comp_mask, &res_sa_mad);
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_END "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_END "\n");
 
 	if (status == IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow : ERR 2E0 "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 2E0 "
 			"SubnAdmGet with invalid mlid 0x%x succeeded\n",
 			cl_ntoh16(mc_req_rec.mlid));
 		status = IB_ERROR;
@@ -741,8 +711,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
   /**************************************************************************/
 	/* Check Get with invalid port guid */
 
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Checking Get with invalid port guid (0x0) but valid interface ID : 0x%"
 		PRIx64 "...\n",
 		cl_ntoh64(mc_req_rec.port_gid.unicast.interface_id));
@@ -753,16 +722,13 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	       sizeof(ib_net64_t));
 	comp_mask = IB_MCR_COMPMASK_GID;
 
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_START "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_START "\n");
 	status = osmt_send_mcast_request(p_osmt, 0xee,	/* User Defined query Get */
 					 &mc_req_rec, comp_mask, &res_sa_mad);
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_END "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_END "\n");
 
 	if (status == IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow : ERR 2E4 "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 2E4 "
 			"SubnAdmGet with invalid port guid succeeded\n");
 		status = IB_ERROR;
 		goto Exit;
@@ -775,8 +741,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	/* o15.0.1.3:  */
 	/* - Request Join with insufficient comp_mask */
 
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Checking Join with insufficient comp mask qkey & pkey (o15.0.1.3)...\n");
 
 	/* no MGID */
@@ -790,28 +755,23 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	    IB_MCR_COMPMASK_SL | IB_MCR_COMPMASK_FLOW | IB_MCR_COMPMASK_JOIN_STATE | IB_MCR_COMPMASK_TCLASS |	/* all above are required */
 	    IB_MCR_COMPMASK_RATE_SEL | IB_MCR_COMPMASK_RATE;
 
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_START "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_START "\n");
 	status = osmt_send_mcast_request(p_osmt, 1,
 					 &mc_req_rec, comp_mask, &res_sa_mad);
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_END "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_END "\n");
 
 	if (status != IB_REMOTE_ERROR ||
 	    ((ib_net16_t) (res_sa_mad.status & IB_SMP_STATUS_MASK)) !=
 	    IB_SA_MAD_STATUS_INSUF_COMPS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 02EE: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02EE: "
 			"Expectedd REMOTE ERROR IB_SA_MAD_STATUS_INSUF_COMPS got:%s/%s\n",
 			ib_get_err_str(status),
-			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad))
-		    );
+			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		status = IB_ERROR;
 		goto Exit;
 	}
 
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Checking Join with insufficient comp mask - sl (15.0.1.3)...\n");
 
 	/* no MGID */
@@ -827,22 +787,18 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	    IB_MCR_COMPMASK_FLOW | IB_MCR_COMPMASK_JOIN_STATE | IB_MCR_COMPMASK_TCLASS |	/* all above are required */
 	    IB_MCR_COMPMASK_RATE_SEL | IB_MCR_COMPMASK_RATE;
 
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_START "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_START "\n");
 	status = osmt_send_mcast_request(p_osmt, 1,
 					 &mc_req_rec, comp_mask, &res_sa_mad);
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_END "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_END "\n");
 
 	if (status != IB_REMOTE_ERROR ||
 	    ((ib_net16_t) (res_sa_mad.status & IB_SMP_STATUS_MASK)) !=
 	    IB_SA_MAD_STATUS_INSUF_COMPS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 02ED: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02ED: "
 			"Expectedd REMOTE ERROR IB_SA_MAD_STATUS_INSUF_COMPS got:%s/%s\n",
 			ib_get_err_str(status),
-			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad))
-		    );
+			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		status = IB_ERROR;
 		goto Exit;
 	}
@@ -855,8 +811,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 
 	p_mc_res = ib_sa_mad_get_payload_ptr(&res_sa_mad);
 
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Checking Join with insufficient comp mask - flow label (o15.0.1.3)...\n");
 
 	/* Request Join */
@@ -870,22 +825,18 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	    IB_MCR_COMPMASK_JOIN_STATE | IB_MCR_COMPMASK_TCLASS |	/* all above are required */
 	    IB_MCR_COMPMASK_RATE_SEL | IB_MCR_COMPMASK_RATE;
 
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_START "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_START "\n");
 	status = osmt_send_mcast_request(p_osmt, 1,
 					 &mc_req_rec, comp_mask, &res_sa_mad);
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_END "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_END "\n");
 
 	if (status != IB_REMOTE_ERROR ||
 	    ((ib_net16_t) (res_sa_mad.status & IB_SMP_STATUS_MASK)) !=
 	    IB_SA_MAD_STATUS_INSUF_COMPS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 02EC: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02EC: "
 			"Expected REMOTE ERROR IB_SA_MAD_STATUS_INSUF_COMPS got:%s/%s\n",
 			ib_get_err_str(status),
-			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad))
-		    );
+			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		status = IB_ERROR;
 		goto Exit;
 	}
@@ -894,8 +845,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 
 	p_mc_res = ib_sa_mad_get_payload_ptr(&res_sa_mad);
 
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Checking Join with insufficient comp mask - tclass (o15.0.1.3)...\n");
 
 	/* Request Join */
@@ -911,22 +861,18 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	    /* IB_MCR_COMPMASK_TCLASS |  Intentionally missed to raise an error */
 	    IB_MCR_COMPMASK_RATE_SEL | IB_MCR_COMPMASK_RATE;
 
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_START "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_START "\n");
 	status = osmt_send_mcast_request(p_osmt, 1,
 					 &mc_req_rec, comp_mask, &res_sa_mad);
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_END "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_END "\n");
 
 	if (status != IB_REMOTE_ERROR ||
 	    ((ib_net16_t) (res_sa_mad.status & IB_SMP_STATUS_MASK)) !=
 	    IB_SA_MAD_STATUS_INSUF_COMPS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 02EA: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02EA: "
 			"Expected REMOTE ERROR IB_SA_MAD_STATUS_INSUF_COMPS got:%s/%s\n",
 			ib_get_err_str(status),
-			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad))
-		    );
+			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		status = IB_ERROR;
 		goto Exit;
 	}
@@ -935,8 +881,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 
 	p_mc_res = ib_sa_mad_get_payload_ptr(&res_sa_mad);
 
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Checking Join with insufficient comp mask - tclass qkey (o15.0.1.3)...\n");
 
 	/* no MGID */
@@ -952,30 +897,25 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	    /* IB_MCR_COMPMASK_TCLASS |  intentionaly missed to raise the error */
 	    IB_MCR_COMPMASK_RATE_SEL | IB_MCR_COMPMASK_RATE;
 
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_START "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_START "\n");
 	status = osmt_send_mcast_request(p_osmt, 1,
 					 &mc_req_rec, comp_mask, &res_sa_mad);
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_END "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_END "\n");
 
 	if (status != IB_REMOTE_ERROR ||
 	    ((ib_net16_t) (res_sa_mad.status & IB_SMP_STATUS_MASK)) !=
 	    IB_SA_MAD_STATUS_INSUF_COMPS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 02E9: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02E9: "
 			"Expected REMOTE ERROR IB_SA_MAD_STATUS_INSUF_COMPS got:%s/%s\n",
 			ib_get_err_str(status),
-			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad))
-		    );
+			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		status = IB_ERROR;
 		goto Exit;
 	}
 
 	/* o15.0.1.8: */
 	/* - Request join with irrelevant RATE : get a ERR_INSUFFICIENT_COMPONENTS */
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Checking Join with unrealistic rate (o15.0.1.8)...\n");
 
 	/* impossible requested rate */
@@ -985,28 +925,23 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	comp_mask = IB_MCR_COMPMASK_GID | IB_MCR_COMPMASK_PORT_GID | IB_MCR_COMPMASK_QKEY | IB_MCR_COMPMASK_PKEY | IB_MCR_COMPMASK_SL | IB_MCR_COMPMASK_FLOW | IB_MCR_COMPMASK_JOIN_STATE | IB_MCR_COMPMASK_TCLASS |	/* all above are required */
 	    IB_MCR_COMPMASK_RATE_SEL | IB_MCR_COMPMASK_RATE;
 
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_START "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_START "\n");
 	status = osmt_send_mcast_request(p_osmt, 1,
 					 &mc_req_rec, comp_mask, &res_sa_mad);
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_END "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_END "\n");
 
 	if (status != IB_REMOTE_ERROR ||
 	    res_sa_mad.status != IB_SA_MAD_STATUS_REQ_INVALID) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 0207: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0207: "
 			"Expected REMOTE ERROR IB_SA_MAD_STATUS_REQ_INVALID got:%s/%s\n",
 			ib_get_err_str(status),
-			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad))
-		    );
+			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		status = IB_ERROR;
 		goto Exit;
 	}
 
 	/* Check Valid value which is unreasonable now */
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Checking Join with unrealistic rate 120GB (o15.0.1.8)...\n");
 
 	/* impossible requested rate */
@@ -1016,28 +951,23 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	comp_mask = IB_MCR_COMPMASK_GID | IB_MCR_COMPMASK_PORT_GID | IB_MCR_COMPMASK_QKEY | IB_MCR_COMPMASK_PKEY | IB_MCR_COMPMASK_SL | IB_MCR_COMPMASK_FLOW | IB_MCR_COMPMASK_JOIN_STATE | IB_MCR_COMPMASK_TCLASS |	/* all above are required */
 	    IB_MCR_COMPMASK_RATE_SEL | IB_MCR_COMPMASK_RATE;
 
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_START "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_START "\n");
 	status = osmt_send_mcast_request(p_osmt, 1,
 					 &mc_req_rec, comp_mask, &res_sa_mad);
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_END "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_END "\n");
 
 	if (status != IB_REMOTE_ERROR ||
 	    res_sa_mad.status != IB_SA_MAD_STATUS_REQ_INVALID) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 0208: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0208: "
 			"Expected REMOTE ERROR IB_SA_MAD_STATUS_REQ_INVALID got:%s/%s\n",
 			ib_get_err_str(status),
-			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad))
-		    );
+			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		status = IB_ERROR;
 		goto Exit;
 	}
 
 	/* Check Valid value which is unreasonable now */
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Checking Join with less than min rate 2.5GB (o15.0.1.8)...\n");
 
 	/* impossible requested rate */
@@ -1047,28 +977,23 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	comp_mask = IB_MCR_COMPMASK_GID | IB_MCR_COMPMASK_PORT_GID | IB_MCR_COMPMASK_QKEY | IB_MCR_COMPMASK_PKEY | IB_MCR_COMPMASK_SL | IB_MCR_COMPMASK_FLOW | IB_MCR_COMPMASK_JOIN_STATE | IB_MCR_COMPMASK_TCLASS |	/* all above are required */
 	    IB_MCR_COMPMASK_RATE_SEL | IB_MCR_COMPMASK_RATE;
 
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_START "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_START "\n");
 	status = osmt_send_mcast_request(p_osmt, 1,
 					 &mc_req_rec, comp_mask, &res_sa_mad);
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_END "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_END "\n");
 
 	if (status != IB_REMOTE_ERROR ||
 	    res_sa_mad.status != IB_SA_MAD_STATUS_REQ_INVALID) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 02AB: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02AB: "
 			"Expected REMOTE ERROR IB_SA_MAD_STATUS_REQ_INVALID got:%s/%s\n",
 			ib_get_err_str(status),
-			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad))
-		    );
+			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		status = IB_ERROR;
 		goto Exit;
 	}
 
 	/* Checking above max value of MTU which is impossible */
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Checking Join with unrealistic mtu : \n\t\tmore than 4096 -"
 		" max (o15.0.1.8)...\n");
 
@@ -1078,17 +1003,14 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	comp_mask = IB_MCR_COMPMASK_GID | IB_MCR_COMPMASK_PORT_GID | IB_MCR_COMPMASK_QKEY | IB_MCR_COMPMASK_PKEY | IB_MCR_COMPMASK_SL | IB_MCR_COMPMASK_FLOW | IB_MCR_COMPMASK_JOIN_STATE | IB_MCR_COMPMASK_TCLASS |	/* all above are required */
 	    IB_MCR_COMPMASK_MTU_SEL | IB_MCR_COMPMASK_MTU;
 
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_START "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_START "\n");
 	status = osmt_send_mcast_request(p_osmt, 1,
 					 &mc_req_rec, comp_mask, &res_sa_mad);
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_END "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_END "\n");
 
 	if (status != IB_REMOTE_ERROR ||
 	    res_sa_mad.status != IB_SA_MAD_STATUS_REQ_INVALID) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 02AC: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02AC: "
 			"Expected REMOTE ERROR IB_SA_MAD_STATUS_REQ_INVALID got:%s/%s\n",
 			ib_get_err_str(status),
 			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad))
@@ -1098,8 +1020,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	}
 
 	/* Checking below min value of MTU which is impossible */
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Checking Join with unrealistic mtu : \n\t\tless than 256 -"
 		" min (o15.0.1.8)...\n");
 
@@ -1109,27 +1030,22 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	comp_mask = IB_MCR_COMPMASK_GID | IB_MCR_COMPMASK_PORT_GID | IB_MCR_COMPMASK_QKEY | IB_MCR_COMPMASK_PKEY | IB_MCR_COMPMASK_SL | IB_MCR_COMPMASK_FLOW | IB_MCR_COMPMASK_JOIN_STATE | IB_MCR_COMPMASK_TCLASS |	/* all above are required */
 	    IB_MCR_COMPMASK_MTU_SEL | IB_MCR_COMPMASK_MTU;
 
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_START "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_START "\n");
 	status = osmt_send_mcast_request(p_osmt, 1,
 					 &mc_req_rec, comp_mask, &res_sa_mad);
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_END "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_END "\n");
 
 	if (status != IB_REMOTE_ERROR ||
 	    res_sa_mad.status != IB_SA_MAD_STATUS_REQ_INVALID) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 02AD: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02AD: "
 			"Expected REMOTE ERROR IB_SA_MAD_STATUS_REQ_INVALID got:%s/%s\n",
 			ib_get_err_str(status),
-			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad))
-		    );
+			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		status = IB_ERROR;
 		goto Exit;
 	}
 
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Checking Join with unrealistic mtu (o15.0.1.8)...\n");
 
 	/* impossible requested mtu */
@@ -1138,29 +1054,24 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	comp_mask = IB_MCR_COMPMASK_GID | IB_MCR_COMPMASK_PORT_GID | IB_MCR_COMPMASK_QKEY | IB_MCR_COMPMASK_PKEY | IB_MCR_COMPMASK_SL | IB_MCR_COMPMASK_FLOW | IB_MCR_COMPMASK_JOIN_STATE | IB_MCR_COMPMASK_TCLASS |	/* all above are required */
 	    IB_MCR_COMPMASK_MTU_SEL | IB_MCR_COMPMASK_MTU;
 
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_START "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_START "\n");
 	status = osmt_send_mcast_request(p_osmt, 1,
 					 &mc_req_rec, comp_mask, &res_sa_mad);
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_END "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_END "\n");
 
 	if (status != IB_REMOTE_ERROR ||
 	    res_sa_mad.status != IB_SA_MAD_STATUS_REQ_INVALID) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 02AE: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02AE: "
 			"Expected REMOTE ERROR IB_SA_MAD_STATUS_REQ_INVALID got:%s/%s\n",
 			ib_get_err_str(status),
-			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad))
-		    );
+			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		status = IB_ERROR;
 		goto Exit;
 	}
 #if 0
 	/* Currently PacketLifeTime isn't checked in opensm */
 	/* Check PacketLifeTime as 0 */
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Checking Create with unrealistic packet life value less than 0 (o15.0.1.8)...\n");
 
 	/* impossible requested packet life */
@@ -1169,21 +1080,17 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	comp_mask = IB_MCR_COMPMASK_GID | IB_MCR_COMPMASK_PORT_GID | IB_MCR_COMPMASK_QKEY | IB_MCR_COMPMASK_PKEY | IB_MCR_COMPMASK_SL | IB_MCR_COMPMASK_FLOW | IB_MCR_COMPMASK_JOIN_STATE | IB_MCR_COMPMASK_TCLASS |	/* all above are required */
 	    IB_MCR_COMPMASK_LIFE | IB_MCR_COMPMASK_LIFE_SEL;
 
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_START "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_START "\n");
 	status = osmt_send_mcast_request(p_osmt, 1,
 					 &mc_req_rec, comp_mask, &res_sa_mad);
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_END "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_END "\n");
 
 	if (status != IB_REMOTE_ERROR ||
 	    res_sa_mad.status != IB_SA_MAD_STATUS_REQ_INVALID) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 02AF: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02AF: "
 			"Expected REMOTE ERROR IB_SA_MAD_STATUS_REQ_INVALID got:%s/%s\n",
 			ib_get_err_str(status),
-			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad))
-		    );
+			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		status = IB_ERROR;
 		goto Exit;
 	}
@@ -1193,8 +1100,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	/* - Create an MGID by asking for a join with MGID = 0 */
 	/*   providing P_Key, Q_Key, SL, FlowLabel, Tclass. */
 
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Checking Create given MGID=0 skip service level (o15.0.1.4)...\n");
 
 	osmt_init_mc_query_rec(p_osmt, &mc_req_rec);
@@ -1214,22 +1120,18 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	    IB_MCR_COMPMASK_FLOW | IB_MCR_COMPMASK_JOIN_STATE | IB_MCR_COMPMASK_TCLASS |	/* all above are required */
 	    IB_MCR_COMPMASK_RATE_SEL | IB_MCR_COMPMASK_RATE;
 
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_START "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_START "\n");
 	status = osmt_send_mcast_request(p_osmt, 1,
 					 &mc_req_rec, comp_mask, &res_sa_mad);
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_END "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_END "\n");
 
 	if (status != IB_REMOTE_ERROR ||
 	    ((ib_net16_t) (res_sa_mad.status & IB_SMP_STATUS_MASK)) !=
 	    IB_SA_MAD_STATUS_INSUF_COMPS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 02A8: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02A8: "
 			"Expected REMOTE ERROR IB_SA_MAD_STATUS_INSUF_COMPS got:%s/%s\n",
 			ib_get_err_str(status),
-			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad))
-		    );
+			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		status = IB_ERROR;
 		goto Exit;
 	}
@@ -1238,33 +1140,28 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	status = osmt_query_mcast(p_osmt);
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 02AA: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02AA: "
 			"Could not get all MC Records in subnet, got:%s/%s\n",
 			ib_get_err_str(status),
-			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad))
-		    );
+			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		goto Exit;
 	}
 
 	/* Only when we are on single mode check flow - do the count comparison, otherwise skip */
 	if (p_osmt->opt.mmode == 1 || p_osmt->opt.mmode == 3) {
 		middle_cnt = cl_qmap_count(&p_osmt->exp_subn.mgrp_mlid_tbl);
-		osm_log(&p_osmt->log, OSM_LOG_INFO,
-			"osmt_run_mcast_flow (post false create): "
+		OSM_LOG(&p_osmt->log, OSM_LOG_INFO, "(post false create): "
 			"Number of MC Records found in SA DB is %d\n",
 			middle_cnt);
 		if (middle_cnt != start_cnt) {
-			osm_log(&p_osmt->log, OSM_LOG_INFO,
-				"osmt_run_mcast_flow: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 				"Got different number of records stored in SA DB (before any creation)\n"
 				"Instead of %d got %d\n", start_cnt,
 				middle_cnt);
 		}
 	}
 
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Checking Create given MGID=0 skip Qkey and Pkey (o15.0.1.4)...\n");
 
 	osmt_init_mc_query_rec(p_osmt, &mc_req_rec);
@@ -1282,22 +1179,18 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	    IB_MCR_COMPMASK_SL | IB_MCR_COMPMASK_FLOW | IB_MCR_COMPMASK_JOIN_STATE | IB_MCR_COMPMASK_TCLASS |	/* all above are required */
 	    IB_MCR_COMPMASK_RATE_SEL | IB_MCR_COMPMASK_RATE;
 
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_START "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_START "\n");
 	status = osmt_send_mcast_request(p_osmt, 1,
 					 &mc_req_rec, comp_mask, &res_sa_mad);
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_END "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_END "\n");
 
 	if (status != IB_REMOTE_ERROR ||
 	    ((ib_net16_t) (res_sa_mad.status & IB_SMP_STATUS_MASK)) !=
 	    IB_SA_MAD_STATUS_INSUF_COMPS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 02A7: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02A7: "
 			"Expected REMOTE ERROR IB_SA_MAD_STATUS_INSUF_COMPS got:%s/%s\n",
 			ib_get_err_str(status),
-			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad))
-		    );
+			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		status = IB_ERROR;
 		goto Exit;
 	}
@@ -1306,8 +1199,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 
 	status = osmt_query_mcast(p_osmt);
 
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Checking Create given MGID=0 skip TClass (o15.0.1.4)...\n");
 
 	osmt_init_mc_query_rec(p_osmt, &mc_req_rec);
@@ -1330,28 +1222,23 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	    /* all above are required */
 	    IB_MCR_COMPMASK_RATE_SEL | IB_MCR_COMPMASK_RATE;
 
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_START "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_START "\n");
 	status = osmt_send_mcast_request(p_osmt, 1,
 					 &mc_req_rec, comp_mask, &res_sa_mad);
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_END "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_END "\n");
 
 	if (status != IB_REMOTE_ERROR ||
 	    ((ib_net16_t) (res_sa_mad.status & IB_SMP_STATUS_MASK)) !=
 	    IB_SA_MAD_STATUS_INSUF_COMPS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 02A6: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02A6: "
 			"Expected REMOTE ERROR IB_SA_MAD_STATUS_INSUF_COMPS got:%s/%s\n",
 			ib_get_err_str(status),
-			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad))
-		    );
+			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		status = IB_ERROR;
 		goto Exit;
 	}
 
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Checking Create given MGID=0 valid Set several options :\n\t\t"
 		"First above min RATE, Second less than max RATE\n\t\t"
 		"Third above min MTU, Second less than max MTU\n\t\t"
@@ -1369,23 +1256,19 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	status = osmt_send_mcast_request(p_osmt, 1,
 					 &mc_req_rec, comp_mask, &res_sa_mad);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 02A5: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02A5: "
 			"Failed to create MCG for MGID=0 with higher than minimum RATE - got %s/%s\n",
 			ib_get_err_str(status),
-			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad))
-		    );
+			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		goto Exit;
 	}
 
 	/* Save the mlid created in test_created_mlids map */
 	p_recvd_rec =
 	    (ib_member_rec_t *) ib_sa_mad_get_payload_ptr(&res_sa_mad);
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmt_run_mcast_flow: " "created MGID:%s MLID:0x%04X\n",
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE, "created MGID:%s MLID:0x%04X\n",
 		inet_ntop(AF_INET6, p_recvd_rec->mgid.raw, gid_str,
-			sizeof gid_str),
-		cl_ntoh16(p_recvd_rec->mlid));
+			  sizeof gid_str), cl_ntoh16(p_recvd_rec->mlid));
 	cl_map_insert(&test_created_mlids, cl_ntoh16(p_recvd_rec->mlid),
 		      p_recvd_rec);
 
@@ -1400,23 +1283,19 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	status = osmt_send_mcast_request(p_osmt, 1,
 					 &mc_req_rec, comp_mask, &res_sa_mad);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 0211: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0211: "
 			"Failed to create MCG for MGID=0 with less than highest RATE - got %s/%s\n",
 			ib_get_err_str(status),
-			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad))
-		    );
+			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		goto Exit;
 	}
 
 	/* Save the mlid created in test_created_mlids map */
 	p_recvd_rec =
 	    (ib_member_rec_t *) ib_sa_mad_get_payload_ptr(&res_sa_mad);
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmt_run_mcast_flow: " "Created MGID:%s MLID:0x%04X\n",
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE, "Created MGID:%s MLID:0x%04X\n",
 		inet_ntop(AF_INET6, p_recvd_rec->mgid.raw, gid_str,
-			sizeof gid_str),
-		cl_ntoh16(p_recvd_rec->mlid));
+			  sizeof gid_str), cl_ntoh16(p_recvd_rec->mlid));
 	cl_map_insert(&test_created_mlids, cl_ntoh16(p_recvd_rec->mlid),
 		      p_recvd_rec);
 
@@ -1430,23 +1309,19 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	status = osmt_send_mcast_request(p_osmt, 1,
 					 &mc_req_rec, comp_mask, &res_sa_mad);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 0238: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0238: "
 			"Failed to create MCG for MGID=0 with less than highest MTU - got %s/%s\n",
 			ib_get_err_str(status),
-			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad))
-		    );
+			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		goto Exit;
 	}
 
 	/* Save the mlid created in test_created_mlids map */
 	p_recvd_rec =
 	    (ib_member_rec_t *) ib_sa_mad_get_payload_ptr(&res_sa_mad);
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmt_run_mcast_flow: " "Created MGID:%s MLID:0x%04X\n",
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE, "Created MGID:%s MLID:0x%04X\n",
 		inet_ntop(AF_INET6, p_recvd_rec->mgid.raw, gid_str,
-			sizeof gid_str),
-		cl_ntoh16(p_recvd_rec->mlid));
+			  sizeof gid_str), cl_ntoh16(p_recvd_rec->mlid));
 	cl_map_insert(&test_created_mlids, cl_ntoh16(p_recvd_rec->mlid),
 		      p_recvd_rec);
 
@@ -1459,31 +1334,26 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	status = osmt_send_mcast_request(p_osmt, 1,
 					 &mc_req_rec, comp_mask, &res_sa_mad);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 0239: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0239: "
 			"Failed to create MCG for MGID=0 with higher than lowest MTU - got %s/%s\n",
 			ib_get_err_str(status),
-			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad))
-		    );
+			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		goto Exit;
 	}
 
 	/* Save the mlid created in test_created_mlids map */
 	p_recvd_rec =
 	    (ib_member_rec_t *) ib_sa_mad_get_payload_ptr(&res_sa_mad);
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmt_run_mcast_flow: " "Created MGID:%s MLID:0x%04X\n",
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE, "Created MGID:%s MLID:0x%04X\n",
 		inet_ntop(AF_INET6, p_recvd_rec->mgid.raw, gid_str,
-			sizeof gid_str),
-		cl_ntoh16(p_recvd_rec->mlid));
+			  sizeof gid_str), cl_ntoh16(p_recvd_rec->mlid));
 	cl_map_insert(&test_created_mlids, cl_ntoh16(p_recvd_rec->mlid),
 		      p_recvd_rec);
 
 	/* Good Flow - mgid is 0 while giving all required fields for join : P_Key, Q_Key, SL, FlowLabel, Tclass */
 	/* Using Exact feasible MTU & RATE */
 
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
 		"Using Exact feasible MTU & RATE: "
 		"MTU = 0x%02X, RATE = 0x%02X\n", mtu_phys, rate_phys);
 
@@ -1499,31 +1369,26 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 					 &mc_req_rec, comp_mask, &res_sa_mad);
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 0240: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0240: "
 			"Failed to create MCG for MGID=0 with exact MTU & RATE - got %s/%s\n",
 			ib_get_err_str(status),
-			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad))
-		    );
+			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		goto Exit;
 	}
 
 	/* Save the mlid created in test_created_mlids map */
 	p_recvd_rec =
 	    (ib_member_rec_t *) ib_sa_mad_get_payload_ptr(&res_sa_mad);
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmt_run_mcast_flow: " "Created MGID:%s MLID:0x%04X\n",
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE, "Created MGID:%s MLID:0x%04X\n",
 		inet_ntop(AF_INET6, p_recvd_rec->mgid.raw, gid_str,
-			sizeof gid_str),
-		cl_ntoh16(p_recvd_rec->mlid));
+			  sizeof gid_str), cl_ntoh16(p_recvd_rec->mlid));
 	cl_map_insert(&test_created_mlids, cl_ntoh16(p_recvd_rec->mlid),
 		      p_recvd_rec);
 
 	/* Good Flow - mgid is 0 while giving all required fields for join : P_Key, Q_Key, SL, FlowLabel, Tclass */
 	/* Using Exact feasible RATE */
 
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
 		"Using Exact feasible RATE: 0x%02X\n", rate_phys);
 
 	mc_req_rec.rate = rate_phys;
@@ -1534,31 +1399,26 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	status = osmt_send_mcast_request(p_osmt, 1,
 					 &mc_req_rec, comp_mask, &res_sa_mad);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 0241: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0241: "
 			"Failed to create MCG for MGID=0 with exact RATE - got %s/%s\n",
 			ib_get_err_str(status),
-			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad))
-		    );
+			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		goto Exit;
 	}
 
 	/* Save the mlid created in test_created_mlids map */
 	p_recvd_rec =
 	    (ib_member_rec_t *) ib_sa_mad_get_payload_ptr(&res_sa_mad);
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmt_run_mcast_flow: " "Created MGID:%s MLID:0x%04X\n",
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE, "Created MGID:%s MLID:0x%04X\n",
 		inet_ntop(AF_INET6, p_recvd_rec->mgid.raw, gid_str,
-			sizeof gid_str),
-		cl_ntoh16(p_recvd_rec->mlid));
+			  sizeof gid_str), cl_ntoh16(p_recvd_rec->mlid));
 	cl_map_insert(&test_created_mlids, cl_ntoh16(p_recvd_rec->mlid),
 		      p_recvd_rec);
 
 	/* Good Flow - mgid is 0 while giving all required fields for join : P_Key, Q_Key, SL, FlowLabel, Tclass */
 	/* Using Exact feasible MTU */
 
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
 		"Using Exact feasible MTU: 0x%02X\n", mtu_phys);
 
 	mc_req_rec.mtu = mtu_phys;
@@ -1569,30 +1429,25 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	status = osmt_send_mcast_request(p_osmt, 1,
 					 &mc_req_rec, comp_mask, &res_sa_mad);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 0242: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0242: "
 			"Failed to create MCG for MGID=0 with exact MTU - got %s/%s\n",
 			ib_get_err_str(status),
-			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad))
-		    );
+			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		goto Exit;
 	}
 
 	/* Save the mlid created in test_created_mlids map */
 	p_recvd_rec =
 	    (ib_member_rec_t *) ib_sa_mad_get_payload_ptr(&res_sa_mad);
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmt_run_mcast_flow: " "Created MGID:%s MLID:0x%04X\n",
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE, "Created MGID:%s MLID:0x%04X\n",
 		inet_ntop(AF_INET6, p_recvd_rec->mgid.raw, gid_str,
-			sizeof gid_str),
-		cl_ntoh16(p_recvd_rec->mlid));
+			  sizeof gid_str), cl_ntoh16(p_recvd_rec->mlid));
 	cl_map_insert(&test_created_mlids, cl_ntoh16(p_recvd_rec->mlid),
 		      p_recvd_rec);
 
 	/* o15.0.1.5: */
 	/* - Check the returned MGID is valid. (p 804) */
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Validating resulting MGID (o15.0.1.5)...\n");
 	/* prefix 0xFF1 Scope 0xA01B */
 	/* Since we did not directly specified SCOPE in comp mask
@@ -1601,20 +1456,17 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	    (p_mc_res->mgid.multicast.header[1] != 0x12) ||
 	    (p_mc_res->mgid.multicast.raw_group_id[0] != 0xA0) ||
 	    (p_mc_res->mgid.multicast.raw_group_id[1] != 0x1B)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 0209: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0209: "
 			"Validating MGID failed. MGID:%s\n",
 			inet_ntop(AF_INET6, p_mc_res->mgid.raw, gid_str,
-				sizeof gid_str)
-		    );
+				  sizeof gid_str));
 		status = IB_ERROR;
 		goto Exit;
 	}
 
 	/* Good Flow - mgid is 0 while giving all required fields for join : P_Key, Q_Key, SL, FlowLabel, Tclass */
 	/* Using feasible GREATER_THAN 0 packet lifitime */
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Checking Create given MGID=0 (o15.0.1.4)...\n");
 
 	status = osmt_query_mcast(p_osmt);
@@ -1636,23 +1488,19 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	status = osmt_send_mcast_request(p_osmt, 1,
 					 &mc_req_rec, comp_mask, &res_sa_mad);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 0210: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0210: "
 			"Failed to create MCG for MGID=0 - got %s/%s\n",
 			ib_get_err_str(status),
-			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad))
-		    );
+			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		goto Exit;
 	}
 
 	/* Save the mlid created in test_created_mlids map */
 	p_recvd_rec =
 	    (ib_member_rec_t *) ib_sa_mad_get_payload_ptr(&res_sa_mad);
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmt_run_mcast_flow: " "Created MGID:%s MLID:0x%04X\n",
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE, "Created MGID:%s MLID:0x%04X\n",
 		inet_ntop(AF_INET6, p_recvd_rec->mgid.raw, gid_str,
-			sizeof gid_str),
-		cl_ntoh16(p_recvd_rec->mlid));
+			  sizeof gid_str), cl_ntoh16(p_recvd_rec->mlid));
 	cl_map_insert(&test_created_mlids, cl_ntoh16(p_recvd_rec->mlid),
 		      p_recvd_rec);
 
@@ -1661,34 +1509,28 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	osmt_init_mc_query_rec(p_osmt, &mc_req_rec);
 	mc_req_rec.mgid = good_mgid;
 
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Checking Create given valid MGID=%s (o15.0.1.6)...\n",
 		inet_ntop(AF_INET6, mc_req_rec.mgid.raw, gid_str,
-			sizeof gid_str));
+			  sizeof gid_str));
 
 	/* Before creation, need to check that this group doesn't exist */
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Verifying that MCGroup with this MGID doesn't exist by trying to Join it (o15.0.1.13)...\n");
 
 	ib_member_set_join_state(&mc_req_rec, IB_MC_REC_STATE_NON_MEMBER);
 
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_START "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_START "\n");
 	status = osmt_send_mcast_request(p_osmt, 1,	/* join */
 					 &mc_req_rec, comp_mask, &res_sa_mad);
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_END "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_END "\n");
 
 	if ((status != IB_REMOTE_ERROR) ||
 	    (res_sa_mad.status != IB_SA_MAD_STATUS_REQ_INVALID)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 0301: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0301: "
 			"Tried joining group that shouldn't have existed - got %s/%s\n",
 			ib_get_err_str(status),
-			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad))
-		    );
+			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		status = IB_ERROR;
 		goto Exit;
 	}
@@ -1696,21 +1538,18 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	/* Set State to full member to allow group creation */
 	ib_member_set_join_state(&mc_req_rec, IB_MC_REC_STATE_FULL_MEMBER);
 
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Now creating group with given valid MGID=%s (o15.0.1.6)...\n",
 		inet_ntop(AF_INET6, mc_req_rec.mgid.raw, gid_str,
-			sizeof gid_str));
+			  sizeof gid_str));
 
 	status = osmt_send_mcast_request(p_osmt, 1,
 					 &mc_req_rec, comp_mask, &res_sa_mad);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 0211: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0211: "
 			"Failed to create MCG for MGID=%s (o15.0.1.6) - got %s/%s\n",
 			inet_ntop(AF_INET6, good_mgid.raw, gid_str,
-				sizeof gid_str),
-			ib_get_err_str(status),
+				  sizeof gid_str), ib_get_err_str(status),
 			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		goto Exit;
 	}
@@ -1718,122 +1557,101 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	/* Save the mlid created in test_created_mlids map */
 	p_recvd_rec =
 	    (ib_member_rec_t *) ib_sa_mad_get_payload_ptr(&res_sa_mad);
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmt_run_mcast_flow: " "Created MGID:%s MLID:0x%04X\n",
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE, "Created MGID:%s MLID:0x%04X\n",
 		inet_ntop(AF_INET6, p_recvd_rec->mgid.raw, gid_str,
-			sizeof gid_str),
-		cl_ntoh16(p_recvd_rec->mlid));
+			  sizeof gid_str), cl_ntoh16(p_recvd_rec->mlid));
 	cl_map_insert(&test_created_mlids, cl_ntoh16(p_recvd_rec->mlid),
 		      p_recvd_rec);
 
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Validating resulting MGID (o15.0.1.6)...\n");
 	/* prefix 0xFF1 Scope 0xA01B */
 	if ((p_mc_res->mgid.multicast.header[0] != 0xFF) || (p_mc_res->mgid.multicast.header[1] != 0x12) ||	/* HACK hardcoded scope = 0x02 */
 	    (p_mc_res->mgid.multicast.raw_group_id[0] != 0xA0) ||
 	    (p_mc_res->mgid.multicast.raw_group_id[1] != 0x1C)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 0212: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0212: "
 			"Validating MGID failed. MGID:%s\n",
 			inet_ntop(AF_INET6, p_mc_res->mgid.raw, gid_str,
-				sizeof gid_str)
-		    );
+				  sizeof gid_str));
 		status = IB_ERROR;
 		goto Exit;
 	}
 
 	/* - Try to create a new MCG with invalid MGID : get back ERR_REQ_INVALID */
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Checking BAD MGID=0xFA..... (o15.0.1.6)...\n");
 
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_START "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_START "\n");
 
 	mc_req_rec.mgid.raw[0] = 0xFA;
 	status = osmt_send_mcast_request(p_osmt, 1,
 					 &mc_req_rec, comp_mask, &res_sa_mad);
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_END "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_END "\n");
 
 	if ((status != IB_REMOTE_ERROR) ||
 	    (res_sa_mad.status != IB_SA_MAD_STATUS_REQ_INVALID)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 0213: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0213: "
 			"Failed to recognize MGID error for MGID=0xFA - got %s/%s\n",
 			ib_get_err_str(status),
-			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad))
-		    );
+			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		status = IB_ERROR;
 		goto Exit;
 	}
 
 	/* - Try again with MGID prefix = 0xA01B (maybe 0x1BA0 little or big ?) */
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Checking BAD MGID=0xFF12A01B..... with link-local scope (o15.0.1.6)...\n");
 
 	mc_req_rec.mgid.raw[0] = 0xFF;
 	mc_req_rec.mgid.raw[3] = 0x1B;
 	comp_mask = comp_mask | IB_MCR_COMPMASK_SCOPE;
 	mc_req_rec.scope_state = mc_req_rec.scope_state & 0x2F;	/* local scope */
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_START "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_START "\n");
 	status = osmt_send_mcast_request(p_osmt, 1,
 					 &mc_req_rec, comp_mask, &res_sa_mad);
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_END "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_END "\n");
 
 	if ((status != IB_REMOTE_ERROR) ||
 	    (res_sa_mad.status != IB_SA_MAD_STATUS_REQ_INVALID)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 0214: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0214: "
 			"Failed to recognize MGID error for A01B with link-local bit (status %s) (rem status %s)\n",
 			ib_get_err_str(status),
-			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad))
-		    );
+			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		status = IB_ERROR;
 		goto Exit;
 	}
 
 	/* Change the mgid prefix - get back ERR_REQ_INVALID */
 
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Checking BAD MGID PREFIX=0xEF... (o15.0.1.6)...\n");
 
 	mc_req_rec.mgid = good_mgid;
 
 	mc_req_rec.mgid.raw[0] = 0xEF;
 
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_START "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_START "\n");
 	status = osmt_send_mcast_request(p_osmt, 1,
 					 &mc_req_rec, comp_mask, &res_sa_mad);
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_END "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_END "\n");
 
 	if ((status != IB_REMOTE_ERROR) ||
 	    (res_sa_mad.status != IB_SA_MAD_STATUS_REQ_INVALID)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 0215: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0215: "
 			"Failed to recognize MGID PREFIX error for MGID=0xEF - got %s/%s\n",
 			ib_get_err_str(status),
-			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad))
-		    );
+			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		status = IB_ERROR;
 		goto Exit;
 	}
 
 	/* Change the scope to reserved - get back VALID REQ */
 
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Checking local scope with full member \n\t\tand valid mgid %s"
 		"  ... (o15.0.1.6)...\n",
 		inet_ntop(AF_INET6, mc_req_rec.mgid.raw, gid_str,
-			sizeof gid_str));
+			  sizeof gid_str));
 
 	mc_req_rec.mgid = good_mgid;
 
@@ -1842,12 +1660,10 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	status = osmt_send_mcast_request(p_osmt, 1,
 					 &mc_req_rec, comp_mask, &res_sa_mad);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 0216: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0216: "
 			"Failed to create MCG for MGID=%s - got %s/%s\n",
 			inet_ntop(AF_INET6, good_mgid.raw, gid_str,
-				sizeof gid_str),
-			ib_get_err_str(status),
+				  sizeof gid_str), ib_get_err_str(status),
 			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		goto Exit;
 	}
@@ -1855,22 +1671,18 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	/* Save the mlid created in test_created_mlids map */
 	p_recvd_rec =
 	    (ib_member_rec_t *) ib_sa_mad_get_payload_ptr(&res_sa_mad);
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmt_run_mcast_flow: " "Created MGID:%s MLID:0x%04X\n",
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE, "Created MGID:%s MLID:0x%04X\n",
 		inet_ntop(AF_INET6, p_recvd_rec->mgid.raw, gid_str,
-			sizeof gid_str),
-		cl_ntoh16(p_recvd_rec->mlid));
+			  sizeof gid_str), cl_ntoh16(p_recvd_rec->mlid));
 	cl_map_insert(&test_created_mlids, cl_ntoh16(p_recvd_rec->mlid),
 		      p_recvd_rec);
 
 	/* Change the flags to invalid value 0x2 - get back INVALID REQ */
 
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Checking invalid flags=0xFF 22  ... (o15.0.1.6)...\n");
 
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_START "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_START "\n");
 
 	mc_req_rec.mgid = good_mgid;
 
@@ -1879,25 +1691,21 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	status = osmt_send_mcast_request(p_osmt, 1,
 					 &mc_req_rec, comp_mask, &res_sa_mad);
 
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_END "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_END "\n");
 
 	if ((status != IB_REMOTE_ERROR) ||
 	    (res_sa_mad.status != IB_SA_MAD_STATUS_REQ_INVALID)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 0217: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0217: "
 			"Failed to recognize create with invalid flags value 0x2 - got %s/%s\n",
 			ib_get_err_str(status),
-			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad))
-		    );
+			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		status = IB_ERROR;
 		goto Exit;
 	}
 
 	/* Change the MGID to link local MGID  - get back VALID REQ */
 
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Checking link local MGID 0xFF02:0:0:0:0:0:0:1 (o15.0.1.6)...\n");
 
 	mc_req_rec.mgid = osm_link_local_mgid;
@@ -1905,23 +1713,19 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	status = osmt_send_mcast_request(p_osmt, 1,
 					 &mc_req_rec, comp_mask, &res_sa_mad);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 0218: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0218: "
 			"Failed to create MCG for MGID=0xFF02:0:0:0:0:0:0:1 - got %s/%s\n",
 			ib_get_err_str(status),
-			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad))
-		    );
+			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		goto Exit;
 	}
 
 	/* Save the mlid created in test_created_mlids map */
 	p_recvd_rec =
 	    (ib_member_rec_t *) ib_sa_mad_get_payload_ptr(&res_sa_mad);
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmt_run_mcast_flow: " "Created MGID:%s MLID:0x%04X\n",
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE, "Created MGID:%s MLID:0x%04X\n",
 		inet_ntop(AF_INET6, p_recvd_rec->mgid.raw, gid_str,
-			sizeof gid_str),
-		cl_ntoh16(p_recvd_rec->mlid));
+			  sizeof gid_str), cl_ntoh16(p_recvd_rec->mlid));
 	cl_map_insert(&test_created_mlids, cl_ntoh16(p_recvd_rec->mlid),
 		      p_recvd_rec);
 
@@ -1931,12 +1735,10 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	/* o15.0.1.9 */
 	/* - Create MCG with Invalid JoinState.FullMember != 1 : get ERR_REQ_INVALID */
 
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Checking new MGID with invalid join state (o15.0.1.9)...\n");
 
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_START "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_START "\n");
 
 	mc_req_rec.mgid = good_mgid;
 	mc_req_rec.mgid.raw[12] = 0xFF;
@@ -1944,24 +1746,20 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 
 	status = osmt_send_mcast_request(p_osmt, 1,
 					 &mc_req_rec, comp_mask, &res_sa_mad);
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_END "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_END "\n");
 
 	if ((status != IB_REMOTE_ERROR) ||
 	    (res_sa_mad.status != IB_SA_MAD_STATUS_REQ_INVALID)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 0219: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0219: "
 			"Failed to recognize create with JoinState != FullMember - got %s/%s\n",
 			ib_get_err_str(status),
-			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad))
-		    );
+			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		status = IB_ERROR;
 		goto Exit;
 	}
 
 	/* Lets try a valid join scope state */
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Checking new MGID with valid join state (o15.0.1.9)...\n");
 
 	mc_req_rec.mgid = good_mgid;
@@ -1971,33 +1769,27 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 					 &mc_req_rec, comp_mask, &res_sa_mad);
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 0220: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0220: "
 			"Failed to create MCG with valid join state 0x3 - got %s/%s\n",
 			ib_get_err_str(status),
-			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad))
-		    );
+			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		goto Exit;
 	}
 
 	/* Save the mlid created in test_created_mlids map */
 	p_recvd_rec =
 	    (ib_member_rec_t *) ib_sa_mad_get_payload_ptr(&res_sa_mad);
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmt_run_mcast_flow: " "Created MGID:%s MLID:0x%04X\n",
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE, "Created MGID:%s MLID:0x%04X\n",
 		inet_ntop(AF_INET6, p_recvd_rec->mgid.raw, gid_str,
-			sizeof gid_str),
-		cl_ntoh16(p_recvd_rec->mlid));
+			  sizeof gid_str), cl_ntoh16(p_recvd_rec->mlid));
 	cl_map_insert(&test_created_mlids, cl_ntoh16(p_recvd_rec->mlid),
 		      p_recvd_rec);
 
 	/* Lets try another invalid join scope state */
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Checking new MGID with invalid join state (o15.0.1.9)...\n");
 
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_START "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_START "\n");
 
 	/* We have created a new MCG so now we need different mgid when cresting group otherwise it will be counted as join request . */
 	mc_req_rec.mgid = good_mgid;
@@ -2007,24 +1799,20 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 
 	status = osmt_send_mcast_request(p_osmt, 1,
 					 &mc_req_rec, comp_mask, &res_sa_mad);
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_END "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_END "\n");
 
 	if ((status != IB_REMOTE_ERROR) ||
 	    (res_sa_mad.status != IB_SA_MAD_STATUS_REQ_INVALID)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 0221: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0221: "
 			"Failed to recognize create with JoinState != FullMember - got %s/%s\n",
 			ib_get_err_str(status),
-			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad))
-		    );
+			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		status = IB_ERROR;
 		goto Exit;
 	}
 
 	/* Lets try another valid join scope state */
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Checking new MGID creation with valid join state (o15.0.1.9)...\n");
 
 	mc_req_rec.mgid = good_mgid;
@@ -2036,23 +1824,19 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 					 &mc_req_rec, comp_mask, &res_sa_mad);
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 0222: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0222: "
 			"Failed to create MCG with valid join state 0xF - got %s/%s\n",
 			ib_get_err_str(status),
-			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad))
-		    );
+			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		goto Exit;
 	}
 
 	/* Save the mlid created in test_created_mlids map */
 	p_recvd_rec =
 	    (ib_member_rec_t *) ib_sa_mad_get_payload_ptr(&res_sa_mad);
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmt_run_mcast_flow: " "Created MGID:%s MLID:0x%04X\n",
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE, "Created MGID:%s MLID:0x%04X\n",
 		inet_ntop(AF_INET6, p_recvd_rec->mgid.raw, gid_str,
-			sizeof gid_str),
-		cl_ntoh16(p_recvd_rec->mlid));
+			  sizeof gid_str), cl_ntoh16(p_recvd_rec->mlid));
 	cl_map_insert(&test_created_mlids, cl_ntoh16(p_recvd_rec->mlid),
 		      p_recvd_rec);
 
@@ -2060,8 +1844,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	   checked by SilverStorm bug o15-0.2.4, never the less recheck */
 	/* o15-0.2.4 - Check a join request to already created MCG */
 	p_mc_res = ib_sa_mad_get_payload_ptr(&res_sa_mad);
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: " "Check o15-0.2.4 statement...\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO, "Check o15-0.2.4 statement...\n");
 	/* Try to join */
 	memcpy(&mc_req_rec.mgid, &p_mc_res->mgid, sizeof(ib_gid_t));
 	/* Request Join */
@@ -2073,8 +1856,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	status = osmt_send_mcast_request(p_osmt, 0x1,	/* User Defined query */
 					 &mc_req_rec, comp_mask, &res_sa_mad);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 02CC: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02CC: "
 			"Failed to join MCG with valid req, returned status = %s\n",
 			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		goto Exit;
@@ -2083,8 +1865,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	/* o15.0.1.11: */
 	/* - Try to join into a MGID that exists with JoinState=SendOnlyMember -  */
 	/*   see that it updates JoinState. What is the routing change? */
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Checking Retry of existing MGID - See JoinState update (o15.0.1.11)...\n");
 
 	mc_req_rec.mgid = good_mgid;
@@ -2093,22 +1874,18 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	status = osmt_send_mcast_request(p_osmt, 1,
 					 &mc_req_rec, comp_mask, &res_sa_mad);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 02CD: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02CD: "
 			"Failed to update existing MGID - got %s/%s\n",
 			ib_get_err_str(status),
-			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad))
-		    );
+			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		goto Exit;
 	}
 
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Validating Join State update with NonMember (o15.0.1.11)...\n");
 
 	if (p_mc_res->scope_state != 0x23) {	/* scope is LSB */
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 02CE: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02CE: "
 			"Validating JoinState update failed. Expected 0x23 got: 0x%02X\n",
 			p_mc_res->scope_state);
 		status = IB_ERROR;
@@ -2116,8 +1893,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	}
 
 	/* Try delete current join state then update it with another value  */
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Checking JoinState update request should return 0x22 (o15.0.1.11)...\n");
 
 	mc_req_rec.rate =
@@ -2125,19 +1901,16 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	mc_req_rec.mgid = good_mgid;
 	/* link-local scope, non member (so we should not be able to delete) */
 	/*  but the FullMember bit should be gone */
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Checking Partially delete JoinState (o15.0.1.14)...\n");
 	mc_req_rec.scope_state = 0x22;
 	status = osmt_send_mcast_request(p_osmt, 0,
 					 &mc_req_rec, comp_mask, &res_sa_mad);
 	if ((status != IB_SUCCESS) || (p_mc_res->scope_state != 0x21)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 02CF: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02CF: "
 			"Failed to partially update JoinState : %s/%s\n",
 			ib_get_err_str(status),
-			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad))
-		    );
+			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		status = IB_ERROR;
 		goto Exit;
 	}
@@ -2149,22 +1922,18 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	status = osmt_send_mcast_request(p_osmt, 1,
 					 &mc_req_rec, comp_mask, &res_sa_mad);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 02C0: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02C0: "
 			"Failed to update existing MCG - got %s/%s\n",
 			ib_get_err_str(status),
-			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad))
-		    );
+			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		goto Exit;
 	}
 
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Validating Join State update with Send Only Member (o15.0.1.11)...\n");
 
 	if (p_mc_res->scope_state != 0x25) {	/* scope is MSB */
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 02C1: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02C1: "
 			"Validating JoinState update failed. Expected 0x25 got: 0x%02X\n",
 			p_mc_res->scope_state);
 		status = IB_ERROR;
@@ -2176,23 +1945,19 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	status = osmt_send_mcast_request(p_osmt, 1,
 					 &mc_req_rec, comp_mask, &res_sa_mad);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 02C2: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02C2: "
 			"Failed to update existing MGID - got %s/%s\n",
 			ib_get_err_str(status),
-			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad))
-		    );
+			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		goto Exit;
 	}
 
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Validating Join State update with Full Member\n\t\t"
 		"to an existing 0x5 state MCG (o15.0.1.11)...\n");
 
 	if (p_mc_res->scope_state != 0x25) {	/* scope is LSB */
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 02C3: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02C3: "
 			"Validating JoinState update failed. Expected 0x25 got: 0x%02X\n",
 			p_mc_res->scope_state);
 		status = IB_ERROR;
@@ -2205,29 +1970,25 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	status = osmt_send_mcast_request(p_osmt, 1,
 					 &mc_req_rec, comp_mask, &res_sa_mad);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 02C4: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02C4: "
 			"Failed to update existing MGID - got %s/%s\n",
 			ib_get_err_str(status),
-			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad))
-		    );
+			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		goto Exit;
 	}
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Validating Join State update with Non Member\n\t\t"
 		"to an existing 0x5 state MCG (o15.0.1.11)...\n");
 
 	if (p_mc_res->scope_state != 0x27) {	/* scope is LSB */
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 02C5: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02C5: "
 			"Validating JoinState update failed. Expected 0x27 got: 0x%02X\n",
 			p_mc_res->scope_state);
 		status = IB_ERROR;
 		goto Exit;
 	}
 
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
 		"DEBUG - Current scope_state value : 0x%02X...\n",
 		p_mc_res->scope_state);
 
@@ -2241,11 +2002,9 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	/* - Try joining with rate that does not exist in any MCG -
 	   ERR_REQ_INVALID */
 
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Checking BAD RATE when connecting to existing MGID (o15.0.1.13)...\n");
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_START "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_START "\n");
 
 	mc_req_rec.mgid = good_mgid;
 	mc_req_rec.rate =
@@ -2255,28 +2014,23 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 
 	status = osmt_send_mcast_request(p_osmt, 1,
 					 &mc_req_rec, comp_mask, &res_sa_mad);
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_END "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_END "\n");
 
 	if ((status != IB_REMOTE_ERROR) ||
 	    (res_sa_mad.status != IB_SA_MAD_STATUS_REQ_INVALID)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 02C6: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02C6: "
 			"Failed to catch BAD RATE joining an exiting MGID: %s/%s\n",
 			ib_get_err_str(status),
-			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad))
-		    );
+			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		status = IB_ERROR;
 		goto Exit;
 	}
 
 	/* Try MTU that does not exist in any MCG */
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Checking BAD MTU (higher them max) when connecting to "
 		"existing MGID (o15.0.1.13)...\n");
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_START "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_START "\n");
 
 	mc_req_rec.mgid = osm_ipoib_mgid;
 	mc_req_rec.mtu = IB_MTU_LEN_4096 | IB_PATH_SELECTOR_GREATER_THAN << 6;
@@ -2285,28 +2039,23 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 
 	status = osmt_send_mcast_request(p_osmt, 1,
 					 &mc_req_rec, comp_mask, &res_sa_mad);
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_END "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_END "\n");
 
 	if ((status != IB_REMOTE_ERROR) ||
 	    (res_sa_mad.status != IB_SA_MAD_STATUS_REQ_INVALID)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 02C7: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02C7: "
 			"Failed to catch BAD RATE (higher them max) joining an exiting MGID: %s/%s\n",
 			ib_get_err_str(status),
-			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad))
-		    );
+			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		status = IB_ERROR;
 		goto Exit;
 	}
 
 	/* Try another MTU that does not exist in any MCG */
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Checking BAD MTU (less than min) when connecting "
 		"to existing MGID (o15.0.1.13)...\n");
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_START "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_START "\n");
 
 	mc_req_rec.mgid = osm_ipoib_mgid;
 	mc_req_rec.mtu = IB_MTU_LEN_256 | IB_PATH_SELECTOR_LESS_THAN << 6;
@@ -2315,17 +2064,14 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 
 	status = osmt_send_mcast_request(p_osmt, 1,
 					 &mc_req_rec, comp_mask, &res_sa_mad);
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_END "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_END "\n");
 
 	if ((status != IB_REMOTE_ERROR) ||
 	    (res_sa_mad.status != IB_SA_MAD_STATUS_REQ_INVALID)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 02C8: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02C8: "
 			"Failed to catch BAD RATE (less them min) joining an exiting MGID: %s/%s\n",
 			ib_get_err_str(status),
-			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad))
-		    );
+			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		status = IB_ERROR;
 		goto Exit;
 	}
@@ -2333,8 +2079,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	/* o15.0.1.14: */
 	/* - Try partial delete - actually updating the join state. check it. */
 
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Checking partial JoinState delete request - removing NonMember (o15.0.1.14)...\n");
 
 	mc_req_rec.rate =
@@ -2350,22 +2095,18 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 					 &mc_req_rec, comp_mask, &res_sa_mad);
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 02C9: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02C9: "
 			"Fail to partially update JoinState during delete: %s/%s\n",
 			ib_get_err_str(status),
-			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad))
-		    );
+			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		status = IB_ERROR;
 		goto Exit;
 	}
 
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Validating Join State removal of Non Member bit (o15.0.1.14)...\n");
 	if (p_mc_res->scope_state != 0x25) {	/* scope is MSB - now only the non member & send only member have left */
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 02CA: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02CA: "
 			"Validating JoinState update failed. Expected 0x25 got: 0x%02X\n",
 			p_mc_res->scope_state);
 		status = IB_ERROR;
@@ -2379,23 +2120,19 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 					 &mc_req_rec, comp_mask, &res_sa_mad);
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 02CB: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02CB: "
 			"Failed to update JoinState during delete: %s/%s\n",
 			ib_get_err_str(status),
-			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad))
-		    );
+			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		status = IB_ERROR;
 		goto Exit;
 	}
 
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Validating Join State update remove (o15.0.1.14)...\n");
 
 	if (p_mc_res->scope_state != 0x25) {	/* scope is MSB - now only 0x0 so port is removed from MCG */
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 02BF: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02BF: "
 			"Validating JoinState update failed. Expected 0x25 got: 0x%02X\n",
 			p_mc_res->scope_state);
 		status = IB_ERROR;
@@ -2403,36 +2140,29 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	}
 
 	/* - Try joining (not full mem) again to see the group was deleted. (should fail) */
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Checking Delete by trying to Join deleted group (o15.0.1.13)...\n");
 
 	mc_req_rec.scope_state = 0x22;	/* use non member - so if no group fail */
 
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_START "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_START "\n");
 	status = osmt_send_mcast_request(p_osmt, 1,	/* join */
 					 &mc_req_rec, comp_mask, &res_sa_mad);
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_END "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_END "\n");
 
 	if (status != IB_REMOTE_ERROR) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 02BC: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02BC: "
 			"Succeeded Joining Deleted Group: %s/%s\n",
 			ib_get_err_str(status),
-			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad))
-		    );
+			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		status = IB_ERROR;
 		goto Exit;
 	}
 
 	/* - Try deletion of the IPoIB MCG and get: ERR_REQ_INVALID */
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Checking BAD Delete of Mgid membership (no prev join) (o15.0.1.15)...\n");
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_START "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_START "\n");
 
 	mc_req_rec.mgid = osm_ipoib_mgid;
 	mc_req_rec.rate =
@@ -2441,27 +2171,23 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 
 	status = osmt_send_mcast_request(p_osmt, 0,	/* delete flag */
 					 &mc_req_rec, comp_mask, &res_sa_mad);
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_END "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_END "\n");
 
 	if ((status != IB_REMOTE_ERROR) ||
 	    (res_sa_mad.status != IB_SA_MAD_STATUS_REQ_INVALID)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 02BD: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02BD: "
 			"Failed to catch BAD delete from IPoIB: %s/%s\n",
 			ib_get_err_str(status),
-			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad))
-		    );
+			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		status = IB_ERROR;
 		goto Exit;
 	}
 
 	/* Prepare another MCG for the following tests : */
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Checking Create given MGID=%s\n\t\t(o15.0.1.4)...\n",
 		inet_ntop(AF_INET6, osm_ipoib_mgid.raw, gid_str,
-			sizeof gid_str));
+			  sizeof gid_str));
 
 	mc_req_rec.mgid = good_mgid;
 	mc_req_rec.mgid.raw[12] = 0xAA;
@@ -2473,19 +2199,16 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	status = osmt_send_mcast_request(p_osmt, 1,
 					 &mc_req_rec, comp_mask, &res_sa_mad);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 02BE: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02BE: "
 			"Failed to create MCG for %s - got %s/%s\n",
 			inet_ntop(AF_INET6, good_mgid.raw, gid_str,
-				sizeof gid_str),
-			ib_get_err_str(status),
+				  sizeof gid_str), ib_get_err_str(status),
 			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		goto Exit;
 	}
 
 	/* - Try delete with valid join state */
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Checking Full Delete of a group (o15.0.1.14)...\n");
 	mc_req_rec.scope_state = 0x21;	/* the FullMember is the current JoinState */
 	status = osmt_send_mcast_request(p_osmt, 0,
@@ -2497,11 +2220,9 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 
 	/* o15.0.1.15: */
 	/* - Try deletion of the IPoIB MCG and get: ERR_REQ_INVALID */
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Checking BAD Delete of IPoIB membership (no prev join) (o15.0.1.15)...\n");
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_START "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_START "\n");
 
 	mc_req_rec.mgid = osm_ipoib_mgid;
 	mc_req_rec.rate =
@@ -2511,17 +2232,14 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	status = osmt_send_mcast_request(p_osmt, 0,	/* delete flag */
 					 &mc_req_rec, comp_mask, &res_sa_mad);
 
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_END "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_END "\n");
 
 	if ((status != IB_REMOTE_ERROR) ||
 	    (res_sa_mad.status != IB_SA_MAD_STATUS_REQ_INVALID)) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 0223: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0223: "
 			"Failed to catch BAD delete from IPoIB: %s/%s\n",
 			ib_get_err_str(status),
-			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad))
-		    );
+			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		status = IB_ERROR;
 		goto Exit;
 	}
@@ -2529,8 +2247,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
   /**************************************************************************/
 	/* Checking join with invalid MTU */
 	osmt_init_mc_query_rec(p_osmt, &mc_req_rec);
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Checking Join with unrealistic mtu : \n"
 		"\t\tFirst create new MCG than try to join it \n"
 		"\t\twith unrealistic MTU greater than 4096 (o15.0.1.8)...\n");
@@ -2546,8 +2263,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 					 &mc_req_rec, comp_mask, &res_sa_mad);
 	p_mc_res = ib_sa_mad_get_payload_ptr(&res_sa_mad);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 02EB: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02EB: "
 			"Failed to create new mgrp\n");
 		goto Exit;
 	}
@@ -2565,20 +2281,16 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	    IB_MCR_COMPMASK_JOIN_STATE |
 	    IB_MCR_COMPMASK_MTU_SEL | IB_MCR_COMPMASK_MTU;
 
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_START "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_START "\n");
 	status = osmt_send_mcast_request(p_osmt, 1,
 					 &mc_req_rec, comp_mask, &res_sa_mad);
-	osm_log(&p_osmt->log, OSM_LOG_ERROR,
-		"osmt_run_mcast_flow: " EXPECTING_ERRORS_END "\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_END "\n");
 
 	if (status == IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 02E4: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02E4: "
 			"Expected REMOTE ERROR got:%s/%s\n",
 			ib_get_err_str(status),
-			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad))
-		    );
+			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		status = IB_ERROR;
 		goto Exit;
 	}
@@ -2586,14 +2298,12 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	/* - Try GetTable with PortGUID wildcarded and get back some groups. */
 	status = osmt_query_mcast(p_osmt);
 	cnt = cl_qmap_count(&p_osmt->exp_subn.mgrp_mlid_tbl);
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow (Before checking Max MCG creation): "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO, "(Before checking Max MCG creation): "
 		"Number of MC Records found in SA DB is %d\n", cnt);
 
   /**************************************************************************/
 	/* Checking join on behalf of remote port gid */
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow: " "Checking Proxy Join...\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO, "Checking Proxy Join...\n");
 	osmt_init_mc_query_rec(p_osmt, &mc_req_rec);
 	memset(&context, 0, sizeof(context));
 
@@ -2604,8 +2314,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 				      sizeof(*p_rec), &context);
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 02E5: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02E5: "
 			"osmtest_get_all_recs failed on getting all node records(%s)\n",
 			ib_get_err_str(status));
 		goto Exit;
@@ -2615,17 +2324,15 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	 * Populate the database with the received records.
 	 */
 	num_recs = context.result.result_cnt;
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmt_run_mcast_flow: " "Received %u records\n", num_recs);
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE, "Received %u records\n", num_recs);
 
 	for (i = 0; i < num_recs; i++) {
 		p_rec =
 		    osmv_get_query_node_rec(context.result.p_result_madw, i);
 		if (p_rec->node_info.port_guid != p_osmt->local_port.port_guid
 		    && p_rec->node_info.node_type == IB_NODE_TYPE_CA) {
-			osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-				"osmt_run_mcast_flow: " "remote port_guid = 0x%"
-				PRIx64 "\n",
+			OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
+				"remote port_guid = 0x%" PRIx64 "\n",
 				cl_ntoh64(p_rec->node_info.port_guid));
 
 			remote_port_guid = p_rec->node_info.port_guid;
@@ -2646,8 +2353,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 						 comp_mask, &res_sa_mad);
 
 		if (status != IB_SUCCESS) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmt_run_mcast_flow: ERR 02B4: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02B4: "
 				"Could not join on behalf of remote port 0x%016"
 				PRIx64 " remote status: %s\n",
 				cl_ntoh64(remote_port_guid),
@@ -2662,8 +2368,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 
 		/* First try a bad deletion then good one */
 
-		osm_log(&p_osmt->log, OSM_LOG_INFO,
-			"osmt_run_mcast_flow: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 			"Trying deletion of remote port with local port guid\n");
 
 		osmt_init_mc_query_rec(p_osmt, &mc_req_rec);
@@ -2673,19 +2378,16 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 		    IB_MCR_COMPMASK_MGID | IB_MCR_COMPMASK_PORT_GID |
 		    IB_MCR_COMPMASK_JOIN_STATE;
 
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: " EXPECTING_ERRORS_START "\n");
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_START "\n");
 
 		status = osmt_send_mcast_request(p_osmt, 0,	/* delete flag */
 						 &mc_req_rec,
 						 comp_mask, &res_sa_mad);
 
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: " EXPECTING_ERRORS_END "\n");
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_END "\n");
 
 		if (status == IB_SUCCESS) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmt_run_mcast_flow: ERR 02A9: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02A9: "
 				"Successful deletion of remote port guid with local one MGID : "
 				"%s, Got : %s/%s\n",
 				inet_ntop(AF_INET6,
@@ -2698,8 +2400,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 			goto Exit;
 		}
 
-		osm_log(&p_osmt->log, OSM_LOG_INFO,
-			"osmt_run_mcast_flow: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 			"Trying deletion of remote port with the right port guid\n");
 
 		osmt_init_mc_query_rec(p_osmt, &mc_req_rec);
@@ -2714,8 +2415,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 						 &mc_req_rec,
 						 comp_mask, &res_sa_mad);
 		if (status != IB_SUCCESS) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmt_run_mcast_flow: ERR 02B0: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02B0: "
 				"Failed to delete mgid with remote port guid MGID : "
 				"%s, Got : %s/%s\n",
 				inet_ntop(AF_INET6,
@@ -2727,8 +2427,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 			goto Exit;
 		}
 	} else {
-		osm_log(&p_osmt->log, OSM_LOG_INFO,
-			"osmt_run_mcast_flow: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 			"Could not check proxy join since could not found remote port, different from local port\n");
 	}
 
@@ -2739,8 +2438,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	if (p_osmt->opt.mmode > 2) {
 		/* Check invalid Join with max mlid which is more than the
 		   Mellanox switches support 0xC000+0x1000 = 0xd000 */
-		osm_log(&p_osmt->log, OSM_LOG_INFO,
-			"osmt_run_mcast_flow: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 			"Checking Creation of Maximum avaliable Groups (MulticastFDBCap)...\n");
 		tmp_mlid = cl_ntoh16(max_mlid) - cnt;
 
@@ -2770,8 +2468,8 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 
 				if (cur_mlid > cl_ntoh16(max_mlid)) {
 
-					osm_log(&p_osmt->log, OSM_LOG_ERROR,
-						"osmt_run_mcast_flow : ERR 2E1 "
+					OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
+						"ERR 2E1 "
 						"Successful Join with greater mlid than switches support (MulticastFDBCap) 0x%04X\n",
 						cur_mlid);
 					status = IB_ERROR;
@@ -2793,12 +2491,11 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 				p_recvd_rec =
 				    (ib_member_rec_t *)
 				    ib_sa_mad_get_payload_ptr(&res_sa_mad);
-				osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-					"osmt_run_mcast_flow : "
+				OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
 					"Created MGID:%s MLID:0x%04X\n",
 					inet_ntop(AF_INET6,
-						p_recvd_rec->mgid.raw,
-						gid_str, sizeof gid_str),
+						  p_recvd_rec->mgid.raw,
+						  gid_str, sizeof gid_str),
 					cl_ntoh16(p_recvd_rec->mlid));
 				cl_map_insert(&test_created_mlids,
 					      cl_ntoh16(p_recvd_rec->mlid),
@@ -2817,21 +2514,18 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 
 	status = osmt_query_mcast(p_osmt);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 02B1: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02B1: "
 			"Failed to query multicast groups: %s\n",
 			ib_get_err_str(status));
 		goto Exit;
 	}
 
 	cnt = cl_qmap_count(&p_osmt->exp_subn.mgrp_mlid_tbl);
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow (Before Deletion of all MCG): "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO, "(Before Deletion of all MCG): "
 		"Number of MC Records found in SA DB is %d\n", cnt);
 
 	/* Delete all MCG that are not of IPoIB */
-	osm_log(&p_osmt->log, OSM_LOG_INFO,
-		"osmt_run_mcast_flow : "
+	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Cleanup all MCG that are not IPoIB...\n");
 
 	p_mgrp_mlid_tbl = &p_osmt->exp_subn.mgrp_mlid_tbl;
@@ -2856,28 +2550,25 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 			    IB_MCR_COMPMASK_PORT_GID |
 			    IB_MCR_COMPMASK_JOIN_STATE;
 
-			osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-				"osmt_run_mcast_flow : "
+			OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
 				"Sending request to delete MGID : %s"
 				", scope_state : 0x%02X\n",
 				inet_ntop(AF_INET6, mc_req_rec.mgid.raw,
-					gid_str, sizeof gid_str),
+					  gid_str, sizeof gid_str),
 				mc_req_rec.scope_state);
 			status = osmt_send_mcast_request(p_osmt, 0,	/* delete flag */
 							 &mc_req_rec,
 							 comp_mask,
 							 &res_sa_mad);
 			if (status != IB_SUCCESS) {
-				osm_log(&p_osmt->log, OSM_LOG_ERROR,
-					"osmt_run_mcast_flow: ERR 02FF: "
-					"Failed to delete MGID : %s"
+				OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
+					"ERR 02FF: Failed to delete MGID : %s"
 					" ,\n\t\t it is not our MCG, Status : %s/%s\n",
 					inet_ntop(AF_INET6,
-						p_mgrp->mcmember_rec.mgid.raw,
-						gid_str, sizeof gid_str),
+						  p_mgrp->mcmember_rec.mgid.raw,
+						  gid_str, sizeof gid_str),
 					ib_get_err_str(status),
-					ib_get_mad_status_str((ib_mad_t
-							       *)
+					ib_get_mad_status_str((ib_mad_t *)
 							      (&res_sa_mad)));
 				fail_to_delete_mcg++;
 			}
@@ -2890,8 +2581,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	status = osmt_query_mcast(p_osmt);
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_mcast_flow: ERR 02B2 "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02B2 "
 			"GetTable of all records has failed - got %s\n",
 			ib_get_err_str(status));
 		goto Exit;
@@ -2903,7 +2593,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	if (p_osmt->opt.mmode == 1 || p_osmt->opt.mmode == 3) {
 		end_cnt = cl_qmap_count(&p_osmt->exp_subn.mgrp_mlid_tbl);
 
-		osm_log(&p_osmt->log, OSM_LOG_INFO, "osmt_run_mcast_flow: " "Status of MC Records in SA DB during the test flow:\n" "  Beginning of test\n" "       Unrelated to the test: %d\n" "       IPoIB MC Records     : %d\n" "       Total                : %d\n" "  End of test\n" "       Failed to delete     : %d\n" "       IPoIB MC Records     : %d\n" "       Total                : %d\n", mcg_outside_test_cnt,	/* Non-IPoIB that existed at the beginning */
+		OSM_LOG(&p_osmt->log, OSM_LOG_INFO, "Status of MC Records in SA DB during the test flow:\n" "  Beginning of test\n" "       Unrelated to the test: %d\n" "       IPoIB MC Records     : %d\n" "       Total                : %d\n" "  End of test\n" "       Failed to delete     : %d\n" "       IPoIB MC Records     : %d\n" "       Total                : %d\n", mcg_outside_test_cnt,	/* Non-IPoIB that existed at the beginning */
 			start_ipoib_cnt,	/* IPoIB records */
 			start_cnt,	/* Total: IPoIB and MC Records unrelated to the test */
 			fail_to_delete_mcg,	/* Failed to delete at the end */
@@ -2913,8 +2603,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 		/* when we compare num of MCG we should consider an outside source which create other MCGs */
 		if ((end_cnt - fail_to_delete_mcg - end_ipoib_cnt) !=
 		    (start_cnt - mcg_outside_test_cnt - start_ipoib_cnt)) {
-			osm_log(&p_osmt->log, OSM_LOG_INFO,
-				"osmt_run_mcast_flow: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 				"Got different number of non-IPoIB records stored in SA DB\n\t\t"
 				"at Start got %d, at End got %d (IPoIB groups only)\n",
 				(start_cnt - mcg_outside_test_cnt -
@@ -2929,25 +2618,22 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 			uint16_t mlid =
 			    (uint16_t) cl_qmap_key((cl_map_item_t *) p_mgrp);
 
-			osm_log(&p_osmt->log, OSM_LOG_INFO,
-				"osmt_run_mcast_flow: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 				"Found MLID:0x%04X\n", mlid);
 			/* Check if the mlid is in the test_created_mlids. If TRUE, then we
 			   didn't delete a MCgroup that was created in this flow. */
 			if (cl_map_get(&test_created_mlids, mlid) != NULL) {
 				/* This means that we still have an mgrp that we created!! */
-				osm_log(&p_osmt->log, OSM_LOG_ERROR,
-					"osmt_run_mcast_flow: ERR 02FE: "
+				OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02FE: "
 					"Wasn't able to erase mgrp with MGID:%s"
 					" MLID:0x%04X\n",
 					inet_ntop(AF_INET6,
-						p_mgrp->mcmember_rec.mgid.raw,
-						gid_str, sizeof gid_str),
+						  p_mgrp->mcmember_rec.mgid.raw,
+						  gid_str, sizeof gid_str),
 					mlid);
 				got_error = TRUE;
 			} else {
-				osm_log(&p_osmt->log, OSM_LOG_INFO,
-					"osmt_run_mcast_flow: "
+				OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 					"Still exists %s MGID:%s\n",
 					(IS_IPOIB_MGID
 					 (&p_mgrp->mcmember_rec.

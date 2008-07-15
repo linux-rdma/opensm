@@ -75,13 +75,11 @@ osmt_bind_inform_qp(IN osmtest_t * const p_osmt, OUT osmt_qp_ctx_t * p_qp_ctx)
 
 	port_guid = p_osmt->local_port.port_guid;
 
-	osm_log(p_log, OSM_LOG_DEBUG,
-		"osmt_bind_inform_qp: "
-		"Binding to port 0x%" PRIx64 "\n", cl_ntoh64(port_guid));
+	OSM_LOG(p_log, OSM_LOG_DEBUG, "Binding to port 0x%" PRIx64 "\n",
+		cl_ntoh64(port_guid));
 
 	/* obtain the hca name and port num from the guid */
-	osm_log(p_log, OSM_LOG_DEBUG,
-		"osmt_bind_inform_qp: "
+	OSM_LOG(p_log, OSM_LOG_DEBUG,
 		"Finding CA and Port that owns port guid 0x%" PRIx64 "\n",
 		port_guid);
 
@@ -91,8 +89,7 @@ osmt_bind_inform_qp(IN osmtest_t * const p_osmt, OUT osmt_qp_ctx_t * p_qp_ctx)
 					    &hca_hndl,
 					    &hca_id[0], &hca_index, &port_num);
 	if (mgt_ret != IB_MGT_OK) {
-		osm_log(p_log, OSM_LOG_ERROR,
-			"osmt_bind_inform_qp: ERR 0109: "
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0109: "
 			"Unable to obtain CA and port (%d).\n");
 		status = IB_ERROR;
 		goto Exit;
@@ -108,8 +105,7 @@ osmt_bind_inform_qp(IN osmtest_t * const p_osmt, OUT osmt_qp_ctx_t * p_qp_ctx)
 
 	vapi_ret = osmt_mtl_init_opened_hca(&p_qp_ctx->qp_bind_hndl);
 	if (vapi_ret != VAPI_OK) {
-		osm_log(p_log, OSM_LOG_ERROR,
-			"osmt_bind_inform_qp: ERR 0114: "
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0114: "
 			"Error initializing QP.\n");
 		status = IB_ERROR;
 		goto Exit;
@@ -129,20 +125,16 @@ osmt_bind_inform_qp(IN osmtest_t * const p_osmt, OUT osmt_qp_ctx_t * p_qp_ctx)
 	memset(p_qp_ctx->p_send_buf, 0, MAD_BLOCK_SIZE);
 
 	status = IB_SUCCESS;
-	osm_log(p_log, OSM_LOG_DEBUG,
-		"osmt_bind_inform_qp: "
-		"Initialized QP:0x%X in VAPI Mode\n",
+	OSM_LOG(p_log, OSM_LOG_DEBUG, "Initialized QP:0x%X in VAPI Mode\n",
 		p_qp_ctx->qp_bind_hndl.qp_id);
 
-	osm_log(p_log, OSM_LOG_DEBUG,
-		"osmt_bind_inform_qp: " "Binding to IB_MGT SMI\n");
+	OSM_LOG(p_log, OSM_LOG_DEBUG, "Binding to IB_MGT SMI\n");
 
 	/* we also need a QP0 handle for sending packets */
 	mgt_ret = IB_MGT_get_handle(hca_id, port_num, IB_MGT_SMI,
 				    &(p_qp_ctx->ib_mgt_qp0_handle));
 	if (IB_MGT_OK != mgt_ret) {
-		osm_log(p_log, OSM_LOG_ERROR,
-			"osmt_bind_inform_qp: ERR 0115: "
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0115: "
 			"Error obtaining IB_MGT handle to SMI\n");
 		status = IB_ERROR;
 		goto Exit;
@@ -167,8 +159,7 @@ osmt_unbind_inform_qp(IN osmtest_t * const p_osmt, IN osmt_qp_ctx_t * p_qp_ctx)
 
 	IB_MGT_release_handle(p_qp_ctx->ib_mgt_qp0_handle);
 
-	osm_log(p_log, OSM_LOG_DEBUG,
-		"osmt_unbind_inform_qp: " "Unbind QP handles\n");
+	OSM_LOG(p_log, OSM_LOG_DEBUG, "Unbind QP handles\n");
 	OSM_LOG_EXIT(&p_osmt->log);
 }
 
@@ -208,14 +199,12 @@ osmt_reg_unreg_inform_info(IN osmtest_t * p_osmt,
 	memcpy(p_ii, p_inform_info, sizeof(ib_inform_info_t));
 
 	if (reg_flag) {
-		osm_log(&p_osmt->log, OSM_LOG_INFO,
-			"osmt_reg_unreg_inform_info: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 			"Subscribing InformInfo: Traps from lid:0x%X to 0x%X, trap num :0x%X\n",
 			p_ii->lid_range_begin, p_ii->lid_range_end,
 			p_ii->g_or_v.generic.trap_num);
 	} else {
-		osm_log(&p_osmt->log, OSM_LOG_INFO,
-			"osmt_reg_unreg_inform_info: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 			"UnSubscribing InformInfo: Traps from lid:0x%X to 0x%X\n",
 			p_ii->lid_range_begin, p_ii->lid_range_end);
 	}
@@ -239,28 +228,24 @@ osmt_reg_unreg_inform_info(IN osmtest_t * p_osmt,
 	/* --------------------- PREP ------------------------- */
 	if (osmt_mtl_mad_post_recv_bufs(&p_qp_ctx->qp_bind_hndl, p_qp_ctx->p_recv_buf, 1,	/*  but we need only one mad at a time */
 					GRH_LEN + MAD_BLOCK_SIZE, wrid) != 1) {
-		osm_log(p_log, OSM_LOG_ERROR,
-			"osmt_reg_unreg_inform_info: ERR 0120: "
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0120: "
 			"Error posting recv bufs\n");
 		status = IB_ERROR;
 		goto Exit;
 	}
-	osm_log(p_log, OSM_LOG_DEBUG,
-		"osmt_reg_unreg_inform_info: " "Posted recv bufs\n");
+	OSM_LOG(p_log, OSM_LOG_DEBUG, "Posted recv bufs\n");
 
 	vapi_ret =
 	    osmt_mtl_create_av(&p_qp_ctx->qp_bind_hndl,
 			       p_osmt->local_port.sm_lid, &avh);
 	if (vapi_ret != VAPI_OK) {
-		osm_log(p_log, OSM_LOG_ERROR,
-			"osmt_reg_unreg_inform_info: ERR 0121: "
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0121: "
 			"Error Preparing AVH (%s)\n",
 			VAPI_strerror_sym(vapi_ret));
 		status = IB_ERROR;
 		goto Exit;
 	}
-	osm_log(p_log, OSM_LOG_DEBUG,
-		"osmt_reg_unreg_inform_info: " "Prepared AVH\n");
+	OSM_LOG(p_log, OSM_LOG_DEBUG, "Prepared AVH\n");
 
 	if (osm_log_is_active(p_log, OSM_LOG_DEBUG)) {
 		osm_dump_sa_mad(p_log, (ib_sa_mad_t *) (p_qp_ctx->p_send_buf),
@@ -282,8 +267,7 @@ osmt_reg_unreg_inform_info(IN osmtest_t * p_osmt,
 				     OSMT_MTL_REVERSE_QP1_WELL_KNOWN_Q_KEY,
 				     avh);
 	if (vapi_ret != VAPI_OK) {
-		osm_log(p_log, OSM_LOG_ERROR,
-			"osmt_reg_unreg_inform_info: ERR 0122: "
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0122: "
 			"Error sending mad (%s)\n",
 			VAPI_strerror_sym(vapi_ret));
 		status = IB_ERROR;
@@ -294,8 +278,7 @@ osmt_reg_unreg_inform_info(IN osmtest_t * p_osmt,
 					 p_qp_ctx->qp_bind_hndl.sq_cq_hndl,
 					 &wc_desc, 20, 10000, NULL);
 	if (vapi_ret != VAPI_OK) {
-		osm_log(p_log, OSM_LOG_ERROR,
-			"osmt_reg_unreg_inform_info: ERR 0123: "
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0123: "
 			"Error getting send completion (%s)\n",
 			VAPI_strerror_sym(vapi_ret));
 		status = IB_ERROR;
@@ -303,15 +286,13 @@ osmt_reg_unreg_inform_info(IN osmtest_t * p_osmt,
 	}
 
 	if (wc_desc.status != VAPI_SUCCESS) {
-		osm_log(p_log, OSM_LOG_ERROR,
-			"osmt_reg_unreg_inform_info: ERR 0124: "
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0124: "
 			"Error on send completion (%s) (%d)\n",
 			VAPI_strerror_sym(wc_desc.status), wc_desc.status);
 		status = IB_ERROR;
 		goto Exit;
 	}
-	osm_log(p_log, OSM_LOG_DEBUG,
-		"osmt_reg_unreg_inform_info: " "Sent MAD\n");
+	OSM_LOG(p_log, OSM_LOG_DEBUG, "Sent MAD\n");
 
 	/* --------------------- RECV ------------------------- */
 	vapi_ret = osmt_mtl_mad_poll4cqe(p_qp_ctx->qp_bind_hndl.hca_hndl,
@@ -321,8 +302,7 @@ osmt_reg_unreg_inform_info(IN osmtest_t * p_osmt,
 		if (vapi_ret == VAPI_CQ_EMPTY) {
 			status = IB_TIMEOUT;
 		} else {
-			osm_log(p_log, OSM_LOG_ERROR,
-				"osmt_reg_unreg_inform_info: ERR 0125: "
+			OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0125: "
 				"Error receiving mad (%s)\n",
 				VAPI_strerror_sym(vapi_ret));
 			status = IB_ERROR;
@@ -334,17 +314,14 @@ osmt_reg_unreg_inform_info(IN osmtest_t * p_osmt,
 	p_sa_mad = (ib_sa_mad_t *) (p_qp_ctx->p_recv_buf + GRH_LEN);
 
 	if (p_sa_mad->status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_reg_unreg_inform_info: "
-			"Remote error = %s\n",
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "Remote error = %s\n",
 			ib_get_mad_status_str((ib_mad_t *) p_sa_mad));
 		status = IB_REMOTE_ERROR;
 		goto Exit;
 	}
 
 	if (p_sa_mad->method != IB_MAD_METHOD_GET_RESP) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_reg_unreg_inform_info: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 			"Expected IB_MAD_METHOD_GET_RESP but got:(%X)\n",
 			p_sa_mad->method);
 		status = IB_REMOTE_ERROR;
@@ -352,8 +329,7 @@ osmt_reg_unreg_inform_info(IN osmtest_t * p_osmt,
 	}
 
 	if (p_sa_mad->attr_id != IB_MAD_ATTR_INFORM_INFO) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_reg_unreg_inform_info: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 			"Expected IB_MAD_ATTR_INFORM_INFO but got:(%X)\n",
 			cl_ntoh16(p_sa_mad->attr_id));
 		status = IB_REMOTE_ERROR;
@@ -362,8 +338,7 @@ osmt_reg_unreg_inform_info(IN osmtest_t * p_osmt,
 
 	p_ii = ib_sa_mad_get_payload_ptr(p_sa_mad);
 	if (!p_ii->subscribe) {
-		osm_log(p_log, OSM_LOG_ERROR,
-			"osmt_reg_unreg_inform_info: ERR 0126: "
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0126: "
 			"Subscribe/Unsubscribe Failed\n");
 		status = IB_REMOTE_ERROR;
 	}
@@ -397,8 +372,7 @@ osmt_send_trap_wait_for_forward(IN osmtest_t * const p_osmt,
 
 	OSM_LOG_ENTER(p_log);
 
-	osm_log(p_log, OSM_LOG_INFO,
-		"osmt_send_trap_wait_for_forward: "
+	OSM_LOG(p_log, OSM_LOG_INFO,
 		"Sending Traps to QP0 of SA LID:0x%X\n",
 		p_osmt->local_port.sm_lid);
 
@@ -421,14 +395,12 @@ osmt_send_trap_wait_for_forward(IN osmtest_t * const p_osmt,
 	/* --------------------- PREP ------------------------- */
 	if (osmt_mtl_mad_post_recv_bufs(&p_qp_ctx->qp_bind_hndl, p_qp_ctx->p_recv_buf, 1,	/*  we need to receive both trap repress and report */
 					GRH_LEN + MAD_BLOCK_SIZE, wrid) != 1) {
-		osm_log(p_log, OSM_LOG_ERROR,
-			"osmt_send_trap_wait_for_forward: ERR 0127: "
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0127: "
 			"Error posting recv bufs\n");
 		status = IB_ERROR;
 		goto Exit;
 	}
-	osm_log(p_log, OSM_LOG_DEBUG,
-		"osmt_send_trap_wait_for_forward: " "Posted recv bufs\n");
+	OSM_LOG(p_log, OSM_LOG_DEBUG, "Posted recv bufs\n");
 
 	av.dlid = p_osmt->local_port.sm_lid;
 	av.grh_flag = FALSE;
@@ -438,14 +410,9 @@ osmt_send_trap_wait_for_forward(IN osmtest_t * const p_osmt,
 	av.src_path_bits = 1;	/*  p_mad_addr->path_bits; */
 	av.sl = 0;		/*  p_mad_addr->addr_type.gsi.service_level; */
 
-	if (osm_log_is_active(p_log, OSM_LOG_DEBUG)) {
-		osm_log(p_log, OSM_LOG_DEBUG,
-			"osmt_send_trap_wait_for_forward: "
-			"av.dlid 0x%X, "
-			"av.static_rate %d, "
-			"av.path_bits %d\n",
-			cl_ntoh16(av.dlid), av.static_rate, av.src_path_bits);
-	}
+	OSM_LOG(p_log, OSM_LOG_DEBUG,
+		"av.dlid 0x%X, av.static_rate %d, av.path_bits %d\n",
+		cl_ntoh16(av.dlid), av.static_rate, av.src_path_bits);
 
 	/* send it */
 	mgt_res = IB_MGT_send_mad(p_qp_ctx->ib_mgt_qp0_handle, p_smp,	/*  actual payload */
@@ -453,8 +420,7 @@ osmt_send_trap_wait_for_forward(IN osmtest_t * const p_osmt,
 				  wrid,	/*  casting the mad wrapper pointer for err cb */
 				  p_osmt->opt.transaction_timeout);
 	if (mgt_res != IB_MGT_OK) {
-		osm_log(p_log, OSM_LOG_ERROR,
-			"osmt_send_trap_wait_for_forward: ERR 0128: "
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0128: "
 			"Error sending mad (%d)\n", mgt_res);
 		status = IB_ERROR;
 		goto Exit;
@@ -464,18 +430,15 @@ osmt_send_trap_wait_for_forward(IN osmtest_t * const p_osmt,
 	    osmt_mtl_create_av(&p_qp_ctx->qp_bind_hndl,
 			       p_osmt->local_port.sm_lid, &avh);
 	if (vapi_ret != VAPI_OK) {
-		osm_log(p_log, OSM_LOG_ERROR,
-			"osmt_send_trap_wait_for_forward: ERR 0129: "
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0129: "
 			"Error Preparing AVH (%s)\n",
 			VAPI_strerror_sym(vapi_ret));
 		status = IB_ERROR;
 		goto Exit;
 	}
-	osm_log(p_log, OSM_LOG_DEBUG,
-		"osmt_send_trap_wait_for_forward: " "Prepared AVH\n");
+	OSM_LOG(p_log, OSM_LOG_DEBUG, "Prepared AVH\n");
 
-	osm_log(p_log, OSM_LOG_DEBUG,
-		"osmt_send_trap_wait_for_forward: " "Trap MAD Sent\n");
+	OSM_LOG(p_log, OSM_LOG_DEBUG, "Trap MAD Sent\n");
 
 	/* --------------------- RECV ------------------------- */
 	vapi_ret = osmt_mtl_mad_poll4cqe(p_qp_ctx->qp_bind_hndl.hca_hndl,
@@ -483,14 +446,12 @@ osmt_send_trap_wait_for_forward(IN osmtest_t * const p_osmt,
 					 &wc_desc, 200, 10000, &avh);
 	if (vapi_ret != VAPI_SUCCESS) {
 		if (vapi_ret == VAPI_CQ_EMPTY) {
-			osm_log(p_log, OSM_LOG_ERROR,
-				"osmt_send_trap_wait_for_forward: ERR 0130: "
+			OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0130: "
 				"Timeout receiving mad (%s)\n",
 				VAPI_strerror_sym(vapi_ret));
 			status = IB_TIMEOUT;
 		} else {
-			osm_log(p_log, OSM_LOG_ERROR,
-				"osmt_send_trap_wait_for_forward: ERR 0131: "
+			OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0131: "
 				"Error receiving mad (%s)\n",
 				VAPI_strerror_sym(vapi_ret));
 			status = IB_ERROR;
@@ -503,21 +464,16 @@ osmt_send_trap_wait_for_forward(IN osmtest_t * const p_osmt,
 
 	if (p_sa_mad->method == IB_MAD_METHOD_REPORT) {
 		if (p_sa_mad->attr_id == IB_MAD_ATTR_NOTICE) {
-			osm_log(p_log, OSM_LOG_INFO,
-				"osmt_send_trap_wait_for_forward: "
-				"Received the Report!\n");
+			OSM_LOG(p_log, OSM_LOG_INFO, "Received the Report!\n");
 			status = IB_SUCCESS;
 		} else {
-			osm_log(p_log, OSM_LOG_ERROR,
-				"osmt_send_trap_wait_for_forward: ERR 1020"
+			OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 1020"
 				"Did not receive a Report(Notice) but attr:%d\n",
-				cl_ntoh16(p_sa_mad->attr_id)
-			    );
+				cl_ntoh16(p_sa_mad->attr_id));
 			status = IB_ERROR;
 		}
 	} else {
-		osm_log(p_log, OSM_LOG_ERROR,
-			"osmt_send_trap_wait_for_forward: ERR 1020"
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 1020"
 			"Received an Unexpected Method:%d\n", p_smp->method);
 		status = IB_ERROR;
 	}
@@ -543,8 +499,7 @@ osmt_trap_wait(IN osmtest_t * const p_osmt, IN osmt_qp_ctx_t * p_qp_ctx)
 
 	OSM_LOG_ENTER(p_log);
 
-	osm_log(p_log, OSM_LOG_INFO,
-		"osmt_trap_wait: "
+	OSM_LOG(p_log, OSM_LOG_INFO,
 		"Waiting for Traps under QP:0x%X of SA LID:0x%X\n",
 		cl_ntoh16(p_osmt->local_port.sm_lid));
 
@@ -557,14 +512,12 @@ osmt_trap_wait(IN osmtest_t * const p_osmt, IN osmt_qp_ctx_t * p_qp_ctx)
 					 10000, NULL);
 	if (vapi_ret != VAPI_SUCCESS) {
 		if (vapi_ret == VAPI_CQ_EMPTY) {
-			osm_log(p_log, OSM_LOG_ERROR,
-				"osmt_trap_wait: ERR 0130: "
+			OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0130: "
 				"Timeout receiving mad (%s)\n",
 				VAPI_strerror_sym(vapi_ret));
 			status = IB_TIMEOUT;
 		} else {
-			osm_log(p_log, OSM_LOG_ERROR,
-				"osmt_trap_wait: ERR 0131: "
+			OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0131: "
 				"Error receiving mad (%s)\n",
 				VAPI_strerror_sym(vapi_ret));
 			status = IB_ERROR;
@@ -577,20 +530,17 @@ osmt_trap_wait(IN osmtest_t * const p_osmt, IN osmt_qp_ctx_t * p_qp_ctx)
 
 	if (p_sa_mad->method == IB_MAD_METHOD_REPORT) {
 		if (p_sa_mad->attr_id == IB_MAD_ATTR_NOTICE) {
-			osm_log(&p_osmt->log, OSM_LOG_INFO,
-				"osmt_trap_wait: " "Received the Report!\n");
+			OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
+				"Received the Report!\n");
 			status = IB_SUCCESS;
 		} else {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmt_trap_wait: ERR 1020"
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 1020"
 				"Did not receive a Report(Notice) but attr:%d\n",
-				cl_ntoh16(p_sa_mad->attr_id)
-			    );
+				cl_ntoh16(p_sa_mad->attr_id));
 			status = IB_ERROR;
 		}
 	} else {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_trap_wait: ERR 1020"
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 1020"
 			"Received an Unexpected Method:%d\n", p_smp->method);
 		status = IB_ERROR;
 	}
@@ -671,14 +621,12 @@ ib_api_status_t osmt_run_inform_info_flow(IN osmtest_t * const p_osmt)
 	/* WAS IB_REMOTE_ERROR */
 	if (status != IB_REMOTE_ERROR) {
 		if (status != IB_SUCCESS) {
-			osm_log(&p_osmt->log, OSM_LOG_INFO,
-				"osmt_run_inform_info_flow:"
+			OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 				"Error during UnSubscribe: (%s)\n",
 				ib_get_err_str(status));
 			goto Exit;
 		} else {
-			osm_log(&p_osmt->log, OSM_LOG_INFO,
-				"osmt_run_inform_info_flow:"
+			OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 				"Expected Failure to UnSubscribe non existing InformInfo\n");
 			status = IB_ERROR;
 			goto Exit;
@@ -694,8 +642,7 @@ ib_api_status_t osmt_run_inform_info_flow(IN osmtest_t * const p_osmt)
 	/* send a trap through QP0 and wait on QPN */
 	status = osmt_send_trap_wait_for_forward(p_osmt, &qp_ctx);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_INFO,
-			"osmt_run_inform_info_flow:"
+		OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 			"Error during Send Trap and Wait For Report: (%s)\n",
 			ib_get_err_str(status));
 		goto Exit;
@@ -705,15 +652,13 @@ ib_api_status_t osmt_run_inform_info_flow(IN osmtest_t * const p_osmt)
 	status = osmt_reg_unreg_inform_info(p_osmt, &qp_ctx, &inform_info, 0);
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_INFO,
-			"osmt_run_inform_info_flow:"
+		OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 			"Error during UnSubscribe: (%s)\n",
 			ib_get_err_str(status));
 		goto Exit;
 	} else {
 		if (status == IB_REMOTE_ERROR) {
-			osm_log(&p_osmt->log, OSM_LOG_INFO,
-				"osmt_run_inform_info_flow:"
+			OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 				"Remote Error during UnSubscribe\n");
 			status = IB_ERROR;
 			goto Exit;
@@ -762,15 +707,13 @@ ib_api_status_t osmt_run_trap64_65_flow(IN osmtest_t * const p_osmt)
   /*--------------------- PREP -------------------------*/
 	if (osmt_mtl_mad_post_recv_bufs(&qp_ctx.qp_bind_hndl, qp_ctx.p_recv_buf, 1,	/* we need to receive the report */
 					GRH_LEN + MAD_BLOCK_SIZE, 1) != 1) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_trap64_65_flow: ERR 0127: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0127: "
 			"Error posting recv bufs for trap 64\n");
 		status = IB_ERROR;
 		goto Exit;
 	}
 
-	osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-		"osmt_run_trap64_65_flow: " "Posted recv bufs for trap 64\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG, "Posted recv bufs for trap 64\n");
 
 	/* init the inform info */
 	osmt_init_inform_info_by_trap(p_osmt, cl_hton16(65), &inform_info);
@@ -784,14 +727,12 @@ ib_api_status_t osmt_run_trap64_65_flow(IN osmtest_t * const p_osmt)
   /*--------------------- PREP -------------------------*/
 	if (osmt_mtl_mad_post_recv_bufs(&qp_ctx.qp_bind_hndl, qp_ctx.p_recv_buf, 1,	/* we need to reveive the report */
 					GRH_LEN + MAD_BLOCK_SIZE, 1) != 1) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_run_trap64_65_flow: ERR 0127: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0127: "
 			"Error posting recv bufs for trap 65\n");
 		status = IB_ERROR;
 		goto Exit;
 	}
-	osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-		"osmt_run_trap64_65_flow: " "Posted recv bufs for trap 65\n");
+	OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG, "Posted recv bufs for trap 65\n");
 
 	/* Sleep for x seconds in order to allow external script trap generation */
 #if 0
@@ -801,8 +742,7 @@ ib_api_status_t osmt_run_trap64_65_flow(IN osmtest_t * const p_osmt)
 	/* wait for a trap on QPN */
 	status = osmt_trap_wait(p_osmt, &qp_ctx);
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_INFO,
-			"osmt_run_trap64_65_flow:"
+		OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 			"Error during Send Trap and Wait For Report: (%s)\n",
 			ib_get_err_str(status));
 		goto Exit;
@@ -812,8 +752,7 @@ ib_api_status_t osmt_run_trap64_65_flow(IN osmtest_t * const p_osmt)
 	status = osmt_reg_unreg_inform_info(p_osmt, &qp_ctx, &inform_info, 0);
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_INFO,
-			"osmt_run_trap64_65_flow:"
+		OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 			"Error during UnSubscribe: (%s)\n",
 			ib_get_err_str(status));
 		goto Exit;

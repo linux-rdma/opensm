@@ -106,12 +106,9 @@ osmt_query_vl_arb(IN osmtest_t * const p_osmt,
 
 	OSM_LOG_ENTER(&p_osmt->log);
 
-	if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-		osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-			"osmt_query_vl_arb: "
-			"Getting VL_Arbitration Table for port with LID 0x%X Num:0x%X\n",
-			cl_ntoh16(lid), port_num);
-	}
+	OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+		"Getting VL_Arbitration Table for port with LID 0x%X Num:0x%X\n",
+		cl_ntoh16(lid), port_num);
 
 	/*
 	 * Do a blocking query for this record in the subnet.
@@ -143,8 +140,7 @@ osmt_query_vl_arb(IN osmtest_t * const p_osmt,
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_query_vl_arb: ERR 0405: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0405: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 		goto Exit;
 	}
@@ -152,13 +148,11 @@ osmt_query_vl_arb(IN osmtest_t * const p_osmt,
 	status = context.result.status;
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_query_vl_arb: ERR 0466: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0466: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 
 		if (status == IB_REMOTE_ERROR) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmt_query_vl_arb: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 				"Remote error = %s\n",
 				ib_get_mad_status_str(osm_madw_get_mad_ptr
 						      (context.result.
@@ -197,8 +191,7 @@ osmt_query_all_ports_vl_arb(IN osmtest_t * const p_osmt, IN FILE * fh)
 
 	OSM_LOG_ENTER(&p_osmt->log);
 
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmt_query_all_ports_vl_arb: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
 		"Obtaining ALL Ports VL Arbitration Tables\n");
 
 	/*
@@ -223,8 +216,8 @@ osmt_query_all_ports_vl_arb(IN osmtest_t * const p_osmt, IN FILE * fh)
 						      p_src_port->rec.lid, 0,
 						      block, fh);
 				if (status != IB_SUCCESS) {
-					osm_log(&p_osmt->log, OSM_LOG_ERROR,
-						"osmt_query_all_ports_vl_arb: ERR 0467: "
+					OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
+						"ERR 0467: "
 						"Failed to get Lid:0x%X Port:0x%X (%s)\n",
 						cl_ntoh16(p_src_port->rec.lid),
 						0, ib_get_err_str(status));
@@ -240,8 +233,8 @@ osmt_query_all_ports_vl_arb(IN osmtest_t * const p_osmt, IN FILE * fh)
 						      p_src_port->rec.port_num,
 						      block, fh);
 				if (status != IB_SUCCESS) {
-					osm_log(&p_osmt->log, OSM_LOG_ERROR,
-						"osmt_query_all_ports_vl_arb: ERR 0468: "
+					OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
+						"ERR 0468: "
 						"Failed to get Lid:0x%X Port:0x%X (%s)\n",
 						cl_ntoh16(p_src_port->rec.lid),
 						p_src_port->rec.port_num,
@@ -314,12 +307,9 @@ osmt_query_slvl_map(IN osmtest_t * const p_osmt,
 
 	OSM_LOG_ENTER(&p_osmt->log);
 
-	if (osm_log_is_active(&p_osmt->log, OSM_LOG_DEBUG)) {
-		osm_log(&p_osmt->log, OSM_LOG_DEBUG,
-			"osmt_query_slvl_map: "
-			"Getting SLtoVL Map Table for out-port with LID 0x%X Num:0x%X from In-Port:0x%X\n",
-			cl_ntoh16(lid), out_port_num, in_port_num);
-	}
+	OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,
+		"Getting SLtoVL Map Table for out-port with LID 0x%X Num:0x%X from In-Port:0x%X\n",
+		cl_ntoh16(lid), out_port_num, in_port_num);
 
 	/*
 	 * Do a blocking query for this record in the subnet.
@@ -351,8 +341,7 @@ osmt_query_slvl_map(IN osmtest_t * const p_osmt,
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_query_slvl_map: ERR 0469: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0469: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 		goto Exit;
 	}
@@ -360,13 +349,11 @@ osmt_query_slvl_map(IN osmtest_t * const p_osmt,
 	status = context.result.status;
 
 	if (status != IB_SUCCESS) {
-		osm_log(&p_osmt->log, OSM_LOG_ERROR,
-			"osmt_query_slvl_map: ERR 0470: "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0470: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
 
 		if (status == IB_REMOTE_ERROR) {
-			osm_log(&p_osmt->log, OSM_LOG_ERROR,
-				"osmt_query_slvl_map: "
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 				"Remote error = %s\n",
 				ib_get_mad_status_str(osm_madw_get_mad_ptr
 						      (context.result.
@@ -412,8 +399,7 @@ osmt_query_all_ports_slvl_map(IN osmtest_t * const p_osmt, IN FILE * fh)
 	 * get the relevant SLtoVLs
 	 */
 
-	osm_log(&p_osmt->log, OSM_LOG_VERBOSE,
-		"osmt_query_all_ports_slvl_map: "
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
 		"Obtaining ALL Ports (to other ports) SLtoVL Maps\n");
 
 	p_tbl = &p_osmt->exp_subn.port_key_tbl;
@@ -432,8 +418,7 @@ osmt_query_all_ports_slvl_map(IN osmtest_t * const p_osmt, IN FILE * fh)
 			    osmt_query_slvl_map(p_osmt, p_src_port->rec.lid, 0,
 						0, fh);
 			if (status != IB_SUCCESS) {
-				osm_log(&p_osmt->log, OSM_LOG_ERROR,
-					"osmt_query_all_ports_slvl_map: ERR 0471: "
+				OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0471: "
 					"Failed to get Lid:0x%X In-Port:0x%X Out-Port:0x%X(%s)\n",
 					cl_ntoh16(p_src_port->rec.lid), 0, 0,
 					ib_get_err_str(status));
@@ -446,8 +431,7 @@ osmt_query_all_ports_slvl_map(IN osmtest_t * const p_osmt, IN FILE * fh)
 			    (node_t *) cl_qmap_get(p_node_tbl,
 						   p_src_port->rec.lid);
 			if (p_node == (node_t *) cl_qmap_end(p_node_tbl)) {
-				osm_log(&p_osmt->log, OSM_LOG_ERROR,
-					"osmt_query_all_ports_slvl_map: ERR 0472: "
+				OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0472: "
 					"Failed to get Node by Lid:0x%X\n",
 					p_src_port->rec.lid);
 				goto Exit;
@@ -462,8 +446,8 @@ osmt_query_all_ports_slvl_map(IN osmtest_t * const p_osmt, IN FILE * fh)
 							p_src_port->rec.
 							port_num, in_port, fh);
 				if (status != IB_SUCCESS) {
-					osm_log(&p_osmt->log, OSM_LOG_ERROR,
-						"osmt_query_all_ports_slvl_map: ERR 0473: "
+					OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
+						"ERR 0473: "
 						"Failed to get Lid:0x%X In-Port:0x%X Out-Port:0x%X (%s)\n",
 						cl_ntoh16(p_src_port->rec.lid),
 						p_src_port->rec.port_num,
