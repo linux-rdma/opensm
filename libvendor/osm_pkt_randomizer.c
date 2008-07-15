@@ -91,8 +91,7 @@ __osm_pkt_randomizer_is_path_in_fault_paths(IN osm_log_t * p_log,
 
 		/* If found_path is TRUE  then there is a full match of the path */
 		if (found_path == TRUE) {
-			osm_log(p_log, OSM_LOG_VERBOSE,
-				"__osm_pkt_randomizer_is_path_in_fault_paths: "
+			OSM_LOG(p_log, OSM_LOG_VERBOSE,
 				"Given path is in a fault path\n");
 			res = TRUE;
 			break;
@@ -179,8 +178,7 @@ __osm_pkt_randomizer_process_path(IN osm_log_t * p_log,
 			   if to update it there or not. */
 			if (rand_value %
 			    (p_pkt_rand->osm_pkt_unstable_link_rate) == 0) {
-				osm_log(p_log, OSM_LOG_VERBOSE,
-					"__osm_pkt_randomizer_process_path: "
+				OSM_LOG(p_log, OSM_LOG_VERBOSE,
 					"%s added to the fault_dr_paths list\n"
 					"\t\t\t rand_value:%u, unstable_link_rate:%u \n",
 					buf, rand_value,
@@ -200,9 +198,7 @@ __osm_pkt_randomizer_process_path(IN osm_log_t * p_log,
 
 	if (in_fault_paths == FALSE) {
 		/* If in_fault_paths is FALSE - just ignore the path */
-		osm_log(p_log, OSM_LOG_VERBOSE,
-			"__osm_pkt_randomizer_process_path: "
-			"%s not in fault paths\n", buf);
+		OSM_LOG(p_log, OSM_LOG_VERBOSE, "%s not in fault paths\n", buf);
 		goto Exit;
 	}
 
@@ -213,9 +209,7 @@ __osm_pkt_randomizer_process_path(IN osm_log_t * p_log,
 	if (rand_value % (p_pkt_rand->osm_pkt_drop_rate) == 0) {
 		/* drop the current packet */
 		res = TRUE;
-		osm_log(p_log, OSM_LOG_VERBOSE,
-			"__osm_pkt_randomizer_process_path: "
-			"Dropping path:%s\n", buf);
+		OSM_LOG(p_log, OSM_LOG_VERBOSE, "Dropping path:%s\n", buf);
 	}
 
 Exit:
@@ -248,8 +242,7 @@ osm_pkt_randomizer_mad_drop(IN osm_log_t * p_log,
 	if (__osm_pkt_randomizer_process_path
 	    (p_log, p_pkt_randomizer, &dr_path)) {
 		/* the mad should be dropped o */
-		osm_log(p_log, OSM_LOG_VERBOSE,
-			"osm_pkt_randomizer_mad_drop: "
+		OSM_LOG(p_log, OSM_LOG_VERBOSE,
 			"mad TID: 0x%" PRIx64 " is being dropped\n",
 			cl_ntoh64(p_smp->trans_id));
 		res = TRUE;
@@ -294,9 +287,7 @@ osm_pkt_randomizer_init(IN OUT osm_pkt_randomizer_t ** pp_pkt_randomizer,
 	else
 		(*pp_pkt_randomizer)->osm_pkt_unstable_link_rate = 20;
 
-	osm_log(p_log, OSM_LOG_VERBOSE,
-		"osm_pkt_randomizer_init: "
-		"Using OSM_PKT_DROP_RATE=%u \n"
+	OSM_LOG(p_log, OSM_LOG_VERBOSE, "Using OSM_PKT_DROP_RATE=%u \n"
 		"\t\t\t\t OSM_PKT_NUM_UNSTABLE_LINKS=%u \n"
 		"\t\t\t\t OSM_PKT_UNSTABLE_LINK_RATE=%u \n",
 		(*pp_pkt_randomizer)->osm_pkt_drop_rate,

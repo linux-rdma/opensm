@@ -112,8 +112,7 @@ static void clear_madw(osm_vendor_t * p_vend)
 					   *) ((osm_madw_t *) m->v)->h_bind)->
 					 p_mad_pool, m->v);
 			pthread_mutex_unlock(&p_vend->match_tbl_mutex);
-			osm_log(p_vend->p_log, OSM_LOG_ERROR,
-				"clear_madw: ERR 5401: "
+			OSM_LOG(p_vend->p_log, OSM_LOG_ERROR, "ERR 5401: "
 				"evicting entry %p (tid was 0x%" PRIx64 ")\n",
 				old_m, old_tid);
 			goto Exit;
@@ -192,8 +191,7 @@ put_madw(osm_vendor_t * p_vend, osm_madw_t * p_madw, ib_net64_t tid)
 	lru->version =
 	    cl_atomic_inc((atomic32_t *) & p_vend->mtbl.last_version);
 	pthread_mutex_unlock(&p_vend->match_tbl_mutex);
-	osm_log(p_vend->p_log, OSM_LOG_ERROR,
-		"put_madw: ERR 5402: "
+	OSM_LOG(p_vend->p_log, OSM_LOG_ERROR, "ERR 5402: "
 		"evicting entry %p (tid was 0x%" PRIx64 ")\n", old_lru,
 		cl_ntoh64(old_tid));
 }
@@ -255,8 +253,7 @@ static void *umad_receiver(void *p_ptr)
 	for (;;) {
 		if (!umad &&
 		    !(umad = umad_alloc(1, umad_size() + MAD_BLOCK_SIZE))) {
-			osm_log(p_ur->p_log, OSM_LOG_ERROR,
-				"umad_receiver: ERR 5403: "
+			OSM_LOG(p_ur->p_log, OSM_LOG_ERROR, "ERR 5403: "
 				"can't alloc MAD sized umad\n");
 			break;
 		}
@@ -265,8 +262,7 @@ static void *umad_receiver(void *p_ptr)
 		if ((mad_agent = umad_recv(p_vend->umad_port_id, umad,
 					   &length, -1)) < 0) {
 			if (length <= MAD_BLOCK_SIZE) {
-				osm_log(p_ur->p_log, OSM_LOG_ERROR,
-					"umad_receiver: ERR 5404: "
+				OSM_LOG(p_ur->p_log, OSM_LOG_ERROR, "ERR 5404: "
 					"recv error on MAD sized umad (%m)\n");
 				continue;
 			} else {
@@ -274,8 +270,8 @@ static void *umad_receiver(void *p_ptr)
 				/* Need a larger buffer for RMPP */
 				umad = umad_alloc(1, umad_size() + length);
 				if (!umad) {
-					osm_log(p_ur->p_log, OSM_LOG_ERROR,
-						"umad_receiver: ERR 5405: "
+					OSM_LOG(p_ur->p_log, OSM_LOG_ERROR,
+						"ERR 5405: "
 						"can't alloc umad length %d\n",
 						length);
 					continue;
@@ -284,8 +280,8 @@ static void *umad_receiver(void *p_ptr)
 				if ((mad_agent = umad_recv(p_vend->umad_port_id,
 							   umad, &length,
 							   -1)) < 0) {
-					osm_log(p_ur->p_log, OSM_LOG_ERROR,
-						"umad_receiver: ERR 5406: "
+					OSM_LOG(p_ur->p_log, OSM_LOG_ERROR,
+						"ERR 5406: "
 						"recv error on umad length %d (%m)\n",
 						length);
 					continue;
@@ -295,8 +291,7 @@ static void *umad_receiver(void *p_ptr)
 
 		if (mad_agent >= UMAD_CA_MAX_AGENTS ||
 		    !(p_bind = p_vend->agents[mad_agent])) {
-			osm_log(p_ur->p_log, OSM_LOG_ERROR,
-				"umad_receiver: ERR 5407: "
+			OSM_LOG(p_ur->p_log, OSM_LOG_ERROR, "ERR 5407: "
 				"invalid mad agent %d - dropping\n", mad_agent);
 			continue;
 		}
@@ -312,8 +307,7 @@ static void *umad_receiver(void *p_ptr)
 						(osm_bind_handle_t) p_bind,
 						MAX(length, MAD_BLOCK_SIZE),
 						&osm_addr))) {
-			osm_log(p_vend->p_log, OSM_LOG_ERROR,
-				"umad_receiver: ERR 5408: "
+			OSM_LOG(p_vend->p_log, OSM_LOG_ERROR, "ERR 5408: "
 				"request for a new madw failed -- dropping packet\n");
 			continue;
 		}
@@ -330,8 +324,7 @@ static void *umad_receiver(void *p_ptr)
 
 		/* if status != 0 then we are handling recv timeout on send */
 		if (umad_status(p_madw->vend_wrap.umad)) {
-			osm_log(p_vend->p_log, OSM_LOG_ERROR,
-				"umad_receiver: ERR 5409: "
+			OSM_LOG(p_vend->p_log, OSM_LOG_ERROR, "ERR 5409: "
 				"send completed with error"
 				" (method=0x%X attr=0x%X trans_id=0x%" PRIx64
 				") -- dropping\n",
@@ -339,9 +332,8 @@ static void *umad_receiver(void *p_ptr)
 				cl_ntoh64(mad->trans_id));
 			if (mad->mgmt_class != IB_MCLASS_SUBN_DIR) {
 				/* LID routed */
-				osm_log(p_vend->p_log, OSM_LOG_ERROR,
-					"umad_receiver: ERR 5410: "
-					"class 0x%x LID 0x%x\n",
+				OSM_LOG(p_vend->p_log, OSM_LOG_ERROR,
+					"ERR 5410: class 0x%x LID 0x%x\n",
 					mad->mgmt_class,
 					cl_ntoh16(ib_mad_addr->lid));
 			} else {
@@ -349,16 +341,16 @@ static void *umad_receiver(void *p_ptr)
 
 				/* Direct routed SMP */
 				smp = (ib_smp_t *) mad;
-				osm_log(p_vend->p_log, OSM_LOG_ERROR,
-					"umad_receiver: ERR 5411: DR SMP Hop Ptr: 0x%X\n",
+				OSM_LOG(p_vend->p_log, OSM_LOG_ERROR,
+					"ERR 5411: DR SMP Hop Ptr: 0x%X\n",
 					smp->hop_ptr);
 				osm_dump_smp_dr_path(p_vend->p_log, smp,
 						     OSM_LOG_ERROR);
 			}
 
 			if (!(p_req_madw = get_madw(p_vend, &mad->trans_id))) {
-				osm_log(p_vend->p_log, OSM_LOG_ERROR,
-					"umad_receiver: ERR 5412: "
+				OSM_LOG(p_vend->p_log, OSM_LOG_ERROR,
+					"ERR 5412: "
 					"Failed to obtain request madw for timed out MAD"
 					"(method=0x%X attr=0x%X tid=0x%"PRIx64") -- dropping\n",
 					mad->method, cl_ntoh16(mad->attr_id),
@@ -382,8 +374,7 @@ static void *umad_receiver(void *p_ptr)
 		p_req_madw = 0;
 		if (ib_mad_is_response(mad) &&
 		    !(p_req_madw = get_madw(p_vend, &mad->trans_id))) {
-			osm_log(p_vend->p_log, OSM_LOG_ERROR,
-				"umad_receiver: ERR 5413: "
+			OSM_LOG(p_vend->p_log, OSM_LOG_ERROR, "ERR 5413: "
 				"Failed to obtain request madw for received MAD"
 				"(method=0x%X attr=0x%X tid=0x%"PRIx64") -- dropping\n",
 				mad->method, cl_ntoh16((mad)->attr_id),
@@ -396,13 +387,10 @@ static void *umad_receiver(void *p_ptr)
 		    (mad->mgmt_class != IB_MCLASS_SUBN_LID) &&
 		    (ib_rmpp_is_flag_set((ib_rmpp_mad_t *) mad,
 					 IB_RMPP_FLAG_ACTIVE))) {
-			osm_log(p_vend->p_log, OSM_LOG_ERROR,
-				"umad_receiver: ERR 5414: "
-				"class 0x%x method 0x%x"
-				" RMPP version %d type %d flags 0x%x"
-				" received -- dropping\n",
-				mad->mgmt_class,
-				mad->method,
+			OSM_LOG(p_vend->p_log, OSM_LOG_ERROR, "ERR 5414: "
+				"class 0x%x method 0x%x RMPP version %d type "
+				"%d flags 0x%x received -- dropping\n",
+				mad->mgmt_class, mad->method,
 				((ib_rmpp_mad_t *) mad)->rmpp_version,
 				((ib_rmpp_mad_t *) mad)->rmpp_type,
 				((ib_rmpp_mad_t *) mad)->rmpp_flags);
@@ -468,14 +456,14 @@ osm_vendor_init(IN osm_vendor_t * const p_vend,
 	 * Open our instance of UMAD.
 	 */
 	if ((r = umad_init()) < 0) {
-		osm_log(p_vend->p_log, OSM_LOG_ERROR,
-			"osm_vendor_init: ERR 5415: Error opening UMAD\n");
+		OSM_LOG(p_vend->p_log, OSM_LOG_ERROR,
+			"ERR 5415: Error opening UMAD\n");
 	}
 
 	if ((n_cas = umad_get_cas_names(p_vend->ca_names,
 					OSM_UMAD_MAX_CAS)) < 0) {
-		osm_log(p_vend->p_log, OSM_LOG_ERROR,
-			"osm_vendor_init: ERR 5416: umad_get_cas_names failed\n");
+		OSM_LOG(p_vend->p_log, OSM_LOG_ERROR,
+			"ERR 5416: umad_get_cas_names failed\n");
 		r = n_cas;
 		goto Exit;
 	}
@@ -488,20 +476,17 @@ osm_vendor_init(IN osm_vendor_t * const p_vend,
 		if (tmp > 0)
 			p_vend->mtbl.max = tmp;
 		else
-			osm_log(p_vend->p_log, OSM_LOG_ERROR,
-				"osm_vendor_init: Error:"
+			OSM_LOG(p_vend->p_log, OSM_LOG_ERROR, "Error:"
 				"OSM_UMAD_MAX_PENDING=%d is invalid",
 				tmp);
 	}
 
-	osm_log(p_vend->p_log, OSM_LOG_INFO,
-		"osm_vendor_init: %d pending umads specified\n",
+	OSM_LOG(p_vend->p_log, OSM_LOG_INFO, "%d pending umads specified\n",
 		p_vend->mtbl.max);
 
 	p_vend->mtbl.tbl = calloc(p_vend->mtbl.max, sizeof(*(p_vend->mtbl.tbl)));
 	if (!p_vend->mtbl.tbl) {
-		osm_log(p_vend->p_log, OSM_LOG_ERROR,
-			"osm_vendor_init: Error:"
+		OSM_LOG(p_vend->p_log, OSM_LOG_ERROR, "Error:"
 			"failed to allocate vendor match table\n");
 		r = IB_INSUFFICIENT_MEMORY;
 		goto Exit;
@@ -522,16 +507,14 @@ osm_vendor_t *osm_vendor_new(IN osm_log_t * const p_log,
 	OSM_LOG_ENTER(p_log);
 
 	if (!timeout) {
-		osm_log(p_log, OSM_LOG_ERROR,
-			"osm_vendor_new: ERR 5433: "
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 5433: "
 			"transaction timeout cannot be 0\n");
 		goto Exit;
 	}
 
 	p_vend = malloc(sizeof(*p_vend));
 	if (p_vend == NULL) {
-		osm_log(p_log, OSM_LOG_ERROR,
-			"osm_vendor_new: ERR 5417: "
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 5417: "
 			"Unable to allocate vendor object\n");
 		goto Exit;
 	}
@@ -583,8 +566,7 @@ osm_vendor_get_all_port_attr(IN osm_vendor_t * const p_vend,
 
 	if (!*p_num_ports) {
 		r = IB_INVALID_PARAMETER;
-		osm_log(p_vend->p_log, OSM_LOG_ERROR,
-			"osm_vendor_get_all_port_attr: ERR 5418: "
+		OSM_LOG(p_vend->p_log, OSM_LOG_ERROR, "ERR 5418: "
 			"Ports in should be > 0\n");
 		goto Exit;
 	}
@@ -659,8 +641,7 @@ osm_vendor_open_port(IN osm_vendor_t * const p_vend,
 		if ((r = umad_get_ca_portguids(p_vend->ca_names[ca],
 					       portguids,
 					       OSM_UMAD_MAX_CAS)) < 0) {
-			osm_log(p_vend->p_log, OSM_LOG_ERROR,
-				"osm_vendor_open_port: ERR 5421: "
+			OSM_LOG(p_vend->p_log, OSM_LOG_ERROR, "ERR 5421: "
 				"Unable to get CA %s port guids (%s)\n",
 				p_vend->ca_names[ca], strerror(r));
 			goto Exit;
@@ -675,8 +656,7 @@ osm_vendor_open_port(IN osm_vendor_t * const p_vend,
 	/*
 	 * No local CA owns this guid!
 	 */
-	osm_log(p_vend->p_log, OSM_LOG_ERROR,
-		"osm_vendor_open_port: ERR 5422: "
+	OSM_LOG(p_vend->p_log, OSM_LOG_ERROR, "ERR 5422: "
 		"Unable to find requested CA guid 0x%" PRIx64 "\n",
 		cl_ntoh64(port_guid));
 	goto Exit;
@@ -684,15 +664,13 @@ osm_vendor_open_port(IN osm_vendor_t * const p_vend,
 _found:
 	/* Validate that node is an IB node type (not iWARP) */
 	if (umad_get_ca(name, &umad_ca) < 0) {
-		osm_log(p_vend->p_log, OSM_LOG_ERROR,
-			"osm_vendor_open_port: ERR 542A: "
+		OSM_LOG(p_vend->p_log, OSM_LOG_ERROR, "ERR 542A: "
 			"umad_get_ca() failed\n");
 		goto Exit;
 	}
 
 	if (umad_ca.node_type < 1 || umad_ca.node_type > 3) {
-		osm_log(p_vend->p_log, OSM_LOG_ERROR,
-			"osm_vendor_open_port: ERR 542D: "
+		OSM_LOG(p_vend->p_log, OSM_LOG_ERROR, "ERR 542D: "
 			"Type %d of node \'%s\' is not an IB node type\n",
 			umad_ca.node_type, umad_ca.ca_name);
 		fprintf(stderr,
@@ -705,16 +683,14 @@ _found:
 
 	/* Port found, try to open it */
 	if (umad_get_port(name, i, &p_vend->umad_port) < 0) {
-		osm_log(p_vend->p_log, OSM_LOG_ERROR,
-			"osm_vendor_open_port: ERR 542B: "
+		OSM_LOG(p_vend->p_log, OSM_LOG_ERROR, "ERR 542B: "
 			"umad_get_port() failed\n");
 		goto Exit;
 	}
 
 	if ((umad_port_id = umad_open_port(p_vend->umad_port.ca_name,
 					   p_vend->umad_port.portnum)) < 0) {
-		osm_log(p_vend->p_log, OSM_LOG_ERROR,
-			"osm_vendor_open_port: ERR 542C: "
+		OSM_LOG(p_vend->p_log, OSM_LOG_ERROR, "ERR 542C: "
 			"umad_open_port() failed\n");
 		goto Exit;
 	}
@@ -723,8 +699,7 @@ _found:
 
 	/* start receiver thread */
 	if (!(p_vend->receiver = calloc(1, sizeof(umad_receiver_t)))) {
-		osm_log(p_vend->p_log, OSM_LOG_ERROR,
-			"osm_vendor_open_port: ERR 5423: "
+		OSM_LOG(p_vend->p_log, OSM_LOG_ERROR, "ERR 5423: "
 			"Unable to alloc receiver struct\n");
 		umad_close_port(umad_port_id);
 		umad_release_port(&p_vend->umad_port);
@@ -733,8 +708,7 @@ _found:
 		goto Exit;
 	}
 	if (umad_receiver_start(p_vend) != 0) {
-		osm_log(p_vend->p_log, OSM_LOG_ERROR,
-			"osm_vendor_open_port: ERR 5420: "
+		OSM_LOG(p_vend->p_log, OSM_LOG_ERROR, "ERR 5420: "
 			"umad_receiver_init failed\n");
 		umad_close_port(umad_port_id);
 		umad_release_port(&p_vend->umad_port);
@@ -807,12 +781,11 @@ osm_vendor_bind(IN osm_vendor_t * const p_vend,
 
 	port_guid = p_user_bind->port_guid;
 
-	osm_log(p_vend->p_log, OSM_LOG_INFO, "osm_vendor_bind: "
+	OSM_LOG(p_vend->p_log, OSM_LOG_INFO,
 		"Binding to port 0x%" PRIx64 "\n", cl_ntoh64(port_guid));
 
 	if ((umad_port_id = osm_vendor_open_port(p_vend, port_guid)) < 0) {
-		osm_log(p_vend->p_log, OSM_LOG_ERROR,
-			"osm_vendor_bind: ERR 5424: "
+		OSM_LOG(p_vend->p_log, OSM_LOG_ERROR, "ERR 5424: "
 			"Unable to open port 0x%" PRIx64 "\n",
 			cl_ntoh64(port_guid));
 		goto Exit;
@@ -822,16 +795,14 @@ osm_vendor_bind(IN osm_vendor_t * const p_vend,
 			       p_vend->umad_port.portnum,
 			       p_vend->issm_path,
 			       sizeof(p_vend->issm_path)) < 0) {
-		osm_log(p_vend->p_log, OSM_LOG_ERROR,
-			"osm_vendor_bind: ERR 542E: "
+		OSM_LOG(p_vend->p_log, OSM_LOG_ERROR, "ERR 542E: "
 			"Cannot resolve issm path for port %s:%u\n",
 			p_vend->umad_port.ca_name, p_vend->umad_port.portnum);
 		goto Exit;
 	}
 
 	if (!(p_bind = malloc(sizeof(*p_bind)))) {
-		osm_log(p_vend->p_log, OSM_LOG_ERROR,
-			"osm_vendor_bind: ERR 5425: "
+		OSM_LOG(p_vend->p_log, OSM_LOG_ERROR, "ERR 5425: "
 			"Unable to allocate internal bind object\n");
 		goto Exit;
 	}
@@ -879,8 +850,7 @@ osm_vendor_bind(IN osm_vendor_t * const p_vend,
 					      p_user_bind->mad_class,
 					      p_user_bind->class_version,
 					      rmpp_version, method_mask)) < 0) {
-		osm_log(p_vend->p_log, OSM_LOG_ERROR,
-			"osm_vendor_bind: ERR 5426: "
+		OSM_LOG(p_vend->p_log, OSM_LOG_ERROR, "ERR 5426: "
 			"Unable to register class %u version %u\n",
 			p_user_bind->mad_class, p_user_bind->class_version);
 		free(p_bind);
@@ -890,8 +860,7 @@ osm_vendor_bind(IN osm_vendor_t * const p_vend,
 
 	if (p_bind->agent_id >= UMAD_CA_MAX_AGENTS ||
 	    p_vend->agents[p_bind->agent_id]) {
-		osm_log(p_vend->p_log, OSM_LOG_ERROR,
-			"osm_vendor_bind: ERR 5427: "
+		OSM_LOG(p_vend->p_log, OSM_LOG_ERROR, "ERR 5427: "
 			"bad agent id %u or duplicate agent for class %u vers %u\n",
 			p_bind->agent_id, p_user_bind->mad_class,
 			p_user_bind->class_version);
@@ -909,8 +878,7 @@ osm_vendor_bind(IN osm_vendor_t * const p_vend,
 						       p_user_bind->
 						       class_version, 0,
 						       method_mask)) < 0) {
-			osm_log(p_vend->p_log, OSM_LOG_ERROR,
-				"osm_vendor_bind: ERR 5428: "
+			OSM_LOG(p_vend->p_log, OSM_LOG_ERROR, "ERR 5428: "
 				"Unable to register class 1 version %u\n",
 				p_user_bind->class_version);
 			free(p_bind);
@@ -920,8 +888,7 @@ osm_vendor_bind(IN osm_vendor_t * const p_vend,
 
 		if (p_bind->agent_id1 >= UMAD_CA_MAX_AGENTS ||
 		    p_vend->agents[p_bind->agent_id1]) {
-			osm_log(p_vend->p_log, OSM_LOG_ERROR,
-				"osm_vendor_bind: ERR 5429: "
+			OSM_LOG(p_vend->p_log, OSM_LOG_ERROR, "ERR 5429: "
 				"bad agent id %u or duplicate agent for class 1 vers %u\n",
 				p_bind->agent_id1, p_user_bind->class_version);
 			free(p_bind);
@@ -989,7 +956,7 @@ ib_mad_t *osm_vendor_get(IN osm_bind_handle_t h_bind,
 
 	OSM_LOG_ENTER(p_vend->p_log);
 
-	osm_log(p_vend->p_log, OSM_LOG_DEBUG, "osm_vendor_get: "
+	OSM_LOG(p_vend->p_log, OSM_LOG_DEBUG,
 		"Acquiring UMAD for p_madw = %p, size = %u\n", p_vw, mad_size);
 	CL_ASSERT(p_vw);
 	p_vw->size = mad_size;
@@ -998,7 +965,7 @@ ib_mad_t *osm_vendor_get(IN osm_bind_handle_t h_bind,
 	/* track locally */
 	p_vw->h_bind = h_bind;
 
-	osm_log(p_vend->p_log, OSM_LOG_DEBUG, "osm_vendor_get: "
+	OSM_LOG(p_vend->p_log, OSM_LOG_DEBUG,
 		"Acquired UMAD %p, size = %u\n", p_vw->umad, p_vw->size);
 
 	OSM_LOG_EXIT(p_vend->p_log);
@@ -1018,8 +985,7 @@ osm_vendor_put(IN osm_bind_handle_t h_bind, IN osm_vend_wrap_t * const p_vw)
 
 	CL_ASSERT(p_vw);
 
-	osm_log(p_vend->p_log, OSM_LOG_DEBUG, "osm_vendor_put: "
-		"Retiring UMAD %p\n", p_vw->umad);
+	OSM_LOG(p_vend->p_log, OSM_LOG_DEBUG, "Retiring UMAD %p\n", p_vw->umad);
 
 	/*
 	 * We moved the removal of the transaction to immediately after
@@ -1087,8 +1053,7 @@ osm_vendor_send(IN osm_bind_handle_t h_bind,
 #ifdef VENDOR_RMPP_SUPPORT
 		} else
 			is_rmpp = 1;
-		osm_log(p_vend->p_log, OSM_LOG_VERBOSE,
-			"osm_vendor_send: RMPP %d length %d\n",
+		OSM_LOG(p_vend->p_log, OSM_LOG_VERBOSE, "RMPP %d length %d\n",
 			ib_rmpp_is_flag_set((ib_rmpp_mad_t *) p_sa,
 					    IB_RMPP_FLAG_ACTIVE),
 			p_madw->mad_size);
@@ -1119,8 +1084,7 @@ Resp:
 			     sent_mad_size,
 			     resp_expected ? p_vend->timeout : 0,
 			     p_vend->max_retries)) < 0) {
-		osm_log(p_vend->p_log, OSM_LOG_ERROR,
-			"osm_vendor_send: ERR 5430: "
+		OSM_LOG(p_vend->p_log, OSM_LOG_ERROR, "ERR 5430: "
 			"Send p_madw = %p of size %d failed %d (%m)\n",
 			p_madw, sent_mad_size, ret);
 		if (resp_expected) {
@@ -1137,8 +1101,7 @@ Resp:
 	if (!resp_expected)
 		osm_mad_pool_put(p_bind->p_mad_pool, p_madw);
 
-	osm_log(p_vend->p_log, OSM_LOG_DEBUG, "osm_vendor_send: "
-		"Completed sending %s p_madw = %p\n",
+	OSM_LOG(p_vend->p_log, OSM_LOG_DEBUG, "Completed sending %s p_madw = %p\n",
 		resp_expected ? "request" : "response or unsolicited", p_madw);
 Exit:
 	OSM_LOG_EXIT(p_vend->p_log);
@@ -1169,8 +1132,7 @@ void osm_vendor_set_sm(IN osm_bind_handle_t h_bind, IN boolean_t is_sm_val)
 	if (TRUE == is_sm_val) {
 		p_vend->issmfd = open(p_vend->issm_path, O_NONBLOCK);
 		if (p_vend->issmfd < 0) {
-			osm_log(p_vend->p_log, OSM_LOG_ERROR,
-				"osm_vendor_set_sm: ERR 5431: "
+			OSM_LOG(p_vend->p_log, OSM_LOG_ERROR, "ERR 5431: "
 				"setting IS_SM capmask: cannot open file "
 				"\'%s\': %s\n",
 				p_vend->issm_path, strerror(errno));
@@ -1178,8 +1140,7 @@ void osm_vendor_set_sm(IN osm_bind_handle_t h_bind, IN boolean_t is_sm_val)
 		}
 	} else if (p_vend->issmfd != -1) {
 		if (0 != close(p_vend->issmfd))
-			osm_log(p_vend->p_log, OSM_LOG_ERROR,
-				"osm_vendor_set_sm: ERR 5432: "
+			OSM_LOG(p_vend->p_log, OSM_LOG_ERROR, "ERR 5432: "
 				"clearing IS_SM capmask: cannot close: %s\n",
 				strerror(errno));
 		p_vend->issmfd = -1;

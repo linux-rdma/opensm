@@ -82,8 +82,7 @@ __osmv_sa_mad_rcv_cb(IN osm_madw_t * p_madw,
 	OSM_LOG_ENTER(p_bind->p_log);
 
 	if (!p_req_madw) {
-		osm_log(p_bind->p_log, OSM_LOG_DEBUG,
-			"__osmv_sa_mad_rcv_cb: "
+		OSM_LOG(p_bind->p_log, OSM_LOG_DEBUG,
 			"Ignoring a non-response mad\n");
 		osm_mad_pool_put(p_bind->p_mad_pool, p_madw);
 		goto Exit;
@@ -106,8 +105,7 @@ __osmv_sa_mad_rcv_cb(IN osm_madw_t * p_madw,
 	/* if we got a remote error track it in the status */
 	mad_status = (ib_net16_t) (p_sa_mad->status & IB_SMP_STATUS_MASK);
 	if (mad_status != IB_SUCCESS) {
-		osm_log(p_bind->p_log, OSM_LOG_ERROR,
-			"__osmv_sa_mad_rcv_cb: ERR 5501: "
+		OSM_LOG(p_bind->p_log, OSM_LOG_ERROR, "ERR 5501: "
 			"Remote error:0x%04X\n", mad_status);
 		query_res.status = IB_REMOTE_ERROR;
 	} else
@@ -115,8 +113,7 @@ __osmv_sa_mad_rcv_cb(IN osm_madw_t * p_madw,
 
 	/* what if we have got back an empty mad ? */
 	if (!p_madw->mad_size) {
-		osm_log(p_bind->p_log, OSM_LOG_ERROR,
-			"__osmv_sa_mad_rcv_cb: ERR 5502: "
+		OSM_LOG(p_bind->p_log, OSM_LOG_ERROR, "ERR 5502: "
 			"Got an empty mad\n");
 		query_res.status = IB_ERROR;
 	}
@@ -140,8 +137,8 @@ __osmv_sa_mad_rcv_cb(IN osm_madw_t * p_madw,
 				query_res.result_cnt = (uintn_t)
 				    ((p_madw->mad_size - IB_SA_MAD_HDR_SIZE) /
 				     ib_get_attr_size(p_sa_mad->attr_offset));
-				osm_log(p_bind->p_log, OSM_LOG_DEBUG,
-					"__osmv_sa_mad_rcv_cb: Count = %u = %zu / %u (%zu)\n",
+				OSM_LOG(p_bind->p_log, OSM_LOG_DEBUG,
+					"Count = %u = %zu / %u (%zu)\n",
 					query_res.result_cnt,
 					p_madw->mad_size - IB_SA_MAD_HDR_SIZE,
 					ib_get_attr_size(p_sa_mad->attr_offset),
@@ -242,8 +239,7 @@ osmv_bind_sa(IN osm_vendor_t * const p_vend,
 
 	OSM_LOG_ENTER(p_log);
 
-	osm_log(p_log, OSM_LOG_DEBUG,
-		"osmv_bind_sa: "
+	OSM_LOG(p_log, OSM_LOG_DEBUG,
 		"Binding to port 0x%" PRIx64 "\n", cl_ntoh64(port_guid));
 
 	bind_info.port_guid = port_guid;
@@ -259,8 +255,7 @@ osmv_bind_sa(IN osm_vendor_t * const p_vend,
 	p_sa_bind_info =
 	    (osmv_sa_bind_info_t *) malloc(sizeof(osmv_sa_bind_info_t));
 	if (!p_sa_bind_info) {
-		osm_log(p_log, OSM_LOG_ERROR,
-			"osmv_bind_sa: ERR 5505: "
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 5505: "
 			"Failed to allocate new bind structure\n");
 		p_sa_bind_info = OSM_BIND_INVALID_HANDLE;
 		goto Exit;
@@ -277,8 +272,7 @@ osmv_bind_sa(IN osm_vendor_t * const p_vend,
 	if (p_sa_bind_info->h_bind == OSM_BIND_INVALID_HANDLE) {
 		free(p_sa_bind_info);
 		p_sa_bind_info = OSM_BIND_INVALID_HANDLE;
-		osm_log(p_log, OSM_LOG_ERROR,
-			"osmv_bind_sa: ERR 5506: "
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 5506: "
 			"Failed to bind to vendor GSI\n");
 		goto Exit;
 	}
@@ -290,8 +284,7 @@ osmv_bind_sa(IN osm_vendor_t * const p_vend,
 	cl_event_construct(&p_sa_bind_info->sync_event);
 	cl_status = cl_event_init(&p_sa_bind_info->sync_event, TRUE);
 	if (cl_status != CL_SUCCESS) {
-		osm_log(p_log, OSM_LOG_ERROR,
-			"osmv_bind_sa: ERR 5508: "
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 5508: "
 			"cl_init_event failed: %s\n", ib_get_err_str(cl_status));
 		free(p_sa_bind_info);
 		p_sa_bind_info = OSM_BIND_INVALID_HANDLE;
@@ -372,8 +365,7 @@ __osmv_send_sa_req(IN osmv_sa_bind_info_t * p_bind,
 	if (time(NULL) > p_bind->last_lids_update_sec + 30) {
 		status = update_umad_port(p_bind->p_vendor);
 		if (status != IB_SUCCESS) {
-			osm_log(p_log, OSM_LOG_ERROR,
-				"__osmv_send_sa_req: ERR 5509: "
+			OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 5509: "
 				"Failed to obtain the SM lid\n");
 			goto Exit;
 		}
@@ -385,8 +377,7 @@ __osmv_send_sa_req(IN osmv_sa_bind_info_t * p_bind,
 				  p_bind->h_bind, MAD_BLOCK_SIZE, NULL);
 
 	if (p_madw == NULL) {
-		osm_log(p_log, OSM_LOG_ERROR,
-			"__osmv_send_sa_req: ERR 5510: "
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 5510: "
 			"Unable to acquire MAD\n");
 		status = IB_INSUFFICIENT_RESOURCES;
 		goto Exit;
@@ -459,8 +450,7 @@ __osmv_send_sa_req(IN osmv_sa_bind_info_t * p_bind,
 
 	/* if synchronous - wait on the event */
 	if (sync) {
-		osm_log(p_log, OSM_LOG_DEBUG,
-			"__osmv_send_sa_req: Waiting for async event\n");
+		OSM_LOG(p_log, OSM_LOG_DEBUG, "Waiting for async event\n");
 		cl_event_wait_on(&p_bind->sync_event, EVENT_NO_TIMEOUT, FALSE);
 		cl_event_reset(&p_bind->sync_event);
 		status = p_madw->status;
@@ -506,8 +496,7 @@ osmv_query_sa(IN osm_bind_handle_t h_bind,
 	switch (p_query_req->query_type) {
 
 	case OSMV_QUERY_USER_DEFINED:
-		osm_log(p_log, OSM_LOG_DEBUG,
-			"osmv_query_sa DBG:001 %s", "USER_DEFINED\n");
+		OSM_LOG(p_log, OSM_LOG_DEBUG, "DBG:001 USER_DEFINED\n");
 		p_user_query = (osmv_user_query_t *) p_query_req->p_query_input;
 		if (p_user_query->method)
 			sa_mad_data.method = p_user_query->method;
@@ -519,8 +508,7 @@ osmv_query_sa(IN osm_bind_handle_t h_bind,
 		break;
 
 	case OSMV_QUERY_ALL_SVC_RECS:
-		osm_log(p_log, OSM_LOG_DEBUG,
-			"osmv_query_sa DBG:001 %s", "SVC_REC_BY_NAME\n");
+		OSM_LOG(p_log, OSM_LOG_DEBUG, "DBG:001 SVC_REC_BY_NAME\n");
 		sa_mad_data.attr_id = IB_MAD_ATTR_SERVICE_RECORD;
 		sa_mad_data.attr_offset =
 		    ib_get_attr_offset(sizeof(ib_service_record_t));
@@ -529,8 +517,7 @@ osmv_query_sa(IN osm_bind_handle_t h_bind,
 		break;
 
 	case OSMV_QUERY_SVC_REC_BY_NAME:
-		osm_log(p_log, OSM_LOG_DEBUG,
-			"osmv_query_sa DBG:001 %s", "SVC_REC_BY_NAME\n");
+		OSM_LOG(p_log, OSM_LOG_DEBUG, "DBG:001 SVC_REC_BY_NAME\n");
 		sa_mad_data.method = IB_MAD_METHOD_GET;
 		sa_mad_data.attr_id = IB_MAD_ATTR_SERVICE_RECORD;
 		sa_mad_data.comp_mask = IB_SR_COMPMASK_SNAME;
@@ -542,8 +529,7 @@ osmv_query_sa(IN osm_bind_handle_t h_bind,
 		break;
 
 	case OSMV_QUERY_SVC_REC_BY_ID:
-		osm_log(p_log, OSM_LOG_DEBUG,
-			"osmv_query_sa DBG:001 %s", "SVC_REC_BY_ID\n");
+		OSM_LOG(p_log, OSM_LOG_DEBUG, "DBG:001 SVC_REC_BY_ID\n");
 		sa_mad_data.attr_id = IB_MAD_ATTR_SERVICE_RECORD;
 		sa_mad_data.comp_mask = IB_SR_COMPMASK_SID;
 		sa_mad_data.attr_offset =
@@ -554,8 +540,7 @@ osmv_query_sa(IN osm_bind_handle_t h_bind,
 		break;
 
 	case OSMV_QUERY_CLASS_PORT_INFO:
-		osm_log(p_log, OSM_LOG_DEBUG,
-			"osmv_query_sa DBG:001 %s", "CLASS_PORT_INFO\n");
+		OSM_LOG(p_log, OSM_LOG_DEBUG, "DBG:001 CLASS_PORT_INFO\n");
 		sa_mad_data.method = IB_MAD_METHOD_GET;
 		sa_mad_data.attr_id = IB_MAD_ATTR_CLASS_PORT_INFO;
 		sa_mad_data.attr_offset =
@@ -565,8 +550,7 @@ osmv_query_sa(IN osm_bind_handle_t h_bind,
 		break;
 
 	case OSMV_QUERY_NODE_REC_BY_NODE_GUID:
-		osm_log(p_log, OSM_LOG_DEBUG,
-			"osmv_query_sa DBG:001 %s", "NODE_REC_BY_NODE_GUID\n");
+		OSM_LOG(p_log, OSM_LOG_DEBUG, "DBG:001 NODE_REC_BY_NODE_GUID\n");
 		sa_mad_data.attr_id = IB_MAD_ATTR_NODE_RECORD;
 		sa_mad_data.attr_offset =
 		    ib_get_attr_offset(sizeof(ib_node_record_t));
@@ -577,8 +561,7 @@ osmv_query_sa(IN osm_bind_handle_t h_bind,
 		break;
 
 	case OSMV_QUERY_PORT_REC_BY_LID:
-		osm_log(p_log, OSM_LOG_DEBUG,
-			"osmv_query_sa DBG:001 %s", "PORT_REC_BY_LID\n");
+		OSM_LOG(p_log, OSM_LOG_DEBUG, "DBG:001 PORT_REC_BY_LID\n");
 		sa_mad_data.attr_id = IB_MAD_ATTR_PORTINFO_RECORD;
 		sa_mad_data.attr_offset =
 		    ib_get_attr_offset(sizeof(ib_portinfo_record_t));
@@ -590,9 +573,7 @@ osmv_query_sa(IN osm_bind_handle_t h_bind,
 	case OSMV_QUERY_PORT_REC_BY_LID_AND_NUM:
 		sa_mad_data.method = IB_MAD_METHOD_GET;
 		p_user_query = (osmv_user_query_t *) p_query_req->p_query_input;
-		osm_log(p_log, OSM_LOG_DEBUG,
-			"osmv_query_sa DBG:001 %s",
-			"PORT_REC_BY_LID_AND_NUM\n");
+		OSM_LOG(p_log, OSM_LOG_DEBUG, "DBG:001 PORT_REC_BY_LID_AND_NUM\n");
 		sa_mad_data.attr_id = IB_MAD_ATTR_PORTINFO_RECORD;
 		sa_mad_data.attr_offset =
 		    ib_get_attr_offset(sizeof(ib_portinfo_record_t));
@@ -604,9 +585,7 @@ osmv_query_sa(IN osm_bind_handle_t h_bind,
 	case OSMV_QUERY_VLARB_BY_LID_PORT_BLOCK:
 		sa_mad_data.method = IB_MAD_METHOD_GET;
 		p_user_query = (osmv_user_query_t *) p_query_req->p_query_input;
-		osm_log(p_log, OSM_LOG_DEBUG,
-			"osmv_query_sa DBG:001 %s",
-			"OSMV_QUERY_VLARB_BY_LID_PORT_BLOCK\n");
+		OSM_LOG(p_log, OSM_LOG_DEBUG, "DBG:001 OSMV_QUERY_VLARB_BY_LID_PORT_BLOCK\n");
 		sa_mad_data.attr_id = IB_MAD_ATTR_VLARB_RECORD;
 		sa_mad_data.attr_offset =
 		    ib_get_attr_offset(sizeof(ib_vl_arb_table_record_t));
@@ -619,9 +598,7 @@ osmv_query_sa(IN osm_bind_handle_t h_bind,
 	case OSMV_QUERY_SLVL_BY_LID_AND_PORTS:
 		sa_mad_data.method = IB_MAD_METHOD_GET;
 		p_user_query = (osmv_user_query_t *) p_query_req->p_query_input;
-		osm_log(p_log, OSM_LOG_DEBUG,
-			"osmv_query_sa DBG:001 %s",
-			"OSMV_QUERY_VLARB_BY_LID_PORT_BLOCK\n");
+		OSM_LOG(p_log, OSM_LOG_DEBUG, "DBG:001 OSMV_QUERY_VLARB_BY_LID_PORT_BLOCK\n");
 		sa_mad_data.attr_id = IB_MAD_ATTR_SLVL_RECORD;
 		sa_mad_data.attr_offset =
 		    ib_get_attr_offset(sizeof(ib_slvl_table_record_t));
@@ -632,8 +609,7 @@ osmv_query_sa(IN osm_bind_handle_t h_bind,
 		break;
 
 	case OSMV_QUERY_PATH_REC_BY_PORT_GUIDS:
-		osm_log(p_log, OSM_LOG_DEBUG,
-			"osmv_query_sa DBG:001 %s", "PATH_REC_BY_PORT_GUIDS\n");
+		OSM_LOG(p_log, OSM_LOG_DEBUG, "DBG:001 PATH_REC_BY_PORT_GUIDS\n");
 		memset(&path_rec, 0, sizeof(ib_path_rec_t));
 		sa_mad_data.attr_id = IB_MAD_ATTR_PATH_RECORD;
 		sa_mad_data.attr_offset =
@@ -652,8 +628,7 @@ osmv_query_sa(IN osm_bind_handle_t h_bind,
 		break;
 
 	case OSMV_QUERY_PATH_REC_BY_GIDS:
-		osm_log(p_log, OSM_LOG_DEBUG,
-			"osmv_query_sa DBG:001 %s", "PATH_REC_BY_GIDS\n");
+		OSM_LOG(p_log, OSM_LOG_DEBUG, "DBG:001 PATH_REC_BY_GIDS\n");
 		memset(&path_rec, 0, sizeof(ib_path_rec_t));
 		sa_mad_data.attr_id = IB_MAD_ATTR_PATH_RECORD;
 		sa_mad_data.attr_offset =
@@ -670,8 +645,7 @@ osmv_query_sa(IN osm_bind_handle_t h_bind,
 		break;
 
 	case OSMV_QUERY_PATH_REC_BY_LIDS:
-		osm_log(p_log, OSM_LOG_DEBUG,
-			"osmv_query_sa DBG:001 %s", "PATH_REC_BY_LIDS\n");
+		OSM_LOG(p_log, OSM_LOG_DEBUG, "DBG:001 PATH_REC_BY_LIDS\n");
 		memset(&path_rec, 0, sizeof(ib_path_rec_t));
 		sa_mad_data.method = IB_MAD_METHOD_GET;
 		sa_mad_data.attr_id = IB_MAD_ATTR_PATH_RECORD;
@@ -690,9 +664,7 @@ osmv_query_sa(IN osm_bind_handle_t h_bind,
 	case OSMV_QUERY_UD_MULTICAST_SET:
 		sa_mad_data.method = IB_MAD_METHOD_SET;
 		p_user_query = (osmv_user_query_t *) p_query_req->p_query_input;
-		osm_log(p_log, OSM_LOG_DEBUG,
-			"osmv_query_sa DBG:001 %s",
-			"OSMV_QUERY_UD_MULTICAST_SET\n");
+		OSM_LOG(p_log, OSM_LOG_DEBUG, "DBG:001 OSMV_QUERY_UD_MULTICAST_SET\n");
 		sa_mad_data.attr_id = IB_MAD_ATTR_MCMEMBER_RECORD;
 		sa_mad_data.attr_offset =
 		    ib_get_attr_offset(sizeof(ib_member_rec_t));
@@ -703,9 +675,7 @@ osmv_query_sa(IN osm_bind_handle_t h_bind,
 	case OSMV_QUERY_UD_MULTICAST_DELETE:
 		sa_mad_data.method = IB_MAD_METHOD_DELETE;
 		p_user_query = (osmv_user_query_t *) p_query_req->p_query_input;
-		osm_log(p_log, OSM_LOG_DEBUG,
-			"osmv_query_sa DBG:001 %s",
-			"OSMV_QUERY_UD_MULTICAST_DELETE\n");
+		OSM_LOG(p_log, OSM_LOG_DEBUG, "DBG:001 OSMV_QUERY_UD_MULTICAST_DELETE\n");
 		sa_mad_data.attr_id = IB_MAD_ATTR_MCMEMBER_RECORD;
 		sa_mad_data.attr_offset =
 		    ib_get_attr_offset(sizeof(ib_member_rec_t));
@@ -715,14 +685,12 @@ osmv_query_sa(IN osm_bind_handle_t h_bind,
 
 #ifdef DUAL_SIDED_RMPP
 	case OSMV_QUERY_MULTIPATH_REC:
-		osm_log(p_log, OSM_LOG_DEBUG,
-			"osmv_query_sa DBG:001 %s", "MULTIPATH_REC\n");
+		OSM_LOG(p_log, OSM_LOG_DEBUG, "DBG:001 MULTIPATH_REC\n");
 		/* Validate sgid/dgid counts against SA client limit */
 		p_mpr_req = (osmv_multipath_req_t *) p_query_req->p_query_input;
 		if (p_mpr_req->sgid_count + p_mpr_req->dgid_count >
 		    IB_MULTIPATH_MAX_GIDS) {
-			osm_log(p_log, OSM_LOG_ERROR,
-				"osmv_query_sa DBG:001 MULTIPATH_REC "
+			OSM_LOG(p_log, OSM_LOG_ERROR, "DBG:001 MULTIPATH_REC "
 				"SGID count %d DGID count %d max count %d\n",
 				p_mpr_req->sgid_count, p_mpr_req->dgid_count,
 				IB_MULTIPATH_MAX_GIDS);
@@ -756,8 +724,7 @@ osmv_query_sa(IN osm_bind_handle_t h_bind,
 #endif
 
 	default:
-		osm_log(p_log, OSM_LOG_ERROR,
-			"osmv_query_sa DBG:001 %s", "UNKNOWN\n");
+		OSM_LOG(p_log, OSM_LOG_ERROR, "DBG:001 UNKNOWN\n");
 		CL_ASSERT(0);
 		return IB_ERROR;
 	}
