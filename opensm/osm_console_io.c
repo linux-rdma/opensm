@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2005-2007 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2008 HNR Consulting. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -49,6 +50,7 @@
 #include <tcpd.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#include <sys/socket.h>
 #endif
 #include <unistd.h>
 #include <errno.h>
