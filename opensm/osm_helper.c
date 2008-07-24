@@ -1163,9 +1163,9 @@ osm_dump_mc_record(IN osm_log_t * const p_log,
 		   IN const ib_member_rec_t * const p_mcmr,
 		   IN const osm_log_level_t log_level)
 {
-	char gid_str[INET6_ADDRSTRLEN];
-	char gid_str2[INET6_ADDRSTRLEN];
 	if (osm_log_is_active(p_log, log_level)) {
+		char gid_str[INET6_ADDRSTRLEN];
+		char gid_str2[INET6_ADDRSTRLEN];
 		osm_log(p_log, log_level,
 			"MCMember Record dump:\n"
 			"\t\t\t\tMGID....................%s\n"
@@ -1204,11 +1204,11 @@ osm_dump_service_record(IN osm_log_t * const p_log,
 			IN const ib_service_record_t * const p_sr,
 			IN const osm_log_level_t log_level)
 {
-	char gid_str[INET6_ADDRSTRLEN];
-	char buf_service_key[35];
-	char buf_service_name[65];
-
 	if (osm_log_is_active(p_log, log_level)) {
+		char gid_str[INET6_ADDRSTRLEN];
+		char buf_service_key[35];
+		char buf_service_name[65];
+
 		sprintf(buf_service_key,
 			"0x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
 			p_sr->service_key[0],
@@ -1376,12 +1376,11 @@ osm_dump_inform_info_record(IN osm_log_t * const p_log,
 			    IN const ib_inform_info_record_t * const p_iir,
 			    IN const osm_log_level_t log_level)
 {
-	char gid_str[INET6_ADDRSTRLEN];
-	char gid_str2[INET6_ADDRSTRLEN];
-	uint32_t qpn;
-	uint8_t resp_time_val;
-
 	if (osm_log_is_active(p_log, log_level)) {
+		char gid_str[INET6_ADDRSTRLEN];
+		char gid_str2[INET6_ADDRSTRLEN];
+		uint32_t qpn;
+		uint8_t resp_time_val;
 
 		ib_inform_info_get_qpn_resp_time(p_iir->inform_info.g_or_v.
 						 generic.qpn_resp_time_val,

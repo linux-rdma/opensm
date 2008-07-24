@@ -1073,7 +1073,6 @@ osm_perfmgr_log_events(osm_perfmgr_t * pm, __monitored_node_t *mon_node, uint8_t
  **********************************************************************/
 static void osm_pc_rcv_process(void *context, void *data)
 {
-	char gid_str[INET6_ADDRSTRLEN];
 	osm_perfmgr_t *const pm = (osm_perfmgr_t *) context;
 	osm_madw_t *p_madw = (osm_madw_t *) data;
 	osm_madw_context_t *mad_context = &(p_madw->context);
@@ -1108,19 +1107,17 @@ static void osm_pc_rcv_process(void *context, void *data)
 
 	/* Response could also be redirection (IBM eHCA PMA does this) */
 	if (p_mad->attr_id == IB_MAD_ATTR_CLASS_PORT_INFO) {
-
+		char gid_str[INET6_ADDRSTRLEN];
 		ib_class_port_info_t *cpi =
 		    (ib_class_port_info_t *) &
 		    (osm_madw_get_perfmgt_mad_ptr(p_madw)->data);
 		ib_api_status_t status;
 
 		OSM_LOG(pm->log, OSM_LOG_VERBOSE,
-			"Redirection to LID %u "
-			"GID %s"
-			" QP 0x%x received\n",
+			"Redirection to LID %u GID %s QP 0x%x received\n",
 			cl_ntoh16(cpi->redir_lid),
 			inet_ntop(AF_INET6, cpi->redir_gid.raw, gid_str,
-				sizeof gid_str),
+				  sizeof gid_str),
 			cl_ntoh32(cpi->redir_qp));
 
 		/* LID or GID redirection ? */

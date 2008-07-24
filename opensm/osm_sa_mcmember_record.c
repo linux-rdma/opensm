@@ -831,7 +831,6 @@ osm_mcmr_rcv_create_new_mgrp(IN osm_sa_t * sa,
 			     IN const osm_physp_t * const p_physp,
 			     OUT osm_mgrp_t ** pp_mgrp)
 {
-	char gid_str[INET6_ADDRSTRLEN];
 	ib_net16_t mlid;
 	uint8_t zero_mgid, valid;
 	uint8_t scope, i;
@@ -869,6 +868,7 @@ osm_mcmr_rcv_create_new_mgrp(IN osm_sa_t * sa,
 	/* we need to create the new MGID if it was not defined */
 	if (zero_mgid) {
 		/* create a new MGID */
+		char gid_str[INET6_ADDRSTRLEN];
 
 		/* use the given scope state only if requested! */
 		if (comp_mask & IB_MCR_COMPMASK_SCOPE) {
@@ -892,10 +892,9 @@ osm_mcmr_rcv_create_new_mgrp(IN osm_sa_t * sa,
 		/* HACK: how do we get a unique number - use the mlid twice */
 		memcpy(&p_mgid->raw[10], &mlid, sizeof(uint16_t));
 		memcpy(&p_mgid->raw[12], &mlid, sizeof(uint16_t));
-		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-			"Allocated new MGID:%s\n",
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Allocated new MGID:%s\n",
 			inet_ntop(AF_INET6, p_mgid->raw, gid_str,
-				sizeof gid_str));
+				  sizeof gid_str));
 	} else {
 		/* a specific MGID was requested so validate the resulting MGID */
 		valid = __validate_requested_mgid(sa, &mcm_rec);
@@ -1087,8 +1086,6 @@ static void
 __osm_mcmr_rcv_leave_mgrp(IN osm_sa_t * sa,
 			  IN osm_madw_t * const p_madw)
 {
-	char gid_str[INET6_ADDRSTRLEN];
-	char gid_str2[INET6_ADDRSTRLEN];
 	boolean_t valid;
 	osm_mgrp_t *p_mgrp;
 	ib_api_status_t status;
@@ -1169,6 +1166,8 @@ __osm_mcmr_rcv_leave_mgrp(IN osm_sa_t * sa,
 				}
 			}
 		} else {
+			char gid_str[INET6_ADDRSTRLEN];
+			char gid_str2[INET6_ADDRSTRLEN];
 			CL_PLOCK_RELEASE(sa->p_lock);
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B25: "
 				"Received an invalid delete request for "
@@ -1183,6 +1182,7 @@ __osm_mcmr_rcv_leave_mgrp(IN osm_sa_t * sa,
 			goto Exit;
 		}
 	} else {
+		char gid_str[INET6_ADDRSTRLEN];
 		CL_PLOCK_RELEASE(sa->p_lock);
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Failed since multicast group %s not present\n",
@@ -1203,10 +1203,8 @@ Exit:
  Handle a join (or create) request
 **********************************************************************/
 static void
-__osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa,
-			 IN osm_madw_t * const p_madw)
+__osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * const p_madw)
 {
-	char gid_str[INET6_ADDRSTRLEN];
 	boolean_t valid;
 	osm_mgrp_t *p_mgrp = NULL;
 	ib_api_status_t status;
@@ -1282,12 +1280,12 @@ __osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa,
 	if (status == IB_NOT_FOUND || p_mgrp->to_be_deleted) {
 		/* check for JoinState.FullMember = 1 o15.0.1.9 */
 		if ((join_state & 0x01) != 0x01) {
+			char gid_str[INET6_ADDRSTRLEN];
 			CL_PLOCK_RELEASE(sa->p_lock);
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B10: "
 				"Provided Join State != FullMember - "
 				"required for create, "
-				"MGID: %s from port 0x%016" PRIx64
-				" (%s)\n",
+				"MGID: %s from port 0x%016" PRIx64 " (%s)\n",
 				inet_ntop(AF_INET6,
 					p_recvd_mcmember_rec->mgid.raw,
 					gid_str, sizeof gid_str),
@@ -1315,6 +1313,7 @@ __osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa,
 			/* copy the MGID to the result */
 			mcmember_rec.mgid = p_mgrp->mcmember_rec.mgid;
 		} else {
+			char gid_str[INET6_ADDRSTRLEN];
 			CL_PLOCK_RELEASE(sa->p_lock);
 
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B11: "
@@ -1522,7 +1521,6 @@ static void
 __osm_sa_mcm_by_comp_mask_cb(IN osm_mgrp_t * const p_mgrp,
 			     IN void *context)
 {
-	char gid_str[INET6_ADDRSTRLEN];
 	osm_sa_mcmr_search_ctxt_t *const p_ctxt =
 	    (osm_sa_mcmr_search_ctxt_t *) context;
 	osm_sa_t *sa = p_ctxt->sa;
@@ -1643,6 +1641,7 @@ __osm_sa_mcm_by_comp_mask_cb(IN osm_mgrp_t * const p_mgrp,
 	/* Many MC records returned */
 	if (p_ctxt->trusted_req == TRUE
 	    && !(IB_MCR_COMPMASK_PORT_GID & comp_mask)) {
+		char gid_str[INET6_ADDRSTRLEN];
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Trusted req is TRUE and no specific port defined\n");
 
@@ -1783,8 +1782,6 @@ Exit:
  **********************************************************************/
 void osm_mcmr_rcv_process(IN void *context, IN void *data)
 {
-	char gid_str[INET6_ADDRSTRLEN];
-	char gid_str2[INET6_ADDRSTRLEN];
 	osm_sa_t *sa = context;
 	osm_madw_t *p_madw = data;
 	ib_sa_mad_t *p_sa_mad;
@@ -1807,6 +1804,8 @@ void osm_mcmr_rcv_process(IN void *context, IN void *data)
 	case IB_MAD_METHOD_SET:
 		valid = __check_join_comp_mask(p_sa_mad->comp_mask);
 		if (!valid) {
+			char gid_str[INET6_ADDRSTRLEN];
+			char gid_str2[INET6_ADDRSTRLEN];
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B18: "
 				"component mask = 0x%016" PRIx64 ", "
 				"expected comp mask = 0x%016" PRIx64 ", "

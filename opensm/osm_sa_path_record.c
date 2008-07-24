@@ -1475,7 +1475,6 @@ static void
 __osm_pr_get_mgrp(IN osm_sa_t * sa,
 		  IN const osm_madw_t * const p_madw, OUT osm_mgrp_t ** pp_mgrp)
 {
-	char gid_str[INET6_ADDRSTRLEN];
 	ib_path_rec_t *p_pr;
 	const ib_sa_mad_t *p_sa_mad;
 	ib_net64_t comp_mask;
@@ -1491,6 +1490,7 @@ __osm_pr_get_mgrp(IN osm_sa_t * sa,
 	if (comp_mask & IB_PR_COMPMASK_DGID) {
 		status = osm_get_mgrp_by_mgid(sa, &p_pr->dgid, pp_mgrp);
 		if (status != IB_SUCCESS) {
+			char gid_str[INET6_ADDRSTRLEN];
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F09: "
 				"No MC group found for PathRecord destination "
 				"GID %s\n",

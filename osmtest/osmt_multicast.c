@@ -150,7 +150,6 @@ __match_mgids(IN const void *const p_object, IN void *context)
 
 ib_api_status_t osmt_query_mcast(IN osmtest_t * const p_osmt)
 {
-	char gid_str[INET6_ADDRSTRLEN];
 	ib_api_status_t status = IB_SUCCESS;
 	osmv_user_query_t user;
 	osmv_query_req_t req;
@@ -240,6 +239,7 @@ ib_api_status_t osmt_query_mcast(IN osmtest_t * const p_osmt)
 					   &(p_rec->mgid));
 		/* If returns iterator other than end of list, same mgid exists already */
 		if (p_mgids_res != cl_list_end(p_mgids_list)) {
+			char gid_str[INET6_ADDRSTRLEN];
 			osm_log(&p_osmt->log, OSM_LOG_ERROR,
 				"osmt_query_mcast: ERR 0265: "
 				"MCG MGIDs are the same - invalid MGID : %s\n",
