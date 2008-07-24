@@ -148,6 +148,26 @@ const char *ib_get_sa_attr_str(IN ib_net16_t attr);
 * SEE ALSO
 *********/
 
+/****f* OpenSM: Helper/ib_get_trap_str
+* NAME
+*	ib_get_trap_str
+*
+* DESCRIPTION
+*	Returns a name for the specified trap.
+*
+* SYNOPSIS
+*/
+const char *ib_get_trap_str(uint16_t trap_num);
+/*
+* PARAMETERS
+*	trap_num
+*		[in] Network order trap number.
+*
+* RETURN VALUES
+*	Name of the trap.
+*
+*********/
+
 /****f* OpenSM: Helper/osm_dump_port_info
 * NAME
 *	osm_dump_port_info

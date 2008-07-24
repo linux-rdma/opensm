@@ -584,10 +584,11 @@ osm_report_notice(IN osm_log_t * const p_log,
 	/* an official Event information log */
 	if (ib_notice_is_generic(p_ntc)) {
 		OSM_LOG(p_log, OSM_LOG_INFO,
-			"Reporting Generic Notice type:%u num:%u"
+			"Reporting Generic Notice type:%u num:%u (%s)"
 			" from LID:%u GID:%s\n",
 			ib_notice_get_type(p_ntc),
 			cl_ntoh16(p_ntc->g_or_v.generic.trap_num),
+			ib_get_trap_str(p_ntc->g_or_v.generic.trap_num),
 			cl_ntoh16(p_ntc->issuer_lid),
 			inet_ntop(AF_INET6, p_ntc->issuer_gid.raw, gid_str,
 				sizeof gid_str)
