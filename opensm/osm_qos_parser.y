@@ -3,6 +3,7 @@
  * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
+ * Copyright (c) 2008 HNR Consulting. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -410,6 +411,7 @@ qos_setup_items:    /* empty */
     /* Parsing vlarb-tables */
 
 vlarb_tables:       TK_VLARB_TABLES_START vlarb_scope_items TK_VLARB_TABLES_END
+                    ;
 
 vlarb_scope_items:  /* empty */
                     | vlarb_scope_items vlarb_scope
