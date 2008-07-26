@@ -1134,13 +1134,7 @@ static void populate_fwd_tbls(lash_t * p_lash)
 		for (lid = 1; lid <= max_lid_ho; lid++) {
 			p_dst_sw = get_osm_switch_from_lid(p_lash->p_osm, lid);
 
-			if (p_dst_sw == NULL) {
-				OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 4D03: "
-					"LASH fwd NULL Cannot find GUID 0x%016"
-					PRIx64
-					" src lash id (%d), src lid no (0x%04X)\n",
-					cl_ntoh64(current_guid), sw->id, lid);
-			} else if (p_dst_sw == p_sw) {
+			if (p_dst_sw == p_sw) {
 				uint8_t egress_port =
 				    find_port_from_lid(cl_hton16(lid), p_sw);
 				p_osm->sm.ucast_mgr.lft_buf[lid] = egress_port;
@@ -1152,7 +1146,7 @@ static void populate_fwd_tbls(lash_t * p_lash)
 					cl_ntoh64(current_guid), -1, lid,
 					egress_port, cl_ntoh64(current_guid),
 					-1, egress_port);
-			} else {
+			} else if (p_dst_sw) {
 				unsigned dst_lash_switch_id =
 				    get_lash_id(p_dst_sw);
 				uint8_t lash_egress_port =
