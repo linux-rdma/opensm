@@ -1041,8 +1041,8 @@ osm_get_mgrp_by_mgid(IN osm_sa_t *sa,
 		char gid_str[INET6_ADDRSTRLEN];
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Special Case Solicited Node Mcast Join for MGID %s\n",
-			inet_ntop(AF_INET6, p_mgrp->mcmember_rec.mgid.raw,
-				  gid_str, sizeof gid_str));
+			inet_ntop(AF_INET6, p_mgid->raw, gid_str,
+				  sizeof gid_str));
 	}
 
 	for (i = 0; i <= sa->p_subn->max_mcast_lid_ho - IB_LID_MCAST_START_HO;
