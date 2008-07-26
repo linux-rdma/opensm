@@ -145,67 +145,6 @@ static osm_switch_t *get_osm_switch_from_port(osm_port_t * port)
 	return NULL;
 }
 
-static osm_switch_t *get_osm_switch_from_lid(osm_opensm_t * osm, uint16_t lid)
-{
-	osm_port_t *port = cl_ptr_vector_get(&osm->subn.port_lid_tbl, lid);
-	if (!port)
-		return NULL;
-	return get_osm_switch_from_port(port);
-}
-
-// This is a time consuming way to find a port from a lid
-// we will come up with a better way later
-static uint8_t find_port_from_lid(IN const ib_net16_t lid_no,
-				  IN const osm_switch_t * p_sw)
-{
-	uint8_t port_count = 0;
-	uint8_t i = 0;
-	osm_physp_t *p_current_physp, *p_remote_physp = NULL;
-	ib_port_info_t *port_info;
-	ib_net16_t port_lid;
-	uint8_t egress_port = 255;
-
-	if (p_sw->p_node)
-		port_count = osm_node_get_num_physp(p_sw->p_node);
-
-	// process management port first
-	p_current_physp = osm_node_get_physp_ptr(p_sw->p_node, 0);
-
-	port_info = &p_current_physp->port_info;
-	port_lid = port_info->base_lid;
-	if (port_lid == lid_no) {
-		egress_port = 0;
-		goto Exit;
-	}
-	// process each port on this switch
-	for (i = 1; i < port_count; i++) {
-
-		p_current_physp = osm_node_get_physp_ptr(p_sw->p_node, i);
-		if (!p_current_physp)
-			continue;
-
-		p_remote_physp = p_current_physp->p_remote_physp;
-
-		if (p_remote_physp) {
-			osm_node_t *p_opposite_node =
-			    osm_physp_get_node_ptr(p_remote_physp);
-
-			if (osm_node_get_type(p_opposite_node) ==
-			    IB_NODE_TYPE_CA) {
-				ib_port_info_t *pi = &p_remote_physp->port_info;
-				ib_net16_t remote_port_lid = pi->base_lid;
-				if (remote_port_lid == lid_no) {
-					egress_port = i;
-					goto Exit;
-				}
-			}
-		}
-	}			// for
-
-Exit:
-	return egress_port;
-}
-
 #if 0
 static int randint(int high)
 {
@@ -1111,7 +1050,8 @@ static void populate_fwd_tbls(lash_t * p_lash)
 	osm_subn_t *p_subn = &p_lash->p_osm->subn;
 	osm_opensm_t *p_osm = p_lash->p_osm;
 	osm_switch_t *p_sw, *p_next_sw, *p_dst_sw;
-	uint16_t max_lid_ho, lid = 0;
+	osm_port_t *port;
+	uint16_t max_lid_ho, lid;
 
 	OSM_LOG_ENTER(p_log);
 
@@ -1132,11 +1072,14 @@ static void populate_fwd_tbls(lash_t * p_lash)
 		       IB_LID_UCAST_END_HO + 1);
 
 		for (lid = 1; lid <= max_lid_ho; lid++) {
-			p_dst_sw = get_osm_switch_from_lid(p_lash->p_osm, lid);
+			port = cl_ptr_vector_get(&p_subn->port_lid_tbl, lid);
+			if (!port)
+				continue;
 
+			p_dst_sw = get_osm_switch_from_port(port);
 			if (p_dst_sw == p_sw) {
-				uint8_t egress_port =
-				    find_port_from_lid(cl_hton16(lid), p_sw);
+				uint8_t egress_port = port->p_node->sw ? 0 :
+					port->p_physp->p_remote_physp->port_num;
 				p_osm->sm.ucast_mgr.lft_buf[lid] = egress_port;
 				OSM_LOG(p_log, OSM_LOG_VERBOSE,
 					"LASH fwd MY SRC SRC GUID 0x%016" PRIx64
