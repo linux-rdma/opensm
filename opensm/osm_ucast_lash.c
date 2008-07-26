@@ -67,7 +67,6 @@ enum {
 };
 
 typedef struct _cdg_vertex {
-	int switch_size;
 	int num_dependencies;
 	struct _cdg_vertex **dependency;
 	int from;
@@ -92,7 +91,6 @@ typedef struct _switch {
 	int id;
 	int used_channels;
 	int q_state;
-	int dist;
 	struct routing_table {
 		unsigned out_link;
 		unsigned lane;
@@ -331,11 +329,10 @@ static void remove_semipermanent_depend_for_sp(lash_t * p_lash, int sw,
 	}
 }
 
-inline static void enqueue(cl_list_t * bfsq, switch_t * sw, int dist)
+inline static void enqueue(cl_list_t * bfsq, switch_t * sw)
 {
 	CL_ASSERT(sw->q_state == UNQUEUED);
 	sw->q_state = Q_MEMBER;
-	sw->dist = dist;
 	cl_list_insert_tail(bfsq, sw);
 }
 
@@ -366,14 +363,14 @@ static void shortest_path(lash_t * p_lash, int ir)
 	cl_list_construct(&bfsq);
 	cl_list_init(&bfsq, 20);
 
-	enqueue(&bfsq, switches[ir], 0);
+	enqueue(&bfsq, switches[ir]);
 
 	while (!cl_is_list_empty(&bfsq)) {
 		dequeue(&bfsq, &sw);
 		for (i = 0; i < sw->num_connections; i++) {
 			swi = switches[sw->phys_connections[i]];
 			if (swi->q_state == UNQUEUED) {
-				enqueue(&bfsq, swi, sw->dist + 1);
+				enqueue(&bfsq, swi);
 				sw->dij_channels[sw->used_channels++] = swi->id;
 			}
 		}
