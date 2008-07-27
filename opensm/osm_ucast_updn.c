@@ -604,10 +604,6 @@ static void __osm_updn_find_root_nodes_by_min_hop(OUT updn_t * p_updn)
 				continue;
 			lid_ho = osm_node_get_base_lid(p_physp->p_node, 0);
 			lid_ho = cl_ntoh16(lid_ho);
-			OSM_LOG(&p_osm->log, OSM_LOG_DEBUG,
-				"Inserting GUID 0x%" PRIx64
-				", sw lid: 0x%X into array\n",
-				cl_ntoh64(osm_port_get_guid(p_port)), lid_ho);
 			cas_per_sw[lid_ho]++;
 			cas_num++;
 		}
@@ -636,10 +632,6 @@ static void __osm_updn_find_root_nodes_by_min_hop(OUT updn_t * p_updn)
 		memset(hop_hist, 0, sizeof(hop_hist));
 
 		max_lid_ho = p_sw->max_lid_ho;
-		/* Get base lid of switch by retrieving port 0 lid of node pointer */
-		OSM_LOG(&p_osm->log, OSM_LOG_DEBUG,
-			"Passing through switch lid 0x%X\n",
-			cl_ntoh16(osm_node_get_base_lid(p_sw->p_node, 0)));
 		for (lid_ho = 1; lid_ho <= max_lid_ho; lid_ho++)
 			if (cas_per_sw[lid_ho]) {
 				hop_val =
@@ -650,8 +642,8 @@ static void __osm_updn_find_root_nodes_by_min_hop(OUT updn_t * p_updn)
 				hop_hist[hop_val] += cas_per_sw[lid_ho];
 			}
 
-		/* Now recognize the spines by requiring one bar to be above 90% of the
-		   number of CAs and RTRs */
+		/* Now recognize the spines by requiring one bar to be
+		   above 90% of the number of CAs and RTRs */
 		for (i = 0; i < IB_SUBNET_PATH_HOPS_MAX; i++) {
 			if (hop_hist[i] > thd1)
 				numHopBarsOverThd1++;
@@ -660,7 +652,7 @@ static void __osm_updn_find_root_nodes_by_min_hop(OUT updn_t * p_updn)
 		}
 
 		/* If thd conditions are valid - rank the root node */
-		if ((numHopBarsOverThd1 == 1) && (numHopBarsOverThd2 == 1)) {
+		if (numHopBarsOverThd1 == 1 && numHopBarsOverThd2 == 1) {
 			OSM_LOG(&p_osm->log, OSM_LOG_DEBUG,
 				"Ranking GUID 0x%" PRIx64 " as root node\n",
 				cl_ntoh64(osm_node_get_node_guid(p_sw->p_node)));
