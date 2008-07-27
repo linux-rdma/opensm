@@ -18,10 +18,9 @@ osmtest_CFLAGS = -Wall $(OSMV_CFLAGS) -DVENDOR_RMPP_SUPPORT -DDUAL_SIDED_RMPP $(
 else
 osmtest_CFLAGS = -Wall $(OSMV_CFLAGS) -DVENDOR_RMPP_SUPPORT $(DBGFLAGS)
 endif
-osmtest_LDADD = -L../complib -L../libvendor -L../opensm -L$(libdir) -L. \
-	$(OSMV_LDADD) -lopensm -losmcomp -losmvendor
+osmtest_LDADD = -L../complib -losmcomp -L../libvendor -losmvendor -L../opensm -lopensm $(OSMV_LDADD)
 
-osmtest_LDFLAGS = -Wl,--rpath -Wl,$(libdir) -lpthread  -L../opensm
+osmtest_LDFLAGS = -lpthread
 # for linking with the simulator client library we have to use g++:
 if OSMV_SIM
 USEGPPLINK = $(LIBTOOL) --mode=link g++ $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@

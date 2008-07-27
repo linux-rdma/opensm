@@ -68,7 +68,6 @@ if test $with_osmv = "openib"; then
    OSMV_CFLAGS="-DOSM_VENDOR_INTF_OPENIB"
    OSMV_INCLUDES="-I\$(srcdir)/../include -I\$(srcdir)/../../libibcommon/include -I\$(srcdir)/../../libibumad/include -I\$(includedir)"
    OSMV_LDADD="-L\$(abs_srcdir)/../../libibumad/.libs -L\$(abs_srcdir)/../../libibcommon/.libs -L\$(libdir) -libumad -libcommon"
-   OSMV_LDADD="-Wl,--rpath -Wl,\$(abs_srcdir)/../../libibumad/.libs -Wl,--rpath -Wl,\$(abs_srcdir)/../../libibcommon/.libs -Wl,--rpath -Wl,\$(libdir) $OSMV_LDADD"
 
    if test "x$with_umad_libs" != "x"; then
      OSMV_LDADD="-L$with_umad_libs $OSMV_LDADD"
