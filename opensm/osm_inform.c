@@ -316,7 +316,7 @@ static ib_api_status_t __osm_send_report(IN osm_infr_t * p_infr_rec,	/* the info
 	ib_mad_t *p_mad;
 	ib_sa_mad_t *p_sa_mad;
 	static atomic32_t trap_fwd_trans_id = 0x02DAB000;
-	ib_api_status_t status;
+	ib_api_status_t status = IB_SUCCESS;
 	osm_log_t *p_log = p_infr_rec->sa->p_log;
 
 	OSM_LOG_ENTER(p_log);
