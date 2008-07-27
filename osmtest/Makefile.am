@@ -20,13 +20,12 @@ osmtest_CFLAGS = -Wall $(OSMV_CFLAGS) -DVENDOR_RMPP_SUPPORT $(DBGFLAGS)
 endif
 osmtest_LDADD = -L../complib -losmcomp -L../libvendor -losmvendor -L../opensm -lopensm $(OSMV_LDADD)
 
-osmtest_LDFLAGS = -lpthread
 # for linking with the simulator client library we have to use g++:
 if OSMV_SIM
 USEGPPLINK = $(LIBTOOL) --mode=link g++ $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 osmtest$(EXEEXT): $(osmtest_OBJECTS) $(osmtest_DEPENDENCIES)
 	@rm -f osmtest$(EXEEXT)
-	$(USEGPPLINK) $(osmtest_LDFLAGS) $(osmtest_OBJECTS) $(osmtest_LDADD) $(LIBS)
+	$(USEGPPLINK) $(osmtest_OBJECTS) $(osmtest_LDADD) $(LIBS)
 endif
 
 EXTRA_DIST = $(srcdir)/include/osmt_inform.h \

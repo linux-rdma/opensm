@@ -82,14 +82,12 @@ libopensm.la: $(libopensm_la_OBJECTS) $(libopensm_la_DEPENDENCIES)
 	$(USEGPPLINK) $(libopensm_la_LDFLAGS) $(libopensm_la_OBJECTS) $(libopensm_la_LIBADD) $(LIBS)
 opensm$(EXEEXT): $(opensm_OBJECTS) $(opensm_DEPENDENCIES)
 	@rm -f opensm$(EXEEXT)
-	$(USEGPPLINK) $(opensm_LDFLAGS) $(opensm_OBJECTS) $(opensm_LDADD) $(LIBS)
+	$(USEGPPLINK) $(opensm_OBJECTS) $(opensm_LDADD) $(LIBS)
 endif
 
 # we need to be able to load libraries from local build subtree before make install
 # we always give precedence to local tree libs and then use the pre-installed ones.
 opensm_LDADD = -L../complib -losmcomp -L../libvendor -losmvendor -L. -lopensm $(OSMV_LDADD)
-
-opensm_LDFLAGS = -lpthread -ldl
 
 opensmincludedir = $(includedir)/infiniband/opensm
 
