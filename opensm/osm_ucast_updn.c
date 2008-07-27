@@ -76,11 +76,6 @@ struct updn_node {
 	unsigned visited;
 };
 
-/* ///////////////////////////////// */
-/*  Statics                          */
-/* ///////////////////////////////// */
-static void __osm_updn_find_root_nodes_by_min_hop(OUT updn_t * p_updn);
-
 /**********************************************************************
  **********************************************************************/
 /* This function returns direction based on rank and guid info of current &
@@ -419,6 +414,111 @@ static void delete_updn_node(struct updn_node *u)
 
 /**********************************************************************
  **********************************************************************/
+/* Find Root nodes automatically by Min Hop Table info */
+static void updn_find_root_nodes_by_min_hop(OUT updn_t * p_updn)
+{
+	osm_opensm_t *p_osm = p_updn->p_osm;
+	osm_switch_t *p_sw;
+	osm_port_t *p_port;
+	osm_physp_t *p_physp;
+	cl_map_item_t *item;
+	double thd1, thd2;
+	unsigned i, cas_num = 0;
+	unsigned *cas_per_sw;
+	uint16_t lid_ho;
+
+	OSM_LOG_ENTER(&p_osm->log);
+
+	OSM_LOG(&p_osm->log, OSM_LOG_DEBUG,
+		"Current number of ports in the subnet is %d\n",
+		cl_qmap_count(&p_osm->subn.port_guid_tbl));
+
+	cas_per_sw = malloc((IB_LID_UCAST_END_HO + 1) * sizeof(*cas_per_sw));
+	if (!cas_per_sw) {
+		OSM_LOG(&p_osm->log, OSM_LOG_ERROR, "ERR AA14: "
+			"cannot alloc mem for CAs per switch counter array\n");
+		goto _exit;
+	}
+	memset(cas_per_sw, 0, (IB_LID_UCAST_END_HO + 1) * sizeof(*cas_per_sw));
+
+	/* Find the Maximum number of CAs (and routers) for histogram normalization */
+	OSM_LOG(&p_osm->log, OSM_LOG_VERBOSE,
+		"Finding the number of CAs and storing them in cl_map\n");
+	for (item = cl_qmap_head(&p_updn->p_osm->subn.port_guid_tbl);
+	     item != cl_qmap_end(&p_updn->p_osm->subn.port_guid_tbl);
+	     item = cl_qmap_next(item)) {
+		p_port = (osm_port_t *)item;
+		if (!p_port->p_node->sw) {
+			p_physp = p_port->p_physp->p_remote_physp;
+			if (!p_physp || !p_physp->p_node->sw)
+				continue;
+			lid_ho = osm_node_get_base_lid(p_physp->p_node, 0);
+			lid_ho = cl_ntoh16(lid_ho);
+			cas_per_sw[lid_ho]++;
+			cas_num++;
+		}
+	}
+
+	thd1 = cas_num * 0.9;
+	thd2 = cas_num * 0.05;
+	OSM_LOG(&p_osm->log, OSM_LOG_DEBUG,
+		"Found %u CAs and RTRs, %u SWs in the subnet. "
+		"Thresholds are thd1 = %f && thd2 = %f\n",
+		cas_num, cl_qmap_count(&p_osm->subn.sw_guid_tbl), thd1, thd2);
+
+	OSM_LOG(&p_osm->log, OSM_LOG_VERBOSE,
+		"Passing through all switches to collect Min Hop info\n");
+	for (item = cl_qmap_head(&p_updn->p_osm->subn.sw_guid_tbl);
+	     item != cl_qmap_end(&p_updn->p_osm->subn.sw_guid_tbl);
+	     item = cl_qmap_next(item)) {
+		unsigned hop_hist[IB_SUBNET_PATH_HOPS_MAX];
+		uint16_t max_lid_ho;
+		uint8_t hop_val;
+		uint16_t numHopBarsOverThd1 = 0;
+		uint16_t numHopBarsOverThd2 = 0;
+
+		p_sw = (osm_switch_t *) item;
+
+		memset(hop_hist, 0, sizeof(hop_hist));
+
+		max_lid_ho = p_sw->max_lid_ho;
+		for (lid_ho = 1; lid_ho <= max_lid_ho; lid_ho++)
+			if (cas_per_sw[lid_ho]) {
+				hop_val =
+				    osm_switch_get_least_hops(p_sw, lid_ho);
+				if (hop_val >= IB_SUBNET_PATH_HOPS_MAX)
+					continue;
+
+				hop_hist[hop_val] += cas_per_sw[lid_ho];
+			}
+
+		/* Now recognize the spines by requiring one bar to be
+		   above 90% of the number of CAs and RTRs */
+		for (i = 0; i < IB_SUBNET_PATH_HOPS_MAX; i++) {
+			if (hop_hist[i] > thd1)
+				numHopBarsOverThd1++;
+			if (hop_hist[i] > thd2)
+				numHopBarsOverThd2++;
+		}
+
+		/* If thd conditions are valid - rank the root node */
+		if (numHopBarsOverThd1 == 1 && numHopBarsOverThd2 == 1) {
+			OSM_LOG(&p_osm->log, OSM_LOG_DEBUG,
+				"Ranking GUID 0x%" PRIx64 " as root node\n",
+				cl_ntoh64(osm_node_get_node_guid(p_sw->p_node)));
+			((struct updn_node *)p_sw->priv)->rank = 0;
+			p_updn->num_roots++;
+		}
+	}
+
+	free(cas_per_sw);
+_exit:
+	OSM_LOG_EXIT(&p_osm->log);
+	return;
+}
+
+/**********************************************************************
+ **********************************************************************/
 static void dump_roots(cl_map_item_t *item, FILE *file, void *cxt)
 {
 	osm_switch_t *sw = (osm_switch_t *)item;
@@ -519,7 +619,7 @@ static int __osm_updn_call(void *ctx)
 			osm_ucast_mgr_build_lid_matrices(&p_updn->p_osm->sm.ucast_mgr);
 	} else {
 		osm_ucast_mgr_build_lid_matrices(&p_updn->p_osm->sm.ucast_mgr);
-		__osm_updn_find_root_nodes_by_min_hop(p_updn);
+		updn_find_root_nodes_by_min_hop(p_updn);
 	}
 
 	if (p_updn->p_osm->subn.opt.ids_guid_file) {
@@ -560,111 +660,6 @@ static int __osm_updn_call(void *ctx)
 
 	OSM_LOG_EXIT(&p_updn->p_osm->log);
 	return ret;
-}
-
-/**********************************************************************
- **********************************************************************/
-/* Find Root nodes automatically by Min Hop Table info */
-static void __osm_updn_find_root_nodes_by_min_hop(OUT updn_t * p_updn)
-{
-	osm_opensm_t *p_osm = p_updn->p_osm;
-	osm_switch_t *p_sw;
-	osm_port_t *p_port;
-	osm_physp_t *p_physp;
-	cl_map_item_t *item;
-	double thd1, thd2;
-	unsigned i, cas_num = 0;
-	unsigned *cas_per_sw;
-	uint16_t lid_ho;
-
-	OSM_LOG_ENTER(&p_osm->log);
-
-	OSM_LOG(&p_osm->log, OSM_LOG_DEBUG,
-		"Current number of ports in the subnet is %d\n",
-		cl_qmap_count(&p_osm->subn.port_guid_tbl));
-
-	cas_per_sw = malloc((IB_LID_UCAST_END_HO + 1) * sizeof(*cas_per_sw));
-	if (!cas_per_sw) {
-		OSM_LOG(&p_osm->log, OSM_LOG_ERROR, "ERR AA14: "
-			"cannot alloc mem for CAs per switch counter array\n");
-		goto _exit;
-	}
-	memset(cas_per_sw, 0, (IB_LID_UCAST_END_HO + 1) * sizeof(*cas_per_sw));
-
-	/* Find the Maximum number of CAs (and routers) for histogram normalization */
-	OSM_LOG(&p_osm->log, OSM_LOG_VERBOSE,
-		"Finding the number of CAs and storing them in cl_map\n");
-	for (item = cl_qmap_head(&p_updn->p_osm->subn.port_guid_tbl);
-	     item != cl_qmap_end(&p_updn->p_osm->subn.port_guid_tbl);
-	     item = cl_qmap_next(item)) {
-		p_port = (osm_port_t *)item;
-		if (!p_port->p_node->sw) {
-			p_physp = p_port->p_physp->p_remote_physp;
-			if (!p_physp || !p_physp->p_node->sw)
-				continue;
-			lid_ho = osm_node_get_base_lid(p_physp->p_node, 0);
-			lid_ho = cl_ntoh16(lid_ho);
-			cas_per_sw[lid_ho]++;
-			cas_num++;
-		}
-	}
-
-	thd1 = cas_num * 0.9;
-	thd2 = cas_num * 0.05;
-	OSM_LOG(&p_osm->log, OSM_LOG_DEBUG,
-		"Found %u CAs and RTRs, %u SWs in the subnet. "
-		"Thresholds are thd1 = %f && thd2 = %f\n",
-		cas_num, cl_qmap_count(&p_osm->subn.sw_guid_tbl), thd1, thd2);
-
-	OSM_LOG(&p_osm->log, OSM_LOG_VERBOSE,
-		"Passing through all switches to collect Min Hop info\n");
-	for (item = cl_qmap_head(&p_updn->p_osm->subn.sw_guid_tbl);
-	     item != cl_qmap_end(&p_updn->p_osm->subn.sw_guid_tbl);
-	     item = cl_qmap_next(item)) {
-		unsigned hop_hist[IB_SUBNET_PATH_HOPS_MAX];
-		uint16_t max_lid_ho;
-		uint8_t hop_val;
-		uint16_t numHopBarsOverThd1 = 0;
-		uint16_t numHopBarsOverThd2 = 0;
-
-		p_sw = (osm_switch_t *) item;
-
-		memset(hop_hist, 0, sizeof(hop_hist));
-
-		max_lid_ho = p_sw->max_lid_ho;
-		for (lid_ho = 1; lid_ho <= max_lid_ho; lid_ho++)
-			if (cas_per_sw[lid_ho]) {
-				hop_val =
-				    osm_switch_get_least_hops(p_sw, lid_ho);
-				if (hop_val >= IB_SUBNET_PATH_HOPS_MAX)
-					continue;
-
-				hop_hist[hop_val] += cas_per_sw[lid_ho];
-			}
-
-		/* Now recognize the spines by requiring one bar to be
-		   above 90% of the number of CAs and RTRs */
-		for (i = 0; i < IB_SUBNET_PATH_HOPS_MAX; i++) {
-			if (hop_hist[i] > thd1)
-				numHopBarsOverThd1++;
-			if (hop_hist[i] > thd2)
-				numHopBarsOverThd2++;
-		}
-
-		/* If thd conditions are valid - rank the root node */
-		if (numHopBarsOverThd1 == 1 && numHopBarsOverThd2 == 1) {
-			OSM_LOG(&p_osm->log, OSM_LOG_DEBUG,
-				"Ranking GUID 0x%" PRIx64 " as root node\n",
-				cl_ntoh64(osm_node_get_node_guid(p_sw->p_node)));
-			((struct updn_node *)p_sw->priv)->rank = 0;
-			p_updn->num_roots++;
-		}
-	}
-
-	free(cas_per_sw);
-_exit:
-	OSM_LOG_EXIT(&p_osm->log);
-	return;
 }
 
 /**********************************************************************
