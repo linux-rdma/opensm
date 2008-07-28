@@ -820,7 +820,7 @@ __osm_lid_mgr_get_port_lid(IN osm_lid_mgr_t * const p_mgr,
 		} else
 			OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 				"0x%016" PRIx64 " existing lid range:"
-				"%u:%u] is not lmc aligned\n",
+				"[%u:%u] is not lmc aligned\n",
 				guid, min_lid, min_lid + num_lids - 1);
 	}
 
