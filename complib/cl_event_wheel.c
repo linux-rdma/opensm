@@ -482,7 +482,7 @@ void __cl_event_wheel_dump(IN cl_event_wheel_t * const p_event_wheel)
 		p_event =
 		    PARENT_STRUCT(p_list_item, cl_event_wheel_reg_info_t,
 				  list_item);
-		printf("Event key:0x%" PRIx64 " Conetxt:%s NumRegs:%u\n",
+		printf("Event key:0x%" PRIx64 " Context:%s NumRegs:%u\n",
 		       p_event->key, (char *)p_event->context,
 		       p_event->num_regs);
 
@@ -498,7 +498,7 @@ void __cl_event_wheel_dump(IN cl_event_wheel_t * const p_event_wheel)
 		p_event =
 		    PARENT_STRUCT(p_map_item, cl_event_wheel_reg_info_t,
 				  map_item);
-		printf("Event key:0x%" PRIx64 " Conetxt:%s NumRegs:%u\n",
+		printf("Event key:0x%" PRIx64 " Context:%s NumRegs:%u\n",
 		       p_event->key, (char *)p_event->context,
 		       p_event->num_regs);
 
@@ -513,7 +513,7 @@ void __cl_event_wheel_dump(IN cl_event_wheel_t * const p_event_wheel)
 void __test_event_aging(uint64_t key, void *context)
 {
 	printf("*****************************************************\n");
-	printf("Aged key: 0x%" PRIx64 " Conetxt:%s\n", key, (char *)context);
+	printf("Aged key: 0x%" PRIx64 " Context:%s\n", key, (char *)context);
 }
 
 int main()
