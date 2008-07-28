@@ -571,7 +571,7 @@ static int __osm_lid_mgr_init_sweep(IN osm_lid_mgr_t * const p_mgr)
 				cl_qlist_insert_tail(&p_mgr->free_ranges,
 						     &p_range->item);
 				OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-					"new free lid range [0x%x:0x%x]\n",
+					"new free lid range [%u:%u]\n",
 					p_range->min_lid, p_range->max_lid);
 				p_range = NULL;
 			}
@@ -599,7 +599,7 @@ AfterScanningLids:
 		p_range->max_lid = p_mgr->p_subn->max_ucast_lid_ho;
 		cl_qlist_insert_tail(&p_mgr->free_ranges, &p_range->item);
 		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-			"final free lid range [0x%x:0x%x]\n",
+			"final free lid range [%u:%u]\n",
 			p_range->min_lid, p_range->max_lid);
 	}
 
@@ -809,18 +809,18 @@ __osm_lid_mgr_get_port_lid(IN osm_lid_mgr_t * const p_mgr,
 				*p_max_lid = min_lid + num_lids - 1;
 				OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 					"0x%016" PRIx64
-					" lid range:[0x%x-0x%x] is free\n",
+					" lid range:[%u-%u] is free\n",
 					guid, *p_min_lid, *p_max_lid);
 				goto NewLidSet;
 			} else
 				OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 					"0x%016" PRIx64 " existing lid "
-					"range:[0x%x:0x%x] is not free\n",
+					"range:[%u:%u] is not free\n",
 					guid, min_lid, min_lid + num_lids - 1);
 		} else
 			OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 				"0x%016" PRIx64 " existing lid range:"
-				"0x%x:0x%x] is not lmc aligned\n",
+				"%u:%u] is not lmc aligned\n",
 				guid, min_lid, min_lid + num_lids - 1);
 	}
 
@@ -831,7 +831,7 @@ __osm_lid_mgr_get_port_lid(IN osm_lid_mgr_t * const p_mgr,
 	__osm_lid_mgr_find_free_lid_range(p_mgr, num_lids, p_min_lid,
 					  p_max_lid);
 	OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-		"0x%016" PRIx64 " assigned a new lid range:[0x%x-0x%x]\n",
+		"0x%016" PRIx64 " assigned a new lid range:[%u-%u]\n",
 		guid, *p_min_lid, *p_max_lid);
 	lid_changed = 1;
 
