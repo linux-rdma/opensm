@@ -1556,7 +1556,7 @@ int osm_subn_write_conf_file(char *file_name, IN osm_subn_opt_t *const p_opts)
 		p_opts->ids_guid_file ? p_opts->ids_guid_file : null_str);
 
 	fprintf(opts_file,
-		"# The file holding guid routing order guids (for Up/Down)\n"
+		"# The file holding guid routing order guids (for MinHop and Up/Down)\n"
 		"guid_routing_order_file %s\n\n",
 		p_opts->guid_routing_order_file ? p_opts->guid_routing_order_file : null_str);
 
