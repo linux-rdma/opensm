@@ -815,8 +815,7 @@ osm_dump_port_info(IN osm_log_t * const p_log,
 			"\t\t\t\tclient_reregister.......0x%X\n"
 			"\t\t\t\tsubnet_timeout..........0x%X\n"
 			"\t\t\t\tresp_time_value.........0x%X\n"
-			"\t\t\t\terror_threshold.........0x%X\n"
-			"",
+			"\t\t\t\terror_threshold.........0x%X\n",
 			port_num,
 			cl_ntoh64(node_guid),
 			cl_ntoh64(port_guid),
@@ -904,8 +903,7 @@ osm_dump_portinfo_record(IN osm_log_t * const p_log,
 			"\t\t\t\tguid_cap................0x%X\n"
 			"\t\t\t\tsubnet_timeout..........0x%X\n"
 			"\t\t\t\tresp_time_value.........0x%X\n"
-			"\t\t\t\terror_threshold.........0x%X\n"
-			"",
+			"\t\t\t\terror_threshold.........0x%X\n",
 			cl_ntoh16(p_pir->lid),
 			p_pir->port_num,
 			p_pir->resv,
@@ -1004,8 +1002,7 @@ osm_dump_node_info(IN osm_log_t * const p_log,
 			"\t\t\t\tdevice_id...............0x%X\n"
 			"\t\t\t\trevision................0x%X\n"
 			"\t\t\t\tport_num................0x%X\n"
-			"\t\t\t\tvendor_id...............0x%X\n"
-			"",
+			"\t\t\t\tvendor_id...............0x%X\n",
 			p_ni->base_version,
 			p_ni->class_version,
 			ib_get_node_type_str(p_ni->node_type),
@@ -1054,8 +1051,7 @@ osm_dump_node_record(IN osm_log_t * const p_log,
 			"\t\t\t\tport_num................0x%X\n"
 			"\t\t\t\tvendor_id...............0x%X\n"
 			"\t\t\t\tNodeDescription\n"
-			"\t\t\t\t%s\n"
-			"",
+			"\t\t\t\t%s\n",
 			cl_ntoh16(p_nr->lid),
 			cl_ntoh16(p_nr->resv),
 			p_ni->base_version,
@@ -1101,8 +1097,7 @@ osm_dump_path_record(IN osm_log_t * const p_log,
 			"\t\t\t\tpkt_life................0x%X\n"
 			"\t\t\t\tpreference..............0x%X\n"
 			"\t\t\t\tresv2...................0x%X\n"
-			"\t\t\t\tresv3...................0x%X\n"
-			"",
+			"\t\t\t\tresv3...................0x%X\n",
 			cl_ntoh64(p_pr->service_id),
 			cl_ntoh64(p_pr->dgid.unicast.prefix),
 			cl_ntoh64(p_pr->dgid.unicast.interface_id),
@@ -1176,8 +1171,7 @@ osm_dump_multipath_record(IN osm_log_t * const p_log,
 			"\t\t\t\tsgid_count..............0x%X\n"
 			"\t\t\t\tdgid_count..............0x%X\n"
 			"\t\t\t\tservice_id..............0x%016" PRIx64 "\n"
-			"%s\n"
-			"",
+			"%s\n",
 			cl_ntoh32(p_mpr->hop_flow_raw),
 			p_mpr->tclass,
 			p_mpr->num_path,
@@ -1217,8 +1211,7 @@ osm_dump_mc_record(IN osm_log_t * const p_log,
 			"\t\t\t\tpkt_life................0x%X\n"
 			"\t\t\t\tSLFlowLabelHopLimit.....0x%X\n"
 			"\t\t\t\tScopeState..............0x%X\n"
-			"\t\t\t\tProxyJoin...............0x%X\n"
-			"",
+			"\t\t\t\tProxyJoin...............0x%X\n",
 			inet_ntop(AF_INET6, p_mcmr->mgid.raw, gid_str,
 				sizeof gid_str),
 			inet_ntop(AF_INET6, p_mcmr->port_gid.raw, gid_str2,
@@ -1304,8 +1297,7 @@ osm_dump_service_record(IN osm_log_t * const p_log,
 			"\t\t\t\tServiceData32.3.........0x%X\n"
 			"\t\t\t\tServiceData32.4.........0x%X\n"
 			"\t\t\t\tServiceData64.1.........0x%016" PRIx64 "\n"
-			"\t\t\t\tServiceData64.2.........0x%016" PRIx64 "\n"
-			"",
+			"\t\t\t\tServiceData64.2.........0x%016" PRIx64 "\n",
 			cl_ntoh64(p_sr->service_id),
 			inet_ntop(AF_INET6, p_sr->service_gid.raw, gid_str,
 				sizeof gid_str),
@@ -1499,8 +1491,7 @@ osm_dump_link_record(IN osm_log_t * const p_log,
 			"\t\t\t\tfrom_lid................%u\n"
 			"\t\t\t\tfrom_port_num...........0x%X\n"
 			"\t\t\t\tto_port_num.............0x%X\n"
-			"\t\t\t\tto_lid..................%u\n"
-			"",
+			"\t\t\t\tto_lid..................%u\n",
 			cl_ntoh16(p_lr->from_lid),
 			p_lr->from_port_num,
 			p_lr->to_port_num, cl_ntoh16(p_lr->to_lid));
@@ -1527,8 +1518,7 @@ osm_dump_switch_info(IN osm_log_t * const p_log,
 			"\t\t\t\tlife_state..............0x%X\n"
 			"\t\t\t\tlids_per_port...........%u\n"
 			"\t\t\t\tpartition_enf_cap.......0x%X\n"
-			"\t\t\t\tflags...................0x%X\n"
-			"",
+			"\t\t\t\tflags...................0x%X\n",
 			cl_ntoh16(p_si->lin_cap),
 			cl_ntoh16(p_si->rand_cap),
 			cl_ntoh16(p_si->mcast_cap),
@@ -1565,8 +1555,7 @@ osm_dump_switch_info_record(IN osm_log_t * const p_log,
 			"\t\t\t\tlife_state..............0x%X\n"
 			"\t\t\t\tlids_per_port...........%u\n"
 			"\t\t\t\tpartition_enf_cap.......0x%X\n"
-			"\t\t\t\tflags...................0x%X\n"
-			"",
+			"\t\t\t\tflags...................0x%X\n",
 			cl_ntoh16(p_sir->lid),
 			cl_ntoh16(p_sir->switch_info.lin_cap),
 			cl_ntoh16(p_sir->switch_info.rand_cap),
@@ -1682,8 +1671,7 @@ osm_dump_sm_info(IN osm_log_t * const p_log,
 			"\t\t\t\tsm_key..................0x%016" PRIx64 "\n"
 			"\t\t\t\tact_count...............%u\n"
 			"\t\t\t\tpriority................%u\n"
-			"\t\t\t\tsm_state................%u\n"
-			"",
+			"\t\t\t\tsm_state................%u\n",
 			cl_ntoh64(p_smi->guid),
 			cl_ntoh64(p_smi->sm_key),
 			cl_ntoh32(p_smi->act_count),
@@ -1710,8 +1698,7 @@ osm_dump_sm_info_record(IN osm_log_t * const p_log,
 			"\t\t\t\tsm_key..................0x%016" PRIx64 "\n"
 			"\t\t\t\tact_count...............%u\n"
 			"\t\t\t\tpriority................%u\n"
-			"\t\t\t\tsm_state................%u\n"
-			"",
+			"\t\t\t\tsm_state................%u\n",
 			cl_ntoh16(p_smir->lid),
 			cl_ntoh16(p_smir->resv0),
 			cl_ntoh64(p_smir->sm_info.guid),
