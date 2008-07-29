@@ -1525,7 +1525,7 @@ osm_dump_switch_info(IN osm_log_t * const p_log,
 			"\t\t\t\tdef_mcast_pri_port......0x%X\n"
 			"\t\t\t\tdef_mcast_not_port......0x%X\n"
 			"\t\t\t\tlife_state..............0x%X\n"
-			"\t\t\t\tlids_per_port...........0x%X\n"
+			"\t\t\t\tlids_per_port...........%u\n"
 			"\t\t\t\tpartition_enf_cap.......0x%X\n"
 			"\t\t\t\tflags...................0x%X\n"
 			"",
@@ -1563,7 +1563,7 @@ osm_dump_switch_info_record(IN osm_log_t * const p_log,
 			"\t\t\t\tdef_mcast_pri_port......0x%X\n"
 			"\t\t\t\tdef_mcast_not_port......0x%X\n"
 			"\t\t\t\tlife_state..............0x%X\n"
-			"\t\t\t\tlids_per_port...........0x%X\n"
+			"\t\t\t\tlids_per_port...........%u\n"
 			"\t\t\t\tpartition_enf_cap.......0x%X\n"
 			"\t\t\t\tflags...................0x%X\n"
 			"",
