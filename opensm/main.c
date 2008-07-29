@@ -193,8 +193,8 @@ static void show_usage(void)
 	       "          from where switch lid matrices (min hops tables will be\n"
 	       "          loaded.\n\n");
 	printf("-U\n"
-	       "--ucast_file <file name>\n"
-	       "          This option specifies the name of the unicast dump file\n"
+	       "--lfts_file <file name>\n"
+	       "          This option specifies the name of the LFTs file\n"
 	       "          from where switch forwarding tables will be loaded.\n\n");
 	printf("-S\n"
 	       "--sadb_file <file name>\n"
@@ -579,7 +579,7 @@ int main(int argc, char *argv[])
 		{"routing_engine", 1, NULL, 'R'},
 		{"connect_roots", 0, NULL, 'z'},
 		{"lid_matrix_file", 1, NULL, 'M'},
-		{"ucast_file", 1, NULL, 'U'},
+		{"lfts_file", 1, NULL, 'U'},
 		{"sadb_file", 1, NULL, 'S'},
 		{"root_guid_file", 1, NULL, 'a'},
 		{"cn_guid_file", 1, NULL, 'u'},
@@ -862,8 +862,8 @@ int main(int argc, char *argv[])
 			break;
 
 		case 'U':
-			opt.ucast_dump_file = optarg;
-			printf(" Ucast dump file is \'%s\'\n", optarg);
+			opt.lfts_file = optarg;
+			printf(" LFTs file is \'%s\'\n", optarg);
 			break;
 
 		case 'S':

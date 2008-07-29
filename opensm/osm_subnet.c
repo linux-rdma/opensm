@@ -445,7 +445,7 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * const p_opt)
 	p_opt->routing_engine_name = NULL;
 	p_opt->connect_roots = FALSE;
 	p_opt->lid_matrix_dump_file = NULL;
-	p_opt->ucast_dump_file = NULL;
+	p_opt->lfts_file = NULL;
 	p_opt->root_guid_file = NULL;
 	p_opt->cn_guid_file = NULL;
 	p_opt->ids_guid_file = NULL;
@@ -1295,8 +1295,8 @@ int osm_subn_parse_conf_file(char *file_name, osm_subn_opt_t * const p_opts)
 		opts_unpack_charp("lid_matrix_dump_file",
 				  p_key, p_val, &p_opts->lid_matrix_dump_file);
 
-		opts_unpack_charp("ucast_dump_file",
-				  p_key, p_val, &p_opts->ucast_dump_file);
+		opts_unpack_charp("lfts_file",
+				  p_key, p_val, &p_opts->lfts_file);
 
 		opts_unpack_charp("root_guid_file",
 				  p_key, p_val, &p_opts->root_guid_file);
@@ -1536,8 +1536,8 @@ int osm_subn_write_conf_file(char *file_name, IN osm_subn_opt_t *const p_opts)
 		p_opts->lid_matrix_dump_file : null_str);
 
 	fprintf(opts_file,
-		"# Ucast dump file name\nucast_dump_file %s\n\n",
-		p_opts->ucast_dump_file ? p_opts->ucast_dump_file : null_str);
+		"# LFTs file name\nlfts_file %s\n\n",
+		p_opts->lfts_file ? p_opts->lfts_file : null_str);
 
 	fprintf(opts_file,
 		"# The file holding the root node guids (for fat-tree or Up/Down)\n"

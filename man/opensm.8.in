@@ -12,7 +12,7 @@ opensm \- InfiniBand subnet manager and administration (SM/SA)
 [\-R <engine name> | \-\-routing_engine <engine name>]
 [\-z | \-\-connect_roots]
 [\-M <file name> | \-\-lid_matrix_file <file name>]
-[\-U <file name> | \-\-ucast_file <file name>]
+[\-U <file name> | \-\-lfts_file <file name>]
 [\-S | \-\-sadb_file <file name>] [\-a | \-\-root_guid_file <path to file>]
 [\-u | \-\-cn_guid_file <path to file>]
 [\-X | \-\-guid_routing_order_file <path to file>]
@@ -131,8 +131,8 @@ This option specifies the name of the lid matrix dump file
 from where switch lid matrices (min hops tables will be
 loaded.
 .TP
-\fB\-U\fR, \fB\-\-ucast_file\fR
-This option specifies the name of the unicast dump file
+\fB\-U\fR, \fB\-\-lfts_file\fR
+This option specifies the name of the LFTs file
 from where switch forwarding tables will be loaded.
 .TP
 \fB\-S\fR, \fB\-\-sadb_file\fR
@@ -898,34 +898,34 @@ General usage is:
 $ opensm -R 'module-name'
 
 There is also a trivial routing module which is able
-to load LFT tables from a dump file.
+to load LFT tables from a file.
 
 Main features:
 
  - this will load switch LFTs and/or LID matrices (min hops tables)
  - this will load switch LFTs according to the path entries introduced
-   in the dump file
+   in the file
  - no additional checks will be performed (such as "is port connected",
    etc.)
  - in case when fabric LIDs were changed this will try to reconstruct
-   LFTs correctly if endport GUIDs are represented in the dump file
-   (in order to disable this, GUIDs may be removed from the dump file
+   LFTs correctly if endport GUIDs are represented in the file
+   (in order to disable this, GUIDs may be removed from the file
     or zeroed)
 
-The dump file format is compatible with output of 'ibroute' util and for
+The file format is compatible with output of 'ibroute' util and for
 whole fabric can be generated with dump_lfts.sh script.
 
 To activate file based routing module, use:
 
-  opensm -R file -U /path/to/dump_file
+  opensm -R file -U /path/to/lfts_file
 
-If the dump_file is not found or is in error, the default routing
+If the lfts_file is not found or is in error, the default routing
 algorithm is utilized.
 
 The ability to dump switch lid matrices (aka min hops tables) to file and
 later to load these is also supported.
 
-The usage is similar to unicast forwarding tables loading from dump
+The usage is similar to unicast forwarding tables loading from a lfts
 file (introduced by 'file' routing engine), but new lid matrix file
 name should be specified by -M or --lid_matrix_file option. For example:
 
@@ -935,7 +935,7 @@ The dump file is named \'opensm-lid-matrix.dump\' and will be generated
 in standard opensm dump directory (/var/log by default) when
 OSM_LOG_ROUTING logging flag is set.
 
-When routing engine 'file' is activated, but dump file is not specified
+When routing engine 'file' is activated, but the lfts file is not specified
 or not cannot be open default lid matrix algorithm will be used.
 
 There is also a switch forwarding tables dumper which generates

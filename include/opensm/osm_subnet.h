@@ -185,7 +185,7 @@ typedef struct osm_subn_opt {
 	char *routing_engine_name;
 	boolean_t connect_roots;
 	char *lid_matrix_dump_file;
-	char *ucast_dump_file;
+	char *lfts_file;
 	char *root_guid_file;
 	char *cn_guid_file;
 	char *ids_guid_file;
@@ -366,8 +366,8 @@ typedef struct osm_subn_opt {
 *		Name of the lid matrix dump file from where switch
 *		lid matrices (min hops tables) will be loaded
 *
-*	ucast_dump_file
-*		Name of the unicast routing dump file from where switch
+*	lfts_file
+*		Name of the unicast LFTs routing file from where switch
 *		forwarding tables will be loaded
 *
 *	root_guid_file

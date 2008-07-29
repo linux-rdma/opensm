@@ -130,10 +130,10 @@ static int do_ucast_file_load(void *context)
 	uint8_t port_num;
 	unsigned lineno;
 
-	file_name = p_osm->subn.opt.ucast_dump_file;
+	file_name = p_osm->subn.opt.lfts_file;
 	if (!file_name) {
 		OSM_LOG(&p_osm->log, OSM_LOG_VERBOSE,
-			"ucast dump file name is not given; "
+			"LFTs file name is not given; "
 			"using default routing algorithm\n");
 		return -1;
 	}
