@@ -92,7 +92,7 @@ __osm_mftr_rcv_new_mftr(IN osm_sa_t * sa,
 
 	OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 		"New MulticastForwardingTable: sw 0x%016" PRIx64
-		"\n\t\t\t\tblock %u position %u lid 0x%02X\n",
+		"\n\t\t\t\tblock %u position %u lid %u\n",
 		cl_ntoh64(osm_node_get_node_guid(p_sw->p_node)),
 		block, position, cl_ntoh16(lid));
 

@@ -94,7 +94,7 @@ __osm_pir_rcv_new_pir(IN osm_sa_t * sa,
 
 	OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 		"New PortInfoRecord: port 0x%016" PRIx64
-		", lid 0x%X, port 0x%X\n",
+		", lid %u, port 0x%X\n",
 		cl_ntoh64(osm_physp_get_port_guid(p_physp)),
 		cl_ntoh16(lid), osm_physp_get_port_num(p_physp));
 

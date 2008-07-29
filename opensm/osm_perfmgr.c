@@ -533,7 +533,7 @@ __osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context)
 		gettimeofday(&(mad_context.perfmgr_context.query_start), NULL);
 #endif
 		OSM_LOG(pm->log, OSM_LOG_VERBOSE, "Getting stats for node 0x%"
-			PRIx64 " port %d (lid %X) (%s)\n", node_guid, port,
+			PRIx64 " port %d (lid %u) (%s)\n", node_guid, port,
 			cl_ntoh16(lid), node->print_desc);
 		status =
 		    osm_perfmgr_send_pc_mad(pm, lid, remote_qp, port,

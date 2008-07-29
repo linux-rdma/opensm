@@ -95,7 +95,7 @@ __osm_gir_rcv_new_gir(IN osm_sa_t * sa,
 	}
 
 	OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-		"New GUIDInfoRecord: lid 0x%X, block num %d\n",
+		"New GUIDInfoRecord: lid %u, block num %d\n",
 		cl_ntoh16(match_lid), block_num);
 
 	memset(p_rec_item, 0, sizeof(*p_rec_item));

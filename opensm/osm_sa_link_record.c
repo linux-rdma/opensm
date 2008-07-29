@@ -75,10 +75,10 @@ __osm_lr_rcv_build_physp_link(IN osm_sa_t * sa,
 	if (p_lr_item == NULL) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1801: "
 			"Unable to acquire link record\n"
-			"\t\t\t\tFrom port 0x%u\n"
-			"\t\t\t\tTo port   0x%u\n"
-			"\t\t\t\tFrom lid  0x%X\n"
-			"\t\t\t\tTo lid    0x%X\n",
+			"\t\t\t\tFrom port %u\n"
+			"\t\t\t\tTo port   %u\n"
+			"\t\t\t\tFrom lid  %u\n"
+			"\t\t\t\tTo lid    %u\n",
 			from_port, to_port,
 			cl_ntoh16(from_lid), cl_ntoh16(to_lid));
 		return;

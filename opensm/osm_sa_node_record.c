@@ -90,7 +90,7 @@ __osm_nr_rcv_new_nr(IN osm_sa_t * sa,
 
 	OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 		"New NodeRecord: node 0x%016" PRIx64
-		"\n\t\t\t\tport 0x%016" PRIx64 ", lid 0x%X\n",
+		"\n\t\t\t\tport 0x%016" PRIx64 ", lid %u\n",
 		cl_ntoh64(osm_node_get_node_guid(p_node)),
 		cl_ntoh64(port_guid), cl_ntoh16(lid));
 

@@ -88,7 +88,7 @@ __osm_sir_rcv_new_sir(IN osm_sa_t * sa,
 	}
 
 	OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-		"New SwitchInfoRecord: lid 0x%X\n", cl_ntoh16(lid));
+		"New SwitchInfoRecord: lid %u\n", cl_ntoh16(lid));
 
 	memset(p_rec_item, 0, sizeof(*p_rec_item));
 
