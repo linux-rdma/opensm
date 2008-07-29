@@ -523,11 +523,7 @@ typedef struct osm_subn {
 *		Container of pointers to SM objects representing other SMs
 *		on the subnet.
 *
-*	node_lid_tbl
-*		Container of pointers to all Node objects in the subent.
-*		Indexed by node LID.
-*
-*	port_ptr_tbl
+*	port_lid_tbl
 *		Container of pointers to all Port objects in the subent.
 *		Indexed by port LID.
 *
