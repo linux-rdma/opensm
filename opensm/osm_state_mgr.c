@@ -553,7 +553,7 @@ static ib_api_status_t __osm_state_mgr_light_sweep_start(IN osm_sm_t * sm)
 			if (p_physp && (osm_physp_get_port_state(p_physp) !=
 					IB_LINK_DOWN)
 			    && !osm_physp_get_remote(p_physp)) {
-				OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0108: "
+				OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3315: "
 					"Unknown remote side for node 0x%016"
 					PRIx64
 					"(%s) port %u. Adding to light sweep sampling list\n",
