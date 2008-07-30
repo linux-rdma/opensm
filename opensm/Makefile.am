@@ -92,13 +92,13 @@ opensm_LDADD = -L../complib -losmcomp -L../libvendor -losmvendor -L. -lopensm $(
 opensmincludedir = $(includedir)/infiniband/opensm
 
 opensminclude_HEADERS = $(srcdir)/../include/opensm/osm_base.h \
-			$(srcdir)/../include/opensm/osm_log.h \
-			$(srcdir)/../include/opensm/osm_path.h \
-			$(srcdir)/../include/opensm/osm_madw.h \
-			$(srcdir)/../include/opensm/osm_mad_pool.h \
-			$(srcdir)/../include/opensm/osm_msgdef.h \
+			$(srcdir)/../include/opensm/osm_event_plugin.h \
 			$(srcdir)/../include/opensm/osm_helper.h \
-			$(srcdir)/../include/opensm/osm_event_plugin.h
+			$(srcdir)/../include/opensm/osm_log.h \
+			$(srcdir)/../include/opensm/osm_mad_pool.h \
+			$(srcdir)/../include/opensm/osm_madw.h \
+			$(srcdir)/../include/opensm/osm_msgdef.h \
+			$(srcdir)/../include/opensm/osm_path.h
 
 BUILT_SOURCES = osm_version
 osm_version:

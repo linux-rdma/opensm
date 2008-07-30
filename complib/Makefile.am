@@ -51,6 +51,7 @@ libosmcompinclude_HEADERS = $(srcdir)/../include/complib/cl_atomic.h \
 	$(srcdir)/../include/complib/cl_log.h \
 	$(srcdir)/../include/complib/cl_map.h \
 	$(srcdir)/../include/complib/cl_math.h \
+	$(srcdir)/../include/complib/cl_nodenamemap.h \
 	$(srcdir)/../include/complib/cl_packoff.h \
 	$(srcdir)/../include/complib/cl_packon.h \
 	$(srcdir)/../include/complib/cl_passivelock.h \
@@ -74,8 +75,7 @@ libosmcompinclude_HEADERS = $(srcdir)/../include/complib/cl_atomic.h \
 	$(srcdir)/../include/complib/cl_timer_osd.h \
 	$(srcdir)/../include/complib/cl_types.h \
 	$(srcdir)/../include/complib/cl_types_osd.h \
-	$(srcdir)/../include/complib/cl_vector.h \
-	$(srcdir)/../include/complib/cl_nodenamemap.h
+	$(srcdir)/../include/complib/cl_vector.h
 
 # headers are distributed as part of the include dir
 EXTRA_DIST = $(srcdir)/libosmcomp.map $(srcdir)/libosmcomp.ver
