@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2008 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
@@ -66,11 +66,10 @@
 **********************************************************************/
 static inline boolean_t
 __osm_sminfo_rcv_remote_sm_is_higher(IN osm_sm_t * sm,
-				     IN const ib_sm_info_t * p_remote_sm)
+				     IN const ib_sm_info_t * p_remote_smi)
 {
-
-	return (osm_sm_is_greater_than(ib_sminfo_get_priority(p_remote_sm),
-				       p_remote_sm->guid,
+	return (osm_sm_is_greater_than(ib_sminfo_get_priority(p_remote_smi),
+				       p_remote_smi->guid,
 				       sm->p_subn->opt.sm_priority,
 				       sm->p_subn->sm_port_guid));
 
@@ -92,9 +91,7 @@ __osm_sminfo_rcv_process_get_request(IN osm_sm_t * sm,
 
 	CL_ASSERT(p_madw);
 
-	/*
-	   No real need to grab the lock for this function.
-	 */
+	/* No real need to grab the lock for this function. */
 	memset(payload, 0, sizeof(payload));
 
 	p_smp = osm_madw_get_smp_ptr(p_madw);
@@ -182,9 +179,7 @@ __osm_sminfo_rcv_process_set_request(IN osm_sm_t * sm,
 
 	CL_ASSERT(p_madw);
 
-	/*
-	   No real need to grab the lock for this function.
-	 */
+	/* No real need to grab the lock for this function. */
 	memset(payload, 0, sizeof(payload));
 
 	/* get the lock */
@@ -227,7 +222,6 @@ __osm_sminfo_rcv_process_set_request(IN osm_sm_t * sm,
 			"Check legality failed. AttributeModifier:0x%X RemoteState:%s\n",
 			p_smp->attr_mod,
 			osm_get_sm_mgr_state_str(ib_sminfo_get_state(sm_smi)));
-		/* send a response with error code */
 		status = osm_resp_send(sm, p_madw, 7, payload);
 		if (status != IB_SUCCESS)
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 2F05: "
@@ -272,7 +266,6 @@ __osm_sminfo_rcv_process_set_request(IN osm_sm_t * sm,
 			"Failed check of legality of needed SM transition. AttributeModifier:0x%X RemoteState:%s\n",
 			p_smp->attr_mod,
 			osm_get_sm_mgr_state_str(ib_sminfo_get_state(sm_smi)));
-		/* send a response with error code */
 		status = osm_resp_send(sm, p_madw, 7, payload);
 		if (status != IB_SUCCESS)
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 2F08: "
@@ -301,7 +294,6 @@ __osm_sminfo_rcv_process_set_request(IN osm_sm_t * sm,
 		sm->master_sm_guid = sm_smi->guid;
 	}
 
-	/* call osm_sm_state_mgr_process with the received signal. */
 	CL_PLOCK_RELEASE(sm->p_lock);
 	status = osm_sm_state_mgr_process(sm, sm_signal);
 
@@ -330,9 +322,7 @@ __osm_sminfo_rcv_process_get_sm(IN osm_sm_t * sm,
 		"Detected SM 0x%016" PRIx64 " in state %u\n",
 		cl_ntoh64(p_smi->guid), ib_sminfo_get_state(p_smi));
 
-	/*
-	   Check the state of this SM vs. our own.
-	 */
+	/* Check the state of this SM vs. our own. */
 	switch (sm->p_subn->sm_state) {
 	case IB_SMINFO_STATE_NOTACTIVE:
 		break;
@@ -456,8 +446,7 @@ __osm_sminfo_rcv_process_get_response(IN osm_sm_t * sm,
 
 	osm_dump_sm_info(sm->p_log, p_smi, OSM_LOG_DEBUG);
 
-	/*
-	   Check that the sm_key of the found SM is the same as ours,
+	/* Check that the sm_key of the found SM is the same as ours,
 	   or is zero. If not - OpenSM cannot continue with configuration!. */
 	if (p_smi->sm_key != 0 && p_smi->sm_key != sm->p_subn->opt.sm_key) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 2F18: "
@@ -469,9 +458,7 @@ __osm_sminfo_rcv_process_get_response(IN osm_sm_t * sm,
 		goto Exit;
 	}
 
-	/*
-	   Determine if we already have another SM object for this SM.
-	 */
+	/* Determine if we already have another SM object for this SM. */
 	CL_PLOCK_EXCL_ACQUIRE(sm->p_lock);
 
 	p_port = osm_get_port_by_guid(sm->p_subn, port_guid);
@@ -510,10 +497,7 @@ __osm_sminfo_rcv_process_get_response(IN osm_sm_t * sm,
 
 		cl_qmap_insert(p_sm_tbl, port_guid, &p_sm->map_item);
 	} else
-		/*
-		   We already know this SM.
-		   Update the SMInfo attribute.
-		 */
+		/* We already know this SM. Update the SMInfo attribute. */
 		p_sm->smi = *p_smi;
 
 	__osm_sminfo_rcv_process_get_sm(sm, p_sm);
@@ -557,10 +541,7 @@ __osm_sminfo_rcv_process_set_response(IN osm_sm_t * sm,
 		goto Exit;
 	}
 
-	/*
-	   This is a response on a HANDOVER request -
-	   Nothing to do.
-	 */
+	/* This is a response on a HANDOVER request - Nothing to do. */
 
 Exit:
 	OSM_LOG_EXIT(sm->p_log);
@@ -581,21 +562,16 @@ void osm_sminfo_rcv_process(IN void *context, IN void *data)
 
 	p_smp = osm_madw_get_smp_ptr(p_madw);
 
-	/*
-	   Determine if this is a request for our own SMInfo
-	   or if this is a response to our request for another
-	   SM's SMInfo.
-	 */
+	/* Determine if this is a request for our own SMInfo or if
+	   this is a response to our request for another SM's SMInfo. */
 	if (ib_smp_is_response(p_smp)) {
 		const ib_sm_info_t *p_smi = ib_smp_get_payload_ptr(p_smp);
 
 		/* Get the context - to see if this is a response to a Get or Set method */
 		p_smi_context = osm_madw_get_smi_context_ptr(p_madw);
 
-		/*
-		   Verify that response is from expected port and there is no port
-		   moving issue.
-		 */
+		/* Verify that response is from expected port and there is
+		   no port moving issue. */
 		if (p_smi_context->port_guid != p_smi->guid) {
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 2F19: "
 				"Unexpected SM port GUID in response"
@@ -613,7 +589,6 @@ void osm_sminfo_rcv_process(IN void *context, IN void *data)
 			/* this is a response to a Set method */
 			__osm_sminfo_rcv_process_set_response(sm, p_madw);
 	} else if (p_smp->method == IB_MAD_METHOD_GET)
-		/* This is a request */
 		/* This is a SubnGet request */
 		__osm_sminfo_rcv_process_get_request(sm, p_madw);
 	else
