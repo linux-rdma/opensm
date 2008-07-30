@@ -145,10 +145,9 @@ static void __osm_state_mgr_get_sw_info(IN cl_map_item_t * const p_object,
 	status = osm_req_get(sm, p_dr_path, IB_MAD_ATTR_SWITCH_INFO, 0,
 			     OSM_MSG_LIGHT_SWEEP_FAIL, &mad_context);
 
-	if (status != IB_SUCCESS) {
+	if (status != IB_SUCCESS)
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3304: "
 			"Request for SwitchInfo failed\n");
-	}
 
 	OSM_LOG_EXIT(sm->p_log);
 }
@@ -188,10 +187,9 @@ __osm_state_mgr_get_remote_port_info(IN osm_sm_t * sm,
 			     IB_MAD_ATTR_PORT_INFO, 0, CL_DISP_MSGID_NONE,
 			     &mad_context);
 
-	if (status != IB_SUCCESS) {
+	if (status != IB_SUCCESS)
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 332E: "
 			"Request for PortInfo failed\n");
-	}
 
 	OSM_LOG_EXIT(sm->p_log);
 }
@@ -244,14 +242,12 @@ static ib_api_status_t __osm_state_mgr_sweep_hop_0(IN osm_sm_t * sm)
 		CL_PLOCK_RELEASE(sm->p_lock);
 
 		osm_dr_path_init(&dr_path, h_bind, 0, path_array);
-		status = osm_req_get(sm,
-				     &dr_path, IB_MAD_ATTR_NODE_INFO, 0,
+		status = osm_req_get(sm, &dr_path, IB_MAD_ATTR_NODE_INFO, 0,
 				     CL_DISP_MSGID_NONE, NULL);
 
-		if (status != IB_SUCCESS) {
+		if (status != IB_SUCCESS)
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3305: "
 				"Request for NodeInfo failed\n");
-		}
 	} else {
 		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 			"No bound ports. Deferring sweep...\n");
@@ -311,11 +307,10 @@ static ib_api_status_t __osm_state_mgr_notify_lid_change(IN osm_sm_t * sm)
 	 * Notify the transport layer that we changed the local LID.
 	 */
 	status = osm_vendor_local_lid_change(h_bind);
-	if (status != IB_SUCCESS) {
+	if (status != IB_SUCCESS)
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3307: "
 			"Vendor LID update failed (%s)\n",
 			ib_get_err_str(status));
-	}
 
 Exit:
 	OSM_LOG_EXIT(sm->p_log);
@@ -448,14 +443,11 @@ static ib_api_status_t __osm_state_mgr_sweep_hop_1(IN osm_sm_t * sm)
 		path_array[1] = port_num;
 
 		osm_dr_path_init(&hop_1_path, h_bind, 1, path_array);
-		status = osm_req_get(sm, &hop_1_path,
-				     IB_MAD_ATTR_NODE_INFO, 0,
+		status = osm_req_get(sm, &hop_1_path, IB_MAD_ATTR_NODE_INFO, 0,
 				     CL_DISP_MSGID_NONE, &context);
-
-		if (status != IB_SUCCESS) {
+		if (status != IB_SUCCESS)
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3311: "
 				"Request for NodeInfo failed\n");
-		}
 		break;
 
 	case IB_NODE_TYPE_SWITCH:
@@ -478,18 +470,16 @@ static ib_api_status_t __osm_state_mgr_sweep_hop_1(IN osm_sm_t * sm)
 				context.ni_context.port_num = port_num;
 
 				path_array[1] = port_num;
-
 				osm_dr_path_init(&hop_1_path, h_bind, 1,
 						 path_array);
-				status =
-				    osm_req_get(sm, &hop_1_path,
-						IB_MAD_ATTR_NODE_INFO, 0,
-						CL_DISP_MSGID_NONE, &context);
+				status = osm_req_get(sm, &hop_1_path,
+						     IB_MAD_ATTR_NODE_INFO, 0,
+						     CL_DISP_MSGID_NONE,
+						     &context);
 
-				if (status != IB_SUCCESS) {
+				if (status != IB_SUCCESS)
 					OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3312: "
 						"Request for NodeInfo failed\n");
-				}
 			}
 		}
 		break;
@@ -659,13 +649,12 @@ static osm_remote_sm_t *__osm_state_mgr_get_highest_sm(IN osm_sm_t * sm)
 		}
 	}
 
-	if (p_highest_sm != NULL) {
+	if (p_highest_sm != NULL)
 		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 			"Found higher SM with guid: %016" PRIx64 " (node %s)\n",
 			cl_ntoh64(p_highest_sm->smi.guid),
 			p_highest_sm->p_port->p_node ?
 			p_highest_sm->p_port->p_node->print_desc : "UNKNOWN");
-	}
 
 	OSM_LOG_EXIT(sm->p_log);
 	return (p_highest_sm);
@@ -729,17 +718,15 @@ __osm_state_mgr_send_handover(IN osm_sm_t * const sm,
 		p_smi->sm_key = 0;
 	}
 
-	status = osm_req_set(sm,
-			     osm_physp_get_dr_path_ptr(p_port->p_physp),
-			     payload, sizeof(payload),
-			     IB_MAD_ATTR_SM_INFO, IB_SMINFO_ATTR_MOD_HANDOVER,
-			     CL_DISP_MSGID_NONE, &context);
+	status = osm_req_set(sm, osm_physp_get_dr_path_ptr(p_port->p_physp),
+			     payload, sizeof(payload), IB_MAD_ATTR_SM_INFO,
+			     IB_SMINFO_ATTR_MOD_HANDOVER, CL_DISP_MSGID_NONE,
+			     &context);
 
-	if (status != IB_SUCCESS) {
+	if (status != IB_SUCCESS)
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3317: "
 			"Failure requesting SMInfo (%s)\n",
 			ib_get_err_str(status));
-	}
 
 Exit:
 	OSM_LOG_EXIT(sm->p_log);
@@ -795,12 +782,11 @@ static void __osm_state_mgr_report_new_ports(IN osm_sm_t * sm)
 		    sm->p_subn->sm_port_guid;
 
 		status = osm_report_notice(sm->p_log, sm->p_subn, &notice);
-		if (status != IB_SUCCESS) {
+		if (status != IB_SUCCESS)
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3318: "
 				"Error sending trap reports on GUID:0x%016"
 				PRIx64 " (%s)\n", port_gid.unicast.interface_id,
 				ib_get_err_str(status));
-		}
 		osm_port_get_lid_range_ho(p_port, &min_lid_ho, &max_lid_ho);
 		OSM_LOG(sm->p_log, OSM_LOG_INFO,
 			"Discovered new port with GUID:0x%016" PRIx64
