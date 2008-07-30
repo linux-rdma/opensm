@@ -91,14 +91,58 @@ opensm_LDADD = -L../complib -losmcomp -L../libvendor -losmvendor -L. -lopensm $(
 
 opensmincludedir = $(includedir)/infiniband/opensm
 
-opensminclude_HEADERS = $(srcdir)/../include/opensm/osm_base.h \
-			$(srcdir)/../include/opensm/osm_event_plugin.h \
-			$(srcdir)/../include/opensm/osm_helper.h \
-			$(srcdir)/../include/opensm/osm_log.h \
-			$(srcdir)/../include/opensm/osm_mad_pool.h \
-			$(srcdir)/../include/opensm/osm_madw.h \
-			$(srcdir)/../include/opensm/osm_msgdef.h \
-			$(srcdir)/../include/opensm/osm_path.h
+opensminclude_HEADERS = \
+	$(srcdir)/../include/opensm/osm_attrib_req.h \
+	$(srcdir)/../include/opensm/osm_base.h \
+	$(srcdir)/../include/opensm/osm_console.h \
+	$(srcdir)/../include/opensm/osm_console_io.h \
+	$(srcdir)/../include/opensm/osm_db.h \
+	$(srcdir)/../include/opensm/osm_db_pack.h \
+	$(srcdir)/../include/opensm/osm_event_plugin.h \
+	$(srcdir)/../include/opensm/osm_errors.h \
+	$(srcdir)/../include/opensm/osm_fwd_tbl.h \
+	$(srcdir)/../include/opensm/osm_helper.h \
+	$(srcdir)/../include/opensm/osm_inform.h \
+	$(srcdir)/../include/opensm/osm_lid_mgr.h \
+	$(srcdir)/../include/opensm/osm_lin_fwd_tbl.h \
+	$(srcdir)/../include/opensm/osm_log.h \
+	$(srcdir)/../include/opensm/osm_mad_pool.h \
+	$(srcdir)/../include/opensm/osm_madw.h \
+	$(srcdir)/../include/opensm/osm_mcast_tbl.h \
+	$(srcdir)/../include/opensm/osm_mcm_info.h \
+	$(srcdir)/../include/opensm/osm_mcm_port.h \
+	$(srcdir)/../include/opensm/osm_mtree.h \
+	$(srcdir)/../include/opensm/osm_multicast.h \
+	$(srcdir)/../include/opensm/osm_msgdef.h \
+	$(srcdir)/../include/opensm/osm_node.h \
+	$(srcdir)/../include/opensm/osm_opensm.h \
+	$(srcdir)/../include/opensm/osm_partition.h \
+	$(srcdir)/../include/opensm/osm_path.h \
+	$(srcdir)/../include/opensm/osm_perfmgr.h \
+	$(srcdir)/../include/opensm/osm_perfmgr_db.h \
+	$(srcdir)/../include/opensm/osm_pkey.h \
+	$(srcdir)/../include/opensm/osm_pkey_mgr.h \
+	$(srcdir)/../include/opensm/osm_port.h \
+	$(srcdir)/../include/opensm/osm_port_profile.h \
+	$(srcdir)/../include/opensm/osm_prefix_route.h \
+	$(srcdir)/../include/opensm/osm_qos_parser_y.h \
+	$(srcdir)/../include/opensm/osm_qos_policy.h \
+	$(srcdir)/../include/opensm/osm_rand_fwd_tbl.h \
+	$(srcdir)/../include/opensm/osm_remote_sm.h \
+	$(srcdir)/../include/opensm/osm_router.h \
+	$(srcdir)/../include/opensm/osm_sa.h \
+	$(srcdir)/../include/opensm/osm_sa_mad_ctrl.h \
+	$(srcdir)/../include/opensm/osm_service.h \
+	$(srcdir)/../include/opensm/osm_sm.h \
+	$(srcdir)/../include/opensm/osm_sm_mad_ctrl.h \
+	$(srcdir)/../include/opensm/st.h \
+	$(srcdir)/../include/opensm/osm_stats.h \
+	$(srcdir)/../include/opensm/osm_subnet.h \
+	$(srcdir)/../include/opensm/osm_sweep_fail_ctrl.h \
+	$(srcdir)/../include/opensm/osm_switch.h \
+	$(srcdir)/../include/opensm/osm_ucast_mgr.h \
+	$(srcdir)/../include/opensm/osm_vl15intf.h \
+	$(builddir)/../include/opensm/osm_version.h
 
 BUILT_SOURCES = osm_version
 osm_version:
