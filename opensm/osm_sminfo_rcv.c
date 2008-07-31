@@ -179,11 +179,7 @@ __osm_sminfo_rcv_process_set_request(IN osm_sm_t * sm,
 
 	CL_ASSERT(p_madw);
 
-	/* No real need to grab the lock for this function. */
 	memset(payload, 0, sizeof(payload));
-
-	/* get the lock */
-	CL_PLOCK_EXCL_ACQUIRE(sm->p_lock);
 
 	p_smp = osm_madw_get_smp_ptr(p_madw);
 	sm_smi = ib_smp_get_payload_ptr(p_smp);
@@ -191,9 +187,10 @@ __osm_sminfo_rcv_process_set_request(IN osm_sm_t * sm,
 	if (p_smp->method != IB_MAD_METHOD_SET) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 2F03: "
 			"Unsupported method 0x%X\n", p_smp->method);
-		CL_PLOCK_RELEASE(sm->p_lock);
 		goto Exit;
 	}
+
+	CL_PLOCK_EXCL_ACQUIRE(sm->p_lock);
 
 	p_smi->guid = sm->p_subn->sm_port_guid;
 	p_smi->act_count = cl_hton32(sm->p_subn->p_osm->stats.qp0_mads_sent);
