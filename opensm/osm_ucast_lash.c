@@ -1083,7 +1083,7 @@ static void populate_fwd_tbls(lash_t * p_lash)
 				p_osm->sm.ucast_mgr.lft_buf[lid] = egress_port;
 				OSM_LOG(p_log, OSM_LOG_VERBOSE,
 					"LASH fwd MY SRC SRC GUID 0x%016" PRIx64
-					" src lash id (%d), src lid no (0x%04X) src lash port (%d) "
+					" src lash id (%d), src lid no (%u) src lash port (%d) "
 					"DST GUID 0x%016" PRIx64
 					" src lash id (%d), src lash port (%d)\n",
 					cl_ntoh64(current_guid), -1, lid,
@@ -1105,7 +1105,7 @@ static void populate_fwd_tbls(lash_t * p_lash)
 				OSM_LOG(p_log, OSM_LOG_VERBOSE,
 					"LASH fwd SRC GUID 0x%016" PRIx64
 					" src lash id (%d), "
-					"src lid no ( 0x%04X ) src lash port (%d) "
+					"src lid no (%u) src lash port (%d) "
 					"DST GUID 0x%016" PRIx64
 					" src lash id (%d), src lash port (%d)\n",
 					cl_ntoh64(current_guid), sw->id, lid,
