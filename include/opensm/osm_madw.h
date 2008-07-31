@@ -249,6 +249,7 @@ typedef struct osm_mft_context {
 typedef struct osm_smi_context {
 	ib_net64_t port_guid;
 	boolean_t set_method;
+	boolean_t light_sweep;
 } osm_smi_context_t;
 /*********/
 

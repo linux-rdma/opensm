@@ -49,6 +49,7 @@
 #include <iba/ib_types.h>
 #include <complib/cl_passivelock.h>
 #include <complib/cl_debug.h>
+#include <complib/cl_qmap.h>
 #include <opensm/osm_sm.h>
 #include <opensm/osm_madw.h>
 #include <opensm/osm_switch.h>
@@ -495,6 +496,25 @@ Exit:
 	return (status);
 }
 
+static void query_sm_info(cl_map_item_t *item, void *cxt)
+{
+	osm_madw_context_t context;
+	osm_remote_sm_t *r_sm = cl_item_obj(item, r_sm, map_item);
+	osm_sm_t *sm = cxt;
+	ib_api_status_t ret;
+
+	context.smi_context.port_guid = r_sm->p_port->guid;
+	context.smi_context.set_method = FALSE;
+	context.smi_context.light_sweep = TRUE;
+
+	ret = osm_req_get(sm, osm_physp_get_dr_path_ptr(r_sm->p_port->p_physp),
+			  IB_MAD_ATTR_SM_INFO, 0, CL_DISP_MSGID_NONE, &context);
+	if (ret != IB_SUCCESS)
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3314: "
+			"Failure requesting SMInfo (%s)\n",
+			ib_get_err_str(ret));
+}
+
 /**********************************************************************
  Initiates a lightweight sweep of the subnet.
  Used during normal sweeps after the subnet is up.
@@ -560,6 +580,9 @@ static ib_api_status_t __osm_state_mgr_light_sweep_start(IN osm_sm_t * sm)
 			}
 		}
 	}
+
+	cl_qmap_apply_func(&sm->p_subn->sm_guid_tbl, query_sm_info, sm);
+
 	CL_PLOCK_RELEASE(sm->p_lock);
 
 _exit:

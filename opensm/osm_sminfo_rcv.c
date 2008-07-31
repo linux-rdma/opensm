@@ -307,7 +307,8 @@ Exit:
  **********************************************************************/
 static osm_signal_t
 __osm_sminfo_rcv_process_get_sm(IN osm_sm_t * sm,
-				IN const osm_remote_sm_t * const p_sm)
+				IN const osm_remote_sm_t * const p_sm,
+				boolean_t light_sweep)
 {
 	const ib_sm_info_t *p_smi;
 
@@ -397,6 +398,11 @@ __osm_sminfo_rcv_process_get_sm(IN osm_sm_t * sm,
 				   We will handle a case of handover needed later on, when the sweep
 				   is done and all SMs are recongnized. */
 			}
+			break;
+		case IB_SMINFO_STATE_STANDBY:
+			if (light_sweep &&
+			    __osm_sminfo_rcv_remote_sm_is_higher(sm, p_smi))
+				sm->p_subn->force_heavy_sweep = TRUE;
 			break;
 		default:
 			/* any other state - do nothing */
@@ -497,7 +503,8 @@ __osm_sminfo_rcv_process_get_response(IN osm_sm_t * sm,
 		/* We already know this SM. Update the SMInfo attribute. */
 		p_sm->smi = *p_smi;
 
-	__osm_sminfo_rcv_process_get_sm(sm, p_sm);
+	__osm_sminfo_rcv_process_get_sm(sm, p_sm,
+					osm_madw_get_smi_context_ptr(p_madw)->light_sweep);
 
 _unlock_and_exit:
 	CL_PLOCK_RELEASE(sm->p_lock);
