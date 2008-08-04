@@ -121,7 +121,7 @@ static void reset_new_line_flags();
 
 %}
 
-%option nounput
+%option nounput noinput
 
 QOS_ULPS_START          qos\-ulps
 QOS_ULPS_END            end\-qos\-ulps
