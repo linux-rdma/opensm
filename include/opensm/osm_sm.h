@@ -166,9 +166,6 @@ typedef struct osm_sm {
 *	mad_ctrl
 *		MAD Controller.
 *
-*	smi_get_ctrl
-*		SM Info Get Controller.
-*
 *	p_disp
 *		Pointer to the Dispatcher.
 *
