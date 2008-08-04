@@ -144,6 +144,14 @@ static void sm_sweep(void *arg)
 	cl_timer_start(&sm->sweep_timer, sm->p_subn->opt.sweep_interval * 1000);
 }
 
+static void sweep_fail_process(IN void *context, IN void *p_data)
+{
+	osm_sm_t *sm = context;
+
+	OSM_LOG(sm->p_log, OSM_LOG_DEBUG, "light sweep failed\n");
+	sm->p_subn->force_heavy_sweep = TRUE;
+}
+
 /**********************************************************************
  **********************************************************************/
 void osm_sm_construct(IN osm_sm_t * const p_sm)
@@ -162,7 +170,6 @@ void osm_sm_construct(IN osm_sm_t * const p_sm)
 	osm_sm_mad_ctrl_construct(&p_sm->mad_ctrl);
 	osm_lid_mgr_construct(&p_sm->lid_mgr);
 	osm_ucast_mgr_construct(&p_sm->ucast_mgr);
-	osm_sweep_fail_ctrl_construct(&p_sm->sweep_fail_ctrl);
 }
 
 /**********************************************************************
@@ -209,7 +216,7 @@ void osm_sm_shutdown(IN osm_sm_t * const p_sm)
 	cl_disp_unregister(p_sm->slvl_disp_h);
 	cl_disp_unregister(p_sm->vla_disp_h);
 	cl_disp_unregister(p_sm->pkey_disp_h);
-	osm_sweep_fail_ctrl_destroy(&p_sm->sweep_fail_ctrl);
+	cl_disp_unregister(p_sm->sweep_fail_disp_h);
 
 	OSM_LOG_EXIT(p_sm->p_log);
 }
@@ -312,8 +319,10 @@ osm_sm_init(IN osm_sm_t * const p_sm,
 	if (status != IB_SUCCESS)
 		goto Exit;
 
-	status = osm_sweep_fail_ctrl_init(&p_sm->sweep_fail_ctrl, p_sm);
-	if (status != IB_SUCCESS)
+	p_sm->sweep_fail_disp_h = cl_disp_register(p_disp,
+						   OSM_MSG_LIGHT_SWEEP_FAIL,
+						   sweep_fail_process, p_sm);
+	if (p_sm->sweep_fail_disp_h == CL_DISP_INVALID_HANDLE)
 		goto Exit;
 
 	p_sm->ni_disp_h = cl_disp_register(p_disp, OSM_MSG_MAD_NODE_INFO,

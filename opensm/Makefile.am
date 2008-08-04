@@ -52,8 +52,7 @@ opensm_SOURCES = main.c osm_console_io.c osm_console.c osm_db_files.c \
 		 osm_sa_sw_info_record.c osm_service.c \
 		 osm_slvl_map_rcv.c osm_sm.c osm_sminfo_rcv.c \
 		 osm_sm_mad_ctrl.c osm_sm_state_mgr.c osm_state_mgr.c \
-		 osm_subnet.c \
-		 osm_sweep_fail_ctrl.c osm_sw_info_rcv.c osm_switch.c \
+		 osm_subnet.c osm_sw_info_rcv.c osm_switch.c \
 		 osm_prtn.c osm_prtn_config.c osm_qos.c osm_router.c \
 		 osm_trap_rcv.c osm_ucast_mgr.c osm_ucast_updn.c \
 		 osm_ucast_lash.c osm_ucast_file.c osm_ucast_ftree.c \
@@ -138,7 +137,6 @@ opensminclude_HEADERS = \
 	$(srcdir)/../include/opensm/st.h \
 	$(srcdir)/../include/opensm/osm_stats.h \
 	$(srcdir)/../include/opensm/osm_subnet.h \
-	$(srcdir)/../include/opensm/osm_sweep_fail_ctrl.h \
 	$(srcdir)/../include/opensm/osm_switch.h \
 	$(srcdir)/../include/opensm/osm_ucast_mgr.h \
 	$(srcdir)/../include/opensm/osm_vl15intf.h \
