@@ -57,7 +57,8 @@
 #define MAX_MSECS_TO_RTV 24
 /* Precalculated table in msec (index is related to encoded value) */
 /* 4.096 usec * 2 ** n (where n = 8 - 31) */
-static uint32_t __msecs_to_rtv_table[MAX_MSECS_TO_RTV] = { 1, 2, 4, 8,
+const static uint32_t __msecs_to_rtv_table[MAX_MSECS_TO_RTV] = {
+	1, 2, 4, 8,
 	16, 33, 67, 134,
 	268, 536, 1073, 2147,
 	4294, 8589, 17179, 34359,
@@ -110,7 +111,7 @@ __osm_cpi_rcv_respond(IN osm_sa_t * sa,
 	/* Calculate encoded response time value */
 	/* transaction timeout is in msec */
 	if (sa->p_subn->opt.transaction_timeout >
-	    __msecs_to_rtv_table[MAX_MSECS_TO_RTV])
+	    __msecs_to_rtv_table[MAX_MSECS_TO_RTV - 1])
 		rtv = MAX_MSECS_TO_RTV - 1;
 	else {
 		for (rtv = 0; rtv < MAX_MSECS_TO_RTV; rtv++) {
