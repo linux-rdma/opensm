@@ -1211,7 +1211,7 @@ ib_api_status_t osmt_run_service_records_flow(IN osmtest_t * const p_osmt)
 	OSM_LOG_ENTER(&p_osmt->log);
 
 	/* Init Service names */
-	for (i = 0; i <= 6; i++) {
+	for (i = 0; i < 7; i++) {
 #ifdef __WIN__
 		uint64_t rand_val = rand() - (uint64_t) i;
 #else
@@ -1223,6 +1223,7 @@ ib_api_status_t osmt_run_service_records_flow(IN osmtest_t * const p_osmt)
 			"osmt.srvc.%" PRIu64 ".%" PRIu64, rand_val, pid);
 		/*printf("-I- Service Name is : %s, ID is : 0x%" PRIx64 "\n",service_name[i],id[i]); */
 	}
+
 	status = osmt_register_service(p_osmt, cl_ntoh64(id[0]),	/*  IN ib_net64_t      service_id, */
 				       IB_DEFAULT_PKEY,	/*  IN ib_net16_t      service_pkey, */
 				       0xFFFFFFFF,	/*  IN ib_net32_t      service_lease, */
@@ -1377,12 +1378,12 @@ ib_api_status_t osmt_run_service_records_flow(IN osmtest_t * const p_osmt)
 		goto Exit;
 	}
 
-	/*  Bad Flow of Get with invalid Service ID: id[7] */
-	status = osmt_get_service_by_id(p_osmt, 0, cl_ntoh64(id[7]), &srv_rec);
+	/*  Bad Flow of Get with invalid Service ID: id[6] */
+	status = osmt_get_service_by_id(p_osmt, 0, cl_ntoh64(id[6]), &srv_rec);
 	if (status != IB_SUCCESS) {
 		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A20: "
 			"Found service: id: 0x%016" PRIx64 " "
-			"that is invalid\n", id[7]);
+			"that is invalid\n", id[6]);
 		status = IB_ERROR;
 		goto Exit;
 	}
