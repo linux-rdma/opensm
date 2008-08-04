@@ -142,7 +142,7 @@ opensminclude_HEADERS = \
 	$(srcdir)/../include/opensm/osm_switch.h \
 	$(srcdir)/../include/opensm/osm_ucast_mgr.h \
 	$(srcdir)/../include/opensm/osm_vl15intf.h \
-	$(builddir)/../include/opensm/osm_version.h
+	$(top_builddir)/include/opensm/osm_version.h
 
 BUILT_SOURCES = osm_version
 osm_version:
