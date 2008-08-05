@@ -59,13 +59,14 @@ opensm_SOURCES = main.c osm_console_io.c osm_console.c osm_db_files.c \
 		 osm_vl15intf.c osm_vl_arb_rcv.c \
 		 st.c osm_perfmgr.c osm_perfmgr_db.c \
 		 osm_event_plugin.c osm_dump.c \
-		 osm_qos_parser_y.c osm_qos_parser_l.c osm_qos_policy.c
+		 $(srcdir)/osm_qos_parser_y.c $(srcdir)/osm_qos_parser_l.c \
+		 osm_qos_policy.c
 
-osm_qos_parser_y.c: $(srcdir)/osm_qos_parser.y $(srcdir)/../include/opensm/osm_qos_policy.h
+$(srcdir)/osm_qos_parser_y.c: $(srcdir)/osm_qos_parser.y $(srcdir)/../include/opensm/osm_qos_policy.h
 	$(YACC) -d -o $(srcdir)/osm_qos_parser_y.c -p__qos_parser_ $(srcdir)/osm_qos_parser.y
 	mv -f $(srcdir)/osm_qos_parser_y.h $(srcdir)/../include/opensm/osm_qos_parser_y.h
 
-osm_qos_parser_l.c: $(srcdir)/osm_qos_parser.l $(srcdir)/../include/opensm/osm_qos_policy.h osm_qos_parser_y.c
+$(srcdir)/osm_qos_parser_l.c: $(srcdir)/osm_qos_parser.l $(srcdir)/../include/opensm/osm_qos_policy.h osm_qos_parser_y.c
 	$(LEX) -P__qos_parser_ -o$(srcdir)/osm_qos_parser_l.c $(srcdir)/osm_qos_parser.l
 
 if OSMV_OPENIB
