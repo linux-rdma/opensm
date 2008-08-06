@@ -59,17 +59,9 @@ opensm_SOURCES = main.c osm_console_io.c osm_console.c osm_db_files.c \
 		 osm_vl15intf.c osm_vl_arb_rcv.c \
 		 st.c osm_perfmgr.c osm_perfmgr_db.c \
 		 osm_event_plugin.c osm_dump.c \
-		 $(srcdir)/osm_qos_parser_y.c $(srcdir)/osm_qos_parser_l.c \
-		 osm_qos_policy.c
+		 osm_qos_parser_y.y osm_qos_parser_l.l osm_qos_policy.c
 
-$(srcdir)/osm_qos_parser_y.c: $(srcdir)/osm_qos_parser.y $(srcdir)/../include/opensm/osm_qos_policy.h
-	$(YACC) -d -o $(srcdir)/osm_qos_parser_y.c -p__qos_parser_ $(srcdir)/osm_qos_parser.y
-	mv -f $(srcdir)/osm_qos_parser_y.h $(srcdir)/../include/opensm/osm_qos_parser_y.h
-
-$(srcdir)/osm_qos_parser_l.c: $(srcdir)/osm_qos_parser.l $(srcdir)/../include/opensm/osm_qos_policy.h osm_qos_parser_y.c
-	$(LEX) -P__qos_parser_ -o$(srcdir)/osm_qos_parser_l.c $(srcdir)/osm_qos_parser.l
-
-$(srcdir)/../include/opensm/osm_qos_parser_y.h: $(srcdir)/osm_qos_parser_y.c
+AM_YFLAGS:= -d
 
 if OSMV_OPENIB
 opensm_CFLAGS = -Wall $(OSMV_CFLAGS) -fno-strict-aliasing -DVENDOR_RMPP_SUPPORT -DDUAL_SIDED_RMPP $(DBGFLAGS) -D_XOPEN_SOURCE=600 -D_BSD_SOURCE=1
@@ -127,7 +119,6 @@ opensminclude_HEADERS = \
 	$(srcdir)/../include/opensm/osm_port.h \
 	$(srcdir)/../include/opensm/osm_port_profile.h \
 	$(srcdir)/../include/opensm/osm_prefix_route.h \
-	$(srcdir)/../include/opensm/osm_qos_parser_y.h \
 	$(srcdir)/../include/opensm/osm_qos_policy.h \
 	$(srcdir)/../include/opensm/osm_rand_fwd_tbl.h \
 	$(srcdir)/../include/opensm/osm_remote_sm.h \
@@ -159,11 +150,4 @@ osm_version:
 
 # headers are distributed as part of the include dir
 EXTRA_DIST = $(srcdir)/libopensm.map $(srcdir)/libopensm.ver \
-	     $(srcdir)/ChangeLog \
-	     $(srcdir)/osm_qos_parser.y $(srcdir)/osm_qos_parser.l
-
-# generate c and h files from the lex and yacc files
-dist-hook: $(srcdir)/osm_qos_parser_y.c $(srcdir)/osm_qos_parser_l.c
-
-maintainer-clean-generic:
-	rm -f $(srcdir)/osm_qos_parser_y.c $(srcdir)/osm_qos_parser_l.c
+	     $(srcdir)/ChangeLog

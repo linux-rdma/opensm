@@ -46,17 +46,17 @@
  */
 
 #include <opensm/osm_qos_policy.h>
-#include <opensm/osm_qos_parser_y.h>
+#include "osm_qos_parser_y.h"
 
-#define HANDLE_IF_IN_DESCRIPTION   if (in_description) { __qos_parser_lval = strdup(__qos_parser_text); return TK_TEXT; }
+#define HANDLE_IF_IN_DESCRIPTION   if (in_description) { yylval = strdup(yytext); return TK_TEXT; }
 
 #define SAVE_POS save_pos()
 static void save_pos();
 
 extern int column_num;
 extern int line_num;
-extern FILE * __qos_parser_in;
-extern YYSTYPE __qos_parser_lval;
+extern FILE * yyin;
+extern YYSTYPE yylval;
 
 boolean_t in_description = FALSE;
 boolean_t in_list_of_hex_num_ranges = FALSE;
@@ -264,11 +264,11 @@ QUOTED_TEXT             \"[^\"]*\"
 {PKEY}{WHITE_DOTDOT_WHITE}             { SAVE_POS; HANDLE_IF_IN_DESCRIPTION; START_PKEY;         return TK_PKEY;       }
 {QOS_LEVEL_NAME}{WHITE_DOTDOT_WHITE}   { SAVE_POS; HANDLE_IF_IN_DESCRIPTION; START_QOS_LEVEL_NAME; return TK_QOS_LEVEL_NAME;}
 
-{ROUTER}                  { SAVE_POS; if (in_node_type) return TK_NODE_TYPE_ROUTER; __qos_parser_lval = strdup(__qos_parser_text); return TK_TEXT; }
-{CA}                      { SAVE_POS; if (in_node_type) return TK_NODE_TYPE_CA;     __qos_parser_lval = strdup(__qos_parser_text); return TK_TEXT; }
-{SWITCH}                  { SAVE_POS; if (in_node_type) return TK_NODE_TYPE_SWITCH; __qos_parser_lval = strdup(__qos_parser_text); return TK_TEXT; }
-{SELF}                    { SAVE_POS; if (in_node_type) return TK_NODE_TYPE_SELF;   __qos_parser_lval = strdup(__qos_parser_text); return TK_TEXT; }
-{ALL}                     { SAVE_POS; if (in_node_type) return TK_NODE_TYPE_ALL;    __qos_parser_lval = strdup(__qos_parser_text); return TK_TEXT; }
+{ROUTER}                  { SAVE_POS; if (in_node_type) return TK_NODE_TYPE_ROUTER; yylval = strdup(yytext); return TK_TEXT; }
+{CA}                      { SAVE_POS; if (in_node_type) return TK_NODE_TYPE_CA;     yylval = strdup(yytext); return TK_TEXT; }
+{SWITCH}                  { SAVE_POS; if (in_node_type) return TK_NODE_TYPE_SWITCH; yylval = strdup(yytext); return TK_TEXT; }
+{SELF}                    { SAVE_POS; if (in_node_type) return TK_NODE_TYPE_SELF;   yylval = strdup(yytext); return TK_TEXT; }
+{ALL}                     { SAVE_POS; if (in_node_type) return TK_NODE_TYPE_ALL;    yylval = strdup(yytext); return TK_TEXT; }
 
 {ULP_DEFAULT}{WHITE_DOTDOT_WHITE}              { SAVE_POS; HANDLE_IF_IN_DESCRIPTION; START_ULP_DEFAULT; return TK_ULP_DEFAULT; }
 {ULP_ANY}{WHITE_COMMA_WHITE}{SERVICE_ID}       { SAVE_POS; HANDLE_IF_IN_DESCRIPTION; START_ULP_ANY; return TK_ULP_ANY_SERVICE_ID; }
@@ -291,7 +291,7 @@ QUOTED_TEXT             \"[^\"]*\"
 
 0[xX][0-9a-fA-F]+  {
                         SAVE_POS;
-                        __qos_parser_lval = strdup(__qos_parser_text);
+                        yylval = strdup(yytext);
                         if (in_description || in_list_of_strings || in_single_string)
                             return TK_TEXT;
                         return TK_NUMBER;
@@ -299,7 +299,7 @@ QUOTED_TEXT             \"[^\"]*\"
 
 [0-9]+              {
                         SAVE_POS;
-                        __qos_parser_lval = strdup(__qos_parser_text);
+                        yylval = strdup(yytext);
                         if (in_description || in_list_of_strings || in_single_string)
                             return TK_TEXT;
                         return TK_NUMBER;
@@ -310,7 +310,7 @@ QUOTED_TEXT             \"[^\"]*\"
                         SAVE_POS;
                         if (in_description || in_list_of_strings || in_single_string)
                         {
-                            __qos_parser_lval = strdup(__qos_parser_text);
+                            yylval = strdup(yytext);
                             return TK_TEXT;
                         }
                         return TK_DASH;
@@ -320,7 +320,7 @@ QUOTED_TEXT             \"[^\"]*\"
                         SAVE_POS;
                         if (in_description || in_list_of_strings || in_single_string)
                         {
-                            __qos_parser_lval = strdup(__qos_parser_text);
+                            yylval = strdup(yytext);
                             return TK_TEXT;
                         }
                         return TK_DOTDOT;
@@ -330,7 +330,7 @@ QUOTED_TEXT             \"[^\"]*\"
                         SAVE_POS;
                         if (in_description)
                         {
-                            __qos_parser_lval = strdup(__qos_parser_text);
+                            yylval = strdup(yytext);
                             return TK_TEXT;
                         }
                         return TK_COMMA;
@@ -340,7 +340,7 @@ QUOTED_TEXT             \"[^\"]*\"
                         SAVE_POS;
                         if (in_description || in_list_of_strings || in_single_string)
                         {
-                            __qos_parser_lval = strdup(__qos_parser_text);
+                            yylval = strdup(yytext);
                             return TK_TEXT;
                         }
                         return TK_ASTERISK;
@@ -348,12 +348,12 @@ QUOTED_TEXT             \"[^\"]*\"
 
 {QUOTED_TEXT}       {
                         SAVE_POS;
-                        __qos_parser_lval = strdup(&__qos_parser_text[1]);
-                        __qos_parser_lval[strlen(__qos_parser_lval)-1] = '\0';
+                        yylval = strdup(&yytext[1]);
+                        yylval[strlen(yylval)-1] = '\0';
                         return TK_TEXT;
                     }
 
-.                   { SAVE_POS; __qos_parser_lval = strdup(__qos_parser_text); return TK_TEXT;}
+.                   { SAVE_POS; yylval = strdup(yytext); return TK_TEXT;}
 
 %%
 
@@ -364,9 +364,9 @@ QUOTED_TEXT             \"[^\"]*\"
 static void save_pos()
 {
     int i;
-    for (i = 0; i < __qos_parser_leng; i++)
+    for (i = 0; i < yyleng; i++)
     {
-        if (__qos_parser_text[i] == '\n')
+        if (yytext[i] == '\n')
         {
             line_num ++;
             column_num = 1;

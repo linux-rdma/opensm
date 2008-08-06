@@ -55,7 +55,6 @@
 #include <errno.h>
 #include <opensm/osm_opensm.h>
 #include <opensm/osm_qos_policy.h>
-#include <opensm/osm_qos_parser_y.h>
 
 #define OSM_QOS_POLICY_MAX_LINE_LEN         1024*10
 #define OSM_QOS_POLICY_SL2VL_TABLE_LEN      IB_MAX_NUM_VLS
@@ -144,13 +143,13 @@ static void __setup_simple_qos_levels();
 static void __clear_simple_qos_levels();
 static void __setup_ulp_match_rules();
 static void __process_ulp_match_rules();
-static void __qos_parser_error(const char *format, ...);
+static void yyerror(const char *format, ...);
 
-extern char * __qos_parser_text;
-extern int __qos_parser_lex (void);
-extern FILE * __qos_parser_in;
+extern char * yytext;
+extern int yylex (void);
+extern FILE * yyin;
 extern int errno;
-int __qos_parser_parse();
+int yyparse();
 
 #define RESET_BUFFER  __parser_tmp_struct_reset()
 
@@ -643,7 +642,7 @@ qos_ulp:            TK_ULP_DEFAULT single_number {
                         p_tmp_num = (uint64_t*)cl_list_obj(list_iterator);
                         if (*p_tmp_num > 15)
                         {
-                            __qos_parser_error("illegal SL value");
+                            yyerror("illegal SL value");
                             return 1;
                         }
                         __default_simple_qos_level.sl = (uint8_t)(*p_tmp_num);
@@ -659,7 +658,7 @@ qos_ulp:            TK_ULP_DEFAULT single_number {
 
                         if (!cl_list_count(&tmp_parser_struct.num_pair_list))
                         {
-                            __qos_parser_error("ULP rule doesn't have service ids");
+                            yyerror("ULP rule doesn't have service ids");
                             return 1;
                         }
 
@@ -680,7 +679,7 @@ qos_ulp:            TK_ULP_DEFAULT single_number {
 
                         if (!cl_list_count(&tmp_parser_struct.num_pair_list))
                         {
-                            __qos_parser_error("ULP rule doesn't have pkeys");
+                            yyerror("ULP rule doesn't have pkeys");
                             return 1;
                         }
 
@@ -701,7 +700,7 @@ qos_ulp:            TK_ULP_DEFAULT single_number {
 
                         if (!cl_list_count(&tmp_parser_struct.num_pair_list))
                         {
-                            __qos_parser_error("ULP rule doesn't have port guids");
+                            yyerror("ULP rule doesn't have port guids");
                             return 1;
                         }
 
@@ -750,7 +749,7 @@ qos_ulp:            TK_ULP_DEFAULT single_number {
 
                         if (!cl_list_count(&tmp_parser_struct.num_pair_list))
                         {
-                            __qos_parser_error("SDP ULP rule doesn't have port numbers");
+                            yyerror("SDP ULP rule doesn't have port numbers");
                             return 1;
                         }
 
@@ -763,7 +762,7 @@ qos_ulp:            TK_ULP_DEFAULT single_number {
                         {
                             if (range_arr[i][0] > 0xFFFF || range_arr[i][1] > 0xFFFF)
                             {
-                                __qos_parser_error("SDP port number out of range");
+                                yyerror("SDP port number out of range");
                                 return 1;
                             }
                             range_arr[i][0] += OSM_QOS_POLICY_ULP_SDP_SERVICE_ID;
@@ -796,7 +795,7 @@ qos_ulp:            TK_ULP_DEFAULT single_number {
 
                         if (!cl_list_count(&tmp_parser_struct.num_pair_list))
                         {
-                            __qos_parser_error("RDS ULP rule doesn't have port numbers");
+                            yyerror("RDS ULP rule doesn't have port numbers");
                             return 1;
                         }
 
@@ -809,7 +808,7 @@ qos_ulp:            TK_ULP_DEFAULT single_number {
                         {
                             if (range_arr[i][0] > 0xFFFF || range_arr[i][1] > 0xFFFF)
                             {
-                                __qos_parser_error("SDP port number out of range");
+                                yyerror("SDP port number out of range");
                                 return 1;
                             }
                             range_arr[i][0] += OSM_QOS_POLICY_ULP_RDS_SERVICE_ID;
@@ -842,7 +841,7 @@ qos_ulp:            TK_ULP_DEFAULT single_number {
 
                         if (!cl_list_count(&tmp_parser_struct.num_pair_list))
                         {
-                            __qos_parser_error("iSER ULP rule doesn't have port numbers");
+                            yyerror("iSER ULP rule doesn't have port numbers");
                             return 1;
                         }
 
@@ -855,7 +854,7 @@ qos_ulp:            TK_ULP_DEFAULT single_number {
                         {
                             if (range_arr[i][0] > 0xFFFF || range_arr[i][1] > 0xFFFF)
                             {
-                                __qos_parser_error("SDP port number out of range");
+                                yyerror("SDP port number out of range");
                                 return 1;
                             }
                             range_arr[i][0] += OSM_QOS_POLICY_ULP_ISER_SERVICE_ID;
@@ -875,7 +874,7 @@ qos_ulp:            TK_ULP_DEFAULT single_number {
 
                         if (!cl_list_count(&tmp_parser_struct.num_pair_list))
                         {
-                            __qos_parser_error("SRP ULP rule doesn't have port guids");
+                            yyerror("SRP ULP rule doesn't have port guids");
                             return 1;
                         }
 
@@ -930,7 +929,7 @@ qos_ulp:            TK_ULP_DEFAULT single_number {
 
                         if (!cl_list_count(&tmp_parser_struct.num_pair_list))
                         {
-                            __qos_parser_error("IPoIB ULP rule doesn't have pkeys");
+                            yyerror("IPoIB ULP rule doesn't have pkeys");
                             return 1;
                         }
 
@@ -1001,7 +1000,7 @@ qos_ulp_sl:   single_number {
                         p_tmp_num = (uint64_t*)cl_list_obj(list_iterator);
                         if (*p_tmp_num > 15)
                         {
-                            __qos_parser_error("illegal SL value");
+                            yyerror("illegal SL value");
                             return 1;
                         }
 
@@ -1037,7 +1036,7 @@ port_group_name:        port_group_name_start single_string {
 
                             if (p_current_port_group->name)
                             {
-                                __qos_parser_error("port-group has multiple 'name' tags");
+                                yyerror("port-group has multiple 'name' tags");
                                 cl_list_remove_all(&tmp_parser_struct.str_list);
                                 return 1;
                             }
@@ -1065,7 +1064,7 @@ port_group_use:         port_group_use_start single_string {
 
                             if (p_current_port_group->use)
                             {
-                                __qos_parser_error("port-group has multiple 'use' tags");
+                                yyerror("port-group has multiple 'use' tags");
                                 cl_list_remove_all(&tmp_parser_struct.str_list);
                                 return 1;
                             }
@@ -1108,7 +1107,7 @@ port_group_port_name:   port_group_port_name_start string_list {
                                     port_str = strrchr(tmp_str, '/');
                                     if (!port_str || (strlen(port_str) < 3) ||
                                         (port_str[1] != 'p' && port_str[1] != 'P')) {
-                                        __qos_parser_error("'%s' - illegal port name",
+                                        yyerror("'%s' - illegal port name",
                                                            tmp_str);
                                         free(tmp_str);
                                         cl_list_remove_all(&tmp_parser_struct.str_list);
@@ -1116,7 +1115,7 @@ port_group_port_name:   port_group_port_name_start string_list {
                                     }
 
                                     if (!(port_num = strtoul(&port_str[2],NULL,0))) {
-                                        __qos_parser_error(
+                                        yyerror(
                                                "'%s' - illegal port number in port name",
                                                tmp_str);
                                         free(tmp_str);
@@ -1134,7 +1133,7 @@ port_group_port_name:   port_group_port_name_start string_list {
                                         /* we found the node, now get the right port */
                                         p_physp = osm_node_get_physp_ptr(p_node, port_num);
                                         if (!p_physp) {
-                                            __qos_parser_error(
+                                            yyerror(
                                                    "'%s' - port number out of range in port name",
                                                    tmp_str);
                                             free(tmp_str);
@@ -1559,7 +1558,7 @@ sl2vl_scope_from_list_of_ranges: list_of_ranges {
                                     if ( num_pair[0] < 0 ||
                                          num_pair[1] >= OSM_QOS_POLICY_MAX_PORTS_ON_SWITCH )
                                     {
-                                        __qos_parser_error("port number out of range 'from' list");
+                                        yyerror("port number out of range 'from' list");
                                         free(num_pair);
                                         cl_list_remove_all(&tmp_parser_struct.num_pair_list);
                                         return 1;
@@ -1591,7 +1590,7 @@ sl2vl_scope_to_list_of_ranges: list_of_ranges {
                                     if ( num_pair[0] < 0 ||
                                          num_pair[1] >= OSM_QOS_POLICY_MAX_PORTS_ON_SWITCH )
                                     {
-                                        __qos_parser_error("port number out of range 'to' list");
+                                        yyerror("port number out of range 'to' list");
                                         free(num_pair);
                                         cl_list_remove_all(&tmp_parser_struct.num_pair_list);
                                         return 1;
@@ -1619,14 +1618,14 @@ sl2vl_scope_sl2vl_table:  sl2vl_scope_sl2vl_table_start num_list {
 
                             if (p_current_sl2vl_scope->sl2vl_table_set)
                             {
-                                __qos_parser_error("sl2vl-scope has more than one sl2vl-table");
+                                yyerror("sl2vl-scope has more than one sl2vl-table");
                                 cl_list_remove_all(&tmp_parser_struct.num_list);
                                 return 1;
                             }
 
                             if (cl_list_count(&tmp_parser_struct.num_list) != OSM_QOS_POLICY_SL2VL_TABLE_LEN)
                             {
-                                __qos_parser_error("wrong number of values in 'sl2vl-table' (should be 16)");
+                                yyerror("wrong number of values in 'sl2vl-table' (should be 16)");
                                 cl_list_remove_all(&tmp_parser_struct.num_list);
                                 return 1;
                             }
@@ -1639,7 +1638,7 @@ sl2vl_scope_sl2vl_table:  sl2vl_scope_sl2vl_table_start num_list {
                                 free(p_num);
                                 if (num >= OSM_QOS_POLICY_MAX_VL_NUM)
                                 {
-                                    __qos_parser_error("wrong VL value in 'sl2vl-table' (should be 0 to 15)");
+                                    yyerror("wrong VL value in 'sl2vl-table' (should be 0 to 15)");
                                     cl_list_remove_all(&tmp_parser_struct.num_list);
                                     return 1;
                                 }
@@ -1676,7 +1675,7 @@ qos_level_name:         qos_level_name_start single_string {
 
                             if (p_current_qos_level->name)
                             {
-                                __qos_parser_error("qos-level has multiple 'name' tags");
+                                yyerror("qos-level has multiple 'name' tags");
                                 cl_list_remove_all(&tmp_parser_struct.str_list);
                                 return 1;
                             }
@@ -1704,7 +1703,7 @@ qos_level_use:          qos_level_use_start single_string {
 
                             if (p_current_qos_level->use)
                             {
-                                __qos_parser_error("qos-level has multiple 'use' tags");
+                                yyerror("qos-level has multiple 'use' tags");
                                 cl_list_remove_all(&tmp_parser_struct.str_list);
                                 return 1;
                             }
@@ -1732,7 +1731,7 @@ qos_level_sl:           qos_level_sl_start single_number {
 
                             if (p_current_qos_level->sl_set)
                             {
-                                __qos_parser_error("'qos-level' has multiple 'sl' tags");
+                                yyerror("'qos-level' has multiple 'sl' tags");
                                 cl_list_remove_all(&tmp_parser_struct.num_list);
                                 return 1;
                             }
@@ -1757,7 +1756,7 @@ qos_level_mtu_limit:    qos_level_mtu_limit_start single_number {
 
                             if (p_current_qos_level->mtu_limit_set)
                             {
-                                __qos_parser_error("'qos-level' has multiple 'mtu-limit' tags");
+                                yyerror("'qos-level' has multiple 'mtu-limit' tags");
                                 cl_list_remove_all(&tmp_parser_struct.num_list);
                                 return 1;
                             }
@@ -1783,7 +1782,7 @@ qos_level_rate_limit:    qos_level_rate_limit_start single_number {
 
                             if (p_current_qos_level->rate_limit_set)
                             {
-                                __qos_parser_error("'qos-level' has multiple 'rate-limit' tags");
+                                yyerror("'qos-level' has multiple 'rate-limit' tags");
                                 cl_list_remove_all(&tmp_parser_struct.num_list);
                                 return 1;
                             }
@@ -1809,7 +1808,7 @@ qos_level_packet_life:  qos_level_packet_life_start single_number {
 
                             if (p_current_qos_level->pkt_life_set)
                             {
-                                __qos_parser_error("'qos-level' has multiple 'packet-life' tags");
+                                yyerror("'qos-level' has multiple 'packet-life' tags");
                                 cl_list_remove_all(&tmp_parser_struct.num_list);
                                 return 1;
                             }
@@ -1925,7 +1924,7 @@ qos_match_rule_use:     qos_match_rule_use_start single_string {
 
                             if (p_current_qos_match_rule->use)
                             {
-                                __qos_parser_error("'qos-match-rule' has multiple 'use' tags");
+                                yyerror("'qos-match-rule' has multiple 'use' tags");
                                 cl_list_remove_all(&tmp_parser_struct.str_list);
                                 return 1;
                             }
@@ -2036,7 +2035,7 @@ qos_match_rule_qos_level_name:  qos_match_rule_qos_level_name_start single_strin
 
                             if (p_current_qos_match_rule->qos_level_name)
                             {
-                                __qos_parser_error("qos-match-rule has multiple 'qos-level-name' tags");
+                                yyerror("qos-match-rule has multiple 'qos-level-name' tags");
                                 cl_list_remove_all(&tmp_parser_struct.num_list);
                                 return 1;
                             }
@@ -2280,8 +2279,8 @@ int osm_qos_parse_policy_file(IN osm_subn_t * const p_subn)
     osm_qos_policy_destroy(p_subn->p_qos_policy);
     p_subn->p_qos_policy = NULL;
 
-    __qos_parser_in = fopen (p_subn->opt.qos_policy_file, "r");
-    if (!__qos_parser_in)
+    yyin = fopen (p_subn->opt.qos_policy_file, "r");
+    if (!yyin)
     {
         if (strcmp(p_subn->opt.qos_policy_file,OSM_DEFAULT_QOS_POLICY_FILE)) {
             OSM_LOG(p_qos_parser_osm_log, OSM_LOG_ERROR, "ERR AC01: "
@@ -2322,7 +2321,7 @@ int osm_qos_parse_policy_file(IN osm_subn_t * const p_subn)
     __parser_tmp_struct_init();
     p_qos_policy = p_subn->p_qos_policy;
 
-    res = __qos_parser_parse();
+    res = yyparse();
 
     __parser_tmp_struct_destroy();
 
@@ -2354,8 +2353,8 @@ int osm_qos_parse_policy_file(IN osm_subn_t * const p_subn)
     }
 
   Exit:
-    if (__qos_parser_in)
-        fclose(__qos_parser_in);
+    if (yyin)
+        fclose(yyin);
     OSM_LOG_EXIT(p_qos_parser_osm_log);
     return res;
 }
@@ -2363,7 +2362,7 @@ int osm_qos_parse_policy_file(IN osm_subn_t * const p_subn)
 /***************************************************
  ***************************************************/
 
-int __qos_parser_wrap()
+int yywrap()
 {
     return(1);
 }
@@ -2371,7 +2370,7 @@ int __qos_parser_wrap()
 /***************************************************
  ***************************************************/
 
-static void __qos_parser_error(const char *format, ...)
+static void yyerror(const char *format, ...)
 {
     char s[256];
     va_list pvar;
@@ -2434,7 +2433,7 @@ static int __parser_port_group_end()
 {
     if(!p_current_port_group->name)
     {
-        __qos_parser_error("port-group validation failed - no port group name specified");
+        yyerror("port-group validation failed - no port group name specified");
         return -1;
     }
 
@@ -2460,7 +2459,7 @@ static int __parser_vlarb_scope_end()
     if ( !cl_list_count(&p_current_vlarb_scope->group_list) &&
          !cl_list_count(&p_current_vlarb_scope->across_list) )
     {
-        __qos_parser_error("vlarb-scope validation failed - no port groups specified by 'group' or by 'across'");
+        yyerror("vlarb-scope validation failed - no port groups specified by 'group' or by 'across'");
         return -1;
     }
 
@@ -2485,14 +2484,14 @@ static int __parser_sl2vl_scope_end()
 {
     if (!p_current_sl2vl_scope->sl2vl_table_set)
     {
-        __qos_parser_error("sl2vl-scope validation failed - no sl2vl table specified");
+        yyerror("sl2vl-scope validation failed - no sl2vl table specified");
         return -1;
     }
     if ( !cl_list_count(&p_current_sl2vl_scope->group_list) &&
          !cl_list_count(&p_current_sl2vl_scope->across_to_list) &&
          !cl_list_count(&p_current_sl2vl_scope->across_from_list) )
     {
-        __qos_parser_error("sl2vl-scope validation failed - no port groups specified by 'group', 'across-to' or 'across-from'");
+        yyerror("sl2vl-scope validation failed - no port groups specified by 'group', 'across-to' or 'across-from'");
         return -1;
     }
 
@@ -2517,12 +2516,12 @@ static int __parser_qos_level_end()
 {
     if (!p_current_qos_level->sl_set)
     {
-        __qos_parser_error("qos-level validation failed - no 'sl' specified");
+        yyerror("qos-level validation failed - no 'sl' specified");
         return -1;
     }
     if (!p_current_qos_level->name)
     {
-        __qos_parser_error("qos-level validation failed - no 'name' specified");
+        yyerror("qos-level validation failed - no 'name' specified");
         return -1;
     }
 
@@ -2547,7 +2546,7 @@ static int __parser_match_rule_end()
 {
     if (!p_current_qos_match_rule->qos_level_name)
     {
-        __qos_parser_error("match-rule validation failed - no 'qos-level-name' specified");
+        yyerror("match-rule validation failed - no 'qos-level-name' specified");
         return -1;
     }
 
@@ -3032,13 +3031,13 @@ static int __validate_pkeys( uint64_t ** range_arr,
                  *  - it has to have at least 2 full members
                  */
                 if (!p_prtn) {
-                    __qos_parser_error("IPoIB partition, pkey 0x%04X - "
+                    yyerror("IPoIB partition, pkey 0x%04X - "
                                        "partition doesn't exist",
                                        cl_ntoh16(pkey));
                     return 1;
                 }
                 else if (cl_map_count(&p_prtn->full_guid_tbl) < 2) {
-                    __qos_parser_error("IPoIB partition, pkey 0x%04X - "
+                    yyerror("IPoIB partition, pkey 0x%04X - "
                                        "partition has less than two full members",
                                        cl_ntoh16(pkey));
                     return 1;
