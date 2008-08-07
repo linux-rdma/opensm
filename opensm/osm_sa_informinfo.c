@@ -100,8 +100,7 @@ __validate_ports_access_rights(IN osm_sa_t * sa,
 	OSM_LOG_ENTER(sa->p_log);
 
 	/* get the requester physp from the request address */
-	p_requester_physp = osm_get_physp_by_mad_addr(sa->p_log,
-						      sa->p_subn,
+	p_requester_physp = osm_get_physp_by_mad_addr(sa->p_log, sa->p_subn,
 						      &p_infr_rec->report_addr);
 
 	memset(&zero_gid, 0, sizeof(zero_gid));
@@ -156,9 +155,9 @@ __validate_ports_access_rights(IN osm_sa_t * sa,
 		   requester port can access them according to current partitioning. */
 		for (lid = lid_range_begin; lid <= lid_range_end; lid++) {
 			p_tbl = &sa->p_subn->port_lid_tbl;
-			if (cl_ptr_vector_get_size(p_tbl) > lid) {
+			if (cl_ptr_vector_get_size(p_tbl) > lid)
 				p_port = cl_ptr_vector_get(p_tbl, lid);
-			} else {
+			else {
 				/* lid requested is out of range */
 				OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4302: "
 					"Given LID (%u) is out of range:%u\n",
@@ -265,18 +264,15 @@ __osm_sa_inform_info_rec_by_comp_mask(IN osm_sa_t * sa,
 	comp_mask = p_ctxt->comp_mask;
 	p_req_physp = p_ctxt->p_req_physp;
 
-	if (comp_mask & IB_IIR_COMPMASK_SUBSCRIBERGID) {
-		if (memcmp(&p_infr->inform_record.subscriber_gid,
-			   &p_ctxt->subscriber_gid,
-			   sizeof(p_infr->inform_record.subscriber_gid)))
-			goto Exit;
-	}
+	if (comp_mask & IB_IIR_COMPMASK_SUBSCRIBERGID &&
+	    memcmp(&p_infr->inform_record.subscriber_gid,
+	    	   &p_ctxt->subscriber_gid,
+		   sizeof(p_infr->inform_record.subscriber_gid)))
+		goto Exit;
 
-	if (comp_mask & IB_IIR_COMPMASK_ENUM) {
-		if (p_infr->inform_record.subscriber_enum !=
-		    p_ctxt->subscriber_enum)
-			goto Exit;
-	}
+	if (comp_mask & IB_IIR_COMPMASK_ENUM &&
+	    p_infr->inform_record.subscriber_enum != p_ctxt->subscriber_enum)
+		goto Exit;
 
 	/* Implement any other needed search cases */
 
@@ -351,8 +347,7 @@ osm_infr_rcv_process_get_method(IN osm_sa_t * sa,
 	    (ib_inform_info_record_t *) ib_sa_mad_get_payload_ptr(p_rcvd_mad);
 
 	/* update the requester physical port. */
-	p_req_physp = osm_get_physp_by_mad_addr(sa->p_log,
-						sa->p_subn,
+	p_req_physp = osm_get_physp_by_mad_addr(sa->p_log, sa->p_subn,
 						osm_madw_get_mad_addr_ptr
 						(p_madw));
 	if (p_req_physp == NULL) {
@@ -376,8 +371,7 @@ osm_infr_rcv_process_get_method(IN osm_sa_t * sa,
 	context.p_req_physp = p_req_physp;
 
 	OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-		"Query Subscriber GID:%s"
-		"(%02X) Enum:0x%X(%02X)\n",
+		"Query Subscriber GID:%s(%02X) Enum:0x%X(%02X)\n",
 		inet_ntop(AF_INET6, p_rcvd_rec->subscriber_gid.raw,
 			gid_str, sizeof gid_str),
 		(p_rcvd_mad->comp_mask & IB_IIR_COMPMASK_SUBSCRIBERGID) != 0,
@@ -448,9 +442,7 @@ osm_infr_rcv_process_set_method(IN osm_sa_t * sa,
 	inform_info_rec.sa = sa;
 
 	/* update the subscriber GID according to mad address */
-	res = osm_get_gid_by_mad_addr(sa->p_log,
-				      sa->p_subn,
-				      &p_madw->mad_addr,
+	res = osm_get_gid_by_mad_addr(sa->p_log, sa->p_subn, &p_madw->mad_addr,
 				      &inform_info_rec.inform_record.
 				      subscriber_gid);
 	if (res != IB_SUCCESS) {
@@ -542,32 +534,25 @@ osm_infr_rcv_process_set_method(IN osm_sa_t * sa,
 			}
 
 			/* Add this new osm_infr_t object to subnet object */
-			osm_infr_insert_to_db(sa->p_subn, sa->p_log,
-					      p_infr);
-		} else {
+			osm_infr_insert_to_db(sa->p_subn, sa->p_log, p_infr);
+		} else
 			/* Update the old instance of the osm_infr_t object */
 			p_infr->inform_record = inform_info_rec.inform_record;
-		}
-	} else {
-		/* We got an UnSubscribe request */
-		if (p_infr == NULL) {
-			cl_plock_release(sa->p_lock);
+	/* We got an UnSubscribe request */
+	} else if (p_infr == NULL) {
+		cl_plock_release(sa->p_lock);
 
-			/* No Such Item - So Error */
-			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4307: "
-				"Failed to UnSubscribe to non existing inform object\n");
+		/* No Such Item - So Error */
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4307: "
+			"Failed to UnSubscribe to non existing inform object\n");
 
-			/* o13-13.1.1: we need to set the subscribe bit to 0 */
-			p_recvd_inform_info->subscribe = 0;
-			osm_sa_send_error(sa, p_madw,
-					  IB_SA_MAD_STATUS_REQ_INVALID);
-			goto Exit;
-		} else {
-			/* Delete this object from the subnet list of informs */
-			osm_infr_remove_from_db(sa->p_subn, sa->p_log,
-						p_infr);
-		}
-	}
+		/* o13-13.1.1: we need to set the subscribe bit to 0 */
+		p_recvd_inform_info->subscribe = 0;
+		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_REQ_INVALID);
+		goto Exit;
+	} else
+		/* Delete this object from the subnet list of informs */
+		osm_infr_remove_from_db(sa->p_subn, sa->p_log, p_infr);
 
 	cl_plock_release(sa->p_lock);
 
