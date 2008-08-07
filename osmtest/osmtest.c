@@ -4733,7 +4733,7 @@ osmtest_informinfo_request(IN osmtest_t * const p_osmt,
 		rec.subscribe = (uint8_t) p_inform_info_opt->subscribe;
 		if (p_inform_info_opt->qpn) {
 			rec.g_or_v.generic.qpn_resp_time_val =
-			    cl_hton32(p_inform_info_opt->qpn) >> 8;
+			    cl_hton32(p_inform_info_opt->qpn << 8);
 			user.comp_mask |= IB_IIR_COMPMASK_QPN;
 		}
 		if (p_inform_info_opt->trap) {
