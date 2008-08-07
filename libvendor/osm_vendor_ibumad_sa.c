@@ -106,7 +106,7 @@ __osmv_sa_mad_rcv_cb(IN osm_madw_t * p_madw,
 	mad_status = (ib_net16_t) (p_sa_mad->status & IB_SMP_STATUS_MASK);
 	if (mad_status != IB_SUCCESS) {
 		OSM_LOG(p_bind->p_log, OSM_LOG_ERROR, "ERR 5501: "
-			"Remote error:0x%04X\n", mad_status);
+			"Remote error:0x%04X\n", cl_ntoh16(mad_status));
 		query_res.status = IB_REMOTE_ERROR;
 	} else
 		query_res.status = IB_SUCCESS;
