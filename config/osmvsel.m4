@@ -146,14 +146,10 @@ if test "$disable_libcheck" != "yes"; then
    AC_CHECK_FILE([$with_sim/lib/libibmscli.a], [],
     AC_MSG_ERROR([ibms_bind() not found. libosmvendor of type sim requires libibmscli.]))
  elif test $with_osmv = "gen1"; then
-   osmv_save_ldflags=$LDFLAGS
    LDFLAGS="$LDFLAGS -L$MTHOME/lib -L$MTHOME/lib64 -lmosal -lmtl_common -lmpga"
    AC_CHECK_LIB(vapi, vipul_init, [],
     AC_MSG_ERROR([vipul_init() not found. libosmvendor of type gen1 requires libvapi.]))
-   LD_FLAGS=$osmv_save_ldflags
- elif test $with_osmv = "vapi"; then
-   osmv_save_ldflags=$LDFLAGS
- else
+ elif test $with_osmv != "vapi"; then
    AC_MSG_ERROR([OSM Vendor Type not defined: please make sure OPENIB_APP_OSMV SEL is run before CHECK_LIB])
  fi
 fi
@@ -263,4 +259,3 @@ AC_SUBST([DEFAULT_EVENT_PLUGIN])
 
 # --- END OPENIB_OSM_DEFAULT_EVENT_PLUGIN_SEL ---
 ]) dnl OPENIB_OSM_DEFAULT_EVENT_PLUGIN_SEL
-
