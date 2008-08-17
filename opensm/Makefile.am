@@ -69,16 +69,6 @@ else
 opensm_CFLAGS = -Wall $(OSMV_CFLAGS) -fno-strict-aliasing -DVENDOR_RMPP_SUPPORT $(DBGFLAGS) -D_XOPEN_SOURCE=600 -D_BSD_SOURCE=1
 endif
 
-# for linking with the simulator client library we have to use g++:
-if OSMV_SIM
-USEGPPLINK = $(LIBTOOL) --mode=link g++ $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
-libopensm.la: $(libopensm_la_OBJECTS) $(libopensm_la_DEPENDENCIES)
-	$(USEGPPLINK) $(libopensm_la_LDFLAGS) $(libopensm_la_OBJECTS) $(libopensm_la_LIBADD) $(LIBS)
-opensm$(EXEEXT): $(opensm_OBJECTS) $(opensm_DEPENDENCIES)
-	@rm -f opensm$(EXEEXT)
-	$(USEGPPLINK) $(opensm_OBJECTS) $(opensm_LDADD) $(LIBS)
-endif
-
 # we need to be able to load libraries from local build subtree before make install
 # we always give precedence to local tree libs and then use the pre-installed ones.
 opensm_LDADD = -L../complib -losmcomp -L../libvendor -losmvendor -L. -lopensm $(OSMV_LDADD)
