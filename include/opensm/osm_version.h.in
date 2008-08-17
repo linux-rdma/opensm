@@ -36,15 +36,6 @@
 #ifndef _OSM_VERSION_H_
 #define _OSM_VERSION_H_
 
-#ifdef __cplusplus
-#  define BEGIN_C_DECLS extern "C" {
-#  define END_C_DECLS   }
-#else				/* !__cplusplus */
-#  define BEGIN_C_DECLS
-#  define END_C_DECLS
-#endif				/* __cplusplus */
-
-BEGIN_C_DECLS
 /****s* OpenSM: Base/OSM_VERSION
 * NAME
 *	OSM_VERSION
@@ -56,5 +47,5 @@ BEGIN_C_DECLS
 */
 #define OSM_VERSION "OpenSM @VERSION@"
 /********/
-END_C_DECLS
+
 #endif				/* _OSM_VERSION_H_ */
