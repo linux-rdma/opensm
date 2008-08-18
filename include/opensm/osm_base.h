@@ -640,6 +640,17 @@ BEGIN_C_DECLS
 */
 #define OSM_NO_PATH			0xFF
 /**********/
+/****d* OpenSM: Base/OSM_NODE_DESC_UNKNOWN
+* NAME
+*	OSM_NODE_DESC_UNKNOWN
+*
+* DESCRIPTION
+*	Value indicating the Node Description is not set and is "unknown"
+*
+* SYNOPSIS
+*/
+#define OSM_NODE_DESC_UNKNOWN "<unknown>"
+/**********/
 /****d* OpenSM: Base/osm_thread_state_t
 * NAME
 *	osm_thread_state_t

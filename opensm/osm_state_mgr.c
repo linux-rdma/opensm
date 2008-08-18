@@ -516,6 +516,49 @@ static void query_sm_info(cl_map_item_t *item, void *cxt)
 }
 
 /**********************************************************************
+ During a light sweep check each node to see if the node descriptor is valid
+ if not issue a ND query.
+**********************************************************************/
+static void __osm_state_mgr_get_node_desc(IN cl_map_item_t * const p_object,
+					  IN void *context)
+{
+	osm_madw_context_t mad_context;
+	osm_node_t *const p_node = (osm_node_t *) p_object;
+	osm_sm_t *sm = context;
+	osm_physp_t *p_physp;
+	ib_api_status_t status;
+
+	OSM_LOG_ENTER(sm->p_log);
+
+	CL_ASSERT(p_node);
+
+	if (p_node->print_desc && strcmp(p_node->print_desc, OSM_NODE_DESC_UNKNOWN))
+		/* if ND is valid, do nothing */
+		goto exit;
+
+	OSM_LOG(sm->p_log, OSM_LOG_ERROR,
+		"ERR 3319: Unknown node description for node GUID "
+		"0x%016" PRIx64 ".  Reissuing ND query\n",
+		cl_ntoh64(osm_node_get_node_guid (p_node)));
+
+	/* get a physp to request from. */
+	p_physp = osm_node_get_any_physp_ptr(p_node);
+
+	mad_context.nd_context.node_guid = osm_node_get_node_guid(p_node);
+
+	status = osm_req_get(sm, osm_physp_get_dr_path_ptr(p_physp),
+			     IB_MAD_ATTR_NODE_DESC, 0, CL_DISP_MSGID_NONE,
+			     &mad_context);
+	if (status != IB_SUCCESS)
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR,
+			"ERR 331B: Failure initiating NodeDescription request "
+			"(%s)\n", ib_get_err_str(status));
+
+exit:
+	OSM_LOG_EXIT(sm->p_log);
+}
+
+/**********************************************************************
  Initiates a lightweight sweep of the subnet.
  Used during normal sweeps after the subnet is up.
 **********************************************************************/
@@ -548,6 +591,10 @@ static ib_api_status_t __osm_state_mgr_light_sweep_start(IN osm_sm_t * sm)
 			"INITIATING LIGHT SWEEP");
 	CL_PLOCK_ACQUIRE(sm->p_lock);
 	cl_qmap_apply_func(p_sw_tbl, __osm_state_mgr_get_sw_info, sm);
+	CL_PLOCK_RELEASE(sm->p_lock);
+
+	CL_PLOCK_ACQUIRE(sm->p_lock);
+	cl_qmap_apply_func(&sm->p_subn->node_guid_tbl, __osm_state_mgr_get_node_desc, sm);
 	CL_PLOCK_RELEASE(sm->p_lock);
 
 	/* now scan the list of physical ports that were not down but have no remote port */

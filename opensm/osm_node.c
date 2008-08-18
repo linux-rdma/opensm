@@ -136,7 +136,7 @@ osm_node_t *osm_node_new(IN const osm_madw_t * const p_madw)
 	osm_node_init_physp(p_node, p_madw);
 	if (p_ni->node_type == IB_NODE_TYPE_SWITCH)
 		node_init_physp0(p_node, p_madw);
-	p_node->print_desc = strdup("<unknown>");
+	p_node->print_desc = strdup(OSM_NODE_DESC_UNKNOWN);
 
 	return (p_node);
 }
