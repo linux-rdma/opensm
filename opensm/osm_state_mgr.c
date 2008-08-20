@@ -1026,7 +1026,7 @@ static void do_sweep(osm_sm_t * sm)
 		/*
 		 * Need to force re-write of sm_base_lid to all ports
 		 * to do that we want all the ports to be considered
-		 * foriegn
+		 * foreign
 		 */
 		__osm_state_mgr_clean_known_lids(sm);
 
@@ -1219,7 +1219,7 @@ _repeat_discovery:
 
 	/* At this point we need to check the consistency of
 	 * the port_lid_tbl under the subnet. There might be
-	 * errors in it if PortInfo Set reqeusts didn't reach
+	 * errors in it if PortInfo Set requests didn't reach
 	 * their destination. */
 	__osm_state_mgr_check_tbl_consistency(sm);
 
@@ -1250,7 +1250,7 @@ _repeat_discovery:
 	}
 
 	/*
-	 * The LINK_PORTS state is required since we can not count on
+	 * The LINK_PORTS state is required since we cannot count on
 	 * the port state change MADs to succeed. This is an artifact
 	 * of the spec defining state change from state X to state X
 	 * as an error. The hardware then is not required to process
