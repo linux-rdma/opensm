@@ -596,9 +596,18 @@ static osm_qos_match_rule_t *__qos_policy_get_match_rule_by_params(
 {
 	osm_qos_match_rule_t *p_qos_match_rule = NULL;
 	cl_list_iterator_t list_iterator;
+	osm_log_t * p_log = &p_qos_policy->p_subn->p_osm->log;
+
+	boolean_t matched_by_sguid = FALSE,
+		  matched_by_dguid = FALSE,
+		  matched_by_class = FALSE,
+		  matched_by_sid = FALSE,
+		  matched_by_pkey = FALSE;
 
 	if (!cl_list_count(&p_qos_policy->qos_match_rules))
 		return NULL;
+
+	OSM_LOG_ENTER(p_log);
 
 	/* Go over all QoS match rules and find the one that matches the request */
 
@@ -622,6 +631,7 @@ static osm_qos_match_rule_t *__qos_policy_get_match_rule_by_params(
 				list_iterator = cl_list_next(list_iterator);
 				continue;
 			}
+			matched_by_sguid = TRUE;
 		}
 
 		/* If a match rule has Destination groups, PR request dest. has to be in this list */
@@ -635,6 +645,7 @@ static osm_qos_match_rule_t *__qos_policy_get_match_rule_by_params(
 				list_iterator = cl_list_next(list_iterator);
 				continue;
 			}
+			matched_by_dguid = TRUE;
 		}
 
 		/* If a match rule has QoS classes, PR request HAS
@@ -653,7 +664,7 @@ static osm_qos_match_rule_t *__qos_policy_get_match_rule_by_params(
 				list_iterator = cl_list_next(list_iterator);
 				continue;
 			}
-
+			matched_by_class = TRUE;
 		}
 
 		/* If a match rule has Service IDs, PR request HAS
@@ -673,7 +684,7 @@ static osm_qos_match_rule_t *__qos_policy_get_match_rule_by_params(
 				list_iterator = cl_list_next(list_iterator);
 				continue;
 			}
-
+			matched_by_sid = TRUE;
 		}
 
 		/* If a match rule has PKeys, PR request HAS
@@ -692,7 +703,7 @@ static osm_qos_match_rule_t *__qos_policy_get_match_rule_by_params(
 				list_iterator = cl_list_next(list_iterator);
 				continue;
 			}
-
+			matched_by_pkey = TRUE;
 		}
 
 		/* if we got here, then this match-rule matched this PR request */
@@ -700,10 +711,25 @@ static osm_qos_match_rule_t *__qos_policy_get_match_rule_by_params(
 	}
 
 	if (list_iterator == cl_list_end(&p_qos_policy->qos_match_rules))
-		return NULL;
+		p_qos_match_rule = NULL;
 
+	if (p_qos_match_rule)
+		OSM_LOG(p_log, OSM_LOG_DEBUG,
+			"request matched rule (%s) by:%s%s%s%s%s\n",
+			(p_qos_match_rule->use) ?
+				p_qos_match_rule->use : "no description",
+			(matched_by_sguid) ? " SGUID" : "",
+			(matched_by_dguid) ? " DGUID" : "",
+			(matched_by_class) ? " QoS_Class" : "",
+			(matched_by_sid)   ? " ServiceID" : "",
+			(matched_by_pkey)  ? " PKey" : "");
+	else
+		OSM_LOG(p_log, OSM_LOG_DEBUG,
+			"request not matched any rule\n");
+
+	OSM_LOG_EXIT(p_log);
 	return p_qos_match_rule;
-}				/* __qos_policy_get_match_rule_by_pr() */
+}				/* __qos_policy_get_match_rule_by_params() */
 
 /***************************************************
  ***************************************************/
