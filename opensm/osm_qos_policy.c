@@ -997,36 +997,18 @@ static osm_qos_level_t * __qos_policy_get_qos_level_by_params(
 	IN ib_net64_t comp_mask)
 {
 	osm_qos_match_rule_t *p_qos_match_rule = NULL;
-	osm_qos_level_t *p_qos_level = NULL;
-
-	OSM_LOG_ENTER(&p_qos_policy->p_subn->p_osm->log);
 
 	if (!p_qos_policy)
-		goto Exit;
+		return NULL;
 
 	p_qos_match_rule = __qos_policy_get_match_rule_by_params(
 		p_qos_policy, service_id, qos_class, pkey,
 		p_src_physp, p_dest_physp, comp_mask);
 
 	if (p_qos_match_rule)
-		p_qos_level = p_qos_match_rule->p_qos_level;
+		return p_qos_match_rule->p_qos_level;
 	else
-		p_qos_level = p_qos_policy->p_default_qos_level;
-
-	OSM_LOG(&p_qos_policy->p_subn->p_osm->log, OSM_LOG_DEBUG,
-		"PathRecord request:"
-		"Src port 0x%016" PRIx64 ", "
-		"Dst port 0x%016" PRIx64 "\n",
-		cl_ntoh64(osm_physp_get_port_guid(p_src_physp)),
-		cl_ntoh64(osm_physp_get_port_guid(p_dest_physp)));
-	OSM_LOG(&p_qos_policy->p_subn->p_osm->log, OSM_LOG_DEBUG,
-		"Applying QoS Level %s (%s)\n",
-		p_qos_level->name,
-		(p_qos_level->use) ? p_qos_level->use : "no description");
-
-Exit:
-	OSM_LOG_EXIT(&p_qos_policy->p_subn->p_osm->log);
-	return p_qos_level;
+		return p_qos_policy->p_default_qos_level;
 }				/* __qos_policy_get_qos_level_by_params() */
 
 /***************************************************
