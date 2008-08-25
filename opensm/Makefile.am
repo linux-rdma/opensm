@@ -9,11 +9,7 @@ else
 DBGFLAGS = -g
 endif
 
-if OSMV_OPENIB
-libopensm_la_CFLAGS = -Wall $(OSMV_CFLAGS) -DVENDOR_RMPP_SUPPORT -DDUAL_SIDED_RMPP $(DBGFLAGS) -D_XOPEN_SOURCE=600 -D_BSD_SOURCE=1
-else
-libopensm_la_CFLAGS = -Wall $(OSMV_CFLAGS) -DVENDOR_RMPP_SUPPORT $(DBGFLAGS) -D_XOPEN_SOURCE=600 -D_BSD_SOURCE=1
-endif
+libopensm_la_CFLAGS = -Wall $(OSMV_CFLAGS) $(DBGFLAGS) -D_XOPEN_SOURCE=600 -D_BSD_SOURCE=1
 
 if HAVE_LD_VERSION_SCRIPT
 libopensm_version_script = -Wl,--version-script=$(srcdir)/libopensm.map
@@ -63,11 +59,7 @@ opensm_SOURCES = main.c osm_console_io.c osm_console.c osm_db_files.c \
 
 AM_YFLAGS:= -d
 
-if OSMV_OPENIB
-opensm_CFLAGS = -Wall $(OSMV_CFLAGS) -fno-strict-aliasing -DVENDOR_RMPP_SUPPORT -DDUAL_SIDED_RMPP $(DBGFLAGS) -D_XOPEN_SOURCE=600 -D_BSD_SOURCE=1
-else
-opensm_CFLAGS = -Wall $(OSMV_CFLAGS) -fno-strict-aliasing -DVENDOR_RMPP_SUPPORT $(DBGFLAGS) -D_XOPEN_SOURCE=600 -D_BSD_SOURCE=1
-endif
+opensm_CFLAGS = -Wall $(OSMV_CFLAGS) -fno-strict-aliasing $(DBGFLAGS) -D_XOPEN_SOURCE=600 -D_BSD_SOURCE=1
 
 # we need to be able to load libraries from local build subtree before make install
 # we always give precedence to local tree libs and then use the pre-installed ones.

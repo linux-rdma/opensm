@@ -65,7 +65,7 @@ with_sim="/usr")
 
 dnl based on the with_osmv we can try the vendor flag
 if test $with_osmv = "openib"; then
-   OSMV_CFLAGS="-DOSM_VENDOR_INTF_OPENIB"
+   AC_DEFINE(OSM_VENDOR_INTF_OPENIB, 1, [Define as 1 for OpenIB vendor])
    OSMV_INCLUDES="-I\$(srcdir)/../include -I\$(srcdir)/../../libibcommon/include -I\$(srcdir)/../../libibumad/include -I\$(includedir)"
    OSMV_LDADD="-L\$(abs_srcdir)/../../libibumad/.libs -L\$(abs_srcdir)/../../libibcommon/.libs -L\$(libdir) -libumad -libcommon"
 
@@ -76,12 +76,13 @@ if test $with_osmv = "openib"; then
    if test "x$with_umad_includes" != "x"; then
      OSMV_INCLUDES="-I$with_umad_includes $OSMV_INCLUDES"
    fi
+   AC_DEFINE(DUAL_SIDED_RMPP, 1, [Define as 1 if you want Dual Sided RMPP Support])
 elif test $with_osmv = "sim" ; then
-   OSMV_CFLAGS="-DOSM_VENDOR_INTF_SIM"
+   AC_DEFINE(OSM_VENDOR_INTF_SIM, 1, [Define as 1 for sim vendor])
    OSMV_INCLUDES="-I$with_sim/include -I\$(srcdir)/../include"
    OSMV_LDADD="-L$with_sim/lib -libmscli"
 elif test $with_osmv = "gen1"; then
-   OSMV_CFLAGS="-DOSM_VENDOR_INTF_TS"
+   AC_DEFINE(OSM_VENDOR_INTF_TS, 1, [Define as 1 for ts vendor])
 
    if test -z $MTHOME; then
       MTHOME=/usr/local/ibgd/driver/infinihost
@@ -111,7 +112,7 @@ elif test $with_osmv = "gen1"; then
    fi
    OSMV_LDADD="-L/usr/local/ibgd/driver/infinihost/lib -lvapi -lmosal -lmtl_common -lmpga"
 elif test $with_osmv = "vapi"; then
-   OSMV_CFLAGS="-DOSM_VENDOR_INTF_MTL"
+   AC_DEFINE(OSM_VENDOR_INTF_MTL, 1, [Define as 1 for vapi vendor])
    OSMV_INCLUDES="-I/usr/mellanox/include -I/usr/include -I\$(srcdir)/../include"
    OSMV_LDADD="-L/usr/lib -L/usr/mellanox/lib -lib_mgt -lvapi -lmosal -lmtl_common -lmpga"
 else
@@ -122,9 +123,9 @@ AM_CONDITIONAL(OSMV_VAPI, test $with_osmv = "vapi")
 AM_CONDITIONAL(OSMV_GEN1, test $with_osmv = "gen1")
 AM_CONDITIONAL(OSMV_SIM, test $with_osmv = "sim")
 AM_CONDITIONAL(OSMV_OPENIB, test $with_osmv = "openib")
+AC_DEFINE(VENDOR_RMPP_SUPPORT, 1, [Define as 1 if you want Vendor RMPP Support])
 
 AC_SUBST(with_osmv)
-AC_SUBST(OSMV_CFLAGS)
 AC_SUBST(OSMV_LDADD)
 AC_SUBST(OSMV_INCLUDES)
 

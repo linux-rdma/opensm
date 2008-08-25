@@ -13,11 +13,7 @@ osmtest_SOURCES = main.c osmtest.c osmt_service.c osmt_slvl_vl_arb.c \
 if OSMV_VAPI
 osmtest_SOURCES += osmt_mtl_regular_qp.c
 endif
-if OSMV_OPENIB
-osmtest_CFLAGS = -Wall $(OSMV_CFLAGS) -DVENDOR_RMPP_SUPPORT -DDUAL_SIDED_RMPP $(DBGFLAGS)
-else
-osmtest_CFLAGS = -Wall $(OSMV_CFLAGS) -DVENDOR_RMPP_SUPPORT $(DBGFLAGS)
-endif
+osmtest_CFLAGS = -Wall $(OSMV_CFLAGS) $(DBGFLAGS)
 osmtest_LDADD = -L../complib -losmcomp -L../libvendor -losmvendor -L../opensm -lopensm $(OSMV_LDADD)
 
 EXTRA_DIST = $(srcdir)/include/osmt_inform.h \

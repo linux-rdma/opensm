@@ -40,11 +40,11 @@
  *	This object is part of the opensm family of objects.
  */
 
-#if defined (VENDOR_RMPP_SUPPORT) && defined (DUAL_SIDED_RMPP)
-
 #if HAVE_CONFIG_H
 #  include <config.h>
 #endif				/* HAVE_CONFIG_H */
+
+#if defined (VENDOR_RMPP_SUPPORT) && defined (DUAL_SIDED_RMPP)
 
 #include <string.h>
 #include <iba/ib_types.h>
