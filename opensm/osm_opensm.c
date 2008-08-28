@@ -244,12 +244,13 @@ void osm_opensm_destroy(IN osm_opensm_t * const p_osm)
 	osm_log_destroy(&p_osm->log);
 }
 
-static void load_plugins(osm_opensm_t *osm, char *plugin_names)
+static void load_plugins(osm_opensm_t *osm, const char *plugin_names)
 {
 	osm_epi_plugin_t *epi;
-	char *name, *p;
+	char *p_names, *name, *p;
 
-	name = strtok_r(plugin_names, " \t\n", &p);
+	p_names = strdup(plugin_names);
+	name = strtok_r(p_names, " \t\n", &p);
 	while (name && *name) {
 		epi = osm_epi_construct(osm, name);
 		if (!epi)
@@ -259,6 +260,7 @@ static void load_plugins(osm_opensm_t *osm, char *plugin_names)
 			cl_qlist_insert_tail(&osm->plugin_list, &epi->list);
 		name = strtok_r(NULL, " \t\n", &p);
 	}
+	free(p_names);
 }
 
 /**********************************************************************
