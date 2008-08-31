@@ -1005,10 +1005,8 @@ static osm_qos_level_t * __qos_policy_get_qos_level_by_params(
 		p_qos_policy, service_id, qos_class, pkey,
 		p_src_physp, p_dest_physp, comp_mask);
 
-	if (p_qos_match_rule)
-		return p_qos_match_rule->p_qos_level;
-	else
-		return p_qos_policy->p_default_qos_level;
+	return p_qos_match_rule ? p_qos_match_rule->p_qos_level :
+		p_qos_policy->p_default_qos_level;
 }				/* __qos_policy_get_qos_level_by_params() */
 
 /***************************************************
