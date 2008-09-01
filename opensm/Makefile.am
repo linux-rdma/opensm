@@ -126,7 +126,7 @@ opensminclude_HEADERS = \
 	$(srcdir)/../include/opensm/osm_vl15intf.h \
 	$(top_builddir)/include/opensm/osm_version.h
 
-BUILT_SOURCES = osm_version
+BUILT_SOURCES = osm_version osm_qos_parser_y.h
 osm_version:
 	if [ -x $(top_srcdir)/../gen_ver.sh ] ; then \
 		ver_file=$(top_builddir)/include/opensm/osm_version.h ; \
