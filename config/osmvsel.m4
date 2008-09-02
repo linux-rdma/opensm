@@ -5,8 +5,6 @@ dnl To use this macro, just do OPENIB_APP_OSMV_SEL.
 dnl the new configure option --with-osmv will be defined.
 dnl current supported values are: openib(default),sim,gen1
 dnl The following variables are defined:
-dnl with-osmv - the osm vendor prefix
-dnl OSMV_CFLAGS - CFLAGS additions required to define the vendor type
 dnl OSMV_LDADD - LDADD additional libs for linking the vendor lib
 AC_DEFUN([OPENIB_APP_OSMV_SEL], [
 # --- BEGIN OPENIB_APP_OSMV_SEL ---
@@ -125,7 +123,6 @@ AM_CONDITIONAL(OSMV_SIM, test $with_osmv = "sim")
 AM_CONDITIONAL(OSMV_OPENIB, test $with_osmv = "openib")
 AC_DEFINE(VENDOR_RMPP_SUPPORT, 1, [Define as 1 if you want Vendor RMPP Support])
 
-AC_SUBST(with_osmv)
 AC_SUBST(OSMV_LDADD)
 AC_SUBST(OSMV_INCLUDES)
 
