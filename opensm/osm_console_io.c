@@ -118,6 +118,10 @@ static void osm_console_close(osm_console_t * p_oct, osm_log_t * p_log)
 			p_oct->client_hn, p_oct->client_ip);
 		cio_close(p_oct);
 	}
+	if (p_oct->socket > 0) {
+		close(p_oct->socket);
+		p_oct->socket = -1;
+	}
 #endif
 }
 
