@@ -144,7 +144,7 @@ void osm_console_prompt(FILE * out)
 	}
 }
 
-void osm_console_init(osm_subn_opt_t * opt, osm_console_t * p_oct, osm_log_t * p_log)
+int osm_console_init(osm_subn_opt_t * opt, osm_console_t * p_oct, osm_log_t * p_log)
 {
 	p_oct->socket = -1;
 	strncpy(p_oct->client_type, opt->console, sizeof(p_oct->client_type));
@@ -167,7 +167,7 @@ void osm_console_init(osm_subn_opt_t * opt, osm_console_t * p_oct, osm_log_t * p
 			OSM_LOG(p_log, OSM_LOG_ERROR,
 				"ERR 4B01: Failed to open console socket: %s\n",
 				strerror(errno));
-			return;
+			return -1;
 		}
 		setsockopt(p_oct->socket, SOL_SOCKET, SO_REUSEADDR,
 			   &optval, sizeof(optval));
@@ -181,13 +181,13 @@ void osm_console_init(osm_subn_opt_t * opt, osm_console_t * p_oct, osm_log_t * p
 			OSM_LOG(p_log, OSM_LOG_ERROR,
 				"ERR 4B02: Failed to bind console socket: %s\n",
 				strerror(errno));
-			return;
+			return -1;
 		}
 		if (listen(p_oct->socket, 1) < 0) {
 			OSM_LOG(p_log, OSM_LOG_ERROR,
 				"ERR 4B03: Failed to listen on socket: %s\n",
 				strerror(errno));
-			return;
+			return -1;
 		}
 
 		signal(SIGPIPE, SIG_IGN);	/* protect ourselves from closed pipes */
@@ -199,6 +199,8 @@ void osm_console_init(osm_subn_opt_t * opt, osm_console_t * p_oct, osm_log_t * p
 			"Console listening on port %d\n", opt->console_port);
 #endif
 	}
+
+	return 0;
 }
 
 /* clean up and release resources */

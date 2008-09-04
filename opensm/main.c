@@ -496,14 +496,18 @@ static int daemonize(osm_opensm_t * osm)
  **********************************************************************/
 int osm_manager_loop(osm_subn_opt_t * p_opt, osm_opensm_t * p_osm)
 {
-	if (is_console_enabled(p_opt))
-		osm_console_init(p_opt, &p_osm->console, &p_osm->log);
+	int console_init_flag = 0;
+
+	if (is_console_enabled(p_opt)) {
+		if (!osm_console_init(p_opt, &p_osm->console, &p_osm->log))
+			console_init_flag = 1;
+	}
 
 	/*
 	   Sit here forever - dwell or do console i/o & cmds
 	 */
 	while (!osm_exit_flag) {
-		if (is_console_enabled(p_opt))
+		if (console_init_flag)
 			osm_console(p_osm);
 		else
 			cl_thread_suspend(10000);

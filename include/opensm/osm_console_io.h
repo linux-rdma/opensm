@@ -77,7 +77,7 @@ typedef struct osm_console {
 } osm_console_t;
 
 void osm_console_prompt(FILE * out);
-void osm_console_init(osm_subn_opt_t * opt, osm_console_t * p_oct, osm_log_t * p_log);
+int osm_console_init(osm_subn_opt_t * opt, osm_console_t * p_oct, osm_log_t * p_log);
 void osm_console_exit(osm_console_t * p_oct, osm_log_t * p_log);
 int is_console_enabled(osm_subn_opt_t *p_opt);
 
