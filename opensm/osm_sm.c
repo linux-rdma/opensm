@@ -453,22 +453,22 @@ __osm_sm_mgrp_process(IN osm_sm_t * const p_sm,
 		      IN const ib_net64_t port_guid,
 		      IN osm_mcast_req_type_t req_type)
 {
-	osm_mcast_mgr_ctxt_t *ctx2;
+	osm_mcast_mgr_ctxt_t *ctx;
 
 	/*
 	 * 'Schedule' all the QP0 traffic for when the state manager
 	 * isn't busy trying to do something else.
 	 */
-	ctx2 = (osm_mcast_mgr_ctxt_t *) malloc(sizeof(osm_mcast_mgr_ctxt_t));
-	if (!ctx2)
+	ctx = malloc(sizeof(*ctx));
+	if (!ctx)
 		return IB_ERROR;
-	memset(ctx2, 0, sizeof(*ctx2));
-	memcpy(&ctx2->mlid, &p_mgrp->mlid, sizeof(p_mgrp->mlid));
-	ctx2->req_type = req_type;
-	ctx2->port_guid = port_guid;
+	memset(ctx, 0, sizeof(*ctx));
+	ctx->mlid = p_mgrp->mlid;
+	ctx->req_type = req_type;
+	ctx->port_guid = port_guid;
 
 	cl_spinlock_acquire(&p_sm->mgrp_lock);
-	cl_qlist_insert_tail(&p_sm->mgrp_list, &ctx2->list_item);
+	cl_qlist_insert_tail(&p_sm->mgrp_list, &ctx->list_item);
 	cl_spinlock_release(&p_sm->mgrp_lock);
 
 	osm_sm_signal(p_sm, OSM_SIGNAL_IDLE_TIME_PROCESS_REQUEST);
