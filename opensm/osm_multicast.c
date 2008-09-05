@@ -51,23 +51,6 @@
 
 /**********************************************************************
  **********************************************************************/
-/* osm_mcast_req_type_t values converted to test for easier printing. */
-const static char *mcast_req_type_str[] = {
-	"OSM_MCAST_REQ_TYPE_CREATE",
-	"OSM_MCAST_REQ_TYPE_JOIN",
-	"OSM_MCAST_REQ_TYPE_LEAVE",
-	"OSM_MCAST_REQ_TYPE_SUBNET_CHANGE"
-};
-
-const char *osm_get_mcast_req_type_str(IN osm_mcast_req_type_t req_type)
-{
-	if (req_type > OSM_MCAST_REQ_TYPE_SUBNET_CHANGE)
-		req_type = OSM_MCAST_REQ_TYPE_SUBNET_CHANGE;
-	return (mcast_req_type_str[req_type]);
-}
-
-/**********************************************************************
- **********************************************************************/
 void osm_mgrp_delete(IN osm_mgrp_t * const p_mgrp)
 {
 	osm_mcm_port_t *p_mcm_port;
@@ -92,10 +75,13 @@ void osm_mgrp_delete(IN osm_mgrp_t * const p_mgrp)
 
 /**********************************************************************
  **********************************************************************/
-static void
-osm_mgrp_init(IN osm_mgrp_t * const p_mgrp, IN const ib_net16_t mlid)
+osm_mgrp_t *osm_mgrp_new(IN const ib_net16_t mlid)
 {
-	CL_ASSERT(cl_ntoh16(mlid) >= IB_LID_MCAST_START_HO);
+	osm_mgrp_t *p_mgrp;
+
+	p_mgrp = (osm_mgrp_t *) malloc(sizeof(*p_mgrp));
+	if (!p_mgrp)
+		return NULL;
 
 	memset(p_mgrp, 0, sizeof(*p_mgrp));
 	cl_qmap_init(&p_mgrp->mcm_port_tbl);
@@ -103,19 +89,8 @@ osm_mgrp_init(IN osm_mgrp_t * const p_mgrp, IN const ib_net16_t mlid)
 	p_mgrp->last_change_id = 0;
 	p_mgrp->last_tree_id = 0;
 	p_mgrp->to_be_deleted = FALSE;
-}
 
-/**********************************************************************
- **********************************************************************/
-osm_mgrp_t *osm_mgrp_new(IN const ib_net16_t mlid)
-{
-	osm_mgrp_t *p_mgrp;
-
-	p_mgrp = (osm_mgrp_t *) malloc(sizeof(*p_mgrp));
-	if (p_mgrp)
-		osm_mgrp_init(p_mgrp, mlid);
-
-	return (p_mgrp);
+	return p_mgrp;
 }
 
 /**********************************************************************
@@ -132,42 +107,39 @@ osm_mcm_port_t *osm_mgrp_add_port(IN osm_mgrp_t * const p_mgrp,
 	uint8_t prev_scope;
 
 	p_mcm_port = osm_mcm_port_new(p_port_gid, join_state, proxy_join);
-	if (p_mcm_port) {
-		port_guid = p_port_gid->unicast.interface_id;
+	if (!p_mcm_port)
+		return NULL;
+
+	port_guid = p_port_gid->unicast.interface_id;
+
+	/*
+	   prev_item = cl_qmap_insert(...)
+	   Pointer to the item in the map with the specified key.  If insertion
+	   was successful, this is the pointer to the item.  If an item with the
+	   specified key already exists in the map, the pointer to that item is
+	   returned.
+	 */
+	prev_item = cl_qmap_insert(&p_mgrp->mcm_port_tbl,
+				   port_guid, &p_mcm_port->map_item);
+
+	/* if already exists - revert the insertion and only update join state */
+	if (prev_item != &p_mcm_port->map_item) {
+		osm_mcm_port_delete(p_mcm_port);
+		p_mcm_port = (osm_mcm_port_t *) prev_item;
 
 		/*
-		   prev_item = cl_qmap_insert(...)
-		   Pointer to the item in the map with the specified key.  If insertion
-		   was successful, this is the pointer to the item.  If an item with the
-		   specified key already exists in the map, the pointer to that item is
-		   returned.
+		   o15.0.1.11
+		   Join state of the end port should be the or of the
+		   previous setting with the current one
 		 */
-		prev_item = cl_qmap_insert(&p_mgrp->mcm_port_tbl,
-					   port_guid, &p_mcm_port->map_item);
-
-		/* if already exists - revert the insertion and only update join state */
-		if (prev_item != &p_mcm_port->map_item) {
-
-			osm_mcm_port_delete(p_mcm_port);
-			p_mcm_port = (osm_mcm_port_t *) prev_item;
-
-			/*
-			   o15.0.1.11
-			   Join state of the end port should be the or of the
-			   previous setting with the current one
-			 */
-			ib_member_get_scope_state(p_mcm_port->scope_state,
-						  &prev_scope,
-						  &prev_join_state);
-			p_mcm_port->scope_state =
-			    ib_member_set_scope_state(prev_scope,
-						      prev_join_state |
-						      join_state);
-
-		} else {
-			/* track the fact we modified the group ports */
-			p_mgrp->last_change_id++;
-		}
+		ib_member_get_scope_state(p_mcm_port->scope_state, &prev_scope,
+					  &prev_join_state);
+		p_mcm_port->scope_state =
+		    ib_member_set_scope_state(prev_scope,
+					      prev_join_state | join_state);
+	} else {
+		/* track the fact we modified the group ports */
+		p_mgrp->last_change_id++;
 	}
 
 	return (p_mcm_port);
@@ -243,9 +215,7 @@ __osm_mgrp_apply_func_sub(const osm_mgrp_t * const p_mgrp,
 	uint8_t max_children;
 	osm_mtree_node_t *p_child_mtn;
 
-	/*
-	   Call the user, then recurse.
-	 */
+	/* Call the user, then recurse. */
 	p_func(p_mgrp, p_mtn, context);
 
 	max_children = osm_mtree_node_get_max_children(p_mtn);
@@ -276,82 +246,43 @@ osm_mgrp_apply_func(const osm_mgrp_t * const p_mgrp,
 
 /**********************************************************************
  **********************************************************************/
+static void mgrp_send_notice(osm_subn_t *subn, osm_log_t *log,
+			     osm_mgrp_t *mgrp, unsigned num)
+{
+	ib_mad_notice_attr_t notice;
+	ib_api_status_t status;
+
+	notice.generic_type = 0x83;	/* generic SubnMgt type */
+	ib_notice_set_prod_type_ho(&notice, 4);	/* A Class Manager generator */
+	notice.g_or_v.generic.trap_num = CL_HTON16(num);
+	/* The sm_base_lid is saved in network order already. */
+	notice.issuer_lid = subn->sm_base_lid;
+	/* following o14-12.1.11 and table 120 p726 */
+	/* we need to provide the MGID */
+	memcpy(&notice.data_details.ntc_64_67.gid,
+	       &mgrp->mcmember_rec.mgid, sizeof(ib_gid_t));
+
+	/* According to page 653 - the issuer gid in this case of trap
+	   is the SM gid, since the SM is the initiator of this trap. */
+	notice.issuer_gid.unicast.prefix = subn->opt.subnet_prefix;
+	notice.issuer_gid.unicast.interface_id = subn->sm_port_guid;
+
+	if ((status = osm_report_notice(log, subn, &notice)))
+		OSM_LOG(log, OSM_LOG_ERROR, "ERR 7601: "
+			"Error sending trap reports (%s)\n",
+			ib_get_err_str(status));
+}
+
 void
 osm_mgrp_send_delete_notice(IN osm_subn_t * const p_subn,
 			    IN osm_log_t * const p_log, IN osm_mgrp_t * p_mgrp)
 {
-	ib_mad_notice_attr_t notice;
-	ib_api_status_t status;
-
-	OSM_LOG_ENTER(p_log);
-
-	/* prepare the needed info */
-
-	/* details of the notice */
-	notice.generic_type = 0x83;	/* is generic subn mgt type */
-	ib_notice_set_prod_type_ho(&notice, 4);	/* A Class Manager generator */
-	notice.g_or_v.generic.trap_num = CL_HTON16(67);	/* delete of mcg */
-	/* The sm_base_lid is saved in network order already. */
-	notice.issuer_lid = p_subn->sm_base_lid;
-	/* following o14-12.1.11 and table 120 p726 */
-	/* we need to provide the MGID */
-	memcpy(&(notice.data_details.ntc_64_67.gid),
-	       &(p_mgrp->mcmember_rec.mgid), sizeof(ib_gid_t));
-
-	/* According to page 653 - the issuer gid in this case of trap
-	   is the SM gid, since the SM is the initiator of this trap. */
-	notice.issuer_gid.unicast.prefix = p_subn->opt.subnet_prefix;
-	notice.issuer_gid.unicast.interface_id = p_subn->sm_port_guid;
-
-	status = osm_report_notice(p_log, p_subn, &notice);
-	if (status != IB_SUCCESS) {
-		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 7601: "
-			"Error sending trap reports (%s)\n",
-			ib_get_err_str(status));
-		goto Exit;
-	}
-
-Exit:
-	OSM_LOG_EXIT(p_log);
+	mgrp_send_notice(p_subn, p_log, p_mgrp, 67);
 }
 
-/**********************************************************************
- **********************************************************************/
 void
 osm_mgrp_send_create_notice(IN osm_subn_t * const p_subn,
 			    IN osm_log_t * const p_log, IN osm_mgrp_t * p_mgrp)
 {
-	ib_mad_notice_attr_t notice;
-	ib_api_status_t status;
-
-	OSM_LOG_ENTER(p_log);
-
-	/* prepare the needed info */
-
-	/* details of the notice */
-	notice.generic_type = 0x83;	/* Generic SubnMgt type */
-	ib_notice_set_prod_type_ho(&notice, 4);	/* A Class Manager generator */
-	notice.g_or_v.generic.trap_num = CL_HTON16(66);	/* create of mcg */
-	/* The sm_base_lid is saved in network order already. */
-	notice.issuer_lid = p_subn->sm_base_lid;
-	/* following o14-12.1.11 and table 120 p726 */
-	/* we need to provide the MGID */
-	memcpy(&(notice.data_details.ntc_64_67.gid),
-	       &(p_mgrp->mcmember_rec.mgid), sizeof(ib_gid_t));
-
-	/* According to page 653 - the issuer gid in this case of trap
-	   is the SM gid, since the SM is the initiator of this trap. */
-	notice.issuer_gid.unicast.prefix = p_subn->opt.subnet_prefix;
-	notice.issuer_gid.unicast.interface_id = p_subn->sm_port_guid;
-
-	status = osm_report_notice(p_log, p_subn, &notice);
-	if (status != IB_SUCCESS) {
-		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 7602: "
-			"Error sending trap reports (%s)\n",
-			ib_get_err_str(status));
-		goto Exit;
-	}
-
-Exit:
-	OSM_LOG_EXIT(p_log);
+	mgrp_send_notice(p_subn, p_log, p_mgrp, 66);
 }

@@ -81,29 +81,6 @@ BEGIN_C_DECLS
 *	Steve King, Intel
 *
 *********/
-/****f* IBA Base: OpenSM: Multicast Group/osm_get_mcast_req_type_str
-* NAME
-*	osm_get_mcast_req_type_str
-*
-* DESCRIPTION
-*	Returns a string for the specified osm_mcast_req_type_t value.
-*
-* SYNOPSIS
-*/
-const char *osm_get_mcast_req_type_str(IN osm_mcast_req_type_t req_type);
-/*
-* PARAMETERS
-*	req_type
-*		[in] osm_mcast_req_type value
-*
-* RETURN VALUES
-*	Pointer to the request type description string.
-*
-* NOTES
-*
-* SEE ALSO
-*********/
-
 /****s* OpenSM: Multicast Group/osm_mcast_mgr_ctxt_t
 * NAME
 *	osm_mcast_mgr_ctxt_t
@@ -481,71 +458,6 @@ osm_mgrp_remove_port(IN osm_subn_t * const p_subn,
 * NOTES
 *
 * SEE ALSO
-*********/
-
-/****f* OpenSM: Multicast Group/osm_mgrp_get_root_switch
-* NAME
-*	osm_mgrp_get_root_switch
-*
-* DESCRIPTION
-*	Returns the "root" switch of this multicast group.  The root switch
-*	is at the trunk of the multicast single spanning tree.
-*
-* SYNOPSIS
-*/
-static inline osm_switch_t *osm_mgrp_get_root_switch(IN const osm_mgrp_t *
-						     const p_mgrp)
-{
-	if (p_mgrp->p_root)
-		return (p_mgrp->p_root->p_sw);
-	else
-		return (NULL);
-}
-
-/*
-* PARAMETERS
-*	p_mgrp
-*		[in] Pointer to an osm_mgrp_t object.
-*
-* RETURN VALUES
-*	Returns the "root" switch of this multicast group.  The root switch
-*	is at the trunk of the multicast single spanning tree.
-*
-* NOTES
-*
-* SEE ALSO
-*	Multicast Group
-*********/
-
-/****f* OpenSM: Multicast Group/osm_mgrp_compute_avg_hops
-* NAME
-*	osm_mgrp_compute_avg_hops
-*
-* DESCRIPTION
-*	Returns the average number of hops from the given to switch
-*	to all member of a multicast group.
-*
-* SYNOPSIS
-*/
-float
-osm_mgrp_compute_avg_hops(const osm_mgrp_t * const p_mgrp,
-			  const osm_switch_t * const p_sw);
-/*
-* PARAMETERS
-*	p_mgrp
-*		[in] Pointer to an osm_mgrp_t object.
-*
-*	p_sw
-*		[in] Pointer to the switch from which to measure.
-*
-* RETURN VALUES
-*	Returns the average number of hops from the given to switch
-*	to all member of a multicast group.
-*
-* NOTES
-*
-* SEE ALSO
-*	Multicast Group
 *********/
 
 /****f* OpenSM: Multicast Group/osm_mgrp_apply_func
