@@ -832,8 +832,8 @@ osm_mcmr_rcv_create_new_mgrp(IN osm_sa_t * sa,
 			     OUT osm_mgrp_t ** pp_mgrp)
 {
 	ib_net16_t mlid;
-	uint8_t zero_mgid, valid;
-	uint8_t scope, i;
+	unsigned zero_mgid, i;
+	uint8_t scope;
 	ib_gid_t *p_mgid;
 	osm_mgrp_t *p_prev_mgrp;
 	ib_api_status_t status = IB_SUCCESS;
@@ -843,12 +843,11 @@ osm_mcmr_rcv_create_new_mgrp(IN osm_sa_t * sa,
 
 	/* but what if the given MGID was not 0 ? */
 	zero_mgid = 1;
-	for (i = 0; i < sizeof(p_recvd_mcmember_rec->mgid); i++) {
+	for (i = 0; i < sizeof(p_recvd_mcmember_rec->mgid); i++)
 		if (p_recvd_mcmember_rec->mgid.raw[i] != 0) {
 			zero_mgid = 0;
 			break;
 		}
-	}
 
 	/*
 	   we allocate a new mlid number before we might use it
@@ -871,13 +870,12 @@ osm_mcmr_rcv_create_new_mgrp(IN osm_sa_t * sa,
 		char gid_str[INET6_ADDRSTRLEN];
 
 		/* use the given scope state only if requested! */
-		if (comp_mask & IB_MCR_COMPMASK_SCOPE) {
+		if (comp_mask & IB_MCR_COMPMASK_SCOPE)
 			ib_member_get_scope_state(p_recvd_mcmember_rec->
 						  scope_state, &scope, NULL);
-		} else {
+		else
 			/* to guarantee no collision with other subnets use local scope! */
 			scope = IB_MC_SCOPE_LINK_LOCAL;
-		}
 
 		p_mgid = &(mcm_rec.mgid);
 		p_mgid->raw[0] = 0xFF;
@@ -895,16 +893,13 @@ osm_mcmr_rcv_create_new_mgrp(IN osm_sa_t * sa,
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Allocated new MGID:%s\n",
 			inet_ntop(AF_INET6, p_mgid->raw, gid_str,
 				  sizeof gid_str));
-	} else {
+	} else if (!__validate_requested_mgid(sa, &mcm_rec)) {
 		/* a specific MGID was requested so validate the resulting MGID */
-		valid = __validate_requested_mgid(sa, &mcm_rec);
-		if (!valid) {
-			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B22: "
-				"Invalid requested MGID\n");
-			__free_mlid(sa, mlid);
-			status = IB_SA_MAD_STATUS_REQ_INVALID;
-			goto Exit;
-		}
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B22: "
+			"Invalid requested MGID\n");
+		__free_mlid(sa, mlid);
+		status = IB_SA_MAD_STATUS_REQ_INVALID;
+		goto Exit;
 	}
 
 	/* check the requested parameters are realizable */
@@ -1053,7 +1048,6 @@ static void
 __osm_mcmr_rcv_leave_mgrp(IN osm_sa_t * sa,
 			  IN osm_madw_t * const p_madw)
 {
-	boolean_t valid;
 	osm_mgrp_t *p_mgrp;
 	ib_sa_mad_t *p_sa_mad;
 	ib_member_rec_t *p_recvd_mcmember_rec;
@@ -1079,69 +1073,7 @@ __osm_mcmr_rcv_leave_mgrp(IN osm_sa_t * sa,
 
 	CL_PLOCK_EXCL_ACQUIRE(sa->p_lock);
 	p_mgrp = osm_get_mgrp_by_mgid(sa, &p_recvd_mcmember_rec->mgid);
-	if (p_mgrp) {
-		mlid = p_mgrp->mlid;
-		portguid = p_recvd_mcmember_rec->port_gid.unicast.interface_id;
-
-		/* check validity of the delete request o15-0.1.14 */
-		valid = __validate_delete(sa, p_mgrp,
-					  osm_madw_get_mad_addr_ptr(p_madw),
-					  p_recvd_mcmember_rec, &p_mcm_port);
-
-		if (valid) {
-			/*
-			 * according to the same o15-0.1.14 we get the stored
-			 * JoinState and the request JoinState and they must be
-			 * opposite to leave - otherwise just update it
-			 */
-			port_join_state = p_mcm_port->scope_state & 0x0F;
-			new_join_state =
-			    port_join_state & ~(p_recvd_mcmember_rec->
-						scope_state & 0x0F);
-			if (new_join_state) {
-				/* Just update the result JoinState */
-				p_mcm_port->scope_state =
-				    new_join_state | (p_mcm_port->
-						      scope_state & 0xf0);
-
-				mcmember_rec.scope_state =
-				    p_mcm_port->scope_state;
-
-				CL_PLOCK_RELEASE(sa->p_lock);
-
-				OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-					"After update JoinState != 0. "
-					"Updating from 0x%X to 0x%X\n",
-					port_join_state, new_join_state);
-			} else {
-				/* we need to return the stored scope state */
-				mcmember_rec.scope_state =
-				    p_mcm_port->scope_state;
-
-				/* OK we can leave */
-				/* note: osm_sm_mcgrp_leave() will release sa->p_lock */
-				if (osm_sm_mcgrp_leave(sa->sm, mlid, portguid))
-					OSM_LOG(sa->p_log, OSM_LOG_ERROR,
-						"ERR 1B09: "
-						"osm_sm_mcgrp_leave failed\n");
-			}
-		} else {
-			char gid_str[INET6_ADDRSTRLEN];
-			char gid_str2[INET6_ADDRSTRLEN];
-			CL_PLOCK_RELEASE(sa->p_lock);
-			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B25: "
-				"Received an invalid delete request for "
-				"MGID: %s for PortGID: %s\n",
-				inet_ntop(AF_INET6, p_recvd_mcmember_rec->mgid.raw,
-					gid_str, sizeof gid_str),
-				inet_ntop(AF_INET6,
-					p_recvd_mcmember_rec->port_gid.raw,
-					gid_str2, sizeof gid_str2));
-			osm_sa_send_error(sa, p_madw,
-					  IB_SA_MAD_STATUS_REQ_INVALID);
-			goto Exit;
-		}
-	} else {
+	if (!p_mgrp) {
 		char gid_str[INET6_ADDRSTRLEN];
 		CL_PLOCK_RELEASE(sa->p_lock);
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
@@ -1150,6 +1082,58 @@ __osm_mcmr_rcv_leave_mgrp(IN osm_sa_t * sa,
 				gid_str, sizeof gid_str));
 		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_REQ_INVALID);
 		goto Exit;
+	}
+
+	mlid = p_mgrp->mlid;
+	portguid = p_recvd_mcmember_rec->port_gid.unicast.interface_id;
+
+	/* check validity of the delete request o15-0.1.14 */
+	if (!__validate_delete(sa, p_mgrp, osm_madw_get_mad_addr_ptr(p_madw),
+			       p_recvd_mcmember_rec, &p_mcm_port)) {
+		char gid_str[INET6_ADDRSTRLEN];
+		char gid_str2[INET6_ADDRSTRLEN];
+		CL_PLOCK_RELEASE(sa->p_lock);
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B25: "
+			"Received an invalid delete request for "
+			"MGID: %s for PortGID: %s\n",
+			inet_ntop(AF_INET6, p_recvd_mcmember_rec->mgid.raw,
+				  gid_str, sizeof gid_str),
+			inet_ntop(AF_INET6, p_recvd_mcmember_rec->port_gid.raw,
+				  gid_str2, sizeof gid_str2));
+		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_REQ_INVALID);
+		goto Exit;
+	}
+
+	/*
+	 * according to the same o15-0.1.14 we get the stored
+	 * JoinState and the request JoinState and they must be
+	 * opposite to leave - otherwise just update it
+	 */
+	port_join_state = p_mcm_port->scope_state & 0x0F;
+	new_join_state =
+	    port_join_state & ~(p_recvd_mcmember_rec->scope_state & 0x0F);
+	if (new_join_state) {
+		/* Just update the result JoinState */
+		p_mcm_port->scope_state =
+		    new_join_state | (p_mcm_port->scope_state & 0xf0);
+
+		mcmember_rec.scope_state = p_mcm_port->scope_state;
+
+		CL_PLOCK_RELEASE(sa->p_lock);
+
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
+			"After update JoinState != 0. "
+			"Updating from 0x%X to 0x%X\n",
+			port_join_state, new_join_state);
+	} else {
+		/* we need to return the stored scope state */
+		mcmember_rec.scope_state = p_mcm_port->scope_state;
+
+		/* OK we can leave */
+		/* note: osm_sm_mcgrp_leave() will release sa->p_lock */
+		if (osm_sm_mcgrp_leave(sa->sm, mlid, portguid))
+			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B09: "
+				"osm_sm_mcgrp_leave failed\n");
 	}
 
 	/* Send an SA response */
@@ -1165,7 +1149,6 @@ Exit:
 static void
 __osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * const p_madw)
 {
-	boolean_t valid;
 	osm_mgrp_t *p_mgrp = NULL;
 	ib_api_status_t status;
 	ib_sa_mad_t *p_sa_mad;
@@ -1184,8 +1167,7 @@ __osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * const p_madw)
 	OSM_LOG_ENTER(sa->p_log);
 
 	p_sa_mad = osm_madw_get_sa_mad_ptr(p_madw);
-	p_recvd_mcmember_rec =
-	    (ib_member_rec_t *) ib_sa_mad_get_payload_ptr(p_sa_mad);
+	p_recvd_mcmember_rec = ib_sa_mad_get_payload_ptr(p_sa_mad);
 
 	portguid = p_recvd_mcmember_rec->port_gid.unicast.interface_id;
 
@@ -1214,8 +1196,7 @@ __osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * const p_madw)
 	/* Check that the p_physp and the requester physp are in the same
 	   partition. */
 	p_request_physp =
-	    osm_get_physp_by_mad_addr(sa->p_log,
-				      sa->p_subn,
+	    osm_get_physp_by_mad_addr(sa->p_log, sa->p_subn,
 				      osm_madw_get_mad_addr_ptr(p_madw));
 	if (p_request_physp == NULL) {
 		CL_PLOCK_RELEASE(sa->p_lock);
@@ -1256,22 +1237,8 @@ __osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * const p_madw)
 		}
 
 		/* check the comp_mask */
-		valid = __check_create_comp_mask(p_sa_mad->comp_mask,
-						 p_recvd_mcmember_rec);
-		if (valid) {
-			status = osm_mcmr_rcv_create_new_mgrp(sa,
-							      p_sa_mad->
-							      comp_mask,
-							      p_recvd_mcmember_rec,
-							      p_physp, &p_mgrp);
-			if (status != IB_SUCCESS) {
-				CL_PLOCK_RELEASE(sa->p_lock);
-				osm_sa_send_error(sa, p_madw, status);
-				goto Exit;
-			}
-			/* copy the MGID to the result */
-			mcmember_rec.mgid = p_mgrp->mcmember_rec.mgid;
-		} else {
+		if (!__check_create_comp_mask(p_sa_mad->comp_mask,
+					      p_recvd_mcmember_rec)) {
 			char gid_str[INET6_ADDRSTRLEN];
 			CL_PLOCK_RELEASE(sa->p_lock);
 
@@ -1294,6 +1261,17 @@ __osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * const p_madw)
 					  IB_SA_MAD_STATUS_INSUF_COMPS);
 			goto Exit;
 		}
+
+		status = osm_mcmr_rcv_create_new_mgrp(sa, p_sa_mad->comp_mask,
+						      p_recvd_mcmember_rec,
+						      p_physp, &p_mgrp);
+		if (status != IB_SUCCESS) {
+			CL_PLOCK_RELEASE(sa->p_lock);
+			osm_sa_send_error(sa, p_madw, status);
+			goto Exit;
+		}
+		/* copy the MGID to the result */
+		mcmember_rec.mgid = p_mgrp->mcmember_rec.mgid;
 		is_new_group = 1;
 		req_type = OSM_MCAST_REQ_TYPE_CREATE;
 	} else {
@@ -1324,14 +1302,11 @@ __osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * const p_madw)
 	 *
 	 * We need to check #3 and #5 here:
 	 */
-	valid = __validate_more_comp_fields(sa->p_log,
-					    p_mgrp,
-					    p_recvd_mcmember_rec,
-					    p_sa_mad->comp_mask)
-	    && __validate_port_caps(sa->p_log, p_mgrp, p_physp)
-	    && (join_state != 0);
-
-	if (!valid) {
+	if (!__validate_more_comp_fields(sa->p_log, p_mgrp,
+					 p_recvd_mcmember_rec,
+					 p_sa_mad->comp_mask)
+	    || !__validate_port_caps(sa->p_log, p_mgrp, p_physp)
+	    || !(join_state != 0)) {
 		/* since we might have created the new group we need to cleanup */
 		__cleanup_mgrp(sa, mlid);
 
@@ -1348,36 +1323,25 @@ __osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * const p_madw)
 	}
 
 	/*
-	 * Do some validation of the modification
+	 * o15-0.2.1 requires validation of the requesting port
+	 * in the case of modification:
 	 */
-	if (!is_new_group) {
-		/*
-		 * o15-0.2.1 requires validation of the requesting port
-		 * in the case of modification:
-		 */
-		valid = __validate_modify(sa, p_mgrp,
-					  osm_madw_get_mad_addr_ptr(p_madw),
-					  p_recvd_mcmember_rec, &p_mcmr_port);
-		if (!valid) {
-			CL_PLOCK_RELEASE(sa->p_lock);
+	if (!is_new_group &&
+	    !__validate_modify(sa, p_mgrp, osm_madw_get_mad_addr_ptr(p_madw),
+			       p_recvd_mcmember_rec, &p_mcmr_port)) {
+		CL_PLOCK_RELEASE(sa->p_lock);
 
-			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B13: "
-				"__validate_modify failed from port 0x%016"
-				PRIx64 " (%s), "
-				"sending IB_SA_MAD_STATUS_REQ_INVALID\n",
-				cl_ntoh64(portguid),
-				p_port->p_node->print_desc);
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B13: "
+			"__validate_modify failed from port 0x%016" PRIx64
+			" (%s), sending IB_SA_MAD_STATUS_REQ_INVALID\n",
+			cl_ntoh64(portguid), p_port->p_node->print_desc);
 
-			osm_sa_send_error(sa, p_madw,
-					  IB_SA_MAD_STATUS_REQ_INVALID);
-			goto Exit;
-		}
+		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_REQ_INVALID);
+		goto Exit;
 	}
 
 	/* create or update existing port (join-state will be updated) */
-	status = __add_new_mgrp_port(sa,
-				     p_mgrp,
-				     p_recvd_mcmember_rec,
+	status = __add_new_mgrp_port(sa, p_mgrp, p_recvd_mcmember_rec,
 				     osm_madw_get_mad_addr_ptr(p_madw),
 				     &p_mcmr_port);
 
@@ -1745,7 +1709,6 @@ void osm_mcmr_rcv_process(IN void *context, IN void *data)
 	osm_madw_t *p_madw = data;
 	ib_sa_mad_t *p_sa_mad;
 	ib_member_rec_t *p_recvd_mcmember_rec;
-	boolean_t valid;
 
 	CL_ASSERT(sa);
 
@@ -1761,8 +1724,7 @@ void osm_mcmr_rcv_process(IN void *context, IN void *data)
 
 	switch (p_sa_mad->method) {
 	case IB_MAD_METHOD_SET:
-		valid = __check_join_comp_mask(p_sa_mad->comp_mask);
-		if (!valid) {
+		if (!__check_join_comp_mask(p_sa_mad->comp_mask)) {
 			char gid_str[INET6_ADDRSTRLEN];
 			char gid_str2[INET6_ADDRSTRLEN];
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B18: "
@@ -1789,8 +1751,7 @@ void osm_mcmr_rcv_process(IN void *context, IN void *data)
 		__osm_mcmr_rcv_join_mgrp(sa, p_madw);
 		break;
 	case IB_MAD_METHOD_DELETE:
-		valid = __check_join_comp_mask(p_sa_mad->comp_mask);
-		if (!valid) {
+		if (!__check_join_comp_mask(p_sa_mad->comp_mask)) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B20: "
 				"component mask = 0x%016" PRIx64 ", "
 				"expected comp mask = 0x%016" PRIx64 "\n",
