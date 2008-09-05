@@ -469,7 +469,7 @@ static void __osm_ftree_port_group_destroy(IN ftree_port_group_t * p_group)
 	/* remove all the elements of p_group->ports vector */
 	size = cl_ptr_vector_get_size(&p_group->ports);
 	for (i = 0; i < size; i++) {
-		cl_ptr_vector_at(&p_group->ports, i, (void **)&p_port);
+		cl_ptr_vector_at(&p_group->ports, i, (void *)&p_port);
 		__osm_ftree_port_destroy(p_port);
 	}
 	cl_ptr_vector_destroy(&p_group->ports);
@@ -498,7 +498,7 @@ __osm_ftree_port_group_dump(IN ftree_fabric_t * p_ftree,
 	buff[0] = '\0';
 
 	for (i = 0; i < size; i++) {
-		cl_ptr_vector_at(&p_group->ports, i, (void **)&p_port);
+		cl_ptr_vector_at(&p_group->ports, i, (void *)&p_port);
 		CL_ASSERT(p_port);
 
 		if (i != 0)
@@ -530,7 +530,7 @@ __osm_ftree_port_group_add_port(IN ftree_port_group_t * p_group,
 	ftree_port_t *p_port;
 
 	for (i = 0; i < cl_ptr_vector_get_size(&p_group->ports); i++) {
-		cl_ptr_vector_at(&p_group->ports, i, (void **)&p_port);
+		cl_ptr_vector_at(&p_group->ports, i, (void *)&p_port);
 		if (p_port->port_num == port_num)
 			return;
 	}
@@ -2023,7 +2023,7 @@ __osm_ftree_fabric_route_upgoing_by_going_down(IN ftree_fabric_t * p_ftree,
 		/* ToDo: no need to select a least loaded port for non-main path.
 		   Think about optimization. */
 		for (j = 0; j < ports_num; j++) {
-			cl_ptr_vector_at(&p_group->ports, j, (void **)&p_port);
+			cl_ptr_vector_at(&p_group->ports, j, (void *)&p_port);
 			if (!p_min_port) {
 				/* first port that we're checking - set as port with the lowest load */
 				p_min_port = p_port;
@@ -2107,7 +2107,7 @@ __osm_ftree_fabric_route_upgoing_by_going_down(IN ftree_fabric_t * p_ftree,
 
 			for (j = 0; j < ports_num; j++) {
 				cl_ptr_vector_at(&p_group->ports, j,
-						 (void **)&p_port);
+						 (void *)&p_port);
 
 				__osm_ftree_sw_set_hops(p_remote_sw,
 							cl_ntoh16(target_lid),
@@ -2207,7 +2207,7 @@ __osm_ftree_fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
 	p_min_port = NULL;
 	ports_num = (uint16_t) cl_ptr_vector_get_size(&p_min_group->ports);
 	for (j = 0; j < ports_num; j++) {
-		cl_ptr_vector_at(&p_min_group->ports, j, (void **)&p_port);
+		cl_ptr_vector_at(&p_min_group->ports, j, (void *)&p_port);
 		if (!p_min_port) {
 			/* first port that we're checking - use
 			   it as a port with the lowest load */
@@ -2292,7 +2292,7 @@ __osm_ftree_fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
 							      ports);
 			for (j = 0; j < ports_num; j++) {
 				cl_ptr_vector_at(&p_min_group->ports, j,
-						 (void **)&p_port);
+						 (void *)&p_port);
 				__osm_ftree_sw_set_hops(p_remote_sw,
 							cl_ntoh16(target_lid),
 							p_port->remote_port_num,
@@ -2370,7 +2370,7 @@ __osm_ftree_fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
 		   few traffic, so there's no point waisting runtime on
 		   trying to balance these routes - always pick port 0. */
 
-		cl_ptr_vector_at(&p_group->ports, 0, (void **)&p_port);
+		cl_ptr_vector_at(&p_group->ports, 0, (void *)&p_port);
 		__osm_ftree_sw_set_fwd_table_block(p_remote_sw,
 						   cl_ntoh16(target_lid),
 						   p_port->remote_port_num);
@@ -2380,7 +2380,7 @@ __osm_ftree_fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
 
 		ports_num = (uint16_t) cl_ptr_vector_get_size(&p_group->ports);
 		for (j = 0; j < ports_num; j++) {
-			cl_ptr_vector_at(&p_group->ports, j, (void **)&p_port);
+			cl_ptr_vector_at(&p_group->ports, j, (void *)&p_port);
 
 			__osm_ftree_sw_set_hops(p_remote_sw,
 						cl_ntoh16(target_lid),
@@ -2463,7 +2463,7 @@ static void __osm_ftree_fabric_route_to_cns(IN ftree_fabric_t * p_ftree)
 
 			/* set local LFT(LID) to the port that is connected to HCA */
 			cl_ptr_vector_at(&p_leaf_port_group->ports, 0,
-					 (void **)&p_port);
+					 (void *)&p_port);
 			__osm_ftree_sw_set_fwd_table_block(p_sw,
 							   cl_ntoh16(hca_lid),
 							   p_port->port_num);
@@ -2572,7 +2572,7 @@ static void __osm_ftree_fabric_route_to_non_cns(IN ftree_fabric_t * p_ftree)
 
 			/* set switches  LFT(LID) to the port that is connected to HCA */
 			cl_ptr_vector_at(&p_hca_port_group->ports, 0,
-					 (void **)&p_hca_port);
+					 (void *)&p_hca_port);
 			port_num_on_switch = p_hca_port->remote_port_num;
 			__osm_ftree_sw_set_fwd_table_block(p_sw,
 							   cl_ntoh16(hca_lid),

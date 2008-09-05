@@ -373,7 +373,7 @@ int osm_db_restore(IN osm_db_domain_t * p_domain)
 				/* make sure the key was not previously used */
 				if (st_lookup(p_domain_imp->p_hash,
 					      (st_data_t) p_key,
-					      (st_data_t *) & p_prev_val)) {
+					      (void *) & p_prev_val)) {
 					OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 6106: "
 						"Key:%s already exists in:%s with value:%s."
 						" Removing it\n",
@@ -547,7 +547,7 @@ char *osm_db_lookup(IN osm_db_domain_t * p_domain, IN char *const p_key)
 	cl_spinlock_acquire(&p_domain_imp->lock);
 
 	if (!st_lookup
-	    (p_domain_imp->p_hash, (st_data_t) p_key, (st_data_t *) & p_val))
+	    (p_domain_imp->p_hash, (st_data_t) p_key, (void *) & p_val))
 		p_val = NULL;
 
 	cl_spinlock_release(&p_domain_imp->lock);
@@ -571,7 +571,7 @@ osm_db_update(IN osm_db_domain_t * p_domain,
 	cl_spinlock_acquire(&p_domain_imp->lock);
 
 	if (st_lookup(p_domain_imp->p_hash,
-		      (st_data_t) p_key, (st_data_t *) & p_prev_val)) {
+		      (st_data_t) p_key, (void *) & p_prev_val)) {
 		OSM_LOG(p_log, OSM_LOG_DEBUG,
 			"Key:%s previously exists in:%s with value:%s\n",
 			p_key, p_domain_imp->file_name, p_prev_val);
@@ -611,9 +611,9 @@ int osm_db_delete(IN osm_db_domain_t * p_domain, IN char *const p_key)
 
 	cl_spinlock_acquire(&p_domain_imp->lock);
 	if (st_delete(p_domain_imp->p_hash,
-		      (st_data_t *) & p_key, (st_data_t *) & p_prev_val)) {
+		      (void *) & p_key, (void *) & p_prev_val)) {
 		if (st_lookup(p_domain_imp->p_hash,
-			      (st_data_t) p_key, (st_data_t *) & p_prev_val)) {
+			      (st_data_t) p_key, (void *) & p_prev_val)) {
 			OSM_LOG(p_log, OSM_LOG_ERROR,
 				"key:%s still exists in:%s with value:%s\n",
 				p_key, p_domain_imp->file_name, p_prev_val);

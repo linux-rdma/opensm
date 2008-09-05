@@ -1128,7 +1128,7 @@ port_group_port_name:   port_group_port_name_start string_list {
 
                                     if (st_lookup(p_qos_policy->p_node_hash,
                                                   (st_data_t)tmp_str,
-                                                  (st_data_t*)&p_node))
+                                                  (void *)&p_node))
                                     {
                                         /* we found the node, now get the right port */
                                         p_physp = osm_node_get_physp_ptr(p_node, port_num);

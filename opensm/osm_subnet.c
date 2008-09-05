@@ -1273,7 +1273,7 @@ int osm_subn_parse_conf_file(char *file_name, osm_subn_opt_t * const p_opts)
 
 		opts_unpack_uint32("log_max_size",
 				   p_key, p_val,
-				   (uint32_t *) & p_opts->log_max_size);
+				   (void *) & p_opts->log_max_size);
 
 		opts_unpack_charp("partition_config_file",
 				  p_key, p_val, &p_opts->partition_config_file);
