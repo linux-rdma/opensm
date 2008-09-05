@@ -50,21 +50,6 @@
 
 /**********************************************************************
  **********************************************************************/
-static void
-osm_mcm_port_init(IN osm_mcm_port_t * const p_mcm,
-		  IN const ib_gid_t * const p_port_gid,
-		  IN const uint8_t scope_state, IN const boolean_t proxy_join)
-{
-	CL_ASSERT(p_port_gid);
-	CL_ASSERT(scope_state);
-
-	p_mcm->port_gid = *p_port_gid;
-	p_mcm->scope_state = scope_state;
-	p_mcm->proxy_join = proxy_join;
-}
-
-/**********************************************************************
- **********************************************************************/
 osm_mcm_port_t *osm_mcm_port_new(IN const ib_gid_t * const p_port_gid,
 				 IN const uint8_t scope_state,
 				 IN const boolean_t proxy_join)
@@ -74,7 +59,9 @@ osm_mcm_port_t *osm_mcm_port_new(IN const ib_gid_t * const p_port_gid,
 	p_mcm = malloc(sizeof(*p_mcm));
 	if (p_mcm) {
 		memset(p_mcm, 0, sizeof(*p_mcm));
-		osm_mcm_port_init(p_mcm, p_port_gid, scope_state, proxy_join);
+		p_mcm->port_gid = *p_port_gid;
+		p_mcm->scope_state = scope_state;
+		p_mcm->proxy_join = proxy_join;
 	}
 
 	return (p_mcm);
