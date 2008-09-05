@@ -966,39 +966,16 @@ Exit:
 
 }
 
-
-typedef struct osm_sa_pr_mcmr_search_ctxt {
-	ib_gid_t mgid;
-	osm_mgrp_t *p_mgrp;
-	osm_sa_t *sa;
-} osm_sa_pr_mcmr_search_ctxt_t;
-
 /**********************************************************************
  *********************************************************************/
-static void
-__search_mgrp_by_mgid(IN osm_mgrp_t * const p_mgrp, IN void *context)
+static unsigned match_mgrp_by_mgid(IN osm_mgrp_t * const p_mgrp, ib_gid_t *mgid)
 {
-	osm_sa_pr_mcmr_search_ctxt_t *p_ctxt = context;
-	osm_sa_t *sa = p_ctxt->sa;
-
 	/* ignore groups marked for deletion */
-	if (p_mgrp->to_be_deleted)
-		return;
-
-	/* compare entire MGID so different scope will not sneak in for
-	   the same MGID */
-	if (memcmp(&p_mgrp->mcmember_rec.mgid, &p_ctxt->mgid, sizeof(ib_gid_t)))
-		return;
-
-	if (p_ctxt->p_mgrp) {
-		char gid_str[INET6_ADDRSTRLEN];
-		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B30: "
-			"Multiple MC groups for MGID %s\n",
-			inet_ntop(AF_INET6, p_mgrp->mcmember_rec.mgid.raw,
-				gid_str, sizeof gid_str));
-		return;
-	}
-	p_ctxt->p_mgrp = p_mgrp;
+	if (p_mgrp->to_be_deleted ||
+	    memcmp(&p_mgrp->mcmember_rec.mgid, mgid, sizeof(ib_gid_t)))
+		return 0;
+	else
+		return 1;
 }
 
 /**********************************************************************
@@ -1023,21 +1000,15 @@ static unsigned match_and_update_ipv6_snm_mgid(ib_gid_t *mgid)
 	return 0;
 }
 
-ib_api_status_t
-osm_get_mgrp_by_mgid(IN osm_sa_t *sa,
-		     IN ib_gid_t *p_mgid,
-		     OUT osm_mgrp_t **pp_mgrp)
+osm_mgrp_t *osm_get_mgrp_by_mgid(IN osm_sa_t *sa, IN ib_gid_t *p_mgid)
 {
-	osm_sa_pr_mcmr_search_ctxt_t mcmr_search_context;
-	osm_mgrp_t *p_mgrp;
+	ib_gid_t mgid;
 	int i;
 
-	memcpy(&mcmr_search_context.mgid, p_mgid, sizeof(*p_mgid));
-	mcmr_search_context.sa = sa;
-	mcmr_search_context.p_mgrp = NULL;
+	memcpy(&mgid, p_mgid, sizeof(mgid));
 
 	if (sa->p_subn->opt.consolidate_ipv6_snm_req &&
-	    match_and_update_ipv6_snm_mgid(&mcmr_search_context.mgid)) {
+	    match_and_update_ipv6_snm_mgid(&mgid)) {
 		char gid_str[INET6_ADDRSTRLEN];
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Special Case Solicited Node Mcast Join for MGID %s\n",
@@ -1046,17 +1017,12 @@ osm_get_mgrp_by_mgid(IN osm_sa_t *sa,
 	}
 
 	for (i = 0; i <= sa->p_subn->max_mcast_lid_ho - IB_LID_MCAST_START_HO;
-	     i++) {
-		p_mgrp = sa->p_subn->mgroups[i];
-		if (p_mgrp) {
-			__search_mgrp_by_mgid(p_mgrp, &mcmr_search_context);
-			if (mcmr_search_context.p_mgrp) {
-				*pp_mgrp = mcmr_search_context.p_mgrp;
-				return IB_SUCCESS;
-			}
-		}
-	}
-	return IB_NOT_FOUND;
+	     i++)
+		if (sa->p_subn->mgroups[i] &&
+		    match_mgrp_by_mgid(sa->p_subn->mgroups[i], &mgid))
+			return sa->p_subn->mgroups[i];
+
+	return NULL;
 }
 
 /**********************************************************************
@@ -1069,11 +1035,12 @@ osm_mcmr_rcv_find_or_create_new_mgrp(IN osm_sa_t * sa,
 				     const p_recvd_mcmember_rec,
 				     OUT osm_mgrp_t ** pp_mgrp)
 {
-	ib_api_status_t status;
+	osm_mgrp_t *mgrp;
 
-	status = osm_get_mgrp_by_mgid(sa, &p_recvd_mcmember_rec->mgid, pp_mgrp);
-	if (status == IB_SUCCESS)
-		return status;
+	if ((mgrp = osm_get_mgrp_by_mgid(sa, &p_recvd_mcmember_rec->mgid))) {
+		*pp_mgrp = mgrp;
+		return IB_SUCCESS;
+	}
 	return osm_mcmr_rcv_create_new_mgrp(sa, comp_mask,
 					    p_recvd_mcmember_rec, NULL,
 					    pp_mgrp);
@@ -1088,7 +1055,6 @@ __osm_mcmr_rcv_leave_mgrp(IN osm_sa_t * sa,
 {
 	boolean_t valid;
 	osm_mgrp_t *p_mgrp;
-	ib_api_status_t status;
 	ib_sa_mad_t *p_sa_mad;
 	ib_member_rec_t *p_recvd_mcmember_rec;
 	ib_member_rec_t mcmember_rec;
@@ -1100,7 +1066,6 @@ __osm_mcmr_rcv_leave_mgrp(IN osm_sa_t * sa,
 
 	OSM_LOG_ENTER(sa->p_log);
 
-	p_mgrp = NULL;
 	p_sa_mad = osm_madw_get_sa_mad_ptr(p_madw);
 	p_recvd_mcmember_rec =
 	    (ib_member_rec_t *) ib_sa_mad_get_payload_ptr(p_sa_mad);
@@ -1113,8 +1078,8 @@ __osm_mcmr_rcv_leave_mgrp(IN osm_sa_t * sa,
 	}
 
 	CL_PLOCK_EXCL_ACQUIRE(sa->p_lock);
-	status = osm_get_mgrp_by_mgid(sa, &p_recvd_mcmember_rec->mgid, &p_mgrp);
-	if (status == IB_SUCCESS) {
+	p_mgrp = osm_get_mgrp_by_mgid(sa, &p_recvd_mcmember_rec->mgid);
+	if (p_mgrp) {
 		mlid = p_mgrp->mlid;
 		portguid = p_recvd_mcmember_rec->port_gid.unicast.interface_id;
 
@@ -1155,15 +1120,10 @@ __osm_mcmr_rcv_leave_mgrp(IN osm_sa_t * sa,
 
 				/* OK we can leave */
 				/* note: osm_sm_mcgrp_leave() will release sa->p_lock */
-
-				status =
-				    osm_sm_mcgrp_leave(sa->sm, mlid,
-						       portguid);
-				if (status != IB_SUCCESS) {
+				if (osm_sm_mcgrp_leave(sa->sm, mlid, portguid))
 					OSM_LOG(sa->p_log, OSM_LOG_ERROR,
 						"ERR 1B09: "
 						"osm_sm_mcgrp_leave failed\n");
-				}
 			}
 		} else {
 			char gid_str[INET6_ADDRSTRLEN];
@@ -1223,7 +1183,6 @@ __osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * const p_madw)
 
 	OSM_LOG_ENTER(sa->p_log);
 
-	p_mgrp = NULL;
 	p_sa_mad = osm_madw_get_sa_mad_ptr(p_madw);
 	p_recvd_mcmember_rec =
 	    (ib_member_rec_t *) ib_sa_mad_get_payload_ptr(p_sa_mad);
@@ -1276,8 +1235,8 @@ __osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * const p_madw)
 				  &join_state);
 
 	/* do we need to create a new group? */
-	status = osm_get_mgrp_by_mgid(sa, &p_recvd_mcmember_rec->mgid, &p_mgrp);
-	if (status == IB_NOT_FOUND || p_mgrp->to_be_deleted) {
+	p_mgrp = osm_get_mgrp_by_mgid(sa, &p_recvd_mcmember_rec->mgid);
+	if (!p_mgrp || p_mgrp->to_be_deleted) {
 		/* check for JoinState.FullMember = 1 o15.0.1.9 */
 		if ((join_state & 0x01) != 0x01) {
 			char gid_str[INET6_ADDRSTRLEN];

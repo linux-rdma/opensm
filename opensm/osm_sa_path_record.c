@@ -1458,59 +1458,50 @@ __osm_pr_rcv_process_pair(IN osm_sa_t * sa,
 
 /**********************************************************************
  **********************************************************************/
-static void
-__osm_pr_get_mgrp(IN osm_sa_t * sa,
-		  IN const osm_madw_t * const p_madw, OUT osm_mgrp_t ** pp_mgrp)
+static osm_mgrp_t *pr_get_mgrp(IN osm_sa_t * sa,
+			       IN const osm_madw_t * const p_madw)
 {
 	ib_path_rec_t *p_pr;
 	const ib_sa_mad_t *p_sa_mad;
 	ib_net64_t comp_mask;
-	ib_api_status_t status;
-
-	OSM_LOG_ENTER(sa->p_log);
+	osm_mgrp_t *mgrp = NULL;
 
 	p_sa_mad = osm_madw_get_sa_mad_ptr(p_madw);
 	p_pr = (ib_path_rec_t *) ib_sa_mad_get_payload_ptr(p_sa_mad);
 
 	comp_mask = p_sa_mad->comp_mask;
 
-	if (comp_mask & IB_PR_COMPMASK_DGID) {
-		status = osm_get_mgrp_by_mgid(sa, &p_pr->dgid, pp_mgrp);
-		if (status != IB_SUCCESS) {
-			char gid_str[INET6_ADDRSTRLEN];
-			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F09: "
-				"No MC group found for PathRecord destination "
-				"GID %s\n",
-				inet_ntop(AF_INET6, p_pr->dgid.raw, gid_str,
-					sizeof gid_str));
-			goto Exit;
-		}
+	if ((comp_mask & IB_PR_COMPMASK_DGID) &&
+	    !(mgrp = osm_get_mgrp_by_mgid(sa, &p_pr->dgid))) {
+		char gid_str[INET6_ADDRSTRLEN];
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F09: "
+			"No MC group found for PathRecord destination GID %s\n",
+			inet_ntop(AF_INET6, p_pr->dgid.raw, gid_str,
+				  sizeof gid_str));
+		goto Exit;
 	}
 
 	if (comp_mask & IB_PR_COMPMASK_DLID) {
-		if (*pp_mgrp) {
+		if (mgrp) {
 			/* check that the MLID in the MC group is */
 			/* the same as the DLID in the PathRecord */
-			if ((*pp_mgrp)->mlid != p_pr->dlid) {
+			if (mgrp->mlid != p_pr->dlid) {
 				/* Note: perhaps this might be better indicated as an invalid request */
 				OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F10: "
 					"MC group MLID 0x%x does not match "
 					"PathRecord destination LID 0x%x\n",
-					(*pp_mgrp)->mlid, p_pr->dlid);
-				*pp_mgrp = NULL;
+					mgrp->mlid, p_pr->dlid);
+				mgrp = NULL;
 				goto Exit;
 			}
-		} else {
-			*pp_mgrp = osm_get_mgrp_by_mlid(sa->p_subn, p_pr->dlid);
-			if (*pp_mgrp == NULL)
-				OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F11: "
-					"No MC group found for PathRecord "
-					"destination LID 0x%x\n", p_pr->dlid);
-		}
+		} else if (!(mgrp = osm_get_mgrp_by_mlid(sa->p_subn, p_pr->dlid)))
+			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F11: "
+				"No MC group found for PathRecord "
+				"destination LID 0x%x\n", p_pr->dlid);
 	}
 
 Exit:
-	OSM_LOG_EXIT(sa->p_log);
+	return mgrp;
 }
 
 /**********************************************************************
@@ -1743,7 +1734,7 @@ McastDest:
 		uint8_t hop_limit;
 
 		/* First, get the MC info */
-		__osm_pr_get_mgrp(sa, p_madw, &p_mgrp);
+		p_mgrp = pr_get_mgrp(sa, p_madw);
 
 		if (!p_mgrp)
 			goto Unlock;
