@@ -370,7 +370,7 @@ void cl_panic(IN const char *const message, IN ...);
 
 #if !defined( FALSE )
 #define FALSE	0
-#endif				/* !defined( TRUE ) */
+#endif				/* !defined( FALSE ) */
 
 #if !defined( TRUE )
 #define TRUE	(!FALSE)
