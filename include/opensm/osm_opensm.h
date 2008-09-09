@@ -116,8 +116,8 @@ typedef enum _osm_routing_engine_type {
 * DESCRIPTION
 *	OpenSM routing engine module definition.
 * NOTES
-*	routing engine structure - yet limited by ucast_fdb_assign and
-*	ucast_build_fwd_tables (multicast callbacks may be added later)
+*	routing engine structure - multicast callbacks may be
+*	added later.
 */
 struct osm_routing_engine {
 	const char *name;
