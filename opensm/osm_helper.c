@@ -1776,7 +1776,7 @@ osm_dump_notice(IN osm_log_t * const p_log,
 
 			osm_log(p_log, log_level,
 				"Generic Notice dump:\n"
-				"\t\t\t\ttype.....................0x%02X\n"
+				"\t\t\t\ttype.....................%u\n"
 				"\t\t\t\tprod_type................%u (%s)\n"
 				"\t\t\t\ttrap_num.................%u\n%s",
 				ib_notice_get_type(p_ntci),
@@ -1788,7 +1788,7 @@ osm_dump_notice(IN osm_log_t * const p_log,
 		} else {
 			osm_log(p_log, log_level,
 				"Vendor Notice dump:\n"
-				"\t\t\t\ttype.....................0x%04x\n"
+				"\t\t\t\ttype.....................%u\n"
 				"\t\t\t\tvendor...................%u\n"
 				"\t\t\t\tdevice_id................%u\n",
 				cl_ntoh16(ib_notice_get_type(p_ntci)),

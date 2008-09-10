@@ -327,7 +327,7 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 			    || (p_ntci->g_or_v.generic.trap_num ==
 				CL_HTON16(131)))
 				OSM_LOG(sm->p_log, OSM_LOG_ERROR,
-					"Received Generic Notice type:0x%02X "
+					"Received Generic Notice type:%u "
 					"num:%u (%s) Producer:%u (%s) "
 					"from LID:%u Port %d TID:0x%016"
 					PRIx64 "\n", ib_notice_get_type(p_ntci),
@@ -345,7 +345,7 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 				    );
 			else
 				OSM_LOG(sm->p_log, OSM_LOG_ERROR,
-					"Received Generic Notice type:0x%02X "
+					"Received Generic Notice type:%u "
 					"num:%u (%s) Producer:%u (%s) "
 					"from LID:%u TID:0x%016" PRIx64
 					"\n", ib_notice_get_type(p_ntci),
@@ -362,8 +362,8 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 				    );
 		} else
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR,
-				"Received Vendor Notice type:0x%02X vend:0x%06X dev:%u "
-				"from LID:%u TID:0x%016" PRIx64 "\n",
+				"Received Vendor Notice type:%u vend:0x%06X "
+				"dev:%u from LID:%u TID:0x%016" PRIx64 "\n",
 				ib_notice_get_type(p_ntci),
 				cl_ntoh32(ib_notice_get_vend_id(p_ntci)),
 				cl_ntoh16(p_ntci->g_or_v.vend.dev_id),
