@@ -134,8 +134,8 @@ static void show_usage(void)
 	printf("-c <file-name>, --create-config <file-name>\n"
 	       "          OpenSM will dump its configuration to the specified file and exit.\n"
 	       "          This is a way to generate OpenSM configuration file template.\n\n");
-	printf("-g[=]<GUID in hex>\n"
-	       "--guid[=]<GUID in hex>\n"
+	printf("-g <GUID in hex>\n"
+	       "--guid <GUID in hex>\n"
 	       "          This option specifies the local port GUID value\n"
 	       "          with which OpenSM should bind.  OpenSM may be\n"
 	       "          bound to 1 port at a time.\n"

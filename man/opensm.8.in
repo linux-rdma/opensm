@@ -7,7 +7,7 @@ opensm \- InfiniBand subnet manager and administration (SM/SA)
 .B opensm
 [\-\-version]]
 [\-F | \-\-config <file_name>] [\-c(reate-config) <file_name>]
-[\-g(uid)[=]<GUID in hex>] [\-l(mc) <LMC>]
+[\-g(uid) <GUID in hex>] [\-l(mc) <LMC>]
 [\-p(riority) <PRIORITY>] [\-smkey <SM_Key>] [\-r(eassign_lids)]
 [\-R <engine name> | \-\-routing_engine <engine name>]
 [\-z | \-\-connect_roots]
