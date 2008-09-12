@@ -625,8 +625,8 @@ switches will be skipped. Multicast is not affected by 'file' routing engine
 
 Min Hop Algorithm
 
-The Min Hop algorithm is invoked when neither UPDN or the file method are
-specified.
+The Min Hop algorithm is invoked by default if no routing algorithm is
+specified.  It can also be invoked by specifying '-R minhop'.
 
 The Min Hop algorithm is divided into two stages: computation of
 min-hop tables on every switch and LFT output port assignment. Link
