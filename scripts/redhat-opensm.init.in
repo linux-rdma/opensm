@@ -47,11 +47,9 @@ exec_prefix=@exec_prefix@
 . /etc/rc.d/init.d/functions
 
 CONFIG=@sysconfdir@/sysconfig/opensm.conf
-if [ ! -f $CONFIG ]; then
-    exit 0
+if [ -f $CONFIG ]; then
+    . $CONFIG
 fi
-
-. $CONFIG
 
 prog=@sbindir@/opensm
 bin=${prog##*/}
