@@ -1073,6 +1073,9 @@ osm_mcast_mgr_process_tree(osm_sm_t * sm,
 	 */
 	__osm_mcast_mgr_clear(sm, p_mgrp);
 
+	if (!p_mgrp->full_members)
+		goto Exit;
+
 	status = __osm_mcast_mgr_build_spanning_tree(sm, p_mgrp);
 	if (status != IB_SUCCESS) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A17: "
@@ -1109,20 +1112,11 @@ mcast_mgr_process_mgrp(osm_sm_t * sm,
 	}
 	p_mgrp->last_tree_id = p_mgrp->last_change_id;
 
-	/* Remove MGRP only if osm_mcm_port_t count is 0 and
-	 * Not a well known group
-	 */
-	if (cl_qmap_count(&p_mgrp->mcm_port_tbl) == 0 && !p_mgrp->well_known) {
+	/* remove MCGRP if it is marked for deletion */
+	if (p_mgrp->to_be_deleted) {
 		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-			"Destroying mgrp with lid:0x%X\n",
+			"Destroying mgrp with lid:0x%x\n",
 			cl_ntoh16(p_mgrp->mlid));
-		if (p_mgrp->to_be_deleted == FALSE) {
-			p_mgrp->to_be_deleted = TRUE;
-			/* Send a Report to any InformInfo registered for
-			   Trap 67 : MCGroup delete */
-			osm_mgrp_send_delete_notice(sm->p_subn, sm->p_log,
-						    p_mgrp);
-		}
 		sm->p_subn->mgroups[cl_ntoh16(p_mgrp->mlid) - IB_LID_MCAST_START_HO] = NULL;
 		osm_mgrp_delete(p_mgrp);
 	}

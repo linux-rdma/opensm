@@ -622,8 +622,8 @@ osm_sm_mcgrp_leave(IN osm_sm_t * const p_sm,
 	/*
 	 * Acquire the port object for the port leaving this group.
 	 */
-	/* note: p_sm->p_lock is locked by caller, but will be released later
-	   this function */
+	CL_PLOCK_EXCL_ACQUIRE(p_sm->p_lock);
+
 	p_port = osm_get_port_by_guid(p_sm->p_subn, port_guid);
 	if (!p_port) {
 		CL_PLOCK_RELEASE(p_sm->p_lock);
@@ -649,8 +649,6 @@ osm_sm_mcgrp_leave(IN osm_sm_t * const p_sm,
 	/*
 	 * Walk the list of ports in the group, and remove the appropriate one.
 	 */
-	osm_mgrp_remove_port(p_sm->p_subn, p_sm->p_log, p_mgrp, port_guid);
-
 	osm_port_remove_mgrp(p_port, mlid);
 
 	__osm_sm_mgrp_disconnect(p_sm, p_mgrp, port_guid);

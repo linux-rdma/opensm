@@ -206,7 +206,7 @@ __add_new_mgrp_port(IN osm_sa_t * sa,
 			"Create new port with proxy_join TRUE\n");
 	}
 
-	*pp_mcmr_port = osm_mgrp_add_port(p_mgrp,
+	*pp_mcmr_port = osm_mgrp_add_port(sa->p_subn, sa->p_log, p_mgrp,
 					  &p_recvd_mcmember_rec->port_gid,
 					  p_recvd_mcmember_rec->scope_state,
 					  proxy_join);
@@ -951,10 +951,6 @@ osm_mcmr_rcv_create_new_mgrp(IN osm_sa_t * sa,
 
 	sa->p_subn->mgroups[cl_ntoh16(mlid) - IB_LID_MCAST_START_HO] = *pp_mgrp;
 
-	/* Send a Report to any InformInfo registered for
-	   Trap 66: MCGroup create */
-	osm_mgrp_send_create_notice(sa->p_subn, sa->p_log, *pp_mgrp);
-
 Exit:
 	OSM_LOG_EXIT(sa->p_log);
 	return status;
@@ -1055,8 +1051,7 @@ __osm_mcmr_rcv_leave_mgrp(IN osm_sa_t * sa,
 	ib_net16_t mlid;
 	ib_net64_t portguid;
 	osm_mcm_port_t *p_mcm_port;
-	uint8_t port_join_state;
-	uint8_t new_join_state;
+	int removed;
 
 	OSM_LOG_ENTER(sa->p_log);
 
@@ -1104,37 +1099,19 @@ __osm_mcmr_rcv_leave_mgrp(IN osm_sa_t * sa,
 		goto Exit;
 	}
 
-	/*
-	 * according to the same o15-0.1.14 we get the stored
-	 * JoinState and the request JoinState and they must be
-	 * opposite to leave - otherwise just update it
-	 */
-	port_join_state = p_mcm_port->scope_state & 0x0F;
-	new_join_state =
-	    port_join_state & ~(p_recvd_mcmember_rec->scope_state & 0x0F);
-	if (new_join_state) {
-		/* Just update the result JoinState */
-		p_mcm_port->scope_state =
-		    new_join_state | (p_mcm_port->scope_state & 0xf0);
-
+	mcmember_rec.scope_state = p_mcm_port->scope_state;
+	/* remove port or update join state */
+	removed = osm_mgrp_remove_port(sa->p_subn, sa->p_log, p_mgrp, p_mcm_port,
+				       p_recvd_mcmember_rec->scope_state&0x0F);
+	if (removed)
 		mcmember_rec.scope_state = p_mcm_port->scope_state;
 
-		CL_PLOCK_RELEASE(sa->p_lock);
+	CL_PLOCK_RELEASE(sa->p_lock);
 
-		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-			"After update JoinState != 0. "
-			"Updating from 0x%X to 0x%X\n",
-			port_join_state, new_join_state);
-	} else {
-		/* we need to return the stored scope state */
-		mcmember_rec.scope_state = p_mcm_port->scope_state;
-
-		/* OK we can leave */
-		/* note: osm_sm_mcgrp_leave() will release sa->p_lock */
-		if (osm_sm_mcgrp_leave(sa->sm, mlid, portguid))
-			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B09: "
-				"osm_sm_mcgrp_leave failed\n");
-	}
+	/* we can leave if port was deleted from MCG */
+	if (removed && osm_sm_mcgrp_leave(sa->sm, mlid, portguid))
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B09: "
+			"osm_sm_mcgrp_leave failed\n");
 
 	/* Send an SA response */
 	__osm_mcmr_rcv_respond(sa, p_madw, &mcmember_rec);
@@ -1382,9 +1359,7 @@ __osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * const p_madw)
 		/* the request for routing failed so we need to remove the port */
 		p_mgrp = osm_get_mgrp_by_mlid(sa->p_subn, mlid);
 		if (p_mgrp != NULL) {
-			osm_mgrp_remove_port(sa->p_subn,
-					     sa->p_log,
-					     p_mgrp,
+			osm_mgrp_delete_port(sa->p_subn, sa->p_log, p_mgrp,
 					     p_recvd_mcmember_rec->port_gid.
 					     unicast.interface_id);
 			__cleanup_mgrp(sa, mlid);

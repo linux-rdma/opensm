@@ -95,7 +95,8 @@ osm_mgrp_t *osm_mgrp_new(IN const ib_net16_t mlid)
 
 /**********************************************************************
  **********************************************************************/
-osm_mcm_port_t *osm_mgrp_add_port(IN osm_mgrp_t * const p_mgrp,
+osm_mcm_port_t *osm_mgrp_add_port(IN osm_subn_t *subn, osm_log_t *log,
+				  IN osm_mgrp_t * const p_mgrp,
 				  IN const ib_gid_t * const p_port_gid,
 				  IN const uint8_t join_state,
 				  IN boolean_t proxy_join)
@@ -103,7 +104,7 @@ osm_mcm_port_t *osm_mgrp_add_port(IN osm_mgrp_t * const p_mgrp,
 	ib_net64_t port_guid;
 	osm_mcm_port_t *p_mcm_port;
 	cl_map_item_t *prev_item;
-	uint8_t prev_join_state;
+	uint8_t prev_join_state = 0;
 	uint8_t prev_scope;
 
 	p_mcm_port = osm_mcm_port_new(p_port_gid, join_state, proxy_join);
@@ -142,43 +143,81 @@ osm_mcm_port_t *osm_mgrp_add_port(IN osm_mgrp_t * const p_mgrp,
 		p_mgrp->last_change_id++;
 	}
 
+	if ((join_state ^ prev_join_state) & IB_JOIN_STATE_FULL) {
+		if (join_state & IB_JOIN_STATE_FULL) {
+			if (++p_mgrp->full_members == 1) {
+				osm_mgrp_send_create_notice(subn, log, p_mgrp);
+				p_mgrp->to_be_deleted = 0;
+			}
+		} else if (--p_mgrp->full_members == 0) {
+			osm_mgrp_send_delete_notice(subn, log, p_mgrp);
+			if (!p_mgrp->well_known)
+				p_mgrp->to_be_deleted = 1;
+		}
+	}
+
 	return (p_mcm_port);
 }
 
 /**********************************************************************
  **********************************************************************/
-void
-osm_mgrp_remove_port(IN osm_subn_t * const p_subn,
-		     IN osm_log_t * const p_log,
-		     IN osm_mgrp_t * const p_mgrp,
-		     IN const ib_net64_t port_guid)
+int osm_mgrp_remove_port(osm_subn_t *subn, osm_log_t *log, osm_mgrp_t *mgrp,
+			 osm_mcm_port_t *mcm, uint8_t join_state)
 {
-	cl_map_item_t *p_map_item;
-
-	CL_ASSERT(p_mgrp);
-
-	p_map_item = cl_qmap_get(&p_mgrp->mcm_port_tbl, port_guid);
-
-	if (p_map_item != cl_qmap_end(&p_mgrp->mcm_port_tbl)) {
-		cl_qmap_remove_item(&p_mgrp->mcm_port_tbl, p_map_item);
-		osm_mcm_port_delete((osm_mcm_port_t *) p_map_item);
-
-		/* track the fact we modified the group */
-		p_mgrp->last_change_id++;
-	}
+	int ret;
+	uint8_t port_join_state;
+	uint8_t new_join_state;
 
 	/*
-	   no more ports so the group will be deleted after re-route
-	   but only if it is not a well known group and not already deleted
+	 * according to the same o15-0.1.14 we get the stored
+	 * JoinState and the request JoinState and they must be
+	 * opposite to leave - otherwise just update it
 	 */
-	if ((cl_is_qmap_empty(&p_mgrp->mcm_port_tbl)) &&
-	    (p_mgrp->well_known == FALSE) && (p_mgrp->to_be_deleted == FALSE)) {
-		p_mgrp->to_be_deleted = TRUE;
+	port_join_state = mcm->scope_state & 0x0F;
+	new_join_state = port_join_state & ~join_state;
 
-		/* Send a Report to any InformInfo registered for
-		   Trap 67 : MCGroup delete */
-		osm_mgrp_send_delete_notice(p_subn, p_log, p_mgrp);
+	if (new_join_state) {
+		mcm->scope_state = new_join_state | (mcm->scope_state & 0xf0);
+		OSM_LOG(log, OSM_LOG_DEBUG,
+			"updating port 0x%" PRIx64 " JoinState 0x%x -> 0x%x\n",
+			cl_ntoh64(mcm->port_gid.unicast.interface_id),
+			port_join_state, new_join_state);
+		ret = 0;
+	} else {
+		cl_qmap_remove_item(&mgrp->mcm_port_tbl, &mcm->map_item);
+		OSM_LOG(log, OSM_LOG_DEBUG, "removing port 0x%" PRIx64 "\n",
+			cl_ntoh64(mcm->port_gid.unicast.interface_id));
+		osm_mcm_port_delete(mcm);
+		/* track the fact we modified the group */
+		mgrp->last_change_id++;
+		ret = 1;
 	}
+
+	/* no more full members so the group will be deleted after re-route
+	   but only if it is not a well known group */
+	if ((port_join_state ^ new_join_state) & IB_JOIN_STATE_FULL) {
+		if (port_join_state & IB_JOIN_STATE_FULL) {
+			if (--mgrp->full_members == 0) {
+				osm_mgrp_send_delete_notice(subn, log, mgrp);
+				if (!mgrp->well_known)
+					mgrp->to_be_deleted = 1;
+			}
+		} else if (++mgrp->full_members == 1) {
+			osm_mgrp_send_create_notice(subn, log, mgrp);
+			mgrp->to_be_deleted = 0;
+		}
+	}
+
+	return ret;
+}
+
+void osm_mgrp_delete_port(osm_subn_t *subn, osm_log_t *log, osm_mgrp_t *mgrp,
+			  ib_net64_t port_guid)
+{
+	cl_map_item_t *item = cl_qmap_get(&mgrp->mcm_port_tbl, port_guid);
+
+	if (item != cl_qmap_end(&mgrp->mcm_port_tbl))
+		osm_mgrp_remove_port(subn, log, mgrp, (osm_mcm_port_t *)item, 0xf);
 }
 
 /**********************************************************************

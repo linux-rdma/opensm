@@ -139,6 +139,7 @@ typedef struct osm_mgrp {
 	boolean_t to_be_deleted;
 	uint32_t last_change_id;
 	uint32_t last_tree_id;
+	unsigned full_members;
 } osm_mgrp_t;
 /*
 * FIELDS
@@ -364,7 +365,8 @@ static inline ib_net16_t osm_mgrp_get_mlid(IN const osm_mgrp_t * const p_mgrp)
 *
 * SYNOPSIS
 */
-osm_mcm_port_t *osm_mgrp_add_port(IN osm_mgrp_t * const p_mgrp,
+osm_mcm_port_t *osm_mgrp_add_port(osm_subn_t *subn, osm_log_t *log,
+				  IN osm_mgrp_t * const p_mgrp,
 				  IN const ib_gid_t * const p_port_gid,
 				  IN const uint8_t join_state,
 				  IN boolean_t proxy_join);
@@ -433,7 +435,7 @@ osm_mgrp_is_port_present(IN const osm_mgrp_t * const p_mgrp,
 * SYNOPSIS
 */
 void
-osm_mgrp_remove_port(IN osm_subn_t * const p_subn,
+osm_mgrp_delete_port(IN osm_subn_t * const p_subn,
 		     IN osm_log_t * const p_log,
 		     IN osm_mgrp_t * const p_mgrp,
 		     IN const ib_net64_t port_guid);
@@ -459,6 +461,9 @@ osm_mgrp_remove_port(IN osm_subn_t * const p_subn,
 *
 * SEE ALSO
 *********/
+
+int osm_mgrp_remove_port(osm_subn_t *subn, osm_log_t *log, osm_mgrp_t *mgrp,
+			 osm_mcm_port_t *mcm, uint8_t join_state);
 
 /****f* OpenSM: Multicast Group/osm_mgrp_apply_func
 * NAME

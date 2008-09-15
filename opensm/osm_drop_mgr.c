@@ -209,7 +209,7 @@ static void __osm_drop_mgr_remove_port(osm_sm_t * sm, IN osm_port_t * p_port)
 	while (p_mcm != (osm_mcm_info_t *) cl_qlist_end(&p_port->mcm_list)) {
 		p_mgrp = osm_get_mgrp_by_mlid(sm->p_subn, p_mcm->mlid);
 		if (p_mgrp) {
-			osm_mgrp_remove_port(sm->p_subn, sm->p_log,
+			osm_mgrp_delete_port(sm->p_subn, sm->p_log,
 					     p_mgrp, p_port->guid);
 			osm_mcm_info_delete((osm_mcm_info_t *) p_mcm);
 		}

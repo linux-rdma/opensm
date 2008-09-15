@@ -1007,7 +1007,8 @@ int osm_sa_db_file_load(osm_opensm_t * p_osm)
 			if (cl_qmap_get(&p_mgrp->mcm_port_tbl,
 					port_gid.unicast.interface_id) ==
 			    cl_qmap_end(&p_mgrp->mcm_port_tbl))
-				osm_mgrp_add_port(p_mgrp, &port_gid,
+				osm_mgrp_add_port(&p_osm->subn, &p_osm->log,
+						  p_mgrp, &port_gid,
 						  scope_state, proxy_join);
 		} else if (!strncmp(p, "Service Record:", 15)) {
 			ib_service_record_t s_rec;
