@@ -95,6 +95,35 @@ osm_mgrp_t *osm_mgrp_new(IN const ib_net16_t mlid)
 
 /**********************************************************************
  **********************************************************************/
+static void mgrp_send_notice(osm_subn_t *subn, osm_log_t *log,
+			     osm_mgrp_t *mgrp, unsigned num)
+{
+	ib_mad_notice_attr_t notice;
+	ib_api_status_t status;
+
+	notice.generic_type = 0x83;	/* generic SubnMgt type */
+	ib_notice_set_prod_type_ho(&notice, 4);	/* A Class Manager generator */
+	notice.g_or_v.generic.trap_num = CL_HTON16(num);
+	/* The sm_base_lid is saved in network order already. */
+	notice.issuer_lid = subn->sm_base_lid;
+	/* following o14-12.1.11 and table 120 p726 */
+	/* we need to provide the MGID */
+	memcpy(&notice.data_details.ntc_64_67.gid,
+	       &mgrp->mcmember_rec.mgid, sizeof(ib_gid_t));
+
+	/* According to page 653 - the issuer gid in this case of trap
+	   is the SM gid, since the SM is the initiator of this trap. */
+	notice.issuer_gid.unicast.prefix = subn->opt.subnet_prefix;
+	notice.issuer_gid.unicast.interface_id = subn->sm_port_guid;
+
+	if ((status = osm_report_notice(log, subn, &notice)))
+		OSM_LOG(log, OSM_LOG_ERROR, "ERR 7601: "
+			"Error sending trap reports (%s)\n",
+			ib_get_err_str(status));
+}
+
+/**********************************************************************
+ **********************************************************************/
 osm_mcm_port_t *osm_mgrp_add_port(IN osm_subn_t *subn, osm_log_t *log,
 				  IN osm_mgrp_t * const p_mgrp,
 				  IN const ib_gid_t * const p_port_gid,
@@ -146,11 +175,11 @@ osm_mcm_port_t *osm_mgrp_add_port(IN osm_subn_t *subn, osm_log_t *log,
 	if ((join_state ^ prev_join_state) & IB_JOIN_STATE_FULL) {
 		if (join_state & IB_JOIN_STATE_FULL) {
 			if (++p_mgrp->full_members == 1) {
-				osm_mgrp_send_create_notice(subn, log, p_mgrp);
+				mgrp_send_notice(subn, log, p_mgrp, 66);
 				p_mgrp->to_be_deleted = 0;
 			}
 		} else if (--p_mgrp->full_members == 0) {
-			osm_mgrp_send_delete_notice(subn, log, p_mgrp);
+			mgrp_send_notice(subn, log, p_mgrp, 67);
 			if (!p_mgrp->well_known)
 				p_mgrp->to_be_deleted = 1;
 		}
@@ -198,12 +227,12 @@ int osm_mgrp_remove_port(osm_subn_t *subn, osm_log_t *log, osm_mgrp_t *mgrp,
 	if ((port_join_state ^ new_join_state) & IB_JOIN_STATE_FULL) {
 		if (port_join_state & IB_JOIN_STATE_FULL) {
 			if (--mgrp->full_members == 0) {
-				osm_mgrp_send_delete_notice(subn, log, mgrp);
+				mgrp_send_notice(subn, log, mgrp, 67);
 				if (!mgrp->well_known)
 					mgrp->to_be_deleted = 1;
 			}
 		} else if (++mgrp->full_members == 1) {
-			osm_mgrp_send_create_notice(subn, log, mgrp);
+			mgrp_send_notice(subn, log, mgrp, 66);
 			mgrp->to_be_deleted = 0;
 		}
 	}
@@ -281,47 +310,4 @@ osm_mgrp_apply_func(const osm_mgrp_t * const p_mgrp,
 
 	if (p_mtn)
 		__osm_mgrp_apply_func_sub(p_mgrp, p_mtn, p_func, context);
-}
-
-/**********************************************************************
- **********************************************************************/
-static void mgrp_send_notice(osm_subn_t *subn, osm_log_t *log,
-			     osm_mgrp_t *mgrp, unsigned num)
-{
-	ib_mad_notice_attr_t notice;
-	ib_api_status_t status;
-
-	notice.generic_type = 0x83;	/* generic SubnMgt type */
-	ib_notice_set_prod_type_ho(&notice, 4);	/* A Class Manager generator */
-	notice.g_or_v.generic.trap_num = CL_HTON16(num);
-	/* The sm_base_lid is saved in network order already. */
-	notice.issuer_lid = subn->sm_base_lid;
-	/* following o14-12.1.11 and table 120 p726 */
-	/* we need to provide the MGID */
-	memcpy(&notice.data_details.ntc_64_67.gid,
-	       &mgrp->mcmember_rec.mgid, sizeof(ib_gid_t));
-
-	/* According to page 653 - the issuer gid in this case of trap
-	   is the SM gid, since the SM is the initiator of this trap. */
-	notice.issuer_gid.unicast.prefix = subn->opt.subnet_prefix;
-	notice.issuer_gid.unicast.interface_id = subn->sm_port_guid;
-
-	if ((status = osm_report_notice(log, subn, &notice)))
-		OSM_LOG(log, OSM_LOG_ERROR, "ERR 7601: "
-			"Error sending trap reports (%s)\n",
-			ib_get_err_str(status));
-}
-
-void
-osm_mgrp_send_delete_notice(IN osm_subn_t * const p_subn,
-			    IN osm_log_t * const p_log, IN osm_mgrp_t * p_mgrp)
-{
-	mgrp_send_notice(p_subn, p_log, p_mgrp, 67);
-}
-
-void
-osm_mgrp_send_create_notice(IN osm_subn_t * const p_subn,
-			    IN osm_log_t * const p_log, IN osm_mgrp_t * p_mgrp)
-{
-	mgrp_send_notice(p_subn, p_log, p_mgrp, 66);
 }
