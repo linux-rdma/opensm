@@ -260,16 +260,13 @@ static int open_out_port(IN osm_log_t * p_log)
 		p_log->out_port = fopen(p_log->log_file_name, "w+");
 
 	if (!p_log->out_port) {
-		if (p_log->accum_log_file)
-			syslog(LOG_CRIT,
-			       "Cannot open %s for appending. Permission denied\n",
-			       p_log->log_file_name);
-		else
-			syslog(LOG_CRIT,
-			       "Cannot open %s for writing. Permission denied\n",
-			       p_log->log_file_name);
-
-		return (IB_UNKNOWN_ERROR);
+		syslog(LOG_CRIT, "Cannot open file \'%s\' for %s: %s\n",
+		       p_log->log_file_name,
+		       p_log->accum_log_file ? "appending" : "writing",
+		       strerror(errno));
+		fprintf(stderr, "Cannot open file \'%s\': %s\n",
+			p_log->log_file_name, strerror(errno));
+		return -1;
 	}
 
 	if (fstat(fileno(p_log->out_port), &st) == 0)
@@ -283,7 +280,7 @@ static int open_out_port(IN osm_log_t * p_log)
 		dup2(fileno(p_log->out_port), 2);
 	}
 
-	return (0);
+	return 0;
 }
 
 int osm_log_reopen_file(osm_log_t * p_log)
@@ -321,7 +318,7 @@ ib_api_status_t osm_log_init_v2(IN osm_log_t * const p_log,
 	else if (!strcmp(log_file, "stderr"))
 		p_log->out_port = stderr;
 	else if (open_out_port(p_log))
-		return (IB_UNKNOWN_ERROR);
+		return IB_ERROR;
 
 	if (cl_spinlock_init(&p_log->lock) == CL_SUCCESS)
 		return IB_SUCCESS;
