@@ -345,24 +345,16 @@ osm_opensm_init(IN osm_opensm_t * const p_osm,
 	if (status != IB_SUCCESS)
 		goto Exit;
 
-	status = osm_sm_init(&p_osm->sm,
-			     &p_osm->subn,
-			     &p_osm->db,
-			     p_osm->p_vendor,
-			     &p_osm->mad_pool,
-			     &p_osm->vl15,
-			     &p_osm->log,
-			     &p_osm->stats, &p_osm->disp, &p_osm->lock);
+	status = osm_sm_init(&p_osm->sm, &p_osm->subn, &p_osm->db,
+			     p_osm->p_vendor, &p_osm->mad_pool, &p_osm->vl15,
+			     &p_osm->log, &p_osm->stats, &p_osm->disp,
+			     &p_osm->lock);
 
 	if (status != IB_SUCCESS)
 		goto Exit;
 
-	status = osm_sa_init(&p_osm->sm,
-			     &p_osm->sa,
-			     &p_osm->subn,
-			     p_osm->p_vendor,
-			     &p_osm->mad_pool,
-			     &p_osm->log,
+	status = osm_sa_init(&p_osm->sm, &p_osm->sa, &p_osm->subn,
+			     p_osm->p_vendor, &p_osm->mad_pool, &p_osm->log,
 			     &p_osm->stats, &p_osm->disp, &p_osm->lock);
 
 	if (status != IB_SUCCESS)
