@@ -135,14 +135,13 @@ static int do_ucast_file_load(void *context)
 		OSM_LOG(&p_osm->log, OSM_LOG_VERBOSE,
 			"LFTs file name is not given; "
 			"using default routing algorithm\n");
-		return -1;
+		return 1;
 	}
 
 	file = fopen(file_name, "r");
 	if (!file) {
 		OSM_LOG(&p_osm->log, OSM_LOG_ERROR | OSM_LOG_SYS, "ERR 6302: "
-			"cannot open ucast dump file \'%s\'; "
-			"using default routing algorithm\n", file_name);
+			"cannot open ucast dump file \'%s\': %m\n", file_name);
 		return -1;
 	}
 
@@ -270,15 +269,13 @@ static int do_lid_matrix_file_load(void *context)
 		OSM_LOG(&p_osm->log, OSM_LOG_VERBOSE,
 			"lid matrix file name is not given; "
 			"using default lid matrix generation algorithm\n");
-		return -1;
+		return 1;
 	}
 
 	file = fopen(file_name, "r");
 	if (!file) {
 		OSM_LOG(&p_osm->log, OSM_LOG_ERROR | OSM_LOG_SYS, "ERR 6305: "
-			"cannot open lid matrix file \'%s\'; "
-			"using default lid matrix generation algorithm\n",
-			file_name);
+			"cannot open lid matrix file \'%s\': %m\n", file_name);
 		return -1;
 	}
 
@@ -389,10 +386,10 @@ static int do_lid_matrix_file_load(void *context)
 	return 0;
 }
 
-int osm_ucast_file_setup(osm_opensm_t * p_osm)
+int osm_ucast_file_setup(struct osm_routing_engine *r, osm_opensm_t *osm)
 {
-	p_osm->routing_engine.context = (void *)p_osm;
-	p_osm->routing_engine.build_lid_matrices = do_lid_matrix_file_load;
-	p_osm->routing_engine.ucast_build_fwd_tables = do_ucast_file_load;
+	r->context = osm;
+	r->build_lid_matrices = do_lid_matrix_file_load;
+	r->ucast_build_fwd_tables = do_ucast_file_load;
 	return 0;
 }

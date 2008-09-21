@@ -785,7 +785,7 @@ static int init_lash_structures(lash_t * p_lash)
 	unsigned vl_min = p_lash->vl_min;
 	unsigned num_switches = p_lash->num_switches;
 	osm_log_t *p_log = &p_lash->p_osm->log;
-	int status = IB_SUCCESS;
+	int status = 0;
 	unsigned int i, j, k;
 
 	OSM_LOG_ENTER(p_log);
@@ -852,7 +852,7 @@ static int init_lash_structures(lash_t * p_lash)
 	goto Exit;
 
 Exit_Mem_Error:
-	status = IB_ERROR;
+	status = -1;
 	OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 4D01: "
 		"Could not allocate required memory for LASH errno %d, errno %d for lack of memory\n",
 		errno, ENOMEM);
@@ -875,7 +875,7 @@ static int lash_core(lash_t * p_lash)
 	int stop = 0, output_link, i_next_switch;
 	int output_link2, i_next_switch2;
 	int cycle_found2 = 0;
-	int status = IB_SUCCESS;
+	int status = 0;
 	int *switch_bitmap = NULL;	/* Bitmap to check if we have processed this pair */
 
 	OSM_LOG_ENTER(p_log);
@@ -1028,7 +1028,7 @@ static int lash_core(lash_t * p_lash)
 	goto Exit;
 
 Error_Not_Enough_Lanes:
-	status = IB_ERROR;
+	status = -1;
 	OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 4D02: "
 		"Lane requirements (%d) exceed available lanes (%d)\n",
 		p_lash->vl_min, lanes_needed);
@@ -1360,15 +1360,15 @@ uint8_t osm_get_lash_sl(osm_opensm_t * p_osm, osm_port_t * p_src_port,
 	return (uint8_t) ((switch_t *) p_sw->priv)->routing_table[dst_id].lane;
 }
 
-int osm_ucast_lash_setup(osm_opensm_t * p_osm)
+int osm_ucast_lash_setup(struct osm_routing_engine *r, osm_opensm_t *p_osm)
 {
 	lash_t *p_lash = lash_create(p_osm);
 	if (!p_lash)
 		return -1;
 
-	p_osm->routing_engine.context = p_lash;
-	p_osm->routing_engine.ucast_build_fwd_tables = lash_process;
-	p_osm->routing_engine.delete = lash_delete;
+	r->context = p_lash;
+	r->ucast_build_fwd_tables = lash_process;
+	r->delete = lash_delete;
 
 	return 0;
 }

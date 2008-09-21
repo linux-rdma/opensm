@@ -177,8 +177,10 @@ static void show_usage(void)
 	       "          LID assignments resolving multiple use of same LID.\n\n");
 	printf("-R\n"
 	       "--routing_engine <engine name>\n"
-	       "          This option chooses routing engine instead of Min Hop\n"
-	       "          algorithm (default).\n"
+	       "          This option chooses routing engine(s) to use instead of default\n"
+	       "          Min Hop algorithm.  Multiple routing engines can be specified\n"
+	       "          separated by commas so that specific ordering of routing\n"
+	       "          algorithms will be tried if earlier routing engines fail.\n"
 	       "          Supported engines: updn, file, ftree, lash, dor\n\n");
 	printf("-z\n"
 	       "--connect_roots\n"
@@ -851,8 +853,8 @@ int main(int argc, char *argv[])
 			break;
 
 		case 'R':
-			opt.routing_engine_name = optarg;
-			printf(" Activate \'%s\' routing engine\n", optarg);
+			opt.routing_engine_names = optarg;
+			printf(" Activate \'%s\' routing engine(s)\n", optarg);
 			break;
 
 		case 'z':

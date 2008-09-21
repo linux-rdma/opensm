@@ -3552,8 +3552,7 @@ static int __osm_ftree_construct_fabric(IN void *context)
 	OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_VERBOSE, "Ranking FatTree\n");
 	if (__osm_ftree_fabric_rank(p_ftree) != 0) {
 		osm_log(&p_ftree->p_osm->log, OSM_LOG_SYS,
-			"Failed ranking the tree  - "
-			"fat-tree routing falls back to default routing\n");
+			"Failed ranking the tree\n");
 		status = -1;
 		goto Exit;
 	}
@@ -3567,14 +3566,12 @@ static int __osm_ftree_construct_fabric(IN void *context)
 		"Populating CA & switch ports\n");
 	if (__osm_ftree_fabric_populate_ports(p_ftree) != 0) {
 		osm_log(&p_ftree->p_osm->log, OSM_LOG_SYS,
-			"Fabric topology is not a fat-tree - "
-			"routing falls back to default routing\n");
+			"Fabric topology is not a fat-tree\n");
 		status = -1;
 		goto Exit;
 	} else if (p_ftree->cn_num == 0) {
 		osm_log(&p_ftree->p_osm->log, OSM_LOG_SYS,
-			"Fabric has no valid compute nodes - "
-			"routing falls back to default routing\n");
+			"Fabric has no valid compute nodes\n");
 		status = -1;
 		goto Exit;
 	}
@@ -3586,8 +3583,7 @@ static int __osm_ftree_construct_fabric(IN void *context)
 	if (__osm_ftree_fabric_get_rank(p_ftree) > FAT_TREE_MAX_RANK ||
 	    __osm_ftree_fabric_get_rank(p_ftree) < FAT_TREE_MIN_RANK) {
 		osm_log(&p_ftree->p_osm->log, OSM_LOG_SYS,
-			"Fabric rank is %u (should be between %u and %u) - "
-			"fat-tree routing falls back to default routing\n",
+			"Fabric rank is %u (should be between %u and %u)\n",
 			__osm_ftree_fabric_get_rank(p_ftree), FAT_TREE_MIN_RANK,
 			FAT_TREE_MAX_RANK);
 		status = -1;
@@ -3600,8 +3596,7 @@ static int __osm_ftree_construct_fabric(IN void *context)
 	   validation - it checks that all the CNs are at the same rank. */
 	if (__osm_ftree_fabric_mark_leaf_switches(p_ftree)) {
 		osm_log(&p_ftree->p_osm->log, OSM_LOG_SYS,
-			"Fabric topology is not a fat-tree - "
-			"routing falls back to default routing\n");
+			"Fabric topology is not a fat-tree\n");
 		status = -1;
 		goto Exit;
 	}
@@ -3619,8 +3614,7 @@ static int __osm_ftree_construct_fabric(IN void *context)
 	   In any case, the first and the last switches in the array are REAL leafs. */
 	if (__osm_ftree_fabric_create_leaf_switch_array(p_ftree)) {
 		osm_log(&p_ftree->p_osm->log, OSM_LOG_SYS,
-			"Fabric topology is not a fat-tree - "
-			"routing falls back to default routing\n");
+			"Fabric topology is not a fat-tree\n");
 		status = -1;
 		goto Exit;
 	}
@@ -3640,8 +3634,7 @@ static int __osm_ftree_construct_fabric(IN void *context)
 	if (!__osm_ftree_fabric_roots_provided(p_ftree) &&
 	    !__osm_ftree_fabric_validate_topology(p_ftree)) {
 		osm_log(&p_ftree->p_osm->log, OSM_LOG_SYS,
-			"Fabric topology is not a fat-tree - "
-			"routing falls back to default routing\n");
+			"Fabric topology is not a fat-tree\n");
 		status = -1;
 		goto Exit;
 	}
@@ -3726,7 +3719,7 @@ static void __osm_ftree_delete(IN void *context)
 /***************************************************
  ***************************************************/
 
-int osm_ucast_ftree_setup(osm_opensm_t * p_osm)
+int osm_ucast_ftree_setup(struct osm_routing_engine *r, osm_opensm_t * p_osm)
 {
 	ftree_fabric_t *p_ftree = __osm_ftree_fabric_create();
 	if (!p_ftree)
@@ -3734,12 +3727,10 @@ int osm_ucast_ftree_setup(osm_opensm_t * p_osm)
 
 	p_ftree->p_osm = p_osm;
 
-	p_osm->routing_engine.context = (void *)p_ftree;
-	p_osm->routing_engine.build_lid_matrices = __osm_ftree_construct_fabric;
-	p_osm->routing_engine.ucast_build_fwd_tables = __osm_ftree_do_routing;
-	p_osm->routing_engine.delete = __osm_ftree_delete;
+	r->context = (void *)p_ftree;
+	r->build_lid_matrices = __osm_ftree_construct_fabric;
+	r->ucast_build_fwd_tables = __osm_ftree_do_routing;
+	r->delete = __osm_ftree_delete;
+
 	return 0;
 }
-
-/***************************************************
- ***************************************************/

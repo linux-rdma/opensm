@@ -182,7 +182,7 @@ typedef struct osm_subn_opt {
 	char *port_prof_ignore_file;
 	boolean_t port_profile_switch_nodes;
 	boolean_t sweep_on_trap;
-	char *routing_engine_name;
+	char *routing_engine_names;
 	boolean_t connect_roots;
 	char *lid_matrix_dump_file;
 	char *lfts_file;
@@ -353,9 +353,8 @@ typedef struct osm_subn_opt {
 *	sweep_on_trap
 *		Received traps will initiate a new sweep.
 *
-*	routing_engine_name
-*		Name of used routing engine
-*		(other than default Min Hop Algorithm)
+*	routing_engine_names
+*		Name of routing engine(s) to use.
 *
 *	connect_roots
 *		The option which will enforce root to root connectivity with

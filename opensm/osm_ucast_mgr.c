@@ -216,7 +216,6 @@ __osm_ucast_mgr_process_port(IN osm_ucast_mgr_t * const p_mgr,
 	uint8_t port;
 	boolean_t is_ignored_by_port_prof;
 	ib_net64_t node_guid;
-	struct osm_routing_engine *p_routing_eng;
 	unsigned start_from = 1;
 
 	OSM_LOG_ENTER(p_mgr->p_log);
@@ -253,8 +252,6 @@ __osm_ucast_mgr_process_port(IN osm_ucast_mgr_t * const p_mgr,
 
 	node_guid = osm_node_get_node_guid(p_sw->p_node);
 
-	p_routing_eng = &p_mgr->p_subn->p_osm->routing_engine;
-
 	/*
 	   The lid matrix contains the number of hops to each
 	   lid from each port.  From this information we determine
@@ -269,18 +266,9 @@ __osm_ucast_mgr_process_port(IN osm_ucast_mgr_t * const p_mgr,
 		/* do not try to overwrite the ppro of non existing port ... */
 		is_ignored_by_port_prof = TRUE;
 
-		/* Up/Down routing can cause unreachable routes between some
-		   switches so we do not report that as an error in that case */
-		if (!p_routing_eng->build_lid_matrices) {
-			OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 3A08: "
-				"No path to get to LID %u from switch 0x%"
-				PRIx64 "\n", lid_ho, cl_ntoh64(node_guid));
-			/* trigger a new sweep - try again ... */
-			p_mgr->p_subn->subnet_initialization_error = TRUE;
-		} else
-			OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-				"No path to get to LID %u from switch 0x%"
-				PRIx64 "\n", lid_ho, cl_ntoh64(node_guid));
+		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
+			"No path to get to LID %u from switch 0x%" PRIx64 "\n",
+			lid_ho, cl_ntoh64(node_guid));
 	} else {
 		osm_physp_t *p = osm_node_get_physp_ptr(p_sw->p_node, port);
 
@@ -583,7 +571,7 @@ __osm_ucast_mgr_process_neighbors(IN cl_map_item_t * const p_map_item,
 
 /**********************************************************************
  **********************************************************************/
-void osm_ucast_mgr_build_lid_matrices(IN osm_ucast_mgr_t * const p_mgr)
+int osm_ucast_mgr_build_lid_matrices(IN osm_ucast_mgr_t * const p_mgr)
 {
 	uint32_t i;
 	uint32_t iteration_max;
@@ -646,6 +634,8 @@ void osm_ucast_mgr_build_lid_matrices(IN osm_ucast_mgr_t * const p_mgr)
 		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 			"Min-hop propagated in %d steps\n", i);
 	}
+
+	return 0;
 }
 
 /**********************************************************************
@@ -752,7 +742,7 @@ static void clear_prof_ignore_flag(cl_map_item_t * const p_map_item, void *ctx)
 	}
 }
 
-static void ucast_mgr_build_lfts(osm_ucast_mgr_t *p_mgr)
+static int ucast_mgr_build_lfts(osm_ucast_mgr_t *p_mgr)
 {
 	cl_qlist_init(&p_mgr->port_order_list);
 
@@ -786,27 +776,56 @@ static void ucast_mgr_build_lfts(osm_ucast_mgr_t *p_mgr)
 			   __osm_ucast_mgr_process_tbl, p_mgr);
 
 	cl_qlist_remove_all(&p_mgr->port_order_list);
+
+	return 0;
 }
 
 /**********************************************************************
  **********************************************************************/
+static int ucast_mgr_route(struct osm_routing_engine *r, osm_opensm_t *osm)
+{
+	int ret;
+
+	OSM_LOG(&osm->log, OSM_LOG_VERBOSE,
+		"building routing with \'%s\' routing algorithm...\n", r->name);
+
+	if (!r->build_lid_matrices ||
+	    (ret = r->build_lid_matrices(r->context)) > 0)
+		ret = osm_ucast_mgr_build_lid_matrices(&osm->sm.ucast_mgr);
+
+	if (ret < 0) {
+		OSM_LOG(&osm->log, OSM_LOG_ERROR,
+			"%s: cannot build lid matrices.\n", r->name);
+		return ret;
+	}
+
+	if (!r->ucast_build_fwd_tables ||
+	    (ret = r->ucast_build_fwd_tables(r->context)) > 0)
+		ret = ucast_mgr_build_lfts(&osm->sm.ucast_mgr);
+
+	if (ret < 0) {
+		OSM_LOG(&osm->log, OSM_LOG_ERROR,
+			"%s: cannot build fwd tables.\n", r->name);
+		return ret;
+	}
+
+	osm->routing_engine_used = osm_routing_engine_type(r->name);
+
+	return 0;
+}
+
 osm_signal_t osm_ucast_mgr_process(IN osm_ucast_mgr_t * const p_mgr)
 {
 	osm_opensm_t *p_osm;
 	struct osm_routing_engine *p_routing_eng;
 	osm_signal_t signal = OSM_SIGNAL_DONE;
 	cl_qmap_t *p_sw_guid_tbl;
-	int blm = 0;
-	int ubft = 0;
 
 	OSM_LOG_ENTER(p_mgr->p_log);
 
 	p_sw_guid_tbl = &p_mgr->p_subn->sw_guid_tbl;
 	p_osm = p_mgr->p_subn->p_osm;
-	p_routing_eng = &p_osm->routing_engine;
-
-	p_mgr->is_dor = p_routing_eng->name
-	    && (strcmp(p_routing_eng->name, "dor") == 0);
+	p_routing_eng = p_osm->routing_engine_list;
 
 	CL_PLOCK_EXCL_ACQUIRE(p_mgr->p_lock);
 
@@ -819,28 +838,19 @@ osm_signal_t osm_ucast_mgr_process(IN osm_ucast_mgr_t * const p_mgr)
 
 	p_mgr->any_change = FALSE;
 
-	if (!p_routing_eng->build_lid_matrices ||
-	    (blm = p_routing_eng->build_lid_matrices(p_routing_eng->context)))
+	p_osm->routing_engine_used = OSM_ROUTING_ENGINE_TYPE_NONE;
+	while (p_routing_eng) {
+		if (!ucast_mgr_route(p_routing_eng, p_osm))
+			break;
+		p_routing_eng = p_routing_eng->next;
+	}
+
+	if (p_osm->routing_engine_used == OSM_ROUTING_ENGINE_TYPE_NONE) {
+		/* If configured routing algorithm failed, use default MinHop */
 		osm_ucast_mgr_build_lid_matrices(p_mgr);
-
-	/*
-	   Now that the lid matrices have been built, we can
-	   build and download the switch forwarding tables.
-	 */
-	if (!p_routing_eng->ucast_build_fwd_tables ||
-	    (ubft =
-	     p_routing_eng->ucast_build_fwd_tables(p_routing_eng->context)))
 		ucast_mgr_build_lfts(p_mgr);
-
-	/* 'file' routing engine has one unique logic corner case */
-	if (p_routing_eng->name && (strcmp(p_routing_eng->name, "file") == 0)
-	    && (!blm || !ubft))
-		p_osm->routing_engine_used = OSM_ROUTING_ENGINE_TYPE_FILE;
-	else if (!blm && !ubft)
-		p_osm->routing_engine_used =
-		    osm_routing_engine_type(p_routing_eng->name);
-	else
 		p_osm->routing_engine_used = OSM_ROUTING_ENGINE_TYPE_MINHOP;
+	}
 
 	OSM_LOG(p_mgr->p_log, OSM_LOG_INFO,
 		"%s tables configured on all switches\n",
@@ -860,4 +870,42 @@ Exit:
 	CL_PLOCK_RELEASE(p_mgr->p_lock);
 	OSM_LOG_EXIT(p_mgr->p_log);
 	return (signal);
+}
+
+static int ucast_build_lid_matrices(void *context)
+{
+	return osm_ucast_mgr_build_lid_matrices(context);
+}
+
+static int ucast_build_lfts(void *context)
+{
+	return ucast_mgr_build_lfts(context);
+}
+
+int osm_ucast_minhop_setup(struct osm_routing_engine *r, osm_opensm_t *osm)
+{
+	r->context = &osm->sm.ucast_mgr;
+	r->build_lid_matrices = ucast_build_lid_matrices;
+	r->ucast_build_fwd_tables = ucast_build_lfts;
+	return 0;
+}
+
+static int ucast_dor_build_lfts(void *context)
+{
+	osm_ucast_mgr_t *mgr = context;
+	int ret;
+
+	mgr->is_dor = 1;
+	ret = ucast_mgr_build_lfts(mgr);
+	mgr->is_dor = 0;
+
+	return ret;
+}
+
+int osm_ucast_dor_setup(struct osm_routing_engine *r, osm_opensm_t *osm)
+{
+	r->context = &osm->sm.ucast_mgr;
+	r->build_lid_matrices = ucast_build_lid_matrices;
+	r->ucast_build_fwd_tables = ucast_dor_build_lfts;
+	return 0;
 }

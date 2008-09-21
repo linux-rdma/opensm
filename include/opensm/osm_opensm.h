@@ -126,6 +126,7 @@ struct osm_routing_engine {
 	int (*ucast_build_fwd_tables) (void *context);
 	void (*ucast_dump_tables) (void *context);
 	void (*delete) (void *context);
+	struct osm_routing_engine *next;
 };
 /*
 * FIELDS
@@ -148,6 +149,9 @@ struct osm_routing_engine {
 *	delete
 *		The delete method, may be used for routing engine
 *		internals cleanup.
+*
+*	next
+*		Pointer to next routing engine in the list.
 */
 
 /****s* OpenSM: OpenSM/osm_opensm_t
@@ -178,7 +182,7 @@ typedef struct osm_opensm {
 	osm_log_t log;
 	cl_dispatcher_t disp;
 	cl_plock_t lock;
-	struct osm_routing_engine routing_engine;
+	struct osm_routing_engine *routing_engine_list;
 	osm_routing_engine_type_t routing_engine_used;
 	osm_stats_t stats;
 	osm_console_t console;
@@ -221,8 +225,8 @@ typedef struct osm_opensm {
 *	lock
 *		Shared lock guarding most OpenSM structures.
 *
-*	routing_engine
-*		Routing engine; will be initialized then used.
+*	routing_engine_list
+*		List of routing engines that should be tried for use.
 *
 *	routing_engine_used
 *		Indicates which routing engine was used to route a subnet.

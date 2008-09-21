@@ -264,7 +264,7 @@ osm_ucast_mgr_set_fwd_table(IN osm_ucast_mgr_t * const p_mgr,
 *
 * SYNOPSIS
 */
-void osm_ucast_mgr_build_lid_matrices(IN osm_ucast_mgr_t * const p_mgr);
+int osm_ucast_mgr_build_lid_matrices(IN osm_ucast_mgr_t * const p_mgr);
 /*
 * PARAMETERS
 *	p_mgr

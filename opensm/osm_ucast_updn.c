@@ -643,7 +643,7 @@ static int __osm_updn_call(void *ctx)
 	} else {
 		OSM_LOG(&p_updn->p_osm->log, OSM_LOG_INFO,
 			"disabling UPDN algorithm, no root nodes were found\n");
-		ret = 1;
+		ret = -1;
 	}
 
 	if (osm_log_is_active(&p_updn->p_osm->log, OSM_LOG_ROUTING))
@@ -669,7 +669,7 @@ static void __osm_updn_delete(void *context)
 	free(context);
 }
 
-int osm_ucast_updn_setup(osm_opensm_t * p_osm)
+int osm_ucast_updn_setup(struct osm_routing_engine *r, osm_opensm_t *p_osm)
 {
 	updn_t *p_updn;
 
@@ -680,9 +680,9 @@ int osm_ucast_updn_setup(osm_opensm_t * p_osm)
 
 	p_updn->p_osm = p_osm;
 
-	p_osm->routing_engine.context = p_updn;
-	p_osm->routing_engine.delete = __osm_updn_delete;
-	p_osm->routing_engine.build_lid_matrices = __osm_updn_call;
+	r->context = p_updn;
+	r->delete = __osm_updn_delete;
+	r->build_lid_matrices = __osm_updn_call;
 
 	return 0;
 }

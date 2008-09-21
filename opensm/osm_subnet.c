@@ -442,7 +442,7 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * const p_opt)
 	p_opt->port_prof_ignore_file = NULL;
 	p_opt->port_profile_switch_nodes = FALSE;
 	p_opt->sweep_on_trap = TRUE;
-	p_opt->routing_engine_name = NULL;
+	p_opt->routing_engine_names = NULL;
 	p_opt->connect_roots = FALSE;
 	p_opt->lid_matrix_dump_file = NULL;
 	p_opt->lfts_file = NULL;
@@ -1264,7 +1264,7 @@ int osm_subn_parse_conf_file(char *file_name, osm_subn_opt_t * const p_opts)
 				    p_key, p_val, &p_opts->sweep_on_trap);
 
 		opts_unpack_charp("routing_engine",
-				  p_key, p_val, &p_opts->routing_engine_name);
+				  p_key, p_val, &p_opts->routing_engine_names);
 
 		opts_unpack_boolean("connect_roots",
 				    p_key, p_val, &p_opts->connect_roots);
@@ -1521,9 +1521,12 @@ int osm_subn_write_conf_file(char *file_name, IN osm_subn_opt_t *const p_opts)
 
 	fprintf(opts_file,
 		"# Routing engine\n"
+		"# Multiple routing engines can be specified separated by\n"
+		"# commas so that specific ordering of routing algorithms will\n"
+		"# be tried if earlier routing engines fail.\n"
 		"# Supported engines: minhop, updn, file, ftree, lash, dor\n"
-		"routing_engine %s\n\n", p_opts->routing_engine_name ?
-		p_opts->routing_engine_name : null_str);
+		"routing_engine %s\n\n", p_opts->routing_engine_names ?
+		p_opts->routing_engine_names : null_str);
 
 	fprintf(opts_file,
 		"# Connect roots (use FALSE if unsure)\n"

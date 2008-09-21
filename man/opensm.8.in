@@ -9,7 +9,7 @@ opensm \- InfiniBand subnet manager and administration (SM/SA)
 [\-F | \-\-config <file_name>] [\-c(reate-config) <file_name>]
 [\-g(uid) <GUID in hex>] [\-l(mc) <LMC>]
 [\-p(riority) <PRIORITY>] [\-smkey <SM_Key>] [\-r(eassign_lids)]
-[\-R <engine name> | \-\-routing_engine <engine name>]
+[\-R <engine name(s)> | \-\-routing_engine <engine name(s)>]
 [\-z | \-\-connect_roots]
 [\-M <file name> | \-\-lid_matrix_file <file name>]
 [\-U <file name> | \-\-lfts_file <file name>]
@@ -116,8 +116,10 @@ Without -r, OpenSM attempts to preserve existing
 LID assignments resolving multiple use of same LID.
 .TP
 \fB\-R\fR, \fB\-\-routing_engine\fR
-This option chooses routing engine instead of Min Hop
-algorithm (default).
+This option chooses routing engine(s) to use instead of Min Hop
+algorithm (default).  Multiple routing engines can be specified
+separated by commas so that specific ordering of routing algorithms
+will be tried if earlier routing engines fail.
 Supported engines: minhop, updn, file, ftree, lash, dor
 .TP
 \fB\-z\fR, \fB\-\-connect_roots\fR

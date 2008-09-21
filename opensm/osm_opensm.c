@@ -61,24 +61,23 @@
 
 struct routing_engine_module {
 	const char *name;
-	int (*setup) (osm_opensm_t * p_osm);
+	int (*setup) (struct osm_routing_engine *, osm_opensm_t *);
 };
 
-extern int osm_ucast_updn_setup(osm_opensm_t * p_osm);
-extern int osm_ucast_file_setup(osm_opensm_t * p_osm);
-extern int osm_ucast_ftree_setup(osm_opensm_t * p_osm);
-extern int osm_ucast_lash_setup(osm_opensm_t * p_osm);
-
-static int osm_ucast_null_setup(osm_opensm_t * p_osm);
+extern int osm_ucast_minhop_setup(struct osm_routing_engine *, osm_opensm_t *);
+extern int osm_ucast_updn_setup(struct osm_routing_engine *, osm_opensm_t *);
+extern int osm_ucast_file_setup(struct osm_routing_engine *, osm_opensm_t *);
+extern int osm_ucast_ftree_setup(struct osm_routing_engine *, osm_opensm_t *);
+extern int osm_ucast_lash_setup(struct osm_routing_engine *, osm_opensm_t *);
+extern int osm_ucast_dor_setup(struct osm_routing_engine *, osm_opensm_t *);
 
 const static struct routing_engine_module routing_modules[] = {
-	{"null", osm_ucast_null_setup},
-	{"minhop", osm_ucast_null_setup},
+	{"minhop", osm_ucast_minhop_setup},
 	{"updn", osm_ucast_updn_setup},
 	{"file", osm_ucast_file_setup},
 	{"ftree", osm_ucast_ftree_setup},
 	{"lash", osm_ucast_lash_setup},
-	{"dor", osm_ucast_null_setup},
+	{"dor", osm_ucast_dor_setup},
 	{NULL, NULL}
 };
 
@@ -135,33 +134,77 @@ osm_routing_engine_type_t osm_routing_engine_type(IN const char *str)
 
 /**********************************************************************
  **********************************************************************/
-static int setup_routing_engine(osm_opensm_t * p_osm, const char *name)
+static void append_routing_engine(osm_opensm_t *osm,
+				  struct osm_routing_engine *routing_engine)
 {
-	const struct routing_engine_module *r;
+	struct osm_routing_engine *r;
 
-	for (r = routing_modules; r->name && *r->name; r++) {
-		if (!strcmp(r->name, name)) {
-			p_osm->routing_engine.name = r->name;
-			if (r->setup(p_osm)) {
-				OSM_LOG(&p_osm->log, OSM_LOG_VERBOSE,
-					"setup of routing"
-					" engine \'%s\' failed\n", name);
-				return -2;
-			}
-			OSM_LOG(&p_osm->log, OSM_LOG_DEBUG,
-				"\'%s\' routing engine set up\n",
-				p_osm->routing_engine.name);
-			return 0;
-		}
+	routing_engine->next = NULL;
+
+	if (!osm->routing_engine_list) {
+		osm->routing_engine_list = routing_engine;
+		return;
 	}
-	return -1;
+
+	r = osm->routing_engine_list;
+	while (r->next)
+		r = r->next;
+
+	r->next = routing_engine;
 }
 
-static int osm_ucast_null_setup(osm_opensm_t * p_osm)
+static void setup_routing_engine(osm_opensm_t *osm, const char *name)
 {
-	OSM_LOG(&p_osm->log, OSM_LOG_VERBOSE,
-		"nothing yet - using default (minhop) routing engine\n");
-	return 0;
+	struct osm_routing_engine *re;
+	const struct routing_engine_module *m;
+
+	for (m = routing_modules; m->name && *m->name; m++) {
+		if (!strcmp(m->name, name)) {
+			re = malloc(sizeof(struct osm_routing_engine));
+			if (!re) {
+				OSM_LOG(&osm->log, OSM_LOG_VERBOSE,
+					"memory allocation failed\n");
+				return;
+			}
+			memset(re, 0, sizeof(struct osm_routing_engine));
+
+			re->name = m->name;
+			if (m->setup(re, osm)) {
+				OSM_LOG(&osm->log, OSM_LOG_VERBOSE,
+					"setup of routing"
+					" engine \'%s\' failed\n", name);
+				return;
+			}
+			OSM_LOG(&osm->log, OSM_LOG_DEBUG,
+				"\'%s\' routing engine set up\n", re->name);
+			append_routing_engine(osm, re);
+			return;
+		}
+	}
+
+	OSM_LOG(&osm->log, OSM_LOG_ERROR,
+		"cannot find or setup routing engine \'%s\'", name);
+}
+
+static void setup_routing_engines(osm_opensm_t *osm, const char *engine_names)
+{
+	char *name, *str, *p;
+
+	if (!engine_names || !*engine_names) {
+		setup_routing_engine(osm, "minhop");
+		return;
+	}
+
+	str = strdup(engine_names);
+	name = strtok_r(str, ", \t\n", &p);
+	while (name && *name) {
+		setup_routing_engine(osm, name);
+		name = strtok_r(NULL, ", \t\n", &p);
+	}
+	free(str);
+
+	if (!osm->routing_engine_list)
+		setup_routing_engine(osm, "minhop");
 }
 
 /**********************************************************************
@@ -181,6 +224,20 @@ void osm_opensm_construct(IN osm_opensm_t * const p_osm)
 
 /**********************************************************************
  **********************************************************************/
+static void destroy_routing_engines(osm_opensm_t *osm)
+{
+	struct osm_routing_engine *r, *next;
+
+	next = osm->routing_engine_list;
+	while (next) {
+		r = next;
+		next = r->next;
+		if (r->delete)
+			r->delete(r->context);
+		free(r);
+	}
+}
+
 void osm_opensm_destroy(IN osm_opensm_t * const p_osm)
 {
 	/* in case of shutdown through exit proc - no ^C */
@@ -218,8 +275,7 @@ void osm_opensm_destroy(IN osm_opensm_t * const p_osm)
 	osm_sa_db_file_dump(p_osm);
 
 	/* do the destruction in reverse order as init */
-	if (p_osm->routing_engine.delete)
-		p_osm->routing_engine.delete(p_osm->routing_engine.context);
+	destroy_routing_engines(p_osm);
 	osm_sa_destroy(&p_osm->sa);
 	osm_sm_destroy(&p_osm->sm);
 #ifdef ENABLE_OSM_PERF_MGR
@@ -371,12 +427,7 @@ osm_opensm_init(IN osm_opensm_t * const p_osm,
 		goto Exit;
 #endif				/* ENABLE_OSM_PERF_MGR */
 
-	if (p_opt->routing_engine_name &&
-	    setup_routing_engine(p_osm, p_opt->routing_engine_name))
-		OSM_LOG(&p_osm->log, OSM_LOG_VERBOSE,
-			"cannot find or setup routing engine"
-			" \'%s\'. Default will be used instead\n",
-			p_opt->routing_engine_name);
+	setup_routing_engines(p_osm, p_opt->routing_engine_names);
 
 	p_osm->routing_engine_used = OSM_ROUTING_ENGINE_TYPE_NONE;
 
