@@ -337,9 +337,6 @@ The following files are included in it:
 
  guid2lid - stores the LID range assigned to each GUID
 
- opensm.opts - an optional file that holds a complete set of opensm
-               configuration options
-
 .SH NOTES
 .PP
 When opensm receives a HUP signal, it starts a new heavy sweep as if a trap was received or a topology change was found.
