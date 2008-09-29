@@ -45,7 +45,6 @@
 
 #include <complib/cl_passivelock.h>
 #include <complib/cl_qlist.h>
-#include <opensm/osm_base.h>
 #include <opensm/osm_madw.h>
 #include <opensm/osm_subnet.h>
 #include <opensm/osm_switch.h>
@@ -60,7 +59,6 @@
 #endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-#define OSM_UCAST_MGR_LIST_SIZE_MIN 256
 /****h* OpenSM/Unicast Manager
 * NAME
 *	Unicast Manager
@@ -98,7 +96,6 @@ typedef struct osm_ucast_mgr {
 	cl_plock_t *p_lock;
 	cl_qlist_t port_order_list;
 	boolean_t is_dor;
-	boolean_t any_change;
 	boolean_t some_hop_count_set;
 	uint8_t *lft_buf;
 } osm_ucast_mgr_t;
@@ -240,9 +237,8 @@ osm_ucast_mgr_init(IN osm_ucast_mgr_t * const p_mgr, IN struct osm_sm * sm);
 *
 * SYNOPSIS
 */
-void
-osm_ucast_mgr_set_fwd_table(IN osm_ucast_mgr_t * const p_mgr,
-			    IN osm_switch_t * const p_sw);
+int osm_ucast_mgr_set_fwd_table(IN osm_ucast_mgr_t * const p_mgr,
+				IN osm_switch_t * const p_sw);
 /*
 * PARAMETERS
 *	p_mgr
@@ -287,17 +283,14 @@ int osm_ucast_mgr_build_lid_matrices(IN osm_ucast_mgr_t * const p_mgr);
 *
 * SYNOPSIS
 */
-osm_signal_t osm_ucast_mgr_process(IN osm_ucast_mgr_t * const p_mgr);
+int osm_ucast_mgr_process(IN osm_ucast_mgr_t * const p_mgr);
 /*
 * PARAMETERS
 *	p_mgr
 *		[in] Pointer to an osm_ucast_mgr_t object.
 *
 * RETURN VALUES
-*	Returns the appropriate signal to the caller:
-*		OSM_SIGNAL_DONE - operation is complete
-*		OSM_SIGNAL_DONE_PENDING - local operations are complete, but
-*			transactions are still pending on the wire.
+*	Returns zero on success and negative value on failure.
 *
 * NOTES
 *	This function processes the subnet, configuring switch

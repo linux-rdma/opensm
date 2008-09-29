@@ -313,9 +313,8 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-void
-osm_ucast_mgr_set_fwd_table(IN osm_ucast_mgr_t * const p_mgr,
-			    IN osm_switch_t * const p_sw)
+int osm_ucast_mgr_set_fwd_table(IN osm_ucast_mgr_t * const p_mgr,
+				IN osm_switch_t * const p_sw)
 {
 	osm_node_t *p_node;
 	osm_dr_path_t *p_path;
@@ -379,12 +378,10 @@ osm_ucast_mgr_set_fwd_table(IN osm_ucast_mgr_t * const p_mgr,
 				     IB_MAD_ATTR_SWITCH_INFO,
 				     0, CL_DISP_MSGID_NONE, &context);
 
-		if (status != IB_SUCCESS) {
+		if (status != IB_SUCCESS)
 			OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 3A06: "
 				"Sending SwitchInfo attribute failed (%s)\n",
 				ib_get_err_str(status));
-		} else
-			p_mgr->any_change = TRUE;
 	}
 
 	/*
@@ -413,16 +410,14 @@ osm_ucast_mgr_set_fwd_table(IN osm_ucast_mgr_t * const p_mgr,
 				     cl_hton32(block_id_ho),
 				     CL_DISP_MSGID_NONE, &context);
 
-		if (status != IB_SUCCESS) {
+		if (status != IB_SUCCESS)
 			OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 3A05: "
 				"Sending linear fwd. tbl. block failed (%s)\n",
 				ib_get_err_str(status));
-		} else {
-			p_mgr->any_change = TRUE;
-		}
 	}
 
 	OSM_LOG_EXIT(p_mgr->p_log);
+	return 0;
 }
 
 /**********************************************************************
@@ -814,11 +809,10 @@ static int ucast_mgr_route(struct osm_routing_engine *r, osm_opensm_t *osm)
 	return 0;
 }
 
-osm_signal_t osm_ucast_mgr_process(IN osm_ucast_mgr_t * const p_mgr)
+int osm_ucast_mgr_process(IN osm_ucast_mgr_t * const p_mgr)
 {
 	osm_opensm_t *p_osm;
 	struct osm_routing_engine *p_routing_eng;
-	osm_signal_t signal = OSM_SIGNAL_DONE;
 	cl_qmap_t *p_sw_guid_tbl;
 
 	OSM_LOG_ENTER(p_mgr->p_log);
@@ -835,8 +829,6 @@ osm_signal_t osm_ucast_mgr_process(IN osm_ucast_mgr_t * const p_mgr)
 	if (cl_qmap_count(p_sw_guid_tbl) == 0 ||
 	    ucast_mgr_setup_all_switches(p_mgr->p_subn) < 0)
 		goto Exit;
-
-	p_mgr->any_change = FALSE;
 
 	p_osm->routing_engine_used = OSM_ROUTING_ENGINE_TYPE_NONE;
 	while (p_routing_eng) {
@@ -856,20 +848,10 @@ osm_signal_t osm_ucast_mgr_process(IN osm_ucast_mgr_t * const p_mgr)
 		"%s tables configured on all switches\n",
 		osm_routing_engine_type_str(p_osm->routing_engine_used));
 
-	if (p_mgr->any_change) {
-		signal = OSM_SIGNAL_DONE_PENDING;
-		OSM_LOG(p_mgr->p_log, OSM_LOG_VERBOSE,
-			"LFT Tables configured on all switches\n");
-	} else {
-		signal = OSM_SIGNAL_DONE;
-		OSM_LOG(p_mgr->p_log, OSM_LOG_VERBOSE,
-			"No need to set any LFT Tables on any switches\n");
-	}
-
 Exit:
 	CL_PLOCK_RELEASE(p_mgr->p_lock);
 	OSM_LOG_EXIT(p_mgr->p_log);
-	return (signal);
+	return 0;
 }
 
 static int ucast_build_lid_matrices(void *context)
