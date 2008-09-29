@@ -56,13 +56,13 @@
 /* //////////////////////////// */
 
 /* direction */
-typedef enum _updn_switch_dir {
+typedef enum updn_switch_dir {
 	UP = 0,
 	DOWN
 } updn_switch_dir_t;
 
 /* updn structure */
-typedef struct _updn {
+typedef struct updn {
 	unsigned num_roots;
 	osm_opensm_t *p_osm;
 } updn_t;
@@ -80,9 +80,8 @@ struct updn_node {
  **********************************************************************/
 /* This function returns direction based on rank and guid info of current &
    remote ports */
-static updn_switch_dir_t
-__updn_get_dir(IN unsigned cur_rank,
-	       IN unsigned rem_rank, IN uint64_t cur_id, IN uint64_t rem_id)
+static updn_switch_dir_t updn_get_dir(unsigned cur_rank, unsigned rem_rank,
+				      uint64_t cur_id, uint64_t rem_id)
 {
 	/* HACK: comes to solve root nodes connection, in a classic subnet root nodes do not connect
 	   directly, but in case they are we assign to root node an UP direction to allow UPDN to discover
@@ -108,9 +107,8 @@ __updn_get_dir(IN unsigned cur_rank,
  * This function does the bfs of min hop table calculation by guid index
  * as a starting point.
  **********************************************************************/
-static int
-__updn_bfs_by_node(IN osm_log_t * p_log,
-		   IN osm_subn_t * p_subn, IN osm_switch_t * p_sw)
+static int updn_bfs_by_node(IN osm_log_t * p_log, IN osm_subn_t * p_subn,
+			    IN osm_switch_t * p_sw)
 {
 	uint8_t pn, pn_rem;
 	cl_qlist_t list;
@@ -159,8 +157,8 @@ __updn_bfs_by_node(IN osm_log_t * p_log,
 			p_remote_sw = p_remote_node->sw;
 			rem_u = p_remote_sw->priv;
 			/* Decide which direction to mark it (UP/DOWN) */
-			next_dir = __updn_get_dir(u->rank, rem_u->rank,
-						  u->id, rem_u->id);
+			next_dir = updn_get_dir(u->rank, rem_u->rank,
+						u->id, rem_u->id);
 
 			/* Check if this is a legal step : the only illegal step is going
 			   from DOWN to UP */
@@ -306,7 +304,7 @@ static void updn_clear_root_hops(updn_t * p_updn, osm_switch_t * p_sw)
 
 /**********************************************************************
  **********************************************************************/
-static int __osm_subn_set_up_down_min_hop_table(IN updn_t * p_updn)
+static int updn_set_min_hop_table(IN updn_t * p_updn)
 {
 	osm_subn_t *p_subn = &p_updn->p_osm->subn;
 	osm_log_t *p_log = &p_updn->p_osm->log;
@@ -342,7 +340,7 @@ static int __osm_subn_set_up_down_min_hop_table(IN updn_t * p_updn)
 	     item != cl_qmap_end(&p_updn->p_osm->subn.sw_guid_tbl);
 	     item = cl_qmap_next(item)) {
 		p_sw = (osm_switch_t *)item;
-		__updn_bfs_by_node(p_log, p_subn, p_sw);
+		updn_bfs_by_node(p_log, p_subn, p_sw);
 	}
 
 	OSM_LOG(p_log, OSM_LOG_VERBOSE,
@@ -383,7 +381,7 @@ static int updn_build_lid_matrices(IN updn_t * p_updn)
 	/* After multiple ranking need to set Min Hop Table by UpDn algorithm  */
 	OSM_LOG(&p_updn->p_osm->log, OSM_LOG_VERBOSE,
 		"Setting all switches' Min Hop Table\n");
-	status = __osm_subn_set_up_down_min_hop_table(p_updn);
+	status = updn_set_min_hop_table(p_updn);
 
 _exit:
 	OSM_LOG_EXIT(&p_updn->p_osm->log);
@@ -578,7 +576,7 @@ static int rank_root_node(void *cxt, uint64_t guid, char *p)
 }
 
 /* UPDN callback function */
-static int __osm_updn_call(void *ctx)
+static int updn_lid_matrices(void *ctx)
 {
 	updn_t *p_updn = ctx;
 	cl_map_item_t *item;
@@ -664,25 +662,25 @@ static int __osm_updn_call(void *ctx)
 
 /**********************************************************************
  **********************************************************************/
-static void __osm_updn_delete(void *context)
+static void updn_delete(void *context)
 {
 	free(context);
 }
 
-int osm_ucast_updn_setup(struct osm_routing_engine *r, osm_opensm_t *p_osm)
+int osm_ucast_updn_setup(struct osm_routing_engine *r, osm_opensm_t *osm)
 {
-	updn_t *p_updn;
+	updn_t *updn;
 
-	p_updn = malloc(sizeof(updn_t));
-	if (!p_updn)
+	updn = malloc(sizeof(updn_t));
+	if (!updn)
 		return -1;
-	memset(p_updn, 0, sizeof(updn_t));
+	memset(updn, 0, sizeof(updn_t));
 
-	p_updn->p_osm = p_osm;
+	updn->p_osm = osm;
 
-	r->context = p_updn;
-	r->delete = __osm_updn_delete;
-	r->build_lid_matrices = __osm_updn_call;
+	r->context = updn;
+	r->delete = updn_delete;
+	r->build_lid_matrices = updn_lid_matrices;
 
 	return 0;
 }
