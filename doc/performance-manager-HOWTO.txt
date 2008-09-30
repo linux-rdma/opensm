@@ -35,7 +35,7 @@ Using the Performance Manager consists of 3 steps:
 
 	1) compiling in support for the perfmgr (Optionally: the console
 	   socket as well)
-	2) enabling the perfmgr and console in opensm.opts
+	2) enabling the perfmgr and console in opensm.conf
 	3) retrieving data which has been collected.
 	   3a) using console to "dump data"
 	   3b) using a plugin module to store the data to your own
@@ -63,12 +63,12 @@ well as the console:
 	./configure --enable-perf-mgr --enable-console-socket
 
 
-Step 2: Enable the perfmgr and console in opensm.opts
+Step 2: Enable the perfmgr and console in opensm.conf
 -----------------------------------------------------
 
 Turning the Perfmorance Manager on is pretty easy, set the following options in
-the opensm.opts config file.  (Default location is
-/var/cache/opensm/opensm.opts)
+the opensm.conf config file.  (Default location is
+/usr/local/etc/opensm/opensm.conf)
 
 	# Turn it all on.
 	perfmgr TRUE
@@ -93,7 +93,7 @@ users from connecting to the console.[*]
 
 	[*] As an alternate you can use the loopback mode but I noticed when
 	writing this (OpenSM v3.1.10; OFED 1.3) that there are some bugs in
-	specifying the loopback mode in the opensm.opts file.  Look for this to
+	specifying the loopback mode in the opensm.conf file.  Look for this to
 	be fixed in newer versions.
 
 	[**] Also you could use "local" but this is only useful if you run
@@ -107,7 +107,7 @@ Step 3a: Using console dump function
 ------------------------------------
 
 The console command "perfmgr dump_counters" will dump counters to the file
-specified in the opensm.opts file.  In the example above
+specified in the opensm.conf file.  In the example above
 "/var/log/opensm_port_counters.log"
 
 Example output is below:

@@ -333,7 +333,7 @@ opensm.mcfdbs. By default, this directory is /var/log.
 
 OSM_CACHE_DIR - opensm stores certain data to the disk such that subsequent
 runs are consistent. The default directory used is /var/cache/opensm.
-The following files are included in it:
+The following file is included in it:
 
  guid2lid - stores the LID range assigned to each GUID
 

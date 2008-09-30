@@ -67,7 +67,7 @@ This section describes how to set up SL2VL and VL Arbitration tables on
 various nodes in the fabric.
 However, this is not supported in OpenSM currently.
 SL2VL and VLArb tables should be configured in the OpenSM options file
-(default location - /var/cache/opensm/opensm.opts).
+(default location - /usr/local/etc/opensm/opensm.conf).
 
 III) QoS Levels (denoted by qos-levels).
 Each QoS Level defines Service Level (SL) and a few optional fields:
@@ -205,7 +205,7 @@ policy file and their syntax:
         # Arbitration tables on various nodes in the fabric.
         # However, this is not supported in OpenSM currently - the section is
         # parsed and ignored. SL2VL and VLArb tables should be configured in the
-        # OpenSM options file (by default - /var/cache/opensm/opensm.opts).
+        # OpenSM options file (by default - /usr/local/etc/opensm/opensm.conf).
     end-qos-setup
 
     qos-levels
