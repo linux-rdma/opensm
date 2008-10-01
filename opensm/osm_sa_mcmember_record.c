@@ -954,7 +954,6 @@ osm_mcmr_rcv_create_new_mgrp(IN osm_sa_t * sa,
 Exit:
 	OSM_LOG_EXIT(sa->p_log);
 	return status;
-
 }
 
 /**********************************************************************
