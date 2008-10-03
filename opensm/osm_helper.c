@@ -790,7 +790,7 @@ osm_dump_port_info(IN osm_log_t * const p_log,
 			"\t\t\t\tcapability_mask.........0x%X\n"
 			"\t\t\t\tdiag_code...............0x%X\n"
 			"\t\t\t\tm_key_lease_period......0x%X\n"
-			"\t\t\t\tlocal_port_num..........0x%X\n"
+			"\t\t\t\tlocal_port_num..........%u\n"
 			"\t\t\t\tlink_width_enabled......0x%X\n"
 			"\t\t\t\tlink_width_supported....0x%X\n"
 			"\t\t\t\tlink_width_active.......0x%X\n"
@@ -879,7 +879,7 @@ osm_dump_portinfo_record(IN osm_log_t * const p_log,
 			"\t\t\t\tcapability_mask.........0x%X\n"
 			"\t\t\t\tdiag_code...............0x%X\n"
 			"\t\t\t\tm_key_lease_period......0x%X\n"
-			"\t\t\t\tlocal_port_num..........0x%X\n"
+			"\t\t\t\tlocal_port_num..........%u\n"
 			"\t\t\t\tlink_width_enabled......0x%X\n"
 			"\t\t\t\tlink_width_supported....0x%X\n"
 			"\t\t\t\tlink_width_active.......0x%X\n"
@@ -994,14 +994,14 @@ osm_dump_node_info(IN osm_log_t * const p_log,
 			"\t\t\t\tbase_version............0x%X\n"
 			"\t\t\t\tclass_version...........0x%X\n"
 			"\t\t\t\tnode_type...............%s\n"
-			"\t\t\t\tnum_ports...............0x%X\n"
+			"\t\t\t\tnum_ports...............%u\n"
 			"\t\t\t\tsys_guid................0x%016" PRIx64 "\n"
 			"\t\t\t\tnode_guid...............0x%016" PRIx64 "\n"
 			"\t\t\t\tport_guid...............0x%016" PRIx64 "\n"
 			"\t\t\t\tpartition_cap...........0x%X\n"
 			"\t\t\t\tdevice_id...............0x%X\n"
 			"\t\t\t\trevision................0x%X\n"
-			"\t\t\t\tport_num................0x%X\n"
+			"\t\t\t\tport_num................%u\n"
 			"\t\t\t\tvendor_id...............0x%X\n",
 			p_ni->base_version,
 			p_ni->class_version,
@@ -1041,14 +1041,14 @@ osm_dump_node_record(IN osm_log_t * const p_log,
 			"\t\t\t\tbase_version............0x%X\n"
 			"\t\t\t\tclass_version...........0x%X\n"
 			"\t\t\t\tnode_type...............%s\n"
-			"\t\t\t\tnum_ports...............0x%X\n"
+			"\t\t\t\tnum_ports...............%u\n"
 			"\t\t\t\tsys_guid................0x%016" PRIx64 "\n"
 			"\t\t\t\tnode_guid...............0x%016" PRIx64 "\n"
 			"\t\t\t\tport_guid...............0x%016" PRIx64 "\n"
 			"\t\t\t\tpartition_cap...........0x%X\n"
 			"\t\t\t\tdevice_id...............0x%X\n"
 			"\t\t\t\trevision................0x%X\n"
-			"\t\t\t\tport_num................0x%X\n"
+			"\t\t\t\tport_num................%u\n"
 			"\t\t\t\tvendor_id...............0x%X\n"
 			"\t\t\t\tNodeDescription\n"
 			"\t\t\t\t%s\n",
@@ -1489,8 +1489,8 @@ osm_dump_link_record(IN osm_log_t * const p_log,
 		osm_log(p_log, log_level,
 			"Link Record dump:\n"
 			"\t\t\t\tfrom_lid................%u\n"
-			"\t\t\t\tfrom_port_num...........0x%X\n"
-			"\t\t\t\tto_port_num.............0x%X\n"
+			"\t\t\t\tfrom_port_num...........%u\n"
+			"\t\t\t\tto_port_num.............%u\n"
 			"\t\t\t\tto_lid..................%u\n",
 			cl_ntoh16(p_lr->from_lid),
 			p_lr->from_port_num,
@@ -1512,9 +1512,9 @@ osm_dump_switch_info(IN osm_log_t * const p_log,
 			"\t\t\t\trand_cap................0x%X\n"
 			"\t\t\t\tmcast_cap...............0x%X\n"
 			"\t\t\t\tlin_top.................0x%X\n"
-			"\t\t\t\tdef_port................0x%X\n"
-			"\t\t\t\tdef_mcast_pri_port......0x%X\n"
-			"\t\t\t\tdef_mcast_not_port......0x%X\n"
+			"\t\t\t\tdef_port................%u\n"
+			"\t\t\t\tdef_mcast_pri_port......%u\n"
+			"\t\t\t\tdef_mcast_not_port......%u\n"
 			"\t\t\t\tlife_state..............0x%X\n"
 			"\t\t\t\tlids_per_port...........%u\n"
 			"\t\t\t\tpartition_enf_cap.......0x%X\n"
@@ -1549,9 +1549,9 @@ osm_dump_switch_info_record(IN osm_log_t * const p_log,
 			"\t\t\t\trand_cap................0x%X\n"
 			"\t\t\t\tmcast_cap...............0x%X\n"
 			"\t\t\t\tlin_top.................0x%X\n"
-			"\t\t\t\tdef_port................0x%X\n"
-			"\t\t\t\tdef_mcast_pri_port......0x%X\n"
-			"\t\t\t\tdef_mcast_not_port......0x%X\n"
+			"\t\t\t\tdef_port................%u\n"
+			"\t\t\t\tdef_mcast_pri_port......%u\n"
+			"\t\t\t\tdef_mcast_not_port......%u\n"
 			"\t\t\t\tlife_state..............0x%X\n"
 			"\t\t\t\tlids_per_port...........%u\n"
 			"\t\t\t\tpartition_enf_cap.......0x%X\n"
@@ -1593,7 +1593,7 @@ osm_dump_pkey_block(IN osm_log_t * const p_log,
 			"P_Key table dump:\n"
 			"\t\t\tport_guid...........0x%016" PRIx64 "\n"
 			"\t\t\tblock_num...........0x%X\n"
-			"\t\t\tport_num............0x%X\n\tP_Key Table: %s\n",
+			"\t\t\tport_num............%u\n\tP_Key Table: %s\n",
 			cl_ntoh64(port_guid), block_num, port_num, buf_line);
 	}
 }
@@ -1621,8 +1621,8 @@ osm_dump_slvl_map_table(IN osm_log_t * const p_log,
 		osm_log(p_log, log_level,
 			"SLtoVL dump:\n"
 			"\t\t\tport_guid............0x%016" PRIx64 "\n"
-			"\t\t\tin_port_num..........0x%X\n"
-			"\t\t\tout_port_num.........0x%X\n\tSL: | %s\n\tVL: | %s\n",
+			"\t\t\tin_port_num..........%u\n"
+			"\t\t\tout_port_num.........%u\n\tSL: | %s\n\tVL: | %s\n",
 			cl_ntoh64(port_guid),
 			in_port_num, out_port_num, buf_line1, buf_line2);
 	}
@@ -1651,7 +1651,7 @@ osm_dump_vl_arb_table(IN osm_log_t * const p_log,
 		osm_log(p_log, log_level,
 			"VLArb dump:\n" "\t\t\tport_guid...........0x%016"
 			PRIx64 "\n" "\t\t\tblock_num...........0x%X\n"
-			"\t\t\tport_num............0x%X\n\tVL    : | %s\n\tWEIGHT:| %s\n",
+			"\t\t\tport_num............%u\n\tVL    : | %s\n\tWEIGHT:| %s\n",
 			cl_ntoh64(port_guid), block_num, port_num, buf_line1,
 			buf_line2);
 	}

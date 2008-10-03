@@ -219,7 +219,7 @@ osm_perfmgr_mad_send_err_callback(void *bind_context, osm_madw_t * p_madw)
 	p_mon_node = (__monitored_node_t *) p_node;
 
 	OSM_LOG(pm->log, OSM_LOG_ERROR, "ERR 4C02: %s (0x%" PRIx64
-		") port %d\n", p_mon_node->name, p_mon_node->guid, port);
+		") port %u\n", p_mon_node->name, p_mon_node->guid, port);
 
 	if (pm->subn->opt.perfmgr_redir && p_madw->status == IB_TIMEOUT) {
 		/* First, find the node in the monitored map */
@@ -228,8 +228,8 @@ osm_perfmgr_mad_send_err_callback(void *bind_context, osm_madw_t * p_madw)
 		if (port > p_mon_node->redir_tbl_size) {
 			cl_plock_release(pm->lock);
 			OSM_LOG(pm->log, OSM_LOG_ERROR, "ERR 4C16: "
-				"Invalid port num %d for %s (GUID 0x%016"
-				PRIx64 ") num ports %d\n", port, p_mon_node->name,
+				"Invalid port num %u for %s (GUID 0x%016"
+				PRIx64 ") num ports %u\n", port, p_mon_node->name,
 				p_mon_node->guid, p_mon_node->redir_tbl_size);
 			goto Exit;
 		}

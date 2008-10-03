@@ -125,9 +125,9 @@ static void drop_mgr_clean_physp(osm_sm_t * sm, IN osm_physp_t * p_physp)
 		}
 
 		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
-			"Unlinking local node 0x%016" PRIx64 ", port 0x%X"
+			"Unlinking local node 0x%016" PRIx64 ", port %u"
 			"\n\t\t\t\tand remote node 0x%016" PRIx64
-			", port 0x%X\n",
+			", port %u\n",
 			cl_ntoh64(osm_node_get_node_guid(p_physp->p_node)),
 			p_physp->port_num,
 			cl_ntoh64(osm_node_get_node_guid
@@ -186,7 +186,8 @@ static void __osm_drop_mgr_remove_port(osm_sm_t * sm, IN osm_port_t * p_port)
 	if (p_sm != (osm_remote_sm_t *) cl_qmap_end(p_sm_guid_tbl)) {
 		/* need to remove this item */
 		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
-			"Cleaned SM for port guid\n");
+			"Cleaned SM for port guid 0x%016" PRIx64 "\n",
+			cl_ntoh64(port_guid));
 
 		free(p_sm);
 	}

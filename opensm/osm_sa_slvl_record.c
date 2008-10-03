@@ -100,7 +100,7 @@ __osm_sa_slvl_create(IN osm_sa_t * sa,
 
 	OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 		"New SLtoVL Map for: OUT port 0x%016" PRIx64
-		", lid 0x%X, port 0x%X to In Port:%u\n",
+		", lid 0x%X, port %u to In Port:%u\n",
 		cl_ntoh64(osm_physp_get_port_guid(p_physp)),
 		cl_ntoh16(lid), osm_physp_get_port_num(p_physp), in_port_idx);
 

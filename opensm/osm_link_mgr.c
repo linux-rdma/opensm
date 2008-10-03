@@ -377,7 +377,7 @@ __osm_link_mgr_process_node(osm_sm_t * sm,
 		if (link_state != IB_LINK_NO_CHANGE &&
 		    link_state <= current_state)
 			OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-				"Physical port 0x%X already %s. Skipping\n",
+				"Physical port %u already %s. Skipping\n",
 				p_physp->port_num,
 				ib_get_port_state_str(current_state));
 		else if (__osm_link_mgr_set_physp_pi(sm, p_physp, link_state))

@@ -152,7 +152,7 @@ __osm_ucast_mgr_process_neighbor(IN osm_ucast_mgr_t * const p_mgr,
 
 	OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 		"Node 0x%" PRIx64 ", remote node 0x%" PRIx64
-		", port 0x%X, remote port 0x%X\n",
+		", port %u, remote port %u\n",
 		cl_ntoh64(osm_node_get_node_guid(p_this_sw->p_node)),
 		cl_ntoh64(osm_node_get_node_guid(p_remote_sw->p_node)),
 		port_num, remote_port_num);
@@ -273,7 +273,7 @@ __osm_ucast_mgr_process_port(IN osm_ucast_mgr_t * const p_mgr,
 		osm_physp_t *p = osm_node_get_physp_ptr(p_sw->p_node, port);
 
 		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-			"Routing LID %u to port 0x%X"
+			"Routing LID %u to port %u"
 			" for switch 0x%" PRIx64 "\n",
 			lid_ho, port, cl_ntoh64(node_guid));
 

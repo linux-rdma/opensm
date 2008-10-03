@@ -194,8 +194,8 @@ __osm_lr_rcv_get_physp_link(IN osm_sa_t * sa,
 			goto Exit;
 
 	OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Acquiring link record\n"
-		"\t\t\t\tsrc port 0x%" PRIx64 " (port 0x%X)"
-		", dest port 0x%" PRIx64 " (port 0x%X)\n",
+		"\t\t\t\tsrc port 0x%" PRIx64 " (port %u)"
+		", dest port 0x%" PRIx64 " (port %u)\n",
 		cl_ntoh64(osm_physp_get_port_guid(p_src_physp)), src_port_num,
 		cl_ntoh64(osm_physp_get_port_guid(p_dest_physp)),
 		dest_port_num);

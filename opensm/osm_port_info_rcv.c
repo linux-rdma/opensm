@@ -235,9 +235,9 @@ __osm_pi_rcv_process_switch_port(IN osm_sm_t * sm,
 
 				OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 					"Unlinking local node 0x%" PRIx64
-					", port 0x%X"
+					", port %u"
 					"\n\t\t\t\tand remote node 0x%" PRIx64
-					", port 0x%X\n",
+					", port %u\n",
 					cl_ntoh64(osm_node_get_node_guid
 						  (p_node)), port_num,
 					cl_ntoh64(osm_node_get_node_guid
@@ -292,13 +292,13 @@ __osm_pi_rcv_process_switch_port(IN osm_sm_t * sm,
 						ib_get_err_str(status));
 			} else
 				OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-					"Skipping SMP responder port 0x%X\n",
+					"Skipping SMP responder port %u\n",
 					p_pi->local_port_num);
 			break;
 
 		default:
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0F03: "
-				"Unknown link state = %u, port = 0x%X\n",
+				"Unknown link state = %u, port = %u\n",
 				ib_port_info_get_port_state(p_pi),
 				p_pi->local_port_num);
 			break;

@@ -628,7 +628,7 @@ static osm_mtree_node_t *__osm_mcast_mgr_branch(osm_sm_t * sm,
 	 */
 	if (depth > 1) {
 		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-			"Adding upstream port 0x%X\n", upstream_port);
+			"Adding upstream port %u\n", upstream_port);
 
 		CL_ASSERT(upstream_port);
 		osm_mcast_tbl_set(p_tbl, mlid_ho, upstream_port);
@@ -662,7 +662,7 @@ static osm_mtree_node_t *__osm_mcast_mgr_branch(osm_sm_t * sm,
 			continue;	/* No routes down this port. */
 
 		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-			"Routing %zu destinations via switch port 0x%X\n",
+			"Routing %zu destinations via switch port %u\n",
 			count, i);
 
 		/*
@@ -716,7 +716,7 @@ static osm_mtree_node_t *__osm_mcast_mgr_branch(osm_sm_t * sm,
 
 			OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 				"Found leaf for port 0x%016" PRIx64
-				" on switch port 0x%X\n",
+				" on switch port %u\n",
 				cl_ntoh64(osm_port_get_guid (p_wobj->p_port)),
 				i);
 

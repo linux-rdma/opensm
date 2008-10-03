@@ -322,7 +322,7 @@ osm_physp_calc_link_mtu(IN osm_log_t * p_log, IN const osm_physp_t * p_physp)
 		    ib_port_info_get_mtu_cap(&p_remote_physp->port_info);
 
 		OSM_LOG(p_log, OSM_LOG_DEBUG,
-			"Remote port 0x%016" PRIx64 " port = 0x%X : "
+			"Remote port 0x%016" PRIx64 " port = %u : "
 			"MTU = %u. This Port MTU: %u\n",
 			cl_ntoh64(osm_physp_get_port_guid(p_remote_physp)),
 			osm_physp_get_port_num(p_remote_physp),
@@ -334,8 +334,8 @@ osm_physp_calc_link_mtu(IN osm_log_t * p_log, IN const osm_physp_t * p_physp)
 
 			OSM_LOG(p_log, OSM_LOG_VERBOSE,
 				"MTU mismatch between ports."
-				"\n\t\t\t\tPort 0x%016" PRIx64 ", port 0x%X"
-				" and port 0x%016" PRIx64 ", port 0x%X."
+				"\n\t\t\t\tPort 0x%016" PRIx64 ", port %u"
+				" and port 0x%016" PRIx64 ", port %u."
 				"\n\t\t\t\tUsing lower MTU of %u\n",
 				cl_ntoh64(osm_physp_get_port_guid(p_physp)),
 				osm_physp_get_port_num(p_physp),
