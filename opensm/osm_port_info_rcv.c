@@ -488,7 +488,7 @@ osm_pi_rcv_process_set(IN osm_sm_t * sm, IN osm_node_t * const p_node,
 
 	OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 		"Received logical SetResp() for GUID 0x%" PRIx64
-		", port num 0x%X"
+		", port num %u"
 		"\n\t\t\t\tfor parent node GUID 0x%" PRIx64
 		" TID 0x%" PRIx64 "\n",
 		cl_ntoh64(port_guid), port_num,
@@ -598,7 +598,7 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 		   most likely due to a subnet sweep in progress.
 		 */
 		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
-			"Discovered port num 0x%X with GUID 0x%" PRIx64
+			"Discovered port num %u with GUID 0x%" PRIx64
 			" for parent node GUID 0x%" PRIx64
 			", TID 0x%" PRIx64 "\n",
 			port_num, cl_ntoh64(port_guid),
@@ -613,7 +613,7 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 		 */
 		if (!p_physp) {
 			OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
-				"Initializing port number 0x%X\n", port_num);
+				"Initializing port number %u\n", port_num);
 			p_physp = &p_node->physp_table[port_num];
 			osm_physp_init(p_physp,
 				       port_guid,

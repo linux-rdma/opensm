@@ -103,7 +103,7 @@ static void drop_mgr_clean_physp(osm_sm_t * sm, IN osm_physp_t * p_physp)
 			    IB_LINK_ACTIVE) {
 				OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 					"Forcing new heavy sweep. Remote "
-					"port 0x%016" PRIx64 " port num: 0x%X "
+					"port 0x%016" PRIx64 " port num: %u "
 					"was recognized in ACTIVE state\n",
 					cl_ntoh64(p_remote_physp->port_guid),
 					p_remote_physp->port_num);
@@ -117,7 +117,7 @@ static void drop_mgr_clean_physp(osm_sm_t * sm, IN osm_physp_t * p_physp)
 				p_remote_port->discovery_count = 0;
 				OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 					"Resetting discovery count of node: "
-					"0x%016" PRIx64 " port num:0x%X\n",
+					"0x%016" PRIx64 " port num:%u\n",
 					cl_ntoh64(osm_node_get_node_guid
 						  (p_remote_physp->p_node)),
 					p_remote_physp->port_num);
@@ -139,7 +139,7 @@ static void drop_mgr_clean_physp(osm_sm_t * sm, IN osm_physp_t * p_physp)
 	}
 
 	OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-		"Clearing node 0x%016" PRIx64 " physical port number 0x%X\n",
+		"Clearing node 0x%016" PRIx64 " physical port number %u\n",
 		cl_ntoh64(osm_node_get_node_guid(p_physp->p_node)),
 		p_physp->port_num);
 

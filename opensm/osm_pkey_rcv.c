@@ -127,7 +127,7 @@ void osm_pkey_rcv_process(IN void *context, IN void *data)
 	 */
 	if (!p_physp) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 4807: "
-			"Got invalid port number 0x%X\n", port_num);
+			"Got invalid port number %u\n", port_num);
 		goto Exit;
 	}
 

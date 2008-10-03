@@ -129,7 +129,7 @@ osm_trap_rcv_aging_tracker_callback(IN uint64_t key,
 	p_physp = get_physp_by_lid_and_num(sm, lid, port_num);
 	if (!p_physp)
 		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
-			"Cannot find port num:0x%X with lid:%u\n",
+			"Cannot find port num:%u with lid:%u\n",
 			port_num, lid);
 	/* make sure the physp is still valid */
 	/* If the health port was false - set it to true */

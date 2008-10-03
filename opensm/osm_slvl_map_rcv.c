@@ -135,7 +135,7 @@ void osm_slvl_rcv_process(IN void *context, IN void *p_data)
 	 */
 	if (!p_physp) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR,
-			"Got invalid port number 0x%X\n", out_port_num);
+			"Got invalid port number %u\n", out_port_num);
 		goto Exit;
 	}
 

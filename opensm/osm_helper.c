@@ -780,7 +780,7 @@ osm_dump_port_info(IN osm_log_t * const p_log,
 
 		osm_log(p_log, log_level,
 			"PortInfo dump:\n"
-			"\t\t\t\tport number.............0x%X\n"
+			"\t\t\t\tport number.............%u\n"
 			"\t\t\t\tnode_guid...............0x%016" PRIx64 "\n"
 			"\t\t\t\tport_guid...............0x%016" PRIx64 "\n"
 			"\t\t\t\tm_key...................0x%016" PRIx64 "\n"

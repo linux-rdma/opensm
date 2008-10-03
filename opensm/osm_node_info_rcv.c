@@ -217,7 +217,7 @@ __osm_ni_rcv_set_links(IN osm_sm_t * sm,
 	    port_num != 0 && cl_qmap_count(&sm->p_subn->sw_guid_tbl) == 0) {
 		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 			"Duplicate GUID found by link from a port to itself:"
-			"node 0x%" PRIx64 ", port number 0x%X\n",
+			"node 0x%" PRIx64 ", port number %u\n",
 			cl_ntoh64(osm_node_get_node_guid(p_node)), port_num);
 		p_physp = osm_node_get_physp_ptr(p_node, port_num);
 		osm_dump_dr_path(sm->p_log,
@@ -235,8 +235,8 @@ __osm_ni_rcv_set_links(IN osm_sm_t * sm,
 
 	OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 		"Creating new link between:\n\t\t\t\tnode 0x%" PRIx64
-		", port number 0x%X and\n\t\t\t\tnode 0x%" PRIx64
-		", port number 0x%X\n",
+		", port number %u and\n\t\t\t\tnode 0x%" PRIx64
+		", port number %u\n",
 		cl_ntoh64(osm_node_get_node_guid(p_node)), port_num,
 		cl_ntoh64(p_ni_context->node_guid), p_ni_context->port_num);
 
