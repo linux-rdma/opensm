@@ -979,6 +979,12 @@ static int lash_core(lash_t * p_lash)
 				switches[dest_switch]->routing_table[i].lane = v_lane;
 
 				if (cycle_found == 1 || cycle_found2 == 1) {
+					if (lanes_needed + 1 > p_lash->vl_min) {
+						lanes_needed++;
+						goto Error_Not_Enough_Lanes;
+					} else
+						lanes_needed++;
+
 					generate_cdg_for_sp(p_lash, i, dest_switch, v_lane);
 					generate_cdg_for_sp(p_lash, dest_switch, i, v_lane);
 
@@ -987,13 +993,6 @@ static int lash_core(lash_t * p_lash)
 					set_temp_depend_to_permanent_for_sp(p_lash, dest_switch, i,
 									    v_lane);
 
-					if (lanes_needed + 1 > p_lash->vl_min) {
-						lanes_needed++;
-						goto Error_Not_Enough_Lanes;
-					} else
-						lanes_needed++;
-
-					// goto error exit with message
 					p_lash->num_mst_in_lane[v_lane]++;
 					p_lash->num_mst_in_lane[v_lane]++;
 				}
