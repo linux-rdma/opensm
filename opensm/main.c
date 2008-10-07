@@ -773,7 +773,7 @@ int main(int argc, char *argv[])
 			temp = strtol(optarg, NULL, 0);
 			if (temp > 7) {
 				fprintf(stderr,
-					"ERROR: LMC must be 7 or less.");
+					"ERROR: LMC must be 7 or less.\n");
 				return (-1);
 			}
 			opt.lmc = (uint8_t) temp;
