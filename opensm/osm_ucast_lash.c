@@ -1064,8 +1064,7 @@ static void populate_fwd_tbls(lash_t * p_lash)
 		current_guid = p_sw->p_node->node_info.port_guid;
 		sw = p_sw->priv;
 
-		memset(p_sw->lft_buf, OSM_NO_PATH,
-		       IB_LID_UCAST_END_HO + 1);
+		memset(p_sw->lft_buf, OSM_NO_PATH, IB_LID_UCAST_END_HO + 1);
 
 		for (lid = 1; lid <= max_lid_ho; lid++) {
 			port = cl_ptr_vector_get(&p_subn->port_lid_tbl, lid);
@@ -1096,8 +1095,7 @@ static void populate_fwd_tbls(lash_t * p_lash)
 				    virtual_physical_port_table
 				    [lash_egress_port];
 
-				p_sw->lft_buf[lid] =
-				    physical_egress_port;
+				p_sw->lft_buf[lid] = physical_egress_port;
 				OSM_LOG(p_log, OSM_LOG_VERBOSE,
 					"LASH fwd SRC GUID 0x%016" PRIx64
 					" src lash id (%d), "
