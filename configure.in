@@ -4,11 +4,16 @@ AC_PREREQ(2.57)
 AC_INIT(opensm, 3.2.2, general@lists.openfabrics.org)
 AC_CONFIG_SRCDIR([opensm/osm_opensm.c])
 AC_CONFIG_AUX_DIR(config)
-AC_CONFIG_HEADERS(include/config.h)
+AC_CONFIG_HEADERS(include/config.h include/opensm/osm_config.h)
 AM_INIT_AUTOMAKE
 
 AC_SUBST(RELEASE, ${RELEASE:-unknown})
 AC_SUBST(TARBALL, ${TARBALL:-${PACKAGE}-${VERSION}.tar.gz})
+
+dnl NOTE: AC_DEFINE's and AC_DEFINE_UNQUOTED's which are used in header files
+dnl       MUST have a corresponding entry in include/opensm/osm_config.h.in to
+dnl       ensure plugin compatibility.
+AC_DEFINE(_OSM_CONFIG_H_, 1, mark config.h inclusion)
 
 dnl Defines the Language
 AC_LANG_C

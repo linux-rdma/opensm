@@ -37,6 +37,7 @@
 #include <time.h>
 #include <iba/ib_types.h>
 #include <complib/cl_qlist.h>
+#include <opensm/osm_config.h>
 
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
