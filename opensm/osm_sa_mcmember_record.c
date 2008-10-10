@@ -992,13 +992,10 @@ static unsigned match_and_update_ipv6_snm_mgid(ib_gid_t *mgid)
 
 osm_mgrp_t *osm_get_mgrp_by_mgid(IN osm_sa_t *sa, IN ib_gid_t *p_mgid)
 {
-	ib_gid_t mgid;
 	int i;
 
-	memcpy(&mgid, p_mgid, sizeof(mgid));
-
 	if (sa->p_subn->opt.consolidate_ipv6_snm_req &&
-	    match_and_update_ipv6_snm_mgid(&mgid)) {
+	    match_and_update_ipv6_snm_mgid(p_mgid)) {
 		char gid_str[INET6_ADDRSTRLEN];
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Special Case Solicited Node Mcast Join for MGID %s\n",
@@ -1009,7 +1006,7 @@ osm_mgrp_t *osm_get_mgrp_by_mgid(IN osm_sa_t *sa, IN ib_gid_t *p_mgid)
 	for (i = 0; i <= sa->p_subn->max_mcast_lid_ho - IB_LID_MCAST_START_HO;
 	     i++)
 		if (sa->p_subn->mgroups[i] &&
-		    match_mgrp_by_mgid(sa->p_subn->mgroups[i], &mgid))
+		    match_mgrp_by_mgid(sa->p_subn->mgroups[i], p_mgid))
 			return sa->p_subn->mgroups[i];
 
 	return NULL;
