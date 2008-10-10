@@ -32,7 +32,7 @@ with_umad_includes="")
 
 if test x$with_umad_includes = x; then
    if test x$with_umad_prefix != x; then
-        with_umad_includes=$with_umad_prefix/include
+      with_umad_includes=$with_umad_prefix/include
    fi
 fi
 
@@ -46,12 +46,12 @@ with_umad_libs="")
 if test x$with_umad_libs = x; then
    if test x$with_umad_prefix != x; then
 dnl Should we use lib64 or lib
-if test "$(uname -m)" = "x86_64" -o "$(uname -m)" = "ppc64"; then
-        with_umad_libs=$with_umad_prefix/lib64
-else
-        with_umad_libs=$with_umad_prefix/lib
+      if test "$(uname -m)" = "x86_64" -o "$(uname -m)" = "ppc64"; then
+         with_umad_libs=$with_umad_prefix/lib64
+      else
+         with_umad_libs=$with_umad_prefix/lib
       fi
-fi
+   fi
 fi
 
 dnl Define a way for the user to provide the path to the simulator installation
@@ -68,11 +68,11 @@ if test $with_osmv = "openib"; then
    OSMV_LDADD="-L\$(abs_srcdir)/../../libibumad/.libs -L\$(abs_srcdir)/../../libibcommon/.libs -L\$(libdir) -libumad -libcommon"
 
    if test "x$with_umad_libs" != "x"; then
-     OSMV_LDADD="-L$with_umad_libs $OSMV_LDADD"
+      OSMV_LDADD="-L$with_umad_libs $OSMV_LDADD"
    fi
 
    if test "x$with_umad_includes" != "x"; then
-     OSMV_INCLUDES="-I$with_umad_includes $OSMV_INCLUDES"
+      OSMV_INCLUDES="-I$with_umad_includes $OSMV_INCLUDES"
    fi
    AC_DEFINE(DUAL_SIDED_RMPP, 1, [Define as 1 if you want Dual Sided RMPP Support])
 elif test $with_osmv = "sim" ; then
@@ -95,10 +95,10 @@ elif test $with_osmv = "gen1"; then
       osmv_dir_smp=`uname -r`
       for d in /usr/src/linux-$osmv_dir /usr/src/linux-$osmv_dir_smp /lib/modules/$osmv_dir/build /lib/modules/$osmv_dir_smp/build/; do
          if test -f $d/drivers/infiniband/include/ts_ib_useraccess.h; then
-       OSMV_INCLUDES="$OSMV_INCLUDES -I$d/drivers/infiniband/include"
-       osmv_found=1
-      fi
-   done
+            OSMV_INCLUDES="$OSMV_INCLUDES -I$d/drivers/infiniband/include"
+            osmv_found=1
+         fi
+      done
    else
       if test -f  $TSHOME/ts_ib_useraccess.h; then
          OSMV_INCLUDES="$OSMV_INCLUDES -I$TSHOME"
@@ -172,7 +172,7 @@ if test "$disable_libcheck" != "yes"; then
    AC_MSG_ERROR([OSM Vendor Type not defined: please make sure OPENIB_APP_OSMV SEL is run before CHECK_HEADER])
  fi
  if test "x$osmv_headers" != "x"; then
-  AC_CHECK_HEADERS($osmv_headers)
+   AC_CHECK_HEADERS($osmv_headers)
  fi
 fi
 # --- END OPENIB_APP_OSMV_CHECK_HEADER ---
