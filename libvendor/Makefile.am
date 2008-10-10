@@ -24,13 +24,11 @@ osmvendor_api_version=$(shell grep LIBVERSION= $(srcdir)/libosmvendor.ver | sed 
 COMM_HDRS= $(srcdir)/../include/vendor/osm_vendor_api.h \
 			$(srcdir)/../include/vendor/osm_vendor.h \
 			$(srcdir)/../include/vendor/osm_vendor_select.h \
-			$(srcdir)/../include/vendor/osm_vendor_sa_api.h \
-			$(srcdir)/../include/vendor/osm_pkt_randomizer.h
+			$(srcdir)/../include/vendor/osm_vendor_sa_api.h
 
 if OSMV_OPENIB
 libosmvendor_la_SOURCES = osm_vendor_ibumad.c \
-			  osm_vendor_ibumad_sa.c \
-			  osm_pkt_randomizer.c
+			  osm_vendor_ibumad_sa.c
 HDRS =$(COMM_HDRS) $(srcdir)/../include/vendor/osm_vendor_ibumad.h
 endif
 if OSMV_SIM
@@ -44,7 +42,8 @@ libosmvendor_la_SOURCES = osm_vendor_mlx.c \
 		osm_vendor_mlx_txn.c \
 		osm_vendor_mlx_sa.c \
 		osm_pkt_randomizer.c
-HDRS =$(COMM_HDRS) $(srcdir)/../include/vendor/osm_vendor_mlx.h
+HDRS =$(COMM_HDRS) $(srcdir)/../include/vendor/osm_vendor_mlx.h \
+	$(srcdir)/../include/vendor/osm_pkt_randomizer.h
 endif
 if OSMV_GEN1
 libosmvendor_la_SOURCES = osm_vendor_mlx.c \
@@ -57,7 +56,8 @@ libosmvendor_la_SOURCES = osm_vendor_mlx.c \
 		osm_vendor_mlx_ts.c \
 		osm_vendor_mlx_txn.c \
 		osm_vendor_mlx_sa.c
-HDRS =$(COMM_HDRS) $(srcdir)/../include/vendor/osm_vendor_mlx.h
+HDRS =$(COMM_HDRS) $(srcdir)/../include/vendor/osm_vendor_mlx.h \
+	$(srcdir)/../include/vendor/osm_pkt_randomizer.h
 endif
 if OSMV_VAPI
 libosmvendor_la_SOURCES = osm_vendor_mlx.c \
@@ -70,7 +70,8 @@ libosmvendor_la_SOURCES = osm_vendor_mlx.c \
 		osm_vendor_mlx_ibmgt.c \
 		osm_vendor_mlx_txn.c \
 		osm_vendor_mlx_sa.c
-HDRS =$(COMM_HDRS) $(srcdir)/../include/vendor/osm_vendor_mlx.h
+HDRS =$(COMM_HDRS) $(srcdir)/../include/vendor/osm_vendor_mlx.h \
+	$(srcdir)/../include/vendor/osm_pkt_randomizer.h
 endif
 
 libosmvendor_la_LIBADD = -L../complib -losmcomp
