@@ -17,104 +17,161 @@ This document includes the following sections:
   dependencies)
 2 Known Issues And Limitations
 3 Unsupported IB compliance statements
-4 Major Bug Fixes
+4 Bug Fixes
 5 Main Verification Flows
 6 Qualified software stacks and devices
 
 1.1 Major New Features
 
-* QoS manager (experimental)
-  This QoS manager implementation is in accordance with IBA QoS Annex.
-  Highly configurable QoS Policy is parsed from OpenSM QoS policy file.
-  Valid QoS parameters will be reported in SA PathRecord and
-  MultiPathRecord. In addition simple QoS levels per ULPs configuration
-  is supported too.
+* Routing Chaining
+  Routing chaining is the ability to configure the order in which routing
+  algorithms are applied in opensm, i.e. '-R ftree,updn,minhop' - try
+  using ftree routing. If ftree fails, try updn. If updn fails, try
+  minhop.
 
-* Performance Manager
-  When enabled it collects a fabric port counters and able to log it or
-  to pass to external program via event plugin interface. It handles
-  counters overflow, supports LID/QP redirection and is able to work
-  when OpenSM is in master, standby, and inactive states.
+* Solicited Node Multicast addresses consolidation
+  When this mode is used (enabled with --consolidate_ipv6_snm_req option)
+  OpenSM will map all IPv6 Solicited Node Multicast address join requests
+  into a single Multicast group with address ff10:601b::1:ff00:0. In this
+  way limited MLID space is saved. The feature is very useful with large
+  (~> 1024 nodes) clusters.
 
-* Dimension Order routing (DOR) algorithm
-  DOR Unicast routing algorithm - based on the Min Hop algorithm,  but
-  avoids  port  equalization  except for redundant links between the
-  same two switches.  This provides deadlock free routes for hypercubes
-  when the  fabric  is  cabled  as a hypercube and for meshes when cabled
-  as a mesh (see details in OpenSM man page).
+* OpenSM sweep state machine rework
+  Huge and buggy OpenSM sweep state machine was fully rewritten in safer
+  and more effective synchronous manner.
 
-* Routing improvements
-  Speedup the current routing algorithms default MinHops, Up/Down and
-  LASH and lid matrix generation. Fat Tree routing engine is able to work
-  with not pure fat free topology.
+* Multi lid routing balancing for updn/minhop routing algorithms
+  When LMC > 0 is used OpenSM will ensure to generate routing paths via
+  different switches and when possible chassis.
 
-* Multiple IB routers support
-  OpenSM now able to keep configurable subnet prefix to router table.
-  SA will report path to this routers when SA PathRecord was issued with
-  non-local DGID.
+* Preserve base lid routes when LMC > 0
+  When LMC > 0 is used OpenSM will preserve routing paths for base lids
+  as it would be with LMC = 0. In this way traffic on each LID level is
+  not affected by LMC changes.
 
-* Node map
-  This is possible to name nodes in this config file. Those names will be
-  used for logging and by QoS configuration.
+* Ordered routing paths balancing
+  This adds ability to predefine the port order in which routing paths
+  balancing is performed by OpenSM. Helps to improve performance
+  dramatically (40-50%) for applications with known communication
+  pattern. Activated with --guid_routing_order_file command line option.
 
-* PKey index support
-  Proper support for PKey index in GSI queries.
+* Unified OpenSM configuration
+  Now there is "conventional" config file instead of hidden option cache
+  file (opensm.opts). OpenSM will find this in a default place (consult
+  man page for exact value) or the file name can be specified with '-F'
+  command line option. Also there is an option ('-c') to generate config
+  file template.
 
-* Incremental LFTs, PKey, SL2VL, and VLarbitration table updates
-  OpenSM will only fetch those tables in first heavy sweep and then
-  will maintain this internally.
+* Query remote SMs during light sweep
+  Master OpenSM will query remote standby SMs periodically to catch its
+  possible state changes and react accordingly (as required by IBA spec).
 
-* Fast port and switch detector
-  When port and/or switch was externally reset and it was fast so sweep
-  doesn't find this device as disconnected OpenSM will detect this by
-  changed port states and handle accordingly.
+* Predefined port ids for Up/Down algorithm
+  This is useful as Up/Down fine tuning tool - the algorithm will use
+  predefined port IDs instead of GUIDs for its decision about direction.
+  Activated with --ids_guid_file command line option.
 
-* Duplicated GUIDs/port moving detector
-  OpenSM will be able to detect port moving during a fabric discovery
-  and will not report duplicated GUIDs in this case.
+* Improved plugin API version 2.
+  Now OpenSM will provide to plugins the access to all data structures.
+  This make it possible to implement powerful multi purpose plugins. All
+  OpenSM header files are installed now and specific configuration/build
+  options are exported via generated osm_config.h header file.
 
-* Multicast rerouting speedup
-  Now OpenSM will calculate and setup multicast forwarding tables for
-  all altered multicast groups and not for each one.
+* Many code improvements, optimizations and cleanups
 
-* Event plugin API
-  OpenSM allows to load dynamically various plugin modules.
-
-* Many generic improvements
+* Automatic daily snapshots generation.
+  This is is not a "feature", but simplifies the access to recent OpenSM
+  bits.
 
 1.2 Minor New Features:
 
-* Daemon mode can be activated with -B option.
+* Cleanup cl_qlock_pool memory allocator - speedup memory allocations
 
-* Support multiple scopes for IPoIB multicast groups in partition config.
+* Support for configurable (via OSM_UMAD_MAX_PENDING environment variable)
+  size of pending MADs pool.
 
-* Loopback connection handling
-  Loopback connection is not interpreted as duplicated GUID anymore.
+* Set packet life time to subnet timeout option rather than default
 
-* Connect root nodes option for Up/Down routing engine.
-  When this option is specified Up/Down will create routing paths between
-  its root nodes.
+* Enforce routing paths rebalancing on switch reconnection
 
-* Dump and log filenames changed from osm* to opensm*.
+* In Up/Down routing algorithm compare GUID values in host byte order
 
-* Support loopback console
-  Socket console with only local access.
+* Add 'switchbalance' and 'lidbalance' commands for OpenSM console
 
-* Configurable config directory (the default value is /etc/opensm) and
-  configurable default values of OpenSM config filenames.
+* Respond to new trap 144 node description update flag
 
-* Add option for force SDR link speed
-  Add option to opensm.opts to force link speed. Currently, only forcing
-  to SDR link speed is supported. This option is not supported as a
-  command line option.
+* Add '--connect_roots' command line options. This preserves connectivity
+  between root nodes in Up/Down routing algorithm
 
-* Better packaging
-  Building and RPM packaging were improved and simplified.
+* Setting SL in the IPoIB MCast groups in accordance with QoS policy
 
-* Handle "babbling" ports
-  When a babbling port (port which causes a frequent trap generation) is
-  detected, OpenSM will disable the port which should terminate the trap
-  storm.
+* Dump auto detected root node guids in Up/Down routing algorithm
+
+* Unify OpenSM dumpers code
+
+* Unify various guid files parsers - add generic nodenamemap style parser
+
+* When root node guids were provided in file update the list on each
+  Up/Down run
+
+* During ./configure show values of configuration dirs and files
+
+* Make prefix routes config file name configurable
+
+* Add a Performance Manager HOWTO to the docs and the dist
+
+* Support separate SA and SM keys as clarified in IBA 1.2.1
+
+* Remove AM_MAINTAINER_MODE in ./configure
+
+* Make vendor type OSM_VENDOR_INTF_OPENIB (libibumad) to be default
+
+* Build osm_perfmgr_db.* content only when PerfMgr is enabled.
+
+* Move PerfMgr event_db_dump_file to common OpenSM dump dir
+
+* Allow space separated strings as values in OpenSM config
+
+* Support for multiple event plugins
+
+* Add '--version' command line option
+
+* Add '--create-config <file-name>' command line option
+
+* Speedup and simplify logging code
+
+* Speedup multicast processing in SA DB
+
+* In log messages convert unicast LIDs from hex to decimal format and
+  GIDs from hex to IPv6 address format
+
+* Handle all possible ports in "ignore-guids" file
+
+* Add 'reroute' console command
+
+* Remove many install-exec-hook from Makefiles
+
+* Some cleanups in LASH routing algorithm code
+
+* In Makefiles remove -rpath and explicit -lpthread, -ldl from LDFLAGS
+  (move to configurator)
+
+* Install all OpenSM header files
+
+* Improve locking in SM Info receiver
+
+* Add new OSM_EVENT_ID_SUBNET_UP event for plugins
+
+* Redo lex and yacc files generation in conventional way
+
+* Add a missing Node Description check on light sweep.
+
+* Move vendor specific compilation defines from command to generated
+  config.h file
+
+* Provide useful error message when log file opening fails
+
+* Add generated osm_config.h file with OpenSM specific defines
 
 1.3 Library API Changes
 
@@ -209,76 +266,75 @@ information regarding each compliance statement.
 * C15-0.1.14 (Services):
   Provide means to associate service name and ServiceKeys.
 
-4 Major Bug Fixes
+4 Bug Fixes
 -----------------
 
-The following is a list of bugs that were fixed. Note that other less critical
-or visible bugs were also fixed.
+4.1 Major Bug Fixes
 
-* osm_ucast_ftree.c: do load-leveling of non-CN routes
+* Set SA attribute offset to 0 when no records are returned
 
-* osm_ucast_ftree.c: ignore port 0 and loopbacks on switches
+* Send trap 64 only after new ports are in ACTIVE state.
 
-* lash: fix possible segfault in osm_get_lash_sl()
+* Fix in sending client reregistration bit
 
-* osm_ucast_ftree.c: fixing coredump in fat-tree routing
+* Fix default OpenSM SM Key byte order
 
-* osm_sa_slvl_record: fix overflow crash
+* Fix in sending Multicast groups creation/deletion notification (Traps
+  66,67)
 
-* Break multicast rerouting requests processing when heavy sweep is
-  scheduled.
+* Don't startup automatically on SuSE based systems
 
-* updn: report fallback properly
+4.2 Other Bug Fixes
 
-* Fix incorrect identification of routing engine used
+* opensm/osm_console.c: fix seg fault when running "portstatus ca" in
+  the console
 
-* Don't zero base LID when invalid value is received
+* opensm: fix potential core dumps where osm_node_get_physp_ptr can
+  return NULL
 
-* lash: fix wrong allocation size
+* opensm/osm_mcast_mgr: limit spanning tree creation recursion to value
+  of max hops (64)
 
-* Fixing broken logic in 'process world' part of LinkRecord processing
+* opensm: switch LFTs incremental update fix
 
-* Fix lmc_mask bit order in osm_sa_link_record.c
+* opensm/osm_state_mgr.c: fix segmentation fault
 
-* Adding missing comparison by to_lid/from_lid in LinkRecord processing
+* opensm: eliminate some potential NULL pointer dereferences
 
-* Broken logic when scanning subnet for PIR request
+* opensm/osm_console.c: fix guid parsing
 
-* No interactive games in daemon mode
+* opensm: fix off by 1 issue with max_lid and max_multicat_lid_ho
 
-* Fixing memory leak in node description
+* opensm: fix potentially wrong port_guid initialization
 
-* Fix PortInfo update issues for switch port 0
+* opensm/configure.in: fix wrong HAVE_DEFAULT_OPENSM_CONFIG_FILE define
+  generation
 
-* Changed method_mask type in user_mad interface in accordance with
-  kernel ABI
+* opensm: fix snprintf() usage
 
-* Use umad_get_issm_path() in osm_vendor_set_sm()
+* opensm/osm_sa_lft_record: validate LFT block number
 
-* Report message fix
+* opensm/osm_sa_lft_record: pass block parameter in host byte order
 
-* Uninitialized variables usage fix
+* opensm/include/Makefile.am: don't duplicate header files in EXTRA_DIST
 
-* osm_ucast_ftree.c: Possible NULL ptr seg fault
+* opensm/osm_sa_class_port_info.c: fix over bound array access
 
-* osm_mcast_mgr.c: Possible NULL ptr seg fault
+* osmtest/osmt_service.c: fix over bound array access
 
-* TrapRepress was failing for mkey != 0
+* osmtest: fix qpn encoding in osmtest_informinfo_request()
 
-* IB_PR_COMPMASK was used in MPR
+* opensm/osm_vendor_mlx_sa.c: handling attribute offset of 0
 
-* Set hop limit when creating ipoib multicast groups
+* opensm: fix segfault corner case when osm_console_init fails
 
-* Fix outstanding mad counters tracking on the error paths.
+* opensm/console: close console socket on cleanup path
 
-* Report new ports before handover mastership
+* opensm/osm_ucast_lash: fix buffer overflow
 
-* Fix opvls and neighbormtu when remote port invalid.
+* opensm: fix broken IPv6 SNM consolidation code
 
-* Bug in coding trying to set vl_arb_high_limit when PortInfo.base_lid
-  was still zero.
-
-* Protect SMInfo response against port moving issue.
+* Other less critical or visible bugs were also fixed.
 
 5 Main Verification Flows
 -------------------------
