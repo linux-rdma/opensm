@@ -126,24 +126,21 @@ static void show_usage(void)
 	printf("\n------- OpenSM - Usage and options ----------------------\n");
 	printf("Usage:   opensm [options]\n");
 	printf("Options:\n");
-	printf("--version\n"
-	       "          Prints OpenSM version and exits.\n\n");
-	printf("-F <file-name>, --config <file-name>\n"
+	printf("--version\n          Prints OpenSM version and exits.\n\n");
+	printf("--config, -F <file-name>\n"
 	       "          The name of the OpenSM config file. When not specified\n"
 	       "          " OSM_DEFAULT_CONFIG_FILE " will be used (if exists).\n\n");
-	printf("-c <file-name>, --create-config <file-name>\n"
+	printf("--create-config, -c <file-name>\n"
 	       "          OpenSM will dump its configuration to the specified file and exit.\n"
 	       "          This is a way to generate OpenSM configuration file template.\n\n");
-	printf("-g <GUID in hex>\n"
-	       "--guid <GUID in hex>\n"
+	printf("--guid, -g <GUID in hex>\n"
 	       "          This option specifies the local port GUID value\n"
 	       "          with which OpenSM should bind.  OpenSM may be\n"
 	       "          bound to 1 port at a time.\n"
 	       "          If GUID given is 0, OpenSM displays a list\n"
 	       "          of possible port GUIDs and waits for user input.\n"
 	       "          Without -g, OpenSM tries to use the default port.\n\n");
-	printf("-l <LMC>\n"
-	       "--lmc <LMC>\n"
+	printf("--lmc, -l <LMC>\n"
 	       "          This option specifies the subnet's LMC value.\n"
 	       "          The number of LIDs assigned to each port is 2^LMC.\n"
 	       "          The LMC value must be in the range 0-7.\n"
@@ -153,155 +150,131 @@ static void show_usage(void)
 	       "          ports, i.e. multiple interconnects between switches.\n"
 	       "          Without -l, OpenSM defaults to LMC = 0, which allows\n"
 	       "          one path between any two ports.\n\n");
-	printf("-p <PRIORITY>\n"
-	       "--priority <PRIORITY>\n"
+	printf("--priority, -p <PRIORITY>\n"
 	       "          This option specifies the SM's PRIORITY.\n"
 	       "          This will effect the handover cases, where master\n"
 	       "          is chosen by priority and GUID.  Range goes\n"
 	       "          from 0 (lowest priority) to 15 (highest).\n\n");
-	printf("-smkey <SM_Key>\n"
+	printf("--smkey, -k <SM_Key>\n"
 	       "          This option specifies the SM's SM_Key (64 bits).\n"
 	       "          This will effect SM authentication.\n"
 	       "          Note that OpenSM version 3.2.1 and below used the\n"
 	       "          default value '1' in a host byte order, it is fixed\n"
 	       "          now but you may need this option to interoperate\n"
-	       "          with old OpenSM running on a little endian machine.\n"
-	       "\n");
-
-	printf("-r\n"
-	       "--reassign_lids\n"
+	       "          with old OpenSM running on a little endian machine.\n\n");
+	printf("--reassign_lids, -r\n"
 	       "          This option causes OpenSM to reassign LIDs to all\n"
 	       "          end nodes. Specifying -r on a running subnet\n"
 	       "          may disrupt subnet traffic.\n"
 	       "          Without -r, OpenSM attempts to preserve existing\n"
 	       "          LID assignments resolving multiple use of same LID.\n\n");
-	printf("-R\n"
-	       "--routing_engine <engine name>\n"
+	printf("--routing_engine, -R <engine name>\n"
 	       "          This option chooses routing engine(s) to use instead of default\n"
 	       "          Min Hop algorithm.  Multiple routing engines can be specified\n"
 	       "          separated by commas so that specific ordering of routing\n"
 	       "          algorithms will be tried if earlier routing engines fail.\n"
 	       "          Supported engines: updn, file, ftree, lash, dor\n\n");
-	printf("-z\n"
-	       "--connect_roots\n"
+	printf("--connect_roots, -z\n"
 	       "          This option enforces a routing engine (currently\n"
 	       "          up/down only) to make connectivity between root switches\n"
 	       "          and in this way be IBA compliant. In many cases,\n"
 	       "          this can violate \"pure\" deadlock free algorithm, so\n"
 	       "          use it carefully.\n\n");
-	printf("-M\n"
-	       "--lid_matrix_file <file name>\n"
+	printf("--lid_matrix_file, -M <file name>\n"
 	       "          This option specifies the name of the lid matrix dump file\n"
 	       "          from where switch lid matrices (min hops tables will be\n"
 	       "          loaded.\n\n");
-	printf("-U\n"
-	       "--lfts_file <file name>\n"
+	printf("--lfts_file, -U <file name>\n"
 	       "          This option specifies the name of the LFTs file\n"
 	       "          from where switch forwarding tables will be loaded.\n\n");
-	printf("-S\n"
-	       "--sadb_file <file name>\n"
+	printf("--sadb_file, -S <file name>\n"
 	       "          This option specifies the name of the SA DB dump file\n"
 	       "          from where SA database will be loaded.\n\n");
-	printf("-a\n"
-	       "--root_guid_file <path to file>\n"
+	printf("--root_guid_file, -a <path to file>\n"
 	       "          Set the root nodes for the Up/Down or Fat-Tree routing\n"
 	       "          algorithm to the guids provided in the given file (one\n"
 	       "          to a line)\n" "\n");
-	printf("-u\n"
-	       "--cn_guid_file <path to file>\n"
+	printf("--cn_guid_file, -u <path to file>\n"
 	       "          Set the compute nodes for the Fat-Tree routing algorithm\n"
-	       "          to the guids provided in the given file (one to a line)\n"
-	       "\n");
-	printf("-m\n"
-	       "--ids_guid_file <path to file>\n"
+	       "          to the guids provided in the given file (one to a line)\n\n");
+	printf("--ids_guid_file, -m <path to file>\n"
 	       "          Name of the map file with set of the IDs which will be used\n"
 	       "          by Up/Down routing algorithm instead of node GUIDs\n"
-	       "          (format: <guid> <id> per line)\n");
-	printf("-X\n"
-	       "--guid_routing_order_file <path to file>\n"
+	       "          (format: <guid> <id> per line)\n\n");
+	printf("--guid_routing_order_file, -X <path to file>\n"
 	       "          Set the order port guids will be routed for the MinHop\n"
 	       "          and Up/Down routing algorithms to the guids provided in the\n"
 	       "          given file (one to a line)\n\n");
-	printf("-o\n"
-	       "--once\n"
+	printf("--once, -o\n"
 	       "          This option causes OpenSM to configure the subnet\n"
 	       "          once, then exit.  Ports remain in the ACTIVE state.\n\n");
-	printf("-s <interval>\n"
-	       "--sweep <interval>\n"
+	printf("--sweep, -s <interval>\n"
 	       "          This option specifies the number of seconds between\n"
 	       "          subnet sweeps.  Specifying -s 0 disables sweeping.\n"
 	       "          Without -s, OpenSM defaults to a sweep interval of\n"
 	       "          10 seconds.\n\n");
-	printf("-t <milliseconds>\n"
-	       "--timeout <milliseconds>\n"
+	printf("--timeout, -t <milliseconds>\n"
 	       "          This option specifies the time in milliseconds\n"
 	       "          used for transaction timeouts.\n"
 	       "          Specifying -t 0 disables timeouts.\n"
 	       "          Without -t, OpenSM defaults to a timeout value of\n"
 	       "          200 milliseconds.\n\n");
-	printf("-maxsmps <number>\n"
+	printf("--maxsmps, -n <number>\n"
 	       "          This option specifies the number of VL15 SMP MADs\n"
 	       "          allowed on the wire at any one time.\n"
-	       "          Specifying -maxsmps 0 allows unlimited outstanding\n"
+	       "          Specifying --maxsmps 0 allows unlimited outstanding\n"
 	       "          SMPs.\n"
-	       "          Without -maxsmps, OpenSM defaults to a maximum of\n"
+	       "          Without --maxsmps, OpenSM defaults to a maximum of\n"
 	       "          4 outstanding SMPs.\n\n");
-	printf("-console [off|local"
+	printf("--console, -q [off|local"
 #ifdef ENABLE_OSM_CONSOLE_SOCKET
 	       "|socket|loopback"
 #endif
 	       "]\n          This option activates the OpenSM console (default off).\n\n");
 #ifdef ENABLE_OSM_CONSOLE_SOCKET
-	printf("-console-port <port>\n"
+	printf("--console-port, -C <port>\n"
 	       "          Specify an alternate telnet port for the console (default %d).\n\n",
 	       OSM_DEFAULT_CONSOLE_PORT);
 #endif
-	printf("-i <equalize-ignore-guids-file>\n"
-	       "-ignore-guids <equalize-ignore-guids-file>\n"
+	printf("--ignore-guids, -i <equalize-ignore-guids-file>\n"
 	       "          This option provides the means to define a set of ports\n"
 	       "          (by guid) that will be ignored by the link load\n"
 	       "          equalization algorithm.\n\n");
-	printf("-x\n"
-	       "--honor_guid2lid\n"
+	printf("--honor_guid2lid, -x\n"
 	       "          This option forces OpenSM to honor the guid2lid file,\n"
 	       "          when it comes out of Standby state, if such file exists\n"
 	       "          under OSM_CACHE_DIR, and is valid. By default, this is FALSE.\n\n");
-	printf("-f\n"
-	       "--log_file\n"
+	printf("--log_file, -f <log-file-name>\n"
 	       "          This option defines the log to be the given file.\n"
 	       "          By default, the log goes to /var/log/opensm.log.\n"
 	       "          For the log to go to standard output use -f stdout.\n\n");
-	printf("-L <size in MB>\n"
-	       "--log_limit <size in MB>\n"
+	printf("--log_limit, -L <size in MB>\n"
 	       "          This option defines maximal log file size in MB. When\n"
 	       "          specified the log file will be truncated upon reaching\n"
 	       "          this limit.\n\n");
-	printf("-e\n"
-	       "--erase_log_file\n"
+	printf("--erase_log_file, -e\n"
 	       "          This option will cause deletion of the log file\n"
 	       "          (if it previously exists). By default, the log file\n"
 	       "          is accumulative.\n\n");
-	printf("-P\n"
-	       "--Pconfig\n"
+	printf("--Pconfig, -P <partition-config-file>\n"
 	       "          This option defines the optional partition configuration file.\n"
 	       "          The default name is \'"
 	       OSM_DEFAULT_PARTITION_CONFIG_FILE "\'.\n\n");
-	printf("-Q\n" "--qos\n" "          This option enables QoS setup.\n\n");
-	printf("-Y\n"
-	       "--qos_policy_file\n"
+	printf("--no_part_enforce, -N\n"
+	       "          This option disables partition enforcement on switch external ports.\n\n");
+	printf("--qos, -Q\n" "          This option enables QoS setup.\n\n");
+	printf("--qos_policy_file, -Y <QoS-policy-file>\n"
 	       "          This option defines the optional QoS policy file.\n"
 	       "          The default name is \'" OSM_DEFAULT_QOS_POLICY_FILE
 	       "\'.\n\n");
-	printf("-N\n" "--no_part_enforce\n"
-	       "          This option disables partition enforcement on switch external ports.\n\n");
-	printf("-y\n" "--stay_on_fatal\n"
+	printf("--stay_on_fatal, -y\n"
 	       "          This option will cause SM not to exit on fatal initialization\n"
 	       "          issues: if SM discovers duplicated guids or 12x link with\n"
 	       "          lane reversal badly configured.\n"
 	       "          By default, the SM will exit on these errors.\n\n");
-	printf("-B\n" "--daemon\n"
+	printf("--daemon, -B\n"
 	       "          Run in daemon mode - OpenSM will run in the background.\n\n");
-	printf("-I\n" "--inactive\n"
+	printf("--inactive, -I\n"
 	       "           Start SM in inactive rather than normal init SM state.\n\n");
 #ifdef ENABLE_OSM_PERF_MGR
 	printf("--perfmgr\n" "           Start with PerfMgr enabled.\n\n");
@@ -316,20 +289,19 @@ static void show_usage(void)
 	printf("--consolidate_ipv6_snm_req\n"
 	       "          Consolidate IPv6 Solicited Node Multicast group joins\n"
 	       "          into 1 IB multicast group.\n\n");
-	printf("-v\n"
-	       "--verbose\n"
+	printf("--verbose, -v\n"
 	       "          This option increases the log verbosity level.\n"
 	       "          The -v option may be specified multiple times\n"
 	       "          to further increase the verbosity level.\n"
 	       "          See the -D option for more information about\n"
 	       "          log verbosity.\n\n");
-	printf("-V\n"
+	printf("--V, -V\n"
 	       "          This option sets the maximum verbosity level and\n"
 	       "          forces log flushing.\n"
 	       "          The -V is equivalent to '-D 0xFF -d 2'.\n"
 	       "          See the -D option for more information about\n"
 	       "          log verbosity.\n\n");
-	printf("-D <flags>\n"
+	printf("--D, -D <flags>\n"
 	       "          This option sets the log verbosity level.\n"
 	       "          A flags field must follow the -D option.\n"
 	       "          A bit set/clear in the flags enables/disables a\n"
@@ -349,8 +321,7 @@ static void show_usage(void)
 	       "          Specifying -D 0xFF enables all messages (see -V).\n"
 	       "          High verbosity levels may require increasing\n"
 	       "          the transaction timeout with the -t option.\n\n");
-	printf("-d <number>\n"
-	       "--debug <number>\n"
+	printf("--debug, -d <number>\n"
 	       "          This option specifies a debug option.\n"
 	       "          These options are not normally needed.\n"
 	       "          The number following -d selects the debug\n"
@@ -363,9 +334,8 @@ static void show_usage(void)
 	       "          -d3  - Disable multicast support\n"
 	       "          -d10 - Put OpenSM in testability mode\n"
 	       "          Without -d, no debug options are enabled\n\n");
-	printf("-h\n"
-	       "--help\n" "          Display this usage info then exit.\n\n");
-	printf("-?\n" "          Display this usage info then exit.\n\n");
+	printf("--help, -h, -?\n"
+	       "          Display this usage info then exit.\n\n");
 	fflush(stdout);
 	exit(2);
 }
@@ -546,7 +516,7 @@ int main(int argc, char *argv[])
 	uint32_t val;
 	unsigned config_file_done = 0;
 	const char *const short_option =
-	    "F:c:i:f:ed:g:l:L:s:t:a:u:m:X:R:zM:U:S:P:Y:NBIQvVhoryxp:n:q:k:C:";
+	    "F:c:i:f:ed:D:g:l:L:s:t:a:u:m:X:R:zM:U:S:P:Y:NBIQvVhoryxp:n:q:k:C:";
 
 	/*
 	   In the array below, the 2nd parameter specifies the number
