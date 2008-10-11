@@ -42,7 +42,7 @@
   this is the generic include file which includes
   the proper vendor specific file
 */
-#include <vendor/osm_vendor_select.h>
+#include <opensm/osm_config.h>
 
 #if defined( OSM_VENDOR_INTF_TEST )
 #include <vendor/osm_vendor_test.h>
@@ -67,5 +67,5 @@
 #include <vendor/osm_vendor_al.h>
 #elif
 #error No MAD Interface selected!
-#error Choose an interface in osm_vendor_select.h
+#error Choose an interface in osm_config.h
 #endif

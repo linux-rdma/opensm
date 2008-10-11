@@ -46,8 +46,6 @@
 #  include <config.h>
 #endif				/* HAVE_CONFIG_H */
 
-#include <vendor/osm_vendor_select.h>
-
 #ifdef OSM_VENDOR_INTF_TEST
 
 #include <stdlib.h>

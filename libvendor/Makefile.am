@@ -23,7 +23,6 @@ osmvendor_api_version=$(shell grep LIBVERSION= $(srcdir)/libosmvendor.ver | sed 
 
 COMM_HDRS= $(srcdir)/../include/vendor/osm_vendor_api.h \
 			$(srcdir)/../include/vendor/osm_vendor.h \
-			$(srcdir)/../include/vendor/osm_vendor_select.h \
 			$(srcdir)/../include/vendor/osm_vendor_sa_api.h
 
 if OSMV_OPENIB

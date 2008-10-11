@@ -21,7 +21,6 @@ EXTRA_DIST = \
 	$(srcdir)/vendor/osm_vendor_mlx_transport.h \
 	$(srcdir)/vendor/osm_vendor_mlx_inout.h \
 	$(srcdir)/vendor/osm_vendor_mtl_hca_guid.h \
-	$(srcdir)/vendor/osm_vendor_select.h \
 	$(srcdir)/vendor/osm_vendor_test.h \
 	$(srcdir)/vendor/osm_vendor_ts.h \
 	$(srcdir)/vendor/osm_vendor_mlx_txn.h \
