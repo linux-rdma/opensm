@@ -1,9 +1,9 @@
                         OpenSM Release Notes 3.2
                        =============================
 
-Version: OpenSM 3.2.x
+Version: OpenSM 3.2.3
 Repo:    git://git.openfabrics.org/~sashak/management.git
-Date:    Sep 2008
+Date:    Oct 2008
 
 1 Overview
 ----------
@@ -19,7 +19,7 @@ This document includes the following sections:
 3 Unsupported IB compliance statements
 4 Bug Fixes
 5 Main Verification Flows
-6 Qualified software stacks and devices
+6 Qualified Software Stacks and Devices
 
 1.1 Major New Features
 
@@ -33,8 +33,8 @@ This document includes the following sections:
   When this mode is used (enabled with --consolidate_ipv6_snm_req option)
   OpenSM will map all IPv6 Solicited Node Multicast address join requests
   into a single Multicast group with address ff10:601b::1:ff00:0. In this
-  way limited MLID space is saved. The feature is very useful with large
-  (~> 1024 nodes) clusters.
+  way limited MLID space is saved. This IBA noncompliant feature is very
+  useful with large (~> 1024 nodes) clusters.
 
 * OpenSM sweep state machine rework
   Huge and buggy OpenSM sweep state machine was fully rewritten in safer
@@ -184,7 +184,7 @@ IBG2 distribution), OpenIB gen1 (e.g. IBGD distribution), or Mellanox
 VAPI stacks. The qualified driver versions are provided in Table 2,
 "Qualified IB Stacks".
 
-Also building of QoS manager policy file parser requires flex, and either
+Also, building of QoS manager policy file parser requires flex, and either
 bison or byacc installed.
 
 1.5 Supported Devices Firmware
@@ -267,7 +267,7 @@ information regarding each compliance statement.
   Provide means to associate service name and ServiceKeys.
 
 4 Bug Fixes
------------------
+-----------
 
 4.1 Major Bug Fixes
 
@@ -277,7 +277,7 @@ information regarding each compliance statement.
 
 * Fix in sending client reregistration bit
 
-* Fix default OpenSM SM Key byte order
+* Fix default OpenSM SM (and SA) Key byte order
 
 * Fix in sending Multicast groups creation/deletion notification (Traps
   66,67)
@@ -494,8 +494,17 @@ interface. The test procedure includes:
 * Trap injection and recovery
 
 
-6 Qualification
-----------------
+6 Qualified Software Stacks and Devices
+---------------------------------------
+
+OpenSM Compatibility
+--------------------
+Note that OpenSM version 3.2.1 and earlier used a value of 1 in host
+byte order for the default SM_Key, so there is a compatibility issue
+with these earlier versions of OpenSM when the 3.2.2 or later version
+is running on a little endian machine. This affects SM handover as well
+as SA queries (saquery tool in infiniband-diags).
+
 
 Table 2 - Qualified IB Stacks
 =============================
