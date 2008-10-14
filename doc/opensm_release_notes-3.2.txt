@@ -29,7 +29,7 @@ This document includes the following sections:
   using ftree routing. If ftree fails, try updn. If updn fails, try
   minhop.
 
-* Solicited Node Multicast addresses consolidation
+* IPv6 Solicited Node Multicast addresses consolidation
   When this mode is used (enabled with --consolidate_ipv6_snm_req option)
   OpenSM will map all IPv6 Solicited Node Multicast address join requests
   into a single Multicast group with address ff10:601b::1:ff00:0. In this
@@ -539,10 +539,8 @@ QP0 and QP1. However, it does support it as a device on the subnet.
 
 Note 2: QoS firmware and Mellanox devices
 
-HCAs: QoS supported by ConnectX. The current FW release
-doesn't support QoS. QoS-enabled FW release (2_5_000) is
-planned for May. If someone wishes to get QoS-enabled FW
-before the official release, they should contact Mellanox FAE.
+HCAs: QoS supported by ConnectX. QoS-enabled FW release is 2_5_000 and
+later.
 
 Switches: QoS supported by InfiniScale III
 Any InfiniScale III FW that is supported by OpenSM supports QoS.
