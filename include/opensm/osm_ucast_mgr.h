@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2008 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2008 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
  * This software is available to you under a choice of one of two
@@ -97,7 +97,6 @@ typedef struct osm_ucast_mgr {
 	cl_qlist_t port_order_list;
 	boolean_t is_dor;
 	boolean_t some_hop_count_set;
-	uint8_t *lft_buf;
 } osm_ucast_mgr_t;
 /*
 * FIELDS
@@ -128,9 +127,6 @@ typedef struct osm_ucast_mgr {
 *		Initialized to FALSE at the beginning of each the min hop
 *		tables calculation iteration cycle, set to TRUE to indicate
 *		that some hop count changes were done.
-*
-*	lft_buf
-*		LFT buffer - used during LFT calculation/setup.
 *
 * SEE ALSO
 *	Unicast Manager object

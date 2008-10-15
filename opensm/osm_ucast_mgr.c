@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2008 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2006 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2008 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
  * This software is available to you under a choice of one of two
@@ -73,10 +73,6 @@ void osm_ucast_mgr_destroy(IN osm_ucast_mgr_t * const p_mgr)
 	CL_ASSERT(p_mgr);
 
 	OSM_LOG_ENTER(p_mgr->p_log);
-
-	if (p_mgr->lft_buf)
-		free(p_mgr->lft_buf);
-
 	OSM_LOG_EXIT(p_mgr->p_log);
 }
 
@@ -95,10 +91,6 @@ osm_ucast_mgr_init(IN osm_ucast_mgr_t * const p_mgr, IN osm_sm_t * sm)
 	p_mgr->p_log = sm->p_log;
 	p_mgr->p_subn = sm->p_subn;
 	p_mgr->p_lock = sm->p_lock;
-
-	p_mgr->lft_buf = malloc(IB_LID_UCAST_END_HO + 1);
-	if (!p_mgr->lft_buf)
-		return IB_INSUFFICIENT_MEMORY;
 
 	OSM_LOG_EXIT(p_mgr->p_log);
 	return (status);
@@ -297,7 +289,7 @@ __osm_ucast_mgr_process_port(IN osm_ucast_mgr_t * const p_mgr,
 	   We have selected the port for this LID.
 	   Write it to the forwarding tables.
 	 */
-	p_mgr->lft_buf[lid_ho] = port;
+	p_sw->lft_buf[lid_ho] = port;
 	if (!is_ignored_by_port_prof) {
 		struct osm_remote_node *rem_node_used;
 		osm_switch_count_path(p_sw, port);
@@ -397,14 +389,14 @@ int osm_ucast_mgr_set_fwd_table(IN osm_ucast_mgr_t * const p_mgr,
 	     osm_switch_get_fwd_tbl_block(p_sw, block_id_ho, block);
 	     block_id_ho++) {
 		if (!p_sw->need_update &&
-		    !memcmp(block, p_mgr->lft_buf + block_id_ho * 64, 64))
+		    !memcmp(block, p_sw->lft_buf + block_id_ho * 64, 64))
 			continue;
 
 		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 			"Writing FT block %u\n", block_id_ho);
 
 		status = osm_req_set(p_mgr->sm, p_path,
-				     p_mgr->lft_buf + block_id_ho * 64,
+				     p_sw->lft_buf + block_id_ho * 64,
 				     sizeof(block),
 				     IB_MAD_ATTR_LIN_FWD_TBL,
 				     cl_hton32(block_id_ho),
@@ -481,7 +473,7 @@ __osm_ucast_mgr_process_tbl(IN cl_map_item_t * const p_map_item,
 		cl_ntoh64(osm_node_get_node_guid(p_sw->p_node)));
 
 	/* Initialize LIDs in buffer to invalid port number. */
-	memset(p_mgr->lft_buf, OSM_NO_PATH, IB_LID_UCAST_END_HO + 1);
+	memset(p_sw->lft_buf, OSM_NO_PATH, IB_LID_UCAST_END_HO + 1);
 
 	if (p_mgr->p_subn->opt.lmc)
 		alloc_ports_priv(p_mgr);

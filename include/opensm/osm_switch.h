@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2008 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
  * This software is available to you under a choice of one of two
@@ -102,6 +102,7 @@ typedef struct osm_switch {
 	uint8_t **hops;
 	osm_port_profile_t *p_prof;
 	osm_fwd_tbl_t fwd_tbl;
+	uint8_t *lft_buf;
 	osm_mcast_tbl_t mcast_tbl;
 	uint32_t discovery_count;
 	unsigned need_update;
@@ -136,6 +137,10 @@ typedef struct osm_switch {
 *
 *	fwd_tbl
 *		This switch's forwarding table.
+*
+*	lft_buf
+*		This switch's linear forwarding table, as was
+*		calculated by the last routing engine execution.
 *
 *	mcast_tbl
 *		Multicast forwarding table for this switch.

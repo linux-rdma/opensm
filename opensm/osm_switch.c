@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2008 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2008 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
  * This software is available to you under a choice of one of two
@@ -101,6 +101,13 @@ osm_switch_init(IN osm_switch_t * const p_sw,
 	if (status != IB_SUCCESS)
 		goto Exit;
 
+	p_sw->lft_buf = malloc(IB_LID_UCAST_END_HO + 1);
+	if (!p_sw->lft_buf) {
+		status = IB_INSUFFICIENT_MEMORY;
+		goto Exit;
+	}
+	memset(p_sw->lft_buf, OSM_NO_PATH, IB_LID_UCAST_END_HO + 1);
+
 	p_sw->p_prof = malloc(sizeof(*p_sw->p_prof) * num_ports);
 	if (p_sw->p_prof == NULL) {
 		status = IB_INSUFFICIENT_MEMORY;
@@ -132,6 +139,8 @@ void osm_switch_delete(IN OUT osm_switch_t ** const pp_sw)
 	osm_mcast_tbl_destroy(&p_sw->mcast_tbl);
 	free(p_sw->p_prof);
 	osm_fwd_tbl_destroy(&p_sw->fwd_tbl);
+	if (p_sw->lft_buf)
+		free(p_sw->lft_buf);
 	if (p_sw->hops) {
 		for (i = 0; i < p_sw->num_hops; i++)
 			if (p_sw->hops[i])
@@ -537,6 +546,7 @@ osm_switch_prepare_path_rebuild(IN osm_switch_t * p_sw, IN uint16_t max_lids)
 		osm_port_prof_construct(&p_sw->p_prof[i]);
 
 	osm_switch_clear_hops(p_sw);
+	memset(p_sw->lft_buf, OSM_NO_PATH, IB_LID_UCAST_END_HO + 1);
 
 	if (!p_sw->hops) {
 		hops = malloc((max_lids + 1) * sizeof(hops[0]));

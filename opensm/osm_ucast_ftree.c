@@ -1945,7 +1945,7 @@ static void __osm_ftree_set_sw_fwd_table(IN cl_map_item_t * const p_map_item,
 
 	p_sw->p_osm_sw->max_lid_ho = p_ftree->lft_max_lid_ho;
 
-	memcpy(p_ftree->p_osm->sm.ucast_mgr.lft_buf, p_sw->lft_buf, lft_len);
+	memcpy(p_sw->p_osm_sw->lft_buf, p_sw->lft_buf, lft_len);
 	osm_ucast_mgr_set_fwd_table(&p_ftree->p_osm->sm.ucast_mgr,
 				    p_sw->p_osm_sw);
 }
