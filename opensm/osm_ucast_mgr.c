@@ -73,6 +73,10 @@ void osm_ucast_mgr_destroy(IN osm_ucast_mgr_t * const p_mgr)
 	CL_ASSERT(p_mgr);
 
 	OSM_LOG_ENTER(p_mgr->p_log);
+
+	if (p_mgr->cache_valid)
+		osm_ucast_cache_invalidate(p_mgr);
+
 	OSM_LOG_EXIT(p_mgr->p_log);
 }
 
@@ -91,6 +95,9 @@ osm_ucast_mgr_init(IN osm_ucast_mgr_t * const p_mgr, IN osm_sm_t * sm)
 	p_mgr->p_log = sm->p_log;
 	p_mgr->p_subn = sm->p_subn;
 	p_mgr->p_lock = sm->p_lock;
+
+	if (sm->p_subn->opt.use_ucast_cache)
+		cl_qmap_init(&p_mgr->cache_sw_tbl);
 
 	OSM_LOG_EXIT(p_mgr->p_log);
 	return (status);
@@ -839,6 +846,9 @@ int osm_ucast_mgr_process(IN osm_ucast_mgr_t * const p_mgr)
 	OSM_LOG(p_mgr->p_log, OSM_LOG_INFO,
 		"%s tables configured on all switches\n",
 		osm_routing_engine_type_str(p_osm->routing_engine_used));
+
+        if (p_mgr->p_subn->opt.use_ucast_cache)
+		p_mgr->cache_valid = TRUE;
 
 Exit:
 	CL_PLOCK_RELEASE(p_mgr->p_lock);

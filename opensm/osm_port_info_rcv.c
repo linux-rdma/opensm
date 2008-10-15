@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2008 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2008 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
  * This software is available to you under a choice of one of two
@@ -60,6 +60,7 @@
 #include <opensm/osm_pkey.h>
 #include <opensm/osm_remote_sm.h>
 #include <opensm/osm_opensm.h>
+#include <opensm/osm_ucast_mgr.h>
 
 /**********************************************************************
  **********************************************************************/
@@ -243,6 +244,11 @@ __osm_pi_rcv_process_switch_port(IN osm_sm_t * sm,
 					cl_ntoh64(osm_node_get_node_guid
 						  (p_remote_node)),
 					remote_port_num);
+
+				if (sm->ucast_mgr.cache_valid)
+					osm_ucast_cache_add_link(&sm->ucast_mgr,
+								 p_physp,
+								 p_remote_physp);
 
 				osm_node_unlink(p_node, (uint8_t) port_num,
 						p_remote_node,

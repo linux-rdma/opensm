@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2008 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2008 Xsigo Systems Inc.  All rights reserved.
  *
@@ -61,6 +61,7 @@
 #include <opensm/osm_multicast.h>
 #include <opensm/osm_remote_sm.h>
 #include <opensm/osm_inform.h>
+#include <opensm/osm_ucast_mgr.h>
 
 /**********************************************************************
  **********************************************************************/
@@ -133,6 +134,10 @@ static void drop_mgr_clean_physp(osm_sm_t * sm, IN osm_physp_t * p_physp)
 			cl_ntoh64(osm_node_get_node_guid
 				  (p_remote_physp->p_node)),
 			p_remote_physp->port_num);
+
+		if (sm->ucast_mgr.cache_valid)
+			osm_ucast_cache_add_link(&sm->ucast_mgr,
+						 p_physp, p_remote_physp);
 
 		osm_physp_unlink(p_physp, p_remote_physp);
 
@@ -307,6 +312,9 @@ __osm_drop_mgr_process_node(osm_sm_t * sm, IN osm_node_t * p_node)
 	OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 		"Unreachable node 0x%016" PRIx64 "\n",
 		cl_ntoh64(osm_node_get_node_guid(p_node)));
+
+	if (sm->ucast_mgr.cache_valid)
+		osm_ucast_cache_add_node(&sm->ucast_mgr, p_node);
 
 	/*
 	   Delete all the logical and physical port objects

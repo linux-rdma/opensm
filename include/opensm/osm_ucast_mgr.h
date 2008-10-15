@@ -49,6 +49,7 @@
 #include <opensm/osm_subnet.h>
 #include <opensm/osm_switch.h>
 #include <opensm/osm_log.h>
+#include <opensm/osm_ucast_cache.h>
 
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
@@ -97,6 +98,8 @@ typedef struct osm_ucast_mgr {
 	cl_qlist_t port_order_list;
 	boolean_t is_dor;
 	boolean_t some_hop_count_set;
+	cl_qmap_t cache_sw_tbl;
+	boolean_t cache_valid;
 } osm_ucast_mgr_t;
 /*
 * FIELDS
@@ -127,6 +130,12 @@ typedef struct osm_ucast_mgr {
 *		Initialized to FALSE at the beginning of each the min hop
 *		tables calculation iteration cycle, set to TRUE to indicate
 *		that some hop count changes were done.
+*
+*	cache_sw_tbl
+*		Cached switches table.
+*
+*	cache_valid
+*		TRUE if the unicast cache is valid.
 *
 * SEE ALSO
 *	Unicast Manager object

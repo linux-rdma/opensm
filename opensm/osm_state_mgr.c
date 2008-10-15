@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2008 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2008 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
  * This software is available to you under a choice of one of two
@@ -1075,6 +1075,10 @@ static void do_sweep(osm_sm_t * sm)
 		/* Re-program the switches fully */
 		sm->p_subn->ignore_existing_lfts = TRUE;
 
+		/* we want to re-route, so cache should be invalidated */
+		if (sm->p_subn->opt.use_ucast_cache)
+			osm_ucast_cache_invalidate(&sm->ucast_mgr);
+
 		osm_ucast_mgr_process(&sm->ucast_mgr);
 
 		/* Reset flag */
@@ -1229,7 +1233,11 @@ _repeat_discovery:
 	/*
 	 * Proceed with unicast forwarding table configuration.
 	 */
-	osm_ucast_mgr_process(&sm->ucast_mgr);
+
+	if (!sm->ucast_mgr.cache_valid ||
+	    osm_ucast_cache_process(&sm->ucast_mgr))
+		osm_ucast_mgr_process(&sm->ucast_mgr);
+
 	if (wait_for_pending_transactions(&sm->p_subn->p_osm->stats))
 		return;
 
