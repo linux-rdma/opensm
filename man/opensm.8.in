@@ -10,7 +10,7 @@ opensm \- InfiniBand subnet manager and administration (SM/SA)
 [\-g(uid) <GUID in hex>] [\-l(mc) <LMC>]
 [\-p(riority) <PRIORITY>] [\-smkey <SM_Key>] [\-r(eassign_lids)]
 [\-R <engine name(s)> | \-\-routing_engine <engine name(s)>]
-[\-z | \-\-connect_roots]
+[\-A | \-\-ucast_cache] [\-z | \-\-connect_roots]
 [\-M <file name> | \-\-lid_matrix_file <file name>]
 [\-U <file name> | \-\-lfts_file <file name>]
 [\-S | \-\-sadb_file <file name>] [\-a | \-\-root_guid_file <path to file>]
@@ -121,6 +121,18 @@ algorithm (default).  Multiple routing engines can be specified
 separated by commas so that specific ordering of routing algorithms
 will be tried if earlier routing engines fail.
 Supported engines: minhop, updn, file, ftree, lash, dor
+.TP
+\fB\-A\fR, \fB\-\-ucast_cache\fR
+This option enables unicast routing cache and prevents routing
+recalculation (which is a heavy task in a large cluster) when
+there was no topology change detected during the heavy sweep, or
+when the topology change does not require new routing calculation,
+e.g. when one or more CAs/RTRs/leaf switches going down, or one or
+more of these nodes coming back after being down.
+A very common case that is handled by the unicast routing cache
+is host reboot, which otherwise would cause two full routing
+recalculations: one when the host goes down, and the other when
+the host comes back online.
 .TP
 \fB\-z\fR, \fB\-\-connect_roots\fR
 This option enforces a routing engine (currently up/down
