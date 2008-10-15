@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2008 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
  * This software is available to you under a choice of one of two
@@ -180,6 +180,15 @@ static void show_usage(void)
 	       "          and in this way be IBA compliant. In many cases,\n"
 	       "          this can violate \"pure\" deadlock free algorithm, so\n"
 	       "          use it carefully.\n\n");
+	printf("--ucast_cache, -A\n"
+	       "          This option enables unicast routing cache to prevent\n"
+	       "          routing recalculation (which is a heavy task in a\n"
+	       "          large cluster) when there was no topology change\n"
+	       "          detected during the heavy sweep, or when the topology\n"
+	       "          change does not require new routing calculation,\n"
+	       "          e.g. in case of host reboot.\n"
+	       "          This option becomes very handy when the cluster size\n"
+	       "          is thousands of nodes.\n\n");
 	printf("--lid_matrix_file, -M <file name>\n"
 	       "          This option specifies the name of the lid matrix dump file\n"
 	       "          from where switch lid matrices (min hops tables will be\n"
@@ -516,7 +525,7 @@ int main(int argc, char *argv[])
 	uint32_t val;
 	unsigned config_file_done = 0;
 	const char *const short_option =
-	    "F:c:i:f:ed:D:g:l:L:s:t:a:u:m:X:R:zM:U:S:P:Y:NBIQvVhoryxp:n:q:k:C:";
+	    "F:c:i:f:ed:D:g:l:L:s:t:a:u:m:X:R:zM:U:S:P:Y:ANBIQvVhoryxp:n:q:k:C:";
 
 	/*
 	   In the array below, the 2nd parameter specifies the number
@@ -553,6 +562,7 @@ int main(int argc, char *argv[])
 		{"priority", 1, NULL, 'p'},
 		{"smkey", 1, NULL, 'k'},
 		{"routing_engine", 1, NULL, 'R'},
+		{"ucast_cache", 0, NULL, 'A'},
 		{"connect_roots", 0, NULL, 'z'},
 		{"lid_matrix_file", 1, NULL, 'M'},
 		{"lfts_file", 1, NULL, 'U'},
@@ -830,6 +840,11 @@ int main(int argc, char *argv[])
 		case 'z':
 			opt.connect_roots = TRUE;
 			printf(" Connect roots option is on\n");
+			break;
+
+		case 'A':
+			opt.use_ucast_cache = TRUE;
+			printf(" Unicast routing cache option is on\n");
 			break;
 
 		case 'M':

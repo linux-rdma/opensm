@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2008 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2008 Xsigo Systems Inc.  All rights reserved.
  *
@@ -183,6 +183,7 @@ typedef struct osm_subn_opt {
 	boolean_t port_profile_switch_nodes;
 	boolean_t sweep_on_trap;
 	char *routing_engine_names;
+	boolean_t use_ucast_cache;
 	boolean_t connect_roots;
 	char *lid_matrix_dump_file;
 	char *lfts_file;
@@ -360,6 +361,9 @@ typedef struct osm_subn_opt {
 *		The option which will enforce root to root connectivity with
 *		up/down routing engine (even if this violates "pure" deadlock
 *		free up/down algorithm)
+*
+*	use_ucast_cache
+*		When TRUE enables unicast routing cache.
 *
 *	lid_matrix_dump_file
 *		Name of the lid matrix dump file from where switch

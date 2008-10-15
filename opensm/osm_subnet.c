@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2008 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2008 Xsigo Systems Inc.  All rights reserved.
  *
@@ -442,6 +442,7 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * const p_opt)
 	p_opt->port_prof_ignore_file = NULL;
 	p_opt->port_profile_switch_nodes = FALSE;
 	p_opt->sweep_on_trap = TRUE;
+	p_opt->use_ucast_cache = FALSE;
 	p_opt->routing_engine_names = NULL;
 	p_opt->connect_roots = FALSE;
 	p_opt->lid_matrix_dump_file = NULL;
@@ -1269,6 +1270,9 @@ int osm_subn_parse_conf_file(char *file_name, osm_subn_opt_t * const p_opts)
 		opts_unpack_boolean("connect_roots",
 				    p_key, p_val, &p_opts->connect_roots);
 
+		opts_unpack_boolean("use_ucast_cache",
+				    p_key, p_val, &p_opts->use_ucast_cache);
+
 		opts_unpack_charp("log_file", p_key, p_val, &p_opts->log_file);
 
 		opts_unpack_uint32("log_max_size",
@@ -1532,6 +1536,11 @@ int osm_subn_write_conf_file(char *file_name, IN osm_subn_opt_t *const p_opts)
 		"# Connect roots (use FALSE if unsure)\n"
 		"connect_roots %s\n\n",
 		p_opts->connect_roots ? "TRUE" : "FALSE");
+
+	fprintf(opts_file,
+		"# Use unicast routing cache (use FALSE if unsure)\n"
+		"use_ucast_cache %s\n\n",
+		p_opts->use_ucast_cache ? "TRUE" : "FALSE");
 
 	fprintf(opts_file,
 		"# Lid matrix dump file name\n"
