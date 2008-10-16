@@ -28,6 +28,17 @@ two switches.  This provides deadlock free routes for hypercubes when
 the fabric is cabled as a hypercube and for meshes when cabled as a
 mesh (see details below).
 
+OpenSM provides an optional unicast routing cache (enabled by -A or
+--ucast_cache options). When enabled, unicast routing cache prevents
+routing recalculation (which is a heavy task in a large cluster) when
+there was no topology change detected during the heavy sweep, or when
+the topology change does not require new routing calculation, e.g. when
+one or more CAs/RTRs/leaf switches going down, or one or more of these
+nodes coming back after being down.
+A very common case that is handled by the unicast routing cache is host
+reboot, which otherwise would cause two full routing recalculations: one
+when the host goes down, and the other when the host comes back online.
+
 OpenSM also supports a file method which can load routes from a table. See
 modular-routing.txt for more information on this.
 
