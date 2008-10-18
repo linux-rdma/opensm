@@ -1080,7 +1080,7 @@ osm_ucast_cache_add_node(osm_ucast_mgr_t * p_mgr,
 		p_cache_sw->max_lid_ho = p_node->sw->max_lid_ho;
 	}
 	else {
-		/* dropping CA/RTR: add to cache all the ports of this switch */
+		/* dropping CA/RTR: add to cache all the ports of this node */
 		max_ports = osm_node_get_num_physp(p_node);
 		for (port_num = 1; port_num < max_ports; port_num++) {
 
