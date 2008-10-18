@@ -97,7 +97,7 @@ __osm_lftr_rcv_new_lftr(IN osm_sa_t * sa,
 	memset(p_rec_item, 0, sizeof(*p_rec_item));
 
 	p_rec_item->rec.lid = lid;
-	p_rec_item->rec.block_num = block;
+	p_rec_item->rec.block_num = cl_hton16(block);
 
 	/* copy the lft block */
 	osm_switch_get_fwd_tbl_block(p_sw, block, p_rec_item->rec.lft);
