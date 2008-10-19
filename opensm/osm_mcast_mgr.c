@@ -671,11 +671,17 @@ static osm_mtree_node_t *__osm_mcast_mgr_branch(osm_sm_t * sm,
 		   table for this switch.
 		 */
 		osm_mcast_tbl_set(p_tbl, mlid_ho, i);
-		if (i == 0)
+		if (i == 0) {
 			/* This means we are adding the switch to the MC group.
 			   We do not need to continue looking at the remote port, just
 			   needed to add the port to the table */
+			CL_ASSERT(count == 1);
+
+			p_wobj = (osm_mcast_work_obj_t *)
+			    cl_qlist_remove_head(p_port_list);
+			__osm_mcast_work_obj_delete(p_wobj);
 			continue;
+		}
 
 		p_node = p_sw->p_node;
 		p_remote_node = osm_node_get_remote_node(p_node, i, NULL);
