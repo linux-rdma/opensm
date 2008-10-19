@@ -494,6 +494,7 @@ void osm_sa_respond(osm_sa_t *sa, osm_madw_t *madw, size_t attr_size,
 		item = cl_qlist_remove_head(list);
 		memcpy(p, ((struct item_data *)item)->data, attr_size);
 		p += attr_size;
+		free(item);
 	}
 
 	osm_sa_send(sa, resp_madw, FALSE);
