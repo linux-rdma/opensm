@@ -723,7 +723,7 @@ static osm_mtree_node_t *__osm_mcast_mgr_branch(osm_sm_t * sm,
 			OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 				"Found leaf for port 0x%016" PRIx64
 				" on switch port %u\n",
-				cl_ntoh64(osm_port_get_guid (p_wobj->p_port)),
+				cl_ntoh64(osm_port_get_guid(p_wobj->p_port)),
 				i);
 
 			__osm_mcast_work_obj_delete(p_wobj);
