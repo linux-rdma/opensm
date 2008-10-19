@@ -23,6 +23,15 @@ This document includes the following sections:
 
 1.1 Major New Features
 
+* Cached Routing
+  OpenSM provides an optional unicast routing cache (enabled by '-A' or
+  '--ucast_cache' options). When enabled, unicast routing cache prevents
+  routing recalculation (which is a heavy task in a large cluster) when
+  there was no topology change detected during the heavy sweep, or when
+  the topology change does not require new routing calculation, e.g. when
+  one or more CAs/RTRs/leaf switches going down, or one or more of these
+  nodes coming back after being down.
+
 * Routing Chaining
   Routing chaining is the ability to configure the order in which routing
   algorithms are applied in opensm, i.e. '-R ftree,updn,minhop' - try
@@ -172,6 +181,12 @@ This document includes the following sections:
 * Provide useful error message when log file opening fails
 
 * Add generated osm_config.h file with OpenSM specific defines
+
+* Display port number in decimal in log messages
+
+* Replace osm_vendor_select.h by generated osm_config.h
+
+* Unify options listing in OpenSM usage message
 
 1.3 Library API Changes
 
@@ -333,6 +348,12 @@ information regarding each compliance statement.
 * opensm/osm_ucast_lash: fix buffer overflow
 
 * opensm: fix broken IPv6 SNM consolidation code
+
+* opensm/osm_sa_lft_record.c: fix block number encoding byte order
+
+* opensm/osm_sa: fix memory leak in SA responder
+
+* opensm/osm_mcast_mgr: fix memory leak
 
 * Other less critical or visible bugs were also fixed.
 
