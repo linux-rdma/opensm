@@ -666,7 +666,7 @@ static switch_t *switch_create(lash_t * p_lash, unsigned id, osm_switch_t * p_sw
 	memset(sw, 0, sizeof(*sw));
 
 	sw->id = id;
-	sw->dij_channels = malloc((num_switches) * sizeof(int));
+	sw->dij_channels = malloc(num_ports * sizeof(int));
 	if (!sw->dij_channels) {
 		free(sw);
 		return NULL;
@@ -876,17 +876,9 @@ static int lash_core(lash_t * p_lash)
 	int output_link2, i_next_switch2;
 	int cycle_found2 = 0;
 	int status = 0;
-	int *switch_bitmap = NULL;	/* Bitmap to check if we have processed this pair */
+	int *switch_bitmap;	/* Bitmap to check if we have processed this pair */
 
 	OSM_LOG_ENTER(p_log);
-
-	switch_bitmap =
-	    (int *)malloc(num_switches * num_switches * sizeof(int));
-	if (!switch_bitmap) {
-		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 4D04: "
-			"Failed allocating switch_bitmap - out of memory\n");
-		goto Exit;
-	}
 
 	for (i = 0; i < num_switches; i++) {
 
@@ -901,13 +893,18 @@ static int lash_core(lash_t * p_lash)
 		}
 
 		for (j = 0; j < num_switches; j++) {
-			for (k = 0; k < num_switches; k++) {
-				switch_bitmap[j * num_switches + k] = 0;
-			}
 			switches[j]->used_channels = 0;
 			switches[j]->q_state = UNQUEUED;
 		}
 	}
+
+	switch_bitmap = malloc(num_switches * num_switches * sizeof(int));
+	if (!switch_bitmap) {
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 4D04: "
+			"Failed allocating switch_bitmap - out of memory\n");
+		goto Exit;
+	}
+	memset(switch_bitmap, 0, num_switches * num_switches * sizeof(int));
 
 	for (i = 0; i < num_switches; i++) {
 		for (dest_switch = 0; dest_switch < num_switches; dest_switch++)
@@ -999,11 +996,6 @@ static int lash_core(lash_t * p_lash)
 				switch_bitmap[i * num_switches + dest_switch] = 1;
 				switch_bitmap[dest_switch * num_switches + i] = 1;
 			}
-
-		for (j = 0; j < num_switches; j++) {
-			switches[j]->used_channels = 0;
-			switches[j]->q_state = UNQUEUED;
-		}
 	}
 
 	OSM_LOG(p_log, OSM_LOG_INFO,
