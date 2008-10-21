@@ -282,13 +282,12 @@ inline static void dequeue(cl_list_t * bfsq, switch_t ** sw)
 	(*sw)->q_state = MST_MEMBER;
 }
 
-static int get_phys_connection(switch_t ** switches, int switch_from,
-			       int switch_to)
+static int get_phys_connection(switch_t *sw, int switch_to)
 {
 	unsigned int i = 0;
 
-	for (i = 0; i < switches[switch_from]->num_connections; i++)
-		if (switches[switch_from]->phys_connections[i] == switch_to)
+	for (i = 0; i < sw->num_connections; i++)
+		if (sw->phys_connections[i] == switch_to)
 			return i;
 	return i;
 }
@@ -318,28 +317,26 @@ static void shortest_path(lash_t * p_lash, int ir)
 	cl_list_destroy(&bfsq);
 }
 
-static void generate_routing_func_for_mst(lash_t * p_lash, int sw,
+static void generate_routing_func_for_mst(lash_t * p_lash, int sw_id,
 					  reachable_dest_t ** destinations)
 {
 	int i, next_switch;
-	switch_t **switches = p_lash->switches;
-	int num_channels = switches[sw]->used_channels;
+	switch_t *sw = p_lash->switches[sw_id];
+	int num_channels = sw->used_channels;
 	reachable_dest_t *dest, *i_dest, *concat_dest = NULL, *prev;
 
 	for (i = 0; i < num_channels; i++) {
-		next_switch = switches[sw]->dij_channels[i];
+		next_switch = sw->dij_channels[i];
 		generate_routing_func_for_mst(p_lash, next_switch, &dest);
 
 		i_dest = dest;
 		prev = i_dest;
 
 		while (i_dest != NULL) {
-			if (switches[sw]->routing_table[i_dest->switch_id].
-			    out_link == NONE) {
-				switches[sw]->routing_table[i_dest->switch_id].
-				    out_link =
-				    get_phys_connection(switches, sw,
-							next_switch);
+			if (sw->routing_table[i_dest->switch_id].out_link ==
+			    NONE) {
+				sw->routing_table[i_dest->switch_id].out_link =
+				    get_phys_connection(sw, next_switch);
 			}
 
 			prev = i_dest;
@@ -352,7 +349,7 @@ static void generate_routing_func_for_mst(lash_t * p_lash, int sw,
 	}
 
 	i_dest = (reachable_dest_t *) malloc(sizeof(reachable_dest_t));
-	i_dest->switch_id = sw;
+	i_dest->switch_id = sw->id;
 	i_dest->next = concat_dest;
 	*destinations = i_dest;
 }
