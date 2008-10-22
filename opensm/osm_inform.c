@@ -111,8 +111,8 @@ __match_inf_rec(IN const cl_list_item_t * const p_list_item, IN void *context)
 
 	OSM_LOG_ENTER(p_log);
 
-	if (memcmp(&p_infr->report_addr,
-		   &p_infr_rec->report_addr, sizeof(p_infr_rec->report_addr))) {
+	if (memcmp(&p_infr->report_addr, &p_infr_rec->report_addr,
+		   sizeof(p_infr_rec->report_addr))) {
 		OSM_LOG(p_log, OSM_LOG_DEBUG, "Differ by Address\n");
 		goto Exit;
 	}
@@ -120,8 +120,7 @@ __match_inf_rec(IN const cl_list_item_t * const p_list_item, IN void *context)
 	memset(&all_zero_gid, 0, sizeof(ib_gid_t));
 
 	/* if inform_info.gid is not zero, ignore lid range */
-	if (!memcmp(&p_infr_rec->inform_record.inform_info.gid,
-		    &all_zero_gid,
+	if (!memcmp(&p_infr_rec->inform_record.inform_info.gid, &all_zero_gid,
 		    sizeof(p_infr_rec->inform_record.inform_info.gid))) {
 		if (memcmp(&p_infr->inform_record.inform_info.gid,
 			   &p_infr_rec->inform_record.inform_info.gid,
@@ -251,8 +250,7 @@ osm_infr_insert_to_db(IN osm_subn_t * p_subn,
 
 	OSM_LOG(p_log, OSM_LOG_DEBUG,
 		"Inserting new InformInfo Record into Database\n");
-	OSM_LOG(p_log, OSM_LOG_DEBUG,
-		"Dump before insertion (size %d)\n",
+	OSM_LOG(p_log, OSM_LOG_DEBUG, "Dump before insertion (size %d)\n",
 		cl_qlist_count(&p_subn->sa_infr_list));
 	dump_all_informs(p_subn, p_log);
 
@@ -264,8 +262,7 @@ osm_infr_insert_to_db(IN osm_subn_t * p_subn,
 
 	cl_qlist_insert_head(&p_subn->sa_infr_list, &p_infr->list_item);
 
-	OSM_LOG(p_log, OSM_LOG_DEBUG,
-		"Dump after insertion (size %d)\n",
+	OSM_LOG(p_log, OSM_LOG_DEBUG, "Dump after insertion (size %d)\n",
 		cl_qlist_count(&p_subn->sa_infr_list));
 	dump_all_informs(p_subn, p_log);
 	OSM_LOG_EXIT(p_log);
@@ -280,8 +277,7 @@ osm_infr_remove_from_db(IN osm_subn_t * p_subn,
 	char gid_str[INET6_ADDRSTRLEN];
 	OSM_LOG_ENTER(p_log);
 
-	OSM_LOG(p_log, OSM_LOG_DEBUG,
-		"Removing InformInfo Subscribing GID:%s"
+	OSM_LOG(p_log, OSM_LOG_DEBUG, "Removing InformInfo Subscribing GID:%s"
 		" Enum:0x%X from Database\n",
 		inet_ntop(AF_INET6, p_infr->inform_record.subscriber_gid.raw,
 			gid_str, sizeof gid_str),
@@ -319,16 +315,14 @@ static ib_api_status_t __osm_send_report(IN osm_infr_t * p_infr_rec,	/* the info
 	/* HACK: who switches or uses the src and dest GIDs in the grh_info ?? */
 
 	/* it is better to use LIDs since the GIDs might not be there for SMI traps */
-	OSM_LOG(p_log, OSM_LOG_DEBUG,
-		"Forwarding Notice Event from LID:%u"
+	OSM_LOG(p_log, OSM_LOG_DEBUG, "Forwarding Notice Event from LID:%u"
 		" to InformInfo LID: %u TID:0x%X\n",
 		cl_ntoh16(p_ntc->issuer_lid),
 		cl_ntoh16(p_infr_rec->report_addr.dest_lid), trap_fwd_trans_id);
 
 	/* get the MAD to send */
 	p_report_madw = osm_mad_pool_get(p_infr_rec->sa->p_mad_pool,
-					 p_infr_rec->h_bind,
-					 MAD_BLOCK_SIZE,
+					 p_infr_rec->h_bind, MAD_BLOCK_SIZE,
 					 &(p_infr_rec->report_addr));
 
 	p_report_madw->resp_expected = TRUE;
@@ -342,10 +336,7 @@ static ib_api_status_t __osm_send_report(IN osm_infr_t * p_infr_rec,	/* the info
 
 	/* advance trap trans id (cant simply ++ on some systems inside ntoh) */
 	p_mad = osm_madw_get_mad_ptr(p_report_madw);
-	ib_mad_init_new(p_mad,
-			IB_MCLASS_SUBN_ADM,
-			2,
-			IB_MAD_METHOD_REPORT,
+	ib_mad_init_new(p_mad, IB_MCLASS_SUBN_ADM, 2, IB_MAD_METHOD_REPORT,
 			cl_hton64((uint64_t) cl_atomic_inc(&trap_fwd_trans_id)),
 			IB_MAD_ATTR_NOTICE, 0);
 
@@ -404,8 +395,8 @@ __match_notice_to_inf_rec(IN cl_list_item_t * const p_list_item,
 	if (p_ii->gid.unicast.prefix != 0
 	    || p_ii->gid.unicast.interface_id != 0) {
 		/* match by GID */
-		if (memcmp
-		    (&(p_ii->gid), &(p_ntc->issuer_gid), sizeof(ib_gid_t))) {
+		if (memcmp(&(p_ii->gid), &(p_ntc->issuer_gid),
+			   sizeof(ib_gid_t))) {
 			OSM_LOG(p_log, OSM_LOG_DEBUG, "Mismatch by GID\n");
 			goto Exit;
 		}
@@ -422,8 +413,7 @@ __match_notice_to_inf_rec(IN cl_list_item_t * const p_list_item,
 					"Mismatch by LID Range. Needed: %u <= %u <= %u\n",
 					cl_hton16(p_ii->lid_range_begin),
 					cl_hton16(p_ntc->issuer_lid),
-					cl_hton16(p_ii->lid_range_end)
-				    );
+					cl_hton16(p_ii->lid_range_end));
 				goto Exit;
 			}
 		}
@@ -464,8 +454,7 @@ __match_notice_to_inf_rec(IN cl_list_item_t * const p_list_item,
 				(ib_inform_info_get_prod_type(p_ii)),
 				cl_ntoh32(ib_notice_get_prod_type(p_ntc)),
 				ib_get_producer_type_str(ib_notice_get_prod_type
-							 (p_ntc))
-			    );
+							 (p_ntc)));
 			goto Exit;
 		}
 	} else {
@@ -494,13 +483,12 @@ __match_notice_to_inf_rec(IN cl_list_item_t * const p_list_item,
 	if ((cl_ntoh64(p_ntc->issuer_gid.unicast.prefix) ==
 	     p_subn->opt.subnet_prefix)
 	    && (cl_ntoh64(p_ntc->issuer_gid.unicast.interface_id) ==
-		p_subn->sm_port_guid)) {
+		p_subn->sm_port_guid))
 		/* The issuer is the SM then this is trap 64-67 - compare the gid
 		   with the gid saved on the data details */
 		source_gid = p_ntc->data_details.ntc_64_67.gid;
-	} else {
+	else
 		source_gid = p_ntc->issuer_gid;
-	}
 
 	p_src_port =
 	    osm_get_port_by_guid(p_subn, source_gid.unicast.interface_id);
@@ -577,7 +565,7 @@ osm_report_notice(IN osm_log_t * const p_log,
 	}
 
 	/* an official Event information log */
-	if (ib_notice_is_generic(p_ntc)) {
+	if (ib_notice_is_generic(p_ntc))
 		OSM_LOG(p_log, OSM_LOG_INFO,
 			"Reporting Generic Notice type:%u num:%u (%s)"
 			" from LID:%u GID:%s\n",
@@ -586,9 +574,8 @@ osm_report_notice(IN osm_log_t * const p_log,
 			ib_get_trap_str(p_ntc->g_or_v.generic.trap_num),
 			cl_ntoh16(p_ntc->issuer_lid),
 			inet_ntop(AF_INET6, p_ntc->issuer_gid.raw, gid_str,
-				sizeof gid_str)
-		    );
-	} else {
+				sizeof gid_str));
+	else
 		OSM_LOG(p_log, OSM_LOG_INFO,
 			"Reporting Vendor Notice type:%u vend:%u dev:%u"
 			" from LID:%u GID:%s\n",
@@ -597,9 +584,7 @@ osm_report_notice(IN osm_log_t * const p_log,
 			cl_ntoh16(p_ntc->g_or_v.vend.dev_id),
 			cl_ntoh16(p_ntc->issuer_lid),
 			inet_ntop(AF_INET6, p_ntc->issuer_gid.raw, gid_str,
-				sizeof gid_str)
-		    );
-	}
+				sizeof gid_str));
 
 	/* Create a list that will hold all the infr records that should
 	   be removed due to violation. o13-17.1.2 */
