@@ -27,5 +27,5 @@ EXTRA_DIST = autogen.sh opensm.spec $(various_scripts) $(man_MANS) $(docs)
 
 dist-hook: $(EXTRA_DIST)
 	if [ -x $(top_srcdir)/../gen_chlog.sh ] ; then \
-		$(top_srcdir)/../gen_chlog.sh $(PACKAGE) > $(distdir)/ChangeLog ; \
+		cd $(top_srcdir)/.. ; ./gen_chlog.sh $(PACKAGE) > $(distdir)/ChangeLog ; cd - ; \
 	fi
