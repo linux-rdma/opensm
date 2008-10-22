@@ -42,18 +42,12 @@
 prefix=@prefix@
 exec_prefix=@exec_prefix@
 
-# config: @sysconfdir@/sysconfig/opensm.conf
-
-[ -f @sysconfdir@/sysconfig/opensm.conf ] && CONFIG=@sysconfdir@/sysconfig/opensm.conf
-
-SLDD_DEBUG=${SLDD_DEBUG:-0}
-
-if [ -z "$CONFIG" ]; then
-	[ $SLDD_DEBUG -eq 1 ] && echo "Config file not found."
-    	exit 0
+CONFIG=@sysconfdir@/sysconfig/opensm
+if [ -f $CONFIG ]; then
+	. $CONFIG
 fi
 
-. ${CONFIG}
+SLDD_DEBUG=${SLDD_DEBUG:-0}
 
 CACHE_FILE=${CACHE_FILE:-/var/cache/opensm/guid2lid}
 CACHE_DIR=$(dirname ${CACHE_FILE})

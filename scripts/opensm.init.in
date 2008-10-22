@@ -53,13 +53,15 @@ if [[ -s /etc/rc.status ]]; then
     failure() { rc_status -v; }
     success() { rc_status -v; }
 fi
-if [[ -s /etc/sysconfig/opensm ]]; then
-    . /etc/sysconfig/opensm
+
+CONFIG=@sysconfdir@/sysconfig/opensm
+if [[ -s $CONFIG ]]; then
+    . $CONFIG
 fi
 
 start () {
     echo -n "Starting opensm: "
-    @sbindir@/opensm -B $OPTIONS > /dev/null
+    @sbindir@/opensm --daemon $OPTIONS > /dev/null
     if [[ $RETVAL -eq 0 ]]; then
         touch /var/lock/subsys/opensm
         success

@@ -39,7 +39,7 @@
 #  $Id: openib-1.0-opensm.init,v 1.5 2006/08/02 18:18:23 dledford Exp $
 #
 # processname: @sbindir@/opensm
-# config: @sysconfdir@/sysconfig/opensm.conf
+# config: @sysconfdir@/sysconfig/opensm
 # pidfile: /var/run/opensm.pid
 
 prefix=@prefix@
@@ -47,7 +47,7 @@ exec_prefix=@exec_prefix@
 
 . /etc/rc.d/init.d/functions
 
-CONFIG=@sysconfdir@/sysconfig/opensm.conf
+CONFIG=@sysconfdir@/sysconfig/opensm
 if [ -f $CONFIG ]; then
     . $CONFIG
 fi
@@ -147,7 +147,7 @@ start()
 
         # Start opensm
 	echo -n "Starting IB Subnet Manager"
-        $prog --daemon ${HONORE_GUID2LID} > /dev/null
+        $prog --daemon ${HONORE_GUID2LID} ${OPTIONS} > /dev/null
         cnt=0; alive=0
         while [ $cnt -lt 6 -a $alive -ne 1 ]; do
 		echo -n ".";
