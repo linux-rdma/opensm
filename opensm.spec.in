@@ -96,7 +96,7 @@ else
 fi
 mkdir -p $etc/{init.d,logrotate.d} $etc/@OPENSM_CONFIG_SUB_DIR@
 install -m 755 scripts/${REDHAT}opensm.init $etc/init.d/opensmd
-install -m 644 scripts/opensm.logrotate $etc/logrotate.d/opensm
+install -D -m 644 scripts/opensm.logrotate $etc/logrotate.d/opensm
 install -m 755 scripts/sldd.sh $RPM_BUILD_ROOT%{_sbindir}/sldd.sh
 
 %clean
