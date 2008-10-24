@@ -727,15 +727,15 @@ dbg_get_capabilities_str(IN char *p_buf,
 				&total_len) != IB_SUCCESS)
 			return;
 	}
-	if (p_pi->capability_mask & IB_PORT_CAP_RESV26) {
+	if (p_pi->capability_mask & IB_PORT_CAP_HAS_OTHER_LOCAL_CHANGES_NTC) {
 		if (dbg_do_line(&p_local, buf_size, p_prefix_str,
-				"IB_PORT_CAP_RESV26\n",
+				"IB_PORT_CAP_HAS_OTHER_LOCAL_CHANGES_NTC\n",
 				&total_len) != IB_SUCCESS)
 			return;
 	}
-	if (p_pi->capability_mask & IB_PORT_CAP_RESV27) {
+	if (p_pi->capability_mask & IB_PORT_CAP_HAS_LINK_SPEED_WIDTH_PAIRS_TBL) {
 		if (dbg_do_line(&p_local, buf_size, p_prefix_str,
-				"IB_PORT_CAP_RESV27\n",
+				"IB_PORT_CAP_HAS_LINK_SPEED_WIDTH_PAIRS_TBL\n",
 				&total_len) != IB_SUCCESS)
 			return;
 	}
