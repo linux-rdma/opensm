@@ -179,7 +179,6 @@ __osm_state_mgr_get_remote_port_info(IN osm_sm_t * sm,
 	mad_context.pi_context.port_guid = p_physp->port_guid;
 	mad_context.pi_context.set_method = FALSE;
 	mad_context.pi_context.light_sweep = TRUE;
-	mad_context.pi_context.update_master_sm_base_lid = FALSE;
 	mad_context.pi_context.active_transition = FALSE;
 
 	/* note that with some negative logic - if the query failed it means that

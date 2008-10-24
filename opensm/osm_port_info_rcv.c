@@ -638,21 +638,6 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 					 p_smp->hop_count, p_smp->initial_path);
 		}
 
-		/*
-		   Check if the update_sm_base_lid in the context is TRUE.
-		   If it is - then update the master_sm_base_lid of the variable
-		   in the subnet.
-		 */
-		if (p_context->update_master_sm_base_lid == TRUE) {
-			OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
-				"update_master_sm is TRUE. "
-				"Updating master_sm_base_lid to:%u\n",
-				p_pi->master_sm_base_lid);
-
-			sm->p_subn->master_sm_base_lid =
-			    p_pi->master_sm_base_lid;
-		}
-
 		/* if port just inited or reached INIT state (external reset)
 		   request update for port related tables */
 		p_physp->need_update =

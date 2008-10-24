@@ -94,7 +94,6 @@ __osm_si_rcv_get_port_info(IN osm_sm_t * sm,
 	context.pi_context.node_guid = osm_node_get_node_guid(p_node);
 	context.pi_context.port_guid = osm_physp_get_port_guid(p_physp);
 	context.pi_context.set_method = FALSE;
-	context.pi_context.update_master_sm_base_lid = FALSE;
 	context.pi_context.light_sweep = FALSE;
 	context.pi_context.active_transition = FALSE;
 

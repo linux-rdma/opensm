@@ -288,7 +288,6 @@ __osm_ni_rcv_process_new_node(IN osm_sm_t * sm,
 	context.pi_context.node_guid = p_ni->node_guid;
 	context.pi_context.port_guid = p_ni->port_guid;
 	context.pi_context.set_method = FALSE;
-	context.pi_context.update_master_sm_base_lid = FALSE;
 	context.pi_context.light_sweep = FALSE;
 	context.pi_context.active_transition = FALSE;
 
@@ -478,7 +477,6 @@ __osm_ni_rcv_process_existing_ca_or_router(IN osm_sm_t * sm,
 	context.pi_context.node_guid = p_ni->node_guid;
 	context.pi_context.port_guid = p_ni->port_guid;
 	context.pi_context.set_method = FALSE;
-	context.pi_context.update_master_sm_base_lid = FALSE;
 	context.pi_context.light_sweep = FALSE;
 
 	status = osm_req_get(sm, osm_physp_get_dr_path_ptr(p_physp),

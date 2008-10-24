@@ -226,7 +226,6 @@ pkey_mgr_enforce_partition(IN osm_log_t * p_log, osm_sm_t * sm,
 	    osm_node_get_node_guid(osm_physp_get_node_ptr(p_physp));
 	context.pi_context.port_guid = osm_physp_get_port_guid(p_physp);
 	context.pi_context.set_method = TRUE;
-	context.pi_context.update_master_sm_base_lid = FALSE;
 	context.pi_context.light_sweep = FALSE;
 	context.pi_context.active_transition = FALSE;
 

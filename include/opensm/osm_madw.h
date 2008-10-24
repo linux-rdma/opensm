@@ -172,7 +172,6 @@ typedef struct osm_pi_context {
 	ib_net64_t port_guid;
 	boolean_t set_method;
 	boolean_t light_sweep;
-	boolean_t update_master_sm_base_lid;
 	boolean_t active_transition;
 } osm_pi_context_t;
 /*********/
