@@ -83,7 +83,7 @@ static void __osm_state_mgr_up_msg(IN const osm_sm_t * sm)
 	osm_log(sm->p_log, sm->p_subn->first_time_master_sweep ?
 		OSM_LOG_SYS : OSM_LOG_INFO, "SUBNET UP\n");
 
-	osm_log_msg_box(sm->p_log, OSM_LOG_VERBOSE, __FUNCTION__,
+	OSM_LOG_MSG_BOX(sm->p_log, OSM_LOG_VERBOSE,
 			sm->p_subn->opt.sweep_interval ?
 			"SUBNET UP" : "SUBNET UP (sweep disabled)");
 }
@@ -214,7 +214,7 @@ static ib_api_status_t __osm_state_mgr_sweep_hop_0(IN osm_sm_t * sm)
 	 */
 	h_bind = osm_sm_mad_ctrl_get_bind_handle(&sm->mad_ctrl);
 	if (h_bind != OSM_BIND_INVALID_HANDLE) {
-		osm_log_msg_box(sm->p_log, OSM_LOG_VERBOSE, __FUNCTION__,
+		OSM_LOG_MSG_BOX(sm->p_log, OSM_LOG_VERBOSE,
 				"INITIATING HEAVY SWEEP");
 		/*
 		 * Start the sweep by clearing the port counts, then
@@ -586,8 +586,7 @@ static ib_api_status_t __osm_state_mgr_light_sweep_start(IN osm_sm_t * sm)
 		goto _exit;
 	}
 
-	osm_log_msg_box(sm->p_log, OSM_LOG_VERBOSE, __FUNCTION__,
-			"INITIATING LIGHT SWEEP");
+	OSM_LOG_MSG_BOX(sm->p_log, OSM_LOG_VERBOSE, "INITIATING LIGHT SWEEP");
 	CL_PLOCK_ACQUIRE(sm->p_lock);
 	cl_qmap_apply_func(p_sw_tbl, __osm_state_mgr_get_sw_info, sm);
 	CL_PLOCK_RELEASE(sm->p_lock);
@@ -1052,8 +1051,8 @@ static void do_sweep(osm_sm_t * sm)
 		if (wait_for_pending_transactions(&sm->p_subn->p_osm->stats))
 			return;
 		if (!sm->p_subn->force_heavy_sweep) {
-			osm_log_msg_box(sm->p_log, OSM_LOG_VERBOSE,
-					__FUNCTION__, "LIGHT SWEEP COMPLETE");
+			OSM_LOG_MSG_BOX(sm->p_log, OSM_LOG_VERBOSE,
+					"LIGHT SWEEP COMPLETE");
 			return;
 		}
 	}
@@ -1087,8 +1086,8 @@ static void do_sweep(osm_sm_t * sm)
 			return;
 
 		if (!sm->p_subn->subnet_initialization_error) {
-			osm_log_msg_box(sm->p_log, OSM_LOG_VERBOSE,
-					__FUNCTION__, "REROUTE COMPLETE");
+			OSM_LOG_MSG_BOX(sm->p_log, OSM_LOG_VERBOSE,
+					"REROUTE COMPLETE");
 			return;
 		}
 	}
@@ -1116,8 +1115,7 @@ _repeat_discovery:
 
 	if (__osm_state_mgr_is_sm_port_down(sm) == TRUE) {
 		osm_log(sm->p_log, OSM_LOG_SYS, "SM port is down\n");
-		osm_log_msg_box(sm->p_log, OSM_LOG_VERBOSE, __FUNCTION__,
-				"SM PORT DOWN");
+		OSM_LOG_MSG_BOX(sm->p_log, OSM_LOG_VERBOSE, "SM PORT DOWN");
 
 		/* Run the drop manager - we want to clear all records */
 		osm_drop_mgr_process(sm);
@@ -1140,7 +1138,7 @@ _repeat_discovery:
 		 */
 		osm_sm_state_mgr_process(sm,
 					 OSM_SM_SIGNAL_MASTER_OR_HIGHER_SM_DETECTED_DONE);
-		osm_log_msg_box(sm->p_log, OSM_LOG_VERBOSE, __FUNCTION__,
+		OSM_LOG_MSG_BOX(sm->p_log, OSM_LOG_VERBOSE,
 				"ENTERING STANDBY STATE");
 		/* notify master SM about us */
 		osm_send_trap144(sm, 0);
@@ -1151,8 +1149,7 @@ _repeat_discovery:
 	if (sm->p_subn->force_heavy_sweep)
 		goto _repeat_discovery;
 
-	osm_log_msg_box(sm->p_log, OSM_LOG_VERBOSE, __FUNCTION__,
-			"HEAVY SWEEP COMPLETE");
+	OSM_LOG_MSG_BOX(sm->p_log, OSM_LOG_VERBOSE, "HEAVY SWEEP COMPLETE");
 
 	/* If we are MASTER - get the highest remote_sm, and
 	 * see if it is higher than our local sm.
@@ -1214,7 +1211,7 @@ _repeat_discovery:
 	if (wait_for_pending_transactions(&sm->p_subn->p_osm->stats))
 		return;
 
-	osm_log_msg_box(sm->p_log, OSM_LOG_VERBOSE, __FUNCTION__,
+	OSM_LOG_MSG_BOX(sm->p_log, OSM_LOG_VERBOSE,
 			"SM LID ASSIGNMENT COMPLETE - STARTING SUBNET LID CONFIG");
 	__osm_state_mgr_notify_lid_change(sm);
 
@@ -1228,7 +1225,7 @@ _repeat_discovery:
 	 * their destination. */
 	__osm_state_mgr_check_tbl_consistency(sm);
 
-	osm_log_msg_box(sm->p_log, OSM_LOG_VERBOSE, __FUNCTION__,
+	OSM_LOG_MSG_BOX(sm->p_log, OSM_LOG_VERBOSE,
 			"LID ASSIGNMENT COMPLETE - STARTING SWITCH TABLE CONFIG");
 
 	/*
@@ -1247,14 +1244,14 @@ _repeat_discovery:
 	 * take into account these lfts. */
 	sm->p_subn->ignore_existing_lfts = FALSE;
 
-	osm_log_msg_box(sm->p_log, OSM_LOG_VERBOSE, __FUNCTION__,
+	OSM_LOG_MSG_BOX(sm->p_log, OSM_LOG_VERBOSE,
 			"SWITCHES CONFIGURED FOR UNICAST");
 
 	if (!sm->p_subn->opt.disable_multicast) {
 		osm_mcast_mgr_process(sm);
 		if (wait_for_pending_transactions(&sm->p_subn->p_osm->stats))
 			return;
-		osm_log_msg_box(sm->p_log, OSM_LOG_VERBOSE, __FUNCTION__,
+		OSM_LOG_MSG_BOX(sm->p_log, OSM_LOG_VERBOSE,
 				"SWITCHES CONFIGURED FOR MULTICAST");
 	}
 
@@ -1270,14 +1267,14 @@ _repeat_discovery:
 	if (wait_for_pending_transactions(&sm->p_subn->p_osm->stats))
 		return;
 
-	osm_log_msg_box(sm->p_log, OSM_LOG_VERBOSE, __FUNCTION__,
+	OSM_LOG_MSG_BOX(sm->p_log, OSM_LOG_VERBOSE,
 			"LINKS PORTS CONFIGURED - SET LINKS TO ARMED STATE");
 
 	osm_link_mgr_process(sm, IB_LINK_ARMED);
 	if (wait_for_pending_transactions(&sm->p_subn->p_osm->stats))
 		return;
 
-	osm_log_msg_box(sm->p_log, OSM_LOG_VERBOSE, __FUNCTION__,
+	OSM_LOG_MSG_BOX(sm->p_log, OSM_LOG_VERBOSE,
 			"LINKS ARMED - SET LINKS TO ACTIVE STATE");
 
 	osm_link_mgr_process(sm, IB_LINK_ACTIVE);
@@ -1300,7 +1297,7 @@ _repeat_discovery:
 	if (sm->p_subn->subnet_initialization_error == TRUE) {
 		osm_log(sm->p_log, OSM_LOG_SYS,
 			"Errors during initialization\n");
-		osm_log_msg_box(sm->p_log, OSM_LOG_ERROR, __FUNCTION__,
+		OSM_LOG_MSG_BOX(sm->p_log, OSM_LOG_ERROR,
 				"ERRORS DURING INITIALIZATION");
 	} else {
 		sm->p_subn->need_update = 0;

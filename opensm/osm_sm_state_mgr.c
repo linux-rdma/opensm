@@ -70,7 +70,7 @@ void osm_report_sm_state(osm_sm_t * sm)
 
 	osm_log(sm->p_log, OSM_LOG_SYS, "Entering %s state\n", state_str);
 	snprintf(buf, sizeof(buf), "ENTERING SM %s STATE", state_str);
-	osm_log_msg_box(sm->p_log, OSM_LOG_VERBOSE, __FUNCTION__, buf);
+	OSM_LOG_MSG_BOX(sm->p_log, OSM_LOG_VERBOSE, buf);
 }
 
 /**********************************************************************

@@ -395,6 +395,9 @@ extern void osm_log_raw(IN osm_log_t * const p_log,
 			osm_log(log, level, "%s: " fmt, __func__, ##arg); \
 	} while (0)
 
+#define OSM_LOG_MSG_BOX(log, level, msg) \
+		osm_log_msg_box(log, level, __func__, msg)
+
 #define DBG_CL_LOCK 0
 
 #define CL_PLOCK_EXCL_ACQUIRE( __exp__ )  \
