@@ -769,5 +769,28 @@ ib_api_status_t osm_sm_state_mgr_check_legality(IN osm_sm_t *sm,
 
 void osm_report_sm_state(osm_sm_t *sm);
 
+/****f* OpenSM: SM State Manager/osm_send_trap144
+* NAME
+*	osm_send_trap144
+*
+* DESCRIPTION
+*	Send trap 144 to the master SM.
+*
+* SYNOPSIS
+*/
+int osm_send_trap144(osm_sm_t *sm, ib_net16_t local);
+/*
+* PARAMETERS
+*	sm
+*		[in] Pointer to an osm_sm_t object.
+*
+*	local
+*		[in] OtherLocalChanges mask in network byte order.
+*
+* RETURN VALUES
+*	0 on success, non-zero value otherwise.
+*
+*********/
+
 END_C_DECLS
 #endif				/* _OSM_SM_H_ */
