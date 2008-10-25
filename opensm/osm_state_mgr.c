@@ -1142,6 +1142,8 @@ _repeat_discovery:
 					 OSM_SM_SIGNAL_MASTER_OR_HIGHER_SM_DETECTED_DONE);
 		osm_log_msg_box(sm->p_log, OSM_LOG_VERBOSE, __FUNCTION__,
 				"ENTERING STANDBY STATE");
+		/* notify master SM about us */
+		osm_send_trap144(sm, 0);
 		return;
 	}
 
