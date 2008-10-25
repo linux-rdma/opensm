@@ -488,11 +488,11 @@ list of these parameters:
 
 Typical default values (hard-coded in OpenSM initialization) are:
 
- qos_max_vls=15
- qos_high_limit=0
- qos_vlarb_low=0:0,1:4,2:4,3:4,4:4,5:4,6:4,7:4,8:4,9:4,10:4,11:4,12:4,13:4,14:4
- qos_vlarb_high=0:4,1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0,12:0,13:0,14:0
- qos_sl2vl=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,7
+ qos_max_vls 15
+ qos_high_limit 0
+ qos_vlarb_low 0:0,1:4,2:4,3:4,4:4,5:4,6:4,7:4,8:4,9:4,10:4,11:4,12:4,13:4,14:4
+ qos_vlarb_high 0:4,1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0,12:0,13:0,14:0
+ qos_sl2vl 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,7
 
 The syntax is compatible with rest of OpenSM configuration options and
 values may be stored in OpenSM config file (cached options file).
