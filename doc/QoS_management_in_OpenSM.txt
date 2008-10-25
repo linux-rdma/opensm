@@ -432,17 +432,17 @@ of the currently supported sets:
 Here's the example of typical default values for CAs and switches' external
 ports (hard-coded in OpenSM initialization):
 
-    qos_ca_max_vls=15
-    qos_ca_high_limit=0
-    qos_ca_vlarb_high=0:4,1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0,12:0,13:0,14:0
-    qos_ca_vlarb_low=0:0,1:4,2:4,3:4,4:4,5:4,6:4,7:4,8:4,9:4,10:4,11:4,12:4,13:4,14:4
-    qos_ca_sl2vl=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,7
+    qos_ca_max_vls 15
+    qos_ca_high_limit 0
+    qos_ca_vlarb_high 0:4,1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0,12:0,13:0,14:0
+    qos_ca_vlarb_low 0:0,1:4,2:4,3:4,4:4,5:4,6:4,7:4,8:4,9:4,10:4,11:4,12:4,13:4,14:4
+    qos_ca_sl2vl 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,7
 
-    qos_swe_max_vls=15
-    qos_swe_high_limit=0
-    qos_swe_vlarb_high=0:4,1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0,12:0,13:0,14:0
-    qos_swe_vlarb_low=0:0,1:4,2:4,3:4,4:4,5:4,6:4,7:4,8:4,9:4,10:4,11:4,12:4,13:4,14:4
-    qos_swe_sl2vl=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,7
+    qos_swe_max_vls 15
+    qos_swe_high_limit 0
+    qos_swe_vlarb_high 0:4,1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0,12:0,13:0,14:0
+    qos_swe_vlarb_low 0:0,1:4,2:4,3:4,4:4,5:4,6:4,7:4,8:4,9:4,10:4,11:4,12:4,13:4,14:4
+    qos_swe_sl2vl 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,7
 
 VL arbitration tables (both high and low) are lists of VL/Weight pairs.
 Each list entry contains a VL number (values from 0-14), and a weighting value
@@ -473,17 +473,17 @@ values for each VL should be multiples of 64.
 
 Below is an example of SL2VL and VL Arbitration configuration on subnet:
 
-    qos_ca_max_vls=15
-    qos_ca_high_limit=6
-    qos_ca_vlarb_high=0:4
-    qos_ca_vlarb_low=0:0,1:64,2:128,3:192,4:0,5:64,6:64,7:64
-    qos_ca_sl2vl=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,7
+    qos_ca_max_vls 15
+    qos_ca_high_limit 6
+    qos_ca_vlarb_high 0:4
+    qos_ca_vlarb_low 0:0,1:64,2:128,3:192,4:0,5:64,6:64,7:64
+    qos_ca_sl2vl 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,7
 
-    qos_swe_max_vls=15
-    qos_swe_high_limit=6
-    qos_swe_vlarb_high=0:4
-    qos_swe_vlarb_low=0:0,1:64,2:128,3:192,4:0,5:64,6:64,7:64
-    qos_swe_sl2vl=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,7
+    qos_swe_max_vls 15
+    qos_swe_high_limit 6
+    qos_swe_vlarb_high 0:4
+    qos_swe_vlarb_low 0:0,1:64,2:128,3:192,4:0,5:64,6:64,7:64
+    qos_swe_sl2vl 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,7
 
 In this example, there are 8 VLs configured on subnet: VL0 to VL7. VL0 is
 defined as a high priority VL, and it is limited to 6 x 4KB = 24KB in a single
