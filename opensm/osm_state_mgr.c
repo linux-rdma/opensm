@@ -1137,7 +1137,7 @@ _repeat_discovery:
 		 * MASTER_OR_HIGHER_SM_DETECTED_DONE
 		 */
 		osm_sm_state_mgr_process(sm,
-					 OSM_SM_SIGNAL_MASTER_OR_HIGHER_SM_DETECTED_DONE);
+					 OSM_SM_SIGNAL_MASTER_OR_HIGHER_SM_DETECTED);
 		OSM_LOG_MSG_BOX(sm->p_log, OSM_LOG_VERBOSE,
 				"ENTERING STANDBY STATE");
 		/* notify master SM about us */

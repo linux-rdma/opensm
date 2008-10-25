@@ -280,7 +280,7 @@ ib_api_status_t osm_sm_state_mgr_process(osm_sm_t * sm,
 			sm->p_subn->master_sm_base_lid =
 			    sm->p_subn->sm_base_lid;
 			break;
-		case OSM_SM_SIGNAL_MASTER_OR_HIGHER_SM_DETECTED_DONE:
+		case OSM_SM_SIGNAL_MASTER_OR_HIGHER_SM_DETECTED:
 			/*
 			 * Finished all discovery actions - move to STANDBY
 			 * start the polling
@@ -484,7 +484,7 @@ ib_api_status_t osm_sm_state_mgr_check_legality(osm_sm_t * sm,
 	case IB_SMINFO_STATE_DISCOVERING:
 		switch (signal) {
 		case OSM_SM_SIGNAL_DISCOVERY_COMPLETED:
-		case OSM_SM_SIGNAL_MASTER_OR_HIGHER_SM_DETECTED_DONE:
+		case OSM_SM_SIGNAL_MASTER_OR_HIGHER_SM_DETECTED:
 		case OSM_SM_SIGNAL_HANDOVER:
 			status = IB_SUCCESS;
 			break;
