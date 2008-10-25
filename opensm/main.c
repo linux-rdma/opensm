@@ -111,6 +111,7 @@ static void setup_signals()
 	sigaction(SIGTERM, &act, NULL);
 	act.sa_handler = mark_hup_flag;
 	sigaction(SIGHUP, &act, NULL);
+	sigaction(SIGCONT, &act, NULL);
 #ifndef HAVE_OLD_LINUX_THREADS
 	act.sa_handler = mark_usr1_flag;
 	sigaction(SIGUSR1, &act, NULL);
