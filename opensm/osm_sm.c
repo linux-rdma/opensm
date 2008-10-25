@@ -658,3 +658,14 @@ Exit:
 	OSM_LOG_EXIT(p_sm->p_log);
 	return (status);
 }
+
+void osm_set_sm_priority(osm_sm_t *sm, uint8_t priority)
+{
+	uint8_t old_pri = sm->p_subn->opt.sm_priority;
+
+	sm->p_subn->opt.sm_priority = priority;
+
+	if (old_pri < priority &&
+	    sm->p_subn->sm_state == IB_SMINFO_STATE_STANDBY)
+		osm_send_trap144(sm, TRAP_144_MASK_SM_PRIORITY_CHANGE);
+}

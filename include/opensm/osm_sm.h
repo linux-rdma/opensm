@@ -792,5 +792,7 @@ int osm_send_trap144(osm_sm_t *sm, ib_net16_t local);
 *
 *********/
 
+void osm_set_sm_priority(osm_sm_t *sm, uint8_t priority);
+
 END_C_DECLS
 #endif				/* _OSM_SM_H_ */

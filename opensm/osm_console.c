@@ -283,8 +283,7 @@ static void priority_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 				priority);
 		else {
 			fprintf(out, "Setting sm-priority to %d\n", priority);
-			p_osm->subn.opt.sm_priority = (uint8_t) priority;
-			/* Does the SM state machine need a kick now ? */
+			osm_set_sm_priority(&p_osm->sm, (uint8_t)priority);
 		}
 	}
 }
