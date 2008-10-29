@@ -27,9 +27,9 @@ libopensm_la_DEPENDENCIES = $(srcdir)/libopensm.map
 sbin_PROGRAMS = opensm
 opensm_DEPENDENCIES = libopensm.la
 opensm_SOURCES = main.c osm_console_io.c osm_console.c osm_db_files.c \
-		 osm_db_pack.c osm_drop_mgr.c osm_fwd_tbl.c \
+		 osm_db_pack.c osm_drop_mgr.c \
 		 osm_inform.c osm_lid_mgr.c osm_lin_fwd_rcv.c \
-		 osm_lin_fwd_tbl.c osm_link_mgr.c osm_mcast_fwd_rcv.c \
+		 osm_link_mgr.c osm_mcast_fwd_rcv.c \
 		 osm_mcast_mgr.c osm_mcast_tbl.c osm_mcm_info.c \
 		 osm_mcm_port.c osm_mtree.c osm_multicast.c osm_node.c \
 		 osm_node_desc_rcv.c osm_node_info_rcv.c \
@@ -74,11 +74,9 @@ opensminclude_HEADERS = \
 	$(srcdir)/../include/opensm/osm_db_pack.h \
 	$(srcdir)/../include/opensm/osm_event_plugin.h \
 	$(srcdir)/../include/opensm/osm_errors.h \
-	$(srcdir)/../include/opensm/osm_fwd_tbl.h \
 	$(srcdir)/../include/opensm/osm_helper.h \
 	$(srcdir)/../include/opensm/osm_inform.h \
 	$(srcdir)/../include/opensm/osm_lid_mgr.h \
-	$(srcdir)/../include/opensm/osm_lin_fwd_tbl.h \
 	$(srcdir)/../include/opensm/osm_log.h \
 	$(srcdir)/../include/opensm/osm_mad_pool.h \
 	$(srcdir)/../include/opensm/osm_madw.h \
@@ -100,7 +98,6 @@ opensminclude_HEADERS = \
 	$(srcdir)/../include/opensm/osm_port_profile.h \
 	$(srcdir)/../include/opensm/osm_prefix_route.h \
 	$(srcdir)/../include/opensm/osm_qos_policy.h \
-	$(srcdir)/../include/opensm/osm_rand_fwd_tbl.h \
 	$(srcdir)/../include/opensm/osm_remote_sm.h \
 	$(srcdir)/../include/opensm/osm_router.h \
 	$(srcdir)/../include/opensm/osm_sa.h \
