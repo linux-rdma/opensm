@@ -298,8 +298,8 @@ __osm_si_rcv_process_new(IN osm_sm_t * sm,
 	}
 
 	/* set subnet max unicast lid to the minimum LinearFDBCap of all switches */
-	if (p_sw->fwd_tbl.p_lin_tbl->size < sm->p_subn->max_ucast_lid_ho) {
-		sm->p_subn->max_ucast_lid_ho = p_sw->fwd_tbl.p_lin_tbl->size;
+	if (cl_ntoh16(p_si->lin_cap) < sm->p_subn->max_ucast_lid_ho) {
+		sm->p_subn->max_ucast_lid_ho = cl_ntoh16(p_si->lin_cap);
 		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 			"Subnet max unicast lid is 0x%X\n",
 			sm->p_subn->max_ucast_lid_ho);

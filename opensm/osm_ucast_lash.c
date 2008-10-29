@@ -52,7 +52,6 @@
 #include <opensm/osm_switch.h>
 #include <opensm/osm_opensm.h>
 #include <opensm/osm_log.h>
-#include <opensm/osm_fwd_tbl.h>
 
 /* //////////////////////////// */
 /*  Local types                 */

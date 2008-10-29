@@ -52,7 +52,6 @@
 #include <opensm/osm_console.h>
 #include <complib/cl_passivelock.h>
 #include <opensm/osm_perfmgr.h>
-#include <opensm/osm_fwd_tbl.h>
 
 struct command {
 	char *name;
@@ -765,7 +764,7 @@ static void switchbalance_check(osm_opensm_t * p_osm,
 			continue;
 
 		for (lid_ho = min_lid_ho; lid_ho <= max_lid_ho; lid_ho++) {
-			port_num = osm_fwd_tbl_get(&(p_sw->fwd_tbl), lid_ho);
+			port_num = osm_switch_get_port_by_lid(p_sw, lid_ho);
 			if (port_num == OSM_NO_PATH)
 				continue;
 
@@ -915,7 +914,7 @@ static void lidbalance_check(osm_opensm_t * p_osm,
 			boolean_t rem_node_found = FALSE;
 			unsigned int indx = 0;
 
-			port_num = osm_fwd_tbl_get(&(p_sw->fwd_tbl), lid_ho);
+			port_num = osm_switch_get_port_by_lid(p_sw, lid_ho);
 			if (port_num == OSM_NO_PATH)
 				continue;
 

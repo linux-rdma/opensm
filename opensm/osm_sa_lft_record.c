@@ -100,7 +100,7 @@ __osm_lftr_rcv_new_lftr(IN osm_sa_t * sa,
 	p_rec_item->rec.block_num = cl_hton16(block);
 
 	/* copy the lft block */
-	osm_switch_get_fwd_tbl_block(p_sw, block, p_rec_item->rec.lft);
+	osm_switch_get_lft_block(p_sw, block, p_rec_item->rec.lft);
 
 	cl_qlist_insert_tail(p_list, &p_rec_item->list_item);
 

@@ -247,7 +247,7 @@ __osm_ucast_mgr_process_port(IN osm_ucast_mgr_t * const p_mgr,
 		lid_ho, min_lid_ho, max_lid_ho);
 
 	/* TODO - This should be runtime error, not a CL_ASSERT() */
-	CL_ASSERT(max_lid_ho < osm_switch_get_fwd_tbl_size(p_sw));
+	CL_ASSERT(max_lid_ho <= IB_LID_UCAST_END_HO);
 
 	node_guid = osm_node_get_node_guid(p_sw->p_node);
 
@@ -320,7 +320,7 @@ int osm_ucast_mgr_set_fwd_table(IN osm_ucast_mgr_t * const p_mgr,
 	osm_madw_context_t context;
 	ib_api_status_t status;
 	ib_switch_info_t si;
-	uint32_t block_id_ho = 0;
+	uint16_t block_id_ho = 0;
 	uint8_t block[IB_SMP_DATA_SIZE];
 	boolean_t set_swinfo_require = FALSE;
 	uint16_t lin_top;
@@ -393,17 +393,19 @@ int osm_ucast_mgr_set_fwd_table(IN osm_ucast_mgr_t * const p_mgr,
 	context.lft_context.set_method = TRUE;
 
 	for (block_id_ho = 0;
-	     osm_switch_get_fwd_tbl_block(p_sw, block_id_ho, block);
+	     osm_switch_get_lft_block(p_sw, block_id_ho, block);
 	     block_id_ho++) {
 		if (!p_sw->need_update &&
-		    !memcmp(block, p_sw->lft_buf + block_id_ho * 64, 64))
+		    !memcmp(block,
+			    p_sw->lft_buf + block_id_ho * IB_SMP_DATA_SIZE,
+			    IB_SMP_DATA_SIZE))
 			continue;
 
 		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 			"Writing FT block %u\n", block_id_ho);
 
 		status = osm_req_set(p_mgr->sm, p_path,
-				     p_sw->lft_buf + block_id_ho * 64,
+				     p_sw->lft_buf + block_id_ho * IB_SMP_DATA_SIZE,
 				     sizeof(block),
 				     IB_MAD_ATTR_LIN_FWD_TBL,
 				     cl_hton32(block_id_ho),

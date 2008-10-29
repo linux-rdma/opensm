@@ -97,9 +97,22 @@ osm_switch_init(IN osm_switch_t * const p_sw,
 	p_sw->num_ports = num_ports;
 	p_sw->need_update = 2;
 
-	status = osm_fwd_tbl_init(&p_sw->fwd_tbl, p_si);
-	if (status != IB_SUCCESS)
+	/* Initiate the linear forwarding table */
+
+	if (!p_si->lin_cap) {
+		/* This switch does not support linear forwarding tables */
+		status = IB_UNSUPPORTED;
 		goto Exit;
+	}
+
+	p_sw->lft = malloc(IB_LID_UCAST_END_HO + 1);
+	if (!p_sw->lft) {
+		status = IB_INSUFFICIENT_MEMORY;
+		goto Exit;
+	}
+
+	/* Initialize the table to OSM_NO_PATH, which is "invalid port" */
+	memset(p_sw->lft, OSM_NO_PATH, IB_LID_UCAST_END_HO + 1);
 
 	p_sw->lft_buf = malloc(IB_LID_UCAST_END_HO + 1);
 	if (!p_sw->lft_buf) {
@@ -138,7 +151,8 @@ void osm_switch_delete(IN OUT osm_switch_t ** const pp_sw)
 
 	osm_mcast_tbl_destroy(&p_sw->mcast_tbl);
 	free(p_sw->p_prof);
-	osm_fwd_tbl_destroy(&p_sw->fwd_tbl);
+	if (p_sw->lft)
+		free(p_sw->lft);
 	if (p_sw->lft_buf)
 		free(p_sw->lft_buf);
 	if (p_sw->hops) {
@@ -176,49 +190,21 @@ osm_switch_t *osm_switch_new(IN osm_node_t * const p_node,
 /**********************************************************************
  **********************************************************************/
 boolean_t
-osm_switch_get_fwd_tbl_block(IN const osm_switch_t * const p_sw,
-			     IN const uint32_t block_id,
-			     OUT uint8_t * const p_block)
+osm_switch_get_lft_block(IN const osm_switch_t * const p_sw,
+			 IN const uint16_t block_id,
+			 OUT uint8_t * const p_block)
 {
-	uint16_t base_lid_ho;
-	uint16_t max_lid_ho;
-	uint16_t lid_ho;
-	uint16_t block_top_lid_ho;
-	uint32_t lids_per_block;
-	osm_fwd_tbl_t *p_tbl;
-	boolean_t return_flag = FALSE;
+	uint16_t base_lid_ho = block_id * IB_SMP_DATA_SIZE;
 
 	CL_ASSERT(p_sw);
 	CL_ASSERT(p_block);
 
-	p_tbl = osm_switch_get_fwd_tbl_ptr(p_sw);
-	max_lid_ho = p_sw->max_lid_ho;
-	lids_per_block = osm_fwd_tbl_get_lids_per_block(&p_sw->fwd_tbl);
-	base_lid_ho = (uint16_t) (block_id * lids_per_block);
+	if (base_lid_ho > p_sw->max_lid_ho)
+		return FALSE;
 
-	if (base_lid_ho <= max_lid_ho) {
-		/* Initialize LIDs in block to invalid port number. */
-		memset(p_block, OSM_NO_PATH, IB_SMP_DATA_SIZE);
-		/*
-		   Determine the range of LIDs we can return with this block.
-		 */
-		block_top_lid_ho =
-		    (uint16_t) (base_lid_ho + lids_per_block - 1);
-		if (block_top_lid_ho > max_lid_ho)
-			block_top_lid_ho = max_lid_ho;
-
-		/*
-		   Configure the forwarding table with the routing
-		   information for the specified block of LIDs.
-		 */
-		for (lid_ho = base_lid_ho; lid_ho <= block_top_lid_ho; lid_ho++)
-			p_block[lid_ho - base_lid_ho] =
-			    osm_fwd_tbl_get(p_tbl, lid_ho);
-
-		return_flag = TRUE;
-	}
-
-	return (return_flag);
+	CL_ASSERT(base_lid_ho + IB_SMP_DATA_SIZE <= IB_LID_UCAST_END_HO);
+	memcpy(p_block, &(p_sw->lft[base_lid_ho]), IB_SMP_DATA_SIZE);
+	return TRUE;
 }
 
 /**********************************************************************
@@ -359,7 +345,7 @@ osm_switch_recommend_path(IN const osm_switch_t * const p_sw,
 	   4. the port has min-hops to the target (avoid loops)
 	 */
 	if (!ignore_existing) {
-		port_num = osm_fwd_tbl_get(&p_sw->fwd_tbl, lid_ho);
+		port_num = osm_switch_get_port_by_lid(p_sw, lid_ho);
 
 		if (port_num != OSM_NO_PATH) {
 			CL_ASSERT(port_num < num_ports);

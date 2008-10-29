@@ -83,7 +83,7 @@ static void add_path(osm_opensm_t * p_osm,
 	uint8_t old_port;
 
 	new_lid = port_guid ? remap_lid(p_osm, lid, port_guid) : lid;
-	old_port = osm_fwd_tbl_get(osm_switch_get_fwd_tbl_ptr(p_sw), new_lid);
+	old_port = osm_switch_get_port_by_lid(p_sw, new_lid);
 	if (old_port != OSM_NO_PATH && old_port != port_num) {
 		OSM_LOG(&p_osm->log, OSM_LOG_VERBOSE,
 			"LID collision is detected on switch "

@@ -48,7 +48,6 @@
 #include <opensm/osm_madw.h>
 #include <opensm/osm_node.h>
 #include <opensm/osm_port.h>
-#include <opensm/osm_fwd_tbl.h>
 #include <opensm/osm_mcast_tbl.h>
 #include <opensm/osm_port_profile.h>
 

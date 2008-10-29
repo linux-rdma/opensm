@@ -48,7 +48,6 @@
 #include <opensm/osm_madw.h>
 #include <opensm/osm_node.h>
 #include <opensm/osm_port.h>
-#include <opensm/osm_fwd_tbl.h>
 #include <opensm/osm_mcast_tbl.h>
 #include <opensm/osm_port_profile.h>
 
@@ -101,7 +100,7 @@ typedef struct osm_switch {
 	uint16_t num_hops;
 	uint8_t **hops;
 	osm_port_profile_t *p_prof;
-	osm_fwd_tbl_t fwd_tbl;
+	uint8_t *lft;
 	uint8_t *lft_buf;
 	osm_mcast_tbl_t mcast_tbl;
 	uint32_t discovery_count;
@@ -135,8 +134,8 @@ typedef struct osm_switch {
 *	p_prof
 *		Pointer to array of Port Profile objects for this switch.
 *
-*	fwd_tbl
-*		This switch's forwarding table.
+*	lft
+*		This switch's linear forwarding table.
 *
 *	lft_buf
 *		This switch's linear forwarding table, as was
@@ -269,33 +268,6 @@ osm_switch_get_hop_count(IN const osm_switch_t * const p_sw,
 *
 * RETURN VALUES
 *	Returns the hop count at the specified LID/Port intersection.
-*
-* NOTES
-*
-* SEE ALSO
-*********/
-
-/****f* OpenSM: Switch/osm_switch_get_fwd_tbl_ptr
-* NAME
-*	osm_switch_get_fwd_tbl_ptr
-*
-* DESCRIPTION
-*	Returns a pointer to the switch's forwarding table.
-*
-* SYNOPSIS
-*/
-static inline osm_fwd_tbl_t *osm_switch_get_fwd_tbl_ptr(IN const osm_switch_t *
-							const p_sw)
-{
-	return ((osm_fwd_tbl_t *) & p_sw->fwd_tbl);
-}
-/*
-* PARAMETERS
-*	p_sw
-*		[in] Pointer to a Switch object.
-*
-* RETURN VALUES
-*	Returns a pointer to the switch's forwarding table.
 *
 * NOTES
 *
@@ -437,7 +409,9 @@ static inline uint8_t
 osm_switch_get_port_by_lid(IN const osm_switch_t * const p_sw,
 			   IN const uint16_t lid_ho)
 {
-	return (osm_fwd_tbl_get(&p_sw->fwd_tbl, lid_ho));
+	if (lid_ho == 0 || lid_ho > IB_LID_UCAST_END_HO)
+		return OSM_NO_PATH;
+	return p_sw->lft[lid_ho];
 }
 /*
 * PARAMETERS
@@ -500,12 +474,13 @@ static inline osm_physp_t *osm_switch_get_route_by_lid(IN const osm_switch_t *
 						       const p_sw,
 						       IN const ib_net16_t lid)
 {
-	uint8_t port_num;
+	uint8_t port_num = OSM_NO_PATH;
 
 	CL_ASSERT(p_sw);
 	CL_ASSERT(lid);
 
-	port_num = osm_fwd_tbl_get(&p_sw->fwd_tbl, cl_ntoh16(lid));
+	port_num = osm_switch_get_port_by_lid(p_sw, cl_ntoh16(lid));
+
 	/*
 	   In order to avoid holes in the subnet (usually happens when
 	   running UPDN algorithm), i.e. cases where port is
@@ -572,35 +547,6 @@ osm_switch_sp0_is_lmc_capable(IN const osm_switch_t * const p_sw,
 * SEE ALSO
 *********/
 
-/****f* OpenSM: Switch/osm_switch_get_max_block_id
-* NAME
-*	osm_switch_get_max_block_id
-*
-* DESCRIPTION
-*	Returns the maximum block ID (host order) of this switch.
-*
-* SYNOPSIS
-*/
-static inline uint32_t
-osm_switch_get_max_block_id(IN const osm_switch_t * const p_sw)
-{
-	return ((uint32_t) (osm_fwd_tbl_get_size(&p_sw->fwd_tbl) /
-			    osm_fwd_tbl_get_lids_per_block(&p_sw->fwd_tbl)));
-}
-/*
-* PARAMETERS
-*	p_sw
-*		[in] Pointer to an osm_switch_t object.
-*
-* RETURN VALUES
-*	Returns the maximum block ID (host order) of this switch.
-*
-* NOTES
-*
-* SEE ALSO
-*	Switch object
-*********/
-
 /****f* OpenSM: Switch/osm_switch_get_max_block_id_in_use
 * NAME
 *	osm_switch_get_max_block_id_in_use
@@ -614,9 +560,8 @@ osm_switch_get_max_block_id(IN const osm_switch_t * const p_sw)
 static inline uint16_t
 osm_switch_get_max_block_id_in_use(IN const osm_switch_t * const p_sw)
 {
-	return (osm_fwd_tbl_get_max_block_id_in_use(&p_sw->fwd_tbl,
-						    cl_ntoh16(p_sw->switch_info.
-							      lin_top)));
+	return (uint16_t)(cl_ntoh16(p_sw->switch_info.lin_top) /
+			  IB_SMP_DATA_SIZE);
 }
 /*
 * PARAMETERS
@@ -632,19 +577,19 @@ osm_switch_get_max_block_id_in_use(IN const osm_switch_t * const p_sw)
 *	Switch object
 *********/
 
-/****f* OpenSM: Switch/osm_switch_get_fwd_tbl_block
+/****f* OpenSM: Switch/osm_switch_get_lft_block
 * NAME
-*	osm_switch_get_fwd_tbl_block
+*	osm_switch_get_lft_block
 *
 * DESCRIPTION
-*	Retrieve a forwarding table block.
+*	Retrieve a linear forwarding table block.
 *
 * SYNOPSIS
 */
 boolean_t
-osm_switch_get_fwd_tbl_block(IN const osm_switch_t * const p_sw,
-			     IN const uint32_t block_id,
-			     OUT uint8_t * const p_block);
+osm_switch_get_lft_block(IN const osm_switch_t * const p_sw,
+			 IN const uint16_t block_id,
+			 OUT uint8_t * const p_block);
 /*
 * PARAMETERS
 *	p_sw
@@ -758,22 +703,30 @@ osm_switch_count_path(IN osm_switch_t * const p_sw, IN const uint8_t port)
 * SEE ALSO
 *********/
 
-/****f* OpenSM: Switch/osm_switch_set_ft_block
+/****f* OpenSM: Switch/osm_switch_set_lft_block
 * NAME
-*	osm_switch_set_ft_block
+*	osm_switch_set_lft_block
 *
 * DESCRIPTION
-*	Copies in the specified block into the switch's Forwarding Table object.
+*	Copies in the specified block into
+*	the switch's Linear Forwarding Table.
 *
 * SYNOPSIS
 */
 static inline ib_api_status_t
-osm_switch_set_ft_block(IN osm_switch_t * const p_sw,
-			IN const uint8_t * const p_block,
-			IN const uint32_t block_num)
+osm_switch_set_lft_block(IN osm_switch_t * const p_sw,
+			 IN const uint8_t * const p_block,
+			 IN const uint32_t block_num)
 {
+	uint16_t lid_start =
+		(uint16_t) (block_num * IB_SMP_DATA_SIZE);
 	CL_ASSERT(p_sw);
-	return (osm_fwd_tbl_set_block(&p_sw->fwd_tbl, p_block, block_num));
+
+	if (lid_start + IB_SMP_DATA_SIZE > IB_LID_UCAST_END_HO)
+		return IB_INVALID_PARAMETER;
+
+	memcpy(&p_sw->lft[lid_start], p_block, IB_SMP_DATA_SIZE);
+	return IB_SUCCESS;
 }
 /*
 * PARAMETERS
@@ -1038,33 +991,6 @@ osm_switch_recommend_mcast_path(IN osm_switch_t * const p_sw,
 *
 * RETURN VALUE
 *	Returns the recommended port on which to route this LID.
-*
-* NOTES
-*
-* SEE ALSO
-*********/
-
-/****f* OpenSM: Switch/osm_switch_get_fwd_tbl_size
-* NAME
-*	osm_switch_get_fwd_tbl_size
-*
-* DESCRIPTION
-*	Returns the number of entries available in the forwarding table.
-*
-* SYNOPSIS
-*/
-static inline uint16_t
-osm_switch_get_fwd_tbl_size(IN const osm_switch_t * const p_sw)
-{
-	return (osm_fwd_tbl_get_size(&p_sw->fwd_tbl));
-}
-/*
-* PARAMETERS
-*	p_sw
-*		[in] Pointer to the switch.
-*
-* RETURN VALUE
-*	Returns the number of entries available in the forwarding table.
 *
 * NOTES
 *

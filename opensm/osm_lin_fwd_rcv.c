@@ -87,7 +87,7 @@ void osm_lft_rcv_process(IN void *context, IN void *data)
 			"LFT received for nonexistent node "
 			"0x%" PRIx64 "\n", cl_ntoh64(node_guid));
 	} else {
-		status = osm_switch_set_ft_block(p_sw, p_block, block_num);
+		status = osm_switch_set_lft_block(p_sw, p_block, block_num);
 		if (status != IB_SUCCESS) {
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0402: "
 				"Setting forwarding table block failed (%s)"
