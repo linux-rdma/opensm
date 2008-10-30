@@ -739,23 +739,6 @@ __osm_ftree_sw_add_port(IN ftree_sw_t * p_sw,
 
 /***************************************************/
 
-static inline void
-__osm_ftree_sw_set_fwd_table_block(IN ftree_sw_t * p_sw, IN uint16_t lid_ho,
-				   IN uint8_t port_num)
-{
-	p_sw->lft_buf[lid_ho] = port_num;
-}
-
-/***************************************************/
-
-static inline uint8_t __osm_ftree_sw_get_fwd_table_block(IN ftree_sw_t * p_sw,
-							 IN uint16_t lid_ho)
-{
-	return p_sw->lft_buf[lid_ho];
-}
-
-/***************************************************/
-
 static inline cl_status_t
 __osm_ftree_sw_set_hops(IN ftree_sw_t * p_sw,
 			IN uint16_t lid_ho, IN uint8_t port_num,
@@ -1940,12 +1923,10 @@ static void __osm_ftree_set_sw_fwd_table(IN cl_map_item_t * const p_map_item,
 	ftree_sw_t *p_sw = (ftree_sw_t * const)p_map_item;
 	ftree_fabric_t *p_ftree = (ftree_fabric_t *) context;
 
-	/* calculate lft length rounded up to a multiple of 64 (block length) */
-	uint16_t lft_len = 64 * ((p_ftree->lft_max_lid_ho + 1 + 63) / 64);
-
 	p_sw->p_osm_sw->max_lid_ho = p_ftree->lft_max_lid_ho;
 
-	memcpy(p_sw->p_osm_sw->lft_buf, p_sw->lft_buf, lft_len);
+	memcpy(p_sw->p_osm_sw->lft_buf, p_sw->lft_buf,
+	       IB_LID_UCAST_END_HO + 1);
 	osm_ucast_mgr_set_fwd_table(&p_ftree->p_osm->sm.ucast_mgr,
 				    p_sw->p_osm_sw);
 }
@@ -2084,18 +2065,13 @@ __osm_ftree_fabric_route_upgoing_by_going_down(IN ftree_fabric_t * p_ftree,
 		/* second case: skip the port group if the remote (lower)
 		   switch has been already configured for this target LID */
 		if (is_real_lid && !is_main_path &&
-		    __osm_ftree_sw_get_fwd_table_block(p_remote_sw,
-						       cl_ntoh16(target_lid)) !=
-		    OSM_NO_PATH)
+		    p_remote_sw->lft_buf[cl_ntoh16(target_lid)] != OSM_NO_PATH)
 			continue;
 
 		/* setting fwd tbl port only if this is real LID */
 		if (is_real_lid) {
-			__osm_ftree_sw_set_fwd_table_block(p_remote_sw,
-							   cl_ntoh16
-							   (target_lid),
-							   p_min_port->
-							   remote_port_num);
+			p_remote_sw->lft_buf[cl_ntoh16(target_lid)] =
+                                p_min_port->remote_port_num;
 			OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
 				"Switch %s: set path to CA LID %u through port %u\n",
 				__osm_ftree_tuple_to_str(p_remote_sw->tuple),
@@ -2273,11 +2249,8 @@ __osm_ftree_fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
 		p_min_group->counter_down++;
 		p_min_port->counter_down++;
 		if (is_real_lid) {
-			__osm_ftree_sw_set_fwd_table_block(p_remote_sw,
-							   cl_ntoh16
-							   (target_lid),
-							   p_min_port->
-							   remote_port_num);
+			p_remote_sw->lft_buf[cl_ntoh16(target_lid)] =
+				p_min_port->remote_port_num;
 			OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
 				"Switch %s: set path to CA LID %u through port %u\n",
 				__osm_ftree_tuple_to_str(p_remote_sw->tuple),
@@ -2352,8 +2325,7 @@ __osm_ftree_fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
 		p_remote_sw = p_group->remote_hca_or_sw.p_sw;
 
 		/* skip if target lid has been already set on remote switch fwd tbl */
-		if (__osm_ftree_sw_get_fwd_table_block
-		    (p_remote_sw, cl_ntoh16(target_lid)) != OSM_NO_PATH)
+		if (p_remote_sw->lft_buf[cl_ntoh16(target_lid)] != OSM_NO_PATH)
 			continue;
 
 		if (p_sw->is_leaf) {
@@ -2371,9 +2343,8 @@ __osm_ftree_fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
 		   trying to balance these routes - always pick port 0. */
 
 		cl_ptr_vector_at(&p_group->ports, 0, (void *)&p_port);
-		__osm_ftree_sw_set_fwd_table_block(p_remote_sw,
-						   cl_ntoh16(target_lid),
-						   p_port->remote_port_num);
+		p_remote_sw->lft_buf[cl_ntoh16(target_lid)] =
+			p_port->remote_port_num;
 
 		/* On the remote switch that is pointed by the p_group,
 		   set hops for ALL the ports in the remote group. */
@@ -2464,9 +2435,8 @@ static void __osm_ftree_fabric_route_to_cns(IN ftree_fabric_t * p_ftree)
 			/* set local LFT(LID) to the port that is connected to HCA */
 			cl_ptr_vector_at(&p_leaf_port_group->ports, 0,
 					 (void *)&p_port);
-			__osm_ftree_sw_set_fwd_table_block(p_sw,
-							   cl_ntoh16(hca_lid),
-							   p_port->port_num);
+			p_sw->lft_buf[cl_ntoh16(hca_lid)] = p_port->port_num;
+
 			OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
 				"Switch %s: set path to CN LID %u through port %u\n",
 				__osm_ftree_tuple_to_str(p_sw->tuple),
@@ -2574,9 +2544,7 @@ static void __osm_ftree_fabric_route_to_non_cns(IN ftree_fabric_t * p_ftree)
 			cl_ptr_vector_at(&p_hca_port_group->ports, 0,
 					 (void *)&p_hca_port);
 			port_num_on_switch = p_hca_port->remote_port_num;
-			__osm_ftree_sw_set_fwd_table_block(p_sw,
-							   cl_ntoh16(hca_lid),
-							   port_num_on_switch);
+			p_sw->lft_buf[cl_ntoh16(hca_lid)] = port_num_on_switch;
 
 			OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
 				"Switch %s: set path to non-CN HCA LID %u through port %u\n",
@@ -2632,9 +2600,7 @@ static void __osm_ftree_fabric_route_to_switches(IN ftree_fabric_t * p_ftree)
 		p_next_sw = (ftree_sw_t *) cl_qmap_next(&p_sw->map_item);
 
 		/* set local LFT(LID) to 0 (route to itself) */
-		__osm_ftree_sw_set_fwd_table_block(p_sw,
-						   cl_ntoh16(p_sw->base_lid),
-						   0);
+		p_sw->lft_buf[cl_ntoh16(p_sw->base_lid)] = 0;
 
 		OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
 			"Switch %s (LID %u): routing switch-to-switch paths\n",
