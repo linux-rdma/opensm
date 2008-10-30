@@ -71,17 +71,16 @@ typedef struct cache_switch {
 	boolean_t dropped;
 	uint16_t max_lid_ho;
 	uint8_t num_ports;
-	cache_port_t * ports;
+	cache_port_t *ports;
 	uint16_t num_hops;
-	uint8_t ** hops;
-	uint8_t * lft;
+	uint8_t **hops;
+	uint8_t *lft;
 } cache_switch_t;
 
 /**********************************************************************
  **********************************************************************/
 
-static uint16_t
-__cache_sw_get_base_lid_ho(cache_switch_t * p_sw)
+static uint16_t __cache_sw_get_base_lid_ho(cache_switch_t * p_sw)
 {
 	return p_sw->ports[0].remote_lid_ho;
 }
@@ -89,8 +88,7 @@ __cache_sw_get_base_lid_ho(cache_switch_t * p_sw)
 /**********************************************************************
  **********************************************************************/
 
-static boolean_t
-__cache_sw_is_leaf(cache_switch_t * p_sw)
+static boolean_t __cache_sw_is_leaf(cache_switch_t * p_sw)
 {
 	return p_sw->ports[0].is_leaf;
 }
@@ -98,8 +96,7 @@ __cache_sw_is_leaf(cache_switch_t * p_sw)
 /**********************************************************************
  **********************************************************************/
 
-static void
-__cache_sw_set_leaf(cache_switch_t * p_sw)
+static void __cache_sw_set_leaf(cache_switch_t * p_sw)
 {
 	p_sw->ports[0].is_leaf = TRUE;
 }
@@ -107,17 +104,15 @@ __cache_sw_set_leaf(cache_switch_t * p_sw)
 /**********************************************************************
  **********************************************************************/
 
-static cache_switch_t *
-__cache_sw_new(uint16_t lid_ho)
+static cache_switch_t *__cache_sw_new(uint16_t lid_ho)
 {
-	cache_switch_t * p_cache_sw = malloc(sizeof(cache_switch_t));
+	cache_switch_t *p_cache_sw = malloc(sizeof(cache_switch_t));
 	if (!p_cache_sw)
 		return NULL;
 
 	memset(p_cache_sw, 0, sizeof(*p_cache_sw));
 
-	p_cache_sw->ports =
-		malloc(sizeof(cache_port_t) * (CACHE_SW_PORTS + 1));
+	p_cache_sw->ports = malloc(sizeof(cache_port_t) * (CACHE_SW_PORTS + 1));
 	if (!p_cache_sw->ports) {
 		free(p_cache_sw);
 		return NULL;
@@ -136,8 +131,7 @@ __cache_sw_new(uint16_t lid_ho)
 /**********************************************************************
  **********************************************************************/
 
-static void
-__cache_sw_destroy(cache_switch_t * p_sw)
+static void __cache_sw_destroy(cache_switch_t * p_sw)
 {
 	if (!p_sw)
 		return;
@@ -154,13 +148,12 @@ __cache_sw_destroy(cache_switch_t * p_sw)
 /**********************************************************************
  **********************************************************************/
 
-static cache_switch_t *
-__cache_get_sw(osm_ucast_mgr_t * p_mgr, uint16_t lid_ho)
+static cache_switch_t *__cache_get_sw(osm_ucast_mgr_t * p_mgr, uint16_t lid_ho)
 {
-	cache_switch_t * p_cache_sw = (cache_switch_t *)
-			cl_qmap_get(&p_mgr->cache_sw_tbl, lid_ho);
+	cache_switch_t *p_cache_sw = (cache_switch_t *)
+	    cl_qmap_get(&p_mgr->cache_sw_tbl, lid_ho);
 	if (p_cache_sw == (cache_switch_t *)
-			cl_qmap_end(&p_mgr->cache_sw_tbl))
+	    cl_qmap_end(&p_mgr->cache_sw_tbl))
 		p_cache_sw = NULL;
 
 	return p_cache_sw;
@@ -169,11 +162,11 @@ __cache_get_sw(osm_ucast_mgr_t * p_mgr, uint16_t lid_ho)
 /**********************************************************************
  **********************************************************************/
 
-static cache_switch_t *
-__cache_get_or_add_sw(osm_ucast_mgr_t * p_mgr, uint16_t lid_ho)
+static cache_switch_t *__cache_get_or_add_sw(osm_ucast_mgr_t * p_mgr,
+					     uint16_t lid_ho)
 {
-	cache_switch_t * p_cache_sw = __cache_get_sw(p_mgr, lid_ho);
-        if (!p_cache_sw) {
+	cache_switch_t *p_cache_sw = __cache_get_sw(p_mgr, lid_ho);
+	if (!p_cache_sw) {
 		p_cache_sw = __cache_sw_new(lid_ho);
 		if (p_cache_sw)
 			cl_qmap_insert(&p_mgr->cache_sw_tbl, lid_ho,
@@ -185,14 +178,11 @@ __cache_get_or_add_sw(osm_ucast_mgr_t * p_mgr, uint16_t lid_ho)
 /**********************************************************************
  **********************************************************************/
 
-static void
-__cache_add_port(osm_ucast_mgr_t * p_mgr,
-		 uint16_t lid_ho,
-		 uint8_t port_num,
-		 uint16_t remote_lid_ho,
-		 boolean_t is_ca)
+static void __cache_add_port(osm_ucast_mgr_t * p_mgr, uint16_t lid_ho,
+			     uint8_t port_num, uint16_t remote_lid_ho,
+			     boolean_t is_ca)
 {
-	cache_switch_t * p_cache_sw;
+	cache_switch_t *p_cache_sw;
 
 	OSM_LOG_ENTER(p_mgr->p_log);
 
@@ -201,8 +191,7 @@ __cache_add_port(osm_ucast_mgr_t * p_mgr,
 
 	OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 		"Caching switch port: lid %u [port %u] -> lid %u (%s)\n",
-		lid_ho, port_num, remote_lid_ho,
-		(is_ca)? "CA/RTR" : "SW");
+		lid_ho, port_num, remote_lid_ho, (is_ca) ? "CA/RTR" : "SW");
 
 	p_cache_sw = __cache_get_or_add_sw(p_mgr, lid_ho);
 	if (!p_cache_sw) {
@@ -216,9 +205,9 @@ __cache_add_port(osm_ucast_mgr_t * p_mgr,
 		/* calculate new size of ports array, rounded
 		   up to a multiple of CACHE_SW_PORTS */
 		uint8_t new_size = CACHE_SW_PORTS *
-			((port_num + CACHE_SW_PORTS) / CACHE_SW_PORTS);
-		cache_port_t * ports =
-			malloc(sizeof(cache_port_t)*(new_size+1));
+		    ((port_num + CACHE_SW_PORTS) / CACHE_SW_PORTS);
+		cache_port_t *ports =
+		    malloc(sizeof(cache_port_t) * (new_size + 1));
 		if (!ports) {
 			OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR,
 				"ERR AD02: Out of memory - cache is invalid\n");
@@ -253,11 +242,10 @@ Exit:
 /**********************************************************************
  **********************************************************************/
 
-static void
-__cache_cleanup_switches(osm_ucast_mgr_t * p_mgr)
+static void __cache_cleanup_switches(osm_ucast_mgr_t * p_mgr)
 {
-	cache_switch_t * p_sw;
-	cache_switch_t * p_next_sw;
+	cache_switch_t *p_sw;
+	cache_switch_t *p_next_sw;
 	unsigned port_num;
 	boolean_t found_port;
 
@@ -265,7 +253,8 @@ __cache_cleanup_switches(osm_ucast_mgr_t * p_mgr)
 		return;
 
 	p_next_sw = (cache_switch_t *) cl_qmap_head(&p_mgr->cache_sw_tbl);
-	while (p_next_sw != (cache_switch_t *) cl_qmap_end(&p_mgr->cache_sw_tbl)) {
+	while (p_next_sw !=
+	       (cache_switch_t *) cl_qmap_end(&p_mgr->cache_sw_tbl)) {
 		p_sw = p_next_sw;
 		p_next_sw = (cache_switch_t *) cl_qmap_next(&p_sw->map_item);
 
@@ -275,7 +264,8 @@ __cache_cleanup_switches(osm_ucast_mgr_t * p_mgr)
 				found_port = TRUE;
 
 		if (!found_port) {
-			cl_qmap_remove_item(&p_mgr->cache_sw_tbl, &p_sw->map_item);
+			cl_qmap_remove_item(&p_mgr->cache_sw_tbl,
+					    &p_sw->map_item);
 			__cache_sw_destroy(p_sw);
 		}
 	}
@@ -286,8 +276,7 @@ __cache_cleanup_switches(osm_ucast_mgr_t * p_mgr)
 
 static void
 __cache_check_link_change(osm_ucast_mgr_t * p_mgr,
-			  osm_physp_t * p_physp_1,
-			  osm_physp_t * p_physp_2)
+			  osm_physp_t * p_physp_1, osm_physp_t * p_physp_2)
 {
 	OSM_LOG_ENTER(p_mgr->p_log);
 	CL_ASSERT(p_physp_1 && p_physp_2);
@@ -317,14 +306,11 @@ Exit:
 /**********************************************************************
  **********************************************************************/
 
-static void
-__cache_remove_port(osm_ucast_mgr_t * p_mgr,
-		    uint16_t lid_ho,
-		    uint8_t port_num,
-		    uint16_t remote_lid_ho,
-		    boolean_t is_ca)
+static void __cache_remove_port(osm_ucast_mgr_t * p_mgr, uint16_t lid_ho,
+				uint8_t port_num, uint16_t remote_lid_ho,
+				boolean_t is_ca)
 {
-	cache_switch_t * p_cache_sw;
+	cache_switch_t *p_cache_sw;
 
 	OSM_LOG_ENTER(p_mgr->p_log);
 
@@ -364,16 +350,14 @@ __cache_remove_port(osm_ucast_mgr_t * p_mgr,
 	    (!p_cache_sw->ports[port_num].is_leaf && is_ca)) {
 		OSM_LOG(p_mgr->p_log, OSM_LOG_INFO,
 			"Remote node type change on switch lid %u, port %u - "
-			"cache is invalid\n",
-			lid_ho, port_num);
+			"cache is invalid\n", lid_ho, port_num);
 		osm_ucast_cache_invalidate(p_mgr);
 		goto Exit;
 	}
 
 	OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 		"New link from lid %u, port %u to lid %u - "
-		"found in cache\n",
-		lid_ho, port_num, remote_lid_ho);
+		"found in cache\n", lid_ho, port_num, remote_lid_ho);
 
 	/* the new link was cached - clean it from the cache */
 
@@ -381,15 +365,14 @@ __cache_remove_port(osm_ucast_mgr_t * p_mgr,
 	p_cache_sw->ports[port_num].is_leaf = FALSE;
 Exit:
 	OSM_LOG_EXIT(p_mgr->p_log);
-} /* __cache_remove_port() */
+}				/* __cache_remove_port() */
 
 /**********************************************************************
  **********************************************************************/
 
 static void
 __cache_restore_ucast_info(osm_ucast_mgr_t * p_mgr,
-			   cache_switch_t * p_cache_sw,
-			   osm_switch_t * p_sw)
+			   cache_switch_t * p_cache_sw, osm_switch_t * p_sw)
 {
 	if (!p_mgr->cache_valid)
 		return;
@@ -417,10 +400,9 @@ __cache_restore_ucast_info(osm_ucast_mgr_t * p_mgr,
 /**********************************************************************
  **********************************************************************/
 
-static void
-__ucast_cache_dump(osm_ucast_mgr_t * p_mgr)
+static void __ucast_cache_dump(osm_ucast_mgr_t * p_mgr)
 {
-	cache_switch_t * p_sw;
+	cache_switch_t *p_sw;
 	unsigned i;
 
 	OSM_LOG_ENTER(p_mgr->p_log);
@@ -437,8 +419,8 @@ __ucast_cache_dump(osm_ucast_mgr_t * p_mgr)
 		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 			"\t Switch lid %u %s%s\n",
 			__cache_sw_get_base_lid_ho(p_sw),
-			(__cache_sw_is_leaf(p_sw))? "[leaf switch] " : "",
-			(p_sw->dropped)? "[whole switch missing]" : "");
+			(__cache_sw_is_leaf(p_sw)) ? "[leaf switch] " : "",
+			(p_sw->dropped) ? "[whole switch missing]" : "");
 
 		for (i = 1; i < p_sw->num_ports; i++)
 			if (p_sw->ports[i].remote_lid_ho > 0)
@@ -456,15 +438,13 @@ Exit:
 /**********************************************************************
  **********************************************************************/
 
-void
-osm_ucast_cache_invalidate(osm_ucast_mgr_t * p_mgr)
+void osm_ucast_cache_invalidate(osm_ucast_mgr_t * p_mgr)
 {
-	cache_switch_t * p_sw;
-	cache_switch_t * p_next_sw;
+	cache_switch_t *p_sw;
+	cache_switch_t *p_next_sw;
 
 	OSM_LOG_ENTER(p_mgr->p_log);
-	OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-		"Invalidating unicast cache\n");
+	OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG, "Invalidating unicast cache\n");
 
 	if (!p_mgr->cache_valid)
 		goto Exit;
@@ -472,7 +452,8 @@ osm_ucast_cache_invalidate(osm_ucast_mgr_t * p_mgr)
 	p_mgr->cache_valid = FALSE;
 
 	p_next_sw = (cache_switch_t *) cl_qmap_head(&p_mgr->cache_sw_tbl);
-	while (p_next_sw != (cache_switch_t *) cl_qmap_end(&p_mgr->cache_sw_tbl)) {
+	while (p_next_sw !=
+	       (cache_switch_t *) cl_qmap_end(&p_mgr->cache_sw_tbl)) {
 		p_sw = p_next_sw;
 		p_next_sw = (cache_switch_t *) cl_qmap_next(&p_sw->map_item);
 		__cache_sw_destroy(p_sw);
@@ -485,23 +466,22 @@ Exit:
 /**********************************************************************
  **********************************************************************/
 
-static void
-ucast_cache_validate(osm_ucast_mgr_t * p_mgr)
+static void ucast_cache_validate(osm_ucast_mgr_t * p_mgr)
 {
-	cache_switch_t * p_cache_sw;
-	cache_switch_t * p_remote_cache_sw;
-	unsigned         port_num;
-	unsigned         max_ports;
-	uint8_t          remote_node_type;
-	uint16_t         lid_ho;
-	uint16_t         remote_lid_ho;
-	osm_switch_t   * p_sw;
-	osm_switch_t   * p_remote_sw;
-	osm_node_t     * p_node;
-	osm_physp_t    * p_physp;
-	osm_physp_t    * p_remote_physp;
-	osm_port_t     * p_remote_port;
-	cl_qmap_t      * p_sw_tbl;
+	cache_switch_t *p_cache_sw;
+	cache_switch_t *p_remote_cache_sw;
+	unsigned port_num;
+	unsigned max_ports;
+	uint8_t remote_node_type;
+	uint16_t lid_ho;
+	uint16_t remote_lid_ho;
+	osm_switch_t *p_sw;
+	osm_switch_t *p_remote_sw;
+	osm_node_t *p_node;
+	osm_physp_t *p_physp;
+	osm_physp_t *p_remote_physp;
+	osm_port_t *p_remote_port;
+	cl_qmap_t *p_sw_tbl;
 
 	OSM_LOG_ENTER(p_mgr->p_log);
 	if (!p_mgr->cache_valid)
@@ -526,7 +506,7 @@ ucast_cache_validate(osm_ucast_mgr_t * p_mgr)
 
 		p_node = p_sw->p_node;
 
-		lid_ho = cl_ntoh16(osm_node_get_base_lid(p_node,0));
+		lid_ho = cl_ntoh16(osm_node_get_base_lid(p_node, 0));
 		p_cache_sw = __cache_get_sw(p_mgr, lid_ho);
 
 		max_ports = osm_node_get_num_physp(p_node);
@@ -537,7 +517,8 @@ ucast_cache_validate(osm_ucast_mgr_t * p_mgr)
 			p_physp = osm_node_get_physp_ptr(p_node, port_num);
 
 			if (!p_physp || !p_physp->p_remote_physp ||
-			    !osm_physp_link_exists(p_physp, p_physp->p_remote_physp))
+			    !osm_physp_link_exists(p_physp,
+						   p_physp->p_remote_physp))
 				/* no valid link */
 				continue;
 
@@ -549,9 +530,8 @@ ucast_cache_validate(osm_ucast_mgr_t * p_mgr)
 			    !p_cache_sw->dropped &&
 			    !__cache_sw_is_leaf(p_cache_sw) &&
 			    p_physp->p_remote_physp->p_node &&
-			    osm_node_get_type(
-				    p_physp->p_remote_physp->p_node) !=
-					IB_NODE_TYPE_SWITCH)
+			    osm_node_get_type(p_physp->p_remote_physp->
+					      p_node) != IB_NODE_TYPE_SWITCH)
 				__cache_sw_set_leaf(p_cache_sw);
 
 			if (!p_physp->need_update)
@@ -562,15 +542,19 @@ ucast_cache_validate(osm_ucast_mgr_t * p_mgr)
 				lid_ho, port_num);
 
 			p_remote_physp = osm_physp_get_remote(p_physp);
-			remote_node_type = osm_node_get_type(p_remote_physp->p_node);
+			remote_node_type =
+			    osm_node_get_type(p_remote_physp->p_node);
 
 			if (remote_node_type == IB_NODE_TYPE_SWITCH)
-				remote_lid_ho = cl_ntoh16(osm_node_get_base_lid(
-					p_remote_physp->p_node, 0));
+				remote_lid_ho =
+				    cl_ntoh16(osm_node_get_base_lid
+					      (p_remote_physp->p_node, 0));
 			else
-				remote_lid_ho = cl_ntoh16(osm_node_get_base_lid(
-					p_remote_physp->p_node,
-					osm_physp_get_port_num(p_remote_physp)));
+				remote_lid_ho =
+				    cl_ntoh16(osm_node_get_base_lid
+					      (p_remote_physp->p_node,
+					       osm_physp_get_port_num
+					       (p_remote_physp)));
 
 			if (!p_cache_sw ||
 			    port_num >= p_cache_sw->num_ports ||
@@ -619,48 +603,51 @@ ucast_cache_validate(osm_ucast_mgr_t * p_mgr)
 				if (p_sw->need_update == 2) {
 					OSM_LOG(p_mgr->p_log, OSM_LOG_INFO,
 						"New switch found (lid %u) - "
-						"cache is invalid\n",
-						lid_ho);
+						"cache is invalid\n", lid_ho);
 					osm_ucast_cache_invalidate(p_mgr);
 					goto Exit;
 				}
 
 				if (remote_node_type == IB_NODE_TYPE_SWITCH) {
 
-					p_remote_sw = p_remote_physp->p_node->sw;
-                                        if (p_remote_sw->need_update == 2) {
+					p_remote_sw =
+					    p_remote_physp->p_node->sw;
+					if (p_remote_sw->need_update == 2) {
 						/* this could also be case of
 						   switch coming back with an
 						   additional link that it
 						   didn't have before */
-						OSM_LOG(p_mgr->p_log, OSM_LOG_INFO,
+						OSM_LOG(p_mgr->p_log,
+							OSM_LOG_INFO,
 							"New switch/link found (lid %u) - "
 							"cache is invalid\n",
-						       remote_lid_ho);
-						osm_ucast_cache_invalidate(p_mgr);
+							remote_lid_ho);
+						osm_ucast_cache_invalidate
+						    (p_mgr);
 						goto Exit;
 					}
-				}
-				else {
+				} else {
 					/*
 					 * Remote node is CA/RTR.
 					 * Get p_port of the remote node and
 					 * check its p_port->is_new flag.
 					 */
-					p_remote_port = osm_get_port_by_guid(
-						p_mgr->p_subn,
-						osm_physp_get_port_guid(p_remote_physp));
+					p_remote_port =
+					    osm_get_port_by_guid(p_mgr->p_subn,
+								 osm_physp_get_port_guid
+								 (p_remote_physp));
 					if (p_remote_port->is_new) {
-						OSM_LOG(p_mgr->p_log, OSM_LOG_INFO,
+						OSM_LOG(p_mgr->p_log,
+							OSM_LOG_INFO,
 							"New CA/RTR found (lid %u) - "
 							"cache is invalid\n",
 							remote_lid_ho);
-						osm_ucast_cache_invalidate(p_mgr);
+						osm_ucast_cache_invalidate
+						    (p_mgr);
 						goto Exit;
 					}
 				}
-			}
-			else {
+			} else {
 				/*
 				 * The change on the port is cached.
 				 * In general, the reasons might be as follows:
@@ -691,8 +678,8 @@ ucast_cache_validate(osm_ucast_mgr_t * p_mgr)
 						"Remote lid change on switch lid %u, port %u"
 						"(was %u, now %u) - cache is invalid\n",
 						lid_ho, port_num,
-						p_cache_sw->ports[port_num].remote_lid_ho,
-						remote_lid_ho);
+						p_cache_sw->ports[port_num].
+						remote_lid_ho, remote_lid_ho);
 					osm_ucast_cache_invalidate(p_mgr);
 					goto Exit;
 				}
@@ -708,8 +695,9 @@ ucast_cache_validate(osm_ucast_mgr_t * p_mgr)
 				p_cache_sw->ports[port_num].remote_lid_ho = 0;
 				p_cache_sw->ports[port_num].is_leaf = FALSE;
 				if (p_cache_sw->dropped) {
-					__cache_restore_ucast_info(
-						p_mgr, p_cache_sw, p_sw);
+					__cache_restore_ucast_info(p_mgr,
+								   p_cache_sw,
+								   p_sw);
 					p_cache_sw->dropped = FALSE;
 				}
 
@@ -741,10 +729,11 @@ ucast_cache_validate(osm_ucast_mgr_t * p_mgr)
 	 */
 	for (p_cache_sw = (cache_switch_t *) cl_qmap_head(&p_mgr->cache_sw_tbl);
 	     p_cache_sw != (cache_switch_t *) cl_qmap_end(&p_mgr->cache_sw_tbl);
-	     p_cache_sw = (cache_switch_t *) cl_qmap_next(&p_cache_sw->map_item)) {
+	     p_cache_sw =
+	     (cache_switch_t *) cl_qmap_next(&p_cache_sw->map_item)) {
 
 		if (p_cache_sw->dropped) {
-			if (!__cache_sw_is_leaf(p_cache_sw)){
+			if (!__cache_sw_is_leaf(p_cache_sw)) {
 				OSM_LOG(p_mgr->p_log, OSM_LOG_INFO,
 					"Missing non-leaf switch (lid %u) - "
 					"cache is invalid\n",
@@ -764,23 +753,27 @@ ucast_cache_validate(osm_ucast_mgr_t * p_mgr)
 			if (!p_cache_sw->ports[port_num].remote_lid_ho)
 				continue;
 
-			if (p_cache_sw->ports[port_num].is_leaf){
+			if (p_cache_sw->ports[port_num].is_leaf) {
 				CL_ASSERT(__cache_sw_is_leaf(p_cache_sw));
 				OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 					"Switch lid %u, port %u: missing link to CA/RTR - "
 					"continuing validation\n",
-					__cache_sw_get_base_lid_ho(p_cache_sw), port_num);
+					__cache_sw_get_base_lid_ho(p_cache_sw),
+					port_num);
 				continue;
 			}
 
 			p_remote_cache_sw = __cache_get_sw(p_mgr,
-				p_cache_sw->ports[port_num].remote_lid_ho);
+							   p_cache_sw->
+							   ports[port_num].
+							   remote_lid_ho);
 
 			if (!p_remote_cache_sw || !p_remote_cache_sw->dropped) {
 				OSM_LOG(p_mgr->p_log, OSM_LOG_INFO,
 					"Switch lid %u, port %u: missing link to existing switch - "
 					"cache is invalid\n",
-					__cache_sw_get_base_lid_ho(p_cache_sw), port_num);
+					__cache_sw_get_base_lid_ho(p_cache_sw),
+					port_num);
 				osm_ucast_cache_invalidate(p_mgr);
 				goto Exit;
 			}
@@ -789,7 +782,8 @@ ucast_cache_validate(osm_ucast_mgr_t * p_mgr)
 				OSM_LOG(p_mgr->p_log, OSM_LOG_INFO,
 					"Switch lid %u, port %u: missing link to non-leaf switch - "
 					"cache is invalid\n",
-					__cache_sw_get_base_lid_ho(p_cache_sw), port_num);
+					__cache_sw_get_base_lid_ho(p_cache_sw),
+					port_num);
 				osm_ucast_cache_invalidate(p_mgr);
 				goto Exit;
 			}
@@ -808,7 +802,8 @@ ucast_cache_validate(osm_ucast_mgr_t * p_mgr)
 				OSM_LOG(p_mgr->p_log, OSM_LOG_INFO,
 					"Switch lid %u, port %u: missing leaf-2-leaf link - "
 					"cache is invalid\n",
-					__cache_sw_get_base_lid_ho(p_cache_sw), port_num);
+					__cache_sw_get_base_lid_ho(p_cache_sw),
+					port_num);
 				osm_ucast_cache_invalidate(p_mgr);
 				goto Exit;
 			}
@@ -816,26 +811,23 @@ ucast_cache_validate(osm_ucast_mgr_t * p_mgr)
 			OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 				"Switch lid %u, port %u: missing remote leaf switch - "
 				"continuing validation\n",
-				__cache_sw_get_base_lid_ho(p_cache_sw), port_num);
+				__cache_sw_get_base_lid_ho(p_cache_sw),
+				port_num);
 		}
 	}
 
-	OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-		"Unicast cache is valid\n");
+	OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG, "Unicast cache is valid\n");
 	__ucast_cache_dump(p_mgr);
 Exit:
 	OSM_LOG_EXIT(p_mgr->p_log);
-} /* osm_ucast_cache_validate() */
+}				/* osm_ucast_cache_validate() */
 
 /**********************************************************************
  **********************************************************************/
 
-void
-osm_ucast_cache_check_new_link(osm_ucast_mgr_t * p_mgr,
-			       osm_node_t * p_node_1,
-			       uint8_t port_num_1,
-			       osm_node_t * p_node_2,
-			       uint8_t port_num_2)
+void osm_ucast_cache_check_new_link(osm_ucast_mgr_t * p_mgr,
+				    osm_node_t * p_node_1, uint8_t port_num_1,
+				    osm_node_t * p_node_2, uint8_t port_num_2)
 {
 	uint16_t lid_ho_1;
 	uint16_t lid_ho_2;
@@ -862,7 +854,7 @@ osm_ucast_cache_check_new_link(osm_ucast_mgr_t * p_mgr,
 
 	/* for code simplicity, we want the first node to be switch */
 	if (osm_node_get_type(p_node_1) != IB_NODE_TYPE_SWITCH) {
-		osm_node_t * tmp_node = p_node_1;
+		osm_node_t *tmp_node = p_node_1;
 		uint8_t tmp_port_num = port_num_1;
 		p_node_1 = p_node_2;
 		port_num_1 = port_num_2;
@@ -873,11 +865,10 @@ osm_ucast_cache_check_new_link(osm_ucast_mgr_t * p_mgr,
 	lid_ho_1 = cl_ntoh16(osm_node_get_base_lid(p_node_1, 0));
 
 	if (osm_node_get_type(p_node_2) == IB_NODE_TYPE_SWITCH)
-		lid_ho_2 = cl_ntoh16(
-			osm_node_get_base_lid(p_node_2, 0));
+		lid_ho_2 = cl_ntoh16(osm_node_get_base_lid(p_node_2, 0));
 	else
-		lid_ho_2 = cl_ntoh16(
-			osm_node_get_base_lid(p_node_2, port_num_2));
+		lid_ho_2 =
+		    cl_ntoh16(osm_node_get_base_lid(p_node_2, port_num_2));
 
 	if (!lid_ho_1 || !lid_ho_2) {
 		/*
@@ -888,13 +879,13 @@ osm_ucast_cache_check_new_link(osm_ucast_mgr_t * p_mgr,
 		 */
 		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 			"Link port %u <-> %u reveals new node - cache will "
-			"be validated later\n",
-			port_num_1, port_num_2);
+			"be validated later\n", port_num_1, port_num_2);
 		goto Exit;
 	}
 
 	__cache_remove_port(p_mgr, lid_ho_1, port_num_1, lid_ho_2,
-		    (osm_node_get_type(p_node_2) != IB_NODE_TYPE_SWITCH));
+			    (osm_node_get_type(p_node_2) !=
+			     IB_NODE_TYPE_SWITCH));
 
 	/* if node_2 is a switch, the link should be cleaned from its cache */
 
@@ -904,18 +895,15 @@ osm_ucast_cache_check_new_link(osm_ucast_mgr_t * p_mgr,
 
 Exit:
 	OSM_LOG_EXIT(p_mgr->p_log);
-} /* osm_ucast_cache_check_new_link() */
+}				/* osm_ucast_cache_check_new_link() */
 
 /**********************************************************************
  **********************************************************************/
 
-void
-osm_ucast_cache_add_link(osm_ucast_mgr_t * p_mgr,
-			 osm_physp_t * p_physp1,
-			 osm_physp_t * p_physp2)
+void osm_ucast_cache_add_link(osm_ucast_mgr_t * p_mgr,
+			      osm_physp_t * p_physp1, osm_physp_t * p_physp2)
 {
-	osm_node_t * p_node_1 = p_physp1->p_node,
-		   * p_node_2 = p_physp2->p_node;
+	osm_node_t *p_node_1 = p_physp1->p_node, *p_node_2 = p_physp2->p_node;
 	uint16_t lid_ho_1, lid_ho_2;
 
 	OSM_LOG_ENTER(p_mgr->p_log);
@@ -978,8 +966,7 @@ osm_ucast_cache_add_link(osm_ucast_mgr_t * p_mgr,
 				 lid_ho_2, FALSE);
 		__cache_add_port(p_mgr, lid_ho_2, p_physp2->port_num,
 				 lid_ho_1, FALSE);
-	}
-	else {
+	} else {
 		lid_ho_2 = cl_ntoh16(osm_physp_get_base_lid(p_physp2));
 
 		/* lost link to CA/RTR - cache only switch side */
@@ -989,20 +976,18 @@ osm_ucast_cache_add_link(osm_ucast_mgr_t * p_mgr,
 
 Exit:
 	OSM_LOG_EXIT(p_mgr->p_log);
-} /* osm_ucast_cache_add_link() */
+}				/* osm_ucast_cache_add_link() */
 
 /**********************************************************************
  **********************************************************************/
 
-void
-osm_ucast_cache_add_node(osm_ucast_mgr_t * p_mgr,
-			 osm_node_t * p_node)
+void osm_ucast_cache_add_node(osm_ucast_mgr_t * p_mgr, osm_node_t * p_node)
 {
 	uint16_t lid_ho;
 	uint8_t max_ports;
 	uint8_t port_num;
-	osm_physp_t * p_physp;
-	cache_switch_t * p_cache_sw;
+	osm_physp_t *p_physp;
+	cache_switch_t *p_cache_sw;
 
 	OSM_LOG_ENTER(p_mgr->p_log);
 
@@ -1011,7 +996,7 @@ osm_ucast_cache_add_node(osm_ucast_mgr_t * p_mgr,
 
 	if (osm_node_get_type(p_node) == IB_NODE_TYPE_SWITCH) {
 
-		lid_ho = cl_ntoh16(osm_node_get_base_lid(p_node,0));
+		lid_ho = cl_ntoh16(osm_node_get_base_lid(p_node, 0));
 
 		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 			"Caching dropped switch lid %u\n", lid_ho);
@@ -1080,15 +1065,13 @@ osm_ucast_cache_add_node(osm_ucast_mgr_t * p_mgr,
 			   it is more updated than the switch's LFT */
 			p_cache_sw->lft = p_node->sw->lft_buf;
 			p_node->sw->lft_buf = NULL;
-		}
-		else {
+		} else {
 			/* no LFT buffer, so we use the switch's LFT */
 			p_cache_sw->lft = p_node->sw->lft;
 			p_node->sw->lft = NULL;
 		}
 		p_cache_sw->max_lid_ho = p_node->sw->max_lid_ho;
-	}
-	else {
+	} else {
 		/* dropping CA/RTR: add to cache all the ports of this node */
 		max_ports = osm_node_get_num_physp(p_node);
 		for (port_num = 1; port_num < max_ports; port_num++) {
@@ -1097,9 +1080,9 @@ osm_ucast_cache_add_node(osm_ucast_mgr_t * p_mgr,
 			if (!p_physp || !p_physp->p_remote_physp)
 				continue;
 
-			CL_ASSERT(osm_node_get_type(
-				p_physp->p_remote_physp->p_node) ==
-					IB_NODE_TYPE_SWITCH);
+			CL_ASSERT(osm_node_get_type
+				  (p_physp->p_remote_physp->p_node) ==
+				  IB_NODE_TYPE_SWITCH);
 
 			osm_ucast_cache_add_link(p_mgr,
 						 p_physp->p_remote_physp,
@@ -1108,17 +1091,16 @@ osm_ucast_cache_add_node(osm_ucast_mgr_t * p_mgr,
 	}
 Exit:
 	OSM_LOG_EXIT(p_mgr->p_log);
-} /* osm_ucast_cache_add_node() */
+}				/* osm_ucast_cache_add_node() */
 
 /**********************************************************************
  **********************************************************************/
 
-int
-osm_ucast_cache_process(osm_ucast_mgr_t * p_mgr)
+int osm_ucast_cache_process(osm_ucast_mgr_t * p_mgr)
 {
 	cl_qmap_t *tbl = &p_mgr->p_subn->sw_guid_tbl;
 	cl_map_item_t *item;
-	osm_switch_t * p_sw;
+	osm_switch_t *p_sw;
 
 	if (!p_mgr->p_subn->opt.use_ucast_cache)
 		return 1;
@@ -1132,7 +1114,7 @@ osm_ucast_cache_process(osm_ucast_mgr_t * p_mgr)
 
 	for (item = cl_qmap_head(tbl); item != cl_qmap_end(tbl);
 	     item = cl_qmap_next(item)) {
-		p_sw = (osm_switch_t *)item;
+		p_sw = (osm_switch_t *) item;
 
 		if (p_sw->need_update && !p_sw->lft_buf) {
 			/* no new routing was recently calculated for this

@@ -88,8 +88,7 @@ struct osm_ucast_mgr;
 *
 * SYNOPSIS
 */
-void
-osm_ucast_cache_invalidate(struct osm_ucast_mgr * p_mgr);
+void osm_ucast_cache_invalidate(struct osm_ucast_mgr *p_mgr);
 /*
 * PARAMETERS
 *	p_mgr
@@ -115,12 +114,9 @@ osm_ucast_cache_invalidate(struct osm_ucast_mgr * p_mgr);
 *
 * SYNOPSIS
 */
-void
-osm_ucast_cache_check_new_link(struct osm_ucast_mgr * p_mgr,
-			       osm_node_t * p_node_1,
-			       uint8_t port_num_1,
-			       osm_node_t * p_node_2,
-			       uint8_t port_num_2);
+void osm_ucast_cache_check_new_link(struct osm_ucast_mgr *p_mgr,
+				    osm_node_t * p_node_1, uint8_t port_num_1,
+				    osm_node_t * p_node_2, uint8_t port_num_2);
 /*
 * PARAMETERS
 *	p_mgr
@@ -154,10 +150,8 @@ osm_ucast_cache_check_new_link(struct osm_ucast_mgr * p_mgr,
 *
 * SYNOPSIS
 */
-void
-osm_ucast_cache_add_link(struct osm_ucast_mgr * p_mgr,
-			 osm_physp_t * physp1,
-			 osm_physp_t * physp2);
+void osm_ucast_cache_add_link(struct osm_ucast_mgr *p_mgr,
+			      osm_physp_t * physp1, osm_physp_t * physp2);
 /*
 * PARAMETERS
 *	p_mgr
@@ -193,9 +187,7 @@ osm_ucast_cache_add_link(struct osm_ucast_mgr * p_mgr,
 *
 * SYNOPSIS
 */
-void
-osm_ucast_cache_add_node(struct osm_ucast_mgr * p_mgr,
-			 osm_node_t * p_node);
+void osm_ucast_cache_add_node(struct osm_ucast_mgr *p_mgr, osm_node_t * p_node);
 /*
 * PARAMETERS
 *	p_mgr
@@ -225,8 +217,7 @@ osm_ucast_cache_add_node(struct osm_ucast_mgr * p_mgr,
 *
 * SYNOPSIS
 */
-int
-osm_ucast_cache_process(struct osm_ucast_mgr * p_mgr);
+int osm_ucast_cache_process(struct osm_ucast_mgr *p_mgr);
 /*
 * PARAMETERS
 *	p_mgr
