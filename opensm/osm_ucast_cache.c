@@ -1075,8 +1075,17 @@ osm_ucast_cache_add_node(osm_ucast_mgr_t * p_mgr,
 
 		/* linear forwarding table */
 
-		p_cache_sw->lft = p_node->sw->lft_buf;
-		p_node->sw->lft_buf = NULL;
+		if (p_node->sw->lft_buf) {
+			/* LFT buffer exists - we use it, because
+			   it is more updated than the switch's LFT */
+			p_cache_sw->lft = p_node->sw->lft_buf;
+			p_node->sw->lft_buf = NULL;
+		}
+		else {
+			/* no LFT buffer, so we use the switch's LFT */
+			p_cache_sw->lft = p_node->sw->lft;
+			p_node->sw->lft = NULL;
+		}
 		p_cache_sw->max_lid_ho = p_node->sw->max_lid_ho;
 	}
 	else {
@@ -1109,6 +1118,7 @@ osm_ucast_cache_process(osm_ucast_mgr_t * p_mgr)
 {
 	cl_qmap_t *tbl = &p_mgr->p_subn->sw_guid_tbl;
 	cl_map_item_t *item;
+	osm_switch_t * p_sw;
 
 	if (!p_mgr->p_subn->opt.use_ucast_cache)
 		return 1;
@@ -1121,8 +1131,21 @@ osm_ucast_cache_process(osm_ucast_mgr_t * p_mgr)
 		"Configuring switch tables using cached routing\n");
 
 	for (item = cl_qmap_head(tbl); item != cl_qmap_end(tbl);
-	     item = cl_qmap_next(item))
-		osm_ucast_mgr_set_fwd_table(p_mgr, (osm_switch_t *)item);
+	     item = cl_qmap_next(item)) {
+		p_sw = (osm_switch_t *)item;
+
+		if (p_sw->need_update && !p_sw->lft_buf) {
+			/* no new routing was recently calculated for this
+			   switch, but the LFT needs to be updated anyway */
+			p_sw->lft_buf = p_sw->lft;
+			p_sw->lft = malloc(IB_LID_UCAST_END_HO + 1);
+			if (!p_sw->lft)
+				return IB_INSUFFICIENT_MEMORY;
+			memset(p_sw->lft, OSM_NO_PATH, IB_LID_UCAST_END_HO + 1);
+		}
+
+		osm_ucast_mgr_set_fwd_table(p_mgr, p_sw);
+	}
 
 	return 0;
 }

@@ -392,6 +392,20 @@ int osm_ucast_mgr_set_fwd_table(IN osm_ucast_mgr_t * const p_mgr,
 	context.lft_context.node_guid = osm_node_get_node_guid(p_node);
 	context.lft_context.set_method = TRUE;
 
+	if (!p_sw->lft_buf) {
+		/* any routing should provide the lft_buf */
+		CL_ASSERT(p_mgr->p_subn->opt.use_ucast_cache &&
+			  p_mgr->cache_valid && !p_sw->need_update);
+		goto Exit;
+	}
+
+	if (!p_sw->need_update &&
+	    !memcmp(p_sw->lft, p_sw->lft_buf, IB_LID_UCAST_END_HO + 1)) {
+		free(p_sw->lft_buf);
+		p_sw->lft_buf = NULL;
+		goto Exit;
+	}
+
 	for (block_id_ho = 0;
 	     osm_switch_get_lft_block(p_sw, block_id_ho, block);
 	     block_id_ho++) {
@@ -417,6 +431,7 @@ int osm_ucast_mgr_set_fwd_table(IN osm_ucast_mgr_t * const p_mgr,
 				ib_get_err_str(status));
 	}
 
+Exit:
 	OSM_LOG_EXIT(p_mgr->p_log);
 	return 0;
 }
