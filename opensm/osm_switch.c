@@ -533,9 +533,9 @@ osm_switch_prepare_path_rebuild(IN osm_switch_t * p_sw, IN uint16_t max_lids)
 
 	osm_switch_clear_hops(p_sw);
 
-	if (!p_sw->lft_buf)
-		if (!(p_sw->lft_buf = malloc(IB_LID_UCAST_END_HO + 1)))
-			return IB_INSUFFICIENT_MEMORY;
+	if (!p_sw->lft_buf &&
+	    !(p_sw->lft_buf = malloc(IB_LID_UCAST_END_HO + 1)))
+		return IB_INSUFFICIENT_MEMORY;
 
 	memset(p_sw->lft_buf, OSM_NO_PATH, IB_LID_UCAST_END_HO + 1);
 
