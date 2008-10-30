@@ -474,7 +474,7 @@ static inline osm_physp_t *osm_switch_get_route_by_lid(IN const osm_switch_t *
 						       const p_sw,
 						       IN const ib_net16_t lid)
 {
-	uint8_t port_num = OSM_NO_PATH;
+	uint8_t port_num;
 
 	CL_ASSERT(p_sw);
 	CL_ASSERT(lid);
@@ -560,8 +560,7 @@ osm_switch_sp0_is_lmc_capable(IN const osm_switch_t * const p_sw,
 static inline uint16_t
 osm_switch_get_max_block_id_in_use(IN const osm_switch_t * const p_sw)
 {
-	return (uint16_t)(cl_ntoh16(p_sw->switch_info.lin_top) /
-			  IB_SMP_DATA_SIZE);
+	return cl_ntoh16(p_sw->switch_info.lin_top) / IB_SMP_DATA_SIZE;
 }
 /*
 * PARAMETERS
