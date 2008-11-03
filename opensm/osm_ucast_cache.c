@@ -135,8 +135,6 @@ static void __cache_sw_destroy(cache_switch_t * p_sw)
 		free(p_sw->lft);
 	if (p_sw->hops)
 		free(p_sw->hops);
-	if (p_sw->ports)
-		free(p_sw->ports);
 	free(p_sw);
 }
 
