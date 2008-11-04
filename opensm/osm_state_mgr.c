@@ -542,6 +542,12 @@ static void __osm_state_mgr_get_node_desc(IN cl_map_item_t * const p_object,
 
 	/* get a physp to request from. */
 	p_physp = osm_node_get_any_physp_ptr(p_node);
+	if (!osm_physp_is_valid(p_physp)) {
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR,
+			"__osm_state_mgr_get_node_desc: ERR 331C: "
+			"Failed to get valid physical port object\n");
+		goto exit;
+	}
 
 	mad_context.nd_context.node_guid = osm_node_get_node_guid(p_node);
 
