@@ -378,12 +378,12 @@ equivalent:
 
 6.4  iSER
 Similar to RDS, iSER query is matched by Service ID, where the the Service ID
-is also 0x000000000106PPPP. Default port number for iSER is 0x035C, which makes
-a default Service-ID 0x000000000106035C. The following two match rules are
+is also 0x000000000106PPPP. Default port number for iSER is 0x0CBC, which makes
+a default Service-ID 0x0000000001060CBC. The following two match rules are
 equivalent:
 
     iser                               : <SL>
-    any, service-id 0x000000000106035C : <SL>
+    any, service-id 0x0000000001060CBC : <SL>
 
 6.5  SRP
 Service ID for SRP varies from storage vendor to vendor, thus SRP query is
