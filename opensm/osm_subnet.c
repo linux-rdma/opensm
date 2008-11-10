@@ -370,6 +370,15 @@ static void subn_set_default_qos_options(IN osm_qos_options_t * opt)
 	opt->sl2vl = OSM_DEFAULT_QOS_SL2VL;
 }
 
+static void subn_init_qos_options(IN osm_qos_options_t * opt)
+{
+	opt->max_vls = 0;
+	opt->high_limit = -1;
+	opt->vlarb_high = NULL;
+	opt->vlarb_low = NULL;
+	opt->sl2vl = NULL;
+}
+
 /**********************************************************************
  **********************************************************************/
 void osm_subn_set_default_opt(IN osm_subn_opt_t * const p_opt)
@@ -457,11 +466,11 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * const p_opt)
 	p_opt->no_clients_rereg = FALSE;
 	p_opt->prefix_routes_file = OSM_DEFAULT_PREFIX_ROUTES_FILE;
 	p_opt->consolidate_ipv6_snm_req = FALSE;
-	subn_set_default_qos_options(&p_opt->qos_options);
-	subn_set_default_qos_options(&p_opt->qos_ca_options);
-	subn_set_default_qos_options(&p_opt->qos_sw0_options);
-	subn_set_default_qos_options(&p_opt->qos_swe_options);
-	subn_set_default_qos_options(&p_opt->qos_rtr_options);
+	subn_init_qos_options(&p_opt->qos_options);
+	subn_init_qos_options(&p_opt->qos_ca_options);
+	subn_init_qos_options(&p_opt->qos_sw0_options);
+	subn_init_qos_options(&p_opt->qos_swe_options);
+	subn_init_qos_options(&p_opt->qos_rtr_options);
 }
 
 /**********************************************************************
@@ -518,6 +527,21 @@ opts_unpack_uint32(IN char *p_req_key,
 		uint32_t val = strtoul(p_val_str, NULL, 0);
 		if (val != *p_val) {
 			log_config_value(p_key, "%u", val);
+			*p_val = val;
+		}
+	}
+}
+
+/**********************************************************************
+ **********************************************************************/
+static void
+opts_unpack_int32(IN char *p_req_key,
+		  IN char *p_key, IN char *p_val_str, IN int32_t * p_val)
+{
+	if (!strcmp(p_req_key, p_key)) {
+		int32_t val = strtol(p_val_str, NULL, 0);
+		if (val != *p_val) {
+			log_config_value(p_key, "%d", val);
 			*p_val = val;
 		}
 	}
@@ -651,7 +675,7 @@ subn_parse_qos_options(IN const char *prefix,
 	snprintf(name, sizeof(name), "%s_max_vls", prefix);
 	opts_unpack_uint32(name, p_key, p_val_str, &opt->max_vls);
 	snprintf(name, sizeof(name), "%s_high_limit", prefix);
-	opts_unpack_uint32(name, p_key, p_val_str, &opt->high_limit);
+	opts_unpack_int32(name, p_key, p_val_str, &opt->high_limit);
 	snprintf(name, sizeof(name), "%s_vlarb_high", prefix);
 	opts_unpack_charp(name, p_key, p_val_str, &opt->vlarb_high);
 	snprintf(name, sizeof(name), "%s_vlarb_low", prefix);
@@ -786,138 +810,142 @@ osm_parse_prefix_routes_file(IN osm_subn_t * const p_subn)
 
 /**********************************************************************
  **********************************************************************/
-
-static void subn_verify_max_vls(unsigned *max_vls, const char *prefix)
+static void subn_verify_max_vls(unsigned *max_vls, const char *prefix, unsigned dflt)
 {
-	if (*max_vls > 15) {
-		log_report(" Invalid Cached Option:%s_max_vls=%u:"
-			   "Using Default:%u\n",
-			   prefix, *max_vls, OSM_DEFAULT_QOS_MAX_VLS);
-		*max_vls = OSM_DEFAULT_QOS_MAX_VLS;
+	if (!(*max_vls) || *max_vls > 15) {
+		log_report(" Invalid Cached Option: %s_max_vls=%u: "
+			   "Using Default = %u\n", prefix, *max_vls, dflt);
+		*max_vls = dflt;
 	}
 }
 
-static void subn_verify_high_limit(unsigned *high_limit, const char *prefix)
+static void subn_verify_high_limit(int *high_limit, const char *prefix, int dflt)
 {
-	if (*high_limit > 255) {
-		log_report(" Invalid Cached Option:%s_high_limit=%u:"
-			   "Using Default:%u\n",
-			   prefix, *high_limit, OSM_DEFAULT_QOS_HIGH_LIMIT);
-		*high_limit = OSM_DEFAULT_QOS_HIGH_LIMIT;
+	if (*high_limit < 0 || *high_limit > 255) {
+		log_report(" Invalid Cached Option: %s_high_limit=%d: "
+			   "Using Default: %d\n", prefix, *high_limit, dflt);
+		*high_limit = dflt;
 	}
 }
 
-static void subn_verify_vlarb(char *vlarb, const char *prefix,
-			      const char *suffix)
+static void subn_verify_vlarb(char **vlarb, const char *prefix,
+			      const char *suffix, char *dflt)
 {
-	if (vlarb) {
-		char *str, *tok, *end, *ptr;
-		int count = 0;
+	char *str, *tok, *end, *ptr;
+	int count = 0;
 
-		str = strdup(vlarb);
-
-		tok = strtok_r(str, ",\n", &ptr);
-		while (tok) {
-			char *vl_str, *weight_str;
-
-			vl_str = tok;
-			weight_str = strchr(tok, ':');
-
-			if (weight_str) {
-				long vl, weight;
-
-				*weight_str = '\0';
-				weight_str++;
-
-				vl = strtol(vl_str, &end, 0);
-
-				if (*end)
-					log_report(" Warning: Cached Option "
-						   "%s_vlarb_%s:vl=%s "
-						   "improperly formatted\n",
-						   prefix, suffix, vl_str);
-				else if (vl < 0 || vl > 14)
-					log_report(" Warning: Cached Option "
-						   "%s_vlarb_%s:vl=%ld out "
-						   "of range\n",
-						   prefix, suffix, vl);
-
-				weight = strtol(weight_str, &end, 0);
-
-				if (*end)
-					log_report(" Warning: Cached Option "
-						   "%s_vlarb_%s:weight=%s "
-						   "improperly formatted\n",
-						   prefix, suffix, weight_str);
-				else if (weight < 0 || weight > 255)
-					log_report(" Warning: Cached Option "
-						   "%s_vlarb_%s:weight=%ld "
-						   "out of range\n",
-						   prefix, suffix, weight);
-			} else
-				log_report(" Warning: Cached Option "
-					   "%s_vlarb_%s:vl:weight=%s "
-					   "improperly formatted\n",
-					   prefix, suffix, tok);
-
-			count++;
-			tok = strtok_r(NULL, ",\n", &ptr);
-		}
-
-		if (count > 64)
-			log_report(" Warning: Cached Option %s_vlarb_%s: "
-				   "> 64 listed: excess vl:weight pairs "
-				   "will be dropped\n", prefix, suffix);
-
-		free(str);
+	if (*vlarb == NULL) {
+		log_report(" Invalid Cached Option: %s_vlarb_%s: "
+		"Using Default\n", prefix, suffix);
+		*vlarb = dflt;
+		return;
 	}
-}
 
-static void subn_verify_sl2vl(char *sl2vl, const char *prefix)
-{
-	if (sl2vl) {
-		char *str, *tok, *end, *ptr;
-		int count = 0;
+	str = strdup(*vlarb);
 
-		str = strdup(sl2vl);
+	tok = strtok_r(str, ",\n", &ptr);
+	while (tok) {
+		char *vl_str, *weight_str;
 
-		tok = strtok_r(str, ",\n", &ptr);
-		while (tok) {
-			long vl = strtol(tok, &end, 0);
+		vl_str = tok;
+		weight_str = strchr(tok, ':');
+
+		if (weight_str) {
+			long vl, weight;
+
+			*weight_str = '\0';
+			weight_str++;
+
+			vl = strtol(vl_str, &end, 0);
 
 			if (*end)
-				log_report(" Warning: Cached Option %s_sl2vl:"
-					   "vl=%s improperly formatted\n",
-					   prefix, tok);
-			else if (vl < 0 || vl > 15)
-				log_report(" Warning: Cached Option %s_sl2vl:"
-					   "vl=%ld out of range\n",
-					   prefix, vl);
+				log_report(" Warning: Cached Option "
+					   "%s_vlarb_%s:vl=%s"
+					   " improperly formatted\n",
+					   prefix, suffix, vl_str);
+			else if (vl < 0 || vl > 14)
+				log_report(" Warning: Cached Option "
+					   "%s_vlarb_%s:vl=%ld out of range\n",
+					   prefix, suffix, vl);
 
-			count++;
-			tok = strtok_r(NULL, ",\n", &ptr);
-		}
+			weight = strtol(weight_str, &end, 0);
 
-		if (count < 16)
-			log_report(" Warning: Cached Option %s_sl2vl: < 16 VLs "
-				   "listed\n", prefix);
+			if (*end)
+				log_report(" Warning: Cached Option "
+					   "%s_vlarb_%s:weight=%s "
+					   "improperly formatted\n",
+					   prefix, suffix, weight_str);
+			else if (weight < 0 || weight > 255)
+				log_report(" Warning: Cached Option "
+					   "%s_vlarb_%s:weight=%ld "
+					   "out of range\n",
+					   prefix, suffix, weight);
+		} else
+			log_report(" Warning: Cached Option "
+				   "%s_vlarb_%s:vl:weight=%s "
+				   "improperly formatted\n",
+				   prefix, suffix, tok);
 
-		if (count > 16)
-			log_report(" Warning: Cached Option %s_sl2vl: "
-				   "> 16 listed: excess VLs will be dropped\n",
-				   prefix);
-
-		free(str);
+		count++;
+		tok = strtok_r(NULL, ",\n", &ptr);
 	}
+
+	if (count > 64)
+		log_report(" Warning: Cached Option %s_vlarb_%s: > 64 listed:"
+			   " excess vl:weight pairs will be dropped\n",
+			   prefix, suffix);
+
+	free(str);
 }
 
-static void subn_verify_qos_set(osm_qos_options_t *set, const char *prefix)
+static void subn_verify_sl2vl(char **sl2vl, const char *prefix, char *dflt)
 {
-	subn_verify_max_vls(&set->max_vls, prefix);
-	subn_verify_high_limit(&set->high_limit, prefix);
-	subn_verify_vlarb(set->vlarb_low, prefix, "low");
-	subn_verify_vlarb(set->vlarb_high, prefix, "high");
-	subn_verify_sl2vl(set->sl2vl, prefix);
+	char *str, *tok, *end, *ptr;
+	int count = 0;
+
+	if (*sl2vl == NULL) {
+		log_report(" Invalid Cached Option: %s_sl2vl: Using Default\n",
+			   prefix);
+		*sl2vl = dflt;
+		return;
+	}
+
+	str = strdup(*sl2vl);
+
+	tok = strtok_r(str, ",\n", &ptr);
+	while (tok) {
+		long vl = strtol(tok, &end, 0);
+
+		if (*end)
+			log_report(" Warning: Cached Option %s_sl2vl:vl=%s "
+				   "improperly formatted\n", prefix, tok);
+		else if (vl < 0 || vl > 15)
+			log_report(" Warning: Cached Option %s_sl2vl:vl=%ld "
+				   "out of range\n", prefix, vl);
+
+		count++;
+		tok = strtok_r(NULL, ",\n", &ptr);
+	}
+
+	if (count < 16)
+		log_report(" Warning: Cached Option %s_sl2vl: < 16 VLs "
+			   "listed\n", prefix);
+
+	if (count > 16)
+		log_report(" Warning: Cached Option %s_sl2vl: > 16 listed: "
+			   "excess VLs will be dropped\n", prefix);
+
+	free(str);
+}
+
+static void subn_verify_qos_set(osm_qos_options_t *set, const char *prefix,
+				osm_qos_options_t *dflt)
+{
+	subn_verify_max_vls(&set->max_vls, prefix, dflt->max_vls);
+	subn_verify_high_limit(&set->high_limit, prefix, dflt->high_limit);
+	subn_verify_vlarb(&set->vlarb_low, prefix, "low", dflt->vlarb_low);
+	subn_verify_vlarb(&set->vlarb_high, prefix, "high", dflt->vlarb_high);
+	subn_verify_sl2vl(&set->sl2vl, prefix, dflt->sl2vl);
 }
 
 static void subn_verify_conf_file(IN osm_subn_opt_t * const p_opts)
@@ -957,11 +985,24 @@ static void subn_verify_conf_file(IN osm_subn_opt_t * const p_opts)
 	}
 
 	if (p_opts->qos) {
-		subn_verify_qos_set(&p_opts->qos_options, "qos");
-		subn_verify_qos_set(&p_opts->qos_ca_options, "qos_ca");
-		subn_verify_qos_set(&p_opts->qos_sw0_options, "qos_sw0");
-		subn_verify_qos_set(&p_opts->qos_swe_options, "qos_swe");
-		subn_verify_qos_set(&p_opts->qos_rtr_options, "qos_rtr");
+		osm_qos_options_t dflt;
+
+		/* the default options in qos_options must be correct.
+		 * every other one need not be, b/c those will default
+		 * back to whatever is in qos_options.
+		 */
+
+		subn_set_default_qos_options(&dflt);
+
+		subn_verify_qos_set(&p_opts->qos_options, "qos", &dflt);
+		subn_verify_qos_set(&p_opts->qos_ca_options, "qos_ca",
+				    &p_opts->qos_options);
+		subn_verify_qos_set(&p_opts->qos_sw0_options, "qos_sw0",
+				    &p_opts->qos_options);
+		subn_verify_qos_set(&p_opts->qos_swe_options, "qos_swe",
+				    &p_opts->qos_options);
+		subn_verify_qos_set(&p_opts->qos_rtr_options, "qos_rtr",
+				    &p_opts->qos_options);
 	}
 
 #ifdef ENABLE_OSM_PERF_MGR
@@ -1267,30 +1308,31 @@ int osm_subn_rescan_conf_files(IN osm_subn_t * const p_subn)
 		return -1;
 	}
 
+	subn_init_qos_options(&p_subn->opt.qos_options);
+	subn_init_qos_options(&p_subn->opt.qos_ca_options);
+	subn_init_qos_options(&p_subn->opt.qos_sw0_options);
+	subn_init_qos_options(&p_subn->opt.qos_swe_options);
+	subn_init_qos_options(&p_subn->opt.qos_rtr_options);
+
 	while (fgets(line, 1023, opts_file) != NULL) {
 		/* get the first token */
 		p_key = strtok_r(line, " \t\n", &p_last);
 		if (p_key) {
 			p_val = strtok_r(NULL, " \t\n", &p_last);
 
-			subn_parse_qos_options("qos",
-					       p_key, p_val,
+			subn_parse_qos_options("qos", p_key, p_val,
 					       &p_subn->opt.qos_options);
 
-			subn_parse_qos_options("qos_ca",
-					       p_key, p_val,
+			subn_parse_qos_options("qos_ca", p_key, p_val,
 					       &p_subn->opt.qos_ca_options);
 
-			subn_parse_qos_options("qos_sw0",
-					       p_key, p_val,
+			subn_parse_qos_options("qos_sw0", p_key, p_val,
 					       &p_subn->opt.qos_sw0_options);
 
-			subn_parse_qos_options("qos_swe",
-					       p_key, p_val,
+			subn_parse_qos_options("qos_swe", p_key, p_val,
 					       &p_subn->opt.qos_swe_options);
 
-			subn_parse_qos_options("qos_rtr",
-					       p_key, p_val,
+			subn_parse_qos_options("qos_rtr", p_key, p_val,
 					       &p_subn->opt.qos_rtr_options);
 
 		}

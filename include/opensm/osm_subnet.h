@@ -100,7 +100,7 @@ struct osm_qos_policy;
 */
 typedef struct osm_qos_options {
 	unsigned max_vls;
-	unsigned high_limit;
+	int high_limit;
 	char *vlarb_high;
 	char *vlarb_low;
 	char *sl2vl;
@@ -109,20 +109,20 @@ typedef struct osm_qos_options {
 * FIELDS
 *
 *	max_vls
-*		The number of maximum VLs on the Subnet
+*		The number of maximum VLs on the Subnet (0 == use default)
 *
 *	high_limit
 *		The limit of High Priority component of VL Arbitration
-*		table (IBA 7.6.9)
+*		table (IBA 7.6.9) (-1 == use default)
 *
 *	vlarb_high
-*		High priority VL Arbitration table template.
+*		High priority VL Arbitration table template. (NULL == use default)
 *
 *	vlarb_low
-*		Low priority VL Arbitration table template.
+*		Low priority VL Arbitration table template. (NULL == use default)
 *
 *	sl2vl
-*		SL2VL Mapping table (IBA 7.6.6) template.
+*		SL2VL Mapping table (IBA 7.6.6) template. (NULL == use default)
 *
 *********/
 

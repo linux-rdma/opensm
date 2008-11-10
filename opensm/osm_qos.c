@@ -382,7 +382,11 @@ static void qos_build_config(struct qos_config *cfg,
 	memset(cfg, 0, sizeof(*cfg));
 
 	cfg->max_vls = opt->max_vls > 0 ? opt->max_vls : dflt->max_vls;
-	cfg->vl_high_limit = (uint8_t) opt->high_limit;
+
+	if (opt->high_limit >= 0)
+		cfg->vl_high_limit = (uint8_t) opt->high_limit;
+	else
+		cfg->vl_high_limit = (uint8_t) dflt->high_limit;
 
 	p = opt->vlarb_high ? opt->vlarb_high : dflt->vlarb_high;
 	for (i = 0; i < 2 * IB_NUM_VL_ARB_ELEMENTS_IN_BLOCK; i++) {
