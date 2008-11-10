@@ -52,6 +52,7 @@
 #include <opensm/osm_console.h>
 #include <complib/cl_passivelock.h>
 #include <opensm/osm_perfmgr.h>
+#include <opensm/osm_subnet.h>
 
 struct command {
 	char *name;
@@ -186,6 +187,14 @@ static void help_lidbalance(FILE * out, int detail)
 		fprintf(out, "output lid balanced forwarding information\n");
 		fprintf(out,
 			"  [switchguid] -- limit results to specified switch guid\n");
+	}
+}
+
+static void help_dump_conf(FILE *out, int detail)
+{
+	fprintf(out, "dump_conf\n");
+	if (detail) {
+		fprintf(out, "dump current opensm configuration\n");
 	}
 }
 
@@ -1067,6 +1076,11 @@ lock_exit:
 	return;
 }
 
+static void dump_conf_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
+{
+	osm_subn_output_conf(out, &p_osm->subn.opt);
+}
+
 #ifdef ENABLE_OSM_PERF_MGR
 static void perfmgr_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 {
@@ -1166,6 +1180,7 @@ static const struct command console_cmds[] = {
 	{"portstatus", &help_portstatus, &portstatus_parse},
 	{"switchbalance", &help_switchbalance, &switchbalance_parse},
 	{"lidbalance", &help_lidbalance, &lidbalance_parse},
+	{"dump_conf", &help_dump_conf, &dump_conf_parse},
 	{"version", &help_version, &version_parse},
 #ifdef ENABLE_OSM_PERF_MGR
 	{"perfmgr", &help_perfmgr, &perfmgr_parse},

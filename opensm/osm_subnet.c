@@ -1396,18 +1396,9 @@ int osm_subn_parse_conf_file(char *file_name, osm_subn_opt_t * const p_opts)
 
 /**********************************************************************
  **********************************************************************/
-int osm_subn_write_conf_file(char *file_name, IN osm_subn_opt_t *const p_opts)
+int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t *const p_opts)
 {
-	FILE *opts_file;
-
-	opts_file = fopen(file_name, "w");
-	if (!opts_file) {
-		printf("cannot open file \'%s\' for writing: %s\n",
-		       file_name, strerror(errno));
-		return -1;
-	}
-
-	fprintf(opts_file,
+	fprintf(out,
 		"#\n# DEVICE ATTRIBUTES OPTIONS\n#\n"
 		"# The port GUID on which the OpenSM is running\n"
 		"guid 0x%016" PRIx64 "\n\n"
@@ -1492,7 +1483,7 @@ int osm_subn_write_conf_file(char *file_name, IN osm_subn_opt_t *const p_opts)
 		p_opts->local_phy_errors_threshold,
 		p_opts->overrun_errors_threshold);
 
-	fprintf(opts_file,
+	fprintf(out,
 		"#\n# PARTITIONING OPTIONS\n#\n"
 		"# Partition configuration file to be used\n"
 		"partition_config_file %s\n\n"
@@ -1501,7 +1492,7 @@ int osm_subn_write_conf_file(char *file_name, IN osm_subn_opt_t *const p_opts)
 		p_opts->partition_config_file,
 		p_opts->no_partition_enforcement ? "TRUE" : "FALSE");
 
-	fprintf(opts_file,
+	fprintf(out,
 		"#\n# SWEEP OPTIONS\n#\n"
 		"# The number of seconds between subnet sweeps (0 disables it)\n"
 		"sweep_interval %u\n\n"
@@ -1517,18 +1508,18 @@ int osm_subn_write_conf_file(char *file_name, IN osm_subn_opt_t *const p_opts)
 		p_opts->force_heavy_sweep ? "TRUE" : "FALSE",
 		p_opts->sweep_on_trap ? "TRUE" : "FALSE");
 
-	fprintf(opts_file,
+	fprintf(out,
 		"#\n# ROUTING OPTIONS\n#\n"
 		"# If TRUE count switches as link subscriptions\n"
 		"port_profile_switch_nodes %s\n\n",
 		p_opts->port_profile_switch_nodes ? "TRUE" : "FALSE");
 
-	fprintf(opts_file,
+	fprintf(out,
 		"# Name of file with port guids to be ignored by port profiling\n"
 		"port_prof_ignore_file %s\n\n", p_opts->port_prof_ignore_file ?
 		p_opts->port_prof_ignore_file : null_str);
 
-	fprintf(opts_file,
+	fprintf(out,
 		"# Routing engine\n"
 		"# Multiple routing engines can be specified separated by\n"
 		"# commas so that specific ordering of routing algorithms will\n"
@@ -1537,51 +1528,51 @@ int osm_subn_write_conf_file(char *file_name, IN osm_subn_opt_t *const p_opts)
 		"routing_engine %s\n\n", p_opts->routing_engine_names ?
 		p_opts->routing_engine_names : null_str);
 
-	fprintf(opts_file,
+	fprintf(out,
 		"# Connect roots (use FALSE if unsure)\n"
 		"connect_roots %s\n\n",
 		p_opts->connect_roots ? "TRUE" : "FALSE");
 
-	fprintf(opts_file,
+	fprintf(out,
 		"# Use unicast routing cache (use FALSE if unsure)\n"
 		"use_ucast_cache %s\n\n",
 		p_opts->use_ucast_cache ? "TRUE" : "FALSE");
 
-	fprintf(opts_file,
+	fprintf(out,
 		"# Lid matrix dump file name\n"
 		"lid_matrix_dump_file %s\n\n", p_opts->lid_matrix_dump_file ?
 		p_opts->lid_matrix_dump_file : null_str);
 
-	fprintf(opts_file,
+	fprintf(out,
 		"# LFTs file name\nlfts_file %s\n\n",
 		p_opts->lfts_file ? p_opts->lfts_file : null_str);
 
-	fprintf(opts_file,
+	fprintf(out,
 		"# The file holding the root node guids (for fat-tree or Up/Down)\n"
 		"# One guid in each line\nroot_guid_file %s\n\n",
 		p_opts->root_guid_file ? p_opts->root_guid_file : null_str);
 
-	fprintf(opts_file,
+	fprintf(out,
 		"# The file holding the fat-tree compute node guids\n"
 		"# One guid in each line\ncn_guid_file %s\n\n",
 		p_opts->cn_guid_file ? p_opts->cn_guid_file : null_str);
 
-	fprintf(opts_file,
+	fprintf(out,
 		"# The file holding the node ids which will be used by"
 		" Up/Down algorithm instead\n# of GUIDs (one guid and"
 		" id in each line)\nids_guid_file %s\n\n",
 		p_opts->ids_guid_file ? p_opts->ids_guid_file : null_str);
 
-	fprintf(opts_file,
+	fprintf(out,
 		"# The file holding guid routing order guids (for MinHop and Up/Down)\n"
 		"guid_routing_order_file %s\n\n",
 		p_opts->guid_routing_order_file ? p_opts->guid_routing_order_file : null_str);
 
-	fprintf(opts_file,
+	fprintf(out,
 		"# SA database file name\nsa_db_file %s\n\n",
 		p_opts->sa_db_file ? p_opts->sa_db_file : null_str);
 
-	fprintf(opts_file,
+	fprintf(out,
 		"#\n# HANDOVER - MULTIPLE SMs OPTIONS\n#\n"
 		"# SM priority used for deciding who is the master\n"
 		"# Range goes from 0 (lowest priority) to 15 (highest).\n"
@@ -1601,7 +1592,7 @@ int osm_subn_write_conf_file(char *file_name, IN osm_subn_opt_t *const p_opts)
 		p_opts->polling_retry_number,
 		p_opts->honor_guid2lid_file ? "TRUE" : "FALSE");
 
-	fprintf(opts_file,
+	fprintf(out,
 		"#\n# TIMING AND THREADING OPTIONS\n#\n"
 		"# Maximum number of SMPs sent in parallel\n"
 		"max_wire_smps %u\n\n"
@@ -1619,7 +1610,7 @@ int osm_subn_write_conf_file(char *file_name, IN osm_subn_opt_t *const p_opts)
 		p_opts->max_msg_fifo_timeout,
 		p_opts->single_thread ? "TRUE" : "FALSE");
 
-	fprintf(opts_file,
+	fprintf(out,
 		"#\n# MISC OPTIONS\n#\n"
 		"# Daemon mode\n"
 		"daemon %s\n\n"
@@ -1632,7 +1623,7 @@ int osm_subn_write_conf_file(char *file_name, IN osm_subn_opt_t *const p_opts)
 		p_opts->babbling_port_policy ? "TRUE" : "FALSE");
 
 #ifdef ENABLE_OSM_PERF_MGR
-	fprintf(opts_file,
+	fprintf(out,
 		"#\n# Performance Manager Options\n#\n"
 		"# perfmgr enable\n"
 		"perfmgr %s\n\n"
@@ -1647,25 +1638,25 @@ int osm_subn_write_conf_file(char *file_name, IN osm_subn_opt_t *const p_opts)
 		p_opts->perfmgr_sweep_time_s,
 		p_opts->perfmgr_max_outstanding_queries);
 
-	fprintf(opts_file,
+	fprintf(out,
 		"#\n# Event DB Options\n#\n"
 		"# Dump file to dump the events to\n"
 		"event_db_dump_file %s\n\n", p_opts->event_db_dump_file ?
 		p_opts->event_db_dump_file : null_str);
 #endif				/* ENABLE_OSM_PERF_MGR */
 
-	fprintf(opts_file,
+	fprintf(out,
 		"#\n# Event Plugin Options\n#\n"
 		"event_plugin_name %s\n\n", p_opts->event_plugin_name ?
 		p_opts->event_plugin_name : null_str);
 
-	fprintf(opts_file,
+	fprintf(out,
 		"#\n# Node name map for mapping node's to more descriptive node descriptions\n"
 		"# (man ibnetdiscover for more information)\n#\n"
 		"node_name_map_name %s\n\n", p_opts->node_name_map_name ?
 		p_opts->node_name_map_name : null_str);
 
-	fprintf(opts_file,
+	fprintf(out,
 		"#\n# DEBUG FEATURES\n#\n"
 		"# The log flags used\n"
 		"log_flags 0x%02x\n\n"
@@ -1709,7 +1700,7 @@ int osm_subn_write_conf_file(char *file_name, IN osm_subn_opt_t *const p_opts)
 		p_opts->console,
 		OSM_DEFAULT_CONSOLE_PORT, p_opts->console_port);
 
-	fprintf(opts_file,
+	fprintf(out,
 		"#\n# QoS OPTIONS\n#\n"
 		"# Enable QoS setup\n"
 		"qos %s\n\n"
@@ -1717,38 +1708,55 @@ int osm_subn_write_conf_file(char *file_name, IN osm_subn_opt_t *const p_opts)
 		"qos_policy_file %s\n\n",
 		p_opts->qos ? "TRUE" : "FALSE", p_opts->qos_policy_file);
 
-	subn_dump_qos_options(opts_file,
+	subn_dump_qos_options(out,
 			      "QoS default options", "qos",
 			      &p_opts->qos_options);
-	fprintf(opts_file, "\n");
-	subn_dump_qos_options(opts_file,
+	fprintf(out, "\n");
+	subn_dump_qos_options(out,
 			      "QoS CA options", "qos_ca",
 			      &p_opts->qos_ca_options);
-	fprintf(opts_file, "\n");
-	subn_dump_qos_options(opts_file,
+	fprintf(out, "\n");
+	subn_dump_qos_options(out,
 			      "QoS Switch Port 0 options", "qos_sw0",
 			      &p_opts->qos_sw0_options);
-	fprintf(opts_file, "\n");
-	subn_dump_qos_options(opts_file,
+	fprintf(out, "\n");
+	subn_dump_qos_options(out,
 			      "QoS Switch external ports options", "qos_swe",
 			      &p_opts->qos_swe_options);
-	fprintf(opts_file, "\n");
-	subn_dump_qos_options(opts_file,
+	fprintf(out, "\n");
+	subn_dump_qos_options(out,
 			      "QoS Router ports options", "qos_rtr",
 			      &p_opts->qos_rtr_options);
-	fprintf(opts_file, "\n");
+	fprintf(out, "\n");
 
-	fprintf(opts_file,
+	fprintf(out,
 		"# Prefix routes file name\n"
 		"prefix_routes_file %s\n\n",
 		p_opts->prefix_routes_file);
 
-	fprintf(opts_file,
+	fprintf(out,
 		"#\n# IPv6 Solicited Node Multicast (SNM) Options\n#\n"
 		"consolidate_ipv6_snm_req %s\n\n",
 		p_opts->consolidate_ipv6_snm_req ? "TRUE" : "FALSE");
 
 	/* optional string attributes ... */
+
+	return 0;
+}
+
+int osm_subn_write_conf_file(char *file_name, IN osm_subn_opt_t *const p_opts)
+{
+	FILE *opts_file;
+
+	opts_file = fopen(file_name, "w");
+	if (!opts_file) {
+		printf("cannot open file \'%s\' for writing: %s\n",
+			file_name, strerror(errno));
+		return -1;
+	}
+
+	if (osm_subn_output_conf(opts_file, p_opts) < 0)
+		return -1;
 
 	fclose(opts_file);
 
