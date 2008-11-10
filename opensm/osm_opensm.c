@@ -238,6 +238,19 @@ static void destroy_routing_engines(osm_opensm_t *osm)
 	}
 }
 
+/**********************************************************************
+ **********************************************************************/
+static void destroy_plugins(osm_opensm_t *osm)
+{
+	osm_epi_plugin_t *p;
+	/* remove from the list, and destroy it */
+	while (!cl_is_qlist_empty(&osm->plugin_list)){
+		p = (osm_epi_plugin_t *)cl_qlist_remove_head(&osm->plugin_list);
+		/* plugin is responsible for freeing its own resources */
+		osm_epi_destroy(p);
+	}
+}
+
 void osm_opensm_destroy(IN osm_opensm_t * const p_osm)
 {
 	/* in case of shutdown through exit proc - no ^C */
@@ -275,6 +288,7 @@ void osm_opensm_destroy(IN osm_opensm_t * const p_osm)
 	osm_sa_db_file_dump(p_osm);
 
 	/* do the destruction in reverse order as init */
+	destroy_plugins(p_osm);
 	destroy_routing_engines(p_osm);
 	osm_sa_destroy(&p_osm->sa);
 	osm_sm_destroy(&p_osm->sm);
