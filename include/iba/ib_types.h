@@ -7085,7 +7085,7 @@ ib_member_set_join_state(IN OUT ib_member_rec_t * p_mc_rec,
  */
 #define IB_MC_REC_STATE_FULL_MEMBER 0x01
 #define IB_MC_REC_STATE_NON_MEMBER 0x02
-#define IB_MC_REC_STATE_SEND_ONLY_MEMBER 0x04
+#define IB_MC_REC_STATE_SEND_ONLY_NON_MEMBER 0x04
 
 /*
  *	Generic MAD notice types
