@@ -71,6 +71,8 @@
 
 static const char null_str[] = "(null)";
 
+static void subn_verify_conf_file(IN osm_subn_opt_t * const p_opts);
+
 /**********************************************************************
  **********************************************************************/
 void osm_subn_construct(IN osm_subn_t * const p_subn)
@@ -824,6 +826,8 @@ int osm_subn_rescan_conf_files(IN osm_subn_t * const p_subn)
 		}
 	}
 	fclose(opts_file);
+
+	subn_verify_conf_file(&p_subn->opt);
 
 	osm_parse_prefix_routes_file(p_subn);
 
