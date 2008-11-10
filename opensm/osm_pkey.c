@@ -475,7 +475,7 @@ osm_physp_has_pkey(IN osm_log_t * p_log,
 	OSM_LOG_ENTER(p_log);
 
 	OSM_LOG(p_log, OSM_LOG_DEBUG,
-		"Search for PKey: 0x%4x\n", cl_ntoh16(pkey));
+		"Search for PKey: 0x%04x\n", cl_ntoh16(pkey));
 
 	/* if the pkey given is an invalid pkey - return TRUE. */
 	if (ib_pkey_is_invalid(pkey)) {
