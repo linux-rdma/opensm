@@ -172,17 +172,11 @@ osm_mcm_port_t *osm_mgrp_add_port(IN osm_subn_t *subn, osm_log_t *log,
 		p_mgrp->last_change_id++;
 	}
 
-	if ((join_state ^ prev_join_state) & IB_JOIN_STATE_FULL) {
-		if (join_state & IB_JOIN_STATE_FULL) {
-			if (++p_mgrp->full_members == 1) {
-				mgrp_send_notice(subn, log, p_mgrp, 66);
-				p_mgrp->to_be_deleted = 0;
-			}
-		} else if (--p_mgrp->full_members == 0) {
-			mgrp_send_notice(subn, log, p_mgrp, 67);
-			if (!p_mgrp->well_known)
-				p_mgrp->to_be_deleted = 1;
-		}
+	if ((join_state & IB_JOIN_STATE_FULL) &&
+	    !(prev_join_state & IB_JOIN_STATE_FULL) &&
+	    (++p_mgrp->full_members == 1)) {
+		mgrp_send_notice(subn, log, p_mgrp, 66);
+		p_mgrp->to_be_deleted = 0;
 	}
 
 	return (p_mcm_port);
@@ -224,17 +218,12 @@ int osm_mgrp_remove_port(osm_subn_t *subn, osm_log_t *log, osm_mgrp_t *mgrp,
 
 	/* no more full members so the group will be deleted after re-route
 	   but only if it is not a well known group */
-	if ((port_join_state ^ new_join_state) & IB_JOIN_STATE_FULL) {
-		if (port_join_state & IB_JOIN_STATE_FULL) {
-			if (--mgrp->full_members == 0) {
-				mgrp_send_notice(subn, log, mgrp, 67);
-				if (!mgrp->well_known)
-					mgrp->to_be_deleted = 1;
-			}
-		} else if (++mgrp->full_members == 1) {
-			mgrp_send_notice(subn, log, mgrp, 66);
-			mgrp->to_be_deleted = 0;
-		}
+	if ((port_join_state & IB_JOIN_STATE_FULL) &&
+	    !(new_join_state & IB_JOIN_STATE_FULL) &&
+	    (--mgrp->full_members == 0)) {
+		mgrp_send_notice(subn, log, mgrp, 67);
+		if (!mgrp->well_known)
+			mgrp->to_be_deleted = 1;
 	}
 
 	return ret;
