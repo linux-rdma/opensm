@@ -611,8 +611,7 @@ opts_unpack_charp(IN char *p_req_key,
 				  Ignore the possible memory leak here;
 				  the pointer may be to a static default.
 				*/
-				*p_val = (char *)malloc(strlen(p_val_str) + 1);
-				strcpy(*p_val, p_val_str);
+				*p_val = strdup(p_val_str);
 			}
 		}
 	}
@@ -874,8 +873,7 @@ static void subn_verify_vlarb(IN char *vlarb, IN char *key)
 		char *str, *tok, *end, *ptr;
 		int count = 0;
 
-		str = (char *)malloc(strlen(vlarb) + 1);
-		strcpy(str, vlarb);
+		str = strdup(vlarb);
 
 		tok = strtok_r(str, ",\n", &ptr);
 		while (tok) {
@@ -936,8 +934,7 @@ static void subn_verify_sl2vl(IN char *sl2vl, IN char *key)
 		char *str, *tok, *end, *ptr;
 		int count = 0;
 
-		str = (char *)malloc(strlen(sl2vl) + 1);
-		strcpy(str, sl2vl);
+		str = strdup(sl2vl);
 
 		tok = strtok_r(str, ",\n", &ptr);
 		while (tok) {
