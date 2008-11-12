@@ -468,6 +468,17 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * const p_opt)
 
 /**********************************************************************
  **********************************************************************/
+static void log_report(const char *fmt, ...)
+{
+	char buf[128];
+	va_list args;
+	va_start(args, fmt);
+	vsnprintf(buf, sizeof(buf), fmt, args);
+	va_end(args);
+	printf(buf);
+	cl_log_event("OpenSM", CL_LOG_INFO, buf, NULL, 0);
+}
+
 static void log_config_value(char *name, const char *fmt, ...)
 {
 	char buf[128];
@@ -839,28 +850,20 @@ int osm_subn_rescan_conf_files(IN osm_subn_t * const p_subn)
 
 static void subn_verify_max_vls(IN unsigned *max_vls, IN char *key)
 {
-	char buff[128];
-
 	if (*max_vls > 15) {
-		sprintf(buff, " Invalid Cached Option:%s=%u:"
-			"Using Default:%u\n",
-			key, *max_vls, OSM_DEFAULT_QOS_MAX_VLS);
-		printf(buff);
-		cl_log_event("OpenSM", CL_LOG_INFO, buff, NULL, 0);
+		log_report(" Invalid Cached Option:%s=%u:"
+			   "Using Default:%u\n",
+			   key, *max_vls, OSM_DEFAULT_QOS_MAX_VLS);
 		*max_vls = OSM_DEFAULT_QOS_MAX_VLS;
 	}
 }
 
 static void subn_verify_high_limit(IN unsigned *high_limit, IN char *key)
 {
-	char buff[128];
-
 	if (*high_limit > 255) {
-		sprintf(buff, " Invalid Cached Option:%s=%u:"
-			"Using Default:%u\n",
-			key, *high_limit, OSM_DEFAULT_QOS_HIGH_LIMIT);
-		printf(buff);
-		cl_log_event("OpenSM", CL_LOG_INFO, buff, NULL, 0);
+		log_report(" Invalid Cached Option:%s=%u:"
+			   "Using Default:%u\n",
+			   key, *high_limit, OSM_DEFAULT_QOS_HIGH_LIMIT);
 		*high_limit = OSM_DEFAULT_QOS_HIGH_LIMIT;
 	}
 }
@@ -868,7 +871,6 @@ static void subn_verify_high_limit(IN unsigned *high_limit, IN char *key)
 static void subn_verify_vlarb(IN char *vlarb, IN char *key)
 {
 	if (vlarb) {
-		char buff[128];
 		char *str, *tok, *end, *ptr;
 		int count = 0;
 
@@ -890,60 +892,39 @@ static void subn_verify_vlarb(IN char *vlarb, IN char *key)
 
 				vl = strtol(vl_str, &end, 0);
 
-				if (*end) {
-					sprintf(buff,
+				if (*end)
+					log_report(
 						" Warning: Cached Option %s:vl=%s improperly formatted\n",
 						key, vl_str);
-					printf(buff);
-					cl_log_event("OpenSM", CL_LOG_INFO,
-						     buff, NULL, 0);
-				} else if (vl < 0 || vl > 14) {
-					sprintf(buff,
+				else if (vl < 0 || vl > 14)
+					log_report(
 						" Warning: Cached Option %s:vl=%ld out of range\n",
 						key, vl);
-					printf(buff);
-					cl_log_event("OpenSM", CL_LOG_INFO,
-						     buff, NULL, 0);
-				}
 
 				weight = strtol(weight_str, &end, 0);
 
-				if (*end) {
-					sprintf(buff,
+				if (*end)
+					log_report(
 						" Warning: Cached Option %s:weight=%s improperly formatted\n",
 						key, weight_str);
-					printf(buff);
-					cl_log_event("OpenSM", CL_LOG_INFO,
-						     buff, NULL, 0);
-				} else if (weight < 0 || weight > 255) {
-					sprintf(buff,
+				else if (weight < 0 || weight > 255)
+					log_report(
 						" Warning: Cached Option %s:weight=%ld out of range\n",
 						key, weight);
-					printf(buff);
-					cl_log_event("OpenSM", CL_LOG_INFO,
-						     buff, NULL, 0);
-				}
-			} else {
-				sprintf(buff,
+			} else
+				log_report(
 					" Warning: Cached Option %s:vl:weight=%s improperly formatted\n",
 					key, tok);
-				printf(buff);
-				cl_log_event("OpenSM", CL_LOG_INFO, buff, NULL,
-					     0);
-			}
 
 			count++;
 			tok = strtok_r(NULL, ",\n", &ptr);
 		}
 
-		if (count > 64) {
-			sprintf(buff,
+		if (count > 64)
+			log_report(
 				" Warning: Cached Option %s: > 64 listed: "
 				"excess vl:weight pairs will be dropped\n",
 				key);
-			printf(buff);
-			cl_log_event("OpenSM", CL_LOG_INFO, buff, NULL, 0);
-		}
 
 		free(str);
 	}
@@ -952,7 +933,6 @@ static void subn_verify_vlarb(IN char *vlarb, IN char *key)
 static void subn_verify_sl2vl(IN char *sl2vl, IN char *key)
 {
 	if (sl2vl) {
-		char buff[128];
 		char *str, *tok, *end, *ptr;
 		int count = 0;
 
@@ -963,40 +943,26 @@ static void subn_verify_sl2vl(IN char *sl2vl, IN char *key)
 		while (tok) {
 			long vl = strtol(tok, &end, 0);
 
-			if (*end) {
-				sprintf(buff,
+			if (*end)
+				log_report(
 					" Warning: Cached Option %s:vl=%s improperly formatted\n",
 					key, tok);
-				printf(buff);
-				cl_log_event("OpenSM", CL_LOG_INFO, buff, NULL,
-					     0);
-			} else if (vl < 0 || vl > 15) {
-				sprintf(buff,
+			else if (vl < 0 || vl > 15)
+				log_report(
 					" Warning: Cached Option %s:vl=%ld out of range\n",
 					key, vl);
-				printf(buff);
-				cl_log_event("OpenSM", CL_LOG_INFO, buff, NULL,
-					     0);
-			}
 
 			count++;
 			tok = strtok_r(NULL, ",\n", &ptr);
 		}
 
-		if (count < 16) {
-			sprintf(buff,
-				" Warning: Cached Option %s: < 16 VLs listed\n",
-				key);
-			printf(buff);
-			cl_log_event("OpenSM", CL_LOG_INFO, buff, NULL, 0);
-		}
-		if (count > 16) {
-			sprintf(buff,
-				" Warning: Cached Option %s: > 16 listed: "
-				"excess VLs will be dropped\n", key);
-			printf(buff);
-			cl_log_event("OpenSM", CL_LOG_INFO, buff, NULL, 0);
-		}
+		if (count < 16)
+			log_report(" Warning: Cached Option %s: < 16 VLs "
+				   "listed\n", key);
+
+		if (count > 16)
+			log_report(" Warning: Cached Option %s: > 16 listed: "
+				   "excess VLs will be dropped\n", key);
 
 		free(str);
 	}
@@ -1004,33 +970,24 @@ static void subn_verify_sl2vl(IN char *sl2vl, IN char *key)
 
 static void subn_verify_conf_file(IN osm_subn_opt_t * const p_opts)
 {
-	char buff[128];
-
 	if (p_opts->lmc > 7) {
-		sprintf(buff, " Invalid Cached Option Value:lmc = %u:"
-			"Using Default:%u\n", p_opts->lmc, OSM_DEFAULT_LMC);
-		printf(buff);
-		cl_log_event("OpenSM", CL_LOG_INFO, buff, NULL, 0);
+		log_report(" Invalid Cached Option Value:lmc = %u:"
+			   "Using Default:%u\n", p_opts->lmc, OSM_DEFAULT_LMC);
 		p_opts->lmc = OSM_DEFAULT_LMC;
 	}
 
 	if (15 < p_opts->sm_priority) {
-		sprintf(buff, " Invalid Cached Option Value:sm_priority = %u:"
-			"Using Default:%u\n",
-			p_opts->sm_priority, OSM_DEFAULT_SM_PRIORITY);
-		printf(buff);
-		cl_log_event("OpenSM", CL_LOG_INFO, buff, NULL, 0);
+		log_report(" Invalid Cached Option Value:sm_priority = %u:"
+			   "Using Default:%u\n",
+			   p_opts->sm_priority, OSM_DEFAULT_SM_PRIORITY);
 		p_opts->sm_priority = OSM_DEFAULT_SM_PRIORITY;
 	}
 
 	if ((15 < p_opts->force_link_speed) ||
 	    (p_opts->force_link_speed > 7 && p_opts->force_link_speed < 15)) {
-		sprintf(buff,
-			" Invalid Cached Option Value:force_link_speed = %u:"
-			"Using Default:%u\n", p_opts->force_link_speed,
-			IB_PORT_LINK_SPEED_ENABLED_MASK);
-		printf(buff);
-		cl_log_event("OpenSM", CL_LOG_INFO, buff, NULL, 0);
+		log_report(" Invalid Cached Option Value:force_link_speed = %u:"
+			   "Using Default:%u\n", p_opts->force_link_speed,
+			   IB_PORT_LINK_SPEED_ENABLED_MASK);
 		p_opts->force_link_speed = IB_PORT_LINK_SPEED_ENABLED_MASK;
 	}
 
@@ -1041,11 +998,9 @@ static void subn_verify_conf_file(IN osm_subn_opt_t * const p_opts)
 	    && strcmp(p_opts->console, OSM_REMOTE_CONSOLE)
 #endif
 	    ) {
-		sprintf(buff, " Invalid Cached Option Value:console = %s"
-			", Using Default:%s\n",
-			p_opts->console, OSM_DEFAULT_CONSOLE);
-		printf(buff);
-		cl_log_event("OpenSM", CL_LOG_INFO, buff, NULL, 0);
+		log_report(" Invalid Cached Option Value:console = %s"
+			   ", Using Default:%s\n",
+			   p_opts->console, OSM_DEFAULT_CONSOLE);
 		p_opts->console = OSM_DEFAULT_CONSOLE;
 	}
 
@@ -1108,22 +1063,18 @@ static void subn_verify_conf_file(IN osm_subn_opt_t * const p_opts)
 	}
 #ifdef ENABLE_OSM_PERF_MGR
 	if (p_opts->perfmgr_sweep_time_s < 1) {
-		sprintf(buff,
-			" Invalid Cached Option Value:perfmgr_sweep_time_s = %u"
-			"Using Default:%u\n", p_opts->perfmgr_sweep_time_s,
-			OSM_PERFMGR_DEFAULT_SWEEP_TIME_S);
-		printf(buff);
-		cl_log_event("OpenSM", CL_LOG_INFO, buff, NULL, 0);
+		log_report(" Invalid Cached Option Value:perfmgr_sweep_time_s "
+			   "= %u Using Default:%u\n",
+			   p_opts->perfmgr_sweep_time_s,
+			   OSM_PERFMGR_DEFAULT_SWEEP_TIME_S);
 		p_opts->perfmgr_sweep_time_s = OSM_PERFMGR_DEFAULT_SWEEP_TIME_S;
 	}
 	if (p_opts->perfmgr_max_outstanding_queries < 1) {
-		sprintf(buff,
-			" Invalid Cached Option Value:perfmgr_max_outstanding_queries = %u"
-			"Using Default:%u\n",
-			p_opts->perfmgr_max_outstanding_queries,
-			OSM_PERFMGR_DEFAULT_MAX_OUTSTANDING_QUERIES);
-		printf(buff);
-		cl_log_event("OpenSM", CL_LOG_INFO, buff, NULL, 0);
+		log_report(" Invalid Cached Option Value:"
+			   "perfmgr_max_outstanding_queries = %u"
+			   " Using Default:%u\n",
+			   p_opts->perfmgr_max_outstanding_queries,
+			   OSM_PERFMGR_DEFAULT_MAX_OUTSTANDING_QUERIES);
 		p_opts->perfmgr_max_outstanding_queries =
 		    OSM_PERFMGR_DEFAULT_MAX_OUTSTANDING_QUERIES;
 	}
