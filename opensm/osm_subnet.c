@@ -847,27 +847,28 @@ int osm_subn_rescan_conf_files(IN osm_subn_t * const p_subn)
 /**********************************************************************
  **********************************************************************/
 
-static void subn_verify_max_vls(IN unsigned *max_vls, IN char *key)
+static void subn_verify_max_vls(unsigned *max_vls, const char *prefix)
 {
 	if (*max_vls > 15) {
-		log_report(" Invalid Cached Option:%s=%u:"
+		log_report(" Invalid Cached Option:%s_max_vls=%u:"
 			   "Using Default:%u\n",
-			   key, *max_vls, OSM_DEFAULT_QOS_MAX_VLS);
+			   prefix, *max_vls, OSM_DEFAULT_QOS_MAX_VLS);
 		*max_vls = OSM_DEFAULT_QOS_MAX_VLS;
 	}
 }
 
-static void subn_verify_high_limit(IN unsigned *high_limit, IN char *key)
+static void subn_verify_high_limit(unsigned *high_limit, const char *prefix)
 {
 	if (*high_limit > 255) {
-		log_report(" Invalid Cached Option:%s=%u:"
+		log_report(" Invalid Cached Option:%s_high_limit=%u:"
 			   "Using Default:%u\n",
-			   key, *high_limit, OSM_DEFAULT_QOS_HIGH_LIMIT);
+			   prefix, *high_limit, OSM_DEFAULT_QOS_HIGH_LIMIT);
 		*high_limit = OSM_DEFAULT_QOS_HIGH_LIMIT;
 	}
 }
 
-static void subn_verify_vlarb(IN char *vlarb, IN char *key)
+static void subn_verify_vlarb(char *vlarb, const char *prefix,
+			      const char *suffix)
 {
 	if (vlarb) {
 		char *str, *tok, *end, *ptr;
@@ -891,44 +892,48 @@ static void subn_verify_vlarb(IN char *vlarb, IN char *key)
 				vl = strtol(vl_str, &end, 0);
 
 				if (*end)
-					log_report(
-						" Warning: Cached Option %s:vl=%s improperly formatted\n",
-						key, vl_str);
+					log_report(" Warning: Cached Option "
+						   "%s_vlarb_%s:vl=%s "
+						   "improperly formatted\n",
+						   prefix, suffix, vl_str);
 				else if (vl < 0 || vl > 14)
-					log_report(
-						" Warning: Cached Option %s:vl=%ld out of range\n",
-						key, vl);
+					log_report(" Warning: Cached Option "
+						   "%s_vlarb_%s:vl=%ld out "
+						   "of range\n",
+						   prefix, suffix, vl);
 
 				weight = strtol(weight_str, &end, 0);
 
 				if (*end)
-					log_report(
-						" Warning: Cached Option %s:weight=%s improperly formatted\n",
-						key, weight_str);
+					log_report(" Warning: Cached Option "
+						   "%s_vlarb_%s:weight=%s "
+						   "improperly formatted\n",
+						   prefix, suffix, weight_str);
 				else if (weight < 0 || weight > 255)
-					log_report(
-						" Warning: Cached Option %s:weight=%ld out of range\n",
-						key, weight);
+					log_report(" Warning: Cached Option "
+						   "%s_vlarb_%s:weight=%ld "
+						   "out of range\n",
+						   prefix, suffix, weight);
 			} else
-				log_report(
-					" Warning: Cached Option %s:vl:weight=%s improperly formatted\n",
-					key, tok);
+				log_report(" Warning: Cached Option "
+					   "%s_vlarb_%s:vl:weight=%s "
+					   "improperly formatted\n",
+					   prefix, suffix, tok);
 
 			count++;
 			tok = strtok_r(NULL, ",\n", &ptr);
 		}
 
 		if (count > 64)
-			log_report(
-				" Warning: Cached Option %s: > 64 listed: "
-				"excess vl:weight pairs will be dropped\n",
-				key);
+			log_report(" Warning: Cached Option %s_vlarb_%s: "
+				   "> 64 listed: excess vl:weight pairs "
+				   "will be dropped\n", prefix, suffix);
 
 		free(str);
 	}
 }
 
-static void subn_verify_sl2vl(IN char *sl2vl, IN char *key)
+static void subn_verify_sl2vl(char *sl2vl, const char *prefix)
 {
 	if (sl2vl) {
 		char *str, *tok, *end, *ptr;
@@ -941,28 +946,38 @@ static void subn_verify_sl2vl(IN char *sl2vl, IN char *key)
 			long vl = strtol(tok, &end, 0);
 
 			if (*end)
-				log_report(
-					" Warning: Cached Option %s:vl=%s improperly formatted\n",
-					key, tok);
+				log_report(" Warning: Cached Option %s_sl2vl:"
+					   "vl=%s improperly formatted\n",
+					   prefix, tok);
 			else if (vl < 0 || vl > 15)
-				log_report(
-					" Warning: Cached Option %s:vl=%ld out of range\n",
-					key, vl);
+				log_report(" Warning: Cached Option %s_sl2vl:"
+					   "vl=%ld out of range\n",
+					   prefix, vl);
 
 			count++;
 			tok = strtok_r(NULL, ",\n", &ptr);
 		}
 
 		if (count < 16)
-			log_report(" Warning: Cached Option %s: < 16 VLs "
-				   "listed\n", key);
+			log_report(" Warning: Cached Option %s_sl2vl: < 16 VLs "
+				   "listed\n", prefix);
 
 		if (count > 16)
-			log_report(" Warning: Cached Option %s: > 16 listed: "
-				   "excess VLs will be dropped\n", key);
+			log_report(" Warning: Cached Option %s_sl2vl: "
+				   "> 16 listed: excess VLs will be dropped\n",
+				   prefix);
 
 		free(str);
 	}
+}
+
+static void subn_verify_qos_set(osm_qos_options_t *set, const char *prefix)
+{
+	subn_verify_max_vls(&set->max_vls, prefix);
+	subn_verify_high_limit(&set->high_limit, prefix);
+	subn_verify_vlarb(set->vlarb_low, prefix, "low");
+	subn_verify_vlarb(set->vlarb_high, prefix, "high");
+	subn_verify_sl2vl(set->sl2vl, prefix);
 }
 
 static void subn_verify_conf_file(IN osm_subn_opt_t * const p_opts)
@@ -1002,62 +1017,13 @@ static void subn_verify_conf_file(IN osm_subn_opt_t * const p_opts)
 	}
 
 	if (p_opts->qos) {
-		subn_verify_max_vls(&(p_opts->qos_options.max_vls),
-				    "qos_max_vls");
-		subn_verify_max_vls(&(p_opts->qos_ca_options.max_vls),
-				    "qos_ca_max_vls");
-		subn_verify_max_vls(&(p_opts->qos_sw0_options.max_vls),
-				    "qos_sw0_max_vls");
-		subn_verify_max_vls(&(p_opts->qos_swe_options.max_vls),
-				    "qos_swe_max_vls");
-		subn_verify_max_vls(&(p_opts->qos_rtr_options.max_vls),
-				    "qos_rtr_max_vls");
-
-		subn_verify_high_limit(&(p_opts->qos_options.high_limit),
-				       "qos_high_limit");
-		subn_verify_high_limit(&(p_opts->qos_ca_options.high_limit),
-				       "qos_ca_high_limit");
-		subn_verify_high_limit(&
-				       (p_opts->qos_sw0_options.high_limit),
-				       "qos_sw0_high_limit");
-		subn_verify_high_limit(&
-				       (p_opts->qos_swe_options.high_limit),
-				       "qos_swe_high_limit");
-		subn_verify_high_limit(&
-				       (p_opts->qos_rtr_options.high_limit),
-				       "qos_rtr_high_limit");
-
-		subn_verify_vlarb(p_opts->qos_options.vlarb_low,
-				  "qos_vlarb_low");
-		subn_verify_vlarb(p_opts->qos_ca_options.vlarb_low,
-				  "qos_ca_vlarb_low");
-		subn_verify_vlarb(p_opts->qos_sw0_options.vlarb_low,
-				  "qos_sw0_vlarb_low");
-		subn_verify_vlarb(p_opts->qos_swe_options.vlarb_low,
-				  "qos_swe_vlarb_low");
-		subn_verify_vlarb(p_opts->qos_rtr_options.vlarb_low,
-				  "qos_rtr_vlarb_low");
-
-		subn_verify_vlarb(p_opts->qos_options.vlarb_high,
-				  "qos_vlarb_high");
-		subn_verify_vlarb(p_opts->qos_ca_options.vlarb_high,
-				  "qos_ca_vlarb_high");
-		subn_verify_vlarb(p_opts->qos_sw0_options.vlarb_high,
-				  "qos_sw0_vlarb_high");
-		subn_verify_vlarb(p_opts->qos_swe_options.vlarb_high,
-				  "qos_swe_vlarb_high");
-		subn_verify_vlarb(p_opts->qos_rtr_options.vlarb_high,
-				  "qos_rtr_vlarb_high");
-
-		subn_verify_sl2vl(p_opts->qos_options.sl2vl, "qos_sl2vl");
-		subn_verify_sl2vl(p_opts->qos_ca_options.sl2vl, "qos_ca_sl2vl");
-		subn_verify_sl2vl(p_opts->qos_sw0_options.sl2vl,
-				  "qos_sw0_sl2vl");
-		subn_verify_sl2vl(p_opts->qos_swe_options.sl2vl,
-				  "qos_swe_sl2vl");
-		subn_verify_sl2vl(p_opts->qos_rtr_options.sl2vl,
-				  "qos_rtr_sl2vl");
+		subn_verify_qos_set(&p_opts->qos_options, "qos");
+		subn_verify_qos_set(&p_opts->qos_ca_options, "qos_ca");
+		subn_verify_qos_set(&p_opts->qos_sw0_options, "qos_sw0");
+		subn_verify_qos_set(&p_opts->qos_swe_options, "qos_swe");
+		subn_verify_qos_set(&p_opts->qos_rtr_options, "qos_rtr");
 	}
+
 #ifdef ENABLE_OSM_PERF_MGR
 	if (p_opts->perfmgr_sweep_time_s < 1) {
 		log_report(" Invalid Cached Option Value:perfmgr_sweep_time_s "
