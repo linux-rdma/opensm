@@ -596,7 +596,10 @@ __osm_pr_rcv_get_path_parms(IN osm_sa_t * sa,
 		pkey = p_pr->pkey;
 		if (!osm_physp_share_this_pkey(p_src_physp, p_dest_physp, pkey)) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F1A: "
-				"Ports do not share specified PKey 0x%04x\n",
+				"Ports 0x%016" PRIx64 " 0x%016" PRIx64
+				" do not share specified PKey 0x%04x\n",
+				cl_ntoh64(osm_physp_get_port_guid(p_src_physp)),
+				cl_ntoh64(osm_physp_get_port_guid(p_dest_physp)),
 				cl_ntoh16(pkey));
 			status = IB_NOT_FOUND;
 			goto Exit;
@@ -618,7 +621,10 @@ __osm_pr_rcv_get_path_parms(IN osm_sa_t * sa,
 						     p_src_physp, p_dest_physp);
 		if (!pkey) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F1E: "
-				"Ports do not share PKeys defined by QoS level\n");
+				"Ports 0x%016" PRIx64 " 0x%016" PRIx64
+				" do not share PKeys defined by QoS level\n",
+				cl_ntoh64(osm_physp_get_port_guid(p_src_physp)),
+				cl_ntoh64(osm_physp_get_port_guid(p_dest_physp)));
 			status = IB_NOT_FOUND;
 			goto Exit;
 		}
@@ -630,7 +636,10 @@ __osm_pr_rcv_get_path_parms(IN osm_sa_t * sa,
 		pkey = osm_physp_find_common_pkey(p_src_physp, p_dest_physp);
 		if (!pkey) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F1B: "
-				"Ports do not have any shared PKeys\n");
+				"Ports 0x%016" PRIx64 " 0x%016" PRIx64
+				" do not have any shared PKeys\n",
+				cl_ntoh64(osm_physp_get_port_guid(p_src_physp)),
+				cl_ntoh64(osm_physp_get_port_guid(p_dest_physp)));
 			status = IB_NOT_FOUND;
 			goto Exit;
 		}
