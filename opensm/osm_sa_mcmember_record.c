@@ -1095,12 +1095,10 @@ __osm_mcmr_rcv_leave_mgrp(IN osm_sa_t * sa,
 		goto Exit;
 	}
 
-	mcmember_rec.scope_state = p_mcm_port->scope_state;
 	/* remove port or update join state */
 	removed = osm_mgrp_remove_port(sa->p_subn, sa->p_log, p_mgrp, p_mcm_port,
 				       p_recvd_mcmember_rec->scope_state&0x0F);
-	if (removed)
-		mcmember_rec.scope_state = p_mcm_port->scope_state;
+	mcmember_rec.scope_state = p_mcm_port->scope_state;
 
 	CL_PLOCK_RELEASE(sa->p_lock);
 
