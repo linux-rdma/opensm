@@ -261,6 +261,12 @@ osm_lid_mgr_init(IN osm_lid_mgr_t * const p_mgr, IN osm_sm_t *sm)
 	/* we use the stored guid to lid table if not forced to reassign */
 	if (!p_mgr->p_subn->opt.reassign_lids) {
 		if (osm_db_restore(p_mgr->p_g2l)) {
+#ifndef __WIN__
+			/*
+			 * When Windows is BSODing, it might corrupt files that
+			 * were previously opened for writing, even if the files
+			 * are closed, so we might see corrupted guid2lid file.
+			 */
 			if (p_mgr->p_subn->opt.exit_on_fatal) {
 				osm_log(p_mgr->p_log, OSM_LOG_SYS,
 					"FATAL: Error restoring Guid-to-Lid "
@@ -268,6 +274,7 @@ osm_lid_mgr_init(IN osm_lid_mgr_t * const p_mgr, IN osm_sm_t *sm)
 				status = IB_ERROR;
 				goto Exit;
 			} else
+#endif
 				OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR,
 					"ERR 0317: Error restoring Guid-to-Lid "
 					"persistent database\n");
