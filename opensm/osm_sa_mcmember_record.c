@@ -82,16 +82,6 @@ typedef struct osm_mcmr_item {
 	ib_member_rec_t rec;
 } osm_mcmr_item_t;
 
-typedef struct osm_sa_mcmr_search_ctxt {
-	const ib_member_rec_t *p_mcmember_rec;
-	osm_mgrp_t *p_mgrp;
-	osm_sa_t *sa;
-	cl_qlist_t *p_list;	/* hold results */
-	ib_net64_t comp_mask;
-	const osm_physp_t *p_req_physp;
-	boolean_t trusted_req;
-} osm_sa_mcmr_search_ctxt_t;
-
 /*********************************************************************
  Copy certain fields between two mcmember records
  used during the process of join request to copy data from the mgrp
@@ -1409,19 +1399,13 @@ Exit:
 /**********************************************************************
  Match the given mgrp to the requested mcmr
 **********************************************************************/
-static void
-__osm_sa_mcm_by_comp_mask_cb(IN osm_mgrp_t * const p_mgrp,
-			     IN void *context)
+static void mcmr_by_comp_mask(osm_sa_t *sa, const ib_member_rec_t *p_rcvd_rec,
+			      ib_net64_t comp_mask, osm_mgrp_t *p_mgrp,
+			      const osm_physp_t *p_req_physp,
+			      boolean_t trusted_req, cl_qlist_t *list)
 {
-	osm_sa_mcmr_search_ctxt_t *const p_ctxt =
-	    (osm_sa_mcmr_search_ctxt_t *) context;
-	osm_sa_t *sa = p_ctxt->sa;
-	const ib_member_rec_t *p_rcvd_rec = p_ctxt->p_mcmember_rec;
-	const osm_physp_t *p_req_physp = p_ctxt->p_req_physp;
-
 	/* since we might change scope_state */
 	ib_member_rec_t match_rec;
-	ib_net64_t comp_mask = p_ctxt->comp_mask;
 	osm_mcm_port_t *p_mcm_port;
 	ib_net64_t portguid = p_rcvd_rec->port_gid.unicast.interface_id;
 	/* will be used for group or port info */
@@ -1531,7 +1515,7 @@ __osm_sa_mcm_by_comp_mask_cb(IN osm_mgrp_t * const p_mgrp,
 		scope_state_mask = scope_state_mask | 0x0F;
 
 	/* Many MC records returned */
-	if (p_ctxt->trusted_req == TRUE
+	if (trusted_req == TRUE
 	    && !(IB_MCR_COMPMASK_PORT_GID & comp_mask)) {
 		char gid_str[INET6_ADDRSTRLEN];
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
@@ -1560,8 +1544,7 @@ __osm_sa_mcm_by_comp_mask_cb(IN osm_mgrp_t * const p_mgrp,
 				match_rec.proxy_join =
 				    (uint8_t) (p_mcm_port->proxy_join);
 
-				__osm_mcmr_rcv_new_mcmr(sa, &match_rec,
-							p_ctxt->p_list);
+				__osm_mcmr_rcv_new_mcmr(sa, &match_rec, list);
 			}
 			p_item = cl_qmap_next(p_item);
 		}
@@ -1578,7 +1561,7 @@ __osm_sa_mcm_by_comp_mask_cb(IN osm_mgrp_t * const p_mgrp,
 		memcpy(&(match_rec.port_gid), &port_gid, sizeof(ib_gid_t));
 		match_rec.proxy_join = (uint8_t) proxy_join;
 
-		__osm_mcmr_rcv_new_mcmr(sa, &match_rec, p_ctxt->p_list);
+		__osm_mcmr_rcv_new_mcmr(sa, &match_rec, list);
 	}
 
 Exit:
@@ -1595,7 +1578,6 @@ __osm_mcmr_query_mgrp(IN osm_sa_t * sa,
 	const ib_sa_mad_t *p_rcvd_mad;
 	const ib_member_rec_t *p_rcvd_rec;
 	cl_qlist_t rec_list;
-	osm_sa_mcmr_search_ctxt_t context;
 	ib_net64_t comp_mask;
 	osm_physp_t *p_req_physp;
 	boolean_t trusted_req;
@@ -1626,13 +1608,6 @@ __osm_mcmr_query_mgrp(IN osm_sa_t * sa,
 
 	cl_qlist_init(&rec_list);
 
-	context.p_mcmember_rec = p_rcvd_rec;
-	context.p_list = &rec_list;
-	context.comp_mask = p_rcvd_mad->comp_mask;
-	context.sa = sa;
-	context.p_req_physp = p_req_physp;
-	context.trusted_req = trusted_req;
-
 	CL_PLOCK_ACQUIRE(sa->p_lock);
 
 	/* simply go over all MCGs and match */
@@ -1640,7 +1615,8 @@ __osm_mcmr_query_mgrp(IN osm_sa_t * sa,
 	     i++) {
 		p_mgrp = sa->p_subn->mgroups[i];
 		if (p_mgrp)
-			__osm_sa_mcm_by_comp_mask_cb(p_mgrp, &context);
+			mcmr_by_comp_mask(sa, p_rcvd_rec, comp_mask, p_mgrp,
+					  p_req_physp, trusted_req, &rec_list);
 	}
 
 	CL_PLOCK_RELEASE(sa->p_lock);
