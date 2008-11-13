@@ -1813,7 +1813,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 
 	/* Lets try another valid join scope state */
 	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
-		"Checking new MGID creation with valid join state (o15.0.1.9)...\n");
+		"Checking new MGID creation with valid join state (o15.0.2.3)...\n");
 
 	mc_req_rec.mgid = good_mgid;
 	mc_req_rec.mgid.raw[12] = 0xFB;
@@ -1853,12 +1853,22 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	    IB_MCR_COMPMASK_MGID |
 	    IB_MCR_COMPMASK_PORT_GID | IB_MCR_COMPMASK_JOIN_STATE;
 
-	status = osmt_send_mcast_request(p_osmt, 0x1,	/* User Defined query */
+	status = osmt_send_mcast_request(p_osmt, 0x1,	/* SubnAdmSet */
 					 &mc_req_rec, comp_mask, &res_sa_mad);
 	if (status != IB_SUCCESS) {
 		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02CC: "
 			"Failed to join MCG with valid req, returned status = %s\n",
 			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
+		goto Exit;
+	}
+
+	p_mc_res = ib_sa_mad_get_payload_ptr(&res_sa_mad);
+	if ((p_mc_res->scope_state & 0x7) != 0x7) {
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02D0: "
+			"Validating JoinState update failed. "
+			"Expected 0x27 got 0x%02X\n",
+			p_mc_res->scope_state);
+		status = IB_ERROR;
 		goto Exit;
 	}
 
@@ -1869,12 +1879,24 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 		"Checking Retry of existing MGID - See JoinState update (o15.0.1.11)...\n");
 
 	mc_req_rec.mgid = good_mgid;
-	mc_req_rec.scope_state = 0x22;	/* link-local scope, send only  member */
 
+	/* first, make sure  that the group exists */
+	mc_req_rec.scope_state = 0x21;
 	status = osmt_send_mcast_request(p_osmt, 1,
 					 &mc_req_rec, comp_mask, &res_sa_mad);
 	if (status != IB_SUCCESS) {
 		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02CD: "
+			"Failed to create/join as full member - got %s/%s\n",
+			ib_get_err_str(status),
+			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
+		goto Exit;
+	}
+
+	mc_req_rec.scope_state = 0x22;	/* link-local scope, non-member */
+	status = osmt_send_mcast_request(p_osmt, 1,
+					 &mc_req_rec, comp_mask, &res_sa_mad);
+	if (status != IB_SUCCESS) {
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02D1: "
 			"Failed to update existing MGID - got %s/%s\n",
 			ib_get_err_str(status),
 			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
@@ -1899,18 +1921,46 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	mc_req_rec.rate =
 	    IB_LINK_WIDTH_ACTIVE_1X | IB_PATH_SELECTOR_GREATER_THAN << 6;
 	mc_req_rec.mgid = good_mgid;
-	/* link-local scope, non member (so we should not be able to delete) */
-	/*  but the FullMember bit should be gone */
+
 	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Checking Partially delete JoinState (o15.0.1.14)...\n");
+
+	/* link-local scope, both non-member bits,
+	   so we should not be able to delete) */
+	mc_req_rec.scope_state = 0x26;
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_START "\n");
+	status = osmt_send_mcast_request(p_osmt, 0,
+					 &mc_req_rec, comp_mask, &res_sa_mad);
+	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_END "\n");
+
+	if (status != IB_REMOTE_ERROR) {
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02CF: "
+			"Expected to fail partially update JoinState, "
+			"but got %s\n",
+			ib_get_err_str(status));
+		status = IB_ERROR;
+		goto Exit;
+	}
+
+	/* link-local scope, NonMember bit, the FullMember bit should stay */
 	mc_req_rec.scope_state = 0x22;
 	status = osmt_send_mcast_request(p_osmt, 0,
 					 &mc_req_rec, comp_mask, &res_sa_mad);
-	if ((status != IB_SUCCESS) || (p_mc_res->scope_state != 0x21)) {
-		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02CF: "
+	if (status != IB_SUCCESS) {
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02D3: "
 			"Failed to partially update JoinState : %s/%s\n",
 			ib_get_err_str(status),
 			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
+		status = IB_ERROR;
+		goto Exit;
+	}
+
+	p_mc_res = ib_sa_mad_get_payload_ptr(&res_sa_mad);
+	if (p_mc_res->scope_state != 0x21) {
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02D4: "
+			"Failed to partially update JoinState : "
+			"JoinState = 0x%02X, expected 0x%02X\n",
+			p_mc_res->scope_state, 0x21);
 		status = IB_ERROR;
 		goto Exit;
 	}
