@@ -71,8 +71,6 @@
 
 static const char null_str[] = "(null)";
 
-static void subn_verify_conf_file(IN osm_subn_opt_t * const p_opts);
-
 /**********************************************************************
  **********************************************************************/
 void osm_subn_construct(IN osm_subn_t * const p_subn)
@@ -788,64 +786,6 @@ osm_parse_prefix_routes_file(IN osm_subn_t * const p_subn)
 
 /**********************************************************************
  **********************************************************************/
-int osm_subn_rescan_conf_files(IN osm_subn_t * const p_subn)
-{
-	FILE *opts_file;
-	char line[1024];
-	char *p_key, *p_val, *p_last;
-
-	if (!p_subn->opt.config_file)
-		return 0;
-
-	opts_file = fopen(p_subn->opt.config_file, "r");
-	if (!opts_file) {
-		if (errno == ENOENT)
-			return 1;
-		OSM_LOG(&p_subn->p_osm->log, OSM_LOG_ERROR,
-			"cannot open file \'%s\': %s\n",
-			p_subn->opt.config_file, strerror(errno));
-		return -1;
-	}
-
-	while (fgets(line, 1023, opts_file) != NULL) {
-		/* get the first token */
-		p_key = strtok_r(line, " \t\n", &p_last);
-		if (p_key) {
-			p_val = strtok_r(NULL, " \t\n", &p_last);
-
-			subn_parse_qos_options("qos",
-					       p_key, p_val,
-					       &p_subn->opt.qos_options);
-
-			subn_parse_qos_options("qos_ca",
-					       p_key, p_val,
-					       &p_subn->opt.qos_ca_options);
-
-			subn_parse_qos_options("qos_sw0",
-					       p_key, p_val,
-					       &p_subn->opt.qos_sw0_options);
-
-			subn_parse_qos_options("qos_swe",
-					       p_key, p_val,
-					       &p_subn->opt.qos_swe_options);
-
-			subn_parse_qos_options("qos_rtr",
-					       p_key, p_val,
-					       &p_subn->opt.qos_rtr_options);
-
-		}
-	}
-	fclose(opts_file);
-
-	subn_verify_conf_file(&p_subn->opt);
-
-	osm_parse_prefix_routes_file(p_subn);
-
-	return 0;
-}
-
-/**********************************************************************
- **********************************************************************/
 
 static void subn_verify_max_vls(unsigned *max_vls, const char *prefix)
 {
@@ -1304,6 +1244,62 @@ int osm_subn_parse_conf_file(char *file_name, osm_subn_opt_t * const p_opts)
 	fclose(opts_file);
 
 	subn_verify_conf_file(p_opts);
+
+	return 0;
+}
+
+int osm_subn_rescan_conf_files(IN osm_subn_t * const p_subn)
+{
+	FILE *opts_file;
+	char line[1024];
+	char *p_key, *p_val, *p_last;
+
+	if (!p_subn->opt.config_file)
+		return 0;
+
+	opts_file = fopen(p_subn->opt.config_file, "r");
+	if (!opts_file) {
+		if (errno == ENOENT)
+			return 1;
+		OSM_LOG(&p_subn->p_osm->log, OSM_LOG_ERROR,
+			"cannot open file \'%s\': %s\n",
+			p_subn->opt.config_file, strerror(errno));
+		return -1;
+	}
+
+	while (fgets(line, 1023, opts_file) != NULL) {
+		/* get the first token */
+		p_key = strtok_r(line, " \t\n", &p_last);
+		if (p_key) {
+			p_val = strtok_r(NULL, " \t\n", &p_last);
+
+			subn_parse_qos_options("qos",
+					       p_key, p_val,
+					       &p_subn->opt.qos_options);
+
+			subn_parse_qos_options("qos_ca",
+					       p_key, p_val,
+					       &p_subn->opt.qos_ca_options);
+
+			subn_parse_qos_options("qos_sw0",
+					       p_key, p_val,
+					       &p_subn->opt.qos_sw0_options);
+
+			subn_parse_qos_options("qos_swe",
+					       p_key, p_val,
+					       &p_subn->opt.qos_swe_options);
+
+			subn_parse_qos_options("qos_rtr",
+					       p_key, p_val,
+					       &p_subn->opt.qos_rtr_options);
+
+		}
+	}
+	fclose(opts_file);
+
+	subn_verify_conf_file(&p_subn->opt);
+
+	osm_parse_prefix_routes_file(p_subn);
 
 	return 0;
 }
