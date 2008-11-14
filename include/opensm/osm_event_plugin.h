@@ -148,6 +148,7 @@ typedef struct osm_epi_trap_event {
  * The version should be set to OSM_EVENT_PLUGIN_INTERFACE_VER
  */
 #define OSM_EVENT_PLUGIN_IMPL_NAME "osm_event_plugin"
+#define OSM_ORIG_EVENT_PLUGIN_INTERFACE_VER 1
 #define OSM_EVENT_PLUGIN_INTERFACE_VER 2
 typedef struct osm_event_plugin {
 	const char *osm_version;

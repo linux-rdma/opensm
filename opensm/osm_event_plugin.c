@@ -66,6 +66,7 @@
 osm_epi_plugin_t *osm_epi_construct(osm_opensm_t *osm, char *plugin_name)
 {
 	char lib_name[OSM_PATH_MAX];
+	struct old_if { unsigned ver; } *old_impl;
 	osm_epi_plugin_t *rc = NULL;
 
 	if (!plugin_name || !*plugin_name)
@@ -93,6 +94,16 @@ osm_epi_plugin_t *osm_epi_construct(osm_opensm_t *osm, char *plugin_name)
 		OSM_LOG(&osm->log, OSM_LOG_ERROR,
 			"Failed to find \"%s\" symbol in \"%s\" : \"%s\"\n",
 			OSM_EVENT_PLUGIN_IMPL_NAME, lib_name, dlerror());
+		goto Exit;
+	}
+
+	/* check for old interface */
+	old_impl = (struct old_if *) rc->impl;
+	if (old_impl->ver == OSM_ORIG_EVENT_PLUGIN_INTERFACE_VER) {
+		OSM_LOG(&osm->log, OSM_LOG_ERROR, "Error loading plugin: "
+			"\'%s\' contains a depricated interface version %d\n"
+			"   Please recompile with the new interface.\n",
+			plugin_name, old_impl->ver);
 		goto Exit;
 	}
 
