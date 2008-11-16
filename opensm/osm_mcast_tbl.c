@@ -81,7 +81,7 @@ osm_mcast_tbl_init(IN osm_mcast_tbl_t * const p_tbl,
 						IB_MCAST_BLOCK_SIZE) /
 					IB_MCAST_BLOCK_SIZE) - 1);
 
-	p_tbl->max_mlid_ho = (uint16_t) (IB_LID_MCAST_START_HO + capacity);
+	p_tbl->max_mlid_ho = (uint16_t) (IB_LID_MCAST_START_HO + capacity - 1);
 
 	/*
 	   The number of bytes needed in the mask table is:
@@ -216,7 +216,7 @@ osm_mcast_tbl_set_block(IN osm_mcast_tbl_t * const p_tbl,
 
 	mlid_start_ho = (uint16_t) (block_num * IB_MCAST_BLOCK_SIZE);
 
-	if (mlid_start_ho + IB_MCAST_BLOCK_SIZE > p_tbl->max_mlid_ho)
+	if (mlid_start_ho + IB_MCAST_BLOCK_SIZE - 1 > p_tbl->max_mlid_ho)
 		return (IB_INVALID_PARAMETER);
 
 	for (i = 0; i < IB_MCAST_BLOCK_SIZE; i++)
@@ -274,7 +274,7 @@ osm_mcast_tbl_get_block(IN osm_mcast_tbl_t * const p_tbl,
 
 	mlid_start_ho = (uint16_t) (block_num * IB_MCAST_BLOCK_SIZE);
 
-	if (mlid_start_ho + IB_MCAST_BLOCK_SIZE > p_tbl->max_mlid_ho)
+	if (mlid_start_ho + IB_MCAST_BLOCK_SIZE - 1 > p_tbl->max_mlid_ho)
 		return (IB_INVALID_PARAMETER);
 
 	for (i = 0; i < IB_MCAST_BLOCK_SIZE; i++)
