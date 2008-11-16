@@ -311,8 +311,7 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 			}
 			OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 				"Received SLID=0 Trap. Using local LID:%u instead\n",
-				cl_ntoh16(sm->p_subn->sm_base_lid)
-			    );
+				cl_ntoh16(sm->p_subn->sm_base_lid));
 			tmp_madw.mad_addr.addr_type.smi.source_lid =
 			    sm->p_subn->sm_base_lid;
 		}
@@ -341,8 +340,7 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 					(ib_notice_get_prod_type(p_ntci)),
 					cl_hton16(source_lid),
 					p_ntci->data_details.ntc_129_131.
-					port_num, cl_ntoh64(p_smp->trans_id)
-				    );
+					port_num, cl_ntoh64(p_smp->trans_id));
 			else
 				OSM_LOG(sm->p_log, OSM_LOG_ERROR,
 					"Received Generic Notice type:%u "
@@ -358,8 +356,7 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 					ib_get_producer_type_str
 					(ib_notice_get_prod_type(p_ntci)),
 					cl_hton16(source_lid),
-					cl_ntoh64(p_smp->trans_id)
-				    );
+					cl_ntoh64(p_smp->trans_id));
 		} else
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR,
 				"Received Vendor Notice type:%u vend:0x%06X "
@@ -368,8 +365,7 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 				cl_ntoh32(ib_notice_get_vend_id(p_ntci)),
 				cl_ntoh16(p_ntci->g_or_v.vend.dev_id),
 				cl_ntoh16(source_lid),
-				cl_ntoh64(p_smp->trans_id)
-			    );
+				cl_ntoh64(p_smp->trans_id));
 	}
 
 	osm_dump_notice(sm->p_log, p_ntci, OSM_LOG_VERBOSE);
@@ -558,12 +554,10 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 		   healthy bit. If not - no need to use a callback. */
 		if (physp_change_trap == TRUE)
 			cl_event_wheel_reg(&sm->trap_aging_tracker, trap_key, cl_get_time_stamp() + event_wheel_timeout, osm_trap_rcv_aging_tracker_callback,	/* no callback */
-					   sm	/* no context */
-			    );
+					   sm	/* no context */ );
 		else
 			cl_event_wheel_reg(&sm->trap_aging_tracker, trap_key, cl_get_time_stamp() + event_wheel_timeout, NULL,	/* no callback */
-					   NULL	/* no context */
-			    );
+					   NULL	/* no context */ );
 
 		/* If was already registered do nothing more */
 		if (num_received > 10 && run_heavy_sweep == FALSE) {
