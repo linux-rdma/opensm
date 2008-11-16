@@ -232,6 +232,44 @@ static int __print_num_received(IN uint32_t num_received)
 		return 0;
 }
 
+static int disable_port(osm_sm_t *sm, osm_physp_t *p)
+{
+	uint8_t payload[IB_SMP_DATA_SIZE];
+	osm_madw_context_t context;
+	ib_port_info_t *pi = (ib_port_info_t *)payload;
+	int ret;
+
+	/* If trap 131, might want to disable peer port if available */
+	/* but peer port has been observed not to respond to SM requests */
+
+	OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3810: "
+		"Disabling physical port 0x%016" PRIx64 " num:%u\n",
+		cl_ntoh64(osm_physp_get_port_guid(p)), p->port_num);
+
+	memcpy(payload, &p->port_info, sizeof(ib_port_info_t));
+
+	/* Set port to disabled/down */
+	ib_port_info_set_port_state(pi, IB_LINK_DOWN);
+	ib_port_info_set_port_phys_state(IB_PORT_PHYS_STATE_DISABLED, pi);
+
+	/* Issue set of PortInfo */
+	context.pi_context.node_guid = osm_node_get_node_guid(p->p_node);
+	context.pi_context.port_guid = osm_physp_get_port_guid(p);
+	context.pi_context.set_method = TRUE;
+	context.pi_context.light_sweep = FALSE;
+	context.pi_context.active_transition = FALSE;
+
+	ret = osm_req_set(sm, osm_physp_get_dr_path_ptr(p),
+			  payload, sizeof(payload), IB_MAD_ATTR_PORT_INFO,
+			  cl_hton32(osm_physp_get_port_num(p)),
+			  CL_DISP_MSGID_NONE, &context);
+	if (ret)
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3811: "
+			"Request to set PortInfo failed\n");
+
+	return ret;
+}
+
 /**********************************************************************
  **********************************************************************/
 static void
@@ -454,73 +492,9 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 					   Threshold for disabling a "babbling" port is exceeded */
 					if (sm->p_subn->opt.
 					    babbling_port_policy
-					    && num_received >= 250) {
-						uint8_t
-						    payload[IB_SMP_DATA_SIZE];
-						ib_port_info_t *p_pi =
-						    (ib_port_info_t *) payload;
-						const ib_port_info_t *p_old_pi;
-						osm_madw_context_t context;
-
-						/* If trap 131, might want to disable peer port if available */
-						/* but peer port has been observed not to respond to SM requests */
-
-						OSM_LOG(sm->p_log, OSM_LOG_ERROR,
-							"ERR 3810: "
-							"Disabling physical port lid:%u num:%u\n",
-							cl_ntoh16(p_ntci->
-								  data_details.
-								  ntc_129_131.
-								  lid),
-							p_ntci->data_details.
-							ntc_129_131.port_num);
-
-						p_old_pi = &p_physp->port_info;
-						memcpy(payload, p_old_pi,
-						       sizeof(ib_port_info_t));
-
-						/* Set port to disabled/down */
-						ib_port_info_set_port_state
-						    (p_pi, IB_LINK_DOWN);
-						ib_port_info_set_port_phys_state
-						    (IB_PORT_PHYS_STATE_DISABLED,
-						     p_pi);
-
-						/* Issue set of PortInfo */
-						context.pi_context.node_guid =
-						    osm_node_get_node_guid
-						    (osm_physp_get_node_ptr
-						     (p_physp));
-						context.pi_context.port_guid =
-						    osm_physp_get_port_guid
-						    (p_physp);
-						context.pi_context.set_method =
-						    TRUE;
-						context.pi_context.light_sweep =
-						    FALSE;
-						context.pi_context.
-						    active_transition = FALSE;
-
-						status =
-						    osm_req_set(sm,
-								osm_physp_get_dr_path_ptr
-								(p_physp),
-								payload,
-								sizeof(payload),
-								IB_MAD_ATTR_PORT_INFO,
-								cl_hton32
-								(osm_physp_get_port_num
-								 (p_physp)),
-								CL_DISP_MSGID_NONE,
-								&context);
-
-						if (status == IB_SUCCESS)
-							goto Exit;
-
-						OSM_LOG(sm->p_log,
-							OSM_LOG_ERROR, "ERR 3811: "
-							"Request to set PortInfo failed\n");
-					}
+					    && num_received >= 250
+					    && disable_port(sm, p_physp) == 0)
+						goto Exit;
 
 					OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 						"Marking unhealthy physical port by lid:%u num:%u\n",
