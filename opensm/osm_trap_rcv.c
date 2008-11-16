@@ -575,7 +575,7 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 		}
 	}
 
-	/* Check for node descriptor update. IB Spec v1.2.1 pg 823*/
+	/* Check for node description update. IB Spec v1.2.1 pg 823 */
 	if ((p_ntci->data_details.ntc_144.local_changes & TRAP_144_MASK_OTHER_LOCAL_CHANGES) &&
 		(p_ntci->data_details.ntc_144.change_flgs & TRAP_144_MASK_NODE_DESCRIPTION_CHANGE)
 		) {
