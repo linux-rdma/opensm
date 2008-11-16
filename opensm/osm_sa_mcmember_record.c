@@ -846,7 +846,7 @@ osm_mcmr_rcv_create_new_mgrp(IN osm_sa_t * sa,
 	mlid = __get_new_mlid(sa, mcm_rec.mlid);
 	if (mlid == 0) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B19: "
-			"__get_new_mlid failed\n");
+			"__get_new_mlid failed request mlid 0x%04x\n", cl_ntoh16(mcm_rec.mlid));
 		status = IB_SA_MAD_STATUS_NO_RESOURCES;
 		goto Exit;
 	}
