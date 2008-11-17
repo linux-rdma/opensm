@@ -2138,7 +2138,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	comp_mask = IB_MCR_COMPMASK_GID | IB_MCR_COMPMASK_PORT_GID | IB_MCR_COMPMASK_QKEY | IB_MCR_COMPMASK_PKEY | IB_MCR_COMPMASK_SL | IB_MCR_COMPMASK_FLOW | IB_MCR_COMPMASK_JOIN_STATE | IB_MCR_COMPMASK_TCLASS |	/* all above are required */
 	    IB_MCR_COMPMASK_RATE_SEL | IB_MCR_COMPMASK_RATE;
 	/* link-local scope, non member (so we should not be able to delete) */
-	/* but the FullMember bit should be gone */
+	/* but the NonMember bit should be gone */
 	mc_req_rec.scope_state = 0x22;
 
 	status = osmt_send_mcast_request(p_osmt, 0,
@@ -2155,7 +2155,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 
 	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Validating Join State removal of Non Member bit (o15.0.1.14)...\n");
-	if (p_mc_res->scope_state != 0x25) {	/* scope is MSB - now only the non member & send only member have left */
+	if (p_mc_res->scope_state != 0x25) {	/* scope is MSB - now only the full member & send only member have left */
 		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02CA: "
 			"Validating JoinState update failed. Expected 0x25 got: 0x%02X\n",
 			p_mc_res->scope_state);
