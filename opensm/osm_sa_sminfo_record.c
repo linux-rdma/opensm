@@ -177,7 +177,6 @@ void osm_smir_rcv_process(IN void *ctx, IN void *data)
 	osm_madw_t *p_madw = data;
 	const ib_sa_mad_t *sad_mad;
 	const ib_sminfo_record_t *p_rcvd_rec;
-	const cl_qmap_t *p_tbl;
 	const osm_port_t *p_port = NULL;
 	const ib_sm_info_t *p_smi;
 	cl_qlist_t rec_list;
@@ -227,7 +226,6 @@ void osm_smir_rcv_process(IN void *ctx, IN void *data)
 	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
 		osm_dump_sm_info_record(sa->p_log, p_rcvd_rec, OSM_LOG_DEBUG);
 
-	p_tbl = &sa->p_subn->sm_guid_tbl;
 	p_smi = &p_rcvd_rec->sm_info;
 
 	cl_qlist_init(&rec_list);
