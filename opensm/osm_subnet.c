@@ -623,7 +623,8 @@ opts_unpack_charp(IN char *p_req_key,
 		  IN char *p_key, IN char *p_val_str, IN char **p_val)
 {
 	if (!strcmp(p_req_key, p_key) && p_val_str) {
-		if ((*p_val == NULL) || strcmp(p_val_str, *p_val)) {
+		const char *current_str = *p_val ? *p_val : null_str ;
+		if (strcmp(p_val_str, current_str)) {
 			log_config_value(p_key, "%s", p_val_str);
 			/* special case the "(null)" string */
 			if (strcmp(null_str, p_val_str) == 0) {
