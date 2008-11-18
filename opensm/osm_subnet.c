@@ -691,7 +691,7 @@ subn_dump_qos_options(FILE * file,
 {
 	return fprintf(file, "# %s\n"
 		       "%s_max_vls %u\n"
-		       "%s_high_limit %u\n"
+		       "%s_high_limit %d\n"
 		       "%s_vlarb_high %s\n"
 		       "%s_vlarb_low %s\n"
 		       "%s_sl2vl %s\n",
