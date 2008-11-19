@@ -948,6 +948,8 @@ int main(int argc, char *argv[])
 		exit(status);
 	}
 
+	osm_subn_verify_config(&opt);
+
 	if (vendor_debug)
 		osm_vendor_set_debug(osm.p_vendor, vendor_debug);
 

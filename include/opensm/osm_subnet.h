@@ -1100,6 +1100,7 @@ int osm_subn_write_conf_file(char *file_name, IN osm_subn_opt_t * const p_opt);
 *	Assumes the conf file is part of the cache dir which defaults to
 *	OSM_DEFAULT_CACHE_DIR or OSM_CACHE_DIR the name is opensm.opts
 *********/
+int osm_subn_verify_config(osm_subn_opt_t * const p_opt);
 
 END_C_DECLS
 #endif				/* _OSM_SUBNET_H_ */

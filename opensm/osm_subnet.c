@@ -949,7 +949,7 @@ static void subn_verify_qos_set(osm_qos_options_t *set, const char *prefix,
 	subn_verify_sl2vl(&set->sl2vl, prefix, dflt->sl2vl);
 }
 
-static void subn_verify_conf_file(IN osm_subn_opt_t * const p_opts)
+int osm_subn_verify_config(IN osm_subn_opt_t * const p_opts)
 {
 	if (p_opts->lmc > 7) {
 		log_report(" Invalid Cached Option Value:lmc = %u:"
@@ -1024,6 +1024,8 @@ static void subn_verify_conf_file(IN osm_subn_opt_t * const p_opts)
 		    OSM_PERFMGR_DEFAULT_MAX_OUTSTANDING_QUERIES;
 	}
 #endif
+
+	return 0;
 }
 
 /**********************************************************************
@@ -1285,7 +1287,7 @@ int osm_subn_parse_conf_file(char *file_name, osm_subn_opt_t * const p_opts)
 	}
 	fclose(opts_file);
 
-	subn_verify_conf_file(p_opts);
+	osm_subn_verify_config(p_opts);
 
 	return 0;
 }
@@ -1340,7 +1342,7 @@ int osm_subn_rescan_conf_files(IN osm_subn_t * const p_subn)
 	}
 	fclose(opts_file);
 
-	subn_verify_conf_file(&p_subn->opt);
+	osm_subn_verify_config(&p_subn->opt);
 
 	osm_parse_prefix_routes_file(p_subn);
 
