@@ -1042,7 +1042,7 @@ __osm_lid_mgr_set_physp_pi(IN osm_lid_mgr_t * const p_mgr,
 		    (op_vls != ib_port_info_get_op_vls(p_old_pi))) {
 			OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 				"Sending Link Down to GUID 0x%016"
-				PRIx64 "port %d due to op_vls or "
+				PRIx64 " port %d due to op_vls or "
 				"mtu change. MTU:%u,%u VL_CAP:%u,%u\n",
 				cl_ntoh64(osm_physp_get_port_guid(p_physp)),
 				port_num, mtu,
