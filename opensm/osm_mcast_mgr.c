@@ -356,9 +356,7 @@ __osm_mcast_mgr_set_tbl(osm_sm_t * sm, IN osm_switch_t * const p_sw)
 
 	CL_ASSERT(p_node);
 
-	p_path = osm_node_get_any_dr_path_ptr(p_node);
-
-	CL_ASSERT(p_path);
+	p_path = osm_physp_get_dr_path_ptr(osm_node_get_physp_ptr(p_node, 0));
 
 	/*
 	   Send multicast forwarding table blocks to the switch

@@ -336,9 +336,7 @@ int osm_ucast_mgr_set_fwd_table(IN osm_ucast_mgr_t * const p_mgr,
 
 	CL_ASSERT(p_node);
 
-	p_path = osm_node_get_any_dr_path_ptr(p_node);
-
-	CL_ASSERT(p_path);
+	p_path = osm_physp_get_dr_path_ptr(osm_node_get_physp_ptr(p_node, 0));
 
 	/*
 	   Set the top of the unicast forwarding table.

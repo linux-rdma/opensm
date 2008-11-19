@@ -135,7 +135,7 @@ static void __osm_state_mgr_get_sw_info(IN cl_map_item_t * const p_object,
 	OSM_LOG_ENTER(sm->p_log);
 
 	p_node = p_sw->p_node;
-	p_dr_path = osm_node_get_any_dr_path_ptr(p_node);
+	p_dr_path = osm_physp_get_dr_path_ptr(osm_node_get_physp_ptr(p_node, 0));
 
 	memset(&mad_context, 0, sizeof(mad_context));
 

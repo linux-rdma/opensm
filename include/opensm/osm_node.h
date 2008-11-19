@@ -272,45 +272,6 @@ static inline osm_physp_t *osm_node_get_any_physp_ptr(IN const osm_node_t *
 *	Node object
 *********/
 
-/****f* OpenSM: Node/osm_node_get_any_path
-* NAME
-*	osm_node_get_any_path
-*
-* DESCRIPTION
-*	Returns a pointer to the physical port object at the
-*	specified local port number.
-*
-* SYNOPSIS
-*/
-static inline osm_dr_path_t *osm_node_get_any_dr_path_ptr(IN const osm_node_t *
-							  const p_node)
-{
-	CL_ASSERT(p_node);
-	return (osm_physp_get_dr_path_ptr
-		(&p_node->
-		 physp_table[ib_node_info_get_local_port_num
-			     (&p_node->node_info)]));
-}
-
-/*
-* PARAMETERS
-*	p_node
-*		[in] Pointer to an osm_node_t object.
-*
-*	port_num
-*		[in] Local port number.
-*
-* RETURN VALUES
-*	Returns a pointer to the physical port object at the
-*	specified local port number.
-*	A return value of zero means the port number was out of range.
-*
-* NOTES
-*
-* SEE ALSO
-*	Node object
-*********/
-
 /****f* OpenSM: Node/osm_node_get_type
 * NAME
 *	osm_node_get_type
