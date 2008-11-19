@@ -149,17 +149,17 @@ __osm_pi_rcv_process_endport(IN osm_sm_t * sm,
 			 */
 			__osm_pi_rcv_set_sm(sm, p_physp);
 	} else {
-		/*
-		   Before querying the SM - we want to make sure we clean its state, so
-		   if the querying fails we recognize that this SM is not active.
-		 */
 		p_sm_tbl = &sm->p_subn->sm_guid_tbl;
-		p_sm = (osm_remote_sm_t *) cl_qmap_get(p_sm_tbl, port_guid);
-		if (p_sm != (osm_remote_sm_t *) cl_qmap_end(p_sm_tbl))
-			/* clean it up */
-			p_sm->smi.pri_state = 0xF0 & p_sm->smi.pri_state;
-
 		if (p_pi->capability_mask & IB_PORT_CAP_IS_SM) {
+			/*
+			 * Before querying the SM - we want to make sure we
+			 * clean its state, so if the querying fails we
+			 * recognize that this SM is not active.
+			 */
+			p_sm = (osm_remote_sm_t *) cl_qmap_get(p_sm_tbl, port_guid);
+			if (p_sm != (osm_remote_sm_t *) cl_qmap_end(p_sm_tbl))
+				/* clean it up */
+				p_sm->smi.pri_state = 0xF0 & p_sm->smi.pri_state;
 			if (sm->p_subn->opt.ignore_other_sm)
 				OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 					"Ignoring SM on port 0x%" PRIx64 "\n",
@@ -171,7 +171,8 @@ __osm_pi_rcv_process_endport(IN osm_sm_t * sm,
 					cl_ntoh64(port_guid));
 
 				/*
-				   This port indicates it's an SM and it's not our own port.
+				   This port indicates it's an SM and
+				   it's not our own port.
 				   Acquire the SMInfo Attribute.
 				 */
 				memset(&context, 0, sizeof(context));
@@ -190,6 +191,10 @@ __osm_pi_rcv_process_endport(IN osm_sm_t * sm,
 						"Failure requesting SMInfo (%s)\n",
 						ib_get_err_str(status));
 			}
+		} else {
+			p_sm = (osm_remote_sm_t *) cl_qmap_remove(p_sm_tbl, port_guid);
+			if (p_sm != (osm_remote_sm_t *) cl_qmap_end(p_sm_tbl))
+				free(p_sm);
 		}
 	}
 
