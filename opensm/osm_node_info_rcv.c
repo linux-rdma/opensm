@@ -501,15 +501,16 @@ __osm_ni_rcv_process_switch(IN osm_sm_t * sm,
 {
 	ib_api_status_t status = IB_SUCCESS;
 	osm_madw_context_t context;
-	osm_dr_path_t dr_path;
+	osm_dr_path_t *path;
 	ib_smp_t *p_smp;
 
 	OSM_LOG_ENTER(sm->p_log);
 
 	p_smp = osm_madw_get_smp_ptr(p_madw);
 
-	osm_dr_path_init(&dr_path,
-			 osm_madw_get_bind_handle(p_madw),
+	/* update DR path of already initialized switch port 0 */
+	path = osm_physp_get_dr_path_ptr(osm_node_get_physp_ptr(p_node, 0));
+	osm_dr_path_init(path, osm_madw_get_bind_handle(p_madw),
 			 p_smp->hop_count, p_smp->initial_path);
 
 	context.si_context.node_guid = osm_node_get_node_guid(p_node);
@@ -517,7 +518,7 @@ __osm_ni_rcv_process_switch(IN osm_sm_t * sm,
 	context.si_context.light_sweep = FALSE;
 
 	/* Request a SwitchInfo attribute */
-	status = osm_req_get(sm, &dr_path, IB_MAD_ATTR_SWITCH_INFO,
+	status = osm_req_get(sm, path, IB_MAD_ATTR_SWITCH_INFO,
 			     0, CL_DISP_MSGID_NONE, &context);
 	if (status != IB_SUCCESS)
 		/* continue despite error */

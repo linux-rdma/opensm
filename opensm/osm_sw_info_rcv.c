@@ -59,17 +59,13 @@
  The plock must be held before calling this function.
 **********************************************************************/
 static void
-__osm_si_rcv_get_port_info(IN osm_sm_t * sm,
-			   IN osm_switch_t * const p_sw,
-			   IN const osm_madw_t * const p_madw)
+__osm_si_rcv_get_port_info(IN osm_sm_t * sm, IN osm_switch_t * const p_sw)
 {
 	osm_madw_context_t context;
 	uint8_t port_num;
 	osm_physp_t *p_physp;
 	osm_node_t *p_node;
 	uint8_t num_ports;
-	osm_dr_path_t dr_path;
-	const ib_smp_t *p_smp;
 	ib_api_status_t status = IB_SUCCESS;
 
 	OSM_LOG_ENTER(sm->p_log);
@@ -77,19 +73,13 @@ __osm_si_rcv_get_port_info(IN osm_sm_t * sm,
 	CL_ASSERT(p_sw);
 
 	p_node = p_sw->p_node;
-	p_smp = osm_madw_get_smp_ptr(p_madw);
 
 	CL_ASSERT(osm_node_get_type(p_node) == IB_NODE_TYPE_SWITCH);
 
 	/*
 	   Request PortInfo attribute for each port on the switch.
-	   Don't trust the port's own DR Path, since it may no longer
-	   be a legitimate path through the subnet.
-	   Build a path from the mad instead, since we know that path works.
-	   The port's DR Path info gets updated when the PortInfo
-	   attribute is received.
 	 */
-	p_physp = osm_node_get_any_physp_ptr(p_node);
+	p_physp = osm_node_get_physp_ptr(p_node, 0);
 
 	context.pi_context.node_guid = osm_node_get_node_guid(p_node);
 	context.pi_context.port_guid = osm_physp_get_port_guid(p_physp);
@@ -98,12 +88,10 @@ __osm_si_rcv_get_port_info(IN osm_sm_t * sm,
 	context.pi_context.active_transition = FALSE;
 
 	num_ports = osm_node_get_num_physp(p_node);
-	osm_dr_path_init(&dr_path, osm_madw_get_bind_handle(p_madw),
-			 p_smp->hop_count, p_smp->initial_path);
 
 	for (port_num = 0; port_num < num_ports; port_num++) {
-		status = osm_req_get(sm, &dr_path, IB_MAD_ATTR_PORT_INFO,
-				     cl_hton32(port_num),
+		status = osm_req_get(sm, osm_physp_get_dr_path_ptr(p_physp),
+				     IB_MAD_ATTR_PORT_INFO, cl_hton32(port_num),
 				     CL_DISP_MSGID_NONE, &context);
 		if (status != IB_SUCCESS)
 			/* continue the loop despite the error */
@@ -138,13 +126,12 @@ __osm_si_rcv_get_fwd_tbl(IN osm_sm_t * sm, IN osm_switch_t * const p_sw)
 
 	CL_ASSERT(osm_node_get_type(p_node) == IB_NODE_TYPE_SWITCH);
 
-	p_physp = osm_node_get_any_physp_ptr(p_node);
-
 	context.lft_context.node_guid = osm_node_get_node_guid(p_node);
 	context.lft_context.set_method = FALSE;
 
 	max_block_id_ho = osm_switch_get_max_block_id_in_use(p_sw);
 
+	p_physp = osm_node_get_physp_ptr(p_node, 0);
 	p_dr_path = osm_physp_get_dr_path_ptr(p_physp);
 
 	for (block_id_ho = 0; block_id_ho <= max_block_id_ho; block_id_ho++) {
@@ -197,12 +184,10 @@ __osm_si_rcv_get_mcast_fwd_tbl(IN osm_sm_t * sm, IN osm_switch_t * const p_sw)
 		goto Exit;
 	}
 
-	p_physp = osm_node_get_any_physp_ptr(p_node);
-	p_tbl = osm_switch_get_mcast_tbl_ptr(p_sw);
-
 	context.mft_context.node_guid = osm_node_get_node_guid(p_node);
 	context.mft_context.set_method = FALSE;
 
+	p_tbl = osm_switch_get_mcast_tbl_ptr(p_sw);
 	max_block_id_ho = osm_mcast_tbl_get_max_block(p_tbl);
 
 	if (max_block_id_ho > IB_MCAST_MAX_BLOCK_ID) {
@@ -221,6 +206,7 @@ __osm_si_rcv_get_mcast_fwd_tbl(IN osm_sm_t * sm, IN osm_switch_t * const p_sw)
 		"Max MFT block = %u, Max position = %u\n", max_block_id_ho,
 		max_position);
 
+	p_physp = osm_node_get_physp_ptr(p_node, 0);
 	p_dr_path = osm_physp_get_dr_path_ptr(p_physp);
 
 	for (block_id_ho = 0; block_id_ho <= max_block_id_ho; block_id_ho++) {
@@ -331,7 +317,7 @@ __osm_si_rcv_process_new(IN osm_sm_t * sm,
 	/*
 	   Get the PortInfo attribute for every port.
 	 */
-	__osm_si_rcv_get_port_info(sm, p_sw, p_madw);
+	__osm_si_rcv_get_port_info(sm, p_sw);
 
 	/*
 	   Don't bother retrieving the current unicast and multicast tables
@@ -426,7 +412,7 @@ __osm_si_rcv_process_existing(IN osm_sm_t * sm,
 
 			/* If this is the first discovery - then get the port_info */
 			if (p_sw->discovery_count == 1)
-				__osm_si_rcv_get_port_info(sm, p_sw, p_madw);
+				__osm_si_rcv_get_port_info(sm, p_sw);
 			else
 				OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 					"Not discovering again through switch:0x%"
