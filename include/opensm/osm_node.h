@@ -236,42 +236,6 @@ static inline osm_physp_t *osm_node_get_physp_ptr(IN osm_node_t * const p_node,
 *	Node object
 *********/
 
-/****f* OpenSM: Node/osm_node_get_any_physp_ptr
-* NAME
-*	osm_node_get_any_physp_ptr
-*
-* DESCRIPTION
-*	Returns a pointer to any valid physical port object associated
-*	with this node.  This operation is mostly meaningful for switches,
-*	in which case all the Physical Ports share the same GUID.
-*
-* SYNOPSIS
-*/
-static inline osm_physp_t *osm_node_get_any_physp_ptr(IN const osm_node_t *
-						      const p_node)
-{
-	CL_ASSERT(p_node);
-	return ((osm_physp_t *) & p_node->
-		physp_table[ib_node_info_get_local_port_num
-			    (&p_node->node_info)]);
-}
-
-/*
-* PARAMETERS
-*	p_node
-*		[in] Pointer to an osm_node_t object.
-*
-* RETURN VALUES
-*	Returns a pointer to any valid physical port object associated
-*	with this node.  This operation is mostly meaningful for switches,
-*	in which case all the Physical Ports share the same GUID.
-*
-* NOTES
-*
-* SEE ALSO
-*	Node object
-*********/
-
 /****f* OpenSM: Node/osm_node_get_type
 * NAME
 *	osm_node_get_type

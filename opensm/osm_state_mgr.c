@@ -524,7 +524,8 @@ static void __osm_state_mgr_get_node_desc(IN cl_map_item_t * const p_object,
 	osm_madw_context_t mad_context;
 	osm_node_t *const p_node = (osm_node_t *) p_object;
 	osm_sm_t *sm = context;
-	osm_physp_t *p_physp;
+	osm_physp_t *p_physp = NULL;
+	unsigned i, num_ports;
 	ib_api_status_t status;
 
 	OSM_LOG_ENTER(sm->p_log);
@@ -541,10 +542,14 @@ static void __osm_state_mgr_get_node_desc(IN cl_map_item_t * const p_object,
 		cl_ntoh64(osm_node_get_node_guid (p_node)));
 
 	/* get a physp to request from. */
-	p_physp = osm_node_get_any_physp_ptr(p_node);
-	if (!osm_physp_is_valid(p_physp)) {
+	num_ports = osm_node_get_num_physp(p_node);
+	for (i = 0; i < num_ports; i++)
+		if ((p_physp = osm_node_get_physp_ptr(p_node, i)))
+			break;
+
+	if (!p_physp) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 331C: "
-			"Failed to get valid physical port object\n");
+			"Failed to find any valid physical port object.\n");
 		goto exit;
 	}
 
