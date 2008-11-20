@@ -239,8 +239,8 @@ static int disable_port(osm_sm_t *sm, osm_physp_t *p)
 	ib_port_info_t *pi = (ib_port_info_t *)payload;
 	int ret;
 
-	/* in case of endport - disable switch's peer port */
-	if (osm_node_get_type(p->p_node) != IB_NODE_TYPE_SWITCH)
+	/* select the nearest port to master opensm */
+	if (p->dr_path.hop_count > p->p_remote_physp->dr_path.hop_count)
 		p = p->p_remote_physp;
 
 	/* If trap 131, might want to disable peer port if available */
