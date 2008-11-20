@@ -1064,6 +1064,15 @@ static void do_sweep(osm_sm_t * sm)
 	}
 
 	/*
+	 * Unicast cache should be invalidated if there were errors
+	 * during initialization or if subnet re-route is requested.
+	 */
+	if (sm->p_subn->opt.use_ucast_cache &&
+	    (sm->p_subn->subnet_initialization_error ||
+	     sm->p_subn->force_reroute))
+		osm_ucast_cache_invalidate(&sm->ucast_mgr);
+
+	/*
 	 * If we don't need to do a heavy sweep and we want to do a reroute,
 	 * just reroute only.
 	 */
@@ -1078,10 +1087,6 @@ static void do_sweep(osm_sm_t * sm)
 
 		/* Re-program the switches fully */
 		sm->p_subn->ignore_existing_lfts = TRUE;
-
-		/* we want to re-route, so cache should be invalidated */
-		if (sm->p_subn->opt.use_ucast_cache)
-			osm_ucast_cache_invalidate(&sm->ucast_mgr);
 
 		osm_ucast_mgr_process(&sm->ucast_mgr);
 
