@@ -679,8 +679,7 @@ __osm_trap_rcv_process_response(IN osm_sm_t * sm,
 
 	OSM_LOG_ENTER(sm->p_log);
 
-	OSM_LOG(sm->p_log, OSM_LOG_ERROR,
-		"__osm_trap_rcv_process_response: ERR 3808: "
+	OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3808: "
 		"This function is not supported yet\n");
 
 	OSM_LOG_EXIT(sm->p_log);
