@@ -342,18 +342,18 @@ __osm_lr_rcv_get_port_links(IN osm_sa_t * sa,
 			p_node = (osm_node_t *)cl_qmap_head(p_node_tbl);
 
 			while (p_node != (osm_node_t *)cl_qmap_end(p_node_tbl)) {
-				/*
-				   Get only one port for each node.
-				   After the recursive call, this function will
-				   scan all the ports of this node anyway.
-				 */
-				p_src_physp = osm_node_get_any_physp_ptr(p_node);
-				p_src_port = osm_get_port_by_guid(sa->p_subn,
-				        osm_physp_get_port_guid(p_src_physp));
-				__osm_lr_rcv_get_port_links(sa, p_lr,
-							    p_src_port, NULL,
-							    comp_mask, p_list,
-							    p_req_physp);
+				num_ports = osm_node_get_num_physp(p_node);
+				for (port_num = 1; port_num < num_ports;
+				     port_num++) {
+					p_src_physp =
+					    osm_node_get_physp_ptr(p_node,
+								   port_num);
+					if (p_src_physp)
+						__osm_lr_rcv_get_physp_link
+						    (sa, p_lr, p_src_physp,
+						     NULL, comp_mask, p_list,
+						     p_req_physp);
+				}
 				p_node = (osm_node_t *) cl_qmap_next(&p_node->
 								     map_item);
 			}
