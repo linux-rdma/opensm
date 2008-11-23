@@ -101,7 +101,7 @@ typedef struct osm_switch {
 	uint8_t **hops;
 	osm_port_profile_t *p_prof;
 	uint8_t *lft;
-	uint8_t *lft_buf;
+	uint8_t *new_lft;
 	osm_mcast_tbl_t mcast_tbl;
 	uint32_t discovery_count;
 	unsigned need_update;
@@ -137,7 +137,7 @@ typedef struct osm_switch {
 *	lft
 *		This switch's linear forwarding table.
 *
-*	lft_buf
+*	new_lft
 *		This switch's linear forwarding table, as was
 *		calculated by the last routing engine execution.
 *

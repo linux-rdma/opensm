@@ -146,8 +146,8 @@ void osm_switch_delete(IN OUT osm_switch_t ** const pp_sw)
 	free(p_sw->p_prof);
 	if (p_sw->lft)
 		free(p_sw->lft);
-	if (p_sw->lft_buf)
-		free(p_sw->lft_buf);
+	if (p_sw->new_lft)
+		free(p_sw->new_lft);
 	if (p_sw->hops) {
 		for (i = 0; i < p_sw->num_hops; i++)
 			if (p_sw->hops[i])
@@ -526,11 +526,11 @@ osm_switch_prepare_path_rebuild(IN osm_switch_t * p_sw, IN uint16_t max_lids)
 
 	osm_switch_clear_hops(p_sw);
 
-	if (!p_sw->lft_buf &&
-	    !(p_sw->lft_buf = malloc(IB_LID_UCAST_END_HO + 1)))
+	if (!p_sw->new_lft &&
+	    !(p_sw->new_lft = malloc(IB_LID_UCAST_END_HO + 1)))
 		return IB_INSUFFICIENT_MEMORY;
 
-	memset(p_sw->lft_buf, OSM_NO_PATH, IB_LID_UCAST_END_HO + 1);
+	memset(p_sw->new_lft, OSM_NO_PATH, IB_LID_UCAST_END_HO + 1);
 
 	if (!p_sw->hops) {
 		hops = malloc((max_lids + 1) * sizeof(hops[0]));

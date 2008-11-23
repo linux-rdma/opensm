@@ -238,7 +238,7 @@ osm_ucast_mgr_init(IN osm_ucast_mgr_t * const p_mgr, IN struct osm_sm * sm);
 *	osm_ucast_mgr_set_fwd_table
 *
 * DESCRIPTION
-*	Setup forwarding table for the switch (from prepared lft_buf).
+*	Setup forwarding table for the switch (from prepared new_lft).
 *
 * SYNOPSIS
 */

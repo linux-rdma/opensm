@@ -296,7 +296,7 @@ __osm_ucast_mgr_process_port(IN osm_ucast_mgr_t * const p_mgr,
 	   We have selected the port for this LID.
 	   Write it to the forwarding tables.
 	 */
-	p_sw->lft_buf[lid_ho] = port;
+	p_sw->new_lft[lid_ho] = port;
 	if (!is_ignored_by_port_prof) {
 		struct osm_remote_node *rem_node_used;
 		osm_switch_count_path(p_sw, port);
@@ -390,8 +390,8 @@ int osm_ucast_mgr_set_fwd_table(IN osm_ucast_mgr_t * const p_mgr,
 	context.lft_context.node_guid = osm_node_get_node_guid(p_node);
 	context.lft_context.set_method = TRUE;
 
-	if (!p_sw->lft_buf) {
-		/* any routing should provide the lft_buf */
+	if (!p_sw->new_lft) {
+		/* any routing should provide the new_lft */
 		CL_ASSERT(p_mgr->p_subn->opt.use_ucast_cache &&
 			  p_mgr->cache_valid && !p_sw->need_update);
 		goto Exit;
@@ -402,7 +402,7 @@ int osm_ucast_mgr_set_fwd_table(IN osm_ucast_mgr_t * const p_mgr,
 	     block_id_ho++) {
 		if (!p_sw->need_update &&
 		    !memcmp(block,
-			    p_sw->lft_buf + block_id_ho * IB_SMP_DATA_SIZE,
+			    p_sw->new_lft + block_id_ho * IB_SMP_DATA_SIZE,
 			    IB_SMP_DATA_SIZE))
 			continue;
 
@@ -410,7 +410,7 @@ int osm_ucast_mgr_set_fwd_table(IN osm_ucast_mgr_t * const p_mgr,
 			"Writing FT block %u\n", block_id_ho);
 
 		status = osm_req_set(p_mgr->sm, p_path,
-				     p_sw->lft_buf + block_id_ho * IB_SMP_DATA_SIZE,
+				     p_sw->new_lft + block_id_ho * IB_SMP_DATA_SIZE,
 				     sizeof(block),
 				     IB_MAD_ATTR_LIN_FWD_TBL,
 				     cl_hton32(block_id_ho),
@@ -488,7 +488,7 @@ __osm_ucast_mgr_process_tbl(IN cl_map_item_t * const p_map_item,
 		cl_ntoh64(osm_node_get_node_guid(p_sw->p_node)));
 
 	/* Initialize LIDs in buffer to invalid port number. */
-	memset(p_sw->lft_buf, OSM_NO_PATH, IB_LID_UCAST_END_HO + 1);
+	memset(p_sw->new_lft, OSM_NO_PATH, IB_LID_UCAST_END_HO + 1);
 
 	if (p_mgr->p_subn->opt.lmc)
 		alloc_ports_priv(p_mgr);

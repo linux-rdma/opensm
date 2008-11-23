@@ -346,9 +346,9 @@ __cache_restore_ucast_info(osm_ucast_mgr_t * p_mgr,
 
 	p_sw->max_lid_ho = p_cache_sw->max_lid_ho;
 
-	if (p_sw->lft_buf)
-		free(p_sw->lft_buf);
-	p_sw->lft_buf = p_cache_sw->lft;
+	if (p_sw->new_lft)
+		free(p_sw->new_lft);
+	p_sw->new_lft = p_cache_sw->lft;
 	p_cache_sw->lft = NULL;
 
 	p_sw->num_hops = p_cache_sw->num_hops;
@@ -1019,11 +1019,11 @@ void osm_ucast_cache_add_node(osm_ucast_mgr_t * p_mgr, osm_node_t * p_node)
 
 		/* linear forwarding table */
 
-		if (p_node->sw->lft_buf) {
+		if (p_node->sw->new_lft) {
 			/* LFT buffer exists - we use it, because
 			   it is more updated than the switch's LFT */
-			p_cache_sw->lft = p_node->sw->lft_buf;
-			p_node->sw->lft_buf = NULL;
+			p_cache_sw->lft = p_node->sw->new_lft;
+			p_node->sw->new_lft = NULL;
 		} else {
 			/* no LFT buffer, so we use the switch's LFT */
 			p_cache_sw->lft = p_node->sw->lft;
@@ -1075,10 +1075,10 @@ int osm_ucast_cache_process(osm_ucast_mgr_t * p_mgr)
 	     item = cl_qmap_next(item)) {
 		p_sw = (osm_switch_t *) item;
 
-		if (p_sw->need_update && !p_sw->lft_buf) {
+		if (p_sw->need_update && !p_sw->new_lft) {
 			/* no new routing was recently calculated for this
 			   switch, but the LFT needs to be updated anyway */
-			p_sw->lft_buf = p_sw->lft;
+			p_sw->new_lft = p_sw->lft;
 			p_sw->lft = malloc(IB_LID_UCAST_END_HO + 1);
 			if (!p_sw->lft)
 				return IB_INSUFFICIENT_MEMORY;

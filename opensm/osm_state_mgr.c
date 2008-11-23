@@ -1005,16 +1005,16 @@ static void cleanup_switch(cl_map_item_t *item, void *log)
 {
 	osm_switch_t *sw = (osm_switch_t *)item;
 
-	if (!sw->lft_buf)
+	if (!sw->new_lft)
 		return;
 	
-	if (memcmp(sw->lft, sw->lft_buf, IB_LID_UCAST_END_HO + 1))
+	if (memcmp(sw->lft, sw->new_lft, IB_LID_UCAST_END_HO + 1))
 		osm_log(log, OSM_LOG_ERROR, "ERR 331D: "
 			"LFT of switch 0x%016" PRIx64 " is not up to date.\n",
 			cl_ntoh64(sw->p_node->node_info.node_guid));
 	else {
-		free(sw->lft_buf);
-		sw->lft_buf = NULL;
+		free(sw->new_lft);
+		sw->new_lft = NULL;
 	}
 }
 

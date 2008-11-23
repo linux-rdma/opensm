@@ -92,7 +92,7 @@ static void add_path(osm_opensm_t * p_osm,
 			new_lid);
 	}
 
-	p_sw->lft_buf[new_lid] = port_num;
+	p_sw->new_lft[new_lid] = port_num;
 	if (!(p_osm->subn.opt.port_profile_switch_nodes && port_guid &&
 	      osm_get_switch_by_guid(&p_osm->subn, port_guid)))
 		osm_switch_count_path(p_sw, port_num);
@@ -196,7 +196,7 @@ static int do_ucast_file_load(void *context)
 					cl_ntoh64(sw_guid));
 				continue;
 			}
-			memset(p_sw->lft_buf, OSM_NO_PATH,
+			memset(p_sw->new_lft, OSM_NO_PATH,
 			       IB_LID_UCAST_END_HO + 1);
 		} else if (p_sw && !strncmp(p, "0x", 2)) {
 			p += 2;
