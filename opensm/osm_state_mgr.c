@@ -1001,6 +1001,23 @@ static void __osm_state_mgr_check_tbl_consistency(IN osm_sm_t * sm)
 	OSM_LOG_EXIT(sm->p_log);
 }
 
+static void cleanup_switch(cl_map_item_t *item, void *log)
+{
+	osm_switch_t *sw = (osm_switch_t *)item;
+
+	if (!sw->lft_buf)
+		return;
+	
+	if (memcmp(sw->lft, sw->lft_buf, IB_LID_UCAST_END_HO + 1))
+		osm_log(log, OSM_LOG_ERROR, "ERR 331D: "
+			"LFT of switch 0x%016" PRIx64 " is not up to date.\n",
+			cl_ntoh64(sw->p_node->node_info.node_guid));
+	else {
+		free(sw->lft_buf);
+		sw->lft_buf = NULL;
+	}
+}
+
 /**********************************************************************
  **********************************************************************/
 int wait_for_pending_transactions(osm_stats_t * stats)
@@ -1253,6 +1270,9 @@ _repeat_discovery:
 
 	if (wait_for_pending_transactions(&sm->p_subn->p_osm->stats))
 		return;
+
+	/* cleanup switch lft buffers */
+	cl_qmap_apply_func(&sm->p_subn->sw_guid_tbl, cleanup_switch, sm->p_log);
 
 	/* We are done setting all LFTs so clear the ignore existing.
 	 * From now on, as long as we are still master, we want to

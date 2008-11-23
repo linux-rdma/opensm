@@ -397,13 +397,6 @@ int osm_ucast_mgr_set_fwd_table(IN osm_ucast_mgr_t * const p_mgr,
 		goto Exit;
 	}
 
-	if (!p_sw->need_update &&
-	    !memcmp(p_sw->lft, p_sw->lft_buf, IB_LID_UCAST_END_HO + 1)) {
-		free(p_sw->lft_buf);
-		p_sw->lft_buf = NULL;
-		goto Exit;
-	}
-
 	for (block_id_ho = 0;
 	     osm_switch_get_lft_block(p_sw, block_id_ho, block);
 	     block_id_ho++) {

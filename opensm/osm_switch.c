@@ -114,13 +114,6 @@ osm_switch_init(IN osm_switch_t * const p_sw,
 	/* Initialize the table to OSM_NO_PATH, which is "invalid port" */
 	memset(p_sw->lft, OSM_NO_PATH, IB_LID_UCAST_END_HO + 1);
 
-	p_sw->lft_buf = malloc(IB_LID_UCAST_END_HO + 1);
-	if (!p_sw->lft_buf) {
-		status = IB_INSUFFICIENT_MEMORY;
-		goto Exit;
-	}
-	memset(p_sw->lft_buf, OSM_NO_PATH, IB_LID_UCAST_END_HO + 1);
-
 	p_sw->p_prof = malloc(sizeof(*p_sw->p_prof) * num_ports);
 	if (p_sw->p_prof == NULL) {
 		status = IB_INSUFFICIENT_MEMORY;
