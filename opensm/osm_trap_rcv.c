@@ -240,7 +240,8 @@ static int disable_port(osm_sm_t *sm, osm_physp_t *p)
 	int ret;
 
 	/* select the nearest port to master opensm */
-	if (p->dr_path.hop_count > p->p_remote_physp->dr_path.hop_count)
+	if (p->p_remote_physp &&
+	    p->dr_path.hop_count > p->p_remote_physp->dr_path.hop_count)
 		p = p->p_remote_physp;
 
 	/* If trap 131, might want to disable peer port if available */
