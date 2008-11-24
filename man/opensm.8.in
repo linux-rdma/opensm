@@ -6,28 +6,44 @@ opensm \- InfiniBand subnet manager and administration (SM/SA)
 .SH SYNOPSIS
 .B opensm
 [\-\-version]]
-[\-F | \-\-config <file_name>] [\-c(reate-config) <file_name>]
-[\-g(uid) <GUID in hex>] [\-l(mc) <LMC>]
-[\-p(riority) <PRIORITY>] [\-smkey <SM_Key>] [\-r(eassign_lids)]
+[\-F | \-\-config <file_name>]
+[\-c(reate-config) <file_name>]
+[\-g(uid) <GUID in hex>]
+[\-l(mc) <LMC>]
+[\-p(riority) <PRIORITY>]
+[\-smkey <SM_Key>]
+[\-r(eassign_lids)]
 [\-R <engine name(s)> | \-\-routing_engine <engine name(s)>]
-[\-A | \-\-ucast_cache] [\-z | \-\-connect_roots]
+[\-A | \-\-ucast_cache]
+[\-z | \-\-connect_roots]
 [\-M <file name> | \-\-lid_matrix_file <file name>]
 [\-U <file name> | \-\-lfts_file <file name>]
-[\-S | \-\-sadb_file <file name>] [\-a | \-\-root_guid_file <path to file>]
+[\-S | \-\-sadb_file <file name>]
+[\-a | \-\-root_guid_file <path to file>]
 [\-u | \-\-cn_guid_file <path to file>]
 [\-X | \-\-guid_routing_order_file <path to file>]
 [\-m | \-\-ids_guid_file <path to file>]
-[\-o(nce)] [\-s(weep) <interval>]
-[\-t(imeout) <milliseconds>] [\-maxsmps <number>]
-[\-console [off | local | socket | loopback]] [\-console-port <port>]
-[\-i(gnore-guids) <equalize-ignore-guids-file>] [\-f | \-\-log_file]
-[\-L | \-\-log_limit <size in MB>] [\-e(rase_log_file)] [\-P(config)]
+[\-o(nce)]
+[\-s(weep) <interval>]
+[\-t(imeout) <milliseconds>]
+[\-maxsmps <number>]
+[\-console [off | local | socket | loopback]]
+[\-console-port <port>]
+[\-i(gnore-guids) <equalize-ignore-guids-file>]
+[\-f <log file path> | \-\-log_file <log file path> ]
+[\-L | \-\-log_limit <size in MB>] [\-e(rase_log_file)]
+[\-P(config) <partition config file> ]
+[\-N | \-\-no_part_enforce]
 [\-Q | \-\-qos [\-Y | \-\-qos_policy_file <file name>]]
-[\-N | \-\-no_part_enforce] [\-y | \-\-stay_on_fatal]
-[\-B | \-\-daemon] [\-I | \-\-inactive]
-[\-\-perfmgr] [\-\-perfmgr_sweep_time_s <seconds>]
+[\-y | \-\-stay_on_fatal]
+[\-B | \-\-daemon]
+[\-I | \-\-inactive]
+[\-\-perfmgr]
+[\-\-perfmgr_sweep_time_s <seconds>]
 [\-\-prefix_routes_file <path>]
-[\-v(erbose)] [\-V] [\-D <flags>] [\-d(ebug) <number>] [\-h(elp)] [\-?]
+[\-\-consolidate_ipv6_snm_req]
+[\-v(erbose)] [\-V] [\-D <flags>] [\-d(ebug) <number>]
+[\-h(elp)] [\-?]
 
 .SH DESCRIPTION
 .PP
@@ -68,15 +84,15 @@ setup the subnet correctly.
 \fB\-\-version\fR
 Prints OpenSM version and exits.
 .TP
-\fB\-F\fR, \fB\-\-config\fR
+\fB\-F\fR, \fB\-\-config\fR <config file>
 The name of the OpenSM config file. When not specified
 \fB\% @OPENSM_CONFIG_DIR@/@OPENSM_CONFIG_FILE@\fP will be used (if exists).
 .TP
-\fB\-c\fR, \fB\-\-create-config\fR
+\fB\-c\fR, \fB\-\-create-config\fR <file name>
 OpenSM will dump its configuration to the specified file and exit.
 This is a way to generate OpenSM configuration file template.
 .TP
-\fB\-g\fR, \fB\-\-guid\fR
+\fB\-g\fR, \fB\-\-guid\fR <GUID in hex>
 This option specifies the local port GUID value
 with which OpenSM should bind.  OpenSM may be
 bound to 1 port at a time.
@@ -84,7 +100,7 @@ If GUID given is 0, OpenSM displays a list
 of possible port GUIDs and waits for user input.
 Without -g, OpenSM tries to use the default port.
 .TP
-\fB\-l\fR, \fB\-\-lmc\fR
+\fB\-l\fR, \fB\-\-lmc\fR <LMC value>
 This option specifies the subnet's LMC value.
 The number of LIDs assigned to each port is 2^LMC.
 The LMC value must be in the range 0-7.
@@ -95,13 +111,13 @@ ports, i.e. multiple interconnects between switches.
 Without -l, OpenSM defaults to LMC = 0, which allows
 one path between any two ports.
 .TP
-\fB\-p\fR, \fB\-\-priority\fR
+\fB\-p\fR, \fB\-\-priority\fR <Priority value>
 This option specifies the SM\'s PRIORITY.
 This will effect the handover cases, where master
 is chosen by priority and GUID.  Range goes from 0
 (default and lowest priority) to 15 (highest).
 .TP
-\fB\-smkey\fR
+\fB\-smkey\fR <SM_Key value>
 This option specifies the SM\'s SM_Key (64 bits).
 This will effect SM authentication.
 Note that OpenSM version 3.2.1 and below used the default value '1'
@@ -115,7 +131,7 @@ may disrupt subnet traffic.
 Without -r, OpenSM attempts to preserve existing
 LID assignments resolving multiple use of same LID.
 .TP
-\fB\-R\fR, \fB\-\-routing_engine\fR
+\fB\-R\fR, \fB\-\-routing_engine\fR <Routing engine names>
 This option chooses routing engine(s) to use instead of Min Hop
 algorithm (default).  Multiple routing engines can be specified
 separated by commas so that specific ordering of routing algorithms
@@ -140,33 +156,33 @@ only) to make connectivity between root switches and in
 this way to be fully IBA complaint. In many cases this can
 violate "pure" deadlock free algorithm, so use it carefully.
 .TP
-\fB\-M\fR, \fB\-\-lid_matrix_file\fR
+\fB\-M\fR, \fB\-\-lid_matrix_file\fR <file name>
 This option specifies the name of the lid matrix dump file
 from where switch lid matrices (min hops tables will be
 loaded.
 .TP
-\fB\-U\fR, \fB\-\-lfts_file\fR
+\fB\-U\fR, \fB\-\-lfts_file\fR <file name>
 This option specifies the name of the LFTs file
 from where switch forwarding tables will be loaded.
 .TP
-\fB\-S\fR, \fB\-\-sadb_file\fR
+\fB\-S\fR, \fB\-\-sadb_file\fR <file name>
 This option specifies the name of the SA DB dump file
 from where SA database will be loaded.
 .TP
-\fB\-a\fR, \fB\-\-root_guid_file\fR
+\fB\-a\fR, \fB\-\-root_guid_file\fR <file name>
 Set the root nodes for the Up/Down or Fat-Tree routing
 algorithm to the guids provided in the given file (one to a line).
 .TP
-\fB\-u\fR, \fB\-\-cn_guid_file\fR
+\fB\-u\fR, \fB\-\-cn_guid_file\fR <file name>
 Set the compute nodes for the Fat-Tree routing algorithm
 to the guids provided in the given file (one to a line).
 .TP
-\fB\-m\fR, \fB\-\-ids_guid_file\fR
+\fB\-m\fR, \fB\-\-ids_guid_file\fR <file name>
 Name of the map file with set of the IDs which will be used
 by Up/Down routing algorithm instead of node GUIDs
 (format: <guid> <id> per line).
 .TP
-\fB\-X\fR, \fB\-\-guid_routing_order_file\fR
+\fB\-X\fR, \fB\-\-guid_routing_order_file\fR <file name>
 Set the order port guids will be routed for the MinHop
 and Up/Down routing algorithms to the guids provided in the
 given file (one to a line).
@@ -175,20 +191,20 @@ given file (one to a line).
 This option causes OpenSM to configure the subnet
 once, then exit.  Ports remain in the ACTIVE state.
 .TP
-\fB\-s\fR, \fB\-\-sweep\fR
+\fB\-s\fR, \fB\-\-sweep\fR <interval value>
 This option specifies the number of seconds between
 subnet sweeps.  Specifying -s 0 disables sweeping.
 Without -s, OpenSM defaults to a sweep interval of
 10 seconds.
 .TP
-\fB\-t\fR, \fB\-\-timeout\fR
+\fB\-t\fR, \fB\-\-timeout\fR <value>
 This option specifies the time in milliseconds
 used for transaction timeouts.
 Specifying -t 0 disables timeouts.
 Without -t, OpenSM defaults to a timeout value of
 200 milliseconds.
 .TP
-\fB\-maxsmps\fR
+\fB\-maxsmps\fR <number>
 This option specifies the number of VL15 SMP MADs
 allowed on the wire at any one time.
 Specifying -maxsmps 0 allows unlimited outstanding
@@ -217,7 +233,7 @@ when it comes out of Standby state, if such file exists
 under OSM_CACHE_DIR, and is valid.
 By default, this is FALSE.
 .TP
-\fB\-f\fR, \fB\-\-log_file\fR
+\fB\-f\fR, \fB\-\-log_file\fR <file name>
 This option defines the log to be the given file.
 By default, the log goes to /var/log/opensm.log.
 For the log to go to standard output use -f stdout.
@@ -232,11 +248,11 @@ This option will cause deletion of the log file
 (if it previously exists). By default, the log file
 is accumulative.
 .TP
-\fB\-P\fR, \fB\-\-Pconfig\fR
+\fB\-P\fR, \fB\-\-Pconfig\fR <partition config file>
 This option defines the optional partition configuration file.
 The default name is \fB\%@OPENSM_CONFIG_DIR@/@PARTITION_CONFIG_FILE@\fP.
 .TP
-.BI --prefix_routes_file= path
+\fB\-\-prefix_routes_file\fR <file name>
 Prefix routes control how the SA responds to path record queries for
 off-subnet DGIDs.  By default, the SA fails such queries. The
 .B PREFIX ROUTES
@@ -246,7 +262,7 @@ The default path is \fB\%@OPENSM_CONFIG_DIR@/prefix\-routes.conf\fP.
 \fB\-Q\fR, \fB\-\-qos\fR
 This option enables QoS setup. It is disabled by default.
 .TP
-\fB\-Y\fR, \fB\-\-qos_policy_file\fR
+\fB\-Y\fR, \fB\-\-qos_policy_file\fR <file name>
 This option defines the optional QoS policy file. The default
 name is \fB\%@OPENSM_CONFIG_DIR@/@QOS_POLICY_FILE@\fP.
 .TP
@@ -295,7 +311,7 @@ The -V option is equivalent to \'-D 0xFF -d 2\'.
 See the -D option for more information about
 log verbosity.
 .TP
-\fB\-D\fR
+\fB\-D\fR <value>
 This option sets the log verbosity level.
 A flags field must follow the -D option.
 A bit set/clear in the flags enables/disables a
@@ -318,7 +334,7 @@ Specifying -D 0xFF enables all messages (see -V).
 High verbosity levels may require increasing
 the transaction timeout with the -t option.
 .TP
-\fB\-d\fR, \fB\-\-debug\fR
+\fB\-d\fR, \fB\-\-debug\fR <value>
 This option specifies a debug option.
 These options are not normally needed.
 The number following -d selects the debug
