@@ -51,8 +51,8 @@ BEGIN_C_DECLS
 
 typedef struct {
 	cl_list_item_t list_item;	/* must be first */
-	uint64_t prefix;		/* network order, zero means "any" */
-	uint64_t guid;			/* network order, zero means "any" */
+	ib_net64_t prefix;		/* zero means "any" */
+	ib_net64_t guid;		/* zero means "any" */
 } osm_prefix_route_t;
 
 #ifdef ROUTER_EXP
