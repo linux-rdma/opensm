@@ -1259,7 +1259,7 @@ __osm_pr_rcv_get_end_points(IN osm_sa_t * sa,
 					r = (osm_prefix_route_t *) cl_qlist_next(&r->list_item);
 				}
 
-				if (! route) {
+				if (!route) {
 					/*
 					  This 'error' is the client's fault (bad gid) so
 					  don't enter it as an error in our own log.
