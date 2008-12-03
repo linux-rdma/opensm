@@ -2878,8 +2878,8 @@ __osm_ftree_fabric_construct_hca_ports(IN ftree_fabric_t * p_ftree,
 			name_map_item_t *p_elem =
 			    (name_map_item_t *) cl_qmap_get(&p_ftree->
 							    cn_guid_tbl,
-							    osm_physp_get_port_guid
-							    (p_osm_port));
+							    cl_ntoh64(osm_physp_get_port_guid
+							    (p_osm_port)));
 			if (p_elem !=
 			    (name_map_item_t *) cl_qmap_end(&p_ftree->
 							    cn_guid_tbl))
