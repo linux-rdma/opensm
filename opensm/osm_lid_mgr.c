@@ -869,7 +869,7 @@ __osm_lid_mgr_set_remote_pi_state_to_init(IN osm_lid_mgr_t * const p_mgr,
 	if (p_rem_physp == NULL)
 		return;
 
-	/* but in some rare cases the remote side might be irresponsive */
+	/* but in some rare cases the remote side might be non responsive */
 	ib_port_info_set_port_state(&p_rem_physp->port_info, IB_LINK_INIT);
 }
 
