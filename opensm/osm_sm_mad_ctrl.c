@@ -64,6 +64,7 @@
  *
  * SYNOPSIS
  */
+
 static void
 __osm_sm_mad_ctrl_retire_trans_mad(IN osm_sm_mad_ctrl_t * const p_ctrl,
 				   IN osm_madw_t * const p_madw)
@@ -82,23 +83,11 @@ __osm_sm_mad_ctrl_retire_trans_mad(IN osm_sm_mad_ctrl_t * const p_ctrl,
 
 	osm_mad_pool_put(p_ctrl->p_mad_pool, p_madw);
 
-	outstanding = cl_atomic_dec(&p_ctrl->p_stats->qp0_mads_outstanding);
+	outstanding = osm_stats_dec_qp0_outstanding(p_ctrl->p_stats);
 
-	OSM_LOG(p_ctrl->p_log, OSM_LOG_DEBUG, "%u QP0 MADs outstanding\n",
-		p_ctrl->p_stats->qp0_mads_outstanding);
-
-	if (outstanding == 0) {
-		/*
-		   The wire is clean.
-		   Signal the subnet manager.
-		 */
-		OSM_LOG(p_ctrl->p_log, OSM_LOG_DEBUG, "wire is clean.\n");
-#ifdef HAVE_LIBPTHREAD
-		pthread_cond_signal(&p_ctrl->p_stats->cond);
-#else
-		cl_event_signal(&p_ctrl->p_stats->event);
-#endif
-	}
+	OSM_LOG(p_ctrl->p_log, OSM_LOG_DEBUG, "%u QP0 MADs outstanding%s\n",
+		p_ctrl->p_stats->qp0_mads_outstanding,
+		outstanding ? "" : ": wire is clean.");
 
 	OSM_LOG_EXIT(p_ctrl->p_log);
 }

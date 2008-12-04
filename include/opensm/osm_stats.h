@@ -146,5 +146,39 @@ typedef struct osm_stats {
 * SEE ALSO
 ***************/
 
+static inline uint32_t osm_stats_inc_qp0_outstanding(osm_stats_t *stats)
+{
+	uint32_t outstanding;
+
+#ifdef HAVE_LIBPTHREAD
+	pthread_mutex_lock(&stats->mutex);
+	outstanding = ++stats->qp0_mads_outstanding;
+	pthread_mutex_unlock(&stats->mutex);
+#else
+	outstanding = cl_atomic_inc(&stats->qp0_mads_outstanding);
+#endif
+
+	return outstanding;
+}
+
+static inline uint32_t osm_stats_dec_qp0_outstanding(osm_stats_t *stats)
+{
+	uint32_t outstanding;
+
+#ifdef HAVE_LIBPTHREAD
+	pthread_mutex_lock(&stats->mutex);
+	outstanding = --stats->qp0_mads_outstanding;
+	if (!outstanding)
+		pthread_cond_signal(&stats->cond);
+	pthread_mutex_unlock(&stats->mutex);
+#else
+	outstanding = cl_atomic_dec(&stats->qp0_mads_outstanding);
+	if (!outstanding)
+		cl_event_signal(&stats->event);
+#endif
+
+	return outstanding;
+}
+
 END_C_DECLS
 #endif				/* _OSM_STATS_H_ */

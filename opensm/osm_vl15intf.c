@@ -325,7 +325,7 @@ void osm_vl15_post(IN osm_vl15_t * const p_vl, IN osm_madw_t * const p_madw)
 	cl_spinlock_acquire(&p_vl->lock);
 	if (p_madw->resp_expected == TRUE) {
 		cl_qlist_insert_tail(&p_vl->rfifo, &p_madw->list_item);
-		cl_atomic_inc(&p_vl->p_stats->qp0_mads_outstanding);
+		osm_stats_inc_qp0_outstanding(p_vl->p_stats);
 	} else
 		cl_qlist_insert_tail(&p_vl->ufifo, &p_madw->list_item);
 	cl_spinlock_release(&p_vl->lock);
@@ -374,7 +374,7 @@ osm_vl15_shutdown(IN osm_vl15_t * const p_vl,
 			"Releasing Request p_madw = %p\n", p_madw);
 
 		osm_mad_pool_put(p_mad_pool, p_madw);
-		cl_atomic_dec(&p_vl->p_stats->qp0_mads_outstanding);
+		osm_stats_dec_qp0_outstanding(p_vl->p_stats);
 
 		p_madw = (osm_madw_t *) cl_qlist_remove_head(&p_vl->rfifo);
 	}
