@@ -1,16 +1,16 @@
                         OpenSM Release Notes 3.2
                        =============================
 
-Version: OpenSM 3.2.3
+Version: OpenSM 3.2.4
 Repo:    git://git.openfabrics.org/~sashak/management.git
-Date:    Oct 2008
+Date:    Dec 2008
 
 1 Overview
 ----------
 This document describes the contents of the OpenSM 3.2 release.
 OpenSM is an InfiniBand compliant Subnet Manager and Administration,
 and runs on top of OpenIB. The OpenSM version for this release
-is openib-3.2.3
+is openib-3.2.4
 
 This document includes the following sections:
 1 This Overview section (describing new features and software
@@ -109,6 +109,12 @@ This document includes the following sections:
 
 * Respond to new trap 144 node description update flag
 
+* When our SM is in Standby state and its priority is increased
+  (via console command), notify master SM by sending Trap 144.
+
+* When entering standby state (after discovery) notify master SM
+  with Trap 144.
+
 * Add '--connect_roots' command line options. This preserves connectivity
   between root nodes in Up/Down routing algorithm
 
@@ -158,6 +164,8 @@ This document includes the following sections:
 
 * Add 'reroute' console command
 
+* Add 'dump_conf' console command
+
 * Remove many install-exec-hook from Makefiles
 
 * Some cleanups in LASH routing algorithm code
@@ -187,6 +195,8 @@ This document includes the following sections:
 * Replace osm_vendor_select.h by generated osm_config.h
 
 * Unify options listing in OpenSM usage message
+
+* OpenSM performs sweep on SIGCONT (coming out of suspend).
 
 1.3 Library API Changes
 
