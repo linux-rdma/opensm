@@ -47,6 +47,7 @@
 
 #include <iba/ib_types.h>
 #include <complib/cl_qmap.h>
+#include <complib/cl_fleximap.h>
 #include <complib/cl_map.h>
 #include <complib/cl_ptr_vector.h>
 #include <complib/cl_list.h>
@@ -510,6 +511,7 @@ typedef struct osm_subn {
 	boolean_t first_time_master_sweep;
 	boolean_t coming_out_of_standby;
 	unsigned need_update;
+	cl_fmap_t mgrp_mgid_tbl;
 	void *mgroups[IB_LID_MCAST_END_HO - IB_LID_MCAST_START_HO + 1];
 } osm_subn_t;
 /*

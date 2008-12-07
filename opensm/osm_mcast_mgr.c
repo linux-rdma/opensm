@@ -1093,6 +1093,8 @@ static ib_api_status_t mcast_mgr_process_mgrp(osm_sm_t * sm,
 			cl_ntoh16(p_mgrp->mlid));
 		sm->p_subn->mgroups[cl_ntoh16(p_mgrp->mlid) -
 				    IB_LID_MCAST_START_HO] = NULL;
+		cl_fmap_remove_item(&sm->p_subn->mgrp_mgid_tbl,
+				    &p_mgrp->map_item);
 		osm_mgrp_delete(p_mgrp);
 	}
 

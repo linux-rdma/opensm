@@ -45,6 +45,7 @@
 
 #include <iba/ib_types.h>
 #include <complib/cl_qmap.h>
+#include <complib/cl_fleximap.h>
 #include <complib/cl_qlist.h>
 #include <complib/cl_spinlock.h>
 #include <opensm/osm_base.h>
@@ -120,7 +121,7 @@ typedef struct osm_mcast_mgr_ctxt {
 * SYNOPSIS
 */
 typedef struct osm_mgrp {
-	cl_map_item_t map_item;
+	cl_fmap_item_t map_item;
 	ib_net16_t mlid;
 	osm_mtree_node_t *p_root;
 	cl_qmap_t mcm_port_tbl;
@@ -134,7 +135,7 @@ typedef struct osm_mgrp {
 /*
 * FIELDS
 *	map_item
-*		Map Item for qmap linkage.  Must be first element!!
+*		Map Item for fmap linkage.  Must be first element!!
 *
 *	mlid
 *		The network ordered LID of this Multicast Group (must be

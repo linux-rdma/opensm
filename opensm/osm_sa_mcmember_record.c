@@ -148,6 +148,8 @@ static void cleanup_mgrp(IN osm_sa_t * sa, osm_mgrp_t * mgrp)
 	if (cl_is_qmap_empty(&mgrp->mcm_port_tbl) && !mgrp->well_known) {
 		sa->p_subn->mgroups[cl_ntoh16(mgrp->mlid) -
 				    IB_LID_MCAST_START_HO] = NULL;
+		cl_fmap_remove_item(&sa->p_subn->mgrp_mgid_tbl,
+				    &mgrp->map_item);
 		osm_mgrp_delete(mgrp);
 	}
 }
@@ -922,26 +924,19 @@ ib_api_status_t osm_mcmr_rcv_create_new_mgrp(IN osm_sa_t * sa,
 			"Destroying it first\n", cl_ntoh16(mlid));
 		sa->p_subn->mgroups[cl_ntoh16(mlid) - IB_LID_MCAST_START_HO] =
 		    NULL;
+		cl_fmap_remove_item(&sa->p_subn->mgrp_mgid_tbl,
+				    &p_prev_mgrp->map_item);
 		osm_mgrp_delete(p_prev_mgrp);
 	}
+
+	cl_fmap_insert(&sa->p_subn->mgrp_mgid_tbl,
+		       &(*pp_mgrp)->mcmember_rec.mgid, &(*pp_mgrp)->map_item);
 
 	sa->p_subn->mgroups[cl_ntoh16(mlid) - IB_LID_MCAST_START_HO] = *pp_mgrp;
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);
 	return status;
-}
-
-/**********************************************************************
- *********************************************************************/
-static unsigned match_mgrp_by_mgid(IN osm_mgrp_t * p_mgrp, ib_gid_t * mgid)
-{
-	/* ignore groups marked for deletion */
-	if (p_mgrp->to_be_deleted ||
-	    memcmp(&p_mgrp->mcmember_rec.mgid, mgid, sizeof(ib_gid_t)))
-		return 0;
-	else
-		return 1;
 }
 
 /**********************************************************************
@@ -968,7 +963,7 @@ static unsigned match_and_update_ipv6_snm_mgid(ib_gid_t * mgid)
 
 osm_mgrp_t *osm_get_mgrp_by_mgid(IN osm_sa_t * sa, IN ib_gid_t * p_mgid)
 {
-	int i;
+	osm_mgrp_t *mg;
 
 	if (sa->p_subn->opt.consolidate_ipv6_snm_req &&
 	    match_and_update_ipv6_snm_mgid(p_mgid)) {
@@ -979,11 +974,10 @@ osm_mgrp_t *osm_get_mgrp_by_mgid(IN osm_sa_t * sa, IN ib_gid_t * p_mgid)
 				  sizeof gid_str));
 	}
 
-	for (i = 0; i <= sa->p_subn->max_mcast_lid_ho - IB_LID_MCAST_START_HO;
-	     i++)
-		if (sa->p_subn->mgroups[i] &&
-		    match_mgrp_by_mgid(sa->p_subn->mgroups[i], p_mgid))
-			return sa->p_subn->mgroups[i];
+	mg = (osm_mgrp_t *)cl_fmap_get(&sa->p_subn->mgrp_mgid_tbl, p_mgid);
+	if (mg != (osm_mgrp_t *)cl_fmap_end(&sa->p_subn->mgrp_mgid_tbl)
+	    && !mg->to_be_deleted)
+		return mg;
 
 	return NULL;
 }

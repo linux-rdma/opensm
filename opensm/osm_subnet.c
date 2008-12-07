@@ -396,6 +396,11 @@ static const opt_rec_t opt_tbl[] = {
 
 /**********************************************************************
  **********************************************************************/
+static long compar_mgids(const void *m1, const void *m2)
+{
+	return memcmp(m1, m2, sizeof(ib_gid_t));
+}
+
 void osm_subn_construct(IN osm_subn_t * const p_subn)
 {
 	memset(p_subn, 0, sizeof(*p_subn));
@@ -409,6 +414,7 @@ void osm_subn_construct(IN osm_subn_t * const p_subn)
 	cl_qlist_init(&p_subn->prefix_routes_list);
 	cl_qmap_init(&p_subn->rtr_guid_tbl);
 	cl_qmap_init(&p_subn->prtn_pkey_tbl);
+	cl_fmap_init(&p_subn->mgrp_mgid_tbl, compar_mgids);
 }
 
 /**********************************************************************
@@ -463,6 +469,8 @@ void osm_subn_destroy(IN osm_subn_t * const p_subn)
 		p_next_prtn = (osm_prtn_t *) cl_qmap_next(&p_prtn->map_item);
 		osm_prtn_delete(&p_prtn);
 	}
+
+	cl_fmap_remove_all(&p_subn->mgrp_mgid_tbl);
 
 	for (i = 0; i <= p_subn->max_mcast_lid_ho - IB_LID_MCAST_START_HO;
 	     i++) {
