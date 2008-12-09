@@ -1123,7 +1123,6 @@ __osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * const p_madw)
 	osm_physp_t *p_physp;
 	osm_physp_t *p_request_physp;
 	uint8_t is_new_group;	/* TRUE = there is a need to create a group */
-	osm_mcast_req_type_t req_type;
 	uint8_t join_state;
 
 	OSM_LOG_ENTER(sa->p_log);
@@ -1235,12 +1234,9 @@ __osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * const p_madw)
 		/* copy the MGID to the result */
 		mcmember_rec.mgid = p_mgrp->mcmember_rec.mgid;
 		is_new_group = 1;
-		req_type = OSM_MCAST_REQ_TYPE_CREATE;
-	} else {
+	} else
 		/* no need for a new group */
 		is_new_group = 0;
-		req_type = OSM_MCAST_REQ_TYPE_JOIN;
-	}
 
 	CL_ASSERT(p_mgrp);
 	mlid = p_mgrp->mlid;
@@ -1331,7 +1327,7 @@ __osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * const p_madw)
 	/* do the actual routing (actually schedule the update) */
 	status = osm_sm_mcgrp_join(sa->sm, mlid,
 				   p_recvd_mcmember_rec->port_gid.unicast.
-				   interface_id, req_type);
+				   interface_id);
 
 	if (status != IB_SUCCESS) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B14: "

@@ -96,8 +96,6 @@ BEGIN_C_DECLS
 typedef struct osm_mcast_mgr_ctxt {
 	cl_list_item_t list_item;
 	ib_net16_t mlid;
-	osm_mcast_req_type_t req_type;
-	ib_net64_t port_guid;
 } osm_mcast_mgr_ctxt_t;
 /*
 * FIELDS
@@ -105,14 +103,6 @@ typedef struct osm_mcast_mgr_ctxt {
 *	mlid
 *		The network ordered LID of this Multicast Group
 *		(must be >= 0xC000).
-*
-*	req_type
-*		The type of the request that caused this call
-*		(multicast create/join/leave).
-*
-*	port_guid
-*		The port guid of the port that is being added/removed from
-*		the multicast group due to this call.
 *
 * SEE ALSO
 *********/

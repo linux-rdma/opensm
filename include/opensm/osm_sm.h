@@ -539,8 +539,7 @@ osm_resp_send(IN osm_sm_t * sm,
 ib_api_status_t
 osm_sm_mcgrp_join(IN osm_sm_t * const p_sm,
 		  IN const ib_net16_t mlid,
-		  IN const ib_net64_t port_guid,
-		  IN osm_mcast_req_type_t req_type);
+		  IN const ib_net64_t port_guid);
 /*
 * PARAMETERS
 *	p_sm
@@ -551,10 +550,6 @@ osm_sm_mcgrp_join(IN osm_sm_t * const p_sm,
 *
 *	port_guid
 *		[in] Port GUID to add to the group.
-*
-*  req_type
-*     [in] Type of the MC request that caused this join
-*          (MC create/join).
 *
 * RETURN VALUES
 *	None

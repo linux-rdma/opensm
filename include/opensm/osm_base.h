@@ -828,23 +828,6 @@ typedef enum _osm_sm_signal {
 } osm_sm_signal_t;
 /***********/
 
-/****d* OpenSM/osm_mcast_req_type_t
-* NAME
-*	osm_mcast_req_type_t
-*
-* DESCRIPTION
-*	Enumerates the possible signals used by the OSM_MCAST_REQUEST
-*
-* SYNOPSIS
-*/
-typedef enum _osm_mcast_req_type {
-	OSM_MCAST_REQ_TYPE_CREATE,
-	OSM_MCAST_REQ_TYPE_JOIN,
-	OSM_MCAST_REQ_TYPE_LEAVE,
-	OSM_MCAST_REQ_TYPE_SUBNET_CHANGE
-} osm_mcast_req_type_t;
-/***********/
-
 /****s* OpenSM: Base/MAX_GUID_FILE_LINE_LENGTH
 * NAME
 *	MAX_GUID_FILE_LINE_LENGTH

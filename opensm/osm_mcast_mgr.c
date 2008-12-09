@@ -68,9 +68,6 @@ typedef struct osm_mcast_work_obj {
 static osm_mcast_work_obj_t *__osm_mcast_work_obj_new(IN const osm_port_t *
 						      const p_port)
 {
-	/*
-	   TO DO - get these objects from a lockpool.
-	 */
 	osm_mcast_work_obj_t *p_obj;
 
 	/*
@@ -895,7 +892,7 @@ osm_mcast_mgr_set_table(osm_sm_t * sm,
 
 /**********************************************************************
  **********************************************************************/
-static void __osm_mcast_mgr_clear(osm_sm_t * sm, IN osm_mgrp_t * const p_mgrp)
+static void __osm_mcast_mgr_clear(osm_sm_t * sm, uint16_t mlid)
 {
 	osm_switch_t *p_sw;
 	cl_qmap_t *p_sw_tbl;
@@ -911,7 +908,7 @@ static void __osm_mcast_mgr_clear(osm_sm_t * sm, IN osm_mgrp_t * const p_mgrp)
 	p_sw = (osm_switch_t *) cl_qmap_head(p_sw_tbl);
 	while (p_sw != (osm_switch_t *) cl_qmap_end(p_sw_tbl)) {
 		p_mcast_tbl = osm_switch_get_mcast_tbl_ptr(p_sw);
-		osm_mcast_tbl_clear_mlid(p_mcast_tbl, cl_ntoh16(p_mgrp->mlid));
+		osm_mcast_tbl_clear_mlid(p_mcast_tbl, mlid);
 		p_sw = (osm_switch_t *) cl_qmap_next(&p_sw->map_item);
 	}
 
@@ -1046,10 +1043,7 @@ Exit:
    lock must already be held on entry
 **********************************************************************/
 static ib_api_status_t
-osm_mcast_mgr_process_tree(osm_sm_t * sm,
-			   IN osm_mgrp_t * const p_mgrp,
-			   IN osm_mcast_req_type_t req_type,
-			   ib_net64_t port_guid)
+osm_mcast_mgr_process_tree(osm_sm_t * sm, IN osm_mgrp_t * const p_mgrp)
 {
 	ib_api_status_t status = IB_SUCCESS;
 	ib_net16_t mlid;
@@ -1075,7 +1069,7 @@ osm_mcast_mgr_process_tree(osm_sm_t * sm,
 	   the spanning tree which sets the mcast table bits for each
 	   port in the group.
 	 */
-	__osm_mcast_mgr_clear(sm, p_mgrp);
+	__osm_mcast_mgr_clear(sm, cl_ntoh16(mlid));
 
 	if (!p_mgrp->full_members)
 		goto Exit;
@@ -1098,16 +1092,13 @@ Exit:
  NOTE : The lock should be held externally!
  **********************************************************************/
 static ib_api_status_t
-mcast_mgr_process_mgrp(osm_sm_t * sm,
-		       IN osm_mgrp_t * const p_mgrp,
-		       IN osm_mcast_req_type_t req_type,
-		       IN ib_net64_t port_guid)
+mcast_mgr_process_mgrp(osm_sm_t * sm, IN osm_mgrp_t * const p_mgrp)
 {
 	ib_api_status_t status;
 
 	OSM_LOG_ENTER(sm->p_log);
 
-	status = osm_mcast_mgr_process_tree(sm, p_mgrp, req_type, port_guid);
+	status = osm_mcast_mgr_process_tree(sm, p_mgrp);
 	if (status != IB_SUCCESS) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A19: "
 			"Unable to create spanning tree (%s)\n",
@@ -1162,9 +1153,7 @@ osm_signal_t osm_mcast_mgr_process(osm_sm_t * sm)
 		 */
 		p_mgrp = sm->p_subn->mgroups[i];
 		if (p_mgrp)
-			mcast_mgr_process_mgrp(sm, p_mgrp,
-					       OSM_MCAST_REQ_TYPE_SUBNET_CHANGE,
-					       0);
+			mcast_mgr_process_mgrp(sm, p_mgrp);
 	}
 
 	/*
@@ -1206,8 +1195,6 @@ osm_signal_t osm_mcast_mgr_process_mgroups(osm_sm_t * sm)
 	ib_net16_t mlid;
 	osm_signal_t ret, signal = OSM_SIGNAL_DONE;
 	osm_mcast_mgr_ctxt_t *ctx;
-	osm_mcast_req_type_t req_type;
-	ib_net64_t port_guid;
 
 	OSM_LOG_ENTER(sm->p_log);
 
@@ -1216,8 +1203,6 @@ osm_signal_t osm_mcast_mgr_process_mgroups(osm_sm_t * sm)
 
 	while (!cl_is_qlist_empty(p_list)) {
 		ctx = (osm_mcast_mgr_ctxt_t *) cl_qlist_remove_head(p_list);
-		req_type = ctx->req_type;
-		port_guid = ctx->port_guid;
 
 		/* nice copy no warning on size diff */
 		memcpy(&mlid, &ctx->mlid, sizeof(mlid));
@@ -1244,7 +1229,7 @@ osm_signal_t osm_mcast_mgr_process_mgroups(osm_sm_t * sm)
 		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 			"Processing mgrp with lid:0x%X change id:%u\n",
 			cl_ntoh16(mlid), p_mgrp->last_change_id);
-		mcast_mgr_process_mgrp(sm, p_mgrp, req_type, port_guid);
+		mcast_mgr_process_mgrp(sm, p_mgrp);
 	}
 
 	/*

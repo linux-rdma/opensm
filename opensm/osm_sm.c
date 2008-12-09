@@ -449,9 +449,7 @@ Exit:
  **********************************************************************/
 static ib_api_status_t
 __osm_sm_mgrp_process(IN osm_sm_t * const p_sm,
-		      IN osm_mgrp_t * const p_mgrp,
-		      IN const ib_net64_t port_guid,
-		      IN osm_mcast_req_type_t req_type)
+		      IN osm_mgrp_t * const p_mgrp)
 {
 	osm_mcast_mgr_ctxt_t *ctx;
 
@@ -464,8 +462,6 @@ __osm_sm_mgrp_process(IN osm_sm_t * const p_sm,
 		return IB_ERROR;
 	memset(ctx, 0, sizeof(*ctx));
 	ctx->mlid = p_mgrp->mlid;
-	ctx->req_type = req_type;
-	ctx->port_guid = port_guid;
 
 	cl_spinlock_acquire(&p_sm->mgrp_lock);
 	cl_qlist_insert_tail(&p_sm->mgrp_list, &ctx->list_item);
@@ -478,33 +474,10 @@ __osm_sm_mgrp_process(IN osm_sm_t * const p_sm,
 
 /**********************************************************************
  **********************************************************************/
-static ib_api_status_t
-__osm_sm_mgrp_connect(IN osm_sm_t * const p_sm,
-		      IN osm_mgrp_t * const p_mgrp,
-		      IN const ib_net64_t port_guid,
-		      IN osm_mcast_req_type_t req_type)
-{
-	return __osm_sm_mgrp_process(p_sm, p_mgrp, port_guid, req_type);
-}
-
-/**********************************************************************
- **********************************************************************/
-static void
-__osm_sm_mgrp_disconnect(IN osm_sm_t * const p_sm,
-			 IN osm_mgrp_t * const p_mgrp,
-			 IN const ib_net64_t port_guid)
-{
-	__osm_sm_mgrp_process(p_sm, p_mgrp, port_guid,
-			      OSM_MCAST_REQ_TYPE_LEAVE);
-}
-
-/**********************************************************************
- **********************************************************************/
 ib_api_status_t
 osm_sm_mcgrp_join(IN osm_sm_t * const p_sm,
 		  IN const ib_net16_t mlid,
-		  IN const ib_net64_t port_guid,
-		  IN osm_mcast_req_type_t req_type)
+		  IN const ib_net64_t port_guid)
 {
 	osm_mgrp_t *p_mgrp;
 	osm_port_t *p_port;
@@ -579,12 +552,12 @@ osm_sm_mcgrp_join(IN osm_sm_t * const p_sm,
 		goto Exit;
 	}
 
-	status = __osm_sm_mgrp_connect(p_sm, p_mgrp, port_guid, req_type);
+	status = __osm_sm_mgrp_process(p_sm, p_mgrp);
 	CL_PLOCK_RELEASE(p_sm->p_lock);
 
 Exit:
 	OSM_LOG_EXIT(p_sm->p_log);
-	return (status);
+	return status;
 }
 
 /**********************************************************************
@@ -595,7 +568,7 @@ osm_sm_mcgrp_leave(IN osm_sm_t * const p_sm,
 {
 	osm_mgrp_t *p_mgrp;
 	osm_port_t *p_port;
-	ib_api_status_t status = IB_SUCCESS;
+	ib_api_status_t status;
 
 	OSM_LOG_ENTER(p_sm->p_log);
 
@@ -635,12 +608,12 @@ osm_sm_mcgrp_leave(IN osm_sm_t * const p_sm,
 	 */
 	osm_port_remove_mgrp(p_port, mlid);
 
-	__osm_sm_mgrp_disconnect(p_sm, p_mgrp, port_guid);
+	status = __osm_sm_mgrp_process(p_sm, p_mgrp);
 	CL_PLOCK_RELEASE(p_sm->p_lock);
 
 Exit:
 	OSM_LOG_EXIT(p_sm->p_log);
-	return (status);
+	return status;
 }
 
 void osm_set_sm_priority(osm_sm_t *sm, uint8_t priority)
