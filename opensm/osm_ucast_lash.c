@@ -146,6 +146,11 @@ static int cycle_exists(cdg_vertex_t * start, cdg_vertex_t * current,
 	return cycle_found;
 }
 
+static inline int get_next_switch(lash_t *p_lash, int sw, int link)
+{
+	return p_lash->switches[sw]->phys_connections[link];
+}
+
 static void remove_semipermanent_depend_for_sp(lash_t * p_lash, int sw,
 					       int dest_switch, int lane)
 {
@@ -157,7 +162,7 @@ static void remove_semipermanent_depend_for_sp(lash_t * p_lash, int sw,
 	int found;
 
 	output_link = switches[sw]->routing_table[dest_switch].out_link;
-	i_next_switch = switches[sw]->phys_connections[output_link];
+	i_next_switch = get_next_switch(p_lash, sw, output_link);
 
 	while (sw != dest_switch) {
 		v = cdg_vertex_matrix[lane][sw][i_next_switch];
@@ -173,8 +178,7 @@ static void remove_semipermanent_depend_for_sp(lash_t * p_lash, int sw,
 			if (i_next_switch != dest_switch) {
 				next_link =
 				    switches[i_next_switch]->routing_table[dest_switch].out_link;
-				i_next_next_switch =
-				    switches[i_next_switch]->phys_connections[next_link];
+				i_next_next_switch = get_next_switch(p_lash, i_next_switch, next_link);
 				found = 0;
 
 				for (i = 0; i < v->num_dependencies; i++)
@@ -207,8 +211,7 @@ static void remove_semipermanent_depend_for_sp(lash_t * p_lash, int sw,
 		output_link = switches[sw]->routing_table[dest_switch].out_link;
 
 		if (sw != dest_switch)
-			i_next_switch =
-			    switches[sw]->phys_connections[output_link];
+			i_next_switch = get_next_switch(p_lash, sw, output_link);
 	}
 }
 
@@ -308,7 +311,7 @@ static void generate_cdg_for_sp(lash_t * p_lash, int sw, int dest_switch,
 	cdg_vertex_t *v, *prev = NULL;
 
 	output_link = switches[sw]->routing_table[dest_switch].out_link;
-	next_switch = switches[sw]->phys_connections[output_link];
+	next_switch = get_next_switch(p_lash, sw, output_link);
 
 	while (sw != dest_switch) {
 
@@ -364,7 +367,7 @@ static void generate_cdg_for_sp(lash_t * p_lash, int sw, int dest_switch,
 
 		if (sw != dest_switch) {
 			CL_ASSERT(output_link != NONE);
-			next_switch = switches[sw]->phys_connections[output_link];
+			next_switch = get_next_switch(p_lash, sw, output_link);
 		}
 
 		prev = v;
@@ -380,7 +383,7 @@ static void set_temp_depend_to_permanent_for_sp(lash_t * p_lash, int sw,
 	cdg_vertex_t *v;
 
 	output_link = switches[sw]->routing_table[dest_switch].out_link;
-	next_switch = switches[sw]->phys_connections[output_link];
+	next_switch = get_next_switch(p_lash, sw, output_link);
 
 	while (sw != dest_switch) {
 		v = cdg_vertex_matrix[lane][sw][next_switch];
@@ -395,8 +398,7 @@ static void set_temp_depend_to_permanent_for_sp(lash_t * p_lash, int sw,
 		output_link = switches[sw]->routing_table[dest_switch].out_link;
 
 		if (sw != dest_switch)
-			next_switch =
-			    switches[sw]->phys_connections[output_link];
+			next_switch = get_next_switch(p_lash, sw, output_link);
 	}
 
 }
@@ -410,7 +412,7 @@ static void remove_temp_depend_for_sp(lash_t * p_lash, int sw, int dest_switch,
 	cdg_vertex_t *v;
 
 	output_link = switches[sw]->routing_table[dest_switch].out_link;
-	next_switch = switches[sw]->phys_connections[output_link];
+	next_switch = get_next_switch(p_lash, sw, output_link);
 
 	while (sw != dest_switch) {
 		v = cdg_vertex_matrix[lane][sw][next_switch];
@@ -435,8 +437,7 @@ static void remove_temp_depend_for_sp(lash_t * p_lash, int sw, int dest_switch,
 		output_link = switches[sw]->routing_table[dest_switch].out_link;
 
 		if (sw != dest_switch)
-			next_switch =
-			    switches[sw]->phys_connections[output_link];
+			next_switch = get_next_switch(p_lash, sw, output_link);
 
 	}
 }
@@ -498,10 +499,10 @@ static void balance_virtual_lanes(lash_t * p_lash, unsigned lanes_needed)
 		generate_cdg_for_sp(p_lash, dest, src, min_filled_lane);
 
 		output_link = p_lash->switches[src]->routing_table[dest].out_link;
-		next_switch = p_lash->switches[src]->phys_connections[output_link];
+		next_switch = get_next_switch(p_lash, src, output_link);
 
 		output_link2 = p_lash->switches[dest]->routing_table[src].out_link;
-		next_switch2 = p_lash->switches[dest]->phys_connections[output_link2];
+		next_switch2 = get_next_switch(p_lash, dest, output_link2);
 
 		CL_ASSERT(cdg_vertex_matrix[min_filled_lane][src][next_switch] != NULL);
 		CL_ASSERT(cdg_vertex_matrix[min_filled_lane][dest][next_switch2] != NULL);
@@ -675,6 +676,8 @@ static void switch_delete(lash_t *p_lash, switch_t * sw)
 		free(sw->phys_connections);
 	if (sw->routing_table)
 		free(sw->routing_table);
+	if (sw->p_sw)
+		sw->p_sw->priv = NULL;
 	free(sw);
 }
 
@@ -877,9 +880,8 @@ static int lash_core(lash_t * p_lash)
 					output_link2 =
 					    switches[dest_switch]->routing_table[i].out_link;
 
-					i_next_switch = switches[i]->phys_connections[output_link];
-					i_next_switch2 =
-					    switches[dest_switch]->phys_connections[output_link2];
+					i_next_switch = get_next_switch(p_lash, i, output_link);
+					i_next_switch2 = get_next_switch(p_lash, dest_switch, output_link2);
 
 					CL_ASSERT(p_lash->
 						  cdg_vertex_matrix[v_lane][i][i_next_switch] !=
@@ -1205,7 +1207,7 @@ static void process_switches(lash_t * p_lash)
 	osm_switch_t *p_sw, *p_next_sw;
 	osm_subn_t *p_subn = &p_lash->p_osm->subn;
 
-	/* Go through each swithc and process it. i.e build the connection
+	/* Go through each switch and process it. i.e build the connection
 	   structure required by LASH */
 	p_next_sw = (osm_switch_t *) cl_qmap_head(&p_subn->sw_guid_tbl);
 	while (p_next_sw != (osm_switch_t *) cl_qmap_end(&p_subn->sw_guid_tbl)) {
@@ -1229,7 +1231,9 @@ static int lash_process(void *context)
 	// everything starts here
 	lash_cleanup(p_lash);
 
-	discover_network_properties(p_lash);
+	return_status = discover_network_properties(p_lash);
+	if (return_status != IB_SUCCESS)
+		goto Exit;
 
 	return_status = init_lash_structures(p_lash);
 	if (return_status != IB_SUCCESS)
