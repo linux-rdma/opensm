@@ -979,6 +979,188 @@ next_j:
 }
 
 /*
+ * return |a| < |b|
+ */
+static inline int ltmag(int a, int b)
+{
+	int a1 = (a >= 0)? a : -a;
+	int b1 = (b >= 0)? b : -b;
+
+	return (a1 < b1) || (a1 == b1 && a > b);
+}
+
+/*
+ * reorder_links
+ *
+ * reorder the links out of a switch in sign/dimension order
+ */
+static int reorder_links(lash_t *p_lash, int sw)
+{
+	osm_log_t *p_log = &p_lash->p_osm->log;
+	switch_t *s = p_lash->switches[sw];
+	mesh_node_t *node = s->node;
+	int n = node->num_links;
+	link_t **links;
+	int *axes;
+	int i, j;
+	int c;
+	int next = 0;
+
+	if (!(links = calloc(n, sizeof(link_t *)))) {
+		OSM_LOG(p_log, OSM_LOG_ERROR, "Failed allocating temp array - out of memory\n");
+		return -1;
+	}
+
+	if (!(axes = calloc(n, sizeof(int)))) {
+		free(links);
+		OSM_LOG(p_log, OSM_LOG_ERROR, "Failed allocating temp array - out of memory\n");
+		return -1;
+	}
+
+	/*
+	 * find the links with axes
+	 */
+	for (j = 1; j <= 2*node->dimension; j++) {
+		c = j;
+		if (node->coord[(c-1)/2] > 0)
+			c = opposite(s, c);
+
+		for (i = 0; i < n; i++) {
+			if (!node->links[i])
+				continue;
+			if (node->axes[i] == c) {
+				links[next] = node->links[i];
+				axes[next] = node->axes[i];
+				node->links[i] = NULL;
+				next++;
+			}
+		}
+	}
+
+	/*
+	 * get the rest
+	 */
+	for (i = 0; i < n; i++) {
+		if (!node->links[i])
+			continue;
+
+		links[next] = node->links[i];
+		axes[next] = node->axes[i];
+		node->links[i] = NULL;
+		next++;
+	}
+
+	for (i = 0; i < n; i++) {
+		node->links[i] = links[i];
+		node->axes[i] = axes[i];
+	}
+
+	free(links);
+	free(axes);
+
+	return 0;
+}
+
+/*
+ * measure geometry
+ */
+static int measure_geometry(lash_t *p_lash, mesh_t *mesh, int seed)
+{
+	osm_log_t *p_log = &p_lash->p_osm->log;
+	int i, j, k;
+	int sw;
+	switch_t *s, *s1;
+	int change;
+	int dimension = mesh->dimension;
+	int num_switches = p_lash->num_switches;
+	int assigned_axes = 0, unassigned_axes = 0;
+	int max[MAX_DIMENSION];
+	int min[MAX_DIMENSION];
+
+	OSM_LOG_ENTER(p_log);
+
+	for (sw = 0; sw < num_switches; sw++) {
+		s = p_lash->switches[sw];
+
+		s->node->coord = calloc(dimension, sizeof(int));
+		for (i = 0; i < dimension; i++)
+			s->node->coord[i] = (sw == seed)? 0 : 0x7fffffff;
+
+		for (i = 0; i < s->node->num_links; i++)
+			if (s->node->axes[i] == 0)
+				unassigned_axes++;
+			else
+				assigned_axes++;
+	}
+
+	OSM_LOG(p_log, OSM_LOG_DEBUG, "%d/%d unassigned/assigned axes\n", unassigned_axes, assigned_axes);
+
+	do {
+		change = 0;
+
+		for (sw = 0; sw < num_switches; sw++) {
+			s = p_lash->switches[sw];
+
+			if (s->node->coord[0] == 0x7fffffff)
+				continue;
+
+			for (j = 0; j < s->node->num_links; j++) {
+				if (!s->node->axes[j])
+					continue;
+
+				s1 = p_lash->switches[s->node->links[j]->switch_id];
+
+				for (k = 0; k < dimension; k++) {
+					int coord = s->node->coord[k];
+					int axis = s->node->axes[j] - 1;
+
+					if (k == axis/2)
+						coord += (axis & 1)? -1 : +1;
+
+					if (ltmag(coord, s1->node->coord[k])) {
+						s1->node->coord[k] = coord;
+						change++;
+					}
+				}
+			}
+		}
+	} while (change);
+
+	for (sw = 0; sw < num_switches; sw++) {
+		if (reorder_links(p_lash, sw)) {
+			OSM_LOG_EXIT(p_log);
+			return -1;
+		}
+	}
+
+	mesh->size = calloc(dimension, sizeof(int));
+
+	for (i = 0; i < dimension; i++) {
+		max[i] = -0x7fffffff;
+		min[i] = 0x7fffffff;
+	}
+
+	for (sw = 0; sw < num_switches; sw++) {
+		s = p_lash->switches[sw];
+
+		for (i = 0; i < dimension; i++) {
+			if (s->node->coord[i] == 0x7fffffff)
+				continue;
+			if (s->node->coord[i] > max[i])
+				max[i] = s->node->coord[i];
+			if (s->node->coord[i] < min[i])
+				min[i] = s->node->coord[i];
+		}
+	}
+
+	for (i = 0; i < dimension; i++)
+		mesh->size[i] = max[i] - min[i] + 1;
+
+	OSM_LOG_EXIT(p_log);
+	return 0;
+}
+
+/*
  * osm_mesh_delete - free per mesh resources
  */
 static void mesh_delete(mesh_t *mesh)
@@ -1172,6 +1354,17 @@ int osm_do_mesh_analysis(lash_t *p_lash)
 
 	if (s->node->type) {
 		make_geometry(p_lash, max_class_type);
+
+		if (measure_geometry(p_lash, mesh, max_class_type))
+			goto err;
+
+		p = buf;
+		p += sprintf(p, "found ");
+		for (i = 0; i < mesh->dimension; i++)
+			p += sprintf(p, "%s%d", i? " x " : "", mesh->size[i]);
+		p += sprintf(p, " mesh\n");
+
+		OSM_LOG(p_log, OSM_LOG_INFO, "%s", buf);
 	}
 
 done:
