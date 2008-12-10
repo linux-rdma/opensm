@@ -66,6 +66,7 @@ typedef struct _mesh_node {
 					/* used as an invariant classification */
 	int dimension;			/* apparent dimension of mesh around node */
 	int temp;			/* temporary holder for distance info */
+	int type;			/* index of node type in mesh_info array */
 } mesh_node_t;
 
 void osm_mesh_node_delete(struct _lash *p_lash, struct _switch *sw);
