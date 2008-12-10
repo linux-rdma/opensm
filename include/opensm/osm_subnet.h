@@ -741,7 +741,7 @@ struct osm_mgrp;
 ib_api_status_t
 osm_get_gid_by_mad_addr(IN struct osm_log *p_log,
 			IN const osm_subn_t * p_subn,
-			IN const struct osm_mad_addr *p_mad_addr,
+			IN struct osm_mad_addr *p_mad_addr,
 			OUT ib_gid_t * p_gid);
 /*
 * PARAMETERS

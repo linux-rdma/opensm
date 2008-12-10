@@ -210,91 +210,6 @@ osm_subn_init(IN osm_subn_t * const p_subn,
 
 /**********************************************************************
  **********************************************************************/
-ib_api_status_t
-osm_get_gid_by_mad_addr(IN osm_log_t * p_log,
-			IN const osm_subn_t * p_subn,
-			IN const osm_mad_addr_t * p_mad_addr,
-			OUT ib_gid_t * p_gid)
-{
-	const cl_ptr_vector_t *p_tbl;
-	const osm_port_t *p_port = NULL;
-
-	if (p_gid == NULL) {
-		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 7505: "
-			"Provided output GID is NULL\n");
-		return (IB_INVALID_PARAMETER);
-	}
-
-	/* Find the port gid of the request in the subnet */
-	p_tbl = &p_subn->port_lid_tbl;
-
-	CL_ASSERT(cl_ptr_vector_get_size(p_tbl) < 0x10000);
-
-	if ((uint16_t) cl_ptr_vector_get_size(p_tbl) >
-	    cl_ntoh16(p_mad_addr->dest_lid)) {
-		p_port =
-		    cl_ptr_vector_get(p_tbl, cl_ntoh16(p_mad_addr->dest_lid));
-		if (p_port == NULL) {
-			OSM_LOG(p_log, OSM_LOG_DEBUG,
-				"Did not find any port with LID: %u\n",
-				cl_ntoh16(p_mad_addr->dest_lid));
-			return (IB_INVALID_PARAMETER);
-		}
-		p_gid->unicast.interface_id = p_port->p_physp->port_guid;
-		p_gid->unicast.prefix = p_subn->opt.subnet_prefix;
-	} else {
-		/* The dest_lid is not in the subnet table - this is an error */
-		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 7501: "
-			"LID is out of range: %u\n",
-			cl_ntoh16(p_mad_addr->dest_lid));
-		return (IB_INVALID_PARAMETER);
-	}
-
-	return (IB_SUCCESS);
-}
-
-/**********************************************************************
- **********************************************************************/
-osm_physp_t *osm_get_physp_by_mad_addr(IN osm_log_t * p_log,
-				       IN const osm_subn_t * p_subn,
-				       IN osm_mad_addr_t * p_mad_addr)
-{
-	const cl_ptr_vector_t *p_port_lid_tbl;
-	osm_port_t *p_port = NULL;
-	osm_physp_t *p_physp = NULL;
-
-	/* Find the port gid of the request in the subnet */
-	p_port_lid_tbl = &p_subn->port_lid_tbl;
-
-	CL_ASSERT(cl_ptr_vector_get_size(p_port_lid_tbl) < 0x10000);
-
-	if ((uint16_t) cl_ptr_vector_get_size(p_port_lid_tbl) >
-	    cl_ntoh16(p_mad_addr->dest_lid)) {
-		p_port =
-		    cl_ptr_vector_get(p_port_lid_tbl,
-				      cl_ntoh16(p_mad_addr->dest_lid));
-		if (p_port == NULL) {
-			/* The port is not in the port_lid table - this is an error */
-			OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 7502: "
-				"Cannot locate port object by lid: %u\n",
-				cl_ntoh16(p_mad_addr->dest_lid));
-
-			goto Exit;
-		}
-		p_physp = p_port->p_physp;
-	} else {
-		/* The dest_lid is not in the subnet table - this is an error */
-		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 7503: "
-			"Lid is out of range: %u\n",
-			cl_ntoh16(p_mad_addr->dest_lid));
-	}
-
-Exit:
-	return p_physp;
-}
-
-/**********************************************************************
- **********************************************************************/
 osm_port_t *osm_get_port_by_mad_addr(IN osm_log_t * p_log,
 				     IN const osm_subn_t * p_subn,
 				     IN osm_mad_addr_t * p_mad_addr)
@@ -320,6 +235,43 @@ osm_port_t *osm_get_port_by_mad_addr(IN osm_log_t * p_log,
 	}
 
 	return p_port;
+}
+
+ib_api_status_t
+osm_get_gid_by_mad_addr(IN osm_log_t * p_log,
+			IN const osm_subn_t * p_subn,
+			IN osm_mad_addr_t * p_mad_addr,
+			OUT ib_gid_t * p_gid)
+{
+	const osm_port_t *p_port = NULL;
+
+	if (p_gid == NULL) {
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 7505: "
+			"Provided output GID is NULL\n");
+		return (IB_INVALID_PARAMETER);
+	}
+
+	p_port = osm_get_port_by_mad_addr(p_log, p_subn, p_mad_addr);
+	if (!p_port)
+		return IB_INVALID_PARAMETER;
+
+	p_gid->unicast.interface_id = p_port->p_physp->port_guid;
+	p_gid->unicast.prefix = p_subn->opt.subnet_prefix;
+
+	return IB_SUCCESS;
+}
+
+osm_physp_t *osm_get_physp_by_mad_addr(IN osm_log_t * p_log,
+				       IN const osm_subn_t * p_subn,
+				       IN osm_mad_addr_t * p_mad_addr)
+{
+	osm_port_t *p_port = NULL;
+
+	p_port = osm_get_port_by_mad_addr(p_log, p_subn, p_mad_addr);
+	if (!p_port)
+		return NULL;
+
+	return p_port->p_physp;
 }
 
 /**********************************************************************
