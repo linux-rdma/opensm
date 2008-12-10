@@ -201,6 +201,47 @@ static int *poly_alloc(lash_t *p_lash, int n)
 }
 
 /*
+ * print a polynomial
+ */
+static char *poly_print(int n, int *coeff)
+{
+	static char str[(MAX_DEGREE+1)*20];
+	char *p = str;
+	int i;
+	int first = 1;
+	int t;
+	int sign;
+
+	str[0] = 0;
+
+	for (i = 0; i <= n; i++) {
+		if (!coeff[i])
+			continue;
+
+		if (coeff[i] < 0) {
+			sign = 1;
+			t = -coeff[i];
+		} else {
+			sign = 0;
+			t = coeff[i];
+		}
+
+		p += sprintf(p, "%s", sign? "-" : (first? "" : "+"));
+		first = 0;
+
+		if (t != 1 || i == 0)
+			p += sprintf(p, "%d", t);
+
+		if (i)
+			p += sprintf(p, "x");
+		if (i > 1)
+			p += sprintf(p, "^%d", i);
+	}
+
+	return str;
+}
+
+/*
  * poly_diff
  *
  * return a nonzero value if polynomials differ else 0
@@ -690,6 +731,254 @@ static int get_local_geometry(lash_t *p_lash, mesh_t *mesh)
 }
 
 /*
+ * seed_axes
+ *
+ * assign axes to the links of the seed switch
+ * assumes switch is of type cartesian mesh
+ * axes are numbered 1 to n i.e. +x => 1 -x => 2 etc.
+ * this assumes that if all distances are 2 that
+ * an axis has only 2 nodes so +A and -A collapse to +A
+ */
+static void seed_axes(lash_t *p_lash, int sw)
+{
+	mesh_node_t *node = p_lash->switches[sw]->node;
+	int n = node->num_links;
+	int i, j, c;
+
+	for (c = 1; c <= 2*node->dimension; c++) {
+		/*
+		 * find the next unassigned axis
+		 */
+		for (i = 0; i < n; i++) {
+			if (!node->axes[i])
+				break;
+		}
+
+		node->axes[i] = c++;
+
+		/*
+		 * find the matching opposite direction
+		 */
+		for (j = 0; j < n; j++) {
+			if (node->axes[j] || j == i)
+				continue;
+
+			if (node->matrix[i][j] != 2)
+				break;
+		}
+
+		if (j != n) {
+			node->axes[j] = c;
+		}
+	}
+}
+
+/*
+ * opposite
+ *
+ * compute the opposite of axis for switch
+ */
+static inline int opposite(switch_t *s, int axis)
+{
+	int i, j;
+	int negaxis = 1 + (1 ^ (axis - 1));
+
+	for (i = 0; i < s->node->num_links; i++) {
+		if (s->node->axes[i] == axis) {
+			for (j = 0; j < s->node->num_links; j++) {
+				if (j == i)
+					continue;
+				if (s->node->matrix[i][j] != 2)
+					return negaxis;
+			}
+
+			return axis;
+		}
+	}
+
+	return 0;
+}
+
+/*
+ * make_geometry
+ *
+ * induce a geometry on the switches
+ */
+static void make_geometry(lash_t *p_lash, int sw)
+{
+	osm_log_t *p_log = &p_lash->p_osm->log;
+	int num_switches = p_lash->num_switches;
+	int sw1, sw2;
+	switch_t *s, *s1, *s2, *seed;
+	int i, j, k, l, n, m;
+	int change;
+
+	/*
+	 * assign axes to seed switch
+	 */
+	seed_axes(p_lash, sw);
+	seed = p_lash->switches[sw];
+
+	/*
+	 * induce axes in other switches until
+	 * there is no more change
+	 */
+	do {
+		change = 0;
+
+		/* phase 1 opposites */
+		for (sw1 = 0; sw1 < num_switches; sw1++) {
+			s1 = p_lash->switches[sw1];
+			n = s1->node->num_links;
+
+			/*
+			 * only process 'mesh' switches
+			 */
+			if (!s1->node->matrix)
+				continue;
+
+			for (i = 0; i < n; i++) {
+				if (!s1->node->axes[i])
+					continue;
+
+				/*
+				 * can't tell across if more than one
+				 * likely looking link
+				 */
+				m = 0;
+				for (j = 0; j < n; j++) {
+					if (j == i)
+						continue;
+
+					if (s1->node->matrix[i][j] != 2)
+						m++;
+				}
+
+				if (m != 1) {
+					continue;
+				}
+
+				for (j = 0; j < n; j++) {
+					if (j == i)
+						continue;
+
+					if (s1->node->matrix[i][j] != 2) {
+						if (s1->node->axes[j]) {
+							if (s1->node->axes[j] != opposite(seed, s1->node->axes[i])) {
+								OSM_LOG(p_log, OSM_LOG_DEBUG, "phase 1 mismatch\n");
+							}
+						} else {
+							s1->node->axes[j] = opposite(seed, s1->node->axes[i]);
+							change++;
+						}
+					}
+				}
+			}
+		}
+
+		/* phase 2 switch to switch */
+		for (sw1 = 0; sw1 < num_switches; sw1++) {
+			s1 = p_lash->switches[sw1];
+			n = s1->node->num_links;
+
+			if (!s1->node->matrix)
+				continue;
+
+			for (i = 0; i < n; i++) {
+				int l2 = s1->node->links[i]->link_id;
+
+				if (!s1->node->axes[i])
+					continue;
+
+				if (l2 == -1) {
+					printf("ERROR no reverse link\n");
+					continue;
+				}
+
+				sw2 = s1->node->links[i]->switch_id;
+				s2 = p_lash->switches[sw2];
+
+				if (!s2->node->matrix)
+					continue;
+
+				if (!s2->node->axes[l2]) {
+					/*
+					 * set axis to opposite of s1->axes[i]
+					 */
+					s2->node->axes[l2] = opposite(seed, s1->node->axes[i]);
+					change++;
+				} else {
+					if (s2->node->axes[l2] != opposite(seed, s1->node->axes[i])) {
+						OSM_LOG(p_log, OSM_LOG_DEBUG, "phase 2 mismatch\n");
+					}
+				}
+			}
+		}
+
+		/* Phase 3 corners */
+		for (sw1 = 0; sw1 < num_switches; sw1++) {
+			s = p_lash->switches[sw1];
+			n = s->node->num_links;
+
+			if (!s->node->matrix)
+				continue;
+
+			for (i = 0; i < n; i++) {
+				if (!s->node->axes[i])
+					continue;
+
+				for (j = 0; j < n; j++) {
+					if (i == j || !s->node->axes[j] || s->node->matrix[i][j] != 2)
+						continue;
+
+					s1 = p_lash->switches[s->node->links[i]->switch_id];
+					s2 = p_lash->switches[s->node->links[j]->switch_id];
+
+					/*
+					 * find switch (other than s1) that neighbors i and j
+					 * have in common
+					 */
+					for (k = 0; k < s1->node->num_links; k++) {
+						if (s1->node->links[k]->switch_id == sw1)
+							continue;
+
+						for (l = 0; l < s2->node->num_links; l++) {
+							if (s2->node->links[l]->switch_id == sw1)
+								continue;
+
+							if (s1->node->links[k]->switch_id == s2->node->links[l]->switch_id) {
+								if (s1->node->axes[k]) {
+									if (s1->node->axes[k] != s->node->axes[j]) {
+										OSM_LOG(p_log, OSM_LOG_DEBUG, "phase 3 mismatch\n");
+									}
+								} else {
+									s1->node->axes[k] = s->node->axes[j];
+									change++;
+								}
+
+								if (s2->node->axes[l]) {
+									if (s2->node->axes[l] != s->node->axes[i]) {
+										OSM_LOG(p_log, OSM_LOG_DEBUG, "phase 3 mismatch\n");
+									}
+								} else {
+									s2->node->axes[l] = s->node->axes[i];
+									change++;
+								}
+								goto next_j;
+							}
+						}
+					}
+next_j:
+					;
+				}
+			}
+		}
+	} while(change);
+
+	return;
+}
+
+/*
  * osm_mesh_delete - free per mesh resources
  */
 static void mesh_delete(mesh_t *mesh)
@@ -824,6 +1113,12 @@ int osm_do_mesh_analysis(lash_t *p_lash)
 {
 	osm_log_t *p_log = &p_lash->p_osm->log;
 	mesh_t *mesh;
+	int max_class = -1;
+	int max_class_num = 0;
+	int max_class_type = -1;
+	int i;
+	switch_t *s;
+	char buf[256], *p;
 
 	OSM_LOG_ENTER(p_log);
 
@@ -837,6 +1132,46 @@ int osm_do_mesh_analysis(lash_t *p_lash)
 	if (mesh->num_class == 0) {
 		OSM_LOG(p_log, OSM_LOG_INFO, "found no likely mesh nodes - done\n");
 		goto done;
+	}
+
+	/*
+	 * find dominant switch class
+	 */
+	for (i = 0; i < mesh->num_class; i++) {
+		if (mesh->class_count[i] > max_class_num) {
+			max_class = i;
+			max_class_num = mesh->class_count[i];
+			max_class_type = mesh->class_type[i];
+		}
+	}
+
+	s = p_lash->switches[max_class_type];
+
+	OSM_LOG(p_log, OSM_LOG_INFO, "found %d node type%s\n", mesh->num_class, (mesh->num_class == 1)? "" : "s");
+
+	p = buf;
+	p += sprintf( p, "%snode type is ", (mesh->num_class == 1)? "" : "most common ");
+
+	if (s->node->type) {
+		struct _mesh_info *t = &mesh_info[s->node->type];
+
+		for (i = 0; i < t->dimension; i++) {
+			p += sprintf(p, "%s%d%s", i? " x " : "", t->size[i],
+				(t->size[i] == 6)? "+" : "");
+		}
+		p += sprintf(p, " mesh\n");
+
+		mesh->dimension = t->dimension;
+	} else {
+		p += sprintf(p, "unknown geometry\n");
+	}
+
+	OSM_LOG(p_log, OSM_LOG_INFO, "%s", buf);
+
+	OSM_LOG(p_log, OSM_LOG_INFO, "poly = %s\n", poly_print(s->node->num_links, s->node->poly));
+
+	if (s->node->type) {
+		make_geometry(p_lash, max_class_type);
 	}
 
 done:
