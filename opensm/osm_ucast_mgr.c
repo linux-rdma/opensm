@@ -855,7 +855,7 @@ int osm_ucast_mgr_process(IN osm_ucast_mgr_t * const p_mgr)
 		"%s tables configured on all switches\n",
 		osm_routing_engine_type_str(p_osm->routing_engine_used));
 
-        if (p_mgr->p_subn->opt.use_ucast_cache)
+	if (p_mgr->p_subn->opt.use_ucast_cache)
 		p_mgr->cache_valid = TRUE;
 
 Exit:
