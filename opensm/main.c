@@ -175,6 +175,11 @@ static void show_usage(void)
 	       "          separated by commas so that specific ordering of routing\n"
 	       "          algorithms will be tried if earlier routing engines fail.\n"
 	       "          Supported engines: updn, file, ftree, lash, dor\n\n");
+	printf("--do_mesh_analysis\n"
+	       "          This option enables additional analysis for the lash\n"
+	       "          routing engine to precondition switch port assignments\n"
+	       "          in regular cartesian meshes which may reduce the number\n"
+	       "          of SLs required to give a deadlock free routing\n\n");
 	printf("--connect_roots, -z\n"
 	       "          This option enforces a routing engine (currently\n"
 	       "          up/down only) to make connectivity between root switches\n"
@@ -585,6 +590,7 @@ int main(int argc, char *argv[])
 #endif
 		{"prefix_routes_file", 1, NULL, 3},
 		{"consolidate_ipv6_snm_req", 0, NULL, 4},
+		{"do_mesh_analysis", 0, NULL, 5},
 		{NULL, 0, NULL, 0}	/* Required at the end of the array */
 	};
 
@@ -921,6 +927,9 @@ int main(int argc, char *argv[])
 			break;
 		case 4:
 			opt.consolidate_ipv6_snm_req = TRUE;
+			break;
+		case 5:
+			opt.do_mesh_analysis = TRUE;
 			break;
 		case 'h':
 		case '?':

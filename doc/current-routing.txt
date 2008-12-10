@@ -322,6 +322,18 @@ used.
 Note: LMC > 0 is not supported by the LASH routing. If this is
 specified, the default routing algorithm is invoked instead.
 
+For open regular cartesian meshes the DOR algorithm is the ideal
+routing algorithm. For toroidal meshes on the other hand there
+are routing loops that can cause deadlocks. LASH can be used to
+route these cases. The performance of LASH can be improved by
+preconditioning the mesh in cases where there are multiple links
+connecting switches and also in cases where the switches are not
+cabled consistently. An option exists for LASH to do this. To
+invoke this use '-R lash -Q --do_mesh_analysis'. This will
+add an additional phase that analyses the mesh to try to determine
+the dimension and size of a mesh. If it determines that the mesh
+looks like an open or closed cartesian mesh it reorders the ports
+in dimension order before the rest of the LASH algorithm runs.
 
 DOR Routing Algorithm
 ---------------------

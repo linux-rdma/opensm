@@ -52,63 +52,8 @@
 #include <opensm/osm_switch.h>
 #include <opensm/osm_opensm.h>
 #include <opensm/osm_log.h>
-
-/* //////////////////////////// */
-/*  Local types                 */
-/* //////////////////////////// */
-
-enum {
-	UNQUEUED,
-	Q_MEMBER,
-	MST_MEMBER,
-	MAX_INT = 9999,
-	NONE = MAX_INT
-};
-
-typedef struct _cdg_vertex {
-	int num_dependencies;
-	struct _cdg_vertex **dependency;
-	int from;
-	int to;
-	int seen;
-	int temp;
-	int visiting_number;
-	struct _cdg_vertex *next;
-	int num_temp_depend;
-	int num_using_vertex;
-	int *num_using_this_depend;
-} cdg_vertex_t;
-
-typedef struct _reachable_dest {
-	int switch_id;
-	struct _reachable_dest *next;
-} reachable_dest_t;
-
-typedef struct _switch {
-	osm_switch_t *p_sw;
-	int *dij_channels;
-	int id;
-	int used_channels;
-	int q_state;
-	struct routing_table {
-		unsigned out_link;
-		unsigned lane;
-	} *routing_table;
-	unsigned int num_connections;
-	int *virtual_physical_port_table;
-	int *phys_connections;
-} switch_t;
-
-typedef struct _lash {
-	osm_opensm_t *p_osm;
-	int num_switches;
-	uint8_t vl_min;
-	int balance_limit;
-	switch_t **switches;
-	cdg_vertex_t ****cdg_vertex_matrix;
-	int *num_mst_in_lane;
-	int ***virtual_location;
-} lash_t;
+#include <opensm/osm_mesh.h>
+#include <opensm/osm_ucast_lash.h>
 
 static cdg_vertex_t *create_cdg_vertex(unsigned num_switches)
 {
@@ -872,9 +817,14 @@ static int lash_core(lash_t * p_lash)
 	int output_link2, i_next_switch2;
 	int cycle_found2 = 0;
 	int status = 0;
-	int *switch_bitmap;	/* Bitmap to check if we have processed this pair */
+	int *switch_bitmap = NULL;	/* Bitmap to check if we have processed this pair */
 
 	OSM_LOG_ENTER(p_log);
+
+	if (p_lash->p_osm->subn.opt.do_mesh_analysis && osm_do_mesh_analysis(p_lash)) {
+		OSM_LOG(p_log, OSM_LOG_ERROR, "Mesh analysis failed\n");
+		goto Exit;
+	}
 
 	for (i = 0; i < num_switches; i++) {
 

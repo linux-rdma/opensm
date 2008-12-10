@@ -32,7 +32,7 @@ opensm_SOURCES = main.c osm_console_io.c osm_console.c osm_db_files.c \
 		 osm_inform.c osm_lid_mgr.c osm_lin_fwd_rcv.c \
 		 osm_link_mgr.c osm_mcast_fwd_rcv.c \
 		 osm_mcast_mgr.c osm_mcast_tbl.c osm_mcm_info.c \
-		 osm_mcm_port.c osm_mtree.c osm_multicast.c osm_node.c \
+		 osm_mcm_port.c osm_mesh.c osm_mtree.c osm_multicast.c osm_node.c \
 		 osm_node_desc_rcv.c osm_node_info_rcv.c \
 		 osm_opensm.c osm_pkey.c osm_pkey_mgr.c osm_pkey_rcv.c \
 		 osm_port.c osm_port_info_rcv.c \
@@ -77,6 +77,7 @@ opensminclude_HEADERS = \
 	$(srcdir)/../include/opensm/osm_errors.h \
 	$(srcdir)/../include/opensm/osm_helper.h \
 	$(srcdir)/../include/opensm/osm_inform.h \
+	$(srcdir)/../include/opensm/osm_ucast_lash.h \
 	$(srcdir)/../include/opensm/osm_lid_mgr.h \
 	$(srcdir)/../include/opensm/osm_log.h \
 	$(srcdir)/../include/opensm/osm_mad_pool.h \
@@ -84,6 +85,7 @@ opensminclude_HEADERS = \
 	$(srcdir)/../include/opensm/osm_mcast_tbl.h \
 	$(srcdir)/../include/opensm/osm_mcm_info.h \
 	$(srcdir)/../include/opensm/osm_mcm_port.h \
+	$(srcdir)/../include/opensm/osm_mesh.h \
 	$(srcdir)/../include/opensm/osm_mtree.h \
 	$(srcdir)/../include/opensm/osm_multicast.h \
 	$(srcdir)/../include/opensm/osm_msgdef.h \
