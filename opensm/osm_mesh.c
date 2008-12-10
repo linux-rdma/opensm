@@ -60,6 +60,295 @@ typedef struct _mesh {
 } mesh_t;
 
 /*
+ * poly_alloc
+ *
+ * allocate a polynomial of degree n
+ */
+static int *poly_alloc(lash_t *p_lash, int n)
+{
+	osm_log_t *p_log = &p_lash->p_osm->log;
+	int *p;
+
+	if (!(p = calloc(n+1, sizeof(int)))) {
+		OSM_LOG(p_log, OSM_LOG_ERROR, "Failed allocating poly - out of memory\n");
+	}
+
+	return p;
+}
+
+/*
+ * poly_diff
+ *
+ * return a nonzero value if polynomials differ else 0
+ */
+static int poly_diff(int n, int *p, switch_t *s)
+{
+	int i;
+
+	if (s->node->num_links != n)
+		return 1;
+
+	for (i = 0; i <= n; i++) {
+		if (s->node->poly[i] != p[i])
+			return 1;
+	}
+
+	return 0;
+}
+
+/*
+ * m_free
+ *
+ * free a square matrix of rank l
+ */
+static void m_free(int **m, int l)
+{
+	int i;
+
+	if (m) {
+		for (i = 0; i < l; i++) {
+			if (m[i])
+				free(m[i]);
+		}
+		free(m);
+	}
+}
+
+/*
+ * m_alloc
+ *
+ * allocate a square matrix of rank l
+ */
+static int **m_alloc(lash_t *p_lash, int l)
+{
+	osm_log_t *p_log = &p_lash->p_osm->log;
+	int i;
+	int **m = NULL;
+
+	do {
+		if (!(m = calloc(l, sizeof(int *))))
+			break;
+
+		for (i = 0; i < l; i++) {
+			if (!(m[i] = calloc(l, sizeof(int))))
+				break;
+		}
+		if (i != l)
+			break;
+
+		return m;
+	} while(0);
+
+	OSM_LOG(p_log, OSM_LOG_ERROR, "Failed allocating matrix - out of memory\n");
+
+	m_free(m, l);
+	return NULL;
+}
+
+/*
+ * pm_free
+ *
+ * free a square matrix of rank l of polynomials
+ */
+static void pm_free(int ***m, int l)
+{
+	int i, j;
+
+	if (m) {
+		for (i = 0; i < l; i++) {
+			if (m[i]) {
+				for (j = 0; j < l; j++) {
+					if (m[i][j])
+						free(m[i][j]);
+				}
+				free(m[i]);
+			}
+		}
+		free(m);
+	}
+}
+
+/*
+ * pm_alloc
+ *
+ * allocate a square matrix of rank l of polynomials of degree n
+ */
+static int ***pm_alloc(lash_t *p_lash, int l, int n)
+{
+	osm_log_t *p_log = &p_lash->p_osm->log;
+	int i, j;
+	int ***m = NULL;
+
+	do {
+		if (!(m = calloc(l, sizeof(int **))))
+			break;
+
+		for (i = 0; i < l; i++) {
+			if (!(m[i] = calloc(l, sizeof(int *))))
+				break;
+
+			for (j = 0; j < l; j++) {
+				if (!(m[i][j] = calloc(n+1, sizeof(int))))
+					break;
+			}
+			if (j != l)
+				break;
+		}
+		if (i != l)
+			break;
+
+		return m;
+	} while(0);
+
+	OSM_LOG(p_log, OSM_LOG_ERROR, "Failed allocating matrix - out of memory\n");
+
+	pm_free(m, l);
+	return NULL;
+}
+
+static int determinant(lash_t *p_lash, int n, int rank, int ***m, int *p);
+
+/*
+ * sub_determinant
+ *
+ * compute the determinant of a submatrix of matrix of rank l of polynomials of degree n
+ * with row and col removed in poly. caller must free poly
+ */
+static int sub_determinant(lash_t *p_lash, int n, int l, int row, int col, int ***matrix, int **poly)
+{
+	int ret = -1;
+	int ***m = NULL;
+	int *p = NULL;
+	int i, j, k, x, y;
+	int rank = l - 1;
+
+	do {
+		if (!(p = poly_alloc(p_lash, n))) {
+			break;
+		}
+
+		if (rank <= 0) {
+			p[0] = 1;
+			ret = 0;
+			break;
+		}
+
+		if (!(m = pm_alloc(p_lash, rank, n))) {
+			free(p);
+			p = NULL;
+			break;
+		}
+
+		x = 0;
+		for (i = 0; i < l; i++) {
+			if (i == row)
+				continue;
+
+			y = 0;
+			for (j = 0; j < l; j++) {
+				if (j == col)
+					continue;
+
+				for (k = 0; k <= n; k++)
+					m[x][y][k] = matrix[i][j][k];
+
+				y++;
+			}
+			x++;
+		}
+
+		if (determinant(p_lash, n, rank, m, p)) {
+			free(p);
+			p = NULL;
+			break;
+		}
+
+		ret = 0;
+	} while(0);
+
+	pm_free(m, rank);
+	*poly = p;
+	return ret;
+}
+
+/*
+ * determinant
+ *
+ * compute the determinant of matrix m of rank of polynomials of degree deg
+ * and add the result to polynomial p allocated by caller
+ */
+static int determinant(lash_t *p_lash, int deg, int rank, int ***m, int *p)
+{
+	int i, j, k;
+	int *q;
+	int sign = 1;
+
+	/*
+	 * handle simple case of 1x1 matrix
+	 */
+	if (rank == 1) {
+		for (i = 0; i <= deg; i++)
+			p[i] += m[0][0][i];
+	}
+
+	/*
+	 * handle simple case of 2x2 matrix
+	 */
+	else if (rank == 2) {
+		for (i = 0; i <= deg; i++) {
+			if (m[0][0][i] == 0)
+				continue;
+
+			for (j = 0; j <= deg; j++) {
+				if (m[1][1][j] == 0)
+					continue;
+
+				p[i+j] += m[0][0][i]*m[1][1][j];
+			}
+		}
+
+		for (i = 0; i <= deg; i++) {
+			if (m[0][1][i] == 0)
+				continue;
+
+			for (j = 0; j <= deg; j++) {
+				if (m[1][0][j] == 0)
+					continue;
+
+				p[i+j] -= m[0][1][i]*m[1][0][j];
+			}
+		}
+	}
+
+	/*
+	 * handle the general case
+	 */
+	else {
+		for (i = 0; i < rank; i++) {
+			if (sub_determinant(p_lash, deg, rank, 0, i, m, &q))
+				return -1;
+
+			for (j = 0; j <= deg; j++) {
+				if (m[0][i][j] == 0)
+					continue;
+
+				for (k = 0; k <= deg; k++) {
+					if (q[k] == 0)
+						continue;
+
+					p[j+k] += sign*m[0][i][j]*q[k];
+				}
+			}
+
+			free(q);
+			sign = -sign;
+		}
+	}
+
+	return 0;
+}
+
+/*
  * osm_mesh_delete - free per mesh resources
  */
 static void mesh_delete(mesh_t *mesh)
