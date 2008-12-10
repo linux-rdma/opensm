@@ -41,6 +41,7 @@
 #endif				/* HAVE_CONFIG_H */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <opensm/osm_switch.h>
 #include <opensm/osm_opensm.h>
 #include <opensm/osm_log.h>
@@ -48,13 +49,72 @@
 #include <opensm/osm_ucast_lash.h>
 
 /*
+ * per fabric mesh info
+ */
+typedef struct _mesh {
+	int num_class;			/* number of switch classes */
+	int *class_type;		/* index of first switch found for each class */
+	int *class_count;		/* population of each class */
+	int dimension;			/* mesh dimension */
+	int *size;			/* an array to hold size of mesh */
+} mesh_t;
+
+/*
+ * osm_mesh_delete - free per mesh resources
+ */
+static void mesh_delete(mesh_t *mesh)
+{
+	if (mesh) {
+		if (mesh->class_type)
+			free(mesh->class_type);
+
+		if (mesh->class_count)
+			free(mesh->class_count);
+
+		free(mesh);
+	}
+}
+
+/*
+ * osm_mesh_create - allocate per mesh resources
+ */
+static mesh_t *mesh_create(lash_t *p_lash)
+{
+	osm_log_t *p_log = &p_lash->p_osm->log;
+	mesh_t *mesh;
+
+	if(!(mesh = calloc(1, sizeof(mesh_t))))
+		goto err;
+
+	if (!(mesh->class_type = calloc(p_lash->num_switches, sizeof(int))))
+		goto err;
+
+	if (!(mesh->class_count = calloc(p_lash->num_switches, sizeof(int))))
+		goto err;
+
+	return mesh;
+
+err:
+	mesh_delete(mesh);
+	OSM_LOG(p_log, OSM_LOG_ERROR, "Failed allocating mesh - out of memory\n");
+	return NULL;
+}
+
+/*
  * osm_do_mesh_analysis
  */
 int osm_do_mesh_analysis(lash_t *p_lash)
 {
 	osm_log_t *p_log = &p_lash->p_osm->log;
+	mesh_t *mesh;
 
 	OSM_LOG_ENTER(p_log);
+
+	mesh = mesh_create(p_lash);
+	if (!mesh)
+		return -1;
+
+	mesh_delete(mesh);
 
 	OSM_LOG_EXIT(p_log);
 	return 0;
