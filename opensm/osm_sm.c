@@ -166,7 +166,6 @@ void osm_sm_construct(IN osm_sm_t * p_sm)
 	cl_event_construct(&p_sm->subnet_up_event);
 	cl_event_wheel_construct(&p_sm->trap_aging_tracker);
 	cl_thread_construct(&p_sm->sweeper);
-	cl_spinlock_construct(&p_sm->mgrp_lock);
 	osm_sm_mad_ctrl_construct(&p_sm->mad_ctrl);
 	osm_lid_mgr_construct(&p_sm->lid_mgr);
 	osm_ucast_mgr_construct(&p_sm->ucast_mgr);
@@ -234,8 +233,8 @@ void osm_sm_destroy(IN osm_sm_t * p_sm)
 	cl_event_destroy(&p_sm->signal_event);
 	cl_event_destroy(&p_sm->subnet_up_event);
 	cl_spinlock_destroy(&p_sm->signal_lock);
-	cl_spinlock_destroy(&p_sm->mgrp_lock);
 	cl_spinlock_destroy(&p_sm->state_lock);
+	free(p_sm->mlids_req);
 
 	osm_log(p_sm->p_log, OSM_LOG_SYS, "Exiting SM\n");	/* Format Waived */
 	OSM_LOG_EXIT(p_sm->p_log);
@@ -288,11 +287,14 @@ ib_api_status_t osm_sm_init(IN osm_sm_t * p_sm, IN osm_subn_t * p_subn,
 	if (status != CL_SUCCESS)
 		goto Exit;
 
-	cl_qlist_init(&p_sm->mgrp_list);
-
-	status = cl_spinlock_init(&p_sm->mgrp_lock);
-	if (status != CL_SUCCESS)
+	p_sm->mlids_req_max = 0;
+	p_sm->mlids_req = malloc((IB_LID_MCAST_END_HO - IB_LID_MCAST_START_HO +
+				  1) * sizeof(p_sm->mlids_req[0]));
+	if (!p_sm->mlids_req)
 		goto Exit;
+	memset(p_sm->mlids_req, 0,
+	       (IB_LID_MCAST_END_HO - IB_LID_MCAST_START_HO +
+		1) * sizeof(p_sm->mlids_req[0]));
 
 	status = osm_sm_mad_ctrl_init(&p_sm->mad_ctrl, p_sm->p_subn,
 				      p_sm->p_mad_pool, p_sm->p_vl15,
@@ -441,32 +443,15 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-static ib_api_status_t sm_mgrp_process(IN osm_sm_t * p_sm,
-				       IN osm_mgrp_t * p_mgrp)
+static void request_mlid(osm_sm_t * sm, uint16_t mlid)
 {
-	osm_mcast_mgr_ctxt_t *ctx;
-
-	/*
-	 * 'Schedule' all the QP0 traffic for when the state manager
-	 * isn't busy trying to do something else.
-	 */
-	ctx = malloc(sizeof(*ctx));
-	if (!ctx)
-		return IB_ERROR;
-	memset(ctx, 0, sizeof(*ctx));
-	ctx->mlid = p_mgrp->mlid;
-
-	cl_spinlock_acquire(&p_sm->mgrp_lock);
-	cl_qlist_insert_tail(&p_sm->mgrp_list, &ctx->list_item);
-	cl_spinlock_release(&p_sm->mgrp_lock);
-
-	osm_sm_signal(p_sm, OSM_SIGNAL_IDLE_TIME_PROCESS_REQUEST);
-
-	return IB_SUCCESS;
+	mlid -= IB_LID_MCAST_START_HO;
+	sm->mlids_req[mlid] = 1;
+	if (sm->mlids_req_max < mlid)
+		sm->mlids_req_max = mlid;
+	osm_sm_signal(sm, OSM_SIGNAL_IDLE_TIME_PROCESS_REQUEST);
 }
 
-/**********************************************************************
- **********************************************************************/
 ib_api_status_t osm_sm_mcgrp_join(IN osm_sm_t * p_sm, IN osm_mgrp_t *mgrp,
 				  IN const ib_net64_t port_guid)
 {
@@ -519,7 +504,7 @@ ib_api_status_t osm_sm_mcgrp_join(IN osm_sm_t * p_sm, IN osm_mgrp_t *mgrp,
 		goto Exit;
 	}
 
-	status = sm_mgrp_process(p_sm, mgrp);
+	request_mlid(p_sm, cl_ntoh16(mgrp->mlid));
 Exit:
 	CL_PLOCK_RELEASE(p_sm->p_lock);
 	OSM_LOG_EXIT(p_sm->p_log);
@@ -527,8 +512,6 @@ Exit:
 	return status;
 }
 
-/**********************************************************************
- **********************************************************************/
 ib_api_status_t osm_sm_mcgrp_leave(IN osm_sm_t * p_sm, IN osm_mgrp_t *mgrp,
 				   IN const ib_net64_t port_guid)
 {
@@ -557,7 +540,7 @@ ib_api_status_t osm_sm_mcgrp_leave(IN osm_sm_t * p_sm, IN osm_mgrp_t *mgrp,
 
 	osm_port_remove_mgrp(p_port, mgrp);
 
-	status = sm_mgrp_process(p_sm, mgrp);
+	request_mlid(p_sm, cl_hton16(mgrp->mlid));
 Exit:
 	CL_PLOCK_RELEASE(p_sm->p_lock);
 	OSM_LOG_EXIT(p_sm->p_log);

@@ -126,8 +126,8 @@ typedef struct osm_sm {
 	cl_dispatcher_t *p_disp;
 	cl_plock_t *p_lock;
 	atomic32_t sm_trans_id;
-	cl_spinlock_t mgrp_lock;
-	cl_qlist_t mgrp_list;
+	unsigned mlids_req_max;
+	uint8_t *mlids_req;
 	osm_sm_mad_ctrl_t mad_ctrl;
 	osm_lid_mgr_t lid_mgr;
 	osm_ucast_mgr_t ucast_mgr;

@@ -1116,7 +1116,6 @@ static int mcast_mgr_set_mftables(osm_sm_t * sm)
 int osm_mcast_mgr_process(osm_sm_t * sm)
 {
 	cl_qmap_t *p_sw_tbl;
-	cl_qlist_t *p_list = &sm->mgrp_list;
 	osm_mgrp_t *p_mgrp;
 	int i, ret = 0;
 
@@ -1150,15 +1149,13 @@ int osm_mcast_mgr_process(osm_sm_t * sm)
 			mcast_mgr_process_mgrp(sm, p_mgrp);
 	}
 
+	memset(sm->mlids_req, 0, sm->mlids_req_max);
+	sm->mlids_req_max = 0;
+
 	/*
 	   Walk the switches and download the tables for each.
 	 */
 	ret = mcast_mgr_set_mftables(sm);
-
-	while (!cl_is_qlist_empty(p_list)) {
-		cl_list_item_t *p = cl_qlist_remove_head(p_list);
-		free(p);
-	}
 
 exit:
 	CL_PLOCK_RELEASE(sm->p_lock);
@@ -1174,11 +1171,10 @@ exit:
  **********************************************************************/
 int osm_mcast_mgr_process_mgroups(osm_sm_t * sm)
 {
-	cl_qlist_t *p_list = &sm->mgrp_list;
 	osm_mgrp_t *p_mgrp;
 	ib_net16_t mlid;
-	osm_mcast_mgr_ctxt_t *ctx;
 	int ret = 0;
+	unsigned i;
 
 	OSM_LOG_ENTER(sm->p_log);
 
@@ -1192,14 +1188,12 @@ int osm_mcast_mgr_process_mgroups(osm_sm_t * sm)
 		goto exit;
 	}
 
-	while (!cl_is_qlist_empty(p_list)) {
-		ctx = (osm_mcast_mgr_ctxt_t *) cl_qlist_remove_head(p_list);
+	for (i = 0; i <= sm->mlids_req_max; i++) {
+		if (!sm->mlids_req[i])
+			continue;
+		sm->mlids_req[i] = 0;
 
-		/* nice copy no warning on size diff */
-		memcpy(&mlid, &ctx->mlid, sizeof(mlid));
-
-		/* we can destroy the context now */
-		free(ctx);
+		mlid = cl_hton16(i + IB_LID_MCAST_START_HO);
 
 		/* since we delayed the execution we prefer to pass the
 		   mlid as the mgrp identifier and then find it or abort */
@@ -1222,6 +1216,9 @@ int osm_mcast_mgr_process_mgroups(osm_sm_t * sm)
 			cl_ntoh16(mlid), p_mgrp->last_change_id);
 		mcast_mgr_process_mgrp(sm, p_mgrp);
 	}
+
+	memset(sm->mlids_req, 0, sm->mlids_req_max);
+	sm->mlids_req_max = 0;
 
 	/*
 	   Walk the switches and download the tables for each.
