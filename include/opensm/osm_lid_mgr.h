@@ -96,7 +96,6 @@ typedef struct osm_lid_mgr {
 	osm_db_t *p_db;
 	osm_log_t *p_log;
 	cl_plock_t *p_lock;
-	boolean_t send_set_reqs;
 	osm_db_domain_t *p_g2l;
 	cl_qlist_t free_ranges;
 	uint8_t used_lids[IB_LID_UCAST_END_HO + 1];
@@ -117,9 +116,6 @@ typedef struct osm_lid_mgr {
 *
 *	p_lock
 *		Pointer to the serializing lock.
-*
-*	send_set_reqs
-*		Boolean to indicate whether any set requests sent.
 *
 *	p_g2l
 *		Pointer to the database domain storing guid to lid mapping.
@@ -239,17 +235,14 @@ osm_lid_mgr_init(IN osm_lid_mgr_t * const p_mgr, IN struct osm_sm * sm);
 *
 * SYNOPSIS
 */
-osm_signal_t osm_lid_mgr_process_sm(IN osm_lid_mgr_t * const p_mgr);
+int osm_lid_mgr_process_sm(IN osm_lid_mgr_t * const p_mgr);
 /*
 * PARAMETERS
 *	p_mgr
 *		[in] Pointer to an osm_lid_mgr_t object.
 *
 * RETURN VALUES
-*	Returns the appropriate signal to the caller:
-*		OSM_SIGNAL_DONE - operation is complete
-*		OSM_SIGNAL_DONE_PENDING - local operations are complete, but
-*			transactions are still pending on the wire.
+*	Returns 0 on success and non-zero value otherwise.
 *
 * NOTES
 *
@@ -267,17 +260,14 @@ osm_signal_t osm_lid_mgr_process_sm(IN osm_lid_mgr_t * const p_mgr);
 *
 * SYNOPSIS
 */
-osm_signal_t osm_lid_mgr_process_subnet(IN osm_lid_mgr_t * const p_mgr);
+int osm_lid_mgr_process_subnet(IN osm_lid_mgr_t * const p_mgr);
 /*
 * PARAMETERS
 *	p_mgr
 *		[in] Pointer to an osm_lid_mgr_t object.
 *
 * RETURN VALUES
-*	Returns the appropriate signal to the caller:
-*		OSM_SIGNAL_DONE - operation is complete
-*		OSM_SIGNAL_DONE_PENDING - local operations are complete, but
-*			transactions are still pending on the wire.
+*	Returns 0 on success and non-zero value otherwise.
 *
 * NOTES
 *

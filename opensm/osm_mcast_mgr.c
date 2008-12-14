@@ -321,7 +321,7 @@ static osm_switch_t *mcast_mgr_find_root_switch(osm_sm_t * sm,
 
 /**********************************************************************
  **********************************************************************/
-static osm_signal_t mcast_mgr_set_tbl(osm_sm_t * sm, IN osm_switch_t * p_sw)
+static int mcast_mgr_set_tbl(osm_sm_t * sm, IN osm_switch_t * p_sw)
 {
 	osm_node_t *p_node;
 	osm_dr_path_t *p_path;
@@ -333,7 +333,7 @@ static osm_signal_t mcast_mgr_set_tbl(osm_sm_t * sm, IN osm_switch_t * p_sw)
 	uint32_t max_position;
 	osm_mcast_tbl_t *p_tbl;
 	ib_net16_t block[IB_MCAST_BLOCK_SIZE];
-	osm_signal_t signal = OSM_SIGNAL_DONE;
+	int ret = 0;
 
 	CL_ASSERT(sm);
 
@@ -375,9 +375,8 @@ static osm_signal_t mcast_mgr_set_tbl(osm_sm_t * sm, IN osm_switch_t * p_sw)
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A02: "
 				"Sending multicast fwd. tbl. block failed (%s)\n",
 				ib_get_err_str(status));
+			ret = -1;
 		}
-
-		signal = OSM_SIGNAL_DONE_PENDING;
 
 		if (++position > max_position) {
 			position = 0;
@@ -386,7 +385,7 @@ static osm_signal_t mcast_mgr_set_tbl(osm_sm_t * sm, IN osm_switch_t * p_sw)
 	}
 
 	OSM_LOG_EXIT(sm->p_log);
-	return signal;
+	return ret;
 }
 
 /**********************************************************************
@@ -1104,15 +1103,13 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-osm_signal_t osm_mcast_mgr_process(osm_sm_t * sm)
+int osm_mcast_mgr_process(osm_sm_t * sm)
 {
-	osm_signal_t signal;
 	osm_switch_t *p_sw;
 	cl_qmap_t *p_sw_tbl;
 	cl_qlist_t *p_list = &sm->mgrp_list;
 	osm_mgrp_t *p_mgrp;
-	boolean_t pending_transactions = FALSE;
-	int i;
+	int i, ret = 0;
 
 	OSM_LOG_ENTER(sm->p_log);
 
@@ -1142,9 +1139,8 @@ osm_signal_t osm_mcast_mgr_process(osm_sm_t * sm)
 	 */
 	p_sw = (osm_switch_t *) cl_qmap_head(p_sw_tbl);
 	while (p_sw != (osm_switch_t *) cl_qmap_end(p_sw_tbl)) {
-		signal = mcast_mgr_set_tbl(sm, p_sw);
-		if (signal == OSM_SIGNAL_DONE_PENDING)
-			pending_transactions = TRUE;
+		if (mcast_mgr_set_tbl(sm, p_sw))
+			ret = -1;
 		p_sw = (osm_switch_t *) cl_qmap_next(&p_sw->map_item);
 	}
 
@@ -1157,25 +1153,22 @@ osm_signal_t osm_mcast_mgr_process(osm_sm_t * sm)
 
 	OSM_LOG_EXIT(sm->p_log);
 
-	if (pending_transactions == TRUE)
-		return (OSM_SIGNAL_DONE_PENDING);
-	else
-		return (OSM_SIGNAL_DONE);
+	return ret;
 }
 
 /**********************************************************************
   This is the function that is invoked during idle time to handle the
   process request for mcast groups where join/leave/delete was required.
  **********************************************************************/
-osm_signal_t osm_mcast_mgr_process_mgroups(osm_sm_t * sm)
+int osm_mcast_mgr_process_mgroups(osm_sm_t * sm)
 {
 	cl_qlist_t *p_list = &sm->mgrp_list;
 	osm_switch_t *p_sw;
 	cl_qmap_t *p_sw_tbl;
 	osm_mgrp_t *p_mgrp;
 	ib_net16_t mlid;
-	osm_signal_t ret, signal = OSM_SIGNAL_DONE;
 	osm_mcast_mgr_ctxt_t *ctx;
+	int ret = 0;
 
 	OSM_LOG_ENTER(sm->p_log);
 
@@ -1219,9 +1212,8 @@ osm_signal_t osm_mcast_mgr_process_mgroups(osm_sm_t * sm)
 	p_sw_tbl = &sm->p_subn->sw_guid_tbl;
 	p_sw = (osm_switch_t *) cl_qmap_head(p_sw_tbl);
 	while (p_sw != (osm_switch_t *) cl_qmap_end(p_sw_tbl)) {
-		ret = mcast_mgr_set_tbl(sm, p_sw);
-		if (ret == OSM_SIGNAL_DONE_PENDING)
-			signal = ret;
+		if (mcast_mgr_set_tbl(sm, p_sw))
+			ret = -1;
 		p_sw = (osm_switch_t *) cl_qmap_next(&p_sw->map_item);
 	}
 
@@ -1229,5 +1221,5 @@ osm_signal_t osm_mcast_mgr_process_mgroups(osm_sm_t * sm)
 
 	CL_PLOCK_RELEASE(sm->p_lock);
 	OSM_LOG_EXIT(sm->p_log);
-	return signal;
+	return ret;
 }

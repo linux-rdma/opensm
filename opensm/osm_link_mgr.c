@@ -93,8 +93,8 @@ static uint8_t link_mgr_get_smsl(IN osm_sm_t * sm, IN osm_physp_t * p_physp)
 
 /**********************************************************************
  **********************************************************************/
-static boolean_t link_mgr_set_physp_pi(osm_sm_t * sm, IN osm_physp_t * p_physp,
-				       IN uint8_t port_state)
+static int link_mgr_set_physp_pi(osm_sm_t * sm, IN osm_physp_t * p_physp,
+				 IN uint8_t port_state)
 {
 	uint8_t payload[IB_SMP_DATA_SIZE];
 	ib_port_info_t *p_pi = (ib_port_info_t *) payload;
@@ -102,13 +102,10 @@ static boolean_t link_mgr_set_physp_pi(osm_sm_t * sm, IN osm_physp_t * p_physp,
 	osm_madw_context_t context;
 	osm_node_t *p_node;
 	ib_api_status_t status;
-	uint8_t port_num;
-	uint8_t mtu;
-	uint8_t smsl = OSM_DEFAULT_SL;
-	uint8_t op_vls;
-	boolean_t esp0 = FALSE;
-	boolean_t send_set = FALSE;
+	uint8_t port_num, mtu, op_vls, smsl = OSM_DEFAULT_SL;
+	boolean_t esp0 = FALSE, send_set = FALSE;
 	osm_physp_t *p_remote_physp;
+	int ret = 0;
 
 	OSM_LOG_ENTER(sm->p_log);
 
@@ -391,28 +388,29 @@ Send:
 	    && sm->p_subn->first_time_master_sweep == TRUE)
 		send_set = TRUE;
 
-	if (send_set)
-		status = osm_req_set(sm, osm_physp_get_dr_path_ptr(p_physp),
-				     payload, sizeof(payload),
-				     IB_MAD_ATTR_PORT_INFO,
-				     cl_hton32(port_num),
-				     CL_DISP_MSGID_NONE, &context);
+	if (!send_set)
+		goto Exit;
+
+	status = osm_req_set(sm, osm_physp_get_dr_path_ptr(p_physp),
+			     payload, sizeof(payload), IB_MAD_ATTR_PORT_INFO,
+			     cl_hton32(port_num), CL_DISP_MSGID_NONE, &context);
+	if (status)
+		ret = -1;
 
 Exit:
 	OSM_LOG_EXIT(sm->p_log);
-	return send_set;
+	return ret;
 }
 
 /**********************************************************************
  **********************************************************************/
-static osm_signal_t link_mgr_process_node(osm_sm_t * sm, IN osm_node_t * p_node,
-					  IN const uint8_t link_state)
+static int link_mgr_process_node(osm_sm_t * sm, IN osm_node_t * p_node,
+				 IN const uint8_t link_state)
 {
-	uint32_t i;
-	uint32_t num_physp;
 	osm_physp_t *p_physp;
+	uint32_t i, num_physp;
+	int ret = 0;
 	uint8_t current_state;
-	osm_signal_t signal = OSM_SIGNAL_DONE;
 
 	OSM_LOG_ENTER(sm->p_log);
 
@@ -453,20 +451,20 @@ static osm_signal_t link_mgr_process_node(osm_sm_t * sm, IN osm_node_t * p_node,
 				p_physp->port_num,
 				ib_get_port_state_str(current_state));
 		else if (link_mgr_set_physp_pi(sm, p_physp, link_state))
-			signal = OSM_SIGNAL_DONE_PENDING;
+			ret = -1;
 	}
 
 	OSM_LOG_EXIT(sm->p_log);
-	return (signal);
+	return ret;
 }
 
 /**********************************************************************
  **********************************************************************/
-osm_signal_t osm_link_mgr_process(osm_sm_t * sm, IN const uint8_t link_state)
+int osm_link_mgr_process(osm_sm_t * sm, IN const uint8_t link_state)
 {
 	cl_qmap_t *p_node_guid_tbl;
 	osm_node_t *p_node;
-	osm_signal_t signal = OSM_SIGNAL_DONE;
+	int ret = 0;
 
 	OSM_LOG_ENTER(sm->p_log);
 
@@ -476,14 +474,12 @@ osm_signal_t osm_link_mgr_process(osm_sm_t * sm, IN const uint8_t link_state)
 
 	for (p_node = (osm_node_t *) cl_qmap_head(p_node_guid_tbl);
 	     p_node != (osm_node_t *) cl_qmap_end(p_node_guid_tbl);
-	     p_node = (osm_node_t *) cl_qmap_next(&p_node->map_item)) {
-		if (link_mgr_process_node(sm, p_node, link_state) ==
-		    OSM_SIGNAL_DONE_PENDING)
-			signal = OSM_SIGNAL_DONE_PENDING;
-	}
+	     p_node = (osm_node_t *) cl_qmap_next(&p_node->map_item))
+		if (link_mgr_process_node(sm, p_node, link_state))
+			ret = -1;
 
 	CL_PLOCK_RELEASE(sm->p_lock);
 
 	OSM_LOG_EXIT(sm->p_log);
-	return (signal);
+	return ret;
 }

@@ -222,10 +222,10 @@ static ib_api_status_t sl2vl_update(osm_sm_t * sm, osm_port_t * p_port,
 	return IB_SUCCESS;
 }
 
-static ib_api_status_t qos_physp_setup(osm_log_t * p_log, osm_sm_t * sm,
-				       osm_port_t * p_port, osm_physp_t * p,
-				       uint8_t port_num, unsigned force_update,
-				       const struct qos_config *qcfg)
+static int qos_physp_setup(osm_log_t * p_log, osm_sm_t * sm,
+			   osm_port_t * p_port, osm_physp_t * p,
+			   uint8_t port_num, unsigned force_update,
+			   const struct qos_config *qcfg)
 {
 	ib_api_status_t status;
 
@@ -241,7 +241,7 @@ static ib_api_status_t qos_physp_setup(osm_log_t * p_log, osm_sm_t * sm,
 			"failed to update VLArbitration tables "
 			"for port %" PRIx64 " #%d\n",
 			cl_ntoh64(p->port_guid), port_num);
-		return status;
+		return -1;
 	}
 
 	/* setup SL2VL tables */
@@ -251,13 +251,13 @@ static ib_api_status_t qos_physp_setup(osm_log_t * p_log, osm_sm_t * sm,
 			"failed to update SL2VLMapping tables "
 			"for port %" PRIx64 " #%d\n",
 			cl_ntoh64(p->port_guid), port_num);
-		return status;
+		return -1;
 	}
 
-	return IB_SUCCESS;
+	return 0;
 }
 
-osm_signal_t osm_qos_setup(osm_opensm_t * p_osm)
+int osm_qos_setup(osm_opensm_t * p_osm)
 {
 	struct qos_config ca_config, sw0_config, swe_config, rtr_config;
 	struct qos_config *cfg;
@@ -267,12 +267,12 @@ osm_signal_t osm_qos_setup(osm_opensm_t * p_osm)
 	uint32_t num_physp;
 	osm_physp_t *p_physp;
 	osm_node_t *p_node;
-	ib_api_status_t status;
 	unsigned force_update;
+	int ret = 0;
 	uint8_t i;
 
 	if (!p_osm->subn.opt.qos)
-		return OSM_SIGNAL_DONE;
+		return 0;
 
 	OSM_LOG_ENTER(&p_osm->log);
 
@@ -305,10 +305,10 @@ osm_signal_t osm_qos_setup(osm_opensm_t * p_osm)
 					continue;
 				force_update = p_physp->need_update ||
 				    p_osm->subn.need_update;
-				status =
-				    qos_physp_setup(&p_osm->log, &p_osm->sm,
+				if (qos_physp_setup(&p_osm->log, &p_osm->sm,
 						    p_port, p_physp, i,
-						    force_update, &swe_config);
+						    force_update, &swe_config))
+					ret = -1;
 			}
 			/* skip base port 0 */
 			if (!ib_switch_info_is_enhanced_port0
@@ -326,14 +326,15 @@ osm_signal_t osm_qos_setup(osm_opensm_t * p_osm)
 			continue;
 
 		force_update = p_physp->need_update || p_osm->subn.need_update;
-		status = qos_physp_setup(&p_osm->log, &p_osm->sm, p_port,
-					 p_physp, 0, force_update, cfg);
+		if (qos_physp_setup(&p_osm->log, &p_osm->sm, p_port, p_physp,
+				    0, force_update, cfg))
+			ret = -1;
 	}
 
 	cl_plock_release(&p_osm->lock);
 	OSM_LOG_EXIT(&p_osm->log);
 
-	return OSM_SIGNAL_DONE;
+	return ret;
 }
 
 /*

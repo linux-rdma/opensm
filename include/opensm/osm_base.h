@@ -793,10 +793,6 @@ typedef enum _osm_thread_state {
 #define OSM_SIGNAL_PERFMGR_SWEEP		3
 #define OSM_SIGNAL_MAX				3
 
-/* status values for sweep managers - can be removed later */
-#define OSM_SIGNAL_DONE		16
-#define OSM_SIGNAL_DONE_PENDING	17
-
 typedef unsigned int osm_signal_t;
 /***********/
 

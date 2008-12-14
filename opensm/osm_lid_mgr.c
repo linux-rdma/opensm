@@ -821,10 +821,10 @@ static void lid_mgr_set_remote_pi_state_to_init(IN osm_lid_mgr_t * p_mgr,
 
 /**********************************************************************
  **********************************************************************/
-static boolean_t lid_mgr_set_physp_pi(IN osm_lid_mgr_t * p_mgr,
-				      IN osm_port_t * p_port,
-				      IN osm_physp_t * p_physp,
-				      IN ib_net16_t const lid)
+static int lid_mgr_set_physp_pi(IN osm_lid_mgr_t * p_mgr,
+				IN osm_port_t * p_port,
+				IN osm_physp_t * p_physp,
+				IN ib_net16_t const lid)
 {
 	uint8_t payload[IB_SMP_DATA_SIZE];
 	ib_port_info_t *p_pi = (ib_port_info_t *) payload;
@@ -836,6 +836,7 @@ static boolean_t lid_mgr_set_physp_pi(IN osm_lid_mgr_t * p_mgr,
 	uint8_t op_vls;
 	uint8_t port_num;
 	boolean_t send_set = FALSE;
+	int ret = 0;
 
 	OSM_LOG_ENTER(p_mgr->p_log);
 
@@ -1068,31 +1069,31 @@ static boolean_t lid_mgr_set_physp_pi(IN osm_lid_mgr_t * p_mgr,
 	if (p_mgr->p_subn->first_time_master_sweep == TRUE)
 		send_set = TRUE;
 
-	if (send_set) {
-		p_mgr->send_set_reqs = TRUE;
-		status = osm_req_set(p_mgr->sm,
-				     osm_physp_get_dr_path_ptr(p_physp),
-				     payload, sizeof(payload),
-				     IB_MAD_ATTR_PORT_INFO,
-				     cl_hton32(osm_physp_get_port_num(p_physp)),
-				     CL_DISP_MSGID_NONE, &context);
-	}
+	if (!send_set)
+		goto Exit;
+
+	status = osm_req_set(p_mgr->sm, osm_physp_get_dr_path_ptr(p_physp),
+			     payload, sizeof(payload), IB_MAD_ATTR_PORT_INFO,
+			     cl_hton32(osm_physp_get_port_num(p_physp)),
+			     CL_DISP_MSGID_NONE, &context);
+	if (status != IB_SUCCESS)
+		ret = -1;
 
 Exit:
 	OSM_LOG_EXIT(p_mgr->p_log);
-	return send_set;
+	return ret;
 }
 
 /**********************************************************************
  Processes our own node
  Lock must already be held.
 **********************************************************************/
-static boolean_t lid_mgr_process_our_sm_node(IN osm_lid_mgr_t * p_mgr)
+static int lid_mgr_process_our_sm_node(IN osm_lid_mgr_t * p_mgr)
 {
 	osm_port_t *p_port;
 	uint16_t min_lid_ho;
 	uint16_t max_lid_ho;
-	boolean_t res = TRUE;
+	int ret;
 
 	OSM_LOG_ENTER(p_mgr->p_log);
 
@@ -1105,7 +1106,7 @@ static boolean_t lid_mgr_process_our_sm_node(IN osm_lid_mgr_t * p_mgr)
 		OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 0308: "
 			"Can't acquire SM's port object, GUID 0x%016" PRIx64
 			"\n", cl_ntoh64(p_mgr->p_subn->sm_port_guid));
-		res = FALSE;
+		ret = -1;
 		goto Exit;
 	}
 
@@ -1134,19 +1135,19 @@ static boolean_t lid_mgr_process_our_sm_node(IN osm_lid_mgr_t * p_mgr)
 	/*
 	   Set the PortInfo the Physical Port associated with this Port.
 	 */
-	lid_mgr_set_physp_pi(p_mgr, p_port, p_port->p_physp,
-			     cl_hton16(min_lid_ho));
+	ret = lid_mgr_set_physp_pi(p_mgr, p_port, p_port->p_physp,
+				   cl_hton16(min_lid_ho));
 
 Exit:
 	OSM_LOG_EXIT(p_mgr->p_log);
-	return res;
+	return ret;
 }
 
 /**********************************************************************
  **********************************************************************/
-osm_signal_t osm_lid_mgr_process_sm(IN osm_lid_mgr_t * p_mgr)
+int osm_lid_mgr_process_sm(IN osm_lid_mgr_t * p_mgr)
 {
-	osm_signal_t signal = OSM_SIGNAL_DONE_PENDING;
+	int ret;
 
 	OSM_LOG_ENTER(p_mgr->p_log);
 
@@ -1158,21 +1159,12 @@ osm_signal_t osm_lid_mgr_process_sm(IN osm_lid_mgr_t * p_mgr)
 	   persistent db */
 	lid_mgr_init_sweep(p_mgr);
 
-	/* Set the send_set_reqs of the p_mgr to FALSE, and
-	   we'll see if any set requests were sent. If not -
-	   can signal OSM_SIGNAL_DONE */
-	p_mgr->send_set_reqs = FALSE;
-	if (lid_mgr_process_our_sm_node(p_mgr) == FALSE)
-		/* The initialization failed */
-		signal = OSM_SIGNAL_DONE;
-
-	if (p_mgr->send_set_reqs == FALSE)
-		signal = OSM_SIGNAL_DONE;
+	ret = lid_mgr_process_our_sm_node(p_mgr);
 
 	CL_PLOCK_RELEASE(p_mgr->p_lock);
 
 	OSM_LOG_EXIT(p_mgr->p_log);
-	return (signal);
+	return ret;
 }
 
 /**********************************************************************
@@ -1181,14 +1173,13 @@ osm_signal_t osm_lid_mgr_process_sm(IN osm_lid_mgr_t * p_mgr)
  1.2 if a change is required send the port info
  2 if any change send the signal PENDING...
 **********************************************************************/
-osm_signal_t osm_lid_mgr_process_subnet(IN osm_lid_mgr_t * p_mgr)
+int osm_lid_mgr_process_subnet(IN osm_lid_mgr_t * p_mgr)
 {
-	osm_signal_t signal;
 	cl_qmap_t *p_port_guid_tbl;
 	osm_port_t *p_port;
 	ib_net64_t port_guid;
+	int lid_changed, ret = 0;
 	uint16_t min_lid_ho, max_lid_ho;
-	int lid_changed;
 
 	CL_ASSERT(p_mgr);
 
@@ -1197,11 +1188,6 @@ osm_signal_t osm_lid_mgr_process_subnet(IN osm_lid_mgr_t * p_mgr)
 	CL_PLOCK_EXCL_ACQUIRE(p_mgr->p_lock);
 
 	CL_ASSERT(p_mgr->p_subn->sm_port_guid);
-
-	/* Set the send_set_reqs of the p_mgr to FALSE, and
-	   we'll see if any set requests were sent. If not -
-	   can signal OSM_SIGNAL_DONE */
-	p_mgr->send_set_reqs = FALSE;
 
 	p_port_guid_tbl = &p_mgr->p_subn->port_guid_tbl;
 
@@ -1244,19 +1230,14 @@ osm_signal_t osm_lid_mgr_process_subnet(IN osm_lid_mgr_t * p_mgr)
 		/* the proc returns the fact it sent a set port info */
 		if (lid_mgr_set_physp_pi(p_mgr, p_port, p_port->p_physp,
 					 cl_hton16(min_lid_ho)))
-			p_mgr->send_set_reqs = TRUE;
+			ret = -1;
 	}			/* all ports */
 
 	/* store the guid to lid table in persistent db */
 	osm_db_store(p_mgr->p_g2l);
 
-	if (p_mgr->send_set_reqs == FALSE)
-		signal = OSM_SIGNAL_DONE;
-	else
-		signal = OSM_SIGNAL_DONE_PENDING;
-
 	CL_PLOCK_RELEASE(p_mgr->p_lock);
 
 	OSM_LOG_EXIT(p_mgr->p_log);
-	return (signal);
+	return ret;
 }

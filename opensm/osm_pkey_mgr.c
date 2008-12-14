@@ -189,7 +189,7 @@ pkey_mgr_update_pkey_entry(IN osm_sm_t * sm,
 
 /**********************************************************************
  **********************************************************************/
-static boolean_t
+static ib_api_status_t
 pkey_mgr_enforce_partition(IN osm_log_t * p_log, osm_sm_t * sm,
 			   IN osm_physp_t * p_physp, IN const boolean_t enforce)
 {
@@ -207,7 +207,7 @@ pkey_mgr_enforce_partition(IN osm_log_t * p_log, osm_sm_t * sm,
 			cl_ntoh64(osm_node_get_node_guid
 				  (osm_physp_get_node_ptr(p_physp))),
 			osm_physp_get_port_num(p_physp));
-		return FALSE;
+		return IB_SUCCESS;
 	}
 
 	memset(payload, 0, IB_SMP_DATA_SIZE);
@@ -233,28 +233,26 @@ pkey_mgr_enforce_partition(IN osm_log_t * p_log, osm_sm_t * sm,
 			     IB_MAD_ATTR_PORT_INFO,
 			     cl_hton32(osm_physp_get_port_num(p_physp)),
 			     CL_DISP_MSGID_NONE, &context);
-	if (status != IB_SUCCESS) {
+	if (status != IB_SUCCESS)
 		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0511: "
 			"Failed to set PortInfo for "
 			"node 0x%016" PRIx64 " port %u\n",
 			cl_ntoh64(osm_node_get_node_guid
 				  (osm_physp_get_node_ptr(p_physp))),
 			osm_physp_get_port_num(p_physp));
-		return FALSE;
-	} else {
+	else
 		OSM_LOG(p_log, OSM_LOG_DEBUG,
 			"Set PortInfo for node 0x%016" PRIx64 " port %u\n",
 			cl_ntoh64(osm_node_get_node_guid
 				  (osm_physp_get_node_ptr(p_physp))),
 			osm_physp_get_port_num(p_physp));
-		return TRUE;
-	}
+	return status;
 }
 
 /**********************************************************************
  **********************************************************************/
-static boolean_t pkey_mgr_update_port(osm_log_t * p_log, osm_sm_t * sm,
-				      const osm_port_t * const p_port)
+static int pkey_mgr_update_port(osm_log_t * p_log, osm_sm_t * sm,
+				const osm_port_t * const p_port)
 {
 	osm_physp_t *p_physp;
 	osm_node_t *p_node;
@@ -267,10 +265,10 @@ static boolean_t pkey_mgr_update_port(osm_log_t * p_log, osm_sm_t * sm,
 	uint16_t num_of_blocks;
 	uint16_t max_num_of_blocks;
 	ib_api_status_t status;
-	boolean_t ret_val = FALSE;
 	osm_pending_pkey_t *p_pending;
 	boolean_t found;
 	ib_pkey_table_t empty_block;
+	int ret = 0;
 
 	memset(&empty_block, 0, sizeof(ib_pkey_table_t));
 
@@ -360,32 +358,32 @@ static boolean_t pkey_mgr_update_port(osm_log_t * p_log, osm_sm_t * sm,
 		status =
 		    pkey_mgr_update_pkey_entry(sm, p_physp, new_block,
 					       block_index);
-		if (status == IB_SUCCESS) {
+		if (status == IB_SUCCESS)
 			OSM_LOG(p_log, OSM_LOG_DEBUG,
 				"Updated pkey table block %d for node 0x%016"
 				PRIx64 " port %u\n", block_index,
 				cl_ntoh64(osm_node_get_node_guid(p_node)),
 				osm_physp_get_port_num(p_physp));
-			ret_val = TRUE;
-		} else {
+		else {
 			OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0506: "
 				"pkey_mgr_update_pkey_entry() failed to update "
 				"pkey table block %d for node 0x%016" PRIx64
 				" port %u\n", block_index,
 				cl_ntoh64(osm_node_get_node_guid(p_node)),
 				osm_physp_get_port_num(p_physp));
+			ret = -1;
 		}
 	}
 
-	return ret_val;
+	return ret;
 }
 
 /**********************************************************************
  **********************************************************************/
-static boolean_t
-pkey_mgr_update_peer_port(osm_log_t * p_log, osm_sm_t * sm,
-			  const osm_subn_t * p_subn,
-			  const osm_port_t * const p_port, boolean_t enforce)
+static int pkey_mgr_update_peer_port(osm_log_t * p_log, osm_sm_t * sm,
+				     const osm_subn_t * p_subn,
+				     const osm_port_t * const p_port,
+				     boolean_t enforce)
 {
 	osm_physp_t *p_physp, *peer;
 	osm_node_t *p_node;
@@ -396,21 +394,20 @@ pkey_mgr_update_peer_port(osm_log_t * p_log, osm_sm_t * sm,
 	uint16_t num_of_blocks;
 	uint16_t peer_max_blocks;
 	ib_api_status_t status = IB_SUCCESS;
-	boolean_t ret_val = FALSE;
-	boolean_t port_info_set = FALSE;
 	ib_pkey_table_t empty_block;
+	int ret = 0;
 
 	memset(&empty_block, 0, sizeof(ib_pkey_table_t));
 
 	p_physp = p_port->p_physp;
 	if (!p_physp)
-		return FALSE;
+		return -1;
 	peer = osm_physp_get_remote(p_physp);
 	if (!peer)
-		return FALSE;
+		return -1;
 	p_node = osm_physp_get_node_ptr(peer);
 	if (!p_node->sw || !p_node->sw->switch_info.enforce_cap)
-		return FALSE;
+		return 0;
 
 	p_pkey_tbl = osm_physp_get_pkey_tbl(p_physp);
 	p_peer_pkey_tbl = &peer->pkeys;
@@ -424,13 +421,14 @@ pkey_mgr_update_peer_port(osm_log_t * p_log, osm_sm_t * sm,
 			cl_ntoh64(osm_node_get_node_guid(p_node)),
 			osm_physp_get_port_num(peer));
 		enforce = FALSE;
+		ret = -1;
 	}
 
 	if (pkey_mgr_enforce_partition(p_log, sm, peer, enforce))
-		port_info_set = TRUE;
+		ret = -1;
 
 	if (enforce == FALSE)
-		return port_info_set;
+		return ret;
 
 	p_peer_pkey_tbl->used_blocks = p_pkey_tbl->used_blocks;
 	for (block_index = 0; block_index < p_pkey_tbl->used_blocks;
@@ -443,12 +441,9 @@ pkey_mgr_update_peer_port(osm_log_t * p_log, osm_sm_t * sm,
 		    osm_pkey_tbl_block_get(p_peer_pkey_tbl, block_index);
 		if (!peer_block
 		    || memcmp(peer_block, block, sizeof(*peer_block))) {
-			status =
-			    pkey_mgr_update_pkey_entry(sm, peer, block,
-						       block_index);
-			if (status == IB_SUCCESS)
-				ret_val = TRUE;
-			else
+			status = pkey_mgr_update_pkey_entry(sm, peer, block,
+							    block_index);
+			if (status != IB_SUCCESS) {
 				OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0509: "
 					"pkey_mgr_update_pkey_entry() failed to update "
 					"pkey table block %d for node 0x%016"
@@ -456,30 +451,30 @@ pkey_mgr_update_peer_port(osm_log_t * p_log, osm_sm_t * sm,
 					cl_ntoh64(osm_node_get_node_guid
 						  (p_node)),
 					osm_physp_get_port_num(peer));
+				ret = -1;
+			}
 		}
 	}
 
-	if (ret_val)
+	if (!ret)
 		OSM_LOG(p_log, OSM_LOG_DEBUG,
 			"Pkey table was updated for node 0x%016" PRIx64
 			" port %u\n",
 			cl_ntoh64(osm_node_get_node_guid(p_node)),
 			osm_physp_get_port_num(peer));
 
-	if (port_info_set)
-		return TRUE;
-	return ret_val;
+	return ret;
 }
 
 /**********************************************************************
  **********************************************************************/
-osm_signal_t osm_pkey_mgr_process(IN osm_opensm_t * p_osm)
+int osm_pkey_mgr_process(IN osm_opensm_t * p_osm)
 {
 	cl_qmap_t *p_tbl;
 	cl_map_item_t *p_next;
 	osm_prtn_t *p_prtn;
 	osm_port_t *p_port;
-	osm_signal_t signal = OSM_SIGNAL_DONE;
+	int ret = 0;
 
 	CL_ASSERT(p_osm);
 
@@ -490,6 +485,7 @@ osm_signal_t osm_pkey_mgr_process(IN osm_opensm_t * p_osm)
 	if (osm_prtn_make_partitions(&p_osm->log, &p_osm->subn) != IB_SUCCESS) {
 		OSM_LOG(&p_osm->log, OSM_LOG_ERROR, "ERR 0510: "
 			"osm_prtn_make_partitions() failed\n");
+		ret = -1;
 		goto _err;
 	}
 
@@ -512,17 +508,17 @@ osm_signal_t osm_pkey_mgr_process(IN osm_opensm_t * p_osm)
 		p_port = (osm_port_t *) p_next;
 		p_next = cl_qmap_next(p_next);
 		if (pkey_mgr_update_port(&p_osm->log, &p_osm->sm, p_port))
-			signal = OSM_SIGNAL_DONE_PENDING;
+			ret = -1;
 		if ((osm_node_get_type(p_port->p_node) != IB_NODE_TYPE_SWITCH)
 		    && pkey_mgr_update_peer_port(&p_osm->log, &p_osm->sm,
 						 &p_osm->subn, p_port,
 						 !p_osm->subn.opt.
 						 no_partition_enforcement))
-			signal = OSM_SIGNAL_DONE_PENDING;
+			ret = -1;
 	}
 
 _err:
 	CL_PLOCK_RELEASE(&p_osm->lock);
 	OSM_LOG_EXIT(&p_osm->log);
-	return (signal);
+	return ret;
 }
