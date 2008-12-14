@@ -59,7 +59,6 @@
 #include <opensm/osm_msgdef.h>
 #include <opensm/osm_node.h>
 #include <opensm/osm_port.h>
-#include <opensm/osm_pkey_mgr.h>
 #include <vendor/osm_vendor_api.h>
 #include <opensm/osm_inform.h>
 #include <opensm/osm_opensm.h>
