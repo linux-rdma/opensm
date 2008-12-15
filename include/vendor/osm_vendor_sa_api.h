@@ -753,7 +753,7 @@ typedef struct _osmv_query_req {
 *		and is determined by the specified query_type.
 *
 *	sm_key
-*		The M_Key to be provided with the SA MAD for authentication.
+*		The SM_Key to be provided with the SA MAD for authentication.
 *		Normally 0 is used.
 *
 *	timeout_ms
