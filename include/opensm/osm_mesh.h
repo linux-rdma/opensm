@@ -40,7 +40,36 @@
 #define OSM_MESH_H
 
 struct _lash;
+struct _switch;
 
+/*
+ * per switch to switch link info
+ */
+typedef struct _link {
+	int switch_id;
+	int link_id;
+	int *ports;
+	int num_ports;
+	int next_port;
+} link_t;
+
+/*
+ * per switch node mesh info
+ */
+typedef struct _mesh_node {
+	unsigned int num_links;		/* number of 'links' to adjacent switches */
+	link_t **links;			/* per link information */
+	int *axes;			/* used to hold and reorder assigned axes */
+	int *coord;			/* mesh coordinates of switch */
+	int **matrix;			/* distances between adjacant switches */
+	int *poly;			/* characteristic polynomial of matrix */
+					/* used as an invariant classification */
+	int dimension;			/* apparent dimension of mesh around node */
+	int temp;			/* temporary holder for distance info */
+} mesh_node_t;
+
+void osm_mesh_node_delete(struct _lash *p_lash, struct _switch *sw);
+int osm_mesh_node_create(struct _lash *p_lash, struct _switch *sw);
 int osm_do_mesh_analysis(struct _lash *p_lash);
 
 #endif

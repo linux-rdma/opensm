@@ -628,6 +628,11 @@ static switch_t *switch_create(lash_t * p_lash, unsigned id, osm_switch_t * p_sw
 		return NULL;
 	}
 
+	for (i = 0; i < num_ports; i++) {
+		sw->virtual_physical_port_table[i] = -1;
+		sw->phys_connections[i] = NONE;
+	}
+
 	sw->routing_table = malloc(num_switches * sizeof(sw->routing_table[0]));
 	if (!sw->routing_table) {
 		free(sw->phys_connections);
@@ -642,20 +647,26 @@ static switch_t *switch_create(lash_t * p_lash, unsigned id, osm_switch_t * p_sw
 		sw->routing_table[i].lane = NONE;
 	}
 
-	for (i = 0; i < num_ports; i++) {
-		sw->virtual_physical_port_table[i] = -1;
-		sw->phys_connections[i] = NONE;
-	}
-
 	sw->p_sw = p_sw;
 	if (p_sw)
 		p_sw->priv = sw;
 
+	if (osm_mesh_node_create(p_lash, sw)) {
+		free(sw->routing_table);
+		free(sw->phys_connections);
+		free(sw->virtual_physical_port_table);
+		free(sw->dij_channels);
+		free(sw);
+		return NULL;
+	}
+
 	return sw;
 }
 
-static void switch_delete(switch_t * sw)
+static void switch_delete(lash_t *p_lash, switch_t * sw)
 {
+	osm_mesh_node_delete(p_lash, sw);
+
 	if (sw->dij_channels)
 		free(sw->dij_channels);
 	if (sw->virtual_physical_port_table)
@@ -1116,7 +1127,7 @@ static void lash_cleanup(lash_t * p_lash)
 		unsigned id;
 		for (id = 0; ((int)id) < p_lash->num_switches; id++)
 			if (p_lash->switches[id])
-				switch_delete(p_lash->switches[id]);
+				switch_delete(p_lash, p_lash->switches[id]);
 		free(p_lash->switches);
 	}
 	p_lash->switches = NULL;
@@ -1256,13 +1267,15 @@ static lash_t *lash_create(osm_opensm_t * p_osm)
 static void lash_delete(void *context)
 {
 	lash_t *p_lash = context;
+
 	if (p_lash->switches) {
 		unsigned id;
 		for (id = 0; ((int)id) < p_lash->num_switches; id++)
 			if (p_lash->switches[id])
-				switch_delete(p_lash->switches[id]);
+				switch_delete(p_lash, p_lash->switches[id]);
 		free(p_lash->switches);
 	}
+
 	free(p_lash);
 }
 

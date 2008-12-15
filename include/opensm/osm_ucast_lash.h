@@ -81,6 +81,7 @@ typedef struct _switch {
 		unsigned out_link;
 		unsigned lane;
 	} *routing_table;
+	mesh_node_t *node;
 	unsigned int num_connections;
 	int *virtual_physical_port_table;
 	int *phys_connections;
