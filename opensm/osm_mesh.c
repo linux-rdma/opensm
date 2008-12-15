@@ -525,6 +525,9 @@ static int char_poly(lash_t *p_lash, int rank, int **matrix, int **poly)
 	OSM_LOG_ENTER(p_log);
 
 	do {
+		if (!matrix)
+			break;
+
 		if (!(p = poly_alloc(p_lash, deg))) {
 			break;
 		}
@@ -655,6 +658,9 @@ static void classify_switch(lash_t *p_lash, mesh_t *mesh, int sw)
 
 	OSM_LOG_ENTER(p_log);
 
+	if (!s->node->poly)
+		goto done;
+
 	for (i = 0; i < mesh->num_class; i++) {
 		s1 = p_lash->switches[mesh->class_type[i]];
 
@@ -670,6 +676,7 @@ static void classify_switch(lash_t *p_lash, mesh_t *mesh, int sw)
 	mesh->class_count[mesh->num_class] = 1;
 	mesh->num_class++;
 
+done:
 	OSM_LOG_EXIT(p_log);
 	return;
 }
@@ -681,9 +688,15 @@ static void classify_switch(lash_t *p_lash, mesh_t *mesh, int sw)
  */
 static void classify_mesh_type(lash_t *p_lash, int sw)
 {
+	osm_log_t *p_log = &p_lash->p_osm->log;
 	int i;
 	switch_t *s = p_lash->switches[sw];
 	struct _mesh_info *t;
+
+	OSM_LOG_ENTER(p_log);
+
+	if (!s->node->poly)
+		goto done;
 
 	for (i = 1; (t = &mesh_info[i])->dimension != -1; i++) {
 		if (poly_diff(t->degree, t->poly, s))
@@ -691,10 +704,13 @@ static void classify_mesh_type(lash_t *p_lash, int sw)
 
 		s->node->type = i;
 		s->node->dimension = t->dimension;
+		OSM_LOG_EXIT(p_log);
 		return;
 	}
 
+done:
 	s->node->type = 0;
+	OSM_LOG_EXIT(p_log);
 	return;
 }
 
@@ -741,9 +757,14 @@ static int get_local_geometry(lash_t *p_lash, mesh_t *mesh)
  */
 static void seed_axes(lash_t *p_lash, int sw)
 {
+	osm_log_t *p_log = &p_lash->p_osm->log;
 	mesh_node_t *node = p_lash->switches[sw]->node;
 	int n = node->num_links;
 	int i, j, c;
+
+	OSM_LOG_ENTER(p_log);
+	if (!node->matrix || !node->dimension)
+		goto done;
 
 	for (c = 1; c <= 2*node->dimension; c++) {
 		/*
@@ -771,6 +792,9 @@ static void seed_axes(lash_t *p_lash, int sw)
 			node->axes[j] = c;
 		}
 	}
+
+done:
+	OSM_LOG_EXIT(p_log);
 }
 
 /*
@@ -782,6 +806,9 @@ static inline int opposite(switch_t *s, int axis)
 {
 	int i, j;
 	int negaxis = 1 + (1 ^ (axis - 1));
+
+	if (!s->node->matrix)
+		return 0;
 
 	for (i = 0; i < s->node->num_links; i++) {
 		if (s->node->axes[i] == axis) {
@@ -812,6 +839,13 @@ static void make_geometry(lash_t *p_lash, int sw)
 	switch_t *s, *s1, *s2, *seed;
 	int i, j, k, l, n, m;
 	int change;
+
+	OSM_LOG_ENTER(p_log);
+
+	s = p_lash->switches[sw];
+
+	if (!s->node->matrix)
+		goto done;
 
 	/*
 	 * assign axes to seed switch
@@ -891,7 +925,7 @@ static void make_geometry(lash_t *p_lash, int sw)
 					continue;
 
 				if (l2 == -1) {
-					printf("ERROR no reverse link\n");
+					OSM_LOG(p_log, OSM_LOG_DEBUG, "no reverse link\n");
 					continue;
 				}
 
@@ -975,6 +1009,8 @@ next_j:
 		}
 	} while(change);
 
+done:
+	OSM_LOG_EXIT(p_log);
 	return;
 }
 
@@ -1325,7 +1361,10 @@ int osm_do_mesh_analysis(lash_t *p_lash)
 	/*
 	 * find dominant switch class
 	 */
+	OSM_LOG(p_log, OSM_LOG_INFO, "found %d node class%s\n", mesh->num_class, (mesh->num_class == 1)? "" : "es");
 	for (i = 0; i < mesh->num_class; i++) {
+		OSM_LOG(p_log, OSM_LOG_INFO, "class[%d] has %d members with type = %d\n",
+		i, mesh->class_count[i], p_lash->switches[mesh->class_type[i]]->node->type);
 		if (mesh->class_count[i] > max_class_num) {
 			max_class = i;
 			max_class_num = mesh->class_count[i];
@@ -1335,10 +1374,8 @@ int osm_do_mesh_analysis(lash_t *p_lash)
 
 	s = p_lash->switches[max_class_type];
 
-	OSM_LOG(p_log, OSM_LOG_INFO, "found %d node type%s\n", mesh->num_class, (mesh->num_class == 1)? "" : "s");
-
 	p = buf;
-	p += sprintf( p, "%snode type is ", (mesh->num_class == 1)? "" : "most common ");
+	p += sprintf( p, "%snode shape is ", (mesh->num_class == 1)? "" : "most common ");
 
 	if (s->node->type) {
 		struct _mesh_info *t = &mesh_info[s->node->type];

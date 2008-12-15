@@ -67,16 +67,53 @@ static cdg_vertex_t *create_cdg_vertex(unsigned num_switches)
 static void connect_switches(lash_t * p_lash, int sw1, int sw2, int phy_port_1)
 {
 	osm_log_t *p_log = &p_lash->p_osm->log;
-	unsigned num = p_lash->switches[sw1]->num_connections;
+	unsigned num = p_lash->switches[sw1]->node->num_links;
+	switch_t *s1 = p_lash->switches[sw1];
+	mesh_node_t *node = s1->node;
+	switch_t *s2;
+	link_t *l;
+	int i;
 
-	p_lash->switches[sw1]->phys_connections[num] = sw2;
-	p_lash->switches[sw1]->virtual_physical_port_table[num] = phy_port_1;
-	p_lash->switches[sw1]->num_connections++;
+	/*
+	 * if doing mesh analysis:
+	 *  - do not consider connections to self
+	 *  - collapse multiple connections between
+	 *    pair of switches to a single locical link
+	 */
+	if (p_lash->p_osm->subn.opt.do_mesh_analysis) {
+		if (sw1 == sw2)
+			return;
+
+		/* see if we are alredy linked to sw2 */
+		for (i = 0; i < num; i++) {
+			l = node->links[i];
+
+			if (node->links[i]->switch_id == sw2) {
+				l->ports[l->num_ports++] = phy_port_1;
+				return;
+			}
+		}
+	}
+
+	l = node->links[num];
+	l->switch_id = sw2;
+	l->link_id = -1;
+	l->ports[l->num_ports++] = phy_port_1;
+
+	s2 = p_lash->switches[sw2];
+	for (i = 0; i < s2->node->num_links; i++) {
+		if (s2->node->links[i]->switch_id == sw1) {
+			s2->node->links[i]->link_id = num;
+			l->link_id = i;
+			break;
+		}
+	}
+
+	node->num_links++;
 
 	OSM_LOG(p_log, OSM_LOG_VERBOSE,
 		"LASH connect: %d, %d, %d\n", sw1, sw2,
 		phy_port_1);
-
 }
 
 static osm_switch_t *get_osm_switch_from_port(osm_port_t * port)
@@ -148,7 +185,7 @@ static int cycle_exists(cdg_vertex_t * start, cdg_vertex_t * current,
 
 static inline int get_next_switch(lash_t *p_lash, int sw, int link)
 {
-	return p_lash->switches[sw]->phys_connections[link];
+	return p_lash->switches[sw]->node->links[link]->switch_id;
 }
 
 static void remove_semipermanent_depend_for_sp(lash_t * p_lash, int sw,
@@ -233,8 +270,8 @@ static int get_phys_connection(switch_t *sw, int switch_to)
 {
 	unsigned int i = 0;
 
-	for (i = 0; i < sw->num_connections; i++)
-		if (sw->phys_connections[i] == switch_to)
+	for (i = 0; i < sw->node->num_links; i++)
+		if (sw->node->links[i]->switch_id == switch_to)
 			return i;
 	return i;
 }
@@ -252,8 +289,8 @@ static void shortest_path(lash_t * p_lash, int ir)
 
 	while (!cl_is_list_empty(&bfsq)) {
 		dequeue(&bfsq, &sw);
-		for (i = 0; i < sw->num_connections; i++) {
-			swi = switches[sw->phys_connections[i]];
+		for (i = 0; i < sw->node->num_links; i++) {
+			swi = switches[sw->node->links[i]->switch_id];
 			if (swi->q_state == UNQUEUED) {
 				enqueue(&bfsq, swi);
 				sw->dij_channels[sw->used_channels++] = swi->id;
@@ -614,30 +651,8 @@ static switch_t *switch_create(lash_t * p_lash, unsigned id, osm_switch_t * p_sw
 		return NULL;
 	}
 
-	sw->virtual_physical_port_table = malloc(num_ports * sizeof(int));
-	if (!sw->virtual_physical_port_table) {
-		free(sw->dij_channels);
-		free(sw);
-		return NULL;
-	}
-
-	sw->phys_connections = malloc(num_ports * sizeof(int));
-	if (!sw->phys_connections) {
-		free(sw->virtual_physical_port_table);
-		free(sw->dij_channels);
-		free(sw);
-		return NULL;
-	}
-
-	for (i = 0; i < num_ports; i++) {
-		sw->virtual_physical_port_table[i] = -1;
-		sw->phys_connections[i] = NONE;
-	}
-
 	sw->routing_table = malloc(num_switches * sizeof(sw->routing_table[0]));
 	if (!sw->routing_table) {
-		free(sw->phys_connections);
-		free(sw->virtual_physical_port_table);
 		free(sw->dij_channels);
 		free(sw);
 		return NULL;
@@ -654,8 +669,6 @@ static switch_t *switch_create(lash_t * p_lash, unsigned id, osm_switch_t * p_sw
 
 	if (osm_mesh_node_create(p_lash, sw)) {
 		free(sw->routing_table);
-		free(sw->phys_connections);
-		free(sw->virtual_physical_port_table);
 		free(sw->dij_channels);
 		free(sw);
 		return NULL;
@@ -670,10 +683,6 @@ static void switch_delete(lash_t *p_lash, switch_t * sw)
 
 	if (sw->dij_channels)
 		free(sw->dij_channels);
-	if (sw->virtual_physical_port_table)
-		free(sw->virtual_physical_port_table);
-	if (sw->phys_connections)
-		free(sw->phys_connections);
 	if (sw->routing_table)
 		free(sw->routing_table);
 	if (sw->p_sw)
@@ -978,7 +987,7 @@ Error_Not_Enough_Lanes:
 	status = -1;
 	OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 4D02: "
 		"Lane requirements (%d) exceed available lanes (%d)\n",
-		p_lash->vl_min, lanes_needed);
+		lanes_needed, p_lash->vl_min);
 Exit:
 	if (switch_bitmap)
 		free(switch_bitmap);
@@ -989,6 +998,21 @@ Exit:
 static unsigned get_lash_id(osm_switch_t * p_sw)
 {
 	return ((switch_t *) p_sw->priv)->id;
+}
+
+int get_next_port(switch_t *sw, int link)
+{
+	link_t *l = sw->node->links[link];
+	int port = l->next_port++;
+
+	/*
+	 * note if not doing mesh analysis
+	 * then num_ports is always 1
+	 */
+	if (l->next_port >= l->num_ports)
+		l->next_port = 0;
+
+	return l->ports[port];
 }
 
 static void populate_fwd_tbls(lash_t * p_lash)
@@ -1042,9 +1066,7 @@ static void populate_fwd_tbls(lash_t * p_lash)
 				    (uint8_t) sw->
 				    routing_table[dst_lash_switch_id].out_link;
 				uint8_t physical_egress_port =
-				    (uint8_t) sw->
-				    virtual_physical_port_table
-				    [lash_egress_port];
+					get_next_port(sw, lash_egress_port);
 
 				p_sw->new_lft[lid] = physical_egress_port;
 				OSM_LOG(p_log, OSM_LOG_VERBOSE,
