@@ -48,6 +48,8 @@
 #include <opensm/osm_mesh.h>
 #include <opensm/osm_ucast_lash.h>
 
+#define MAX_DEGREE	(8)
+
 /*
  * per fabric mesh info
  */
@@ -83,17 +85,10 @@ static int *poly_alloc(lash_t *p_lash, int n)
  */
 static int poly_diff(int n, int *p, switch_t *s)
 {
-	int i;
-
 	if (s->node->num_links != n)
 		return 1;
 
-	for (i = 0; i <= n; i++) {
-		if (s->node->poly[i] != p[i])
-			return 1;
-	}
-
-	return 0;
+	return memcmp(p, s->node->poly, n*sizeof(int));
 }
 
 /*
@@ -349,6 +344,205 @@ static int determinant(lash_t *p_lash, int deg, int rank, int ***m, int *p)
 }
 
 /*
+ * char_poly
+ *
+ * compute the characteristic polynomial of matrix of rank
+ * by computing the determinant of m-x*I and return in poly
+ * as an array. caller must free poly
+ */
+static int char_poly(lash_t *p_lash, int rank, int **matrix, int **poly)
+{
+	osm_log_t *p_log = &p_lash->p_osm->log;
+	int ret = -1;
+	int i, j;
+	int ***m = NULL;
+	int *p = NULL;
+	int deg = rank;
+
+	OSM_LOG_ENTER(p_log);
+
+	do {
+		if (!(p = poly_alloc(p_lash, deg))) {
+			break;
+		}
+
+		if (!(m = pm_alloc(p_lash, rank, deg))) {
+			free(p);
+			p = NULL;
+			break;
+		}
+
+		for (i = 0; i < rank; i++) {
+			for (j = 0; j < rank; j++) {
+				m[i][j][0] = matrix[i][j];
+			}
+			m[i][i][1] = -1;
+		}
+
+		if (determinant(p_lash, deg, rank, m, p)) {
+			free(p);
+			p = NULL;
+			break;
+		}
+
+		ret = 0;
+	} while(0);
+
+	pm_free(m, rank);
+	*poly = p;
+
+	OSM_LOG_EXIT(p_log);
+	return ret;
+}
+
+/*
+ * get_switch_metric
+ *
+ * compute the matrix of minimum distances between each of
+ * the adjacent switch nodes to sw along paths
+ * that do not go through sw. do calculation by
+ * relaxation method
+ * allocate space for the matrix and save in node_t structure
+ */
+static int get_switch_metric(lash_t *p_lash, int sw)
+{
+	osm_log_t *p_log = &p_lash->p_osm->log;
+	int ret = -1;
+	int i, j, change;
+	int sw1, sw2, sw3;
+	switch_t *s = p_lash->switches[sw];
+	switch_t *s1, *s2, *s3;
+	int **m;
+	mesh_node_t *node = s->node;
+	int num_links = node->num_links;
+
+	OSM_LOG_ENTER(p_log);
+
+	do {
+		if (!(m = m_alloc(p_lash, num_links)))
+			break;
+
+		for (i = 0; i < num_links; i++) {
+			sw1 = node->links[i]->switch_id;
+			s1 = p_lash->switches[sw1];
+
+			/* make all distances big except s1 to itself */
+			for (sw2 = 0; sw2 < p_lash->num_switches; sw2++)
+				p_lash->switches[sw2]->node->temp = 0x7fffffff;
+
+			s1->node->temp = 0;
+
+			do {
+				change = 0;
+
+				for (sw2 = 0; sw2 < p_lash->num_switches; sw2++) {
+					s2 = p_lash->switches[sw2];
+					if (s2->node->temp == 0x7fffffff)
+						continue;
+					for (j = 0; j < s2->node->num_links; j++) {
+						sw3 = s2->node->links[j]->switch_id;
+						s3 = p_lash->switches[sw3];
+
+						if (sw3 == sw)
+							continue;
+
+						if ((s2->node->temp + 1) < s3->node->temp) {
+							s3->node->temp = s2->node->temp + 1;
+							change++;
+						}
+					}
+				}
+			} while(change);
+
+			for (j = 0; j < num_links; j++) {
+				sw2 = node->links[j]->switch_id;
+				s2 = p_lash->switches[sw2];
+				m[i][j] = s2->node->temp;
+			}
+		}
+
+		if (char_poly(p_lash, num_links, m, &node->poly)) {
+			m_free(m, num_links);
+			m = NULL;
+			break;
+		}
+
+		ret = 0;
+	} while(0);
+
+	node->matrix = m;
+
+	OSM_LOG_EXIT(p_log);
+	return ret;
+}
+
+/*
+ * classify_switch
+ *
+ * add switch to histogram of switch types
+ * we keep a reference to the first switch
+ * found of each type as an exemplar
+ */
+static void classify_switch(lash_t *p_lash, mesh_t *mesh, int sw)
+{
+	osm_log_t *p_log = &p_lash->p_osm->log;
+	int i;
+	switch_t *s = p_lash->switches[sw];
+	switch_t *s1;
+
+	OSM_LOG_ENTER(p_log);
+
+	for (i = 0; i < mesh->num_class; i++) {
+		s1 = p_lash->switches[mesh->class_type[i]];
+
+		if (poly_diff(s->node->num_links, s->node->poly, s1))
+			continue;
+
+		mesh->class_count[i]++;
+		OSM_LOG_EXIT(p_log);
+		return;
+	}
+
+	mesh->class_type[mesh->num_class] = sw;
+	mesh->class_count[mesh->num_class] = 1;
+	mesh->num_class++;
+
+	OSM_LOG_EXIT(p_log);
+	return;
+}
+
+/*
+ * get_local_geometry
+ *
+ * analyze the local geometry around each switch
+ */
+static int get_local_geometry(lash_t *p_lash, mesh_t *mesh)
+{
+	osm_log_t *p_log = &p_lash->p_osm->log;
+	int sw;
+
+	OSM_LOG_ENTER(p_log);
+
+	for (sw = 0; sw < p_lash->num_switches; sw++) {
+		/*
+		 * skip switches with more links than MAX_DEGREE
+		 * since they will never match a known case
+		 */
+		if (p_lash->switches[sw]->node->num_links > MAX_DEGREE)
+			continue;
+
+		if (get_switch_metric(p_lash, sw)) {
+			OSM_LOG_EXIT(p_log);
+			return -1;
+		}
+		classify_switch(p_lash, mesh, sw);
+	}
+
+	OSM_LOG_EXIT(p_log);
+	return 0;
+}
+
+/*
  * osm_mesh_delete - free per mesh resources
  */
 static void mesh_delete(mesh_t *mesh)
@@ -488,10 +682,23 @@ int osm_do_mesh_analysis(lash_t *p_lash)
 
 	mesh = mesh_create(p_lash);
 	if (!mesh)
-		return -1;
+		goto err;
 
+	if (get_local_geometry(p_lash, mesh))
+		goto err;
+
+	if (mesh->num_class == 0) {
+		OSM_LOG(p_log, OSM_LOG_INFO, "found no likely mesh nodes - done\n");
+		goto done;
+	}
+
+done:
 	mesh_delete(mesh);
-
 	OSM_LOG_EXIT(p_log);
 	return 0;
+
+err:
+	mesh_delete(mesh);
+	OSM_LOG_EXIT(p_log);
+	return -1;
 }
