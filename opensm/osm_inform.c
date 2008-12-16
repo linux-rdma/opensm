@@ -51,7 +51,7 @@
 #include <vendor/osm_vendor_api.h>
 #include <opensm/osm_pkey.h>
 #include <opensm/osm_sa.h>
-#include <opensm/osm_event_plugin.h>
+#include <opensm/osm_opensm.h>
 
 typedef struct osm_infr_match_ctxt {
 	cl_list_t *p_remove_infr_list;
