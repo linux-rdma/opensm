@@ -51,6 +51,7 @@
 #include <vendor/osm_vendor_api.h>
 #include <opensm/osm_pkey.h>
 #include <opensm/osm_sa.h>
+#include <opensm/osm_event_plugin.h>
 
 typedef struct osm_infr_match_ctxt {
 	cl_list_t *p_remove_infr_list;
@@ -608,6 +609,9 @@ osm_report_notice(IN osm_log_t * const p_log,
 		p_infr_rec = p_next_infr_rec;
 	}
 	cl_list_destroy(&infr_to_remove_list);
+
+	/* report IB traps to plugin */
+	osm_opensm_report_event(p_subn->p_osm, OSM_EVENT_ID_TRAP, p_ntc);
 
 	OSM_LOG_EXIT(p_log);
 
