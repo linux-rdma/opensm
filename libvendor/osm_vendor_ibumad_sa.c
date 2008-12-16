@@ -470,19 +470,23 @@ ib_api_status_t
 osmv_query_sa(IN osm_bind_handle_t h_bind,
 	      IN const osmv_query_req_t * const p_query_req)
 {
-	osmv_sa_bind_info_t *p_bind = (osmv_sa_bind_info_t *) h_bind;
-	osmv_sa_mad_data_t sa_mad_data;
-	osmv_user_query_t *p_user_query;
-	ib_service_record_t svc_rec;
-	ib_node_record_t node_rec;
-	ib_portinfo_record_t port_info;
-	ib_path_rec_t path_rec;
+	union {
+		ib_service_record_t svc_rec;
+		ib_node_record_t node_rec;
+		ib_portinfo_record_t port_info;
+		ib_path_rec_t path_rec;
 #ifdef DUAL_SIDED_RMPP
-	ib_multipath_rec_t multipath_rec;
+		ib_multipath_rec_t multipath_rec;
+#endif
+		ib_class_port_info_t class_port_info;
+	} u;
+	osmv_sa_mad_data_t sa_mad_data;
+	osmv_sa_bind_info_t *p_bind = (osmv_sa_bind_info_t *) h_bind;
+	osmv_user_query_t *p_user_query;
+#ifdef DUAL_SIDED_RMPP
 	osmv_multipath_req_t *p_mpr_req;
 	int i, j;
 #endif
-	ib_class_port_info_t class_port_info;
 	osm_log_t *p_log = p_bind->p_log;
 	ib_api_status_t status;
 
@@ -513,7 +517,7 @@ osmv_query_sa(IN osm_bind_handle_t h_bind,
 		sa_mad_data.attr_offset =
 		    ib_get_attr_offset(sizeof(ib_service_record_t));
 		sa_mad_data.comp_mask = 0;
-		sa_mad_data.p_attr = &svc_rec;
+		sa_mad_data.p_attr = &u.svc_rec;
 		break;
 
 	case OSMV_QUERY_SVC_REC_BY_NAME:
@@ -523,8 +527,8 @@ osmv_query_sa(IN osm_bind_handle_t h_bind,
 		sa_mad_data.comp_mask = IB_SR_COMPMASK_SNAME;
 		sa_mad_data.attr_offset =
 		    ib_get_attr_offset(sizeof(ib_service_record_t));
-		sa_mad_data.p_attr = &svc_rec;
-		memcpy(svc_rec.service_name, p_query_req->p_query_input,
+		sa_mad_data.p_attr = &u.svc_rec;
+		memcpy(u.svc_rec.service_name, p_query_req->p_query_input,
 		       sizeof(ib_svc_name_t));
 		break;
 
@@ -534,8 +538,8 @@ osmv_query_sa(IN osm_bind_handle_t h_bind,
 		sa_mad_data.comp_mask = IB_SR_COMPMASK_SID;
 		sa_mad_data.attr_offset =
 		    ib_get_attr_offset(sizeof(ib_service_record_t));
-		sa_mad_data.p_attr = &svc_rec;
-		svc_rec.service_id =
+		sa_mad_data.p_attr = &u.svc_rec;
+		u.svc_rec.service_id =
 		    *(ib_net64_t *) (p_query_req->p_query_input);
 		break;
 
@@ -546,7 +550,7 @@ osmv_query_sa(IN osm_bind_handle_t h_bind,
 		sa_mad_data.attr_offset =
 		    ib_get_attr_offset(sizeof(ib_class_port_info_t));
 		sa_mad_data.comp_mask = 0;
-		sa_mad_data.p_attr = &class_port_info;
+		sa_mad_data.p_attr = &u.class_port_info;
 		break;
 
 	case OSMV_QUERY_NODE_REC_BY_NODE_GUID:
@@ -555,8 +559,8 @@ osmv_query_sa(IN osm_bind_handle_t h_bind,
 		sa_mad_data.attr_offset =
 		    ib_get_attr_offset(sizeof(ib_node_record_t));
 		sa_mad_data.comp_mask = IB_NR_COMPMASK_NODEGUID;
-		sa_mad_data.p_attr = &node_rec;
-		node_rec.node_info.node_guid =
+		sa_mad_data.p_attr = &u.node_rec;
+		u.node_rec.node_info.node_guid =
 		    *(ib_net64_t *) (p_query_req->p_query_input);
 		break;
 
@@ -566,8 +570,8 @@ osmv_query_sa(IN osm_bind_handle_t h_bind,
 		sa_mad_data.attr_offset =
 		    ib_get_attr_offset(sizeof(ib_portinfo_record_t));
 		sa_mad_data.comp_mask = IB_PIR_COMPMASK_LID;
-		sa_mad_data.p_attr = &port_info;
-		port_info.lid = *(ib_net16_t *) (p_query_req->p_query_input);
+		sa_mad_data.p_attr = &u.port_info;
+		u.port_info.lid = *(ib_net16_t *) (p_query_req->p_query_input);
 		break;
 
 	case OSMV_QUERY_PORT_REC_BY_LID_AND_NUM:
@@ -610,19 +614,19 @@ osmv_query_sa(IN osm_bind_handle_t h_bind,
 
 	case OSMV_QUERY_PATH_REC_BY_PORT_GUIDS:
 		OSM_LOG(p_log, OSM_LOG_DEBUG, "DBG:001 PATH_REC_BY_PORT_GUIDS\n");
-		memset(&path_rec, 0, sizeof(ib_path_rec_t));
+		memset(&u.path_rec, 0, sizeof(ib_path_rec_t));
 		sa_mad_data.attr_id = IB_MAD_ATTR_PATH_RECORD;
 		sa_mad_data.attr_offset =
 		    ib_get_attr_offset(sizeof(ib_path_rec_t));
 		sa_mad_data.comp_mask =
 		    (IB_PR_COMPMASK_DGID | IB_PR_COMPMASK_SGID | IB_PR_COMPMASK_NUMBPATH);
-		path_rec.num_path = 0x7f;
-		sa_mad_data.p_attr = &path_rec;
-		ib_gid_set_default(&path_rec.dgid,
+		u.path_rec.num_path = 0x7f;
+		sa_mad_data.p_attr = &u.path_rec;
+		ib_gid_set_default(&u.path_rec.dgid,
 				   ((osmv_guid_pair_t *) (p_query_req->
 							  p_query_input))->
 				   dest_guid);
-		ib_gid_set_default(&path_rec.sgid,
+		ib_gid_set_default(&u.path_rec.sgid,
 				   ((osmv_guid_pair_t *) (p_query_req->
 							  p_query_input))->
 				   src_guid);
@@ -630,36 +634,36 @@ osmv_query_sa(IN osm_bind_handle_t h_bind,
 
 	case OSMV_QUERY_PATH_REC_BY_GIDS:
 		OSM_LOG(p_log, OSM_LOG_DEBUG, "DBG:001 PATH_REC_BY_GIDS\n");
-		memset(&path_rec, 0, sizeof(ib_path_rec_t));
+		memset(&u.path_rec, 0, sizeof(ib_path_rec_t));
 		sa_mad_data.attr_id = IB_MAD_ATTR_PATH_RECORD;
 		sa_mad_data.attr_offset =
 		    ib_get_attr_offset(sizeof(ib_path_rec_t));
 		sa_mad_data.comp_mask =
 		    (IB_PR_COMPMASK_DGID | IB_PR_COMPMASK_SGID | IB_PR_COMPMASK_NUMBPATH);
-		path_rec.num_path = 0x7f;
-		sa_mad_data.p_attr = &path_rec;
-		memcpy(&path_rec.dgid,
+		u.path_rec.num_path = 0x7f;
+		sa_mad_data.p_attr = &u.path_rec;
+		memcpy(&u.path_rec.dgid,
 		       &((osmv_gid_pair_t *) (p_query_req->p_query_input))->
 		       dest_gid, sizeof(ib_gid_t));
-		memcpy(&path_rec.sgid,
+		memcpy(&u.path_rec.sgid,
 		       &((osmv_gid_pair_t *) (p_query_req->p_query_input))->
 		       src_gid, sizeof(ib_gid_t));
 		break;
 
 	case OSMV_QUERY_PATH_REC_BY_LIDS:
 		OSM_LOG(p_log, OSM_LOG_DEBUG, "DBG:001 PATH_REC_BY_LIDS\n");
-		memset(&path_rec, 0, sizeof(ib_path_rec_t));
+		memset(&u.path_rec, 0, sizeof(ib_path_rec_t));
 		sa_mad_data.method = IB_MAD_METHOD_GET;
 		sa_mad_data.attr_id = IB_MAD_ATTR_PATH_RECORD;
 		sa_mad_data.attr_offset =
 		    ib_get_attr_offset(sizeof(ib_path_rec_t));
 		sa_mad_data.comp_mask =
 		    (IB_PR_COMPMASK_DLID | IB_PR_COMPMASK_SLID);
-		sa_mad_data.p_attr = &path_rec;
-		path_rec.dlid =
+		sa_mad_data.p_attr = &u.path_rec;
+		u.path_rec.dlid =
 		    ((osmv_lid_pair_t *) (p_query_req->p_query_input))->
 		    dest_lid;
-		path_rec.slid =
+		u.path_rec.slid =
 		    ((osmv_lid_pair_t *) (p_query_req->p_query_input))->src_lid;
 		break;
 
@@ -699,29 +703,29 @@ osmv_query_sa(IN osm_bind_handle_t h_bind,
 			CL_ASSERT(0);
 			return IB_ERROR;
 		}
-		memset(&multipath_rec, 0, sizeof(ib_multipath_rec_t));
+		memset(&u.multipath_rec, 0, sizeof(ib_multipath_rec_t));
 		sa_mad_data.method = IB_MAD_METHOD_GETMULTI;
 		sa_mad_data.attr_id = IB_MAD_ATTR_MULTIPATH_RECORD;
 		sa_mad_data.attr_offset =
 		    ib_get_attr_offset(sizeof(ib_multipath_rec_t));
-		sa_mad_data.p_attr = &multipath_rec;
+		sa_mad_data.p_attr = &u.multipath_rec;
 		sa_mad_data.comp_mask = p_mpr_req->comp_mask;
-		multipath_rec.num_path = p_mpr_req->num_path;
+		u.multipath_rec.num_path = p_mpr_req->num_path;
 		if (p_mpr_req->reversible)
-			multipath_rec.num_path |= 0x80;
+			u.multipath_rec.num_path |= 0x80;
 		else
-			multipath_rec.num_path &= ~0x80;
-		multipath_rec.pkey = p_mpr_req->pkey;
-		ib_multipath_rec_set_sl(&multipath_rec, p_mpr_req->sl);
-		ib_multipath_rec_set_qos_class(&multipath_rec, 0);
-		multipath_rec.independence = p_mpr_req->independence;
-		multipath_rec.sgid_count = p_mpr_req->sgid_count;
-		multipath_rec.dgid_count = p_mpr_req->dgid_count;
+			u.multipath_rec.num_path &= ~0x80;
+		u.multipath_rec.pkey = p_mpr_req->pkey;
+		ib_multipath_rec_set_sl(&u.multipath_rec, p_mpr_req->sl);
+		ib_multipath_rec_set_qos_class(&u.multipath_rec, 0);
+		u.multipath_rec.independence = p_mpr_req->independence;
+		u.multipath_rec.sgid_count = p_mpr_req->sgid_count;
+		u.multipath_rec.dgid_count = p_mpr_req->dgid_count;
 		j = 0;
 		for (i = 0; i < p_mpr_req->sgid_count; i++, j++)
-			multipath_rec.gids[j] = p_mpr_req->gids[j];
+			u.multipath_rec.gids[j] = p_mpr_req->gids[j];
 		for (i = 0; i < p_mpr_req->dgid_count; i++, j++)
-			multipath_rec.gids[j] = p_mpr_req->gids[j];
+			u.multipath_rec.gids[j] = p_mpr_req->gids[j];
 		break;
 #endif
 
