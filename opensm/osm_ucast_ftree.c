@@ -2463,7 +2463,7 @@ static void __osm_ftree_fabric_route_to_cns(IN ftree_fabric_t * p_ftree)
  *       obtain the LID of the HCA port
  *       get switch that is connected to this HCA port
  *       set switch LFT(LID) to the port connecting to compute node
- *       call assign-down-going-port-by-ascending-up(TRUE,FALSE) on CURRENT switch
+ *       call assign-down-going-port-by-ascending-up(TRUE,TRUE) on CURRENT switch
  *
  * Routing to these HCAs is routing a REAL hca lid on SECONDARY path.
  * However, we do want to allow load-leveling of the traffic to the non-CNs,
