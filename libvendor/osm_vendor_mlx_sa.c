@@ -743,7 +743,8 @@ osmv_query_sa(IN osm_bind_handle_t h_bind,
 		sa_mad_data.attr_offset =
 		    ib_get_attr_offset(sizeof(ib_path_rec_t));
 		sa_mad_data.comp_mask =
-		    (IB_PR_COMPMASK_DGID | IB_PR_COMPMASK_SGID);
+		    (IB_PR_COMPMASK_DGID | IB_PR_COMPMASK_SGID | IB_PR_COMPMASK_NUMBPATH);
+		path_rec.num_path = 0x7f;
 		sa_mad_data.p_attr = &path_rec;
 		ib_gid_set_default(&path_rec.dgid,
 				   ((osmv_guid_pair_t *) (p_query_req->
@@ -763,7 +764,8 @@ osmv_query_sa(IN osm_bind_handle_t h_bind,
 		sa_mad_data.attr_offset =
 		    ib_get_attr_offset(sizeof(ib_path_rec_t));
 		sa_mad_data.comp_mask =
-		    (IB_PR_COMPMASK_DGID | IB_PR_COMPMASK_SGID);
+		    (IB_PR_COMPMASK_DGID | IB_PR_COMPMASK_SGID | IB_PR_COMPMASK_NUMBPATH);
+		path_rec.num_path = 0x7f;
 		sa_mad_data.p_attr = &path_rec;
 		memcpy(&path_rec.dgid,
 		       &((osmv_gid_pair_t *) (p_query_req->p_query_input))->
