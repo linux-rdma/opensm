@@ -1082,8 +1082,7 @@ int osm_subn_parse_conf_file(char *file_name, osm_subn_opt_t * const p_opts)
 		opts_unpack_uint8("leaf_vl_stall_count",
 				  p_key, p_val, &p_opts->leaf_vl_stall_count);
 
-		opts_unpack_uint8("head_of_queue_lifetime",
-				  p_key, p_val,
+		opts_unpack_uint8("head_of_queue_lifetime", p_key, p_val,
 				  &p_opts->head_of_queue_lifetime);
 
 		opts_unpack_uint8("leaf_head_of_queue_lifetime", p_key, p_val,
@@ -1092,12 +1091,10 @@ int osm_subn_parse_conf_file(char *file_name, osm_subn_opt_t * const p_opts)
 		opts_unpack_uint8("local_phy_errors_threshold", p_key, p_val,
 				  &p_opts->local_phy_errors_threshold);
 
-		opts_unpack_uint8("overrun_errors_threshold",
-				  p_key, p_val,
+		opts_unpack_uint8("overrun_errors_threshold", p_key, p_val,
 				  &p_opts->overrun_errors_threshold);
 
-		opts_unpack_uint32("sminfo_polling_timeout",
-				   p_key, p_val,
+		opts_unpack_uint32("sminfo_polling_timeout", p_key, p_val,
 				   &p_opts->sminfo_polling_timeout);
 
 		opts_unpack_uint32("polling_retry_number",
@@ -1129,8 +1126,7 @@ int osm_subn_parse_conf_file(char *file_name, osm_subn_opt_t * const p_opts)
 
 		opts_unpack_charp("log_file", p_key, p_val, &p_opts->log_file);
 
-		opts_unpack_uint32("log_max_size",
-				   p_key, p_val,
+		opts_unpack_uint32("log_max_size", p_key, p_val,
 				   (void *) & p_opts->log_max_size);
 		p_opts->log_max_size *= 1024 * 1024; /* convert to MB */
 
@@ -1166,8 +1162,8 @@ int osm_subn_parse_conf_file(char *file_name, osm_subn_opt_t * const p_opts)
 		opts_unpack_charp("ids_guid_file",
 				  p_key, p_val, &p_opts->ids_guid_file);
 
-		opts_unpack_charp("guid_routing_order_file",
-				  p_key, p_val, &p_opts->guid_routing_order_file);
+		opts_unpack_charp("guid_routing_order_file", p_key, p_val,
+				  &p_opts->guid_routing_order_file);
 
 		opts_unpack_charp("sa_db_file",
 				  p_key, p_val, &p_opts->sa_db_file);
@@ -1234,8 +1230,8 @@ int osm_subn_parse_conf_file(char *file_name, osm_subn_opt_t * const p_opts)
 		opts_unpack_charp("prefix_routes_file",
 				  p_key, p_val, &p_opts->prefix_routes_file);
 
-		opts_unpack_boolean("consolidate_ipv6_snm_req",
-				p_key, p_val, &p_opts->consolidate_ipv6_snm_req);
+		opts_unpack_boolean("consolidate_ipv6_snm_req", p_key, p_val,
+				    &p_opts->consolidate_ipv6_snm_req);
 	}
 	fclose(opts_file);
 
