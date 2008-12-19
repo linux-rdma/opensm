@@ -413,6 +413,7 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * const p_opt)
 	p_opt->ids_guid_file = NULL;
 	p_opt->guid_routing_order_file = NULL;
 	p_opt->sa_db_file = NULL;
+	p_opt->do_mesh_analysis = FALSE;
 	p_opt->exit_on_fatal = TRUE;
 	p_opt->enable_quirks = FALSE;
 	p_opt->no_clients_rereg = FALSE;
@@ -1168,6 +1169,9 @@ int osm_subn_parse_conf_file(char *file_name, osm_subn_opt_t * const p_opts)
 		opts_unpack_charp("sa_db_file",
 				  p_key, p_val, &p_opts->sa_db_file);
 
+		opts_unpack_boolean("do_mesh_analysis",
+				    p_key, p_val, &p_opts->do_mesh_analysis);
+
 		opts_unpack_boolean("exit_on_fatal",
 				    p_key, p_val, &p_opts->exit_on_fatal);
 
@@ -1470,6 +1474,11 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t *const p_opts)
 		"# The file holding guid routing order guids (for MinHop and Up/Down)\n"
 		"guid_routing_order_file %s\n\n",
 		p_opts->guid_routing_order_file ? p_opts->guid_routing_order_file : null_str);
+
+	fprintf(out,
+		"# Do mesh topology analysis (for LASH algorithm)\n"
+		"do_mesh_analysis %s\n\n",
+		p_opts->do_mesh_analysis ? "TRUE" : "FALSE");
 
 	fprintf(out,
 		"# SA database file name\nsa_db_file %s\n\n",

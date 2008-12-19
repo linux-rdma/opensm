@@ -193,6 +193,7 @@ typedef struct osm_subn_opt {
 	char *ids_guid_file;
 	char *guid_routing_order_file;
 	char *sa_db_file;
+	boolean_t do_mesh_analysis;
 	boolean_t exit_on_fatal;
 	boolean_t honor_guid2lid_file;
 	boolean_t daemon;
@@ -216,7 +217,6 @@ typedef struct osm_subn_opt {
 	char *node_name_map_name;
 	char *prefix_routes_file;
 	boolean_t consolidate_ipv6_snm_req;
-	boolean_t do_mesh_analysis;
 } osm_subn_opt_t;
 /*
 * FIELDS
