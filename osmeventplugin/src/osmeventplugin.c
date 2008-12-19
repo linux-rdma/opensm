@@ -137,13 +137,21 @@ static void handle_port_select(_log_events_t * log, osm_epi_ps_event_t * ps)
 
 /** =========================================================================
  */
-static void handle_trap_event(_log_events_t * log, osm_epi_trap_event_t * trap)
+static void handle_trap_event(_log_events_t *log, ib_mad_notice_attr_t *p_ntc)
 {
-	fprintf(log->log_file,
-		"Trap event %d from 0x%" PRIx64 " (%s) port %d\n",
-		trap->trap_num,
-		trap->port_id.node_guid,
-		trap->port_id.node_name, trap->port_id.port_num);
+	if (ib_notice_is_generic(p_ntc)) {
+		fprintf(log->log_file,
+			"Generic trap type %d; event %d; from LID 0x%x\n",
+			ib_notice_get_type(p_ntc),
+			cl_ntoh16(p_ntc->g_or_v.generic.trap_num),
+			cl_ntoh16(p_ntc->issuer_lid));
+	} else {
+		fprintf(log->log_file,
+			"Vendor trap type %d; from LID 0x%x\n",
+			ib_notice_get_type(p_ntc),
+			cl_ntoh16(p_ntc->issuer_lid));
+	}
+
 }
 
 /** =========================================================================
@@ -163,13 +171,17 @@ static void report(void *_log, osm_epi_event_id_t event_id, void *event_data)
 		handle_port_select(log, (osm_epi_ps_event_t *) event_data);
 		break;
 	case OSM_EVENT_ID_TRAP:
-		handle_trap_event(log, (osm_epi_trap_event_t *) event_data);
+		handle_trap_event(log, (ib_mad_notice_attr_t *) event_data);
+		break;
+	case OSM_EVENT_ID_SUBNET_UP:
+		fprintf(log->log_file, "Subnet up reported\n");
 		break;
 	case OSM_EVENT_ID_MAX:
 	default:
 		osm_log(log->osmlog, OSM_LOG_ERROR,
-			"Unknown event reported to plugin\n");
+			"Unknown event (%d) reported to plugin\n", event_id);
 	}
+	fflush(log->log_file);
 }
 
 /** =========================================================================

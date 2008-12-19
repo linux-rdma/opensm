@@ -131,18 +131,6 @@ typedef struct osm_api_ps_event {
 } osm_epi_ps_event_t;
 
 /** =========================================================================
- * Trap events
- */
-typedef struct osm_epi_trap_event {
-	osm_epi_port_id_t port_id;
-	uint8_t type;
-	uint32_t prod_type;
-	uint16_t trap_num;
-	uint16_t issuer_lid;
-	time_t time;
-} osm_epi_trap_event_t;
-
-/** =========================================================================
  * Plugin creators should allocate an object of this type
  *    (named OSM_EVENT_PLUGIN_IMPL_NAME)
  * The version should be set to OSM_EVENT_PLUGIN_INTERFACE_VER
