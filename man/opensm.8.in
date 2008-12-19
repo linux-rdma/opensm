@@ -139,6 +139,11 @@ separated by commas so that specific ordering of routing algorithms
 will be tried if earlier routing engines fail.
 Supported engines: minhop, updn, file, ftree, lash, dor
 .TP
+\fB\-\-do_mesh_analysis\fR
+This option enables additional analysis for the lash routing engine to
+precondition switch port assignments in regular cartesian meshes which
+may reduce the number of SLs required to give a deadlock free routing.
+.TP
 \fB\-A\fR, \fB\-\-ucast_cache\fR
 This option enables unicast routing cache and prevents routing
 recalculation (which is a heavy task in a large cluster) when
