@@ -57,11 +57,24 @@
 
 static cdg_vertex_t *create_cdg_vertex(unsigned num_switches)
 {
-	cdg_vertex_t *cdg_vertex = (cdg_vertex_t *) malloc(sizeof(cdg_vertex_t));
+	cdg_vertex_t *v = (cdg_vertex_t *) malloc(sizeof(cdg_vertex_t));
 
-	cdg_vertex->dependency = malloc((num_switches - 1) * sizeof(cdg_vertex_t *));
-	cdg_vertex->num_using_this_depend = (int *)malloc((num_switches - 1) * sizeof(int));
-	return cdg_vertex;
+	memset(v, 0, sizeof(*v));
+	v->dependency = malloc((num_switches - 1) * sizeof(cdg_vertex_t *));
+	v->num_using_this_depend = malloc((num_switches - 1) * sizeof(int));
+	memset(v->dependency, 0, (num_switches - 1) * sizeof(cdg_vertex_t *));
+	memset(v->num_using_this_depend, 0, (num_switches - 1) * sizeof(int));
+
+	return v;
+}
+
+static void delete_cdg_vertex(cdg_vertex_t *v)
+{
+	if (v->dependency)
+		free(v->dependency);
+	if (v->num_using_this_depend)
+		free(v->num_using_this_depend);
+	free(v);
 }
 
 static void connect_switches(lash_t * p_lash, int sw1, int sw2, int phy_port_1)
@@ -209,7 +222,7 @@ static void remove_semipermanent_depend_for_sp(lash_t * p_lash, int sw,
 
 			cdg_vertex_matrix[lane][sw][i_next_switch] = NULL;
 
-			free(v);
+			delete_cdg_vertex(v);
 		} else {
 			v->num_using_vertex--;
 			if (i_next_switch != dest_switch) {
@@ -353,24 +366,10 @@ static void generate_cdg_for_sp(lash_t * p_lash, int sw, int dest_switch,
 	while (sw != dest_switch) {
 
 		if (cdg_vertex_matrix[lane][sw][next_switch] == NULL) {
-			unsigned i;
 			v = create_cdg_vertex(num_switches);
-
-			for (i = 0; i < num_switches - 1; i++) {
-				v->dependency[i] = NULL;
-				v->num_using_this_depend[i] = 0;
-			}
-
-			v->num_using_vertex = 0;
-			v->num_dependencies = 0;
 			v->from = sw;
 			v->to = next_switch;
-			v->seen = 0;
-			v->visiting_number = 0;
-			v->next = NULL;
 			v->temp = 1;
-			v->num_temp_depend = 0;
-
 			cdg_vertex_matrix[lane][sw][next_switch] = v;
 		} else
 			v = cdg_vertex_matrix[lane][sw][next_switch];
@@ -457,7 +456,7 @@ static void remove_temp_depend_for_sp(lash_t * p_lash, int sw, int dest_switch,
 
 		if (v->temp == 1) {
 			cdg_vertex_matrix[lane][sw][next_switch] = NULL;
-			free(v);
+			delete_cdg_vertex(v);
 		} else {
 			CL_ASSERT(v->num_temp_depend <= v->num_dependencies);
 			v->num_dependencies =
@@ -701,21 +700,9 @@ static void free_lash_structures(lash_t * p_lash)
 	// free cdg_vertex_matrix
 	for (i = 0; i < p_lash->vl_min; i++) {
 		for (j = 0; j < num_switches; j++) {
-			for (k = 0; k < num_switches; k++) {
-				if (p_lash->cdg_vertex_matrix[i][j][k]) {
-
-					if (p_lash->cdg_vertex_matrix[i][j][k]->dependency)
-						free(p_lash->cdg_vertex_matrix[i][j][k]->
-						     dependency);
-
-					if (p_lash->cdg_vertex_matrix[i][j][k]->
-					    num_using_this_depend)
-						free(p_lash->cdg_vertex_matrix[i][j][k]->
-						     num_using_this_depend);
-
-					free(p_lash->cdg_vertex_matrix[i][j][k]);
-				}
-			}
+			for (k = 0; k < num_switches; k++)
+				if (p_lash->cdg_vertex_matrix[i][j][k])
+					delete_cdg_vertex(p_lash->cdg_vertex_matrix[i][j][k]);
 			if (p_lash->cdg_vertex_matrix[i][j])
 				free(p_lash->cdg_vertex_matrix[i][j]);
 		}
