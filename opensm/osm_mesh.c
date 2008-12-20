@@ -1172,6 +1172,9 @@ static void mesh_delete(mesh_t *mesh)
 		if (mesh->class_count)
 			free(mesh->class_count);
 
+		if (mesh->size)
+			free(mesh->size);
+
 		free(mesh);
 	}
 }
@@ -1238,6 +1241,9 @@ void osm_mesh_node_delete(lash_t *p_lash, switch_t *sw)
 
 		if (node->axes)
 			free(node->axes);
+
+		if (node->coord)
+			free(node->coord);
 
 		free(node);
 
