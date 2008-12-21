@@ -41,7 +41,6 @@
 #include <opensm/osm_base.h>
 #include <opensm/osm_log.h>
 
-#include <infiniband/common.h>
 #include <infiniband/umad.h>
 
 #ifdef __cplusplus

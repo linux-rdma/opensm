@@ -64,8 +64,8 @@ with_sim="/usr")
 dnl based on the with_osmv we can try the vendor flag
 if test $with_osmv = "openib"; then
    AC_DEFINE(OSM_VENDOR_INTF_OPENIB, 1, [Define as 1 for OpenIB vendor])
-   OSMV_INCLUDES="-I\$(srcdir)/../include -I\$(srcdir)/../../libibcommon/include -I\$(srcdir)/../../libibumad/include -I\$(includedir)"
-   OSMV_LDADD="-L\$(abs_srcdir)/../../libibumad/.libs -L\$(abs_srcdir)/../../libibcommon/.libs -L\$(libdir) -libumad -libcommon"
+   OSMV_INCLUDES="-I\$(srcdir)/../include -I\$(srcdir)/../../libibumad/include -I\$(includedir)"
+   OSMV_LDADD="-L\$(abs_srcdir)/../../libibumad/.libs -L\$(libdir) -libumad"
 
    if test "x$with_umad_libs" != "x"; then
       OSMV_LDADD="-L$with_umad_libs $OSMV_LDADD"
