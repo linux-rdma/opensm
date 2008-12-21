@@ -331,6 +331,21 @@ static void subn_init_qos_options(IN osm_qos_options_t * opt)
 	opt->sl2vl = NULL;
 }
 
+static void subn_free_qos_options(IN osm_qos_options_t * opt)
+{
+	if ((opt->vlarb_high) && (opt->vlarb_high != OSM_DEFAULT_QOS_VLARB_HIGH)) {
+		free(opt->vlarb_high);
+	}
+
+	if ((opt->vlarb_low) && (opt->vlarb_low != OSM_DEFAULT_QOS_VLARB_LOW)) {
+		free(opt->vlarb_low);
+	}
+
+	if ((opt->sl2vl) && (opt->sl2vl != OSM_DEFAULT_QOS_SL2VL)) {
+		free(opt->sl2vl);
+	}
+}
+
 /**********************************************************************
  **********************************************************************/
 void osm_subn_set_default_opt(IN osm_subn_opt_t * const p_opt)
@@ -1262,6 +1277,12 @@ int osm_subn_rescan_conf_files(IN osm_subn_t * const p_subn)
 			p_subn->opt.config_file, strerror(errno));
 		return -1;
 	}
+
+	subn_free_qos_options(&p_subn->opt.qos_options);
+	subn_free_qos_options(&p_subn->opt.qos_ca_options);
+	subn_free_qos_options(&p_subn->opt.qos_sw0_options);
+	subn_free_qos_options(&p_subn->opt.qos_swe_options);
+	subn_free_qos_options(&p_subn->opt.qos_rtr_options);
 
 	subn_init_qos_options(&p_subn->opt.qos_options);
 	subn_init_qos_options(&p_subn->opt.qos_ca_options);
