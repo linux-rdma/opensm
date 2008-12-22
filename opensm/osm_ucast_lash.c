@@ -55,25 +55,22 @@
 #include <opensm/osm_mesh.h>
 #include <opensm/osm_ucast_lash.h>
 
+typedef struct _reachable_dest {
+	int switch_id;
+	struct _reachable_dest *next;
+} reachable_dest_t;
+
 static cdg_vertex_t *create_cdg_vertex(unsigned num_switches)
 {
-	cdg_vertex_t *v = (cdg_vertex_t *) malloc(sizeof(cdg_vertex_t));
+	cdg_vertex_t *v = malloc(sizeof(*v) + (num_switches - 1) * sizeof(v->deps[0]));
 
-	memset(v, 0, sizeof(*v));
-	v->dependency = malloc((num_switches - 1) * sizeof(cdg_vertex_t *));
-	v->num_using_this_depend = malloc((num_switches - 1) * sizeof(int));
-	memset(v->dependency, 0, (num_switches - 1) * sizeof(cdg_vertex_t *));
-	memset(v->num_using_this_depend, 0, (num_switches - 1) * sizeof(int));
+	memset(v, 0, sizeof(*v) + (num_switches - 1) * sizeof(v->deps[0]));
 
 	return v;
 }
 
 static void delete_cdg_vertex(cdg_vertex_t *v)
 {
-	if (v->dependency)
-		free(v->dependency);
-	if (v->num_using_this_depend)
-		free(v->num_using_this_depend);
 	free(v);
 }
 
@@ -180,12 +177,12 @@ static int cycle_exists(cdg_vertex_t * start, cdg_vertex_t * current,
 
 		new_visit_num = visit_num + 1;
 
-		for (i = 0; i < current->num_dependencies; i++) {
+		for (i = 0; i < current->num_deps; i++) {
 			cycle_found =
-			    cycle_exists(start, current->dependency[i], current,
+			    cycle_exists(start, current->deps[i].v, current,
 					 new_visit_num);
 			if (cycle_found == 1)
-				i = current->num_dependencies;
+				i = current->num_deps;
 		}
 
 		current->seen = 1;
@@ -231,8 +228,8 @@ static void remove_semipermanent_depend_for_sp(lash_t * p_lash, int sw,
 				i_next_next_switch = get_next_switch(p_lash, i_next_switch, next_link);
 				found = 0;
 
-				for (i = 0; i < v->num_dependencies; i++)
-					if (v->dependency[i] ==
+				for (i = 0; i < v->num_deps; i++)
+					if (v->deps[i].v ==
 					    cdg_vertex_matrix[lane][i_next_switch]
 					    [i_next_next_switch]) {
 						found = 1;
@@ -241,19 +238,17 @@ static void remove_semipermanent_depend_for_sp(lash_t * p_lash, int sw,
 
 				CL_ASSERT(found);
 
-				if (v->num_using_this_depend[depend] == 1) {
+				if (v->deps[depend].num_used == 1) {
 					for (i = depend;
-					     i < v->num_dependencies - 1; i++) {
-						v->dependency[i] =
-						    v->dependency[i + 1];
-						v->num_using_this_depend[i] =
-						    v->num_using_this_depend[i +
-									     1];
+					     i < v->num_deps - 1; i++) {
+						v->deps[i].v = v->deps[i + 1].v;
+						v->deps[i].num_used =
+						    v->deps[i + 1].num_used;
 					}
 
-					v->num_dependencies--;
+					v->num_deps--;
 				} else
-					v->num_using_this_depend[depend]--;
+					v->deps[depend].num_used--;
 			}
 		}
 
@@ -379,18 +374,18 @@ static void generate_cdg_for_sp(lash_t * p_lash, int sw, int dest_switch,
 		if (prev != NULL) {
 			exists = 0;
 
-			for (j = 0; j < prev->num_dependencies; j++)
-				if (prev->dependency[j] == v) {
+			for (j = 0; j < prev->num_deps; j++)
+				if (prev->deps[j].v == v) {
 					exists = 1;
-					prev->num_using_this_depend[j]++;
+					prev->deps[j].num_used++;
 				}
 
 			if (exists == 0) {
-				prev->dependency[prev->num_dependencies] = v;
-				prev->num_using_this_depend[prev->num_dependencies]++;
-				prev->num_dependencies++;
+				prev->deps[prev->num_deps].v = v;
+				prev->deps[prev->num_deps].num_used++;
+				prev->num_deps++;
 
-				CL_ASSERT(prev->num_dependencies < (int)num_switches);
+				CL_ASSERT(prev->num_deps < (int)num_switches);
 
 				if (prev->temp == 0)
 					prev->num_temp_depend++;
@@ -458,15 +453,13 @@ static void remove_temp_depend_for_sp(lash_t * p_lash, int sw, int dest_switch,
 			cdg_vertex_matrix[lane][sw][next_switch] = NULL;
 			delete_cdg_vertex(v);
 		} else {
-			CL_ASSERT(v->num_temp_depend <= v->num_dependencies);
-			v->num_dependencies =
-			    v->num_dependencies - v->num_temp_depend;
+			CL_ASSERT(v->num_temp_depend <= v->num_deps);
+			v->num_deps = v->num_deps - v->num_temp_depend;
 			v->num_temp_depend = 0;
 			v->num_using_vertex--;
 
-			for (i = v->num_dependencies;
-			     i < p_lash->num_switches - 1; i++)
-				v->num_using_this_depend[i] = 0;
+			for (i = v->num_deps; i < p_lash->num_switches - 1; i++)
+				v->deps[i].num_used = 0;
 		}
 
 		sw = next_switch;
@@ -637,11 +630,15 @@ static switch_t *switch_create(lash_t * p_lash, unsigned id, osm_switch_t * p_sw
 	switch_t *sw;
 	unsigned int i;
 
-	sw = malloc(sizeof(*sw));
+	sw = malloc(sizeof(*sw) + num_switches * sizeof(sw->routing_table[0]));
 	if (!sw)
 		return NULL;
 
 	memset(sw, 0, sizeof(*sw));
+	for (i = 0; i < num_switches; i++) {
+		sw->routing_table[i].out_link = NONE;
+		sw->routing_table[i].lane = NONE;
+	}
 
 	sw->id = id;
 	sw->dij_channels = malloc(num_ports * sizeof(int));
@@ -650,24 +647,11 @@ static switch_t *switch_create(lash_t * p_lash, unsigned id, osm_switch_t * p_sw
 		return NULL;
 	}
 
-	sw->routing_table = malloc(num_switches * sizeof(sw->routing_table[0]));
-	if (!sw->routing_table) {
-		free(sw->dij_channels);
-		free(sw);
-		return NULL;
-	}
-
-	for (i = 0; i < num_switches; i++) {
-		sw->routing_table[i].out_link = NONE;
-		sw->routing_table[i].lane = NONE;
-	}
-
 	sw->p_sw = p_sw;
 	if (p_sw)
 		p_sw->priv = sw;
 
 	if (osm_mesh_node_create(p_lash, sw)) {
-		free(sw->routing_table);
 		free(sw->dij_channels);
 		free(sw);
 		return NULL;
@@ -682,8 +666,6 @@ static void switch_delete(lash_t *p_lash, switch_t * sw)
 
 	if (sw->dij_channels)
 		free(sw->dij_channels);
-	if (sw->routing_table)
-		free(sw->routing_table);
 	if (sw->p_sw)
 		sw->p_sw->priv = NULL;
 	free(sw);

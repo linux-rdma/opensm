@@ -53,8 +53,6 @@ enum {
 };
 
 typedef struct _cdg_vertex {
-	int num_dependencies;
-	struct _cdg_vertex **dependency;
 	int from;
 	int to;
 	int seen;
@@ -63,25 +61,24 @@ typedef struct _cdg_vertex {
 	struct _cdg_vertex *next;
 	int num_temp_depend;
 	int num_using_vertex;
-	int *num_using_this_depend;
+	int num_deps;
+	struct vertex_deps {
+		struct _cdg_vertex *v;
+		int num_used;
+	} deps[0];
 } cdg_vertex_t;
-
-typedef struct _reachable_dest {
-	int switch_id;
-	struct _reachable_dest *next;
-} reachable_dest_t;
 
 typedef struct _switch {
 	osm_switch_t *p_sw;
-	int *dij_channels;
 	int id;
 	int used_channels;
+	int *dij_channels;
 	int q_state;
+	mesh_node_t *node;
 	struct routing_table {
 		unsigned out_link;
 		unsigned lane;
-	} *routing_table;
-	mesh_node_t *node;
+	} routing_table[0];
 } switch_t;
 
 typedef struct _lash {
