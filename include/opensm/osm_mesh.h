@@ -48,17 +48,15 @@ struct _switch;
 typedef struct _link {
 	int switch_id;
 	int link_id;
-	int *ports;
-	int num_ports;
 	int next_port;
+	int num_ports;
+	int ports[0];
 } link_t;
 
 /*
  * per switch node mesh info
  */
 typedef struct _mesh_node {
-	unsigned int num_links;		/* number of 'links' to adjacent switches */
-	link_t **links;			/* per link information */
 	int *axes;			/* used to hold and reorder assigned axes */
 	int *coord;			/* mesh coordinates of switch */
 	int **matrix;			/* distances between adjacant switches */
@@ -67,6 +65,8 @@ typedef struct _mesh_node {
 	int dimension;			/* apparent dimension of mesh around node */
 	int temp;			/* temporary holder for distance info */
 	int type;			/* index of node type in mesh_info array */
+	unsigned int num_links;		/* number of 'links' to adjacent switches */
+	link_t *links[0];		/* per link information */
 } mesh_node_t;
 
 void osm_mesh_node_delete(struct _lash *p_lash, struct _switch *sw);

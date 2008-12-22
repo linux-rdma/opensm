@@ -1253,16 +1253,9 @@ void osm_mesh_node_delete(lash_t *p_lash, switch_t *sw)
 	OSM_LOG_ENTER(p_log);
 
 	if (node) {
-		if (node->links) {
-			for (i = 0; i < num_ports; i++) {
-				if (node->links[i]) {
-					if (node->links[i]->ports)
-						free(node->links[i]->ports);
-					free(node->links[i]);
-				}
-			}
-			free(node->links);
-		}
+		for (i = 0; i < num_ports; i++)
+			if (node->links[i])
+				free(node->links[i]);
 
 		if (node->poly)
 			free(node->poly);
@@ -1301,17 +1294,12 @@ int osm_mesh_node_create(lash_t *p_lash, switch_t *sw)
 
 	OSM_LOG_ENTER(p_log);
 
-	if (!(node = sw->node = calloc(1, sizeof(mesh_node_t))))
+	if (!(node = sw->node = calloc(1, sizeof(mesh_node_t) + num_ports * sizeof(link_t *))))
 		goto err;
 
-	if (!(node->links = calloc(num_ports, sizeof(link_t *))))
-		goto err;
-
-	for (i = 0; i < num_ports; i++) {
-		if (!(node->links[i] = calloc(1, sizeof(link_t))) ||
-		    !(node->links[i]->ports = calloc(num_ports, sizeof(int))))
+	for (i = 0; i < num_ports; i++)
+		if (!(node->links[i] = calloc(1, sizeof(link_t) + num_ports * sizeof(int))))
 			goto err;
-	}
 
 	if (!(node->axes = calloc(num_ports, sizeof(int))))
 		goto err;
