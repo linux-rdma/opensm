@@ -119,7 +119,6 @@ typedef struct osm_perfmgr {
 	struct osm_opensm *osm;
 	osm_subn_t *subn;
 	osm_sm_t *sm;
-	cl_plock_t *lock;
 	osm_log_t *log;
 	osm_mad_pool_t *mad_pool;
 	atomic32_t trans_id;
