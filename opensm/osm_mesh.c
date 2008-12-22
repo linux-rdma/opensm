@@ -54,7 +54,7 @@
 /*
  * characteristic polynomials for selected 1d through 8d tori
  */
-struct _mesh_info {
+static const struct mesh_info {
 	int dimension;			/* dimension of the torus */
 	int size[MAX_DIMENSION];	/* size of the torus */
 	int degree;			/* degree of polynomial */
@@ -246,7 +246,7 @@ static char *poly_print(int n, int *coeff)
  *
  * return a nonzero value if polynomials differ else 0
  */
-static int poly_diff(int n, int *p, switch_t *s)
+static int poly_diff(int n, const int *p, switch_t *s)
 {
 	if (s->node->num_links != n)
 		return 1;
@@ -691,7 +691,7 @@ static void classify_mesh_type(lash_t *p_lash, int sw)
 	osm_log_t *p_log = &p_lash->p_osm->log;
 	int i;
 	switch_t *s = p_lash->switches[sw];
-	struct _mesh_info *t;
+	const struct mesh_info *t;
 
 	OSM_LOG_ENTER(p_log);
 
@@ -1378,7 +1378,7 @@ int osm_do_mesh_analysis(lash_t *p_lash)
 	p += sprintf( p, "%snode shape is ", (mesh->num_class == 1)? "" : "most common ");
 
 	if (s->node->type) {
-		struct _mesh_info *t = &mesh_info[s->node->type];
+		const struct mesh_info *t = &mesh_info[s->node->type];
 
 		for (i = 0; i < t->dimension; i++) {
 			p += sprintf(p, "%s%d%s", i? " x " : "", t->size[i],
