@@ -15,10 +15,10 @@
 %endif
 
 %if %{?_with_event_plugin:1}%{!?_with_event_plugin:0}
-%define _enable_event_plugin --enable-event-plugin
+%define _enable_event_plugin --enable-default-event-plugin
 %endif
 %if %{?_without_event_plugin:1}%{!?_without_event_plugin:0}
-%define _disable_event_plugin --disable-event-plugin
+%define _disable_event_plugin --disable-default-event-plugin
 %endif
 
 Summary: InfiniBand subnet manager and administration
