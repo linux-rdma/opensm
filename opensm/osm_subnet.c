@@ -333,17 +333,14 @@ static void subn_init_qos_options(IN osm_qos_options_t * opt)
 
 static void subn_free_qos_options(IN osm_qos_options_t * opt)
 {
-	if ((opt->vlarb_high) && (opt->vlarb_high != OSM_DEFAULT_QOS_VLARB_HIGH)) {
+	if (opt->vlarb_high && opt->vlarb_high != OSM_DEFAULT_QOS_VLARB_HIGH)
 		free(opt->vlarb_high);
-	}
 
-	if ((opt->vlarb_low) && (opt->vlarb_low != OSM_DEFAULT_QOS_VLARB_LOW)) {
+	if (opt->vlarb_low && opt->vlarb_low != OSM_DEFAULT_QOS_VLARB_LOW)
 		free(opt->vlarb_low);
-	}
 
-	if ((opt->sl2vl) && (opt->sl2vl != OSM_DEFAULT_QOS_SL2VL)) {
+	if (opt->sl2vl && opt->sl2vl != OSM_DEFAULT_QOS_SL2VL)
 		free(opt->sl2vl);
-	}
 }
 
 /**********************************************************************
