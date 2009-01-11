@@ -1089,7 +1089,7 @@ static void do_sweep(osm_sm_t * sm)
 	 */
 	if (sm->p_subn->opt.use_ucast_cache &&
 	    (sm->p_subn->subnet_initialization_error ||
-	     sm->p_subn->force_reroute))
+	     sm->p_subn->force_reroute || sm->p_subn->coming_out_of_standby))
 		osm_ucast_cache_invalidate(&sm->ucast_mgr);
 
 	/*
