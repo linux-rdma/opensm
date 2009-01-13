@@ -67,6 +67,9 @@ full or      - indicates full or limited membership for this port. When
 There are two useful keywords for PortGUID definition:
 
 - 'ALL' means all end ports in this subnet.
+- 'ALL_CAS' means all Channel Adapter end ports in this subnet.
+- 'ALL_SWITCHES' means all Switch end ports in this subnet.
+- 'ALL_ROUTERS' means all Router end ports in this subnet.
 - 'SELF' means subnet manager's port.
 
 Empty list means no ports in this partition.
@@ -93,6 +96,7 @@ Examples:
 --------
 
 Default=0x7fff : ALL, SELF=full ;
+Default=0x7fff : ALL, ALL_SWITCHES=full, SELF=full ;
 
 NewPartition , ipoib : 0x123456=full, 0x3456789034=limi, 0x2134af2306 ;
 
