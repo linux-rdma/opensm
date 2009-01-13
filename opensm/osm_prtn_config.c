@@ -62,9 +62,9 @@ struct part_conf {
 
 extern osm_prtn_t *osm_prtn_make_new(osm_log_t * p_log, osm_subn_t * p_subn,
 				     const char *name, uint16_t pkey);
-extern ib_api_status_t osm_prtn_add_all(osm_log_t * p_log,
-					osm_subn_t * p_subn,
-					osm_prtn_t * p, boolean_t full);
+extern ib_api_status_t osm_prtn_add_all(osm_log_t * p_log, osm_subn_t * p_subn,
+					osm_prtn_t * p, unsigned type,
+					boolean_t full);
 extern ib_api_status_t osm_prtn_add_port(osm_log_t * p_log,
 					 osm_subn_t * p_subn, osm_prtn_t * p,
 					 ib_net64_t guid, boolean_t full);
@@ -212,7 +212,16 @@ static int partition_add_port(unsigned lineno, struct part_conf *conf,
 
 	if (!strncmp(name, "ALL", strlen(name))) {
 		return osm_prtn_add_all(conf->p_log, conf->p_subn, p,
-					full) == IB_SUCCESS ? 0 : -1;
+					0, full) == IB_SUCCESS ? 0 : -1;
+	} else if (!strncmp(name, "ALL_CAS", strlen(name))) {
+		return osm_prtn_add_all(conf->p_log, conf->p_subn, p,
+					IB_NODE_TYPE_CA, full) == IB_SUCCESS ? 0 : -1;
+	} else if (!strncmp(name, "ALL_SWITCHES", strlen(name))) {
+		return osm_prtn_add_all(conf->p_log, conf->p_subn, p,
+					IB_NODE_TYPE_SWITCH, full) == IB_SUCCESS ? 0 : -1;
+	} else if (!strncmp(name, "ALL_ROUTERS", strlen(name))) {
+		return osm_prtn_add_all(conf->p_log, conf->p_subn, p,
+					IB_NODE_TYPE_ROUTER, full) == IB_SUCCESS ? 0 : -1;
 	} else if (!strncmp(name, "SELF", strlen(name))) {
 		guid = cl_ntoh64(conf->p_subn->sm_port_guid);
 	} else {

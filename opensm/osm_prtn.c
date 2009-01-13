@@ -135,7 +135,7 @@ ib_api_status_t osm_prtn_add_port(osm_log_t * p_log, osm_subn_t * p_subn,
 }
 
 ib_api_status_t osm_prtn_add_all(osm_log_t * p_log, osm_subn_t * p_subn,
-				 osm_prtn_t * p, boolean_t full)
+				 osm_prtn_t * p, unsigned type, boolean_t full)
 {
 	cl_qmap_t *p_port_tbl = &p_subn->port_guid_tbl;
 	cl_map_item_t *p_item;
@@ -146,10 +146,12 @@ ib_api_status_t osm_prtn_add_all(osm_log_t * p_log, osm_subn_t * p_subn,
 	while (p_item != cl_qmap_end(p_port_tbl)) {
 		p_port = (osm_port_t *) p_item;
 		p_item = cl_qmap_next(p_item);
-		status = osm_prtn_add_port(p_log, p_subn, p,
-					   osm_port_get_guid(p_port), full);
-		if (status != IB_SUCCESS)
-			goto _err;
+		if (!type || osm_node_get_type(p_port->p_node) == type) {
+			status = osm_prtn_add_port(p_log, p_subn, p,
+						   osm_port_get_guid(p_port), full);
+			if (status != IB_SUCCESS)
+				goto _err;
+		}
 	}
 
 _err:
@@ -325,7 +327,7 @@ static ib_api_status_t osm_prtn_make_default(osm_log_t * const p_log,
 			      IB_DEFAULT_PARTIAL_PKEY);
 	if (!p)
 		goto _err;
-	status = osm_prtn_add_all(p_log, p_subn, p, no_config);
+	status = osm_prtn_add_all(p_log, p_subn, p, 0, no_config);
 	if (status != IB_SUCCESS)
 		goto _err;
 	cl_map_remove(&p->part_guid_tbl, p_subn->sm_port_guid);
