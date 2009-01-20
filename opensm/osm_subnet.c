@@ -333,13 +333,13 @@ static void subn_init_qos_options(IN osm_qos_options_t * opt)
 
 static void subn_free_qos_options(IN osm_qos_options_t * opt)
 {
-	if (opt->vlarb_high && opt->vlarb_high != OSM_DEFAULT_QOS_VLARB_HIGH)
+	if (opt->vlarb_high)
 		free(opt->vlarb_high);
 
-	if (opt->vlarb_low && opt->vlarb_low != OSM_DEFAULT_QOS_VLARB_LOW)
+	if (opt->vlarb_low)
 		free(opt->vlarb_low);
 
-	if (opt->sl2vl && opt->sl2vl != OSM_DEFAULT_QOS_SL2VL)
+	if (opt->sl2vl)
 		free(opt->sl2vl);
 }
 
@@ -803,7 +803,7 @@ static void subn_verify_vlarb(char **vlarb, const char *prefix,
 	if (*vlarb == NULL) {
 		log_report(" Invalid Cached Option: %s_vlarb_%s: "
 		"Using Default\n", prefix, suffix);
-		*vlarb = dflt;
+		*vlarb = strdup(dflt);
 		return;
 	}
 
@@ -872,7 +872,7 @@ static void subn_verify_sl2vl(char **sl2vl, const char *prefix, char *dflt)
 	if (*sl2vl == NULL) {
 		log_report(" Invalid Cached Option: %s_sl2vl: Using Default\n",
 			   prefix);
-		*sl2vl = dflt;
+		*sl2vl = strdup(dflt);
 		return;
 	}
 
