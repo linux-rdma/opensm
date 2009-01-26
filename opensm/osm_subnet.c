@@ -1141,7 +1141,6 @@ int osm_subn_parse_conf_file(char *file_name, osm_subn_opt_t * const p_opts)
 
 		opts_unpack_uint32("log_max_size", p_key, p_val,
 				   (void *) & p_opts->log_max_size);
-		p_opts->log_max_size *= 1024 * 1024; /* convert to MB */
 
 		opts_unpack_charp("partition_config_file",
 				  p_key, p_val, &p_opts->partition_config_file);
@@ -1620,7 +1619,7 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t *const p_opts)
 		p_opts->log_flags,
 		p_opts->force_log_flush ? "TRUE" : "FALSE",
 		p_opts->log_file,
-		p_opts->log_max_size/1024/1024,
+		p_opts->log_max_size,
 		p_opts->accum_log_file ? "TRUE" : "FALSE",
 		p_opts->dump_files_dir,
 		p_opts->enable_quirks ? "TRUE" : "FALSE",
