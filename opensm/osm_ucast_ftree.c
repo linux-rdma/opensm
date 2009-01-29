@@ -1103,7 +1103,7 @@ static void __osm_ftree_fabric_dump(ftree_fabric_t * p_ftree)
 		__osm_ftree_hca_dump(p_ftree, p_hca);
 	}
 
-	for (i = 0; i < p_ftree->max_switch_rank; i++) {
+	for (i = 0; i <= p_ftree->max_switch_rank; i++) {
 		OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
 			"-- Rank %u switches\n", i);
 		for (p_sw = (ftree_sw_t *) cl_qmap_head(&p_ftree->sw_tbl);
