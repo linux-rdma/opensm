@@ -108,14 +108,6 @@ typedef struct {
 } perfmgr_db_data_cnt_reading_t;
 
 /** =========================================================================
- * Port select errors
- */
-typedef struct {
-	uint64_t xmit_wait;
-	time_t time;
-} perfmgr_db_ps_reading_t;
-
-/** =========================================================================
  * Dump output options
  */
 typedef enum {
