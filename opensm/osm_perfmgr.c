@@ -1250,8 +1250,10 @@ osm_perfmgr_init(osm_perfmgr_t * const pm, osm_opensm_t *osm,
 
 	pm->pc_disp_h = cl_disp_register(&osm->disp, OSM_MSG_MAD_PORT_COUNTERS,
 					 osm_pc_rcv_process, pm);
-	if (pm->pc_disp_h == CL_DISP_INVALID_HANDLE)
+	if (pm->pc_disp_h == CL_DISP_INVALID_HANDLE) {
+		perfmgr_db_destroy(pm->db);
 		goto Exit;
+	}
 
 	__init_monitored_nodes(pm);
 
@@ -1301,11 +1303,10 @@ void
 osm_perfmgr_print_counters(osm_perfmgr_t *pm, char *nodename, FILE *fp)
 {
 	uint64_t guid = strtoull(nodename, NULL, 0);
-	if (guid == 0 && errno == EINVAL) {
+	if (guid == 0 && errno == EINVAL)
 		perfmgr_db_print_by_name(pm->db, nodename, fp);
-	} else {
+	else
 		perfmgr_db_print_by_guid(pm->db, guid, fp);
-	}
 }
 
 #endif				/* ENABLE_OSM_PERF_MGR */
