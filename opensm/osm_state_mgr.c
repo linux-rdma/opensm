@@ -1041,6 +1041,15 @@ static void do_sweep(osm_sm_t * sm)
 {
 	ib_api_status_t status;
 	osm_remote_sm_t *p_remote_sm;
+	unsigned config_parsed = 0;
+
+	if (sm->p_subn->force_heavy_sweep) {
+		if (osm_subn_rescan_conf_files(sm->p_subn) < 0)
+			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 331A: "
+				"osm_subn_rescan_conf_file failed\n");
+		else
+			config_parsed = 1;
+	}
 
 	if (sm->p_subn->sm_state != IB_SMINFO_STATE_MASTER &&
 	    sm->p_subn->sm_state != IB_SMINFO_STATE_DISCOVERING)
@@ -1132,7 +1141,7 @@ _repeat_discovery:
 	sm->p_subn->subnet_initialization_error = FALSE;
 
 	/* rescan configuration updates */
-	if (osm_subn_rescan_conf_files(sm->p_subn) < 0)
+	if (!config_parsed && osm_subn_rescan_conf_files(sm->p_subn) < 0)
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 331A: "
 			"osm_subn_rescan_conf_file failed\n");
 
