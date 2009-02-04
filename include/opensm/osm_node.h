@@ -269,7 +269,10 @@ static inline uint8_t osm_node_get_type(IN const osm_node_t * const p_node)
 *	osm_node_get_num_physp
 *
 * DESCRIPTION
-*	Returns the type of this node.
+*	Returns the number of osm_physp ports allocated for this node.
+*	For switches, it is the number of external physical ports plus
+*	port 0. For CAs and routers, it is the number of external physical
+*	ports plus 1.
 *
 * SYNOPSIS
 */
