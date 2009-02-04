@@ -142,10 +142,10 @@ typedef struct osm_perfmgr {
 *	      Pointer to the log object.
 *
 *	mad_pool
-*		Pointer to the MAD pool.
+*	      Pointer to the MAD pool.
 *
 *	mad_ctrl
-*		Mad Controller
+*	      Mad Controller
 *********/
 
 /****f* OpenSM: Creation Functions */
@@ -235,7 +235,7 @@ ib_api_status_t osm_perfmgr_init(osm_perfmgr_t * const perfmgr,
 *		[in] Pointer to the OpenSM object.
 *
 *	p_opt
-*		[in] Starting options
+*		[in] Pointer to the subnet options structure.
 *
 * RETURN VALUES
 *	IB_SUCCESS if the PerfMgr object was initialized successfully.

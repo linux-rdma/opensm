@@ -95,7 +95,7 @@ static inline void update_mad_stats(struct timeval *diff)
 	perfmgr_mad_stats.num++;
 }
 
-static inline void perfmgr_clear_mad_stats(void)
+static inline void clear_mad_stats(void)
 {
 	perfmgr_mad_stats.fastest_us = DBL_MAX;
 	perfmgr_mad_stats.slowest_us = DBL_MIN;
@@ -115,7 +115,6 @@ static inline void diff_time(struct timeval *before,
 	diff->tv_sec = tmp.tv_sec - before->tv_sec;
 	diff->tv_usec = tmp.tv_usec - before->tv_usec;
 }
-
 #endif
 
 extern int wait_for_pending_transactions(osm_stats_t * stats);
@@ -123,7 +122,7 @@ extern int wait_for_pending_transactions(osm_stats_t * stats);
 /**********************************************************************
  * Internal helper functions.
  **********************************************************************/
-static inline void __init_monitored_nodes(osm_perfmgr_t * pm)
+static void __init_monitored_nodes(osm_perfmgr_t * pm)
 {
 	cl_qmap_init(&pm->monitored_map);
 	pm->remove_list = NULL;
@@ -148,7 +147,7 @@ static inline void __remove_marked_nodes(osm_perfmgr_t * pm)
 	while (pm->remove_list) {
 		__monitored_node_t *next = pm->remove_list->next;
 
-		cl_qmap_remove_item(&(pm->monitored_map),
+		cl_qmap_remove_item(&pm->monitored_map,
 				    (cl_map_item_t *) (pm->remove_list));
 
 		if (pm->remove_list->name)
@@ -160,8 +159,8 @@ static inline void __remove_marked_nodes(osm_perfmgr_t * pm)
 
 static inline void __decrement_outstanding_queries(osm_perfmgr_t * pm)
 {
-	cl_atomic_dec(&(pm->outstanding_queries));
-	cl_event_signal(&(pm->sig_query));
+	cl_atomic_dec(&pm->outstanding_queries);
+	cl_event_signal(&pm->sig_query);
 }
 
 /**********************************************************************
@@ -198,7 +197,7 @@ static void
 osm_perfmgr_mad_send_err_callback(void *bind_context, osm_madw_t * p_madw)
 {
 	osm_perfmgr_t *pm = (osm_perfmgr_t *) bind_context;
-	osm_madw_context_t *context = &(p_madw->context);
+	osm_madw_context_t *context = &p_madw->context;
 	uint64_t node_guid = context->perfmgr_context.node_guid;
 	uint8_t port = context->perfmgr_context.port;
 	cl_map_item_t *p_node;
@@ -209,8 +208,8 @@ osm_perfmgr_mad_send_err_callback(void *bind_context, osm_madw_t * p_madw)
 	/* go ahead and get the monitored node struct to have the printable
 	 * name if needed in messages
 	 */
-	if ((p_node = cl_qmap_get(&(pm->monitored_map), node_guid)) ==
-	    cl_qmap_end(&(pm->monitored_map))) {
+	if ((p_node = cl_qmap_get(&pm->monitored_map, node_guid)) ==
+	    cl_qmap_end(&pm->monitored_map)) {
 		OSM_LOG(pm->log, OSM_LOG_ERROR, "ERR 4C15: GUID 0x%016"
 			PRIx64 " not found in monitored map\n",
 			node_guid);
@@ -382,12 +381,12 @@ osm_perfmgr_send_pc_mad(osm_perfmgr_t * perfmgr, ib_net16_t dest_lid,
 	pm_mad->header.status = 0;
 	pm_mad->header.class_spec = 0;
 	pm_mad->header.trans_id =
-	    cl_hton64((uint64_t) cl_atomic_inc(&(perfmgr->trans_id)));
+	    cl_hton64((uint64_t) cl_atomic_inc(&perfmgr->trans_id));
 	pm_mad->header.attr_id = IB_MAD_ATTR_PORT_CNTRS;
 	pm_mad->header.resv = 0;
 	pm_mad->header.attr_mod = 0;
 
-	port_counter = (ib_port_counters_t *) & (pm_mad->data);
+	port_counter = (ib_port_counters_t *) &pm_mad->data;
 	memset(port_counter, 0, sizeof(*port_counter));
 	port_counter->port_select = port;
 	port_counter->counter_select = 0xFFFF;
@@ -436,8 +435,8 @@ static void __collect_guids(cl_map_item_t * const p_map_item, void *context)
 
 	OSM_LOG_ENTER(pm->log);
 
-	if (cl_qmap_get(&(pm->monitored_map), node_guid)
-	    == cl_qmap_end(&(pm->monitored_map))) {
+	if (cl_qmap_get(&pm->monitored_map, node_guid)
+	    == cl_qmap_end(&pm->monitored_map)) {
 		/* if not already in our map add it */
 		size = node->node_info.num_ports;
 		mon_node = malloc(sizeof(*mon_node) + sizeof(redir_t) * size);
@@ -530,7 +529,7 @@ __osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context)
 		mad_context.perfmgr_context.port = port;
 		mad_context.perfmgr_context.mad_method = IB_MAD_METHOD_GET;
 #if ENABLE_OSM_PERF_MGR_PROFILE
-		gettimeofday(&(mad_context.perfmgr_context.query_start), NULL);
+		gettimeofday(&mad_context.perfmgr_context.query_start, NULL);
 #endif
 		OSM_LOG(pm->log, OSM_LOG_VERBOSE, "Getting stats for node 0x%"
 			PRIx64 " port %d (lid %u) (%s)\n", node_guid, port,
@@ -795,12 +794,12 @@ void osm_perfmgr_process(osm_perfmgr_t * pm)
 	 */
 	OSM_LOG(pm->log, OSM_LOG_VERBOSE, "Gathering PerfMgr stats\n");
 	cl_plock_acquire(pm->lock);
-	cl_qmap_apply_func(&(pm->subn->node_guid_tbl),
+	cl_qmap_apply_func(&pm->subn->node_guid_tbl,
 			   __collect_guids, (void *)pm);
 	cl_plock_release(pm->lock);
 
 	/* then for each node query their counters */
-	cl_qmap_apply_func(&(pm->monitored_map),
+	cl_qmap_apply_func(&pm->monitored_map,
 			   __osm_perfmgr_query_counters, (void *)pm);
 
 	/* Clean out any nodes found to be removed during the
@@ -823,7 +822,7 @@ void osm_perfmgr_process(osm_perfmgr_t * pm)
 		after.tv_sec, after.tv_usec,
 		perfmgr_mad_stats.fastest_us,
 		perfmgr_mad_stats.slowest_us, perfmgr_mad_stats.avg_us);
-	perfmgr_clear_mad_stats();
+	clear_mad_stats();
 #endif
 
 	pm->sweep_state = PERFMGR_SWEEP_SLEEP;
@@ -1075,7 +1074,7 @@ static void osm_pc_rcv_process(void *context, void *data)
 {
 	osm_perfmgr_t *const pm = (osm_perfmgr_t *) context;
 	osm_madw_t *p_madw = (osm_madw_t *) data;
-	osm_madw_context_t *mad_context = &(p_madw->context);
+	osm_madw_context_t *mad_context = &p_madw->context;
 	ib_port_counters_t *wire_read =
 	    (ib_port_counters_t *) & (osm_madw_get_perfmgt_mad_ptr(p_madw)->
 				      data);
@@ -1092,8 +1091,8 @@ static void osm_pc_rcv_process(void *context, void *data)
 	/* go ahead and get the monitored node struct to have the printable
 	 * name if needed in messages
 	 */
-	if ((p_node = cl_qmap_get(&(pm->monitored_map), node_guid)) ==
-	    cl_qmap_end(&(pm->monitored_map))) {
+	if ((p_node = cl_qmap_get(&pm->monitored_map, node_guid)) ==
+	    cl_qmap_end(&pm->monitored_map)) {
 		OSM_LOG(pm->log, OSM_LOG_ERROR, "ERR 4C12: GUID 0x%016"
 			PRIx64 " not found in monitored map\n",
 			node_guid);
@@ -1196,7 +1195,7 @@ static void osm_pc_rcv_process(void *context, void *data)
 	do {
 		struct timeval proc_time;
 		gettimeofday(&proc_time, NULL);
-		diff_time(&(p_madw->context.perfmgr_context.query_start),
+		diff_time(&p_madw->context.perfmgr_context.query_start,
 			  &proc_time, &proc_time);
 		update_mad_stats(&proc_time);
 	} while (0);
