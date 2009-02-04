@@ -260,7 +260,7 @@ BEGIN_C_DECLS
 *	IB_MC_SCOPE_*
 *
 * DESCRIPTION
-*	Scope component definitions from IBA 1.2 (Table 3 p. 146)
+*	Scope component definitions from IBA 1.2.1 (Table 3 p. 148)
 */
 #define IB_MC_SCOPE_LINK_LOCAL		0x2
 #define IB_MC_SCOPE_SITE_LOCAL		0x5
@@ -7724,6 +7724,7 @@ typedef struct _ib_port_counters {
 	ib_net32_t rcv_data;
 	ib_net32_t xmit_pkts;
 	ib_net32_t rcv_pkts;
+	ib_net32_t xmit_wait;
 } PACK_SUFFIX ib_port_counters_t;
 #include <complib/cl_packoff.h>
 
