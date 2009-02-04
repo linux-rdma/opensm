@@ -7046,9 +7046,7 @@ osmtest_get_user_port(IN osmtest_t * const p_osmt,
 		      IN const ib_port_attr_t p_attr_array[],
 		      IN uint32_t const num_ports)
 {
-	uint32_t i;
-	uint32_t choice = 0;
-	boolean_t done_flag = FALSE;
+	uint32_t i, choice = 0;
 
 	OSM_LOG_ENTER(&p_osmt->log);
 
@@ -7057,7 +7055,7 @@ osmtest_get_user_port(IN osmtest_t * const p_osmt,
 	 * to bind.
 	 */
 
-	while (done_flag == FALSE) {
+	while (1) {
 		printf("\nChoose a local port number with which to bind:\n\n");
 		for (i = 0; i < num_ports; i++) {
 			/*
@@ -7074,12 +7072,14 @@ osmtest_get_user_port(IN osmtest_t * const p_osmt,
 		}
 
 		printf("\nEnter choice (1-%u): ", i);
-		scanf("%u", &choice);
-		if (choice > num_ports)
-			printf("\nError: Lame choice!\n");
-		else
-			done_flag = TRUE;
-
+		fflush(stdout);
+		if (scanf("%u", &choice) <= 0) {
+			char junk[256];
+			if (scanf("%s", junk) <= 0)
+				printf("\nError: Cannot scan!\n");
+		} else if (choice && choice <= num_ports)
+			break;
+		printf("\nError: Lame choice!\n");
 	}
 	printf("\n");
 	OSM_LOG_EXIT(&p_osmt->log);

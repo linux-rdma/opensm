@@ -361,9 +361,7 @@ static ib_net64_t get_port_guid(IN osm_opensm_t * p_osm, uint64_t port_guid)
 {
 	ib_port_attr_t attr_array[GUID_ARRAY_SIZE];
 	uint32_t num_ports = GUID_ARRAY_SIZE;
-	char junk[128];
 	uint32_t i, choice = 0;
-	boolean_t done_flag = FALSE;
 	ib_api_status_t status;
 
 	/*
@@ -408,7 +406,7 @@ static ib_net64_t get_port_guid(IN osm_opensm_t * p_osm, uint64_t port_guid)
 
 	/* More than one possible port - list all ports and let the user
 	 * to choose. */
-	while (done_flag == FALSE) {
+	while (1) {
 		printf("\nChoose a local port number with which to bind:\n\n");
 		for (i = 0; i < num_ports; i++)
 			/* Print the index + 1 since by convention, port
@@ -420,21 +418,15 @@ static ib_net64_t get_port_guid(IN osm_opensm_t * p_osm, uint64_t port_guid)
 			       ib_get_port_state_str(attr_array[i].link_state));
 		printf("\nEnter choice (1-%u): ", i);
 		fflush(stdout);
-		if (scanf("%u", &choice)) {
-			if (choice > num_ports || choice < 1) {
-				printf("\nError: Lame choice!\n");
-				fflush(stdin);
-			} else {
-				choice--;
-				done_flag = TRUE;
-			}
-		} else {
-			/* get rid of the junk in the selection line */
-			scanf("%s", junk);
-			printf("\nError: Lame choice!\n");
-			fflush(stdin);
-		}
+		if (scanf("%u", &choice) <= 0) {
+			char junk[128];
+			if (scanf("%s", junk) <= 0)
+				printf("\nError: Cannot scan!\n");
+		} else if (choice && choice <= num_ports)
+			break;
+		printf("\nError: Lame choice!\n");
 	}
+	choice--;
 	printf("Choice guid=0x%" PRIx64 "\n",
 	       cl_ntoh64(attr_array[choice].port_guid));
 	return (attr_array[choice].port_guid);
