@@ -368,9 +368,8 @@ static ib_net64_t get_port_guid(IN osm_opensm_t * p_osm, uint64_t port_guid)
 	   Call the transport layer for a list of local port
 	   GUID values.
 	 */
-	status =
-	    osm_vendor_get_all_port_attr(p_osm->p_vendor, attr_array,
-					 &num_ports);
+	status = osm_vendor_get_all_port_attr(p_osm->p_vendor, attr_array,
+					      &num_ports);
 	if (status != IB_SUCCESS) {
 		printf("\nError from osm_vendor_get_all_port_attr (%x)\n",
 		       status);
@@ -411,9 +410,8 @@ static ib_net64_t get_port_guid(IN osm_opensm_t * p_osm, uint64_t port_guid)
 		for (i = 0; i < num_ports; i++)
 			/* Print the index + 1 since by convention, port
 			 * numbers start with 1 on host channel adapters. */
-			printf("\t%u: GUID 0x%" PRIx64
-			       ", lid %u, state %s\n", i + 1,
-			       cl_ntoh64(attr_array[i].port_guid),
+			printf("\t%u: GUID 0x%" PRIx64 ", lid %u, state %s\n",
+			       i + 1, cl_ntoh64(attr_array[i].port_guid),
 			       attr_array[i].lid,
 			       ib_get_port_state_str(attr_array[i].link_state));
 		printf("\nEnter choice (1-%u): ", i);
