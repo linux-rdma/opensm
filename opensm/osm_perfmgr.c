@@ -224,7 +224,7 @@ osm_perfmgr_mad_send_err_callback(void *bind_context, osm_madw_t * p_madw)
 		/* First, find the node in the monitored map */
 		cl_plock_acquire(pm->lock);
 		/* Now, validate port number */
-		if (port > p_mon_node->redir_tbl_size) {
+		if (port >= p_mon_node->redir_tbl_size) {
 			cl_plock_release(pm->lock);
 			OSM_LOG(pm->log, OSM_LOG_ERROR, "ERR 4C16: "
 				"Invalid port num %u for %s (GUID 0x%016"
@@ -438,7 +438,7 @@ static void __collect_guids(cl_map_item_t * const p_map_item, void *context)
 	if (cl_qmap_get(&pm->monitored_map, node_guid)
 	    == cl_qmap_end(&pm->monitored_map)) {
 		/* if not already in our map add it */
-		size = node->node_info.num_ports;
+		size = osm_node_get_num_physp(node);
 		mon_node = malloc(sizeof(*mon_node) + sizeof(redir_t) * size);
 		if (!mon_node) {
 			OSM_LOG(pm->log, OSM_LOG_ERROR, "PerfMgr: ERR 4C06: "
@@ -449,7 +449,15 @@ static void __collect_guids(cl_map_item_t * const p_map_item, void *context)
 		memset(mon_node, 0, sizeof(*mon_node) + sizeof(redir_t) * size);
 		mon_node->guid = node_guid;
 		mon_node->name = strdup(node->print_desc);
-		mon_node->redir_tbl_size = size + 1;
+		mon_node->redir_tbl_size = size;
+		/* check for enhanced switch port 0 */
+		if (node && osm_node_get_type(node) == IB_NODE_TYPE_SWITCH &&
+		    node->sw &&
+		    ib_switch_info_is_enhanced_port0(&node->sw->switch_info))
+			mon_node->esp0 = TRUE;
+		else
+			mon_node->esp0 = FALSE;
+
 		cl_qmap_insert(&(pm->monitored_map), node_guid,
 			       (cl_map_item_t *) mon_node);
 	}
@@ -491,8 +499,8 @@ __osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context)
 	node_guid = cl_ntoh64(node->node_info.node_guid);
 
 	/* make sure we have a database object ready to store this information */
-	if (perfmgr_db_create_entry(pm->db, node_guid, num_ports,
-				    node->print_desc) !=
+	if (perfmgr_db_create_entry(pm->db, node_guid, mon_node->esp0,
+				    num_ports, node->print_desc) !=
 	    PERFMGR_EVENT_DB_SUCCESS) {
 		OSM_LOG(pm->log, OSM_LOG_ERROR,
 			"ERR 4C08: DB create entry failed for 0x%"
@@ -501,10 +509,8 @@ __osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context)
 		goto Exit;
 	}
 
-	/* if switch, check for enhanced port 0 */
-	if (osm_node_get_type(node) == IB_NODE_TYPE_SWITCH &&
-	    node->sw &&
-	    ib_switch_info_is_enhanced_port0(&node->sw->switch_info))
+	/* check for switch enhanced port 0 */
+	if (mon_node->esp0)
 		startport = 0;
 
 	/* issue the query for each port */
@@ -1136,7 +1142,7 @@ static void osm_pc_rcv_process(void *context, void *data)
 		/* LID redirection support (easier than GID redirection) */
 		cl_plock_acquire(pm->lock);
 		/* Now, validate port number */
-		if (port > p_mon_node->redir_tbl_size) {
+		if (port >= p_mon_node->redir_tbl_size) {
 			cl_plock_release(pm->lock);
 			OSM_LOG(pm->log, OSM_LOG_ERROR, "ERR 4C13: "
 				"Invalid port num %d for GUID 0x%016"

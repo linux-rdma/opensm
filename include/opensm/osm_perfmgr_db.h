@@ -134,6 +134,7 @@ typedef struct _db_port {
 typedef struct _db_node {
 	cl_map_item_t map_item;	/* must be first */
 	uint64_t node_guid;
+	boolean_t esp0;
 	_db_port_t *ports;
 	uint8_t num_ports;
 	char node_name[NODE_NAME_SIZE];
@@ -155,7 +156,8 @@ perfmgr_db_t *perfmgr_db_construct(struct osm_perfmgr *perfmgr);
 void perfmgr_db_destroy(perfmgr_db_t * db);
 
 perfmgr_db_err_t perfmgr_db_create_entry(perfmgr_db_t * db, uint64_t guid,
-					 uint8_t num_ports, char *node_name);
+					 boolean_t esp0, uint8_t num_ports,
+					 char *node_name);
 
 perfmgr_db_err_t perfmgr_db_add_err_reading(perfmgr_db_t * db, uint64_t guid,
 					    uint8_t port,

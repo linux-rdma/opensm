@@ -90,14 +90,15 @@ static inline perfmgr_db_err_t bad_node_port(_db_node_t * node, uint8_t port)
 {
 	if (!node)
 		return (PERFMGR_EVENT_DB_GUIDNOTFOUND);
-	if (port == 0 || port >= node->num_ports)
+	if (port >= node->num_ports || (!node->esp0 && port == 0))
 		return (PERFMGR_EVENT_DB_PORTNOTFOUND);
 	return (PERFMGR_EVENT_DB_SUCCESS);
 }
 
 /** =========================================================================
  */
-static _db_node_t *__malloc_node(uint64_t guid, uint8_t num_ports, char *name)
+static _db_node_t *__malloc_node(uint64_t guid, boolean_t esp0,
+				 uint8_t num_ports, char *name)
 {
 	int i = 0;
 	time_t cur_time = 0;
@@ -110,6 +111,7 @@ static _db_node_t *__malloc_node(uint64_t guid, uint8_t num_ports, char *name)
 		goto free_rc;
 	rc->num_ports = num_ports;
 	rc->node_guid = guid;
+	rc->esp0 = esp0;
 
 	cur_time = time(NULL);
 	for (i = 0; i < num_ports; i++) {
@@ -151,14 +153,15 @@ static perfmgr_db_err_t __insert(perfmgr_db_t * db, _db_node_t * node)
 /**********************************************************************
  **********************************************************************/
 perfmgr_db_err_t
-perfmgr_db_create_entry(perfmgr_db_t * db, uint64_t guid,
+perfmgr_db_create_entry(perfmgr_db_t * db, uint64_t guid, boolean_t esp0,
 			uint8_t num_ports, char *name)
 {
 	perfmgr_db_err_t rc = PERFMGR_EVENT_DB_SUCCESS;
 
 	cl_plock_excl_acquire(&db->lock);
 	if (!_get(db, guid)) {
-		_db_node_t *pc_node = __malloc_node(guid, num_ports, name);
+		_db_node_t *pc_node = __malloc_node(guid, esp0, num_ports,
+						    name);
 		if (!pc_node) {
 			rc = PERFMGR_EVENT_DB_NOMEM;
 			goto Exit;
