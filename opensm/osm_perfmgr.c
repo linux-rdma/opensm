@@ -451,13 +451,8 @@ static void __collect_guids(cl_map_item_t * const p_map_item, void *context)
 		mon_node->name = strdup(node->print_desc);
 		mon_node->redir_tbl_size = size;
 		/* check for enhanced switch port 0 */
-		if (node && osm_node_get_type(node) == IB_NODE_TYPE_SWITCH &&
-		    node->sw &&
-		    ib_switch_info_is_enhanced_port0(&node->sw->switch_info))
-			mon_node->esp0 = TRUE;
-		else
-			mon_node->esp0 = FALSE;
-
+		mon_node->esp0 = (node->sw &&
+		    ib_switch_info_is_enhanced_port0(&node->sw->switch_info));
 		cl_qmap_insert(&(pm->monitored_map), node_guid,
 			       (cl_map_item_t *) mon_node);
 	}
