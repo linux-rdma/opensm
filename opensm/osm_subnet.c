@@ -710,14 +710,14 @@ opts_parse_net16(IN osm_subn_t *p_subn,
 		  IN void *p_v, IN setup_fn_t pfn)
 {
 	uint16_t *p_val = p_v;
-	uint32_t val = strtoul(p_val_str, NULL, 0);
+	uint16_t val = strtoul(p_val_str, NULL, 0);
 
 	CL_ASSERT(val < 0x10000);
-	if (cl_hton32(val) != *p_val) {
+	if (cl_hton16(val) != *p_val) {
 		log_config_value(p_key, "0x%04x", val);
 		if (pfn)
 			pfn(p_subn, &val);
-		*p_val = cl_hton16((uint16_t) val);
+		*p_val = cl_hton16(val);
 	}
 }
 
@@ -729,14 +729,14 @@ opts_parse_uint8(IN osm_subn_t *p_subn,
 		  IN void *p_v, IN setup_fn_t pfn)
 {
 	uint8_t *p_val = p_v;
-	uint32_t val = strtoul(p_val_str, NULL, 0);
+	uint8_t val = strtoul(p_val_str, NULL, 0);
 
 	CL_ASSERT(val < 0x100);
 	if (val != *p_val) {
 		log_config_value(p_key, "%u", val);
 		if (pfn)
 			pfn(p_subn, &val);
-		*p_val = (uint8_t) val;
+		*p_val = val;
 	}
 }
 
