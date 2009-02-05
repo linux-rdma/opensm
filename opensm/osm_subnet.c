@@ -74,7 +74,8 @@ static const char null_str[] = "(null)";
 #define OPT_OFFSET(opt) offsetof(osm_subn_opt_t, opt)
 
 typedef void (setup_fn_t)(osm_subn_t *p_subn, void *p_val);
-typedef void (parse_fn_t)(osm_subn_t *p_subn, char *p_key, char *p_val_str, void *p_val, setup_fn_t *f);
+typedef void (parse_fn_t)(osm_subn_t *p_subn, char *p_key, char *p_val_str,
+			  void *p_val, setup_fn_t *f);
 
 typedef struct opt_rec {
 	const char *name;
@@ -332,10 +333,9 @@ void osm_subn_destroy(IN osm_subn_t * const p_subn)
 
 /**********************************************************************
  **********************************************************************/
-ib_api_status_t
-osm_subn_init(IN osm_subn_t * const p_subn,
-	      IN osm_opensm_t * const p_osm,
-	      IN const osm_subn_opt_t * const p_opt)
+ib_api_status_t osm_subn_init(IN osm_subn_t * const p_subn,
+			      IN osm_opensm_t * const p_osm,
+			      IN const osm_subn_opt_t * const p_opt)
 {
 	cl_status_t status;
 
@@ -400,11 +400,10 @@ osm_port_t *osm_get_port_by_mad_addr(IN osm_log_t * p_log,
 	return p_port;
 }
 
-ib_api_status_t
-osm_get_gid_by_mad_addr(IN osm_log_t * p_log,
-			IN const osm_subn_t * p_subn,
-			IN osm_mad_addr_t * p_mad_addr,
-			OUT ib_gid_t * p_gid)
+ib_api_status_t osm_get_gid_by_mad_addr(IN osm_log_t * p_log,
+					IN const osm_subn_t * p_subn,
+					IN osm_mad_addr_t * p_mad_addr,
+					OUT ib_gid_t * p_gid)
 {
 	const osm_port_t *p_port = NULL;
 
@@ -632,10 +631,9 @@ static void log_config_value(char *name, const char *fmt, ...)
 	cl_log_event("OpenSM", CL_LOG_INFO, buf, NULL, 0);
 }
 
-static void
-opts_parse_net64(IN osm_subn_t *p_subn,
-		  IN char *p_key, IN char *p_val_str,
-		  IN void *p_v, IN setup_fn_t pfn)
+static void opts_parse_net64(IN osm_subn_t *p_subn, IN char *p_key,
+			     IN char *p_val_str, IN void *p_v,
+			     IN setup_fn_t pfn)
 {
 	uint64_t *p_val = p_v;
 	uint64_t val = strtoull(p_val_str, NULL, 0);
@@ -648,12 +646,9 @@ opts_parse_net64(IN osm_subn_t *p_subn,
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
-static void
-opts_parse_uint32(IN osm_subn_t *p_subn,
-		   IN char *p_key, IN char *p_val_str,
-		   IN void *p_v, IN setup_fn_t pfn)
+static void opts_parse_uint32(IN osm_subn_t *p_subn, IN char *p_key,
+			      IN char *p_val_str, IN void *p_v,
+			      IN setup_fn_t pfn)
 {
 	uint32_t *p_val = p_v;
 	uint32_t val = strtoul(p_val_str, NULL, 0);
@@ -666,12 +661,9 @@ opts_parse_uint32(IN osm_subn_t *p_subn,
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
-static void
-opts_parse_int32(IN osm_subn_t *p_subn,
-		  IN char *p_key, IN char *p_val_str,
-		  IN void *p_v, IN setup_fn_t pfn)
+static void opts_parse_int32(IN osm_subn_t *p_subn, IN char *p_key,
+			     IN char *p_val_str, IN void *p_v,
+			     IN setup_fn_t pfn)
 {
 	int32_t *p_val = p_v;
 	int32_t val = strtol(p_val_str, NULL, 0);
@@ -684,12 +676,9 @@ opts_parse_int32(IN osm_subn_t *p_subn,
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
-static void
-opts_parse_uint16(IN osm_subn_t *p_subn,
-		   IN char *p_key, IN char *p_val_str,
-		   IN void *p_v, IN setup_fn_t pfn)
+static void opts_parse_uint16(IN osm_subn_t *p_subn, IN char *p_key,
+			      IN char *p_val_str, IN void *p_v,
+			      IN setup_fn_t pfn)
 {
 	uint16_t *p_val = p_v;
 	uint16_t val = (uint16_t) strtoul(p_val_str, NULL, 0);
@@ -702,12 +691,9 @@ opts_parse_uint16(IN osm_subn_t *p_subn,
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
-static void
-opts_parse_net16(IN osm_subn_t *p_subn,
-		  IN char *p_key, IN char *p_val_str,
-		  IN void *p_v, IN setup_fn_t pfn)
+static void opts_parse_net16(IN osm_subn_t *p_subn, IN char *p_key,
+			     IN char *p_val_str, IN void *p_v,
+			     IN setup_fn_t pfn)
 {
 	uint16_t *p_val = p_v;
 	uint16_t val = strtoul(p_val_str, NULL, 0);
@@ -721,12 +707,9 @@ opts_parse_net16(IN osm_subn_t *p_subn,
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
-static void
-opts_parse_uint8(IN osm_subn_t *p_subn,
-		  IN char *p_key, IN char *p_val_str,
-		  IN void *p_v, IN setup_fn_t pfn)
+static void opts_parse_uint8(IN osm_subn_t *p_subn, IN char *p_key,
+			     IN char *p_val_str, IN void *p_v,
+			     IN setup_fn_t pfn)
 {
 	uint8_t *p_val = p_v;
 	uint8_t val = strtoul(p_val_str, NULL, 0);
@@ -740,12 +723,9 @@ opts_parse_uint8(IN osm_subn_t *p_subn,
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
-static void
-opts_parse_boolean(IN osm_subn_t *p_subn,
-		    IN char *p_key, IN char *p_val_str,
-		    IN void *p_v, IN setup_fn_t pfn)
+static void opts_parse_boolean(IN osm_subn_t *p_subn, IN char *p_key,
+			       IN char *p_val_str, IN void *p_v,
+			       IN setup_fn_t pfn)
 {
 	boolean_t *p_val = p_v;
 	boolean_t val;
@@ -766,12 +746,9 @@ opts_parse_boolean(IN osm_subn_t *p_subn,
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
-static void
-opts_parse_charp(IN osm_subn_t *p_subn,
-		  IN char *p_key, IN char *p_val_str,
-		  IN void *p_v, IN setup_fn_t pfn)
+static void opts_parse_charp(IN osm_subn_t *p_subn, IN char *p_key,
+			     IN char *p_val_str, IN void *p_v,
+			     IN setup_fn_t pfn)
 {
 	char **p_val = p_v;
 	const char *current_str = *p_val ? *p_val : null_str ;
@@ -824,10 +801,8 @@ static char *clean_val(char *val)
 
 /**********************************************************************
  **********************************************************************/
-static int
-subn_dump_qos_options(FILE * file,
-		      const char *set_name,
-		      const char *prefix, osm_qos_options_t * opt)
+static int subn_dump_qos_options(FILE * file, const char *set_name,
+				 const char *prefix, osm_qos_options_t * opt)
 {
 	return fprintf(file, "# %s\n"
 		       "%s_max_vls %u\n"
@@ -844,8 +819,8 @@ subn_dump_qos_options(FILE * file,
 
 /**********************************************************************
  **********************************************************************/
-static ib_api_status_t
-append_prefix_route(IN osm_subn_t * const p_subn, uint64_t prefix, uint64_t guid)
+static ib_api_status_t append_prefix_route(IN osm_subn_t * const p_subn,
+					   uint64_t prefix, uint64_t guid)
 {
 	osm_prefix_route_t *route;
 
@@ -861,8 +836,7 @@ append_prefix_route(IN osm_subn_t * const p_subn, uint64_t prefix, uint64_t guid
 	return IB_SUCCESS;
 }
 
-static ib_api_status_t
-osm_parse_prefix_routes_file(IN osm_subn_t * const p_subn)
+static ib_api_status_t osm_parse_prefix_routes_file(IN osm_subn_t * const p_subn)
 {
 	osm_log_t *log = &p_subn->p_osm->log;
 	FILE *fp;
