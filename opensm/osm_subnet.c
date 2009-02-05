@@ -132,7 +132,7 @@ static const opt_rec_t opt_tbl[] = {
 	{ "connect_roots", OPT_OFFSET(connect_roots), opts_parse_boolean, NULL, 1 },
 	{ "use_ucast_cache", OPT_OFFSET(use_ucast_cache), opts_parse_boolean, NULL, 1 },
 	{ "log_file", OPT_OFFSET(log_file), opts_parse_charp, NULL, 0 },
-	{ "log_max_size", OPT_OFFSET(log_max_size), opts_parse_uint32, opts_setup_log_max_size },
+	{ "log_max_size", OPT_OFFSET(log_max_size), opts_parse_uint32, opts_setup_log_max_size, 1 },
 	{ "log_flags", OPT_OFFSET(log_flags), opts_parse_uint8, opts_setup_log_flags, 1 },
 	{ "force_log_flush", OPT_OFFSET(force_log_flush), opts_parse_boolean, opts_setup_force_log_flush, 1 },
 	{ "accum_log_file", OPT_OFFSET(accum_log_file), opts_parse_boolean, opts_setup_accum_log_file, 1 },
