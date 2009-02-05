@@ -58,8 +58,7 @@
 /**********************************************************************
  The plock must be held before calling this function.
 **********************************************************************/
-static void
-__osm_si_rcv_get_port_info(IN osm_sm_t * sm, IN osm_switch_t * const p_sw)
+static void si_rcv_get_port_info(IN osm_sm_t * sm, IN osm_switch_t * const p_sw)
 {
 	osm_madw_context_t context;
 	uint8_t port_num;
@@ -107,8 +106,7 @@ __osm_si_rcv_get_port_info(IN osm_sm_t * sm, IN osm_switch_t * const p_sw)
 /**********************************************************************
  The plock must be held before calling this function.
 **********************************************************************/
-static void
-__osm_si_rcv_get_fwd_tbl(IN osm_sm_t * sm, IN osm_switch_t * const p_sw)
+static void si_rcv_get_fwd_tbl(IN osm_sm_t * sm, IN osm_switch_t * const p_sw)
 {
 	osm_madw_context_t context;
 	osm_dr_path_t *p_dr_path;
@@ -154,8 +152,8 @@ __osm_si_rcv_get_fwd_tbl(IN osm_sm_t * sm, IN osm_switch_t * const p_sw)
 /**********************************************************************
  The plock must be held before calling this function.
 **********************************************************************/
-static void
-__osm_si_rcv_get_mcast_fwd_tbl(IN osm_sm_t * sm, IN osm_switch_t * const p_sw)
+static void si_rcv_get_mcast_fwd_tbl(IN osm_sm_t * sm,
+				     IN osm_switch_t * const p_sw)
 {
 	osm_madw_context_t context;
 	osm_dr_path_t *p_dr_path;
@@ -240,10 +238,8 @@ Exit:
 /**********************************************************************
    Lock must be held on entry to this function.
 **********************************************************************/
-static void
-__osm_si_rcv_process_new(IN osm_sm_t * sm,
-			 IN osm_node_t * const p_node,
-			 IN const osm_madw_t * const p_madw)
+static void si_rcv_process_new(IN osm_sm_t * sm, IN osm_node_t * const p_node,
+			       IN const osm_madw_t * const p_madw)
 {
 	osm_switch_t *p_sw;
 	osm_switch_t *p_check;
@@ -258,7 +254,6 @@ __osm_si_rcv_process_new(IN osm_sm_t * sm,
 	CL_ASSERT(p_madw);
 
 	p_sw_guid_tbl = &sm->p_subn->sw_guid_tbl;
-
 	p_smp = osm_madw_get_smp_ptr(p_madw);
 	p_si = (ib_switch_info_t *) ib_smp_get_payload_ptr(p_smp);
 
@@ -317,7 +312,7 @@ __osm_si_rcv_process_new(IN osm_sm_t * sm,
 	/*
 	   Get the PortInfo attribute for every port.
 	 */
-	__osm_si_rcv_get_port_info(sm, p_sw);
+	si_rcv_get_port_info(sm, p_sw);
 
 	/*
 	   Don't bother retrieving the current unicast and multicast tables
@@ -331,9 +326,9 @@ __osm_si_rcv_process_new(IN osm_sm_t * sm,
 	   The code to retrieve the tables was fully debugged.
 	 */
 #if 0
-	__osm_si_rcv_get_fwd_tbl(sm, p_sw);
+	si_rcv_get_fwd_tbl(sm, p_sw);
 	if (!sm->p_subn->opt.disable_multicast)
-		__osm_si_rcv_get_mcast_fwd_tbl(sm, p_sw);
+		si_rcv_get_mcast_fwd_tbl(sm, p_sw);
 #endif
 
 Exit:
@@ -345,10 +340,9 @@ Exit:
    Return 1 if the caller is expected to send a change_detected event.
    this can not be done internally as the event needs the lock...
 **********************************************************************/
-static boolean_t
-__osm_si_rcv_process_existing(IN osm_sm_t * sm,
-			      IN osm_node_t * const p_node,
-			      IN const osm_madw_t * const p_madw)
+static boolean_t si_rcv_process_existing(IN osm_sm_t * sm,
+					 IN osm_node_t * const p_node,
+					 IN const osm_madw_t * const p_madw)
 {
 	osm_switch_t *p_sw = p_node->sw;
 	ib_switch_info_t *p_si;
@@ -388,17 +382,15 @@ __osm_si_rcv_process_existing(IN osm_sm_t * sm,
 					"GetResp() received with error in light sweep. "
 					"Commencing heavy sweep\n");
 				is_change_detected = TRUE;
-			} else {
+			} else if (ib_switch_info_get_state_change(p_si)) {
 				/*
 				   If something changed, then just signal the
 				   state manager.  Don't attempt to probe
 				   further during a light sweep.
 				 */
-				if (ib_switch_info_get_state_change(p_si)) {
-					osm_dump_switch_info(sm->p_log, p_si,
-							     OSM_LOG_DEBUG);
-					is_change_detected = TRUE;
-				}
+				osm_dump_switch_info(sm->p_log, p_si,
+						     OSM_LOG_DEBUG);
+				is_change_detected = TRUE;
 			}
 		} else {
 			/*
@@ -412,7 +404,7 @@ __osm_si_rcv_process_existing(IN osm_sm_t * sm,
 
 			/* If this is the first discovery - then get the port_info */
 			if (p_sw->discovery_count == 1)
-				__osm_si_rcv_get_port_info(sm, p_sw);
+				si_rcv_get_port_info(sm, p_sw);
 			else
 				OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 					"Not discovering again through switch:0x%"
@@ -445,12 +437,7 @@ void osm_si_rcv_process(IN void *context, IN void *data)
 
 	p_smp = osm_madw_get_smp_ptr(p_madw);
 	p_si = (ib_switch_info_t *) ib_smp_get_payload_ptr(p_smp);
-
-	/*
-	   Acquire the switch object and add the switch info.
-	 */
 	p_context = osm_madw_get_si_context_ptr(p_madw);
-
 	node_guid = p_context->node_guid;
 
 	OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
@@ -460,45 +447,34 @@ void osm_si_rcv_process(IN void *context, IN void *data)
 	CL_PLOCK_EXCL_ACQUIRE(sm->p_lock);
 
 	p_node = osm_get_node_by_guid(sm->p_subn, node_guid);
-	if (!p_node)
+	if (!p_node) {
+		CL_PLOCK_RELEASE(sm->p_lock);
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3606: "
 			"SwitchInfo received for nonexistent node "
 			"with GUID 0x%" PRIx64 "\n", cl_ntoh64(node_guid));
-	else {
-
-		/*
-		   Hack for bad value in Mellanox switch
-		 */
-		if (cl_ntoh16(p_si->lin_top) > IB_LID_UCAST_END_HO) {
-			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3610: "
-				"\n\t\t\t\tBad LinearFDBTop value = 0x%X "
-				"on switch 0x%" PRIx64
-				"\n\t\t\t\tForcing internal correction to 0x%X\n",
-				cl_ntoh16(p_si->lin_top),
-				cl_ntoh64(osm_node_get_node_guid(p_node)), 0);
-
-			p_si->lin_top = 0;
-		}
-
-		/*
-		   Acquire the switch object for this switch.
-		 */
-		if (!p_node->sw) {
-			__osm_si_rcv_process_new(sm, p_node, p_madw);
-			/*
-			   A new switch was found during the sweep so we need
-			   to ignore the current LFT settings.
-			 */
-			sm->p_subn->ignore_existing_lfts = TRUE;
-		} else {
-			/* we might get back a request for signaling change was detected */
-			if (__osm_si_rcv_process_existing(sm, p_node, p_madw)) {
-				CL_PLOCK_RELEASE(sm->p_lock);
-				sm->p_subn->force_heavy_sweep = TRUE;
-				goto Exit;
-			}
-		}
+		goto Exit;
 	}
+
+	/* Hack for bad value in Mellanox switch */
+	if (cl_ntoh16(p_si->lin_top) > IB_LID_UCAST_END_HO) {
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3610: "
+			"\n\t\t\t\tBad LinearFDBTop value = 0x%X "
+			"on switch 0x%" PRIx64
+			"\n\t\t\t\tForcing internal correction to 0x%X\n",
+			cl_ntoh16(p_si->lin_top),
+			cl_ntoh64(osm_node_get_node_guid(p_node)), 0);
+		p_si->lin_top = 0;
+	}
+
+	/* Acquire the switch object for this switch. */
+	if (!p_node->sw) {
+		si_rcv_process_new(sm, p_node, p_madw);
+		/* A new switch was found during the sweep so we need
+		   to ignore the current LFT settings. */
+		sm->p_subn->ignore_existing_lfts = TRUE;
+	} else if (si_rcv_process_existing(sm, p_node, p_madw))
+		/* we might get back a request for signaling change was detected */
+		sm->p_subn->force_heavy_sweep = TRUE;
 
 	CL_PLOCK_RELEASE(sm->p_lock);
 Exit:
