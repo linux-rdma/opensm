@@ -11,7 +11,7 @@ a perfquery diagnostic tool which some have scripted into a
 The primary responsibilities of the performance manager are to:
 1. Monitor subnet topology
 2. Based on subnet topology, monitor performance and error counters.
-   Also, possible counters related to congestion.
+   Also, possibly monitor counters related to congestion.
 3. Perform data reduction (various calculations (rates, histograms, etc.))
    on counters obtained
 4. Log performance data and indicate "interesting" related events
@@ -40,7 +40,7 @@ Performance Manager Components
    polling rate configurable from 1-65535 seconds (default TBD)
    Note that with 32 bit counters, on 4x SDR links, byte counts can max out in
    16 seconds and on 4x DDR links in 8 seconds. The polling rate needs to
-   deal with this is accurate byte and packet rates are desired. Since IB
+   deal with this as accurate byte and packet rates are desired. Since IB
    counters are sticky, the counters need to be reset when they get "close"
    to max'ing out. This will result in some inaccuracy. When counters are
    reset, the time of the reset will be tracked in the monitor and will be
