@@ -488,21 +488,15 @@ static void subn_init_qos_options(IN osm_qos_options_t * opt)
 {
 	opt->max_vls = 0;
 	opt->high_limit = -1;
-	opt->vlarb_high = NULL;
-	opt->vlarb_low = NULL;
-	opt->sl2vl = NULL;
-}
-
-static void subn_free_qos_options(IN osm_qos_options_t * opt)
-{
 	if (opt->vlarb_high)
 		free(opt->vlarb_high);
-
+	opt->vlarb_high = NULL;
 	if (opt->vlarb_low)
 		free(opt->vlarb_low);
-
+	opt->vlarb_low = NULL;
 	if (opt->sl2vl)
 		free(opt->sl2vl);
+	opt->sl2vl = NULL;
 }
 
 /**********************************************************************
@@ -518,7 +512,7 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * const p_opt)
 	p_opt->m_key_lease_period = 0;
 	p_opt->sweep_interval = OSM_DEFAULT_SWEEP_INTERVAL_SECS;
 	p_opt->max_wire_smps = OSM_DEFAULT_SMP_MAX_ON_WIRE;
-	p_opt->console = OSM_DEFAULT_CONSOLE;
+	p_opt->console = strdup(OSM_DEFAULT_CONSOLE);
 	p_opt->console_port = OSM_DEFAULT_CONSOLE_PORT;
 	p_opt->transaction_timeout = OSM_DEFAULT_TRANS_TIMEOUT_MILLISEC;
 	/* by default we will consider waiting for 50x transaction timeout normal */
@@ -566,13 +560,13 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * const p_opt)
 	p_opt->dump_files_dir = getenv("OSM_TMP_DIR");
 	if (!p_opt->dump_files_dir || !(*p_opt->dump_files_dir))
 		p_opt->dump_files_dir = OSM_DEFAULT_TMP_DIR;
-
-	p_opt->log_file = OSM_DEFAULT_LOG_FILE;
+	p_opt->dump_files_dir = strdup(p_opt->dump_files_dir);
+	p_opt->log_file = strdup(OSM_DEFAULT_LOG_FILE);
 	p_opt->log_max_size = 0;
-	p_opt->partition_config_file = OSM_DEFAULT_PARTITION_CONFIG_FILE;
+	p_opt->partition_config_file = strdup(OSM_DEFAULT_PARTITION_CONFIG_FILE);
 	p_opt->no_partition_enforcement = FALSE;
 	p_opt->qos = FALSE;
-	p_opt->qos_policy_file = OSM_DEFAULT_QOS_POLICY_FILE;
+	p_opt->qos_policy_file = strdup(OSM_DEFAULT_QOS_POLICY_FILE);
 	p_opt->accum_log_file = TRUE;
 	p_opt->port_prof_ignore_file = NULL;
 	p_opt->port_profile_switch_nodes = FALSE;
@@ -591,7 +585,7 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * const p_opt)
 	p_opt->exit_on_fatal = TRUE;
 	p_opt->enable_quirks = FALSE;
 	p_opt->no_clients_rereg = FALSE;
-	p_opt->prefix_routes_file = OSM_DEFAULT_PREFIX_ROUTES_FILE;
+	p_opt->prefix_routes_file = strdup(OSM_DEFAULT_PREFIX_ROUTES_FILE);
 	p_opt->consolidate_ipv6_snm_req = FALSE;
 	subn_init_qos_options(&p_opt->qos_options);
 	subn_init_qos_options(&p_opt->qos_ca_options);
@@ -753,25 +747,16 @@ static void opts_parse_charp(IN osm_subn_t *p_subn, IN char *p_key,
 	char **p_val = p_v;
 	const char *current_str = *p_val ? *p_val : null_str ;
 
-	if (!p_val_str)
-		return;
-
-	if (strcmp(p_val_str, current_str)) {
+	if (p_val_str && strcmp(p_val_str, current_str)) {
+		char *new;
 		log_config_value(p_key, "%s", p_val_str);
 		/* special case the "(null)" string */
-		if (strcmp(null_str, p_val_str) == 0) {
-			if (pfn)
-				pfn(p_subn, NULL);
-			*p_val = NULL;
-		} else {
-			if (pfn)
-				pfn(p_subn, p_val_str);
-			/*
-			  Ignore the possible memory leak here;
-			  the pointer may be to a static default.
-			*/
-			*p_val = strdup(p_val_str);
-		}
+		new = strcmp(null_str, p_val_str) ? strdup(p_val_str) : NULL;
+		if (pfn)
+			pfn(p_subn, new);
+		if (*p_val)
+			free(*p_val);
+		*p_val = new;
 	}
 }
 
@@ -1211,12 +1196,6 @@ int osm_subn_rescan_conf_files(IN osm_subn_t * const p_subn)
 			p_opts->config_file, strerror(errno));
 		return -1;
 	}
-
-	subn_free_qos_options(&p_opts->qos_options);
-	subn_free_qos_options(&p_opts->qos_ca_options);
-	subn_free_qos_options(&p_opts->qos_sw0_options);
-	subn_free_qos_options(&p_opts->qos_swe_options);
-	subn_free_qos_options(&p_opts->qos_rtr_options);
 
 	subn_init_qos_options(&p_opts->qos_options);
 	subn_init_qos_options(&p_opts->qos_ca_options);

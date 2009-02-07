@@ -507,6 +507,11 @@ int osm_manager_loop(osm_subn_opt_t * p_opt, osm_opensm_t * p_osm)
 
 /**********************************************************************
  **********************************************************************/
+#define SET_STR_OPT(opt, val) do { \
+	if (opt) free(opt); \
+	opt = val ? strdup(val) : NULL ; \
+} while (0)
+
 int main(int argc, char *argv[])
 {
 	osm_opensm_t osm;
@@ -650,7 +655,7 @@ int main(int argc, char *argv[])
 			/*
 			   Specifies ignore guids file.
 			 */
-			opt.port_prof_ignore_file = optarg;
+			SET_STR_OPT(opt.port_prof_ignore_file, optarg);
 			printf(" Ignore Guids File = %s\n",
 			       opt.port_prof_ignore_file);
 			break;
@@ -706,7 +711,7 @@ int main(int argc, char *argv[])
 			    || strcmp(optarg, OSM_LOOPBACK_CONSOLE) == 0
 #endif
 			    )
-				opt.console = optarg;
+				SET_STR_OPT(opt.console, optarg);
 			else
 				printf("-console %s option not understood\n",
 				       optarg);
@@ -763,7 +768,7 @@ int main(int argc, char *argv[])
 			break;
 
 		case 'f':
-			opt.log_file = optarg;
+			SET_STR_OPT(opt.log_file, optarg);
 			break;
 
 		case 'L':
@@ -778,7 +783,7 @@ int main(int argc, char *argv[])
 			break;
 
 		case 'P':
-			opt.partition_config_file = optarg;
+			SET_STR_OPT(opt.partition_config_file, optarg);
 			break;
 
 		case 'N':
@@ -790,7 +795,7 @@ int main(int argc, char *argv[])
 			break;
 
 		case 'Y':
-			opt.qos_policy_file = optarg;
+			SET_STR_OPT(opt.qos_policy_file, optarg);
 			printf(" QoS policy file \'%s\'\n", optarg);
 			break;
 
@@ -829,7 +834,7 @@ int main(int argc, char *argv[])
 			break;
 
 		case 'R':
-			opt.routing_engine_names = optarg;
+			SET_STR_OPT(opt.routing_engine_names, optarg);
 			printf(" Activate \'%s\' routing engine(s)\n", optarg);
 			break;
 
@@ -844,17 +849,17 @@ int main(int argc, char *argv[])
 			break;
 
 		case 'M':
-			opt.lid_matrix_dump_file = optarg;
+			SET_STR_OPT(opt.lid_matrix_dump_file, optarg);
 			printf(" Lid matrix dump file is \'%s\'\n", optarg);
 			break;
 
 		case 'U':
-			opt.lfts_file = optarg;
+			SET_STR_OPT(opt.lfts_file, optarg);
 			printf(" LFTs file is \'%s\'\n", optarg);
 			break;
 
 		case 'S':
-			opt.sa_db_file = optarg;
+			SET_STR_OPT(opt.sa_db_file, optarg);
 			printf(" SA DB file is \'%s\'\n", optarg);
 			break;
 
@@ -862,7 +867,7 @@ int main(int argc, char *argv[])
 			/*
 			   Specifies root guids file
 			 */
-			opt.root_guid_file = optarg;
+			SET_STR_OPT(opt.root_guid_file, optarg);
 			printf(" Root Guid File: %s\n", opt.root_guid_file);
 			break;
 
@@ -870,20 +875,20 @@ int main(int argc, char *argv[])
 			/*
 			   Specifies compute node guids file
 			 */
-			opt.cn_guid_file = optarg;
+			SET_STR_OPT(opt.cn_guid_file, optarg);
 			printf(" Compute Node Guid File: %s\n",
 			       opt.cn_guid_file);
 			break;
 
 		case 'm':
 			/* Specifies ids guid file */
-			opt.ids_guid_file = optarg;
+			SET_STR_OPT(opt.ids_guid_file, optarg);
 			printf(" IDs Guid File: %s\n", opt.ids_guid_file);
 			break;
 
 		case 'X':
 			/* Specifies guid routing order file */
-			opt.guid_routing_order_file = optarg;
+			SET_STR_OPT(opt.guid_routing_order_file, optarg);
 			printf(" GUID Routing Order File: %s\n", opt.guid_routing_order_file);
 			break;
 
@@ -912,7 +917,7 @@ int main(int argc, char *argv[])
 #endif				/* ENABLE_OSM_PERF_MGR */
 
 		case 3:
-			opt.prefix_routes_file = optarg;
+			SET_STR_OPT(opt.prefix_routes_file, optarg);
 			break;
 		case 4:
 			opt.consolidate_ipv6_snm_req = TRUE;
