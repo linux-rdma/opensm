@@ -794,7 +794,7 @@ static char *clean_val(char *val)
 	/* clean quotas */
 	if ((*val == '\"' && *p == '\"') || (*val == '\'' && *p == '\'')) {
 		val++;
-		p--;
+		*p-- = '\0';
 	}
 	return val;
 }
