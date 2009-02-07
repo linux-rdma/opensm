@@ -1418,7 +1418,6 @@ static void __osm_ftree_fabric_make_indexing(IN ftree_fabric_t * p_ftree)
 	ftree_tuple_t new_tuple;
 	uint32_t i;
 	cl_list_t bfs_list;
-	ftree_sw_tbl_element_t *p_sw_tbl_element;
 
 	OSM_LOG_ENTER(&p_ftree->p_osm->log);
 
@@ -1465,14 +1464,10 @@ static void __osm_ftree_fabric_make_indexing(IN ftree_fabric_t * p_ftree)
 	 */
 
 	cl_list_init(&bfs_list, cl_qmap_count(&p_ftree->sw_tbl));
-	cl_list_insert_tail(&bfs_list,
-			    &__osm_ftree_sw_tbl_element_create(p_sw)->map_item);
+	cl_list_insert_tail(&bfs_list, p_sw);
 
 	while (!cl_is_list_empty(&bfs_list)) {
-		p_sw_tbl_element =
-		    (ftree_sw_tbl_element_t *) cl_list_remove_head(&bfs_list);
-		p_sw = p_sw_tbl_element->p_sw;
-		__osm_ftree_sw_tbl_element_destroy(p_sw_tbl_element);
+		p_sw = (ftree_sw_t *) cl_list_remove_head(&bfs_list);
 
 		/* Discover all the nodes from ports that are pointing down */
 
@@ -1509,9 +1504,7 @@ static void __osm_ftree_fabric_make_indexing(IN ftree_fabric_t * p_ftree)
 								new_tuple);
 
 				/* add the newly discovered switch to the BFS queue */
-				cl_list_insert_tail(&bfs_list,
-						    &__osm_ftree_sw_tbl_element_create
-						    (p_remote_sw)->map_item);
+				cl_list_insert_tail(&bfs_list, p_sw);
 			}
 			/* Done assigning indexes to all the remote switches
 			   that are pointed by the downgoing ports.
@@ -1547,9 +1540,7 @@ static void __osm_ftree_fabric_make_indexing(IN ftree_fabric_t * p_ftree)
 								p_remote_sw,
 								new_tuple);
 				/* add the newly discovered switch to the BFS queue */
-				cl_list_insert_tail(&bfs_list,
-						    &__osm_ftree_sw_tbl_element_create
-						    (p_remote_sw)->map_item);
+				cl_list_insert_tail(&bfs_list, p_sw);
 			}
 			/* Done assigning indexes to all the remote switches
 			   that are pointed by the upgoing ports.
