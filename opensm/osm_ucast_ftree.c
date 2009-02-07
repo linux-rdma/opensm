@@ -100,11 +100,6 @@ struct ftree_fabric_t_;
 typedef uint8_t ftree_tuple_t[FTREE_TUPLE_LEN];
 typedef uint64_t ftree_tuple_key_t;
 
-struct guid_list_item {
-	cl_list_item_t list;
-	uint64_t guid;
-};
-
 /***************************************************
  **
  **  ftree_sw_table_element_t definition
@@ -203,7 +198,6 @@ typedef struct ftree_fabric_t_ {
 	cl_qmap_t hca_tbl;
 	cl_qmap_t sw_tbl;
 	cl_qmap_t sw_by_tuple_tbl;
-	cl_qlist_t root_guid_list;
 	cl_qmap_t cn_guid_tbl;
 	unsigned cn_num;
 	uint8_t leaf_switch_rank;
@@ -886,8 +880,6 @@ static ftree_fabric_t *__osm_ftree_fabric_create()
 	cl_qmap_init(&p_ftree->sw_by_tuple_tbl);
 	cl_qmap_init(&p_ftree->cn_guid_tbl);
 
-	cl_qlist_init(&p_ftree->root_guid_list);
-
 	return p_ftree;
 }
 
@@ -952,10 +944,6 @@ static void __osm_ftree_fabric_clear(ftree_fabric_t * p_ftree)
 		free(p_guid_element);
 	}
 	cl_qmap_remove_all(&p_ftree->cn_guid_tbl);
-
-	/* remove all the elements of root_guid_list */
-	while (!cl_is_qlist_empty(&p_ftree->root_guid_list))
-		free(cl_qlist_remove_head(&p_ftree->root_guid_list));
 
 	/* free the leaf switches array */
 	if ((p_ftree->leaf_switches_num > 0) && (p_ftree->leaf_switches))
@@ -3052,16 +3040,41 @@ Exit:
 
 /***************************************************
  ***************************************************/
+struct rank_root_cxt {
+	ftree_fabric_t *fabric;
+	cl_list_t *list;
+};
+
+static int rank_root_sw_by_guid(void *cxt, uint64_t guid, char *p)
+{
+	struct rank_root_cxt *c = cxt;
+	ftree_sw_t *sw;
+
+	sw = __osm_ftree_fabric_get_sw_by_guid(c->fabric, cl_hton64(guid));
+	if (!sw) {
+		/* the specified root guid wasn't found in the fabric */
+		OSM_LOG(&c->fabric->p_osm->log, OSM_LOG_ERROR, "ERR AB24: "
+			"Root switch GUID 0x%" PRIx64 " not found\n", guid);
+		return 0;
+	}
+
+	OSM_LOG(&c->fabric->p_osm->log, OSM_LOG_DEBUG,
+		"Ranking root switch with GUID 0x%" PRIx64 "\n", guid);
+	sw->rank = 0;
+	cl_list_insert_tail(c->list, sw);
+
+	return 0;
+}
 
 static int __osm_ftree_fabric_rank_from_roots(IN ftree_fabric_t * p_ftree)
 {
+	struct rank_root_cxt context;
 	osm_node_t *p_osm_node;
 	osm_node_t *p_remote_osm_node;
 	osm_physp_t *p_osm_physp;
 	ftree_sw_t *p_sw;
 	ftree_sw_t *p_remote_sw;
 	cl_list_t ranking_bfs_list;
-	struct guid_list_item *item;
 	int res = 0;
 	unsigned num_roots;
 	unsigned max_rank = 0;
@@ -3071,25 +3084,16 @@ static int __osm_ftree_fabric_rank_from_roots(IN ftree_fabric_t * p_ftree)
 	cl_list_init(&ranking_bfs_list, 10);
 
 	/* Rank all the roots and add them to list */
-	for (item = (void *)cl_qlist_head(&p_ftree->root_guid_list);
-	     item != (void *)cl_qlist_end(&p_ftree->root_guid_list);
-	     item = (void *)cl_qlist_next(&item->list)) {
-		p_sw =
-		    __osm_ftree_fabric_get_sw_by_guid(p_ftree,
-						      cl_hton64(item->guid));
-		if (!p_sw) {
-			/* the specified root guid wasn't found in the fabric */
-			OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_ERROR, "ERR AB24: "
-				"Root switch GUID 0x%" PRIx64 " not found\n",
-				item->guid);
-			continue;
-		}
+	OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
+		"Fetching root nodes from file %s\n",
+		p_ftree->p_osm->subn.opt.root_guid_file);
 
-		OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
-			"Ranking root switch with GUID 0x%" PRIx64 "\n",
-			item->guid);
-		p_sw->rank = 0;
-		cl_list_insert_tail(&ranking_bfs_list, p_sw);
+	context.fabric = p_ftree;
+	context.list = &ranking_bfs_list;
+	if (parse_node_map(p_ftree->p_osm->subn.opt.root_guid_file,
+			   rank_root_sw_by_guid, &context)) {
+		res = -1;
+		goto Exit;
 	}
 
 	num_roots = cl_list_count(&ranking_bfs_list);
@@ -3321,21 +3325,6 @@ Exit:
 
 /***************************************************
  ***************************************************/
-static int add_guid_item_to_list(void *cxt, uint64_t guid, char *p)
-{
-	cl_qlist_t *list = cxt;
-	struct guid_list_item *item;
-
-	item = malloc(sizeof(*item));
-	if (!item)
-		return -1;
-
-	item->guid = guid;
-	cl_qlist_insert_tail(list, &item->list);
-
-	return 0;
-}
-
 static int add_guid_item_to_map(void *cxt, uint64_t guid, char *p)
 {
 	cl_qmap_t *map = cxt;
@@ -3356,26 +3345,6 @@ static int __osm_ftree_fabric_read_guid_files(IN ftree_fabric_t * p_ftree)
 	int status = 0;
 
 	OSM_LOG_ENTER(&p_ftree->p_osm->log);
-
-	if (__osm_ftree_fabric_roots_provided(p_ftree)) {
-		OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
-			"Fetching root nodes from file %s\n",
-			p_ftree->p_osm->subn.opt.root_guid_file);
-
-		if (parse_node_map(p_ftree->p_osm->subn.opt.root_guid_file,
-				   add_guid_item_to_list,
-				   &p_ftree->root_guid_list)) {
-			status = -1;
-			goto Exit;
-		}
-
-		if (!cl_qlist_count(&p_ftree->root_guid_list)) {
-			OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_ERROR, "ERR AB22: "
-				"Root guids file has no valid guids\n");
-			status = -1;
-			goto Exit;
-		}
-	}
 
 	if (__osm_ftree_fabric_cns_provided(p_ftree)) {
 		OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
