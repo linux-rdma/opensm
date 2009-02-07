@@ -1180,6 +1180,7 @@ int osm_subn_parse_conf_file(char *file_name, osm_subn_opt_t * const p_opts)
 			p_field = (void *)p_opts + r->opt_offset;
 			/* don't call setup function first time */
 			r->parse_fn(NULL, p_key, p_val, p_field, NULL);
+			break;
 		}
 	}
 	fclose(opts_file);
@@ -1237,6 +1238,7 @@ int osm_subn_rescan_conf_files(IN osm_subn_t * const p_subn)
 
 			p_field = (void *)p_opts + r->opt_offset;
 			r->parse_fn(p_subn, p_key, p_val, p_field, r->setup_fn);
+			break;
 		}
 	}
 	fclose(opts_file);
