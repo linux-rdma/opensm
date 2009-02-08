@@ -911,9 +911,11 @@ static ib_api_status_t osm_parse_prefix_routes_file(IN osm_subn_t * const p_subn
  **********************************************************************/
 static void subn_verify_max_vls(unsigned *max_vls, const char *prefix, unsigned dflt)
 {
-	if (!(*max_vls) || *max_vls > 15) {
-		log_report(" Invalid Cached Option: %s_max_vls=%u: "
-			   "Using Default = %u\n", prefix, *max_vls, dflt);
+	if (!*max_vls || *max_vls > 15) {
+		if (*max_vls)
+			log_report(" Invalid Cached Option: %s_max_vls=%u: "
+				   "Using Default = %u\n",
+				   prefix, *max_vls, dflt);
 		*max_vls = dflt;
 	}
 }
@@ -921,8 +923,10 @@ static void subn_verify_max_vls(unsigned *max_vls, const char *prefix, unsigned 
 static void subn_verify_high_limit(int *high_limit, const char *prefix, int dflt)
 {
 	if (*high_limit < 0 || *high_limit > 255) {
-		log_report(" Invalid Cached Option: %s_high_limit=%d: "
-			   "Using Default: %d\n", prefix, *high_limit, dflt);
+		if (*high_limit > 255)
+			log_report(" Invalid Cached Option: %s_high_limit=%d: "
+				   "Using Default: %d\n",
+				   prefix, *high_limit, dflt);
 		*high_limit = dflt;
 	}
 }
@@ -934,8 +938,6 @@ static void subn_verify_vlarb(char **vlarb, const char *prefix,
 	int count = 0;
 
 	if (*vlarb == NULL) {
-		log_report(" Invalid Cached Option: %s_vlarb_%s: "
-		"Using Default\n", prefix, suffix);
 		*vlarb = strdup(dflt);
 		return;
 	}
@@ -1003,8 +1005,6 @@ static void subn_verify_sl2vl(char **sl2vl, const char *prefix, char *dflt)
 	int count = 0;
 
 	if (*sl2vl == NULL) {
-		log_report(" Invalid Cached Option: %s_sl2vl: Using Default\n",
-			   prefix);
 		*sl2vl = strdup(dflt);
 		return;
 	}
