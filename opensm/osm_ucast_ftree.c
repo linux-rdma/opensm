@@ -1914,7 +1914,7 @@ static void __osm_ftree_set_sw_fwd_table(IN cl_map_item_t * const p_map_item,
  *        assign-up-going-port-by-descending-down to r-port node (recursion)
  */
 
-static void
+static boolean_t
 __osm_ftree_fabric_route_upgoing_by_going_down(IN ftree_fabric_t * p_ftree,
 					       IN ftree_sw_t * p_sw,
 					       IN ftree_sw_t * p_prev_sw,
@@ -1932,18 +1932,14 @@ __osm_ftree_fabric_route_upgoing_by_going_down(IN ftree_fabric_t * p_ftree,
 	uint16_t i;
 	uint16_t j;
 	uint16_t k;
+	boolean_t created_route = FALSE;
 
 	/* we shouldn't enter here if both real_lid and main_path are false */
 	CL_ASSERT(is_real_lid || is_main_path);
 
 	/* if there is no down-going ports */
 	if (p_sw->down_port_groups_num == 0)
-		return;
-
-	/* promote the index that indicates which group should we
-	   start with when going through all the downgoing groups */
-	p_sw->down_port_groups_idx =
-		(p_sw->down_port_groups_idx + 1) % p_sw->down_port_groups_num;
+		return FALSE;
 
 	/* foreach down-going port group (in indexing order) */
 	i = p_sw->down_port_groups_idx;
@@ -1952,9 +1948,12 @@ __osm_ftree_fabric_route_upgoing_by_going_down(IN ftree_fabric_t * p_ftree,
 		p_group = p_sw->down_port_groups[i];
 		i = (i + 1) % p_sw->down_port_groups_num;
 
-		/* Skip this port group unless it points to a switch */
-		if (p_group->remote_node_type != IB_NODE_TYPE_SWITCH)
+		/* If this port group doesn't point to a switch, mark
+		   that the route was created and skip to the next group */
+		if (p_group->remote_node_type != IB_NODE_TYPE_SWITCH) {
+			created_route = TRUE;
 			continue;
+		}
 
 		if (p_prev_sw
 		    && (p_group->remote_base_lid == p_prev_sw->base_lid)) {
@@ -2073,16 +2072,24 @@ __osm_ftree_fabric_route_upgoing_by_going_down(IN ftree_fabric_t * p_ftree,
 
 		/* Recursion step:
 		   Assign upgoing ports by stepping down, starting on REMOTE switch */
-		__osm_ftree_fabric_route_upgoing_by_going_down(p_ftree, p_remote_sw,	/* remote switch - used as a route-upgoing alg. start point */
-							       NULL,	/* prev. position - NULL to mark that we went down and not up */
-							       target_lid,	/* LID that we're routing to */
-							       target_rank,	/* rank of the LID that we're routing to */
-							       is_real_lid,	/* whether the target LID is real or dummy */
-							       is_main_path,	/* whether this is path to HCA that should by tracked by counters */
-							       highest_rank_in_route);	/* highest visited point in the tree before going down */
+		created_route |= __osm_ftree_fabric_route_upgoing_by_going_down(p_ftree, p_remote_sw,	/* remote switch - used as a route-upgoing alg. start point */
+											 NULL,	/* prev. position - NULL to mark that we went down and not up */
+											 target_lid,	/* LID that we're routing to */
+											 target_rank,	/* rank of the LID that we're routing to */
+											 is_real_lid,	/* whether the target LID is real or dummy */
+											 is_main_path,	/* whether this is path to HCA that should by tracked by counters */
+											 highest_rank_in_route);	/* highest visited point in the tree before going down */
 	}
 	/* done scanning all the down-going port groups */
 
+	/* if the route was created, promote the index that
+	   indicates which group should we start with when
+	   going through all the downgoing groups */
+	if (created_route)
+		p_sw->down_port_groups_idx =
+			(p_sw->down_port_groups_idx + 1) % p_sw->down_port_groups_num;
+
+	return created_route;
 }				/* __osm_ftree_fabric_route_upgoing_by_going_down() */
 
 /***************************************************/
