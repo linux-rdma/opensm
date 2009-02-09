@@ -1956,7 +1956,7 @@ __osm_ftree_fabric_route_upgoing_by_going_down(IN ftree_fabric_t * p_ftree,
 		}
 
 		if (p_prev_sw
-		    && (p_group->remote_base_lid == p_prev_sw->base_lid)) {
+		    && p_group->remote_base_lid == p_prev_sw->base_lid) {
 			/* This port group has a port that was used when we entered this switch,
 			   which means that the current group points to the switch where we were
 			   at the previous step of the algorithm (before going up).
@@ -1971,13 +1971,11 @@ __osm_ftree_fabric_route_upgoing_by_going_down(IN ftree_fabric_t * p_ftree,
 		   Think about optimization. */
 		for (j = 0; j < ports_num; j++) {
 			cl_ptr_vector_at(&p_group->ports, j, (void *)&p_port);
-			if (!p_min_port) {
-				/* first port that we're checking - set as port with the lowest load */
+			/* first port that we're checking - set as port with the lowest load */
+			/* or this port is less loaded - use it as min */
+			if (!p_min_port ||
+			    p_port->counter_up < p_min_port->counter_up)
 				p_min_port = p_port;
-			} else if (p_port->counter_up < p_min_port->counter_up) {
-				/* this port is less loaded - use it as min */
-				p_min_port = p_port;
-			}
 		}
 		/* At this point we have selected a port in this group with the
 		   lowest load of upgoing routes.
@@ -2072,13 +2070,15 @@ __osm_ftree_fabric_route_upgoing_by_going_down(IN ftree_fabric_t * p_ftree,
 
 		/* Recursion step:
 		   Assign upgoing ports by stepping down, starting on REMOTE switch */
-		created_route |= __osm_ftree_fabric_route_upgoing_by_going_down(p_ftree, p_remote_sw,	/* remote switch - used as a route-upgoing alg. start point */
-											 NULL,	/* prev. position - NULL to mark that we went down and not up */
-											 target_lid,	/* LID that we're routing to */
-											 target_rank,	/* rank of the LID that we're routing to */
-											 is_real_lid,	/* whether the target LID is real or dummy */
-											 is_main_path,	/* whether this is path to HCA that should by tracked by counters */
-											 highest_rank_in_route);	/* highest visited point in the tree before going down */
+		created_route |=
+		    __osm_ftree_fabric_route_upgoing_by_going_down(p_ftree,
+								   p_remote_sw,	/* remote switch - used as a route-upgoing alg. start point */
+								   NULL,	/* prev. position - NULL to mark that we went down and not up */
+								   target_lid,	/* LID that we're routing to */
+								   target_rank,	/* rank of the LID that we're routing to */
+								   is_real_lid,	/* whether the target LID is real or dummy */
+								   is_main_path,	/* whether this is path to HCA that should by tracked by counters */
+								   highest_rank_in_route);	/* highest visited point in the tree before going down */
 	}
 	/* done scanning all the down-going port groups */
 
