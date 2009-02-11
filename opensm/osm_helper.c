@@ -869,7 +869,7 @@ osm_dump_portinfo_record(IN osm_log_t * const p_log,
 			"PortInfo Record dump:\n"
 			"\t\t\t\tRID\n"
 			"\t\t\t\tEndPortLid..............%u\n"
-			"\t\t\t\tPortNum.................0x%X\n"
+			"\t\t\t\tPortNum.................%u\n"
 			"\t\t\t\tReserved................0x%X\n"
 			"\t\t\t\tPortInfo dump:\n"
 			"\t\t\t\tm_key...................0x%016" PRIx64 "\n"
