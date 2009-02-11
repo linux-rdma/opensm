@@ -170,7 +170,7 @@ typedef struct ftree_sw_t_ {
 	ftree_port_group_t **up_port_groups;
 	uint8_t up_port_groups_num;
 	boolean_t is_leaf;
-	int down_port_groups_idx;
+	unsigned down_port_groups_idx;
 } ftree_sw_t;
 
 /***************************************************
