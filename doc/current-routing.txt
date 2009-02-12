@@ -237,6 +237,38 @@ in the same directory where the OpenSM log resides. This ordering file provides
 the CN order that may be used to create efficient communication pattern, that
 will match the routing tables.
 
+Routing between non-CN nodes
+
+
+The use of the cn_guid_file option allows non-CN nodes to be located on different levels in the fat tree.
+In such case, it is not guaranteed that the Fat Tree algorithm will route between two non-CN nodes.
+In the scheme below, N1, N2 and N3 are non-CN nodes. Although all the CN have routes to and from them,
+there will not necessarily be a route between N1,N2 and N3.
+Such routes would require to use at least one of the Switch the wrong way around
+(In fact, go out of one of the top Switch through a downgoing port while we are supposed to go up).
+
+  Spine1   Spine2    Spine 3
+   / \     /  |  \    /   \
+  /   \   /   |   \  /     \
+ N1  Switch   N2  Switch    N3
+      /|\          /|\
+     / | \        / | \
+    Going down to compute nodes
+
+To solve this problem, a list of non-CN nodes can be specified by \'-G\' or \'--io_guid_file\' option.
+Theses nodes will be allowed to use switches the wrong way around a specific number of times (specified by \'-H\' or \'--max_reverse_hops\'.
+With the proper max_reverse_hops and io_guid_file values, you can ensure full connectivity in the Fat Tree.
+
+In the scheme above, with a max_reverse_hop of 1, routes will be instanciated between N1<->N2 and N2<->N3.
+With a max_reverse_hops value of 2, N1,N2 and N3 will all have routes between them.
+
+Please note that using max_reverse_hops creates routes that use the switch in a counter-stream way.
+This option should never be used to connect nodes with high bandwidth traffic between them ! It should only be used
+to allow connectivity for HA purposes or similar.
+Also having routes the other way around can in theory cause credit loops.
+
+Use these options with extreme care !
+
 
 Usage:
 

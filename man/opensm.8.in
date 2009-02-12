@@ -22,6 +22,8 @@ opensm \- InfiniBand subnet manager and administration (SM/SA)
 [\-S | \-\-sadb_file <file name>]
 [\-a | \-\-root_guid_file <path to file>]
 [\-u | \-\-cn_guid_file <path to file>]
+[\-G | \-\-io_guid_file <path to file>]
+[\-H | \-\-max_reverse_hops <max reverse hops allowed>]
 [\-X | \-\-guid_routing_order_file <path to file>]
 [\-m | \-\-ids_guid_file <path to file>]
 [\-o(nce)]
@@ -182,6 +184,16 @@ algorithm to the guids provided in the given file (one to a line).
 \fB\-u\fR, \fB\-\-cn_guid_file\fR <file name>
 Set the compute nodes for the Fat-Tree routing algorithm
 to the guids provided in the given file (one to a line).
+.TP
+\fB\-G\fR, \fB\-\-io_guid_file\fR <file name>
+Set the I/O nodes for the Fat-Tree routing algorithm
+to the guids provided in the given file (one to a line).
+I/O nodes are non-CN nodes allowed to use up to max_reverse_hops switches
+the wrong way around to improve connectivity.
+.TP
+\fB\-H\fR, \fB\-\-max_reverse_hops\fR <file name>
+Set the maximum number of reverse hops an I/O node is allowed
+to make. A reverse hop is the use of a switch the wrong way around.
 .TP
 \fB\-m\fR, \fB\-\-ids_guid_file\fR <file name>
 Name of the map file with set of the IDs which will be used
@@ -799,6 +811,21 @@ The algorithm also dumps compute node ordering file (opensm-ftree-ca-order.dump)
 in the same directory where the OpenSM log resides. This ordering file provides
 the CN order that may be used to create efficient communication pattern, that
 will match the routing tables.
+
+Routing between non-CN nodes
+
+The use of the cn_guid_file option allows non-CN nodes to be located on different levels in the fat tree.
+In such case, it is not guaranteed that the Fat Tree algorithm will route between two non-CN nodes.
+To solve this problem, a list of non-CN nodes can be specified by \'-G\' or \'--io_guid_file\' option.
+Theses nodes will be allowed to use switches the wrong way round a specific number of times (specified by \'-H\' or \'--max_reverse_hops\'.
+With the proper max_reverse_hops and io_guid_file values, you can ensure full connectivity in the Fat Tree.
+
+Please note that using max_reverse_hops creates routes that use the switch in a counter-stream way.
+This option should never be used to connect nodes with high bandwidth traffic between them ! It should only be used
+to allow connectivity for HA purposes or similar.
+Also having routes the other way around can in theory cause credit loops.
+
+Use these options with extreme care !
 
 Activation through OpenSM
 
