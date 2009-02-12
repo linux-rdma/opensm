@@ -498,9 +498,9 @@ void osm_sa_respond(osm_sa_t *sa, osm_madw_t *madw, size_t attr_size,
 		free(item);
 	}
 
+	osm_dump_sa_mad(sa->p_log, resp_sa_mad, OSM_LOG_FRAMES);
 	osm_sa_send(sa, resp_madw, FALSE);
 
-	osm_dump_sa_mad(sa->p_log, resp_sa_mad, OSM_LOG_FRAMES);
 Exit:
 	/* need to set the mem free ... */
 	item = cl_qlist_remove_head(list);
