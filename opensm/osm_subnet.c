@@ -73,25 +73,217 @@ static const char null_str[] = "(null)";
 
 #define OPT_OFFSET(opt) offsetof(osm_subn_opt_t, opt)
 
-typedef void (setup_fn_t)(osm_subn_t *p_subn, void *p_val);
-typedef void (parse_fn_t)(osm_subn_t *p_subn, char *p_key, char *p_val_str,
-			  void *p_val, setup_fn_t *f);
-
 typedef struct opt_rec {
 	const char *name;
 	unsigned long opt_offset;
-	parse_fn_t *parse_fn;
-	setup_fn_t *setup_fn;
+	void (*parse_fn)(osm_subn_t *p_subn, char *p_key, char *p_val_str,
+			 void *p_val, void (*)(osm_subn_t *, void *));
+	void (*setup_fn)(osm_subn_t *p_subn, void *p_val);
 	int  can_update;
 } opt_rec_t;
 
-static parse_fn_t opts_parse_uint8, opts_parse_uint16, opts_parse_net16,
-	opts_parse_uint32, opts_parse_int32, opts_parse_net64,
-	opts_parse_charp, opts_parse_boolean;
+static void log_report(const char *fmt, ...)
+{
+	char buf[128];
+	va_list args;
+	va_start(args, fmt);
+	vsnprintf(buf, sizeof(buf), fmt, args);
+	va_end(args);
+	printf("%s", buf);
+	cl_log_event("OpenSM", CL_LOG_INFO, buf, NULL, 0);
+}
 
-static setup_fn_t opts_setup_log_flags, opts_setup_log_max_size,
-	opts_setup_force_log_flush, opts_setup_accum_log_file,
-	opts_setup_sminfo_polling_timeout, opts_setup_sm_priority;
+static void log_config_value(char *name, const char *fmt, ...)
+{
+	char buf[128];
+	va_list args;
+	unsigned n;
+	va_start(args, fmt);
+	n = snprintf(buf, sizeof(buf), " Loading Cached Option:%s = ", name);
+	if (n > sizeof(buf))
+		n = sizeof(buf);
+	n += vsnprintf(buf + n, sizeof(buf) - n, fmt, args);
+	if (n > sizeof(buf))
+		n = sizeof(buf);
+	snprintf(buf + n, sizeof(buf) - n, "\n");
+	va_end(args);
+	printf("%s", buf);
+	cl_log_event("OpenSM", CL_LOG_INFO, buf, NULL, 0);
+}
+
+static void opts_setup_log_flags(osm_subn_t *p_subn, void *p_val)
+{
+	p_subn->p_osm->log.level = *((uint8_t *) p_val);
+}
+
+static void opts_setup_force_log_flush(osm_subn_t *p_subn, void *p_val)
+{
+	p_subn->p_osm->log.flush = *((boolean_t *) p_val);
+}
+
+static void opts_setup_accum_log_file(osm_subn_t *p_subn, void *p_val)
+{
+	p_subn->p_osm->log.accum_log_file = *((boolean_t *) p_val);
+}
+
+static void opts_setup_log_max_size(osm_subn_t *p_subn, void *p_val)
+{
+	uint32_t log_max_size = *((uint32_t *) p_val);
+
+	p_subn->p_osm->log.max_size = log_max_size << 20; /* convert from MB to bytes */
+}
+
+static void opts_setup_sminfo_polling_timeout(osm_subn_t *p_subn, void *p_val)
+{
+	osm_sm_t *p_sm = &p_subn->p_osm->sm;
+	uint32_t sminfo_polling_timeout = *((uint32_t *) p_val);
+
+	cl_timer_stop(&p_sm->polling_timer);
+	cl_timer_start(&p_sm->polling_timer, sminfo_polling_timeout);
+}
+
+static void opts_setup_sm_priority(osm_subn_t *p_subn, void *p_val)
+{
+	osm_sm_t *p_sm = &p_subn->p_osm->sm;
+	uint8_t sm_priority = *((uint8_t *) p_val);
+
+	osm_set_sm_priority(p_sm, sm_priority);
+}
+
+static void opts_parse_net64(IN osm_subn_t *p_subn, IN char *p_key,
+			     IN char *p_val_str, IN void *p_v,
+			     void (*pfn)(osm_subn_t *, void *))
+{
+	uint64_t *p_val = p_v;
+	uint64_t val = strtoull(p_val_str, NULL, 0);
+
+	if (cl_hton64(val) != *p_val) {
+		log_config_value(p_key, "0x%016" PRIx64, val);
+		if (pfn)
+			pfn(p_subn, &val);
+		*p_val = cl_ntoh64(val);
+	}
+}
+
+static void opts_parse_uint32(IN osm_subn_t *p_subn, IN char *p_key,
+			      IN char *p_val_str, IN void *p_v,
+			      void (*pfn)(osm_subn_t *, void *))
+{
+	uint32_t *p_val = p_v;
+	uint32_t val = strtoul(p_val_str, NULL, 0);
+
+	if (val != *p_val) {
+		log_config_value(p_key, "%u", val);
+		if (pfn)
+			pfn(p_subn, &val);
+		*p_val = val;
+	}
+}
+
+static void opts_parse_int32(IN osm_subn_t *p_subn, IN char *p_key,
+			     IN char *p_val_str, IN void *p_v,
+			     void (*pfn)(osm_subn_t *, void *))
+{
+	int32_t *p_val = p_v;
+	int32_t val = strtol(p_val_str, NULL, 0);
+
+	if (val != *p_val) {
+		log_config_value(p_key, "%d", val);
+		if (pfn)
+			pfn(p_subn, &val);
+		*p_val = val;
+	}
+}
+
+static void opts_parse_uint16(IN osm_subn_t *p_subn, IN char *p_key,
+			      IN char *p_val_str, IN void *p_v,
+			      void (*pfn)(osm_subn_t *, void *))
+{
+	uint16_t *p_val = p_v;
+	uint16_t val = (uint16_t) strtoul(p_val_str, NULL, 0);
+
+	if (val != *p_val) {
+		log_config_value(p_key, "%u", val);
+		if (pfn)
+			pfn(p_subn, &val);
+		*p_val = val;
+	}
+}
+
+static void opts_parse_net16(IN osm_subn_t *p_subn, IN char *p_key,
+			     IN char *p_val_str, IN void *p_v,
+			     void (*pfn)(osm_subn_t *, void *))
+{
+	uint16_t *p_val = p_v;
+	uint16_t val = strtoul(p_val_str, NULL, 0);
+
+	CL_ASSERT(val < 0x10000);
+	if (cl_hton16(val) != *p_val) {
+		log_config_value(p_key, "0x%04x", val);
+		if (pfn)
+			pfn(p_subn, &val);
+		*p_val = cl_hton16(val);
+	}
+}
+
+static void opts_parse_uint8(IN osm_subn_t *p_subn, IN char *p_key,
+			     IN char *p_val_str, IN void *p_v,
+			     void (*pfn)(osm_subn_t *, void *))
+{
+	uint8_t *p_val = p_v;
+	uint8_t val = strtoul(p_val_str, NULL, 0);
+
+	CL_ASSERT(val < 0x100);
+	if (val != *p_val) {
+		log_config_value(p_key, "%u", val);
+		if (pfn)
+			pfn(p_subn, &val);
+		*p_val = val;
+	}
+}
+
+static void opts_parse_boolean(IN osm_subn_t *p_subn, IN char *p_key,
+			       IN char *p_val_str, IN void *p_v,
+			       void (*pfn)(osm_subn_t *, void *))
+{
+	boolean_t *p_val = p_v;
+	boolean_t val;
+
+	if (!p_val_str)
+		return;
+
+	if (strcmp("TRUE", p_val_str))
+		val = FALSE;
+	else
+		val = TRUE;
+
+	if (val != *p_val) {
+		log_config_value(p_key, "%s", p_val_str);
+		if (pfn)
+			pfn(p_subn, &val);
+		*p_val = val;
+	}
+}
+
+static void opts_parse_charp(IN osm_subn_t *p_subn, IN char *p_key,
+			     IN char *p_val_str, IN void *p_v,
+			     void (*pfn)(osm_subn_t *, void *))
+{
+	char **p_val = p_v;
+	const char *current_str = *p_val ? *p_val : null_str ;
+
+	if (p_val_str && strcmp(p_val_str, current_str)) {
+		char *new;
+		log_config_value(p_key, "%s", p_val_str);
+		/* special case the "(null)" string */
+		new = strcmp(null_str, p_val_str) ? strdup(p_val_str) : NULL;
+		if (pfn)
+			pfn(p_subn, new);
+		if (*p_val)
+			free(*p_val);
+		*p_val = new;
+	}
+}
 
 static const opt_rec_t opt_tbl[] = {
 	{ "guid", OPT_OFFSET(guid), opts_parse_net64, NULL, 0 },
@@ -195,45 +387,6 @@ static const opt_rec_t opt_tbl[] = {
 	{ "consolidate_ipv6_snm_req", OPT_OFFSET(consolidate_ipv6_snm_req), opts_parse_boolean, NULL, 1 },
 	{0}
 };
-
-static void opts_setup_log_flags(osm_subn_t *p_subn, void *p_val)
-{
-	p_subn->p_osm->log.level = *((uint8_t *) p_val);
-}
-
-static void opts_setup_force_log_flush(osm_subn_t *p_subn, void *p_val)
-{
-	p_subn->p_osm->log.flush = *((boolean_t *) p_val);
-}
-
-static void opts_setup_accum_log_file(osm_subn_t *p_subn, void *p_val)
-{
-	p_subn->p_osm->log.accum_log_file = *((boolean_t *) p_val);
-}
-
-static void opts_setup_log_max_size(osm_subn_t *p_subn, void *p_val)
-{
-	uint32_t log_max_size = *((uint32_t *) p_val);
-
-	p_subn->p_osm->log.max_size = log_max_size << 20; /* convert from MB to bytes */
-}
-
-static void opts_setup_sminfo_polling_timeout(osm_subn_t *p_subn, void *p_val)
-{
-	osm_sm_t *p_sm = &p_subn->p_osm->sm;
-	uint32_t sminfo_polling_timeout = *((uint32_t *) p_val);
-
-	cl_timer_stop(&p_sm->polling_timer);
-	cl_timer_start(&p_sm->polling_timer, sminfo_polling_timeout);
-}
-
-static void opts_setup_sm_priority(osm_subn_t *p_subn, void *p_val)
-{
-	osm_sm_t *p_sm = &p_subn->p_osm->sm;
-	uint8_t sm_priority = *((uint8_t *) p_val);
-
-	osm_set_sm_priority(p_sm, sm_priority);
-}
 
 /**********************************************************************
  **********************************************************************/
@@ -592,172 +745,6 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * const p_opt)
 	subn_init_qos_options(&p_opt->qos_sw0_options);
 	subn_init_qos_options(&p_opt->qos_swe_options);
 	subn_init_qos_options(&p_opt->qos_rtr_options);
-}
-
-/**********************************************************************
- **********************************************************************/
-static void log_report(const char *fmt, ...)
-{
-	char buf[128];
-	va_list args;
-	va_start(args, fmt);
-	vsnprintf(buf, sizeof(buf), fmt, args);
-	va_end(args);
-	printf("%s", buf);
-	cl_log_event("OpenSM", CL_LOG_INFO, buf, NULL, 0);
-}
-
-static void log_config_value(char *name, const char *fmt, ...)
-{
-	char buf[128];
-	va_list args;
-	unsigned n;
-	va_start(args, fmt);
-	n = snprintf(buf, sizeof(buf), " Loading Cached Option:%s = ", name);
-	if (n > sizeof(buf))
-		n = sizeof(buf);
-	n += vsnprintf(buf + n, sizeof(buf) - n, fmt, args);
-	if (n > sizeof(buf))
-		n = sizeof(buf);
-	snprintf(buf + n, sizeof(buf) - n, "\n");
-	va_end(args);
-	printf("%s", buf);
-	cl_log_event("OpenSM", CL_LOG_INFO, buf, NULL, 0);
-}
-
-static void opts_parse_net64(IN osm_subn_t *p_subn, IN char *p_key,
-			     IN char *p_val_str, IN void *p_v,
-			     IN setup_fn_t pfn)
-{
-	uint64_t *p_val = p_v;
-	uint64_t val = strtoull(p_val_str, NULL, 0);
-
-	if (cl_hton64(val) != *p_val) {
-		log_config_value(p_key, "0x%016" PRIx64, val);
-		if (pfn)
-			pfn(p_subn, &val);
-		*p_val = cl_ntoh64(val);
-	}
-}
-
-static void opts_parse_uint32(IN osm_subn_t *p_subn, IN char *p_key,
-			      IN char *p_val_str, IN void *p_v,
-			      IN setup_fn_t pfn)
-{
-	uint32_t *p_val = p_v;
-	uint32_t val = strtoul(p_val_str, NULL, 0);
-
-	if (val != *p_val) {
-		log_config_value(p_key, "%u", val);
-		if (pfn)
-			pfn(p_subn, &val);
-		*p_val = val;
-	}
-}
-
-static void opts_parse_int32(IN osm_subn_t *p_subn, IN char *p_key,
-			     IN char *p_val_str, IN void *p_v,
-			     IN setup_fn_t pfn)
-{
-	int32_t *p_val = p_v;
-	int32_t val = strtol(p_val_str, NULL, 0);
-
-	if (val != *p_val) {
-		log_config_value(p_key, "%d", val);
-		if (pfn)
-			pfn(p_subn, &val);
-		*p_val = val;
-	}
-}
-
-static void opts_parse_uint16(IN osm_subn_t *p_subn, IN char *p_key,
-			      IN char *p_val_str, IN void *p_v,
-			      IN setup_fn_t pfn)
-{
-	uint16_t *p_val = p_v;
-	uint16_t val = (uint16_t) strtoul(p_val_str, NULL, 0);
-
-	if (val != *p_val) {
-		log_config_value(p_key, "%u", val);
-		if (pfn)
-			pfn(p_subn, &val);
-		*p_val = val;
-	}
-}
-
-static void opts_parse_net16(IN osm_subn_t *p_subn, IN char *p_key,
-			     IN char *p_val_str, IN void *p_v,
-			     IN setup_fn_t pfn)
-{
-	uint16_t *p_val = p_v;
-	uint16_t val = strtoul(p_val_str, NULL, 0);
-
-	CL_ASSERT(val < 0x10000);
-	if (cl_hton16(val) != *p_val) {
-		log_config_value(p_key, "0x%04x", val);
-		if (pfn)
-			pfn(p_subn, &val);
-		*p_val = cl_hton16(val);
-	}
-}
-
-static void opts_parse_uint8(IN osm_subn_t *p_subn, IN char *p_key,
-			     IN char *p_val_str, IN void *p_v,
-			     IN setup_fn_t pfn)
-{
-	uint8_t *p_val = p_v;
-	uint8_t val = strtoul(p_val_str, NULL, 0);
-
-	CL_ASSERT(val < 0x100);
-	if (val != *p_val) {
-		log_config_value(p_key, "%u", val);
-		if (pfn)
-			pfn(p_subn, &val);
-		*p_val = val;
-	}
-}
-
-static void opts_parse_boolean(IN osm_subn_t *p_subn, IN char *p_key,
-			       IN char *p_val_str, IN void *p_v,
-			       IN setup_fn_t pfn)
-{
-	boolean_t *p_val = p_v;
-	boolean_t val;
-
-	if (!p_val_str)
-		return;
-
-	if (strcmp("TRUE", p_val_str))
-		val = FALSE;
-	else
-		val = TRUE;
-
-	if (val != *p_val) {
-		log_config_value(p_key, "%s", p_val_str);
-		if (pfn)
-			pfn(p_subn, &val);
-		*p_val = val;
-	}
-}
-
-static void opts_parse_charp(IN osm_subn_t *p_subn, IN char *p_key,
-			     IN char *p_val_str, IN void *p_v,
-			     IN setup_fn_t pfn)
-{
-	char **p_val = p_v;
-	const char *current_str = *p_val ? *p_val : null_str ;
-
-	if (p_val_str && strcmp(p_val_str, current_str)) {
-		char *new;
-		log_config_value(p_key, "%s", p_val_str);
-		/* special case the "(null)" string */
-		new = strcmp(null_str, p_val_str) ? strdup(p_val_str) : NULL;
-		if (pfn)
-			pfn(p_subn, new);
-		if (*p_val)
-			free(*p_val);
-		*p_val = new;
-	}
 }
 
 /**********************************************************************
