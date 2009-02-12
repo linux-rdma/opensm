@@ -932,7 +932,7 @@ static void __osm_state_mgr_check_tbl_consistency(IN osm_sm_t * sm)
 	/* They should be the same, but compare it anyway */
 	max_lid = (ref_size > curr_size) ? ref_size : curr_size;
 
-	for (lid = 1; lid <= max_lid; lid++) {
+	for (lid = 1; lid < max_lid; lid++) {
 		p_port_ref = NULL;
 		p_port_stored = NULL;
 		cl_ptr_vector_at(p_port_lid_tbl, lid, (void *)&p_port_stored);
@@ -1006,7 +1006,7 @@ static void cleanup_switch(cl_map_item_t *item, void *log)
 
 	if (!sw->new_lft)
 		return;
-	
+
 	if (memcmp(sw->lft, sw->new_lft, IB_LID_UCAST_END_HO + 1))
 		osm_log(log, OSM_LOG_ERROR, "ERR 331D: "
 			"LFT of switch 0x%016" PRIx64 " is not up to date.\n",
