@@ -7127,10 +7127,9 @@ typedef struct _ib_mad_notice_attr	// Total Size calc  Accumulated
 			ib_net16_t pad1;	// 2
 			ib_net16_t lid1;	// 2
 			ib_net16_t lid2;	// 2
-			ib_net32_t key;	// 2
-			uint8_t sl;	// 1
-			ib_net32_t qp1;	// 4
-			ib_net32_t qp2;	// 4
+			ib_net32_t key;	// 4
+			ib_net32_t qp1;	// 4b sl, 4b pad, 24b qp1
+			ib_net32_t qp2;	// 8b pad, 24b qp2
 			ib_gid_t gid1;	// 16
 			ib_gid_t gid2;	// 16
 		} PACK_SUFFIX ntc_257_258;
