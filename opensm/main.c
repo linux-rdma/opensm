@@ -212,6 +212,12 @@ static void show_usage(void)
 	printf("--cn_guid_file, -u <path to file>\n"
 	       "          Set the compute nodes for the Fat-Tree routing algorithm\n"
 	       "          to the guids provided in the given file (one to a line)\n\n");
+	printf("--io_guid_file, -G <path to file>\n"
+	       "          Set the I/O nodes for the Fat-Tree routing algorithm\n"
+	       "          to the guids provided in the given file (one to a line)\n\n");
+	printf("--max_reverse_hops, -H <hop_count>\n"
+	       "          Set the max number of hops the wrong way around\n"
+	       "          an I/O node is allowed to do (connectivity for I/O nodes on top swithces)\n\n");
 	printf("--ids_guid_file, -m <path to file>\n"
 	       "          Name of the map file with set of the IDs which will be used\n"
 	       "          by Up/Down routing algorithm instead of node GUIDs\n"
@@ -524,7 +530,7 @@ int main(int argc, char *argv[])
 	char *conf_template = NULL, *config_file = NULL;
 	uint32_t val;
 	const char *const short_option =
-	    "F:c:i:f:ed:D:g:l:L:s:t:a:u:m:X:R:zM:U:S:P:Y:ANBIQvVhoryxp:n:q:k:C:";
+	    "F:c:i:f:ed:D:g:l:L:s:t:a:u:m:X:R:zM:U:S:P:Y:ANBIQvVhoryxp:n:q:k:C:G:H:";
 
 	/*
 	   In the array below, the 2nd parameter specifies the number
@@ -568,6 +574,8 @@ int main(int argc, char *argv[])
 		{"sadb_file", 1, NULL, 'S'},
 		{"root_guid_file", 1, NULL, 'a'},
 		{"cn_guid_file", 1, NULL, 'u'},
+		{"io_guid_file", 1, NULL, 'G'},
+		{"max_reverse_hops", 1, NULL, 'H'},
 		{"ids_guid_file", 1, NULL, 'm'},
 		{"guid_routing_order_file", 1, NULL, 'X'},
 		{"stay_on_fatal", 0, NULL, 'y'},
@@ -884,6 +892,22 @@ int main(int argc, char *argv[])
 			       opt.cn_guid_file);
 			break;
 
+		case 'G':
+			/*
+			   Specifies I/O node guids file
+			 */
+			opt.io_guid_file = optarg;
+			printf(" I/O Node Guid File: %s\n",
+			       opt.io_guid_file);
+			break;
+		case 'H':
+			/*
+			   Specifies I/O max reverted hops
+			 */
+			opt.max_reverse_hops =  atoi(optarg);
+			printf(" Max Reverse Hops: %d\n",
+			       opt.max_reverse_hops);
+			break;
 		case 'm':
 			/* Specifies ids guid file */
 			SET_STR_OPT(opt.ids_guid_file, optarg);

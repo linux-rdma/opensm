@@ -341,6 +341,8 @@ static const opt_rec_t opt_tbl[] = {
 	{ "lfts_file", OPT_OFFSET(lfts_file), opts_parse_charp, NULL, 0 },
 	{ "root_guid_file", OPT_OFFSET(root_guid_file), opts_parse_charp, NULL, 0 },
 	{ "cn_guid_file", OPT_OFFSET(cn_guid_file), opts_parse_charp, NULL, 0 },
+	{ "io_guid_file", OPT_OFFSET(io_guid_file), opts_parse_charp, NULL, 0 },
+	{ "max_reverse_hops", OPT_OFFSET(max_reverse_hops), opts_parse_uint16, NULL, 0 },
 	{ "ids_guid_file", OPT_OFFSET(ids_guid_file), opts_parse_charp, NULL, 0 },
 	{ "guid_routing_order_file", OPT_OFFSET(guid_routing_order_file), opts_parse_charp, NULL, 0 },
 	{ "sa_db_file", OPT_OFFSET(sa_db_file), opts_parse_charp, NULL, 0 },
@@ -736,6 +738,8 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * const p_opt)
 	p_opt->lfts_file = NULL;
 	p_opt->root_guid_file = NULL;
 	p_opt->cn_guid_file = NULL;
+	p_opt->io_guid_file = NULL;
+	p_opt->max_reverse_hops = 0;
 	p_opt->ids_guid_file = NULL;
 	p_opt->guid_routing_order_file = NULL;
 	p_opt->sa_db_file = NULL;
@@ -1395,6 +1399,16 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t *const p_opts)
 		"# The file holding the fat-tree compute node guids\n"
 		"# One guid in each line\ncn_guid_file %s\n\n",
 		p_opts->cn_guid_file ? p_opts->cn_guid_file : null_str);
+
+	fprintf(out,
+		"# The file holding the fat-tree I/O node guids\n"
+		"# One guid in each line\nio_guid_file %s\n\n",
+		p_opts->io_guid_file ? p_opts->io_guid_file : null_str);
+
+	fprintf(out,
+		"# Number of reverse hops allowed for I/O nodes \n"
+		"# Used for connectivity between I/O nodes connected to Top Switches\nmax_reverse_hops %d\n\n",
+		p_opts->max_reverse_hops);
 
 	fprintf(out,
 		"# The file holding the node ids which will be used by"

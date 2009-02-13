@@ -190,6 +190,8 @@ typedef struct osm_subn_opt {
 	char *lfts_file;
 	char *root_guid_file;
 	char *cn_guid_file;
+	char *io_guid_file;
+	uint16_t max_reverse_hops;
 	char *ids_guid_file;
 	char *guid_routing_order_file;
 	char *sa_db_file;
@@ -382,6 +384,10 @@ typedef struct osm_subn_opt {
 *
 *	cn_guid_file
 *		Name of the file that contains list of compute node guids that
+*		will be used by fat-tree routing (provided by User)
+*
+*	io_guid_file
+*		Name of the file that contains list of I/O node guids that
 *		will be used by fat-tree routing (provided by User)
 *
 *	ids_guid_file
