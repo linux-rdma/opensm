@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2005-2008 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2009 HNR Consulting. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -303,13 +304,13 @@ static char *sm_state_str(int state)
 	case IB_SMINFO_STATE_DISCOVERING:
 		return ("Discovering");
 	case IB_SMINFO_STATE_STANDBY:
-		return ("Standby");
+		return ("Standby    ");
 	case IB_SMINFO_STATE_NOTACTIVE:
-		return ("Not Active");
+		return ("Not Active ");
 	case IB_SMINFO_STATE_MASTER:
-		return ("Master");
+		return ("Master     ");
 	}
-	return ("UNKNOWN");
+	return ("UNKNOWN    ");
 }
 
 static char *sa_state_str(osm_sa_state_t state)
@@ -323,6 +324,32 @@ static char *sa_state_str(osm_sa_state_t state)
 	return ("UNKNOWN");
 }
 
+static void dump_sms(osm_opensm_t * p_osm, FILE * out)
+{
+	osm_subn_t *p_subn = &p_osm->subn;
+	osm_remote_sm_t *p_rsm;
+
+	fprintf(out, "\n   Known SMs\n"
+		     "   ---------\n");
+	fprintf(out, "   Port GUID       SM State    Priority\n");
+	fprintf(out, "   ---------       --------    --------\n");
+	fprintf(out, "   0x%" PRIx64 " %s %d        SELF\n",
+		cl_ntoh64(p_subn->sm_port_guid),
+		sm_state_str(p_subn->sm_state),
+		p_subn->opt.sm_priority);
+
+	CL_PLOCK_ACQUIRE(p_osm->sm.p_lock);
+	p_rsm = (osm_remote_sm_t *) cl_qmap_head(&p_subn->sm_guid_tbl);
+	while (p_rsm != (osm_remote_sm_t *) cl_qmap_end(&p_subn->sm_guid_tbl)) {
+		fprintf(out, "   0x%" PRIx64 " %s %d\n",
+			cl_ntoh64(p_rsm->smi.guid),
+			sm_state_str(ib_sminfo_get_state(&p_rsm->smi)),
+			ib_sminfo_get_priority(&p_rsm->smi));
+		p_rsm = (osm_remote_sm_t *) cl_qmap_next(&p_rsm->map_item);
+	}
+	CL_PLOCK_RELEASE(p_osm->sm.p_lock);
+}
+
 static void print_status(osm_opensm_t * p_osm, FILE * out)
 {
 	cl_list_item_t *item;
@@ -332,6 +359,8 @@ static void print_status(osm_opensm_t * p_osm, FILE * out)
 		fprintf(out, "   OpenSM Version       : %s\n", p_osm->osm_version);
 		fprintf(out, "   SM State             : %s\n",
 			sm_state_str(p_osm->subn.sm_state));
+		fprintf(out, "   SM Priority          : %d\n",
+			p_osm->subn.opt.sm_priority);
 		fprintf(out, "   SA State             : %s\n",
 			sa_state_str(p_osm->sa.state));
 		fprintf(out, "   Routing Engine       : %s\n",
@@ -391,6 +420,7 @@ static void print_status(osm_opensm_t * p_osm, FILE * out)
 			p_osm->subn.in_sweep_hop_0,
 			p_osm->subn.first_time_master_sweep,
 			p_osm->subn.coming_out_of_standby);
+		dump_sms(p_osm, out);
 		fprintf(out, "\n");
 		cl_plock_release(&p_osm->lock);
 	}
