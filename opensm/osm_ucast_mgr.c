@@ -786,7 +786,7 @@ static void sort_ports_by_switch_load(osm_ucast_mgr_t *m)
 	int i, num = cl_qmap_count(&m->p_subn->sw_guid_tbl);
 	void **s = malloc(num * sizeof(*s));
 	if (!s) {
-		OSM_LOG(m->p_log, OSM_LOG_ERROR, "ERR: "
+		OSM_LOG(m->p_log, OSM_LOG_ERROR, "ERR 3A0C: "
 			"No memory, skip by switch load sorting.\n");
 		return;
 	}
@@ -814,7 +814,7 @@ static int ucast_mgr_build_lfts(osm_ucast_mgr_t *p_mgr)
 
 		if (parse_node_map(p_mgr->p_subn->opt.guid_routing_order_file,
 				   add_guid_to_order_list, p_mgr))
-			OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR : "
+			OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 3A0D: "
 				"cannot parse guid routing order file \'%s\'\n",
 				p_mgr->p_subn->opt.guid_routing_order_file);
 	} else
@@ -825,7 +825,7 @@ static int ucast_mgr_build_lfts(osm_ucast_mgr_t *p_mgr)
 				   clear_prof_ignore_flag, NULL);
 		if (parse_node_map(p_mgr->p_subn->opt.port_prof_ignore_file,
 				   mark_ignored_port, p_mgr)) {
-			OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR : "
+			OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 3A0E: "
 				"cannot parse port prof ignore file \'%s\'\n",
 				p_mgr->p_subn->opt.port_prof_ignore_file);
 		}
