@@ -381,8 +381,8 @@ static void print_status(osm_opensm_t * p_osm, FILE * out)
 
 #ifdef ENABLE_OSM_PERF_MGR
 		fprintf(out, "\n   PerfMgr state/sweep state : %s/%s\n",
-			osm_perfmgr_get_state_str(&(p_osm->perfmgr)),
-			osm_perfmgr_get_sweep_state_str(&(p_osm->perfmgr)));
+			osm_perfmgr_get_state_str(&p_osm->perfmgr),
+			osm_perfmgr_get_sweep_state_str(&p_osm->perfmgr));
 #endif
 		fprintf(out, "\n   MAD stats\n"
 			"   ---------\n"
@@ -1135,26 +1135,26 @@ static void perfmgr_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 	p_cmd = next_token(p_last);
 	if (p_cmd) {
 		if (strcmp(p_cmd, "enable") == 0) {
-			osm_perfmgr_set_state(&(p_osm->perfmgr),
+			osm_perfmgr_set_state(&p_osm->perfmgr,
 					      PERFMGR_STATE_ENABLED);
 		} else if (strcmp(p_cmd, "disable") == 0) {
-			osm_perfmgr_set_state(&(p_osm->perfmgr),
+			osm_perfmgr_set_state(&p_osm->perfmgr,
 					      PERFMGR_STATE_DISABLE);
 		} else if (strcmp(p_cmd, "clear_counters") == 0) {
-			osm_perfmgr_clear_counters(&(p_osm->perfmgr));
+			osm_perfmgr_clear_counters(&p_osm->perfmgr);
 		} else if (strcmp(p_cmd, "dump_counters") == 0) {
 			p_cmd = next_token(p_last);
 			if (p_cmd && (strcmp(p_cmd, "mach") == 0)) {
-				osm_perfmgr_dump_counters(&(p_osm->perfmgr),
+				osm_perfmgr_dump_counters(&p_osm->perfmgr,
 							  PERFMGR_EVENT_DB_DUMP_MR);
 			} else {
-				osm_perfmgr_dump_counters(&(p_osm->perfmgr),
+				osm_perfmgr_dump_counters(&p_osm->perfmgr,
 							  PERFMGR_EVENT_DB_DUMP_HR);
 			}
 		} else if (strcmp(p_cmd, "print_counters") == 0) {
 			p_cmd = next_token(p_last);
 			if (p_cmd) {
-				osm_perfmgr_print_counters(&(p_osm->perfmgr),
+				osm_perfmgr_print_counters(&p_osm->perfmgr,
 							   p_cmd, out);
 			} else {
 				fprintf(out,
@@ -1164,7 +1164,7 @@ static void perfmgr_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 			p_cmd = next_token(p_last);
 			if (p_cmd) {
 				uint16_t time_s = atoi(p_cmd);
-				osm_perfmgr_set_sweep_time_s(&(p_osm->perfmgr),
+				osm_perfmgr_set_sweep_time_s(&p_osm->perfmgr,
 							     time_s);
 			} else {
 				fprintf(out,
@@ -1179,9 +1179,9 @@ static void perfmgr_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 			"sweep state             : %s\n"
 			"sweep time              : %us\n"
 			"outstanding queries/max : %d/%u\n",
-			osm_perfmgr_get_state_str(&(p_osm->perfmgr)),
-			osm_perfmgr_get_sweep_state_str(&(p_osm->perfmgr)),
-			osm_perfmgr_get_sweep_time_s(&(p_osm->perfmgr)),
+			osm_perfmgr_get_state_str(&p_osm->perfmgr),
+			osm_perfmgr_get_sweep_state_str(&p_osm->perfmgr),
+			osm_perfmgr_get_sweep_time_s(&p_osm->perfmgr),
 			p_osm->perfmgr.outstanding_queries,
 			p_osm->perfmgr.max_outstanding_queries);
 	}
