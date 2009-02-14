@@ -2101,6 +2101,7 @@ static const char *const __osm_disp_msg_str[] = {
 #if defined (VENDOR_RMPP_SUPPORT) && defined (DUAL_SIDED_RMPP)
 	"OSM_MSG_MAD_MULTIPATH_RECORD",
 #endif
+	"OSM_MSG_MAD_PORT_COUNTERS",
 	"UNKNOWN!!"
 };
 
