@@ -7,12 +7,6 @@ ACLOCAL_AMFLAGS = -I config
 
 # we should provide a hint for other apps about the build mode of this project
 install-exec-hook:
-	mkdir -p $(DESTDIR)/$(includedir)
-if DEBUG
-	echo "define osm_build_type \"debug\"" > $(DESTDIR)/$(includedir)/infiniband/opensm/osm_build_id.h
-else
-	echo "define osm_build_type \"free\"" > $(DESTDIR)/$(includedir)/infiniband/opensm/osm_build_id.h
-endif
 	$(top_srcdir)/config/install-sh -m 755 -d $(DESTDIR)/$(sysconfdir)/init.d
 	cp $(top_builddir)/scripts/opensm.init $(DESTDIR)/$(sysconfdir)/init.d/opensmd
 	chmod 755 $(DESTDIR)/$(sysconfdir)/init.d/opensmd
