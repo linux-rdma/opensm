@@ -522,9 +522,8 @@ int main(int argc, char *argv[])
 	boolean_t run_once_flag = FALSE;
 	int32_t vendor_debug = 0;
 	uint32_t next_option;
-	char *conf_template = NULL;
+	char *conf_template = NULL, *config_file = NULL;
 	uint32_t val;
-	unsigned config_file_done = 0;
 	const char *const short_option =
 	    "F:c:i:f:ed:D:g:l:L:s:t:a:u:m:X:R:zM:U:S:P:Y:ANBIQvVhoryxp:n:q:k:C:";
 
@@ -608,7 +607,26 @@ int main(int argc, char *argv[])
 	osm_subn_set_default_opt(&opt);
 
 	if (osm_subn_parse_conf_file(OSM_DEFAULT_CONFIG_FILE, &opt) < 0)
-		printf("\nosm_subn_parse_conf_file failed!\n");
+		printf("\nFail to parse config file \'%s\'\n",
+		       OSM_DEFAULT_CONFIG_FILE);
+
+	do {
+		next_option = getopt_long_only(argc, argv, short_option,
+					       long_option, NULL);
+		switch (next_option) {
+		case 'F':
+			config_file = optarg;
+			printf("Config file is `%s`:\n", config_file);
+			break;
+		default:
+			break;
+		}
+	} while (next_option != -1);
+
+	optind = 0; /* reset command line */
+
+	if (config_file && osm_subn_parse_conf_file(config_file, &opt) < 0)
+		printf("\nFail to parse config file \'%s\'\n", config_file);
 
 	printf("Command Line Arguments:\n");
 	do {
@@ -619,16 +637,6 @@ int main(int argc, char *argv[])
 			exit(0);
 			break;
 		case 'F':
-			if (config_file_done)
-				break;
-			printf("Reloading config from `%s`:\n", optarg);
-			if (osm_subn_parse_conf_file(optarg, &opt)) {
-				printf("cannot parse config file.\n");
-				exit(1);
-			}
-			printf("Rescaning command line:\n");
-			config_file_done = 1;
-			optind = 0;
 			break;
 		case 'c':
 			conf_template = optarg;
@@ -936,8 +944,7 @@ int main(int argc, char *argv[])
 		default:	/* something wrong */
 			abort();
 		}
-	}
-	while (next_option != -1);
+	} while (next_option != -1);
 
 	if (opt.log_file != NULL)
 		printf(" Log File: %s\n", opt.log_file);
