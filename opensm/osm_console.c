@@ -1285,9 +1285,11 @@ static void dump_portguid_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 		     p_regexp = p_regexp->next)
 			if (regexec
 			    (&(p_regexp->exp), p_port->p_node->print_desc, 0,
-			     NULL, 0) == 0)
+			     NULL, 0) == 0) {
 				fprintf(output, "0x%" PRIxLEAST64 "\n",
 					cl_ntoh64(p_port->p_physp->port_guid));
+				break;
+			}
 	}
 
 	CL_PLOCK_RELEASE(p_osm->sm.p_lock);
