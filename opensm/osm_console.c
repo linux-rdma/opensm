@@ -1212,50 +1212,40 @@ typedef struct _regexp_list {
 static void dump_portguid_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 {
 	cl_qmap_t *p_port_guid_tbl;
-	osm_port_t *p_port;
-	osm_port_t *p_next_port;
-
-	regexp_list_t *p_head_regexp = NULL;
-	regexp_list_t *p_regexp;
-
-	/* Option variables */
-	char *p_cmd = NULL;
+	osm_port_t *p_port, *p_next_port;
+	regexp_list_t *p_regexp, *p_head_regexp = NULL;
 	FILE *output = out;
 
-	/* Read commande line */
-
 	while (1) {
-		p_cmd = next_token(p_last);
-		if (p_cmd) {
-			if (strcmp(p_cmd, "file") == 0) {
-				p_cmd = next_token(p_last);
-				if (p_cmd) {
-					output = fopen(p_cmd, "w+");
-					if (output == NULL) {
-						fprintf(out,
-							"Could not open file %s: %s\n",
-							p_cmd, strerror(errno));
-						output = out;
-					}
-				} else
-					fprintf(out, "No file name passed\n");
-			} else {
-				p_regexp = malloc(sizeof(*p_regexp));
-				if (regcomp
-				    (&(p_regexp->exp), p_cmd,
-				     REG_NOSUB | REG_EXTENDED) != 0) {
-					fprintf(out,
-						"Couldn't parse regular expression %s. Skipping it.\n",
-						p_cmd);
-					free(p_regexp);
-					continue;
-				}
-				p_regexp->next = p_head_regexp;
-				p_head_regexp = p_regexp;
-			}
-		} else
-			break;	/* No more tokens */
+		char *p_cmd = next_token(p_last);
+		if (!p_cmd)
+			break;
 
+		if (strcmp(p_cmd, "file") == 0) {
+			p_cmd = next_token(p_last);
+			if (p_cmd) {
+				output = fopen(p_cmd, "w+");
+				if (output == NULL) {
+					fprintf(out,
+						"Could not open file %s: %s\n",
+						p_cmd, strerror(errno));
+					output = out;
+				}
+			} else
+				fprintf(out, "No file name passed\n");
+		} else if (!(p_regexp = malloc(sizeof(*p_regexp)))) {
+			fprintf(out, "No memory.\n");
+			break;
+		} else if (regcomp(&p_regexp->exp, p_cmd,
+				   REG_NOSUB | REG_EXTENDED) != 0) {
+			fprintf(out, "Cannot parse regular expression \'%s\'."
+				" Skipping.\n", p_cmd);
+			free(p_regexp);
+			continue;
+		} else {
+			p_regexp->next = p_head_regexp;
+			p_head_regexp = p_regexp;
+		}
 	}
 
 	/* Check we have at least one expression to match */
@@ -1283,9 +1273,8 @@ static void dump_portguid_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 
 		for (p_regexp = p_head_regexp; p_regexp != NULL;
 		     p_regexp = p_regexp->next)
-			if (regexec
-			    (&(p_regexp->exp), p_port->p_node->print_desc, 0,
-			     NULL, 0) == 0) {
+			if (regexec(&p_regexp->exp, p_port->p_node->print_desc,
+				    0, NULL, 0) == 0) {
 				fprintf(output, "0x%" PRIxLEAST64 "\n",
 					cl_ntoh64(p_port->p_physp->port_guid));
 				break;
