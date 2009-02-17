@@ -1247,6 +1247,8 @@ static void dump_portguid_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 					fprintf(out,
 						"Couldn't parse regular expression %s. Skipping it.\n",
 						p_cmd);
+					free(p_regexp);
+					continue;
 				}
 				p_regexp->next = p_head_regexp;
 				p_head_regexp = p_regexp;
@@ -1292,6 +1294,11 @@ static void dump_portguid_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 	if (output != out)
 		fclose(output);
 
+	for (; p_head_regexp; p_head_regexp = p_regexp) {
+		p_regexp = p_head_regexp->next;
+		regfree(&p_head_regexp->exp);
+		free(p_head_regexp);
+	}
 }
 
 static void help_dump_portguid(FILE * out, int detail)
