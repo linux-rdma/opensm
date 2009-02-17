@@ -508,7 +508,6 @@ int osm_manager_loop(osm_subn_opt_t * p_opt, osm_opensm_t * p_osm)
 /**********************************************************************
  **********************************************************************/
 #define SET_STR_OPT(opt, val) do { \
-	if (opt) free(opt); \
 	opt = val ? strdup(val) : NULL ; \
 } while (0)
 

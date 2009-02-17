@@ -77,7 +77,8 @@ typedef struct opt_rec {
 	const char *name;
 	unsigned long opt_offset;
 	void (*parse_fn)(osm_subn_t *p_subn, char *p_key, char *p_val_str,
-			 void *p_val, void (*)(osm_subn_t *, void *));
+			 void *p_val1, void *p_val2,
+			 void (*)(osm_subn_t *, void *));
 	void (*setup_fn)(osm_subn_t *p_subn, void *p_val);
 	int  can_update;
 } opt_rec_t;
@@ -151,102 +152,102 @@ static void opts_setup_sm_priority(osm_subn_t *p_subn, void *p_val)
 }
 
 static void opts_parse_net64(IN osm_subn_t *p_subn, IN char *p_key,
-			     IN char *p_val_str, IN void *p_v,
+			     IN char *p_val_str, void *p_v1, void *p_v2,
 			     void (*pfn)(osm_subn_t *, void *))
 {
-	uint64_t *p_val = p_v;
+	uint64_t *p_val1 = p_v1, *p_val2 = p_v2;
 	uint64_t val = strtoull(p_val_str, NULL, 0);
 
-	if (cl_hton64(val) != *p_val) {
+	if (cl_hton64(val) != *p_val1) {
 		log_config_value(p_key, "0x%016" PRIx64, val);
 		if (pfn)
 			pfn(p_subn, &val);
-		*p_val = cl_ntoh64(val);
+		*p_val1 = *p_val2 = cl_ntoh64(val);
 	}
 }
 
 static void opts_parse_uint32(IN osm_subn_t *p_subn, IN char *p_key,
-			      IN char *p_val_str, IN void *p_v,
+			      IN char *p_val_str, void *p_v1, void *p_v2,
 			      void (*pfn)(osm_subn_t *, void *))
 {
-	uint32_t *p_val = p_v;
+	uint32_t *p_val1 = p_v1, *p_val2 = p_v2;
 	uint32_t val = strtoul(p_val_str, NULL, 0);
 
-	if (val != *p_val) {
+	if (val != *p_val1) {
 		log_config_value(p_key, "%u", val);
 		if (pfn)
 			pfn(p_subn, &val);
-		*p_val = val;
+		*p_val1 = *p_val2 = val;
 	}
 }
 
 static void opts_parse_int32(IN osm_subn_t *p_subn, IN char *p_key,
-			     IN char *p_val_str, IN void *p_v,
+			     IN char *p_val_str, void *p_v1, void *p_v2,
 			     void (*pfn)(osm_subn_t *, void *))
 {
-	int32_t *p_val = p_v;
+	int32_t *p_val1 = p_v1, *p_val2 = p_v2;
 	int32_t val = strtol(p_val_str, NULL, 0);
 
-	if (val != *p_val) {
+	if (val != *p_val1) {
 		log_config_value(p_key, "%d", val);
 		if (pfn)
 			pfn(p_subn, &val);
-		*p_val = val;
+		*p_val1 = *p_val2 = val;
 	}
 }
 
 static void opts_parse_uint16(IN osm_subn_t *p_subn, IN char *p_key,
-			      IN char *p_val_str, IN void *p_v,
+			      IN char *p_val_str, void *p_v1, void *p_v2,
 			      void (*pfn)(osm_subn_t *, void *))
 {
-	uint16_t *p_val = p_v;
+	uint16_t *p_val1 = p_v1, *p_val2 = p_v2;
 	uint16_t val = (uint16_t) strtoul(p_val_str, NULL, 0);
 
-	if (val != *p_val) {
+	if (val != *p_val1) {
 		log_config_value(p_key, "%u", val);
 		if (pfn)
 			pfn(p_subn, &val);
-		*p_val = val;
+		*p_val1 = *p_val2 = val;
 	}
 }
 
 static void opts_parse_net16(IN osm_subn_t *p_subn, IN char *p_key,
-			     IN char *p_val_str, IN void *p_v,
+			     IN char *p_val_str, void *p_v1, void *p_v2,
 			     void (*pfn)(osm_subn_t *, void *))
 {
-	uint16_t *p_val = p_v;
+	uint16_t *p_val1 = p_v1, *p_val2 = p_v2;
 	uint16_t val = strtoul(p_val_str, NULL, 0);
 
 	CL_ASSERT(val < 0x10000);
-	if (cl_hton16(val) != *p_val) {
+	if (cl_hton16(val) != *p_val1) {
 		log_config_value(p_key, "0x%04x", val);
 		if (pfn)
 			pfn(p_subn, &val);
-		*p_val = cl_hton16(val);
+		*p_val1 = *p_val2 = cl_hton16(val);
 	}
 }
 
 static void opts_parse_uint8(IN osm_subn_t *p_subn, IN char *p_key,
-			     IN char *p_val_str, IN void *p_v,
+			     IN char *p_val_str, void *p_v1, void *p_v2,
 			     void (*pfn)(osm_subn_t *, void *))
 {
-	uint8_t *p_val = p_v;
+	uint8_t *p_val1 = p_v1, *p_val2 = p_v2;
 	uint8_t val = strtoul(p_val_str, NULL, 0);
 
 	CL_ASSERT(val < 0x100);
-	if (val != *p_val) {
+	if (val != *p_val1) {
 		log_config_value(p_key, "%u", val);
 		if (pfn)
 			pfn(p_subn, &val);
-		*p_val = val;
+		*p_val1 = *p_val2 = val;
 	}
 }
 
 static void opts_parse_boolean(IN osm_subn_t *p_subn, IN char *p_key,
-			       IN char *p_val_str, IN void *p_v,
+			       IN char *p_val_str, void *p_v1, void *p_v2,
 			       void (*pfn)(osm_subn_t *, void *))
 {
-	boolean_t *p_val = p_v;
+	boolean_t *p_val1 = p_v1, *p_val2 = p_v2;
 	boolean_t val;
 
 	if (!p_val_str)
@@ -257,20 +258,20 @@ static void opts_parse_boolean(IN osm_subn_t *p_subn, IN char *p_key,
 	else
 		val = TRUE;
 
-	if (val != *p_val) {
+	if (val != *p_val1) {
 		log_config_value(p_key, "%s", p_val_str);
 		if (pfn)
 			pfn(p_subn, &val);
-		*p_val = val;
+		*p_val1 = *p_val2 = val;
 	}
 }
 
 static void opts_parse_charp(IN osm_subn_t *p_subn, IN char *p_key,
-			     IN char *p_val_str, IN void *p_v,
+			     IN char *p_val_str, void *p_v1, void *p_v2,
 			     void (*pfn)(osm_subn_t *, void *))
 {
-	char **p_val = p_v;
-	const char *current_str = *p_val ? *p_val : null_str ;
+	char **p_val1 = p_v1, **p_val2 = p_v2;
+	const char *current_str = *p_val1 ? *p_val1 : null_str ;
 
 	if (p_val_str && strcmp(p_val_str, current_str)) {
 		char *new;
@@ -279,9 +280,11 @@ static void opts_parse_charp(IN osm_subn_t *p_subn, IN char *p_key,
 		new = strcmp(null_str, p_val_str) ? strdup(p_val_str) : NULL;
 		if (pfn)
 			pfn(p_subn, new);
-		if (*p_val)
-			free(*p_val);
-		*p_val = new;
+		if (*p_val1 && *p_val1 != *p_val2)
+			free(*p_val1);
+		if (*p_val2)
+			free(*p_val2);
+		*p_val1 = *p_val2 = new;
 	}
 }
 
@@ -1121,7 +1124,7 @@ int osm_subn_parse_conf_file(char *file_name, osm_subn_opt_t * const p_opts)
 	FILE *opts_file;
 	char *p_key, *p_val;
 	const opt_rec_t *r;
-	void *p_field;
+	void *p_field1, *p_field2;
 
 	opts_file = fopen(file_name, "r");
 	if (!opts_file) {
@@ -1136,6 +1139,9 @@ int osm_subn_parse_conf_file(char *file_name, osm_subn_opt_t * const p_opts)
 	cl_log_event("OpenSM", CL_LOG_INFO, line, NULL, 0);
 
 	p_opts->config_file = file_name;
+	if (!p_opts->file_opts && !(p_opts->file_opts = malloc(sizeof(*p_opts))))
+		return -1;
+	memcpy(p_opts->file_opts, p_opts, sizeof(*p_opts));
 
 	while (fgets(line, 1023, opts_file) != NULL) {
 		/* get the first token */
@@ -1149,9 +1155,11 @@ int osm_subn_parse_conf_file(char *file_name, osm_subn_opt_t * const p_opts)
 			if (strcmp(r->name, p_key))
 				continue;
 
-			p_field = (void *)p_opts + r->opt_offset;
+			p_field1 = (void *)p_opts->file_opts + r->opt_offset;
+			p_field2 = (void *)p_opts + r->opt_offset;
 			/* don't call setup function first time */
-			r->parse_fn(NULL, p_key, p_val, p_field, NULL);
+			r->parse_fn(NULL, p_key, p_val, p_field1, p_field2,
+				    NULL);
 			break;
 		}
 	}
@@ -1169,7 +1177,7 @@ int osm_subn_rescan_conf_files(IN osm_subn_t * const p_subn)
 	const opt_rec_t *r;
 	FILE *opts_file;
 	char *p_key, *p_val;
-	void *p_field;
+	void *p_field1, *p_field2;
 
 	if (!p_opts->config_file)
 		return 0;
@@ -1202,8 +1210,10 @@ int osm_subn_rescan_conf_files(IN osm_subn_t * const p_subn)
 			if (!r->can_update || strcmp(r->name, p_key))
 				continue;
 
-			p_field = (void *)p_opts + r->opt_offset;
-			r->parse_fn(p_subn, p_key, p_val, p_field, r->setup_fn);
+			p_field1 = (void *)p_opts->file_opts + r->opt_offset;
+			p_field2 = (void *)p_opts + r->opt_offset;
+			r->parse_fn(p_subn, p_key, p_val, p_field1, p_field2,
+				    r->setup_fn);
 			break;
 		}
 	}

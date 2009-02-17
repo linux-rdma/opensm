@@ -217,6 +217,7 @@ typedef struct osm_subn_opt {
 	char *node_name_map_name;
 	char *prefix_routes_file;
 	boolean_t consolidate_ipv6_snm_req;
+	struct osm_subn_opt *file_opts; /* used for update */
 } osm_subn_opt_t;
 /*
 * FIELDS
