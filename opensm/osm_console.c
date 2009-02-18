@@ -1158,7 +1158,7 @@ static void perfmgr_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 							   p_cmd, out);
 			} else {
 				fprintf(out,
-					"print_counters requires a node name to be specified\n");
+					"print_counters requires a node name or node GUID to be specified\n");
 			}
 		} else if (strcmp(p_cmd, "sweep_time") == 0) {
 			p_cmd = next_token(p_last);
