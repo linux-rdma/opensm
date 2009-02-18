@@ -121,7 +121,7 @@ __match_inf_rec(IN const cl_list_item_t * const p_list_item, IN void *context)
 	memset(&all_zero_gid, 0, sizeof(ib_gid_t));
 
 	/* if inform_info.gid is not zero, ignore lid range */
-	if (!memcmp(&p_infr_rec->inform_record.inform_info.gid, &all_zero_gid,
+	if (memcmp(&p_infr_rec->inform_record.inform_info.gid, &all_zero_gid,
 		    sizeof(p_infr_rec->inform_record.inform_info.gid))) {
 		if (memcmp(&p_infr->inform_record.inform_info.gid,
 			   &p_infr_rec->inform_record.inform_info.gid,
