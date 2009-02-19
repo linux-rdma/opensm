@@ -569,8 +569,8 @@ opensm will return the path to the first available matching router.
 A configuration file with a single line where both prefix and GUID
 are wild-carded means that a path record query specifying any
 off-subnet DGID should return a path to the first available router.
-This configuration yields the same behaviour formerly achieved by
-compiling opensm with -DROUTER_EXP.
+This configuration yields the same behavior formerly achieved by
+compiling opensm with -DROUTER_EXP which has been obsoleted.
 
 .SH ROUTING
 .PP
