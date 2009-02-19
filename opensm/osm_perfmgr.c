@@ -1304,7 +1304,7 @@ void
 osm_perfmgr_print_counters(osm_perfmgr_t *pm, char *nodename, FILE *fp)
 {
 	uint64_t guid = strtoull(nodename, NULL, 0);
-	if (guid == 0 && errno == EINVAL)
+	if (guid == 0 && errno)
 		perfmgr_db_print_by_name(pm->db, nodename, fp);
 	else
 		perfmgr_db_print_by_guid(pm->db, guid, fp);

@@ -73,9 +73,14 @@ on: 0, delay_s: 2, loop_function:NULL};
 
 static const struct command console_cmds[];
 
-static inline char *next_token(char **p_last)
+static char *next_token(char **p_last)
 {
 	return strtok_r(NULL, " \t\n\r", p_last);
+}
+
+static char *name_token(char **p_last)
+{
+	return strtok_r(NULL, "\t\n\r", p_last);
 }
 
 static void help_command(FILE * out, int detail)
@@ -1152,7 +1157,7 @@ static void perfmgr_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 							  PERFMGR_EVENT_DB_DUMP_HR);
 			}
 		} else if (strcmp(p_cmd, "print_counters") == 0) {
-			p_cmd = next_token(p_last);
+			p_cmd = name_token(p_last);
 			if (p_cmd) {
 				osm_perfmgr_print_counters(&p_osm->perfmgr,
 							   p_cmd, out);
