@@ -596,9 +596,6 @@ int main(int argc, char *argv[])
 			osm_is_debug(), cl_is_debug());
 		exit(1);
 	}
-#if defined (_DEBUG_) && defined (OSM_VENDOR_INTF_OPENIB)
-	enable_stack_dump(1);
-#endif
 
 	printf("-------------------------------------------------\n");
 	printf("%s\n", OSM_VERSION);
