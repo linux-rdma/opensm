@@ -640,7 +640,7 @@ static void subn_set_default_qos_options(IN osm_qos_options_t * opt)
 	opt->sl2vl = OSM_DEFAULT_QOS_SL2VL;
 }
 
-static void subn_init_qos_options(IN osm_qos_options_t * opt)
+static void subn_init_qos_options(osm_qos_options_t *opt, osm_qos_options_t *f)
 {
 	opt->max_vls = 0;
 	opt->high_limit = -1;
@@ -653,6 +653,8 @@ static void subn_init_qos_options(IN osm_qos_options_t * opt)
 	if (opt->sl2vl)
 		free(opt->sl2vl);
 	opt->sl2vl = NULL;
+	if (f)
+		memcpy(f, opt, sizeof(*f));
 }
 
 /**********************************************************************
@@ -743,11 +745,11 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * const p_opt)
 	p_opt->no_clients_rereg = FALSE;
 	p_opt->prefix_routes_file = strdup(OSM_DEFAULT_PREFIX_ROUTES_FILE);
 	p_opt->consolidate_ipv6_snm_req = FALSE;
-	subn_init_qos_options(&p_opt->qos_options);
-	subn_init_qos_options(&p_opt->qos_ca_options);
-	subn_init_qos_options(&p_opt->qos_sw0_options);
-	subn_init_qos_options(&p_opt->qos_swe_options);
-	subn_init_qos_options(&p_opt->qos_rtr_options);
+	subn_init_qos_options(&p_opt->qos_options, NULL);
+	subn_init_qos_options(&p_opt->qos_ca_options, NULL);
+	subn_init_qos_options(&p_opt->qos_sw0_options, NULL);
+	subn_init_qos_options(&p_opt->qos_swe_options, NULL);
+	subn_init_qos_options(&p_opt->qos_rtr_options, NULL);
 }
 
 /**********************************************************************
@@ -1192,11 +1194,16 @@ int osm_subn_rescan_conf_files(IN osm_subn_t * const p_subn)
 		return -1;
 	}
 
-	subn_init_qos_options(&p_opts->qos_options);
-	subn_init_qos_options(&p_opts->qos_ca_options);
-	subn_init_qos_options(&p_opts->qos_sw0_options);
-	subn_init_qos_options(&p_opts->qos_swe_options);
-	subn_init_qos_options(&p_opts->qos_rtr_options);
+	subn_init_qos_options(&p_opts->qos_options,
+			      &p_opts->file_opts->qos_options);
+	subn_init_qos_options(&p_opts->qos_ca_options,
+			      &p_opts->file_opts->qos_ca_options);
+	subn_init_qos_options(&p_opts->qos_sw0_options,
+			      &p_opts->file_opts->qos_sw0_options);
+	subn_init_qos_options(&p_opts->qos_swe_options,
+			      &p_opts->file_opts->qos_swe_options);
+	subn_init_qos_options(&p_opts->qos_rtr_options,
+			      &p_opts->file_opts->qos_rtr_options);
 
 	while (fgets(line, 1023, opts_file) != NULL) {
 		/* get the first token */
