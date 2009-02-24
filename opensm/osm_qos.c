@@ -409,5 +409,4 @@ static void qos_build_config(struct qos_config *cfg,
 	p = opt->sl2vl ? opt->sl2vl : dflt->sl2vl;
 	for (i = 0; i < IB_MAX_NUM_VLS / 2; i++)
 		p += parse_sl2vl_entry(p, &cfg->sl2vl.raw_vl_by_sl[i]);
-
 }
