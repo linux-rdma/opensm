@@ -146,10 +146,7 @@ static void __osm_lid_mgr_validate_db(IN osm_lid_mgr_t * p_mgr)
 
 	OSM_LOG_ENTER(p_mgr->p_log);
 
-	if (p_mgr->p_subn->opt.lmc)
-		lmc_mask = ~((1 << p_mgr->p_subn->opt.lmc) - 1);
-	else
-		lmc_mask = 0xffff;
+	lmc_mask = ~((1 << p_mgr->p_subn->opt.lmc) - 1);
 
 	cl_qlist_init(&guids);
 
@@ -327,10 +324,7 @@ static int __osm_lid_mgr_init_sweep(IN osm_lid_mgr_t * const p_mgr)
 
 	OSM_LOG_ENTER(p_mgr->p_log);
 
-	if (p_mgr->p_subn->opt.lmc)
-		lmc_mask = ~((1 << p_mgr->p_subn->opt.lmc) - 1);
-	else
-		lmc_mask = 0xffff;
+	lmc_mask = ~((1 << p_mgr->p_subn->opt.lmc) - 1);
 
 	/* if we came out of standby we need to discard any previous guid2lid
 	   info we might have.
@@ -667,10 +661,7 @@ __osm_lid_mgr_find_free_lid_range(IN osm_lid_mgr_t * const p_mgr,
 		p_mgr->p_subn->opt.lmc, num_lids);
 
 	lmc_num_lids = (1 << p_mgr->p_subn->opt.lmc);
-	if (p_mgr->p_subn->opt.lmc)
-		lmc_mask = ~((1 << p_mgr->p_subn->opt.lmc) - 1);
-	else
-		lmc_mask = 0xffff;
+	lmc_mask = ~((1 << p_mgr->p_subn->opt.lmc) - 1);
 
 	/*
 	   Search the list of free lid ranges for a range which is big enough
@@ -760,11 +751,6 @@ __osm_lid_mgr_get_port_lid(IN osm_lid_mgr_t * const p_mgr,
 
 	OSM_LOG_ENTER(p_mgr->p_log);
 
-	if (p_mgr->p_subn->opt.lmc)
-		lmc_mask = ~((1 << p_mgr->p_subn->opt.lmc) - 1);
-	else
-		lmc_mask = 0xffff;
-
 	/* get the lid from the guid2lid */
 	guid = cl_ntoh64(osm_port_get_guid(p_port));
 
@@ -776,6 +762,8 @@ __osm_lid_mgr_get_port_lid(IN osm_lid_mgr_t * const p_mgr,
 	if (p_mgr->p_subn->first_time_master_sweep == TRUE &&
 	    p_mgr->p_subn->opt.reassign_lids == TRUE)
 		goto AssignLid;
+
+	lmc_mask = ~(num_lids - 1);
 
 	/* if the port matches the guid2lid */
 	if (!osm_db_guid2lid_get(p_mgr->p_g2l, guid, &min_lid, &max_lid)) {
@@ -810,7 +798,7 @@ __osm_lid_mgr_get_port_lid(IN osm_lid_mgr_t * const p_mgr,
 	   reassign lids flow */
 	if (min_lid) {
 		/* make sure lid is valid */
-		if ((num_lids == 1) || ((min_lid & lmc_mask) == min_lid)) {
+		if ((min_lid & lmc_mask) == min_lid) {
 			/* is it free */
 			if (__osm_lid_mgr_is_range_not_persistent
 			    (p_mgr, min_lid, num_lids)) {
