@@ -773,6 +773,10 @@ __osm_lid_mgr_get_port_lid(IN osm_lid_mgr_t * const p_mgr,
 	    !osm_switch_sp0_is_lmc_capable(p_port->p_node->sw, p_mgr->p_subn))
 		num_lids = 1;
 
+	if (p_mgr->p_subn->first_time_master_sweep == TRUE &&
+	    p_mgr->p_subn->opt.reassign_lids == TRUE)
+		goto AssignLid;
+
 	/* if the port matches the guid2lid */
 	if (!osm_db_guid2lid_get(p_mgr->p_g2l, guid, &min_lid, &max_lid)) {
 		*p_min_lid = min_lid;
@@ -804,9 +808,7 @@ __osm_lid_mgr_get_port_lid(IN osm_lid_mgr_t * const p_mgr,
 
 	/* we want to ignore the discovered lid if we are also on first sweep of
 	   reassign lids flow */
-	if (min_lid &&
-	    !((p_mgr->p_subn->first_time_master_sweep == TRUE) &&
-	      (p_mgr->p_subn->opt.reassign_lids == TRUE))) {
+	if (min_lid) {
 		/* make sure lid is valid */
 		if ((num_lids == 1) || ((min_lid & lmc_mask) == min_lid)) {
 			/* is it free */
@@ -831,6 +833,7 @@ __osm_lid_mgr_get_port_lid(IN osm_lid_mgr_t * const p_mgr,
 				guid, min_lid, min_lid + num_lids - 1);
 	}
 
+AssignLid:
 	/* first cleanup the existing discovered lid range */
 	__osm_lid_mgr_cleanup_discovered_port_lid_range(p_mgr, p_port);
 
