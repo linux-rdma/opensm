@@ -388,34 +388,32 @@ static int __osm_lid_mgr_init_sweep(IN osm_lid_mgr_t * const p_mgr)
 		for (lid = disc_min_lid; lid <= disc_max_lid; lid++)
 			cl_ptr_vector_set(p_discovered_vec, lid, p_port);
 		/* make sure the guid2lid entry is valid. If not, clean it. */
-		if (!osm_db_guid2lid_get(p_mgr->p_g2l,
-					 cl_ntoh64(osm_port_get_guid(p_port)),
-					 &db_min_lid, &db_max_lid)) {
-			if (!p_port->p_node->sw ||
-			    osm_switch_sp0_is_lmc_capable(p_port->p_node->sw,
-							  p_mgr->p_subn))
-				num_lids = lmc_num_lids;
-			else
-				num_lids = 1;
-
-			if ((num_lids != 1) &&
-			    (((db_min_lid & lmc_mask) != db_min_lid) ||
-			     (db_max_lid - db_min_lid + 1 < num_lids))) {
-				/* Not aligned, or not wide enough, then remove the entry */
-				OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-					"Cleaning persistent entry for guid:"
-					"0x%016" PRIx64 " illegal range:"
-					"[0x%x:0x%x]\n",
+		if (osm_db_guid2lid_get(p_mgr->p_g2l,
 					cl_ntoh64(osm_port_get_guid(p_port)),
-					db_min_lid, db_max_lid);
-				osm_db_guid2lid_delete(p_mgr->p_g2l,
-						       cl_ntoh64
-						       (osm_port_get_guid
-							(p_port)));
-				for (lid = db_min_lid; lid <= db_max_lid; lid++)
-					cl_ptr_vector_set(p_persistent_vec, lid,
-							  NULL);
-			}
+					&db_min_lid, &db_max_lid))
+			continue;
+
+		if (!p_port->p_node->sw ||
+		    osm_switch_sp0_is_lmc_capable(p_port->p_node->sw,
+						  p_mgr->p_subn))
+			num_lids = lmc_num_lids;
+		else
+			num_lids = 1;
+
+		if ((num_lids != 1) &&
+		    (((db_min_lid & lmc_mask) != db_min_lid) ||
+		     (db_max_lid - db_min_lid + 1 < num_lids))) {
+			/* Not aligned, or not wide enough, then remove the entry */
+			OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
+				"Cleaning persistent entry for guid:"
+				"0x%016" PRIx64 " illegal range:[0x%x:0x%x]\n",
+				cl_ntoh64(osm_port_get_guid(p_port)),
+				db_min_lid, db_max_lid);
+			osm_db_guid2lid_delete(p_mgr->p_g2l,
+					       cl_ntoh64
+					       (osm_port_get_guid(p_port)));
+			for (lid = db_min_lid; lid <= db_max_lid; lid++)
+				cl_ptr_vector_set(p_persistent_vec, lid, NULL);
 		}
 	}
 
@@ -462,94 +460,83 @@ static int __osm_lid_mgr_init_sweep(IN osm_lid_mgr_t * const p_mgr)
 				"0x%04x is not free as its mapped by the "
 				"persistent db\n", lid);
 			is_free = FALSE;
-		} else {
-			/* check this is a discovered port */
-			if (lid <= max_discovered_lid
-			    && (p_port = (osm_port_t *)
+		/* check this is a discovered port */
+		} else if (lid <= max_discovered_lid
+			   && (p_port = (osm_port_t *)
 				cl_ptr_vector_get(p_discovered_vec, lid))) {
-				/* we have a port. Now lets see if we can preserve its lid range. */
-				/* For that, we need to make sure:
-				   1. The port has a (legal) persistency entry. Then the local lid
-				   is free (we will use the persistency value).
-				   2. Can the port keep its local assignment?
-				   a. Make sure the lid a aligned.
-				   b. Make sure all needed lids (for the lmc) are free according
-				   to persistency table.
-				 */
-				/* qualify the guid of the port is not persistently mapped to
-				   another range */
-				if (!osm_db_guid2lid_get(p_mgr->p_g2l,
-							 cl_ntoh64
-							 (osm_port_get_guid
-							  (p_port)),
-							 &db_min_lid,
-							 &db_max_lid)) {
+			/* we have a port. Now lets see if we can preserve its lid range. */
+			/* For that, we need to make sure:
+			   1. The port has a (legal) persistency entry. Then the local lid
+			   is free (we will use the persistency value).
+			   2. Can the port keep its local assignment?
+			   a. Make sure the lid a aligned.
+			   b. Make sure all needed lids (for the lmc) are free according
+			   to persistency table.
+			 */
+			/* qualify the guid of the port is not persistently mapped to
+			   another range */
+			if (!osm_db_guid2lid_get(p_mgr->p_g2l,
+						 cl_ntoh64
+						 (osm_port_get_guid(p_port)),
+						 &db_min_lid, &db_max_lid)) {
+				OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
+					"0x%04x is free as it was "
+					"discovered but mapped by the "
+					"persistent db to [0x%04x:0x%04x]\n",
+					lid, db_min_lid, db_max_lid);
+			} else {
+				/* can the port keep its assignment ? */
+				/* get the lid range of that port, and the required number
+				   of lids we are about to assign to it */
+				osm_port_get_lid_range_ho(p_port,
+							  &disc_min_lid,
+							  &disc_max_lid);
+				if (!p_port->p_node->sw ||
+				    osm_switch_sp0_is_lmc_capable
+				    (p_port->p_node->sw, p_mgr->p_subn)) {
+					disc_max_lid =
+					    disc_min_lid + lmc_num_lids - 1;
+					num_lids = lmc_num_lids;
+				} else
+					num_lids = 1;
+
+				/* Make sure the lid is aligned */
+				if ((num_lids != 1)
+				    && ((disc_min_lid & lmc_mask) !=
+					disc_min_lid)) {
+					/* The lid cannot be used */
 					OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 						"0x%04x is free as it was "
-						"discovered but mapped by the "
-						"persistent db to [0x%04x:0x%04x]\n",
-						lid, db_min_lid, db_max_lid);
+						"discovered but not aligned\n",
+						lid);
 				} else {
-					/* can the port keep its assignment ? */
-					/* get the lid range of that port, and the required number
-					   of lids we are about to assign to it */
-					osm_port_get_lid_range_ho(p_port,
-								  &disc_min_lid,
-								  &disc_max_lid);
-					if (!p_port->p_node->sw
-					    ||
-					    osm_switch_sp0_is_lmc_capable
-					    (p_port->p_node->sw,
-					     p_mgr->p_subn)) {
-						disc_max_lid =
-						    disc_min_lid +
-						    lmc_num_lids - 1;
-						num_lids = lmc_num_lids;
-					} else
-						num_lids = 1;
-
-					/* Make sure the lid is aligned */
-					if ((num_lids != 1)
-					    && ((disc_min_lid & lmc_mask) !=
-						disc_min_lid)) {
-						/* The lid cannot be used */
-						OSM_LOG(p_mgr->p_log,
-							OSM_LOG_DEBUG,
-							"0x%04x is free as it was "
-							"discovered but not aligned\n",
-							lid);
-					} else {
-						/* check that all needed lids are not persistently mapped */
-						is_free = FALSE;
-						for (req_lid = disc_min_lid + 1;
-						     req_lid <= disc_max_lid;
-						     req_lid++) {
-							if ((req_lid <=
-							     max_persistent_lid)
-							    &&
-							    cl_ptr_vector_get
-							    (p_persistent_vec,
-							     req_lid)) {
-								OSM_LOG(p_mgr->
-									p_log,
-									OSM_LOG_DEBUG,
-									"0x%04x is free as it was discovered "
-									"but mapped\n",
-									lid);
-								is_free = TRUE;
-								break;
-							}
+					/* check that all needed lids are not persistently mapped */
+					is_free = FALSE;
+					for (req_lid = disc_min_lid + 1;
+					     req_lid <= disc_max_lid;
+					     req_lid++) {
+						if ((req_lid <=
+						     max_persistent_lid) &&
+						    cl_ptr_vector_get
+						    (p_persistent_vec,
+						     req_lid)) {
+							OSM_LOG(p_mgr->p_log,
+								OSM_LOG_DEBUG,
+								"0x%04x is free as it was discovered "
+								"but mapped\n",
+								lid);
+							is_free = TRUE;
+							break;
 						}
+					}
 
-						if (is_free == FALSE) {
-							/* This port will use its local lid, and consume the entire required lid range.
-							   Thus we can skip that range. */
-							/* If the disc_max_lid is greater then lid, we can skip right to it,
-							   since we've done all neccessary checks on the lids in between. */
-							if (disc_max_lid > lid)
-								lid =
-								    disc_max_lid;
-						}
+					if (is_free == FALSE) {
+						/* This port will use its local lid, and consume the entire required lid range.
+						   Thus we can skip that range. */
+						/* If the disc_max_lid is greater then lid, we can skip right to it,
+						   since we've done all neccessary checks on the lids in between. */
+						if (disc_max_lid > lid)
+							lid = disc_max_lid;
 					}
 				}
 			}
