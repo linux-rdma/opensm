@@ -33,6 +33,7 @@ opensm \- InfiniBand subnet manager and administration (SM/SA)
 [\-console [off | local | socket | loopback]]
 [\-console-port <port>]
 [\-i(gnore-guids) <equalize-ignore-guids-file>]
+[\-w | \-\-hop_weights_file <path to file>]
 [\-f <log file path> | \-\-log_file <log file path> ]
 [\-L | \-\-log_limit <size in MB>] [\-e(rase_log_file)]
 [\-P(config) <partition config file> ]
@@ -244,6 +245,12 @@ Note that this option only appears if OpenSM was built with
 This option provides the means to define a set of ports
 (by node guid and port number) that will be ignored by the link load
 equalization algorithm.
+.TP
+\fB\-w\fR, \fB\-\-hop_weights_file\fR <path to file>
+This option provides weighting factors per port representing a hop
+cost in computing the lid matrix.  The file consists of lines
+containing a switch GUID, output port, and weighting factor.  Any port
+not listed in the file defaults to a weighting factor of 1.
 .TP
 \fB\-x\fR, \fB\-\-honor_guid2lid\fR
 This option forces OpenSM to honor the guid2lid file,

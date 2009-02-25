@@ -261,6 +261,10 @@ static void show_usage(void)
 	       "          This option provides the means to define a set of ports\n"
 	       "          (by guid) that will be ignored by the link load\n"
 	       "          equalization algorithm.\n\n");
+	printf("--hop_weights_file, -w <path to file>\n"
+	       "          This option provides the means to define a weighting\n"
+	       "          factor per port for customizing the least weight\n"
+	       "          hops for the routing.\n\n");
 	printf("--honor_guid2lid, -x\n"
 	       "          This option forces OpenSM to honor the guid2lid file,\n"
 	       "          when it comes out of Standby state, if such file exists\n"
@@ -530,7 +534,7 @@ int main(int argc, char *argv[])
 	char *conf_template = NULL, *config_file = NULL;
 	uint32_t val;
 	const char *const short_option =
-	    "F:c:i:f:ed:D:g:l:L:s:t:a:u:m:X:R:zM:U:S:P:Y:ANBIQvVhoryxp:n:q:k:C:G:H:";
+	    "F:c:i:w:f:ed:D:g:l:L:s:t:a:u:m:X:R:zM:U:S:P:Y:ANBIQvVhoryxp:n:q:k:C:G:H:";
 
 	/*
 	   In the array below, the 2nd parameter specifies the number
@@ -546,6 +550,7 @@ int main(int argc, char *argv[])
 		{"debug", 1, NULL, 'd'},
 		{"guid", 1, NULL, 'g'},
 		{"ignore_guids", 1, NULL, 'i'},
+		{"hop_weights_file", 1, NULL, 'w'},
 		{"lmc", 1, NULL, 'l'},
 		{"sweep", 1, NULL, 's'},
 		{"timeout", 1, NULL, 't'},
@@ -670,6 +675,12 @@ int main(int argc, char *argv[])
 			SET_STR_OPT(opt.port_prof_ignore_file, optarg);
 			printf(" Ignore Guids File = %s\n",
 			       opt.port_prof_ignore_file);
+			break;
+
+		case 'w':
+			opt.hop_weights_file = optarg;
+			printf(" Hop Weights File = %s\n",
+			       opt.hop_weights_file);
 			break;
 
 		case 'g':

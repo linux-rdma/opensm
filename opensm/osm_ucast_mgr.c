@@ -125,11 +125,11 @@ __osm_ucast_mgr_process_hop_0_1(IN cl_map_item_t * const p_map_item,
 
 		if (p_remote_node && p_remote_node->sw &&
 		    (p_remote_node != p_sw->p_node)) {
+			osm_physp_t *p = osm_node_get_physp_ptr(p_sw->p_node, i);
+
 			remote_lid = osm_node_get_base_lid(p_remote_node, 0);
 			remote_lid = cl_ntoh16(remote_lid);
-			osm_switch_set_hops(p_sw, remote_lid, i, 1);
-			osm_switch_set_hops(p_remote_node->sw, lid, remote_port,
-					    1);
+			osm_switch_set_hops(p_sw, remote_lid, i, p->hop_wf);
 		}
 	}
 }
@@ -146,6 +146,7 @@ __osm_ucast_mgr_process_neighbor(IN osm_ucast_mgr_t * const p_mgr,
 	osm_switch_t *p_sw, *p_next_sw;
 	uint16_t lid_ho;
 	uint8_t hops;
+	osm_physp_t *p;
 
 	OSM_LOG_ENTER(p_mgr->p_log);
 
@@ -155,6 +156,8 @@ __osm_ucast_mgr_process_neighbor(IN osm_ucast_mgr_t * const p_mgr,
 		cl_ntoh64(osm_node_get_node_guid(p_this_sw->p_node)),
 		cl_ntoh64(osm_node_get_node_guid(p_remote_sw->p_node)),
 		port_num, remote_port_num);
+
+	p = osm_node_get_physp_ptr(p_this_sw->p_node, port_num);
 
 	p_next_sw = (osm_switch_t *) cl_qmap_head(&p_mgr->p_subn->sw_guid_tbl);
 	while (p_next_sw !=
@@ -166,7 +169,7 @@ __osm_ucast_mgr_process_neighbor(IN osm_ucast_mgr_t * const p_mgr,
 		hops = osm_switch_get_least_hops(p_remote_sw, lid_ho);
 		if (hops == OSM_NO_PATH)
 			continue;
-		hops++;
+		hops += p->hop_wf;
 		if (hops <
 		    osm_switch_get_hop_count(p_this_sw, lid_ho, port_num)) {
 			if (osm_switch_set_hops
@@ -573,6 +576,61 @@ __osm_ucast_mgr_process_neighbors(IN cl_map_item_t * const p_map_item,
 
 /**********************************************************************
  **********************************************************************/
+static int set_hop_wf(void *ctx, uint64_t guid, char *p)
+{
+	osm_ucast_mgr_t *m = ctx;
+	osm_node_t *node = osm_get_node_by_guid(m->p_subn, cl_hton64(guid));
+	osm_physp_t *physp;
+	unsigned port, hop_wf;
+	char *e;
+
+	if (!node || !node->sw) {
+		OSM_LOG(m->p_log, OSM_LOG_DEBUG,
+			"switch with guid 0x%016" PRIx64 " is not found\n",
+			guid);
+		return 0;
+	}
+
+	if (!p || !*p || !(port = strtoul(p, &e, 0)) || (p == e) ||
+	    port >= node->sw->num_ports) {
+		OSM_LOG(m->p_log, OSM_LOG_DEBUG,
+			"bad port specified for guid 0x%016" PRIx64 "\n", guid);
+		return 0;
+	}
+
+	p = e + 1;
+
+	if (!*p || !(hop_wf = strtoul(p, &e, 0)) || (p == e) ||
+		(hop_wf >= 0x100)) {
+		OSM_LOG(m->p_log, OSM_LOG_DEBUG,
+			"bad hop weight factor specified for guid 0x%016" PRIx64 "port %u\n",
+			guid, port);
+		return 0;
+	}
+
+	physp = osm_node_get_physp_ptr(node, port);
+	if (!physp)
+		return 0;
+
+	physp->hop_wf = hop_wf;
+
+	return 0;
+}
+
+static void set_default_hop_wf(cl_map_item_t * const p_map_item, void *ctx)
+{
+	osm_switch_t *sw = (osm_switch_t *)p_map_item;
+	int i;
+
+	for (i = 1; i < sw->num_ports; i++) {
+		osm_physp_t *p = osm_node_get_physp_ptr(sw->p_node, i);
+		if (p)
+			p->hop_wf = 1;
+	}
+}
+
+/**********************************************************************
+ **********************************************************************/
 int osm_ucast_mgr_build_lid_matrices(IN osm_ucast_mgr_t * const p_mgr)
 {
 	uint32_t i;
@@ -583,6 +641,22 @@ int osm_ucast_mgr_build_lid_matrices(IN osm_ucast_mgr_t * const p_mgr)
 
 	OSM_LOG(p_mgr->p_log, OSM_LOG_VERBOSE,
 		"Starting switches' Min Hop Table Assignment\n");
+
+	/*
+	   Set up the weighting factors for the routing.
+	*/
+	cl_qmap_apply_func(p_sw_guid_tbl, set_default_hop_wf, NULL);
+	if (p_mgr->p_subn->opt.hop_weights_file) {
+		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
+			"Fetching hop weight factor file \'%s\'\n",
+			p_mgr->p_subn->opt.hop_weights_file);
+		if (parse_node_map(p_mgr->p_subn->opt.hop_weights_file,
+				   set_hop_wf, p_mgr)) {
+			OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR : cannot "
+				"parse hop_weights_file \'%s\'\n",
+				p_mgr->p_subn->opt.hop_weights_file);
+		}
+	}
 
 	/*
 	   Set the switch matrices for each switch's own port 0 LID(s)

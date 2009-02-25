@@ -322,6 +322,7 @@ static const opt_rec_t opt_tbl[] = {
 	{ "polling_retry_number", OPT_OFFSET(polling_retry_number), opts_parse_uint32, NULL, 1 },
 	{ "force_heavy_sweep", OPT_OFFSET(force_heavy_sweep), opts_parse_boolean, NULL, 1 },
 	{ "port_prof_ignore_file", OPT_OFFSET(port_prof_ignore_file), opts_parse_charp, NULL, 0 },
+	{ "hop_weights_file", OPT_OFFSET(hop_weights_file), opts_parse_charp, NULL, 0 },
 	{ "port_profile_switch_nodes", OPT_OFFSET(port_profile_switch_nodes), opts_parse_boolean, NULL, 1 },
 	{ "sweep_on_trap", OPT_OFFSET(sweep_on_trap), opts_parse_boolean, NULL, 1 },
 	{ "routing_engine", OPT_OFFSET(routing_engine_names), opts_parse_charp, NULL, 0 },
@@ -729,6 +730,7 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * const p_opt)
 	p_opt->qos_policy_file = strdup(OSM_DEFAULT_QOS_POLICY_FILE);
 	p_opt->accum_log_file = TRUE;
 	p_opt->port_prof_ignore_file = NULL;
+	p_opt->hop_weights_file = NULL;
 	p_opt->port_profile_switch_nodes = FALSE;
 	p_opt->sweep_on_trap = TRUE;
 	p_opt->use_ucast_cache = FALSE;
@@ -1361,6 +1363,11 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t *const p_opts)
 		"# Name of file with port guids to be ignored by port profiling\n"
 		"port_prof_ignore_file %s\n\n", p_opts->port_prof_ignore_file ?
 		p_opts->port_prof_ignore_file : null_str);
+
+	fprintf(out,
+		"# The file holding routing weighting factors per output port\n"
+		"hop_weights_file %s\n\n",
+		p_opts->hop_weights_file ? p_opts->hop_weights_file : null_str);
 
 	fprintf(out,
 		"# Routing engine\n"

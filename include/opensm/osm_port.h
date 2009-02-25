@@ -115,6 +115,7 @@ typedef struct osm_physp {
 	osm_pkey_tbl_t pkeys;
 	ib_vl_arb_table_t vl_arb[4];
 	cl_ptr_vector_t slvl_by_port;
+	uint8_t hop_wf;
 } osm_physp_t;
 /*
 * FIELDS
@@ -170,6 +171,9 @@ typedef struct osm_physp {
 *		A vector of pointers to the sl2vl tables (ordered by input port).
 *		Switches have an entry for every other input port (inc SMA=0).
 *		On CAs only one per port.
+*
+*	hop_wf
+*		Hop weighting factor to be used in the routing.
 *
 * SEE ALSO
 *	Port
