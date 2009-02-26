@@ -98,8 +98,8 @@ typedef struct osm_lid_mgr {
 	cl_plock_t *p_lock;
 	boolean_t send_set_reqs;
 	osm_db_domain_t *p_g2l;
-	cl_ptr_vector_t used_lids;
 	cl_qlist_t free_ranges;
+	uint8_t used_lids[IB_LID_UCAST_END_HO + 1];
 } osm_lid_mgr_t;
 /*
 * FIELDS
@@ -125,7 +125,7 @@ typedef struct osm_lid_mgr {
 *		Pointer to the database domain storing guid to lid mapping.
 *
 *	used_lids
-*		A vector the maps from the lid to its guid. keeps track of
+*		An array of used lids. keeps track of
 *		existing and non existing mapping of guid->lid
 *
 *	free_ranges

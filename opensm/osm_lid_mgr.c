@@ -109,7 +109,6 @@ typedef struct osm_lid_mgr_range {
 void osm_lid_mgr_construct(IN osm_lid_mgr_t * const p_mgr)
 {
 	memset(p_mgr, 0, sizeof(*p_mgr));
-	cl_ptr_vector_construct(&p_mgr->used_lids);
 }
 
 /**********************************************************************
@@ -120,7 +119,6 @@ void osm_lid_mgr_destroy(IN osm_lid_mgr_t * const p_mgr)
 
 	OSM_LOG_ENTER(p_mgr->p_log);
 
-	cl_ptr_vector_destroy(&p_mgr->used_lids);
 	p_item = cl_qlist_remove_head(&p_mgr->free_ranges);
 	while (p_item != cl_qlist_end(&p_mgr->free_ranges)) {
 		free((osm_lid_mgr_range_t *) p_item);
@@ -188,11 +186,7 @@ static void __osm_lid_mgr_validate_db(IN osm_lid_mgr_t * p_mgr)
 			} else {
 				/* check if the lids were not previously assigned */
 				for (lid = min_lid; lid <= max_lid; lid++) {
-					if ((cl_ptr_vector_get_size
-					     (&p_mgr->used_lids) > lid)
-					    &&
-					    (cl_ptr_vector_get
-					     (&p_mgr->used_lids, lid))) {
+					if (p_mgr->used_lids[lid]) {
 						OSM_LOG(p_mgr->p_log,
 							OSM_LOG_ERROR, "ERR 0314: "
 							"0x%04x for guid:0x%016"
@@ -215,8 +209,7 @@ static void __osm_lid_mgr_validate_db(IN osm_lid_mgr_t * p_mgr)
 			} else {
 				/* mark it was visited */
 				for (lid = min_lid; lid <= max_lid; lid++)
-					cl_ptr_vector_set(&p_mgr->used_lids,
-							  lid, (void *)1);
+					p_mgr->used_lids[lid] = 1;
 			}
 		}		/* got a lid */
 		free(p_item);
@@ -252,7 +245,6 @@ osm_lid_mgr_init(IN osm_lid_mgr_t * const p_mgr, IN osm_sm_t *sm)
 		goto Exit;
 	}
 
-	cl_ptr_vector_init(&p_mgr->used_lids, 100, 40);
 	cl_qlist_init(&p_mgr->free_ranges);
 
 	/* we use the stored guid to lid table if not forced to reassign */
@@ -303,7 +295,6 @@ static uint16_t __osm_trim_lid(IN uint16_t lid)
 static int __osm_lid_mgr_init_sweep(IN osm_lid_mgr_t * const p_mgr)
 {
 	cl_ptr_vector_t *p_discovered_vec = &p_mgr->p_subn->port_lid_tbl;
-	cl_ptr_vector_t *p_persistent_vec = &p_mgr->used_lids;
 	uint16_t max_defined_lid;
 	uint16_t max_persistent_lid;
 	uint16_t max_discovered_lid;
@@ -335,10 +326,7 @@ static int __osm_lid_mgr_init_sweep(IN osm_lid_mgr_t * const p_mgr)
 			OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 				"Ignore guid2lid file when coming out of standby\n");
 			osm_db_clear(p_mgr->p_g2l);
-			for (lid = 0;
-			     lid < cl_ptr_vector_get_size(&p_mgr->used_lids);
-			     lid++)
-				cl_ptr_vector_set(p_persistent_vec, lid, NULL);
+			memset(p_mgr->used_lids, 0, sizeof(p_mgr->used_lids));
 		} else {
 			OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 				"Honor current guid2lid file when coming out "
@@ -413,7 +401,7 @@ static int __osm_lid_mgr_init_sweep(IN osm_lid_mgr_t * const p_mgr)
 					       cl_ntoh64
 					       (osm_port_get_guid(p_port)));
 			for (lid = db_min_lid; lid <= db_max_lid; lid++)
-				cl_ptr_vector_set(p_persistent_vec, lid, NULL);
+				p_mgr->used_lids[lid] = 0;
 		}
 	}
 
@@ -437,14 +425,11 @@ static int __osm_lid_mgr_init_sweep(IN osm_lid_mgr_t * const p_mgr)
 	/* find the range of lids to scan */
 	max_discovered_lid =
 	    (uint16_t) cl_ptr_vector_get_size(p_discovered_vec);
-	max_persistent_lid =
-	    (uint16_t) cl_ptr_vector_get_size(p_persistent_vec);
+	max_persistent_lid = sizeof(p_mgr->used_lids) - 1;
 
 	/* but the vectors have one extra entry for lid=0 */
 	if (max_discovered_lid)
 		max_discovered_lid--;
-	if (max_persistent_lid)
-		max_persistent_lid--;
 
 	if (max_persistent_lid > max_discovered_lid)
 		max_defined_lid = max_persistent_lid;
@@ -454,8 +439,7 @@ static int __osm_lid_mgr_init_sweep(IN osm_lid_mgr_t * const p_mgr)
 	for (lid = 1; lid <= max_defined_lid; lid++) {
 		is_free = TRUE;
 		/* first check to see if the lid is used by a persistent assignment */
-		if ((lid <= max_persistent_lid)
-		    && cl_ptr_vector_get(p_persistent_vec, lid)) {
+		if (lid <= max_persistent_lid && p_mgr->used_lids[lid]) {
 			OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 				"0x%04x is not free as its mapped by the "
 				"persistent db\n", lid);
@@ -515,11 +499,9 @@ static int __osm_lid_mgr_init_sweep(IN osm_lid_mgr_t * const p_mgr)
 					for (req_lid = disc_min_lid + 1;
 					     req_lid <= disc_max_lid;
 					     req_lid++) {
-						if ((req_lid <=
-						     max_persistent_lid) &&
-						    cl_ptr_vector_get
-						    (p_persistent_vec,
-						     req_lid)) {
+						if (req_lid <=
+						    max_persistent_lid &&
+						    p_mgr->used_lids[req_lid]) {
 							OSM_LOG(p_mgr->p_log,
 								OSM_LOG_DEBUG,
 								"0x%04x is free as it was discovered "
@@ -604,28 +586,16 @@ __osm_lid_mgr_is_range_not_persistent(IN osm_lid_mgr_t * const p_mgr,
 				      IN const uint16_t num_lids)
 {
 	uint16_t i;
-	cl_status_t status;
-	osm_port_t *p_port;
 	const uint8_t start_lid = (uint8_t) (1 << p_mgr->p_subn->opt.lmc);
-	const cl_ptr_vector_t *const p_tbl = &p_mgr->used_lids;
 
 	if (lid < start_lid)
-		return (FALSE);
+		return FALSE;
 
-	for (i = lid; i < lid + num_lids; i++) {
-		status = cl_ptr_vector_at(p_tbl, i, (void *)&p_port);
-		if (status == CL_SUCCESS) {
-			if (p_port != NULL)
-				return (FALSE);
-		} else
-			/*
-			   We are out of range in the array.
-			   Consider all further entries "free".
-			 */
-			return (TRUE);
-	}
+	for (i = lid; i < lid + num_lids; i++)
+		if (p_mgr->used_lids[lid])
+			return FALSE;
 
-	return (TRUE);
+	return TRUE;
 }
 
 /**********************************************************************
@@ -824,7 +794,7 @@ NewLidSet:
 	/* update the guid2lid db and used_lids */
 	osm_db_guid2lid_set(p_mgr->p_g2l, guid, *p_min_lid, *p_max_lid);
 	for (lid = *p_min_lid; lid <= *p_max_lid; lid++)
-		cl_ptr_vector_set(&p_mgr->used_lids, lid, (void *)1);
+		p_mgr->used_lids[lid] = 1;
 
 Exit:
 	/* make sure the assigned lids are marked in port_lid_tbl */
