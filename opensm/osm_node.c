@@ -51,42 +51,22 @@
 
 /**********************************************************************
  **********************************************************************/
-void
-osm_node_init_physp(IN osm_node_t * const p_node,
-		    IN const osm_madw_t * const p_madw)
+void osm_node_init_physp(IN osm_node_t * const p_node, uint8_t port_num,
+			 IN const osm_madw_t * const p_madw)
 {
 	ib_net64_t port_guid;
 	ib_smp_t *p_smp;
 	ib_node_info_t *p_ni;
-	uint8_t port_num;
 
 	p_smp = osm_madw_get_smp_ptr(p_madw);
 
 	p_ni = (ib_node_info_t *) ib_smp_get_payload_ptr(p_smp);
 	port_guid = p_ni->port_guid;
-	port_num = ib_node_info_get_local_port_num(p_ni);
 
 	CL_ASSERT(port_num < p_node->physp_tbl_size);
 
 	osm_physp_init(&p_node->physp_table[port_num],
 		       port_guid, port_num, p_node,
-		       osm_madw_get_bind_handle(p_madw),
-		       p_smp->hop_count, p_smp->initial_path);
-}
-
-/**********************************************************************
- **********************************************************************/
-static void node_init_physp0(IN osm_node_t * const p_node,
-			     IN const osm_madw_t * const p_madw)
-{
-	ib_smp_t *p_smp;
-	ib_node_info_t *p_ni;
-
-	p_smp = osm_madw_get_smp_ptr(p_madw);
-	p_ni = (ib_node_info_t *) ib_smp_get_payload_ptr(p_smp);
-
-	osm_physp_init(&p_node->physp_table[0],
-		       p_ni->port_guid, 0, p_node,
 		       osm_madw_get_bind_handle(p_madw),
 		       p_smp->hop_count, p_smp->initial_path);
 }
@@ -133,9 +113,13 @@ osm_node_t *osm_node_new(IN const osm_madw_t * const p_madw)
 	for (i = 0; i < p_node->physp_tbl_size; i++)
 		osm_physp_construct(&p_node->physp_table[i]);
 
-	osm_node_init_physp(p_node, p_madw);
 	if (p_ni->node_type == IB_NODE_TYPE_SWITCH)
-		node_init_physp0(p_node, p_madw);
+		for (i = 0; i <= p_ni->num_ports; i++)
+			osm_node_init_physp(p_node, i, p_madw);
+	else
+		osm_node_init_physp(p_node,
+				    ib_node_info_get_local_port_num(p_ni),
+				    p_madw);
 	p_node->print_desc = strdup(OSM_NODE_DESC_UNKNOWN);
 
 	return (p_node);

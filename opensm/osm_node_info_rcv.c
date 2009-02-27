@@ -414,7 +414,7 @@ __osm_ni_rcv_process_existing_ca_or_router(IN osm_sm_t * sm,
 			"Creating new port object with GUID 0x%" PRIx64 "\n",
 			cl_ntoh64(p_ni->port_guid));
 
-		osm_node_init_physp(p_node, p_madw);
+		osm_node_init_physp(p_node, port_num, p_madw);
 
 		p_port = osm_port_new(p_ni, p_node);
 		if (p_port == NULL) {
@@ -545,7 +545,7 @@ __osm_ni_rcv_process_existing_switch(IN osm_sm_t * sm,
 			PRIx64 ", port %u\n",
 			cl_ntoh64(osm_node_get_node_guid(p_node)),
 			port_num);
-		osm_node_init_physp(p_node, p_madw);
+		osm_node_init_physp(p_node, port_num, p_madw);
 	}
 
 	/*

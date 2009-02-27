@@ -443,9 +443,8 @@ osm_node_get_lmc(IN const osm_node_t * const p_node, IN const uint32_t port_num)
 *
 * SYNOPSIS
 */
-void
-osm_node_init_physp(IN osm_node_t * const p_node,
-		    IN const osm_madw_t * const p_madw);
+void osm_node_init_physp(IN osm_node_t * const p_node, uint8_t port_num,
+			 IN const osm_madw_t * const p_madw);
 /*
 * PARAMETERS
 *	p_node
