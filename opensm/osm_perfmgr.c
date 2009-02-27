@@ -1106,6 +1106,9 @@ static void osm_pc_rcv_process(void *context, void *data)
 		"Processing received MAD status 0x%x context 0x%"
 		PRIx64 " port %u\n", p_mad->status, node_guid, port);
 
+	CL_ASSERT(p_mad->attr_id == IB_MAD_ATTR_PORT_CNTRS ||
+		  p_mad->attr_id == IB_MAD_ATTR_CLASS_PORT_INFO);
+
 	/* Response could also be redirection (IBM eHCA PMA does this) */
 	if (p_mad->attr_id == IB_MAD_ATTR_CLASS_PORT_INFO) {
 		char gid_str[INET6_ADDRSTRLEN];
@@ -1164,8 +1167,6 @@ static void osm_pc_rcv_process(void *context, void *data)
 				node_guid, port);
 		goto Exit;
 	}
-
-	CL_ASSERT(p_mad->attr_id == IB_MAD_ATTR_PORT_CNTRS);
 
 	perfmgr_db_fill_err_read(wire_read, &err_reading);
 	/* FIXME separate query for extended counters if they are supported
