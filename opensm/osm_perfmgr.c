@@ -848,6 +848,7 @@ void osm_perfmgr_shutdown(osm_perfmgr_t * const pm)
 {
 	OSM_LOG_ENTER(pm->log);
 	cl_timer_stop(&pm->sweep_timer);
+	cl_disp_unregister(pm->pc_disp_h);
 	osm_perfmgr_mad_unbind(pm);
 	OSM_LOG_EXIT(pm->log);
 }
