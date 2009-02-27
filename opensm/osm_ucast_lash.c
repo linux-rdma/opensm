@@ -679,7 +679,7 @@ static void free_lash_structures(lash_t * p_lash)
 
 	OSM_LOG_ENTER(p_log);
 
-	// free cdg_vertex_matrix
+	/* free cdg_vertex_matrix */
 	for (i = 0; i < p_lash->vl_min; i++) {
 		for (j = 0; j < num_switches; j++) {
 			for (k = 0; k < num_switches; k++)
@@ -695,7 +695,7 @@ static void free_lash_structures(lash_t * p_lash)
 	if (p_lash->cdg_vertex_matrix)
 		free(p_lash->cdg_vertex_matrix);
 
-	// free virtual_location
+	/* free virtual_location */
 	for (i = 0; i < num_switches; i++) {
 		for (j = 0; j < num_switches; j++) {
 			if (p_lash->virtual_location[i][j])
@@ -723,7 +723,7 @@ static int init_lash_structures(lash_t * p_lash)
 
 	OSM_LOG_ENTER(p_log);
 
-	// initialise cdg_vertex_matrix[num_switches][num_switches][num_switches]
+	/* initialise cdg_vertex_matrix[num_switches][num_switches][num_switches] */
 	p_lash->cdg_vertex_matrix =
 	    (cdg_vertex_t ****) malloc(vl_min * sizeof(cdg_vertex_t ****));
 	for (i = 0; i < vl_min; i++) {
@@ -749,8 +749,10 @@ static int init_lash_structures(lash_t * p_lash)
 		}
 	}
 
-	// initialise virtual_location[num_switches][num_switches][num_layers],
-	// default value = 0
+	/*
+	 * initialise virtual_location[num_switches][num_switches][num_layers],
+	 * default value = 0
+	 */
 	p_lash->virtual_location =
 	    (int ***)malloc(num_switches * sizeof(int ***));
 	if (p_lash->virtual_location == NULL)
@@ -775,7 +777,7 @@ static int init_lash_structures(lash_t * p_lash)
 		}
 	}
 
-	// initialise num_mst_in_lane[num_switches], default 0
+	/* initialise num_mst_in_lane[num_switches], default 0 */
 	p_lash->num_mst_in_lane = (int *)malloc(num_switches * sizeof(int));
 	if (p_lash->num_mst_in_lane == NULL)
 		goto Exit_Mem_Error;
@@ -997,7 +999,7 @@ static void populate_fwd_tbls(lash_t * p_lash)
 
 	p_next_sw = (osm_switch_t *) cl_qmap_head(&p_subn->sw_guid_tbl);
 
-	// Go through each swtich individually
+	/* Go through each swtich individually */
 	while (p_next_sw != (osm_switch_t *) cl_qmap_end(&p_subn->sw_guid_tbl)) {
 		uint64_t current_guid;
 		switch_t *sw;
@@ -1051,7 +1053,7 @@ static void populate_fwd_tbls(lash_t * p_lash)
 					dst_lash_switch_id,
 					physical_egress_port);
 			}
-		}		// for
+		}		/* for */
 		osm_ucast_mgr_set_fwd_table(&p_osm->sm.ucast_mgr, p_sw);
 	}
 	OSM_LOG_EXIT(p_log);
@@ -1069,7 +1071,7 @@ static void osm_lash_process_switch(lash_t * p_lash, osm_switch_t * p_sw)
 	switch_a_lash_id = get_lash_id(p_sw);
 	port_count = osm_node_get_num_physp(p_sw->p_node);
 
-	// starting at port 1, ignoring management port on switch
+	/* starting at port 1, ignoring management port on switch */
 	for (i = 1; i < port_count; i++) {
 
 		p_current_physp = osm_node_get_physp_ptr(p_sw->p_node, i);
@@ -1148,7 +1150,7 @@ static int discover_network_properties(lash_t * p_lash)
 		return -1;
 	memset(p_lash->switches, 0, p_lash->num_switches * sizeof(switch_t *));
 
-	vl_min = 5;		// set to a high value
+	vl_min = 5;		/* set to a high value */
 
 	p_next_sw = (osm_switch_t *) cl_qmap_head(&p_subn->sw_guid_tbl);
 	while (p_next_sw != (osm_switch_t *) cl_qmap_end(&p_subn->sw_guid_tbl)) {
@@ -1163,7 +1165,7 @@ static int discover_network_properties(lash_t * p_lash)
 
 		port_count = osm_node_get_num_physp(p_sw->p_node);
 
-		// Note, ignoring port 0. management port
+		/* Note, ignoring port 0. management port */
 		for (i = 1; i < port_count; i++) {
 			osm_physp_t *p_current_physp =
 			    osm_node_get_physp_ptr(p_sw->p_node, i);
@@ -1178,8 +1180,8 @@ static int discover_network_properties(lash_t * p_lash)
 				if (port_vl_min && port_vl_min < vl_min)
 					vl_min = port_vl_min;
 			}
-		}		// for
-	}			// while
+		}		/* for */
+	}			/* while */
 
 	vl_min = 1 << (vl_min - 1);
 	if (vl_min > 15)
@@ -1219,7 +1221,7 @@ static int lash_process(void *context)
 
 	p_lash->balance_limit = 6;
 
-	// everything starts here
+	/* everything starts here */
 	lash_cleanup(p_lash);
 
 	return_status = discover_network_properties(p_lash);

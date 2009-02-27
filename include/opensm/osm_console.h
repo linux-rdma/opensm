@@ -45,7 +45,6 @@
 #endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-// TODO replace p_osm
 int osm_console(osm_opensm_t * p_osm);
 END_C_DECLS
 #endif				/* _OSM_CONSOLE_H_ */

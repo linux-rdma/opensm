@@ -59,7 +59,7 @@
 
 static int is_local(char *str)
 {
-	// convenience - checks if just stdin/stdout
+	/* convenience - checks if just stdin/stdout */
 	if (str)
 		return (strcmp(str, OSM_LOCAL_CONSOLE) == 0);
 	return 0;
@@ -67,7 +67,7 @@ static int is_local(char *str)
 
 static int is_loopback(char *str)
 {
-	// convenience - checks if socket based connection
+	/* convenience - checks if socket based connection */
 	if (str)
 		return (strcmp(str, OSM_LOOPBACK_CONSOLE) == 0);
 	return 0;
@@ -75,7 +75,7 @@ static int is_loopback(char *str)
 
 static int is_remote(char *str)
 {
-	// convenience - checks if socket based connection
+	/* convenience - checks if socket based connection */
 	if (str)
 		return (strcmp(str, OSM_REMOTE_CONSOLE) == 0)
 		    || is_loopback(str);
@@ -84,7 +84,7 @@ static int is_remote(char *str)
 
 int is_console_enabled(osm_subn_opt_t * p_opt)
 {
-	// checks for a variety of types of consoles - default is off or 0
+	/* checks for a variety of types of consoles - default is off or 0 */
 	if (p_opt)
 		return (is_local(p_opt->console)
 			|| is_loopback(p_opt->console)
@@ -210,7 +210,7 @@ int osm_console_init(osm_subn_opt_t * opt, osm_console_t * p_oct, osm_log_t * p_
 /* clean up and release resources */
 void osm_console_exit(osm_console_t * p_oct, osm_log_t * p_log)
 {
-	// currently just close the current connection, not the socket
+	/* currently just close the current connection, not the socket */
 #ifdef ENABLE_OSM_CONSOLE_SOCKET
 	if ((p_oct->socket > 0) && (p_oct->in_fd != -1)) {
 		OSM_LOG(p_log, OSM_LOG_INFO,
@@ -224,7 +224,7 @@ void osm_console_exit(osm_console_t * p_oct, osm_log_t * p_log)
 #ifdef ENABLE_OSM_CONSOLE_SOCKET
 int cio_open(osm_console_t * p_oct, int new_fd, osm_log_t * p_log)
 {
-	// returns zero if opened fine, -1 otherwise
+	/* returns zero if opened fine, -1 otherwise */
 	char *p_line;
 	size_t len;
 	ssize_t n;
