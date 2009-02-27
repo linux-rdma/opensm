@@ -289,10 +289,8 @@ __osm_pi_rcv_process_switch_port(IN osm_sm_t * sm,
 				context.ni_context.port_num =
 				    osm_physp_get_port_num(p_physp);
 
-				status = osm_req_get(sm,
-						     &path,
-						     IB_MAD_ATTR_NODE_INFO,
-						     0,
+				status = osm_req_get(sm, &path,
+						     IB_MAD_ATTR_NODE_INFO, 0,
 						     CL_DISP_MSGID_NONE,
 						     &context);
 
@@ -524,8 +522,7 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 	osm_dr_path_t *p_dr_path;
 	osm_node_t *p_node;
 	osm_pi_context_t *p_context;
-	ib_net64_t port_guid;
-	ib_net64_t node_guid;
+	ib_net64_t port_guid, node_guid;
 	uint8_t port_num;
 
 	OSM_LOG_ENTER(sm->p_log);
@@ -652,13 +649,12 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 		switch (osm_node_get_type(p_node)) {
 		case IB_NODE_TYPE_CA:
 		case IB_NODE_TYPE_ROUTER:
-			__osm_pi_rcv_process_ca_or_router_port(sm,
-							       p_node, p_physp,
-							       p_pi);
+			__osm_pi_rcv_process_ca_or_router_port(sm, p_node,
+							       p_physp, p_pi);
 			break;
 		case IB_NODE_TYPE_SWITCH:
-			__osm_pi_rcv_process_switch_port(sm,
-							 p_node, p_physp, p_pi);
+			__osm_pi_rcv_process_switch_port(sm, p_node,
+							 p_physp, p_pi);
 			break;
 		default:
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0F07: "

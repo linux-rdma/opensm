@@ -61,10 +61,9 @@
 #include <opensm/osm_opensm.h>
 #include <opensm/osm_ucast_mgr.h>
 
-static void
-report_duplicated_guid(IN osm_sm_t * sm,
-		       osm_physp_t * p_physp,
-		       osm_node_t * p_neighbor_node, const uint8_t port_num)
+static void report_duplicated_guid(IN osm_sm_t * sm, osm_physp_t * p_physp,
+				   osm_node_t * p_neighbor_node,
+				   const uint8_t port_num)
 {
 	osm_physp_t *p_old, *p_new;
 	osm_dr_path_t path;
@@ -93,8 +92,8 @@ report_duplicated_guid(IN osm_sm_t * sm,
 		"FATAL: duplicated guids or 12x lane reversal\n");
 }
 
-static void requery_dup_node_info(IN osm_sm_t * sm,
-				  osm_physp_t * p_physp, unsigned count)
+static void requery_dup_node_info(IN osm_sm_t * sm, osm_physp_t * p_physp,
+				  unsigned count)
 {
 	osm_madw_context_t context;
 	osm_dr_path_t path;
@@ -149,15 +148,14 @@ __osm_ni_rcv_set_links(IN osm_sm_t * sm,
 					       p_ni_context->node_guid);
 	if (!p_neighbor_node) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D10: "
-			"Unexpected removal of neighbor node "
-			"0x%" PRIx64 "\n", cl_ntoh64(p_ni_context->node_guid));
+			"Unexpected removal of neighbor node 0x%" PRIx64 "\n",
+			cl_ntoh64(p_ni_context->node_guid));
 		goto _exit;
 	}
 
 	/* When setting the link, ports on both
 	   sides of the link should be initialized */
-	if (!osm_node_link_has_valid_ports(p_node, port_num,
-					   p_neighbor_node,
+	if (!osm_node_link_has_valid_ports(p_node, port_num, p_neighbor_node,
 					   p_ni_context->port_num)) {
 		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 			"Link at node 0x%" PRIx64 ", port %u - no valid ports\n",
@@ -194,8 +192,7 @@ __osm_ni_rcv_set_links(IN osm_sm_t * sm,
 		 */
 		p_physp = osm_node_get_physp_ptr(p_node, port_num);
 		if (p_ni_context->dup_count > 5) {
-			report_duplicated_guid(sm, p_physp,
-					       p_neighbor_node,
+			report_duplicated_guid(sm, p_physp, p_neighbor_node,
 					       p_ni_context->port_num);
 			sm->p_subn->force_heavy_sweep = TRUE;
 		} else if (p_node->sw)
@@ -212,16 +209,15 @@ __osm_ni_rcv_set_links(IN osm_sm_t * sm,
 	   them. But the link will be from the port to itself...
 	   Enhanced Port 0 is an exception to this
 	 */
-	if ((osm_node_get_node_guid(p_node) == p_ni_context->node_guid) &&
-	    (port_num == p_ni_context->port_num) &&
+	if (osm_node_get_node_guid(p_node) == p_ni_context->node_guid &&
+	    port_num == p_ni_context->port_num &&
 	    port_num != 0 && cl_qmap_count(&sm->p_subn->sw_guid_tbl) == 0) {
 		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 			"Duplicate GUID found by link from a port to itself:"
 			"node 0x%" PRIx64 ", port number %u\n",
 			cl_ntoh64(osm_node_get_node_guid(p_node)), port_num);
 		p_physp = osm_node_get_physp_ptr(p_node, port_num);
-		osm_dump_dr_path(sm->p_log,
-				 osm_physp_get_dr_path_ptr(p_physp),
+		osm_dump_dr_path(sm->p_log, osm_physp_get_dr_path_ptr(p_physp),
 				 OSM_LOG_VERBOSE);
 
 		if (sm->p_subn->opt.exit_on_fatal == TRUE) {
@@ -241,8 +237,7 @@ __osm_ni_rcv_set_links(IN osm_sm_t * sm,
 		cl_ntoh64(p_ni_context->node_guid), p_ni_context->port_num);
 
 	if (sm->ucast_mgr.cache_valid)
-		osm_ucast_cache_check_new_link(&sm->ucast_mgr,
-					       p_node, port_num,
+		osm_ucast_cache_check_new_link(&sm->ucast_mgr, p_node, port_num,
 					       p_neighbor_node,
 					       p_ni_context->port_num);
 
@@ -304,9 +299,7 @@ __osm_ni_rcv_process_new_node(IN osm_sm_t * sm,
 /**********************************************************************
  The plock must be held before calling this function.
 **********************************************************************/
-void
-osm_req_get_node_desc(IN osm_sm_t * sm,
-			osm_physp_t *p_physp)
+void osm_req_get_node_desc(IN osm_sm_t * sm, osm_physp_t *p_physp)
 {
 	ib_api_status_t status = IB_SUCCESS;
 	osm_madw_context_t context;
@@ -536,7 +529,6 @@ __osm_ni_rcv_process_existing_switch(IN osm_sm_t * sm,
 				     IN osm_node_t * const p_node,
 				     IN const osm_madw_t * const p_madw)
 {
-
 	ib_smp_t *p_smp;
 	ib_node_info_t *p_ni;
 	uint8_t port_num;
@@ -569,8 +561,8 @@ __osm_ni_rcv_process_existing_switch(IN osm_sm_t * sm,
 	else if (!p_node->sw || p_node->sw->discovery_count == 0) {
 		/* we don't have the SwitchInfo - retry to get it */
 		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-			"Retry to get SwitchInfo on node GUID:0x%"
-			PRIx64 "\n", cl_ntoh64(osm_node_get_node_guid(p_node)));
+			"Retry to get SwitchInfo on node GUID:0x%" PRIx64 "\n",
+			cl_ntoh64(osm_node_get_node_guid(p_node)));
 		__osm_ni_rcv_process_switch(sm, p_node, p_madw);
 	}
 
