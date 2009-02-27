@@ -244,51 +244,43 @@ _exit:
 }
 
 /**********************************************************************
- The plock must be held before calling this function.
 **********************************************************************/
-static void
-__osm_ni_rcv_process_new_node(IN osm_sm_t * sm,
-			      IN osm_node_t * const p_node,
-			      IN const osm_madw_t * const p_madw)
+static void ni_rcv_get_port_info(IN osm_sm_t * sm, IN osm_node_t * node,
+				 IN const osm_madw_t * madw)
 {
-	ib_api_status_t status = IB_SUCCESS;
 	osm_madw_context_t context;
-	osm_physp_t *p_physp;
-	ib_node_info_t *p_ni;
-	ib_smp_t *p_smp;
-	uint8_t port_num;
+	osm_physp_t *physp;
+	ib_node_info_t *ni;
+	unsigned port, num_ports;
+	ib_api_status_t status;
 
-	OSM_LOG_ENTER(sm->p_log);
+	ni = ib_smp_get_payload_ptr(osm_madw_get_smp_ptr(madw));
 
-	p_smp = osm_madw_get_smp_ptr(p_madw);
-	p_ni = (ib_node_info_t *) ib_smp_get_payload_ptr(p_smp);
-	port_num = ib_node_info_get_local_port_num(p_ni);
+	if (ni->node_type == IB_NODE_TYPE_SWITCH) {
+		port = 0;
+		num_ports = osm_node_get_num_physp(node);
+	} else {
+		port = ib_node_info_get_local_port_num(ni);
+		num_ports = port + 1;
+	}
 
-	/*
-	   Request PortInfo & NodeDescription attributes for the port
-	   that responded to the NodeInfo attribute.
-	   Because this is a channel adapter or router, we are
-	   not allowed to request PortInfo for the other ports.
-	   Set the context union properly, so the recipient
-	   knows which node & port are relevant.
-	 */
-	p_physp = osm_node_get_physp_ptr(p_node, port_num);
+	physp = osm_node_get_physp_ptr(node, port);
 
-	context.pi_context.node_guid = p_ni->node_guid;
-	context.pi_context.port_guid = p_ni->port_guid;
+	context.pi_context.node_guid = osm_node_get_node_guid(node);
+	context.pi_context.port_guid = osm_physp_get_port_guid(physp);
 	context.pi_context.set_method = FALSE;
 	context.pi_context.light_sweep = FALSE;
 	context.pi_context.active_transition = FALSE;
 
-	status = osm_req_get(sm, osm_physp_get_dr_path_ptr(p_physp),
-			     IB_MAD_ATTR_PORT_INFO,
-			     cl_hton32(port_num), CL_DISP_MSGID_NONE, &context);
-	if (status != IB_SUCCESS)
-		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D02: "
-			"Failure initiating PortInfo request (%s)\n",
-			ib_get_err_str(status));
-
-	OSM_LOG_EXIT(sm->p_log);
+	for (; port < num_ports; port++) {
+		status = osm_req_get(sm, osm_physp_get_dr_path_ptr(physp),
+				     IB_MAD_ATTR_PORT_INFO, cl_hton32(port),
+				     CL_DISP_MSGID_NONE, &context);
+		if (status != IB_SUCCESS)
+			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR OD02: "
+				"Failure initiating PortInfo request (%s)\n",
+				ib_get_err_str(status));
+	}
 }
 
 /**********************************************************************
@@ -359,7 +351,7 @@ __osm_ni_rcv_process_new_ca_or_router(IN osm_sm_t * sm,
 {
 	OSM_LOG_ENTER(sm->p_log);
 
-	__osm_ni_rcv_process_new_node(sm, p_node, p_madw);
+	ni_rcv_get_port_info(sm, p_node, p_madw);
 
 	/*
 	   A node guid of 0 is the corner case that indicates
@@ -384,10 +376,8 @@ __osm_ni_rcv_process_existing_ca_or_router(IN osm_sm_t * sm,
 	ib_smp_t *p_smp;
 	osm_port_t *p_port;
 	osm_port_t *p_port_check;
-	osm_madw_context_t context;
 	uint8_t port_num;
 	osm_physp_t *p_physp;
-	ib_api_status_t status;
 	osm_dr_path_t *p_dr_path;
 	osm_bind_handle_t h_bind;
 
@@ -461,19 +451,7 @@ __osm_ni_rcv_process_existing_ca_or_router(IN osm_sm_t * sm,
 				 p_smp->initial_path);
 	}
 
-	context.pi_context.node_guid = p_ni->node_guid;
-	context.pi_context.port_guid = p_ni->port_guid;
-	context.pi_context.set_method = FALSE;
-	context.pi_context.light_sweep = FALSE;
-
-	status = osm_req_get(sm, osm_physp_get_dr_path_ptr(p_physp),
-			     IB_MAD_ATTR_PORT_INFO,
-			     cl_hton32(port_num), CL_DISP_MSGID_NONE, &context);
-
-	if (status != IB_SUCCESS)
-		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D13: "
-			"Failure initiating PortInfo request (%s)\n",
-			ib_get_err_str(status));
+	ni_rcv_get_port_info(sm, p_node, p_madw);
 
 Exit:
 	OSM_LOG_EXIT(sm->p_log);
@@ -513,6 +491,9 @@ __osm_ni_rcv_process_switch(IN osm_sm_t * sm,
 			"Failure initiating SwitchInfo request (%s)\n",
 			ib_get_err_str(status));
 
+	if (p_node->discovery_count == 1)
+		ni_rcv_get_port_info(sm, p_node, p_madw);
+
 	OSM_LOG_EXIT(sm->p_log);
 }
 
@@ -536,7 +517,7 @@ __osm_ni_rcv_process_existing_switch(IN osm_sm_t * sm,
 	 */
 	if (p_node->discovery_count == 1)
 		__osm_ni_rcv_process_switch(sm, p_node, p_madw);
-	else if (!p_node->sw || p_node->sw->discovery_count == 0) {
+	else if (!p_node->sw) {
 		/* we don't have the SwitchInfo - retry to get it */
 		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 			"Retry to get SwitchInfo on node GUID:0x%" PRIx64 "\n",

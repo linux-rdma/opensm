@@ -115,7 +115,6 @@ __osm_state_mgr_reset_switch_count(IN cl_map_item_t * const p_map_item,
 {
 	osm_switch_t *p_sw = (osm_switch_t *) p_map_item;
 
-	p_sw->discovery_count = 0;
 	p_sw->need_update = 1;
 }
 

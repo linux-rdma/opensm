@@ -103,7 +103,6 @@ typedef struct osm_switch {
 	uint8_t *lft;
 	uint8_t *new_lft;
 	osm_mcast_tbl_t mcast_tbl;
-	uint32_t discovery_count;
 	unsigned endport_links;
 	unsigned need_update;
 	void *priv;
@@ -144,11 +143,6 @@ typedef struct osm_switch {
 *
 *	mcast_tbl
 *		Multicast forwarding table for this switch.
-*
-*	discovery_count
-*		The number of times this switch has been discovered
-*		during the current fabric sweep.  This number is reset
-*		to zero at the start of a sweep.
 *
 *	need_update
 *		When set indicates that switch was probably reset, so

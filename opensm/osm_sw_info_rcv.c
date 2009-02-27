@@ -55,53 +55,6 @@
 #include <opensm/osm_helper.h>
 #include <opensm/osm_opensm.h>
 
-/**********************************************************************
- The plock must be held before calling this function.
-**********************************************************************/
-static void si_rcv_get_port_info(IN osm_sm_t * sm, IN osm_switch_t * const p_sw)
-{
-	osm_madw_context_t context;
-	uint8_t port_num;
-	osm_physp_t *p_physp;
-	osm_node_t *p_node;
-	uint8_t num_ports;
-	ib_api_status_t status = IB_SUCCESS;
-
-	OSM_LOG_ENTER(sm->p_log);
-
-	CL_ASSERT(p_sw);
-
-	p_node = p_sw->p_node;
-
-	CL_ASSERT(osm_node_get_type(p_node) == IB_NODE_TYPE_SWITCH);
-
-	/*
-	   Request PortInfo attribute for each port on the switch.
-	 */
-	p_physp = osm_node_get_physp_ptr(p_node, 0);
-
-	context.pi_context.node_guid = osm_node_get_node_guid(p_node);
-	context.pi_context.port_guid = osm_physp_get_port_guid(p_physp);
-	context.pi_context.set_method = FALSE;
-	context.pi_context.light_sweep = FALSE;
-	context.pi_context.active_transition = FALSE;
-
-	num_ports = osm_node_get_num_physp(p_node);
-
-	for (port_num = 0; port_num < num_ports; port_num++) {
-		status = osm_req_get(sm, osm_physp_get_dr_path_ptr(p_physp),
-				     IB_MAD_ATTR_PORT_INFO, cl_hton32(port_num),
-				     CL_DISP_MSGID_NONE, &context);
-		if (status != IB_SUCCESS)
-			/* continue the loop despite the error */
-			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3602: "
-				"Failure initiating PortInfo request (%s)\n",
-				ib_get_err_str(status));
-	}
-
-	OSM_LOG_EXIT(sm->p_log);
-}
-
 #if 0
 /**********************************************************************
  The plock must be held before calling this function.
@@ -307,12 +260,6 @@ static void si_rcv_process_new(IN osm_sm_t * sm, IN osm_node_t * const p_node,
 	   info we just received.
 	 */
 	osm_switch_set_switch_info(p_sw, p_si);
-	p_sw->discovery_count++;
-
-	/*
-	   Get the PortInfo attribute for every port.
-	 */
-	si_rcv_get_port_info(sm, p_sw);
 
 	/*
 	   Don't bother retrieving the current unicast and multicast tables
@@ -392,24 +339,6 @@ static boolean_t si_rcv_process_existing(IN osm_sm_t * sm,
 						     OSM_LOG_DEBUG);
 				is_change_detected = TRUE;
 			}
-		} else {
-			/*
-			   This is a heavy sweep.  Get information regardless
-			   of the state change bit.
-			 */
-			p_sw->discovery_count++;
-			OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
-				"discovery_count is:%u\n",
-				p_sw->discovery_count);
-
-			/* If this is the first discovery - then get the port_info */
-			if (p_sw->discovery_count == 1)
-				si_rcv_get_port_info(sm, p_sw);
-			else
-				OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-					"Not discovering again through switch:0x%"
-					PRIx64 "\n",
-					osm_node_get_node_guid(p_sw->p_node));
 		}
 	}
 

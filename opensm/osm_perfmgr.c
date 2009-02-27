@@ -726,7 +726,6 @@ static void reset_port_count(cl_map_item_t * const p_map_item, void *cxt)
 static void reset_switch_count(cl_map_item_t * const p_map_item, void *cxt)
 {
 	osm_switch_t *p_sw = (osm_switch_t *) p_map_item;
-	p_sw->discovery_count = 0;
 	p_sw->need_update = 0;
 }
 
