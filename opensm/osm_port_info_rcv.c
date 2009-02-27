@@ -614,31 +614,13 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 
 		p_physp = osm_node_get_physp_ptr(p_node, port_num);
 
-		/*
-		   Determine if we encountered a new Physical Port.
-		   If so, initialize the new Physical Port then
-		   continue processing as normal.
-		 */
-		if (!p_physp) {
-			OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
-				"Initializing port number %u\n", port_num);
-			p_physp = &p_node->physp_table[port_num];
-			osm_physp_init(p_physp,
-				       port_guid,
-				       port_num,
-				       p_node,
-				       osm_madw_get_bind_handle(p_madw),
-				       p_smp->hop_count, p_smp->initial_path);
-		} else {
-			/*
-			   Update the directed route path to this port
-			   in case the old path is no longer usable.
-			 */
-			p_dr_path = osm_physp_get_dr_path_ptr(p_physp);
-			osm_dr_path_init(p_dr_path,
-					 osm_madw_get_bind_handle(p_madw),
-					 p_smp->hop_count, p_smp->initial_path);
-		}
+		CL_ASSERT(p_physp);
+
+		/* Update the directed route path to this port
+		   in case the old path is no longer usable. */
+		p_dr_path = osm_physp_get_dr_path_ptr(p_physp);
+		osm_dr_path_init(p_dr_path, osm_madw_get_bind_handle(p_madw),
+				 p_smp->hop_count, p_smp->initial_path);
 
 		/* if port just inited or reached INIT state (external reset)
 		   request update for port related tables */
