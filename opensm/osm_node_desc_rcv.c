@@ -57,10 +57,8 @@
 
 /**********************************************************************
  **********************************************************************/
-static void
-__osm_nd_rcv_process_nd(IN osm_sm_t * sm,
-			IN osm_node_t * const p_node,
-			IN const ib_node_desc_t * const p_nd)
+static void nd_rcv_process_nd(IN osm_sm_t * sm, IN osm_node_t * p_node,
+			      IN const ib_node_desc_t * p_nd)
 {
 	char *tmp_desc;
 	char print_desc[IB_NODE_DESCRIPTION_SIZE + 1];
@@ -73,8 +71,8 @@ __osm_nd_rcv_process_nd(IN osm_sm_t * sm,
 	memcpy(print_desc, p_nd, sizeof(*p_nd));
 	print_desc[IB_NODE_DESCRIPTION_SIZE] = '\0';
 	tmp_desc = remap_node_name(sm->p_subn->p_osm->node_name_map,
-			cl_ntoh64(osm_node_get_node_guid(p_node)),
-			print_desc);
+				   cl_ntoh64(osm_node_get_node_guid(p_node)),
+				   print_desc);
 
 	/* make a copy for this node to "own" */
 	if (p_node->print_desc)
@@ -108,20 +106,16 @@ void osm_nd_rcv_process(IN void *context, IN void *data)
 	p_smp = osm_madw_get_smp_ptr(p_madw);
 	p_nd = ib_smp_get_payload_ptr(p_smp);
 
-	/*
-	   Acquire the node object and add the node description.
-	 */
-
+	/* Acquire the node object and add the node description. */
 	node_guid = osm_madw_get_nd_context_ptr(p_madw)->node_guid;
 	CL_PLOCK_EXCL_ACQUIRE(sm->p_lock);
 	p_node = osm_get_node_by_guid(sm->p_subn, node_guid);
-	if (!p_node) {
+	if (!p_node)
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0B01: "
 			"NodeDescription received for nonexistent node "
 			"0x%" PRIx64 "\n", cl_ntoh64(node_guid));
-	} else {
-		__osm_nd_rcv_process_nd(sm, p_node, p_nd);
-	}
+	else
+		nd_rcv_process_nd(sm, p_node, p_nd);
 
 	CL_PLOCK_RELEASE(sm->p_lock);
 	OSM_LOG_EXIT(sm->p_log);

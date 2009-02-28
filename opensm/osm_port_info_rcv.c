@@ -62,10 +62,9 @@
 #include <opensm/osm_opensm.h>
 #include <opensm/osm_ucast_mgr.h>
 
-
 /**********************************************************************
  **********************************************************************/
-static void pi_rcv_check_and_fix_lid(osm_log_t *log, ib_port_info_t * const pi,
+static void pi_rcv_check_and_fix_lid(osm_log_t * log, ib_port_info_t * pi,
 				     osm_physp_t * p)
 {
 	if (cl_ntoh16(pi->base_lid) > IB_LID_UCAST_END_HO) {
@@ -79,10 +78,8 @@ static void pi_rcv_check_and_fix_lid(osm_log_t *log, ib_port_info_t * const pi,
 
 /**********************************************************************
  **********************************************************************/
-static void
-__osm_pi_rcv_process_endport(IN osm_sm_t * sm,
-			     IN osm_physp_t * const p_physp,
-			     IN const ib_port_info_t * const p_pi)
+static void pi_rcv_process_endport(IN osm_sm_t * sm, IN osm_physp_t * p_physp,
+				   IN const ib_port_info_t * p_pi)
 {
 	osm_madw_context_t context;
 	ib_api_status_t status;
@@ -123,10 +120,13 @@ __osm_pi_rcv_process_endport(IN osm_sm_t * sm,
 			 * clean its state, so if the querying fails we
 			 * recognize that this SM is not active.
 			 */
-			p_sm = (osm_remote_sm_t *) cl_qmap_get(p_sm_tbl, port_guid);
+			p_sm =
+			    (osm_remote_sm_t *) cl_qmap_get(p_sm_tbl,
+							    port_guid);
 			if (p_sm != (osm_remote_sm_t *) cl_qmap_end(p_sm_tbl))
 				/* clean it up */
-				p_sm->smi.pri_state = 0xF0 & p_sm->smi.pri_state;
+				p_sm->smi.pri_state =
+				    0xF0 & p_sm->smi.pri_state;
 			if (sm->p_subn->opt.ignore_other_sm)
 				OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 					"Ignoring SM on port 0x%" PRIx64 "\n",
@@ -159,7 +159,9 @@ __osm_pi_rcv_process_endport(IN osm_sm_t * sm,
 						ib_get_err_str(status));
 			}
 		} else {
-			p_sm = (osm_remote_sm_t *) cl_qmap_remove(p_sm_tbl, port_guid);
+			p_sm =
+			    (osm_remote_sm_t *) cl_qmap_remove(p_sm_tbl,
+							       port_guid);
 			if (p_sm != (osm_remote_sm_t *) cl_qmap_end(p_sm_tbl))
 				free(p_sm);
 		}
@@ -171,11 +173,9 @@ __osm_pi_rcv_process_endport(IN osm_sm_t * sm,
 /**********************************************************************
  The plock must be held before calling this function.
 **********************************************************************/
-static void
-__osm_pi_rcv_process_switch_port(IN osm_sm_t * sm,
-				 IN osm_node_t * const p_node,
-				 IN osm_physp_t * const p_physp,
-				 IN ib_port_info_t * const p_pi)
+static void pi_rcv_process_switch_port(IN osm_sm_t * sm, IN osm_node_t * p_node,
+				       IN osm_physp_t * p_physp,
+				       IN ib_port_info_t * p_pi)
 {
 	ib_api_status_t status = IB_SUCCESS;
 	osm_madw_context_t context;
@@ -302,7 +302,7 @@ __osm_pi_rcv_process_switch_port(IN osm_sm_t * sm,
 		    !ib_switch_info_is_enhanced_port0(&p_node->sw->switch_info))
 			/* PortState is not used on BSP0 but just in case it is DOWN */
 			p_physp->port_info = *p_pi;
-		__osm_pi_rcv_process_endport(sm, p_physp, p_pi);
+		pi_rcv_process_endport(sm, p_physp, p_pi);
 	}
 
 	OSM_LOG_EXIT(sm->p_log);
@@ -310,11 +310,10 @@ __osm_pi_rcv_process_switch_port(IN osm_sm_t * sm,
 
 /**********************************************************************
  **********************************************************************/
-static void
-__osm_pi_rcv_process_ca_or_router_port(IN osm_sm_t * sm,
-				       IN osm_node_t * const p_node,
-				       IN osm_physp_t * const p_physp,
-				       IN ib_port_info_t * const p_pi)
+static void pi_rcv_process_ca_or_router_port(IN osm_sm_t * sm,
+					     IN osm_node_t * p_node,
+					     IN osm_physp_t * p_physp,
+					     IN ib_port_info_t * p_pi)
 {
 	OSM_LOG_ENTER(sm->p_log);
 
@@ -324,7 +323,7 @@ __osm_pi_rcv_process_ca_or_router_port(IN osm_sm_t * sm,
 
 	osm_physp_set_port_info(p_physp, p_pi);
 
-	__osm_pi_rcv_process_endport(sm, p_physp, p_pi);
+	pi_rcv_process_endport(sm, p_physp, p_pi);
 
 	OSM_LOG_EXIT(sm->p_log);
 }
@@ -332,10 +331,8 @@ __osm_pi_rcv_process_ca_or_router_port(IN osm_sm_t * sm,
 #define IBM_VENDOR_ID  (0x5076)
 /**********************************************************************
  **********************************************************************/
-static void get_pkey_table(IN osm_log_t * p_log,
-			   IN osm_sm_t * sm,
-			   IN osm_node_t * const p_node,
-			   IN osm_physp_t * const p_physp)
+static void get_pkey_table(IN osm_log_t * p_log, IN osm_sm_t * sm,
+			   IN osm_node_t * p_node, IN osm_physp_t * p_physp)
 {
 
 	osm_madw_context_t context;
@@ -403,10 +400,9 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-static void
-__osm_pi_rcv_get_pkey_slvl_vla_tables(IN osm_sm_t * sm,
-				      IN osm_node_t * const p_node,
-				      IN osm_physp_t * const p_physp)
+static void pi_rcv_get_pkey_slvl_vla_tables(IN osm_sm_t * sm,
+					    IN osm_node_t * p_node,
+					    IN osm_physp_t * p_physp)
 {
 	OSM_LOG_ENTER(sm->p_log);
 
@@ -417,9 +413,8 @@ __osm_pi_rcv_get_pkey_slvl_vla_tables(IN osm_sm_t * sm,
 
 /**********************************************************************
  **********************************************************************/
-static void
-osm_pi_rcv_process_set(IN osm_sm_t * sm, IN osm_node_t * const p_node,
-		       IN const uint8_t port_num, IN osm_madw_t * const p_madw)
+static void pi_rcv_process_set(IN osm_sm_t * sm, IN osm_node_t * p_node,
+			       IN uint8_t port_num, IN osm_madw_t * p_madw)
 {
 	osm_physp_t *p_physp;
 	ib_net64_t port_guid;
@@ -564,7 +559,7 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 	   boolean around to determine if we were doing Get() or Set().
 	 */
 	if (p_context->set_method)
-		osm_pi_rcv_process_set(sm, p_node, port_num, p_madw);
+		pi_rcv_process_set(sm, p_node, port_num, p_madw);
 	else {
 		p_port->discovery_count++;
 
@@ -598,12 +593,11 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 		switch (osm_node_get_type(p_node)) {
 		case IB_NODE_TYPE_CA:
 		case IB_NODE_TYPE_ROUTER:
-			__osm_pi_rcv_process_ca_or_router_port(sm, p_node,
-							       p_physp, p_pi);
+			pi_rcv_process_ca_or_router_port(sm, p_node, p_physp,
+							 p_pi);
 			break;
 		case IB_NODE_TYPE_SWITCH:
-			__osm_pi_rcv_process_switch_port(sm, p_node,
-							 p_physp, p_pi);
+			pi_rcv_process_switch_port(sm, p_node, p_physp, p_pi);
 			break;
 		default:
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0F07: "
@@ -617,8 +611,7 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 		   Get the tables on the physp.
 		 */
 		if (p_physp->need_update || sm->p_subn->need_update)
-			__osm_pi_rcv_get_pkey_slvl_vla_tables(sm, p_node,
-							      p_physp);
+			pi_rcv_get_pkey_slvl_vla_tables(sm, p_node, p_physp);
 
 	}
 

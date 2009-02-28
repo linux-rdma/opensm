@@ -59,7 +59,7 @@
 /**********************************************************************
  The plock must be held before calling this function.
 **********************************************************************/
-static void si_rcv_get_fwd_tbl(IN osm_sm_t * sm, IN osm_switch_t * const p_sw)
+static void si_rcv_get_fwd_tbl(IN osm_sm_t * sm, IN osm_switch_t * p_sw)
 {
 	osm_madw_context_t context;
 	osm_dr_path_t *p_dr_path;
@@ -105,8 +105,7 @@ static void si_rcv_get_fwd_tbl(IN osm_sm_t * sm, IN osm_switch_t * const p_sw)
 /**********************************************************************
  The plock must be held before calling this function.
 **********************************************************************/
-static void si_rcv_get_mcast_fwd_tbl(IN osm_sm_t * sm,
-				     IN osm_switch_t * const p_sw)
+static void si_rcv_get_mcast_fwd_tbl(IN osm_sm_t * sm, IN osm_switch_t * p_sw)
 {
 	osm_madw_context_t context;
 	osm_dr_path_t *p_dr_path;
@@ -191,8 +190,8 @@ Exit:
 /**********************************************************************
    Lock must be held on entry to this function.
 **********************************************************************/
-static void si_rcv_process_new(IN osm_sm_t * sm, IN osm_node_t * const p_node,
-			       IN const osm_madw_t * const p_madw)
+static void si_rcv_process_new(IN osm_sm_t * sm, IN osm_node_t * p_node,
+			       IN const osm_madw_t * p_madw)
 {
 	osm_switch_t *p_sw;
 	osm_switch_t *p_check;
@@ -288,8 +287,8 @@ Exit:
    this can not be done internally as the event needs the lock...
 **********************************************************************/
 static boolean_t si_rcv_process_existing(IN osm_sm_t * sm,
-					 IN osm_node_t * const p_node,
-					 IN const osm_madw_t * const p_madw)
+					 IN osm_node_t * p_node,
+					 IN const osm_madw_t * p_madw)
 {
 	osm_switch_t *p_sw = p_node->sw;
 	ib_switch_info_t *p_si;

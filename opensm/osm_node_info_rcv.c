@@ -109,8 +109,8 @@ static void requery_dup_node_info(IN osm_sm_t * sm, osm_physp_t * p_physp,
 	context.ni_context.dup_port_num = p_physp->port_num;
 	context.ni_context.dup_count = count;
 
-	status = osm_req_get(sm, &path, IB_MAD_ATTR_NODE_INFO,
-			     0, CL_DISP_MSGID_NONE, &context);
+	status = osm_req_get(sm, &path, IB_MAD_ATTR_NODE_INFO, 0,
+			     CL_DISP_MSGID_NONE, &context);
 
 	if (status != IB_SUCCESS)
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D02: "
@@ -121,11 +121,9 @@ static void requery_dup_node_info(IN osm_sm_t * sm, osm_physp_t * p_physp,
 /**********************************************************************
  The plock must be held before calling this function.
 **********************************************************************/
-static void
-__osm_ni_rcv_set_links(IN osm_sm_t * sm,
-		       osm_node_t * p_node,
-		       const uint8_t port_num,
-		       const osm_ni_context_t * const p_ni_context)
+static void ni_rcv_set_links(IN osm_sm_t * sm, osm_node_t * p_node,
+			     const uint8_t port_num,
+			     const osm_ni_context_t * p_ni_context)
 {
 	osm_node_t *p_neighbor_node;
 	osm_physp_t *p_physp;
@@ -286,7 +284,7 @@ static void ni_rcv_get_port_info(IN osm_sm_t * sm, IN osm_node_t * node,
 /**********************************************************************
  The plock must be held before calling this function.
 **********************************************************************/
-void osm_req_get_node_desc(IN osm_sm_t * sm, osm_physp_t *p_physp)
+void osm_req_get_node_desc(IN osm_sm_t * sm, osm_physp_t * p_physp)
 {
 	ib_api_status_t status = IB_SUCCESS;
 	osm_madw_context_t context;
@@ -294,11 +292,11 @@ void osm_req_get_node_desc(IN osm_sm_t * sm, osm_physp_t *p_physp)
 	OSM_LOG_ENTER(sm->p_log);
 
 	context.nd_context.node_guid =
-		osm_node_get_node_guid(osm_physp_get_node_ptr(p_physp));
+	    osm_node_get_node_guid(osm_physp_get_node_ptr(p_physp));
 
 	status = osm_req_get(sm, osm_physp_get_dr_path_ptr(p_physp),
-			     IB_MAD_ATTR_NODE_DESC,
-			     0, CL_DISP_MSGID_NONE, &context);
+			     IB_MAD_ATTR_NODE_DESC, 0, CL_DISP_MSGID_NONE,
+			     &context);
 	if (status != IB_SUCCESS)
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D03: "
 			"Failure initiating NodeDescription request (%s)\n",
@@ -310,10 +308,8 @@ void osm_req_get_node_desc(IN osm_sm_t * sm, osm_physp_t *p_physp)
 /**********************************************************************
  The plock must be held before calling this function.
 **********************************************************************/
-static void
-__osm_ni_rcv_get_node_desc(IN osm_sm_t * sm,
-			   IN osm_node_t * const p_node,
-			   IN const osm_madw_t * const p_madw)
+static void ni_rcv_get_node_desc(IN osm_sm_t * sm, IN osm_node_t * p_node,
+				 IN const osm_madw_t * p_madw)
 {
 	ib_node_info_t *p_ni;
 	ib_smp_t *p_smp;
@@ -344,10 +340,9 @@ __osm_ni_rcv_get_node_desc(IN osm_sm_t * sm,
 /**********************************************************************
  The plock must be held before calling this function.
 **********************************************************************/
-static void
-__osm_ni_rcv_process_new_ca_or_router(IN osm_sm_t * sm,
-				      IN osm_node_t * const p_node,
-				      IN const osm_madw_t * const p_madw)
+static void ni_rcv_process_new_ca_or_router(IN osm_sm_t * sm,
+					    IN osm_node_t * p_node,
+					    IN const osm_madw_t * p_madw)
 {
 	OSM_LOG_ENTER(sm->p_log);
 
@@ -367,10 +362,9 @@ __osm_ni_rcv_process_new_ca_or_router(IN osm_sm_t * sm,
 /**********************************************************************
  The plock must be held before calling this function.
 **********************************************************************/
-static void
-__osm_ni_rcv_process_existing_ca_or_router(IN osm_sm_t * sm,
-					   IN osm_node_t * const p_node,
-					   IN const osm_madw_t * const p_madw)
+static void ni_rcv_process_existing_ca_or_router(IN osm_sm_t * sm,
+						 IN osm_node_t * p_node,
+						 IN const osm_madw_t * p_madw)
 {
 	ib_node_info_t *p_ni;
 	ib_smp_t *p_smp;
@@ -459,10 +453,8 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-static void
-__osm_ni_rcv_process_switch(IN osm_sm_t * sm,
-			    IN osm_node_t * const p_node,
-			    IN const osm_madw_t * const p_madw)
+static void ni_rcv_process_switch(IN osm_sm_t * sm, IN osm_node_t * p_node,
+				  IN const osm_madw_t * p_madw)
 {
 	ib_api_status_t status = IB_SUCCESS;
 	osm_madw_context_t context;
@@ -500,10 +492,9 @@ __osm_ni_rcv_process_switch(IN osm_sm_t * sm,
 /**********************************************************************
  The plock must be held before calling this function.
 **********************************************************************/
-static void
-__osm_ni_rcv_process_existing_switch(IN osm_sm_t * sm,
-				     IN osm_node_t * const p_node,
-				     IN const osm_madw_t * const p_madw)
+static void ni_rcv_process_existing_switch(IN osm_sm_t * sm,
+					   IN osm_node_t * p_node,
+					   IN const osm_madw_t * p_madw)
 {
 	OSM_LOG_ENTER(sm->p_log);
 
@@ -516,13 +507,13 @@ __osm_ni_rcv_process_existing_switch(IN osm_sm_t * sm,
 	   to retry to probe the switch.
 	 */
 	if (p_node->discovery_count == 1)
-		__osm_ni_rcv_process_switch(sm, p_node, p_madw);
+		ni_rcv_process_switch(sm, p_node, p_madw);
 	else if (!p_node->sw) {
 		/* we don't have the SwitchInfo - retry to get it */
 		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 			"Retry to get SwitchInfo on node GUID:0x%" PRIx64 "\n",
 			cl_ntoh64(osm_node_get_node_guid(p_node)));
-		__osm_ni_rcv_process_switch(sm, p_node, p_madw);
+		ni_rcv_process_switch(sm, p_node, p_madw);
 	}
 
 	OSM_LOG_EXIT(sm->p_log);
@@ -531,14 +522,12 @@ __osm_ni_rcv_process_existing_switch(IN osm_sm_t * sm,
 /**********************************************************************
  The plock must be held before calling this function.
 **********************************************************************/
-static void
-__osm_ni_rcv_process_new_switch(IN osm_sm_t * sm,
-				IN osm_node_t * const p_node,
-				IN const osm_madw_t * const p_madw)
+static void ni_rcv_process_new_switch(IN osm_sm_t * sm, IN osm_node_t * p_node,
+				      IN const osm_madw_t * p_madw)
 {
 	OSM_LOG_ENTER(sm->p_log);
 
-	__osm_ni_rcv_process_switch(sm, p_node, p_madw);
+	ni_rcv_process_switch(sm, p_node, p_madw);
 
 	/*
 	   A node guid of 0 is the corner case that indicates
@@ -554,9 +543,7 @@ __osm_ni_rcv_process_new_switch(IN osm_sm_t * sm,
 /**********************************************************************
  The plock must NOT be held before calling this function.
 **********************************************************************/
-static void
-__osm_ni_rcv_process_new(IN osm_sm_t * sm,
-			 IN const osm_madw_t * const p_madw)
+static void ni_rcv_process_new(IN osm_sm_t * sm, IN const osm_madw_t * p_madw)
 {
 	osm_node_t *p_node;
 	osm_node_t *p_node_check;
@@ -676,21 +663,21 @@ __osm_ni_rcv_process_new(IN osm_sm_t * sm,
 			cl_ntoh64(p_ni->node_guid));
 		osm_node_delete(&p_node);
 		p_node = p_node_check;
-		__osm_ni_rcv_set_links(sm, p_node, port_num, p_ni_context);
+		ni_rcv_set_links(sm, p_node, port_num, p_ni_context);
 		goto Exit;
 	} else
-		__osm_ni_rcv_set_links(sm, p_node, port_num, p_ni_context);
+		ni_rcv_set_links(sm, p_node, port_num, p_ni_context);
 
 	p_node->discovery_count++;
-	__osm_ni_rcv_get_node_desc(sm, p_node, p_madw);
+	ni_rcv_get_node_desc(sm, p_node, p_madw);
 
 	switch (p_ni->node_type) {
 	case IB_NODE_TYPE_CA:
 	case IB_NODE_TYPE_ROUTER:
-		__osm_ni_rcv_process_new_ca_or_router(sm, p_node, p_madw);
+		ni_rcv_process_new_ca_or_router(sm, p_node, p_madw);
 		break;
 	case IB_NODE_TYPE_SWITCH:
-		__osm_ni_rcv_process_new_switch(sm, p_node, p_madw);
+		ni_rcv_process_new_switch(sm, p_node, p_madw);
 		break;
 	default:
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D16: "
@@ -706,10 +693,8 @@ Exit:
 /**********************************************************************
  The plock must be held before calling this function.
 **********************************************************************/
-static void
-__osm_ni_rcv_process_existing(IN osm_sm_t * sm,
-			      IN osm_node_t * const p_node,
-			      IN const osm_madw_t * const p_madw)
+static void ni_rcv_process_existing(IN osm_sm_t * sm, IN osm_node_t * p_node,
+				    IN const osm_madw_t * p_madw)
 {
 	ib_node_info_t *p_ni;
 	ib_smp_t *p_smp;
@@ -739,12 +724,11 @@ __osm_ni_rcv_process_existing(IN osm_sm_t * sm,
 	switch (p_ni->node_type) {
 	case IB_NODE_TYPE_CA:
 	case IB_NODE_TYPE_ROUTER:
-		__osm_ni_rcv_process_existing_ca_or_router(sm, p_node,
-							   p_madw);
+		ni_rcv_process_existing_ca_or_router(sm, p_node, p_madw);
 		break;
 
 	case IB_NODE_TYPE_SWITCH:
-		__osm_ni_rcv_process_existing_switch(sm, p_node, p_madw);
+		ni_rcv_process_existing_switch(sm, p_node, p_madw);
 		break;
 
 	default:
@@ -754,7 +738,7 @@ __osm_ni_rcv_process_existing(IN osm_sm_t * sm,
 		break;
 	}
 
-	__osm_ni_rcv_set_links(sm, p_node, port_num, p_ni_context);
+	ni_rcv_set_links(sm, p_node, port_num, p_ni_context);
 
 	OSM_LOG_EXIT(sm->p_log);
 }
@@ -806,9 +790,9 @@ void osm_ni_rcv_process(IN void *context, IN void *data)
 	osm_dump_node_info(sm->p_log, p_ni, OSM_LOG_DEBUG);
 
 	if (!p_node)
-		__osm_ni_rcv_process_new(sm, p_madw);
+		ni_rcv_process_new(sm, p_madw);
 	else
-		__osm_ni_rcv_process_existing(sm, p_node, p_madw);
+		ni_rcv_process_existing(sm, p_node, p_madw);
 
 	CL_PLOCK_RELEASE(sm->p_lock);
 
