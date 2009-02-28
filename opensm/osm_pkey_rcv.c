@@ -77,7 +77,7 @@ void osm_pkey_rcv_process(IN void *context, IN void *data)
 	p_smp = osm_madw_get_smp_ptr(p_madw);
 
 	p_context = osm_madw_get_pkey_context_ptr(p_madw);
-	p_pkey_tbl = (ib_pkey_table_t *) ib_smp_get_payload_ptr(p_smp);
+	p_pkey_tbl = ib_smp_get_payload_ptr(p_smp);
 
 	port_guid = p_context->port_guid;
 	node_guid = p_context->node_guid;

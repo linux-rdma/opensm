@@ -473,7 +473,7 @@ osm_pi_rcv_process_set(IN osm_sm_t * sm, IN osm_node_t * const p_node,
 	port_guid = osm_physp_get_port_guid(p_physp);
 
 	p_smp = osm_madw_get_smp_ptr(p_madw);
-	p_pi = (ib_port_info_t *) ib_smp_get_payload_ptr(p_smp);
+	p_pi = ib_smp_get_payload_ptr(p_smp);
 
 	/* check for error */
 	if (cl_ntoh16(p_smp->status) & 0x7fff) {
@@ -532,7 +532,7 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 
 	p_smp = osm_madw_get_smp_ptr(p_madw);
 	p_context = osm_madw_get_pi_context_ptr(p_madw);
-	p_pi = (ib_port_info_t *) ib_smp_get_payload_ptr(p_smp);
+	p_pi = ib_smp_get_payload_ptr(p_smp);
 
 	CL_ASSERT(p_smp->attr_id == IB_MAD_ATTR_PORT_INFO);
 

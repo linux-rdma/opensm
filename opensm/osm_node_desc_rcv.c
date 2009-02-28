@@ -106,7 +106,7 @@ void osm_nd_rcv_process(IN void *context, IN void *data)
 	CL_ASSERT(p_madw);
 
 	p_smp = osm_madw_get_smp_ptr(p_madw);
-	p_nd = (ib_node_desc_t *) ib_smp_get_payload_ptr(p_smp);
+	p_nd = ib_smp_get_payload_ptr(p_smp);
 
 	/*
 	   Acquire the node object and add the node description.

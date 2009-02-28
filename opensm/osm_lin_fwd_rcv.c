@@ -70,7 +70,7 @@ void osm_lft_rcv_process(IN void *context, IN void *data)
 	CL_ASSERT(p_madw);
 
 	p_smp = osm_madw_get_smp_ptr(p_madw);
-	p_block = (uint8_t *) ib_smp_get_payload_ptr(p_smp);
+	p_block = ib_smp_get_payload_ptr(p_smp);
 	block_num = cl_ntoh32(p_smp->attr_mod);
 
 	/*

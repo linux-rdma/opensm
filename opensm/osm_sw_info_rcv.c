@@ -208,7 +208,7 @@ static void si_rcv_process_new(IN osm_sm_t * sm, IN osm_node_t * const p_node,
 
 	p_sw_guid_tbl = &sm->p_subn->sw_guid_tbl;
 	p_smp = osm_madw_get_smp_ptr(p_madw);
-	p_si = (ib_switch_info_t *) ib_smp_get_payload_ptr(p_smp);
+	p_si = ib_smp_get_payload_ptr(p_smp);
 
 	osm_dump_switch_info(sm->p_log, p_si, OSM_LOG_DEBUG);
 
@@ -302,7 +302,7 @@ static boolean_t si_rcv_process_existing(IN osm_sm_t * sm,
 	CL_ASSERT(p_madw);
 
 	p_smp = osm_madw_get_smp_ptr(p_madw);
-	p_si = (ib_switch_info_t *) ib_smp_get_payload_ptr(p_smp);
+	p_si = ib_smp_get_payload_ptr(p_smp);
 	p_si_context = osm_madw_get_si_context_ptr(p_madw);
 
 	if (p_si_context->set_method) {
@@ -365,7 +365,7 @@ void osm_si_rcv_process(IN void *context, IN void *data)
 	CL_ASSERT(p_madw);
 
 	p_smp = osm_madw_get_smp_ptr(p_madw);
-	p_si = (ib_switch_info_t *) ib_smp_get_payload_ptr(p_smp);
+	p_si = ib_smp_get_payload_ptr(p_smp);
 	p_context = osm_madw_get_si_context_ptr(p_madw);
 	node_guid = p_context->node_guid;
 

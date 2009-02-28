@@ -87,7 +87,7 @@ osm_switch_init(IN osm_switch_t * const p_sw,
 	uint32_t port_num;
 
 	p_smp = osm_madw_get_smp_ptr(p_madw);
-	p_si = (ib_switch_info_t *) ib_smp_get_payload_ptr(p_smp);
+	p_si = ib_smp_get_payload_ptr(p_smp);
 	num_ports = osm_node_get_num_physp(p_node);
 
 	CL_ASSERT(p_smp->attr_id == IB_MAD_ATTR_SWITCH_INFO);

@@ -82,7 +82,7 @@ void osm_slvl_rcv_process(IN void *context, IN void *p_data)
 
 	p_smp = osm_madw_get_smp_ptr(p_madw);
 	p_context = osm_madw_get_slvl_context_ptr(p_madw);
-	p_slvl_tbl = (ib_slvl_table_t *) ib_smp_get_payload_ptr(p_smp);
+	p_slvl_tbl = ib_smp_get_payload_ptr(p_smp);
 
 	port_guid = p_context->port_guid;
 	node_guid = p_context->node_guid;

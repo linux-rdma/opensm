@@ -323,7 +323,7 @@ __osm_ni_rcv_get_node_desc(IN osm_sm_t * sm,
 	OSM_LOG_ENTER(sm->p_log);
 
 	p_smp = osm_madw_get_smp_ptr(p_madw);
-	p_ni = (ib_node_info_t *) ib_smp_get_payload_ptr(p_smp);
+	p_ni = ib_smp_get_payload_ptr(p_smp);
 	port_num = ib_node_info_get_local_port_num(p_ni);
 
 	/*
@@ -384,7 +384,7 @@ __osm_ni_rcv_process_existing_ca_or_router(IN osm_sm_t * sm,
 	OSM_LOG_ENTER(sm->p_log);
 
 	p_smp = osm_madw_get_smp_ptr(p_madw);
-	p_ni = (ib_node_info_t *) ib_smp_get_payload_ptr(p_smp);
+	p_ni = ib_smp_get_payload_ptr(p_smp);
 	port_num = ib_node_info_get_local_port_num(p_ni);
 	h_bind = osm_madw_get_bind_handle(p_madw);
 
@@ -573,7 +573,7 @@ __osm_ni_rcv_process_new(IN osm_sm_t * sm,
 	OSM_LOG_ENTER(sm->p_log);
 
 	p_smp = osm_madw_get_smp_ptr(p_madw);
-	p_ni = (ib_node_info_t *) ib_smp_get_payload_ptr(p_smp);
+	p_ni = ib_smp_get_payload_ptr(p_smp);
 	p_ni_context = osm_madw_get_ni_context_ptr(p_madw);
 	port_num = ib_node_info_get_local_port_num(p_ni);
 
@@ -719,7 +719,7 @@ __osm_ni_rcv_process_existing(IN osm_sm_t * sm,
 	OSM_LOG_ENTER(sm->p_log);
 
 	p_smp = osm_madw_get_smp_ptr(p_madw);
-	p_ni = (ib_node_info_t *) ib_smp_get_payload_ptr(p_smp);
+	p_ni = ib_smp_get_payload_ptr(p_smp);
 	p_ni_context = osm_madw_get_ni_context_ptr(p_madw);
 	port_num = ib_node_info_get_local_port_num(p_ni);
 
@@ -776,7 +776,7 @@ void osm_ni_rcv_process(IN void *context, IN void *data)
 	CL_ASSERT(p_madw);
 
 	p_smp = osm_madw_get_smp_ptr(p_madw);
-	p_ni = (ib_node_info_t *) ib_smp_get_payload_ptr(p_smp);
+	p_ni = ib_smp_get_payload_ptr(p_smp);
 
 	CL_ASSERT(p_smp->attr_id == IB_MAD_ATTR_NODE_INFO);
 

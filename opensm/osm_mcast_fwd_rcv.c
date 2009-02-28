@@ -77,7 +77,7 @@ void osm_mft_rcv_process(IN void *context, IN void *data)
 	CL_ASSERT(p_madw);
 
 	p_smp = osm_madw_get_smp_ptr(p_madw);
-	p_block = (uint16_t *) ib_smp_get_payload_ptr(p_smp);
+	p_block = ib_smp_get_payload_ptr(p_smp);
 	block_num = cl_ntoh32(p_smp->attr_mod) & IB_MCAST_BLOCK_ID_MASK_HO;
 	position = (uint8_t) ((cl_ntoh32(p_smp->attr_mod) &
 			       IB_MCAST_POSITION_MASK_HO) >>

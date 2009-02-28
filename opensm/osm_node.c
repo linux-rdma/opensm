@@ -60,7 +60,7 @@ void osm_node_init_physp(IN osm_node_t * const p_node, uint8_t port_num,
 
 	p_smp = osm_madw_get_smp_ptr(p_madw);
 
-	p_ni = (ib_node_info_t *) ib_smp_get_payload_ptr(p_smp);
+	p_ni = ib_smp_get_payload_ptr(p_smp);
 	port_guid = p_ni->port_guid;
 
 	CL_ASSERT(port_num < p_node->physp_tbl_size);
@@ -82,7 +82,7 @@ osm_node_t *osm_node_new(IN const osm_madw_t * const p_madw)
 	uint32_t size;
 
 	p_smp = osm_madw_get_smp_ptr(p_madw);
-	p_ni = (ib_node_info_t *) ib_smp_get_payload_ptr(p_smp);
+	p_ni = ib_smp_get_payload_ptr(p_smp);
 
 	/*
 	   The node object already contains one physical port object.
