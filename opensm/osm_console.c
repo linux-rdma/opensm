@@ -78,10 +78,12 @@ static char *next_token(char **p_last)
 	return strtok_r(NULL, " \t\n\r", p_last);
 }
 
+#ifdef ENABLE_OSM_PERF_MGR
 static char *name_token(char **p_last)
 {
 	return strtok_r(NULL, "\t\n\r", p_last);
 }
+#endif
 
 static void help_command(FILE * out, int detail)
 {
