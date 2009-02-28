@@ -876,46 +876,29 @@ int main(int argc, char *argv[])
 			break;
 
 		case 'a':
-			/*
-			   Specifies root guids file
-			 */
 			SET_STR_OPT(opt.root_guid_file, optarg);
 			printf(" Root Guid File: %s\n", opt.root_guid_file);
 			break;
 
 		case 'u':
-			/*
-			   Specifies compute node guids file
-			 */
 			SET_STR_OPT(opt.cn_guid_file, optarg);
-			printf(" Compute Node Guid File: %s\n",
-			       opt.cn_guid_file);
+			printf(" Compute Node Guid File: %s\n", opt.cn_guid_file);
 			break;
 
 		case 'G':
-			/*
-			   Specifies I/O node guids file
-			 */
 			opt.io_guid_file = optarg;
-			printf(" I/O Node Guid File: %s\n",
-			       opt.io_guid_file);
+			printf(" I/O Node Guid File: %s\n", opt.io_guid_file);
 			break;
 		case 'H':
-			/*
-			   Specifies I/O max reverted hops
-			 */
 			opt.max_reverse_hops =  atoi(optarg);
-			printf(" Max Reverse Hops: %d\n",
-			       opt.max_reverse_hops);
+			printf(" Max Reverse Hops: %d\n", opt.max_reverse_hops);
 			break;
 		case 'm':
-			/* Specifies ids guid file */
 			SET_STR_OPT(opt.ids_guid_file, optarg);
 			printf(" IDs Guid File: %s\n", opt.ids_guid_file);
 			break;
 
 		case 'X':
-			/* Specifies guid routing order file */
 			SET_STR_OPT(opt.guid_routing_order_file, optarg);
 			printf(" GUID Routing Order File: %s\n", opt.guid_routing_order_file);
 			break;
