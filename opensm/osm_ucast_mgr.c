@@ -113,20 +113,18 @@ __osm_ucast_mgr_process_hop_0_1(IN cl_map_item_t * const p_map_item,
 	osm_switch_t *const p_sw = (osm_switch_t *) p_map_item;
 	osm_node_t *p_remote_node;
 	uint16_t lid, remote_lid;
-	uint8_t i, remote_port;
+	uint8_t i;
 
-	lid = osm_node_get_base_lid(p_sw->p_node, 0);
-	lid = cl_ntoh16(lid);
+	lid = cl_ntoh16(osm_node_get_base_lid(p_sw->p_node, 0));
 	osm_switch_set_hops(p_sw, lid, 0, 0);
 
 	for (i = 1; i < p_sw->num_ports; i++) {
-		p_remote_node =
-		    osm_node_get_remote_node(p_sw->p_node, i, &remote_port);
+		osm_physp_t *p = osm_node_get_physp_ptr(p_sw->p_node, i);
+		p_remote_node = (p && p->p_remote_physp) ?
+		    p->p_remote_physp->p_node : NULL;
 
 		if (p_remote_node && p_remote_node->sw &&
-		    (p_remote_node != p_sw->p_node)) {
-			osm_physp_t *p = osm_node_get_physp_ptr(p_sw->p_node, i);
-
+		    p_remote_node != p_sw->p_node) {
 			remote_lid = osm_node_get_base_lid(p_remote_node, 0);
 			remote_lid = cl_ntoh16(remote_lid);
 			osm_switch_set_hops(p_sw, remote_lid, i, p->hop_wf);
@@ -143,7 +141,8 @@ __osm_ucast_mgr_process_neighbor(IN osm_ucast_mgr_t * const p_mgr,
 				 IN const uint8_t port_num,
 				 IN const uint8_t remote_port_num)
 {
-	osm_switch_t *p_sw, *p_next_sw;
+	osm_switch_t *p_sw;
+	cl_map_item_t *item;
 	uint16_t lid_ho;
 	uint8_t hops;
 	osm_physp_t *p;
@@ -159,13 +158,11 @@ __osm_ucast_mgr_process_neighbor(IN osm_ucast_mgr_t * const p_mgr,
 
 	p = osm_node_get_physp_ptr(p_this_sw->p_node, port_num);
 
-	p_next_sw = (osm_switch_t *) cl_qmap_head(&p_mgr->p_subn->sw_guid_tbl);
-	while (p_next_sw !=
-	       (osm_switch_t *) cl_qmap_end(&p_mgr->p_subn->sw_guid_tbl)) {
-		p_sw = p_next_sw;
-		p_next_sw = (osm_switch_t *) cl_qmap_next(&p_sw->map_item);
-		lid_ho = osm_node_get_base_lid(p_sw->p_node, 0);
-		lid_ho = cl_ntoh16(lid_ho);
+	for (item = cl_qmap_head(&p_mgr->p_subn->sw_guid_tbl);
+	     item != cl_qmap_end(&p_mgr->p_subn->sw_guid_tbl);
+	     item = cl_qmap_next(item)) {
+		p_sw = (osm_switch_t *) item;
+		lid_ho = cl_ntoh16(osm_node_get_base_lid(p_sw->p_node, 0));
 		hops = osm_switch_get_least_hops(p_remote_sw, lid_ho);
 		if (hops == OSM_NO_PATH)
 			continue;
