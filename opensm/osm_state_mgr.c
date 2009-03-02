@@ -513,8 +513,8 @@ static void query_sm_info(cl_map_item_t *item, void *cxt)
 }
 
 /**********************************************************************
- During a light sweep check each node to see if the node descriptor is valid
- if not issue a ND query.
+ During a light sweep, check each node to see if the node description
+ is valid and if not issue a ND query.
 **********************************************************************/
 static void __osm_state_mgr_get_node_desc(IN cl_map_item_t * const p_object,
 					  IN void *context)
