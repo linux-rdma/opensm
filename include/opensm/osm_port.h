@@ -1144,7 +1144,7 @@ static inline osm_dr_path_t *osm_physp_get_dr_path_ptr(IN const osm_physp_t *
 *	osm_port_t
 *
 * DESCRIPTION
-*	This object represents a logical port on a switch, router or end-point.
+*	This object represents a logical port on a switch, router, or CA.
 *
 *	The osm_port_t object should be treated as opaque and should
 *	be manipulated only through the provided functions.
@@ -1169,7 +1169,8 @@ typedef struct osm_port {
 *		Linkage structure for cl_qmap.  MUST BE FIRST MEMBER!
 *
 *	list_item
-*		Linkage structure for cl_qlist. Used by ucast mgr during LFT calculation.
+*		Linkage structure for cl_qlist. Used by ucast mgr during
+*		LFT calculation.
 *
 *	p_node
 *		Points to the Node object that owns this port.
