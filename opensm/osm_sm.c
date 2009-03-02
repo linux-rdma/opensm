@@ -254,7 +254,7 @@ osm_sm_init(IN osm_sm_t * const p_sm,
 	    IN osm_stats_t * const p_stats,
 	    IN cl_dispatcher_t * const p_disp, IN cl_plock_t * const p_lock)
 {
-	ib_api_status_t status = IB_SUCCESS;
+	ib_api_status_t status;
 
 	OSM_LOG_ENTER(p_log);
 
@@ -319,6 +319,7 @@ osm_sm_init(IN osm_sm_t * const p_sm,
 	if (status != IB_SUCCESS)
 		goto Exit;
 
+	status = IB_INSUFFICIENT_RESOURCES;
 	p_sm->sweep_fail_disp_h = cl_disp_register(p_disp,
 						   OSM_MSG_LIGHT_SWEEP_FAIL,
 						   sweep_fail_process, p_sm);

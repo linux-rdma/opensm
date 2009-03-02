@@ -1217,7 +1217,7 @@ ib_api_status_t
 osm_perfmgr_init(osm_perfmgr_t * const pm, osm_opensm_t *osm,
 		 const osm_subn_opt_t * const p_opt)
 {
-	ib_api_status_t status = IB_SUCCESS;
+	ib_api_status_t status;
 
 	OSM_LOG_ENTER(&osm->log);
 
@@ -1244,6 +1244,7 @@ osm_perfmgr_init(osm_perfmgr_t * const pm, osm_opensm_t *osm,
 	if (status != IB_SUCCESS)
 		goto Exit;
 
+	status = IB_INSUFFICIENT_RESOURCES;
 	pm->db = perfmgr_db_construct(pm);
 	if (!pm->db) {
 		pm->state = PERFMGR_STATE_NO_DB;
@@ -1261,6 +1262,7 @@ osm_perfmgr_init(osm_perfmgr_t * const pm, osm_opensm_t *osm,
 
 	cl_timer_start(&pm->sweep_timer, pm->sweep_time_s * 1000);
 
+	status = IB_SUCCESS;
 Exit:
 	OSM_LOG_EXIT(pm->log);
 	return (status);

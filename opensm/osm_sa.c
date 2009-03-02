@@ -163,7 +163,7 @@ osm_sa_init(IN osm_sm_t * const p_sm,
 	    IN osm_stats_t * const p_stats,
 	    IN cl_dispatcher_t * const p_disp, IN cl_plock_t * const p_lock)
 {
-	ib_api_status_t status = IB_SUCCESS;
+	ib_api_status_t status;
 
 	OSM_LOG_ENTER(p_log);
 
@@ -189,6 +189,7 @@ osm_sa_init(IN osm_sm_t * const p_sm,
 	if (status != IB_SUCCESS)
 		goto Exit;
 
+	status = IB_INSUFFICIENT_RESOURCES;
 	p_sa->cpi_disp_h = cl_disp_register(p_disp, OSM_MSG_MAD_CLASS_PORT_INFO,
 					    osm_cpi_rcv_process, p_sa);
 	if (p_sa->cpi_disp_h == CL_DISP_INVALID_HANDLE)
@@ -287,6 +288,7 @@ osm_sa_init(IN osm_sm_t * const p_sm,
 	if (p_sa->mft_disp_h == CL_DISP_INVALID_HANDLE)
 		goto Exit;
 
+	status = IB_SUCCESS;
 Exit:
 	OSM_LOG_EXIT(p_log);
 	return (status);
