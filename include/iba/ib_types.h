@@ -1029,6 +1029,18 @@ static inline boolean_t OSM_API ib_class_is_rmpp(IN const uint8_t class_code)
 #define IB_MAD_ATTR_PORT_CNTRS				(CL_HTON16(0x0012))
 /**********/
 
+/****d* IBA Base: Constants/IB_MAD_ATTR_PORT_CNTRS_EXT
+* NAME
+*       IB_MAD_ATTR_PORT_CNTRS_EXT
+*
+* DESCRIPTION
+*       PortCountersExtended attribute (16.1.4)
+*
+* SOURCE
+*/
+#define IB_MAD_ATTR_PORT_CNTRS_EXT			(CL_HTON16(0x001D))
+/**********/
+
 /****d* IBA Base: Constants/IB_MAD_ATTR_GUID_INFO
 * NAME
 *	IB_MAD_ATTR_GUID_INFO
@@ -3244,7 +3256,6 @@ ib_path_rec_hop_limit(IN const ib_path_rec_t * const p_rec)
 *
 * DESCRIPTION
 *	IBA defined ClassPortInfo attribute (13.4.8.1)
-*	route between two end-points on a subnet.
 *
 * SYNOPSIS
 */
@@ -3326,6 +3337,10 @@ typedef struct _ib_class_port_info {
 *	IB_CLASS_CAP_GETSET, IB_CLASS_CAP_TRAP
 *
 *********/
+
+#define IB_PM_ALL_PORT_SELECT			(CL_HTON16(((uint16_t)1)<<8))
+#define IB_PM_EXT_WIDTH_SUPPORTED		(CL_HTON16(((uint16_t)1)<<9))
+#define IB_PM_EXT_WIDTH_NOIETF_SUP		(CL_HTON16(((uint16_t)1)<<10))
 
 /****f* IBA Base: Types/ib_class_set_resp_time_val
 * NAME
