@@ -561,13 +561,9 @@ static ftree_sw_t *__osm_ftree_sw_create(IN ftree_fabric_t * p_ftree,
 					   sizeof(ftree_port_group_t *));
 	if (!p_sw->down_port_groups || !p_sw->up_port_groups)
 		return NULL;
-	p_sw->down_port_groups_num = 0;
-	p_sw->up_port_groups_num = 0;
 
 	/* initialize lft buffer */
 	memset(p_osm_sw->new_lft, OSM_NO_PATH, IB_LID_UCAST_END_HO + 1);
-
-	p_sw->down_port_groups_idx = 0;
 
 	return p_sw;
 }				/* __osm_ftree_sw_create() */
