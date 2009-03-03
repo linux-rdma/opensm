@@ -1033,14 +1033,14 @@ osm_vendor_send(IN osm_bind_handle_t h_bind,
 		umad_set_grh(p_vw->umad, 0);
 		goto Resp;
 	}
-	/* GSI classes */
+	/* GS classes */
 	umad_set_addr_net(p_vw->umad, p_mad_addr->dest_lid,
 			  p_mad_addr->addr_type.gsi.remote_qp,
 			  p_mad_addr->addr_type.gsi.service_level,
 			  IB_QP1_WELL_KNOWN_Q_KEY);
 	umad_set_grh(p_vw->umad, 0);	/* FIXME: GRH support */
 	umad_set_pkey(p_vw->umad, p_mad_addr->addr_type.gsi.pkey_ix);
-	if (ib_class_is_rmpp(p_mad->mgmt_class)) {	/* RMPP GSI classes     FIXME: no GRH */
+	if (ib_class_is_rmpp(p_mad->mgmt_class)) {	/* RMPP GS classes     FIXME: no GRH */
 		if (!ib_rmpp_is_flag_set((ib_rmpp_mad_t *) p_sa,
 					 IB_RMPP_FLAG_ACTIVE)) {
 			/* Clear RMPP header when RMPP not ACTIVE */
@@ -1051,10 +1051,10 @@ osm_vendor_send(IN osm_bind_handle_t h_bind,
 #ifdef VENDOR_RMPP_SUPPORT
 		} else
 			is_rmpp = 1;
-		OSM_LOG(p_vend->p_log, OSM_LOG_VERBOSE, "RMPP %d length %d\n",
-			ib_rmpp_is_flag_set((ib_rmpp_mad_t *) p_sa,
-					    IB_RMPP_FLAG_ACTIVE),
-			p_madw->mad_size);
+			OSM_LOG(p_vend->p_log, OSM_LOG_VERBOSE, "RMPP %d length %d\n",
+				ib_rmpp_is_flag_set((ib_rmpp_mad_t *) p_sa,
+						    IB_RMPP_FLAG_ACTIVE),
+				p_madw->mad_size);
 #else
 		} else {
 			p_sa->rmpp_version = 1;
