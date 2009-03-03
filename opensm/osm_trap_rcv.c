@@ -72,7 +72,7 @@ extern void osm_req_get_node_desc(IN osm_sm_t * sm, osm_physp_t *p_physp);
  *
  * A timer running in the background will toggle a timer counter
  * that should be referenced by the aging algorithm.
- * To provide an efficient handling of aging. We also track all traps
+ * To provide an efficient handling of aging, we also track all traps
  * in a sorted list by their aging.
  *
  * The generic Aging Tracker mechanism is implemented in the
@@ -156,12 +156,12 @@ osm_trap_rcv_aging_tracker_callback(IN uint64_t key,
 #define CRC32_POLYNOMIAL   0xEDB88320L
 
 /* calculate the crc for a given buffer */
-static uint32_t __osm_trap_calc_crc32(void *buffer, uint32_t count)
+static uint32_t trap_calc_crc32(void *buffer, uint32_t count)
 {
 	uint32_t temp1, temp2;
 	uint32_t crc = -1L;
 	unsigned char *p = (unsigned char *)buffer;
-	/* pre - calculated table for faster crc calculation */
+	/* precalculated table for faster crc calculation */
 	static uint32_t crc_table[256];
 	static boolean_t first = TRUE;
 	int i, j;
@@ -200,21 +200,20 @@ static uint32_t __osm_trap_calc_crc32(void *buffer, uint32_t count)
      16b     16b   32b
 */
 static void
-__osm_trap_get_key(IN uint16_t lid,
-		   IN uint8_t port_num,
-		   IN ib_mad_notice_attr_t * p_ntci, OUT uint64_t * trap_key)
+trap_get_key(IN uint16_t lid, IN uint8_t port_num,
+	     IN ib_mad_notice_attr_t * p_ntci, OUT uint64_t * trap_key)
 {
 	uint32_t crc = 0;
 
 	CL_ASSERT(trap_key);
 
-	crc = __osm_trap_calc_crc32(p_ntci, sizeof(ib_mad_notice_attr_t));
+	crc = trap_calc_crc32(p_ntci, sizeof(ib_mad_notice_attr_t));
 	*trap_key = ((uint64_t) port_num << 48) | ((uint64_t) lid << 32) | crc;
 }
 
 /**********************************************************************
  **********************************************************************/
-static int __print_num_received(IN uint32_t num_received)
+static int print_num_received(IN uint32_t num_received)
 {
 	uint32_t i;
 
@@ -278,8 +277,8 @@ static int disable_port(osm_sm_t *sm, osm_physp_t *p)
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_trap_rcv_process_request(IN osm_sm_t * sm,
-			       IN const osm_madw_t * const p_madw)
+trap_rcv_process_request(IN osm_sm_t * sm,
+			 IN const osm_madw_t * const p_madw)
 {
 	uint8_t payload[sizeof(ib_mad_notice_attr_t)];
 	ib_smp_t *p_smp;
@@ -333,13 +332,13 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 	 * payload.
 	 */
 
-	memcpy(payload, &(p_smp->data), IB_SMP_DATA_SIZE);
+	memcpy(payload, &p_smp->data, IB_SMP_DATA_SIZE);
 	memcpy(&tmp_madw, p_madw, sizeof(tmp_madw));
 
 	if (is_gsi == FALSE) {
 		/* We are in smi flow */
 		/*
-		 * When we received a TRAP with dlid = 0 - it means it
+		 * When we receive a TRAP with dlid = 0 - it means it
 		 * came from our own node. So we need to fix it.
 		 */
 
@@ -438,9 +437,9 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 
 	if (is_gsi == FALSE) {
 		if (ib_notice_is_generic(p_ntci) &&
-		    ((p_ntci->g_or_v.generic.trap_num == CL_HTON16(129)) ||
-		     (p_ntci->g_or_v.generic.trap_num == CL_HTON16(130)) ||
-		     (p_ntci->g_or_v.generic.trap_num == CL_HTON16(131)))) {
+		    (p_ntci->g_or_v.generic.trap_num == CL_HTON16(129) ||
+		     p_ntci->g_or_v.generic.trap_num == CL_HTON16(130) ||
+		     p_ntci->g_or_v.generic.trap_num == CL_HTON16(131))) {
 			/* If this is a trap 129, 130, or 131 - then this is a
 			 * trap signaling a change on a physical port.
 			 * Mark the physp_change_trap flag as TRUE.
@@ -454,10 +453,9 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 		   If not - the port_number in the key will be zero. */
 		if (physp_change_trap == TRUE) {
 			port_num = p_ntci->data_details.ntc_129_131.port_num;
-			__osm_trap_get_key(source_lid, port_num, p_ntci,
-					   &trap_key);
+			trap_get_key(source_lid, port_num, p_ntci, &trap_key);
 		} else
-			__osm_trap_get_key(source_lid, 0, p_ntci, &trap_key);
+			trap_get_key(source_lid, 0, p_ntci, &trap_key);
 
 		/* try to find it in the aging tracker */
 		num_received =
@@ -466,7 +464,7 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 
 		/* Now we know how many times it provided this trap */
 		if (num_received > 10) {
-			if (__print_num_received(num_received))
+			if (print_num_received(num_received))
 				OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3804: "
 					"Received trap %u times consecutively\n",
 					num_received);
@@ -540,7 +538,7 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 
 		/* If was already registered do nothing more */
 		if (num_received > 10 && run_heavy_sweep == FALSE) {
-			if (__print_num_received(num_received))
+			if (print_num_received(num_received))
 				OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 					"Continuously received this trap %u times. Ignoring\n",
 					num_received);
@@ -549,9 +547,8 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 	}
 
 	/* Check for node description update. IB Spec v1.2.1 pg 823 */
-	if ((p_ntci->data_details.ntc_144.local_changes & TRAP_144_MASK_OTHER_LOCAL_CHANGES) &&
-		(p_ntci->data_details.ntc_144.change_flgs & TRAP_144_MASK_NODE_DESCRIPTION_CHANGE)
-		) {
+	if (p_ntci->data_details.ntc_144.local_changes & TRAP_144_MASK_OTHER_LOCAL_CHANGES &&
+	    p_ntci->data_details.ntc_144.change_flgs & TRAP_144_MASK_NODE_DESCRIPTION_CHANGE) {
 		OSM_LOG(sm->p_log, OSM_LOG_INFO, "Trap 144 Node description update\n");
 
 		if (p_physp) {
@@ -574,9 +571,9 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 		   TODO: In the future we can change this to just getting PortInfo on
 		   this port instead of sweeping the entire subnet. */
 		if (ib_notice_is_generic(p_ntci) &&
-		    ((cl_ntoh16(p_ntci->g_or_v.generic.trap_num) == 128) ||
-		     (cl_ntoh16(p_ntci->g_or_v.generic.trap_num) == 144) ||
-		     (cl_ntoh16(p_ntci->g_or_v.generic.trap_num) == 145) ||
+		    (cl_ntoh16(p_ntci->g_or_v.generic.trap_num) == 128 ||
+		     cl_ntoh16(p_ntci->g_or_v.generic.trap_num) == 144 ||
+		     cl_ntoh16(p_ntci->g_or_v.generic.trap_num) == 145 ||
 		     run_heavy_sweep)) {
 			OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 				"Forcing heavy sweep. Received trap:%u\n",
@@ -603,8 +600,8 @@ __osm_trap_rcv_process_request(IN osm_sm_t * sm,
 				"Cannot update issuer_gid!\n");
 			goto Exit;
 		}
-		memcpy(&(p_ntci->issuer_gid),
-		       &(tmp_madw.mad_addr.addr_type.gsi.grh_info.src_gid),
+		memcpy(&p_ntci->issuer_gid,
+		       &tmp_madw.mad_addr.addr_type.gsi.grh_info.src_gid,
 		       sizeof(ib_gid_t));
 	} else {
 		/* Need to use the IssuerLID */
@@ -651,31 +648,12 @@ Exit:
 	OSM_LOG_EXIT(sm->p_log);
 }
 
-#if 0
-/**********************************************************************
- CURRENTLY WE ARE NOT CREATING TRAPS - SO THIS CALL IS AN ERROR
-**********************************************************************/
-static void
-__osm_trap_rcv_process_sm(IN osm_sm_t * sm,
-			  IN const osm_remote_sm_t * const p_sm)
-{
-	/* const ib_sm_info_t*        p_smi; */
-
-	OSM_LOG_ENTER(sm->p_log);
-
-	OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3807: "
-		"This function is not supported yet\n");
-
-	OSM_LOG_EXIT(sm->p_log);
-}
-#endif
-
 /**********************************************************************
  CURRENTLY WE ARE NOT CREATING TRAPS - SO THIS CALL IN AN ERROR
 **********************************************************************/
 static void
-__osm_trap_rcv_process_response(IN osm_sm_t * sm,
-				IN const osm_madw_t * const p_madw)
+trap_rcv_process_response(IN osm_sm_t * sm,
+			  IN const osm_madw_t * const p_madw)
 {
 
 	OSM_LOG_ENTER(sm->p_log);
@@ -706,9 +684,9 @@ void osm_trap_rcv_process(IN void *context, IN void *data)
 	   SM's Trap.
 	 */
 	if (ib_smp_is_response(p_smp))
-		__osm_trap_rcv_process_response(sm, p_madw);
+		trap_rcv_process_response(sm, p_madw);
 	else
-		__osm_trap_rcv_process_request(sm, p_madw);
+		trap_rcv_process_request(sm, p_madw);
 
 	OSM_LOG_EXIT(sm->p_log);
 }
