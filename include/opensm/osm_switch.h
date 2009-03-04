@@ -297,7 +297,7 @@ osm_switch_set_hops(IN osm_switch_t * const p_sw,
 *		[in] value to assign to this entry.
 *
 * RETURN VALUES
-*	Returns the hop count at the specified LID/Port intersection.
+*	Returns 0 if successfull. -1 if it failed
 *
 * NOTES
 *
