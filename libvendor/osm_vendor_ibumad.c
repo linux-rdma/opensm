@@ -112,7 +112,7 @@ static void clear_madw(osm_vendor_t * p_vend)
 			pthread_mutex_unlock(&p_vend->match_tbl_mutex);
 			OSM_LOG(p_vend->p_log, OSM_LOG_ERROR, "ERR 5401: "
 				"evicting entry %p (tid was 0x%" PRIx64 ")\n",
-				old_m, old_tid);
+				old_m, cl_ntoh64(old_tid));
 			goto Exit;
 		}
 	}
