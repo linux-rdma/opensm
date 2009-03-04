@@ -2,6 +2,7 @@
  * Copyright (c) 2004-2008 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
+ * Copyright (c) 2009 HNR Consulting. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -261,7 +262,7 @@ int osm_send_trap144(osm_sm_t *sm, ib_net16_t local)
 	ntc = (ib_mad_notice_attr_t *)smp->data;
 
 	ntc->generic_type = 0x80 | IB_NOTICE_TYPE_INFO;
-	ib_notice_set_prod_type_ho(ntc, IB_NODE_TYPE_CA);
+	ib_notice_set_prod_type_ho(ntc, osm_node_get_type(port->p_node));
 	ntc->g_or_v.generic.trap_num = cl_hton16(144);
 	ntc->issuer_lid = pi->base_lid;
 	ntc->data_details.ntc_144.lid = pi->base_lid;
