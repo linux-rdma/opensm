@@ -73,8 +73,6 @@ boolean_t osmt_is_debug(void)
 
 /**********************************************************************
  **********************************************************************/
-void show_usage(void);
-
 void show_usage()
 {
 	printf
@@ -209,7 +207,6 @@ void show_usage()
 
 /**********************************************************************
  **********************************************************************/
-static void print_all_guids(IN osmtest_t * p_osmt);
 static void print_all_guids(IN osmtest_t * p_osmt)
 {
 	ib_api_status_t status;
