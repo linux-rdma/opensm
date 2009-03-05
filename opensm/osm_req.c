@@ -218,6 +218,7 @@ int osm_send_trap144(osm_sm_t *sm, ib_net16_t local)
 	ib_smp_t *smp;
 	ib_mad_notice_attr_t *ntc;
 	osm_port_t *port;
+	osm_port_t *smport;
 	ib_port_info_t *pi;
 
 	port = osm_get_port_by_guid(sm->p_subn, sm->p_subn->sm_port_guid);
@@ -235,6 +236,14 @@ int osm_send_trap144(osm_sm_t *sm, ib_net16_t local)
 	    pi->capability_mask&(IB_PORT_CAP_HAS_TRAP|IB_PORT_CAP_HAS_CAP_NTC))
 		return 0;
 
+	smport = osm_get_port_by_guid(sm->p_subn, sm->master_sm_guid);
+	if (!smport) {
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR,
+			"ERR 1106: cannot find master SM port by guid 0x%" PRIx64 "\n",
+			cl_ntoh64(sm->master_sm_guid));
+		return -1;
+	}
+
 	madw = osm_mad_pool_get(sm->p_mad_pool,
 				osm_sm_mad_ctrl_get_bind_handle(&sm->mad_ctrl),
 				MAD_BLOCK_SIZE, NULL);
@@ -244,7 +253,7 @@ int osm_send_trap144(osm_sm_t *sm, ib_net16_t local)
 		return -1;
 	}
 
-	madw->mad_addr.dest_lid = pi->master_sm_base_lid;
+	madw->mad_addr.dest_lid = smport->p_physp->port_info.base_lid;
 	madw->mad_addr.addr_type.smi.source_lid = pi->base_lid;
 	madw->resp_expected = TRUE;
 	madw->fail_msg = CL_DISP_MSGID_NONE;
