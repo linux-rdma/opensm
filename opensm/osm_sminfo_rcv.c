@@ -365,6 +365,11 @@ __osm_sminfo_rcv_process_get_sm(IN osm_sm_t * sm,
 			/* This means the master is alive */
 			/* Signal that to the SM state mgr */
 			osm_sm_state_mgr_signal_master_is_alive(sm);
+
+			if (__osm_sminfo_rcv_remote_sm_is_higher(sm, p_smi) ==
+			    FALSE)
+				osm_send_trap144(sm,
+						 TRAP_144_MASK_SM_PRIORITY_CHANGE);
 			break;
 		case IB_SMINFO_STATE_STANDBY:
 			/* This should be the response from the sm we are polling. */
