@@ -469,14 +469,13 @@ static void
 __osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context)
 {
 	ib_api_status_t status = IB_SUCCESS;
-	uint8_t port = 0, startport = 1;
 	osm_perfmgr_t *pm = (osm_perfmgr_t *) context;
 	osm_node_t *node = NULL;
 	__monitored_node_t *mon_node = (__monitored_node_t *) p_map_item;
 	osm_madw_context_t mad_context;
-	uint8_t num_ports = 0;
 	uint64_t node_guid = 0;
 	ib_net32_t remote_qp;
+	uint8_t port, num_ports = 0;
 
 	OSM_LOG_ENTER(pm->log);
 
@@ -505,12 +504,8 @@ __osm_perfmgr_query_counters(cl_map_item_t * const p_map_item, void *context)
 		goto Exit;
 	}
 
-	/* check for switch enhanced port 0 */
-	if (mon_node->esp0)
-		startport = 0;
-
 	/* issue the query for each port */
-	for (port = startport; port < num_ports; port++) {
+	for (port = (mon_node->esp0) ? 0 : 1; port < num_ports; port++) {
 		ib_net16_t lid;
 
 		if (!osm_node_get_physp_ptr(node, port))

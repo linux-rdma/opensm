@@ -367,7 +367,7 @@ debug_dump_dc_reading(perfmgr_db_t * db, uint64_t guid, uint8_t port_num,
 {
 	osm_log_t *log = db->perfmgr->log;
 	if (!osm_log_is_active(log, OSM_LOG_DEBUG))
-		return;		/* optimize this a big */
+		return;
 
 	osm_log(log, OSM_LOG_DEBUG,
 		"xd %" PRIu64 " <-- %" PRIu64 " (%" PRIu64 ")\n",
@@ -565,8 +565,9 @@ static void __dump_node_mr(_db_node_t * node, FILE * fp)
 		"rcv_pkts",
 		"unicast_xmit_pkts",
 		"unicast_rcv_pkts",
-		"multicast_xmit_pkts", "multicast_rcv_pkts");
-	for (i = 1; i < node->num_ports; i++) {
+		"multicast_xmit_pkts",
+		"multicast_rcv_pkts");
+	for (i = (node->esp0) ? 0 : 1; i < node->num_ports; i++) {
 		char *since = ctime(&node->ports[i].last_reset);
 		since[strlen(since) - 1] = '\0';	/* remove \n */
 
@@ -609,7 +610,7 @@ static void __dump_node_hr(_db_node_t * node, FILE * fp)
 	int i = 0;
 
 	fprintf(fp, "\n");
-	for (i = 1; i < node->num_ports; i++) {
+	for (i = (node->esp0) ? 0 : 1; i < node->num_ports; i++) {
 		char *since = ctime(&node->ports[i].last_reset);
 		since[strlen(since) - 1] = '\0';	/* remove \n */
 
@@ -719,7 +720,7 @@ done:
 void
 perfmgr_db_print_by_guid(perfmgr_db_t * db, uint64_t nodeguid, FILE *fp)
 {
-	cl_map_item_t *node = NULL;
+	cl_map_item_t *node;
 
 	cl_plock_acquire(&db->lock);
 
@@ -727,7 +728,7 @@ perfmgr_db_print_by_guid(perfmgr_db_t * db, uint64_t nodeguid, FILE *fp)
 	if (node != cl_qmap_end(&db->pc_data))
 		__dump_node_hr((_db_node_t *)node, fp);
 	else
-		fprintf(fp, "Node %"PRIx64" not found...\n", nodeguid);
+		fprintf(fp, "Node 0x%" PRIx64 " not found...\n", nodeguid);
 
 	cl_plock_release(&db->lock);
 }
