@@ -246,6 +246,7 @@ int osm_send_trap144(osm_sm_t *sm, ib_net16_t local)
 
 	madw->mad_addr.dest_lid = pi->master_sm_base_lid;
 	madw->mad_addr.addr_type.smi.source_lid = pi->base_lid;
+	madw->resp_expected = TRUE;
 	madw->fail_msg = CL_DISP_MSGID_NONE;
 
 	smp = osm_madw_get_smp_ptr(madw);

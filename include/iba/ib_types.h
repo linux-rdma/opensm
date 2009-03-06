@@ -2,6 +2,7 @@
  * Copyright (c) 2004-2008 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
+ * Copyright (c) 2009 HNR Consulting. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -3763,8 +3764,8 @@ static inline boolean_t OSM_API
 ib_mad_is_response(IN const ib_mad_t * const p_mad)
 {
 	CL_ASSERT(p_mad);
-	return ((p_mad->method & IB_MAD_METHOD_RESP_MASK) ==
-		IB_MAD_METHOD_RESP_MASK);
+	return (p_mad->method & IB_MAD_METHOD_RESP_MASK ||
+		p_mad->method == IB_MAD_METHOD_TRAP_REPRESS);
 }
 
 /*

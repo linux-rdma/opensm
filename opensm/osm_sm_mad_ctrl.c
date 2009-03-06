@@ -2,6 +2,7 @@
  * Copyright (c) 2004-2008 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
+ * Copyright (c) 2009 HNR Consulting. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -537,6 +538,57 @@ Exit:
  * SEE ALSO
  *********/
 
+/****f* opensm: SM/__osm_sm_mad_ctrl_process_trap_repress
+ * NAME
+ * __osm_sm_mad_ctrl_process_trap_repress
+ *
+ * DESCRIPTION
+ * This function handles method TrapRepress() for received MADs.
+ *
+ * SYNOPSIS
+ */
+static void
+__osm_sm_mad_ctrl_process_trap_repress(IN osm_sm_mad_ctrl_t * const p_ctrl,
+				       IN osm_madw_t * p_madw)
+{
+	ib_smp_t *p_smp;
+
+	OSM_LOG_ENTER(p_ctrl->p_log);
+
+	p_smp = osm_madw_get_smp_ptr(p_madw);
+
+	/*
+	   Note that attr_id (like the rest of the MAD) is in
+	   network byte order.
+	 */
+	switch (p_smp->attr_id) {
+	case IB_MAD_ATTR_NOTICE:
+		break;
+
+	default:
+		cl_atomic_inc(&p_ctrl->p_stats->qp0_mads_rcvd_unknown);
+		OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 3105: "
+			"Unsupported attribute = 0x%X\n",
+			cl_ntoh16(p_smp->attr_id));
+		osm_dump_dr_smp(p_ctrl->p_log, p_smp, OSM_LOG_ERROR);
+		break;
+	}
+
+	osm_mad_pool_put(p_ctrl->p_mad_pool, p_madw);
+
+	OSM_LOG_EXIT(p_ctrl->p_log);
+}
+
+/*
+ * PARAMETERS
+ *
+ * RETURN VALUES
+ *
+ * NOTES
+ *
+ * SEE ALSO
+ *********/
+
 /****f* opensm: SM/__osm_sm_mad_ctrl_rcv_callback
  * NAME
  * __osm_sm_mad_ctrl_rcv_callback
@@ -577,8 +629,7 @@ __osm_sm_mad_ctrl_rcv_callback(IN osm_madw_t * p_madw,
 		osm_dump_dr_smp(p_ctrl->p_log, p_smp, OSM_LOG_DEBUG);
 
 		/* retire the mad or put it back */
-		if (ib_smp_is_response(p_smp) ||
-		    (p_smp->method == IB_MAD_METHOD_TRAP_REPRESS)) {
+		if (ib_smp_is_response(p_smp)) {
 			CL_ASSERT(p_madw->resp_expected == FALSE);
 			__osm_sm_mad_ctrl_retire_trans_mad(p_ctrl, p_madw);
 		} else if (p_madw->resp_expected == TRUE)
@@ -624,10 +675,14 @@ __osm_sm_mad_ctrl_rcv_callback(IN osm_madw_t * p_madw,
 		__osm_sm_mad_ctrl_process_set(p_ctrl, p_madw);
 		break;
 
+	case IB_MAD_METHOD_TRAP_REPRESS:
+		CL_ASSERT(p_req_madw != NULL);
+		__osm_sm_mad_ctrl_process_trap_repress(p_ctrl, p_madw);
+		break;
+
 	case IB_MAD_METHOD_SEND:
 	case IB_MAD_METHOD_REPORT:
 	case IB_MAD_METHOD_REPORT_RESP:
-	case IB_MAD_METHOD_TRAP_REPRESS:
 	default:
 		cl_atomic_inc(&p_ctrl->p_stats->qp0_mads_rcvd_unknown);
 		OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 3112: "

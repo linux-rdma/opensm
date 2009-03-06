@@ -66,8 +66,7 @@ uint64_t __osm_set_wrid_by_p_madw(IN osm_madw_t * p_madw)
 
 	memcpy(&wrid, &p_madw, sizeof(osm_madw_t *));
 	wrid = (wrid << 1) |
-	    ib_mad_is_response(p_madw->p_mad) |
-	    (p_madw->p_mad->method == IB_MAD_METHOD_TRAP_REPRESS);
+	    ib_mad_is_response(p_madw->p_mad);
 	return wrid;
 }
 
