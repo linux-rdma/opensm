@@ -50,12 +50,6 @@
 #endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-inline static boolean_t osmv_mad_is_response(IN const ib_mad_t * p_mad)
-{
-	return (ib_mad_is_response(p_mad) ||
-		(p_mad->method == IB_MAD_METHOD_TRAP_REPRESS));
-}
-
 inline static uint8_t osmv_invert_method(IN uint8_t req_method)
 {
 	switch (req_method) {

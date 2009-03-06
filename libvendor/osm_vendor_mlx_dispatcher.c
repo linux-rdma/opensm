@@ -193,7 +193,7 @@ __osmv_dispatch_route(IN osm_bind_handle_t h_bind,
 {
 	ib_api_status_t ret;
 	osmv_bind_obj_t *p_bo = (osmv_bind_obj_t *) h_bind;
-	boolean_t is_resp = osmv_mad_is_response(p_mad);
+	boolean_t is_resp = ib_mad_is_response(p_mad);
 	boolean_t is_txn;
 	uint64_t key = cl_ntoh64(p_mad->trans_id);
 
