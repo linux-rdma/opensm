@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2009 HNR Consulting. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -54,7 +55,7 @@
 	Future versions could support multiple subents by
 	instantiating more than one osmtest object.
 */
-#define GUID_ARRAY_SIZE 64
+#define MAX_LOCAL_IBPORTS 64
 #define OSMT_DEFAULT_RETRY_COUNT 3
 #define OSMT_DEFAULT_TRANS_TIMEOUT_MILLISEC 1000
 #define OSMT_DEFAULT_TRAP_WAIT_TIMEOUT_SEC 10
@@ -210,9 +211,14 @@ void show_usage()
 static void print_all_guids(IN osmtest_t * p_osmt)
 {
 	ib_api_status_t status;
-	uint32_t num_ports = GUID_ARRAY_SIZE;
-	ib_port_attr_t attr_array[GUID_ARRAY_SIZE];
+	uint32_t num_ports = MAX_LOCAL_IBPORTS;
+	ib_port_attr_t attr_array[MAX_LOCAL_IBPORTS];
 	int i;
+
+	for (i = 0; i < num_ports; i++) {
+		attr_array[i].num_pkeys = 0;
+		attr_array[i].p_pkey_table = NULL;
+	}
 
 	/*
 	   Call the transport layer for a list of local port
@@ -238,9 +244,14 @@ static void print_all_guids(IN osmtest_t * p_osmt)
 ib_net64_t get_port_guid(IN osmtest_t * p_osmt, uint64_t port_guid)
 {
 	ib_api_status_t status;
-	uint32_t num_ports = GUID_ARRAY_SIZE;
-	ib_port_attr_t attr_array[GUID_ARRAY_SIZE];
+	uint32_t num_ports = MAX_LOCAL_IBPORTS;
+	ib_port_attr_t attr_array[MAX_LOCAL_IBPORTS];
 	int i;
+
+	for (i = 0; i < num_ports; i++) {
+		attr_array[i].num_pkeys = 0;
+		attr_array[i].p_pkey_table = NULL;
+	}
 
 	/*
 	   Call the transport layer for a list of local port

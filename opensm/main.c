@@ -2,6 +2,7 @@
  * Copyright (c) 2004-2008 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2008 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
+ * Copyright (c) 2009 HNR Consulting. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -64,7 +65,7 @@ volatile unsigned int osm_exit_flag = 0;
 static volatile unsigned int osm_hup_flag = 0;
 static volatile unsigned int osm_usr1_flag = 0;
 
-#define GUID_ARRAY_SIZE 64
+#define MAX_LOCAL_IBPORTS 64
 #define INVALID_GUID (0xFFFFFFFFFFFFFFFFULL)
 
 static void mark_exit_flag(int signum)
@@ -369,15 +370,17 @@ static void show_usage(void)
  **********************************************************************/
 static ib_net64_t get_port_guid(IN osm_opensm_t * p_osm, uint64_t port_guid)
 {
-	ib_port_attr_t attr_array[GUID_ARRAY_SIZE];
-	uint32_t num_ports = GUID_ARRAY_SIZE;
+	ib_port_attr_t attr_array[MAX_LOCAL_IBPORTS];
+	uint32_t num_ports = MAX_LOCAL_IBPORTS;
 	uint32_t i, choice = 0;
 	ib_api_status_t status;
 
-	/*
-	   Call the transport layer for a list of local port
-	   GUID values.
-	 */
+	for (i = 0; i < num_ports; i++) {
+		attr_array[i].num_pkeys = 0;
+		attr_array[i].p_pkey_table = NULL;
+	}
+
+	/* Call the transport layer for a list of local port GUID values */
 	status = osm_vendor_get_all_port_attr(p_osm->p_vendor, attr_array,
 					      &num_ports);
 	if (status != IB_SUCCESS) {

@@ -2,6 +2,7 @@
  * Copyright (c) 2004-2008 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
+ * Copyright (c) 2009 HNR Consulting. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -556,7 +557,7 @@ osm_vendor_get_all_port_attr(IN osm_vendor_t * const p_vend,
 	umad_ca_t ca;
 	ib_port_attr_t *attr = p_attr_array;
 	unsigned done = 0;
-	int r, i, j;
+	int r = 0, i, j, k;
 
 	OSM_LOG_ENTER(p_vend->p_log);
 
@@ -576,9 +577,7 @@ osm_vendor_get_all_port_attr(IN osm_vendor_t * const p_vend,
 	}
 
 	for (i = 0; i < p_vend->ca_count && !done; i++) {
-		/*
-		 * For each CA, retrieve the port guids
-		 */
+		/* For each CA, retrieve the port attributes */
 		if (umad_get_ca(p_vend->ca_names[i], &ca) == 0) {
 			if (ca.node_type < 1 || ca.node_type > 3)
 				continue;
@@ -590,6 +589,14 @@ osm_vendor_get_all_port_attr(IN osm_vendor_t * const p_vend,
 				attr->port_num = ca.ports[j]->portnum;
 				attr->sm_lid = ca.ports[j]->sm_lid;
 				attr->link_state = ca.ports[j]->state;
+				if (attr->num_pkeys && attr->p_pkey_table) {
+					if (attr->num_pkeys > ca.ports[j]->pkeys_size)
+						attr->num_pkeys = ca.ports[j]->pkeys_size;
+					for (k = 0; k < attr->num_pkeys; k++)
+						attr->p_pkey_table[k] =
+							cl_hton16(ca.ports[j]->pkeys[k]);
+				}
+				attr->num_pkeys = ca.ports[j]->pkeys_size;
 				attr++;
 				if (attr - p_attr_array > *p_num_ports) {
 					done = 1;
@@ -601,7 +608,6 @@ osm_vendor_get_all_port_attr(IN osm_vendor_t * const p_vend,
 	}
 
 	*p_num_ports = attr - p_attr_array;
-	r = 0;
 
 Exit:
 	OSM_LOG_EXIT(p_vend->p_log);
