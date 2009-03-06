@@ -1376,7 +1376,7 @@ static void parse_cmd_line(char *line, osm_opensm_t * p_osm)
 	}
 }
 
-void osm_console(osm_opensm_t * p_osm)
+int osm_console(osm_opensm_t * p_osm)
 {
 	struct pollfd pollfd[2];
 	char *p_line;
@@ -1409,7 +1409,7 @@ void osm_console(osm_opensm_t * p_osm)
 	}
 
 	if (poll(fds, nfds, 1000) <= 0)
-		return;
+		return 0;
 
 #ifdef ENABLE_OSM_CONSOLE_SOCKET
 	if (pollfd[0].revents & POLLIN) {
@@ -1422,7 +1422,7 @@ void osm_console(osm_opensm_t * p_osm)
 				"ERR 4B04: Failed to accept console socket: %s\n",
 				strerror(errno));
 			p_oct->in_fd = -1;
-			return;
+			return 0;
 		}
 		if (inet_ntop
 		    (AF_INET, &sin.sin_addr, p_oct->client_ip,
@@ -1444,7 +1444,7 @@ void osm_console(osm_opensm_t * p_osm)
 				p_oct->client_hn, p_oct->client_ip);
 			close(new_fd);
 		}
-		return;
+		return 0;
 	}
 #endif
 
@@ -1462,5 +1462,19 @@ void osm_console(osm_opensm_t * p_osm)
 			osm_console_exit(p_oct, p_log);
 		if (p_line)
 			free(p_line);
+		return 0;
 	}
+	/* input fd is closed (hanged up) */
+	if (pollfd[1].revents & POLLHUP) {
+		/* If we are using a sowket, we close the current connection */
+		if (p_oct->socket >= 0) {
+			cio_close(p_oct);
+			return 0;
+		}
+		/* If we use a local console, stdin is closed (most probable is pipe ended)
+		 * so we close the local console */
+		return -1;
+	}
+
+	return 0;
 }

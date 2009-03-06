@@ -94,7 +94,7 @@ int is_console_enabled(osm_subn_opt_t * p_opt)
 
 
 #ifdef ENABLE_OSM_CONSOLE_SOCKET
-static int cio_close(osm_console_t * p_oct)
+int cio_close(osm_console_t * p_oct)
 {
 	int rtnval = -1;
 	if (p_oct && (p_oct->in_fd > 0)) {

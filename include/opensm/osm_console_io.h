@@ -83,6 +83,7 @@ int is_console_enabled(osm_subn_opt_t *p_opt);
 
 #ifdef ENABLE_OSM_CONSOLE_SOCKET
 int cio_open(osm_console_t * p_oct, int new_fd, osm_log_t * p_log);
+int cio_close(osm_console_t * p_oct);
 int is_authorized(osm_console_t * p_oct);
 #endif
 

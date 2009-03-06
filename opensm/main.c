@@ -494,9 +494,10 @@ int osm_manager_loop(osm_subn_opt_t * p_opt, osm_opensm_t * p_osm)
 	   Sit here forever - dwell or do console i/o & cmds
 	 */
 	while (!osm_exit_flag) {
-		if (console_init_flag)
-			osm_console(p_osm);
-		else
+		if (console_init_flag) {
+			if (osm_console(p_osm))
+				console_init_flag = 0;
+		} else
 			cl_thread_suspend(10000);
 
 		if (osm_usr1_flag) {
