@@ -77,8 +77,7 @@ static int is_remote(char *str)
 {
 	/* convenience - checks if socket based connection */
 	if (str)
-		return (strcmp(str, OSM_REMOTE_CONSOLE) == 0)
-		    || is_loopback(str);
+		return strcmp(str, OSM_REMOTE_CONSOLE) == 0 || is_loopback(str);
 	return 0;
 }
 
@@ -86,18 +85,53 @@ int is_console_enabled(osm_subn_opt_t * p_opt)
 {
 	/* checks for a variety of types of consoles - default is off or 0 */
 	if (p_opt)
-		return (is_local(p_opt->console)
-			|| is_loopback(p_opt->console)
-			|| is_remote(p_opt->console));
+		return is_local(p_opt->console) || is_loopback(p_opt->console)
+			|| is_remote(p_opt->console);
 	return 0;
 }
 
 
 #ifdef ENABLE_OSM_CONSOLE_SOCKET
+int cio_open(osm_console_t * p_oct, int new_fd, osm_log_t * p_log)
+{
+	/* returns zero if opened fine, -1 otherwise */
+	char *p_line;
+	size_t len;
+	ssize_t n;
+
+	if (p_oct->in_fd >= 0) {
+		FILE *file = fdopen(new_fd, "w+");
+
+		fprintf(file, "OpenSM Console connection already in use\n"
+			"   kill other session (y/n)? ");
+		fflush(file);
+		p_line = NULL;
+		n = getline(&p_line, &len, file);
+		if (n > 0 && (p_line[0] == 'y' || p_line[0] == 'Y'))
+			console_close(p_oct, p_log);
+		else {
+			OSM_LOG(p_log, OSM_LOG_INFO,
+				"Console connection aborted: %s (%s)\n",
+				p_oct->client_hn, p_oct->client_ip);
+			close(new_fd);
+			return -1;
+		}
+	}
+	p_oct->in_fd = new_fd;
+	p_oct->out_fd = p_oct->in_fd;
+	p_oct->in = fdopen(p_oct->in_fd, "w+");
+	p_oct->out = p_oct->in;
+	osm_console_prompt(p_oct->out);
+	OSM_LOG(p_log, OSM_LOG_INFO, "Console connection accepted: %s (%s)\n",
+		p_oct->client_hn, p_oct->client_ip);
+
+	return (p_oct->in == NULL) ? -1 : 0;
+}
+
 int cio_close(osm_console_t * p_oct)
 {
 	int rtnval = -1;
-	if (p_oct && (p_oct->in_fd > 0)) {
+	if (p_oct && p_oct->in_fd > 0) {
 		rtnval = close(p_oct->in_fd);
 		p_oct->in_fd = -1;
 		p_oct->out_fd = -1;
@@ -110,7 +144,7 @@ int cio_close(osm_console_t * p_oct)
 /* close the connection */
 static void console_close(osm_console_t * p_oct, osm_log_t * p_log)
 {
-	if ((p_oct->socket > 0) && (p_oct->in_fd != -1)) {
+	if (p_oct->socket > 0 && p_oct->in_fd != -1) {
 		OSM_LOG(p_log, OSM_LOG_INFO,
 			"Console connection closed: %s (%s)\n",
 			p_oct->client_hn, p_oct->client_ip);
@@ -207,7 +241,7 @@ void osm_console_exit(osm_console_t * p_oct, osm_log_t * p_log)
 {
 	/* currently just close the current connection, not the socket */
 #ifdef ENABLE_OSM_CONSOLE_SOCKET
-	if ((p_oct->socket > 0) && (p_oct->in_fd != -1)) {
+	if (p_oct->socket > 0 && p_oct->in_fd != -1) {
 		OSM_LOG(p_log, OSM_LOG_INFO,
 			"Console connection closed: %s (%s)\n",
 			p_oct->client_hn, p_oct->client_ip);
@@ -215,42 +249,3 @@ void osm_console_exit(osm_console_t * p_oct, osm_log_t * p_log)
 	}
 #endif
 }
-
-#ifdef ENABLE_OSM_CONSOLE_SOCKET
-int cio_open(osm_console_t * p_oct, int new_fd, osm_log_t * p_log)
-{
-	/* returns zero if opened fine, -1 otherwise */
-	char *p_line;
-	size_t len;
-	ssize_t n;
-
-	if (p_oct->in_fd >= 0) {
-		FILE *file = fdopen(new_fd, "w+");
-
-		fprintf(file, "OpenSM Console connection already in use\n"
-			"   kill other session (y/n)? ");
-		fflush(file);
-		p_line = NULL;
-		n = getline(&p_line, &len, file);
-		if (n > 0 && (p_line[0] == 'y' || p_line[0] == 'Y')) {
-			console_close(p_oct, p_log);
-		} else {
-			OSM_LOG(p_log, OSM_LOG_INFO,
-				"Console connection aborted: %s (%s)\n",
-				p_oct->client_hn, p_oct->client_ip);
-			close(new_fd);
-			return -1;
-		}
-	}
-	p_oct->in_fd = new_fd;
-	p_oct->out_fd = p_oct->in_fd;
-	p_oct->in = fdopen(p_oct->in_fd, "w+");
-	p_oct->out = p_oct->in;
-	osm_console_prompt(p_oct->out);
-	OSM_LOG(p_log, OSM_LOG_INFO,
-		"Console connection accepted: %s (%s)\n",
-		p_oct->client_hn, p_oct->client_ip);
-
-	return (p_oct->in == NULL) ? -1 : 0;
-}
-#endif
