@@ -1466,11 +1466,13 @@ int osm_console(osm_opensm_t * p_osm)
 	}
 	/* input fd is closed (hanged up) */
 	if (pollfd[1].revents & POLLHUP) {
+#ifdef ENABLE_OSM_CONSOLE_SOCKET
 		/* If we are using a sowket, we close the current connection */
 		if (p_oct->socket >= 0) {
 			cio_close(p_oct);
 			return 0;
 		}
+#endif
 		/* If we use a local console, stdin is closed (most probable is pipe ended)
 		 * so we close the local console */
 		return -1;
