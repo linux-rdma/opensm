@@ -326,14 +326,14 @@ static ib_api_status_t __osm_send_report(IN osm_infr_t * p_infr_rec,	/* the info
 					 p_infr_rec->h_bind, MAD_BLOCK_SIZE,
 					 &(p_infr_rec->report_addr));
 
-	p_report_madw->resp_expected = TRUE;
-
 	if (!p_report_madw) {
 		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0203"
 			"osm_mad_pool_get failed\n");
 		status = IB_ERROR;
 		goto Exit;
 	}
+
+	p_report_madw->resp_expected = TRUE;
 
 	/* advance trap trans id (cant simply ++ on some systems inside ntoh) */
 	p_mad = osm_madw_get_mad_ptr(p_report_madw);
