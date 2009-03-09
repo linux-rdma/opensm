@@ -106,12 +106,10 @@ int cio_close(osm_console_t * p_oct)
 	}
 	return rtnval;
 }
-#endif
 
 /* close the connection */
 static void console_close(osm_console_t * p_oct, osm_log_t * p_log)
 {
-#ifdef ENABLE_OSM_CONSOLE_SOCKET
 	if ((p_oct->socket > 0) && (p_oct->in_fd != -1)) {
 		OSM_LOG(p_log, OSM_LOG_INFO,
 			"Console connection closed: %s (%s)\n",
@@ -122,14 +120,11 @@ static void console_close(osm_console_t * p_oct, osm_log_t * p_log)
 		close(p_oct->socket);
 		p_oct->socket = -1;
 	}
-#endif
 }
-
 
 /**********************************************************************
  * Do authentication & authorization check
  **********************************************************************/
-#ifdef ENABLE_OSM_CONSOLE_SOCKET
 int is_authorized(osm_console_t * p_oct)
 {
 	/* allowed to use the console? */
