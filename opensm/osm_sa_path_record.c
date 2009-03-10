@@ -66,10 +66,8 @@
 #include <opensm/osm_sa.h>
 #include <opensm/osm_router.h>
 #include <opensm/osm_prefix_route.h>
+#include <opensm/osm_ucast_lash.h>
 
-extern uint8_t osm_get_lash_sl(osm_opensm_t * p_osm,
-			       const osm_port_t * p_src_port,
-			       const osm_port_t * p_dst_port);
 
 typedef struct osm_pr_item {
 	cl_list_item_t list_item;

@@ -2,6 +2,7 @@
  * Copyright (c) 2004-2008 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
+ * Copyright (c) 2009 Sun Microsystems, Inc. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -51,6 +52,44 @@
 #include <opensm/osm_switch.h>
 #include <opensm/osm_helper.h>
 #include <opensm/osm_msgdef.h>
+#include <opensm/osm_opensm.h>
+#include <opensm/osm_ucast_lash.h>
+
+
+/**********************************************************************
+ **********************************************************************/
+static uint8_t
+link_mgr_get_smsl(IN osm_sm_t * sm, IN osm_physp_t * const p_physp)
+{
+	osm_opensm_t *p_osm = sm->p_subn->p_osm;
+	const osm_port_t *p_sm_port;
+	const osm_port_t *p_src_port;
+	ib_net16_t slid;
+	ib_net16_t smlid;
+	uint8_t sl;
+
+	OSM_LOG_ENTER(sm->p_log);
+
+	if (p_osm->routing_engine_used != OSM_ROUTING_ENGINE_TYPE_LASH) {
+		/* Use default SL if lash routing is not used */
+		OSM_LOG_EXIT(sm->p_log);
+		return (OSM_DEFAULT_SL);
+	}
+
+	/* Find osm_port of the SM itself = dest_port */
+	smlid = sm->p_subn->sm_base_lid;
+	p_sm_port = cl_ptr_vector_get(&sm->p_subn->port_lid_tbl, cl_ntoh16(smlid));
+
+	/* Find osm_port of the source = p_physp */
+	slid = osm_physp_get_base_lid(p_physp);
+	p_src_port = cl_ptr_vector_get(&sm->p_subn->port_lid_tbl, cl_ntoh16(slid));
+
+	/* Call lash to find proper SL */
+	sl = osm_get_lash_sl(p_osm, p_src_port, p_sm_port);
+
+	OSM_LOG_EXIT(sm->p_log);
+	return (sl);
+}
 
 /**********************************************************************
  **********************************************************************/
@@ -67,6 +106,7 @@ __osm_link_mgr_set_physp_pi(osm_sm_t * sm,
 	ib_api_status_t status;
 	uint8_t port_num;
 	uint8_t mtu;
+	uint8_t smsl = OSM_DEFAULT_SL;
 	uint8_t op_vls;
 	boolean_t esp0 = FALSE;
 	boolean_t send_set = FALSE;
@@ -75,6 +115,8 @@ __osm_link_mgr_set_physp_pi(osm_sm_t * sm,
 	OSM_LOG_ENTER(sm->p_log);
 
 	p_node = osm_physp_get_node_ptr(p_physp);
+
+	p_old_pi = &p_physp->port_info;
 
 	port_num = osm_physp_get_port_num(p_physp);
 
@@ -93,21 +135,29 @@ __osm_link_mgr_set_physp_pi(osm_sm_t * sm,
 
 		if (ib_switch_info_is_enhanced_port0(&p_node->sw->switch_info)
 		    == FALSE) {
-			/* This means the switch doesn't support enhanced port 0.
-			   Can skip it. */
-			OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-				"Skipping port 0, GUID 0x%016" PRIx64 "\n",
-				cl_ntoh64(osm_physp_get_port_guid(p_physp)));
-			goto Exit;
+
+			/* Even for base port 0 we might have to set smsl
+			   (if we are using lash routing) */
+			smsl = link_mgr_get_smsl(sm, p_physp);
+			if (smsl != ib_port_info_get_master_smsl(p_old_pi)) {
+				send_set = TRUE;
+				OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
+				    "Setting SMSL to %d on port 0 GUID 0x%016"
+				    PRIx64 "\n", smsl,
+				    cl_ntoh64(osm_physp_get_port_guid(p_physp)));
+			} else {
+				/* This means the switch doesn't support
+				   enhanced port 0 and we don't need to
+				   change SMSL. Can skip it. */
+				OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
+				    "Skipping port 0, GUID 0x%016" PRIx64 "\n",
+				    cl_ntoh64(osm_physp_get_port_guid(p_physp)));
+				goto Exit;
+			}
+		} else {
+			esp0 = TRUE;
 		}
-		esp0 = TRUE;
 	}
-
-	/*
-	   PAST THIS POINT WE ARE HANDLING EITHER A NON PORT 0 OR ENHANCED PORT 0
-	 */
-
-	p_old_pi = &p_physp->port_info;
 
 	memset(payload, 0, IB_SMP_DATA_SIZE);
 	memcpy(payload, p_old_pi, sizeof(ib_port_info_t));
@@ -123,6 +173,16 @@ __osm_link_mgr_set_physp_pi(osm_sm_t * sm,
 	 */
 	p_pi->state_info2 = 0x02;
 	ib_port_info_set_port_state(p_pi, port_state);
+
+	/* Check whether this is base port0 smsl handling only */
+	if (port_num == 0 && esp0 == FALSE) {
+		ib_port_info_set_master_smsl(p_pi, smsl);
+		goto Send;
+	}
+
+	/*
+	   PAST THIS POINT WE ARE HANDLING EITHER A NON PORT 0 OR ENHANCED PORT 0
+	 */
 
 	if (ib_port_info_get_link_down_def_state(p_pi) !=
 	    ib_port_info_get_link_down_def_state(p_old_pi))
@@ -159,6 +219,20 @@ __osm_link_mgr_set_physp_pi(osm_sm_t * sm,
 				   &p_old_pi->master_sm_base_lid,
 				   sizeof(p_pi->master_sm_base_lid)))
 				send_set = TRUE;
+
+			smsl = link_mgr_get_smsl(sm, p_physp);
+			if (smsl != ib_port_info_get_master_smsl(p_old_pi)) {
+
+				ib_port_info_set_master_smsl(p_pi, smsl);
+
+				OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
+					"Setting SMSL to %d on GUID 0x%016"
+					PRIx64 ", port %d\n",
+					smsl, cl_ntoh64(osm_physp_get_port_guid(p_physp)),
+					port_num);
+
+				send_set = TRUE;
+			}
 
 			p_pi->m_key_lease_period =
 			    sm->p_subn->opt.m_key_lease_period;
@@ -290,6 +364,7 @@ __osm_link_mgr_set_physp_pi(osm_sm_t * sm,
 		}
 	}
 
+Send:
 	if (port_state != IB_LINK_NO_CHANGE &&
 	    port_state != ib_port_info_get_port_state(p_old_pi)) {
 		send_set = TRUE;

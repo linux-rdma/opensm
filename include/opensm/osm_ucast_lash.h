@@ -44,6 +44,8 @@
 #ifndef OSM_UCAST_LASH_H
 #define OSM_UCAST_LASH_H
 
+#include <opensm/osm_mesh.h>
+
 enum {
 	UNQUEUED,
 	Q_MEMBER,
@@ -91,5 +93,8 @@ typedef struct _lash {
 	int *num_mst_in_lane;
 	int ***virtual_location;
 } lash_t;
+
+uint8_t osm_get_lash_sl(osm_opensm_t * p_osm, const osm_port_t * p_src_port,
+			const osm_port_t * p_dst_port);
 
 #endif

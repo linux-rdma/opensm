@@ -126,7 +126,7 @@ static void connect_switches(lash_t * p_lash, int sw1, int sw2, int phy_port_1)
 		phy_port_1);
 }
 
-static osm_switch_t *get_osm_switch_from_port(osm_port_t * port)
+static osm_switch_t *get_osm_switch_from_port(const osm_port_t * port)
 {
 	osm_physp_t *p = port->p_physp;
 	if (p->p_node->sw)
@@ -1276,8 +1276,8 @@ static void lash_delete(void *context)
 	free(p_lash);
 }
 
-uint8_t osm_get_lash_sl(osm_opensm_t * p_osm, osm_port_t * p_src_port,
-			osm_port_t * p_dst_port)
+uint8_t osm_get_lash_sl(osm_opensm_t * p_osm, const osm_port_t * p_src_port,
+			const osm_port_t * p_dst_port)
 {
 	unsigned dst_id;
 	unsigned src_id;
