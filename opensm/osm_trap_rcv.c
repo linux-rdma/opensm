@@ -649,7 +649,6 @@ Exit:
 }
 
 /**********************************************************************
- CURRENTLY WE ARE NOT CREATING TRAPS - SO THIS CALL IN AN ERROR
 **********************************************************************/
 static void
 trap_rcv_process_response(IN osm_sm_t * sm,
