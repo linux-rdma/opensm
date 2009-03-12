@@ -2,7 +2,8 @@
  * Copyright (c) 2004-2008 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2006 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
- * Copyright (c) 2008 Xsigo Systems Inc.  All rights reserved.
+ * Copyright (c) 2008 Xsigo Systems Inc. All rights reserved.
+ * Copyright (c) 2009 HNR Consulting. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -82,12 +83,6 @@ typedef struct osm_path_parms {
 	uint8_t pkt_life;
 	boolean_t reversible;
 } osm_path_parms_t;
-
-static const ib_gid_t zero_gid = { {0x00, 0x00, 0x00, 0x00,
-				    0x00, 0x00, 0x00, 0x00,
-				    0x00, 0x00, 0x00, 0x00,
-				    0x00, 0x00, 0x00, 0x00},
-};
 
 /**********************************************************************
  **********************************************************************/
@@ -775,10 +770,8 @@ __osm_pr_rcv_build_pr(IN osm_sa_t * sa,
 
 	p_src_physp = p_src_port->p_physp;
 
-	if (p_dgid) {
-		if (memcmp(p_dgid, &zero_gid, sizeof(*p_dgid)))
-			is_nonzero_gid = 1;
-	}
+	if (p_dgid)
+		is_nonzero_gid = ib_gid_is_notzero(p_dgid);
 
 	if (is_nonzero_gid)
 		p_pr->dgid = *p_dgid;

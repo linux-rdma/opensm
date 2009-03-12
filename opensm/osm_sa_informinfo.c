@@ -2,6 +2,7 @@
  * Copyright (c) 2004-2008 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
+ * Copyright (c) 2009 HNR Consulting. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -95,7 +96,6 @@ __validate_ports_access_rights(IN osm_sa_t * sa,
 	ib_net16_t lid_range_end;
 	ib_net16_t lid;
 	const cl_ptr_vector_t *p_tbl;
-	ib_gid_t zero_gid;
 
 	OSM_LOG_ENTER(sa->p_log);
 
@@ -103,9 +103,7 @@ __validate_ports_access_rights(IN osm_sa_t * sa,
 	p_requester_physp = osm_get_physp_by_mad_addr(sa->p_log, sa->p_subn,
 						      &p_infr_rec->report_addr);
 
-	memset(&zero_gid, 0, sizeof(zero_gid));
-	if (memcmp(&(p_infr_rec->inform_record.inform_info.gid),
-		   &zero_gid, sizeof(ib_gid_t))) {
+	if (ib_gid_is_notzero(&p_infr_rec->inform_record.inform_info.gid)) {
 		/* a gid is defined */
 		portguid =
 		    p_infr_rec->inform_record.inform_info.gid.unicast.

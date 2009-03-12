@@ -2,6 +2,7 @@
  * Copyright (c) 2004-2008 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
+ * Copyright (c) 2009 HNR Consulting. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -108,7 +109,6 @@ __match_inf_rec(IN const cl_list_item_t * const p_list_item, IN void *context)
 	osm_infr_t *p_infr = (osm_infr_t *) p_list_item;
 	osm_log_t *p_log = p_infr_rec->sa->p_log;
 	cl_status_t status = CL_NOT_FOUND;
-	ib_gid_t all_zero_gid;
 
 	OSM_LOG_ENTER(p_log);
 
@@ -118,11 +118,8 @@ __match_inf_rec(IN const cl_list_item_t * const p_list_item, IN void *context)
 		goto Exit;
 	}
 
-	memset(&all_zero_gid, 0, sizeof(ib_gid_t));
-
 	/* if inform_info.gid is not zero, ignore lid range */
-	if (memcmp(&p_infr_rec->inform_record.inform_info.gid, &all_zero_gid,
-		    sizeof(p_infr_rec->inform_record.inform_info.gid))) {
+	if (ib_gid_is_notzero(&p_infr_rec->inform_record.inform_info.gid)) {
 		if (memcmp(&p_infr->inform_record.inform_info.gid,
 			   &p_infr_rec->inform_record.inform_info.gid,
 			   sizeof(p_infr->inform_record.inform_info.gid))) {
