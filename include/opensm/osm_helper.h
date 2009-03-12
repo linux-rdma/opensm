@@ -2,6 +2,7 @@
  * Copyright (c) 2004-2008 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
+ * Copyright (c) 2009 HNR Consulting. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -166,6 +167,37 @@ const char *ib_get_trap_str(uint16_t trap_num);
 * RETURN VALUES
 *	Name of the trap.
 *
+*********/
+
+extern const ib_gid_t ib_zero_gid;
+
+/****f* IBA Base: Types/ib_gid_is_notzero
+* NAME
+*	ib_gid_is_notzero
+*
+* DESCRIPTION
+*	Returns a boolean indicating whether or not the GID is zero.
+*
+* SYNOPSIS
+*/
+static inline boolean_t ib_gid_is_notzero(IN const ib_gid_t * p_gid)
+{
+	return memcmp(p_gid, &ib_zero_gid, sizeof(*p_gid));
+}
+
+/*
+* PARAMETERS
+*	p_gid
+*		[in] Pointer to the GID object.
+*
+* RETURN VALUES
+*	Returns TRUE if GID is not zero.
+*	FALSE otherwise.
+*
+* NOTES
+*
+* SEE ALSO
+*	ib_gid_t
 *********/
 
 /****f* OpenSM: Helper/osm_dump_port_info
