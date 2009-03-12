@@ -217,8 +217,8 @@ typedef struct ftree_fabric_t_ {
  **
  ***************************************************/
 
-static int OSM_CDECL __osm_ftree_compare_switches_by_index(IN const void *p1,
-							   IN const void *p2)
+static int OSM_CDECL compare_switches_by_index(IN const void *p1,
+					       IN const void *p2)
 {
 	ftree_sw_t **pp_sw1 = (ftree_sw_t **) p1;
 	ftree_sw_t **pp_sw2 = (ftree_sw_t **) p2;
@@ -236,18 +236,15 @@ static int OSM_CDECL __osm_ftree_compare_switches_by_index(IN const void *p1,
 /***************************************************/
 
 static int OSM_CDECL
-__osm_ftree_compare_port_groups_by_remote_switch_index(IN const void *p1,
-						       IN const void *p2)
+compare_port_groups_by_remote_switch_index(IN const void *p1,
+					   IN const void *p2)
 {
 	ftree_port_group_t **pp_g1 = (ftree_port_group_t **) p1;
 	ftree_port_group_t **pp_g2 = (ftree_port_group_t **) p2;
 
 	return
-	    __osm_ftree_compare_switches_by_index(&
-						  ((*pp_g1)->remote_hca_or_sw.
-						   p_sw),
-						  &((*pp_g2)->remote_hca_or_sw.
-						    p_sw));
+	    compare_switches_by_index(&((*pp_g1)->remote_hca_or_sw.p_sw),
+				      &((*pp_g2)->remote_hca_or_sw.p_sw));
 }
 
 /***************************************************
@@ -256,14 +253,14 @@ __osm_ftree_compare_port_groups_by_remote_switch_index(IN const void *p1,
  **
  ***************************************************/
 
-static void __osm_ftree_tuple_init(IN ftree_tuple_t tuple)
+static void tuple_init(IN ftree_tuple_t tuple)
 {
 	memset(tuple, 0xFF, FTREE_TUPLE_LEN);
 }
 
 /***************************************************/
 
-static inline boolean_t __osm_ftree_tuple_assigned(IN ftree_tuple_t tuple)
+static inline boolean_t tuple_assigned(IN ftree_tuple_t tuple)
 {
 	return (tuple[0] != 0xFF);
 }
@@ -272,14 +269,14 @@ static inline boolean_t __osm_ftree_tuple_assigned(IN ftree_tuple_t tuple)
 
 #define FTREE_TUPLE_BUFFERS_NUM 6
 
-static char *__osm_ftree_tuple_to_str(IN ftree_tuple_t tuple)
+static char *tuple_to_str(IN ftree_tuple_t tuple)
 {
 	static char buffer[FTREE_TUPLE_BUFFERS_NUM][FTREE_TUPLE_BUFF_LEN];
 	static uint8_t ind = 0;
 	char *ret_buffer;
 	uint32_t i;
 
-	if (!__osm_ftree_tuple_assigned(tuple))
+	if (!tuple_assigned(tuple))
 		return "INDEX.NOT.ASSIGNED";
 
 	buffer[ind][0] = '\0';
@@ -295,11 +292,11 @@ static char *__osm_ftree_tuple_to_str(IN ftree_tuple_t tuple)
 	ret_buffer = buffer[ind];
 	ind = (ind + 1) % FTREE_TUPLE_BUFFERS_NUM;
 	return ret_buffer;
-}				/* __osm_ftree_tuple_to_str() */
+} /* tuple_to_str() */
 
 /***************************************************/
 
-static inline ftree_tuple_key_t __osm_ftree_tuple_to_key(IN ftree_tuple_t tuple)
+static inline ftree_tuple_key_t tuple_to_key(IN ftree_tuple_t tuple)
 {
 	ftree_tuple_key_t key;
 	memcpy(&key, tuple, FTREE_TUPLE_LEN);
@@ -308,7 +305,7 @@ static inline ftree_tuple_key_t __osm_ftree_tuple_to_key(IN ftree_tuple_t tuple)
 
 /***************************************************/
 
-static inline void __osm_ftree_tuple_from_key(IN ftree_tuple_t tuple,
+static inline void tuple_from_key(IN ftree_tuple_t tuple,
 					      IN ftree_tuple_key_t key)
 {
 	memcpy(tuple, &key, FTREE_TUPLE_LEN);
@@ -320,8 +317,7 @@ static inline void __osm_ftree_tuple_from_key(IN ftree_tuple_t tuple,
  **
  ***************************************************/
 
-static ftree_sw_tbl_element_t *__osm_ftree_sw_tbl_element_create(IN ftree_sw_t *
-								 p_sw)
+static ftree_sw_tbl_element_t *sw_tbl_element_create(IN ftree_sw_t * p_sw)
 {
 	ftree_sw_tbl_element_t *p_element =
 	    (ftree_sw_tbl_element_t *) malloc(sizeof(ftree_sw_tbl_element_t));
@@ -335,8 +331,7 @@ static ftree_sw_tbl_element_t *__osm_ftree_sw_tbl_element_create(IN ftree_sw_t *
 
 /***************************************************/
 
-static void __osm_ftree_sw_tbl_element_destroy(IN ftree_sw_tbl_element_t *
-					       p_element)
+static void sw_tbl_element_destroy(IN ftree_sw_tbl_element_t * p_element)
 {
 	if (!p_element)
 		return;
@@ -349,8 +344,8 @@ static void __osm_ftree_sw_tbl_element_destroy(IN ftree_sw_tbl_element_t *
  **
  ***************************************************/
 
-static ftree_port_t *__osm_ftree_port_create(IN uint8_t port_num,
-					     IN uint8_t remote_port_num)
+static ftree_port_t *port_create(IN uint8_t port_num,
+				 IN uint8_t remote_port_num)
 {
 	ftree_port_t *p_port = (ftree_port_t *) malloc(sizeof(ftree_port_t));
 	if (!p_port)
@@ -365,7 +360,7 @@ static ftree_port_t *__osm_ftree_port_create(IN uint8_t port_num,
 
 /***************************************************/
 
-static void __osm_ftree_port_destroy(IN ftree_port_t * p_port)
+static void port_destroy(IN ftree_port_t * p_port)
 {
 	if (p_port)
 		free(p_port);
@@ -378,18 +373,18 @@ static void __osm_ftree_port_destroy(IN ftree_port_t * p_port)
  ***************************************************/
 
 static ftree_port_group_t *
-__osm_ftree_port_group_create(IN ib_net16_t base_lid,
-			      IN ib_net16_t remote_base_lid,
-			      IN ib_net64_t port_guid,
-			      IN ib_net64_t node_guid,
-			      IN uint8_t node_type,
-		              IN void *p_hca_or_sw,
-			      IN ib_net64_t remote_port_guid,
-			      IN ib_net64_t remote_node_guid,
-			      IN uint8_t remote_node_type,
-			      IN void *p_remote_hca_or_sw,
-			      IN boolean_t is_cn,
-			      IN boolean_t is_io)
+port_group_create(IN ib_net16_t base_lid,
+		  IN ib_net16_t remote_base_lid,
+		  IN ib_net64_t port_guid,
+		  IN ib_net64_t node_guid,
+		  IN uint8_t node_type,
+		  IN void *p_hca_or_sw,
+		  IN ib_net64_t remote_port_guid,
+		  IN ib_net64_t remote_node_guid,
+		  IN uint8_t remote_node_type,
+		  IN void *p_remote_hca_or_sw,
+		  IN boolean_t is_cn,
+		  IN boolean_t is_io)
 {
 	ftree_port_group_t *p_group =
 	    (ftree_port_group_t *) malloc(sizeof(ftree_port_group_t));
@@ -439,11 +434,11 @@ __osm_ftree_port_group_create(IN ib_net16_t base_lid,
 	p_group->is_cn = is_cn;
 	p_group->is_io = is_io;
 	return p_group;
-}				/* __osm_ftree_port_group_create() */
+} /* port_group_create() */
 
 /***************************************************/
 
-static void __osm_ftree_port_group_destroy(IN ftree_port_group_t * p_group)
+static void port_group_destroy(IN ftree_port_group_t * p_group)
 {
 	uint32_t i;
 	uint32_t size;
@@ -456,18 +451,18 @@ static void __osm_ftree_port_group_destroy(IN ftree_port_group_t * p_group)
 	size = cl_ptr_vector_get_size(&p_group->ports);
 	for (i = 0; i < size; i++) {
 		cl_ptr_vector_at(&p_group->ports, i, (void *)&p_port);
-		__osm_ftree_port_destroy(p_port);
+		port_destroy(p_port);
 	}
 	cl_ptr_vector_destroy(&p_group->ports);
 	free(p_group);
-}				/* __osm_ftree_port_group_destroy() */
+} /* port_group_destroy() */
 
 /***************************************************/
 
 static void
-__osm_ftree_port_group_dump(IN ftree_fabric_t * p_ftree,
-			    IN ftree_port_group_t * p_group,
-			    IN ftree_direction_t direction)
+port_group_dump(IN ftree_fabric_t * p_ftree,
+		IN ftree_port_group_t * p_group,
+		IN ftree_direction_t direction)
 {
 	ftree_port_t *p_port;
 	uint32_t size;
@@ -504,13 +499,13 @@ __osm_ftree_port_group_dump(IN ftree_fabric_t * p_ftree,
 		cl_ntoh64(p_group->remote_port_guid),
 		cl_ntoh16(p_group->remote_base_lid));
 
-}				/* __osm_ftree_port_group_dump() */
+} /* port_group_dump() */
 
 /***************************************************/
 
 static void
-__osm_ftree_port_group_add_port(IN ftree_port_group_t * p_group,
-				IN uint8_t port_num, IN uint8_t remote_port_num)
+port_group_add_port(IN ftree_port_group_t * p_group,
+		    IN uint8_t port_num, IN uint8_t remote_port_num)
 {
 	uint16_t i;
 	ftree_port_t *p_port;
@@ -521,7 +516,7 @@ __osm_ftree_port_group_add_port(IN ftree_port_group_t * p_group,
 			return;
 	}
 
-	p_port = __osm_ftree_port_create(port_num, remote_port_num);
+	p_port = port_create(port_num, remote_port_num);
 	cl_ptr_vector_insert(&p_group->ports, p_port, NULL);
 }
 
@@ -531,8 +526,8 @@ __osm_ftree_port_group_add_port(IN ftree_port_group_t * p_group,
  **
  ***************************************************/
 
-static ftree_sw_t *__osm_ftree_sw_create(IN ftree_fabric_t * p_ftree,
-					 IN osm_switch_t * p_osm_sw)
+static ftree_sw_t *sw_create(IN ftree_fabric_t * p_ftree,
+			     IN osm_switch_t * p_osm_sw)
 {
 	ftree_sw_t *p_sw;
 	uint8_t ports_num;
@@ -548,7 +543,7 @@ static ftree_sw_t *__osm_ftree_sw_create(IN ftree_fabric_t * p_ftree,
 
 	p_sw->p_osm_sw = p_osm_sw;
 	p_sw->rank = 0xFFFFFFFF;
-	__osm_ftree_tuple_init(p_sw->tuple);
+	tuple_init(p_sw->tuple);
 
 	p_sw->base_lid = osm_node_get_base_lid(p_sw->p_osm_sw->p_node, 0);
 
@@ -566,12 +561,12 @@ static ftree_sw_t *__osm_ftree_sw_create(IN ftree_fabric_t * p_ftree,
 	memset(p_osm_sw->new_lft, OSM_NO_PATH, IB_LID_UCAST_END_HO + 1);
 
 	return p_sw;
-}				/* __osm_ftree_sw_create() */
+} /* sw_create() */
 
 /***************************************************/
 
-static void __osm_ftree_sw_destroy(IN ftree_fabric_t * p_ftree,
-				   IN ftree_sw_t * p_sw)
+static void sw_destroy(IN ftree_fabric_t * p_ftree,
+		       IN ftree_sw_t * p_sw)
 {
 	uint8_t i;
 
@@ -579,20 +574,20 @@ static void __osm_ftree_sw_destroy(IN ftree_fabric_t * p_ftree,
 		return;
 
 	for (i = 0; i < p_sw->down_port_groups_num; i++)
-		__osm_ftree_port_group_destroy(p_sw->down_port_groups[i]);
+		port_group_destroy(p_sw->down_port_groups[i]);
 	for (i = 0; i < p_sw->up_port_groups_num; i++)
-		__osm_ftree_port_group_destroy(p_sw->up_port_groups[i]);
+		port_group_destroy(p_sw->up_port_groups[i]);
 	if (p_sw->down_port_groups)
 		free(p_sw->down_port_groups);
 	if (p_sw->up_port_groups)
 		free(p_sw->up_port_groups);
 
 	free(p_sw);
-}				/* __osm_ftree_sw_destroy() */
+} /* sw_destroy() */
 
 /***************************************************/
 
-static uint64_t __osm_ftree_sw_get_guid_no(IN ftree_sw_t * p_sw)
+static uint64_t sw_get_guid_no(IN ftree_sw_t * p_sw)
 {
 	if (!p_sw)
 		return 0;
@@ -601,15 +596,15 @@ static uint64_t __osm_ftree_sw_get_guid_no(IN ftree_sw_t * p_sw)
 
 /***************************************************/
 
-static uint64_t __osm_ftree_sw_get_guid_ho(IN ftree_sw_t * p_sw)
+static uint64_t sw_get_guid_ho(IN ftree_sw_t * p_sw)
 {
-	return cl_ntoh64(__osm_ftree_sw_get_guid_no(p_sw));
+	return cl_ntoh64(sw_get_guid_no(p_sw));
 }
 
 /***************************************************/
 
-static void __osm_ftree_sw_dump(IN ftree_fabric_t * p_ftree,
-				IN ftree_sw_t * p_sw)
+static void sw_dump(IN ftree_fabric_t * p_ftree,
+		    IN ftree_sw_t * p_sw)
 {
 	uint32_t i;
 
@@ -622,23 +617,24 @@ static void __osm_ftree_sw_dump(IN ftree_fabric_t * p_ftree,
 	OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
 		"Switch index: %s, GUID: 0x%016" PRIx64
 		", Ports: %u DOWN, %u UP\n",
-		__osm_ftree_tuple_to_str(p_sw->tuple),
-		__osm_ftree_sw_get_guid_ho(p_sw), p_sw->down_port_groups_num,
+		tuple_to_str(p_sw->tuple),
+		sw_get_guid_ho(p_sw), p_sw->down_port_groups_num,
 		p_sw->up_port_groups_num);
 
 	for (i = 0; i < p_sw->down_port_groups_num; i++)
-		__osm_ftree_port_group_dump(p_ftree,
-					    p_sw->down_port_groups[i],
-					    FTREE_DIRECTION_DOWN);
+		port_group_dump(p_ftree,
+				p_sw->down_port_groups[i],
+				FTREE_DIRECTION_DOWN);
 	for (i = 0; i < p_sw->up_port_groups_num; i++)
-		__osm_ftree_port_group_dump(p_ftree, p_sw->up_port_groups[i],
-					    FTREE_DIRECTION_UP);
+		port_group_dump(p_ftree,
+				p_sw->up_port_groups[i],
+				FTREE_DIRECTION_UP);
 
-}				/* __osm_ftree_sw_dump() */
+} /* sw_dump() */
 
 /***************************************************/
 
-static boolean_t __osm_ftree_sw_ranked(IN ftree_sw_t * p_sw)
+static boolean_t sw_ranked(IN ftree_sw_t * p_sw)
 {
 	return (p_sw->rank != 0xFFFFFFFF);
 }
@@ -646,9 +642,9 @@ static boolean_t __osm_ftree_sw_ranked(IN ftree_sw_t * p_sw)
 /***************************************************/
 
 static ftree_port_group_t *
-__osm_ftree_sw_get_port_group_by_remote_lid(IN ftree_sw_t * p_sw,
-					    IN ib_net16_t remote_base_lid,
-					    IN ftree_direction_t direction)
+sw_get_port_group_by_remote_lid(IN ftree_sw_t * p_sw,
+				IN ib_net16_t remote_base_lid,
+				IN ftree_direction_t direction)
 {
 	uint32_t i;
 	uint32_t size;
@@ -667,39 +663,38 @@ __osm_ftree_sw_get_port_group_by_remote_lid(IN ftree_sw_t * p_sw,
 			return port_groups[i];
 
 	return NULL;
-}				/* __osm_ftree_sw_get_port_group_by_remote_lid() */
+} /* sw_get_port_group_by_remote_lid() */
 
 /***************************************************/
 
 static void
-__osm_ftree_sw_add_port(IN ftree_sw_t * p_sw,
-			IN uint8_t port_num,
-			IN uint8_t remote_port_num,
-			IN ib_net16_t base_lid,
-			IN ib_net16_t remote_base_lid,
-			IN ib_net64_t port_guid,
-			IN ib_net64_t remote_port_guid,
-			IN ib_net64_t remote_node_guid,
-			IN uint8_t remote_node_type,
-			IN void *p_remote_hca_or_sw,
-			IN ftree_direction_t direction)
+sw_add_port(IN ftree_sw_t * p_sw,
+	    IN uint8_t port_num,
+	    IN uint8_t remote_port_num,
+	    IN ib_net16_t base_lid,
+	    IN ib_net16_t remote_base_lid,
+	    IN ib_net64_t port_guid,
+	    IN ib_net64_t remote_port_guid,
+	    IN ib_net64_t remote_node_guid,
+	    IN uint8_t remote_node_type,
+	    IN void *p_remote_hca_or_sw,
+	    IN ftree_direction_t direction)
 {
 	ftree_port_group_t *p_group =
-	    __osm_ftree_sw_get_port_group_by_remote_lid(p_sw, remote_base_lid,
-							direction);
+	    sw_get_port_group_by_remote_lid(p_sw, remote_base_lid, direction);
 
 	if (!p_group) {
-		p_group = __osm_ftree_port_group_create(base_lid,
-							remote_base_lid,
-							port_guid,
-							__osm_ftree_sw_get_guid_no
-							(p_sw),
-							IB_NODE_TYPE_SWITCH,
-							p_sw, remote_port_guid,
-							remote_node_guid,
-							remote_node_type,
-							p_remote_hca_or_sw,
-							FALSE, FALSE);
+		p_group = port_group_create(base_lid,
+					    remote_base_lid,
+					    port_guid,
+					    sw_get_guid_no
+					    (p_sw),
+					    IB_NODE_TYPE_SWITCH,
+					    p_sw, remote_port_guid,
+					    remote_node_guid,
+					    remote_node_type,
+					    p_remote_hca_or_sw,
+					    FALSE, FALSE);
 		CL_ASSERT(p_group);
 
 		if (direction == FTREE_DIRECTION_UP)
@@ -709,16 +704,16 @@ __osm_ftree_sw_add_port(IN ftree_sw_t * p_sw,
 			p_sw->down_port_groups[p_sw->down_port_groups_num++] =
 			    p_group;
 	}
-	__osm_ftree_port_group_add_port(p_group, port_num, remote_port_num);
+	port_group_add_port(p_group, port_num, remote_port_num);
 
-}				/* __osm_ftree_sw_add_port() */
+} /* sw_add_port() */
 
 /***************************************************/
 
 static inline cl_status_t
-__osm_ftree_sw_set_hops(IN ftree_sw_t * p_sw,
-			IN uint16_t lid_ho, IN uint8_t port_num,
-			IN uint8_t hops)
+sw_set_hops(IN ftree_sw_t * p_sw,
+	    IN uint16_t lid_ho, IN uint8_t port_num,
+	    IN uint8_t hops)
 {
 	/* set local min hop table(LID) */
 	return osm_switch_set_hops(p_sw->p_osm_sw, lid_ho, port_num, hops);
@@ -730,7 +725,7 @@ __osm_ftree_sw_set_hops(IN ftree_sw_t * p_sw,
  **
  ***************************************************/
 
-static ftree_hca_t *__osm_ftree_hca_create(IN osm_node_t * p_osm_node)
+static ftree_hca_t *hca_create(IN osm_node_t * p_osm_node)
 {
 	ftree_hca_t *p_hca = (ftree_hca_t *) malloc(sizeof(ftree_hca_t));
 	if (p_hca == NULL)
@@ -749,7 +744,7 @@ static ftree_hca_t *__osm_ftree_hca_create(IN osm_node_t * p_osm_node)
 
 /***************************************************/
 
-static void __osm_ftree_hca_destroy(IN ftree_hca_t * p_hca)
+static void hca_destroy(IN ftree_hca_t * p_hca)
 {
 	uint32_t i;
 
@@ -757,7 +752,7 @@ static void __osm_ftree_hca_destroy(IN ftree_hca_t * p_hca)
 		return;
 
 	for (i = 0; i < p_hca->up_port_groups_num; i++)
-		__osm_ftree_port_group_destroy(p_hca->up_port_groups[i]);
+		port_group_destroy(p_hca->up_port_groups[i]);
 
 	if (p_hca->up_port_groups)
 		free(p_hca->up_port_groups);
@@ -767,7 +762,7 @@ static void __osm_ftree_hca_destroy(IN ftree_hca_t * p_hca)
 
 /***************************************************/
 
-static uint64_t __osm_ftree_hca_get_guid_no(IN ftree_hca_t * p_hca)
+static uint64_t hca_get_guid_no(IN ftree_hca_t * p_hca)
 {
 	if (!p_hca)
 		return 0;
@@ -776,14 +771,14 @@ static uint64_t __osm_ftree_hca_get_guid_no(IN ftree_hca_t * p_hca)
 
 /***************************************************/
 
-static uint64_t __osm_ftree_hca_get_guid_ho(IN ftree_hca_t * p_hca)
+static uint64_t hca_get_guid_ho(IN ftree_hca_t * p_hca)
 {
-	return cl_ntoh64(__osm_ftree_hca_get_guid_no(p_hca));
+	return cl_ntoh64(hca_get_guid_no(p_hca));
 }
 
 /***************************************************/
 
-static void __osm_ftree_hca_dump(IN ftree_fabric_t * p_ftree,
+static void hca_dump(IN ftree_fabric_t * p_ftree,
 				 IN ftree_hca_t * p_hca)
 {
 	uint32_t i;
@@ -796,18 +791,18 @@ static void __osm_ftree_hca_dump(IN ftree_fabric_t * p_ftree,
 
 	OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
 		"CA GUID: 0x%016" PRIx64 ", Ports: %u UP\n",
-		__osm_ftree_hca_get_guid_ho(p_hca), p_hca->up_port_groups_num);
+		hca_get_guid_ho(p_hca), p_hca->up_port_groups_num);
 
 	for (i = 0; i < p_hca->up_port_groups_num; i++)
-		__osm_ftree_port_group_dump(p_ftree, p_hca->up_port_groups[i],
-					    FTREE_DIRECTION_UP);
+		port_group_dump(p_ftree, p_hca->up_port_groups[i],
+				FTREE_DIRECTION_UP);
 }
 
 /***************************************************/
 
 static ftree_port_group_t *
-__osm_ftree_hca_get_port_group_by_remote_lid(IN ftree_hca_t * p_hca,
-					     IN ib_net16_t remote_base_lid)
+hca_get_port_group_by_remote_lid(IN ftree_hca_t * p_hca,
+				 IN ib_net16_t remote_base_lid)
 {
 	uint32_t i;
 	for (i = 0; i < p_hca->up_port_groups_num; i++)
@@ -821,17 +816,17 @@ __osm_ftree_hca_get_port_group_by_remote_lid(IN ftree_hca_t * p_hca,
 /***************************************************/
 
 static void
-__osm_ftree_hca_add_port(IN ftree_hca_t * p_hca,
-			 IN uint8_t port_num,
-			 IN uint8_t remote_port_num,
-			 IN ib_net16_t base_lid,
-			 IN ib_net16_t remote_base_lid,
-			 IN ib_net64_t port_guid,
-			 IN ib_net64_t remote_port_guid,
-			 IN ib_net64_t remote_node_guid,
-			 IN uint8_t remote_node_type,
-			 IN void *p_remote_hca_or_sw, IN boolean_t is_cn,
-			 IN boolean_t is_io)
+hca_add_port(IN ftree_hca_t * p_hca,
+	     IN uint8_t port_num,
+	     IN uint8_t remote_port_num,
+	     IN ib_net16_t base_lid,
+	     IN ib_net16_t remote_base_lid,
+	     IN ib_net64_t port_guid,
+	     IN ib_net64_t remote_port_guid,
+	     IN ib_net64_t remote_node_guid,
+	     IN uint8_t remote_node_type,
+	     IN void *p_remote_hca_or_sw, IN boolean_t is_cn,
+	     IN boolean_t is_io)
 {
 	ftree_port_group_t *p_group;
 
@@ -839,27 +834,25 @@ __osm_ftree_hca_add_port(IN ftree_hca_t * p_hca,
 	   in hca's that lead to switches */
 	CL_ASSERT(remote_node_type == IB_NODE_TYPE_SWITCH);
 
-	p_group =
-	    __osm_ftree_hca_get_port_group_by_remote_lid(p_hca,
-							 remote_base_lid);
+	p_group = hca_get_port_group_by_remote_lid(p_hca, remote_base_lid);
 
 	if (!p_group) {
-		p_group = __osm_ftree_port_group_create(base_lid,
-							remote_base_lid,
-							port_guid,
-							__osm_ftree_hca_get_guid_no
-							(p_hca),
-							IB_NODE_TYPE_CA, p_hca,
-							remote_port_guid,
-							remote_node_guid,
-							remote_node_type,
-							p_remote_hca_or_sw,
-							is_cn, is_io);
+		p_group = port_group_create(base_lid,
+					    remote_base_lid,
+					    port_guid,
+					    hca_get_guid_no
+					    (p_hca),
+					    IB_NODE_TYPE_CA, p_hca,
+					    remote_port_guid,
+					    remote_node_guid,
+					    remote_node_type,
+					    p_remote_hca_or_sw,
+					    is_cn, is_io);
 		p_hca->up_port_groups[p_hca->up_port_groups_num++] = p_group;
 	}
-	__osm_ftree_port_group_add_port(p_group, port_num, remote_port_num);
+	port_group_add_port(p_group, port_num, remote_port_num);
 
-}				/* __osm_ftree_hca_add_port() */
+} /* hca_add_port() */
 
 /***************************************************
  **
@@ -867,7 +860,7 @@ __osm_ftree_hca_add_port(IN ftree_hca_t * p_hca,
  **
  ***************************************************/
 
-static ftree_fabric_t *__osm_ftree_fabric_create()
+static ftree_fabric_t *fabric_create()
 {
 	ftree_fabric_t *p_ftree =
 	    (ftree_fabric_t *) malloc(sizeof(ftree_fabric_t));
@@ -887,7 +880,7 @@ static ftree_fabric_t *__osm_ftree_fabric_create()
 
 /***************************************************/
 
-static void __osm_ftree_fabric_clear(ftree_fabric_t * p_ftree)
+static void fabric_clear(ftree_fabric_t * p_ftree)
 {
 	ftree_hca_t *p_hca;
 	ftree_hca_t *p_next_hca;
@@ -906,7 +899,7 @@ static void __osm_ftree_fabric_clear(ftree_fabric_t * p_ftree)
 	while (p_next_hca != (ftree_hca_t *) cl_qmap_end(&p_ftree->hca_tbl)) {
 		p_hca = p_next_hca;
 		p_next_hca = (ftree_hca_t *) cl_qmap_next(&p_hca->map_item);
-		__osm_ftree_hca_destroy(p_hca);
+		hca_destroy(p_hca);
 	}
 	cl_qmap_remove_all(&p_ftree->hca_tbl);
 
@@ -916,7 +909,7 @@ static void __osm_ftree_fabric_clear(ftree_fabric_t * p_ftree)
 	while (p_next_sw != (ftree_sw_t *) cl_qmap_end(&p_ftree->sw_tbl)) {
 		p_sw = p_next_sw;
 		p_next_sw = (ftree_sw_t *) cl_qmap_next(&p_sw->map_item);
-		__osm_ftree_sw_destroy(p_ftree, p_sw);
+		sw_destroy(p_ftree, p_sw);
 	}
 	cl_qmap_remove_all(&p_ftree->sw_tbl);
 
@@ -931,7 +924,7 @@ static void __osm_ftree_fabric_clear(ftree_fabric_t * p_ftree)
 		p_next_element =
 		    (ftree_sw_tbl_element_t *) cl_qmap_next(&p_element->
 							    map_item);
-		__osm_ftree_sw_tbl_element_destroy(p_element);
+		sw_tbl_element_destroy(p_element);
 	}
 	cl_qmap_remove_all(&p_ftree->sw_by_tuple_tbl);
 
@@ -972,31 +965,31 @@ static void __osm_ftree_fabric_clear(ftree_fabric_t * p_ftree)
 	p_ftree->leaf_switches = NULL;
 	p_ftree->fabric_built = FALSE;
 
-}				/* __osm_ftree_fabric_destroy() */
+} /* fabric_destroy() */
 
 /***************************************************/
 
-static void __osm_ftree_fabric_destroy(ftree_fabric_t * p_ftree)
+static void fabric_destroy(ftree_fabric_t * p_ftree)
 {
 	if (!p_ftree)
 		return;
-	__osm_ftree_fabric_clear(p_ftree);
+	fabric_clear(p_ftree);
 	free(p_ftree);
 }
 
 /***************************************************/
 
-static uint8_t __osm_ftree_fabric_get_rank(ftree_fabric_t * p_ftree)
+static uint8_t fabric_get_rank(ftree_fabric_t * p_ftree)
 {
 	return p_ftree->leaf_switch_rank + 1;
 }
 
 /***************************************************/
 
-static void __osm_ftree_fabric_add_hca(ftree_fabric_t * p_ftree,
-				       osm_node_t * p_osm_node)
+static void fabric_add_hca(ftree_fabric_t * p_ftree,
+			   osm_node_t * p_osm_node)
 {
-	ftree_hca_t *p_hca = __osm_ftree_hca_create(p_osm_node);
+	ftree_hca_t *p_hca = hca_create(p_osm_node);
 
 	CL_ASSERT(osm_node_get_type(p_osm_node) == IB_NODE_TYPE_CA);
 
@@ -1006,10 +999,10 @@ static void __osm_ftree_fabric_add_hca(ftree_fabric_t * p_ftree,
 
 /***************************************************/
 
-static void __osm_ftree_fabric_add_sw(ftree_fabric_t * p_ftree,
-				      osm_switch_t * p_osm_sw)
+static void fabric_add_sw(ftree_fabric_t * p_ftree,
+			  osm_switch_t * p_osm_sw)
 {
-	ftree_sw_t *p_sw = __osm_ftree_sw_create(p_ftree, p_osm_sw);
+	ftree_sw_t *p_sw = sw_create(p_ftree, p_osm_sw);
 
 	CL_ASSERT(osm_node_get_type(p_osm_sw->p_node) == IB_NODE_TYPE_SWITCH);
 
@@ -1023,32 +1016,30 @@ static void __osm_ftree_fabric_add_sw(ftree_fabric_t * p_ftree,
 
 /***************************************************/
 
-static void __osm_ftree_fabric_add_sw_by_tuple(IN ftree_fabric_t * p_ftree,
-					       IN ftree_sw_t * p_sw)
+static void fabric_add_sw_by_tuple(IN ftree_fabric_t * p_ftree,
+				   IN ftree_sw_t * p_sw)
 {
-	CL_ASSERT(__osm_ftree_tuple_assigned(p_sw->tuple));
+	CL_ASSERT(tuple_assigned(p_sw->tuple));
 
 	cl_qmap_insert(&p_ftree->sw_by_tuple_tbl,
-		       __osm_ftree_tuple_to_key(p_sw->tuple),
-		       &__osm_ftree_sw_tbl_element_create(p_sw)->map_item);
+		       tuple_to_key(p_sw->tuple),
+		       &sw_tbl_element_create(p_sw)->map_item);
 }
 
 /***************************************************/
 
-static ftree_sw_t *__osm_ftree_fabric_get_sw_by_tuple(IN ftree_fabric_t *
-						      p_ftree,
-						      IN ftree_tuple_t tuple)
+static ftree_sw_t *fabric_get_sw_by_tuple(IN ftree_fabric_t * p_ftree,
+					  IN ftree_tuple_t tuple)
 {
 	ftree_sw_tbl_element_t *p_element;
 
-	CL_ASSERT(__osm_ftree_tuple_assigned(tuple));
+	CL_ASSERT(tuple_assigned(tuple));
 
-	__osm_ftree_tuple_to_key(tuple);
+	tuple_to_key(tuple);
 
 	p_element =
 	    (ftree_sw_tbl_element_t *) cl_qmap_get(&p_ftree->sw_by_tuple_tbl,
-						   __osm_ftree_tuple_to_key
-						   (tuple));
+						   tuple_to_key(tuple));
 	if (p_element ==
 	    (ftree_sw_tbl_element_t *) cl_qmap_end(&p_ftree->sw_by_tuple_tbl))
 		return NULL;
@@ -1058,8 +1049,8 @@ static ftree_sw_t *__osm_ftree_fabric_get_sw_by_tuple(IN ftree_fabric_t *
 
 /***************************************************/
 
-static ftree_sw_t *__osm_ftree_fabric_get_sw_by_guid(IN ftree_fabric_t *
-						     p_ftree, IN uint64_t guid)
+static ftree_sw_t *fabric_get_sw_by_guid(IN ftree_fabric_t * p_ftree,
+					 IN uint64_t guid)
 {
 	ftree_sw_t *p_sw;
 	p_sw = (ftree_sw_t *) cl_qmap_get(&p_ftree->sw_tbl, guid);
@@ -1070,7 +1061,7 @@ static ftree_sw_t *__osm_ftree_fabric_get_sw_by_guid(IN ftree_fabric_t *
 
 /***************************************************/
 
-static ftree_hca_t *__osm_ftree_fabric_get_hca_by_guid(IN ftree_fabric_t *
+static ftree_hca_t *fabric_get_hca_by_guid(IN ftree_fabric_t *
 						       p_ftree,
 						       IN uint64_t guid)
 {
@@ -1083,7 +1074,7 @@ static ftree_hca_t *__osm_ftree_fabric_get_hca_by_guid(IN ftree_fabric_t *
 
 /***************************************************/
 
-static void __osm_ftree_fabric_dump(ftree_fabric_t * p_ftree)
+static void fabric_dump(ftree_fabric_t * p_ftree)
 {
 	uint32_t i;
 	ftree_hca_t *p_hca;
@@ -1102,7 +1093,7 @@ static void __osm_ftree_fabric_dump(ftree_fabric_t * p_ftree)
 	for (p_hca = (ftree_hca_t *) cl_qmap_head(&p_ftree->hca_tbl);
 	     p_hca != (ftree_hca_t *) cl_qmap_end(&p_ftree->hca_tbl);
 	     p_hca = (ftree_hca_t *) cl_qmap_next(&p_hca->map_item)) {
-		__osm_ftree_hca_dump(p_ftree, p_hca);
+		hca_dump(p_ftree, p_hca);
 	}
 
 	for (i = 0; i <= p_ftree->max_switch_rank; i++) {
@@ -1112,7 +1103,7 @@ static void __osm_ftree_fabric_dump(ftree_fabric_t * p_ftree)
 		     p_sw != (ftree_sw_t *) cl_qmap_end(&p_ftree->sw_tbl);
 		     p_sw = (ftree_sw_t *) cl_qmap_next(&p_sw->map_item)) {
 			if (p_sw->rank == i)
-				__osm_ftree_sw_dump(p_ftree, p_sw);
+				sw_dump(p_ftree, p_sw);
 		}
 	}
 
@@ -1120,11 +1111,11 @@ static void __osm_ftree_fabric_dump(ftree_fabric_t * p_ftree)
 		"                       |---------------------------------------|\n"
 		"                       |- Full fabric topology dump completed -|\n"
 		"                       |---------------------------------------|\n\n");
-}				/* __osm_ftree_fabric_dump() */
+} /* fabric_dump() */
 
 /***************************************************/
 
-static void __osm_ftree_fabric_dump_general_info(IN ftree_fabric_t * p_ftree)
+static void fabric_dump_general_info(IN ftree_fabric_t * p_ftree)
 {
 	uint32_t i, j;
 	ftree_sw_t *p_sw;
@@ -1178,9 +1169,9 @@ static void __osm_ftree_fabric_dump_general_info(IN ftree_fabric_t * p_ftree)
 				OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_VERBOSE,
 					"      GUID: 0x%016" PRIx64
 					", LID: %u, Index %s\n",
-					__osm_ftree_sw_get_guid_ho(p_sw),
+					sw_get_guid_ho(p_sw),
 					cl_ntoh16(p_sw->base_lid),
-					__osm_ftree_tuple_to_str(p_sw->tuple));
+					tuple_to_str(p_sw->tuple));
 		}
 
 		OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_VERBOSE,
@@ -1189,19 +1180,16 @@ static void __osm_ftree_fabric_dump_general_info(IN ftree_fabric_t * p_ftree)
 			OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_VERBOSE,
 				"      GUID: 0x%016" PRIx64
 				", LID: %u, Index %s\n",
-				__osm_ftree_sw_get_guid_ho(p_ftree->
-							   leaf_switches[i]),
+				sw_get_guid_ho(p_ftree->leaf_switches[i]),
 				cl_ntoh16(p_ftree->leaf_switches[i]->base_lid),
-				__osm_ftree_tuple_to_str(p_ftree->
-							 leaf_switches[i]->
-							 tuple));
+				tuple_to_str(p_ftree->leaf_switches[i]->tuple));
 		}
 	}
-}				/* __osm_ftree_fabric_dump_general_info() */
+} /* fabric_dump_general_info() */
 
 /***************************************************/
 
-static void __osm_ftree_fabric_dump_hca_ordering(IN ftree_fabric_t * p_ftree)
+static void fabric_dump_hca_ordering(IN ftree_fabric_t * p_ftree)
 {
 	ftree_hca_t *p_hca;
 	ftree_sw_t *p_sw;
@@ -1239,9 +1227,8 @@ static void __osm_ftree_fabric_dump_hca_ordering(IN ftree_fabric_t * p_ftree)
 
 			p_hca = p_group_on_sw->remote_hca_or_sw.p_hca;
 			p_group_on_hca =
-			    __osm_ftree_hca_get_port_group_by_remote_lid(p_hca,
-									 p_group_on_sw->
-									 base_lid);
+				hca_get_port_group_by_remote_lid(p_hca,
+						p_group_on_sw->base_lid);
 
 			/* treat non-compute nodes as dummies */
 			if (!p_group_on_hca->is_cn)
@@ -1263,49 +1250,49 @@ static void __osm_ftree_fabric_dump_hca_ordering(IN ftree_fabric_t * p_ftree)
 	/* done going through all the leaf switches */
 
 	fclose(p_hca_ordering_file);
-}				/* __osm_ftree_fabric_dump_hca_ordering() */
+} /* fabric_dump_hca_ordering() */
 
 /***************************************************/
 
 static void
-__osm_ftree_fabric_assign_tuple(IN ftree_fabric_t * p_ftree,
-				IN ftree_sw_t * p_sw,
-				IN ftree_tuple_t new_tuple)
+fabric_assign_tuple(IN ftree_fabric_t * p_ftree,
+		    IN ftree_sw_t * p_sw,
+		    IN ftree_tuple_t new_tuple)
 {
 	memcpy(p_sw->tuple, new_tuple, FTREE_TUPLE_LEN);
-	__osm_ftree_fabric_add_sw_by_tuple(p_ftree, p_sw);
+	fabric_add_sw_by_tuple(p_ftree, p_sw);
 }
 
 /***************************************************/
 
-static void __osm_ftree_fabric_assign_first_tuple(IN ftree_fabric_t * p_ftree,
-						  IN ftree_sw_t * p_sw)
+static void fabric_assign_first_tuple(IN ftree_fabric_t * p_ftree,
+				      IN ftree_sw_t * p_sw)
 {
 	uint8_t i;
 	ftree_tuple_t new_tuple;
 
-	__osm_ftree_tuple_init(new_tuple);
+	tuple_init(new_tuple);
 	new_tuple[0] = (uint8_t) p_sw->rank;
 	for (i = 1; i <= p_sw->rank; i++)
 		new_tuple[i] = 0;
 
-	__osm_ftree_fabric_assign_tuple(p_ftree, p_sw, new_tuple);
+	fabric_assign_tuple(p_ftree, p_sw, new_tuple);
 }
 
 /***************************************************/
 
 static void
-__osm_ftree_fabric_get_new_tuple(IN ftree_fabric_t * p_ftree,
-				 OUT ftree_tuple_t new_tuple,
-				 IN ftree_tuple_t from_tuple,
-				 IN ftree_direction_t direction)
+fabric_get_new_tuple(IN ftree_fabric_t * p_ftree,
+		     OUT ftree_tuple_t new_tuple,
+		     IN ftree_tuple_t from_tuple,
+		     IN ftree_direction_t direction)
 {
 	ftree_sw_t *p_sw;
 	ftree_tuple_t temp_tuple;
 	uint8_t var_index;
 	uint8_t i;
 
-	__osm_ftree_tuple_init(new_tuple);
+	tuple_init(new_tuple);
 	memcpy(temp_tuple, from_tuple, FTREE_TUPLE_LEN);
 
 	if (direction == FTREE_DIRECTION_DOWN) {
@@ -1318,7 +1305,7 @@ __osm_ftree_fabric_get_new_tuple(IN ftree_fabric_t * p_ftree,
 
 	for (i = 0; i < 0xFF; i++) {
 		temp_tuple[var_index] = i;
-		p_sw = __osm_ftree_fabric_get_sw_by_tuple(p_ftree, temp_tuple);
+		p_sw = fabric_get_sw_by_tuple(p_ftree, temp_tuple);
 		if (p_sw == NULL)	/* found free tuple */
 			break;
 	}
@@ -1329,35 +1316,32 @@ __osm_ftree_fabric_get_new_tuple(IN ftree_fabric_t * p_ftree,
 	}
 	memcpy(new_tuple, temp_tuple, FTREE_TUPLE_LEN);
 
-}				/* __osm_ftree_fabric_get_new_tuple() */
+} /* fabric_get_new_tuple() */
 
 /***************************************************/
 
-static inline boolean_t __osm_ftree_fabric_roots_provided(IN ftree_fabric_t *
-							  p_ftree)
+static inline boolean_t fabric_roots_provided(IN ftree_fabric_t * p_ftree)
 {
 	return (p_ftree->p_osm->subn.opt.root_guid_file != NULL);
 }
 
 /***************************************************/
 
-static inline boolean_t __osm_ftree_fabric_cns_provided(IN ftree_fabric_t *
-							p_ftree)
+static inline boolean_t fabric_cns_provided(IN ftree_fabric_t * p_ftree)
 {
 	return (p_ftree->p_osm->subn.opt.cn_guid_file != NULL);
 }
 
 /***************************************************/
 
-static inline boolean_t __osm_ftree_fabric_ios_provided(IN ftree_fabric_t *
-							p_ftree)
+static inline boolean_t fabric_ios_provided(IN ftree_fabric_t * p_ftree)
 {
 	return (p_ftree->p_osm->subn.opt.io_guid_file != NULL);
 }
 
 /***************************************************/
 
-static int __osm_ftree_fabric_mark_leaf_switches(IN ftree_fabric_t * p_ftree)
+static int fabric_mark_leaf_switches(IN ftree_fabric_t * p_ftree)
 {
 	ftree_sw_t *p_sw;
 	ftree_hca_t *p_hca;
@@ -1404,7 +1388,7 @@ static int __osm_ftree_fabric_mark_leaf_switches(IN ftree_fabric_t * p_ftree)
 					"while FatTree leaf rank is %u\n",
 					cl_ntoh64(p_hca->up_port_groups[i]->
 						  port_guid),
-					__osm_ftree_sw_get_guid_ho(p_sw),
+					sw_get_guid_ho(p_sw),
 					p_sw->rank, p_ftree->leaf_switch_rank);
 				res = -1;
 				goto Exit;
@@ -1416,11 +1400,11 @@ static int __osm_ftree_fabric_mark_leaf_switches(IN ftree_fabric_t * p_ftree)
 Exit:
 	OSM_LOG_EXIT(&p_ftree->p_osm->log);
 	return res;
-}				/* __osm_ftree_fabric_mark_leaf_switches() */
+} /* fabric_mark_leaf_switches() */
 
 /***************************************************/
 
-static void __osm_ftree_fabric_make_indexing(IN ftree_fabric_t * p_ftree)
+static void fabric_make_indexing(IN ftree_fabric_t * p_ftree)
 {
 	ftree_sw_t *p_remote_sw;
 	ftree_sw_t *p_sw = NULL;
@@ -1448,7 +1432,7 @@ static void __osm_ftree_fabric_make_indexing(IN ftree_fabric_t * p_ftree)
 	/* Assign the first tuple to the switch that is used as BFS starting point.
 	   The tuple will be as follows: [rank].0.0.0...
 	   This fuction also adds the switch it into the switch_by_tuple table. */
-	__osm_ftree_fabric_assign_first_tuple(p_ftree, p_sw);
+	fabric_assign_first_tuple(p_ftree, p_sw);
 
 	OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_VERBOSE,
 		"Indexing starting point:\n"
@@ -1456,8 +1440,8 @@ static void __osm_ftree_fabric_make_indexing(IN ftree_fabric_t * p_ftree)
 		"                                            - Switch index : %s\n"
 		"                                            - Node LID     : %u\n"
 		"                                            - Node GUID    : 0x%016"
-		PRIx64 "\n", p_sw->rank, __osm_ftree_tuple_to_str(p_sw->tuple),
-		cl_ntoh16(p_sw->base_lid), __osm_ftree_sw_get_guid_ho(p_sw));
+		PRIx64 "\n", p_sw->rank, tuple_to_str(p_sw->tuple),
+		cl_ntoh16(p_sw->base_lid), sw_get_guid_ho(p_sw));
 
 	/*
 	 * Now run BFS and assign indexes to all switches
@@ -1497,21 +1481,20 @@ static void __osm_ftree_fabric_make_indexing(IN ftree_fabric_t * p_ftree)
 				p_remote_sw =
 				    p_sw->down_port_groups[i]->remote_hca_or_sw.
 				    p_sw;
-				if (__osm_ftree_tuple_assigned
-				    (p_remote_sw->tuple)) {
+				if (tuple_assigned(p_remote_sw->tuple)) {
 					/* this switch has been already indexed */
 					continue;
 				}
 				/* allocate new tuple */
-				__osm_ftree_fabric_get_new_tuple(p_ftree,
-								 new_tuple,
-								 p_sw->tuple,
-								 FTREE_DIRECTION_DOWN);
+				fabric_get_new_tuple(p_ftree,
+						     new_tuple,
+						     p_sw->tuple,
+						     FTREE_DIRECTION_DOWN);
 				/* Assign the new tuple to the remote switch.
 				   This fuction also adds the switch into the switch_by_tuple table. */
-				__osm_ftree_fabric_assign_tuple(p_ftree,
-								p_remote_sw,
-								new_tuple);
+				fabric_assign_tuple(p_ftree,
+						    p_remote_sw,
+						    new_tuple);
 
 				/* add the newly discovered switch to the BFS queue */
 				cl_list_insert_tail(&bfs_list, p_sw);
@@ -1522,7 +1505,7 @@ static void __osm_ftree_fabric_make_indexing(IN ftree_fabric_t * p_ftree)
 			qsort(p_sw->down_port_groups,	/* array */
 			      p_sw->down_port_groups_num,	/* number of elements */
 			      sizeof(ftree_port_group_t *),	/* size of each element */
-			      __osm_ftree_compare_port_groups_by_remote_switch_index);	/* comparator */
+			      compare_port_groups_by_remote_switch_index);	/* comparator */
 		}
 
 		/* Done indexing switches from ports that go down.
@@ -1535,20 +1518,19 @@ static void __osm_ftree_fabric_make_indexing(IN ftree_fabric_t * p_ftree)
 				p_remote_sw =
 				    p_sw->up_port_groups[i]->remote_hca_or_sw.
 				    p_sw;
-				if (__osm_ftree_tuple_assigned
-				    (p_remote_sw->tuple))
+				if (tuple_assigned(p_remote_sw->tuple))
 					continue;
 				/* allocate new tuple */
-				__osm_ftree_fabric_get_new_tuple(p_ftree,
-								 new_tuple,
-								 p_sw->tuple,
-								 FTREE_DIRECTION_UP);
+				fabric_get_new_tuple(p_ftree,
+						     new_tuple,
+						     p_sw->tuple,
+						     FTREE_DIRECTION_UP);
 				/* Assign the new tuple to the remote switch.
 				   This fuction also adds the switch to the
 				   switch_by_tuple table. */
-				__osm_ftree_fabric_assign_tuple(p_ftree,
-								p_remote_sw,
-								new_tuple);
+				fabric_assign_tuple(p_ftree,
+						    p_remote_sw,
+						    new_tuple);
 				/* add the newly discovered switch to the BFS queue */
 				cl_list_insert_tail(&bfs_list, p_sw);
 			}
@@ -1558,7 +1540,7 @@ static void __osm_ftree_fabric_make_indexing(IN ftree_fabric_t * p_ftree)
 			qsort(p_sw->up_port_groups,	/* array */
 			      p_sw->up_port_groups_num,	/* number of elements */
 			      sizeof(ftree_port_group_t *),	/* size of each element */
-			      __osm_ftree_compare_port_groups_by_remote_switch_index);	/* comparator */
+			      compare_port_groups_by_remote_switch_index);	/* comparator */
 		}
 		/* Done assigning indexes to all the switches that are directly connected
 		   to the current switch - go to the next switch in the BFS queue */
@@ -1566,12 +1548,11 @@ static void __osm_ftree_fabric_make_indexing(IN ftree_fabric_t * p_ftree)
 	cl_list_destroy(&bfs_list);
 
 	OSM_LOG_EXIT(&p_ftree->p_osm->log);
-}				/* __osm_ftree_fabric_make_indexing() */
+} /* fabric_make_indexing() */
 
 /***************************************************/
 
-static int __osm_ftree_fabric_create_leaf_switch_array(IN ftree_fabric_t *
-						       p_ftree)
+static int fabric_create_leaf_switch_array(IN ftree_fabric_t * p_ftree)
 {
 	ftree_sw_t *p_sw;
 	ftree_sw_t *p_next_sw;
@@ -1604,7 +1585,7 @@ static int __osm_ftree_fabric_create_leaf_switch_array(IN ftree_fabric_t *
 			OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
 				"Adding switch 0x%" PRIx64
 				" to full leaf switch array\n",
-				__osm_ftree_sw_get_guid_ho(p_sw));
+				sw_get_guid_ho(p_sw));
 			all_switches_at_leaf_level[all_leaf_idx++] = p_sw;
 
 		}
@@ -1614,7 +1595,7 @@ static int __osm_ftree_fabric_create_leaf_switch_array(IN ftree_fabric_t *
 	qsort(all_switches_at_leaf_level,	/* array */
 	      all_leaf_idx,	/* number of elements */
 	      sizeof(ftree_sw_t *),	/* size of each element */
-	      __osm_ftree_compare_switches_by_index);	/* comparator */
+	      compare_switches_by_index);	/* comparator */
 
 	/* check the first and the last REAL leaf (the one
 	   that has CNs) in the array of all the leafs */
@@ -1660,11 +1641,11 @@ static int __osm_ftree_fabric_create_leaf_switch_array(IN ftree_fabric_t *
 Exit:
 	OSM_LOG_EXIT(&p_ftree->p_osm->log);
 	return res;
-}				/* __osm_ftree_fabric_create_leaf_switch_array() */
+} /* fabric_create_leaf_switch_array() */
 
 /***************************************************/
 
-static void __osm_ftree_fabric_set_max_cn_per_leaf(IN ftree_fabric_t * p_ftree)
+static void fabric_set_max_cn_per_leaf(IN ftree_fabric_t * p_ftree)
 {
 	unsigned i;
 	unsigned j;
@@ -1685,19 +1666,18 @@ static void __osm_ftree_fabric_set_max_cn_per_leaf(IN ftree_fabric_t * p_ftree)
 		if (cns_on_this_leaf > p_ftree->max_cn_per_leaf)
 			p_ftree->max_cn_per_leaf = cns_on_this_leaf;
 	}
-}				/* __osm_ftree_fabric_set_max_cn_per_leaf() */
+} /* fabric_set_max_cn_per_leaf() */
 
 /***************************************************/
 
-static boolean_t __osm_ftree_fabric_validate_topology(IN ftree_fabric_t *
-						      p_ftree)
+static boolean_t fabric_validate_topology(IN ftree_fabric_t * p_ftree)
 {
 	ftree_port_group_t *p_group;
 	ftree_port_group_t *p_ref_group;
 	ftree_sw_t *p_sw;
 	ftree_sw_t *p_next_sw;
 	ftree_sw_t **reference_sw_arr;
-	uint16_t tree_rank = __osm_ftree_fabric_get_rank(p_ftree);
+	uint16_t tree_rank = fabric_get_rank(p_ftree);
 	boolean_t res = TRUE;
 	uint8_t i;
 
@@ -1735,17 +1715,17 @@ static boolean_t __osm_ftree_fabric_validate_topology(IN ftree_fabric_t *
 					", LID %u, Index %s - %u groups\n"
 					"       GUID 0x%016" PRIx64
 					", LID %u, Index %s - %u groups\n",
-					__osm_ftree_sw_get_guid_ho
+					sw_get_guid_ho
 					(reference_sw_arr[p_sw->rank]),
 					cl_ntoh16(reference_sw_arr[p_sw->rank]->
 						  base_lid),
-					__osm_ftree_tuple_to_str
+					tuple_to_str
 					(reference_sw_arr[p_sw->rank]->tuple),
 					reference_sw_arr[p_sw->rank]->
 					up_port_groups_num,
-					__osm_ftree_sw_get_guid_ho(p_sw),
+					sw_get_guid_ho(p_sw),
 					cl_ntoh16(p_sw->base_lid),
-					__osm_ftree_tuple_to_str(p_sw->tuple),
+					tuple_to_str(p_sw->tuple),
 					p_sw->up_port_groups_num);
 				res = FALSE;
 				break;
@@ -1762,17 +1742,17 @@ static boolean_t __osm_ftree_fabric_validate_topology(IN ftree_fabric_t *
 					", LID %u, Index %s - %u port groups\n"
 					"       GUID 0x%016" PRIx64
 					", LID %u, Index %s - %u port groups\n",
-					__osm_ftree_sw_get_guid_ho
+					sw_get_guid_ho
 					(reference_sw_arr[p_sw->rank]),
 					cl_ntoh16(reference_sw_arr[p_sw->rank]->
 						  base_lid),
-					__osm_ftree_tuple_to_str
+					tuple_to_str
 					(reference_sw_arr[p_sw->rank]->tuple),
 					reference_sw_arr[p_sw->rank]->
 					down_port_groups_num,
-					__osm_ftree_sw_get_guid_ho(p_sw),
+					sw_get_guid_ho(p_sw),
 					cl_ntoh16(p_sw->base_lid),
-					__osm_ftree_tuple_to_str(p_sw->tuple),
+					tuple_to_str(p_sw->tuple),
 					p_sw->down_port_groups_num);
 				res = FALSE;
 				break;
@@ -1798,23 +1778,23 @@ static boolean_t __osm_ftree_fabric_validate_topology(IN ftree_fabric_t *
 							"       GUID 0x%016"
 							PRIx64
 							", LID %u, Index %s - %u ports\n",
-							__osm_ftree_sw_get_guid_ho
+							sw_get_guid_ho
 							(reference_sw_arr
 							 [p_sw->rank]),
 							cl_ntoh16
 							(reference_sw_arr
 							 [p_sw->rank]->
 							 base_lid),
-							__osm_ftree_tuple_to_str
+							tuple_to_str
 							(reference_sw_arr
 							 [p_sw->rank]->tuple),
 							cl_ptr_vector_get_size
 							(&p_ref_group->ports),
-							__osm_ftree_sw_get_guid_ho
+							sw_get_guid_ho
 							(p_sw),
 							cl_ntoh16(p_sw->
 								  base_lid),
-							__osm_ftree_tuple_to_str
+							tuple_to_str
 							(p_sw->tuple),
 							cl_ptr_vector_get_size
 							(&p_group->ports));
@@ -1845,23 +1825,23 @@ static boolean_t __osm_ftree_fabric_validate_topology(IN ftree_fabric_t *
 							"       GUID 0x%016"
 							PRIx64
 							", LID %u, Index %s - %u ports\n",
-							__osm_ftree_sw_get_guid_ho
+							sw_get_guid_ho
 							(reference_sw_arr
 							 [p_sw->rank]),
 							cl_ntoh16
 							(reference_sw_arr
 							 [p_sw->rank]->
 							 base_lid),
-							__osm_ftree_tuple_to_str
+							tuple_to_str
 							(reference_sw_arr
 							 [p_sw->rank]->tuple),
 							cl_ptr_vector_get_size
 							(&p_ref_group->ports),
-							__osm_ftree_sw_get_guid_ho
+							sw_get_guid_ho
 							(p_sw),
 							cl_ntoh16(p_sw->
 								  base_lid),
-							__osm_ftree_tuple_to_str
+							tuple_to_str
 							(p_sw->tuple),
 							cl_ptr_vector_get_size
 							(&p_group->ports));
@@ -1883,13 +1863,13 @@ static boolean_t __osm_ftree_fabric_validate_topology(IN ftree_fabric_t *
 	free(reference_sw_arr);
 	OSM_LOG_EXIT(&p_ftree->p_osm->log);
 	return res;
-}				/* __osm_ftree_fabric_validate_topology() */
+} /* fabric_validate_topology() */
 
 /***************************************************
  ***************************************************/
 
-static void __osm_ftree_set_sw_fwd_table(IN cl_map_item_t * const p_map_item,
-					 IN void *context)
+static void set_sw_fwd_table(IN cl_map_item_t * const p_map_item,
+			     IN void *context)
 {
 	ftree_sw_t *p_sw = (ftree_sw_t * const)p_map_item;
 	ftree_fabric_t *p_ftree = (ftree_fabric_t *) context;
@@ -1916,15 +1896,15 @@ static void __osm_ftree_set_sw_fwd_table(IN cl_map_item_t * const p_map_item,
  */
 
 static boolean_t
-__osm_ftree_fabric_route_upgoing_by_going_down(IN ftree_fabric_t * p_ftree,
-					       IN ftree_sw_t * p_sw,
-					       IN ftree_sw_t * p_prev_sw,
-					       IN ib_net16_t target_lid,
-					       IN uint8_t target_rank,
-					       IN boolean_t is_real_lid,
-					       IN boolean_t is_main_path,
-					       IN uint8_t highest_rank_in_route,
-					       IN uint16_t reverse_hops)
+fabric_route_upgoing_by_going_down(IN ftree_fabric_t * p_ftree,
+				   IN ftree_sw_t * p_sw,
+				   IN ftree_sw_t * p_prev_sw,
+				   IN ib_net16_t target_lid,
+				   IN uint8_t target_rank,
+				   IN boolean_t is_real_lid,
+				   IN boolean_t is_main_path,
+				   IN uint8_t highest_rank_in_route,
+				   IN uint16_t reverse_hops)
 {
 	ftree_sw_t *p_remote_sw;
 	uint16_t ports_num;
@@ -1994,9 +1974,9 @@ __osm_ftree_fabric_route_upgoing_by_going_down(IN ftree_fabric_t * p_ftree,
 				"Loop of lenght %d in the fabric:\n                             "
 				"Switch %s (LID %u) closes loop through switch %s (LID %u)\n",
 				(p_remote_sw->rank - highest_rank_in_route) * 2,
-				__osm_ftree_tuple_to_str(p_remote_sw->tuple),
+				tuple_to_str(p_remote_sw->tuple),
 				cl_ntoh16(p_group->base_lid),
-				__osm_ftree_tuple_to_str(p_sw->tuple),
+				tuple_to_str(p_sw->tuple),
 				cl_ntoh16(p_group->remote_base_lid));
 			continue;
 		}
@@ -2041,7 +2021,7 @@ __osm_ftree_fabric_route_upgoing_by_going_down(IN ftree_fabric_t * p_ftree,
 			    p_min_port->remote_port_num;
 			OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
 				"Switch %s: set path to CA LID %u through port %u\n",
-				__osm_ftree_tuple_to_str(p_remote_sw->tuple),
+				tuple_to_str(p_remote_sw->tuple),
 				cl_ntoh16(target_lid),
 				p_min_port->remote_port_num);
 
@@ -2052,14 +2032,12 @@ __osm_ftree_fabric_route_upgoing_by_going_down(IN ftree_fabric_t * p_ftree,
 				cl_ptr_vector_at(&p_group->ports, j,
 						 (void *)&p_port);
 
-				__osm_ftree_sw_set_hops(p_remote_sw,
-							cl_ntoh16(target_lid),
-							p_port->remote_port_num,
-							((target_rank -
-							  highest_rank_in_route)
-							 + (p_remote_sw->rank -
-							    highest_rank_in_route)
-							 + reverse_hops * 2));
+				sw_set_hops(p_remote_sw,
+					cl_ntoh16(target_lid),
+					p_port->remote_port_num,
+					((target_rank - highest_rank_in_route) +
+					 (p_remote_sw->rank - highest_rank_in_route)
+					 + reverse_hops * 2));
 			}
 
 		}
@@ -2074,13 +2052,15 @@ __osm_ftree_fabric_route_upgoing_by_going_down(IN ftree_fabric_t * p_ftree,
 
 		/* Recursion step:
 		   Assign upgoing ports by stepping down, starting on REMOTE switch */
-		created_route |= __osm_ftree_fabric_route_upgoing_by_going_down(p_ftree, p_remote_sw,	/* remote switch - used as a route-upgoing alg. start point */
-										NULL,	/* prev. position - NULL to mark that we went down and not up */
-										target_lid,	/* LID that we're routing to */
-										target_rank,	/* rank of the LID that we're routing to */
-										is_real_lid,	/* whether the target LID is real or dummy */
-										is_main_path,	/* whether this is path to HCA that should by tracked by counters */
-										highest_rank_in_route, reverse_hops);	/* highest visited point in the tree before going down */
+		created_route |=
+			fabric_route_upgoing_by_going_down(
+				p_ftree, p_remote_sw,	/* remote switch - used as a route-upgoing alg. start point */
+				NULL,	/* prev. position - NULL to mark that we went down and not up */
+				target_lid,	/* LID that we're routing to */
+				target_rank,	/* rank of the LID that we're routing to */
+				is_real_lid,	/* whether the target LID is real or dummy */
+				is_main_path,	/* whether this is path to HCA that should by tracked by counters */
+				highest_rank_in_route, reverse_hops);	/* highest visited point in the tree before going down */
 	}
 	/* done scanning all the down-going port groups */
 
@@ -2093,7 +2073,7 @@ __osm_ftree_fabric_route_upgoing_by_going_down(IN ftree_fabric_t * p_ftree,
 		     1) % p_sw->down_port_groups_num;
 
 	return created_route;
-}				/* __osm_ftree_fabric_route_upgoing_by_going_down() */
+} /* fabric_route_upgoing_by_going_down() */
 
 /***************************************************/
 
@@ -2109,15 +2089,15 @@ __osm_ftree_fabric_route_upgoing_by_going_down(IN ftree_fabric_t * p_ftree,
  */
 
 static void
-__osm_ftree_fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
-					       IN ftree_sw_t * p_sw,
-					       IN ftree_sw_t * p_prev_sw,
-					       IN ib_net16_t target_lid,
-					       IN uint8_t target_rank,
-					       IN boolean_t is_real_lid,
-					       IN boolean_t is_main_path,
-					       IN uint16_t reverse_hop_credit,
-					       IN uint16_t reverse_hops)
+fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
+				   IN ftree_sw_t * p_sw,
+				   IN ftree_sw_t * p_prev_sw,
+				   IN ib_net16_t target_lid,
+				   IN uint8_t target_rank,
+				   IN boolean_t is_real_lid,
+				   IN boolean_t is_main_path,
+				   IN uint16_t reverse_hop_credit,
+				   IN uint16_t reverse_hops)
 {
 	ftree_sw_t *p_remote_sw;
 	uint16_t ports_num;
@@ -2132,14 +2112,14 @@ __osm_ftree_fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
 	CL_ASSERT(is_real_lid || is_main_path);
 
 	/* Assign upgoing ports by stepping down, starting on THIS switch */
-	__osm_ftree_fabric_route_upgoing_by_going_down(p_ftree, p_sw,	/* local switch - used as a route-upgoing alg. start point */
-						       p_prev_sw,	/* switch that we went up from (NULL means that we went down) */
-						       target_lid,	/* LID that we're routing to */
-						       target_rank,	/* rank of the LID that we're routing to */
-						       is_real_lid,	/* whether this target LID is real or dummy */
-						       is_main_path,	/* whether this path to HCA should by tracked by counters */
-						       p_sw->rank,	/* the highest visited point in the tree before going down */
-						       reverse_hops);	/* Number of reverse_hops done up to this point */
+	fabric_route_upgoing_by_going_down(p_ftree, p_sw,	/* local switch - used as a route-upgoing alg. start point */
+					   p_prev_sw,	/* switch that we went up from (NULL means that we went down) */
+					   target_lid,	/* LID that we're routing to */
+					   target_rank,	/* rank of the LID that we're routing to */
+					   is_real_lid,	/* whether this target LID is real or dummy */
+					   is_main_path,	/* whether this path to HCA should by tracked by counters */
+					   p_sw->rank,	/* the highest visited point in the tree before going down */
+					   reverse_hops);	/* Number of reverse_hops done up to this point */
 
 	/* recursion stop condition - if it's a root switch, */
 	if (p_sw->rank == 0) {
@@ -2161,14 +2141,15 @@ __osm_ftree_fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
 					continue;
 				p_remote_sw = p_group->remote_hca_or_sw.p_sw;
 
-				__osm_ftree_fabric_route_downgoing_by_going_up(p_ftree, p_remote_sw,	/* remote switch - used as a route-downgoing alg. next step point */
-									       p_sw,	/* this switch - prev. position switch for the function */
-									       target_lid,	/* LID that we're routing to */
-									       target_rank,	/* rank of the LID that we're routing to */
-									       is_real_lid,	/* whether this target LID is real or dummy */
-									       is_main_path,	/* whether this is path to HCA that should by tracked by counters */
-									       reverse_hop_credit - 1,	/* Remaining reverse_hops allowed */
-									       reverse_hops + 1);	/* Number of reverse_hops done up to this point */
+				fabric_route_downgoing_by_going_up(
+					p_ftree, p_remote_sw,	/* remote switch - used as a route-downgoing alg. next step point */
+					p_sw,	/* this switch - prev. position switch for the function */
+					target_lid,	/* LID that we're routing to */
+					target_rank,	/* rank of the LID that we're routing to */
+					is_real_lid,	/* whether this target LID is real or dummy */
+					is_main_path,	/* whether this is path to HCA that should by tracked by counters */
+					reverse_hop_credit - 1,	/* Remaining reverse_hops allowed */
+					reverse_hops + 1);	/* Number of reverse_hops done up to this point */
 			}
 
 		}
@@ -2249,8 +2230,8 @@ __osm_ftree_fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
 				" - Routing MAIN path for %s CA LID %u: %s --> %s\n",
 				(is_real_lid) ? "real" : "DUMMY",
 				cl_ntoh16(target_lid),
-				__osm_ftree_tuple_to_str(p_sw->tuple),
-				__osm_ftree_tuple_to_str(p_remote_sw->tuple));
+				tuple_to_str(p_sw->tuple),
+				tuple_to_str(p_remote_sw->tuple));
 		}
 		/* The number of downgoing routes is tracked in the
 		   p_group->counter_down p_port->counter_down counters of the
@@ -2268,8 +2249,7 @@ __osm_ftree_fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
 				    p_min_port->remote_port_num;
 				OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
 					"Switch %s: set path to CA LID %u through port %u\n",
-					__osm_ftree_tuple_to_str(p_remote_sw->
-								 tuple),
+					tuple_to_str(p_remote_sw->tuple),
 					cl_ntoh16(target_lid),
 					p_min_port->remote_port_num);
 			}
@@ -2282,25 +2262,25 @@ __osm_ftree_fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
 			for (j = 0; j < ports_num; j++) {
 				cl_ptr_vector_at(&p_min_group->ports, j,
 						 (void *)&p_port);
-				__osm_ftree_sw_set_hops(p_remote_sw,
-							cl_ntoh16(target_lid),
-							p_port->remote_port_num,
-							target_rank -
-							p_remote_sw->rank +
-							2 * reverse_hops);
+				sw_set_hops(p_remote_sw,
+					    cl_ntoh16(target_lid),
+					    p_port->remote_port_num,
+					    target_rank - p_remote_sw->rank +
+					    2 * reverse_hops);
 			}
 		}
 
 		/* Recursion step:
 		   Assign downgoing ports by stepping up, starting on REMOTE switch. */
-		__osm_ftree_fabric_route_downgoing_by_going_up(p_ftree, p_remote_sw,	/* remote switch - used as a route-downgoing alg. next step point */
-							       p_sw,	/* this switch - prev. position switch for the function */
-							       target_lid,	/* LID that we're routing to */
-							       target_rank,	/* rank of the LID that we're routing to */
-							       is_real_lid,	/* whether this target LID is real or dummy */
-							       is_main_path,	/* whether this is path to HCA that should by tracked by counters */
-							       reverse_hop_credit,	/* Remaining reverse_hops allowed */
-							       reverse_hops);	/* Number of reverse_hops done up to this point */
+		fabric_route_downgoing_by_going_up(
+			p_ftree, p_remote_sw,	/* remote switch - used as a route-downgoing alg. next step point */
+			p_sw,	/* this switch - prev. position switch for the function */
+			target_lid,	/* LID that we're routing to */
+			target_rank,	/* rank of the LID that we're routing to */
+			is_real_lid,	/* whether this target LID is real or dummy */
+			is_main_path,	/* whether this is path to HCA that should by tracked by counters */
+			reverse_hop_credit,	/* Remaining reverse_hops allowed */
+			reverse_hops);	/* Number of reverse_hops done up to this point */
 	}
 
 	/* we're done for the third case */
@@ -2352,8 +2332,8 @@ __osm_ftree_fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
 			OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
 				" - Routing SECONDARY path for LID %u: %s --> %s\n",
 				cl_ntoh16(target_lid),
-				__osm_ftree_tuple_to_str(p_sw->tuple),
-				__osm_ftree_tuple_to_str(p_remote_sw->tuple));
+				tuple_to_str(p_sw->tuple),
+				tuple_to_str(p_remote_sw->tuple));
 		}
 
 		/* Routing REAL lids on SECONDARY path means routing
@@ -2373,24 +2353,24 @@ __osm_ftree_fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
 		for (j = 0; j < ports_num; j++) {
 			cl_ptr_vector_at(&p_group->ports, j, (void *)&p_port);
 
-			__osm_ftree_sw_set_hops(p_remote_sw,
-						cl_ntoh16(target_lid),
-						p_port->remote_port_num,
-						target_rank -
-						p_remote_sw->rank +
-						2 * reverse_hops);
+			sw_set_hops(p_remote_sw,
+				    cl_ntoh16(target_lid),
+				    p_port->remote_port_num,
+				    target_rank - p_remote_sw->rank +
+				    2 * reverse_hops);
 		}
 
 		/* Recursion step:
 		   Assign downgoing ports by stepping up, starting on REMOTE switch. */
-		__osm_ftree_fabric_route_downgoing_by_going_up(p_ftree, p_remote_sw,	/* remote switch - used as a route-downgoing alg. next step point */
-							       p_sw,	/* this switch - prev. position switch for the function */
-							       target_lid,	/* LID that we're routing to */
-							       target_rank,	/* rank of the LID that we're routing to */
-							       TRUE,	/* whether the target LID is real or dummy */
-							       FALSE,	/* whether this is path to HCA that should by tracked by counters */
-							       reverse_hop_credit,	/* Remaining reverse_hops allowed */
-							       reverse_hops);	/* Number of reverse_hops done up to this point */
+		fabric_route_downgoing_by_going_up(
+			p_ftree, p_remote_sw,	/* remote switch - used as a route-downgoing alg. next step point */
+			p_sw,	/* this switch - prev. position switch for the function */
+			target_lid,	/* LID that we're routing to */
+			target_rank,	/* rank of the LID that we're routing to */
+			TRUE,	/* whether the target LID is real or dummy */
+			FALSE,	/* whether this is path to HCA that should by tracked by counters */
+			reverse_hop_credit,	/* Remaining reverse_hops allowed */
+			reverse_hops);	/* Number of reverse_hops done up to this point */
 	}
 
 	/* If we don't have any reverse hop credits, we are done */
@@ -2411,17 +2391,18 @@ __osm_ftree_fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
 
 		/* Recursion step:
 		   Assign downgoing ports by stepping up, fter doing one step down starting on REMOTE switch. */
-		__osm_ftree_fabric_route_downgoing_by_going_up(p_ftree, p_remote_sw,	/* remote switch - used as a route-downgoing alg. next step point */
-							       p_sw,	/* this switch - prev. position switch for the function */
-							       target_lid,	/* LID that we're routing to */
-							       target_rank,	/* rank of the LID that we're routing to */
-							       TRUE,	/* whether the target LID is real or dummy */
-							       TRUE,	/* whether this is path to HCA that should by tracked by counters */
-							       reverse_hop_credit - 1,	/* Remaining reverse_hops allowed */
-							       reverse_hops + 1);	/* Number of reverse_hops done up to this point */
+		fabric_route_downgoing_by_going_up(
+			p_ftree, p_remote_sw,	/* remote switch - used as a route-downgoing alg. next step point */
+			p_sw,	/* this switch - prev. position switch for the function */
+			target_lid,	/* LID that we're routing to */
+			target_rank,	/* rank of the LID that we're routing to */
+			TRUE,	/* whether the target LID is real or dummy */
+			TRUE,	/* whether this is path to HCA that should by tracked by counters */
+			reverse_hop_credit - 1,	/* Remaining reverse_hops allowed */
+			reverse_hops + 1);	/* Number of reverse_hops done up to this point */
 	}
 
-}				/* ftree_fabric_route_downgoing_by_going_up() */
+} /* ftree_fabric_route_downgoing_by_going_up() */
 
 /***************************************************/
 
@@ -2436,7 +2417,7 @@ __osm_ftree_fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
  *          call assign-down-going-port-by-ascending-up(FALSE,TRUE) on CURRENT switch
  */
 
-static void __osm_ftree_fabric_route_to_cns(IN ftree_fabric_t * p_ftree)
+static void fabric_route_to_cns(IN ftree_fabric_t * p_ftree)
 {
 	ftree_sw_t *p_sw;
 	ftree_hca_t *p_hca;
@@ -2471,9 +2452,8 @@ static void __osm_ftree_fabric_route_to_cns(IN ftree_fabric_t * p_ftree)
 				continue;
 
 			p_hca_port_group =
-			    __osm_ftree_hca_get_port_group_by_remote_lid(p_hca,
-									 p_leaf_port_group->
-									 base_lid);
+			    hca_get_port_group_by_remote_lid(p_hca,
+				p_leaf_port_group->base_lid);
 			CL_ASSERT(p_hca_port_group);
 
 			/* work with this port group only if remote port is CN */
@@ -2490,25 +2470,25 @@ static void __osm_ftree_fabric_route_to_cns(IN ftree_fabric_t * p_ftree)
 
 			OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
 				"Switch %s: set path to CN LID %u through port %u\n",
-				__osm_ftree_tuple_to_str(p_sw->tuple),
+				tuple_to_str(p_sw->tuple),
 				cl_ntoh16(hca_lid), p_port->port_num);
 
 			/* set local min hop table(LID) to route to the CA */
-			__osm_ftree_sw_set_hops(p_sw,
-						cl_ntoh16(hca_lid),
-						p_port->port_num, 1);
+			sw_set_hops(p_sw, cl_ntoh16(hca_lid),
+				    p_port->port_num, 1);
 
 			/* Assign downgoing ports by stepping up.
 			   Since we're routing here only CNs, we're routing it as REAL
 			   LID and updating fat-tree balancing counters. */
-			__osm_ftree_fabric_route_downgoing_by_going_up(p_ftree, p_sw,	/* local switch - used as a route-downgoing alg. start point */
-								       NULL,	/* prev. position switch */
-								       hca_lid,	/* LID that we're routing to */
-								       p_sw->rank + 1,	/* rank of the LID that we're routing to */
-								       TRUE,	/* whether this HCA LID is real or dummy */
-								       TRUE,	/* whether this path to HCA should by tracked by counters */
-								       0,	/* Number of reverse hops allowed */
-								       0);	/* Number of reverse hops done yet */
+			fabric_route_downgoing_by_going_up(
+				p_ftree, p_sw,	/* local switch - used as a route-downgoing alg. start point */
+				NULL,	/* prev. position switch */
+				hca_lid,	/* LID that we're routing to */
+				p_sw->rank + 1,	/* rank of the LID that we're routing to */
+				TRUE,	/* whether this HCA LID is real or dummy */
+				TRUE,	/* whether this path to HCA should by tracked by counters */
+				0,	/* Number of reverse hops allowed */
+				0);	/* Number of reverse hops done yet */
 
 			/* count how many real targets have been routed from this leaf switch */
 			routed_targets_on_leaf++;
@@ -2528,20 +2508,21 @@ static void __osm_ftree_fabric_route_to_cns(IN ftree_fabric_t * p_ftree)
 			     (p_ftree->max_cn_per_leaf -
 			      routed_targets_on_leaf); j++) {
 				/* assign downgoing ports by stepping up */
-				__osm_ftree_fabric_route_downgoing_by_going_up(p_ftree, p_sw,	/* local switch - used as a route-downgoing alg. start point */
-									       NULL,	/* prev. position switch */
-									       0,	/* LID that we're routing to - ignored for dummy HCA */
-									       0,	/* rank of the LID that we're routing to - ignored for dummy HCA */
-									       FALSE,	/* whether this HCA LID is real or dummy */
-									       TRUE,	/* whether this path to HCA should by tracked by counters */
-									       0,	/* Number of reverse hops allowed */
-									       0);	/* Number of reverse hops done yet */
+				fabric_route_downgoing_by_going_up(
+					p_ftree, p_sw,	/* local switch - used as a route-downgoing alg. start point */
+					NULL,	/* prev. position switch */
+					0,	/* LID that we're routing to - ignored for dummy HCA */
+					0,	/* rank of the LID that we're routing to - ignored for dummy HCA */
+					FALSE,	/* whether this HCA LID is real or dummy */
+					TRUE,	/* whether this path to HCA should by tracked by counters */
+					0,	/* Number of reverse hops allowed */
+					0);	/* Number of reverse hops done yet */
 			}
 		}
 	}
 	/* done going through all the leaf switches */
 	OSM_LOG_EXIT(&p_ftree->p_osm->log);
-}				/* __osm_ftree_fabric_route_to_cns() */
+} /* fabric_route_to_cns() */
 
 /***************************************************/
 
@@ -2562,7 +2543,7 @@ static void __osm_ftree_fabric_route_to_cns(IN ftree_fabric_t * p_ftree)
  * counters will not affect CN-to-CN routing.
  */
 
-static void __osm_ftree_fabric_route_to_non_cns(IN ftree_fabric_t * p_ftree)
+static void fabric_route_to_non_cns(IN ftree_fabric_t * p_ftree)
 {
 	ftree_sw_t *p_sw;
 	ftree_hca_t *p_hca;
@@ -2603,32 +2584,33 @@ static void __osm_ftree_fabric_route_to_non_cns(IN ftree_fabric_t * p_ftree)
 
 			OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
 				"Switch %s: set path to non-CN HCA LID %u through port %u\n",
-				__osm_ftree_tuple_to_str(p_sw->tuple),
+				tuple_to_str(p_sw->tuple),
 				cl_ntoh16(hca_lid), port_num_on_switch);
 
 			/* set local min hop table(LID) to route to the CA */
-			__osm_ftree_sw_set_hops(p_sw, cl_ntoh16(hca_lid),
-						port_num_on_switch,	/* port num */
-						1);	/* hops */
+			sw_set_hops(p_sw, cl_ntoh16(hca_lid),
+				    port_num_on_switch,	/* port num */
+				    1);	/* hops */
 
 			/* Assign downgoing ports by stepping up.
 			   We're routing REAL targets. They are not CNs and not included
 			   in the leafs array, but we treat them as MAIN path to allow load
 			   leveling, which means that the counters will be updated. */
-			__osm_ftree_fabric_route_downgoing_by_going_up(p_ftree, p_sw,	/* local switch - used as a route-downgoing alg. start point */
-								       NULL,	/* prev. position switch */
-								       hca_lid,	/* LID that we're routing to */
-								       p_sw->rank + 1,	/* rank of the LID that we're routing to */
-								       TRUE,	/* whether this HCA LID is real or dummy */
-								       TRUE,	/* whether this path to HCA should by tracked by counters */
-								       p_hca_port_group->is_io ? p_ftree->p_osm->subn.opt.max_reverse_hops : 0,	/* Number or reverse hops allowed */
-								       0);	/* Number or reverse hops done yet */
+			fabric_route_downgoing_by_going_up(
+				p_ftree, p_sw,	/* local switch - used as a route-downgoing alg. start point */
+				NULL,	/* prev. position switch */
+				hca_lid,	/* LID that we're routing to */
+				p_sw->rank + 1,	/* rank of the LID that we're routing to */
+				TRUE,	/* whether this HCA LID is real or dummy */
+				TRUE,	/* whether this path to HCA should by tracked by counters */
+				p_hca_port_group->is_io ? p_ftree->p_osm->subn.opt.max_reverse_hops : 0, /* Number or reverse hops allowed */
+				0);	/* Number or reverse hops done yet */
 		}
 		/* done with all the port groups of this HCA - go to next HCA */
 	}
 
 	OSM_LOG_EXIT(&p_ftree->p_osm->log);
-}				/* __osm_ftree_fabric_route_to_non_cns() */
+} /* fabric_route_to_non_cns() */
 
 /***************************************************/
 
@@ -2644,7 +2626,7 @@ static void __osm_ftree_fabric_route_to_non_cns(IN ftree_fabric_t * p_ftree)
  *   - we should NOT update port counters
  */
 
-static void __osm_ftree_fabric_route_to_switches(IN ftree_fabric_t * p_ftree)
+static void fabric_route_to_switches(IN ftree_fabric_t * p_ftree)
 {
 	ftree_sw_t *p_sw;
 	ftree_sw_t *p_next_sw;
@@ -2661,31 +2643,32 @@ static void __osm_ftree_fabric_route_to_switches(IN ftree_fabric_t * p_ftree)
 
 		OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
 			"Switch %s (LID %u): routing switch-to-switch paths\n",
-			__osm_ftree_tuple_to_str(p_sw->tuple),
+			tuple_to_str(p_sw->tuple),
 			cl_ntoh16(p_sw->base_lid));
 
 		/* set min hop table of the switch to itself */
-		__osm_ftree_sw_set_hops(p_sw, cl_ntoh16(p_sw->base_lid),
-					0,	/* port_num */
-					0);	/* hops     */
+		sw_set_hops(p_sw, cl_ntoh16(p_sw->base_lid),
+			    0,	/* port_num */
+			    0);	/* hops     */
 
-		__osm_ftree_fabric_route_downgoing_by_going_up(p_ftree, p_sw,	/* local switch - used as a route-downgoing alg. start point */
-							       NULL,	/* prev. position switch */
-							       p_sw->base_lid,	/* LID that we're routing to */
-							       p_sw->rank,	/* rank of the LID that we're routing to */
-							       TRUE,	/* whether the target LID is a real or dummy */
-							       FALSE,	/* whether this path to HCA should by tracked by counters */
-							       0,	/* Number of reverse hops allowed */
-							       0);	/* Number of reverse hops done yet */
+		fabric_route_downgoing_by_going_up(
+			p_ftree, p_sw,	/* local switch - used as a route-downgoing alg. start point */
+			NULL,	/* prev. position switch */
+			p_sw->base_lid,	/* LID that we're routing to */
+			p_sw->rank,	/* rank of the LID that we're routing to */
+			TRUE,	/* whether the target LID is a real or dummy */
+			FALSE,	/* whether this path to HCA should by tracked by counters */
+			0,	/* Number of reverse hops allowed */
+			0);	/* Number of reverse hops done yet */
 	}
 
 	OSM_LOG_EXIT(&p_ftree->p_osm->log);
-}				/* __osm_ftree_fabric_route_to_switches() */
+} /* fabric_route_to_switches() */
 
 /***************************************************
  ***************************************************/
 
-static int __osm_ftree_fabric_populate_nodes(IN ftree_fabric_t * p_ftree)
+static int fabric_populate_nodes(IN ftree_fabric_t * p_ftree)
 {
 	osm_node_t *p_osm_node;
 	osm_node_t *p_next_osm_node;
@@ -2702,12 +2685,12 @@ static int __osm_ftree_fabric_populate_nodes(IN ftree_fabric_t * p_ftree)
 		    (osm_node_t *) cl_qmap_next(&p_osm_node->map_item);
 		switch (osm_node_get_type(p_osm_node)) {
 		case IB_NODE_TYPE_CA:
-			__osm_ftree_fabric_add_hca(p_ftree, p_osm_node);
+			fabric_add_hca(p_ftree, p_osm_node);
 			break;
 		case IB_NODE_TYPE_ROUTER:
 			break;
 		case IB_NODE_TYPE_SWITCH:
-			__osm_ftree_fabric_add_sw(p_ftree, p_osm_node->sw);
+			fabric_add_sw(p_ftree, p_osm_node->sw);
 			break;
 		default:
 			OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_ERROR, "ERR AB0E: "
@@ -2723,15 +2706,15 @@ static int __osm_ftree_fabric_populate_nodes(IN ftree_fabric_t * p_ftree)
 
 	OSM_LOG_EXIT(&p_ftree->p_osm->log);
 	return 0;
-}				/* __osm_ftree_fabric_populate_nodes() */
+} /* fabric_populate_nodes() */
 
 /***************************************************
  ***************************************************/
 
-static boolean_t __osm_ftree_sw_update_rank(IN ftree_sw_t * p_sw,
+static boolean_t sw_update_rank(IN ftree_sw_t * p_sw,
 					    IN uint32_t new_rank)
 {
-	if (__osm_ftree_sw_ranked(p_sw) && p_sw->rank <= new_rank)
+	if (sw_ranked(p_sw) && p_sw->rank <= new_rank)
 		return FALSE;
 	p_sw->rank = new_rank;
 	return TRUE;
@@ -2741,8 +2724,8 @@ static boolean_t __osm_ftree_sw_update_rank(IN ftree_sw_t * p_sw,
 /***************************************************/
 
 static void
-__osm_ftree_rank_switches_from_leafs(IN ftree_fabric_t * p_ftree,
-				     IN cl_list_t * p_ranking_bfs_list)
+rank_switches_from_leafs(IN ftree_fabric_t * p_ftree,
+			 IN cl_list_t * p_ranking_bfs_list)
 {
 	ftree_sw_t *p_sw;
 	ftree_sw_t *p_remote_sw;
@@ -2770,17 +2753,15 @@ __osm_ftree_rank_switches_from_leafs(IN ftree_fabric_t * p_ftree,
 			    IB_NODE_TYPE_SWITCH)
 				continue;
 
-			p_remote_sw = __osm_ftree_fabric_get_sw_by_guid(p_ftree,
-									osm_node_get_node_guid
-									(p_remote_node));
+			p_remote_sw = fabric_get_sw_by_guid(p_ftree,
+				osm_node_get_node_guid(p_remote_node));
 			if (!p_remote_sw) {
 				/* remote node is not a switch */
 				continue;
 			}
 
 			/* if needed, rank the remote switch and add it to the BFS list */
-			if (__osm_ftree_sw_update_rank
-			    (p_remote_sw, p_sw->rank + 1)) {
+			if (sw_update_rank(p_remote_sw, p_sw->rank + 1)) {
 				max_rank = p_remote_sw->rank;
 				cl_list_insert_tail(p_ranking_bfs_list,
 						    p_remote_sw);
@@ -2791,14 +2772,14 @@ __osm_ftree_rank_switches_from_leafs(IN ftree_fabric_t * p_ftree,
 	/* set FatTree maximal switch rank */
 	p_ftree->max_switch_rank = max_rank;
 
-}				/* __osm_ftree_rank_switches_from_leafs() */
+} /* rank_switches_from_leafs() */
 
 /***************************************************/
 
 static int
-__osm_ftree_rank_leaf_switches(IN ftree_fabric_t * p_ftree,
-			       IN ftree_hca_t * p_hca,
-			       IN cl_list_t * p_ranking_bfs_list)
+rank_leaf_switches(IN ftree_fabric_t * p_ftree,
+		   IN ftree_hca_t * p_hca,
+		   IN cl_list_t * p_ranking_bfs_list)
 {
 	ftree_sw_t *p_sw;
 	osm_node_t *p_osm_node = p_hca->p_osm_node;
@@ -2825,7 +2806,7 @@ __osm_ftree_rank_leaf_switches(IN ftree_fabric_t * p_ftree,
 			OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_ERROR, "ERR AB0F: "
 				"CA conected directly to another CA: "
 				"0x%016" PRIx64 " <---> 0x%016" PRIx64 "\n",
-				__osm_ftree_hca_get_guid_ho(p_hca),
+				hca_get_guid_ho(p_hca),
 				cl_ntoh64(osm_node_get_node_guid
 					  (p_remote_osm_node)));
 			res = -1;
@@ -2853,16 +2834,14 @@ __osm_ftree_rank_leaf_switches(IN ftree_fabric_t * p_ftree,
 
 		/* remote node is switch */
 
-		p_sw = __osm_ftree_fabric_get_sw_by_guid(p_ftree,
-							 osm_node_get_node_guid
-							 (p_osm_port->
-							  p_remote_physp->
-							  p_node));
+		p_sw = fabric_get_sw_by_guid(p_ftree,
+			osm_node_get_node_guid(
+				p_osm_port->p_remote_physp->p_node));
 		CL_ASSERT(p_sw);
 
 		/* if needed, rank the remote switch and add it to the BFS list */
 
-		if (!__osm_ftree_sw_update_rank(p_sw, 0))
+		if (!sw_update_rank(p_sw, 0))
 			continue;
 		OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
 			"Marking rank of switch that is directly connected to CA:\n"
@@ -2871,8 +2850,8 @@ __osm_ftree_rank_leaf_switches(IN ftree_fabric_t * p_ftree,
 			"                                            - Switch guid: 0x%016"
 			PRIx64 "\n"
 			"                                            - Switch LID : %u\n",
-			__osm_ftree_hca_get_guid_ho(p_hca),
-			__osm_ftree_sw_get_guid_ho(p_sw),
+			hca_get_guid_ho(p_hca),
+			sw_get_guid_ho(p_sw),
 			cl_ntoh16(p_sw->base_lid));
 		cl_list_insert_tail(p_ranking_bfs_list, p_sw);
 	}
@@ -2880,12 +2859,12 @@ __osm_ftree_rank_leaf_switches(IN ftree_fabric_t * p_ftree,
 Exit:
 	OSM_LOG_EXIT(&p_ftree->p_osm->log);
 	return res;
-}				/* __osm_ftree_rank_leaf_switches() */
+} /* rank_leaf_switches() */
 
 /***************************************************/
 
-static void __osm_ftree_sw_reverse_rank(IN cl_map_item_t * const p_map_item,
-					IN void *context)
+static void sw_reverse_rank(IN cl_map_item_t * const p_map_item,
+			    IN void *context)
 {
 	ftree_fabric_t *p_ftree = (ftree_fabric_t *) context;
 	ftree_sw_t *p_sw = (ftree_sw_t * const)p_map_item;
@@ -2896,8 +2875,8 @@ static void __osm_ftree_sw_reverse_rank(IN cl_map_item_t * const p_map_item,
  ***************************************************/
 
 static int
-__osm_ftree_fabric_construct_hca_ports(IN ftree_fabric_t * p_ftree,
-				       IN ftree_hca_t * p_hca)
+fabric_construct_hca_ports(IN ftree_fabric_t * p_ftree,
+			   IN ftree_hca_t * p_hca)
 {
 	ftree_sw_t *p_remote_sw;
 	osm_node_t *p_node = p_hca->p_osm_node;
@@ -2958,14 +2937,13 @@ __osm_ftree_fabric_construct_hca_ports(IN ftree_fabric_t * p_ftree,
 		/* remote node is switch */
 
 		p_remote_sw =
-		    __osm_ftree_fabric_get_sw_by_guid(p_ftree,
-						      remote_node_guid);
+		    fabric_get_sw_by_guid(p_ftree, remote_node_guid);
 		CL_ASSERT(p_remote_sw);
 
 		/* If CN file is not supplied, then all the CAs considered as Compute Nodes.
 		   Otherwise all the CAs are not CNs, and only guids that are present in the
 		   CN file will be marked as compute nodes. */
-		if (!__osm_ftree_fabric_cns_provided(p_ftree)) {
+		if (!fabric_cns_provided(p_ftree)) {
 			is_cn = TRUE;
 		} else {
 			name_map_item_t *p_elem =
@@ -2986,7 +2964,7 @@ __osm_ftree_fabric_construct_hca_ports(IN ftree_fabric_t * p_ftree,
 				"Marking CN port GUID 0x%016" PRIx64 "\n",
 				cl_ntoh64(osm_physp_get_port_guid(p_osm_port)));
 		} else {
-			if (__osm_ftree_fabric_ios_provided(p_ftree)) {
+			if (fabric_ios_provided(p_ftree)) {
 				name_map_item_t *p_elem =
 				    (name_map_item_t *)
 				    cl_qmap_get(&p_ftree->io_guid_tbl,
@@ -3013,28 +2991,28 @@ __osm_ftree_fabric_construct_hca_ports(IN ftree_fabric_t * p_ftree,
 			}
 		}
 
-		__osm_ftree_hca_add_port(p_hca,	/* local ftree_hca object */
-					 i,	/* local port number */
-					 remote_port_num,	/* remote port number */
-					 osm_node_get_base_lid(p_node, i),	/* local lid */
-					 osm_node_get_base_lid(p_remote_node, 0),	/* remote lid */
-					 osm_physp_get_port_guid(p_osm_port),	/* local port guid */
-					 osm_physp_get_port_guid(p_remote_osm_port),	/* remote port guid */
-					 remote_node_guid,	/* remote node guid */
-					 remote_node_type,	/* remote node type */
-					 (void *)p_remote_sw,	/* remote ftree_hca/sw object */
-					 is_cn, is_io);	/* whether this port is compute node */
+		hca_add_port(p_hca,	/* local ftree_hca object */
+			     i,	/* local port number */
+			     remote_port_num,	/* remote port number */
+			     osm_node_get_base_lid(p_node, i),	/* local lid */
+			     osm_node_get_base_lid(p_remote_node, 0),	/* remote lid */
+			     osm_physp_get_port_guid(p_osm_port),	/* local port guid */
+			     osm_physp_get_port_guid(p_remote_osm_port),	/* remote port guid */
+			     remote_node_guid,	/* remote node guid */
+			     remote_node_type,	/* remote node type */
+			     (void *)p_remote_sw,	/* remote ftree_hca/sw object */
+			     is_cn, is_io);	/* whether this port is compute node */
 	}
 
 Exit:
 	return res;
-}				/* __osm_ftree_fabric_construct_hca_ports() */
+} /* fabric_construct_hca_ports() */
 
 /***************************************************
  ***************************************************/
 
-static int __osm_ftree_fabric_construct_sw_ports(IN ftree_fabric_t * p_ftree,
-						 IN ftree_sw_t * p_sw)
+static int fabric_construct_sw_ports(IN ftree_fabric_t * p_ftree,
+				     IN ftree_sw_t * p_sw)
 {
 	ftree_hca_t *p_remote_hca;
 	ftree_sw_t *p_remote_sw;
@@ -3069,7 +3047,7 @@ static int __osm_ftree_fabric_construct_sw_ports(IN ftree_fabric_t * p_ftree,
 			OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
 				"Ignoring loopback on switch GUID 0x%016" PRIx64
 				", LID %u, rank %u\n",
-				__osm_ftree_sw_get_guid_ho(p_sw),
+				sw_get_guid_ho(p_sw),
 				cl_ntoh16(p_sw->base_lid),
 				p_sw->rank);
 			continue;
@@ -3087,8 +3065,7 @@ static int __osm_ftree_fabric_construct_sw_ports(IN ftree_fabric_t * p_ftree,
 			/* switch connected to hca */
 
 			p_remote_hca =
-			    __osm_ftree_fabric_get_hca_by_guid(p_ftree,
-							       remote_node_guid);
+			    fabric_get_hca_by_guid(p_ftree, remote_node_guid);
 			CL_ASSERT(p_remote_hca);
 
 			p_remote_hca_or_sw = (void *)p_remote_hca;
@@ -3102,8 +3079,7 @@ static int __osm_ftree_fabric_construct_sw_ports(IN ftree_fabric_t * p_ftree,
 			/* switch connected to another switch */
 
 			p_remote_sw =
-			    __osm_ftree_fabric_get_sw_by_guid(p_ftree,
-							      remote_node_guid);
+			    fabric_get_sw_by_guid(p_ftree, remote_node_guid);
 			CL_ASSERT(p_remote_sw);
 
 			p_remote_hca_or_sw = (void *)p_remote_sw;
@@ -3117,9 +3093,9 @@ static int __osm_ftree_fabric_construct_sw_ports(IN ftree_fabric_t * p_ftree,
 					"       GUID 0x%016" PRIx64
 					", LID %u, rank %u\n", p_sw->rank,
 					p_remote_sw->rank,
-					__osm_ftree_sw_get_guid_ho(p_sw),
+					sw_get_guid_ho(p_sw),
 					cl_ntoh16(p_sw->base_lid), p_sw->rank,
-					__osm_ftree_sw_get_guid_ho(p_remote_sw),
+					sw_get_guid_ho(p_remote_sw),
 					cl_ntoh16(p_remote_sw->base_lid),
 					p_remote_sw->rank);
 				res = -1;
@@ -3146,17 +3122,17 @@ static int __osm_ftree_fabric_construct_sw_ports(IN ftree_fabric_t * p_ftree,
 			res = -1;
 			goto Exit;
 		}
-		__osm_ftree_sw_add_port(p_sw,	/* local ftree_sw object */
-					i,	/* local port number */
-					remote_port_num,	/* remote port number */
-					p_sw->base_lid,	/* local lid */
-					remote_base_lid,	/* remote lid */
-					osm_physp_get_port_guid(p_osm_port),	/* local port guid */
-					osm_physp_get_port_guid(p_remote_osm_port),	/* remote port guid */
-					remote_node_guid,	/* remote node guid */
-					remote_node_type,	/* remote node type */
-					p_remote_hca_or_sw,	/* remote ftree_hca/sw object */
-					direction);	/* port direction (up or down) */
+		sw_add_port(p_sw,	/* local ftree_sw object */
+			    i,	/* local port number */
+			    remote_port_num,	/* remote port number */
+			    p_sw->base_lid,	/* local lid */
+			    remote_base_lid,	/* remote lid */
+			    osm_physp_get_port_guid(p_osm_port),	/* local port guid */
+			    osm_physp_get_port_guid(p_remote_osm_port),	/* remote port guid */
+			    remote_node_guid,	/* remote node guid */
+			    remote_node_type,	/* remote node type */
+			    p_remote_hca_or_sw,	/* remote ftree_hca/sw object */
+			    direction);	/* port direction (up or down) */
 
 		/* Track the max lid (in host order) that exists in the fabric */
 		if (cl_ntoh16(remote_base_lid) > p_ftree->lft_max_lid_ho)
@@ -3165,7 +3141,7 @@ static int __osm_ftree_fabric_construct_sw_ports(IN ftree_fabric_t * p_ftree,
 
 Exit:
 	return res;
-}				/* __osm_ftree_fabric_construct_sw_ports() */
+} /* fabric_construct_sw_ports() */
 
 /***************************************************
  ***************************************************/
@@ -3179,7 +3155,7 @@ static int rank_root_sw_by_guid(void *cxt, uint64_t guid, char *p)
 	struct rank_root_cxt *c = cxt;
 	ftree_sw_t *sw;
 
-	sw = __osm_ftree_fabric_get_sw_by_guid(c->fabric, cl_hton64(guid));
+	sw = fabric_get_sw_by_guid(c->fabric, cl_hton64(guid));
 	if (!sw) {
 		/* the specified root guid wasn't found in the fabric */
 		OSM_LOG(&c->fabric->p_osm->log, OSM_LOG_ERROR, "ERR AB24: "
@@ -3195,7 +3171,7 @@ static int rank_root_sw_by_guid(void *cxt, uint64_t guid, char *p)
 	return 0;
 }
 
-static int __osm_ftree_fabric_rank_from_roots(IN ftree_fabric_t * p_ftree)
+static int fabric_rank_from_roots(IN ftree_fabric_t * p_ftree)
 {
 	struct rank_root_cxt context;
 	osm_node_t *p_osm_node;
@@ -3258,18 +3234,16 @@ static int __osm_ftree_fabric_rank_from_roots(IN ftree_fabric_t * p_ftree)
 			    IB_NODE_TYPE_SWITCH)
 				continue;
 
-			p_remote_sw = __osm_ftree_fabric_get_sw_by_guid(p_ftree,
-									osm_node_get_node_guid
-									(p_remote_osm_node));
+			p_remote_sw = fabric_get_sw_by_guid(p_ftree,
+				osm_node_get_node_guid(p_remote_osm_node));
 			CL_ASSERT(p_remote_sw);
 
 			/* if needed, rank the remote switch and add it to the BFS list */
-			if (__osm_ftree_sw_update_rank
-			    (p_remote_sw, p_sw->rank + 1)) {
+			if (sw_update_rank(p_remote_sw, p_sw->rank + 1)) {
 				OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
 					"Ranking switch 0x%" PRIx64
 					" with rank %u\n",
-					__osm_ftree_sw_get_guid_ho(p_remote_sw),
+					sw_get_guid_ho(p_remote_sw),
 					p_remote_sw->rank);
 				max_rank = p_remote_sw->rank;
 				cl_list_insert_tail(&ranking_bfs_list,
@@ -3289,12 +3263,12 @@ Exit:
 	cl_list_destroy(&ranking_bfs_list);
 	OSM_LOG_EXIT(&p_ftree->p_osm->log);
 	return res;
-}				/* __osm_ftree_fabric_rank_from_roots() */
+} /* fabric_rank_from_roots() */
 
 /***************************************************
  ***************************************************/
 
-static int __osm_ftree_fabric_rank_from_hcas(IN ftree_fabric_t * p_ftree)
+static int fabric_rank_from_hcas(IN ftree_fabric_t * p_ftree)
 {
 	ftree_hca_t *p_hca;
 	ftree_hca_t *p_next_hca;
@@ -3312,7 +3286,7 @@ static int __osm_ftree_fabric_rank_from_hcas(IN ftree_fabric_t * p_ftree)
 	while (p_next_hca != (ftree_hca_t *) cl_qmap_end(&p_ftree->hca_tbl)) {
 		p_hca = p_next_hca;
 		p_next_hca = (ftree_hca_t *) cl_qmap_next(&p_hca->map_item);
-		if (__osm_ftree_rank_leaf_switches
+		if (rank_leaf_switches
 		    (p_ftree, p_hca, &ranking_bfs_list) != 0) {
 			res = -1;
 			OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_ERROR, "ERR AB14: "
@@ -3323,31 +3297,31 @@ static int __osm_ftree_fabric_rank_from_hcas(IN ftree_fabric_t * p_ftree)
 
 	/* Now rank rest of the switches in the fabric, while the
 	   list already contains all the ranked leaf switches */
-	__osm_ftree_rank_switches_from_leafs(p_ftree, &ranking_bfs_list);
+	rank_switches_from_leafs(p_ftree, &ranking_bfs_list);
 
 	/* fix ranking of the switches by reversing the ranking direction */
-	cl_qmap_apply_func(&p_ftree->sw_tbl, __osm_ftree_sw_reverse_rank,
+	cl_qmap_apply_func(&p_ftree->sw_tbl, sw_reverse_rank,
 			   (void *)p_ftree);
 
 Exit:
 	cl_list_destroy(&ranking_bfs_list);
 	OSM_LOG_EXIT(&p_ftree->p_osm->log);
 	return res;
-}				/* __osm_ftree_fabric_rank_from_hcas() */
+} /* fabric_rank_from_hcas() */
 
 /***************************************************
  ***************************************************/
 
-static int __osm_ftree_fabric_rank(IN ftree_fabric_t * p_ftree)
+static int fabric_rank(IN ftree_fabric_t * p_ftree)
 {
 	int res = 0;
 
 	OSM_LOG_ENTER(&p_ftree->p_osm->log);
 
-	if (__osm_ftree_fabric_roots_provided(p_ftree))
-		res = __osm_ftree_fabric_rank_from_roots(p_ftree);
+	if (fabric_roots_provided(p_ftree))
+		res = fabric_rank_from_roots(p_ftree);
 	else
-		res = __osm_ftree_fabric_rank_from_hcas(p_ftree);
+		res = fabric_rank_from_hcas(p_ftree);
 
 	if (res)
 		goto Exit;
@@ -3358,12 +3332,12 @@ static int __osm_ftree_fabric_rank(IN ftree_fabric_t * p_ftree)
 Exit:
 	OSM_LOG_EXIT(&p_ftree->p_osm->log);
 	return res;
-}				/* __osm_ftree_fabric_rank() */
+} /* fabric_rank() */
 
 /***************************************************
  ***************************************************/
 
-static void __osm_ftree_fabric_set_leaf_rank(IN ftree_fabric_t * p_ftree)
+static void fabric_set_leaf_rank(IN ftree_fabric_t * p_ftree)
 {
 	unsigned i;
 	ftree_sw_t *p_sw;
@@ -3372,7 +3346,7 @@ static void __osm_ftree_fabric_set_leaf_rank(IN ftree_fabric_t * p_ftree)
 
 	OSM_LOG_ENTER(&p_ftree->p_osm->log);
 
-	if (!__osm_ftree_fabric_roots_provided(p_ftree)) {
+	if (!fabric_roots_provided(p_ftree)) {
 		/* If root file is not provided, the fabric has to be pure fat-tree
 		   in terms of ranking. Thus, leaf switches rank is the max rank. */
 		p_ftree->leaf_switch_rank = p_ftree->max_switch_rank;
@@ -3395,7 +3369,7 @@ static void __osm_ftree_fabric_set_leaf_rank(IN ftree_fabric_t * p_ftree)
 
 		OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
 			"Selected CN port GUID 0x%" PRIx64 "\n",
-			__osm_ftree_hca_get_guid_ho(p_hca));
+			hca_get_guid_ho(p_hca));
 
 		for (i = 0; (i < p_hca->up_port_groups_num)
 		     && (!p_hca->up_port_groups[i]->is_cn); i++) ;
@@ -3406,19 +3380,19 @@ static void __osm_ftree_fabric_set_leaf_rank(IN ftree_fabric_t * p_ftree)
 		p_sw = p_hca->up_port_groups[i]->remote_hca_or_sw.p_sw;
 		OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
 			"Selected leaf switch GUID 0x%" PRIx64 ", rank %u\n",
-			__osm_ftree_sw_get_guid_ho(p_sw), p_sw->rank);
+			sw_get_guid_ho(p_sw), p_sw->rank);
 		p_ftree->leaf_switch_rank = p_sw->rank;
 	}
 
 	OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_INFO,
 		"FatTree leaf switch rank is %u\n", p_ftree->leaf_switch_rank);
 	OSM_LOG_EXIT(&p_ftree->p_osm->log);
-}				/* __osm_ftree_fabric_set_leaf_rank() */
+} /* fabric_set_leaf_rank() */
 
 /***************************************************
  ***************************************************/
 
-static int __osm_ftree_fabric_populate_ports(IN ftree_fabric_t * p_ftree)
+static int fabric_populate_ports(IN ftree_fabric_t * p_ftree)
 {
 	ftree_hca_t *p_hca;
 	ftree_hca_t *p_next_hca;
@@ -3432,7 +3406,7 @@ static int __osm_ftree_fabric_populate_ports(IN ftree_fabric_t * p_ftree)
 	while (p_next_hca != (ftree_hca_t *) cl_qmap_end(&p_ftree->hca_tbl)) {
 		p_hca = p_next_hca;
 		p_next_hca = (ftree_hca_t *) cl_qmap_next(&p_hca->map_item);
-		if (__osm_ftree_fabric_construct_hca_ports(p_ftree, p_hca) != 0) {
+		if (fabric_construct_hca_ports(p_ftree, p_hca) != 0) {
 			res = -1;
 			goto Exit;
 		}
@@ -3442,7 +3416,7 @@ static int __osm_ftree_fabric_populate_ports(IN ftree_fabric_t * p_ftree)
 	while (p_next_sw != (ftree_sw_t *) cl_qmap_end(&p_ftree->sw_tbl)) {
 		p_sw = p_next_sw;
 		p_next_sw = (ftree_sw_t *) cl_qmap_next(&p_sw->map_item);
-		if (__osm_ftree_fabric_construct_sw_ports(p_ftree, p_sw) != 0) {
+		if (fabric_construct_sw_ports(p_ftree, p_sw) != 0) {
 			res = -1;
 			goto Exit;
 		}
@@ -3450,7 +3424,7 @@ static int __osm_ftree_fabric_populate_ports(IN ftree_fabric_t * p_ftree)
 Exit:
 	OSM_LOG_EXIT(&p_ftree->p_osm->log);
 	return res;
-}				/* __osm_ftree_fabric_populate_ports() */
+} /* fabric_populate_ports() */
 
 /***************************************************
  ***************************************************/
@@ -3469,13 +3443,13 @@ static int add_guid_item_to_map(void *cxt, uint64_t guid, char *p)
 	return 0;
 }
 
-static int __osm_ftree_fabric_read_guid_files(IN ftree_fabric_t * p_ftree)
+static int fabric_read_guid_files(IN ftree_fabric_t * p_ftree)
 {
 	int status = 0;
 
 	OSM_LOG_ENTER(&p_ftree->p_osm->log);
 
-	if (__osm_ftree_fabric_cns_provided(p_ftree)) {
+	if (fabric_cns_provided(p_ftree)) {
 		OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
 			"Fetching compute nodes from file %s\n",
 			p_ftree->p_osm->subn.opt.cn_guid_file);
@@ -3484,7 +3458,7 @@ static int __osm_ftree_fabric_read_guid_files(IN ftree_fabric_t * p_ftree)
 				   add_guid_item_to_map,
 				   &p_ftree->cn_guid_tbl)) {
 			OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_ERROR, "ERR AB23: "
-				"Problem parsin CN guid file\n");
+				"Problem parsing CN guid file\n");
 			status = -1;
 			goto Exit;
 		}
@@ -3498,7 +3472,7 @@ static int __osm_ftree_fabric_read_guid_files(IN ftree_fabric_t * p_ftree)
 	}
 
 
-	if (__osm_ftree_fabric_ios_provided(p_ftree)) {
+	if (fabric_ios_provided(p_ftree)) {
 		OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
 			"Fetching I/O nodes from file %s\n",
 			p_ftree->p_osm->subn.opt.io_guid_file);
@@ -3507,7 +3481,7 @@ static int __osm_ftree_fabric_read_guid_files(IN ftree_fabric_t * p_ftree)
 				   add_guid_item_to_map,
 				   &p_ftree->io_guid_tbl)) {
 			OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_ERROR,
-				"ERR AB23: " "Problem parsin I/O guid file\n");
+				"ERR AB23: Problem parsing I/O guid file\n");
 			status = -1;
 			goto Exit;
 		}
@@ -3523,19 +3497,19 @@ static int __osm_ftree_fabric_read_guid_files(IN ftree_fabric_t * p_ftree)
 Exit:
 	OSM_LOG_EXIT(&p_ftree->p_osm->log);
 	return status;
-} /*__osm_ftree_fabric_read_guid_files() */
+} /*fabric_read_guid_files() */
 
 /***************************************************
  ***************************************************/
 
-static int __osm_ftree_construct_fabric(IN void *context)
+static int construct_fabric(IN void *context)
 {
 	ftree_fabric_t *p_ftree = context;
 	int status = 0;
 
 	OSM_LOG_ENTER(&p_ftree->p_osm->log);
 
-	__osm_ftree_fabric_clear(p_ftree);
+	fabric_clear(p_ftree);
 
 	if (p_ftree->p_osm->subn.opt.lmc > 0) {
 		osm_log(&p_ftree->p_osm->log, OSM_LOG_SYS,
@@ -3572,7 +3546,7 @@ static int __osm_ftree_construct_fabric(IN void *context)
 
 	OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_VERBOSE,
 		"Populating FatTree Switch and CA tables\n");
-	if (__osm_ftree_fabric_populate_nodes(p_ftree) != 0) {
+	if (fabric_populate_nodes(p_ftree) != 0) {
 		osm_log(&p_ftree->p_osm->log, OSM_LOG_SYS,
 			"Fabric topology is not fat-tree - "
 			"falling back to default routing\n");
@@ -3582,7 +3556,7 @@ static int __osm_ftree_construct_fabric(IN void *context)
 
 	OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_VERBOSE,
 		"Reading guid files provided by user\n");
-	if (__osm_ftree_fabric_read_guid_files(p_ftree) != 0) {
+	if (fabric_read_guid_files(p_ftree) != 0) {
 		osm_log(&p_ftree->p_osm->log, OSM_LOG_SYS,
 			"Failed reading guid files - "
 			"falling back to default routing\n");
@@ -3604,7 +3578,7 @@ static int __osm_ftree_construct_fabric(IN void *context)
 	   We will be able to check leaf switches rank and the
 	   whole tree rank after filling ports and marking CNs. */
 	OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_VERBOSE, "Ranking FatTree\n");
-	if (__osm_ftree_fabric_rank(p_ftree) != 0) {
+	if (fabric_rank(p_ftree) != 0) {
 		osm_log(&p_ftree->p_osm->log, OSM_LOG_SYS,
 			"Failed ranking the tree\n");
 		status = -1;
@@ -3618,7 +3592,7 @@ static int __osm_ftree_construct_fabric(IN void *context)
 	   that's how the port direction is determined. */
 	OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_VERBOSE,
 		"Populating CA & switch ports\n");
-	if (__osm_ftree_fabric_populate_ports(p_ftree) != 0) {
+	if (fabric_populate_ports(p_ftree) != 0) {
 		osm_log(&p_ftree->p_osm->log, OSM_LOG_SYS,
 			"Fabric topology is not a fat-tree\n");
 		status = -1;
@@ -3632,13 +3606,13 @@ static int __osm_ftree_construct_fabric(IN void *context)
 
 	/* Now that the CA ports have been created and CNs were marked,
 	   we can complete the fabric ranking - set leaf switches rank. */
-	__osm_ftree_fabric_set_leaf_rank(p_ftree);
+	fabric_set_leaf_rank(p_ftree);
 
-	if (__osm_ftree_fabric_get_rank(p_ftree) > FAT_TREE_MAX_RANK ||
-	    __osm_ftree_fabric_get_rank(p_ftree) < FAT_TREE_MIN_RANK) {
+	if (fabric_get_rank(p_ftree) > FAT_TREE_MAX_RANK ||
+	    fabric_get_rank(p_ftree) < FAT_TREE_MIN_RANK) {
 		osm_log(&p_ftree->p_osm->log, OSM_LOG_SYS,
 			"Fabric rank is %u (should be between %u and %u)\n",
-			__osm_ftree_fabric_get_rank(p_ftree), FAT_TREE_MIN_RANK,
+			fabric_get_rank(p_ftree), FAT_TREE_MIN_RANK,
 			FAT_TREE_MAX_RANK);
 		status = -1;
 		goto Exit;
@@ -3648,7 +3622,7 @@ static int __osm_ftree_construct_fabric(IN void *context)
 	   p_ftree->leaf_switch_rank and that are also connected to CNs.
 	   As a by-product, this function also runs basic topology
 	   validation - it checks that all the CNs are at the same rank. */
-	if (__osm_ftree_fabric_mark_leaf_switches(p_ftree)) {
+	if (fabric_mark_leaf_switches(p_ftree)) {
 		osm_log(&p_ftree->p_osm->log, OSM_LOG_SYS,
 			"Fabric topology is not a fat-tree\n");
 		status = -1;
@@ -3659,14 +3633,14 @@ static int __osm_ftree_construct_fabric(IN void *context)
 	   This function also sorts leaf switch array by the switch index,
 	   sorts all the port arrays of the indexed switches by remote
 	   switch index, and creates switch-by-tuple table (sw_by_tuple_tbl) */
-	__osm_ftree_fabric_make_indexing(p_ftree);
+	fabric_make_indexing(p_ftree);
 
 	/* Create leaf switch array sorted by index.
 	   This array contains switches with rank equal to p_ftree->leaf_switch_rank
 	   and that are also connected to CNs (REAL leafs), and it may contain
 	   switches at the same leaf rank w/o CNs, if this is the order of indexing.
 	   In any case, the first and the last switches in the array are REAL leafs. */
-	if (__osm_ftree_fabric_create_leaf_switch_array(p_ftree)) {
+	if (fabric_create_leaf_switch_array(p_ftree)) {
 		osm_log(&p_ftree->p_osm->log, OSM_LOG_SYS,
 			"Fabric topology is not a fat-tree\n");
 		status = -1;
@@ -3674,19 +3648,19 @@ static int __osm_ftree_construct_fabric(IN void *context)
 	}
 
 	/* calculate and set ftree.max_cn_per_leaf field */
-	__osm_ftree_fabric_set_max_cn_per_leaf(p_ftree);
+	fabric_set_max_cn_per_leaf(p_ftree);
 
 	/* print general info about fabric topology */
-	__osm_ftree_fabric_dump_general_info(p_ftree);
+	fabric_dump_general_info(p_ftree);
 
 	/* dump full tree topology */
 	if (osm_log_is_active(&p_ftree->p_osm->log, OSM_LOG_DEBUG))
-		__osm_ftree_fabric_dump(p_ftree);
+		fabric_dump(p_ftree);
 
 	/* the fabric is required to be PURE fat-tree only if the root
 	   guid file hasn't been provided by user */
-	if (!__osm_ftree_fabric_roots_provided(p_ftree) &&
-	    !__osm_ftree_fabric_validate_topology(p_ftree)) {
+	if (!fabric_roots_provided(p_ftree) &&
+	    !fabric_validate_topology(p_ftree)) {
 		osm_log(&p_ftree->p_osm->log, OSM_LOG_SYS,
 			"Fabric topology is not a fat-tree\n");
 		status = -1;
@@ -3701,7 +3675,7 @@ Exit:
 	if (status != 0) {
 		OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_VERBOSE,
 			"Clearing FatTree Fabric data structures\n");
-		__osm_ftree_fabric_clear(p_ftree);
+		fabric_clear(p_ftree);
 	} else
 		p_ftree->fabric_built = TRUE;
 
@@ -3713,12 +3687,12 @@ Exit:
 
 	OSM_LOG_EXIT(&p_ftree->p_osm->log);
 	return status;
-}				/* __osm_ftree_construct_fabric() */
+} /* construct_fabric() */
 
 /***************************************************
  ***************************************************/
 
-static int __osm_ftree_do_routing(IN void *context)
+static int do_routing(IN void *context)
 {
 	ftree_fabric_t *p_ftree = context;
 	int status = 0;
@@ -3735,22 +3709,22 @@ static int __osm_ftree_do_routing(IN void *context)
 
 	OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_VERBOSE,
 		"Filling switch forwarding tables for Compute Nodes\n");
-	__osm_ftree_fabric_route_to_cns(p_ftree);
+	fabric_route_to_cns(p_ftree);
 
 	OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_VERBOSE,
 		"Filling switch forwarding tables for non-CN targets\n");
-	__osm_ftree_fabric_route_to_non_cns(p_ftree);
+	fabric_route_to_non_cns(p_ftree);
 
 	OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_VERBOSE,
 		"Filling switch forwarding tables for switch-to-switch paths\n");
-	__osm_ftree_fabric_route_to_switches(p_ftree);
+	fabric_route_to_switches(p_ftree);
 
 	/* for each switch, set its fwd table */
-	cl_qmap_apply_func(&p_ftree->sw_tbl, __osm_ftree_set_sw_fwd_table,
+	cl_qmap_apply_func(&p_ftree->sw_tbl, set_sw_fwd_table,
 			   (void *)p_ftree);
 
 	/* write out hca ordering file */
-	__osm_ftree_fabric_dump_hca_ordering(p_ftree);
+	fabric_dump_hca_ordering(p_ftree);
 
 	OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_VERBOSE,
 		"FatTree routing is done\n");
@@ -3763,11 +3737,11 @@ Exit:
 /***************************************************
  ***************************************************/
 
-static void __osm_ftree_delete(IN void *context)
+static void delete(IN void *context)
 {
 	if (!context)
 		return;
-	__osm_ftree_fabric_destroy((ftree_fabric_t *) context);
+	fabric_destroy((ftree_fabric_t *) context);
 }
 
 /***************************************************
@@ -3775,16 +3749,16 @@ static void __osm_ftree_delete(IN void *context)
 
 int osm_ucast_ftree_setup(struct osm_routing_engine *r, osm_opensm_t * p_osm)
 {
-	ftree_fabric_t *p_ftree = __osm_ftree_fabric_create();
+	ftree_fabric_t *p_ftree = fabric_create();
 	if (!p_ftree)
 		return -1;
 
 	p_ftree->p_osm = p_osm;
 
 	r->context = (void *)p_ftree;
-	r->build_lid_matrices = __osm_ftree_construct_fabric;
-	r->ucast_build_fwd_tables = __osm_ftree_do_routing;
-	r->delete = __osm_ftree_delete;
+	r->build_lid_matrices = construct_fabric;
+	r->ucast_build_fwd_tables = do_routing;
+	r->delete = delete;
 
 	return 0;
 }
