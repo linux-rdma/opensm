@@ -218,7 +218,6 @@ static void opts_parse_net16(IN osm_subn_t *p_subn, IN char *p_key,
 	uint16_t *p_val1 = p_v1, *p_val2 = p_v2;
 	uint16_t val = strtoul(p_val_str, NULL, 0);
 
-	CL_ASSERT(val < 0x10000);
 	if (cl_hton16(val) != *p_val1) {
 		log_config_value(p_key, "0x%04x", val);
 		if (pfn)
@@ -234,7 +233,6 @@ static void opts_parse_uint8(IN osm_subn_t *p_subn, IN char *p_key,
 	uint8_t *p_val1 = p_v1, *p_val2 = p_v2;
 	uint8_t val = strtoul(p_val_str, NULL, 0);
 
-	CL_ASSERT(val < 0x100);
 	if (val != *p_val1) {
 		log_config_value(p_key, "%u", val);
 		if (pfn)
