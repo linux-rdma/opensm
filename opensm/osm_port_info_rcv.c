@@ -62,30 +62,6 @@
 #include <opensm/osm_opensm.h>
 #include <opensm/osm_ucast_mgr.h>
 
-/**********************************************************************
- **********************************************************************/
-static void
-__osm_pi_rcv_set_sm(IN osm_sm_t * sm,
-		    IN osm_physp_t * const p_physp)
-{
-	osm_bind_handle_t h_bind;
-	osm_dr_path_t *p_dr_path;
-
-	OSM_LOG_ENTER(sm->p_log);
-
-	OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-		"Setting IS_SM bit in port attributes\n");
-
-	p_dr_path = osm_physp_get_dr_path_ptr(p_physp);
-	h_bind = osm_dr_path_get_bind_handle(p_dr_path);
-
-	/*
-	   The 'IS_SM' bit isn't already set, so set it.
-	 */
-	osm_vendor_set_sm(h_bind, TRUE);
-
-	OSM_LOG_EXIT(sm->p_log);
-}
 
 /**********************************************************************
  **********************************************************************/
@@ -139,16 +115,7 @@ __osm_pi_rcv_process_endport(IN osm_sm_t * sm,
 		}
 	}
 
-	if (port_guid == sm->p_subn->sm_port_guid) {
-		/*
-		   We received the PortInfo for our own port.
-		 */
-		if (!(p_pi->capability_mask & IB_PORT_CAP_IS_SM))
-			/*
-			   Set the IS_SM bit to indicate our port hosts an SM.
-			 */
-			__osm_pi_rcv_set_sm(sm, p_physp);
-	} else {
+	if (port_guid != sm->p_subn->sm_port_guid) {
 		p_sm_tbl = &sm->p_subn->sm_guid_tbl;
 		if (p_pi->capability_mask & IB_PORT_CAP_IS_SM) {
 			/*

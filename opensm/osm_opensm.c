@@ -475,6 +475,11 @@ osm_opensm_bind(IN osm_opensm_t * const p_osm, IN const ib_net64_t guid)
 		goto Exit;
 #endif				/* ENABLE_OSM_PERF_MGR */
 
+	/* setting IS_SM in capability mask */
+	OSM_LOG(&p_osm->log, OSM_LOG_INFO, "Setting IS_SM on port 0x%016" PRIx64 "\n",
+			cl_ntoh64(guid));
+	osm_vendor_set_sm(p_osm->sm.mad_ctrl.h_bind, TRUE);
+
 Exit:
 	OSM_LOG_EXIT(&p_osm->log);
 	return (status);
