@@ -698,6 +698,26 @@ static inline cl_status_t sw_set_hops(IN ftree_sw_t * p_sw, IN uint16_t lid_ho,
 	return osm_switch_set_hops(p_sw->p_osm_sw, lid_ho, port_num, hops);
 }
 
+/***************************************************/
+
+static int set_hops_on_remote_sw(IN ftree_port_group_t * p_group,
+				 IN ib_net16_t target_lid, IN uint8_t hops)
+{
+	ftree_port_t *p_port;
+	uint8_t i, ports_num;
+	ftree_sw_t *p_remote_sw = p_group->remote_hca_or_sw.p_sw;
+
+	CL_ASSERT(p_group->remote_node_type == IB_NODE_TYPE_SWITCH);
+	ports_num = (uint8_t) cl_ptr_vector_get_size(&p_group->ports);
+	for (i = 0; i < ports_num; i++) {
+		cl_ptr_vector_at(&p_group->ports, i, (void *)&p_port);
+		if (sw_set_hops(p_remote_sw, cl_ntoh16(target_lid),
+				p_port->remote_port_num, hops))
+			return -1;
+	}
+	return 0;
+}
+
 /***************************************************
  **
  ** ftree_hca_t functions
@@ -1988,20 +2008,12 @@ fabric_route_upgoing_by_going_down(IN ftree_fabric_t * p_ftree,
 			/* On the remote switch that is pointed by the p_group,
 			   set hops for ALL the ports in the remote group. */
 
-			for (j = 0; j < ports_num; j++) {
-				cl_ptr_vector_at(&p_group->ports, j,
-						 (void *)&p_port);
-
-				sw_set_hops(p_remote_sw,
-					    cl_ntoh16(target_lid),
-					    p_port->remote_port_num,
-					    ((target_rank -
-					      highest_rank_in_route) +
-					     (p_remote_sw->rank -
-					      highest_rank_in_route)
-					     + reverse_hops * 2));
-			}
-
+			set_hops_on_remote_sw(p_group, target_lid,
+					      ((target_rank -
+						highest_rank_in_route) +
+					       (p_remote_sw->rank -
+						highest_rank_in_route) +
+					       reverse_hops * 2));
 		}
 
 		/* The number of upgoing routes is tracked in the
@@ -2213,18 +2225,9 @@ static void fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
 			/* On the remote switch that is pointed by the min_group,
 			   set hops for ALL the ports in the remote group. */
 
-			ports_num =
-			    (uint16_t) cl_ptr_vector_get_size(&p_min_group->
-							      ports);
-			for (j = 0; j < ports_num; j++) {
-				cl_ptr_vector_at(&p_min_group->ports, j,
-						 (void *)&p_port);
-				sw_set_hops(p_remote_sw,
-					    cl_ntoh16(target_lid),
-					    p_port->remote_port_num,
-					    target_rank - p_remote_sw->rank +
-					    2 * reverse_hops);
-			}
+			set_hops_on_remote_sw(p_min_group, target_lid,
+					      target_rank - p_remote_sw->rank +
+					      2 * reverse_hops);
 		}
 
 		/* Recursion step:
@@ -2305,16 +2308,9 @@ static void fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
 		/* On the remote switch that is pointed by the p_group,
 		   set hops for ALL the ports in the remote group. */
 
-		ports_num = (uint16_t) cl_ptr_vector_get_size(&p_group->ports);
-		for (j = 0; j < ports_num; j++) {
-			cl_ptr_vector_at(&p_group->ports, j, (void *)&p_port);
-
-			sw_set_hops(p_remote_sw,
-				    cl_ntoh16(target_lid),
-				    p_port->remote_port_num,
-				    target_rank - p_remote_sw->rank +
-				    2 * reverse_hops);
-		}
+		set_hops_on_remote_sw(p_group, target_lid,
+				      target_rank - p_remote_sw->rank +
+				      2 * reverse_hops);
 
 		/* Recursion step:
 		   Assign downgoing ports by stepping up, starting on REMOTE switch. */
