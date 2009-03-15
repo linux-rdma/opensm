@@ -144,18 +144,17 @@ void osm_port_delete(IN OUT osm_port_t ** const pp_port)
 
 /**********************************************************************
  **********************************************************************/
-static void
-osm_port_init(IN osm_port_t * const p_port,
-	      IN const ib_node_info_t * p_ni,
-	      IN osm_node_t * const p_parent_node)
+osm_port_t *osm_port_new(IN const ib_node_info_t * p_ni,
+			 IN osm_node_t * const p_parent_node)
 {
+	osm_port_t *p_port;
 	ib_net64_t port_guid;
 	osm_physp_t *p_physp;
 	uint8_t port_num;
 
-	CL_ASSERT(p_port);
-	CL_ASSERT(p_ni);
-	CL_ASSERT(p_parent_node);
+	p_port = malloc(sizeof(*p_port));
+	if (!p_port)
+		return NULL;
 
 	memset(p_port, 0, sizeof(*p_port));
 	cl_qlist_init(&p_port->mcm_list);
@@ -174,22 +173,8 @@ osm_port_init(IN osm_port_t * const p_port,
 	p_physp = osm_node_get_physp_ptr(p_parent_node, port_num);
 	CL_ASSERT(port_guid == osm_physp_get_port_guid(p_physp));
 	p_port->p_physp = p_physp;
-}
 
-/**********************************************************************
- **********************************************************************/
-osm_port_t *osm_port_new(IN const ib_node_info_t * p_ni,
-			 IN osm_node_t * const p_parent_node)
-{
-	osm_port_t *p_port;
-
-	p_port = malloc(sizeof(*p_port));
-	if (p_port != NULL) {
-		memset(p_port, 0, sizeof(*p_port));
-		osm_port_init(p_port, p_ni, p_parent_node);
-	}
-
-	return (p_port);
+	return p_port;
 }
 
 /**********************************************************************

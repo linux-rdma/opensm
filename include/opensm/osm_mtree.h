@@ -98,7 +98,7 @@ BEGIN_C_DECLS
 */
 typedef struct osm_mtree_node {
 	cl_map_item_t map_item;
-	osm_switch_t *p_sw;
+	const osm_switch_t *p_sw;
 	uint8_t max_children;
 	struct osm_mtree_node *p_up;
 	struct osm_mtree_node *child_array[1];
@@ -137,7 +137,7 @@ typedef struct osm_mtree_node {
 *
 * SYNOPSIS
 */
-osm_mtree_node_t *osm_mtree_node_new(IN const osm_switch_t * const p_sw);
+osm_mtree_node_t *osm_mtree_node_new(IN const osm_switch_t * p_sw);
 /*
 * PARAMETERS
 *	p_sw
@@ -187,7 +187,7 @@ void osm_mtree_destroy(IN osm_mtree_node_t * p_mtn);
 * SYNOPSIS
 */
 static inline uint8_t
-osm_mtree_node_get_max_children(IN const osm_mtree_node_t * const p_mtn)
+osm_mtree_node_get_max_children(IN const osm_mtree_node_t * p_mtn)
 {
 	return (p_mtn->max_children);
 }
@@ -215,8 +215,8 @@ osm_mtree_node_get_max_children(IN const osm_mtree_node_t * const p_mtn)
 */
 static inline osm_mtree_node_t *osm_mtree_node_get_child(IN const
 							 osm_mtree_node_t *
-							 const p_mtn,
-							 IN const uint8_t child)
+							 p_mtn,
+							 IN uint8_t child)
 {
 	CL_ASSERT(child < p_mtn->max_children);
 	return (p_mtn->child_array[child]);
@@ -247,11 +247,11 @@ static inline osm_mtree_node_t *osm_mtree_node_get_child(IN const
 *
 * SYNOPSIS
 */
-static inline osm_switch_t *osm_mtree_node_get_switch_ptr(IN const
+static inline const osm_switch_t *osm_mtree_node_get_switch_ptr(IN const
 							  osm_mtree_node_t *
-							  const p_mtn)
+							  p_mtn)
 {
-	return (p_mtn->p_sw);
+	return p_mtn->p_sw;
 }
 /*
 * PARAMETERS

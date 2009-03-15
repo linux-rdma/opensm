@@ -47,43 +47,25 @@
 #include <complib/cl_debug.h>
 #include <opensm/osm_mtree.h>
 
-/**********************************************************************
- **********************************************************************/
-static void
-osm_mtree_node_init(IN osm_mtree_node_t * const p_mtn,
-		    IN const osm_switch_t * const p_sw)
-{
-	uint32_t i;
-
-	CL_ASSERT(p_mtn);
-	CL_ASSERT(p_sw);
-
-	memset(p_mtn, 0, sizeof(*p_mtn));
-
-	p_mtn->p_sw = (osm_switch_t *) p_sw;
-	p_mtn->max_children = p_sw->num_ports;
-
-	for (i = 0; i < p_mtn->max_children; i++)
-		p_mtn->child_array[i] = NULL;
-}
-
-/**********************************************************************
- **********************************************************************/
-osm_mtree_node_t *osm_mtree_node_new(IN const osm_switch_t * const p_sw)
+osm_mtree_node_t *osm_mtree_node_new(IN const osm_switch_t * p_sw)
 {
 	osm_mtree_node_t *p_mtn;
+	uint32_t i;
 
 	p_mtn = malloc(sizeof(osm_mtree_node_t) +
 		       sizeof(void *) * (p_sw->num_ports - 1));
+	if (!p_mtn)
+		return NULL;
 
-	if (p_mtn != NULL)
-		osm_mtree_node_init(p_mtn, p_sw);
+	memset(p_mtn, 0, sizeof(*p_mtn));
+	p_mtn->p_sw = p_sw;
+	p_mtn->max_children = p_sw->num_ports;
+	for (i = 0; i < p_mtn->max_children; i++)
+		p_mtn->child_array[i] = NULL;
 
-	return (p_mtn);
+	return p_mtn;
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_mtree_destroy(IN osm_mtree_node_t * p_mtn)
 {
 	uint32_t i;
@@ -103,7 +85,7 @@ void osm_mtree_destroy(IN osm_mtree_node_t * p_mtn)
 /**********************************************************************
  **********************************************************************/
 #if 0
-static void __osm_mtree_dump(IN osm_mtree_node_t * p_mtn)
+static void mtree_dump(IN osm_mtree_node_t * p_mtn)
 {
 	uint32_t i;
 
@@ -118,7 +100,7 @@ static void __osm_mtree_dump(IN osm_mtree_node_t * p_mtn)
 			printf("i=%d\n", i);
 			if ((p_mtn->child_array[i] != NULL)
 			    && (p_mtn->child_array[i] != OSM_MTREE_LEAF))
-				__osm_mtree_dump(p_mtn->child_array[i]);
+				mtree_dump(p_mtn->child_array[i]);
 		}
 	}
 }
