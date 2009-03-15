@@ -280,6 +280,7 @@ osm_switch_recommend_path(IN const osm_switch_t * const p_sw,
 	osm_node_t *p_rem_node;
 	osm_node_t *p_rem_node_first = NULL;
 	struct osm_remote_node *p_remote_guid = NULL;
+	struct osm_remote_node null_remote_node = {NULL, 0, 0};
 
 	CL_ASSERT(lid_ho > 0);
 
@@ -390,12 +391,37 @@ osm_switch_recommend_path(IN const osm_switch_t * const p_sw,
 		check_count =
 		    osm_port_prof_path_count_get(&p_sw->p_prof[port_num]);
 
+		if (dor) {
+			/* Get the Remote Node */
+			p_rem_physp = osm_physp_get_remote(p_physp);
+			p_rem_node = osm_physp_get_node_ptr(p_rem_physp);
+			/* use the first dimension, but spread traffic
+			 * out among the group of ports representing
+			 * that dimension */
+			if (!p_rem_node_first)
+				p_rem_node_first = p_rem_node;
+			else if (p_rem_node != p_rem_node_first)
+				continue;
+			if (routing_for_lmc) {
+				struct osm_remote_guids_count *r = p_port->priv;
+				uint8_t rem_port = osm_physp_get_port_num(p_rem_physp);
+				int j;
+
+				for (j = 0; j < r->count; j++) {
+					p_remote_guid = &r->guids[j];
+					if ((p_remote_guid->node == p_rem_node)
+					    && (p_remote_guid->port == rem_port))
+						break;
+				}
+				if (j == r->count)
+					p_remote_guid = &null_remote_node;
+			}
 		/*
 		   Advanced LMC routing requires tracking of the
 		   best port by the node connected to the other side of
 		   it.
 		 */
-		if (routing_for_lmc) {
+		} else if (routing_for_lmc) {
 			/* Is the sys guid already used ? */
 			p_remote_guid = osm_switch_find_sys_guid_count(p_sw,
 								       p_port->priv,
@@ -431,20 +457,6 @@ osm_switch_recommend_path(IN const osm_switch_t * const p_sw,
 		   the count is min but also lower then the max subscribed
 		 */
 		if (check_count < least_paths) {
-			if (dor) {
-				/* Get the Remote Node */
-				p_rem_physp = osm_physp_get_remote(p_physp);
-				p_rem_node =
-				    osm_physp_get_node_ptr(p_rem_physp);
-				/* use the first dimension, but spread
-				 * traffic out among the group of ports
-				 * representing that dimension */
-				if (port_found) {
-					if (p_rem_node != p_rem_node_first)
-						continue;
-				} else
-					p_rem_node_first = p_rem_node;
-			}
 			port_found = TRUE;
 			best_port = port_num;
 			least_paths = check_count;

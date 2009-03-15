@@ -167,6 +167,7 @@ struct osm_remote_guids_count {
 	struct osm_remote_node {
 		osm_node_t *node;
 		unsigned forwarded_to;
+		uint8_t port;
 	} guids[0];
 };
 /*
@@ -179,6 +180,9 @@ struct osm_remote_guids_count {
 *
 *	forwarded_to
 *		A count of lids forwarded to this node.
+*
+*	port
+*		Port number on the node.
 *********/
 
 /****f* OpenSM: Switch/osm_switch_delete

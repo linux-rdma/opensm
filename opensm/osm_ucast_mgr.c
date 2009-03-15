@@ -183,20 +183,25 @@ static void ucast_mgr_process_neighbor(IN osm_ucast_mgr_t * p_mgr,
 /**********************************************************************
  **********************************************************************/
 static struct osm_remote_node *find_and_add_remote_sys(osm_switch_t * sw,
-						       uint8_t port, struct
+						       uint8_t port,
+						       const boolean_t dor,
+						       struct
 						       osm_remote_guids_count
 						       *r)
 {
 	unsigned i;
 	osm_physp_t *p = osm_node_get_physp_ptr(sw->p_node, port);
 	osm_node_t *node = p->p_remote_physp->p_node;
+	uint8_t rem_port = osm_physp_get_port_num(p->p_remote_physp);
 
 	for (i = 0; i < r->count; i++)
 		if (r->guids[i].node == node)
-			return &r->guids[i];
+			if (!dor || (r->guids[i].port == rem_port))
+				return &r->guids[i];
 
 	r->guids[i].node = node;
 	r->guids[i].forwarded_to = 0;
+	r->guids[i].port = rem_port;
 	r->count++;
 	return &r->guids[i];
 }
@@ -233,7 +238,7 @@ static void ucast_mgr_process_port(IN osm_ucast_mgr_t * p_mgr,
 	if (lid_ho > max_lid_ho)
 		goto Exit;
 
-	if (lid_offset)
+	if (lid_offset && !p_mgr->is_dor)
 		/* ignore potential overflow - it is handled in osm_switch.c */
 		start_from = osm_switch_get_port_by_lid(p_sw, lid_ho - 1) + 1;
 
@@ -299,6 +304,7 @@ static void ucast_mgr_process_port(IN osm_ucast_mgr_t * p_mgr,
 		osm_switch_count_path(p_sw, port);
 		if (port > 0 && p_port->priv &&
 		    (rem_node_used = find_and_add_remote_sys(p_sw, port,
+							     p_mgr->is_dor,
 							     p_port->priv)))
 			rem_node_used->forwarded_to++;
 	}
