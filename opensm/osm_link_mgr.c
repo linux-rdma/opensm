@@ -55,11 +55,9 @@
 #include <opensm/osm_opensm.h>
 #include <opensm/osm_ucast_lash.h>
 
-
 /**********************************************************************
  **********************************************************************/
-static uint8_t
-link_mgr_get_smsl(IN osm_sm_t * sm, IN osm_physp_t * const p_physp)
+static uint8_t link_mgr_get_smsl(IN osm_sm_t * sm, IN osm_physp_t * p_physp)
 {
 	osm_opensm_t *p_osm = sm->p_subn->p_osm;
 	const osm_port_t *p_sm_port;
@@ -78,11 +76,13 @@ link_mgr_get_smsl(IN osm_sm_t * sm, IN osm_physp_t * const p_physp)
 
 	/* Find osm_port of the SM itself = dest_port */
 	smlid = sm->p_subn->sm_base_lid;
-	p_sm_port = cl_ptr_vector_get(&sm->p_subn->port_lid_tbl, cl_ntoh16(smlid));
+	p_sm_port =
+	    cl_ptr_vector_get(&sm->p_subn->port_lid_tbl, cl_ntoh16(smlid));
 
 	/* Find osm_port of the source = p_physp */
 	slid = osm_physp_get_base_lid(p_physp);
-	p_src_port = cl_ptr_vector_get(&sm->p_subn->port_lid_tbl, cl_ntoh16(slid));
+	p_src_port =
+	    cl_ptr_vector_get(&sm->p_subn->port_lid_tbl, cl_ntoh16(slid));
 
 	/* Call lash to find proper SL */
 	sl = osm_get_lash_sl(p_osm, p_src_port, p_sm_port);
@@ -93,10 +93,8 @@ link_mgr_get_smsl(IN osm_sm_t * sm, IN osm_physp_t * const p_physp)
 
 /**********************************************************************
  **********************************************************************/
-static boolean_t
-link_mgr_set_physp_pi(osm_sm_t * sm,
-			IN osm_physp_t * const p_physp,
-			IN uint8_t const port_state)
+static boolean_t link_mgr_set_physp_pi(osm_sm_t * sm, IN osm_physp_t * p_physp,
+				       IN uint8_t port_state)
 {
 	uint8_t payload[IB_SMP_DATA_SIZE];
 	ib_port_info_t *const p_pi = (ib_port_info_t *) payload;
@@ -142,16 +140,19 @@ link_mgr_set_physp_pi(osm_sm_t * sm,
 			if (smsl != ib_port_info_get_master_smsl(p_old_pi)) {
 				send_set = TRUE;
 				OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-				    "Setting SMSL to %d on port 0 GUID 0x%016"
-				    PRIx64 "\n", smsl,
-				    cl_ntoh64(osm_physp_get_port_guid(p_physp)));
+					"Setting SMSL to %d on port 0 GUID 0x%016"
+					PRIx64 "\n", smsl,
+					cl_ntoh64(osm_physp_get_port_guid
+						  (p_physp)));
 			} else {
 				/* This means the switch doesn't support
 				   enhanced port 0 and we don't need to
 				   change SMSL. Can skip it. */
 				OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-				    "Skipping port 0, GUID 0x%016" PRIx64 "\n",
-				    cl_ntoh64(osm_physp_get_port_guid(p_physp)));
+					"Skipping port 0, GUID 0x%016" PRIx64
+					"\n",
+					cl_ntoh64(osm_physp_get_port_guid
+						  (p_physp)));
 				goto Exit;
 			}
 		} else {
@@ -227,9 +228,9 @@ link_mgr_set_physp_pi(osm_sm_t * sm,
 
 				OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 					"Setting SMSL to %d on GUID 0x%016"
-					PRIx64 ", port %d\n",
-					smsl, cl_ntoh64(osm_physp_get_port_guid(p_physp)),
-					port_num);
+					PRIx64 ", port %d\n", smsl,
+					cl_ntoh64(osm_physp_get_port_guid
+						  (p_physp)), port_num);
 
 				send_set = TRUE;
 			}
@@ -405,10 +406,8 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-static osm_signal_t
-link_mgr_process_node(osm_sm_t * sm,
-			IN osm_node_t * const p_node,
-			IN const uint8_t link_state)
+static osm_signal_t link_mgr_process_node(osm_sm_t * sm, IN osm_node_t * p_node,
+					  IN const uint8_t link_state)
 {
 	uint32_t i;
 	uint32_t num_physp;
