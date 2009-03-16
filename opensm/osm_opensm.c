@@ -183,7 +183,7 @@ static void setup_routing_engine(osm_opensm_t *osm, const char *name)
 	}
 
 	OSM_LOG(&osm->log, OSM_LOG_ERROR,
-		"cannot find or setup routing engine \'%s\'", name);
+		"cannot find or setup routing engine \'%s\'\n", name);
 }
 
 static void setup_routing_engines(osm_opensm_t *osm, const char *engine_names)
