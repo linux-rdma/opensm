@@ -94,9 +94,9 @@ link_mgr_get_smsl(IN osm_sm_t * sm, IN osm_physp_t * const p_physp)
 /**********************************************************************
  **********************************************************************/
 static boolean_t
-__osm_link_mgr_set_physp_pi(osm_sm_t * sm,
-			    IN osm_physp_t * const p_physp,
-			    IN uint8_t const port_state)
+link_mgr_set_physp_pi(osm_sm_t * sm,
+			IN osm_physp_t * const p_physp,
+			IN uint8_t const port_state)
 {
 	uint8_t payload[IB_SMP_DATA_SIZE];
 	ib_port_info_t *const p_pi = (ib_port_info_t *) payload;
@@ -406,9 +406,9 @@ Exit:
 /**********************************************************************
  **********************************************************************/
 static osm_signal_t
-__osm_link_mgr_process_node(osm_sm_t * sm,
-			    IN osm_node_t * const p_node,
-			    IN const uint8_t link_state)
+link_mgr_process_node(osm_sm_t * sm,
+			IN osm_node_t * const p_node,
+			IN const uint8_t link_state)
 {
 	uint32_t i;
 	uint32_t num_physp;
@@ -454,7 +454,7 @@ __osm_link_mgr_process_node(osm_sm_t * sm,
 				"Physical port %u already %s. Skipping\n",
 				p_physp->port_num,
 				ib_get_port_state_str(current_state));
-		else if (__osm_link_mgr_set_physp_pi(sm, p_physp, link_state))
+		else if (link_mgr_set_physp_pi(sm, p_physp, link_state))
 			signal = OSM_SIGNAL_DONE_PENDING;
 	}
 
@@ -479,7 +479,7 @@ osm_signal_t osm_link_mgr_process(osm_sm_t * sm, IN const uint8_t link_state)
 	for (p_node = (osm_node_t *) cl_qmap_head(p_node_guid_tbl);
 	     p_node != (osm_node_t *) cl_qmap_end(p_node_guid_tbl);
 	     p_node = (osm_node_t *) cl_qmap_next(&p_node->map_item)) {
-		if (__osm_link_mgr_process_node(sm, p_node, link_state) ==
+		if (link_mgr_process_node(sm, p_node, link_state) ==
 		    OSM_SIGNAL_DONE_PENDING)
 			signal = OSM_SIGNAL_DONE_PENDING;
 	}
