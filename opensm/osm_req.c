@@ -283,7 +283,8 @@ int osm_send_trap144(osm_sm_t *sm, ib_net16_t local)
 
 	OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 		"Sending Trap 144, TID 0x%" PRIx64 " to SM lid %u\n",
-		cl_ntoh64(smp->trans_id), cl_ntoh16(pi->master_sm_base_lid));
+		cl_ntoh64(smp->trans_id),
+		cl_ntoh16(smport->p_physp->port_info.base_lid));
 
 	osm_vl15_post(sm->p_vl15, madw);
 
