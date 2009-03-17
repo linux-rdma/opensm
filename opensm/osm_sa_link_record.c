@@ -95,14 +95,11 @@ __osm_lr_rcv_build_physp_link(IN osm_sa_t * sa,
 
 /**********************************************************************
  **********************************************************************/
-static void
-__get_base_lid(IN const osm_physp_t * p_physp, OUT ib_net16_t * p_base_lid)
+static ib_net16_t get_base_lid(IN const osm_physp_t * p_physp)
 {
 	if (p_physp->p_node->node_info.node_type == IB_NODE_TYPE_SWITCH)
-		*p_base_lid = osm_physp_get_base_lid
-			      (osm_node_get_physp_ptr(p_physp->p_node, 0));
-	else
-		*p_base_lid = osm_physp_get_base_lid(p_physp);
+		p_physp = osm_node_get_physp_ptr(p_physp->p_node, 0);
+	return osm_physp_get_base_lid(p_physp);
 }
 
 /**********************************************************************
@@ -179,8 +176,8 @@ __osm_lr_rcv_get_physp_link(IN osm_sa_t * sa,
 		if (dest_port_num != p_lr->to_port_num)
 			goto Exit;
 
-	__get_base_lid(p_src_physp, &from_base_lid);
-	__get_base_lid(p_dest_physp, &to_base_lid);
+	from_base_lid = get_base_lid(p_src_physp);
+	to_base_lid = get_base_lid(p_dest_physp);
 
 	lmc_mask = ~((1 << sa->p_subn->opt.lmc) - 1);
 	lmc_mask = cl_hton16(lmc_mask);
