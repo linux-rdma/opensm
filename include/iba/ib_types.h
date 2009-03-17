@@ -7162,6 +7162,17 @@ typedef struct _ib_mad_notice_attr	// Total Size calc  Accumulated
 			ib_net16_t sw_lid;	// 2
 			uint8_t port_no;	// 1
 		} PACK_SUFFIX ntc_259;
+		struct _ntc_bkey_259	// bkey violation
+		{
+			ib_net16_t lidaddr;
+			uint8_t method;
+			uint8_t reserved;
+			ib_net16_t attribute_id;
+			ib_net32_t attribute_modifier;
+			ib_net32_t qp;		// qp is low 24 bits
+			ib_net64_t bkey;
+			ib_gid_t gid;
+		} PACK_SUFFIX ntc_bkey_259;
 	} data_details;
 	ib_gid_t issuer_gid;	// 16          80
 } PACK_SUFFIX ib_mad_notice_attr_t;
