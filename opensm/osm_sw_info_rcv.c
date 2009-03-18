@@ -211,10 +211,6 @@ static void si_rcv_process_new(IN osm_sm_t * sm, IN osm_node_t * p_node,
 
 	osm_dump_switch_info(sm->p_log, p_si, OSM_LOG_DEBUG);
 
-	/*
-	   Allocate a new switch object for this switch,
-	   and place it in the switch table.
-	 */
 	p_sw = osm_switch_new(p_node, p_madw);
 	if (p_sw == NULL) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3608: "
@@ -241,11 +237,8 @@ static void si_rcv_process_new(IN osm_sm_t * sm, IN osm_node_t * p_node,
 	p_check = (osm_switch_t *) cl_qmap_insert(p_sw_guid_tbl,
 						  osm_node_get_node_guid
 						  (p_node), &p_sw->map_item);
-
 	if (p_check != p_sw) {
-		/*
-		   This shouldn't happen since we hold the lock!
-		 */
+		/* This shouldn't happen since we hold the lock! */
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3605: "
 			"Unable to add new switch object to database\n");
 		osm_switch_delete(&p_sw);
@@ -254,14 +247,11 @@ static void si_rcv_process_new(IN osm_sm_t * sm, IN osm_node_t * p_node,
 
 	p_node->sw = p_sw;
 
-	/*
-	   Update the switch info according to the
-	   info we just received.
-	 */
+	/* Update the switch info according to the info we just received. */
 	osm_switch_set_switch_info(p_sw, p_si);
 
-	/*
-	   Don't bother retrieving the current unicast and multicast tables
+#if 0
+	/* Don't bother retrieving the current unicast and multicast tables
 	   from the switches.  The current version of SM does
 	   not support silent take-over of an existing multicast
 	   configuration.
@@ -269,9 +259,8 @@ static void si_rcv_process_new(IN osm_sm_t * sm, IN osm_node_t * p_node,
 	   Gathering the multicast tables can also generate large amounts
 	   of extra subnet-init traffic.
 
-	   The code to retrieve the tables was fully debugged.
-	 */
-#if 0
+	   The code to retrieve the tables was fully debugged. */
+
 	si_rcv_get_fwd_tbl(sm, p_sw);
 	if (!sm->p_subn->opt.disable_multicast)
 		si_rcv_get_mcast_fwd_tbl(sm, p_sw);
@@ -304,40 +293,22 @@ static boolean_t si_rcv_process_existing(IN osm_sm_t * sm,
 	p_si = ib_smp_get_payload_ptr(p_smp);
 	p_si_context = osm_madw_get_si_context_ptr(p_madw);
 
-	if (p_si_context->set_method) {
-		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-			"Received logical SetResp()\n");
+	OSM_LOG(sm->p_log, OSM_LOG_DEBUG, "Received logical %cetResp()\n",
+		p_si_context->set_method ? 'S' : 'G');
 
-		osm_switch_set_switch_info(p_sw, p_si);
-	} else {
-		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-			"Received logical GetResp()\n");
+	osm_switch_set_switch_info(p_sw, p_si);
 
-		osm_switch_set_switch_info(p_sw, p_si);
-
-		/*
-		   Check the port state change bit.  If true, then this switch
-		   has seen a port state transition, so continue probing.
-		 */
-		if (p_si_context->light_sweep == TRUE) {
-			/* This is a light sweep */
-			/* If the mad was returned with an error -
-			   signal a change to the state manager. */
-			if (ib_smp_get_status(p_smp) != 0) {
-				OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
-					"GetResp() received with error in light sweep. "
-					"Commencing heavy sweep\n");
-				is_change_detected = TRUE;
-			} else if (ib_switch_info_get_state_change(p_si)) {
-				/*
-				   If something changed, then just signal the
-				   state manager.  Don't attempt to probe
-				   further during a light sweep.
-				 */
-				osm_dump_switch_info(sm->p_log, p_si,
-						     OSM_LOG_DEBUG);
-				is_change_detected = TRUE;
-			}
+	if (p_si_context->light_sweep == TRUE && !p_si_context->set_method) {
+		/* If state changed bit is on the mad was returned with an
+		   error - signal a change to the state manager. */
+		if (ib_smp_get_status(p_smp) != 0) {
+			OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
+				"GetResp() received with error in light sweep. "
+				"Commencing heavy sweep\n");
+			is_change_detected = TRUE;
+		} else if (ib_switch_info_get_state_change(p_si)) {
+			osm_dump_switch_info(sm->p_log, p_si, OSM_LOG_DEBUG);
+			is_change_detected = TRUE;
 		}
 	}
 
