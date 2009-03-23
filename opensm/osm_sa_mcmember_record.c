@@ -228,9 +228,8 @@ __check_create_comp_mask(ib_net64_t comp_mask,
  Generate the response MAD
 **********************************************************************/
 static void
-__osm_mcmr_rcv_respond(IN osm_sa_t * sa,
-		       IN osm_madw_t * const p_madw,
-		       IN ib_member_rec_t * p_mcmember_rec)
+mcmr_rcv_respond(IN osm_sa_t * sa, IN osm_madw_t * const p_madw,
+		 IN ib_member_rec_t * p_mcmember_rec)
 {
 	cl_qlist_t rec_list;
 	osm_mcmr_item_t *item;
@@ -1024,8 +1023,7 @@ osm_mcmr_rcv_find_or_create_new_mgrp(IN osm_sa_t * sa,
 Process a request for leaving the group
 **********************************************************************/
 static void
-__osm_mcmr_rcv_leave_mgrp(IN osm_sa_t * sa,
-			  IN osm_madw_t * const p_madw)
+mcmr_rcv_leave_mgrp(IN osm_sa_t * sa, IN osm_madw_t * const p_madw)
 {
 	osm_mgrp_t *p_mgrp;
 	ib_sa_mad_t *p_sa_mad;
@@ -1098,8 +1096,7 @@ __osm_mcmr_rcv_leave_mgrp(IN osm_sa_t * sa,
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B09: "
 			"osm_sm_mcgrp_leave failed\n");
 
-	/* Send an SA response */
-	__osm_mcmr_rcv_respond(sa, p_madw, &mcmember_rec);
+	mcmr_rcv_respond(sa, p_madw, &mcmember_rec);
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);
@@ -1109,7 +1106,7 @@ Exit:
  Handle a join (or create) request
 **********************************************************************/
 static void
-__osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * const p_madw)
+mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * const p_madw)
 {
 	osm_mgrp_t *p_mgrp = NULL;
 	ib_api_status_t status;
@@ -1351,7 +1348,7 @@ __osm_mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * const p_madw)
 	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
 		osm_dump_mc_record(sa->p_log, &mcmember_rec, OSM_LOG_DEBUG);
 
-	__osm_mcmr_rcv_respond(sa, p_madw, &mcmember_rec);
+	mcmr_rcv_respond(sa, p_madw, &mcmember_rec);
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);
@@ -1361,9 +1358,8 @@ Exit:
  Add a patched multicast group to the results list
 **********************************************************************/
 static ib_api_status_t
-__osm_mcmr_rcv_new_mcmr(IN osm_sa_t * sa,
-			IN const ib_member_rec_t * p_rcvd_rec,
-			IN cl_qlist_t * const p_list)
+mcmr_rcv_new_mcmr(IN osm_sa_t * sa, IN const ib_member_rec_t * p_rcvd_rec,
+		  IN cl_qlist_t * const p_list)
 {
 	osm_mcmr_item_t *p_rec_item;
 	ib_api_status_t status = IB_SUCCESS;
@@ -1538,7 +1534,7 @@ static void mcmr_by_comp_mask(osm_sa_t *sa, const ib_member_rec_t *p_rcvd_rec,
 				match_rec.proxy_join =
 				    (uint8_t) (p_mcm_port->proxy_join);
 
-				__osm_mcmr_rcv_new_mcmr(sa, &match_rec, list);
+				mcmr_rcv_new_mcmr(sa, &match_rec, list);
 			}
 			p_item = cl_qmap_next(p_item);
 		}
@@ -1555,7 +1551,7 @@ static void mcmr_by_comp_mask(osm_sa_t *sa, const ib_member_rec_t *p_rcvd_rec,
 		memcpy(&(match_rec.port_gid), &port_gid, sizeof(ib_gid_t));
 		match_rec.proxy_join = (uint8_t) proxy_join;
 
-		__osm_mcmr_rcv_new_mcmr(sa, &match_rec, list);
+		mcmr_rcv_new_mcmr(sa, &match_rec, list);
 	}
 
 Exit:
@@ -1566,8 +1562,7 @@ Exit:
  Handle a query request
 **********************************************************************/
 static void
-__osm_mcmr_query_mgrp(IN osm_sa_t * sa,
-		      IN osm_madw_t * const p_madw)
+mcmr_query_mgrp(IN osm_sa_t * sa, IN osm_madw_t * const p_madw)
 {
 	const ib_sa_mad_t *p_rcvd_mad;
 	const ib_member_rec_t *p_rcvd_rec;
@@ -1687,7 +1682,7 @@ void osm_mcmr_rcv_process(IN void *context, IN void *data)
 		/*
 		 * Join or Create Multicast Group
 		 */
-		__osm_mcmr_rcv_join_mgrp(sa, p_madw);
+		mcmr_rcv_join_mgrp(sa, p_madw);
 		break;
 	case IB_MAD_METHOD_DELETE:
 		if (!__check_join_comp_mask(p_sa_mad->comp_mask)) {
@@ -1705,14 +1700,14 @@ void osm_mcmr_rcv_process(IN void *context, IN void *data)
 		/*
 		 * Leave Multicast Group
 		 */
-		__osm_mcmr_rcv_leave_mgrp(sa, p_madw);
+		mcmr_rcv_leave_mgrp(sa, p_madw);
 		break;
 	case IB_MAD_METHOD_GET:
 	case IB_MAD_METHOD_GETTABLE:
 		/*
 		 * Querying a Multicast Group
 		 */
-		__osm_mcmr_query_mgrp(sa, p_madw);
+		mcmr_query_mgrp(sa, p_madw);
 		break;
 	default:
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B21: "

@@ -109,7 +109,7 @@ static void vl15_send_mad(osm_vl15_t * p_vl, osm_madw_t * p_madw)
 		cl_atomic_dec(&p_vl->p_stats->qp0_unicasts_sent);
 }
 
-static void __osm_vl15_poller(IN void *p_ptr)
+static void vl15_poller(IN void *p_ptr)
 {
 	ib_api_status_t status;
 	osm_madw_t *p_madw;
@@ -272,7 +272,7 @@ osm_vl15_init(IN osm_vl15_t * const p_vl,
 	   Initialize the thread after all other dependent objects
 	   have been initialized.
 	 */
-	status = cl_thread_init(&p_vl->poller, __osm_vl15_poller, p_vl,
+	status = cl_thread_init(&p_vl->poller, vl15_poller, p_vl,
 				"opensm poller");
 	if (status != IB_SUCCESS)
 		goto Exit;

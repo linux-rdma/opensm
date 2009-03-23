@@ -90,7 +90,7 @@ static void osm_sm_process(osm_sm_t * sm, osm_signal_t signal)
 		osm_state_mgr_process(sm, signal);
 }
 
-static void __osm_sm_sweeper(IN void *p_ptr)
+static void sm_sweeper(IN void *p_ptr)
 {
 	ib_api_status_t status;
 	osm_sm_t *const p_sm = (osm_sm_t *) p_ptr;
@@ -390,7 +390,7 @@ osm_sm_init(IN osm_sm_t * const p_sm,
 	 * the sweeper thread if the user wants sweeping.
 	 */
 	p_sm->thread_state = OSM_THREAD_STATE_RUN;
-	status = cl_thread_init(&p_sm->sweeper, __osm_sm_sweeper, p_sm,
+	status = cl_thread_init(&p_sm->sweeper, sm_sweeper, p_sm,
 				"opensm sweeper");
 	if (status != IB_SUCCESS)
 		goto Exit;
@@ -449,8 +449,7 @@ Exit:
 /**********************************************************************
  **********************************************************************/
 static ib_api_status_t
-__osm_sm_mgrp_process(IN osm_sm_t * const p_sm,
-		      IN osm_mgrp_t * const p_mgrp)
+sm_mgrp_process(IN osm_sm_t * const p_sm, IN osm_mgrp_t * const p_mgrp)
 {
 	osm_mcast_mgr_ctxt_t *ctx;
 
@@ -553,7 +552,7 @@ osm_sm_mcgrp_join(IN osm_sm_t * const p_sm,
 		goto Exit;
 	}
 
-	status = __osm_sm_mgrp_process(p_sm, p_mgrp);
+	status = sm_mgrp_process(p_sm, p_mgrp);
 	CL_PLOCK_RELEASE(p_sm->p_lock);
 
 Exit:
@@ -609,7 +608,7 @@ osm_sm_mcgrp_leave(IN osm_sm_t * const p_sm,
 	 */
 	osm_port_remove_mgrp(p_port, mlid);
 
-	status = __osm_sm_mgrp_process(p_sm, p_mgrp);
+	status = sm_mgrp_process(p_sm, p_mgrp);
 	CL_PLOCK_RELEASE(p_sm->p_lock);
 
 Exit:

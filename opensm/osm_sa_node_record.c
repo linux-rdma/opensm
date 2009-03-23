@@ -70,10 +70,9 @@ typedef struct osm_nr_search_ctxt {
 /**********************************************************************
  **********************************************************************/
 static ib_api_status_t
-__osm_nr_rcv_new_nr(IN osm_sa_t * sa,
-		    IN const osm_node_t * const p_node,
-		    IN cl_qlist_t * const p_list,
-		    IN ib_net64_t const port_guid, IN ib_net16_t const lid)
+nr_rcv_new_nr(IN osm_sa_t * sa, IN const osm_node_t * const p_node,
+	      IN cl_qlist_t * const p_list, IN ib_net64_t const port_guid,
+	      IN ib_net16_t const lid)
 {
 	osm_nr_item_t *p_rec_item;
 	ib_api_status_t status = IB_SUCCESS;
@@ -112,12 +111,11 @@ Exit:
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_nr_rcv_create_nr(IN osm_sa_t * sa,
-		       IN osm_node_t * const p_node,
-		       IN cl_qlist_t * const p_list,
-		       IN ib_net64_t const match_port_guid,
-		       IN ib_net16_t const match_lid,
-		       IN const osm_physp_t * const p_req_physp)
+nr_rcv_create_nr(IN osm_sa_t * sa, IN osm_node_t * const p_node,
+		 IN cl_qlist_t * const p_list,
+		 IN ib_net64_t const match_port_guid,
+		 IN ib_net16_t const match_lid,
+		 IN const osm_physp_t * const p_req_physp)
 {
 	const osm_physp_t *p_physp;
 	uint8_t port_num;
@@ -179,7 +177,7 @@ __osm_nr_rcv_create_nr(IN osm_sa_t * sa,
 				continue;
 		}
 
-		__osm_nr_rcv_new_nr(sa, p_node, p_list, port_guid, base_lid);
+		nr_rcv_new_nr(sa, p_node, p_list, port_guid, base_lid);
 
 	}
 
@@ -189,7 +187,7 @@ __osm_nr_rcv_create_nr(IN osm_sa_t * sa,
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_nr_rcv_by_comp_mask(IN cl_map_item_t * const p_map_item, IN void *context)
+nr_rcv_by_comp_mask(IN cl_map_item_t * const p_map_item, IN void *context)
 {
 	const osm_nr_search_ctxt_t *const p_ctxt =
 	    (osm_nr_search_ctxt_t *) context;
@@ -280,8 +278,8 @@ __osm_nr_rcv_by_comp_mask(IN cl_map_item_t * const p_map_item, IN void *context)
 			goto Exit;
 	}
 
-	__osm_nr_rcv_create_nr(sa, p_node, p_ctxt->p_list,
-			       match_port_guid, match_lid, p_req_physp);
+	nr_rcv_create_nr(sa, p_node, p_ctxt->p_list, match_port_guid,
+			 match_lid, p_req_physp);
 
 Exit:
 	OSM_LOG_EXIT(p_ctxt->sa->p_log);
@@ -343,8 +341,8 @@ void osm_nr_rcv_process(IN void *ctx, IN void *data)
 
 	cl_plock_acquire(sa->p_lock);
 
-	cl_qmap_apply_func(&sa->p_subn->node_guid_tbl,
-			   __osm_nr_rcv_by_comp_mask, &context);
+	cl_qmap_apply_func(&sa->p_subn->node_guid_tbl, nr_rcv_by_comp_mask,
+			   &context);
 
 	cl_plock_release(sa->p_lock);
 

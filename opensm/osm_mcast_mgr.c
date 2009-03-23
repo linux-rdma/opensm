@@ -65,8 +65,7 @@ typedef struct osm_mcast_work_obj {
 
 /**********************************************************************
  **********************************************************************/
-static osm_mcast_work_obj_t *__osm_mcast_work_obj_new(IN const osm_port_t *
-						      const p_port)
+static osm_mcast_work_obj_t *mcast_work_obj_new(IN const osm_port_t * const p_port)
 {
 	osm_mcast_work_obj_t *p_obj;
 
@@ -86,7 +85,7 @@ static osm_mcast_work_obj_t *__osm_mcast_work_obj_new(IN const osm_port_t *
 
 /**********************************************************************
  **********************************************************************/
-static void __osm_mcast_work_obj_delete(IN osm_mcast_work_obj_t * p_wobj)
+static void mcast_work_obj_delete(IN osm_mcast_work_obj_t * p_wobj)
 {
 	free(p_wobj);
 }
@@ -94,14 +93,14 @@ static void __osm_mcast_work_obj_delete(IN osm_mcast_work_obj_t * p_wobj)
 /**********************************************************************
  Recursively remove nodes from the tree
  *********************************************************************/
-static void __osm_mcast_mgr_purge_tree_node(IN osm_mtree_node_t * p_mtn)
+static void mcast_mgr_purge_tree_node(IN osm_mtree_node_t * p_mtn)
 {
 	uint8_t i;
 
 	for (i = 0; i < p_mtn->max_children; i++) {
 		if (p_mtn->child_array[i] &&
 		    (p_mtn->child_array[i] != OSM_MTREE_LEAF))
-			__osm_mcast_mgr_purge_tree_node(p_mtn->child_array[i]);
+			mcast_mgr_purge_tree_node(p_mtn->child_array[i]);
 
 		p_mtn->child_array[i] = NULL;
 
@@ -113,12 +112,12 @@ static void __osm_mcast_mgr_purge_tree_node(IN osm_mtree_node_t * p_mtn)
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_mcast_mgr_purge_tree(osm_sm_t * sm, IN osm_mgrp_t * const p_mgrp)
+mcast_mgr_purge_tree(osm_sm_t * sm, IN osm_mgrp_t * const p_mgrp)
 {
 	OSM_LOG_ENTER(sm->p_log);
 
 	if (p_mgrp->p_root)
-		__osm_mcast_mgr_purge_tree_node(p_mgrp->p_root);
+		mcast_mgr_purge_tree_node(p_mgrp->p_root);
 
 	p_mgrp->p_root = NULL;
 
@@ -248,9 +247,8 @@ osm_mcast_mgr_compute_max_hops(osm_sm_t * sm,
    a switch with the lowest average hop count to the members
    of the multicast group.
 **********************************************************************/
-static osm_switch_t *__osm_mcast_mgr_find_optimal_switch(osm_sm_t * sm,
-							 const osm_mgrp_t *
-							 const p_mgrp)
+static osm_switch_t *mcast_mgr_find_optimal_switch(osm_sm_t * sm,
+						   const osm_mgrp_t * const p_mgrp)
 {
 	cl_qmap_t *p_sw_tbl;
 	const osm_switch_t *p_sw;
@@ -306,9 +304,8 @@ static osm_switch_t *__osm_mcast_mgr_find_optimal_switch(osm_sm_t * sm,
 /**********************************************************************
    This function returns the existing or optimal root swtich for the tree.
 **********************************************************************/
-static osm_switch_t *__osm_mcast_mgr_find_root_switch(osm_sm_t * sm,
-						      const osm_mgrp_t *
-						      const p_mgrp)
+static osm_switch_t *mcast_mgr_find_root_switch(osm_sm_t * sm,
+						const osm_mgrp_t * const p_mgrp)
 {
 	const osm_switch_t *p_sw = NULL;
 
@@ -320,7 +317,7 @@ static osm_switch_t *__osm_mcast_mgr_find_root_switch(osm_sm_t * sm,
 	   the root will be always on the first switch attached to it.
 	   - Very bad ...
 	 */
-	p_sw = __osm_mcast_mgr_find_optimal_switch(sm, p_mgrp);
+	p_sw = mcast_mgr_find_optimal_switch(sm, p_mgrp);
 
 	OSM_LOG_EXIT(sm->p_log);
 	return ((osm_switch_t *) p_sw);
@@ -329,7 +326,7 @@ static osm_switch_t *__osm_mcast_mgr_find_root_switch(osm_sm_t * sm,
 /**********************************************************************
  **********************************************************************/
 static osm_signal_t
-__osm_mcast_mgr_set_tbl(osm_sm_t * sm, IN osm_switch_t * const p_sw)
+mcast_mgr_set_tbl(osm_sm_t * sm, IN osm_switch_t * const p_sw)
 {
 	osm_node_t *p_node;
 	osm_dr_path_t *p_path;
@@ -403,12 +400,9 @@ __osm_mcast_mgr_set_tbl(osm_sm_t * sm, IN osm_switch_t * const p_sw)
   contains the group members that must be routed from this switch.
 **********************************************************************/
 static void
-__osm_mcast_mgr_subdivide(osm_sm_t * sm,
-			  osm_mgrp_t * const p_mgrp,
-			  osm_switch_t * const p_sw,
-			  cl_qlist_t * const p_list,
-			  cl_qlist_t * const list_array,
-			  uint8_t const array_size)
+mcast_mgr_subdivide(osm_sm_t * sm, osm_mgrp_t * const p_mgrp,
+		    osm_switch_t * const p_sw, cl_qlist_t * const p_list,
+		    cl_qlist_t * const list_array, uint8_t const array_size)
 {
 	uint8_t port_num;
 	uint16_t mlid_ho;
@@ -453,7 +447,7 @@ __osm_mcast_mgr_subdivide(osm_sm_t * sm,
 				cl_ntoh16(osm_port_get_base_lid
 					  (p_wobj->p_port)));
 
-			__osm_mcast_work_obj_delete(p_wobj);
+			mcast_work_obj_delete(p_wobj);
 			continue;
 		}
 
@@ -468,7 +462,7 @@ __osm_mcast_mgr_subdivide(osm_sm_t * sm,
 				cl_ntoh16(osm_port_get_base_lid
 					  (p_wobj->p_port)));
 
-			__osm_mcast_work_obj_delete(p_wobj);
+			mcast_work_obj_delete(p_wobj);
 
 			/* This is means OpenSM has a bug. */
 			CL_ASSERT(FALSE);
@@ -483,7 +477,7 @@ __osm_mcast_mgr_subdivide(osm_sm_t * sm,
 
 /**********************************************************************
  **********************************************************************/
-static void __osm_mcast_mgr_purge_list(osm_sm_t * sm, cl_qlist_t * const p_list)
+static void mcast_mgr_purge_list(osm_sm_t * sm, cl_qlist_t * const p_list)
 {
 	osm_mcast_work_obj_t *p_wobj;
 
@@ -494,7 +488,7 @@ static void __osm_mcast_mgr_purge_list(osm_sm_t * sm, cl_qlist_t * const p_list)
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A06: "
 			"Unable to route for port 0x%" PRIx64 "\n",
 			osm_port_get_guid(p_wobj->p_port));
-		__osm_mcast_work_obj_delete(p_wobj);
+		mcast_work_obj_delete(p_wobj);
 	}
 
 	OSM_LOG_EXIT(sm->p_log);
@@ -507,13 +501,13 @@ static void __osm_mcast_mgr_purge_list(osm_sm_t * sm, cl_qlist_t * const p_list)
 
   The function returns the newly created mtree node element.
 **********************************************************************/
-static osm_mtree_node_t *__osm_mcast_mgr_branch(osm_sm_t * sm,
-						osm_mgrp_t * const p_mgrp,
-						osm_switch_t * const p_sw,
-						cl_qlist_t * const p_list,
-						uint8_t depth,
-						uint8_t const upstream_port,
-						uint8_t * const p_max_depth)
+static osm_mtree_node_t *mcast_mgr_branch(osm_sm_t * sm,
+					  osm_mgrp_t * const p_mgrp,
+					  osm_switch_t * const p_sw,
+					  cl_qlist_t * const p_list,
+					  uint8_t depth,
+					  uint8_t const upstream_port,
+					  uint8_t * const p_max_depth)
 {
 	uint8_t max_children;
 	osm_mtree_node_t *p_mtn = NULL;
@@ -550,7 +544,7 @@ static osm_mtree_node_t *__osm_mcast_mgr_branch(osm_sm_t * sm,
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR,
 			"Maximal hops number is reached for MLID 0x%x."
 			" Break processing.", mlid_ho);
-		__osm_mcast_mgr_purge_list(sm, p_list);
+		mcast_mgr_purge_list(sm, p_list);
 		goto Exit;
 	}
 
@@ -570,7 +564,7 @@ static osm_mtree_node_t *__osm_mcast_mgr_branch(osm_sm_t * sm,
 		/*
 		   Deallocate all the work objects on this branch of the tree.
 		 */
-		__osm_mcast_mgr_purge_list(sm, p_list);
+		mcast_mgr_purge_list(sm, p_list);
 		goto Exit;
 	}
 
@@ -586,7 +580,7 @@ static osm_mtree_node_t *__osm_mcast_mgr_branch(osm_sm_t * sm,
 		/*
 		   Deallocate all the work objects on this branch of the tree.
 		 */
-		__osm_mcast_mgr_purge_list(sm, p_list);
+		mcast_mgr_purge_list(sm, p_list);
 		goto Exit;
 	}
 
@@ -603,7 +597,7 @@ static osm_mtree_node_t *__osm_mcast_mgr_branch(osm_sm_t * sm,
 	if (list_array == NULL) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A16: "
 			"Unable to allocate list array\n");
-		__osm_mcast_mgr_purge_list(sm, p_list);
+		mcast_mgr_purge_list(sm, p_list);
 		goto Exit;
 	}
 
@@ -612,8 +606,7 @@ static osm_mtree_node_t *__osm_mcast_mgr_branch(osm_sm_t * sm,
 	for (i = 0; i < max_children; i++)
 		cl_qlist_init(&list_array[i]);
 
-	__osm_mcast_mgr_subdivide(sm, p_mgrp, p_sw, p_list, list_array,
-				  max_children);
+	mcast_mgr_subdivide(sm, p_mgrp, p_sw, p_list, list_array, max_children);
 
 	p_tbl = osm_switch_get_mcast_tbl_ptr(p_sw);
 
@@ -674,7 +667,7 @@ static osm_mtree_node_t *__osm_mcast_mgr_branch(osm_sm_t * sm,
 
 			p_wobj = (osm_mcast_work_obj_t *)
 			    cl_qlist_remove_head(p_port_list);
-			__osm_mcast_work_obj_delete(p_wobj);
+			mcast_work_obj_delete(p_wobj);
 			continue;
 		}
 
@@ -696,12 +689,10 @@ static osm_mtree_node_t *__osm_mcast_mgr_branch(osm_sm_t * sm,
 			CL_ASSERT(p_remote_physp);
 
 			p_mtn->child_array[i] =
-			    __osm_mcast_mgr_branch(sm, p_mgrp,
-						   p_remote_node->sw,
-						   p_port_list, depth,
-						   osm_physp_get_port_num
-						   (p_remote_physp),
-						   p_max_depth);
+			    mcast_mgr_branch(sm, p_mgrp, p_remote_node->sw,
+					     p_port_list, depth,
+					     osm_physp_get_port_num(p_remote_physp),
+					     p_max_depth);
 		} else {
 			/*
 			   The neighbor node is not a switch, so this
@@ -721,7 +712,7 @@ static osm_mtree_node_t *__osm_mcast_mgr_branch(osm_sm_t * sm,
 				cl_ntoh64(osm_port_get_guid(p_wobj->p_port)),
 				i);
 
-			__osm_mcast_work_obj_delete(p_wobj);
+			mcast_work_obj_delete(p_wobj);
 		}
 	}
 
@@ -734,7 +725,7 @@ Exit:
 /**********************************************************************
  **********************************************************************/
 static ib_api_status_t
-__osm_mcast_mgr_build_spanning_tree(osm_sm_t * sm, osm_mgrp_t * const p_mgrp)
+mcast_mgr_build_spanning_tree(osm_sm_t * sm, osm_mgrp_t * const p_mgrp)
 {
 	const cl_qmap_t *p_mcm_tbl;
 	const osm_port_t *p_port;
@@ -757,7 +748,7 @@ __osm_mcast_mgr_build_spanning_tree(osm_sm_t * sm, osm_mgrp_t * const p_mgrp)
 	   on multicast forwarding table information if the user wants to
 	   preserve existing multicast routes.
 	 */
-	__osm_mcast_mgr_purge_tree(sm, p_mgrp);
+	mcast_mgr_purge_tree(sm, p_mgrp);
 
 	p_mcm_tbl = &p_mgrp->mcm_port_tbl;
 	num_ports = cl_qmap_count(p_mcm_tbl);
@@ -784,7 +775,7 @@ __osm_mcast_mgr_build_spanning_tree(osm_sm_t * sm, osm_mgrp_t * const p_mgrp)
 	   Locate the switch around which to create the spanning
 	   tree for this multicast group.
 	 */
-	p_sw = __osm_mcast_mgr_find_root_switch(sm, p_mgrp);
+	p_sw = mcast_mgr_find_root_switch(sm, p_mgrp);
 	if (p_sw == NULL) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A08: "
 			"Unable to locate a suitable switch for group 0x%X\n",
@@ -815,7 +806,7 @@ __osm_mcast_mgr_build_spanning_tree(osm_sm_t * sm, osm_mgrp_t * const p_mgrp)
 			continue;
 		}
 
-		p_wobj = __osm_mcast_work_obj_new(p_port);
+		p_wobj = mcast_work_obj_new(p_port);
 		if (p_wobj == NULL) {
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A10: "
 				"Insufficient memory to route port 0x%016"
@@ -828,7 +819,7 @@ __osm_mcast_mgr_build_spanning_tree(osm_sm_t * sm, osm_mgrp_t * const p_mgrp)
 	}
 
 	count = cl_qlist_count(&port_list);
-	p_mgrp->p_root = __osm_mcast_mgr_branch(sm, p_mgrp, p_sw,
+	p_mgrp->p_root = mcast_mgr_branch(sm, p_mgrp, p_sw,
 						&port_list, 0, 0, &max_depth);
 
 	OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
@@ -892,7 +883,7 @@ osm_mcast_mgr_set_table(osm_sm_t * sm,
 
 /**********************************************************************
  **********************************************************************/
-static void __osm_mcast_mgr_clear(osm_sm_t * sm, uint16_t mlid)
+static void mcast_mgr_clear(osm_sm_t * sm, uint16_t mlid)
 {
 	osm_switch_t *p_sw;
 	cl_qmap_t *p_sw_tbl;
@@ -1069,12 +1060,12 @@ osm_mcast_mgr_process_tree(osm_sm_t * sm, IN osm_mgrp_t * const p_mgrp)
 	   the spanning tree which sets the mcast table bits for each
 	   port in the group.
 	 */
-	__osm_mcast_mgr_clear(sm, cl_ntoh16(mlid));
+	mcast_mgr_clear(sm, cl_ntoh16(mlid));
 
 	if (!p_mgrp->full_members)
 		goto Exit;
 
-	status = __osm_mcast_mgr_build_spanning_tree(sm, p_mgrp);
+	status = mcast_mgr_build_spanning_tree(sm, p_mgrp);
 	if (status != IB_SUCCESS) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A17: "
 			"Unable to create spanning tree (%s)\n",
@@ -1161,7 +1152,7 @@ osm_signal_t osm_mcast_mgr_process(osm_sm_t * sm)
 	 */
 	p_sw = (osm_switch_t *) cl_qmap_head(p_sw_tbl);
 	while (p_sw != (osm_switch_t *) cl_qmap_end(p_sw_tbl)) {
-		signal = __osm_mcast_mgr_set_tbl(sm, p_sw);
+		signal = mcast_mgr_set_tbl(sm, p_sw);
 		if (signal == OSM_SIGNAL_DONE_PENDING)
 			pending_transactions = TRUE;
 		p_sw = (osm_switch_t *) cl_qmap_next(&p_sw->map_item);
@@ -1238,7 +1229,7 @@ osm_signal_t osm_mcast_mgr_process_mgroups(osm_sm_t * sm)
 	p_sw_tbl = &sm->p_subn->sw_guid_tbl;
 	p_sw = (osm_switch_t *) cl_qmap_head(p_sw_tbl);
 	while (p_sw != (osm_switch_t *) cl_qmap_end(p_sw_tbl)) {
-		ret = __osm_mcast_mgr_set_tbl(sm, p_sw);
+		ret = mcast_mgr_set_tbl(sm, p_sw);
 		if (ret == OSM_SIGNAL_DONE_PENDING)
 			signal = ret;
 		p_sw = (osm_switch_t *) cl_qmap_next(&p_sw->map_item);

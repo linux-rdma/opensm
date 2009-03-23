@@ -70,9 +70,8 @@ typedef struct osm_sir_search_ctxt {
 /**********************************************************************
  **********************************************************************/
 static ib_api_status_t
-__osm_sir_rcv_new_sir(IN osm_sa_t * sa,
-		      IN const osm_switch_t * const p_sw,
-		      IN cl_qlist_t * const p_list, IN ib_net16_t const lid)
+sir_rcv_new_sir(IN osm_sa_t * sa, IN const osm_switch_t * const p_sw,
+		IN cl_qlist_t * const p_list, IN ib_net16_t const lid)
 {
 	osm_sir_item_t *p_rec_item;
 	ib_api_status_t status = IB_SUCCESS;
@@ -105,11 +104,9 @@ Exit:
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_sir_rcv_create_sir(IN osm_sa_t * sa,
-			 IN const osm_switch_t * const p_sw,
-			 IN cl_qlist_t * const p_list,
-			 IN ib_net16_t const match_lid,
-			 IN const osm_physp_t * const p_req_physp)
+sir_rcv_create_sir(IN osm_sa_t * sa, IN const osm_switch_t * const p_sw,
+		   IN cl_qlist_t * const p_list, IN ib_net16_t const match_lid,
+		   IN const osm_physp_t * const p_req_physp)
 {
 	osm_port_t *p_port;
 	const osm_physp_t *p_physp;
@@ -163,7 +160,7 @@ __osm_sir_rcv_create_sir(IN osm_sa_t * sa,
 
 	}
 
-	__osm_sir_rcv_new_sir(sa, p_sw, p_list, osm_port_get_base_lid(p_port));
+	sir_rcv_new_sir(sa, p_sw, p_list, osm_port_get_base_lid(p_port));
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);
@@ -172,8 +169,7 @@ Exit:
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_sir_rcv_by_comp_mask(IN cl_map_item_t * const p_map_item,
-			   IN void *context)
+sir_rcv_by_comp_mask(IN cl_map_item_t * const p_map_item, IN void *context)
 {
 	const osm_sir_search_ctxt_t *const p_ctxt =
 	    (osm_sir_search_ctxt_t *) context;
@@ -195,8 +191,7 @@ __osm_sir_rcv_by_comp_mask(IN cl_map_item_t * const p_map_item,
 			goto Exit;
 	}
 
-	__osm_sir_rcv_create_sir(sa, p_sw, p_ctxt->p_list,
-				 match_lid, p_req_physp);
+	sir_rcv_create_sir(sa, p_sw, p_ctxt->p_list, match_lid, p_req_physp);
 
 Exit:
 	OSM_LOG_EXIT(p_ctxt->sa->p_log);
@@ -261,8 +256,8 @@ void osm_sir_rcv_process(IN void *ctx, IN void *data)
 	cl_plock_acquire(sa->p_lock);
 
 	/* Go over all switches */
-	cl_qmap_apply_func(&sa->p_subn->sw_guid_tbl,
-			   __osm_sir_rcv_by_comp_mask, &context);
+	cl_qmap_apply_func(&sa->p_subn->sw_guid_tbl, sir_rcv_by_comp_mask,
+			   &context);
 
 	cl_plock_release(sa->p_lock);
 

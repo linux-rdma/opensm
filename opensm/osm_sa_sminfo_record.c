@@ -77,13 +77,10 @@ typedef struct osm_smir_search_ctxt {
 } osm_smir_search_ctxt_t;
 
 static ib_api_status_t
-__osm_smir_rcv_new_smir(IN osm_sa_t * sa,
-			IN const osm_port_t * const p_port,
-			IN cl_qlist_t * const p_list,
-			IN ib_net64_t const guid,
-			IN ib_net32_t const act_count,
-			IN uint8_t const pri_state,
-			IN const osm_physp_t * const p_req_physp)
+smir_rcv_new_smir(IN osm_sa_t * sa, IN const osm_port_t * const p_port,
+		  IN cl_qlist_t * const p_list, IN ib_net64_t const guid,
+		  IN ib_net32_t const act_count, IN uint8_t const pri_state,
+		  IN const osm_physp_t * const p_req_physp)
 {
 	osm_smir_item_t *p_rec_item;
 	ib_api_status_t status = IB_SUCCESS;
@@ -118,9 +115,9 @@ Exit:
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_sa_smir_by_comp_mask(IN osm_sa_t * sa,
-			   IN const osm_remote_sm_t * const p_rem_sm,
-			   osm_smir_search_ctxt_t * const p_ctxt)
+sa_smir_by_comp_mask(IN osm_sa_t * sa,
+		     IN const osm_remote_sm_t * const p_rem_sm,
+		     osm_smir_search_ctxt_t * const p_ctxt)
 {
 	const ib_sminfo_record_t *const p_rcvd_rec = p_ctxt->p_rcvd_rec;
 	const osm_physp_t *const p_req_physp = p_ctxt->p_req_physp;
@@ -147,10 +144,9 @@ __osm_sa_smir_by_comp_mask(IN osm_sa_t * sa,
 
 	/* Implement any other needed search cases */
 
-	__osm_smir_rcv_new_smir(sa, p_rem_sm->p_port, p_ctxt->p_list,
-				p_rem_sm->smi.guid,
-				p_rem_sm->smi.act_count,
-				p_rem_sm->smi.pri_state, p_req_physp);
+	smir_rcv_new_smir(sa, p_rem_sm->p_port, p_ctxt->p_list,
+			  p_rem_sm->smi.guid, p_rem_sm->smi.act_count,
+			  p_rem_sm->smi.pri_state, p_req_physp);
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);
@@ -159,14 +155,13 @@ Exit:
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_sa_smir_by_comp_mask_cb(IN cl_map_item_t * const p_map_item,
-			      IN void *context)
+sa_smir_by_comp_mask_cb(IN cl_map_item_t * const p_map_item, IN void *context)
 {
 	const osm_remote_sm_t *const p_rem_sm = (osm_remote_sm_t *) p_map_item;
 	osm_smir_search_ctxt_t *const p_ctxt =
 	    (osm_smir_search_ctxt_t *) context;
 
-	__osm_sa_smir_by_comp_mask(p_ctxt->sa, p_rem_sm, p_ctxt);
+	sa_smir_by_comp_mask(p_ctxt->sa, p_rem_sm, p_ctxt);
 }
 
 /**********************************************************************
@@ -292,10 +287,10 @@ void osm_smir_rcv_process(IN void *ctx, IN void *data)
 			pri_state = sa->p_subn->sm_state & 0x0F;
 			pri_state |=
 			    (sa->p_subn->opt.sm_priority & 0x0F) << 4;
-			__osm_smir_rcv_new_smir(sa, local_port, context.p_list,
-						sa->p_subn->sm_port_guid,
-						cl_ntoh32(sa->p_subn->p_osm->stats.qp0_mads_sent),
-						pri_state, p_req_physp);
+			smir_rcv_new_smir(sa, local_port, context.p_list,
+					  sa->p_subn->sm_port_guid,
+					  cl_ntoh32(sa->p_subn->p_osm->stats.qp0_mads_sent),
+					  pri_state, p_req_physp);
 		}
 
 	      Remotes:
@@ -308,8 +303,7 @@ void osm_smir_rcv_process(IN void *ctx, IN void *data)
 							    port_guid);
 			if (p_rem_sm !=
 			    (osm_remote_sm_t *) cl_qmap_end(p_sm_guid_tbl))
-				__osm_sa_smir_by_comp_mask(sa, p_rem_sm,
-							   &context);
+				sa_smir_by_comp_mask(sa, p_rem_sm, &context);
 			else
 				OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 280A: "
 					"No remote SM for GUID 0x%016" PRIx64
@@ -317,8 +311,7 @@ void osm_smir_rcv_process(IN void *ctx, IN void *data)
 		} else {
 			/* Go over all other known (remote) SMs */
 			cl_qmap_apply_func(&sa->p_subn->sm_guid_tbl,
-					   __osm_sa_smir_by_comp_mask_cb,
-					   &context);
+					   sa_smir_by_comp_mask_cb, &context);
 		}
 	}
 

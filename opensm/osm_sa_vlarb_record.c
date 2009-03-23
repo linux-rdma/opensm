@@ -74,10 +74,9 @@ typedef struct osm_vl_arb_search_ctxt {
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_sa_vl_arb_create(IN osm_sa_t * sa,
-		       IN osm_physp_t * const p_physp,
-		       IN osm_vl_arb_search_ctxt_t * const p_ctxt,
-		       IN uint8_t block)
+sa_vl_arb_create(IN osm_sa_t * sa, IN osm_physp_t * const p_physp,
+		 IN osm_vl_arb_search_ctxt_t * const p_ctxt,
+		 IN uint8_t block)
 {
 	osm_vl_arb_item_t *p_rec_item;
 	uint16_t lid;
@@ -120,9 +119,8 @@ Exit:
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_sa_vl_arb_check_physp(IN osm_sa_t * sa,
-			    IN osm_physp_t * const p_physp,
-			    osm_vl_arb_search_ctxt_t * const p_ctxt)
+sa_vl_arb_check_physp(IN osm_sa_t * sa, IN osm_physp_t * const p_physp,
+		      osm_vl_arb_search_ctxt_t * const p_ctxt)
 {
 	ib_net64_t comp_mask = p_ctxt->comp_mask;
 	uint8_t block;
@@ -133,7 +131,7 @@ __osm_sa_vl_arb_check_physp(IN osm_sa_t * sa,
 	for (block = 1; block <= 4; block++) {
 		if (!(comp_mask & IB_VLA_COMPMASK_BLOCK)
 		    || block == p_ctxt->block_num) {
-			__osm_sa_vl_arb_create(sa, p_physp, p_ctxt, block);
+			sa_vl_arb_create(sa, p_physp, p_ctxt, block);
 		}
 	}
 
@@ -143,9 +141,8 @@ __osm_sa_vl_arb_check_physp(IN osm_sa_t * sa,
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_sa_vl_arb_by_comp_mask(IN osm_sa_t * sa,
-			     IN const osm_port_t * const p_port,
-			     osm_vl_arb_search_ctxt_t * const p_ctxt)
+sa_vl_arb_by_comp_mask(IN osm_sa_t * sa, IN const osm_port_t * const p_port,
+		       osm_vl_arb_search_ctxt_t * const p_ctxt)
 {
 	const ib_vl_arb_table_record_t *p_rcvd_rec;
 	ib_net64_t comp_mask;
@@ -181,8 +178,7 @@ __osm_sa_vl_arb_by_comp_mask(IN osm_sa_t * sa,
 			if (p_physp &&
 			    osm_physp_share_pkey(sa->p_log, p_req_physp,
 						 p_physp))
-				__osm_sa_vl_arb_check_physp(sa, p_physp,
-							    p_ctxt);
+				sa_vl_arb_check_physp(sa, p_physp, p_ctxt);
 		} else {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2A03: "
 				"Given Physical Port Number: 0x%X is out of range should be < 0x%X\n",
@@ -204,7 +200,7 @@ __osm_sa_vl_arb_by_comp_mask(IN osm_sa_t * sa,
 			    (sa->p_log, p_req_physp, p_physp))
 				continue;
 
-			__osm_sa_vl_arb_check_physp(sa, p_physp, p_ctxt);
+			sa_vl_arb_check_physp(sa, p_physp, p_ctxt);
 		}
 	}
 Exit:
@@ -214,14 +210,14 @@ Exit:
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_sa_vl_arb_by_comp_mask_cb(IN cl_map_item_t * const p_map_item,
-				IN void *context)
+sa_vl_arb_by_comp_mask_cb(IN cl_map_item_t * const p_map_item,
+			  IN void *context)
 {
 	const osm_port_t *const p_port = (osm_port_t *) p_map_item;
 	osm_vl_arb_search_ctxt_t *const p_ctxt =
 	    (osm_vl_arb_search_ctxt_t *) context;
 
-	__osm_sa_vl_arb_by_comp_mask(p_ctxt->sa, p_port, p_ctxt);
+	sa_vl_arb_by_comp_mask(p_ctxt->sa, p_port, p_ctxt);
 }
 
 /**********************************************************************
@@ -314,10 +310,10 @@ void osm_vlarb_rec_rcv_process(IN void *ctx, IN void *data)
 		/* if we got a unique port - no need for a port search */
 		if (p_port)
 			/*  this does the loop on all the port phys ports */
-			__osm_sa_vl_arb_by_comp_mask(sa, p_port, &context);
+			sa_vl_arb_by_comp_mask(sa, p_port, &context);
 		else
 			cl_qmap_apply_func(&sa->p_subn->port_guid_tbl,
-					   __osm_sa_vl_arb_by_comp_mask_cb,
+					   sa_vl_arb_by_comp_mask_cb,
 					   &context);
 	}
 

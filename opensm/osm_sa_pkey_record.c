@@ -67,10 +67,8 @@ typedef struct osm_pkey_search_ctxt {
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_sa_pkey_create(IN osm_sa_t * sa,
-		     IN osm_physp_t * const p_physp,
-		     IN osm_pkey_search_ctxt_t * const p_ctxt,
-		     IN uint16_t block)
+sa_pkey_create(IN osm_sa_t * sa, IN osm_physp_t * const p_physp,
+	       IN osm_pkey_search_ctxt_t * const p_ctxt, IN uint16_t block)
 {
 	osm_pkey_item_t *p_rec_item;
 	uint16_t lid;
@@ -114,9 +112,8 @@ Exit:
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_sa_pkey_check_physp(IN osm_sa_t * sa,
-			  IN osm_physp_t * const p_physp,
-			  osm_pkey_search_ctxt_t * const p_ctxt)
+sa_pkey_check_physp(IN osm_sa_t * sa, IN osm_physp_t * const p_physp,
+		    osm_pkey_search_ctxt_t * const p_ctxt)
 {
 	ib_net64_t comp_mask = p_ctxt->comp_mask;
 	uint16_t block, num_blocks;
@@ -125,13 +122,13 @@ __osm_sa_pkey_check_physp(IN osm_sa_t * sa,
 
 	/* we got here with the phys port - all is left is to get the right block */
 	if (comp_mask & IB_PKEY_COMPMASK_BLOCK) {
-		__osm_sa_pkey_create(sa, p_physp, p_ctxt, p_ctxt->block_num);
+		sa_pkey_create(sa, p_physp, p_ctxt, p_ctxt->block_num);
 	} else {
 		num_blocks =
 		    osm_pkey_tbl_get_num_blocks(osm_physp_get_pkey_tbl
 						(p_physp));
 		for (block = 0; block < num_blocks; block++) {
-			__osm_sa_pkey_create(sa, p_physp, p_ctxt, block);
+			sa_pkey_create(sa, p_physp, p_ctxt, block);
 		}
 	}
 
@@ -141,9 +138,8 @@ __osm_sa_pkey_check_physp(IN osm_sa_t * sa,
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_sa_pkey_by_comp_mask(IN osm_sa_t * sa,
-			   IN const osm_port_t * const p_port,
-			   osm_pkey_search_ctxt_t * const p_ctxt)
+sa_pkey_by_comp_mask(IN osm_sa_t * sa, IN const osm_port_t * const p_port,
+		     osm_pkey_search_ctxt_t * const p_ctxt)
 {
 	const ib_pkey_table_record_t *p_rcvd_rec;
 	ib_net64_t comp_mask;
@@ -179,8 +175,7 @@ __osm_sa_pkey_by_comp_mask(IN osm_sa_t * sa,
 			if (p_physp &&
 			    (osm_physp_share_pkey
 			     (sa->p_log, p_req_physp, p_physp)))
-				__osm_sa_pkey_check_physp(sa, p_physp,
-							  p_ctxt);
+				sa_pkey_check_physp(sa, p_physp, p_ctxt);
 		} else {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4603: "
 				"Given Physical Port Number: 0x%X is out of range should be < 0x%X\n",
@@ -202,7 +197,7 @@ __osm_sa_pkey_by_comp_mask(IN osm_sa_t * sa,
 			    (sa->p_log, p_req_physp, p_physp))
 				continue;
 
-			__osm_sa_pkey_check_physp(sa, p_physp, p_ctxt);
+			sa_pkey_check_physp(sa, p_physp, p_ctxt);
 		}
 	}
 Exit:
@@ -212,14 +207,13 @@ Exit:
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_sa_pkey_by_comp_mask_cb(IN cl_map_item_t * const p_map_item,
-			      IN void *context)
+sa_pkey_by_comp_mask_cb(IN cl_map_item_t * const p_map_item, IN void *context)
 {
 	const osm_port_t *const p_port = (osm_port_t *) p_map_item;
 	osm_pkey_search_ctxt_t *const p_ctxt =
 	    (osm_pkey_search_ctxt_t *) context;
 
-	__osm_sa_pkey_by_comp_mask(p_ctxt->sa, p_port, p_ctxt);
+	sa_pkey_by_comp_mask(p_ctxt->sa, p_port, p_ctxt);
 }
 
 /**********************************************************************
@@ -325,11 +319,10 @@ void osm_pkey_rec_rcv_process(IN void *ctx, IN void *data)
 		/* if we got a unique port - no need for a port search */
 		if (p_port)
 			/* this does the loop on all the port phys ports */
-			__osm_sa_pkey_by_comp_mask(sa, p_port, &context);
+			sa_pkey_by_comp_mask(sa, p_port, &context);
 		else
 			cl_qmap_apply_func(&sa->p_subn->port_guid_tbl,
-					   __osm_sa_pkey_by_comp_mask_cb,
-					   &context);
+					   sa_pkey_by_comp_mask_cb, &context);
 	}
 
 	cl_plock_release(sa->p_lock);

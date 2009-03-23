@@ -210,8 +210,7 @@ with an InformInfo attribute that is a copy of the data in the
 Set(InformInfo) request.
 **********************************************************************/
 static void
-__osm_infr_rcv_respond(IN osm_sa_t * sa,
-		       IN osm_madw_t * const p_madw)
+infr_rcv_respond(IN osm_sa_t * sa, IN osm_madw_t * const p_madw)
 {
 	cl_qlist_t rec_list;
 	osm_iir_item_t *item;
@@ -244,9 +243,9 @@ Exit:
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_sa_inform_info_rec_by_comp_mask(IN osm_sa_t * sa,
-				      IN const osm_infr_t * const p_infr,
-				      osm_iir_search_ctxt_t * const p_ctxt)
+sa_inform_info_rec_by_comp_mask(IN osm_sa_t * sa,
+				IN const osm_infr_t * const p_infr,
+				osm_iir_search_ctxt_t * const p_ctxt)
 {
 	const ib_inform_info_record_t *p_rcvd_rec = NULL;
 	ib_net64_t comp_mask;
@@ -313,13 +312,13 @@ Exit:
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_sa_inform_info_rec_by_comp_mask_cb(IN cl_list_item_t * const p_list_item,
-					 IN void *context)
+sa_inform_info_rec_by_comp_mask_cb(IN cl_list_item_t * const p_list_item,
+				   IN void *context)
 {
 	const osm_infr_t *const p_infr = (osm_infr_t *) p_list_item;
 	osm_iir_search_ctxt_t *const p_ctxt = (osm_iir_search_ctxt_t *) context;
 
-	__osm_sa_inform_info_rec_by_comp_mask(p_ctxt->sa, p_infr, p_ctxt);
+	sa_inform_info_rec_by_comp_mask(p_ctxt->sa, p_infr, p_ctxt);
 }
 
 /**********************************************************************
@@ -379,7 +378,7 @@ osm_infr_rcv_process_get_method(IN osm_sa_t * sa,
 	cl_plock_acquire(sa->p_lock);
 
 	cl_qlist_apply_func(&sa->p_subn->sa_infr_list,
-			    __osm_sa_inform_info_rec_by_comp_mask_cb, &context);
+			    sa_inform_info_rec_by_comp_mask_cb, &context);
 
 	cl_plock_release(sa->p_lock);
 
@@ -555,7 +554,7 @@ osm_infr_rcv_process_set_method(IN osm_sa_t * sa,
 	cl_plock_release(sa->p_lock);
 
 	/* send the success response */
-	__osm_infr_rcv_respond(sa, p_madw);
+	infr_rcv_respond(sa, p_madw);
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);

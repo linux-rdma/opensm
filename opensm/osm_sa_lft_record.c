@@ -70,10 +70,9 @@ typedef struct osm_lftr_search_ctxt {
 /**********************************************************************
  **********************************************************************/
 static ib_api_status_t
-__osm_lftr_rcv_new_lftr(IN osm_sa_t * sa,
-			IN const osm_switch_t * const p_sw,
-			IN cl_qlist_t * const p_list,
-			IN ib_net16_t const lid, IN uint16_t const block)
+lftr_rcv_new_lftr(IN osm_sa_t * sa, IN const osm_switch_t * const p_sw,
+		  IN cl_qlist_t * const p_list,
+		  IN ib_net16_t const lid, IN uint16_t const block)
 {
 	osm_lftr_item_t *p_rec_item;
 	ib_api_status_t status = IB_SUCCESS;
@@ -112,8 +111,7 @@ Exit:
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_lftr_rcv_by_comp_mask(IN cl_map_item_t * const p_map_item,
-			    IN void *context)
+lftr_rcv_by_comp_mask(IN cl_map_item_t * const p_map_item, IN void *context)
 {
 	const osm_lftr_search_ctxt_t *const p_ctxt =
 	    (osm_lftr_search_ctxt_t *) context;
@@ -176,8 +174,8 @@ __osm_lftr_rcv_by_comp_mask(IN cl_map_item_t * const p_map_item,
 
 	/* so we can add these blocks one by one ... */
 	for (block = min_block; block <= max_block; block++)
-		__osm_lftr_rcv_new_lftr(sa, p_sw, p_ctxt->p_list,
-					osm_port_get_base_lid(p_port), block);
+		lftr_rcv_new_lftr(sa, p_sw, p_ctxt->p_list,
+				  osm_port_get_base_lid(p_port), block);
 }
 
 /**********************************************************************
@@ -234,8 +232,8 @@ void osm_lftr_rcv_process(IN void *ctx, IN void *data)
 	cl_plock_acquire(sa->p_lock);
 
 	/* Go over all switches */
-	cl_qmap_apply_func(&sa->p_subn->sw_guid_tbl,
-			   __osm_lftr_rcv_by_comp_mask, &context);
+	cl_qmap_apply_func(&sa->p_subn->sw_guid_tbl, lftr_rcv_by_comp_mask,
+			   &context);
 
 	cl_plock_release(sa->p_lock);
 

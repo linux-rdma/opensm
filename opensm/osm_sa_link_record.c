@@ -63,11 +63,9 @@ typedef struct osm_lr_item {
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_lr_rcv_build_physp_link(IN osm_sa_t * sa,
-			      IN const ib_net16_t from_lid,
-			      IN const ib_net16_t to_lid,
-			      IN const uint8_t from_port,
-			      IN const uint8_t to_port, IN cl_qlist_t * p_list)
+lr_rcv_build_physp_link(IN osm_sa_t * sa, IN const ib_net16_t from_lid,
+			IN const ib_net16_t to_lid, IN const uint8_t from_port,
+			IN const uint8_t to_port, IN cl_qlist_t * p_list)
 {
 	osm_lr_item_t *p_lr_item;
 
@@ -105,13 +103,13 @@ static ib_net16_t get_base_lid(IN const osm_physp_t * p_physp)
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_lr_rcv_get_physp_link(IN osm_sa_t * sa,
-			    IN const ib_link_record_t * const p_lr,
-			    IN const osm_physp_t * p_src_physp,
-			    IN const osm_physp_t * p_dest_physp,
-			    IN const ib_net64_t comp_mask,
-			    IN cl_qlist_t * const p_list,
-			    IN const osm_physp_t * p_req_physp)
+lr_rcv_get_physp_link(IN osm_sa_t * sa,
+		      IN const ib_link_record_t * const p_lr,
+		      IN const osm_physp_t * p_src_physp,
+		      IN const osm_physp_t * p_dest_physp,
+		      IN const ib_net64_t comp_mask,
+		      IN cl_qlist_t * const p_list,
+		      IN const osm_physp_t * p_req_physp)
 {
 	uint8_t src_port_num;
 	uint8_t dest_port_num;
@@ -198,8 +196,8 @@ __osm_lr_rcv_get_physp_link(IN osm_sa_t * sa,
 		dest_port_num);
 
 
-	__osm_lr_rcv_build_physp_link(sa, from_base_lid, to_base_lid,
-				      src_port_num, dest_port_num, p_list);
+	lr_rcv_build_physp_link(sa, from_base_lid, to_base_lid, src_port_num,
+				dest_port_num, p_list);
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);
@@ -208,13 +206,13 @@ Exit:
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_lr_rcv_get_port_links(IN osm_sa_t * sa,
-			    IN const ib_link_record_t * const p_lr,
-			    IN const osm_port_t * p_src_port,
-			    IN const osm_port_t * p_dest_port,
-			    IN const ib_net64_t comp_mask,
-			    IN cl_qlist_t * const p_list,
-			    IN const osm_physp_t * p_req_physp)
+lr_rcv_get_port_links(IN osm_sa_t * sa,
+		      IN const ib_link_record_t * const p_lr,
+		      IN const osm_port_t * p_src_port,
+		      IN const osm_port_t * p_dest_port,
+		      IN const ib_net64_t comp_mask,
+		      IN cl_qlist_t * const p_list,
+		      IN const osm_physp_t * p_req_physp)
 {
 	const osm_physp_t *p_src_physp;
 	const osm_physp_t *p_dest_physp;
@@ -251,7 +249,7 @@ __osm_lr_rcv_get_port_links(IN osm_sa_t * sa,
 								   dest_port_num);
 					/* both physical ports should be with data */
 					if (p_src_physp && p_dest_physp)
-						__osm_lr_rcv_get_physp_link
+						lr_rcv_get_physp_link
 						    (sa, p_lr, p_src_physp,
 						     p_dest_physp, comp_mask,
 						     p_list, p_req_physp);
@@ -272,7 +270,7 @@ __osm_lr_rcv_get_port_links(IN osm_sa_t * sa,
 								   p_node,
 								   port_num);
 					if (p_src_physp)
-						__osm_lr_rcv_get_physp_link
+						lr_rcv_get_physp_link
 						    (sa, p_lr, p_src_physp,
 						     NULL, comp_mask, p_list,
 						     p_req_physp);
@@ -287,7 +285,7 @@ __osm_lr_rcv_get_port_links(IN osm_sa_t * sa,
 								   p_node,
 								   port_num);
 					if (p_src_physp)
-						__osm_lr_rcv_get_physp_link
+						lr_rcv_get_physp_link
 						    (sa, p_lr, p_src_physp,
 						     NULL, comp_mask, p_list,
 						     p_req_physp);
@@ -310,7 +308,7 @@ __osm_lr_rcv_get_port_links(IN osm_sa_t * sa,
 								   p_node,
 								   port_num);
 					if (p_dest_physp)
-						__osm_lr_rcv_get_physp_link
+						lr_rcv_get_physp_link
 						    (sa, p_lr, NULL,
 						     p_dest_physp, comp_mask,
 						     p_list, p_req_physp);
@@ -325,7 +323,7 @@ __osm_lr_rcv_get_port_links(IN osm_sa_t * sa,
 								   p_node,
 								   port_num);
 					if (p_dest_physp)
-						__osm_lr_rcv_get_physp_link
+						lr_rcv_get_physp_link
 						    (sa, p_lr, NULL,
 						     p_dest_physp, comp_mask,
 						     p_list, p_req_physp);
@@ -346,7 +344,7 @@ __osm_lr_rcv_get_port_links(IN osm_sa_t * sa,
 					    osm_node_get_physp_ptr(p_node,
 								   port_num);
 					if (p_src_physp)
-						__osm_lr_rcv_get_physp_link
+						lr_rcv_get_physp_link
 						    (sa, p_lr, p_src_physp,
 						     NULL, comp_mask, p_list,
 						     p_req_physp);
@@ -364,10 +362,9 @@ __osm_lr_rcv_get_port_links(IN osm_sa_t * sa,
  Returns the SA status to return to the client.
  **********************************************************************/
 static ib_net16_t
-__osm_lr_rcv_get_end_points(IN osm_sa_t * sa,
-			    IN const osm_madw_t * const p_madw,
-			    OUT const osm_port_t ** const pp_src_port,
-			    OUT const osm_port_t ** const pp_dest_port)
+lr_rcv_get_end_points(IN osm_sa_t * sa, IN const osm_madw_t * const p_madw,
+		      OUT const osm_port_t ** const pp_src_port,
+		      OUT const osm_port_t ** const pp_dest_port)
 {
 	const ib_link_record_t *p_lr;
 	const ib_sa_mad_t *p_sa_mad;
@@ -485,13 +482,11 @@ void osm_lr_rcv_process(IN void *context, IN void *data)
 	 */
 	cl_plock_acquire(sa->p_lock);
 
-	sa_status = __osm_lr_rcv_get_end_points(sa, p_madw,
-						&p_src_port, &p_dest_port);
+	sa_status = lr_rcv_get_end_points(sa, p_madw, &p_src_port, &p_dest_port);
 
 	if (sa_status == IB_SA_MAD_STATUS_SUCCESS)
-		__osm_lr_rcv_get_port_links(sa, p_lr, p_src_port,
-					    p_dest_port, p_sa_mad->comp_mask,
-					    &lr_list, p_req_physp);
+		lr_rcv_get_port_links(sa, p_lr, p_src_port, p_dest_port,
+				      p_sa_mad->comp_mask, &lr_list, p_req_physp);
 
 	cl_plock_release(sa->p_lock);
 

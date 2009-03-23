@@ -296,8 +296,8 @@ osm_infr_remove_from_db(IN osm_subn_t * p_subn,
  * Given a target address to send to and the notice.
  * We need to send SubnAdmReport
  **********************************************************************/
-static ib_api_status_t __osm_send_report(IN osm_infr_t * p_infr_rec,	/* the informinfo */
-					 IN ib_mad_notice_attr_t * p_ntc	/* notice to send */
+static ib_api_status_t send_report(IN osm_infr_t * p_infr_rec,	/* the informinfo */
+				   IN ib_mad_notice_attr_t * p_ntc	/* notice to send */
     )
 {
 	osm_madw_t *p_report_madw;
@@ -524,7 +524,7 @@ __match_notice_to_inf_rec(IN cl_list_item_t * const p_list_item,
 
 	/* send the report to the address provided in the inform record */
 	OSM_LOG(p_log, OSM_LOG_DEBUG, "MATCH! Sending Report...\n");
-	__osm_send_report(p_infr_rec, p_ntc);
+	send_report(p_infr_rec, p_ntc);
 	status = CL_SUCCESS;
 
 Exit:

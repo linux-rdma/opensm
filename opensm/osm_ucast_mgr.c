@@ -107,8 +107,7 @@ osm_ucast_mgr_init(IN osm_ucast_mgr_t * const p_mgr, IN osm_sm_t * sm)
  Add each switch's own and neighbor LIDs to its LID matrix
 **********************************************************************/
 static void
-__osm_ucast_mgr_process_hop_0_1(IN cl_map_item_t * const p_map_item,
-				IN void *context)
+ucast_mgr_process_hop_0_1(IN cl_map_item_t * const p_map_item, IN void *context)
 {
 	osm_switch_t *const p_sw = (osm_switch_t *) p_map_item;
 	osm_node_t *p_remote_node;
@@ -135,11 +134,11 @@ __osm_ucast_mgr_process_hop_0_1(IN cl_map_item_t * const p_map_item,
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_ucast_mgr_process_neighbor(IN osm_ucast_mgr_t * const p_mgr,
-				 IN osm_switch_t * const p_this_sw,
-				 IN osm_switch_t * const p_remote_sw,
-				 IN const uint8_t port_num,
-				 IN const uint8_t remote_port_num)
+ucast_mgr_process_neighbor(IN osm_ucast_mgr_t * const p_mgr,
+			   IN osm_switch_t * const p_this_sw,
+			   IN osm_switch_t * const p_remote_sw,
+			   IN const uint8_t port_num,
+			   IN const uint8_t remote_port_num)
 {
 	osm_switch_t *p_sw;
 	cl_map_item_t *item;
@@ -204,10 +203,10 @@ find_and_add_remote_sys(osm_switch_t *sw, uint8_t port,
 }
 
 static void
-__osm_ucast_mgr_process_port(IN osm_ucast_mgr_t * const p_mgr,
-			     IN osm_switch_t * const p_sw,
-			     IN osm_port_t * const p_port,
-			     IN unsigned lid_offset)
+ucast_mgr_process_port(IN osm_ucast_mgr_t * const p_mgr,
+		       IN osm_switch_t * const p_sw,
+		       IN osm_port_t * const p_port,
+		       IN unsigned lid_offset)
 {
 	uint16_t min_lid_ho;
 	uint16_t max_lid_ho;
@@ -472,8 +471,8 @@ static void free_ports_priv(osm_ucast_mgr_t *mgr)
 }
 
 static void
-__osm_ucast_mgr_process_tbl(IN cl_map_item_t * const p_map_item,
-			    IN void *context)
+ucast_mgr_process_tbl(IN cl_map_item_t * const p_map_item,
+		      IN void *context)
 {
 	osm_ucast_mgr_t *p_mgr = context;
 	osm_switch_t *const p_sw = (osm_switch_t *) p_map_item;
@@ -504,7 +503,7 @@ __osm_ucast_mgr_process_tbl(IN cl_map_item_t * const p_map_item,
 		for (item = cl_qlist_head(list); item != cl_qlist_end(list);
 		     item = cl_qlist_next(item)) {
 			osm_port_t *port = cl_item_obj(item, port, list_item);
-			__osm_ucast_mgr_process_port(p_mgr, p_sw, port, i);
+			ucast_mgr_process_port(p_mgr, p_sw, port, i);
 		}
 	}
 
@@ -519,8 +518,8 @@ __osm_ucast_mgr_process_tbl(IN cl_map_item_t * const p_map_item,
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_ucast_mgr_process_neighbors(IN cl_map_item_t * const p_map_item,
-				  IN void *context)
+ucast_mgr_process_neighbors(IN cl_map_item_t * const p_map_item,
+			    IN void *context)
 {
 	osm_switch_t *const p_sw = (osm_switch_t *) p_map_item;
 	osm_ucast_mgr_t *const p_mgr = (osm_ucast_mgr_t *) context;
@@ -560,10 +559,10 @@ __osm_ucast_mgr_process_neighbors(IN cl_map_item_t * const p_map_item,
 			if (!p_physp || !osm_link_is_healthy(p_physp))
 				continue;
 
-			__osm_ucast_mgr_process_neighbor(p_mgr, p_sw,
-							 p_remote_node->sw,
-							 (uint8_t) port_num,
-							 remote_port_num);
+			ucast_mgr_process_neighbor(p_mgr, p_sw,
+						   p_remote_node->sw,
+						   (uint8_t) port_num,
+						   remote_port_num);
 
 		}
 	}
@@ -659,8 +658,7 @@ int osm_ucast_mgr_build_lid_matrices(IN osm_ucast_mgr_t * const p_mgr)
 	   Set the switch matrices for each switch's own port 0 LID(s)
 	   then set the lid matrices for the each switch's leaf nodes.
 	 */
-	cl_qmap_apply_func(p_sw_guid_tbl,
-			   __osm_ucast_mgr_process_hop_0_1, p_mgr);
+	cl_qmap_apply_func(p_sw_guid_tbl, ucast_mgr_process_hop_0_1, p_mgr);
 
 	/*
 	   Get the switch matrices for each switch's neighbors.
@@ -701,8 +699,7 @@ int osm_ucast_mgr_build_lid_matrices(IN osm_ucast_mgr_t * const p_mgr)
 		     i++) {
 			p_mgr->some_hop_count_set = FALSE;
 			cl_qmap_apply_func(p_sw_guid_tbl,
-					   __osm_ucast_mgr_process_neighbors,
-					   p_mgr);
+					   ucast_mgr_process_neighbors, p_mgr);
 		}
 		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 			"Min-hop propagated in %d steps\n", i);
@@ -905,8 +902,8 @@ static int ucast_mgr_build_lfts(osm_ucast_mgr_t *p_mgr)
 	cl_qmap_apply_func(&p_mgr->p_subn->port_guid_tbl,
 			   add_port_to_order_list, p_mgr);
 
-	cl_qmap_apply_func(&p_mgr->p_subn->sw_guid_tbl,
-			   __osm_ucast_mgr_process_tbl, p_mgr);
+	cl_qmap_apply_func(&p_mgr->p_subn->sw_guid_tbl, ucast_mgr_process_tbl,
+			   p_mgr);
 
 	cl_qlist_remove_all(&p_mgr->port_order_list);
 

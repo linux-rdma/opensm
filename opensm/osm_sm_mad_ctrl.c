@@ -55,9 +55,9 @@
 #include <opensm/osm_helper.h>
 #include <opensm/osm_opensm.h>
 
-/****f* opensm: SM/__osm_sm_mad_ctrl_retire_trans_mad
+/****f* opensm: SM/sm_mad_ctrl_retire_trans_mad
  * NAME
- * __osm_sm_mad_ctrl_retire_trans_mad
+ * sm_mad_ctrl_retire_trans_mad
  *
  * DESCRIPTION
  * This function handles clean-up of MADs associated with the SM's
@@ -67,7 +67,7 @@
  */
 
 static void
-__osm_sm_mad_ctrl_retire_trans_mad(IN osm_sm_mad_ctrl_t * const p_ctrl,
+sm_mad_ctrl_retire_trans_mad(IN osm_sm_mad_ctrl_t * const p_ctrl,
 				   IN osm_madw_t * const p_madw)
 {
 	uint32_t outstanding;
@@ -95,9 +95,9 @@ __osm_sm_mad_ctrl_retire_trans_mad(IN osm_sm_mad_ctrl_t * const p_ctrl,
 
 /************/
 
-/****f* opensm: SM/__osm_sm_mad_ctrl_disp_done_callback
+/****f* opensm: SM/sm_mad_ctrl_disp_done_callback
  * NAME
- * __osm_sm_mad_ctrl_disp_done_callback
+ * sm_mad_ctrl_disp_done_callback
  *
  * DESCRIPTION
  * This function is the Dispatcher callback that indicates
@@ -106,7 +106,7 @@ __osm_sm_mad_ctrl_retire_trans_mad(IN osm_sm_mad_ctrl_t * const p_ctrl,
  * SYNOPSIS
  */
 static void
-__osm_sm_mad_ctrl_disp_done_callback(IN void *context, IN void *p_data)
+sm_mad_ctrl_disp_done_callback(IN void *context, IN void *p_data)
 {
 	osm_sm_mad_ctrl_t *const p_ctrl = (osm_sm_mad_ctrl_t *) context;
 	osm_madw_t *const p_madw = (osm_madw_t *) p_data;
@@ -127,9 +127,9 @@ __osm_sm_mad_ctrl_disp_done_callback(IN void *context, IN void *p_data)
 	p_smp = osm_madw_get_smp_ptr(p_madw);
 	if (ib_smp_is_response(p_smp)) {
 		CL_ASSERT(p_madw->resp_expected == FALSE);
-		__osm_sm_mad_ctrl_retire_trans_mad(p_ctrl, p_madw);
+		sm_mad_ctrl_retire_trans_mad(p_ctrl, p_madw);
 	} else if (p_madw->resp_expected == TRUE)
-		__osm_sm_mad_ctrl_retire_trans_mad(p_ctrl, p_madw);
+		sm_mad_ctrl_retire_trans_mad(p_ctrl, p_madw);
 	else
 		osm_mad_pool_put(p_ctrl->p_mad_pool, p_madw);
 
@@ -138,9 +138,9 @@ __osm_sm_mad_ctrl_disp_done_callback(IN void *context, IN void *p_data)
 
 /************/
 
-/****f* opensm: SM/__osm_sm_mad_ctrl_update_wire_stats
+/****f* opensm: SM/sm_mad_ctrl_update_wire_stats
  * NAME
- * __osm_sm_mad_ctrl_update_wire_stats
+ * sm_mad_ctrl_update_wire_stats
  *
  * DESCRIPTION
  * Updates wire stats for outstanding MADs and calls the VL15 poller.
@@ -148,7 +148,7 @@ __osm_sm_mad_ctrl_disp_done_callback(IN void *context, IN void *p_data)
  * SYNOPSIS
  */
 static void
-__osm_sm_mad_ctrl_update_wire_stats(IN osm_sm_mad_ctrl_t * const p_ctrl)
+sm_mad_ctrl_update_wire_stats(IN osm_sm_mad_ctrl_t * const p_ctrl)
 {
 	uint32_t mads_on_wire;
 
@@ -169,9 +169,9 @@ __osm_sm_mad_ctrl_update_wire_stats(IN osm_sm_mad_ctrl_t * const p_ctrl)
 	OSM_LOG_EXIT(p_ctrl->p_log);
 }
 
-/****f* opensm: SM/__osm_sm_mad_ctrl_process_get_resp
+/****f* opensm: SM/sm_mad_ctrl_process_get_resp
  * NAME
- * __osm_sm_mad_ctrl_process_get_resp
+ * sm_mad_ctrl_process_get_resp
  *
  * DESCRIPTION
  * This function handles method GetResp() for received MADs.
@@ -180,7 +180,7 @@ __osm_sm_mad_ctrl_update_wire_stats(IN osm_sm_mad_ctrl_t * const p_ctrl)
  * SYNOPSIS
  */
 static void
-__osm_sm_mad_ctrl_process_get_resp(IN osm_sm_mad_ctrl_t * const p_ctrl,
+sm_mad_ctrl_process_get_resp(IN osm_sm_mad_ctrl_t * const p_ctrl,
 				   IN osm_madw_t * p_madw,
 				   IN void *transaction_context)
 {
@@ -204,7 +204,7 @@ __osm_sm_mad_ctrl_process_get_resp(IN osm_sm_mad_ctrl_t * const p_ctrl,
 
 	p_old_madw = (osm_madw_t *) transaction_context;
 
-	__osm_sm_mad_ctrl_update_wire_stats(p_ctrl);
+	sm_mad_ctrl_update_wire_stats(p_ctrl);
 
 	/*
 	   Copy the MAD Wrapper context from the requesting MAD
@@ -277,7 +277,7 @@ __osm_sm_mad_ctrl_process_get_resp(IN osm_sm_mad_ctrl_t * const p_ctrl,
 		osm_get_disp_msg_str(msg_id));
 
 	status = cl_disp_post(p_ctrl->h_disp, msg_id, p_madw,
-			      __osm_sm_mad_ctrl_disp_done_callback, p_ctrl);
+			      sm_mad_ctrl_disp_done_callback, p_ctrl);
 
 	if (status != CL_SUCCESS) {
 		OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 3104: "
@@ -290,9 +290,9 @@ Exit:
 	OSM_LOG_EXIT(p_ctrl->p_log);
 }
 
-/****f* opensm: SM/__osm_sm_mad_ctrl_process_get
+/****f* opensm: SM/sm_mad_ctrl_process_get
  * NAME
- * __osm_sm_mad_ctrl_process_get
+ * sm_mad_ctrl_process_get
  *
  * DESCRIPTION
  * This function handles method Get() for received MADs.
@@ -300,8 +300,8 @@ Exit:
  * SYNOPSIS
  */
 static void
-__osm_sm_mad_ctrl_process_get(IN osm_sm_mad_ctrl_t * const p_ctrl,
-			      IN osm_madw_t * p_madw)
+sm_mad_ctrl_process_get(IN osm_sm_mad_ctrl_t * const p_ctrl,
+			IN osm_madw_t * p_madw)
 {
 	ib_smp_t *p_smp;
 	cl_status_t status;
@@ -346,7 +346,7 @@ __osm_sm_mad_ctrl_process_get(IN osm_sm_mad_ctrl_t * const p_ctrl,
 		osm_get_disp_msg_str(msg_id));
 
 	status = cl_disp_post(p_ctrl->h_disp, msg_id, p_madw,
-			      __osm_sm_mad_ctrl_disp_done_callback, p_ctrl);
+			      sm_mad_ctrl_disp_done_callback, p_ctrl);
 
 	if (status != CL_SUCCESS) {
 		OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 3106: "
@@ -369,9 +369,9 @@ Exit:
  * SEE ALSO
  *********/
 
-/****f* opensm: SM/__osm_sm_mad_ctrl_process_set
+/****f* opensm: SM/sm_mad_ctrl_process_set
  * NAME
- * __osm_sm_mad_ctrl_process_set
+ * sm_mad_ctrl_process_set
  *
  * DESCRIPTION
  * This function handles method Set() for received MADs.
@@ -379,8 +379,8 @@ Exit:
  * SYNOPSIS
  */
 static void
-__osm_sm_mad_ctrl_process_set(IN osm_sm_mad_ctrl_t * const p_ctrl,
-			      IN osm_madw_t * p_madw)
+sm_mad_ctrl_process_set(IN osm_sm_mad_ctrl_t * const p_ctrl,
+			IN osm_madw_t * p_madw)
 {
 	ib_smp_t *p_smp;
 	cl_status_t status;
@@ -426,7 +426,7 @@ __osm_sm_mad_ctrl_process_set(IN osm_sm_mad_ctrl_t * const p_ctrl,
 		osm_get_disp_msg_str(msg_id));
 
 	status = cl_disp_post(p_ctrl->h_disp, msg_id, p_madw,
-			      __osm_sm_mad_ctrl_disp_done_callback, p_ctrl);
+			      sm_mad_ctrl_disp_done_callback, p_ctrl);
 
 	if (status != CL_SUCCESS) {
 		OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 3108: "
@@ -449,9 +449,9 @@ Exit:
  * SEE ALSO
  *********/
 
-/****f* opensm: SM/__osm_sm_mad_ctrl_process_trap
+/****f* opensm: SM/sm_mad_ctrl_process_trap
  * NAME
- * __osm_sm_mad_ctrl_process_trap
+ * sm_mad_ctrl_process_trap
  *
  * DESCRIPTION
  * This function handles method Trap() for received MADs.
@@ -459,8 +459,8 @@ Exit:
  * SYNOPSIS
  */
 static void
-__osm_sm_mad_ctrl_process_trap(IN osm_sm_mad_ctrl_t * const p_ctrl,
-			       IN osm_madw_t * p_madw)
+sm_mad_ctrl_process_trap(IN osm_sm_mad_ctrl_t * const p_ctrl,
+			 IN osm_madw_t * p_madw)
 {
 	ib_smp_t *p_smp;
 	cl_status_t status;
@@ -515,7 +515,7 @@ __osm_sm_mad_ctrl_process_trap(IN osm_sm_mad_ctrl_t * const p_ctrl,
 		osm_get_disp_msg_str(msg_id));
 
 	status = cl_disp_post(p_ctrl->h_disp, msg_id, p_madw,
-			      __osm_sm_mad_ctrl_disp_done_callback, p_ctrl);
+			      sm_mad_ctrl_disp_done_callback, p_ctrl);
 
 	if (status != CL_SUCCESS) {
 		OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 3110: "
@@ -538,9 +538,9 @@ Exit:
  * SEE ALSO
  *********/
 
-/****f* opensm: SM/__osm_sm_mad_ctrl_process_trap_repress
+/****f* opensm: SM/sm_mad_ctrl_process_trap_repress
  * NAME
- * __osm_sm_mad_ctrl_process_trap_repress
+ * sm_mad_ctrl_process_trap_repress
  *
  * DESCRIPTION
  * This function handles method TrapRepress() for received MADs.
@@ -548,8 +548,8 @@ Exit:
  * SYNOPSIS
  */
 static void
-__osm_sm_mad_ctrl_process_trap_repress(IN osm_sm_mad_ctrl_t * const p_ctrl,
-				       IN osm_madw_t * p_madw)
+sm_mad_ctrl_process_trap_repress(IN osm_sm_mad_ctrl_t * const p_ctrl,
+				 IN osm_madw_t * p_madw)
 {
 	ib_smp_t *p_smp;
 
@@ -589,9 +589,9 @@ __osm_sm_mad_ctrl_process_trap_repress(IN osm_sm_mad_ctrl_t * const p_ctrl,
  * SEE ALSO
  *********/
 
-/****f* opensm: SM/__osm_sm_mad_ctrl_rcv_callback
+/****f* opensm: SM/sm_mad_ctrl_rcv_callback
  * NAME
- * __osm_sm_mad_ctrl_rcv_callback
+ * sm_mad_ctrl_rcv_callback
  *
  * DESCRIPTION
  * This is the callback from the transport layer for received MADs.
@@ -599,9 +599,8 @@ __osm_sm_mad_ctrl_process_trap_repress(IN osm_sm_mad_ctrl_t * const p_ctrl,
  * SYNOPSIS
  */
 static void
-__osm_sm_mad_ctrl_rcv_callback(IN osm_madw_t * p_madw,
-			       IN void *bind_context,
-			       IN osm_madw_t * p_req_madw)
+sm_mad_ctrl_rcv_callback(IN osm_madw_t * p_madw, IN void *bind_context,
+			 IN osm_madw_t * p_req_madw)
 {
 	osm_sm_mad_ctrl_t *p_ctrl = (osm_sm_mad_ctrl_t *) bind_context;
 	ib_smp_t *p_smp;
@@ -631,9 +630,9 @@ __osm_sm_mad_ctrl_rcv_callback(IN osm_madw_t * p_madw,
 		/* retire the mad or put it back */
 		if (ib_smp_is_response(p_smp)) {
 			CL_ASSERT(p_madw->resp_expected == FALSE);
-			__osm_sm_mad_ctrl_retire_trans_mad(p_ctrl, p_madw);
+			sm_mad_ctrl_retire_trans_mad(p_ctrl, p_madw);
 		} else if (p_madw->resp_expected == TRUE)
-			__osm_sm_mad_ctrl_retire_trans_mad(p_ctrl, p_madw);
+			sm_mad_ctrl_retire_trans_mad(p_ctrl, p_madw);
 		else
 			osm_mad_pool_put(p_ctrl->p_mad_pool, p_madw);
 
@@ -657,27 +656,27 @@ __osm_sm_mad_ctrl_rcv_callback(IN osm_madw_t * p_madw,
 	switch (p_smp->method) {
 	case IB_MAD_METHOD_GET_RESP:
 		CL_ASSERT(p_req_madw != NULL);
-		__osm_sm_mad_ctrl_process_get_resp(p_ctrl, p_madw, p_req_madw);
+		sm_mad_ctrl_process_get_resp(p_ctrl, p_madw, p_req_madw);
 		break;
 
 	case IB_MAD_METHOD_GET:
 		CL_ASSERT(p_req_madw == NULL);
-		__osm_sm_mad_ctrl_process_get(p_ctrl, p_madw);
+		sm_mad_ctrl_process_get(p_ctrl, p_madw);
 		break;
 
 	case IB_MAD_METHOD_TRAP:
 		CL_ASSERT(p_req_madw == NULL);
-		__osm_sm_mad_ctrl_process_trap(p_ctrl, p_madw);
+		sm_mad_ctrl_process_trap(p_ctrl, p_madw);
 		break;
 
 	case IB_MAD_METHOD_SET:
 		CL_ASSERT(p_req_madw == NULL);
-		__osm_sm_mad_ctrl_process_set(p_ctrl, p_madw);
+		sm_mad_ctrl_process_set(p_ctrl, p_madw);
 		break;
 
 	case IB_MAD_METHOD_TRAP_REPRESS:
 		CL_ASSERT(p_req_madw != NULL);
-		__osm_sm_mad_ctrl_process_trap_repress(p_ctrl, p_madw);
+		sm_mad_ctrl_process_trap_repress(p_ctrl, p_madw);
 		break;
 
 	case IB_MAD_METHOD_SEND:
@@ -706,9 +705,9 @@ Exit:
  * SEE ALSO
  *********/
 
-/****f* opensm: SM/__osm_sm_mad_ctrl_send_err_cb
+/****f* opensm: SM/sm_mad_ctrl_send_err_cb
  * NAME
- * __osm_sm_mad_ctrl_send_err_cb
+ * sm_mad_ctrl_send_err_cb
  *
  * DESCRIPTION
  * This is the callback from the transport layer for send errors
@@ -717,7 +716,7 @@ Exit:
  * SYNOPSIS
  */
 static void
-__osm_sm_mad_ctrl_send_err_cb(IN void *bind_context, IN osm_madw_t * p_madw)
+sm_mad_ctrl_send_err_cb(IN void *bind_context, IN osm_madw_t * p_madw)
 {
 	osm_sm_mad_ctrl_t *p_ctrl = (osm_sm_mad_ctrl_t *) bind_context;
 	ib_api_status_t status;
@@ -782,7 +781,7 @@ __osm_sm_mad_ctrl_send_err_cb(IN void *bind_context, IN osm_madw_t * p_madw)
 	osm_dump_dr_smp(p_ctrl->p_log, osm_madw_get_smp_ptr(p_madw),
 			OSM_LOG_ERROR);
 
-	__osm_sm_mad_ctrl_update_wire_stats(p_ctrl);
+	sm_mad_ctrl_update_wire_stats(p_ctrl);
 
 	if (osm_madw_get_err_msg(p_madw) != CL_DISP_MSGID_NONE) {
 		OSM_LOG(p_ctrl->p_log, OSM_LOG_DEBUG,
@@ -790,10 +789,8 @@ __osm_sm_mad_ctrl_send_err_cb(IN void *bind_context, IN osm_madw_t * p_madw)
 			osm_get_disp_msg_str(osm_madw_get_err_msg(p_madw)));
 
 		status = cl_disp_post(p_ctrl->h_disp,
-				      osm_madw_get_err_msg(p_madw),
-				      p_madw,
-				      __osm_sm_mad_ctrl_disp_done_callback,
-				      p_ctrl);
+				      osm_madw_get_err_msg(p_madw), p_madw,
+				      sm_mad_ctrl_disp_done_callback, p_ctrl);
 		if (status != CL_SUCCESS)
 			OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 3115: "
 				"Dispatcher post message failed (%s)\n",
@@ -802,7 +799,7 @@ __osm_sm_mad_ctrl_send_err_cb(IN void *bind_context, IN osm_madw_t * p_madw)
 		/*
 		   No error message was provided, just retire the MAD.
 		 */
-		__osm_sm_mad_ctrl_retire_trans_mad(p_ctrl, p_madw);
+		sm_mad_ctrl_retire_trans_mad(p_ctrl, p_madw);
 
 	OSM_LOG_EXIT(p_ctrl->p_log);
 }
@@ -910,11 +907,10 @@ osm_sm_mad_ctrl_bind(IN osm_sm_mad_ctrl_t * const p_ctrl,
 	OSM_LOG(p_ctrl->p_log, OSM_LOG_VERBOSE,
 		"Binding to port 0x%" PRIx64 "\n", cl_ntoh64(port_guid));
 
-	p_ctrl->h_bind = osm_vendor_bind(p_ctrl->p_vendor,
-					 &bind_info,
+	p_ctrl->h_bind = osm_vendor_bind(p_ctrl->p_vendor, &bind_info,
 					 p_ctrl->p_mad_pool,
-					 __osm_sm_mad_ctrl_rcv_callback,
-					 __osm_sm_mad_ctrl_send_err_cb, p_ctrl);
+					 sm_mad_ctrl_rcv_callback,
+					 sm_mad_ctrl_send_err_cb, p_ctrl);
 
 	if (p_ctrl->h_bind == OSM_BIND_INVALID_HANDLE) {
 		status = IB_ERROR;

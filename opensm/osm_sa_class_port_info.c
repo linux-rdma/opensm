@@ -69,8 +69,7 @@ const static uint32_t __msecs_to_rtv_table[MAX_MSECS_TO_RTV] = {
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_cpi_rcv_respond(IN osm_sa_t * sa,
-		      IN const osm_madw_t * const p_madw)
+cpi_rcv_respond(IN osm_sa_t * sa, IN const osm_madw_t * const p_madw)
 {
 	osm_madw_t *p_resp_madw;
 	const ib_sa_mad_t *p_sa_mad;
@@ -202,11 +201,9 @@ void osm_cpi_rcv_process(IN void *context, IN void *data)
 
 	CL_ASSERT(p_sa_mad->attr_id == IB_MAD_ATTR_CLASS_PORT_INFO);
 
-	/*
-	   CLASS PORT INFO does not really look on the SMDB - no lock required.
-	 */
+	/* CLASS PORT INFO does not really look at the SMDB - no lock required. */
 
-	__osm_cpi_rcv_respond(sa, p_madw);
+	cpi_rcv_respond(sa, p_madw);
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);

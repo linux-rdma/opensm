@@ -66,7 +66,7 @@
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_drop_mgr_remove_router(osm_sm_t * sm, IN const ib_net64_t portguid)
+drop_mgr_remove_router(osm_sm_t * sm, IN const ib_net64_t portguid)
 {
 	osm_router_t *p_rtr;
 	cl_qmap_t *p_rtr_guid_tbl;
@@ -153,7 +153,7 @@ static void drop_mgr_clean_physp(osm_sm_t * sm, IN osm_physp_t * p_physp)
 
 /**********************************************************************
  **********************************************************************/
-static void __osm_drop_mgr_remove_port(osm_sm_t * sm, IN osm_port_t * p_port)
+static void drop_mgr_remove_port(osm_sm_t * sm, IN osm_port_t * p_port)
 {
 	ib_net64_t port_guid;
 	osm_port_t *p_port_check;
@@ -197,7 +197,7 @@ static void __osm_drop_mgr_remove_port(osm_sm_t * sm, IN osm_port_t * p_port)
 		free(p_sm);
 	}
 
-	__osm_drop_mgr_remove_router(sm, port_guid);
+	drop_mgr_remove_router(sm, port_guid);
 
 	osm_port_get_lid_range_ho(p_port, &min_lid_ho, &max_lid_ho);
 
@@ -270,7 +270,7 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-static void __osm_drop_mgr_remove_switch(osm_sm_t * sm, IN osm_node_t * p_node)
+static void drop_mgr_remove_switch(osm_sm_t * sm, IN osm_node_t * p_node)
 {
 	osm_switch_t *p_sw;
 	cl_qmap_t *p_sw_guid_tbl;
@@ -297,7 +297,7 @@ static void __osm_drop_mgr_remove_switch(osm_sm_t * sm, IN osm_node_t * p_node)
 /**********************************************************************
  **********************************************************************/
 static boolean_t
-__osm_drop_mgr_process_node(osm_sm_t * sm, IN osm_node_t * p_node)
+drop_mgr_process_node(osm_sm_t * sm, IN osm_node_t * p_node)
 {
 	osm_physp_t *p_physp;
 	osm_port_t *p_port;
@@ -329,7 +329,7 @@ __osm_drop_mgr_process_node(osm_sm_t * sm, IN osm_node_t * p_node)
 			p_port = osm_get_port_by_guid(sm->p_subn, port_guid);
 
 			if (p_port)
-				__osm_drop_mgr_remove_port(sm, p_port);
+				drop_mgr_remove_port(sm, p_port);
 			else
 				drop_mgr_clean_physp(sm, p_physp);
 		}
@@ -338,7 +338,7 @@ __osm_drop_mgr_process_node(osm_sm_t * sm, IN osm_node_t * p_node)
 	return_val = TRUE;
 
 	if (p_node->sw)
-		__osm_drop_mgr_remove_switch(sm, p_node);
+		drop_mgr_remove_switch(sm, p_node);
 
 	p_node_check =
 	    (osm_node_t *) cl_qmap_remove(&sm->p_subn->node_guid_tbl,
@@ -358,7 +358,7 @@ __osm_drop_mgr_process_node(osm_sm_t * sm, IN osm_node_t * p_node)
 
 /**********************************************************************
  **********************************************************************/
-static void __osm_drop_mgr_check_node(osm_sm_t * sm, IN osm_node_t * p_node)
+static void drop_mgr_check_node(osm_sm_t * sm, IN osm_node_t * p_node)
 {
 	ib_net64_t node_guid;
 	osm_physp_t *p_physp;
@@ -383,7 +383,7 @@ static void __osm_drop_mgr_check_node(osm_sm_t * sm, IN osm_node_t * p_node)
 			"Node 0x%016" PRIx64 " no switch in table\n",
 			cl_ntoh64(node_guid));
 
-		__osm_drop_mgr_process_node(sm, p_node);
+		drop_mgr_process_node(sm, p_node);
 		goto Exit;
 	}
 
@@ -394,7 +394,7 @@ static void __osm_drop_mgr_check_node(osm_sm_t * sm, IN osm_node_t * p_node)
 			"Node 0x%016" PRIx64 " no valid physical port 0\n",
 			cl_ntoh64(node_guid));
 
-		__osm_drop_mgr_process_node(sm, p_node);
+		drop_mgr_process_node(sm, p_node);
 		goto Exit;
 	}
 
@@ -407,7 +407,7 @@ static void __osm_drop_mgr_check_node(osm_sm_t * sm, IN osm_node_t * p_node)
 			"Node 0x%016" PRIx64 " has no port object\n",
 			cl_ntoh64(node_guid));
 
-		__osm_drop_mgr_process_node(sm, p_node);
+		drop_mgr_process_node(sm, p_node);
 		goto Exit;
 	}
 
@@ -416,7 +416,7 @@ static void __osm_drop_mgr_check_node(osm_sm_t * sm, IN osm_node_t * p_node)
 			"Node 0x%016" PRIx64 " port has discovery count zero\n",
 			cl_ntoh64(node_guid));
 
-		__osm_drop_mgr_process_node(sm, p_node);
+		drop_mgr_process_node(sm, p_node);
 		goto Exit;
 	}
 
@@ -464,7 +464,7 @@ void osm_drop_mgr_process(osm_sm_t * sm)
 		   should therefore be removed from the subnet object.
 		 */
 		if (p_node->discovery_count == 0)
-			__osm_drop_mgr_process_node(sm, p_node);
+			drop_mgr_process_node(sm, p_node);
 	}
 
 	/*
@@ -488,7 +488,7 @@ void osm_drop_mgr_process(osm_sm_t * sm)
 			continue;
 
 		/* We are handling a switch node */
-		__osm_drop_mgr_check_node(sm, p_node);
+		drop_mgr_check_node(sm, p_node);
 	}
 
 	p_next_port = (osm_port_t *) cl_qmap_head(p_port_guid_tbl);
@@ -508,7 +508,7 @@ void osm_drop_mgr_process(osm_sm_t * sm)
 		   If the port is unreachable, remove it from the guid table.
 		 */
 		if (p_port->discovery_count == 0)
-			__osm_drop_mgr_remove_port(sm, p_port);
+			drop_mgr_remove_port(sm, p_port);
 	}
 
 	CL_PLOCK_RELEASE(sm->p_lock);

@@ -287,7 +287,7 @@ osm_pkey_tbl_get_block_and_idx(IN osm_pkey_tbl_t * p_pkey_tbl,
 /**********************************************************************
  **********************************************************************/
 static boolean_t
-__osm_match_pkey(IN const ib_net16_t * pkey1, IN const ib_net16_t * pkey2)
+match_pkey(IN const ib_net16_t * pkey1, IN const ib_net16_t * pkey2)
 {
 
 	/* if both pkeys are not full member - this is not a match */
@@ -315,7 +315,7 @@ osm_physp_share_this_pkey(IN const osm_physp_t * const p_physp1,
 			   ib_pkey_get_base(pkey));
 	pkey2 = cl_map_get(&(osm_physp_get_pkey_tbl(p_physp2))->keys,
 			   ib_pkey_get_base(pkey));
-	return (pkey1 && pkey2 && __osm_match_pkey(pkey1, pkey2));
+	return (pkey1 && pkey2 && match_pkey(pkey1, pkey2));
 }
 
 /**********************************************************************
@@ -341,7 +341,7 @@ osm_physp_find_common_pkey(IN const osm_physp_t * const p_physp1,
 		pkey1 = (ib_net16_t *) cl_map_obj(map_iter1);
 		pkey2 = (ib_net16_t *) cl_map_obj(map_iter2);
 
-		if (__osm_match_pkey(pkey1, pkey2))
+		if (match_pkey(pkey1, pkey2))
 			return *pkey1;
 
 		/* advance the lower value if they are not equal */

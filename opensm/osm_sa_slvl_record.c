@@ -74,10 +74,8 @@ typedef struct osm_slvl_search_ctxt {
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_sa_slvl_create(IN osm_sa_t * sa,
-		     IN const osm_physp_t * const p_physp,
-		     IN osm_slvl_search_ctxt_t * const p_ctxt,
-		     IN uint8_t in_port_idx)
+sa_slvl_create(IN osm_sa_t * sa, IN const osm_physp_t * const p_physp,
+	       IN osm_slvl_search_ctxt_t * const p_ctxt, IN uint8_t in_port_idx)
 {
 	osm_slvl_item_t *p_rec_item;
 	uint16_t lid;
@@ -121,9 +119,8 @@ Exit:
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_sa_slvl_by_comp_mask(IN osm_sa_t * sa,
-			   IN const osm_port_t * const p_port,
-			   osm_slvl_search_ctxt_t * const p_ctxt)
+sa_slvl_by_comp_mask(IN osm_sa_t * sa, IN const osm_port_t * const p_port,
+		     osm_slvl_search_ctxt_t * const p_ctxt)
 {
 	const ib_slvl_table_record_t *p_rcvd_rec;
 	ib_net64_t comp_mask;
@@ -153,7 +150,7 @@ __osm_sa_slvl_by_comp_mask(IN osm_sa_t * sa,
 		/* check that the p_out_physp and the p_req_physp share a pkey */
 		if (osm_physp_share_pkey
 		    (sa->p_log, p_req_physp, p_out_physp))
-			__osm_sa_slvl_create(sa, p_out_physp, p_ctxt, 0);
+			sa_slvl_create(sa, p_out_physp, p_ctxt, 0);
 	} else {
 		if (comp_mask & IB_SLVL_COMPMASK_OUT_PORT)
 			out_port_start = out_port_end =
@@ -188,8 +185,8 @@ __osm_sa_slvl_by_comp_mask(IN osm_sa_t * sa,
 				    (sa->p_log, p_req_physp, p_out_physp))
 					continue;
 
-				__osm_sa_slvl_create(sa, p_out_physp, p_ctxt,
-						     in_port_num);
+				sa_slvl_create(sa, p_out_physp, p_ctxt,
+					       in_port_num);
 			}
 		}
 	}
@@ -199,14 +196,13 @@ __osm_sa_slvl_by_comp_mask(IN osm_sa_t * sa,
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_sa_slvl_by_comp_mask_cb(IN cl_map_item_t * const p_map_item,
-			      IN void *context)
+sa_slvl_by_comp_mask_cb(IN cl_map_item_t * const p_map_item, IN void *context)
 {
 	const osm_port_t *const p_port = (osm_port_t *) p_map_item;
 	osm_slvl_search_ctxt_t *const p_ctxt =
 	    (osm_slvl_search_ctxt_t *) context;
 
-	__osm_sa_slvl_by_comp_mask(p_ctxt->sa, p_port, p_ctxt);
+	sa_slvl_by_comp_mask(p_ctxt->sa, p_port, p_ctxt);
 }
 
 /**********************************************************************
@@ -297,11 +293,10 @@ void osm_slvl_rec_rcv_process(IN void *ctx, IN void *data)
 		/* if we have a unique port - no need for a port search */
 		if (p_port)
 			/*  this does the loop on all the port phys ports */
-			__osm_sa_slvl_by_comp_mask(sa, p_port, &context);
+			sa_slvl_by_comp_mask(sa, p_port, &context);
 		else
 			cl_qmap_apply_func(&sa->p_subn->port_guid_tbl,
-					   __osm_sa_slvl_by_comp_mask_cb,
-					   &context);
+					   sa_slvl_by_comp_mask_cb, &context);
 	}
 
 	cl_plock_release(sa->p_lock);

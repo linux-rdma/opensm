@@ -423,7 +423,7 @@ Exit:
 
 /***************************************************************************
  ***************************************************************************/
-static int __osm_dump_tbl_entry(st_data_t key, st_data_t val, st_data_t arg)
+static int dump_tbl_entry(st_data_t key, st_data_t val, st_data_t arg)
 {
 	FILE *p_file = (FILE *) arg;
 	char *p_key = (char *)key;
@@ -462,8 +462,7 @@ int osm_db_store(IN osm_db_domain_t * p_domain)
 		goto Exit;
 	}
 
-	st_foreach(p_domain_imp->p_hash, __osm_dump_tbl_entry,
-		   (st_data_t) p_file);
+	st_foreach(p_domain_imp->p_hash, dump_tbl_entry, (st_data_t) p_file);
 	fclose(p_file);
 
 	/* move the domain file */
@@ -491,7 +490,7 @@ Exit:
  ***************************************************************************/
 /* simply de-allocate the key and the value and return the code
    that makes the st_foreach delete the entry */
-static int __osm_clear_tbl_entry(st_data_t key, st_data_t val, st_data_t arg)
+static int clear_tbl_entry(st_data_t key, st_data_t val, st_data_t arg)
 {
 	free((char *)key);
 	free((char *)val);
@@ -504,8 +503,7 @@ int osm_db_clear(IN osm_db_domain_t * p_domain)
 	    (osm_db_domain_imp_t *) p_domain->p_domain_imp;
 
 	cl_spinlock_acquire(&p_domain_imp->lock);
-	st_foreach(p_domain_imp->p_hash, __osm_clear_tbl_entry,
-		   (st_data_t) NULL);
+	st_foreach(p_domain_imp->p_hash, clear_tbl_entry, (st_data_t) NULL);
 	cl_spinlock_release(&p_domain_imp->lock);
 
 	return 0;
@@ -513,7 +511,7 @@ int osm_db_clear(IN osm_db_domain_t * p_domain)
 
 /***************************************************************************
  ***************************************************************************/
-static int __osm_get_key_of_tbl_entry(st_data_t key, st_data_t val,
+static int get_key_of_tbl_entry(st_data_t key, st_data_t val,
 				      st_data_t arg)
 {
 	cl_list_t *p_list = (cl_list_t *) arg;
@@ -528,8 +526,8 @@ int osm_db_keys(IN osm_db_domain_t * p_domain, OUT cl_list_t * p_key_list)
 
 	cl_spinlock_acquire(&p_domain_imp->lock);
 
-	st_foreach(p_domain_imp->p_hash,
-		   __osm_get_key_of_tbl_entry, (st_data_t) p_key_list);
+	st_foreach(p_domain_imp->p_hash, get_key_of_tbl_entry,
+		   (st_data_t) p_key_list);
 
 	cl_spinlock_release(&p_domain_imp->lock);
 

@@ -130,7 +130,7 @@ static void dump_ucast_routes(cl_map_item_t *p_map_item, FILE *file, void *cxt)
 
 	max_lid_ho = p_sw->max_lid_ho;
 
-	fprintf(file, "__osm_ucast_mgr_dump_ucast_routes: "
+	fprintf(file, "ucast_mgr_dump_ucast_routes: "
 		"Switch 0x%016" PRIx64 "\nLID    : Port : Hops : Optimal\n",
 		cl_ntoh64(osm_node_get_node_guid(p_node)));
 

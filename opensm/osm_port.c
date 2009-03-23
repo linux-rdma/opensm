@@ -249,8 +249,8 @@ osm_port_add_mgrp(IN osm_port_t * const p_port, IN const ib_net16_t mlid)
 /**********************************************************************
  **********************************************************************/
 static cl_status_t
-__osm_port_mgrp_find_func(IN const cl_list_item_t * const p_list_item,
-			  IN void *context)
+port_mgrp_find_func(IN const cl_list_item_t * const p_list_item,
+		    IN void *context)
 {
 	if (*((ib_net16_t *) context) == ((osm_mcm_info_t *) p_list_item)->mlid)
 		return (CL_SUCCESS);
@@ -265,8 +265,8 @@ osm_port_remove_mgrp(IN osm_port_t * const p_port, IN const ib_net16_t mlid)
 {
 	cl_list_item_t *p_mcm;
 
-	p_mcm = cl_qlist_find_from_head(&p_port->mcm_list,
-					__osm_port_mgrp_find_func, &mlid);
+	p_mcm = cl_qlist_find_from_head(&p_port->mcm_list, port_mgrp_find_func,
+					&mlid);
 
 	if (p_mcm != cl_qlist_end(&p_port->mcm_list)) {
 		cl_qlist_remove_item(&p_port->mcm_list, p_mcm);
@@ -399,7 +399,7 @@ osm_physp_calc_link_op_vls(IN osm_log_t * p_log,
 	return (op_vls);
 }
 
-static inline uint64_t __osm_ptr_to_key(void const *p)
+static inline uint64_t ptr_to_key(void const *p)
 {
 	uint64_t k = 0;
 
@@ -407,7 +407,7 @@ static inline uint64_t __osm_ptr_to_key(void const *p)
 	return k;
 }
 
-static inline void *__osm_key_to_ptr(uint64_t k)
+static inline void *key_to_ptr(uint64_t k)
 {
 	void *p = 0;
 
@@ -421,10 +421,9 @@ static inline void *__osm_key_to_ptr(uint64_t k)
  last phys ports (going into the first switch and into the target port).
  **********************************************************************/
 static cl_status_t
-__osm_physp_get_dr_physp_set(IN osm_log_t * p_log,
-			     IN osm_subn_t const *p_subn,
-			     IN osm_dr_path_t const *p_path,
-			     OUT cl_map_t * p_physp_map)
+physp_get_dr_physp_set(IN osm_log_t * p_log, IN osm_subn_t const *p_subn,
+		       IN osm_dr_path_t const *p_path,
+		       OUT cl_map_t * p_physp_map)
 {
 	osm_port_t *p_port;
 	osm_physp_t *p_physp;
@@ -466,8 +465,7 @@ __osm_physp_get_dr_physp_set(IN osm_log_t * p_log,
 
 		/* we track the ports we go out along the path */
 		if (hop > 1)
-			cl_map_insert(p_physp_map, __osm_ptr_to_key(p_physp),
-				      NULL);
+			cl_map_insert(p_physp_map, ptr_to_key(p_physp), NULL);
 
 		OSM_LOG(p_log, OSM_LOG_DEBUG,
 			"Traversed through node: 0x%016" PRIx64
@@ -494,9 +492,9 @@ Exit:
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_physp_update_new_dr_path(IN osm_physp_t const *p_dest_physp,
-			       IN cl_map_t * p_visited_map,
-			       IN osm_bind_handle_t * h_bind)
+physp_update_new_dr_path(IN osm_physp_t const *p_dest_physp,
+			 IN cl_map_t * p_visited_map,
+			 IN osm_bind_handle_t * h_bind)
 {
 	cl_list_t tmpPortsList;
 	osm_physp_t *p_physp, *p_src_physp = NULL;
@@ -510,20 +508,20 @@ __osm_physp_update_new_dr_path(IN osm_physp_t const *p_dest_physp,
 	cl_list_insert_head(&tmpPortsList, p_dest_physp);
 	/* get the output port where we need to come from */
 	p_physp = (osm_physp_t *) cl_map_get(p_visited_map,
-					     __osm_ptr_to_key(p_dest_physp));
+					     ptr_to_key(p_dest_physp));
 	while (p_physp != NULL) {
 		cl_list_insert_head(&tmpPortsList, p_physp);
 		/* get the input port through where we reached the output port */
 		p_src_physp = p_physp;
 		p_physp = (osm_physp_t *) cl_map_get(p_visited_map,
-						     __osm_ptr_to_key(p_physp));
+						     ptr_to_key(p_physp));
 		/* if we reached a null p_physp - this means we are at the begining
 		   of the path. Break. */
 		if (p_physp == NULL)
 			break;
 		/* get the output port */
 		p_physp = (osm_physp_t *) cl_map_get(p_visited_map,
-						     __osm_ptr_to_key(p_physp));
+						     ptr_to_key(p_physp));
 	}
 
 	memset(path_array, 0, sizeof(path_array));
@@ -574,7 +572,7 @@ osm_physp_replace_dr_path_with_alternate_dr_path(IN osm_log_t * p_log,
 	cl_map_construct(&visited_map);
 	cl_map_init(&visited_map, 4);
 	p_dr_path = osm_physp_get_dr_path_ptr(p_dest_physp);
-	__osm_physp_get_dr_physp_set(p_log, p_subn, p_dr_path, &physp_map);
+	physp_get_dr_physp_set(p_log, p_subn, p_dr_path, &physp_map);
 
 	/*
 	   BFS from OSM port until we find the target physp but avoid
@@ -643,21 +641,20 @@ osm_physp_replace_dr_path_with_alternate_dr_path(IN osm_log_t * p_log,
 				if (p_remote_physp &&
 				    p_remote_physp != p_physp &&
 				    cl_map_get(&physp_map,
-					       __osm_ptr_to_key(p_remote_physp))
+					       ptr_to_key(p_remote_physp))
 				    == NULL
 				    && cl_map_get(&visited_map,
-						  __osm_ptr_to_key
-						  (p_remote_physp)) == NULL) {
+						  ptr_to_key(p_remote_physp))
+						  == NULL) {
 					/* Insert the port into the visited_map, and save its source port */
 					cl_map_insert(&visited_map,
-						      __osm_ptr_to_key
-						      (p_remote_physp),
+						      ptr_to_key(p_remote_physp),
 						      p_physp);
 
 					/* Is this the p_dest_physp? */
 					if (p_remote_physp == p_dest_physp) {
 						/* update the new dr path */
-						__osm_physp_update_new_dr_path
+						physp_update_new_dr_path
 						    (p_dest_physp, &visited_map,
 						     h_bind);
 						reached_dest = TRUE;

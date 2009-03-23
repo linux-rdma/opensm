@@ -70,11 +70,9 @@ typedef struct osm_mftr_search_ctxt {
 /**********************************************************************
  **********************************************************************/
 static ib_api_status_t
-__osm_mftr_rcv_new_mftr(IN osm_sa_t * sa,
-			IN osm_switch_t * const p_sw,
-			IN cl_qlist_t * const p_list,
-			IN ib_net16_t const lid,
-			IN uint16_t const block, IN uint8_t const position)
+mftr_rcv_new_mftr(IN osm_sa_t * sa, IN osm_switch_t * const p_sw,
+		  IN cl_qlist_t * const p_list, IN ib_net16_t const lid,
+		  IN uint16_t const block, IN uint8_t const position)
 {
 	osm_mftr_item_t *p_rec_item;
 	ib_api_status_t status = IB_SUCCESS;
@@ -117,8 +115,7 @@ Exit:
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_mftr_rcv_by_comp_mask(IN cl_map_item_t * const p_map_item,
-			    IN void *context)
+mftr_rcv_by_comp_mask(IN cl_map_item_t * const p_map_item, IN void *context)
 {
 	const osm_mftr_search_ctxt_t *const p_ctxt =
 	    (osm_mftr_search_ctxt_t *) context;
@@ -208,9 +205,9 @@ __osm_mftr_rcv_by_comp_mask(IN cl_map_item_t * const p_map_item,
 	for (block = min_block; block <= max_block; block++)
 		for (position = min_position; position <= max_position;
 		     position++)
-			__osm_mftr_rcv_new_mftr(sa, p_sw, p_ctxt->p_list,
-						osm_port_get_base_lid(p_port),
-						block, position);
+			mftr_rcv_new_mftr(sa, p_sw, p_ctxt->p_list,
+					  osm_port_get_base_lid(p_port),
+					  block, position);
 }
 
 /**********************************************************************
@@ -268,8 +265,8 @@ void osm_mftr_rcv_process(IN void *ctx, IN void *data)
 	cl_plock_acquire(sa->p_lock);
 
 	/* Go over all switches */
-	cl_qmap_apply_func(&sa->p_subn->sw_guid_tbl,
-			   __osm_mftr_rcv_by_comp_mask, &context);
+	cl_qmap_apply_func(&sa->p_subn->sw_guid_tbl, mftr_rcv_by_comp_mask,
+			   &context);
 
 	cl_plock_release(sa->p_lock);
 

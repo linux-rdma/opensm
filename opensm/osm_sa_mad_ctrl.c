@@ -52,9 +52,9 @@
 #include <opensm/osm_helper.h>
 #include <opensm/osm_sa.h>
 
-/****f* opensm: SA/__osm_sa_mad_ctrl_disp_done_callback
+/****f* opensm: SA/sa_mad_ctrl_disp_done_callback
  * NAME
- * __osm_sa_mad_ctrl_disp_done_callback
+ * sa_mad_ctrl_disp_done_callback
  *
  * DESCRIPTION
  * This function is the Dispatcher callback that indicates
@@ -63,7 +63,7 @@
  * SYNOPSIS
  */
 static void
-__osm_sa_mad_ctrl_disp_done_callback(IN void *context, IN void *p_data)
+sa_mad_ctrl_disp_done_callback(IN void *context, IN void *p_data)
 {
 	osm_sa_mad_ctrl_t *const p_ctrl = (osm_sa_mad_ctrl_t *) context;
 	osm_madw_t *const p_madw = (osm_madw_t *) p_data;
@@ -80,9 +80,9 @@ __osm_sa_mad_ctrl_disp_done_callback(IN void *context, IN void *p_data)
 
 /************/
 
-/****f* opensm: SA/__osm_sa_mad_ctrl_process
+/****f* opensm: SA/sa_mad_ctrl_process
  * NAME
- * __osm_sa_mad_ctrl_process
+ * sa_mad_ctrl_process
  *
  * DESCRIPTION
  * This function handles known methods for received MADs.
@@ -90,8 +90,7 @@ __osm_sa_mad_ctrl_disp_done_callback(IN void *context, IN void *p_data)
  * SYNOPSIS
  */
 static void
-__osm_sa_mad_ctrl_process(IN osm_sa_mad_ctrl_t * const p_ctrl,
-			  IN osm_madw_t * p_madw)
+sa_mad_ctrl_process(IN osm_sa_mad_ctrl_t * const p_ctrl, IN osm_madw_t * p_madw)
 {
 	ib_sa_mad_t *p_sa_mad;
 	cl_status_t status;
@@ -232,11 +231,8 @@ __osm_sa_mad_ctrl_process(IN osm_sa_mad_ctrl_t * const p_ctrl,
 			"Posting Dispatcher message %s\n",
 			osm_get_disp_msg_str(msg_id));
 
-		status = cl_disp_post(p_ctrl->h_disp,
-				      msg_id,
-				      p_madw,
-				      __osm_sa_mad_ctrl_disp_done_callback,
-				      p_ctrl);
+		status = cl_disp_post(p_ctrl->h_disp, msg_id, p_madw,
+				      sa_mad_ctrl_disp_done_callback, p_ctrl);
 
 		if (status != CL_SUCCESS) {
 			OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 1A02: "
@@ -270,9 +266,9 @@ Exit:
  * SEE ALSO
  *********/
 
-/****f* opensm: SA/__osm_sa_mad_ctrl_rcv_callback
+/****f* opensm: SA/sa_mad_ctrl_rcv_callback
  * NAME
- * __osm_sa_mad_ctrl_rcv_callback
+ * sa_mad_ctrl_rcv_callback
  *
  * DESCRIPTION
  * This is the callback from the transport layer for received MADs.
@@ -280,9 +276,8 @@ Exit:
  * SYNOPSIS
  */
 static void
-__osm_sa_mad_ctrl_rcv_callback(IN osm_madw_t * p_madw,
-			       IN void *bind_context,
-			       IN osm_madw_t * p_req_madw)
+sa_mad_ctrl_rcv_callback(IN osm_madw_t * p_madw, IN void *bind_context,
+			 IN osm_madw_t * p_req_madw)
 {
 	osm_sa_mad_ctrl_t *p_ctrl = (osm_sa_mad_ctrl_t *) bind_context;
 	ib_sa_mad_t *p_sa_mad;
@@ -363,7 +358,7 @@ __osm_sa_mad_ctrl_rcv_callback(IN osm_madw_t * p_madw,
 #endif
 	case IB_MAD_METHOD_SET:
 	case IB_MAD_METHOD_DELETE:
-		__osm_sa_mad_ctrl_process(p_ctrl, p_madw);
+		sa_mad_ctrl_process(p_ctrl, p_madw);
 		break;
 
 	default:
@@ -388,9 +383,9 @@ Exit:
  * SEE ALSO
  *********/
 
-/****f* opensm: SA/__osm_sa_mad_ctrl_send_err_callback
+/****f* opensm: SA/sa_mad_ctrl_send_err_callback
  * NAME
- * __osm_sa_mad_ctrl_send_err_callback
+ * sa_mad_ctrl_send_err_callback
  *
  * DESCRIPTION
  * This is the callback from the transport layer for send errors
@@ -399,8 +394,7 @@ Exit:
  * SYNOPSIS
  */
 static void
-__osm_sa_mad_ctrl_send_err_callback(IN void *bind_context,
-				    IN osm_madw_t * p_madw)
+sa_mad_ctrl_send_err_callback(IN void *bind_context, IN osm_madw_t * p_madw)
 {
 	osm_sa_mad_ctrl_t *p_ctrl = (osm_sa_mad_ctrl_t *) bind_context;
 	cl_status_t status;
@@ -425,7 +419,7 @@ __osm_sa_mad_ctrl_send_err_callback(IN void *bind_context,
 	osm_dump_sa_mad(p_ctrl->p_log, osm_madw_get_sa_mad_ptr(p_madw),
 			OSM_LOG_ERROR);
 
-	/*  __osm_sm_mad_ctrl_update_wire_stats( p_ctrl ); */
+	/*  sm_mad_ctrl_update_wire_stats( p_ctrl ); */
 
 	if (osm_madw_get_err_msg(p_madw) != CL_DISP_MSGID_NONE) {
 		OSM_LOG(p_ctrl->p_log, OSM_LOG_DEBUG,
@@ -433,10 +427,8 @@ __osm_sa_mad_ctrl_send_err_callback(IN void *bind_context,
 			osm_get_disp_msg_str(osm_madw_get_err_msg(p_madw)));
 
 		status = cl_disp_post(p_ctrl->h_disp,
-				      osm_madw_get_err_msg(p_madw),
-				      p_madw,
-				      __osm_sa_mad_ctrl_disp_done_callback,
-				      p_ctrl);
+				      osm_madw_get_err_msg(p_madw), p_madw,
+				      sa_mad_ctrl_disp_done_callback, p_ctrl);
 		if (status != CL_SUCCESS) {
 			OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 1A07: "
 				"Dispatcher post message failed (%s)\n",
@@ -550,11 +542,10 @@ osm_sa_mad_ctrl_bind(IN osm_sa_mad_ctrl_t * const p_ctrl,
 	OSM_LOG(p_ctrl->p_log, OSM_LOG_VERBOSE,
 		"Binding to port GUID 0x%" PRIx64 "\n", cl_ntoh64(port_guid));
 
-	p_ctrl->h_bind = osm_vendor_bind(p_ctrl->p_vendor,
-					 &bind_info,
+	p_ctrl->h_bind = osm_vendor_bind(p_ctrl->p_vendor, &bind_info,
 					 p_ctrl->p_mad_pool,
-					 __osm_sa_mad_ctrl_rcv_callback,
-					 __osm_sa_mad_ctrl_send_err_callback,
+					 sa_mad_ctrl_rcv_callback,
+					 sa_mad_ctrl_send_err_callback,
 					 p_ctrl);
 
 	if (p_ctrl->h_bind == OSM_BIND_INVALID_HANDLE) {

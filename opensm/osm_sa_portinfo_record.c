@@ -75,9 +75,8 @@ typedef struct osm_pir_search_ctxt {
 /**********************************************************************
  **********************************************************************/
 static ib_api_status_t
-__osm_pir_rcv_new_pir(IN osm_sa_t * sa,
-		      IN const osm_physp_t * const p_physp,
-		      IN cl_qlist_t * const p_list, IN ib_net16_t const lid)
+pir_rcv_new_pir(IN osm_sa_t * sa, IN const osm_physp_t * const p_physp,
+		IN cl_qlist_t * const p_list, IN ib_net16_t const lid)
 {
 	osm_pir_item_t *p_rec_item;
 	ib_api_status_t status = IB_SUCCESS;
@@ -114,9 +113,8 @@ Exit:
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_sa_pir_create(IN osm_sa_t * sa,
-		    IN const osm_physp_t * const p_physp,
-		    IN osm_pir_search_ctxt_t * const p_ctxt)
+sa_pir_create(IN osm_sa_t * sa, IN const osm_physp_t * const p_physp,
+	      IN osm_pir_search_ctxt_t * const p_ctxt)
 {
 	uint8_t lmc;
 	uint16_t max_lid_ho;
@@ -154,8 +152,7 @@ __osm_sa_pir_create(IN osm_sa_t * sa,
 			goto Exit;
 	}
 
-	__osm_pir_rcv_new_pir(sa, p_physp, p_ctxt->p_list,
-			      cl_hton16(base_lid_ho));
+	pir_rcv_new_pir(sa, p_physp, p_ctxt->p_list, cl_hton16(base_lid_ho));
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);
@@ -164,9 +161,8 @@ Exit:
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_sa_pir_check_physp(IN osm_sa_t * sa,
-			 IN const osm_physp_t * const p_physp,
-			 osm_pir_search_ctxt_t * const p_ctxt)
+sa_pir_check_physp(IN osm_sa_t * sa, IN const osm_physp_t * const p_physp,
+		   osm_pir_search_ctxt_t * const p_ctxt)
 {
 	const ib_portinfo_record_t *p_rcvd_rec;
 	ib_net64_t comp_mask;
@@ -387,7 +383,7 @@ __osm_sa_pir_check_physp(IN osm_sa_t * sa,
 			goto Exit;
 	}
 
-	__osm_sa_pir_create(sa, p_physp, p_ctxt);
+	sa_pir_create(sa, p_physp, p_ctxt);
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);
@@ -396,9 +392,8 @@ Exit:
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_sa_pir_by_comp_mask(IN osm_sa_t * sa,
-			  IN osm_node_t * const p_node,
-			  osm_pir_search_ctxt_t * const p_ctxt)
+sa_pir_by_comp_mask(IN osm_sa_t * sa, IN osm_node_t * const p_node,
+		    osm_pir_search_ctxt_t * const p_ctxt)
 {
 	const ib_portinfo_record_t *p_rcvd_rec;
 	ib_net64_t comp_mask;
@@ -425,8 +420,7 @@ __osm_sa_pir_by_comp_mask(IN osm_sa_t * sa,
 			if (p_physp &&
 			    osm_physp_share_pkey(sa->p_log, p_req_physp,
 						 p_physp))
-				__osm_sa_pir_check_physp(sa, p_physp,
-							 p_ctxt);
+				sa_pir_check_physp(sa, p_physp, p_ctxt);
 		}
 	} else {
 		for (port_num = 0; port_num < num_ports; port_num++) {
@@ -441,7 +435,7 @@ __osm_sa_pir_by_comp_mask(IN osm_sa_t * sa,
 			    (sa->p_log, p_req_physp, p_physp))
 				continue;
 
-			__osm_sa_pir_check_physp(sa, p_physp, p_ctxt);
+			sa_pir_check_physp(sa, p_physp, p_ctxt);
 		}
 	}
 
@@ -451,13 +445,12 @@ __osm_sa_pir_by_comp_mask(IN osm_sa_t * sa,
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_sa_pir_by_comp_mask_cb(IN cl_map_item_t * const p_map_item,
-			     IN void *context)
+sa_pir_by_comp_mask_cb(IN cl_map_item_t * const p_map_item, IN void *context)
 {
 	osm_node_t *const p_node = (osm_node_t *) p_map_item;
 	osm_pir_search_ctxt_t *const p_ctxt = (osm_pir_search_ctxt_t *) context;
 
-	__osm_sa_pir_by_comp_mask(p_ctxt->sa, p_node, p_ctxt);
+	sa_pir_by_comp_mask(p_ctxt->sa, p_node, p_ctxt);
 }
 
 /**********************************************************************
@@ -560,12 +553,10 @@ void osm_pir_rcv_process(IN void *ctx, IN void *data)
 
 	if (status == IB_SUCCESS) {
 		if (p_port)
-			__osm_sa_pir_by_comp_mask(sa, p_port->p_node,
-						  &context);
+			sa_pir_by_comp_mask(sa, p_port->p_node, &context);
 		else
 			cl_qmap_apply_func(&sa->p_subn->node_guid_tbl,
-					   __osm_sa_pir_by_comp_mask_cb,
-					   &context);
+					   sa_pir_by_comp_mask_cb, &context);
 	}
 
 	cl_plock_release(sa->p_lock);

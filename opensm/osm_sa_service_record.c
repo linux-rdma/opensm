@@ -205,9 +205,8 @@ Exit:
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_sr_rcv_respond(IN osm_sa_t * sa,
-		     IN osm_madw_t * const p_madw,
-		     IN cl_qlist_t * const p_list)
+sr_rcv_respond(IN osm_sa_t * sa, IN osm_madw_t * const p_madw,
+	       IN cl_qlist_t * const p_list)
 {
 	/* p923 - The ServiceKey shall be set to 0, except in the case of
 	   a trusted request.
@@ -516,7 +515,7 @@ osm_sr_rcv_process_get_method(IN osm_sa_t * sa,
 		goto Exit;
 	}
 
-	__osm_sr_rcv_respond(sa, p_madw, &sr_match_item.sr_list);
+	sr_rcv_respond(sa, p_madw, &sr_match_item.sr_list);
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);
@@ -626,7 +625,7 @@ osm_sr_rcv_process_set_method(IN osm_sa_t * sa,
 
 	cl_qlist_insert_tail(&sr_list, &p_sr_item->list_item);
 
-	__osm_sr_rcv_respond(sa, p_madw, &sr_list);
+	sr_rcv_respond(sa, p_madw, &sr_list);
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);
@@ -635,8 +634,7 @@ Exit:
 /**********************************************************************
  **********************************************************************/
 static void
-osm_sr_rcv_process_delete_method(IN osm_sa_t * sa,
-				 IN osm_madw_t * const p_madw)
+sr_rcv_process_delete_method(IN osm_sa_t * sa, IN osm_madw_t * const p_madw)
 {
 	ib_sa_mad_t *p_sa_mad;
 	ib_service_record_t *p_recvd_service_rec;
@@ -695,7 +693,7 @@ osm_sr_rcv_process_delete_method(IN osm_sa_t * sa,
 	if (p_svcr)
 		osm_svcr_delete(p_svcr);
 
-	__osm_sr_rcv_respond(sa, p_madw, &sr_list);
+	sr_rcv_respond(sa, p_madw, &sr_list);
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);
@@ -740,7 +738,7 @@ void osm_sr_rcv_process(IN void *context, IN void *data)
 					  IB_SA_MAD_STATUS_REQ_INVALID);
 			goto Exit;
 		}
-		osm_sr_rcv_process_delete_method(sa, p_madw);
+		sr_rcv_process_delete_method(sa, p_madw);
 		break;
 	case IB_MAD_METHOD_GET:
 	case IB_MAD_METHOD_GETTABLE:

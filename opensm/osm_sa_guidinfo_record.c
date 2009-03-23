@@ -73,13 +73,12 @@ typedef struct osm_gir_search_ctxt {
 /**********************************************************************
  **********************************************************************/
 static ib_api_status_t
-__osm_gir_rcv_new_gir(IN osm_sa_t * sa,
-		      IN const osm_node_t * const p_node,
-		      IN cl_qlist_t * const p_list,
-		      IN ib_net64_t const match_port_guid,
-		      IN ib_net16_t const match_lid,
-		      IN const osm_physp_t * const p_req_physp,
-		      IN uint8_t const block_num)
+gir_rcv_new_gir(IN osm_sa_t * sa, IN const osm_node_t * const p_node,
+		IN cl_qlist_t * const p_list,
+		IN ib_net64_t const match_port_guid,
+		IN ib_net16_t const match_lid,
+		IN const osm_physp_t * const p_req_physp,
+		IN uint8_t const block_num)
 {
 	osm_gir_item_t *p_rec_item;
 	ib_api_status_t status = IB_SUCCESS;
@@ -116,13 +115,12 @@ Exit:
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_sa_gir_create_gir(IN osm_sa_t * sa,
-			IN osm_node_t * const p_node,
-			IN cl_qlist_t * const p_list,
-			IN ib_net64_t const match_port_guid,
-			IN ib_net16_t const match_lid,
-			IN const osm_physp_t * const p_req_physp,
-			IN uint8_t const match_block_num)
+sa_gir_create_gir(IN osm_sa_t * sa, IN osm_node_t * const p_node,
+		  IN cl_qlist_t * const p_list,
+		  IN ib_net64_t const match_port_guid,
+		  IN ib_net16_t const match_lid,
+		  IN const osm_physp_t * const p_req_physp,
+		  IN uint8_t const match_block_num)
 {
 	const osm_physp_t *p_physp;
 	uint8_t port_num;
@@ -206,9 +204,9 @@ __osm_sa_gir_create_gir(IN osm_sa_t * sa,
 
 		for (block_num = start_block_num; block_num <= end_block_num;
 		     block_num++)
-			__osm_gir_rcv_new_gir(sa, p_node, p_list, port_guid,
-					      cl_ntoh16(base_lid_ho), p_physp,
-					      block_num);
+			gir_rcv_new_gir(sa, p_node, p_list, port_guid,
+					cl_ntoh16(base_lid_ho), p_physp,
+					block_num);
 
 	}
 
@@ -218,8 +216,7 @@ __osm_sa_gir_create_gir(IN osm_sa_t * sa,
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_sa_gir_by_comp_mask_cb(IN cl_map_item_t * const p_map_item,
-			     IN void *context)
+sa_gir_by_comp_mask_cb(IN cl_map_item_t * const p_map_item, IN void *context)
 {
 	const osm_gir_search_ctxt_t *const p_ctxt =
 	    (osm_gir_search_ctxt_t *) context;
@@ -285,9 +282,8 @@ __osm_sa_gir_by_comp_mask_cb(IN cl_map_item_t * const p_map_item,
 			goto Exit;
 	}
 
-	__osm_sa_gir_create_gir(sa, p_node, p_ctxt->p_list,
-				match_port_guid, match_lid, p_req_physp,
-				match_block_num);
+	sa_gir_create_gir(sa, p_node, p_ctxt->p_list, match_port_guid,
+			  match_lid, p_req_physp, match_block_num);
 
 Exit:
 	OSM_LOG_EXIT(p_ctxt->sa->p_log);
@@ -350,8 +346,8 @@ void osm_gir_rcv_process(IN void *ctx, IN void *data)
 
 	cl_plock_acquire(sa->p_lock);
 
-	cl_qmap_apply_func(&sa->p_subn->node_guid_tbl,
-			   __osm_sa_gir_by_comp_mask_cb, &context);
+	cl_qmap_apply_func(&sa->p_subn->node_guid_tbl, sa_gir_by_comp_mask_cb,
+			   &context);
 
 	cl_plock_release(sa->p_lock);
 

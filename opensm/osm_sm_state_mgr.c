@@ -75,7 +75,7 @@ void osm_report_sm_state(osm_sm_t * sm)
 
 /**********************************************************************
  **********************************************************************/
-static void __osm_sm_state_mgr_send_master_sm_info_req(osm_sm_t * sm)
+static void sm_state_mgr_send_master_sm_info_req(osm_sm_t * sm)
 {
 	osm_madw_context_t context;
 	const osm_port_t *p_port;
@@ -124,7 +124,7 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-static void __osm_sm_state_mgr_start_polling(osm_sm_t * sm)
+static void sm_state_mgr_start_polling(osm_sm_t * sm)
 {
 	uint32_t timeout = sm->p_subn->opt.sminfo_polling_timeout;
 	cl_status_t cl_status;
@@ -139,7 +139,7 @@ static void __osm_sm_state_mgr_start_polling(osm_sm_t * sm)
 	/*
 	 * Send a SubnGet(SMInfo) query to the current (or new) master found.
 	 */
-	__osm_sm_state_mgr_send_master_sm_info_req(sm);
+	sm_state_mgr_send_master_sm_info_req(sm);
 
 	/*
 	 * Start a timer that will wake up every sminfo_polling_timeout milliseconds.
@@ -207,7 +207,7 @@ void osm_sm_state_mgr_polling_callback(IN void *context)
 	}
 
 	/* Send a SubnGet(SMInfo) request to the remote sm (depends on our state) */
-	__osm_sm_state_mgr_send_master_sm_info_req(sm);
+	sm_state_mgr_send_master_sm_info_req(sm);
 
 	/* restart the timer */
 	cl_status = cl_timer_start(&sm->polling_timer, timeout);
@@ -222,8 +222,8 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-static void __osm_sm_state_mgr_signal_error(osm_sm_t * sm,
-					    IN const osm_sm_signal_t signal)
+static void sm_state_mgr_signal_error(osm_sm_t * sm,
+				      IN const osm_sm_signal_t signal)
 {
 	OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3207: "
 		"Invalid signal %s in state %s\n",
@@ -293,7 +293,7 @@ ib_api_status_t osm_sm_state_mgr_process(osm_sm_t * sm,
 			 */
 			sm->p_subn->ignore_existing_lfts = FALSE;
 
-			__osm_sm_state_mgr_start_polling(sm);
+			sm_state_mgr_start_polling(sm);
 			break;
 		case OSM_SM_SIGNAL_HANDOVER:
 			/*
@@ -304,7 +304,7 @@ ib_api_status_t osm_sm_state_mgr_process(osm_sm_t * sm,
 			 */
 			break;
 		default:
-			__osm_sm_state_mgr_signal_error(sm, signal);
+			sm_state_mgr_signal_error(sm, signal);
 			status = IB_INVALID_PARAMETER;
 			break;
 		}
@@ -361,7 +361,7 @@ ib_api_status_t osm_sm_state_mgr_process(osm_sm_t * sm,
 			 */
 			break;
 		default:
-			__osm_sm_state_mgr_signal_error(sm, signal);
+			sm_state_mgr_signal_error(sm, signal);
 			status = IB_INVALID_PARAMETER;
 			break;
 		}
@@ -376,10 +376,10 @@ ib_api_status_t osm_sm_state_mgr_process(osm_sm_t * sm,
 			 */
 			sm->p_subn->sm_state = IB_SMINFO_STATE_STANDBY;
 			osm_report_sm_state(sm);
-			__osm_sm_state_mgr_start_polling(sm);
+			sm_state_mgr_start_polling(sm);
 			break;
 		default:
-			__osm_sm_state_mgr_signal_error(sm, signal);
+			sm_state_mgr_signal_error(sm, signal);
 			status = IB_INVALID_PARAMETER;
 			break;
 		}
@@ -422,7 +422,7 @@ ib_api_status_t osm_sm_state_mgr_process(osm_sm_t * sm,
 			 */
 			sm->p_subn->sm_state = IB_SMINFO_STATE_STANDBY;
 			osm_report_sm_state(sm);
-			__osm_sm_state_mgr_start_polling(sm);
+			sm_state_mgr_start_polling(sm);
 			break;
 		case OSM_SM_SIGNAL_WAIT_FOR_HANDOVER:
 			/*
@@ -432,14 +432,14 @@ ib_api_status_t osm_sm_state_mgr_process(osm_sm_t * sm,
 			 * we should move back to discovering, since something must
 			 * have happened to it.
 			 */
-			__osm_sm_state_mgr_start_polling(sm);
+			sm_state_mgr_start_polling(sm);
 			break;
 		case OSM_SM_SIGNAL_DISCOVER:
 			sm->p_subn->sm_state = IB_SMINFO_STATE_DISCOVERING;
 			osm_report_sm_state(sm);
 			break;
 		default:
-			__osm_sm_state_mgr_signal_error(sm, signal);
+			sm_state_mgr_signal_error(sm, signal);
 			status = IB_INVALID_PARAMETER;
 			break;
 		}
@@ -489,7 +489,7 @@ ib_api_status_t osm_sm_state_mgr_check_legality(osm_sm_t * sm,
 			status = IB_SUCCESS;
 			break;
 		default:
-			__osm_sm_state_mgr_signal_error(sm, signal);
+			sm_state_mgr_signal_error(sm, signal);
 			status = IB_INVALID_PARAMETER;
 			break;
 		}
@@ -505,7 +505,7 @@ ib_api_status_t osm_sm_state_mgr_check_legality(osm_sm_t * sm,
 			status = IB_SUCCESS;
 			break;
 		default:
-			__osm_sm_state_mgr_signal_error(sm, signal);
+			sm_state_mgr_signal_error(sm, signal);
 			status = IB_INVALID_PARAMETER;
 			break;
 		}
@@ -517,7 +517,7 @@ ib_api_status_t osm_sm_state_mgr_check_legality(osm_sm_t * sm,
 			status = IB_SUCCESS;
 			break;
 		default:
-			__osm_sm_state_mgr_signal_error(sm, signal);
+			sm_state_mgr_signal_error(sm, signal);
 			status = IB_INVALID_PARAMETER;
 			break;
 		}
@@ -530,7 +530,7 @@ ib_api_status_t osm_sm_state_mgr_check_legality(osm_sm_t * sm,
 			status = IB_SUCCESS;
 			break;
 		default:
-			__osm_sm_state_mgr_signal_error(sm, signal);
+			sm_state_mgr_signal_error(sm, signal);
 			status = IB_INVALID_PARAMETER;
 			break;
 		}

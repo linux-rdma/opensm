@@ -264,9 +264,9 @@ osm_mgrp_is_port_present(IN const osm_mgrp_t * const p_mgrp,
 /**********************************************************************
  **********************************************************************/
 static void
-__osm_mgrp_apply_func_sub(const osm_mgrp_t * const p_mgrp,
-			  const osm_mtree_node_t * const p_mtn,
-			  osm_mgrp_func_t p_func, void *context)
+mgrp_apply_func_sub(const osm_mgrp_t * const p_mgrp,
+		    const osm_mtree_node_t * const p_mtn,
+		    osm_mgrp_func_t p_func, void *context)
 {
 	uint8_t i = 0;
 	uint8_t max_children;
@@ -279,8 +279,8 @@ __osm_mgrp_apply_func_sub(const osm_mgrp_t * const p_mgrp,
 	for (i = 0; i < max_children; i++) {
 		p_child_mtn = osm_mtree_node_get_child(p_mtn, i);
 		if (p_child_mtn)
-			__osm_mgrp_apply_func_sub(p_mgrp, p_child_mtn, p_func,
-						  context);
+			mgrp_apply_func_sub(p_mgrp, p_child_mtn, p_func,
+					    context);
 	}
 }
 
@@ -298,5 +298,5 @@ osm_mgrp_apply_func(const osm_mgrp_t * const p_mgrp,
 	p_mtn = p_mgrp->p_root;
 
 	if (p_mtn)
-		__osm_mgrp_apply_func_sub(p_mgrp, p_mtn, p_func, context);
+		mgrp_apply_func_sub(p_mgrp, p_mtn, p_func, context);
 }
