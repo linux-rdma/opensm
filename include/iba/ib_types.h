@@ -3295,10 +3295,10 @@ typedef struct _ib_class_port_info {
 *		Maximum expected response time and additional
 *		supported capabilities of this management class.
 *
-*	redr_gid
+*	redir_gid
 *		GID to use for redirection, or zero
 *
-*	recdir_tc_sl_fl
+*	redir_tc_sl_fl
 *		Traffic class, service level and flow label the requester
 *		should use if the service is redirected.
 *
@@ -5933,11 +5933,11 @@ ib_switch_info_clear_state_change(IN ib_switch_info_t * const p_si)
 
 /*
 * PARAMETERS
-*	p_ni
-*		[in] Pointer to a PortInfo attribute.
+*	p_si
+*		[in] Pointer to a SwitchInfo attribute.
 *
 * RETURN VALUES
-*	Returns the LMC value assigned to this port.
+*	None
 *
 * NOTES
 *
@@ -8406,8 +8406,8 @@ typedef enum _ib_async_event_t {
 *		alternate path.
 *
 *	IB_AE_LOCAL_FATAL
-*		A catastrophic HCA error occurred which cannot be attributed to any
-*		resource; behavior is indeterminate.
+*		A catastrophic HCA error occurred which cannot be attributed to
+*		any resource; behavior is indeterminate.
 *
 *	IB_AE_PKEY_TRAP
 *		A PKEY violation was detected.  This event is optional.
@@ -8416,15 +8416,15 @@ typedef enum _ib_async_event_t {
 *		A QKEY violation was detected.  This event is optional.
 *
 *	IB_AE_MKEY_TRAP
-*		An MKEY violation was detected.  This event is optional.
+*		A MKEY violation was detected.  This event is optional.
 *
 *	IB_AE_PORT_TRAP
 *		A port capability change was detected.  This event is optional.
 *
 *	IB_AE_SYSIMG_GUID_TRAP
-*		If the system image GUID is supported, this event indicates that the
-*		system image GUID of this HCA has been changed.  This event is
-*		optional.
+*		If the system image GUID is supported, this event indicates that
+*		the system image GUID of this HCA has been changed.  This event
+*		is optional.
 *
 *	IB_AE_BUF_OVERRUN
 *		The number of consecutive flow control update periods with at least
