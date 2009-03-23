@@ -58,7 +58,7 @@
 /**********************************************************************
  **********************************************************************/
 /*
- * WE MIGHT ONLY RECEIVE A GET or SET responses
+ * WE ONLY RECEIVE GET or SET responses
  */
 void osm_slvl_rcv_process(IN void *context, IN void *p_data)
 {
@@ -120,8 +120,8 @@ void osm_slvl_rcv_process(IN void *context, IN void *p_data)
 	}
 
 	/*
-	   We do not mind if this is a result of a set or get - all we want is to update
-	   the subnet.
+	   We do not care if this is a result of a set or get -
+	   all we want is to update the subnet.
 	 */
 	OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 		"Got SLtoVL get response in_port_num %u out_port_num %u with "

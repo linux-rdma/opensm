@@ -58,7 +58,7 @@
 /**********************************************************************
  **********************************************************************/
 /*
- * WE MIGHT ONLY RECEIVE GET or SET responses
+ * WE ONLY RECEIVE GET or SET responses
  */
 void osm_vla_rcv_process(IN void *context, IN void *data)
 {
@@ -117,8 +117,8 @@ void osm_vla_rcv_process(IN void *context, IN void *data)
 	}
 
 	/*
-	   We do not mind if this is a result of a set or get - all we want is to update
-	   the subnet.
+	   We do not care if this is a result of a set or get -
+	   all we want is to update the subnet.
 	 */
 	OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 		"Got GetResp(VLArb) block:%u port_num %u with GUID 0x%"
