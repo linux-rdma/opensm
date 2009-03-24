@@ -74,9 +74,10 @@ typedef struct osm_pir_search_ctxt {
 
 /**********************************************************************
  **********************************************************************/
-static ib_api_status_t
-pir_rcv_new_pir(IN osm_sa_t * sa, IN const osm_physp_t * const p_physp,
-		IN cl_qlist_t * const p_list, IN ib_net16_t const lid)
+static ib_api_status_t pir_rcv_new_pir(IN osm_sa_t * sa,
+				       IN const osm_physp_t * p_physp,
+				       IN cl_qlist_t * p_list,
+				       IN ib_net16_t const lid)
 {
 	osm_pir_item_t *p_rec_item;
 	ib_api_status_t status = IB_SUCCESS;
@@ -112,9 +113,8 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-static void
-sa_pir_create(IN osm_sa_t * sa, IN const osm_physp_t * const p_physp,
-	      IN osm_pir_search_ctxt_t * const p_ctxt)
+static void sa_pir_create(IN osm_sa_t * sa, IN const osm_physp_t * p_physp,
+			  IN osm_pir_search_ctxt_t * p_ctxt)
 {
 	uint8_t lmc;
 	uint16_t max_lid_ho;
@@ -129,8 +129,7 @@ sa_pir_create(IN osm_sa_t * sa, IN const osm_physp_t * const p_physp,
 		base_lid_ho = cl_ntoh16(osm_physp_get_base_lid(p_node_physp));
 		lmc =
 		    osm_switch_sp0_is_lmc_capable(p_physp->p_node->sw,
-						  sa->
-						  p_subn) ?
+						  sa->p_subn) ?
 		    osm_physp_get_lmc(p_node_physp) : 0;
 	} else {
 		lmc = osm_physp_get_lmc(p_physp);
@@ -160,9 +159,8 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-static void
-sa_pir_check_physp(IN osm_sa_t * sa, IN const osm_physp_t * const p_physp,
-		   osm_pir_search_ctxt_t * const p_ctxt)
+static void sa_pir_check_physp(IN osm_sa_t * sa, IN const osm_physp_t * p_physp,
+			       osm_pir_search_ctxt_t * p_ctxt)
 {
 	const ib_portinfo_record_t *p_rcvd_rec;
 	ib_net64_t comp_mask;
@@ -176,10 +174,8 @@ sa_pir_check_physp(IN osm_sa_t * sa, IN const osm_physp_t * const p_physp,
 	p_comp_pi = &p_rcvd_rec->port_info;
 	p_pi = &p_physp->port_info;
 
-	osm_dump_port_info(sa->p_log,
-			   osm_node_get_node_guid(p_physp->p_node),
-			   p_physp->port_guid,
-			   p_physp->port_num,
+	osm_dump_port_info(sa->p_log, osm_node_get_node_guid(p_physp->p_node),
+			   p_physp->port_guid, p_physp->port_num,
 			   &p_physp->port_info, OSM_LOG_DEBUG);
 
 	/* We have to re-check the base_lid, since if the given
@@ -205,8 +201,8 @@ sa_pir_check_physp(IN osm_sa_t * sa, IN const osm_physp_t * const p_physp,
 	   of the attribute modifier of the Get/GetTable is set */
 	if (comp_mask & IB_PIR_COMPMASK_CAPMASK) {
 		if (p_ctxt->is_enhanced_comp_mask) {
-			if (((p_comp_pi->capability_mask & p_pi->
-			      capability_mask) != p_comp_pi->capability_mask))
+			if ((p_comp_pi->capability_mask & p_pi->
+			     capability_mask) != p_comp_pi->capability_mask)
 				goto Exit;
 		} else {
 			if (p_comp_pi->capability_mask != p_pi->capability_mask)
@@ -391,9 +387,8 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-static void
-sa_pir_by_comp_mask(IN osm_sa_t * sa, IN osm_node_t * const p_node,
-		    osm_pir_search_ctxt_t * const p_ctxt)
+static void sa_pir_by_comp_mask(IN osm_sa_t * sa, IN osm_node_t * p_node,
+				osm_pir_search_ctxt_t * p_ctxt)
 {
 	const ib_portinfo_record_t *p_rcvd_rec;
 	ib_net64_t comp_mask;
@@ -424,8 +419,7 @@ sa_pir_by_comp_mask(IN osm_sa_t * sa, IN osm_node_t * const p_node,
 		}
 	} else {
 		for (port_num = 0; port_num < num_ports; port_num++) {
-			p_physp =
-			    osm_node_get_physp_ptr(p_node, port_num);
+			p_physp = osm_node_get_physp_ptr(p_node, port_num);
 			if (!p_physp)
 				continue;
 
@@ -444,11 +438,10 @@ sa_pir_by_comp_mask(IN osm_sa_t * sa, IN osm_node_t * const p_node,
 
 /**********************************************************************
  **********************************************************************/
-static void
-sa_pir_by_comp_mask_cb(IN cl_map_item_t * const p_map_item, IN void *context)
+static void sa_pir_by_comp_mask_cb(IN cl_map_item_t * p_map_item, IN void *cxt)
 {
-	osm_node_t *const p_node = (osm_node_t *) p_map_item;
-	osm_pir_search_ctxt_t *const p_ctxt = (osm_pir_search_ctxt_t *) context;
+	osm_node_t *p_node = (osm_node_t *) p_map_item;
+	osm_pir_search_ctxt_t *p_ctxt = cxt;
 
 	sa_pir_by_comp_mask(p_ctxt->sa, p_node, p_ctxt);
 }
@@ -572,7 +565,7 @@ void osm_pir_rcv_process(IN void *ctx, IN void *data)
 		osm_pir_item_t *item;
 		for (item = (osm_pir_item_t *) cl_qlist_head(&rec_list);
 		     item != (osm_pir_item_t *) cl_qlist_end(&rec_list);
-		     item = (osm_pir_item_t *)cl_qlist_next(&item->list_item))
+		     item = (osm_pir_item_t *) cl_qlist_next(&item->list_item))
 			item->rec.port_info.m_key = 0;
 	}
 

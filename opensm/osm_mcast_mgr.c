@@ -65,7 +65,7 @@ typedef struct osm_mcast_work_obj {
 
 /**********************************************************************
  **********************************************************************/
-static osm_mcast_work_obj_t *mcast_work_obj_new(IN const osm_port_t * const p_port)
+static osm_mcast_work_obj_t *mcast_work_obj_new(IN const osm_port_t * p_port)
 {
 	osm_mcast_work_obj_t *p_obj;
 
@@ -111,8 +111,7 @@ static void mcast_mgr_purge_tree_node(IN osm_mtree_node_t * p_mtn)
 
 /**********************************************************************
  **********************************************************************/
-static void
-mcast_mgr_purge_tree(osm_sm_t * sm, IN osm_mgrp_t * const p_mgrp)
+static void mcast_mgr_purge_tree(osm_sm_t * sm, IN osm_mgrp_t * p_mgrp)
 {
 	OSM_LOG_ENTER(sm->p_log);
 
@@ -126,10 +125,9 @@ mcast_mgr_purge_tree(osm_sm_t * sm, IN osm_mgrp_t * const p_mgrp)
 
 /**********************************************************************
  **********************************************************************/
-static float
-osm_mcast_mgr_compute_avg_hops(osm_sm_t * sm,
-			       const osm_mgrp_t * const p_mgrp,
-			       const osm_switch_t * const p_sw)
+static float osm_mcast_mgr_compute_avg_hops(osm_sm_t * sm,
+					    const osm_mgrp_t * p_mgrp,
+					    const osm_switch_t * p_sw)
 {
 	float avg_hops = 0;
 	uint32_t hops = 0;
@@ -179,17 +177,16 @@ osm_mcast_mgr_compute_avg_hops(osm_sm_t * sm,
 		avg_hops = (float)(hops / num_ports);
 
 	OSM_LOG_EXIT(sm->p_log);
-	return (avg_hops);
+	return avg_hops;
 }
 
 /**********************************************************************
  Calculate the maximal "min hops" from the given switch to any
  of the group HCAs
  **********************************************************************/
-static float
-osm_mcast_mgr_compute_max_hops(osm_sm_t * sm,
-			       const osm_mgrp_t * const p_mgrp,
-			       const osm_switch_t * const p_sw)
+static float osm_mcast_mgr_compute_max_hops(osm_sm_t * sm,
+					    const osm_mgrp_t * p_mgrp,
+					    const osm_switch_t * p_sw)
 {
 	uint32_t max_hops = 0;
 	uint32_t hops = 0;
@@ -230,15 +227,14 @@ osm_mcast_mgr_compute_max_hops(osm_sm_t * sm,
 			max_hops = hops;
 	}
 
-	if (max_hops == 0) {
+	if (max_hops == 0)
 		/*
 		   We should be here if there aren't any ports in the group.
 		 */
 		max_hops = 10001;	/* see later - we use it to realize no hops */
-	}
 
 	OSM_LOG_EXIT(sm->p_log);
-	return (float)(max_hops);
+	return (float)max_hops;
 }
 
 /**********************************************************************
@@ -248,7 +244,7 @@ osm_mcast_mgr_compute_max_hops(osm_sm_t * sm,
    of the multicast group.
 **********************************************************************/
 static osm_switch_t *mcast_mgr_find_optimal_switch(osm_sm_t * sm,
-						   const osm_mgrp_t * const p_mgrp)
+						   const osm_mgrp_t * p_mgrp)
 {
 	cl_qmap_t *p_sw_tbl;
 	const osm_switch_t *p_sw;
@@ -298,14 +294,14 @@ static osm_switch_t *mcast_mgr_find_optimal_switch(osm_sm_t * sm,
 			"No multicast capable switches detected\n");
 
 	OSM_LOG_EXIT(sm->p_log);
-	return ((osm_switch_t *) p_best_sw);
+	return (osm_switch_t *) p_best_sw;
 }
 
 /**********************************************************************
    This function returns the existing or optimal root swtich for the tree.
 **********************************************************************/
 static osm_switch_t *mcast_mgr_find_root_switch(osm_sm_t * sm,
-						const osm_mgrp_t * const p_mgrp)
+						const osm_mgrp_t * p_mgrp)
 {
 	const osm_switch_t *p_sw = NULL;
 
@@ -320,13 +316,12 @@ static osm_switch_t *mcast_mgr_find_root_switch(osm_sm_t * sm,
 	p_sw = mcast_mgr_find_optimal_switch(sm, p_mgrp);
 
 	OSM_LOG_EXIT(sm->p_log);
-	return ((osm_switch_t *) p_sw);
+	return (osm_switch_t *) p_sw;
 }
 
 /**********************************************************************
  **********************************************************************/
-static osm_signal_t
-mcast_mgr_set_tbl(osm_sm_t * sm, IN osm_switch_t * const p_sw)
+static osm_signal_t mcast_mgr_set_tbl(osm_sm_t * sm, IN osm_switch_t * p_sw)
 {
 	osm_node_t *p_node;
 	osm_dr_path_t *p_path;
@@ -373,8 +368,8 @@ mcast_mgr_set_tbl(osm_sm_t * sm, IN osm_switch_t * const p_sw)
 
 		status = osm_req_set(sm, p_path, (void *)block, sizeof(block),
 				     IB_MAD_ATTR_MCAST_FWD_TBL,
-				     cl_hton32(block_id_ho),
-				     CL_DISP_MSGID_NONE, &mad_context);
+				     cl_hton32(block_id_ho), CL_DISP_MSGID_NONE,
+				     &mad_context);
 
 		if (status != IB_SUCCESS) {
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A02: "
@@ -391,7 +386,7 @@ mcast_mgr_set_tbl(osm_sm_t * sm, IN osm_switch_t * const p_sw)
 	}
 
 	OSM_LOG_EXIT(sm->p_log);
-	return (signal);
+	return signal;
 }
 
 /**********************************************************************
@@ -399,10 +394,9 @@ mcast_mgr_set_tbl(osm_sm_t * sm, IN osm_switch_t * const p_sw)
   spanning tree that eminate from this switch.  On input, the p_list
   contains the group members that must be routed from this switch.
 **********************************************************************/
-static void
-mcast_mgr_subdivide(osm_sm_t * sm, osm_mgrp_t * const p_mgrp,
-		    osm_switch_t * const p_sw, cl_qlist_t * const p_list,
-		    cl_qlist_t * const list_array, uint8_t const array_size)
+static void mcast_mgr_subdivide(osm_sm_t * sm, osm_mgrp_t * p_mgrp,
+				osm_switch_t * p_sw, cl_qlist_t * p_list,
+				cl_qlist_t * list_array, uint8_t array_size)
 {
 	uint8_t port_num;
 	uint16_t mlid_ho;
@@ -477,7 +471,7 @@ mcast_mgr_subdivide(osm_sm_t * sm, osm_mgrp_t * const p_mgrp,
 
 /**********************************************************************
  **********************************************************************/
-static void mcast_mgr_purge_list(osm_sm_t * sm, cl_qlist_t * const p_list)
+static void mcast_mgr_purge_list(osm_sm_t * sm, cl_qlist_t * p_list)
 {
 	osm_mcast_work_obj_t *p_wobj;
 
@@ -501,13 +495,11 @@ static void mcast_mgr_purge_list(osm_sm_t * sm, cl_qlist_t * const p_list)
 
   The function returns the newly created mtree node element.
 **********************************************************************/
-static osm_mtree_node_t *mcast_mgr_branch(osm_sm_t * sm,
-					  osm_mgrp_t * const p_mgrp,
-					  osm_switch_t * const p_sw,
-					  cl_qlist_t * const p_list,
-					  uint8_t depth,
-					  uint8_t const upstream_port,
-					  uint8_t * const p_max_depth)
+static osm_mtree_node_t *mcast_mgr_branch(osm_sm_t * sm, osm_mgrp_t * p_mgrp,
+					  osm_switch_t * p_sw,
+					  cl_qlist_t * p_list, uint8_t depth,
+					  uint8_t upstream_port,
+					  uint8_t * p_max_depth)
 {
 	uint8_t max_children;
 	osm_mtree_node_t *p_mtn = NULL;
@@ -643,8 +635,8 @@ static osm_mtree_node_t *mcast_mgr_branch(osm_sm_t * sm,
 		/*
 		   There should be no children routed through the upstream port!
 		 */
-		CL_ASSERT((upstream_port == 0) || (i != upstream_port) ||
-			  ((i == upstream_port) && (count == 0)));
+		CL_ASSERT(upstream_port == 0 || i != upstream_port ||
+			  (i == upstream_port && count == 0));
 
 		if (count == 0)
 			continue;	/* No routes down this port. */
@@ -691,8 +683,8 @@ static osm_mtree_node_t *mcast_mgr_branch(osm_sm_t * sm,
 			p_mtn->child_array[i] =
 			    mcast_mgr_branch(sm, p_mgrp, p_remote_node->sw,
 					     p_port_list, depth,
-					     osm_physp_get_port_num(p_remote_physp),
-					     p_max_depth);
+					     osm_physp_get_port_num
+					     (p_remote_physp), p_max_depth);
 		} else {
 			/*
 			   The neighbor node is not a switch, so this
@@ -719,13 +711,13 @@ static osm_mtree_node_t *mcast_mgr_branch(osm_sm_t * sm,
 	free(list_array);
 Exit:
 	OSM_LOG_EXIT(sm->p_log);
-	return (p_mtn);
+	return p_mtn;
 }
 
 /**********************************************************************
  **********************************************************************/
-static ib_api_status_t
-mcast_mgr_build_spanning_tree(osm_sm_t * sm, osm_mgrp_t * const p_mgrp)
+static ib_api_status_t mcast_mgr_build_spanning_tree(osm_sm_t * sm,
+						     osm_mgrp_t * p_mgrp)
 {
 	const cl_qmap_t *p_mcm_tbl;
 	const osm_port_t *p_port;
@@ -819,8 +811,8 @@ mcast_mgr_build_spanning_tree(osm_sm_t * sm, osm_mgrp_t * const p_mgrp)
 	}
 
 	count = cl_qlist_count(&port_list);
-	p_mgrp->p_root = mcast_mgr_branch(sm, p_mgrp, p_sw,
-						&port_list, 0, 0, &max_depth);
+	p_mgrp->p_root = mcast_mgr_branch(sm, p_mgrp, p_sw, &port_list, 0, 0,
+					  &max_depth);
 
 	OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 		"Configured MLID 0x%X for %u ports, max tree depth = %u\n",
@@ -828,17 +820,15 @@ mcast_mgr_build_spanning_tree(osm_sm_t * sm, osm_mgrp_t * const p_mgrp)
 
 Exit:
 	OSM_LOG_EXIT(sm->p_log);
-	return (status);
+	return status;
 }
 
 #if 0
 /* unused */
 /**********************************************************************
  **********************************************************************/
-void
-osm_mcast_mgr_set_table(osm_sm_t * sm,
-			IN const osm_mgrp_t * const p_mgrp,
-			IN const osm_mtree_node_t * const p_mtn)
+void osm_mcast_mgr_set_table(osm_sm_t * sm, IN const osm_mgrp_t * p_mgrp,
+			     IN const osm_mtree_node_t * p_mtn)
 {
 	uint8_t i;
 	uint8_t max_children;
@@ -911,11 +901,10 @@ static void mcast_mgr_clear(osm_sm_t * sm, uint16_t mlid)
 /**********************************************************************
    Lock must be held on entry.
 **********************************************************************/
-ib_api_status_t
-osm_mcast_mgr_process_single(osm_sm_t * sm,
-			     IN ib_net16_t const mlid,
-			     IN ib_net64_t const port_guid,
-			     IN uint8_t const join_state)
+ib_api_status_t osm_mcast_mgr_process_single(osm_sm_t * sm,
+					     IN ib_net16_t const mlid,
+					     IN ib_net64_t const port_guid,
+					     IN uint8_t const join_state)
 {
 	uint8_t port_num;
 	uint16_t mlid_ho;
@@ -1026,15 +1015,15 @@ osm_mcast_mgr_process_single(osm_sm_t * sm,
 
 Exit:
 	OSM_LOG_EXIT(sm->p_log);
-	return (status);
+	return status;
 }
 #endif
 
 /**********************************************************************
    lock must already be held on entry
 **********************************************************************/
-static ib_api_status_t
-osm_mcast_mgr_process_tree(osm_sm_t * sm, IN osm_mgrp_t * const p_mgrp)
+static ib_api_status_t osm_mcast_mgr_process_tree(osm_sm_t * sm,
+						  IN osm_mgrp_t * p_mgrp)
 {
 	ib_api_status_t status = IB_SUCCESS;
 	ib_net16_t mlid;
@@ -1082,8 +1071,8 @@ Exit:
  Process the entire group.
  NOTE : The lock should be held externally!
  **********************************************************************/
-static ib_api_status_t
-mcast_mgr_process_mgrp(osm_sm_t * sm, IN osm_mgrp_t * const p_mgrp)
+static ib_api_status_t mcast_mgr_process_mgrp(osm_sm_t * sm,
+					      IN osm_mgrp_t * p_mgrp)
 {
 	ib_api_status_t status;
 
@@ -1103,7 +1092,8 @@ mcast_mgr_process_mgrp(osm_sm_t * sm, IN osm_mgrp_t * const p_mgrp)
 		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 			"Destroying mgrp with lid:0x%x\n",
 			cl_ntoh16(p_mgrp->mlid));
-		sm->p_subn->mgroups[cl_ntoh16(p_mgrp->mlid) - IB_LID_MCAST_START_HO] = NULL;
+		sm->p_subn->mgroups[cl_ntoh16(p_mgrp->mlid) -
+				    IB_LID_MCAST_START_HO] = NULL;
 		osm_mgrp_delete(p_mgrp);
 	}
 

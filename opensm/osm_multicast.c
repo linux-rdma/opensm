@@ -51,7 +51,7 @@
 
 /**********************************************************************
  **********************************************************************/
-void osm_mgrp_delete(IN osm_mgrp_t * const p_mgrp)
+void osm_mgrp_delete(IN osm_mgrp_t * p_mgrp)
 {
 	osm_mcm_port_t *p_mcm_port;
 	osm_mcm_port_t *p_next_mcm_port;
@@ -95,8 +95,8 @@ osm_mgrp_t *osm_mgrp_new(IN const ib_net16_t mlid)
 
 /**********************************************************************
  **********************************************************************/
-static void mgrp_send_notice(osm_subn_t *subn, osm_log_t *log,
-			     osm_mgrp_t *mgrp, unsigned num)
+static void mgrp_send_notice(osm_subn_t * subn, osm_log_t * log,
+			     osm_mgrp_t * mgrp, unsigned num)
 {
 	ib_mad_notice_attr_t notice;
 	ib_api_status_t status;
@@ -124,9 +124,9 @@ static void mgrp_send_notice(osm_subn_t *subn, osm_log_t *log,
 
 /**********************************************************************
  **********************************************************************/
-osm_mcm_port_t *osm_mgrp_add_port(IN osm_subn_t *subn, osm_log_t *log,
-				  IN osm_mgrp_t * const p_mgrp,
-				  IN const ib_gid_t * const p_port_gid,
+osm_mcm_port_t *osm_mgrp_add_port(IN osm_subn_t * subn, osm_log_t * log,
+				  IN osm_mgrp_t * p_mgrp,
+				  IN const ib_gid_t * p_port_gid,
 				  IN const uint8_t join_state,
 				  IN boolean_t proxy_join)
 {
@@ -184,8 +184,8 @@ osm_mcm_port_t *osm_mgrp_add_port(IN osm_subn_t *subn, osm_log_t *log,
 
 /**********************************************************************
  **********************************************************************/
-int osm_mgrp_remove_port(osm_subn_t *subn, osm_log_t *log, osm_mgrp_t *mgrp,
-			 osm_mcm_port_t *mcm, uint8_t join_state)
+int osm_mgrp_remove_port(osm_subn_t * subn, osm_log_t * log, osm_mgrp_t * mgrp,
+			 osm_mcm_port_t * mcm, uint8_t join_state)
 {
 	int ret;
 	uint8_t port_join_state;
@@ -229,21 +229,21 @@ int osm_mgrp_remove_port(osm_subn_t *subn, osm_log_t *log, osm_mgrp_t *mgrp,
 	return ret;
 }
 
-void osm_mgrp_delete_port(osm_subn_t *subn, osm_log_t *log, osm_mgrp_t *mgrp,
+void osm_mgrp_delete_port(osm_subn_t * subn, osm_log_t * log, osm_mgrp_t * mgrp,
 			  ib_net64_t port_guid)
 {
 	cl_map_item_t *item = cl_qmap_get(&mgrp->mcm_port_tbl, port_guid);
 
 	if (item != cl_qmap_end(&mgrp->mcm_port_tbl))
-		osm_mgrp_remove_port(subn, log, mgrp, (osm_mcm_port_t *)item, 0xf);
+		osm_mgrp_remove_port(subn, log, mgrp, (osm_mcm_port_t *) item,
+				     0xf);
 }
 
 /**********************************************************************
  **********************************************************************/
-boolean_t
-osm_mgrp_is_port_present(IN const osm_mgrp_t * const p_mgrp,
-			 IN const ib_net64_t port_guid,
-			 OUT osm_mcm_port_t ** const pp_mcm_port)
+boolean_t osm_mgrp_is_port_present(IN const osm_mgrp_t * p_mgrp,
+				   IN const ib_net64_t port_guid,
+				   OUT osm_mcm_port_t ** const pp_mcm_port)
 {
 	cl_map_item_t *p_map_item;
 
@@ -263,10 +263,9 @@ osm_mgrp_is_port_present(IN const osm_mgrp_t * const p_mgrp,
 
 /**********************************************************************
  **********************************************************************/
-static void
-mgrp_apply_func_sub(const osm_mgrp_t * const p_mgrp,
-		    const osm_mtree_node_t * const p_mtn,
-		    osm_mgrp_func_t p_func, void *context)
+static void mgrp_apply_func_sub(const osm_mgrp_t * p_mgrp,
+				const osm_mtree_node_t * p_mtn,
+				osm_mgrp_func_t p_func, void *context)
 {
 	uint8_t i = 0;
 	uint8_t max_children;
@@ -286,9 +285,8 @@ mgrp_apply_func_sub(const osm_mgrp_t * const p_mgrp,
 
 /**********************************************************************
  **********************************************************************/
-void
-osm_mgrp_apply_func(const osm_mgrp_t * const p_mgrp,
-		    osm_mgrp_func_t p_func, void *context)
+void osm_mgrp_apply_func(const osm_mgrp_t * p_mgrp, osm_mgrp_func_t p_func,
+			 void *context)
 {
 	osm_mtree_node_t *p_mtn;
 

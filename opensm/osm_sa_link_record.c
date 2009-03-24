@@ -62,10 +62,9 @@ typedef struct osm_lr_item {
 
 /**********************************************************************
  **********************************************************************/
-static void
-lr_rcv_build_physp_link(IN osm_sa_t * sa, IN const ib_net16_t from_lid,
-			IN const ib_net16_t to_lid, IN const uint8_t from_port,
-			IN const uint8_t to_port, IN cl_qlist_t * p_list)
+static void lr_rcv_build_physp_link(IN osm_sa_t * sa, IN ib_net16_t from_lid,
+				    IN ib_net16_t to_lid, IN uint8_t from_port,
+				    IN uint8_t to_port, IN cl_qlist_t * p_list)
 {
 	osm_lr_item_t *p_lr_item;
 
@@ -73,10 +72,8 @@ lr_rcv_build_physp_link(IN osm_sa_t * sa, IN const ib_net16_t from_lid,
 	if (p_lr_item == NULL) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1801: "
 			"Unable to acquire link record\n"
-			"\t\t\t\tFrom port %u\n"
-			"\t\t\t\tTo port   %u\n"
-			"\t\t\t\tFrom lid  %u\n"
-			"\t\t\t\tTo lid    %u\n",
+			"\t\t\t\tFrom port %u\n" "\t\t\t\tTo port   %u\n"
+			"\t\t\t\tFrom lid  %u\n" "\t\t\t\tTo lid    %u\n",
 			from_port, to_port,
 			cl_ntoh16(from_lid), cl_ntoh16(to_lid));
 		return;
@@ -102,14 +99,13 @@ static ib_net16_t get_base_lid(IN const osm_physp_t * p_physp)
 
 /**********************************************************************
  **********************************************************************/
-static void
-lr_rcv_get_physp_link(IN osm_sa_t * sa,
-		      IN const ib_link_record_t * const p_lr,
-		      IN const osm_physp_t * p_src_physp,
-		      IN const osm_physp_t * p_dest_physp,
-		      IN const ib_net64_t comp_mask,
-		      IN cl_qlist_t * const p_list,
-		      IN const osm_physp_t * p_req_physp)
+static void lr_rcv_get_physp_link(IN osm_sa_t * sa,
+				  IN const ib_link_record_t * p_lr,
+				  IN const osm_physp_t * p_src_physp,
+				  IN const osm_physp_t * p_dest_physp,
+				  IN const ib_net64_t comp_mask,
+				  IN cl_qlist_t * p_list,
+				  IN const osm_physp_t * p_req_physp)
 {
 	uint8_t src_port_num;
 	uint8_t dest_port_num;
@@ -195,7 +191,6 @@ lr_rcv_get_physp_link(IN osm_sa_t * sa,
 		cl_ntoh64(osm_physp_get_port_guid(p_dest_physp)),
 		dest_port_num);
 
-
 	lr_rcv_build_physp_link(sa, from_base_lid, to_base_lid, src_port_num,
 				dest_port_num, p_list);
 
@@ -205,19 +200,18 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-static void
-lr_rcv_get_port_links(IN osm_sa_t * sa,
-		      IN const ib_link_record_t * const p_lr,
-		      IN const osm_port_t * p_src_port,
-		      IN const osm_port_t * p_dest_port,
-		      IN const ib_net64_t comp_mask,
-		      IN cl_qlist_t * const p_list,
-		      IN const osm_physp_t * p_req_physp)
+static void lr_rcv_get_port_links(IN osm_sa_t * sa,
+				  IN const ib_link_record_t * p_lr,
+				  IN const osm_port_t * p_src_port,
+				  IN const osm_port_t * p_dest_port,
+				  IN const ib_net64_t comp_mask,
+				  IN cl_qlist_t * p_list,
+				  IN const osm_physp_t * p_req_physp)
 {
 	const osm_physp_t *p_src_physp;
 	const osm_physp_t *p_dest_physp;
 	const cl_qmap_t *p_node_tbl;
-	osm_node_t * p_node;
+	osm_node_t *p_node;
 	uint8_t port_num;
 	uint8_t num_ports;
 	uint8_t dest_num_ports;
@@ -334,9 +328,9 @@ lr_rcv_get_port_links(IN osm_sa_t * sa,
 			   Process the world (recurse once back into this function).
 			 */
 			p_node_tbl = &sa->p_subn->node_guid_tbl;
-			p_node = (osm_node_t *)cl_qmap_head(p_node_tbl);
+			p_node = (osm_node_t *) cl_qmap_head(p_node_tbl);
 
-			while (p_node != (osm_node_t *)cl_qmap_end(p_node_tbl)) {
+			while (p_node != (osm_node_t *) cl_qmap_end(p_node_tbl)) {
 				num_ports = osm_node_get_num_physp(p_node);
 				for (port_num = 1; port_num < num_ports;
 				     port_num++) {
@@ -361,10 +355,10 @@ lr_rcv_get_port_links(IN osm_sa_t * sa,
 /**********************************************************************
  Returns the SA status to return to the client.
  **********************************************************************/
-static ib_net16_t
-lr_rcv_get_end_points(IN osm_sa_t * sa, IN const osm_madw_t * const p_madw,
-		      OUT const osm_port_t ** const pp_src_port,
-		      OUT const osm_port_t ** const pp_dest_port)
+static ib_net16_t lr_rcv_get_end_points(IN osm_sa_t * sa,
+					IN const osm_madw_t * p_madw,
+					OUT const osm_port_t ** pp_src_port,
+					OUT const osm_port_t ** pp_dest_port)
 {
 	const ib_link_record_t *p_lr;
 	const ib_sa_mad_t *p_sa_mad;
@@ -386,10 +380,10 @@ lr_rcv_get_end_points(IN osm_sa_t * sa, IN const osm_madw_t * const p_madw,
 	*pp_dest_port = NULL;
 
 	if (p_sa_mad->comp_mask & IB_LR_COMPMASK_FROM_LID) {
-		status = osm_get_port_by_base_lid(sa->p_subn,
-						  p_lr->from_lid, pp_src_port);
+		status = osm_get_port_by_base_lid(sa->p_subn, p_lr->from_lid,
+						  pp_src_port);
 
-		if ((status != IB_SUCCESS) || (*pp_src_port == NULL)) {
+		if (status != IB_SUCCESS || *pp_src_port == NULL) {
 			/*
 			   This 'error' is the client's fault (bad lid) so
 			   don't enter it as an error in our own log.
@@ -405,10 +399,10 @@ lr_rcv_get_end_points(IN osm_sa_t * sa, IN const osm_madw_t * const p_madw,
 	}
 
 	if (p_sa_mad->comp_mask & IB_LR_COMPMASK_TO_LID) {
-		status = osm_get_port_by_base_lid(sa->p_subn,
-						  p_lr->to_lid, pp_dest_port);
+		status = osm_get_port_by_base_lid(sa->p_subn, p_lr->to_lid,
+						  pp_dest_port);
 
-		if ((status != IB_SUCCESS) || (*pp_dest_port == NULL)) {
+		if (status != IB_SUCCESS || *pp_dest_port == NULL) {
 			/*
 			   This 'error' is the client's fault (bad lid) so
 			   don't enter it as an error in our own log.
@@ -425,7 +419,7 @@ lr_rcv_get_end_points(IN osm_sa_t * sa, IN const osm_madw_t * const p_madw,
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);
-	return (sa_status);
+	return sa_status;
 }
 
 /**********************************************************************
@@ -439,7 +433,7 @@ void osm_lr_rcv_process(IN void *context, IN void *data)
 	const osm_port_t *p_src_port;
 	const osm_port_t *p_dest_port;
 	cl_qlist_t lr_list;
-	ib_net16_t sa_status;
+	ib_net16_t status;
 	osm_physp_t *p_req_physp;
 
 	OSM_LOG_ENTER(sa->p_log);
@@ -447,7 +441,7 @@ void osm_lr_rcv_process(IN void *context, IN void *data)
 	CL_ASSERT(p_madw);
 
 	p_sa_mad = osm_madw_get_sa_mad_ptr(p_madw);
-	p_lr = (ib_link_record_t *) ib_sa_mad_get_payload_ptr(p_sa_mad);
+	p_lr = ib_sa_mad_get_payload_ptr(p_sa_mad);
 
 	CL_ASSERT(p_sa_mad->attr_id == IB_MAD_ATTR_LINK_RECORD);
 
@@ -482,11 +476,12 @@ void osm_lr_rcv_process(IN void *context, IN void *data)
 	 */
 	cl_plock_acquire(sa->p_lock);
 
-	sa_status = lr_rcv_get_end_points(sa, p_madw, &p_src_port, &p_dest_port);
+	status = lr_rcv_get_end_points(sa, p_madw, &p_src_port, &p_dest_port);
 
-	if (sa_status == IB_SA_MAD_STATUS_SUCCESS)
+	if (status == IB_SA_MAD_STATUS_SUCCESS)
 		lr_rcv_get_port_links(sa, p_lr, p_src_port, p_dest_port,
-				      p_sa_mad->comp_mask, &lr_list, p_req_physp);
+				      p_sa_mad->comp_mask, &lr_list,
+				      p_req_physp);
 
 	cl_plock_release(sa->p_lock);
 

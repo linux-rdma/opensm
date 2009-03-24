@@ -97,7 +97,7 @@ static boolean_t link_mgr_set_physp_pi(osm_sm_t * sm, IN osm_physp_t * p_physp,
 				       IN uint8_t port_state)
 {
 	uint8_t payload[IB_SMP_DATA_SIZE];
-	ib_port_info_t *const p_pi = (ib_port_info_t *) payload;
+	ib_port_info_t *p_pi = (ib_port_info_t *) payload;
 	const ib_port_info_t *p_old_pi;
 	osm_madw_context_t context;
 	osm_node_t *p_node;

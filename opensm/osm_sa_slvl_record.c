@@ -73,9 +73,9 @@ typedef struct osm_slvl_search_ctxt {
 
 /**********************************************************************
  **********************************************************************/
-static void
-sa_slvl_create(IN osm_sa_t * sa, IN const osm_physp_t * const p_physp,
-	       IN osm_slvl_search_ctxt_t * const p_ctxt, IN uint8_t in_port_idx)
+static void sa_slvl_create(IN osm_sa_t * sa, IN const osm_physp_t * p_physp,
+			   IN osm_slvl_search_ctxt_t * p_ctxt,
+			   IN uint8_t in_port_idx)
 {
 	osm_slvl_item_t *p_rec_item;
 	uint16_t lid;
@@ -118,9 +118,8 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-static void
-sa_slvl_by_comp_mask(IN osm_sa_t * sa, IN const osm_port_t * const p_port,
-		     osm_slvl_search_ctxt_t * const p_ctxt)
+static void sa_slvl_by_comp_mask(IN osm_sa_t * sa, IN const osm_port_t * p_port,
+				 osm_slvl_search_ctxt_t * p_ctxt)
 {
 	const ib_slvl_table_record_t *p_rcvd_rec;
 	ib_net64_t comp_mask;
@@ -148,8 +147,7 @@ sa_slvl_by_comp_mask(IN osm_sa_t * sa, IN const osm_port_t * const p_port,
 			p_port->p_physp->port_num);
 		p_out_physp = p_port->p_physp;
 		/* check that the p_out_physp and the p_req_physp share a pkey */
-		if (osm_physp_share_pkey
-		    (sa->p_log, p_req_physp, p_out_physp))
+		if (osm_physp_share_pkey(sa->p_log, p_req_physp, p_out_physp))
 			sa_slvl_create(sa, p_out_physp, p_ctxt, 0);
 	} else {
 		if (comp_mask & IB_SLVL_COMPMASK_OUT_PORT)
@@ -195,12 +193,10 @@ sa_slvl_by_comp_mask(IN osm_sa_t * sa, IN const osm_port_t * const p_port,
 
 /**********************************************************************
  **********************************************************************/
-static void
-sa_slvl_by_comp_mask_cb(IN cl_map_item_t * const p_map_item, IN void *context)
+static void sa_slvl_by_comp_mask_cb(IN cl_map_item_t * p_map_item, IN void *cxt)
 {
-	const osm_port_t *const p_port = (osm_port_t *) p_map_item;
-	osm_slvl_search_ctxt_t *const p_ctxt =
-	    (osm_slvl_search_ctxt_t *) context;
+	const osm_port_t *p_port = (osm_port_t *) p_map_item;
+	osm_slvl_search_ctxt_t *p_ctxt = cxt;
 
 	sa_slvl_by_comp_mask(p_ctxt->sa, p_port, p_ctxt);
 }

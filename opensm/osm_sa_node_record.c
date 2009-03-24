@@ -69,10 +69,10 @@ typedef struct osm_nr_search_ctxt {
 
 /**********************************************************************
  **********************************************************************/
-static ib_api_status_t
-nr_rcv_new_nr(IN osm_sa_t * sa, IN const osm_node_t * const p_node,
-	      IN cl_qlist_t * const p_list, IN ib_net64_t const port_guid,
-	      IN ib_net16_t const lid)
+static ib_api_status_t nr_rcv_new_nr(osm_sa_t * sa,
+				     IN const osm_node_t * p_node,
+				     IN cl_qlist_t * p_list,
+				     IN ib_net64_t port_guid, IN ib_net16_t lid)
 {
 	osm_nr_item_t *p_rec_item;
 	ib_api_status_t status = IB_SUCCESS;
@@ -110,12 +110,11 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-static void
-nr_rcv_create_nr(IN osm_sa_t * sa, IN osm_node_t * const p_node,
-		 IN cl_qlist_t * const p_list,
-		 IN ib_net64_t const match_port_guid,
-		 IN ib_net16_t const match_lid,
-		 IN const osm_physp_t * const p_req_physp)
+static void nr_rcv_create_nr(IN osm_sa_t * sa, IN osm_node_t * p_node,
+			     IN cl_qlist_t * p_list,
+			     IN ib_net64_t const match_port_guid,
+			     IN ib_net16_t const match_lid,
+			     IN const osm_physp_t * p_req_physp)
 {
 	const osm_physp_t *p_physp;
 	uint8_t port_num;
@@ -131,8 +130,7 @@ nr_rcv_create_nr(IN osm_sa_t * sa, IN osm_node_t * const p_node,
 
 	OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 		"Looking for NodeRecord with LID: %u GUID:0x%016"
-		PRIx64 "\n", cl_ntoh16(match_lid),
-		cl_ntoh64(match_port_guid));
+		PRIx64 "\n", cl_ntoh16(match_lid), cl_ntoh64(match_port_guid));
 
 	/*
 	   For switches, do not return the NodeInfo record
@@ -178,7 +176,6 @@ nr_rcv_create_nr(IN osm_sa_t * sa, IN osm_node_t * const p_node,
 		}
 
 		nr_rcv_new_nr(sa, p_node, p_list, port_guid, base_lid);
-
 	}
 
 	OSM_LOG_EXIT(sa->p_log);
@@ -186,12 +183,10 @@ nr_rcv_create_nr(IN osm_sa_t * sa, IN osm_node_t * const p_node,
 
 /**********************************************************************
  **********************************************************************/
-static void
-nr_rcv_by_comp_mask(IN cl_map_item_t * const p_map_item, IN void *context)
+static void nr_rcv_by_comp_mask(IN cl_map_item_t * p_map_item, IN void *context)
 {
-	const osm_nr_search_ctxt_t *const p_ctxt =
-	    (osm_nr_search_ctxt_t *) context;
-	osm_node_t *const p_node = (osm_node_t *) p_map_item;
+	const osm_nr_search_ctxt_t *p_ctxt = context;
+	osm_node_t *p_node = (osm_node_t *) p_map_item;
 	const ib_node_record_t *const p_rcvd_rec = p_ctxt->p_rcvd_rec;
 	const osm_physp_t *const p_req_physp = p_ctxt->p_req_physp;
 	osm_sa_t *sa = p_ctxt->sa;
@@ -201,8 +196,8 @@ nr_rcv_by_comp_mask(IN cl_map_item_t * const p_map_item, IN void *context)
 
 	OSM_LOG_ENTER(p_ctxt->sa->p_log);
 
-	osm_dump_node_info(p_ctxt->sa->p_log,
-			   &p_node->node_info, OSM_LOG_VERBOSE);
+	osm_dump_node_info(p_ctxt->sa->p_log, &p_node->node_info,
+			   OSM_LOG_VERBOSE);
 
 	if (comp_mask & IB_NR_COMPMASK_LID)
 		match_lid = p_rcvd_rec->lid;
@@ -214,51 +209,51 @@ nr_rcv_by_comp_mask(IN cl_map_item_t * const p_map_item, IN void *context)
 			cl_ntoh64(p_rcvd_rec->node_info.node_guid),
 			cl_ntoh64(osm_node_get_node_guid(p_node)));
 
-		if ((p_node->node_info.node_guid !=
-		     p_rcvd_rec->node_info.node_guid))
+		if (p_node->node_info.node_guid !=
+		    p_rcvd_rec->node_info.node_guid)
 			goto Exit;
 	}
 	if (comp_mask & IB_NR_COMPMASK_PORTGUID) {
 		match_port_guid = p_rcvd_rec->node_info.port_guid;
 	}
 	if (comp_mask & IB_NR_COMPMASK_SYSIMAGEGUID) {
-		if ((p_node->node_info.sys_guid !=
-		     p_rcvd_rec->node_info.sys_guid))
+		if (p_node->node_info.sys_guid !=
+		    p_rcvd_rec->node_info.sys_guid)
 			goto Exit;
 	}
 	if (comp_mask & IB_NR_COMPMASK_BASEVERSION) {
-		if ((p_node->node_info.base_version !=
-		     p_rcvd_rec->node_info.base_version))
+		if (p_node->node_info.base_version !=
+		    p_rcvd_rec->node_info.base_version)
 			goto Exit;
 	}
 	if (comp_mask & IB_NR_COMPMASK_CLASSVERSION) {
-		if ((p_node->node_info.class_version !=
-		     p_rcvd_rec->node_info.class_version))
+		if (p_node->node_info.class_version !=
+		    p_rcvd_rec->node_info.class_version)
 			goto Exit;
 	}
 	if (comp_mask & IB_NR_COMPMASK_NODETYPE) {
-		if ((p_node->node_info.node_type !=
-		     p_rcvd_rec->node_info.node_type))
+		if (p_node->node_info.node_type !=
+		    p_rcvd_rec->node_info.node_type)
 			goto Exit;
 	}
 	if (comp_mask & IB_NR_COMPMASK_NUMPORTS) {
-		if ((p_node->node_info.num_ports !=
-		     p_rcvd_rec->node_info.num_ports))
+		if (p_node->node_info.num_ports !=
+		    p_rcvd_rec->node_info.num_ports)
 			goto Exit;
 	}
 	if (comp_mask & IB_NR_COMPMASK_PARTCAP) {
-		if ((p_node->node_info.partition_cap !=
-		     p_rcvd_rec->node_info.partition_cap))
+		if (p_node->node_info.partition_cap !=
+		    p_rcvd_rec->node_info.partition_cap)
 			goto Exit;
 	}
 	if (comp_mask & IB_NR_COMPMASK_DEVID) {
-		if ((p_node->node_info.device_id !=
-		     p_rcvd_rec->node_info.device_id))
+		if (p_node->node_info.device_id !=
+		    p_rcvd_rec->node_info.device_id)
 			goto Exit;
 	}
 	if (comp_mask & IB_NR_COMPMASK_REV) {
-		if ((p_node->node_info.revision !=
-		     p_rcvd_rec->node_info.revision))
+		if (p_node->node_info.revision !=
+		    p_rcvd_rec->node_info.revision)
 			goto Exit;
 	}
 	if (comp_mask & IB_NR_COMPMASK_PORTNUM) {

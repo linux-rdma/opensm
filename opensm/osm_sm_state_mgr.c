@@ -172,7 +172,7 @@ void osm_sm_state_mgr_polling_callback(IN void *context)
 	 */
 	if (!((sm->p_subn->sm_state == IB_SMINFO_STATE_MASTER &&
 	       sm->p_polling_sm != NULL) ||
-	      (sm->p_subn->sm_state == IB_SMINFO_STATE_STANDBY)))
+	      sm->p_subn->sm_state == IB_SMINFO_STATE_STANDBY))
 		goto Exit;
 
 	/*
@@ -195,8 +195,8 @@ void osm_sm_state_mgr_polling_callback(IN void *context)
 	 * osm_sm_state_mgr_process with signal OSM_SM_SIGNAL_POLLING_TIMEOUT
 	 */
 	sm->retry_number++;
-	OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
-		"Retry number:%d\n", sm->retry_number);
+	OSM_LOG(sm->p_log, OSM_LOG_VERBOSE, "Retry number:%d\n",
+		sm->retry_number);
 
 	if (sm->retry_number >= sm->p_subn->opt.polling_retry_number) {
 		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
@@ -222,8 +222,7 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-static void sm_state_mgr_signal_error(osm_sm_t * sm,
-				      IN const osm_sm_signal_t signal)
+static void sm_state_mgr_signal_error(osm_sm_t * sm, IN osm_sm_signal_t signal)
 {
 	OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3207: "
 		"Invalid signal %s in state %s\n",
@@ -455,7 +454,7 @@ ib_api_status_t osm_sm_state_mgr_process(osm_sm_t * sm,
 	cl_spinlock_release(&sm->state_lock);
 
 	OSM_LOG_EXIT(sm->p_log);
-	return (status);
+	return status;
 }
 
 /**********************************************************************
@@ -475,8 +474,7 @@ ib_api_status_t osm_sm_state_mgr_check_legality(osm_sm_t * sm,
 	 */
 	cl_spinlock_acquire(&sm->state_lock);
 
-	OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-		"Received signal %s in state %s\n",
+	OSM_LOG(sm->p_log, OSM_LOG_DEBUG, "Received signal %s in state %s\n",
 		osm_get_sm_mgr_signal_str(signal),
 		osm_get_sm_mgr_state_str(sm->p_subn->sm_state));
 
@@ -547,5 +545,5 @@ ib_api_status_t osm_sm_state_mgr_check_legality(osm_sm_t * sm,
 	cl_spinlock_release(&sm->state_lock);
 
 	OSM_LOG_EXIT(sm->p_log);
-	return (status);
+	return status;
 }

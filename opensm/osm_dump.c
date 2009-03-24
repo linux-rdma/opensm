@@ -57,8 +57,8 @@
 #include <opensm/osm_msgdef.h>
 #include <opensm/osm_opensm.h>
 
-static void dump_ucast_path_distribution(cl_map_item_t * p_map_item,
-					 FILE *file, void *cxt)
+static void dump_ucast_path_distribution(cl_map_item_t * item, FILE * file,
+					 void *cxt)
 {
 	osm_node_t *p_node;
 	osm_node_t *p_remote_node;
@@ -66,7 +66,7 @@ static void dump_ucast_path_distribution(cl_map_item_t * p_map_item,
 	uint8_t num_ports;
 	uint32_t num_paths;
 	ib_net64_t remote_guid_ho;
-	osm_switch_t *p_sw = (osm_switch_t *) p_map_item;
+	osm_switch_t *p_sw = (osm_switch_t *) item;
 
 	p_node = p_sw->p_node;
 	num_ports = p_sw->num_ports;
@@ -111,7 +111,7 @@ static void dump_ucast_path_distribution(cl_map_item_t * p_map_item,
 	fprintf(file, "\n");
 }
 
-static void dump_ucast_routes(cl_map_item_t *p_map_item, FILE *file, void *cxt)
+static void dump_ucast_routes(cl_map_item_t * item, FILE * file, void *cxt)
 {
 	const osm_node_t *p_node;
 	osm_port_t *p_port;
@@ -123,14 +123,14 @@ static void dump_ucast_routes(cl_map_item_t *p_map_item, FILE *file, void *cxt)
 	uint16_t lid_ho, base_lid;
 	boolean_t direct_route_exists = FALSE;
 	boolean_t dor;
-	osm_switch_t *p_sw = (osm_switch_t *) p_map_item;
+	osm_switch_t *p_sw = (osm_switch_t *) item;
 	osm_opensm_t *p_osm = cxt;
 
 	p_node = p_sw->p_node;
 
 	max_lid_ho = p_sw->max_lid_ho;
 
-	fprintf(file, "ucast_mgr_dump_ucast_routes: "
+	fprintf(file, "dump_ucast_routes: "
 		"Switch 0x%016" PRIx64 "\nLID    : Port : Hops : Optimal\n",
 		cl_ntoh64(osm_node_get_node_guid(p_node)));
 
@@ -228,9 +228,9 @@ static void dump_ucast_routes(cl_map_item_t *p_map_item, FILE *file, void *cxt)
 	}
 }
 
-static void dump_mcast_routes(cl_map_item_t *p_map_item, FILE *file, void *cxt)
+static void dump_mcast_routes(cl_map_item_t * item, FILE * file, void *cxt)
 {
-	osm_switch_t *p_sw = (osm_switch_t *) p_map_item;
+	osm_switch_t *p_sw = (osm_switch_t *) item;
 	osm_mcast_tbl_t *p_tbl;
 	int16_t mlid_ho = 0;
 	int16_t mlid_start_ho;
@@ -292,9 +292,9 @@ static void dump_mcast_routes(cl_map_item_t *p_map_item, FILE *file, void *cxt)
 	}
 }
 
-static void dump_lid_matrix(cl_map_item_t *p_map_item, FILE *file, void *cxt)
+static void dump_lid_matrix(cl_map_item_t * item, FILE * file, void *cxt)
 {
-	osm_switch_t *p_sw = (osm_switch_t *) p_map_item;
+	osm_switch_t *p_sw = (osm_switch_t *) item;
 	osm_opensm_t *p_osm = cxt;
 	osm_node_t *p_node = p_sw->p_node;
 	unsigned max_lid = p_sw->max_lid_ho;
@@ -320,9 +320,9 @@ static void dump_lid_matrix(cl_map_item_t *p_map_item, FILE *file, void *cxt)
 	}
 }
 
-static void dump_ucast_lfts(cl_map_item_t *p_map_item, FILE *file, void *cxt)
+static void dump_ucast_lfts(cl_map_item_t * item, FILE * file, void *cxt)
 {
-	osm_switch_t *p_sw = (osm_switch_t *) p_map_item;
+	osm_switch_t *p_sw = (osm_switch_t *) item;
 	osm_opensm_t *p_osm = cxt;
 	osm_node_t *p_node = p_sw->p_node;
 	unsigned max_lid = p_sw->max_lid_ho;
@@ -357,9 +357,9 @@ static void dump_ucast_lfts(cl_map_item_t *p_map_item, FILE *file, void *cxt)
 	fprintf(file, "%u lids dumped\n", max_lid);
 }
 
-static void dump_topology_node(cl_map_item_t *p_map_item, FILE *file, void *cxt)
+static void dump_topology_node(cl_map_item_t * item, FILE * file, void *cxt)
 {
-	osm_node_t *p_node = (osm_node_t *) p_map_item;
+	osm_node_t *p_node = (osm_node_t *) item;
 	uint32_t cPort;
 	osm_node_t *p_nbnode;
 	osm_physp_t *p_physp, *p_default_physp, *p_rphysp;
@@ -455,9 +455,9 @@ static void dump_topology_node(cl_map_item_t *p_map_item, FILE *file, void *cxt)
 	}
 }
 
-static void print_node_report(cl_map_item_t *p_map_item, FILE *file, void *cxt)
+static void print_node_report(cl_map_item_t * item, FILE * file, void *cxt)
 {
-	osm_node_t *p_node = (osm_node_t *) p_map_item;
+	osm_node_t *p_node = (osm_node_t *) item;
 	osm_opensm_t *osm = cxt;
 	const osm_physp_t *p_physp, *p_remote_physp;
 	const ib_port_info_t *p_pi;
@@ -527,7 +527,7 @@ static void print_node_report(cl_map_item_t *p_map_item, FILE *file, void *cxt)
 			if (p_remote_physp)
 				fprintf(file, " %016" PRIx64 " (%02X)",
 					cl_ntoh64(osm_physp_get_port_guid
-					 (p_remote_physp)),
+						  (p_remote_physp)),
 					osm_physp_get_port_num(p_remote_physp));
 			else
 				fprintf(file, " UNKNOWN");
@@ -549,15 +549,15 @@ struct dump_context {
 	void *cxt;
 };
 
-static void dump_item(cl_map_item_t *item, void *cxt)
+static void dump_item(cl_map_item_t * item, void *cxt)
 {
 	((struct dump_context *)cxt)->func(item,
 					   ((struct dump_context *)cxt)->file,
 					   ((struct dump_context *)cxt)->cxt);
 }
 
-static void dump_qmap(FILE *file, cl_qmap_t *map,
-		      void (*func)(cl_map_item_t *, FILE *, void *), void *cxt)
+static void dump_qmap(FILE * file, cl_qmap_t * map,
+		      void (*func) (cl_map_item_t *, FILE *, void *), void *cxt)
 {
 	struct dump_context dump_context;
 
@@ -595,7 +595,7 @@ void osm_dump_qmap_to_file(osm_opensm_t * p_osm, const char *file_name,
 /**********************************************************************
  **********************************************************************/
 
-static void print_report(osm_opensm_t *osm, FILE *file)
+static void print_report(osm_opensm_t * osm, FILE * file)
 {
 	fprintf(file, "\n==================================================="
 		"====================================================\n"

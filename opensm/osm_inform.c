@@ -61,7 +61,7 @@ typedef struct osm_infr_match_ctxt {
 
 /**********************************************************************
  **********************************************************************/
-void osm_infr_delete(IN osm_infr_t * const p_infr)
+void osm_infr_delete(IN osm_infr_t * p_infr)
 {
 	free(p_infr);
 }
@@ -102,8 +102,8 @@ static void dump_all_informs(IN osm_subn_t const *p_subn, IN osm_log_t * p_log)
 /**********************************************************************
  * Match an infr by the InformInfo and Address vector
  **********************************************************************/
-static cl_status_t
-__match_inf_rec(IN const cl_list_item_t * const p_list_item, IN void *context)
+static cl_status_t match_inf_rec(IN const cl_list_item_t * p_list_item,
+				 IN void *context)
 {
 	osm_infr_t *p_infr_rec = (osm_infr_t *) context;
 	osm_infr_t *p_infr = (osm_infr_t *) p_list_item;
@@ -214,7 +214,7 @@ Exit:
  **********************************************************************/
 osm_infr_t *osm_infr_get_by_rec(IN osm_subn_t const *p_subn,
 				IN osm_log_t * p_log,
-				IN osm_infr_t * const p_infr_rec)
+				IN osm_infr_t * p_infr_rec)
 {
 	cl_list_item_t *p_list_item;
 
@@ -229,7 +229,7 @@ osm_infr_t *osm_infr_get_by_rec(IN osm_subn_t const *p_subn,
 		cl_qlist_count(&p_subn->sa_infr_list));
 
 	p_list_item = cl_qlist_find_from_head(&p_subn->sa_infr_list,
-					      __match_inf_rec, p_infr_rec);
+					      match_inf_rec, p_infr_rec);
 
 	if (p_list_item == cl_qlist_end(&p_subn->sa_infr_list))
 		p_list_item = NULL;
@@ -240,9 +240,8 @@ osm_infr_t *osm_infr_get_by_rec(IN osm_subn_t const *p_subn,
 
 /**********************************************************************
  **********************************************************************/
-void
-osm_infr_insert_to_db(IN osm_subn_t * p_subn,
-		      IN osm_log_t * p_log, IN osm_infr_t * p_infr)
+void osm_infr_insert_to_db(IN osm_subn_t * p_subn, IN osm_log_t * p_log,
+			   IN osm_infr_t * p_infr)
 {
 	OSM_LOG_ENTER(p_log);
 
@@ -268,9 +267,8 @@ osm_infr_insert_to_db(IN osm_subn_t * p_subn,
 
 /**********************************************************************
  **********************************************************************/
-void
-osm_infr_remove_from_db(IN osm_subn_t * p_subn,
-			IN osm_log_t * p_log, IN osm_infr_t * p_infr)
+void osm_infr_remove_from_db(IN osm_subn_t * p_subn, IN osm_log_t * p_log,
+			     IN osm_infr_t * p_infr)
 {
 	char gid_str[INET6_ADDRSTRLEN];
 	OSM_LOG_ENTER(p_log);
@@ -278,7 +276,7 @@ osm_infr_remove_from_db(IN osm_subn_t * p_subn,
 	OSM_LOG(p_log, OSM_LOG_DEBUG, "Removing InformInfo Subscribing GID:%s"
 		" Enum:0x%X from Database\n",
 		inet_ntop(AF_INET6, p_infr->inform_record.subscriber_gid.raw,
-			gid_str, sizeof gid_str),
+			  gid_str, sizeof gid_str),
 		p_infr->inform_record.subscriber_enum);
 
 	osm_dump_inform_info(p_log, &(p_infr->inform_record.inform_info),
@@ -358,9 +356,8 @@ Exit:
  * PREREQUISITE:
  * The Notice.GID should be pre-filled with the trap generator GID
  **********************************************************************/
-static void
-__match_notice_to_inf_rec(IN cl_list_item_t * const p_list_item,
-			  IN void *context)
+static void match_notice_to_inf_rec(IN cl_list_item_t * p_list_item,
+				    IN void *context)
 {
 	osm_infr_match_ctxt_t *p_infr_match = (osm_infr_match_ctxt_t *) context;
 	ib_mad_notice_attr_t *p_ntc = p_infr_match->p_ntc;
@@ -467,7 +464,8 @@ __match_notice_to_inf_rec(IN cl_list_item_t * const p_list_item,
 		if ((ib_inform_info_get_vend_id(p_ii) != CL_HTON32(0xFFFFFF)) &&
 		    (ib_inform_info_get_vend_id(p_ii) !=
 		     ib_notice_get_vend_id(p_ntc))) {
-			OSM_LOG(p_log, OSM_LOG_DEBUG, "Mismatch by Vendor ID\n");
+			OSM_LOG(p_log, OSM_LOG_DEBUG,
+				"Mismatch by Vendor ID\n");
 			goto Exit;
 		}
 	}
@@ -539,9 +537,8 @@ Exit:
  * element and if it does - call the Report(Notice) for the
  * target QP registered by the address stored in the InformInfo element
  **********************************************************************/
-ib_api_status_t
-osm_report_notice(IN osm_log_t * const p_log,
-		  IN osm_subn_t * p_subn, IN ib_mad_notice_attr_t * p_ntc)
+ib_api_status_t osm_report_notice(IN osm_log_t * p_log, IN osm_subn_t * p_subn,
+				  IN ib_mad_notice_attr_t * p_ntc)
 {
 	char gid_str[INET6_ADDRSTRLEN];
 	osm_infr_match_ctxt_t context;
@@ -572,7 +569,7 @@ osm_report_notice(IN osm_log_t * const p_log,
 			ib_get_trap_str(p_ntc->g_or_v.generic.trap_num),
 			cl_ntoh16(p_ntc->issuer_lid),
 			inet_ntop(AF_INET6, p_ntc->issuer_gid.raw, gid_str,
-				sizeof gid_str));
+				  sizeof gid_str));
 	else
 		OSM_LOG(p_log, OSM_LOG_INFO,
 			"Reporting Vendor Notice type:%u vend:%u dev:%u"
@@ -582,7 +579,7 @@ osm_report_notice(IN osm_log_t * const p_log,
 			cl_ntoh16(p_ntc->g_or_v.vend.dev_id),
 			cl_ntoh16(p_ntc->issuer_lid),
 			inet_ntop(AF_INET6, p_ntc->issuer_gid.raw, gid_str,
-				sizeof gid_str));
+				  sizeof gid_str));
 
 	/* Create a list that will hold all the infr records that should
 	   be removed due to violation. o13-17.1.2 */
@@ -593,8 +590,8 @@ osm_report_notice(IN osm_log_t * const p_log,
 
 	/* go over all inform info available at the subnet */
 	/* try match to the given notice and send if match */
-	cl_qlist_apply_func(&(p_subn->sa_infr_list),
-			    __match_notice_to_inf_rec, &context);
+	cl_qlist_apply_func(&p_subn->sa_infr_list, match_notice_to_inf_rec,
+			    &context);
 
 	/* If we inserted items into the infr_to_remove_list - we need to
 	   remove them */

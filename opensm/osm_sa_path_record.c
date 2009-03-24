@@ -69,7 +69,6 @@
 #include <opensm/osm_prefix_route.h>
 #include <opensm/osm_ucast_lash.h>
 
-
 typedef struct osm_pr_item {
 	cl_list_item_t list_item;
 	ib_path_rec_t path_rec;
@@ -86,8 +85,7 @@ typedef struct osm_path_parms {
 
 /**********************************************************************
  **********************************************************************/
-static inline boolean_t
-sa_path_rec_is_tavor_port(IN const osm_port_t * const p_port)
+static inline boolean_t sa_path_rec_is_tavor_port(IN const osm_port_t * p_port)
 {
 	osm_node_t const *p_node;
 	ib_net32_t vend_id;
@@ -105,9 +103,9 @@ sa_path_rec_is_tavor_port(IN const osm_port_t * const p_port)
 /**********************************************************************
  **********************************************************************/
 static boolean_t
-sa_path_rec_apply_tavor_mtu_limit(IN const ib_path_rec_t * const p_pr,
-				  IN const osm_port_t * const p_src_port,
-				  IN const osm_port_t * const p_dest_port,
+sa_path_rec_apply_tavor_mtu_limit(IN const ib_path_rec_t * p_pr,
+				  IN const osm_port_t * p_src_port,
+				  IN const osm_port_t * p_dest_port,
 				  IN const ib_net64_t comp_mask)
 {
 	uint8_t required_mtu;
@@ -156,13 +154,13 @@ sa_path_rec_apply_tavor_mtu_limit(IN const ib_path_rec_t * const p_pr,
 
 /**********************************************************************
  **********************************************************************/
-static ib_api_status_t
-pr_rcv_get_path_parms(IN osm_sa_t * sa, IN const ib_path_rec_t * const p_pr,
-		      IN const osm_port_t * const p_src_port,
-		      IN const osm_port_t * const p_dest_port,
-		      IN const uint16_t dest_lid_ho,
-		      IN const ib_net64_t comp_mask,
-		      OUT osm_path_parms_t * const p_parms)
+static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
+					     IN const ib_path_rec_t * p_pr,
+					     IN const osm_port_t * p_src_port,
+					     IN const osm_port_t * p_dest_port,
+					     IN const uint16_t dest_lid_ho,
+					     IN const ib_net64_t comp_mask,
+					     OUT osm_path_parms_t * p_parms)
 {
 	const osm_node_t *p_node;
 	const osm_physp_t *p_physp;
@@ -244,7 +242,6 @@ pr_rcv_get_path_parms(IN osm_sa_t * sa, IN const ib_path_rec_t * const p_pr,
 	}
 
 	if (sa->p_subn->opt.qos) {
-
 		/*
 		 * Whether this node is switch or CA, the IN port for
 		 * the sl2vl table is 0, because this is a source node.
@@ -274,7 +271,8 @@ pr_rcv_get_path_parms(IN osm_sa_t * sa, IN const ib_path_rec_t * const p_pr,
 		/*
 		 * if destination is switch, we want p_dest_physp to point to port 0
 		 */
-		p_dest_physp = osm_switch_get_route_by_lid(p_node->sw, dest_lid);
+		p_dest_physp =
+		    osm_switch_get_route_by_lid(p_node->sw, dest_lid);
 
 		if (p_dest_physp == 0) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F03: "
@@ -363,10 +361,12 @@ pr_rcv_get_path_parms(IN osm_sa_t * sa, IN const ib_path_rec_t * const p_pr,
 			/*
 			 * Check SL2VL table of the switch and update valid SLs
 			 */
-			p_slvl_tbl = osm_physp_get_slvl_tbl(p_physp, in_port_num);
+			p_slvl_tbl =
+			    osm_physp_get_slvl_tbl(p_physp, in_port_num);
 			for (i = 0; i < IB_MAX_NUM_VLS; i++) {
 				if (valid_sl_mask & (1 << i) &&
-				    ib_slvl_table_get(p_slvl_tbl, i) == IB_DROP_VL)
+				    ib_slvl_table_get(p_slvl_tbl,
+						      i) == IB_DROP_VL)
 					valid_sl_mask &= ~(1 << i);
 			}
 			if (!valid_sl_mask) {
@@ -591,8 +591,8 @@ pr_rcv_get_path_parms(IN osm_sa_t * sa, IN const ib_path_rec_t * const p_pr,
 				"Ports 0x%016" PRIx64 " 0x%016" PRIx64
 				" do not share specified PKey 0x%04x\n",
 				cl_ntoh64(osm_physp_get_port_guid(p_src_physp)),
-				cl_ntoh64(osm_physp_get_port_guid(p_dest_physp)),
-				cl_ntoh16(pkey));
+				cl_ntoh64(osm_physp_get_port_guid
+					  (p_dest_physp)), cl_ntoh16(pkey));
 			status = IB_NOT_FOUND;
 			goto Exit;
 		}
@@ -616,7 +616,8 @@ pr_rcv_get_path_parms(IN osm_sa_t * sa, IN const ib_path_rec_t * const p_pr,
 				"Ports 0x%016" PRIx64 " 0x%016" PRIx64
 				" do not share PKeys defined by QoS level\n",
 				cl_ntoh64(osm_physp_get_port_guid(p_src_physp)),
-				cl_ntoh64(osm_physp_get_port_guid(p_dest_physp)));
+				cl_ntoh64(osm_physp_get_port_guid
+					  (p_dest_physp)));
 			status = IB_NOT_FOUND;
 			goto Exit;
 		}
@@ -631,7 +632,8 @@ pr_rcv_get_path_parms(IN osm_sa_t * sa, IN const ib_path_rec_t * const p_pr,
 				"Ports 0x%016" PRIx64 " 0x%016" PRIx64
 				" do not have any shared PKeys\n",
 				cl_ntoh64(osm_physp_get_port_guid(p_src_physp)),
-				cl_ntoh64(osm_physp_get_port_guid(p_dest_physp)));
+				cl_ntoh64(osm_physp_get_port_guid
+					  (p_dest_physp)));
 			status = IB_NOT_FOUND;
 			goto Exit;
 		}
@@ -750,14 +752,14 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-static void
-pr_rcv_build_pr(IN osm_sa_t * sa, IN const osm_port_t * const p_src_port,
-		IN const osm_port_t * const p_dest_port,
-		IN const ib_gid_t * const p_dgid,
-		IN const uint16_t src_lid_ho, IN const uint16_t dest_lid_ho,
-		IN const uint8_t preference,
-		IN const osm_path_parms_t * const p_parms,
-		OUT ib_path_rec_t * const p_pr)
+static void pr_rcv_build_pr(IN osm_sa_t * sa, IN const osm_port_t * p_src_port,
+			    IN const osm_port_t * p_dest_port,
+			    IN const ib_gid_t * p_dgid,
+			    IN const uint16_t src_lid_ho,
+			    IN const uint16_t dest_lid_ho,
+			    IN const uint8_t preference,
+			    IN const osm_path_parms_t * p_parms,
+			    OUT ib_path_rec_t * p_pr)
 {
 	const osm_physp_t *p_src_physp;
 	const osm_physp_t *p_dest_physp;
@@ -817,15 +819,16 @@ pr_rcv_build_pr(IN osm_sa_t * sa, IN const osm_port_t * const p_src_port,
 
 /**********************************************************************
  **********************************************************************/
-static osm_pr_item_t *
-pr_rcv_get_lid_pair_path(IN osm_sa_t * sa, IN const ib_path_rec_t * const p_pr,
-			 IN const osm_port_t * const p_src_port,
-			 IN const osm_port_t * const p_dest_port,
-			 IN const ib_gid_t * const p_dgid,
-			 IN const uint16_t src_lid_ho,
-			 IN const uint16_t dest_lid_ho,
-			 IN const ib_net64_t comp_mask,
-			 IN const uint8_t preference)
+static osm_pr_item_t *pr_rcv_get_lid_pair_path(IN osm_sa_t * sa,
+					       IN const ib_path_rec_t * p_pr,
+					       IN const osm_port_t * p_src_port,
+					       IN const osm_port_t *
+					       p_dest_port,
+					       IN const ib_gid_t * p_dgid,
+					       IN const uint16_t src_lid_ho,
+					       IN const uint16_t dest_lid_ho,
+					       IN const ib_net64_t comp_mask,
+					       IN const uint8_t preference)
 {
 	osm_path_parms_t path_parms;
 	osm_path_parms_t rev_path_parms;
@@ -888,14 +891,14 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-static void
-pr_rcv_get_port_pair_paths(IN osm_sa_t * sa, IN const osm_madw_t * const p_madw,
-			   IN const osm_port_t * const p_req_port,
-			   IN const osm_port_t * const p_src_port,
-			   IN const osm_port_t * const p_dest_port,
-			   IN const ib_gid_t * const p_dgid,
-			   IN const ib_net64_t comp_mask,
-			   IN cl_qlist_t * const p_list)
+static void pr_rcv_get_port_pair_paths(IN osm_sa_t * sa,
+				       IN const osm_madw_t * p_madw,
+				       IN const osm_port_t * p_req_port,
+				       IN const osm_port_t * p_src_port,
+				       IN const osm_port_t * p_dest_port,
+				       IN const ib_gid_t * p_dgid,
+				       IN const ib_net64_t comp_mask,
+				       IN cl_qlist_t * p_list)
 {
 	const ib_path_rec_t *p_pr;
 	const ib_sa_mad_t *p_sa_mad;
@@ -924,8 +927,7 @@ pr_rcv_get_port_pair_paths(IN osm_sa_t * sa, IN const osm_madw_t * const p_madw,
 	if (osm_port_share_pkey(sa->p_log, p_req_port, p_src_port) == FALSE
 	    || osm_port_share_pkey(sa->p_log, p_req_port,
 				   p_dest_port) == FALSE
-	    || osm_port_share_pkey(sa->p_log, p_src_port,
-				   p_dest_port) == FALSE)
+	    || osm_port_share_pkey(sa->p_log, p_src_port, p_dest_port) == FALSE)
 		/* One of the pairs doesn't share a pkey so the path is disqualified. */
 		goto Exit;
 
@@ -1114,11 +1116,11 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-static ib_net16_t
-pr_rcv_get_end_points(IN osm_sa_t * sa, IN const osm_madw_t * const p_madw,
-		      OUT const osm_port_t ** const pp_src_port,
-		      OUT const osm_port_t ** const pp_dest_port,
-		      OUT ib_gid_t * const p_dgid)
+static ib_net16_t pr_rcv_get_end_points(IN osm_sa_t * sa,
+					IN const osm_madw_t * p_madw,
+					OUT const osm_port_t ** pp_src_port,
+					OUT const osm_port_t ** pp_dest_port,
+					OUT ib_gid_t * p_dgid)
 {
 	const ib_path_rec_t *p_pr;
 	const ib_sa_mad_t *p_sa_mad;
@@ -1222,45 +1224,45 @@ pr_rcv_get_end_points(IN osm_sa_t * sa, IN const osm_madw_t * const p_madw,
 				   handle this prefix, if any */
 				osm_prefix_route_t *route = NULL;
 				osm_prefix_route_t *r = (osm_prefix_route_t *)
-					cl_qlist_head(&sa->p_subn->prefix_routes_list);
+				    cl_qlist_head(&sa->p_subn->
+						  prefix_routes_list);
 
 				while (r != (osm_prefix_route_t *)
-				       cl_qlist_end(&sa->p_subn->prefix_routes_list))
-				{
-					if (r->prefix == p_pr->dgid.unicast.prefix ||
-					    r->prefix == 0)
-					{
+				       cl_qlist_end(&sa->p_subn->
+						    prefix_routes_list)) {
+					if (r->prefix ==
+					    p_pr->dgid.unicast.prefix
+					    || r->prefix == 0) {
 						route = r;
 						break;
 					}
-					r = (osm_prefix_route_t *) cl_qlist_next(&r->list_item);
+					r = (osm_prefix_route_t *)
+					    cl_qlist_next(&r->list_item);
 				}
 
 				if (!route) {
 					/*
-					  This 'error' is the client's fault (bad gid) so
-					  don't enter it as an error in our own log.
-					  Return an error response to the client.
-					*/
-					sa_status = IB_SA_MAD_STATUS_INVALID_GID;
+					   This 'error' is the client's fault (bad gid) so
+					   don't enter it as an error in our own log.
+					   Return an error response to the client.
+					 */
+					sa_status =
+					    IB_SA_MAD_STATUS_INVALID_GID;
 					goto Exit;
 				} else if (route->guid == 0) {
 					/* first router */
 					p_rtr = (osm_router_t *)
-						cl_qmap_head(&sa->
-							     p_subn->
-							     rtr_guid_tbl);
+					    cl_qmap_head(&sa->
+							 p_subn->rtr_guid_tbl);
 				} else {
 					p_rtr = (osm_router_t *)
-						cl_qmap_get(&sa->
-							    p_subn->
-							    rtr_guid_tbl,
-							    route->guid);
+					    cl_qmap_get(&sa->p_subn->
+							rtr_guid_tbl,
+							route->guid);
 				}
 
 				if (p_rtr ==
-				    (osm_router_t *) cl_qmap_end(&sa->
-								 p_subn->
+				    (osm_router_t *) cl_qmap_end(&sa->p_subn->
 								 rtr_guid_tbl))
 				{
 					OSM_LOG(sa->p_log, OSM_LOG_ERROR,
@@ -1322,12 +1324,11 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-static void
-pr_rcv_process_world(IN osm_sa_t * sa, IN const osm_madw_t * const p_madw,
-		     IN const osm_port_t * const requester_port,
-		     IN const ib_gid_t * const p_dgid,
-		     IN const ib_net64_t comp_mask,
-		     IN cl_qlist_t * const p_list)
+static void pr_rcv_process_world(IN osm_sa_t * sa, IN const osm_madw_t * p_madw,
+				 IN const osm_port_t * requester_port,
+				 IN const ib_gid_t * p_dgid,
+				 IN const ib_net64_t comp_mask,
+				 IN cl_qlist_t * p_list)
 {
 	const cl_qmap_t *p_tbl;
 	const osm_port_t *p_dest_port;
@@ -1366,14 +1367,13 @@ pr_rcv_process_world(IN osm_sa_t * sa, IN const osm_madw_t * const p_madw,
 
 /**********************************************************************
  **********************************************************************/
-static void
-pr_rcv_process_half(IN osm_sa_t * sa, IN const osm_madw_t * const p_madw,
-		    IN const osm_port_t * const requester_port,
-		    IN const osm_port_t * const p_src_port,
-		    IN const osm_port_t * const p_dest_port,
-		    IN const ib_gid_t * const p_dgid,
-		    IN const ib_net64_t comp_mask,
-		    IN cl_qlist_t * const p_list)
+static void pr_rcv_process_half(IN osm_sa_t * sa, IN const osm_madw_t * p_madw,
+				IN const osm_port_t * requester_port,
+				IN const osm_port_t * p_src_port,
+				IN const osm_port_t * p_dest_port,
+				IN const ib_gid_t * p_dgid,
+				IN const ib_net64_t comp_mask,
+				IN cl_qlist_t * p_list)
 {
 	const cl_qmap_t *p_tbl;
 	const osm_port_t *p_port;
@@ -1416,14 +1416,13 @@ pr_rcv_process_half(IN osm_sa_t * sa, IN const osm_madw_t * const p_madw,
 
 /**********************************************************************
  **********************************************************************/
-static void
-pr_rcv_process_pair(IN osm_sa_t * sa, IN const osm_madw_t * const p_madw,
-		    IN const osm_port_t * const requester_port,
-		    IN const osm_port_t * const p_src_port,
-		    IN const osm_port_t * const p_dest_port,
-		    IN const ib_gid_t * const p_dgid,
-		    IN const ib_net64_t comp_mask,
-		    IN cl_qlist_t * const p_list)
+static void pr_rcv_process_pair(IN osm_sa_t * sa, IN const osm_madw_t * p_madw,
+				IN const osm_port_t * requester_port,
+				IN const osm_port_t * p_src_port,
+				IN const osm_port_t * p_dest_port,
+				IN const ib_gid_t * p_dgid,
+				IN const ib_net64_t comp_mask,
+				IN cl_qlist_t * p_list)
 {
 	OSM_LOG_ENTER(sa->p_log);
 
@@ -1435,8 +1434,7 @@ pr_rcv_process_pair(IN osm_sa_t * sa, IN const osm_madw_t * const p_madw,
 
 /**********************************************************************
  **********************************************************************/
-static osm_mgrp_t *pr_get_mgrp(IN osm_sa_t * sa,
-			       IN const osm_madw_t * const p_madw)
+static osm_mgrp_t *pr_get_mgrp(IN osm_sa_t * sa, IN const osm_madw_t * p_madw)
 {
 	ib_path_rec_t *p_pr;
 	const ib_sa_mad_t *p_sa_mad;
@@ -1471,9 +1469,10 @@ static osm_mgrp_t *pr_get_mgrp(IN osm_sa_t * sa,
 				mgrp = NULL;
 				goto Exit;
 			}
-		} else if (!(mgrp = osm_get_mgrp_by_mlid(sa->p_subn, p_pr->dlid)))
-			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F11: "
-				"No MC group found for PathRecord "
+		} else
+		    if (!(mgrp = osm_get_mgrp_by_mlid(sa->p_subn, p_pr->dlid)))
+			OSM_LOG(sa->p_log, OSM_LOG_ERROR,
+				"ERR 1F11: " "No MC group found for PathRecord "
 				"destination LID 0x%x\n", p_pr->dlid);
 	}
 
@@ -1483,9 +1482,9 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-static ib_api_status_t
-pr_match_mgrp_attributes(IN osm_sa_t * sa, IN const osm_madw_t * const p_madw,
-			 IN const osm_mgrp_t * const p_mgrp)
+static ib_api_status_t pr_match_mgrp_attributes(IN osm_sa_t * sa,
+						IN const osm_madw_t * p_madw,
+						IN const osm_mgrp_t * p_mgrp)
 {
 	const ib_path_rec_t *p_pr;
 	const ib_sa_mad_t *p_sa_mad;
@@ -1548,8 +1547,7 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-static int
-pr_rcv_check_mcast_dest(IN osm_sa_t * sa, IN const osm_madw_t * const p_madw)
+static int pr_rcv_check_mcast_dest(osm_sa_t * sa, IN const osm_madw_t * p_madw)
 {
 	const ib_path_rec_t *p_pr;
 	const ib_sa_mad_t *p_sa_mad;
@@ -1749,11 +1747,12 @@ McastDest:
 
 		/* HopLimit is not yet set in non link local MC groups */
 		/* If it were, this would not be needed */
-		if (ib_mgid_get_scope(&p_mgrp->mcmember_rec.mgid) != IB_MC_SCOPE_LINK_LOCAL)
+		if (ib_mgid_get_scope(&p_mgrp->mcmember_rec.mgid) !=
+		    IB_MC_SCOPE_LINK_LOCAL)
 			hop_limit = IB_HOPLIMIT_MAX;
 
 		p_pr_item->path_rec.hop_flow_raw =
-			cl_hton32(hop_limit) | (flow_label << 8);
+		    cl_hton32(hop_limit) | (flow_label << 8);
 
 		cl_qlist_insert_tail(&pr_list, &p_pr_item->list_item);
 	}

@@ -51,15 +51,13 @@ static inline uint64_t unpack_guid(char *p_guid_str)
 	return strtoull(p_guid_str, NULL, 0);
 }
 
-static inline void
-pack_lids(uint16_t min_lid, uint16_t max_lid, char *p_lid_str)
+static inline void pack_lids(uint16_t min_lid, uint16_t max_lid, char *lid_str)
 {
-	sprintf(p_lid_str, "0x%04x 0x%04x", min_lid, max_lid);
+	sprintf(lid_str, "0x%04x 0x%04x", min_lid, max_lid);
 }
 
-static inline int
-unpack_lids(IN char *p_lid_str,
-		  OUT uint16_t * p_min_lid, OUT uint16_t * p_max_lid)
+static inline int unpack_lids(IN char *p_lid_str, OUT uint16_t * p_min_lid,
+			      OUT uint16_t * p_max_lid)
 {
 	unsigned long tmp;
 	char *p_next;
@@ -85,9 +83,8 @@ unpack_lids(IN char *p_lid_str,
 	return 0;
 }
 
-int
-osm_db_guid2lid_guids(IN osm_db_domain_t * const p_g2l,
-		      OUT cl_qlist_t * p_guid_list)
+int osm_db_guid2lid_guids(IN osm_db_domain_t * p_g2l,
+			  OUT cl_qlist_t * p_guid_list)
 {
 	char *p_key;
 	cl_list_t keys;
@@ -112,10 +109,8 @@ osm_db_guid2lid_guids(IN osm_db_domain_t * const p_g2l,
 	return 0;
 }
 
-int
-osm_db_guid2lid_get(IN osm_db_domain_t * const p_g2l,
-		    IN uint64_t guid,
-		    OUT uint16_t * p_min_lid, OUT uint16_t * p_max_lid)
+int osm_db_guid2lid_get(IN osm_db_domain_t * p_g2l, IN uint64_t guid,
+			OUT uint16_t * p_min_lid, OUT uint16_t * p_max_lid)
 {
 	char guid_str[20];
 	char *p_lid_str;
@@ -136,9 +131,8 @@ osm_db_guid2lid_get(IN osm_db_domain_t * const p_g2l,
 	return 0;
 }
 
-int
-osm_db_guid2lid_set(IN osm_db_domain_t * const p_g2l,
-		    IN uint64_t guid, IN uint16_t min_lid, IN uint16_t max_lid)
+int osm_db_guid2lid_set(IN osm_db_domain_t * p_g2l, IN uint64_t guid,
+			IN uint16_t min_lid, IN uint16_t max_lid)
 {
 	char guid_str[20];
 	char lid_str[16];
@@ -149,7 +143,7 @@ osm_db_guid2lid_set(IN osm_db_domain_t * const p_g2l,
 	return (osm_db_update(p_g2l, guid_str, lid_str));
 }
 
-int osm_db_guid2lid_delete(IN osm_db_domain_t * const p_g2l, IN uint64_t guid)
+int osm_db_guid2lid_delete(IN osm_db_domain_t * p_g2l, IN uint64_t guid)
 {
 	char guid_str[20];
 	pack_guid(guid, guid_str);

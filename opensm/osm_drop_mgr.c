@@ -65,8 +65,7 @@
 
 /**********************************************************************
  **********************************************************************/
-static void
-drop_mgr_remove_router(osm_sm_t * sm, IN const ib_net64_t portguid)
+static void drop_mgr_remove_router(osm_sm_t * sm, IN const ib_net64_t portguid)
 {
 	osm_router_t *p_rtr;
 	cl_qmap_t *p_rtr_guid_tbl;
@@ -296,8 +295,7 @@ static void drop_mgr_remove_switch(osm_sm_t * sm, IN osm_node_t * p_node)
 
 /**********************************************************************
  **********************************************************************/
-static boolean_t
-drop_mgr_process_node(osm_sm_t * sm, IN osm_node_t * p_node)
+static boolean_t drop_mgr_process_node(osm_sm_t * sm, IN osm_node_t * p_node)
 {
 	osm_physp_t *p_physp;
 	osm_port_t *p_port;

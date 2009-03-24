@@ -157,9 +157,9 @@ static void vl15_poller(IN void *p_ptr)
 			status = cl_event_wait_on(&p_vl->signal,
 						  EVENT_NO_TIMEOUT, TRUE);
 
-		while ((p_vl->p_stats->qp0_mads_outstanding_on_wire >=
-			(int32_t) p_vl->max_wire_smps) &&
-		       (p_vl->thread_state == OSM_THREAD_STATE_RUN)) {
+		while (p_vl->p_stats->qp0_mads_outstanding_on_wire >=
+		       (int32_t) p_vl->max_wire_smps &&
+		       p_vl->thread_state == OSM_THREAD_STATE_RUN) {
 			status = cl_event_wait_on(&p_vl->signal,
 						  EVENT_NO_TIMEOUT, TRUE);
 			if (status != CL_SUCCESS) {
@@ -182,7 +182,7 @@ static void vl15_poller(IN void *p_ptr)
 
 /**********************************************************************
  **********************************************************************/
-void osm_vl15_construct(IN osm_vl15_t * const p_vl)
+void osm_vl15_construct(IN osm_vl15_t * p_vl)
 {
 	memset(p_vl, 0, sizeof(*p_vl));
 	p_vl->state = OSM_VL15_STATE_INIT;
@@ -196,8 +196,7 @@ void osm_vl15_construct(IN osm_vl15_t * const p_vl)
 
 /**********************************************************************
  **********************************************************************/
-void
-osm_vl15_destroy(IN osm_vl15_t * const p_vl, IN struct osm_mad_pool *p_pool)
+void osm_vl15_destroy(IN osm_vl15_t * p_vl, IN struct osm_mad_pool *p_pool)
 {
 	osm_madw_t *p_madw;
 
@@ -243,11 +242,9 @@ osm_vl15_destroy(IN osm_vl15_t * const p_vl, IN struct osm_mad_pool *p_pool)
 
 /**********************************************************************
  **********************************************************************/
-ib_api_status_t
-osm_vl15_init(IN osm_vl15_t * const p_vl,
-	      IN osm_vendor_t * const p_vend,
-	      IN osm_log_t * const p_log,
-	      IN osm_stats_t * const p_stats, IN const int32_t max_wire_smps)
+ib_api_status_t osm_vl15_init(IN osm_vl15_t * p_vl, IN osm_vendor_t * p_vend,
+			      IN osm_log_t * p_log, IN osm_stats_t * p_stats,
+			      IN const int32_t max_wire_smps)
 {
 	ib_api_status_t status = IB_SUCCESS;
 
@@ -284,7 +281,7 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-void osm_vl15_poll(IN osm_vl15_t * const p_vl)
+void osm_vl15_poll(IN osm_vl15_t * p_vl)
 {
 	OSM_LOG_ENTER(p_vl->p_log);
 
@@ -311,7 +308,7 @@ void osm_vl15_poll(IN osm_vl15_t * const p_vl)
 
 /**********************************************************************
  **********************************************************************/
-void osm_vl15_post(IN osm_vl15_t * const p_vl, IN osm_madw_t * const p_madw)
+void osm_vl15_post(IN osm_vl15_t * p_vl, IN osm_madw_t * p_madw)
 {
 	OSM_LOG_ENTER(p_vl->p_log);
 
@@ -340,9 +337,7 @@ void osm_vl15_post(IN osm_vl15_t * const p_vl, IN osm_madw_t * const p_madw)
 	OSM_LOG_EXIT(p_vl->p_log);
 }
 
-void
-osm_vl15_shutdown(IN osm_vl15_t * const p_vl,
-		  IN osm_mad_pool_t * const p_mad_pool)
+void osm_vl15_shutdown(IN osm_vl15_t * p_vl, IN osm_mad_pool_t * p_mad_pool)
 {
 	osm_madw_t *p_madw;
 

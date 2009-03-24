@@ -69,9 +69,10 @@ typedef struct osm_sir_search_ctxt {
 
 /**********************************************************************
  **********************************************************************/
-static ib_api_status_t
-sir_rcv_new_sir(IN osm_sa_t * sa, IN const osm_switch_t * const p_sw,
-		IN cl_qlist_t * const p_list, IN ib_net16_t const lid)
+static ib_api_status_t sir_rcv_new_sir(IN osm_sa_t * sa,
+				       IN const osm_switch_t * p_sw,
+				       IN cl_qlist_t * p_list,
+				       IN ib_net16_t lid)
 {
 	osm_sir_item_t *p_rec_item;
 	ib_api_status_t status = IB_SUCCESS;
@@ -103,10 +104,9 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-static void
-sir_rcv_create_sir(IN osm_sa_t * sa, IN const osm_switch_t * const p_sw,
-		   IN cl_qlist_t * const p_list, IN ib_net16_t const match_lid,
-		   IN const osm_physp_t * const p_req_physp)
+static void sir_rcv_create_sir(IN osm_sa_t * sa, IN const osm_switch_t * p_sw,
+			       IN cl_qlist_t * p_list, IN ib_net16_t match_lid,
+			       IN const osm_physp_t * p_req_physp)
 {
 	osm_port_t *p_port;
 	const osm_physp_t *p_physp;
@@ -168,12 +168,10 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-static void
-sir_rcv_by_comp_mask(IN cl_map_item_t * const p_map_item, IN void *context)
+static void sir_rcv_by_comp_mask(IN cl_map_item_t * p_map_item, IN void *cxt)
 {
-	const osm_sir_search_ctxt_t *const p_ctxt =
-	    (osm_sir_search_ctxt_t *) context;
-	const osm_switch_t *const p_sw = (osm_switch_t *) p_map_item;
+	const osm_sir_search_ctxt_t *p_ctxt = cxt;
+	const osm_switch_t *p_sw = (osm_switch_t *) p_map_item;
 	const ib_switch_info_record_t *const p_rcvd_rec = p_ctxt->p_rcvd_rec;
 	const osm_physp_t *const p_req_physp = p_ctxt->p_req_physp;
 	osm_sa_t *sa = p_ctxt->sa;
@@ -182,8 +180,8 @@ sir_rcv_by_comp_mask(IN cl_map_item_t * const p_map_item, IN void *context)
 
 	OSM_LOG_ENTER(p_ctxt->sa->p_log);
 
-	osm_dump_switch_info(p_ctxt->sa->p_log,
-			     &p_sw->switch_info, OSM_LOG_VERBOSE);
+	osm_dump_switch_info(p_ctxt->sa->p_log, &p_sw->switch_info,
+			     OSM_LOG_VERBOSE);
 
 	if (comp_mask & IB_SWIR_COMPMASK_LID) {
 		match_lid = p_rcvd_rec->lid;

@@ -61,14 +61,14 @@
 
 /**********************************************************************
  **********************************************************************/
-void osm_ucast_mgr_construct(IN osm_ucast_mgr_t * const p_mgr)
+void osm_ucast_mgr_construct(IN osm_ucast_mgr_t * p_mgr)
 {
 	memset(p_mgr, 0, sizeof(*p_mgr));
 }
 
 /**********************************************************************
  **********************************************************************/
-void osm_ucast_mgr_destroy(IN osm_ucast_mgr_t * const p_mgr)
+void osm_ucast_mgr_destroy(IN osm_ucast_mgr_t * p_mgr)
 {
 	CL_ASSERT(p_mgr);
 
@@ -82,8 +82,7 @@ void osm_ucast_mgr_destroy(IN osm_ucast_mgr_t * const p_mgr)
 
 /**********************************************************************
  **********************************************************************/
-ib_api_status_t
-osm_ucast_mgr_init(IN osm_ucast_mgr_t * const p_mgr, IN osm_sm_t * sm)
+ib_api_status_t osm_ucast_mgr_init(IN osm_ucast_mgr_t * p_mgr, IN osm_sm_t * sm)
 {
 	ib_api_status_t status = IB_SUCCESS;
 
@@ -106,8 +105,8 @@ osm_ucast_mgr_init(IN osm_ucast_mgr_t * const p_mgr, IN osm_sm_t * sm)
 /**********************************************************************
  Add each switch's own and neighbor LIDs to its LID matrix
 **********************************************************************/
-static void
-ucast_mgr_process_hop_0_1(IN cl_map_item_t * const p_map_item, IN void *context)
+static void ucast_mgr_process_hop_0_1(IN cl_map_item_t * p_map_item,
+				      IN void *context)
 {
 	osm_switch_t *const p_sw = (osm_switch_t *) p_map_item;
 	osm_node_t *p_remote_node;
@@ -133,12 +132,11 @@ ucast_mgr_process_hop_0_1(IN cl_map_item_t * const p_map_item, IN void *context)
 
 /**********************************************************************
  **********************************************************************/
-static void
-ucast_mgr_process_neighbor(IN osm_ucast_mgr_t * const p_mgr,
-			   IN osm_switch_t * const p_this_sw,
-			   IN osm_switch_t * const p_remote_sw,
-			   IN const uint8_t port_num,
-			   IN const uint8_t remote_port_num)
+static void ucast_mgr_process_neighbor(IN osm_ucast_mgr_t * p_mgr,
+				       IN osm_switch_t * p_this_sw,
+				       IN osm_switch_t * p_remote_sw,
+				       IN const uint8_t port_num,
+				       IN const uint8_t remote_port_num)
 {
 	osm_switch_t *p_sw;
 	cl_map_item_t *item;
@@ -184,9 +182,10 @@ ucast_mgr_process_neighbor(IN osm_ucast_mgr_t * const p_mgr,
 
 /**********************************************************************
  **********************************************************************/
-static struct osm_remote_node *
-find_and_add_remote_sys(osm_switch_t *sw, uint8_t port,
-			struct osm_remote_guids_count *r)
+static struct osm_remote_node *find_and_add_remote_sys(osm_switch_t * sw,
+						       uint8_t port, struct
+						       osm_remote_guids_count
+						       *r)
 {
 	unsigned i;
 	osm_physp_t *p = osm_node_get_physp_ptr(sw->p_node, port);
@@ -202,11 +201,10 @@ find_and_add_remote_sys(osm_switch_t *sw, uint8_t port,
 	return &r->guids[i];
 }
 
-static void
-ucast_mgr_process_port(IN osm_ucast_mgr_t * const p_mgr,
-		       IN osm_switch_t * const p_sw,
-		       IN osm_port_t * const p_port,
-		       IN unsigned lid_offset)
+static void ucast_mgr_process_port(IN osm_ucast_mgr_t * p_mgr,
+				   IN osm_switch_t * p_sw,
+				   IN osm_port_t * p_port,
+				   IN unsigned lid_offset)
 {
 	uint16_t min_lid_ho;
 	uint16_t max_lid_ho;
@@ -240,10 +238,11 @@ ucast_mgr_process_port(IN osm_ucast_mgr_t * const p_mgr,
 		start_from = osm_switch_get_port_by_lid(p_sw, lid_ho - 1) + 1;
 
 	OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-		"Processing port 0x%" PRIx64 " (\'%s\' port %u), LID %u [%u,%u]\n",
+		"Processing port 0x%" PRIx64
+		" (\'%s\' port %u), LID %u [%u,%u]\n",
 		cl_ntoh64(osm_port_get_guid(p_port)),
-		p_port->p_node->print_desc, p_port->p_physp->port_num,
-		lid_ho, min_lid_ho, max_lid_ho);
+		p_port->p_node->print_desc, p_port->p_physp->port_num, lid_ho,
+		min_lid_ho, max_lid_ho);
 
 	/* TODO - This should be runtime error, not a CL_ASSERT() */
 	CL_ASSERT(max_lid_ho <= IB_LID_UCAST_END_HO);
@@ -311,8 +310,8 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-int osm_ucast_mgr_set_fwd_table(IN osm_ucast_mgr_t * const p_mgr,
-				IN osm_switch_t * const p_sw)
+int osm_ucast_mgr_set_fwd_table(IN osm_ucast_mgr_t * p_mgr,
+				IN osm_switch_t * p_sw)
 {
 	osm_node_t *p_node;
 	osm_dr_path_t *p_path;
@@ -355,8 +354,7 @@ int osm_ucast_mgr_set_fwd_table(IN osm_ucast_mgr_t * const p_mgr,
 	else
 		life_state = (p_mgr->p_subn->opt.packet_life_time << 3) & 0xf8;
 
-	if ((life_state != si.life_state)
-	    || ib_switch_info_get_state_change(&si)) {
+	if (life_state != si.life_state || ib_switch_info_get_state_change(&si)) {
 		set_swinfo_require = TRUE;
 		si.life_state = life_state;
 	}
@@ -370,8 +368,7 @@ int osm_ucast_mgr_set_fwd_table(IN osm_ucast_mgr_t * const p_mgr,
 		context.si_context.set_method = TRUE;
 
 		status = osm_req_set(p_mgr->sm, p_path, (uint8_t *) & si,
-				     sizeof(si),
-				     IB_MAD_ATTR_SWITCH_INFO,
+				     sizeof(si), IB_MAD_ATTR_SWITCH_INFO,
 				     0, CL_DISP_MSGID_NONE, &context);
 
 		if (status != IB_SUCCESS)
@@ -409,11 +406,11 @@ int osm_ucast_mgr_set_fwd_table(IN osm_ucast_mgr_t * const p_mgr,
 			"Writing FT block %u\n", block_id_ho);
 
 		status = osm_req_set(p_mgr->sm, p_path,
-				     p_sw->new_lft + block_id_ho * IB_SMP_DATA_SIZE,
-				     sizeof(block),
-				     IB_MAD_ATTR_LIN_FWD_TBL,
-				     cl_hton32(block_id_ho),
-				     CL_DISP_MSGID_NONE, &context);
+				     p_sw->new_lft +
+				     block_id_ho * IB_SMP_DATA_SIZE,
+				     sizeof(block), IB_MAD_ATTR_LIN_FWD_TBL,
+				     cl_hton32(block_id_ho), CL_DISP_MSGID_NONE,
+				     &context);
 
 		if (status != IB_SUCCESS)
 			OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 3A05: "
@@ -428,7 +425,7 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-static void alloc_ports_priv(osm_ucast_mgr_t *mgr)
+static void alloc_ports_priv(osm_ucast_mgr_t * mgr)
 {
 	cl_qmap_t *port_tbl = &mgr->p_subn->port_guid_tbl;
 	struct osm_remote_guids_count *r;
@@ -438,7 +435,7 @@ static void alloc_ports_priv(osm_ucast_mgr_t *mgr)
 
 	for (item = cl_qmap_head(port_tbl); item != cl_qmap_end(port_tbl);
 	     item = cl_qmap_next(item)) {
-		port = (osm_port_t *)item;
+		port = (osm_port_t *) item;
 		lmc = ib_port_info_get_lmc(&port->p_physp->port_info);
 		if (!lmc)
 			continue;
@@ -455,14 +452,14 @@ static void alloc_ports_priv(osm_ucast_mgr_t *mgr)
 	}
 }
 
-static void free_ports_priv(osm_ucast_mgr_t *mgr)
+static void free_ports_priv(osm_ucast_mgr_t * mgr)
 {
 	cl_qmap_t *port_tbl = &mgr->p_subn->port_guid_tbl;
 	osm_port_t *port;
 	cl_map_item_t *item;
 	for (item = cl_qmap_head(port_tbl); item != cl_qmap_end(port_tbl);
 	     item = cl_qmap_next(item)) {
-		port = (osm_port_t *)item;
+		port = (osm_port_t *) item;
 		if (port->priv) {
 			free(port->priv);
 			port->priv = NULL;
@@ -470,9 +467,8 @@ static void free_ports_priv(osm_ucast_mgr_t *mgr)
 	}
 }
 
-static void
-ucast_mgr_process_tbl(IN cl_map_item_t * const p_map_item,
-		      IN void *context)
+static void ucast_mgr_process_tbl(IN cl_map_item_t * p_map_item,
+				  IN void *context)
 {
 	osm_ucast_mgr_t *p_mgr = context;
 	osm_switch_t *const p_sw = (osm_switch_t *) p_map_item;
@@ -517,9 +513,8 @@ ucast_mgr_process_tbl(IN cl_map_item_t * const p_map_item,
 
 /**********************************************************************
  **********************************************************************/
-static void
-ucast_mgr_process_neighbors(IN cl_map_item_t * const p_map_item,
-			    IN void *context)
+static void ucast_mgr_process_neighbors(IN cl_map_item_t * p_map_item,
+					IN void *context)
 {
 	osm_switch_t *const p_sw = (osm_switch_t *) p_map_item;
 	osm_ucast_mgr_t *const p_mgr = (osm_ucast_mgr_t *) context;
@@ -550,7 +545,6 @@ ucast_mgr_process_neighbors(IN cl_map_item_t * const p_map_item,
 		p_remote_node = osm_node_get_remote_node(p_node,
 							 (uint8_t) port_num,
 							 &remote_port_num);
-
 		if (p_remote_node && p_remote_node->sw
 		    && (p_remote_node != p_node)) {
 			/* make sure the link is healthy. If it is not - don't
@@ -563,7 +557,6 @@ ucast_mgr_process_neighbors(IN cl_map_item_t * const p_map_item,
 						   p_remote_node->sw,
 						   (uint8_t) port_num,
 						   remote_port_num);
-
 		}
 	}
 
@@ -596,11 +589,10 @@ static int set_hop_wf(void *ctx, uint64_t guid, char *p)
 
 	p = e + 1;
 
-	if (!*p || !(hop_wf = strtoul(p, &e, 0)) || (p == e) ||
-		(hop_wf >= 0x100)) {
+	if (!*p || !(hop_wf = strtoul(p, &e, 0)) || p == e || hop_wf >= 0x100) {
 		OSM_LOG(m->p_log, OSM_LOG_DEBUG,
-			"bad hop weight factor specified for guid 0x%016" PRIx64 "port %u\n",
-			guid, port);
+			"bad hop weight factor specified for guid 0x%016" PRIx64
+			"port %u\n", guid, port);
 		return 0;
 	}
 
@@ -613,9 +605,9 @@ static int set_hop_wf(void *ctx, uint64_t guid, char *p)
 	return 0;
 }
 
-static void set_default_hop_wf(cl_map_item_t * const p_map_item, void *ctx)
+static void set_default_hop_wf(cl_map_item_t * p_map_item, void *ctx)
 {
-	osm_switch_t *sw = (osm_switch_t *)p_map_item;
+	osm_switch_t *sw = (osm_switch_t *) p_map_item;
 	int i;
 
 	for (i = 1; i < sw->num_ports; i++) {
@@ -627,7 +619,7 @@ static void set_default_hop_wf(cl_map_item_t * const p_map_item, void *ctx)
 
 /**********************************************************************
  **********************************************************************/
-int osm_ucast_mgr_build_lid_matrices(IN osm_ucast_mgr_t * const p_mgr)
+int osm_ucast_mgr_build_lid_matrices(IN osm_ucast_mgr_t * p_mgr)
 {
 	uint32_t i;
 	uint32_t iteration_max;
@@ -640,7 +632,7 @@ int osm_ucast_mgr_build_lid_matrices(IN osm_ucast_mgr_t * const p_mgr)
 
 	/*
 	   Set up the weighting factors for the routing.
-	*/
+	 */
 	cl_qmap_apply_func(p_sw_guid_tbl, set_default_hop_wf, NULL);
 	if (p_mgr->p_subn->opt.hop_weights_file) {
 		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
@@ -759,9 +751,9 @@ static int add_guid_to_order_list(void *ctx, uint64_t guid, char *p)
 	return 0;
 }
 
-static void add_port_to_order_list(cl_map_item_t * const p_map_item, void *ctx)
+static void add_port_to_order_list(cl_map_item_t * p_map_item, void *ctx)
 {
-	osm_port_t *port = (osm_port_t *)p_map_item;
+	osm_port_t *port = (osm_port_t *) p_map_item;
 	osm_ucast_mgr_t *m = ctx;
 
 	if (!port->flag)
@@ -800,9 +792,9 @@ static int mark_ignored_port(void *ctx, uint64_t guid, char *p)
 	return 0;
 }
 
-static void clear_prof_ignore_flag(cl_map_item_t * const p_map_item, void *ctx)
+static void clear_prof_ignore_flag(cl_map_item_t * p_map_item, void *ctx)
 {
-	osm_switch_t *sw = (osm_switch_t *)p_map_item;
+	osm_switch_t *sw = (osm_switch_t *) p_map_item;
 	int i;
 
 	for (i = 1; i < sw->num_ports; i++) {
@@ -812,7 +804,8 @@ static void clear_prof_ignore_flag(cl_map_item_t * const p_map_item, void *ctx)
 	}
 }
 
-static void add_sw_endports_to_order_list(osm_switch_t *sw, osm_ucast_mgr_t *m)
+static void add_sw_endports_to_order_list(osm_switch_t * sw,
+					  osm_ucast_mgr_t * m)
 {
 	osm_port_t *port;
 	osm_physp_t *p;
@@ -822,7 +815,8 @@ static void add_sw_endports_to_order_list(osm_switch_t *sw, osm_ucast_mgr_t *m)
 		p = osm_node_get_physp_ptr(sw->p_node, i);
 		if (p && p->p_remote_physp && !p->p_remote_physp->p_node->sw) {
 			port = osm_get_port_by_guid(m->p_subn,
-						    p->p_remote_physp->port_guid);
+						    p->p_remote_physp->
+						    port_guid);
 			cl_qlist_insert_tail(&m->port_order_list,
 					     &port->list_item);
 			port->flag = 1;
@@ -830,7 +824,7 @@ static void add_sw_endports_to_order_list(osm_switch_t *sw, osm_ucast_mgr_t *m)
 	}
 }
 
-static void sw_count_endport_links(osm_switch_t *sw)
+static void sw_count_endport_links(osm_switch_t * sw)
 {
 	osm_physp_t *p;
 	int i;
@@ -849,7 +843,7 @@ static int compar_sw_load(const void *s1, const void *s2)
 	return get_sw_endport_links(s2) - get_sw_endport_links(s1);
 }
 
-static void sort_ports_by_switch_load(osm_ucast_mgr_t *m)
+static void sort_ports_by_switch_load(osm_ucast_mgr_t * m)
 {
 	int i, num = cl_qmap_count(&m->p_subn->sw_guid_tbl);
 	void **s = malloc(num * sizeof(*s));
@@ -860,7 +854,7 @@ static void sort_ports_by_switch_load(osm_ucast_mgr_t *m)
 	}
 	s[0] = cl_qmap_head(&m->p_subn->sw_guid_tbl);
 	for (i = 1; i < num; i++)
-		s[i] = cl_qmap_next(s[i-1]);
+		s[i] = cl_qmap_next(s[i - 1]);
 
 	for (i = 0; i < num; i++)
 		sw_count_endport_links(s[i]);
@@ -871,7 +865,7 @@ static void sort_ports_by_switch_load(osm_ucast_mgr_t *m)
 		add_sw_endports_to_order_list(s[i], m);
 }
 
-static int ucast_mgr_build_lfts(osm_ucast_mgr_t *p_mgr)
+static int ucast_mgr_build_lfts(osm_ucast_mgr_t * p_mgr)
 {
 	cl_qlist_init(&p_mgr->port_order_list);
 
@@ -912,7 +906,7 @@ static int ucast_mgr_build_lfts(osm_ucast_mgr_t *p_mgr)
 
 /**********************************************************************
  **********************************************************************/
-static int ucast_mgr_route(struct osm_routing_engine *r, osm_opensm_t *osm)
+static int ucast_mgr_route(struct osm_routing_engine *r, osm_opensm_t * osm)
 {
 	int ret;
 
@@ -944,7 +938,7 @@ static int ucast_mgr_route(struct osm_routing_engine *r, osm_opensm_t *osm)
 	return 0;
 }
 
-int osm_ucast_mgr_process(IN osm_ucast_mgr_t * const p_mgr)
+int osm_ucast_mgr_process(IN osm_ucast_mgr_t * p_mgr)
 {
 	osm_opensm_t *p_osm;
 	struct osm_routing_engine *p_routing_eng;
@@ -1002,7 +996,7 @@ static int ucast_build_lfts(void *context)
 	return ucast_mgr_build_lfts(context);
 }
 
-int osm_ucast_minhop_setup(struct osm_routing_engine *r, osm_opensm_t *osm)
+int osm_ucast_minhop_setup(struct osm_routing_engine *r, osm_opensm_t * osm)
 {
 	r->context = &osm->sm.ucast_mgr;
 	r->build_lid_matrices = ucast_build_lid_matrices;
@@ -1022,7 +1016,7 @@ static int ucast_dor_build_lfts(void *context)
 	return ret;
 }
 
-int osm_ucast_dor_setup(struct osm_routing_engine *r, osm_opensm_t *osm)
+int osm_ucast_dor_setup(struct osm_routing_engine *r, osm_opensm_t * osm)
 {
 	r->context = &osm->sm.ucast_mgr;
 	r->build_lid_matrices = ucast_build_lid_matrices;

@@ -76,11 +76,13 @@ typedef struct osm_smir_search_ctxt {
 	const osm_physp_t *p_req_physp;
 } osm_smir_search_ctxt_t;
 
-static ib_api_status_t
-smir_rcv_new_smir(IN osm_sa_t * sa, IN const osm_port_t * const p_port,
-		  IN cl_qlist_t * const p_list, IN ib_net64_t const guid,
-		  IN ib_net32_t const act_count, IN uint8_t const pri_state,
-		  IN const osm_physp_t * const p_req_physp)
+static ib_api_status_t smir_rcv_new_smir(IN osm_sa_t * sa,
+					 IN const osm_port_t * p_port,
+					 IN cl_qlist_t * p_list,
+					 IN ib_net64_t const guid,
+					 IN ib_net32_t const act_count,
+					 IN uint8_t const pri_state,
+					 IN const osm_physp_t * p_req_physp)
 {
 	osm_smir_item_t *p_rec_item;
 	ib_api_status_t status = IB_SUCCESS;
@@ -109,15 +111,14 @@ smir_rcv_new_smir(IN osm_sa_t * sa, IN const osm_port_t * const p_port,
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);
-	return (status);
+	return status;
 }
 
 /**********************************************************************
  **********************************************************************/
-static void
-sa_smir_by_comp_mask(IN osm_sa_t * sa,
-		     IN const osm_remote_sm_t * const p_rem_sm,
-		     osm_smir_search_ctxt_t * const p_ctxt)
+static void sa_smir_by_comp_mask(IN osm_sa_t * sa,
+				 IN const osm_remote_sm_t * p_rem_sm,
+				 osm_smir_search_ctxt_t * p_ctxt)
 {
 	const ib_sminfo_record_t *const p_rcvd_rec = p_ctxt->p_rcvd_rec;
 	const osm_physp_t *const p_req_physp = p_ctxt->p_req_physp;
@@ -154,12 +155,10 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-static void
-sa_smir_by_comp_mask_cb(IN cl_map_item_t * const p_map_item, IN void *context)
+static void sa_smir_by_comp_mask_cb(IN cl_map_item_t * p_map_item, IN void *cxt)
 {
-	const osm_remote_sm_t *const p_rem_sm = (osm_remote_sm_t *) p_map_item;
-	osm_smir_search_ctxt_t *const p_ctxt =
-	    (osm_smir_search_ctxt_t *) context;
+	const osm_remote_sm_t *p_rem_sm = (osm_remote_sm_t *) p_map_item;
+	osm_smir_search_ctxt_t *p_ctxt = cxt;
 
 	sa_smir_by_comp_mask(p_ctxt->sa, p_rem_sm, p_ctxt);
 }
@@ -192,8 +191,7 @@ void osm_smir_rcv_process(IN void *ctx, IN void *data)
 	CL_ASSERT(p_madw);
 
 	sad_mad = osm_madw_get_sa_mad_ptr(p_madw);
-	p_rcvd_rec =
-	    (ib_sminfo_record_t *) ib_sa_mad_get_payload_ptr(sad_mad);
+	p_rcvd_rec = (ib_sminfo_record_t *) ib_sa_mad_get_payload_ptr(sad_mad);
 	comp_mask = sad_mad->comp_mask;
 
 	CL_ASSERT(sad_mad->attr_id == IB_MAD_ATTR_SMINFO_RECORD);
@@ -277,7 +275,7 @@ void osm_smir_rcv_process(IN void *ctx, IN void *data)
 				goto Remotes;
 			if ((comp_mask & IB_SMIR_COMPMASK_PRIORITY) &&
 			    sa->p_subn->opt.sm_priority !=
-			       ib_sminfo_get_priority(p_smi))
+			    ib_sminfo_get_priority(p_smi))
 				goto Remotes;
 			if ((comp_mask & IB_SMIR_COMPMASK_SMSTATE) &&
 			    sa->p_subn->sm_state != ib_sminfo_get_state(p_smi))
@@ -285,12 +283,12 @@ void osm_smir_rcv_process(IN void *ctx, IN void *data)
 
 			/* Now, add local SMInfo to list */
 			pri_state = sa->p_subn->sm_state & 0x0F;
-			pri_state |=
-			    (sa->p_subn->opt.sm_priority & 0x0F) << 4;
+			pri_state |= (sa->p_subn->opt.sm_priority & 0x0F) << 4;
 			smir_rcv_new_smir(sa, local_port, context.p_list,
 					  sa->p_subn->sm_port_guid,
-					  cl_ntoh32(sa->p_subn->p_osm->stats.qp0_mads_sent),
-					  pri_state, p_req_physp);
+					  cl_ntoh32(sa->p_subn->p_osm->stats.
+						    qp0_mads_sent), pri_state,
+					  p_req_physp);
 		}
 
 	      Remotes:

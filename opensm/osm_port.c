@@ -56,7 +56,7 @@
 
 /**********************************************************************
  **********************************************************************/
-void osm_physp_construct(IN osm_physp_t * const p_physp)
+void osm_physp_construct(IN osm_physp_t * p_physp)
 {
 	memset(p_physp, 0, sizeof(*p_physp));
 	osm_dr_path_construct(&p_physp->dr_path);
@@ -66,7 +66,7 @@ void osm_physp_construct(IN osm_physp_t * const p_physp)
 
 /**********************************************************************
  **********************************************************************/
-void osm_physp_destroy(IN osm_physp_t * const p_physp)
+void osm_physp_destroy(IN osm_physp_t * p_physp)
 {
 	size_t num_slvl, i;
 
@@ -88,14 +88,10 @@ void osm_physp_destroy(IN osm_physp_t * const p_physp)
 
 /**********************************************************************
  **********************************************************************/
-void
-osm_physp_init(IN osm_physp_t * const p_physp,
-	       IN const ib_net64_t port_guid,
-	       IN const uint8_t port_num,
-	       IN const struct osm_node *const p_node,
-	       IN const osm_bind_handle_t h_bind,
-	       IN const uint8_t hop_count,
-	       IN const uint8_t * const p_initial_path)
+void osm_physp_init(IN osm_physp_t * p_physp, IN const ib_net64_t port_guid,
+		    IN uint8_t port_num, IN const struct osm_node *const p_node,
+		    IN const osm_bind_handle_t h_bind, IN uint8_t hop_count,
+		    IN const uint8_t * p_initial_path)
 {
 	uint16_t num_slvl, i;
 	ib_slvl_table_t *p_slvl;
@@ -134,7 +130,7 @@ osm_physp_init(IN osm_physp_t * const p_physp,
 
 /**********************************************************************
  **********************************************************************/
-void osm_port_delete(IN OUT osm_port_t ** const pp_port)
+void osm_port_delete(IN OUT osm_port_t ** pp_port)
 {
 	/* cleanup all mcm recs attached */
 	osm_port_remove_all_mgrp(*pp_port);
@@ -145,7 +141,7 @@ void osm_port_delete(IN OUT osm_port_t ** const pp_port)
 /**********************************************************************
  **********************************************************************/
 osm_port_t *osm_port_new(IN const ib_node_info_t * p_ni,
-			 IN osm_node_t * const p_parent_node)
+			 IN osm_node_t * p_parent_node)
 {
 	osm_port_t *p_port;
 	ib_net64_t port_guid;
@@ -162,7 +158,7 @@ osm_port_t *osm_port_new(IN const ib_node_info_t * p_ni,
 	port_guid = p_ni->port_guid;
 	p_port->guid = port_guid;
 	port_num = p_ni->node_type == IB_NODE_TYPE_SWITCH ?
-		0 : ib_node_info_get_local_port_num(p_ni);
+	    0 : ib_node_info_get_local_port_num(p_ni);
 
 	/*
 	   Get the pointers to the physical node objects "owned" by this
@@ -179,10 +175,8 @@ osm_port_t *osm_port_new(IN const ib_node_info_t * p_ni,
 
 /**********************************************************************
  **********************************************************************/
-void
-osm_port_get_lid_range_ho(IN const osm_port_t * const p_port,
-			  IN uint16_t * const p_min_lid,
-			  IN uint16_t * const p_max_lid)
+void osm_port_get_lid_range_ho(IN const osm_port_t * p_port,
+			       IN uint16_t * p_min_lid, IN uint16_t * p_max_lid)
 {
 	uint8_t lmc;
 
@@ -193,10 +187,9 @@ osm_port_get_lid_range_ho(IN const osm_port_t * const p_port,
 
 /**********************************************************************
  **********************************************************************/
-ib_api_status_t
-osm_get_port_by_base_lid(IN const osm_subn_t * const p_subn,
-			 IN const ib_net16_t lid,
-			 IN OUT const osm_port_t ** const pp_port)
+ib_api_status_t osm_get_port_by_base_lid(IN const osm_subn_t * p_subn,
+					 IN ib_net16_t lid,
+					 IN OUT const osm_port_t ** pp_port)
 {
 	ib_api_status_t status;
 	uint16_t base_lid;
@@ -230,8 +223,7 @@ Found:
 
 /**********************************************************************
  **********************************************************************/
-ib_api_status_t
-osm_port_add_mgrp(IN osm_port_t * const p_port, IN const ib_net16_t mlid)
+ib_api_status_t osm_port_add_mgrp(IN osm_port_t * p_port, IN ib_net16_t mlid)
 {
 	ib_api_status_t status = IB_SUCCESS;
 	osm_mcm_info_t *p_mcm;
@@ -243,25 +235,23 @@ osm_port_add_mgrp(IN osm_port_t * const p_port, IN const ib_net16_t mlid)
 	else
 		status = IB_INSUFFICIENT_MEMORY;
 
-	return (status);
+	return status;
 }
 
 /**********************************************************************
  **********************************************************************/
-static cl_status_t
-port_mgrp_find_func(IN const cl_list_item_t * const p_list_item,
-		    IN void *context)
+static cl_status_t port_mgrp_find_func(IN const cl_list_item_t * p_list_item,
+				       IN void *context)
 {
 	if (*((ib_net16_t *) context) == ((osm_mcm_info_t *) p_list_item)->mlid)
-		return (CL_SUCCESS);
+		return CL_SUCCESS;
 	else
-		return (CL_NOT_FOUND);
+		return CL_NOT_FOUND;
 }
 
 /**********************************************************************
  **********************************************************************/
-void
-osm_port_remove_mgrp(IN osm_port_t * const p_port, IN const ib_net16_t mlid)
+void osm_port_remove_mgrp(IN osm_port_t * p_port, IN const ib_net16_t mlid)
 {
 	cl_list_item_t *p_mcm;
 
@@ -276,7 +266,7 @@ osm_port_remove_mgrp(IN osm_port_t * const p_port, IN const ib_net16_t mlid)
 
 /**********************************************************************
  **********************************************************************/
-void osm_port_remove_all_mgrp(IN osm_port_t * const p_port)
+void osm_port_remove_all_mgrp(IN osm_port_t * p_port)
 {
 	cl_list_item_t *p_mcm;
 
@@ -289,8 +279,8 @@ void osm_port_remove_all_mgrp(IN osm_port_t * const p_port)
 
 /**********************************************************************
  **********************************************************************/
-uint8_t
-osm_physp_calc_link_mtu(IN osm_log_t * p_log, IN const osm_physp_t * p_physp)
+uint8_t osm_physp_calc_link_mtu(IN osm_log_t * p_log,
+				IN const osm_physp_t * p_physp)
 {
 	const osm_physp_t *p_remote_physp;
 	uint8_t mtu;
@@ -324,8 +314,9 @@ osm_physp_calc_link_mtu(IN osm_log_t * p_log, IN const osm_physp_t * p_physp)
 				"\n\t\t\t\tUsing lower MTU of %u\n",
 				cl_ntoh64(osm_physp_get_port_guid(p_physp)),
 				osm_physp_get_port_num(p_physp),
-				cl_ntoh64(osm_physp_get_port_guid(p_remote_physp)),
-				osm_physp_get_port_num(p_remote_physp),mtu);
+				cl_ntoh64(osm_physp_get_port_guid
+					  (p_remote_physp)),
+				osm_physp_get_port_num(p_remote_physp), mtu);
 		}
 	} else
 		mtu = ib_port_info_get_neighbor_mtu(&p_physp->port_info);
@@ -337,15 +328,14 @@ osm_physp_calc_link_mtu(IN osm_log_t * p_log, IN const osm_physp_t * p_physp)
 	}
 
 	OSM_LOG_EXIT(p_log);
-	return (mtu);
+	return mtu;
 }
 
 /**********************************************************************
  **********************************************************************/
-uint8_t
-osm_physp_calc_link_op_vls(IN osm_log_t * p_log,
-			   IN const osm_subn_t * p_subn,
-			   IN const osm_physp_t * p_physp)
+uint8_t osm_physp_calc_link_op_vls(IN osm_log_t * p_log,
+				   IN const osm_subn_t * p_subn,
+				   IN const osm_physp_t * p_physp)
 {
 	const osm_physp_t *p_remote_physp;
 	uint8_t op_vls;
@@ -379,7 +369,8 @@ osm_physp_calc_link_op_vls(IN osm_log_t * p_log,
 				"\n\t\t\t\tUsing lower OP_VLS of %u\n",
 				cl_ntoh64(osm_physp_get_port_guid(p_physp)),
 				osm_physp_get_port_num(p_physp),
-				cl_ntoh64(osm_physp_get_port_guid(p_remote_physp)),
+				cl_ntoh64(osm_physp_get_port_guid
+					  (p_remote_physp)),
 				osm_physp_get_port_num(p_remote_physp), op_vls);
 		}
 	} else
@@ -396,7 +387,7 @@ osm_physp_calc_link_op_vls(IN osm_log_t * p_log,
 	}
 
 	OSM_LOG_EXIT(p_log);
-	return (op_vls);
+	return op_vls;
 }
 
 static inline uint64_t ptr_to_key(void const *p)
@@ -420,10 +411,10 @@ static inline void *key_to_ptr(uint64_t k)
  add every phys port traversed to the map. Avoid tracking the first and
  last phys ports (going into the first switch and into the target port).
  **********************************************************************/
-static cl_status_t
-physp_get_dr_physp_set(IN osm_log_t * p_log, IN osm_subn_t const *p_subn,
-		       IN osm_dr_path_t const *p_path,
-		       OUT cl_map_t * p_physp_map)
+static cl_status_t physp_get_dr_physp_set(IN osm_log_t * p_log,
+					  IN osm_subn_t const *p_subn,
+					  IN osm_dr_path_t const *p_path,
+					  OUT cl_map_t * p_physp_map)
 {
 	osm_port_t *p_port;
 	osm_physp_t *p_physp;
@@ -491,10 +482,9 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-static void
-physp_update_new_dr_path(IN osm_physp_t const *p_dest_physp,
-			 IN cl_map_t * p_visited_map,
-			 IN osm_bind_handle_t * h_bind)
+static void physp_update_new_dr_path(IN osm_physp_t const *p_dest_physp,
+				     IN cl_map_t * p_visited_map,
+				     IN osm_bind_handle_t * h_bind)
 {
 	cl_list_t tmpPortsList;
 	osm_physp_t *p_physp, *p_src_physp = NULL;
@@ -541,12 +531,12 @@ physp_update_new_dr_path(IN osm_physp_t const *p_dest_physp,
 
 /**********************************************************************
  **********************************************************************/
-void
-osm_physp_replace_dr_path_with_alternate_dr_path(IN osm_log_t * p_log,
-						 IN osm_subn_t const *p_subn,
-						 IN osm_physp_t const
-						 *p_dest_physp,
-						 IN osm_bind_handle_t * h_bind)
+void osm_physp_replace_dr_path_with_alternate_dr_path(IN osm_log_t * p_log,
+						      IN osm_subn_t const
+						      *p_subn, IN osm_physp_t const
+						      *p_dest_physp,
+						      IN osm_bind_handle_t *
+						      h_bind)
 {
 	cl_map_t physp_map;
 	cl_map_t visited_map;
@@ -644,11 +634,12 @@ osm_physp_replace_dr_path_with_alternate_dr_path(IN osm_log_t * p_log,
 					       ptr_to_key(p_remote_physp))
 				    == NULL
 				    && cl_map_get(&visited_map,
-						  ptr_to_key(p_remote_physp))
-						  == NULL) {
+						  ptr_to_key
+						  (p_remote_physp)) == NULL) {
 					/* Insert the port into the visited_map, and save its source port */
 					cl_map_insert(&visited_map,
-						      ptr_to_key(p_remote_physp),
+						      ptr_to_key
+						      (p_remote_physp),
 						      p_physp);
 
 					/* Is this the p_dest_physp? */
@@ -700,7 +691,7 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-boolean_t osm_link_is_healthy(IN const osm_physp_t * const p_physp)
+boolean_t osm_link_is_healthy(IN const osm_physp_t * p_physp)
 {
 	osm_physp_t *p_remote_physp;
 
@@ -709,16 +700,15 @@ boolean_t osm_link_is_healthy(IN const osm_physp_t * const p_physp)
 	if (p_remote_physp != NULL)
 		return ((p_physp->healthy) & (p_remote_physp->healthy));
 	/* the other side is not known - consider the link as healthy */
-	return (TRUE);
+	return TRUE;
 }
 
 /**********************************************************************
  **********************************************************************/
-void
-osm_physp_set_pkey_tbl(IN osm_log_t * p_log,
-		       IN const osm_subn_t * p_subn,
-		       IN osm_physp_t * const p_physp,
-		       IN ib_pkey_table_t * p_pkey_tbl, IN uint16_t block_num)
+void osm_physp_set_pkey_tbl(IN osm_log_t * p_log, IN const osm_subn_t * p_subn,
+			    IN osm_physp_t * p_physp,
+			    IN ib_pkey_table_t * p_pkey_tbl,
+			    IN uint16_t block_num)
 {
 	uint16_t max_blocks;
 

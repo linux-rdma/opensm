@@ -66,9 +66,9 @@ typedef struct osm_pkey_search_ctxt {
 
 /**********************************************************************
  **********************************************************************/
-static void
-sa_pkey_create(IN osm_sa_t * sa, IN osm_physp_t * const p_physp,
-	       IN osm_pkey_search_ctxt_t * const p_ctxt, IN uint16_t block)
+static void sa_pkey_create(IN osm_sa_t * sa, IN osm_physp_t * p_physp,
+			   IN osm_pkey_search_ctxt_t * p_ctxt,
+			   IN uint16_t block)
 {
 	osm_pkey_item_t *p_rec_item;
 	uint16_t lid;
@@ -111,9 +111,8 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-static void
-sa_pkey_check_physp(IN osm_sa_t * sa, IN osm_physp_t * const p_physp,
-		    osm_pkey_search_ctxt_t * const p_ctxt)
+static void sa_pkey_check_physp(IN osm_sa_t * sa, IN osm_physp_t * p_physp,
+				osm_pkey_search_ctxt_t * p_ctxt)
 {
 	ib_net64_t comp_mask = p_ctxt->comp_mask;
 	uint16_t block, num_blocks;
@@ -127,9 +126,8 @@ sa_pkey_check_physp(IN osm_sa_t * sa, IN osm_physp_t * const p_physp,
 		num_blocks =
 		    osm_pkey_tbl_get_num_blocks(osm_physp_get_pkey_tbl
 						(p_physp));
-		for (block = 0; block < num_blocks; block++) {
+		for (block = 0; block < num_blocks; block++)
 			sa_pkey_create(sa, p_physp, p_ctxt, block);
-		}
 	}
 
 	OSM_LOG_EXIT(sa->p_log);
@@ -137,9 +135,8 @@ sa_pkey_check_physp(IN osm_sa_t * sa, IN osm_physp_t * const p_physp,
 
 /**********************************************************************
  **********************************************************************/
-static void
-sa_pkey_by_comp_mask(IN osm_sa_t * sa, IN const osm_port_t * const p_port,
-		     osm_pkey_search_ctxt_t * const p_ctxt)
+static void sa_pkey_by_comp_mask(IN osm_sa_t * sa, IN const osm_port_t * p_port,
+				 osm_pkey_search_ctxt_t * p_ctxt)
 {
 	const ib_pkey_table_record_t *p_rcvd_rec;
 	ib_net64_t comp_mask;
@@ -173,8 +170,8 @@ sa_pkey_by_comp_mask(IN osm_sa_t * sa, IN const osm_port_t * const p_port,
 			/* Check that the p_physp is valid, and that is shares a pkey
 			   with the p_req_physp. */
 			if (p_physp &&
-			    (osm_physp_share_pkey
-			     (sa->p_log, p_req_physp, p_physp)))
+			    osm_physp_share_pkey(sa->p_log, p_req_physp,
+						 p_physp))
 				sa_pkey_check_physp(sa, p_physp, p_ctxt);
 		} else {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4603: "
@@ -206,12 +203,10 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-static void
-sa_pkey_by_comp_mask_cb(IN cl_map_item_t * const p_map_item, IN void *context)
+static void sa_pkey_by_comp_mask_cb(IN cl_map_item_t * p_map_item, IN void *cxt)
 {
-	const osm_port_t *const p_port = (osm_port_t *) p_map_item;
-	osm_pkey_search_ctxt_t *const p_ctxt =
-	    (osm_pkey_search_ctxt_t *) context;
+	const osm_port_t *p_port = (osm_port_t *) p_map_item;
+	osm_pkey_search_ctxt_t *p_ctxt = cxt;
 
 	sa_pkey_by_comp_mask(p_ctxt->sa, p_port, p_ctxt);
 }
@@ -280,7 +275,7 @@ void osm_pkey_rec_rcv_process(IN void *ctx, IN void *data)
 		goto Exit;
 	}
 
-	p_pkey = (ib_pkey_table_t *) ib_sa_mad_get_payload_ptr(p_rcvd_mad);
+	p_pkey = ib_sa_mad_get_payload_ptr(p_rcvd_mad);
 
 	cl_qlist_init(&rec_list);
 

@@ -83,9 +83,8 @@ shall, upon receiving a Set(InformInfo), verify that the requester
 originating the Set(InformInfo) and a Trap() source identified by Inform-
 can access each other - can use path record to verify that.
 **********************************************************************/
-static boolean_t
-__validate_ports_access_rights(IN osm_sa_t * sa,
-			       IN osm_infr_t * p_infr_rec)
+static boolean_t validate_ports_access_rights(IN osm_sa_t * sa,
+					      IN osm_infr_t * p_infr_rec)
 {
 	boolean_t valid = TRUE;
 	osm_physp_t *p_requester_physp;
@@ -186,14 +185,13 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-static boolean_t
-__validate_infr(IN osm_sa_t * sa, IN osm_infr_t * p_infr_rec)
+static boolean_t validate_infr(IN osm_sa_t * sa, IN osm_infr_t * p_infr_rec)
 {
 	boolean_t valid = TRUE;
 
 	OSM_LOG_ENTER(sa->p_log);
 
-	valid = __validate_ports_access_rights(sa, p_infr_rec);
+	valid = validate_ports_access_rights(sa, p_infr_rec);
 	if (!valid) {
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Invalid Access for InformInfo\n");
@@ -209,8 +207,7 @@ o13-12.1.1: Confirm a valid request for event subscription by responding
 with an InformInfo attribute that is a copy of the data in the
 Set(InformInfo) request.
 **********************************************************************/
-static void
-infr_rcv_respond(IN osm_sa_t * sa, IN osm_madw_t * const p_madw)
+static void infr_rcv_respond(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 {
 	cl_qlist_t rec_list;
 	osm_iir_item_t *item;
@@ -242,10 +239,9 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-static void
-sa_inform_info_rec_by_comp_mask(IN osm_sa_t * sa,
-				IN const osm_infr_t * const p_infr,
-				osm_iir_search_ctxt_t * const p_ctxt)
+static void sa_inform_info_rec_by_comp_mask(IN osm_sa_t * sa,
+					    IN const osm_infr_t * p_infr,
+					    osm_iir_search_ctxt_t * p_ctxt)
 {
 	const ib_inform_info_record_t *p_rcvd_rec = NULL;
 	ib_net64_t comp_mask;
@@ -263,7 +259,7 @@ sa_inform_info_rec_by_comp_mask(IN osm_sa_t * sa,
 
 	if (comp_mask & IB_IIR_COMPMASK_SUBSCRIBERGID &&
 	    memcmp(&p_infr->inform_record.subscriber_gid,
-	    	   &p_ctxt->subscriber_gid,
+		   &p_ctxt->subscriber_gid,
 		   sizeof(p_infr->inform_record.subscriber_gid)))
 		goto Exit;
 
@@ -287,8 +283,7 @@ sa_inform_info_rec_by_comp_mask(IN osm_sa_t * sa,
 	p_subscriber_physp = p_subscriber_port->p_physp;
 	/* make sure that the requester and subscriber port can access each other
 	   according to the current partitioning. */
-	if (!osm_physp_share_pkey
-	    (sa->p_log, p_req_physp, p_subscriber_physp)) {
+	if (!osm_physp_share_pkey(sa->p_log, p_req_physp, p_subscriber_physp)) {
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"requester and subscriber ports don't share pkey\n");
 		goto Exit;
@@ -301,7 +296,7 @@ sa_inform_info_rec_by_comp_mask(IN osm_sa_t * sa,
 		goto Exit;
 	}
 
-	memcpy((void *)&p_rec_item->rec, (void *)&p_infr->inform_record,
+	memcpy(&p_rec_item->rec, &p_infr->inform_record,
 	       sizeof(ib_inform_info_record_t));
 	cl_qlist_insert_tail(p_ctxt->p_list, &p_rec_item->list_item);
 
@@ -311,12 +306,11 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-static void
-sa_inform_info_rec_by_comp_mask_cb(IN cl_list_item_t * const p_list_item,
-				   IN void *context)
+static void sa_inform_info_rec_by_comp_mask_cb(IN cl_list_item_t * p_list_item,
+					       IN void *context)
 {
-	const osm_infr_t *const p_infr = (osm_infr_t *) p_list_item;
-	osm_iir_search_ctxt_t *const p_ctxt = (osm_iir_search_ctxt_t *) context;
+	const osm_infr_t *p_infr = (osm_infr_t *) p_list_item;
+	osm_iir_search_ctxt_t *p_ctxt = context;
 
 	sa_inform_info_rec_by_comp_mask(p_ctxt->sa, p_infr, p_ctxt);
 }
@@ -324,9 +318,7 @@ sa_inform_info_rec_by_comp_mask_cb(IN cl_list_item_t * const p_list_item,
 /**********************************************************************
 Received a Get(InformInfoRecord) or GetTable(InformInfoRecord) MAD
 **********************************************************************/
-static void
-osm_infr_rcv_process_get_method(IN osm_sa_t * sa,
-				IN osm_madw_t * const p_madw)
+static void infr_rcv_process_get_method(osm_sa_t * sa, IN osm_madw_t * p_madw)
 {
 	char gid_str[INET6_ADDRSTRLEN];
 	ib_sa_mad_t *p_rcvd_mad;
@@ -370,7 +362,7 @@ osm_infr_rcv_process_get_method(IN osm_sa_t * sa,
 	OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 		"Query Subscriber GID:%s(%02X) Enum:0x%X(%02X)\n",
 		inet_ntop(AF_INET6, p_rcvd_rec->subscriber_gid.raw,
-			gid_str, sizeof gid_str),
+			  gid_str, sizeof gid_str),
 		(p_rcvd_mad->comp_mask & IB_IIR_COMPMASK_SUBSCRIBERGID) != 0,
 		cl_ntoh16(p_rcvd_rec->subscriber_enum),
 		(p_rcvd_mad->comp_mask & IB_IIR_COMPMASK_ENUM) != 0);
@@ -385,7 +377,7 @@ osm_infr_rcv_process_get_method(IN osm_sa_t * sa,
 	/* clear reserved and pad fields in InformInfoRecord */
 	for (item = (osm_iir_item_t *) cl_qlist_head(&rec_list);
 	     item != (osm_iir_item_t *) cl_qlist_end(&rec_list);
-	     item = (osm_iir_item_t *)cl_qlist_next(&item->list_item)) {
+	     item = (osm_iir_item_t *) cl_qlist_next(&item->list_item)) {
 		memset(item->rec.reserved, 0, sizeof(item->rec.reserved));
 		memset(item->rec.pad, 0, sizeof(item->rec.pad));
 	}
@@ -399,9 +391,7 @@ Exit:
 /*********************************************************************
 Received a Set(InformInfo) MAD
 **********************************************************************/
-static void
-osm_infr_rcv_process_set_method(IN osm_sa_t * sa,
-				IN osm_madw_t * const p_madw)
+static void infr_rcv_process_set_method(osm_sa_t * sa, IN osm_madw_t * p_madw)
 {
 	ib_sa_mad_t *p_sa_mad;
 	ib_inform_info_t *p_recvd_inform_info;
@@ -494,13 +484,12 @@ osm_infr_rcv_process_set_method(IN osm_sa_t * sa,
 	}
 
 	/* If record exists with matching InformInfo */
-	p_infr =
-	    osm_infr_get_by_rec(sa->p_subn, sa->p_log, &inform_info_rec);
+	p_infr = osm_infr_get_by_rec(sa->p_subn, sa->p_log, &inform_info_rec);
 
 	/* check to see if the request was for subscribe */
 	if (p_recvd_inform_info->subscribe) {
 		/* validate the request for a new or update InformInfo */
-		if (__validate_infr(sa, &inform_info_rec) != TRUE) {
+		if (validate_infr(sa, &inform_info_rec) != TRUE) {
 			cl_plock_release(sa->p_lock);
 
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4305: "
@@ -535,7 +524,7 @@ osm_infr_rcv_process_set_method(IN osm_sa_t * sa,
 		} else
 			/* Update the old instance of the osm_infr_t object */
 			p_infr->inform_record = inform_info_rec.inform_record;
-	/* We got an UnSubscribe request */
+		/* We got an UnSubscribe request */
 	} else if (p_infr == NULL) {
 		cl_plock_release(sa->p_lock);
 
@@ -584,7 +573,7 @@ void osm_infr_rcv_process(IN void *context, IN void *data)
 		goto Exit;
 	}
 
-	osm_infr_rcv_process_set_method(sa, p_madw);
+	infr_rcv_process_set_method(sa, p_madw);
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);
@@ -614,7 +603,7 @@ void osm_infir_rcv_process(IN void *context, IN void *data)
 		goto Exit;
 	}
 
-	osm_infr_rcv_process_get_method(sa, p_madw);
+	infr_rcv_process_get_method(sa, p_madw);
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);

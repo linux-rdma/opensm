@@ -89,7 +89,7 @@ static void state_mgr_up_msg(IN const osm_sm_t * sm)
 
 /**********************************************************************
  **********************************************************************/
-static void state_mgr_reset_node_count(IN cl_map_item_t * const p_map_item,
+static void state_mgr_reset_node_count(IN cl_map_item_t * p_map_item,
 				       IN void *context)
 {
 	osm_node_t *p_node = (osm_node_t *) p_map_item;
@@ -99,7 +99,7 @@ static void state_mgr_reset_node_count(IN cl_map_item_t * const p_map_item,
 
 /**********************************************************************
  **********************************************************************/
-static void state_mgr_reset_port_count(IN cl_map_item_t * const p_map_item,
+static void state_mgr_reset_port_count(IN cl_map_item_t * p_map_item,
 				       IN void *context)
 {
 	osm_port_t *p_port = (osm_port_t *) p_map_item;
@@ -109,9 +109,8 @@ static void state_mgr_reset_port_count(IN cl_map_item_t * const p_map_item,
 
 /**********************************************************************
  **********************************************************************/
-static void
-state_mgr_reset_switch_count(IN cl_map_item_t * const p_map_item,
-			     IN void *context)
+static void state_mgr_reset_switch_count(IN cl_map_item_t * p_map_item,
+					 IN void *context)
 {
 	osm_switch_t *p_sw = (osm_switch_t *) p_map_item;
 
@@ -120,8 +119,7 @@ state_mgr_reset_switch_count(IN cl_map_item_t * const p_map_item,
 
 /**********************************************************************
  **********************************************************************/
-static void state_mgr_get_sw_info(IN cl_map_item_t * const p_object,
-				  IN void *context)
+static void state_mgr_get_sw_info(IN cl_map_item_t * p_object, IN void *context)
 {
 	osm_node_t *p_node;
 	osm_dr_path_t *p_dr_path;
@@ -133,7 +131,8 @@ static void state_mgr_get_sw_info(IN cl_map_item_t * const p_object,
 	OSM_LOG_ENTER(sm->p_log);
 
 	p_node = p_sw->p_node;
-	p_dr_path = osm_physp_get_dr_path_ptr(osm_node_get_physp_ptr(p_node, 0));
+	p_dr_path =
+	    osm_physp_get_dr_path_ptr(osm_node_get_physp_ptr(p_node, 0));
 
 	memset(&mad_context, 0, sizeof(mad_context));
 
@@ -154,9 +153,8 @@ static void state_mgr_get_sw_info(IN cl_map_item_t * const p_object,
 /**********************************************************************
  Initiate a remote port info request for the given physical port
  **********************************************************************/
-static void
-state_mgr_get_remote_port_info(IN osm_sm_t * sm,
-			       IN osm_physp_t * const p_physp)
+static void state_mgr_get_remote_port_info(IN osm_sm_t * sm,
+					   IN osm_physp_t * p_physp)
 {
 	osm_dr_path_t *p_dr_path;
 	osm_dr_path_t rem_node_dr_path;
@@ -253,7 +251,7 @@ static ib_api_status_t state_mgr_sweep_hop_0(IN osm_sm_t * sm)
 	}
 
 	OSM_LOG_EXIT(sm->p_log);
-	return (status);
+	return status;
 }
 
 /**********************************************************************
@@ -276,7 +274,7 @@ static ib_api_status_t state_mgr_clean_known_lids(IN osm_sm_t * sm)
 	CL_PLOCK_RELEASE(sm->p_lock);
 
 	OSM_LOG_EXIT(sm->p_log);
-	return (status);
+	return status;
 }
 
 /**********************************************************************
@@ -312,7 +310,7 @@ static ib_api_status_t state_mgr_notify_lid_change(IN osm_sm_t * sm)
 
 Exit:
 	OSM_LOG_EXIT(sm->p_log);
-	return (status);
+	return status;
 }
 
 /**********************************************************************
@@ -476,7 +474,8 @@ static ib_api_status_t state_mgr_sweep_hop_1(IN osm_sm_t * sm)
 						     &context);
 
 				if (status != IB_SUCCESS)
-					OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3312: "
+					OSM_LOG(sm->p_log, OSM_LOG_ERROR,
+						"ERR 3312: "
 						"Request for NodeInfo failed\n");
 			}
 		}
@@ -490,10 +489,10 @@ static ib_api_status_t state_mgr_sweep_hop_1(IN osm_sm_t * sm)
 
 Exit:
 	OSM_LOG_EXIT(sm->p_log);
-	return (status);
+	return status;
 }
 
-static void query_sm_info(cl_map_item_t *item, void *cxt)
+static void query_sm_info(cl_map_item_t * item, void *cxt)
 {
 	osm_madw_context_t context;
 	osm_remote_sm_t *r_sm = cl_item_obj(item, r_sm, map_item);
@@ -516,11 +515,10 @@ static void query_sm_info(cl_map_item_t *item, void *cxt)
  During a light sweep, check each node to see if the node description
  is valid and if not issue a ND query.
 **********************************************************************/
-static void state_mgr_get_node_desc(IN cl_map_item_t * const p_object,
-				    IN void *context)
+static void state_mgr_get_node_desc(IN cl_map_item_t * obj, IN void *context)
 {
 	osm_madw_context_t mad_context;
-	osm_node_t *const p_node = (osm_node_t *) p_object;
+	osm_node_t *p_node = (osm_node_t *) obj;
 	osm_sm_t *sm = context;
 	osm_physp_t *p_physp = NULL;
 	unsigned i, num_ports;
@@ -530,14 +528,15 @@ static void state_mgr_get_node_desc(IN cl_map_item_t * const p_object,
 
 	CL_ASSERT(p_node);
 
-	if (p_node->print_desc && strcmp(p_node->print_desc, OSM_NODE_DESC_UNKNOWN))
+	if (p_node->print_desc
+	    && strcmp(p_node->print_desc, OSM_NODE_DESC_UNKNOWN))
 		/* if ND is valid, do nothing */
 		goto exit;
 
 	OSM_LOG(sm->p_log, OSM_LOG_ERROR,
 		"ERR 3319: Unknown node description for node GUID "
 		"0x%016" PRIx64 ".  Reissuing ND query\n",
-		cl_ntoh64(osm_node_get_node_guid (p_node)));
+		cl_ntoh64(osm_node_get_node_guid(p_node)));
 
 	/* get a physp to request from. */
 	num_ports = osm_node_get_num_physp(p_node);
@@ -600,7 +599,8 @@ static ib_api_status_t state_mgr_light_sweep_start(IN osm_sm_t * sm)
 	CL_PLOCK_RELEASE(sm->p_lock);
 
 	CL_PLOCK_ACQUIRE(sm->p_lock);
-	cl_qmap_apply_func(&sm->p_subn->node_guid_tbl, state_mgr_get_node_desc, sm);
+	cl_qmap_apply_func(&sm->p_subn->node_guid_tbl, state_mgr_get_node_desc,
+			   sm);
 	CL_PLOCK_RELEASE(sm->p_lock);
 
 	/* now scan the list of physical ports that were not down but have no remote port */
@@ -639,7 +639,7 @@ static ib_api_status_t state_mgr_light_sweep_start(IN osm_sm_t * sm)
 
 _exit:
 	OSM_LOG_EXIT(sm->p_log);
-	return (status);
+	return status;
 }
 
 /**********************************************************************
@@ -676,7 +676,7 @@ static osm_remote_sm_t *state_mgr_exists_other_master_sm(IN osm_sm_t * sm)
 
 Exit:
 	OSM_LOG_EXIT(sm->p_log);
-	return (p_sm_res);
+	return p_sm_res;
 }
 
 /**********************************************************************
@@ -732,16 +732,14 @@ static osm_remote_sm_t *state_mgr_get_highest_sm(IN osm_sm_t * sm)
 			p_highest_sm->p_port->p_node->print_desc : "UNKNOWN");
 
 	OSM_LOG_EXIT(sm->p_log);
-	return (p_highest_sm);
+	return p_highest_sm;
 }
 
 /**********************************************************************
  * Send SubnSet(SMInfo) SMP with HANDOVER attribute to the
  * remote_sm indicated.
  **********************************************************************/
-static void
-state_mgr_send_handover(IN osm_sm_t * const sm,
-			IN osm_remote_sm_t * const p_sm)
+static void state_mgr_send_handover(IN osm_sm_t * sm, IN osm_remote_sm_t * p_sm)
 {
 	uint8_t payload[IB_SMP_DATA_SIZE];
 	ib_sm_info_t *p_smi = (ib_sm_info_t *) payload;
@@ -998,9 +996,9 @@ static void state_mgr_check_tbl_consistency(IN osm_sm_t * sm)
 	OSM_LOG_EXIT(sm->p_log);
 }
 
-static void cleanup_switch(cl_map_item_t *item, void *log)
+static void cleanup_switch(cl_map_item_t * item, void *log)
 {
-	osm_switch_t *sw = (osm_switch_t *)item;
+	osm_switch_t *sw = (osm_switch_t *) item;
 
 	if (!sw->new_lft)
 		return;
@@ -1357,7 +1355,8 @@ _repeat_discovery:
 	 */
 	cl_event_signal(&sm->subnet_up_event);
 
-	osm_opensm_report_event(sm->p_subn->p_osm, OSM_EVENT_ID_SUBNET_UP, NULL);
+	osm_opensm_report_event(sm->p_subn->p_osm, OSM_EVENT_ID_SUBNET_UP,
+				NULL);
 
 	/* if we got a signal to force heavy sweep or errors
 	 * in the middle of the sweep - try another sweep. */
@@ -1380,8 +1379,7 @@ void osm_state_mgr_process(IN osm_sm_t * sm, IN osm_signal_t signal)
 
 	OSM_LOG_ENTER(sm->p_log);
 
-	OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-		"Received signal %s in state %s\n",
+	OSM_LOG(sm->p_log, OSM_LOG_DEBUG, "Received signal %s in state %s\n",
 		osm_get_sm_signal_str(signal),
 		osm_get_sm_mgr_state_str(sm->p_subn->sm_state));
 

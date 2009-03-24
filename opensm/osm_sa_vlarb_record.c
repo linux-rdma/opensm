@@ -73,10 +73,9 @@ typedef struct osm_vl_arb_search_ctxt {
 
 /**********************************************************************
  **********************************************************************/
-static void
-sa_vl_arb_create(IN osm_sa_t * sa, IN osm_physp_t * const p_physp,
-		 IN osm_vl_arb_search_ctxt_t * const p_ctxt,
-		 IN uint8_t block)
+static void sa_vl_arb_create(IN osm_sa_t * sa, IN osm_physp_t * p_physp,
+			     IN osm_vl_arb_search_ctxt_t * p_ctxt,
+			     IN uint8_t block)
 {
 	osm_vl_arb_item_t *p_rec_item;
 	uint16_t lid;
@@ -118,9 +117,8 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-static void
-sa_vl_arb_check_physp(IN osm_sa_t * sa, IN osm_physp_t * const p_physp,
-		      osm_vl_arb_search_ctxt_t * const p_ctxt)
+static void sa_vl_arb_check_physp(IN osm_sa_t * sa, IN osm_physp_t * p_physp,
+				  osm_vl_arb_search_ctxt_t * p_ctxt)
 {
 	ib_net64_t comp_mask = p_ctxt->comp_mask;
 	uint8_t block;
@@ -130,9 +128,8 @@ sa_vl_arb_check_physp(IN osm_sa_t * sa, IN osm_physp_t * const p_physp,
 	/* we got here with the phys port - all that's left is to get the right block */
 	for (block = 1; block <= 4; block++) {
 		if (!(comp_mask & IB_VLA_COMPMASK_BLOCK)
-		    || block == p_ctxt->block_num) {
+		    || block == p_ctxt->block_num)
 			sa_vl_arb_create(sa, p_physp, p_ctxt, block);
-		}
 	}
 
 	OSM_LOG_EXIT(sa->p_log);
@@ -140,9 +137,8 @@ sa_vl_arb_check_physp(IN osm_sa_t * sa, IN osm_physp_t * const p_physp,
 
 /**********************************************************************
  **********************************************************************/
-static void
-sa_vl_arb_by_comp_mask(IN osm_sa_t * sa, IN const osm_port_t * const p_port,
-		       osm_vl_arb_search_ctxt_t * const p_ctxt)
+static void sa_vl_arb_by_comp_mask(osm_sa_t * sa, IN const osm_port_t * p_port,
+				   osm_vl_arb_search_ctxt_t * p_ctxt)
 {
 	const ib_vl_arb_table_record_t *p_rcvd_rec;
 	ib_net64_t comp_mask;
@@ -209,13 +205,10 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-static void
-sa_vl_arb_by_comp_mask_cb(IN cl_map_item_t * const p_map_item,
-			  IN void *context)
+static void sa_vl_arb_by_comp_mask_cb(IN cl_map_item_t * p_map_item, void *cxt)
 {
-	const osm_port_t *const p_port = (osm_port_t *) p_map_item;
-	osm_vl_arb_search_ctxt_t *const p_ctxt =
-	    (osm_vl_arb_search_ctxt_t *) context;
+	const osm_port_t *p_port = (osm_port_t *) p_map_item;
+	osm_vl_arb_search_ctxt_t *p_ctxt = cxt;
 
 	sa_vl_arb_by_comp_mask(p_ctxt->sa, p_port, p_ctxt);
 }
@@ -313,8 +306,7 @@ void osm_vlarb_rec_rcv_process(IN void *ctx, IN void *data)
 			sa_vl_arb_by_comp_mask(sa, p_port, &context);
 		else
 			cl_qmap_apply_func(&sa->p_subn->port_guid_tbl,
-					   sa_vl_arb_by_comp_mask_cb,
-					   &context);
+					   sa_vl_arb_by_comp_mask_cb, &context);
 	}
 
 	cl_plock_release(sa->p_lock);

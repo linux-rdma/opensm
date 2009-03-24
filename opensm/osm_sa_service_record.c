@@ -79,10 +79,10 @@ typedef struct osm_sr_search_ctxt {
 /**********************************************************************
  **********************************************************************/
 static boolean_t
-__match_service_pkey_with_ports_pkey(IN osm_sa_t * sa,
-				     IN const osm_madw_t * const p_madw,
-				     ib_service_record_t * const p_service_rec,
-				     ib_net64_t const comp_mask)
+match_service_pkey_with_ports_pkey(IN osm_sa_t * sa,
+				   IN const osm_madw_t * p_madw,
+				   ib_service_record_t * p_service_rec,
+				   ib_net64_t const comp_mask)
 {
 	boolean_t valid = TRUE;
 	osm_physp_t *p_req_physp;
@@ -90,8 +90,7 @@ __match_service_pkey_with_ports_pkey(IN osm_sa_t * sa,
 	osm_port_t *service_port;
 
 	/* update the requester physical port. */
-	p_req_physp = osm_get_physp_by_mad_addr(sa->p_log,
-						sa->p_subn,
+	p_req_physp = osm_get_physp_by_mad_addr(sa->p_log, sa->p_subn,
 						osm_madw_get_mad_addr_ptr
 						(p_madw));
 	if (p_req_physp == NULL) {
@@ -141,9 +140,9 @@ Exit:
 /**********************************************************************
  **********************************************************************/
 static boolean_t
-__match_name_to_key_association(IN osm_sa_t * sa,
-				ib_service_record_t * p_service_rec,
-				ib_net64_t comp_mask)
+match_name_to_key_association(IN osm_sa_t * sa,
+			      ib_service_record_t * p_service_rec,
+			      ib_net64_t comp_mask)
 {
 	UNUSED_PARAM(p_service_rec);
 	UNUSED_PARAM(sa);
@@ -161,8 +160,7 @@ __match_name_to_key_association(IN osm_sa_t * sa,
 
 /**********************************************************************
  **********************************************************************/
-static boolean_t
-__validate_sr(IN osm_sa_t * sa, IN const osm_madw_t * const p_madw)
+static boolean_t validate_sr(IN osm_sa_t * sa, IN const osm_madw_t * p_madw)
 {
 	boolean_t valid = TRUE;
 	ib_sa_mad_t *p_sa_mad;
@@ -174,11 +172,9 @@ __validate_sr(IN osm_sa_t * sa, IN const osm_madw_t * const p_madw)
 	p_recvd_service_rec =
 	    (ib_service_record_t *) ib_sa_mad_get_payload_ptr(p_sa_mad);
 
-	valid = __match_service_pkey_with_ports_pkey(sa,
-						     p_madw,
-						     p_recvd_service_rec,
-						     p_sa_mad->comp_mask);
-
+	valid = match_service_pkey_with_ports_pkey(sa, p_madw,
+						   p_recvd_service_rec,
+						   p_sa_mad->comp_mask);
 	if (!valid) {
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"No Match for Service Pkey\n");
@@ -186,10 +182,8 @@ __validate_sr(IN osm_sa_t * sa, IN const osm_madw_t * const p_madw)
 		goto Exit;
 	}
 
-	valid = __match_name_to_key_association(sa,
-						p_recvd_service_rec,
-						p_sa_mad->comp_mask);
-
+	valid = match_name_to_key_association(sa, p_recvd_service_rec,
+					      p_sa_mad->comp_mask);
 	if (!valid) {
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Service Record Name to key matching failed\n");
@@ -204,9 +198,8 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-static void
-sr_rcv_respond(IN osm_sa_t * sa, IN osm_madw_t * const p_madw,
-	       IN cl_qlist_t * const p_list)
+static void sr_rcv_respond(IN osm_sa_t * sa, IN osm_madw_t * p_madw,
+			   IN cl_qlist_t * p_list)
 {
 	/* p923 - The ServiceKey shall be set to 0, except in the case of
 	   a trusted request.
@@ -218,7 +211,7 @@ sr_rcv_respond(IN osm_sa_t * sa, IN osm_madw_t * const p_madw,
 		osm_sr_item_t *item;
 		for (item = (osm_sr_item_t *) cl_qlist_head(p_list);
 		     item != (osm_sr_item_t *) cl_qlist_end(p_list);
-		     item = (osm_sr_item_t *)cl_qlist_next(&item->list_item))
+		     item = (osm_sr_item_t *) cl_qlist_next(&item->list_item))
 			memset(item->service_rec.service_key, 0,
 			       sizeof(item->service_rec.service_key));
 	}
@@ -228,10 +221,9 @@ sr_rcv_respond(IN osm_sa_t * sa, IN osm_madw_t * const p_madw,
 
 /**********************************************************************
  **********************************************************************/
-static void
-__get_matching_sr(IN cl_list_item_t * const p_list_item, IN void *context)
+static void get_matching_sr(IN cl_list_item_t * p_list_item, IN void *context)
 {
-	osm_sr_search_ctxt_t *const p_ctxt = (osm_sr_search_ctxt_t *) context;
+	osm_sr_search_ctxt_t *p_ctxt = context;
 	osm_svcr_t *p_svcr = (osm_svcr_t *) p_list_item;
 	osm_sr_item_t *p_sr_pool_item;
 	osm_sr_match_item_t *p_sr_item = p_ctxt->p_sr_item;
@@ -457,9 +449,7 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-static void
-osm_sr_rcv_process_get_method(IN osm_sa_t * sa,
-			      IN osm_madw_t * const p_madw)
+static void sr_rcv_process_get_method(osm_sa_t * sa, IN osm_madw_t * p_madw)
 {
 	ib_sa_mad_t *p_sa_mad;
 	ib_service_record_t *p_recvd_service_rec;
@@ -472,8 +462,7 @@ osm_sr_rcv_process_get_method(IN osm_sa_t * sa,
 	CL_ASSERT(p_madw);
 
 	/* update the requester physical port. */
-	p_req_physp = osm_get_physp_by_mad_addr(sa->p_log,
-						sa->p_subn,
+	p_req_physp = osm_get_physp_by_mad_addr(sa->p_log, sa->p_subn,
 						osm_madw_get_mad_addr_ptr
 						(p_madw));
 	if (p_req_physp == NULL) {
@@ -501,8 +490,7 @@ osm_sr_rcv_process_get_method(IN osm_sa_t * sa,
 	/* Grab the lock */
 	cl_plock_excl_acquire(sa->p_lock);
 
-	cl_qlist_apply_func(&sa->p_subn->sa_sr_list,
-			    __get_matching_sr, &context);
+	cl_qlist_apply_func(&sa->p_subn->sa_sr_list, get_matching_sr, &context);
 
 	cl_plock_release(sa->p_lock);
 
@@ -510,7 +498,6 @@ osm_sr_rcv_process_get_method(IN osm_sa_t * sa,
 	    cl_qlist_count(&sr_match_item.sr_list) == 0) {
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"No records matched the Service Record query\n");
-
 		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_NO_RECORDS);
 		goto Exit;
 	}
@@ -524,9 +511,7 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-static void
-osm_sr_rcv_process_set_method(IN osm_sa_t * sa,
-			      IN osm_madw_t * const p_madw)
+static void sr_rcv_process_set_method(osm_sa_t * sa, IN osm_madw_t * p_madw)
 {
 	ib_sa_mad_t *p_sa_mad;
 	ib_service_record_t *p_recvd_service_rec;
@@ -569,8 +554,8 @@ osm_sr_rcv_process_set_method(IN osm_sa_t * sa,
 	cl_plock_excl_acquire(sa->p_lock);
 
 	/* If Record exists with matching RID */
-	p_svcr = osm_svcr_get_by_rid(sa->p_subn,
-				     sa->p_log, p_recvd_service_rec);
+	p_svcr = osm_svcr_get_by_rid(sa->p_subn, sa->p_log,
+				     p_recvd_service_rec);
 
 	if (p_svcr == NULL) {
 		/* Create the instance of the osm_svcr_t object */
@@ -589,10 +574,8 @@ osm_sr_rcv_process_set_method(IN osm_sa_t * sa,
 		/* Add this new osm_svcr_t object to subnet object */
 		osm_svcr_insert_to_db(sa->p_subn, sa->p_log, p_svcr);
 
-	} else {
-		/* Update the old instance of the osm_svcr_t object */
+	} else			/* Update the old instance of the osm_svcr_t object */
 		osm_svcr_init(p_svcr, p_recvd_service_rec);
-	}
 
 	cl_plock_release(sa->p_lock);
 
@@ -615,10 +598,9 @@ osm_sr_rcv_process_set_method(IN osm_sa_t * sa,
 		goto Exit;
 	}
 
-	if ((comp_mask & IB_SR_COMPMASK_SPKEY) != IB_SR_COMPMASK_SPKEY) {
+	if ((comp_mask & IB_SR_COMPMASK_SPKEY) != IB_SR_COMPMASK_SPKEY)
 		/* Set the Default Service P_Key in the response */
 		p_recvd_service_rec->service_pkey = IB_DEFAULT_PKEY;
-	}
 
 	p_sr_item->service_rec = *p_recvd_service_rec;
 	cl_qlist_init(&sr_list);
@@ -633,8 +615,7 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-static void
-sr_rcv_process_delete_method(IN osm_sa_t * sa, IN osm_madw_t * const p_madw)
+static void sr_rcv_process_delete_method(osm_sa_t * sa, IN osm_madw_t * p_madw)
 {
 	ib_sa_mad_t *p_sa_mad;
 	ib_service_record_t *p_recvd_service_rec;
@@ -661,8 +642,8 @@ sr_rcv_process_delete_method(IN osm_sa_t * sa, IN osm_madw_t * const p_madw)
 	cl_plock_excl_acquire(sa->p_lock);
 
 	/* If Record exists with matching RID */
-	p_svcr = osm_svcr_get_by_rid(sa->p_subn,
-				     sa->p_log, p_recvd_service_rec);
+	p_svcr = osm_svcr_get_by_rid(sa->p_subn, sa->p_log,
+				     p_recvd_service_rec);
 
 	if (p_svcr == NULL) {
 		cl_plock_release(sa->p_lock);
@@ -719,7 +700,7 @@ void osm_sr_rcv_process(IN void *context, IN void *data)
 
 	switch (p_sa_mad->method) {
 	case IB_MAD_METHOD_SET:
-		valid = __validate_sr(sa, p_madw);
+		valid = validate_sr(sa, p_madw);
 		if (!valid) {
 			OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
 				"Component Mask check failed for set request\n");
@@ -727,10 +708,10 @@ void osm_sr_rcv_process(IN void *context, IN void *data)
 					  IB_SA_MAD_STATUS_REQ_INVALID);
 			goto Exit;
 		}
-		osm_sr_rcv_process_set_method(sa, p_madw);
+		sr_rcv_process_set_method(sa, p_madw);
 		break;
 	case IB_MAD_METHOD_DELETE:
-		valid = __validate_sr(sa, p_madw);
+		valid = validate_sr(sa, p_madw);
 		if (!valid) {
 			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 				"Component Mask check failed for delete request\n");
@@ -742,7 +723,7 @@ void osm_sr_rcv_process(IN void *context, IN void *data)
 		break;
 	case IB_MAD_METHOD_GET:
 	case IB_MAD_METHOD_GETTABLE:
-		osm_sr_rcv_process_get_method(sa, p_madw);
+		sr_rcv_process_get_method(sa, p_madw);
 		break;
 	default:
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
@@ -819,8 +800,7 @@ void osm_sr_rcv_lease_cb(IN void *context)
 			p_next_list_item = cl_qlist_next(p_list_item);
 
 			/* Remove the service Record */
-			osm_svcr_remove_from_db(sa->p_subn,
-						sa->p_log, p_svcr);
+			osm_svcr_remove_from_db(sa->p_subn, sa->p_log, p_svcr);
 
 			osm_svcr_delete(p_svcr);
 

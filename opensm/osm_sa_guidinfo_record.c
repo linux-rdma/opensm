@@ -72,13 +72,13 @@ typedef struct osm_gir_search_ctxt {
 
 /**********************************************************************
  **********************************************************************/
-static ib_api_status_t
-gir_rcv_new_gir(IN osm_sa_t * sa, IN const osm_node_t * const p_node,
-		IN cl_qlist_t * const p_list,
-		IN ib_net64_t const match_port_guid,
-		IN ib_net16_t const match_lid,
-		IN const osm_physp_t * const p_req_physp,
-		IN uint8_t const block_num)
+static ib_api_status_t gir_rcv_new_gir(IN osm_sa_t * sa,
+				       IN const osm_node_t * p_node,
+				       IN cl_qlist_t * p_list,
+				       IN ib_net64_t const match_port_guid,
+				       IN ib_net16_t const match_lid,
+				       IN const osm_physp_t * p_req_physp,
+				       IN uint8_t const block_num)
 {
 	osm_gir_item_t *p_rec_item;
 	ib_api_status_t status = IB_SUCCESS;
@@ -114,13 +114,12 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-static void
-sa_gir_create_gir(IN osm_sa_t * sa, IN osm_node_t * const p_node,
-		  IN cl_qlist_t * const p_list,
-		  IN ib_net64_t const match_port_guid,
-		  IN ib_net16_t const match_lid,
-		  IN const osm_physp_t * const p_req_physp,
-		  IN uint8_t const match_block_num)
+static void sa_gir_create_gir(IN osm_sa_t * sa, IN osm_node_t * p_node,
+			      IN cl_qlist_t * p_list,
+			      IN ib_net64_t const match_port_guid,
+			      IN ib_net16_t const match_lid,
+			      IN const osm_physp_t * p_req_physp,
+			      IN uint8_t const match_block_num)
 {
 	const osm_physp_t *p_physp;
 	uint8_t port_num;
@@ -207,7 +206,6 @@ sa_gir_create_gir(IN osm_sa_t * sa, IN osm_node_t * const p_node,
 			gir_rcv_new_gir(sa, p_node, p_list, port_guid,
 					cl_ntoh16(base_lid_ho), p_physp,
 					block_num);
-
 	}
 
 	OSM_LOG_EXIT(sa->p_log);
@@ -215,11 +213,9 @@ sa_gir_create_gir(IN osm_sa_t * sa, IN osm_node_t * const p_node,
 
 /**********************************************************************
  **********************************************************************/
-static void
-sa_gir_by_comp_mask_cb(IN cl_map_item_t * const p_map_item, IN void *context)
+static void sa_gir_by_comp_mask_cb(IN cl_map_item_t * p_map_item, IN void *cxt)
 {
-	const osm_gir_search_ctxt_t *const p_ctxt =
-	    (osm_gir_search_ctxt_t *) context;
+	const osm_gir_search_ctxt_t *p_ctxt = cxt;
 	osm_node_t *const p_node = (osm_node_t *) p_map_item;
 	const ib_guidinfo_record_t *const p_rcvd_rec = p_ctxt->p_rcvd_rec;
 	const osm_physp_t *const p_req_physp = p_ctxt->p_req_physp;

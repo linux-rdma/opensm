@@ -106,14 +106,14 @@ typedef struct osm_lid_mgr_range {
 
 /**********************************************************************
  **********************************************************************/
-void osm_lid_mgr_construct(IN osm_lid_mgr_t * const p_mgr)
+void osm_lid_mgr_construct(IN osm_lid_mgr_t * p_mgr)
 {
 	memset(p_mgr, 0, sizeof(*p_mgr));
 }
 
 /**********************************************************************
  **********************************************************************/
-void osm_lid_mgr_destroy(IN osm_lid_mgr_t * const p_mgr)
+void osm_lid_mgr_destroy(IN osm_lid_mgr_t * p_mgr)
 {
 	cl_list_item_t *p_item;
 
@@ -156,27 +156,29 @@ static void lid_mgr_validate_db(IN osm_lid_mgr_t * p_mgr)
 
 	p_item = (osm_db_guid_elem_t *) cl_qlist_remove_head(&guids);
 	while ((cl_list_item_t *) p_item != cl_qlist_end(&guids)) {
-		if (osm_db_guid2lid_get
-		    (p_mgr->p_g2l, p_item->guid, &min_lid, &max_lid))
+		if (osm_db_guid2lid_get(p_mgr->p_g2l, p_item->guid,
+					&min_lid, &max_lid))
 			OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 0311: "
 				"could not get lid for guid:0x%016" PRIx64 "\n",
 				p_item->guid);
 		else {
 			lids_ok = TRUE;
 
-			if ((min_lid > max_lid) || (min_lid == 0)
-			    || (p_item->guid == 0)
-			    || (max_lid > p_mgr->p_subn->max_ucast_lid_ho)) {
-				OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 0312: "
+			if (min_lid > max_lid || min_lid == 0
+			    || p_item->guid == 0
+			    || max_lid > p_mgr->p_subn->max_ucast_lid_ho) {
+				OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR,
+					"ERR 0312: "
 					"Illegal LID range [%u:%u] for "
 					"guid:0x%016" PRIx64 "\n", min_lid,
 					max_lid, p_item->guid);
 				lids_ok = FALSE;
-			} else if ((min_lid != max_lid)
-				   && ((min_lid & lmc_mask) != min_lid)) {
+			} else if (min_lid != max_lid
+				   && (min_lid & lmc_mask) != min_lid) {
 				/* check that if the lids define a range that is valid
 				   for the current LMC mask */
-				OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 0313: "
+				OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR,
+					"ERR 0313: "
 					"LID range [%u:%u] for guid:0x%016"
 					PRIx64
 					" is not aligned according to mask:0x%04x\n",
@@ -188,7 +190,8 @@ static void lid_mgr_validate_db(IN osm_lid_mgr_t * p_mgr)
 				for (lid = min_lid; lid <= max_lid; lid++) {
 					if (p_mgr->used_lids[lid]) {
 						OSM_LOG(p_mgr->p_log,
-							OSM_LOG_ERROR, "ERR 0314: "
+							OSM_LOG_ERROR,
+							"ERR 0314: "
 							"0x%04x for guid:0x%016"
 							PRIx64
 							" was previously used\n",
@@ -199,8 +202,8 @@ static void lid_mgr_validate_db(IN osm_lid_mgr_t * p_mgr)
 			}
 
 			if (!lids_ok) {
-				if (osm_db_guid2lid_delete
-				    (p_mgr->p_g2l, p_item->guid))
+				if (osm_db_guid2lid_delete(p_mgr->p_g2l,
+							   p_item->guid))
 					OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR,
 						"ERR 0315: "
 						"failed to delete entry for "
@@ -221,8 +224,7 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-ib_api_status_t
-osm_lid_mgr_init(IN osm_lid_mgr_t * const p_mgr, IN osm_sm_t *sm)
+ib_api_status_t osm_lid_mgr_init(IN osm_lid_mgr_t * p_mgr, IN osm_sm_t * sm)
 {
 	ib_api_status_t status = IB_SUCCESS;
 
@@ -281,7 +283,7 @@ Exit:
 
 static uint16_t trim_lid(IN uint16_t lid)
 {
-	if ((lid > IB_LID_UCAST_END_HO) || (lid < IB_LID_UCAST_START_HO))
+	if (lid > IB_LID_UCAST_END_HO || lid < IB_LID_UCAST_START_HO)
 		return 0;
 	return lid;
 }
@@ -292,7 +294,7 @@ static uint16_t trim_lid(IN uint16_t lid)
  re-calculate all empty ranges.
  cleanup invalid port_lid_tbl entries
 **********************************************************************/
-static int lid_mgr_init_sweep(IN osm_lid_mgr_t * const p_mgr)
+static int lid_mgr_init_sweep(IN osm_lid_mgr_t * p_mgr)
 {
 	cl_ptr_vector_t *p_discovered_vec = &p_mgr->p_subn->port_lid_tbl;
 	uint16_t max_defined_lid;
@@ -333,7 +335,8 @@ static int lid_mgr_init_sweep(IN osm_lid_mgr_t * const p_mgr)
 				"of standby\n");
 			osm_db_clear(p_mgr->p_g2l);
 			if (osm_db_restore(p_mgr->p_g2l))
-				OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 0306: "
+				OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR,
+					"ERR 0306: "
 					"Error restoring Guid-to-Lid "
 					"persistent database. Ignoring it\n");
 		}
@@ -353,8 +356,8 @@ static int lid_mgr_init_sweep(IN osm_lid_mgr_t * const p_mgr)
 	/* we if are in the first sweep and in reassign lids mode
 	   we should ignore all the available info and simply define one
 	   huge empty range */
-	if ((p_mgr->p_subn->first_time_master_sweep == TRUE) &&
-	    (p_mgr->p_subn->opt.reassign_lids == TRUE)) {
+	if (p_mgr->p_subn->first_time_master_sweep == TRUE &&
+	    p_mgr->p_subn->opt.reassign_lids == TRUE) {
 		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 			"Skipping all lids as we are reassigning them\n");
 		p_range =
@@ -388,9 +391,9 @@ static int lid_mgr_init_sweep(IN osm_lid_mgr_t * const p_mgr)
 		else
 			num_lids = 1;
 
-		if ((num_lids != 1) &&
-		    (((db_min_lid & lmc_mask) != db_min_lid) ||
-		     (db_max_lid - db_min_lid + 1 < num_lids))) {
+		if (num_lids != 1 &&
+		    ((db_min_lid & lmc_mask) != db_min_lid ||
+		     db_max_lid - db_min_lid + 1 < num_lids)) {
 			/* Not aligned, or not wide enough, then remove the entry */
 			OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 				"Cleaning persistent entry for guid:"
@@ -444,10 +447,11 @@ static int lid_mgr_init_sweep(IN osm_lid_mgr_t * const p_mgr)
 				"0x%04x is not free as its mapped by the "
 				"persistent db\n", lid);
 			is_free = FALSE;
-		/* check this is a discovered port */
-		} else if (lid <= max_discovered_lid
-			   && (p_port = (osm_port_t *)
-				cl_ptr_vector_get(p_discovered_vec, lid))) {
+			/* check this is a discovered port */
+		} else if (lid <= max_discovered_lid && (p_port = (osm_port_t *)
+							 cl_ptr_vector_get
+							 (p_discovered_vec,
+							  lid))) {
 			/* we have a port. Now lets see if we can preserve its lid range. */
 			/* For that, we need to make sure:
 			   1. The port has a (legal) persistency entry. Then the local lid
@@ -485,9 +489,9 @@ static int lid_mgr_init_sweep(IN osm_lid_mgr_t * const p_mgr)
 					num_lids = 1;
 
 				/* Make sure the lid is aligned */
-				if ((num_lids != 1)
-				    && ((disc_min_lid & lmc_mask) !=
-					disc_min_lid)) {
+				if (num_lids != 1
+				    && (disc_min_lid & lmc_mask) !=
+				    disc_min_lid) {
 					/* The lid cannot be used */
 					OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 						"0x%04x is free as it was "
@@ -580,10 +584,9 @@ AfterScanningLids:
 /**********************************************************************
  check if the given range of lids is free
 **********************************************************************/
-static boolean_t
-lid_mgr_is_range_not_persistent(IN osm_lid_mgr_t * const p_mgr,
-				IN const uint16_t lid,
-				IN const uint16_t num_lids)
+static boolean_t lid_mgr_is_range_not_persistent(IN osm_lid_mgr_t * p_mgr,
+						 IN const uint16_t lid,
+						 IN const uint16_t num_lids)
 {
 	uint16_t i;
 	const uint8_t start_lid = (uint8_t) (1 << p_mgr->p_subn->opt.lmc);
@@ -601,11 +604,10 @@ lid_mgr_is_range_not_persistent(IN osm_lid_mgr_t * const p_mgr,
 /**********************************************************************
 find a free lid range
 **********************************************************************/
-static void
-lid_mgr_find_free_lid_range(IN osm_lid_mgr_t * const p_mgr,
-			    IN const uint8_t num_lids,
-			    OUT uint16_t * const p_min_lid,
-			    OUT uint16_t * const p_max_lid)
+static void lid_mgr_find_free_lid_range(IN osm_lid_mgr_t * p_mgr,
+					IN const uint8_t num_lids,
+					OUT uint16_t * p_min_lid,
+					OUT uint16_t * p_max_lid)
 {
 	uint16_t lid;
 	cl_list_item_t *p_item;
@@ -666,9 +668,8 @@ lid_mgr_find_free_lid_range(IN osm_lid_mgr_t * const p_mgr,
 
 /**********************************************************************
  **********************************************************************/
-static void
-lid_mgr_cleanup_discovered_port_lid_range(IN osm_lid_mgr_t * p_mgr,
-					  IN osm_port_t * p_port)
+static void lid_mgr_cleanup_discovered_port_lid_range(IN osm_lid_mgr_t * p_mgr,
+						      IN osm_port_t * p_port)
 {
 	cl_ptr_vector_t *p_discovered_vec = &p_mgr->p_subn->port_lid_tbl;
 	uint16_t lid, min_lid, max_lid;
@@ -694,11 +695,10 @@ lid_mgr_cleanup_discovered_port_lid_range(IN osm_lid_mgr_t * p_mgr,
  0.3 else find an empty space in port_lid_tbl, update the
  port_lid_tbl and guid2lid, return 1 to flag a change required.
 **********************************************************************/
-static int
-lid_mgr_get_port_lid(IN osm_lid_mgr_t * const p_mgr,
-		     IN osm_port_t * const p_port,
-		     OUT uint16_t * const p_min_lid,
-		     OUT uint16_t * const p_max_lid)
+static int lid_mgr_get_port_lid(IN osm_lid_mgr_t * p_mgr,
+				IN osm_port_t * p_port,
+				OUT uint16_t * p_min_lid,
+				OUT uint16_t * p_max_lid)
 {
 	uint16_t lid, min_lid, max_lid;
 	uint64_t guid;
@@ -736,7 +736,8 @@ lid_mgr_get_port_lid(IN osm_lid_mgr_t * const p_mgr,
 				"does not match its known lid:%u\n",
 				guid, cl_ntoh16(osm_port_get_base_lid(p_port)),
 				min_lid);
-			lid_mgr_cleanup_discovered_port_lid_range(p_mgr, p_port);
+			lid_mgr_cleanup_discovered_port_lid_range(p_mgr,
+								  p_port);
 			/* we still need to send the setting to the target port */
 			lid_changed = 1;
 			goto Exit;
@@ -806,9 +807,8 @@ Exit:
 /**********************************************************************
  Set to INIT the remote port of the given physical port
  **********************************************************************/
-static void
-lid_mgr_set_remote_pi_state_to_init(IN osm_lid_mgr_t * const p_mgr,
-				    IN osm_physp_t * const p_physp)
+static void lid_mgr_set_remote_pi_state_to_init(IN osm_lid_mgr_t * p_mgr,
+						IN osm_physp_t * p_physp)
 {
 	osm_physp_t *p_rem_physp = osm_physp_get_remote(p_physp);
 
@@ -821,11 +821,10 @@ lid_mgr_set_remote_pi_state_to_init(IN osm_lid_mgr_t * const p_mgr,
 
 /**********************************************************************
  **********************************************************************/
-static boolean_t
-lid_mgr_set_physp_pi(IN osm_lid_mgr_t * const p_mgr,
-		     IN osm_port_t * const p_port,
-		     IN osm_physp_t * const p_physp,
-		     IN ib_net16_t const lid)
+static boolean_t lid_mgr_set_physp_pi(IN osm_lid_mgr_t * p_mgr,
+				      IN osm_port_t * p_port,
+				      IN osm_physp_t * p_physp,
+				      IN ib_net16_t const lid)
 {
 	uint8_t payload[IB_SMP_DATA_SIZE];
 	ib_port_info_t *p_pi = (ib_port_info_t *) payload;
@@ -984,8 +983,8 @@ lid_mgr_set_physp_pi(IN osm_lid_mgr_t * const p_mgr,
 		   To reset the port state machine we can send
 		   PortInfo.State = DOWN. (see: 7.2.7 p171 lines:10-19)
 		 */
-		if ((mtu != ib_port_info_get_neighbor_mtu(p_old_pi)) ||
-		    (op_vls != ib_port_info_get_op_vls(p_old_pi))) {
+		if (mtu != ib_port_info_get_neighbor_mtu(p_old_pi) ||
+		    op_vls != ib_port_info_get_op_vls(p_old_pi)) {
 			OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 				"Sending Link Down to GUID 0x%016"
 				PRIx64 " port %d due to op_vls or "
@@ -1073,8 +1072,7 @@ lid_mgr_set_physp_pi(IN osm_lid_mgr_t * const p_mgr,
 		p_mgr->send_set_reqs = TRUE;
 		status = osm_req_set(p_mgr->sm,
 				     osm_physp_get_dr_path_ptr(p_physp),
-				     payload,
-				     sizeof(payload),
+				     payload, sizeof(payload),
 				     IB_MAD_ATTR_PORT_INFO,
 				     cl_hton32(osm_physp_get_port_num(p_physp)),
 				     CL_DISP_MSGID_NONE, &context);
@@ -1089,8 +1087,7 @@ Exit:
  Processes our own node
  Lock must already be held.
 **********************************************************************/
-static boolean_t
-lid_mgr_process_our_sm_node(IN osm_lid_mgr_t * const p_mgr)
+static boolean_t lid_mgr_process_our_sm_node(IN osm_lid_mgr_t * p_mgr)
 {
 	osm_port_t *p_port;
 	uint16_t min_lid_ho;
@@ -1102,8 +1099,8 @@ lid_mgr_process_our_sm_node(IN osm_lid_mgr_t * const p_mgr)
 	/*
 	   Acquire our own port object.
 	 */
-	p_port =
-	    osm_get_port_by_guid(p_mgr->p_subn, p_mgr->p_subn->sm_port_guid);
+	p_port = osm_get_port_by_guid(p_mgr->p_subn,
+				      p_mgr->p_subn->sm_port_guid);
 	if (!p_port) {
 		OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 0308: "
 			"Can't acquire SM's port object, GUID 0x%016" PRIx64
@@ -1147,7 +1144,7 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-osm_signal_t osm_lid_mgr_process_sm(IN osm_lid_mgr_t * const p_mgr)
+osm_signal_t osm_lid_mgr_process_sm(IN osm_lid_mgr_t * p_mgr)
 {
 	osm_signal_t signal = OSM_SIGNAL_DONE_PENDING;
 
@@ -1184,7 +1181,7 @@ osm_signal_t osm_lid_mgr_process_sm(IN osm_lid_mgr_t * const p_mgr)
  1.2 if a change is required send the port info
  2 if any change send the signal PENDING...
 **********************************************************************/
-osm_signal_t osm_lid_mgr_process_subnet(IN osm_lid_mgr_t * const p_mgr)
+osm_signal_t osm_lid_mgr_process_subnet(IN osm_lid_mgr_t * p_mgr)
 {
 	osm_signal_t signal;
 	cl_qmap_t *p_port_guid_tbl;
@@ -1233,8 +1230,8 @@ osm_signal_t osm_lid_mgr_process_subnet(IN osm_lid_mgr_t * const p_mgr)
 		   sweep or if there was a change (the result of
 		   lid_mgr_get_port_lid)
 		 */
-		lid_changed =
-		    lid_mgr_get_port_lid(p_mgr, p_port, &min_lid_ho, &max_lid_ho);
+		lid_changed = lid_mgr_get_port_lid(p_mgr, p_port,
+						   &min_lid_ho, &max_lid_ho);
 
 		/* we can call the function to update the port info as it known
 		   to look for any field change and will only send an updated
@@ -1245,8 +1242,8 @@ osm_signal_t osm_lid_mgr_process_subnet(IN osm_lid_mgr_t * const p_mgr)
 			min_lid_ho, max_lid_ho);
 
 		/* the proc returns the fact it sent a set port info */
-		if (lid_mgr_set_physp_pi
-		    (p_mgr, p_port, p_port->p_physp, cl_hton16(min_lid_ho)))
+		if (lid_mgr_set_physp_pi(p_mgr, p_port, p_port->p_physp,
+					 cl_hton16(min_lid_ho)))
 			p_mgr->send_set_reqs = TRUE;
 	}			/* all ports */
 

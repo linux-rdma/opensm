@@ -66,9 +66,8 @@
  * SYNOPSIS
  */
 
-static void
-sm_mad_ctrl_retire_trans_mad(IN osm_sm_mad_ctrl_t * const p_ctrl,
-				   IN osm_madw_t * const p_madw)
+static void sm_mad_ctrl_retire_trans_mad(IN osm_sm_mad_ctrl_t * p_ctrl,
+					 IN osm_madw_t * p_madw)
 {
 	uint32_t outstanding;
 
@@ -105,11 +104,10 @@ sm_mad_ctrl_retire_trans_mad(IN osm_sm_mad_ctrl_t * const p_ctrl,
  *
  * SYNOPSIS
  */
-static void
-sm_mad_ctrl_disp_done_callback(IN void *context, IN void *p_data)
+static void sm_mad_ctrl_disp_done_callback(IN void *context, IN void *p_data)
 {
-	osm_sm_mad_ctrl_t *const p_ctrl = (osm_sm_mad_ctrl_t *) context;
-	osm_madw_t *const p_madw = (osm_madw_t *) p_data;
+	osm_sm_mad_ctrl_t *p_ctrl = context;
+	osm_madw_t *p_madw = p_data;
 	ib_smp_t *p_smp;
 
 	OSM_LOG_ENTER(p_ctrl->p_log);
@@ -147,8 +145,7 @@ sm_mad_ctrl_disp_done_callback(IN void *context, IN void *p_data)
  *
  * SYNOPSIS
  */
-static void
-sm_mad_ctrl_update_wire_stats(IN osm_sm_mad_ctrl_t * const p_ctrl)
+static void sm_mad_ctrl_update_wire_stats(IN osm_sm_mad_ctrl_t * p_ctrl)
 {
 	uint32_t mads_on_wire;
 
@@ -179,10 +176,9 @@ sm_mad_ctrl_update_wire_stats(IN osm_sm_mad_ctrl_t * const p_ctrl)
  *
  * SYNOPSIS
  */
-static void
-sm_mad_ctrl_process_get_resp(IN osm_sm_mad_ctrl_t * const p_ctrl,
-				   IN osm_madw_t * p_madw,
-				   IN void *transaction_context)
+static void sm_mad_ctrl_process_get_resp(IN osm_sm_mad_ctrl_t * p_ctrl,
+					 IN osm_madw_t * p_madw,
+					 IN void *transaction_context)
 {
 	ib_smp_t *p_smp;
 	cl_status_t status;
@@ -202,7 +198,7 @@ sm_mad_ctrl_process_get_resp(IN osm_sm_mad_ctrl_t * const p_ctrl,
 		osm_dump_dr_smp(p_ctrl->p_log, p_smp, OSM_LOG_ERROR);
 	}
 
-	p_old_madw = (osm_madw_t *) transaction_context;
+	p_old_madw = transaction_context;
 
 	sm_mad_ctrl_update_wire_stats(p_ctrl);
 
@@ -251,7 +247,6 @@ sm_mad_ctrl_process_get_resp(IN osm_sm_mad_ctrl_t * const p_ctrl,
 	case IB_MAD_ATTR_P_KEY_TABLE:
 		msg_id = OSM_MSG_MAD_PKEY;
 		break;
-
 	case IB_MAD_ATTR_GUID_INFO:
 	case IB_MAD_ATTR_CLASS_PORT_INFO:
 	case IB_MAD_ATTR_NOTICE:
@@ -299,9 +294,8 @@ Exit:
  *
  * SYNOPSIS
  */
-static void
-sm_mad_ctrl_process_get(IN osm_sm_mad_ctrl_t * const p_ctrl,
-			IN osm_madw_t * p_madw)
+static void sm_mad_ctrl_process_get(IN osm_sm_mad_ctrl_t * p_ctrl,
+				    IN osm_madw_t * p_madw)
 {
 	ib_smp_t *p_smp;
 	cl_status_t status;
@@ -319,7 +313,6 @@ sm_mad_ctrl_process_get(IN osm_sm_mad_ctrl_t * const p_ctrl,
 	case IB_MAD_ATTR_SM_INFO:
 		msg_id = OSM_MSG_MAD_SM_INFO;
 		break;
-
 	default:
 		cl_atomic_inc(&p_ctrl->p_stats->qp0_mads_rcvd_unknown);
 		OSM_LOG(p_ctrl->p_log, OSM_LOG_VERBOSE,
@@ -378,9 +371,8 @@ Exit:
  *
  * SYNOPSIS
  */
-static void
-sm_mad_ctrl_process_set(IN osm_sm_mad_ctrl_t * const p_ctrl,
-			IN osm_madw_t * p_madw)
+static void sm_mad_ctrl_process_set(IN osm_sm_mad_ctrl_t * p_ctrl,
+				    IN osm_madw_t * p_madw)
 {
 	ib_smp_t *p_smp;
 	cl_status_t status;
@@ -398,7 +390,6 @@ sm_mad_ctrl_process_set(IN osm_sm_mad_ctrl_t * const p_ctrl,
 	case IB_MAD_ATTR_SM_INFO:
 		msg_id = OSM_MSG_MAD_SM_INFO;
 		break;
-
 	default:
 		cl_atomic_inc(&p_ctrl->p_stats->qp0_mads_rcvd_unknown);
 		OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 3107: "
@@ -458,9 +449,8 @@ Exit:
  *
  * SYNOPSIS
  */
-static void
-sm_mad_ctrl_process_trap(IN osm_sm_mad_ctrl_t * const p_ctrl,
-			 IN osm_madw_t * p_madw)
+static void sm_mad_ctrl_process_trap(IN osm_sm_mad_ctrl_t * p_ctrl,
+				     IN osm_madw_t * p_madw)
 {
 	ib_smp_t *p_smp;
 	cl_status_t status;
@@ -487,7 +477,6 @@ sm_mad_ctrl_process_trap(IN osm_sm_mad_ctrl_t * const p_ctrl,
 	case IB_MAD_ATTR_NOTICE:
 		msg_id = OSM_MSG_MAD_NOTICE;
 		break;
-
 	default:
 		cl_atomic_inc(&p_ctrl->p_stats->qp0_mads_rcvd_unknown);
 		OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 3109: "
@@ -547,9 +536,8 @@ Exit:
  *
  * SYNOPSIS
  */
-static void
-sm_mad_ctrl_process_trap_repress(IN osm_sm_mad_ctrl_t * const p_ctrl,
-				 IN osm_madw_t * p_madw)
+static void sm_mad_ctrl_process_trap_repress(IN osm_sm_mad_ctrl_t * p_ctrl,
+					     IN osm_madw_t * p_madw)
 {
 	ib_smp_t *p_smp;
 
@@ -564,7 +552,6 @@ sm_mad_ctrl_process_trap_repress(IN osm_sm_mad_ctrl_t * const p_ctrl,
 	switch (p_smp->attr_id) {
 	case IB_MAD_ATTR_NOTICE:
 		break;
-
 	default:
 		cl_atomic_inc(&p_ctrl->p_stats->qp0_mads_rcvd_unknown);
 		OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 3105: "
@@ -598,11 +585,11 @@ sm_mad_ctrl_process_trap_repress(IN osm_sm_mad_ctrl_t * const p_ctrl,
  *
  * SYNOPSIS
  */
-static void
-sm_mad_ctrl_rcv_callback(IN osm_madw_t * p_madw, IN void *bind_context,
-			 IN osm_madw_t * p_req_madw)
+static void sm_mad_ctrl_rcv_callback(IN osm_madw_t * p_madw,
+				     IN void *bind_context,
+				     IN osm_madw_t * p_req_madw)
 {
-	osm_sm_mad_ctrl_t *p_ctrl = (osm_sm_mad_ctrl_t *) bind_context;
+	osm_sm_mad_ctrl_t *p_ctrl = bind_context;
 	ib_smp_t *p_smp;
 	ib_net16_t status;
 
@@ -658,27 +645,22 @@ sm_mad_ctrl_rcv_callback(IN osm_madw_t * p_madw, IN void *bind_context,
 		CL_ASSERT(p_req_madw != NULL);
 		sm_mad_ctrl_process_get_resp(p_ctrl, p_madw, p_req_madw);
 		break;
-
 	case IB_MAD_METHOD_GET:
 		CL_ASSERT(p_req_madw == NULL);
 		sm_mad_ctrl_process_get(p_ctrl, p_madw);
 		break;
-
 	case IB_MAD_METHOD_TRAP:
 		CL_ASSERT(p_req_madw == NULL);
 		sm_mad_ctrl_process_trap(p_ctrl, p_madw);
 		break;
-
 	case IB_MAD_METHOD_SET:
 		CL_ASSERT(p_req_madw == NULL);
 		sm_mad_ctrl_process_set(p_ctrl, p_madw);
 		break;
-
 	case IB_MAD_METHOD_TRAP_REPRESS:
 		CL_ASSERT(p_req_madw != NULL);
 		sm_mad_ctrl_process_trap_repress(p_ctrl, p_madw);
 		break;
-
 	case IB_MAD_METHOD_SEND:
 	case IB_MAD_METHOD_REPORT:
 	case IB_MAD_METHOD_REPORT_RESP:
@@ -715,10 +697,9 @@ Exit:
  *
  * SYNOPSIS
  */
-static void
-sm_mad_ctrl_send_err_cb(IN void *bind_context, IN osm_madw_t * p_madw)
+static void sm_mad_ctrl_send_err_cb(IN void *context, IN osm_madw_t * p_madw)
 {
-	osm_sm_mad_ctrl_t *p_ctrl = (osm_sm_mad_ctrl_t *) bind_context;
+	osm_sm_mad_ctrl_t *p_ctrl = context;
 	ib_api_status_t status;
 	ib_smp_t *p_smp;
 
@@ -758,10 +739,10 @@ sm_mad_ctrl_send_err_cb(IN void *bind_context, IN osm_madw_t * p_madw)
 	/* For now - do not add the alternate dr path to the release */
 #if 0
 	if (p_madw->mad_addr.dest_lid != 0xFFFF) {
-		osm_physp_t *p_physp =
-		    osm_get_physp_by_mad_addr(p_ctrl->p_log,
-					      p_ctrl->p_subn,
-					      &(p_madw->mad_addr));
+		osm_physp_t *p_physp = osm_get_physp_by_mad_addr(p_ctrl->p_log,
+								 p_ctrl->p_subn,
+								 &(p_madw->
+								   mad_addr));
 		if (!p_physp) {
 			OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 3114: "
 				"Failed to find the corresponding phys port\n");
@@ -816,7 +797,7 @@ sm_mad_ctrl_send_err_cb(IN void *bind_context, IN osm_madw_t * p_madw)
 
 /**********************************************************************
  **********************************************************************/
-void osm_sm_mad_ctrl_construct(IN osm_sm_mad_ctrl_t * const p_ctrl)
+void osm_sm_mad_ctrl_construct(IN osm_sm_mad_ctrl_t * p_ctrl)
 {
 	CL_ASSERT(p_ctrl);
 	memset(p_ctrl, 0, sizeof(*p_ctrl));
@@ -825,7 +806,7 @@ void osm_sm_mad_ctrl_construct(IN osm_sm_mad_ctrl_t * const p_ctrl)
 
 /**********************************************************************
  **********************************************************************/
-void osm_sm_mad_ctrl_destroy(IN osm_sm_mad_ctrl_t * const p_ctrl)
+void osm_sm_mad_ctrl_destroy(IN osm_sm_mad_ctrl_t * p_ctrl)
 {
 	CL_ASSERT(p_ctrl);
 
@@ -836,16 +817,15 @@ void osm_sm_mad_ctrl_destroy(IN osm_sm_mad_ctrl_t * const p_ctrl)
 
 /**********************************************************************
  **********************************************************************/
-ib_api_status_t
-osm_sm_mad_ctrl_init(IN osm_sm_mad_ctrl_t * const p_ctrl,
-		     IN osm_subn_t * const p_subn,
-		     IN osm_mad_pool_t * const p_mad_pool,
-		     IN osm_vl15_t * const p_vl15,
-		     IN osm_vendor_t * const p_vendor,
-		     IN osm_log_t * const p_log,
-		     IN osm_stats_t * const p_stats,
-		     IN cl_plock_t * const p_lock,
-		     IN cl_dispatcher_t * const p_disp)
+ib_api_status_t osm_sm_mad_ctrl_init(IN osm_sm_mad_ctrl_t * p_ctrl,
+				     IN osm_subn_t * p_subn,
+				     IN osm_mad_pool_t * p_mad_pool,
+				     IN osm_vl15_t * p_vl15,
+				     IN osm_vendor_t * p_vendor,
+				     IN osm_log_t * p_log,
+				     IN osm_stats_t * p_stats,
+				     IN cl_plock_t * p_lock,
+				     IN cl_dispatcher_t * p_disp)
 {
 	ib_api_status_t status = IB_SUCCESS;
 
@@ -862,8 +842,8 @@ osm_sm_mad_ctrl_init(IN osm_sm_mad_ctrl_t * const p_ctrl,
 	p_ctrl->p_lock = p_lock;
 	p_ctrl->p_vl15 = p_vl15;
 
-	p_ctrl->h_disp = cl_disp_register(p_disp,
-					  CL_DISP_MSGID_NONE, NULL, NULL);
+	p_ctrl->h_disp = cl_disp_register(p_disp, CL_DISP_MSGID_NONE, NULL,
+					  NULL);
 
 	if (p_ctrl->h_disp == CL_DISP_INVALID_HANDLE) {
 		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 3116: "
@@ -874,14 +854,13 @@ osm_sm_mad_ctrl_init(IN osm_sm_mad_ctrl_t * const p_ctrl,
 
 Exit:
 	OSM_LOG_EXIT(p_log);
-	return (status);
+	return status;
 }
 
 /**********************************************************************
  **********************************************************************/
-ib_api_status_t
-osm_sm_mad_ctrl_bind(IN osm_sm_mad_ctrl_t * const p_ctrl,
-		     IN const ib_net64_t port_guid)
+ib_api_status_t osm_sm_mad_ctrl_bind(IN osm_sm_mad_ctrl_t * p_ctrl,
+				     IN const ib_net64_t port_guid)
 {
 	osm_bind_info_t bind_info;
 	ib_api_status_t status = IB_SUCCESS;
@@ -921,5 +900,5 @@ osm_sm_mad_ctrl_bind(IN osm_sm_mad_ctrl_t * const p_ctrl,
 
 Exit:
 	OSM_LOG_EXIT(p_ctrl->p_log);
-	return (status);
+	return status;
 }

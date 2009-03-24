@@ -64,22 +64,20 @@
  By higher - we mean: SM with higher priority or with same priority
  and lower GUID.
 **********************************************************************/
-static inline boolean_t
-sminfo_rcv_remote_sm_is_higher(IN osm_sm_t * sm,
-			       IN const ib_sm_info_t * p_remote_smi)
+static boolean_t smi_rcv_remote_sm_is_higher(IN osm_sm_t * sm,
+					     IN const ib_sm_info_t * p_rem_smi)
 {
-	return (osm_sm_is_greater_than(ib_sminfo_get_priority(p_remote_smi),
-				       p_remote_smi->guid,
-				       sm->p_subn->opt.sm_priority,
-				       sm->p_subn->sm_port_guid));
+	return osm_sm_is_greater_than(ib_sminfo_get_priority(p_rem_smi),
+				      p_rem_smi->guid,
+				      sm->p_subn->opt.sm_priority,
+				      sm->p_subn->sm_port_guid);
 
 }
 
 /**********************************************************************
  **********************************************************************/
-static void
-sminfo_rcv_process_get_request(IN osm_sm_t * sm,
-			       IN const osm_madw_t * const p_madw)
+static void smi_rcv_process_get_request(IN osm_sm_t * sm,
+					IN const osm_madw_t * p_madw)
 {
 	uint8_t payload[IB_SMP_DATA_SIZE];
 	ib_smp_t *p_smp;
@@ -140,8 +138,7 @@ Exit:
  * FUTURE - TO DO:
  *   Check that the SM_Key matches.
  **********************************************************************/
-static ib_api_status_t
-sminfo_rcv_check_set_req_legality(IN const ib_smp_t * const p_smp)
+static ib_api_status_t smi_rcv_check_set_req_legality(IN const ib_smp_t * p_smp)
 {
 	ib_sm_info_t *p_smi;
 
@@ -149,23 +146,22 @@ sminfo_rcv_check_set_req_legality(IN const ib_smp_t * const p_smp)
 
 	if (p_smp->attr_mod == IB_SMINFO_ATTR_MOD_ACKNOWLEDGE) {
 		if (ib_sminfo_get_state(p_smi) == IB_SMINFO_STATE_STANDBY)
-			return (IB_SUCCESS);
+			return IB_SUCCESS;
 	} else if (p_smp->attr_mod == IB_SMINFO_ATTR_MOD_HANDOVER ||
 		   p_smp->attr_mod == IB_SMINFO_ATTR_MOD_DISABLE ||
 		   p_smp->attr_mod == IB_SMINFO_ATTR_MOD_STANDBY ||
 		   p_smp->attr_mod == IB_SMINFO_ATTR_MOD_DISCOVER) {
 		if (ib_sminfo_get_state(p_smi) == IB_SMINFO_STATE_MASTER)
-			return (IB_SUCCESS);
+			return IB_SUCCESS;
 	}
 
-	return (IB_INVALID_PARAMETER);
+	return IB_INVALID_PARAMETER;
 }
 
 /**********************************************************************
  **********************************************************************/
-static void
-sminfo_rcv_process_set_request(IN osm_sm_t * sm,
-			       IN const osm_madw_t * const p_madw)
+static void smi_rcv_process_set_request(IN osm_sm_t * sm,
+					IN const osm_madw_t * p_madw)
 {
 	uint8_t payload[IB_SMP_DATA_SIZE];
 	ib_smp_t *p_smp;
@@ -213,7 +209,7 @@ sminfo_rcv_process_set_request(IN osm_sm_t * sm,
 	}
 
 	/* Check the legality of the packet */
-	status = sminfo_rcv_check_set_req_legality(p_smp);
+	status = smi_rcv_check_set_req_legality(p_smp);
 	if (status != IB_SUCCESS) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 2F04: "
 			"Check legality failed. AttributeModifier:0x%X RemoteState:%s\n",
@@ -305,10 +301,9 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-static osm_signal_t
-sminfo_rcv_process_get_sm(IN osm_sm_t * sm,
-			  IN const osm_remote_sm_t * const p_sm,
-			  boolean_t light_sweep)
+static osm_signal_t smi_rcv_process_get_sm(IN osm_sm_t * sm,
+					   IN const osm_remote_sm_t * p_sm,
+					   boolean_t light_sweep)
 {
 	const ib_sm_info_t *p_smi;
 
@@ -339,7 +334,8 @@ sminfo_rcv_process_get_sm(IN osm_sm_t * sm,
 			break;
 		case IB_SMINFO_STATE_DISCOVERING:
 		case IB_SMINFO_STATE_STANDBY:
-			if (sminfo_rcv_remote_sm_is_higher(sm, p_smi) == TRUE) {
+			if (smi_rcv_remote_sm_is_higher(sm, p_smi)
+			    == TRUE) {
 				/* the remote is a higher sm - need to stop sweeping */
 				sm->master_sm_found = 1;
 				/* save on the sm the guid of the higher SM we found - */
@@ -365,7 +361,7 @@ sminfo_rcv_process_get_sm(IN osm_sm_t * sm,
 			/* Signal that to the SM state mgr */
 			osm_sm_state_mgr_signal_master_is_alive(sm);
 
-			if (sminfo_rcv_remote_sm_is_higher(sm, p_smi) == FALSE)
+			if (!smi_rcv_remote_sm_is_higher(sm, p_smi))
 				osm_send_trap144(sm,
 						 TRAP_144_MASK_SM_PRIORITY_CHANGE);
 			break;
@@ -377,9 +373,9 @@ sminfo_rcv_process_get_sm(IN osm_sm_t * sm,
 				   If we started polling it when it was master, and it moved
 				   to standby - then it might be with a lower priority than
 				   us - and then we don't want to continue polling it. */
-				if (sminfo_rcv_remote_sm_is_higher(sm, p_smi)
-				    == TRUE)
-					osm_sm_state_mgr_signal_master_is_alive(sm);
+				if (smi_rcv_remote_sm_is_higher(sm, p_smi))
+					osm_sm_state_mgr_signal_master_is_alive
+					    (sm);
 			}
 			break;
 		default:
@@ -404,7 +400,7 @@ sminfo_rcv_process_get_sm(IN osm_sm_t * sm,
 			break;
 		case IB_SMINFO_STATE_STANDBY:
 			if (light_sweep &&
-			    sminfo_rcv_remote_sm_is_higher(sm, p_smi))
+			    smi_rcv_remote_sm_is_higher(sm, p_smi))
 				sm->p_subn->force_heavy_sweep = TRUE;
 			break;
 		default:
@@ -423,9 +419,8 @@ sminfo_rcv_process_get_sm(IN osm_sm_t * sm,
 
 /**********************************************************************
  **********************************************************************/
-static void
-sminfo_rcv_process_get_response(IN osm_sm_t * sm,
-				IN const osm_madw_t * const p_madw)
+static void smi_rcv_process_get_response(IN osm_sm_t * sm,
+					 IN const osm_madw_t * p_madw)
 {
 	const ib_smp_t *p_smp;
 	const ib_sm_info_t *p_smi;
@@ -506,8 +501,9 @@ sminfo_rcv_process_get_response(IN osm_sm_t * sm,
 		/* We already know this SM. Update the SMInfo attribute. */
 		p_sm->smi = *p_smi;
 
-	sminfo_rcv_process_get_sm(sm, p_sm,
-				  osm_madw_get_smi_context_ptr(p_madw)->light_sweep);
+	smi_rcv_process_get_sm(sm, p_sm,
+			       osm_madw_get_smi_context_ptr(p_madw)->
+			       light_sweep);
 
 _unlock_and_exit:
 	CL_PLOCK_RELEASE(sm->p_lock);
@@ -518,9 +514,8 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-static void
-sminfo_rcv_process_set_response(IN osm_sm_t * sm,
-				IN const osm_madw_t * const p_madw)
+static void smi_rcv_process_set_response(IN osm_sm_t * sm,
+					 IN const osm_madw_t * p_madw)
 {
 	const ib_smp_t *p_smp;
 	const ib_sm_info_t *p_smi;
@@ -591,16 +586,16 @@ void osm_sminfo_rcv_process(IN void *context, IN void *data)
 
 		if (p_smi_context->set_method == FALSE)
 			/* this is a response to a Get method */
-			sminfo_rcv_process_get_response(sm, p_madw);
+			smi_rcv_process_get_response(sm, p_madw);
 		else
 			/* this is a response to a Set method */
-			sminfo_rcv_process_set_response(sm, p_madw);
+			smi_rcv_process_set_response(sm, p_madw);
 	} else if (p_smp->method == IB_MAD_METHOD_GET)
 		/* This is a SubnGet request */
-		sminfo_rcv_process_get_request(sm, p_madw);
+		smi_rcv_process_get_request(sm, p_madw);
 	else
 		/* This should be a SubnSet request */
-		sminfo_rcv_process_set_request(sm, p_madw);
+		smi_rcv_process_set_request(sm, p_madw);
 
 Exit:
 	OSM_LOG_EXIT(sm->p_log);

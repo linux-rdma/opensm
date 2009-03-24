@@ -69,10 +69,11 @@ typedef struct osm_mftr_search_ctxt {
 
 /**********************************************************************
  **********************************************************************/
-static ib_api_status_t
-mftr_rcv_new_mftr(IN osm_sa_t * sa, IN osm_switch_t * const p_sw,
-		  IN cl_qlist_t * const p_list, IN ib_net16_t const lid,
-		  IN uint16_t const block, IN uint8_t const position)
+static ib_api_status_t mftr_rcv_new_mftr(IN osm_sa_t * sa,
+					 IN osm_switch_t * p_sw,
+					 IN cl_qlist_t * p_list,
+					 IN ib_net16_t lid, IN uint16_t block,
+					 IN uint8_t position)
 {
 	osm_mftr_item_t *p_rec_item;
 	ib_api_status_t status = IB_SUCCESS;
@@ -114,12 +115,10 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-static void
-mftr_rcv_by_comp_mask(IN cl_map_item_t * const p_map_item, IN void *context)
+static void mftr_rcv_by_comp_mask(IN cl_map_item_t * p_map_item, IN void *cxt)
 {
-	const osm_mftr_search_ctxt_t *const p_ctxt =
-	    (osm_mftr_search_ctxt_t *) context;
-	osm_switch_t *const p_sw = (osm_switch_t *) p_map_item;
+	const osm_mftr_search_ctxt_t *p_ctxt = cxt;
+	osm_switch_t *p_sw = (osm_switch_t *) p_map_item;
 	const ib_mft_record_t *const p_rcvd_rec = p_ctxt->p_rcvd_rec;
 	osm_sa_t *sa = p_ctxt->sa;
 	ib_net64_t const comp_mask = p_ctxt->comp_mask;
@@ -206,8 +205,8 @@ mftr_rcv_by_comp_mask(IN cl_map_item_t * const p_map_item, IN void *context)
 		for (position = min_position; position <= max_position;
 		     position++)
 			mftr_rcv_new_mftr(sa, p_sw, p_ctxt->p_list,
-					  osm_port_get_base_lid(p_port),
-					  block, position);
+					  osm_port_get_base_lid(p_port), block,
+					  position);
 }
 
 /**********************************************************************
@@ -244,8 +243,7 @@ void osm_mftr_rcv_process(IN void *ctx, IN void *data)
 	}
 
 	/* update the requester physical port. */
-	p_req_physp = osm_get_physp_by_mad_addr(sa->p_log,
-						sa->p_subn,
+	p_req_physp = osm_get_physp_by_mad_addr(sa->p_log, sa->p_subn,
 						osm_madw_get_mad_addr_ptr
 						(p_madw));
 	if (p_req_physp == NULL) {

@@ -80,7 +80,7 @@ extern void osm_sm_state_mgr_polling_callback(IN void *context);
 
 /**********************************************************************
  **********************************************************************/
-static void osm_sm_process(osm_sm_t * sm, osm_signal_t signal)
+static void sm_process(osm_sm_t * sm, osm_signal_t signal)
 {
 #ifdef ENABLE_OSM_PERF_MGR
 	if (signal == OSM_SIGNAL_PERFMGR_SWEEP)
@@ -127,7 +127,7 @@ static void sm_sweeper(IN void *p_ptr)
 
 		for (i = 0; signals; signals >>= 1, i++)
 			if (signals & 1)
-				osm_sm_process(p_sm, i);
+				sm_process(p_sm, i);
 	}
 
 	OSM_LOG_EXIT(p_sm->p_log);
@@ -154,7 +154,7 @@ static void sweep_fail_process(IN void *context, IN void *p_data)
 
 /**********************************************************************
  **********************************************************************/
-void osm_sm_construct(IN osm_sm_t * const p_sm)
+void osm_sm_construct(IN osm_sm_t * p_sm)
 {
 	memset(p_sm, 0, sizeof(*p_sm));
 	p_sm->thread_state = OSM_THREAD_STATE_NONE;
@@ -174,7 +174,7 @@ void osm_sm_construct(IN osm_sm_t * const p_sm)
 
 /**********************************************************************
  **********************************************************************/
-void osm_sm_shutdown(IN osm_sm_t * const p_sm)
+void osm_sm_shutdown(IN osm_sm_t * p_sm)
 {
 	boolean_t signal_event = FALSE;
 
@@ -223,7 +223,7 @@ void osm_sm_shutdown(IN osm_sm_t * const p_sm)
 
 /**********************************************************************
  **********************************************************************/
-void osm_sm_destroy(IN osm_sm_t * const p_sm)
+void osm_sm_destroy(IN osm_sm_t * p_sm)
 {
 	OSM_LOG_ENTER(p_sm->p_log);
 	osm_lid_mgr_destroy(&p_sm->lid_mgr);
@@ -243,16 +243,12 @@ void osm_sm_destroy(IN osm_sm_t * const p_sm)
 
 /**********************************************************************
  **********************************************************************/
-ib_api_status_t
-osm_sm_init(IN osm_sm_t * const p_sm,
-	    IN osm_subn_t * const p_subn,
-	    IN osm_db_t * const p_db,
-	    IN osm_vendor_t * const p_vendor,
-	    IN osm_mad_pool_t * const p_mad_pool,
-	    IN osm_vl15_t * const p_vl15,
-	    IN osm_log_t * const p_log,
-	    IN osm_stats_t * const p_stats,
-	    IN cl_dispatcher_t * const p_disp, IN cl_plock_t * const p_lock)
+ib_api_status_t osm_sm_init(IN osm_sm_t * p_sm, IN osm_subn_t * p_subn,
+			    IN osm_db_t * p_db, IN osm_vendor_t * p_vendor,
+			    IN osm_mad_pool_t * p_mad_pool,
+			    IN osm_vl15_t * p_vl15, IN osm_log_t * p_log,
+			    IN osm_stats_t * p_stats,
+			    IN cl_dispatcher_t * p_disp, IN cl_plock_t * p_lock)
 {
 	ib_api_status_t status;
 
@@ -298,10 +294,8 @@ osm_sm_init(IN osm_sm_t * const p_sm,
 	if (status != CL_SUCCESS)
 		goto Exit;
 
-	status = osm_sm_mad_ctrl_init(&p_sm->mad_ctrl,
-				      p_sm->p_subn,
-				      p_sm->p_mad_pool,
-				      p_sm->p_vl15,
+	status = osm_sm_mad_ctrl_init(&p_sm->mad_ctrl, p_sm->p_subn,
+				      p_sm->p_mad_pool, p_sm->p_vl15,
 				      p_sm->p_vendor,
 				      p_log, p_stats, p_lock, p_disp);
 	if (status != IB_SUCCESS)
@@ -416,7 +410,7 @@ void osm_sm_signal(osm_sm_t * p_sm, osm_signal_t signal)
 
 /**********************************************************************
  **********************************************************************/
-void osm_sm_sweep(IN osm_sm_t * const p_sm)
+void osm_sm_sweep(IN osm_sm_t * p_sm)
 {
 	OSM_LOG_ENTER(p_sm->p_log);
 	osm_sm_signal(p_sm, OSM_SIGNAL_SWEEP);
@@ -425,8 +419,7 @@ void osm_sm_sweep(IN osm_sm_t * const p_sm)
 
 /**********************************************************************
  **********************************************************************/
-ib_api_status_t
-osm_sm_bind(IN osm_sm_t * const p_sm, IN const ib_net64_t port_guid)
+ib_api_status_t osm_sm_bind(IN osm_sm_t * p_sm, IN const ib_net64_t port_guid)
 {
 	ib_api_status_t status;
 
@@ -448,8 +441,8 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-static ib_api_status_t
-sm_mgrp_process(IN osm_sm_t * const p_sm, IN osm_mgrp_t * const p_mgrp)
+static ib_api_status_t sm_mgrp_process(IN osm_sm_t * p_sm,
+				       IN osm_mgrp_t * p_mgrp)
 {
 	osm_mcast_mgr_ctxt_t *ctx;
 
@@ -474,10 +467,8 @@ sm_mgrp_process(IN osm_sm_t * const p_sm, IN osm_mgrp_t * const p_mgrp)
 
 /**********************************************************************
  **********************************************************************/
-ib_api_status_t
-osm_sm_mcgrp_join(IN osm_sm_t * const p_sm,
-		  IN const ib_net16_t mlid,
-		  IN const ib_net64_t port_guid)
+ib_api_status_t osm_sm_mcgrp_join(IN osm_sm_t * p_sm, IN const ib_net16_t mlid,
+				  IN const ib_net64_t port_guid)
 {
 	osm_mgrp_t *p_mgrp;
 	osm_port_t *p_port;
@@ -562,9 +553,8 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-ib_api_status_t
-osm_sm_mcgrp_leave(IN osm_sm_t * const p_sm,
-		   IN const ib_net16_t mlid, IN const ib_net64_t port_guid)
+ib_api_status_t osm_sm_mcgrp_leave(IN osm_sm_t * p_sm, IN const ib_net16_t mlid,
+				   IN const ib_net64_t port_guid)
 {
 	osm_mgrp_t *p_mgrp;
 	osm_port_t *p_port;
@@ -616,7 +606,7 @@ Exit:
 	return status;
 }
 
-void osm_set_sm_priority(osm_sm_t *sm, uint8_t priority)
+void osm_set_sm_priority(osm_sm_t * sm, uint8_t priority)
 {
 	uint8_t old_pri = sm->p_subn->opt.sm_priority;
 

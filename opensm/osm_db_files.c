@@ -119,7 +119,7 @@ typedef struct osm_db_imp {
 
 /***************************************************************************
  ***************************************************************************/
-void osm_db_construct(IN osm_db_t * const p_db)
+void osm_db_construct(IN osm_db_t * p_db)
 {
 	memset(p_db, 0, sizeof(osm_db_t));
 	cl_list_construct(&p_db->domains);
@@ -127,7 +127,7 @@ void osm_db_construct(IN osm_db_t * const p_db)
 
 /***************************************************************************
  ***************************************************************************/
-void osm_db_domain_destroy(IN osm_db_domain_t * const p_db_domain)
+void osm_db_domain_destroy(IN osm_db_domain_t * p_db_domain)
 {
 	osm_db_domain_imp_t *p_domain_imp;
 	p_domain_imp = (osm_db_domain_imp_t *) p_db_domain->p_domain_imp;
@@ -143,7 +143,7 @@ void osm_db_domain_destroy(IN osm_db_domain_t * const p_db_domain)
 
 /***************************************************************************
  ***************************************************************************/
-void osm_db_destroy(IN osm_db_t * const p_db)
+void osm_db_destroy(IN osm_db_t * p_db)
 {
 	osm_db_domain_t *p_domain;
 
@@ -157,7 +157,7 @@ void osm_db_destroy(IN osm_db_t * const p_db)
 
 /***************************************************************************
  ***************************************************************************/
-int osm_db_init(IN osm_db_t * const p_db, IN osm_log_t * p_log)
+int osm_db_init(IN osm_db_t * p_db, IN osm_log_t * p_log)
 {
 	osm_db_imp_t *p_db_imp;
 	struct stat dstat;
@@ -201,8 +201,7 @@ int osm_db_init(IN osm_db_t * const p_db, IN osm_log_t * p_log)
 
 /***************************************************************************
  ***************************************************************************/
-osm_db_domain_t *osm_db_domain_init(IN osm_db_t * const p_db,
-				    IN char *domain_name)
+osm_db_domain_t *osm_db_domain_init(IN osm_db_t * p_db, IN char *domain_name)
 {
 	osm_db_domain_t *p_domain;
 	osm_db_domain_imp_t *p_domain_imp;
@@ -321,7 +320,8 @@ int osm_db_restore(IN osm_db_domain_t * p_domain)
 				p_first_word =
 				    strtok_r(sLine, " \t\n", &p_last);
 				if (!p_first_word) {
-					OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 6104: "
+					OSM_LOG(p_log, OSM_LOG_ERROR,
+						"ERR 6104: "
 						"Failed to get key from line:%u : %s (file:%s)\n",
 						line_num, sLine,
 						p_domain_imp->file_name);
@@ -329,7 +329,8 @@ int osm_db_restore(IN osm_db_domain_t * p_domain)
 					goto EndParsing;
 				}
 				if (strlen(p_first_word) > OSM_DB_MAX_GUID_LEN) {
-					OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 610A: "
+					OSM_LOG(p_log, OSM_LOG_ERROR,
+						"ERR 610A: "
 						"Illegal key from line:%u : %s (file:%s)\n",
 						line_num, sLine,
 						p_domain_imp->file_name);
@@ -373,11 +374,11 @@ int osm_db_restore(IN osm_db_domain_t * p_domain)
 				/* make sure the key was not previously used */
 				if (st_lookup(p_domain_imp->p_hash,
 					      (st_data_t) p_key,
-					      (void *) & p_prev_val)) {
-					OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 6106: "
+					      (void *)&p_prev_val)) {
+					OSM_LOG(p_log, OSM_LOG_ERROR,
+						"ERR 6106: "
 						"Key:%s already exists in:%s with value:%s."
-						" Removing it\n",
-						p_key,
+						" Removing it\n", p_key,
 						p_domain_imp->file_name,
 						p_prev_val);
 				} else {
@@ -391,7 +392,8 @@ int osm_db_restore(IN osm_db_domain_t * p_domain)
 				/* check that the key is a number */
 				if (!strtouq(p_key, &endptr, 0)
 				    && *endptr != '\0') {
-					OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 610B: "
+					OSM_LOG(p_log, OSM_LOG_ERROR,
+						"ERR 610B: "
 						"Key:%s is invalid\n", p_key);
 				} else {
 					/* store our key and value */
@@ -511,8 +513,7 @@ int osm_db_clear(IN osm_db_domain_t * p_domain)
 
 /***************************************************************************
  ***************************************************************************/
-static int get_key_of_tbl_entry(st_data_t key, st_data_t val,
-				      st_data_t arg)
+static int get_key_of_tbl_entry(st_data_t key, st_data_t val, st_data_t arg)
 {
 	cl_list_t *p_list = (cl_list_t *) arg;
 	cl_list_insert_tail(p_list, (void *)key);
@@ -536,7 +537,7 @@ int osm_db_keys(IN osm_db_domain_t * p_domain, OUT cl_list_t * p_key_list)
 
 /***************************************************************************
  ***************************************************************************/
-char *osm_db_lookup(IN osm_db_domain_t * p_domain, IN char *const p_key)
+char *osm_db_lookup(IN osm_db_domain_t * p_domain, IN char *p_key)
 {
 	osm_db_domain_imp_t *p_domain_imp =
 	    (osm_db_domain_imp_t *) p_domain->p_domain_imp;
@@ -544,8 +545,7 @@ char *osm_db_lookup(IN osm_db_domain_t * p_domain, IN char *const p_key)
 
 	cl_spinlock_acquire(&p_domain_imp->lock);
 
-	if (!st_lookup
-	    (p_domain_imp->p_hash, (st_data_t) p_key, (void *) & p_val))
+	if (!st_lookup(p_domain_imp->p_hash, (st_data_t) p_key, (void *)&p_val))
 		p_val = NULL;
 
 	cl_spinlock_release(&p_domain_imp->lock);
@@ -555,9 +555,7 @@ char *osm_db_lookup(IN osm_db_domain_t * p_domain, IN char *const p_key)
 
 /***************************************************************************
  ***************************************************************************/
-int
-osm_db_update(IN osm_db_domain_t * p_domain,
-	      IN char *const p_key, IN char *const p_val)
+int osm_db_update(IN osm_db_domain_t * p_domain, IN char *p_key, IN char *p_val)
 {
 	osm_log_t *p_log = p_domain->p_db->p_log;
 	osm_db_domain_imp_t *p_domain_imp =
@@ -569,7 +567,7 @@ osm_db_update(IN osm_db_domain_t * p_domain,
 	cl_spinlock_acquire(&p_domain_imp->lock);
 
 	if (st_lookup(p_domain_imp->p_hash,
-		      (st_data_t) p_key, (void *) & p_prev_val)) {
+		      (st_data_t) p_key, (void *)&p_prev_val)) {
 		OSM_LOG(p_log, OSM_LOG_DEBUG,
 			"Key:%s previously exists in:%s with value:%s\n",
 			p_key, p_domain_imp->file_name, p_prev_val);
@@ -597,7 +595,7 @@ osm_db_update(IN osm_db_domain_t * p_domain,
 
 /***************************************************************************
  ***************************************************************************/
-int osm_db_delete(IN osm_db_domain_t * p_domain, IN char *const p_key)
+int osm_db_delete(IN osm_db_domain_t * p_domain, IN char *p_key)
 {
 	osm_log_t *p_log = p_domain->p_db->p_log;
 	osm_db_domain_imp_t *p_domain_imp =
@@ -609,9 +607,9 @@ int osm_db_delete(IN osm_db_domain_t * p_domain, IN char *const p_key)
 
 	cl_spinlock_acquire(&p_domain_imp->lock);
 	if (st_delete(p_domain_imp->p_hash,
-		      (void *) & p_key, (void *) & p_prev_val)) {
+		      (void *)&p_key, (void *)&p_prev_val)) {
 		if (st_lookup(p_domain_imp->p_hash,
-			      (st_data_t) p_key, (void *) & p_prev_val)) {
+			      (st_data_t) p_key, (void *)&p_prev_val)) {
 			OSM_LOG(p_log, OSM_LOG_ERROR,
 				"key:%s still exists in:%s with value:%s\n",
 				p_key, p_domain_imp->file_name, p_prev_val);
