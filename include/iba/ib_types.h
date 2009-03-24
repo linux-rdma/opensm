@@ -1042,6 +1042,30 @@ static inline boolean_t OSM_API ib_class_is_rmpp(IN const uint8_t class_code)
 #define IB_MAD_ATTR_PORT_CNTRS_EXT			(CL_HTON16(0x001D))
 /**********/
 
+/****d* IBA Base: Constants/IB_MAD_ATTR_PORT_XMIT_DATA_SL
+* NAME
+*	IB_MAD_ATTR_PORT_XMIT_DATA_SL
+*
+* DESCRIPTION
+*	PortXmitDataSL attribute (A13.6.4)
+*
+* SOURCE
+*/
+#define IB_MAD_ATTR_PORT_XMIT_DATA_SL			(CL_HTON16(0x0036))
+/**********/
+
+/****d* IBA Base: Constants/IB_MAD_ATTR_PORT_RCV_DATA_SL
+* NAME
+*	IB_MAD_ATTR_PORT_RCV_DATA_SL
+*
+* DESCRIPTION
+*	PortRcvDataSL attribute (A13.6.4)
+*
+* SOURCE
+*/
+#define IB_MAD_ATTR_PORT_RCV_DATA_SL			(CL_HTON16(0x0037))
+/**********/
+
 /****d* IBA Base: Constants/IB_MAD_ATTR_GUID_INFO
 * NAME
 *	IB_MAD_ATTR_GUID_INFO
@@ -7810,6 +7834,44 @@ typedef struct _ib_port_samples_result {
 	ib_net32_t counter13;
 	ib_net32_t counter14;
 } PACK_SUFFIX ib_port_samples_result_t;
+#include <complib/cl_packoff.h>
+
+/****s* IBA Base: Types/ib_port_xmit_data_sl
+* NAME
+*	ib_port_xmit_data_sl_t
+*
+* DESCRIPTION
+*       IBA defined PortXmitDataSL Attribute. (A13.6.4)
+*
+* SYNOPSIS
+*/
+#include <complib/cl_packon.h>
+typedef struct _ib_port_xmit_data_sl {
+	uint8_t reserved;
+	uint8_t port_select;
+	ib_net16_t counter_select;
+	ib_net32_t port_xmit_data_sl[16];
+	uint8_t resv[124];
+} PACK_SUFFIX ib_port_xmit_data_sl_t;
+#include <complib/cl_packoff.h>
+
+/****s* IBA Base: Types/ib_port_rcv_data_sl
+* NAME
+*	ib_port_rcv_data_sl_t
+*
+* DESCRIPTION
+*	IBA defined PortRcvDataSL Attribute. (A13.6.4)
+*
+* SYNOPSIS
+*/
+#include <complib/cl_packon.h>
+typedef struct _ib_port_rcv_data_sl {
+	uint8_t reserved;
+	uint8_t port_select;
+	ib_net16_t counter_select;
+	ib_net32_t port_rcv_data_sl[16];
+	uint8_t resv[124];
+} PACK_SUFFIX ib_port_rcv_data_sl_t;
 #include <complib/cl_packoff.h>
 
 /****d* IBA Base: Types/DM_SVC_NAME
