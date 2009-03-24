@@ -334,8 +334,7 @@ static osm_signal_t smi_rcv_process_get_sm(IN osm_sm_t * sm,
 			break;
 		case IB_SMINFO_STATE_DISCOVERING:
 		case IB_SMINFO_STATE_STANDBY:
-			if (smi_rcv_remote_sm_is_higher(sm, p_smi)
-			    == TRUE) {
+			if (smi_rcv_remote_sm_is_higher(sm, p_smi)) {
 				/* the remote is a higher sm - need to stop sweeping */
 				sm->master_sm_found = 1;
 				/* save on the sm the guid of the higher SM we found - */
