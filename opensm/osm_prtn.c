@@ -251,7 +251,7 @@ ib_api_status_t osm_prtn_add_mcgroup(osm_log_t * p_log,
 	return status;
 }
 
-static uint16_t __generate_pkey(osm_subn_t * p_subn)
+static uint16_t generate_pkey(osm_subn_t * p_subn)
 {
 	uint16_t pkey;
 
@@ -291,7 +291,7 @@ osm_prtn_t *osm_prtn_make_new(osm_log_t * p_log, osm_subn_t * p_subn,
 	if (!pkey) {
 		if (name && (p = osm_prtn_find_by_name(p_subn, name)))
 			return p;
-		if (!(pkey = __generate_pkey(p_subn)))
+		if (!(pkey = generate_pkey(p_subn)))
 			return NULL;
 	}
 

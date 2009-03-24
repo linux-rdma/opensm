@@ -92,8 +92,8 @@ osm_svcr_t *osm_svcr_new(IN const ib_service_record_t * p_svc_rec)
  **********************************************************************/
 static
     cl_status_t
-__match_rid_of_svc_rec(IN const cl_list_item_t * const p_list_item,
-		       IN void *context)
+match_rid_of_svc_rec(IN const cl_list_item_t * const p_list_item,
+		     IN void *context)
 {
 	ib_service_record_t *p_svc_rec = (ib_service_record_t *) context;
 	osm_svcr_t *p_svcr = (osm_svcr_t *) p_list_item;
@@ -123,7 +123,7 @@ osm_svcr_t *osm_svcr_get_by_rid(IN osm_subn_t const *p_subn,
 	OSM_LOG_ENTER(p_log);
 
 	p_list_item = cl_qlist_find_from_head(&p_subn->sa_sr_list,
-					      __match_rid_of_svc_rec,
+					      match_rid_of_svc_rec,
 					      p_svc_rec);
 
 	if (p_list_item == cl_qlist_end(&p_subn->sa_sr_list))
