@@ -58,8 +58,8 @@ struct qos_config {
 	ib_slvl_table_t sl2vl;
 };
 
-static void qos_build_config(struct qos_config *cfg,
-			     osm_qos_options_t * opt, osm_qos_options_t * dflt);
+static void qos_build_config(struct qos_config *cfg, osm_qos_options_t * opt,
+			     osm_qos_options_t * dflt);
 
 /*
  * QoS primitives
@@ -102,9 +102,8 @@ static ib_api_status_t vlarb_update_table_block(osm_sm_t * sm,
 			   cl_hton32(attr_mod), CL_DISP_MSGID_NONE, &context);
 }
 
-static ib_api_status_t vlarb_update(osm_sm_t * sm,
-				    osm_physp_t * p, uint8_t port_num,
-				    unsigned force_update,
+static ib_api_status_t vlarb_update(osm_sm_t * sm, osm_physp_t * p,
+				    uint8_t port_num, unsigned force_update,
 				    const struct qos_config *qcfg)
 {
 	ib_api_status_t status = IB_SUCCESS;
@@ -149,9 +148,8 @@ static ib_api_status_t vlarb_update(osm_sm_t * sm,
 	return status;
 }
 
-static ib_api_status_t sl2vl_update_table(osm_sm_t * sm,
-					  osm_physp_t * p, uint8_t in_port,
-					  uint8_t out_port,
+static ib_api_status_t sl2vl_update_table(osm_sm_t * sm, osm_physp_t * p,
+					  uint8_t in_port, uint8_t out_port,
 					  unsigned force_update,
 					  const ib_slvl_table_t * sl2vl_table)
 {
@@ -215,9 +213,8 @@ static ib_api_status_t sl2vl_update(osm_sm_t * sm, osm_port_t * p_port,
 	}
 
 	for (i = 0; i < num_ports; i++) {
-		status =
-		    sl2vl_update_table(sm, p, i, port_num,
-				       force_update, &qcfg->sl2vl);
+		status = sl2vl_update_table(sm, p, i, port_num, force_update,
+					    &qcfg->sl2vl);
 		if (status != IB_SUCCESS)
 			return status;
 	}
@@ -227,8 +224,7 @@ static ib_api_status_t sl2vl_update(osm_sm_t * sm, osm_port_t * p_port,
 
 static ib_api_status_t qos_physp_setup(osm_log_t * p_log, osm_sm_t * sm,
 				       osm_port_t * p_port, osm_physp_t * p,
-				       uint8_t port_num,
-				       unsigned force_update,
+				       uint8_t port_num, unsigned force_update,
 				       const struct qos_config *qcfg)
 {
 	ib_api_status_t status;
@@ -330,8 +326,8 @@ osm_signal_t osm_qos_setup(osm_opensm_t * p_osm)
 			continue;
 
 		force_update = p_physp->need_update || p_osm->subn.need_update;
-		status = qos_physp_setup(&p_osm->log, &p_osm->sm,
-					 p_port, p_physp, 0, force_update, cfg);
+		status = qos_physp_setup(&p_osm->log, &p_osm->sm, p_port,
+					 p_physp, 0, force_update, cfg);
 	}
 
 	cl_plock_release(&p_osm->lock);
@@ -373,8 +369,8 @@ static int parse_sl2vl_entry(char *str, uint8_t * raw)
 	return (int)(p - str);
 }
 
-static void qos_build_config(struct qos_config *cfg,
-			     osm_qos_options_t * opt, osm_qos_options_t * dflt)
+static void qos_build_config(struct qos_config *cfg, osm_qos_options_t * opt,
+			     osm_qos_options_t * dflt)
 {
 	int i;
 	char *p;
