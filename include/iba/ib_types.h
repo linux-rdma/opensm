@@ -5968,6 +5968,34 @@ ib_switch_info_clear_state_change(IN ib_switch_info_t * const p_si)
 * SEE ALSO
 *********/
 
+/****f* IBA Base: Types/ib_switch_info_get_opt_sl2vlmapping
+* NAME
+*	ib_switch_info_get_state_opt_sl2vlmapping
+*
+* DESCRIPTION
+*       Returns the value of the optimized SLtoVLMapping programming flag.
+*
+* SYNOPSIS
+*/
+static inline boolean_t OSM_API
+ib_switch_info_get_opt_sl2vlmapping(IN const ib_switch_info_t * const p_si)
+{
+        return ((p_si->life_state & 0x01) == 0x01);
+}
+
+/*
+* PARAMETERS
+*	p_si
+*		[in] Pointer to a SwitchInfo attribute.
+*
+* RETURN VALUES
+*	Returns the value of the optimized SLtoVLMapping programming flag.
+*
+* NOTES
+*
+* SEE ALSO
+*********/
+
 /****f* IBA Base: Types/ib_switch_info_is_enhanced_port0
 * NAME
 *	ib_switch_info_is_enhanced_port0
