@@ -217,7 +217,6 @@ void osm_sm_state_mgr_polling_callback(IN void *context)
 
 Exit:
 	OSM_LOG_EXIT(sm->p_log);
-	return;
 }
 
 /**********************************************************************
