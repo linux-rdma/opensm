@@ -155,9 +155,8 @@ static boolean_t link_mgr_set_physp_pi(osm_sm_t * sm, IN osm_physp_t * p_physp,
 						  (p_physp)));
 				goto Exit;
 			}
-		} else {
+		} else
 			esp0 = TRUE;
-		}
 	}
 
 	memset(payload, 0, IB_SMP_DATA_SIZE);
