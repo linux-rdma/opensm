@@ -98,8 +98,8 @@ static ib_api_status_t vlarb_update_table_block(osm_sm_t * sm,
 
 	return osm_req_set(sm, osm_physp_get_dr_path_ptr(p),
 			   (uint8_t *) & block, sizeof(block),
-			   IB_MAD_ATTR_VL_ARBITRATION,
-			   cl_hton32(attr_mod), CL_DISP_MSGID_NONE, &context);
+			   IB_MAD_ATTR_VL_ARBITRATION, cl_hton32(attr_mod),
+			   CL_DISP_MSGID_NONE, &context);
 }
 
 static ib_api_status_t vlarb_update(osm_sm_t * sm, osm_physp_t * p,
@@ -183,8 +183,8 @@ static ib_api_status_t sl2vl_update_table(osm_sm_t * sm, osm_physp_t * p,
 	attr_mod = in_port << 8 | out_port;
 	return osm_req_set(sm, osm_physp_get_dr_path_ptr(p),
 			   (uint8_t *) & tbl, sizeof(tbl),
-			   IB_MAD_ATTR_SLVL_TABLE,
-			   cl_hton32(attr_mod), CL_DISP_MSGID_NONE, &context);
+			   IB_MAD_ATTR_SLVL_TABLE, cl_hton32(attr_mod),
+			   CL_DISP_MSGID_NONE, &context);
 }
 
 static ib_api_status_t sl2vl_update(osm_sm_t * sm, osm_port_t * p_port,
