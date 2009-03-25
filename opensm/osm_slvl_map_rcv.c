@@ -97,8 +97,7 @@ void osm_slvl_rcv_process(IN void *context, IN void *p_data)
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 2C06: "
 			"No port object for port with GUID 0x%" PRIx64
 			"\n\t\t\t\tfor parent node GUID 0x%" PRIx64
-			", TID 0x%" PRIx64 "\n",
-			cl_ntoh64(port_guid),
+			", TID 0x%" PRIx64 "\n", cl_ntoh64(port_guid),
 			cl_ntoh64(node_guid), cl_ntoh64(p_smp->trans_id));
 		goto Exit;
 	}
@@ -139,8 +138,7 @@ void osm_slvl_rcv_process(IN void *context, IN void *p_data)
 		goto Exit;
 	}
 
-	osm_dump_slvl_map_table(sm->p_log,
-				port_guid, in_port_num,
+	osm_dump_slvl_map_table(sm->p_log, port_guid, in_port_num,
 				out_port_num, p_slvl_tbl, OSM_LOG_DEBUG);
 
 	osm_physp_set_slvl_tbl(p_physp, p_slvl_tbl, in_port_num);
