@@ -270,8 +270,7 @@ static void ucast_mgr_process_port(IN osm_ucast_mgr_t * p_mgr,
 		osm_physp_t *p = osm_node_get_physp_ptr(p_sw->p_node, port);
 
 		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-			"Routing LID %u to port %u"
-			" for switch 0x%" PRIx64 "\n",
+			"Routing LID %u to port %u for switch 0x%" PRIx64 "\n",
 			lid_ho, port, cl_ntoh64(node_guid));
 
 		/*
