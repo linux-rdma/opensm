@@ -487,7 +487,6 @@ ib_api_status_t osm_sm_mcgrp_join(IN osm_sm_t * p_sm, IN const ib_net16_t mlid,
 	CL_PLOCK_EXCL_ACQUIRE(p_sm->p_lock);
 	p_port = osm_get_port_by_guid(p_sm->p_subn, port_guid);
 	if (!p_port) {
-		CL_PLOCK_RELEASE(p_sm->p_lock);
 		OSM_LOG(p_sm->p_log, OSM_LOG_ERROR, "ERR 2E05: "
 			"No port object for port 0x%016" PRIx64 "\n",
 			cl_ntoh64(port_guid));
@@ -506,7 +505,6 @@ ib_api_status_t osm_sm_mcgrp_join(IN osm_sm_t * p_sm, IN const ib_net16_t mlid,
 		 * This can happen since the spinlock is released briefly
 		 * before the SA calls this function.
 		 */
-		CL_PLOCK_RELEASE(p_sm->p_lock);
 		OSM_LOG(p_sm->p_log, OSM_LOG_ERROR, "ERR 2E12: "
 			"MC group with mlid 0x%x doesn't exist or "
 			"port 0x%016" PRIx64 " is not in the group.\n",
@@ -523,7 +521,6 @@ ib_api_status_t osm_sm_mcgrp_join(IN osm_sm_t * p_sm, IN const ib_net16_t mlid,
 	p_mcm = (osm_mcm_info_t *) cl_qlist_head(&p_port->mcm_list);
 	while (p_mcm != (osm_mcm_info_t *) cl_qlist_end(&p_port->mcm_list)) {
 		if (p_mcm->mlid == mlid) {
-			CL_PLOCK_RELEASE(p_sm->p_lock);
 			OSM_LOG(p_sm->p_log, OSM_LOG_DEBUG,
 				"Found mlid object for Port:"
 				"0x%016" PRIx64 " lid:0x%X\n",
@@ -535,7 +532,6 @@ ib_api_status_t osm_sm_mcgrp_join(IN osm_sm_t * p_sm, IN const ib_net16_t mlid,
 
 	status = osm_port_add_mgrp(p_port, mlid);
 	if (status != IB_SUCCESS) {
-		CL_PLOCK_RELEASE(p_sm->p_lock);
 		OSM_LOG(p_sm->p_log, OSM_LOG_ERROR, "ERR 2E03: "
 			"Unable to associate port 0x%" PRIx64 " to mlid 0x%X\n",
 			cl_ntoh64(osm_port_get_guid(p_port)),
@@ -544,10 +540,10 @@ ib_api_status_t osm_sm_mcgrp_join(IN osm_sm_t * p_sm, IN const ib_net16_t mlid,
 	}
 
 	status = sm_mgrp_process(p_sm, p_mgrp);
-	CL_PLOCK_RELEASE(p_sm->p_lock);
-
 Exit:
+	CL_PLOCK_RELEASE(p_sm->p_lock);
 	OSM_LOG_EXIT(p_sm->p_log);
+
 	return status;
 }
 
@@ -573,7 +569,6 @@ ib_api_status_t osm_sm_mcgrp_leave(IN osm_sm_t * p_sm, IN const ib_net16_t mlid,
 
 	p_port = osm_get_port_by_guid(p_sm->p_subn, port_guid);
 	if (!p_port) {
-		CL_PLOCK_RELEASE(p_sm->p_lock);
 		OSM_LOG(p_sm->p_log, OSM_LOG_ERROR, "ERR 2E04: "
 			"No port object for port 0x%" PRIx64 "\n",
 			cl_ntoh64(port_guid));
@@ -586,7 +581,6 @@ ib_api_status_t osm_sm_mcgrp_leave(IN osm_sm_t * p_sm, IN const ib_net16_t mlid,
 	 */
 	p_mgrp = osm_get_mgrp_by_mlid(p_sm->p_subn, mlid);
 	if (!p_mgrp) {
-		CL_PLOCK_RELEASE(p_sm->p_lock);
 		OSM_LOG(p_sm->p_log, OSM_LOG_ERROR, "ERR 2E08: "
 			"No multicast group for MLID 0x%X\n", cl_ntoh16(mlid));
 		status = IB_INVALID_PARAMETER;
@@ -599,10 +593,10 @@ ib_api_status_t osm_sm_mcgrp_leave(IN osm_sm_t * p_sm, IN const ib_net16_t mlid,
 	osm_port_remove_mgrp(p_port, mlid);
 
 	status = sm_mgrp_process(p_sm, p_mgrp);
-	CL_PLOCK_RELEASE(p_sm->p_lock);
-
 Exit:
+	CL_PLOCK_RELEASE(p_sm->p_lock);
 	OSM_LOG_EXIT(p_sm->p_log);
+
 	return status;
 }
 
