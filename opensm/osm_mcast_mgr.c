@@ -1019,10 +1019,11 @@ Exit:
 #endif
 
 /**********************************************************************
-   lock must already be held on entry
-**********************************************************************/
-static ib_api_status_t osm_mcast_mgr_process_tree(osm_sm_t * sm,
-						  IN osm_mgrp_t * p_mgrp)
+ Process the entire group.
+ NOTE : The lock should be held externally!
+ **********************************************************************/
+static ib_api_status_t mcast_mgr_process_mgrp(osm_sm_t * sm,
+					      IN osm_mgrp_t * p_mgrp)
 {
 	ib_api_status_t status = IB_SUCCESS;
 	ib_net16_t mlid;
@@ -1041,44 +1042,15 @@ static ib_api_status_t osm_mcast_mgr_process_tree(osm_sm_t * sm,
 	 */
 	mcast_mgr_clear(sm, cl_ntoh16(mlid));
 
-	if (!p_mgrp->full_members)
-		goto Exit;
-
-	status = mcast_mgr_build_spanning_tree(sm, p_mgrp);
-	if (status != IB_SUCCESS) {
-		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A17: "
-			"Unable to create spanning tree (%s)\n",
-			ib_get_err_str(status));
-		goto Exit;
-	}
-
-Exit:
-	OSM_LOG_EXIT(sm->p_log);
-	return (status);
-}
-
-/**********************************************************************
- Process the entire group.
- NOTE : The lock should be held externally!
- **********************************************************************/
-static ib_api_status_t mcast_mgr_process_mgrp(osm_sm_t * sm,
-					      IN osm_mgrp_t * p_mgrp)
-{
-	ib_api_status_t status;
-
-	OSM_LOG_ENTER(sm->p_log);
-
-	status = osm_mcast_mgr_process_tree(sm, p_mgrp);
-	if (status != IB_SUCCESS) {
-		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A19: "
-			"Unable to create spanning tree (%s)\n",
-			ib_get_err_str(status));
-		goto Exit;
-	}
-	p_mgrp->last_tree_id = p_mgrp->last_change_id;
-
-	/* remove MCGRP if it is marked for deletion */
-	if (p_mgrp->to_be_deleted) {
+	if (p_mgrp->full_members) {
+		status = mcast_mgr_build_spanning_tree(sm, p_mgrp);
+		if (status != IB_SUCCESS) {
+			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A17: "
+				"Unable to create spanning tree (%s)\n",
+				ib_get_err_str(status));
+			goto Exit;
+		}
+	} else  if (p_mgrp->to_be_deleted) {
 		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 			"Destroying mgrp with lid:0x%x\n",
 			cl_ntoh16(p_mgrp->mlid));
@@ -1087,7 +1059,10 @@ static ib_api_status_t mcast_mgr_process_mgrp(osm_sm_t * sm,
 		cl_fmap_remove_item(&sm->p_subn->mgrp_mgid_tbl,
 				    &p_mgrp->map_item);
 		osm_mgrp_delete(p_mgrp);
+		goto Exit;
 	}
+
+	p_mgrp->last_tree_id = p_mgrp->last_change_id;
 
 Exit:
 	OSM_LOG_EXIT(sm->p_log);
