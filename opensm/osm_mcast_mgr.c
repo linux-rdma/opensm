@@ -1035,15 +1035,6 @@ static ib_api_status_t osm_mcast_mgr_process_tree(osm_sm_t * sm,
 		"Processing multicast group 0x%X\n", cl_ntoh16(mlid));
 
 	/*
-	   If there are no switches in the subnet, then we have nothing to do.
-	 */
-	if (cl_qmap_count(&sm->p_subn->sw_guid_tbl) == 0) {
-		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-			"No switches in subnet. Nothing to do\n");
-		goto Exit;
-	}
-
-	/*
 	   Clear the multicast tables to start clean, then build
 	   the spanning tree which sets the mcast table bits for each
 	   port in the group.
@@ -1124,6 +1115,13 @@ int osm_mcast_mgr_process(osm_sm_t * sm)
 	 */
 	CL_PLOCK_EXCL_ACQUIRE(sm->p_lock);
 
+	/* If there are no switches in the subnet we have nothing to do. */
+	if (cl_qmap_count(&sm->p_subn->sw_guid_tbl) == 0) {
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
+			"No switches in subnet. Nothing to do\n");
+		goto exit;
+	}
+
 	for (i = 0; i <= sm->p_subn->max_mcast_lid_ho - IB_LID_MCAST_START_HO;
 	     i++) {
 		/*
@@ -1151,6 +1149,7 @@ int osm_mcast_mgr_process(osm_sm_t * sm)
 		free(p);
 	}
 
+exit:
 	CL_PLOCK_RELEASE(sm->p_lock);
 
 	OSM_LOG_EXIT(sm->p_log);
@@ -1176,6 +1175,13 @@ int osm_mcast_mgr_process_mgroups(osm_sm_t * sm)
 
 	/* we need a lock to make sure the p_mgrp is not change other ways */
 	CL_PLOCK_EXCL_ACQUIRE(sm->p_lock);
+
+	/* If there are no switches in the subnet we have nothing to do. */
+	if (cl_qmap_count(&sm->p_subn->sw_guid_tbl) == 0) {
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
+			"No switches in subnet. Nothing to do\n");
+		goto exit;
+	}
 
 	while (!cl_is_qlist_empty(p_list)) {
 		ctx = (osm_mcast_mgr_ctxt_t *) cl_qlist_remove_head(p_list);
@@ -1221,6 +1227,7 @@ int osm_mcast_mgr_process_mgroups(osm_sm_t * sm)
 
 	osm_dump_mcast_routes(sm->p_subn->p_osm);
 
+exit:
 	CL_PLOCK_RELEASE(sm->p_lock);
 	OSM_LOG_EXIT(sm->p_log);
 	return ret;
