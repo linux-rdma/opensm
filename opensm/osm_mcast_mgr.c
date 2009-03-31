@@ -1039,12 +1039,10 @@ static ib_api_status_t mcast_mgr_process_mgrp(osm_sm_t * sm,
 
 	if (p_mgrp->full_members) {
 		status = mcast_mgr_build_spanning_tree(sm, p_mgrp);
-		if (status != IB_SUCCESS) {
+		if (status != IB_SUCCESS)
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A17: "
 				"Unable to create spanning tree (%s)\n",
 				ib_get_err_str(status));
-			goto Exit;
-		}
 	} else  if (p_mgrp->to_be_deleted) {
 		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 			"Destroying mgrp with lid:0x%x\n",
@@ -1054,12 +1052,8 @@ static ib_api_status_t mcast_mgr_process_mgrp(osm_sm_t * sm,
 		cl_fmap_remove_item(&sm->p_subn->mgrp_mgid_tbl,
 				    &p_mgrp->map_item);
 		osm_mgrp_delete(p_mgrp);
-		goto Exit;
 	}
 
-	p_mgrp->last_tree_id = p_mgrp->last_change_id;
-
-Exit:
 	OSM_LOG_EXIT(sm->p_log);
 	return status;
 }
@@ -1201,19 +1195,8 @@ int osm_mcast_mgr_process_mgroups(osm_sm_t * sm)
 		if (!p_mgrp)
 			continue;
 
-		/* if there was no change from the last time
-		 * we processed the group we can skip doing anything
-		 */
-		if (p_mgrp->last_change_id == p_mgrp->last_tree_id) {
-			OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-				"Skip processing mgrp with lid:0x%X change id:%u\n",
-				cl_ntoh16(mlid), p_mgrp->last_change_id);
-			continue;
-		}
-
 		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-			"Processing mgrp with lid:0x%X change id:%u\n",
-			cl_ntoh16(mlid), p_mgrp->last_change_id);
+			"Processing mgrp with lid:0x%x\n", cl_ntoh16(mlid));
 		mcast_mgr_process_mgrp(sm, p_mgrp);
 	}
 

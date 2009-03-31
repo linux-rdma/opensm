@@ -86,8 +86,6 @@ osm_mgrp_t *osm_mgrp_new(IN const ib_net16_t mlid)
 	memset(p_mgrp, 0, sizeof(*p_mgrp));
 	cl_qmap_init(&p_mgrp->mcm_port_tbl);
 	p_mgrp->mlid = mlid;
-	p_mgrp->last_change_id = 0;
-	p_mgrp->last_tree_id = 0;
 	p_mgrp->to_be_deleted = FALSE;
 
 	return p_mgrp;
@@ -167,9 +165,6 @@ osm_mcm_port_t *osm_mgrp_add_port(IN osm_subn_t * subn, osm_log_t * log,
 		p_mcm_port->scope_state =
 		    ib_member_set_scope_state(prev_scope,
 					      prev_join_state | join_state);
-	} else {
-		/* track the fact we modified the group ports */
-		p_mgrp->last_change_id++;
 	}
 
 	if ((join_state & IB_JOIN_STATE_FULL) &&
@@ -211,8 +206,6 @@ int osm_mgrp_remove_port(osm_subn_t * subn, osm_log_t * log, osm_mgrp_t * mgrp,
 		OSM_LOG(log, OSM_LOG_DEBUG, "removing port 0x%" PRIx64 "\n",
 			cl_ntoh64(mcm->port_gid.unicast.interface_id));
 		osm_mcm_port_delete(mcm);
-		/* track the fact we modified the group */
-		mgrp->last_change_id++;
 		ret = 1;
 	}
 

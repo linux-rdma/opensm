@@ -128,8 +128,6 @@ typedef struct osm_mgrp {
 	ib_member_rec_t mcmember_rec;
 	boolean_t well_known;
 	boolean_t to_be_deleted;
-	uint32_t last_change_id;
-	uint32_t last_tree_id;
 	unsigned full_members;
 } osm_mgrp_t;
 /*
@@ -162,14 +160,6 @@ typedef struct osm_mgrp {
 *		Since groups are deleted only after re-route we need to
 *		track the fact the group is about to be deleted so we can
 *		track the fact a new join is actually a create request.
-*
-*	last_change_id
-*		a counter for the number of changes applied to the group.
-*		This counter shuold be incremented on any modification
-*		to the group: joining or leaving of ports.
-*
-*	last_tree_id
-*		the last change id used for building the current tree.
 *
 * SEE ALSO
 *********/
