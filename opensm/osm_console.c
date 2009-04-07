@@ -1197,7 +1197,7 @@ static void perfmgr_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 
 static void quit_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 {
-	osm_console_exit(&p_osm->console, &p_osm->log);
+	cio_close(&p_osm->console, &p_osm->log);
 }
 
 static void help_version(FILE * out, int detail)
@@ -1385,7 +1385,6 @@ int osm_console(osm_opensm_t * p_osm)
 	struct pollfd *fds;
 	nfds_t nfds;
 	osm_console_t *p_oct = &p_osm->console;
-	osm_log_t *p_log = &p_osm->log;
 
 	pollfd[0].fd = p_oct->socket;
 	pollfd[0].events = POLLIN;
@@ -1418,7 +1417,7 @@ int osm_console(osm_opensm_t * p_osm)
 		socklen_t len = sizeof(sin);
 		struct hostent *hent;
 		if ((new_fd = accept(p_oct->socket, &sin, &len)) < 0) {
-			OSM_LOG(p_log, OSM_LOG_ERROR,
+			OSM_LOG(&p_osm->log, OSM_LOG_ERROR,
 				"ERR 4B04: Failed to accept console socket: %s\n",
 				strerror(errno));
 			p_oct->in_fd = -1;
@@ -1437,9 +1436,9 @@ int osm_console(osm_opensm_t * p_osm)
 			snprintf(p_oct->client_hn, 128, "%s", hent->h_name);
 		}
 		if (is_authorized(p_oct)) {
-			cio_open(p_oct, new_fd, p_log);
+			cio_open(p_oct, new_fd, &p_osm->log);
 		} else {
-			OSM_LOG(p_log, OSM_LOG_ERROR,
+			OSM_LOG(&p_osm->log, OSM_LOG_ERROR,
 				"ERR 4B05: Console connection denied: %s (%s)\n",
 				p_oct->client_hn, p_oct->client_ip);
 			close(new_fd);
@@ -1459,7 +1458,7 @@ int osm_console(osm_opensm_t * p_osm)
 				osm_console_prompt(p_oct->out);
 			}
 		} else
-			osm_console_exit(p_oct, p_log);
+			cio_close(p_oct, &p_osm->log);
 		if (p_line)
 			free(p_line);
 		return 0;
@@ -1469,7 +1468,7 @@ int osm_console(osm_opensm_t * p_osm)
 #ifdef ENABLE_OSM_CONSOLE_SOCKET
 		/* If we are using a socket, we close the current connection */
 		if (p_oct->socket >= 0) {
-			cio_close(p_oct);
+			cio_close(p_oct, &p_osm->log);
 			return 0;
 		}
 #endif

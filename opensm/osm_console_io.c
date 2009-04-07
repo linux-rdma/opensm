@@ -92,10 +92,13 @@ int is_console_enabled(osm_subn_opt_t * p_opt)
 
 
 #ifdef ENABLE_OSM_CONSOLE_SOCKET
-int cio_close(osm_console_t * p_oct)
+int cio_close(osm_console_t * p_oct, osm_log_t * p_log)
 {
 	int rtnval = -1;
 	if (p_oct && p_oct->in_fd > 0) {
+		OSM_LOG(p_log, OSM_LOG_INFO,
+			"Console connection closed: %s (%s)\n",
+			p_oct->client_hn, p_oct->client_ip);
 		rtnval = close(p_oct->in_fd);
 		p_oct->in_fd = -1;
 		p_oct->out_fd = -1;
@@ -103,20 +106,6 @@ int cio_close(osm_console_t * p_oct)
 		p_oct->out = NULL;
 	}
 	return rtnval;
-}
-
-static void console_close(osm_console_t * p_oct, osm_log_t * p_log)
-{
-	if (p_oct->socket > 0 && p_oct->in_fd != -1) {
-		OSM_LOG(p_log, OSM_LOG_INFO,
-			"Console connection closed: %s (%s)\n",
-			p_oct->client_hn, p_oct->client_ip);
-		cio_close(p_oct);
-	}
-	if (p_oct->socket > 0) {
-		close(p_oct->socket);
-		p_oct->socket = -1;
-	}
 }
 
 int cio_open(osm_console_t * p_oct, int new_fd, osm_log_t * p_log)
@@ -135,7 +124,7 @@ int cio_open(osm_console_t * p_oct, int new_fd, osm_log_t * p_log)
 		p_line = NULL;
 		n = getline(&p_line, &len, file);
 		if (n > 0 && (p_line[0] == 'y' || p_line[0] == 'Y'))
-			console_close(p_oct, p_log);
+			cio_close(p_oct, p_log);
 		else {
 			OSM_LOG(p_log, OSM_LOG_INFO,
 				"Console connection aborted: %s (%s)\n",
@@ -238,13 +227,12 @@ int osm_console_init(osm_subn_opt_t * opt, osm_console_t * p_oct, osm_log_t * p_
 /* clean up and release resources */
 void osm_console_exit(osm_console_t * p_oct, osm_log_t * p_log)
 {
-	/* currently just close the current connection, not the socket */
 #ifdef ENABLE_OSM_CONSOLE_SOCKET
-	if (p_oct->socket > 0 && p_oct->in_fd != -1) {
-		OSM_LOG(p_log, OSM_LOG_INFO,
-			"Console connection closed: %s (%s)\n",
-			p_oct->client_hn, p_oct->client_ip);
-		cio_close(p_oct);
+	cio_close(p_oct, p_log);
+	if (p_oct->socket > 0) {
+		OSM_LOG(p_log, OSM_LOG_INFO, "Closing console socket\n");
+		close(p_oct->socket);
+		p_oct->socket = -1;
 	}
 #endif
 }
