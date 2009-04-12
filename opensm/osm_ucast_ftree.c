@@ -1480,7 +1480,7 @@ static void fabric_make_indexing(IN ftree_fabric_t * p_ftree)
 						    new_tuple);
 
 				/* add the newly discovered switch to the BFS queue */
-				cl_list_insert_tail(&bfs_list, p_sw);
+				cl_list_insert_tail(&bfs_list, p_remote_sw);
 			}
 			/* Done assigning indexes to all the remote switches
 			   that are pointed by the downgoing ports.
@@ -1513,7 +1513,7 @@ static void fabric_make_indexing(IN ftree_fabric_t * p_ftree)
 				fabric_assign_tuple(p_ftree,
 						    p_remote_sw, new_tuple);
 				/* add the newly discovered switch to the BFS queue */
-				cl_list_insert_tail(&bfs_list, p_sw);
+				cl_list_insert_tail(&bfs_list, p_remote_sw);
 			}
 			/* Done assigning indexes to all the remote switches
 			   that are pointed by the upgoing ports.
