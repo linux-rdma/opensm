@@ -2688,10 +2688,7 @@ static void __process_ulp_match_rules()
 /***************************************************
  ***************************************************/
 
-static int OSM_CDECL
-__cmp_num_range(
-    const void * p1,
-    const void * p2)
+static int __cmp_num_range(const void * p1, const void * p2)
 {
     uint64_t * pair1 = *((uint64_t **)p1);
     uint64_t * pair2 = *((uint64_t **)p2);

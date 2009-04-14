@@ -49,9 +49,6 @@
 
 #ifdef __WIN__
 #include <vendor/winosm_common.h>
-#define OSM_CDECL __cdecl
-#else
-#define OSM_CDECL
 #endif
 
 #include <complib/cl_types.h>

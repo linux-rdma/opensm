@@ -217,8 +217,7 @@ typedef struct ftree_fabric_t_ {
  **
  ***************************************************/
 
-static int OSM_CDECL compare_switches_by_index(IN const void *p1,
-					       IN const void *p2)
+static int compare_switches_by_index(IN const void *p1, IN const void *p2)
 {
 	ftree_sw_t **pp_sw1 = (ftree_sw_t **) p1;
 	ftree_sw_t **pp_sw2 = (ftree_sw_t **) p2;
@@ -235,7 +234,7 @@ static int OSM_CDECL compare_switches_by_index(IN const void *p1,
 
 /***************************************************/
 
-static int OSM_CDECL
+static int
 compare_port_groups_by_remote_switch_index(IN const void *p1, IN const void *p2)
 {
 	ftree_port_group_t **pp_g1 = (ftree_port_group_t **) p1;
