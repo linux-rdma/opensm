@@ -438,6 +438,19 @@ static const char *__ib_sa_attr_str[] = {
 
 #define OSM_SA_ATTR_STR_UNKNOWN_VAL 0xF4
 
+static int sprint_uint8_arr(char *buf, size_t size,
+			    const uint8_t * arr, size_t len)
+{
+	int i, n;
+	for (i = 0, n = 0; i < len; i++) {
+		n += snprintf(buf + n, size - n, "%s%u", i == 0 ? "" : ",",
+			      arr[i]);
+		if (n >= size)
+			break;
+	}
+	return n;
+}
+
 /**********************************************************************
  **********************************************************************/
 const char *ib_get_sa_method_str(IN uint8_t method)
@@ -1690,8 +1703,8 @@ void osm_dump_notice(IN osm_log_t * p_log,
 		return;
 
 	if (ib_notice_is_generic(p_ntci)) {
-		int i, n;
 		char buff[1024];
+		int n;
 		buff[0] = '\0';
 
 		/* immediate data based on the trap */
@@ -1779,24 +1792,14 @@ void osm_dump_notice(IN osm_log_t * p_log,
 				      "\n\t\t\t\tPath = ",
 				      p_ntci->data_details.ntc_256.
 				      dr_trunc_hop & 0x3f);
-			for (i = 0;
-			     i <=
-			     (p_ntci->data_details.ntc_256.dr_trunc_hop & 0x3f);
-			     i++) {
-				if (i == 0)
-					n += snprintf(buff + n,
-						      sizeof(buff) - n, "%d",
-						      p_ntci->data_details.
-						      ntc_256.dr_rtn_path[i]);
-				else
-					n += snprintf(buff + n,
-						      sizeof(buff) - n, ",%d",
-						      p_ntci->data_details.
-						      ntc_256.dr_rtn_path[i]);
-				if (n >= sizeof(buff)) {
-					n = sizeof(buff) - 2;
-					break;
-				}
+			n += sprint_uint8_arr(buff + n, sizeof(buff) - n,
+					      p_ntci->data_details.ntc_256.
+					      dr_rtn_path,
+					      (p_ntci->data_details.ntc_256.
+					       dr_trunc_hop & 0x3f) + 1);
+			if (n >= sizeof(buff)) {
+				n = sizeof(buff) - 2;
+				break;
 			}
 			snprintf(buff + n, sizeof(buff) - n, "\n");
 			break;
@@ -1950,28 +1953,16 @@ void osm_dump_dr_smp(IN osm_log_t * p_log, IN const ib_smp_t * p_smp,
 			strcat(buf, line);
 
 			strcat(buf, "\n\t\t\t\tInitial path: ");
-
-			for (i = 0; i <= p_smp->hop_count; i++) {
-				if (i == 0)
-					sprintf(line, "%d",
-						p_smp->initial_path[i]);
-				else
-					sprintf(line, ",%d",
-						p_smp->initial_path[i]);
-				strcat(buf, line);
-			}
+			sprint_uint8_arr(line, sizeof(line),
+					 p_smp->initial_path,
+					 p_smp->hop_count + 1);
+			strcat(buf, line);
 
 			strcat(buf, "\n\t\t\t\tReturn path:  ");
-
-			for (i = 0; i <= p_smp->hop_count; i++) {
-				if (i == 0)
-					sprintf(line, "%d",
-						p_smp->return_path[i]);
-				else
-					sprintf(line, ",%d",
-						p_smp->return_path[i]);
-				strcat(buf, line);
-			}
+			sprint_uint8_arr(line, sizeof(line),
+					 p_smp->return_path,
+					 p_smp->hop_count + 1);
+			strcat(buf, line);
 
 			strcat(buf, "\n\t\t\t\tReserved:     ");
 
@@ -2083,19 +2074,14 @@ void osm_dump_dr_path(IN osm_log_t * p_log, IN const osm_dr_path_t * p_path,
 		      IN const osm_log_level_t log_level)
 {
 	if (osm_log_is_active(p_log, log_level)) {
-		char buf[BUF_SIZE], line[BUF_SIZE];
-		uint32_t i;
+		char buf[BUF_SIZE];
+		unsigned n = 0;
 
-		sprintf(buf, "Directed Path Dump of %u hop path:"
-			"\n\t\t\t\tPath = ", p_path->hop_count);
+		n = sprintf(buf, "Directed Path Dump of %u hop path:"
+			    "\n\t\t\t\tPath = ", p_path->hop_count);
 
-		for (i = 0; i <= p_path->hop_count; i++) {
-			if (i == 0)
-				sprintf(line, "%d", p_path->path[i]);
-			else
-				sprintf(line, ",%d", p_path->path[i]);
-			strcat(buf, line);
-		}
+		sprint_uint8_arr(buf + n, sizeof(buf) - n, p_path->path,
+				 p_path->hop_count + 1);
 		osm_log(p_log, log_level, "%s\n", buf);
 	}
 }
@@ -2106,29 +2092,18 @@ void osm_dump_smp_dr_path(IN osm_log_t * p_log, IN const ib_smp_t * p_smp,
 			  IN const osm_log_level_t log_level)
 {
 	if (osm_log_is_active(p_log, log_level)) {
-		char buf[BUF_SIZE], line[BUF_SIZE];
-		uint32_t i;
+		char buf[BUF_SIZE];
+		unsigned n;
 
-		sprintf(buf, "Received SMP on a %u hop path:"
-			"\n\t\t\t\tInitial path = ", p_smp->hop_count);
+		n = sprintf(buf, "Received SMP on a %u hop path:"
+			    "\n\t\t\t\tInitial path = ", p_smp->hop_count);
+		n += sprint_uint8_arr(buf + n, sizeof(buf) - n,
+				      p_smp->initial_path,
+				      p_smp->hop_count + 1);
 
-		for (i = 0; i <= p_smp->hop_count; i++) {
-			if (i == 0)
-				sprintf(line, "%d", p_smp->initial_path[i]);
-			else
-				sprintf(line, ",%d", p_smp->initial_path[i]);
-			strcat(buf, line);
-		}
-
-		strcat(buf, "\n\t\t\t\tReturn path  = ");
-
-		for (i = 0; i <= p_smp->hop_count; i++) {
-			if (i == 0)
-				sprintf(line, "%d", p_smp->return_path[i]);
-			else
-				sprintf(line, ",%d", p_smp->return_path[i]);
-			strcat(buf, line);
-		}
+		n += sprintf(buf + n, "\n\t\t\t\tReturn path  = ");
+		n += sprint_uint8_arr(buf + n, sizeof(buf) - n,
+				      p_smp->return_path, p_smp->hop_count + 1);
 
 		osm_log(p_log, log_level, "%s\n", buf);
 	}
