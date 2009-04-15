@@ -827,7 +827,9 @@ void osm_dump_port_info(IN osm_log_t * p_log, IN const ib_net64_t node_guid,
 			"\t\t\t\tclient_reregister.......0x%X\n"
 			"\t\t\t\tsubnet_timeout..........0x%X\n"
 			"\t\t\t\tresp_time_value.........0x%X\n"
-			"\t\t\t\terror_threshold.........0x%X\n",
+			"\t\t\t\terror_threshold.........0x%X\n"
+			"\t\t\t\tmax_credit_hint.........0x%X\n"
+			"\t\t\t\tlink_round_trip_latency.0x%X\n",
 			port_num,
 			cl_ntoh64(node_guid),
 			cl_ntoh64(port_guid),
@@ -855,7 +857,8 @@ void osm_dump_port_info(IN osm_log_t * p_log, IN const ib_net64_t node_guid,
 			cl_ntoh16(p_pi->q_key_violations), p_pi->guid_cap,
 			ib_port_info_get_client_rereg(p_pi),
 			ib_port_info_get_timeout(p_pi), p_pi->resp_time_value,
-			p_pi->error_threshold);
+			p_pi->error_threshold, cl_ntoh16(p_pi->max_credit_hint),
+			cl_ntoh32(p_pi->link_rt_latency));
 
 		/*  show the capabilities mask */
 		if (p_pi->capability_mask) {
