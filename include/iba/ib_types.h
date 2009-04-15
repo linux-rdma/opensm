@@ -4433,7 +4433,9 @@ typedef struct _ib_port_info {
 	uint8_t guid_cap;
 	uint8_t subnet_timeout;	/* cli_rereg(1b), resrv(2b), timeout(5b) */
 	uint8_t resp_time_value;
-	uint8_t error_threshold;
+	uint8_t error_threshold; /* local phy errors(4b), overrun errors(4b) */
+	ib_net16_t max_credit_hint;
+	ib_net32_t link_rt_latency; /* reserv(8b), link round trip lat(24b) */
 } PACK_SUFFIX ib_port_info_t;
 #include <complib/cl_packoff.h>
 /************/
