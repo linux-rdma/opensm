@@ -709,7 +709,7 @@ static void sa_dump_all_sa(osm_opensm_t * p_osm, FILE * file)
 
 	dump_context.p_osm = p_osm;
 	dump_context.file = file;
-	OSM_LOG(&p_osm->log, OSM_LOG_DEBUG, "Dump multicast:\n");
+	OSM_LOG(&p_osm->log, OSM_LOG_DEBUG, "Dump multicast\n");
 	cl_plock_acquire(&p_osm->lock);
 	for (i = 0; i <= p_osm->subn.max_mcast_lid_ho - IB_LID_MCAST_START_HO;
 	     i++) {
@@ -717,10 +717,10 @@ static void sa_dump_all_sa(osm_opensm_t * p_osm, FILE * file)
 		if (p_mgrp)
 			sa_dump_one_mgrp(p_mgrp, &dump_context);
 	}
-	OSM_LOG(&p_osm->log, OSM_LOG_DEBUG, "Dump inform:\n");
+	OSM_LOG(&p_osm->log, OSM_LOG_DEBUG, "Dump inform\n");
 	cl_qlist_apply_func(&p_osm->subn.sa_infr_list,
 			    sa_dump_one_inform, &dump_context);
-	OSM_LOG(&p_osm->log, OSM_LOG_DEBUG, "Dump services:\n");
+	OSM_LOG(&p_osm->log, OSM_LOG_DEBUG, "Dump services\n");
 	cl_qlist_apply_func(&p_osm->subn.sa_sr_list,
 			    sa_dump_one_service, &dump_context);
 	cl_plock_release(&p_osm->lock);
