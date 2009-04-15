@@ -1426,14 +1426,17 @@ int osm_console(osm_opensm_t * p_osm)
 		if (inet_ntop
 		    (AF_INET, &sin.sin_addr, p_oct->client_ip,
 		     sizeof(p_oct->client_ip)) == NULL) {
-			snprintf(p_oct->client_ip, 64, "STRING_UNKNOWN");
+			snprintf(p_oct->client_ip, sizeof(p_oct->client_ip),
+				 "STRING_UNKNOWN");
 		}
 		if ((hent = gethostbyaddr((const char *)&sin.sin_addr,
 					  sizeof(struct in_addr),
 					  AF_INET)) == NULL) {
-			snprintf(p_oct->client_hn, 128, "STRING_UNKNOWN");
+			snprintf(p_oct->client_hn, sizeof(p_oct->client_hn),
+				 "STRING_UNKNOWN");
 		} else {
-			snprintf(p_oct->client_hn, 128, "%s", hent->h_name);
+			snprintf(p_oct->client_hn, sizeof(p_oct->client_hn),
+				 "%s", hent->h_name);
 		}
 		if (is_authorized(p_oct)) {
 			cio_open(p_oct, new_fd, &p_osm->log);

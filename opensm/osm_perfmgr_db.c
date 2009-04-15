@@ -120,7 +120,7 @@ static _db_node_t *__malloc_node(uint64_t guid, boolean_t esp0,
 		rc->ports[i].err_previous.time = cur_time;
 		rc->ports[i].dc_previous.time = cur_time;
 	}
-	snprintf(rc->node_name, NODE_NAME_SIZE, "%s", name);
+	snprintf(rc->node_name, sizeof(rc->node_name), "%s", name);
 
 	return (rc);
 

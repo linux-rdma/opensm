@@ -73,7 +73,7 @@ osm_epi_plugin_t *osm_epi_construct(osm_opensm_t *osm, char *plugin_name)
 		return (NULL);
 
 	/* find the plugin */
-	snprintf(lib_name, OSM_PATH_MAX, "lib%s.so", plugin_name);
+	snprintf(lib_name, sizeof(lib_name), "lib%s.so", plugin_name);
 
 	rc = malloc(sizeof(*rc));
 	if (!rc)
