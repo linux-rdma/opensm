@@ -1085,13 +1085,13 @@ void osm_dump_path_record(IN osm_log_t * p_log, IN const ib_path_rec_t * p_pr,
 			  IN const osm_log_level_t log_level)
 {
 	if (osm_log_is_active(p_log, log_level)) {
+		char gid_str[INET6_ADDRSTRLEN];
+		char gid_str2[INET6_ADDRSTRLEN];
 		osm_log(p_log, log_level,
 			"PathRecord dump:\n"
 			"\t\t\t\tservice_id..............0x%016" PRIx64 "\n"
-			"\t\t\t\tdgid....................0x%016" PRIx64 " : "
-			"0x%016" PRIx64 "\n"
-			"\t\t\t\tsgid....................0x%016" PRIx64 " : "
-			"0x%016" PRIx64 "\n"
+			"\t\t\t\tdgid....................%s\n"
+			"\t\t\t\tsgid....................%s\n"
 			"\t\t\t\tdlid....................%u\n"
 			"\t\t\t\tslid....................%u\n"
 			"\t\t\t\thop_flow_raw............0x%X\n"
@@ -1107,10 +1107,10 @@ void osm_dump_path_record(IN osm_log_t * p_log, IN const ib_path_rec_t * p_pr,
 			"\t\t\t\tresv2...................0x%X\n"
 			"\t\t\t\tresv3...................0x%X\n",
 			cl_ntoh64(p_pr->service_id),
-			cl_ntoh64(p_pr->dgid.unicast.prefix),
-			cl_ntoh64(p_pr->dgid.unicast.interface_id),
-			cl_ntoh64(p_pr->sgid.unicast.prefix),
-			cl_ntoh64(p_pr->sgid.unicast.interface_id),
+			inet_ntop(AF_INET6, p_pr->dgid.raw, gid_str,
+				  sizeof gid_str),
+			inet_ntop(AF_INET6, p_pr->sgid.raw, gid_str2,
+				  sizeof gid_str2),
 			cl_ntoh16(p_pr->dlid),
 			cl_ntoh16(p_pr->slid),
 			cl_ntoh32(p_pr->hop_flow_raw),
@@ -1135,6 +1135,7 @@ void osm_dump_multipath_record(IN osm_log_t * p_log,
 			       IN const osm_log_level_t log_level)
 {
 	if (osm_log_is_active(p_log, log_level)) {
+		char gid_str[INET6_ADDRSTRLEN];
 		char buf_line[1024];
 		ib_gid_t const *p_gid = p_mpr->gids;
 		int i, n = 0;
@@ -1143,11 +1144,9 @@ void osm_dump_multipath_record(IN osm_log_t * p_log,
 			for (i = 0; i < p_mpr->sgid_count; i++) {
 				n += sprintf(buf_line + n,
 					     "\t\t\t\tsgid%02d.................."
-					     "0x%016" PRIx64 " : 0x%016" PRIx64
-					     "\n", i + 1,
-					     cl_ntoh64(p_gid->unicast.prefix),
-					     cl_ntoh64(p_gid->unicast.
-						       interface_id));
+					     "%s\n", i + 1,
+					     inet_ntop(AF_INET6, p_gid->raw,
+						       gid_str, sizeof gid_str));
 				p_gid++;
 			}
 		}
@@ -1155,11 +1154,9 @@ void osm_dump_multipath_record(IN osm_log_t * p_log,
 			for (i = 0; i < p_mpr->dgid_count; i++) {
 				n += sprintf(buf_line + n,
 					     "\t\t\t\tdgid%02d.................."
-					     "0x%016" PRIx64 " : 0x%016" PRIx64
-					     "\n", i + 1,
-					     cl_ntoh64(p_gid->unicast.prefix),
-					     cl_ntoh64(p_gid->unicast.
-						       interface_id));
+					     "%s\n", i + 1,
+					     inet_ntop(AF_INET6, p_gid->raw,
+						       gid_str, sizeof gid_str));
 				p_gid++;
 			}
 		}
@@ -1343,15 +1340,14 @@ void osm_dump_inform_info(IN osm_log_t * p_log,
 	if (osm_log_is_active(p_log, log_level)) {
 		uint32_t qpn;
 		uint8_t resp_time_val;
-
+		char gid_str[INET6_ADDRSTRLEN];
 		ib_inform_info_get_qpn_resp_time(p_ii->g_or_v.generic.
 						 qpn_resp_time_val, &qpn,
 						 &resp_time_val);
 		if (p_ii->is_generic) {
 			osm_log(p_log, log_level,
 				"InformInfo dump:\n"
-				"\t\t\t\tgid.....................0x%016" PRIx64
-				" : 0x%016" PRIx64 "\n"
+				"\t\t\t\tgid.....................%s\n"
 				"\t\t\t\tlid_range_begin.........%u\n"
 				"\t\t\t\tlid_range_end...........%u\n"
 				"\t\t\t\tis_generic..............0x%X\n"
@@ -1361,8 +1357,8 @@ void osm_dump_inform_info(IN osm_log_t * p_log,
 				"\t\t\t\tqpn.....................0x%06X\n"
 				"\t\t\t\tresp_time_val...........0x%X\n"
 				"\t\t\t\tnode_type...............0x%06X\n" "",
-				cl_ntoh64(p_ii->gid.unicast.prefix),
-				cl_ntoh64(p_ii->gid.unicast.interface_id),
+				inet_ntop(AF_INET6, p_ii->gid.raw, gid_str,
+					  sizeof gid_str),
 				cl_ntoh16(p_ii->lid_range_begin),
 				cl_ntoh16(p_ii->lid_range_end),
 				p_ii->is_generic, p_ii->subscribe,
@@ -1373,8 +1369,7 @@ void osm_dump_inform_info(IN osm_log_t * p_log,
 		} else {
 			osm_log(p_log, log_level,
 				"InformInfo dump:\n"
-				"\t\t\t\tgid.....................0x%016" PRIx64
-				" : 0x%016" PRIx64 "\n"
+				"\t\t\t\tgid.....................%s\n"
 				"\t\t\t\tlid_range_begin.........%u\n"
 				"\t\t\t\tlid_range_end...........%u\n"
 				"\t\t\t\tis_generic..............0x%X\n"
@@ -1384,8 +1379,8 @@ void osm_dump_inform_info(IN osm_log_t * p_log,
 				"\t\t\t\tqpn.....................0x%06X\n"
 				"\t\t\t\tresp_time_val...........0x%X\n"
 				"\t\t\t\tvendor_id...............0x%06X\n" "",
-				cl_ntoh64(p_ii->gid.unicast.prefix),
-				cl_ntoh64(p_ii->gid.unicast.interface_id),
+				inet_ntop(AF_INET6, p_ii->gid.raw, gid_str,
+					  sizeof gid_str),
 				cl_ntoh16(p_ii->lid_range_begin),
 				cl_ntoh16(p_ii->lid_range_end),
 				p_ii->is_generic, p_ii->subscribe,
@@ -1706,6 +1701,8 @@ void osm_dump_notice(IN osm_log_t * p_log,
 		return;
 
 	if (ib_notice_is_generic(p_ntci)) {
+		char gid_str[INET6_ADDRSTRLEN];
+		char gid_str2[INET6_ADDRSTRLEN];
 		char buff[1024];
 		int n;
 		buff[0] = '\0';
@@ -1717,12 +1714,10 @@ void osm_dump_notice(IN osm_log_t * p_log,
 		case 66:
 		case 67:
 			sprintf(buff,
-				"\t\t\t\tsrc_gid..................0x%016"
-				PRIx64 ":0x%016" PRIx64 "\n",
-				cl_ntoh64(p_ntci->data_details.
-					  ntc_64_67.gid.unicast.prefix),
-				cl_ntoh64(p_ntci->data_details.
-					  ntc_64_67.gid.unicast.interface_id));
+				"\t\t\t\tsrc_gid..................%s\n",
+				inet_ntop(AF_INET6, p_ntci->data_details.
+					  ntc_64_67.gid.raw, gid_str,
+					  sizeof gid_str));
 			break;
 		case 128:
 			sprintf(buff,
@@ -1815,10 +1810,8 @@ void osm_dump_notice(IN osm_log_t * p_log,
 				"\t\t\t\tsl.......................%d\n"
 				"\t\t\t\tqp1......................0x%x\n"
 				"\t\t\t\tqp2......................0x%x\n"
-				"\t\t\t\tgid1.....................0x%016" PRIx64
-				" : " "0x%016" PRIx64 "\n"
-				"\t\t\t\tgid2.....................0x%016" PRIx64
-				" : " "0x%016" PRIx64 "\n",
+				"\t\t\t\tgid1.....................%s\n"
+				"\t\t\t\tgid2.....................%s\n",
 				cl_ntoh16(p_ntci->data_details.ntc_257_258.
 					  lid1),
 				cl_ntoh16(p_ntci->data_details.ntc_257_258.
@@ -1829,14 +1822,12 @@ void osm_dump_notice(IN osm_log_t * p_log,
 				cl_ntoh32(p_ntci->data_details.ntc_257_258.
 					  qp1) & 0xffffff,
 				cl_ntoh32(p_ntci->data_details.ntc_257_258.qp2),
-				cl_ntoh64(p_ntci->data_details.ntc_257_258.gid1.
-					  unicast.prefix),
-				cl_ntoh64(p_ntci->data_details.ntc_257_258.gid1.
-					  unicast.interface_id),
-				cl_ntoh64(p_ntci->data_details.ntc_257_258.gid2.
-					  unicast.prefix),
-				cl_ntoh64(p_ntci->data_details.ntc_257_258.gid2.
-					  unicast.interface_id));
+				inet_ntop(AF_INET6, p_ntci->data_details.
+					  ntc_257_258.gid1.raw, gid_str,
+					  sizeof gid_str),
+				inet_ntop(AF_INET6, p_ntci->data_details.
+					  ntc_257_258.gid2.raw, gid_str2,
+					  sizeof gid_str2));
 			break;
 		case 259:
 			sprintf(buff,
@@ -1847,10 +1838,8 @@ void osm_dump_notice(IN osm_log_t * p_log,
 				"\t\t\t\tsl.......................%d\n"
 				"\t\t\t\tqp1......................0x%x\n"
 				"\t\t\t\tqp2......................0x%x\n"
-				"\t\t\t\tgid1.....................0x%016" PRIx64
-				" : " "0x%016" PRIx64 "\n"
-				"\t\t\t\tgid2.....................0x%016" PRIx64
-				" : " "0x%016" PRIx64 "\n"
+				"\t\t\t\tgid1.....................%s\n"
+				"\t\t\t\tgid2.....................%s\n"
 				"\t\t\t\tsw_lid...................%u\n"
 				"\t\t\t\tport_no..................%u\n",
 				cl_ntoh16(p_ntci->data_details.ntc_259.
@@ -1863,14 +1852,12 @@ void osm_dump_notice(IN osm_log_t * p_log,
 				cl_ntoh32(p_ntci->data_details.ntc_259.
 					  sl_qp1) & 0xffffff,
 				cl_ntoh32(p_ntci->data_details.ntc_259.qp2),
-				cl_ntoh64(p_ntci->data_details.ntc_259.gid1.
-					  unicast.prefix),
-				cl_ntoh64(p_ntci->data_details.ntc_259.gid1.
-					  unicast.interface_id),
-				cl_ntoh64(p_ntci->data_details.ntc_259.gid2.
-					  unicast.prefix),
-				cl_ntoh64(p_ntci->data_details.ntc_259.gid2.
-					  unicast.interface_id),
+				inet_ntop(AF_INET6, p_ntci->data_details.
+					  ntc_259.gid1.raw, gid_str,
+					  sizeof gid_str),
+				inet_ntop(AF_INET6, p_ntci->data_details.
+					  ntc_259.gid2.raw, gid_str2,
+					  sizeof gid_str2),
 				cl_ntoh16(p_ntci->data_details.ntc_259.sw_lid),
 				p_ntci->data_details.ntc_259.port_no);
 			break;
