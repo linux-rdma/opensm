@@ -632,7 +632,7 @@ static int sweep_hop_1(osm_sm_t * sm)
 					     CL_DISP_MSGID_NONE, &context);
 
 			if (status != IB_SUCCESS)
-				OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 4C82: "
+				OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 4C84: "
 					"Request for NodeInfo failed\n");
 		}
 		break;
