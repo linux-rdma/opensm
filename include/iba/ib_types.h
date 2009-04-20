@@ -5816,7 +5816,6 @@ typedef struct _ib_portinfo_record {
 	uint8_t port_num;
 	uint8_t resv;
 	ib_port_info_t port_info;
-	uint8_t pad[6];
 } PACK_SUFFIX ib_portinfo_record_t;
 #include <complib/cl_packoff.h>
 
