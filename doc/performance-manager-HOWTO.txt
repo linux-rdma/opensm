@@ -10,7 +10,7 @@ the subnet and stores them internally in OpenSM.
 Some of the features of the performance manager are:
 
 	1) Collect port data and error counters per v1.2 spec and store in
-	   64bit internal counts.
+	   64 bit internal counts.
 	2) Automatic reset of counters when they reach approximatly 3/4 full.
 	   (While not guarenteeing that counts will not be missed this does
 	   keep counts incrementing as best as possible given the current
@@ -19,12 +19,13 @@ Some of the features of the performance manager are:
 	   errors.
 	4) Automatically detects "outside" resets of counters and adjusts to
 	   continue collecting data.
-	5) Can be run when OpenSM is in standby or inactive states.
+	5) Can be run when OpenSM is in standby or inactive states in
+	   addition to master state.
 
 Known issues are:
 
 	1) Data counters will be lost on high data rate links.  Sweeping the
-	   fabric fast enough for a DDR link is not practical.
+	   fabric fast enough for even a DDR link is not practical.
 	2) Default partition support only.
 
 
@@ -147,7 +148,7 @@ collected.  You can then use that data as appropriate.
 
 An example plugin can be configured at compile time using the
 "--enable-default-event-plugin" option on the configure line.  This plugin is
-very simple.  It logs "events" recieved from the performance manager to a log
-file.  I don't recomend using this directly but rather use it as a templat to
+very simple.  It logs "events" received from the performance manager to a log
+file.  I don't recommend using this directly but rather use it as a template to
 create your own plugin.
 
