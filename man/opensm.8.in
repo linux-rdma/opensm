@@ -1,4 +1,4 @@
-.TH OPENSM 8 "June 13, 2008" "OpenIB" "OpenIB Management"
+.TH OPENSM 8 "April 22, 2009" "OpenIB" "OpenIB Management"
 
 .SH NAME
 opensm \- InfiniBand subnet manager and administration (SM/SA)
@@ -289,7 +289,9 @@ This option enables QoS setup. It is disabled by default.
 .TP
 \fB\-Y\fR, \fB\-\-qos_policy_file\fR <file name>
 This option defines the optional QoS policy file. The default
-name is \fB\%@OPENSM_CONFIG_DIR@/@QOS_POLICY_FILE@\fP.
+name is \fB\%@OPENSM_CONFIG_DIR@/@QOS_POLICY_FILE@\fP. See
+QoS_management_in_OpenSM.txt in opensm doc for more information on
+configuring QoS policy via this file.
 .TP
 \fB\-N\fR, \fB\-\-no_part_enforce\fR
 This option disables partition enforcement on switch external ports.
@@ -311,7 +313,8 @@ this is NOT currently implemented in the performance manager.
 .TP
 \fB\-perfmgr\fR
 Enable the perfmgr.  Only takes effect if --enable-perfmgr was specified at
-configure time.
+configure time.  See performance-manager-HOWTO.txt in opensm doc for
+more information on running perfmgr.
 .TP
 \fB\-perfmgr_sweep_time_s\fR <seconds>
 Specify the sweep time for the performance manager in seconds
