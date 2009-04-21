@@ -259,7 +259,7 @@ static inline ib_pkey_table_t *osm_pkey_tbl_block_get(const osm_pkey_tbl_t *
 *     [in] Pointer to osm_pkey_tbl_t object.
 *
 *  block
-*     [in] The lock number to get
+*     [in] The block number to get
 *
 * RETURN VALUES
 *  The IB pkey table of that pkey table element
