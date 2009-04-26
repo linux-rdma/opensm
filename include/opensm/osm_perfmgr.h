@@ -103,7 +103,7 @@ typedef struct _monitored_node {
 	uint64_t guid;
 	boolean_t esp0;
 	char *name;
-	uint32_t redir_tbl_size;
+	uint32_t num_ports;
 	redir_t redir_port[1];	/* redirection on a per port basis */
 } __monitored_node_t;
 

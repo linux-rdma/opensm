@@ -218,13 +218,13 @@ static void perfmgr_mad_send_err_callback(void *bind_context,
 		/* First, find the node in the monitored map */
 		cl_plock_acquire(pm->lock);
 		/* Now, validate port number */
-		if (port >= p_mon_node->redir_tbl_size) {
+		if (port >= p_mon_node->num_ports) {
 			cl_plock_release(pm->lock);
 			OSM_LOG(pm->log, OSM_LOG_ERROR, "ERR 4C16: "
 				"Invalid port num %u for %s (GUID 0x%016"
 				PRIx64 ") num ports %u\n", port,
 				p_mon_node->name, p_mon_node->guid,
-				p_mon_node->redir_tbl_size);
+				p_mon_node->num_ports);
 			goto Exit;
 		}
 		/* Clear redirection info */
@@ -309,8 +309,7 @@ static ib_net32_t get_qp(__monitored_node_t * mon_node, uint8_t port)
 {
 	ib_net32_t qp = cl_ntoh32(1);
 
-	if (mon_node && mon_node->redir_tbl_size &&
-	    port < mon_node->redir_tbl_size &&
+	if (mon_node && mon_node->num_ports && port < mon_node->num_ports &&
 	    mon_node->redir_port[port].redir_lid &&
 	    mon_node->redir_port[port].redir_qp)
 		qp = mon_node->redir_port[port].redir_qp;
@@ -325,8 +324,7 @@ static ib_net32_t get_qp(__monitored_node_t * mon_node, uint8_t port)
 static ib_net16_t get_lid(osm_node_t * p_node, uint8_t port,
 			  __monitored_node_t * mon_node)
 {
-	if (mon_node && mon_node->redir_tbl_size &&
-	    port < mon_node->redir_tbl_size &&
+	if (mon_node && mon_node->num_ports && port < mon_node->num_ports &&
 	    mon_node->redir_port[port].redir_lid)
 		return mon_node->redir_port[port].redir_lid;
 
@@ -422,15 +420,16 @@ static void __collect_guids(cl_map_item_t * p_map_item, void *context)
 	uint64_t node_guid = cl_ntoh64(node->node_info.node_guid);
 	osm_perfmgr_t *pm = (osm_perfmgr_t *) context;
 	__monitored_node_t *mon_node = NULL;
-	uint32_t size;
+	uint32_t num_ports;
 
 	OSM_LOG_ENTER(pm->log);
 
 	if (cl_qmap_get(&pm->monitored_map, node_guid)
 	    == cl_qmap_end(&pm->monitored_map)) {
 		/* if not already in our map add it */
-		size = osm_node_get_num_physp(node);
-		mon_node = malloc(sizeof(*mon_node) + sizeof(redir_t) * size);
+		num_ports = osm_node_get_num_physp(node);
+		mon_node = malloc(sizeof(*mon_node) +
+				  sizeof(redir_t) * num_ports);
 		if (!mon_node) {
 			OSM_LOG(pm->log, OSM_LOG_ERROR, "PerfMgr: ERR 4C06: "
 				"malloc failed: not handling node %s"
@@ -438,10 +437,11 @@ static void __collect_guids(cl_map_item_t * p_map_item, void *context)
 				node_guid);
 			goto Exit;
 		}
-		memset(mon_node, 0, sizeof(*mon_node) + sizeof(redir_t) * size);
+		memset(mon_node, 0,
+		       sizeof(*mon_node) + sizeof(redir_t) * num_ports);
 		mon_node->guid = node_guid;
 		mon_node->name = strdup(node->print_desc);
-		mon_node->redir_tbl_size = size;
+		mon_node->num_ports = num_ports;
 		/* check for enhanced switch port 0 */
 		mon_node->esp0 = (node->sw &&
 				  ib_switch_info_is_enhanced_port0(&node->sw->
@@ -1119,12 +1119,12 @@ static void pc_rcv_process(void *context, void *data)
 		/* LID redirection support (easier than GID redirection) */
 		cl_plock_acquire(pm->lock);
 		/* Now, validate port number */
-		if (port >= p_mon_node->redir_tbl_size) {
+		if (port >= p_mon_node->num_ports) {
 			cl_plock_release(pm->lock);
 			OSM_LOG(pm->log, OSM_LOG_ERROR, "ERR 4C13: "
 				"Invalid port num %d for GUID 0x%016"
 				PRIx64 " num ports %d\n", port, node_guid,
-				p_mon_node->redir_tbl_size);
+				p_mon_node->num_ports);
 			goto Exit;
 		}
 		p_mon_node->redir_port[port].redir_lid = cpi->redir_lid;
