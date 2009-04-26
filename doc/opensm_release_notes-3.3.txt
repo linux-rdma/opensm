@@ -3,14 +3,14 @@
 
 Version: OpenSM 3.3.x
 Repo:    git://git.openfabrics.org/~sashak/management.git
-Date:    Feb 2009
+Date:    Apr 2009
 
 1 Overview
 ----------
 This document describes the contents of the OpenSM 3.3 release.
 OpenSM is an InfiniBand compliant Subnet Manager and Administration,
 and runs on top of OpenIB. The OpenSM version for this release
-is opensm-3.3.1.
+is opensm-3.3.2.
 
 This document includes the following sections:
 1 This Overview section (describing new features and software
@@ -40,10 +40,39 @@ This document includes the following sections:
   To overwrite this behavior use --guid_routing_order_file command line
   option.
 
-* Many (not yet) code improvements, optimizations and cleanups
+* Weighted Lid Matrices calculation (for UpDown, MinHop and DOR).
+  This low level routing fine-tuning feature provides the means to
+  define a weighting factor per port for customizing the least weight
+  hops for the routing. Custom weights are provided using file specified
+  with '--hop_weights_file' command line option.
+
+* I/O nodes connectivity (for FatTree).
+  This provides possibility to define the set of I/O nodes for the
+  Fat-Tree routing algorithm. I/O nodes are non-CN nodes allowed to use
+  up to N (specified using --max_reverse_hops) switches the wrong way
+  around to improve connectivity. I/O nodes list is provided using file
+  and --io_guid_file command line option.
+
+* Many (not yet) code improvements, optimizations and cleanups.
 
 1.2 Minor New Features:
 
+cde0c0d  opensm: Convert remaining helper routines for GID printing format
+bc5743c  opensm: Add support for MaxCreditHint and LinkRoundTripLatency to
+         osm_dump_port_info
+6cd34ab  opensm: Add Dell to known vendor list
+003d6bd  opensm: Add more info for traps 144 and 256-259 in osm_dump_notice
+5b0c5de  opensm/osm_ucat_ftree.c Enhance min hops counters usage
+0715b92  ib_types.h: Add ib_switch_info_get_state_opt_sl2vlmapping routine
+2ddba79  opensm: Remove some __ and __osm_ prefixes
+ea0691f  opensm/iba/ib_types.h: Add PortXmit/RcvDataSL PerfMgt attributes
+9c79be5  ib_types.h: Adding BKEY violation trap (259)
+c608ea6  opensm: Add and utilize ib_gid_is_notzero routine
+b639e64  opensm: Handle trap repress on trap 144 generation
+b034205  Add pkey table support to osm_get_all_port_attr
+876605b  opensm/ib_types.h: Add attribute ID for PortCountersExtended
+aae3bbc  opensm: PortInfo requests for discovered switches
+0147b09  opensm/osm_lid_mgr: use single array for used_lids
 a9225b05 opensm/Makefile.am: remove osm_build_id.h junk file generation
 8e3a57d2 opensm/osm_console.c: Add list of SMs to status command
 3d664b99 opensm/osm_console.c : Added dump_portguid function to console to
@@ -160,6 +189,14 @@ information regarding each compliance statement.
 
 4.1 Major Bug Fixes
 
+18990fa  opensm: set IS_SM bit during opensm init
+3551389  fix local port smlid in osm_send_trap144()
+a6de48d  opensm/osm_link_mgr.c initialize SMSL
+82df467  opensm/osm_req.c: Shouldn't reveal port's MKey on Trap method
+45ebff9  opensm/osm_console_io.h: Modify osm_console_exit so only the
+         connection is killed, not the socket
+d10660a  opensm/osm_req.c: In osm_send_trap144, set producer type according
+         to node type
 8a2d2dde opensm/osm_node_info_rcv.c: create physp for the newly discovered
          port of the known node
 39b241f5 opensm/lid_mgr: fix duplicated lid assignment
@@ -168,6 +205,35 @@ b44c398e opensm: invalidate routing cache when entering master state
 
 4.2 Other Bug Fixes
 
+4911e0b  performance-manager-HOWTO.txt: Indicate master state
+86ccaa4  opensm/osm_pkey_mgr.c: Fix pkey endian in log message
+b79b079  opensm.8.in: Add mention of backing documentation for QoS policy
+         file and performance manager
+b4d92af  opensm/osm_perfmgr.c: Eliminate duplicated error number
+a10b57a  opensm/osm_ucast_ftree.c: lids are always handled in host order
+44273a2  opensm/osm_ucast_ftree.c: fixing bug in indexing
+5cd98f7  Fix further bugs around console closure and clean up code.
+6b34339  opensm/osm_opensm.c: add newline to log message
+68c241c  send trap144 when local priority is higher than master priority
+6462999  opensm/osm_inform.c: In __osm_send_report, make sure p_report_madw
+         valid before using
+9b8561a  opensm/console: Fixed osm_console poll to handle POLLHUP
+91d0700  osm_vendor_ibumad.c: In clear_madw, fix tid endian in message
+5a5136b  osm_switch.h : Fixed wrong comment about return value of
+         osm_switch_set_hops
+c1ec8c0  osm_ucast_ftree.c: Removed useless initialization on switch indexes
+418d01f  opensm/osm_helper.c: use single buffer in osm_dump_dr_smp()
+2c9153c  opensm/osm_helper.c: consolidate dr path printing code
+048c447  opensm/osm_helper.c: return then log is inactive
+dd3ef0c  opensm: Return error status when cl_disp_register fails
+0143bf7  opensm/osm_perfmgr.c: Improve assert in osm_pc_rcv_process
+6622504  osm_perfmgr.c: In osm_perfmgr_shutdown, add missing cl_disp_unregister
+7b66dee  opensm: remove unneeded anymore physp initializations
+f11274a  opensm/partition-config.txt: Update for defmember feature
+d240e7d  opensm/osm_sm_state_mgr.c: Remove unneeded return statement
+898fb8c  opensm: Improve some snprintf uses
+6820e63  opensm/osm_sa_link_record.c: improve get_base_lid()
+64c8d31  opensm: initialize all switch ports
 555fae8c opensm/sweep: add log message before lid assignment
 8e223072 opensm/console: Enhance perfmgr print_counters for better nodenames
 b9721a14 opensm/osm_console.c: Improve perfmgr print_counters error message
