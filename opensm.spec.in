@@ -1,5 +1,5 @@
 %define RELEASE @RELEASE@
-%define rel %{?CUSTOM_RELEASE} %{!?CUSTOM_RELEASE:%RELEASE}
+%define rel %{?CUSTOM_RELEASE}%{!?CUSTOM_RELEASE:%RELEASE}
 %if %{?_with_console_socket:1}%{!?_with_console_socket:0}
 %define _enable_console_socket --enable-console-socket
 %endif
