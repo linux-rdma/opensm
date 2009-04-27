@@ -2225,6 +2225,7 @@ const char *osm_get_manufacturer_str(IN uint64_t const guid_ho)
 	static const char *leafntwks_str = "3LeafNtwks";
 	static const char *xsigo_str = "Xsigo";
 	static const char *dell_str = "Dell";
+	static const char *supermicro_str = "SuperMicro";
 	static const char *unknown_str = "Unknown";
 
 	switch ((uint32_t) (guid_ho >> (5 * 8))) {
@@ -2278,6 +2279,8 @@ const char *osm_get_manufacturer_str(IN uint64_t const guid_ho)
 		return (xsigo_str);
 	case OSM_VENDOR_ID_DELL:
 		return (dell_str);
+	case OSM_VENDOR_ID_SUPERMICRO:
+		return (supermicro_str);
 	default:
 		return (unknown_str);
 	}
