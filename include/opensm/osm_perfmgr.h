@@ -97,15 +97,15 @@ typedef struct redir {
 } redir_t;
 
 /* Node to store information about which nodes we are monitoring */
-typedef struct _monitored_node {
+typedef struct monitored_node {
 	cl_map_item_t map_item;
-	struct _monitored_node *next;
+	struct monitored_node *next;
 	uint64_t guid;
 	boolean_t esp0;
 	char *name;
 	uint32_t num_ports;
 	redir_t redir_port[1];	/* redirection on a per port basis */
-} __monitored_node_t;
+} monitored_node_t;
 
 struct osm_opensm;
 /****s* OpenSM: PerfMgr/osm_perfmgr_t
@@ -133,7 +133,7 @@ typedef struct osm_perfmgr {
 	cl_event_t sig_query;	/* will throttle our querys */
 	uint32_t max_outstanding_queries;
 	cl_qmap_t monitored_map;	/* map the nodes we are tracking */
-	__monitored_node_t *remove_list;
+	monitored_node_t *remove_list;
 } osm_perfmgr_t;
 /*
 * FIELDS
