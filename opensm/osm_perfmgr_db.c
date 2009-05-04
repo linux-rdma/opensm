@@ -77,17 +77,17 @@ void perfmgr_db_destroy(perfmgr_db_t * db)
 /**********************************************************************
  * Internal call db->lock should be held when calling
  **********************************************************************/
-static inline _db_node_t *_get(perfmgr_db_t * db, uint64_t guid)
+static inline db_node_t *get(perfmgr_db_t * db, uint64_t guid)
 {
 	cl_map_item_t *rc = cl_qmap_get(&db->pc_data, guid);
 	const cl_map_item_t *end = cl_qmap_end(&db->pc_data);
 
 	if (rc == end)
 		return (NULL);
-	return ((_db_node_t *) rc);
+	return ((db_node_t *) rc);
 }
 
-static inline perfmgr_db_err_t bad_node_port(_db_node_t * node, uint8_t port)
+static inline perfmgr_db_err_t bad_node_port(db_node_t * node, uint8_t port)
 {
 	if (!node)
 		return (PERFMGR_EVENT_DB_GUIDNOTFOUND);
@@ -98,16 +98,16 @@ static inline perfmgr_db_err_t bad_node_port(_db_node_t * node, uint8_t port)
 
 /** =========================================================================
  */
-static _db_node_t *__malloc_node(uint64_t guid, boolean_t esp0,
-				 uint8_t num_ports, char *name)
+static db_node_t *malloc_node(uint64_t guid, boolean_t esp0,
+			      uint8_t num_ports, char *name)
 {
 	int i = 0;
 	time_t cur_time = 0;
-	_db_node_t *rc = malloc(sizeof(*rc));
+	db_node_t *rc = malloc(sizeof(*rc));
 	if (!rc)
 		return (NULL);
 
-	rc->ports = calloc(num_ports, sizeof(_db_port_t));
+	rc->ports = calloc(num_ports, sizeof(db_port_t));
 	if (!rc->ports)
 		goto free_rc;
 	rc->num_ports = num_ports;
@@ -131,7 +131,7 @@ free_rc:
 
 /** =========================================================================
  */
-static void __free_node(_db_node_t * node)
+static void free_node(db_node_t * node)
 {
 	if (!node)
 		return;
@@ -141,7 +141,7 @@ static void __free_node(_db_node_t * node)
 }
 
 /* insert nodes to the database */
-static perfmgr_db_err_t __insert(perfmgr_db_t * db, _db_node_t * node)
+static perfmgr_db_err_t insert(perfmgr_db_t * db, db_node_t * node)
 {
 	cl_map_item_t *rc = cl_qmap_insert(&db->pc_data, node->node_guid,
 					   (cl_map_item_t *) node);
@@ -160,15 +160,15 @@ perfmgr_db_create_entry(perfmgr_db_t * db, uint64_t guid, boolean_t esp0,
 	perfmgr_db_err_t rc = PERFMGR_EVENT_DB_SUCCESS;
 
 	cl_plock_excl_acquire(&db->lock);
-	if (!_get(db, guid)) {
-		_db_node_t *pc_node = __malloc_node(guid, esp0, num_ports,
-						    name);
+	if (!get(db, guid)) {
+		db_node_t *pc_node = malloc_node(guid, esp0, num_ports,
+						 name);
 		if (!pc_node) {
 			rc = PERFMGR_EVENT_DB_NOMEM;
 			goto Exit;
 		}
-		if (__insert(db, pc_node)) {
-			__free_node(pc_node);
+		if (insert(db, pc_node)) {
+			free_node(pc_node);
 			rc = PERFMGR_EVENT_DB_FAIL;
 			goto Exit;
 		}
@@ -183,7 +183,7 @@ Exit:
  **********************************************************************/
 static inline void
 debug_dump_err_reading(perfmgr_db_t * db, uint64_t guid, uint8_t port_num,
-		       _db_port_t * port, perfmgr_db_err_reading_t * cur)
+		       db_port_t * port, perfmgr_db_err_reading_t * cur)
 {
 	osm_log_t *log = db->perfmgr->log;
 
@@ -250,14 +250,14 @@ perfmgr_db_err_t
 perfmgr_db_add_err_reading(perfmgr_db_t * db, uint64_t guid,
 			   uint8_t port, perfmgr_db_err_reading_t * reading)
 {
-	_db_port_t *p_port = NULL;
-	_db_node_t *node = NULL;
+	db_port_t *p_port = NULL;
+	db_node_t *node = NULL;
 	perfmgr_db_err_reading_t *previous = NULL;
 	perfmgr_db_err_t rc = PERFMGR_EVENT_DB_SUCCESS;
 	osm_epi_pe_event_t epi_pe_data;
 
 	cl_plock_excl_acquire(&db->lock);
-	node = _get(db, guid);
+	node = get(db, guid);
 	if ((rc = bad_node_port(node, port)) != PERFMGR_EVENT_DB_SUCCESS)
 		goto Exit;
 
@@ -323,12 +323,12 @@ perfmgr_db_err_t perfmgr_db_get_prev_err(perfmgr_db_t * db, uint64_t guid,
 					 uint8_t port,
 					 perfmgr_db_err_reading_t * reading)
 {
-	_db_node_t *node = NULL;
+	db_node_t *node = NULL;
 	perfmgr_db_err_t rc = PERFMGR_EVENT_DB_SUCCESS;
 
 	cl_plock_acquire(&db->lock);
 
-	node = _get(db, guid);
+	node = get(db, guid);
 	if ((rc = bad_node_port(node, port)) != PERFMGR_EVENT_DB_SUCCESS)
 		goto Exit;
 
@@ -342,12 +342,12 @@ Exit:
 perfmgr_db_err_t
 perfmgr_db_clear_prev_err(perfmgr_db_t * db, uint64_t guid, uint8_t port)
 {
-	_db_node_t *node = NULL;
+	db_node_t *node = NULL;
 	perfmgr_db_err_reading_t *previous = NULL;
 	perfmgr_db_err_t rc = PERFMGR_EVENT_DB_SUCCESS;
 
 	cl_plock_excl_acquire(&db->lock);
-	node = _get(db, guid);
+	node = get(db, guid);
 	if ((rc = bad_node_port(node, port)) != PERFMGR_EVENT_DB_SUCCESS)
 		goto Exit;
 
@@ -363,7 +363,7 @@ Exit:
 
 static inline void
 debug_dump_dc_reading(perfmgr_db_t * db, uint64_t guid, uint8_t port_num,
-		      _db_port_t * port, perfmgr_db_data_cnt_reading_t * cur)
+		      db_port_t * port, perfmgr_db_data_cnt_reading_t * cur)
 {
 	osm_log_t *log = db->perfmgr->log;
 	if (!osm_log_is_active(log, OSM_LOG_DEBUG))
@@ -392,14 +392,14 @@ perfmgr_db_err_t
 perfmgr_db_add_dc_reading(perfmgr_db_t * db, uint64_t guid,
 			  uint8_t port, perfmgr_db_data_cnt_reading_t * reading)
 {
-	_db_port_t *p_port = NULL;
-	_db_node_t *node = NULL;
+	db_port_t *p_port = NULL;
+	db_node_t *node = NULL;
 	perfmgr_db_data_cnt_reading_t *previous = NULL;
 	perfmgr_db_err_t rc = PERFMGR_EVENT_DB_SUCCESS;
 	osm_epi_dc_event_t epi_dc_data;
 
 	cl_plock_excl_acquire(&db->lock);
-	node = _get(db, guid);
+	node = get(db, guid);
 	if ((rc = bad_node_port(node, port)) != PERFMGR_EVENT_DB_SUCCESS)
 		goto Exit;
 
@@ -448,12 +448,12 @@ perfmgr_db_err_t perfmgr_db_get_prev_dc(perfmgr_db_t * db, uint64_t guid,
 					uint8_t port,
 					perfmgr_db_data_cnt_reading_t * reading)
 {
-	_db_node_t *node = NULL;
+	db_node_t *node = NULL;
 	perfmgr_db_err_t rc = PERFMGR_EVENT_DB_SUCCESS;
 
 	cl_plock_acquire(&db->lock);
 
-	node = _get(db, guid);
+	node = get(db, guid);
 	if ((rc = bad_node_port(node, port)) != PERFMGR_EVENT_DB_SUCCESS)
 		goto Exit;
 
@@ -467,12 +467,12 @@ Exit:
 perfmgr_db_err_t
 perfmgr_db_clear_prev_dc(perfmgr_db_t * db, uint64_t guid, uint8_t port)
 {
-	_db_node_t *node = NULL;
+	db_node_t *node = NULL;
 	perfmgr_db_data_cnt_reading_t *previous = NULL;
 	perfmgr_db_err_t rc = PERFMGR_EVENT_DB_SUCCESS;
 
 	cl_plock_excl_acquire(&db->lock);
-	node = _get(db, guid);
+	node = get(db, guid);
 	if ((rc = bad_node_port(node, port)) != PERFMGR_EVENT_DB_SUCCESS)
 		goto Exit;
 
@@ -486,9 +486,9 @@ Exit:
 	return (rc);
 }
 
-static void __clear_counters(cl_map_item_t * const p_map_item, void *context)
+static void clear_counters(cl_map_item_t * const p_map_item, void *context)
 {
-	_db_node_t *node = (_db_node_t *) p_map_item;
+	db_node_t *node = (db_node_t *) p_map_item;
 	int i = 0;
 	time_t ts = time(NULL);
 
@@ -527,7 +527,7 @@ static void __clear_counters(cl_map_item_t * const p_map_item, void *context)
 void perfmgr_db_clear_counters(perfmgr_db_t * db)
 {
 	cl_plock_excl_acquire(&db->lock);
-	cl_qmap_apply_func(&db->pc_data, __clear_counters, (void *)db);
+	cl_qmap_apply_func(&db->pc_data, clear_counters, (void *)db);
 	cl_plock_release(&db->lock);
 #if 0
 	if (db->db_impl->clear_counters)
@@ -538,7 +538,7 @@ void perfmgr_db_clear_counters(perfmgr_db_t * db)
 /**********************************************************************
  * Output a tab delimited output of the port counters
  **********************************************************************/
-static void __dump_node_mr(_db_node_t * node, FILE * fp)
+static void dump_node_mr(db_node_t * node, FILE * fp)
 {
 	int i = 0;
 
@@ -605,7 +605,7 @@ static void __dump_node_mr(_db_node_t * node, FILE * fp)
 /**********************************************************************
  * Output a human readable output of the port counters
  **********************************************************************/
-static void __dump_node_hr(_db_node_t * node, FILE * fp)
+static void dump_node_hr(db_node_t * node, FILE * fp)
 {
 	int i = 0;
 
@@ -670,19 +670,19 @@ typedef struct {
 
 /**********************************************************************
  **********************************************************************/
-static void __db_dump(cl_map_item_t * const p_map_item, void *context)
+static void db_dump(cl_map_item_t * const p_map_item, void *context)
 {
-	_db_node_t *node = (_db_node_t *) p_map_item;
+	db_node_t *node = (db_node_t *) p_map_item;
 	dump_context_t *c = (dump_context_t *) context;
 	FILE *fp = c->fp;
 
 	switch (c->dump_type) {
 	case PERFMGR_EVENT_DB_DUMP_MR:
-		__dump_node_mr(node, fp);
+		dump_node_mr(node, fp);
 		break;
 	case PERFMGR_EVENT_DB_DUMP_HR:
 	default:
-		__dump_node_hr(node, fp);
+		dump_node_hr(node, fp);
 		break;
 	}
 }
@@ -694,16 +694,16 @@ void
 perfmgr_db_print_by_name(perfmgr_db_t * db, char *nodename, FILE *fp)
 {
 	cl_map_item_t *item = NULL;
-	_db_node_t *node = NULL;
+	db_node_t *node = NULL;
 
 	cl_plock_acquire(&db->lock);
 
 	/* find the node */
 	item = cl_qmap_head(&db->pc_data);
 	while (item != cl_qmap_end(&db->pc_data)) {
-		node = (_db_node_t *)item;
+		node = (db_node_t *)item;
 		if (strcmp(node->node_name, nodename) == 0) {
-			__dump_node_hr(node, fp);
+			dump_node_hr(node, fp);
 			goto done;
 		}
 		item = cl_qmap_next(item);
@@ -726,7 +726,7 @@ perfmgr_db_print_by_guid(perfmgr_db_t * db, uint64_t nodeguid, FILE *fp)
 
 	node = cl_qmap_get(&db->pc_data, nodeguid);
 	if (node != cl_qmap_end(&db->pc_data))
-		__dump_node_hr((_db_node_t *)node, fp);
+		dump_node_hr((db_node_t *)node, fp);
 	else
 		fprintf(fp, "Node 0x%" PRIx64 " not found...\n", nodeguid);
 
@@ -747,7 +747,7 @@ perfmgr_db_dump(perfmgr_db_t * db, char *file, perfmgr_db_dump_t dump_type)
 	context.dump_type = dump_type;
 
 	cl_plock_acquire(&db->lock);
-	cl_qmap_apply_func(&db->pc_data, __db_dump, (void *)&context);
+	cl_qmap_apply_func(&db->pc_data, db_dump, (void *)&context);
 	cl_plock_release(&db->lock);
 	fclose(context.fp);
 	return (PERFMGR_EVENT_DB_SUCCESS);

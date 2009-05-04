@@ -120,32 +120,32 @@ typedef enum {
  * Port counter object.
  * Store all the port counters for a single port.
  */
-typedef struct _db_port {
+typedef struct db_port {
 	perfmgr_db_err_reading_t err_total;
 	perfmgr_db_err_reading_t err_previous;
 	perfmgr_db_data_cnt_reading_t dc_total;
 	perfmgr_db_data_cnt_reading_t dc_previous;
 	time_t last_reset;
-} _db_port_t;
+} db_port_t;
 
 /** =========================================================================
  * group port counters for ports into the nodes
  */
 #define NODE_NAME_SIZE (IB_NODE_DESCRIPTION_SIZE << 1)
-typedef struct _db_node {
+typedef struct db_node {
 	cl_map_item_t map_item;	/* must be first */
 	uint64_t node_guid;
 	boolean_t esp0;
-	_db_port_t *ports;
+	db_port_t *ports;
 	uint8_t num_ports;
 	char node_name[NODE_NAME_SIZE];
-} _db_node_t;
+} db_node_t;
 
 /** =========================================================================
- * all nodes in the system.
+ * all nodes in the subnet.
  */
-typedef struct _db {
-	cl_qmap_t pc_data;	/* stores type (_db_node_t *) */
+typedef struct perfmgr_db {
+	cl_qmap_t pc_data;	/* stores type (db_node_t *) */
 	cl_plock_t lock;
 	struct osm_perfmgr *perfmgr;
 } perfmgr_db_t;
