@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2009 Sun Microsystems, Inc. All rights reserved.
  * Copyright (c) 2004-2008 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2007 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
@@ -554,10 +555,10 @@ static ftree_sw_t *sw_create(IN ftree_fabric_t * p_ftree,
 
 	/* initialize lft buffer */
 	memset(p_osm_sw->new_lft, OSM_NO_PATH, IB_LID_UCAST_END_HO + 1);
-	p_sw->hops = malloc(p_osm_sw->max_lid_ho * sizeof(*(p_sw->hops)));
+	p_sw->hops = malloc((p_osm_sw->max_lid_ho + 1) * sizeof(*(p_sw->hops)));
 	if(p_sw->hops == NULL)
 		return NULL;
-	memset(p_sw->hops, OSM_NO_PATH, p_osm_sw->max_lid_ho);
+	memset(p_sw->hops, OSM_NO_PATH, p_osm_sw->max_lid_ho + 1);
 
 	return p_sw;
 }				/* sw_create() */
