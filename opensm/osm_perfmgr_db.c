@@ -693,8 +693,8 @@ static void db_dump(cl_map_item_t * const p_map_item, void *context)
 void
 perfmgr_db_print_by_name(perfmgr_db_t * db, char *nodename, FILE *fp)
 {
-	cl_map_item_t *item = NULL;
-	db_node_t *node = NULL;
+	cl_map_item_t *item;
+	db_node_t *node;
 
 	cl_plock_acquire(&db->lock);
 
