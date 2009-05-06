@@ -47,7 +47,6 @@
 #endif				/* HAVE_CONFIG_H */
 
 #ifdef ENABLE_OSM_PERF_MGR
-
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
@@ -66,7 +65,7 @@
 #include <opensm/osm_node.h>
 #include <opensm/osm_opensm.h>
 
-#define OSM_PERFMGR_INITIAL_TID_VALUE 0xcafe
+#define PERFMGR_INITIAL_TID_VALUE 0xcafe
 
 #if ENABLE_OSM_PERF_MGR_PROFILE
 struct {
@@ -113,8 +112,6 @@ static inline void diff_time(struct timeval *before, struct timeval *after,
 	diff->tv_usec = tmp.tv_usec - before->tv_usec;
 }
 #endif
-
-extern int wait_for_pending_transactions(osm_stats_t * stats);
 
 /**********************************************************************
  * Internal helper functions.
@@ -200,8 +197,9 @@ static void perfmgr_mad_send_err_callback(void *bind_context,
 
 	OSM_LOG_ENTER(pm->log);
 
-	/* go ahead and get the monitored node struct to have the printable
-	 * name if needed in messages
+	/*
+	 * get the monitored node struct to have the printable name
+	 * for log messages
 	 */
 	if ((p_node = cl_qmap_get(&pm->monitored_map, node_guid)) ==
 	    cl_qmap_end(&pm->monitored_map)) {
@@ -290,7 +288,7 @@ Exit:
 /**********************************************************************
  * Unbind the PerfMgr from the vendor layer for MAD sends/receives
  **********************************************************************/
-static void osm_perfmgr_mad_unbind(osm_perfmgr_t * pm)
+static void perfmgr_mad_unbind(osm_perfmgr_t * pm)
 {
 	OSM_LOG_ENTER(pm->log);
 	if (pm->bind_handle == OSM_BIND_INVALID_HANDLE) {
@@ -307,7 +305,7 @@ Exit:
  **********************************************************************/
 static ib_net32_t get_qp(monitored_node_t * mon_node, uint8_t port)
 {
-	ib_net32_t qp = cl_ntoh32(1);
+	ib_net32_t qp = IB_QP1;
 
 	if (mon_node && mon_node->num_ports && port < mon_node->num_ports &&
 	    mon_node->redir_port[port].redir_lid &&
@@ -396,7 +394,7 @@ static ib_api_status_t perfmgr_send_pc_mad(osm_perfmgr_t * perfmgr,
 	status = osm_vendor_send(perfmgr->bind_handle, p_madw, TRUE);
 
 	if (status == IB_SUCCESS) {
-		/* pause this thread if we have too many outstanding requests */
+		/* pause thread if there are too many outstanding requests */
 		cl_atomic_inc(&(perfmgr->outstanding_queries));
 		if (perfmgr->outstanding_queries >
 		    perfmgr->max_outstanding_queries) {
@@ -426,7 +424,7 @@ static void collect_guids(cl_map_item_t * p_map_item, void *context)
 
 	if (cl_qmap_get(&pm->monitored_map, node_guid)
 	    == cl_qmap_end(&pm->monitored_map)) {
-		/* if not already in our map add it */
+		/* if not already in map add it */
 		num_ports = osm_node_get_num_physp(node);
 		mon_node = malloc(sizeof(*mon_node) +
 				  sizeof(redir_t) * num_ports);
@@ -484,7 +482,7 @@ static void perfmgr_query_counters(cl_map_item_t * p_map_item, void *context)
 	num_ports = osm_node_get_num_physp(node);
 	node_guid = cl_ntoh64(node->node_info.node_guid);
 
-	/* make sure we have a database object ready to store this information */
+	/* make sure there is a database object ready to store this info */
 	if (perfmgr_db_create_entry(pm->db, node_guid, mon_node->esp0,
 				    num_ports, node->print_desc) !=
 	    PERFMGR_EVENT_DB_SUCCESS) {
@@ -538,8 +536,9 @@ Exit:
 
 /**********************************************************************
  * Discovery stuff.
- * Basically this code should not be here, but merged with main OpenSM
+ * This code should not be here, but merged with main OpenSM
  **********************************************************************/
+extern int wait_for_pending_transactions(osm_stats_t * stats);
 extern void osm_drop_mgr_process(IN osm_sm_t * sm);
 
 static int sweep_hop_1(osm_sm_t * sm)
@@ -680,7 +679,7 @@ static int sweep_hop_0(osm_sm_t * sm)
 
 	h_bind = osm_sm_mad_ctrl_get_bind_handle(&sm->mad_ctrl);
 	if (h_bind == OSM_BIND_INVALID_HANDLE) {
-		OSM_LOG(sm->p_log, OSM_LOG_DEBUG, "No bound ports.\n");
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG, "No bound ports\n");
 		return -1;
 	}
 
@@ -773,7 +772,7 @@ void osm_perfmgr_process(osm_perfmgr_t * pm)
 	gettimeofday(&before, NULL);
 #endif
 	pm->sweep_state = PERFMGR_SWEEP_ACTIVE;
-	/* With the global lock held collect the node guids */
+	/* With the global lock held, collect the node guids */
 	/* FIXME we should be able to track SA notices
 	 * and not have to sweep the node_guid_tbl each pass
 	 */
@@ -785,9 +784,7 @@ void osm_perfmgr_process(osm_perfmgr_t * pm)
 	/* then for each node query their counters */
 	cl_qmap_apply_func(&pm->monitored_map, perfmgr_query_counters, pm);
 
-	/* Clean out any nodes found to be removed during the
-	 * sweep
-	 */
+	/* clean out any nodes found to be removed during the sweep */
 	remove_marked_nodes(pm);
 
 #if ENABLE_OSM_PERF_MGR_PROFILE
@@ -812,7 +809,7 @@ void osm_perfmgr_process(osm_perfmgr_t * pm)
 
 /**********************************************************************
  * PerfMgr timer - loop continuously and signal SM to run PerfMgr
- * processor.
+ * processor if enabled.
  **********************************************************************/
 static void perfmgr_sweep(void *arg)
 {
@@ -830,7 +827,7 @@ void osm_perfmgr_shutdown(osm_perfmgr_t * pm)
 	OSM_LOG_ENTER(pm->log);
 	cl_timer_stop(&pm->sweep_timer);
 	cl_disp_unregister(pm->pc_disp_h);
-	osm_perfmgr_mad_unbind(pm);
+	perfmgr_mad_unbind(pm);
 	OSM_LOG_EXIT(pm->log);
 }
 
@@ -846,12 +843,12 @@ void osm_perfmgr_destroy(osm_perfmgr_t * pm)
 
 /**********************************************************************
  * Detect if someone else on the network could have cleared the counters
- * without us knowing.  This is easy to detect because the counters never wrap
- * but are "sticky"
+ * without us knowing.  This is easy to detect because the counters never
+ * wrap but are "sticky"
  *
- * The one time this will not work is if the port is getting errors fast enough
- * to have the reading overtake the previous reading.  In this case counters
- * will be missed.
+ * The one time this will not work is if the port is getting errors fast
+ * enough to have the reading overtake the previous reading.  In this case,
+ * counters will be missed.
  **********************************************************************/
 static void perfmgr_check_oob_clear(osm_perfmgr_t * pm,
 				    monitored_node_t * mon_node, uint8_t port,
@@ -1051,9 +1048,9 @@ static void perfmgr_log_events(osm_perfmgr_t * pm,
 
 /**********************************************************************
  * The dispatcher uses a thread pool which will call this function when
- * we have a thread available to process our mad received from the wire.
+ * there is a thread available to process the mad received on the wire.
  **********************************************************************/
-static void pc_rcv_process(void *context, void *data)
+static void pc_recv_process(void *context, void *data)
 {
 	osm_perfmgr_t *pm = context;
 	osm_madw_t *p_madw = data;
@@ -1070,8 +1067,9 @@ static void pc_rcv_process(void *context, void *data)
 
 	OSM_LOG_ENTER(pm->log);
 
-	/* go ahead and get the monitored node struct to have the printable
-	 * name if needed in messages
+	/*
+	 * get the monitored node struct to have the printable name
+	 * for log messages
 	 */
 	if ((p_node = cl_qmap_get(&pm->monitored_map, node_guid)) ==
 	    cl_qmap_end(&pm->monitored_map)) {
@@ -1207,7 +1205,7 @@ ib_api_status_t osm_perfmgr_init(osm_perfmgr_t * pm, osm_opensm_t * osm,
 	pm->log = &osm->log;
 	pm->mad_pool = &osm->mad_pool;
 	pm->vendor = osm->p_vendor;
-	pm->trans_id = OSM_PERFMGR_INITIAL_TID_VALUE;
+	pm->trans_id = PERFMGR_INITIAL_TID_VALUE;
 	pm->lock = &osm->lock;
 	pm->state =
 	    p_opt->perfmgr ? PERFMGR_STATE_ENABLED : PERFMGR_STATE_DISABLE;
@@ -1227,7 +1225,7 @@ ib_api_status_t osm_perfmgr_init(osm_perfmgr_t * pm, osm_opensm_t * osm,
 	}
 
 	pm->pc_disp_h = cl_disp_register(&osm->disp, OSM_MSG_MAD_PORT_COUNTERS,
-					 pc_rcv_process, pm);
+					 pc_recv_process, pm);
 	if (pm->pc_disp_h == CL_DISP_INVALID_HANDLE) {
 		perfmgr_db_destroy(pm->db);
 		goto Exit;
@@ -1256,7 +1254,7 @@ void osm_perfmgr_clear_counters(osm_perfmgr_t * pm)
 }
 
 /*******************************************************************
- * Have the DB dump its information to the file specified
+ * Dump the DB information to the file specified
  *******************************************************************/
 void osm_perfmgr_dump_counters(osm_perfmgr_t * pm, perfmgr_db_dump_t dump_type)
 {
@@ -1276,7 +1274,7 @@ void osm_perfmgr_dump_counters(osm_perfmgr_t * pm, perfmgr_db_dump_t dump_type)
 }
 
 /*******************************************************************
- * Have the DB print its information to the fp specified
+ * Print the DB information to the fp specified
  *******************************************************************/
 void osm_perfmgr_print_counters(osm_perfmgr_t * pm, char *nodename, FILE * fp)
 {

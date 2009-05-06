@@ -96,7 +96,7 @@ typedef struct redir {
 	ib_net32_t redir_qp;
 } redir_t;
 
-/* Node to store information about which nodes we are monitoring */
+/* Node to store information about nodes being monitored */
 typedef struct monitored_node {
 	cl_map_item_t map_item;
 	struct monitored_node *next;
@@ -108,6 +108,7 @@ typedef struct monitored_node {
 } monitored_node_t;
 
 struct osm_opensm;
+
 /****s* OpenSM: PerfMgr/osm_perfmgr_t
 *  This object should be treated as opaque and should
 *  be manipulated only through the provided functions.
@@ -130,9 +131,9 @@ typedef struct osm_perfmgr {
 	uint16_t sweep_time_s;
 	perfmgr_db_t *db;
 	atomic32_t outstanding_queries;	/* this along with sig_query */
-	cl_event_t sig_query;	/* will throttle our querys */
+	cl_event_t sig_query;	/* will throttle our queries */
 	uint32_t max_outstanding_queries;
-	cl_qmap_t monitored_map;	/* map the nodes we are tracking */
+	cl_qmap_t monitored_map;	/* map the nodes being tracked */
 	monitored_node_t *remove_list;
 } osm_perfmgr_t;
 /*

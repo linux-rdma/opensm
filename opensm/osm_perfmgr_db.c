@@ -247,8 +247,8 @@ debug_dump_err_reading(perfmgr_db_t * db, uint64_t guid, uint8_t port_num,
  * perfmgr_db_err_reading_t functions
  **********************************************************************/
 perfmgr_db_err_t
-perfmgr_db_add_err_reading(perfmgr_db_t * db, uint64_t guid,
-			   uint8_t port, perfmgr_db_err_reading_t * reading)
+perfmgr_db_add_err_reading(perfmgr_db_t * db, uint64_t guid, uint8_t port,
+			   perfmgr_db_err_reading_t * reading)
 {
 	db_port_t *p_port = NULL;
 	db_node_t *node = NULL;
@@ -389,8 +389,8 @@ debug_dump_dc_reading(perfmgr_db_t * db, uint64_t guid, uint8_t port_num,
  * perfmgr_db_data_cnt_reading_t functions
  **********************************************************************/
 perfmgr_db_err_t
-perfmgr_db_add_dc_reading(perfmgr_db_t * db, uint64_t guid,
-			  uint8_t port, perfmgr_db_data_cnt_reading_t * reading)
+perfmgr_db_add_dc_reading(perfmgr_db_t * db, uint64_t guid, uint8_t port,
+			  perfmgr_db_data_cnt_reading_t * reading)
 {
 	db_port_t *p_port = NULL;
 	db_node_t *node = NULL;
