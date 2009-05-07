@@ -381,7 +381,7 @@ uint8_t osm_physp_calc_link_op_vls(IN osm_log_t * p_log,
 		op_vls = p_subn->opt.max_op_vls;
 
 	if (op_vls == 0) {
-		OSM_LOG(p_log, OSM_LOG_DEBUG, "ERR 4102: "
+		OSM_LOG(p_log, OSM_LOG_DEBUG,
 			"Invalid OP_VLS = 0. Forcing correction to 1 (VL0)\n");
 		op_vls = 1;
 	}
