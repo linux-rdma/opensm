@@ -595,7 +595,7 @@ static boolean_t lid_mgr_is_range_not_persistent(IN osm_lid_mgr_t * p_mgr,
 		return FALSE;
 
 	for (i = lid; i < lid + num_lids; i++)
-		if (p_mgr->used_lids[lid])
+		if (p_mgr->used_lids[i])
 			return FALSE;
 
 	return TRUE;
