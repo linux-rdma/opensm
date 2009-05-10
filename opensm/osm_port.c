@@ -376,15 +376,16 @@ uint8_t osm_physp_calc_link_op_vls(IN osm_log_t * p_log,
 	} else
 		op_vls = ib_port_info_get_op_vls(&p_physp->port_info);
 
-	/* support user limitation of max_op_vls */
-	if (op_vls > p_subn->opt.max_op_vls)
-		op_vls = p_subn->opt.max_op_vls;
-
 	if (op_vls == 0) {
+		/* for non compliant implementations */
 		OSM_LOG(p_log, OSM_LOG_VERBOSE,
 			"Invalid OP_VLS = 0. Forcing correction to 1 (VL0)\n");
 		op_vls = 1;
 	}
+
+	/* support user limitation of max_op_vls */
+	if (op_vls > p_subn->opt.max_op_vls)
+		op_vls = p_subn->opt.max_op_vls;
 
 	OSM_LOG_EXIT(p_log);
 	return op_vls;
