@@ -131,7 +131,7 @@ typedef struct db_port {
 /** =========================================================================
  * group port counters for ports into the nodes
  */
-#define NODE_NAME_SIZE (IB_NODE_DESCRIPTION_SIZE << 1)
+#define NODE_NAME_SIZE (IB_NODE_DESCRIPTION_SIZE + 1)
 typedef struct db_node {
 	cl_map_item_t map_item;	/* must be first */
 	uint64_t node_guid;

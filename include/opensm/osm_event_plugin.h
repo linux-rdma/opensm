@@ -60,7 +60,7 @@ BEGIN_C_DECLS
 *
 *********/
 
-#define OSM_EPI_NODE_NAME_LEN (128)
+#define OSM_EPI_NODE_NAME_LEN (65)
 
 struct osm_opensm;
 /** =========================================================================
