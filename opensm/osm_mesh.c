@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008      System Fabric Works, Inc.
+ * Copyright (c) 2008,2009      System Fabric Works, Inc.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -50,6 +50,7 @@
 
 #define MAX_DEGREE	(8)
 #define MAX_DIMENSION	(8)
+#define LARGE		(0x7fffffff)
 
 /*
  * characteristic polynomials for selected 1d through 8d tori
@@ -594,7 +595,7 @@ static int get_switch_metric(lash_t *p_lash, int sw)
 
 			/* make all distances big except s1 to itself */
 			for (sw2 = 0; sw2 < p_lash->num_switches; sw2++)
-				p_lash->switches[sw2]->node->temp = 0x7fffffff;
+				p_lash->switches[sw2]->node->temp = LARGE;
 
 			s1->node->temp = 0;
 
@@ -603,7 +604,7 @@ static int get_switch_metric(lash_t *p_lash, int sw)
 
 				for (sw2 = 0; sw2 < p_lash->num_switches; sw2++) {
 					s2 = p_lash->switches[sw2];
-					if (s2->node->temp == 0x7fffffff)
+					if (s2->node->temp == LARGE)
 						continue;
 					for (j = 0; j < s2->node->num_links; j++) {
 						sw3 = s2->node->links[j]->switch_id;
@@ -1120,7 +1121,7 @@ static int measure_geometry(lash_t *p_lash, mesh_t *mesh, int seed)
 
 		s->node->coord = calloc(dimension, sizeof(int));
 		for (i = 0; i < dimension; i++)
-			s->node->coord[i] = (sw == seed)? 0 : 0x7fffffff;
+			s->node->coord[i] = (sw == seed) ? 0 : LARGE;
 
 		for (i = 0; i < s->node->num_links; i++)
 			if (s->node->axes[i] == 0)
@@ -1137,7 +1138,7 @@ static int measure_geometry(lash_t *p_lash, mesh_t *mesh, int seed)
 		for (sw = 0; sw < num_switches; sw++) {
 			s = p_lash->switches[sw];
 
-			if (s->node->coord[0] == 0x7fffffff)
+			if (s->node->coord[0] == LARGE)
 				continue;
 
 			for (j = 0; j < s->node->num_links; j++) {
@@ -1172,15 +1173,15 @@ static int measure_geometry(lash_t *p_lash, mesh_t *mesh, int seed)
 	mesh->size = calloc(dimension, sizeof(int));
 
 	for (i = 0; i < dimension; i++) {
-		max[i] = -0x7fffffff;
-		min[i] = 0x7fffffff;
+		max[i] = -LARGE;
+		min[i] = LARGE;
 	}
 
 	for (sw = 0; sw < num_switches; sw++) {
 		s = p_lash->switches[sw];
 
 		for (i = 0; i < dimension; i++) {
-			if (s->node->coord[i] == 0x7fffffff)
+			if (s->node->coord[i] == LARGE)
 				continue;
 			if (s->node->coord[i] > max[i])
 				max[i] = s->node->coord[i];
