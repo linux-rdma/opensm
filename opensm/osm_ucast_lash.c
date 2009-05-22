@@ -62,9 +62,9 @@ typedef struct _reachable_dest {
 
 static cdg_vertex_t *create_cdg_vertex(unsigned num_switches)
 {
-	cdg_vertex_t *v = malloc(sizeof(*v) + (num_switches - 1) * sizeof(v->deps[0]));
+	cdg_vertex_t *v;
 
-	memset(v, 0, sizeof(*v) + (num_switches - 1) * sizeof(v->deps[0]));
+	v = calloc(1, sizeof(*v) + (num_switches - 1) * sizeof(v->deps[0]));
 
 	return v;
 }
@@ -838,13 +838,12 @@ static int lash_core(lash_t * p_lash)
 		}
 	}
 
-	switch_bitmap = malloc(num_switches * num_switches * sizeof(int));
+	switch_bitmap = calloc(num_switches * num_switches, sizeof(int));
 	if (!switch_bitmap) {
 		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 4D04: "
 			"Failed allocating switch_bitmap - out of memory\n");
 		goto Exit;
 	}
-	memset(switch_bitmap, 0, num_switches * num_switches * sizeof(int));
 
 	for (i = 0; i < num_switches; i++) {
 		for (dest_switch = 0; dest_switch < num_switches; dest_switch++)
@@ -1145,10 +1144,9 @@ static int discover_network_properties(lash_t * p_lash)
 
 	p_lash->num_switches = cl_qmap_count(&p_subn->sw_guid_tbl);
 
-	p_lash->switches = malloc(p_lash->num_switches * sizeof(switch_t *));
+	p_lash->switches = calloc(p_lash->num_switches, sizeof(switch_t *));
 	if (!p_lash->switches)
 		return -1;
-	memset(p_lash->switches, 0, p_lash->num_switches * sizeof(switch_t *));
 
 	vl_min = 5;		/* set to a high value */
 
@@ -1251,11 +1249,10 @@ static lash_t *lash_create(osm_opensm_t * p_osm)
 {
 	lash_t *p_lash;
 
-	p_lash = malloc(sizeof(lash_t));
+	p_lash = calloc(1, sizeof(lash_t));
 	if (!p_lash)
 		return NULL;
 
-	memset(p_lash, 0, sizeof(lash_t));
 	p_lash->p_osm = p_osm;
 
 	return (p_lash);
