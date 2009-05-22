@@ -94,7 +94,7 @@ static void connect_switches(lash_t * p_lash, int sw1, int sw2, int phy_port_1)
 		if (sw1 == sw2)
 			return;
 
-		/* see if we are alredy linked to sw2 */
+		/* see if we are already linked to sw2 */
 		for (i = 0; i < num; i++) {
 			l = node->links[i];
 
