@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2009 Sun Microsystems, Inc. All rights reserved.
  * Copyright (c) 2004-2008 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2006 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
@@ -201,7 +202,7 @@ static void dump_ucast_routes(cl_map_item_t * item, FILE * file, void *cxt)
 		}
 
 		if (num_hops == OSM_NO_PATH) {
-			fprintf(file, "UNREACHABLE\n");
+			fprintf(file, "%03u  : HOPS UNKNOWN\n", port_num);
 			continue;
 		}
 
