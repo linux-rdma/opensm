@@ -422,8 +422,9 @@ void osm_sa_respond(osm_sa_t *sa, osm_madw_t *madw, size_t attr_size,
 	 */
 	if (sa_mad->method == IB_MAD_METHOD_GET && num_rec > 1) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4C05: "
-			"Got more than one record for SubnAdmGet (%u)\n",
-			num_rec);
+			"Got %u records for SubnAdmGet(%s) comp_mask 0x%016" PRIx64 "\n",
+			num_rec, ib_get_sa_attr_str(sa_mad->attr_id),
+			cl_ntoh64(sa_mad->comp_mask));
 		osm_sa_send_error(sa, madw, IB_SA_MAD_STATUS_TOO_MANY_RECORDS);
 		goto Exit;
 	}
