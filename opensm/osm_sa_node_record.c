@@ -114,7 +114,8 @@ static void nr_rcv_create_nr(IN osm_sa_t * sa, IN osm_node_t * p_node,
 			     IN cl_qlist_t * p_list,
 			     IN ib_net64_t const match_port_guid,
 			     IN ib_net16_t const match_lid,
-			     IN const osm_physp_t * p_req_physp)
+			     IN const osm_physp_t * p_req_physp,
+			     IN const ib_net64_t comp_mask)
 {
 	const osm_physp_t *p_physp;
 	uint8_t port_num;
@@ -153,7 +154,8 @@ static void nr_rcv_create_nr(IN osm_sa_t * sa, IN osm_node_t * p_node,
 
 		port_guid = osm_physp_get_port_guid(p_physp);
 
-		if (match_port_guid && (port_guid != match_port_guid))
+		if ((comp_mask & IB_NR_COMPMASK_PORTGUID)
+		    && (port_guid != match_port_guid))
 			continue;
 
 		base_lid = osm_physp_get_base_lid(p_physp);
@@ -162,7 +164,7 @@ static void nr_rcv_create_nr(IN osm_sa_t * sa, IN osm_node_t * p_node,
 		max_lid_ho = (uint16_t) (base_lid_ho + (1 << lmc) - 1);
 		match_lid_ho = cl_ntoh16(match_lid);
 
-		if (match_lid_ho) {
+		if (comp_mask & IB_NR_COMPMASK_LID) {
 			/*
 			   We validate that the lid belongs to this node.
 			 */
@@ -190,7 +192,7 @@ static void nr_rcv_by_comp_mask(IN cl_map_item_t * p_map_item, IN void *context)
 	const ib_node_record_t *const p_rcvd_rec = p_ctxt->p_rcvd_rec;
 	const osm_physp_t *const p_req_physp = p_ctxt->p_req_physp;
 	osm_sa_t *sa = p_ctxt->sa;
-	ib_net64_t const comp_mask = p_ctxt->comp_mask;
+	ib_net64_t comp_mask = p_ctxt->comp_mask;
 	ib_net64_t match_port_guid = 0;
 	ib_net16_t match_lid = 0;
 
@@ -274,7 +276,7 @@ static void nr_rcv_by_comp_mask(IN cl_map_item_t * p_map_item, IN void *context)
 	}
 
 	nr_rcv_create_nr(sa, p_node, p_ctxt->p_list, match_port_guid,
-			 match_lid, p_req_physp);
+			 match_lid, p_req_physp, comp_mask);
 
 Exit:
 	OSM_LOG_EXIT(p_ctxt->sa->p_log);
