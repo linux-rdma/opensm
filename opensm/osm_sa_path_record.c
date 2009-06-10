@@ -140,7 +140,6 @@ sa_path_rec_apply_tavor_mtu_limit(IN const ib_path_rec_t * p_pr,
 			/* the ULP intentionally requested */
 			/* the largest MTU possible */
 			return (FALSE);
-			break;
 
 		default:
 			/* if we're here, there's a bug in ib_path_rec_mtu_sel() */
