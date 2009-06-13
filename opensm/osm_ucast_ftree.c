@@ -82,7 +82,6 @@ typedef enum {
  **  Forward references
  **
  ***************************************************/
-
 struct ftree_sw_t_;
 struct ftree_hca_t_;
 struct ftree_port_t_;
@@ -153,6 +152,7 @@ typedef struct ftree_port_group_t_ {
 	boolean_t is_cn;	/* whether this port is a compute node */
 	boolean_t is_io;	/* whether this port is an I/O node */
 	uint32_t counter_down;	/* number of allocated routs downwards */
+	uint32_t counter_up;	/* number of allocated routs downwards */
 } ftree_port_group_t;
 
 /***************************************************
@@ -174,6 +174,8 @@ typedef struct ftree_sw_t_ {
 	boolean_t is_leaf;
 	unsigned down_port_groups_idx;
 	uint8_t *hops;
+	uint32_t min_counter_down;
+	boolean_t counter_up_changed;
 } ftree_sw_t;
 
 /***************************************************
@@ -1886,6 +1888,162 @@ static void set_sw_fwd_table(IN cl_map_item_t * const p_map_item,
  ***************************************************/
 
 /*
+ * Function: Finds the least loaded port group and stores its counter
+ * Given   : A switch
+ */
+static inline void
+recalculate_min_counter_down(ftree_sw_t *p_sw){
+	uint32_t min= (1<<30);
+	uint32_t i;
+	for(i=0;i < p_sw->down_port_groups_num; i++) {
+		if(p_sw->down_port_groups[i]->counter_down < min){
+			min = p_sw->down_port_groups[i]->counter_down;
+		}
+	}
+	p_sw->min_counter_down = min;
+	return;
+}
+
+/*
+ * Function: Return the counter value of the least loaded down port group
+ * Given   : A switch
+ */
+static inline uint32_t
+find_lowest_loaded_group_on_sw(ftree_sw_t *p_sw){
+	return p_sw->min_counter_down;
+}
+
+/*
+ * Function: Compare the load of two port groups and return which is the least loaded
+ * Given   : Two port groups with remote switch
+ * When both port groups are equally loaded, it picks the one whom
+ * remote switch down ports are least loaded.
+ * This way, it prefers the switch from where it will be easier to go down (creating upward routes).
+ * If both are equal, it picks the bigger GUID to be deterministic.
+ */
+static inline int
+port_group_compare_load_down(const ftree_port_group_t *p1,const ftree_port_group_t *p2){
+	int temp = p1->counter_down -p2->counter_down ;
+	if(temp > 0)
+		return 1;
+	if(temp < 0)
+		return -1;
+
+	/* Find the less loaded remote sw and choose this one */
+	do{
+		uint32_t load1= find_lowest_loaded_group_on_sw(p1->remote_hca_or_sw.p_sw);
+		uint32_t load2= find_lowest_loaded_group_on_sw(p2->remote_hca_or_sw.p_sw);
+		temp = load1-load2;
+		if(temp > 0)
+			return 1;
+	}while(0);
+       /* If they are both equal, choose the biggest GUID */
+       if(p1->remote_port_guid > p2->remote_port_guid)
+               return 1;
+
+       return -1;
+
+}
+
+/*
+ * Function: Sorts an array of port group by up load order
+ * Given   : A port group array and its length
+ * As the list is mostly sorted, we used a bubble sort instead of qsort
+ * as it is much faster.
+ *
+ * Important note:
+ * This function and __osm_ftree_bubble_sort_down must NOT be factorized.
+ * Although most of the code is the same and a function pointer could be used
+ * for the compareason function, it would prevent the compareason function to be inlined
+ * and cost a great deal to performances.
+ */
+static inline void
+bubble_sort_up(ftree_port_group_t **p_group_array, uint32_t nmemb)
+{
+        uint32_t i   = 0;
+        uint32_t j   = 0;
+        ftree_port_group_t *tmp = p_group_array[0];
+
+	/* As this function is a great number of times, we only go into the loop
+	 * if one of the port counters has changed, thus saving some tests */
+	if(tmp->hca_or_sw.p_sw->counter_up_changed == FALSE){
+		return;
+	}
+	/* While we did modifications on the array order*/
+	/* i may grew above array length but next loop will fail and tmp will be null for the next time
+	 * this way we save a test i < nmemb for each pass through the loop */
+        for(i = 0 ; tmp ; i++)
+        {
+		/* Assume the array is orderd */
+                tmp = NULL;
+                /* Comparing elements j and j-1 */
+                for(j = 1 ; j < (nmemb - i) ; j++)
+                {
+			/* If they are the wrong way around */
+                        if( p_group_array[j]->counter_up < p_group_array[j-1]->counter_up)
+                        {
+				/* We invert them */
+                                tmp = p_group_array[j-1];
+                                p_group_array[j-1] = p_group_array[j];
+				p_group_array[j] = tmp;
+				/* This sets tmp != NULL so the main loop will make another pass */
+                        }
+                }
+        }
+
+	/* We have reordered the array so as long noone changes the counter
+	 * it's not necessary to do it again */
+	 p_group_array[0]->hca_or_sw.p_sw->counter_up_changed = FALSE;
+}
+
+/*
+ * Function: Sorts an array of port group. Order is decide through
+ * __osm_ftree_port_group_compare_load_down ( up counters, least load remote switch, biggest GUID)
+ * Given   : A port group array and its length. Each port group points to a remote switch (not a HCA)
+ * As the list is mostly sorted, we used a bubble sort instead of qsort
+ * as it is much faster.
+ *
+ * Important note:
+ * This function and __osm_ftree_bubble_sort_up must NOT be factorized.
+ * Although most of the code is the same and a function pointer could be used
+ * for the compareason function, it would prevent the compareason function to be inlined
+ * and cost a great deal to performances.
+ */
+static inline void
+bubble_sort_down(ftree_port_group_t **p_group_array, uint32_t nmemb)
+{
+        uint32_t i   = 0;
+        uint32_t j   = 0;
+        ftree_port_group_t *tmp = p_group_array[0];
+
+        /* While we did modifications on the array order*/
+        /* i may grew above array length but next loop will fail and tmp will be null for the next time
+         * this way we save a test i < nmemb for each pass through the loop */
+        for(i = 0 ; tmp ; i++)
+        {
+		/* Assume the array is orderd */
+		tmp = NULL;
+		/* Comparing elements j and j-1 */
+                for(j = 1 ; j < (nmemb - i) ; j++)
+                {
+			/* If they are the wrong way around */
+                        if( port_group_compare_load_down(p_group_array[j],p_group_array[j-1]) < 0 )
+			{
+				/* We invert them */
+                                tmp = p_group_array[j-1];
+                                p_group_array[j-1] = p_group_array[j];
+                                p_group_array[j] = tmp;
+
+                        }
+                }
+        }
+}
+
+
+/***************************************************
+ ***************************************************/
+
+/*
  * Function: assign-up-going-port-by-descending-down
  * Given   : a switch and a LID
  * Pseudo code:
@@ -1915,10 +2073,10 @@ fabric_route_upgoing_by_going_down(IN ftree_fabric_t * p_ftree,
 	ftree_port_group_t *p_group;
 	ftree_port_t *p_port;
 	ftree_port_t *p_min_port;
-	uint16_t i;
 	uint16_t j;
 	uint16_t k;
 	boolean_t created_route = FALSE;
+	boolean_t routed=0;
 
 	/* we shouldn't enter here if both real_lid and main_path are false */
 	CL_ASSERT(is_real_lid || is_main_path);
@@ -1928,11 +2086,10 @@ fabric_route_upgoing_by_going_down(IN ftree_fabric_t * p_ftree,
 		return FALSE;
 
 	/* foreach down-going port group (in indexing order) */
-	i = p_sw->down_port_groups_idx;
+	bubble_sort_up(p_sw->down_port_groups,p_sw->down_port_groups_num);
 	for (k = 0; k < p_sw->down_port_groups_num; k++) {
 
-		p_group = p_sw->down_port_groups[i];
-		i = (i + 1) % p_sw->down_port_groups_num;
+		p_group = p_sw->down_port_groups[k];
 
 		/* If this port group doesn't point to a switch, mark
 		   that the route was created and skip to the next group */
@@ -1980,6 +2137,10 @@ fabric_route_upgoing_by_going_down(IN ftree_fabric_t * p_ftree,
 				p_group->base_lid,
 				tuple_to_str(p_sw->tuple),
 				p_group->remote_base_lid);
+			/* We skip only if we have come through a longer path */
+			if(((target_rank - highest_rank_in_route) +
+			    (p_remote_sw->rank - highest_rank_in_route) + 2*reverse_hops) >=
+			    sw_get_least_hops(p_remote_sw, target_lid))
 			continue;
 		}
 
@@ -2010,12 +2171,6 @@ fabric_route_upgoing_by_going_down(IN ftree_fabric_t * p_ftree,
 		 *      - illegal state - we shouldn't get here
 		 */
 
-		/* second case: skip the port group if the remote (lower)
-		   switch has been already configured for this target LID */
-		if (is_real_lid && !is_main_path &&
-		    p_remote_sw->p_osm_sw->new_lft[target_lid] !=
-		    OSM_NO_PATH)
-			continue;
 
 		/* setting fwd tbl port only if this is real LID */
 		if (is_real_lid) {
@@ -2044,19 +2199,26 @@ fabric_route_upgoing_by_going_down(IN ftree_fabric_t * p_ftree,
 		   the upper side of the link (on switch with lower rank).
 		   Counter is promoted only if we're routing LID on the main
 		   path (whether it's a real LID or a dummy one). */
-		if (is_main_path)
-			p_min_port->counter_up++;
+		/*		if (is_main_path)
+		  p_min_port->counter_up++;*/
 
 		/* Recursion step:
 		   Assign upgoing ports by stepping down, starting on REMOTE switch */
-		created_route |= fabric_route_upgoing_by_going_down(p_ftree, p_remote_sw,	/* remote switch - used as a route-upgoing alg. start point */
-								    NULL,	/* prev. position - NULL to mark that we went down and not up */
-								    target_lid,	/* LID that we're routing to */
-								    target_rank,	/* rank of the LID that we're routing to */
-								    is_real_lid,	/* whether the target LID is real or dummy */
-								    is_main_path,	/* whether this is path to HCA that should by tracked by counters */
-								    is_target_a_sw,	/* Wheter target lid is a switch or not */
-								    highest_rank_in_route, reverse_hops);	/* highest visited point in the tree before going down */
+		routed = fabric_route_upgoing_by_going_down(p_ftree,
+								   p_remote_sw,	/* remote switch - used as a route-upgoing alg. start point */
+								   NULL,	/* prev. position - NULL to mark that we went down and not up */
+								   target_lid,	/* LID that we're routing to */
+								   target_rank,	/* rank of the LID that we're routing to */
+								   is_real_lid,	/* whether the target LID is real or dummy */
+								   is_main_path,	/* whether this is path to HCA that should by tracked by counters */
+								   is_target_a_sw,	/* Wheter target lid is a switch or not */
+								   highest_rank_in_route, reverse_hops);	/* highest visited point in the tree before going down */
+		created_route|=routed;
+		if(routed){
+			p_min_port->counter_up++;
+			p_group->counter_up++;
+			p_group->hca_or_sw.p_sw->counter_up_changed = TRUE;
+		}
 	}
 	/* done scanning all the down-going port groups */
 
@@ -2069,6 +2231,8 @@ fabric_route_upgoing_by_going_down(IN ftree_fabric_t * p_ftree,
 
 	return created_route;
 }				/* fabric_route_upgoing_by_going_down() */
+
+
 
 /***************************************************/
 
@@ -2083,7 +2247,8 @@ fabric_route_upgoing_by_going_down(IN ftree_fabric_t * p_ftree,
  *    assign-down-going-port-by-ascending-up on REMOTE switch (recursion)
  */
 
-static void fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
+static boolean_t
+fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
 					       IN ftree_sw_t * p_sw,
 					       IN ftree_sw_t * p_prev_sw,
 					       IN uint16_t target_lid,
@@ -2102,70 +2267,62 @@ static void fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
 	ftree_port_t *p_min_port;
 	uint16_t i;
 	uint16_t j;
+	boolean_t created_route = FALSE;
+	boolean_t routed = FALSE;
 
 	/* we shouldn't enter here if both real_lid and main_path are false */
 	CL_ASSERT(is_real_lid || is_main_path);
 
 	/* Assign upgoing ports by stepping down, starting on THIS switch */
-	fabric_route_upgoing_by_going_down(p_ftree, p_sw,	/* local switch - used as a route-upgoing alg. start point */
-					   p_prev_sw,	/* switch that we went up from (NULL means that we went down) */
-					   target_lid,	/* LID that we're routing to */
-					   target_rank,	/* rank of the LID that we're routing to */
-					   is_real_lid,	/* whether this target LID is real or dummy */
-					   is_main_path,	/* whether this path to HCA should by tracked by counters */
-					   is_target_a_sw,	/* Wheter target lid is a switch or not */
-					   p_sw->rank,	/* the highest visited point in the tree before going down */
-					   reverse_hops);	/* Number of reverse_hops done up to this point */
+	created_route = fabric_route_upgoing_by_going_down(p_ftree, p_sw,	/* local switch - used as a route-upgoing alg. start point */
+						       p_prev_sw,	/* switch that we went up from (NULL means that we went down) */
+						       target_lid,	/* LID that we're routing to */
+						       target_rank,	/* rank of the LID that we're routing to */
+						       is_real_lid,	/* whether this target LID is real or dummy */
+						       is_main_path,	/* whether this path to HCA should by tracked by counters */
+						       is_target_a_sw,	/* Wheter target lid is a switch or not */
+						       p_sw->rank,	/* the highest visited point in the tree before going down */
+						       reverse_hops);	/* Number of reverse_hops done up to this point */
 
 	/* recursion stop condition - if it's a root switch, */
-	if (p_sw->rank == 0) {
-		if (reverse_hop_credit > 0) {
-			/* We go up by going down as we have some reverse_hop_credit left */
-			/* We use the index to scatter a bit the reverse up routes */
-			p_sw->down_port_groups_idx =
-			    (p_sw->down_port_groups_idx +
-			     1) % p_sw->down_port_groups_num;
-			i = p_sw->down_port_groups_idx;
-			for (j = 0; j < p_sw->down_port_groups_num; j++) {
+	if (p_sw->rank == 0){
+              if(reverse_hop_credit>0){
+                     /* We go up by going down as we have some reverse_hop_credit left*/
+                     /* We use the index to scatter a bit the reverse up routes */
+                     p_sw->down_port_groups_idx =
+                            (p_sw->down_port_groups_idx + 1) % p_sw->down_port_groups_num;
+                     i=p_sw->down_port_groups_idx;
+                     for (j = 0; j < p_sw->down_port_groups_num; j++) {
 
-				p_group = p_sw->down_port_groups[i];
-				i = (i + 1) % p_sw->down_port_groups_num;
+                            p_group = p_sw->down_port_groups[i];
+                            i = (i + 1) % p_sw->down_port_groups_num;
 
-				/* Skip this port group unless it points to a switch */
-				if (p_group->remote_node_type !=
-				    IB_NODE_TYPE_SWITCH)
-					continue;
-				p_remote_sw = p_group->remote_hca_or_sw.p_sw;
+                            /* Skip this port group unless it points to a switch */
+                            if (p_group->remote_node_type != IB_NODE_TYPE_SWITCH)
+                                   continue;
+                            p_remote_sw = p_group->remote_hca_or_sw.p_sw;
 
-				fabric_route_downgoing_by_going_up(p_ftree, p_remote_sw,	/* remote switch - used as a route-downgoing alg. next step point */
-								   p_sw,	/* this switch - prev. position switch for the function */
-								   target_lid,	/* LID that we're routing to */
-								   target_rank,	/* rank of the LID that we're routing to */
-								   is_real_lid,	/* whether this target LID is real or dummy */
-								   is_main_path,	/* whether this is path to HCA that should by tracked by counters */
-								   is_target_a_sw,	/* Wheter target lid is a switch or not */
-								   reverse_hop_credit - 1,	/* Remaining reverse_hops allowed */
-								   reverse_hops + 1);	/* Number of reverse_hops done up to this point */
-			}
+                            created_route |= fabric_route_downgoing_by_going_up(p_ftree, p_remote_sw,	/* remote switch - used as a route-downgoing alg. next step point */
+                                                                           p_sw,	/* this switch - prev. position switch for the function */
+                                                                           target_lid,	/* LID that we're routing to */
+                                                                           target_rank,	/* rank of the LID that we're routing to */
+                                                                           is_real_lid,	/* whether this target LID is real or dummy */
+									   is_main_path,	/* whether this is path to HCA that should by tracked by counters */
+									   is_target_a_sw,	/* Wheter target lid is a switch or not */
+									   reverse_hop_credit - 1,	/* Remaining reverse_hops allowed */
+									   reverse_hops + 1);	/* Number of reverse_hops done up to this point */
+                     }
 
-		}
-		return;
+              }
+              return created_route;
 	}
 
-	/* Find the least loaded upgoing port group */
-	p_min_group = NULL;
-	for (i = 0; i < p_sw->up_port_groups_num; i++) {
-		p_group = p_sw->up_port_groups[i];
-		if (!p_min_group) {
-			/* first group that we're checking - use
-			   it as a group with the lowest load */
-			p_min_group = p_group;
-		} else if (p_group->counter_down < p_min_group->counter_down) {
-			/* this group is less loaded - use it as min */
-			p_min_group = p_group;
-		}
-	}
+	/* We should generate a list of port sorted by load so we can find easily the least
+	 * going port and explore the other pots on secondary routes more easily (and quickly) */
+	bubble_sort_down(p_sw->up_port_groups,p_sw->up_port_groups_num);
 
+
+	p_min_group = p_sw->up_port_groups[0];
 	/* Find the least loaded upgoing port in the selected group */
 	p_min_port = NULL;
 	ports_num = (uint16_t) cl_ptr_vector_get_size(&p_min_group->ports);
@@ -2235,6 +2392,10 @@ static void fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
 		   (on switch with higher rank) */
 		p_min_group->counter_down++;
 		p_min_port->counter_down++;
+		if(p_min_group->counter_down == (p_min_group->remote_hca_or_sw.p_sw->min_counter_down+1)){
+			recalculate_min_counter_down(p_min_group->remote_hca_or_sw.p_sw);
+		}
+
 		if (is_real_lid) {
 			/* This LID may already be in the LFT in the reverse_hop feature is used */
 			/* We update the LFT only if this LID isn't already present. */
@@ -2259,20 +2420,20 @@ static void fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
 
 		/* Recursion step:
 		   Assign downgoing ports by stepping up, starting on REMOTE switch. */
-		fabric_route_downgoing_by_going_up(p_ftree, p_remote_sw,	/* remote switch - used as a route-downgoing alg. next step point */
-						   p_sw,	/* this switch - prev. position switch for the function */
-						   target_lid,	/* LID that we're routing to */
-						   target_rank,	/* rank of the LID that we're routing to */
-						   is_real_lid,	/* whether this target LID is real or dummy */
-						   is_main_path,	/* whether this is path to HCA that should by tracked by counters */
-						   is_target_a_sw,	/* Wheter target lid is a switch or not */
-						   reverse_hop_credit,	/* Remaining reverse_hops allowed */
-						   reverse_hops);	/* Number of reverse_hops done up to this point */
+		created_route|= fabric_route_downgoing_by_going_up(p_ftree, p_remote_sw,	/* remote switch - used as a route-downgoing alg. next step point */
+							       p_sw,	/* this switch - prev. position switch for the function */
+							       target_lid,	/* LID that we're routing to */
+							       target_rank,	/* rank of the LID that we're routing to */
+							       is_real_lid,	/* whether this target LID is real or dummy */
+							       is_main_path,	/* whether this is path to HCA that should by tracked by counters */
+							       is_target_a_sw,	/* Wheter target lid is a switch or not */
+							       reverse_hop_credit,	/* Remaining reverse_hops allowed */
+							       reverse_hops);	/* Number of reverse_hops done up to this point */
 	}
 
 	/* we're done for the third case */
 	if (!is_real_lid)
-		return;
+		return created_route;
 
 	/* What's left to do at this point:
 	 *
@@ -2306,14 +2467,15 @@ static void fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
 	 *         - go UP(TRUE,FALSE) to the remote switch
 	 */
 
-	for (i = 0; i < p_sw->up_port_groups_num; i++) {
+	for (i = is_main_path? 1 : 0 ; i < p_sw->up_port_groups_num; i++) {
 		p_group = p_sw->up_port_groups[i];
 		p_remote_sw = p_group->remote_hca_or_sw.p_sw;
 
-		/* skip if target lid has been already set on remote switch fwd tbl */
-		if (p_remote_sw->p_osm_sw->new_lft[target_lid] !=
-		    OSM_NO_PATH)
-			continue;
+		/* skip if target lid has been already set on remote switch fwd tbl (with a bigger hop count)*/
+		if (p_remote_sw->p_osm_sw->new_lft[target_lid] != OSM_NO_PATH)
+			if((target_rank -p_remote_sw->rank + 2*reverse_hops) >=
+			   sw_get_least_hops(p_remote_sw, target_lid))
+				continue;
 
 		if (p_sw->is_leaf) {
 			OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
@@ -2328,8 +2490,23 @@ static void fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
 		   We can safely assume that switch will initiate very
 		   few traffic, so there's no point waisting runtime on
 		   trying to balance these routes - always pick port 0. */
+		/* GET MIN PORT HERE */
+		p_min_port = NULL;
+		ports_num = (uint16_t) cl_ptr_vector_get_size(&p_group->ports);
+		for (j = 0; j < ports_num; j++) {
+			cl_ptr_vector_at(&p_group->ports, j, (void *)&p_port);
+			if (!p_min_port) {
+				/* first port that we're checking - use
+				   it as a port with the lowest load */
+				p_min_port = p_port;
+			} else if (p_port->counter_down < p_min_port->counter_down) {
+				/* this port is less loaded - use it as min */
+				p_min_port = p_port;
+			}
+		}
 
-		cl_ptr_vector_at(&p_group->ports, 0, (void *)&p_port);
+		p_port = p_min_port;
+		//cl_ptr_vector_at(&p_group->ports, 0, (void *)&p_port);
 		p_remote_sw->p_osm_sw->new_lft[target_lid] =
 		    p_port->remote_port_num;
 
@@ -2342,25 +2519,26 @@ static void fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
 
 		/* Recursion step:
 		   Assign downgoing ports by stepping up, starting on REMOTE switch. */
-		fabric_route_downgoing_by_going_up(p_ftree, p_remote_sw,	/* remote switch - used as a route-downgoing alg. next step point */
-						   p_sw,	/* this switch - prev. position switch for the function */
-						   target_lid,	/* LID that we're routing to */
-						   target_rank,	/* rank of the LID that we're routing to */
-						   TRUE,	/* whether the target LID is real or dummy */
-						   FALSE,	/* whether this is path to HCA that should by tracked by counters */
-						   is_target_a_sw,	/* Wheter target lid is a switch or not */
-						   reverse_hop_credit,	/* Remaining reverse_hops allowed */
-						   reverse_hops);	/* Number of reverse_hops done up to this point */
+		routed = fabric_route_downgoing_by_going_up(p_ftree, p_remote_sw,	/* remote switch - used as a route-downgoing alg. next step point */
+							       p_sw,	/* this switch - prev. position switch for the function */
+							       target_lid,	/* LID that we're routing to */
+							       target_rank,	/* rank of the LID that we're routing to */
+							       TRUE,	/* whether the target LID is real or dummy */
+							       FALSE,	/* whether this is path to HCA that should by tracked by counters */
+							       is_target_a_sw,	/* Wheter target lid is a switch or not */
+							       reverse_hop_credit,	/* Remaining reverse_hops allowed */
+							       reverse_hops);	/* Number of reverse_hops done up to this point */
+                created_route|=routed;
 	}
 
-	/* If we don't have any reverse hop credits, we are done */
-	if (reverse_hop_credit == 0)
-		return;
+       /* If we don't have any reverse hop credits, we are done */
+       if(reverse_hop_credit==0)
+              return created_route;
 
-	/* We explore all the down group ports */
-	/* We try to reverse jump for each of them */
-	/* They already have a route to us from the upgoing_by_going_down started earlier */
-	/* This is only so it'll continue exploring up, after this step backwards */
+       /* We explore all the down group ports */
+       /* We try to reverse jump for each of them */
+       /* They already have a route to us from the upgoing_by_going_down started earlier */
+       /* This is only so it'll continue exploring up, after this step backwards*/
 	for (i = 0; i < p_sw->down_port_groups_num; i++) {
 		p_group = p_sw->down_port_groups[i];
 		p_remote_sw = p_group->remote_hca_or_sw.p_sw;
@@ -2371,16 +2549,17 @@ static void fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
 
 		/* Recursion step:
 		   Assign downgoing ports by stepping up, fter doing one step down starting on REMOTE switch. */
-		fabric_route_downgoing_by_going_up(p_ftree, p_remote_sw,	/* remote switch - used as a route-downgoing alg. next step point */
-						   p_sw,	/* this switch - prev. position switch for the function */
-						   target_lid,	/* LID that we're routing to */
-						   target_rank,	/* rank of the LID that we're routing to */
-						   TRUE,	/* whether the target LID is real or dummy */
-						   TRUE,	/* whether this is path to HCA that should by tracked by counters */
-						   is_target_a_sw,	/* Wheter target lid is a switch or not */
-						   reverse_hop_credit - 1,	/* Remaining reverse_hops allowed */
-						   reverse_hops + 1);	/* Number of reverse_hops done up to this point */
+		created_route |= fabric_route_downgoing_by_going_up(p_ftree, p_remote_sw,	/* remote switch - used as a route-downgoing alg. next step point */
+							       p_sw,	/* this switch - prev. position switch for the function */
+							       target_lid,	/* LID that we're routing to */
+							       target_rank,	/* rank of the LID that we're routing to */
+							       TRUE,	/* whether the target LID is real or dummy */
+							       TRUE,	/* whether this is path to HCA that should by tracked by counters */
+							       is_target_a_sw,	/* Wheter target lid is a switch or not */
+							       reverse_hop_credit - 1,	/* Remaining reverse_hops allowed */
+							       reverse_hops + 1);	/* Number of reverse_hops done up to this point */
 	}
+	return created_route;
 
 }				/* ftree_fabric_route_downgoing_by_going_up() */
 
