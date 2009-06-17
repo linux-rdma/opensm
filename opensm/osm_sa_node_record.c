@@ -215,65 +215,60 @@ static void nr_rcv_by_comp_mask(IN cl_map_item_t * p_map_item, IN void *context)
 		    p_rcvd_rec->node_info.node_guid)
 			goto Exit;
 	}
-	if (comp_mask & IB_NR_COMPMASK_PORTGUID) {
+
+	if (comp_mask & IB_NR_COMPMASK_PORTGUID)
 		match_port_guid = p_rcvd_rec->node_info.port_guid;
-	}
-	if (comp_mask & IB_NR_COMPMASK_SYSIMAGEGUID) {
-		if (p_node->node_info.sys_guid !=
-		    p_rcvd_rec->node_info.sys_guid)
+
+	if ((comp_mask & IB_NR_COMPMASK_SYSIMAGEGUID) &&
+	    p_node->node_info.sys_guid != p_rcvd_rec->node_info.sys_guid)
 			goto Exit;
-	}
-	if (comp_mask & IB_NR_COMPMASK_BASEVERSION) {
-		if (p_node->node_info.base_version !=
-		    p_rcvd_rec->node_info.base_version)
+
+	if ((comp_mask & IB_NR_COMPMASK_BASEVERSION) &&
+	    p_node->node_info.base_version !=
+	    p_rcvd_rec->node_info.base_version)
 			goto Exit;
-	}
-	if (comp_mask & IB_NR_COMPMASK_CLASSVERSION) {
-		if (p_node->node_info.class_version !=
-		    p_rcvd_rec->node_info.class_version)
-			goto Exit;
-	}
-	if (comp_mask & IB_NR_COMPMASK_NODETYPE) {
-		if (p_node->node_info.node_type !=
-		    p_rcvd_rec->node_info.node_type)
-			goto Exit;
-	}
-	if (comp_mask & IB_NR_COMPMASK_NUMPORTS) {
-		if (p_node->node_info.num_ports !=
-		    p_rcvd_rec->node_info.num_ports)
-			goto Exit;
-	}
-	if (comp_mask & IB_NR_COMPMASK_PARTCAP) {
-		if (p_node->node_info.partition_cap !=
-		    p_rcvd_rec->node_info.partition_cap)
-			goto Exit;
-	}
-	if (comp_mask & IB_NR_COMPMASK_DEVID) {
-		if (p_node->node_info.device_id !=
-		    p_rcvd_rec->node_info.device_id)
-			goto Exit;
-	}
-	if (comp_mask & IB_NR_COMPMASK_REV) {
-		if (p_node->node_info.revision !=
-		    p_rcvd_rec->node_info.revision)
-			goto Exit;
-	}
-	if (comp_mask & IB_NR_COMPMASK_PORTNUM) {
-		if (ib_node_info_get_local_port_num(&p_node->node_info) !=
-		    ib_node_info_get_local_port_num(&p_rcvd_rec->node_info))
-			goto Exit;
-	}
-	if (comp_mask & IB_NR_COMPMASK_VENDID) {
-		if (ib_node_info_get_vendor_id(&p_node->node_info) !=
-		    ib_node_info_get_vendor_id(&p_rcvd_rec->node_info))
-			goto Exit;
-	}
-	if (comp_mask & IB_NR_COMPMASK_NODEDESC) {
-		if (strncmp((char *)&p_node->node_desc,
-			    (char *)&p_rcvd_rec->node_desc,
-			    sizeof(ib_node_desc_t)))
-			goto Exit;
-	}
+
+	if ((comp_mask & IB_NR_COMPMASK_CLASSVERSION) &&
+	    p_node->node_info.class_version !=
+	    p_rcvd_rec->node_info.class_version)
+		goto Exit;
+
+	if ((comp_mask & IB_NR_COMPMASK_NODETYPE) &&
+	    p_node->node_info.node_type != p_rcvd_rec->node_info.node_type)
+		goto Exit;
+
+	if ((comp_mask & IB_NR_COMPMASK_NUMPORTS) &&
+	    p_node->node_info.num_ports != p_rcvd_rec->node_info.num_ports)
+		goto Exit;
+
+	if ((comp_mask & IB_NR_COMPMASK_PARTCAP) &&
+	    p_node->node_info.partition_cap !=
+	    p_rcvd_rec->node_info.partition_cap)
+		goto Exit;
+
+	if ((comp_mask & IB_NR_COMPMASK_DEVID) &&
+	    p_node->node_info.device_id != p_rcvd_rec->node_info.device_id)
+		goto Exit;
+
+	if ((comp_mask & IB_NR_COMPMASK_REV) &&
+	    p_node->node_info.revision !=
+	    p_rcvd_rec->node_info.revision)
+		goto Exit;
+
+	if ((comp_mask & IB_NR_COMPMASK_PORTNUM)  &&
+	    ib_node_info_get_local_port_num(&p_node->node_info) !=
+	    ib_node_info_get_local_port_num(&p_rcvd_rec->node_info))
+		goto Exit;
+
+	if ((comp_mask & IB_NR_COMPMASK_VENDID) &&
+	    ib_node_info_get_vendor_id(&p_node->node_info) !=
+	    ib_node_info_get_vendor_id(&p_rcvd_rec->node_info))
+		goto Exit;
+
+	if ((comp_mask & IB_NR_COMPMASK_NODEDESC) &&
+	    strncmp((char *)&p_node->node_desc, (char *)&p_rcvd_rec->node_desc,
+		    sizeof(ib_node_desc_t)))
+		goto Exit;
 
 	nr_rcv_create_nr(sa, p_node, p_ctxt->p_list, match_port_guid,
 			 match_lid, p_req_physp, comp_mask);
