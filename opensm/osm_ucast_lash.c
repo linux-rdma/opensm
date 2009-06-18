@@ -478,7 +478,7 @@ static void balance_virtual_lanes(lash_t * p_lash, unsigned lanes_needed)
 	cdg_vertex_t ****cdg_vertex_matrix = p_lash->cdg_vertex_matrix;
 	int *num_mst_in_lane = p_lash->num_mst_in_lane;
 	int ***virtual_location = p_lash->virtual_location;
-	int min_filled_lane, max_filled_lane, medium_filled_lane, trials;
+	int min_filled_lane, max_filled_lane, trials;
 	int old_min_filled_lane, old_max_filled_lane, new_num_min_lane,
 	    new_num_max_lane;
 	unsigned int i, j;
@@ -489,9 +489,6 @@ static void balance_virtual_lanes(lash_t * p_lash, unsigned lanes_needed)
 
 	max_filled_lane = 0;
 	min_filled_lane = lanes_needed - 1;
-
-	if (max_filled_lane > 1)
-		medium_filled_lane = max_filled_lane - 1;
 
 	trials = num_mst_in_lane[max_filled_lane];
 	if (lanes_needed == 1)
