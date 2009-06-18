@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008      System Fabric Works, Inc.
+ * Copyright (c) 2008,2009 System Fabric Works, Inc. All rights reserved.
  * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2006 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
@@ -90,7 +90,7 @@ typedef struct _lash {
 	int balance_limit;
 	switch_t **switches;
 	cdg_vertex_t ****cdg_vertex_matrix;
-	int *num_mst_in_lane;
+	int num_mst_in_lane[IB_MAX_NUM_VLS];
 	int ***virtual_location;
 } lash_t;
 

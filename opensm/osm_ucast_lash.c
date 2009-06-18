@@ -4,6 +4,7 @@
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2007      Simula Research Laboratory. All rights reserved.
  * Copyright (c) 2007      Silicon Graphics Inc. All rights reserved.
+ * Copyright (c) 2008,2009 System Fabric Works, Inc. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -707,9 +708,6 @@ static void free_lash_structures(lash_t * p_lash)
 	if (p_lash->virtual_location)
 		free(p_lash->virtual_location);
 
-	if (p_lash->num_mst_in_lane)
-		free(p_lash->num_mst_in_lane);
-
 	OSM_LOG_EXIT(p_log);
 }
 
@@ -778,11 +776,8 @@ static int init_lash_structures(lash_t * p_lash)
 	}
 
 	/* initialise num_mst_in_lane[num_switches], default 0 */
-	p_lash->num_mst_in_lane = (int *)malloc(num_switches * sizeof(int));
-	if (p_lash->num_mst_in_lane == NULL)
-		goto Exit_Mem_Error;
 	memset(p_lash->num_mst_in_lane, 0,
-	       num_switches * sizeof(p_lash->num_mst_in_lane[0]));
+	       IB_MAX_NUM_VLS * sizeof(p_lash->num_mst_in_lane[0]));
 
 	goto Exit;
 
