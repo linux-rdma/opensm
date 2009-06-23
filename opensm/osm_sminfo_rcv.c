@@ -301,9 +301,9 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-static osm_signal_t smi_rcv_process_get_sm(IN osm_sm_t * sm,
-					   IN const osm_remote_sm_t * p_sm,
-					   boolean_t light_sweep)
+static int smi_rcv_process_get_sm(IN osm_sm_t * sm,
+				  IN const osm_remote_sm_t * p_sm,
+				  boolean_t light_sweep)
 {
 	const ib_sm_info_t *p_smi;
 
