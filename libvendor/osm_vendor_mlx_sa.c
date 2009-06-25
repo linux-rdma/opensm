@@ -2,6 +2,7 @@
  * Copyright (c) 2004-2008 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
+ * Copyright (c) 2009 HNR Consulting. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -552,6 +553,13 @@ __osmv_send_sa_req(IN osmv_sa_bind_info_t * p_bind,
 	   p_madw->context.arb_context.context1
 	 */
 	p_query_req_copy = malloc(sizeof(*p_query_req_copy));
+	if (!p_query_req_copy) {
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0511: "
+			"Unable to acquire memory for query copy\n");
+		osm_mad_pool_put(p_bind->p_mad_pool, p_madw);
+		status = IB_INSUFFICIENT_RESOURCES;
+		goto Exit;
+	}
 	*p_query_req_copy = *p_query_req;
 	p_madw->context.arb_context.context1 = p_query_req_copy;
 
