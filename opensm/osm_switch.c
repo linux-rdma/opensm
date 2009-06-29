@@ -2,6 +2,7 @@
  * Copyright (c) 2004-2008 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2008 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
+ * Copyright (c) 2009 HNR Consulting. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -529,18 +530,13 @@ osm_switch_prepare_path_rebuild(IN osm_switch_t * p_sw, IN uint16_t max_lids)
 		p_sw->hops = hops;
 		p_sw->num_hops = max_lids + 1;
 	} else if (max_lids + 1 > p_sw->num_hops) {
-		uint8_t **old_hops;
-
-		hops = malloc((max_lids + 1) * sizeof(hops[0]));
+		hops = realloc(p_sw->hops, (max_lids + 1) * sizeof(hops[0]));
 		if (!hops)
 			return -1;
-		memcpy(hops, p_sw->hops, p_sw->num_hops * sizeof(hops[0]));
 		memset(hops + p_sw->num_hops, 0,
 		       (max_lids + 1 - p_sw->num_hops) * sizeof(hops[0]));
-		old_hops = p_sw->hops;
 		p_sw->hops = hops;
 		p_sw->num_hops = max_lids + 1;
-		free(old_hops);
 	}
 	p_sw->max_lid_ho = max_lids;
 
