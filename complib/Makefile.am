@@ -70,11 +70,6 @@ libosmcompinclude_HEADERS = $(srcdir)/../include/complib/cl_atomic.h \
 	$(srcdir)/../include/complib/cl_timer_osd.h \
 	$(srcdir)/../include/complib/cl_types.h \
 	$(srcdir)/../include/complib/cl_types_osd.h \
-	$(srcdir)/../include/complib/cl_threadpool.h \
-	$(srcdir)/../include/complib/cl_timer.h \
-	$(srcdir)/../include/complib/cl_timer_osd.h \
-	$(srcdir)/../include/complib/cl_types.h \
-	$(srcdir)/../include/complib/cl_types_osd.h \
 	$(srcdir)/../include/complib/cl_vector.h
 
 # headers are distributed as part of the include dir
