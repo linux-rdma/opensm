@@ -2396,38 +2396,49 @@ fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
 		if (is_real_lid) {
 			/* This LID may already be in the LFT in the reverse_hop feature is used */
 			/* We update the LFT only if this LID isn't already present. */
-			if (p_remote_sw->p_osm_sw->
-			    new_lft[target_lid] == OSM_NO_PATH) {
-				p_remote_sw->p_osm_sw->
-				    new_lft[target_lid] =
+
+			/* skip if target lid has been already set on remote switch fwd tbl (with a bigger hop count) */
+			if ((p_remote_sw->p_osm_sw->new_lft[target_lid] ==
+			     OSM_NO_PATH)
+			    ||
+			    ((p_remote_sw->p_osm_sw->new_lft[target_lid] !=
+			      OSM_NO_PATH)
+			     &&
+			     ((target_rank - p_remote_sw->rank +
+			       2 * reverse_hops) <
+			      sw_get_least_hops(p_remote_sw, target_lid)))) {
+
+				p_remote_sw->p_osm_sw->new_lft[target_lid] =
 				    p_min_port->remote_port_num;
 				OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
 					"Switch %s: set path to CA LID %u through port %u\n",
 					tuple_to_str(p_remote_sw->tuple),
 					target_lid,
 					p_min_port->remote_port_num);
+
+				/* On the remote switch that is pointed by the min_group,
+				   set hops for ALL the ports in the remote group. */
+
+				set_hops_on_remote_sw(p_min_group, target_lid,
+						      target_rank -
+						      p_remote_sw->rank +
+						      2 * reverse_hops,
+						      is_target_a_sw);
+
+				/* Recursion step:
+				   Assign downgoing ports by stepping up, starting on REMOTE switch. */
+				created_route |= fabric_route_downgoing_by_going_up(p_ftree, p_remote_sw,	/* remote switch - used as a route-downgoing alg. next step point */
+										    p_sw,	/* this switch - prev. position switch for the function */
+										    target_lid,	/* LID that we're routing to */
+										    target_rank,	/* rank of the LID that we're routing to */
+										    is_real_lid,	/* whether this target LID is real or dummy */
+										    is_main_path,	/* whether this is path to HCA that should by tracked by counters */
+										    is_target_a_sw,	/* Wheter target lid is a switch or not */
+										    reverse_hop_credit,	/* Remaining reverse_hops allowed */
+										    reverse_hops);	/* Number of reverse_hops done up to this point */
 			}
-			/* On the remote switch that is pointed by the min_group,
-			   set hops for ALL the ports in the remote group. */
-
-			set_hops_on_remote_sw(p_min_group, target_lid,
-					      target_rank - p_remote_sw->rank +
-					      2 * reverse_hops, is_target_a_sw);
 		}
-
-		/* Recursion step:
-		   Assign downgoing ports by stepping up, starting on REMOTE switch. */
-		created_route |= fabric_route_downgoing_by_going_up(p_ftree, p_remote_sw,	/* remote switch - used as a route-downgoing alg. next step point */
-								    p_sw,	/* this switch - prev. position switch for the function */
-								    target_lid,	/* LID that we're routing to */
-								    target_rank,	/* rank of the LID that we're routing to */
-								    is_real_lid,	/* whether this target LID is real or dummy */
-								    is_main_path,	/* whether this is path to HCA that should by tracked by counters */
-								    is_target_a_sw,	/* Wheter target lid is a switch or not */
-								    reverse_hop_credit,	/* Remaining reverse_hops allowed */
-								    reverse_hops);	/* Number of reverse_hops done up to this point */
 	}
-
 	/* we're done for the third case */
 	if (!is_real_lid)
 		return created_route;
