@@ -725,7 +725,7 @@ ib_api_status_t osmt_run_trap64_65_flow(IN osmtest_t * const p_osmt)
 	}
 
   /*--------------------- PREP -------------------------*/
-	if (osmt_mtl_mad_post_recv_bufs(&qp_ctx.qp_bind_hndl, qp_ctx.p_recv_buf, 1,	/* we need to reveive the report */
+	if (osmt_mtl_mad_post_recv_bufs(&qp_ctx.qp_bind_hndl, qp_ctx.p_recv_buf, 1,	/* we need to receive the report */
 					GRH_LEN + MAD_BLOCK_SIZE, 1) != 1) {
 		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0127: "
 			"Error posting recv bufs for trap 65\n");

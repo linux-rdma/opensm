@@ -2069,7 +2069,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	if ((status != IB_REMOTE_ERROR) ||
 	    (res_sa_mad.status != IB_SA_MAD_STATUS_REQ_INVALID)) {
 		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02C6: "
-			"Failed to catch BAD RATE joining an exiting MGID: %s/%s\n",
+			"Failed to catch BAD RATE joining an existing MGID: %s/%s\n",
 			ib_get_err_str(status),
 			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		status = IB_ERROR;
@@ -2078,7 +2078,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 
 	/* Try MTU that does not exist in any MCG */
 	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
-		"Checking BAD MTU (higher them max) when connecting to "
+		"Checking BAD MTU (higher than max) when connecting to "
 		"existing MGID (o15.0.1.13)...\n");
 	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_START "\n");
 
@@ -2094,7 +2094,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	if ((status != IB_REMOTE_ERROR) ||
 	    (res_sa_mad.status != IB_SA_MAD_STATUS_REQ_INVALID)) {
 		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02C7: "
-			"Failed to catch BAD RATE (higher them max) joining an exiting MGID: %s/%s\n",
+			"Failed to catch BAD RATE (higher than max) joining an existing MGID: %s/%s\n",
 			ib_get_err_str(status),
 			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		status = IB_ERROR;
@@ -2119,7 +2119,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	if ((status != IB_REMOTE_ERROR) ||
 	    (res_sa_mad.status != IB_SA_MAD_STATUS_REQ_INVALID)) {
 		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02C8: "
-			"Failed to catch BAD RATE (less them min) joining an exiting MGID: %s/%s\n",
+			"Failed to catch BAD RATE (less than min) joining an existing MGID: %s/%s\n",
 			ib_get_err_str(status),
 			ib_get_mad_status_str((ib_mad_t *) (&res_sa_mad)));
 		status = IB_ERROR;
@@ -2531,8 +2531,8 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 				    if ((res_sa_mad.
 					 status & IB_SMP_STATUS_MASK) ==
 					IB_SA_MAD_STATUS_NO_RESOURCES) {
-					/* You can quitly exit the loop since no available mlid in SA DB
-					   i.e. reached the maximum valiad avalable mlid */
+					/* You can quietly exit the loop since no available mlid in SA DB
+					   i.e. reached the maximum valid avalable mlid */
 					ReachedMlidLimit = TRUE;
 				}
 			} else {
