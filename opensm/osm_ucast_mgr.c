@@ -168,7 +168,7 @@ static void ucast_mgr_process_neighbor(IN osm_ucast_mgr_t * p_mgr,
 		    osm_switch_get_hop_count(p_this_sw, lid_ho, port_num)) {
 			if (osm_switch_set_hops
 			    (p_this_sw, lid_ho, port_num, hops) != 0)
-				OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR,
+				OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 3A03: "
 					"cannot set hops for lid %u at switch 0x%"
 					PRIx64 "\n", lid_ho,
 					cl_ntoh64(osm_node_get_node_guid
@@ -645,8 +645,8 @@ int osm_ucast_mgr_build_lid_matrices(IN osm_ucast_mgr_t * p_mgr)
 			p_mgr->p_subn->opt.hop_weights_file);
 		if (parse_node_map(p_mgr->p_subn->opt.hop_weights_file,
 				   set_hop_wf, p_mgr)) {
-			OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR : cannot "
-				"parse hop_weights_file \'%s\'\n",
+			OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 3A05: "
+				"cannot parse hop_weights_file \'%s\'\n",
 				p_mgr->p_subn->opt.hop_weights_file);
 		}
 	}
