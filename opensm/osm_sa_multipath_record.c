@@ -660,7 +660,7 @@ static ib_api_status_t mpr_rcv_get_path_parms(IN osm_sa_t * sa,
 		if (p_qos_level && p_qos_level->sl_set &&
 		    p_qos_level->sl != required_sl) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 451E: "
-				"QoS constaraints: required MultiPathRecord SL (%u) "
+				"QoS constraints: required MultiPathRecord SL (%u) "
 				"doesn't match QoS policy SL (%u)\n",
 				required_sl, p_qos_level->sl);
 			status = IB_NOT_FOUND;

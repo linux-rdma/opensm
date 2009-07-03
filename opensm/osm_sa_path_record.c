@@ -663,7 +663,7 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 		if (p_qos_level && p_qos_level->sl_set
 		    && (p_qos_level->sl != sl)) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F1F: "
-				"QoS constaraints: required PathRecord SL (%u) "
+				"QoS constraints: required PathRecord SL (%u) "
 				"doesn't match QoS policy SL (%u)\n", sl,
 				p_qos_level->sl);
 			status = IB_NOT_FOUND;
