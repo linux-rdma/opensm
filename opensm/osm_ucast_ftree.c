@@ -3621,7 +3621,7 @@ static int fabric_read_guid_files(IN ftree_fabric_t * p_ftree)
 
 		if (!cl_qmap_count(&p_ftree->cn_guid_tbl)) {
 			OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_ERROR,
-				"ERR AB23: "
+				"ERR AB27: "
 				"Compute node guids file has no valid guids\n");
 			status = -1;
 			goto Exit;
@@ -3637,14 +3637,14 @@ static int fabric_read_guid_files(IN ftree_fabric_t * p_ftree)
 				   add_guid_item_to_map,
 				   &p_ftree->io_guid_tbl)) {
 			OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_ERROR,
-				"ERR AB23: Problem parsing I/O guid file\n");
+				"ERR AB28: Problem parsing I/O guid file\n");
 			status = -1;
 			goto Exit;
 		}
 
 		if (!cl_qmap_count(&p_ftree->io_guid_tbl)) {
 			OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_ERROR,
-				"ERR AB23: "
+				"ERR AB29: "
 				"I/O node guids file has no valid guids\n");
 			status = -1;
 			goto Exit;
