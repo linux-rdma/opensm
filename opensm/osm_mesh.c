@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008,2009      System Fabric Works, Inc.
+ * Copyright (c) 2008,2009      System Fabric Works, Inc. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -182,6 +182,7 @@ typedef struct _mesh {
 	int *class_count;		/* population of each class */
 	int dimension;			/* mesh dimension */
 	int *size;			/* an array to hold size of mesh */
+	int dim_order[MAX_DIMENSION];
 } mesh_t;
 
 /*
@@ -1027,11 +1028,11 @@ static inline int ltmag(int a, int b)
 }
 
 /*
- * reorder_links
+ * reorder_node_links
  *
  * reorder the links out of a switch in sign/dimension order
  */
-static int reorder_links(lash_t *p_lash, int sw)
+static int reorder_node_links(lash_t *p_lash, mesh_t *mesh, int sw)
 {
 	osm_log_t *p_log = &p_lash->p_osm->log;
 	switch_t *s = p_lash->switches[sw];
@@ -1039,9 +1040,10 @@ static int reorder_links(lash_t *p_lash, int sw)
 	int n = node->num_links;
 	link_t **links;
 	int *axes;
-	int i, j;
+	int i, j, k, l;
 	int c;
 	int next = 0;
+	int dimension = mesh->dimension;
 
 	if (!(links = calloc(n, sizeof(link_t *)))) {
 		OSM_LOG(p_log, OSM_LOG_ERROR, "Failed allocating temp array - out of memory\n");
@@ -1057,19 +1059,23 @@ static int reorder_links(lash_t *p_lash, int sw)
 	/*
 	 * find the links with axes
 	 */
-	for (j = 1; j <= 2*node->dimension; j++) {
-		c = j;
-		if (node->coord[(c-1)/2] > 0)
-			c = opposite(s, c);
+	for (i = 0; i < dimension; i++) {
+		j = mesh->dim_order[i];
+		for (k = 1; k <= 2; k++) {
+			c = 2*j + k;
 
-		for (i = 0; i < n; i++) {
-			if (!node->links[i])
-				continue;
-			if (node->axes[i] == c) {
-				links[next] = node->links[i];
-				axes[next] = node->axes[i];
-				node->links[i] = NULL;
-				next++;
+			if (node->coord[j] > 0)
+				c = opposite(s, c);
+
+			for (l = 0; l < n; l++) {
+				if (!node->links[l])
+					continue;
+				if (node->axes[l] == c) {
+					links[next] = node->links[l];
+					axes[next] = node->axes[l];
+					node->links[l] = NULL;
+					next++;
+				}
 			}
 		}
 	}
@@ -1099,9 +1105,9 @@ static int reorder_links(lash_t *p_lash, int sw)
 }
 
 /*
- * measure geometry
+ * make_coord
  */
-static int measure_geometry(lash_t *p_lash, mesh_t *mesh, int seed)
+static int make_coord(lash_t *p_lash, mesh_t *mesh, int seed)
 {
 	osm_log_t *p_log = &p_lash->p_osm->log;
 	int i, j, k;
@@ -1111,8 +1117,6 @@ static int measure_geometry(lash_t *p_lash, mesh_t *mesh, int seed)
 	int dimension = mesh->dimension;
 	int num_switches = p_lash->num_switches;
 	int assigned_axes = 0, unassigned_axes = 0;
-	int max[MAX_DIMENSION];
-	int min[MAX_DIMENSION];
 
 	OSM_LOG_ENTER(p_log);
 
@@ -1120,6 +1124,13 @@ static int measure_geometry(lash_t *p_lash, mesh_t *mesh, int seed)
 		s = p_lash->switches[sw];
 
 		s->node->coord = calloc(dimension, sizeof(int));
+		if (!s->node->coord) {
+			OSM_LOG(p_log, OSM_LOG_ERROR,
+				"Failed allocating coord - out of memory\n");
+			OSM_LOG_EXIT(p_log);
+			return -1;
+		}
+
 		for (i = 0; i < dimension; i++)
 			s->node->coord[i] = (sw == seed) ? 0 : LARGE;
 
@@ -1163,14 +1174,36 @@ static int measure_geometry(lash_t *p_lash, mesh_t *mesh, int seed)
 		}
 	} while (change);
 
-	for (sw = 0; sw < num_switches; sw++) {
-		if (reorder_links(p_lash, sw)) {
-			OSM_LOG_EXIT(p_log);
-			return -1;
-		}
-	}
+	OSM_LOG_EXIT(p_log);
+	return 0;
+}
+
+/*
+ * measure geometry
+ */
+static int measure_geometry(lash_t *p_lash, mesh_t *mesh)
+{
+	osm_log_t *p_log = &p_lash->p_osm->log;
+	int i, j;
+	int sw;
+	switch_t *s;
+	int dimension = mesh->dimension;
+	int num_switches = p_lash->num_switches;
+	int max[MAX_DIMENSION];
+	int min[MAX_DIMENSION];
+	int size[MAX_DIMENSION];
+	int max_size;
+	int max_index;
+
+	OSM_LOG_ENTER(p_log);
 
 	mesh->size = calloc(dimension, sizeof(int));
+	if (!mesh->size) {
+		OSM_LOG(p_log, OSM_LOG_ERROR,
+			"Failed allocating size - out of memory\n");
+		OSM_LOG_EXIT(p_log);
+		return -1;
+	}
 
 	for (i = 0; i < dimension; i++) {
 		max[i] = -LARGE;
@@ -1191,7 +1224,48 @@ static int measure_geometry(lash_t *p_lash, mesh_t *mesh, int seed)
 	}
 
 	for (i = 0; i < dimension; i++)
-		mesh->size[i] = max[i] - min[i] + 1;
+		mesh->size[i] = size[i] = max[i] - min[i] + 1;
+
+	/*
+	 * find an order of dimensions that places largest
+	 * sizes first since this seems to work best with LASH
+	 */
+	for (j = 0; j < dimension; j++) {
+		max_size = -1;
+		max_index = -1;
+
+		for (i = 0; i < dimension; i++) {
+			if (size[i] > max_size) {
+				max_size = size[i];
+				max_index = i;
+			}
+		}
+
+		mesh->dim_order[j] = max_index;
+		size[max_index] = -1;
+	}
+
+	OSM_LOG_EXIT(p_log);
+	return 0;
+}
+
+/*
+ * reorder links
+ */
+static int reorder_links(lash_t *p_lash, mesh_t *mesh)
+{
+	osm_log_t *p_log = &p_lash->p_osm->log;
+	int sw;
+	int num_switches = p_lash->num_switches;
+
+	OSM_LOG_ENTER(p_log);
+
+	for (sw = 0; sw < num_switches; sw++) {
+		if (reorder_node_links(p_lash, mesh, sw)) {
+			OSM_LOG_EXIT(p_log);
+			return -1;
+		}
+	}
 
 	OSM_LOG_EXIT(p_log);
 	return 0;
@@ -1387,7 +1461,13 @@ int osm_do_mesh_analysis(lash_t *p_lash)
 	if (s->node->type) {
 		make_geometry(p_lash, max_class_type);
 
-		if (measure_geometry(p_lash, mesh, max_class_type))
+		if (make_coord(p_lash, mesh, max_class_type))
+			goto err;
+
+		if (measure_geometry(p_lash, mesh))
+			goto err;
+
+		if (reorder_links(p_lash, mesh))
 			goto err;
 
 		p = buf;
