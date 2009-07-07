@@ -3,6 +3,7 @@
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2009 HNR Consulting. All rights reserved.
+ * Copyright (c) 2009 Sun Microsystems, Inc. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -2272,6 +2273,7 @@ const char *osm_get_manufacturer_str(IN uint64_t const guid_ho)
 	case OSM_VENDOR_ID_RIOWORKS:
 		return (rioworks_str);
 	case OSM_VENDOR_ID_SUN:
+	case OSM_VENDOR_ID_SUN2:
 		return (sun_str);
 	case OSM_VENDOR_ID_3LEAFNTWKS:
 		return (leafntwks_str);

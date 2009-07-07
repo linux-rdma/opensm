@@ -2,6 +2,7 @@
  * Copyright (c) 2004-2008 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2006 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
+ * Copyright (c) 2009 Sun Microsystems, Inc. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -864,6 +865,7 @@ typedef enum _osm_sm_signal {
 #define OSM_VENDOR_ID_HP            0x001708
 #define OSM_VENDOR_ID_RIOWORKS      0x005045
 #define OSM_VENDOR_ID_SUN           0x0003BA
+#define OSM_VENDOR_ID_SUN2          0x002128
 #define OSM_VENDOR_ID_3LEAFNTWKS    0x0016A1
 #define OSM_VENDOR_ID_XSIGO         0x001397
 #define OSM_VENDOR_ID_HP2           0x0018FE
