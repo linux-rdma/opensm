@@ -2,6 +2,7 @@
  * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
+ * Copyright (c) 2009 HNR Consulting. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -93,16 +94,13 @@ osm_mcast_tbl_init(IN osm_mcast_tbl_t * const p_tbl,
 	   since it is (and must be) defined that way the table structure
 	   in order to create a pointer to a two dimensional array.
 	 */
-	p_tbl->p_mask_tbl = malloc(p_tbl->num_entries *
+	p_tbl->p_mask_tbl = calloc(p_tbl->num_entries,
 				   (IB_MCAST_POSITION_MAX +
 				    1) * IB_MCAST_MASK_SIZE / 8);
 
 	if (p_tbl->p_mask_tbl == NULL)
 		return (IB_INSUFFICIENT_MEMORY);
 
-	memset(p_tbl->p_mask_tbl, 0,
-	       p_tbl->num_entries * (IB_MCAST_POSITION_MAX +
-				     1) * IB_MCAST_MASK_SIZE / 8);
 	return (IB_SUCCESS);
 }
 
