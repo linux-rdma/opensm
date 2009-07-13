@@ -170,6 +170,8 @@ typedef struct ftree_sw_t_ {
 	uint16_t base_lid;
 	ftree_port_group_t **down_port_groups;
 	uint8_t down_port_groups_num;
+	ftree_port_group_t **sibling_port_groups;
+	uint8_t sibling_port_groups_num;
 	ftree_port_group_t **up_port_groups;
 	uint8_t up_port_groups_num;
 	boolean_t is_leaf;
@@ -493,9 +495,11 @@ static void port_group_dump(IN ftree_fabric_t * p_ftree,
 		"                  Local <--> Remote GUID (LID):"
 		"0x%016" PRIx64 " (0x%04x) <--> 0x%016" PRIx64 " (0x%04x)\n",
 		size, buff,
-		(direction == FTREE_DIRECTION_DOWN) ? "DOWN" : "UP",
-		cl_ntoh64(p_group->port_guid), p_group->base_lid,
-		cl_ntoh64(p_group->remote_port_guid), p_group->remote_base_lid);
+		(direction == FTREE_DIRECTION_DOWN) ? "DOWN" : (direction ==
+								FTREE_DIRECTION_SAME)
+		? "SIBLING" : "UP", cl_ntoh64(p_group->port_guid),
+		p_group->base_lid, cl_ntoh64(p_group->remote_port_guid),
+		p_group->remote_base_lid);
 
 }				/* port_group_dump() */
 
@@ -552,7 +556,12 @@ static ftree_sw_t *sw_create(IN ftree_fabric_t * p_ftree,
 	p_sw->up_port_groups =
 	    (ftree_port_group_t **) malloc(ports_num *
 					   sizeof(ftree_port_group_t *));
-	if (!p_sw->down_port_groups || !p_sw->up_port_groups)
+	p_sw->sibling_port_groups =
+	    (ftree_port_group_t **) malloc(ports_num *
+					   sizeof(ftree_port_group_t *));
+
+	if (!p_sw->down_port_groups || !p_sw->up_port_groups
+	    || !p_sw->sibling_port_groups)
 		return NULL;
 
 	/* initialize lft buffer */
@@ -577,10 +586,14 @@ static void sw_destroy(IN ftree_fabric_t * p_ftree, IN ftree_sw_t * p_sw)
 
 	for (i = 0; i < p_sw->down_port_groups_num; i++)
 		port_group_destroy(p_sw->down_port_groups[i]);
+	for (i = 0; i < p_sw->sibling_port_groups_num; i++)
+		port_group_destroy(p_sw->sibling_port_groups[i]);
 	for (i = 0; i < p_sw->up_port_groups_num; i++)
 		port_group_destroy(p_sw->up_port_groups[i]);
 	if (p_sw->down_port_groups)
 		free(p_sw->down_port_groups);
+	if (p_sw->sibling_port_groups)
+		free(p_sw->sibling_port_groups);
 	if (p_sw->up_port_groups)
 		free(p_sw->up_port_groups);
 
@@ -617,13 +630,17 @@ static void sw_dump(IN ftree_fabric_t * p_ftree, IN ftree_sw_t * p_sw)
 
 	OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
 		"Switch index: %s, GUID: 0x%016" PRIx64
-		", Ports: %u DOWN, %u UP\n",
+		", Ports: %u DOWN, %u SIBLINGS, %u UP\n",
 		tuple_to_str(p_sw->tuple), sw_get_guid_ho(p_sw),
-		p_sw->down_port_groups_num, p_sw->up_port_groups_num);
+		p_sw->down_port_groups_num, p_sw->sibling_port_groups_num,
+		p_sw->up_port_groups_num);
 
 	for (i = 0; i < p_sw->down_port_groups_num; i++)
 		port_group_dump(p_ftree, p_sw->down_port_groups[i],
 				FTREE_DIRECTION_DOWN);
+	for (i = 0; i < p_sw->sibling_port_groups_num; i++)
+		port_group_dump(p_ftree, p_sw->sibling_port_groups[i],
+				FTREE_DIRECTION_SAME);
 	for (i = 0; i < p_sw->up_port_groups_num; i++)
 		port_group_dump(p_ftree, p_sw->up_port_groups[i],
 				FTREE_DIRECTION_UP);
@@ -652,6 +669,9 @@ static ftree_port_group_t *sw_get_port_group_by_remote_lid(IN ftree_sw_t * p_sw,
 	if (direction == FTREE_DIRECTION_UP) {
 		port_groups = p_sw->up_port_groups;
 		size = p_sw->up_port_groups_num;
+	} else if (direction == FTREE_DIRECTION_SAME) {
+		port_groups = p_sw->sibling_port_groups;
+		size = p_sw->sibling_port_groups_num;
 	} else {
 		port_groups = p_sw->down_port_groups;
 		size = p_sw->down_port_groups_num;
@@ -687,10 +707,14 @@ static void sw_add_port(IN ftree_sw_t * p_sw, IN uint8_t port_num,
 					    p_remote_hca_or_sw, FALSE, FALSE);
 		CL_ASSERT(p_group);
 
-		if (direction == FTREE_DIRECTION_UP)
+		if (direction == FTREE_DIRECTION_UP) {
 			p_sw->up_port_groups[p_sw->up_port_groups_num++] =
 			    p_group;
-		else
+		} else if (direction == FTREE_DIRECTION_SAME) {
+			p_sw->sibling_port_groups[p_sw->
+						  sibling_port_groups_num++] =
+			    p_group;
+		} else
 			p_sw->down_port_groups[p_sw->down_port_groups_num++] =
 			    p_group;
 	}
@@ -1997,6 +2021,34 @@ bubble_sort_up(ftree_port_group_t ** p_group_array, uint32_t nmemb)
 	p_group_array[0]->hca_or_sw.p_sw->counter_up_changed = FALSE;
 }
 
+static inline void
+bubble_sort_siblings(ftree_port_group_t ** p_group_array, uint32_t nmemb)
+{
+	uint32_t i = 0;
+	uint32_t j = 0;
+	ftree_port_group_t *tmp = p_group_array[0];
+
+	/* While we did modifications on the array order */
+	/* i may grew above array length but next loop will fail and tmp will be null for the next time
+	 * this way we save a test i < nmemb for each pass through the loop */
+	for (i = 0; tmp != NULL; i++) {
+		/* Assume the array is orderd */
+		tmp = NULL;
+		/* Comparing elements j and j-1 */
+		for (j = 1; j < (nmemb - i); j++) {
+			/* If they are the wrong way around */
+			if (p_group_array[j]->counter_up <
+			    p_group_array[j - 1]->counter_up) {
+				/* We invert them */
+				tmp = p_group_array[j - 1];
+				p_group_array[j - 1] = p_group_array[j];
+				p_group_array[j] = tmp;
+
+			}
+		}
+	}
+}
+
 /*
  * Function: Sorts an array of port group. Order is decide through
  * __osm_ftree_port_group_compare_load_down ( up counters, least load remote switch, biggest GUID)
@@ -2085,9 +2137,24 @@ fabric_route_upgoing_by_going_down(IN ftree_fabric_t * p_ftree,
 
 	/* foreach down-going port group (in indexing order) */
 	bubble_sort_up(p_sw->down_port_groups, p_sw->down_port_groups_num);
-	for (k = 0; k < p_sw->down_port_groups_num; k++) {
 
-		p_group = p_sw->down_port_groups[k];
+	if (p_sw->sibling_port_groups_num > 0)
+		bubble_sort_siblings(p_sw->sibling_port_groups,
+				     p_sw->sibling_port_groups_num);
+
+	for (k = 0;
+	     k <
+	     (p_sw->down_port_groups_num +
+	      (is_real_lid ? p_sw->sibling_port_groups_num : 0)); k++) {
+
+		if (k < p_sw->down_port_groups_num) {
+			p_group = p_sw->down_port_groups[k];
+		} else {
+			p_group =
+			    p_sw->sibling_port_groups[k -
+						      p_sw->
+						      down_port_groups_num];
+		}
 
 		/* If this port group doesn't point to a switch, mark
 		   that the route was created and skip to the next group */
@@ -2384,8 +2451,8 @@ fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
 		if (p_min_group->counter_down ==
 		    (p_min_group->remote_hca_or_sw.p_sw->min_counter_down +
 		     1)) {
-			recalculate_min_counter_down(p_min_group->
-						     remote_hca_or_sw.p_sw);
+			recalculate_min_counter_down
+			    (p_min_group->remote_hca_or_sw.p_sw);
 		}
 
 		if (is_real_lid) {
@@ -2533,8 +2600,84 @@ fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
 		created_route |= routed;
 	}
 
+	/* TREATING SIBLINGS !!! */
+	if (p_sw->sibling_port_groups_num > 0)
+		bubble_sort_down(p_sw->sibling_port_groups,
+				 p_sw->sibling_port_groups_num);
+
+	for (i = 0; i < p_sw->sibling_port_groups_num; i++) {
+		p_group = p_sw->sibling_port_groups[i];
+		p_remote_sw = p_group->remote_hca_or_sw.p_sw;
+
+		/* skip if target lid has been already set on remote switch fwd tbl (with a bigger hop count) */
+		if (p_remote_sw->p_osm_sw->new_lft[target_lid] != OSM_NO_PATH)
+			if (current_hops + 1 >=
+			    sw_get_least_hops(p_remote_sw, target_lid))
+				continue;
+
+		if (p_sw->is_leaf) {
+			OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
+				" - Routing SECONDARY path for LID %u: %s --> %s\n",
+				target_lid,
+				tuple_to_str(p_sw->tuple),
+				tuple_to_str(p_remote_sw->tuple));
+		}
+
+		/* Routing REAL lids on SECONDARY path means routing
+		   switch-to-switch or switch-to-CA paths.
+		   We can safely assume that switch will initiate very
+		   few traffic, so there's no point waisting runtime on
+		   trying to balance these routes - always pick port 0. */
+
+		p_min_port = NULL;
+		ports_num = (uint16_t) cl_ptr_vector_get_size(&p_group->ports);
+		for (j = 0; j < ports_num; j++) {
+			cl_ptr_vector_at(&p_group->ports, j, (void *)&p_port);
+			if (!p_min_port) {
+				/* first port that we're checking - use
+				   it as a port with the lowest load */
+				p_min_port = p_port;
+			} else if (p_port->counter_down <
+				   p_min_port->counter_down) {
+				/* this port is less loaded - use it as min */
+				p_min_port = p_port;
+			}
+		}
+
+		p_port = p_min_port;
+		//cl_ptr_vector_at(&p_group->ports, 0, (void *)&p_port);
+		p_remote_sw->p_osm_sw->new_lft[target_lid] =
+		    p_port->remote_port_num;
+
+		/* On the remote switch that is pointed by the p_group,
+		   set hops for ALL the ports in the remote group. */
+
+		set_hops_on_remote_sw(p_group, target_lid,
+				      current_hops + 1, is_target_a_sw);
+
+		/* Recursion step:
+		   Assign downgoing ports by stepping up, starting on REMOTE switch. */
+		routed = fabric_route_downgoing_by_going_up(p_ftree, p_remote_sw,	/* remote switch - used as a route-downgoing alg. next step point */
+							    p_sw,	/* this switch - prev. position switch for the function */
+							    target_lid,	/* LID that we're routing to */
+							    TRUE,	/* whether the target LID is real or dummy */
+							    FALSE,	/* whether this is path to HCA that should by tracked by counters */
+							    is_target_a_sw,	/* Wheter target lid is a switch or not */
+							    reverse_hop_credit,	/* Remaining reverse_hops allowed */
+							    reverse_hops,	/* Number of reverse_hops done up to this point */
+							    current_hops + 1);
+		created_route |= routed;
+		if (routed) {
+			p_min_group->counter_down++;
+			p_min_port->counter_down++;
+		}
+	}
+
 	/* If we don't have any reverse hop credits, we are done */
 	if (reverse_hop_credit == 0)
+		return created_route;
+
+	if (p_sw->is_leaf)
 		return created_route;
 
 	/* We explore all the down group ports */
@@ -2659,7 +2802,6 @@ static void fabric_route_to_cns(IN ftree_fabric_t * p_ftree)
 		/* We're done with the real targets (all CNs) of this leaf switch.
 		   Now route the dummy HCAs that are missing or that are non-CNs.
 		   When routing to dummy HCAs we don't fill lid matrices. */
-
 		if (p_ftree->max_cn_per_leaf > routed_targets_on_leaf) {
 			OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
 				"Routing %u dummy CAs\n",
@@ -3240,27 +3382,11 @@ static int fabric_construct_sw_ports(IN ftree_fabric_t * p_ftree,
 
 			p_remote_hca_or_sw = (void *)p_remote_sw;
 
-			if (abs(p_sw->rank - p_remote_sw->rank) != 1) {
-				OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_ERROR,
-					"ERR AB16: "
-					"Illegal link between switches with ranks %u and %u:\n"
-					"       GUID 0x%016" PRIx64
-					", LID %u, rank %u\n"
-					"       GUID 0x%016" PRIx64
-					", LID %u, rank %u\n", p_sw->rank,
-					p_remote_sw->rank,
-					sw_get_guid_ho(p_sw),
-					p_sw->base_lid, p_sw->rank,
-					sw_get_guid_ho(p_remote_sw),
-					p_remote_sw->base_lid,
-					p_remote_sw->rank);
-				res = -1;
-				goto Exit;
-			}
-
-			if (p_sw->rank > p_remote_sw->rank)
+			if (p_sw->rank > p_remote_sw->rank) {
 				direction = FTREE_DIRECTION_UP;
-			else
+			} else if (p_sw->rank == p_remote_sw->rank) {
+				direction = FTREE_DIRECTION_SAME;
+			} else
 				direction = FTREE_DIRECTION_DOWN;
 
 			/* switch LID is only in port 0 port_info structure */
