@@ -209,6 +209,7 @@ typedef struct ftree_fabric_t_ {
 	cl_qmap_t cn_guid_tbl;
 	cl_qmap_t io_guid_tbl;
 	unsigned cn_num;
+	unsigned ca_ports;
 	uint8_t leaf_switch_rank;
 	uint8_t max_switch_rank;
 	ftree_sw_t **leaf_switches;
@@ -1172,11 +1173,11 @@ static void fabric_dump_general_info(IN ftree_fabric_t * p_ftree)
 	OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_INFO,
 		"  - FatTree max switch rank: %u\n", p_ftree->max_switch_rank);
 	OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_INFO,
-		"  - Fabric has %u CAs (%u of them CNs), %u switches\n",
-		cl_qmap_count(&p_ftree->hca_tbl), p_ftree->cn_num,
-		cl_qmap_count(&p_ftree->sw_tbl));
+		"  - Fabric has %u CAs, %u CA ports (%u of them CNs), %u switches\n",
+		cl_qmap_count(&p_ftree->hca_tbl),  p_ftree->ca_ports,
+		p_ftree->cn_num, cl_qmap_count(&p_ftree->sw_tbl));
 
-	CL_ASSERT(cl_qmap_count(&p_ftree->hca_tbl) >= p_ftree->cn_num);
+	CL_ASSERT(p_ftree->ca_ports >= p_ftree->cn_num);
 
 	for (i = 0; i <= p_ftree->max_switch_rank; i++) {
 		j = 0;
@@ -3288,6 +3289,7 @@ fabric_construct_hca_ports(IN ftree_fabric_t * p_ftree, IN ftree_hca_t * p_hca)
 						  (p_osm_port)));
 			}
 		}
+		p_ftree->ca_ports++;
 
 		hca_add_port(p_hca,	/* local ftree_hca object */
 			     i,	/* local port number */
