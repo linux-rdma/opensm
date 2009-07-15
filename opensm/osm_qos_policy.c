@@ -192,7 +192,7 @@ void osm_qos_policy_port_group_destroy(osm_qos_port_group_t * p)
 osm_qos_vlarb_scope_t *osm_qos_policy_vlarb_scope_create()
 {
 	osm_qos_vlarb_scope_t *p =
-	    (osm_qos_vlarb_scope_t *) malloc(sizeof(osm_qos_sl2vl_scope_t));
+	    (osm_qos_vlarb_scope_t *) malloc(sizeof(osm_qos_vlarb_scope_t));
 	if (!p)
 		return NULL;
 
