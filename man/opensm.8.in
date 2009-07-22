@@ -1,4 +1,4 @@
-.TH OPENSM 8 "April 22, 2009" "OpenIB" "OpenIB Management"
+.TH OPENSM 8 "May 28, 2009" "OpenIB" "OpenIB Management"
 
 .SH NAME
 opensm \- InfiniBand subnet manager and administration (SM/SA)
@@ -15,6 +15,7 @@ opensm \- InfiniBand subnet manager and administration (SM/SA)
 [\-r(eassign_lids)]
 [\-R <engine name(s)> | \-\-routing_engine <engine name(s)>]
 [\-\-do_mesh_analysis]
+[\-\-lash_start_vl <vl number>]
 [\-A | \-\-ucast_cache]
 [\-z | \-\-connect_roots]
 [\-M <file name> | \-\-lid_matrix_file <file name>]
@@ -146,6 +147,10 @@ Supported engines: minhop, updn, file, ftree, lash, dor
 This option enables additional analysis for the lash routing engine to
 precondition switch port assignments in regular cartesian meshes which
 may reduce the number of SLs required to give a deadlock free routing.
+.TP
+\fB\-\-lash_start_vl\fR <vl number>
+This option sets the starting VL to use for the lash routing algorithm.
+Defaults to 0.
 .TP
 \fB\-A\fR, \fB\-\-ucast_cache\fR
 This option enables unicast routing cache and prevents routing

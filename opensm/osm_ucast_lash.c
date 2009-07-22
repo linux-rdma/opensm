@@ -486,6 +486,7 @@ static void balance_virtual_lanes(lash_t * p_lash, unsigned lanes_needed)
 	int next_switch2, output_link2;
 	int stop = 0, cycle_found;
 	int cycle_found2;
+	unsigned start_vl = p_lash->p_osm->subn.opt.lash_start_vl;
 
 	max_filled_lane = 0;
 	min_filled_lane = lanes_needed - 1;
@@ -572,8 +573,8 @@ static void balance_virtual_lanes(lash_t * p_lash, unsigned lanes_needed)
 			virtual_location[dest][src][max_filled_lane] = 0;
 			virtual_location[src][dest][min_filled_lane] = 1;
 			virtual_location[dest][src][min_filled_lane] = 1;
-			p_lash->switches[src]->routing_table[dest].lane = min_filled_lane;
-			p_lash->switches[dest]->routing_table[src].lane = min_filled_lane;
+			p_lash->switches[src]->routing_table[dest].lane = min_filled_lane + start_vl;
+			p_lash->switches[dest]->routing_table[src].lane = min_filled_lane + start_vl;
 		}
 
 		if (trials == 0)
@@ -804,6 +805,7 @@ static int lash_core(lash_t * p_lash)
 	int cycle_found2 = 0;
 	int status = 0;
 	int *switch_bitmap = NULL;	/* Bitmap to check if we have processed this pair */
+	unsigned start_vl = p_lash->p_osm->subn.opt.lash_start_vl;
 
 	OSM_LOG_ENTER(p_log);
 
@@ -902,8 +904,8 @@ static int lash_core(lash_t * p_lash)
 					}
 				}
 
-				switches[i]->routing_table[dest_switch].lane = v_lane;
-				switches[dest_switch]->routing_table[i].lane = v_lane;
+				switches[i]->routing_table[dest_switch].lane = v_lane + start_vl;
+				switches[dest_switch]->routing_table[i].lane = v_lane + start_vl;
 
 				if (cycle_found == 1 || cycle_found2 == 1) {
 					if (++lanes_needed > p_lash->vl_min)
@@ -928,13 +930,13 @@ static int lash_core(lash_t * p_lash)
 			}
 	}
 
-	OSM_LOG(p_log, OSM_LOG_INFO,
-		"Lanes needed: %d, Balancing\n", lanes_needed);
-
 	for (i = 0; i < lanes_needed; i++) {
 		OSM_LOG(p_log, OSM_LOG_INFO, "Lanes in layer %d: %d\n",
 			i, p_lash->num_mst_in_lane[i]);
 	}
+
+	OSM_LOG(p_log, OSM_LOG_INFO,
+		"Lanes needed: %d, Balancing\n", lanes_needed);
 
 	balance_virtual_lanes(p_lash, lanes_needed);
 
@@ -948,8 +950,9 @@ static int lash_core(lash_t * p_lash)
 Error_Not_Enough_Lanes:
 	status = -1;
 	OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 4D02: "
-		"Lane requirements (%d) exceed available lanes (%d)\n",
-		lanes_needed, p_lash->vl_min);
+		"Lane requirements (%d) exceed available lanes (%d)"
+		" with starting lane (%d)\n",
+		lanes_needed, p_lash->vl_min, start_vl);
 Exit:
 	if (switch_bitmap)
 		free(switch_bitmap);
@@ -1177,10 +1180,18 @@ static int discover_network_properties(lash_t * p_lash)
 	if (vl_min > 15)
 		vl_min = 15;
 
-	p_lash->vl_min = vl_min;
+	if (p_lash->p_osm->subn.opt.lash_start_vl >= vl_min) {
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 4D03: "
+			"Start VL(%d) too high for min operational vl(%d)\n",
+			p_lash->p_osm->subn.opt.lash_start_vl, vl_min);
+		return -1;
+	}
+
+	p_lash->vl_min = vl_min - p_lash->p_osm->subn.opt.lash_start_vl;
 
 	OSM_LOG(p_log, OSM_LOG_INFO,
-		"min operational vl(%d) max_switches(%d)\n", p_lash->vl_min,
+		"min operational vl(%d) start vl(%d) max_switches(%d)\n",
+		p_lash->vl_min, p_lash->p_osm->subn.opt.lash_start_vl,
 		p_lash->num_switches);
 	return 0;
 }
@@ -1231,7 +1242,8 @@ static int lash_process(void *context)
 	populate_fwd_tbls(p_lash);
 
 Exit:
-	free_lash_structures(p_lash);
+	if (p_lash->vl_min)
+		free_lash_structures(p_lash);
 	OSM_LOG_EXIT(p_log);
 
 	return return_status;
@@ -1286,7 +1298,7 @@ uint8_t osm_get_lash_sl(osm_opensm_t * p_osm, const osm_port_t * p_src_port,
 
 	src_id = get_lash_id(p_sw);
 	if (src_id == dst_id)
-		return OSM_DEFAULT_SL;
+		return p_osm->subn.opt.lash_start_vl;
 
 	return (uint8_t) ((switch_t *) p_sw->priv)->routing_table[dst_id].lane;
 }

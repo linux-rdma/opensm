@@ -3,6 +3,7 @@
  * Copyright (c) 2002-2008 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2008 Xsigo Systems Inc.  All rights reserved.
+ * Copyright (c) 2009 System Fabric Works, Inc. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -389,6 +390,7 @@ static const opt_rec_t opt_tbl[] = {
 	{ "no_clients_rereg", OPT_OFFSET(no_clients_rereg), opts_parse_boolean, NULL, 1 },
 	{ "prefix_routes_file", OPT_OFFSET(prefix_routes_file), opts_parse_charp, NULL, 0 },
 	{ "consolidate_ipv6_snm_req", OPT_OFFSET(consolidate_ipv6_snm_req), opts_parse_boolean, NULL, 1 },
+	{ "lash_start_vl", OPT_OFFSET(lash_start_vl), opts_parse_uint8, NULL, 1 },
 	{0}
 };
 
@@ -749,6 +751,7 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * const p_opt)
 	p_opt->no_clients_rereg = FALSE;
 	p_opt->prefix_routes_file = strdup(OSM_DEFAULT_PREFIX_ROUTES_FILE);
 	p_opt->consolidate_ipv6_snm_req = FALSE;
+	p_opt->lash_start_vl = 0;
 	subn_init_qos_options(&p_opt->qos_options, NULL);
 	subn_init_qos_options(&p_opt->qos_ca_options, NULL);
 	subn_init_qos_options(&p_opt->qos_sw0_options, NULL);
@@ -1430,6 +1433,11 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t *const p_opts)
 		"# Do mesh topology analysis (for LASH algorithm)\n"
 		"do_mesh_analysis %s\n\n",
 		p_opts->do_mesh_analysis ? "TRUE" : "FALSE");
+
+	fprintf(out,
+		"# Starting VL for LASH algorithm\n"
+		"lash_start_vl %d\n\n",
+		p_opts->lash_start_vl);
 
 	fprintf(out,
 		"# SA database file name\nsa_db_file %s\n\n",

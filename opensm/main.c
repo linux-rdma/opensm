@@ -3,6 +3,7 @@
  * Copyright (c) 2002-2008 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2009 HNR Consulting. All rights reserved.
+ * Copyright (c) 2009 System Fabric Works, Inc. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -181,6 +182,9 @@ static void show_usage(void)
 	       "          routing engine to precondition switch port assignments\n"
 	       "          in regular cartesian meshes which may reduce the number\n"
 	       "          of SLs required to give a deadlock free routing\n\n");
+	printf("--lash_start_vl <vl number>\n"
+		   "          Sets the starting VL to use for the lash routing algorithm.\n"
+		   "          Defaults to 0.\n");
 	printf("--connect_roots, -z\n"
 	       "          This option enforces a routing engine (currently\n"
 	       "          up/down only) to make connectivity between root switches\n"
@@ -601,6 +605,7 @@ int main(int argc, char *argv[])
 		{"prefix_routes_file", 1, NULL, 3},
 		{"consolidate_ipv6_snm_req", 0, NULL, 4},
 		{"do_mesh_analysis", 0, NULL, 5},
+		{"lash_start_vl", 1, NULL, 6},
 		{NULL, 0, NULL, 0}	/* Required at the end of the array */
 	};
 
@@ -950,6 +955,15 @@ int main(int argc, char *argv[])
 			break;
 		case 5:
 			opt.do_mesh_analysis = TRUE;
+			break;
+		case 6:
+			temp = strtol(optarg, NULL, 0);
+			if (temp < 0 || temp >= IB_MAX_NUM_VLS) {
+				fprintf(stderr,
+					"ERROR: starting lash vl must be between 0 and 15\n");
+				return (-1);
+			}
+			opt.lash_start_vl = (uint8_t) temp;
 			break;
 		case 'h':
 		case '?':

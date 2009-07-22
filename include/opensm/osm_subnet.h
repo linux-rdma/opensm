@@ -3,6 +3,7 @@
  * Copyright (c) 2002-2008 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2008 Xsigo Systems Inc.  All rights reserved.
+ * Copyright (c) 2009 System Fabric Works, Inc. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -221,6 +222,7 @@ typedef struct osm_subn_opt {
 	char *prefix_routes_file;
 	boolean_t consolidate_ipv6_snm_req;
 	struct osm_subn_opt *file_opts; /* used for update */
+	uint8_t lash_start_vl;			/* starting vl to use in lash */
 } osm_subn_opt_t;
 /*
 * FIELDS
