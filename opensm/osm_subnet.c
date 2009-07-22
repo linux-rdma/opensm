@@ -1444,7 +1444,7 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t *const p_opts)
 
 	fprintf(out,
 		"# Starting VL for LASH algorithm\n"
-		"lash_start_vl %d\n\n",
+		"lash_start_vl %u\n\n",
 		p_opts->lash_start_vl);
 
 	fprintf(out,
