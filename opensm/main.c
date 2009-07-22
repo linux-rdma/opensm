@@ -910,7 +910,7 @@ int main(int argc, char *argv[])
 			printf(" I/O Node Guid File: %s\n", opt.io_guid_file);
 			break;
 		case 'H':
-			opt.max_reverse_hops =  atoi(optarg);
+			opt.max_reverse_hops = atoi(optarg);
 			printf(" Max Reverse Hops: %d\n", opt.max_reverse_hops);
 			break;
 		case 'm':
@@ -964,6 +964,7 @@ int main(int argc, char *argv[])
 				return (-1);
 			}
 			opt.lash_start_vl = (uint8_t) temp;
+			printf(" LASH starting VL = %d\n", opt.lash_start_vl);
 			break;
 		case 'h':
 		case '?':
