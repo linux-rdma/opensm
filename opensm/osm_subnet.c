@@ -391,6 +391,7 @@ static const opt_rec_t opt_tbl[] = {
 	{ "prefix_routes_file", OPT_OFFSET(prefix_routes_file), opts_parse_charp, NULL, 0 },
 	{ "consolidate_ipv6_snm_req", OPT_OFFSET(consolidate_ipv6_snm_req), opts_parse_boolean, NULL, 1 },
 	{ "lash_start_vl", OPT_OFFSET(lash_start_vl), opts_parse_uint8, NULL, 1 },
+	{ "sm_sl", OPT_OFFSET(sm_sl), opts_parse_uint8, NULL, 1 },
 	{0}
 };
 
@@ -760,6 +761,7 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * const p_opt)
 	p_opt->prefix_routes_file = strdup(OSM_DEFAULT_PREFIX_ROUTES_FILE);
 	p_opt->consolidate_ipv6_snm_req = FALSE;
 	p_opt->lash_start_vl = 0;
+	p_opt->sm_sl = OSM_DEFAULT_SL;
 	subn_init_qos_options(&p_opt->qos_options, NULL);
 	subn_init_qos_options(&p_opt->qos_ca_options, NULL);
 	subn_init_qos_options(&p_opt->qos_sw0_options, NULL);
@@ -1277,6 +1279,8 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t *const p_opts)
 		"# enhanced switch port 0. If TRUE, LMC value for subnet is used for\n"
 		"# ESP0. Otherwise, LMC value for ESP0s is 0.\n"
 		"lmc_esp0 %s\n\n"
+		"# sm_sl determines SMSL used for SM/SA communication\n"
+		"sm_sl %u\n\n"
 		"# The code of maximal time a packet can live in a switch\n"
 		"# The actual time is 4.096usec * 2^<packet_life_time>\n"
 		"# The value 0x14 disables this mechanism\n"
@@ -1326,6 +1330,7 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t *const p_opts)
 		cl_ntoh64(p_opts->subnet_prefix),
 		p_opts->lmc,
 		p_opts->lmc_esp0 ? "TRUE" : "FALSE",
+		p_opts->sm_sl,
 		p_opts->packet_life_time,
 		p_opts->vl_stall_count,
 		p_opts->leaf_vl_stall_count,

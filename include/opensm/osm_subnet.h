@@ -224,6 +224,7 @@ typedef struct osm_subn_opt {
 	boolean_t consolidate_ipv6_snm_req;
 	struct osm_subn_opt *file_opts; /* used for update */
 	uint8_t lash_start_vl;			/* starting vl to use in lash */
+	uint8_t sm_sl;			/* which SL to use for SM/SA communication */
 } osm_subn_opt_t;
 /*
 * FIELDS

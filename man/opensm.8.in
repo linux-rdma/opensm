@@ -12,6 +12,7 @@ opensm \- InfiniBand subnet manager and administration (SM/SA)
 [\-l(mc) <LMC>]
 [\-p(riority) <PRIORITY>]
 [\-smkey <SM_Key>]
+[\-\-sm_sl <SL number>]
 [\-r(eassign_lids)]
 [\-R <engine name(s)> | \-\-routing_engine <engine name(s)>]
 [\-\-do_mesh_analysis]
@@ -128,6 +129,10 @@ This will effect SM authentication.
 Note that OpenSM version 3.2.1 and below used the default value '1'
 in a host byte order, it is fixed now but you may need this option to
 interoperate with old OpenSM running on a little endian machine.
+.TP
+\fB\-\-sm_sl\fR <SL number>
+This option sets the SL to use for communication with the SM/SA.
+Defaults to 0.
 .TP
 \fB\-r\fR, \fB\-\-reassign_lids\fR
 This option causes OpenSM to reassign LIDs to all

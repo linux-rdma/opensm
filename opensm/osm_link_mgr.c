@@ -71,7 +71,7 @@ static uint8_t link_mgr_get_smsl(IN osm_sm_t * sm, IN osm_physp_t * p_physp)
 	if (p_osm->routing_engine_used != OSM_ROUTING_ENGINE_TYPE_LASH) {
 		/* Use default SL if lash routing is not used */
 		OSM_LOG_EXIT(sm->p_log);
-		return (OSM_DEFAULT_SL);
+		return (sm->p_subn->opt.sm_sl);
 	}
 
 	/* Find osm_port of the SM itself = dest_port */

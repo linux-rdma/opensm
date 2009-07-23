@@ -185,6 +185,8 @@ static void show_usage(void)
 	printf("--lash_start_vl <vl number>\n"
 		   "          Sets the starting VL to use for the lash routing algorithm.\n"
 		   "          Defaults to 0.\n");
+	printf("--sm_sl <sl number>\n"
+		   "          Sets the SL to use to communicate with the SM/SA. Defaults to 0.\n\n");
 	printf("--connect_roots, -z\n"
 	       "          This option enforces a routing engine (currently\n"
 	       "          up/down only) to make connectivity between root switches\n"
@@ -606,6 +608,7 @@ int main(int argc, char *argv[])
 		{"consolidate_ipv6_snm_req", 0, NULL, 4},
 		{"do_mesh_analysis", 0, NULL, 5},
 		{"lash_start_vl", 1, NULL, 6},
+		{"sm_sl", 1, NULL, 7},
 		{NULL, 0, NULL, 0}	/* Required at the end of the array */
 	};
 
@@ -965,6 +968,15 @@ int main(int argc, char *argv[])
 			}
 			opt.lash_start_vl = (uint8_t) temp;
 			printf(" LASH starting VL = %d\n", opt.lash_start_vl);
+			break;
+		case 7:
+			temp = strtol(optarg, NULL, 0);
+			if (temp < 0 || temp > 15) {
+				fprintf(stderr,
+					"ERROR: SM's SL must be between 0 and 15\n");
+				return (-1);
+			}
+			opt.sm_sl = (uint8_t) temp;
 			break;
 		case 'h':
 		case '?':
