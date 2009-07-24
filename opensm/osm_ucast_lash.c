@@ -123,8 +123,7 @@ static void connect_switches(lash_t * p_lash, int sw1, int sw2, int phy_port_1)
 	node->num_links++;
 
 	OSM_LOG(p_log, OSM_LOG_VERBOSE,
-		"LASH connect: %d, %d, %d\n", sw1, sw2,
-		phy_port_1);
+		"LASH connect: %d, %d, %d\n", sw1, sw2, phy_port_1);
 }
 
 static osm_switch_t *get_osm_switch_from_port(const osm_port_t * port)
@@ -136,19 +135,6 @@ static osm_switch_t *get_osm_switch_from_port(const osm_port_t * port)
 		return p->p_remote_physp->p_node->sw;
 	return NULL;
 }
-
-#if 0
-static int randint(int high)
-{
-	int r;
-
-	if (high == 0)
-		return 0;
-	r = rand();
-	high++;
-	return (r % high);
-}
-#endif
 
 static int cycle_exists(cdg_vertex_t * start, cdg_vertex_t * current,
 			cdg_vertex_t * prev, int visit_num)
@@ -277,7 +263,7 @@ inline static void dequeue(cl_list_t * bfsq, switch_t ** sw)
 
 static int get_phys_connection(switch_t *sw, int switch_to)
 {
-	unsigned int i = 0;
+	unsigned int i;
 
 	for (i = 0; i < sw->node->num_links; i++)
 		if (sw->node->links[i]->switch_id == switch_to)
@@ -327,10 +313,9 @@ static void generate_routing_func_for_mst(lash_t * p_lash, int sw_id,
 
 		while (i_dest != NULL) {
 			if (sw->routing_table[i_dest->switch_id].out_link ==
-			    NONE) {
+			    NONE)
 				sw->routing_table[i_dest->switch_id].out_link =
 				    get_phys_connection(sw, next_switch);
-			}
 
 			prev = i_dest;
 			i_dest = i_dest->next;
@@ -739,9 +724,8 @@ static int init_lash_structures(lash_t * p_lash)
 			if (p_lash->cdg_vertex_matrix[i][j] == NULL)
 				goto Exit_Mem_Error;
 
-			for (k = 0; k < num_switches; k++) {
+			for (k = 0; k < num_switches; k++)
 				p_lash->cdg_vertex_matrix[i][j][k] = NULL;
-			}
 		}
 	}
 
@@ -767,9 +751,8 @@ static int init_lash_structures(lash_t * p_lash)
 			    (int *)malloc(vl_min * sizeof(int *));
 			if (p_lash->virtual_location[i][j] == NULL)
 				goto Exit_Mem_Error;
-			for (k = 0; k < vl_min; k++) {
+			for (k = 0; k < vl_min; k++)
 				p_lash->virtual_location[i][j][k] = 0;
-			}
 		}
 	}
 
@@ -930,20 +913,18 @@ static int lash_core(lash_t * p_lash)
 			}
 	}
 
-	for (i = 0; i < lanes_needed; i++) {
+	for (i = 0; i < lanes_needed; i++)
 		OSM_LOG(p_log, OSM_LOG_INFO, "Lanes in layer %d: %d\n",
 			i, p_lash->num_mst_in_lane[i]);
-	}
 
 	OSM_LOG(p_log, OSM_LOG_INFO,
 		"Lanes needed: %d, Balancing\n", lanes_needed);
 
 	balance_virtual_lanes(p_lash, lanes_needed);
 
-	for (i = 0; i < lanes_needed; i++) {
+	for (i = 0; i < lanes_needed; i++)
 		OSM_LOG(p_log, OSM_LOG_INFO, "Lanes in layer %d: %d\n",
 			i, p_lash->num_mst_in_lane[i]);
-	}
 
 	goto Exit;
 
@@ -1131,7 +1112,7 @@ static void lash_cleanup(lash_t * p_lash)
 
 static int discover_network_properties(lash_t * p_lash)
 {
-	int i = 0, id = 0;
+	int i, id = 0;
 	uint8_t vl_min;
 	osm_subn_t *p_subn = &p_lash->p_osm->subn;
 	osm_switch_t *p_next_sw, *p_sw;
