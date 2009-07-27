@@ -980,6 +980,7 @@ int main(int argc, char *argv[])
 				return (-1);
 			}
 			opt.sm_sl = (uint8_t) temp;
+			printf(" SMSL = %d\n", opt.sm_sl);
 			break;
 		case 'h':
 		case '?':
