@@ -132,7 +132,8 @@ static void show_usage(void)
 	printf("--version\n          Prints OpenSM version and exits.\n\n");
 	printf("--config, -F <file-name>\n"
 	       "          The name of the OpenSM config file. When not specified\n"
-	       "          " OSM_DEFAULT_CONFIG_FILE " will be used (if exists).\n\n");
+	       "          " OSM_DEFAULT_CONFIG_FILE
+	       " will be used (if exists).\n\n");
 	printf("--create-config, -c <file-name>\n"
 	       "          OpenSM will dump its configuration to the specified file and exit.\n"
 	       "          This is a way to generate OpenSM configuration file template.\n\n");
@@ -183,10 +184,10 @@ static void show_usage(void)
 	       "          in regular cartesian meshes which may reduce the number\n"
 	       "          of SLs required to give a deadlock free routing\n\n");
 	printf("--lash_start_vl <vl number>\n"
-		   "          Sets the starting VL to use for the lash routing algorithm.\n"
-		   "          Defaults to 0.\n");
+	       "          Sets the starting VL to use for the lash routing algorithm.\n"
+	       "          Defaults to 0.\n");
 	printf("--sm_sl <sl number>\n"
-		   "          Sets the SL to use to communicate with the SM/SA. Defaults to 0.\n\n");
+	       "          Sets the SL to use to communicate with the SM/SA. Defaults to 0.\n\n");
 	printf("--connect_roots, -z\n"
 	       "          This option enforces a routing engine (currently\n"
 	       "          up/down only) to make connectivity between root switches\n"
@@ -644,7 +645,7 @@ int main(int argc, char *argv[])
 		}
 	} while (next_option != -1);
 
-	optind = 0; /* reset command line */
+	optind = 0;		/* reset command line */
 
 	if (config_file && osm_subn_parse_conf_file(config_file, &opt) < 0)
 		printf("\nFail to parse config file \'%s\'\n", config_file);
@@ -654,7 +655,7 @@ int main(int argc, char *argv[])
 		next_option = getopt_long_only(argc, argv, short_option,
 					       long_option, NULL);
 		switch (next_option) {
-		case 12: /* --version - already printed above */
+		case 12:	/* --version - already printed above */
 			exit(0);
 			break;
 		case 'F':
@@ -905,7 +906,8 @@ int main(int argc, char *argv[])
 
 		case 'u':
 			SET_STR_OPT(opt.cn_guid_file, optarg);
-			printf(" Compute Node Guid File: %s\n", opt.cn_guid_file);
+			printf(" Compute Node Guid File: %s\n",
+			       opt.cn_guid_file);
 			break;
 
 		case 'G':
@@ -923,7 +925,8 @@ int main(int argc, char *argv[])
 
 		case 'X':
 			SET_STR_OPT(opt.guid_routing_order_file, optarg);
-			printf(" GUID Routing Order File: %s\n", opt.guid_routing_order_file);
+			printf(" GUID Routing Order File: %s\n",
+			       opt.guid_routing_order_file);
 			break;
 
 		case 'x':
