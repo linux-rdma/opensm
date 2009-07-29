@@ -314,7 +314,7 @@ void osm_vl15_post(IN osm_vl15_t * p_vl, IN osm_madw_t * p_madw)
 
 	CL_ASSERT(p_vl->state == OSM_VL15_STATE_READY);
 
-	OSM_LOG(p_vl->p_log, OSM_LOG_DEBUG, "Posting p_madw = 0x%p\n", p_madw);
+	OSM_LOG(p_vl->p_log, OSM_LOG_DEBUG, "Posting p_madw = %p\n", p_madw);
 
 	/*
 	   Determine in which fifo to place the pending madw.
