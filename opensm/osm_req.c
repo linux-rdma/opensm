@@ -60,13 +60,12 @@
 /**********************************************************************
   The plock MAY or MAY NOT be held before calling this function.
 **********************************************************************/
-ib_api_status_t
-osm_req_get(IN osm_sm_t * sm,
-	    IN const osm_dr_path_t * const p_path,
-	    IN const uint16_t attr_id,
-	    IN const uint32_t attr_mod,
-	    IN const cl_disp_msgid_t err_msg,
-	    IN const osm_madw_context_t * const p_context)
+ib_api_status_t osm_req_get(IN osm_sm_t * sm,
+			    IN const osm_dr_path_t * const p_path,
+			    IN const uint16_t attr_id,
+			    IN const uint32_t attr_mod,
+			    IN const cl_disp_msgid_t err_msg,
+			    IN const osm_madw_context_t * const p_context)
 {
 	osm_madw_t *p_madw;
 	ib_api_status_t status = IB_SUCCESS;
@@ -85,8 +84,8 @@ osm_req_get(IN osm_sm_t * sm,
 
 	/* p_context may be NULL. */
 
-	p_madw = osm_mad_pool_get(sm->p_mad_pool,
-				  p_path->h_bind, MAD_BLOCK_SIZE, NULL);
+	p_madw = osm_mad_pool_get(sm->p_mad_pool, p_path->h_bind,
+				  MAD_BLOCK_SIZE, NULL);
 
 	if (p_madw == NULL) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR,
@@ -102,14 +101,10 @@ osm_req_get(IN osm_sm_t * sm,
 		ib_get_sm_attr_str(attr_id), cl_ntoh16(attr_id),
 		cl_ntoh32(attr_mod), cl_ntoh64(tid));
 
-	ib_smp_init_new(osm_madw_get_smp_ptr(p_madw),
-			IB_MAD_METHOD_GET,
-			tid,
-			attr_id,
-			attr_mod,
-			p_path->hop_count,
-			sm->p_subn->opt.m_key,
-			p_path->path, IB_LID_PERMISSIVE, IB_LID_PERMISSIVE);
+	ib_smp_init_new(osm_madw_get_smp_ptr(p_madw), IB_MAD_METHOD_GET,
+			tid, attr_id, attr_mod, p_path->hop_count,
+			sm->p_subn->opt.m_key, p_path->path,
+			IB_LID_PERMISSIVE, IB_LID_PERMISSIVE);
 
 	p_madw->mad_addr.dest_lid = IB_LID_PERMISSIVE;
 	p_madw->mad_addr.addr_type.smi.source_lid = IB_LID_PERMISSIVE;
@@ -135,15 +130,14 @@ Exit:
 /**********************************************************************
   The plock MAY or MAY NOT be held before calling this function.
 **********************************************************************/
-ib_api_status_t
-osm_req_set(IN osm_sm_t * sm,
-	    IN const osm_dr_path_t * const p_path,
-	    IN const uint8_t * const p_payload,
-	    IN const size_t payload_size,
-	    IN const uint16_t attr_id,
-	    IN const uint32_t attr_mod,
-	    IN const cl_disp_msgid_t err_msg,
-	    IN const osm_madw_context_t * const p_context)
+ib_api_status_t osm_req_set(IN osm_sm_t * sm,
+			    IN const osm_dr_path_t * const p_path,
+			    IN const uint8_t * const p_payload,
+			    IN const size_t payload_size,
+			    IN const uint16_t attr_id,
+			    IN const uint32_t attr_mod,
+			    IN const cl_disp_msgid_t err_msg,
+			    IN const osm_madw_context_t * const p_context)
 {
 	osm_madw_t *p_madw;
 	ib_api_status_t status = IB_SUCCESS;
@@ -163,8 +157,8 @@ osm_req_set(IN osm_sm_t * sm,
 
 	/* p_context may be NULL. */
 
-	p_madw = osm_mad_pool_get(sm->p_mad_pool,
-				  p_path->h_bind, MAD_BLOCK_SIZE, NULL);
+	p_madw = osm_mad_pool_get(sm->p_mad_pool, p_path->h_bind,
+				  MAD_BLOCK_SIZE, NULL);
 
 	if (p_madw == NULL) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR,
@@ -180,14 +174,10 @@ osm_req_set(IN osm_sm_t * sm,
 		ib_get_sm_attr_str(attr_id), cl_ntoh16(attr_id),
 		cl_ntoh32(attr_mod), cl_ntoh64(tid));
 
-	ib_smp_init_new(osm_madw_get_smp_ptr(p_madw),
-			IB_MAD_METHOD_SET,
-			tid,
-			attr_id,
-			attr_mod,
-			p_path->hop_count,
-			sm->p_subn->opt.m_key,
-			p_path->path, IB_LID_PERMISSIVE, IB_LID_PERMISSIVE);
+	ib_smp_init_new(osm_madw_get_smp_ptr(p_madw), IB_MAD_METHOD_SET,
+			tid, attr_id, attr_mod, p_path->hop_count,
+			sm->p_subn->opt.m_key, p_path->path,
+			IB_LID_PERMISSIVE, IB_LID_PERMISSIVE);
 
 	p_madw->mad_addr.dest_lid = IB_LID_PERMISSIVE;
 	p_madw->mad_addr.addr_type.smi.source_lid = IB_LID_PERMISSIVE;
@@ -212,7 +202,7 @@ Exit:
 	return (status);
 }
 
-int osm_send_trap144(osm_sm_t *sm, ib_net16_t local)
+int osm_send_trap144(osm_sm_t * sm, ib_net16_t local)
 {
 	osm_madw_t *madw;
 	ib_smp_t *smp;
@@ -265,11 +255,11 @@ int osm_send_trap144(osm_sm_t *sm, ib_net16_t local)
 	smp->mgmt_class = IB_MCLASS_SUBN_LID;
 	smp->class_ver = 1;
 	smp->method = IB_MAD_METHOD_TRAP;
-	smp->trans_id = cl_hton64((uint64_t)cl_atomic_inc(&sm->sm_trans_id));
+	smp->trans_id = cl_hton64((uint64_t) cl_atomic_inc(&sm->sm_trans_id));
 	smp->attr_id = IB_MAD_ATTR_NOTICE;
 	smp->m_key = 0;
 
-	ntc = (ib_mad_notice_attr_t *)smp->data;
+	ntc = (ib_mad_notice_attr_t *) smp->data;
 
 	ntc->generic_type = 0x80 | IB_NOTICE_TYPE_INFO;
 	ib_notice_set_prod_type_ho(ntc, osm_node_get_type(port->p_node));
@@ -277,14 +267,13 @@ int osm_send_trap144(osm_sm_t *sm, ib_net16_t local)
 	ntc->issuer_lid = pi->base_lid;
 	ntc->data_details.ntc_144.lid = pi->base_lid;
 	ntc->data_details.ntc_144.local_changes = local ?
-		TRAP_144_MASK_OTHER_LOCAL_CHANGES : 0;
+	    TRAP_144_MASK_OTHER_LOCAL_CHANGES : 0;
 	ntc->data_details.ntc_144.new_cap_mask = pi->capability_mask;
 	ntc->data_details.ntc_144.change_flgs = local;
 
 	OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 		"Sending Trap 144, TID 0x%" PRIx64 " to SM lid %u\n",
-		cl_ntoh64(smp->trans_id),
-		cl_ntoh16(madw->mad_addr.dest_lid));
+		cl_ntoh64(smp->trans_id), cl_ntoh16(madw->mad_addr.dest_lid));
 
 	osm_vl15_post(sm->p_vl15, madw);
 
