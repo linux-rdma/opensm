@@ -296,8 +296,8 @@ static void shortest_path(lash_t * p_lash, int ir)
 	cl_list_destroy(&bfsq);
 }
 
-static void generate_routing_func_for_mst(lash_t * p_lash, int sw_id,
-					  reachable_dest_t ** destinations)
+static int generate_routing_func_for_mst(lash_t * p_lash, int sw_id,
+					 reachable_dest_t ** destinations)
 {
 	int i, next_switch;
 	switch_t *sw = p_lash->switches[sw_id];
@@ -306,7 +306,8 @@ static void generate_routing_func_for_mst(lash_t * p_lash, int sw_id,
 
 	for (i = 0; i < num_channels; i++) {
 		next_switch = sw->dij_channels[i];
-		generate_routing_func_for_mst(p_lash, next_switch, &dest);
+		if (generate_routing_func_for_mst(p_lash, next_switch, &dest))
+			return -1;
 
 		i_dest = dest;
 		prev = i_dest;
@@ -327,9 +328,12 @@ static void generate_routing_func_for_mst(lash_t * p_lash, int sw_id,
 	}
 
 	i_dest = (reachable_dest_t *) malloc(sizeof(reachable_dest_t));
+	if (!i_dest)
+		return -1;
 	i_dest->switch_id = sw->id;
 	i_dest->next = concat_dest;
 	*destinations = i_dest;
+	return 0;
 }
 
 static void generate_cdg_for_sp(lash_t * p_lash, int sw, int dest_switch,
@@ -707,6 +711,8 @@ static int init_lash_structures(lash_t * p_lash)
 	/* initialise cdg_vertex_matrix[num_switches][num_switches][num_switches] */
 	p_lash->cdg_vertex_matrix =
 	    (cdg_vertex_t ****) malloc(vl_min * sizeof(cdg_vertex_t ****));
+	if (p_lash->cdg_vertex_matrix == NULL)
+		goto Exit_Mem_Error;
 	for (i = 0; i < vl_min; i++) {
 		p_lash->cdg_vertex_matrix[i] =
 		    (cdg_vertex_t ***) malloc(num_switches *
@@ -800,7 +806,12 @@ static int lash_core(lash_t * p_lash)
 	for (i = 0; i < num_switches; i++) {
 
 		shortest_path(p_lash, i);
-		generate_routing_func_for_mst(p_lash, i, &dests);
+		if (generate_routing_func_for_mst(p_lash, i, &dests)) {
+			status = -1;
+			OSM_LOG(p_log, OSM_LOG_ERROR,
+				"generate_routing_func_for_mst failed\n");
+			goto Exit;
+		}
 
 		idest = dests;
 		while (idest != NULL) {
