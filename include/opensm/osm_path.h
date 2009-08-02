@@ -156,7 +156,7 @@ osm_dr_path_init(IN osm_dr_path_t * const p_path,
 	CL_ASSERT(hop_count < IB_SUBNET_PATH_HOPS_MAX);
 	p_path->h_bind = h_bind;
 	p_path->hop_count = hop_count;
-	memcpy(p_path->path, path, IB_SUBNET_PATH_HOPS_MAX);
+	memcpy(p_path->path, path, hop_count + 1);
 }
 
 /*
