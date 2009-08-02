@@ -470,7 +470,7 @@ const char *osm_get_disp_msg_str(IN cl_disp_msgid_t msg);
 *		[in] Dispatcher message ID value.
 *
 * RETURN VALUES
-*	Pointer to the message discription string.
+*	Pointer to the message description string.
 *
 * NOTES
 *
@@ -509,7 +509,7 @@ const char *osm_get_sm_signal_str(IN osm_signal_t signal);
 *		[in] Signal value
 *
 * RETURN VALUES
-*	Pointer to the signal discription string.
+*	Pointer to the signal description string.
 *
 * NOTES
 *
@@ -548,7 +548,7 @@ const char *osm_get_sm_mgr_signal_str(IN osm_sm_signal_t signal);
 *		[in] SM manager signal
 *
 * RETURN VALUES
-*	Pointer to the signal discription string.
+*	Pointer to the signal description string.
 *
 * NOTES
 *
@@ -571,7 +571,7 @@ const char *osm_get_sm_mgr_state_str(IN uint16_t state);
 *		[in] SM manager state
 *
 * RETURN VALUES
-*	Pointer to the state discription string.
+*	Pointer to the state description string.
 *
 * NOTES
 *
