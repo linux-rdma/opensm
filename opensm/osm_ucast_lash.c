@@ -651,8 +651,6 @@ static switch_t *switch_create(lash_t * p_lash, unsigned id, osm_switch_t * p_sw
 
 static void switch_delete(lash_t *p_lash, switch_t * sw)
 {
-	osm_mesh_node_delete(p_lash, sw);
-
 	if (sw->dij_channels)
 		free(sw->dij_channels);
 	if (sw->p_sw)
@@ -670,7 +668,6 @@ static void delete_mesh_switches(lash_t *p_lash)
 						     p_lash->switches[id]);
 	}
 }
-
 
 static void free_lash_structures(lash_t * p_lash)
 {
