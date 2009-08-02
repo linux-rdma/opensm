@@ -2,6 +2,7 @@
  * Copyright (c) 2004-2008 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2008 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
+ * Copyright (c) 2009 HNR Consulting. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -246,9 +247,15 @@ static void pi_rcv_process_switch_port(IN osm_sm_t * sm, IN osm_node_t * p_node,
 			    osm_physp_get_port_num(p_physp)) {
 				path = *osm_physp_get_dr_path_ptr(p_physp);
 
-				osm_dr_path_extend(&path,
-						   osm_physp_get_port_num
-						   (p_physp));
+				if (osm_dr_path_extend(&path,
+						       osm_physp_get_port_num
+						       (p_physp))) {
+					OSM_LOG(sm->p_log, OSM_LOG_ERROR,
+						"ERR 0F08: "
+						"DR path with hop count %d couldn't be extended\n",
+						path.hop_count);
+					break;
+				}
 
 				memset(&context, 0, sizeof(context));
 				context.ni_context.node_guid =

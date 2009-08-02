@@ -2,6 +2,7 @@
  * Copyright (c) 2004-2008 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2008 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
+ * Copyright (c) 2009 HNR Consulting. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -166,7 +167,13 @@ static void state_mgr_get_remote_port_info(IN osm_sm_t * sm,
 	/* generate a dr path leaving on the physp to the remote node */
 	p_dr_path = osm_physp_get_dr_path_ptr(p_physp);
 	memcpy(&rem_node_dr_path, p_dr_path, sizeof(osm_dr_path_t));
-	osm_dr_path_extend(&rem_node_dr_path, osm_physp_get_port_num(p_physp));
+	if (osm_dr_path_extend(&rem_node_dr_path, osm_physp_get_port_num(p_physp))) {
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 332D: "
+			"DR path with hop count %d couldn't be extended "
+			"so skipping PortInfo query\n",
+			p_dr_path->hop_count);
+		goto Exit;
+	}
 
 	memset(&mad_context, 0, sizeof(mad_context));
 
@@ -187,6 +194,7 @@ static void state_mgr_get_remote_port_info(IN osm_sm_t * sm,
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 332E: "
 			"Request for PortInfo failed\n");
 
+Exit:
 	OSM_LOG_EXIT(sm->p_log);
 }
 

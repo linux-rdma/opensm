@@ -2,6 +2,7 @@
  * Copyright (c) 2004-2008 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2008 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
+ * Copyright (c) 2009 HNR Consulting. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -85,7 +86,10 @@ static void report_duplicated_guid(IN osm_sm_t * sm, osm_physp_t * p_physp,
 			 OSM_LOG_ERROR);
 
 	path = *osm_physp_get_dr_path_ptr(p_new);
-	osm_dr_path_extend(&path, port_num);
+	if (osm_dr_path_extend(&path, port_num))
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D05: "
+			"DR path with hop count %d couldn't be extended\n",
+			path.hop_count);
 	osm_dump_dr_path(sm->p_log, &path, OSM_LOG_ERROR);
 
 	osm_log(sm->p_log, OSM_LOG_SYS,
@@ -100,7 +104,12 @@ static void requery_dup_node_info(IN osm_sm_t * sm, osm_physp_t * p_physp,
 	cl_status_t status;
 
 	path = *osm_physp_get_dr_path_ptr(p_physp->p_remote_physp);
-	osm_dr_path_extend(&path, p_physp->p_remote_physp->port_num);
+	if (osm_dr_path_extend(&path, p_physp->p_remote_physp->port_num)) {
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D08: "
+			"DR path with hop count %d couldn't be extended\n",
+			path.hop_count);
+		return;
+	}
 
 	context.ni_context.node_guid =
 	    p_physp->p_remote_physp->p_node->node_info.port_guid;

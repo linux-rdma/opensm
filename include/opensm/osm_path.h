@@ -2,6 +2,7 @@
  * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
+ * Copyright (c) 2009 HNR Consulting. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -188,15 +189,18 @@ osm_dr_path_init(IN osm_dr_path_t * const p_path,
 *
 * SYNOPSIS
 */
-static inline void
+static inline int
 osm_dr_path_extend(IN osm_dr_path_t * const p_path, IN const uint8_t port_num)
 {
 	p_path->hop_count++;
-	CL_ASSERT(p_path->hop_count < IB_SUBNET_PATH_HOPS_MAX);
+
+	if (p_path->hop_count >= IB_SUBNET_PATH_HOPS_MAX)
+		return -1;
 	/*
 	   Location 0 in the path array is reserved per IB spec.
 	 */
 	p_path->path[p_path->hop_count] = port_num;
+	return 0;
 }
 
 /*
@@ -208,7 +212,7 @@ osm_dr_path_extend(IN osm_dr_path_t * const p_path, IN const uint8_t port_num)
 *		[in] Additional port to add to the DR path.
 *
 * RETURN VALUE
-*	None.
+*	Boolean indicating whether or not path was extended.
 *
 * NOTES
 *
