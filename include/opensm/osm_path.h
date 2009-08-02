@@ -211,8 +211,9 @@ osm_dr_path_extend(IN osm_dr_path_t * const p_path, IN const uint8_t port_num)
 *	port_num
 *		[in] Additional port to add to the DR path.
 *
-* RETURN VALUE
-*	Boolean indicating whether or not path was extended.
+* RETURN VALUES
+*	0 indicates path was extended.
+*	Other than 0 indicates path was not extended.
 *
 * NOTES
 *
