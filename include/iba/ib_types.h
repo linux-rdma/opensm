@@ -3779,7 +3779,8 @@ ib_mad_init_response(IN const ib_mad_t * const p_req_mad,
 *	ib_mad_is_response
 *
 * DESCRIPTION
-*	Returns TRUE if the MAD is a response ('R' bit set),
+*	Returns TRUE if the MAD is a response ('R' bit set)
+*	or if the MAD is a TRAP REPRESS,
 *	FALSE otherwise.
 *
 * SYNOPSIS
@@ -4091,7 +4092,7 @@ static inline boolean_t OSM_API ib_smp_is_d(IN const ib_smp_t * const p_smp)
 *
 * TODO
 *	This is too big for inlining, but leave it here for now
-*	since there is not yet another convient spot.
+*	since there is not yet another convenient spot.
 *
 * SYNOPSIS
 */
