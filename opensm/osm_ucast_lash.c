@@ -5,6 +5,7 @@
  * Copyright (c) 2007      Simula Research Laboratory. All rights reserved.
  * Copyright (c) 2007      Silicon Graphics Inc. All rights reserved.
  * Copyright (c) 2008,2009 System Fabric Works, Inc. All rights reserved.
+ * Copyright (c) 2009      HNR Consulting. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -659,6 +660,18 @@ static void switch_delete(lash_t *p_lash, switch_t * sw)
 	free(sw);
 }
 
+static void delete_mesh_switches(lash_t *p_lash)
+{
+	if (p_lash->switches) {
+		unsigned id;
+		for (id = 0; ((int)id) < p_lash->num_switches; id++)
+			if (p_lash->switches[id])
+				osm_mesh_node_delete(p_lash,
+						     p_lash->switches[id]);
+	}
+}
+
+
 static void free_lash_structures(lash_t * p_lash)
 {
 	unsigned int i, j, k;
@@ -666,6 +679,8 @@ static void free_lash_structures(lash_t * p_lash)
 	osm_log_t *p_log = &p_lash->p_osm->log;
 
 	OSM_LOG_ENTER(p_log);
+
+	delete_mesh_switches(p_lash);
 
 	/* free cdg_vertex_matrix */
 	for (i = 0; i < p_lash->vl_min; i++) {
