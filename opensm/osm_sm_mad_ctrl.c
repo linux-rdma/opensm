@@ -254,7 +254,7 @@ static void sm_mad_ctrl_process_get_resp(IN osm_sm_mad_ctrl_t * p_ctrl,
 	default:
 		cl_atomic_inc(&p_ctrl->p_stats->qp0_mads_rcvd_unknown);
 		OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 3103: "
-			"Unsupported attribute = 0x%X\n",
+			"Unsupported attribute 0x%X\n",
 			cl_ntoh16(p_smp->attr_id));
 		osm_dump_dr_smp(p_ctrl->p_log, p_smp, OSM_LOG_ERROR);
 		goto Exit;
@@ -276,8 +276,9 @@ static void sm_mad_ctrl_process_get_resp(IN osm_sm_mad_ctrl_t * p_ctrl,
 
 	if (status != CL_SUCCESS) {
 		OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 3104: "
-			"Dispatcher post message failed (%s) for attribute = 0x%X\n",
-			CL_STATUS_MSG(status), cl_ntoh16(p_smp->attr_id));
+			"Dispatcher post message failed (%s) for attribute 0x%X (%s)\n",
+			CL_STATUS_MSG(status), cl_ntoh16(p_smp->attr_id),
+			ib_get_sm_attr_str(p_smp->attr_id));
 		goto Exit;
 	}
 
@@ -316,7 +317,7 @@ static void sm_mad_ctrl_process_get(IN osm_sm_mad_ctrl_t * p_ctrl,
 	default:
 		cl_atomic_inc(&p_ctrl->p_stats->qp0_mads_rcvd_unknown);
 		OSM_LOG(p_ctrl->p_log, OSM_LOG_VERBOSE,
-			"Ignoring SubnGet MAD - unsupported attribute = 0x%X\n",
+			"Ignoring SubnGet MAD - unsupported attribute 0x%X\n",
 			cl_ntoh16(p_smp->attr_id));
 		break;
 	}
@@ -393,7 +394,7 @@ static void sm_mad_ctrl_process_set(IN osm_sm_mad_ctrl_t * p_ctrl,
 	default:
 		cl_atomic_inc(&p_ctrl->p_stats->qp0_mads_rcvd_unknown);
 		OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 3107: "
-			"Unsupported attribute = 0x%X\n",
+			"Unsupported attribute 0x%X\n",
 			cl_ntoh16(p_smp->attr_id));
 		osm_dump_dr_smp(p_ctrl->p_log, p_smp, OSM_LOG_ERROR);
 		break;
@@ -480,7 +481,7 @@ static void sm_mad_ctrl_process_trap(IN osm_sm_mad_ctrl_t * p_ctrl,
 	default:
 		cl_atomic_inc(&p_ctrl->p_stats->qp0_mads_rcvd_unknown);
 		OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 3109: "
-			"Unsupported attribute = 0x%X\n",
+			"Unsupported attribute 0x%X\n",
 			cl_ntoh16(p_smp->attr_id));
 		osm_dump_dr_smp(p_ctrl->p_log, p_smp, OSM_LOG_ERROR);
 		break;
@@ -555,7 +556,7 @@ static void sm_mad_ctrl_process_trap_repress(IN osm_sm_mad_ctrl_t * p_ctrl,
 	default:
 		cl_atomic_inc(&p_ctrl->p_stats->qp0_mads_rcvd_unknown);
 		OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 3105: "
-			"Unsupported attribute = 0x%X\n",
+			"Unsupported attribute 0x%X\n",
 			cl_ntoh16(p_smp->attr_id));
 		osm_dump_dr_smp(p_ctrl->p_log, p_smp, OSM_LOG_ERROR);
 		break;
@@ -724,7 +725,9 @@ static void sm_mad_ctrl_send_err_cb(IN void *context, IN osm_madw_t * p_madw)
 	     p_smp->attr_id == IB_MAD_ATTR_SWITCH_INFO ||
 	     p_smp->attr_id == IB_MAD_ATTR_LIN_FWD_TBL)) {
 		OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 3119: "
-			"Set method failed\n");
+			"Set method failed for attribute 0x%X (%s)\n",
+			cl_ntoh16(p_smp->attr_id),
+			ib_get_sm_attr_str(p_smp->attr_id));
 		p_ctrl->p_subn->subnet_initialization_error = TRUE;
 	}
 

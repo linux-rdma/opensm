@@ -213,7 +213,7 @@ static void sa_mad_ctrl_process(IN osm_sa_mad_ctrl_t * p_ctrl,
 
 	default:
 		OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 1A01: "
-			"Unsupported attribute = 0x%X\n",
+			"Unsupported attribute 0x%X\n",
 			cl_ntoh16(p_sa_mad->attr_id));
 		osm_dump_sa_mad(p_ctrl->p_log, p_sa_mad, OSM_LOG_ERROR);
 	}
@@ -233,9 +233,10 @@ static void sa_mad_ctrl_process(IN osm_sa_mad_ctrl_t * p_ctrl,
 
 		if (status != CL_SUCCESS) {
 			OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 1A02: "
-				"Dispatcher post message failed (%s) for attribute = 0x%X\n",
+				"Dispatcher post message failed (%s) for attribute 0x%X (%s)\n",
 				CL_STATUS_MSG(status),
-				cl_ntoh16(p_sa_mad->attr_id));
+				cl_ntoh16(p_sa_mad->attr_id),
+				ib_get_sa_attr_str(p_sa_mad->attr_id));
 
 			osm_mad_pool_put(p_ctrl->p_mad_pool, p_madw);
 			goto Exit;
