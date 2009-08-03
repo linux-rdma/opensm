@@ -564,12 +564,12 @@ trap_rcv_process_request(IN osm_sm_t * sm,
 
 	/* do a sweep if we received a trap */
 	if (sm->p_subn->opt.sweep_on_trap) {
-		/* if this is trap number 128 or run_heavy_sweep is TRUE - update the
-		   force_single_heavy_sweep flag of the subnet.
-		   Sweep also on traps 144/145 - these traps signal a change of a certain
-		   port capability/system image guid.
-		   TODO: In the future we can change this to just getting PortInfo on
-		   this port instead of sweeping the entire subnet. */
+		/* if this is trap number 128 or run_heavy_sweep is TRUE -
+		   update the force_heavy_sweep flag of the subnet.
+		   Sweep also on traps 144/145 - these traps signal a change of
+		   certain port capabilities/system image guid.
+		   TODO: In the future this can be changed to just getting
+		   PortInfo on this port instead of sweeping the entire subnet. */
 		if (ib_notice_is_generic(p_ntci) &&
 		    (cl_ntoh16(p_ntci->g_or_v.generic.trap_num) == 128 ||
 		     cl_ntoh16(p_ntci->g_or_v.generic.trap_num) == 144 ||
