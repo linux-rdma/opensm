@@ -1377,8 +1377,10 @@ static void do_process_mgrp_queue(osm_sm_t * sm)
 {
 	if (sm->p_subn->sm_state != IB_SMINFO_STATE_MASTER)
 		return;
-	osm_mcast_mgr_process_mgroups(sm);
-	wait_for_pending_transactions(&sm->p_subn->p_osm->stats);
+	if (!sm->p_subn->opt.disable_multicast) {
+		osm_mcast_mgr_process_mgroups(sm);
+		wait_for_pending_transactions(&sm->p_subn->p_osm->stats);
+	}
 }
 
 void osm_state_mgr_process(IN osm_sm_t * sm, IN osm_signal_t signal)
