@@ -811,7 +811,7 @@ static int lash_core(lash_t * p_lash)
 	OSM_LOG_ENTER(p_log);
 
 	if (p_lash->p_osm->subn.opt.do_mesh_analysis && osm_do_mesh_analysis(p_lash)) {
-		OSM_LOG(p_log, OSM_LOG_ERROR, "Mesh analysis failed\n");
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 4D05: Mesh analysis failed\n");
 		goto Exit;
 	}
 
@@ -820,7 +820,7 @@ static int lash_core(lash_t * p_lash)
 		shortest_path(p_lash, i);
 		if (generate_routing_func_for_mst(p_lash, i, &dests)) {
 			status = -1;
-			OSM_LOG(p_log, OSM_LOG_ERROR,
+			OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 4D06: "
 				"generate_routing_func_for_mst failed\n");
 			goto Exit;
 		}
@@ -969,7 +969,7 @@ static unsigned get_lash_id(osm_switch_t * p_sw)
 	return ((switch_t *) p_sw->priv)->id;
 }
 
-int get_next_port(switch_t *sw, int link)
+static int get_next_port(switch_t *sw, int link)
 {
 	link_t *l = sw->node->links[link];
 	int port = l->next_port++;
