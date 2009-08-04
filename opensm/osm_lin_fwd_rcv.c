@@ -36,7 +36,7 @@
 /*
  * Abstract:
  *    Implementation of osm_lft_rcv_t.
- * This object represents the NodeDescription Receiver object.
+ * This object represents the Linear Forwarding Table Receiver object.
  * This object is part of the opensm family of objects.
  */
 
