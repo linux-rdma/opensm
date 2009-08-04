@@ -1819,10 +1819,11 @@ void osm_dump_notice(IN osm_log_t * p_log,
 					  lid2),
 				cl_ntoh32(p_ntci->data_details.ntc_257_258.key),
 				cl_ntoh32(p_ntci->data_details.ntc_257_258.
-					  qp1) >> 24,
+					  qp1) >> 28,
 				cl_ntoh32(p_ntci->data_details.ntc_257_258.
 					  qp1) & 0xffffff,
-				cl_ntoh32(p_ntci->data_details.ntc_257_258.qp2),
+				cl_ntoh32(p_ntci->data_details.ntc_257_258.
+					  qp2) & 0xffffff,
 				inet_ntop(AF_INET6, p_ntci->data_details.
 					  ntc_257_258.gid1.raw, gid_str,
 					  sizeof gid_str),
