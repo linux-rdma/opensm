@@ -62,20 +62,6 @@ typedef struct _reachable_dest {
 	struct _reachable_dest *next;
 } reachable_dest_t;
 
-static cdg_vertex_t *create_cdg_vertex(unsigned num_switches)
-{
-	cdg_vertex_t *v;
-
-	v = calloc(1, sizeof(*v) + (num_switches - 1) * sizeof(v->deps[0]));
-
-	return v;
-}
-
-static void delete_cdg_vertex(cdg_vertex_t *v)
-{
-	free(v);
-}
-
 static void connect_switches(lash_t * p_lash, int sw1, int sw2, int phy_port_1)
 {
 	osm_log_t *p_log = &p_lash->p_osm->log;
@@ -207,7 +193,7 @@ static void remove_semipermanent_depend_for_sp(lash_t * p_lash, int sw,
 
 			cdg_vertex_matrix[lane][sw][i_next_switch] = NULL;
 
-			delete_cdg_vertex(v);
+			free(v);
 		} else {
 			v->num_using_vertex--;
 			if (i_next_switch != dest_switch) {
@@ -352,7 +338,7 @@ static void generate_cdg_for_sp(lash_t * p_lash, int sw, int dest_switch,
 	while (sw != dest_switch) {
 
 		if (cdg_vertex_matrix[lane][sw][next_switch] == NULL) {
-			v = create_cdg_vertex(num_switches);
+			v = calloc(1, sizeof(*v) + (num_switches - 1) * sizeof(v->deps[0]));
 			v->from = sw;
 			v->to = next_switch;
 			v->temp = 1;
@@ -442,7 +428,7 @@ static void remove_temp_depend_for_sp(lash_t * p_lash, int sw, int dest_switch,
 
 		if (v->temp == 1) {
 			cdg_vertex_matrix[lane][sw][next_switch] = NULL;
-			delete_cdg_vertex(v);
+			free(v);
 		} else {
 			CL_ASSERT(v->num_temp_depend <= v->num_deps);
 			v->num_deps = v->num_deps - v->num_temp_depend;
@@ -684,7 +670,7 @@ static void free_lash_structures(lash_t * p_lash)
 		for (j = 0; j < num_switches; j++) {
 			for (k = 0; k < num_switches; k++)
 				if (p_lash->cdg_vertex_matrix[i][j][k])
-					delete_cdg_vertex(p_lash->cdg_vertex_matrix[i][j][k]);
+					free(p_lash->cdg_vertex_matrix[i][j][k]);
 			if (p_lash->cdg_vertex_matrix[i][j])
 				free(p_lash->cdg_vertex_matrix[i][j]);
 		}
