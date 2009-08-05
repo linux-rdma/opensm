@@ -323,8 +323,8 @@ static int generate_routing_func_for_mst(lash_t * p_lash, int sw_id,
 	return 0;
 }
 
-static void generate_cdg_for_sp(lash_t * p_lash, int sw, int dest_switch,
-				int lane)
+static int generate_cdg_for_sp(lash_t * p_lash, int sw, int dest_switch,
+			       int lane)
 {
 	unsigned num_switches = p_lash->num_switches;
 	switch_t **switches = p_lash->switches;
@@ -339,6 +339,8 @@ static void generate_cdg_for_sp(lash_t * p_lash, int sw, int dest_switch,
 
 		if (cdg_vertex_matrix[lane][sw][next_switch] == NULL) {
 			v = calloc(1, sizeof(*v) + (num_switches - 1) * sizeof(v->deps[0]));
+			if (!v)
+				return -1;
 			v->from = sw;
 			v->to = next_switch;
 			v->temp = 1;
@@ -380,6 +382,7 @@ static void generate_cdg_for_sp(lash_t * p_lash, int sw, int dest_switch,
 
 		prev = v;
 	}
+	return 0;
 }
 
 static void set_temp_depend_to_permanent_for_sp(lash_t * p_lash, int sw,
@@ -448,7 +451,7 @@ static void remove_temp_depend_for_sp(lash_t * p_lash, int sw, int dest_switch,
 	}
 }
 
-static void balance_virtual_lanes(lash_t * p_lash, unsigned lanes_needed)
+static int balance_virtual_lanes(lash_t * p_lash, unsigned lanes_needed)
 {
 	unsigned num_switches = p_lash->num_switches;
 	cdg_vertex_t ****cdg_vertex_matrix = p_lash->cdg_vertex_matrix;
@@ -499,8 +502,9 @@ static void balance_virtual_lanes(lash_t * p_lash, unsigned lanes_needed)
 			}
 		}
 
-		generate_cdg_for_sp(p_lash, src, dest, min_filled_lane);
-		generate_cdg_for_sp(p_lash, dest, src, min_filled_lane);
+		if (generate_cdg_for_sp(p_lash, src, dest, min_filled_lane) ||
+		    generate_cdg_for_sp(p_lash, dest, src, min_filled_lane))
+			return -1;
 
 		output_link = p_lash->switches[src]->routing_table[dest].out_link;
 		next_switch = get_next_switch(p_lash, src, output_link);
@@ -596,6 +600,7 @@ static void balance_virtual_lanes(lash_t * p_lash, unsigned lanes_needed)
 						virtual_location[i][j][old_max_filled_lane] = 1;
 		}
 	}
+	return 0;
 }
 
 static switch_t *switch_create(lash_t * p_lash, unsigned id, osm_switch_t * p_sw)
@@ -837,8 +842,12 @@ static int lash_core(lash_t * p_lash)
 				v_lane = 0;
 				stop = 0;
 				while (v_lane < lanes_needed && stop == 0) {
-					generate_cdg_for_sp(p_lash, i, dest_switch, v_lane);
-					generate_cdg_for_sp(p_lash, dest_switch, i, v_lane);
+					if (generate_cdg_for_sp(p_lash, i, dest_switch, v_lane) ||
+					    generate_cdg_for_sp(p_lash, dest_switch, i, v_lane)) {
+						OSM_LOG(p_log, OSM_LOG_ERROR,
+							"ERR 4D07: generate_cdg_for_sp failed\n");
+						goto Exit;
+					}
 
 					output_link =
 					    switches[i]->routing_table[dest_switch].out_link;
@@ -903,8 +912,12 @@ static int lash_core(lash_t * p_lash)
 					if (++lanes_needed > p_lash->vl_min)
 						goto Error_Not_Enough_Lanes;
 
-					generate_cdg_for_sp(p_lash, i, dest_switch, v_lane);
-					generate_cdg_for_sp(p_lash, dest_switch, i, v_lane);
+					if (generate_cdg_for_sp(p_lash, i, dest_switch, v_lane) ||
+					    generate_cdg_for_sp(p_lash, dest_switch, i, v_lane)) {
+						OSM_LOG(p_log, OSM_LOG_ERROR,
+							"ERR 4D08: generate_cdg_for_sp failed\n");
+						goto Exit;
+					}
 
 					set_temp_depend_to_permanent_for_sp(p_lash, i, dest_switch,
 									    v_lane);
@@ -929,7 +942,10 @@ static int lash_core(lash_t * p_lash)
 	OSM_LOG(p_log, OSM_LOG_INFO,
 		"Lanes needed: %d, Balancing\n", lanes_needed);
 
-	balance_virtual_lanes(p_lash, lanes_needed);
+	if (balance_virtual_lanes(p_lash, lanes_needed)) {
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 4D09: Balancing failed\n");
+		goto Exit;
+	}
 
 	for (i = 0; i < lanes_needed; i++)
 		OSM_LOG(p_log, OSM_LOG_INFO, "Lanes in layer %d: %d\n",
