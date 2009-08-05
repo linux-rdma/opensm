@@ -1079,6 +1079,15 @@ int osm_subn_verify_config(IN osm_subn_opt_t * const p_opts)
 		p_opts->force_link_speed = IB_PORT_LINK_SPEED_ENABLED_MASK;
 	}
 
+	if (p_opts->max_wire_smps == 0)
+		p_opts->max_wire_smps = 0x7FFFFFFF;
+	else if (p_opts->max_wire_smps > 0x7FFFFFFF) {
+		log_report(" Invalid Cached Option Value: max_wire_smps = %u,"
+			   " Using Default: %u\n",
+			   p_opts->max_wire_smps, OSM_DEFAULT_SMP_MAX_ON_WIRE);
+		p_opts->max_wire_smps = OSM_DEFAULT_SMP_MAX_ON_WIRE;
+	}
+
 	if (strcmp(p_opts->console, OSM_DISABLE_CONSOLE)
 	    && strcmp(p_opts->console, OSM_LOCAL_CONSOLE)
 #ifdef ENABLE_OSM_CONSOLE_SOCKET

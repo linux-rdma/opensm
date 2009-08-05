@@ -730,8 +730,9 @@ int main(int argc, char *argv[])
 			break;
 
 		case 'n':
-			opt.max_wire_smps = strtol(optarg, NULL, 0);
-			if (opt.max_wire_smps <= 0)
+			opt.max_wire_smps = strtoul(optarg, NULL, 0);
+			if (opt.max_wire_smps == 0 ||
+			    opt.max_wire_smps > 0x7FFFFFFF)
 				opt.max_wire_smps = 0x7FFFFFFF;
 			printf(" Max wire smp's = %d\n", opt.max_wire_smps);
 			break;
