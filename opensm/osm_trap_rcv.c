@@ -2,6 +2,7 @@
  * Copyright (c) 2004-2008 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2006 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
+ * Copyright (c) 2009 HNR Consulting. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -547,7 +548,9 @@ trap_rcv_process_request(IN osm_sm_t * sm,
 	}
 
 	/* Check for node description update. IB Spec v1.2.1 pg 823 */
-	if (p_ntci->data_details.ntc_144.local_changes & TRAP_144_MASK_OTHER_LOCAL_CHANGES &&
+	if (ib_notice_is_generic(p_ntci) &&
+	    cl_ntoh16(p_ntci->g_or_v.generic.trap_num) == 144 &&
+	    p_ntci->data_details.ntc_144.local_changes & TRAP_144_MASK_OTHER_LOCAL_CHANGES &&
 	    p_ntci->data_details.ntc_144.change_flgs & TRAP_144_MASK_NODE_DESCRIPTION_CHANGE) {
 		OSM_LOG(sm->p_log, OSM_LOG_INFO, "Trap 144 Node description update\n");
 
@@ -555,11 +558,10 @@ trap_rcv_process_request(IN osm_sm_t * sm,
 			CL_PLOCK_ACQUIRE(sm->p_lock);
 			osm_req_get_node_desc(sm, p_physp);
 			CL_PLOCK_RELEASE(sm->p_lock);
-		} else {
+		} else
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR,
 				"ERR 3812: No physical port found for "
 				"trap 144: \"node description update\"\n");
-		}
 	}
 
 	/* do a sweep if we received a trap */
