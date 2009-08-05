@@ -185,6 +185,16 @@ typedef struct _mesh {
 	int dim_order[MAX_DIMENSION];
 } mesh_t;
 
+typedef struct sort_ctx {
+	lash_t *p_lash;
+	mesh_t *mesh;
+} sort_ctx_t;
+
+typedef struct comp {
+	int index;
+	sort_ctx_t ctx;
+} comp_t;
+
 /*
  * poly_alloc
  *
@@ -1272,6 +1282,84 @@ static int reorder_links(lash_t *p_lash, mesh_t *mesh)
 }
 
 /*
+ * compare two switches in a sort
+ */
+static int compare_switches(const void *p1, const void *p2)
+{
+	int i, j, d;
+	const comp_t *cp1 = p1, *cp2 = p2;
+	const sort_ctx_t *ctx = &cp1->ctx;
+	switch_t *s1 = ctx->p_lash->switches[cp1->index];
+	switch_t *s2 = ctx->p_lash->switches[cp2->index];
+
+	for (i = 0; i < ctx->mesh->dimension; i++) {
+		j = ctx->mesh->dim_order[i];
+		d = s1->node->coord[j] - s2->node->coord[j];
+
+		if (d > 0)
+			return 1;
+
+		if (d < 0)
+			return -1;
+	}
+
+	return 0;
+}
+
+/*
+ * sort_switches - reorder switch array
+ */
+static void sort_switches(lash_t *p_lash, mesh_t *mesh)
+{
+	int i, j;
+	int num_switches = p_lash->num_switches;
+	comp_t *comp;
+	int *reverse;
+	switch_t *s;
+	switch_t **switches;
+
+	comp = malloc(num_switches * sizeof(comp_t));
+	reverse = malloc(num_switches * sizeof(int));
+	switches = malloc(num_switches * sizeof(switch_t *));
+	if (!comp || !reverse || !switches) {
+		OSM_LOG(&p_lash->p_osm->log, OSM_LOG_ERROR,
+			"Failed memory allocation - switches not sorted!\n");
+		goto Exit;
+	}
+
+	for (i = 0; i < num_switches; i++) {
+		comp[i].index = i;
+		comp[i].ctx.mesh = mesh;
+		comp[i].ctx.p_lash = p_lash;
+	}
+
+	qsort(comp, num_switches, sizeof(comp_t), compare_switches);
+
+	for (i = 0; i < num_switches; i++)
+		reverse[comp[i].index] = i;
+
+	for (i = 0; i < num_switches; i++) {
+		s = p_lash->switches[comp[i].index];
+		switches[i] = s;
+		s->id = i;
+		for (j = 0; j < s->node->num_links; j++)
+			s->node->links[j]->switch_id =
+				reverse[s->node->links[j]->switch_id];
+	}
+
+	for (i = 0; i < num_switches; i++)
+		p_lash->switches[i] = switches[i];
+
+Exit:
+	if (switches)
+		free(switches);
+	if (comp)
+		free(comp);
+	if (reverse)
+		free(reverse);
+}
+
+/*
  * osm_mesh_delete - free per mesh resources
  */
 static void mesh_delete(mesh_t *mesh)
@@ -1469,6 +1557,8 @@ int osm_do_mesh_analysis(lash_t *p_lash)
 
 		if (reorder_links(p_lash, mesh))
 			goto err;
+
+		sort_switches(p_lash, mesh);
 
 		p = buf;
 		p += sprintf(p, "found ");
