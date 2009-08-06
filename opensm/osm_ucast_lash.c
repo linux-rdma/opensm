@@ -795,7 +795,7 @@ static int lash_core(lash_t * p_lash)
 	int stop = 0, output_link, i_next_switch;
 	int output_link2, i_next_switch2;
 	int cycle_found2 = 0;
-	int status = 0;
+	int status = -1;
 	int *switch_bitmap = NULL;	/* Bitmap to check if we have processed this pair */
 	unsigned start_vl = p_lash->p_osm->subn.opt.lash_start_vl;
 
@@ -810,7 +810,6 @@ static int lash_core(lash_t * p_lash)
 
 		shortest_path(p_lash, i);
 		if (generate_routing_func_for_mst(p_lash, i, &dests)) {
-			status = -1;
 			OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 4D06: "
 				"generate_routing_func_for_mst failed\n");
 			goto Exit;
@@ -951,10 +950,10 @@ static int lash_core(lash_t * p_lash)
 		OSM_LOG(p_log, OSM_LOG_INFO, "Lanes in layer %d: %d\n",
 			i, p_lash->num_mst_in_lane[i]);
 
+	status = 0;
 	goto Exit;
 
 Error_Not_Enough_Lanes:
-	status = -1;
 	OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 4D02: "
 		"Lane requirements (%d) exceed available lanes (%d)"
 		" with starting lane (%d)\n",
@@ -1220,7 +1219,7 @@ static int lash_process(void *context)
 {
 	lash_t *p_lash = context;
 	osm_log_t *p_log = &p_lash->p_osm->log;
-	int return_status = IB_SUCCESS;
+	int status = 0;
 
 	OSM_LOG_ENTER(p_log);
 
@@ -1229,18 +1228,18 @@ static int lash_process(void *context)
 	/* everything starts here */
 	lash_cleanup(p_lash);
 
-	return_status = discover_network_properties(p_lash);
-	if (return_status != IB_SUCCESS)
+	status = discover_network_properties(p_lash);
+	if (status)
 		goto Exit;
 
-	return_status = init_lash_structures(p_lash);
-	if (return_status != IB_SUCCESS)
+	status = init_lash_structures(p_lash);
+	if (status)
 		goto Exit;
 
 	process_switches(p_lash);
 
-	return_status = lash_core(p_lash);
-	if (return_status != IB_SUCCESS)
+	status = lash_core(p_lash);
+	if (status)
 		goto Exit;
 
 	populate_fwd_tbls(p_lash);
@@ -1250,7 +1249,7 @@ Exit:
 		free_lash_structures(p_lash);
 	OSM_LOG_EXIT(p_log);
 
-	return return_status;
+	return status;
 }
 
 static lash_t *lash_create(osm_opensm_t * p_osm)
