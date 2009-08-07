@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008      Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2008,2009 Mellanox Technologies LTD. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -1085,8 +1085,9 @@ int osm_ucast_cache_process(osm_ucast_mgr_t * p_mgr)
 			memset(p_sw->lft, OSM_NO_PATH, IB_LID_UCAST_END_HO + 1);
 		}
 
-		osm_ucast_mgr_set_fwd_table(p_mgr, p_sw);
 	}
+
+	osm_ucast_mgr_set_fwd_table(p_mgr);
 
 	return 0;
 }

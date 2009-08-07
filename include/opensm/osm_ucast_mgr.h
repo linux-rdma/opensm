@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2008 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2008 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2009 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
  * This software is available to you under a choice of one of two
@@ -242,15 +242,11 @@ osm_ucast_mgr_init(IN osm_ucast_mgr_t * const p_mgr, IN struct osm_sm * sm);
 *
 * SYNOPSIS
 */
-int osm_ucast_mgr_set_fwd_table(IN osm_ucast_mgr_t * const p_mgr,
-				IN osm_switch_t * const p_sw);
+void osm_ucast_mgr_set_fwd_table(IN osm_ucast_mgr_t * const p_mgr);
 /*
 * PARAMETERS
 *	p_mgr
 *		[in] Pointer to an osm_ucast_mgr_t object.
-*
-*	p_mgr
-*		[in] Pointer to an osm_switch_t object.
 *
 * SEE ALSO
 *	Unicast Manager

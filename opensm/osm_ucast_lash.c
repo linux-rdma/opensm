@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2008 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2008 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2009 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2007      Simula Research Laboratory. All rights reserved.
  * Copyright (c) 2007      Silicon Graphics Inc. All rights reserved.
@@ -990,7 +990,6 @@ static void populate_fwd_tbls(lash_t * p_lash)
 {
 	osm_log_t *p_log = &p_lash->p_osm->log;
 	osm_subn_t *p_subn = &p_lash->p_osm->subn;
-	osm_opensm_t *p_osm = p_lash->p_osm;
 	osm_switch_t *p_sw, *p_next_sw, *p_dst_sw;
 	osm_port_t *port;
 	uint16_t max_lid_ho, lid;
@@ -1054,7 +1053,6 @@ static void populate_fwd_tbls(lash_t * p_lash)
 					physical_egress_port);
 			}
 		}		/* for */
-		osm_ucast_mgr_set_fwd_table(&p_osm->sm.ucast_mgr, p_sw);
 	}
 	OSM_LOG_EXIT(p_log);
 }

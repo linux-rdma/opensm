@@ -2,7 +2,7 @@
  * Copyright (c) 2009 Simula Research Laboratory. All rights reserved.
  * Copyright (c) 2009 Sun Microsystems, Inc. All rights reserved.
  * Copyright (c) 2004-2008 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2007 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2009 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
  * This software is available to you under a choice of one of two
@@ -1905,8 +1905,6 @@ static void set_sw_fwd_table(IN cl_map_item_t * const p_map_item,
 	ftree_fabric_t *p_ftree = (ftree_fabric_t *) context;
 
 	p_sw->p_osm_sw->max_lid_ho = p_ftree->lft_max_lid;
-	osm_ucast_mgr_set_fwd_table(&p_ftree->p_osm->sm.ucast_mgr,
-				    p_sw->p_osm_sw);
 }
 
 /***************************************************

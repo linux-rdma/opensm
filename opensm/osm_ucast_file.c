@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2006,2007 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2008      Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2008,2009 Mellanox Technologies LTD. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -167,9 +167,6 @@ static int do_ucast_file_load(void *context)
 				"skipping parsing. Using default "
 				"routing algorithm\n");
 		} else if (!strncmp(p, "Unicast lids", 12)) {
-			if (p_sw)
-				osm_ucast_mgr_set_fwd_table(&p_osm->sm.
-							    ucast_mgr, p_sw);
 			q = strstr(p, " guid 0x");
 			if (!q) {
 				OSM_LOG(&p_osm->log, OSM_LOG_ERROR,
@@ -220,7 +217,7 @@ static int do_ucast_file_load(void *context)
 				return -1;
 			}
 			p = q;
-			/* additionally try to exract guid */
+			/* additionally try to extract guid */
 			q = strstr(p, " portguid 0x");
 			if (!q) {
 				OSM_LOG(&p_osm->log, OSM_LOG_VERBOSE,
@@ -245,9 +242,6 @@ static int do_ucast_file_load(void *context)
 			add_path(p_osm, p_sw, lid, port_num, port_guid);
 		}
 	}
-
-	if (p_sw)
-		osm_ucast_mgr_set_fwd_table(&p_osm->sm.ucast_mgr, p_sw);
 
 	fclose(file);
 	return 0;
