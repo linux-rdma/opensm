@@ -723,7 +723,10 @@ static void sm_mad_ctrl_send_err_cb(IN void *context, IN osm_madw_t * p_madw)
 	    (p_smp->attr_id == IB_MAD_ATTR_PORT_INFO ||
 	     p_smp->attr_id == IB_MAD_ATTR_MCAST_FWD_TBL ||
 	     p_smp->attr_id == IB_MAD_ATTR_SWITCH_INFO ||
-	     p_smp->attr_id == IB_MAD_ATTR_LIN_FWD_TBL)) {
+	     p_smp->attr_id == IB_MAD_ATTR_LIN_FWD_TBL ||
+	     p_smp->attr_id == IB_MAD_ATTR_P_KEY_TABLE ||
+	     p_smp->attr_id == IB_MAD_ATTR_SLVL_TABLE ||
+	     p_smp->attr_id == IB_MAD_ATTR_VL_ARBITRATION)) {
 		OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 3119: "
 			"Set method failed for attribute 0x%X (%s)\n",
 			cl_ntoh16(p_smp->attr_id),
