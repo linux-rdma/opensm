@@ -135,10 +135,8 @@ osm_qos_port_t *osm_qos_policy_port_create(osm_physp_t *p_physp)
 {
 	osm_qos_port_t *p =
 	    (osm_qos_port_t *) calloc(1, sizeof(osm_qos_port_t));
-	if (!p)
-		return NULL;
-
-	p->p_physp = p_physp;
+	if (p)
+		p->p_physp = p_physp;
 	return p;
 }
 
@@ -149,11 +147,8 @@ osm_qos_port_group_t *osm_qos_policy_port_group_create()
 {
 	osm_qos_port_group_t *p =
 	    (osm_qos_port_group_t *) calloc(1, sizeof(osm_qos_port_group_t));
-	if (!p)
-		return NULL;
-
-	cl_qmap_init(&p->port_map);
-
+	if (p)
+		cl_qmap_init(&p->port_map);
 	return p;
 }
 
@@ -192,14 +187,12 @@ osm_qos_vlarb_scope_t *osm_qos_policy_vlarb_scope_create()
 {
 	osm_qos_vlarb_scope_t *p =
 	    (osm_qos_vlarb_scope_t *) calloc(1, sizeof(osm_qos_vlarb_scope_t));
-	if (!p)
-		return NULL;
-
-	cl_list_init(&p->group_list, 10);
-	cl_list_init(&p->across_list, 10);
-	cl_list_init(&p->vlarb_high_list, 10);
-	cl_list_init(&p->vlarb_low_list, 10);
-
+	if (p) {
+		cl_list_init(&p->group_list, 10);
+		cl_list_init(&p->across_list, 10);
+		cl_list_init(&p->vlarb_high_list, 10);
+		cl_list_init(&p->vlarb_low_list, 10);
+	}
 	return p;
 }
 
@@ -236,13 +229,11 @@ osm_qos_sl2vl_scope_t *osm_qos_policy_sl2vl_scope_create()
 {
 	osm_qos_sl2vl_scope_t *p =
 	    (osm_qos_sl2vl_scope_t *) calloc(1, sizeof(osm_qos_sl2vl_scope_t));
-	if (!p)
-		return NULL;
-
-	cl_list_init(&p->group_list, 10);
-	cl_list_init(&p->across_from_list, 10);
-	cl_list_init(&p->across_to_list, 10);
-
+	if (p) {
+		cl_list_init(&p->group_list, 10);
+		cl_list_init(&p->across_from_list, 10);
+		cl_list_init(&p->across_to_list, 10);
+	}
 	return p;
 }
 
@@ -276,8 +267,6 @@ osm_qos_level_t *osm_qos_policy_qos_level_create()
 {
 	osm_qos_level_t *p =
 	    (osm_qos_level_t *) calloc(1, sizeof(osm_qos_level_t));
-	if (!p)
-		return NULL;
 	return p;
 }
 
@@ -355,14 +344,12 @@ osm_qos_match_rule_t *osm_qos_policy_match_rule_create()
 {
 	osm_qos_match_rule_t *p =
 	    (osm_qos_match_rule_t *) calloc(1, sizeof(osm_qos_match_rule_t));
-	if (!p)
-		return NULL;
-
-	cl_list_init(&p->source_list, 10);
-	cl_list_init(&p->source_group_list, 10);
-	cl_list_init(&p->destination_list, 10);
-	cl_list_init(&p->destination_group_list, 10);
-
+	if (p) {
+		cl_list_init(&p->source_list, 10);
+		cl_list_init(&p->source_group_list, 10);
+		cl_list_init(&p->destination_list, 10);
+		cl_list_init(&p->destination_group_list, 10);
+	}
 	return p;
 }
 
