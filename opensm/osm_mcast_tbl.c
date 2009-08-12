@@ -272,9 +272,6 @@ osm_mcast_tbl_get_block(IN osm_mcast_tbl_t * const p_tbl,
 
 	mlid_start_ho = (uint16_t) (block_num * IB_MCAST_BLOCK_SIZE);
 
-	if (mlid_start_ho + IB_MCAST_BLOCK_SIZE - 1 > p_tbl->max_mlid_ho)
-		return (IB_INVALID_PARAMETER);
-
 	for (i = 0; i < IB_MCAST_BLOCK_SIZE; i++)
 		p_block[i] = (*p_tbl->p_mask_tbl)[mlid_start_ho + i][position];
 
