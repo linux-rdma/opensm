@@ -148,9 +148,11 @@ cl_event_wait_on(IN cl_event_t * const p_event,
 	} else {
 		/* Get the current time */
 		if (gettimeofday(&curtime, NULL) == 0) {
-			timeout.tv_sec = curtime.tv_sec + (wait_us / 1000000);
-			timeout.tv_nsec =
-			    (curtime.tv_usec + (wait_us % 1000000)) * 1000;
+			uint32_t n_sec = (curtime.tv_usec + (wait_us % 1000000))
+						* 1000;
+			timeout.tv_sec = curtime.tv_sec + (wait_us / 1000000)
+						+ (n_sec / 1000000000);
+			timeout.tv_nsec = n_sec % 1000000000;
 
 			wait_ret = pthread_cond_timedwait(&p_event->condvar,
 							  &p_event->mutex,
