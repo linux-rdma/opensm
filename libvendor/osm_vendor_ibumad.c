@@ -973,7 +973,7 @@ ib_mad_t *osm_vendor_get(IN osm_bind_handle_t h_bind,
 		"Acquired UMAD %p, size = %u\n", p_vw->umad, p_vw->size);
 
 	OSM_LOG_EXIT(p_vend->p_log);
-	return umad_get_mad(p_vw->umad);
+	return (p_vw->umad ? umad_get_mad(p_vw->umad) : NULL);
 }
 
 /**********************************************************************
