@@ -637,7 +637,7 @@ static void sm_mad_ctrl_rcv_callback(IN osm_madw_t * p_madw,
 
 	if (status != 0) {
 		OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 3111: "
-			"Error status = 0x%X\n", status);
+			"Error status = 0x%X\n", cl_ntoh16(status));
 		osm_dump_dr_smp(p_ctrl->p_log, p_smp, OSM_LOG_ERROR);
 	}
 
