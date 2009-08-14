@@ -1911,7 +1911,7 @@ void osm_dump_dr_smp(IN osm_log_t * p_log, IN const ib_smp_t * p_smp,
 				      "\t\t\t\tD bit...................0x%X\n"
 				      "\t\t\t\tstatus..................0x%X\n",
 				      ib_smp_is_d(p_smp),
-				      ib_smp_get_status(p_smp));
+				      cl_ntoh16(ib_smp_get_status(p_smp)));
 		} else {
 			n += snprintf(buf + n, sizeof(buf) - n,
 				      "\t\t\t\tstatus..................0x%X\n",
