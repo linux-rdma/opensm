@@ -122,8 +122,8 @@ typedef struct ftree_port_t_ {
 	cl_map_item_t map_item;
 	uint8_t port_num;	/* port number on the current node */
 	uint8_t remote_port_num;	/* port number on the remote node */
-	uint32_t counter_up;	/* number of allocated routs upwards */
-	uint32_t counter_down;	/* number of allocated routs downwards */
+	uint32_t counter_up;	/* number of allocated routes upwards */
+	uint32_t counter_down;	/* number of allocated routes downwards */
 } ftree_port_t;
 
 /***************************************************
@@ -152,8 +152,8 @@ typedef struct ftree_port_group_t_ {
 	cl_ptr_vector_t ports;	/* vector of ports to the same lid */
 	boolean_t is_cn;	/* whether this port is a compute node */
 	boolean_t is_io;	/* whether this port is an I/O node */
-	uint32_t counter_down;	/* number of allocated routs downwards */
-	uint32_t counter_up;	/* number of allocated routs downwards */
+	uint32_t counter_down;	/* number of allocated routes downwards */
+	uint32_t counter_up;	/* number of allocated routes upwards */
 } ftree_port_group_t;
 
 /***************************************************
@@ -2133,7 +2133,7 @@ fabric_route_upgoing_by_going_down(IN ftree_fabric_t * p_ftree,
 	if (p_sw->down_port_groups_num == 0)
 		return FALSE;
 
-	/* foreach down-going port group (in indexing order) */
+	/* foreach down-going port group (in load order) */
 	bubble_sort_up(p_sw->down_port_groups, p_sw->down_port_groups_num);
 
 	if (p_sw->sibling_port_groups_num > 0)
@@ -2173,8 +2173,7 @@ fabric_route_upgoing_by_going_down(IN ftree_fabric_t * p_ftree,
 		/* find the least loaded port of the group (in indexing order) */
 		p_min_port = NULL;
 		ports_num = (uint16_t) cl_ptr_vector_get_size(&p_group->ports);
-		/* ToDo: no need to select a least loaded port for non-main path.
-		   Think about optimization. */
+
 		for (j = 0; j < ports_num; j++) {
 			cl_ptr_vector_at(&p_group->ports, j, (void *)&p_port);
 			/* first port that we're checking - set as port with the lowest load */
@@ -2217,8 +2216,8 @@ fabric_route_upgoing_by_going_down(IN ftree_fabric_t * p_ftree,
 		 *  2. is_real_lid == TRUE && is_main_path == FALSE:
 		 *      - going DOWN(TRUE,FALSE) through ALL the groups but only if
 		 *        the remote (lower) switch hasn't been already configured
-		 *        for this target LID
-		 *         + NOT promoting port counter
+		 *        for this target LID (or with a longer path)
+		 *         + promoting port counter
 		 *         + setting path in remote switch fwd tbl if it hasn't been set yet
 		 *         + setting hops in remote switch on all the ports of each group
 		 *           if it hasn't been set yet
@@ -2249,14 +2248,6 @@ fabric_route_upgoing_by_going_down(IN ftree_fabric_t * p_ftree,
 					      current_hops + 1, is_target_a_sw);
 		}
 
-		/* The number of upgoing routes is tracked in the
-		   p_port->counter_up counter of the port that belongs to
-		   the upper side of the link (on switch with lower rank).
-		   Counter is promoted only if we're routing LID on the main
-		   path (whether it's a real LID or a dummy one). */
-		/*              if (is_main_path)
-		   p_min_port->counter_up++; */
-
 		/* Recursion step:
 		   Assign upgoing ports by stepping down, starting on REMOTE switch */
 		routed = fabric_route_upgoing_by_going_down(p_ftree, p_remote_sw,	/* remote switch - used as a route-upgoing alg. start point */
@@ -2267,6 +2258,7 @@ fabric_route_upgoing_by_going_down(IN ftree_fabric_t * p_ftree,
 							    is_target_a_sw,	/* Wheter target lid is a switch or not */
 							    current_hops + 1); /* Number of hops done to this point */
 		created_route |= routed;
+		/* Counters are promoted only if a route toward a node is created */
 		if (routed) {
 			p_min_port->counter_up++;
 			p_group->counter_up++;
@@ -2331,7 +2323,7 @@ fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
 							   is_real_lid,	/* whether this target LID is real or dummy */
 							   is_main_path,	/* whether this path to HCA should by tracked by counters */
 							   is_target_a_sw,	/* Wheter target lid is a switch or not */
-							   current_hops);
+							   current_hops); /* Number of hops done up to this point */
 
 	/* recursion stop condition - if it's a root switch, */
 	if (p_sw->rank == 0) {
@@ -2555,7 +2547,6 @@ fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
 		   We can safely assume that switch will initiate very
 		   few traffic, so there's no point waisting runtime on
 		   trying to balance these routes - always pick port 0. */
-		/* GET MIN PORT HERE */
 		p_min_port = NULL;
 		ports_num = (uint16_t) cl_ptr_vector_get_size(&p_group->ports);
 		for (j = 0; j < ports_num; j++) {
@@ -2572,7 +2563,6 @@ fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
 		}
 
 		p_port = p_min_port;
-		//cl_ptr_vector_at(&p_group->ports, 0, (void *)&p_port);
 		p_remote_sw->p_osm_sw->new_lft[target_lid] =
 		    p_port->remote_port_num;
 
@@ -2596,7 +2586,7 @@ fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
 		created_route |= routed;
 	}
 
-	/* TREATING SIBLINGS !!! */
+	/* Now doing the same thing with horizontal links */
 	if (p_sw->sibling_port_groups_num > 0)
 		bubble_sort_down(p_sw->sibling_port_groups,
 				 p_sw->sibling_port_groups_num);
@@ -2641,7 +2631,6 @@ fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
 		}
 
 		p_port = p_min_port;
-		//cl_ptr_vector_at(&p_group->ports, 0, (void *)&p_port);
 		p_remote_sw->p_osm_sw->new_lft[target_lid] =
 		    p_port->remote_port_num;
 
