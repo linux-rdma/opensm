@@ -2113,7 +2113,6 @@ fabric_route_upgoing_by_going_down(IN ftree_fabric_t * p_ftree,
 				   IN boolean_t is_real_lid,
 				   IN boolean_t is_main_path,
 				   IN boolean_t is_target_a_sw,
-				   IN uint16_t reverse_hops,
 				   IN uint8_t current_hops)
 {
 	ftree_sw_t *p_remote_sw;
@@ -2266,8 +2265,7 @@ fabric_route_upgoing_by_going_down(IN ftree_fabric_t * p_ftree,
 							    is_real_lid,	/* whether the target LID is real or dummy */
 							    is_main_path,	/* whether this is path to HCA that should by tracked by counters */
 							    is_target_a_sw,	/* Wheter target lid is a switch or not */
-							    reverse_hops,
-							    current_hops + 1);
+							    current_hops + 1); /* Number of hops done to this point */
 		created_route |= routed;
 		if (routed) {
 			p_min_port->counter_up++;
@@ -2333,7 +2331,6 @@ fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
 							   is_real_lid,	/* whether this target LID is real or dummy */
 							   is_main_path,	/* whether this path to HCA should by tracked by counters */
 							   is_target_a_sw,	/* Wheter target lid is a switch or not */
-							   reverse_hops,	/* Number of reverse_hops done up to this point */
 							   current_hops);
 
 	/* recursion stop condition - if it's a root switch, */
