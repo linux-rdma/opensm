@@ -303,7 +303,7 @@ boolean_t osm_qos_level_has_pkey(IN const osm_qos_level_t * p_qos_level,
 		return FALSE;
 	return __is_num_in_range_arr(p_qos_level->pkey_range_arr,
 				     p_qos_level->pkey_range_len,
-				     cl_ntoh16(pkey));
+				     cl_ntoh16(ib_pkey_get_base(pkey)));
 }
 
 /***************************************************
