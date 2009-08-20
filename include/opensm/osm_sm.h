@@ -404,8 +404,8 @@ osm_sm_bind(IN osm_sm_t * const p_sm, IN const ib_net64_t port_guid);
 ib_api_status_t
 osm_req_get(IN osm_sm_t * sm,
 	    IN const osm_dr_path_t * const p_path,
-	    IN const uint16_t attr_id,
-	    IN const uint32_t attr_mod,
+	    IN const ib_net16_t attr_id,
+	    IN const ib_net32_t attr_mod,
 	    IN const cl_disp_msgid_t err_msg,
 	    IN const osm_madw_context_t * const p_context);
 /*
@@ -452,8 +452,8 @@ osm_req_set(IN osm_sm_t * sm,
 	    IN const osm_dr_path_t * const p_path,
 	    IN const uint8_t * const p_payload,
 	    IN const size_t payload_size,
-	    IN const uint16_t attr_id,
-	    IN const uint32_t attr_mod,
+	    IN const ib_net16_t attr_id,
+	    IN const ib_net32_t attr_mod,
 	    IN const cl_disp_msgid_t err_msg,
 	    IN const osm_madw_context_t * const p_context);
 /*
