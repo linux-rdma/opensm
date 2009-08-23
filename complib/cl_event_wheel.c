@@ -44,9 +44,8 @@
 
 #define CL_DBG(fmt, arg...)
 
-static cl_status_t
-__event_will_age_before(IN const cl_list_item_t * const p_list_item,
-			IN void *context)
+static cl_status_t __event_will_age_before(IN const cl_list_item_t *
+					   const p_list_item, IN void *context)
 {
 	uint64_t aging_time = *((uint64_t *) context);
 	cl_event_wheel_reg_info_t *p_event;
@@ -195,8 +194,7 @@ void cl_event_wheel_construct(IN cl_event_wheel_t * const p_event_wheel)
 	cl_timer_construct(&(p_event_wheel->timer));
 }
 
-cl_status_t
-cl_event_wheel_init(IN cl_event_wheel_t * const p_event_wheel)
+cl_status_t cl_event_wheel_init(IN cl_event_wheel_t * const p_event_wheel)
 {
 	cl_status_t cl_status = CL_SUCCESS;
 
@@ -215,9 +213,8 @@ cl_event_wheel_init(IN cl_event_wheel_t * const p_event_wheel)
 	return cl_status;
 }
 
-cl_status_t
-cl_event_wheel_init_ex(IN cl_event_wheel_t * const p_event_wheel,
-		       IN cl_spinlock_t * p_external_lock)
+cl_status_t cl_event_wheel_init_ex(IN cl_event_wheel_t * const p_event_wheel,
+				   IN cl_spinlock_t * p_external_lock)
 {
 	cl_status_t cl_status;
 
@@ -285,12 +282,11 @@ void cl_event_wheel_destroy(IN cl_event_wheel_t * const p_event_wheel)
 	cl_spinlock_destroy(&(p_event_wheel->lock));
 }
 
-cl_status_t
-cl_event_wheel_reg(IN cl_event_wheel_t * const p_event_wheel,
-		   IN const uint64_t key,
-		   IN const uint64_t aging_time_usec,
-		   IN cl_pfn_event_aged_cb_t pfn_callback,
-		   IN void *const context)
+cl_status_t cl_event_wheel_reg(IN cl_event_wheel_t * const p_event_wheel,
+			       IN const uint64_t key,
+			       IN const uint64_t aging_time_usec,
+			       IN cl_pfn_event_aged_cb_t pfn_callback,
+			       IN void *const context)
 {
 	cl_event_wheel_reg_info_t *p_event;
 	uint64_t timeout;
@@ -336,8 +332,7 @@ cl_event_wheel_reg(IN cl_event_wheel_t * const p_event_wheel,
 
 	CL_DBG("cl_event_wheel_reg: Registering event key:0x%" PRIx64
 	       " aging in %u [msec]\n", p_event->key,
-	       (uint32_t) ((p_event->aging_time -
-			    cl_get_time_stamp()) / 1000));
+	       (uint32_t) ((p_event->aging_time - cl_get_time_stamp()) / 1000));
 
 	/* If the list is empty - need to start the timer */
 	if (cl_is_qlist_empty(&p_event_wheel->events_wheel)) {
@@ -401,8 +396,8 @@ Exit:
 	return cl_status;
 }
 
-void
-cl_event_wheel_unreg(IN cl_event_wheel_t * const p_event_wheel, IN uint64_t key)
+void cl_event_wheel_unreg(IN cl_event_wheel_t * const p_event_wheel,
+			  IN uint64_t key)
 {
 	cl_event_wheel_reg_info_t *p_event;
 	cl_map_item_t *p_map_item;
@@ -437,9 +432,8 @@ cl_event_wheel_unreg(IN cl_event_wheel_t * const p_event_wheel, IN uint64_t key)
 	cl_spinlock_release(&p_event_wheel->lock);
 }
 
-uint32_t
-cl_event_wheel_num_regs(IN cl_event_wheel_t * const p_event_wheel,
-			IN uint64_t key)
+uint32_t cl_event_wheel_num_regs(IN cl_event_wheel_t * const p_event_wheel,
+				 IN uint64_t key)
 {
 
 	cl_event_wheel_reg_info_t *p_event;
@@ -447,8 +441,7 @@ cl_event_wheel_num_regs(IN cl_event_wheel_t * const p_event_wheel,
 	uint32_t num_regs = 0;
 
 	/* try to find the key in the map */
-	CL_DBG("cl_event_wheel_num_regs: Looking for key:0x%"
-	       PRIx64 "\n", key);
+	CL_DBG("cl_event_wheel_num_regs: Looking for key:0x%" PRIx64 "\n", key);
 
 	cl_spinlock_acquire(&p_event_wheel->lock);
 	p_map_item = cl_qmap_get(&p_event_wheel->events_map, key);

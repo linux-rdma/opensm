@@ -72,11 +72,10 @@ static void *thread_pool_routine(void *context)
 	return NULL;
 }
 
-cl_status_t
-cl_thread_pool_init(IN cl_thread_pool_t * const p_thread_pool,
-		    IN unsigned count,
-		    IN void (*pfn_callback) (void *),
-		    IN void *context, IN const char *const name)
+cl_status_t cl_thread_pool_init(IN cl_thread_pool_t * const p_thread_pool,
+				IN unsigned count,
+				IN void (*pfn_callback) (void *),
+				IN void *context, IN const char *const name)
 {
 	int i;
 

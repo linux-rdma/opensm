@@ -66,10 +66,10 @@ void cl_thread_construct(IN cl_thread_t * const p_thread)
 	p_thread->osd.state = CL_UNINITIALIZED;
 }
 
-cl_status_t
-cl_thread_init(IN cl_thread_t * const p_thread,
-	       IN cl_pfn_thread_callback_t pfn_callback,
-	       IN const void *const context, IN const char *const name)
+cl_status_t cl_thread_init(IN cl_thread_t * const p_thread,
+			   IN cl_pfn_thread_callback_t pfn_callback,
+			   IN const void *const context,
+			   IN const char *const name)
 {
 	int ret;
 

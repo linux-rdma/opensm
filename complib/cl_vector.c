@@ -70,9 +70,9 @@
  *	None
  *
  */
-static void
-cl_vector_copy_general(OUT void *const p_dest,
-		       IN const void *const p_src, IN const size_t size)
+static void cl_vector_copy_general(OUT void *const p_dest,
+				   IN const void *const p_src,
+				   IN const size_t size)
 {
 	memcpy(p_dest, p_src, size);
 }
@@ -93,9 +93,8 @@ cl_vector_copy_general(OUT void *const p_dest,
  *	None
  *
  */
-static void
-cl_vector_copy8(OUT void *const p_dest,
-		IN const void *const p_src, IN const size_t size)
+static void cl_vector_copy8(OUT void *const p_dest,
+			    IN const void *const p_src, IN const size_t size)
 {
 	CL_ASSERT(size == sizeof(uint8_t));
 	UNUSED_PARAM(size);
@@ -119,9 +118,8 @@ cl_vector_copy8(OUT void *const p_dest,
  *	None
  *
  */
-void
-cl_vector_copy16(OUT void *const p_dest,
-		 IN const void *const p_src, IN const size_t size)
+void cl_vector_copy16(OUT void *const p_dest,
+		      IN const void *const p_src, IN const size_t size)
 {
 	CL_ASSERT(size == sizeof(uint16_t));
 	UNUSED_PARAM(size);
@@ -145,9 +143,8 @@ cl_vector_copy16(OUT void *const p_dest,
  *	None
  *
  */
-void
-cl_vector_copy32(OUT void *const p_dest,
-		 IN const void *const p_src, IN const size_t size)
+void cl_vector_copy32(OUT void *const p_dest,
+		      IN const void *const p_src, IN const size_t size)
 {
 	CL_ASSERT(size == sizeof(uint32_t));
 	UNUSED_PARAM(size);
@@ -171,9 +168,8 @@ cl_vector_copy32(OUT void *const p_dest,
  *	None
  *
  */
-void
-cl_vector_copy64(OUT void *const p_dest,
-		 IN const void *const p_src, IN const size_t size)
+void cl_vector_copy64(OUT void *const p_dest,
+		      IN const void *const p_src, IN const size_t size)
 {
 	CL_ASSERT(size == sizeof(uint64_t));
 	UNUSED_PARAM(size);
@@ -190,14 +186,12 @@ void cl_vector_construct(IN cl_vector_t * const p_vector)
 	p_vector->state = CL_UNINITIALIZED;
 }
 
-cl_status_t
-cl_vector_init(IN cl_vector_t * const p_vector,
-	       IN const size_t min_size,
-	       IN const size_t grow_size,
-	       IN const size_t element_size,
-	       IN cl_pfn_vec_init_t pfn_init OPTIONAL,
-	       IN cl_pfn_vec_dtor_t pfn_dtor OPTIONAL,
-	       IN const void *const context)
+cl_status_t cl_vector_init(IN cl_vector_t * const p_vector,
+			   IN const size_t min_size, IN const size_t grow_size,
+			   IN const size_t element_size,
+			   IN cl_pfn_vec_init_t pfn_init OPTIONAL,
+			   IN cl_pfn_vec_dtor_t pfn_dtor OPTIONAL,
+			   IN const void *const context)
 {
 	cl_status_t status = CL_SUCCESS;
 
@@ -291,9 +285,8 @@ void cl_vector_destroy(IN cl_vector_t * const p_vector)
 	p_vector->state = CL_UNINITIALIZED;
 }
 
-cl_status_t
-cl_vector_at(IN const cl_vector_t * const p_vector,
-	     IN const size_t index, OUT void *const p_element)
+cl_status_t cl_vector_at(IN const cl_vector_t * const p_vector,
+			 IN const size_t index, OUT void *const p_element)
 {
 	CL_ASSERT(p_vector);
 	CL_ASSERT(p_vector->state == CL_INITIALIZED);
@@ -306,9 +299,8 @@ cl_vector_at(IN const cl_vector_t * const p_vector,
 	return (CL_SUCCESS);
 }
 
-cl_status_t
-cl_vector_set(IN cl_vector_t * const p_vector,
-	      IN const size_t index, IN void *const p_element)
+cl_status_t cl_vector_set(IN cl_vector_t * const p_vector,
+			  IN const size_t index, IN void *const p_element)
 {
 	cl_status_t status;
 	void *p_dest;
@@ -338,9 +330,8 @@ cl_vector_set(IN cl_vector_t * const p_vector,
 	return (CL_SUCCESS);
 }
 
-cl_status_t
-cl_vector_set_capacity(IN cl_vector_t * const p_vector,
-		       IN const size_t new_capacity)
+cl_status_t cl_vector_set_capacity(IN cl_vector_t * const p_vector,
+				   IN const size_t new_capacity)
 {
 	size_t new_elements;
 	size_t alloc_size;
@@ -406,8 +397,8 @@ cl_vector_set_capacity(IN cl_vector_t * const p_vector,
 	return (CL_SUCCESS);
 }
 
-cl_status_t
-cl_vector_set_size(IN cl_vector_t * const p_vector, IN const size_t size)
+cl_status_t cl_vector_set_size(IN cl_vector_t * const p_vector,
+			       IN const size_t size)
 {
 	cl_status_t status;
 	size_t new_capacity;
@@ -478,9 +469,8 @@ cl_vector_set_size(IN cl_vector_t * const p_vector, IN const size_t size)
 	return (CL_SUCCESS);
 }
 
-cl_status_t
-cl_vector_set_min_size(IN cl_vector_t * const p_vector,
-		       IN const size_t min_size)
+cl_status_t cl_vector_set_min_size(IN cl_vector_t * const p_vector,
+				   IN const size_t min_size)
 {
 	CL_ASSERT(p_vector);
 	CL_ASSERT(p_vector->state == CL_INITIALIZED);
@@ -494,10 +484,9 @@ cl_vector_set_min_size(IN cl_vector_t * const p_vector,
 	return (CL_SUCCESS);
 }
 
-void
-cl_vector_apply_func(IN const cl_vector_t * const p_vector,
-		     IN cl_pfn_vec_apply_t pfn_callback,
-		     IN const void *const context)
+void cl_vector_apply_func(IN const cl_vector_t * const p_vector,
+			  IN cl_pfn_vec_apply_t pfn_callback,
+			  IN const void *const context)
 {
 	size_t i;
 	void *p_element;
@@ -512,10 +501,9 @@ cl_vector_apply_func(IN const cl_vector_t * const p_vector,
 	}
 }
 
-size_t
-cl_vector_find_from_start(IN const cl_vector_t * const p_vector,
-			  IN cl_pfn_vec_find_t pfn_callback,
-			  IN const void *const context)
+size_t cl_vector_find_from_start(IN const cl_vector_t * const p_vector,
+				 IN cl_pfn_vec_find_t pfn_callback,
+				 IN const void *const context)
 {
 	size_t i;
 	void *p_element;
@@ -533,10 +521,9 @@ cl_vector_find_from_start(IN const cl_vector_t * const p_vector,
 	return (i);
 }
 
-size_t
-cl_vector_find_from_end(IN const cl_vector_t * const p_vector,
-			IN cl_pfn_vec_find_t pfn_callback,
-			IN const void *const context)
+size_t cl_vector_find_from_end(IN const cl_vector_t * const p_vector,
+			       IN cl_pfn_vec_find_t pfn_callback,
+			       IN const void *const context)
 {
 	size_t i;
 	void *p_element;

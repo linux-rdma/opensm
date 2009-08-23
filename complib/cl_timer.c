@@ -212,10 +212,9 @@ void cl_timer_construct(IN cl_timer_t * const p_timer)
 	p_timer->state = CL_UNINITIALIZED;
 }
 
-cl_status_t
-cl_timer_init(IN cl_timer_t * const p_timer,
-	      IN cl_pfn_timer_callback_t pfn_callback,
-	      IN const void *const context)
+cl_status_t cl_timer_init(IN cl_timer_t * const p_timer,
+			  IN cl_pfn_timer_callback_t pfn_callback,
+			  IN const void *const context)
 {
 	CL_ASSERT(p_timer);
 	CL_ASSERT(pfn_callback);
@@ -259,9 +258,8 @@ void cl_timer_destroy(IN cl_timer_t * const p_timer)
 /*
  * Return TRUE if timeout value 1 is earlier than timeout value 2.
  */
-static __inline boolean_t
-__cl_timer_is_earlier(IN struct timespec *p_timeout1,
-		      IN struct timespec *p_timeout2)
+static __inline boolean_t __cl_timer_is_earlier(IN struct timespec *p_timeout1,
+						IN struct timespec *p_timeout2)
 {
 	return ((p_timeout1->tv_sec < p_timeout2->tv_sec) ||
 		((p_timeout1->tv_sec == p_timeout2->tv_sec) &&
@@ -273,9 +271,8 @@ __cl_timer_is_earlier(IN struct timespec *p_timeout1,
  * the context.  Both the list item and the context are pointers to
  * a cl_timer_t structure with valid timeouts.
  */
-static cl_status_t
-__cl_timer_find(IN const cl_list_item_t * const p_list_item,
-		IN void *const context)
+static cl_status_t __cl_timer_find(IN const cl_list_item_t * const p_list_item,
+				   IN void *const context)
 {
 	cl_timer_t *p_in_list;
 	cl_timer_t *p_new;
@@ -297,8 +294,8 @@ __cl_timer_find(IN const cl_list_item_t * const p_list_item,
 	return (CL_NOT_FOUND);
 }
 
-cl_status_t
-cl_timer_start(IN cl_timer_t * const p_timer, IN const uint32_t time_ms)
+cl_status_t cl_timer_start(IN cl_timer_t * const p_timer,
+			   IN const uint32_t time_ms)
 {
 	struct timeval curtime;
 	cl_list_item_t *p_list_item;
@@ -385,8 +382,8 @@ void cl_timer_stop(IN cl_timer_t * const p_timer)
 	pthread_mutex_unlock(&gp_timer_prov->mutex);
 }
 
-cl_status_t
-cl_timer_trim(IN cl_timer_t * const p_timer, IN const uint32_t time_ms)
+cl_status_t cl_timer_trim(IN cl_timer_t * const p_timer,
+			  IN const uint32_t time_ms)
 {
 	struct timeval curtime;
 	struct timespec newtime;

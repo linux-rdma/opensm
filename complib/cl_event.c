@@ -49,8 +49,8 @@ void cl_event_construct(IN cl_event_t * p_event)
 	p_event->state = CL_UNINITIALIZED;
 }
 
-cl_status_t
-cl_event_init(IN cl_event_t * const p_event, IN const boolean_t manual_reset)
+cl_status_t cl_event_init(IN cl_event_t * const p_event,
+			  IN const boolean_t manual_reset)
 {
 	CL_ASSERT(p_event);
 
@@ -109,9 +109,9 @@ cl_status_t cl_event_reset(IN cl_event_t * const p_event)
 	return (CL_SUCCESS);
 }
 
-cl_status_t
-cl_event_wait_on(IN cl_event_t * const p_event,
-		 IN const uint32_t wait_us, IN const boolean_t interruptible)
+cl_status_t cl_event_wait_on(IN cl_event_t * const p_event,
+			     IN const uint32_t wait_us,
+			     IN const boolean_t interruptible)
 {
 	cl_status_t status;
 	int wait_ret;

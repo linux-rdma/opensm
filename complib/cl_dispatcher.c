@@ -163,9 +163,9 @@ void cl_disp_destroy(IN cl_dispatcher_t * const p_disp)
 
 /********************************************************************
  ********************************************************************/
-cl_status_t
-cl_disp_init(IN cl_dispatcher_t * const p_disp,
-	     IN const uint32_t thread_count, IN const char *const name)
+cl_status_t cl_disp_init(IN cl_dispatcher_t * const p_disp,
+			 IN const uint32_t thread_count,
+			 IN const char *const name)
 {
 	cl_status_t status;
 
@@ -205,11 +205,11 @@ cl_disp_init(IN cl_dispatcher_t * const p_disp,
 
 /********************************************************************
  ********************************************************************/
-cl_disp_reg_handle_t
-cl_disp_register(IN cl_dispatcher_t * const p_disp,
-		 IN const cl_disp_msgid_t msg_id,
-		 IN cl_pfn_msgrcv_cb_t pfn_callback OPTIONAL,
-		 IN const void *const context OPTIONAL)
+cl_disp_reg_handle_t cl_disp_register(IN cl_dispatcher_t * const p_disp,
+				      IN const cl_disp_msgid_t msg_id,
+				      IN cl_pfn_msgrcv_cb_t pfn_callback
+				      OPTIONAL,
+				      IN const void *const context OPTIONAL)
 {
 	cl_disp_reg_info_t *p_reg;
 	cl_status_t status;
@@ -299,12 +299,11 @@ void cl_disp_unregister(IN const cl_disp_reg_handle_t handle)
 
 /********************************************************************
  ********************************************************************/
-cl_status_t
-cl_disp_post(IN const cl_disp_reg_handle_t handle,
-	     IN const cl_disp_msgid_t msg_id,
-	     IN const void *const p_data,
-	     IN cl_pfn_msgdone_cb_t pfn_callback OPTIONAL,
-	     IN const void *const context OPTIONAL)
+cl_status_t cl_disp_post(IN const cl_disp_reg_handle_t handle,
+			 IN const cl_disp_msgid_t msg_id,
+			 IN const void *const p_data,
+			 IN cl_pfn_msgdone_cb_t pfn_callback OPTIONAL,
+			 IN const void *const context OPTIONAL)
 {
 	cl_disp_reg_info_t *p_src_reg = (cl_disp_reg_info_t *) handle;
 	cl_disp_reg_info_t *p_dest_reg;
@@ -357,10 +356,9 @@ cl_disp_post(IN const cl_disp_reg_handle_t handle,
 	return (CL_SUCCESS);
 }
 
-void
-cl_disp_get_queue_status(IN const cl_disp_reg_handle_t handle,
-			 OUT uint32_t * p_num_queued_msgs,
-			 OUT uint64_t * p_last_msg_queue_time_ms)
+void cl_disp_get_queue_status(IN const cl_disp_reg_handle_t handle,
+			      OUT uint32_t * p_num_queued_msgs,
+			      OUT uint64_t * p_last_msg_queue_time_ms)
 {
 	cl_dispatcher_t *p_disp = ((cl_disp_reg_info_t *) handle)->p_disp;
 

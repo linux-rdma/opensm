@@ -55,11 +55,10 @@
  */
 #define CL_LOG_DATA_SIZE	(CL_MAX_LOG_DATA + (CL_MAX_LOG_DATA/4))
 
-void
-cl_log_event(IN const char *const name,
-	     IN const cl_log_type_t type,
-	     IN const char *const message,
-	     IN const void *const p_data OPTIONAL, IN const uint32_t data_len)
+void cl_log_event(IN const char *const name, IN const cl_log_type_t type,
+		  IN const char *const message,
+		  IN const void *const p_data OPTIONAL,
+		  IN const uint32_t data_len)
 {
 	int priority, i;
 	char data[CL_LOG_DATA_SIZE];

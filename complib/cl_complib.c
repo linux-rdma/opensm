@@ -49,11 +49,9 @@
  *  Prototypes
  */
 
-extern
- cl_status_t __cl_timer_prov_create(void);
+extern cl_status_t __cl_timer_prov_create(void);
 
-extern
-void __cl_timer_prov_destroy(void);
+extern void __cl_timer_prov_destroy(void);
 
 cl_spinlock_t cl_atomic_spinlock;
 

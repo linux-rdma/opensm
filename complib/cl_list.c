@@ -55,10 +55,10 @@
 **************													   ************
 *******************************************************************************
 ******************************************************************************/
-void
-cl_qlist_insert_array_head(IN cl_qlist_t * const p_list,
-			   IN cl_list_item_t * const p_array,
-			   IN uint32_t item_count, IN const uint32_t item_size)
+void cl_qlist_insert_array_head(IN cl_qlist_t * const p_list,
+				IN cl_list_item_t * const p_array,
+				IN uint32_t item_count,
+				IN const uint32_t item_size)
 {
 	cl_list_item_t *p_item;
 
@@ -85,10 +85,10 @@ cl_qlist_insert_array_head(IN cl_qlist_t * const p_list,
 	}
 }
 
-void
-cl_qlist_insert_array_tail(IN cl_qlist_t * const p_list,
-			   IN cl_list_item_t * const p_array,
-			   IN uint32_t item_count, IN const uint32_t item_size)
+void cl_qlist_insert_array_tail(IN cl_qlist_t * const p_list,
+				IN cl_list_item_t * const p_array,
+				IN uint32_t item_count,
+				IN const uint32_t item_size)
 {
 	cl_list_item_t *p_item;
 
@@ -110,9 +110,8 @@ cl_qlist_insert_array_tail(IN cl_qlist_t * const p_list,
 	}
 }
 
-void
-cl_qlist_insert_list_head(IN cl_qlist_t * const p_dest_list,
-			  IN cl_qlist_t * const p_src_list)
+void cl_qlist_insert_list_head(IN cl_qlist_t * const p_dest_list,
+			       IN cl_qlist_t * const p_src_list)
 {
 #if defined( _DEBUG_ )
 	cl_list_item_t *p_item;
@@ -163,9 +162,8 @@ cl_qlist_insert_list_head(IN cl_qlist_t * const p_dest_list,
 	__cl_qlist_reset(p_src_list);
 }
 
-void
-cl_qlist_insert_list_tail(IN cl_qlist_t * const p_dest_list,
-			  IN cl_qlist_t * const p_src_list)
+void cl_qlist_insert_list_tail(IN cl_qlist_t * const p_dest_list,
+			       IN cl_qlist_t * const p_src_list)
 {
 #if defined( _DEBUG_ )
 	cl_list_item_t *p_item;
@@ -216,9 +214,8 @@ cl_qlist_insert_list_tail(IN cl_qlist_t * const p_dest_list,
 	__cl_qlist_reset(p_src_list);
 }
 
-boolean_t
-cl_is_item_in_qlist(IN const cl_qlist_t * const p_list,
-		    IN const cl_list_item_t * const p_list_item)
+boolean_t cl_is_item_in_qlist(IN const cl_qlist_t * const p_list,
+			      IN const cl_list_item_t * const p_list_item)
 {
 	const cl_list_item_t *p_temp;
 
@@ -298,10 +295,9 @@ cl_list_item_t *cl_qlist_find_prev(IN const cl_qlist_t * const p_list,
 	return (p_found_item);
 }
 
-void
-cl_qlist_apply_func(IN const cl_qlist_t * const p_list,
-		    IN cl_pfn_qlist_apply_t pfn_func,
-		    IN const void *const context)
+void cl_qlist_apply_func(IN const cl_qlist_t * const p_list,
+			 IN cl_pfn_qlist_apply_t pfn_func,
+			 IN const void *const context)
 {
 	cl_list_item_t *p_list_item;
 
@@ -317,11 +313,10 @@ cl_qlist_apply_func(IN const cl_qlist_t * const p_list,
 	}
 }
 
-void
-cl_qlist_move_items(IN cl_qlist_t * const p_src_list,
-		    IN cl_qlist_t * const p_dest_list,
-		    IN cl_pfn_qlist_find_t pfn_func,
-		    IN const void *const context)
+void cl_qlist_move_items(IN cl_qlist_t * const p_src_list,
+			 IN cl_qlist_t * const p_dest_list,
+			 IN cl_pfn_qlist_find_t pfn_func,
+			 IN const void *const context)
 {
 	cl_list_item_t *p_current_item, *p_next;
 
@@ -387,9 +382,8 @@ void cl_list_destroy(IN cl_list_t * const p_list)
 	cl_qpool_destroy(&p_list->list_item_pool);
 }
 
-static cl_status_t
-cl_list_find_cb(IN const cl_list_item_t * const p_list_item,
-		IN void *const context)
+static cl_status_t cl_list_find_cb(IN const cl_list_item_t * const p_list_item,
+				   IN void *const context)
 {
 	CL_ASSERT(p_list_item);
 
@@ -399,9 +393,8 @@ cl_list_find_cb(IN const cl_list_item_t * const p_list_item,
 	return (CL_NOT_FOUND);
 }
 
-cl_status_t
-cl_list_remove_object(IN cl_list_t * const p_list,
-		      IN const void *const p_object)
+cl_status_t cl_list_remove_object(IN cl_list_t * const p_list,
+				  IN const void *const p_object)
 {
 	cl_list_item_t *p_list_item;
 
@@ -421,9 +414,8 @@ cl_list_remove_object(IN cl_list_t * const p_list,
 	return (CL_NOT_FOUND);
 }
 
-boolean_t
-cl_is_object_in_list(IN const cl_list_t * const p_list,
-		     IN const void *const p_object)
+boolean_t cl_is_object_in_list(IN const cl_list_t * const p_list,
+			       IN const void *const p_object)
 {
 	CL_ASSERT(p_list);
 	CL_ASSERT(cl_is_qpool_inited(&p_list->list_item_pool));
@@ -433,10 +425,10 @@ cl_is_object_in_list(IN const cl_list_t * const p_list,
 		!= cl_qlist_end(&p_list->list));
 }
 
-cl_status_t
-cl_list_insert_array_head(IN cl_list_t * const p_list,
-			  IN const void *const p_array,
-			  IN uint32_t item_count, IN const uint32_t item_size)
+cl_status_t cl_list_insert_array_head(IN cl_list_t * const p_list,
+				      IN const void *const p_array,
+				      IN uint32_t item_count,
+				      IN const uint32_t item_size)
 {
 	cl_status_t status;
 	void *p_object;
@@ -471,10 +463,10 @@ cl_list_insert_array_head(IN cl_list_t * const p_list,
 	return (CL_SUCCESS);
 }
 
-cl_status_t
-cl_list_insert_array_tail(IN cl_list_t * const p_list,
-			  IN const void *const p_array,
-			  IN uint32_t item_count, IN const uint32_t item_size)
+cl_status_t cl_list_insert_array_tail(IN cl_list_t * const p_list,
+				      IN const void *const p_array,
+				      IN uint32_t item_count,
+				      IN const uint32_t item_size)
 {
 	cl_status_t status;
 	void *p_object;
@@ -505,10 +497,9 @@ cl_list_insert_array_tail(IN cl_list_t * const p_list,
 	return (CL_SUCCESS);
 }
 
-cl_list_iterator_t
-cl_list_find_from_head(IN const cl_list_t * const p_list,
-		       IN cl_pfn_list_find_t pfn_func,
-		       IN const void *const context)
+cl_list_iterator_t cl_list_find_from_head(IN const cl_list_t * const p_list,
+					  IN cl_pfn_list_find_t pfn_func,
+					  IN const void *const context)
 {
 	cl_status_t status;
 	cl_list_iterator_t itor;
@@ -532,10 +523,9 @@ cl_list_find_from_head(IN const cl_list_t * const p_list,
 	return (itor);
 }
 
-cl_list_iterator_t
-cl_list_find_from_tail(IN const cl_list_t * const p_list,
-		       IN cl_pfn_list_find_t pfn_func,
-		       IN const void *const context)
+cl_list_iterator_t cl_list_find_from_tail(IN const cl_list_t * const p_list,
+					  IN cl_pfn_list_find_t pfn_func,
+					  IN const void *const context)
 {
 	cl_status_t status;
 	cl_list_iterator_t itor;
@@ -559,10 +549,9 @@ cl_list_find_from_tail(IN const cl_list_t * const p_list,
 	return (itor);
 }
 
-void
-cl_list_apply_func(IN const cl_list_t * const p_list,
-		   IN cl_pfn_list_apply_t pfn_func,
-		   IN const void *const context)
+void cl_list_apply_func(IN const cl_list_t * const p_list,
+			IN cl_pfn_list_apply_t pfn_func,
+			IN const void *const context)
 {
 	cl_list_iterator_t itor;
 

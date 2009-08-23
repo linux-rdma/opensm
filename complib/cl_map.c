@@ -128,8 +128,8 @@ static cl_map_item_t **__cl_map_get_parent_ptr_to_item(IN cl_map_item_t *
  *	     / \			   / \
  *	    X   Y			  X   Y
  */
-static void
-__cl_map_rot_left(IN cl_qmap_t * const p_map, IN cl_map_item_t * const p_item)
+static void __cl_map_rot_left(IN cl_qmap_t * const p_map,
+			      IN cl_map_item_t * const p_item)
 {
 	cl_map_item_t **pp_root;
 
@@ -174,8 +174,8 @@ __cl_map_rot_left(IN cl_qmap_t * const p_map, IN cl_map_item_t * const p_item)
  *	     / \				      / \
  *	    X   Y				     X   Y
  */
-static void
-__cl_map_rot_right(IN cl_qmap_t * const p_map, IN cl_map_item_t * const p_item)
+static void __cl_map_rot_right(IN cl_qmap_t * const p_map,
+			       IN cl_map_item_t * const p_item)
 {
 	cl_map_item_t **pp_root;
 
@@ -274,10 +274,9 @@ cl_map_item_t *cl_qmap_get_next(IN const cl_qmap_t * const p_map,
 	return (p_item_found);
 }
 
-void
-cl_qmap_apply_func(IN const cl_qmap_t * const p_map,
-		   IN cl_pfn_qmap_apply_t pfn_func,
-		   IN const void *const context)
+void cl_qmap_apply_func(IN const cl_qmap_t * const p_map,
+			IN cl_pfn_qmap_apply_t pfn_func,
+			IN const void *const context)
 {
 	cl_map_item_t *p_map_item;
 
@@ -296,8 +295,8 @@ cl_qmap_apply_func(IN const cl_qmap_t * const p_map,
 /*
  * Balance a tree starting at a given item back to the root.
  */
-static void
-__cl_map_ins_bal(IN cl_qmap_t * const p_map, IN cl_map_item_t * p_item)
+static void __cl_map_ins_bal(IN cl_qmap_t * const p_map,
+			     IN cl_map_item_t * p_item)
 {
 	cl_map_item_t *p_grand_uncle;
 
@@ -437,8 +436,8 @@ cl_map_item_t *cl_qmap_insert(IN cl_qmap_t * const p_map,
 	return (p_item);
 }
 
-static void
-__cl_map_del_bal(IN cl_qmap_t * const p_map, IN cl_map_item_t * p_item)
+static void __cl_map_del_bal(IN cl_qmap_t * const p_map,
+			     IN cl_map_item_t * p_item)
 {
 	cl_map_item_t *p_uncle;
 
@@ -502,8 +501,8 @@ __cl_map_del_bal(IN cl_qmap_t * const p_map, IN cl_map_item_t * p_item)
 	p_item->color = CL_MAP_BLACK;
 }
 
-void
-cl_qmap_remove_item(IN cl_qmap_t * const p_map, IN cl_map_item_t * const p_item)
+void cl_qmap_remove_item(IN cl_qmap_t * const p_map,
+			 IN cl_map_item_t * const p_item)
 {
 	cl_map_item_t *p_child, *p_del_item;
 
@@ -597,9 +596,8 @@ cl_map_item_t *cl_qmap_remove(IN cl_qmap_t * const p_map, IN const uint64_t key)
 	return (p_item);
 }
 
-void
-cl_qmap_merge(OUT cl_qmap_t * const p_dest_map,
-	      IN OUT cl_qmap_t * const p_src_map)
+void cl_qmap_merge(OUT cl_qmap_t * const p_dest_map,
+		   IN OUT cl_qmap_t * const p_src_map)
 {
 	cl_map_item_t *p_item, *p_item2, *p_next;
 
@@ -628,10 +626,9 @@ cl_qmap_merge(OUT cl_qmap_t * const p_dest_map,
 	}
 }
 
-static void
-__cl_qmap_delta_move(IN OUT cl_qmap_t * const p_dest,
-		     IN OUT cl_qmap_t * const p_src,
-		     IN OUT cl_map_item_t ** const pp_item)
+static void __cl_qmap_delta_move(IN OUT cl_qmap_t * const p_dest,
+				 IN OUT cl_qmap_t * const p_src,
+				 IN OUT cl_map_item_t ** const pp_item)
 {
 	cl_map_item_t *p_temp, *p_next;
 
@@ -649,10 +646,9 @@ __cl_qmap_delta_move(IN OUT cl_qmap_t * const p_dest,
 	(*pp_item) = p_next;
 }
 
-void
-cl_qmap_delta(IN OUT cl_qmap_t * const p_map1,
-	      IN OUT cl_qmap_t * const p_map2,
-	      OUT cl_qmap_t * const p_new, OUT cl_qmap_t * const p_old)
+void cl_qmap_delta(IN OUT cl_qmap_t * const p_map1,
+		   IN OUT cl_qmap_t * const p_map2,
+		   OUT cl_qmap_t * const p_new, OUT cl_qmap_t * const p_old)
 {
 	cl_map_item_t *p_item1, *p_item2;
 	uint64_t key1, key2;
@@ -788,8 +784,8 @@ void *cl_map_get_next(IN const cl_map_t * const p_map, IN const uint64_t key)
 	return (cl_qmap_obj(PARENT_STRUCT(p_item, cl_map_obj_t, item)));
 }
 
-void
-cl_map_remove_item(IN cl_map_t * const p_map, IN const cl_map_iterator_t itor)
+void cl_map_remove_item(IN cl_map_t * const p_map,
+			IN const cl_map_iterator_t itor)
 {
 	CL_ASSERT(itor->p_map == &p_map->qmap);
 
@@ -838,8 +834,8 @@ void cl_map_remove_all(IN cl_map_t * const p_map)
 	}
 }
 
-cl_status_t
-cl_map_merge(OUT cl_map_t * const p_dest_map, IN OUT cl_map_t * const p_src_map)
+cl_status_t cl_map_merge(OUT cl_map_t * const p_dest_map,
+			 IN OUT cl_map_t * const p_src_map)
 {
 	cl_status_t status = CL_SUCCESS;
 	cl_map_iterator_t itor, next;
@@ -877,10 +873,10 @@ cl_map_merge(OUT cl_map_t * const p_dest_map, IN OUT cl_map_t * const p_src_map)
 	return (CL_SUCCESS);
 }
 
-static void
-__cl_map_revert(IN OUT cl_map_t * const p_map1,
-		IN OUT cl_map_t * const p_map2,
-		IN OUT cl_map_t * const p_new, IN OUT cl_map_t * const p_old)
+static void __cl_map_revert(IN OUT cl_map_t * const p_map1,
+			    IN OUT cl_map_t * const p_map2,
+			    IN OUT cl_map_t * const p_new,
+			    IN OUT cl_map_t * const p_old)
 {
 	cl_status_t status;
 
@@ -891,10 +887,9 @@ __cl_map_revert(IN OUT cl_map_t * const p_map1,
 	CL_ASSERT(status == CL_SUCCESS);
 }
 
-static cl_status_t
-__cl_map_delta_move(OUT cl_map_t * const p_dest,
-		    IN OUT cl_map_t * const p_src,
-		    IN OUT cl_map_iterator_t * const p_itor)
+static cl_status_t __cl_map_delta_move(OUT cl_map_t * const p_dest,
+				       IN OUT cl_map_t * const p_src,
+				       IN OUT cl_map_iterator_t * const p_itor)
 {
 	cl_map_iterator_t next;
 	void *p_obj, *p_obj2;
@@ -924,10 +919,9 @@ __cl_map_delta_move(OUT cl_map_t * const p_dest,
 	return (CL_SUCCESS);
 }
 
-cl_status_t
-cl_map_delta(IN OUT cl_map_t * const p_map1,
-	     IN OUT cl_map_t * const p_map2,
-	     OUT cl_map_t * const p_new, OUT cl_map_t * const p_old)
+cl_status_t cl_map_delta(IN OUT cl_map_t * const p_map1,
+			 IN OUT cl_map_t * const p_map2,
+			 OUT cl_map_t * const p_new, OUT cl_map_t * const p_old)
 {
 	cl_map_iterator_t itor1, itor2;
 	uint64_t key1, key2;
@@ -1059,8 +1053,8 @@ static cl_fmap_item_t **__cl_fmap_get_parent_ptr_to_item(IN cl_fmap_item_t *
  *	     / \			   / \
  *	    X   Y			  X   Y
  */
-static void
-__cl_fmap_rot_left(IN cl_fmap_t * const p_map, IN cl_fmap_item_t * const p_item)
+static void __cl_fmap_rot_left(IN cl_fmap_t * const p_map,
+			       IN cl_fmap_item_t * const p_item)
 {
 	cl_fmap_item_t **pp_root;
 
@@ -1105,9 +1099,8 @@ __cl_fmap_rot_left(IN cl_fmap_t * const p_map, IN cl_fmap_item_t * const p_item)
  *	     / \				      / \
  *	    X   Y				     X   Y
  */
-static void
-__cl_fmap_rot_right(IN cl_fmap_t * const p_map,
-		    IN cl_fmap_item_t * const p_item)
+static void __cl_fmap_rot_right(IN cl_fmap_t * const p_map,
+				IN cl_fmap_item_t * const p_item)
 {
 	cl_fmap_item_t **pp_root;
 
@@ -1216,10 +1209,9 @@ cl_fmap_item_t *cl_fmap_get_next(IN const cl_fmap_t * const p_map,
 	return (p_item_found);
 }
 
-void
-cl_fmap_apply_func(IN const cl_fmap_t * const p_map,
-		   IN cl_pfn_fmap_apply_t pfn_func,
-		   IN const void *const context)
+void cl_fmap_apply_func(IN const cl_fmap_t * const p_map,
+			IN cl_pfn_fmap_apply_t pfn_func,
+			IN const void *const context)
 {
 	cl_fmap_item_t *p_fmap_item;
 
@@ -1238,8 +1230,8 @@ cl_fmap_apply_func(IN const cl_fmap_t * const p_map,
 /*
  * Balance a tree starting at a given item back to the root.
  */
-static void
-__cl_fmap_ins_bal(IN cl_fmap_t * const p_map, IN cl_fmap_item_t * p_item)
+static void __cl_fmap_ins_bal(IN cl_fmap_t * const p_map,
+			      IN cl_fmap_item_t * p_item)
 {
 	cl_fmap_item_t *p_grand_uncle;
 
@@ -1382,8 +1374,8 @@ cl_fmap_item_t *cl_fmap_insert(IN cl_fmap_t * const p_map,
 	return (p_item);
 }
 
-static void
-__cl_fmap_del_bal(IN cl_fmap_t * const p_map, IN cl_fmap_item_t * p_item)
+static void __cl_fmap_del_bal(IN cl_fmap_t * const p_map,
+			      IN cl_fmap_item_t * p_item)
 {
 	cl_fmap_item_t *p_uncle;
 
@@ -1447,9 +1439,8 @@ __cl_fmap_del_bal(IN cl_fmap_t * const p_map, IN cl_fmap_item_t * p_item)
 	p_item->color = CL_MAP_BLACK;
 }
 
-void
-cl_fmap_remove_item(IN cl_fmap_t * const p_map,
-		    IN cl_fmap_item_t * const p_item)
+void cl_fmap_remove_item(IN cl_fmap_t * const p_map,
+			 IN cl_fmap_item_t * const p_item)
 {
 	cl_fmap_item_t *p_child, *p_del_item;
 
@@ -1541,9 +1532,8 @@ cl_fmap_item_t *cl_fmap_remove(IN cl_fmap_t * const p_map,
 	return (p_item);
 }
 
-void
-cl_fmap_merge(OUT cl_fmap_t * const p_dest_map,
-	      IN OUT cl_fmap_t * const p_src_map)
+void cl_fmap_merge(OUT cl_fmap_t * const p_dest_map,
+		   IN OUT cl_fmap_t * const p_src_map)
 {
 	cl_fmap_item_t *p_item, *p_item2, *p_next;
 
@@ -1572,10 +1562,9 @@ cl_fmap_merge(OUT cl_fmap_t * const p_dest_map,
 	}
 }
 
-static void
-__cl_fmap_delta_move(IN OUT cl_fmap_t * const p_dest,
-		     IN OUT cl_fmap_t * const p_src,
-		     IN OUT cl_fmap_item_t ** const pp_item)
+static void __cl_fmap_delta_move(IN OUT cl_fmap_t * const p_dest,
+				 IN OUT cl_fmap_t * const p_src,
+				 IN OUT cl_fmap_item_t ** const pp_item)
 {
 	cl_fmap_item_t *p_temp, *p_next;
 
@@ -1593,10 +1582,9 @@ __cl_fmap_delta_move(IN OUT cl_fmap_t * const p_dest,
 	(*pp_item) = p_next;
 }
 
-void
-cl_fmap_delta(IN OUT cl_fmap_t * const p_map1,
-	      IN OUT cl_fmap_t * const p_map2,
-	      OUT cl_fmap_t * const p_new, OUT cl_fmap_t * const p_old)
+void cl_fmap_delta(IN OUT cl_fmap_t * const p_map1,
+		   IN OUT cl_fmap_t * const p_map2,
+		   OUT cl_fmap_t * const p_new, OUT cl_fmap_t * const p_old)
 {
 	cl_fmap_item_t *p_item1, *p_item2;
 	intn_t cmp;

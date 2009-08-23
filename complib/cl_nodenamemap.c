@@ -60,12 +60,11 @@ static int map_name(void *cxt, uint64_t guid, char *p)
 		return -1;
 	item->guid = guid;
 	item->name = strdup(p);
-	cl_qmap_insert(map, item->guid, (cl_map_item_t *)item);
+	cl_qmap_insert(map, item->guid, (cl_map_item_t *) item);
 	return 0;
 }
 
-nn_map_t *
-open_node_name_map(char *node_name_map)
+nn_map_t *open_node_name_map(char *node_name_map)
 {
 	nn_map_t *map;
 
@@ -77,7 +76,7 @@ open_node_name_map(char *node_name_map)
 			return NULL;
 #else
 		return NULL;
-#endif /* HAVE_DEFAULT_NODENAME_MAP */
+#endif				/* HAVE_DEFAULT_NODENAME_MAP */
 	}
 
 	map = malloc(sizeof(*map));
@@ -89,33 +88,31 @@ open_node_name_map(char *node_name_map)
 		fprintf(stderr,
 			"WARNING failed to open node name map \"%s\" (%s)\n",
 			node_name_map, strerror(errno));
-			close_node_name_map(map);
-			return NULL;
+		close_node_name_map(map);
+		return NULL;
 	}
 
 	return map;
 }
 
-void
-close_node_name_map(nn_map_t *map)
+void close_node_name_map(nn_map_t * map)
 {
 	name_map_item_t *item = NULL;
 
 	if (!map)
 		return;
 
-	item = (name_map_item_t *)cl_qmap_head(map);
-	while (item != (name_map_item_t *)cl_qmap_end(map)) {
-		item = (name_map_item_t *)cl_qmap_remove(map, item->guid);
+	item = (name_map_item_t *) cl_qmap_head(map);
+	while (item != (name_map_item_t *) cl_qmap_end(map)) {
+		item = (name_map_item_t *) cl_qmap_remove(map, item->guid);
 		free(item->name);
 		free(item);
-		item = (name_map_item_t *)cl_qmap_head(map);
+		item = (name_map_item_t *) cl_qmap_head(map);
 	}
 	free(map);
 }
 
-char *
-remap_node_name(nn_map_t *map, uint64_t target_guid, char *nodedesc)
+char *remap_node_name(nn_map_t * map, uint64_t target_guid, char *nodedesc)
 {
 	char *rc = NULL;
 	name_map_item_t *item = NULL;
@@ -123,8 +120,8 @@ remap_node_name(nn_map_t *map, uint64_t target_guid, char *nodedesc)
 	if (!map)
 		goto done;
 
-	item = (name_map_item_t *)cl_qmap_get(map, target_guid);
-	if (item != (name_map_item_t *)cl_qmap_end(map))
+	item = (name_map_item_t *) cl_qmap_get(map, target_guid);
+	if (item != (name_map_item_t *) cl_qmap_end(map))
 		rc = strdup(item->name);
 
 done:
@@ -133,8 +130,7 @@ done:
 	return (rc);
 }
 
-char *
-clean_nodedesc(char *nodedesc)
+char *clean_nodedesc(char *nodedesc)
 {
 	int i = 0;
 
@@ -149,7 +145,7 @@ clean_nodedesc(char *nodedesc)
 }
 
 int parse_node_map(const char *file_name,
-		   int (*create)(void *, uint64_t, char *), void *cxt)
+		   int (*create) (void *, uint64_t, char *), void *cxt)
 {
 	char line[256];
 	FILE *f;

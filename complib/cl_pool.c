@@ -64,16 +64,14 @@ void cl_qcpool_construct(IN cl_qcpool_t * const p_pool)
 	p_pool->state = CL_UNINITIALIZED;
 }
 
-cl_status_t
-cl_qcpool_init(IN cl_qcpool_t * const p_pool,
-	       IN const size_t min_size,
-	       IN const size_t max_size,
-	       IN const size_t grow_size,
-	       IN const size_t * const component_sizes,
-	       IN const uint32_t num_components,
-	       IN cl_pfn_qcpool_init_t pfn_initializer OPTIONAL,
-	       IN cl_pfn_qcpool_dtor_t pfn_destructor OPTIONAL,
-	       IN const void *const context)
+cl_status_t cl_qcpool_init(IN cl_qcpool_t * const p_pool,
+			   IN const size_t min_size, IN const size_t max_size,
+			   IN const size_t grow_size,
+			   IN const size_t * const component_sizes,
+			   IN const uint32_t num_components,
+			   IN cl_pfn_qcpool_init_t pfn_initializer OPTIONAL,
+			   IN cl_pfn_qcpool_dtor_t pfn_destructor OPTIONAL,
+			   IN const void *const context)
 {
 	cl_status_t status;
 	uint32_t i;
@@ -383,11 +381,10 @@ cl_pool_item_t *cl_qcpool_get_tail(IN cl_qcpool_t * const p_pool)
  * Callback to translate quick composite to quick grow pool
  * initializer callback.
  */
-static cl_status_t
-__cl_qpool_init_cb(IN void **const p_comp_array,
-		   IN const uint32_t num_components,
-		   IN void *const context,
-		   OUT cl_pool_item_t ** const pp_pool_item)
+static cl_status_t __cl_qpool_init_cb(IN void **const p_comp_array,
+				      IN const uint32_t num_components,
+				      IN void *const context,
+				      OUT cl_pool_item_t ** const pp_pool_item)
 {
 	cl_qpool_t *p_pool = (cl_qpool_t *) context;
 
@@ -405,9 +402,8 @@ __cl_qpool_init_cb(IN void **const p_comp_array,
  * Callback to translate quick composite to quick grow pool
  * destructor callback.
  */
-static void
-__cl_qpool_dtor_cb(IN const cl_pool_item_t * const p_pool_item,
-		   IN void *const context)
+static void __cl_qpool_dtor_cb(IN const cl_pool_item_t * const p_pool_item,
+			       IN void *const context)
 {
 	cl_qpool_t *p_pool = (cl_qpool_t *) context;
 
@@ -424,15 +420,13 @@ void cl_qpool_construct(IN cl_qpool_t * const p_pool)
 	cl_qcpool_construct(&p_pool->qcpool);
 }
 
-cl_status_t
-cl_qpool_init(IN cl_qpool_t * const p_pool,
-	      IN const size_t min_size,
-	      IN const size_t max_size,
-	      IN const size_t grow_size,
-	      IN const size_t object_size,
-	      IN cl_pfn_qpool_init_t pfn_initializer OPTIONAL,
-	      IN cl_pfn_qpool_dtor_t pfn_destructor OPTIONAL,
-	      IN const void *const context)
+cl_status_t cl_qpool_init(IN cl_qpool_t * const p_pool,
+			  IN const size_t min_size, IN const size_t max_size,
+			  IN const size_t grow_size,
+			  IN const size_t object_size,
+			  IN cl_pfn_qpool_init_t pfn_initializer OPTIONAL,
+			  IN cl_pfn_qpool_dtor_t pfn_destructor OPTIONAL,
+			  IN const void *const context)
 {
 	cl_status_t status;
 
@@ -459,11 +453,10 @@ cl_qpool_init(IN cl_qpool_t * const p_pool,
  * Callback to translate quick composite to compsite pool
  * initializer callback.
  */
-static cl_status_t
-__cl_cpool_init_cb(IN void **const p_comp_array,
-		   IN const uint32_t num_components,
-		   IN void *const context,
-		   OUT cl_pool_item_t ** const pp_pool_item)
+static cl_status_t __cl_cpool_init_cb(IN void **const p_comp_array,
+				      IN const uint32_t num_components,
+				      IN void *const context,
+				      OUT cl_pool_item_t ** const pp_pool_item)
 {
 	cl_cpool_t *p_pool = (cl_cpool_t *) context;
 	cl_pool_obj_t *p_pool_obj;
@@ -501,9 +494,8 @@ __cl_cpool_init_cb(IN void **const p_comp_array,
  * Callback to translate quick composite to composite pool
  * destructor callback.
  */
-static void
-__cl_cpool_dtor_cb(IN const cl_pool_item_t * const p_pool_item,
-		   IN void *const context)
+static void __cl_cpool_dtor_cb(IN const cl_pool_item_t * const p_pool_item,
+			       IN void *const context)
 {
 	cl_cpool_t *p_pool = (cl_cpool_t *) context;
 
@@ -525,16 +517,14 @@ void cl_cpool_construct(IN cl_cpool_t * const p_pool)
 	cl_qcpool_construct(&p_pool->qcpool);
 }
 
-cl_status_t
-cl_cpool_init(IN cl_cpool_t * const p_pool,
-	      IN const size_t min_size,
-	      IN const size_t max_size,
-	      IN const size_t grow_size,
-	      IN size_t * const component_sizes,
-	      IN const uint32_t num_components,
-	      IN cl_pfn_cpool_init_t pfn_initializer OPTIONAL,
-	      IN cl_pfn_cpool_dtor_t pfn_destructor OPTIONAL,
-	      IN const void *const context)
+cl_status_t cl_cpool_init(IN cl_cpool_t * const p_pool,
+			  IN const size_t min_size, IN const size_t max_size,
+			  IN const size_t grow_size,
+			  IN size_t * const component_sizes,
+			  IN const uint32_t num_components,
+			  IN cl_pfn_cpool_init_t pfn_initializer OPTIONAL,
+			  IN cl_pfn_cpool_dtor_t pfn_destructor OPTIONAL,
+			  IN const void *const context)
 {
 	cl_status_t status;
 
@@ -569,11 +559,10 @@ cl_cpool_init(IN cl_cpool_t * const p_pool,
 /*
  * Callback to translate quick composite to grow pool constructor callback.
  */
-static cl_status_t
-__cl_pool_init_cb(IN void **const pp_obj,
-		  IN const uint32_t count,
-		  IN void *const context,
-		  OUT cl_pool_item_t ** const pp_pool_item)
+static cl_status_t __cl_pool_init_cb(IN void **const pp_obj,
+				     IN const uint32_t count,
+				     IN void *const context,
+				     OUT cl_pool_item_t ** const pp_pool_item)
 {
 	cl_pool_t *p_pool = (cl_pool_t *) context;
 	cl_pool_obj_t *p_pool_obj;
@@ -611,9 +600,8 @@ __cl_pool_init_cb(IN void **const pp_obj,
 /*
  * Callback to translate quick composite to grow pool destructor callback.
  */
-static void
-__cl_pool_dtor_cb(IN const cl_pool_item_t * const p_pool_item,
-		  IN void *const context)
+static void __cl_pool_dtor_cb(IN const cl_pool_item_t * const p_pool_item,
+			      IN void *const context)
 {
 	cl_pool_t *p_pool = (cl_pool_t *) context;
 
@@ -635,15 +623,12 @@ void cl_pool_construct(IN cl_pool_t * const p_pool)
 	cl_qcpool_construct(&p_pool->qcpool);
 }
 
-cl_status_t
-cl_pool_init(IN cl_pool_t * const p_pool,
-	     IN const size_t min_size,
-	     IN const size_t max_size,
-	     IN const size_t grow_size,
-	     IN const size_t object_size,
-	     IN cl_pfn_pool_init_t pfn_initializer OPTIONAL,
-	     IN cl_pfn_pool_dtor_t pfn_destructor OPTIONAL,
-	     IN const void *const context)
+cl_status_t cl_pool_init(IN cl_pool_t * const p_pool, IN const size_t min_size,
+			 IN const size_t max_size, IN const size_t grow_size,
+			 IN const size_t object_size,
+			 IN cl_pfn_pool_init_t pfn_initializer OPTIONAL,
+			 IN cl_pfn_pool_dtor_t pfn_destructor OPTIONAL,
+			 IN const void *const context)
 {
 	cl_status_t status;
 	size_t total_size;
