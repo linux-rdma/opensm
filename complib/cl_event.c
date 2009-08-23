@@ -140,18 +140,17 @@ cl_event_wait_on(IN cl_event_t * const p_event,
 
 	if (wait_us == EVENT_NO_TIMEOUT) {
 		/* Wait for condition variable to be signaled or broadcast. */
-		if (pthread_cond_wait
-		    (&p_event->condvar, &p_event->mutex))
+		if (pthread_cond_wait(&p_event->condvar, &p_event->mutex))
 			status = CL_NOT_DONE;
 		else
 			status = CL_SUCCESS;
 	} else {
 		/* Get the current time */
 		if (gettimeofday(&curtime, NULL) == 0) {
-			uint32_t n_sec = (curtime.tv_usec + (wait_us % 1000000))
-						* 1000;
+			unsigned long n_sec =
+			    (curtime.tv_usec + (wait_us % 1000000)) * 1000;
 			timeout.tv_sec = curtime.tv_sec + (wait_us / 1000000)
-						+ (n_sec / 1000000000);
+			    + (n_sec / 1000000000);
 			timeout.tv_nsec = n_sec % 1000000000;
 
 			wait_ret = pthread_cond_timedwait(&p_event->condvar,
