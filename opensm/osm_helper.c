@@ -458,12 +458,12 @@ const char *ib_get_sa_method_str(IN uint8_t method)
 {
 	if (method & 0x80) {
 		method = method & 0x7f;
-		if (method >= OSM_SA_METHOD_STR_UNKNOWN_VAL)
+		if (method > OSM_SA_METHOD_STR_UNKNOWN_VAL)
 			method = OSM_SA_METHOD_STR_UNKNOWN_VAL;
 		/* it is a response - use the response table */
 		return (__ib_sa_resp_method_str[method]);
 	} else {
-		if (method >= OSM_SA_METHOD_STR_UNKNOWN_VAL)
+		if (method > OSM_SA_METHOD_STR_UNKNOWN_VAL)
 			method = OSM_SA_METHOD_STR_UNKNOWN_VAL;
 		return (__ib_sa_method_str[method]);
 	}
@@ -475,7 +475,7 @@ const char *ib_get_sm_method_str(IN uint8_t method)
 {
 	if (method & 0x80)
 		method = (method & 0x0F) | 0x10;
-	if (method >= OSM_SM_METHOD_STR_UNKNOWN_VAL)
+	if (method > OSM_SM_METHOD_STR_UNKNOWN_VAL)
 		method = OSM_SM_METHOD_STR_UNKNOWN_VAL;
 	return (__ib_sm_method_str[method]);
 }
@@ -484,10 +484,9 @@ const char *ib_get_sm_method_str(IN uint8_t method)
  **********************************************************************/
 const char *ib_get_sm_attr_str(IN ib_net16_t attr)
 {
-	uint16_t host_attr;
-	host_attr = cl_ntoh16(attr);
+	uint16_t host_attr = cl_ntoh16(attr);
 
-	if (host_attr >= OSM_SM_ATTR_STR_UNKNOWN_VAL)
+	if (host_attr > OSM_SM_ATTR_STR_UNKNOWN_VAL)
 		host_attr = OSM_SM_ATTR_STR_UNKNOWN_VAL;
 
 	return (__ib_sm_attr_str[host_attr]);
@@ -497,10 +496,9 @@ const char *ib_get_sm_attr_str(IN ib_net16_t attr)
  **********************************************************************/
 const char *ib_get_sa_attr_str(IN ib_net16_t attr)
 {
-	uint16_t host_attr;
-	host_attr = cl_ntoh16(attr);
+	uint16_t host_attr = cl_ntoh16(attr);
 
-	if (host_attr >= OSM_SA_ATTR_STR_UNKNOWN_VAL)
+	if (host_attr > OSM_SA_ATTR_STR_UNKNOWN_VAL)
 		host_attr = OSM_SA_ATTR_STR_UNKNOWN_VAL;
 
 	return (__ib_sa_attr_str[host_attr]);
