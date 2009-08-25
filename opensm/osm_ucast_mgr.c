@@ -463,8 +463,6 @@ static void ucast_mgr_process_tbl(IN cl_map_item_t * p_map_item,
 		}
 	}
 
-	set_fwd_tbl_top(p_mgr, p_sw);
-
 	if (p_mgr->p_subn->opt.lmc)
 		free_ports_priv(p_mgr);
 
@@ -977,8 +975,6 @@ static int ucast_mgr_build_lfts(osm_ucast_mgr_t * p_mgr)
 	cl_qmap_apply_func(&p_mgr->p_subn->sw_guid_tbl, ucast_mgr_process_tbl,
 			   p_mgr);
 
-	ucast_mgr_pipeline_fwd_tbl(p_mgr);
-
 	cl_qlist_remove_all(&p_mgr->port_order_list);
 
 	return 0;
@@ -1025,8 +1021,7 @@ static int ucast_mgr_route(struct osm_routing_engine *r, osm_opensm_t * osm)
 
 	osm->routing_engine_used = osm_routing_engine_type(r->name);
 
-	if (r->ucast_build_fwd_tables)
-		osm_ucast_mgr_set_fwd_table(&osm->sm.ucast_mgr);
+	osm_ucast_mgr_set_fwd_table(&osm->sm.ucast_mgr);
 
 	return 0;
 }
@@ -1063,6 +1058,7 @@ int osm_ucast_mgr_process(IN osm_ucast_mgr_t * p_mgr)
 		/* If configured routing algorithm failed, use default MinHop */
 		osm_ucast_mgr_build_lid_matrices(p_mgr);
 		ucast_mgr_build_lfts(p_mgr);
+		osm_ucast_mgr_set_fwd_tables(p_mgr);
 		p_osm->routing_engine_used = OSM_ROUTING_ENGINE_TYPE_MINHOP;
 	}
 
