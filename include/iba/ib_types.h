@@ -4377,8 +4377,8 @@ ib_node_info_get_vendor_id(IN const ib_node_info_t * const p_ni)
 
 #include <complib/cl_packon.h>
 typedef struct _ib_node_desc {
-	// Node String is an array of UTF-8 character that
-	// describes the node in text format
+	// Node String is an array of UTF-8 characters
+	// that describe the node in text format
 	// Note that this string is NOT NULL TERMINATED!
 	uint8_t description[IB_NODE_DESCRIPTION_SIZE];
 } PACK_SUFFIX ib_node_desc_t;
@@ -7737,9 +7737,9 @@ typedef struct _ib_port_counters {
 	ib_net16_t xmit_discards;
 	uint8_t xmit_constraint_err;
 	uint8_t rcv_constraint_err;
-	uint8_t res1;
+	uint8_t counter_select2;
 	uint8_t link_int_buffer_overrun;
-	ib_net16_t res2;
+	ib_net16_t resv;
 	ib_net16_t vl15_dropped;
 	ib_net32_t xmit_data;
 	ib_net32_t rcv_data;
