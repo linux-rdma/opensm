@@ -315,81 +315,6 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-static void ucast_mgr_set_fwd_top(IN cl_map_item_t * p_map_item,
-				  IN void *cxt)
-{
-	osm_ucast_mgr_t *p_mgr = cxt;
-	osm_switch_t *const p_sw = (osm_switch_t *) p_map_item;
-	osm_node_t *p_node;
-	osm_dr_path_t *p_path;
-	osm_madw_context_t context;
-	ib_api_status_t status;
-	ib_switch_info_t si;
-	boolean_t set_swinfo_require = FALSE;
-	uint16_t lin_top;
-	uint8_t life_state;
-
-	CL_ASSERT(p_mgr);
-
-	OSM_LOG_ENTER(p_mgr->p_log);
-
-	CL_ASSERT(p_sw);
-
-	p_node = p_sw->p_node;
-
-	CL_ASSERT(p_node);
-
-	if (p_mgr->max_lid < p_sw->max_lid_ho)
-		p_mgr->max_lid = p_sw->max_lid_ho;
-
-	p_path = osm_physp_get_dr_path_ptr(osm_node_get_physp_ptr(p_node, 0));
-
-	/*
-	   Set the top of the unicast forwarding table.
-	 */
-	si = p_sw->switch_info;
-	lin_top = cl_hton16(p_sw->max_lid_ho);
-	if (lin_top != si.lin_top) {
-		set_swinfo_require = TRUE;
-		si.lin_top = lin_top;
-	}
-
-	/* check to see if the change state bit is on. If it is - then we
-	   need to clear it. */
-	if (ib_switch_info_get_state_change(&si))
-		life_state = ((p_mgr->p_subn->opt.packet_life_time << 3)
-			      | (si.life_state & IB_SWITCH_PSC)) & 0xfc;
-	else
-		life_state = (p_mgr->p_subn->opt.packet_life_time << 3) & 0xf8;
-
-	if (life_state != si.life_state || ib_switch_info_get_state_change(&si)) {
-		set_swinfo_require = TRUE;
-		si.life_state = life_state;
-	}
-
-	if (set_swinfo_require) {
-		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-			"Setting switch FT top to LID %u\n", p_sw->max_lid_ho);
-
-		context.si_context.light_sweep = FALSE;
-		context.si_context.node_guid = osm_node_get_node_guid(p_node);
-		context.si_context.set_method = TRUE;
-
-		status = osm_req_set(p_mgr->sm, p_path, (uint8_t *) & si,
-				     sizeof(si), IB_MAD_ATTR_SWITCH_INFO,
-				     0, CL_DISP_MSGID_NONE, &context);
-
-		if (status != IB_SUCCESS)
-			OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 3A06: "
-				"Sending SwitchInfo attribute failed (%s)\n",
-				ib_get_err_str(status));
-	}
-
-	OSM_LOG_EXIT(p_mgr->p_log);
-}
-
-/**********************************************************************
- **********************************************************************/
 static void alloc_ports_priv(osm_ucast_mgr_t * mgr)
 {
 	cl_qmap_t *port_tbl = &mgr->p_subn->port_guid_tbl;
@@ -472,56 +397,6 @@ static void ucast_mgr_process_tbl(IN cl_map_item_t * p_map_item,
 		free_ports_priv(p_mgr);
 
 	OSM_LOG_EXIT(p_mgr->p_log);
-}
-
-static int set_lft_block(IN osm_switch_t *p_sw, IN osm_ucast_mgr_t *p_mgr,
-			 IN uint16_t block_id_ho)
-{
-	uint8_t block[IB_SMP_DATA_SIZE];
-	osm_madw_context_t context;
-	osm_dr_path_t *p_path;
-	ib_api_status_t status;
-
-	/*
-	   Send linear forwarding table blocks to the switch
-	   as long as the switch indicates it has blocks needing
-	   configuration.
-	 */
-	if (!p_sw->new_lft) {
-		/* any routing should provide the new_lft */
-		CL_ASSERT(p_mgr->p_subn->opt.use_ucast_cache &&
-			  p_mgr->cache_valid && !p_sw->need_update);
-		return -1;
-	}
-
-	p_path = osm_physp_get_dr_path_ptr(osm_node_get_physp_ptr(p_sw->p_node, 0));
-
-	context.lft_context.node_guid = osm_node_get_node_guid(p_sw->p_node);
-	context.lft_context.set_method = TRUE;
-
-	if (!osm_switch_get_lft_block(p_sw, block_id_ho, block) ||
-	    (!p_sw->need_update && !p_mgr->p_subn->need_update &&
-	     !memcmp(block, p_sw->new_lft + block_id_ho * IB_SMP_DATA_SIZE,
-		     IB_SMP_DATA_SIZE)))
-		return 0;
-
-	OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-		"Writing FT block %u to switch 0x%" PRIx64 "\n", block_id_ho,
-		cl_ntoh64(context.lft_context.node_guid));
-
-	status = osm_req_set(p_mgr->sm, p_path,
-			     p_sw->new_lft + block_id_ho * IB_SMP_DATA_SIZE,
-			     IB_SMP_DATA_SIZE, IB_MAD_ATTR_LIN_FWD_TBL,
-			     cl_hton32(block_id_ho),
-			     CL_DISP_MSGID_NONE, &context);
-	if (status != IB_SUCCESS) {
-		OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 3A05: "
-			"Sending linear fwd. tbl. block failed (%s)\n",
-			ib_get_err_str(status));
-		return -1;
-	}
-
-	return 0;
 }
 
 /**********************************************************************
@@ -877,19 +752,6 @@ static void sort_ports_by_switch_load(osm_ucast_mgr_t * m)
 		add_sw_endports_to_order_list(s[i], m);
 }
 
-static void ucast_mgr_pipeline_fwd_tbl(osm_ucast_mgr_t * p_mgr)
-{
-	cl_qmap_t *tbl;
-	cl_map_item_t *item;
-	unsigned i, max_block = p_mgr->max_lid / 64 + 1;
-
-	tbl = &p_mgr->p_subn->sw_guid_tbl;
-	for (i = 0; i < max_block; i++)
-		for (item = cl_qmap_head(tbl); item != cl_qmap_end(tbl);
-		     item = cl_qmap_next(item))
-			set_lft_block((osm_switch_t *)item, p_mgr, i);
-}
-
 static int ucast_mgr_build_lfts(osm_ucast_mgr_t * p_mgr)
 {
 	cl_qlist_init(&p_mgr->port_order_list);
@@ -931,6 +793,142 @@ static int ucast_mgr_build_lfts(osm_ucast_mgr_t * p_mgr)
 
 /**********************************************************************
  **********************************************************************/
+static void ucast_mgr_set_fwd_top(IN cl_map_item_t * p_map_item,
+				  IN void *cxt)
+{
+	osm_ucast_mgr_t *p_mgr = cxt;
+	osm_switch_t *const p_sw = (osm_switch_t *) p_map_item;
+	osm_node_t *p_node;
+	osm_dr_path_t *p_path;
+	osm_madw_context_t context;
+	ib_api_status_t status;
+	ib_switch_info_t si;
+	boolean_t set_swinfo_require = FALSE;
+	uint16_t lin_top;
+	uint8_t life_state;
+
+	CL_ASSERT(p_mgr);
+
+	OSM_LOG_ENTER(p_mgr->p_log);
+
+	CL_ASSERT(p_sw);
+
+	p_node = p_sw->p_node;
+
+	CL_ASSERT(p_node);
+
+	if (p_mgr->max_lid < p_sw->max_lid_ho)
+		p_mgr->max_lid = p_sw->max_lid_ho;
+
+	p_path = osm_physp_get_dr_path_ptr(osm_node_get_physp_ptr(p_node, 0));
+
+	/*
+	   Set the top of the unicast forwarding table.
+	 */
+	si = p_sw->switch_info;
+	lin_top = cl_hton16(p_sw->max_lid_ho);
+	if (lin_top != si.lin_top) {
+		set_swinfo_require = TRUE;
+		si.lin_top = lin_top;
+	}
+
+	/* check to see if the change state bit is on. If it is - then we
+	   need to clear it. */
+	if (ib_switch_info_get_state_change(&si))
+		life_state = ((p_mgr->p_subn->opt.packet_life_time << 3)
+			      | (si.life_state & IB_SWITCH_PSC)) & 0xfc;
+	else
+		life_state = (p_mgr->p_subn->opt.packet_life_time << 3) & 0xf8;
+
+	if (life_state != si.life_state || ib_switch_info_get_state_change(&si)) {
+		set_swinfo_require = TRUE;
+		si.life_state = life_state;
+	}
+
+	if (set_swinfo_require) {
+		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
+			"Setting switch FT top to LID %u\n", p_sw->max_lid_ho);
+
+		context.si_context.light_sweep = FALSE;
+		context.si_context.node_guid = osm_node_get_node_guid(p_node);
+		context.si_context.set_method = TRUE;
+
+		status = osm_req_set(p_mgr->sm, p_path, (uint8_t *) & si,
+				     sizeof(si), IB_MAD_ATTR_SWITCH_INFO,
+				     0, CL_DISP_MSGID_NONE, &context);
+
+		if (status != IB_SUCCESS)
+			OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 3A06: "
+				"Sending SwitchInfo attribute failed (%s)\n",
+				ib_get_err_str(status));
+	}
+
+	OSM_LOG_EXIT(p_mgr->p_log);
+}
+
+static int set_lft_block(IN osm_switch_t *p_sw, IN osm_ucast_mgr_t *p_mgr,
+			 IN uint16_t block_id_ho)
+{
+	uint8_t block[IB_SMP_DATA_SIZE];
+	osm_madw_context_t context;
+	osm_dr_path_t *p_path;
+	ib_api_status_t status;
+
+	/*
+	   Send linear forwarding table blocks to the switch
+	   as long as the switch indicates it has blocks needing
+	   configuration.
+	 */
+	if (!p_sw->new_lft) {
+		/* any routing should provide the new_lft */
+		CL_ASSERT(p_mgr->p_subn->opt.use_ucast_cache &&
+			  p_mgr->cache_valid && !p_sw->need_update);
+		return -1;
+	}
+
+	p_path = osm_physp_get_dr_path_ptr(osm_node_get_physp_ptr(p_sw->p_node, 0));
+
+	context.lft_context.node_guid = osm_node_get_node_guid(p_sw->p_node);
+	context.lft_context.set_method = TRUE;
+
+	if (!osm_switch_get_lft_block(p_sw, block_id_ho, block) ||
+	    (!p_sw->need_update && !p_mgr->p_subn->need_update &&
+	     !memcmp(block, p_sw->new_lft + block_id_ho * IB_SMP_DATA_SIZE,
+		     IB_SMP_DATA_SIZE)))
+		return 0;
+
+	OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
+		"Writing FT block %u to switch 0x%" PRIx64 "\n", block_id_ho,
+		cl_ntoh64(context.lft_context.node_guid));
+
+	status = osm_req_set(p_mgr->sm, p_path,
+			     p_sw->new_lft + block_id_ho * IB_SMP_DATA_SIZE,
+			     IB_SMP_DATA_SIZE, IB_MAD_ATTR_LIN_FWD_TBL,
+			     cl_hton32(block_id_ho),
+			     CL_DISP_MSGID_NONE, &context);
+	if (status != IB_SUCCESS) {
+		OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 3A05: "
+			"Sending linear fwd. tbl. block failed (%s)\n",
+			ib_get_err_str(status));
+		return -1;
+	}
+
+	return 0;
+}
+
+static void ucast_mgr_pipeline_fwd_tbl(osm_ucast_mgr_t * p_mgr)
+{
+	cl_qmap_t *tbl;
+	cl_map_item_t *item;
+	unsigned i, max_block = p_mgr->max_lid / 64 + 1;
+
+	tbl = &p_mgr->p_subn->sw_guid_tbl;
+	for (i = 0; i < max_block; i++)
+		for (item = cl_qmap_head(tbl); item != cl_qmap_end(tbl);
+		     item = cl_qmap_next(item))
+			set_lft_block((osm_switch_t *)item, p_mgr, i);
+}
+
 void osm_ucast_mgr_set_fwd_tables(osm_ucast_mgr_t * p_mgr)
 {
 	p_mgr->max_lid = 0;
