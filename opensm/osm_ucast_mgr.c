@@ -315,8 +315,11 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-static int set_fwd_tbl_top(IN osm_ucast_mgr_t * p_mgr, IN osm_switch_t * p_sw)
+static void ucast_mgr_set_fwd_top(IN cl_map_item_t * p_map_item,
+				  IN void *cxt)
 {
+	osm_ucast_mgr_t *p_mgr = cxt;
+	osm_switch_t *const p_sw = (osm_switch_t *) p_map_item;
 	osm_node_t *p_node;
 	osm_dr_path_t *p_path;
 	osm_madw_context_t context;
@@ -383,7 +386,6 @@ static int set_fwd_tbl_top(IN osm_ucast_mgr_t * p_mgr, IN osm_switch_t * p_sw)
 	}
 
 	OSM_LOG_EXIT(p_mgr->p_log);
-	return 0;
 }
 
 /**********************************************************************
@@ -470,15 +472,6 @@ static void ucast_mgr_process_tbl(IN cl_map_item_t * p_map_item,
 		free_ports_priv(p_mgr);
 
 	OSM_LOG_EXIT(p_mgr->p_log);
-}
-
-static void ucast_mgr_process_top(IN cl_map_item_t * p_map_item,
-				  IN void *context)
-{
-	osm_ucast_mgr_t *p_mgr = context;
-	osm_switch_t *const p_sw = (osm_switch_t *) p_map_item;
-
-	set_fwd_tbl_top(p_mgr, p_sw);
 }
 
 static int set_lft_block(IN osm_switch_t *p_sw, IN osm_ucast_mgr_t *p_mgr,
@@ -938,12 +931,12 @@ static int ucast_mgr_build_lfts(osm_ucast_mgr_t * p_mgr)
 
 /**********************************************************************
  **********************************************************************/
-void osm_ucast_mgr_set_fwd_table(osm_ucast_mgr_t * p_mgr)
+void osm_ucast_mgr_set_fwd_tables(osm_ucast_mgr_t * p_mgr)
 {
 	p_mgr->max_lid = 0;
 
-	cl_qmap_apply_func(&p_mgr->p_subn->sw_guid_tbl,
-			   ucast_mgr_process_top, p_mgr);
+	cl_qmap_apply_func(&p_mgr->p_subn->sw_guid_tbl, ucast_mgr_set_fwd_top,
+			   p_mgr);
 
 	ucast_mgr_pipeline_fwd_tbl(p_mgr);
 }
@@ -979,7 +972,7 @@ static int ucast_mgr_route(struct osm_routing_engine *r, osm_opensm_t * osm)
 
 	osm->routing_engine_used = osm_routing_engine_type(r->name);
 
-	osm_ucast_mgr_set_fwd_table(&osm->sm.ucast_mgr);
+	osm_ucast_mgr_set_fwd_tables(&osm->sm.ucast_mgr);
 
 	return 0;
 }

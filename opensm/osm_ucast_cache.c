@@ -1087,7 +1087,7 @@ int osm_ucast_cache_process(osm_ucast_mgr_t * p_mgr)
 
 	}
 
-	osm_ucast_mgr_set_fwd_table(p_mgr);
+	osm_ucast_mgr_set_fwd_tables(p_mgr);
 
 	return 0;
 }

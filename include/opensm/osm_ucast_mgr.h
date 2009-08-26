@@ -122,11 +122,6 @@ typedef struct osm_ucast_mgr {
 *	port_order_list
 *		List of ports ordered for routing.
 *
-*	any_change
-*		Initialized to FALSE at the beginning of the algorithm,
-*		set to TRUE by osm_ucast_mgr_set_fwd_table() if any mad
-*		was sent.
-*
 *	some_hop_count_set
 *		Initialized to FALSE at the beginning of each the min hop
 *		tables calculation iteration cycle, set to TRUE to indicate
@@ -234,16 +229,16 @@ osm_ucast_mgr_init(IN osm_ucast_mgr_t * const p_mgr, IN struct osm_sm * sm);
 *	osm_ucast_mgr_destroy
 *********/
 
-/****f* OpenSM: Unicast Manager/osm_ucast_mgr_set_fwd_table
+/****f* OpenSM: Unicast Manager/osm_ucast_mgr_set_fwd_tables
 * NAME
-*	osm_ucast_mgr_set_fwd_table
+*	osm_ucast_mgr_set_fwd_tables
 *
 * DESCRIPTION
 *	Setup forwarding table for the switch (from prepared new_lft).
 *
 * SYNOPSIS
 */
-void osm_ucast_mgr_set_fwd_table(IN osm_ucast_mgr_t * const p_mgr);
+void osm_ucast_mgr_set_fwd_tables(IN osm_ucast_mgr_t * const p_mgr);
 /*
 * PARAMETERS
 *	p_mgr
