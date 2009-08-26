@@ -336,6 +336,9 @@ static int set_fwd_tbl_top(IN osm_ucast_mgr_t * p_mgr, IN osm_switch_t * p_sw)
 
 	CL_ASSERT(p_node);
 
+	if (p_mgr->max_lid < p_sw->max_lid_ho)
+		p_mgr->max_lid = p_sw->max_lid_ho;
+
 	p_path = osm_physp_get_dr_path_ptr(osm_node_get_physp_ptr(p_node, 0));
 
 	/*
@@ -478,65 +481,13 @@ static void ucast_mgr_process_top(IN cl_map_item_t * p_map_item,
 	set_fwd_tbl_top(p_mgr, p_sw);
 }
 
-static boolean_t set_next_lft_block(IN osm_switch_t * p_sw, IN osm_sm_t * p_sm,
-				    IN uint8_t * p_block,
-				    IN osm_dr_path_t * p_path,
-				    IN uint16_t block_id_ho,
-				    IN osm_madw_context_t * p_context)
+static int set_lft_block(IN osm_switch_t *p_sw, IN osm_ucast_mgr_t *p_mgr,
+			 IN uint16_t block_id_ho)
 {
-	ib_api_status_t status;
-	boolean_t sts;
-
-	OSM_LOG_ENTER(p_sm->p_log);
-
-	for (;
-	     (sts = osm_switch_get_lft_block(p_sw, block_id_ho, p_block));
-	     block_id_ho++) {
-		if (!p_sw->need_update && !p_sm->p_subn->need_update &&
-		    !memcmp(p_block,
-			    p_sw->new_lft + block_id_ho * IB_SMP_DATA_SIZE,
-			    IB_SMP_DATA_SIZE))
-			continue;
-
-		OSM_LOG(p_sm->p_log, OSM_LOG_DEBUG,
-			"Writing FT block %u to switch 0x%" PRIx64 "\n",
-			block_id_ho,
-			cl_ntoh64(p_context->lft_context.node_guid));
-
-		status = osm_req_set(p_sm, p_path,
-				     p_sw->new_lft +
-				     block_id_ho * IB_SMP_DATA_SIZE,
-				     IB_SMP_DATA_SIZE, IB_MAD_ATTR_LIN_FWD_TBL,
-				     cl_hton32(block_id_ho),
-				     CL_DISP_MSGID_NONE, p_context);
-
-		if (status != IB_SUCCESS)
-			OSM_LOG(p_sm->p_log, OSM_LOG_ERROR, "ERR 3A05: "
-				"Sending linear fwd. tbl. block failed (%s)\n",
-				ib_get_err_str(status));
-		break;
-	}
-
-	OSM_LOG_EXIT(p_sm->p_log);
-	return sts;
-}
-
-static boolean_t pipeline_next_lft_block(IN osm_switch_t *p_sw,
-					 IN osm_ucast_mgr_t *p_mgr,
-					 IN uint16_t block_id_ho)
-{
-	osm_dr_path_t *p_path;
-	osm_madw_context_t context;
 	uint8_t block[IB_SMP_DATA_SIZE];
-	boolean_t status;
-
-	OSM_LOG_ENTER(p_mgr->p_log);
-
-	CL_ASSERT(p_sw && p_sw->p_node);
-
-	OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-		"Processing switch 0x%" PRIx64 "\n",
-		cl_ntoh64(osm_node_get_node_guid(p_sw->p_node)));
+	osm_madw_context_t context;
+	osm_dr_path_t *p_path;
+	ib_api_status_t status;
 
 	/*
 	   Send linear forwarding table blocks to the switch
@@ -547,8 +498,7 @@ static boolean_t pipeline_next_lft_block(IN osm_switch_t *p_sw,
 		/* any routing should provide the new_lft */
 		CL_ASSERT(p_mgr->p_subn->opt.use_ucast_cache &&
 			  p_mgr->cache_valid && !p_sw->need_update);
-		status = FALSE;
-		goto Exit;
+		return -1;
 	}
 
 	p_path = osm_physp_get_dr_path_ptr(osm_node_get_physp_ptr(p_sw->p_node, 0));
@@ -556,12 +506,29 @@ static boolean_t pipeline_next_lft_block(IN osm_switch_t *p_sw,
 	context.lft_context.node_guid = osm_node_get_node_guid(p_sw->p_node);
 	context.lft_context.set_method = TRUE;
 
-	status = set_next_lft_block(p_sw, p_mgr->sm, &block[0], p_path,
-				    block_id_ho, &context);
+	if (!osm_switch_get_lft_block(p_sw, block_id_ho, block) ||
+	    (!p_sw->need_update && !p_mgr->p_subn->need_update &&
+	     !memcmp(block, p_sw->new_lft + block_id_ho * IB_SMP_DATA_SIZE,
+		     IB_SMP_DATA_SIZE)))
+		return 0;
 
-Exit:
-	OSM_LOG_EXIT(p_mgr->p_log);
-	return status;
+	OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
+		"Writing FT block %u to switch 0x%" PRIx64 "\n", block_id_ho,
+		cl_ntoh64(context.lft_context.node_guid));
+
+	status = osm_req_set(p_mgr->sm, p_path,
+			     p_sw->new_lft + block_id_ho * IB_SMP_DATA_SIZE,
+			     IB_SMP_DATA_SIZE, IB_MAD_ATTR_LIN_FWD_TBL,
+			     cl_hton32(block_id_ho),
+			     CL_DISP_MSGID_NONE, &context);
+	if (status != IB_SUCCESS) {
+		OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 3A05: "
+			"Sending linear fwd. tbl. block failed (%s)\n",
+			ib_get_err_str(status));
+		return -1;
+	}
+
+	return 0;
 }
 
 /**********************************************************************
@@ -919,26 +886,15 @@ static void sort_ports_by_switch_load(osm_ucast_mgr_t * m)
 
 static void ucast_mgr_pipeline_fwd_tbl(osm_ucast_mgr_t * p_mgr)
 {
-	cl_qmap_t *p_sw_tbl;
-	osm_switch_t *p_sw;
-	uint16_t block_id_ho = 0;
-	int sws_notdone;
-	boolean_t sts;
+	cl_qmap_t *tbl;
+	cl_map_item_t *item;
+	unsigned i, max_block = p_mgr->max_lid / 64 + 1;
 
-	p_sw_tbl = &p_mgr->p_subn->sw_guid_tbl;
-	while (1) {
-		p_sw = (osm_switch_t *) cl_qmap_head(p_sw_tbl);
-		sws_notdone = 0;
-		while (p_sw != (osm_switch_t *) cl_qmap_end(p_sw_tbl)) {
-			sts = pipeline_next_lft_block(p_sw, p_mgr, block_id_ho);
-			if (sts)
-				sws_notdone++;
-			p_sw = (osm_switch_t *) cl_qmap_next(&p_sw->map_item);
-		}
-		if (!sws_notdone)
-			break;
-		block_id_ho++;
-	}
+	tbl = &p_mgr->p_subn->sw_guid_tbl;
+	for (i = 0; i < max_block; i++)
+		for (item = cl_qmap_head(tbl); item != cl_qmap_end(tbl);
+		     item = cl_qmap_next(item))
+			set_lft_block((osm_switch_t *)item, p_mgr, i);
 }
 
 static int ucast_mgr_build_lfts(osm_ucast_mgr_t * p_mgr)
@@ -984,6 +940,8 @@ static int ucast_mgr_build_lfts(osm_ucast_mgr_t * p_mgr)
  **********************************************************************/
 void osm_ucast_mgr_set_fwd_table(osm_ucast_mgr_t * p_mgr)
 {
+	p_mgr->max_lid = 0;
+
 	cl_qmap_apply_func(&p_mgr->p_subn->sw_guid_tbl,
 			   ucast_mgr_process_top, p_mgr);
 

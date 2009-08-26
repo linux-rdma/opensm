@@ -95,6 +95,7 @@ typedef struct osm_ucast_mgr {
 	osm_subn_t *p_subn;
 	osm_log_t *p_log;
 	cl_plock_t *p_lock;
+	uint16_t max_lid;
 	cl_qlist_t port_order_list;
 	boolean_t is_dor;
 	boolean_t some_hop_count_set;
