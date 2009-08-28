@@ -531,7 +531,7 @@ const char *ib_get_trap_str(ib_net16_t trap_num)
 		return "Flow Control Update watchdog timer expired";
 	case 144:
 		return
-		    "CapabilityMask, NodeDescription, Link [Width|Speed] Enabled changed";
+		    "CapabilityMask, NodeDescription, Link [Width|Speed] Enabled, SM priority changed";
 	case 145:
 		return "System Image GUID changed";
 	case 256:
