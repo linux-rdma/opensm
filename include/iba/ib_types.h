@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2008 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2009 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2009 HNR Consulting. All rights reserved.
  *
@@ -4492,7 +4492,7 @@ typedef struct _ib_port_info {
 #define IB_PORT_CAP_HAS_LINK_SPEED_WIDTH_PAIRS_TBL (CL_HTON32(0x08000000))
 #define IB_PORT_CAP_RESV28        (CL_HTON32(0x10000000))
 #define IB_PORT_CAP_RESV29        (CL_HTON32(0x20000000))
-#define IB_PORT_CAP_RESV30        (CL_HTON32(0x40000000))
+#define IB_PORT_CAP_HAS_MCAST_FDB_TOP (CL_HTON32(0x40000000))
 #define IB_PORT_CAP_RESV31        (CL_HTON32(0x80000000))
 
 /****f* IBA Base: Types/ib_port_info_get_port_state
@@ -5899,6 +5899,8 @@ typedef struct _ib_switch_info {
 	ib_net16_t lids_per_port;
 	ib_net16_t enforce_cap;
 	uint8_t flags;
+	uint8_t resvd;
+	ib_net16_t mcast_top;
 } PACK_SUFFIX ib_switch_info_t;
 #include <complib/cl_packoff.h>
 /************/
@@ -5908,7 +5910,6 @@ typedef struct _ib_switch_info_record {
 	ib_net16_t lid;
 	uint16_t resv0;
 	ib_switch_info_t switch_info;
-	uint8_t pad[3];
 } PACK_SUFFIX ib_switch_info_record_t;
 #include <complib/cl_packoff.h>
 

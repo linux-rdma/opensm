@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2008 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2009 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2009 HNR Consulting. All rights reserved.
  * Copyright (c) 2009 Sun Microsystems, Inc. All rights reserved.
@@ -764,9 +764,9 @@ static void dbg_get_capabilities_str(IN char *p_buf, IN const uint32_t buf_size,
 				&total_len) != IB_SUCCESS)
 			return;
 	}
-	if (p_pi->capability_mask & IB_PORT_CAP_RESV30) {
+	if (p_pi->capability_mask & IB_PORT_CAP_HAS_MCAST_FDB_TOP) {
 		if (dbg_do_line(&p_local, buf_size, p_prefix_str,
-				"IB_PORT_CAP_RESV30\n",
+				"IB_PORT_CAP_HAS_MCAST_FDB_TOP\n",
 				&total_len) != IB_SUCCESS)
 			return;
 	}
@@ -1512,7 +1512,8 @@ void osm_dump_switch_info(IN osm_log_t * p_log,
 			"\t\t\t\tlife_state..............0x%X\n"
 			"\t\t\t\tlids_per_port...........%u\n"
 			"\t\t\t\tpartition_enf_cap.......0x%X\n"
-			"\t\t\t\tflags...................0x%X\n",
+			"\t\t\t\tflags...................0x%X\n"
+			"\t\t\t\tmcast_top...............0x%X\n",
 			cl_ntoh16(p_si->lin_cap),
 			cl_ntoh16(p_si->rand_cap),
 			cl_ntoh16(p_si->mcast_cap),
@@ -1522,7 +1523,8 @@ void osm_dump_switch_info(IN osm_log_t * p_log,
 			p_si->def_mcast_not_port,
 			p_si->life_state,
 			cl_ntoh16(p_si->lids_per_port),
-			cl_ntoh16(p_si->enforce_cap), p_si->flags);
+			cl_ntoh16(p_si->enforce_cap), p_si->flags,
+			cl_ntoh16(p_si->mcast_top));
 	}
 }
 
