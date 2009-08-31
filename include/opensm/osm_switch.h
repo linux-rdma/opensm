@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2008 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2008 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2009 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
  * This software is available to you under a choice of one of two
@@ -103,6 +103,8 @@ typedef struct osm_switch {
 	uint8_t *lft;
 	uint8_t *new_lft;
 	osm_mcast_tbl_t mcast_tbl;
+	uint32_t mft_block_num;
+	uint32_t mft_position;
 	unsigned endport_links;
 	unsigned need_update;
 	void *priv;

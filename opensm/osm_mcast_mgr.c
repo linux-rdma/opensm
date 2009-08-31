@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2008 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2006 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2009 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2008 Xsigo Systems Inc.  All rights reserved.
  *
@@ -321,16 +321,14 @@ static osm_switch_t *mcast_mgr_find_root_switch(osm_sm_t * sm,
 
 /**********************************************************************
  **********************************************************************/
-static int mcast_mgr_set_tbl(osm_sm_t * sm, IN osm_switch_t * p_sw)
+static int mcast_mgr_set_mft_block(osm_sm_t * sm, IN osm_switch_t * p_sw,
+				   uint32_t block_num, uint32_t position)
 {
 	osm_node_t *p_node;
 	osm_dr_path_t *p_path;
-	osm_madw_context_t mad_context;
+	osm_madw_context_t context;
 	ib_api_status_t status;
-	uint32_t block_id_ho = 0;
-	int16_t block_num = 0;
-	uint32_t position = 0;
-	uint32_t max_position;
+	uint32_t block_id_ho;
 	osm_mcast_tbl_t *p_tbl;
 	ib_net16_t block[IB_MCAST_BLOCK_SIZE];
 	int ret = 0;
@@ -353,34 +351,31 @@ static int mcast_mgr_set_tbl(osm_sm_t * sm, IN osm_switch_t * p_sw)
 	   configuration.
 	 */
 
-	mad_context.mft_context.node_guid = osm_node_get_node_guid(p_node);
-	mad_context.mft_context.set_method = TRUE;
+	context.mft_context.node_guid = osm_node_get_node_guid(p_node);
+	context.mft_context.set_method = TRUE;
 
 	p_tbl = osm_switch_get_mcast_tbl_ptr(p_sw);
-	max_position = p_tbl->max_position;
 
-	while (osm_mcast_tbl_get_block(p_tbl, block_num,
-				       (uint8_t) position, block)) {
-		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-			"Writing MFT block 0x%X\n", block_id_ho);
+	if (osm_mcast_tbl_get_block(p_tbl, block_num,
+				    (uint8_t) position, block)) {
 
 		block_id_ho = block_num + (position << 28);
+
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
+			"Writing MFT block %u position %u to switch 0x%" PRIx64 "\n",
+			block_num, position,
+			cl_ntoh64(context.lft_context.node_guid));
 
 		status = osm_req_set(sm, p_path, (void *)block, sizeof(block),
 				     IB_MAD_ATTR_MCAST_FWD_TBL,
 				     cl_hton32(block_id_ho), CL_DISP_MSGID_NONE,
-				     &mad_context);
+				     &context);
 
 		if (status != IB_SUCCESS) {
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A02: "
 				"Sending multicast fwd. tbl. block failed (%s)\n",
 				ib_get_err_str(status));
 			ret = -1;
-		}
-
-		if (++position > max_position) {
-			position = 0;
-			block_num++;
 		}
 	}
 
@@ -1071,9 +1066,55 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
+static int mcast_mgr_set_mftables(osm_sm_t * sm)
+{
+	cl_qmap_t *p_sw_tbl = &sm->p_subn->sw_guid_tbl;
+	osm_switch_t *p_sw;
+	osm_mcast_tbl_t *p_tbl;
+	int block_notdone, ret = 0;
+	int16_t block_num, max_block = -1;
+
+	p_sw = (osm_switch_t *) cl_qmap_head(p_sw_tbl);
+	while (p_sw != (osm_switch_t *) cl_qmap_end(p_sw_tbl)) {
+		p_sw->mft_block_num = 0;
+		p_sw->mft_position = 0;
+		p_tbl = osm_switch_get_mcast_tbl_ptr(p_sw);
+		if (osm_mcast_tbl_get_max_block_in_use(p_tbl) > max_block)
+			max_block = osm_mcast_tbl_get_max_block_in_use(p_tbl);
+		p_sw = (osm_switch_t *) cl_qmap_next(&p_sw->map_item);
+	}
+
+	/* Stripe the MFT blocks across the switches */
+	for (block_num = 0; block_num <= max_block; block_num++) {
+		block_notdone = 1;
+		while (block_notdone) {
+			block_notdone = 0;
+			p_sw = (osm_switch_t *) cl_qmap_head(p_sw_tbl);
+			while (p_sw != (osm_switch_t *) cl_qmap_end(p_sw_tbl)) {
+				if (p_sw->mft_block_num == block_num) {
+					block_notdone = 1;
+					if (mcast_mgr_set_mft_block(sm, p_sw,
+								    p_sw->mft_block_num,
+								    p_sw->mft_position))
+						ret = -1;
+					p_tbl = osm_switch_get_mcast_tbl_ptr(p_sw);
+					if (++p_sw->mft_position > p_tbl->max_position) {
+						p_sw->mft_position = 0;
+						p_sw->mft_block_num++;
+					}
+				}
+				p_sw = (osm_switch_t *) cl_qmap_next(&p_sw->map_item);
+			}
+		}
+	}
+
+	return ret;
+}
+
+/**********************************************************************
+ **********************************************************************/
 int osm_mcast_mgr_process(osm_sm_t * sm)
 {
-	osm_switch_t *p_sw;
 	cl_qmap_t *p_sw_tbl;
 	cl_qlist_t *p_list = &sm->mgrp_list;
 	osm_mgrp_t *p_mgrp;
@@ -1112,12 +1153,7 @@ int osm_mcast_mgr_process(osm_sm_t * sm)
 	/*
 	   Walk the switches and download the tables for each.
 	 */
-	p_sw = (osm_switch_t *) cl_qmap_head(p_sw_tbl);
-	while (p_sw != (osm_switch_t *) cl_qmap_end(p_sw_tbl)) {
-		if (mcast_mgr_set_tbl(sm, p_sw))
-			ret = -1;
-		p_sw = (osm_switch_t *) cl_qmap_next(&p_sw->map_item);
-	}
+	ret = mcast_mgr_set_mftables(sm);
 
 	while (!cl_is_qlist_empty(p_list)) {
 		cl_list_item_t *p = cl_qlist_remove_head(p_list);
@@ -1139,8 +1175,6 @@ exit:
 int osm_mcast_mgr_process_mgroups(osm_sm_t * sm)
 {
 	cl_qlist_t *p_list = &sm->mgrp_list;
-	osm_switch_t *p_sw;
-	cl_qmap_t *p_sw_tbl;
 	osm_mgrp_t *p_mgrp;
 	ib_net16_t mlid;
 	osm_mcast_mgr_ctxt_t *ctx;
@@ -1192,13 +1226,7 @@ int osm_mcast_mgr_process_mgroups(osm_sm_t * sm)
 	/*
 	   Walk the switches and download the tables for each.
 	 */
-	p_sw_tbl = &sm->p_subn->sw_guid_tbl;
-	p_sw = (osm_switch_t *) cl_qmap_head(p_sw_tbl);
-	while (p_sw != (osm_switch_t *) cl_qmap_end(p_sw_tbl)) {
-		if (mcast_mgr_set_tbl(sm, p_sw))
-			ret = -1;
-		p_sw = (osm_switch_t *) cl_qmap_next(&p_sw->map_item);
-	}
+	ret = mcast_mgr_set_mftables(sm);
 
 	osm_dump_mcast_routes(sm->p_subn->p_osm);
 
