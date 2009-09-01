@@ -752,15 +752,15 @@ static void dbg_get_capabilities_str(IN char *p_buf, IN const uint32_t buf_size,
 				&total_len) != IB_SUCCESS)
 			return;
 	}
-	if (p_pi->capability_mask & IB_PORT_CAP_RESV28) {
+	if (p_pi->capability_mask & IB_PORT_CAP_HAS_VEND_MADS) {
 		if (dbg_do_line(&p_local, buf_size, p_prefix_str,
-				"IB_PORT_CAP_RESV28\n",
+				"IB_PORT_CAP_HAS_VEND_MADS\n",
 				&total_len) != IB_SUCCESS)
 			return;
 	}
-	if (p_pi->capability_mask & IB_PORT_CAP_RESV29) {
+	if (p_pi->capability_mask & IB_PORT_CAP_HAS_MCAST_PKEY_TRAP_SUPPRESS) {
 		if (dbg_do_line(&p_local, buf_size, p_prefix_str,
-				"IB_PORT_CAP_RESV29\n",
+				"IB_PORT_CAP_HAS_MCAST_PKEY_TRAP_SUPPRESS\n",
 				&total_len) != IB_SUCCESS)
 			return;
 	}
@@ -770,9 +770,9 @@ static void dbg_get_capabilities_str(IN char *p_buf, IN const uint32_t buf_size,
 				&total_len) != IB_SUCCESS)
 			return;
 	}
-	if (p_pi->capability_mask & IB_PORT_CAP_RESV31) {
+	if (p_pi->capability_mask & IB_PORT_CAP_HAS_HIER_INFO) {
 		if (dbg_do_line(&p_local, buf_size, p_prefix_str,
-				"IB_PORT_CAP_RESV31\n",
+				"IB_PORT_CAP_HAS_HIER_INFO\n",
 				&total_len) != IB_SUCCESS)
 			return;
 	}
