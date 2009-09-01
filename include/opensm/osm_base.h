@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2008 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2006 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2009 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2009 Sun Microsystems, Inc. All rights reserved.
  *
@@ -774,6 +774,41 @@ typedef enum _osm_thread_state {
 * SYNOPSIS
 */
 #define OSM_CAP2_IS_QOS_SUPPORTED (1 << 1)
+/***********/
+
+/****d* OpenSM: Base/OSM_CAP2_IS_REVERSE_PATH_PKEY_SUPPPORTED
+* Name
+*	OSM_CAP2_IS_REVERSE_PATH_PKEY_SUPPPORTED
+*
+* DESCRIPTION
+*	Reverse path PKeys indicate in PathRecord responses
+*
+* SYNOPSIS
+*/
+#define OSM_CAP2_IS_REVERSE_PATH_PKEY_SUPPPORTED (1 << 2)
+/***********/
+
+/****d* OpenSM: Base/OSM_CAP2_IS_MCAST_TOP_SUPPORTED
+* Name
+*	OSM_CAP2_IS_MCAST_TOP_SUPPORTED
+*
+* DESCRIPTION
+*       SwitchInfo.MulticastFDBTop is supported
+*
+* SYNOPSIS
+*/
+#define OSM_CAP2_IS_MCAST_TOP_SUPPORTED (1 << 3)
+/***********/
+
+/****d* OpenSM: Base/OSM_CAP2_IS_HIERARCHY_SUPPORTED
+* Name
+*
+* DESCRIPTION
+*	Hierarchy info suppported
+*
+* SYNOPSIS
+*/
+#define OSM_CAP2_IS_HIERARCHY_SUPPORTED (1 << 4)
 /***********/
 
 /****d* OpenSM: Base/osm_signal_t
