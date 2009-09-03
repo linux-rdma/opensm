@@ -1,4 +1,4 @@
-.TH OPENSM 8 "May 28, 2009" "OpenIB" "OpenIB Management"
+.TH OPENSM 8 "September 3, 2009" "OpenIB" "OpenIB Management"
 
 .SH NAME
 opensm \- InfiniBand subnet manager and administration (SM/SA)
@@ -428,7 +428,7 @@ when partition configuration file does not exist or cannot be accessed.
 
 The default partition has P_Key value 0x7fff. OpenSM\'s port will have
 full membership in default partition. All other end ports will have
-partial membership.
+limited membership.
 
 File Format
 
