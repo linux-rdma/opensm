@@ -223,12 +223,12 @@ Found:
 
 /**********************************************************************
  **********************************************************************/
-ib_api_status_t osm_port_add_mgrp(IN osm_port_t * p_port, IN ib_net16_t mlid)
+ib_api_status_t osm_port_add_mgrp(IN osm_port_t * p_port, IN osm_mgrp_t *mgrp)
 {
 	ib_api_status_t status = IB_SUCCESS;
 	osm_mcm_info_t *p_mcm;
 
-	p_mcm = osm_mcm_info_new(mlid);
+	p_mcm = osm_mcm_info_new(mgrp);
 	if (p_mcm)
 		cl_qlist_insert_tail(&p_port->mcm_list,
 				     (cl_list_item_t *) p_mcm);
@@ -243,7 +243,7 @@ ib_api_status_t osm_port_add_mgrp(IN osm_port_t * p_port, IN ib_net16_t mlid)
 static cl_status_t port_mgrp_find_func(IN const cl_list_item_t * p_list_item,
 				       IN void *context)
 {
-	if (*((ib_net16_t *) context) == ((osm_mcm_info_t *) p_list_item)->mlid)
+	if (context == ((osm_mcm_info_t *) p_list_item)->mgrp)
 		return CL_SUCCESS;
 	else
 		return CL_NOT_FOUND;
@@ -251,12 +251,12 @@ static cl_status_t port_mgrp_find_func(IN const cl_list_item_t * p_list_item,
 
 /**********************************************************************
  **********************************************************************/
-void osm_port_remove_mgrp(IN osm_port_t * p_port, IN const ib_net16_t mlid)
+void osm_port_remove_mgrp(IN osm_port_t * p_port, IN osm_mgrp_t *mgrp)
 {
 	cl_list_item_t *p_mcm;
 
 	p_mcm = cl_qlist_find_from_head(&p_port->mcm_list, port_mgrp_find_func,
-					&mlid);
+					mgrp);
 
 	if (p_mcm != cl_qlist_end(&p_port->mcm_list)) {
 		cl_qlist_remove_item(&p_port->mcm_list, p_mcm);

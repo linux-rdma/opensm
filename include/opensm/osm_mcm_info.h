@@ -47,6 +47,7 @@
 #include <iba/ib_types.h>
 #include <complib/cl_qlist.h>
 #include <opensm/osm_base.h>
+#include <opensm/osm_multicast.h>
 
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
@@ -73,15 +74,15 @@ BEGIN_C_DECLS
 */
 typedef struct osm_mcm_info {
 	cl_list_item_t list_item;
-	ib_net16_t mlid;
+	osm_mgrp_t *mgrp;
 } osm_mcm_info_t;
 /*
 * FIELDS
 *	list_item
 *		Linkage structure for cl_qlist.  MUST BE FIRST MEMBER!
 *
-*	mlid
-*		MLID of this multicast group.
+*	mgrp
+*		The pointer to multicast group where this port is member of
 *
 * SEE ALSO
 *********/
@@ -95,11 +96,11 @@ typedef struct osm_mcm_info {
 *
 * SYNOPSIS
 */
-osm_mcm_info_t *osm_mcm_info_new(IN const ib_net16_t mlid);
+osm_mcm_info_t *osm_mcm_info_new(IN osm_mgrp_t *mgrp);
 /*
 * PARAMETERS
-*	mlid
-*		[in] MLID value for this multicast group.
+*	mgrp
+*		[in] the pointer to multicast group.
 *
 * RETURN VALUES
 *	Pointer to an initialized tree node.

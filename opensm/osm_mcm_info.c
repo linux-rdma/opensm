@@ -49,17 +49,17 @@
 
 /**********************************************************************
  **********************************************************************/
-osm_mcm_info_t *osm_mcm_info_new(IN const ib_net16_t mlid)
+osm_mcm_info_t *osm_mcm_info_new(IN osm_mgrp_t *mgrp)
 {
 	osm_mcm_info_t *p_mcm;
 
-	p_mcm = (osm_mcm_info_t *) malloc(sizeof(*p_mcm));
+	p_mcm = malloc(sizeof(*p_mcm));
 	if (p_mcm) {
 		memset(p_mcm, 0, sizeof(*p_mcm));
-		p_mcm->mlid = mlid;
+		p_mcm->mgrp = mgrp;
 	}
 
-	return (p_mcm);
+	return p_mcm;
 }
 
 /**********************************************************************

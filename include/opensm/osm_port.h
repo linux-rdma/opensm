@@ -65,6 +65,7 @@ BEGIN_C_DECLS
 */
 struct osm_port;
 struct osm_node;
+struct osm_mgrp;
 
 /****h* OpenSM/Physical Port
 * NAME
@@ -1420,14 +1421,14 @@ osm_get_port_by_base_lid(IN const osm_subn_t * const p_subn,
 * SYNOPSIS
 */
 ib_api_status_t
-osm_port_add_mgrp(IN osm_port_t * const p_port, IN const ib_net16_t mlid);
+osm_port_add_mgrp(IN osm_port_t * const p_port, IN struct osm_mgrp *mgrp);
 /*
 * PARAMETERS
 *	p_port
 *		[in] Pointer to an osm_port_t object.
 *
-*	mlid
-*		[in] MLID of the multicast group.
+*	mgrp
+*		[in] Pointer to the multicast group.
 *
 * RETURN VALUES
 *	IB_SUCCESS
@@ -1449,14 +1450,14 @@ osm_port_add_mgrp(IN osm_port_t * const p_port, IN const ib_net16_t mlid);
 * SYNOPSIS
 */
 void
-osm_port_remove_mgrp(IN osm_port_t * const p_port, IN const ib_net16_t mlid);
+osm_port_remove_mgrp(IN osm_port_t * const p_port, IN struct osm_mgrp *mgrp);
 /*
 * PARAMETERS
 *	p_port
 *		[in] Pointer to an osm_port_t object.
 *
-*	mlid
-*		[in] MLID of the multicast group.
+*	mgrp
+*		[in] Pointer to the multicast group.
 *
 * RETURN VALUES
 *	None.

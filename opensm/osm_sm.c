@@ -520,7 +520,7 @@ ib_api_status_t osm_sm_mcgrp_join(IN osm_sm_t * p_sm, IN const ib_net16_t mlid,
 	 */
 	p_mcm = (osm_mcm_info_t *) cl_qlist_head(&p_port->mcm_list);
 	while (p_mcm != (osm_mcm_info_t *) cl_qlist_end(&p_port->mcm_list)) {
-		if (p_mcm->mlid == mlid) {
+		if (p_mcm->mgrp->mlid == mlid) {
 			OSM_LOG(p_sm->p_log, OSM_LOG_DEBUG,
 				"Found mlid object for Port:"
 				"0x%016" PRIx64 " lid:0x%X\n",
@@ -530,7 +530,7 @@ ib_api_status_t osm_sm_mcgrp_join(IN osm_sm_t * p_sm, IN const ib_net16_t mlid,
 		p_mcm = (osm_mcm_info_t *) cl_qlist_next(&p_mcm->list_item);
 	}
 
-	status = osm_port_add_mgrp(p_port, mlid);
+	status = osm_port_add_mgrp(p_port, p_mgrp);
 	if (status != IB_SUCCESS) {
 		OSM_LOG(p_sm->p_log, OSM_LOG_ERROR, "ERR 2E03: "
 			"Unable to associate port 0x%" PRIx64 " to mlid 0x%X\n",
@@ -590,7 +590,7 @@ ib_api_status_t osm_sm_mcgrp_leave(IN osm_sm_t * p_sm, IN const ib_net16_t mlid,
 	/*
 	 * Walk the list of ports in the group, and remove the appropriate one.
 	 */
-	osm_port_remove_mgrp(p_port, mlid);
+	osm_port_remove_mgrp(p_port, p_mgrp);
 
 	status = sm_mgrp_process(p_sm, p_mgrp);
 Exit:

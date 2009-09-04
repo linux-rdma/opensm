@@ -158,7 +158,6 @@ static void drop_mgr_remove_port(osm_sm_t * sm, IN osm_port_t * p_port)
 	osm_port_t *p_port_check;
 	cl_qmap_t *p_sm_guid_tbl;
 	osm_mcm_info_t *p_mcm;
-	osm_mgrp_t *p_mgrp;
 	cl_ptr_vector_t *p_port_lid_tbl;
 	uint16_t min_lid_ho;
 	uint16_t max_lid_ho;
@@ -212,12 +211,9 @@ static void drop_mgr_remove_port(osm_sm_t * sm, IN osm_port_t * p_port)
 
 	p_mcm = (osm_mcm_info_t *) cl_qlist_remove_head(&p_port->mcm_list);
 	while (p_mcm != (osm_mcm_info_t *) cl_qlist_end(&p_port->mcm_list)) {
-		p_mgrp = osm_get_mgrp_by_mlid(sm->p_subn, p_mcm->mlid);
-		if (p_mgrp) {
-			osm_mgrp_delete_port(sm->p_subn, sm->p_log,
-					     p_mgrp, p_port->guid);
-			osm_mcm_info_delete((osm_mcm_info_t *) p_mcm);
-		}
+		osm_mgrp_delete_port(sm->p_subn, sm->p_log, p_mcm->mgrp,
+				     p_port->guid);
+		osm_mcm_info_delete(p_mcm);
 		p_mcm =
 		    (osm_mcm_info_t *) cl_qlist_remove_head(&p_port->mcm_list);
 	}
