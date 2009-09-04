@@ -1017,41 +1017,37 @@ Exit:
  Process the entire group.
  NOTE : The lock should be held externally!
  **********************************************************************/
-static ib_api_status_t mcast_mgr_process_mgrp(osm_sm_t * sm,
-					      IN osm_mgrp_t * p_mgrp)
+static ib_api_status_t mcast_mgr_process_mlid(osm_sm_t * sm, uint16_t mlid)
 {
 	ib_api_status_t status = IB_SUCCESS;
-	ib_net16_t mlid;
+	osm_mgrp_t *mgrp;
 
 	OSM_LOG_ENTER(sm->p_log);
 
-	mlid = osm_mgrp_get_mlid(p_mgrp);
-
 	OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-		"Processing multicast group 0x%X\n", cl_ntoh16(mlid));
+		"Processing multicast group with lid 0x%X\n", mlid);
 
-	/*
-	   Clear the multicast tables to start clean, then build
+	/* Clear the multicast tables to start clean, then build
 	   the spanning tree which sets the mcast table bits for each
-	   port in the group.
-	 */
-	mcast_mgr_clear(sm, cl_ntoh16(mlid));
+	   port in the group. */
+	mcast_mgr_clear(sm, mlid);
 
-	if (p_mgrp->full_members) {
-		status = mcast_mgr_build_spanning_tree(sm, p_mgrp);
+	mgrp = osm_get_mgrp_by_mlid(sm->p_subn, cl_hton16(mlid));
+	if (!mgrp) /* already removed */
+		return IB_SUCCESS;
+
+	if (mgrp->full_members) {
+		status = mcast_mgr_build_spanning_tree(sm, mgrp);
 		if (status != IB_SUCCESS)
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A17: "
-				"Unable to create spanning tree (%s)\n",
-				ib_get_err_str(status));
-	} else  if (p_mgrp->to_be_deleted) {
+				"Unable to create spanning tree (%s) for mlid "
+				"0x%x\n", ib_get_err_str(status), mlid);
+	} else if (mgrp->to_be_deleted) {
 		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-			"Destroying mgrp with lid:0x%x\n",
-			cl_ntoh16(p_mgrp->mlid));
-		sm->p_subn->mgroups[cl_ntoh16(p_mgrp->mlid) -
-				    IB_LID_MCAST_START_HO] = NULL;
-		cl_fmap_remove_item(&sm->p_subn->mgrp_mgid_tbl,
-				    &p_mgrp->map_item);
-		osm_mgrp_delete(p_mgrp);
+			"Destroying mgrp with lid:0x%x\n", mlid);
+		sm->p_subn->mgroups[mlid - IB_LID_MCAST_START_HO] = NULL;
+		cl_fmap_remove_item(&sm->p_subn->mgrp_mgid_tbl, &mgrp->map_item);
+		osm_mgrp_delete(mgrp);
 	}
 
 	OSM_LOG_EXIT(sm->p_log);
@@ -1110,7 +1106,6 @@ static int mcast_mgr_set_mftables(osm_sm_t * sm)
 int osm_mcast_mgr_process(osm_sm_t * sm)
 {
 	cl_qmap_t *p_sw_tbl;
-	osm_mgrp_t *p_mgrp;
 	int i, ret = 0;
 
 	OSM_LOG_ENTER(sm->p_log);
@@ -1132,16 +1127,9 @@ int osm_mcast_mgr_process(osm_sm_t * sm)
 	}
 
 	for (i = 0; i <= sm->p_subn->max_mcast_lid_ho - IB_LID_MCAST_START_HO;
-	     i++) {
-		/*
-		   We reached here due to some change that caused a heavy sweep
-		   of the subnet. Not due to a specific multicast request.
-		   So the request type is subnet_change and the port guid is 0.
-		 */
-		p_mgrp = sm->p_subn->mgroups[i];
-		if (p_mgrp)
-			mcast_mgr_process_mgrp(sm, p_mgrp);
-	}
+	     i++)
+		if (sm->p_subn->mgroups[i])
+			mcast_mgr_process_mlid(sm, i + IB_LID_MCAST_START_HO);
 
 	memset(sm->mlids_req, 0, sm->mlids_req_max);
 	sm->mlids_req_max = 0;
@@ -1165,8 +1153,6 @@ exit:
  **********************************************************************/
 int osm_mcast_mgr_process_mgroups(osm_sm_t * sm)
 {
-	osm_mgrp_t *p_mgrp;
-	ib_net16_t mlid;
 	int ret = 0;
 	unsigned i;
 
@@ -1186,18 +1172,7 @@ int osm_mcast_mgr_process_mgroups(osm_sm_t * sm)
 		if (!sm->mlids_req[i])
 			continue;
 		sm->mlids_req[i] = 0;
-
-		mlid = cl_hton16(i + IB_LID_MCAST_START_HO);
-
-		/* since we delayed the execution we prefer to pass the
-		   mlid as the mgrp identifier and then find it or abort */
-		p_mgrp = osm_get_mgrp_by_mlid(sm->p_subn, mlid);
-		if (!p_mgrp)
-			continue;
-
-		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-			"Processing mgrp with lid:0x%x\n", cl_ntoh16(mlid));
-		mcast_mgr_process_mgrp(sm, p_mgrp);
+		mcast_mgr_process_mlid(sm, i + IB_LID_MCAST_START_HO);
 	}
 
 	memset(sm->mlids_req, 0, sm->mlids_req_max);
