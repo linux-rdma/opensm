@@ -61,6 +61,7 @@
 #include <opensm/osm_port.h>
 #include <opensm/osm_db.h>
 #include <opensm/osm_remote_sm.h>
+#include <opensm/osm_multicast.h>
 
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
@@ -538,15 +539,15 @@ osm_resp_send(IN osm_sm_t * sm,
 */
 ib_api_status_t
 osm_sm_mcgrp_join(IN osm_sm_t * const p_sm,
-		  IN const ib_net16_t mlid,
+		  IN osm_mgrp_t *mgrp,
 		  IN const ib_net64_t port_guid);
 /*
 * PARAMETERS
 *	p_sm
 *		[in] Pointer to an osm_sm_t object.
 *
-*	mlid
-*		[in] Multicast LID
+*	mgrp
+*		[in] Pointer to multicast group to join
 *
 *	port_guid
 *		[in] Port GUID to add to the group.
@@ -572,14 +573,14 @@ osm_sm_mcgrp_join(IN osm_sm_t * const p_sm,
 */
 ib_api_status_t
 osm_sm_mcgrp_leave(IN osm_sm_t * const p_sm,
-		   IN const ib_net16_t mlid, IN const ib_net64_t port_guid);
+		   IN osm_mgrp_t *mgrp, IN const ib_net64_t port_guid);
 /*
 * PARAMETERS
 *	p_sm
 *		[in] Pointer to an osm_sm_t object.
 *
-*	mlid
-*		[in] Multicast LID
+*	mgrp
+*		[in] Poniter to multicast group to leave
 *
 *	port_guid
 *		[in] Port GUID to remove from the group.

@@ -1010,7 +1010,6 @@ static void mcmr_rcv_leave_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 	ib_sa_mad_t *p_sa_mad;
 	ib_member_rec_t *p_recvd_mcmember_rec;
 	ib_member_rec_t mcmember_rec;
-	ib_net16_t mlid;
 	ib_net64_t portguid;
 	osm_mcm_port_t *p_mcm_port;
 	int removed;
@@ -1041,7 +1040,6 @@ static void mcmr_rcv_leave_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 		goto Exit;
 	}
 
-	mlid = p_mgrp->mlid;
 	portguid = p_recvd_mcmember_rec->port_gid.unicast.interface_id;
 
 	/* check validity of the delete request o15-0.1.14 */
@@ -1074,7 +1072,7 @@ static void mcmr_rcv_leave_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 	CL_PLOCK_RELEASE(sa->p_lock);
 
 	/* we can leave if port was deleted from MCG */
-	if (removed && osm_sm_mcgrp_leave(sa->sm, mlid, portguid))
+	if (removed && osm_sm_mcgrp_leave(sa->sm, p_mgrp, portguid))
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B09: "
 			"osm_sm_mcgrp_leave failed\n");
 
@@ -1094,7 +1092,6 @@ static void mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 	ib_sa_mad_t *p_sa_mad;
 	ib_member_rec_t *p_recvd_mcmember_rec;
 	ib_member_rec_t mcmember_rec;
-	ib_net16_t mlid;
 	osm_mcm_port_t *p_mcmr_port;
 	ib_net64_t portguid;
 	osm_port_t *p_port;
@@ -1217,7 +1214,6 @@ static void mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 		is_new_group = 0;
 
 	CL_ASSERT(p_mgrp);
-	mlid = p_mgrp->mlid;
 
 	/*
 	 * o15-0.2.4: If SA supports UD multicast, then SA shall cause an
@@ -1302,7 +1298,7 @@ static void mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 	CL_PLOCK_RELEASE(sa->p_lock);
 
 	/* do the actual routing (actually schedule the update) */
-	status = osm_sm_mcgrp_join(sa->sm, mlid,
+	status = osm_sm_mcgrp_join(sa->sm, p_mgrp,
 				   p_recvd_mcmember_rec->port_gid.unicast.
 				   interface_id);
 
