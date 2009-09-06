@@ -174,38 +174,6 @@ typedef struct osm_mgrp {
 * SEE ALSO
 *********/
 
-/****f* OpenSM: Vendor API/osm_mgrp_func_t
-* NAME
-*	osm_mgrp_func_t
-*
-* DESCRIPTION
-*	Callback for the osm_mgrp_apply_func function.
-*	The callback function must not modify the tree linkage.
-*
-* SYNOPSIS
-*/
-typedef void (*osm_mgrp_func_t) (IN const osm_mgrp_t * const p_mgrp,
-				 IN const osm_mtree_node_t * const p_mtn,
-				 IN void *context);
-/*
-* PARAMETERS
-*	p_mgrp
-*		[in] Pointer to the multicast group object.
-*
-*	p_mtn
-*		[in] Pointer to the multicast tree node.
-*
-*	context
-*		[in] User context.
-*
-* RETURN VALUES
-*	None.
-*
-* NOTES
-*
-* SEE ALSO
-*********/
-
 /****f* OpenSM: Multicast Group/osm_mgrp_new
 * NAME
 *	osm_mgrp_new
@@ -455,40 +423,6 @@ osm_mgrp_delete_port(IN osm_subn_t * const p_subn,
 
 int osm_mgrp_remove_port(osm_subn_t *subn, osm_log_t *log, osm_mgrp_t *mgrp,
 			 osm_mcm_port_t *mcm, uint8_t join_state);
-
-/****f* OpenSM: Multicast Group/osm_mgrp_apply_func
-* NAME
-*	osm_mgrp_apply_func
-*
-* DESCRIPTION
-*	Calls the specified function for each element in the tree.
-*	Elements are passed to the callback function in no particular order.
-*
-* SYNOPSIS
-*/
-void
-osm_mgrp_apply_func(const osm_mgrp_t * const p_mgrp,
-		    osm_mgrp_func_t p_func, void *context);
-/*
-* PARAMETERS
-*	p_mgrp
-*		[in] Pointer to an osm_mgrp_t object.
-*
-*	p_func
-*		[in] Pointer to the users callback function.
-*
-*	context
-*		[in] User context passed to the callback function.
-*
-*
-* RETURN VALUES
-*	None.
-*
-* NOTES
-*
-* SEE ALSO
-*	Multicast Group
-*********/
 
 END_C_DECLS
 #endif				/* _OSM_MULTICAST_H_ */
