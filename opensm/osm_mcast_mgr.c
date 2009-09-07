@@ -132,7 +132,6 @@ static float osm_mcast_mgr_compute_avg_hops(osm_sm_t * sm,
 	float avg_hops = 0;
 	uint32_t hops = 0;
 	uint32_t num_ports = 0;
-	const osm_port_t *p_port;
 	const osm_mcm_port_t *p_mcm_port;
 	const cl_qmap_t *p_mcm_tbl;
 
@@ -148,23 +147,7 @@ static float osm_mcast_mgr_compute_avg_hops(osm_sm_t * sm,
 	     p_mcm_port != (osm_mcm_port_t *) cl_qmap_end(p_mcm_tbl);
 	     p_mcm_port =
 	     (osm_mcm_port_t *) cl_qmap_next(&p_mcm_port->map_item)) {
-		/*
-		   Acquire the port object for this port guid, then create
-		   the new worker object to build the list.
-		 */
-		p_port = osm_get_port_by_guid(sm->p_subn,
-					      ib_gid_get_guid(&p_mcm_port->
-							      port_gid));
-
-		if (!p_port) {
-			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A18: "
-				"No port object for port 0x%016" PRIx64 "\n",
-				cl_ntoh64(ib_gid_get_guid
-					  (&p_mcm_port->port_gid)));
-			continue;
-		}
-
-		hops += osm_switch_get_port_least_hops(p_sw, p_port);
+		hops += osm_switch_get_port_least_hops(p_sw, p_mcm_port->port);
 		num_ports++;
 	}
 
@@ -190,7 +173,6 @@ static float osm_mcast_mgr_compute_max_hops(osm_sm_t * sm,
 {
 	uint32_t max_hops = 0;
 	uint32_t hops = 0;
-	const osm_port_t *p_port;
 	const osm_mcm_port_t *p_mcm_port;
 	const cl_qmap_t *p_mcm_tbl;
 
@@ -206,23 +188,7 @@ static float osm_mcast_mgr_compute_max_hops(osm_sm_t * sm,
 	     p_mcm_port != (osm_mcm_port_t *) cl_qmap_end(p_mcm_tbl);
 	     p_mcm_port =
 	     (osm_mcm_port_t *) cl_qmap_next(&p_mcm_port->map_item)) {
-		/*
-		   Acquire the port object for this port guid, then create
-		   the new worker object to build the list.
-		 */
-		p_port = osm_get_port_by_guid(sm->p_subn,
-					      ib_gid_get_guid(&p_mcm_port->
-							      port_gid));
-
-		if (!p_port) {
-			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A1A: "
-				"No port object for port 0x%016" PRIx64 "\n",
-				cl_ntoh64(ib_gid_get_guid
-					  (&p_mcm_port->port_gid)));
-			continue;
-		}
-
-		hops = osm_switch_get_port_least_hops(p_sw, p_port);
+		hops = osm_switch_get_port_least_hops(p_sw, p_mcm_port->port);
 		if (hops > max_hops)
 			max_hops = hops;
 	}
@@ -714,7 +680,6 @@ static ib_api_status_t mcast_mgr_build_spanning_tree(osm_sm_t * sm,
 						     osm_mgrp_t * p_mgrp)
 {
 	const cl_qmap_t *p_mcm_tbl;
-	const osm_port_t *p_port;
 	const osm_mcm_port_t *p_mcm_port;
 	uint32_t num_ports;
 	cl_qlist_t port_list;
@@ -781,23 +746,12 @@ static ib_api_status_t mcast_mgr_build_spanning_tree(osm_sm_t * sm,
 		   Acquire the port object for this port guid, then create
 		   the new worker object to build the list.
 		 */
-		p_port = osm_get_port_by_guid(sm->p_subn,
-					      ib_gid_get_guid(&p_mcm_port->
-							      port_gid));
-		if (!p_port) {
-			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A09: "
-				"No port object for port 0x%016" PRIx64 "\n",
-				cl_ntoh64(ib_gid_get_guid
-					  (&p_mcm_port->port_gid)));
-			continue;
-		}
-
-		p_wobj = mcast_work_obj_new(p_port);
+		p_wobj = mcast_work_obj_new(p_mcm_port->port);
 		if (p_wobj == NULL) {
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A10: "
 				"Insufficient memory to route port 0x%016"
 				PRIx64 "\n",
-				cl_ntoh64(osm_port_get_guid(p_port)));
+				cl_ntoh64(osm_port_get_guid(p_mcm_port->port)));
 			continue;
 		}
 

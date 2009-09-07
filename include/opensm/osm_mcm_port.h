@@ -46,6 +46,7 @@
 #include <iba/ib_types.h>
 #include <complib/cl_qmap.h>
 #include <opensm/osm_base.h>
+#include <opensm/osm_port.h>
 
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
@@ -71,6 +72,7 @@ BEGIN_C_DECLS
 */
 typedef struct osm_mcm_port {
 	cl_map_item_t map_item;
+	osm_port_t *port;
 	ib_gid_t port_gid;
 	uint8_t scope_state;
 	boolean_t proxy_join;
@@ -79,6 +81,9 @@ typedef struct osm_mcm_port {
 * FIELDS
 *	map_item
 *		Map Item for qmap linkage.  Must be first element!!
+*
+*	port
+*		Reference to the parent port.
 *
 *	port_gid
 *		GID of the member port.
@@ -106,19 +111,19 @@ typedef struct osm_mcm_port {
 *
 * SYNOPSIS
 */
-osm_mcm_port_t *osm_mcm_port_new(IN const ib_gid_t * const p_port_gid,
-				 IN const uint8_t scope_state,
-				 IN const boolean_t proxy_join);
+osm_mcm_port_t *osm_mcm_port_new(IN osm_port_t * port, IN ib_member_rec_t *mcmr,
+				 IN boolean_t proxy_join);
 /*
 * PARAMETERS
-*	p_port_gid
-*		[in] Pointer to the GID of the port to add to the multicast group.
+*	port
+*		[in] Pointer to the port object.
+*		GID of the port to add to the multicast group.
 *
-*	scope_state
-*		[in] scope state of the join request
+*	mcmr
+*		[in] Pointer to MCMember record of the join request
 *
-*  proxy_join
-*     [in] proxy_join state analyzed from the request
+*	proxy_join
+*		[in] proxy_join state analyzed from the request
 *
 * RETURN VALUES
 *	Pointer to the allocated and initialized MCM Port object.

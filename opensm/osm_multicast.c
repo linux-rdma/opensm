@@ -131,22 +131,17 @@ static void mgrp_send_notice(osm_subn_t * subn, osm_log_t * log,
 /**********************************************************************
  **********************************************************************/
 osm_mcm_port_t *osm_mgrp_add_port(IN osm_subn_t * subn, osm_log_t * log,
-				  IN osm_mgrp_t * mgrp,
-				  IN const ib_gid_t * port_gid,
-				  IN const uint8_t join_state,
-				  IN boolean_t proxy)
+				  IN osm_mgrp_t * mgrp, osm_port_t *port,
+				  IN ib_member_rec_t *mcmr, IN boolean_t proxy)
 {
-	ib_net64_t port_guid;
 	osm_mcm_port_t *mcm_port;
 	cl_map_item_t *prev_item;
-	uint8_t prev_join_state = 0;
+	uint8_t prev_join_state = 0, join_state = mcmr->scope_state;
 	uint8_t prev_scope;
 
-	mcm_port = osm_mcm_port_new(port_gid, join_state, proxy);
+	mcm_port = osm_mcm_port_new(port, mcmr, proxy);
 	if (!mcm_port)
 		return NULL;
-
-	port_guid = port_gid->unicast.interface_id;
 
 	/*
 	   prev_item = cl_qmap_insert(...)
@@ -155,7 +150,7 @@ osm_mcm_port_t *osm_mgrp_add_port(IN osm_subn_t * subn, osm_log_t * log,
 	   specified key already exists in the map, the pointer to that item is
 	   returned.
 	 */
-	prev_item = cl_qmap_insert(&mgrp->mcm_port_tbl, port_guid,
+	prev_item = cl_qmap_insert(&mgrp->mcm_port_tbl, port->guid,
 				   &mcm_port->map_item);
 
 	/* if already exists - revert the insertion and only update join state */
@@ -186,11 +181,11 @@ osm_mcm_port_t *osm_mgrp_add_port(IN osm_subn_t * subn, osm_log_t * log,
 /**********************************************************************
  **********************************************************************/
 int osm_mgrp_remove_port(osm_subn_t * subn, osm_log_t * log, osm_mgrp_t * mgrp,
-			 osm_mcm_port_t * mcm_port, uint8_t join_state)
+			 osm_mcm_port_t * mcm_port, ib_member_rec_t *mcmr)
 {
 	int ret;
-	uint8_t port_join_state;
-	uint8_t new_join_state;
+	uint8_t join_state = mcmr->scope_state & 0xf;
+	uint8_t port_join_state, new_join_state;
 
 	/*
 	 * according to the same o15-0.1.14 we get the stored
@@ -207,8 +202,10 @@ int osm_mgrp_remove_port(osm_subn_t * subn, osm_log_t * log, osm_mgrp_t * mgrp,
 			"updating port 0x%" PRIx64 " JoinState 0x%x -> 0x%x\n",
 			cl_ntoh64(mcm_port->port_gid.unicast.interface_id),
 			port_join_state, new_join_state);
+		mcmr->scope_state = mcm_port->scope_state;
 		ret = 0;
 	} else {
+		mcmr->scope_state = mcm_port->scope_state;
 		cl_qmap_remove_item(&mgrp->mcm_port_tbl, &mcm_port->map_item);
 		OSM_LOG(log, OSM_LOG_DEBUG, "removing port 0x%" PRIx64 "\n",
 			cl_ntoh64(mcm_port->port_gid.unicast.interface_id));
@@ -228,11 +225,14 @@ int osm_mgrp_remove_port(osm_subn_t * subn, osm_log_t * log, osm_mgrp_t * mgrp,
 void osm_mgrp_delete_port(osm_subn_t * subn, osm_log_t * log, osm_mgrp_t * mgrp,
 			  ib_net64_t port_guid)
 {
+	ib_member_rec_t mcmrec;
 	cl_map_item_t *item = cl_qmap_get(&mgrp->mcm_port_tbl, port_guid);
 
-	if (item != cl_qmap_end(&mgrp->mcm_port_tbl))
+	if (item != cl_qmap_end(&mgrp->mcm_port_tbl)) {
+		mcmrec.scope_state = 0xf;
 		osm_mgrp_remove_port(subn, log, mgrp, (osm_mcm_port_t *) item,
-				     0xf);
+				     &mcmrec);
+	}
 	osm_mgrp_cleanup(subn, mgrp);
 }
 

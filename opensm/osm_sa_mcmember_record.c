@@ -137,6 +137,7 @@ static ib_net16_t get_new_mlid(osm_sa_t * sa, ib_net16_t requested_mlid)
  requester gids.
 **********************************************************************/
 static ib_api_status_t add_new_mgrp_port(osm_sa_t * sa, IN osm_mgrp_t * p_mgrp,
+					 IN osm_port_t *port,
 					 IN ib_member_rec_t *
 					 p_recvd_mcmember_rec,
 					 IN osm_mad_addr_t * p_mad_addr,
@@ -172,10 +173,8 @@ static ib_api_status_t add_new_mgrp_port(osm_sa_t * sa, IN osm_mgrp_t * p_mgrp,
 			"Create new port with proxy_join TRUE\n");
 	}
 
-	*pp_mcmr_port = osm_mgrp_add_port(sa->p_subn, sa->p_log, p_mgrp,
-					  &p_recvd_mcmember_rec->port_gid,
-					  p_recvd_mcmember_rec->scope_state,
-					  proxy_join);
+	*pp_mcmr_port = osm_mgrp_add_port(sa->p_subn, sa->p_log, p_mgrp, port,
+					  p_recvd_mcmember_rec, proxy_join);
 	if (*pp_mcmr_port == NULL) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B06: "
 			"osm_mgrp_add_port failed\n");
@@ -410,7 +409,6 @@ static boolean_t validate_modify(IN osm_sa_t * sa, IN osm_mgrp_t * p_mgrp,
 		   if the requester GID == PortGID */
 		res = osm_get_gid_by_mad_addr(sa->p_log, sa->p_subn, p_mad_addr,
 					      &request_gid);
-
 		if (res != IB_SUCCESS) {
 			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 				"Could not find port for requested address\n");
@@ -443,8 +441,7 @@ static boolean_t validate_modify(IN osm_sa_t * sa, IN osm_mgrp_t * p_mgrp,
 			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 				"ProxyJoin but port not in partition. stored:"
 				"0x%016" PRIx64 " request:0x%016" PRIx64 "\n",
-				cl_ntoh64((*pp_mcm_port)->port_gid.unicast.
-					  interface_id),
+				cl_ntoh64((*pp_mcm_port)->port->guid),
 				cl_ntoh64(p_mad_addr->addr_type.gsi.grh_info.
 					  src_gid.unicast.interface_id));
 			return FALSE;
@@ -1018,16 +1015,9 @@ static void mcmr_rcv_leave_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 		goto Exit;
 	}
 
-	/* store state - we'll need it if the port is removed */
-	mcmember_rec.scope_state = p_mcm_port->scope_state;
-
-	/* remove port or update join state */
-	removed =
-	    osm_mgrp_remove_port(sa->p_subn, sa->p_log, p_mgrp, p_mcm_port,
-				 p_recvd_mcmember_rec->scope_state & 0x0F);
-	if (!removed)
-		mcmember_rec.scope_state = p_mcm_port->scope_state;
-
+	/* remove port and/or update join state */
+	removed = osm_mgrp_remove_port(sa->p_subn, sa->p_log, p_mgrp,
+				       p_mcm_port, &mcmember_rec);
 	CL_PLOCK_RELEASE(sa->p_lock);
 
 	/* we can leave if port was deleted from MCG */
@@ -1225,7 +1215,7 @@ static void mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 	}
 
 	/* create or update existing port (join-state will be updated) */
-	status = add_new_mgrp_port(sa, p_mgrp, p_recvd_mcmember_rec,
+	status = add_new_mgrp_port(sa, p_mgrp, p_port, p_recvd_mcmember_rec,
 				   osm_madw_get_mad_addr_ptr(p_madw),
 				   &p_mcmr_port);
 	if (status != IB_SUCCESS) {

@@ -50,17 +50,17 @@
 
 /**********************************************************************
  **********************************************************************/
-osm_mcm_port_t *osm_mcm_port_new(IN const ib_gid_t * const p_port_gid,
-				 IN const uint8_t scope_state,
-				 IN const boolean_t proxy_join)
+osm_mcm_port_t *osm_mcm_port_new(IN osm_port_t *port, IN ib_member_rec_t *mcmr,
+				 IN boolean_t proxy_join)
 {
 	osm_mcm_port_t *p_mcm;
 
 	p_mcm = malloc(sizeof(*p_mcm));
 	if (p_mcm) {
 		memset(p_mcm, 0, sizeof(*p_mcm));
-		p_mcm->port_gid = *p_port_gid;
-		p_mcm->scope_state = scope_state;
+		p_mcm->port = port;
+		p_mcm->port_gid = mcmr->port_gid;
+		p_mcm->scope_state = mcmr->scope_state;
 		p_mcm->proxy_join = proxy_join;
 	}
 

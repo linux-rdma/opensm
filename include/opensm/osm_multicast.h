@@ -284,20 +284,21 @@ static inline ib_net16_t osm_mgrp_get_mlid(IN const osm_mgrp_t * const p_mgrp)
 * SYNOPSIS
 */
 osm_mcm_port_t *osm_mgrp_add_port(osm_subn_t *subn, osm_log_t *log,
-				  IN osm_mgrp_t * mgrp,
-				  IN const ib_gid_t * port_gid,
-				  IN const uint8_t join_state,
-				  IN boolean_t proxy);
+				  IN osm_mgrp_t * mgrp, IN osm_port_t *port,
+				  IN ib_member_rec_t *mcmr, IN boolean_t proxy);
 /*
 * PARAMETERS
 *	mgrp
 *		[in] Pointer to an osm_mgrp_t object to initialize.
 *
-*	port_gid
-*		[in] Pointer to the GID of the port to add to the multicast group.
+*	port
+*		[in] Pointer to an osm_port_t object
 *
-*	join_state
-*		[in] The join state for this port in the group.
+*	mcmr
+*		[in] Pointer to MCMember record received for the join
+*
+*	proxy
+*		[in] The proxy join state for this port in the group.
 *
 * RETURN VALUES
 *	IB_SUCCESS
@@ -377,9 +378,9 @@ void osm_mgrp_delete_port(IN osm_subn_t * subn, IN osm_log_t * log,
 * SEE ALSO
 *********/
 
-int osm_mgrp_remove_port(osm_subn_t *subn, osm_log_t *log, osm_mgrp_t *mgrp,
-			 osm_mcm_port_t *mcm, uint8_t join_state);
-void osm_mgrp_cleanup(osm_subn_t *subn, osm_mgrp_t *mpgr);
+int osm_mgrp_remove_port(osm_subn_t * subn, osm_log_t * log, osm_mgrp_t * mgrp,
+			 osm_mcm_port_t * mcm_port, ib_member_rec_t * mcmr);
+void osm_mgrp_cleanup(osm_subn_t * subn, osm_mgrp_t * mpgr);
 
 END_C_DECLS
 #endif				/* _OSM_MULTICAST_H_ */

@@ -995,26 +995,26 @@ int osm_sa_db_file_load(osm_opensm_t * p_osm)
 			if (!p_mgrp)
 				rereg_clients = 1;
 		} else if (p_mgrp && !strncmp(p, "mcm_port", 8)) {
-			ib_gid_t port_gid;
+			ib_member_rec_t mcmr;
 			ib_net64_t guid;
-			uint8_t scope_state;
-			boolean_t proxy_join;
+			osm_port_t *port;
+			boolean_t proxy;
 
 			PARSE_AHEAD(p, net64, " port_gid=0x",
-				    &port_gid.unicast.prefix);
+				    &mcmr.port_gid.unicast.prefix);
 			PARSE_AHEAD(p, net64, ":0x",
-				    &port_gid.unicast.interface_id);
-			PARSE_AHEAD(p, net8, " scope_state=0x", &scope_state);
+				    &mcmr.port_gid.unicast.interface_id);
+			PARSE_AHEAD(p, net8, " scope_state=0x", &mcmr.scope_state);
 			PARSE_AHEAD(p, net8, " proxy_join=0x", &val);
-			proxy_join = val;
+			proxy = val;
 
-			guid = port_gid.unicast.interface_id;
-			if (cl_qmap_get(&p_mgrp->mcm_port_tbl,
-					port_gid.unicast.interface_id) ==
+			guid = mcmr.port_gid.unicast.interface_id;
+			port = osm_get_port_by_guid(&p_osm->subn, guid);
+			if (port &&
+			    cl_qmap_get(&p_mgrp->mcm_port_tbl, guid) ==
 			    cl_qmap_end(&p_mgrp->mcm_port_tbl))
 				osm_mgrp_add_port(&p_osm->subn, &p_osm->log,
-						  p_mgrp, &port_gid,
-						  scope_state, proxy_join);
+						  p_mgrp, port, &mcmr, proxy);
 		} else if (!strncmp(p, "Service Record:", 15)) {
 			ib_service_record_t s_rec;
 			uint32_t modified_time, lease_period;
