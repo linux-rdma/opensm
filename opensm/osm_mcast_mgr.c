@@ -1030,21 +1030,12 @@ static ib_api_status_t mcast_mgr_process_mlid(osm_sm_t * sm, uint16_t mlid)
 	mcast_mgr_clear(sm, mlid);
 
 	mgrp = osm_get_mgrp_by_mlid(sm->p_subn, cl_hton16(mlid));
-	if (!mgrp) /* already removed */
-		return IB_SUCCESS;
-
-	if (mgrp->full_members) {
+	if (mgrp) {
 		status = mcast_mgr_build_spanning_tree(sm, mgrp);
 		if (status != IB_SUCCESS)
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A17: "
 				"Unable to create spanning tree (%s) for mlid "
 				"0x%x\n", ib_get_err_str(status), mlid);
-	} else if (mgrp->to_be_deleted) {
-		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-			"Destroying mgrp with lid:0x%x\n", mlid);
-		sm->p_subn->mgroups[mlid - IB_LID_MCAST_START_HO] = NULL;
-		cl_fmap_remove_item(&sm->p_subn->mgrp_mgid_tbl, &mgrp->map_item);
-		osm_mgrp_delete(mgrp);
 	}
 
 	OSM_LOG_EXIT(sm->p_log);
@@ -1120,7 +1111,7 @@ int osm_mcast_mgr_process(osm_sm_t * sm)
 
 	for (i = 0; i <= sm->p_subn->max_mcast_lid_ho - IB_LID_MCAST_START_HO;
 	     i++)
-		if (sm->p_subn->mgroups[i])
+		if (sm->p_subn->mgroups[i] || sm->mlids_req[i])
 			mcast_mgr_process_mlid(sm, i + IB_LID_MCAST_START_HO);
 
 	memset(sm->mlids_req, 0, sm->mlids_req_max);

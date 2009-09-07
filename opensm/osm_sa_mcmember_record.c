@@ -125,33 +125,11 @@ static ib_net16_t get_new_mlid(osm_sa_t * sa, ib_net16_t requested_mlid)
 		return requested_mlid;
 
 	max = p_subn->max_mcast_lid_ho - IB_LID_MCAST_START_HO + 1;
-	for (i = 0; i < max; i++) {
-		osm_mgrp_t *p_mgrp = sa->p_subn->mgroups[i];
-		if (!p_mgrp || p_mgrp->to_be_deleted)
+	for (i = 0; i < max; i++)
+		if (!sa->p_subn->mgroups[i])
 			return cl_hton16(i + IB_LID_MCAST_START_HO);
-	}
 
 	return 0;
-}
-
-/*********************************************************************
- This procedure is only invoked to cleanup an INTERMEDIATE mgrp.
- If there is only one port on the mgrp it means that the current
- request was the only member and the group is not really needed. So
- we silently drop it. Since it was an intermediate group no need to
- re-route it.
-**********************************************************************/
-static void cleanup_mgrp(IN osm_sa_t * sa, osm_mgrp_t * mgrp)
-{
-	/* Remove MGRP only if osm_mcm_port_t count is 0 and
-	   not a well known group */
-	if (cl_is_qmap_empty(&mgrp->mcm_port_tbl) && !mgrp->well_known) {
-		sa->p_subn->mgroups[cl_ntoh16(mgrp->mlid) -
-				    IB_LID_MCAST_START_HO] = NULL;
-		cl_fmap_remove_item(&sa->p_subn->mgrp_mgid_tbl,
-				    &mgrp->map_item);
-		osm_mgrp_delete(mgrp);
-	}
 }
 
 /*********************************************************************
@@ -812,7 +790,6 @@ ib_api_status_t osm_mcmr_rcv_create_new_mgrp(IN osm_sa_t * sa,
 	unsigned zero_mgid, i;
 	uint8_t scope;
 	ib_gid_t *p_mgid;
-	osm_mgrp_t *p_prev_mgrp;
 	ib_api_status_t status = IB_SUCCESS;
 	ib_member_rec_t mcm_rec = *p_recvd_mcmember_rec;	/* copy for modifications */
 
@@ -913,25 +890,8 @@ ib_api_status_t osm_mcmr_rcv_create_new_mgrp(IN osm_sa_t * sa,
 	(*pp_mgrp)->mcmember_rec.pkt_life |= 2 << 6;	/* exactly */
 
 	/* Insert the new group in the data base */
-
-	/* since we might have an old group by that mlid
-	   one whose deletion was delayed for an idle time
-	   we need to deallocate it first */
-	p_prev_mgrp = osm_get_mgrp_by_mlid(sa->p_subn, mlid);
-	if (p_prev_mgrp) {
-		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-			"Found previous group for mlid:0x%04x - "
-			"Destroying it first\n", cl_ntoh16(mlid));
-		sa->p_subn->mgroups[cl_ntoh16(mlid) - IB_LID_MCAST_START_HO] =
-		    NULL;
-		cl_fmap_remove_item(&sa->p_subn->mgrp_mgid_tbl,
-				    &p_prev_mgrp->map_item);
-		osm_mgrp_delete(p_prev_mgrp);
-	}
-
 	cl_fmap_insert(&sa->p_subn->mgrp_mgid_tbl,
 		       &(*pp_mgrp)->mcmember_rec.mgid, &(*pp_mgrp)->map_item);
-
 	sa->p_subn->mgroups[cl_ntoh16(mlid) - IB_LID_MCAST_START_HO] = *pp_mgrp;
 
 Exit:
@@ -975,8 +935,7 @@ osm_mgrp_t *osm_get_mgrp_by_mgid(IN osm_sa_t * sa, IN ib_gid_t * p_mgid)
 	}
 
 	mg = (osm_mgrp_t *)cl_fmap_get(&sa->p_subn->mgrp_mgid_tbl, p_mgid);
-	if (mg != (osm_mgrp_t *)cl_fmap_end(&sa->p_subn->mgrp_mgid_tbl)
-	    && !mg->to_be_deleted)
+	if (mg != (osm_mgrp_t *)cl_fmap_end(&sa->p_subn->mgrp_mgid_tbl))
 		return mg;
 
 	return NULL;
@@ -1078,6 +1037,9 @@ static void mcmr_rcv_leave_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 
 	mcmr_rcv_respond(sa, p_madw, &mcmember_rec);
 
+	CL_PLOCK_EXCL_ACQUIRE(sa->p_lock);
+	osm_mgrp_cleanup(sa->p_subn, p_mgrp);
+	CL_PLOCK_RELEASE(sa->p_lock);
 Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }
@@ -1151,7 +1113,7 @@ static void mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 
 	/* do we need to create a new group? */
 	p_mgrp = osm_get_mgrp_by_mgid(sa, &p_recvd_mcmember_rec->mgid);
-	if (!p_mgrp || p_mgrp->to_be_deleted) {
+	if (!p_mgrp) {
 		/* check for JoinState.FullMember = 1 o15.0.1.9 */
 		if ((join_state & 0x01) != 0x01) {
 			char gid_str[INET6_ADDRSTRLEN];
@@ -1235,7 +1197,7 @@ static void mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 	    || !validate_port_caps(sa->p_log, p_mgrp, p_physp)
 	    || !(join_state != 0)) {
 		/* since we might have created the new group we need to cleanup */
-		cleanup_mgrp(sa, p_mgrp);
+		osm_mgrp_cleanup(sa->p_subn, p_mgrp);
 		CL_PLOCK_RELEASE(sa->p_lock);
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B12: "
 			"validate_more_comp_fields, validate_port_caps, "
@@ -1268,7 +1230,7 @@ static void mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 				   &p_mcmr_port);
 	if (status != IB_SUCCESS) {
 		/* we fail to add the port so we might need to delete the group */
-		cleanup_mgrp(sa, p_mgrp);
+		osm_mgrp_cleanup(sa->p_subn, p_mgrp);
 		CL_PLOCK_RELEASE(sa->p_lock);
 		osm_sa_send_error(sa, p_madw, status == IB_INVALID_PARAMETER ?
 				  IB_SA_MAD_STATUS_REQ_INVALID :
@@ -1299,7 +1261,6 @@ static void mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 		osm_mgrp_delete_port(sa->p_subn, sa->p_log, p_mgrp,
 				     p_recvd_mcmember_rec->port_gid.
 				     unicast.interface_id);
-		cleanup_mgrp(sa, p_mgrp);
 		CL_PLOCK_RELEASE(sa->p_lock);
 		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_NO_RESOURCES);
 		goto Exit;
@@ -1370,14 +1331,6 @@ static void mcmr_by_comp_mask(osm_sa_t * sa, const ib_member_rec_t * p_rcvd_rec,
 
 	OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 		"Checking mlid:0x%X\n", cl_ntoh16(p_mgrp->mlid));
-
-	/* the group might be marked for deletion */
-	if (p_mgrp->to_be_deleted) {
-		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-			"Group mlid:0x%X is marked to be deleted\n",
-			cl_ntoh16(p_mgrp->mlid));
-		goto Exit;
-	}
 
 	/* first try to eliminate the group by MGID, MLID, or P_Key */
 	if ((IB_MCR_COMPMASK_MGID & comp_mask) &&

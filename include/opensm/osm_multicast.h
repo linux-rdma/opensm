@@ -127,7 +127,6 @@ typedef struct osm_mgrp {
 	cl_qmap_t mcm_port_tbl;
 	ib_member_rec_t mcmember_rec;
 	boolean_t well_known;
-	boolean_t to_be_deleted;
 	unsigned full_members;
 } osm_mgrp_t;
 /*
@@ -155,11 +154,6 @@ typedef struct osm_mgrp {
 *		Indicates that this is the wellknown multicast group which
 *		is created during the initialization of SM/SA and will be
 *		present even if there are no ports for this group
-*
-*	to_be_deleted
-*		Since groups are deleted only after re-route we need to
-*		track the fact the group is about to be deleted so we can
-*		track the fact a new join is actually a create request.
 *
 * SEE ALSO
 *********/
@@ -413,6 +407,7 @@ osm_mgrp_delete_port(IN osm_subn_t * const p_subn,
 
 int osm_mgrp_remove_port(osm_subn_t *subn, osm_log_t *log, osm_mgrp_t *mgrp,
 			 osm_mcm_port_t *mcm, uint8_t join_state);
+void osm_mgrp_cleanup(osm_subn_t *subn, osm_mgrp_t *mpgr);
 
 END_C_DECLS
 #endif				/* _OSM_MULTICAST_H_ */

@@ -86,9 +86,17 @@ osm_mgrp_t *osm_mgrp_new(IN const ib_net16_t mlid)
 	memset(p_mgrp, 0, sizeof(*p_mgrp));
 	cl_qmap_init(&p_mgrp->mcm_port_tbl);
 	p_mgrp->mlid = mlid;
-	p_mgrp->to_be_deleted = FALSE;
 
 	return p_mgrp;
+}
+
+void osm_mgrp_cleanup(osm_subn_t *subn, osm_mgrp_t *mgrp)
+{
+	if (mgrp->full_members || mgrp->well_known)
+		return;
+	subn->mgroups[cl_ntoh16(mgrp->mlid) - IB_LID_MCAST_START_HO] = NULL;
+	cl_fmap_remove_item(&subn->mgrp_mgid_tbl, &mgrp->map_item);
+	osm_mgrp_delete(mgrp);
 }
 
 /**********************************************************************
@@ -169,10 +177,8 @@ osm_mcm_port_t *osm_mgrp_add_port(IN osm_subn_t * subn, osm_log_t * log,
 
 	if ((join_state & IB_JOIN_STATE_FULL) &&
 	    !(prev_join_state & IB_JOIN_STATE_FULL) &&
-	    (++p_mgrp->full_members == 1)) {
+	    ++p_mgrp->full_members == 1)
 		mgrp_send_notice(subn, log, p_mgrp, 66);
-		p_mgrp->to_be_deleted = 0;
-	}
 
 	return (p_mcm_port);
 }
@@ -213,11 +219,8 @@ int osm_mgrp_remove_port(osm_subn_t * subn, osm_log_t * log, osm_mgrp_t * mgrp,
 	   but only if it is not a well known group */
 	if ((port_join_state & IB_JOIN_STATE_FULL) &&
 	    !(new_join_state & IB_JOIN_STATE_FULL) &&
-	    (--mgrp->full_members == 0)) {
+	    --mgrp->full_members == 0)
 		mgrp_send_notice(subn, log, mgrp, 67);
-		if (!mgrp->well_known)
-			mgrp->to_be_deleted = 1;
-	}
 
 	return ret;
 }
@@ -230,6 +233,7 @@ void osm_mgrp_delete_port(osm_subn_t * subn, osm_log_t * log, osm_mgrp_t * mgrp,
 	if (item != cl_qmap_end(&mgrp->mcm_port_tbl))
 		osm_mgrp_remove_port(subn, log, mgrp, (osm_mcm_port_t *) item,
 				     0xf);
+	osm_mgrp_cleanup(subn, mgrp);
 }
 
 /**********************************************************************
