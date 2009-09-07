@@ -963,12 +963,10 @@ static void fabric_clear(ftree_fabric_t * p_ftree)
 
 	p_next_element =
 	    (ftree_sw_tbl_element_t *) cl_qmap_head(&p_ftree->sw_by_tuple_tbl);
-	while (p_next_element !=
-	       (ftree_sw_tbl_element_t *)
+	while (p_next_element != (ftree_sw_tbl_element_t *)
 	       cl_qmap_end(&p_ftree->sw_by_tuple_tbl)) {
 		p_element = p_next_element;
-		p_next_element =
-		    (ftree_sw_tbl_element_t *)
+		p_next_element = (ftree_sw_tbl_element_t *)
 		    cl_qmap_next(&p_element->map_item);
 		sw_tbl_element_destroy(p_element);
 	}
@@ -1270,7 +1268,8 @@ static void fabric_dump_hca_ordering(IN ftree_fabric_t * p_ftree)
 			p_hca = p_group_on_sw->remote_hca_or_sw.p_hca;
 			p_group_on_hca =
 			    hca_get_port_group_by_remote_lid(p_hca,
-							     p_group_on_sw->base_lid);
+							     p_group_on_sw->
+							     base_lid);
 
 			/* treat non-compute nodes as dummies */
 			if (!p_group_on_hca->is_cn)
@@ -1757,7 +1756,8 @@ static boolean_t fabric_validate_topology(IN ftree_fabric_t * p_ftree)
 					tuple_to_str
 					(reference_sw_arr[p_sw->rank]->tuple),
 					reference_sw_arr[p_sw->
-							 rank]->up_port_groups_num,
+							 rank]->
+					up_port_groups_num,
 					sw_get_guid_ho(p_sw), p_sw->base_lid,
 					tuple_to_str(p_sw->tuple),
 					p_sw->up_port_groups_num);
@@ -1782,7 +1782,8 @@ static boolean_t fabric_validate_topology(IN ftree_fabric_t * p_ftree)
 					tuple_to_str
 					(reference_sw_arr[p_sw->rank]->tuple),
 					reference_sw_arr[p_sw->
-							 rank]->down_port_groups_num,
+							 rank]->
+					down_port_groups_num,
 					sw_get_guid_ho(p_sw), p_sw->base_lid,
 					tuple_to_str(p_sw->tuple),
 					p_sw->down_port_groups_num);
@@ -1814,7 +1815,8 @@ static boolean_t fabric_validate_topology(IN ftree_fabric_t * p_ftree)
 							(reference_sw_arr
 							 [p_sw->rank]),
 							reference_sw_arr[p_sw->
-									 rank]->base_lid,
+									 rank]->
+							base_lid,
 							tuple_to_str
 							(reference_sw_arr
 							 [p_sw->rank]->tuple),
@@ -1856,7 +1858,8 @@ static boolean_t fabric_validate_topology(IN ftree_fabric_t * p_ftree)
 							(reference_sw_arr
 							 [p_sw->rank]),
 							reference_sw_arr[p_sw->
-									 rank]->base_lid,
+									 rank]->
+							base_lid,
 							tuple_to_str
 							(reference_sw_arr
 							 [p_sw->rank]->tuple),
@@ -2143,7 +2146,8 @@ fabric_route_upgoing_by_going_down(IN ftree_fabric_t * p_ftree,
 		} else {
 			p_group =
 			    p_sw->sibling_port_groups[k -
-						      p_sw->down_port_groups_num];
+						      p_sw->
+						      down_port_groups_num];
 		}
 
 		/* If this port group doesn't point to a switch, mark
@@ -2735,7 +2739,8 @@ static void fabric_route_to_cns(IN ftree_fabric_t * p_ftree)
 
 			p_hca_port_group =
 			    hca_get_port_group_by_remote_lid(p_hca,
-							     p_leaf_port_group->base_lid);
+							     p_leaf_port_group->
+							     base_lid);
 			CL_ASSERT(p_hca_port_group);
 
 			/* work with this port group only if remote port is CN */
@@ -3112,7 +3117,8 @@ static int rank_leaf_switches(IN ftree_fabric_t * p_ftree,
 
 		p_sw = fabric_get_sw_by_guid(p_ftree,
 					     osm_node_get_node_guid
-					     (p_osm_port->p_remote_physp->p_node));
+					     (p_osm_port->p_remote_physp->
+					      p_node));
 		CL_ASSERT(p_sw);
 
 		/* if needed, rank the remote switch and add it to the BFS list */
@@ -3220,13 +3226,11 @@ fabric_construct_hca_ports(IN ftree_fabric_t * p_ftree, IN ftree_hca_t * p_hca)
 		if (!fabric_cns_provided(p_ftree)) {
 			is_cn = TRUE;
 		} else {
-			name_map_item_t *p_elem =
-			    (name_map_item_t *)
+			name_map_item_t *p_elem = (name_map_item_t *)
 			    cl_qmap_get(&p_ftree->cn_guid_tbl,
 					cl_ntoh64(osm_physp_get_port_guid
 						  (p_osm_port)));
-			if (p_elem !=
-			    (name_map_item_t *)
+			if (p_elem != (name_map_item_t *)
 			    cl_qmap_end(&p_ftree->cn_guid_tbl))
 				is_cn = TRUE;
 		}
