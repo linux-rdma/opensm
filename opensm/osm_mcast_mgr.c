@@ -875,10 +875,7 @@ static void mcast_mgr_clear(osm_sm_t * sm, uint16_t mlid)
 
 	OSM_LOG_ENTER(sm->p_log);
 
-	/*
-	   Walk the switches and clear the routing entries for
-	   this MLID.
-	 */
+	/* Walk the switches and clear the routing entries for this MLID. */
 	p_sw_tbl = &sm->p_subn->sw_guid_tbl;
 	p_sw = (osm_switch_t *) cl_qmap_head(p_sw_tbl);
 	while (p_sw != (osm_switch_t *) cl_qmap_end(p_sw_tbl)) {
@@ -1105,18 +1102,13 @@ static int mcast_mgr_set_mftables(osm_sm_t * sm)
  **********************************************************************/
 int osm_mcast_mgr_process(osm_sm_t * sm)
 {
-	cl_qmap_t *p_sw_tbl;
 	int i, ret = 0;
 
 	OSM_LOG_ENTER(sm->p_log);
 
-	p_sw_tbl = &sm->p_subn->sw_guid_tbl;
-	/*
-	   While holding the lock, iterate over all the established
+	/* While holding the lock, iterate over all the established
 	   multicast groups, servicing each in turn.
-
-	   Then, download the multicast tables to the switches.
-	 */
+	   Then, download the multicast tables to the switches. */
 	CL_PLOCK_EXCL_ACQUIRE(sm->p_lock);
 
 	/* If there are no switches in the subnet we have nothing to do. */
@@ -1134,9 +1126,6 @@ int osm_mcast_mgr_process(osm_sm_t * sm)
 	memset(sm->mlids_req, 0, sm->mlids_req_max);
 	sm->mlids_req_max = 0;
 
-	/*
-	   Walk the switches and download the tables for each.
-	 */
 	ret = mcast_mgr_set_mftables(sm);
 
 exit:
@@ -1158,7 +1147,6 @@ int osm_mcast_mgr_process_mgroups(osm_sm_t * sm)
 
 	OSM_LOG_ENTER(sm->p_log);
 
-	/* we need a lock to make sure the p_mgrp is not change other ways */
 	CL_PLOCK_EXCL_ACQUIRE(sm->p_lock);
 
 	/* If there are no switches in the subnet we have nothing to do. */
@@ -1178,9 +1166,6 @@ int osm_mcast_mgr_process_mgroups(osm_sm_t * sm)
 	memset(sm->mlids_req, 0, sm->mlids_req_max);
 	sm->mlids_req_max = 0;
 
-	/*
-	   Walk the switches and download the tables for each.
-	 */
 	ret = mcast_mgr_set_mftables(sm);
 
 	osm_dump_mcast_routes(sm->p_subn->p_osm);
