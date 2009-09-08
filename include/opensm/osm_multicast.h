@@ -309,16 +309,16 @@ static inline ib_net16_t osm_mgrp_get_mlid(IN const osm_mgrp_t * const p_mgrp)
 * SYNOPSIS
 */
 osm_mcm_port_t *osm_mgrp_add_port(osm_subn_t *subn, osm_log_t *log,
-				  IN osm_mgrp_t * const p_mgrp,
-				  IN const ib_gid_t * const p_port_gid,
+				  IN osm_mgrp_t * mgrp,
+				  IN const ib_gid_t * port_gid,
 				  IN const uint8_t join_state,
-				  IN boolean_t proxy_join);
+				  IN boolean_t proxy);
 /*
 * PARAMETERS
-*	p_mgrp
+*	mgrp
 *		[in] Pointer to an osm_mgrp_t object to initialize.
 *
-*	p_port_gid
+*	port_gid
 *		[in] Pointer to the GID of the port to add to the multicast group.
 *
 *	join_state
@@ -377,21 +377,18 @@ osm_mgrp_is_port_present(IN const osm_mgrp_t * const p_mgrp,
 *
 * SYNOPSIS
 */
-void
-osm_mgrp_delete_port(IN osm_subn_t * const p_subn,
-		     IN osm_log_t * const p_log,
-		     IN osm_mgrp_t * const p_mgrp,
-		     IN const ib_net64_t port_guid);
+void osm_mgrp_delete_port(IN osm_subn_t * subn, IN osm_log_t * log,
+			  IN osm_mgrp_t * mgrp, IN ib_net64_t port_guid);
 /*
 * PARAMETERS
 *
-*  p_subn
-*     [in] Pointer to the subnet object
+*	subn
+*		[in] Pointer to the subnet object
 *
-*  p_log
-*     [in] The log object pointer
+*	log
+*		[in] The log object pointer
 *
-*	p_mgrp
+*	mgrp
 *		[in] Pointer to an osm_mgrp_t object.
 *
 *	port_guid
