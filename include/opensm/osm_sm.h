@@ -525,65 +525,24 @@ osm_resp_send(IN osm_sm_t * sm,
 *
 *********/
 
-/****f* OpenSM: SM/osm_sm_mcgrp_join
+/****f* OpenSM: SM/osm_sm_reroute_mlid
 * NAME
-*	osm_sm_mcgrp_join
+*	osm_sm_reroute_mlid
 *
 * DESCRIPTION
-*	Adds a port to the multicast group.  Creates the multicast group
-*	if necessary.
-*
-*	This function is called by the SA.
+*	Requests (schedules) MLID rerouting
 *
 * SYNOPSIS
 */
-ib_api_status_t
-osm_sm_mcgrp_join(IN osm_sm_t * const p_sm,
-		  IN osm_mgrp_t *mgrp,
-		  IN const ib_net64_t port_guid);
-/*
-* PARAMETERS
-*	p_sm
-*		[in] Pointer to an osm_sm_t object.
-*
-*	mgrp
-*		[in] Pointer to multicast group to join
-*
-*	port_guid
-*		[in] Port GUID to add to the group.
-*
-* RETURN VALUES
-*	None
-*
-* NOTES
-*
-* SEE ALSO
-*********/
+void osm_sm_reroute_mlid(osm_sm_t * sm, ib_net16_t mlid);
 
-/****f* OpenSM: SM/osm_sm_mcgrp_leave
-* NAME
-*	osm_sm_mcgrp_leave
-*
-* DESCRIPTION
-*	Removes a port from the multicast group.
-*
-*	This function is called by the SA.
-*
-* SYNOPSIS
-*/
-ib_api_status_t
-osm_sm_mcgrp_leave(IN osm_sm_t * const p_sm,
-		   IN osm_mgrp_t *mgrp, IN const ib_net64_t port_guid);
 /*
 * PARAMETERS
-*	p_sm
+*	sm
 *		[in] Pointer to an osm_sm_t object.
 *
-*	mgrp
-*		[in] Poniter to multicast group to leave
-*
-*	port_guid
-*		[in] Port GUID to remove from the group.
+*	mlid
+*		[in] MLID value
 *
 * RETURN VALUES
 *	None

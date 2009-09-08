@@ -44,10 +44,13 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <arpa/inet.h>
 #include <opensm/osm_multicast.h>
 #include <opensm/osm_mcm_port.h>
 #include <opensm/osm_mtree.h>
 #include <opensm/osm_inform.h>
+#include <opensm/osm_opensm.h>
+#include <opensm/osm_mcm_info.h>
 
 /**********************************************************************
  **********************************************************************/
@@ -139,6 +142,15 @@ osm_mcm_port_t *osm_mgrp_add_port(IN osm_subn_t * subn, osm_log_t * log,
 	uint8_t prev_join_state = 0, join_state = mcmr->scope_state;
 	uint8_t prev_scope;
 
+	if (osm_log_is_active(log, OSM_LOG_VERBOSE)) {
+		char gid_str[INET6_ADDRSTRLEN];
+		OSM_LOG(log, OSM_LOG_VERBOSE, "Port 0x%016" PRIx64 " joining "
+			"MC group %s (mlid 0x%x)\n", cl_ntoh64(port->guid),
+			inet_ntop(AF_INET6, mgrp->mcmember_rec.mgid.raw,
+				  gid_str, sizeof(gid_str)),
+			cl_ntoh16(mgrp->mlid));
+	}
+
 	mcm_port = osm_mcm_port_new(port, mcmr, proxy);
 	if (!mcm_port)
 		return NULL;
@@ -158,17 +170,21 @@ osm_mcm_port_t *osm_mgrp_add_port(IN osm_subn_t * subn, osm_log_t * log,
 		osm_mcm_port_delete(mcm_port);
 		mcm_port = (osm_mcm_port_t *) prev_item;
 
-		/*
-		   o15.0.1.11
-		   Join state of the end port should be the or of the
-		   previous setting with the current one
-		 */
 		ib_member_get_scope_state(mcm_port->scope_state, &prev_scope,
 					  &prev_join_state);
 		mcm_port->scope_state =
 		    ib_member_set_scope_state(prev_scope,
 					      prev_join_state | join_state);
+	} else {
+		if (osm_port_add_mgrp(port, mgrp)) {
+			osm_mcm_port_delete(mcm_port);
+			return NULL;
+		}
+		osm_sm_reroute_mlid(&subn->p_osm->sm, mgrp->mlid);
 	}
+
+	/* o15.0.1.11: copy the join state */
+	mcmr->scope_state = mcm_port->scope_state;
 
 	if ((join_state & IB_JOIN_STATE_FULL) &&
 	    !(prev_join_state & IB_JOIN_STATE_FULL) &&
@@ -180,10 +196,9 @@ osm_mcm_port_t *osm_mgrp_add_port(IN osm_subn_t * subn, osm_log_t * log,
 
 /**********************************************************************
  **********************************************************************/
-int osm_mgrp_remove_port(osm_subn_t * subn, osm_log_t * log, osm_mgrp_t * mgrp,
-			 osm_mcm_port_t * mcm_port, ib_member_rec_t *mcmr)
+void osm_mgrp_remove_port(osm_subn_t * subn, osm_log_t * log, osm_mgrp_t * mgrp,
+			  osm_mcm_port_t * mcm_port, ib_member_rec_t *mcmr)
 {
-	int ret;
 	uint8_t join_state = mcmr->scope_state & 0xf;
 	uint8_t port_join_state, new_join_state;
 
@@ -195,22 +210,32 @@ int osm_mgrp_remove_port(osm_subn_t * subn, osm_log_t * log, osm_mgrp_t * mgrp,
 	port_join_state = mcm_port->scope_state & 0x0F;
 	new_join_state = port_join_state & ~join_state;
 
+	if (osm_log_is_active(log, OSM_LOG_VERBOSE)) {
+		char gid_str[INET6_ADDRSTRLEN];
+		OSM_LOG(log, OSM_LOG_VERBOSE,
+			"Port 0x%" PRIx64 " leaving MC group %s (mlid 0x%x)\n",
+			cl_ntoh64(mcm_port->port->guid),
+			inet_ntop(AF_INET6, mgrp->mcmember_rec.mgid.raw,
+				  gid_str, sizeof(gid_str)),
+			cl_ntoh16(mgrp->mlid));
+	}
+
 	if (new_join_state) {
 		mcm_port->scope_state =
 		    new_join_state | (mcm_port->scope_state & 0xf0);
 		OSM_LOG(log, OSM_LOG_DEBUG,
 			"updating port 0x%" PRIx64 " JoinState 0x%x -> 0x%x\n",
-			cl_ntoh64(mcm_port->port_gid.unicast.interface_id),
+			cl_ntoh64(mcm_port->port->guid),
 			port_join_state, new_join_state);
 		mcmr->scope_state = mcm_port->scope_state;
-		ret = 0;
 	} else {
 		mcmr->scope_state = mcm_port->scope_state;
 		cl_qmap_remove_item(&mgrp->mcm_port_tbl, &mcm_port->map_item);
 		OSM_LOG(log, OSM_LOG_DEBUG, "removing port 0x%" PRIx64 "\n",
-			cl_ntoh64(mcm_port->port_gid.unicast.interface_id));
+			cl_ntoh64(mcm_port->port->guid));
+		osm_port_remove_mgrp(mcm_port->port, mgrp);
 		osm_mcm_port_delete(mcm_port);
-		ret = 1;
+		osm_sm_reroute_mlid(&subn->p_osm->sm, mgrp->mlid);
 	}
 
 	/* no more full members so the group will be deleted after re-route
@@ -218,8 +243,6 @@ int osm_mgrp_remove_port(osm_subn_t * subn, osm_log_t * log, osm_mgrp_t * mgrp,
 	if ((port_join_state & IB_JOIN_STATE_FULL) &&
 	    !(new_join_state & IB_JOIN_STATE_FULL) && --mgrp->full_members == 0)
 		mgrp_send_notice(subn, log, mgrp, 67);
-
-	return ret;
 }
 
 void osm_mgrp_delete_port(osm_subn_t * subn, osm_log_t * log, osm_mgrp_t * mgrp,

@@ -132,59 +132,6 @@ static ib_net16_t get_new_mlid(osm_sa_t * sa, ib_net16_t requested_mlid)
 	return 0;
 }
 
-/*********************************************************************
- Add a port to the group. Calculating its PROXY_JOIN by the Port and
- requester gids.
-**********************************************************************/
-static ib_api_status_t add_new_mgrp_port(osm_sa_t * sa, IN osm_mgrp_t * p_mgrp,
-					 IN osm_port_t *port,
-					 IN ib_member_rec_t *
-					 p_recvd_mcmember_rec,
-					 IN osm_mad_addr_t * p_mad_addr,
-					 OUT osm_mcm_port_t ** pp_mcmr_port)
-{
-	boolean_t proxy_join;
-	ib_gid_t requester_gid;
-	ib_api_status_t res;
-
-	/* set the proxy_join if the requester gid is not identical to the
-	   joined gid */
-	res = osm_get_gid_by_mad_addr(sa->p_log, sa->p_subn, p_mad_addr,
-				      &requester_gid);
-	if (res != IB_SUCCESS) {
-		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B29: "
-			"Could not find GID for requester\n");
-
-		return IB_INVALID_PARAMETER;
-	}
-
-	if (!memcmp(&p_recvd_mcmember_rec->port_gid, &requester_gid,
-		    sizeof(ib_gid_t))) {
-		proxy_join = FALSE;
-		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-			"Create new port with proxy_join FALSE\n");
-	} else {
-		/* The port is not the one specified in PortGID.
-		   The check that the requester is in the same partition as
-		   the PortGID is done before - just need to update
-		   the proxy_join. */
-		proxy_join = TRUE;
-		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-			"Create new port with proxy_join TRUE\n");
-	}
-
-	*pp_mcmr_port = osm_mgrp_add_port(sa->p_subn, sa->p_log, p_mgrp, port,
-					  p_recvd_mcmember_rec, proxy_join);
-	if (*pp_mcmr_port == NULL) {
-		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B06: "
-			"osm_mgrp_add_port failed\n");
-
-		return IB_INSUFFICIENT_MEMORY;
-	}
-
-	return IB_SUCCESS;
-}
-
 /**********************************************************************
  **********************************************************************/
 static inline boolean_t check_join_comp_mask(ib_net64_t comp_mask)
@@ -968,7 +915,6 @@ static void mcmr_rcv_leave_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 	ib_member_rec_t mcmember_rec;
 	ib_net64_t portguid;
 	osm_mcm_port_t *p_mcm_port;
-	int removed;
 
 	OSM_LOG_ENTER(sa->p_log);
 
@@ -1016,20 +962,13 @@ static void mcmr_rcv_leave_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 	}
 
 	/* remove port and/or update join state */
-	removed = osm_mgrp_remove_port(sa->p_subn, sa->p_log, p_mgrp,
-				       p_mcm_port, &mcmember_rec);
+	osm_mgrp_remove_port(sa->p_subn, sa->p_log, p_mgrp, p_mcm_port,
+			     &mcmember_rec);
+	osm_mgrp_cleanup(sa->p_subn, p_mgrp);
 	CL_PLOCK_RELEASE(sa->p_lock);
-
-	/* we can leave if port was deleted from MCG */
-	if (removed && osm_sm_mcgrp_leave(sa->sm, p_mgrp, portguid))
-		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B09: "
-			"osm_sm_mcgrp_leave failed\n");
 
 	mcmr_rcv_respond(sa, p_madw, &mcmember_rec);
 
-	CL_PLOCK_EXCL_ACQUIRE(sa->p_lock);
-	osm_mgrp_cleanup(sa->p_subn, p_mgrp);
-	CL_PLOCK_RELEASE(sa->p_lock);
 Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }
@@ -1051,6 +990,7 @@ static void mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 	osm_physp_t *p_request_physp;
 	uint8_t is_new_group;	/* TRUE = there is a need to create a group */
 	uint8_t join_state;
+	boolean_t proxy;
 
 	OSM_LOG_ENTER(sa->p_log);
 
@@ -1097,6 +1037,8 @@ static void mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_REQ_INVALID);
 		goto Exit;
 	}
+
+	proxy = (p_physp != p_request_physp);
 
 	ib_member_get_scope_state(p_recvd_mcmember_rec->scope_state, NULL,
 				  &join_state);
@@ -1214,11 +1156,15 @@ static void mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 		goto Exit;
 	}
 
+	/* copy qkey mlid tclass pkey sl_flow_hop mtu rate pkt_life sl_flow_hop */
+	copy_from_create_mc_rec(&mcmember_rec, &p_mgrp->mcmember_rec);
+
 	/* create or update existing port (join-state will be updated) */
-	status = add_new_mgrp_port(sa, p_mgrp, p_port, p_recvd_mcmember_rec,
-				   osm_madw_get_mad_addr_ptr(p_madw),
-				   &p_mcmr_port);
-	if (status != IB_SUCCESS) {
+	p_mcmr_port = osm_mgrp_add_port(sa->p_subn, sa->p_log, p_mgrp, p_port,
+					&mcmember_rec, proxy);
+	if (!p_mcmr_port) {
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B06: "
+			"osm_mgrp_add_port failed\n");
 		/* we fail to add the port so we might need to delete the group */
 		osm_mgrp_cleanup(sa->p_subn, p_mgrp);
 		CL_PLOCK_RELEASE(sa->p_lock);
@@ -1228,35 +1174,9 @@ static void mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 		goto Exit;
 	}
 
-	/* o15.0.1.11: copy the join state */
-	mcmember_rec.scope_state = p_mcmr_port->scope_state;
-
-	/* copy qkey mlid tclass pkey sl_flow_hop mtu rate pkt_life sl_flow_hop */
-	copy_from_create_mc_rec(&mcmember_rec, &p_mgrp->mcmember_rec);
-
 	/* Release the lock as we don't need it. */
 	CL_PLOCK_RELEASE(sa->p_lock);
 
-	/* do the actual routing (actually schedule the update) */
-	status = osm_sm_mcgrp_join(sa->sm, p_mgrp,
-				   p_recvd_mcmember_rec->port_gid.unicast.
-				   interface_id);
-	if (status != IB_SUCCESS) {
-		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B14: "
-			"osm_sm_mcgrp_join failed from port 0x%016" PRIx64
-			" (%s), " "sending IB_SA_MAD_STATUS_NO_RESOURCES\n",
-			cl_ntoh64(portguid), p_port->p_node->print_desc);
-		CL_PLOCK_EXCL_ACQUIRE(sa->p_lock);
-		/* the request for routing failed so we need to remove the port */
-		osm_mgrp_delete_port(sa->p_subn, sa->p_log, p_mgrp,
-				     p_recvd_mcmember_rec->port_gid.
-				     unicast.interface_id);
-		CL_PLOCK_RELEASE(sa->p_lock);
-		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_NO_RESOURCES);
-		goto Exit;
-
-	}
-	/* failed to route */
 	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
 		osm_dump_mc_record(sa->p_log, &mcmember_rec, OSM_LOG_DEBUG);
 

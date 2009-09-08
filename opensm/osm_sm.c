@@ -443,109 +443,15 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-static void request_mlid(osm_sm_t * sm, uint16_t mlid)
+void osm_sm_reroute_mlid(osm_sm_t * sm, ib_net16_t mlid)
 {
-	mlid -= IB_LID_MCAST_START_HO;
+	mlid = cl_ntoh16(mlid) - IB_LID_MCAST_START_HO;
 	sm->mlids_req[mlid] = 1;
 	if (sm->mlids_req_max < mlid)
 		sm->mlids_req_max = mlid;
 	osm_sm_signal(sm, OSM_SIGNAL_IDLE_TIME_PROCESS_REQUEST);
-}
-
-ib_api_status_t osm_sm_mcgrp_join(IN osm_sm_t * p_sm, IN osm_mgrp_t *mgrp,
-				  IN const ib_net64_t port_guid)
-{
-	osm_port_t *p_port;
-	ib_api_status_t status = IB_SUCCESS;
-	osm_mcm_info_t *p_mcm;
-
-	OSM_LOG_ENTER(p_sm->p_log);
-
-	OSM_LOG(p_sm->p_log, OSM_LOG_VERBOSE,
-		"Port 0x%016" PRIx64 " joining MLID 0x%X\n",
-		cl_ntoh64(port_guid), cl_ntoh16(mgrp->mlid));
-
-	/*
-	 * Acquire the port object for the port joining this group.
-	 */
-	CL_PLOCK_EXCL_ACQUIRE(p_sm->p_lock);
-	p_port = osm_get_port_by_guid(p_sm->p_subn, port_guid);
-	if (!p_port) {
-		OSM_LOG(p_sm->p_log, OSM_LOG_ERROR, "ERR 2E05: "
-			"No port object for port 0x%016" PRIx64 "\n",
-			cl_ntoh64(port_guid));
-		status = IB_INVALID_PARAMETER;
-		goto Exit;
-	}
-
-	/*
-	 * Check if the object (according to mlid) already exists on this port.
-	 * If it does - then no need to update it again, and no need to
-	 * create the mc tree again. Just goto Exit.
-	 */
-	p_mcm = (osm_mcm_info_t *) cl_qlist_head(&p_port->mcm_list);
-	while (p_mcm != (osm_mcm_info_t *) cl_qlist_end(&p_port->mcm_list)) {
-		if (p_mcm->mgrp == mgrp) {
-			OSM_LOG(p_sm->p_log, OSM_LOG_DEBUG,
-				"Found mlid object for Port:"
-				"0x%016" PRIx64 " lid:0x%X\n",
-				cl_ntoh64(port_guid), cl_ntoh16(mgrp->mlid));
-			goto Exit;
-		}
-		p_mcm = (osm_mcm_info_t *) cl_qlist_next(&p_mcm->list_item);
-	}
-
-	status = osm_port_add_mgrp(p_port, mgrp);
-	if (status != IB_SUCCESS) {
-		OSM_LOG(p_sm->p_log, OSM_LOG_ERROR, "ERR 2E03: "
-			"Unable to associate port 0x%" PRIx64 " to mlid 0x%X\n",
-			cl_ntoh64(osm_port_get_guid(p_port)),
-			cl_ntoh16(osm_mgrp_get_mlid(mgrp)));
-		goto Exit;
-	}
-
-	request_mlid(p_sm, cl_ntoh16(mgrp->mlid));
-Exit:
-	CL_PLOCK_RELEASE(p_sm->p_lock);
-	OSM_LOG_EXIT(p_sm->p_log);
-
-	return status;
-}
-
-ib_api_status_t osm_sm_mcgrp_leave(IN osm_sm_t * p_sm, IN osm_mgrp_t *mgrp,
-				   IN const ib_net64_t port_guid)
-{
-	osm_port_t *p_port;
-	ib_api_status_t status = IB_SUCCESS;
-
-	OSM_LOG_ENTER(p_sm->p_log);
-
-	OSM_LOG(p_sm->p_log, OSM_LOG_VERBOSE,
-		"Port 0x%" PRIx64 " leaving MLID 0x%X\n",
-		cl_ntoh64(port_guid), cl_ntoh16(mgrp->mlid));
-
-	/*
-	 * Acquire the port object for the port leaving this group.
-	 */
-	CL_PLOCK_EXCL_ACQUIRE(p_sm->p_lock);
-
-	p_port = osm_get_port_by_guid(p_sm->p_subn, port_guid);
-	if (!p_port) {
-		OSM_LOG(p_sm->p_log, OSM_LOG_ERROR, "ERR 2E04: "
-			"No port object for port 0x%" PRIx64 "\n",
-			cl_ntoh64(port_guid));
-		status = IB_INVALID_PARAMETER;
-		goto Exit;
-	}
-
-	osm_port_remove_mgrp(p_port, mgrp);
-
-	request_mlid(p_sm, cl_hton16(mgrp->mlid));
-Exit:
-	CL_PLOCK_RELEASE(p_sm->p_lock);
-	OSM_LOG_EXIT(p_sm->p_log);
-
-	return status;
+	OSM_LOG(sm->p_log, OSM_LOG_DEBUG, "rerouting requested for MLID 0x%x\n",
+		mlid + IB_LID_MCAST_START_HO);
 }
 
 void osm_set_sm_priority(osm_sm_t * sm, uint8_t priority)

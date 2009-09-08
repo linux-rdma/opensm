@@ -378,8 +378,8 @@ void osm_mgrp_delete_port(IN osm_subn_t * subn, IN osm_log_t * log,
 * SEE ALSO
 *********/
 
-int osm_mgrp_remove_port(osm_subn_t * subn, osm_log_t * log, osm_mgrp_t * mgrp,
-			 osm_mcm_port_t * mcm_port, ib_member_rec_t * mcmr);
+void osm_mgrp_remove_port(osm_subn_t * subn, osm_log_t * log, osm_mgrp_t * mgrp,
+			  osm_mcm_port_t * mcm_port, ib_member_rec_t * mcmr);
 void osm_mgrp_cleanup(osm_subn_t * subn, osm_mgrp_t * mpgr);
 
 END_C_DECLS
