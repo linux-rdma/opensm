@@ -312,7 +312,7 @@ static ib_api_status_t send_report(IN osm_infr_t * p_infr_rec,	/* the informinfo
 
 	/* it is better to use LIDs since the GIDs might not be there for SMI traps */
 	OSM_LOG(p_log, OSM_LOG_DEBUG, "Forwarding Notice Event from LID:%u"
-		" to InformInfo LID: %u TID:0x%X\n",
+		" to InformInfo LID:%u TID:0x%X\n",
 		cl_ntoh16(p_ntc->issuer_lid),
 		cl_ntoh16(p_infr_rec->report_addr.dest_lid), trap_fwd_trans_id);
 
@@ -545,6 +545,7 @@ ib_api_status_t osm_report_notice(IN osm_log_t * p_log, IN osm_subn_t * p_subn,
 	cl_list_t infr_to_remove_list;
 	osm_infr_t *p_infr_rec;
 	osm_infr_t *p_next_infr_rec;
+	ib_gid_t *p_gid;
 
 	OSM_LOG_ENTER(p_log);
 
@@ -559,8 +560,18 @@ ib_api_status_t osm_report_notice(IN osm_log_t * p_log, IN osm_subn_t * p_subn,
 		return (IB_ERROR);
 	}
 
+	if (!osm_log_is_active(p_log, OSM_LOG_INFO))
+		goto skip_log;
+
 	/* an official Event information log */
-	if (ib_notice_is_generic(p_ntc))
+	if (ib_notice_is_generic(p_ntc)) {
+		if ((p_ntc->g_or_v.generic.trap_num == CL_HTON16(64)) ||
+		    (p_ntc->g_or_v.generic.trap_num == CL_HTON16(65)) ||
+		    (p_ntc->g_or_v.generic.trap_num == CL_HTON16(66)) ||
+		    (p_ntc->g_or_v.generic.trap_num == CL_HTON16(67)))
+			p_gid = (ib_gid_t *)&p_ntc->data_details.ntc_64_67.gid.raw;
+		else
+			p_gid = (ib_gid_t *)&p_ntc->issuer_gid.raw;
 		OSM_LOG(p_log, OSM_LOG_INFO,
 			"Reporting Generic Notice type:%u num:%u (%s)"
 			" from LID:%u GID:%s\n",
@@ -568,9 +579,8 @@ ib_api_status_t osm_report_notice(IN osm_log_t * p_log, IN osm_subn_t * p_subn,
 			cl_ntoh16(p_ntc->g_or_v.generic.trap_num),
 			ib_get_trap_str(p_ntc->g_or_v.generic.trap_num),
 			cl_ntoh16(p_ntc->issuer_lid),
-			inet_ntop(AF_INET6, p_ntc->issuer_gid.raw, gid_str,
-				  sizeof gid_str));
-	else
+			inet_ntop(AF_INET6, p_gid->raw, gid_str, sizeof gid_str));
+	} else
 		OSM_LOG(p_log, OSM_LOG_INFO,
 			"Reporting Vendor Notice type:%u vend:%u dev:%u"
 			" from LID:%u GID:%s\n",
@@ -581,6 +591,7 @@ ib_api_status_t osm_report_notice(IN osm_log_t * p_log, IN osm_subn_t * p_subn,
 			inet_ntop(AF_INET6, p_ntc->issuer_gid.raw, gid_str,
 				  sizeof gid_str));
 
+skip_log:
 	/* Create a list that will hold all the infr records that should
 	   be removed due to violation. o13-17.1.2 */
 	cl_list_construct(&infr_to_remove_list);
