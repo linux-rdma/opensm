@@ -257,7 +257,6 @@ This option provides the means to define a set of ports
 equalization algorithm.
 .TP
 \fB\-w\fR, \fB\-\-hop_weights_file\fR <path to file>
-
 This option provides weighting factors per port representing a hop cost in
 computing the lid matrix.  The file consists of lines containing a switch port
 GUID (specified as a 64 bit hex number, with leading 0x), output port number,
@@ -265,7 +264,6 @@ and weighting factor.  Any port not listed in the file defaults to a weighting
 factor of 1.  Lines starting with # are comments.  Weights affect only the
 output route from the port, so many useful configurations will require weights
 to be specified in pairs.
-
 .TP
 \fB\-x\fR, \fB\-\-honor_guid2lid\fR
 This option forces OpenSM to honor the guid2lid file,
