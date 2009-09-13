@@ -184,10 +184,9 @@ static const ib_gid_t osm_ts_ipoib_mgid = {
 	 },
 };
 
-ib_api_status_t osm_prtn_add_mcgroup(osm_log_t * p_log,
-				     osm_subn_t * p_subn, osm_prtn_t * p,
-				     uint8_t rate,
-				     uint8_t mtu, uint8_t scope)
+ib_api_status_t osm_prtn_add_mcgroup(osm_log_t * p_log, osm_subn_t * p_subn,
+				     osm_prtn_t * p, uint8_t rate, uint8_t mtu,
+				     uint8_t scope)
 {
 	ib_member_rec_t mc_rec;
 	ib_net64_t comp_mask;
@@ -371,10 +370,9 @@ ib_api_status_t osm_prtn_make_partitions(osm_log_t * const p_log,
 	if (status != IB_SUCCESS)
 		goto _err;
 
-	if (is_config && osm_prtn_config_parse_file(p_log, p_subn, file_name)) {
+	if (is_config && osm_prtn_config_parse_file(p_log, p_subn, file_name))
 		OSM_LOG(p_log, OSM_LOG_VERBOSE, "Partition configuration "
 			"was not fully processed\n");
-	}
 
 	/* and now clean up empty partitions */
 	p_next = cl_qmap_head(&p_subn->prtn_pkey_tbl);
