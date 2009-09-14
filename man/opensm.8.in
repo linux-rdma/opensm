@@ -1,4 +1,4 @@
-.TH OPENSM 8 "September 3, 2009" "OpenIB" "OpenIB Management"
+.TH OPENSM 8 "September 14, 2009" "OpenIB" "OpenIB Management"
 
 .SH NAME
 opensm \- InfiniBand subnet manager and administration (SM/SA)
@@ -418,15 +418,29 @@ logrotate purposes.
 .SH PARTITION CONFIGURATION
 .PP
 The default name of OpenSM partitions configuration file is
-\fB\%@OPENSM_CONFIG_DIR@/@PARTITION_CONFIG_FILE@\fP. The default may be changed by using
---Pconfig (-P) option with OpenSM.
+\fB\%@OPENSM_CONFIG_DIR@/@PARTITION_CONFIG_FILE@\fP. The default may be changed
+by using the --Pconfig (-P) option with OpenSM.
 
 The default partition will be created by OpenSM unconditionally even
 when partition configuration file does not exist or cannot be accessed.
 
-The default partition has P_Key value 0x7fff. OpenSM\'s port will have
-full membership in default partition. All other end ports will have
-limited membership.
+The default partition has P_Key value 0x7fff. OpenSM\'s port will always
+have full membership in default partition. All other end ports will have
+full membership if the partition configuration file is not found or cannot
+be accessed, or limited membership if the file exists and can be accessed
+but there is no rule for the Default partition.
+
+Effectively, this amounts to the same as if one of the following rules
+below appear in the partition configuration file.
+
+In the case of no rule for the Default partition:
+
+Default=0x7fff : ALL=limited, SELF=full ;
+
+In the case of no partition configuration file or file cannot be accessed:
+
+Default=0x7fff : ALL=full ;
+
 
 File Format
 
