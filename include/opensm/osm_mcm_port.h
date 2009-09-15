@@ -57,6 +57,9 @@
 #endif				/* __cplusplus */
 
 BEGIN_C_DECLS
+
+struct osm_mgrp;
+
 /****s* OpenSM: MCM Port Object/osm_mcm_port_t
 * NAME
 *   osm_mcm_port_t
@@ -72,7 +75,9 @@ BEGIN_C_DECLS
 */
 typedef struct osm_mcm_port {
 	cl_map_item_t map_item;
+	cl_list_item_t list_item;
 	osm_port_t *port;
+	struct osm_mgrp *mgrp;
 	ib_gid_t port_gid;
 	uint8_t scope_state;
 	boolean_t proxy_join;
@@ -84,6 +89,9 @@ typedef struct osm_mcm_port {
 *
 *	port
 *		Reference to the parent port.
+*
+*	mgrp
+*		The pointer to multicast group where this port is member of
 *
 *	port_gid
 *		GID of the member port.
@@ -111,18 +119,20 @@ typedef struct osm_mcm_port {
 *
 * SYNOPSIS
 */
-osm_mcm_port_t *osm_mcm_port_new(IN osm_port_t * port, IN ib_member_rec_t *mcmr,
-				 IN boolean_t proxy_join);
+osm_mcm_port_t *osm_mcm_port_new(IN osm_port_t * port, IN struct osm_mgrp *mgrp,
+				 IN ib_member_rec_t *mcmr, IN boolean_t proxy);
 /*
 * PARAMETERS
 *	port
 *		[in] Pointer to the port object.
-*		GID of the port to add to the multicast group.
+*
+*	mgrp
+*		[in] Pointer to multicast group where this port is joined.
 *
 *	mcmr
 *		[in] Pointer to MCMember record of the join request
 *
-*	proxy_join
+*	proxy
 *		[in] proxy_join state analyzed from the request
 *
 * RETURN VALUES

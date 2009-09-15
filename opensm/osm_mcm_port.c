@@ -47,11 +47,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <opensm/osm_mcm_port.h>
+#include <opensm/osm_multicast.h>
 
 /**********************************************************************
  **********************************************************************/
-osm_mcm_port_t *osm_mcm_port_new(IN osm_port_t *port, IN ib_member_rec_t *mcmr,
-				 IN boolean_t proxy_join)
+osm_mcm_port_t *osm_mcm_port_new(IN osm_port_t *port, IN osm_mgrp_t *mgrp,
+				 IN ib_member_rec_t *mcmr, IN boolean_t proxy)
 {
 	osm_mcm_port_t *p_mcm;
 
@@ -59,9 +60,10 @@ osm_mcm_port_t *osm_mcm_port_new(IN osm_port_t *port, IN ib_member_rec_t *mcmr,
 	if (p_mcm) {
 		memset(p_mcm, 0, sizeof(*p_mcm));
 		p_mcm->port = port;
+		p_mcm->mgrp = mgrp;
 		p_mcm->port_gid = mcmr->port_gid;
 		p_mcm->scope_state = mcmr->scope_state;
-		p_mcm->proxy_join = proxy_join;
+		p_mcm->proxy_join = proxy;
 	}
 
 	return (p_mcm);

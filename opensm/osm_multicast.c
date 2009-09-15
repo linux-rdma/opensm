@@ -50,7 +50,6 @@
 #include <opensm/osm_mtree.h>
 #include <opensm/osm_inform.h>
 #include <opensm/osm_opensm.h>
-#include <opensm/osm_mcm_info.h>
 
 /**********************************************************************
  **********************************************************************/
@@ -95,11 +94,28 @@ osm_mgrp_t *osm_mgrp_new(IN const ib_net16_t mlid)
 
 void osm_mgrp_cleanup(osm_subn_t * subn, osm_mgrp_t * mgrp)
 {
-	if (mgrp->full_members || mgrp->well_known)
+	osm_mcm_port_t *mcm_port;
+
+	if (mgrp->full_members)
 		return;
-	subn->mgroups[cl_ntoh16(mgrp->mlid) - IB_LID_MCAST_START_HO] = NULL;
+
+	osm_mtree_destroy(mgrp->p_root);
+	mgrp->p_root = NULL;
+
+	while (cl_qmap_count(&mgrp->mcm_port_tbl)) {
+		mcm_port = (osm_mcm_port_t *)cl_qmap_head(&mgrp->mcm_port_tbl);
+		cl_qmap_remove_item(&mgrp->mcm_port_tbl, &mcm_port->map_item);
+		cl_qlist_remove_item(&mcm_port->port->mcm_list,
+				     &mcm_port->list_item);
+		osm_mcm_port_delete(mcm_port);
+	}
+
+	if (mgrp->well_known)
+		return;
+
 	cl_fmap_remove_item(&subn->mgrp_mgid_tbl, &mgrp->map_item);
-	osm_mgrp_delete(mgrp);
+	subn->mgroups[cl_ntoh16(mgrp->mlid) - IB_LID_MCAST_START_HO] = NULL;
+	free(mgrp);
 }
 
 /**********************************************************************
@@ -151,7 +167,7 @@ osm_mcm_port_t *osm_mgrp_add_port(IN osm_subn_t * subn, osm_log_t * log,
 			cl_ntoh16(mgrp->mlid));
 	}
 
-	mcm_port = osm_mcm_port_new(port, mcmr, proxy);
+	mcm_port = osm_mcm_port_new(port, mgrp, mcmr, proxy);
 	if (!mcm_port)
 		return NULL;
 
@@ -176,10 +192,7 @@ osm_mcm_port_t *osm_mgrp_add_port(IN osm_subn_t * subn, osm_log_t * log,
 		    ib_member_set_scope_state(prev_scope,
 					      prev_join_state | join_state);
 	} else {
-		if (osm_port_add_mgrp(port, mgrp)) {
-			osm_mcm_port_delete(mcm_port);
-			return NULL;
-		}
+		cl_qlist_insert_tail(&port->mcm_list, &mcm_port->list_item);
 		osm_sm_reroute_mlid(&subn->p_osm->sm, mgrp->mlid);
 	}
 
@@ -230,10 +243,11 @@ void osm_mgrp_remove_port(osm_subn_t * subn, osm_log_t * log, osm_mgrp_t * mgrp,
 		mcmr->scope_state = mcm_port->scope_state;
 	} else {
 		mcmr->scope_state = mcm_port->scope_state;
-		cl_qmap_remove_item(&mgrp->mcm_port_tbl, &mcm_port->map_item);
 		OSM_LOG(log, OSM_LOG_DEBUG, "removing port 0x%" PRIx64 "\n",
 			cl_ntoh64(mcm_port->port->guid));
-		osm_port_remove_mgrp(mcm_port->port, mgrp);
+		cl_qmap_remove_item(&mgrp->mcm_port_tbl, &mcm_port->map_item);
+		cl_qlist_remove_item(&mcm_port->port->mcm_list,
+				     &mcm_port->list_item);
 		osm_mcm_port_delete(mcm_port);
 		osm_sm_reroute_mlid(&subn->p_osm->sm, mgrp->mlid);
 	}
@@ -255,8 +269,8 @@ void osm_mgrp_delete_port(osm_subn_t * subn, osm_log_t * log, osm_mgrp_t * mgrp,
 		mcmrec.scope_state = 0xf;
 		osm_mgrp_remove_port(subn, log, mgrp, (osm_mcm_port_t *) item,
 				     &mcmrec);
+		osm_mgrp_cleanup(subn, mgrp);
 	}
-	osm_mgrp_cleanup(subn, mgrp);
 }
 
 /**********************************************************************

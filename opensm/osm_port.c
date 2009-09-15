@@ -51,7 +51,6 @@
 #include <opensm/osm_port.h>
 #include <opensm/osm_node.h>
 #include <opensm/osm_madw.h>
-#include <opensm/osm_mcm_info.h>
 #include <opensm/osm_switch.h>
 
 /**********************************************************************
@@ -132,8 +131,6 @@ void osm_physp_init(IN osm_physp_t * p_physp, IN const ib_net64_t port_guid,
  **********************************************************************/
 void osm_port_delete(IN OUT osm_port_t ** pp_port)
 {
-	/* cleanup all mcm recs attached */
-	osm_port_remove_all_mgrp(*pp_port);
 	free(*pp_port);
 	*pp_port = NULL;
 }
@@ -219,62 +216,6 @@ ib_api_status_t osm_get_port_by_base_lid(IN const osm_subn_t * p_subn,
 
 Found:
 	return status;
-}
-
-/**********************************************************************
- **********************************************************************/
-ib_api_status_t osm_port_add_mgrp(IN osm_port_t * p_port, IN osm_mgrp_t *mgrp)
-{
-	ib_api_status_t status = IB_SUCCESS;
-	osm_mcm_info_t *p_mcm;
-
-	p_mcm = osm_mcm_info_new(mgrp);
-	if (p_mcm)
-		cl_qlist_insert_tail(&p_port->mcm_list,
-				     (cl_list_item_t *) p_mcm);
-	else
-		status = IB_INSUFFICIENT_MEMORY;
-
-	return status;
-}
-
-/**********************************************************************
- **********************************************************************/
-static cl_status_t port_mgrp_find_func(IN const cl_list_item_t * p_list_item,
-				       IN void *context)
-{
-	if (context == ((osm_mcm_info_t *) p_list_item)->mgrp)
-		return CL_SUCCESS;
-	else
-		return CL_NOT_FOUND;
-}
-
-/**********************************************************************
- **********************************************************************/
-void osm_port_remove_mgrp(IN osm_port_t * p_port, IN osm_mgrp_t *mgrp)
-{
-	cl_list_item_t *p_mcm;
-
-	p_mcm = cl_qlist_find_from_head(&p_port->mcm_list, port_mgrp_find_func,
-					mgrp);
-
-	if (p_mcm != cl_qlist_end(&p_port->mcm_list)) {
-		cl_qlist_remove_item(&p_port->mcm_list, p_mcm);
-		osm_mcm_info_delete((osm_mcm_info_t *) p_mcm);
-	}
-}
-
-/**********************************************************************
- **********************************************************************/
-void osm_port_remove_all_mgrp(IN osm_port_t * p_port)
-{
-	cl_list_item_t *p_mcm;
-
-	p_mcm = cl_qlist_remove_head(&p_port->mcm_list);
-	while (p_mcm != cl_qlist_end(&p_port->mcm_list)) {
-		osm_mcm_info_delete((osm_mcm_info_t *) p_mcm);
-		p_mcm = cl_qlist_remove_head(&p_port->mcm_list);
-	}
 }
 
 /**********************************************************************

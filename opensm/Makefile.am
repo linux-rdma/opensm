@@ -31,7 +31,7 @@ opensm_SOURCES = main.c osm_console_io.c osm_console.c osm_db_files.c \
 		 osm_db_pack.c osm_drop_mgr.c \
 		 osm_inform.c osm_lid_mgr.c osm_lin_fwd_rcv.c \
 		 osm_link_mgr.c osm_mcast_fwd_rcv.c \
-		 osm_mcast_mgr.c osm_mcast_tbl.c osm_mcm_info.c \
+		 osm_mcast_mgr.c osm_mcast_tbl.c \
 		 osm_mcm_port.c osm_mesh.c osm_mtree.c osm_multicast.c osm_node.c \
 		 osm_node_desc_rcv.c osm_node_info_rcv.c \
 		 osm_opensm.c osm_pkey.c osm_pkey_mgr.c osm_pkey_rcv.c \
@@ -83,7 +83,6 @@ opensminclude_HEADERS = \
 	$(srcdir)/../include/opensm/osm_mad_pool.h \
 	$(srcdir)/../include/opensm/osm_madw.h \
 	$(srcdir)/../include/opensm/osm_mcast_tbl.h \
-	$(srcdir)/../include/opensm/osm_mcm_info.h \
 	$(srcdir)/../include/opensm/osm_mcm_port.h \
 	$(srcdir)/../include/opensm/osm_mesh.h \
 	$(srcdir)/../include/opensm/osm_mtree.h \

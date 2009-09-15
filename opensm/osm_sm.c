@@ -57,7 +57,6 @@
 #include <opensm/osm_log.h>
 #include <opensm/osm_node.h>
 #include <opensm/osm_msgdef.h>
-#include <opensm/osm_mcm_info.h>
 #include <opensm/osm_perfmgr.h>
 #include <opensm/osm_opensm.h>
 
