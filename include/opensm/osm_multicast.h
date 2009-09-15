@@ -82,31 +82,6 @@ BEGIN_C_DECLS
 *	Steve King, Intel
 *
 *********/
-/****s* OpenSM: Multicast Group/osm_mcast_mgr_ctxt_t
-* NAME
-*	osm_mcast_mgr_ctxt_t
-*
-* DESCRIPTION
-*	Struct for passing context arguments to the multicast manager.
-*
-*	The osm_mcast_mgr_ctxt_t object should be treated as opaque and should
-*	be manipulated only through the provided functions.
-*
-* SYNOPSIS
-*/
-typedef struct osm_mcast_mgr_ctxt {
-	cl_list_item_t list_item;
-	ib_net16_t mlid;
-} osm_mcast_mgr_ctxt_t;
-/*
-* FIELDS
-*
-*	mlid
-*		The network ordered LID of this Multicast Group
-*		(must be >= 0xC000).
-*
-* SEE ALSO
-*********/
 
 /****s* OpenSM: Multicast Group/osm_mgrp_t
 * NAME
