@@ -516,7 +516,7 @@ ib_api_status_t osm_sm_mcgrp_leave(IN osm_sm_t * p_sm, IN osm_mgrp_t *mgrp,
 				   IN const ib_net64_t port_guid)
 {
 	osm_port_t *p_port;
-	ib_api_status_t status;
+	ib_api_status_t status = IB_SUCCESS;
 
 	OSM_LOG_ENTER(p_sm->p_log);
 
