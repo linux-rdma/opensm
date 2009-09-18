@@ -964,7 +964,6 @@ static void mcmr_rcv_leave_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 	/* remove port and/or update join state */
 	osm_mgrp_remove_port(sa->p_subn, sa->p_log, p_mgrp, p_mcm_port,
 			     &mcmember_rec);
-	osm_mgrp_cleanup(sa->p_subn, p_mgrp);
 	CL_PLOCK_RELEASE(sa->p_lock);
 
 	mcmr_rcv_respond(sa, p_madw, &mcmember_rec);
@@ -1163,11 +1162,11 @@ static void mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 	p_mcmr_port = osm_mgrp_add_port(sa->p_subn, sa->p_log, p_mgrp, p_port,
 					&mcmember_rec, proxy);
 	if (!p_mcmr_port) {
-		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B06: "
-			"osm_mgrp_add_port failed\n");
 		/* we fail to add the port so we might need to delete the group */
 		osm_mgrp_cleanup(sa->p_subn, p_mgrp);
 		CL_PLOCK_RELEASE(sa->p_lock);
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B06: "
+			"osm_mgrp_add_port failed\n");
 		osm_sa_send_error(sa, p_madw, status == IB_INVALID_PARAMETER ?
 				  IB_SA_MAD_STATUS_REQ_INVALID :
 				  IB_SA_MAD_STATUS_NO_RESOURCES);

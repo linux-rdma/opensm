@@ -255,8 +255,11 @@ void osm_mgrp_remove_port(osm_subn_t * subn, osm_log_t * log, osm_mgrp_t * mgrp,
 	/* no more full members so the group will be deleted after re-route
 	   but only if it is not a well known group */
 	if ((port_join_state & IB_JOIN_STATE_FULL) &&
-	    !(new_join_state & IB_JOIN_STATE_FULL) && --mgrp->full_members == 0)
+	    !(new_join_state & IB_JOIN_STATE_FULL) &&
+	    --mgrp->full_members == 0) {
 		mgrp_send_notice(subn, log, mgrp, 67);
+		osm_mgrp_cleanup(subn, mgrp);
+	}
 }
 
 void osm_mgrp_delete_port(osm_subn_t * subn, osm_log_t * log, osm_mgrp_t * mgrp,
@@ -269,7 +272,6 @@ void osm_mgrp_delete_port(osm_subn_t * subn, osm_log_t * log, osm_mgrp_t * mgrp,
 		mcmrec.scope_state = 0xf;
 		osm_mgrp_remove_port(subn, log, mgrp, (osm_mcm_port_t *) item,
 				     &mcmrec);
-		osm_mgrp_cleanup(subn, mgrp);
 	}
 }
 
