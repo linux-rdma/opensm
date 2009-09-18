@@ -199,7 +199,7 @@ static void nr_rcv_by_comp_mask(IN cl_map_item_t * p_map_item, IN void *context)
 	OSM_LOG_ENTER(p_ctxt->sa->p_log);
 
 	osm_dump_node_info(p_ctxt->sa->p_log, &p_node->node_info,
-			   OSM_LOG_VERBOSE);
+			   OSM_LOG_DEBUG);
 
 	if (comp_mask & IB_NR_COMPMASK_LID)
 		match_lid = p_rcvd_rec->lid;
