@@ -75,9 +75,7 @@ void osm_mgrp_delete(IN osm_mgrp_t * p_mgrp)
 	free(p_mgrp);
 }
 
-/**********************************************************************
- **********************************************************************/
-osm_mgrp_t *osm_mgrp_new(IN const ib_net16_t mlid)
+osm_mgrp_t *osm_mgrp_new(IN const ib_net16_t mlid, IN ib_member_rec_t * mcmr)
 {
 	osm_mgrp_t *p_mgrp;
 
@@ -88,10 +86,13 @@ osm_mgrp_t *osm_mgrp_new(IN const ib_net16_t mlid)
 	memset(p_mgrp, 0, sizeof(*p_mgrp));
 	cl_qmap_init(&p_mgrp->mcm_port_tbl);
 	p_mgrp->mlid = mlid;
+	p_mgrp->mcmember_rec = *mcmr;
 
 	return p_mgrp;
 }
 
+/**********************************************************************
+ **********************************************************************/
 void osm_mgrp_cleanup(osm_subn_t * subn, osm_mgrp_t * mgrp)
 {
 	osm_mcm_port_t *mcm_port;
@@ -207,8 +208,6 @@ osm_mcm_port_t *osm_mgrp_add_port(IN osm_subn_t * subn, osm_log_t * log,
 	return mcm_port;
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_mgrp_remove_port(osm_subn_t * subn, osm_log_t * log, osm_mgrp_t * mgrp,
 			  osm_mcm_port_t * mcm_port, ib_member_rec_t *mcmr)
 {
@@ -277,22 +276,11 @@ void osm_mgrp_delete_port(osm_subn_t * subn, osm_log_t * log, osm_mgrp_t * mgrp,
 
 /**********************************************************************
  **********************************************************************/
-boolean_t osm_mgrp_is_port_present(IN const osm_mgrp_t * p_mgrp,
-				   IN const ib_net64_t port_guid,
-				   OUT osm_mcm_port_t ** const pp_mcm_port)
+osm_mcm_port_t *osm_mgrp_get_mcm_port(IN const osm_mgrp_t * p_mgrp,
+				      IN const ib_net64_t port_guid)
 {
-	cl_map_item_t *p_map_item;
-
-	CL_ASSERT(p_mgrp);
-
-	p_map_item = cl_qmap_get(&p_mgrp->mcm_port_tbl, port_guid);
-
-	if (p_map_item != cl_qmap_end(&p_mgrp->mcm_port_tbl)) {
-		if (pp_mcm_port)
-			*pp_mcm_port = (osm_mcm_port_t *) p_map_item;
-		return TRUE;
-	}
-	if (pp_mcm_port)
-		*pp_mcm_port = NULL;
-	return FALSE;
+	cl_map_item_t *item = cl_qmap_get(&p_mgrp->mcm_port_tbl, port_guid);
+	if (item != cl_qmap_end(&p_mgrp->mcm_port_tbl))
+		return (osm_mcm_port_t *)item;
+	return NULL;
 }

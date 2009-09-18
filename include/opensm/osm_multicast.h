@@ -142,11 +142,14 @@ typedef struct osm_mgrp {
 *
 * SYNOPSIS
 */
-osm_mgrp_t *osm_mgrp_new(IN const ib_net16_t mlid);
+osm_mgrp_t *osm_mgrp_new(IN const ib_net16_t mlid, IN ib_member_rec_t * mcmr);
 /*
 * PARAMETERS
 *	mlid
 *		[in] Multicast LID for this multicast group.
+*
+*	mcmr
+*		[in] MCMember Record for this multicast group.
 *
 * RETURN VALUES
 *	IB_SUCCESS if initialization was successful.
@@ -309,20 +312,17 @@ osm_mcm_port_t *osm_mgrp_add_port(osm_subn_t *subn, osm_log_t *log,
 * SEE ALSO
 *********/
 
-/****f* OpenSM: Multicast Group/osm_mgrp_is_port_present
+/****f* OpenSM: Multicast Group/osm_mgrp_get_mcm_port
 * NAME
-*	osm_mgrp_is_port_present
+*	osm_mgrp_get_mcm_port
 *
 * DESCRIPTION
-*	checks a port from the multicast group.
+*	finds a port in the multicast group.
 *
 * SYNOPSIS
 */
-
-boolean_t
-osm_mgrp_is_port_present(IN const osm_mgrp_t * const p_mgrp,
-			 IN const ib_net64_t port_guid,
-			 OUT osm_mcm_port_t ** const pp_mcm_port);
+osm_mcm_port_t *osm_mgrp_get_mcm_port(IN const osm_mgrp_t * const p_mgrp,
+				      IN const ib_net64_t port_guid);
 /*
 * PARAMETERS
 *	p_mgrp
@@ -331,13 +331,8 @@ osm_mgrp_is_port_present(IN const osm_mgrp_t * const p_mgrp,
 *	port_guid
 *		[in] Port guid of the departing port.
 *
-*  pp_mcm_port
-*     [out] Pointer to a pointer to osm_mcm_port_t
-*           Updated to the member on success or NULLed
-*
 * RETURN VALUES
-*	TRUE if port present
-*	FALSE if port is not present.
+*	Pointer to the mcm port object when present or NULL otherwise.
 *
 * NOTES
 *

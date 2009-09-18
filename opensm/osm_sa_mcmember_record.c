@@ -340,10 +340,10 @@ static boolean_t validate_modify(IN osm_sa_t * sa, IN osm_mgrp_t * p_mgrp,
 
 	portguid = p_recvd_mcmember_rec->port_gid.unicast.interface_id;
 
-	*pp_mcm_port = NULL;
+	*pp_mcm_port = osm_mgrp_get_mcm_port(p_mgrp, portguid);
 
 	/* o15-0.2.1: If this is a new port being added - nothing to check */
-	if (!osm_mgrp_is_port_present(p_mgrp, portguid, pp_mcm_port)) {
+	if (!*pp_mcm_port) {
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"This is a new port in the MC group\n");
 		return TRUE;
@@ -428,10 +428,10 @@ static boolean_t validate_delete(IN osm_sa_t * sa, IN osm_mgrp_t * p_mgrp,
 
 	portguid = p_recvd_mcmember_rec->port_gid.unicast.interface_id;
 
-	*pp_mcm_port = NULL;
+	*pp_mcm_port = osm_mgrp_get_mcm_port(p_mgrp, portguid);
 
 	/* 1 */
-	if (!osm_mgrp_is_port_present(p_mgrp, portguid, pp_mcm_port)) {
+	if (!*pp_mcm_port) {
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Failed to find the port in the MC group\n");
 		return FALSE;
@@ -812,7 +812,8 @@ ib_api_status_t osm_mcmr_rcv_create_new_mgrp(IN osm_sa_t * sa,
 	}
 
 	/* create a new MC Group */
-	*pp_mgrp = osm_mgrp_new(mlid);
+	mcm_rec.mlid = mlid;
+	*pp_mgrp = osm_mgrp_new(mlid, &mcm_rec);
 	if (*pp_mgrp == NULL) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B08: "
 			"osm_mgrp_new failed\n");
@@ -820,10 +821,6 @@ ib_api_status_t osm_mcmr_rcv_create_new_mgrp(IN osm_sa_t * sa,
 		status = IB_SA_MAD_STATUS_NO_RESOURCES;
 		goto Exit;
 	}
-
-	/* Initialize the mgrp */
-	(*pp_mgrp)->mcmember_rec = mcm_rec;
-	(*pp_mgrp)->mcmember_rec.mlid = mlid;
 
 	/* the mcmember_record should have mtu_sel, rate_sel, and pkt_lifetime_sel = 2 */
 	(*pp_mgrp)->mcmember_rec.mtu &= 0x3f;
@@ -1305,13 +1302,12 @@ static void mcmr_by_comp_mask(osm_sa_t * sa, const ib_member_rec_t * p_rcvd_rec,
 	/* so did we get the PortGUID mask */
 	if (IB_MCR_COMPMASK_PORT_GID & comp_mask) {
 		/* try to find this port */
-		if (osm_mgrp_is_port_present(p_mgrp, portguid, &p_mcm_port)) {
-			scope_state = p_mcm_port->scope_state;
-			memcpy(&port_gid, &(p_mcm_port->port_gid),
-			       sizeof(ib_gid_t));
-			proxy_join = p_mcm_port->proxy_join;
-		} else /* port not in group */
+		p_mcm_port = osm_mgrp_get_mcm_port(p_mgrp, portguid);
+		if (!p_mcm_port) /* port not in group */
 			goto Exit;
+		scope_state = p_mcm_port->scope_state;
+		memcpy(&port_gid, &(p_mcm_port->port_gid), sizeof(ib_gid_t));
+		proxy_join = p_mcm_port->proxy_join;
 	} else /* point to the group information */
 		scope_state = p_mgrp->mcmember_rec.scope_state;
 
