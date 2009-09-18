@@ -73,7 +73,8 @@ void osm_mgrp_delete(IN osm_mgrp_t * p_mgrp)
 	free(p_mgrp);
 }
 
-osm_mgrp_t *osm_mgrp_new(IN ib_net16_t mlid, IN ib_member_rec_t * mcmr)
+osm_mgrp_t *osm_mgrp_new(IN osm_subn_t * subn, IN ib_net16_t mlid,
+			 IN ib_member_rec_t * mcmr)
 {
 	osm_mgrp_t *p_mgrp;
 
@@ -85,6 +86,10 @@ osm_mgrp_t *osm_mgrp_new(IN ib_net16_t mlid, IN ib_member_rec_t * mcmr)
 	cl_qmap_init(&p_mgrp->mcm_port_tbl);
 	p_mgrp->mlid = mlid;
 	p_mgrp->mcmember_rec = *mcmr;
+
+	cl_fmap_insert(&subn->mgrp_mgid_tbl, &p_mgrp->mcmember_rec.mgid,
+		       &p_mgrp->map_item);
+	subn->mgroups[cl_ntoh16(p_mgrp->mlid) - IB_LID_MCAST_START_HO] = p_mgrp;
 
 	return p_mgrp;
 }

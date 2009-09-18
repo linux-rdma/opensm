@@ -796,7 +796,7 @@ static ib_api_status_t mcmr_rcv_create_new_mgrp(IN osm_sa_t * sa,
 
 	/* create a new MC Group */
 	mcm_rec.mlid = mlid;
-	*pp_mgrp = osm_mgrp_new(mlid, &mcm_rec);
+	*pp_mgrp = osm_mgrp_new(sa->p_subn, mlid, &mcm_rec);
 	if (*pp_mgrp == NULL) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B08: "
 			"osm_mgrp_new failed\n");
@@ -812,11 +812,6 @@ static ib_api_status_t mcmr_rcv_create_new_mgrp(IN osm_sa_t * sa,
 	(*pp_mgrp)->mcmember_rec.rate |= 2 << 6;	/* exactly */
 	(*pp_mgrp)->mcmember_rec.pkt_life &= 0x3f;
 	(*pp_mgrp)->mcmember_rec.pkt_life |= 2 << 6;	/* exactly */
-
-	/* Insert the new group in the data base */
-	cl_fmap_insert(&sa->p_subn->mgrp_mgid_tbl,
-		       &(*pp_mgrp)->mcmember_rec.mgid, &(*pp_mgrp)->map_item);
-	sa->p_subn->mgroups[cl_ntoh16(mlid) - IB_LID_MCAST_START_HO] = *pp_mgrp;
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);

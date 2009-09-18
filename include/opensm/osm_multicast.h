@@ -142,9 +142,12 @@ typedef struct osm_mgrp {
 *
 * SYNOPSIS
 */
-osm_mgrp_t *osm_mgrp_new(IN ib_net16_t mlid, IN ib_member_rec_t * mcmr);
+osm_mgrp_t *osm_mgrp_new(IN osm_subn_t * subn, IN ib_net16_t mlid,
+			 IN ib_member_rec_t * mcmr);
 /*
 * PARAMETERS
+*	subn
+*		[in] Pointer to osm_subn_t object.
 *	mlid
 *		[in] Multicast LID for this multicast group.
 *
