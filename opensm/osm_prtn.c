@@ -119,12 +119,10 @@ ib_api_status_t osm_prtn_add_port(osm_log_t * p_log, osm_subn_t * p_subn,
 	}
 
 	if (cl_map_remove(&p->part_guid_tbl, guid) ||
-	    cl_map_remove(&p->full_guid_tbl, guid)) {
-		OSM_LOG(p_log, OSM_LOG_VERBOSE,
-			"port 0x%" PRIx64 " already in "
-			"partition \'%s\' (0x%04x). Will overwrite\n",
+	    cl_map_remove(&p->full_guid_tbl, guid))
+		OSM_LOG(p_log, OSM_LOG_VERBOSE, "port 0x%" PRIx64 " already "
+			"in partition \'%s\' (0x%04x). Will overwrite\n",
 			cl_ntoh64(guid), p->name, cl_ntoh16(p->pkey));
-	}
 
 	p_tbl = (full == TRUE) ? &p->full_guid_tbl : &p->part_guid_tbl;
 
