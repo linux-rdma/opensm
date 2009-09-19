@@ -537,15 +537,48 @@ Exit:
  * element and if it does - call the Report(Notice) for the
  * target QP registered by the address stored in the InformInfo element
  **********************************************************************/
+static void log_notice(osm_log_t * log, osm_log_level_t level,
+		       ib_mad_notice_attr_t * ntc)
+{
+	char gid_str[INET6_ADDRSTRLEN];
+	ib_gid_t *gid;
+
+	/* an official Event information log */
+	if (ib_notice_is_generic(ntc)) {
+		if ((ntc->g_or_v.generic.trap_num == CL_HTON16(64)) ||
+		    (ntc->g_or_v.generic.trap_num == CL_HTON16(65)) ||
+		    (ntc->g_or_v.generic.trap_num == CL_HTON16(66)) ||
+		    (ntc->g_or_v.generic.trap_num == CL_HTON16(67)))
+			gid = &ntc->data_details.ntc_64_67.gid;
+		else
+			gid = &ntc->issuer_gid;
+		OSM_LOG(log, level,
+			"Reporting Generic Notice type:%u num:%u (%s)"
+			" from LID:%u GID:%s\n",
+			ib_notice_get_type(ntc),
+			cl_ntoh16(ntc->g_or_v.generic.trap_num),
+			ib_get_trap_str(ntc->g_or_v.generic.trap_num),
+			cl_ntoh16(ntc->issuer_lid),
+			inet_ntop(AF_INET6, gid->raw, gid_str, sizeof gid_str));
+	} else
+		OSM_LOG(log, level,
+			"Reporting Vendor Notice type:%u vend:%u dev:%u"
+			" from LID:%u GID:%s\n",
+			ib_notice_get_type(ntc),
+			cl_ntoh32(ib_notice_get_vend_id(ntc)),
+			cl_ntoh16(ntc->g_or_v.vend.dev_id),
+			cl_ntoh16(ntc->issuer_lid),
+			inet_ntop(AF_INET6, ntc->issuer_gid.raw, gid_str,
+				  sizeof gid_str));
+}
+
 ib_api_status_t osm_report_notice(IN osm_log_t * p_log, IN osm_subn_t * p_subn,
 				  IN ib_mad_notice_attr_t * p_ntc)
 {
-	char gid_str[INET6_ADDRSTRLEN];
 	osm_infr_match_ctxt_t context;
 	cl_list_t infr_to_remove_list;
 	osm_infr_t *p_infr_rec;
 	osm_infr_t *p_next_infr_rec;
-	ib_gid_t *p_gid;
 
 	OSM_LOG_ENTER(p_log);
 
@@ -560,38 +593,9 @@ ib_api_status_t osm_report_notice(IN osm_log_t * p_log, IN osm_subn_t * p_subn,
 		return (IB_ERROR);
 	}
 
-	if (!osm_log_is_active(p_log, OSM_LOG_INFO))
-		goto skip_log;
+	if (osm_log_is_active(p_log, OSM_LOG_INFO))
+		log_notice(p_log, OSM_LOG_INFO, p_ntc);
 
-	/* an official Event information log */
-	if (ib_notice_is_generic(p_ntc)) {
-		if ((p_ntc->g_or_v.generic.trap_num == CL_HTON16(64)) ||
-		    (p_ntc->g_or_v.generic.trap_num == CL_HTON16(65)) ||
-		    (p_ntc->g_or_v.generic.trap_num == CL_HTON16(66)) ||
-		    (p_ntc->g_or_v.generic.trap_num == CL_HTON16(67)))
-			p_gid = (ib_gid_t *)&p_ntc->data_details.ntc_64_67.gid.raw;
-		else
-			p_gid = (ib_gid_t *)&p_ntc->issuer_gid.raw;
-		OSM_LOG(p_log, OSM_LOG_INFO,
-			"Reporting Generic Notice type:%u num:%u (%s)"
-			" from LID:%u GID:%s\n",
-			ib_notice_get_type(p_ntc),
-			cl_ntoh16(p_ntc->g_or_v.generic.trap_num),
-			ib_get_trap_str(p_ntc->g_or_v.generic.trap_num),
-			cl_ntoh16(p_ntc->issuer_lid),
-			inet_ntop(AF_INET6, p_gid->raw, gid_str, sizeof gid_str));
-	} else
-		OSM_LOG(p_log, OSM_LOG_INFO,
-			"Reporting Vendor Notice type:%u vend:%u dev:%u"
-			" from LID:%u GID:%s\n",
-			ib_notice_get_type(p_ntc),
-			cl_ntoh32(ib_notice_get_vend_id(p_ntc)),
-			cl_ntoh16(p_ntc->g_or_v.vend.dev_id),
-			cl_ntoh16(p_ntc->issuer_lid),
-			inet_ntop(AF_INET6, p_ntc->issuer_gid.raw, gid_str,
-				  sizeof gid_str));
-
-skip_log:
 	/* Create a list that will hold all the infr records that should
 	   be removed due to violation. o13-17.1.2 */
 	cl_list_construct(&infr_to_remove_list);
