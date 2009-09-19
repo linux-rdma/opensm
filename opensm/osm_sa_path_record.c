@@ -1488,6 +1488,7 @@ static ib_api_status_t pr_match_mgrp_attributes(IN osm_sa_t * sa,
 	const ib_path_rec_t *p_pr;
 	const ib_sa_mad_t *p_sa_mad;
 	ib_net64_t comp_mask;
+	const osm_port_t *port;
 	ib_api_status_t status = IB_ERROR;
 	uint32_t flow_label;
 	uint8_t sl;
@@ -1501,6 +1502,19 @@ static ib_api_status_t pr_match_mgrp_attributes(IN osm_sa_t * sa,
 	comp_mask = p_sa_mad->comp_mask;
 
 	/* If SGID and/or SLID specified, should validate as member of MC group */
+	if (comp_mask & IB_PR_COMPMASK_SGID) {
+		port = osm_get_port_by_guid(sa->p_subn,
+					    p_pr->sgid.unicast.interface_id);
+		if (!port || !osm_mgrp_get_mcm_port(p_mgrp, port->guid))
+			goto Exit;
+	}
+
+	if (comp_mask & IB_PR_COMPMASK_SLID) {
+		if (osm_get_port_by_base_lid(sa->p_subn, p_pr->slid, &port) ||
+		    !port || !osm_mgrp_get_mcm_port(p_mgrp, port->guid))
+			goto Exit;
+	}
+
 	/* Also, MTU, rate, packet lifetime, and raw traffic requested are not currently checked */
 	if (comp_mask & IB_PR_COMPMASK_PKEY) {
 		if (p_pr->pkey != p_mgrp->mcmember_rec.pkey)
