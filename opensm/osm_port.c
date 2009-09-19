@@ -184,42 +184,6 @@ void osm_port_get_lid_range_ho(IN const osm_port_t * p_port,
 
 /**********************************************************************
  **********************************************************************/
-ib_api_status_t osm_get_port_by_base_lid(IN const osm_subn_t * p_subn,
-					 IN ib_net16_t lid,
-					 IN OUT const osm_port_t ** pp_port)
-{
-	ib_api_status_t status;
-	uint16_t base_lid;
-	uint8_t lmc;
-
-	*pp_port = NULL;
-
-	/* Loop on lmc from 0 up through max LMC possible */
-	for (lmc = 0; lmc <= IB_PORT_LMC_MAX; lmc++) {
-		/* Calculate a base LID assuming this is the real LMC */
-		base_lid = cl_ntoh16(lid) & ~((1 << lmc) - 1);
-
-		/* Look for a match */
-		status = cl_ptr_vector_at(&p_subn->port_lid_tbl,
-					  base_lid, (void **)pp_port);
-		if ((status == CL_SUCCESS) && (*pp_port != NULL)) {
-			/* Determine if base LID "tested" is the real base LID */
-			/* This is true if the LMC "tested" is the port's actual LMC */
-			if (lmc == osm_port_get_lmc(*pp_port)) {
-				status = IB_SUCCESS;
-				goto Found;
-			}
-		}
-	}
-	*pp_port = NULL;
-	status = IB_NOT_FOUND;
-
-Found:
-	return status;
-}
-
-/**********************************************************************
- **********************************************************************/
 uint8_t osm_physp_calc_link_mtu(IN osm_log_t * p_log,
 				IN const osm_physp_t * p_physp)
 {

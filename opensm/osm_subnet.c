@@ -643,6 +643,33 @@ osm_port_t *osm_get_port_by_guid(IN osm_subn_t const *p_subn, IN ib_net64_t guid
 
 /**********************************************************************
  **********************************************************************/
+osm_port_t *osm_get_port_by_lid(IN osm_subn_t const * subn, IN ib_net16_t lid)
+{
+	osm_port_t *port = NULL;
+	ib_api_status_t stat;
+	uint16_t base_lid;
+	uint8_t lmc;
+
+	lid = cl_ntoh16(lid);
+
+	/* Loop on lmc from 0 up through max LMC possible */
+	for (lmc = 0; lmc <= IB_PORT_LMC_MAX; lmc++) {
+		/* Calculate a base LID assuming this is the real LMC */
+		base_lid = lid & ~((1 << lmc) - 1);
+
+		stat = cl_ptr_vector_at(&subn->port_lid_tbl, base_lid,
+					(void *)&port);
+		/* Determine if base LID "tested" is the real base LID */
+		/* This is true if the LMC "tested" is the port's actual LMC */
+		if (stat == CL_SUCCESS && port && lmc == osm_port_get_lmc(port))
+			return port;
+	}
+
+	return NULL;
+}
+
+/**********************************************************************
+ **********************************************************************/
 static void subn_set_default_qos_options(IN osm_qos_options_t * opt)
 {
 	opt->max_vls = OSM_DEFAULT_QOS_MAX_VLS;

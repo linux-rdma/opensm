@@ -1376,41 +1376,6 @@ osm_port_get_lid_range_ho(IN const osm_port_t * const p_port,
 *	Port
 *********/
 
-/****f* OpenSM: Port/osm_get_port_by_base_lid
-* NAME
-*	osm_get_port_by_base_lid
-*
-* DESCRIPTION
-*	Returns a status on whether a Port was able to be
-*	determined based on the LID supplied and if so, return the Port.
-*
-* SYNOPSIS
-*/
-ib_api_status_t
-osm_get_port_by_base_lid(IN const osm_subn_t * const p_subn,
-			 IN const ib_net16_t lid,
-			 IN OUT const osm_port_t ** const pp_port);
-/*
-* PARAMETERS
-*	p_subn
-*		[in] Pointer to the subnet data structure.
-*
-*	lid
-*		[in] LID requested.
-*
-*	pp_port
-*		[in][out] Pointer to pointer to Port object.
-*
-* RETURN VALUES
-*	IB_SUCCESS
-*	IB_NOT_FOUND
-*
-* NOTES
-*
-* SEE ALSO
-*       Port
-*********/
-
 /****f* OpenSM: Physical Port/osm_physp_calc_link_mtu
 * NAME
 *	osm_physp_calc_link_mtu

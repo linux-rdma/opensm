@@ -363,7 +363,6 @@ static ib_net16_t lr_rcv_get_end_points(IN osm_sa_t * sa,
 	const ib_link_record_t *p_lr;
 	const ib_sa_mad_t *p_sa_mad;
 	ib_net64_t comp_mask;
-	ib_api_status_t status;
 	ib_net16_t sa_status = IB_SA_MAD_STATUS_SUCCESS;
 
 	OSM_LOG_ENTER(sa->p_log);
@@ -380,10 +379,8 @@ static ib_net16_t lr_rcv_get_end_points(IN osm_sa_t * sa,
 	*pp_dest_port = NULL;
 
 	if (p_sa_mad->comp_mask & IB_LR_COMPMASK_FROM_LID) {
-		status = osm_get_port_by_base_lid(sa->p_subn, p_lr->from_lid,
-						  pp_src_port);
-
-		if (status != IB_SUCCESS || *pp_src_port == NULL) {
+		*pp_src_port = osm_get_port_by_lid(sa->p_subn, p_lr->from_lid);
+		if (!*pp_src_port) {
 			/*
 			   This 'error' is the client's fault (bad lid) so
 			   don't enter it as an error in our own log.
@@ -399,10 +396,8 @@ static ib_net16_t lr_rcv_get_end_points(IN osm_sa_t * sa,
 	}
 
 	if (p_sa_mad->comp_mask & IB_LR_COMPMASK_TO_LID) {
-		status = osm_get_port_by_base_lid(sa->p_subn, p_lr->to_lid,
-						  pp_dest_port);
-
-		if (status != IB_SUCCESS || *pp_dest_port == NULL) {
+		*pp_dest_port = osm_get_port_by_lid(sa->p_subn, p_lr->to_lid);
+		if (!*pp_dest_port) {
 			/*
 			   This 'error' is the client's fault (bad lid) so
 			   don't enter it as an error in our own log.

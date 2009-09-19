@@ -1496,8 +1496,8 @@ static ib_api_status_t pr_match_mgrp_attributes(IN osm_sa_t * sa,
 	}
 
 	if (comp_mask & IB_PR_COMPMASK_SLID) {
-		if (osm_get_port_by_base_lid(sa->p_subn, p_pr->slid, &port) ||
-		    !port || !osm_mgrp_get_mcm_port(p_mgrp, port->guid))
+		port = osm_get_port_by_lid(sa->p_subn, p_pr->slid);
+		if (!port || !osm_mgrp_get_mcm_port(p_mgrp, port->guid))
 			goto Exit;
 	}
 

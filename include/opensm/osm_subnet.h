@@ -935,6 +935,31 @@ struct osm_port *osm_get_port_by_guid(IN osm_subn_t const *p_subn,
 *	osm_port_t
 *********/
 
+/****f* OpenSM: Port/osm_get_port_by_lid
+* NAME
+*	osm_get_port_by_lid
+*
+* DESCRIPTION
+*	Returns a pointer of the port object for given lid value.
+*
+* SYNOPSIS
+*/
+struct osm_port *osm_get_port_by_lid(const osm_subn_t * subn, ib_net16_t lid);
+/*
+* PARAMETERS
+*	subn
+*		[in] Pointer to the subnet data structure.
+*
+*	lid
+*		[in] LID requested.
+*
+* RETURN VALUES
+*	The port structure pointer if found. NULL otherwise.
+*
+* SEE ALSO
+*       Subnet object, osm_port_t
+*********/
+
 /****f* OpenSM: Subnet/osm_get_mgrp_by_mlid
 * NAME
 *	osm_get_mgrp_by_mlid

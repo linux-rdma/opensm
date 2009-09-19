@@ -274,10 +274,8 @@ void osm_slvl_rec_rcv_process(IN void *ctx, IN void *data)
 	   work load, since we don't have to search every port
 	 */
 	if (comp_mask & IB_SLVL_COMPMASK_LID) {
-		status =
-		    osm_get_port_by_base_lid(sa->p_subn, p_rcvd_rec->lid,
-					     &p_port);
-		if ((status != IB_SUCCESS) || (p_port == NULL)) {
+		p_port = osm_get_port_by_lid(sa->p_subn, p_rcvd_rec->lid);
+		if (!p_port) {
 			status = IB_NOT_FOUND;
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2608: "
 				"No port found with LID %u\n",
