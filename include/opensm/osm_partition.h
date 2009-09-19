@@ -48,6 +48,7 @@
 #include <complib/cl_map.h>
 #include <opensm/osm_log.h>
 #include <opensm/osm_subnet.h>
+#include <opensm/osm_multicast.h>
 
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
@@ -92,8 +93,8 @@ BEGIN_C_DECLS
 typedef struct osm_prtn {
 	cl_map_item_t map_item;
 	ib_net16_t pkey;
-	ib_net16_t mlid;
 	uint8_t sl;
+	osm_mgrp_t *mgrp;
 	cl_map_t full_guid_tbl;
 	cl_map_t part_guid_tbl;
 	char name[32];
@@ -106,12 +107,12 @@ typedef struct osm_prtn {
 *	pkey
 *		The IBA defined P_KEY of this Partition.
 *
-*	mlid
-*		The network ordered LID of the well known Multicast Group
-*		that was created for this partition.
-*
 *	sl
 *		The Service Level (SL) associated with this Partiton.
+*
+*	mgrp
+*		The pointer to the well known Multicast Group
+*		that was created for this partition (when configured).
 *
 *	full_guid_tbl
 *		Container of pointers to all Port objects in the Partition

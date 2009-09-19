@@ -225,7 +225,7 @@ ib_api_status_t osm_prtn_add_mcgroup(osm_log_t * p_log, osm_subn_t * p_subn,
 			cl_ntoh16(pkey));
 	if (p_mgrp) {
 		p_mgrp->well_known = TRUE;
-		p->mlid = p_mgrp->mlid;
+		p->mgrp = p_mgrp;
 	}
 
 	/* workaround for TS */
@@ -240,8 +240,8 @@ ib_api_status_t osm_prtn_add_mcgroup(osm_log_t * p_log, osm_subn_t * p_subn,
 						      &p_mgrp);
 	if (p_mgrp) {
 		p_mgrp->well_known = TRUE;
-		if (!p->mlid)
-			p->mlid = p_mgrp->mlid;
+		if (!p->mgrp)
+			p->mgrp = p_mgrp;
 	}
 
 	return status;

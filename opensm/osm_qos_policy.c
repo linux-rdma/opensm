@@ -772,7 +772,6 @@ static void __qos_policy_validate_pkey(
 	uint8_t sl;
 	uint32_t flow;
 	uint8_t hop;
-	osm_mgrp_t * p_mgrp;
 
 	if (!p_qos_policy || !p_qos_match_rule || !p_prtn)
 		return;
@@ -792,31 +791,21 @@ static void __qos_policy_validate_pkey(
 
 	/* If this partition is an IPoIB partition, there should
 	   be a matching MCast group. Fix this group's SL too */
-
-	if (!p_prtn->mlid)
+	if (!p_prtn->mgrp)
 		return;
 
-	p_mgrp = osm_get_mgrp_by_mlid(p_qos_policy->p_subn, p_prtn->mlid);
-	if (!p_mgrp) {
-		OSM_LOG(&p_qos_policy->p_subn->p_osm->log, OSM_LOG_ERROR,
-			"ERR AC16: MCast group for partition with "
-			"pkey 0x%04X not found\n",
-			cl_ntoh16(p_prtn->pkey));
-		return;
-	}
-
-	CL_ASSERT((cl_ntoh16(p_mgrp->mcmember_rec.pkey) & 0x7fff) ==
+	CL_ASSERT((cl_ntoh16(p_prtn->mgrp->mcmember_rec.pkey) & 0x7fff) ==
 		  (cl_ntoh16(p_prtn->pkey) & 0x7fff));
 
-	ib_member_get_sl_flow_hop(p_mgrp->mcmember_rec.sl_flow_hop,
+	ib_member_get_sl_flow_hop(p_prtn->mgrp->mcmember_rec.sl_flow_hop,
 				  &sl, &flow, &hop);
 	if (sl != p_prtn->sl) {
 		OSM_LOG(&p_qos_policy->p_subn->p_osm->log, OSM_LOG_DEBUG,
 			"Updating MCGroup (MLID 0x%04x) SL to "
 			"match partition SL (%u)\n",
-			cl_hton16(p_mgrp->mcmember_rec.mlid),
+			cl_hton16(p_prtn->mgrp->mcmember_rec.mlid),
 			p_prtn->sl);
-		p_mgrp->mcmember_rec.sl_flow_hop =
+		p_prtn->mgrp->mcmember_rec.sl_flow_hop =
 			ib_member_set_sl_flow_hop(p_prtn->sl, flow, hop);
 	}
 }
