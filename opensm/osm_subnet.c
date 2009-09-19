@@ -426,7 +426,6 @@ void osm_subn_destroy(IN osm_subn_t * p_subn)
 	osm_switch_t *p_sw, *p_next_sw;
 	osm_remote_sm_t *p_rsm, *p_next_rsm;
 	osm_prtn_t *p_prtn, *p_next_prtn;
-	osm_mgrp_t *p_mgrp;
 	osm_infr_t *p_infr, *p_next_infr;
 
 	/* it might be a good idea to de-allocate all known objects */
@@ -472,12 +471,9 @@ void osm_subn_destroy(IN osm_subn_t * p_subn)
 	cl_fmap_remove_all(&p_subn->mgrp_mgid_tbl);
 
 	for (i = 0; i <= p_subn->max_mcast_lid_ho - IB_LID_MCAST_START_HO;
-	     i++) {
-		p_mgrp = p_subn->mgroups[i];
-		p_subn->mgroups[i] = NULL;
-		if (p_mgrp)
-			osm_mgrp_delete(p_mgrp);
-	}
+	     i++)
+		if (p_subn->mboxes[i])
+			osm_mgrp_box_delete(p_subn->mboxes[i]);
 
 	p_next_infr = (osm_infr_t *) cl_qlist_head(&p_subn->sa_infr_list);
 	while (p_next_infr !=

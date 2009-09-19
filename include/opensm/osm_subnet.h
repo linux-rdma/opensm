@@ -518,7 +518,7 @@ typedef struct osm_subn {
 	boolean_t coming_out_of_standby;
 	unsigned need_update;
 	cl_fmap_t mgrp_mgid_tbl;
-	void *mgroups[IB_LID_MCAST_END_HO - IB_LID_MCAST_START_HO + 1];
+	void *mboxes[IB_LID_MCAST_END_HO - IB_LID_MCAST_START_HO + 1];
 } osm_subn_t;
 /*
 * FIELDS
@@ -643,9 +643,9 @@ typedef struct osm_subn {
 *		Container of pointers to all Multicast group objects in
 *		the subnet. Indexed by MGID.
 *
-*	mgroups
-*		Array of pointers to all Multicast Group objects in the subnet.
-*		Indexed by MLID offset from base MLID.
+*	mboxes
+*		Array of pointers to all Multicast MLID box objects in the
+*		subnet. Indexed by MLID offset from base MLID.
 *
 * SEE ALSO
 *	Subnet object
@@ -967,9 +967,9 @@ struct osm_port *osm_get_port_by_lid(const osm_subn_t * subn, ib_net16_t lid);
 *       Subnet object, osm_port_t
 *********/
 
-/****f* OpenSM: Subnet/osm_get_mgrp_by_mlid
+/****f* OpenSM: Subnet/osm_get_mbox_by_mlid
 * NAME
-*	osm_get_mgrp_by_mlid
+*	osm_get_mbox_by_mlid
 *
 * DESCRIPTION
 *	The looks for the given multicast group in the subnet table by mlid.
@@ -978,10 +978,9 @@ struct osm_port *osm_get_port_by_lid(const osm_subn_t * subn, ib_net16_t lid);
 *
 * SYNOPSIS
 */
-static inline
-struct osm_mgrp *osm_get_mgrp_by_mlid(osm_subn_t const *p_subn, ib_net16_t mlid)
+static inline struct osm_mgrp_box *osm_get_mbox_by_mlid(osm_subn_t const *p_subn, ib_net16_t mlid)
 {
-	return p_subn->mgroups[cl_ntoh16(mlid) - IB_LID_MCAST_START_HO];
+	return p_subn->mboxes[cl_ntoh16(mlid) - IB_LID_MCAST_START_HO];
 }
 /*
 * PARAMETERS

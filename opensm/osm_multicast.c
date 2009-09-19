@@ -51,7 +51,26 @@
 #include <opensm/osm_inform.h>
 #include <opensm/osm_opensm.h>
 
-void osm_mgrp_delete(IN osm_mgrp_t * p_mgrp)
+static osm_mgrp_box_t *mgrp_box_new(uint16_t mlid)
+{
+	osm_mgrp_box_t *mbox = malloc(sizeof(*mbox));
+	if (!mbox)
+		return NULL;
+
+	memset(mbox, 0, sizeof(*mbox));
+	mbox->mlid = mlid;
+	cl_qlist_init(&mbox->mgrp_list);
+
+	return mbox;
+}
+
+void mgrp_box_delete(osm_mgrp_box_t *mbox)
+{
+	osm_mtree_destroy(mbox->root);
+	free(mbox);
+}
+
+void mgrp_delete(IN osm_mgrp_t * p_mgrp)
 {
 	osm_mcm_port_t *p_mcm_port;
 	osm_mcm_port_t *p_next_mcm_port;
@@ -67,16 +86,26 @@ void osm_mgrp_delete(IN osm_mgrp_t * p_mgrp)
 		    (osm_mcm_port_t *) cl_qmap_next(&p_mcm_port->map_item);
 		osm_mcm_port_delete(p_mcm_port);
 	}
-	/* destroy the mtree_node structure */
-	osm_mtree_destroy(p_mgrp->p_root);
 
 	free(p_mgrp);
+}
+
+void osm_mgrp_box_delete(osm_mgrp_box_t *mbox)
+{
+	osm_mgrp_t *mgrp;
+	while(cl_qlist_count(&mbox->mgrp_list)) {
+		mgrp = cl_item_obj(cl_qlist_remove_head(&mbox->mgrp_list),
+				   mgrp, list_item);
+		mgrp_delete(mgrp);
+	}
+	mgrp_box_delete(mbox);
 }
 
 osm_mgrp_t *osm_mgrp_new(IN osm_subn_t * subn, IN ib_net16_t mlid,
 			 IN ib_member_rec_t * mcmr)
 {
 	osm_mgrp_t *p_mgrp;
+	osm_mgrp_box_t *mbox;
 
 	p_mgrp = (osm_mgrp_t *) malloc(sizeof(*p_mgrp));
 	if (!p_mgrp)
@@ -87,22 +116,28 @@ osm_mgrp_t *osm_mgrp_new(IN osm_subn_t * subn, IN ib_net16_t mlid,
 	p_mgrp->mlid = mlid;
 	p_mgrp->mcmember_rec = *mcmr;
 
+	mbox = osm_get_mbox_by_mlid(subn, p_mgrp->mlid);
+	if (!mbox && !(mbox = mgrp_box_new(cl_ntoh16(p_mgrp->mlid)))) {
+		free(p_mgrp);
+		return NULL;
+	}
+
+	cl_qlist_insert_tail(&mbox->mgrp_list, &p_mgrp->list_item);
+	subn->mboxes[mbox->mlid - IB_LID_MCAST_START_HO] = mbox;
+
 	cl_fmap_insert(&subn->mgrp_mgid_tbl, &p_mgrp->mcmember_rec.mgid,
 		       &p_mgrp->map_item);
-	subn->mgroups[cl_ntoh16(p_mgrp->mlid) - IB_LID_MCAST_START_HO] = p_mgrp;
 
 	return p_mgrp;
 }
 
 void osm_mgrp_cleanup(osm_subn_t * subn, osm_mgrp_t * mgrp)
 {
+	osm_mgrp_box_t *mbox;
 	osm_mcm_port_t *mcm_port;
 
 	if (mgrp->full_members)
 		return;
-
-	osm_mtree_destroy(mgrp->p_root);
-	mgrp->p_root = NULL;
 
 	while (cl_qmap_count(&mgrp->mcm_port_tbl)) {
 		mcm_port = (osm_mcm_port_t *)cl_qmap_head(&mgrp->mcm_port_tbl);
@@ -116,7 +151,13 @@ void osm_mgrp_cleanup(osm_subn_t * subn, osm_mgrp_t * mgrp)
 		return;
 
 	cl_fmap_remove_item(&subn->mgrp_mgid_tbl, &mgrp->map_item);
-	subn->mgroups[cl_ntoh16(mgrp->mlid) - IB_LID_MCAST_START_HO] = NULL;
+
+	mbox = osm_get_mbox_by_mlid(subn, mgrp->mlid);
+	cl_qlist_remove_item(&mbox->mgrp_list, &mgrp->list_item);
+	if (cl_is_qlist_empty(&mbox->mgrp_list)) {
+		subn->mboxes[cl_ntoh16(mgrp->mlid) - IB_LID_MCAST_START_HO] = NULL;
+		mgrp_box_delete(mbox);
+	}
 	free(mgrp);
 }
 

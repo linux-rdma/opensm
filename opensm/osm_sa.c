@@ -684,18 +684,15 @@ static void sa_dump_all_sa(osm_opensm_t * p_osm, FILE * file)
 {
 	struct opensm_dump_context dump_context;
 	osm_mgrp_t *p_mgrp;
-	int i;
 
 	dump_context.p_osm = p_osm;
 	dump_context.file = file;
 	OSM_LOG(&p_osm->log, OSM_LOG_DEBUG, "Dump multicast\n");
 	cl_plock_acquire(&p_osm->lock);
-	for (i = 0; i <= p_osm->subn.max_mcast_lid_ho - IB_LID_MCAST_START_HO;
-	     i++) {
-		p_mgrp = p_osm->subn.mgroups[i];
-		if (p_mgrp)
-			sa_dump_one_mgrp(p_mgrp, &dump_context);
-	}
+	for (p_mgrp = (osm_mgrp_t *) cl_fmap_head(&p_osm->subn.mgrp_mgid_tbl);
+	     p_mgrp != (osm_mgrp_t *) cl_fmap_end(&p_osm->subn.mgrp_mgid_tbl);
+	     p_mgrp = (osm_mgrp_t *) cl_fmap_next(&p_mgrp->map_item))
+		sa_dump_one_mgrp(p_mgrp, &dump_context);
 	OSM_LOG(&p_osm->log, OSM_LOG_DEBUG, "Dump inform\n");
 	cl_qlist_apply_func(&p_osm->subn.sa_infr_list,
 			    sa_dump_one_inform, &dump_context);
@@ -722,10 +719,9 @@ static osm_mgrp_t *load_mcgroup(osm_opensm_t * p_osm, ib_net16_t mlid,
 
 	cl_plock_excl_acquire(&p_osm->lock);
 
-	p_mgrp = osm_get_mgrp_by_mlid(&p_osm->subn, mlid);
+	p_mgrp = osm_get_mgrp_by_mgid(&p_osm->sa, &p_mcm_rec->mgid);
 	if (p_mgrp) {
-		if (!memcmp(&p_mgrp->mcmember_rec.mgid, &p_mcm_rec->mgid,
-			    sizeof(ib_gid_t))) {
+		if (p_mgrp->mlid == mlid) {
 			OSM_LOG(&p_osm->log, OSM_LOG_DEBUG,
 				"mgrp %04x is already here.", cl_ntoh16(mlid));
 			goto _out;

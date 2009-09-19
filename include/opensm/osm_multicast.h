@@ -97,8 +97,8 @@ BEGIN_C_DECLS
 */
 typedef struct osm_mgrp {
 	cl_fmap_item_t map_item;
+	cl_list_item_t list_item;
 	ib_net16_t mlid;
-	osm_mtree_node_t *p_root;
 	cl_qmap_t mcm_port_tbl;
 	ib_member_rec_t mcmember_rec;
 	boolean_t well_known;
@@ -109,14 +109,12 @@ typedef struct osm_mgrp {
 *	map_item
 *		Map Item for fmap linkage.  Must be first element!!
 *
+*	list_item
+*		List item for linkage in osm_mgrp_box's mgrp_list qlist.
+*
 *	mlid
 *		The network ordered LID of this Multicast Group (must be
 *		>= 0xC000).
-*
-*	p_root
-*		Pointer to the root "tree node" in the single spanning tree
-*		for this multicast group.  The nodes of the tree represent
-*		switches.  Member ports are not represented in the tree.
 *
 *	mcm_port_tbl
 *		Table (sorted by port GUID) of osm_mcm_port_t objects
@@ -129,6 +127,37 @@ typedef struct osm_mgrp {
 *		Indicates that this is the wellknown multicast group which
 *		is created during the initialization of SM/SA and will be
 *		present even if there are no ports for this group
+*
+* SEE ALSO
+*********/
+
+/****s* OpenSM: Multicast Group/osm_mgrp_box_t
+* NAME
+*	osm_mgrp_box_t
+*
+* DESCRIPTION
+*	Multicast structure which holds all multicast groups with same MLID.
+*
+* SYNOPSIS
+*/
+typedef struct osm_mgrp_box {
+	uint16_t mlid;
+	cl_qlist_t mgrp_list;
+	osm_mtree_node_t *root;
+} osm_mgrp_box_t;
+/*
+* FIELDS
+*	mlid
+*		The host ordered LID of this Multicast Group (must be
+*		>= 0xC000).
+*
+*	p_root
+*		Pointer to the root "tree node" in the single spanning tree
+*		for this multicast group.  The nodes of the tree represent
+*		switches.  Member ports are not represented in the tree.
+*
+*	mgrp_list
+*		List of multicast groups (mpgr object) having same MLID value.
 *
 * SEE ALSO
 *********/
@@ -162,30 +191,6 @@ osm_mgrp_t *osm_mgrp_new(IN osm_subn_t * subn, IN ib_net16_t mlid,
 *
 * SEE ALSO
 *	Multicast Group, osm_mgrp_delete
-*********/
-
-/****f* OpenSM: Multicast Group/osm_mgrp_delete
-* NAME
-*	osm_mgrp_delete
-*
-* DESCRIPTION
-*	Destroys and deallocates a Multicast Group.
-*
-* SYNOPSIS
-*/
-void osm_mgrp_delete(IN osm_mgrp_t * p_mgrp);
-/*
-* PARAMETERS
-*	p_mgrp
-*		[in] Pointer to an osm_mgrp_t object.
-*
-* RETURN VALUES
-*	None.
-*
-* NOTES
-*
-* SEE ALSO
-*	Multicast Group, osm_mgrp_new
 *********/
 
 /****f* OpenSM: Multicast Group/osm_mgrp_is_guid
@@ -378,6 +383,7 @@ void osm_mgrp_delete_port(IN osm_subn_t * subn, IN osm_log_t * log,
 void osm_mgrp_remove_port(osm_subn_t * subn, osm_log_t * log, osm_mgrp_t * mgrp,
 			  osm_mcm_port_t * mcm_port, ib_member_rec_t * mcmr);
 void osm_mgrp_cleanup(osm_subn_t * subn, osm_mgrp_t * mpgr);
+void osm_mgrp_box_delete(osm_mgrp_box_t *mbox);
 
 END_C_DECLS
 #endif				/* _OSM_MULTICAST_H_ */

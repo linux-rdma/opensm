@@ -121,12 +121,12 @@ static ib_net16_t get_new_mlid(osm_sa_t * sa, ib_net16_t requested_mlid)
 
 	if (requested_mlid && cl_ntoh16(requested_mlid) >= IB_LID_MCAST_START_HO
 	    && cl_ntoh16(requested_mlid) <= p_subn->max_mcast_lid_ho
-	    && !osm_get_mgrp_by_mlid(p_subn, requested_mlid))
+	    && !osm_get_mbox_by_mlid(p_subn, requested_mlid))
 		return requested_mlid;
 
 	max = p_subn->max_mcast_lid_ho - IB_LID_MCAST_START_HO + 1;
 	for (i = 0; i < max; i++)
-		if (!sa->p_subn->mgroups[i])
+		if (!sa->p_subn->mboxes[i])
 			return cl_hton16(i + IB_LID_MCAST_START_HO);
 
 	return 0;
@@ -1373,7 +1373,6 @@ static void mcmr_query_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 	osm_physp_t *p_req_physp;
 	boolean_t trusted_req;
 	osm_mgrp_t *p_mgrp;
-	int i;
 
 	OSM_LOG_ENTER(sa->p_log);
 
@@ -1402,13 +1401,11 @@ static void mcmr_query_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 	CL_PLOCK_ACQUIRE(sa->p_lock);
 
 	/* simply go over all MCGs and match */
-	for (i = 0; i <= sa->p_subn->max_mcast_lid_ho - IB_LID_MCAST_START_HO;
-	     i++) {
-		p_mgrp = sa->p_subn->mgroups[i];
-		if (p_mgrp)
-			mcmr_by_comp_mask(sa, p_rcvd_rec, comp_mask, p_mgrp,
-					  p_req_physp, trusted_req, &rec_list);
-	}
+	for (p_mgrp = (osm_mgrp_t *) cl_fmap_head(&sa->p_subn->mgrp_mgid_tbl);
+	     p_mgrp != (osm_mgrp_t *) cl_fmap_end(&sa->p_subn->mgrp_mgid_tbl);
+	     p_mgrp = (osm_mgrp_t *) cl_fmap_next(&p_mgrp->map_item))
+		mcmr_by_comp_mask(sa, p_rcvd_rec, comp_mask, p_mgrp,
+				  p_req_physp, trusted_req, &rec_list);
 
 	CL_PLOCK_RELEASE(sa->p_lock);
 
