@@ -1437,45 +1437,27 @@ static osm_mgrp_t *pr_get_mgrp(IN osm_sa_t * sa, IN const osm_madw_t * p_madw)
 {
 	ib_path_rec_t *p_pr;
 	const ib_sa_mad_t *p_sa_mad;
-	ib_net64_t comp_mask;
-	osm_mgrp_t *mgrp = NULL;
+	osm_mgrp_t *mgrp;
 
 	p_sa_mad = osm_madw_get_sa_mad_ptr(p_madw);
-	p_pr = (ib_path_rec_t *) ib_sa_mad_get_payload_ptr(p_sa_mad);
+	p_pr = ib_sa_mad_get_payload_ptr(p_sa_mad);
 
-	comp_mask = p_sa_mad->comp_mask;
+	if (!(p_sa_mad->comp_mask & IB_PR_COMPMASK_DGID)) {
+		OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
+			"discard multicast target SA PR with wildcarded MGID");
+		return NULL;
+	}
 
-	if ((comp_mask & IB_PR_COMPMASK_DGID) &&
-	    !(mgrp = osm_get_mgrp_by_mgid(sa, &p_pr->dgid))) {
+	mgrp = osm_get_mgrp_by_mgid(sa, &p_pr->dgid);
+	if (!mgrp) {
 		char gid_str[INET6_ADDRSTRLEN];
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F09: "
 			"No MC group found for PathRecord destination GID %s\n",
 			inet_ntop(AF_INET6, p_pr->dgid.raw, gid_str,
 				  sizeof gid_str));
-		goto Exit;
+		return NULL;
 	}
 
-	if (comp_mask & IB_PR_COMPMASK_DLID) {
-		if (mgrp) {
-			/* check that the MLID in the MC group is */
-			/* the same as the DLID in the PathRecord */
-			if (mgrp->mlid != p_pr->dlid) {
-				/* Note: perhaps this might be better indicated as an invalid request */
-				OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F10: "
-					"MC group MLID 0x%x does not match "
-					"PathRecord destination LID 0x%x\n",
-					mgrp->mlid, p_pr->dlid);
-				mgrp = NULL;
-				goto Exit;
-			}
-		} else
-		    if (!(mgrp = osm_get_mgrp_by_mlid(sa->p_subn, p_pr->dlid)))
-			OSM_LOG(sa->p_log, OSM_LOG_ERROR,
-				"ERR 1F11: " "No MC group found for PathRecord "
-				"destination LID 0x%x\n", p_pr->dlid);
-	}
-
-Exit:
 	return mgrp;
 }
 
@@ -1497,9 +1479,13 @@ static ib_api_status_t pr_match_mgrp_attributes(IN osm_sa_t * sa,
 	OSM_LOG_ENTER(sa->p_log);
 
 	p_sa_mad = osm_madw_get_sa_mad_ptr(p_madw);
-	p_pr = (ib_path_rec_t *) ib_sa_mad_get_payload_ptr(p_sa_mad);
+	p_pr = ib_sa_mad_get_payload_ptr(p_sa_mad);
 
 	comp_mask = p_sa_mad->comp_mask;
+
+	/* check that MLID of the MC group matchs the PathRecord DLID */
+	if ((comp_mask & IB_PR_COMPMASK_DLID) && p_mgrp->mlid != p_pr->dlid)
+		goto Exit;
 
 	/* If SGID and/or SLID specified, should validate as member of MC group */
 	if (comp_mask & IB_PR_COMPMASK_SGID) {
@@ -1713,7 +1699,6 @@ McastDest:
 
 		/* First, get the MC info */
 		p_mgrp = pr_get_mgrp(sa, p_madw);
-
 		if (!p_mgrp)
 			goto Unlock;
 
