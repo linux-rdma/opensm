@@ -2882,6 +2882,146 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
+ib_api_status_t
+osmtest_stress_path_recs_by_lid(IN osmtest_t * const p_osmt,
+				OUT uint32_t * const p_num_recs,
+				OUT uint32_t * const p_num_queries)
+{
+	osmtest_req_context_t context;
+	ib_path_rec_t *p_rec;
+	cl_status_t status;
+	ib_net16_t dlid, slid;
+	int num_recs, i;
+
+	OSM_LOG_ENTER(&p_osmt->log);
+
+	memset(&context, 0, sizeof(context));
+
+	slid = cl_ntoh16(p_osmt->local_port.lid);
+	dlid = cl_ntoh16(p_osmt->local_port.sm_lid);
+
+	/*
+	 * Do a blocking query for the PathRecord.
+	 */
+	status = osmtest_get_path_rec_by_lid_pair(p_osmt, slid, dlid, &context);
+	if (status != IB_SUCCESS) {
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 000A: "
+			"osmtest_get_path_rec_by_lid_pair failed (%s)\n",
+			ib_get_err_str(status));
+		goto Exit;
+	}
+
+	/*
+	 * Populate the database with the received records.
+	 */
+	num_recs = context.result.result_cnt;
+	*p_num_recs += num_recs;
+	++*p_num_queries;
+
+	if (osm_log_is_active(&p_osmt->log, OSM_LOG_VERBOSE)) {
+		OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
+			"Received %u records\n", num_recs);
+
+		for (i = 0; i < num_recs; i++) {
+			p_rec = osmv_get_query_path_rec(context.result.p_result_madw, 0);
+			osm_dump_path_record(&p_osmt->log, p_rec, OSM_LOG_VERBOSE);
+		}
+	}
+
+Exit:
+	/*
+	 * Return the IB query MAD to the pool as necessary.
+	 */
+	if (context.result.p_result_madw != NULL) {
+		osm_mad_pool_put(&p_osmt->mad_pool,
+				 context.result.p_result_madw);
+		context.result.p_result_madw = NULL;
+	}
+
+	OSM_LOG_EXIT(&p_osmt->log);
+	return (status);
+}
+
+/**********************************************************************
+ **********************************************************************/
+static ib_api_status_t osmtest_stress_get_pr(IN osmtest_t * const p_osmt)
+{
+	ib_api_status_t status = IB_SUCCESS;
+	uint64_t num_recs = 0;
+	uint64_t num_queries = 0;
+	uint32_t delta_recs;
+	uint32_t delta_queries;
+	uint32_t print_freq = 0;
+	int num_timeouts = 0;
+	struct timeval start_tv, end_tv;
+	long sec_diff, usec_diff;
+
+	OSM_LOG_ENTER(&p_osmt->log);
+	gettimeofday(&start_tv, NULL);
+	printf("-I- Start time is : %09ld:%06ld [sec:usec]\n",
+	       start_tv.tv_sec, (long)start_tv.tv_usec);
+
+	while ((num_queries < STRESS_GET_PR) && (num_timeouts < 100)) {
+		delta_recs = 0;
+		delta_queries = 0;
+
+		status = osmtest_stress_path_recs_by_lid(p_osmt,
+							 &delta_recs,
+							 &delta_queries);
+		if (status != IB_SUCCESS)
+			goto Exit;
+
+		num_recs += delta_recs;
+		num_queries += delta_queries;
+
+		print_freq += delta_recs;
+		if (print_freq > 5000) {
+			gettimeofday(&end_tv, NULL);
+			printf("%" PRIu64 " records, %" PRIu64 " queries\n",
+			       num_recs, num_queries);
+			if (end_tv.tv_usec > start_tv.tv_usec) {
+				sec_diff = end_tv.tv_sec - start_tv.tv_sec;
+				usec_diff = end_tv.tv_usec - start_tv.tv_usec;
+			} else {
+				sec_diff = end_tv.tv_sec - start_tv.tv_sec - 1;
+				usec_diff =
+				    1000000 - (start_tv.tv_usec -
+					       end_tv.tv_usec);
+			}
+			printf("-I- End time is : %09ld:%06ld [sec:usec]\n",
+			       end_tv.tv_sec, (long)end_tv.tv_usec);
+			printf("-I- Querying %" PRId64
+			       " path_rec queries took %04ld:%06ld [sec:usec]\n",
+			       num_queries, sec_diff, usec_diff);
+			print_freq = 0;
+		}
+	}
+
+Exit:
+	gettimeofday(&end_tv, NULL);
+	printf("-I- End time is : %09ld:%06ld [sec:usec]\n",
+	       end_tv.tv_sec, (long)end_tv.tv_usec);
+	if (end_tv.tv_usec > start_tv.tv_usec) {
+		sec_diff = end_tv.tv_sec - start_tv.tv_sec;
+		usec_diff = end_tv.tv_usec - start_tv.tv_usec;
+	} else {
+		sec_diff = end_tv.tv_sec - start_tv.tv_sec - 1;
+		usec_diff = 1000000 - (start_tv.tv_usec - end_tv.tv_usec);
+	}
+
+	printf("-I- Querying %" PRId64
+	       " path_rec queries took %04ld:%06ld [sec:usec]\n",
+	       num_queries, sec_diff, usec_diff);
+	if (num_timeouts > 50) {
+		status = IB_TIMEOUT;
+	}
+	/* Exit: */
+	OSM_LOG_EXIT(&p_osmt->log);
+	return (status);
+}
+
+/**********************************************************************
+ **********************************************************************/
 static void
 osmtest_prepare_db_generic(IN osmtest_t * const p_osmt,
 			   IN cl_qmap_t * const p_tbl)
@@ -7243,6 +7383,16 @@ ib_api_status_t osmtest_run(IN osmtest_t * const p_osmt)
 					OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 						"ERR 0143: "
 						"Large RMPP stress test failed (%s)\n",
+						ib_get_err_str(status));
+					goto Exit;
+				}
+				break;
+			case 4: /* SA Get PR to SA LID */
+				status = osmtest_stress_get_pr(p_osmt);
+				if (status != IB_SUCCESS) {
+					OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
+						"ERR 014B: "
+						"SA Get PR stress test failed (%s)\n",
 						ib_get_err_str(status));
 					goto Exit;
 				}

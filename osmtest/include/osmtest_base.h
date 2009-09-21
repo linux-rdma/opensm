@@ -56,11 +56,12 @@
 
 #define STRESS_SMALL_RMPP_THR 100000
 /*
-    Take long times when quering big clusters (over 40 nodes) , an average of : 0.25 sec for query
+    Take long times when querying big clusters (over 40 nodes), an average of : 0.25 sec for query
     each query receives 1000 records
 */
 #define STRESS_LARGE_RMPP_THR 4000
 #define STRESS_LARGE_PR_RMPP_THR 20000
+#define STRESS_GET_PR 100000
 
 extern const char *const p_file;
 

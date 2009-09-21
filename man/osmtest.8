@@ -1,4 +1,4 @@
-.TH OSMTEST 8 "August 11, 2008" "OpenIB" "OpenIB Management"
+.TH OSMTEST 8 "August 31, 2009" "OpenIB" "OpenIB Management"
 
 .SH NAME
 osmtest \- InfiniBand subnet manager and administration (SM/SA) test program
@@ -108,9 +108,10 @@ Stress test options are as follows:
 
  OPT    Description
  ---    -----------------
- -s1  - Single-MAD response SA queries
+ -s1  - Single-MAD (RMPP) response SA queries
  -s2  - Multi-MAD (RMPP) response SA queries
  -s3  - Multi-MAD (RMPP) Path Record SA queries
+ -s4  - Single-MAD (non RMPP) get Path Record SA queries
 
 Without -s, stress testing is not performed
 .TP

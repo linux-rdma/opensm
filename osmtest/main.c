@@ -143,9 +143,10 @@ void show_usage()
 	       "          Stress test options are as follows:\n"
 	       "          OPT    Description\n"
 	       "          ---    -----------------\n"
-	       "          -s1  - Single-MAD response SA queries\n"
+	       "          -s1  - Single-MAD (RMPP) response SA queries\n"
 	       "          -s2  - Multi-MAD (RMPP) response SA queries\n"
 	       "          -s3  - Multi-MAD (RMPP) Path Record SA queries\n"
+	       "          -s4  - Single-MAD (non RMPP) get Path Record SA queries\n"
 	       "          Without -s, stress testing is not performed\n\n");
 	printf("-M\n"
 	       "--Multicast_Mode\n"
@@ -498,6 +499,9 @@ int main(int argc, char *argv[])
 				break;
 			case 3:
 				printf("Large Path Record SA queries\n");
+				break;
+			case 4:
+				printf("SA Get Path Record queries\n");
 				break;
 			default:
 				printf("Unknown value %u (ignored)\n",
