@@ -49,6 +49,8 @@
 #include <opensm/osm_perfmgr.h>
 #include <opensm/osm_opensm.h>
 
+static void free_node(db_node_t * node);
+
 /** =========================================================================
  */
 perfmgr_db_t *perfmgr_db_construct(osm_perfmgr_t *perfmgr)
@@ -68,7 +70,15 @@ perfmgr_db_t *perfmgr_db_construct(osm_perfmgr_t *perfmgr)
  */
 void perfmgr_db_destroy(perfmgr_db_t * db)
 {
+	cl_map_item_t *item, *next_item;
+
 	if (db) {
+		item = cl_qmap_head(&db->pc_data);
+		while (item != cl_qmap_end(&db->pc_data)) {
+			next_item = cl_qmap_next(item);
+			free_node((db_node_t *)item);
+			item = next_item;
+		}
 		cl_plock_destroy(&db->lock);
 		free(db);
 	}
