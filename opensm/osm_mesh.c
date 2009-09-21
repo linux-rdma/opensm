@@ -170,6 +170,11 @@ static const struct mesh_info {
 
 	{8, {2, 2, 2, 2, 2, 2, 2, 2},	8, {-1792, -6144, -8960, -7168, -3360, -896, -112, 0, 1},	},
 
+	/*
+	 * mesh errors
+	 */
+	{2, {6, 6},                     4, {-192, -256, -80, 0, 1}, },
+
 	{-1, {0,}, 0, {0, },					},
 };
 
@@ -727,6 +732,42 @@ done:
 }
 
 /*
+ * remove_edges
+ *
+ * remove type from nodes that have fewer links
+ * than adjacent nodes
+ */
+static void remove_edges(lash_t *p_lash)
+{
+	osm_log_t *p_log = &p_lash->p_osm->log;
+	int sw;
+	mesh_node_t *n, *nn;
+	int i;
+
+	OSM_LOG_ENTER(p_log);
+
+	for (sw = 0; sw < p_lash->num_switches; sw++) {
+		n = p_lash->switches[sw]->node;
+		if (!n->type)
+			continue;
+
+		for (i = 0; i < n->num_links; i++) {
+			nn = p_lash->switches[n->links[i]->switch_id]->node;
+
+			if (nn->num_links > n->num_links) {
+				OSM_LOG(p_log, OSM_LOG_DEBUG,
+					"removed edge switch %s\n",
+					p_lash->switches[sw]->p_sw->p_node->print_desc);
+				n->type = -1;
+				break;
+			}
+		}
+	}
+
+	OSM_LOG_EXIT(p_log);
+}
+
+/*
  * get_local_geometry
  *
  * analyze the local geometry around each switch
@@ -735,6 +776,7 @@ static int get_local_geometry(lash_t *p_lash, mesh_t *mesh)
 {
 	osm_log_t *p_log = &p_lash->p_osm->log;
 	int sw;
+	int status = 0;
 
 	OSM_LOG_ENTER(p_log);
 
@@ -747,15 +789,38 @@ static int get_local_geometry(lash_t *p_lash, mesh_t *mesh)
 			continue;
 
 		if (get_switch_metric(p_lash, sw)) {
-			OSM_LOG_EXIT(p_log);
-			return -1;
+			status = -1;
+			goto Exit;
 		}
-		classify_switch(p_lash, mesh, sw);
 		classify_mesh_type(p_lash, sw);
 	}
 
+	remove_edges(p_lash);
+
+	for (sw = 0; sw < p_lash->num_switches; sw++) {
+		if (p_lash->switches[sw]->node->type < 0)
+			continue;
+		classify_switch(p_lash, mesh, sw);
+	}
+
+Exit:
 	OSM_LOG_EXIT(p_log);
-	return 0;
+	return status;
+}
+
+static void print_axis(lash_t *p_lash, char *p, int sw, int port)
+{
+	mesh_node_t *node = p_lash->switches[sw]->node;
+	char *name = p_lash->switches[sw]->p_sw->p_node->print_desc;
+	int c = node->axes[port];
+
+	p += sprintf(p, "%s[%d] = ", name, port);
+	if (c)
+		p += sprintf(p, "%s%c -> ", ((c - 1) & 1) ? "-" : "+", 'X' + (c - 1)/2);
+	else
+		p += sprintf(p, "N/A -> ");
+	p += sprintf(p, "%s\n",
+		     p_lash->switches[node->links[port]->switch_id]->p_sw->p_node->print_desc);
 }
 
 /*
@@ -775,6 +840,7 @@ static void seed_axes(lash_t *p_lash, int sw)
 	int i, j, c;
 
 	OSM_LOG_ENTER(p_log);
+
 	if (!node->matrix || !node->dimension)
 		goto done;
 
@@ -802,6 +868,16 @@ static void seed_axes(lash_t *p_lash, int sw)
 
 		if (j != n) {
 			node->axes[j] = c;
+		}
+	}
+
+	if (osm_log_is_active(p_log, OSM_LOG_DEBUG)) {
+		char buf[256], *p;
+
+		for (i = 0; i < n; i++) {
+			p = buf;
+			print_axis(p_lash, p, sw, i);
+			OSM_LOG(p_log, OSM_LOG_DEBUG, "%s", buf);
 		}
 	}
 
@@ -878,6 +954,12 @@ static void make_geometry(lash_t *p_lash, int sw)
 			n = s1->node->num_links;
 
 			/*
+			 * ignore chain fragments
+			 */
+			if (n < seed->node->num_links && n <= 2)
+				continue;
+
+			/*
 			 * only process 'mesh' switches
 			 */
 			if (!s1->node->matrix)
@@ -908,7 +990,9 @@ static void make_geometry(lash_t *p_lash, int sw)
 					if (j == i)
 						continue;
 
-					if (s1->node->matrix[i][j] != 2) {
+					/* Rule out opposite nodes when distance greater than 4 */
+					if (s1->node->matrix[i][j] != 2 &&
+					    s1->node->matrix[i][j] <= 4) {
 						if (s1->node->axes[j]) {
 							if (s1->node->axes[j] != opposite(seed, s1->node->axes[i])) {
 								OSM_LOG(p_log, OSM_LOG_DEBUG, "phase 1 mismatch\n");
