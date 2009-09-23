@@ -661,7 +661,7 @@ osm_port_t *osm_get_port_by_lid(IN osm_subn_t const * subn, IN ib_net16_t lid)
 		port = cl_ptr_vector_get(&subn->port_lid_tbl, base_lid);
 		/* Determine if base LID "tested" is the real base LID */
 		/* This is true if the LMC "tested" is the port's actual LMC */
-		if (port && lmc == osm_port_get_lmc(port))
+		if (port && lmc <= osm_port_get_lmc(port))
 			return port;
 	}
 
