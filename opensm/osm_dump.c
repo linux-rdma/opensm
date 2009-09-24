@@ -140,7 +140,7 @@ static void dump_ucast_routes(cl_map_item_t * item, FILE * file, void *cxt)
 	for (lid_ho = 1; lid_ho <= max_lid_ho; lid_ho++) {
 		fprintf(file, "0x%04X : ", lid_ho);
 
-		p_port = cl_ptr_vector_get(&p_osm->subn.port_lid_tbl, lid_ho);
+		p_port = osm_get_port_by_lid_ho(&p_osm->subn, lid_ho);
 		if (!p_port) {
 			fprintf(file, "UNREACHABLE\n");
 			continue;
@@ -313,7 +313,7 @@ static void dump_lid_matrix(cl_map_item_t * item, FILE * file, void *cxt)
 		for (port = 0; port < max_port; port++)
 			fprintf(file, " %02x",
 				osm_switch_get_hop_count(p_sw, lid, port));
-		p_port = cl_ptr_vector_get(&p_osm->subn.port_lid_tbl, lid);
+		p_port = osm_get_port_by_lid_ho(&p_osm->subn, lid);
 		if (p_port)
 			fprintf(file, " # portguid 0x016%" PRIx64,
 				cl_ntoh64(osm_port_get_guid(p_port)));
@@ -344,7 +344,7 @@ static void dump_ucast_lfts(cl_map_item_t * item, FILE * file, void *cxt)
 
 		fprintf(file, "0x%04x %03u # ", lid, port);
 
-		p_port = cl_ptr_vector_get(&p_osm->subn.port_lid_tbl, lid);
+		p_port = osm_get_port_by_lid_ho(&p_osm->subn, lid);
 		if (p_port) {
 			p_node = p_port->p_node;
 			fprintf(file, "%s portguid 0x%016" PRIx64 ": \'%s\'",

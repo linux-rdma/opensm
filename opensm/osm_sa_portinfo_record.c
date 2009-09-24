@@ -442,12 +442,10 @@ void osm_pir_rcv_process(IN void *ctx, IN void *data)
 	osm_madw_t *p_madw = data;
 	const ib_sa_mad_t *p_rcvd_mad;
 	const ib_portinfo_record_t *p_rcvd_rec;
-	const cl_ptr_vector_t *p_tbl;
 	const osm_port_t *p_port = NULL;
 	const ib_port_info_t *p_pi;
 	cl_qlist_t rec_list;
 	osm_pir_search_ctxt_t context;
-	ib_api_status_t status = IB_SUCCESS;
 	ib_net64_t comp_mask;
 	osm_physp_t *p_req_physp;
 
@@ -487,7 +485,6 @@ void osm_pir_rcv_process(IN void *ctx, IN void *data)
 	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
 		osm_dump_portinfo_record(sa->p_log, p_rcvd_rec, OSM_LOG_DEBUG);
 
-	p_tbl = &sa->p_subn->port_lid_tbl;
 	p_pi = &p_rcvd_rec->port_info;
 
 	cl_qlist_init(&rec_list);
@@ -502,41 +499,21 @@ void osm_pir_rcv_process(IN void *ctx, IN void *data)
 
 	cl_plock_acquire(sa->p_lock);
 
-	CL_ASSERT(cl_ptr_vector_get_size(p_tbl) < 0x10000);
-
 	/*
 	   If the user specified a LID, it obviously narrows our
 	   work load, since we don't have to search every port
 	 */
-	if (comp_mask & IB_PIR_COMPMASK_LID) {
+	if (comp_mask & (IB_PIR_COMPMASK_LID | IB_PIR_COMPMASK_BASELID)) {
 		p_port = osm_get_port_by_lid(sa->p_subn, p_rcvd_rec->lid);
-		if (!p_port) {
-			status = IB_NOT_FOUND;
-			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2109: "
-				"No port found with LID %u\n",
-				cl_ntoh16(p_rcvd_rec->lid));
-		}
-	} else if (comp_mask & IB_PIR_COMPMASK_BASELID) {
-		if ((uint16_t) cl_ptr_vector_get_size(p_tbl) >
-		    cl_ntoh16(p_pi->base_lid))
-			p_port = cl_ptr_vector_get(p_tbl,
-						   cl_ntoh16(p_pi->base_lid));
-		else {
-			status = IB_NOT_FOUND;
-			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2103: "
-				"Given LID (%u) is out of range:%u\n",
-				cl_ntoh16(p_pi->base_lid),
-				cl_ptr_vector_get_size(p_tbl));
-		}
-	}
-
-	if (status == IB_SUCCESS) {
 		if (p_port)
 			sa_pir_by_comp_mask(sa, p_port->p_node, &context);
 		else
-			cl_qmap_apply_func(&sa->p_subn->node_guid_tbl,
-					   sa_pir_by_comp_mask_cb, &context);
-	}
+			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2109: "
+				"No port found with LID %u\n",
+				cl_ntoh16(p_rcvd_rec->lid));
+	} else
+		cl_qmap_apply_func(&sa->p_subn->node_guid_tbl,
+				   sa_pir_by_comp_mask_cb, &context);
 
 	cl_plock_release(sa->p_lock);
 

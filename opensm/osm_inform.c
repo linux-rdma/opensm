@@ -485,9 +485,8 @@ static void match_notice_to_inf_rec(IN cl_list_item_t * p_list_item,
 		goto Exit;
 	}
 
-	p_dest_port =
-	    cl_ptr_vector_get(&p_subn->port_lid_tbl,
-			      cl_ntoh16(p_infr_rec->report_addr.dest_lid));
+	p_dest_port = osm_get_port_by_lid(p_subn,
+					  p_infr_rec->report_addr.dest_lid);
 	if (!p_dest_port) {
 		OSM_LOG(p_log, OSM_LOG_INFO,
 			"Cannot find destination port with LID:%u\n",

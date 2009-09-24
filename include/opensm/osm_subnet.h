@@ -958,6 +958,31 @@ struct osm_port *osm_get_port_by_guid(IN osm_subn_t const *p_subn,
 *	osm_port_t
 *********/
 
+/****f* OpenSM: Port/osm_get_port_by_lid_ho
+* NAME
+*	osm_get_port_by_lid_ho
+*
+* DESCRIPTION
+*	Returns a pointer of the port object for given lid value.
+*
+* SYNOPSIS
+*/
+struct osm_port *osm_get_port_by_lid_ho(const osm_subn_t * subn, uint16_t lid);
+/*
+* PARAMETERS
+*	subn
+*		[in] Pointer to the subnet data structure.
+*
+*	lid
+*		[in] LID requested in hot byte order.
+*
+* RETURN VALUES
+*	The port structure pointer if found. NULL otherwise.
+*
+* SEE ALSO
+*       Subnet object, osm_port_t
+*********/
+
 /****f* OpenSM: Port/osm_get_port_by_lid
 * NAME
 *	osm_get_port_by_lid
@@ -967,14 +992,18 @@ struct osm_port *osm_get_port_by_guid(IN osm_subn_t const *p_subn,
 *
 * SYNOPSIS
 */
-struct osm_port *osm_get_port_by_lid(const osm_subn_t * subn, ib_net16_t lid);
+static inline struct osm_port *osm_get_port_by_lid(IN osm_subn_t const * subn,
+						   IN ib_net16_t lid)
+{
+	return osm_get_port_by_lid_ho(subn, cl_ntoh16(lid));
+}
 /*
 * PARAMETERS
 *	subn
 *		[in] Pointer to the subnet data structure.
 *
 *	lid
-*		[in] LID requested.
+*		[in] LID requested in network byte order.
 *
 * RETURN VALUES
 *	The port structure pointer if found. NULL otherwise.

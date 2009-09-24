@@ -539,27 +539,13 @@ osm_port_t *osm_get_port_by_mad_addr(IN osm_log_t * p_log,
 				     IN const osm_subn_t * p_subn,
 				     IN osm_mad_addr_t * p_mad_addr)
 {
-	const cl_ptr_vector_t *p_port_lid_tbl;
-	osm_port_t *p_port = NULL;
-
-	/* Find the port gid of the request in the subnet */
-	p_port_lid_tbl = &p_subn->port_lid_tbl;
-
-	CL_ASSERT(cl_ptr_vector_get_size(p_port_lid_tbl) < 0x10000);
-
-	if ((uint16_t) cl_ptr_vector_get_size(p_port_lid_tbl) >
-	    cl_ntoh16(p_mad_addr->dest_lid)) {
-		p_port =
-		    cl_ptr_vector_get(p_port_lid_tbl,
-				      cl_ntoh16(p_mad_addr->dest_lid));
-	} else {
-		/* The dest_lid is not in the subnet table - this is an error */
+	osm_port_t *port = osm_get_port_by_lid(p_subn, p_mad_addr->dest_lid);
+	if (!port)
 		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 7504: "
 			"Lid is out of range: %u\n",
 			cl_ntoh16(p_mad_addr->dest_lid));
-	}
 
-	return p_port;
+	return port;
 }
 
 ib_api_status_t osm_get_gid_by_mad_addr(IN osm_log_t * p_log,
@@ -629,9 +615,8 @@ osm_port_t *osm_get_port_by_guid(IN osm_subn_t const *p_subn, IN ib_net64_t guid
 	return p_port;
 }
 
-osm_port_t *osm_get_port_by_lid(IN osm_subn_t const * subn, IN ib_net16_t lid)
+osm_port_t *osm_get_port_by_lid_ho(IN osm_subn_t const * subn, IN uint16_t lid)
 {
-	lid = cl_ntoh16(lid);
 	if (lid < cl_ptr_vector_get_size(&subn->port_lid_tbl))
 		return cl_ptr_vector_get(&subn->port_lid_tbl, lid);
 	return NULL;

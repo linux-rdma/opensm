@@ -1149,7 +1149,6 @@ static ib_net16_t pr_rcv_get_end_points(IN osm_sa_t * sa,
 	const ib_path_rec_t *p_pr = ib_sa_mad_get_payload_ptr(sa_mad);
 	ib_net64_t comp_mask = sa_mad->comp_mask;
 	ib_net64_t dest_guid;
-	ib_api_status_t status;
 	ib_net16_t sa_status = IB_SA_MAD_STATUS_SUCCESS;
 
 	OSM_LOG_ENTER(sa->p_log);
@@ -1177,7 +1176,6 @@ static ib_net16_t pr_rcv_get_end_points(IN osm_sa_t * sa,
 					"Non local SGID subnet prefix 0x%016"
 					PRIx64 "\n",
 					cl_ntoh64(p_pr->sgid.unicast.prefix));
-
 				sa_status = IB_SA_MAD_STATUS_INVALID_GID;
 				goto Exit;
 			}
@@ -1195,32 +1193,24 @@ static ib_net16_t pr_rcv_get_end_points(IN osm_sa_t * sa,
 			OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
 				"No source port with GUID 0x%016" PRIx64 "\n",
 				cl_ntoh64(p_pr->sgid.unicast.interface_id));
-
 			sa_status = IB_SA_MAD_STATUS_INVALID_GID;
 			goto Exit;
 		}
-	} else {
-		*pp_src_port = 0;
-		if (comp_mask & IB_PR_COMPMASK_SLID) {
-			status = cl_ptr_vector_at(&sa->p_subn->port_lid_tbl,
-						  cl_ntoh16(p_pr->slid),
-						  (void **)pp_src_port);
-
-			if ((status != CL_SUCCESS) || (*pp_src_port == NULL)) {
-				/*
-				   This 'error' is the client's fault (bad lid) so
-				   don't enter it as an error in our own log.
-				   Return an error response to the client.
-				 */
-				OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
-					"No source port with LID %u\n",
-					cl_ntoh16(p_pr->slid));
-
-				sa_status = IB_SA_MAD_STATUS_NO_RECORDS;
-				goto Exit;
-			}
+	} else if (comp_mask & IB_PR_COMPMASK_SLID) {
+		*pp_src_port = osm_get_port_by_lid(sa->p_subn, p_pr->slid);
+		if (!*pp_src_port) {
+			/*
+			   This 'error' is the client's fault (bad lid) so
+			   don't enter it as an error in our own log.
+			   Return an error response to the client.
+			 */
+			OSM_LOG(sa->p_log, OSM_LOG_VERBOSE, "No source port "
+				"with LID %u\n", cl_ntoh16(p_pr->slid));
+			sa_status = IB_SA_MAD_STATUS_NO_RECORDS;
+			goto Exit;
 		}
-	}
+	} else
+		*pp_src_port = NULL;
 
 	if (comp_mask & IB_PR_COMPMASK_DGID) {
 		if (!ib_gid_is_link_local(&p_pr->dgid) &&
@@ -1253,32 +1243,24 @@ static ib_net16_t pr_rcv_get_end_points(IN osm_sa_t * sa,
 			OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
 				"No dest port with GUID 0x%016" PRIx64 "\n",
 				cl_ntoh64(dest_guid));
-
 			sa_status = IB_SA_MAD_STATUS_INVALID_GID;
 			goto Exit;
 		}
-	} else {
-		*pp_dest_port = 0;
-		if (comp_mask & IB_PR_COMPMASK_DLID) {
-			status = cl_ptr_vector_at(&sa->p_subn->port_lid_tbl,
-						  cl_ntoh16(p_pr->dlid),
-						  (void **)pp_dest_port);
-
-			if ((status != CL_SUCCESS) || (*pp_dest_port == NULL)) {
-				/*
-				   This 'error' is the client's fault (bad lid)
-				   so don't enter it as an error in our own log.
-				   Return an error response to the client.
-				 */
-				OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
-					"No dest port with LID %u\n",
-					cl_ntoh16(p_pr->dlid));
-
-				sa_status = IB_SA_MAD_STATUS_NO_RECORDS;
-				goto Exit;
-			}
+	} else if (comp_mask & IB_PR_COMPMASK_DLID) {
+		*pp_dest_port = osm_get_port_by_lid(sa->p_subn, p_pr->dlid);
+		if (!*pp_dest_port) {
+			/*
+			   This 'error' is the client's fault (bad lid)
+			   so don't enter it as an error in our own log.
+			   Return an error response to the client.
+			 */
+			OSM_LOG(sa->p_log, OSM_LOG_VERBOSE, "No dest port "
+				"with LID %u\n", cl_ntoh16(p_pr->dlid));
+			sa_status = IB_SA_MAD_STATUS_NO_RECORDS;
+			goto Exit;
 		}
-	}
+	} else
+		*pp_dest_port = NULL;
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);
@@ -1594,7 +1576,6 @@ void osm_pr_rcv_process(IN void *context, IN void *data)
 	if (pr_rcv_get_end_points(sa, p_sa_mad, &p_src_port, &p_dest_port,
 				  &p_dgid) != IB_SA_MAD_STATUS_SUCCESS)
 		goto Unlock;
-
 	/*
 	   What happens next depends on the type of endpoint information
 	   that was specified....

@@ -59,7 +59,7 @@ static uint8_t link_mgr_get_smsl(IN osm_sm_t * sm, IN osm_physp_t * p_physp)
 {
 	osm_opensm_t *p_osm = sm->p_subn->p_osm;
 	const osm_port_t *p_sm_port, *p_src_port;
-	ib_net16_t slid, smlid;
+	ib_net16_t slid;
 	uint8_t sl;
 
 	OSM_LOG_ENTER(sm->p_log);
@@ -72,13 +72,10 @@ static uint8_t link_mgr_get_smsl(IN osm_sm_t * sm, IN osm_physp_t * p_physp)
 	}
 
 	/* Find osm_port of the SM itself = dest_port */
-	smlid = sm->p_subn->sm_base_lid;
-	p_sm_port =
-	    cl_ptr_vector_get(&sm->p_subn->port_lid_tbl, cl_ntoh16(smlid));
+	p_sm_port = osm_get_port_by_lid(sm->p_subn, sm->p_subn->sm_base_lid);
 
 	/* Find osm_port of the source = p_physp */
-	p_src_port =
-	    cl_ptr_vector_get(&sm->p_subn->port_lid_tbl, cl_ntoh16(slid));
+	p_src_port = osm_get_port_by_lid(sm->p_subn, slid);
 
 	/* Call lash to find proper SL */
 	sl = osm_get_lash_sl(p_osm, p_src_port, p_sm_port);

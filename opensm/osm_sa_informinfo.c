@@ -158,7 +158,7 @@ static boolean_t validate_ports_access_rights(IN osm_sa_t * sa,
 		/* go over all defined lids within the range and make sure that the
 		   requester port can access them according to current partitioning. */
 		for (lid = lid_range_begin; lid <= lid_range_end; lid++) {
-			p_port = osm_get_port_by_lid(sa->p_subn, cl_hton16(lid));
+			p_port = osm_get_port_by_lid_ho(sa->p_subn, lid);
 			if (p_port == NULL)
 				continue;
 

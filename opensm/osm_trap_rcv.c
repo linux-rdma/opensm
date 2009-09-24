@@ -81,16 +81,10 @@ extern void osm_req_get_node_desc(IN osm_sm_t * sm, osm_physp_t *p_physp);
  *
  **********************************************************************/
 
-static osm_physp_t *get_physp_by_lid_and_num(IN osm_sm_t * sm, IN uint16_t lid,
-					     IN uint8_t num)
+static osm_physp_t *get_physp_by_lid_and_num(IN osm_sm_t * sm,
+					     IN ib_net16_t lid, IN uint8_t num)
 {
-	cl_ptr_vector_t *p_vec = &(sm->p_subn->port_lid_tbl);
-	osm_port_t *p_port;
-
-	if (lid > cl_ptr_vector_get_size(p_vec))
-		return NULL;
-
-	p_port = (osm_port_t *) cl_ptr_vector_get(p_vec, lid);
+	osm_port_t *p_port = osm_get_port_by_lid(sm->p_subn, lid);
 	if (!p_port)
 		return NULL;
 
@@ -104,7 +98,7 @@ static uint64_t aging_tracker_callback(IN uint64_t key, IN uint32_t num_regs,
 				       IN void *context)
 {
 	osm_sm_t *sm = context;
-	uint16_t lid;
+	ib_net16_t lid;
 	uint8_t port_num;
 	osm_physp_t *p_physp;
 
@@ -114,20 +108,20 @@ static uint64_t aging_tracker_callback(IN uint64_t key, IN uint32_t num_regs,
 		/* We got an exit flag - do nothing */
 		return 0;
 
-	lid = cl_ntoh16((uint16_t) ((key & 0x0000FFFF00000000ULL) >> 32));
+	lid = (ib_net16_t) ((key & 0x0000FFFF00000000ULL) >> 32);
 	port_num = (uint8_t) ((key & 0x00FF000000000000ULL) >> 48);
 
 	p_physp = get_physp_by_lid_and_num(sm, lid, port_num);
 	if (!p_physp)
 		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 			"Cannot find port num:%u with lid:%u\n",
-			port_num, lid);
+			port_num, cl_ntoh16(lid));
 	/* make sure the physp is still valid */
 	/* If the health port was false - set it to true */
 	else if (!osm_physp_is_healthy(p_physp)) {
 		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 			"Clearing health bit of port num:%u with lid:%u\n",
-			port_num, lid);
+			port_num, cl_ntoh16(lid));
 
 		/* Clear its health bit */
 		osm_physp_set_health(p_physp, TRUE);
@@ -282,14 +276,14 @@ static void log_trap_info(osm_log_t *p_log, ib_mad_notice_attr_t *p_ntci,
 			cl_ntoh16(source_lid), cl_ntoh64(trans_id));
 }
 
-static int shutup_noisy_port(osm_sm_t *sm, uint16_t lid, uint8_t port,
+static int shutup_noisy_port(osm_sm_t *sm, ib_net16_t lid, uint8_t port,
 			     unsigned num)
 {
 	osm_physp_t *p = get_physp_by_lid_and_num(sm, lid, port);
 	if (!p) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3805: "
 			"Failed to find physical port by lid:%u num:%u\n",
-			lid, port);
+			cl_ntoh16(lid), port);
 		return -1;
 	}
 
@@ -299,7 +293,8 @@ static int shutup_noisy_port(osm_sm_t *sm, uint16_t lid, uint8_t port,
 		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 			"Disabling noisy physical port 0x%016" PRIx64
 			": lid %u, num %u\n",
-			cl_ntoh64(osm_physp_get_port_guid(p)), lid, port);
+			cl_ntoh64(osm_physp_get_port_guid(p)),
+			cl_ntoh16(lid), port);
 		if (disable_port(sm, p))
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3811: "
 				"Failed to disable.\n");
@@ -312,7 +307,7 @@ static int shutup_noisy_port(osm_sm_t *sm, uint16_t lid, uint8_t port,
 	if (osm_physp_is_healthy(p)) {
 		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 			"Marking unhealthy physical port by lid:%u num:%u\n",
-			lid, port);
+			cl_ntoh16(lid), port);
 		osm_physp_set_health(p, FALSE);
 		return 2;
 	}
@@ -330,7 +325,6 @@ static void trap_rcv_process_request(IN osm_sm_t * sm,
 	uint64_t trap_key;
 	uint32_t num_received;
 	osm_physp_t *p_physp;
-	cl_ptr_vector_t *p_tbl;
 	osm_port_t *p_port;
 	ib_net16_t source_lid = 0;
 	boolean_t is_gsi = TRUE;
@@ -462,8 +456,7 @@ static void trap_rcv_process_request(IN osm_sm_t * sm,
 			 * we mark it as unhealthy.
 			 */
 			if (physp_change_trap == TRUE) {
-				int ret = shutup_noisy_port(sm,
-							    cl_ntoh16(source_lid),
+				int ret = shutup_noisy_port(sm, source_lid,
 							    port_num,
 							    num_received);
 				if (ret == 1) /* port disabled */
@@ -562,22 +555,8 @@ check_sweep:
 		       sizeof(ib_gid_t));
 	} else {
 		/* Need to use the IssuerLID */
-		p_tbl = &sm->p_subn->port_lid_tbl;
-
-		CL_ASSERT(cl_ptr_vector_get_size(p_tbl) < 0x10000);
-
-		if ((uint16_t) cl_ptr_vector_get_size(p_tbl) <=
-		    cl_ntoh16(source_lid)) {
-			/*  the source lid is out of range */
-			OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
-				"source lid is out of range:%u\n",
-				cl_ntoh16(source_lid));
-
-			goto Exit;
-		}
-		p_port = cl_ptr_vector_get(p_tbl, cl_ntoh16(source_lid));
-		if (p_port == 0) {
-			/* We have the lid - but no corresponding port */
+		p_port = osm_get_port_by_lid(sm->p_subn, source_lid);
+		if (!p_port) {
 			OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 				"Cannot find port corresponding to lid:%u\n",
 				cl_ntoh16(source_lid));

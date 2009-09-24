@@ -2994,8 +2994,8 @@ static void fabric_route_roots(IN ftree_fabric_t * p_ftree)
 			    p_leaf_sw->hops[lid] == OSM_NO_PATH)
 				continue;
 
-			p_port = cl_ptr_vector_get(
-				&p_ftree->p_osm->subn.port_lid_tbl, lid);
+			p_port = osm_get_port_by_lid_ho(&p_ftree->p_osm->subn,
+							lid);
 
 			/* we're interested only in switches */
 			if (!p_port || !p_port->p_node->sw)

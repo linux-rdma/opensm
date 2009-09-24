@@ -280,20 +280,18 @@ static int updn_subn_rank(IN updn_t * p_updn)
 }
 
 /* hack: preserve min hops entries to any other root switches */
-static void updn_clear_non_root_hops(updn_t * p_updn, osm_switch_t * p_sw)
+static void updn_clear_non_root_hops(updn_t * updn, osm_switch_t * sw)
 {
-	osm_port_t *p_port;
+	osm_port_t *port;
 	unsigned i;
 
-	for (i = 0; i < p_sw->num_hops; i++)
-		if (p_sw->hops[i]) {
-			p_port =
-			    cl_ptr_vector_get(&p_updn->p_osm->subn.port_lid_tbl,
-					      i);
-			if (!p_port || !p_port->p_node->sw
-			    || ((struct updn_node *)p_port->p_node->sw->priv)->
+	for (i = 0; i < sw->num_hops; i++)
+		if (sw->hops[i]) {
+			port = osm_get_port_by_lid_ho(&updn->p_osm->subn, i);
+			if (!port || !port->p_node->sw
+			    || ((struct updn_node *)port->p_node->sw->priv)->
 			    rank != 0)
-				memset(p_sw->hops[i], 0xff, p_sw->num_ports);
+				memset(sw->hops[i], 0xff, sw->num_ports);
 		}
 }
 
