@@ -628,8 +628,7 @@ static switch_t *switch_create(lash_t * p_lash, unsigned id, osm_switch_t * p_sw
 	}
 
 	sw->p_sw = p_sw;
-	if (p_sw)
-		p_sw->priv = sw;
+	p_sw->priv = sw;
 
 	if (osm_mesh_node_create(p_lash, sw)) {
 		free(sw->dij_channels);
@@ -644,8 +643,6 @@ static void switch_delete(lash_t *p_lash, switch_t * sw)
 {
 	if (sw->dij_channels)
 		free(sw->dij_channels);
-	if (sw->p_sw)
-		sw->p_sw->priv = NULL;
 	free(sw);
 }
 
