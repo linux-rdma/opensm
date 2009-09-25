@@ -119,7 +119,7 @@ typedef struct osm_db_imp {
 
 /***************************************************************************
  ***************************************************************************/
-void osm_db_construct(IN osm_db_t * p_db)
+void osm_db_construct(IN osm_db_t * const p_db)
 {
 	memset(p_db, 0, sizeof(osm_db_t));
 	cl_list_construct(&p_db->domains);
@@ -143,7 +143,7 @@ void osm_db_domain_destroy(IN osm_db_domain_t * p_db_domain)
 
 /***************************************************************************
  ***************************************************************************/
-void osm_db_destroy(IN osm_db_t * p_db)
+void osm_db_destroy(IN osm_db_t * const p_db)
 {
 	osm_db_domain_t *p_domain;
 
@@ -157,7 +157,7 @@ void osm_db_destroy(IN osm_db_t * p_db)
 
 /***************************************************************************
  ***************************************************************************/
-int osm_db_init(IN osm_db_t * p_db, IN osm_log_t * p_log)
+int osm_db_init(IN osm_db_t * const p_db, IN osm_log_t * p_log)
 {
 	osm_db_imp_t *p_db_imp;
 	struct stat dstat;
@@ -201,7 +201,7 @@ int osm_db_init(IN osm_db_t * p_db, IN osm_log_t * p_log)
 
 /***************************************************************************
  ***************************************************************************/
-osm_db_domain_t *osm_db_domain_init(IN osm_db_t * p_db, IN char *domain_name)
+osm_db_domain_t *osm_db_domain_init(IN osm_db_t * const p_db, IN char *domain_name)
 {
 	osm_db_domain_t *p_domain;
 	osm_db_domain_imp_t *p_domain_imp;
@@ -537,7 +537,7 @@ int osm_db_keys(IN osm_db_domain_t * p_domain, OUT cl_list_t * p_key_list)
 
 /***************************************************************************
  ***************************************************************************/
-char *osm_db_lookup(IN osm_db_domain_t * p_domain, IN char *p_key)
+char *osm_db_lookup(IN osm_db_domain_t * p_domain, IN char * const p_key)
 {
 	osm_db_domain_imp_t *p_domain_imp =
 	    (osm_db_domain_imp_t *) p_domain->p_domain_imp;
@@ -555,7 +555,7 @@ char *osm_db_lookup(IN osm_db_domain_t * p_domain, IN char *p_key)
 
 /***************************************************************************
  ***************************************************************************/
-int osm_db_update(IN osm_db_domain_t * p_domain, IN char *p_key, IN char *p_val)
+int osm_db_update(IN osm_db_domain_t * p_domain, IN char * const p_key, IN char * const p_val)
 {
 	osm_log_t *p_log = p_domain->p_db->p_log;
 	osm_db_domain_imp_t *p_domain_imp =
@@ -595,7 +595,7 @@ int osm_db_update(IN osm_db_domain_t * p_domain, IN char *p_key, IN char *p_val)
 
 /***************************************************************************
  ***************************************************************************/
-int osm_db_delete(IN osm_db_domain_t * p_domain, IN char *p_key)
+int osm_db_delete(IN osm_db_domain_t * p_domain, IN char * const p_key)
 {
 	osm_log_t *p_log = p_domain->p_db->p_log;
 	osm_db_domain_imp_t *p_domain_imp =
