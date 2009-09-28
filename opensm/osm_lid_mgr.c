@@ -106,14 +106,14 @@ typedef struct osm_lid_mgr_range {
 
 /**********************************************************************
  **********************************************************************/
-void osm_lid_mgr_construct(IN osm_lid_mgr_t * p_mgr)
+void osm_lid_mgr_construct(IN osm_lid_mgr_t * const p_mgr)
 {
 	memset(p_mgr, 0, sizeof(*p_mgr));
 }
 
 /**********************************************************************
  **********************************************************************/
-void osm_lid_mgr_destroy(IN osm_lid_mgr_t * p_mgr)
+void osm_lid_mgr_destroy(IN osm_lid_mgr_t * const p_mgr)
 {
 	cl_list_item_t *p_item;
 
@@ -224,7 +224,7 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-ib_api_status_t osm_lid_mgr_init(IN osm_lid_mgr_t * p_mgr, IN osm_sm_t * sm)
+ib_api_status_t osm_lid_mgr_init(IN osm_lid_mgr_t * const p_mgr, IN osm_sm_t * sm)
 {
 	ib_api_status_t status = IB_SUCCESS;
 
@@ -1145,7 +1145,7 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-int osm_lid_mgr_process_sm(IN osm_lid_mgr_t * p_mgr)
+int osm_lid_mgr_process_sm(IN osm_lid_mgr_t * const p_mgr)
 {
 	int ret;
 
@@ -1173,7 +1173,7 @@ int osm_lid_mgr_process_sm(IN osm_lid_mgr_t * p_mgr)
  1.2 if a change is required send the port info
  2 if any change send the signal PENDING...
 **********************************************************************/
-int osm_lid_mgr_process_subnet(IN osm_lid_mgr_t * p_mgr)
+int osm_lid_mgr_process_subnet(IN osm_lid_mgr_t * const p_mgr)
 {
 	cl_qmap_t *p_port_guid_tbl;
 	osm_port_t *p_port;

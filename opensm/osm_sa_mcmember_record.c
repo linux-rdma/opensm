@@ -888,7 +888,7 @@ osm_mgrp_t *osm_get_mgrp_by_mgid(IN osm_sa_t * sa, IN ib_gid_t * p_mgid)
 ib_api_status_t osm_mcmr_rcv_find_or_create_new_mgrp(IN osm_sa_t * sa,
 						     IN ib_net64_t comp_mask,
 						     IN ib_member_rec_t *
-						     p_recvd_mcmember_rec,
+						     const p_recvd_mcmember_rec,
 						     OUT osm_mgrp_t ** pp_mgrp)
 {
 	osm_mgrp_t *mgrp;
