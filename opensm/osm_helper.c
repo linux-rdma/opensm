@@ -548,7 +548,7 @@ const char *ib_get_trap_str(ib_net16_t trap_num)
 	return "Unknown";
 }
 
-const ib_gid_t ib_zero_gid = { };
+const ib_gid_t ib_zero_gid = { 0 };
 
 /**********************************************************************
  **********************************************************************/
