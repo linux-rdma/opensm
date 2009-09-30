@@ -411,7 +411,7 @@ void osm_sa_respond(osm_sa_t *sa, osm_madw_t *madw, size_t attr_size,
 #ifndef VENDOR_RMPP_SUPPORT
 	unsigned trim_num_rec;
 #endif
-	void *p;
+	unsigned char *p;
 
 	sa_mad = osm_madw_get_sa_mad_ptr(madw);
 	num_rec = cl_qlist_count(list);
