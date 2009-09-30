@@ -322,7 +322,7 @@ static int mcast_mgr_set_mft_block(osm_sm_t * sm, IN osm_switch_t * p_sw,
 
 	p_tbl = osm_switch_get_mcast_tbl_ptr(p_sw);
 
-	if (osm_mcast_tbl_get_block(p_tbl, block_num,
+	if (osm_mcast_tbl_get_block(p_tbl, (uint16_t) block_num,
 				    (uint8_t) position, block)) {
 
 		block_id_ho = block_num + (position << 28);
