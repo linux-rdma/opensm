@@ -622,7 +622,7 @@ static int get_switch_metric(lash_t *p_lash, int sw)
 					s2 = p_lash->switches[sw2];
 					if (s2->node->temp == LARGE)
 						continue;
-					for (j = 0; j < s2->node->num_links; j++) {
+					for (j = 0; (unsigned)j < s2->node->num_links; j++) {
 						sw3 = s2->node->links[j]->switch_id;
 						s3 = p_lash->switches[sw3];
 
@@ -742,7 +742,7 @@ static void remove_edges(lash_t *p_lash)
 	osm_log_t *p_log = &p_lash->p_osm->log;
 	int sw;
 	mesh_node_t *n, *nn;
-	int i;
+	unsigned i;
 
 	OSM_LOG_ENTER(p_log);
 
@@ -892,7 +892,7 @@ done:
  */
 static inline int opposite(switch_t *s, int axis)
 {
-	int i, j;
+	unsigned i, j;
 	int negaxis = 1 + (1 ^ (axis - 1));
 
 	if (!s->node->matrix)
@@ -956,7 +956,7 @@ static void make_geometry(lash_t *p_lash, int sw)
 			/*
 			 * ignore chain fragments
 			 */
-			if (n < seed->node->num_links && n <= 2)
+			if ((unsigned)n < seed->node->num_links && n <= 2)
 				continue;
 
 			/*
@@ -1068,11 +1068,11 @@ static void make_geometry(lash_t *p_lash, int sw)
 					 * find switch (other than s1) that neighbors i and j
 					 * have in common
 					 */
-					for (k = 0; k < s1->node->num_links; k++) {
+					for (k = 0; (unsigned)k < s1->node->num_links; k++) {
 						if (s1->node->links[k]->switch_id == sw1)
 							continue;
 
-						for (l = 0; l < s2->node->num_links; l++) {
+						for (l = 0; (unsigned)l < s2->node->num_links; l++) {
 							if (s2->node->links[l]->switch_id == sw1)
 								continue;
 
@@ -1228,7 +1228,7 @@ static int make_coord(lash_t *p_lash, mesh_t *mesh, int seed)
 		for (i = 0; i < dimension; i++)
 			s->node->coord[i] = (sw == seed) ? 0 : LARGE;
 
-		for (i = 0; i < s->node->num_links; i++)
+		for (i = 0; (unsigned)i < s->node->num_links; i++)
 			if (s->node->axes[i] == 0)
 				unassigned_axes++;
 			else
@@ -1246,7 +1246,7 @@ static int make_coord(lash_t *p_lash, mesh_t *mesh, int seed)
 			if (s->node->coord[0] == LARGE)
 				continue;
 
-			for (j = 0; j < s->node->num_links; j++) {
+			for (j = 0; (unsigned)j < s->node->num_links; j++) {
 				if (!s->node->axes[j])
 					continue;
 
@@ -1426,7 +1426,7 @@ static void sort_switches(lash_t *p_lash, mesh_t *mesh)
 		s = p_lash->switches[comp[i].index];
 		switches[i] = s;
 		s->id = i;
-		for (j = 0; j < s->node->num_links; j++)
+		for (j = 0; (unsigned)j < s->node->num_links; j++)
 			s->node->links[j]->switch_id =
 				reverse[s->node->links[j]->switch_id];
 	}
@@ -1493,7 +1493,7 @@ err:
 void osm_mesh_node_delete(lash_t *p_lash, switch_t *sw)
 {
 	osm_log_t *p_log = &p_lash->p_osm->log;
-	int i;
+	unsigned i;
 	mesh_node_t *node = sw->node;
 	unsigned num_ports = sw->p_sw->num_ports;
 
@@ -1535,7 +1535,7 @@ void osm_mesh_node_delete(lash_t *p_lash, switch_t *sw)
 int osm_mesh_node_create(lash_t *p_lash, switch_t *sw)
 {
 	osm_log_t *p_log = &p_lash->p_osm->log;
-	int i;
+	unsigned i;
 	mesh_node_t *node;
 	unsigned num_ports = sw->p_sw->num_ports;
 
