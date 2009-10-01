@@ -1370,21 +1370,17 @@ static int reorder_links(lash_t *p_lash, mesh_t *mesh)
  */
 static int compare_switches(const void *p1, const void *p2)
 {
-	int i, j, d;
 	const comp_t *cp1 = p1, *cp2 = p2;
 	const sort_ctx_t *ctx = &cp1->ctx;
 	switch_t *s1 = ctx->p_lash->switches[cp1->index];
 	switch_t *s2 = ctx->p_lash->switches[cp2->index];
+	int i, j;
+	int ret;
 
 	for (i = 0; i < ctx->mesh->dimension; i++) {
 		j = ctx->mesh->dim_order[i];
-		d = s1->node->coord[j] - s2->node->coord[j];
-
-		if (d > 0)
-			return 1;
-
-		if (d < 0)
-			return -1;
+		if ((ret = s1->node->coord[j] - s2->node->coord[j]));
+			return ret;
 	}
 
 	return 0;
