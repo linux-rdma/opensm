@@ -1214,17 +1214,17 @@ static ib_net16_t pr_rcv_get_end_points(IN osm_sa_t * sa,
 			if (!ib_gid_is_multicast(&p_pr->dgid) &&
 			    ib_gid_get_subnet_prefix(&p_pr->dgid) !=
 			    sa->p_subn->opt.subnet_prefix) {
-				OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
-					"Non local DGID subnet prefix 0x%016"
-					PRIx64 "\n",
-					cl_ntoh64(p_pr->dgid.unicast.prefix));
-
 				/* Find the router port that is configured to
 				   handle this prefix, if any */
 				osm_prefix_route_t *route = NULL;
 				osm_prefix_route_t *r = (osm_prefix_route_t *)
 				    cl_qlist_head(&sa->p_subn->
 						  prefix_routes_list);
+
+				OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
+					"Non local DGID subnet prefix 0x%016"
+					PRIx64 "\n",
+					cl_ntoh64(p_pr->dgid.unicast.prefix));
 
 				while (r != (osm_prefix_route_t *)
 				       cl_qlist_end(&sa->p_subn->
