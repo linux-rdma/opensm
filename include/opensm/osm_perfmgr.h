@@ -152,8 +152,8 @@ typedef struct osm_perfmgr {
 *********/
 
 /****f* OpenSM: Creation Functions */
-void osm_perfmgr_shutdown(osm_perfmgr_t * const p_perfmgr);
-void osm_perfmgr_destroy(osm_perfmgr_t * const p_perfmgr);
+void osm_perfmgr_shutdown(osm_perfmgr_t * p_perfmgr);
+void osm_perfmgr_destroy(osm_perfmgr_t * p_perfmgr);
 
 /****f* OpenSM: Inline accessor functions */
 inline static void osm_perfmgr_set_state(osm_perfmgr_t * p_perfmgr,
@@ -164,42 +164,41 @@ inline static void osm_perfmgr_set_state(osm_perfmgr_t * p_perfmgr,
 		osm_sm_signal(p_perfmgr->sm, OSM_SIGNAL_PERFMGR_SWEEP);
 }
 
-inline static osm_perfmgr_state_t osm_perfmgr_get_state(osm_perfmgr_t
-							  * p_perfmgr)
+inline static osm_perfmgr_state_t osm_perfmgr_get_state(osm_perfmgr_t * perfmgr)
 {
-	return (p_perfmgr->state);
+	return perfmgr->state;
 }
 
 inline static char *osm_perfmgr_get_state_str(osm_perfmgr_t * p_perfmgr)
 {
 	switch (p_perfmgr->state) {
 	case PERFMGR_STATE_DISABLE:
-		return ("Disabled");
+		return "Disabled";
 		break;
 	case PERFMGR_STATE_ENABLED:
-		return ("Enabled");
+		return "Enabled";
 		break;
 	case PERFMGR_STATE_NO_DB:
-		return ("No Database");
+		return "No Database";
 		break;
 	}
-	return ("UNKNOWN");
+	return "UNKNOWN";
 }
 
 inline static char *osm_perfmgr_get_sweep_state_str(osm_perfmgr_t * perfmgr)
 {
 	switch (perfmgr->sweep_state) {
 	case PERFMGR_SWEEP_SLEEP:
-		return ("Sleeping");
+		return "Sleeping";
 		break;
 	case PERFMGR_SWEEP_ACTIVE:
-		return ("Active");
+		return "Active";
 		break;
 	case PERFMGR_SWEEP_SUSPENDED:
-		return ("Suspended");
+		return "Suspended";
 		break;
 	}
-	return ("UNKNOWN");
+	return "UNKNOWN";
 }
 
 inline static void osm_perfmgr_set_sweep_time_s(osm_perfmgr_t * p_perfmgr,
@@ -211,24 +210,23 @@ inline static void osm_perfmgr_set_sweep_time_s(osm_perfmgr_t * p_perfmgr,
 
 inline static uint16_t osm_perfmgr_get_sweep_time_s(osm_perfmgr_t * p_perfmgr)
 {
-	return (p_perfmgr->sweep_time_s);
+	return p_perfmgr->sweep_time_s;
 }
 
 void osm_perfmgr_clear_counters(osm_perfmgr_t * p_perfmgr);
 void osm_perfmgr_dump_counters(osm_perfmgr_t * p_perfmgr,
 			       perfmgr_db_dump_t dump_type);
-void osm_perfmgr_print_counters(osm_perfmgr_t *pm, char *nodename,
-				FILE *fp);
+void osm_perfmgr_print_counters(osm_perfmgr_t *pm, char *nodename, FILE *fp);
 
-ib_api_status_t osm_perfmgr_bind(osm_perfmgr_t * const p_perfmgr,
-				 const ib_net64_t port_guid);
+ib_api_status_t osm_perfmgr_bind(osm_perfmgr_t * p_perfmgr,
+				 ib_net64_t port_guid);
 
 void osm_perfmgr_process(osm_perfmgr_t * pm);
 
 /****f* OpenSM: PerfMgr/osm_perfmgr_init */
-ib_api_status_t osm_perfmgr_init(osm_perfmgr_t * const perfmgr,
+ib_api_status_t osm_perfmgr_init(osm_perfmgr_t * perfmgr,
 				 struct osm_opensm *osm,
-				 const osm_subn_opt_t * const p_opt);
+				 const osm_subn_opt_t * p_opt);
 /*
 * PARAMETERS
 *	perfmgr

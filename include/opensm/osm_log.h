@@ -132,7 +132,7 @@ typedef struct osm_log {
 *
 * SYNOPSIS
 */
-static inline void osm_log_construct(IN osm_log_t * const p_log)
+static inline void osm_log_construct(IN osm_log_t * p_log)
 {
 	cl_spinlock_construct(&p_log->lock);
 }
@@ -166,7 +166,7 @@ static inline void osm_log_construct(IN osm_log_t * const p_log)
 *
 * SYNOPSIS
 */
-static inline void osm_log_destroy(IN osm_log_t * const p_log)
+static inline void osm_log_destroy(IN osm_log_t * p_log)
 {
 	cl_spinlock_destroy(&p_log->lock);
 	if (p_log->out_port != stdout) {
@@ -206,13 +206,10 @@ static inline void osm_log_destroy(IN osm_log_t * const p_log)
 *
 * SYNOPSIS
 */
-ib_api_status_t
-osm_log_init_v2(IN osm_log_t * const p_log,
-		IN const boolean_t flush,
-		IN const uint8_t log_flags,
-		IN const char *log_file,
-		IN const unsigned long max_size,
-		IN const boolean_t accum_log_file);
+ib_api_status_t osm_log_init_v2(IN osm_log_t * p_log, IN boolean_t flush,
+				IN uint8_t log_flags, IN const char *log_file,
+				IN unsigned long max_size,
+				IN boolean_t accum_log_file);
 /*
 * PARAMETERS
 *	p_log
@@ -271,19 +268,15 @@ int osm_log_reopen_file(osm_log_t * p_log);
 *
 * SYNOPSIS
 */
-ib_api_status_t
-osm_log_init(IN osm_log_t * const p_log,
-	     IN const boolean_t flush,
-	     IN const uint8_t log_flags,
-	     IN const char *log_file, IN const boolean_t accum_log_file);
+ib_api_status_t osm_log_init(IN osm_log_t * p_log, IN boolean_t flush,
+			     IN uint8_t log_flags, IN const char *log_file,
+			     IN boolean_t accum_log_file);
 /*
  * Same as osm_log_init_v2() but without max_size parameter
  */
 
-void
-osm_log(IN osm_log_t * const p_log,
-	IN const osm_log_level_t verbosity,
-	IN const char *p_str, ...) STRICT_OSM_LOG_FORMAT;
+void osm_log(IN osm_log_t * p_log, IN osm_log_level_t verbosity,
+	     IN const char *p_str, ...) STRICT_OSM_LOG_FORMAT;
 
 /****f* OpenSM: Log/osm_log_get_level
 * NAME
@@ -294,10 +287,9 @@ osm_log(IN osm_log_t * const p_log,
 *
 * SYNOPSIS
 */
-static inline osm_log_level_t
-osm_log_get_level(IN const osm_log_t * const p_log)
+static inline osm_log_level_t osm_log_get_level(IN const osm_log_t * p_log)
 {
-	return (p_log->level);
+	return p_log->level;
 }
 
 /*
@@ -324,8 +316,8 @@ osm_log_get_level(IN const osm_log_t * const p_log)
 *
 * SYNOPSIS
 */
-static inline void
-osm_log_set_level(IN osm_log_t * const p_log, IN const osm_log_level_t level)
+static inline void osm_log_set_level(IN osm_log_t * p_log,
+				     IN osm_log_level_t level)
 {
 	p_log->level = level;
 	osm_log(p_log, OSM_LOG_ALL, "Setting log level to: 0x%02x\n", level);
@@ -359,9 +351,8 @@ osm_log_set_level(IN osm_log_t * const p_log, IN const osm_log_level_t level)
 *
 * SYNOPSIS
 */
-static inline boolean_t
-osm_log_is_active(IN const osm_log_t * const p_log,
-		  IN const osm_log_level_t level)
+static inline boolean_t osm_log_is_active(IN const osm_log_t * p_log,
+					  IN osm_log_level_t level)
 {
 	return ((p_log->level & level) != 0);
 }
@@ -387,8 +378,8 @@ osm_log_is_active(IN const osm_log_t * const p_log,
 
 extern void osm_log_msg_box(osm_log_t *log, osm_log_level_t level,
 			    const char *func_name, const char *msg);
-extern void osm_log_raw(IN osm_log_t * const p_log,
-	    IN const osm_log_level_t verbosity, IN const char *p_buf);
+extern void osm_log_raw(IN osm_log_t * p_log, IN osm_log_level_t verbosity,
+			IN const char *p_buf);
 
 #define OSM_LOG(log, level, fmt, ...) do { \
 		if (osm_log_is_active(log, (level))) \

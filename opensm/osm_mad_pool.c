@@ -52,7 +52,7 @@
 
 /**********************************************************************
  **********************************************************************/
-void osm_mad_pool_construct(IN osm_mad_pool_t * const p_pool)
+void osm_mad_pool_construct(IN osm_mad_pool_t * p_pool)
 {
 	CL_ASSERT(p_pool);
 
@@ -61,14 +61,14 @@ void osm_mad_pool_construct(IN osm_mad_pool_t * const p_pool)
 
 /**********************************************************************
  **********************************************************************/
-void osm_mad_pool_destroy(IN osm_mad_pool_t * const p_pool)
+void osm_mad_pool_destroy(IN osm_mad_pool_t * p_pool)
 {
 	CL_ASSERT(p_pool);
 }
 
 /**********************************************************************
  **********************************************************************/
-ib_api_status_t osm_mad_pool_init(IN osm_mad_pool_t * const p_pool)
+ib_api_status_t osm_mad_pool_init(IN osm_mad_pool_t * p_pool)
 {
 	p_pool->mads_out = 0;
 
@@ -77,10 +77,10 @@ ib_api_status_t osm_mad_pool_init(IN osm_mad_pool_t * const p_pool)
 
 /**********************************************************************
  **********************************************************************/
-osm_madw_t *osm_mad_pool_get(IN osm_mad_pool_t * const p_pool,
+osm_madw_t *osm_mad_pool_get(IN osm_mad_pool_t * p_pool,
 			     IN osm_bind_handle_t h_bind,
-			     IN const uint32_t total_size,
-			     IN const osm_mad_addr_t * const p_mad_addr)
+			     IN uint32_t total_size,
+			     IN const osm_mad_addr_t * p_mad_addr)
 {
 	osm_madw_t *p_madw;
 	ib_mad_t *p_mad;
@@ -120,11 +120,11 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-osm_madw_t *osm_mad_pool_get_wrapper(IN osm_mad_pool_t * const p_pool,
+osm_madw_t *osm_mad_pool_get_wrapper(IN osm_mad_pool_t * p_pool,
 				     IN osm_bind_handle_t h_bind,
-				     IN const uint32_t total_size,
-				     IN const ib_mad_t * const p_mad,
-				     IN const osm_mad_addr_t * const p_mad_addr)
+				     IN uint32_t total_size,
+				     IN const ib_mad_t * p_mad,
+				     IN const osm_mad_addr_t * p_mad_addr)
 {
 	osm_madw_t *p_madw;
 
@@ -152,7 +152,7 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-osm_madw_t *osm_mad_pool_get_wrapper_raw(IN osm_mad_pool_t * const p_pool)
+osm_madw_t *osm_mad_pool_get_wrapper_raw(IN osm_mad_pool_t * p_pool)
 {
 	osm_madw_t *p_madw;
 
@@ -169,8 +169,7 @@ osm_madw_t *osm_mad_pool_get_wrapper_raw(IN osm_mad_pool_t * const p_pool)
 
 /**********************************************************************
  **********************************************************************/
-void
-osm_mad_pool_put(IN osm_mad_pool_t * const p_pool, IN osm_madw_t * const p_madw)
+void osm_mad_pool_put(IN osm_mad_pool_t * p_pool, IN osm_madw_t * p_madw)
 {
 	CL_ASSERT(p_madw);
 

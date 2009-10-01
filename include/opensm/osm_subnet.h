@@ -651,7 +651,7 @@ typedef struct osm_subn {
 *
 * SYNOPSIS
 */
-void osm_subn_construct(IN osm_subn_t * const p_subn);
+void osm_subn_construct(IN osm_subn_t * p_subn);
 /*
 * PARAMETERS
 *	p_subn
@@ -680,7 +680,7 @@ void osm_subn_construct(IN osm_subn_t * const p_subn);
 *
 * SYNOPSIS
 */
-void osm_subn_destroy(IN osm_subn_t * const p_subn);
+void osm_subn_destroy(IN osm_subn_t * p_subn);
 /*
 * PARAMETERS
 *	p_subn
@@ -708,10 +708,9 @@ void osm_subn_destroy(IN osm_subn_t * const p_subn);
 *
 * SYNOPSIS
 */
-ib_api_status_t
-osm_subn_init(IN osm_subn_t * const p_subn,
-	      IN struct osm_opensm *const p_osm,
-	      IN const osm_subn_opt_t * const p_opt);
+ib_api_status_t osm_subn_init(IN osm_subn_t * p_subn,
+			      IN struct osm_opensm *p_osm,
+			      IN const osm_subn_opt_t * p_opt);
 /*
 * PARAMETERS
 *	p_subn
@@ -752,11 +751,10 @@ struct osm_mgrp;
 *
 * SYNOPSIS
 */
-ib_api_status_t
-osm_get_gid_by_mad_addr(IN struct osm_log *p_log,
-			IN const osm_subn_t * p_subn,
-			IN struct osm_mad_addr *p_mad_addr,
-			OUT ib_gid_t * p_gid);
+ib_api_status_t osm_get_gid_by_mad_addr(IN struct osm_log *p_log,
+					IN const osm_subn_t * p_subn,
+					IN struct osm_mad_addr *p_mad_addr,
+					OUT ib_gid_t * p_gid);
 /*
 * PARAMETERS
 *	p_log
@@ -860,7 +858,7 @@ struct osm_port *osm_get_port_by_mad_addr(IN struct osm_log *p_log,
 * SYNOPSIS
 */
 struct osm_switch *osm_get_switch_by_guid(IN const osm_subn_t * p_subn,
-					   IN uint64_t guid);
+					  IN uint64_t guid);
 /*
 * PARAMETERS
 *	p_subn
@@ -889,7 +887,7 @@ struct osm_switch *osm_get_switch_by_guid(IN const osm_subn_t * p_subn,
 * SYNOPSIS
 */
 struct osm_node *osm_get_node_by_guid(IN osm_subn_t const *p_subn,
-				       IN uint64_t guid);
+				      IN uint64_t guid);
 /*
 * PARAMETERS
 *	p_subn
@@ -918,7 +916,7 @@ struct osm_node *osm_get_node_by_guid(IN osm_subn_t const *p_subn,
 * SYNOPSIS
 */
 struct osm_port *osm_get_port_by_guid(IN osm_subn_t const *p_subn,
-				       IN ib_net64_t guid);
+				      IN ib_net64_t guid);
 /*
 * PARAMETERS
 *	p_subn
@@ -1032,7 +1030,7 @@ struct osm_physp *osm_get_physp_by_mad_addr(IN struct osm_log *p_log,
 *
 * SYNOPSIS
 */
-void osm_subn_set_default_opt(IN osm_subn_opt_t * const p_opt);
+void osm_subn_set_default_opt(IN osm_subn_opt_t * p_opt);
 /*
 * PARAMETERS
 *
@@ -1058,7 +1056,7 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * const p_opt);
 *
 * SYNOPSIS
 */
-int osm_subn_parse_conf_file(char *conf_file, osm_subn_opt_t * const p_opt);
+int osm_subn_parse_conf_file(char *conf_file, osm_subn_opt_t * p_opt);
 /*
 * PARAMETERS
 *
@@ -1080,7 +1078,7 @@ int osm_subn_parse_conf_file(char *conf_file, osm_subn_opt_t * const p_opt);
 *
 * SYNOPSIS
 */
-int osm_subn_rescan_conf_files(IN osm_subn_t * const p_subn);
+int osm_subn_rescan_conf_files(IN osm_subn_t * p_subn);
 /*
 * PARAMETERS
 *
@@ -1102,7 +1100,7 @@ int osm_subn_rescan_conf_files(IN osm_subn_t * const p_subn);
 *
 * SYNOPSIS
 */
-int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * const p_opt);
+int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opt);
 /*
 * PARAMETERS
 *
@@ -1125,7 +1123,7 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * const p_opt);
 *
 * SYNOPSIS
 */
-int osm_subn_write_conf_file(char *file_name, IN osm_subn_opt_t * const p_opt);
+int osm_subn_write_conf_file(char *file_name, IN osm_subn_opt_t * p_opt);
 /*
 * PARAMETERS
 *
@@ -1139,7 +1137,7 @@ int osm_subn_write_conf_file(char *file_name, IN osm_subn_opt_t * const p_opt);
 *	Assumes the conf file is part of the cache dir which defaults to
 *	OSM_DEFAULT_CACHE_DIR or OSM_CACHE_DIR the name is opensm.opts
 *********/
-int osm_subn_verify_config(osm_subn_opt_t * const p_opt);
+int osm_subn_verify_config(osm_subn_opt_t * p_opt);
 
 END_C_DECLS
 #endif				/* _OSM_SUBNET_H_ */

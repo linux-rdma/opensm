@@ -51,8 +51,8 @@
 
 /**********************************************************************
  **********************************************************************/
-void osm_node_init_physp(IN osm_node_t * const p_node, uint8_t port_num,
-			 IN const osm_madw_t * const p_madw)
+void osm_node_init_physp(IN osm_node_t * p_node, uint8_t port_num,
+			 IN const osm_madw_t * p_madw)
 {
 	ib_net64_t port_guid;
 	ib_smp_t *p_smp;
@@ -73,7 +73,7 @@ void osm_node_init_physp(IN osm_node_t * const p_node, uint8_t port_num,
 
 /**********************************************************************
  **********************************************************************/
-osm_node_t *osm_node_new(IN const osm_madw_t * const p_madw)
+osm_node_t *osm_node_new(IN const osm_madw_t * p_madw)
 {
 	osm_node_t *p_node;
 	ib_smp_t *p_smp;
@@ -145,7 +145,7 @@ static void osm_node_destroy(IN osm_node_t * p_node)
 
 /**********************************************************************
  **********************************************************************/
-void osm_node_delete(IN OUT osm_node_t ** const p_node)
+void osm_node_delete(IN OUT osm_node_t ** p_node)
 {
 	CL_ASSERT(p_node && *p_node);
 	osm_node_destroy(*p_node);
@@ -155,11 +155,8 @@ void osm_node_delete(IN OUT osm_node_t ** const p_node)
 
 /**********************************************************************
  **********************************************************************/
-void
-osm_node_link(IN osm_node_t * const p_node,
-	      IN const uint8_t port_num,
-	      IN osm_node_t * const p_remote_node,
-	      IN const uint8_t remote_port_num)
+void osm_node_link(IN osm_node_t * p_node, IN uint8_t port_num,
+		   IN osm_node_t * p_remote_node, IN uint8_t remote_port_num)
 {
 	osm_physp_t *p_physp;
 	osm_physp_t *p_remote_physp;
@@ -180,11 +177,8 @@ osm_node_link(IN osm_node_t * const p_node,
 
 /**********************************************************************
  **********************************************************************/
-void
-osm_node_unlink(IN osm_node_t * const p_node,
-		IN const uint8_t port_num,
-		IN osm_node_t * const p_remote_node,
-		IN const uint8_t remote_port_num)
+void osm_node_unlink(IN osm_node_t * p_node, IN uint8_t port_num,
+		     IN osm_node_t * p_remote_node, IN uint8_t remote_port_num)
 {
 	osm_physp_t *p_physp;
 	osm_physp_t *p_remote_physp;
@@ -205,11 +199,9 @@ osm_node_unlink(IN osm_node_t * const p_node,
 
 /**********************************************************************
  **********************************************************************/
-boolean_t
-osm_node_link_exists(IN osm_node_t * const p_node,
-		     IN const uint8_t port_num,
-		     IN osm_node_t * const p_remote_node,
-		     IN const uint8_t remote_port_num)
+boolean_t osm_node_link_exists(IN osm_node_t * p_node, IN uint8_t port_num,
+			       IN osm_node_t * p_remote_node,
+			       IN uint8_t remote_port_num)
 {
 	osm_physp_t *p_physp;
 	osm_physp_t *p_remote_physp;
@@ -225,11 +217,10 @@ osm_node_link_exists(IN osm_node_t * const p_node,
 
 /**********************************************************************
  **********************************************************************/
-boolean_t
-osm_node_link_has_valid_ports(IN osm_node_t * const p_node,
-			      IN const uint8_t port_num,
-			      IN osm_node_t * const p_remote_node,
-			      IN const uint8_t remote_port_num)
+boolean_t osm_node_link_has_valid_ports(IN osm_node_t * p_node,
+					IN uint8_t port_num,
+					IN osm_node_t * p_remote_node,
+					IN uint8_t remote_port_num)
 {
 	osm_physp_t *p_physp;
 	osm_physp_t *p_remote_physp;
@@ -245,8 +236,7 @@ osm_node_link_has_valid_ports(IN osm_node_t * const p_node,
 
 /**********************************************************************
  **********************************************************************/
-boolean_t
-osm_node_has_any_link(IN osm_node_t * const p_node, IN const uint8_t port_num)
+boolean_t osm_node_has_any_link(IN osm_node_t * p_node, IN uint8_t port_num)
 {
 	osm_physp_t *p_physp;
 	CL_ASSERT(port_num < p_node->physp_tbl_size);
@@ -256,8 +246,8 @@ osm_node_has_any_link(IN osm_node_t * const p_node, IN const uint8_t port_num)
 
 /**********************************************************************
  **********************************************************************/
-osm_node_t *osm_node_get_remote_node(IN osm_node_t * const p_node,
-				     IN const uint8_t port_num,
+osm_node_t *osm_node_get_remote_node(IN osm_node_t * p_node,
+				     IN uint8_t port_num,
 				     OUT uint8_t * p_remote_port_num)
 {
 	osm_physp_t *p_physp;
@@ -278,9 +268,8 @@ osm_node_t *osm_node_get_remote_node(IN osm_node_t * const p_node,
 /**********************************************************************
  The lock must be held before calling this function.
 **********************************************************************/
-ib_net16_t
-osm_node_get_remote_base_lid(IN osm_node_t * const p_node,
-			     IN const uint32_t port_num)
+ib_net16_t osm_node_get_remote_base_lid(IN osm_node_t * p_node,
+					IN uint32_t port_num)
 {
 	osm_physp_t *p_physp;
 	osm_physp_t *p_remote_physp;

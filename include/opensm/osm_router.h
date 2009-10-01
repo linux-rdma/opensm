@@ -116,7 +116,7 @@ typedef struct osm_router {
 *
 * SYNOPSIS
 */
-void osm_router_delete(IN OUT osm_router_t ** const pp_rtr);
+void osm_router_delete(IN OUT osm_router_t ** pp_rtr);
 /*
 * PARAMETERS
 *	p_rtr
@@ -140,7 +140,7 @@ void osm_router_delete(IN OUT osm_router_t ** const pp_rtr);
 *
 * SYNOPSIS
 */
-osm_router_t *osm_router_new(IN osm_port_t * const p_port);
+osm_router_t *osm_router_new(IN osm_port_t * p_port);
 /*
 * PARAMETERS
 *	p_node
@@ -164,10 +164,9 @@ osm_router_t *osm_router_new(IN osm_port_t * const p_port);
 *
 * SYNOPSIS
 */
-static inline osm_port_t *osm_router_get_port_ptr(IN const osm_router_t *
-						  const p_rtr)
+static inline osm_port_t *osm_router_get_port_ptr(IN const osm_router_t * p_rtr)
 {
-	return (p_rtr->p_port);
+	return p_rtr->p_port;
 }
 
 /*
@@ -193,10 +192,9 @@ static inline osm_port_t *osm_router_get_port_ptr(IN const osm_router_t *
 *
 * SYNOPSIS
 */
-static inline osm_node_t *osm_router_get_node_ptr(IN const osm_router_t *
-						  const p_rtr)
+static inline osm_node_t *osm_router_get_node_ptr(IN const osm_router_t * p_rtr)
 {
-	return (p_rtr->p_port->p_node);
+	return p_rtr->p_port->p_node;
 }
 
 /*

@@ -114,9 +114,8 @@ typedef struct osm_mcast_fwdbl {
 *
 * SYNOPSIS
 */
-ib_api_status_t
-osm_mcast_tbl_init(IN osm_mcast_tbl_t * const p_tbl,
-		   IN uint8_t const num_ports, IN uint16_t const capacity);
+ib_api_status_t osm_mcast_tbl_init(IN osm_mcast_tbl_t * p_tbl,
+				   IN uint8_t num_ports, IN uint16_t capacity);
 /*
 * PARAMETERS
 *	num_ports
@@ -143,7 +142,7 @@ osm_mcast_tbl_init(IN osm_mcast_tbl_t * const p_tbl,
 *
 * SYNOPSIS
 */
-void osm_mcast_tbl_delete(IN osm_mcast_tbl_t ** const pp_tbl);
+void osm_mcast_tbl_delete(IN osm_mcast_tbl_t ** pp_tbl);
 /*
 * PARAMETERS
 *	pp_tbl
@@ -168,7 +167,7 @@ void osm_mcast_tbl_delete(IN osm_mcast_tbl_t ** const pp_tbl);
 *
 * SYNOPSIS
 */
-void osm_mcast_tbl_destroy(IN osm_mcast_tbl_t * const p_tbl);
+void osm_mcast_tbl_destroy(IN osm_mcast_tbl_t * p_tbl);
 /*
 * PARAMETERS
 *	p_tbl
@@ -191,9 +190,8 @@ void osm_mcast_tbl_destroy(IN osm_mcast_tbl_t * const p_tbl);
 *
 * SYNOPSIS
 */
-void
-osm_mcast_tbl_set(IN osm_mcast_tbl_t * const p_tbl,
-		  IN const uint16_t mlid_ho, IN const uint8_t port_num);
+void osm_mcast_tbl_set(IN osm_mcast_tbl_t * p_tbl, IN uint16_t mlid_ho,
+		       IN uint8_t port_num);
 /*
 * PARAMETERS
 *	p_tbl
@@ -222,9 +220,7 @@ osm_mcast_tbl_set(IN osm_mcast_tbl_t * const p_tbl,
 *
 * SYNOPSIS
 */
-void
-osm_mcast_tbl_clear_mlid(IN osm_mcast_tbl_t * const p_tbl,
-			 IN const uint16_t mlid_ho);
+void osm_mcast_tbl_clear_mlid(IN osm_mcast_tbl_t * p_tbl, IN uint16_t mlid_ho);
 /*
 * PARAMETERS
 *	p_tbl
@@ -250,9 +246,8 @@ osm_mcast_tbl_clear_mlid(IN osm_mcast_tbl_t * const p_tbl,
 *
 * SYNOPSIS
 */
-boolean_t
-osm_mcast_tbl_is_port(IN const osm_mcast_tbl_t * const p_tbl,
-		      IN const uint16_t mlid_ho, IN const uint8_t port_num);
+boolean_t osm_mcast_tbl_is_port(IN const osm_mcast_tbl_t * p_tbl,
+				IN uint16_t mlid_ho, IN uint8_t port_num);
 /*
 * PARAMETERS
 *	p_tbl
@@ -281,9 +276,8 @@ osm_mcast_tbl_is_port(IN const osm_mcast_tbl_t * const p_tbl,
 *
 * SYNOPSIS
 */
-boolean_t
-osm_mcast_tbl_is_any_port(IN const osm_mcast_tbl_t * const p_tbl,
-			  IN const uint16_t mlid_ho);
+boolean_t osm_mcast_tbl_is_any_port(IN const osm_mcast_tbl_t * p_tbl,
+				    IN uint16_t mlid_ho);
 /*
 * PARAMETERS
 *	p_tbl
@@ -309,10 +303,10 @@ osm_mcast_tbl_is_any_port(IN const osm_mcast_tbl_t * const p_tbl,
 *
 * SYNOPSIS
 */
-ib_api_status_t
-osm_mcast_tbl_set_block(IN osm_mcast_tbl_t * const p_tbl,
-			IN const ib_net16_t * const p_block,
-			IN const int16_t block_num, IN const uint8_t position);
+ib_api_status_t osm_mcast_tbl_set_block(IN osm_mcast_tbl_t * p_tbl,
+					IN const ib_net16_t * p_block,
+					IN int16_t block_num,
+					IN uint8_t position);
 /*
 * PARAMETERS
 *	p_tbl
@@ -341,11 +335,9 @@ osm_mcast_tbl_set_block(IN osm_mcast_tbl_t * const p_tbl,
 *
 * SYNOPSIS
 */
-boolean_t
-osm_mcast_tbl_get_block(IN osm_mcast_tbl_t * const p_tbl,
-			IN const int16_t block_num,
-			IN const uint8_t position,
-			OUT ib_net16_t * const p_block);
+boolean_t osm_mcast_tbl_get_block(IN osm_mcast_tbl_t * p_tbl,
+				  IN int16_t block_num, IN uint8_t position,
+				  OUT ib_net16_t * p_block);
 /*
 * PARAMETERS
 *	p_tbl
@@ -380,10 +372,9 @@ osm_mcast_tbl_get_block(IN osm_mcast_tbl_t * const p_tbl,
 *
 * SYNOPSIS
 */
-static inline uint16_t
-osm_mcast_tbl_get_max_block(IN osm_mcast_tbl_t * const p_tbl)
+static inline uint16_t osm_mcast_tbl_get_max_block(IN osm_mcast_tbl_t * p_tbl)
 {
-	return (p_tbl->max_block);
+	return p_tbl->max_block;
 }
 
 /*
@@ -410,7 +401,7 @@ osm_mcast_tbl_get_max_block(IN osm_mcast_tbl_t * const p_tbl)
 * SYNOPSIS
 */
 static inline int16_t
-osm_mcast_tbl_get_max_block_in_use(IN osm_mcast_tbl_t * const p_tbl)
+osm_mcast_tbl_get_max_block_in_use(IN osm_mcast_tbl_t * p_tbl)
 {
 	return (p_tbl->max_block_in_use);
 }
@@ -439,7 +430,7 @@ osm_mcast_tbl_get_max_block_in_use(IN osm_mcast_tbl_t * const p_tbl)
 * SYNOPSIS
 */
 static inline uint8_t
-osm_mcast_tbl_get_max_position(IN osm_mcast_tbl_t * const p_tbl)
+osm_mcast_tbl_get_max_position(IN osm_mcast_tbl_t * p_tbl)
 {
 	return (p_tbl->max_position);
 }

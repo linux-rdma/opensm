@@ -107,7 +107,7 @@ typedef struct osm_dr_path {
 *
 * SYNOPSIS
 */
-static inline void osm_dr_path_construct(IN osm_dr_path_t * const p_path)
+static inline void osm_dr_path_construct(IN osm_dr_path_t * p_path)
 {
 	/* The first location in the path array is reserved. */
 	memset(p_path, 0, sizeof(*p_path));
@@ -146,9 +146,8 @@ static inline void osm_dr_path_construct(IN osm_dr_path_t * const p_path)
 * SYNOPSIS
 */
 static inline void
-osm_dr_path_init(IN osm_dr_path_t * const p_path,
-		 IN const osm_bind_handle_t h_bind,
-		 IN const uint8_t hop_count,
+osm_dr_path_init(IN osm_dr_path_t * p_path, IN osm_bind_handle_t h_bind,
+		 IN uint8_t hop_count,
 		 IN const uint8_t path[IB_SUBNET_PATH_HOPS_MAX])
 {
 	/* The first location in the path array is reserved. */
@@ -189,8 +188,8 @@ osm_dr_path_init(IN osm_dr_path_t * const p_path,
 *
 * SYNOPSIS
 */
-static inline int
-osm_dr_path_extend(IN osm_dr_path_t * const p_path, IN const uint8_t port_num)
+static inline int osm_dr_path_extend(IN osm_dr_path_t * p_path,
+				     IN uint8_t port_num)
 {
 	p_path->hop_count++;
 
@@ -230,9 +229,9 @@ osm_dr_path_extend(IN osm_dr_path_t * const p_path, IN const uint8_t port_num)
 * SYNOPSIS
 */
 static inline osm_bind_handle_t
-osm_dr_path_get_bind_handle(IN const osm_dr_path_t * const p_path)
+osm_dr_path_get_bind_handle(IN const osm_dr_path_t * p_path)
 {
-	return (p_path->h_bind);
+	return p_path->h_bind;
 }
 
 /*

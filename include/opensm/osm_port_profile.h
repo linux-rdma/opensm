@@ -129,7 +129,7 @@ typedef long osm_port_mask_t[32 / sizeof(long)];
 *
 * SYNOPSIS
 */
-static inline void osm_port_prof_construct(IN osm_port_profile_t * const p_prof)
+static inline void osm_port_prof_construct(IN osm_port_profile_t * p_prof)
 {
 	CL_ASSERT(p_prof);
 	memset(p_prof, 0, sizeof(*p_prof));
@@ -157,8 +157,7 @@ static inline void osm_port_prof_construct(IN osm_port_profile_t * const p_prof)
 *
 * SYNOPSIS
 */
-static inline void
-osm_port_prof_path_count_inc(IN osm_port_profile_t * const p_prof)
+static inline void osm_port_prof_path_count_inc(IN osm_port_profile_t * p_prof)
 {
 	CL_ASSERT(p_prof);
 	p_prof->num_paths++;
@@ -186,9 +185,9 @@ osm_port_prof_path_count_inc(IN osm_port_profile_t * const p_prof)
 * SYNOPSIS
 */
 static inline uint32_t
-osm_port_prof_path_count_get(IN const osm_port_profile_t * const p_prof)
+osm_port_prof_path_count_get(IN const osm_port_profile_t * p_prof)
 {
-	return (p_prof->num_paths);
+	return p_prof->num_paths;
 }
 /*
 * PARAMETERS

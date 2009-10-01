@@ -246,7 +246,7 @@ typedef struct osm_opensm {
 *
 * SYNOPSIS
 */
-void osm_opensm_construct(IN osm_opensm_t * const p_osm);
+void osm_opensm_construct(IN osm_opensm_t * p_osm);
 /*
 * PARAMETERS
 *	p_osm
@@ -275,7 +275,7 @@ void osm_opensm_construct(IN osm_opensm_t * const p_osm);
 *
 * SYNOPSIS
 */
-void osm_opensm_destroy(IN osm_opensm_t * const p_osm);
+void osm_opensm_destroy(IN osm_opensm_t * p_osm);
 /*
 * PARAMETERS
 *	p_osm
@@ -303,9 +303,8 @@ void osm_opensm_destroy(IN osm_opensm_t * const p_osm);
 *
 * SYNOPSIS
 */
-ib_api_status_t
-osm_opensm_init(IN osm_opensm_t * const p_osm,
-		IN const osm_subn_opt_t * const p_opt);
+ib_api_status_t osm_opensm_init(IN osm_opensm_t * p_osm,
+				IN const osm_subn_opt_t * p_opt);
 /*
 * PARAMETERS
 *	p_osm
@@ -333,7 +332,7 @@ osm_opensm_init(IN osm_opensm_t * const p_osm,
 *
 * SYNOPSIS
 */
-static inline void osm_opensm_sweep(IN osm_opensm_t * const p_osm)
+static inline void osm_opensm_sweep(IN osm_opensm_t * p_osm)
 {
 	osm_sm_sweep(&p_osm->sm);
 }
@@ -363,9 +362,8 @@ static inline void osm_opensm_sweep(IN osm_opensm_t * const p_osm)
 *
 * SYNOPSIS
 */
-static inline void
-osm_opensm_set_log_flags(IN osm_opensm_t * const p_osm,
-			 IN const osm_log_level_t log_flags)
+static inline void osm_opensm_set_log_flags(IN osm_opensm_t * p_osm,
+					    IN osm_log_level_t log_flags)
 {
 	osm_log_set_level(&p_osm->log, log_flags);
 }
@@ -395,8 +393,7 @@ osm_opensm_set_log_flags(IN osm_opensm_t * const p_osm,
 *
 * SYNOPSIS
 */
-ib_api_status_t
-osm_opensm_bind(IN osm_opensm_t * const p_osm, IN const ib_net64_t guid);
+ib_api_status_t osm_opensm_bind(IN osm_opensm_t * p_osm, IN ib_net64_t guid);
 /*
 * PARAMETERS
 *	p_osm
@@ -424,11 +421,10 @@ osm_opensm_bind(IN osm_opensm_t * const p_osm, IN const ib_net64_t guid);
 * SYNOPSIS
 */
 static inline cl_status_t
-osm_opensm_wait_for_subnet_up(IN osm_opensm_t * const p_osm,
-			      IN uint32_t const wait_us,
-			      IN boolean_t const interruptible)
+osm_opensm_wait_for_subnet_up(IN osm_opensm_t * p_osm, IN uint32_t wait_us,
+			      IN boolean_t interruptible)
 {
-	return (osm_sm_wait_for_subnet_up(&p_osm->sm, wait_us, interruptible));
+	return osm_sm_wait_for_subnet_up(&p_osm->sm, wait_us, interruptible);
 }
 
 /*

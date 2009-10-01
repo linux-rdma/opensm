@@ -106,14 +106,14 @@ typedef struct osm_lid_mgr_range {
 
 /**********************************************************************
  **********************************************************************/
-void osm_lid_mgr_construct(IN osm_lid_mgr_t * const p_mgr)
+void osm_lid_mgr_construct(IN osm_lid_mgr_t * p_mgr)
 {
 	memset(p_mgr, 0, sizeof(*p_mgr));
 }
 
 /**********************************************************************
  **********************************************************************/
-void osm_lid_mgr_destroy(IN osm_lid_mgr_t * const p_mgr)
+void osm_lid_mgr_destroy(IN osm_lid_mgr_t * p_mgr)
 {
 	cl_list_item_t *p_item;
 
@@ -224,7 +224,7 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-ib_api_status_t osm_lid_mgr_init(IN osm_lid_mgr_t * const p_mgr, IN osm_sm_t * sm)
+ib_api_status_t osm_lid_mgr_init(IN osm_lid_mgr_t * p_mgr, IN osm_sm_t * sm)
 {
 	ib_api_status_t status = IB_SUCCESS;
 
@@ -585,11 +585,11 @@ AfterScanningLids:
  check if the given range of lids is free
 **********************************************************************/
 static boolean_t lid_mgr_is_range_not_persistent(IN osm_lid_mgr_t * p_mgr,
-						 IN const uint16_t lid,
-						 IN const uint16_t num_lids)
+						 IN uint16_t lid,
+						 IN uint16_t num_lids)
 {
 	uint16_t i;
-	const uint8_t start_lid = (uint8_t) (1 << p_mgr->p_subn->opt.lmc);
+	uint8_t start_lid = (uint8_t) (1 << p_mgr->p_subn->opt.lmc);
 
 	if (lid < start_lid)
 		return FALSE;
@@ -605,7 +605,7 @@ static boolean_t lid_mgr_is_range_not_persistent(IN osm_lid_mgr_t * p_mgr,
 find a free lid range
 **********************************************************************/
 static void lid_mgr_find_free_lid_range(IN osm_lid_mgr_t * p_mgr,
-					IN const uint8_t num_lids,
+					IN uint8_t num_lids,
 					OUT uint16_t * p_min_lid,
 					OUT uint16_t * p_max_lid)
 {
@@ -823,8 +823,7 @@ static void lid_mgr_set_remote_pi_state_to_init(IN osm_lid_mgr_t * p_mgr,
  **********************************************************************/
 static int lid_mgr_set_physp_pi(IN osm_lid_mgr_t * p_mgr,
 				IN osm_port_t * p_port,
-				IN osm_physp_t * p_physp,
-				IN ib_net16_t const lid)
+				IN osm_physp_t * p_physp, IN ib_net16_t lid)
 {
 	uint8_t payload[IB_SMP_DATA_SIZE];
 	ib_port_info_t *p_pi = (ib_port_info_t *) payload;
@@ -1145,7 +1144,7 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-int osm_lid_mgr_process_sm(IN osm_lid_mgr_t * const p_mgr)
+int osm_lid_mgr_process_sm(IN osm_lid_mgr_t * p_mgr)
 {
 	int ret;
 
@@ -1173,7 +1172,7 @@ int osm_lid_mgr_process_sm(IN osm_lid_mgr_t * const p_mgr)
  1.2 if a change is required send the port info
  2 if any change send the signal PENDING...
 **********************************************************************/
-int osm_lid_mgr_process_subnet(IN osm_lid_mgr_t * const p_mgr)
+int osm_lid_mgr_process_subnet(IN osm_lid_mgr_t * p_mgr)
 {
 	cl_qmap_t *p_port_guid_tbl;
 	osm_port_t *p_port;

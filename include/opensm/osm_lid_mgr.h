@@ -143,7 +143,7 @@ typedef struct osm_lid_mgr {
 *
 * SYNOPSIS
 */
-void osm_lid_mgr_construct(IN osm_lid_mgr_t * const p_mgr);
+void osm_lid_mgr_construct(IN osm_lid_mgr_t * p_mgr);
 /*
 * PARAMETERS
 *	p_mgr
@@ -173,7 +173,7 @@ void osm_lid_mgr_construct(IN osm_lid_mgr_t * const p_mgr);
 *
 * SYNOPSIS
 */
-void osm_lid_mgr_destroy(IN osm_lid_mgr_t * const p_mgr);
+void osm_lid_mgr_destroy(IN osm_lid_mgr_t * p_mgr);
 /*
 * PARAMETERS
 *	p_mgr
@@ -205,7 +205,7 @@ void osm_lid_mgr_destroy(IN osm_lid_mgr_t * const p_mgr);
 * SYNOPSIS
 */
 ib_api_status_t
-osm_lid_mgr_init(IN osm_lid_mgr_t * const p_mgr, IN struct osm_sm * sm);
+osm_lid_mgr_init(IN osm_lid_mgr_t * p_mgr, IN struct osm_sm * sm);
 /*
 * PARAMETERS
 *	p_mgr
@@ -235,7 +235,7 @@ osm_lid_mgr_init(IN osm_lid_mgr_t * const p_mgr, IN struct osm_sm * sm);
 *
 * SYNOPSIS
 */
-int osm_lid_mgr_process_sm(IN osm_lid_mgr_t * const p_mgr);
+int osm_lid_mgr_process_sm(IN osm_lid_mgr_t * p_mgr);
 /*
 * PARAMETERS
 *	p_mgr
@@ -260,7 +260,7 @@ int osm_lid_mgr_process_sm(IN osm_lid_mgr_t * const p_mgr);
 *
 * SYNOPSIS
 */
-int osm_lid_mgr_process_subnet(IN osm_lid_mgr_t * const p_mgr);
+int osm_lid_mgr_process_subnet(IN osm_lid_mgr_t * p_mgr);
 /*
 * PARAMETERS
 *	p_mgr

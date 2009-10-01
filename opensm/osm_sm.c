@@ -92,7 +92,7 @@ static void sm_process(osm_sm_t * sm, osm_signal_t signal)
 static void sm_sweeper(IN void *p_ptr)
 {
 	ib_api_status_t status;
-	osm_sm_t *const p_sm = (osm_sm_t *) p_ptr;
+	osm_sm_t * p_sm = p_ptr;
 	unsigned signals, i;
 
 	OSM_LOG_ENTER(p_sm->p_log);
@@ -420,7 +420,7 @@ void osm_sm_sweep(IN osm_sm_t * p_sm)
 
 /**********************************************************************
  **********************************************************************/
-ib_api_status_t osm_sm_bind(IN osm_sm_t * p_sm, IN const ib_net64_t port_guid)
+ib_api_status_t osm_sm_bind(IN osm_sm_t * p_sm, IN ib_net64_t port_guid)
 {
 	ib_api_status_t status;
 

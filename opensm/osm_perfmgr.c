@@ -242,7 +242,7 @@ Exit:
 /**********************************************************************
  * Bind the PerfMgr to the vendor layer for MAD sends/receives
  **********************************************************************/
-ib_api_status_t osm_perfmgr_bind(osm_perfmgr_t * pm, const ib_net64_t port_guid)
+ib_api_status_t osm_perfmgr_bind(osm_perfmgr_t * pm, ib_net64_t port_guid)
 {
 	osm_bind_info_t bind_info;
 	ib_api_status_t status = IB_SUCCESS;

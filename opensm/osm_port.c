@@ -87,9 +87,9 @@ void osm_physp_destroy(IN osm_physp_t * p_physp)
 
 /**********************************************************************
  **********************************************************************/
-void osm_physp_init(IN osm_physp_t * p_physp, IN const ib_net64_t port_guid,
-		    IN uint8_t port_num, IN const struct osm_node *const p_node,
-		    IN const osm_bind_handle_t h_bind, IN uint8_t hop_count,
+void osm_physp_init(IN osm_physp_t * p_physp, IN ib_net64_t port_guid,
+		    IN uint8_t port_num, IN const struct osm_node *p_node,
+		    IN osm_bind_handle_t h_bind, IN uint8_t hop_count,
 		    IN const uint8_t * p_initial_path)
 {
 	uint16_t num_slvl, i;

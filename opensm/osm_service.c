@@ -49,16 +49,15 @@
 
 /**********************************************************************
  **********************************************************************/
-void osm_svcr_delete(IN osm_svcr_t * const p_svcr)
+void osm_svcr_delete(IN osm_svcr_t * p_svcr)
 {
 	free(p_svcr);
 }
 
 /**********************************************************************
  **********************************************************************/
-void
-osm_svcr_init(IN osm_svcr_t * const p_svcr,
-	      IN const ib_service_record_t * p_svc_rec)
+void osm_svcr_init(IN osm_svcr_t * p_svcr,
+		   IN const ib_service_record_t * p_svc_rec)
 {
 	CL_ASSERT(p_svcr);
 
@@ -85,47 +84,38 @@ osm_svcr_t *osm_svcr_new(IN const ib_service_record_t * p_svc_rec)
 		osm_svcr_init(p_svcr, p_svc_rec);
 	}
 
-	return (p_svcr);
+	return p_svcr;
 }
 
 /**********************************************************************
  **********************************************************************/
-static
-    cl_status_t
-match_rid_of_svc_rec(IN const cl_list_item_t * const p_list_item,
-		     IN void *context)
+static cl_status_t match_rid_of_svc_rec(IN const cl_list_item_t * p_list_item,
+					IN void *context)
 {
 	ib_service_record_t *p_svc_rec = (ib_service_record_t *) context;
 	osm_svcr_t *p_svcr = (osm_svcr_t *) p_list_item;
-	int32_t count;
 
-	count = memcmp(&p_svcr->service_record,
-		       p_svc_rec,
-		       sizeof(p_svc_rec->service_id) +
-		       sizeof(p_svc_rec->service_gid) +
-		       sizeof(p_svc_rec->service_pkey));
-
-	if (count == 0)
-		return CL_SUCCESS;
-	else
+	if (memcmp(&p_svcr->service_record, p_svc_rec,
+		   sizeof(p_svc_rec->service_id) +
+		   sizeof(p_svc_rec->service_gid) +
+		   sizeof(p_svc_rec->service_pkey)))
 		return CL_NOT_FOUND;
-
+	else
+		return CL_SUCCESS;
 }
 
 /**********************************************************************
  **********************************************************************/
 osm_svcr_t *osm_svcr_get_by_rid(IN osm_subn_t const *p_subn,
 				IN osm_log_t * p_log,
-				IN ib_service_record_t * const p_svc_rec)
+				IN ib_service_record_t * p_svc_rec)
 {
 	cl_list_item_t *p_list_item;
 
 	OSM_LOG_ENTER(p_log);
 
 	p_list_item = cl_qlist_find_from_head(&p_subn->sa_sr_list,
-					      match_rid_of_svc_rec,
-					      p_svc_rec);
-
+					      match_rid_of_svc_rec, p_svc_rec);
 	if (p_list_item == cl_qlist_end(&p_subn->sa_sr_list))
 		p_list_item = NULL;
 
@@ -135,9 +125,8 @@ osm_svcr_t *osm_svcr_get_by_rid(IN osm_subn_t const *p_subn,
 
 /**********************************************************************
  **********************************************************************/
-void
-osm_svcr_insert_to_db(IN osm_subn_t * p_subn,
-		      IN osm_log_t * p_log, IN osm_svcr_t * p_svcr)
+void osm_svcr_insert_to_db(IN osm_subn_t * p_subn, IN osm_log_t * p_log,
+			   IN osm_svcr_t * p_svcr)
 {
 	OSM_LOG_ENTER(p_log);
 
@@ -149,9 +138,8 @@ osm_svcr_insert_to_db(IN osm_subn_t * p_subn,
 	OSM_LOG_EXIT(p_log);
 }
 
-void
-osm_svcr_remove_from_db(IN osm_subn_t * p_subn,
-			IN osm_log_t * p_log, IN osm_svcr_t * p_svcr)
+void osm_svcr_remove_from_db(IN osm_subn_t * p_subn, IN osm_log_t * p_log,
+			     IN osm_svcr_t * p_svcr)
 {
 	OSM_LOG_ENTER(p_log);
 

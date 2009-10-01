@@ -303,7 +303,7 @@ static boolean_t match_pkey(IN const ib_net16_t * pkey1,
  **********************************************************************/
 boolean_t osm_physp_share_this_pkey(IN const osm_physp_t * p_physp1,
 				    IN const osm_physp_t * p_physp2,
-				    IN const ib_net16_t pkey)
+				    IN ib_net16_t pkey)
 {
 	ib_net16_t *pkey1, *pkey2;
 
@@ -417,7 +417,7 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-boolean_t osm_physp_has_pkey(IN osm_log_t * p_log, IN const ib_net16_t pkey,
+boolean_t osm_physp_has_pkey(IN osm_log_t * p_log, IN ib_net16_t pkey,
 			     IN const osm_physp_t * p_physp)
 {
 

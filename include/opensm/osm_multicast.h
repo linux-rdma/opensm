@@ -142,7 +142,7 @@ typedef struct osm_mgrp {
 *
 * SYNOPSIS
 */
-osm_mgrp_t *osm_mgrp_new(IN const ib_net16_t mlid, IN ib_member_rec_t * mcmr);
+osm_mgrp_t *osm_mgrp_new(IN ib_net16_t mlid, IN ib_member_rec_t * mcmr);
 /*
 * PARAMETERS
 *	mlid
@@ -170,7 +170,7 @@ osm_mgrp_t *osm_mgrp_new(IN const ib_net16_t mlid, IN ib_member_rec_t * mcmr);
 *
 * SYNOPSIS
 */
-void osm_mgrp_delete(IN osm_mgrp_t * const p_mgrp);
+void osm_mgrp_delete(IN osm_mgrp_t * p_mgrp);
 /*
 * PARAMETERS
 *	p_mgrp
@@ -194,9 +194,8 @@ void osm_mgrp_delete(IN osm_mgrp_t * const p_mgrp);
 *
 * SYNOPSIS
 */
-static inline boolean_t
-osm_mgrp_is_guid(IN const osm_mgrp_t * const p_mgrp,
-		 IN const ib_net64_t port_guid)
+static inline boolean_t osm_mgrp_is_guid(IN const osm_mgrp_t * p_mgrp,
+					 IN ib_net64_t port_guid)
 {
 	return (cl_qmap_get(&p_mgrp->mcm_port_tbl, port_guid) !=
 		cl_qmap_end(&p_mgrp->mcm_port_tbl));
@@ -229,7 +228,7 @@ osm_mgrp_is_guid(IN const osm_mgrp_t * const p_mgrp,
 *
 * SYNOPSIS
 */
-static inline boolean_t osm_mgrp_is_empty(IN const osm_mgrp_t * const p_mgrp)
+static inline boolean_t osm_mgrp_is_empty(IN const osm_mgrp_t * p_mgrp)
 {
 	return (cl_qmap_count(&p_mgrp->mcm_port_tbl) == 0);
 }
@@ -258,9 +257,9 @@ static inline boolean_t osm_mgrp_is_empty(IN const osm_mgrp_t * const p_mgrp)
 *
 * SYNOPSIS
 */
-static inline ib_net16_t osm_mgrp_get_mlid(IN const osm_mgrp_t * const p_mgrp)
+static inline ib_net16_t osm_mgrp_get_mlid(IN const osm_mgrp_t * p_mgrp)
 {
-	return (p_mgrp->mlid);
+	return p_mgrp->mlid;
 }
 
 /*
@@ -321,8 +320,8 @@ osm_mcm_port_t *osm_mgrp_add_port(osm_subn_t *subn, osm_log_t *log,
 *
 * SYNOPSIS
 */
-osm_mcm_port_t *osm_mgrp_get_mcm_port(IN const osm_mgrp_t * const p_mgrp,
-				      IN const ib_net64_t port_guid);
+osm_mcm_port_t *osm_mgrp_get_mcm_port(IN const osm_mgrp_t * p_mgrp,
+				      IN ib_net64_t port_guid);
 /*
 * PARAMETERS
 *	p_mgrp

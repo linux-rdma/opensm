@@ -146,7 +146,7 @@ typedef struct osm_ucast_mgr {
 *
 * SYNOPSIS
 */
-void osm_ucast_mgr_construct(IN osm_ucast_mgr_t * const p_mgr);
+void osm_ucast_mgr_construct(IN osm_ucast_mgr_t * p_mgr);
 /*
 * PARAMETERS
 *	p_mgr
@@ -176,7 +176,7 @@ void osm_ucast_mgr_construct(IN osm_ucast_mgr_t * const p_mgr);
 *
 * SYNOPSIS
 */
-void osm_ucast_mgr_destroy(IN osm_ucast_mgr_t * const p_mgr);
+void osm_ucast_mgr_destroy(IN osm_ucast_mgr_t * p_mgr);
 /*
 * PARAMETERS
 *	p_mgr
@@ -207,8 +207,8 @@ void osm_ucast_mgr_destroy(IN osm_ucast_mgr_t * const p_mgr);
 *
 * SYNOPSIS
 */
-ib_api_status_t
-osm_ucast_mgr_init(IN osm_ucast_mgr_t * const p_mgr, IN struct osm_sm * sm);
+ib_api_status_t osm_ucast_mgr_init(IN osm_ucast_mgr_t * p_mgr,
+				   IN struct osm_sm * sm);
 /*
 * PARAMETERS
 *	p_mgr
@@ -238,7 +238,7 @@ osm_ucast_mgr_init(IN osm_ucast_mgr_t * const p_mgr, IN struct osm_sm * sm);
 *
 * SYNOPSIS
 */
-void osm_ucast_mgr_set_fwd_tables(IN osm_ucast_mgr_t * const p_mgr);
+void osm_ucast_mgr_set_fwd_tables(IN osm_ucast_mgr_t * p_mgr);
 /*
 * PARAMETERS
 *	p_mgr
@@ -257,7 +257,7 @@ void osm_ucast_mgr_set_fwd_tables(IN osm_ucast_mgr_t * const p_mgr);
 *
 * SYNOPSIS
 */
-int osm_ucast_mgr_build_lid_matrices(IN osm_ucast_mgr_t * const p_mgr);
+int osm_ucast_mgr_build_lid_matrices(IN osm_ucast_mgr_t * p_mgr);
 /*
 * PARAMETERS
 *	p_mgr
@@ -280,7 +280,7 @@ int osm_ucast_mgr_build_lid_matrices(IN osm_ucast_mgr_t * const p_mgr);
 *
 * SYNOPSIS
 */
-int osm_ucast_mgr_process(IN osm_ucast_mgr_t * const p_mgr);
+int osm_ucast_mgr_process(IN osm_ucast_mgr_t * p_mgr);
 /*
 * PARAMETERS
 *	p_mgr

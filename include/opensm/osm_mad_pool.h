@@ -109,7 +109,7 @@ typedef struct osm_mad_pool {
 *
 * SYNOPSIS
 */
-void osm_mad_pool_construct(IN osm_mad_pool_t * const p_pool);
+void osm_mad_pool_construct(IN osm_mad_pool_t * p_pool);
 /*
 * PARAMETERS
 *	p_pool
@@ -138,7 +138,7 @@ void osm_mad_pool_construct(IN osm_mad_pool_t * const p_pool);
 *
 * SYNOPSIS
 */
-void osm_mad_pool_destroy(IN osm_mad_pool_t * const p_pool);
+void osm_mad_pool_destroy(IN osm_mad_pool_t * p_pool);
 /*
 * PARAMETERS
 *	p_pool
@@ -166,7 +166,7 @@ void osm_mad_pool_destroy(IN osm_mad_pool_t * const p_pool);
 *
 * SYNOPSIS
 */
-ib_api_status_t osm_mad_pool_init(IN osm_mad_pool_t * const p_pool);
+ib_api_status_t osm_mad_pool_init(IN osm_mad_pool_t * p_pool);
 /*
 * PARAMETERS
 *	p_pool
@@ -191,10 +191,10 @@ ib_api_status_t osm_mad_pool_init(IN osm_mad_pool_t * const p_pool);
 *
 * SYNOPSIS
 */
-osm_madw_t *osm_mad_pool_get(IN osm_mad_pool_t * const p_pool,
+osm_madw_t *osm_mad_pool_get(IN osm_mad_pool_t * p_pool,
 			     IN osm_bind_handle_t h_bind,
-			     IN const uint32_t total_size,
-			     IN const osm_mad_addr_t * const p_mad_addr);
+			     IN uint32_t total_size,
+			     IN const osm_mad_addr_t * p_mad_addr);
 /*
 * PARAMETERS
 *	p_pool
@@ -235,8 +235,7 @@ osm_madw_t *osm_mad_pool_get(IN osm_mad_pool_t * const p_pool,
 *
 * SYNOPSIS
 */
-void osm_mad_pool_put(IN osm_mad_pool_t * const p_pool,
-		      IN osm_madw_t * const p_madw);
+void osm_mad_pool_put(IN osm_mad_pool_t * p_pool, IN osm_madw_t * p_madw);
 /*
 * PARAMETERS
 *	p_pool
@@ -266,12 +265,11 @@ void osm_mad_pool_put(IN osm_mad_pool_t * const p_pool,
 *
 * SYNOPSIS
 */
-osm_madw_t *osm_mad_pool_get_wrapper(IN osm_mad_pool_t * const p_pool,
+osm_madw_t *osm_mad_pool_get_wrapper(IN osm_mad_pool_t * p_pool,
 				     IN osm_bind_handle_t h_bind,
-				     IN const uint32_t total_size,
-				     IN const ib_mad_t * const p_mad,
-				     IN const osm_mad_addr_t *
-				     const p_mad_addr);
+				     IN uint32_t total_size,
+				     IN const ib_mad_t * p_mad,
+				     IN const osm_mad_addr_t * p_mad_addr);
 /*
 * PARAMETERS
 *	p_pool
@@ -316,7 +314,7 @@ osm_madw_t *osm_mad_pool_get_wrapper(IN osm_mad_pool_t * const p_pool,
 *
 * SYNOPSIS
 */
-osm_madw_t *osm_mad_pool_get_wrapper_raw(IN osm_mad_pool_t * const p_pool);
+osm_madw_t *osm_mad_pool_get_wrapper_raw(IN osm_mad_pool_t * p_pool);
 /*
 * PARAMETERS
 *	p_pool
@@ -347,9 +345,9 @@ osm_madw_t *osm_mad_pool_get_wrapper_raw(IN osm_mad_pool_t * const p_pool);
 * SYNOPSIS
 */
 static inline uint32_t
-osm_mad_pool_get_outstanding(IN const osm_mad_pool_t * const p_pool)
+osm_mad_pool_get_outstanding(IN const osm_mad_pool_t * p_pool)
 {
-	return (p_pool->mads_out);
+	return p_pool->mads_out;
 }
 
 /*

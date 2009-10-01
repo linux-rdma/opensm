@@ -108,7 +108,7 @@ ib_api_status_t osm_ucast_mgr_init(IN osm_ucast_mgr_t * p_mgr, IN osm_sm_t * sm)
 static void ucast_mgr_process_hop_0_1(IN cl_map_item_t * p_map_item,
 				      IN void *context)
 {
-	osm_switch_t *const p_sw = (osm_switch_t *) p_map_item;
+	osm_switch_t * p_sw = (osm_switch_t *) p_map_item;
 	osm_node_t *p_remote_node;
 	uint16_t lid, remote_lid;
 	uint8_t i;
@@ -135,8 +135,8 @@ static void ucast_mgr_process_hop_0_1(IN cl_map_item_t * p_map_item,
 static void ucast_mgr_process_neighbor(IN osm_ucast_mgr_t * p_mgr,
 				       IN osm_switch_t * p_this_sw,
 				       IN osm_switch_t * p_remote_sw,
-				       IN const uint8_t port_num,
-				       IN const uint8_t remote_port_num)
+				       IN uint8_t port_num,
+				       IN uint8_t remote_port_num)
 {
 	osm_switch_t *p_sw;
 	cl_map_item_t *item;
@@ -184,8 +184,7 @@ static void ucast_mgr_process_neighbor(IN osm_ucast_mgr_t * p_mgr,
  **********************************************************************/
 static struct osm_remote_node *find_and_add_remote_sys(osm_switch_t * sw,
 						       uint8_t port,
-						       const boolean_t dor,
-						       struct
+						       boolean_t dor, struct
 						       osm_remote_guids_count
 						       *r)
 {
@@ -361,7 +360,7 @@ static void ucast_mgr_process_tbl(IN cl_map_item_t * p_map_item,
 				  IN void *context)
 {
 	osm_ucast_mgr_t *p_mgr = context;
-	osm_switch_t *const p_sw = (osm_switch_t *) p_map_item;
+	osm_switch_t * p_sw = (osm_switch_t *) p_map_item;
 	unsigned i, lids_per_port;
 
 	OSM_LOG_ENTER(p_mgr->p_log);
@@ -404,8 +403,8 @@ static void ucast_mgr_process_tbl(IN cl_map_item_t * p_map_item,
 static void ucast_mgr_process_neighbors(IN cl_map_item_t * p_map_item,
 					IN void *context)
 {
-	osm_switch_t *const p_sw = (osm_switch_t *) p_map_item;
-	osm_ucast_mgr_t *const p_mgr = (osm_ucast_mgr_t *) context;
+	osm_switch_t * p_sw = (osm_switch_t *) p_map_item;
+	osm_ucast_mgr_t * p_mgr = context;
 	osm_node_t *p_node;
 	osm_node_t *p_remote_node;
 	uint32_t port_num;
@@ -797,7 +796,7 @@ static void ucast_mgr_set_fwd_top(IN cl_map_item_t * p_map_item,
 				  IN void *cxt)
 {
 	osm_ucast_mgr_t *p_mgr = cxt;
-	osm_switch_t *const p_sw = (osm_switch_t *) p_map_item;
+	osm_switch_t * p_sw = (osm_switch_t *) p_map_item;
 	osm_node_t *p_node;
 	osm_dr_path_t *p_path;
 	osm_madw_context_t context;

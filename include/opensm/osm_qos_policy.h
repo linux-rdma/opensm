@@ -197,7 +197,7 @@ osm_qos_level_t * osm_qos_policy_get_qos_level_by_mpr(
 
 /***************************************************/
 
-int osm_qos_parse_policy_file(IN osm_subn_t * const p_subn);
+int osm_qos_parse_policy_file(IN osm_subn_t * p_subn);
 
 /***************************************************/
 

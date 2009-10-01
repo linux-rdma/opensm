@@ -146,9 +146,8 @@ osm_svcr_t *osm_svcr_new(IN const ib_service_record_t * p_svc_rec);
 *
 * SYNOPSIS
 */
-void
-osm_svcr_init(IN osm_svcr_t * const p_svcr,
-	      IN const ib_service_record_t * p_svc_rec);
+void osm_svcr_init(IN osm_svcr_t * p_svcr,
+		   IN const ib_service_record_t * p_svc_rec);
 /*
 * PARAMETERS
 *	p_svc_rec
@@ -169,7 +168,7 @@ osm_svcr_init(IN osm_svcr_t * const p_svcr,
 *
 * SYNOPSIS
 */
-void osm_svcr_delete(IN osm_svcr_t * const p_svcr);
+void osm_svcr_delete(IN osm_svcr_t * p_svcr);
 /*
 * PARAMETERS
 *	p_svc_rec
@@ -181,14 +180,12 @@ void osm_svcr_delete(IN osm_svcr_t * const p_svcr);
 
 osm_svcr_t *osm_svcr_get_by_rid(IN osm_subn_t const *p_subn,
 				IN osm_log_t * p_log,
-				IN ib_service_record_t * const p_svc_rec);
+				IN ib_service_record_t * p_svc_rec);
 
-void
-osm_svcr_insert_to_db(IN osm_subn_t * p_subn,
-		      IN osm_log_t * p_log, IN osm_svcr_t * p_svcr);
-void
-osm_svcr_remove_from_db(IN osm_subn_t * p_subn,
-			IN osm_log_t * p_log, IN osm_svcr_t * p_svcr);
+void osm_svcr_insert_to_db(IN osm_subn_t * p_subn, IN osm_log_t * p_log,
+			   IN osm_svcr_t * p_svcr);
+void osm_svcr_remove_from_db(IN osm_subn_t * p_subn, IN osm_log_t * p_log,
+			     IN osm_svcr_t * p_svcr);
 
 END_C_DECLS
 #endif				/* _OSM_SVCR_H_ */

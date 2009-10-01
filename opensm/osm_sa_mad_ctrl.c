@@ -506,7 +506,7 @@ Exit:
 /**********************************************************************
  **********************************************************************/
 ib_api_status_t osm_sa_mad_ctrl_bind(IN osm_sa_mad_ctrl_t * p_ctrl,
-				     IN const ib_net64_t port_guid)
+				     IN ib_net64_t port_guid)
 {
 	osm_bind_info_t bind_info;
 	ib_api_status_t status = IB_SUCCESS;

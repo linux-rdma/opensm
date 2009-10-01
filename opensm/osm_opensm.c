@@ -209,7 +209,7 @@ static void setup_routing_engines(osm_opensm_t *osm, const char *engine_names)
 
 /**********************************************************************
  **********************************************************************/
-void osm_opensm_construct(IN osm_opensm_t * const p_osm)
+void osm_opensm_construct(IN osm_opensm_t * p_osm)
 {
 	memset(p_osm, 0, sizeof(*p_osm));
 	p_osm->osm_version = OSM_VERSION;
@@ -251,7 +251,7 @@ static void destroy_plugins(osm_opensm_t *osm)
 	}
 }
 
-void osm_opensm_destroy(IN osm_opensm_t * const p_osm)
+void osm_opensm_destroy(IN osm_opensm_t * p_osm)
 {
 	/* in case of shutdown through exit proc - no ^C */
 	osm_exit_flag = TRUE;
@@ -335,9 +335,8 @@ static void load_plugins(osm_opensm_t *osm, const char *plugin_names)
 
 /**********************************************************************
  **********************************************************************/
-ib_api_status_t
-osm_opensm_init(IN osm_opensm_t * const p_osm,
-		IN const osm_subn_opt_t * const p_opt)
+ib_api_status_t osm_opensm_init(IN osm_opensm_t * p_osm,
+				IN const osm_subn_opt_t * p_opt)
 {
 	ib_api_status_t status;
 
@@ -454,8 +453,7 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-ib_api_status_t
-osm_opensm_bind(IN osm_opensm_t * const p_osm, IN const ib_net64_t guid)
+ib_api_status_t osm_opensm_bind(IN osm_opensm_t * p_osm, IN ib_net64_t guid)
 {
 	ib_api_status_t status;
 

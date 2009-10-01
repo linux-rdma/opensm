@@ -138,7 +138,7 @@ typedef struct osm_prtn {
 *
 * SYNOPSIS
 */
-void osm_prtn_delete(IN OUT osm_prtn_t ** const pp_prtn);
+void osm_prtn_delete(IN OUT osm_prtn_t ** pp_prtn);
 /*
 * PARAMETERS
 *	pp_prtn
@@ -164,7 +164,7 @@ void osm_prtn_delete(IN OUT osm_prtn_t ** const pp_prtn);
 *
 * SYNOPSIS
 */
-osm_prtn_t *osm_prtn_new(IN const char *name, IN const uint16_t pkey);
+osm_prtn_t *osm_prtn_new(IN const char *name, IN uint16_t pkey);
 /*
 * PARAMETERS
 *	name
@@ -192,8 +192,8 @@ osm_prtn_t *osm_prtn_new(IN const char *name, IN const uint16_t pkey);
 *
 * SYNOPSIS
 */
-static inline boolean_t osm_prtn_is_guid(IN const osm_prtn_t * const p_prtn,
-					 IN const ib_net64_t guid)
+static inline boolean_t osm_prtn_is_guid(IN const osm_prtn_t * p_prtn,
+					 IN ib_net64_t guid)
 {
 	return (cl_map_get(&p_prtn->full_guid_tbl, guid) != NULL) ||
 	    (cl_map_get(&p_prtn->part_guid_tbl, guid) != NULL);
@@ -225,8 +225,8 @@ static inline boolean_t osm_prtn_is_guid(IN const osm_prtn_t * const p_prtn,
 *
 * SYNOPSIS
 */
-ib_api_status_t osm_prtn_make_partitions(IN osm_log_t * const p_log,
-					 IN osm_subn_t * const p_subn);
+ib_api_status_t osm_prtn_make_partitions(IN osm_log_t * p_log,
+					 IN osm_subn_t * p_subn);
 /*
 * PARAMETERS
 *	p_log

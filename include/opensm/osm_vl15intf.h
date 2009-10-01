@@ -176,7 +176,7 @@ typedef struct osm_vl15 {
 *
 * SYNOPSIS
 */
-void osm_vl15_construct(IN osm_vl15_t * const p_vl15);
+void osm_vl15_construct(IN osm_vl15_t * p_vl15);
 /*
 * PARAMETERS
 *	p_vl15
@@ -205,8 +205,7 @@ void osm_vl15_construct(IN osm_vl15_t * const p_vl15);
 *
 * SYNOPSIS
 */
-void
-osm_vl15_destroy(IN osm_vl15_t * const p_vl15, IN struct osm_mad_pool *p_pool);
+void osm_vl15_destroy(IN osm_vl15_t * p_vl15, IN struct osm_mad_pool *p_pool);
 /*
 * PARAMETERS
 *	p_vl15
@@ -242,12 +241,9 @@ osm_vl15_destroy(IN osm_vl15_t * const p_vl15, IN struct osm_mad_pool *p_pool);
 *
 * SYNOPSIS
 */
-ib_api_status_t
-osm_vl15_init(IN osm_vl15_t * const p_vl15,
-	      IN osm_vendor_t * const p_vend,
-	      IN osm_log_t * const p_log,
-	      IN osm_stats_t * const p_stats,
-	      IN const int32_t max_wire_smps);
+ib_api_status_t osm_vl15_init(IN osm_vl15_t * p_vl15, IN osm_vendor_t * p_vend,
+			      IN osm_log_t * p_log, IN osm_stats_t * p_stats,
+			      IN int32_t max_wire_smps);
 /*
 * PARAMETERS
 *	p_vl15
@@ -284,7 +280,7 @@ osm_vl15_init(IN osm_vl15_t * const p_vl15,
 *
 * SYNOPSIS
 */
-void osm_vl15_post(IN osm_vl15_t * const p_vl15, IN osm_madw_t * const p_madw);
+void osm_vl15_post(IN osm_vl15_t * p_vl15, IN osm_madw_t * p_madw);
 /*
 * PARAMETERS
 *	p_vl15
@@ -313,7 +309,7 @@ void osm_vl15_post(IN osm_vl15_t * const p_vl15, IN osm_madw_t * const p_madw);
 *
 * SYNOPSIS
 */
-void osm_vl15_poll(IN osm_vl15_t * const p_vl);
+void osm_vl15_poll(IN osm_vl15_t * p_vl);
 /*
 * PARAMETERS
 *	p_vl15
@@ -343,9 +339,7 @@ void osm_vl15_poll(IN osm_vl15_t * const p_vl);
 *
 * SYNOPSIS
 */
-void
-osm_vl15_shutdown(IN osm_vl15_t * const p_vl,
-		  IN osm_mad_pool_t * const p_mad_pool);
+void osm_vl15_shutdown(IN osm_vl15_t * p_vl, IN osm_mad_pool_t * p_mad_pool);
 /*
 * PARAMETERS
 *	p_vl15

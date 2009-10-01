@@ -439,9 +439,9 @@ osm_pkey_tbl_set(IN osm_pkey_tbl_t * p_pkey_tbl,
 *
 * SYNOPSIS
 */
-boolean_t osm_physp_share_this_pkey(IN const struct osm_physp *const p_physp1,
-				    IN const struct osm_physp *const p_physp2,
-				    IN const ib_net16_t pkey);
+boolean_t osm_physp_share_this_pkey(IN const struct osm_physp * p_physp1,
+				    IN const struct osm_physp * p_physp2,
+				    IN ib_net16_t pkey);
 /*
 * PARAMETERS
 *
@@ -471,10 +471,8 @@ boolean_t osm_physp_share_this_pkey(IN const struct osm_physp *const p_physp1,
 *
 * SYNOPSIS
 */
-ib_net16_t osm_physp_find_common_pkey(IN const struct osm_physp *const
-				      p_physp1,
-				      IN const struct osm_physp *const
-				      p_physp2);
+ib_net16_t osm_physp_find_common_pkey(IN const struct osm_physp *p_physp1,
+				      IN const struct osm_physp *p_physp2);
 /*
 * PARAMETERS
 *
@@ -517,8 +515,8 @@ ib_net16_t osm_physp_find_common_pkey(IN const struct osm_physp *const
 * SYNOPSIS
 */
 boolean_t osm_physp_share_pkey(IN osm_log_t * p_log,
-			       IN const struct osm_physp *const p_physp_1,
-			       IN const struct osm_physp *const p_physp_2);
+			       IN const struct osm_physp * p_physp_1,
+			       IN const struct osm_physp * p_physp_2);
 
 /*
 * PARAMETERS
@@ -564,8 +562,8 @@ boolean_t osm_physp_share_pkey(IN osm_log_t * p_log,
 * SYNOPSIS
 */
 boolean_t osm_port_share_pkey(IN osm_log_t * p_log,
-			      IN const struct osm_port *const p_port_1,
-			      IN const struct osm_port *const p_port_2);
+			      IN const struct osm_port * p_port_1,
+			      IN const struct osm_port * p_port_2);
 
 /*
 * PARAMETERS
@@ -610,9 +608,8 @@ boolean_t osm_port_share_pkey(IN osm_log_t * p_log,
 *
 * SYNOPSIS
 */
-boolean_t osm_physp_has_pkey(IN osm_log_t * p_log,
-			     IN const ib_net16_t pkey,
-			     IN const struct osm_physp *const p_physp);
+boolean_t osm_physp_has_pkey(IN osm_log_t * p_log, IN ib_net16_t pkey,
+			     IN const struct osm_physp *p_physp);
 
 /*
 * PARAMETERS

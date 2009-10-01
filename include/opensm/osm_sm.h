@@ -186,7 +186,7 @@ typedef struct osm_sm {
 *
 * SYNOPSIS
 */
-void osm_sm_construct(IN osm_sm_t * const p_sm);
+void osm_sm_construct(IN osm_sm_t * p_sm);
 /*
 * PARAMETERS
 *	p_sm
@@ -215,7 +215,7 @@ void osm_sm_construct(IN osm_sm_t * const p_sm);
 *
 * SYNOPSIS
 */
-void osm_sm_shutdown(IN osm_sm_t * const p_sm);
+void osm_sm_shutdown(IN osm_sm_t * p_sm);
 /*
 * PARAMETERS
 *	p_sm
@@ -238,7 +238,7 @@ void osm_sm_shutdown(IN osm_sm_t * const p_sm);
 *
 * SYNOPSIS
 */
-void osm_sm_destroy(IN osm_sm_t * const p_sm);
+void osm_sm_destroy(IN osm_sm_t * p_sm);
 /*
 * PARAMETERS
 *	p_sm
@@ -266,16 +266,12 @@ void osm_sm_destroy(IN osm_sm_t * const p_sm);
 *
 * SYNOPSIS
 */
-ib_api_status_t
-osm_sm_init(IN osm_sm_t * const p_sm,
-	    IN osm_subn_t * const p_subn,
-	    IN osm_db_t * const p_db,
-	    IN osm_vendor_t * const p_vendor,
-	    IN osm_mad_pool_t * const p_mad_pool,
-	    IN osm_vl15_t * const p_vl15,
-	    IN osm_log_t * const p_log,
-	    IN osm_stats_t * const p_stats,
-	    IN cl_dispatcher_t * const p_disp, IN cl_plock_t * const p_lock);
+ib_api_status_t osm_sm_init(IN osm_sm_t * p_sm, IN osm_subn_t * p_subn,
+			    IN osm_db_t * p_db, IN osm_vendor_t * p_vendor,
+			    IN osm_mad_pool_t * p_mad_pool,
+			    IN osm_vl15_t * p_vl15, IN osm_log_t * p_log,
+			    IN osm_stats_t * p_stats,
+			    IN cl_dispatcher_t * p_disp, IN cl_plock_t * p_lock);
 /*
 * PARAMETERS
 *	p_sm
@@ -324,7 +320,7 @@ osm_sm_init(IN osm_sm_t * const p_sm,
 *
 * SYNOPSIS
 */
-void osm_sm_signal(IN osm_sm_t * const p_sm, osm_signal_t signal);
+void osm_sm_signal(IN osm_sm_t * p_sm, osm_signal_t signal);
 /*
 * PARAMETERS
 *	p_sm
@@ -348,7 +344,7 @@ void osm_sm_signal(IN osm_sm_t * const p_sm, osm_signal_t signal);
 *
 * SYNOPSIS
 */
-void osm_sm_sweep(IN osm_sm_t * const p_sm);
+void osm_sm_sweep(IN osm_sm_t * p_sm);
 /*
 * PARAMETERS
 *	p_sm
@@ -372,8 +368,7 @@ void osm_sm_sweep(IN osm_sm_t * const p_sm);
 *
 * SYNOPSIS
 */
-ib_api_status_t
-osm_sm_bind(IN osm_sm_t * const p_sm, IN const ib_net64_t port_guid);
+ib_api_status_t osm_sm_bind(IN osm_sm_t * p_sm, IN ib_net64_t port_guid);
 /*
 * PARAMETERS
 *	p_sm
@@ -402,13 +397,10 @@ osm_sm_bind(IN osm_sm_t * const p_sm, IN const ib_net64_t port_guid);
 *
 * SYNOPSIS
 */
-ib_api_status_t
-osm_req_get(IN osm_sm_t * sm,
-	    IN const osm_dr_path_t * const p_path,
-	    IN const ib_net16_t attr_id,
-	    IN const ib_net32_t attr_mod,
-	    IN const cl_disp_msgid_t err_msg,
-	    IN const osm_madw_context_t * const p_context);
+ib_api_status_t osm_req_get(IN osm_sm_t * sm, IN const osm_dr_path_t * p_path,
+			    IN ib_net16_t attr_id, IN ib_net32_t attr_mod,
+			    IN cl_disp_msgid_t err_msg,
+			    IN const osm_madw_context_t * p_context);
 /*
 * PARAMETERS
 *	sm
@@ -448,15 +440,11 @@ osm_req_get(IN osm_sm_t * sm,
 *
 * SYNOPSIS
 */
-ib_api_status_t
-osm_req_set(IN osm_sm_t * sm,
-	    IN const osm_dr_path_t * const p_path,
-	    IN const uint8_t * const p_payload,
-	    IN const size_t payload_size,
-	    IN const ib_net16_t attr_id,
-	    IN const ib_net32_t attr_mod,
-	    IN const cl_disp_msgid_t err_msg,
-	    IN const osm_madw_context_t * const p_context);
+ib_api_status_t osm_req_set(IN osm_sm_t * sm, IN const osm_dr_path_t * p_path,
+			    IN const uint8_t * p_payload,
+			    IN size_t payload_size, IN ib_net16_t attr_id,
+			    IN ib_net32_t attr_mod, IN cl_disp_msgid_t err_msg,
+			    IN const osm_madw_context_t * p_context);
 /*
 * PARAMETERS
 *	sm
@@ -501,10 +489,10 @@ osm_req_set(IN osm_sm_t * sm,
 *
 * SYNOPSIS
 */
-ib_api_status_t
-osm_resp_send(IN osm_sm_t * sm,
-	      IN const osm_madw_t * const p_req_madw,
-	      IN const ib_net16_t status, IN const uint8_t * const p_payload);
+ib_api_status_t osm_resp_send(IN osm_sm_t * sm,
+			      IN const osm_madw_t * p_req_madw,
+			      IN ib_net16_t status,
+			      IN const uint8_t * p_payload);
 /*
 * PARAMETERS
 *	p_resp
@@ -561,13 +549,11 @@ void osm_sm_reroute_mlid(osm_sm_t * sm, ib_net16_t mlid);
 *
 * SYNOPSIS
 */
-static inline cl_status_t
-osm_sm_wait_for_subnet_up(IN osm_sm_t * const p_sm,
-			  IN uint32_t const wait_us,
-			  IN boolean_t const interruptible)
+static inline cl_status_t osm_sm_wait_for_subnet_up(IN osm_sm_t * p_sm,
+						    IN uint32_t wait_us,
+						    IN boolean_t interruptible)
 {
-	return (cl_event_wait_on(&p_sm->subnet_up_event,
-				 wait_us, interruptible));
+	return cl_event_wait_on(&p_sm->subnet_up_event, wait_us, interruptible);
 }
 
 /*
@@ -606,10 +592,10 @@ osm_sm_wait_for_subnet_up(IN osm_sm_t * const p_sm,
 *
 * SYNOPSIS
 */
-static inline boolean_t
-osm_sm_is_greater_than(IN const uint8_t l_priority,
-		       IN const ib_net64_t l_guid,
-		       IN const uint8_t r_priority, IN const ib_net64_t r_guid)
+static inline boolean_t osm_sm_is_greater_than(IN uint8_t l_priority,
+					       IN ib_net64_t l_guid,
+					       IN uint8_t r_priority,
+					       IN ib_net64_t r_guid)
 {
 	return (l_priority > r_priority
 		|| (l_priority == r_priority

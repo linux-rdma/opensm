@@ -54,13 +54,12 @@
 #include <opensm/osm_sa.h>
 #include <opensm/osm_multicast.h>
 
-extern int osm_prtn_config_parse_file(osm_log_t * const p_log,
-				      osm_subn_t * const p_subn,
+extern int osm_prtn_config_parse_file(osm_log_t * p_log, osm_subn_t * p_subn,
 				      const char *file_name);
 
 static uint16_t global_pkey_counter;
 
-osm_prtn_t *osm_prtn_new(IN const char *name, IN const uint16_t pkey)
+osm_prtn_t *osm_prtn_new(IN const char *name, IN uint16_t pkey)
 {
 	osm_prtn_t *p = malloc(sizeof(*p));
 	if (!p)
@@ -82,7 +81,7 @@ osm_prtn_t *osm_prtn_new(IN const char *name, IN const uint16_t pkey)
 	return p;
 }
 
-void osm_prtn_delete(IN OUT osm_prtn_t ** const pp_prtn)
+void osm_prtn_delete(IN OUT osm_prtn_t ** pp_prtn)
 {
 	osm_prtn_t *p = *pp_prtn;
 
@@ -313,8 +312,8 @@ osm_prtn_t *osm_prtn_make_new(osm_log_t * p_log, osm_subn_t * p_subn,
 	return p;
 }
 
-static ib_api_status_t osm_prtn_make_default(osm_log_t * const p_log,
-					     osm_subn_t * const p_subn,
+static ib_api_status_t osm_prtn_make_default(osm_log_t * p_log,
+					     osm_subn_t * p_subn,
 					     boolean_t no_config)
 {
 	ib_api_status_t status = IB_UNKNOWN_ERROR;
@@ -338,8 +337,7 @@ _err:
 	return status;
 }
 
-ib_api_status_t osm_prtn_make_partitions(osm_log_t * const p_log,
-					 osm_subn_t * const p_subn)
+ib_api_status_t osm_prtn_make_partitions(osm_log_t * p_log, osm_subn_t * p_subn)
 {
 	struct stat statbuf;
 	const char *file_name;

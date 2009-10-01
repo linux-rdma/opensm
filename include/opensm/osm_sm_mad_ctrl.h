@@ -147,7 +147,7 @@ typedef struct osm_sm_mad_ctrl {
 *
 * SYNOPSIS
 */
-void osm_sm_mad_ctrl_construct(IN osm_sm_mad_ctrl_t * const p_ctrl);
+void osm_sm_mad_ctrl_construct(IN osm_sm_mad_ctrl_t * p_ctrl);
 /*
 * PARAMETERS
 *	p_ctrl
@@ -178,7 +178,7 @@ void osm_sm_mad_ctrl_construct(IN osm_sm_mad_ctrl_t * const p_ctrl);
 *
 * SYNOPSIS
 */
-void osm_sm_mad_ctrl_destroy(IN osm_sm_mad_ctrl_t * const p_ctrl);
+void osm_sm_mad_ctrl_destroy(IN osm_sm_mad_ctrl_t * p_ctrl);
 /*
 * PARAMETERS
 *	p_ctrl
@@ -209,16 +209,15 @@ void osm_sm_mad_ctrl_destroy(IN osm_sm_mad_ctrl_t * const p_ctrl);
 *
 * SYNOPSIS
 */
-ib_api_status_t
-osm_sm_mad_ctrl_init(IN osm_sm_mad_ctrl_t * const p_ctrl,
-		     IN osm_subn_t * const p_subn,
-		     IN osm_mad_pool_t * const p_mad_pool,
-		     IN osm_vl15_t * const p_vl15,
-		     IN osm_vendor_t * const p_vendor,
-		     IN osm_log_t * const p_log,
-		     IN osm_stats_t * const p_stats,
-		     IN cl_plock_t * const p_lock,
-		     IN cl_dispatcher_t * const p_disp);
+ib_api_status_t osm_sm_mad_ctrl_init(IN osm_sm_mad_ctrl_t * p_ctrl,
+				     IN osm_subn_t * p_subn,
+				     IN osm_mad_pool_t * p_mad_pool,
+				     IN osm_vl15_t * p_vl15,
+				     IN osm_vendor_t * p_vendor,
+				     IN osm_log_t * p_log,
+				     IN osm_stats_t * p_stats,
+				     IN cl_plock_t * p_lock,
+				     IN cl_dispatcher_t * p_disp);
 /*
 * PARAMETERS
 *	p_ctrl
@@ -266,9 +265,8 @@ osm_sm_mad_ctrl_init(IN osm_sm_mad_ctrl_t * const p_ctrl,
 *
 * SYNOPSIS
 */
-ib_api_status_t
-osm_sm_mad_ctrl_bind(IN osm_sm_mad_ctrl_t * const p_ctrl,
-		     IN const ib_net64_t port_guid);
+ib_api_status_t osm_sm_mad_ctrl_bind(IN osm_sm_mad_ctrl_t * p_ctrl,
+				     IN ib_net64_t port_guid);
 /*
 * PARAMETERS
 *	p_ctrl
@@ -298,9 +296,9 @@ osm_sm_mad_ctrl_bind(IN osm_sm_mad_ctrl_t * const p_ctrl,
 * SYNOPSIS
 */
 static inline osm_bind_handle_t
-osm_sm_mad_ctrl_get_bind_handle(IN const osm_sm_mad_ctrl_t * const p_ctrl)
+osm_sm_mad_ctrl_get_bind_handle(IN const osm_sm_mad_ctrl_t * p_ctrl)
 {
-	return (p_ctrl->h_bind);
+	return p_ctrl->h_bind;
 }
 
 /*

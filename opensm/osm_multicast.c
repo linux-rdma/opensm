@@ -75,7 +75,7 @@ void osm_mgrp_delete(IN osm_mgrp_t * p_mgrp)
 	free(p_mgrp);
 }
 
-osm_mgrp_t *osm_mgrp_new(IN const ib_net16_t mlid, IN ib_member_rec_t * mcmr)
+osm_mgrp_t *osm_mgrp_new(IN ib_net16_t mlid, IN ib_member_rec_t * mcmr)
 {
 	osm_mgrp_t *p_mgrp;
 
@@ -277,7 +277,7 @@ void osm_mgrp_delete_port(osm_subn_t * subn, osm_log_t * log, osm_mgrp_t * mgrp,
 /**********************************************************************
  **********************************************************************/
 osm_mcm_port_t *osm_mgrp_get_mcm_port(IN const osm_mgrp_t * p_mgrp,
-				      IN const ib_net64_t port_guid)
+				      IN ib_net64_t port_guid)
 {
 	cl_map_item_t *item = cl_qmap_get(&p_mgrp->mcm_port_tbl, port_guid);
 	if (item != cl_qmap_end(&p_mgrp->mcm_port_tbl))

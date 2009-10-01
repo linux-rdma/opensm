@@ -53,10 +53,8 @@
 
 /**********************************************************************
  **********************************************************************/
-cl_status_t
-osm_switch_set_hops(IN osm_switch_t * const p_sw,
-		    IN const uint16_t lid_ho,
-		    IN const uint8_t port_num, IN const uint8_t num_hops)
+cl_status_t osm_switch_set_hops(IN osm_switch_t * p_sw, IN uint16_t lid_ho,
+				IN uint8_t port_num, IN uint8_t num_hops)
 {
 	if (lid_ho > p_sw->max_lid_ho)
 		return -1;
@@ -76,7 +74,7 @@ osm_switch_set_hops(IN osm_switch_t * const p_sw,
 
 /**********************************************************************
  **********************************************************************/
-void osm_switch_delete(IN OUT osm_switch_t ** const pp_sw)
+void osm_switch_delete(IN OUT osm_switch_t ** pp_sw)
 {
 	osm_switch_t *p_sw = *pp_sw;
 	unsigned i;
@@ -100,8 +98,8 @@ void osm_switch_delete(IN OUT osm_switch_t ** const pp_sw)
 
 /**********************************************************************
  **********************************************************************/
-osm_switch_t *osm_switch_new(IN osm_node_t * const p_node,
-			     IN const osm_madw_t * const p_madw)
+osm_switch_t *osm_switch_new(IN osm_node_t * p_node,
+			     IN const osm_madw_t * p_madw)
 {
 	osm_switch_t *p_sw;
 	ib_switch_info_t *p_si;
@@ -160,10 +158,8 @@ err:
 
 /**********************************************************************
  **********************************************************************/
-boolean_t
-osm_switch_get_lft_block(IN const osm_switch_t * const p_sw,
-			 IN const uint16_t block_id,
-			 OUT uint8_t * const p_block)
+boolean_t osm_switch_get_lft_block(IN const osm_switch_t * p_sw,
+				   IN uint16_t block_id, OUT uint8_t * p_block)
 {
 	uint16_t base_lid_ho = block_id * IB_SMP_DATA_SIZE;
 
@@ -181,11 +177,10 @@ osm_switch_get_lft_block(IN const osm_switch_t * const p_sw,
 /**********************************************************************
  **********************************************************************/
 static struct osm_remote_node *
-osm_switch_find_guid_common(IN const osm_switch_t * const p_sw,
+osm_switch_find_guid_common(IN const osm_switch_t * p_sw,
 			    IN struct osm_remote_guids_count *r,
 			    IN uint8_t port_num,
-			    IN int find_sys_guid,
-			    IN int find_node_guid)
+			    IN int find_sys_guid, IN int find_node_guid)
 {
 	struct osm_remote_node *p_remote_guid = NULL;
 	osm_physp_t *p_physp;
@@ -217,7 +212,7 @@ osm_switch_find_guid_common(IN const osm_switch_t * const p_sw,
 }
 
 static struct osm_remote_node *
-osm_switch_find_sys_guid_count(IN const osm_switch_t * const p_sw,
+osm_switch_find_sys_guid_count(IN const osm_switch_t * p_sw,
 			       IN struct osm_remote_guids_count *r,
 			       IN uint8_t port_num)
 {
@@ -225,7 +220,7 @@ osm_switch_find_sys_guid_count(IN const osm_switch_t * const p_sw,
 }
 
 static struct osm_remote_node *
-osm_switch_find_node_guid_count(IN const osm_switch_t * const p_sw,
+osm_switch_find_node_guid_count(IN const osm_switch_t * p_sw,
 				IN struct osm_remote_guids_count *r,
 				IN uint8_t port_num)
 {
@@ -234,13 +229,11 @@ osm_switch_find_node_guid_count(IN const osm_switch_t * const p_sw,
 
 /**********************************************************************
  **********************************************************************/
-uint8_t
-osm_switch_recommend_path(IN const osm_switch_t * const p_sw,
-			  IN osm_port_t * p_port,
-			  IN const uint16_t lid_ho,
-			  IN unsigned start_from,
-			  IN const boolean_t ignore_existing,
-			  IN const boolean_t dor)
+uint8_t osm_switch_recommend_path(IN const osm_switch_t * p_sw,
+				  IN osm_port_t * p_port, IN uint16_t lid_ho,
+				  IN unsigned start_from,
+				  IN boolean_t ignore_existing,
+				  IN boolean_t dor)
 {
 	/*
 	   We support an enhanced LMC aware routing mode:
@@ -306,7 +299,7 @@ osm_switch_recommend_path(IN const osm_switch_t * const p_sw,
 
 	least_hops = osm_switch_get_least_hops(p_sw, base_lid);
 	if (least_hops == OSM_NO_PATH)
-		return (OSM_NO_PATH);
+		return OSM_NO_PATH;
 
 	/*
 	   First, inquire with the forwarding table for an existing
@@ -346,7 +339,7 @@ osm_switch_recommend_path(IN const osm_switch_t * const p_sw,
 				   hop function.
 				 */
 				if (hops == least_hops)
-					return (port_num);
+					return port_num;
 			}
 		}
 	}
@@ -475,7 +468,7 @@ osm_switch_recommend_path(IN const osm_switch_t * const p_sw,
 	}
 
 	if (port_found == FALSE)
-		return (OSM_NO_PATH);
+		return OSM_NO_PATH;
 
 	/*
 	   if we are in enhanced routing mode and the best port is not
@@ -489,7 +482,7 @@ osm_switch_recommend_path(IN const osm_switch_t * const p_sw,
 			best_port = best_port_other_node;
 	}
 
-	return (best_port);
+	return best_port;
 }
 
 /**********************************************************************
@@ -505,8 +498,7 @@ void osm_switch_clear_hops(IN osm_switch_t * p_sw)
 
 /**********************************************************************
  **********************************************************************/
-int
-osm_switch_prepare_path_rebuild(IN osm_switch_t * p_sw, IN uint16_t max_lids)
+int osm_switch_prepare_path_rebuild(IN osm_switch_t * p_sw, IN uint16_t max_lids)
 {
 	uint8_t **hops;
 	unsigned i;
@@ -545,9 +537,8 @@ osm_switch_prepare_path_rebuild(IN osm_switch_t * p_sw, IN uint16_t max_lids)
 
 /**********************************************************************
  **********************************************************************/
-uint8_t
-osm_switch_get_port_least_hops(IN const osm_switch_t * const p_sw,
-			       IN const osm_port_t * p_port)
+uint8_t osm_switch_get_port_least_hops(IN const osm_switch_t * p_sw,
+				       IN const osm_port_t * p_port)
 {
 	uint16_t lid;
 
@@ -572,11 +563,10 @@ osm_switch_get_port_least_hops(IN const osm_switch_t * const p_sw,
 
 /**********************************************************************
  **********************************************************************/
-uint8_t
-osm_switch_recommend_mcast_path(IN osm_switch_t * const p_sw,
-				IN osm_port_t * p_port,
-				IN uint16_t const mlid_ho,
-				IN boolean_t const ignore_existing)
+uint8_t osm_switch_recommend_mcast_path(IN osm_switch_t * p_sw,
+					IN osm_port_t * p_port,
+					IN uint16_t mlid_ho,
+					IN boolean_t ignore_existing)
 {
 	uint16_t base_lid;
 	uint8_t hops;
@@ -623,7 +613,7 @@ osm_switch_recommend_mcast_path(IN osm_switch_t * const p_sw,
 			hops =
 			    osm_switch_get_hop_count(p_sw, base_lid, port_num);
 			if (hops != OSM_NO_PATH)
-				return (port_num);
+				return port_num;
 		}
 	}
 
@@ -648,5 +638,5 @@ osm_switch_recommend_mcast_path(IN osm_switch_t * const p_sw,
 			break;
 
 	CL_ASSERT(port_num < num_ports);
-	return (port_num);
+	return port_num;
 }

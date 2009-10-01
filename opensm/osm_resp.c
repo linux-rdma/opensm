@@ -58,12 +58,11 @@
 
 /**********************************************************************
  **********************************************************************/
-static void
-osm_resp_make_resp_smp(IN osm_sm_t * sm,
-		       IN const ib_smp_t * const p_src_smp,
-		       IN const ib_net16_t status,
-		       IN const uint8_t * const p_payload,
-		       OUT ib_smp_t * const p_dest_smp)
+static void osm_resp_make_resp_smp(IN osm_sm_t * sm,
+				   IN const ib_smp_t * p_src_smp,
+				   IN ib_net16_t status,
+				   IN const uint8_t * p_payload,
+				   OUT ib_smp_t * p_dest_smp)
 {
 	OSM_LOG_ENTER(sm->p_log);
 
@@ -98,11 +97,10 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-ib_api_status_t
-osm_resp_send(IN osm_sm_t * sm,
-	      IN const osm_madw_t * const p_req_madw,
-	      IN const ib_net16_t mad_status,
-	      IN const uint8_t * const p_payload)
+ib_api_status_t osm_resp_send(IN osm_sm_t * sm,
+			      IN const osm_madw_t * p_req_madw,
+			      IN ib_net16_t mad_status,
+			      IN const uint8_t * p_payload)
 {
 	const ib_smp_t *p_req_smp;
 	ib_smp_t *p_smp;
@@ -153,5 +151,5 @@ osm_resp_send(IN osm_sm_t * sm,
 
 Exit:
 	OSM_LOG_EXIT(sm->p_log);
-	return (status);
+	return status;
 }

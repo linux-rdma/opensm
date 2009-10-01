@@ -72,7 +72,7 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-static inline osm_db_domain_t *osm_db_guid2lid_init(IN osm_db_t * const p_db)
+static inline osm_db_domain_t *osm_db_guid2lid_init(IN osm_db_t * p_db)
 {
 	return (osm_db_domain_init(p_db, "guid2lid"));
 }
@@ -122,9 +122,8 @@ typedef struct osm_db_guid_elem {
 *
 * SYNOPSIS
 */
-int
-osm_db_guid2lid_guids(IN osm_db_domain_t * const p_g2l,
-		      OUT cl_qlist_t * p_guid_list);
+int osm_db_guid2lid_guids(IN osm_db_domain_t * p_g2l,
+			  OUT cl_qlist_t * p_guid_list);
 /*
 * PARAMETERS
 *	p_g2l
@@ -153,10 +152,8 @@ osm_db_guid2lid_guids(IN osm_db_domain_t * const p_g2l,
 *
 * SYNOPSIS
 */
-int
-osm_db_guid2lid_get(IN osm_db_domain_t * const p_g2l,
-		    IN uint64_t guid,
-		    OUT uint16_t * p_min_lid, OUT uint16_t * p_max_lid);
+int osm_db_guid2lid_get(IN osm_db_domain_t * p_g2l, IN uint64_t guid,
+			OUT uint16_t * p_min_lid, OUT uint16_t * p_max_lid);
 /*
 * PARAMETERS
 *	p_g2l
@@ -188,9 +185,8 @@ osm_db_guid2lid_get(IN osm_db_domain_t * const p_g2l,
 *
 * SYNOPSIS
 */
-int
-osm_db_guid2lid_set(IN osm_db_domain_t * const p_g2l,
-		    IN uint64_t guid, IN uint16_t min_lid, IN uint16_t max_lid);
+int osm_db_guid2lid_set(IN osm_db_domain_t * p_g2l, IN uint64_t guid,
+			IN uint16_t min_lid, IN uint16_t max_lid);
 /*
 * PARAMETERS
 *	p_g2l
@@ -222,7 +218,7 @@ osm_db_guid2lid_set(IN osm_db_domain_t * const p_g2l,
 *
 * SYNOPSIS
 */
-int osm_db_guid2lid_delete(IN osm_db_domain_t * const p_g2l, IN uint64_t guid);
+int osm_db_guid2lid_delete(IN osm_db_domain_t * p_g2l, IN uint64_t guid);
 /*
 * PARAMETERS
 *	p_g2l

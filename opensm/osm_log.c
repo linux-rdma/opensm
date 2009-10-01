@@ -80,7 +80,7 @@ void OsmReportState(IN const char *p_str);
 
 #ifndef WIN32
 
-static void truncate_log_file(osm_log_t * const p_log)
+static void truncate_log_file(osm_log_t * p_log)
 {
 	int fd = fileno(p_log->out_port);
 	if (ftruncate(fd, 0) < 0)
@@ -94,15 +94,15 @@ static void truncate_log_file(osm_log_t * const p_log)
 
 #else				/* Windows */
 
-static void truncate_log_file(osm_log_t * const p_log)
+static void truncate_log_file(osm_log_t * p_log)
 {
 	fprintf(stderr,
 		"truncate_log_file: cannot truncate on windows system (yet)\n");
 }
 #endif				/* ndef WIN32 */
 
-void osm_log(IN osm_log_t * const p_log,
-	     IN const osm_log_level_t verbosity, IN const char *p_str, ...)
+void osm_log(IN osm_log_t * p_log, IN osm_log_level_t verbosity,
+	     IN const char *p_str, ...)
 {
 	char buffer[LOG_ENTRY_SIZE_MAX];
 	va_list args;
@@ -198,8 +198,8 @@ _retry:
 	cl_spinlock_release(&p_log->lock);
 }
 
-void osm_log_raw(IN osm_log_t * const p_log,
-		 IN const osm_log_level_t verbosity, IN const char *p_buf)
+void osm_log_raw(IN osm_log_t * p_log, IN osm_log_level_t verbosity,
+		 IN const char *p_buf)
 {
 	if (p_log->level & verbosity) {
 		cl_spinlock_acquire(&p_log->lock);
@@ -296,12 +296,10 @@ int osm_log_reopen_file(osm_log_t * p_log)
 	return ret;
 }
 
-ib_api_status_t osm_log_init_v2(IN osm_log_t * const p_log,
-				IN const boolean_t flush,
-				IN const uint8_t log_flags,
-				IN const char *log_file,
-				IN const unsigned long max_size,
-				IN const boolean_t accum_log_file)
+ib_api_status_t osm_log_init_v2(IN osm_log_t * p_log, IN boolean_t flush,
+				IN uint8_t log_flags, IN const char *log_file,
+				IN unsigned long max_size,
+				IN boolean_t accum_log_file)
 {
 	p_log->level = log_flags;
 	p_log->flush = flush;
@@ -326,11 +324,9 @@ ib_api_status_t osm_log_init_v2(IN osm_log_t * const p_log,
 		return IB_ERROR;
 }
 
-ib_api_status_t osm_log_init(IN osm_log_t * const p_log,
-			     IN const boolean_t flush,
-			     IN const uint8_t log_flags,
-			     IN const char *log_file,
-			     IN const boolean_t accum_log_file)
+ib_api_status_t osm_log_init(IN osm_log_t * p_log, IN boolean_t flush,
+			     IN uint8_t log_flags, IN const char *log_file,
+			     IN boolean_t accum_log_file)
 {
 	return osm_log_init_v2(p_log, flush, log_flags, log_file, 0,
 			       accum_log_file);

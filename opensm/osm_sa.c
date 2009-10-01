@@ -92,7 +92,7 @@ extern void osm_sr_rcv_lease_cb(IN void *context);
 
 /**********************************************************************
  **********************************************************************/
-void osm_sa_construct(IN osm_sa_t * const p_sa)
+void osm_sa_construct(IN osm_sa_t * p_sa)
 {
 	memset(p_sa, 0, sizeof(*p_sa));
 	p_sa->state = OSM_SA_STATE_INIT;
@@ -103,7 +103,7 @@ void osm_sa_construct(IN osm_sa_t * const p_sa)
 
 /**********************************************************************
  **********************************************************************/
-void osm_sa_shutdown(IN osm_sa_t * const p_sa)
+void osm_sa_shutdown(IN osm_sa_t * p_sa)
 {
 	ib_api_status_t status;
 	OSM_LOG_ENTER(p_sa->p_log);
@@ -140,7 +140,7 @@ void osm_sa_shutdown(IN osm_sa_t * const p_sa)
 
 /**********************************************************************
  **********************************************************************/
-void osm_sa_destroy(IN osm_sa_t * const p_sa)
+void osm_sa_destroy(IN osm_sa_t * p_sa)
 {
 	OSM_LOG_ENTER(p_sa->p_log);
 
@@ -153,15 +153,11 @@ void osm_sa_destroy(IN osm_sa_t * const p_sa)
 
 /**********************************************************************
  **********************************************************************/
-ib_api_status_t
-osm_sa_init(IN osm_sm_t * const p_sm,
-	    IN osm_sa_t * const p_sa,
-	    IN osm_subn_t * const p_subn,
-	    IN osm_vendor_t * const p_vendor,
-	    IN osm_mad_pool_t * const p_mad_pool,
-	    IN osm_log_t * const p_log,
-	    IN osm_stats_t * const p_stats,
-	    IN cl_dispatcher_t * const p_disp, IN cl_plock_t * const p_lock)
+ib_api_status_t osm_sa_init(IN osm_sm_t * p_sm, IN osm_sa_t * p_sa,
+			    IN osm_subn_t * p_subn, IN osm_vendor_t * p_vendor,
+			    IN osm_mad_pool_t * p_mad_pool,
+			    IN osm_log_t * p_log, IN osm_stats_t * p_stats,
+			    IN cl_dispatcher_t * p_disp, IN cl_plock_t * p_lock)
 {
 	ib_api_status_t status;
 
@@ -177,11 +173,9 @@ osm_sa_init(IN osm_sm_t * const p_sm,
 
 	p_sa->state = OSM_SA_STATE_READY;
 
-	status = osm_sa_mad_ctrl_init(&p_sa->mad_ctrl,
-				      p_sa,
-				      p_sa->p_mad_pool,
-				      p_sa->p_vendor,
-				      p_subn, p_log, p_stats, p_disp);
+	status = osm_sa_mad_ctrl_init(&p_sa->mad_ctrl, p_sa, p_sa->p_mad_pool,
+				      p_sa->p_vendor, p_subn, p_log, p_stats,
+				      p_disp);
 	if (status != IB_SUCCESS)
 		goto Exit;
 
@@ -296,8 +290,7 @@ Exit:
 
 /**********************************************************************
  **********************************************************************/
-ib_api_status_t
-osm_sa_bind(IN osm_sa_t * const p_sa, IN const ib_net64_t port_guid)
+ib_api_status_t osm_sa_bind(IN osm_sa_t * p_sa, IN ib_net64_t port_guid)
 {
 	ib_api_status_t status;
 
@@ -314,12 +307,11 @@ osm_sa_bind(IN osm_sa_t * const p_sa, IN const ib_net64_t port_guid)
 
 Exit:
 	OSM_LOG_EXIT(p_sa->p_log);
-	return (status);
+	return status;
 }
 
-ib_api_status_t osm_sa_send(osm_sa_t *sa,
-			    IN osm_madw_t * const p_madw,
-			    IN boolean_t const resp_expected)
+ib_api_status_t osm_sa_send(osm_sa_t *sa, IN osm_madw_t * p_madw,
+			    IN boolean_t resp_expected)
 {
 	ib_api_status_t status;
 
@@ -334,10 +326,8 @@ ib_api_status_t osm_sa_send(osm_sa_t *sa,
 	return status;
 }
 
-void
-osm_sa_send_error(IN osm_sa_t * sa,
-		  IN const osm_madw_t * const p_madw,
-		  IN const ib_net16_t sa_status)
+void osm_sa_send_error(IN osm_sa_t * sa, IN const osm_madw_t * p_madw,
+		       IN ib_net16_t sa_status)
 {
 	osm_madw_t *p_resp_madw;
 	ib_sa_mad_t *p_resp_sa_mad;

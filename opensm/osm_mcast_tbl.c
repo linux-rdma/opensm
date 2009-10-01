@@ -53,9 +53,8 @@
 
 /**********************************************************************
  **********************************************************************/
-ib_api_status_t
-osm_mcast_tbl_init(IN osm_mcast_tbl_t * const p_tbl,
-		   IN uint8_t const num_ports, IN uint16_t const capacity)
+ib_api_status_t osm_mcast_tbl_init(IN osm_mcast_tbl_t * p_tbl,
+				   IN uint8_t num_ports, IN uint16_t capacity)
 {
 	CL_ASSERT(p_tbl);
 	CL_ASSERT(num_ports);
@@ -106,16 +105,15 @@ osm_mcast_tbl_init(IN osm_mcast_tbl_t * const p_tbl,
 
 /**********************************************************************
  **********************************************************************/
-void osm_mcast_tbl_destroy(IN osm_mcast_tbl_t * const p_tbl)
+void osm_mcast_tbl_destroy(IN osm_mcast_tbl_t * p_tbl)
 {
 	free(p_tbl->p_mask_tbl);
 }
 
 /**********************************************************************
  **********************************************************************/
-void
-osm_mcast_tbl_set(IN osm_mcast_tbl_t * const p_tbl,
-		  IN const uint16_t mlid_ho, IN const uint8_t port)
+void osm_mcast_tbl_set(IN osm_mcast_tbl_t * p_tbl, IN uint16_t mlid_ho,
+		       IN uint8_t port)
 {
 	uintn_t mlid_offset;
 	uintn_t mask_offset;
@@ -140,9 +138,8 @@ osm_mcast_tbl_set(IN osm_mcast_tbl_t * const p_tbl,
 
 /**********************************************************************
  **********************************************************************/
-boolean_t
-osm_mcast_tbl_is_port(IN const osm_mcast_tbl_t * const p_tbl,
-		      IN const uint16_t mlid_ho, IN const uint8_t port_num)
+boolean_t osm_mcast_tbl_is_port(IN const osm_mcast_tbl_t * p_tbl,
+				IN uint16_t mlid_ho, IN uint8_t port_num)
 {
 	uintn_t mlid_offset;
 	uintn_t mask_offset;
@@ -170,9 +167,8 @@ osm_mcast_tbl_is_port(IN const osm_mcast_tbl_t * const p_tbl,
 
 /**********************************************************************
  **********************************************************************/
-boolean_t
-osm_mcast_tbl_is_any_port(IN const osm_mcast_tbl_t * const p_tbl,
-			  IN const uint16_t mlid_ho)
+boolean_t osm_mcast_tbl_is_any_port(IN const osm_mcast_tbl_t * p_tbl,
+				    IN uint16_t mlid_ho)
 {
 	uintn_t mlid_offset;
 	uint8_t position;
@@ -195,10 +191,10 @@ osm_mcast_tbl_is_any_port(IN const osm_mcast_tbl_t * const p_tbl,
 
 /**********************************************************************
  **********************************************************************/
-ib_api_status_t
-osm_mcast_tbl_set_block(IN osm_mcast_tbl_t * const p_tbl,
-			IN const ib_net16_t * const p_block,
-			IN const int16_t block_num, IN const uint8_t position)
+ib_api_status_t osm_mcast_tbl_set_block(IN osm_mcast_tbl_t * p_tbl,
+					IN const ib_net16_t * p_block,
+					IN int16_t block_num,
+					IN uint8_t position)
 {
 	uint32_t i;
 	uint16_t mlid_start_ho;
@@ -228,9 +224,7 @@ osm_mcast_tbl_set_block(IN osm_mcast_tbl_t * const p_tbl,
 
 /**********************************************************************
  **********************************************************************/
-void
-osm_mcast_tbl_clear_mlid(IN osm_mcast_tbl_t * const p_tbl,
-			 IN const uint16_t mlid_ho)
+void osm_mcast_tbl_clear_mlid(IN osm_mcast_tbl_t * p_tbl, IN uint16_t mlid_ho)
 {
 	uint8_t i;
 	uintn_t mlid_offset;
@@ -247,11 +241,9 @@ osm_mcast_tbl_clear_mlid(IN osm_mcast_tbl_t * const p_tbl,
 
 /**********************************************************************
  **********************************************************************/
-boolean_t
-osm_mcast_tbl_get_block(IN osm_mcast_tbl_t * const p_tbl,
-			IN int16_t const block_num,
-			IN uint8_t const position,
-			OUT ib_net16_t * const p_block)
+boolean_t osm_mcast_tbl_get_block(IN osm_mcast_tbl_t * p_tbl,
+				  IN int16_t block_num, IN uint8_t position,
+				  OUT ib_net16_t * p_block)
 {
 	uint32_t i;
 	uint16_t mlid_start_ho;

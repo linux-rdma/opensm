@@ -191,7 +191,7 @@ typedef struct osm_sa {
 *
 * SYNOPSIS
 */
-void osm_sa_construct(IN osm_sa_t * const p_sa);
+void osm_sa_construct(IN osm_sa_t * p_sa);
 /*
 * PARAMETERS
 *	p_sa
@@ -220,7 +220,7 @@ void osm_sa_construct(IN osm_sa_t * const p_sa);
 *
 * SYNOPSIS
 */
-void osm_sa_shutdown(IN osm_sa_t * const p_sa);
+void osm_sa_shutdown(IN osm_sa_t * p_sa);
 /*
 * PARAMETERS
 *	p_sa
@@ -243,7 +243,7 @@ void osm_sa_shutdown(IN osm_sa_t * const p_sa);
 *
 * SYNOPSIS
 */
-void osm_sa_destroy(IN osm_sa_t * const p_sa);
+void osm_sa_destroy(IN osm_sa_t * p_sa);
 /*
 * PARAMETERS
 *	p_sa
@@ -271,15 +271,12 @@ void osm_sa_destroy(IN osm_sa_t * const p_sa);
 *
 * SYNOPSIS
 */
-ib_api_status_t osm_sa_init(IN osm_sm_t * const p_sm,
-			    IN osm_sa_t * const p_sa,
-			    IN osm_subn_t * const p_subn,
-			    IN osm_vendor_t * const p_vendor,
-			    IN osm_mad_pool_t * const p_mad_pool,
-			    IN osm_log_t * const p_log,
-			    IN osm_stats_t * const p_stats,
-			    IN cl_dispatcher_t * const p_disp,
-			    IN cl_plock_t * const p_lock);
+ib_api_status_t osm_sa_init(IN osm_sm_t * p_sm, IN osm_sa_t * p_sa,
+			    IN osm_subn_t * p_subn, IN osm_vendor_t * p_vendor,
+			    IN osm_mad_pool_t * p_mad_pool,
+			    IN osm_log_t * p_log, IN osm_stats_t * p_stats,
+			    IN cl_dispatcher_t * p_disp,
+			    IN cl_plock_t * p_lock);
 /*
 * PARAMETERS
 *	p_sa
@@ -325,8 +322,7 @@ ib_api_status_t osm_sa_init(IN osm_sm_t * const p_sm,
 *
 * SYNOPSIS
 */
-ib_api_status_t
-osm_sa_bind(IN osm_sa_t * const p_sa, IN const ib_net64_t port_guid);
+ib_api_status_t osm_sa_bind(IN osm_sa_t * p_sa, IN ib_net64_t port_guid);
 /*
 * PARAMETERS
 *	p_sa
@@ -354,8 +350,8 @@ osm_sa_bind(IN osm_sa_t * const p_sa, IN const ib_net64_t port_guid);
 *
 * SYNOPSIS
 */
-ib_api_status_t osm_sa_send(osm_sa_t *sa, IN osm_madw_t * const p_madw,
-			    IN boolean_t const resp_expected);
+ib_api_status_t osm_sa_send(osm_sa_t *sa, IN osm_madw_t * p_madw,
+			    IN boolean_t resp_expected);
 
 /****f* IBA Base: Types/osm_sa_send_error
 * NAME
@@ -367,8 +363,8 @@ ib_api_status_t osm_sa_send(osm_sa_t *sa, IN osm_madw_t * const p_madw,
 *
 * SYNOPSIS
 */
-void osm_sa_send_error(IN osm_sa_t * sa, IN const osm_madw_t * const p_madw,
-		       IN const ib_net16_t sa_status);
+void osm_sa_send_error(IN osm_sa_t * sa, IN const osm_madw_t * p_madw,
+		       IN ib_net16_t sa_status);
 /*
 * PARAMETERS
 *	sa
@@ -470,10 +466,8 @@ int osm_sa_db_file_load(struct osm_opensm *p_osm);
 */
 
 ib_api_status_t
-osm_mcmr_rcv_find_or_create_new_mgrp(IN osm_sa_t * sa,
-				     IN uint64_t comp_mask,
-				     IN ib_member_rec_t *
-				     const p_recvd_mcmember_rec,
+osm_mcmr_rcv_find_or_create_new_mgrp(IN osm_sa_t * sa, IN ib_net64_t comp_mask,
+				     IN ib_member_rec_t * p_recvd_mcmember_rec,
 				     OUT osm_mgrp_t ** pp_mgrp);
 /*
 * PARAMETERS

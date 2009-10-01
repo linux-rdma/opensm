@@ -2268,7 +2268,7 @@ number_from_range_2:  TK_NUMBER {
 /***************************************************
  ***************************************************/
 
-int osm_qos_parse_policy_file(IN osm_subn_t * const p_subn)
+int osm_qos_parse_policy_file(IN osm_subn_t * p_subn)
 {
     int res = 0;
     static boolean_t first_time = TRUE;

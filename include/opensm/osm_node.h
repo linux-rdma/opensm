@@ -153,7 +153,7 @@ typedef struct osm_node {
 *
 * SYNOPSIS
 */
-void osm_node_delete(IN OUT osm_node_t ** const p_node);
+void osm_node_delete(IN OUT osm_node_t ** p_node);
 /*
 * PARAMETERS
 *	p_node
@@ -180,7 +180,7 @@ void osm_node_delete(IN OUT osm_node_t ** const p_node);
 *
 * SYNOPSIS
 */
-osm_node_t *osm_node_new(IN const osm_madw_t * const p_madw);
+osm_node_t *osm_node_new(IN const osm_madw_t * p_madw);
 /*
 * PARAMETERS
 *	p_madw
@@ -208,8 +208,8 @@ osm_node_t *osm_node_new(IN const osm_madw_t * const p_madw);
 *
 * SYNOPSIS
 */
-static inline osm_physp_t *osm_node_get_physp_ptr(IN osm_node_t * const p_node,
-						  IN const uint32_t port_num)
+static inline osm_physp_t *osm_node_get_physp_ptr(IN osm_node_t * p_node,
+						  IN uint32_t port_num)
 {
 
 	CL_ASSERT(port_num < p_node->physp_tbl_size);
@@ -245,9 +245,9 @@ static inline osm_physp_t *osm_node_get_physp_ptr(IN osm_node_t * const p_node,
 *
 * SYNOPSIS
 */
-static inline uint8_t osm_node_get_type(IN const osm_node_t * const p_node)
+static inline uint8_t osm_node_get_type(IN const osm_node_t * p_node)
 {
-	return (p_node->node_info.node_type);
+	return p_node->node_info.node_type;
 }
 
 /*
@@ -276,9 +276,9 @@ static inline uint8_t osm_node_get_type(IN const osm_node_t * const p_node)
 *
 * SYNOPSIS
 */
-static inline uint8_t osm_node_get_num_physp(IN const osm_node_t * const p_node)
+static inline uint8_t osm_node_get_num_physp(IN const osm_node_t * p_node)
 {
-	return ((uint8_t) p_node->physp_tbl_size);
+	return (uint8_t) p_node->physp_tbl_size;
 }
 
 /*
@@ -306,8 +306,8 @@ static inline uint8_t osm_node_get_num_physp(IN const osm_node_t * const p_node)
 *
 * SYNOPSIS
 */
-osm_node_t *osm_node_get_remote_node(IN osm_node_t * const p_node,
-				     IN const uint8_t port_num,
+osm_node_t *osm_node_get_remote_node(IN osm_node_t * p_node,
+				     IN uint8_t port_num,
 				     OUT uint8_t * p_remote_port_num);
 /*
 * PARAMETERS
@@ -342,12 +342,11 @@ osm_node_t *osm_node_get_remote_node(IN osm_node_t * const p_node,
 *
 * SYNOPSIS
 */
-static inline ib_net16_t
-osm_node_get_base_lid(IN const osm_node_t * const p_node,
-		      IN const uint32_t port_num)
+static inline ib_net16_t osm_node_get_base_lid(IN const osm_node_t * p_node,
+					       IN uint32_t port_num)
 {
 	CL_ASSERT(port_num < p_node->physp_tbl_size);
-	return (osm_physp_get_base_lid(&p_node->physp_table[port_num]));
+	return osm_physp_get_base_lid(&p_node->physp_table[port_num]);
 }
 
 /*
@@ -379,9 +378,8 @@ osm_node_get_base_lid(IN const osm_node_t * const p_node,
 *
 * SYNOPSIS
 */
-ib_net16_t
-osm_node_get_remote_base_lid(IN osm_node_t * const p_node,
-			     IN const uint32_t port_num);
+ib_net16_t osm_node_get_remote_base_lid(IN osm_node_t * p_node,
+					IN uint32_t port_num);
 /*
 * PARAMETERS
 *	p_node
@@ -410,11 +408,11 @@ osm_node_get_remote_base_lid(IN osm_node_t * const p_node,
 *
 * SYNOPSIS
 */
-static inline uint8_t
-osm_node_get_lmc(IN const osm_node_t * const p_node, IN const uint32_t port_num)
+static inline uint8_t osm_node_get_lmc(IN const osm_node_t * p_node,
+				       IN uint32_t port_num)
 {
 	CL_ASSERT(port_num < p_node->physp_tbl_size);
-	return (osm_physp_get_lmc(&p_node->physp_table[port_num]));
+	return osm_physp_get_lmc(&p_node->physp_table[port_num]);
 }
 
 /*
@@ -443,8 +441,8 @@ osm_node_get_lmc(IN const osm_node_t * const p_node, IN const uint32_t port_num)
 *
 * SYNOPSIS
 */
-void osm_node_init_physp(IN osm_node_t * const p_node, uint8_t port_num,
-			 IN const osm_madw_t * const p_madw);
+void osm_node_init_physp(IN osm_node_t * p_node, uint8_t port_num,
+			 IN const osm_madw_t * p_madw);
 /*
 * PARAMETERS
 *	p_node
@@ -474,10 +472,9 @@ void osm_node_init_physp(IN osm_node_t * const p_node, uint8_t port_num,
 *
 * SYNOPSIS
 */
-static inline ib_net64_t
-osm_node_get_node_guid(IN const osm_node_t * const p_node)
+static inline ib_net64_t osm_node_get_node_guid(IN const osm_node_t * p_node)
 {
-	return (p_node->node_info.node_guid);
+	return p_node->node_info.node_guid;
 }
 
 /*
@@ -503,11 +500,8 @@ osm_node_get_node_guid(IN const osm_node_t * const p_node)
 *
 * SYNOPSIS
 */
-void
-osm_node_link(IN osm_node_t * const p_node,
-	      IN const uint8_t port_num,
-	      IN osm_node_t * const p_remote_node,
-	      IN const uint8_t remote_port_num);
+void osm_node_link(IN osm_node_t * p_node, IN uint8_t port_num,
+		   IN osm_node_t * p_remote_node, IN uint8_t remote_port_num);
 /*
 * PARAMETERS
 *	p_node
@@ -542,11 +536,8 @@ osm_node_link(IN osm_node_t * const p_node,
 *
 * SYNOPSIS
 */
-void
-osm_node_unlink(IN osm_node_t * const p_node,
-		IN const uint8_t port_num,
-		IN osm_node_t * const p_remote_node,
-		IN const uint8_t remote_port_num);
+void osm_node_unlink(IN osm_node_t * p_node, IN uint8_t port_num,
+		     IN osm_node_t * p_remote_node, IN uint8_t remote_port_num);
 /*
 * PARAMETERS
 *	p_node
@@ -581,11 +572,9 @@ osm_node_unlink(IN osm_node_t * const p_node,
 *
 * SYNOPSIS
 */
-boolean_t
-osm_node_link_exists(IN osm_node_t * const p_node,
-		     IN const uint8_t port_num,
-		     IN osm_node_t * const p_remote_node,
-		     IN const uint8_t remote_port_num);
+boolean_t osm_node_link_exists(IN osm_node_t * p_node, IN uint8_t port_num,
+			       IN osm_node_t * p_remote_node,
+			       IN uint8_t remote_port_num);
 /*
 * PARAMETERS
 *	p_node
@@ -623,8 +612,7 @@ osm_node_link_exists(IN osm_node_t * const p_node,
 *
 * SYNOPSIS
 */
-boolean_t
-osm_node_has_any_link(IN osm_node_t * const p_node, IN const uint8_t port_num);
+boolean_t osm_node_has_any_link(IN osm_node_t * p_node, IN uint8_t port_num);
 /*
 * PARAMETERS
 *	p_node
@@ -654,11 +642,10 @@ osm_node_has_any_link(IN osm_node_t * const p_node, IN const uint8_t port_num);
 *
 * SYNOPSIS
 */
-boolean_t
-osm_node_link_has_valid_ports(IN osm_node_t * const p_node,
-			      IN const uint8_t port_num,
-			      IN osm_node_t * const p_remote_node,
-			      IN const uint8_t remote_port_num);
+boolean_t osm_node_link_has_valid_ports(IN osm_node_t * p_node,
+					IN uint8_t port_num,
+					IN osm_node_t * p_remote_node,
+					IN uint8_t remote_port_num);
 /*
 * PARAMETERS
 *	p_node

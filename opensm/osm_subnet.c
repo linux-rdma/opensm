@@ -402,7 +402,7 @@ static long compar_mgids(const void *m1, const void *m2)
 	return memcmp(m1, m2, sizeof(ib_gid_t));
 }
 
-void osm_subn_construct(IN osm_subn_t * const p_subn)
+void osm_subn_construct(IN osm_subn_t * p_subn)
 {
 	memset(p_subn, 0, sizeof(*p_subn));
 	cl_ptr_vector_construct(&p_subn->port_lid_tbl);
@@ -420,7 +420,7 @@ void osm_subn_construct(IN osm_subn_t * const p_subn)
 
 /**********************************************************************
  **********************************************************************/
-void osm_subn_destroy(IN osm_subn_t * const p_subn)
+void osm_subn_destroy(IN osm_subn_t * p_subn)
 {
 	int i;
 	osm_node_t *p_node, *p_next_node;
@@ -501,9 +501,8 @@ void osm_subn_destroy(IN osm_subn_t * const p_subn)
 
 /**********************************************************************
  **********************************************************************/
-ib_api_status_t osm_subn_init(IN osm_subn_t * const p_subn,
-			      IN osm_opensm_t * const p_osm,
-			      IN const osm_subn_opt_t * const p_opt)
+ib_api_status_t osm_subn_init(IN osm_subn_t * p_subn, IN osm_opensm_t * p_osm,
+			      IN const osm_subn_opt_t * p_opt)
 {
 	cl_status_t status;
 
@@ -536,7 +535,7 @@ ib_api_status_t osm_subn_init(IN osm_subn_t * const p_subn,
 	/* we assume master by default - so we only need to set it true if STANDBY */
 	p_subn->coming_out_of_standby = FALSE;
 
-	return (IB_SUCCESS);
+	return IB_SUCCESS;
 }
 
 /**********************************************************************
@@ -573,7 +572,7 @@ ib_api_status_t osm_get_gid_by_mad_addr(IN osm_log_t * p_log,
 					IN osm_mad_addr_t * p_mad_addr,
 					OUT ib_gid_t * p_gid)
 {
-	const osm_port_t *p_port = NULL;
+	const osm_port_t *p_port;
 
 	if (p_gid == NULL) {
 		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 7505: "
@@ -595,7 +594,7 @@ osm_physp_t *osm_get_physp_by_mad_addr(IN osm_log_t * p_log,
 				       IN const osm_subn_t * p_subn,
 				       IN osm_mad_addr_t * p_mad_addr)
 {
-	osm_port_t *p_port = NULL;
+	osm_port_t *p_port;
 
 	p_port = osm_get_port_by_mad_addr(p_log, p_subn, p_mad_addr);
 	if (!p_port)
@@ -681,7 +680,7 @@ static void subn_init_qos_options(osm_qos_options_t *opt, osm_qos_options_t *f)
 
 /**********************************************************************
  **********************************************************************/
-void osm_subn_set_default_opt(IN osm_subn_opt_t * const p_opt)
+void osm_subn_set_default_opt(IN osm_subn_opt_t * p_opt)
 {
 	memset(p_opt, 0, sizeof(osm_subn_opt_t));
 	p_opt->guid = 0;
@@ -823,7 +822,7 @@ static int subn_dump_qos_options(FILE * file, const char *set_name,
 
 /**********************************************************************
  **********************************************************************/
-static ib_api_status_t append_prefix_route(IN osm_subn_t * const p_subn,
+static ib_api_status_t append_prefix_route(IN osm_subn_t * p_subn,
 					   uint64_t prefix, uint64_t guid)
 {
 	osm_prefix_route_t *route;
@@ -840,7 +839,7 @@ static ib_api_status_t append_prefix_route(IN osm_subn_t * const p_subn,
 	return IB_SUCCESS;
 }
 
-static ib_api_status_t osm_parse_prefix_routes_file(IN osm_subn_t * const p_subn)
+static ib_api_status_t osm_parse_prefix_routes_file(IN osm_subn_t * p_subn)
 {
 	osm_log_t *log = &p_subn->p_osm->log;
 	FILE *fp;
@@ -1066,7 +1065,7 @@ static void subn_verify_qos_set(osm_qos_options_t *set, const char *prefix,
 	subn_verify_sl2vl(&set->sl2vl, prefix, dflt->sl2vl);
 }
 
-int osm_subn_verify_config(IN osm_subn_opt_t * const p_opts)
+int osm_subn_verify_config(IN osm_subn_opt_t * p_opts)
 {
 	if (p_opts->lmc > 7) {
 		log_report(" Invalid Cached Option Value:lmc = %u:"
@@ -1156,7 +1155,7 @@ int osm_subn_verify_config(IN osm_subn_opt_t * const p_opts)
 
 /**********************************************************************
  **********************************************************************/
-int osm_subn_parse_conf_file(char *file_name, osm_subn_opt_t * const p_opts)
+int osm_subn_parse_conf_file(char *file_name, osm_subn_opt_t * p_opts)
 {
 	char line[1024];
 	FILE *opts_file;
@@ -1208,7 +1207,7 @@ int osm_subn_parse_conf_file(char *file_name, osm_subn_opt_t * const p_opts)
 	return 0;
 }
 
-int osm_subn_rescan_conf_files(IN osm_subn_t * const p_subn)
+int osm_subn_rescan_conf_files(IN osm_subn_t * p_subn)
 {
 	char line[1024];
 	osm_subn_opt_t *p_opts = &p_subn->opt;
@@ -1271,7 +1270,7 @@ int osm_subn_rescan_conf_files(IN osm_subn_t * const p_subn)
 
 /**********************************************************************
  **********************************************************************/
-int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t *const p_opts)
+int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 {
 	fprintf(out,
 		"#\n# DEVICE ATTRIBUTES OPTIONS\n#\n"
@@ -1647,7 +1646,7 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t *const p_opts)
 	return 0;
 }
 
-int osm_subn_write_conf_file(char *file_name, IN osm_subn_opt_t *const p_opts)
+int osm_subn_write_conf_file(char *file_name, IN osm_subn_opt_t * p_opts)
 {
 	FILE *opts_file;
 

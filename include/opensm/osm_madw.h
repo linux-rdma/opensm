@@ -469,11 +469,10 @@ typedef struct osm_madw {
 *
 * SYNOPSIS
 */
-static inline void
-osm_madw_init(IN osm_madw_t * const p_madw,
-	      IN osm_bind_handle_t h_bind,
-	      IN const uint32_t mad_size,
-	      IN const osm_mad_addr_t * const p_mad_addr)
+static inline void osm_madw_init(IN osm_madw_t * p_madw,
+				 IN osm_bind_handle_t h_bind,
+				 IN uint32_t mad_size,
+				 IN const osm_mad_addr_t * p_mad_addr)
 {
 	memset(p_madw, 0, sizeof(*p_madw));
 	p_madw->h_bind = h_bind;
@@ -513,7 +512,7 @@ osm_madw_init(IN osm_madw_t * const p_madw,
 *
 * SYNOPSIS
 */
-static inline ib_smp_t *osm_madw_get_smp_ptr(IN const osm_madw_t * const p_madw)
+static inline ib_smp_t *osm_madw_get_smp_ptr(IN const osm_madw_t * p_madw)
 {
 	return ((ib_smp_t *) p_madw->p_mad);
 }
@@ -541,8 +540,7 @@ static inline ib_smp_t *osm_madw_get_smp_ptr(IN const osm_madw_t * const p_madw)
 *
 * SYNOPSIS
 */
-static inline ib_sa_mad_t *osm_madw_get_sa_mad_ptr(IN const osm_madw_t *
-						   const p_madw)
+static inline ib_sa_mad_t *osm_madw_get_sa_mad_ptr(IN const osm_madw_t * p_madw)
 {
 	return ((ib_sa_mad_t *) p_madw->p_mad);
 }
@@ -568,7 +566,7 @@ static inline ib_sa_mad_t *osm_madw_get_sa_mad_ptr(IN const osm_madw_t *
 * SYNOPSIS
 */
 static inline ib_perfmgt_mad_t *osm_madw_get_perfmgt_mad_ptr(IN const osm_madw_t
-							     * const p_madw)
+							     * p_madw)
 {
 	return ((ib_perfmgt_mad_t *) p_madw->p_mad);
 }
@@ -597,7 +595,7 @@ static inline ib_perfmgt_mad_t *osm_madw_get_perfmgt_mad_ptr(IN const osm_madw_t
 * SYNOPSIS
 */
 static inline osm_ni_context_t *osm_madw_get_ni_context_ptr(IN const osm_madw_t
-							    * const p_madw)
+							    * p_madw)
 {
 	return ((osm_ni_context_t *) & p_madw->context);
 }
@@ -625,7 +623,7 @@ static inline osm_ni_context_t *osm_madw_get_ni_context_ptr(IN const osm_madw_t
 * SYNOPSIS
 */
 static inline osm_pi_context_t *osm_madw_get_pi_context_ptr(IN const osm_madw_t
-							    * const p_madw)
+							    * p_madw)
 {
 	return ((osm_pi_context_t *) & p_madw->context);
 }
@@ -653,7 +651,7 @@ static inline osm_pi_context_t *osm_madw_get_pi_context_ptr(IN const osm_madw_t
 * SYNOPSIS
 */
 static inline osm_nd_context_t *osm_madw_get_nd_context_ptr(IN const osm_madw_t
-							    * const p_madw)
+							    * p_madw)
 {
 	return ((osm_nd_context_t *) & p_madw->context);
 }
@@ -682,7 +680,7 @@ static inline osm_nd_context_t *osm_madw_get_nd_context_ptr(IN const osm_madw_t
 */
 static inline osm_lft_context_t *osm_madw_get_lft_context_ptr(IN const
 							      osm_madw_t *
-							      const p_madw)
+							      p_madw)
 {
 	return ((osm_lft_context_t *) & p_madw->context);
 }
@@ -711,7 +709,7 @@ static inline osm_lft_context_t *osm_madw_get_lft_context_ptr(IN const
 */
 static inline osm_mft_context_t *osm_madw_get_mft_context_ptr(IN const
 							      osm_madw_t *
-							      const p_madw)
+							      p_madw)
 {
 	return ((osm_mft_context_t *) & p_madw->context);
 }
@@ -739,7 +737,7 @@ static inline osm_mft_context_t *osm_madw_get_mft_context_ptr(IN const
 * SYNOPSIS
 */
 static inline osm_si_context_t *osm_madw_get_si_context_ptr(IN const osm_madw_t
-							    * const p_madw)
+							    * p_madw)
 {
 	return ((osm_si_context_t *) & p_madw->context);
 }
@@ -768,7 +766,7 @@ static inline osm_si_context_t *osm_madw_get_si_context_ptr(IN const osm_madw_t
 */
 static inline osm_smi_context_t *osm_madw_get_smi_context_ptr(IN const
 							      osm_madw_t *
-							      const p_madw)
+							      p_madw)
 {
 	return ((osm_smi_context_t *) & p_madw->context);
 }
@@ -797,7 +795,7 @@ static inline osm_smi_context_t *osm_madw_get_smi_context_ptr(IN const
 */
 static inline osm_pkey_context_t *osm_madw_get_pkey_context_ptr(IN const
 								osm_madw_t *
-								const p_madw)
+								p_madw)
 {
 	return ((osm_pkey_context_t *) & p_madw->context);
 }
@@ -826,7 +824,7 @@ static inline osm_pkey_context_t *osm_madw_get_pkey_context_ptr(IN const
 */
 static inline osm_slvl_context_t *osm_madw_get_slvl_context_ptr(IN const
 								osm_madw_t *
-								const p_madw)
+								p_madw)
 {
 	return ((osm_slvl_context_t *) & p_madw->context);
 }
@@ -855,7 +853,7 @@ static inline osm_slvl_context_t *osm_madw_get_slvl_context_ptr(IN const
 */
 static inline osm_vla_context_t *osm_madw_get_vla_context_ptr(IN const
 							      osm_madw_t *
-							      const p_madw)
+							      p_madw)
 {
 	return ((osm_vla_context_t *) & p_madw->context);
 }
@@ -917,7 +915,7 @@ static inline osm_arbitrary_context_t *osm_madw_get_arbitrary_context_ptr(IN
 * SYNOPSIS
 */
 static inline osm_vend_wrap_t *osm_madw_get_vend_ptr(IN const osm_madw_t *
-						     const p_madw)
+						     p_madw)
 {
 	return ((osm_vend_wrap_t *) & p_madw->vend_wrap);
 }
@@ -945,7 +943,7 @@ static inline osm_vend_wrap_t *osm_madw_get_vend_ptr(IN const osm_madw_t *
 * SYNOPSIS
 */
 static inline osm_bind_handle_t
-osm_madw_get_bind_handle(IN const osm_madw_t * const p_madw)
+osm_madw_get_bind_handle(IN const osm_madw_t * p_madw)
 {
 	return ((osm_bind_handle_t) p_madw->h_bind);
 }
@@ -973,7 +971,7 @@ osm_madw_get_bind_handle(IN const osm_madw_t * const p_madw)
 * SYNOPSIS
 */
 static inline osm_mad_addr_t *osm_madw_get_mad_addr_ptr(IN const osm_madw_t *
-							const p_madw)
+							p_madw)
 {
 	return ((osm_mad_addr_t *) & p_madw->mad_addr);
 }
@@ -1000,7 +998,7 @@ static inline osm_mad_addr_t *osm_madw_get_mad_addr_ptr(IN const osm_madw_t *
 *
 * SYNOPSIS
 */
-static inline ib_mad_t *osm_madw_get_mad_ptr(IN const osm_madw_t * const p_madw)
+static inline ib_mad_t *osm_madw_get_mad_ptr(IN const osm_madw_t * p_madw)
 {
 	return ((ib_mad_t *) p_madw->p_mad);
 }
@@ -1028,8 +1026,7 @@ static inline ib_mad_t *osm_madw_get_mad_ptr(IN const osm_madw_t * const p_madw)
 *
 * SYNOPSIS
 */
-static inline cl_disp_msgid_t
-osm_madw_get_err_msg(IN const osm_madw_t * const p_madw)
+static inline cl_disp_msgid_t osm_madw_get_err_msg(IN const osm_madw_t * p_madw)
 {
 	return ((cl_disp_msgid_t) p_madw->fail_msg);
 }
@@ -1057,8 +1054,8 @@ osm_madw_get_err_msg(IN const osm_madw_t * const p_madw)
 *
 * SYNOPSIS
 */
-static inline void
-osm_madw_set_mad(IN osm_madw_t * const p_madw, IN const ib_mad_t * const p_mad)
+static inline void osm_madw_set_mad(IN osm_madw_t * p_madw,
+				    IN const ib_mad_t * p_mad)
 {
 	p_madw->p_mad = p_mad;
 }
@@ -1088,9 +1085,8 @@ osm_madw_set_mad(IN osm_madw_t * const p_madw, IN const ib_mad_t * const p_mad)
 *
 * SYNOPSIS
 */
-static inline void
-osm_madw_copy_context(IN osm_madw_t * const p_dest,
-		      IN const osm_madw_t * const p_src)
+static inline void osm_madw_copy_context(IN osm_madw_t * p_dest,
+					 IN const osm_madw_t * p_src)
 {
 	p_dest->context = p_src->context;
 }
