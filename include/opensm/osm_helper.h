@@ -209,12 +209,10 @@ static inline boolean_t ib_gid_is_notzero(IN const ib_gid_t * p_gid)
 *
 * SYNOPSIS
 */
-void osm_dump_port_info(IN osm_log_t * const p_log,
-			IN const ib_net64_t node_guid,
-			IN const ib_net64_t port_guid,
-			IN const uint8_t port_num,
-			IN const ib_port_info_t * const p_pi,
-			IN const osm_log_level_t log_level);
+void osm_dump_port_info(IN osm_log_t * p_log, IN ib_net64_t node_guid,
+			IN ib_net64_t port_guid, IN uint8_t port_num,
+			IN const ib_port_info_t * p_pi,
+			IN osm_log_level_t log_level);
 /*
 * PARAMETERS
 *	p_log
@@ -243,89 +241,66 @@ void osm_dump_port_info(IN osm_log_t * const p_log,
 * SEE ALSO
 *********/
 
-void
-osm_dump_path_record(IN osm_log_t * const p_log,
-		     IN const ib_path_rec_t * const p_pr,
-		     IN const osm_log_level_t log_level);
+void osm_dump_path_record(IN osm_log_t * p_log, IN const ib_path_rec_t * p_pr,
+			  IN osm_log_level_t log_level);
 
-void
-osm_dump_multipath_record(IN osm_log_t * const p_log,
-			  IN const ib_multipath_rec_t * const p_mpr,
-			  IN const osm_log_level_t log_level);
+void osm_dump_multipath_record(IN osm_log_t * p_log,
+			       IN const ib_multipath_rec_t * p_mpr,
+			       IN osm_log_level_t log_level);
 
-void
-osm_dump_node_record(IN osm_log_t * const p_log,
-		     IN const ib_node_record_t * const p_nr,
-		     IN const osm_log_level_t log_level);
+void osm_dump_node_record(IN osm_log_t * p_log,
+			  IN const ib_node_record_t * p_nr,
+			  IN osm_log_level_t log_level);
 
-void
-osm_dump_mc_record(IN osm_log_t * const p_log,
-		   IN const ib_member_rec_t * const p_mcmr,
-		   IN const osm_log_level_t log_level);
+void osm_dump_mc_record(IN osm_log_t * p_log, IN const ib_member_rec_t * p_mcmr,
+			IN osm_log_level_t log_level);
 
-void
-osm_dump_link_record(IN osm_log_t * const p_log,
-		     IN const ib_link_record_t * const p_lr,
-		     IN const osm_log_level_t log_level);
+void osm_dump_link_record(IN osm_log_t * p_log,
+			  IN const ib_link_record_t * p_lr,
+			  IN osm_log_level_t log_level);
 
-void
-osm_dump_service_record(IN osm_log_t * const p_log,
-			IN const ib_service_record_t * const p_sr,
-			IN const osm_log_level_t log_level);
+void osm_dump_service_record(IN osm_log_t * p_log,
+			     IN const ib_service_record_t * p_sr,
+			     IN osm_log_level_t log_level);
 
-void
-osm_dump_portinfo_record(IN osm_log_t * const p_log,
-			 IN const ib_portinfo_record_t * const p_pir,
-			 IN const osm_log_level_t log_level);
+void osm_dump_portinfo_record(IN osm_log_t * p_log,
+			      IN const ib_portinfo_record_t * p_pir,
+			      IN osm_log_level_t log_level);
 
-void
-osm_dump_guidinfo_record(IN osm_log_t * const p_log,
-			 IN const ib_guidinfo_record_t * const p_gir,
-			 IN const osm_log_level_t log_level);
+void osm_dump_guidinfo_record(IN osm_log_t * p_log,
+			      IN const ib_guidinfo_record_t * p_gir,
+			      IN osm_log_level_t log_level);
 
-void
-osm_dump_inform_info(IN osm_log_t * const p_log,
-		     IN const ib_inform_info_t * const p_ii,
-		     IN const osm_log_level_t log_level);
+void osm_dump_inform_info(IN osm_log_t * p_log,
+			  IN const ib_inform_info_t * p_ii,
+			  IN osm_log_level_t log_level);
 
-void
-osm_dump_inform_info_record(IN osm_log_t * const p_log,
-			    IN const ib_inform_info_record_t * const p_iir,
-			    IN const osm_log_level_t log_level);
+void osm_dump_inform_info_record(IN osm_log_t * p_log,
+				 IN const ib_inform_info_record_t * p_iir,
+				 IN osm_log_level_t log_level);
 
-void
-osm_dump_switch_info_record(IN osm_log_t * const p_log,
-			    IN const ib_switch_info_record_t * const p_sir,
-			    IN const osm_log_level_t log_level);
+void osm_dump_switch_info_record(IN osm_log_t * p_log,
+				 IN const ib_switch_info_record_t * p_sir,
+				 IN osm_log_level_t log_level);
 
-void
-osm_dump_sm_info_record(IN osm_log_t * const p_log,
-			IN const ib_sminfo_record_t * const p_smir,
-			IN const osm_log_level_t log_level);
+void osm_dump_sm_info_record(IN osm_log_t * p_log,
+			     IN const ib_sminfo_record_t * p_smir,
+			     IN osm_log_level_t log_level);
 
-void
-osm_dump_pkey_block(IN osm_log_t * const p_log,
-		    IN uint64_t port_guid,
-		    IN uint16_t block_num,
-		    IN uint8_t port_num,
-		    IN const ib_pkey_table_t * const p_pkey_tbl,
-		    IN const osm_log_level_t log_level);
+void osm_dump_pkey_block(IN osm_log_t * p_log, IN uint64_t port_guid,
+			 IN uint16_t block_num, IN uint8_t port_num,
+			 IN const ib_pkey_table_t * p_pkey_tbl,
+			 IN osm_log_level_t log_level);
 
-void
-osm_dump_slvl_map_table(IN osm_log_t * const p_log,
-			IN uint64_t port_guid,
-			IN uint8_t in_port_num,
-			IN uint8_t out_port_num,
-			IN const ib_slvl_table_t * const p_slvl_tbl,
-			IN const osm_log_level_t log_level);
+void osm_dump_slvl_map_table(IN osm_log_t * p_log, IN uint64_t port_guid,
+			     IN uint8_t in_port_num, IN uint8_t out_port_num,
+			     IN const ib_slvl_table_t * p_slvl_tbl,
+			     IN osm_log_level_t log_level);
 
-void
-osm_dump_vl_arb_table(IN osm_log_t * const p_log,
-		      IN uint64_t port_guid,
-		      IN uint8_t block_num,
-		      IN uint8_t port_num,
-		      IN const ib_vl_arb_table_t * const p_vla_tbl,
-		      IN const osm_log_level_t log_level);
+void osm_dump_vl_arb_table(IN osm_log_t * p_log, IN uint64_t port_guid,
+			   IN uint8_t block_num, IN uint8_t port_num,
+			   IN const ib_vl_arb_table_t * p_vla_tbl,
+			   IN osm_log_level_t log_level);
 
 /****f* OpenSM: Helper/osm_dump_port_info
 * NAME
@@ -336,9 +311,9 @@ osm_dump_vl_arb_table(IN osm_log_t * const p_log,
 *
 * SYNOPSIS
 */
-void osm_dump_node_info(IN osm_log_t * const p_log,
-			IN const ib_node_info_t * const p_ni,
-			IN const osm_log_level_t log_level);
+void osm_dump_node_info(IN osm_log_t * p_log,
+			IN const ib_node_info_t * p_ni,
+			IN osm_log_level_t log_level);
 /*
 * PARAMETERS
 *	p_log
@@ -367,10 +342,8 @@ void osm_dump_node_info(IN osm_log_t * const p_log,
 *
 * SYNOPSIS
 */
-void
-osm_dump_sm_info(IN osm_log_t * const p_log,
-		 IN const ib_sm_info_t * const p_smi,
-		 IN const osm_log_level_t log_level);
+void osm_dump_sm_info(IN osm_log_t * p_log, IN const ib_sm_info_t * p_smi,
+		      IN osm_log_level_t log_level);
 /*
 * PARAMETERS
 *	p_log
@@ -399,10 +372,9 @@ osm_dump_sm_info(IN osm_log_t * const p_log,
 *
 * SYNOPSIS
 */
-void
-osm_dump_switch_info(IN osm_log_t * const p_log,
-		     IN const ib_switch_info_t * const p_si,
-		     IN const osm_log_level_t log_level);
+void osm_dump_switch_info(IN osm_log_t * p_log,
+			  IN const ib_switch_info_t * p_si,
+			  IN osm_log_level_t log_level);
 /*
 * PARAMETERS
 *	p_log
@@ -431,10 +403,9 @@ osm_dump_switch_info(IN osm_log_t * const p_log,
 *
 * SYNOPSIS
 */
-void
-osm_dump_notice(IN osm_log_t * const p_log,
-		IN const ib_mad_notice_attr_t * p_ntci,
-		IN const osm_log_level_t log_level);
+void osm_dump_notice(IN osm_log_t * p_log,
+		     IN const ib_mad_notice_attr_t * p_ntci,
+		     IN osm_log_level_t log_level);
 /*
 * PARAMETERS
 *	p_log
@@ -477,21 +448,17 @@ const char *osm_get_disp_msg_str(IN cl_disp_msgid_t msg);
 * SEE ALSO
 *********/
 
-void osm_dump_dr_path(IN osm_log_t * const p_log,
-		      IN const osm_dr_path_t * const p_path,
-		      IN const osm_log_level_t level);
+void osm_dump_dr_path(IN osm_log_t * p_log, IN const osm_dr_path_t * p_path,
+		      IN osm_log_level_t level);
 
-void osm_dump_smp_dr_path(IN osm_log_t * const p_log,
-			  IN const ib_smp_t * const p_smp,
-			  IN const osm_log_level_t level);
+void osm_dump_smp_dr_path(IN osm_log_t * p_log, IN const ib_smp_t * p_smp,
+			  IN osm_log_level_t level);
 
-void osm_dump_dr_smp(IN osm_log_t * const p_log,
-		     IN const ib_smp_t * const p_smp,
-		     IN const osm_log_level_t level);
+void osm_dump_dr_smp(IN osm_log_t * p_log, IN const ib_smp_t * p_smp,
+		     IN osm_log_level_t level);
 
-void osm_dump_sa_mad(IN osm_log_t * const p_log,
-		     IN const ib_sa_mad_t * const p_smp,
-		     IN const osm_log_level_t level);
+void osm_dump_sa_mad(IN osm_log_t * p_log, IN const ib_sa_mad_t * p_smp,
+		     IN osm_log_level_t level);
 
 /****f* IBA Base: Types/osm_get_sm_signal_str
 * NAME
@@ -520,17 +487,17 @@ const char *osm_get_port_state_str_fixed_width(IN uint8_t port_state);
 
 const char *osm_get_node_type_str_fixed_width(IN uint8_t node_type);
 
-const char *osm_get_manufacturer_str(IN uint64_t const guid_ho);
+const char *osm_get_manufacturer_str(IN uint64_t guid_ho);
 
-const char *osm_get_mtu_str(IN uint8_t const mtu);
+const char *osm_get_mtu_str(IN uint8_t mtu);
 
-const char *osm_get_lwa_str(IN uint8_t const lwa);
+const char *osm_get_lwa_str(IN uint8_t lwa);
 
-const char *osm_get_mtu_str(IN uint8_t const mtu);
+const char *osm_get_mtu_str(IN uint8_t mtu);
 
-const char *osm_get_lwa_str(IN uint8_t const lwa);
+const char *osm_get_lwa_str(IN uint8_t lwa);
 
-const char *osm_get_lsa_str(IN uint8_t const lsa);
+const char *osm_get_lsa_str(IN uint8_t lsa);
 
 /****f* IBA Base: Types/osm_get_sm_mgr_signal_str
 * NAME
