@@ -70,7 +70,7 @@ static void connect_switches(lash_t * p_lash, int sw1, int sw2, int phy_port_1)
 	mesh_node_t *node = s1->node;
 	switch_t *s2;
 	link_t *l;
-	int i;
+	unsigned int i;
 
 	/*
 	 * if doing mesh analysis:

@@ -2710,8 +2710,7 @@ static void fabric_route_to_cns(IN ftree_fabric_t * p_ftree)
 	ftree_port_group_t *p_leaf_port_group;
 	ftree_port_group_t *p_hca_port_group;
 	ftree_port_t *p_port;
-	uint32_t i;
-	uint32_t j;
+	unsigned int i, j;
 	uint16_t hca_lid;
 	unsigned routed_targets_on_leaf;
 
@@ -2788,10 +2787,9 @@ static void fabric_route_to_cns(IN ftree_fabric_t * p_ftree)
 				"Routing %u dummy CAs\n",
 				p_ftree->max_cn_per_leaf -
 				p_sw->down_port_groups_num);
-			for (j = 0;
-			     ((int)j) <
-			     (p_ftree->max_cn_per_leaf -
-			      routed_targets_on_leaf); j++) {
+			for (j = 0; j <
+			     p_ftree->max_cn_per_leaf - routed_targets_on_leaf;
+			     j++) {
 				/* assign downgoing ports by stepping up */
 				fabric_route_downgoing_by_going_up(p_ftree, p_sw,	/* local switch - used as a route-downgoing alg. start point */
 								   NULL,	/* prev. position switch */

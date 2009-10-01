@@ -492,7 +492,7 @@ static void logflush_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 
 static void querylid_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 {
-	int p = 0;
+	unsigned int p = 0;
 	uint16_t lid = 0;
 	osm_port_t *p_port = NULL;
 	char *p_cmd = next_token(p_last);
@@ -528,7 +528,7 @@ static void querylid_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 		p = 1;
 	for ( /* see above */ ; p < p_port->p_node->physp_tbl_size; p++) {
 		fprintf(out,
-			"   Port %d health       : %s\n",
+			"   Port %u health       : %s\n",
 			p,
 			p_port->p_node->physp_table[p].
 			healthy ? "OK" : "ERROR");

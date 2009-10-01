@@ -541,7 +541,7 @@ int main(int argc, char *argv[])
 	uint32_t temp, dbg_lvl;
 	boolean_t run_once_flag = FALSE;
 	int32_t vendor_debug = 0;
-	uint32_t next_option;
+	int next_option;
 	char *conf_template = NULL, *config_file = NULL;
 	uint32_t val;
 	const char *const short_option =

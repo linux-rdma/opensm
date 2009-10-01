@@ -193,7 +193,7 @@ osm_switch_find_guid_common(IN const osm_switch_t * const p_sw,
 	osm_node_t *p_rem_node;
 	uint64_t sys_guid;
 	uint64_t node_guid;
-	int i;
+	unsigned int i;
 
 	CL_ASSERT(p_sw);
 
@@ -406,7 +406,7 @@ osm_switch_recommend_path(IN const osm_switch_t * const p_sw,
 			if (routing_for_lmc) {
 				struct osm_remote_guids_count *r = p_port->priv;
 				uint8_t rem_port = osm_physp_get_port_num(p_rem_physp);
-				int j;
+				unsigned int j;
 
 				for (j = 0; j < r->count; j++) {
 					p_remote_guid = &r->guids[j];

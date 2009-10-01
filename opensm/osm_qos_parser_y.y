@@ -2394,7 +2394,7 @@ static void yyerror(const char *format, ...)
 
 static char * __parser_strip_white(char * str)
 {
-   int i;
+   unsigned int i;
    for (i = (strlen(str)-1); i >= 0; i--)
    {
       if (isspace(str[i]))

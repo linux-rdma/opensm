@@ -442,7 +442,8 @@ static const char *__ib_sa_attr_str[] = {
 static int sprint_uint8_arr(char *buf, size_t size,
 			    const uint8_t * arr, size_t len)
 {
-	int i, n;
+	int n;
+	unsigned int i;
 	for (i = 0, n = 0; i < len; i++) {
 		n += snprintf(buf + n, size - n, "%s%u", i == 0 ? "" : ",",
 			      arr[i]);
