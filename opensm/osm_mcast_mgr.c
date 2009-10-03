@@ -1004,7 +1004,7 @@ static int mcast_mgr_set_mftables(osm_sm_t * sm)
 	osm_switch_t *p_sw;
 	osm_mcast_tbl_t *p_tbl;
 	int block_notdone, ret = 0;
-	uint16_t block_num, max_block = -1;
+	int16_t block_num, max_block = -1;
 
 	p_sw = (osm_switch_t *) cl_qmap_head(p_sw_tbl);
 	while (p_sw != (osm_switch_t *) cl_qmap_end(p_sw_tbl)) {
