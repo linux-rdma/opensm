@@ -128,7 +128,7 @@ cl_status_t cl_qcpool_init(IN cl_qcpool_t * const p_pool,
 		 * are aligned on a natural boundary.
 		 */
 		p_pool->component_sizes[i] =
-		    ROUNDUP(p_pool->component_sizes[i], sizeof(uintn_t));
+		    ROUNDUP(p_pool->component_sizes[i], sizeof(uintptr_t));
 	}
 
 	p_pool->max_objects = max_size ? max_size : ~(size_t) 0;

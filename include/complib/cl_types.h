@@ -89,7 +89,7 @@ typedef uint64_t net64_t;
 *	The offsetof macro returns the offset of a member within a structure.
 *
 * SYNOPSIS
-*	uintn_t
+*	uintptr_t
 *	offsetof(
 *		IN TYPE,
 *		IN MEMBER );
@@ -110,7 +110,7 @@ typedef uint64_t net64_t;
 *	PARENT_STRUCT
 *********/
 #ifndef offsetof
-#define offsetof(TYPE, MEMBER) ((uintn_t) &((TYPE *)0)->MEMBER)
+#define offsetof(TYPE, MEMBER) ((uintptr_t) &((TYPE *)0)->MEMBER)
 #endif
 
 /****d* Component Library: Pointer Manipulation/PARENT_STRUCT
@@ -244,14 +244,6 @@ typedef uint64_t net64_t;
 *
 *	net64_t
 *		64-bit network byte order value.
-*
-*	intn_t
-*		Signed natural sized integer.  32-bit on a 32-bit platform, 64-bit on
-*		a 64-bit platform.
-*
-*	uintn_t
-*		Unsigned natural sized integer.  32-bit on a 32-bit platform, 64-bit on
-*		a 64-bit platform.
 *
 *	boolean_t
 *		integral sized.  Set to TRUE or FALSE and used in logical expressions.

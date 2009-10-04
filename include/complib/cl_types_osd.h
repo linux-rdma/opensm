@@ -37,8 +37,7 @@
  * Abstract:
  *	Defines sized datatypes for Linux User mode
  *  exported sizes are int8_t, uint8_t, int16_t, uint16_t, int32_t, uint32_t
- *  int64_t, uint64_t. uintn_t is a polymorphic type, size is native size and
- *  also size of the pointer.
+ *  int64_t, uint64_t.
  */
 
 #ifndef _CL_TYPES_OSD_H_
@@ -73,8 +72,6 @@ BEGIN_C_DECLS
 /*
  * Types not explicitly defined are native to the platform.
  */
-typedef unsigned long uintn_t;
-typedef long intn_t;
 typedef int boolean_t;
 typedef volatile int32_t atomic32_t;
 
