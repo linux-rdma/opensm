@@ -330,7 +330,7 @@ static int mcast_mgr_set_mft_block(osm_sm_t * sm, IN osm_switch_t * p_sw,
 		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 			"Writing MFT block %u position %u to switch 0x%" PRIx64 "\n",
 			block_num, position,
-			cl_ntoh64(context.lft_context.node_guid));
+			cl_ntoh64(context.mft_context.node_guid));
 
 		status = osm_req_set(sm, p_path, (void *)block, sizeof(block),
 				     IB_MAD_ATTR_MCAST_FWD_TBL,
