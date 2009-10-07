@@ -233,7 +233,7 @@ ib_api_status_t osm_lid_mgr_init(IN osm_lid_mgr_t * p_mgr, IN osm_sm_t * sm)
 	p_mgr->p_lock = sm->p_lock;
 
 	/* we initialize and restore the db domain of guid to lid map */
-	p_mgr->p_g2l = osm_db_domain_init(p_mgr->p_db, "/guid2lid");
+	p_mgr->p_g2l = osm_db_domain_init(p_mgr->p_db, "guid2lid");
 	if (!p_mgr->p_g2l) {
 		OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 0316: "
 			"Error initializing Guid-to-Lid persistent database\n");
