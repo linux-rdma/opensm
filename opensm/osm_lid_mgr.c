@@ -1051,7 +1051,7 @@ static int lid_mgr_set_physp_pi(IN osm_lid_mgr_t * p_mgr,
 	    && !p_mgr->p_subn->opt.no_clients_rereg
 	    && (p_old_pi->capability_mask & IB_PORT_CAP_HAS_CLIENT_REREG)) {
 		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-			"Seting client rereg on %s, port %d\n",
+			"Setting client rereg on %s, port %d\n",
 			p_port->p_node->print_desc, p_port->p_physp->port_num);
 		ib_port_info_set_client_rereg(p_pi, 1);
 		send_set = TRUE;
