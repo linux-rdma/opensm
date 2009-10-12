@@ -46,9 +46,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifndef __WIN__
-#include <strings.h>
-#endif
 #include <sys/time.h>
 #include <complib/cl_debug.h>
 #include "osmtest.h"
