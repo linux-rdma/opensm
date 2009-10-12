@@ -433,7 +433,7 @@ int main(int argc, char *argv[])
 			/*
 			 * Specifies the max LID to search for during exploration.
 			 */
-			max_lid = atoi(optarg);
+			max_lid = (uint16_t) atoi(optarg);
 			printf("\tMAX-LID %u\n", max_lid);
 			break;
 
