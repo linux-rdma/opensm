@@ -213,13 +213,8 @@ static void print_all_guids(IN osmtest_t * p_osmt)
 {
 	ib_api_status_t status;
 	uint32_t num_ports = MAX_LOCAL_IBPORTS;
-	ib_port_attr_t attr_array[MAX_LOCAL_IBPORTS];
+	ib_port_attr_t attr_array[MAX_LOCAL_IBPORTS] = { {0} };
 	uint32_t i;
-
-	for (i = 0; i < num_ports; i++) {
-		attr_array[i].num_pkeys = 0;
-		attr_array[i].p_pkey_table = NULL;
-	}
 
 	/*
 	   Call the transport layer for a list of local port
@@ -246,13 +241,8 @@ ib_net64_t get_port_guid(IN osmtest_t * p_osmt, uint64_t port_guid)
 {
 	ib_api_status_t status;
 	uint32_t num_ports = MAX_LOCAL_IBPORTS;
-	ib_port_attr_t attr_array[MAX_LOCAL_IBPORTS];
+	ib_port_attr_t attr_array[MAX_LOCAL_IBPORTS] = { {0} };
 	uint32_t i;
-
-	for (i = 0; i < num_ports; i++) {
-		attr_array[i].num_pkeys = 0;
-		attr_array[i].p_pkey_table = NULL;
-	}
 
 	/*
 	   Call the transport layer for a list of local port

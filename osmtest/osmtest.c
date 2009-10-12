@@ -7236,15 +7236,9 @@ osmtest_bind(IN osmtest_t * p_osmt,
 	uint32_t port_index;
 	ib_api_status_t status;
 	uint32_t num_ports = MAX_LOCAL_IBPORTS;
-	ib_port_attr_t attr_array[MAX_LOCAL_IBPORTS];
-	uint32_t i;
+	ib_port_attr_t attr_array[MAX_LOCAL_IBPORTS] = { {0} };
 
 	OSM_LOG_ENTER(&p_osmt->log);
-
-	for (i = 0; i < num_ports; i++) {
-		attr_array[i].num_pkeys = 0;
-		attr_array[i].p_pkey_table = NULL;
-	}
 
 	/*
 	 * Call the transport layer for a list of local port
