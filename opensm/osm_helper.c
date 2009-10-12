@@ -549,7 +549,7 @@ const char *ib_get_trap_str(ib_net16_t trap_num)
 	return "Unknown";
 }
 
-const ib_gid_t ib_zero_gid = { { 0 } };
+const ib_gid_t ib_zero_gid = { {0} };
 
 /**********************************************************************
  **********************************************************************/
@@ -828,20 +828,15 @@ void osm_dump_port_info(IN osm_log_t * p_log, IN ib_net64_t node_guid,
 			"\t\t\t\terror_threshold.........0x%X\n"
 			"\t\t\t\tmax_credit_hint.........0x%X\n"
 			"\t\t\t\tlink_round_trip_latency.0x%X\n",
-			port_num,
-			cl_ntoh64(node_guid),
-			cl_ntoh64(port_guid),
-			cl_ntoh64(p_pi->m_key),
-			cl_ntoh64(p_pi->subnet_prefix),
+			port_num, cl_ntoh64(node_guid), cl_ntoh64(port_guid),
+			cl_ntoh64(p_pi->m_key), cl_ntoh64(p_pi->subnet_prefix),
 			cl_ntoh16(p_pi->base_lid),
 			cl_ntoh16(p_pi->master_sm_base_lid),
 			cl_ntoh32(p_pi->capability_mask),
 			cl_ntoh16(p_pi->diag_code),
 			cl_ntoh16(p_pi->m_key_lease_period),
-			p_pi->local_port_num,
-			p_pi->link_width_enabled,
-			p_pi->link_width_supported,
-			p_pi->link_width_active,
+			p_pi->local_port_num, p_pi->link_width_enabled,
+			p_pi->link_width_supported, p_pi->link_width_active,
 			ib_port_info_get_link_speed_sup(p_pi),
 			ib_get_port_state_str(ib_port_info_get_port_state
 					      (p_pi)), p_pi->state_info2,
@@ -916,20 +911,15 @@ void osm_dump_portinfo_record(IN osm_log_t * p_log,
 			"\t\t\t\tsubnet_timeout..........0x%X\n"
 			"\t\t\t\tresp_time_value.........0x%X\n"
 			"\t\t\t\terror_threshold.........0x%X\n",
-			cl_ntoh16(p_pir->lid),
-			p_pir->port_num,
-			p_pir->resv,
-			cl_ntoh64(p_pi->m_key),
-			cl_ntoh64(p_pi->subnet_prefix),
+			cl_ntoh16(p_pir->lid), p_pir->port_num, p_pir->resv,
+			cl_ntoh64(p_pi->m_key), cl_ntoh64(p_pi->subnet_prefix),
 			cl_ntoh16(p_pi->base_lid),
 			cl_ntoh16(p_pi->master_sm_base_lid),
 			cl_ntoh32(p_pi->capability_mask),
 			cl_ntoh16(p_pi->diag_code),
 			cl_ntoh16(p_pi->m_key_lease_period),
-			p_pi->local_port_num,
-			p_pi->link_width_enabled,
-			p_pi->link_width_supported,
-			p_pi->link_width_active,
+			p_pi->local_port_num, p_pi->link_width_enabled,
+			p_pi->link_width_supported, p_pi->link_width_active,
 			ib_port_info_get_link_speed_sup(p_pi),
 			ib_get_port_state_str(ib_port_info_get_port_state
 					      (p_pi)), p_pi->state_info2,
@@ -978,16 +968,11 @@ void osm_dump_guidinfo_record(IN osm_log_t * p_log,
 			"\t\t\t\tGUID 5..................0x%016" PRIx64 "\n"
 			"\t\t\t\tGUID 6..................0x%016" PRIx64 "\n"
 			"\t\t\t\tGUID 7..................0x%016" PRIx64 "\n",
-			cl_ntoh16(p_gir->lid),
-			p_gir->block_num,
-			p_gir->resv,
+			cl_ntoh16(p_gir->lid), p_gir->block_num, p_gir->resv,
 			cl_ntoh32(p_gir->reserved),
-			cl_ntoh64(p_gi->guid[0]),
-			cl_ntoh64(p_gi->guid[1]),
-			cl_ntoh64(p_gi->guid[2]),
-			cl_ntoh64(p_gi->guid[3]),
-			cl_ntoh64(p_gi->guid[4]),
-			cl_ntoh64(p_gi->guid[5]),
+			cl_ntoh64(p_gi->guid[0]), cl_ntoh64(p_gi->guid[1]),
+			cl_ntoh64(p_gi->guid[2]), cl_ntoh64(p_gi->guid[3]),
+			cl_ntoh64(p_gi->guid[4]), cl_ntoh64(p_gi->guid[5]),
 			cl_ntoh64(p_gi->guid[6]), cl_ntoh64(p_gi->guid[7]));
 	}
 }
@@ -1012,16 +997,12 @@ void osm_dump_node_info(IN osm_log_t * p_log, IN const ib_node_info_t * p_ni,
 			"\t\t\t\trevision................0x%X\n"
 			"\t\t\t\tport_num................%u\n"
 			"\t\t\t\tvendor_id...............0x%X\n",
-			p_ni->base_version,
-			p_ni->class_version,
-			ib_get_node_type_str(p_ni->node_type),
-			p_ni->num_ports,
-			cl_ntoh64(p_ni->sys_guid),
-			cl_ntoh64(p_ni->node_guid),
+			p_ni->base_version, p_ni->class_version,
+			ib_get_node_type_str(p_ni->node_type), p_ni->num_ports,
+			cl_ntoh64(p_ni->sys_guid), cl_ntoh64(p_ni->node_guid),
 			cl_ntoh64(p_ni->port_guid),
 			cl_ntoh16(p_ni->partition_cap),
-			cl_ntoh16(p_ni->device_id),
-			cl_ntoh32(p_ni->revision),
+			cl_ntoh16(p_ni->device_id), cl_ntoh32(p_ni->revision),
 			ib_node_info_get_local_port_num(p_ni),
 			cl_ntoh32(ib_node_info_get_vendor_id(p_ni)));
 	}
@@ -1060,18 +1041,13 @@ void osm_dump_node_record(IN osm_log_t * p_log,
 			"\t\t\t\tvendor_id...............0x%X\n"
 			"\t\t\t\tNodeDescription\n"
 			"\t\t\t\t%s\n",
-			cl_ntoh16(p_nr->lid),
-			cl_ntoh16(p_nr->resv),
-			p_ni->base_version,
-			p_ni->class_version,
-			ib_get_node_type_str(p_ni->node_type),
-			p_ni->num_ports,
-			cl_ntoh64(p_ni->sys_guid),
-			cl_ntoh64(p_ni->node_guid),
+			cl_ntoh16(p_nr->lid), cl_ntoh16(p_nr->resv),
+			p_ni->base_version, p_ni->class_version,
+			ib_get_node_type_str(p_ni->node_type), p_ni->num_ports,
+			cl_ntoh64(p_ni->sys_guid), cl_ntoh64(p_ni->node_guid),
 			cl_ntoh64(p_ni->port_guid),
 			cl_ntoh16(p_ni->partition_cap),
-			cl_ntoh16(p_ni->device_id),
-			cl_ntoh32(p_ni->revision),
+			cl_ntoh16(p_ni->device_id), cl_ntoh32(p_ni->revision),
 			ib_node_info_get_local_port_num(p_ni),
 			cl_ntoh32(ib_node_info_get_vendor_id(p_ni)), desc);
 	}
@@ -1108,18 +1084,11 @@ void osm_dump_path_record(IN osm_log_t * p_log, IN const ib_path_rec_t * p_pr,
 				  sizeof gid_str),
 			inet_ntop(AF_INET6, p_pr->sgid.raw, gid_str2,
 				  sizeof gid_str2),
-			cl_ntoh16(p_pr->dlid),
-			cl_ntoh16(p_pr->slid),
-			cl_ntoh32(p_pr->hop_flow_raw),
-			p_pr->tclass,
-			p_pr->num_path,
-			cl_ntoh16(p_pr->pkey),
-			ib_path_rec_qos_class(p_pr),
-			ib_path_rec_sl(p_pr),
-			p_pr->mtu,
-			p_pr->rate,
-			p_pr->pkt_life,
-			p_pr->preference,
+			cl_ntoh16(p_pr->dlid), cl_ntoh16(p_pr->slid),
+			cl_ntoh32(p_pr->hop_flow_raw), p_pr->tclass,
+			p_pr->num_path, cl_ntoh16(p_pr->pkey),
+			ib_path_rec_qos_class(p_pr), ib_path_rec_sl(p_pr),
+			p_pr->mtu, p_pr->rate, p_pr->pkt_life, p_pr->preference,
 			p_pr->resv2[0], p_pr->resv2[1], p_pr->resv2[2],
 			p_pr->resv2[3], p_pr->resv2[4], p_pr->resv2[5]);
 	}
@@ -1143,7 +1112,8 @@ void osm_dump_multipath_record(IN osm_log_t * p_log,
 					     "\t\t\t\tsgid%02d.................."
 					     "%s\n", i + 1,
 					     inet_ntop(AF_INET6, p_gid->raw,
-						       gid_str, sizeof gid_str));
+						       gid_str,
+						       sizeof gid_str));
 				p_gid++;
 			}
 		}
@@ -1153,7 +1123,8 @@ void osm_dump_multipath_record(IN osm_log_t * p_log,
 					     "\t\t\t\tdgid%02d.................."
 					     "%s\n", i + 1,
 					     inet_ntop(AF_INET6, p_gid->raw,
-						       gid_str, sizeof gid_str));
+						       gid_str,
+						       sizeof gid_str));
 				p_gid++;
 			}
 		}
@@ -1173,16 +1144,11 @@ void osm_dump_multipath_record(IN osm_log_t * p_log,
 			"\t\t\t\tdgid_count..............0x%X\n"
 			"\t\t\t\tservice_id..............0x%016" PRIx64 "\n"
 			"%s\n",
-			cl_ntoh32(p_mpr->hop_flow_raw),
-			p_mpr->tclass,
-			p_mpr->num_path,
-			cl_ntoh16(p_mpr->pkey),
+			cl_ntoh32(p_mpr->hop_flow_raw), p_mpr->tclass,
+			p_mpr->num_path, cl_ntoh16(p_mpr->pkey),
 			ib_multipath_rec_qos_class(p_mpr),
-			ib_multipath_rec_sl(p_mpr),
-			p_mpr->mtu,
-			p_mpr->rate,
-			p_mpr->pkt_life,
-			p_mpr->independence,
+			ib_multipath_rec_sl(p_mpr), p_mpr->mtu, p_mpr->rate,
+			p_mpr->pkt_life, p_mpr->independence,
 			p_mpr->sgid_count, p_mpr->dgid_count,
 			cl_ntoh64(ib_multipath_rec_service_id(p_mpr)),
 			buf_line);
@@ -1215,13 +1181,9 @@ void osm_dump_mc_record(IN osm_log_t * p_log, IN const ib_member_rec_t * p_mcmr,
 				  sizeof gid_str),
 			inet_ntop(AF_INET6, p_mcmr->port_gid.raw, gid_str2,
 				  sizeof gid_str2),
-			cl_ntoh32(p_mcmr->qkey),
-			cl_ntoh16(p_mcmr->mlid),
-			p_mcmr->mtu,
-			p_mcmr->tclass,
-			cl_ntoh16(p_mcmr->pkey),
-			p_mcmr->rate,
-			p_mcmr->pkt_life,
+			cl_ntoh32(p_mcmr->qkey), cl_ntoh16(p_mcmr->mlid),
+			p_mcmr->mtu, p_mcmr->tclass, cl_ntoh16(p_mcmr->pkey),
+			p_mcmr->rate, p_mcmr->pkt_life,
 			cl_ntoh32(p_mcmr->sl_flow_hop),
 			p_mcmr->scope_state, p_mcmr->proxy_join);
 	}
@@ -1240,20 +1202,13 @@ void osm_dump_service_record(IN osm_log_t * p_log,
 
 		sprintf(buf_service_key,
 			"0x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
-			p_sr->service_key[0],
-			p_sr->service_key[1],
-			p_sr->service_key[2],
-			p_sr->service_key[3],
-			p_sr->service_key[4],
-			p_sr->service_key[5],
-			p_sr->service_key[6],
-			p_sr->service_key[7],
-			p_sr->service_key[8],
-			p_sr->service_key[9],
-			p_sr->service_key[10],
-			p_sr->service_key[11],
-			p_sr->service_key[12],
-			p_sr->service_key[13],
+			p_sr->service_key[0], p_sr->service_key[1],
+			p_sr->service_key[2], p_sr->service_key[3],
+			p_sr->service_key[4], p_sr->service_key[5],
+			p_sr->service_key[6], p_sr->service_key[7],
+			p_sr->service_key[8], p_sr->service_key[9],
+			p_sr->service_key[10], p_sr->service_key[11],
+			p_sr->service_key[12], p_sr->service_key[13],
 			p_sr->service_key[14], p_sr->service_key[15]);
 		strncpy(buf_service_name, (char *)p_sr->service_name, 64);
 		buf_service_name[64] = '\0';
@@ -1301,8 +1256,7 @@ void osm_dump_service_record(IN osm_log_t * p_log,
 				  sizeof gid_str),
 			cl_ntoh16(p_sr->service_pkey),
 			cl_ntoh32(p_sr->service_lease),
-			buf_service_key,
-			buf_service_name,
+			buf_service_key, buf_service_name,
 			p_sr->service_data8[0], p_sr->service_data8[1],
 			p_sr->service_data8[2], p_sr->service_data8[3],
 			p_sr->service_data8[4], p_sr->service_data8[5],
@@ -1512,14 +1466,10 @@ void osm_dump_switch_info(IN osm_log_t * p_log,
 			"\t\t\t\tpartition_enf_cap.......0x%X\n"
 			"\t\t\t\tflags...................0x%X\n"
 			"\t\t\t\tmcast_top...............0x%X\n",
-			cl_ntoh16(p_si->lin_cap),
-			cl_ntoh16(p_si->rand_cap),
-			cl_ntoh16(p_si->mcast_cap),
-			cl_ntoh16(p_si->lin_top),
-			p_si->def_port,
-			p_si->def_mcast_pri_port,
-			p_si->def_mcast_not_port,
-			p_si->life_state,
+			cl_ntoh16(p_si->lin_cap), cl_ntoh16(p_si->rand_cap),
+			cl_ntoh16(p_si->mcast_cap), cl_ntoh16(p_si->lin_top),
+			p_si->def_port, p_si->def_mcast_pri_port,
+			p_si->def_mcast_not_port, p_si->life_state,
 			cl_ntoh16(p_si->lids_per_port),
 			cl_ntoh16(p_si->enforce_cap), p_si->flags,
 			cl_ntoh16(p_si->mcast_top));
@@ -1610,8 +1560,8 @@ void osm_dump_slvl_map_table(IN osm_log_t * p_log, IN uint64_t port_guid,
 			"\t\t\tport_guid............0x%016" PRIx64 "\n"
 			"\t\t\tin_port_num..........%u\n"
 			"\t\t\tout_port_num.........%u\n\tSL: | %s\n\tVL: | %s\n",
-			cl_ntoh64(port_guid),
-			in_port_num, out_port_num, buf_line1, buf_line2);
+			cl_ntoh64(port_guid), in_port_num, out_port_num,
+			buf_line1, buf_line2);
 	}
 }
 
@@ -1654,8 +1604,7 @@ void osm_dump_sm_info(IN osm_log_t * p_log, IN const ib_sm_info_t * p_smi,
 			"\t\t\t\tact_count...............%u\n"
 			"\t\t\t\tpriority................%u\n"
 			"\t\t\t\tsm_state................%u\n",
-			cl_ntoh64(p_smi->guid),
-			cl_ntoh64(p_smi->sm_key),
+			cl_ntoh64(p_smi->guid), cl_ntoh64(p_smi->sm_key),
 			cl_ntoh32(p_smi->act_count),
 			ib_sminfo_get_priority(p_smi),
 			ib_sminfo_get_state(p_smi));
@@ -1680,8 +1629,7 @@ void osm_dump_sm_info_record(IN osm_log_t * p_log,
 			"\t\t\t\tact_count...............%u\n"
 			"\t\t\t\tpriority................%u\n"
 			"\t\t\t\tsm_state................%u\n",
-			cl_ntoh16(p_smir->lid),
-			cl_ntoh16(p_smir->resv0),
+			cl_ntoh16(p_smir->lid), cl_ntoh16(p_smir->resv0),
 			cl_ntoh64(p_smir->sm_info.guid),
 			cl_ntoh64(p_smir->sm_info.sm_key),
 			cl_ntoh32(p_smir->sm_info.act_count),
@@ -2028,25 +1976,17 @@ void osm_dump_sa_mad(IN osm_log_t * p_log, IN const ib_sa_mad_t * p_mad,
 			"\t\t\t\tattr_offset.............0x%X\n"
 			"\t\t\t\tresv2...................0x%X\n"
 			"\t\t\t\tcomp_mask...............0x%016" PRIx64 "\n",
-			p_mad->base_ver,
-			p_mad->mgmt_class,
-			p_mad->class_ver,
+			p_mad->base_ver, p_mad->mgmt_class, p_mad->class_ver,
 			p_mad->method, ib_get_sa_method_str(p_mad->method),
-			cl_ntoh16(p_mad->status),
-			cl_ntoh16(p_mad->resv),
-			cl_ntoh64(p_mad->trans_id),
-			cl_ntoh16(p_mad->attr_id),
+			cl_ntoh16(p_mad->status), cl_ntoh16(p_mad->resv),
+			cl_ntoh64(p_mad->trans_id), cl_ntoh16(p_mad->attr_id),
 			ib_get_sa_attr_str(p_mad->attr_id),
-			cl_ntoh16(p_mad->resv1),
-			cl_ntoh32(p_mad->attr_mod),
-			p_mad->rmpp_version,
-			p_mad->rmpp_type,
-			p_mad->rmpp_flags,
-			p_mad->rmpp_status,
+			cl_ntoh16(p_mad->resv1), cl_ntoh32(p_mad->attr_mod),
+			p_mad->rmpp_version, p_mad->rmpp_type,
+			p_mad->rmpp_flags, p_mad->rmpp_status,
 			cl_ntoh32(p_mad->seg_num),
 			cl_ntoh32(p_mad->paylen_newwin),
-			cl_ntoh64(p_mad->sm_key),
-			cl_ntoh16(p_mad->attr_offset),
+			cl_ntoh64(p_mad->sm_key), cl_ntoh16(p_mad->attr_offset),
 			cl_ntoh16(p_mad->resv3), cl_ntoh64(p_mad->comp_mask));
 
 		strcat(buf, "\n");
