@@ -59,10 +59,6 @@
 #include <complib/cl_debug.h>
 #include "osmtest.h"
 
-#ifndef __WIN__
-#define strnicmp strncasecmp
-#endif
-
 #define POOL_MIN_ITEMS  64
 #define MAX_LOCAL_IBPORTS 64
 
@@ -6169,7 +6165,7 @@ static const osmtest_token_t *str_get_token(IN char *const p_str)
 	p_tok = &token_array[index];
 
 	while (p_tok->val != OSMTEST_TOKEN_UNKNOWN) {
-		if (strnicmp(p_str, p_tok->str, p_tok->str_size) == 0)
+		if (strncasecmp(p_str, p_tok->str, p_tok->str_size) == 0)
 			return (p_tok);
 
 		p_tok = &token_array[++index];
