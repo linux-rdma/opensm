@@ -7237,7 +7237,7 @@ osmtest_bind(IN osmtest_t * p_osmt,
 	ib_api_status_t status;
 	uint32_t num_ports = MAX_LOCAL_IBPORTS;
 	ib_port_attr_t attr_array[MAX_LOCAL_IBPORTS];
-	int i;
+	uint32_t i;
 
 	OSM_LOG_ENTER(&p_osmt->log);
 
