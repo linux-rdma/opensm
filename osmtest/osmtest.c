@@ -43,19 +43,13 @@
  *
  */
 
-#ifdef __WIN__
-#pragma warning(disable : 4996)
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifdef __WIN__
-#include <complib/cl_timer.h>
-#else
+#ifndef __WIN__
 #include <strings.h>
-#include <sys/time.h>
 #endif
+#include <sys/time.h>
 #include <complib/cl_debug.h>
 #include "osmtest.h"
 
