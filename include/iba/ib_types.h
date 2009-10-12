@@ -2745,8 +2745,7 @@ ib_path_rec_init_local(IN ib_path_rec_t * const p_rec,
 	p_rec->tclass = 0;
 	p_rec->service_id = 0;
 
-	*((uint32_t *) p_rec->resv2) = 0;
-	*((uint16_t *) p_rec->resv2 + 2) = 0;
+	memset(p_rec->resv2, 0, sizeof(p_rec->resv2));
 }
 
 /*

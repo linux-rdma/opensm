@@ -1102,8 +1102,7 @@ void osm_dump_path_record(IN osm_log_t * p_log, IN const ib_path_rec_t * p_pr,
 			"\t\t\t\trate....................0x%X\n"
 			"\t\t\t\tpkt_life................0x%X\n"
 			"\t\t\t\tpreference..............0x%X\n"
-			"\t\t\t\tresv2...................0x%X\n"
-			"\t\t\t\tresv3...................0x%X\n",
+			"\t\t\t\tresv2...................0x%02X%02X%02X%02X%02X%02X\n",
 			cl_ntoh64(p_pr->service_id),
 			inet_ntop(AF_INET6, p_pr->dgid.raw, gid_str,
 				  sizeof gid_str),
@@ -1121,8 +1120,8 @@ void osm_dump_path_record(IN osm_log_t * p_log, IN const ib_path_rec_t * p_pr,
 			p_pr->rate,
 			p_pr->pkt_life,
 			p_pr->preference,
-			*(uint32_t *) & p_pr->resv2,
-			*((uint16_t *) & p_pr->resv2 + 2));
+			p_pr->resv2[0], p_pr->resv2[1], p_pr->resv2[2],
+			p_pr->resv2[3], p_pr->resv2[4], p_pr->resv2[5]);
 	}
 }
 
