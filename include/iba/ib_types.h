@@ -50,7 +50,7 @@
 #endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-#if defined( WIN32 ) || defined( _WIN64 )
+#if defined( __WIN__ )
 #if defined( EXPORT_AL_SYMBOLS )
 #define OSM_EXPORT	__declspec(dllexport)
 #else
@@ -8510,7 +8510,7 @@ typedef struct _ib_mcast *__ptr64 ib_mcast_handle_t;
 	in order to be compliant with Infinicon ib_types; later we'll change it to support
 	OpenSM ib_types.h */
 
-#ifndef WIN32
+#ifndef __WIN__
 /****d* Access Layer/ib_api_status_t
 * NAME
 *	ib_api_status_t
@@ -11473,8 +11473,7 @@ typedef struct _ib_time_stamp {
 *********/
 
 END_C_DECLS
-#endif				/* ndef WIN32 */
-#if defined( __WIN__ )
+#else				/* ndef __WIN__ */
 #include <iba/ib_types_extended.h>
 #endif
 #endif				/* __IB_TYPES_H__ */

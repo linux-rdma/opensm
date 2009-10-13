@@ -36,7 +36,7 @@
 #if !defined(__IB_CM_TYPES_H__)
 #define __IB_CM_TYPES_H__
 
-#ifndef WIN32
+#ifndef __WIN__
 
 #include <iba/ib_types.h>
 
@@ -199,5 +199,5 @@ typedef uint16_t ib_sidr_status_t;
 #define IB_SIDR_UNSUPPORTED_VER				5
 
 END_C_DECLS
-#endif				/* ndef WIN32 */
+#endif				/* ndef __WIN__ */
 #endif				/* __IB_CM_TYPES_H__ */

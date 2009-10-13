@@ -47,7 +47,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifndef WIN32
+#ifndef __WIN__
 #include <sys/time.h>
 #include <unistd.h>
 #endif
@@ -130,23 +130,23 @@ __osm_pkt_randomizer_process_path(IN osm_log_t * p_log,
 
 	if (rand_value_init == FALSE) {
 		int seed;
-#ifdef WIN32
+#ifdef __WIN__
 		SYSTEMTIME st;
 #else
 		struct timeval tv;
 		struct timezone tz;
-#endif				/*  WIN32 */
+#endif				/*  __WIN__ */
 
 		/* initiate the rand_value according to timeofday */
 		rand_value_init = TRUE;
 
-#ifdef WIN32
+#ifdef __WIN__
 		GetLocalTime(&st);
 		seed = st.wMilliseconds;
 #else
 		gettimeofday(&tv, &tz);
 		seed = tv.tv_usec;
-#endif				/*  WIN32 */
+#endif				/*  __WIN__ */
 
 		srand(seed);
 	}

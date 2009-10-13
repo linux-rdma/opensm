@@ -55,7 +55,7 @@
 
 static int log_exit_count = 0;
 
-#ifndef WIN32
+#ifndef __WIN__
 #include <sys/time.h>
 #include <unistd.h>
 #include <complib/cl_timer.h>
@@ -76,9 +76,9 @@ static char *month_str[] = {
 };
 #else
 void OsmReportState(IN const char *p_str);
-#endif				/* ndef WIN32 */
+#endif				/* ndef __WIN__ */
 
-#ifndef WIN32
+#ifndef __WIN__
 
 static void truncate_log_file(osm_log_t * p_log)
 {
@@ -99,7 +99,7 @@ static void truncate_log_file(osm_log_t * p_log)
 	fprintf(stderr,
 		"truncate_log_file: cannot truncate on windows system (yet)\n");
 }
-#endif				/* ndef WIN32 */
+#endif				/* ndef __WIN__ */
 
 void osm_log(IN osm_log_t * p_log, IN osm_log_level_t verbosity,
 	     IN const char *p_str, ...)
@@ -107,7 +107,7 @@ void osm_log(IN osm_log_t * p_log, IN osm_log_level_t verbosity,
 	char buffer[LOG_ENTRY_SIZE_MAX];
 	va_list args;
 	int ret;
-#ifdef WIN32
+#ifdef __WIN__
 	SYSTEMTIME st;
 	uint32_t pid = GetCurrentThreadId();
 #else
@@ -116,7 +116,7 @@ void osm_log(IN osm_log_t * p_log, IN osm_log_level_t verbosity,
 	struct tm result;
 	uint64_t time_usecs;
 	uint32_t usecs;
-#endif				/* WIN32 */
+#endif				/* __WIN__ */
 
 	/* If this is a call to syslog - always print it */
 	if (!(verbosity & (OSM_LOG_SYS | p_log->level)))
@@ -135,9 +135,9 @@ void osm_log(IN osm_log_t * p_log, IN osm_log_level_t verbosity,
 			printf("%s\n", buffer);
 			fflush(stdout);
 		}
-#ifdef WIN32
+#ifdef __WIN__
 		OsmReportState(buffer);
-#endif				/* WIN32 */
+#endif				/* __WIN__ */
 	}
 
 	/* regular log to default out_port */
@@ -150,7 +150,7 @@ void osm_log(IN osm_log_t * p_log, IN osm_log_level_t verbosity,
 			p_log->max_size);
 		truncate_log_file(p_log);
 	}
-#ifdef WIN32
+#ifdef __WIN__
 	GetLocalTime(&st);
 _retry:
 	ret =
