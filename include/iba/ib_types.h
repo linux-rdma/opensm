@@ -5315,7 +5315,7 @@ ib_port_info_set_client_rereg(IN ib_port_info_t * const p_pi,
 {
 	CL_ASSERT(client_rereg <= 0x1);
 	p_pi->subnet_timeout =
-	    (uint8_t) (p_pi->subnet_timeout | (client_rereg << 7));
+	    (uint8_t) ((p_pi->subnet_timeout & 0x7F) | (client_rereg << 7));
 }
 
 /*
