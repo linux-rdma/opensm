@@ -4431,7 +4431,7 @@ typedef struct _ib_port_info {
 	ib_net16_t p_key_violations;
 	ib_net16_t q_key_violations;
 	uint8_t guid_cap;
-	uint8_t subnet_timeout;	/* cli_rereg(1b), resrv(2b), timeout(5b) */
+	uint8_t subnet_timeout;	/* cli_rereg(1b), mcast_pkey_trap_suppr(1b), resrv(1b), timeout(5b) */
 	uint8_t resp_time_value;
 	uint8_t error_threshold; /* local phy errors(4b), overrun errors(4b) */
 	ib_net16_t max_credit_hint;
@@ -5281,7 +5281,7 @@ ib_port_info_set_timeout(IN ib_port_info_t * const p_pi,
 {
 	CL_ASSERT(timeout <= 0x1F);
 	p_pi->subnet_timeout =
-	    (uint8_t) ((p_pi->subnet_timeout & 0x80) | (timeout & 0x1F));
+	    (uint8_t) ((p_pi->subnet_timeout & 0xE0) | (timeout & 0x1F));
 }
 
 /*
@@ -5315,8 +5315,7 @@ ib_port_info_set_client_rereg(IN ib_port_info_t * const p_pi,
 {
 	CL_ASSERT(client_rereg <= 0x1);
 	p_pi->subnet_timeout =
-	    (uint8_t) ((p_pi->
-			subnet_timeout & 0x1F) | ((client_rereg << 7) & 0x80));
+	    (uint8_t) (p_pi->subnet_timeout | (client_rereg << 7));
 }
 
 /*
@@ -5326,6 +5325,42 @@ ib_port_info_set_client_rereg(IN ib_port_info_t * const p_pi,
 *
 *	client_rereg
 *		[in] Client reregistration value to set (either 1 or 0).
+*
+* RETURN VALUES
+*	None.
+*
+* NOTES
+*
+* SEE ALSO
+*********/
+
+/****f* IBA Base: Types/ib_port_info_set_mcast_pkey_trap_suppress
+* NAME
+*	ib_port_info_set_mcast_pkey_trap_suppress
+*
+* DESCRIPTION
+*	Sets the encoded multicast pkey trap suppresion enabled bit value
+*	in the PortInfo attribute.
+*
+* SYNOPSIS
+*/
+static inline void OSM_API
+ib_port_info_set_mcast_pkey_trap_suppress(IN ib_port_info_t * const p_pi,
+					  IN const uint8_t trap_suppress)
+{
+	CL_ASSERT(trap_suppress <= 0x1);
+	p_pi->subnet_timeout =
+	    (uint8_t) ((p_pi->subnet_timeout & 0xBF) | (trap_suppress << 6));
+}
+
+/*
+* PARAMETERS
+*	p_pi
+*		[in] Pointer to a PortInfo attribute.
+*
+*	trap_suppress
+*		[in] Multicast pkey trap suppresion enabled value to set
+*		     (either 1 or 0).
 *
 * RETURN VALUES
 *	None.
@@ -5385,6 +5420,35 @@ ib_port_info_get_client_rereg(IN ib_port_info_t const *p_pi)
 *
 * RETURN VALUES
 *	Client reregistration value (either 1 or 0).
+*
+* NOTES
+*
+* SEE ALSO
+*********/
+
+/****f* IBA Base: Types/ib_port_info_get_mcast_pkey_trap_suppress
+* NAME
+*	ib_port_info_get_mcast_pkey_trap_suppress
+*
+* DESCRIPTION
+*	Gets the encoded multicast pkey trap suppresion enabled bit value
+*	in the PortInfo attribute.
+*
+* SYNOPSIS
+*/
+static inline uint8_t OSM_API
+ib_port_info_get_mcast_pkey_trap_suppress(IN ib_port_info_t const *p_pi)
+{
+	return ((p_pi->subnet_timeout & 0x40) >> 6);
+}
+
+/*
+* PARAMETERS
+*	p_pi
+*		[in] Pointer to a PortInfo attribute.
+*
+* RETURN VALUES
+*	Multicast PKey trap suppression enabled value (either 1 or 0).
 *
 * NOTES
 *
