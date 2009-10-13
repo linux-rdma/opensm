@@ -193,8 +193,7 @@ static int do_ucast_file_load(void *context)
 					cl_ntoh64(sw_guid));
 				continue;
 			}
-			memset(p_sw->new_lft, OSM_NO_PATH,
-			       IB_LID_UCAST_END_HO + 1);
+			memset(p_sw->new_lft, OSM_NO_PATH, p_sw->lft_size);
 		} else if (p_sw && !strncmp(p, "0x", 2)) {
 			p += 2;
 			lid = (uint16_t) strtoul(p, &q, 16);

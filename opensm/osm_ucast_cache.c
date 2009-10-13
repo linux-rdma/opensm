@@ -1079,10 +1079,10 @@ int osm_ucast_cache_process(osm_ucast_mgr_t * p_mgr)
 			/* no new routing was recently calculated for this
 			   switch, but the LFT needs to be updated anyway */
 			p_sw->new_lft = p_sw->lft;
-			p_sw->lft = malloc(IB_LID_UCAST_END_HO + 1);
+			p_sw->lft = malloc(p_sw->lft_size);
 			if (!p_sw->lft)
 				return IB_INSUFFICIENT_MEMORY;
-			memset(p_sw->lft, OSM_NO_PATH, IB_LID_UCAST_END_HO + 1);
+			memset(p_sw->lft, OSM_NO_PATH, p_sw->lft_size);
 		}
 
 	}

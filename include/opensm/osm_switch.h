@@ -102,6 +102,7 @@ typedef struct osm_switch {
 	osm_port_profile_t *p_prof;
 	uint8_t *lft;
 	uint8_t *new_lft;
+	uint16_t lft_size;
 	osm_mcast_tbl_t mcast_tbl;
 	int32_t mft_block_num;
 	uint32_t mft_position;
@@ -405,7 +406,7 @@ uint8_t osm_switch_get_port_least_hops(IN const osm_switch_t * p_sw,
 static inline uint8_t osm_switch_get_port_by_lid(IN const osm_switch_t * p_sw,
 						 IN uint16_t lid_ho)
 {
-	if (lid_ho == 0 || lid_ho > IB_LID_UCAST_END_HO)
+	if (lid_ho == 0 || lid_ho > p_sw->max_lid_ho)
 		return OSM_NO_PATH;
 	return p_sw->lft[lid_ho];
 }
@@ -711,7 +712,7 @@ osm_switch_set_lft_block(IN osm_switch_t * p_sw, IN const uint8_t * p_block,
 		(uint16_t) (block_num * IB_SMP_DATA_SIZE);
 	CL_ASSERT(p_sw);
 
-	if (lid_start + IB_SMP_DATA_SIZE > IB_LID_UCAST_END_HO)
+	if (lid_start + IB_SMP_DATA_SIZE > p_sw->lft_size)
 		return IB_INVALID_PARAMETER;
 
 	memcpy(&p_sw->lft[lid_start], p_block, IB_SMP_DATA_SIZE);

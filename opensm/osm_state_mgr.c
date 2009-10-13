@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2008 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2008 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2009 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2009 HNR Consulting. All rights reserved.
  *
@@ -1011,9 +1011,9 @@ static void cleanup_switch(cl_map_item_t * item, void *log)
 	if (!sw->new_lft)
 		return;
 
-	if (memcmp(sw->lft, sw->new_lft, IB_LID_UCAST_END_HO + 1))
+	if (memcmp(sw->lft, sw->new_lft, sw->lft_size))
 		osm_log(log, OSM_LOG_ERROR, "ERR 331D: "
-			"LFT of switch 0x%016" PRIx64 " is not up to date.\n",
+			"LFT of switch 0x%016" PRIx64 " is not up to date\n",
 			cl_ntoh64(sw->p_node->node_info.node_guid));
 	else {
 		free(sw->new_lft);

@@ -372,7 +372,7 @@ static void ucast_mgr_process_tbl(IN cl_map_item_t * p_map_item,
 		cl_ntoh64(osm_node_get_node_guid(p_sw->p_node)));
 
 	/* Initialize LIDs in buffer to invalid port number. */
-	memset(p_sw->new_lft, OSM_NO_PATH, IB_LID_UCAST_END_HO + 1);
+	memset(p_sw->new_lft, OSM_NO_PATH, p_sw->max_lid_ho + 1);
 
 	if (p_mgr->p_subn->opt.lmc)
 		alloc_ports_priv(p_mgr);

@@ -994,7 +994,7 @@ static void populate_fwd_tbls(lash_t * p_lash)
 
 	p_next_sw = (osm_switch_t *) cl_qmap_head(&p_subn->sw_guid_tbl);
 
-	/* Go through each swtich individually */
+	/* Go through each switch individually */
 	while (p_next_sw != (osm_switch_t *) cl_qmap_end(&p_subn->sw_guid_tbl)) {
 		uint64_t current_guid;
 		switch_t *sw;
@@ -1005,7 +1005,7 @@ static void populate_fwd_tbls(lash_t * p_lash)
 		current_guid = p_sw->p_node->node_info.port_guid;
 		sw = p_sw->priv;
 
-		memset(p_sw->new_lft, OSM_NO_PATH, IB_LID_UCAST_END_HO + 1);
+		memset(p_sw->new_lft, OSM_NO_PATH, p_sw->lft_size);
 
 		for (lid = 1; lid <= max_lid_ho; lid++) {
 			port = cl_ptr_vector_get(&p_subn->port_lid_tbl, lid);

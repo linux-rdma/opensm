@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2008 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2008 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2009 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2009 HNR Consulting. All rights reserved.
  *
@@ -129,12 +129,6 @@ osm_switch_t *osm_switch_new(IN osm_node_t * p_node,
 	p_sw->switch_info = *p_si;
 	p_sw->num_ports = num_ports;
 	p_sw->need_update = 2;
-
-	p_sw->lft = malloc(IB_LID_UCAST_END_HO + 1);
-	if (!p_sw->lft)
-		goto err;
-
-	memset(p_sw->lft, OSM_NO_PATH, IB_LID_UCAST_END_HO + 1);
 
 	p_sw->p_prof = malloc(sizeof(*p_sw->p_prof) * num_ports);
 	if (!p_sw->p_prof)
@@ -498,21 +492,45 @@ void osm_switch_clear_hops(IN osm_switch_t * p_sw)
 
 /**********************************************************************
  **********************************************************************/
+static int alloc_lft(IN osm_switch_t * p_sw, uint16_t lids)
+{
+	uint16_t lft_size;
+
+	/* Ensure LFT is in units of LFT block size */
+	lft_size = (lids + IB_SMP_DATA_SIZE - 1) / IB_SMP_DATA_SIZE * IB_SMP_DATA_SIZE;
+
+	if (lft_size > p_sw->lft_size) {
+		uint8_t *new_lft = realloc(p_sw->lft, lft_size);
+		if (!new_lft)
+			return -1;
+		memset(new_lft + p_sw->lft_size, OSM_NO_PATH,
+		       lft_size - p_sw->lft_size);
+		p_sw->lft = new_lft;
+		p_sw->lft_size = lft_size;
+	}
+
+	return 0;
+}
+
+/**********************************************************************
+ **********************************************************************/
 int osm_switch_prepare_path_rebuild(IN osm_switch_t * p_sw, IN uint16_t max_lids)
 {
 	uint8_t **hops;
 	unsigned i;
+
+	if (alloc_lft(p_sw, max_lids))
+		return -1;
 
 	for (i = 0; i < p_sw->num_ports; i++)
 		osm_port_prof_construct(&p_sw->p_prof[i]);
 
 	osm_switch_clear_hops(p_sw);
 
-	if (!p_sw->new_lft &&
-	    !(p_sw->new_lft = malloc(IB_LID_UCAST_END_HO + 1)))
-		return IB_INSUFFICIENT_MEMORY;
+	if (!(p_sw->new_lft = realloc(p_sw->new_lft, p_sw->lft_size)))
+		return -1;
 
-	memset(p_sw->new_lft, OSM_NO_PATH, IB_LID_UCAST_END_HO + 1);
+	memset(p_sw->new_lft, OSM_NO_PATH, p_sw->lft_size);
 
 	if (!p_sw->hops) {
 		hops = malloc((max_lids + 1) * sizeof(hops[0]));
