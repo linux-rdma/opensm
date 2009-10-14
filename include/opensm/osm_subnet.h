@@ -634,6 +634,10 @@ typedef struct osm_subn {
 *		This flag should be on during first non-master heavy
 *		(including pre-master discovery stage)
 *
+*	mgrp_mgid_tbl
+*		Container of pointers to all Multicast group objects in
+*		the subnet. Indexed by MGID.
+*
 *	mgroups
 *		Array of pointers to all Multicast Group objects in the subnet.
 *		Indexed by MLID offset from base MLID.
