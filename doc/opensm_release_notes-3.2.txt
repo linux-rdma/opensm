@@ -271,7 +271,7 @@ information regarding each compliance statement.
   PortInfo:M_Key - Set the M_Key to a node based random value.
 
 * C14-62.1.1.13 (Initialization):
-  PortInfo:P_KeyProtectBits - set according to an optional policy.
+  PortInfo:M_KeyProtectBits - set according to an optional policy.
 
 * C14-62.1.1.24 (Initialization):
   SwitchInfo:DefaultPort - should be configured for random FDB.
