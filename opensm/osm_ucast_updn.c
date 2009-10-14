@@ -2,6 +2,7 @@
  * Copyright (c) 2004-2008 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2006 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
+ * Copyright (c) 2009 HNR Consulting. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -431,13 +432,13 @@ static void updn_find_root_nodes_by_min_hop(OUT updn_t * p_updn)
 		"Current number of ports in the subnet is %d\n",
 		cl_qmap_count(&p_osm->subn.port_guid_tbl));
 
-	cas_per_sw = malloc((IB_LID_UCAST_END_HO + 1) * sizeof(*cas_per_sw));
+	cas_per_sw = malloc(p_osm->subn.max_ucast_lid_ho * sizeof(*cas_per_sw));
 	if (!cas_per_sw) {
 		OSM_LOG(&p_osm->log, OSM_LOG_ERROR, "ERR AA14: "
 			"cannot alloc mem for CAs per switch counter array\n");
 		goto _exit;
 	}
-	memset(cas_per_sw, 0, (IB_LID_UCAST_END_HO + 1) * sizeof(*cas_per_sw));
+	memset(cas_per_sw, 0, p_osm->subn.max_ucast_lid_ho * sizeof(*cas_per_sw));
 
 	/* Find the Maximum number of CAs (and routers) for histogram normalization */
 	OSM_LOG(&p_osm->log, OSM_LOG_VERBOSE,
