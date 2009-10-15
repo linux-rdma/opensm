@@ -105,8 +105,8 @@ static void log_config_value(char *name, const char *fmt, ...)
 	if (n > sizeof(buf))
 		n = sizeof(buf);
 	n += vsnprintf(buf + n, sizeof(buf) - n, fmt, args);
-	if (n > sizeof(buf))
-		n = sizeof(buf);
+	if (n > sizeof(buf) - 2)
+		n = sizeof(buf) - 2;
 	snprintf(buf + n, sizeof(buf) - n, "\n");
 	va_end(args);
 	printf("%s", buf);
