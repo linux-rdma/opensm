@@ -432,13 +432,14 @@ static void updn_find_root_nodes_by_min_hop(OUT updn_t * p_updn)
 		"Current number of ports in the subnet is %d\n",
 		cl_qmap_count(&p_osm->subn.port_guid_tbl));
 
-	cas_per_sw = malloc(p_osm->subn.max_ucast_lid_ho * sizeof(*cas_per_sw));
+	lid_ho = (uint16_t) cl_ptr_vector_get_size(&p_updn->p_osm->subn.port_lid_tbl) + 1;
+	cas_per_sw = malloc(lid_ho * sizeof(*cas_per_sw));
 	if (!cas_per_sw) {
 		OSM_LOG(&p_osm->log, OSM_LOG_ERROR, "ERR AA14: "
 			"cannot alloc mem for CAs per switch counter array\n");
 		goto _exit;
 	}
-	memset(cas_per_sw, 0, p_osm->subn.max_ucast_lid_ho * sizeof(*cas_per_sw));
+	memset(cas_per_sw, 0, lid_ho * sizeof(*cas_per_sw));
 
 	/* Find the Maximum number of CAs (and routers) for histogram normalization */
 	OSM_LOG(&p_osm->log, OSM_LOG_VERBOSE,
