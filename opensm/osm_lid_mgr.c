@@ -175,8 +175,8 @@ static void lid_mgr_validate_db(IN osm_lid_mgr_t * p_mgr)
 				lids_ok = FALSE;
 			} else if (min_lid != max_lid
 				   && (min_lid & lmc_mask) != min_lid) {
-				/* check that if the lids define a range that is valid
-				   for the current LMC mask */
+				/* check that if the lids define a range that is
+				   valid for the current LMC mask */
 				OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR,
 					"ERR 0313: "
 					"LID range [%u:%u] for guid:0x%016"
@@ -210,7 +210,7 @@ static void lid_mgr_validate_db(IN osm_lid_mgr_t * p_mgr)
 						"guid:0x%016" PRIx64 "\n",
 						p_item->guid);
 			} else {
-				/* mark it was visited */
+				/* mark that it was visited */
 				for (lid = min_lid; lid <= max_lid; lid++)
 					p_mgr->used_lids[lid] = 1;
 			}
@@ -412,8 +412,8 @@ static int lid_mgr_init_sweep(IN osm_lid_mgr_t * p_mgr)
 	   Our task is to find free lid ranges.
 	   A lid can be used if
 	   1. a persistent assignment exists
-	   2. the lid is used by a discovered port that does not have a persistent
-	   assignment.
+	   2. the lid is used by a discovered port that does not have a
+	   persistent assignment.
 
 	   scan through all lid values of both the persistent table and
 	   discovered table.
@@ -454,15 +454,15 @@ static int lid_mgr_init_sweep(IN osm_lid_mgr_t * p_mgr)
 							  lid))) {
 			/* we have a port. Now lets see if we can preserve its lid range. */
 			/* For that, we need to make sure:
-			   1. The port has a (legal) persistency entry. Then the local lid
-			   is free (we will use the persistency value).
+			   1. The port has a (legal) persistency entry. Then the
+			   local lid is free (we will use the persistency value).
 			   2. Can the port keep its local assignment?
 			   a. Make sure the lid a aligned.
-			   b. Make sure all needed lids (for the lmc) are free according
-			   to persistency table.
+			   b. Make sure all needed lids (for the lmc) are free
+			   according to persistency table.
 			 */
-			/* qualify the guid of the port is not persistently mapped to
-			   another range */
+			/* qualify the guid of the port is not persistently
+			   mapped to another range */
 			if (!osm_db_guid2lid_get(p_mgr->p_g2l,
 						 cl_ntoh64
 						 (osm_port_get_guid(p_port)),
@@ -474,8 +474,9 @@ static int lid_mgr_init_sweep(IN osm_lid_mgr_t * p_mgr)
 					lid, db_min_lid, db_max_lid);
 			} else {
 				/* can the port keep its assignment ? */
-				/* get the lid range of that port, and the required number
-				   of lids we are about to assign to it */
+				/* get the lid range of that port, and the
+				   required number of lids we are about to
+				   assign to it */
 				osm_port_get_lid_range_ho(p_port,
 							  &disc_min_lid,
 							  &disc_max_lid);
