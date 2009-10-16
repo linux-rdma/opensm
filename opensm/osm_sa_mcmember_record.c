@@ -723,12 +723,12 @@ static boolean_t mgrp_request_is_realizable(IN osm_sa_t * sa,
 /**********************************************************************
  Call this function to create a new mgrp.
 **********************************************************************/
-ib_api_status_t osm_mcmr_rcv_create_new_mgrp(IN osm_sa_t * sa,
-					     IN ib_net64_t comp_mask,
-					     IN const ib_member_rec_t *
-					     const p_recvd_mcmember_rec,
-					     IN const osm_physp_t * p_physp,
-					     OUT osm_mgrp_t ** pp_mgrp)
+static ib_api_status_t mcmr_rcv_create_new_mgrp(IN osm_sa_t * sa,
+						IN ib_net64_t comp_mask,
+						IN const ib_member_rec_t *
+						const p_recvd_mcmember_rec,
+						IN const osm_physp_t * p_physp,
+						OUT osm_mgrp_t ** pp_mgrp)
 {
 	ib_net16_t mlid;
 	unsigned zero_mgid, i;
@@ -897,8 +897,8 @@ ib_api_status_t osm_mcmr_rcv_find_or_create_new_mgrp(IN osm_sa_t * sa,
 		*pp_mgrp = mgrp;
 		return IB_SUCCESS;
 	}
-	return osm_mcmr_rcv_create_new_mgrp(sa, comp_mask, p_recvd_mcmember_rec,
-					    NULL, pp_mgrp);
+	return mcmr_rcv_create_new_mgrp(sa, comp_mask, p_recvd_mcmember_rec,
+					NULL, pp_mgrp);
 }
 
 /*********************************************************************
@@ -1084,9 +1084,9 @@ static void mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 			goto Exit;
 		}
 
-		status = osm_mcmr_rcv_create_new_mgrp(sa, p_sa_mad->comp_mask,
-						      p_recvd_mcmember_rec,
-						      p_physp, &p_mgrp);
+		status = mcmr_rcv_create_new_mgrp(sa, p_sa_mad->comp_mask,
+						  p_recvd_mcmember_rec,
+						  p_physp, &p_mgrp);
 		if (status != IB_SUCCESS) {
 			CL_PLOCK_RELEASE(sa->p_lock);
 			osm_sa_send_error(sa, p_madw, status);
