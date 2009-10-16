@@ -1002,6 +1002,7 @@ static void fabric_clear(ftree_fabric_t * p_ftree)
 
 	p_ftree->leaf_switches_num = 0;
 	p_ftree->cn_num = 0;
+	p_ftree->ca_ports = 0;
 	p_ftree->leaf_switch_rank = 0;
 	p_ftree->max_switch_rank = 0;
 	p_ftree->max_cn_per_leaf = 0;
