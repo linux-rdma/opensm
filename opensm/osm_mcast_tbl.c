@@ -81,8 +81,6 @@ ib_api_status_t osm_mcast_tbl_init(IN osm_mcast_tbl_t * p_tbl,
 						IB_MCAST_BLOCK_SIZE) /
 					IB_MCAST_BLOCK_SIZE) - 1);
 
-	p_tbl->max_mlid_ho = (uint16_t) (IB_LID_MCAST_START_HO + capacity - 1);
-
 	/*
 	   The number of bytes needed in the mask table is:
 	   The (maximum bit mask 'position' + 1) times the
@@ -122,7 +120,8 @@ void osm_mcast_tbl_set(IN osm_mcast_tbl_t * p_tbl, IN uint16_t mlid_ho,
 
 	CL_ASSERT(p_tbl);
 	CL_ASSERT(mlid_ho >= IB_LID_MCAST_START_HO);
-	CL_ASSERT(mlid_ho <= p_tbl->max_mlid_ho);
+	CL_ASSERT(mlid_ho <= (uint16_t) (IB_LID_MCAST_START_HO +
+					 p_tbl->num_entries - 1));
 	CL_ASSERT(p_tbl->p_mask_tbl);
 
 	mlid_offset = mlid_ho - IB_LID_MCAST_START_HO;
@@ -134,6 +133,8 @@ void osm_mcast_tbl_set(IN osm_mcast_tbl_t * p_tbl, IN uint16_t mlid_ho,
 
 	if (block_num > p_tbl->max_block_in_use)
 		p_tbl->max_block_in_use = (uint16_t) block_num;
+	if (mlid_ho > p_tbl->max_mlid_ho)
+		p_tbl->max_mlid_ho = mlid_ho;
 }
 
 /**********************************************************************
@@ -151,7 +152,8 @@ boolean_t osm_mcast_tbl_is_port(IN const osm_mcast_tbl_t * p_tbl,
 		CL_ASSERT(port_num <=
 			  (p_tbl->max_position + 1) * IB_MCAST_MASK_SIZE);
 		CL_ASSERT(mlid_ho >= IB_LID_MCAST_START_HO);
-		CL_ASSERT(mlid_ho <= p_tbl->max_mlid_ho);
+		CL_ASSERT(mlid_ho <= (uint16_t) (IB_LID_MCAST_START_HO +
+						 p_tbl->num_entries - 1));
 
 		mlid_offset = mlid_ho - IB_LID_MCAST_START_HO;
 		mask_offset = port_num / IB_MCAST_MASK_SIZE;
@@ -178,7 +180,8 @@ boolean_t osm_mcast_tbl_is_any_port(IN const osm_mcast_tbl_t * p_tbl,
 
 	if (p_tbl->p_mask_tbl) {
 		CL_ASSERT(mlid_ho >= IB_LID_MCAST_START_HO);
-		CL_ASSERT(mlid_ho <= p_tbl->max_mlid_ho);
+		CL_ASSERT(mlid_ho <= (uint16_t) (IB_LID_MCAST_START_HO +
+						 p_tbl->num_entries - 1));
 
 		mlid_offset = mlid_ho - IB_LID_MCAST_START_HO;
 
@@ -210,7 +213,8 @@ ib_api_status_t osm_mcast_tbl_set_block(IN osm_mcast_tbl_t * p_tbl,
 
 	mlid_start_ho = (uint16_t) (block_num * IB_MCAST_BLOCK_SIZE);
 
-	if (mlid_start_ho + IB_MCAST_BLOCK_SIZE - 1 > p_tbl->max_mlid_ho)
+	if (mlid_start_ho + IB_MCAST_BLOCK_SIZE - 1 >
+	    p_tbl->num_entries + IB_LID_MCAST_START_HO - 1)
 		return IB_INVALID_PARAMETER;
 
 	for (i = 0; i < IB_MCAST_BLOCK_SIZE; i++)
@@ -218,6 +222,9 @@ ib_api_status_t osm_mcast_tbl_set_block(IN osm_mcast_tbl_t * p_tbl,
 
 	if (block_num > p_tbl->max_block_in_use)
 		p_tbl->max_block_in_use = (uint16_t) block_num;
+
+	if (mlid_start_ho + IB_MCAST_BLOCK_SIZE - 1 > p_tbl->max_mlid_ho)
+		p_tbl->max_mlid_ho = mlid_start_ho + IB_MCAST_BLOCK_SIZE - 1;
 
 	return IB_SUCCESS;
 }

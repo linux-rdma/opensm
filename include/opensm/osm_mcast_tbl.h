@@ -2,6 +2,7 @@
  * Copyright (c) 2004, 2005 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
+ * Copyright (c) 2009 HNR Consulting. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -95,7 +96,8 @@ typedef struct osm_mcast_fwdbl {
 *		Number of entries in the table (aka number of MLIDs supported).
 *
 *	max_mlid_ho
-*		Maximum MLID value (host order).
+*		Maximum MLID (host order) configured in the multicast port mask
+*		table.
 *
 *	pp_mask_tbl
 *		Pointer to a two dimensional array of port_masks for this switch.

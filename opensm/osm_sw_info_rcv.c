@@ -2,6 +2,7 @@
  * Copyright (c) 2004-2008 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
+ * Copyright (c) 2009 HNR Consulting. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -219,8 +220,10 @@ static void si_rcv_process_new(IN osm_sm_t * sm, IN osm_node_t * p_node,
 	}
 
 	/* set subnet max mlid to the minimum MulticastFDBCap of all switches */
-	if (p_sw->mcast_tbl.max_mlid_ho < sm->p_subn->max_mcast_lid_ho) {
-		sm->p_subn->max_mcast_lid_ho = p_sw->mcast_tbl.max_mlid_ho;
+	if (p_sw->mcast_tbl.num_entries < sm->p_subn->max_mcast_lid_ho -
+					  IB_LID_MCAST_START_HO + 1) {
+		sm->p_subn->max_mcast_lid_ho = p_sw->mcast_tbl.num_entries +
+					       IB_LID_MCAST_START_HO - 1;
 		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 			"Subnet max multicast lid is 0x%X\n",
 			sm->p_subn->max_mcast_lid_ho);
