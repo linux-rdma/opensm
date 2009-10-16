@@ -497,8 +497,7 @@ static int alloc_lft(IN osm_switch_t * p_sw, uint16_t lids)
 	uint16_t lft_size;
 
 	/* Ensure LFT is in units of LFT block size */
-	lft_size = (lids + IB_SMP_DATA_SIZE - 1) / IB_SMP_DATA_SIZE * IB_SMP_DATA_SIZE;
-
+	lft_size = (lids / IB_SMP_DATA_SIZE + 1) * IB_SMP_DATA_SIZE;
 	if (lft_size > p_sw->lft_size) {
 		uint8_t *new_lft = realloc(p_sw->lft, lft_size);
 		if (!new_lft)
