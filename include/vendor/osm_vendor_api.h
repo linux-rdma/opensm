@@ -172,9 +172,9 @@ void osm_vendor_delete(IN osm_vendor_t ** const pp_vend);
 * SEE ALSO
 *********/
 
-/****f* OpenSM Vendor API/osm_vendor_get_ports
+/****f* OpenSM Vendor API/osm_vendor_get_all_port_attr
 * NAME
-*  osm_vendor_get_ports
+*  osm_vendor_get_all_port_attr
 *
 * DESCRIPTION
 *  Returns an array of available port attribute structures.
@@ -197,7 +197,7 @@ osm_vendor_get_all_port_attr(IN osm_vendor_t * const p_vend,
 *
 *  p_num_ports
 *     [in/out] Pointer to a variable to hold the total number of ports
-*     available on the local machine..
+*     available on the local machine.
 *
 * RETURN VALUES
 *  IB_SUCCESS on success.
@@ -219,8 +219,8 @@ osm_vendor_get_all_port_attr(IN osm_vendor_t * const p_vend,
 * SYNOPSIS
 */
 ib_api_status_t
-osm_vendor_init(IN osm_vendor_t * const p_vend,
-		IN osm_log_t * const p_log, IN const uint32_t timeout);
+osm_vendor_init(IN osm_vendor_t * const p_vend, IN osm_log_t * const p_log,
+		IN const uint32_t timeout);
 /*
 * PARAMETERS
 *  p_vend
