@@ -839,7 +839,7 @@ static ib_api_status_t append_prefix_route(IN osm_subn_t * p_subn,
 	return IB_SUCCESS;
 }
 
-static ib_api_status_t osm_parse_prefix_routes_file(IN osm_subn_t * p_subn)
+static ib_api_status_t parse_prefix_routes_file(IN osm_subn_t * p_subn)
 {
 	osm_log_t *log = &p_subn->p_osm->log;
 	FILE *fp;
@@ -1263,7 +1263,7 @@ int osm_subn_rescan_conf_files(IN osm_subn_t * p_subn)
 
 	osm_subn_verify_config(p_opts);
 
-	osm_parse_prefix_routes_file(p_subn);
+	parse_prefix_routes_file(p_subn);
 
 	return 0;
 }

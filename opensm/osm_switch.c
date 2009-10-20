@@ -171,10 +171,10 @@ boolean_t osm_switch_get_lft_block(IN const osm_switch_t * p_sw,
 /**********************************************************************
  **********************************************************************/
 static struct osm_remote_node *
-osm_switch_find_guid_common(IN const osm_switch_t * p_sw,
-			    IN struct osm_remote_guids_count *r,
-			    IN uint8_t port_num,
-			    IN int find_sys_guid, IN int find_node_guid)
+switch_find_guid_common(IN const osm_switch_t * p_sw,
+			IN struct osm_remote_guids_count *r,
+			IN uint8_t port_num, IN int find_sys_guid,
+			IN int find_node_guid)
 {
 	struct osm_remote_node *p_remote_guid = NULL;
 	osm_physp_t *p_physp;
@@ -206,19 +206,19 @@ osm_switch_find_guid_common(IN const osm_switch_t * p_sw,
 }
 
 static struct osm_remote_node *
-osm_switch_find_sys_guid_count(IN const osm_switch_t * p_sw,
-			       IN struct osm_remote_guids_count *r,
-			       IN uint8_t port_num)
+switch_find_sys_guid_count(IN const osm_switch_t * p_sw,
+			   IN struct osm_remote_guids_count *r,
+			   IN uint8_t port_num)
 {
-	return osm_switch_find_guid_common(p_sw, r, port_num, 1, 0);
+	return switch_find_guid_common(p_sw, r, port_num, 1, 0);
 }
 
 static struct osm_remote_node *
-osm_switch_find_node_guid_count(IN const osm_switch_t * p_sw,
-				IN struct osm_remote_guids_count *r,
-				IN uint8_t port_num)
+switch_find_node_guid_count(IN const osm_switch_t * p_sw,
+			    IN struct osm_remote_guids_count *r,
+			    IN uint8_t port_num)
 {
-	return osm_switch_find_guid_common(p_sw, r, port_num, 0, 1);
+	return switch_find_guid_common(p_sw, r, port_num, 0, 1);
 }
 
 /**********************************************************************
@@ -411,9 +411,9 @@ uint8_t osm_switch_recommend_path(IN const osm_switch_t * p_sw,
 		 */
 		} else if (routing_for_lmc) {
 			/* Is the sys guid already used ? */
-			p_remote_guid = osm_switch_find_sys_guid_count(p_sw,
-								       p_port->priv,
-								       port_num);
+			p_remote_guid = switch_find_sys_guid_count(p_sw,
+								   p_port->priv,
+								   port_num);
 
 			/* If not update the least hops for this case */
 			if (!p_remote_guid) {
@@ -424,9 +424,9 @@ uint8_t osm_switch_recommend_path(IN const osm_switch_t * p_sw,
 				}
 			} else {	/* same sys found - try node */
 				/* Else is the node guid already used ? */
-				p_remote_guid = osm_switch_find_node_guid_count(p_sw,
-										p_port->priv,
-										port_num);
+				p_remote_guid = switch_find_node_guid_count(p_sw,
+									    p_port->priv,
+									    port_num);
 
 				/* If not update the least hops for this case */
 				if (!p_remote_guid

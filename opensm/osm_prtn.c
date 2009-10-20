@@ -312,9 +312,8 @@ osm_prtn_t *osm_prtn_make_new(osm_log_t * p_log, osm_subn_t * p_subn,
 	return p;
 }
 
-static ib_api_status_t osm_prtn_make_default(osm_log_t * p_log,
-					     osm_subn_t * p_subn,
-					     boolean_t no_config)
+static ib_api_status_t prtn_make_default(osm_log_t * p_log, osm_subn_t * p_subn,
+					 boolean_t no_config)
 {
 	ib_api_status_t status = IB_UNKNOWN_ERROR;
 	osm_prtn_t *p;
@@ -362,7 +361,7 @@ ib_api_status_t osm_prtn_make_partitions(osm_log_t * p_log, osm_subn_t * p_subn)
 
 	global_pkey_counter = 0;
 
-	status = osm_prtn_make_default(p_log, p_subn, !is_config);
+	status = prtn_make_default(p_log, p_subn, !is_config);
 	if (status != IB_SUCCESS)
 		goto _err;
 

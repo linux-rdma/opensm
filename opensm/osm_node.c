@@ -127,7 +127,7 @@ osm_node_t *osm_node_new(IN const osm_madw_t * p_madw)
 
 /**********************************************************************
  **********************************************************************/
-static void osm_node_destroy(IN osm_node_t * p_node)
+static void node_destroy(IN osm_node_t * p_node)
 {
 	uint16_t i;
 
@@ -148,7 +148,7 @@ static void osm_node_destroy(IN osm_node_t * p_node)
 void osm_node_delete(IN OUT osm_node_t ** p_node)
 {
 	CL_ASSERT(p_node && *p_node);
-	osm_node_destroy(*p_node);
+	node_destroy(*p_node);
 	free(*p_node);
 	*p_node = NULL;
 }

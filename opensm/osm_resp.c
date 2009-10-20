@@ -58,11 +58,10 @@
 
 /**********************************************************************
  **********************************************************************/
-static void osm_resp_make_resp_smp(IN osm_sm_t * sm,
-				   IN const ib_smp_t * p_src_smp,
-				   IN ib_net16_t status,
-				   IN const uint8_t * p_payload,
-				   OUT ib_smp_t * p_dest_smp)
+static void resp_make_resp_smp(IN osm_sm_t * sm, IN const ib_smp_t * p_src_smp,
+			       IN ib_net16_t status,
+			       IN const uint8_t * p_payload,
+			       OUT ib_smp_t * p_dest_smp)
 {
 	OSM_LOG_ENTER(sm->p_log);
 
@@ -133,7 +132,7 @@ ib_api_status_t osm_resp_send(IN osm_sm_t * sm,
 	 */
 	p_smp = osm_madw_get_smp_ptr(p_madw);
 	p_req_smp = osm_madw_get_smp_ptr(p_req_madw);
-	osm_resp_make_resp_smp(sm, p_req_smp, mad_status, p_payload, p_smp);
+	resp_make_resp_smp(sm, p_req_smp, mad_status, p_payload, p_smp);
 	p_madw->mad_addr.dest_lid =
 	    p_req_madw->mad_addr.addr_type.smi.source_lid;
 	p_madw->mad_addr.addr_type.smi.source_lid =
