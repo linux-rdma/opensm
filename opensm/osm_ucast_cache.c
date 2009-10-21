@@ -59,8 +59,6 @@
 #include <opensm/osm_node.h>
 #include <opensm/osm_port.h>
 
-#define CACHE_SW_PORTS 36
-
 typedef struct cache_port {
 	boolean_t is_leaf;
 	uint16_t remote_lid_ho;
@@ -420,7 +418,7 @@ void osm_ucast_cache_invalidate(osm_ucast_mgr_t * p_mgr)
 	}
 	cl_qmap_remove_all(&p_mgr->cache_sw_tbl);
 
-	OSM_LOG(p_mgr->p_log, OSM_LOG_VERBOSE, "Unicast Cache Invalidated.\n");
+	OSM_LOG(p_mgr->p_log, OSM_LOG_VERBOSE, "Unicast Cache invalidated\n");
 Exit:
 	OSM_LOG_EXIT(p_mgr->p_log);
 }
