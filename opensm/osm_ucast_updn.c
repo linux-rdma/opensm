@@ -286,7 +286,7 @@ static int updn_subn_rank(IN updn_t * p_updn)
 /**********************************************************************
  **********************************************************************/
 /* hack: preserve min hops entries to any other root switches */
-static void updn_clear_root_hops(updn_t * p_updn, osm_switch_t * p_sw)
+static void updn_clear_non_root_hops(updn_t * p_updn, osm_switch_t * p_sw)
 {
 	osm_port_t *p_port;
 	unsigned i;
@@ -325,7 +325,7 @@ static int updn_set_min_hop_table(IN updn_t * p_updn)
 		p_sw = (osm_switch_t *)item;
 		/* Clear Min Hop Table */
 		if (p_subn->opt.connect_roots)
-			updn_clear_root_hops(p_updn, p_sw);
+			updn_clear_non_root_hops(p_updn, p_sw);
 		else
 			osm_switch_clear_hops(p_sw);
 	}
