@@ -66,6 +66,8 @@ BEGIN_C_DECLS
 #define OSM_DEFAULT_RETRY_COUNT 3
 #define OSM_UMAD_MAX_CAS	32
 #define OSM_UMAD_MAX_PORTS_PER_CA	2
+#define OSM_UMAD_MAX_AGENTS	32
+
 /****s* OpenSM: Vendor UMAD/osm_ca_info_t
 * NAME
 *   osm_ca_info_t
@@ -154,7 +156,7 @@ typedef struct _osm_vendor {
 	osm_ca_info_t *p_ca_info;
 	uint32_t timeout;
 	int max_retries;
-	osm_bind_handle_t agents[UMAD_CA_MAX_AGENTS];
+	osm_bind_handle_t agents[OSM_UMAD_MAX_AGENTS];
 	char ca_names[OSM_UMAD_MAX_CAS][UMAD_CA_NAME_LEN];
 	vendor_match_tbl_t mtbl;
 	umad_port_t umad_port;

@@ -288,7 +288,7 @@ static void *umad_receiver(void *p_ptr)
 			}
 		}
 
-		if (mad_agent >= UMAD_CA_MAX_AGENTS ||
+		if (mad_agent >= OSM_UMAD_MAX_AGENTS ||
 		    !(p_bind = p_vend->agents[mad_agent])) {
 			OSM_LOG(p_ur->p_log, OSM_LOG_ERROR, "ERR 5407: "
 				"invalid mad agent %d - dropping\n", mad_agent);
@@ -738,7 +738,7 @@ static void osm_vendor_close_port(osm_vendor_t * const p_vend)
 	}
 
 	if (p_vend->umad_port_id >= 0) {
-		for (i = 0; i < UMAD_CA_MAX_AGENTS; i++)
+		for (i = 0; i < OSM_UMAD_MAX_AGENTS; i++)
 			if (p_vend->agents[i])
 				umad_unregister(p_vend->umad_port_id, i);
 		umad_close_port(p_vend->umad_port_id);
@@ -862,7 +862,7 @@ osm_vendor_bind(IN osm_vendor_t * const p_vend,
 		goto Exit;
 	}
 
-	if (p_bind->agent_id >= UMAD_CA_MAX_AGENTS ||
+	if (p_bind->agent_id >= OSM_UMAD_MAX_AGENTS ||
 	    p_vend->agents[p_bind->agent_id]) {
 		OSM_LOG(p_vend->p_log, OSM_LOG_ERROR, "ERR 5427: "
 			"bad agent id %u or duplicate agent for class %u vers %u\n",
@@ -890,7 +890,7 @@ osm_vendor_bind(IN osm_vendor_t * const p_vend,
 			goto Exit;
 		}
 
-		if (p_bind->agent_id1 >= UMAD_CA_MAX_AGENTS ||
+		if (p_bind->agent_id1 >= OSM_UMAD_MAX_AGENTS ||
 		    p_vend->agents[p_bind->agent_id1]) {
 			OSM_LOG(p_vend->p_log, OSM_LOG_ERROR, "ERR 5429: "
 				"bad agent id %u or duplicate agent for class 1 vers %u\n",
