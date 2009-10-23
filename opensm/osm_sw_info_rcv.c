@@ -220,10 +220,10 @@ static void si_rcv_process_new(IN osm_sm_t * sm, IN osm_node_t * p_node,
 	}
 
 	/* set subnet max mlid to the minimum MulticastFDBCap of all switches */
-	if (p_sw->mcast_tbl.num_entries < sm->p_subn->max_mcast_lid_ho -
-					  IB_LID_MCAST_START_HO + 1) {
-		sm->p_subn->max_mcast_lid_ho = p_sw->mcast_tbl.num_entries +
-					       IB_LID_MCAST_START_HO - 1;
+	if (cl_ntoh16(p_si->mcast_cap) + IB_LID_MCAST_START_HO - 1 <
+	    sm->p_subn->max_mcast_lid_ho) {
+		sm->p_subn->max_mcast_lid_ho = cl_ntoh16(p_si->mcast_cap) +
+			IB_LID_MCAST_START_HO - 1;
 		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 			"Subnet max multicast lid is 0x%X\n",
 			sm->p_subn->max_mcast_lid_ho);
