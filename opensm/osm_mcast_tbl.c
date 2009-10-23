@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2006 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2009 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2009 HNR Consulting. All rights reserved.
  *
@@ -53,8 +53,8 @@
 
 /**********************************************************************
  **********************************************************************/
-ib_api_status_t osm_mcast_tbl_init(IN osm_mcast_tbl_t * p_tbl,
-				   IN uint8_t num_ports, IN uint16_t capacity)
+void osm_mcast_tbl_init(IN osm_mcast_tbl_t * p_tbl, IN uint8_t num_ports,
+			IN uint16_t capacity)
 {
 	CL_ASSERT(p_tbl);
 	CL_ASSERT(num_ports);
@@ -68,7 +68,7 @@ ib_api_status_t osm_mcast_tbl_init(IN osm_mcast_tbl_t * p_tbl,
 		   This switch apparently doesn't support multicast.
 		   Everything is initialized to zero already, so return.
 		 */
-		return IB_SUCCESS;
+		return;
 	}
 
 	p_tbl->num_entries = capacity;
@@ -80,25 +80,6 @@ ib_api_status_t osm_mcast_tbl_init(IN osm_mcast_tbl_t * p_tbl,
 	p_tbl->max_block = (uint16_t) ((ROUNDUP(p_tbl->num_entries,
 						IB_MCAST_BLOCK_SIZE) /
 					IB_MCAST_BLOCK_SIZE) - 1);
-
-	/*
-	   The number of bytes needed in the mask table is:
-	   The (maximum bit mask 'position' + 1) times the
-	   number of bytes in each bit mask times the
-	   number of MLIDs supported by the table.
-
-	   We must always allocate the array with the maximum position
-	   since it is (and must be) defined that way the table structure
-	   in order to create a pointer to a two dimensional array.
-	 */
-	p_tbl->p_mask_tbl = calloc(p_tbl->num_entries,
-				   (IB_MCAST_POSITION_MAX +
-				    1) * IB_MCAST_MASK_SIZE / 8);
-
-	if (p_tbl->p_mask_tbl == NULL)
-		return IB_INSUFFICIENT_MEMORY;
-
-	return IB_SUCCESS;
 }
 
 /**********************************************************************
@@ -120,8 +101,8 @@ void osm_mcast_tbl_set(IN osm_mcast_tbl_t * p_tbl, IN uint16_t mlid_ho,
 
 	CL_ASSERT(p_tbl);
 	CL_ASSERT(mlid_ho >= IB_LID_MCAST_START_HO);
-	CL_ASSERT(mlid_ho <= (uint16_t) (IB_LID_MCAST_START_HO +
-					 p_tbl->num_entries - 1));
+	CL_ASSERT(mlid_ho <= p_tbl->max_mlid_ho);
+	CL_ASSERT(mlid_ho - IB_LID_MCAST_START_HO < p_tbl->mft_depth);
 	CL_ASSERT(p_tbl->p_mask_tbl);
 
 	mlid_offset = mlid_ho - IB_LID_MCAST_START_HO;
@@ -133,8 +114,40 @@ void osm_mcast_tbl_set(IN osm_mcast_tbl_t * p_tbl, IN uint16_t mlid_ho,
 
 	if (block_num > p_tbl->max_block_in_use)
 		p_tbl->max_block_in_use = (uint16_t) block_num;
-	if (mlid_ho > p_tbl->max_mlid_ho)
-		p_tbl->max_mlid_ho = mlid_ho;
+}
+
+/**********************************************************************
+ **********************************************************************/
+int osm_mcast_tbl_realloc(IN osm_mcast_tbl_t * p_tbl, IN uintn_t mlid_offset)
+{
+	size_t mft_depth, size;
+	uint16_t (*p_mask_tbl)[][IB_MCAST_POSITION_MAX];
+
+	if (mlid_offset < p_tbl->mft_depth)
+		return 0;
+
+	/*
+	   The number of bytes needed in the mask table is:
+	   The (maximum bit mask 'position' + 1) times the
+	   number of bytes in each bit mask times the
+	   number of MLIDs supported by the table.
+
+	   We must always allocate the array with the maximum position
+	   since it is (and must be) defined that way the table structure
+	   in order to create a pointer to a two dimensional array.
+	 */
+	mft_depth = (mlid_offset / IB_MCAST_BLOCK_SIZE + 1) * IB_MCAST_BLOCK_SIZE;
+	size = mft_depth * (IB_MCAST_POSITION_MAX + 1) * IB_MCAST_MASK_SIZE / 8;
+	p_mask_tbl = realloc(p_tbl->p_mask_tbl, size);
+	if (!p_mask_tbl)
+		return -1;
+	memset((uint8_t *)p_mask_tbl + p_tbl->mft_depth * (IB_MCAST_POSITION_MAX + 1) * IB_MCAST_MASK_SIZE / 8,
+	       0,
+	       size - p_tbl->mft_depth * (IB_MCAST_POSITION_MAX + 1) * IB_MCAST_MASK_SIZE / 8);
+	p_tbl->p_mask_tbl = p_mask_tbl;
+	p_tbl->mft_depth = mft_depth;
+	p_tbl->max_mlid_ho = mft_depth + IB_LID_MCAST_START_HO - 1;
+	return 0;
 }
 
 /**********************************************************************
@@ -152,10 +165,11 @@ boolean_t osm_mcast_tbl_is_port(IN const osm_mcast_tbl_t * p_tbl,
 		CL_ASSERT(port_num <=
 			  (p_tbl->max_position + 1) * IB_MCAST_MASK_SIZE);
 		CL_ASSERT(mlid_ho >= IB_LID_MCAST_START_HO);
-		CL_ASSERT(mlid_ho <= (uint16_t) (IB_LID_MCAST_START_HO +
-						 p_tbl->num_entries - 1));
+		CL_ASSERT(mlid_ho <= p_tbl->max_mlid_ho);
 
 		mlid_offset = mlid_ho - IB_LID_MCAST_START_HO;
+		if (mlid_offset >= p_tbl->mft_depth)
+			return FALSE;
 		mask_offset = port_num / IB_MCAST_MASK_SIZE;
 		bit_mask = cl_ntoh16((uint16_t)
 				     (1 << (port_num % IB_MCAST_MASK_SIZE)));
@@ -180,10 +194,11 @@ boolean_t osm_mcast_tbl_is_any_port(IN const osm_mcast_tbl_t * p_tbl,
 
 	if (p_tbl->p_mask_tbl) {
 		CL_ASSERT(mlid_ho >= IB_LID_MCAST_START_HO);
-		CL_ASSERT(mlid_ho <= (uint16_t) (IB_LID_MCAST_START_HO +
-						 p_tbl->num_entries - 1));
+		CL_ASSERT(mlid_ho <= p_tbl->max_mlid_ho);
 
 		mlid_offset = mlid_ho - IB_LID_MCAST_START_HO;
+		if (mlid_offset >= p_tbl->mft_depth)
+			return FALSE;
 
 		for (position = 0; position <= p_tbl->max_position; position++)
 			result |= (*p_tbl->p_mask_tbl)[mlid_offset][position];
@@ -213,8 +228,7 @@ ib_api_status_t osm_mcast_tbl_set_block(IN osm_mcast_tbl_t * p_tbl,
 
 	mlid_start_ho = (uint16_t) (block_num * IB_MCAST_BLOCK_SIZE);
 
-	if (mlid_start_ho + IB_MCAST_BLOCK_SIZE - 1 >
-	    p_tbl->num_entries + IB_LID_MCAST_START_HO - 1)
+	if (mlid_start_ho + IB_MCAST_BLOCK_SIZE - 1 > p_tbl->mft_depth)
 		return IB_INVALID_PARAMETER;
 
 	for (i = 0; i < IB_MCAST_BLOCK_SIZE; i++)
@@ -222,9 +236,6 @@ ib_api_status_t osm_mcast_tbl_set_block(IN osm_mcast_tbl_t * p_tbl,
 
 	if (block_num > p_tbl->max_block_in_use)
 		p_tbl->max_block_in_use = (uint16_t) block_num;
-
-	if (mlid_start_ho + IB_MCAST_BLOCK_SIZE - 1 > p_tbl->max_mlid_ho)
-		p_tbl->max_mlid_ho = mlid_start_ho + IB_MCAST_BLOCK_SIZE - 1;
 
 	return IB_SUCCESS;
 }
@@ -241,6 +252,8 @@ void osm_mcast_tbl_clear_mlid(IN osm_mcast_tbl_t * p_tbl, IN uint16_t mlid_ho)
 
 	if (p_tbl->p_mask_tbl && (mlid_ho <= p_tbl->max_mlid_ho)) {
 		mlid_offset = mlid_ho - IB_LID_MCAST_START_HO;
+		if (mlid_offset >= p_tbl->mft_depth)
+			return;
 		for (i = 0; i <= p_tbl->max_position; i++)
 			(*p_tbl->p_mask_tbl)[mlid_offset][i] = 0;
 	}
@@ -257,6 +270,7 @@ boolean_t osm_mcast_tbl_get_block(IN osm_mcast_tbl_t * p_tbl,
 
 	CL_ASSERT(p_tbl);
 	CL_ASSERT(p_block);
+	CL_ASSERT(block_num * IB_MCAST_BLOCK_SIZE <= p_tbl->mft_depth);
 
 	if (block_num > p_tbl->max_block_in_use)
 		return FALSE;

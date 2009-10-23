@@ -136,9 +136,8 @@ osm_switch_t *osm_switch_new(IN osm_node_t * p_node,
 
 	memset(p_sw->p_prof, 0, sizeof(*p_sw->p_prof) * num_ports);
 
-	if (osm_mcast_tbl_init(&p_sw->mcast_tbl, osm_node_get_num_physp(p_node),
-			       cl_ntoh16(p_si->mcast_cap)))
-		goto err;
+	osm_mcast_tbl_init(&p_sw->mcast_tbl, osm_node_get_num_physp(p_node),
+			   cl_ntoh16(p_si->mcast_cap));
 
 	for (port_num = 0; port_num < num_ports; port_num++)
 		osm_port_prof_construct(&p_sw->p_prof[port_num]);

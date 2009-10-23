@@ -1043,6 +1043,36 @@ static int mcast_mgr_set_mftables(osm_sm_t * sm)
 	return ret;
 }
 
+static int alloc_mfts(osm_sm_t * sm)
+{
+	int i;
+	cl_map_item_t *item;
+	osm_switch_t *p_sw;
+	int max_mlid = 0;
+
+	for (i = sm->p_subn->max_mcast_lid_ho - IB_LID_MCAST_START_HO; i >= 0;
+	     i--) {
+		if (sm->p_subn->mgroups[i]) {
+			max_mlid = i + IB_LID_MCAST_START_HO;
+			break;
+		}
+	}
+
+	if (max_mlid == 0)
+		return 0;
+
+	/* Now, walk switches and (re)allocate multicast tables */
+	for (item = cl_qmap_head(&sm->p_subn->sw_guid_tbl);
+	     item != cl_qmap_end(&sm->p_subn->sw_guid_tbl);
+	     item = cl_qmap_next(item)) {
+		p_sw = (osm_switch_t *)item;
+		if (osm_mcast_tbl_realloc(&p_sw->mcast_tbl,
+					  max_mlid - IB_LID_MCAST_START_HO))
+			return -1;
+	}
+	return 0;
+}
+
 /**********************************************************************
  **********************************************************************/
 int osm_mcast_mgr_process(osm_sm_t * sm)
@@ -1060,6 +1090,12 @@ int osm_mcast_mgr_process(osm_sm_t * sm)
 	if (cl_qmap_count(&sm->p_subn->sw_guid_tbl) == 0) {
 		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 			"No switches in subnet. Nothing to do\n");
+		goto exit;
+	}
+
+	if (alloc_mfts(sm)) {
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR,
+			"ERR 0A07: alloc_mfts failed\n");
 		goto exit;
 	}
 
@@ -1098,6 +1134,12 @@ int osm_mcast_mgr_process_mgroups(osm_sm_t * sm)
 	if (cl_qmap_count(&sm->p_subn->sw_guid_tbl) == 0) {
 		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 			"No switches in subnet. Nothing to do\n");
+		goto exit;
+	}
+
+	if (alloc_mfts(sm)) {
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR,
+			"ERR 0A09: alloc_mfts failed\n");
 		goto exit;
 	}
 

@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004, 2005 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2009 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2009 HNR Consulting. All rights reserved.
  *
@@ -75,6 +75,7 @@ typedef struct osm_mcast_fwdbl {
 	int16_t max_block_in_use;
 	uint16_t num_entries;
 	uint16_t max_mlid_ho;
+	uint16_t mft_depth;
 	uint16_t(*p_mask_tbl)[][IB_MCAST_POSITION_MAX];
 } osm_mcast_tbl_t;
 /*
@@ -96,10 +97,14 @@ typedef struct osm_mcast_fwdbl {
 *		Number of entries in the table (aka number of MLIDs supported).
 *
 *	max_mlid_ho
-*		Maximum MLID (host order) configured in the multicast port mask
+*		Maximum MLID (host order) for the currently allocated multicast
+*		port mask table.
+*
+*	mft_depth
+*		Number of MLIDs in the currently allocated multicast port mask
 *		table.
 *
-*	pp_mask_tbl
+*	p_mask_tbl
 *		Pointer to a two dimensional array of port_masks for this switch.
 *		The first dimension is MLID, the second dimension is mask position.
 *		This pointer is null for switches that do not support multicast.
@@ -116,8 +121,8 @@ typedef struct osm_mcast_fwdbl {
 *
 * SYNOPSIS
 */
-ib_api_status_t osm_mcast_tbl_init(IN osm_mcast_tbl_t * p_tbl,
-				   IN uint8_t num_ports, IN uint16_t capacity);
+void osm_mcast_tbl_init(IN osm_mcast_tbl_t * p_tbl, IN uint8_t num_ports,
+			IN uint16_t capacity);
 /*
 * PARAMETERS
 *	num_ports
@@ -128,7 +133,7 @@ ib_api_status_t osm_mcast_tbl_init(IN osm_mcast_tbl_t * p_tbl,
 *		by this switch.
 *
 * RETURN VALUE
-*	IB_SUCCESS on success.
+*	None.
 *
 * NOTES
 *
@@ -159,6 +164,33 @@ void osm_mcast_tbl_delete(IN osm_mcast_tbl_t ** pp_tbl);
 *
 * SEE ALSO
 *********/
+
+/****f* OpenSM: Forwarding Table/osm_mcast_tbl_realloc
+* NAME
+*	osm_mcast_tbl_realloc
+*
+* DESCRIPTION
+*	This function reallocates the multicast port mask table if necessary.
+*
+* SYNOPSIS
+*/
+int osm_mcast_tbl_realloc(IN osm_mcast_tbl_t * p_tbl, IN uintn_t mlid_offset);
+/*
+* PARAMETERS
+*
+*	p_tbl
+*		[in] Pointer to the Multicast Forwarding Table object.
+*
+*	mlid_offset
+*		[in] Offset of MLID being accessed.
+*
+* RETURN VALUE
+*	Returns 0 on success and non-zero value otherwise.
+*
+* NOTES
+*
+* SEE ALSO
+*/
 
 /****f* OpenSM: Forwarding Table/osm_mcast_tbl_destroy
 * NAME
