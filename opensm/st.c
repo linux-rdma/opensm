@@ -43,10 +43,6 @@
 #include <string.h>
 #include <opensm/st.h>
 
-#ifdef _WIN32
-#include <malloc.h>
-#endif
-
 typedef struct st_table_entry st_table_entry;
 
 struct st_table_entry {
