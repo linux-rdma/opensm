@@ -271,9 +271,6 @@ ib_api_status_t osm_vl15_init(IN osm_vl15_t * p_vl, IN osm_vendor_t * p_vend,
 	 */
 	status = cl_thread_init(&p_vl->poller, vl15_poller, p_vl,
 				"opensm poller");
-	if (status != IB_SUCCESS)
-		goto Exit;
-
 Exit:
 	OSM_LOG_EXIT(p_log);
 	return (status);
