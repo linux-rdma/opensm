@@ -1002,9 +1002,10 @@ int osm_sa_db_file_load(osm_opensm_t * p_osm)
 			port = osm_get_port_by_guid(&p_osm->subn, guid);
 			if (port &&
 			    cl_qmap_get(&p_mgrp->mcm_port_tbl, guid) ==
-			    cl_qmap_end(&p_mgrp->mcm_port_tbl))
-				osm_mgrp_add_port(&p_osm->subn, &p_osm->log,
-						  p_mgrp, port, &mcmr, proxy);
+			    cl_qmap_end(&p_mgrp->mcm_port_tbl) &&
+			    !osm_mgrp_add_port(&p_osm->subn, &p_osm->log,
+						p_mgrp, port, &mcmr, proxy))
+				rereg_clients = 1;
 		} else if (!strncmp(p, "Service Record:", 15)) {
 			ib_service_record_t s_rec;
 			uint32_t modified_time, lease_period;
