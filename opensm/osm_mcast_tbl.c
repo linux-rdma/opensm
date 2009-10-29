@@ -145,7 +145,7 @@ int osm_mcast_tbl_realloc(IN osm_mcast_tbl_t * p_tbl, IN uintn_t mlid_offset)
 	p_tbl->p_mask_tbl = p_mask_tbl;
 	p_tbl->mft_depth = mft_depth;
 done:
-	p_tbl->max_mlid_ho = mlid_offset + IB_LID_MCAST_START_HO - 1;
+	p_tbl->max_mlid_ho = mlid_offset + IB_LID_MCAST_START_HO;
 	return 0;
 }
 
