@@ -56,8 +56,6 @@
 #include <opensm/osm_msgdef.h>
 #include <opensm/osm_opensm.h>
 
-/**********************************************************************
- **********************************************************************/
 static void resp_make_resp_smp(IN osm_sm_t * sm, IN const ib_smp_t * p_src_smp,
 			       IN ib_net16_t status,
 			       IN const uint8_t * p_payload,
@@ -94,8 +92,6 @@ Exit:
 	OSM_LOG_EXIT(sm->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 ib_api_status_t osm_resp_send(IN osm_sm_t * sm,
 			      IN const osm_madw_t * p_req_madw,
 			      IN ib_net16_t mad_status,

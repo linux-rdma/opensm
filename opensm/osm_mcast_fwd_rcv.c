@@ -55,8 +55,6 @@
 #include <opensm/osm_subnet.h>
 #include <opensm/osm_sm.h>
 
-/**********************************************************************
- **********************************************************************/
 void osm_mft_rcv_process(IN void *context, IN void *data)
 {
 	osm_sm_t *sm = context;

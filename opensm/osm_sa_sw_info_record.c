@@ -67,8 +67,6 @@ typedef struct osm_sir_search_ctxt {
 	const osm_physp_t *p_req_physp;
 } osm_sir_search_ctxt_t;
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t sir_rcv_new_sir(IN osm_sa_t * sa,
 				       IN const osm_switch_t * p_sw,
 				       IN cl_qlist_t * p_list,
@@ -102,8 +100,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void sir_rcv_create_sir(IN osm_sa_t * sa, IN const osm_switch_t * p_sw,
 			       IN cl_qlist_t * p_list, IN ib_net16_t match_lid,
 			       IN const osm_physp_t * p_req_physp)
@@ -166,8 +162,6 @@ Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void sir_rcv_by_comp_mask(IN cl_map_item_t * p_map_item, IN void *cxt)
 {
 	const osm_sir_search_ctxt_t *p_ctxt = cxt;
@@ -195,8 +189,6 @@ Exit:
 	OSM_LOG_EXIT(p_ctxt->sa->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_sir_rcv_process(IN void *ctx, IN void *data)
 {
 	osm_sa_t *sa = ctx;

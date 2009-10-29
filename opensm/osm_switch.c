@@ -51,8 +51,6 @@
 #include <iba/ib_types.h>
 #include <opensm/osm_switch.h>
 
-/**********************************************************************
- **********************************************************************/
 cl_status_t osm_switch_set_hops(IN osm_switch_t * p_sw, IN uint16_t lid_ho,
 				IN uint8_t port_num, IN uint8_t num_hops)
 {
@@ -72,8 +70,6 @@ cl_status_t osm_switch_set_hops(IN osm_switch_t * p_sw, IN uint16_t lid_ho,
 	return 0;
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_switch_delete(IN OUT osm_switch_t ** pp_sw)
 {
 	osm_switch_t *p_sw = *pp_sw;
@@ -96,8 +92,6 @@ void osm_switch_delete(IN OUT osm_switch_t ** pp_sw)
 	*pp_sw = NULL;
 }
 
-/**********************************************************************
- **********************************************************************/
 osm_switch_t *osm_switch_new(IN osm_node_t * p_node,
 			     IN const osm_madw_t * p_madw)
 {
@@ -149,8 +143,6 @@ err:
 	return NULL;
 }
 
-/**********************************************************************
- **********************************************************************/
 boolean_t osm_switch_get_lft_block(IN const osm_switch_t * p_sw,
 				   IN uint16_t block_id, OUT uint8_t * p_block)
 {
@@ -167,8 +159,6 @@ boolean_t osm_switch_get_lft_block(IN const osm_switch_t * p_sw,
 	return TRUE;
 }
 
-/**********************************************************************
- **********************************************************************/
 static struct osm_remote_node *
 switch_find_guid_common(IN const osm_switch_t * p_sw,
 			IN struct osm_remote_guids_count *r,
@@ -220,8 +210,6 @@ switch_find_node_guid_count(IN const osm_switch_t * p_sw,
 	return switch_find_guid_common(p_sw, r, port_num, 0, 1);
 }
 
-/**********************************************************************
- **********************************************************************/
 uint8_t osm_switch_recommend_path(IN const osm_switch_t * p_sw,
 				  IN osm_port_t * p_port, IN uint16_t lid_ho,
 				  IN unsigned start_from,
@@ -478,8 +466,6 @@ uint8_t osm_switch_recommend_path(IN const osm_switch_t * p_sw,
 	return best_port;
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_switch_clear_hops(IN osm_switch_t * p_sw)
 {
 	unsigned i;
@@ -489,8 +475,6 @@ void osm_switch_clear_hops(IN osm_switch_t * p_sw)
 			memset(p_sw->hops[i], OSM_NO_PATH, p_sw->num_ports);
 }
 
-/**********************************************************************
- **********************************************************************/
 static int alloc_lft(IN osm_switch_t * p_sw, uint16_t lids)
 {
 	uint16_t lft_size;
@@ -510,8 +494,6 @@ static int alloc_lft(IN osm_switch_t * p_sw, uint16_t lids)
 	return 0;
 }
 
-/**********************************************************************
- **********************************************************************/
 int osm_switch_prepare_path_rebuild(IN osm_switch_t * p_sw, IN uint16_t max_lids)
 {
 	uint8_t **hops;
@@ -551,8 +533,6 @@ int osm_switch_prepare_path_rebuild(IN osm_switch_t * p_sw, IN uint16_t max_lids
 	return 0;
 }
 
-/**********************************************************************
- **********************************************************************/
 uint8_t osm_switch_get_port_least_hops(IN const osm_switch_t * p_sw,
 				       IN const osm_port_t * p_port)
 {
@@ -577,8 +557,6 @@ uint8_t osm_switch_get_port_least_hops(IN const osm_switch_t * p_sw,
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
 uint8_t osm_switch_recommend_mcast_path(IN osm_switch_t * p_sw,
 					IN osm_port_t * p_port,
 					IN uint16_t mlid_ho,

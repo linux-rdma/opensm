@@ -61,8 +61,6 @@
 #define OSMT_DEFAULT_TRAP_WAIT_TIMEOUT_SEC 10
 #define INVALID_GUID (0xFFFFFFFFFFFFFFFFULL)
 
-/**********************************************************************
- **********************************************************************/
 boolean_t osmt_is_debug(void)
 {
 #if defined( _DEBUG_ )
@@ -72,8 +70,6 @@ boolean_t osmt_is_debug(void)
 #endif				/* defined( _DEBUG_ ) */
 }
 
-/**********************************************************************
- **********************************************************************/
 void show_usage()
 {
 	printf
@@ -207,8 +203,6 @@ void show_usage()
 	       "          the transaction timeout with the -t option\n\n");
 }
 
-/**********************************************************************
- **********************************************************************/
 static void print_all_guids(IN osmtest_t * p_osmt)
 {
 	ib_api_status_t status;
@@ -235,8 +229,6 @@ static void print_all_guids(IN osmtest_t * p_osmt)
 		       cl_hton64(attr_array[i].port_guid));
 }
 
-/**********************************************************************
- **********************************************************************/
 ib_net64_t get_port_guid(IN osmtest_t * p_osmt, uint64_t port_guid)
 {
 	ib_api_status_t status;
@@ -273,8 +265,6 @@ ib_net64_t get_port_guid(IN osmtest_t * p_osmt, uint64_t port_guid)
 	return 0;
 }
 
-/**********************************************************************
- **********************************************************************/
 int main(int argc, char *argv[])
 {
 	static osmtest_t osm_test;

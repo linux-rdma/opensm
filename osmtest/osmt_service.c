@@ -55,8 +55,6 @@
 #include <complib/cl_debug.h>
 #include "osmtest.h"
 
-/**********************************************************************
- **********************************************************************/
 
 ib_api_status_t
 osmt_register_service(IN osmtest_t * const p_osmt,
@@ -159,9 +157,6 @@ Exit:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return status;
 }
-
-/**********************************************************************
- **********************************************************************/
 
 ib_api_status_t
 osmt_register_service_with_full_key(IN osmtest_t * const p_osmt,
@@ -283,9 +278,6 @@ Exit:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return status;
 }
-
-/**********************************************************************
- **********************************************************************/
 
 ib_api_status_t
 osmt_register_service_with_data(IN osmtest_t * const p_osmt,
@@ -440,9 +432,6 @@ Exit:
 	return status;
 }
 
-/**********************************************************************
- **********************************************************************/
-
 ib_api_status_t
 osmt_get_service_by_id_and_name(IN osmtest_t * const p_osmt,
 				IN uint32_t rec_num,
@@ -569,9 +558,6 @@ Exit:
 	return status;
 }
 
-/**********************************************************************
- **********************************************************************/
-
 ib_api_status_t
 osmt_get_service_by_id(IN osmtest_t * const p_osmt,
 		       IN uint32_t rec_num,
@@ -693,9 +679,6 @@ Exit:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return status;
 }
-
-/**********************************************************************
- **********************************************************************/
 
 ib_api_status_t
 osmt_get_service_by_name_and_key(IN osmtest_t * const p_osmt,
@@ -828,9 +811,6 @@ Exit:
 	return status;
 }
 
-/**********************************************************************
- **********************************************************************/
-
 ib_api_status_t
 osmt_get_service_by_name(IN osmtest_t * const p_osmt,
 			 IN char *sr_name,
@@ -944,9 +924,6 @@ Exit:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return status;
 }
-
-/**********************************************************************
- **********************************************************************/
 
 #ifdef VENDOR_RMPP_SUPPORT
 ib_api_status_t
@@ -1068,9 +1045,6 @@ Exit:
 }
 #endif
 
-/**********************************************************************
- **********************************************************************/
-
 ib_api_status_t
 osmt_delete_service_by_name(IN osmtest_t * const p_osmt,
 			    IN uint8_t IsServiceExist,
@@ -1173,9 +1147,6 @@ ExitNoDel:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return status;
 }
-
-/**********************************************************************
- **********************************************************************/
 
 /*
  * Run a complete service records flow:

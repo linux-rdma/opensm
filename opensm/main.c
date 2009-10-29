@@ -121,9 +121,6 @@ static void setup_signals()
 	pthread_sigmask(SIG_SETMASK, &saved_sigset, NULL);
 }
 
-/**********************************************************************
- **********************************************************************/
-
 static void show_usage(void)
 {
 	printf("\n------- OpenSM - Usage and options ----------------------\n");
@@ -378,8 +375,6 @@ static void show_usage(void)
 	exit(2);
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_net64_t get_port_guid(IN osm_opensm_t * p_osm, uint64_t port_guid)
 {
 	ib_port_attr_t attr_array[MAX_LOCAL_IBPORTS];
@@ -455,9 +450,6 @@ static ib_net64_t get_port_guid(IN osm_opensm_t * p_osm, uint64_t port_guid)
 	return (attr_array[choice].port_guid);
 }
 
-/**********************************************************************
- **********************************************************************/
-
 static int daemonize(osm_opensm_t * osm)
 {
 	pid_t pid;
@@ -494,8 +486,6 @@ static int daemonize(osm_opensm_t * osm)
 	return 0;
 }
 
-/**********************************************************************
- **********************************************************************/
 int osm_manager_loop(osm_subn_opt_t * p_opt, osm_opensm_t * p_osm)
 {
 	int console_init_flag = 0;
@@ -531,8 +521,6 @@ int osm_manager_loop(osm_subn_opt_t * p_opt, osm_opensm_t * p_osm)
 	return 0;
 }
 
-/**********************************************************************
- **********************************************************************/
 #define SET_STR_OPT(opt, val) do { \
 	opt = val ? strdup(val) : NULL ; \
 } while (0)

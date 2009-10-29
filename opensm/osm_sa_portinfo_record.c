@@ -72,8 +72,6 @@ typedef struct osm_pir_search_ctxt {
 	boolean_t is_enhanced_comp_mask;
 } osm_pir_search_ctxt_t;
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t pir_rcv_new_pir(IN osm_sa_t * sa,
 				       IN const osm_physp_t * p_physp,
 				       IN cl_qlist_t * p_list,
@@ -111,8 +109,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void sa_pir_create(IN osm_sa_t * sa, IN const osm_physp_t * p_physp,
 			  IN osm_pir_search_ctxt_t * p_ctxt)
 {
@@ -157,8 +153,6 @@ Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void sa_pir_check_physp(IN osm_sa_t * sa, IN const osm_physp_t * p_physp,
 			       osm_pir_search_ctxt_t * p_ctxt)
 {
@@ -385,8 +379,6 @@ Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void sa_pir_by_comp_mask(IN osm_sa_t * sa, IN osm_node_t * p_node,
 				osm_pir_search_ctxt_t * p_ctxt)
 {
@@ -436,8 +428,6 @@ static void sa_pir_by_comp_mask(IN osm_sa_t * sa, IN osm_node_t * p_node,
 	OSM_LOG_EXIT(sa->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void sa_pir_by_comp_mask_cb(IN cl_map_item_t * p_map_item, IN void *cxt)
 {
 	osm_node_t *p_node = (osm_node_t *) p_map_item;
@@ -446,8 +436,6 @@ static void sa_pir_by_comp_mask_cb(IN cl_map_item_t * p_map_item, IN void *cxt)
 	sa_pir_by_comp_mask(p_ctxt->sa, p_node, p_ctxt);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_pir_rcv_process(IN void *ctx, IN void *data)
 {
 	osm_sa_t *sa = ctx;

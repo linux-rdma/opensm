@@ -81,8 +81,6 @@ typedef struct osm_path_parms {
 	int hops;
 } osm_path_parms_t;
 
-/**********************************************************************
- **********************************************************************/
 static boolean_t sa_multipath_rec_is_tavor_port(IN const osm_port_t * p_port)
 {
 	osm_node_t const *p_node;
@@ -98,8 +96,6 @@ static boolean_t sa_multipath_rec_is_tavor_port(IN const osm_port_t * p_port)
 		 (vend_id == CL_HTON32(OSM_VENDOR_ID_VOLTAIRE))));
 }
 
-/**********************************************************************
- **********************************************************************/
 static boolean_t
 sa_multipath_rec_apply_tavor_mtu_limit(IN const ib_multipath_rec_t * p_mpr,
 				       IN const osm_port_t * p_src_port,
@@ -150,8 +146,6 @@ sa_multipath_rec_apply_tavor_mtu_limit(IN const ib_multipath_rec_t * p_mpr,
 	return (TRUE);
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t mpr_rcv_get_path_parms(IN osm_sa_t * sa,
 					      IN const ib_multipath_rec_t *
 					      p_mpr,
@@ -738,8 +732,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void mpr_rcv_build_pr(IN osm_sa_t * sa, IN const osm_port_t * p_src_port,
 			     IN const osm_port_t * p_dest_port,
 			     IN uint16_t src_lid_ho, IN uint16_t dest_lid_ho,
@@ -788,8 +780,6 @@ static void mpr_rcv_build_pr(IN osm_sa_t * sa, IN const osm_port_t * p_src_port,
 	OSM_LOG_EXIT(sa->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 static osm_mpr_item_t *mpr_rcv_get_lid_pair_path(IN osm_sa_t * sa,
 						 IN const ib_multipath_rec_t *
 						 p_mpr,
@@ -864,8 +854,6 @@ Exit:
 	return (p_pr_item);
 }
 
-/**********************************************************************
- **********************************************************************/
 static uint32_t mpr_rcv_get_port_pair_paths(IN osm_sa_t * sa,
 					    IN const ib_multipath_rec_t * p_mpr,
 					    IN const osm_port_t * p_req_port,
@@ -1050,8 +1038,6 @@ Exit:
 #undef min
 #define min(x,y)	(((x) < (y)) ? (x) : (y))
 
-/**********************************************************************
- **********************************************************************/
 static osm_mpr_item_t *mpr_rcv_get_apm_port_pair_paths(IN osm_sa_t * sa,
 						       IN const
 						       ib_multipath_rec_t *
@@ -1130,8 +1116,6 @@ static osm_mpr_item_t *mpr_rcv_get_apm_port_pair_paths(IN osm_sa_t * sa,
 	return p_pr_item;
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_net16_t mpr_rcv_get_gids(IN osm_sa_t * sa, IN const ib_gid_t * gids,
 				   IN int ngids, IN int is_sgid,
 				   OUT osm_port_t ** pp_port)
@@ -1189,8 +1173,6 @@ Exit:
 	return ib_status;
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_net16_t mpr_rcv_get_end_points(IN osm_sa_t * sa,
 					 IN const osm_madw_t * p_madw,
 					 OUT osm_port_t ** pp_ports,
@@ -1246,8 +1228,6 @@ Exit:
 #define hash_lids(a, b, lmc)	\
 	(((((a) >> (lmc)) << 4) | ((b) >> (lmc))) % 103)
 
-/**********************************************************************
- **********************************************************************/
 static void mpr_rcv_get_apm_paths(IN osm_sa_t * sa,
 				  IN const ib_multipath_rec_t * p_mpr,
 				  IN const osm_port_t * p_req_port,
@@ -1361,8 +1341,6 @@ static void mpr_rcv_get_apm_paths(IN osm_sa_t * sa,
 	OSM_LOG_EXIT(sa->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void mpr_rcv_process_pairs(IN osm_sa_t * sa,
 				  IN const ib_multipath_rec_t * p_mpr,
 				  IN osm_port_t * p_req_port,
@@ -1405,8 +1383,6 @@ Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_mpr_rcv_process(IN void *context, IN void *data)
 {
 	osm_sa_t *sa = context;

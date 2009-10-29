@@ -71,8 +71,6 @@ typedef struct osm_vl_arb_search_ctxt {
 	const osm_physp_t *p_req_physp;
 } osm_vl_arb_search_ctxt_t;
 
-/**********************************************************************
- **********************************************************************/
 static void sa_vl_arb_create(IN osm_sa_t * sa, IN osm_physp_t * p_physp,
 			     IN osm_vl_arb_search_ctxt_t * p_ctxt,
 			     IN uint8_t block)
@@ -115,8 +113,6 @@ Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void sa_vl_arb_check_physp(IN osm_sa_t * sa, IN osm_physp_t * p_physp,
 				  osm_vl_arb_search_ctxt_t * p_ctxt)
 {
@@ -135,8 +131,6 @@ static void sa_vl_arb_check_physp(IN osm_sa_t * sa, IN osm_physp_t * p_physp,
 	OSM_LOG_EXIT(sa->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void sa_vl_arb_by_comp_mask(osm_sa_t * sa, IN const osm_port_t * p_port,
 				   osm_vl_arb_search_ctxt_t * p_ctxt)
 {
@@ -203,8 +197,6 @@ Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void sa_vl_arb_by_comp_mask_cb(IN cl_map_item_t * p_map_item, void *cxt)
 {
 	const osm_port_t *p_port = (osm_port_t *) p_map_item;
@@ -213,8 +205,6 @@ static void sa_vl_arb_by_comp_mask_cb(IN cl_map_item_t * p_map_item, void *cxt)
 	sa_vl_arb_by_comp_mask(p_ctxt->sa, p_port, p_ctxt);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_vlarb_rec_rcv_process(IN void *ctx, IN void *data)
 {
 	osm_sa_t *sa = ctx;

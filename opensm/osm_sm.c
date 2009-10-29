@@ -77,8 +77,6 @@ extern void osm_vla_rcv_process(IN void *context, IN void *data);
 extern void osm_state_mgr_process(IN osm_sm_t * sm, IN osm_signal_t signal);
 extern void osm_sm_state_mgr_polling_callback(IN void *context);
 
-/**********************************************************************
- **********************************************************************/
 static void sm_process(osm_sm_t * sm, osm_signal_t signal)
 {
 #ifdef ENABLE_OSM_PERF_MGR
@@ -151,8 +149,6 @@ static void sweep_fail_process(IN void *context, IN void *p_data)
 	sm->p_subn->force_heavy_sweep = TRUE;
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_sm_construct(IN osm_sm_t * p_sm)
 {
 	memset(p_sm, 0, sizeof(*p_sm));
@@ -170,8 +166,6 @@ void osm_sm_construct(IN osm_sm_t * p_sm)
 	osm_ucast_mgr_construct(&p_sm->ucast_mgr);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_sm_shutdown(IN osm_sm_t * p_sm)
 {
 	boolean_t signal_event = FALSE;
@@ -219,8 +213,6 @@ void osm_sm_shutdown(IN osm_sm_t * p_sm)
 	OSM_LOG_EXIT(p_sm->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_sm_destroy(IN osm_sm_t * p_sm)
 {
 	OSM_LOG_ENTER(p_sm->p_log);
@@ -239,8 +231,6 @@ void osm_sm_destroy(IN osm_sm_t * p_sm)
 	OSM_LOG_EXIT(p_sm->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 ib_api_status_t osm_sm_init(IN osm_sm_t * p_sm, IN osm_subn_t * p_subn,
 			    IN osm_db_t * p_db, IN osm_vendor_t * p_vendor,
 			    IN osm_mad_pool_t * p_mad_pool,
@@ -399,8 +389,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_sm_signal(osm_sm_t * p_sm, osm_signal_t signal)
 {
 	cl_spinlock_acquire(&p_sm->signal_lock);
@@ -409,8 +397,6 @@ void osm_sm_signal(osm_sm_t * p_sm, osm_signal_t signal)
 	cl_spinlock_release(&p_sm->signal_lock);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_sm_sweep(IN osm_sm_t * p_sm)
 {
 	OSM_LOG_ENTER(p_sm->p_log);
@@ -418,8 +404,6 @@ void osm_sm_sweep(IN osm_sm_t * p_sm)
 	OSM_LOG_EXIT(p_sm->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 ib_api_status_t osm_sm_bind(IN osm_sm_t * p_sm, IN ib_net64_t port_guid)
 {
 	ib_api_status_t status;
@@ -440,8 +424,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_sm_reroute_mlid(osm_sm_t * sm, ib_net16_t mlid)
 {
 	mlid = cl_ntoh16(mlid) - IB_LID_MCAST_START_HO;

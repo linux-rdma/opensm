@@ -453,8 +453,6 @@ static int sprint_uint8_arr(char *buf, size_t size,
 	return n;
 }
 
-/**********************************************************************
- **********************************************************************/
 const char *ib_get_sa_method_str(IN uint8_t method)
 {
 	if (method & 0x80) {
@@ -470,8 +468,6 @@ const char *ib_get_sa_method_str(IN uint8_t method)
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
 const char *ib_get_sm_method_str(IN uint8_t method)
 {
 	if (method & 0x80)
@@ -481,8 +477,6 @@ const char *ib_get_sm_method_str(IN uint8_t method)
 	return (__ib_sm_method_str[method]);
 }
 
-/**********************************************************************
- **********************************************************************/
 const char *ib_get_sm_attr_str(IN ib_net16_t attr)
 {
 	uint16_t host_attr = cl_ntoh16(attr);
@@ -493,8 +487,6 @@ const char *ib_get_sm_attr_str(IN ib_net16_t attr)
 	return (__ib_sm_attr_str[host_attr]);
 }
 
-/**********************************************************************
- **********************************************************************/
 const char *ib_get_sa_attr_str(IN ib_net16_t attr)
 {
 	uint16_t host_attr = cl_ntoh16(attr);
@@ -505,8 +497,6 @@ const char *ib_get_sa_attr_str(IN ib_net16_t attr)
 	return (__ib_sa_attr_str[host_attr]);
 }
 
-/**********************************************************************
- **********************************************************************/
 const char *ib_get_trap_str(ib_net16_t trap_num)
 {
 	switch (cl_ntoh16(trap_num)) {
@@ -551,8 +541,6 @@ const char *ib_get_trap_str(ib_net16_t trap_num)
 
 const ib_gid_t ib_zero_gid = { {0} };
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t dbg_do_line(IN char **pp_local, IN uint32_t buf_size,
 				   IN const char *p_prefix_str,
 				   IN const char *p_new_str,
@@ -572,8 +560,6 @@ static ib_api_status_t dbg_do_line(IN char **pp_local, IN uint32_t buf_size,
 	return IB_SUCCESS;
 }
 
-/**********************************************************************
- **********************************************************************/
 static void dbg_get_capabilities_str(IN char *p_buf, IN uint32_t buf_size,
 				     IN const char *p_prefix_str,
 				     IN const ib_port_info_t * p_pi)
@@ -778,8 +764,6 @@ static void dbg_get_capabilities_str(IN char *p_buf, IN uint32_t buf_size,
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_dump_port_info(IN osm_log_t * p_log, IN ib_net64_t node_guid,
 			IN ib_net64_t port_guid, IN uint8_t port_num,
 			IN const ib_port_info_t * p_pi,
@@ -864,8 +848,6 @@ void osm_dump_port_info(IN osm_log_t * p_log, IN ib_net64_t node_guid,
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_dump_portinfo_record(IN osm_log_t * p_log,
 			      IN const ib_portinfo_record_t * p_pir,
 			      IN osm_log_level_t log_level)
@@ -945,8 +927,6 @@ void osm_dump_portinfo_record(IN osm_log_t * p_log,
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_dump_guidinfo_record(IN osm_log_t * p_log,
 			      IN const ib_guidinfo_record_t * p_gir,
 			      IN osm_log_level_t log_level)
@@ -979,8 +959,6 @@ void osm_dump_guidinfo_record(IN osm_log_t * p_log,
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_dump_node_info(IN osm_log_t * p_log, IN const ib_node_info_t * p_ni,
 			IN osm_log_level_t log_level)
 {
@@ -1010,8 +988,6 @@ void osm_dump_node_info(IN osm_log_t * p_log, IN const ib_node_info_t * p_ni,
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_dump_node_record(IN osm_log_t * p_log,
 			  IN const ib_node_record_t * p_nr,
 			  IN osm_log_level_t log_level)
@@ -1055,8 +1031,6 @@ void osm_dump_node_record(IN osm_log_t * p_log,
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_dump_path_record(IN osm_log_t * p_log, IN const ib_path_rec_t * p_pr,
 			  IN osm_log_level_t log_level)
 {
@@ -1096,8 +1070,6 @@ void osm_dump_path_record(IN osm_log_t * p_log, IN const ib_path_rec_t * p_pr,
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_dump_multipath_record(IN osm_log_t * p_log,
 			       IN const ib_multipath_rec_t * p_mpr,
 			       IN osm_log_level_t log_level)
@@ -1157,8 +1129,6 @@ void osm_dump_multipath_record(IN osm_log_t * p_log,
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_dump_mc_record(IN osm_log_t * p_log, IN const ib_member_rec_t * p_mcmr,
 			IN osm_log_level_t log_level)
 {
@@ -1191,8 +1161,6 @@ void osm_dump_mc_record(IN osm_log_t * p_log, IN const ib_member_rec_t * p_mcmr,
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_dump_service_record(IN osm_log_t * p_log,
 			     IN const ib_service_record_t * p_sr,
 			     IN osm_log_level_t log_level)
@@ -1284,8 +1252,6 @@ void osm_dump_service_record(IN osm_log_t * p_log,
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_dump_inform_info(IN osm_log_t * p_log,
 			  IN const ib_inform_info_t * p_ii,
 			  IN osm_log_level_t log_level)
@@ -1345,8 +1311,6 @@ void osm_dump_inform_info(IN osm_log_t * p_log,
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_dump_inform_info_record(IN osm_log_t * p_log,
 				 IN const ib_inform_info_record_t * p_iir,
 				 IN osm_log_level_t log_level)
@@ -1428,8 +1392,6 @@ void osm_dump_inform_info_record(IN osm_log_t * p_log,
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_dump_link_record(IN osm_log_t * p_log,
 			  IN const ib_link_record_t * p_lr,
 			  IN osm_log_level_t log_level)
@@ -1447,8 +1409,6 @@ void osm_dump_link_record(IN osm_log_t * p_log,
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_dump_switch_info(IN osm_log_t * p_log,
 			  IN const ib_switch_info_t * p_si,
 			  IN osm_log_level_t log_level)
@@ -1478,8 +1438,6 @@ void osm_dump_switch_info(IN osm_log_t * p_log,
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_dump_switch_info_record(IN osm_log_t * p_log,
 				 IN const ib_switch_info_record_t * p_sir,
 				 IN osm_log_level_t log_level)
@@ -1516,8 +1474,6 @@ void osm_dump_switch_info_record(IN osm_log_t * p_log,
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_dump_pkey_block(IN osm_log_t * p_log, IN uint64_t port_guid,
 			 IN uint16_t block_num, IN uint8_t port_num,
 			 IN const ib_pkey_table_t * p_pkey_tbl,
@@ -1540,8 +1496,6 @@ void osm_dump_pkey_block(IN osm_log_t * p_log, IN uint64_t port_guid,
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_dump_slvl_map_table(IN osm_log_t * p_log, IN uint64_t port_guid,
 			     IN uint8_t in_port_num, IN uint8_t out_port_num,
 			     IN const ib_slvl_table_t * p_slvl_tbl,
@@ -1567,8 +1521,6 @@ void osm_dump_slvl_map_table(IN osm_log_t * p_log, IN uint64_t port_guid,
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_dump_vl_arb_table(IN osm_log_t * p_log, IN uint64_t port_guid,
 			   IN uint8_t block_num, IN uint8_t port_num,
 			   IN const ib_vl_arb_table_t * p_vla_tbl,
@@ -1593,8 +1545,6 @@ void osm_dump_vl_arb_table(IN osm_log_t * p_log, IN uint64_t port_guid,
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_dump_sm_info(IN osm_log_t * p_log, IN const ib_sm_info_t * p_smi,
 		      IN osm_log_level_t log_level)
 {
@@ -1613,8 +1563,6 @@ void osm_dump_sm_info(IN osm_log_t * p_log, IN const ib_sm_info_t * p_smi,
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_dump_sm_info_record(IN osm_log_t * p_log,
 			     IN const ib_sminfo_record_t * p_smir,
 			     IN osm_log_level_t log_level)
@@ -1640,8 +1588,6 @@ void osm_dump_sm_info_record(IN osm_log_t * p_log,
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_dump_notice(IN osm_log_t * p_log,
 		     IN const ib_mad_notice_attr_t * p_ntci,
 		     IN osm_log_level_t log_level)
@@ -1835,8 +1781,6 @@ void osm_dump_notice(IN osm_log_t * p_log,
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_dump_dr_smp(IN osm_log_t * p_log, IN const ib_smp_t * p_smp,
 		     IN osm_log_level_t log_level)
 {
@@ -1942,8 +1886,6 @@ void osm_dump_dr_smp(IN osm_log_t * p_log, IN const ib_smp_t * p_smp,
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_dump_sa_mad(IN osm_log_t * p_log, IN const ib_sa_mad_t * p_mad,
 		     IN osm_log_level_t log_level)
 {
@@ -1997,8 +1939,6 @@ void osm_dump_sa_mad(IN osm_log_t * p_log, IN const ib_sa_mad_t * p_mad,
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_dump_dr_path(IN osm_log_t * p_log, IN const osm_dr_path_t * p_path,
 		      IN osm_log_level_t log_level)
 {
@@ -2015,8 +1955,6 @@ void osm_dump_dr_path(IN osm_log_t * p_log, IN const osm_dr_path_t * p_path,
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_dump_smp_dr_path(IN osm_log_t * p_log, IN const ib_smp_t * p_smp,
 			  IN osm_log_level_t log_level)
 {
@@ -2047,8 +1985,6 @@ static const char *sm_signal_str[] = {
 	"UNKNOWN SIGNAL!!"	/* 5 */
 };
 
-/**********************************************************************
- **********************************************************************/
 const char *osm_get_sm_signal_str(IN osm_signal_t signal)
 {
 	if (signal > OSM_SIGNAL_MAX)
@@ -2056,8 +1992,6 @@ const char *osm_get_sm_signal_str(IN osm_signal_t signal)
 	return (sm_signal_str[signal]);
 }
 
-/**********************************************************************
- **********************************************************************/
 
 static const char *disp_msg_str[] = {
 	"OSM_MSG_NONE",
@@ -2095,8 +2029,6 @@ static const char *disp_msg_str[] = {
 	"UNKNOWN!!"
 };
 
-/**********************************************************************
- **********************************************************************/
 const char *osm_get_disp_msg_str(IN cl_disp_msgid_t msg)
 {
 	if (msg > OSM_MSG_MAX)
@@ -2113,8 +2045,6 @@ static const char *port_state_str_fixed_width[] = {
 	"???"
 };
 
-/**********************************************************************
- **********************************************************************/
 const char *osm_get_port_state_str_fixed_width(IN uint8_t port_state)
 {
 	if (port_state > IB_LINK_ACTIVE)
@@ -2129,8 +2059,6 @@ static const char *node_type_str_fixed_width[] = {
 	"RT",
 };
 
-/**********************************************************************
- **********************************************************************/
 const char *osm_get_node_type_str_fixed_width(IN uint8_t node_type)
 {
 	if (node_type > IB_NODE_TYPE_ROUTER)
@@ -2138,8 +2066,6 @@ const char *osm_get_node_type_str_fixed_width(IN uint8_t node_type)
 	return (node_type_str_fixed_width[node_type]);
 }
 
-/**********************************************************************
- **********************************************************************/
 const char *osm_get_manufacturer_str(IN uint64_t guid_ho)
 {
 	/* note that the max vendor string length is 11 */
@@ -2240,8 +2166,6 @@ static const char *mtu_str_fixed_width[] = {
 	"4096"
 };
 
-/**********************************************************************
- **********************************************************************/
 const char *osm_get_mtu_str(IN uint8_t mtu)
 {
 	if (mtu > IB_MTU_LEN_4096)
@@ -2262,8 +2186,6 @@ static const char *lwa_str_fixed_width[] = {
 	"12x"
 };
 
-/**********************************************************************
- **********************************************************************/
 const char *osm_get_lwa_str(IN uint8_t lwa)
 {
 	if (lwa > 8)
@@ -2272,8 +2194,6 @@ const char *osm_get_lwa_str(IN uint8_t lwa)
 		return (lwa_str_fixed_width[lwa]);
 }
 
-/**********************************************************************
- **********************************************************************/
 static const char *lsa_str_fixed_width[] = {
 	"???",
 	"2.5",
@@ -2290,8 +2210,6 @@ const char *osm_get_lsa_str(IN uint8_t lsa)
 		return (lsa_str_fixed_width[lsa]);
 }
 
-/**********************************************************************
- **********************************************************************/
 
 static const char *sm_mgr_signal_str[] = {
 	"OSM_SM_SIGNAL_NONE",	/* 0 */
@@ -2308,8 +2226,6 @@ static const char *sm_mgr_signal_str[] = {
 	"UNKNOWN STATE!!"	/* 12 */
 };
 
-/**********************************************************************
- **********************************************************************/
 const char *osm_get_sm_mgr_signal_str(IN osm_sm_signal_t signal)
 {
 	if (signal > OSM_SM_SIGNAL_MAX)

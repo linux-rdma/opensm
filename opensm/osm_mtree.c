@@ -82,8 +82,6 @@ void osm_mtree_destroy(IN osm_mtree_node_t * p_mtn)
 	free(p_mtn);
 }
 
-/**********************************************************************
- **********************************************************************/
 #if 0
 static void mtree_dump(IN osm_mtree_node_t * p_mtn)
 {

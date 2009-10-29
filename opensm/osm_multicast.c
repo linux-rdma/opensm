@@ -51,8 +51,6 @@
 #include <opensm/osm_inform.h>
 #include <opensm/osm_opensm.h>
 
-/**********************************************************************
- **********************************************************************/
 void osm_mgrp_delete(IN osm_mgrp_t * p_mgrp)
 {
 	osm_mcm_port_t *p_mcm_port;
@@ -91,8 +89,6 @@ osm_mgrp_t *osm_mgrp_new(IN ib_net16_t mlid, IN ib_member_rec_t * mcmr)
 	return p_mgrp;
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_mgrp_cleanup(osm_subn_t * subn, osm_mgrp_t * mgrp)
 {
 	osm_mcm_port_t *mcm_port;
@@ -119,8 +115,6 @@ void osm_mgrp_cleanup(osm_subn_t * subn, osm_mgrp_t * mgrp)
 	free(mgrp);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void mgrp_send_notice(osm_subn_t * subn, osm_log_t * log,
 			     osm_mgrp_t * mgrp, unsigned num)
 {
@@ -148,8 +142,6 @@ static void mgrp_send_notice(osm_subn_t * subn, osm_log_t * log,
 			ib_get_err_str(status));
 }
 
-/**********************************************************************
- **********************************************************************/
 osm_mcm_port_t *osm_mgrp_add_port(IN osm_subn_t * subn, osm_log_t * log,
 				  IN osm_mgrp_t * mgrp, osm_port_t *port,
 				  IN ib_member_rec_t *mcmr, IN boolean_t proxy)
@@ -274,8 +266,6 @@ void osm_mgrp_delete_port(osm_subn_t * subn, osm_log_t * log, osm_mgrp_t * mgrp,
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
 osm_mcm_port_t *osm_mgrp_get_mcm_port(IN const osm_mgrp_t * p_mgrp,
 				      IN ib_net64_t port_guid)
 {

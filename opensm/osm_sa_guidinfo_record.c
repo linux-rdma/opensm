@@ -70,8 +70,6 @@ typedef struct osm_gir_search_ctxt {
 	const osm_physp_t *p_req_physp;
 } osm_gir_search_ctxt_t;
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t gir_rcv_new_gir(IN osm_sa_t * sa,
 				       IN const osm_node_t * p_node,
 				       IN cl_qlist_t * p_list,
@@ -112,8 +110,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void sa_gir_create_gir(IN osm_sa_t * sa, IN osm_node_t * p_node,
 			      IN cl_qlist_t * p_list,
 			      IN ib_net64_t const match_port_guid,
@@ -211,8 +207,6 @@ static void sa_gir_create_gir(IN osm_sa_t * sa, IN osm_node_t * p_node,
 	OSM_LOG_EXIT(sa->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void sa_gir_by_comp_mask_cb(IN cl_map_item_t * p_map_item, IN void *cxt)
 {
 	const osm_gir_search_ctxt_t *p_ctxt = cxt;
@@ -285,8 +279,6 @@ Exit:
 	OSM_LOG_EXIT(p_ctxt->sa->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_gir_rcv_process(IN void *ctx, IN void *data)
 {
 	osm_sa_t *sa = ctx;

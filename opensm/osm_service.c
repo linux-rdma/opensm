@@ -47,15 +47,11 @@
 #include <complib/cl_timer.h>
 #include <opensm/osm_service.h>
 
-/**********************************************************************
- **********************************************************************/
 void osm_svcr_delete(IN osm_svcr_t * p_svcr)
 {
 	free(p_svcr);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_svcr_init(IN osm_svcr_t * p_svcr,
 		   IN const ib_service_record_t * p_svc_rec)
 {
@@ -70,8 +66,6 @@ void osm_svcr_init(IN osm_svcr_t * p_svcr,
 	p_svcr->service_record = *p_svc_rec;
 }
 
-/**********************************************************************
- **********************************************************************/
 osm_svcr_t *osm_svcr_new(IN const ib_service_record_t * p_svc_rec)
 {
 	osm_svcr_t *p_svcr;
@@ -87,8 +81,6 @@ osm_svcr_t *osm_svcr_new(IN const ib_service_record_t * p_svc_rec)
 	return p_svcr;
 }
 
-/**********************************************************************
- **********************************************************************/
 static cl_status_t match_rid_of_svc_rec(IN const cl_list_item_t * p_list_item,
 					IN void *context)
 {
@@ -104,8 +96,6 @@ static cl_status_t match_rid_of_svc_rec(IN const cl_list_item_t * p_list_item,
 		return CL_SUCCESS;
 }
 
-/**********************************************************************
- **********************************************************************/
 osm_svcr_t *osm_svcr_get_by_rid(IN osm_subn_t const *p_subn,
 				IN osm_log_t * p_log,
 				IN ib_service_record_t * p_svc_rec)
@@ -123,8 +113,6 @@ osm_svcr_t *osm_svcr_get_by_rid(IN osm_subn_t const *p_subn,
 	return (osm_svcr_t *) p_list_item;
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_svcr_insert_to_db(IN osm_subn_t * p_subn, IN osm_log_t * p_log,
 			   IN osm_svcr_t * p_svcr)
 {

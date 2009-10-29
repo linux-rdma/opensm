@@ -262,8 +262,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 void
 osm_ca_info_destroy(IN osm_vendor_t * const p_vend,
 		    IN osm_ca_info_t * const p_ca_info, IN uint8_t num_ca)

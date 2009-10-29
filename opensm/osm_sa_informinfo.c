@@ -183,8 +183,6 @@ Exit:
 	return valid;
 }
 
-/**********************************************************************
- **********************************************************************/
 static boolean_t validate_infr(IN osm_sa_t * sa, IN osm_infr_t * p_infr_rec)
 {
 	boolean_t valid = TRUE;
@@ -237,8 +235,6 @@ Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void sa_inform_info_rec_by_comp_mask(IN osm_sa_t * sa,
 					    IN const osm_infr_t * p_infr,
 					    osm_iir_search_ctxt_t * p_ctxt)
@@ -304,8 +300,6 @@ Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void sa_inform_info_rec_by_comp_mask_cb(IN cl_list_item_t * p_list_item,
 					       IN void *context)
 {
@@ -549,8 +543,6 @@ Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }
 
-/*********************************************************************
-**********************************************************************/
 void osm_infr_rcv_process(IN void *context, IN void *data)
 {
 	osm_sa_t *sa = context;
@@ -579,8 +571,6 @@ Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }
 
-/*********************************************************************
-**********************************************************************/
 void osm_infir_rcv_process(IN void *context, IN void *data)
 {
 	osm_sa_t *sa = context;

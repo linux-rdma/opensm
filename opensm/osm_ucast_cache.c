@@ -76,32 +76,20 @@ typedef struct cache_switch {
 	cache_port_t ports[0];
 } cache_switch_t;
 
-/**********************************************************************
- **********************************************************************/
-
 static uint16_t cache_sw_get_base_lid_ho(cache_switch_t * p_sw)
 {
 	return p_sw->ports[0].remote_lid_ho;
 }
-
-/**********************************************************************
- **********************************************************************/
 
 static boolean_t cache_sw_is_leaf(cache_switch_t * p_sw)
 {
 	return p_sw->ports[0].is_leaf;
 }
 
-/**********************************************************************
- **********************************************************************/
-
 static void cache_sw_set_leaf(cache_switch_t * p_sw)
 {
 	p_sw->ports[0].is_leaf = TRUE;
 }
-
-/**********************************************************************
- **********************************************************************/
 
 static cache_switch_t *cache_sw_new(uint16_t lid_ho, unsigned num_ports)
 {
@@ -122,9 +110,6 @@ static cache_switch_t *cache_sw_new(uint16_t lid_ho, unsigned num_ports)
 	return p_cache_sw;
 }
 
-/**********************************************************************
- **********************************************************************/
-
 static void cache_sw_destroy(cache_switch_t * p_sw)
 {
 	if (!p_sw)
@@ -137,9 +122,6 @@ static void cache_sw_destroy(cache_switch_t * p_sw)
 	free(p_sw);
 }
 
-/**********************************************************************
- **********************************************************************/
-
 static cache_switch_t *cache_get_sw(osm_ucast_mgr_t * p_mgr, uint16_t lid_ho)
 {
 	cache_switch_t *p_cache_sw = (cache_switch_t *)
@@ -151,8 +133,6 @@ static cache_switch_t *cache_get_sw(osm_ucast_mgr_t * p_mgr, uint16_t lid_ho)
 	return p_cache_sw;
 }
 
-/**********************************************************************
- **********************************************************************/
 static void cache_add_sw_link(osm_ucast_mgr_t * p_mgr, osm_physp_t *p,
 			      uint16_t remote_lid_ho, boolean_t is_ca)
 {
@@ -200,9 +180,6 @@ Exit:
 	OSM_LOG_EXIT(p_mgr->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
-
 static void cache_cleanup_switches(osm_ucast_mgr_t * p_mgr)
 {
 	cache_switch_t *p_sw;
@@ -232,9 +209,6 @@ static void cache_cleanup_switches(osm_ucast_mgr_t * p_mgr)
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
-
 static void
 cache_check_link_change(osm_ucast_mgr_t * p_mgr,
 			osm_physp_t * p_physp_1, osm_physp_t * p_physp_2)
@@ -263,9 +237,6 @@ cache_check_link_change(osm_ucast_mgr_t * p_mgr,
 Exit:
 	OSM_LOG_EXIT(p_mgr->p_log);
 }
-
-/**********************************************************************
- **********************************************************************/
 
 static void cache_remove_port(osm_ucast_mgr_t * p_mgr, uint16_t lid_ho,
 			      uint8_t port_num, uint16_t remote_lid_ho,
@@ -327,9 +298,6 @@ Exit:
 	OSM_LOG_EXIT(p_mgr->p_log);
 }				/* cache_remove_port() */
 
-/**********************************************************************
- **********************************************************************/
-
 static void
 cache_restore_ucast_info(osm_ucast_mgr_t * p_mgr,
 			 cache_switch_t * p_cache_sw, osm_switch_t * p_sw)
@@ -356,9 +324,6 @@ cache_restore_ucast_info(osm_ucast_mgr_t * p_mgr,
 	p_sw->hops = p_cache_sw->hops;
 	p_cache_sw->hops = NULL;
 }
-
-/**********************************************************************
- **********************************************************************/
 
 static void ucast_cache_dump(osm_ucast_mgr_t * p_mgr)
 {
@@ -395,9 +360,6 @@ Exit:
 	OSM_LOG_EXIT(p_mgr->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
-
 void osm_ucast_cache_invalidate(osm_ucast_mgr_t * p_mgr)
 {
 	cache_switch_t *p_sw;
@@ -423,9 +385,6 @@ void osm_ucast_cache_invalidate(osm_ucast_mgr_t * p_mgr)
 Exit:
 	OSM_LOG_EXIT(p_mgr->p_log);
 }
-
-/**********************************************************************
- **********************************************************************/
 
 static void ucast_cache_validate(osm_ucast_mgr_t * p_mgr)
 {
@@ -776,9 +735,6 @@ Exit:
 	OSM_LOG_EXIT(p_mgr->p_log);
 }				/* osm_ucast_cache_validate() */
 
-/**********************************************************************
- **********************************************************************/
-
 void osm_ucast_cache_check_new_link(osm_ucast_mgr_t * p_mgr,
 				    osm_node_t * p_node_1, uint8_t port_num_1,
 				    osm_node_t * p_node_2, uint8_t port_num_2)
@@ -849,9 +805,6 @@ void osm_ucast_cache_check_new_link(osm_ucast_mgr_t * p_mgr,
 Exit:
 	OSM_LOG_EXIT(p_mgr->p_log);
 }				/* osm_ucast_cache_check_new_link() */
-
-/**********************************************************************
- **********************************************************************/
 
 void osm_ucast_cache_add_link(osm_ucast_mgr_t * p_mgr,
 			      osm_physp_t * p_physp1, osm_physp_t * p_physp2)
@@ -926,9 +879,6 @@ void osm_ucast_cache_add_link(osm_ucast_mgr_t * p_mgr,
 Exit:
 	OSM_LOG_EXIT(p_mgr->p_log);
 }				/* osm_ucast_cache_add_link() */
-
-/**********************************************************************
- **********************************************************************/
 
 void osm_ucast_cache_add_node(osm_ucast_mgr_t * p_mgr, osm_node_t * p_node)
 {
@@ -1040,9 +990,6 @@ Exit:
 	OSM_LOG_EXIT(p_mgr->p_log);
 }				/* osm_ucast_cache_add_node() */
 
-/**********************************************************************
- **********************************************************************/
-
 int osm_ucast_cache_process(osm_ucast_mgr_t * p_mgr)
 {
 	cl_qmap_t *tbl = &p_mgr->p_subn->sw_guid_tbl;
@@ -1079,6 +1026,3 @@ int osm_ucast_cache_process(osm_ucast_mgr_t * p_mgr)
 
 	return 0;
 }
-
-/**********************************************************************
- **********************************************************************/

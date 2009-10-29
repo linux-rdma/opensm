@@ -823,8 +823,6 @@ osm_vendor_bind(IN osm_vendor_t * const p_vend,
 	return ((osm_bind_handle_t) p_mad_bind_info);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_vendor_unbind(IN osm_bind_handle_t h_bind)
 {
 	mad_bind_info_t *p_mad_bind_info;
@@ -870,8 +868,6 @@ void osm_vendor_unbind(IN osm_bind_handle_t h_bind)
 	free(p_mad_bind_info);
 }
 
-/**********************************************************************
- **********************************************************************/
 void __mad_recv_processor(IN void *context)
 {
 	mad_bind_info_t *p_mad_bind_info = (mad_bind_info_t *) context;
@@ -1017,9 +1013,6 @@ void __mad_recv_processor(IN void *context)
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
-
 cl_status_t
 __match_tid_context(const cl_list_item_t * const p_list_item, void *context)
 {
@@ -1028,9 +1021,6 @@ __match_tid_context(const cl_list_item_t * const p_list_item, void *context)
 		return CL_SUCCESS;
 	return CL_NOT_FOUND;
 }
-
-/**********************************************************************
- **********************************************************************/
 
 boolean_t __valid_mad_handle(IN mad_bind_info_t * p_mad_bind_info)
 {

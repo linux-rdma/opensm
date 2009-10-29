@@ -60,8 +60,6 @@ typedef struct osm_lr_item {
 	ib_link_record_t link_rec;
 } osm_lr_item_t;
 
-/**********************************************************************
- **********************************************************************/
 static void lr_rcv_build_physp_link(IN osm_sa_t * sa, IN ib_net16_t from_lid,
 				    IN ib_net16_t to_lid, IN uint8_t from_port,
 				    IN uint8_t to_port, IN cl_qlist_t * p_list)
@@ -88,8 +86,6 @@ static void lr_rcv_build_physp_link(IN osm_sa_t * sa, IN ib_net16_t from_lid,
 	cl_qlist_insert_tail(p_list, &p_lr_item->list_item);
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_net16_t get_base_lid(IN const osm_physp_t * p_physp)
 {
 	if (p_physp->p_node->node_info.node_type == IB_NODE_TYPE_SWITCH)
@@ -97,8 +93,6 @@ static ib_net16_t get_base_lid(IN const osm_physp_t * p_physp)
 	return osm_physp_get_base_lid(p_physp);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void lr_rcv_get_physp_link(IN osm_sa_t * sa,
 				  IN const ib_link_record_t * p_lr,
 				  IN const osm_physp_t * p_src_physp,
@@ -198,8 +192,6 @@ Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void lr_rcv_get_port_links(IN osm_sa_t * sa,
 				  IN const ib_link_record_t * p_lr,
 				  IN const osm_port_t * p_src_port,
@@ -417,8 +409,6 @@ Exit:
 	return sa_status;
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_lr_rcv_process(IN void *context, IN void *data)
 {
 	osm_sa_t *sa = context;

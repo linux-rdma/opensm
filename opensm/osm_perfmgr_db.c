@@ -161,8 +161,6 @@ static perfmgr_db_err_t insert(perfmgr_db_t * db, db_node_t * node)
 	return (PERFMGR_EVENT_DB_SUCCESS);
 }
 
-/**********************************************************************
- **********************************************************************/
 perfmgr_db_err_t
 perfmgr_db_create_entry(perfmgr_db_t * db, uint64_t guid, boolean_t esp0,
 			uint8_t num_ports, char *name)
@@ -678,8 +676,6 @@ typedef struct {
 	perfmgr_db_dump_t dump_type;
 } dump_context_t;
 
-/**********************************************************************
- **********************************************************************/
 static void db_dump(cl_map_item_t * const p_map_item, void *context)
 {
 	db_node_t *node = (db_node_t *) p_map_item;

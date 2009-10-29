@@ -247,8 +247,6 @@ static const char ib_mad_status_str_insuf_comps[] =
     "IB_SA_MAD_STATUS_INSUF_COMPS";
 static const char generic_or_str[] = " | ";
 
-/**********************************************************************
- **********************************************************************/
 const char *ib_get_mad_status_str(IN const ib_mad_t * const p_mad)
 {
 	static char line[512];
@@ -378,8 +376,6 @@ const char *ib_get_mad_status_str(IN const ib_mad_t * const p_mad)
 	return (line);
 }
 
-/**********************************************************************
- **********************************************************************/
 void subnet_construct(IN subnet_t * const p_subn)
 {
 	cl_qmap_init(&p_subn->link_tbl);
@@ -396,8 +392,6 @@ void subnet_construct(IN subnet_t * const p_subn)
 	cl_qmap_init(&p_subn->path_tbl);
 }
 
-/**********************************************************************
- **********************************************************************/
 cl_status_t subnet_init(IN subnet_t * const p_subn)
 {
 	cl_status_t status = IB_SUCCESS;
@@ -407,8 +401,6 @@ cl_status_t subnet_init(IN subnet_t * const p_subn)
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osmtest_construct(IN osmtest_t * const p_osmt)
 {
 	memset(p_osmt, 0, sizeof(*p_osmt));
@@ -416,8 +408,6 @@ void osmtest_construct(IN osmtest_t * const p_osmt)
 	subnet_construct(&p_osmt->exp_subn);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osmtest_destroy(IN osmtest_t * const p_osmt)
 {
 	cl_map_item_t *p_item, *p_next_item;
@@ -475,8 +465,6 @@ void osmtest_destroy(IN osmtest_t * const p_osmt)
 	osm_log_destroy(&p_osmt->log);
 }
 
-/**********************************************************************
- **********************************************************************/
 ib_api_status_t
 osmtest_init(IN osmtest_t * const p_osmt,
 	     IN const osmtest_opt_t * const p_opt,
@@ -530,8 +518,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osmtest_query_res_cb(IN osmv_query_res_t * p_rec)
 {
 	osmtest_req_context_t *const p_ctxt =
@@ -550,8 +536,6 @@ void osmtest_query_res_cb(IN osmv_query_res_t * p_rec)
 	OSM_LOG_EXIT(&p_osmt->log);
 }
 
-/**********************************************************************
- **********************************************************************/
 ib_api_status_t
 osmtest_get_all_recs(IN osmtest_t * const p_osmt,
 		     IN ib_net16_t const attr_id,
@@ -618,8 +602,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 ib_api_status_t osmtest_validate_sa_class_port_info(IN osmtest_t * const p_osmt)
 {
 	ib_api_status_t status = IB_SUCCESS;
@@ -705,8 +687,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 ib_api_status_t
 osmtest_get_node_rec(IN osmtest_t * const p_osmt,
 		     IN ib_net64_t const node_guid,
@@ -856,8 +836,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t
 osmtest_get_path_rec_by_guid_pair(IN osmtest_t * const p_osmt,
 				  IN ib_net64_t sguid,
@@ -921,8 +899,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t
 osmtest_get_path_rec_by_gid_pair(IN osmtest_t * const p_osmt,
 				 IN ib_gid_t sgid,
@@ -989,8 +965,6 @@ Exit:
 }
 
 #if defined (VENDOR_RMPP_SUPPORT) && defined (DUAL_SIDED_RMPP)
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t
 osmtest_get_multipath_rec(IN osmtest_t * const p_osmt,
 			  IN osmv_multipath_req_t * p_request,
@@ -1051,8 +1025,6 @@ Exit:
 }
 #endif
 
-/**********************************************************************
- **********************************************************************/
 ib_api_status_t
 osmtest_get_port_rec(IN osmtest_t * const p_osmt,
 		     IN ib_net16_t const lid,
@@ -1125,8 +1097,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 ib_api_status_t
 osmtest_get_port_rec_by_num(IN osmtest_t * const p_osmt,
 			    IN ib_net16_t const lid,
@@ -1202,8 +1172,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 ib_api_status_t
 osmtest_stress_port_recs_large(IN osmtest_t * const p_osmt,
 			       OUT uint32_t * const p_num_recs,
@@ -1265,8 +1233,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 ib_api_status_t
 osmtest_stress_node_recs_large(IN osmtest_t * const p_osmt,
 			       OUT uint32_t * const p_num_recs,
@@ -1329,8 +1295,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 ib_api_status_t
 osmtest_stress_path_recs_large(IN osmtest_t * const p_osmt,
 			       OUT uint32_t * const p_num_recs,
@@ -1392,8 +1356,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 ib_api_status_t
 osmtest_stress_path_recs_by_guid(IN osmtest_t * const p_osmt,
 				 OUT uint32_t * const p_num_recs,
@@ -1504,8 +1466,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 ib_api_status_t
 osmtest_stress_port_recs_small(IN osmtest_t * const p_osmt,
 			       OUT uint32_t * const p_num_recs,
@@ -1569,8 +1529,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 ib_api_status_t
 osmtest_get_local_port_lmc(IN osmtest_t * const p_osmt,
 			   IN ib_net16_t lid, OUT uint8_t * const p_lmc)
@@ -1702,8 +1660,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t
 osmtest_write_port_info(IN osmtest_t * const p_osmt,
 			IN FILE * fh,
@@ -1798,8 +1754,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t
 osmtest_write_path_info(IN osmtest_t * const p_osmt,
 			IN FILE * fh, IN const ib_path_rec_t * const p_rec)
@@ -1848,8 +1802,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t
 osmtest_write_node_info(IN osmtest_t * const p_osmt,
 			IN FILE * fh, IN const ib_node_record_t * const p_rec)
@@ -1908,8 +1860,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t
 osmtest_write_link(IN osmtest_t * const p_osmt,
 		   IN FILE * fh, IN const ib_link_record_t * const p_rec)
@@ -1942,8 +1892,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t
 osmtest_write_all_link_recs(IN osmtest_t * const p_osmt, IN FILE * fh)
 {
@@ -2010,8 +1958,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t
 osmtest_get_path_rec_by_lid_pair(IN osmtest_t * const p_osmt,
 				 IN ib_net16_t slid,
@@ -2582,8 +2528,6 @@ osmtest_write_all_path_recs(IN osmtest_t * const p_osmt, IN FILE * fh)
 
 #endif
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t
 osmtest_create_inventory_file(IN osmtest_t * const p_osmt)
 {
@@ -2627,8 +2571,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t osmtest_stress_large_rmpp_pr(IN osmtest_t * const p_osmt)
 {
 	ib_api_status_t status = IB_SUCCESS;
@@ -2706,8 +2648,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t osmtest_stress_large_rmpp(IN osmtest_t * const p_osmt)
 {
 	ib_api_status_t status = IB_SUCCESS;
@@ -2790,8 +2730,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t osmtest_stress_small_rmpp(IN osmtest_t * const p_osmt)
 {
 	ib_api_status_t status = IB_SUCCESS;
@@ -2867,8 +2805,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 ib_api_status_t
 osmtest_stress_path_recs_by_lid(IN osmtest_t * const p_osmt,
 				OUT uint32_t * const p_num_recs,
@@ -2929,8 +2865,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t osmtest_stress_get_pr(IN osmtest_t * const p_osmt)
 {
 	ib_api_status_t status = IB_SUCCESS;
@@ -3007,8 +2941,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void
 osmtest_prepare_db_generic(IN osmtest_t * const p_osmt,
 			   IN cl_qmap_t * const p_tbl)
@@ -3027,8 +2959,6 @@ osmtest_prepare_db_generic(IN osmtest_t * const p_osmt,
 	OSM_LOG_EXIT(&p_osmt->log);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void osmtest_prepare_db(IN osmtest_t * const p_osmt)
 {
 	OSM_LOG_ENTER(&p_osmt->log);
@@ -3039,8 +2969,6 @@ static void osmtest_prepare_db(IN osmtest_t * const p_osmt)
 	OSM_LOG_EXIT(&p_osmt->log);
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t osmtest_check_missing_nodes(IN osmtest_t * const p_osmt)
 {
 	const node_t *p_node;
@@ -3071,8 +2999,6 @@ static ib_api_status_t osmtest_check_missing_nodes(IN osmtest_t * const p_osmt)
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t osmtest_check_missing_ports(IN osmtest_t * const p_osmt)
 {
 	const port_t *p_port;
@@ -3104,8 +3030,6 @@ static ib_api_status_t osmtest_check_missing_ports(IN osmtest_t * const p_osmt)
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t osmtest_check_missing_paths(IN osmtest_t * const p_osmt)
 {
 	const path_t *p_path;
@@ -3139,15 +3063,11 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 inline uint32_t osmtest_path_rec_key_get(IN const ib_path_rec_t * const p_rec)
 {
 	return (p_rec->dlid << 16 | p_rec->slid);
 }
 
-/**********************************************************************
- **********************************************************************/
 static boolean_t
 osmtest_path_rec_kay_is_valid(IN osmtest_t * const p_osmt,
 			      IN const path_t * const p_path)
@@ -3161,8 +3081,6 @@ osmtest_path_rec_kay_is_valid(IN osmtest_t * const p_osmt,
 	return (TRUE);
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t
 osmtest_validate_path_data(IN osmtest_t * const p_osmt,
 			   IN path_t * const p_path,
@@ -3272,8 +3190,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t
 osmtest_validate_node_data(IN osmtest_t * const p_osmt,
 			   IN node_t * const p_node,
@@ -3451,8 +3367,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t
 osmtest_validate_node_rec(IN osmtest_t * const p_osmt,
 			  IN const ib_node_record_t * const p_rec)
@@ -3484,8 +3398,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t
 osmtest_validate_port_data(IN osmtest_t * const p_osmt,
 			   IN port_t * const p_port,
@@ -3963,8 +3875,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t
 osmtest_validate_port_rec(IN osmtest_t * const p_osmt,
 			  IN const ib_portinfo_record_t * const p_rec)
@@ -3998,8 +3908,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t
 osmtest_validate_path_rec(IN osmtest_t * const p_osmt,
 			  IN const ib_path_rec_t * const p_rec)
@@ -4033,8 +3941,6 @@ Exit:
 #ifdef VENDOR_RMPP_SUPPORT
 ib_net64_t portguid = 0;
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t
 osmtest_validate_all_node_recs(IN osmtest_t * const p_osmt)
 {
@@ -4108,8 +4014,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t
 osmtest_validate_all_guidinfo_recs(IN osmtest_t * const p_osmt)
 {
@@ -4156,8 +4060,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t
 osmtest_validate_all_path_recs(IN osmtest_t * const p_osmt)
 {
@@ -4707,8 +4609,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t
 osmtest_sminfo_record_request(IN osmtest_t * const p_osmt,
 			      IN uint8_t method,
@@ -4804,8 +4704,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t
 osmtest_informinfo_request(IN osmtest_t * const p_osmt,
 			   IN ib_net16_t attr_id,
@@ -4918,8 +4816,6 @@ Exit:
 }
 #endif
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t
 osmtest_validate_single_path_rec_lid_pair(IN osmtest_t * const p_osmt,
 					  IN path_t * const p_path)
@@ -4975,8 +4871,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t
 osmtest_validate_single_node_rec_lid(IN osmtest_t * const p_osmt,
 				     IN ib_net16_t const lid,
@@ -5073,8 +4967,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t
 osmtest_validate_single_port_rec_lid(IN osmtest_t * const p_osmt,
 				     IN port_t * const p_port)
@@ -5122,8 +5014,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t
 osmtest_validate_single_path_rec_guid_pair(IN osmtest_t * const p_osmt,
 					   IN const osmv_guid_pair_t *
@@ -5242,8 +5132,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t
 osmtest_validate_single_path_recs(IN osmtest_t * const p_osmt)
 {
@@ -5326,8 +5214,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t
 osmtest_validate_single_node_recs(IN osmtest_t * const p_osmt)
 {
@@ -5380,8 +5266,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t
 osmtest_validate_single_port_recs(IN osmtest_t * const p_osmt)
 {
@@ -5432,8 +5316,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t osmtest_validate_against_db(IN osmtest_t * const p_osmt)
 {
 	ib_api_status_t status = IB_SUCCESS;
@@ -6146,8 +6028,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 static const osmtest_token_t *str_get_token(IN char *const p_str)
 {
 	const osmtest_token_t *p_tok;
@@ -6194,8 +6074,6 @@ static void str_skip_token(IN char line[], IN OUT uint32_t * const p_offset)
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t
 osmtest_parse_node(IN osmtest_t * const p_osmt,
 		   IN FILE * const fh, IN OUT uint32_t * const p_line_num)
@@ -6421,8 +6299,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t
 osmtest_parse_port(IN osmtest_t * const p_osmt,
 		   IN FILE * const fh, IN OUT uint32_t * const p_line_num)
@@ -6828,8 +6704,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t
 osmtest_parse_path(IN osmtest_t * const p_osmt,
 		   IN FILE * const fh, IN OUT uint32_t * const p_line_num)
@@ -6989,8 +6863,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t
 osmtest_parse_link(IN osmtest_t * const p_osmt,
 		   IN FILE * const fh, IN OUT uint32_t * const p_line_num)
@@ -7070,8 +6942,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t osmtest_create_db(IN osmtest_t * const p_osmt)
 {
 	FILE *fh;
@@ -7214,8 +7084,6 @@ osmtest_get_user_port(IN osmtest_t * const p_osmt,
 	return (choice - 1);
 }
 
-/**********************************************************************
- **********************************************************************/
 ib_api_status_t
 osmtest_bind(IN osmtest_t * p_osmt,
 	     IN uint16_t max_lid, IN ib_net64_t guid OPTIONAL)
@@ -7295,8 +7163,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 ib_api_status_t osmtest_run(IN osmtest_t * const p_osmt)
 {
 	ib_api_status_t status = IB_SUCCESS;

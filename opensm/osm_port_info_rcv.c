@@ -63,8 +63,6 @@
 #include <opensm/osm_opensm.h>
 #include <opensm/osm_ucast_mgr.h>
 
-/**********************************************************************
- **********************************************************************/
 static void pi_rcv_check_and_fix_lid(osm_log_t * log, ib_port_info_t * pi,
 				     osm_physp_t * p)
 {
@@ -77,8 +75,6 @@ static void pi_rcv_check_and_fix_lid(osm_log_t * log, ib_port_info_t * pi,
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
 static void pi_rcv_process_endport(IN osm_sm_t * sm, IN osm_physp_t * p_physp,
 				   IN const ib_port_info_t * p_pi)
 {
@@ -315,8 +311,6 @@ static void pi_rcv_process_switch_port(IN osm_sm_t * sm, IN osm_node_t * p_node,
 	OSM_LOG_EXIT(sm->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void pi_rcv_process_ca_or_router_port(IN osm_sm_t * sm,
 					     IN osm_node_t * p_node,
 					     IN osm_physp_t * p_physp,
@@ -336,8 +330,6 @@ static void pi_rcv_process_ca_or_router_port(IN osm_sm_t * sm,
 }
 
 #define IBM_VENDOR_ID  (0x5076)
-/**********************************************************************
- **********************************************************************/
 static void get_pkey_table(IN osm_log_t * p_log, IN osm_sm_t * sm,
 			   IN osm_node_t * p_node, IN osm_physp_t * p_physp)
 {
@@ -405,8 +397,6 @@ Exit:
 	OSM_LOG_EXIT(p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void pi_rcv_get_pkey_slvl_vla_tables(IN osm_sm_t * sm,
 					    IN osm_node_t * p_node,
 					    IN osm_physp_t * p_physp)
@@ -418,8 +408,6 @@ static void pi_rcv_get_pkey_slvl_vla_tables(IN osm_sm_t * sm,
 	OSM_LOG_EXIT(sm->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void pi_rcv_process_set(IN osm_sm_t * sm, IN osm_node_t * p_node,
 			       IN uint8_t port_num, IN osm_madw_t * p_madw)
 {
@@ -477,8 +465,6 @@ static void pi_rcv_process_set(IN osm_sm_t * sm, IN osm_node_t * p_node,
 	OSM_LOG_EXIT(sm->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_pi_rcv_process(IN void *context, IN void *data)
 {
 	osm_sm_t *sm = context;

@@ -67,8 +67,6 @@ typedef struct osm_nr_search_ctxt {
 	const osm_physp_t *p_req_physp;
 } osm_nr_search_ctxt_t;
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t nr_rcv_new_nr(osm_sa_t * sa,
 				     IN const osm_node_t * p_node,
 				     IN cl_qlist_t * p_list,
@@ -108,8 +106,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void nr_rcv_create_nr(IN osm_sa_t * sa, IN osm_node_t * p_node,
 			     IN cl_qlist_t * p_list,
 			     IN ib_net64_t const match_port_guid,
@@ -183,8 +179,6 @@ static void nr_rcv_create_nr(IN osm_sa_t * sa, IN osm_node_t * p_node,
 	OSM_LOG_EXIT(sa->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void nr_rcv_by_comp_mask(IN cl_map_item_t * p_map_item, IN void *context)
 {
 	const osm_nr_search_ctxt_t *p_ctxt = context;
@@ -277,8 +271,6 @@ Exit:
 	OSM_LOG_EXIT(p_ctxt->sa->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_nr_rcv_process(IN void *ctx, IN void *data)
 {
 	osm_sa_t *sa = ctx;

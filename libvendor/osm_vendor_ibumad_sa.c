@@ -45,9 +45,6 @@
 #include <vendor/osm_vendor_sa_api.h>
 #include <complib/cl_event.h>
 
-/*****************************************************************************
- *****************************************************************************/
-
 /* this struct is the internal rep of the bind handle */
 typedef struct _osmv_sa_bind_info {
 	osm_bind_handle_t h_bind;
@@ -57,9 +54,6 @@ typedef struct _osmv_sa_bind_info {
 	cl_event_t sync_event;
 	time_t last_lids_update_sec;
 } osmv_sa_bind_info_t;
-
-/*****************************************************************************
- *****************************************************************************/
 
 /*
   Call back on new mad received:
@@ -172,8 +166,6 @@ Exit:
 	OSM_LOG_EXIT(p_bind->p_log);
 }
 
-/*****************************************************************************
- ****************************************************************************/
 /*
   Send Error Callback:
 
@@ -227,8 +219,6 @@ static ib_api_status_t update_umad_port(osm_vendor_t * p_vend)
 	return IB_SUCCESS;
 }
 
-/*****************************************************************************
- *****************************************************************************/
 osm_bind_handle_t
 osmv_bind_sa(IN osm_vendor_t * const p_vend,
 	     IN osm_mad_pool_t * const p_mad_pool, IN ib_net64_t port_guid)
@@ -296,9 +286,6 @@ Exit:
 	return (p_sa_bind_info);
 }
 
-/*****************************************************************************
- *****************************************************************************/
-
 /****t* OSM Vendor SA Client/osmv_sa_mad_data
  * NAME
  *    osmv_sa_mad_data
@@ -339,8 +326,6 @@ typedef struct _osmv_sa_mad_data {
  *
  *****/
 
-/*****************************************************************************
- *****************************************************************************/
 /* Send a MAD out on the GSI interface */
 static ib_api_status_t
 __osmv_send_sa_req(IN osmv_sa_bind_info_t * p_bind,
@@ -469,8 +454,6 @@ Exit:
 	return status;
 }
 
-/*****************************************************************************
- *****************************************************************************/
 /*
  * Query the SA based on the user's request.
  */

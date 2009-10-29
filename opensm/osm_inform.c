@@ -59,15 +59,11 @@ typedef struct osm_infr_match_ctxt {
 	ib_mad_notice_attr_t *p_ntc;
 } osm_infr_match_ctxt_t;
 
-/**********************************************************************
- **********************************************************************/
 void osm_infr_delete(IN osm_infr_t * p_infr)
 {
 	free(p_infr);
 }
 
-/**********************************************************************
- **********************************************************************/
 osm_infr_t *osm_infr_new(IN const osm_infr_t * p_infr_rec)
 {
 	osm_infr_t *p_infr;
@@ -81,8 +77,6 @@ osm_infr_t *osm_infr_new(IN const osm_infr_t * p_infr_rec)
 	return (p_infr);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void dump_all_informs(IN const osm_subn_t * p_subn, IN osm_log_t * p_log)
 {
 	cl_list_item_t *p_list_item;
@@ -210,8 +204,6 @@ Exit:
 	return status;
 }
 
-/**********************************************************************
- **********************************************************************/
 osm_infr_t *osm_infr_get_by_rec(IN osm_subn_t const *p_subn,
 				IN osm_log_t * p_log,
 				IN osm_infr_t * p_infr_rec)
@@ -238,8 +230,6 @@ osm_infr_t *osm_infr_get_by_rec(IN osm_subn_t const *p_subn,
 	return (osm_infr_t *) p_list_item;
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_infr_insert_to_db(IN osm_subn_t * p_subn, IN osm_log_t * p_log,
 			   IN osm_infr_t * p_infr)
 {
@@ -265,8 +255,6 @@ void osm_infr_insert_to_db(IN osm_subn_t * p_subn, IN osm_log_t * p_log,
 	OSM_LOG_EXIT(p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_infr_remove_from_db(IN osm_subn_t * p_subn, IN osm_log_t * p_log,
 			     IN osm_infr_t * p_infr)
 {

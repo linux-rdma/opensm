@@ -319,8 +319,6 @@ static boolean_t si_rcv_process_existing(IN osm_sm_t * sm,
 	return is_change_detected;
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_si_rcv_process(IN void *context, IN void *data)
 {
 	osm_sm_t *sm = context;

@@ -71,8 +71,6 @@ typedef struct osm_slvl_search_ctxt {
 	const osm_physp_t *p_req_physp;
 } osm_slvl_search_ctxt_t;
 
-/**********************************************************************
- **********************************************************************/
 static void sa_slvl_create(IN osm_sa_t * sa, IN const osm_physp_t * p_physp,
 			   IN osm_slvl_search_ctxt_t * p_ctxt,
 			   IN uint8_t in_port_idx)
@@ -116,8 +114,6 @@ Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void sa_slvl_by_comp_mask(IN osm_sa_t * sa, IN const osm_port_t * p_port,
 				 osm_slvl_search_ctxt_t * p_ctxt)
 {
@@ -191,8 +187,6 @@ static void sa_slvl_by_comp_mask(IN osm_sa_t * sa, IN const osm_port_t * p_port,
 	OSM_LOG_EXIT(sa->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void sa_slvl_by_comp_mask_cb(IN cl_map_item_t * p_map_item, IN void *cxt)
 {
 	const osm_port_t *p_port = (osm_port_t *) p_map_item;
@@ -201,8 +195,6 @@ static void sa_slvl_by_comp_mask_cb(IN cl_map_item_t * p_map_item, IN void *cxt)
 	sa_slvl_by_comp_mask(p_ctxt->sa, p_port, p_ctxt);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_slvl_rec_rcv_process(IN void *ctx, IN void *data)
 {
 	osm_sa_t *sa = ctx;

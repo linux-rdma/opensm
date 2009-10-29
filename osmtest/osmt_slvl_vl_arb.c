@@ -51,8 +51,6 @@
 #include <complib/cl_debug.h>
 #include "osmtest.h"
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t
 osmtest_write_vl_arb_table(IN osmtest_t * const p_osmt,
 			   IN FILE * fh,

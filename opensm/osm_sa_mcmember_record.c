@@ -132,15 +132,11 @@ static ib_net16_t get_new_mlid(osm_sa_t * sa, ib_net16_t requested_mlid)
 	return 0;
 }
 
-/**********************************************************************
- **********************************************************************/
 static inline boolean_t check_join_comp_mask(ib_net64_t comp_mask)
 {
 	return ((comp_mask & JOIN_MC_COMP_MASK) == JOIN_MC_COMP_MASK);
 }
 
-/**********************************************************************
- **********************************************************************/
 static boolean_t check_create_comp_mask(ib_net64_t comp_mask,
 					ib_member_rec_t * p_recvd_mcmember_rec)
 {
@@ -397,8 +393,6 @@ static boolean_t validate_modify(IN osm_sa_t * sa, IN osm_mgrp_t * p_mgrp,
 	return TRUE;
 }
 
-/**********************************************************************
- **********************************************************************/
 /*
  * Check legality of the requested MGID DELETE
  * o15-0.1.14 = VALID DELETE:
@@ -469,8 +463,6 @@ static boolean_t validate_delete(IN osm_sa_t * sa, IN osm_mgrp_t * p_mgrp,
 	return TRUE;
 }
 
-/**********************************************************************
- **********************************************************************/
 /*
  * Check legality of the requested MGID (note this does not hold for SA
  * created MGIDs)
@@ -831,8 +823,6 @@ Exit:
 	return status;
 }
 
-/**********************************************************************
- **********************************************************************/
 #define PREFIX_MASK CL_HTON64(0xff10ffff0000ffffULL)
 #define PREFIX_SIGNATURE CL_HTON64(0xff10601b00000000ULL)
 #define INT_ID_MASK CL_HTON64(0xfffffff1ff000000ULL)
@@ -1436,8 +1426,6 @@ Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_mcmr_rcv_process(IN void *context, IN void *data)
 {
 	osm_sa_t *sa = context;

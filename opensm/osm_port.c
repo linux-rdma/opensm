@@ -53,8 +53,6 @@
 #include <opensm/osm_madw.h>
 #include <opensm/osm_switch.h>
 
-/**********************************************************************
- **********************************************************************/
 void osm_physp_construct(IN osm_physp_t * p_physp)
 {
 	memset(p_physp, 0, sizeof(*p_physp));
@@ -63,8 +61,6 @@ void osm_physp_construct(IN osm_physp_t * p_physp)
 	osm_pkey_tbl_construct(&p_physp->pkeys);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_physp_destroy(IN osm_physp_t * p_physp)
 {
 	size_t num_slvl, i;
@@ -85,8 +81,6 @@ void osm_physp_destroy(IN osm_physp_t * p_physp)
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_physp_init(IN osm_physp_t * p_physp, IN ib_net64_t port_guid,
 		    IN uint8_t port_num, IN const struct osm_node *p_node,
 		    IN osm_bind_handle_t h_bind, IN uint8_t hop_count,
@@ -127,16 +121,12 @@ void osm_physp_init(IN osm_physp_t * p_physp, IN ib_net64_t port_guid,
 	osm_pkey_tbl_init(&p_physp->pkeys);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_port_delete(IN OUT osm_port_t ** pp_port)
 {
 	free(*pp_port);
 	*pp_port = NULL;
 }
 
-/**********************************************************************
- **********************************************************************/
 osm_port_t *osm_port_new(IN const ib_node_info_t * p_ni,
 			 IN osm_node_t * p_parent_node)
 {
@@ -170,8 +160,6 @@ osm_port_t *osm_port_new(IN const ib_node_info_t * p_ni,
 	return p_port;
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_port_get_lid_range_ho(IN const osm_port_t * p_port,
 			       IN uint16_t * p_min_lid, IN uint16_t * p_max_lid)
 {
@@ -182,8 +170,6 @@ void osm_port_get_lid_range_ho(IN const osm_port_t * p_port,
 	*p_max_lid = (uint16_t) (*p_min_lid + (1 << lmc) - 1);
 }
 
-/**********************************************************************
- **********************************************************************/
 uint8_t osm_physp_calc_link_mtu(IN osm_log_t * p_log,
 				IN const osm_physp_t * p_physp)
 {
@@ -236,8 +222,6 @@ uint8_t osm_physp_calc_link_mtu(IN osm_log_t * p_log,
 	return mtu;
 }
 
-/**********************************************************************
- **********************************************************************/
 uint8_t osm_physp_calc_link_op_vls(IN osm_log_t * p_log,
 				   IN const osm_subn_t * p_subn,
 				   IN const osm_physp_t * p_physp)
@@ -386,8 +370,6 @@ Exit:
 	return status;
 }
 
-/**********************************************************************
- **********************************************************************/
 static void physp_update_new_dr_path(IN osm_physp_t const *p_dest_physp,
 				     IN cl_map_t * p_visited_map,
 				     IN osm_bind_handle_t * h_bind)
@@ -435,8 +417,6 @@ static void physp_update_new_dr_path(IN osm_physp_t const *p_dest_physp,
 	cl_list_destroy(&tmpPortsList);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_physp_replace_dr_path_with_alternate_dr_path(IN osm_log_t * p_log,
 						      IN osm_subn_t const
 						      *p_subn, IN osm_physp_t const
@@ -595,8 +575,6 @@ Exit:
 	cl_map_destroy(&visited_map);
 }
 
-/**********************************************************************
- **********************************************************************/
 boolean_t osm_link_is_healthy(IN const osm_physp_t * p_physp)
 {
 	osm_physp_t *p_remote_physp;
@@ -609,8 +587,6 @@ boolean_t osm_link_is_healthy(IN const osm_physp_t * p_physp)
 	return TRUE;
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_physp_set_pkey_tbl(IN osm_log_t * p_log, IN const osm_subn_t * p_subn,
 			    IN osm_physp_t * p_physp,
 			    IN ib_pkey_table_t * p_pkey_tbl,

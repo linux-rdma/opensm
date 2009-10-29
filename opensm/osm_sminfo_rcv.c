@@ -74,8 +74,6 @@ static boolean_t smi_rcv_remote_sm_is_higher(IN osm_sm_t * sm,
 
 }
 
-/**********************************************************************
- **********************************************************************/
 static void smi_rcv_process_get_request(IN osm_sm_t * sm,
 					IN const osm_madw_t * p_madw)
 {
@@ -158,8 +156,6 @@ static ib_api_status_t smi_rcv_check_set_req_legality(IN const ib_smp_t * p_smp)
 	return IB_INVALID_PARAMETER;
 }
 
-/**********************************************************************
- **********************************************************************/
 static void smi_rcv_process_set_request(IN osm_sm_t * sm,
 					IN const osm_madw_t * p_madw)
 {
@@ -299,8 +295,6 @@ Exit:
 	OSM_LOG_EXIT(sm->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 static int smi_rcv_process_get_sm(IN osm_sm_t * sm,
 				  IN const osm_remote_sm_t * p_sm,
 				  boolean_t light_sweep)
@@ -416,8 +410,6 @@ static int smi_rcv_process_get_sm(IN osm_sm_t * sm,
 	return 0;
 }
 
-/**********************************************************************
- **********************************************************************/
 static void smi_rcv_process_get_response(IN osm_sm_t * sm,
 					 IN const osm_madw_t * p_madw)
 {
@@ -511,8 +503,6 @@ Exit:
 	OSM_LOG_EXIT(sm->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void smi_rcv_process_set_response(IN osm_sm_t * sm,
 					 IN const osm_madw_t * p_madw)
 {
@@ -548,8 +538,6 @@ Exit:
 	OSM_LOG_EXIT(sm->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_sminfo_rcv_process(IN void *context, IN void *data)
 {
 	osm_sm_t *sm = context;

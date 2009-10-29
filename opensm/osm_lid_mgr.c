@@ -104,15 +104,11 @@ typedef struct osm_lid_mgr_range {
 	uint16_t max_lid;
 } osm_lid_mgr_range_t;
 
-/**********************************************************************
- **********************************************************************/
 void osm_lid_mgr_construct(IN osm_lid_mgr_t * p_mgr)
 {
 	memset(p_mgr, 0, sizeof(*p_mgr));
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_lid_mgr_destroy(IN osm_lid_mgr_t * p_mgr)
 {
 	cl_list_item_t *p_item;
@@ -222,8 +218,6 @@ Exit:
 	OSM_LOG_EXIT(p_mgr->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 ib_api_status_t osm_lid_mgr_init(IN osm_lid_mgr_t * p_mgr, IN osm_sm_t * sm)
 {
 	ib_api_status_t status = IB_SUCCESS;
@@ -667,8 +661,6 @@ static void lid_mgr_find_free_lid_range(IN osm_lid_mgr_t * p_mgr,
 	CL_ASSERT(0);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void lid_mgr_cleanup_discovered_port_lid_range(IN osm_lid_mgr_t * p_mgr,
 						      IN osm_port_t * p_port)
 {
@@ -820,8 +812,6 @@ static void lid_mgr_set_remote_pi_state_to_init(IN osm_lid_mgr_t * p_mgr,
 	ib_port_info_set_port_state(&p_rem_physp->port_info, IB_LINK_INIT);
 }
 
-/**********************************************************************
- **********************************************************************/
 static int lid_mgr_set_physp_pi(IN osm_lid_mgr_t * p_mgr,
 				IN osm_port_t * p_port,
 				IN osm_physp_t * p_physp, IN ib_net16_t lid)
@@ -1143,8 +1133,6 @@ Exit:
 	return ret;
 }
 
-/**********************************************************************
- **********************************************************************/
 int osm_lid_mgr_process_sm(IN osm_lid_mgr_t * p_mgr)
 {
 	int ret;

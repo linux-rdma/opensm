@@ -137,8 +137,6 @@ __osm_ts_conv_osm_addr_to_ts_addr(IN osm_mad_addr_t * p_mad_addr,
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
 void __osm_vendor_clear_sm(IN osm_bind_handle_t h_bind)
 {
 	osm_ts_bind_info_t *p_bind = (osm_ts_bind_info_t *) h_bind;
@@ -864,8 +862,6 @@ ib_api_status_t osm_vendor_local_lid_change(IN osm_bind_handle_t h_bind)
 	return (IB_SUCCESS);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_vendor_set_sm(IN osm_bind_handle_t h_bind, IN boolean_t is_sm_val)
 {
 	osm_ts_bind_info_t *p_bind = (osm_ts_bind_info_t *) h_bind;
@@ -895,8 +891,6 @@ void osm_vendor_set_sm(IN osm_bind_handle_t h_bind, IN boolean_t is_sm_val)
 	OSM_LOG_EXIT(p_vend->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_vendor_set_debug(IN osm_vendor_t * const p_vend, IN int32_t level)
 {
 

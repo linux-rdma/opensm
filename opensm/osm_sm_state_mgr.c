@@ -61,8 +61,6 @@
 #include <opensm/osm_helper.h>
 #include <opensm/osm_opensm.h>
 
-/**********************************************************************
- **********************************************************************/
 void osm_report_sm_state(osm_sm_t * sm)
 {
 	char buf[64];
@@ -73,8 +71,6 @@ void osm_report_sm_state(osm_sm_t * sm)
 	OSM_LOG_MSG_BOX(sm->p_log, OSM_LOG_VERBOSE, buf);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void sm_state_mgr_send_master_sm_info_req(osm_sm_t * sm)
 {
 	osm_madw_context_t context;
@@ -124,8 +120,6 @@ Exit:
 	OSM_LOG_EXIT(sm->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void sm_state_mgr_start_polling(osm_sm_t * sm)
 {
 	uint32_t timeout = sm->p_subn->opt.sminfo_polling_timeout;
@@ -156,8 +150,6 @@ static void sm_state_mgr_start_polling(osm_sm_t * sm)
 	OSM_LOG_EXIT(sm->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_sm_state_mgr_polling_callback(IN void *context)
 {
 	osm_sm_t *sm = context;
@@ -221,8 +213,6 @@ Exit:
 	OSM_LOG_EXIT(sm->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void sm_state_mgr_signal_error(osm_sm_t * sm, IN osm_sm_signal_t signal)
 {
 	OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3207: "
@@ -231,8 +221,6 @@ static void sm_state_mgr_signal_error(osm_sm_t * sm, IN osm_sm_signal_t signal)
 		osm_get_sm_mgr_state_str(sm->p_subn->sm_state));
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_sm_state_mgr_signal_master_is_alive(osm_sm_t * sm)
 {
 	OSM_LOG_ENTER(sm->p_log);
@@ -240,8 +228,6 @@ void osm_sm_state_mgr_signal_master_is_alive(osm_sm_t * sm)
 	OSM_LOG_EXIT(sm->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 ib_api_status_t osm_sm_state_mgr_process(osm_sm_t * sm,
 					 IN osm_sm_signal_t signal)
 {
@@ -464,8 +450,6 @@ ib_api_status_t osm_sm_state_mgr_process(osm_sm_t * sm,
 	return status;
 }
 
-/**********************************************************************
- **********************************************************************/
 ib_api_status_t osm_sm_state_mgr_check_legality(osm_sm_t * sm,
 						IN osm_sm_signal_t signal)
 {

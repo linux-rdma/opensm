@@ -77,8 +77,6 @@ struct updn_node {
 	unsigned visited;
 };
 
-/**********************************************************************
- **********************************************************************/
 /* This function returns direction based on rank and guid info of current &
    remote ports */
 static updn_switch_dir_t updn_get_dir(unsigned cur_rank, unsigned rem_rank,
@@ -204,8 +202,6 @@ static int updn_bfs_by_node(IN osm_log_t * p_log, IN osm_subn_t * p_subn,
 	return 0;
 }
 
-/**********************************************************************
- **********************************************************************/
 /* NOTE : PLS check if we need to decide that the first */
 /*        rank is a SWITCH for BFS purpose */
 static int updn_subn_rank(IN updn_t * p_updn)
@@ -283,8 +279,6 @@ static int updn_subn_rank(IN updn_t * p_updn)
 	return 0;
 }
 
-/**********************************************************************
- **********************************************************************/
 /* hack: preserve min hops entries to any other root switches */
 static void updn_clear_non_root_hops(updn_t * p_updn, osm_switch_t * p_sw)
 {
@@ -303,8 +297,6 @@ static void updn_clear_non_root_hops(updn_t * p_updn, osm_switch_t * p_sw)
 		}
 }
 
-/**********************************************************************
- **********************************************************************/
 static int updn_set_min_hop_table(IN updn_t * p_updn)
 {
 	osm_subn_t *p_subn = &p_updn->p_osm->subn;
@@ -351,8 +343,6 @@ static int updn_set_min_hop_table(IN updn_t * p_updn)
 	return 0;
 }
 
-/**********************************************************************
- **********************************************************************/
 static int updn_build_lid_matrices(IN updn_t * p_updn)
 {
 	int status;
@@ -389,8 +379,6 @@ _exit:
 	return status;
 }
 
-/**********************************************************************
- **********************************************************************/
 static struct updn_node *create_updn_node(osm_switch_t * sw)
 {
 	struct updn_node *u;
@@ -411,8 +399,6 @@ static void delete_updn_node(struct updn_node *u)
 	free(u);
 }
 
-/**********************************************************************
- **********************************************************************/
 /* Find Root nodes automatically by Min Hop Table info */
 static void updn_find_root_nodes_by_min_hop(OUT updn_t * p_updn)
 {
@@ -517,8 +503,6 @@ _exit:
 	return;
 }
 
-/**********************************************************************
- **********************************************************************/
 static void dump_roots(cl_map_item_t *item, FILE *file, void *cxt)
 {
 	osm_switch_t *sw = (osm_switch_t *)item;
@@ -662,8 +646,6 @@ static int updn_lid_matrices(void *ctx)
 	return ret;
 }
 
-/**********************************************************************
- **********************************************************************/
 static void updn_delete(void *context)
 {
 	free(context);

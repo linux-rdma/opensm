@@ -118,8 +118,6 @@ void __cl_disp_worker(IN void *context)
 	cl_spinlock_release(&p_disp->lock);
 }
 
-/********************************************************************
- ********************************************************************/
 void cl_disp_construct(IN cl_dispatcher_t * const p_disp)
 {
 	CL_ASSERT(p_disp);
@@ -131,8 +129,6 @@ void cl_disp_construct(IN cl_dispatcher_t * const p_disp)
 	cl_qpool_construct(&p_disp->msg_pool);
 }
 
-/********************************************************************
- ********************************************************************/
 void cl_disp_shutdown(IN cl_dispatcher_t * const p_disp)
 {
 	CL_ASSERT(p_disp);
@@ -148,8 +144,6 @@ void cl_disp_shutdown(IN cl_dispatcher_t * const p_disp)
 		free(cl_qlist_remove_head(&p_disp->reg_list));
 }
 
-/********************************************************************
- ********************************************************************/
 void cl_disp_destroy(IN cl_dispatcher_t * const p_disp)
 {
 	CL_ASSERT(p_disp);
@@ -161,8 +155,6 @@ void cl_disp_destroy(IN cl_dispatcher_t * const p_disp)
 	cl_ptr_vector_destroy(&p_disp->reg_vec);
 }
 
-/********************************************************************
- ********************************************************************/
 cl_status_t cl_disp_init(IN cl_dispatcher_t * const p_disp,
 			 IN const uint32_t thread_count,
 			 IN const char *const name)
@@ -203,8 +195,6 @@ cl_status_t cl_disp_init(IN cl_dispatcher_t * const p_disp,
 	return (status);
 }
 
-/********************************************************************
- ********************************************************************/
 cl_disp_reg_handle_t cl_disp_register(IN cl_dispatcher_t * const p_disp,
 				      IN const cl_disp_msgid_t msg_id,
 				      IN cl_pfn_msgrcv_cb_t pfn_callback
@@ -259,8 +249,6 @@ cl_disp_reg_handle_t cl_disp_register(IN cl_dispatcher_t * const p_disp,
 	return (p_reg);
 }
 
-/********************************************************************
- ********************************************************************/
 void cl_disp_unregister(IN const cl_disp_reg_handle_t handle)
 {
 	cl_disp_reg_info_t *p_reg;
@@ -297,8 +285,6 @@ void cl_disp_unregister(IN const cl_disp_reg_handle_t handle)
 	cl_spinlock_release(&p_disp->lock);
 }
 
-/********************************************************************
- ********************************************************************/
 cl_status_t cl_disp_post(IN const cl_disp_reg_handle_t handle,
 			 IN const cl_disp_msgid_t msg_id,
 			 IN const void *const p_data,

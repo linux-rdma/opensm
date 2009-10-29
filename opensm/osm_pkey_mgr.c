@@ -52,8 +52,6 @@
 #include <opensm/osm_partition.h>
 #include <opensm/osm_opensm.h>
 
-/**********************************************************************
- **********************************************************************/
 /*
   The max number of pkey blocks for a physical port is located in
   a different place for switch external ports (SwitchInfo) and the
@@ -73,8 +71,6 @@ pkey_mgr_get_physp_max_blocks(IN const osm_subn_t * p_subn,
 	return ((num_pkeys + 31) / 32);
 }
 
-/**********************************************************************
- **********************************************************************/
 /*
  * Insert new pending pkey entry to the specific port pkey table
  * pending pkeys. New entries are inserted at the back.
@@ -136,8 +132,6 @@ pkey_mgr_process_physical_port(IN osm_log_t * p_log,
 		osm_physp_get_port_num(p_physp));
 }
 
-/**********************************************************************
- **********************************************************************/
 static void
 pkey_mgr_process_partition_table(osm_log_t * p_log, osm_sm_t * sm,
 				 const osm_prtn_t * p_prtn,
@@ -163,8 +157,6 @@ pkey_mgr_process_partition_table(osm_log_t * p_log, osm_sm_t * sm,
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t
 pkey_mgr_update_pkey_entry(IN osm_sm_t * sm,
 			   IN const osm_physp_t * p_physp,
@@ -187,8 +179,6 @@ pkey_mgr_update_pkey_entry(IN osm_sm_t * sm,
 			   cl_hton32(attr_mod), CL_DISP_MSGID_NONE, &context);
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t
 pkey_mgr_enforce_partition(IN osm_log_t * p_log, osm_sm_t * sm,
 			   IN osm_physp_t * p_physp, IN const boolean_t enforce)
@@ -249,8 +239,6 @@ pkey_mgr_enforce_partition(IN osm_log_t * p_log, osm_sm_t * sm,
 	return status;
 }
 
-/**********************************************************************
- **********************************************************************/
 static int pkey_mgr_update_port(osm_log_t * p_log, osm_sm_t * sm,
 				const osm_port_t * const p_port)
 {
@@ -378,8 +366,6 @@ static int pkey_mgr_update_port(osm_log_t * p_log, osm_sm_t * sm,
 	return ret;
 }
 
-/**********************************************************************
- **********************************************************************/
 static int pkey_mgr_update_peer_port(osm_log_t * p_log, osm_sm_t * sm,
 				     const osm_subn_t * p_subn,
 				     const osm_port_t * const p_port,
@@ -466,8 +452,6 @@ static int pkey_mgr_update_peer_port(osm_log_t * p_log, osm_sm_t * sm,
 	return ret;
 }
 
-/**********************************************************************
- **********************************************************************/
 int osm_pkey_mgr_process(IN osm_opensm_t * p_osm)
 {
 	cl_qmap_t *p_tbl;

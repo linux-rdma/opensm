@@ -114,8 +114,6 @@ Exit:
 	return status;
 }
 
-/**********************************************************************
- **********************************************************************/
 static void sa_smir_by_comp_mask(IN osm_sa_t * sa,
 				 IN const osm_remote_sm_t * p_rem_sm,
 				 osm_smir_search_ctxt_t * p_ctxt)
@@ -153,8 +151,6 @@ Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void sa_smir_by_comp_mask_cb(IN cl_map_item_t * p_map_item, IN void *cxt)
 {
 	const osm_remote_sm_t *p_rem_sm = (osm_remote_sm_t *) p_map_item;
@@ -163,8 +159,6 @@ static void sa_smir_by_comp_mask_cb(IN cl_map_item_t * p_map_item, IN void *cxt)
 	sa_smir_by_comp_mask(p_ctxt->sa, p_rem_sm, p_ctxt);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_smir_rcv_process(IN void *ctx, IN void *data)
 {
 	osm_sa_t *sa = ctx;

@@ -111,8 +111,6 @@ typedef struct _osm_al_bind_info {
  * SEE ALSO
  *********/
 
-/**********************************************************************
- **********************************************************************/
 inline static ib_api_status_t
 __osm_al_convert_wcs(IN ib_wc_status_t const wc_status)
 {
@@ -128,8 +126,6 @@ __osm_al_convert_wcs(IN ib_wc_status_t const wc_status)
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
 static void __osm_al_ca_err_callback(IN ib_async_event_rec_t * p_async_rec)
 {
 	osm_vendor_t *p_vend = (osm_vendor_t *) p_async_rec->context;
@@ -143,8 +139,6 @@ static void __osm_al_ca_err_callback(IN ib_async_event_rec_t * p_async_rec)
 	OSM_LOG_EXIT(p_vend->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void __osm_al_ca_destroy_callback(IN void *context)
 {
 	osm_al_bind_info_t *p_bind = (osm_al_bind_info_t *) context;
@@ -158,8 +152,6 @@ static void __osm_al_ca_destroy_callback(IN void *context)
 	OSM_LOG_EXIT(p_vend->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void __osm_al_err_callback(IN ib_async_event_rec_t * p_async_rec)
 {
 	osm_al_bind_info_t *p_bind =
@@ -175,8 +167,6 @@ static void __osm_al_err_callback(IN ib_async_event_rec_t * p_async_rec)
 	OSM_LOG_EXIT(p_vend->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void
 __osm_al_send_callback(IN void *mad_svc_context, IN ib_mad_element_t * p_elem)
 {
@@ -250,8 +240,6 @@ Exit:
 	OSM_LOG_EXIT(p_vend->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void
 __osm_al_rcv_callback(IN void *mad_svc_context, IN ib_mad_element_t * p_elem)
 {
@@ -339,8 +327,6 @@ __osm_al_rcv_callback(IN void *mad_svc_context, IN ib_mad_element_t * p_elem)
 	OSM_LOG_EXIT(p_vend->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 ib_api_status_t
 osm_vendor_init(IN osm_vendor_t * const p_vend,
 		IN osm_log_t * const p_log, IN const uint32_t timeout)
@@ -369,8 +355,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 osm_vendor_t *osm_vendor_new(IN osm_log_t * const p_log,
 			     IN const uint32_t timeout)
 {
@@ -400,8 +384,6 @@ Exit:
 	return (p_vend);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_vendor_delete(IN osm_vendor_t ** const pp_vend)
 {
 	/* TO DO - fill this in */
@@ -410,8 +392,6 @@ void osm_vendor_delete(IN osm_vendor_t ** const pp_vend)
 	*pp_vend = NULL;
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t
 __osm_ca_info_init(IN osm_vendor_t * const p_vend,
 		   IN osm_ca_info_t * const p_ca_info,
@@ -464,8 +444,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 void
 osm_ca_info_destroy(IN osm_vendor_t * const p_vend,
 		    IN osm_ca_info_t * const p_ca_info)
@@ -480,8 +458,6 @@ osm_ca_info_destroy(IN osm_vendor_t * const p_vend,
 	OSM_LOG_EXIT(p_vend->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 osm_ca_info_t *osm_ca_info_new(IN osm_vendor_t * const p_vend,
 			       IN const ib_net64_t ca_guid)
 {
@@ -510,8 +486,6 @@ Exit:
 	return (p_ca_info);
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t
 __osm_vendor_get_ca_guids(IN osm_vendor_t * const p_vend,
 			  IN ib_net64_t ** const p_guids,
@@ -599,8 +573,6 @@ static ib_port_attr_t *__osm_ca_info_get_port_attr_ptr(IN const osm_ca_info_t *
  * SEE ALSO
  *********/
 
-/**********************************************************************
- **********************************************************************/
 ib_api_status_t
 osm_vendor_get_all_port_attr(IN osm_vendor_t * const p_vend,
 			     IN ib_port_attr_t * const p_attr_array,
@@ -690,8 +662,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 ib_net64_t
 osm_vendor_get_ca_guid(IN osm_vendor_t * const p_vend,
 		       IN const ib_net64_t port_guid)
@@ -745,8 +715,6 @@ osm_vendor_get_ca_guid(IN osm_vendor_t * const p_vend,
 	return (0);
 }
 
-/**********************************************************************
- **********************************************************************/
 uint8_t
 osm_vendor_get_port_num(IN osm_vendor_t * const p_vend,
 			IN const ib_net64_t port_guid)
@@ -801,8 +769,6 @@ osm_vendor_get_port_num(IN osm_vendor_t * const p_vend,
 	return (0);
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t
 __osm_vendor_open_ca(IN osm_vendor_t * const p_vend,
 		     IN const ib_net64_t port_guid)
@@ -857,8 +823,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void
 __osm_vendor_init_av(IN const osm_al_bind_info_t * p_bind,
 		     IN ib_av_attr_t * p_av)
@@ -868,8 +832,6 @@ __osm_vendor_init_av(IN const osm_al_bind_info_t * p_bind,
 	p_av->dlid = IB_LID_PERMISSIVE;
 }
 
-/**********************************************************************
- **********************************************************************/
 osm_bind_handle_t
 osm_vendor_bind(IN osm_vendor_t * const p_vend,
 		IN osm_bind_info_t * const p_user_bind,
@@ -1021,8 +983,6 @@ Exit:
 	return ((osm_bind_handle_t) p_bind);
 }
 
-/**********************************************************************
- **********************************************************************/
 ib_mad_t *osm_vendor_get(IN osm_bind_handle_t h_bind,
 			 IN const uint32_t mad_size,
 			 IN osm_vend_wrap_t * const p_vw)
@@ -1068,8 +1028,6 @@ Exit:
 	return (p_mad);
 }
 
-/**********************************************************************
- **********************************************************************/
 void
 osm_vendor_put(IN osm_bind_handle_t h_bind, IN osm_vend_wrap_t * const p_vw)
 {
@@ -1099,8 +1057,6 @@ osm_vendor_put(IN osm_bind_handle_t h_bind, IN osm_vend_wrap_t * const p_vw)
 	OSM_LOG_EXIT(p_vend->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 ib_api_status_t
 osm_vendor_send(IN osm_bind_handle_t h_bind,
 		IN osm_madw_t * const p_madw, IN boolean_t const resp_expected)
@@ -1240,8 +1196,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 ib_api_status_t osm_vendor_local_lid_change(IN osm_bind_handle_t h_bind)
 {
 	osm_al_bind_info_t *p_bind = (osm_al_bind_info_t *) h_bind;
@@ -1282,8 +1236,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_vendor_set_sm(IN osm_bind_handle_t h_bind, IN boolean_t is_sm_val)
 {
 	osm_al_bind_info_t *p_bind = (osm_al_bind_info_t *) h_bind;
@@ -1310,8 +1262,6 @@ void osm_vendor_set_sm(IN osm_bind_handle_t h_bind, IN boolean_t is_sm_val)
 	OSM_LOG_EXIT(p_vend->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_vendor_set_debug(IN osm_vendor_t * const p_vend, IN int32_t level)
 {
 

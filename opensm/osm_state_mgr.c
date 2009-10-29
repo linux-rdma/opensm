@@ -71,8 +71,6 @@ extern int osm_mcast_mgr_process(IN osm_sm_t * sm);
 extern int osm_mcast_mgr_process_mgroups(IN osm_sm_t * sm);
 extern int osm_link_mgr_process(IN osm_sm_t * sm, IN uint8_t state);
 
-/**********************************************************************
- **********************************************************************/
 static void state_mgr_up_msg(IN const osm_sm_t * sm)
 {
 	/*
@@ -88,8 +86,6 @@ static void state_mgr_up_msg(IN const osm_sm_t * sm)
 			"SUBNET UP" : "SUBNET UP (sweep disabled)");
 }
 
-/**********************************************************************
- **********************************************************************/
 static void state_mgr_reset_node_count(IN cl_map_item_t * p_map_item,
 				       IN void *context)
 {
@@ -98,8 +94,6 @@ static void state_mgr_reset_node_count(IN cl_map_item_t * p_map_item,
 	p_node->discovery_count = 0;
 }
 
-/**********************************************************************
- **********************************************************************/
 static void state_mgr_reset_port_count(IN cl_map_item_t * p_map_item,
 				       IN void *context)
 {
@@ -108,8 +102,6 @@ static void state_mgr_reset_port_count(IN cl_map_item_t * p_map_item,
 	p_port->discovery_count = 0;
 }
 
-/**********************************************************************
- **********************************************************************/
 static void state_mgr_reset_switch_count(IN cl_map_item_t * p_map_item,
 					 IN void *context)
 {
@@ -118,8 +110,6 @@ static void state_mgr_reset_switch_count(IN cl_map_item_t * p_map_item,
 	p_sw->need_update = 1;
 }
 
-/**********************************************************************
- **********************************************************************/
 static void state_mgr_get_sw_info(IN cl_map_item_t * p_object, IN void *context)
 {
 	osm_node_t *p_node;
@@ -1021,8 +1011,6 @@ static void cleanup_switch(cl_map_item_t * item, void *log)
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
 int wait_for_pending_transactions(osm_stats_t * stats)
 {
 #ifdef HAVE_LIBPTHREAD

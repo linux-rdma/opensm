@@ -55,8 +55,6 @@
 #include <opensm/osm_opensm.h>
 #include <opensm/osm_ucast_lash.h>
 
-/**********************************************************************
- **********************************************************************/
 static uint8_t link_mgr_get_smsl(IN osm_sm_t * sm, IN osm_physp_t * p_physp)
 {
 	osm_opensm_t *p_osm = sm->p_subn->p_osm;
@@ -91,8 +89,6 @@ static uint8_t link_mgr_get_smsl(IN osm_sm_t * sm, IN osm_physp_t * p_physp)
 	return (sl);
 }
 
-/**********************************************************************
- **********************************************************************/
 static int link_mgr_set_physp_pi(osm_sm_t * sm, IN osm_physp_t * p_physp,
 				 IN uint8_t port_state)
 {
@@ -402,8 +398,6 @@ Exit:
 	return ret;
 }
 
-/**********************************************************************
- **********************************************************************/
 static int link_mgr_process_node(osm_sm_t * sm, IN osm_node_t * p_node,
 				 IN const uint8_t link_state)
 {
@@ -458,8 +452,6 @@ static int link_mgr_process_node(osm_sm_t * sm, IN osm_node_t * p_node,
 	return ret;
 }
 
-/**********************************************************************
- **********************************************************************/
 int osm_link_mgr_process(osm_sm_t * sm, IN const uint8_t link_state)
 {
 	cl_qmap_t *p_node_guid_tbl;

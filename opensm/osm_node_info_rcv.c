@@ -250,8 +250,6 @@ _exit:
 	OSM_LOG_EXIT(sm->p_log);
 }
 
-/**********************************************************************
-**********************************************************************/
 static void ni_rcv_get_port_info(IN osm_sm_t * sm, IN osm_node_t * node,
 				 IN const osm_madw_t * madw)
 {
@@ -460,8 +458,6 @@ Exit:
 	OSM_LOG_EXIT(sm->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void ni_rcv_process_switch(IN osm_sm_t * sm, IN osm_node_t * p_node,
 				  IN const osm_madw_t * p_madw)
 {
@@ -752,8 +748,6 @@ static void ni_rcv_process_existing(IN osm_sm_t * sm, IN osm_node_t * p_node,
 	OSM_LOG_EXIT(sm->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_ni_rcv_process(IN void *context, IN void *data)
 {
 	osm_sm_t *sm = context;

@@ -822,8 +822,6 @@ static void perfmgr_sweep(void *arg)
 	cl_timer_start(&pm->sweep_timer, pm->sweep_time_s * 1000);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_perfmgr_shutdown(osm_perfmgr_t * pm)
 {
 	OSM_LOG_ENTER(pm->log);
@@ -833,8 +831,6 @@ void osm_perfmgr_shutdown(osm_perfmgr_t * pm)
 	OSM_LOG_EXIT(pm->log);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_perfmgr_destroy(osm_perfmgr_t * pm)
 {
 	OSM_LOG_ENTER(pm->log);

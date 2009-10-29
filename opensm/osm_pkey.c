@@ -54,8 +54,6 @@
 #include <opensm/osm_switch.h>
 #include <opensm/osm_helper.h>
 
-/**********************************************************************
- **********************************************************************/
 void osm_pkey_tbl_construct(IN osm_pkey_tbl_t * p_pkey_tbl)
 {
 	cl_ptr_vector_construct(&p_pkey_tbl->blocks);
@@ -63,8 +61,6 @@ void osm_pkey_tbl_construct(IN osm_pkey_tbl_t * p_pkey_tbl)
 	cl_map_construct(&p_pkey_tbl->keys);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_pkey_tbl_destroy(IN osm_pkey_tbl_t * p_pkey_tbl)
 {
 	ib_pkey_table_t *p_block;
@@ -87,8 +83,6 @@ void osm_pkey_tbl_destroy(IN osm_pkey_tbl_t * p_pkey_tbl)
 	cl_map_destroy(&p_pkey_tbl->keys);
 }
 
-/**********************************************************************
- **********************************************************************/
 ib_api_status_t osm_pkey_tbl_init(IN osm_pkey_tbl_t * p_pkey_tbl)
 {
 	cl_ptr_vector_init(&p_pkey_tbl->blocks, 0, 1);
@@ -100,8 +94,6 @@ ib_api_status_t osm_pkey_tbl_init(IN osm_pkey_tbl_t * p_pkey_tbl)
 	return IB_SUCCESS;
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_pkey_tbl_init_new_blocks(IN const osm_pkey_tbl_t * p_pkey_tbl)
 {
 	ib_pkey_table_t *p_block;
@@ -112,8 +104,6 @@ void osm_pkey_tbl_init_new_blocks(IN const osm_pkey_tbl_t * p_pkey_tbl)
 			memset(p_block, 0, sizeof(*p_block));
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_pkey_tbl_cleanup_pending(IN osm_pkey_tbl_t * p_pkey_tbl)
 {
 	cl_list_item_t *p_item;
@@ -124,8 +114,6 @@ void osm_pkey_tbl_cleanup_pending(IN osm_pkey_tbl_t * p_pkey_tbl)
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
 ib_api_status_t osm_pkey_tbl_set(IN osm_pkey_tbl_t * p_pkey_tbl,
 				 IN uint16_t block, IN ib_pkey_table_t * p_tbl)
 {
@@ -194,8 +182,6 @@ ib_api_status_t osm_pkey_tbl_set(IN osm_pkey_tbl_t * p_pkey_tbl,
 	return IB_SUCCESS;
 }
 
-/**********************************************************************
- **********************************************************************/
 /*
   Store the given pkey in the "new" blocks array.
   Also, make sure the regular block exists.
@@ -222,8 +208,6 @@ ib_api_status_t osm_pkey_tbl_set_new_entry(IN osm_pkey_tbl_t * p_pkey_tbl,
 	return IB_SUCCESS;
 }
 
-/**********************************************************************
- **********************************************************************/
 boolean_t osm_pkey_find_next_free_entry(IN osm_pkey_tbl_t * p_pkey_tbl,
 					OUT uint16_t * p_block_idx,
 					OUT uint8_t * p_pkey_idx)
@@ -253,8 +237,6 @@ boolean_t osm_pkey_find_next_free_entry(IN osm_pkey_tbl_t * p_pkey_tbl,
 	return FALSE;
 }
 
-/**********************************************************************
- **********************************************************************/
 ib_api_status_t osm_pkey_tbl_get_block_and_idx(IN osm_pkey_tbl_t * p_pkey_tbl,
 					       IN uint16_t * p_pkey,
 					       OUT uint16_t * p_block_idx,
@@ -281,8 +263,6 @@ ib_api_status_t osm_pkey_tbl_get_block_and_idx(IN osm_pkey_tbl_t * p_pkey_tbl,
 	return IB_NOT_FOUND;
 }
 
-/**********************************************************************
- **********************************************************************/
 static boolean_t match_pkey(IN const ib_net16_t * pkey1,
 			    IN const ib_net16_t * pkey2)
 {
@@ -299,8 +279,6 @@ static boolean_t match_pkey(IN const ib_net16_t * pkey1,
 	return TRUE;
 }
 
-/**********************************************************************
- **********************************************************************/
 boolean_t osm_physp_share_this_pkey(IN const osm_physp_t * p_physp1,
 				    IN const osm_physp_t * p_physp2,
 				    IN ib_net16_t pkey)
@@ -314,8 +292,6 @@ boolean_t osm_physp_share_this_pkey(IN const osm_physp_t * p_physp1,
 	return (pkey1 && pkey2 && match_pkey(pkey1, pkey2));
 }
 
-/**********************************************************************
- **********************************************************************/
 ib_net16_t osm_physp_find_common_pkey(IN const osm_physp_t * p_physp1,
 				      IN const osm_physp_t * p_physp2)
 {
@@ -354,8 +330,6 @@ ib_net16_t osm_physp_find_common_pkey(IN const osm_physp_t * p_physp1,
 	return 0;
 }
 
-/**********************************************************************
- **********************************************************************/
 boolean_t osm_physp_share_pkey(IN osm_log_t * p_log,
 			       IN const osm_physp_t * p_physp_1,
 			       IN const osm_physp_t * p_physp_2)
@@ -383,8 +357,6 @@ boolean_t osm_physp_share_pkey(IN osm_log_t * p_log,
 				(p_physp_1, p_physp_2));
 }
 
-/**********************************************************************
- **********************************************************************/
 boolean_t osm_port_share_pkey(IN osm_log_t * p_log,
 			      IN const osm_port_t * p_port_1,
 			      IN const osm_port_t * p_port_2)
@@ -415,8 +387,6 @@ Exit:
 	return ret;
 }
 
-/**********************************************************************
- **********************************************************************/
 boolean_t osm_physp_has_pkey(IN osm_log_t * p_log, IN ib_net16_t pkey,
 			     IN const osm_physp_t * p_physp)
 {

@@ -217,8 +217,6 @@ Exit:
 	return res;
 }
 
-/**********************************************************************
- **********************************************************************/
 boolean_t
 osm_pkt_randomizer_mad_drop(IN osm_log_t * p_log,
 			    IN osm_pkt_randomizer_t * p_pkt_randomizer,
@@ -253,8 +251,6 @@ Exit:
 	return res;
 }
 
-/**********************************************************************
- **********************************************************************/
 ib_api_status_t
 osm_pkt_randomizer_init(IN OUT osm_pkt_randomizer_t ** pp_pkt_randomizer,
 			IN osm_log_t * p_log)
@@ -313,8 +309,6 @@ Exit:
 	return (res);
 }
 
-/**********************************************************************
- **********************************************************************/
 void
 osm_pkt_randomizer_destroy(IN OUT osm_pkt_randomizer_t ** pp_pkt_randomizer,
 			   IN osm_log_t * p_log)

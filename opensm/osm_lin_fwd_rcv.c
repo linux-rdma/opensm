@@ -49,8 +49,6 @@
 #include <opensm/osm_switch.h>
 #include <opensm/osm_sm.h>
 
-/**********************************************************************
- **********************************************************************/
 void osm_lft_rcv_process(IN void *context, IN void *data)
 {
 	osm_sm_t *sm = context;

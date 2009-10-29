@@ -51,9 +51,6 @@
 #include <complib/cl_list.h>
 #include "osmtest.h"
 
-/**********************************************************************
- **********************************************************************/
-
 static void __osmt_print_all_multicast_records(IN osmtest_t * const p_osmt)
 {
 	uint32_t i;
@@ -126,9 +123,6 @@ static void __osmt_print_all_multicast_records(IN osmtest_t * const p_osmt)
 
 }
 
-/**********************************************************************
- **********************************************************************/
-
 static cl_status_t
 __match_mgids(IN const void *const p_object, IN void *context)
 {
@@ -142,9 +136,6 @@ __match_mgids(IN const void *const p_object, IN void *context)
 	else
 		return CL_NOT_FOUND;
 }
-
-/**********************************************************************
- **********************************************************************/
 
 ib_api_status_t osmt_query_mcast(IN osmtest_t * const p_osmt)
 {
@@ -273,9 +264,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
-
 /* given a multicast request send and wait for response. */
 ib_api_status_t
 osmt_send_mcast_request(IN osmtest_t * const p_osmt,
@@ -380,9 +368,6 @@ Exit:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return (status);
 }
-
-/**********************************************************************
- **********************************************************************/
 
 void osmt_init_mc_query_rec(IN osmtest_t * const p_osmt,
 			    IN OUT ib_member_rec_t * p_mc_req)

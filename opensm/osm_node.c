@@ -49,8 +49,6 @@
 #include <opensm/osm_node.h>
 #include <opensm/osm_madw.h>
 
-/**********************************************************************
- **********************************************************************/
 void osm_node_init_physp(IN osm_node_t * p_node, uint8_t port_num,
 			 IN const osm_madw_t * p_madw)
 {
@@ -71,8 +69,6 @@ void osm_node_init_physp(IN osm_node_t * p_node, uint8_t port_num,
 		       p_smp->hop_count, p_smp->initial_path);
 }
 
-/**********************************************************************
- **********************************************************************/
 osm_node_t *osm_node_new(IN const osm_madw_t * p_madw)
 {
 	osm_node_t *p_node;
@@ -125,8 +121,6 @@ osm_node_t *osm_node_new(IN const osm_madw_t * p_madw)
 	return (p_node);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void node_destroy(IN osm_node_t * p_node)
 {
 	uint16_t i;
@@ -143,8 +137,6 @@ static void node_destroy(IN osm_node_t * p_node)
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_node_delete(IN OUT osm_node_t ** p_node)
 {
 	CL_ASSERT(p_node && *p_node);
@@ -153,8 +145,6 @@ void osm_node_delete(IN OUT osm_node_t ** p_node)
 	*p_node = NULL;
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_node_link(IN osm_node_t * p_node, IN uint8_t port_num,
 		   IN osm_node_t * p_remote_node, IN uint8_t remote_port_num)
 {
@@ -175,8 +165,6 @@ void osm_node_link(IN osm_node_t * p_node, IN uint8_t port_num,
 	osm_physp_link(p_physp, p_remote_physp);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_node_unlink(IN osm_node_t * p_node, IN uint8_t port_num,
 		     IN osm_node_t * p_remote_node, IN uint8_t remote_port_num)
 {
@@ -197,8 +185,6 @@ void osm_node_unlink(IN osm_node_t * p_node, IN uint8_t port_num,
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
 boolean_t osm_node_link_exists(IN osm_node_t * p_node, IN uint8_t port_num,
 			       IN osm_node_t * p_remote_node,
 			       IN uint8_t remote_port_num)
@@ -215,8 +201,6 @@ boolean_t osm_node_link_exists(IN osm_node_t * p_node, IN uint8_t port_num,
 	return (osm_physp_link_exists(p_physp, p_remote_physp));
 }
 
-/**********************************************************************
- **********************************************************************/
 boolean_t osm_node_link_has_valid_ports(IN osm_node_t * p_node,
 					IN uint8_t port_num,
 					IN osm_node_t * p_remote_node,
@@ -234,8 +218,6 @@ boolean_t osm_node_link_has_valid_ports(IN osm_node_t * p_node,
 	return (p_physp && p_remote_physp);
 }
 
-/**********************************************************************
- **********************************************************************/
 boolean_t osm_node_has_any_link(IN osm_node_t * p_node, IN uint8_t port_num)
 {
 	osm_physp_t *p_physp;
@@ -244,8 +226,6 @@ boolean_t osm_node_has_any_link(IN osm_node_t * p_node, IN uint8_t port_num)
 	return (osm_physp_has_any_link(p_physp));
 }
 
-/**********************************************************************
- **********************************************************************/
 osm_node_t *osm_node_get_remote_node(IN osm_node_t * p_node,
 				     IN uint8_t port_num,
 				     OUT uint8_t * p_remote_port_num)

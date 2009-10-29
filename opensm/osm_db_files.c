@@ -117,16 +117,12 @@ typedef struct osm_db_imp {
  * osm_db_t
  *********/
 
-/***************************************************************************
- ***************************************************************************/
 void osm_db_construct(IN osm_db_t * p_db)
 {
 	memset(p_db, 0, sizeof(osm_db_t));
 	cl_list_construct(&p_db->domains);
 }
 
-/***************************************************************************
- ***************************************************************************/
 void osm_db_domain_destroy(IN osm_db_domain_t * p_db_domain)
 {
 	osm_db_domain_imp_t *p_domain_imp;
@@ -141,8 +137,6 @@ void osm_db_domain_destroy(IN osm_db_domain_t * p_db_domain)
 	free(p_domain_imp);
 }
 
-/***************************************************************************
- ***************************************************************************/
 void osm_db_destroy(IN osm_db_t * p_db)
 {
 	osm_db_domain_t *p_domain;
@@ -155,8 +149,6 @@ void osm_db_destroy(IN osm_db_t * p_db)
 	free(p_db->p_db_imp);
 }
 
-/***************************************************************************
- ***************************************************************************/
 int osm_db_init(IN osm_db_t * p_db, IN osm_log_t * p_log)
 {
 	osm_db_imp_t *p_db_imp;
@@ -199,8 +191,6 @@ int osm_db_init(IN osm_db_t * p_db, IN osm_log_t * p_log)
 	return 0;
 }
 
-/***************************************************************************
- ***************************************************************************/
 osm_db_domain_t *osm_db_domain_init(IN osm_db_t * p_db, IN char *domain_name)
 {
 	osm_db_domain_t *p_domain;
@@ -258,8 +248,6 @@ Exit:
 	return p_domain;
 }
 
-/***************************************************************************
- ***************************************************************************/
 int osm_db_restore(IN osm_db_domain_t * p_domain)
 {
 
@@ -423,8 +411,6 @@ Exit:
 	return status;
 }
 
-/***************************************************************************
- ***************************************************************************/
 static int dump_tbl_entry(st_data_t key, st_data_t val, st_data_t arg)
 {
 	FILE *p_file = (FILE *) arg;
@@ -488,8 +474,6 @@ Exit:
 	return status;
 }
 
-/***************************************************************************
- ***************************************************************************/
 /* simply de-allocate the key and the value and return the code
    that makes the st_foreach delete the entry */
 static int clear_tbl_entry(st_data_t key, st_data_t val, st_data_t arg)
@@ -511,8 +495,6 @@ int osm_db_clear(IN osm_db_domain_t * p_domain)
 	return 0;
 }
 
-/***************************************************************************
- ***************************************************************************/
 static int get_key_of_tbl_entry(st_data_t key, st_data_t val, st_data_t arg)
 {
 	cl_list_t *p_list = (cl_list_t *) arg;
@@ -535,8 +517,6 @@ int osm_db_keys(IN osm_db_domain_t * p_domain, OUT cl_list_t * p_key_list)
 	return 0;
 }
 
-/***************************************************************************
- ***************************************************************************/
 char *osm_db_lookup(IN osm_db_domain_t * p_domain, IN char *p_key)
 {
 	osm_db_domain_imp_t *p_domain_imp =
@@ -553,8 +533,6 @@ char *osm_db_lookup(IN osm_db_domain_t * p_domain, IN char *p_key)
 	return p_val;
 }
 
-/***************************************************************************
- ***************************************************************************/
 int osm_db_update(IN osm_db_domain_t * p_domain, IN char *p_key, IN char *p_val)
 {
 	osm_log_t *p_log = p_domain->p_db->p_log;
@@ -593,8 +571,6 @@ int osm_db_update(IN osm_db_domain_t * p_domain, IN char *p_key, IN char *p_val)
 	return 0;
 }
 
-/***************************************************************************
- ***************************************************************************/
 int osm_db_delete(IN osm_db_domain_t * p_domain, IN char *p_key)
 {
 	osm_log_t *p_log = p_domain->p_db->p_log;

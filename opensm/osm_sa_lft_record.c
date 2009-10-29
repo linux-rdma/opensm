@@ -67,8 +67,6 @@ typedef struct osm_lftr_search_ctxt {
 	const osm_physp_t *p_req_physp;
 } osm_lftr_search_ctxt_t;
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t lftr_rcv_new_lftr(IN osm_sa_t * sa,
 					 IN const osm_switch_t * p_sw,
 					 IN cl_qlist_t * p_list,
@@ -108,8 +106,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void lftr_rcv_by_comp_mask(IN cl_map_item_t * p_map_item, IN void *cxt)
 {
 	const osm_lftr_search_ctxt_t *p_ctxt = cxt;
@@ -176,8 +172,6 @@ static void lftr_rcv_by_comp_mask(IN cl_map_item_t * p_map_item, IN void *cxt)
 				  osm_port_get_base_lid(p_port), block);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_lftr_rcv_process(IN void *ctx, IN void *data)
 {
 	osm_sa_t *sa = ctx;

@@ -81,8 +81,6 @@ const static struct routing_engine_module routing_modules[] = {
 	{NULL, NULL}
 };
 
-/**********************************************************************
- **********************************************************************/
 const char *osm_routing_engine_type_str(IN osm_routing_engine_type_t type)
 {
 	switch (type) {
@@ -106,8 +104,6 @@ const char *osm_routing_engine_type_str(IN osm_routing_engine_type_t type)
 	return "unknown";
 }
 
-/**********************************************************************
- **********************************************************************/
 osm_routing_engine_type_t osm_routing_engine_type(IN const char *str)
 {
 	/* For legacy reasons, consider a NULL pointer and the string
@@ -132,8 +128,6 @@ osm_routing_engine_type_t osm_routing_engine_type(IN const char *str)
 		return OSM_ROUTING_ENGINE_TYPE_UNKNOWN;
 }
 
-/**********************************************************************
- **********************************************************************/
 static void append_routing_engine(osm_opensm_t *osm,
 				  struct osm_routing_engine *routing_engine)
 {
@@ -207,8 +201,6 @@ static void setup_routing_engines(osm_opensm_t *osm, const char *engine_names)
 		setup_routing_engine(osm, "minhop");
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_opensm_construct(IN osm_opensm_t * p_osm)
 {
 	memset(p_osm, 0, sizeof(*p_osm));
@@ -222,8 +214,6 @@ void osm_opensm_construct(IN osm_opensm_t * p_osm)
 	osm_log_construct(&p_osm->log);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void destroy_routing_engines(osm_opensm_t *osm)
 {
 	struct osm_routing_engine *r, *next;
@@ -238,8 +228,6 @@ static void destroy_routing_engines(osm_opensm_t *osm)
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
 static void destroy_plugins(osm_opensm_t *osm)
 {
 	osm_epi_plugin_t *p;
@@ -333,8 +321,6 @@ static void load_plugins(osm_opensm_t *osm, const char *plugin_names)
 	free(p_names);
 }
 
-/**********************************************************************
- **********************************************************************/
 ib_api_status_t osm_opensm_init(IN osm_opensm_t * p_osm,
 				IN const osm_subn_opt_t * p_opt)
 {
@@ -451,8 +437,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 ib_api_status_t osm_opensm_bind(IN osm_opensm_t * p_osm, IN ib_net64_t guid)
 {
 	ib_api_status_t status;
@@ -483,8 +467,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_opensm_report_event(osm_opensm_t *osm, osm_epi_event_id_t event_id,
 			     void *event_data)
 {

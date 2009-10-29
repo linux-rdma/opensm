@@ -81,8 +81,6 @@ extern void osm_req_get_node_desc(IN osm_sm_t * sm, osm_physp_t *p_physp);
  *
  **********************************************************************/
 
-/**********************************************************************
- **********************************************************************/
 static osm_physp_t *get_physp_by_lid_and_num(IN osm_sm_t * sm, IN uint16_t lid,
 					     IN uint8_t num)
 {
@@ -102,8 +100,6 @@ static osm_physp_t *get_physp_by_lid_and_num(IN osm_sm_t * sm, IN uint16_t lid,
 	return osm_node_get_physp_ptr(p_port->p_node, num);
 }
 
-/**********************************************************************
- **********************************************************************/
 static uint64_t aging_tracker_callback(IN uint64_t key, IN uint32_t num_regs,
 				       IN void *context)
 {
@@ -186,9 +182,6 @@ static uint32_t trap_calc_crc32(void *buffer, uint32_t count)
 	return crc;
 }
 
-/********************************************************************
- ********************************************************************/
-
 /* The key is created in the following manner:
    port_num  lid   crc
    \______/ \___/ \___/
@@ -201,8 +194,6 @@ static uint64_t trap_get_key(IN uint16_t lid, IN uint8_t port_num,
 	return ((uint64_t) port_num << 48) | ((uint64_t) lid << 32) | crc;
 }
 
-/**********************************************************************
- **********************************************************************/
 static int print_num_received(IN uint32_t num_received)
 {
 	uint32_t i;
@@ -301,8 +292,6 @@ static void log_trap_info(osm_log_t *p_log, ib_mad_notice_attr_t *p_ntci,
 			cl_ntoh16(source_lid), cl_ntoh64(trans_id));
 }
 
-/**********************************************************************
- **********************************************************************/
 static void trap_rcv_process_request(IN osm_sm_t * sm,
 				     IN const osm_madw_t * p_madw)
 {
@@ -617,8 +606,6 @@ Exit:
 	OSM_LOG_EXIT(sm->p_log);
 }
 
-/**********************************************************************
-**********************************************************************/
 static void trap_rcv_process_response(IN osm_sm_t * sm,
 				      IN const osm_madw_t * p_madw)
 {
@@ -631,8 +618,6 @@ static void trap_rcv_process_response(IN osm_sm_t * sm,
 	OSM_LOG_EXIT(sm->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_trap_rcv_process(IN void *context, IN void *data)
 {
 	osm_sm_t *sm = context;

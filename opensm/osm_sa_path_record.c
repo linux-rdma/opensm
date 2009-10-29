@@ -83,8 +83,6 @@ typedef struct osm_path_parms {
 	boolean_t reversible;
 } osm_path_parms_t;
 
-/**********************************************************************
- **********************************************************************/
 static inline boolean_t sa_path_rec_is_tavor_port(IN const osm_port_t * p_port)
 {
 	osm_node_t const *p_node;
@@ -100,8 +98,6 @@ static inline boolean_t sa_path_rec_is_tavor_port(IN const osm_port_t * p_port)
 		 (vend_id == CL_HTON32(OSM_VENDOR_ID_VOLTAIRE))));
 }
 
-/**********************************************************************
- **********************************************************************/
 static boolean_t
 sa_path_rec_apply_tavor_mtu_limit(IN const ib_path_rec_t * p_pr,
 				  IN const osm_port_t * p_src_port,
@@ -151,8 +147,6 @@ sa_path_rec_apply_tavor_mtu_limit(IN const ib_path_rec_t * p_pr,
 	return (TRUE);
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 					     IN const ib_path_rec_t * p_pr,
 					     IN const osm_port_t * p_src_port,
@@ -749,8 +743,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void pr_rcv_build_pr(IN osm_sa_t * sa, IN const osm_port_t * p_src_port,
 			    IN const osm_port_t * p_dest_port,
 			    IN const ib_gid_t * p_dgid,
@@ -816,8 +808,6 @@ static void pr_rcv_build_pr(IN osm_sa_t * sa, IN const osm_port_t * p_src_port,
 	OSM_LOG_EXIT(sa->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 static osm_pr_item_t *pr_rcv_get_lid_pair_path(IN osm_sa_t * sa,
 					       IN const ib_path_rec_t * p_pr,
 					       IN const osm_port_t * p_src_port,
@@ -888,8 +878,6 @@ Exit:
 	return (p_pr_item);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void pr_rcv_get_port_pair_paths(IN osm_sa_t * sa,
 				       IN const osm_madw_t * p_madw,
 				       IN const osm_port_t * p_req_port,
@@ -1112,8 +1100,6 @@ Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 /* Find the router port that is configured to handle this prefix, if any */
 static ib_net64_t find_router(const osm_sa_t *sa, ib_net64_t prefix)
 {
@@ -1302,8 +1288,6 @@ Exit:
 	return (sa_status);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void pr_rcv_process_world(IN osm_sa_t * sa, IN const osm_madw_t * p_madw,
 				 IN const osm_port_t * requester_port,
 				 IN const ib_gid_t * p_dgid,
@@ -1351,8 +1335,6 @@ Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void pr_rcv_process_half(IN osm_sa_t * sa, IN const osm_madw_t * p_madw,
 				IN const osm_port_t * requester_port,
 				IN const osm_port_t * p_src_port,
@@ -1408,8 +1390,6 @@ static void pr_rcv_process_half(IN osm_sa_t * sa, IN const osm_madw_t * p_madw,
 	OSM_LOG_EXIT(sa->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void pr_rcv_process_pair(IN osm_sa_t * sa, IN const osm_madw_t * p_madw,
 				IN const osm_port_t * requester_port,
 				IN const osm_port_t * p_src_port,
@@ -1426,8 +1406,6 @@ static void pr_rcv_process_pair(IN osm_sa_t * sa, IN const osm_madw_t * p_madw,
 	OSM_LOG_EXIT(sa->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 static osm_mgrp_t *pr_get_mgrp(IN osm_sa_t * sa, IN const osm_madw_t * p_madw)
 {
 	ib_path_rec_t *p_pr;
@@ -1456,8 +1434,6 @@ static osm_mgrp_t *pr_get_mgrp(IN osm_sa_t * sa, IN const osm_madw_t * p_madw)
 	return mgrp;
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t pr_match_mgrp_attributes(IN osm_sa_t * sa,
 						IN const osm_madw_t * p_madw,
 						IN const osm_mgrp_t * p_mgrp)
@@ -1539,8 +1515,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 static int pr_rcv_check_mcast_dest(osm_sa_t * sa, IN const osm_madw_t * p_madw)
 {
 	const ib_path_rec_t *p_pr;
@@ -1577,8 +1551,6 @@ Exit:
 	return (is_multicast);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_pr_rcv_process(IN void *context, IN void *data)
 {
 	osm_sa_t *sa = context;

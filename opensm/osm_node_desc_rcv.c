@@ -55,8 +55,6 @@
 #include <opensm/osm_opensm.h>
 #include <opensm/osm_subnet.h>
 
-/**********************************************************************
- **********************************************************************/
 static void nd_rcv_process_nd(IN osm_sm_t * sm, IN osm_node_t * p_node,
 			      IN const ib_node_desc_t * p_nd)
 {
@@ -86,8 +84,6 @@ static void nd_rcv_process_nd(IN osm_sm_t * sm, IN osm_node_t * p_node,
 	OSM_LOG_EXIT(sm->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_nd_rcv_process(IN void *context, IN void *data)
 {
 	osm_sm_t *sm = context;

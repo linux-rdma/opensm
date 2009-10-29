@@ -447,8 +447,6 @@ static void sa_mad_ctrl_send_err_callback(IN void *context,
  * SEE ALSO
  *********/
 
-/**********************************************************************
- **********************************************************************/
 void osm_sa_mad_ctrl_construct(IN osm_sa_mad_ctrl_t * p_ctrl)
 {
 	CL_ASSERT(p_ctrl);
@@ -456,16 +454,12 @@ void osm_sa_mad_ctrl_construct(IN osm_sa_mad_ctrl_t * p_ctrl)
 	p_ctrl->h_disp = CL_DISP_INVALID_HANDLE;
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_sa_mad_ctrl_destroy(IN osm_sa_mad_ctrl_t * p_ctrl)
 {
 	CL_ASSERT(p_ctrl);
 	cl_disp_unregister(p_ctrl->h_disp);
 }
 
-/**********************************************************************
- **********************************************************************/
 ib_api_status_t osm_sa_mad_ctrl_init(IN osm_sa_mad_ctrl_t * p_ctrl,
 				     IN osm_sa_t * sa,
 				     IN osm_mad_pool_t * p_mad_pool,
@@ -504,8 +498,6 @@ Exit:
 	return status;
 }
 
-/**********************************************************************
- **********************************************************************/
 ib_api_status_t osm_sa_mad_ctrl_bind(IN osm_sa_mad_ctrl_t * p_ctrl,
 				     IN ib_net64_t port_guid)
 {
@@ -553,8 +545,6 @@ Exit:
 	return status;
 }
 
-/**********************************************************************
- **********************************************************************/
 ib_api_status_t osm_sa_mad_ctrl_unbind(IN osm_sa_mad_ctrl_t * p_ctrl)
 {
 	ib_api_status_t status = IB_SUCCESS;

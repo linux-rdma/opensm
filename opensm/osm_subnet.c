@@ -397,8 +397,6 @@ static const opt_rec_t opt_tbl[] = {
 	{0}
 };
 
-/**********************************************************************
- **********************************************************************/
 static long compar_mgids(const void *m1, const void *m2)
 {
 	return memcmp(m1, m2, sizeof(ib_gid_t));
@@ -420,8 +418,6 @@ void osm_subn_construct(IN osm_subn_t * p_subn)
 	cl_fmap_init(&p_subn->mgrp_mgid_tbl, compar_mgids);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_subn_destroy(IN osm_subn_t * p_subn)
 {
 	int i;
@@ -501,8 +497,6 @@ void osm_subn_destroy(IN osm_subn_t * p_subn)
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
 ib_api_status_t osm_subn_init(IN osm_subn_t * p_subn, IN osm_opensm_t * p_osm,
 			      IN const osm_subn_opt_t * p_opt)
 {
@@ -540,8 +534,6 @@ ib_api_status_t osm_subn_init(IN osm_subn_t * p_subn, IN osm_opensm_t * p_osm,
 	return IB_SUCCESS;
 }
 
-/**********************************************************************
- **********************************************************************/
 osm_port_t *osm_get_port_by_mad_addr(IN osm_log_t * p_log,
 				     IN const osm_subn_t * p_subn,
 				     IN osm_mad_addr_t * p_mad_addr)
@@ -605,8 +597,6 @@ osm_physp_t *osm_get_physp_by_mad_addr(IN osm_log_t * p_log,
 	return p_port->p_physp;
 }
 
-/**********************************************************************
- **********************************************************************/
 osm_switch_t *osm_get_switch_by_guid(IN const osm_subn_t * p_subn,
 				     IN uint64_t guid)
 {
@@ -618,8 +608,6 @@ osm_switch_t *osm_get_switch_by_guid(IN const osm_subn_t * p_subn,
 	return p_switch;
 }
 
-/**********************************************************************
- **********************************************************************/
 osm_node_t *osm_get_node_by_guid(IN osm_subn_t const *p_subn, IN uint64_t guid)
 {
 	osm_node_t *p_node;
@@ -630,8 +618,6 @@ osm_node_t *osm_get_node_by_guid(IN osm_subn_t const *p_subn, IN uint64_t guid)
 	return p_node;
 }
 
-/**********************************************************************
- **********************************************************************/
 osm_port_t *osm_get_port_by_guid(IN osm_subn_t const *p_subn, IN ib_net64_t guid)
 {
 	osm_port_t *p_port;
@@ -642,8 +628,6 @@ osm_port_t *osm_get_port_by_guid(IN osm_subn_t const *p_subn, IN ib_net64_t guid
 	return p_port;
 }
 
-/**********************************************************************
- **********************************************************************/
 osm_port_t *osm_get_port_by_lid(IN osm_subn_t const * subn, IN ib_net16_t lid)
 {
 	lid = cl_ntoh16(lid);
@@ -652,8 +636,6 @@ osm_port_t *osm_get_port_by_lid(IN osm_subn_t const * subn, IN ib_net16_t lid)
 	return NULL;
 }
 
-/**********************************************************************
- **********************************************************************/
 static void subn_set_default_qos_options(IN osm_qos_options_t * opt)
 {
 	opt->max_vls = OSM_DEFAULT_QOS_MAX_VLS;
@@ -680,8 +662,6 @@ static void subn_init_qos_options(osm_qos_options_t *opt, osm_qos_options_t *f)
 		memcpy(f, opt, sizeof(*f));
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_subn_set_default_opt(IN osm_subn_opt_t * p_opt)
 {
 	memset(p_opt, 0, sizeof(osm_subn_opt_t));
@@ -781,8 +761,6 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * p_opt)
 	subn_init_qos_options(&p_opt->qos_rtr_options, NULL);
 }
 
-/**********************************************************************
- **********************************************************************/
 static char *clean_val(char *val)
 {
 	char *p = val;
@@ -805,8 +783,6 @@ static char *clean_val(char *val)
 	return val;
 }
 
-/**********************************************************************
- **********************************************************************/
 static int subn_dump_qos_options(FILE * file, const char *set_name,
 				 const char *prefix, osm_qos_options_t * opt)
 {
@@ -823,8 +799,6 @@ static int subn_dump_qos_options(FILE * file, const char *set_name,
 		       prefix, opt->vlarb_low, prefix, opt->sl2vl);
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t append_prefix_route(IN osm_subn_t * p_subn,
 					   uint64_t prefix, uint64_t guid)
 {
@@ -928,8 +902,6 @@ static ib_api_status_t parse_prefix_routes_file(IN osm_subn_t * p_subn)
 	return (errors == 0) ? IB_SUCCESS : IB_ERROR;
 }
 
-/**********************************************************************
- **********************************************************************/
 static void subn_verify_max_vls(unsigned *max_vls, const char *prefix, unsigned dflt)
 {
 	if (!*max_vls || *max_vls > 15) {
@@ -1156,8 +1128,6 @@ int osm_subn_verify_config(IN osm_subn_opt_t * p_opts)
 	return 0;
 }
 
-/**********************************************************************
- **********************************************************************/
 int osm_subn_parse_conf_file(char *file_name, osm_subn_opt_t * p_opts)
 {
 	char line[1024];
@@ -1271,8 +1241,6 @@ int osm_subn_rescan_conf_files(IN osm_subn_t * p_subn)
 	return 0;
 }
 
-/**********************************************************************
- **********************************************************************/
 int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 {
 	fprintf(out,

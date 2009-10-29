@@ -49,8 +49,6 @@
 #include <opensm/osm_mcm_port.h>
 #include <opensm/osm_multicast.h>
 
-/**********************************************************************
- **********************************************************************/
 osm_mcm_port_t *osm_mcm_port_new(IN osm_port_t *port, IN osm_mgrp_t *mgrp,
 				 IN ib_member_rec_t *mcmr, IN boolean_t proxy)
 {
@@ -69,8 +67,6 @@ osm_mcm_port_t *osm_mcm_port_new(IN osm_port_t *port, IN osm_mgrp_t *mgrp,
 	return (p_mcm);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_mcm_port_delete(IN osm_mcm_port_t * p_mcm)
 {
 	CL_ASSERT(p_mcm);

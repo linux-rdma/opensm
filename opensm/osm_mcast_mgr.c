@@ -56,15 +56,11 @@
 #include <opensm/osm_helper.h>
 #include <opensm/osm_msgdef.h>
 
-/**********************************************************************
- **********************************************************************/
 typedef struct osm_mcast_work_obj {
 	cl_list_item_t list_item;
 	osm_port_t *p_port;
 } osm_mcast_work_obj_t;
 
-/**********************************************************************
- **********************************************************************/
 static osm_mcast_work_obj_t *mcast_work_obj_new(IN const osm_port_t * p_port)
 {
 	osm_mcast_work_obj_t *p_obj;
@@ -83,8 +79,6 @@ static osm_mcast_work_obj_t *mcast_work_obj_new(IN const osm_port_t * p_port)
 	return (p_obj);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void mcast_work_obj_delete(IN osm_mcast_work_obj_t * p_wobj)
 {
 	free(p_wobj);
@@ -109,8 +103,6 @@ static void mcast_mgr_purge_tree_node(IN osm_mtree_node_t * p_mtn)
 	free(p_mtn);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void mcast_mgr_purge_tree(osm_sm_t * sm, IN osm_mgrp_t * p_mgrp)
 {
 	OSM_LOG_ENTER(sm->p_log);
@@ -123,8 +115,6 @@ static void mcast_mgr_purge_tree(osm_sm_t * sm, IN osm_mgrp_t * p_mgrp)
 	OSM_LOG_EXIT(sm->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 static float osm_mcast_mgr_compute_avg_hops(osm_sm_t * sm,
 					    const osm_mgrp_t * p_mgrp,
 					    const osm_switch_t * p_sw)
@@ -285,8 +275,6 @@ static osm_switch_t *mcast_mgr_find_root_switch(osm_sm_t * sm,
 	return (osm_switch_t *) p_sw;
 }
 
-/**********************************************************************
- **********************************************************************/
 static int mcast_mgr_set_mft_block(osm_sm_t * sm, IN osm_switch_t * p_sw,
 				   uint32_t block_num, uint32_t position)
 {
@@ -429,8 +417,6 @@ static void mcast_mgr_subdivide(osm_sm_t * sm, osm_mgrp_t * p_mgrp,
 	OSM_LOG_EXIT(sm->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void mcast_mgr_purge_list(osm_sm_t * sm, cl_qlist_t * p_list)
 {
 	osm_mcast_work_obj_t *p_wobj;
@@ -674,8 +660,6 @@ Exit:
 	return p_mtn;
 }
 
-/**********************************************************************
- **********************************************************************/
 static ib_api_status_t mcast_mgr_build_spanning_tree(osm_sm_t * sm,
 						     osm_mgrp_t * p_mgrp)
 {
@@ -773,8 +757,6 @@ Exit:
 
 #if 0
 /* unused */
-/**********************************************************************
- **********************************************************************/
 void osm_mcast_mgr_set_table(osm_sm_t * sm, IN const osm_mgrp_t * p_mgrp,
 			     IN const osm_mtree_node_t * p_mtn)
 {
@@ -819,8 +801,6 @@ void osm_mcast_mgr_set_table(osm_sm_t * sm, IN const osm_mgrp_t * p_mgrp,
 }
 #endif
 
-/**********************************************************************
- **********************************************************************/
 static void mcast_mgr_clear(osm_sm_t * sm, uint16_t mlid)
 {
 	osm_switch_t *p_sw;
@@ -996,8 +976,6 @@ static ib_api_status_t mcast_mgr_process_mlid(osm_sm_t * sm, uint16_t mlid)
 	return status;
 }
 
-/**********************************************************************
- **********************************************************************/
 static int mcast_mgr_set_mftables(osm_sm_t * sm)
 {
 	cl_qmap_t *p_sw_tbl = &sm->p_subn->sw_guid_tbl;
@@ -1067,8 +1045,6 @@ static int alloc_mfts(osm_sm_t * sm)
 	return 0;
 }
 
-/**********************************************************************
- **********************************************************************/
 int osm_mcast_mgr_process(osm_sm_t * sm)
 {
 	int i, ret = 0;

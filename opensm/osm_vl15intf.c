@@ -53,9 +53,6 @@
 #include <opensm/osm_log.h>
 #include <opensm/osm_helper.h>
 
-/**********************************************************************
- **********************************************************************/
-
 static void vl15_send_mad(osm_vl15_t * p_vl, osm_madw_t * p_madw)
 {
 	ib_api_status_t status;
@@ -180,8 +177,6 @@ static void vl15_poller(IN void *p_ptr)
 	OSM_LOG_EXIT(p_vl->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_vl15_construct(IN osm_vl15_t * p_vl)
 {
 	memset(p_vl, 0, sizeof(*p_vl));
@@ -194,8 +189,6 @@ void osm_vl15_construct(IN osm_vl15_t * p_vl)
 	cl_thread_construct(&p_vl->poller);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_vl15_destroy(IN osm_vl15_t * p_vl, IN struct osm_mad_pool *p_pool)
 {
 	osm_madw_t *p_madw;
@@ -240,8 +233,6 @@ void osm_vl15_destroy(IN osm_vl15_t * p_vl, IN struct osm_mad_pool *p_pool)
 	OSM_LOG_EXIT(p_vl->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 ib_api_status_t osm_vl15_init(IN osm_vl15_t * p_vl, IN osm_vendor_t * p_vend,
 			      IN osm_log_t * p_log, IN osm_stats_t * p_stats,
 			      IN int32_t max_wire_smps)
@@ -276,8 +267,6 @@ Exit:
 	return (status);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_vl15_poll(IN osm_vl15_t * p_vl)
 {
 	OSM_LOG_ENTER(p_vl->p_log);
@@ -303,8 +292,6 @@ void osm_vl15_poll(IN osm_vl15_t * p_vl)
 	OSM_LOG_EXIT(p_vl->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_vl15_post(IN osm_vl15_t * p_vl, IN osm_madw_t * p_madw)
 {
 	OSM_LOG_ENTER(p_vl->p_log);

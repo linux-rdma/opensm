@@ -50,8 +50,6 @@
 #include <opensm/osm_madw.h>
 #include <vendor/osm_vendor_api.h>
 
-/**********************************************************************
- **********************************************************************/
 void osm_mad_pool_construct(IN osm_mad_pool_t * p_pool)
 {
 	CL_ASSERT(p_pool);
@@ -59,15 +57,11 @@ void osm_mad_pool_construct(IN osm_mad_pool_t * p_pool)
 	memset(p_pool, 0, sizeof(*p_pool));
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_mad_pool_destroy(IN osm_mad_pool_t * p_pool)
 {
 	CL_ASSERT(p_pool);
 }
 
-/**********************************************************************
- **********************************************************************/
 ib_api_status_t osm_mad_pool_init(IN osm_mad_pool_t * p_pool)
 {
 	p_pool->mads_out = 0;
@@ -75,8 +69,6 @@ ib_api_status_t osm_mad_pool_init(IN osm_mad_pool_t * p_pool)
 	return IB_SUCCESS;
 }
 
-/**********************************************************************
- **********************************************************************/
 osm_madw_t *osm_mad_pool_get(IN osm_mad_pool_t * p_pool,
 			     IN osm_bind_handle_t h_bind,
 			     IN uint32_t total_size,
@@ -118,8 +110,6 @@ Exit:
 	return p_madw;
 }
 
-/**********************************************************************
- **********************************************************************/
 osm_madw_t *osm_mad_pool_get_wrapper(IN osm_mad_pool_t * p_pool,
 				     IN osm_bind_handle_t h_bind,
 				     IN uint32_t total_size,
@@ -150,8 +140,6 @@ Exit:
 	return (p_madw);
 }
 
-/**********************************************************************
- **********************************************************************/
 osm_madw_t *osm_mad_pool_get_wrapper_raw(IN osm_mad_pool_t * p_pool)
 {
 	osm_madw_t *p_madw;
@@ -167,8 +155,6 @@ osm_madw_t *osm_mad_pool_get_wrapper_raw(IN osm_mad_pool_t * p_pool)
 	return (p_madw);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_mad_pool_put(IN osm_mad_pool_t * p_pool, IN osm_madw_t * p_madw)
 {
 	CL_ASSERT(p_madw);

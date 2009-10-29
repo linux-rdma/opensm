@@ -66,8 +66,6 @@ const static uint32_t msecs_to_rtv_table[MAX_MSECS_TO_RTV] = {
 	1099511, 2199023, 4398046, 8796093
 };
 
-/**********************************************************************
- **********************************************************************/
 static void cpi_rcv_respond(IN osm_sa_t * sa, IN const osm_madw_t * p_madw)
 {
 	osm_madw_t *p_resp_madw;

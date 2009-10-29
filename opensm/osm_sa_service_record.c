@@ -76,8 +76,6 @@ typedef struct osm_sr_search_ctxt {
 	const osm_physp_t *p_req_physp;
 } osm_sr_search_ctxt_t;
 
-/**********************************************************************
- **********************************************************************/
 static boolean_t
 match_service_pkey_with_ports_pkey(IN osm_sa_t * sa,
 				   IN const osm_madw_t * p_madw,
@@ -137,8 +135,6 @@ Exit:
 	return valid;
 }
 
-/**********************************************************************
- **********************************************************************/
 static boolean_t
 match_name_to_key_association(IN osm_sa_t * sa,
 			      ib_service_record_t * p_service_rec,
@@ -158,8 +154,6 @@ match_name_to_key_association(IN osm_sa_t * sa,
 	return TRUE;
 }
 
-/**********************************************************************
- **********************************************************************/
 static boolean_t validate_sr(IN osm_sa_t * sa, IN const osm_madw_t * p_madw)
 {
 	boolean_t valid = TRUE;
@@ -196,8 +190,6 @@ Exit:
 	return valid;
 }
 
-/**********************************************************************
- **********************************************************************/
 static void sr_rcv_respond(IN osm_sa_t * sa, IN osm_madw_t * p_madw,
 			   IN cl_qlist_t * p_list)
 {
@@ -219,8 +211,6 @@ static void sr_rcv_respond(IN osm_sa_t * sa, IN osm_madw_t * p_madw,
 	osm_sa_respond(sa, p_madw, sizeof(ib_service_record_t), p_list);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void get_matching_sr(IN cl_list_item_t * p_list_item, IN void *context)
 {
 	osm_sr_search_ctxt_t *p_ctxt = context;
@@ -447,8 +437,6 @@ Exit:
 	return;
 }
 
-/**********************************************************************
- **********************************************************************/
 static void sr_rcv_process_get_method(osm_sa_t * sa, IN osm_madw_t * p_madw)
 {
 	ib_sa_mad_t *p_sa_mad;
@@ -509,8 +497,6 @@ Exit:
 	return;
 }
 
-/**********************************************************************
- **********************************************************************/
 static void sr_rcv_process_set_method(osm_sa_t * sa, IN osm_madw_t * p_madw)
 {
 	ib_sa_mad_t *p_sa_mad;
@@ -613,8 +599,6 @@ Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void sr_rcv_process_delete_method(osm_sa_t * sa, IN osm_madw_t * p_madw)
 {
 	ib_sa_mad_t *p_sa_mad;
@@ -681,8 +665,6 @@ Exit:
 	return;
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_sr_rcv_process(IN void *context, IN void *data)
 {
 	osm_sa_t *sa = context;
@@ -737,8 +719,6 @@ Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_sr_rcv_lease_cb(IN void *context)
 {
 	osm_sa_t *sa = context;

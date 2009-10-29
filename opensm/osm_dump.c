@@ -541,8 +541,6 @@ static void print_node_report(cl_map_item_t * item, FILE * file, void *cxt)
 		"------------------------------------------------\n");
 }
 
-/**********************************************************************
- **********************************************************************/
 struct dump_context {
 	osm_opensm_t *p_osm;
 	FILE *file;
@@ -593,8 +591,6 @@ void osm_dump_qmap_to_file(osm_opensm_t * p_osm, const char *file_name,
 	fclose(file);
 }
 
-/**********************************************************************
- **********************************************************************/
 
 static void print_report(osm_opensm_t * osm, FILE * file)
 {

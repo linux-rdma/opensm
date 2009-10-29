@@ -62,8 +62,6 @@
 #include <opensm/osm_inform.h>
 #include <opensm/osm_ucast_mgr.h>
 
-/**********************************************************************
- **********************************************************************/
 static void drop_mgr_remove_router(osm_sm_t * sm, IN const ib_net64_t portguid)
 {
 	osm_router_t *p_rtr;
@@ -79,8 +77,6 @@ static void drop_mgr_remove_router(osm_sm_t * sm, IN const ib_net64_t portguid)
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
 static void drop_mgr_clean_physp(osm_sm_t * sm, IN osm_physp_t * p_physp)
 {
 	osm_physp_t *p_remote_physp;
@@ -149,8 +145,6 @@ static void drop_mgr_clean_physp(osm_sm_t * sm, IN osm_physp_t * p_physp)
 	osm_physp_destroy(p_physp);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void drop_mgr_remove_port(osm_sm_t * sm, IN osm_port_t * p_port)
 {
 	ib_net64_t port_guid;
@@ -260,8 +254,6 @@ Exit:
 	OSM_LOG_EXIT(sm->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void drop_mgr_remove_switch(osm_sm_t * sm, IN osm_node_t * p_node)
 {
 	osm_switch_t *p_sw;
@@ -286,8 +278,6 @@ static void drop_mgr_remove_switch(osm_sm_t * sm, IN osm_node_t * p_node)
 	OSM_LOG_EXIT(sm->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 static boolean_t drop_mgr_process_node(osm_sm_t * sm, IN osm_node_t * p_node)
 {
 	osm_physp_t *p_physp;
@@ -347,8 +337,6 @@ static boolean_t drop_mgr_process_node(osm_sm_t * sm, IN osm_node_t * p_node)
 	return (return_val);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void drop_mgr_check_node(osm_sm_t * sm, IN osm_node_t * p_node)
 {
 	ib_net64_t node_guid;
@@ -416,8 +404,6 @@ Exit:
 	return;
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_drop_mgr_process(osm_sm_t * sm)
 {
 	cl_qmap_t *p_node_guid_tbl;

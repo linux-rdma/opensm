@@ -47,22 +47,16 @@
 #include <string.h>
 #include <opensm/osm_remote_sm.h>
 
-/**********************************************************************
- **********************************************************************/
 void osm_remote_sm_construct(IN osm_remote_sm_t * p_sm)
 {
 	memset(p_sm, 0, sizeof(*p_sm));
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_remote_sm_destroy(IN osm_remote_sm_t * p_sm)
 {
 	memset(p_sm, 0, sizeof(*p_sm));
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_remote_sm_init(IN osm_remote_sm_t * p_sm, IN const osm_port_t * p_port,
 			IN const ib_sm_info_t * p_smi)
 {

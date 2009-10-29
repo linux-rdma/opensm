@@ -59,15 +59,11 @@
 #include <opensm/osm_msgdef.h>
 #include <opensm/osm_opensm.h>
 
-/**********************************************************************
- **********************************************************************/
 void osm_ucast_mgr_construct(IN osm_ucast_mgr_t * p_mgr)
 {
 	memset(p_mgr, 0, sizeof(*p_mgr));
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_ucast_mgr_destroy(IN osm_ucast_mgr_t * p_mgr)
 {
 	CL_ASSERT(p_mgr);
@@ -80,8 +76,6 @@ void osm_ucast_mgr_destroy(IN osm_ucast_mgr_t * p_mgr)
 	OSM_LOG_EXIT(p_mgr->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 ib_api_status_t osm_ucast_mgr_init(IN osm_ucast_mgr_t * p_mgr, IN osm_sm_t * sm)
 {
 	ib_api_status_t status = IB_SUCCESS;
@@ -130,8 +124,6 @@ static void ucast_mgr_process_hop_0_1(IN cl_map_item_t * p_map_item,
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
 static void ucast_mgr_process_neighbor(IN osm_ucast_mgr_t * p_mgr,
 				       IN osm_switch_t * p_this_sw,
 				       IN osm_switch_t * p_remote_sw,
@@ -180,8 +172,6 @@ static void ucast_mgr_process_neighbor(IN osm_ucast_mgr_t * p_mgr,
 	OSM_LOG_EXIT(p_mgr->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 static struct osm_remote_node *find_and_add_remote_sys(osm_switch_t * sw,
 						       uint8_t port,
 						       boolean_t dor, struct
@@ -312,8 +302,6 @@ Exit:
 	OSM_LOG_EXIT(p_mgr->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void alloc_ports_priv(osm_ucast_mgr_t * mgr)
 {
 	cl_qmap_t *port_tbl = &mgr->p_subn->port_guid_tbl;
@@ -398,8 +386,6 @@ static void ucast_mgr_process_tbl(IN cl_map_item_t * p_map_item,
 	OSM_LOG_EXIT(p_mgr->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 static void ucast_mgr_process_neighbors(IN cl_map_item_t * p_map_item,
 					IN void *context)
 {
@@ -450,8 +436,6 @@ static void ucast_mgr_process_neighbors(IN cl_map_item_t * p_map_item,
 	OSM_LOG_EXIT(p_mgr->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 static int set_hop_wf(void *ctx, uint64_t guid, char *p)
 {
 	osm_ucast_mgr_t *m = ctx;
@@ -504,8 +488,6 @@ static void set_default_hop_wf(cl_map_item_t * p_map_item, void *ctx)
 	}
 }
 
-/**********************************************************************
- **********************************************************************/
 int osm_ucast_mgr_build_lid_matrices(IN osm_ucast_mgr_t * p_mgr)
 {
 	uint32_t i;
@@ -587,8 +569,6 @@ int osm_ucast_mgr_build_lid_matrices(IN osm_ucast_mgr_t * p_mgr)
 	return 0;
 }
 
-/**********************************************************************
- **********************************************************************/
 static int ucast_mgr_setup_all_switches(osm_subn_t * p_subn)
 {
 	osm_switch_t *p_sw;
@@ -611,8 +591,6 @@ static int ucast_mgr_setup_all_switches(osm_subn_t * p_subn)
 	return 0;
 }
 
-/**********************************************************************
- **********************************************************************/
 static int add_guid_to_order_list(void *ctx, uint64_t guid, char *p)
 {
 	osm_ucast_mgr_t *m = ctx;
@@ -790,8 +768,6 @@ static int ucast_mgr_build_lfts(osm_ucast_mgr_t * p_mgr)
 	return 0;
 }
 
-/**********************************************************************
- **********************************************************************/
 static void ucast_mgr_set_fwd_top(IN cl_map_item_t * p_map_item,
 				  IN void *cxt)
 {
@@ -938,8 +914,6 @@ void osm_ucast_mgr_set_fwd_tables(osm_ucast_mgr_t * p_mgr)
 	ucast_mgr_pipeline_fwd_tbl(p_mgr);
 }
 
-/**********************************************************************
- **********************************************************************/
 static int ucast_mgr_route(struct osm_routing_engine *r, osm_opensm_t * osm)
 {
 	int ret;

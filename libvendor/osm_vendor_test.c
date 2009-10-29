@@ -54,22 +54,16 @@
 #include <vendor/osm_vendor_test.h>
 #include <vendor/osm_vendor_api.h>
 
-/**********************************************************************
- **********************************************************************/
 void osm_vendor_construct(IN osm_vendor_t * const p_vend)
 {
 	memset(p_vend, 0, sizeof(*p_vend));
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_vendor_destroy(IN osm_vendor_t * const p_vend)
 {
 	UNUSED_PARAM(p_vend);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_vendor_delete(IN osm_vendor_t ** const pp_vend)
 {
 	CL_ASSERT(pp_vend);
@@ -79,8 +73,6 @@ void osm_vendor_delete(IN osm_vendor_t ** const pp_vend)
 	*pp_vend = NULL;
 }
 
-/**********************************************************************
- **********************************************************************/
 ib_api_status_t
 osm_vendor_init(IN osm_vendor_t * const p_vend,
 		IN osm_log_t * const p_log, IN const uint32_t timeout)
@@ -96,8 +88,6 @@ osm_vendor_init(IN osm_vendor_t * const p_vend,
 	return (IB_SUCCESS);
 }
 
-/**********************************************************************
- **********************************************************************/
 osm_vendor_t *osm_vendor_new(IN osm_log_t * const p_log,
 			     IN const uint32_t timeout)
 {
@@ -121,8 +111,6 @@ osm_vendor_t *osm_vendor_new(IN osm_log_t * const p_log,
 	return (p_vend);
 }
 
-/**********************************************************************
- **********************************************************************/
 ib_mad_t *osm_vendor_get(IN osm_bind_handle_t h_bind,
 			 IN const uint32_t size,
 			 IN osm_vend_wrap_t * const p_vend_wrap)
@@ -150,8 +138,6 @@ ib_mad_t *osm_vendor_get(IN osm_bind_handle_t h_bind,
 	return (p_mad);
 }
 
-/**********************************************************************
- **********************************************************************/
 void
 osm_vendor_put(IN osm_bind_handle_t h_bind,
 	       IN osm_vend_wrap_t * const p_vend_wrap,
@@ -176,8 +162,6 @@ osm_vendor_put(IN osm_bind_handle_t h_bind,
 	OSM_LOG_EXIT(p_vend->p_log);
 }
 
-/**********************************************************************
- **********************************************************************/
 ib_api_status_t
 osm_vendor_send(IN osm_bind_handle_t h_bind,
 		IN osm_vend_wrap_t * const p_vend_wrap,
@@ -201,8 +185,6 @@ osm_vendor_send(IN osm_bind_handle_t h_bind,
 	return (IB_SUCCESS);
 }
 
-/**********************************************************************
- **********************************************************************/
 osm_bind_handle_t
 osm_vendor_bind(IN osm_vendor_t * const p_vend,
 		IN osm_bind_info_t * const p_bind_info,
@@ -243,8 +225,6 @@ osm_vendor_bind(IN osm_vendor_t * const p_vend,
 	return (h_bind);
 }
 
-/**********************************************************************
- **********************************************************************/
 ib_api_status_t
 osm_vendor_get_ports(IN osm_vendor_t * const p_vend,
 		     IN ib_net64_t * const p_guids,
@@ -259,8 +239,6 @@ osm_vendor_get_ports(IN osm_vendor_t * const p_vend,
 	return (IB_SUCCESS);
 }
 
-/**********************************************************************
- **********************************************************************/
 ib_api_status_t osm_vendor_local_lid_change(IN osm_bind_handle_t h_bind)
 {
 	osm_vendor_t *p_vend = h_bind->p_vend;
@@ -272,8 +250,6 @@ ib_api_status_t osm_vendor_local_lid_change(IN osm_bind_handle_t h_bind)
 	return (IB_SUCCESS);
 }
 
-/**********************************************************************
- **********************************************************************/
 void osm_vendor_set_debug(IN osm_vendor_t * const p_vend, IN int32_t level)
 {
 
