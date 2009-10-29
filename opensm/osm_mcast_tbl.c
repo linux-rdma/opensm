@@ -122,7 +122,7 @@ int osm_mcast_tbl_realloc(IN osm_mcast_tbl_t * p_tbl, IN uintn_t mlid_offset)
 	uint16_t (*p_mask_tbl)[][IB_MCAST_POSITION_MAX];
 
 	if (mlid_offset < p_tbl->mft_depth)
-		return 0;
+		goto done;
 
 	/*
 	   The number of bytes needed in the mask table is:
@@ -144,7 +144,8 @@ int osm_mcast_tbl_realloc(IN osm_mcast_tbl_t * p_tbl, IN uintn_t mlid_offset)
 	       size - p_tbl->mft_depth * (IB_MCAST_POSITION_MAX + 1) * IB_MCAST_MASK_SIZE / 8);
 	p_tbl->p_mask_tbl = p_mask_tbl;
 	p_tbl->mft_depth = mft_depth;
-	p_tbl->max_mlid_ho = mft_depth + IB_LID_MCAST_START_HO - 1;
+done:
+	p_tbl->max_mlid_ho = mlid_offset + IB_LID_MCAST_START_HO - 1;
 	return 0;
 }
 
