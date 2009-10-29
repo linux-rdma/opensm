@@ -99,11 +99,9 @@ void osm_mcast_tbl_set(IN osm_mcast_tbl_t * p_tbl, IN uint16_t mlid_ho,
 	uintn_t bit_mask;
 	int16_t block_num;
 
-	CL_ASSERT(p_tbl);
+	CL_ASSERT(p_tbl && p_tbl->p_mask_tbl);
 	CL_ASSERT(mlid_ho >= IB_LID_MCAST_START_HO);
 	CL_ASSERT(mlid_ho <= p_tbl->max_mlid_ho);
-	CL_ASSERT(mlid_ho - IB_LID_MCAST_START_HO < p_tbl->mft_depth);
-	CL_ASSERT(p_tbl->p_mask_tbl);
 
 	mlid_offset = mlid_ho - IB_LID_MCAST_START_HO;
 	mask_offset = port / IB_MCAST_MASK_SIZE;
@@ -168,8 +166,6 @@ boolean_t osm_mcast_tbl_is_port(IN const osm_mcast_tbl_t * p_tbl,
 		CL_ASSERT(mlid_ho <= p_tbl->max_mlid_ho);
 
 		mlid_offset = mlid_ho - IB_LID_MCAST_START_HO;
-		if (mlid_offset >= p_tbl->mft_depth)
-			return FALSE;
 		mask_offset = port_num / IB_MCAST_MASK_SIZE;
 		bit_mask = cl_ntoh16((uint16_t)
 				     (1 << (port_num % IB_MCAST_MASK_SIZE)));
@@ -197,8 +193,6 @@ boolean_t osm_mcast_tbl_is_any_port(IN const osm_mcast_tbl_t * p_tbl,
 		CL_ASSERT(mlid_ho <= p_tbl->max_mlid_ho);
 
 		mlid_offset = mlid_ho - IB_LID_MCAST_START_HO;
-		if (mlid_offset >= p_tbl->mft_depth)
-			return FALSE;
 
 		for (position = 0; position <= p_tbl->max_position; position++)
 			result |= (*p_tbl->p_mask_tbl)[mlid_offset][position];
@@ -250,10 +244,8 @@ void osm_mcast_tbl_clear_mlid(IN osm_mcast_tbl_t * p_tbl, IN uint16_t mlid_ho)
 	CL_ASSERT(p_tbl);
 	CL_ASSERT(mlid_ho >= IB_LID_MCAST_START_HO);
 
-	if (p_tbl->p_mask_tbl && (mlid_ho <= p_tbl->max_mlid_ho)) {
+	if (p_tbl->p_mask_tbl && mlid_ho <= p_tbl->max_mlid_ho) {
 		mlid_offset = mlid_ho - IB_LID_MCAST_START_HO;
-		if (mlid_offset >= p_tbl->mft_depth)
-			return;
 		for (i = 0; i <= p_tbl->max_position; i++)
 			(*p_tbl->p_mask_tbl)[mlid_offset][i] = 0;
 	}
