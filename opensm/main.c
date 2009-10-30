@@ -248,6 +248,11 @@ static void show_usage(void)
 	       "          Specifying -t 0 disables timeouts.\n"
 	       "          Without -t, OpenSM defaults to a timeout value of\n"
 	       "          200 milliseconds.\n\n");
+	printf("--retries <number>\n"
+	       "          This option specifies the number of retries used\n"
+	       "          for transactions.\n"
+	       "          Without --retries, OpenSM defaults to %u retries\n"
+	       "          for transactions.\n\n", OSM_DEFAULT_RETRY_COUNT);
 	printf("--maxsmps, -n <number>\n"
 	       "          This option specifies the number of VL15 SMP MADs\n"
 	       "          allowed on the wire at any one time.\n"
@@ -610,6 +615,7 @@ int main(int argc, char *argv[])
 		{"do_mesh_analysis", 0, NULL, 5},
 		{"lash_start_vl", 1, NULL, 6},
 		{"sm_sl", 1, NULL, 7},
+		{"retries", 1, NULL, 8},
 		{NULL, 0, NULL, 0}	/* Required at the end of the array */
 	};
 
@@ -982,6 +988,11 @@ int main(int argc, char *argv[])
 			}
 			opt.sm_sl = (uint8_t) temp;
 			printf(" SMSL = %d\n", opt.sm_sl);
+			break;
+		case 8:
+			opt.transaction_retries = strtoul(optarg, NULL, 0);
+			printf(" Transaction retries = %u\n",
+			       opt.transaction_retries);
 			break;
 		case 'h':
 		case '?':

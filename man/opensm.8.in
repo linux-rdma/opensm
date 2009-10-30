@@ -1,4 +1,4 @@
-.TH OPENSM 8 "September 14, 2009" "OpenIB" "OpenIB Management"
+.TH OPENSM 8 "October 22, 2009" "OpenIB" "OpenIB Management"
 
 .SH NAME
 opensm \- InfiniBand subnet manager and administration (SM/SA)
@@ -31,6 +31,7 @@ opensm \- InfiniBand subnet manager and administration (SM/SA)
 [\-o(nce)]
 [\-s(weep) <interval>]
 [\-t(imeout) <milliseconds>]
+[\-\-retries <number>]
 [\-maxsmps <number>]
 [\-console [off | local | socket | loopback]]
 [\-console-port <port>]
@@ -232,6 +233,12 @@ used for transaction timeouts.
 Specifying -t 0 disables timeouts.
 Without -t, OpenSM defaults to a timeout value of
 200 milliseconds.
+.TP
+\fB\-\-retries\fR <number>
+This option specifies the number of retries used
+for transactions.
+Without --retries, OpenSM defaults to 3 retries
+for transactions.
 .TP
 \fB\-maxsmps\fR <number>
 This option specifies the number of VL15 SMP MADs

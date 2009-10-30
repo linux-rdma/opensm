@@ -264,6 +264,8 @@ ib_api_status_t osm_perfmgr_bind(osm_perfmgr_t * pm, ib_net64_t port_guid)
 	bind_info.is_trap_processor = FALSE;
 	bind_info.recv_q_size = OSM_PM_DEFAULT_QP1_RCV_SIZE;
 	bind_info.send_q_size = OSM_PM_DEFAULT_QP1_SEND_SIZE;
+	bind_info.timeout = pm->subn->opt.transaction_timeout;
+	bind_info.retries = pm->subn->opt.transaction_retries;
 
 	OSM_LOG(pm->log, OSM_LOG_VERBOSE,
 		"Binding to port GUID 0x%" PRIx64 "\n", cl_ntoh64(port_guid));

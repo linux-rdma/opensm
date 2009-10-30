@@ -4,6 +4,7 @@
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2008 Xsigo Systems Inc.  All rights reserved.
  * Copyright (c) 2009 System Fabric Works, Inc. All rights reserved.
+ * Copyright (c) 2009 HNR Consulting. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -299,6 +300,7 @@ static const opt_rec_t opt_tbl[] = {
 	{ "console", OPT_OFFSET(console), opts_parse_charp, NULL, 0 },
 	{ "console_port", OPT_OFFSET(console_port), opts_parse_uint16, NULL, 0 },
 	{ "transaction_timeout", OPT_OFFSET(transaction_timeout), opts_parse_uint32, NULL, 1 },
+	{ "transaction_retries", OPT_OFFSET(transaction_retries), opts_parse_uint32, NULL, 1 },
 	{ "max_msg_fifo_timeout", OPT_OFFSET(max_msg_fifo_timeout), opts_parse_uint32, NULL, 1 },
 	{ "sm_priority", OPT_OFFSET(sm_priority), opts_parse_uint8, opts_setup_sm_priority, 1 },
 	{ "lmc", OPT_OFFSET(lmc), opts_parse_uint8, NULL, 1 },
@@ -694,6 +696,7 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * p_opt)
 	p_opt->console = strdup(OSM_DEFAULT_CONSOLE);
 	p_opt->console_port = OSM_DEFAULT_CONSOLE_PORT;
 	p_opt->transaction_timeout = OSM_DEFAULT_TRANS_TIMEOUT_MILLISEC;
+	p_opt->transaction_retries = OSM_DEFAULT_RETRY_COUNT;
 	/* by default we will consider waiting for 50x transaction timeout normal */
 	p_opt->max_msg_fifo_timeout = 50 * OSM_DEFAULT_TRANS_TIMEOUT_MILLISEC;
 	p_opt->sm_priority = OSM_DEFAULT_SM_PRIORITY;
@@ -1500,6 +1503,8 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		"max_wire_smps %u\n\n"
 		"# The maximum time in [msec] allowed for a transaction to complete\n"
 		"transaction_timeout %u\n\n"
+		" The maximum number of retries allowed for a transaction to complete\n"
+		"transaction_retries %u\n\n"
 		"# Maximal time in [msec] a message can stay in the incoming message queue.\n"
 		"# If there is more than one message in the queue and the last message\n"
 		"# stayed in the queue more than this value, any SA request will be\n"
@@ -1509,6 +1514,7 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		"single_thread %s\n\n",
 		p_opts->max_wire_smps,
 		p_opts->transaction_timeout,
+		p_opts->transaction_retries,
 		p_opts->max_msg_fifo_timeout,
 		p_opts->single_thread ? "TRUE" : "FALSE");
 

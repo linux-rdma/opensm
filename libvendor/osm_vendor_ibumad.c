@@ -85,6 +85,8 @@ typedef struct _osm_umad_bind_info {
 	int port_id;
 	int agent_id;
 	int agent_id1;		/* SMI requires two agents */
+	int timeout;
+	int max_retries;
 } osm_umad_bind_info_t;
 
 typedef struct _umad_receiver {
@@ -476,7 +478,7 @@ osm_vendor_init(IN osm_vendor_t * const p_vend,
 			p_vend->mtbl.max = tmp;
 		else
 			OSM_LOG(p_vend->p_log, OSM_LOG_ERROR, "Error:"
-				"OSM_UMAD_MAX_PENDING=%d is invalid",
+				"OSM_UMAD_MAX_PENDING=%d is invalid\n",
 				tmp);
 	}
 
@@ -819,6 +821,10 @@ osm_vendor_bind(IN osm_vendor_t * const p_vend,
 	p_bind->send_err_callback = send_err_callback;
 	p_bind->p_mad_pool = p_mad_pool;
 	p_bind->port_guid = port_guid;
+	p_bind->timeout = p_user_bind->timeout ? p_user_bind->timeout :
+			  p_vend->timeout;
+	p_bind->max_retries = p_user_bind->retries ? p_user_bind->retries :
+			      p_vend->max_retries;
 
 	memset(method_mask, 0, sizeof method_mask);
 	if (p_user_bind->is_responder) {
@@ -1086,8 +1092,8 @@ Resp:
 #endif
 	if ((ret = umad_send(p_bind->port_id, p_bind->agent_id, p_vw->umad,
 			     sent_mad_size,
-			     resp_expected ? p_vend->timeout : 0,
-			     p_vend->max_retries)) < 0) {
+			     resp_expected ? p_bind->timeout : 0,
+			     p_bind->max_retries)) < 0) {
 		OSM_LOG(p_vend->p_log, OSM_LOG_ERROR, "ERR 5430: "
 			"Send p_madw = %p of size %d failed %d (%m)\n",
 			p_madw, sent_mad_size, ret);

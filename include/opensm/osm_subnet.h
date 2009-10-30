@@ -4,6 +4,7 @@
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2008 Xsigo Systems Inc.  All rights reserved.
  * Copyright (c) 2009 System Fabric Works, Inc. All rights reserved.
+ * Copyright (c) 2009 HNR Consulting. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -149,6 +150,7 @@ typedef struct osm_subn_opt {
 	uint32_t sweep_interval;
 	uint32_t max_wire_smps;
 	uint32_t transaction_timeout;
+	uint32_t transaction_retries;
 	uint8_t sm_priority;
 	uint8_t lmc;
 	boolean_t lmc_esp0;
@@ -260,6 +262,9 @@ typedef struct osm_subn_opt {
 *	transaction_timeout
 *		The maximum time in milliseconds allowed for a transaction
 *		to complete.  Default is 200.
+*
+*	transaction_retries
+*		The number of retries for a transaction. Default is 3.
 *
 *	sm_priority
 *		The priority of this SM as specified by the user.  This

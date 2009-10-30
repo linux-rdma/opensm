@@ -888,6 +888,8 @@ ib_api_status_t osm_sm_mad_ctrl_bind(IN osm_sm_mad_ctrl_t * p_ctrl,
 	bind_info.port_guid = port_guid;
 	bind_info.recv_q_size = OSM_SM_DEFAULT_QP0_RCV_SIZE;
 	bind_info.send_q_size = OSM_SM_DEFAULT_QP0_SEND_SIZE;
+	bind_info.timeout = p_ctrl->p_subn->opt.transaction_timeout;
+	bind_info.retries = p_ctrl->p_subn->opt.transaction_retries;
 
 	OSM_LOG(p_ctrl->p_log, OSM_LOG_VERBOSE,
 		"Binding to port 0x%" PRIx64 "\n", cl_ntoh64(port_guid));

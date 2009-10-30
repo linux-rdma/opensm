@@ -2,6 +2,7 @@
  * Copyright (c) 2004-2008 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
+ * Copyright (c) 2009 HNR Consulting. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -528,6 +529,8 @@ ib_api_status_t osm_sa_mad_ctrl_bind(IN osm_sa_mad_ctrl_t * p_ctrl,
 	bind_info.port_guid = port_guid;
 	bind_info.recv_q_size = OSM_SM_DEFAULT_QP1_RCV_SIZE;
 	bind_info.send_q_size = OSM_SM_DEFAULT_QP1_SEND_SIZE;
+	bind_info.timeout = p_ctrl->sa->p_subn->opt.transaction_timeout;
+	bind_info.retries = p_ctrl->sa->p_subn->opt.transaction_retries;
 
 	OSM_LOG(p_ctrl->p_log, OSM_LOG_VERBOSE,
 		"Binding to port GUID 0x%" PRIx64 "\n", cl_ntoh64(port_guid));
