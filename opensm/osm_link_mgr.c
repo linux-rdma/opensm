@@ -68,7 +68,8 @@ static uint8_t link_mgr_get_smsl(IN osm_sm_t * sm, IN osm_physp_t * p_physp)
 
 	OSM_LOG_ENTER(sm->p_log);
 
-	if (p_osm->routing_engine_used != OSM_ROUTING_ENGINE_TYPE_LASH) {
+	if (p_osm->routing_engine_used != OSM_ROUTING_ENGINE_TYPE_LASH
+	    || !(slid = osm_physp_get_base_lid(p_physp))) {
 		/* Use default SL if lash routing is not used */
 		OSM_LOG_EXIT(sm->p_log);
 		return (sm->p_subn->opt.sm_sl);
@@ -80,7 +81,6 @@ static uint8_t link_mgr_get_smsl(IN osm_sm_t * sm, IN osm_physp_t * p_physp)
 	    cl_ptr_vector_get(&sm->p_subn->port_lid_tbl, cl_ntoh16(smlid));
 
 	/* Find osm_port of the source = p_physp */
-	slid = osm_physp_get_base_lid(p_physp);
 	p_src_port =
 	    cl_ptr_vector_get(&sm->p_subn->port_lid_tbl, cl_ntoh16(slid));
 
