@@ -278,34 +278,30 @@ static int disable_port(osm_sm_t *sm, osm_physp_t *p)
 static void log_trap_info(osm_log_t *p_log, ib_mad_notice_attr_t *p_ntci,
 			  ib_net16_t source_lid, ib_net64_t trans_id)
 {
+	if (!osm_log_is_active(p_log, OSM_LOG_ERROR))
+		return;
+
 	if (ib_notice_is_generic(p_ntci)) {
+		char str[32];
+
 		if ((p_ntci->g_or_v.generic.trap_num == CL_HTON16(129)) ||
 		    (p_ntci->g_or_v.generic.trap_num == CL_HTON16(130)) ||
 		    (p_ntci->g_or_v.generic.trap_num == CL_HTON16(131)))
-			OSM_LOG(p_log, OSM_LOG_ERROR,
-				"Received Generic Notice type:%u "
-				"num:%u (%s) Producer:%u (%s) "
-				"from LID:%u Port %d TID:0x%016" PRIx64 "\n",
-				ib_notice_get_type(p_ntci),
-				cl_ntoh16(p_ntci->g_or_v.generic.trap_num),
-				ib_get_trap_str(p_ntci->g_or_v.generic.trap_num),
-				cl_ntoh32(ib_notice_get_prod_type(p_ntci)),
-				ib_get_producer_type_str(ib_notice_get_prod_type(p_ntci)),
-				cl_hton16(source_lid),
-				p_ntci->data_details.ntc_129_131.port_num,
-				cl_ntoh64(trans_id));
+			snprintf(str, sizeof(str), " Port %u",
+				 p_ntci->data_details.ntc_129_131.port_num);
 		else
-			OSM_LOG(p_log, OSM_LOG_ERROR,
-				"Received Generic Notice type:%u "
-				"num:%u (%s) Producer:%u (%s) "
-				"from LID:%u TID:0x%016" PRIx64 "\n",
-				ib_notice_get_type(p_ntci),
-				cl_ntoh16(p_ntci->g_or_v.generic.trap_num),
-				ib_get_trap_str(p_ntci->g_or_v.generic.trap_num),
-				cl_ntoh32(ib_notice_get_prod_type(p_ntci)),
-				ib_get_producer_type_str(ib_notice_get_prod_type(p_ntci)),
-				cl_hton16(source_lid),
-				cl_ntoh64(trans_id));
+			str[0] = '\0';
+
+		OSM_LOG(p_log, OSM_LOG_ERROR,
+			"Received Generic Notice type:%u "
+			"num:%u (%s) Producer:%u (%s) "
+			"from LID:%u%s TID:0x%016" PRIx64 "\n",
+			ib_notice_get_type(p_ntci),
+			cl_ntoh16(p_ntci->g_or_v.generic.trap_num),
+			ib_get_trap_str(p_ntci->g_or_v.generic.trap_num),
+			cl_ntoh32(ib_notice_get_prod_type(p_ntci)),
+			ib_get_producer_type_str(ib_notice_get_prod_type(p_ntci)),
+			cl_hton16(source_lid), str, cl_ntoh64(trans_id));
 	} else
 		OSM_LOG(p_log, OSM_LOG_ERROR,
 			"Received Vendor Notice type:%u vend:0x%06X "
