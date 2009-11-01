@@ -97,9 +97,10 @@ ced5a6e opensm/opensm/osm_console.c: move reporting of plugins to "status"
 
 1.4 Software Dependencies
 
-OpenSM depends on the installation of either OFED 1.x, OpenIB gen2 (e.g.
-IBG2 distribution), OpenIB gen1 (e.g. IBGD distribution), or Mellanox
-VAPI stacks. The qualified driver versions are provided in Table 2,
+OpenSM depends on the installation of libibumad package (distributed as
+part of OFA IB management together with OpenSM) and IB stack presence,
+in particular libibumad uses user_mad kernel interface ('ib_umad' kernel
+module). The qualified driver versions are provided in Table 2,
 "Qualified IB Stacks".
 
 Also, building of QoS manager policy file parser requires flex, and either
@@ -457,6 +458,7 @@ Table 2 - Qualified IB Stacks
 
 Stack                                    | Version
 -----------------------------------------|--------------------------
+The main stream Linux kernel             |   2.6.x
 OFED                                     |   1.4
 OFED                                     |   1.3
 OFED                                     |   1.2
