@@ -731,7 +731,7 @@ static ib_api_status_t mcmr_rcv_create_new_mgrp(IN osm_sa_t * sa,
 						OUT osm_mgrp_t ** pp_mgrp)
 {
 	ib_net16_t mlid;
-	unsigned zero_mgid, i;
+	unsigned zero_mgid = 1;
 	uint8_t scope;
 	ib_gid_t *p_mgid;
 	ib_api_status_t status = IB_SUCCESS;
@@ -740,12 +740,9 @@ static ib_api_status_t mcmr_rcv_create_new_mgrp(IN osm_sa_t * sa,
 	OSM_LOG_ENTER(sa->p_log);
 
 	/* but what if the given MGID was not 0 ? */
-	zero_mgid = 1;
-	for (i = 0; i < sizeof(p_recvd_mcmember_rec->mgid); i++)
-		if (p_recvd_mcmember_rec->mgid.raw[i] != 0) {
-			zero_mgid = 0;
-			break;
-		}
+	if (p_recvd_mcmember_rec->mgid.unicast.prefix != 0 ||
+	    p_recvd_mcmember_rec->mgid.unicast.interface_id != 0)
+		zero_mgid = 0;
 
 	/*
 	   we allocate a new mlid number before we might use it
