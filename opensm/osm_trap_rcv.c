@@ -81,15 +81,10 @@ extern void osm_req_get_node_desc(IN osm_sm_t * sm, osm_physp_t *p_physp);
  *
  **********************************************************************/
 
-typedef struct osm_trap_agingracker_context {
-	osm_log_t *p_log;
-	osm_physp_t *p_physp;
-} osm_trap_aging_tracker_context_t;
-
 /**********************************************************************
  **********************************************************************/
-static osm_physp_t *get_physp_by_lid_and_num(IN osm_sm_t * sm,
-					     IN uint16_t lid, IN uint8_t num)
+static osm_physp_t *get_physp_by_lid_and_num(IN osm_sm_t * sm, IN uint16_t lid,
+					     IN uint8_t num)
 {
 	cl_ptr_vector_t *p_vec = &(sm->p_subn->port_lid_tbl);
 	osm_port_t *p_port;
@@ -109,9 +104,8 @@ static osm_physp_t *get_physp_by_lid_and_num(IN osm_sm_t * sm,
 
 /**********************************************************************
  **********************************************************************/
-uint64_t
-osm_trap_rcv_aging_tracker_callback(IN uint64_t key,
-				    IN uint32_t num_regs, IN void *context)
+static uint64_t aging_tracker_callback(IN uint64_t key, IN uint32_t num_regs,
+				       IN void *context)
 {
 	osm_sm_t *sm = context;
 	uint16_t lid;
@@ -200,16 +194,11 @@ static uint32_t trap_calc_crc32(void *buffer, uint32_t count)
    \______/ \___/ \___/
      16b     16b   32b
 */
-static void
-trap_get_key(IN uint16_t lid, IN uint8_t port_num,
-	     IN ib_mad_notice_attr_t * p_ntci, OUT uint64_t * trap_key)
+static uint64_t trap_get_key(IN uint16_t lid, IN uint8_t port_num,
+			     IN ib_mad_notice_attr_t * p_ntci)
 {
-	uint32_t crc = 0;
-
-	CL_ASSERT(trap_key);
-
-	crc = trap_calc_crc32(p_ntci, sizeof(ib_mad_notice_attr_t));
-	*trap_key = ((uint64_t) port_num << 48) | ((uint64_t) lid << 32) | crc;
+	uint32_t crc = trap_calc_crc32(p_ntci, sizeof(ib_mad_notice_attr_t));
+	return ((uint64_t) port_num << 48) | ((uint64_t) lid << 32) | crc;
 }
 
 /**********************************************************************
@@ -314,8 +303,8 @@ static void log_trap_info(osm_log_t *p_log, ib_mad_notice_attr_t *p_ntci,
 
 /**********************************************************************
  **********************************************************************/
-static void
-trap_rcv_process_request(IN osm_sm_t * sm, IN const osm_madw_t * const p_madw)
+static void trap_rcv_process_request(IN osm_sm_t * sm,
+				     IN const osm_madw_t * p_madw)
 {
 	uint8_t payload[sizeof(ib_mad_notice_attr_t)];
 	ib_smp_t *p_smp;
@@ -438,20 +427,13 @@ trap_rcv_process_request(IN osm_sm_t * sm, IN const osm_madw_t * const p_madw)
 			physp_change_trap = TRUE;
 			/* The source_lid should be based on the source_lid from the trap */
 			source_lid = p_ntci->data_details.ntc_129_131.lid;
+			port_num = p_ntci->data_details.ntc_129_131.port_num;
 		}
 
-		/* If physp_change_trap is TRUE - the key will include the port number.
-		   If not - the port_number in the key will be zero. */
-		if (physp_change_trap == TRUE) {
-			port_num = p_ntci->data_details.ntc_129_131.port_num;
-			trap_get_key(source_lid, port_num, p_ntci, &trap_key);
-		} else
-			trap_get_key(source_lid, 0, p_ntci, &trap_key);
-
 		/* try to find it in the aging tracker */
-		num_received =
-		    cl_event_wheel_num_regs(&sm->trap_aging_tracker,
-					    trap_key);
+		trap_key = trap_get_key(source_lid, port_num, p_ntci);
+		num_received = cl_event_wheel_num_regs(&sm->trap_aging_tracker,
+						       trap_key);
 
 		/* Now we know how many times it provided this trap */
 		if (num_received > 10) {
@@ -521,11 +503,13 @@ trap_rcv_process_request(IN osm_sm_t * sm, IN const osm_madw_t * const p_madw)
 		/* If physp_change_trap is TRUE - then use a callback to unset
 		   the healthy bit. If not - no need to use a callback. */
 		if (physp_change_trap == TRUE)
-			cl_event_wheel_reg(&sm->trap_aging_tracker, trap_key, cl_get_time_stamp() + event_wheel_timeout, osm_trap_rcv_aging_tracker_callback,	/* no callback */
-					   sm	/* no context */ );
+			cl_event_wheel_reg(&sm->trap_aging_tracker, trap_key,
+					   cl_get_time_stamp() + event_wheel_timeout,
+					   aging_tracker_callback, sm);
 		else
-			cl_event_wheel_reg(&sm->trap_aging_tracker, trap_key, cl_get_time_stamp() + event_wheel_timeout, NULL,	/* no callback */
-					   NULL	/* no context */ );
+			cl_event_wheel_reg(&sm->trap_aging_tracker, trap_key,
+					   cl_get_time_stamp() + event_wheel_timeout,
+					   NULL, NULL);
 
 		/* If was already registered do nothing more */
 		if (num_received > 10 && run_heavy_sweep == FALSE) {
@@ -642,9 +626,8 @@ Exit:
 
 /**********************************************************************
 **********************************************************************/
-static void
-trap_rcv_process_response(IN osm_sm_t * sm,
-			  IN const osm_madw_t * const p_madw)
+static void trap_rcv_process_response(IN osm_sm_t * sm,
+				      IN const osm_madw_t * p_madw)
 {
 
 	OSM_LOG_ENTER(sm->p_log);
