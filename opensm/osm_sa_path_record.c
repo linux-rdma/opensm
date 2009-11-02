@@ -1022,13 +1022,12 @@ static void pr_rcv_get_port_pair_paths(IN osm_sa_t * sa,
 	path_num = 0;
 
 	/* If SubnAdmGet, assume NumbPaths 1 (1.2 erratum) */
-	if (p_sa_mad->method != IB_MAD_METHOD_GET)
-		if (comp_mask & IB_PR_COMPMASK_NUMBPATH)
-			iterations = ib_path_rec_num_path(p_pr);
-		else
-			iterations = (uintn_t) (-1);
-	else
+	if (p_sa_mad->method == IB_MAD_METHOD_GET)
 		iterations = 1;
+	else if (comp_mask & IB_PR_COMPMASK_NUMBPATH)
+		iterations = ib_path_rec_num_path(p_pr);
+	else
+		iterations = (uintn_t) (-1);
 
 	while (path_num < iterations) {
 		/*
