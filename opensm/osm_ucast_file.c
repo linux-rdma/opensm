@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006,2007 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2006-2008 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2008,2009 Mellanox Technologies LTD. All rights reserved.
  *
  * This software is available to you under a choice of one of two

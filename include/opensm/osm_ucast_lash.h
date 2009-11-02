@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2008,2009 System Fabric Works, Inc. All rights reserved.
- * Copyright (c) 2004-2007 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2004-2008 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2006 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2007      Simula Research Laboratory. All rights reserved.
