@@ -76,7 +76,7 @@ typedef struct osm_mcast_fwdbl {
 	uint16_t num_entries;
 	uint16_t max_mlid_ho;
 	uint16_t mft_depth;
-	uint16_t(*p_mask_tbl)[][IB_MCAST_POSITION_MAX];
+	uint16_t(*p_mask_tbl)[][IB_MCAST_POSITION_MAX + 1];
 } osm_mcast_tbl_t;
 /*
 * FIELDS
@@ -106,7 +106,7 @@ typedef struct osm_mcast_fwdbl {
 *
 *	p_mask_tbl
 *		Pointer to a two dimensional array of port_masks for this switch.
-*		The first dimension is MLID, the second dimension is mask position.
+*		The first dimension is MLID offset, second dimension is mask position.
 *		This pointer is null for switches that do not support multicast.
 *
 * SEE ALSO

@@ -119,7 +119,7 @@ void osm_mcast_tbl_set(IN osm_mcast_tbl_t * p_tbl, IN uint16_t mlid_ho,
 int osm_mcast_tbl_realloc(IN osm_mcast_tbl_t * p_tbl, IN uintn_t mlid_offset)
 {
 	size_t mft_depth, size;
-	uint16_t (*p_mask_tbl)[][IB_MCAST_POSITION_MAX];
+	uint16_t (*p_mask_tbl)[][IB_MCAST_POSITION_MAX + 1];
 
 	if (mlid_offset < p_tbl->mft_depth)
 		goto done;
