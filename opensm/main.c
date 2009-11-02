@@ -730,8 +730,8 @@ int main(int argc, char *argv[])
 			break;
 
 		case 't':
-			opt.transaction_timeout = strtol(optarg, NULL, 0);
-			printf(" Transaction timeout = %d\n",
+			opt.transaction_timeout = strtoul(optarg, NULL, 0);
+			printf(" Transaction timeout = %u\n",
 			       opt.transaction_timeout);
 			break;
 
