@@ -449,20 +449,15 @@ static void trap_rcv_process_request(IN osm_sm_t * sm,
 				/* get the port */
 				p_physp = get_physp_by_lid_and_num(sm,
 								   cl_ntoh16
-								   (p_ntci->
-								    data_details.
-								    ntc_129_131.
-								    lid),
+								   (source_lid),
 								   port_num);
 
 				if (!p_physp)
 					OSM_LOG(sm->p_log, OSM_LOG_ERROR,
 						"ERR 3805: "
 						"Failed to find physical port by lid:%u num:%u\n",
-						cl_ntoh16(p_ntci->data_details.
-							  ntc_129_131.lid),
-						p_ntci->data_details.
-						ntc_129_131.port_num);
+						cl_ntoh16(source_lid),
+						port_num);
 				else {
 					/* When babbling port policy option is enabled and
 					   Threshold for disabling a "babbling" port is exceeded */
@@ -474,10 +469,8 @@ static void trap_rcv_process_request(IN osm_sm_t * sm,
 
 					OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 						"Marking unhealthy physical port by lid:%u num:%u\n",
-						cl_ntoh16(p_ntci->data_details.
-							  ntc_129_131.lid),
-						p_ntci->data_details.
-						ntc_129_131.port_num);
+						cl_ntoh16(source_lid),
+						port_num);
 					/* check if the current state of the p_physp is healthy. If
 					   it is - then this is a first change of state. Run a heavy sweep.
 					   if it is not - no need to mark it again - just restart the timer. */
