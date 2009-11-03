@@ -217,7 +217,6 @@ static int disable_port(osm_sm_t *sm, osm_physp_t *p)
 	uint8_t payload[IB_SMP_DATA_SIZE];
 	osm_madw_context_t context;
 	ib_port_info_t *pi = (ib_port_info_t *)payload;
-	int ret;
 
 	/* select the nearest port to master opensm */
 	if (p->p_remote_physp &&
@@ -226,10 +225,6 @@ static int disable_port(osm_sm_t *sm, osm_physp_t *p)
 
 	/* If trap 131, might want to disable peer port if available */
 	/* but peer port has been observed not to respond to SM requests */
-
-	OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3810: "
-		"Disabling physical port 0x%016" PRIx64 " num:%u\n",
-		cl_ntoh64(osm_physp_get_port_guid(p)), p->port_num);
 
 	memcpy(payload, &p->port_info, sizeof(ib_port_info_t));
 
@@ -244,15 +239,10 @@ static int disable_port(osm_sm_t *sm, osm_physp_t *p)
 	context.pi_context.light_sweep = FALSE;
 	context.pi_context.active_transition = FALSE;
 
-	ret = osm_req_set(sm, osm_physp_get_dr_path_ptr(p),
-			  payload, sizeof(payload), IB_MAD_ATTR_PORT_INFO,
-			  cl_hton32(osm_physp_get_port_num(p)),
-			  CL_DISP_MSGID_NONE, &context);
-	if (ret)
-		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3811: "
-			"Request to set PortInfo failed\n");
-
-	return ret;
+	return osm_req_set(sm, osm_physp_get_dr_path_ptr(p),
+			   payload, sizeof(payload), IB_MAD_ATTR_PORT_INFO,
+			   cl_hton32(osm_physp_get_port_num(p)),
+			   CL_DISP_MSGID_NONE, &context);
 }
 
 static void log_trap_info(osm_log_t *p_log, ib_mad_notice_attr_t *p_ntci,
@@ -290,6 +280,43 @@ static void log_trap_info(osm_log_t *p_log, ib_mad_notice_attr_t *p_ntci,
 			cl_ntoh32(ib_notice_get_vend_id(p_ntci)),
 			cl_ntoh16(p_ntci->g_or_v.vend.dev_id),
 			cl_ntoh16(source_lid), cl_ntoh64(trans_id));
+}
+
+static int shutup_noisy_port(osm_sm_t *sm, uint16_t lid, uint8_t port,
+			     unsigned num)
+{
+	osm_physp_t *p = get_physp_by_lid_and_num(sm, lid, port);
+	if (!p) {
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3805: "
+			"Failed to find physical port by lid:%u num:%u\n",
+			lid, port);
+		return -1;
+	}
+
+	/* When babbling port policy option is enabled and
+	   Threshold for disabling a "babbling" port is exceeded */
+	if (sm->p_subn->opt.babbling_port_policy && num >= 250) {
+		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
+			"Disabling noisy physical port 0x%016" PRIx64
+			": lid %u, num %u\n",
+			cl_ntoh64(osm_physp_get_port_guid(p)), lid, port);
+		if (disable_port(sm, p))
+			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3811: "
+				"Failed to disable.\n");
+		else
+			return 1;
+	}
+
+	/* check if the current state of the p_physp is healthy. If
+	   it is - then this is a first change of state. Run a heavy sweep. */
+	if (osm_physp_is_healthy(p)) {
+		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
+			"Marking unhealthy physical port by lid:%u num:%u\n",
+			lid, port);
+		osm_physp_set_health(p, FALSE);
+		return 2;
+	}
+	return 0;
 }
 
 static void trap_rcv_process_request(IN osm_sm_t * sm,
@@ -427,7 +454,7 @@ static void trap_rcv_process_request(IN osm_sm_t * sm,
 		/* Now we know how many times it provided this trap */
 		if (num_received > 10) {
 			if (print_num_received(num_received))
-				OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3804: "
+				OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 					"Received trap %u times consecutively\n",
 					num_received);
 			/*
@@ -435,49 +462,17 @@ static void trap_rcv_process_request(IN osm_sm_t * sm,
 			 * we mark it as unhealthy.
 			 */
 			if (physp_change_trap == TRUE) {
-				/* get the port */
-				p_physp = get_physp_by_lid_and_num(sm,
-								   cl_ntoh16
-								   (source_lid),
-								   port_num);
-
-				if (!p_physp)
-					OSM_LOG(sm->p_log, OSM_LOG_ERROR,
-						"ERR 3805: "
-						"Failed to find physical port by lid:%u num:%u\n",
-						cl_ntoh16(source_lid),
-						port_num);
-				else {
-					/* When babbling port policy option is enabled and
-					   Threshold for disabling a "babbling" port is exceeded */
-					if (sm->p_subn->opt.
-					    babbling_port_policy
-					    && num_received >= 250
-					    && disable_port(sm, p_physp) == 0)
-						goto Exit;
-
-					OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
-						"Marking unhealthy physical port by lid:%u num:%u\n",
-						cl_ntoh16(source_lid),
-						port_num);
-					/* check if the current state of the p_physp is healthy. If
-					   it is - then this is a first change of state. Run a heavy sweep.
-					   if it is not - no need to mark it again - just restart the timer. */
-					if (osm_physp_is_healthy(p_physp)) {
-						osm_physp_set_health(p_physp,
-								     FALSE);
-						/* Make sure we sweep again - force a heavy sweep. */
-						/* The sweep should be done only after the re-registration, or
-						   else we'll be losing track of the timer. */
-						run_heavy_sweep = TRUE;
-					}
-					/* If we are marking the port as unhealthy - we want to
-					   keep this for a longer period of time than the
-					   OSM_DEFAULT_TRAP_SUPRESSION_TIMEOUT. Use the
-					   OSM_DEFAULT_UNHEALTHY_TIMEOUT */
-					event_wheel_timeout =
-					    OSM_DEFAULT_UNHEALTHY_TIMEOUT;
-				}
+				int ret = shutup_noisy_port(sm,
+							    cl_ntoh16(source_lid),
+							    port_num,
+							    num_received);
+				if (ret == 1) /* port disabled */
+					goto Exit;
+				else if (ret == 2) /* unhealthy - run sweep */
+					run_heavy_sweep = TRUE;
+				/* in any case increase timeout interval */
+				event_wheel_timeout =
+				    OSM_DEFAULT_UNHEALTHY_TIMEOUT;
 			}
 		}
 
@@ -497,8 +492,7 @@ static void trap_rcv_process_request(IN osm_sm_t * sm,
 		if (num_received > 10 && run_heavy_sweep == FALSE) {
 			if (print_num_received(num_received))
 				OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
-					"Continuously received this trap %u times. Ignoring\n",
-					num_received);
+					"Ignoring noisy traps.\n");
 			goto Exit;
 		}
 	}
