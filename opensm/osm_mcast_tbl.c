@@ -231,8 +231,9 @@ void osm_mcast_tbl_clear_mlid(IN osm_mcast_tbl_t * p_tbl, IN uint16_t mlid_ho)
 
 	mlid_offset = mlid_ho - IB_LID_MCAST_START_HO;
 	if (p_tbl->p_mask_tbl && mlid_offset < p_tbl->mft_depth)
-		for (i = 0; i <= p_tbl->max_position; i++)
-			(*p_tbl->p_mask_tbl)[mlid_offset][i] = 0;
+		memset((uint8_t *)p_tbl->p_mask_tbl + mlid_offset * (IB_MCAST_POSITION_MAX + 1) * IB_MCAST_MASK_SIZE / 8,
+		       0,
+		       (IB_MCAST_POSITION_MAX + 1) * IB_MCAST_MASK_SIZE / 8);
 }
 
 boolean_t osm_mcast_tbl_get_block(IN osm_mcast_tbl_t * p_tbl,
