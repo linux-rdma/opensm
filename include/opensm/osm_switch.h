@@ -427,37 +427,6 @@ static inline uint8_t osm_switch_get_port_by_lid(IN const osm_switch_t * p_sw,
 *	Switch object
 *********/
 
-/****f* OpenSM: Switch/osm_switch_get_physp_ptr
-* NAME
-*	osm_switch_get_physp_ptr
-*
-* DESCRIPTION
-*	Gets the Physical Port Object at the specified port number.
-*
-* SYNOPSIS
-*/
-osm_physp_t *osm_switch_get_physp_ptr(IN const osm_switch_t * p_sw,
-				      IN uint32_t port_num);
-/*
-* PARAMETERS
-*	p_sw
-*		[in] Pointer to an osm_switch_t object.
-*
-*	port_num
-*		[in] Port number for which to retrieve the Physical Port Object.
-*
-* RETURN VALUES
-*	Returns a pointer to the Physical Port Object object at the specified
-*	port number.
-*	A return value of zero means the port number was out of range.
-*
-*
-* NOTES
-*
-* SEE ALSO
-*	Switch object
-*********/
-
 /****f* OpenSM: Switch/osm_switch_get_route_by_lid
 * NAME
 *	osm_switch_get_route_by_lid
