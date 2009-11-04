@@ -48,11 +48,7 @@
 #endif
 
 #define OSMTEST_MAX_LINE_LEN	120
-#ifdef WIN32
-#define OSMTEST_FILE_PATH_MAX	4096
-#else
 #define OSMTEST_FILE_PATH_MAX	PATH_MAX
-#endif
 
 #define STRESS_SMALL_RMPP_THR 100000
 /*
