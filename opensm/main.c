@@ -434,15 +434,18 @@ static ib_net64_t get_port_guid(IN osm_opensm_t * p_osm, uint64_t port_guid)
 			       i + 1, cl_ntoh64(attr_array[i].port_guid),
 			       attr_array[i].lid,
 			       ib_get_port_state_str(attr_array[i].link_state));
-		printf("\nEnter choice (1-%u): ", i);
+		printf("\n\t0: Exit\n");
+		printf("\nEnter choice (0-%u): ", i);
 		fflush(stdout);
 		if (scanf("%u", &choice) <= 0) {
 			char junk[128];
 			if (scanf("%s", junk) <= 0)
 				printf("\nError: Cannot scan!\n");
-		} else if (choice && choice <= num_ports)
+		} else if (choice == 0)
+			return (0);
+		else if (choice <= num_ports)
 			break;
-		printf("\nError: Lame choice!\n");
+		printf("\nError: Lame choice! Please try again.\n");
 	}
 	choice--;
 	printf("Choice guid=0x%" PRIx64 "\n",
@@ -1037,6 +1040,9 @@ int main(int argc, char *argv[])
 	 */
 	if (opt.guid == 0 || cl_hton64(opt.guid) == CL_HTON64(INVALID_GUID))
 		opt.guid = get_port_guid(&osm, opt.guid);
+
+	if (opt.guid == 0)
+		goto Exit;
 
 	status = osm_opensm_bind(&osm, opt.guid);
 	if (status != IB_SUCCESS) {
