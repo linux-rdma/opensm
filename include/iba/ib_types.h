@@ -5339,7 +5339,7 @@ ib_port_info_set_client_rereg(IN ib_port_info_t * const p_pi,
 *	ib_port_info_set_mcast_pkey_trap_suppress
 *
 * DESCRIPTION
-*	Sets the encoded multicast pkey trap suppresion enabled bit value
+*	Sets the encoded multicast pkey trap suppression enabled bit value
 *	in the PortInfo attribute.
 *
 * SYNOPSIS
@@ -5359,7 +5359,7 @@ ib_port_info_set_mcast_pkey_trap_suppress(IN ib_port_info_t * const p_pi,
 *		[in] Pointer to a PortInfo attribute.
 *
 *	trap_suppress
-*		[in] Multicast pkey trap suppresion enabled value to set
+*		[in] Multicast pkey trap suppression enabled value to set
 *		     (either 1 or 0).
 *
 * RETURN VALUES
@@ -5431,7 +5431,7 @@ ib_port_info_get_client_rereg(IN ib_port_info_t const *p_pi)
 *	ib_port_info_get_mcast_pkey_trap_suppress
 *
 * DESCRIPTION
-*	Gets the encoded multicast pkey trap suppresion enabled bit value
+*	Gets the encoded multicast pkey trap suppression enabled bit value
 *	in the PortInfo attribute.
 *
 * SYNOPSIS
