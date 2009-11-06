@@ -152,8 +152,9 @@ static int link_mgr_set_physp_pi(osm_sm_t * sm, IN osm_physp_t * p_physp,
 			esp0 = TRUE;
 	}
 
-	memset(payload, 0, IB_SMP_DATA_SIZE);
 	memcpy(payload, p_old_pi, sizeof(ib_port_info_t));
+	memset(payload + sizeof(ib_port_info_t), 0,
+	       IB_SMP_DATA_SIZE - sizeof(ib_port_info_t));
 
 	/*
 	   Should never write back a value that is bigger then 3 in

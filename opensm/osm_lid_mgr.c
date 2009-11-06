@@ -865,8 +865,9 @@ static int lid_mgr_set_physp_pi(IN osm_lid_mgr_t * p_mgr,
 	   Third, send the SMP to this physical port.
 	 */
 
-	memset(payload, 0, IB_SMP_DATA_SIZE);
 	memcpy(payload, p_old_pi, sizeof(ib_port_info_t));
+	memset(payload + sizeof(ib_port_info_t), 0,
+	       IB_SMP_DATA_SIZE - sizeof(ib_port_info_t));
 
 	/*
 	   Should never write back a value that is bigger then 3 in
