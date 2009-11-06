@@ -668,7 +668,7 @@ typedef enum _osm_thread_state {
 /***********/
 
 /*
- * OSM_CAP are from Table 117 and C15-0.1.7 Table 186
+ * OSM_CAP are from IBA 1.2.1 Table 117 and Table 188
  */
 
 /****d* OpenSM: Base/OSM_CAP_IS_TRAP_SUP
