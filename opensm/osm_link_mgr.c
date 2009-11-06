@@ -115,7 +115,8 @@ static int link_mgr_set_physp_pi(osm_sm_t * sm, IN osm_physp_t * p_physp,
 		/*
 		   CAs don't have a port 0, and for switch port 0,
 		   we need to check if this is enhanced or base port 0.
-		   For base port 0 the following parameters are not valid (p822, table 145).
+		   For base port 0 the following parameters are not valid
+		   (IBA 1.2.1 p.830 table 146).
 		 */
 		if (!p_node->sw) {
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 4201: "
