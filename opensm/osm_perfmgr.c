@@ -279,7 +279,6 @@ ib_api_status_t osm_perfmgr_bind(osm_perfmgr_t * pm, ib_net64_t port_guid)
 		OSM_LOG(pm->log, OSM_LOG_ERROR,
 			"ERR 4C04: Vendor specific bind failed (%s)\n",
 			ib_get_err_str(status));
-		goto Exit;
 	}
 
 Exit:
