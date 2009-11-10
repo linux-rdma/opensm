@@ -453,7 +453,7 @@ static ib_api_status_t state_mgr_sweep_hop_1(IN osm_sm_t * sm)
 		 * subnet come up.
 		 */
 		num_ports = osm_node_get_num_physp(p_node);
-		for (port_num = 0; port_num < num_ports; port_num++) {
+		for (port_num = 1; port_num < num_ports; port_num++) {
 			/* go through the port only if the port is not DOWN */
 			p_ext_physp = osm_node_get_physp_ptr(p_node, port_num);
 			if (p_ext_physp && ib_port_info_get_port_state
