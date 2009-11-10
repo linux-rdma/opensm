@@ -39,6 +39,7 @@
 #define ST_INCLUDED
 
 #include <stdlib.h>
+#include <inttypes.h>
 
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
@@ -49,7 +50,7 @@
 #endif				/* __cplusplus */
 
 BEGIN_C_DECLS
-#define st_ptr_t unsigned long
+#define st_ptr_t uintptr_t
 typedef st_ptr_t st_data_t;
 
 #define ST_DATA_T_DEFINED
