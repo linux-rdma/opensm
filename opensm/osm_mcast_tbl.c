@@ -223,7 +223,6 @@ ib_api_status_t osm_mcast_tbl_set_block(IN osm_mcast_tbl_t * p_tbl,
 
 void osm_mcast_tbl_clear_mlid(IN osm_mcast_tbl_t * p_tbl, IN uint16_t mlid_ho)
 {
-	uint8_t i;
 	uintn_t mlid_offset;
 
 	CL_ASSERT(p_tbl);
