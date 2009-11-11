@@ -95,9 +95,7 @@ static void mcast_mgr_purge_tree_node(IN osm_mtree_node_t * p_mtn)
 		if (p_mtn->child_array[i] &&
 		    (p_mtn->child_array[i] != OSM_MTREE_LEAF))
 			mcast_mgr_purge_tree_node(p_mtn->child_array[i]);
-
 		p_mtn->child_array[i] = NULL;
-
 	}
 
 	free(p_mtn);
@@ -109,7 +107,6 @@ static void mcast_mgr_purge_tree(osm_sm_t * sm, IN osm_mgrp_t * p_mgrp)
 
 	if (p_mgrp->p_root)
 		mcast_mgr_purge_tree_node(p_mgrp->p_root);
-
 	p_mgrp->p_root = NULL;
 
 	OSM_LOG_EXIT(sm->p_log);
@@ -203,8 +200,7 @@ static osm_switch_t *mcast_mgr_find_optimal_switch(osm_sm_t * sm,
 						   const osm_mgrp_t * p_mgrp)
 {
 	cl_qmap_t *p_sw_tbl;
-	const osm_switch_t *p_sw;
-	const osm_switch_t *p_best_sw = NULL;
+	osm_switch_t *p_sw, *p_best_sw = NULL;
 	float hops = 0;
 	float best_hops = 10000;	/* any big # will do */
 #ifdef OSM_VENDOR_INTF_ANAFA
@@ -250,7 +246,7 @@ static osm_switch_t *mcast_mgr_find_optimal_switch(osm_sm_t * sm,
 			"No multicast capable switches detected\n");
 
 	OSM_LOG_EXIT(sm->p_log);
-	return (osm_switch_t *) p_best_sw;
+	return p_best_sw;
 }
 
 /**********************************************************************
@@ -259,7 +255,7 @@ static osm_switch_t *mcast_mgr_find_optimal_switch(osm_sm_t * sm,
 static osm_switch_t *mcast_mgr_find_root_switch(osm_sm_t * sm,
 						const osm_mgrp_t * p_mgrp)
 {
-	const osm_switch_t *p_sw = NULL;
+	osm_switch_t *p_sw = NULL;
 
 	OSM_LOG_ENTER(sm->p_log);
 
@@ -272,7 +268,7 @@ static osm_switch_t *mcast_mgr_find_root_switch(osm_sm_t * sm,
 	p_sw = mcast_mgr_find_optimal_switch(sm, p_mgrp);
 
 	OSM_LOG_EXIT(sm->p_log);
-	return (osm_switch_t *) p_sw;
+	return p_sw;
 }
 
 static int mcast_mgr_set_mft_block(osm_sm_t * sm, IN osm_switch_t * p_sw,
@@ -312,7 +308,6 @@ static int mcast_mgr_set_mft_block(osm_sm_t * sm, IN osm_switch_t * p_sw,
 
 	if (osm_mcast_tbl_get_block(p_tbl, (uint16_t) block_num,
 				    (uint8_t) position, block)) {
-
 		block_id_ho = block_num + (position << 28);
 
 		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
@@ -324,7 +319,6 @@ static int mcast_mgr_set_mft_block(osm_sm_t * sm, IN osm_switch_t * p_sw,
 				     IB_MAD_ATTR_MCAST_FWD_TBL,
 				     cl_hton32(block_id_ho), CL_DISP_MSGID_NONE,
 				     &context);
-
 		if (status != IB_SUCCESS) {
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A02: "
 				"Sending multicast fwd. tbl. block failed (%s)\n",
@@ -372,7 +366,6 @@ static void mcast_mgr_subdivide(osm_sm_t * sm, osm_mgrp_t * p_mgrp,
 		port_num =
 		    osm_switch_recommend_mcast_path(p_sw, p_wobj->p_port,
 						    mlid_ho, ignore_existing);
-
 		if (port_num == OSM_NO_PATH) {
 			/*
 			   This typically occurs if the switch does not support
@@ -388,7 +381,6 @@ static void mcast_mgr_subdivide(osm_sm_t * sm, osm_mgrp_t * p_mgrp,
 				"for port with LID %u\n", mlid_ho, node_guid_ho,
 				cl_ntoh16(osm_port_get_base_lid
 					  (p_wobj->p_port)));
-
 			mcast_work_obj_delete(p_wobj);
 			continue;
 		}
@@ -403,9 +395,7 @@ static void mcast_mgr_subdivide(osm_sm_t * sm, osm_mgrp_t * p_mgrp,
 				"to port with LID %u\n", mlid_ho, node_guid_ho,
 				cl_ntoh16(osm_port_get_base_lid
 					  (p_wobj->p_port)));
-
 			mcast_work_obj_delete(p_wobj);
-
 			/* This is means OpenSM has a bug. */
 			CL_ASSERT(FALSE);
 			continue;
@@ -649,7 +639,6 @@ static osm_mtree_node_t *mcast_mgr_branch(osm_sm_t * sm, osm_mgrp_t * p_mgrp,
 				" on switch port %u\n",
 				cl_ntoh64(osm_port_get_guid(p_wobj->p_port)),
 				i);
-
 			mcast_work_obj_delete(p_wobj);
 		}
 	}
