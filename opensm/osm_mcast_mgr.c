@@ -1066,6 +1066,7 @@ int osm_mcast_mgr_process(osm_sm_t * sm)
 	if (alloc_mfts(sm)) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR,
 			"ERR 0A07: alloc_mfts failed\n");
+		ret = -1;
 		goto exit;
 	}
 
@@ -1110,6 +1111,7 @@ int osm_mcast_mgr_process_mgroups(osm_sm_t * sm)
 	if (alloc_mfts(sm)) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR,
 			"ERR 0A09: alloc_mfts failed\n");
+		ret = -1;
 		goto exit;
 	}
 
