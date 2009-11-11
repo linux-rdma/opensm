@@ -114,9 +114,10 @@ static void free_mlid(IN osm_sa_t * sa, IN uint16_t mlid)
 /*********************************************************************
  Get a new unused mlid by scanning all the used ones in the subnet.
 **********************************************************************/
-static ib_net16_t get_new_mlid(osm_sa_t * sa, ib_net16_t requested_mlid)
+static ib_net16_t get_new_mlid(osm_sa_t * sa, ib_member_rec_t * mcmr)
 {
 	osm_subn_t *p_subn = sa->p_subn;
+	ib_net16_t requested_mlid = mcmr->mlid;
 	unsigned i, max;
 
 	if (requested_mlid && cl_ntoh16(requested_mlid) >= IB_LID_MCAST_START_HO
@@ -761,11 +762,38 @@ static ib_api_status_t mcmr_rcv_create_new_mgrp(IN osm_sa_t * sa,
 
 	OSM_LOG_ENTER(sa->p_log);
 
-	/*
-	   we allocate a new mlid number before we might use it
-	   for MGID ...
-	 */
-	mlid = get_new_mlid(sa, mcm_rec.mlid);
+	/* we need to create the new MGID if it was not defined */
+	if (!ib_gid_is_notzero(&p_recvd_mcmember_rec->mgid)) {
+		/* create a new MGID */
+		char gid_str[INET6_ADDRSTRLEN];
+
+		if (!build_new_mgid(sa, comp_mask, &mcm_rec)) {
+			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B23: "
+				"cannot allocate unique MGID value\n");
+			status = IB_SA_MAD_STATUS_NO_RESOURCES;
+			goto Exit;
+		}
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Allocated new MGID:%s\n",
+			inet_ntop(AF_INET6, mcm_rec.mgid.raw, gid_str,
+				  sizeof gid_str));
+	} else if (!validate_requested_mgid(sa, &mcm_rec)) {
+		/* a specific MGID was requested so validate the resulting MGID */
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B22: "
+			"Invalid requested MGID\n");
+		status = IB_SA_MAD_STATUS_REQ_INVALID;
+		goto Exit;
+	}
+
+	/* check the requested parameters are realizable */
+	if (mgrp_request_is_realizable(sa, comp_mask, &mcm_rec, p_physp) ==
+	    FALSE) {
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B26: "
+			"Requested MGRP parameters are not realizable\n");
+		status = IB_SA_MAD_STATUS_REQ_INVALID;
+		goto Exit;
+	}
+
+	mlid = get_new_mlid(sa, &mcm_rec);
 	if (mlid == 0) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B19: "
 			"get_new_mlid failed request mlid 0x%04x\n",
@@ -778,40 +806,6 @@ static ib_api_status_t mcmr_rcv_create_new_mgrp(IN osm_sa_t * sa,
 		cl_ntoh16(mlid));
 
 	mcm_rec.mlid = mlid;
-	/* we need to create the new MGID if it was not defined */
-	if (!ib_gid_is_notzero(&p_recvd_mcmember_rec->mgid)) {
-		/* create a new MGID */
-		char gid_str[INET6_ADDRSTRLEN];
-
-		if (!build_new_mgid(sa, comp_mask, &mcm_rec)) {
-			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B23: "
-				"cannot allocate unique MGID value\n");
-			free_mlid(sa, mlid);
-			status = IB_SA_MAD_STATUS_NO_RESOURCES;
-			goto Exit;
-		}
-		OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Allocated new MGID:%s\n",
-			inet_ntop(AF_INET6, mcm_rec.mgid.raw, gid_str,
-				  sizeof gid_str));
-	} else if (!validate_requested_mgid(sa, &mcm_rec)) {
-		/* a specific MGID was requested so validate the resulting MGID */
-		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B22: "
-			"Invalid requested MGID\n");
-		free_mlid(sa, mlid);
-		status = IB_SA_MAD_STATUS_REQ_INVALID;
-		goto Exit;
-	}
-
-	/* check the requested parameters are realizable */
-	if (mgrp_request_is_realizable(sa, comp_mask, &mcm_rec, p_physp) ==
-	    FALSE) {
-		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B26: "
-			"Requested MGRP parameters are not realizable\n");
-		free_mlid(sa, mlid);
-		status = IB_SA_MAD_STATUS_REQ_INVALID;
-		goto Exit;
-	}
-
 	/* create a new MC Group */
 	*pp_mgrp = osm_mgrp_new(sa->p_subn, mlid, &mcm_rec);
 	if (*pp_mgrp == NULL) {
