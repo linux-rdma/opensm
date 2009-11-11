@@ -715,8 +715,10 @@ static boolean_t mgrp_request_is_realizable(IN osm_sa_t * sa,
 static unsigned build_new_mgid(osm_sa_t * sa, ib_net64_t comp_mask,
 			       ib_member_rec_t * mcmr)
 {
+	static uint32_t uniq_count;
 	ib_gid_t *mgid = &mcmr->mgid;
 	uint8_t scope;
+	unsigned i;
 
 	/* use the given scope state only if requested! */
 	if (comp_mask & IB_MCR_COMPMASK_SCOPE)
@@ -733,11 +735,14 @@ static unsigned build_new_mgid(osm_sa_t * sa, ib_net64_t comp_mask,
 	/* HACK: use the SA port gid to make it globally unique */
 	memcpy(&mgid->raw[4], &sa->p_subn->opt.subnet_prefix, sizeof(uint64_t));
 
-	/* HACK: how do we get a unique number - use the mlid twice */
-	memcpy(&mgid->raw[10], &mcmr->mlid, sizeof(uint16_t));
-	memcpy(&mgid->raw[12], &mcmr->mlid, sizeof(uint16_t));
+	for (i = 0; i < 1000; i++) {
+		memcpy(&mgid->raw[10], &uniq_count, 4);
+		uniq_count++;
+		if (!osm_get_mgrp_by_mgid(sa, mgid))
+			return 1;
+	}
 
-	return 1;
+	return 0;
 }
 
 /**********************************************************************
