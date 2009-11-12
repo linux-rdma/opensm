@@ -181,7 +181,7 @@ typedef struct _cl_fmap_item {
 *
 * SYNOPSIS
 */
-typedef intn_t
+typedef int
     (*cl_pfn_fmap_cmp_t) (IN const void *const p_key1,
 			  IN const void *const p_key2);
 /*

@@ -1148,7 +1148,7 @@ cl_fmap_item_t *cl_fmap_get(IN const cl_fmap_t * const p_map,
 			    IN const void *const p_key)
 {
 	cl_fmap_item_t *p_item;
-	intn_t cmp;
+	int cmp;
 
 	CL_ASSERT(p_map);
 	CL_ASSERT(p_map->state == CL_INITIALIZED);
@@ -1175,7 +1175,7 @@ cl_fmap_item_t *cl_fmap_get_next(IN const cl_fmap_t * const p_map,
 {
 	cl_fmap_item_t *p_item;
 	cl_fmap_item_t *p_item_found;
-	intn_t cmp;
+	int cmp;
 
 	CL_ASSERT(p_map);
 	CL_ASSERT(p_map->state == CL_INITIALIZED);
@@ -1273,7 +1273,7 @@ cl_fmap_item_t *cl_fmap_insert(IN cl_fmap_t * const p_map,
 			       IN cl_fmap_item_t * const p_item)
 {
 	cl_fmap_item_t *p_insert_at, *p_comp_item;
-	intn_t cmp = 0;
+	int cmp = 0;
 
 	CL_ASSERT(p_map);
 	CL_ASSERT(p_map->state == CL_INITIALIZED);
@@ -1575,7 +1575,7 @@ void cl_fmap_delta(IN OUT cl_fmap_t * const p_map1,
 		   OUT cl_fmap_t * const p_new, OUT cl_fmap_t * const p_old)
 {
 	cl_fmap_item_t *p_item1, *p_item2;
-	intn_t cmp;
+	int cmp;
 
 	CL_ASSERT(p_map1);
 	CL_ASSERT(p_map2);

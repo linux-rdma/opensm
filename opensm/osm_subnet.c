@@ -397,7 +397,7 @@ static const opt_rec_t opt_tbl[] = {
 	{0}
 };
 
-static long compar_mgids(const void *m1, const void *m2)
+static int compar_mgids(const void *m1, const void *m2)
 {
 	return memcmp(m1, m2, sizeof(ib_gid_t));
 }
