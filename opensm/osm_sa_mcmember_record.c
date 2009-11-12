@@ -114,6 +114,35 @@ static void free_mlid(IN osm_sa_t * sa, IN uint16_t mlid)
 /*********************************************************************
  Get a new unused mlid by scanning all the used ones in the subnet.
 **********************************************************************/
+/* Special Case IPv6 Solicited Node Multicast (SNM) addresses */
+/* 0xff1Z601bXXXX0000 : 0x00000001ffYYYYYY */
+/* Where Z is the scope, XXXX is the P_Key, and
+ * YYYYYY is the last 24 bits of the port guid */
+#define PREFIX_MASK CL_HTON64(0xff10ffff0000ffffULL)
+#define PREFIX_SIGNATURE CL_HTON64(0xff10601b00000000ULL)
+#define INT_ID_MASK CL_HTON64(0xfffffff1ff000000ULL)
+#define INT_ID_SIGNATURE CL_HTON64(0x00000001ff000000ULL)
+
+static int compare_ipv6_snm_mgids(const void *m1, const void *m2)
+{
+	return memcmp(m1, m2, sizeof(ib_gid_t) - 6);
+}
+
+static ib_net16_t find_ipv6_snm_mlid(osm_subn_t *subn, ib_gid_t *mgid)
+{
+	osm_mgrp_t *m = (osm_mgrp_t *)cl_fmap_match(&subn->mgrp_mgid_tbl, mgid,
+						    compare_ipv6_snm_mgids);
+	if (m != (osm_mgrp_t *)cl_fmap_end(&subn->mgrp_mgid_tbl))
+		return m->mlid;
+	return 0;
+}
+
+static unsigned match_ipv6_snm_mgid(ib_gid_t * mgid)
+{
+	return ((mgid->unicast.prefix & PREFIX_MASK) == PREFIX_SIGNATURE &&
+		(mgid->unicast.interface_id & INT_ID_MASK) == INT_ID_SIGNATURE);
+}
+
 static ib_net16_t get_new_mlid(osm_sa_t * sa, ib_member_rec_t * mcmr)
 {
 	osm_subn_t *p_subn = sa->p_subn;
@@ -124,6 +153,16 @@ static ib_net16_t get_new_mlid(osm_sa_t * sa, ib_member_rec_t * mcmr)
 	    && cl_ntoh16(requested_mlid) <= p_subn->max_mcast_lid_ho
 	    && !osm_get_mbox_by_mlid(p_subn, requested_mlid))
 		return requested_mlid;
+
+	if (sa->p_subn->opt.consolidate_ipv6_snm_req
+	    && match_ipv6_snm_mgid(&mcmr->mgid)
+	    && (requested_mlid = find_ipv6_snm_mlid(sa->p_subn, &mcmr->mgid))) {
+		char str[INET6_ADDRSTRLEN];
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
+			"Special Case Solicited Node Mcast Join for MGID %s\n",
+			inet_ntop(AF_INET6, mcmr->mgid.raw, str, sizeof(str)));
+		return requested_mlid;
+	}
 
 	max = p_subn->max_mcast_lid_ho - IB_LID_MCAST_START_HO + 1;
 	for (i = 0; i < max; i++)
@@ -829,38 +868,9 @@ Exit:
 	return status;
 }
 
-#define PREFIX_MASK CL_HTON64(0xff10ffff0000ffffULL)
-#define PREFIX_SIGNATURE CL_HTON64(0xff10601b00000000ULL)
-#define INT_ID_MASK CL_HTON64(0xfffffff1ff000000ULL)
-#define INT_ID_SIGNATURE CL_HTON64(0x00000001ff000000ULL)
-
-/* Special Case IPv6 Solicited Node Multicast (SNM) addresses */
-/* 0xff1Z601bXXXX0000 : 0x00000001ffYYYYYY */
-/* Where Z is the scope, XXXX is the P_Key, and
- * YYYYYY is the last 24 bits of the port guid */
-static unsigned match_and_update_ipv6_snm_mgid(ib_gid_t * mgid)
-{
-	if ((mgid->unicast.prefix & PREFIX_MASK) == PREFIX_SIGNATURE &&
-	    (mgid->unicast.interface_id & INT_ID_MASK) == INT_ID_SIGNATURE) {
-		mgid->unicast.prefix &= PREFIX_MASK;
-		mgid->unicast.interface_id &= INT_ID_MASK;
-		return 1;
-	}
-	return 0;
-}
-
 osm_mgrp_t *osm_get_mgrp_by_mgid(IN osm_sa_t * sa, IN ib_gid_t * p_mgid)
 {
 	osm_mgrp_t *mg;
-
-	if (sa->p_subn->opt.consolidate_ipv6_snm_req &&
-	    match_and_update_ipv6_snm_mgid(p_mgid)) {
-		char gid_str[INET6_ADDRSTRLEN];
-		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-			"Special Case Solicited Node Mcast Join for MGID %s\n",
-			inet_ntop(AF_INET6, p_mgid->raw, gid_str,
-				  sizeof gid_str));
-	}
 
 	mg = (osm_mgrp_t *)cl_fmap_get(&sa->p_subn->mgrp_mgid_tbl, p_mgid);
 	if (mg != (osm_mgrp_t *)cl_fmap_end(&sa->p_subn->mgrp_mgid_tbl))
