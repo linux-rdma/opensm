@@ -489,7 +489,7 @@ Exit:
 static ib_api_status_t
 __osm_vendor_get_ca_guids(IN osm_vendor_t * const p_vend,
 			  IN ib_net64_t ** const p_guids,
-			  IN uintn_t * const p_num_guids)
+			  IN unsigned * const p_num_guids)
 {
 	ib_api_status_t status;
 
@@ -581,7 +581,7 @@ osm_vendor_get_all_port_attr(IN osm_vendor_t * const p_vend,
 	ib_api_status_t status;
 
 	uint32_t ca;
-	uintn_t ca_count;
+	unsigned ca_count;
 	uint32_t port_count = 0;
 	uint8_t port_num;
 	uint32_t total_ports = 0;

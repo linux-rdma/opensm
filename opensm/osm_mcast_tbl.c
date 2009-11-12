@@ -88,9 +88,7 @@ void osm_mcast_tbl_destroy(IN osm_mcast_tbl_t * p_tbl)
 void osm_mcast_tbl_set(IN osm_mcast_tbl_t * p_tbl, IN uint16_t mlid_ho,
 		       IN uint8_t port)
 {
-	uintn_t mlid_offset;
-	uintn_t mask_offset;
-	uintn_t bit_mask;
+	unsigned mlid_offset, mask_offset, bit_mask;
 	int16_t block_num;
 
 	CL_ASSERT(p_tbl && p_tbl->p_mask_tbl);
@@ -108,7 +106,7 @@ void osm_mcast_tbl_set(IN osm_mcast_tbl_t * p_tbl, IN uint16_t mlid_ho,
 		p_tbl->max_block_in_use = (uint16_t) block_num;
 }
 
-int osm_mcast_tbl_realloc(IN osm_mcast_tbl_t * p_tbl, IN uintn_t mlid_offset)
+int osm_mcast_tbl_realloc(IN osm_mcast_tbl_t * p_tbl, IN unsigned mlid_offset)
 {
 	size_t mft_depth, size;
 	uint16_t (*p_mask_tbl)[][IB_MCAST_POSITION_MAX + 1];
@@ -144,9 +142,7 @@ done:
 boolean_t osm_mcast_tbl_is_port(IN const osm_mcast_tbl_t * p_tbl,
 				IN uint16_t mlid_ho, IN uint8_t port_num)
 {
-	uintn_t mlid_offset;
-	uintn_t mask_offset;
-	uintn_t bit_mask;
+	unsigned mlid_offset, mask_offset, bit_mask;
 
 	CL_ASSERT(p_tbl);
 
@@ -171,7 +167,7 @@ boolean_t osm_mcast_tbl_is_port(IN const osm_mcast_tbl_t * p_tbl,
 boolean_t osm_mcast_tbl_is_any_port(IN const osm_mcast_tbl_t * p_tbl,
 				    IN uint16_t mlid_ho)
 {
-	uintn_t mlid_offset;
+	unsigned mlid_offset;
 	uint8_t position;
 	uint16_t result = 0;
 
@@ -223,7 +219,7 @@ ib_api_status_t osm_mcast_tbl_set_block(IN osm_mcast_tbl_t * p_tbl,
 
 void osm_mcast_tbl_clear_mlid(IN osm_mcast_tbl_t * p_tbl, IN uint16_t mlid_ho)
 {
-	uintn_t mlid_offset;
+	unsigned mlid_offset;
 
 	CL_ASSERT(p_tbl);
 	CL_ASSERT(mlid_ho >= IB_LID_MCAST_START_HO);

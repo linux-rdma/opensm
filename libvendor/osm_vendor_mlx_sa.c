@@ -141,9 +141,9 @@ __osmv_sa_mad_rcv_cb(IN osm_madw_t * p_madw,
 					"__osmv_sa_mad_rcv_cb: Count = 0\n");
 			}
 			else {
-				query_res.result_cnt = (uintn_t)
-					((p_madw->mad_size - IB_SA_MAD_HDR_SIZE) /
-					 ib_get_attr_size(p_sa_mad->attr_offset));
+				query_res.result_cnt =
+					(p_madw->mad_size - IB_SA_MAD_HDR_SIZE) /
+					ib_get_attr_size(p_sa_mad->attr_offset);
 				osm_log(p_bind->p_log, OSM_LOG_DEBUG,
 					"__osmv_sa_mad_rcv_cb: "
 					"Count = %u = %zu / %u (%zu)\n",

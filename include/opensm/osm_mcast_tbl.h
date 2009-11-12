@@ -174,7 +174,7 @@ void osm_mcast_tbl_delete(IN osm_mcast_tbl_t ** pp_tbl);
 *
 * SYNOPSIS
 */
-int osm_mcast_tbl_realloc(IN osm_mcast_tbl_t * p_tbl, IN uintn_t mlid_offset);
+int osm_mcast_tbl_realloc(IN osm_mcast_tbl_t * p_tbl, IN unsigned mlid_offset);
 /*
 * PARAMETERS
 *

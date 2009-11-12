@@ -872,8 +872,7 @@ static uint32_t mpr_rcv_get_port_pair_paths(IN osm_sa_t * sa,
 	uint16_t dest_lid_ho;
 	uint32_t path_num = 0;
 	uint8_t preference;
-	uintn_t src_offset;
-	uintn_t dest_offset;
+	unsigned src_offset, dest_offset;
 
 	OSM_LOG_ENTER(sa->p_log);
 
@@ -1058,7 +1057,7 @@ static osm_mpr_item_t *mpr_rcv_get_apm_port_pair_paths(IN osm_sa_t * sa,
 	uint16_t dest_lid_max_ho;
 	uint16_t src_lid_ho;
 	uint16_t dest_lid_ho;
-	uintn_t iterations;
+	unsigned iterations;
 	int src_lids, dest_lids;
 
 	OSM_LOG_ENTER(sa->p_log);

@@ -898,9 +898,7 @@ static void pr_rcv_get_port_pair_paths(IN osm_sa_t * sa,
 	uint16_t dest_lid_ho;
 	uint32_t path_num;
 	uint8_t preference;
-	uintn_t iterations;
-	uintn_t src_offset;
-	uintn_t dest_offset;
+	unsigned iterations, src_offset, dest_offset;
 
 	OSM_LOG_ENTER(sa->p_log);
 
@@ -1015,7 +1013,7 @@ static void pr_rcv_get_port_pair_paths(IN osm_sa_t * sa,
 	else if (comp_mask & IB_PR_COMPMASK_NUMBPATH)
 		iterations = ib_path_rec_num_path(p_pr);
 	else
-		iterations = (uintn_t) (-1);
+		iterations = (unsigned) (-1);
 
 	while (path_num < iterations) {
 		/*
