@@ -619,6 +619,42 @@ cl_fmap_item_t *cl_fmap_insert(IN cl_fmap_t * const p_map,
 *	Flexi Map, cl_fmap_remove, cl_fmap_item_t
 *********/
 
+/****f* Component Library: Flexi Map/cl_fmap_match
+* NAME
+*	cl_fmap_get
+*
+* DESCRIPTION
+*	The cl_fmap_match function returns the map item matching a key.
+*
+* SYNOPSIS
+*/
+cl_fmap_item_t *cl_fmap_match(IN const cl_fmap_t * const p_map,
+			      IN const void *const p_key,
+			      IN cl_pfn_fmap_cmp_t pfn_compare);
+/*
+* PARAMETERS
+*	p_map
+*		[in] Pointer to a cl_fmap_t structure from which to retrieve the
+*		item with the specified key.
+*
+*	p_key
+*		[in] Pointer to a key value used to search for the desired map item.
+*
+*	pfn_compare
+*		[in] Pointer to a compare function to invoke to compare the
+*		keys of items in the map. Passing NULL here makes such call
+*		to be equivalent to using cl_fmap_get().
+*
+* RETURN VALUES
+*	Pointer to the map item matching the desired key value.
+*
+*	Pointer to the map end if there was no item matching the desired key
+*	value stored in the flexi map.
+*
+* SEE ALSO
+*	Flexi Map, cl_fmap_remove, cl_fmap_get
+*********/
+
 /****f* Component Library: Flexi Map/cl_fmap_get
 * NAME
 *	cl_fmap_get

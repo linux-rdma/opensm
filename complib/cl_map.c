@@ -1144,8 +1144,9 @@ void cl_fmap_init(IN cl_fmap_t * const p_map, IN cl_pfn_fmap_cmp_t pfn_compare)
 	cl_fmap_remove_all(p_map);
 }
 
-cl_fmap_item_t *cl_fmap_get(IN const cl_fmap_t * const p_map,
-			    IN const void *const p_key)
+cl_fmap_item_t *cl_fmap_match(IN const cl_fmap_t * const p_map,
+			      IN const void *const p_key,
+			      IN cl_pfn_fmap_cmp_t pfn_compare)
 {
 	cl_fmap_item_t *p_item;
 	int cmp;
@@ -1156,7 +1157,8 @@ cl_fmap_item_t *cl_fmap_get(IN const cl_fmap_t * const p_map,
 	p_item = __cl_fmap_root(p_map);
 
 	while (p_item != &p_map->nil) {
-		cmp = p_map->pfn_compare(p_key, p_item->p_key);
+		cmp = pfn_compare ? pfn_compare(p_key, p_item->p_key) :
+			p_map->pfn_compare(p_key, p_item->p_key);
 
 		if (!cmp)
 			break;	/* just right */
@@ -1168,6 +1170,12 @@ cl_fmap_item_t *cl_fmap_get(IN const cl_fmap_t * const p_map,
 	}
 
 	return (p_item);
+}
+
+cl_fmap_item_t *cl_fmap_get(IN const cl_fmap_t * const p_map,
+			    IN const void *const p_key)
+{
+	return cl_fmap_match(p_map, p_key, p_map->pfn_compare);
 }
 
 cl_fmap_item_t *cl_fmap_get_next(IN const cl_fmap_t * const p_map,

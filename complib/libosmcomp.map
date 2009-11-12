@@ -66,6 +66,7 @@ OSMCOMP_2.3 {
 		cl_map_merge;
 		cl_map_delta;
 		cl_fmap_init;
+		cl_fmap_match;
 		cl_fmap_get;
 		cl_fmap_get_next;
 		cl_fmap_apply_func;
