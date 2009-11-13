@@ -63,7 +63,7 @@ perfmgr_db_t *perfmgr_db_construct(osm_perfmgr_t *perfmgr)
 	cl_plock_construct(&db->lock);
 	cl_plock_init(&db->lock);
 	db->perfmgr = perfmgr;
-	return ((void *)db);
+	return db;
 }
 
 /** =========================================================================
