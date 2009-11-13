@@ -778,7 +778,7 @@ static unsigned build_new_mgid(osm_sa_t * sa, ib_net64_t comp_mask,
 	for (i = 0; i < 1000; i++) {
 		memcpy(&mgid->raw[10], &uniq_count, 4);
 		uniq_count++;
-		if (!osm_get_mgrp_by_mgid(sa, mgid))
+		if (!osm_get_mgrp_by_mgid(sa->p_subn, mgid))
 			return 1;
 	}
 
@@ -868,17 +868,6 @@ Exit:
 	return status;
 }
 
-osm_mgrp_t *osm_get_mgrp_by_mgid(IN osm_sa_t * sa, IN ib_gid_t * p_mgid)
-{
-	osm_mgrp_t *mg;
-
-	mg = (osm_mgrp_t *)cl_fmap_get(&sa->p_subn->mgrp_mgid_tbl, p_mgid);
-	if (mg != (osm_mgrp_t *)cl_fmap_end(&sa->p_subn->mgrp_mgid_tbl))
-		return mg;
-
-	return NULL;
-}
-
 /**********************************************************************
  Call this function to find or create a new mgrp.
 **********************************************************************/
@@ -890,7 +879,8 @@ ib_api_status_t osm_mcmr_rcv_find_or_create_new_mgrp(IN osm_sa_t * sa,
 {
 	osm_mgrp_t *mgrp;
 
-	if ((mgrp = osm_get_mgrp_by_mgid(sa, &p_recvd_mcmember_rec->mgid))) {
+	if ((mgrp = osm_get_mgrp_by_mgid(sa->p_subn,
+					 &p_recvd_mcmember_rec->mgid))) {
 		*pp_mgrp = mgrp;
 		return IB_SUCCESS;
 	}
@@ -924,7 +914,7 @@ static void mcmr_rcv_leave_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 	}
 
 	CL_PLOCK_EXCL_ACQUIRE(sa->p_lock);
-	p_mgrp = osm_get_mgrp_by_mgid(sa, &p_recvd_mcmember_rec->mgid);
+	p_mgrp = osm_get_mgrp_by_mgid(sa->p_subn, &p_recvd_mcmember_rec->mgid);
 	if (!p_mgrp) {
 		char gid_str[INET6_ADDRSTRLEN];
 		CL_PLOCK_RELEASE(sa->p_lock);
@@ -1037,7 +1027,7 @@ static void mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 				  &join_state);
 
 	/* do we need to create a new group? */
-	p_mgrp = osm_get_mgrp_by_mgid(sa, &p_recvd_mcmember_rec->mgid);
+	p_mgrp = osm_get_mgrp_by_mgid(sa->p_subn, &p_recvd_mcmember_rec->mgid);
 	if (!p_mgrp) {
 		/* check for JoinState.FullMember = 1 o15.0.1.9 */
 		if ((join_state & 0x01) != 0x01) {

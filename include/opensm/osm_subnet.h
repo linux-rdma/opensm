@@ -967,6 +967,30 @@ struct osm_port *osm_get_port_by_lid(const osm_subn_t * subn, ib_net16_t lid);
 *       Subnet object, osm_port_t
 *********/
 
+/****f* OpenSM: Subnet/osm_get_mgrp_by_mgid
+* NAME
+*	osm_get_mgrp_by_mgid
+*
+* DESCRIPTION
+*	The looks for the given multicast group in the subnet table by mgid.
+*	NOTE: this code is not thread safe. Need to grab the lock before
+*	calling it.
+*
+* SYNOPSIS
+*/
+struct osm_mgrp *osm_get_mgrp_by_mgid(IN osm_subn_t * subn, IN ib_gid_t * mgid);
+/*
+* PARAMETERS
+*	subn
+*		[in] Pointer to an osm_subn_t object
+*
+*	mgid
+*		[in] The multicast group MGID value
+*
+* RETURN VALUES
+*	The multicast group structure pointer if found. NULL otherwise.
+*********/
+
 /****f* OpenSM: Subnet/osm_get_mbox_by_mlid
 * NAME
 *	osm_get_mbox_by_mlid

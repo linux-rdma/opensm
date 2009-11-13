@@ -719,7 +719,7 @@ static osm_mgrp_t *load_mcgroup(osm_opensm_t * p_osm, ib_net16_t mlid,
 
 	cl_plock_excl_acquire(&p_osm->lock);
 
-	p_mgrp = osm_get_mgrp_by_mgid(&p_osm->sa, &p_mcm_rec->mgid);
+	p_mgrp = osm_get_mgrp_by_mgid(&p_osm->subn, &p_mcm_rec->mgid);
 	if (p_mgrp) {
 		if (p_mgrp->mlid == mlid) {
 			OSM_LOG(&p_osm->log, OSM_LOG_DEBUG,

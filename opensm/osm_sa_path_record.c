@@ -1417,7 +1417,7 @@ static osm_mgrp_t *pr_get_mgrp(IN osm_sa_t * sa, IN const osm_madw_t * p_madw)
 		return NULL;
 	}
 
-	mgrp = osm_get_mgrp_by_mgid(sa, &p_pr->dgid);
+	mgrp = osm_get_mgrp_by_mgid(sa->p_subn, &p_pr->dgid);
 	if (!mgrp) {
 		char gid_str[INET6_ADDRSTRLEN];
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F09: "

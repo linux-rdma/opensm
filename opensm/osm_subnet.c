@@ -632,6 +632,16 @@ osm_port_t *osm_get_port_by_lid(IN osm_subn_t const * subn, IN ib_net16_t lid)
 	return NULL;
 }
 
+osm_mgrp_t *osm_get_mgrp_by_mgid(IN osm_subn_t * subn, IN ib_gid_t * mgid)
+{
+	osm_mgrp_t *mgrp;
+
+	mgrp= (osm_mgrp_t *)cl_fmap_get(&subn->mgrp_mgid_tbl, mgid);
+	if (mgrp != (osm_mgrp_t *)cl_fmap_end(&subn->mgrp_mgid_tbl))
+		return mgrp;
+	return NULL;
+}
+
 static void subn_set_default_qos_options(IN osm_qos_options_t * opt)
 {
 	opt->max_vls = OSM_DEFAULT_QOS_MAX_VLS;

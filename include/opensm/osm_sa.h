@@ -484,7 +484,5 @@ osm_mcmr_rcv_find_or_create_new_mgrp(IN osm_sa_t * sa, IN ib_net64_t comp_mask,
 *
 *********/
 
-osm_mgrp_t *osm_get_mgrp_by_mgid(IN osm_sa_t * sa, IN ib_gid_t * p_mgid);
-
 END_C_DECLS
 #endif				/* _OSM_SA_H_ */
