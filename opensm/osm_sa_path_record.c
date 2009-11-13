@@ -643,7 +643,7 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 	}
 
 	/*
-	 * Set PathRecord SL.
+	 * Set PathRecord SL
 	 */
 
 	is_lash = (p_osm->routing_engine_used == OSM_ROUTING_ENGINE_TYPE_LASH);
@@ -967,17 +967,15 @@ static void pr_rcv_get_port_pair_paths(IN osm_sa_t * sa,
 	/*
 	   Refine our search if the client specified end-point LIDs
 	 */
-	if (comp_mask & IB_PR_COMPMASK_DLID) {
-		dest_lid_min_ho = cl_ntoh16(p_pr->dlid);
-		dest_lid_max_ho = cl_ntoh16(p_pr->dlid);
-	} else
+	if (comp_mask & IB_PR_COMPMASK_DLID)
+		dest_lid_max_ho = dest_lid_min_ho = cl_ntoh16(p_pr->dlid);
+	else
 		osm_port_get_lid_range_ho(p_dest_port, &dest_lid_min_ho,
 					  &dest_lid_max_ho);
 
-	if (comp_mask & IB_PR_COMPMASK_SLID) {
-		src_lid_min_ho = cl_ntoh16(p_pr->slid);
-		src_lid_max_ho = cl_ntoh16(p_pr->slid);
-	} else
+	if (comp_mask & IB_PR_COMPMASK_SLID)
+		src_lid_max_ho = src_lid_min_ho = cl_ntoh16(p_pr->slid);
+	else
 		osm_port_get_lid_range_ho(p_src_port, &src_lid_min_ho,
 					  &src_lid_max_ho);
 
@@ -1452,7 +1450,7 @@ static ib_api_status_t pr_match_mgrp_attributes(IN osm_sa_t * sa,
 
 	comp_mask = p_sa_mad->comp_mask;
 
-	/* check that MLID of the MC group matchs the PathRecord DLID */
+	/* check that MLID of the MC group matches the PathRecord DLID */
 	if ((comp_mask & IB_PR_COMPMASK_DLID) && p_mgrp->mlid != p_pr->dlid)
 		goto Exit;
 

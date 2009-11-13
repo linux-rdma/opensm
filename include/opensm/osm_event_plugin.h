@@ -142,8 +142,8 @@ typedef struct osm_event_plugin {
 	const char *osm_version;
 	void *(*create) (struct osm_opensm *osm);
 	void (*delete) (void *plugin_data);
-	void (*report) (void *plugin_data,
-			osm_epi_event_id_t event_id, void *event_data);
+	void (*report) (void *plugin_data, osm_epi_event_id_t event_id,
+			void *event_data);
 } osm_event_plugin_t;
 
 /** =========================================================================

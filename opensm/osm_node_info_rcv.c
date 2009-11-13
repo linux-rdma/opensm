@@ -183,14 +183,14 @@ static void ni_rcv_set_links(IN osm_sm_t * sm, osm_node_t * p_node,
 		   (2 nodes have the same guid) or a 12x link with lane reversal
 		   that is not configured correctly.
 		   We will try to recover by querying NodeInfo again.
-		   In order to catch even fast port moving to new location(s) and
-		   back we will count up to 5.
-		   Some crazy reconnections (newly created switch loop right before
-		   targeted CA) will not be catched this way. So in worst case -
-		   report GUID duplication and request new discovery.
-		   When switch node is targeted NodeInfo querying will be done in
-		   opposite order, this is much stronger check, unfortunately it is
-		   impossible with CAs.
+		   In order to catch even fast port moving to new location(s)
+		   and back we will count up to 5.
+		   Some crazy reconnections (newly created switch loop right
+		   before targeted CA) will not be catched this way. So in worst
+		   case - report GUID duplication and request new discovery.
+		   When switch node is targeted NodeInfo querying will be done
+		   in opposite order, this is much stronger check, unfortunately
+		   it is impossible with CAs.
 		 */
 		p_physp = osm_node_get_physp_ptr(p_node, port_num);
 		if (p_ni_context->dup_count > 5) {
@@ -430,7 +430,7 @@ static void ni_rcv_process_existing_ca_or_router(IN osm_sm_t * sm,
 		}
 
 		/* If we are a master, then this means the port is new on the subnet.
-		   Mark it as new - need to send trap 64 on these ports.
+		   Mark it as new - need to send trap 64 for these ports.
 		   The condition that we are master is true, since if we are in discovering
 		   state (meaning we woke up from standby or we are just initializing),
 		   then these ports may be new to us, but are not new on the subnet.

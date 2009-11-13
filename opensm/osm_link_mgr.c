@@ -58,10 +58,8 @@
 static uint8_t link_mgr_get_smsl(IN osm_sm_t * sm, IN osm_physp_t * p_physp)
 {
 	osm_opensm_t *p_osm = sm->p_subn->p_osm;
-	const osm_port_t *p_sm_port;
-	const osm_port_t *p_src_port;
-	ib_net16_t slid;
-	ib_net16_t smlid;
+	const osm_port_t *p_sm_port, *p_src_port;
+	ib_net16_t slid, smlid;
 	uint8_t sl;
 
 	OSM_LOG_ENTER(sm->p_log);

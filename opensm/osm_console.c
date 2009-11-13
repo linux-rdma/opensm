@@ -1241,12 +1241,12 @@ static void dump_portguid_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 			} else
 				fprintf(out, "No file name passed\n");
 		} else if (!(p_regexp = malloc(sizeof(*p_regexp)))) {
-			fprintf(out, "No memory.\n");
+			fprintf(out, "No memory\n");
 			break;
 		} else if (regcomp(&p_regexp->exp, p_cmd,
 				   REG_NOSUB | REG_EXTENDED) != 0) {
 			fprintf(out, "Cannot parse regular expression \'%s\'."
-				" Skipping.\n", p_cmd);
+				" Skipping\n", p_cmd);
 			free(p_regexp);
 			continue;
 		} else {
@@ -1262,7 +1262,7 @@ static void dump_portguid_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 	}
 
 	if (p_osm->sm.p_subn->need_update != 0) {
-		fprintf(out, "Subnet is not ready yet. Try again later.\n");
+		fprintf(out, "Subnet is not ready yet. Try again later\n");
 		return;
 	}
 

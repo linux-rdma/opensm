@@ -252,7 +252,8 @@ static void smi_rcv_process_set_request(IN osm_sm_t * sm,
 	status = osm_sm_state_mgr_check_legality(sm, sm_signal);
 	if (status != IB_SUCCESS) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 2F07: "
-			"Failed check of legality of needed SM transition. AttributeModifier:0x%X RemoteState:%s\n",
+			"Failed check of legality of needed SM transition. "
+			"AttributeModifier:0x%X RemoteState:%s\n",
 			p_smp->attr_mod,
 			osm_get_sm_mgr_state_str(ib_sminfo_get_state(sm_smi)));
 		status = osm_resp_send(sm, p_madw, 7, payload);

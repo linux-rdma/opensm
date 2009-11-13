@@ -58,7 +58,7 @@
 #define ARR_SIZE(a) (sizeof(a)/sizeof((a)[0]))
 
 /* we use two tables - one for queries and one for responses */
-static const char *__ib_sa_method_str[] = {
+static const char *ib_sa_method_str[] = {
 	"RESERVED",		/* 0 */
 	"SubnAdmGet",		/* 1 */
 	"SubnAdmSet",		/* 2 */
@@ -84,7 +84,7 @@ static const char *__ib_sa_method_str[] = {
 	"UNKNOWN"		/* 16 */
 };
 
-static const char *__ib_sa_resp_method_str[] = {
+static const char *ib_sa_resp_method_str[] = {
 	"RESERVED",		/* 80 */
 	"SubnAdmGetResp",	/* 81 */
 	"RESERVED (SetResp?)",	/* 82 */
@@ -112,7 +112,7 @@ static const char *__ib_sa_resp_method_str[] = {
 
 #define OSM_SA_METHOD_STR_UNKNOWN_VAL 0x16
 
-static const char *__ib_sm_method_str[] = {
+static const char *ib_sm_method_str[] = {
 	"RESERVED0",		/* 0 */
 	"SubnGet",		/* 1 */
 	"SubnSet",		/* 2 */
@@ -150,7 +150,7 @@ static const char *__ib_sm_method_str[] = {
 
 #define OSM_SM_METHOD_STR_UNKNOWN_VAL 0x21
 
-static const char *__ib_sm_attr_str[] = {
+static const char *ib_sm_attr_str[] = {
 	"RESERVED",		/* 0 */
 	"ClassPortInfo",	/* 1 */
 	"Notice",		/* 2 */
@@ -189,7 +189,7 @@ static const char *__ib_sm_attr_str[] = {
 
 #define OSM_SM_ATTR_STR_UNKNOWN_VAL 0x21
 
-static const char *__ib_sa_attr_str[] = {
+static const char *ib_sa_attr_str[] = {
 	"RESERVED",		/* 0 */
 	"ClassPortInfo",	/* 1 */
 	"Notice",		/* 2 */
@@ -460,11 +460,11 @@ const char *ib_get_sa_method_str(IN uint8_t method)
 		if (method > OSM_SA_METHOD_STR_UNKNOWN_VAL)
 			method = OSM_SA_METHOD_STR_UNKNOWN_VAL;
 		/* it is a response - use the response table */
-		return __ib_sa_resp_method_str[method];
+		return ib_sa_resp_method_str[method];
 	} else {
 		if (method > OSM_SA_METHOD_STR_UNKNOWN_VAL)
 			method = OSM_SA_METHOD_STR_UNKNOWN_VAL;
-		return __ib_sa_method_str[method];
+		return ib_sa_method_str[method];
 	}
 }
 
@@ -474,7 +474,7 @@ const char *ib_get_sm_method_str(IN uint8_t method)
 		method = (method & 0x0F) | 0x10;
 	if (method > OSM_SM_METHOD_STR_UNKNOWN_VAL)
 		method = OSM_SM_METHOD_STR_UNKNOWN_VAL;
-	return __ib_sm_method_str[method];
+	return ib_sm_method_str[method];
 }
 
 const char *ib_get_sm_attr_str(IN ib_net16_t attr)
@@ -484,7 +484,7 @@ const char *ib_get_sm_attr_str(IN ib_net16_t attr)
 	if (host_attr > OSM_SM_ATTR_STR_UNKNOWN_VAL)
 		host_attr = OSM_SM_ATTR_STR_UNKNOWN_VAL;
 
-	return __ib_sm_attr_str[host_attr];
+	return ib_sm_attr_str[host_attr];
 }
 
 const char *ib_get_sa_attr_str(IN ib_net16_t attr)
@@ -494,7 +494,7 @@ const char *ib_get_sa_attr_str(IN ib_net16_t attr)
 	if (host_attr > OSM_SA_ATTR_STR_UNKNOWN_VAL)
 		host_attr = OSM_SA_ATTR_STR_UNKNOWN_VAL;
 
-	return __ib_sa_attr_str[host_attr];
+	return ib_sa_attr_str[host_attr];
 }
 
 const char *ib_get_trap_str(ib_net16_t trap_num)
@@ -1992,7 +1992,6 @@ const char *osm_get_sm_signal_str(IN osm_signal_t signal)
 	return sm_signal_str[signal];
 }
 
-
 static const char *disp_msg_str[] = {
 	"OSM_MSG_NONE",
 	"OSM_MSG_MAD_NODE_INFO",
@@ -2209,7 +2208,6 @@ const char *osm_get_lsa_str(IN uint8_t lsa)
 	else
 		return lsa_str_fixed_width[lsa];
 }
-
 
 static const char *sm_mgr_signal_str[] = {
 	"OSM_SM_SIGNAL_NONE",	/* 0 */

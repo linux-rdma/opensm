@@ -132,9 +132,8 @@ static void node_destroy(IN osm_node_t * p_node)
 		osm_physp_destroy(&p_node->physp_table[i]);
 
 	/* cleanup printable node_desc field */
-	if (p_node->print_desc) {
+	if (p_node->print_desc)
 		free(p_node->print_desc);
-	}
 }
 
 void osm_node_delete(IN OUT osm_node_t ** p_node)

@@ -174,8 +174,8 @@ static void state_mgr_get_remote_port_info(IN osm_sm_t * sm,
 	mad_context.pi_context.light_sweep = TRUE;
 	mad_context.pi_context.active_transition = FALSE;
 
-	/* note that with some negative logic - if the query failed it means that
-	 * there is no point in going to heavy sweep */
+	/* note that with some negative logic - if the query failed it means
+	 * that there is no point in going to heavy sweep */
 	status = osm_req_get(sm, &rem_node_dr_path,
 			     IB_MAD_ATTR_PORT_INFO, 0, CL_DISP_MSGID_NONE,
 			     &mad_context);
@@ -445,12 +445,12 @@ static ib_api_status_t state_mgr_sweep_hop_1(IN osm_sm_t * sm)
 		break;
 
 	case IB_NODE_TYPE_SWITCH:
-		/* Need to go over all the ports of the switch, and send a node_info
-		 * from them. This doesn't include the port 0 of the switch, which
-		 * hosts the SM.
-		 * Note: We'll send another switchInfo on port 0, since if no ports
-		 * are connected, we still want to get some response, and have the
-		 * subnet come up.
+		/* Need to go over all the ports of the switch, and send a
+		 * node_info from them. This doesn't include the port 0 of the
+		 * switch, which hosts the SM.
+		 * Note: We'll send another switchInfo on port 0, since if no
+		 * ports are connected, we still want to get some response, and
+		 * have the subnet come up.
 		 */
 		num_ports = osm_node_get_num_physp(p_node);
 		for (port_num = 1; port_num < num_ports; port_num++) {
@@ -834,7 +834,7 @@ static void state_mgr_report_new_ports(IN osm_sm_t * sm)
 		/* details of the notice */
 		notice.generic_type = 0x83;	/* is generic subn mgt type */
 		ib_notice_set_prod_type_ho(&notice, 4);	/* A Class Manager generator */
-		/* endport becomes to be reachable */
+		/* endport becomes reachable */
 		notice.g_or_v.generic.trap_num = CL_HTON16(64);
 		/* The sm_base_lid is saved in network order already. */
 		notice.issuer_lid = sm->p_subn->sm_base_lid;
@@ -1125,7 +1125,7 @@ static void do_sweep(osm_sm_t * sm)
 	}
 
 	/* go to heavy sweep */
-_repeat_discovery:
+repeat_discovery:
 
 	/* First of all - unset all flags */
 	sm->p_subn->force_heavy_sweep = FALSE;
@@ -1162,7 +1162,7 @@ _repeat_discovery:
 	    wait_for_pending_transactions(&sm->p_subn->p_osm->stats))
 		return;
 
-	/* discovery completed - check other sm presense */
+	/* discovery completed - check other sm presence */
 	if (sm->master_sm_found) {
 		/*
 		 * Call the sm_state_mgr with signal
@@ -1179,7 +1179,7 @@ _repeat_discovery:
 
 	/* if new sweep requested - don't bother with the rest */
 	if (sm->p_subn->force_heavy_sweep)
-		goto _repeat_discovery;
+		goto repeat_discovery;
 
 	OSM_LOG_MSG_BOX(sm->p_log, OSM_LOG_VERBOSE, "HEAVY SWEEP COMPLETE");
 

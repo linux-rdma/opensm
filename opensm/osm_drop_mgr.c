@@ -88,11 +88,13 @@ static void drop_mgr_clean_physp(osm_sm_t * sm, IN osm_physp_t * p_physp)
 						     p_remote_physp->port_guid);
 
 		if (p_remote_port) {
-			/* Let's check if this is a case of link that is lost (both ports
-			   weren't recognized), or a "hiccup" in the subnet - in which case
-			   the remote port was recognized, and its state is ACTIVE.
-			   If this is just a "hiccup" - force a heavy sweep in the next sweep.
-			   We don't want to lose that part of the subnet. */
+			/* Let's check if this is a case of link that is lost
+			   (both ports weren't recognized), or a "hiccup" in the
+			   subnet - in which case the remote port was
+			   recognized, and its state is ACTIVE.
+			   If this is just a "hiccup" - force a heavy sweep in
+			   the next sweep. We don't want to lose that part of
+			   the subnet. */
 			if (p_remote_port->discovery_count &&
 			    osm_physp_get_port_state(p_remote_physp) ==
 			    IB_LINK_ACTIVE) {
@@ -105,9 +107,10 @@ static void drop_mgr_clean_physp(osm_sm_t * sm, IN osm_physp_t * p_physp)
 				sm->p_subn->force_heavy_sweep = TRUE;
 			}
 
-			/* If the remote node is ca or router - need to remove the remote port,
-			   since it is no longer reachable. This can be done if we reset the
-			   discovery count of the remote port. */
+			/* If the remote node is ca or router - need to remove
+			   the remote port, since it is no longer reachable.
+			   This can be done if we reset the discovery count
+			   of the remote port. */
 			if (!p_remote_physp->p_node->sw) {
 				p_remote_port->discovery_count = 0;
 				OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
@@ -130,8 +133,8 @@ static void drop_mgr_clean_physp(osm_sm_t * sm, IN osm_physp_t * p_physp)
 			p_remote_physp->port_num);
 
 		if (sm->ucast_mgr.cache_valid)
-			osm_ucast_cache_add_link(&sm->ucast_mgr,
-						 p_physp, p_remote_physp);
+			osm_ucast_cache_add_link(&sm->ucast_mgr, p_physp,
+						 p_remote_physp);
 
 		osm_physp_unlink(p_physp, p_remote_physp);
 
@@ -406,12 +409,9 @@ Exit:
 
 void osm_drop_mgr_process(osm_sm_t * sm)
 {
-	cl_qmap_t *p_node_guid_tbl;
-	cl_qmap_t *p_port_guid_tbl;
-	osm_port_t *p_port;
-	osm_port_t *p_next_port;
-	osm_node_t *p_node;
-	osm_node_t *p_next_node;
+	cl_qmap_t *p_node_guid_tbl, *p_port_guid_tbl;
+	osm_port_t *p_port, *p_next_port;
+	osm_node_t *p_node, *p_next_node;
 
 	CL_ASSERT(sm);
 

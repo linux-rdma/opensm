@@ -102,11 +102,11 @@ static void sa_mad_ctrl_process(IN osm_sa_mad_ctrl_t * p_ctrl,
 
 	/*
 	   If the dispatcher is showing us that it is overloaded
-	   there is no point in placing the request in. We should instead provide
-	   immediate response - IB_RESOURCE_BUSY
+	   there is no point in placing the request in. We should instead
+	   provide immediate response - IB_RESOURCE_BUSY
 	   But how do we know?
-	   The dispatcher reports back the number of outstanding messages and the
-	   time the last message stayed in the queue.
+	   The dispatcher reports back the number of outstanding messages and
+	   the time the last message stayed in the queue.
 	   HACK: Actually, we cannot send a mad from within the receive callback;
 	   thus - we will just drop it.
 	 */

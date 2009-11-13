@@ -145,7 +145,8 @@ ib_api_status_t osm_prtn_add_all(osm_log_t * p_log, osm_subn_t * p_subn,
 		p_item = cl_qmap_next(p_item);
 		if (!type || osm_node_get_type(p_port->p_node) == type) {
 			status = osm_prtn_add_port(p_log, p_subn, p,
-						   osm_port_get_guid(p_port), full);
+						   osm_port_get_guid(p_port),
+						   full);
 			if (status != IB_SUCCESS)
 				goto _err;
 		}

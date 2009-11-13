@@ -113,8 +113,8 @@ pkey_mgr_process_physical_port(IN osm_log_t * p_log,
 						   &p_pending->index) !=
 		    IB_SUCCESS) {
 			OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0503: "
-				"Failed to obtain P_Key 0x%04x block and index for node "
-				"0x%016" PRIx64 " port %u\n",
+				"Failed to obtain P_Key 0x%04x block and index "
+				"for node 0x%016" PRIx64 " port %u\n",
 				cl_ntoh16(ib_pkey_get_base(pkey)),
 				cl_ntoh64(osm_node_get_node_guid(p_node)),
 				osm_physp_get_port_num(p_physp));

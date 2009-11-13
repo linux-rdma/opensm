@@ -69,7 +69,7 @@ static void pi_rcv_check_and_fix_lid(osm_log_t * log, ib_port_info_t * pi,
 	if (cl_ntoh16(pi->base_lid) > IB_LID_UCAST_END_HO) {
 		OSM_LOG(log, OSM_LOG_ERROR, "ERR 0F04: "
 			"Got invalid base LID %u from the network. "
-			"Corrected to %u.\n", cl_ntoh16(pi->base_lid),
+			"Corrected to %u\n", cl_ntoh16(pi->base_lid),
 			cl_ntoh16(p->port_info.base_lid));
 		pi->base_lid = p->port_info.base_lid;
 	}
@@ -352,8 +352,8 @@ static void get_pkey_table(IN osm_log_t * p_log, IN osm_sm_t * sm,
 	port_num = p_physp->port_num;
 
 	if (!p_node->sw || port_num == 0)
-		/* The maximum blocks is defined by the node info partition cap for CA,
-		   router, and switch management ports. */
+		/* The maximum blocks is defined by the node info partition cap
+		   for CA, router, and switch management ports. */
 		max_blocks =
 		    (cl_ntoh16(p_node->node_info.partition_cap) +
 		     IB_NUM_PKEY_ELEMENTS_IN_BLOCK - 1)

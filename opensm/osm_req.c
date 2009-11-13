@@ -203,8 +203,7 @@ int osm_send_trap144(osm_sm_t * sm, ib_net16_t local)
 	osm_madw_t *madw;
 	ib_smp_t *smp;
 	ib_mad_notice_attr_t *ntc;
-	osm_port_t *port;
-	osm_port_t *smport;
+	osm_port_t *port, *smport;
 	ib_port_info_t *pi;
 
 	port = osm_get_port_by_guid(sm->p_subn, sm->p_subn->sm_port_guid);

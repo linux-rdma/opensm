@@ -56,8 +56,7 @@ typedef cl_qmap_t nn_map_t;
  */
 nn_map_t *open_node_name_map(char *node_name_map);
 void  close_node_name_map(nn_map_t *map);
-char *remap_node_name(nn_map_t *map, uint64_t target_guid,
-			char *nodedesc);
+char *remap_node_name(nn_map_t *map, uint64_t target_guid, char *nodedesc);
 	/* NOTE: parameter "nodedesc" may be modified here. */
 int parse_node_map(const char *file_name,
 		   int (*create)(void *, uint64_t, char *), void *cxt);

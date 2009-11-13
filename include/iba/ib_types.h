@@ -2415,7 +2415,7 @@ typedef struct _ib_path_rec {
 *		Another global routing parameter.
 *
 *	num_path
-*     Reversible path - 1 bit to say if path is reversible.
+*		Reversible path - 1 bit to say if path is reversible.
 *		num_path [6:0] In queries, maximum number of paths to return.
 *		In responses, undefined.
 *
@@ -2766,7 +2766,7 @@ ib_path_rec_init_local(IN ib_path_rec_t * const p_rec,
 *		[in] LID of source port.
 *
 *	num_path
-*     [in] Reversible path - 1 bit to say if path is reversible.
+*		[in] Reversible path - 1 bit to say if path is reversible.
 *		num_path [6:0] In queries, maximum number of paths to return.
 *		In responses, undefined.
 *
@@ -4316,7 +4316,7 @@ ib_sa_mad_get_payload_ptr(IN const ib_sa_mad_t * const p_sa_mad)
 *	ib_node_info_get_local_port_num
 *
 * DESCRIPTION
-*	Gets a the local port number from the NodeInfo attribute.
+*	Gets the local port number from the NodeInfo attribute.
 *
 * SYNOPSIS
 */

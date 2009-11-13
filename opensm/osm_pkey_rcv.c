@@ -88,8 +88,7 @@ void osm_pkey_rcv_process(IN void *context, IN void *data)
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 4806: "
 			"No port object for port with GUID 0x%" PRIx64
 			"\n\t\t\t\tfor parent node GUID 0x%" PRIx64
-			", TID 0x%" PRIx64 "\n",
-			cl_ntoh64(port_guid),
+			", TID 0x%" PRIx64 "\n", cl_ntoh64(port_guid),
 			cl_ntoh64(node_guid), cl_ntoh64(p_smp->trans_id));
 		goto Exit;
 	}

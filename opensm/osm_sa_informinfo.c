@@ -121,8 +121,8 @@ static boolean_t validate_ports_access_rights(IN osm_sa_t * sa,
 		/* get the destination InformInfo physical port */
 		p_physp = p_port->p_physp;
 
-		/* make sure that the requester and destination port can access each other
-		   according to the current partitioning. */
+		/* make sure that the requester and destination port can access
+		   each other according to the current partitioning. */
 		if (!osm_physp_share_pkey
 		    (sa->p_log, p_physp, p_requester_physp)) {
 			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
@@ -143,8 +143,8 @@ static boolean_t validate_ports_access_rights(IN osm_sa_t * sa,
 		    cl_ntoh16(p_infr_rec->inform_record.inform_info.
 			      lid_range_end);
 
-		/* lid_range_end is set to zero if no range desired. In this case -
-		   just make it equal to the lid_range_begin. */
+		/* lid_range_end is set to zero if no range desired. In this
+		   case - just make it equal to the lid_range_begin. */
 		if (lid_range_end == 0)
 			lid_range_end = lid_range_begin;
 
@@ -277,8 +277,8 @@ static void sa_inform_info_rec_by_comp_mask(IN osm_sa_t * sa,
 
 	/* get the subscriber InformInfo physical port */
 	p_subscriber_physp = p_subscriber_port->p_physp;
-	/* make sure that the requester and subscriber port can access each other
-	   according to the current partitioning. */
+	/* make sure that the requester and subscriber port can access each
+	   other according to the current partitioning. */
 	if (!osm_physp_share_pkey(sa->p_log, p_req_physp, p_subscriber_physp)) {
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"requester and subscriber ports don't share pkey\n");
@@ -558,8 +558,7 @@ void osm_infr_rcv_process(IN void *context, IN void *data)
 	CL_ASSERT(p_sa_mad->attr_id == IB_MAD_ATTR_INFORM_INFO);
 
 	if (p_sa_mad->method != IB_MAD_METHOD_SET) {
-		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-			"Unsupported Method (%s)\n",
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Unsupported Method (%s)\n",
 			ib_get_sa_method_str(p_sa_mad->method));
 		osm_sa_send_error(sa, p_madw, IB_MAD_STATUS_UNSUP_METHOD_ATTR);
 		goto Exit;
