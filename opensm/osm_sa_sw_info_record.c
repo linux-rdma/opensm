@@ -97,7 +97,7 @@ static ib_api_status_t sir_rcv_new_sir(IN osm_sa_t * sa,
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);
-	return (status);
+	return status;
 }
 
 static void sir_rcv_create_sir(IN osm_sa_t * sa, IN const osm_switch_t * p_sw,

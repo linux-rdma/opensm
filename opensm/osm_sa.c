@@ -277,7 +277,7 @@ ib_api_status_t osm_sa_init(IN osm_sm_t * p_sm, IN osm_sa_t * p_sa,
 	status = IB_SUCCESS;
 Exit:
 	OSM_LOG_EXIT(p_log);
-	return (status);
+	return status;
 }
 
 ib_api_status_t osm_sa_bind(IN osm_sa_t * p_sa, IN ib_net64_t port_guid)

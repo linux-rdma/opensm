@@ -70,7 +70,7 @@ static uint8_t link_mgr_get_smsl(IN osm_sm_t * sm, IN osm_physp_t * p_physp)
 	    || !(slid = osm_physp_get_base_lid(p_physp))) {
 		/* Use default SL if lash routing is not used */
 		OSM_LOG_EXIT(sm->p_log);
-		return (sm->p_subn->opt.sm_sl);
+		return sm->p_subn->opt.sm_sl;
 	}
 
 	/* Find osm_port of the SM itself = dest_port */
@@ -86,7 +86,7 @@ static uint8_t link_mgr_get_smsl(IN osm_sm_t * sm, IN osm_physp_t * p_physp)
 	sl = osm_get_lash_sl(p_osm, p_src_port, p_sm_port);
 
 	OSM_LOG_EXIT(sm->p_log);
-	return (sl);
+	return sl;
 }
 
 static int link_mgr_set_physp_pi(osm_sm_t * sm, IN osm_physp_t * p_physp,

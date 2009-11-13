@@ -57,7 +57,7 @@ perfmgr_db_t *perfmgr_db_construct(osm_perfmgr_t *perfmgr)
 {
 	perfmgr_db_t *db = malloc(sizeof(*db));
 	if (!db)
-		return (NULL);
+		return NULL;
 
 	cl_qmap_init(&db->pc_data);
 	cl_plock_construct(&db->lock);
@@ -93,17 +93,17 @@ static inline db_node_t *get(perfmgr_db_t * db, uint64_t guid)
 	const cl_map_item_t *end = cl_qmap_end(&db->pc_data);
 
 	if (rc == end)
-		return (NULL);
-	return ((db_node_t *) rc);
+		return NULL;
+	return (db_node_t *) rc;
 }
 
 static inline perfmgr_db_err_t bad_node_port(db_node_t * node, uint8_t port)
 {
 	if (!node)
-		return (PERFMGR_EVENT_DB_GUIDNOTFOUND);
+		return PERFMGR_EVENT_DB_GUIDNOTFOUND;
 	if (port >= node->num_ports || (!node->esp0 && port == 0))
-		return (PERFMGR_EVENT_DB_PORTNOTFOUND);
-	return (PERFMGR_EVENT_DB_SUCCESS);
+		return PERFMGR_EVENT_DB_PORTNOTFOUND;
+	return PERFMGR_EVENT_DB_SUCCESS;
 }
 
 /** =========================================================================
@@ -115,7 +115,7 @@ static db_node_t *malloc_node(uint64_t guid, boolean_t esp0,
 	time_t cur_time = 0;
 	db_node_t *rc = malloc(sizeof(*rc));
 	if (!rc)
-		return (NULL);
+		return NULL;
 
 	rc->ports = calloc(num_ports, sizeof(db_port_t));
 	if (!rc->ports)
@@ -132,11 +132,11 @@ static db_node_t *malloc_node(uint64_t guid, boolean_t esp0,
 	}
 	snprintf(rc->node_name, sizeof(rc->node_name), "%s", name);
 
-	return (rc);
+	return rc;
 
 free_rc:
 	free(rc);
-	return (NULL);
+	return NULL;
 }
 
 /** =========================================================================
@@ -157,8 +157,8 @@ static perfmgr_db_err_t insert(perfmgr_db_t * db, db_node_t * node)
 					   (cl_map_item_t *) node);
 
 	if ((void *)rc != (void *)node)
-		return (PERFMGR_EVENT_DB_FAIL);
-	return (PERFMGR_EVENT_DB_SUCCESS);
+		return PERFMGR_EVENT_DB_FAIL;
+	return PERFMGR_EVENT_DB_SUCCESS;
 }
 
 perfmgr_db_err_t
@@ -183,7 +183,7 @@ perfmgr_db_create_entry(perfmgr_db_t * db, uint64_t guid, boolean_t esp0,
 	}
 Exit:
 	cl_plock_release(&db->lock);
-	return (rc);
+	return rc;
 }
 
 /**********************************************************************
@@ -324,7 +324,7 @@ perfmgr_db_add_err_reading(perfmgr_db_t * db, uint64_t guid, uint8_t port,
 
 Exit:
 	cl_plock_release(&db->lock);
-	return (rc);
+	return rc;
 }
 
 perfmgr_db_err_t perfmgr_db_get_prev_err(perfmgr_db_t * db, uint64_t guid,
@@ -344,7 +344,7 @@ perfmgr_db_err_t perfmgr_db_get_prev_err(perfmgr_db_t * db, uint64_t guid,
 
 Exit:
 	cl_plock_release(&db->lock);
-	return (rc);
+	return rc;
 }
 
 perfmgr_db_err_t
@@ -366,7 +366,7 @@ perfmgr_db_clear_prev_err(perfmgr_db_t * db, uint64_t guid, uint8_t port)
 
 Exit:
 	cl_plock_release(&db->lock);
-	return (rc);
+	return rc;
 }
 
 static inline void
@@ -449,7 +449,7 @@ perfmgr_db_add_dc_reading(perfmgr_db_t * db, uint64_t guid, uint8_t port,
 
 Exit:
 	cl_plock_release(&db->lock);
-	return (rc);
+	return rc;
 }
 
 perfmgr_db_err_t perfmgr_db_get_prev_dc(perfmgr_db_t * db, uint64_t guid,
@@ -469,7 +469,7 @@ perfmgr_db_err_t perfmgr_db_get_prev_dc(perfmgr_db_t * db, uint64_t guid,
 
 Exit:
 	cl_plock_release(&db->lock);
-	return (rc);
+	return rc;
 }
 
 perfmgr_db_err_t
@@ -491,7 +491,7 @@ perfmgr_db_clear_prev_dc(perfmgr_db_t * db, uint64_t guid, uint8_t port)
 
 Exit:
 	cl_plock_release(&db->lock);
-	return (rc);
+	return rc;
 }
 
 static void clear_counters(cl_map_item_t * const p_map_item, void *context)
@@ -749,14 +749,14 @@ perfmgr_db_dump(perfmgr_db_t * db, char *file, perfmgr_db_dump_t dump_type)
 
 	context.fp = fopen(file, "w+");
 	if (!context.fp)
-		return (PERFMGR_EVENT_DB_FAIL);
+		return PERFMGR_EVENT_DB_FAIL;
 	context.dump_type = dump_type;
 
 	cl_plock_acquire(&db->lock);
 	cl_qmap_apply_func(&db->pc_data, db_dump, (void *)&context);
 	cl_plock_release(&db->lock);
 	fclose(context.fp);
-	return (PERFMGR_EVENT_DB_SUCCESS);
+	return PERFMGR_EVENT_DB_SUCCESS;
 }
 
 /**********************************************************************

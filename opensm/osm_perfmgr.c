@@ -283,7 +283,7 @@ ib_api_status_t osm_perfmgr_bind(osm_perfmgr_t * pm, ib_net64_t port_guid)
 
 Exit:
 	OSM_LOG_EXIT(pm->log);
-	return (status);
+	return status;
 }
 
 /**********************************************************************
@@ -407,7 +407,7 @@ static ib_api_status_t perfmgr_send_pc_mad(osm_perfmgr_t * perfmgr,
 	}
 
 	OSM_LOG_EXIT(perfmgr->log);
-	return (status);
+	return status;
 }
 
 /**********************************************************************

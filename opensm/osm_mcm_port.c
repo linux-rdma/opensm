@@ -64,7 +64,7 @@ osm_mcm_port_t *osm_mcm_port_new(IN osm_port_t *port, IN osm_mgrp_t *mgrp,
 		p_mcm->proxy_join = proxy;
 	}
 
-	return (p_mcm);
+	return p_mcm;
 }
 
 void osm_mcm_port_delete(IN osm_mcm_port_t * p_mcm)

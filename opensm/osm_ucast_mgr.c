@@ -93,7 +93,7 @@ ib_api_status_t osm_ucast_mgr_init(IN osm_ucast_mgr_t * p_mgr, IN osm_sm_t * sm)
 		cl_qmap_init(&p_mgr->cache_sw_tbl);
 
 	OSM_LOG_EXIT(p_mgr->p_log);
-	return (status);
+	return status;
 }
 
 /**********************************************************************

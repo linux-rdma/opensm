@@ -582,7 +582,7 @@ static ib_api_status_t validate_requested_mgid(IN osm_sa_t * sa,
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);
-	return (valid);
+	return valid;
 }
 
 /**********************************************************************
@@ -1185,7 +1185,7 @@ static ib_api_status_t mcmr_rcv_new_mcmr(IN osm_sa_t * sa,
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);
-	return (status);
+	return status;
 }
 
 /**********************************************************************

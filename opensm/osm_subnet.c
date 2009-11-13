@@ -508,12 +508,12 @@ ib_api_status_t osm_subn_init(IN osm_subn_t * p_subn, IN osm_opensm_t * p_osm,
 				    OSM_SUBNET_VECTOR_MIN_SIZE,
 				    OSM_SUBNET_VECTOR_GROW_SIZE);
 	if (status != CL_SUCCESS)
-		return (status);
+		return status;
 
 	status = cl_ptr_vector_set_capacity(&p_subn->port_lid_tbl,
 					    OSM_SUBNET_VECTOR_CAPACITY);
 	if (status != CL_SUCCESS)
-		return (status);
+		return status;
 
 	/*
 	   LID zero is not valid.  NULL out this entry for the
@@ -571,7 +571,7 @@ ib_api_status_t osm_get_gid_by_mad_addr(IN osm_log_t * p_log,
 	if (p_gid == NULL) {
 		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 7505: "
 			"Provided output GID is NULL\n");
-		return (IB_INVALID_PARAMETER);
+		return IB_INVALID_PARAMETER;
 	}
 
 	p_port = osm_get_port_by_mad_addr(p_log, p_subn, p_mad_addr);

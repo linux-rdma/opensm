@@ -107,7 +107,7 @@ static ib_api_status_t gir_rcv_new_gir(IN osm_sa_t * sa,
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);
-	return (status);
+	return status;
 }
 
 static void sa_gir_create_gir(IN osm_sa_t * sa, IN osm_node_t * p_node,

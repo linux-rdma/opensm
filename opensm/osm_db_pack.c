@@ -140,12 +140,12 @@ int osm_db_guid2lid_set(IN osm_db_domain_t * p_g2l, IN uint64_t guid,
 	pack_guid(guid, guid_str);
 	pack_lids(min_lid, max_lid, lid_str);
 
-	return (osm_db_update(p_g2l, guid_str, lid_str));
+	return osm_db_update(p_g2l, guid_str, lid_str);
 }
 
 int osm_db_guid2lid_delete(IN osm_db_domain_t * p_g2l, IN uint64_t guid)
 {
 	char guid_str[20];
 	pack_guid(guid, guid_str);
-	return (osm_db_delete(p_g2l, guid_str));
+	return osm_db_delete(p_g2l, guid_str);
 }

@@ -103,7 +103,7 @@ static ib_api_status_t nr_rcv_new_nr(osm_sa_t * sa,
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);
-	return (status);
+	return status;
 }
 
 static void nr_rcv_create_nr(IN osm_sa_t * sa, IN osm_node_t * p_node,

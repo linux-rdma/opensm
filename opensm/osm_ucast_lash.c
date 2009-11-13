@@ -1259,7 +1259,7 @@ static lash_t *lash_create(osm_opensm_t * p_osm)
 
 	p_lash->p_osm = p_osm;
 
-	return (p_lash);
+	return p_lash;
 }
 
 static void lash_delete(void *context)

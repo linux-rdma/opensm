@@ -264,7 +264,7 @@ ib_api_status_t osm_vl15_init(IN osm_vl15_t * p_vl, IN osm_vendor_t * p_vend,
 				"opensm poller");
 Exit:
 	OSM_LOG_EXIT(p_log);
-	return (status);
+	return status;
 }
 
 void osm_vl15_poll(IN osm_vl15_t * p_vl)

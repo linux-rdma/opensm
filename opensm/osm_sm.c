@@ -386,7 +386,7 @@ ib_api_status_t osm_sm_init(IN osm_sm_t * p_sm, IN osm_subn_t * p_subn,
 
 Exit:
 	OSM_LOG_EXIT(p_log);
-	return (status);
+	return status;
 }
 
 void osm_sm_signal(osm_sm_t * p_sm, osm_signal_t signal)
@@ -421,7 +421,7 @@ ib_api_status_t osm_sm_bind(IN osm_sm_t * p_sm, IN ib_net64_t port_guid)
 
 Exit:
 	OSM_LOG_EXIT(p_sm->p_log);
-	return (status);
+	return status;
 }
 
 void osm_sm_reroute_mlid(osm_sm_t * sm, ib_net16_t mlid)

@@ -334,7 +334,7 @@ static boolean_t drop_mgr_process_node(osm_sm_t * sm, IN osm_node_t * p_node)
 	osm_node_delete(&p_node);
 
 	OSM_LOG_EXIT(sm->p_log);
-	return (return_val);
+	return return_val;
 }
 
 static void drop_mgr_check_node(osm_sm_t * sm, IN osm_node_t * p_node)

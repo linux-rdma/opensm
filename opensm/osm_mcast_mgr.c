@@ -76,7 +76,7 @@ static osm_mcast_work_obj_t *mcast_work_obj_new(IN const osm_port_t * p_port)
 		p_obj->p_port = (osm_port_t *) p_port;
 	}
 
-	return (p_obj);
+	return p_obj;
 }
 
 static void mcast_work_obj_delete(IN osm_mcast_work_obj_t * p_wobj)

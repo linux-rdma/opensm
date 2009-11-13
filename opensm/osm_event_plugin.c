@@ -70,14 +70,14 @@ osm_epi_plugin_t *osm_epi_construct(osm_opensm_t *osm, char *plugin_name)
 	osm_epi_plugin_t *rc = NULL;
 
 	if (!plugin_name || !*plugin_name)
-		return (NULL);
+		return NULL;
 
 	/* find the plugin */
 	snprintf(lib_name, sizeof(lib_name), "lib%s.so", plugin_name);
 
 	rc = malloc(sizeof(*rc));
 	if (!rc)
-		return (NULL);
+		return NULL;
 
 	rc->handle = dlopen(lib_name, RTLD_LAZY);
 	if (!rc->handle) {
@@ -129,13 +129,13 @@ osm_epi_plugin_t *osm_epi_construct(osm_opensm_t *osm, char *plugin_name)
 		goto Exit;
 
 	rc->plugin_name = strdup(plugin_name);
-	return (rc);
+	return rc;
 
 Exit:
 	dlclose(rc->handle);
 DLOPENFAIL:
 	free(rc);
-	return (NULL);
+	return NULL;
 }
 
 void osm_epi_destroy(osm_epi_plugin_t * plugin)

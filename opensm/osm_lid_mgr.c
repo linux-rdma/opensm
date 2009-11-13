@@ -272,7 +272,7 @@ ib_api_status_t osm_lid_mgr_init(IN osm_lid_mgr_t * p_mgr, IN osm_sm_t * sm)
 
 Exit:
 	OSM_LOG_EXIT(p_mgr->p_log);
-	return (status);
+	return status;
 }
 
 static uint16_t trim_lid(IN uint16_t lid)

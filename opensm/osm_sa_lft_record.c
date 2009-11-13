@@ -103,7 +103,7 @@ static ib_api_status_t lftr_rcv_new_lftr(IN osm_sa_t * sa,
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);
-	return (status);
+	return status;
 }
 
 static void lftr_rcv_by_comp_mask(IN cl_map_item_t * p_map_item, IN void *cxt)

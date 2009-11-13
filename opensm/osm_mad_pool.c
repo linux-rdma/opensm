@@ -137,7 +137,7 @@ osm_madw_t *osm_mad_pool_get_wrapper(IN osm_mad_pool_t * p_pool,
 	osm_madw_set_mad(p_madw, p_mad);
 
 Exit:
-	return (p_madw);
+	return p_madw;
 }
 
 osm_madw_t *osm_mad_pool_get_wrapper_raw(IN osm_mad_pool_t * p_pool)
@@ -152,7 +152,7 @@ osm_madw_t *osm_mad_pool_get_wrapper_raw(IN osm_mad_pool_t * p_pool)
 	osm_madw_set_mad(p_madw, 0);
 	cl_atomic_inc(&p_pool->mads_out);
 
-	return (p_madw);
+	return p_madw;
 }
 
 void osm_mad_pool_put(IN osm_mad_pool_t * p_pool, IN osm_madw_t * p_madw)

@@ -309,26 +309,26 @@ static const char *sm_state_str(int state)
 {
 	switch (state) {
 	case IB_SMINFO_STATE_DISCOVERING:
-		return ("Discovering");
+		return "Discovering";
 	case IB_SMINFO_STATE_STANDBY:
-		return ("Standby    ");
+		return "Standby    ";
 	case IB_SMINFO_STATE_NOTACTIVE:
-		return ("Not Active ");
+		return "Not Active ";
 	case IB_SMINFO_STATE_MASTER:
-		return ("Master     ");
+		return "Master     ";
 	}
-	return ("UNKNOWN    ");
+	return "UNKNOWN    ";
 }
 
 static const char *sa_state_str(osm_sa_state_t state)
 {
 	switch (state) {
 	case OSM_SA_STATE_INIT:
-		return ("Init");
+		return "Init";
 	case OSM_SA_STATE_READY:
-		return ("Ready");
+		return "Ready";
 	}
-	return ("UNKNOWN");
+	return "UNKNOWN";
 }
 
 static void dump_sms(osm_opensm_t * p_osm, FILE * out)
@@ -438,9 +438,9 @@ static int loop_command_check_time(void)
 	time_t cur = time(NULL);
 	if ((loop_command.previous + loop_command.delay_s) < cur) {
 		loop_command.previous = cur;
-		return (1);
+		return 1;
 	}
-	return (0);
+	return 0;
 }
 
 static void status_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)

@@ -106,7 +106,7 @@ static ib_api_status_t pir_rcv_new_pir(IN osm_sa_t * sa,
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);
-	return (status);
+	return status;
 }
 
 static void sa_pir_create(IN osm_sa_t * sa, IN const osm_physp_t * p_physp,

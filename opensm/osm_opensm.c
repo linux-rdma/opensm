@@ -336,7 +336,7 @@ ib_api_status_t osm_opensm_init(IN osm_opensm_t * p_osm,
 				 p_opt->log_flags, p_opt->log_file,
 				 p_opt->log_max_size, p_opt->accum_log_file);
 	if (status != IB_SUCCESS)
-		return (status);
+		return status;
 
 	/* If there is a log level defined - add the OSM_VERSION to it */
 	osm_log(&p_osm->log,
@@ -434,7 +434,7 @@ ib_api_status_t osm_opensm_init(IN osm_opensm_t * p_osm,
 
 Exit:
 	OSM_LOG(&p_osm->log, OSM_LOG_FUNCS, "]\n");	/* Format Waived */
-	return (status);
+	return status;
 }
 
 ib_api_status_t osm_opensm_bind(IN osm_opensm_t * p_osm, IN ib_net64_t guid)
@@ -464,7 +464,7 @@ ib_api_status_t osm_opensm_bind(IN osm_opensm_t * p_osm, IN ib_net64_t guid)
 
 Exit:
 	OSM_LOG_EXIT(&p_osm->log);
-	return (status);
+	return status;
 }
 
 void osm_opensm_report_event(osm_opensm_t *osm, osm_epi_event_id_t event_id,

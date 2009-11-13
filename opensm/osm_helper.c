@@ -460,11 +460,11 @@ const char *ib_get_sa_method_str(IN uint8_t method)
 		if (method > OSM_SA_METHOD_STR_UNKNOWN_VAL)
 			method = OSM_SA_METHOD_STR_UNKNOWN_VAL;
 		/* it is a response - use the response table */
-		return (__ib_sa_resp_method_str[method]);
+		return __ib_sa_resp_method_str[method];
 	} else {
 		if (method > OSM_SA_METHOD_STR_UNKNOWN_VAL)
 			method = OSM_SA_METHOD_STR_UNKNOWN_VAL;
-		return (__ib_sa_method_str[method]);
+		return __ib_sa_method_str[method];
 	}
 }
 
@@ -474,7 +474,7 @@ const char *ib_get_sm_method_str(IN uint8_t method)
 		method = (method & 0x0F) | 0x10;
 	if (method > OSM_SM_METHOD_STR_UNKNOWN_VAL)
 		method = OSM_SM_METHOD_STR_UNKNOWN_VAL;
-	return (__ib_sm_method_str[method]);
+	return __ib_sm_method_str[method];
 }
 
 const char *ib_get_sm_attr_str(IN ib_net16_t attr)
@@ -484,7 +484,7 @@ const char *ib_get_sm_attr_str(IN ib_net16_t attr)
 	if (host_attr > OSM_SM_ATTR_STR_UNKNOWN_VAL)
 		host_attr = OSM_SM_ATTR_STR_UNKNOWN_VAL;
 
-	return (__ib_sm_attr_str[host_attr]);
+	return __ib_sm_attr_str[host_attr];
 }
 
 const char *ib_get_sa_attr_str(IN ib_net16_t attr)
@@ -494,7 +494,7 @@ const char *ib_get_sa_attr_str(IN ib_net16_t attr)
 	if (host_attr > OSM_SA_ATTR_STR_UNKNOWN_VAL)
 		host_attr = OSM_SA_ATTR_STR_UNKNOWN_VAL;
 
-	return (__ib_sa_attr_str[host_attr]);
+	return __ib_sa_attr_str[host_attr];
 }
 
 const char *ib_get_trap_str(ib_net16_t trap_num)
@@ -1989,7 +1989,7 @@ const char *osm_get_sm_signal_str(IN osm_signal_t signal)
 {
 	if (signal > OSM_SIGNAL_MAX)
 		signal = OSM_SIGNAL_MAX;
-	return (sm_signal_str[signal]);
+	return sm_signal_str[signal];
 }
 
 
@@ -2033,7 +2033,7 @@ const char *osm_get_disp_msg_str(IN cl_disp_msgid_t msg)
 {
 	if (msg > OSM_MSG_MAX)
 		msg = OSM_MSG_MAX;
-	return (disp_msg_str[msg]);
+	return disp_msg_str[msg];
 }
 
 static const char *port_state_str_fixed_width[] = {
@@ -2049,7 +2049,7 @@ const char *osm_get_port_state_str_fixed_width(IN uint8_t port_state)
 {
 	if (port_state > IB_LINK_ACTIVE)
 		port_state = IB_LINK_ACTIVE + 1;
-	return (port_state_str_fixed_width[port_state]);
+	return port_state_str_fixed_width[port_state];
 }
 
 static const char *node_type_str_fixed_width[] = {
@@ -2063,7 +2063,7 @@ const char *osm_get_node_type_str_fixed_width(IN uint8_t node_type)
 {
 	if (node_type > IB_NODE_TYPE_ROUTER)
 		node_type = 0;
-	return (node_type_str_fixed_width[node_type]);
+	return node_type_str_fixed_width[node_type];
 }
 
 const char *osm_get_manufacturer_str(IN uint64_t guid_ho)
@@ -2098,62 +2098,62 @@ const char *osm_get_manufacturer_str(IN uint64_t guid_ho)
 
 	switch ((uint32_t) (guid_ho >> (5 * 8))) {
 	case OSM_VENDOR_ID_INTEL:
-		return (intel_str);
+		return intel_str;
 	case OSM_VENDOR_ID_MELLANOX:
-		return (mellanox_str);
+		return mellanox_str;
 	case OSM_VENDOR_ID_REDSWITCH:
-		return (redswitch_str);
+		return redswitch_str;
 	case OSM_VENDOR_ID_SILVERSTORM:
-		return (silverstorm_str);
+		return silverstorm_str;
 	case OSM_VENDOR_ID_TOPSPIN:
-		return (topspin_str);
+		return topspin_str;
 	case OSM_VENDOR_ID_FUJITSU:
 	case OSM_VENDOR_ID_FUJITSU2:
-		return (fujitsu_str);
+		return fujitsu_str;
 	case OSM_VENDOR_ID_VOLTAIRE:
-		return (voltaire_str);
+		return voltaire_str;
 	case OSM_VENDOR_ID_YOTTAYOTTA:
-		return (yotta_str);
+		return yotta_str;
 	case OSM_VENDOR_ID_PATHSCALE:
-		return (pathscale_str);
+		return pathscale_str;
 	case OSM_VENDOR_ID_IBM:
-		return (ibm_str);
+		return ibm_str;
 	case OSM_VENDOR_ID_DIVERGENET:
-		return (divergenet_str);
+		return divergenet_str;
 	case OSM_VENDOR_ID_FLEXTRONICS:
-		return (flextronics_str);
+		return flextronics_str;
 	case OSM_VENDOR_ID_AGILENT:
-		return (agilent_str);
+		return agilent_str;
 	case OSM_VENDOR_ID_OBSIDIAN:
-		return (obsidian_str);
+		return obsidian_str;
 	case OSM_VENDOR_ID_BAYMICRO:
-		return (baymicro_str);
+		return baymicro_str;
 	case OSM_VENDOR_ID_LSILOGIC:
-		return (lsilogic_str);
+		return lsilogic_str;
 	case OSM_VENDOR_ID_DDN:
-		return (ddn_str);
+		return ddn_str;
 	case OSM_VENDOR_ID_PANTA:
-		return (panta_str);
+		return panta_str;
 	case OSM_VENDOR_ID_HP:
 	case OSM_VENDOR_ID_HP2:
 	case OSM_VENDOR_ID_HP3:
 	case OSM_VENDOR_ID_HP4:
-		return (hp_str);
+		return hp_str;
 	case OSM_VENDOR_ID_RIOWORKS:
-		return (rioworks_str);
+		return rioworks_str;
 	case OSM_VENDOR_ID_SUN:
 	case OSM_VENDOR_ID_SUN2:
-		return (sun_str);
+		return sun_str;
 	case OSM_VENDOR_ID_3LEAFNTWKS:
-		return (leafntwks_str);
+		return leafntwks_str;
 	case OSM_VENDOR_ID_XSIGO:
-		return (xsigo_str);
+		return xsigo_str;
 	case OSM_VENDOR_ID_DELL:
-		return (dell_str);
+		return dell_str;
 	case OSM_VENDOR_ID_SUPERMICRO:
-		return (supermicro_str);
+		return supermicro_str;
 	default:
-		return (unknown_str);
+		return unknown_str;
 	}
 }
 
@@ -2169,9 +2169,9 @@ static const char *mtu_str_fixed_width[] = {
 const char *osm_get_mtu_str(IN uint8_t mtu)
 {
 	if (mtu > IB_MTU_LEN_4096)
-		return (mtu_str_fixed_width[0]);
+		return mtu_str_fixed_width[0];
 	else
-		return (mtu_str_fixed_width[mtu]);
+		return mtu_str_fixed_width[mtu];
 }
 
 static const char *lwa_str_fixed_width[] = {
@@ -2189,9 +2189,9 @@ static const char *lwa_str_fixed_width[] = {
 const char *osm_get_lwa_str(IN uint8_t lwa)
 {
 	if (lwa > 8)
-		return (lwa_str_fixed_width[0]);
+		return lwa_str_fixed_width[0];
 	else
-		return (lwa_str_fixed_width[lwa]);
+		return lwa_str_fixed_width[lwa];
 }
 
 static const char *lsa_str_fixed_width[] = {
@@ -2205,9 +2205,9 @@ static const char *lsa_str_fixed_width[] = {
 const char *osm_get_lsa_str(IN uint8_t lsa)
 {
 	if (lsa > 4)
-		return (lsa_str_fixed_width[0]);
+		return lsa_str_fixed_width[0];
 	else
-		return (lsa_str_fixed_width[lsa]);
+		return lsa_str_fixed_width[lsa];
 }
 
 
@@ -2230,7 +2230,7 @@ const char *osm_get_sm_mgr_signal_str(IN osm_sm_signal_t signal)
 {
 	if (signal > OSM_SM_SIGNAL_MAX)
 		signal = OSM_SM_SIGNAL_MAX;
-	return (sm_mgr_signal_str[signal]);
+	return sm_mgr_signal_str[signal];
 }
 
 static const char *sm_mgr_state_str[] = {

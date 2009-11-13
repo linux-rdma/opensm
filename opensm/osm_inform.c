@@ -74,7 +74,7 @@ osm_infr_t *osm_infr_new(IN const osm_infr_t * p_infr_rec)
 	if (p_infr)
 		memcpy(p_infr, p_infr_rec, sizeof(osm_infr_t));
 
-	return (p_infr);
+	return p_infr;
 }
 
 static void dump_all_informs(IN const osm_subn_t * p_subn, IN osm_log_t * p_log)
@@ -336,7 +336,7 @@ static ib_api_status_t send_report(IN osm_infr_t * p_infr_rec,	/* the informinfo
 
 Exit:
 	OSM_LOG_EXIT(p_log);
-	return (status);
+	return status;
 }
 
 /**********************************************************************
@@ -578,7 +578,7 @@ ib_api_status_t osm_report_notice(IN osm_log_t * p_log, IN osm_subn_t * p_subn,
 	if (p_subn->sa_infr_list.state != CL_INITIALIZED) {
 		OSM_LOG(p_log, OSM_LOG_DEBUG,
 			"Ignoring Notice Reports since Inform List is not initialized yet!\n");
-		return (IB_ERROR);
+		return IB_ERROR;
 	}
 
 	if (osm_log_is_active(p_log, OSM_LOG_INFO))
@@ -612,5 +612,5 @@ ib_api_status_t osm_report_notice(IN osm_log_t * p_log, IN osm_subn_t * p_subn,
 
 	OSM_LOG_EXIT(p_log);
 
-	return (IB_SUCCESS);
+	return IB_SUCCESS;
 }

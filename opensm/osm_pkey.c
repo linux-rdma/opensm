@@ -269,7 +269,7 @@ static boolean_t match_pkey(IN const ib_net16_t * pkey1,
 
 	/* if both pkeys are not full member - this is not a match */
 	if (!(ib_pkey_is_full_member(*pkey1) || ib_pkey_is_full_member(*pkey2)))
-		return (FALSE);
+		return FALSE;
 
 	/* compare if the bases are the same. if they are - then
 	   this is a match */

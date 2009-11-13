@@ -107,7 +107,7 @@ sa_multipath_rec_apply_tavor_mtu_limit(IN const ib_multipath_rec_t * p_mpr,
 	/* only if at least one of the ports is a Tavor device */
 	if (!sa_multipath_rec_is_tavor_port(p_src_port) &&
 	    !sa_multipath_rec_is_tavor_port(p_dest_port))
-		return (FALSE);
+		return FALSE;
 
 	/*
 	   we can apply the patch if either:
@@ -123,7 +123,7 @@ sa_multipath_rec_apply_tavor_mtu_limit(IN const ib_multipath_rec_t * p_mpr,
 		case 0:	/* must be greater than */
 		case 2:	/* exact match */
 			if (IB_MTU_LEN_1024 < required_mtu)
-				return (FALSE);
+				return FALSE;
 			break;
 
 		case 1:	/* must be less than */
@@ -133,7 +133,7 @@ sa_multipath_rec_apply_tavor_mtu_limit(IN const ib_multipath_rec_t * p_mpr,
 		case 3:	/* largest available */
 			/* the ULP intentionally requested */
 			/* the largest MTU possible */
-			return (FALSE);
+			return FALSE;
 			break;
 
 		default:
@@ -143,7 +143,7 @@ sa_multipath_rec_apply_tavor_mtu_limit(IN const ib_multipath_rec_t * p_mpr,
 		}
 	}
 
-	return (TRUE);
+	return TRUE;
 }
 
 static ib_api_status_t mpr_rcv_get_path_parms(IN osm_sa_t * sa,
@@ -729,7 +729,7 @@ static ib_api_status_t mpr_rcv_get_path_parms(IN osm_sa_t * sa,
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);
-	return (status);
+	return status;
 }
 
 static void mpr_rcv_build_pr(IN osm_sa_t * sa, IN const osm_port_t * p_src_port,
@@ -851,7 +851,7 @@ static osm_mpr_item_t *mpr_rcv_get_lid_pair_path(IN osm_sa_t * sa,
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);
-	return (p_pr_item);
+	return p_pr_item;
 }
 
 static uint32_t mpr_rcv_get_port_pair_paths(IN osm_sa_t * sa,
@@ -1221,7 +1221,7 @@ static ib_net16_t mpr_rcv_get_end_points(IN osm_sa_t * sa,
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);
-	return (sa_status);
+	return sa_status;
 }
 
 #define hash_lids(a, b, lmc)	\
