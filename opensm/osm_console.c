@@ -305,7 +305,7 @@ static void priority_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 	}
 }
 
-static char *sm_state_str(int state)
+static const char *sm_state_str(int state)
 {
 	switch (state) {
 	case IB_SMINFO_STATE_DISCOVERING:
@@ -320,7 +320,7 @@ static char *sm_state_str(int state)
 	return ("UNKNOWN    ");
 }
 
-static char *sa_state_str(osm_sa_state_t state)
+static const char *sa_state_str(osm_sa_state_t state)
 {
 	switch (state) {
 	case OSM_SA_STATE_INIT:
