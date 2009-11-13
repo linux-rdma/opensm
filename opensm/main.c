@@ -393,20 +393,20 @@ static ib_net64_t get_port_guid(IN osm_opensm_t * p_osm, uint64_t port_guid)
 	if (status != IB_SUCCESS) {
 		printf("\nError from osm_vendor_get_all_port_attr (%x)\n",
 		       status);
-		return (0);
+		return 0;
 	}
 
 	/* if num_ports is 0 - return 0 */
 	if (num_ports == 0) {
 		printf("\nNo local ports detected!\n");
-		return (0);
+		return 0;
 	}
 	/* If num_ports is 1, then there is only one possible port to use.
 	 * Use it. */
 	if (num_ports == 1) {
 		printf("Using default GUID 0x%" PRIx64 "\n",
 		       cl_hton64(attr_array[0].port_guid));
-		return (attr_array[0].port_guid);
+		return attr_array[0].port_guid;
 	}
 	/* If port_guid is 0 - use the first connected port */
 	if (port_guid == 0) {
@@ -417,7 +417,7 @@ static ib_net64_t get_port_guid(IN osm_opensm_t * p_osm, uint64_t port_guid)
 			i = 0;
 		printf("Using default GUID 0x%" PRIx64 "\n",
 		       cl_hton64(attr_array[i].port_guid));
-		return (attr_array[i].port_guid);
+		return attr_array[i].port_guid;
 	}
 
 	if (p_osm->subn.opt.daemon)
@@ -442,7 +442,7 @@ static ib_net64_t get_port_guid(IN osm_opensm_t * p_osm, uint64_t port_guid)
 			if (scanf("%s", junk) <= 0)
 				printf("\nError: Cannot scan!\n");
 		} else if (choice == 0)
-			return (0);
+			return 0;
 		else if (choice <= num_ports)
 			break;
 		printf("\nError: Lame choice! Please try again.\n");
@@ -450,7 +450,7 @@ static ib_net64_t get_port_guid(IN osm_opensm_t * p_osm, uint64_t port_guid)
 	choice--;
 	printf("Choice guid=0x%" PRIx64 "\n",
 	       cl_ntoh64(attr_array[choice].port_guid));
-	return (attr_array[choice].port_guid);
+	return attr_array[choice].port_guid;
 }
 
 static int daemonize(osm_opensm_t * osm)
@@ -790,7 +790,7 @@ int main(int argc, char *argv[])
 			if (temp > 7) {
 				fprintf(stderr,
 					"ERROR: LMC must be 7 or less.\n");
-				return (-1);
+				return -1;
 			}
 			opt.lmc = (uint8_t) temp;
 			printf(" LMC = %d\n", temp);
@@ -855,7 +855,7 @@ int main(int argc, char *argv[])
 			if (0 > temp || 15 < temp) {
 				fprintf(stderr,
 					"ERROR: priority must be between 0 and 15\n");
-				return (-1);
+				return -1;
 			}
 			opt.sm_priority = (uint8_t) temp;
 			printf(" Priority = %d\n", temp);
@@ -965,7 +965,7 @@ int main(int argc, char *argv[])
 			if (temp < 0 || temp >= IB_MAX_NUM_VLS) {
 				fprintf(stderr,
 					"ERROR: starting lash vl must be between 0 and 15\n");
-				return (-1);
+				return -1;
 			}
 			opt.lash_start_vl = (uint8_t) temp;
 			printf(" LASH starting VL = %d\n", opt.lash_start_vl);
@@ -975,7 +975,7 @@ int main(int argc, char *argv[])
 			if (temp < 0 || temp > 15) {
 				fprintf(stderr,
 					"ERROR: SM's SL must be between 0 and 15\n");
-				return (-1);
+				return -1;
 			}
 			opt.sm_sl = (uint8_t) temp;
 			printf(" SMSL = %d\n", opt.sm_sl);
@@ -1031,7 +1031,7 @@ int main(int argc, char *argv[])
 		/* We will just exit, and not go to Exit, since we don't
 		   want the destroy to be called. */
 		complib_exit();
-		return (status);
+		return status;
 	}
 
 	/*
