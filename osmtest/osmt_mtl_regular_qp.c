@@ -235,7 +235,7 @@ VAPI_ret_t osmt_mtl_mad_create_mr(osmt_mtl_mad_res_t * res)
 	mr_in.r_key = 0;
 	mr_in.size = res->buf_size;
 	ASSERT_VOIDP2UINTN(res->buf_ptr);
-	mr_in.start = (VAPI_virt_addr_t) (uintn_t) (res->buf_ptr);
+	mr_in.start = (VAPI_virt_addr_t) (res->buf_ptr);
 	mr_in.type = VAPI_MR;
 
 	ret = VAPI_register_mr(res->hca_hndl, &mr_in, &(res->mr_hndl), &mr_out);
@@ -370,7 +370,7 @@ VAPI_ret_t osmt_mtl_mad_send(osmt_mtl_mad_res_t * res, VAPI_wr_id_t id,
 	sr.sg_lst_len = 1;
 	sr.sg_lst_p = &sg_entry;
 	ASSERT_VOIDP2UINTN(mad);
-	sg_entry.addr = (VAPI_virt_addr_t) (uintn_t) (mad);
+	sg_entry.addr = (VAPI_virt_addr_t) (mad);
 	sg_entry.len = MAD_SIZE;
 	sg_entry.lkey = res->l_key;
 
@@ -403,7 +403,7 @@ int osmt_mtl_mad_post_recv_bufs(osmt_mtl_mad_res_t * res, void *buf_array,
 	for (i = 0; i < num_o_bufs; i++) {
 		rr.id = start_id + i;	/* WQE id used is the index to buffers ptr array */
 		ASSERT_VOIDP2UINTN(cur_buf);
-		sg_entry.addr = (VAPI_virt_addr_t) (uintn_t) cur_buf;
+		sg_entry.addr = (VAPI_virt_addr_t) cur_buf;
 		sg_entry.len = size;
 		memset(cur_buf, 0x00, size);	/* fill with 0 */
 		ret = VAPI_post_rr(res->hca_hndl, res->qp_hndl, &rr);
