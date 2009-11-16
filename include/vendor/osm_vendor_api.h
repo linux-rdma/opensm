@@ -370,8 +370,8 @@ osm_vendor_send(IN osm_bind_handle_t h_bind,
 *
 * NOTES
 *   1. Only mads that expect a response are tracked for transaction competion.
-*   2. A mad that does not expect a response is being put back immediatly after
-*      being sent.
+*   2. A mad that does not expect a response is being put back immediately
+*      after being sent.
 *
 * SEE ALSO
 *********/
