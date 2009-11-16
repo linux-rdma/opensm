@@ -353,7 +353,7 @@ static void *umad_receiver(void *p_ptr)
 				OSM_LOG(p_vend->p_log, OSM_LOG_ERROR,
 					"ERR 5412: "
 					"Failed to obtain request madw for timed out MAD"
-					"(method=0x%X attr=0x%X tid=0x%"PRIx64") -- dropping\n",
+					" (method=0x%X attr=0x%X tid=0x%"PRIx64") -- dropping\n",
 					mad->method, cl_ntoh16(mad->attr_id),
 					cl_ntoh64(mad->trans_id));
 			} else {
