@@ -1975,7 +1975,7 @@ static inline int port_group_compare_load_down(const ftree_port_group_t * p1,
  * as it is much faster.
  *
  * Important note:
- * This function and __osm_ftree_bubble_sort_down must NOT be factorized.
+ * This function and bubble_sort_down must NOT be factorized.
  * Although most of the code is the same and a function pointer could be used
  * for the compareason function, it would prevent the compareason function to be inlined
  * and cost a great deal to performances.
@@ -2047,13 +2047,13 @@ bubble_sort_siblings(ftree_port_group_t ** p_group_array, uint32_t nmemb)
 
 /*
  * Function: Sorts an array of port group. Order is decide through
- * __osm_ftree_port_group_compare_load_down ( up counters, least load remote switch, biggest GUID)
+ * port_group_compare_load_down ( up counters, least load remote switch, biggest GUID)
  * Given   : A port group array and its length. Each port group points to a remote switch (not a HCA)
  * As the list is mostly sorted, we used a bubble sort instead of qsort
  * as it is much faster.
  *
  * Important note:
- * This function and __osm_ftree_bubble_sort_up must NOT be factorized.
+ * This function and bubble_sort_up must NOT be factorized.
  * Although most of the code is the same and a function pointer could be used
  * for the compareason function, it would prevent the compareason function to be inlined
  * and cost a great deal to performances.
