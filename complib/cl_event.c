@@ -62,7 +62,7 @@ cl_status_t cl_event_init(IN cl_event_t * const p_event,
 	p_event->manual_reset = manual_reset;
 	p_event->state = CL_INITIALIZED;
 
-	return (CL_SUCCESS);
+	return CL_SUCCESS;
 }
 
 void cl_event_destroy(IN cl_event_t * const p_event)
@@ -94,7 +94,7 @@ cl_status_t cl_event_signal(IN cl_event_t * const p_event)
 
 	pthread_mutex_unlock(&p_event->mutex);
 
-	return (CL_SUCCESS);
+	return CL_SUCCESS;
 }
 
 cl_status_t cl_event_reset(IN cl_event_t * const p_event)
@@ -106,7 +106,7 @@ cl_status_t cl_event_reset(IN cl_event_t * const p_event)
 	p_event->signaled = FALSE;
 	pthread_mutex_unlock(&p_event->mutex);
 
-	return (CL_SUCCESS);
+	return CL_SUCCESS;
 }
 
 cl_status_t cl_event_wait_on(IN cl_event_t * const p_event,
@@ -129,13 +129,13 @@ cl_status_t cl_event_wait_on(IN cl_event_t * const p_event,
 			p_event->signaled = FALSE;
 
 		pthread_mutex_unlock(&p_event->mutex);
-		return (CL_SUCCESS);
+		return CL_SUCCESS;
 	}
 
 	/* If just testing the state, return CL_TIMEOUT. */
 	if (wait_us == 0) {
 		pthread_mutex_unlock(&p_event->mutex);
-		return (CL_TIMEOUT);
+		return CL_TIMEOUT;
 	}
 
 	if (wait_us == EVENT_NO_TIMEOUT) {
@@ -164,13 +164,12 @@ cl_status_t cl_event_wait_on(IN cl_event_t * const p_event,
 				status = CL_TIMEOUT;
 			else
 				status = CL_NOT_DONE;
-		} else {
+		} else
 			status = CL_ERROR;
-		}
 	}
 	if (!p_event->manual_reset)
 		p_event->signaled = FALSE;
 
 	pthread_mutex_unlock(&p_event->mutex);
-	return (status);
+	return status;
 }
