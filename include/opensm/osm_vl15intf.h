@@ -36,7 +36,7 @@
 /*
  * Abstract:
  * 	Declaration of osm_vl15_t.
- *	This object represents an IBA subnet.
+ *	This object represents a VL15 interface object.
  *	This object is part of the OpenSM family of objects.
  */
 
