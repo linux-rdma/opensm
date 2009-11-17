@@ -552,6 +552,7 @@ static void sm_mad_ctrl_process_trap_repress(IN osm_sm_mad_ctrl_t * p_ctrl,
 	 */
 	switch (p_smp->attr_id) {
 	case IB_MAD_ATTR_NOTICE:
+		sm_mad_ctrl_retire_trans_mad(p_ctrl, p_madw);
 		break;
 	default:
 		cl_atomic_inc(&p_ctrl->p_stats->qp0_mads_rcvd_unknown);
@@ -559,10 +560,9 @@ static void sm_mad_ctrl_process_trap_repress(IN osm_sm_mad_ctrl_t * p_ctrl,
 			"Unsupported attribute 0x%X\n",
 			cl_ntoh16(p_smp->attr_id));
 		osm_dump_dr_smp(p_ctrl->p_log, p_smp, OSM_LOG_ERROR);
+		osm_mad_pool_put(p_ctrl->p_mad_pool, p_madw);
 		break;
 	}
-
-	osm_mad_pool_put(p_ctrl->p_mad_pool, p_madw);
 
 	OSM_LOG_EXIT(p_ctrl->p_log);
 }
