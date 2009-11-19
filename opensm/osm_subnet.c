@@ -1477,7 +1477,7 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		"max_wire_smps %u\n\n"
 		"# The maximum time in [msec] allowed for a transaction to complete\n"
 		"transaction_timeout %u\n\n"
-		" The maximum number of retries allowed for a transaction to complete\n"
+		"# The maximum number of retries allowed for a transaction to complete\n"
 		"transaction_retries %u\n\n"
 		"# Maximal time in [msec] a message can stay in the incoming message queue.\n"
 		"# If there is more than one message in the queue and the last message\n"
