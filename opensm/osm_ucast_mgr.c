@@ -727,6 +727,7 @@ static void sort_ports_by_switch_load(osm_ucast_mgr_t * m)
 
 	for (i = 0; i < num; i++)
 		add_sw_endports_to_order_list(s[i], m);
+	free(s);
 }
 
 static int ucast_mgr_build_lfts(osm_ucast_mgr_t * p_mgr)
