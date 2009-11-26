@@ -621,7 +621,7 @@ cl_fmap_item_t *cl_fmap_insert(IN cl_fmap_t * const p_map,
 
 /****f* Component Library: Flexi Map/cl_fmap_match
 * NAME
-*	cl_fmap_get
+*	cl_fmap_match
 *
 * DESCRIPTION
 *	The cl_fmap_match function returns the map item matching a key.
