@@ -322,8 +322,8 @@ static void show_usage(void)
 	       "          queries for off-subnet DGIDs.  Default file is:\n"
 	       "              " OSM_DEFAULT_PREFIX_ROUTES_FILE "\n\n");
 	printf("--consolidate_ipv6_snm_req\n"
-	       "          Consolidate IPv6 Solicited Node Multicast group joins\n"
-	       "          into 1 IB multicast group.\n\n");
+	       "          Use shared MLID for IPv6 Solicited Node Multicast groups\n"
+	       "          per MGID scope and P_Key.\n\n");
 	printf("--verbose, -v\n"
 	       "          This option increases the log verbosity level.\n"
 	       "          The -v option may be specified multiple times\n"

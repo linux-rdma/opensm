@@ -342,8 +342,8 @@ Specify the sweep time for the performance manager in seconds
 effect if --enable-perfmgr was specified at configure time.
 .TP
 .BI --consolidate_ipv6_snm_req
-Consolidate IPv6 Solicited Node Multicast group join requests into one
-multicast group per MGID PKey.
+Use shared MLID for IPv6 Solicited Node Multicast groups per MGID scope
+and P_Key.
 .TP
 \fB\-v\fR, \fB\-\-verbose\fR
 This option increases the log verbosity level.
