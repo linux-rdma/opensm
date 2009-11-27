@@ -1946,8 +1946,8 @@ void osm_dump_dr_path(IN osm_log_t * p_log, IN const osm_dr_path_t * p_path,
 		char buf[BUF_SIZE];
 		unsigned n = 0;
 
-		n = sprintf(buf, "Directed Path Dump of %u hop path:"
-			    "\n\t\t\t\tPath = ", p_path->hop_count);
+		n = sprintf(buf, "Directed Path Dump of %u hop path: "
+			    "Path = ", p_path->hop_count);
 
 		sprint_uint8_arr(buf + n, sizeof(buf) - n, p_path->path,
 				 p_path->hop_count + 1);
@@ -1962,13 +1962,13 @@ void osm_dump_smp_dr_path(IN osm_log_t * p_log, IN const ib_smp_t * p_smp,
 		char buf[BUF_SIZE];
 		unsigned n;
 
-		n = sprintf(buf, "Received SMP on a %u hop path:"
-			    "\n\t\t\t\tInitial path = ", p_smp->hop_count);
+		n = sprintf(buf, "Received SMP on a %u hop path: "
+			    "Initial path = ", p_smp->hop_count);
 		n += sprint_uint8_arr(buf + n, sizeof(buf) - n,
 				      p_smp->initial_path,
 				      p_smp->hop_count + 1);
 
-		n += sprintf(buf + n, "\n\t\t\t\tReturn path  = ");
+		n += sprintf(buf + n, ", Return path  = ");
 		n += sprint_uint8_arr(buf + n, sizeof(buf) - n,
 				      p_smp->return_path, p_smp->hop_count + 1);
 
