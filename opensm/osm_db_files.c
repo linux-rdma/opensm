@@ -195,7 +195,7 @@ osm_db_domain_t *osm_db_domain_init(IN osm_db_t * p_db, IN char *domain_name)
 {
 	osm_db_domain_t *p_domain;
 	osm_db_domain_imp_t *p_domain_imp;
-	int dir_name_len;
+	size_t path_len;
 	osm_log_t *p_log = p_db->p_log;
 	FILE *p_file;
 
@@ -209,16 +209,14 @@ osm_db_domain_t *osm_db_domain_init(IN osm_db_t * p_db, IN char *domain_name)
 	    (osm_db_domain_imp_t *) malloc(sizeof(osm_db_domain_imp_t));
 	CL_ASSERT(p_domain_imp != NULL);
 
-	dir_name_len = strlen(((osm_db_imp_t *) p_db->p_db_imp)->db_dir_name);
+	path_len = strlen(((osm_db_imp_t *) p_db->p_db_imp)->db_dir_name)
+	    + strlen(domain_name) + 2;
 
 	/* set the domain file name */
-	p_domain_imp->file_name =
-	    (char *)malloc(sizeof(char) * (dir_name_len) + strlen(domain_name) +
-			   2);
+	p_domain_imp->file_name = malloc(path_len);
 	CL_ASSERT(p_domain_imp->file_name != NULL);
-	strcpy(p_domain_imp->file_name,
-	       ((osm_db_imp_t *) p_db->p_db_imp)->db_dir_name);
-	strcat(p_domain_imp->file_name, domain_name);
+	snprintf(p_domain_imp->file_name, path_len, "%s/%s",
+		 ((osm_db_imp_t *) p_db->p_db_imp)->db_dir_name, domain_name);
 
 	/* make sure the file exists - or exit if not writable */
 	p_file = fopen(p_domain_imp->file_name, "a+");
