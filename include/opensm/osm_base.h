@@ -192,14 +192,13 @@ BEGIN_C_DECLS
 *
 * DESCRIPTION
 *	Specifies the default cache directory for the db files.
-*	Note that the directory must appear with "/" ("\\" for windows) at the end.
 *
 * SYNOPSIS
 */
 #ifdef __WIN__
 #define OSM_DEFAULT_CACHE_DIR GetOsmCachePath()
 #else
-#define OSM_DEFAULT_CACHE_DIR "/var/cache/opensm/"
+#define OSM_DEFAULT_CACHE_DIR "/var/cache/opensm"
 #endif
 /***********/
 /****d* OpenSM: Base/OSM_DEFAULT_LOG_FILE
