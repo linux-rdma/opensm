@@ -156,7 +156,7 @@ int osm_db_init(IN osm_db_t * p_db, IN osm_log_t * p_log)
 
 	OSM_LOG_ENTER(p_log);
 
-	p_db_imp = (osm_db_imp_t *) malloc(sizeof(osm_db_imp_t));
+	p_db_imp = malloc(sizeof(osm_db_imp_t));
 	CL_ASSERT(p_db_imp != NULL);
 
 	p_db_imp->db_dir_name = getenv("OSM_CACHE_DIR");
@@ -202,11 +202,10 @@ osm_db_domain_t *osm_db_domain_init(IN osm_db_t * p_db, IN char *domain_name)
 	OSM_LOG_ENTER(p_log);
 
 	/* allocate a new domain object */
-	p_domain = (osm_db_domain_t *) malloc(sizeof(osm_db_domain_t));
+	p_domain = malloc(sizeof(osm_db_domain_t));
 	CL_ASSERT(p_domain != NULL);
 
-	p_domain_imp =
-	    (osm_db_domain_imp_t *) malloc(sizeof(osm_db_domain_imp_t));
+	p_domain_imp = malloc(sizeof(osm_db_domain_imp_t));
 	CL_ASSERT(p_domain_imp != NULL);
 
 	path_len = strlen(((osm_db_imp_t *) p_db->p_db_imp)->db_dir_name)
@@ -324,21 +323,17 @@ int osm_db_restore(IN osm_db_domain_t * p_domain)
 					goto EndParsing;
 				}
 
-				p_key =
-				    (char *)malloc(sizeof(char) *
-						   (strlen(p_first_word) + 1));
+				p_key = malloc(sizeof(char) *
+					       (strlen(p_first_word) + 1));
 				strcpy(p_key, p_first_word);
 
 				p_rest_of_line = strtok_r(NULL, "\n", &p_last);
 				if (p_rest_of_line != NULL) {
-					p_accum_val =
-					    (char *)malloc(sizeof(char) *
-							   (strlen
-							    (p_rest_of_line) +
-							    1));
+					p_accum_val = malloc(sizeof(char) *
+					    (strlen(p_rest_of_line) + 1));
 					strcpy(p_accum_val, p_rest_of_line);
 				} else {
-					p_accum_val = (char *)malloc(2);
+					p_accum_val = malloc(2);
 					strcpy(p_accum_val, "\0");
 				}
 			} else if (sLine[0] != '\n') {
@@ -390,9 +385,8 @@ int osm_db_restore(IN osm_db_domain_t * p_domain)
 			} else {
 				/* accumulate into the value */
 				p_prev_val = p_accum_val;
-				p_accum_val =
-				    (char *)malloc(strlen(p_prev_val) +
-						   strlen(sLine) + 1);
+				p_accum_val = malloc(strlen(p_prev_val) +
+						     strlen(sLine) + 1);
 				strcpy(p_accum_val, p_prev_val);
 				free(p_prev_val);
 				strcat(p_accum_val, sLine);
@@ -430,9 +424,8 @@ int osm_db_store(IN osm_db_domain_t * p_domain)
 	OSM_LOG_ENTER(p_log);
 
 	p_domain_imp = (osm_db_domain_imp_t *) p_domain->p_domain_imp;
-	p_tmp_file_name =
-	    (char *)malloc(sizeof(char) *
-			   (strlen(p_domain_imp->file_name) + 8));
+	p_tmp_file_name = malloc(sizeof(char) *
+				 (strlen(p_domain_imp->file_name) + 8));
 	strcpy(p_tmp_file_name, p_domain_imp->file_name);
 	strcat(p_tmp_file_name, ".tmp");
 
