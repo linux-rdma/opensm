@@ -332,7 +332,6 @@ static void trap_rcv_process_request(IN osm_sm_t * sm,
 	osm_physp_t *p_physp;
 	cl_ptr_vector_t *p_tbl;
 	osm_port_t *p_port;
-	osm_node_t *p_node;
 	ib_net16_t source_lid = 0;
 	boolean_t is_gsi = TRUE;
 	uint8_t port_num = 0;
@@ -515,12 +514,11 @@ static void trap_rcv_process_request(IN osm_sm_t * sm,
 				"ERR 3812: No physical port found for "
 				"trap 144: \"node description update\"\n");
 		goto check_sweep;
-	}
-	if (cl_ntoh16(p_ntci->g_or_v.generic.trap_num) == 145) {
-		/* update system image guid (in NodeInfo) */
-		p_node = osm_physp_get_node_ptr(p_physp);
-		p_node->node_info.sys_guid = p_ntci->data_details.ntc_145.new_sys_guid;
-	}
+	} else if (cl_ntoh16(p_ntci->g_or_v.generic.trap_num) == 145)
+		/* this assumes that trap 145 content is not broken? */
+		p_physp->p_node->node_info.sys_guid =
+			p_ntci->data_details.ntc_145.new_sys_guid;
+
 check_sweep:
 	/* do a sweep if we received a trap */
 	if (sm->p_subn->opt.sweep_on_trap) {
