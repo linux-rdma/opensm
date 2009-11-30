@@ -558,7 +558,7 @@ __osmv_txn_timeout_cb(IN uint64_t key,
 	switch (osmv_txn_get_rmpp_state(p_txn)) {
 
 	case OSMV_TXN_RMPP_NONE:
-		if (num_regs <= OSMV_MAX_RETRANSMIT) {
+		if (num_regs <= OSM_DEFAULT_RETRY_COUNT) {
 			/* We still did not exceed the limit of retransmissions.
 			 * Set the next timeout's value.
 			 */
@@ -622,7 +622,7 @@ __osmv_txn_timeout_cb(IN uint64_t key,
 			osmv_txn_get_tid(p_txn));
 
 		p_send_ctx = osmv_txn_get_rmpp_send_ctx(p_txn);
-		if (num_regs <= OSMV_MAX_RETRANSMIT) {
+		if (num_regs <= OSM_DEFAULT_RETRY_COUNT) {
 			/* We still did not exceed the limit of retransmissions.
 			 * Set the next timeout's value.
 			 */

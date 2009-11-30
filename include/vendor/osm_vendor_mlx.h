@@ -92,5 +92,8 @@ typedef struct _osm_vend_wrap {
 #define OSM_BIND_INVALID_HANDLE NULL
 #endif
 
+/* The maximum number of retransmissions of the same MAD */
+#define OSM_DEFAULT_RETRY_COUNT  3
+
 END_C_DECLS
 #endif

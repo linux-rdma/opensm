@@ -52,8 +52,6 @@
 BEGIN_C_DECLS
 /* The maximum number of outstanding MADs an RMPP sender can transmit */
 #define OSMV_RMPP_RECV_WIN       16
-/* The maximum number of retransmissions of the same MAD */
-#define OSMV_MAX_RETRANSMIT      3
 /* Transaction Timeout = OSMV_TXN_TIMEOUT_FACTOR * Response Timeout */
 #define OSMV_TXN_TIMEOUT_FACTOR  128
 /************/
