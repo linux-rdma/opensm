@@ -260,9 +260,6 @@ static void sm_mad_ctrl_process_get_resp(IN osm_sm_mad_ctrl_t * p_ctrl,
 		goto Exit;
 	}
 
-	if (msg_id == CL_DISP_MSGID_NONE)
-		goto Exit;
-
 	/*
 	   Post this MAD to the dispatcher for asynchronous
 	   processing by the appropriate controller.
@@ -319,14 +316,6 @@ static void sm_mad_ctrl_process_get(IN osm_sm_mad_ctrl_t * p_ctrl,
 		OSM_LOG(p_ctrl->p_log, OSM_LOG_VERBOSE,
 			"Ignoring SubnGet MAD - unsupported attribute 0x%X\n",
 			cl_ntoh16(p_smp->attr_id));
-		break;
-	}
-
-	if (msg_id == CL_DISP_MSGID_NONE) {
-		/*
-		   There is an unknown MAD attribute type for which there is
-		   no recipient.  Simply retire the MAD here.
-		 */
 		osm_mad_pool_put(p_ctrl->p_mad_pool, p_madw);
 		goto Exit;
 	}
@@ -397,14 +386,6 @@ static void sm_mad_ctrl_process_set(IN osm_sm_mad_ctrl_t * p_ctrl,
 			"Unsupported attribute 0x%X\n",
 			cl_ntoh16(p_smp->attr_id));
 		osm_dump_dr_smp(p_ctrl->p_log, p_smp, OSM_LOG_ERROR);
-		break;
-	}
-
-	if (msg_id == CL_DISP_MSGID_NONE) {
-		/*
-		   There is an unknown MAD attribute type for which there is
-		   no recipient.  Simply retire the MAD here.
-		 */
 		osm_mad_pool_put(p_ctrl->p_mad_pool, p_madw);
 		goto Exit;
 	}
@@ -484,14 +465,6 @@ static void sm_mad_ctrl_process_trap(IN osm_sm_mad_ctrl_t * p_ctrl,
 			"Unsupported attribute 0x%X\n",
 			cl_ntoh16(p_smp->attr_id));
 		osm_dump_dr_smp(p_ctrl->p_log, p_smp, OSM_LOG_ERROR);
-		break;
-	}
-
-	if (msg_id == CL_DISP_MSGID_NONE) {
-		/*
-		   There is an unknown MAD attribute type for which there is
-		   no recipient.  Simply retire the MAD here.
-		 */
 		osm_mad_pool_put(p_ctrl->p_mad_pool, p_madw);
 		goto Exit;
 	}
