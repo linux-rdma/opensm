@@ -334,7 +334,7 @@ static void *umad_receiver(void *p_ptr)
 			if (mad->mgmt_class != IB_MCLASS_SUBN_DIR) {
 				/* LID routed */
 				OSM_LOG(p_vend->p_log, OSM_LOG_ERROR,
-					"ERR 5410: class 0x%x LID 0x%x\n",
+					"ERR 5410: class 0x%x LID %u\n",
 					mad->mgmt_class,
 					cl_ntoh16(ib_mad_addr->lid));
 			} else {
