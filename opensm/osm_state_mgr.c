@@ -134,7 +134,6 @@ static void state_mgr_get_sw_info(IN cl_map_item_t * p_object, IN void *context)
 
 	status = osm_req_get(sm, p_dr_path, IB_MAD_ATTR_SWITCH_INFO, 0,
 			     OSM_MSG_LIGHT_SWEEP_FAIL, &mad_context);
-
 	if (status != IB_SUCCESS)
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3304: "
 			"Request for SwitchInfo failed (%s)\n",
@@ -178,10 +177,8 @@ static void state_mgr_get_remote_port_info(IN osm_sm_t * sm,
 
 	/* note that with some negative logic - if the query failed it means
 	 * that there is no point in going to heavy sweep */
-	status = osm_req_get(sm, &rem_node_dr_path,
-			     IB_MAD_ATTR_PORT_INFO, 0, CL_DISP_MSGID_NONE,
-			     &mad_context);
-
+	status = osm_req_get(sm, &rem_node_dr_path, IB_MAD_ATTR_PORT_INFO, 0,
+			     CL_DISP_MSGID_NONE, &mad_context);
 	if (status != IB_SUCCESS)
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 332E: "
 			"Request for PortInfo failed (%s)\n",
@@ -241,7 +238,6 @@ static ib_api_status_t state_mgr_sweep_hop_0(IN osm_sm_t * sm)
 		osm_dr_path_init(&dr_path, h_bind, 0, path_array);
 		status = osm_req_get(sm, &dr_path, IB_MAD_ATTR_NODE_INFO, 0,
 				     CL_DISP_MSGID_NONE, NULL);
-
 		if (status != IB_SUCCESS)
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3305: "
 				"Request for NodeInfo failed (%s)\n",
@@ -475,7 +471,6 @@ static ib_api_status_t state_mgr_sweep_hop_1(IN osm_sm_t * sm)
 						     IB_MAD_ATTR_NODE_INFO, 0,
 						     CL_DISP_MSGID_NONE,
 						     &context);
-
 				if (status != IB_SUCCESS)
 					OSM_LOG(sm->p_log, OSM_LOG_ERROR,
 						"ERR 3312: "
