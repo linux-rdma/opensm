@@ -2,6 +2,7 @@
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
+ * Copyright (c) 2009 HNR Consulting. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -70,7 +71,9 @@ void osm_slvl_rcv_process(IN void *context, IN void *p_data)
 	osm_slvl_context_t *p_context;
 	ib_net64_t port_guid;
 	ib_net64_t node_guid;
-	uint8_t out_port_num, in_port_num;
+	uint32_t attr_mod;
+	uint8_t startinport, endinport, startoutport, endoutport;
+	uint8_t in_port, out_port;
 
 	CL_ASSERT(sm);
 
@@ -105,47 +108,51 @@ void osm_slvl_rcv_process(IN void *context, IN void *p_data)
 	/* in case of a non switch node the attr modifier should be ignored */
 	if (osm_node_get_type(p_node) == IB_NODE_TYPE_SWITCH) {
 		unsigned num_ports = osm_node_get_num_physp(p_node) - 1;
-		out_port_num = cl_ntoh32(p_smp->attr_mod) & 0xff;
-		in_port_num = (cl_ntoh32(p_smp->attr_mod) >> 8) & 0xff;
-		if (in_port_num > num_ports || out_port_num > num_ports) {
+		attr_mod = cl_ntoh32(p_smp->attr_mod);
+
+		if (attr_mod & 0x10000) {
+			startoutport = ib_switch_info_is_enhanced_port0(&p_node->sw->switch_info) ? 0 : 1;
+			endoutport = osm_node_get_num_physp(p_node) - 1;
+		} else
+			startoutport = endoutport = attr_mod & 0xff;
+
+		if (attr_mod & 0x20000) {
+			startinport = ib_switch_info_is_enhanced_port0(&p_node->sw->switch_info) ? 0 : 1;
+			endinport = osm_node_get_num_physp(p_node) - 1;
+		} else
+			startinport = endinport = (attr_mod >> 8) & 0xff;
+
+		if (startinport > num_ports || startoutport > num_ports) {
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 2C07"
 				"Invalid attribute modifier 0x%x received in"
 				" response from switch 0x%" PRIx64 "\n",
-				cl_ntoh32(p_smp->attr_mod),
-				cl_ntoh64(node_guid));
+				cl_ntoh32(attr_mod), cl_ntoh64(node_guid));
 			goto Exit;
 		}
-		p_physp = osm_node_get_physp_ptr(p_node, out_port_num);
+
 	} else {
-		p_physp = p_port->p_physp;
-		out_port_num = p_physp->port_num;
-		in_port_num = 0;
+		startoutport = endoutport = p_port->p_physp->port_num;
+		startinport = endinport = 0;
 	}
 
-	/*
-	   We do not care if this is a result of a set or get -
-	   all we want is to update the subnet.
-	 */
-	OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
-		"Got SLtoVL get response in_port_num %u out_port_num %u with "
-		"GUID 0x%" PRIx64 " for parent node GUID 0x%" PRIx64 ", TID 0x%"
-		PRIx64 "\n", in_port_num, out_port_num, cl_ntoh64(port_guid),
-		cl_ntoh64(node_guid), cl_ntoh64(p_smp->trans_id));
+	OSM_LOG(sm->p_log, OSM_LOG_DEBUG, "Received SLtoVL GetResp"
+		" in_port_num %u out_port_num %u with GUID 0x%" PRIx64
+		" for parent node GUID 0x%" PRIx64 ", TID 0x%" PRIx64 "\n",
+		startinport == endinport ? startinport : 0xff,
+		startoutport == endoutport ? startoutport : 0xff,
+		cl_ntoh64(port_guid), cl_ntoh64(node_guid),
+		cl_ntoh64(p_smp->trans_id));
 
-	/*
-	   Determine if we encountered a new Physical Port.
-	   If so, Ignore it.
-	 */
-	if (!p_physp) {
-		OSM_LOG(sm->p_log, OSM_LOG_ERROR,
-			"Got invalid port number %u\n", out_port_num);
-		goto Exit;
+	osm_dump_slvl_map_table(sm->p_log, port_guid,
+				startinport == endinport ? startinport : 0xff,
+				startoutport == endoutport ? startoutport : 0xff,
+				p_slvl_tbl, OSM_LOG_DEBUG);
+
+	for (out_port = startoutport; out_port <= endoutport; out_port++) {
+		p_physp = osm_node_get_physp_ptr(p_node, out_port);
+		for (in_port = startinport; in_port <= endinport; in_port++)
+			osm_physp_set_slvl_tbl(p_physp, p_slvl_tbl, in_port);
 	}
-
-	osm_dump_slvl_map_table(sm->p_log, port_guid, in_port_num,
-				out_port_num, p_slvl_tbl, OSM_LOG_DEBUG);
-
-	osm_physp_set_slvl_tbl(p_physp, p_slvl_tbl, in_port_num);
 
 Exit:
 	cl_plock_release(sm->p_lock);

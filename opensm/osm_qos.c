@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2006-2009 Voltaire, Inc. All rights reserved.
+ * Copyright (c) 2009 HNR Consulting. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -157,14 +158,13 @@ static ib_api_status_t vlarb_update(osm_sm_t * sm, osm_physp_t * p,
 }
 
 static ib_api_status_t sl2vl_update_table(osm_sm_t * sm, osm_physp_t * p,
-					  uint8_t in_port, uint8_t out_port,
+					  uint8_t in_port, uint32_t attr_mod,
 					  unsigned force_update,
 					  const ib_slvl_table_t * sl2vl_table)
 {
 	osm_madw_context_t context;
 	ib_slvl_table_t tbl, *p_tbl;
 	osm_node_t *p_node = osm_physp_get_node_ptr(p);
-	uint32_t attr_mod;
 	ib_api_status_t status;
 	unsigned vl_mask;
 	uint8_t vl1, vl2;
@@ -189,7 +189,6 @@ static ib_api_status_t sl2vl_update_table(osm_sm_t * sm, osm_physp_t * p,
 	context.slvl_context.node_guid = osm_node_get_node_guid(p_node);
 	context.slvl_context.port_guid = osm_physp_get_port_guid(p);
 	context.slvl_context.set_method = TRUE;
-	attr_mod = in_port << 8 | out_port;
 	status = osm_req_set(sm, osm_physp_get_dr_path_ptr(p),
 			     (uint8_t *) & tbl, sizeof(tbl),
 			     IB_MAD_ATTR_SLVL_TABLE, cl_hton32(attr_mod),
@@ -223,12 +222,20 @@ static int qos_extports_setup(osm_sm_t * sm, osm_node_t *node,
 	if (!(p0->port_info.capability_mask & IB_PORT_CAP_HAS_SL_MAP))
 		return ret;
 
+	if (ib_switch_info_get_opt_sl2vlmapping(&node->sw->switch_info) &&
+	    sm->p_subn->opt.use_optimized_slvl) {
+		p = osm_node_get_physp_ptr(node, 1);
+		force_update = p->need_update || sm->p_subn->need_update;
+		return sl2vl_update_table(sm, p, 1, 0x30000, force_update,
+					  &qcfg->sl2vl);
+	}
+
 	for (i = 1; i < num_ports; i++) {
 		p = osm_node_get_physp_ptr(node, i);
 		force_update = p->need_update || sm->p_subn->need_update;
 		for (j = 0; j < num_ports; j++)
-			if (sl2vl_update_table(sm, p, i, j, force_update,
-					       &qcfg->sl2vl))
+			if (sl2vl_update_table(sm, p, i, i << 8 | j,
+					       force_update, &qcfg->sl2vl))
 				ret = -1;
 	}
 

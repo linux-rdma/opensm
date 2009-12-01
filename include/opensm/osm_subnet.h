@@ -207,6 +207,7 @@ typedef struct osm_subn_opt {
 	boolean_t daemon;
 	boolean_t sm_inactive;
 	boolean_t babbling_port_policy;
+	boolean_t use_optimized_slvl;
 	osm_qos_options_t qos_options;
 	osm_qos_options_t qos_ca_options;
 	osm_qos_options_t qos_sw0_options;
@@ -437,6 +438,10 @@ typedef struct osm_subn_opt {
 *
 *	babbling_port_policy
 *		OpenSM will enforce its "babbling" port policy.
+*
+*	use_optimized_slvl
+*		Use optimized SLtoVLMappingTable programming if
+*		device indicates it supports this.
 *
 *	perfmgr
 *		Enable or disable the performance manager
