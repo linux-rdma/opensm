@@ -257,6 +257,7 @@ static void sm_mad_ctrl_process_get_resp(IN osm_sm_mad_ctrl_t * p_ctrl,
 			"Unsupported attribute 0x%X\n",
 			cl_ntoh16(p_smp->attr_id));
 		osm_dump_dr_smp(p_ctrl->p_log, p_smp, OSM_LOG_ERROR);
+		osm_mad_pool_put(p_ctrl->p_mad_pool, p_madw);
 		goto Exit;
 	}
 
