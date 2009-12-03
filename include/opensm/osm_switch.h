@@ -109,6 +109,9 @@ typedef struct osm_switch {
 	unsigned endport_links;
 	unsigned need_update;
 	void *priv;
+	cl_map_item_t mgrp_item;
+	uint32_t num_of_mcm;
+	uint8_t is_mc_member;
 } osm_switch_t;
 /*
 * FIELDS
@@ -150,6 +153,15 @@ typedef struct osm_switch {
 *	need_update
 *		When set indicates that switch was probably reset, so
 *		fwd tables and rest cached data should be flushed
+*
+*	mgrp_item
+*		map item for switch in building mcast tree
+*
+*	num_of_mcm
+*		number of mcast members(ports) connected to switch
+*
+*	is_mc_member
+*		whether switch is a mcast member itself
 *
 * SEE ALSO
 *	Switch object

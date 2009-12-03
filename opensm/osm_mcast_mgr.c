@@ -157,50 +157,119 @@ static void mcast_mgr_purge_tree(osm_sm_t * sm, IN osm_mgrp_box_t * mbox)
 	OSM_LOG_EXIT(sm->p_log);
 }
 
-static float osm_mcast_mgr_compute_avg_hops(osm_sm_t * sm, cl_qlist_t * l,
-					    const osm_switch_t * p_sw)
+static void mcast_mgr_build_switch_map(osm_sm_t * sm,
+				       const cl_qlist_t * port_list,
+				       cl_qmap_t * p_mcast_member_sw_tbl)
 {
-	float avg_hops = 0;
-	uint32_t hops = 0;
-	uint32_t num_ports = 0;
-	cl_list_item_t *i;
+	osm_switch_t *remote_sw;
+	cl_list_item_t *list_item;
+	osm_port_t *p_port;
+	ib_net64_t port_guid;
+	osm_physp_t *p_physp_remote;
+	osm_node_t *remote_node;
 	osm_mcast_work_obj_t *wobj;
 
 	OSM_LOG_ENTER(sm->p_log);
 
-	/*
-	   For each member of the multicast group, compute the
-	   number of hops to its base LID.
-	 */
-	for (i = cl_qlist_head(l); i != cl_qlist_end(l); i = cl_qlist_next(i)) {
-		wobj = cl_item_obj(i, wobj, list_item);
-		hops += osm_switch_get_port_least_hops(p_sw, wobj->p_port);
-		num_ports++;
+	cl_qmap_init(p_mcast_member_sw_tbl);
+	for (list_item = cl_qlist_head(port_list);
+	     list_item != cl_qlist_end(port_list);
+	     list_item = cl_qlist_next(list_item)) {
+		wobj = cl_item_obj(list_item, wobj, list_item);
+		p_port = wobj->p_port;
+		if (!p_port)
+			continue;
+		if (p_port->p_node->sw) {
+			/* for switches - remote switch would be the switch itself */
+			remote_node = osm_physp_get_node_ptr(p_port->p_physp);
+		} else {
+			p_physp_remote = osm_physp_get_remote(p_port->p_physp);
+			remote_node = osm_physp_get_node_ptr(p_physp_remote);
+		}
+		/* get the remote switch of the mcmember */
+		remote_sw = remote_node->sw;
+		port_guid = osm_node_get_node_guid(remote_node);
+		if (cl_qmap_get(p_mcast_member_sw_tbl, port_guid) ==
+			cl_qmap_end(p_mcast_member_sw_tbl)) {
+				/* insert switch to table */
+				cl_qmap_insert(p_mcast_member_sw_tbl, port_guid, &remote_sw->mgrp_item);
+				/* New element in the table */
+				if (p_port->p_node->sw)
+					/* the switch is MC memeber */
+					remote_sw->is_mc_member = 1;
+				else
+					/* for others - update MC count */
+					remote_sw->num_of_mcm++;
+		}
 	}
-
-	/*
-	   We should be here if there aren't any ports in the group.
-	 */
-	CL_ASSERT(num_ports);
-
-	if (num_ports != 0)
-		avg_hops = (float)(hops / num_ports);
-
 	OSM_LOG_EXIT(sm->p_log);
-	return avg_hops;
+}
+
+static void mcast_mgr_destroy_switch_map(osm_sm_t * sm,
+			cl_qmap_t *p_mcast_member_sw_tbl)
+{
+	cl_map_item_t *p_item;
+	osm_switch_t *p_sw;
+
+	OSM_LOG_ENTER(sm->p_log);
+
+	p_item = cl_qmap_head(p_mcast_member_sw_tbl);
+	while (p_item != cl_qmap_end(p_mcast_member_sw_tbl)) {
+		p_sw = PARENT_STRUCT(p_item, osm_switch_t, mgrp_item);
+		p_sw->num_of_mcm = 0;
+		p_sw->is_mc_member = 0;
+		p_item = cl_qmap_next(p_item);
+	}
+	cl_qmap_remove_all(p_mcast_member_sw_tbl);
+	OSM_LOG_EXIT(sm->p_log);
 }
 
 /**********************************************************************
  Calculate the maximal "min hops" from the given switch to any
  of the group HCAs
  **********************************************************************/
-static float osm_mcast_mgr_compute_max_hops(osm_sm_t * sm, cl_qlist_t * l,
-					    const osm_switch_t * p_sw)
+#ifdef OSM_VENDOR_INTF_ANAFA
+static float osm_mcast_mgr_compute_avg_hops(osm_sm_t * sm, cl_qmap_t * m,
+					    const osm_switch_t * this_sw)
 {
-	uint32_t max_hops = 0;
+	float avg_hops = 0;
 	uint32_t hops = 0;
-	cl_list_item_t *i;
-	osm_mcast_work_obj_t *wobj;
+	uint32_t num_ports = 0;
+	uint16_t lid;
+	uint32_t least_hops;
+	cl_map_item_t *i;
+	osm_switch_t *sw;
+
+	OSM_LOG_ENTER(sm->p_log);
+
+	for (i = cl_qmap_head(m); i != cl_qmap_end(m); i = cl_qmap_next(i)) {
+		sw = cl_item_obj(i, sw, mcast_item);
+		lid = cl_ntoh16(osm_node_get_base_lid(sw->p_node, 0));
+		least_hops = osm_switch_get_least_hops(this_sw, lid);
+		/* for all host that are MC members and attached to the switch,
+		   we should add the (least_hops + 1) * number_of_such_hosts.
+		   If switch itself is in the MC, we should add the least_hops only */
+		hops += (least_hops + 1) * sw->num_of_mcm +
+		    least_hops * sw->is_mc_member;
+		num_ports += sw->num_of_mcm + sw->is_mc_member;
+	}
+
+	/* We should be here if there aren't any ports in the group. */
+	CL_ASSERT(num_ports);
+
+	avg_hops = (float)(hops / num_ports);
+
+	OSM_LOG_EXIT(sm->p_log);
+	return avg_hops;
+}
+#else
+static float osm_mcast_mgr_compute_max_hops(osm_sm_t * sm, cl_qmap_t * m,
+					    const osm_switch_t * this_sw)
+{
+	uint32_t max_hops = 0, hops;
+	uint16_t lid;
+	cl_map_item_t *i;
+	osm_switch_t *sw;
 
 	OSM_LOG_ENTER(sm->p_log);
 
@@ -208,9 +277,11 @@ static float osm_mcast_mgr_compute_max_hops(osm_sm_t * sm, cl_qlist_t * l,
 	   For each member of the multicast group, compute the
 	   number of hops to its base LID.
 	 */
-	for (i = cl_qlist_head(l); i != cl_qlist_end(l); i = cl_qlist_next(i)) {
-		wobj = cl_item_obj(i, wobj, list_item);
-		hops = osm_switch_get_port_least_hops(p_sw, wobj->p_port);
+	for (i = cl_qmap_head(m); i != cl_qmap_end(m); i = cl_qmap_next(i)) {
+		sw = cl_item_obj(i, sw, mgrp_item);
+		lid = cl_ntoh16(osm_node_get_base_lid(sw->p_node, 0));
+		hops = osm_switch_get_least_hops(this_sw, lid);
+		hops = (hops + 1) * sw->num_of_mcm + hops * sw->is_mc_member;
 		if (hops > max_hops)
 			max_hops = hops;
 	}
@@ -222,6 +293,7 @@ static float osm_mcast_mgr_compute_max_hops(osm_sm_t * sm, cl_qlist_t * l,
 	OSM_LOG_EXIT(sm->p_log);
 	return (float)max_hops;
 }
+#endif
 
 /**********************************************************************
    This function attempts to locate the optimal switch for the
@@ -230,32 +302,30 @@ static float osm_mcast_mgr_compute_max_hops(osm_sm_t * sm, cl_qlist_t * l,
    of the multicast group.
 **********************************************************************/
 static osm_switch_t *mcast_mgr_find_optimal_switch(osm_sm_t * sm,
-						   cl_qlist_t *list)
+						   cl_qlist_t * list)
 {
+	cl_qmap_t mgrp_sw_map;
 	cl_qmap_t *p_sw_tbl;
 	osm_switch_t *p_sw, *p_best_sw = NULL;
 	float hops = 0;
 	float best_hops = 10000;	/* any big # will do */
-#ifdef OSM_VENDOR_INTF_ANAFA
-	boolean_t use_avg_hops = TRUE;	/* anafa2 - bug hca on switch *//* use max hops for root */
-#else
-	boolean_t use_avg_hops = FALSE;	/* use max hops for root */
-#endif
 
 	OSM_LOG_ENTER(sm->p_log);
 
 	p_sw_tbl = &sm->p_subn->sw_guid_tbl;
 
+	mcast_mgr_build_switch_map(sm, list, &mgrp_sw_map);
 	for (p_sw = (osm_switch_t *) cl_qmap_head(p_sw_tbl);
 	     p_sw != (osm_switch_t *) cl_qmap_end(p_sw_tbl);
 	     p_sw = (osm_switch_t *) cl_qmap_next(&p_sw->map_item)) {
 		if (!osm_switch_supports_mcast(p_sw))
 			continue;
 
-		if (use_avg_hops)
-			hops = osm_mcast_mgr_compute_avg_hops(sm, list, p_sw);
-		else
-			hops = osm_mcast_mgr_compute_max_hops(sm, list, p_sw);
+#ifdef OSM_VENDOR_INTF_ANAFA
+		hops = osm_mcast_mgr_compute_avg_hops(sm, &mgrp_sw_map, p_sw);
+#else
+		hops = osm_mcast_mgr_compute_max_hops(sm, &mgrp_sw_map, p_sw);
+#endif
 
 		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 			"Switch 0x%016" PRIx64 ", hops = %f\n",
@@ -276,6 +346,7 @@ static osm_switch_t *mcast_mgr_find_optimal_switch(osm_sm_t * sm,
 		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 			"No multicast capable switches detected\n");
 
+	mcast_mgr_destroy_switch_map(sm, &mgrp_sw_map);
 	OSM_LOG_EXIT(sm->p_log);
 	return p_best_sw;
 }
