@@ -2,6 +2,7 @@
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2007 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
+ * Copyright (c) 2009 Sun Microsystems, Inc. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -193,10 +194,11 @@ pkey_mgr_enforce_partition(IN osm_log_t * p_log, osm_sm_t * sm,
 	if ((p_pi->vl_enforce & 0xc) == (0xc) * (enforce == TRUE)) {
 		OSM_LOG(p_log, OSM_LOG_DEBUG,
 			"No need to update PortInfo for "
-			"node 0x%016" PRIx64 " port %u\n",
+			"node 0x%016" PRIx64 " port %u (%s)\n",
 			cl_ntoh64(osm_node_get_node_guid
 				  (osm_physp_get_node_ptr(p_physp))),
-			osm_physp_get_port_num(p_physp));
+			osm_physp_get_port_num(p_physp),
+			p_physp->p_node->print_desc);
 		return IB_SUCCESS;
 	}
 
@@ -227,16 +229,18 @@ pkey_mgr_enforce_partition(IN osm_log_t * p_log, osm_sm_t * sm,
 	if (status != IB_SUCCESS)
 		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0511: "
 			"Failed to set PortInfo for "
-			"node 0x%016" PRIx64 " port %u\n",
+			"node 0x%016" PRIx64 " port %u (%s)\n",
 			cl_ntoh64(osm_node_get_node_guid
 				  (osm_physp_get_node_ptr(p_physp))),
-			osm_physp_get_port_num(p_physp));
+			osm_physp_get_port_num(p_physp),
+			p_physp->p_node->print_desc);
 	else
 		OSM_LOG(p_log, OSM_LOG_DEBUG,
-			"Set PortInfo for node 0x%016" PRIx64 " port %u\n",
+			"Set PortInfo for node 0x%016" PRIx64 " port %u (%s)\n",
 			cl_ntoh64(osm_node_get_node_guid
 				  (osm_physp_get_node_ptr(p_physp))),
-			osm_physp_get_port_num(p_physp));
+			osm_physp_get_port_num(p_physp),
+			p_physp->p_node->print_desc);
 	return status;
 }
 
@@ -273,10 +277,11 @@ static int pkey_mgr_update_port(osm_log_t * p_log, osm_sm_t * sm,
 	if (p_pkey_tbl->max_blocks > max_num_of_blocks) {
 		OSM_LOG(p_log, OSM_LOG_INFO,
 			"Max number of blocks reduced from %u to %u "
-			"for node 0x%016" PRIx64 " port %u\n",
+			"for node 0x%016" PRIx64 " port %u (%s)\n",
 			p_pkey_tbl->max_blocks, max_num_of_blocks,
 			cl_ntoh64(osm_node_get_node_guid(p_node)),
-			osm_physp_get_port_num(p_physp));
+			osm_physp_get_port_num(p_physp),
+			p_physp->p_node->print_desc);
 	}
 	p_pkey_tbl->max_blocks = max_num_of_blocks;
 
@@ -302,11 +307,12 @@ static int pkey_mgr_update_port(osm_log_t * p_log, osm_sm_t * sm,
 			if (!found) {
 				OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0504: "
 					"Failed to find empty space for new pkey 0x%04x "
-					"for node 0x%016" PRIx64 " port %u\n",
+					"for node 0x%016" PRIx64 " port %u (%s)\n",
 					cl_ntoh16(p_pending->pkey),
 					cl_ntoh64(osm_node_get_node_guid
 						  (p_node)),
-					osm_physp_get_port_num(p_physp));
+					osm_physp_get_port_num(p_physp),
+					p_physp->p_node->print_desc);
 			} else {
 				block_index = last_free_block_index;
 				pkey_index = last_free_pkey_index++;
@@ -320,12 +326,13 @@ static int pkey_mgr_update_port(osm_log_t * p_log, osm_sm_t * sm,
 						       p_pending->pkey)) {
 				OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0505: "
 					"Failed to set PKey 0x%04x in block %u idx %u "
-					"for node 0x%016" PRIx64 " port %u\n",
+					"for node 0x%016" PRIx64 " port %u (%s)\n",
 					cl_ntoh16(p_pending->pkey), block_index,
 					pkey_index,
 					cl_ntoh64(osm_node_get_node_guid
 						  (p_node)),
-					osm_physp_get_port_num(p_physp));
+					osm_physp_get_port_num(p_physp),
+					p_physp->p_node->print_desc);
 			}
 		}
 
@@ -350,16 +357,18 @@ static int pkey_mgr_update_port(osm_log_t * p_log, osm_sm_t * sm,
 		if (status == IB_SUCCESS)
 			OSM_LOG(p_log, OSM_LOG_DEBUG,
 				"Updated pkey table block %d for node 0x%016"
-				PRIx64 " port %u\n", block_index,
+				PRIx64 " port %u (%s)\n", block_index,
 				cl_ntoh64(osm_node_get_node_guid(p_node)),
-				osm_physp_get_port_num(p_physp));
+				osm_physp_get_port_num(p_physp),
+				p_physp->p_node->print_desc);
 		else {
 			OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0506: "
 				"pkey_mgr_update_pkey_entry() failed to update "
 				"pkey table block %d for node 0x%016" PRIx64
-				" port %u\n", block_index,
+				" port %u (%s)\n", block_index,
 				cl_ntoh64(osm_node_get_node_guid(p_node)),
-				osm_physp_get_port_num(p_physp));
+				osm_physp_get_port_num(p_physp),
+				p_physp->p_node->print_desc);
 			ret = -1;
 		}
 	}
@@ -403,10 +412,11 @@ static int pkey_mgr_update_peer_port(osm_log_t * p_log, osm_sm_t * sm,
 	if (peer_max_blocks < p_pkey_tbl->used_blocks) {
 		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0508: "
 			"Not enough pkey entries (%u < %u) on switch 0x%016"
-			PRIx64 " port %u. Clearing Enforcement bit\n",
+			PRIx64 " port %u (%s). Clearing Enforcement bit\n",
 			peer_max_blocks, num_of_blocks,
 			cl_ntoh64(osm_node_get_node_guid(p_node)),
-			osm_physp_get_port_num(peer));
+			osm_physp_get_port_num(peer),
+			p_node->print_desc);
 		enforce = FALSE;
 		ret = -1;
 	}
@@ -434,10 +444,11 @@ static int pkey_mgr_update_peer_port(osm_log_t * p_log, osm_sm_t * sm,
 				OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0509: "
 					"pkey_mgr_update_pkey_entry() failed to update "
 					"pkey table block %d for node 0x%016"
-					PRIx64 " port %u\n", block_index,
+					PRIx64 " port %u (%s)\n", block_index,
 					cl_ntoh64(osm_node_get_node_guid
 						  (p_node)),
-					osm_physp_get_port_num(peer));
+					osm_physp_get_port_num(peer),
+					p_node->print_desc);
 				ret = -1;
 			}
 		}
@@ -446,9 +457,9 @@ static int pkey_mgr_update_peer_port(osm_log_t * p_log, osm_sm_t * sm,
 	if (!ret)
 		OSM_LOG(p_log, OSM_LOG_DEBUG,
 			"Pkey table was updated for node 0x%016" PRIx64
-			" port %u\n",
+			" port %u (%s)\n",
 			cl_ntoh64(osm_node_get_node_guid(p_node)),
-			osm_physp_get_port_num(peer));
+			osm_physp_get_port_num(peer), p_node->print_desc);
 
 	return ret;
 }

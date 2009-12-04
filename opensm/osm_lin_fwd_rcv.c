@@ -2,6 +2,7 @@
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005,2008 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
+ * Copyright (c) 2009 Sun Microsystems, Inc. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -89,8 +90,9 @@ void osm_lft_rcv_process(IN void *context, IN void *data)
 		if (status != IB_SUCCESS) {
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0402: "
 				"Setting forwarding table block failed (%s)"
-				"\n\t\t\t\tSwitch 0x%" PRIx64 "\n",
-				ib_get_err_str(status), cl_ntoh64(node_guid));
+				", Switch 0x%" PRIx64 " %s\n",
+				ib_get_err_str(status), cl_ntoh64(node_guid),
+				p_sw->p_node->print_desc);
 		}
 	}
 

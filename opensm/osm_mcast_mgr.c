@@ -3,6 +3,7 @@
  * Copyright (c) 2002-2009 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2008 Xsigo Systems Inc.  All rights reserved.
+ * Copyright (c) 2009 Sun Microsystems, Inc. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -270,9 +271,9 @@ static osm_switch_t *mcast_mgr_find_optimal_switch(osm_sm_t * sm,
 
 	if (p_best_sw)
 		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
-			"Best switch is 0x%" PRIx64 ", hops = %f\n",
+			"Best switch is 0x%" PRIx64 " (%s), hops = %f\n",
 			cl_ntoh64(osm_node_get_node_guid(p_best_sw->p_node)),
-			best_hops);
+			p_best_sw->p_node->print_desc, best_hops);
 	else
 		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 			"No multicast capable switches detected\n");
@@ -352,8 +353,8 @@ static int mcast_mgr_set_mft_block(osm_sm_t * sm, IN osm_switch_t * p_sw,
 				     &context);
 		if (status != IB_SUCCESS) {
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A02: "
-				"Sending multicast fwd. tbl. block failed (%s)\n",
-				ib_get_err_str(status));
+				"Sending multicast fwd. tbl. block to %s failed (%s)\n",
+				p_node->print_desc, ib_get_err_str(status));
 			ret = -1;
 		}
 	}
@@ -404,9 +405,10 @@ static void mcast_mgr_subdivide(osm_sm_t * sm, uint16_t mlid_ho,
 			    cl_ntoh64(osm_node_get_node_guid(p_sw->p_node));
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A03: "
 				"Error routing MLID 0x%X through switch 0x%"
-				PRIx64 "\n"
+				PRIx64 " %s\n"
 				"\t\t\t\tNo multicast paths from this switch "
 				"for port with LID %u\n", mlid_ho, node_guid_ho,
+				p_sw->p_node->print_desc,
 				cl_ntoh16(osm_port_get_base_lid
 					  (p_wobj->p_port)));
 			mcast_work_obj_delete(p_wobj);
@@ -418,9 +420,10 @@ static void mcast_mgr_subdivide(osm_sm_t * sm, uint16_t mlid_ho,
 			    cl_ntoh64(osm_node_get_node_guid(p_sw->p_node));
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A04: "
 				"Error routing MLID 0x%X through switch 0x%"
-				PRIx64 "\n"
+				PRIx64 " %s\n"
 				"\t\t\t\tNo multicast paths from this switch "
 				"to port with LID %u\n", mlid_ho, node_guid_ho,
+				p_sw->p_node->print_desc,
 				cl_ntoh16(osm_port_get_base_lid
 					  (p_wobj->p_port)));
 			mcast_work_obj_delete(p_wobj);
@@ -486,8 +489,9 @@ static osm_mtree_node_t *mcast_mgr_branch(osm_sm_t * sm, uint16_t mlid_ho,
 
 	OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 		"Routing MLID 0x%X through switch 0x%" PRIx64
-		", %u nodes at depth %u\n",
-		mlid_ho, node_guid_ho, cl_qlist_count(p_list), depth);
+		" %s, %u nodes at depth %u\n",
+		mlid_ho, node_guid_ho, p_sw->p_node->print_desc,
+		cl_qlist_count(p_list), depth);
 
 	CL_ASSERT(cl_qlist_count(p_list) > 0);
 
@@ -511,8 +515,8 @@ static osm_mtree_node_t *mcast_mgr_branch(osm_sm_t * sm, uint16_t mlid_ho,
 		   This switch doesn't do multicast.  Clean-up.
 		 */
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A14: "
-			"Switch 0x%" PRIx64 " does not support multicast\n",
-			node_guid_ho);
+			"Switch 0x%" PRIx64 " %s does not support multicast\n",
+			node_guid_ho, p_sw->p_node->print_desc);
 
 		/*
 		   Deallocate all the work objects on this branch of the tree.
