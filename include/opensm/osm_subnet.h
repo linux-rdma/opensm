@@ -374,8 +374,8 @@ typedef struct osm_subn_opt {
 *
 *	connect_roots
 *		The option which will enforce root to root connectivity with
-*		up/down routing engine (even if this violates "pure" deadlock
-*		free up/down algorithm)
+*		up/down and fat-tree routing engines (even if this violates
+*		"pure" deadlock free up/down or fat-tree algorithm)
 *
 *	use_ucast_cache
 *		When TRUE enables unicast routing cache.
