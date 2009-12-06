@@ -908,6 +908,12 @@ int osm_sa_db_file_load(osm_opensm_t * p_osm)
 		return 0;
 	}
 
+	if (!p_osm->subn.first_time_master_sweep) {
+		OSM_LOG(&p_osm->log, OSM_LOG_VERBOSE,
+			"Not first sweep - skip SA DB restore\n");
+		return 0;
+	}
+
 	file = fopen(file_name, "r");
 	if (!file) {
 		OSM_LOG(&p_osm->log, OSM_LOG_ERROR | OSM_LOG_SYS, "ERR 4C02: "
@@ -915,6 +921,10 @@ int osm_sa_db_file_load(osm_opensm_t * p_osm)
 			file_name);
 		return -1;
 	}
+
+	OSM_LOG(&p_osm->log, OSM_LOG_VERBOSE,
+		"Restoring SA DB from file \'%s\'\n",
+		file_name);
 
 	lineno = 0;
 
@@ -1092,8 +1102,13 @@ int osm_sa_db_file_load(osm_opensm_t * p_osm)
 		}
 	}
 
-	if (!rereg_clients)
-		p_osm->subn.opt.no_clients_rereg = TRUE;
+	/*
+	 * If loading succeeded, do whatever 'no_clients_rereg' says.
+	 * If loading failed at some point, turn off the 'no_clients_rereg'
+	 * option (turn on re-registartion requests).
+	 */
+	if (rereg_clients)
+		p_osm->subn.opt.no_clients_rereg = FALSE;
 
 _error:
 	fclose(file);
