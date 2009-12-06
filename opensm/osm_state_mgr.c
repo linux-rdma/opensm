@@ -1080,6 +1080,8 @@ static void do_sweep(osm_sm_t * sm)
 		if (wait_for_pending_transactions(&sm->p_subn->p_osm->stats))
 			return;
 		if (!sm->p_subn->force_heavy_sweep) {
+			if (sm->p_subn->opt.sa_db_dump)
+				osm_sa_db_file_dump(sm->p_subn->p_osm);
 			OSM_LOG_MSG_BOX(sm->p_log, OSM_LOG_VERBOSE,
 					"LIGHT SWEEP COMPLETE");
 			return;
@@ -1344,7 +1346,8 @@ repeat_discovery:
 		state_mgr_up_msg(sm);
 		sm->p_subn->first_time_master_sweep = FALSE;
 
-		if (osm_log_is_active(sm->p_log, OSM_LOG_VERBOSE))
+		if (osm_log_is_active(sm->p_log, OSM_LOG_VERBOSE) ||
+		    sm->p_subn->opt.sa_db_dump)
 			osm_sa_db_file_dump(sm->p_subn->p_osm);
 	}
 

@@ -348,6 +348,7 @@ static const opt_rec_t opt_tbl[] = {
 	{ "ids_guid_file", OPT_OFFSET(ids_guid_file), opts_parse_charp, NULL, 0 },
 	{ "guid_routing_order_file", OPT_OFFSET(guid_routing_order_file), opts_parse_charp, NULL, 0 },
 	{ "sa_db_file", OPT_OFFSET(sa_db_file), opts_parse_charp, NULL, 0 },
+	{ "sa_db_dump", OPT_OFFSET(sa_db_dump), opts_parse_boolean, NULL, 1 },
 	{ "do_mesh_analysis", OPT_OFFSET(do_mesh_analysis), opts_parse_boolean, NULL, 1 },
 	{ "exit_on_fatal", OPT_OFFSET(exit_on_fatal), opts_parse_boolean, NULL, 1 },
 	{ "honor_guid2lid_file", OPT_OFFSET(honor_guid2lid_file), opts_parse_boolean, NULL, 1 },
@@ -752,6 +753,7 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * p_opt)
 	p_opt->ids_guid_file = NULL;
 	p_opt->guid_routing_order_file = NULL;
 	p_opt->sa_db_file = NULL;
+	p_opt->sa_db_dump = FALSE;
 	p_opt->do_mesh_analysis = FALSE;
 	p_opt->exit_on_fatal = TRUE;
 	p_opt->enable_quirks = FALSE;
@@ -1450,6 +1452,12 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 	fprintf(out,
 		"# SA database file name\nsa_db_file %s\n\n",
 		p_opts->sa_db_file ? p_opts->sa_db_file : null_str);
+
+	fprintf(out,
+		"# If TRUE causes OpenSM to dump SA database at the end of\n"
+		"# every light sweep, regardless of the verbosity level\n"
+		"sa_db_dump %s\n\n",
+		p_opts->sa_db_dump ? "TRUE" : "FALSE");
 
 	fprintf(out,
 		"#\n# HANDOVER - MULTIPLE SMs OPTIONS\n#\n"

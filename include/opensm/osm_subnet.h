@@ -200,6 +200,7 @@ typedef struct osm_subn_opt {
 	char *ids_guid_file;
 	char *guid_routing_order_file;
 	char *sa_db_file;
+	boolean_t sa_db_dump;
 	boolean_t do_mesh_analysis;
 	boolean_t exit_on_fatal;
 	boolean_t honor_guid2lid_file;
@@ -410,6 +411,10 @@ typedef struct osm_subn_opt {
 *
 *	sa_db_file
 *		Name of the SA database file.
+*
+*	sa_db_dump
+*		When TRUE causes OpenSM to dump SA DB at the end of every
+*		light sweep regardless the current verbosity level.
 *
 *	exit_on_fatal
 *		If TRUE (default) - SM will exit on fatal subnet initialization
