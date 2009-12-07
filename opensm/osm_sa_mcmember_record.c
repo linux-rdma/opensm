@@ -247,7 +247,7 @@ static boolean_t validate_more_comp_fields(osm_log_t * p_log,
 		switch (mtu_sel) {
 		case 0:	/* Greater than MTU specified */
 			if (mtu_mgrp <= mtu_required) {
-				OSM_LOG(p_log, OSM_LOG_DEBUG,
+				OSM_LOG(p_log, OSM_LOG_VERBOSE,
 					"Requested mcast group has MTU %x, "
 					"which is not greater than %x\n",
 					mtu_mgrp, mtu_required);
@@ -256,7 +256,7 @@ static boolean_t validate_more_comp_fields(osm_log_t * p_log,
 			break;
 		case 1:	/* Less than MTU specified */
 			if (mtu_mgrp >= mtu_required) {
-				OSM_LOG(p_log, OSM_LOG_DEBUG,
+				OSM_LOG(p_log, OSM_LOG_VERBOSE,
 					"Requested mcast group has MTU %x, "
 					"which is not less than %x\n",
 					mtu_mgrp, mtu_required);
@@ -265,7 +265,7 @@ static boolean_t validate_more_comp_fields(osm_log_t * p_log,
 			break;
 		case 2:	/* Exactly MTU specified */
 			if (mtu_mgrp != mtu_required) {
-				OSM_LOG(p_log, OSM_LOG_DEBUG,
+				OSM_LOG(p_log, OSM_LOG_VERBOSE,
 					"Requested mcast group has MTU %x, "
 					"which is not equal to %x\n",
 					mtu_mgrp, mtu_required);
@@ -286,7 +286,7 @@ static boolean_t validate_more_comp_fields(osm_log_t * p_log,
 		switch (rate_sel) {
 		case 0:	/* Greater than RATE specified */
 			if (rate_mgrp <= rate_required) {
-				OSM_LOG(p_log, OSM_LOG_DEBUG,
+				OSM_LOG(p_log, OSM_LOG_VERBOSE,
 					"Requested mcast group has RATE %x, "
 					"which is not greater than %x\n",
 					rate_mgrp, rate_required);
@@ -295,7 +295,7 @@ static boolean_t validate_more_comp_fields(osm_log_t * p_log,
 			break;
 		case 1:	/* Less than RATE specified */
 			if (rate_mgrp >= rate_required) {
-				OSM_LOG(p_log, OSM_LOG_DEBUG,
+				OSM_LOG(p_log, OSM_LOG_VERBOSE,
 					"Requested mcast group has RATE %x, "
 					"which is not less than %x\n",
 					rate_mgrp, rate_required);
@@ -304,7 +304,7 @@ static boolean_t validate_more_comp_fields(osm_log_t * p_log,
 			break;
 		case 2:	/* Exactly RATE specified */
 			if (rate_mgrp != rate_required) {
-				OSM_LOG(p_log, OSM_LOG_DEBUG,
+				OSM_LOG(p_log, OSM_LOG_VERBOSE,
 					"Requested mcast group has RATE %x, "
 					"which is not equal to %x\n",
 					rate_mgrp, rate_required);
@@ -335,7 +335,7 @@ static boolean_t validate_port_caps(osm_log_t * p_log,
 	mtu_required = ib_port_info_get_mtu_cap(&p_physp->port_info);
 	mtu_mgrp = (uint8_t) (p_mgrp->mcmember_rec.mtu & 0x3F);
 	if (mtu_required < mtu_mgrp) {
-		OSM_LOG(p_log, OSM_LOG_DEBUG,
+		OSM_LOG(p_log, OSM_LOG_VERBOSE,
 			"Port's MTU %x is less than %x\n",
 			mtu_required, mtu_mgrp);
 		return FALSE;
@@ -344,7 +344,7 @@ static boolean_t validate_port_caps(osm_log_t * p_log,
 	rate_required = ib_port_info_compute_rate(&p_physp->port_info);
 	rate_mgrp = (uint8_t) (p_mgrp->mcmember_rec.rate & 0x3F);
 	if (rate_required < rate_mgrp) {
-		OSM_LOG(p_log, OSM_LOG_DEBUG,
+		OSM_LOG(p_log, OSM_LOG_VERBOSE,
 			"Port's RATE %x is less than %x\n",
 			rate_required, rate_mgrp);
 		return FALSE;
@@ -666,7 +666,7 @@ static boolean_t mgrp_request_is_realizable(IN osm_sa_t * sa,
 		switch (mtu_sel) {
 		case 0:	/* Greater than MTU specified */
 			if (port_mtu && mtu_required >= port_mtu) {
-				OSM_LOG(p_log, OSM_LOG_DEBUG,
+				OSM_LOG(p_log, OSM_LOG_VERBOSE,
 					"Requested MTU %x >= the port\'s mtu:%x\n",
 					mtu_required, port_mtu);
 				return FALSE;
@@ -694,7 +694,7 @@ static boolean_t mgrp_request_is_realizable(IN osm_sa_t * sa,
 		}
 		/* make sure it still be in the range */
 		if (mtu < IB_MIN_MTU || mtu > IB_MAX_MTU) {
-			OSM_LOG(p_log, OSM_LOG_DEBUG,
+			OSM_LOG(p_log, OSM_LOG_VERBOSE,
 				"Calculated MTU %x is out of range\n", mtu);
 			return FALSE;
 		}
@@ -713,7 +713,7 @@ static boolean_t mgrp_request_is_realizable(IN osm_sa_t * sa,
 		switch (rate_sel) {
 		case 0:	/* Greater than RATE specified */
 			if (port_rate && rate_required >= port_rate) {
-				OSM_LOG(p_log, OSM_LOG_DEBUG,
+				OSM_LOG(p_log, OSM_LOG_VERBOSE,
 					"Requested RATE %x >= the port\'s rate:%x\n",
 					rate_required, port_rate);
 				return FALSE;
@@ -741,7 +741,7 @@ static boolean_t mgrp_request_is_realizable(IN osm_sa_t * sa,
 		}
 		/* make sure it still is in the range */
 		if (rate < IB_MIN_RATE || rate > IB_MAX_RATE) {
-			OSM_LOG(p_log, OSM_LOG_DEBUG,
+			OSM_LOG(p_log, OSM_LOG_VERBOSE,
 				"Calculated RATE %x is out of range\n", rate);
 			return FALSE;
 		}
@@ -1015,7 +1015,7 @@ static void mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 
 	if (!osm_physp_share_pkey(sa->p_log, p_physp, p_request_physp)) {
 		CL_PLOCK_RELEASE(sa->p_lock);
-		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
+		OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
 			"Port and requester don't share pkey\n");
 		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_REQ_INVALID);
 		goto Exit;
