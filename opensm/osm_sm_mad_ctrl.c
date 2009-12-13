@@ -545,39 +545,30 @@ static void sm_mad_ctrl_process_trap_repress(IN osm_sm_mad_ctrl_t * p_ctrl,
 static void log_rcv_cb_error(osm_log_t *p_log, ib_smp_t *p_smp, ib_net16_t status)
 {
 	char buf[BUF_SIZE];
-	char ipath[BUF_SIZE], rpath[BUF_SIZE];
-	char tmp[10];
 	uint32_t i;
 
 	if (p_smp->mgmt_class == IB_MCLASS_SUBN_DIR) {
-
-		for (i = 0; i <= p_smp->hop_count; i++) {
-			if (i == 0) {
-				sprintf(ipath, "%d", p_smp->initial_path[i]);
-				sprintf(rpath, "%d", p_smp->return_path[i]);
-			} else {
-				sprintf(tmp, ",%d", p_smp->initial_path[i]);
-				strcat(ipath, tmp);
-				sprintf(tmp, ",%d", p_smp->return_path[i]);
-				strcat(rpath, tmp);
-			}
+		char ipath[BUF_SIZE], rpath[BUF_SIZE];
+		int ni = sprintf(ipath, "%d", p_smp->initial_path[0]);
+		int nr = sprintf(rpath, "%d", p_smp->return_path[0]);
+		for (i = 1; i <= p_smp->hop_count; i++) {
+			ni += sprintf(ipath + ni, ",%d", p_smp->initial_path[i]);
+			nr += sprintf(rpath + nr, ",%d", p_smp->return_path[i]);
 		}
-		sprintf(buf, "\n\t\t\tInitial path: ");
-		strcat(buf, ipath);
-		strcat(buf, " Return path: ");
-		strcat(buf, rpath);
+		snprintf(buf, sizeof(buf),
+			 "\n\t\t\tInitial path: %s Return path: %s",
+			 ipath, rpath);
 	}
 
 	OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 3111: "
 		"Received MAD with error status = 0x%X\n"
 		"\t\t\t%s(%s), attr_mod 0x%x, TID 0x%" PRIx64 "%s\n",
 		cl_ntoh16(status), ib_get_sm_method_str(p_smp->method),
-		ib_get_sm_attr_str(p_smp->attr_id),
-		cl_ntoh32(p_smp->attr_mod),
+		ib_get_sm_attr_str(p_smp->attr_id), cl_ntoh32(p_smp->attr_mod),
 		cl_ntoh64(p_smp->trans_id),
 		p_smp->mgmt_class == IB_MCLASS_SUBN_DIR ? buf : "");
 
-		osm_dump_dr_smp(p_log, p_smp, OSM_LOG_VERBOSE);
+	osm_dump_dr_smp(p_log, p_smp, OSM_LOG_VERBOSE);
 }
 
 /*
@@ -724,8 +715,7 @@ static void sm_mad_ctrl_send_err_cb(IN void *context, IN osm_madw_t * p_madw)
 		"%s(%s), attr_mod 0x%x, TID 0x%" PRIx64 "\n",
 		ib_get_err_str(p_madw->status),
 		ib_get_sm_method_str(p_smp->method),
-		ib_get_sm_attr_str(p_smp->attr_id),
-		cl_ntoh32(p_smp->attr_mod),
+		ib_get_sm_attr_str(p_smp->attr_id), cl_ntoh32(p_smp->attr_mod),
 		cl_ntoh64(p_smp->trans_id));
 
 	/*
