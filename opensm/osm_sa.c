@@ -901,16 +901,16 @@ int osm_sa_db_file_load(osm_opensm_t * p_osm)
 	unsigned rereg_clients = 0;
 	unsigned lineno;
 
+	if (!p_osm->subn.first_time_master_sweep) {
+		OSM_LOG(&p_osm->log, OSM_LOG_VERBOSE,
+			"Not first sweep - skip SA DB restore\n");
+		return 0;
+	}
+
 	file_name = p_osm->subn.opt.sa_db_file;
 	if (!file_name) {
 		OSM_LOG(&p_osm->log, OSM_LOG_VERBOSE,
 			"sa db file name is not specifed. Skip restore\n");
-		return 0;
-	}
-
-	if (!p_osm->subn.first_time_master_sweep) {
-		OSM_LOG(&p_osm->log, OSM_LOG_VERBOSE,
-			"Not first sweep - skip SA DB restore\n");
 		return 0;
 	}
 
