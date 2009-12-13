@@ -349,7 +349,7 @@ static void *umad_receiver(void *p_ptr)
 					mad->method, cl_ntoh16(mad->attr_id),
 					cl_ntoh64(mad->trans_id), smp->hop_ptr);
 				osm_dump_smp_dr_path(p_vend->p_log, smp,
-						     OSM_LOG_VERBOSE);
+						     OSM_LOG_ERROR);
 			}
 
 			if (!(p_req_madw = get_madw(p_vend, &mad->trans_id))) {
