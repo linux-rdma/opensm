@@ -1236,6 +1236,8 @@ static ib_net16_t pr_rcv_get_end_points(IN osm_sa_t * sa,
 				sa_status = IB_SA_MAD_STATUS_INVALID_GID;
 				goto Exit;
 			}
+			if (p_dgid)
+				*p_dgid = p_pr->dgid;
 		} else
 			dest_guid = p_pr->dgid.unicast.interface_id;
 
@@ -1253,9 +1255,6 @@ static ib_net16_t pr_rcv_get_end_points(IN osm_sa_t * sa,
 			sa_status = IB_SA_MAD_STATUS_INVALID_GID;
 			goto Exit;
 		}
-
-		if (p_dgid)
-			*p_dgid = p_pr->dgid;
 	} else {
 		*pp_dest_port = 0;
 		if (comp_mask & IB_PR_COMPMASK_DLID) {
