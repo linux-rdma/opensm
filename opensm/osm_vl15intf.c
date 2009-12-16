@@ -92,8 +92,7 @@ static void vl15_send_mad(osm_vl15_t * p_vl, osm_madw_t * p_madw)
 	}
 
 	OSM_LOG(p_vl->p_log, OSM_LOG_ERROR, "ERR 3E03: "
-		"MAD send failed (%s), TID 0x%" PRIx64 "\n",
-		ib_get_err_str(status), cl_ntoh64(p_madw->p_mad->trans_id));
+		"MAD send failed (%s)\n", ib_get_err_str(status));
 
 	/*
 	   The MAD was never successfully sent, so
