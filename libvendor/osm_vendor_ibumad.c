@@ -1074,8 +1074,8 @@ Resp:
 			     resp_expected ? p_bind->timeout : 0,
 			     p_bind->max_retries)) < 0) {
 		OSM_LOG(p_vend->p_log, OSM_LOG_ERROR, "ERR 5430: "
-			"Send p_madw = %p of size %d failed %d (%m)\n",
-			p_madw, sent_mad_size, ret);
+			"Send p_madw = %p of size %d TID 0x%" PRIx64 " failed %d (%m)\n",
+			p_madw, sent_mad_size, cl_ntoh64(p_mad->trans_id), ret);
 		if (resp_expected) {
 			get_madw(p_vend, &p_mad->trans_id);	/* remove from aging table */
 			p_madw->status = IB_ERROR;
