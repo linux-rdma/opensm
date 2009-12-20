@@ -854,15 +854,13 @@ static osm_pr_item_t *pr_rcv_get_lid_pair_path(IN osm_sa_t * sa,
 	   rather then requiring non-reversible paths ...
 	   see Vol1 Ver1.2 p900 l16
 	 */
-	if (comp_mask & IB_PR_COMPMASK_REVERSIBLE) {
-		if ((!path_parms.reversible && (p_pr->num_path & 0x80))) {
-			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-				"Requested reversible path but failed to get one\n");
-
-			free(p_pr_item);
-			p_pr_item = NULL;
-			goto Exit;
-		}
+	if ((comp_mask & IB_PR_COMPMASK_REVERSIBLE) &&
+	    !path_parms.reversible && (p_pr->num_path & 0x80)) {
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
+			"Requested reversible path but failed to get one\n");
+		free(p_pr_item);
+		p_pr_item = NULL;
+		goto Exit;
 	}
 
 	pr_rcv_build_pr(sa, p_src_port, p_dest_port, p_dgid, src_lid_ho,
@@ -875,16 +873,15 @@ Exit:
 }
 
 static void pr_rcv_get_port_pair_paths(IN osm_sa_t * sa,
-				       IN const osm_madw_t * p_madw,
+				       IN const ib_sa_mad_t *sa_mad,
 				       IN const osm_port_t * p_req_port,
 				       IN const osm_port_t * p_src_port,
 				       IN const osm_port_t * p_dest_port,
 				       IN const ib_gid_t * p_dgid,
-				       IN const ib_net64_t comp_mask,
 				       IN cl_qlist_t * p_list)
 {
-	const ib_path_rec_t *p_pr;
-	const ib_sa_mad_t *p_sa_mad;
+	const ib_path_rec_t *p_pr = ib_sa_mad_get_payload_ptr(sa_mad);
+	ib_net64_t comp_mask = sa_mad->comp_mask;
 	osm_pr_item_t *p_pr_item;
 	uint16_t src_lid_min_ho;
 	uint16_t src_lid_max_ho;
@@ -911,9 +908,6 @@ static void pr_rcv_get_port_pair_paths(IN osm_sa_t * sa,
 	    || osm_port_share_pkey(sa->p_log, p_src_port, p_dest_port) == FALSE)
 		/* One of the pairs doesn't share a pkey so the path is disqualified. */
 		goto Exit;
-
-	p_sa_mad = osm_madw_get_sa_mad_ptr(p_madw);
-	p_pr = (ib_path_rec_t *) ib_sa_mad_get_payload_ptr(p_sa_mad);
 
 	/*
 	   We shouldn't be here if the paths are disqualified in some way...
@@ -1002,7 +996,7 @@ static void pr_rcv_get_port_pair_paths(IN osm_sa_t * sa,
 	path_num = 0;
 
 	/* If SubnAdmGet, assume NumbPaths 1 (1.2 erratum) */
-	if (p_sa_mad->method == IB_MAD_METHOD_GET)
+	if (sa_mad->method == IB_MAD_METHOD_GET)
 		iterations = 1;
 	else if (comp_mask & IB_PR_COMPMASK_NUMBPATH)
 		iterations = ib_path_rec_num_path(p_pr);
@@ -1126,14 +1120,13 @@ static ib_net64_t find_router(const osm_sa_t *sa, ib_net64_t prefix)
 }
 
 static ib_net16_t pr_rcv_get_end_points(IN osm_sa_t * sa,
-					IN const osm_madw_t * p_madw,
+					IN const ib_sa_mad_t *sa_mad,
 					OUT const osm_port_t ** pp_src_port,
 					OUT const osm_port_t ** pp_dest_port,
 					OUT const ib_gid_t ** pp_dgid)
 {
-	const ib_path_rec_t *p_pr;
-	const ib_sa_mad_t *p_sa_mad;
-	ib_net64_t comp_mask;
+	const ib_path_rec_t *p_pr = ib_sa_mad_get_payload_ptr(sa_mad);
+	ib_net64_t comp_mask = sa_mad->comp_mask;
 	ib_net64_t dest_guid;
 	ib_api_status_t status;
 	ib_net16_t sa_status = IB_SA_MAD_STATUS_SUCCESS;
@@ -1144,11 +1137,6 @@ static ib_net16_t pr_rcv_get_end_points(IN osm_sa_t * sa,
 	   Determine what fields are valid and then get a pointer
 	   to the source and destination port objects, if possible.
 	 */
-
-	p_sa_mad = osm_madw_get_sa_mad_ptr(p_madw);
-	p_pr = (ib_path_rec_t *) ib_sa_mad_get_payload_ptr(p_sa_mad);
-
-	comp_mask = p_sa_mad->comp_mask;
 
 	/*
 	   Check a few easy disqualifying cases up front before getting
@@ -1276,16 +1264,14 @@ Exit:
 	return sa_status;
 }
 
-static void pr_rcv_process_world(IN osm_sa_t * sa, IN const osm_madw_t * p_madw,
+static void pr_rcv_process_world(IN osm_sa_t * sa, IN const ib_sa_mad_t * sa_mad,
 				 IN const osm_port_t * requester_port,
 				 IN const ib_gid_t * p_dgid,
-				 IN const ib_net64_t comp_mask,
 				 IN cl_qlist_t * p_list)
 {
 	const cl_qmap_t *p_tbl;
 	const osm_port_t *p_dest_port;
 	const osm_port_t *p_src_port;
-	const ib_sa_mad_t *p_sa_mad;
 
 	OSM_LOG_ENTER(sa->p_log);
 
@@ -1298,16 +1284,15 @@ static void pr_rcv_process_world(IN osm_sa_t * sa, IN const osm_madw_t * p_madw,
 	   any check to determine the reversability of the paths.
 	 */
 	p_tbl = &sa->p_subn->port_guid_tbl;
-	p_sa_mad = osm_madw_get_sa_mad_ptr(p_madw);
 
 	p_dest_port = (osm_port_t *) cl_qmap_head(p_tbl);
 	while (p_dest_port != (osm_port_t *) cl_qmap_end(p_tbl)) {
 		p_src_port = (osm_port_t *) cl_qmap_head(p_tbl);
 		while (p_src_port != (osm_port_t *) cl_qmap_end(p_tbl)) {
-			pr_rcv_get_port_pair_paths(sa, p_madw, requester_port,
+			pr_rcv_get_port_pair_paths(sa, sa_mad, requester_port,
 						   p_src_port, p_dest_port,
-						   p_dgid, comp_mask, p_list);
-			if (p_sa_mad->method == IB_MAD_METHOD_GET &&
+						   p_dgid, p_list);
+			if (sa_mad->method == IB_MAD_METHOD_GET &&
 			    cl_qlist_count(p_list) > 0)
 				goto Exit;
 
@@ -1323,17 +1308,15 @@ Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }
 
-static void pr_rcv_process_half(IN osm_sa_t * sa, IN const osm_madw_t * p_madw,
+static void pr_rcv_process_half(IN osm_sa_t * sa, IN const ib_sa_mad_t * sa_mad,
 				IN const osm_port_t * requester_port,
 				IN const osm_port_t * p_src_port,
 				IN const osm_port_t * p_dest_port,
 				IN const ib_gid_t * p_dgid,
-				IN const ib_net64_t comp_mask,
 				IN cl_qlist_t * p_list)
 {
 	const cl_qmap_t *p_tbl;
 	const osm_port_t *p_port;
-	const ib_sa_mad_t *p_sa_mad;
 
 	OSM_LOG_ENTER(sa->p_log);
 
@@ -1343,7 +1326,6 @@ static void pr_rcv_process_half(IN osm_sa_t * sa, IN const osm_madw_t * p_madw,
 	   need to special case that one.
 	 */
 	p_tbl = &sa->p_subn->port_guid_tbl;
-	p_sa_mad = osm_madw_get_sa_mad_ptr(p_madw);
 
 	if (p_src_port) {
 		/*
@@ -1351,10 +1333,10 @@ static void pr_rcv_process_half(IN osm_sa_t * sa, IN const osm_madw_t * p_madw,
 		 */
 		p_port = (osm_port_t *) cl_qmap_head(p_tbl);
 		while (p_port != (osm_port_t *) cl_qmap_end(p_tbl)) {
-			pr_rcv_get_port_pair_paths(sa, p_madw, requester_port,
+			pr_rcv_get_port_pair_paths(sa, sa_mad, requester_port,
 						   p_src_port, p_port, p_dgid,
-						   comp_mask, p_list);
-			if (p_sa_mad->method == IB_MAD_METHOD_GET &&
+						   p_list);
+			if (sa_mad->method == IB_MAD_METHOD_GET &&
 			    cl_qlist_count(p_list) > 0)
 				break;
 			p_port = (osm_port_t *) cl_qmap_next(&p_port->map_item);
@@ -1365,10 +1347,10 @@ static void pr_rcv_process_half(IN osm_sa_t * sa, IN const osm_madw_t * p_madw,
 		 */
 		p_port = (osm_port_t *) cl_qmap_head(p_tbl);
 		while (p_port != (osm_port_t *) cl_qmap_end(p_tbl)) {
-			pr_rcv_get_port_pair_paths(sa, p_madw, requester_port,
+			pr_rcv_get_port_pair_paths(sa, sa_mad, requester_port,
 						   p_port, p_dest_port, p_dgid,
-						   comp_mask, p_list);
-			if (p_sa_mad->method == IB_MAD_METHOD_GET &&
+						   p_list);
+			if (sa_mad->method == IB_MAD_METHOD_GET &&
 			    cl_qlist_count(p_list) > 0)
 				break;
 			p_port = (osm_port_t *) cl_qmap_next(&p_port->map_item);
@@ -1378,18 +1360,17 @@ static void pr_rcv_process_half(IN osm_sa_t * sa, IN const osm_madw_t * p_madw,
 	OSM_LOG_EXIT(sa->p_log);
 }
 
-static void pr_rcv_process_pair(IN osm_sa_t * sa, IN const osm_madw_t * p_madw,
+static void pr_rcv_process_pair(IN osm_sa_t * sa, IN const ib_sa_mad_t * sa_mad,
 				IN const osm_port_t * requester_port,
 				IN const osm_port_t * p_src_port,
 				IN const osm_port_t * p_dest_port,
 				IN const ib_gid_t * p_dgid,
-				IN const ib_net64_t comp_mask,
 				IN cl_qlist_t * p_list)
 {
 	OSM_LOG_ENTER(sa->p_log);
 
-	pr_rcv_get_port_pair_paths(sa, p_madw, requester_port, p_src_port,
-				   p_dest_port, p_dgid, comp_mask, p_list);
+	pr_rcv_get_port_pair_paths(sa, sa_mad, requester_port, p_src_port,
+				   p_dest_port, p_dgid, p_list);
 
 	OSM_LOG_EXIT(sa->p_log);
 }
@@ -1398,19 +1379,14 @@ static ib_api_status_t pr_match_mgrp_attributes(IN osm_sa_t * sa,
 						IN const ib_sa_mad_t * sa_mad,
 						IN const osm_mgrp_t * p_mgrp)
 {
-	const ib_path_rec_t *p_pr;
-	ib_net64_t comp_mask;
+	const ib_path_rec_t *p_pr = ib_sa_mad_get_payload_ptr(sa_mad);
+	ib_net64_t comp_mask = sa_mad->comp_mask;
 	const osm_port_t *port;
 	ib_api_status_t status = IB_ERROR;
 	uint32_t flow_label;
-	uint8_t sl;
-	uint8_t hop_limit;
+	uint8_t sl, hop_limit;
 
 	OSM_LOG_ENTER(sa->p_log);
-
-	p_pr = ib_sa_mad_get_payload_ptr(sa_mad);
-
-	comp_mask = sa_mad->comp_mask;
 
 	/* check that MLID of the MC group matches the PathRecord DLID */
 	if ((comp_mask & IB_PR_COMPMASK_DLID) && p_mgrp->mlid != p_pr->dlid)
@@ -1431,40 +1407,33 @@ static ib_api_status_t pr_match_mgrp_attributes(IN osm_sa_t * sa,
 	}
 
 	/* Also, MTU, rate, packet lifetime, and raw traffic requested are not currently checked */
-	if (comp_mask & IB_PR_COMPMASK_PKEY) {
-		if (p_pr->pkey != p_mgrp->mcmember_rec.pkey)
-			goto Exit;
-	}
+	if ((comp_mask & IB_PR_COMPMASK_PKEY) &&
+	    p_pr->pkey != p_mgrp->mcmember_rec.pkey)
+		goto Exit;
 
 	ib_member_get_sl_flow_hop(p_mgrp->mcmember_rec.sl_flow_hop,
 				  &sl, &flow_label, &hop_limit);
 
-	if (comp_mask & IB_PR_COMPMASK_SL) {
-		if (ib_path_rec_sl(p_pr) != sl)
-			goto Exit;
-	}
+	if ((comp_mask & IB_PR_COMPMASK_SL) && ib_path_rec_sl(p_pr) != sl)
+		goto Exit;
 
 	/* If SubnAdmGet, assume NumbPaths of 1 (1.2 erratum) */
 	if ((comp_mask & IB_PR_COMPMASK_NUMBPATH) &&
-	    (sa_mad->method != IB_MAD_METHOD_GET)) {
-		if (ib_path_rec_num_path(p_pr) == 0)
-			goto Exit;
-	}
+	    sa_mad->method != IB_MAD_METHOD_GET &&
+	    ib_path_rec_num_path(p_pr) == 0)
+		goto Exit;
 
-	if (comp_mask & IB_PR_COMPMASK_FLOWLABEL) {
-		if (ib_path_rec_flow_lbl(p_pr) != flow_label)
-			goto Exit;
-	}
+	if ((comp_mask & IB_PR_COMPMASK_FLOWLABEL) &&
+	    ib_path_rec_flow_lbl(p_pr) != flow_label)
+		goto Exit;
 
-	if (comp_mask & IB_PR_COMPMASK_HOPLIMIT) {
-		if (ib_path_rec_hop_limit(p_pr) != hop_limit)
-			goto Exit;
-	}
+	if ((comp_mask & IB_PR_COMPMASK_HOPLIMIT) &&
+	    ib_path_rec_hop_limit(p_pr) != hop_limit)
+		goto Exit;
 
-	if (comp_mask & IB_PR_COMPMASK_TCLASS) {
-		if (p_pr->tclass != p_mgrp->mcmember_rec.tclass)
-			goto Exit;
-	}
+	if ((comp_mask & IB_PR_COMPMASK_TCLASS) &&
+	    p_pr->tclass != p_mgrp->mcmember_rec.tclass)
+		goto Exit;
 
 	status = IB_SUCCESS;
 
@@ -1548,21 +1517,16 @@ void osm_pr_rcv_process(IN void *context, IN void *data)
 {
 	osm_sa_t *sa = context;
 	osm_madw_t *p_madw = data;
-	ib_path_rec_t *p_pr;
-	const ib_sa_mad_t *p_sa_mad;
-	const osm_port_t *p_src_port;
-	const osm_port_t *p_dest_port;
+	const ib_sa_mad_t *p_sa_mad = osm_madw_get_sa_mad_ptr(p_madw);
+	ib_path_rec_t *p_pr = ib_sa_mad_get_payload_ptr(p_sa_mad);
 	cl_qlist_t pr_list;
 	const ib_gid_t *p_dgid = NULL;
-	ib_net16_t sa_status;
+	const osm_port_t *p_src_port, *p_dest_port;
 	osm_port_t *requester_port;
 
 	OSM_LOG_ENTER(sa->p_log);
 
 	CL_ASSERT(p_madw);
-
-	p_sa_mad = osm_madw_get_sa_mad_ptr(p_madw);
-	p_pr = (ib_path_rec_t *) ib_sa_mad_get_payload_ptr(p_sa_mad);
 
 	CL_ASSERT(p_sa_mad->attr_id == IB_MAD_ATTR_PATH_RECORD);
 
@@ -1606,38 +1570,32 @@ void osm_pr_rcv_process(IN void *context, IN void *data)
 
 	OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Unicast destination requested\n");
 
-	sa_status = pr_rcv_get_end_points(sa, p_madw, &p_src_port, &p_dest_port,
-					  &p_dgid);
-	if (sa_status == IB_SA_MAD_STATUS_SUCCESS) {
-		/*
-		   What happens next depends on the type of endpoint information
-		   that was specified....
-		 */
-		if (p_src_port) {
-			if (p_dest_port)
-				pr_rcv_process_pair(sa, p_madw, requester_port,
-						    p_src_port, p_dest_port,
-						    p_dgid, p_sa_mad->comp_mask,
-						    &pr_list);
-			else
-				pr_rcv_process_half(sa, p_madw, requester_port,
-						    p_src_port, NULL, p_dgid,
-						    p_sa_mad->comp_mask,
-						    &pr_list);
-		} else {
-			if (p_dest_port)
-				pr_rcv_process_half(sa, p_madw, requester_port,
-						    NULL, p_dest_port, p_dgid,
-						    p_sa_mad->comp_mask,
-						    &pr_list);
-			else
-				/*
-				   Katie, bar the door!
-				 */
-				pr_rcv_process_world(sa, p_madw, requester_port,
-						     p_dgid, p_sa_mad->comp_mask,
-						     &pr_list);
-		}
+	if (pr_rcv_get_end_points(sa, p_sa_mad, &p_src_port, &p_dest_port,
+				  &p_dgid) != IB_SA_MAD_STATUS_SUCCESS)
+		goto Unlock;
+
+	/*
+	   What happens next depends on the type of endpoint information
+	   that was specified....
+	 */
+	if (p_src_port) {
+		if (p_dest_port)
+			pr_rcv_process_pair(sa, p_sa_mad, requester_port,
+					    p_src_port, p_dest_port, p_dgid,
+					    &pr_list);
+		else
+			pr_rcv_process_half(sa, p_sa_mad, requester_port,
+					    p_src_port, NULL, p_dgid, &pr_list);
+	} else {
+		if (p_dest_port)
+			pr_rcv_process_half(sa, p_sa_mad, requester_port,
+					    NULL, p_dest_port, p_dgid, &pr_list);
+		else
+			/*
+			   Katie, bar the door!
+			 */
+			pr_rcv_process_world(sa, p_sa_mad, requester_port,
+					     p_dgid, &pr_list);
 	}
 
 Unlock:
