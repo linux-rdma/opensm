@@ -1390,11 +1390,9 @@ void osm_state_mgr_process(IN osm_sm_t * sm, IN osm_signal_t signal)
 	case OSM_SIGNAL_SWEEP:
 		do_sweep(sm);
 		break;
-
 	case OSM_SIGNAL_IDLE_TIME_PROCESS_REQUEST:
 		do_process_mgrp_queue(sm);
 		break;
-
 	default:
 		CL_ASSERT(FALSE);
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3320: "

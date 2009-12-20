@@ -84,7 +84,6 @@ ib_api_status_t osm_req_get(IN osm_sm_t * sm, IN const osm_dr_path_t * p_path,
 
 	p_madw = osm_mad_pool_get(sm->p_mad_pool, p_path->h_bind,
 				  MAD_BLOCK_SIZE, NULL);
-
 	if (p_madw == NULL) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR,
 			"ERR 1101: Unable to acquire MAD\n");
@@ -155,7 +154,6 @@ ib_api_status_t osm_req_set(IN osm_sm_t * sm, IN const osm_dr_path_t * p_path,
 
 	p_madw = osm_mad_pool_get(sm->p_mad_pool, p_path->h_bind,
 				  MAD_BLOCK_SIZE, NULL);
-
 	if (p_madw == NULL) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR,
 			"ERR 1102: Unable to acquire MAD\n");
