@@ -215,11 +215,9 @@ static float osm_mcast_mgr_compute_max_hops(osm_sm_t * sm, cl_qlist_t * l,
 			max_hops = hops;
 	}
 
-	if (max_hops == 0)
-		/*
-		   We should be here if there aren't any ports in the group.
-		 */
-		max_hops = 10001;	/* see later - we use it to realize no hops */
+	/* Note that at this point we might get (max_hops == 0),
+	   which means that there's only one member in the mcast
+	   group, and it's the current switch */
 
 	OSM_LOG_EXIT(sm->p_log);
 	return (float)max_hops;
