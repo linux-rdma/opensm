@@ -399,13 +399,12 @@ static void mcast_mgr_subdivide(osm_sm_t * sm, uint16_t mlid_ho,
 			   multicast and the multicast tree must branch at this
 			   switch.
 			 */
-			uint64_t node_guid_ho =
-			    cl_ntoh64(osm_node_get_node_guid(p_sw->p_node));
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A03: "
 				"Error routing MLID 0x%X through switch 0x%"
 				PRIx64 " %s\n"
 				"\t\t\t\tNo multicast paths from this switch "
-				"for port with LID %u\n", mlid_ho, node_guid_ho,
+				"for port with LID %u\n", mlid_ho,
+				cl_ntoh64(osm_node_get_node_guid(p_sw->p_node)),
 				p_sw->p_node->print_desc,
 				cl_ntoh16(osm_port_get_base_lid
 					  (p_wobj->p_port)));
@@ -414,13 +413,12 @@ static void mcast_mgr_subdivide(osm_sm_t * sm, uint16_t mlid_ho,
 		}
 
 		if (port_num > array_size) {
-			uint64_t node_guid_ho =
-			    cl_ntoh64(osm_node_get_node_guid(p_sw->p_node));
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A04: "
 				"Error routing MLID 0x%X through switch 0x%"
 				PRIx64 " %s\n"
 				"\t\t\t\tNo multicast paths from this switch "
-				"to port with LID %u\n", mlid_ho, node_guid_ho,
+				"to port with LID %u\n", mlid_ho,
+				cl_ntoh64(osm_node_get_node_guid(p_sw->p_node)),
 				p_sw->p_node->print_desc,
 				cl_ntoh16(osm_port_get_base_lid
 					  (p_wobj->p_port)));
@@ -470,7 +468,6 @@ static osm_mtree_node_t *mcast_mgr_branch(osm_sm_t * sm, uint16_t mlid_ho,
 	cl_qlist_t *list_array = NULL;
 	uint8_t i;
 	ib_net64_t node_guid;
-	uint64_t node_guid_ho;
 	osm_mcast_work_obj_t *p_wobj;
 	cl_qlist_t *p_port_list;
 	size_t count;
@@ -483,12 +480,11 @@ static osm_mtree_node_t *mcast_mgr_branch(osm_sm_t * sm, uint16_t mlid_ho,
 	CL_ASSERT(p_max_depth);
 
 	node_guid = osm_node_get_node_guid(p_sw->p_node);
-	node_guid_ho = cl_ntoh64(node_guid);
 
 	OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 		"Routing MLID 0x%X through switch 0x%" PRIx64
 		" %s, %u nodes at depth %u\n",
-		mlid_ho, node_guid_ho, p_sw->p_node->print_desc,
+		mlid_ho, cl_ntoh64(node_guid), p_sw->p_node->print_desc,
 		cl_qlist_count(p_list), depth);
 
 	CL_ASSERT(cl_qlist_count(p_list) > 0);
@@ -514,7 +510,7 @@ static osm_mtree_node_t *mcast_mgr_branch(osm_sm_t * sm, uint16_t mlid_ho,
 		 */
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A14: "
 			"Switch 0x%" PRIx64 " %s does not support multicast\n",
-			node_guid_ho, p_sw->p_node->print_desc);
+			cl_ntoh64(node_guid), p_sw->p_node->print_desc);
 
 		/*
 		   Deallocate all the work objects on this branch of the tree.
