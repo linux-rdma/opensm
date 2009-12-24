@@ -10,7 +10,7 @@ Date:    Dec 2009
 This document describes the contents of the OpenSM 3.3 release.
 OpenSM is an InfiniBand compliant Subnet Manager and Administration,
 and runs on top of OpenIB. The OpenSM version for this release
-is opensm-3.3.4.
+is opensm-3.3.5.
 
 This document includes the following sections:
 1 This Overview section (describing new features and software
@@ -500,6 +500,13 @@ aa6d932 opensm/osm_mcast_tbl.c: In osm_mcast_tbl_clear_mlid, use memset to
 b9d7756 opensm/osm_mcast_tbl: Fix size of port mask table array
 11c0a9b opensm/main.c: Use strtoul rather than strtol for parsing transaction
 	timeout
+0608af9 opensm/osm_sm_mad_ctrl.c: In sm_mad_ctrl_send_err_cb, revert setting
+	of init failure on QoS initialization failures
+c6b4d4a opensm/osm_vendor_ibumad.c: Add transaction ID to osm_vendor_send
+	log message
+520af84 opensm/osm_sa_path_record.c: don't set dgid pointer for local subnet
+4a878fb opensm/osm_mcast_mgr.c: fix osm_mcast_mgr_compute_max_hops for
+	managed switch
 
 * Other less critical or visible bugs were also fixed.
 
