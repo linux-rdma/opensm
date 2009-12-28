@@ -91,7 +91,6 @@ void osm_slvl_rcv_process(IN void *context, IN void *p_data)
 	p_port = osm_get_port_by_guid(sm->p_subn, port_guid);
 
 	if (!p_port) {
-		cl_plock_release(sm->p_lock);
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 2C06: "
 			"No port object for port with GUID 0x%" PRIx64
 			"\n\t\t\t\tfor parent node GUID 0x%" PRIx64
