@@ -105,10 +105,8 @@ void osm_slvl_rcv_process(IN void *context, IN void *p_data)
 
 	/* in case of a non switch node the attr modifier should be ignored */
 	if (osm_node_get_type(p_node) == IB_NODE_TYPE_SWITCH) {
-		out_port_num =
-		    (uint8_t) cl_ntoh32(p_smp->attr_mod & 0xFF000000);
-		in_port_num =
-		    (uint8_t) cl_ntoh32((p_smp->attr_mod & 0x00FF0000) << 8);
+		out_port_num = cl_ntoh32(p_smp->attr_mod) & 0xff;
+		in_port_num = (cl_ntoh32(p_smp->attr_mod) >> 8) & 0xff;
 		p_physp = osm_node_get_physp_ptr(p_node, out_port_num);
 	} else {
 		p_physp = p_port->p_physp;
