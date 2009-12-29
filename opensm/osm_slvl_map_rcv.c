@@ -104,8 +104,17 @@ void osm_slvl_rcv_process(IN void *context, IN void *p_data)
 
 	/* in case of a non switch node the attr modifier should be ignored */
 	if (osm_node_get_type(p_node) == IB_NODE_TYPE_SWITCH) {
+		unsigned num_ports = osm_node_get_num_physp(p_node) - 1;
 		out_port_num = cl_ntoh32(p_smp->attr_mod) & 0xff;
 		in_port_num = (cl_ntoh32(p_smp->attr_mod) >> 8) & 0xff;
+		if (in_port_num > num_ports || out_port_num > num_ports) {
+			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 2C07"
+				"Invalid attribute modifier 0x%x received in"
+				" response from switch 0x%" PRIx64 "\n",
+				cl_ntoh32(p_smp->attr_mod),
+				cl_ntoh64(node_guid));
+			goto Exit;
+		}
 		p_physp = osm_node_get_physp_ptr(p_node, out_port_num);
 	} else {
 		p_physp = p_port->p_physp;
