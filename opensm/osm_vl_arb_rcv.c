@@ -2,6 +2,7 @@
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
+ * Copyright (c) 2010 HNR Consulting. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -134,15 +135,14 @@ void osm_vla_rcv_process(IN void *context, IN void *data)
 		goto Exit;
 	}
 
-	osm_dump_vl_arb_table(sm->p_log,
-			      port_guid, block_num,
-			      port_num, p_vla_tbl, OSM_LOG_DEBUG);
-
 	if ((block_num < 1) || (block_num > 4)) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR,
 			"Got invalid block number 0x%X\n", block_num);
 		goto Exit;
 	}
+
+	osm_dump_vl_arb_table(sm->p_log, port_guid, block_num, port_num,
+			      p_vla_tbl, OSM_LOG_DEBUG);
 	osm_physp_set_vla_tbl(p_physp, p_vla_tbl, block_num);
 
 Exit:
