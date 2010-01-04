@@ -194,23 +194,15 @@ static ib_api_status_t sl2vl_update(osm_sm_t * sm, osm_port_t * p_port,
 {
 	ib_api_status_t status;
 	uint8_t i, num_ports;
-	osm_physp_t *p_physp;
+	ib_port_info_t *pi = &p_port->p_physp->port_info;
 
-	if (osm_node_get_type(osm_physp_get_node_ptr(p)) == IB_NODE_TYPE_SWITCH) {
-		if (ib_port_info_get_vl_cap(&p->port_info) == 1) {
-			/* Check port 0's capability mask */
-			p_physp = p_port->p_physp;
-			if (!
-			    (p_physp->port_info.
-			     capability_mask & IB_PORT_CAP_HAS_SL_MAP))
-				return IB_SUCCESS;
-		}
+	if (!(pi->capability_mask & IB_PORT_CAP_HAS_SL_MAP))
+		return IB_SUCCESS;
+
+	if (osm_node_get_type(osm_physp_get_node_ptr(p)) == IB_NODE_TYPE_SWITCH)
 		num_ports = osm_node_get_num_physp(osm_physp_get_node_ptr(p));
-	} else {
-		if (!(p->port_info.capability_mask & IB_PORT_CAP_HAS_SL_MAP))
-			return IB_SUCCESS;
+	else
 		num_ports = 1;
-	}
 
 	for (i = 0; i < num_ports; i++) {
 		status = sl2vl_update_table(sm, p, i, port_num, force_update,
