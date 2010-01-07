@@ -89,11 +89,8 @@ static boolean_t validate_ports_access_rights(IN osm_sa_t * sa,
 	boolean_t valid = TRUE;
 	osm_physp_t *p_requester_physp;
 	osm_port_t *p_port;
-	osm_physp_t *p_physp;
 	ib_net64_t portguid;
-	ib_net16_t lid_range_begin;
-	ib_net16_t lid_range_end;
-	ib_net16_t lid;
+	uint16_t lid_range_begin, lid_range_end, lid;
 	const cl_ptr_vector_t *p_tbl;
 
 	OSM_LOG_ENTER(sa->p_log);
@@ -109,7 +106,6 @@ static boolean_t validate_ports_access_rights(IN osm_sa_t * sa,
 		    interface_id;
 
 		p_port = osm_get_port_by_guid(sa->p_subn, portguid);
-
 		if (p_port == NULL) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4301: "
 				"Invalid port guid: 0x%016" PRIx64 "\n",
@@ -118,13 +114,10 @@ static boolean_t validate_ports_access_rights(IN osm_sa_t * sa,
 			goto Exit;
 		}
 
-		/* get the destination InformInfo physical port */
-		p_physp = p_port->p_physp;
-
 		/* make sure that the requester and destination port can access
 		   each other according to the current partitioning. */
 		if (!osm_physp_share_pkey
-		    (sa->p_log, p_physp, p_requester_physp)) {
+		    (sa->p_log, p_port->p_physp, p_requester_physp)) {
 			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 				"port and requester don't share pkey\n");
 			valid = FALSE;
@@ -165,11 +158,10 @@ static boolean_t validate_ports_access_rights(IN osm_sa_t * sa,
 			if (p_port == NULL)
 				continue;
 
-			p_physp = p_port->p_physp;
 			/* make sure that the requester and destination port can access
 			   each other according to the current partitioning. */
 			if (!osm_physp_share_pkey
-			    (sa->p_log, p_physp, p_requester_physp)) {
+			    (sa->p_log, p_port->p_physp, p_requester_physp)) {
 				OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 					"port and requester don't share pkey\n");
 				valid = FALSE;
