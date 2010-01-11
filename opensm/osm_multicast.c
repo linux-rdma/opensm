@@ -243,6 +243,7 @@ osm_mcm_port_t *osm_mgrp_add_port(IN osm_subn_t * subn, osm_log_t * log,
 	    ++mgrp->full_members == 1)
 		mgrp_send_notice(subn, log, mgrp, 66);
 
+	subn->p_osm->sa.dirty = TRUE;
 	return mcm_port;
 }
 
@@ -297,6 +298,8 @@ void osm_mgrp_remove_port(osm_subn_t * subn, osm_log_t * log, osm_mgrp_t * mgrp,
 		mgrp_send_notice(subn, log, mgrp, 67);
 		osm_mgrp_cleanup(subn, mgrp);
 	}
+
+	subn->p_osm->sa.dirty = TRUE;
 }
 
 void osm_mgrp_delete_port(osm_subn_t * subn, osm_log_t * log, osm_mgrp_t * mgrp,

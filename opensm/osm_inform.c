@@ -248,6 +248,7 @@ void osm_infr_insert_to_db(IN osm_subn_t * p_subn, IN osm_log_t * p_log,
 #endif
 
 	cl_qlist_insert_head(&p_subn->sa_infr_list, &p_infr->list_item);
+	p_subn->p_osm->sa.dirty = TRUE;
 
 	OSM_LOG(p_log, OSM_LOG_DEBUG, "Dump after insertion (size %d)\n",
 		cl_qlist_count(&p_subn->sa_infr_list));
@@ -271,6 +272,7 @@ void osm_infr_remove_from_db(IN osm_subn_t * p_subn, IN osm_log_t * p_log,
 			     OSM_LOG_DEBUG);
 
 	cl_qlist_remove_item(&p_subn->sa_infr_list, &p_infr->list_item);
+	p_subn->p_osm->sa.dirty = TRUE;
 
 	osm_infr_delete(p_infr);
 

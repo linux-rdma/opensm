@@ -125,6 +125,7 @@ typedef struct osm_sa {
 	atomic32_t sa_trans_id;
 	osm_sa_mad_ctrl_t mad_ctrl;
 	cl_timer_t sr_timer;
+	boolean_t dirty;
 	cl_disp_reg_handle_t cpi_disp_h;
 	cl_disp_reg_handle_t nr_disp_h;
 	cl_disp_reg_handle_t pir_disp_h;
@@ -177,6 +178,10 @@ typedef struct osm_sa {
 *
 *	mad_ctrl
 *		Mad Controller
+*
+*	dirty
+*		A flag that denotes that SA DB is dirty and needs
+*		to be written to the dump file (if dumping is enabled)
 *
 * SEE ALSO
 *	SM object

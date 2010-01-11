@@ -704,7 +704,13 @@ static void sa_dump_all_sa(osm_opensm_t * p_osm, FILE * file)
 
 int osm_sa_db_file_dump(osm_opensm_t * p_osm)
 {
-	return opensm_dump_to_file(p_osm, "opensm-sa.dump", sa_dump_all_sa);
+	int res = 0;
+	if (p_osm->sa.dirty) {
+		res = opensm_dump_to_file(
+			p_osm, "opensm-sa.dump", sa_dump_all_sa);
+		p_osm->sa.dirty = FALSE;
+	}
+	return res;
 }
 
 /*
@@ -1109,6 +1115,9 @@ int osm_sa_db_file_load(osm_opensm_t * p_osm)
 	 */
 	if (rereg_clients)
 		p_osm->subn.opt.no_clients_rereg = FALSE;
+
+	/* We've just finished loading SA DB file - clear the "dirty" flag */
+	p_osm->sa.dirty = FALSE;
 
 _error:
 	fclose(file);

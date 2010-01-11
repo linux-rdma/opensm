@@ -46,6 +46,7 @@
 #include <complib/cl_debug.h>
 #include <complib/cl_timer.h>
 #include <opensm/osm_service.h>
+#include <opensm/osm_opensm.h>
 
 void osm_svcr_delete(IN osm_svcr_t * p_svcr)
 {
@@ -122,6 +123,7 @@ void osm_svcr_insert_to_db(IN osm_subn_t * p_subn, IN osm_log_t * p_log,
 		"Inserting new Service Record into Database\n");
 
 	cl_qlist_insert_head(&p_subn->sa_sr_list, &p_svcr->list_item);
+	p_subn->p_osm->sa.dirty = TRUE;
 
 	OSM_LOG_EXIT(p_log);
 }
@@ -137,6 +139,7 @@ void osm_svcr_remove_from_db(IN osm_subn_t * p_subn, IN osm_log_t * p_log,
 		p_svcr->service_record.service_id);
 
 	cl_qlist_remove_item(&p_subn->sa_sr_list, &p_svcr->list_item);
+	p_subn->p_osm->sa.dirty = TRUE;
 
 	OSM_LOG_EXIT(p_log);
 }
