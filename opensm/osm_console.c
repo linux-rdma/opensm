@@ -56,7 +56,7 @@
 #include <opensm/osm_perfmgr.h>
 #include <opensm/osm_subnet.h>
 
-extern void osm_update_node_desc(IN osm_sm_t *sm);
+extern void osm_update_node_desc(IN osm_opensm_t *osm);
 
 struct command {
 	char *name;
@@ -1146,7 +1146,7 @@ static void dump_conf_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 
 static void update_desc_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 {
-	osm_update_node_desc(&p_osm->sm);
+	osm_update_node_desc(p_osm);
 }
 
 #ifdef ENABLE_OSM_PERF_MGR

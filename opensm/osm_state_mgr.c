@@ -553,12 +553,12 @@ exit:
 	OSM_LOG_EXIT(sm->p_log);
 }
 
-void osm_update_node_desc(IN osm_sm_t *sm)
+void osm_update_node_desc(IN osm_opensm_t *osm)
 {
-	CL_PLOCK_ACQUIRE(sm->p_lock);
-	cl_qmap_apply_func(&sm->p_subn->node_guid_tbl, state_mgr_update_node_desc,
-			   sm);
-	CL_PLOCK_RELEASE(sm->p_lock);
+	CL_PLOCK_ACQUIRE(&osm->lock);
+	cl_qmap_apply_func(&osm->subn.node_guid_tbl, state_mgr_update_node_desc,
+			   &osm->sm);
+	CL_PLOCK_RELEASE(&osm->lock);
 }
 
 /**********************************************************************
