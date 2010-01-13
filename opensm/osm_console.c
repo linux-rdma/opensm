@@ -56,6 +56,8 @@
 #include <opensm/osm_perfmgr.h>
 #include <opensm/osm_subnet.h>
 
+extern void osm_update_node_desc(IN osm_sm_t *sm);
+
 struct command {
 	char *name;
 	void (*help_function) (FILE * out, int detail);
@@ -204,6 +206,14 @@ static void help_dump_conf(FILE *out, int detail)
 	fprintf(out, "dump_conf\n");
 	if (detail) {
 		fprintf(out, "dump current opensm configuration\n");
+	}
+}
+
+static void help_update_desc(FILE *out, int detail)
+{
+	fprintf(out, "update_desc\n");
+	if (detail) {
+		fprintf(out, "update node description for all nodes\n");
 	}
 }
 
@@ -1134,6 +1144,11 @@ static void dump_conf_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 	osm_subn_output_conf(out, &p_osm->subn.opt);
 }
 
+static void update_desc_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
+{
+	osm_update_node_desc(&p_osm->sm);
+}
+
 #ifdef ENABLE_OSM_PERF_MGR
 static void perfmgr_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 {
@@ -1326,6 +1341,7 @@ static const struct command console_cmds[] = {
 	{"switchbalance", &help_switchbalance, &switchbalance_parse},
 	{"lidbalance", &help_lidbalance, &lidbalance_parse},
 	{"dump_conf", &help_dump_conf, &dump_conf_parse},
+	{"update_desc", &help_update_desc, &update_desc_parse},
 	{"version", &help_version, &version_parse},
 #ifdef ENABLE_OSM_PERF_MGR
 	{"perfmgr", &help_perfmgr, &perfmgr_parse},

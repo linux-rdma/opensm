@@ -510,11 +510,7 @@ static void query_sm_info(cl_map_item_t * item, void *cxt)
 			ib_get_err_str(ret));
 }
 
-/**********************************************************************
- During a light sweep, check each node to see if the node description
- is valid and if not issue a ND query.
-**********************************************************************/
-static void state_mgr_get_node_desc(IN cl_map_item_t * obj, IN void *context)
+static void state_mgr_update_node_desc(IN cl_map_item_t * obj, IN void *context)
 {
 	osm_madw_context_t mad_context;
 	osm_node_t *p_node = (osm_node_t *) obj;
@@ -527,14 +523,8 @@ static void state_mgr_get_node_desc(IN cl_map_item_t * obj, IN void *context)
 
 	CL_ASSERT(p_node);
 
-	if (p_node->print_desc
-	    && strcmp(p_node->print_desc, OSM_NODE_DESC_UNKNOWN))
-		/* if ND is valid, do nothing */
-		goto exit;
-
-	OSM_LOG(sm->p_log, OSM_LOG_ERROR,
-		"ERR 3319: Unknown node description for node GUID "
-		"0x%016" PRIx64 ".  Reissuing ND query\n",
+	OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
+		"Updating NodeDesc for 0x%016" PRIx64 "\n",
 		cl_ntoh64(osm_node_get_node_guid(p_node)));
 
 	/* get a physp to request from. */
@@ -558,6 +548,43 @@ static void state_mgr_get_node_desc(IN cl_map_item_t * obj, IN void *context)
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR,
 			"ERR 331B: Failure initiating NodeDescription request "
 			"(%s)\n", ib_get_err_str(status));
+
+exit:
+	OSM_LOG_EXIT(sm->p_log);
+}
+
+void osm_update_node_desc(IN osm_sm_t *sm)
+{
+	CL_PLOCK_ACQUIRE(sm->p_lock);
+	cl_qmap_apply_func(&sm->p_subn->node_guid_tbl, state_mgr_update_node_desc,
+			   sm);
+	CL_PLOCK_RELEASE(sm->p_lock);
+}
+
+/**********************************************************************
+ During a light sweep, check each node to see if the node description
+ is valid and if not issue a ND query.
+**********************************************************************/
+static void state_mgr_get_node_desc(IN cl_map_item_t * obj, IN void *context)
+{
+	osm_node_t *p_node = (osm_node_t *) obj;
+	osm_sm_t *sm = context;
+
+	OSM_LOG_ENTER(sm->p_log);
+
+	CL_ASSERT(p_node);
+
+	if (p_node->print_desc
+	    && strcmp(p_node->print_desc, OSM_NODE_DESC_UNKNOWN))
+		/* if ND is valid, do nothing */
+		goto exit;
+
+	OSM_LOG(sm->p_log, OSM_LOG_ERROR,
+		"ERR 3319: Unknown node description for node GUID "
+		"0x%016" PRIx64 ".  Reissuing ND query\n",
+		cl_ntoh64(osm_node_get_node_guid(p_node)));
+
+	state_mgr_update_node_desc(obj, context);
 
 exit:
 	OSM_LOG_EXIT(sm->p_log);
