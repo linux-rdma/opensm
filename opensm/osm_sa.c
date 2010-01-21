@@ -704,7 +704,7 @@ static void sa_dump_all_sa(osm_opensm_t * p_osm, FILE * file)
 
 int osm_sa_db_file_dump(osm_opensm_t * p_osm)
 {
-	int res = 0;
+	int res = 1;
 	if (p_osm->sa.dirty) {
 		res = opensm_dump_to_file(
 			p_osm, "opensm-sa.dump", sa_dump_all_sa);

@@ -436,7 +436,9 @@ int osm_sa_db_file_dump(struct osm_opensm *p_osm);
 *		[in] Pointer to an osm_opensm_t object.
 *
 * RETURN VALUES
-*	None
+*	 0 if the SA DB was actually dumped
+*	>0 if there was no need to dump the SA DB
+*	<0 if some error occurred.
 *
 *********/
 
