@@ -244,13 +244,15 @@ static int qos_extports_setup(osm_sm_t * sm, osm_node_t *node,
 }
 
 static int qos_endport_setup(osm_sm_t * sm, osm_physp_t * p,
-			     const struct qos_config *qcfg)
+			     const struct qos_config *qcfg, int vlarb_only)
 {
 	unsigned force_update = p->need_update || sm->p_subn->need_update;
 
 	p->vl_high_limit = qcfg->vl_high_limit;
 	if (vlarb_update(sm, p, 0, force_update, qcfg))
 		return -1;
+	if (vlarb_only)
+		return 0;
 
 	if (!(p->port_info.capability_mask & IB_PORT_CAP_HAS_SL_MAP))
 		return 0;
@@ -270,6 +272,7 @@ int osm_qos_setup(osm_opensm_t * p_osm)
 	osm_port_t *p_port;
 	osm_node_t *p_node;
 	int ret = 0;
+	int vlarb_only;
 
 	if (!p_osm->subn.opt.qos)
 		return 0;
@@ -293,6 +296,7 @@ int osm_qos_setup(osm_opensm_t * p_osm)
 	p_tbl = &p_osm->subn.port_guid_tbl;
 	p_next = cl_qmap_head(p_tbl);
 	while (p_next != cl_qmap_end(p_tbl)) {
+		vlarb_only = 0;
 		p_port = (osm_port_t *) p_next;
 		p_next = cl_qmap_next(p_next);
 
@@ -306,13 +310,20 @@ int osm_qos_setup(osm_opensm_t * p_osm)
 			    (&p_node->sw->switch_info))
 				continue;
 
+			if (ib_switch_info_get_opt_sl2vlmapping(&p_node->sw->switch_info) &&
+			    p_osm->sm.p_subn->opt.use_optimized_slvl &&
+			    !memcmp(&swe_config.sl2vl, &sw0_config.sl2vl,
+				    sizeof(swe_config.sl2vl)))
+				vlarb_only = 1;
+
 			cfg = &sw0_config;
 		} else if (osm_node_get_type(p_node) == IB_NODE_TYPE_ROUTER)
 			cfg = &rtr_config;
 		else
 			cfg = &ca_config;
 
-		if (qos_endport_setup(&p_osm->sm, p_port->p_physp, cfg))
+		if (qos_endport_setup(&p_osm->sm, p_port->p_physp, cfg,
+				      vlarb_only))
 			ret = -1;
 	}
 
