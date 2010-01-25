@@ -196,7 +196,7 @@ static ib_api_status_t sl2vl_update_table(osm_sm_t * sm, osm_physp_t * p,
 	if (status != IB_SUCCESS)
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 6203 : "
 			"failed to update SL2VLMapping tables "
-			"for port %" PRIx64 "i, attr_mod 0x%x\n",
+			"for port %" PRIx64 ", attr_mod 0x%x\n",
 			cl_ntoh64(p->port_guid), attr_mod);
 	return status;
 }
