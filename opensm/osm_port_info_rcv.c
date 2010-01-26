@@ -46,6 +46,7 @@
 #endif				/* HAVE_CONFIG_H */
 
 #include <string.h>
+#include <stdlib.h>
 #include <iba/ib_types.h>
 #include <complib/cl_qmap.h>
 #include <complib/cl_passivelock.h>
