@@ -549,6 +549,8 @@ static osm_mtree_node_t *mcast_mgr_branch(osm_sm_t * sm, uint16_t mlid_ho,
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A16: "
 			"Unable to allocate list array\n");
 		mcast_mgr_purge_list(sm, p_list);
+		osm_mtree_destroy(p_mtn);
+		p_mtn = NULL;
 		goto Exit;
 	}
 
