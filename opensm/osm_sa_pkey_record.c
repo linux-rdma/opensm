@@ -213,7 +213,6 @@ void osm_pkey_rec_rcv_process(IN void *ctx, IN void *data)
 	const ib_pkey_table_t *p_pkey;
 	cl_qlist_t rec_list;
 	osm_pkey_search_ctxt_t context;
-	ib_api_status_t status = IB_SUCCESS;
 	ib_net64_t comp_mask;
 	osm_physp_t *p_req_physp;
 
@@ -291,23 +290,15 @@ void osm_pkey_rec_rcv_process(IN void *ctx, IN void *data)
 	 */
 	if (comp_mask & IB_PKEY_COMPMASK_LID) {
 		p_port = osm_get_port_by_lid(sa->p_subn, p_rcvd_rec->lid);
-		if (!p_port) {
-			status = IB_NOT_FOUND;
+		if (!p_port)
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 460B: "
 				"No port found with LID %u\n",
 				cl_ntoh16(p_rcvd_rec->lid));
-		}
-	}
-
-	if (status == IB_SUCCESS) {
-		/* if we got a unique port - no need for a port search */
-		if (p_port)
-			/* this does the loop on all the port phys ports */
-			sa_pkey_by_comp_mask(sa, p_port, &context);
 		else
-			cl_qmap_apply_func(&sa->p_subn->port_guid_tbl,
-					   sa_pkey_by_comp_mask_cb, &context);
-	}
+			sa_pkey_by_comp_mask(sa, p_port, &context);
+	} else
+		cl_qmap_apply_func(&sa->p_subn->port_guid_tbl,
+				   sa_pkey_by_comp_mask_cb, &context);
 
 	cl_plock_release(sa->p_lock);
 
