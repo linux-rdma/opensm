@@ -1028,41 +1028,6 @@ static inline struct osm_mgrp_box *osm_get_mbox_by_mlid(osm_subn_t const *p_subn
 *	The multicast group structure pointer if found. NULL otherwise.
 *********/
 
-/****f* OpenSM: Helper/osm_get_physp_by_mad_addr
-* NAME
-*	osm_get_physp_by_mad_addr
-*
-* DESCRIPTION
-*	Looks for the requester physical port in the mad address.
-*
-* Note: This code is not thread safe. Need to grab the lock before
-* calling it.
-*
-* SYNOPSIS
-*/
-struct osm_physp *osm_get_physp_by_mad_addr(IN struct osm_log *p_log,
-					     IN const osm_subn_t * p_subn,
-					     IN struct osm_mad_addr
-					     *p_mad_addr);
-/*
-* PARAMETERS
-*	p_log
-*		[in] Pointer to a log object.
-*
-*	p_subn
-*		[in] Pointer to subnet object.
-*
-*	p_mad_addr
-*		[in] Pointer to mad address object.
-*
-* RETURN VALUES
-*	Pointer to requester physical port object if found. Null otherwise.
-*
-* NOTES
-*
-* SEE ALSO
-*********/
-
 /****f* OpenSM: Subnet/osm_subn_set_default_opt
 * NAME
 *	osm_subn_set_default_opt
