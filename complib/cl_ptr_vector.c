@@ -302,7 +302,8 @@ size_t cl_ptr_vector_find_from_end(IN const cl_ptr_vector_t * const p_vector,
 
 	while (i) {
 		/* Invoke the callback for the current element. */
-		if (pfn_callback(i, (void *)p_vector->p_ptr_array[--i],
+		i--;
+		if (pfn_callback(i, (void *)p_vector->p_ptr_array[i],
 				 (void *)context) == CL_SUCCESS) {
 			return (i);
 		}
