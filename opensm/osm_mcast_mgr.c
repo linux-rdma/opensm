@@ -86,7 +86,7 @@ static void mcast_work_obj_delete(IN osm_mcast_work_obj_t * p_wobj)
 	free(p_wobj);
 }
 
-static int make_port_list(cl_qlist_t *list, osm_mgrp_box_t *mbox)
+static int make_port_list(cl_qlist_t * list, osm_mgrp_box_t * mbox)
 {
 	cl_qmap_t map;
 	cl_map_item_t *map_item;
@@ -125,8 +125,8 @@ static int make_port_list(cl_qlist_t *list, osm_mgrp_box_t *mbox)
 static void drop_port_list(cl_qlist_t * list)
 {
 	while (cl_qlist_count(list))
-		mcast_work_obj_delete(
-			(osm_mcast_work_obj_t *)cl_qlist_remove_head(list));
+		mcast_work_obj_delete((osm_mcast_work_obj_t *)
+				      cl_qlist_remove_head(list));
 }
 
 /**********************************************************************
@@ -190,23 +190,24 @@ static void mcast_mgr_build_switch_map(osm_sm_t * sm,
 		remote_sw = remote_node->sw;
 		port_guid = osm_node_get_node_guid(remote_node);
 		if (cl_qmap_get(p_mcast_member_sw_tbl, port_guid) ==
-			cl_qmap_end(p_mcast_member_sw_tbl)) {
-				/* insert switch to table */
-				cl_qmap_insert(p_mcast_member_sw_tbl, port_guid, &remote_sw->mgrp_item);
-				/* New element in the table */
-				if (p_port->p_node->sw)
-					/* the switch is MC member */
-					remote_sw->is_mc_member = 1;
-				else
-					/* for others - update MC count */
-					remote_sw->num_of_mcm++;
+		    cl_qmap_end(p_mcast_member_sw_tbl)) {
+			/* insert switch to table */
+			cl_qmap_insert(p_mcast_member_sw_tbl, port_guid,
+				       &remote_sw->mgrp_item);
+			/* New element in the table */
+			if (p_port->p_node->sw)
+				/* the switch is MC member */
+				remote_sw->is_mc_member = 1;
+			else
+				/* for others - update MC count */
+				remote_sw->num_of_mcm++;
 		}
 	}
 	OSM_LOG_EXIT(sm->p_log);
 }
 
 static void mcast_mgr_destroy_switch_map(osm_sm_t * sm,
-			cl_qmap_t *p_mcast_member_sw_tbl)
+					 cl_qmap_t * p_mcast_member_sw_tbl)
 {
 	cl_map_item_t *p_item;
 	osm_switch_t *p_sw;
@@ -412,8 +413,8 @@ static int mcast_mgr_set_mft_block(osm_sm_t * sm, IN osm_switch_t * p_sw,
 		block_id_ho = block_num + (position << 28);
 
 		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-			"Writing MFT block %u position %u to switch 0x%" PRIx64 "\n",
-			block_num, position,
+			"Writing MFT block %u position %u to switch 0x%" PRIx64
+			"\n", block_num, position,
 			cl_ntoh64(context.mft_context.node_guid));
 
 		status = osm_req_set(sm, p_path, (void *)block, sizeof(block),
@@ -1100,7 +1101,7 @@ static int alloc_mfts(osm_sm_t * sm)
 	for (item = cl_qmap_head(&sm->p_subn->sw_guid_tbl);
 	     item != cl_qmap_end(&sm->p_subn->sw_guid_tbl);
 	     item = cl_qmap_next(item)) {
-		p_sw = (osm_switch_t *)item;
+		p_sw = (osm_switch_t *) item;
 		if (osm_mcast_tbl_realloc(&p_sw->mcast_tbl, i))
 			return -1;
 	}
