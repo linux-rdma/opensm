@@ -190,18 +190,17 @@ static void mcast_mgr_build_switch_map(osm_sm_t * sm,
 		remote_sw = remote_node->sw;
 		port_guid = osm_node_get_node_guid(remote_node);
 		if (cl_qmap_get(p_mcast_member_sw_tbl, port_guid) ==
-		    cl_qmap_end(p_mcast_member_sw_tbl)) {
+		    cl_qmap_end(p_mcast_member_sw_tbl))
 			/* insert switch to table */
 			cl_qmap_insert(p_mcast_member_sw_tbl, port_guid,
 				       &remote_sw->mgrp_item);
-			/* New element in the table */
-			if (p_port->p_node->sw)
-				/* the switch is MC member */
-				remote_sw->is_mc_member = 1;
-			else
-				/* for others - update MC count */
-				remote_sw->num_of_mcm++;
-		}
+
+		if (p_port->p_node->sw)
+			/* the switch is MC member */
+			remote_sw->is_mc_member = 1;
+		else
+			/* for others - update MC count */
+			remote_sw->num_of_mcm++;
 	}
 	OSM_LOG_EXIT(sm->p_log);
 }
