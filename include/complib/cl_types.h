@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2010 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
  * This software is available to you under a choice of one of two
@@ -263,31 +263,30 @@ typedef uint64_t net64_t;
 *
 * SYNOPSIS
 */
-typedef enum _cl_status {
-	CL_SUCCESS = 0,
-	CL_ERROR,
-	CL_INVALID_STATE,
-	CL_INVALID_OPERATION,
-	CL_INVALID_SETTING,
-	CL_INVALID_PARAMETER,
-	CL_INSUFFICIENT_RESOURCES,
-	CL_INSUFFICIENT_MEMORY,
-	CL_INVALID_PERMISSION,
-	CL_COMPLETED,
-	CL_NOT_DONE,
-	CL_PENDING,
-	CL_TIMEOUT,
-	CL_CANCELED,
-	CL_REJECT,
-	CL_OVERRUN,
-	CL_NOT_FOUND,
-	CL_UNAVAILABLE,
-	CL_BUSY,
-	CL_DISCONNECT,
-	CL_DUPLICATE,
+#define CL_SUCCESS                 0
+#define CL_ERROR                   1
+#define CL_INVALID_STATE           2
+#define CL_INVALID_OPERATION       3
+#define CL_INVALID_SETTING         4
+#define CL_INVALID_PARAMETER       5
+#define CL_INSUFFICIENT_RESOURCES  6
+#define CL_INSUFFICIENT_MEMORY     7
+#define CL_INVALID_PERMISSION      8
+#define CL_COMPLETED               9
+#define CL_NOT_DONE               10
+#define CL_PENDING                11
+#define CL_TIMEOUT                12
+#define CL_CANCELED               13
+#define CL_REJECT                 14
+#define CL_OVERRUN                15
+#define CL_NOT_FOUND              16
+#define CL_UNAVAILABLE            17
+#define CL_BUSY                   18
+#define CL_DISCONNECT             19
+#define CL_DUPLICATE              20
+#define CL_STATUS_COUNT           21 /* should be the last value */
 
-	CL_STATUS_COUNT		/* should be the last value */
-} cl_status_t;
+typedef int cl_status_t;
 /*
 * SEE ALSO
 *	Data Types, CL_STATUS_MSG
