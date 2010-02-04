@@ -63,7 +63,7 @@ typedef struct osm_mcast_work_obj {
 	cl_map_item_t map_item;
 } osm_mcast_work_obj_t;
 
-static osm_mcast_work_obj_t *mcast_work_obj_new(IN const osm_port_t * p_port)
+static osm_mcast_work_obj_t *mcast_work_obj_new(IN osm_port_t * p_port)
 {
 	osm_mcast_work_obj_t *p_obj;
 
@@ -75,7 +75,7 @@ static osm_mcast_work_obj_t *mcast_work_obj_new(IN const osm_port_t * p_port)
 	p_obj = malloc(sizeof(*p_obj));
 	if (p_obj) {
 		memset(p_obj, 0, sizeof(*p_obj));
-		p_obj->p_port = (osm_port_t *) p_port;
+		p_obj->p_port = p_port;
 	}
 
 	return p_obj;
