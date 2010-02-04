@@ -253,7 +253,8 @@ static float mcast_mgr_compute_max_hops(osm_sm_t * sm, cl_qmap_t * m,
 		sw = cl_item_obj(i, sw, mgrp_item);
 		lid = cl_ntoh16(osm_node_get_base_lid(sw->p_node, 0));
 		hops = osm_switch_get_least_hops(this_sw, lid);
-		hops = (hops + 1) * sw->num_of_mcm + hops * sw->is_mc_member;
+		if (!sw->is_mc_member)
+			hops += 1;
 		if (hops > max_hops)
 			max_hops = hops;
 	}
