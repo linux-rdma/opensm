@@ -157,71 +157,43 @@ static void mcast_mgr_purge_tree(osm_sm_t * sm, IN osm_mgrp_box_t * mbox)
 	OSM_LOG_EXIT(sm->p_log);
 }
 
-static void mcast_mgr_build_switch_map(osm_sm_t * sm,
-				       const cl_qlist_t * port_list,
-				       cl_qmap_t * p_mcast_member_sw_tbl)
+static void create_mgrp_switch_map(cl_qmap_t * m, cl_qlist_t * port_list)
 {
-	osm_switch_t *remote_sw;
-	cl_list_item_t *list_item;
-	osm_port_t *p_port;
-	ib_net64_t port_guid;
-	osm_physp_t *p_physp_remote;
-	osm_node_t *remote_node;
 	osm_mcast_work_obj_t *wobj;
+	osm_port_t *port;
+	osm_switch_t *sw;
+	ib_net64_t guid;
+	cl_list_item_t *i;
 
-	OSM_LOG_ENTER(sm->p_log);
-
-	cl_qmap_init(p_mcast_member_sw_tbl);
-	for (list_item = cl_qlist_head(port_list);
-	     list_item != cl_qlist_end(port_list);
-	     list_item = cl_qlist_next(list_item)) {
-		wobj = cl_item_obj(list_item, wobj, list_item);
-		p_port = wobj->p_port;
-		if (!p_port)
-			continue;
-		if (p_port->p_node->sw) {
-			/* for switches - remote switch would be the switch itself */
-			remote_node = osm_physp_get_node_ptr(p_port->p_physp);
+	cl_qmap_init(m);
+	for (i = cl_qlist_head(port_list); i != cl_qlist_end(port_list);
+	     i = cl_qlist_next(i)) {
+		wobj = cl_item_obj(i, wobj, list_item);
+		port = wobj->p_port;
+		if (port->p_node->sw) {
+			sw = port->p_node->sw;
+			sw->is_mc_member = 1;
 		} else {
-			p_physp_remote = osm_physp_get_remote(p_port->p_physp);
-			remote_node = osm_physp_get_node_ptr(p_physp_remote);
+			sw = port->p_physp->p_remote_physp->p_node->sw;
+			sw->num_of_mcm++;
 		}
-		/* get the remote switch of the mcmember */
-		remote_sw = remote_node->sw;
-		port_guid = osm_node_get_node_guid(remote_node);
-		if (cl_qmap_get(p_mcast_member_sw_tbl, port_guid) ==
-		    cl_qmap_end(p_mcast_member_sw_tbl))
-			/* insert switch to table */
-			cl_qmap_insert(p_mcast_member_sw_tbl, port_guid,
-				       &remote_sw->mgrp_item);
-
-		if (p_port->p_node->sw)
-			/* the switch is MC member */
-			remote_sw->is_mc_member = 1;
-		else
-			/* for others - update MC count */
-			remote_sw->num_of_mcm++;
+		guid = osm_node_get_node_guid(sw->p_node);
+		if (cl_qmap_get(m, guid) == cl_qmap_end(m))
+			cl_qmap_insert(m, guid, &sw->mgrp_item);
 	}
-	OSM_LOG_EXIT(sm->p_log);
 }
 
-static void mcast_mgr_destroy_switch_map(osm_sm_t * sm,
-					 cl_qmap_t * p_mcast_member_sw_tbl)
+static void destroy_mgrp_switch_map(cl_qmap_t * m)
 {
-	cl_map_item_t *p_item;
-	osm_switch_t *p_sw;
+	osm_switch_t *sw;
+	cl_map_item_t *i;
 
-	OSM_LOG_ENTER(sm->p_log);
-
-	p_item = cl_qmap_head(p_mcast_member_sw_tbl);
-	while (p_item != cl_qmap_end(p_mcast_member_sw_tbl)) {
-		p_sw = PARENT_STRUCT(p_item, osm_switch_t, mgrp_item);
-		p_sw->num_of_mcm = 0;
-		p_sw->is_mc_member = 0;
-		p_item = cl_qmap_next(p_item);
+	for (i = cl_qmap_head(m); i != cl_qmap_end(m); i = cl_qmap_next(i)) {
+		sw = cl_item_obj(i, sw, mgrp_item);
+		sw->num_of_mcm = 0;
+		sw->is_mc_member = 0;
 	}
-	cl_qmap_remove_all(p_mcast_member_sw_tbl);
-	OSM_LOG_EXIT(sm->p_log);
+	cl_qmap_remove_all(m);
 }
 
 /**********************************************************************
@@ -314,7 +286,7 @@ static osm_switch_t *mcast_mgr_find_optimal_switch(osm_sm_t * sm,
 
 	p_sw_tbl = &sm->p_subn->sw_guid_tbl;
 
-	mcast_mgr_build_switch_map(sm, list, &mgrp_sw_map);
+	create_mgrp_switch_map(&mgrp_sw_map, list);
 	for (p_sw = (osm_switch_t *) cl_qmap_head(p_sw_tbl);
 	     p_sw != (osm_switch_t *) cl_qmap_end(p_sw_tbl);
 	     p_sw = (osm_switch_t *) cl_qmap_next(&p_sw->map_item)) {
@@ -346,7 +318,7 @@ static osm_switch_t *mcast_mgr_find_optimal_switch(osm_sm_t * sm,
 		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 			"No multicast capable switches detected\n");
 
-	mcast_mgr_destroy_switch_map(sm, &mgrp_sw_map);
+	destroy_mgrp_switch_map(&mgrp_sw_map);
 	OSM_LOG_EXIT(sm->p_log);
 	return p_best_sw;
 }
