@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004, 2005 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2010 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
  * This software is available to you under a choice of one of two
@@ -196,7 +196,7 @@ static inline cl_status_t cl_plock_init(IN cl_plock_t * const p_lock)
 	cl_status_t status;
 
 	CL_ASSERT(p_lock);
-	status = (cl_status_t) pthread_rwlock_init(&p_lock->lock, NULL);
+	status = pthread_rwlock_init(&p_lock->lock, NULL);
 	if (status)
 		return CL_ERROR;
 	p_lock->state = CL_INITIALIZED;
@@ -238,7 +238,7 @@ static inline void cl_plock_acquire(IN cl_plock_t * const p_lock)
 	CL_ASSERT(p_lock);
 	CL_ASSERT(p_lock->state == CL_INITIALIZED);
 
-	status = (cl_status_t) pthread_rwlock_rdlock(&p_lock->lock);
+	status = pthread_rwlock_rdlock(&p_lock->lock);
 	CL_ASSERT(status == 0);
 }
 
@@ -271,7 +271,7 @@ static inline void cl_plock_excl_acquire(IN cl_plock_t * const p_lock)
 	CL_ASSERT(p_lock);
 	CL_ASSERT(p_lock->state == CL_INITIALIZED);
 
-	status = (cl_status_t) pthread_rwlock_wrlock(&p_lock->lock);
+	status = pthread_rwlock_wrlock(&p_lock->lock);
 	CL_ASSERT(status == 0);
 }
 
@@ -303,7 +303,7 @@ static inline void cl_plock_release(IN cl_plock_t * const p_lock)
 	CL_ASSERT(p_lock);
 	CL_ASSERT(p_lock->state == CL_INITIALIZED);
 
-	status = (cl_status_t) pthread_rwlock_unlock(&p_lock->lock);
+	status = pthread_rwlock_unlock(&p_lock->lock);
 	CL_ASSERT(status == 0);
 }
 
