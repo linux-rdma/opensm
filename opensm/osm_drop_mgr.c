@@ -180,6 +180,33 @@ static void drop_mgr_remove_port(osm_sm_t * sm, IN osm_port_t * p_port)
 		goto Exit;
 	}
 
+	/* issue a notice - trap 65 */
+	/* details of the notice */
+	notice.generic_type = 0x83;	/* is generic subn mgt type */
+	ib_notice_set_prod_type_ho(&notice, 4);	/* A class manager generator */
+	/* endport ceases to be reachable */
+	notice.g_or_v.generic.trap_num = CL_HTON16(65);
+	/* The sm_base_lid is saved in network order already. */
+	notice.issuer_lid = sm->p_subn->sm_base_lid;
+	/* following C14-72.1.2 and table 119 p725 */
+	/* we need to provide the GID */
+	port_gid.unicast.prefix = sm->p_subn->opt.subnet_prefix;
+	port_gid.unicast.interface_id = port_guid;
+	memcpy(&(notice.data_details.ntc_64_67.gid),
+	       &(port_gid), sizeof(ib_gid_t));
+
+	/* According to page 653 - the issuer gid in this case of trap
+	   is the SM gid, since the SM is the initiator of this trap. */
+	notice.issuer_gid.unicast.prefix = sm->p_subn->opt.subnet_prefix;
+	notice.issuer_gid.unicast.interface_id = sm->p_subn->sm_port_guid;
+
+	status = osm_report_notice(sm->p_log, sm->p_subn, &notice);
+	if (status != IB_SUCCESS) {
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0103: "
+			"Error sending trap reports (%s)\n",
+			ib_get_err_str(status));
+	}
+
 	p_sm_guid_tbl = &sm->p_subn->sm_guid_tbl;
 	p_sm = (osm_remote_sm_t *) cl_qmap_remove(p_sm_guid_tbl, port_guid);
 	if (p_sm != (osm_remote_sm_t *) cl_qmap_end(p_sm_guid_tbl)) {
@@ -216,35 +243,6 @@ static void drop_mgr_remove_port(osm_sm_t * sm, IN osm_port_t * p_port)
 	p_node = p_port->p_node;
 
 	osm_port_delete(&p_port);
-
-	/* issue a notice - trap 65 */
-
-	/* details of the notice */
-	notice.generic_type = 0x83;	/* is generic subn mgt type */
-	ib_notice_set_prod_type_ho(&notice, 4);	/* A class manager generator */
-	/* endport ceases to be reachable */
-	notice.g_or_v.generic.trap_num = CL_HTON16(65);
-	/* The sm_base_lid is saved in network order already. */
-	notice.issuer_lid = sm->p_subn->sm_base_lid;
-	/* following C14-72.1.2 and table 119 p725 */
-	/* we need to provide the GID */
-	port_gid.unicast.prefix = sm->p_subn->opt.subnet_prefix;
-	port_gid.unicast.interface_id = port_guid;
-	memcpy(&(notice.data_details.ntc_64_67.gid),
-	       &(port_gid), sizeof(ib_gid_t));
-
-	/* According to page 653 - the issuer gid in this case of trap
-	   is the SM gid, since the SM is the initiator of this trap. */
-	notice.issuer_gid.unicast.prefix = sm->p_subn->opt.subnet_prefix;
-	notice.issuer_gid.unicast.interface_id = sm->p_subn->sm_port_guid;
-
-	status = osm_report_notice(sm->p_log, sm->p_subn, &notice);
-	if (status != IB_SUCCESS) {
-		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0103: "
-			"Error sending trap reports (%s)\n",
-			ib_get_err_str(status));
-		goto Exit;
-	}
 
 	OSM_LOG(sm->p_log, OSM_LOG_INFO,
 		"Removed port with GUID:0x%016" PRIx64
