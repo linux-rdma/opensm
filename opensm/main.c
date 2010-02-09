@@ -324,6 +324,8 @@ static void show_usage(void)
 	printf("--consolidate_ipv6_snm_req\n"
 	       "          Use shared MLID for IPv6 Solicited Node Multicast groups\n"
 	       "          per MGID scope and P_Key.\n\n");
+	printf("--log_prefix <prefix text>\n"
+	       "          Prefix to syslog messages from OpenSM.\n\n");
 	printf("--verbose, -v\n"
 	       "          This option increases the log verbosity level.\n"
 	       "          The -v option may be specified multiple times\n"
@@ -607,6 +609,7 @@ int main(int argc, char *argv[])
 		{"lash_start_vl", 1, NULL, 6},
 		{"sm_sl", 1, NULL, 7},
 		{"retries", 1, NULL, 8},
+		{"log_prefix", 1, NULL, 9},
 		{NULL, 0, NULL, 0}	/* Required at the end of the array */
 	};
 
@@ -984,6 +987,10 @@ int main(int argc, char *argv[])
 			opt.transaction_retries = strtoul(optarg, NULL, 0);
 			printf(" Transaction retries = %u\n",
 			       opt.transaction_retries);
+			break;
+		case 9:
+			SET_STR_OPT(opt.log_prefix, optarg);
+			printf("Log prefix = %s\n", opt.log_prefix);
 			break;
 		case 'h':
 		case '?':

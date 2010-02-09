@@ -49,6 +49,7 @@ opensm \- InfiniBand subnet manager and administration (SM/SA)
 [\-\-perfmgr_sweep_time_s <seconds>]
 [\-\-prefix_routes_file <path>]
 [\-\-consolidate_ipv6_snm_req]
+[\-\-log_prefix <prefix text>]
 [\-v(erbose)] [\-V] [\-D <flags>] [\-d(ebug) <number>]
 [\-h(elp)] [\-?]
 
@@ -344,6 +345,13 @@ effect if --enable-perfmgr was specified at configure time.
 .BI --consolidate_ipv6_snm_req
 Use shared MLID for IPv6 Solicited Node Multicast groups per MGID scope
 and P_Key.
+.TP
+\fB\-\-log_prefix\fR <prefix text>
+This option specifies the prefix to the syslog messages from OpenSM.
+A suitable prefix can be used to identify the IB subnet in syslog messages
+when two or more instances of OpenSM run in a single node to manage multiple
+fabrics. For example, in a dual-fabric (or dual-rail) IB cluster, the prefix
+for the first fabric could be "mpi" and the other fabric could be "storage".
 .TP
 \fB\-v\fR, \fB\-\-verbose\fR
 This option increases the log verbosity level.

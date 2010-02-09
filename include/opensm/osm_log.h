@@ -120,6 +120,7 @@ typedef struct osm_log {
 	boolean_t accum_log_file;
 	boolean_t daemon;
 	char *log_file_name;
+	char *log_prefix;
 } osm_log_t;
 /*********/
 

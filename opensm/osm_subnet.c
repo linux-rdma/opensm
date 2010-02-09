@@ -396,6 +396,7 @@ static const opt_rec_t opt_tbl[] = {
 	{ "consolidate_ipv6_snm_req", OPT_OFFSET(consolidate_ipv6_snm_req), opts_parse_boolean, NULL, 1 },
 	{ "lash_start_vl", OPT_OFFSET(lash_start_vl), opts_parse_uint8, NULL, 1 },
 	{ "sm_sl", OPT_OFFSET(sm_sl), opts_parse_uint8, NULL, 1 },
+	{ "log_prefix", OPT_OFFSET(log_prefix), opts_parse_charp, NULL, 1 },
 	{0}
 };
 
@@ -764,6 +765,7 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * p_opt)
 	p_opt->consolidate_ipv6_snm_req = FALSE;
 	p_opt->lash_start_vl = 0;
 	p_opt->sm_sl = OSM_DEFAULT_SL;
+	p_opt->log_prefix = NULL;
 	subn_init_qos_options(&p_opt->qos_options, NULL);
 	subn_init_qos_options(&p_opt->qos_ca_options, NULL);
 	subn_init_qos_options(&p_opt->qos_sw0_options, NULL);
@@ -1633,6 +1635,8 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		"#\n# IPv6 Solicited Node Multicast (SNM) Options\n#\n"
 		"consolidate_ipv6_snm_req %s\n\n",
 		p_opts->consolidate_ipv6_snm_req ? "TRUE" : "FALSE");
+
+	fprintf(out, "# Log prefix\nlog_prefix %s\n\n", p_opts->log_prefix);
 
 	/* optional string attributes ... */
 

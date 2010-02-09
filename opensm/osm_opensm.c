@@ -337,6 +337,7 @@ ib_api_status_t osm_opensm_init(IN osm_opensm_t * p_osm,
 				 p_opt->log_max_size, p_opt->accum_log_file);
 	if (status != IB_SUCCESS)
 		return status;
+	p_osm->log.log_prefix = p_opt->log_prefix;
 
 	/* If there is a log level defined - add the OSM_VERSION to it */
 	osm_log(&p_osm->log,

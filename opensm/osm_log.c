@@ -123,7 +123,12 @@ void osm_log(IN osm_log_t * p_log, IN osm_log_level_t verbosity,
 		return;
 
 	va_start(args, p_str);
-	vsprintf(buffer, p_str, args);
+	if (p_log->log_prefix == NULL)
+		vsprintf(buffer, p_str, args);
+	else {
+		int n = snprintf(buffer, sizeof(buffer), "%s: ", p_log->log_prefix);
+		vsprintf(buffer + n, p_str, args);
+	}
 	va_end(args);
 
 	/* this is a call to the syslog */
