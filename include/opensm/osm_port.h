@@ -549,7 +549,7 @@ static inline void osm_physp_set_slvl_tbl(IN osm_physp_t * p_physp,
 
 	CL_ASSERT(p_slvl_tbl);
 	CL_ASSERT(osm_physp_is_valid(p_physp));
-	p_tbl = cl_ptr_vector_get(&p_physp->slvl_by_port, in_port_num);
+	p_tbl = (ib_slvl_table_t *)cl_ptr_vector_get(&p_physp->slvl_by_port, in_port_num);
 	*p_tbl = *p_slvl_tbl;
 }
 
@@ -590,7 +590,7 @@ static inline ib_slvl_table_t *osm_physp_get_slvl_tbl(IN const osm_physp_t *
 	ib_slvl_table_t *p_tbl;
 
 	CL_ASSERT(osm_physp_is_valid(p_physp));
-	p_tbl = cl_ptr_vector_get(&p_physp->slvl_by_port, in_port_num);
+	p_tbl = (ib_slvl_table_t *)cl_ptr_vector_get(&p_physp->slvl_by_port, in_port_num);
 	return p_tbl;
 }
 

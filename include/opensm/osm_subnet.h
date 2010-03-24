@@ -1055,7 +1055,7 @@ struct osm_mgrp *osm_get_mgrp_by_mgid(IN osm_subn_t * subn, IN ib_gid_t * mgid);
 */
 static inline struct osm_mgrp_box *osm_get_mbox_by_mlid(osm_subn_t const *p_subn, ib_net16_t mlid)
 {
-	return p_subn->mboxes[cl_ntoh16(mlid) - IB_LID_MCAST_START_HO];
+	return (struct osm_mgrp_box *)p_subn->mboxes[cl_ntoh16(mlid) - IB_LID_MCAST_START_HO];
 }
 /*
 * PARAMETERS

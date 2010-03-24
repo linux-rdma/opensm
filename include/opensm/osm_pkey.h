@@ -252,7 +252,8 @@ static inline ib_pkey_table_t *osm_pkey_tbl_block_get(const osm_pkey_tbl_t *
 						      uint16_t block)
 {
 	return ((block < cl_ptr_vector_get_size(&p_pkey_tbl->blocks)) ?
-		cl_ptr_vector_get(&p_pkey_tbl->blocks, block) : NULL);
+		(ib_pkey_table_t *)cl_ptr_vector_get(
+		&p_pkey_tbl->blocks, block) : NULL);
 };
 
 /*
@@ -282,8 +283,9 @@ static inline ib_pkey_table_t *osm_pkey_tbl_new_block_get(const osm_pkey_tbl_t *
 							  p_pkey_tbl,
 							  uint16_t block)
 {
-	return (block < cl_ptr_vector_get_size(&p_pkey_tbl->new_blocks)) ?
-	    cl_ptr_vector_get(&p_pkey_tbl->new_blocks, block) : NULL;
+	return ((block < cl_ptr_vector_get_size(&p_pkey_tbl->new_blocks)) ?
+		(ib_pkey_table_t *)cl_ptr_vector_get(
+		&p_pkey_tbl->new_blocks, block) : NULL);
 };
 
 /****f* OpenSM: osm_pkey_tbl_set_new_entry
