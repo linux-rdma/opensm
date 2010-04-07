@@ -78,6 +78,8 @@ void osm_switch_delete(IN OUT osm_switch_t ** pp_sw)
 	osm_mcast_tbl_destroy(&p_sw->mcast_tbl);
 	if (p_sw->p_prof)
 		free(p_sw->p_prof);
+	if (p_sw->dimn_ports)
+		free(p_sw->dimn_ports);
 	if (p_sw->lft)
 		free(p_sw->lft);
 	if (p_sw->new_lft)
@@ -341,7 +343,7 @@ uint8_t osm_switch_recommend_path(IN const osm_switch_t * p_sw,
 
 	/* port number starts with one and num_ports is 1 + num phys ports */
 	for (i = start_from; i < start_from + num_ports; i++) {
-		port_num = i%num_ports;
+		port_num = osm_switch_get_dimn_port(p_sw, i % num_ports);
 		if (!port_num ||
 		    osm_switch_get_hop_count(p_sw, base_lid, port_num) !=
 		    least_hops)

@@ -275,6 +275,10 @@ static void show_usage(void)
 	       "          This option provides the means to define a weighting\n"
 	       "          factor per port for customizing the least weight\n"
 	       "          hops for the routing.\n\n");
+	printf("--dimn_ports_file, -O <path to file>\n"
+	       "          This option provides the means to define a mapping\n"
+	       "          between ports and dimension (Order) for controlling\n"
+	       "          Dimension Order Routing (DOR).\n\n");
 	printf("--honor_guid2lid, -x\n"
 	       "          This option forces OpenSM to honor the guid2lid file,\n"
 	       "          when it comes out of Standby state, if such file exists\n"
@@ -543,7 +547,7 @@ int main(int argc, char *argv[])
 	char *conf_template = NULL, *config_file = NULL;
 	uint32_t val;
 	const char *const short_option =
-	    "F:c:i:w:f:ed:D:g:l:L:s:t:a:u:m:X:R:zM:U:S:P:Y:ANBIQvVhoryxp:n:q:k:C:G:H:";
+	    "F:c:i:w:O:f:ed:D:g:l:L:s:t:a:u:m:X:R:zM:U:S:P:Y:ANBIQvVhoryxp:n:q:k:C:G:H:";
 
 	/*
 	   In the array below, the 2nd parameter specifies the number
@@ -560,6 +564,7 @@ int main(int argc, char *argv[])
 		{"guid", 1, NULL, 'g'},
 		{"ignore_guids", 1, NULL, 'i'},
 		{"hop_weights_file", 1, NULL, 'w'},
+		{"dimn_ports_file", 1, NULL, 'O'},
 		{"lmc", 1, NULL, 'l'},
 		{"sweep", 1, NULL, 's'},
 		{"timeout", 1, NULL, 't'},
@@ -694,6 +699,12 @@ int main(int argc, char *argv[])
 			opt.hop_weights_file = optarg;
 			printf(" Hop Weights File = %s\n",
 			       opt.hop_weights_file);
+			break;
+
+		case 'O':
+			opt.dimn_ports_file = optarg;
+			printf(" Dimension Ports File = %s\n",
+			       opt.dimn_ports_file);
 			break;
 
 		case 'g':

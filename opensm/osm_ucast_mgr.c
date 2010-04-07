@@ -46,6 +46,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include <iba/ib_types.h>
 #include <complib/cl_qmap.h>
 #include <complib/cl_debug.h>
@@ -488,6 +489,102 @@ static void set_default_hop_wf(cl_map_item_t * p_map_item, void *ctx)
 	}
 }
 
+static int set_dimn_ports(void *ctx, uint64_t guid, char *p)
+{
+	osm_subn_t *p_subn = ctx;
+	osm_node_t *node = osm_get_node_by_guid(p_subn, cl_hton64(guid));
+	osm_switch_t *sw;
+	uint8_t *dimn_ports = NULL;
+	uint8_t port;
+	unsigned int *ports = NULL;
+	const int bpw = sizeof(*ports)*8;
+	int words;
+	int i = 1; /* port 0 maps to port 0 */
+
+	if (!node || !(sw = node->sw)) {
+		OSM_LOG(&p_subn->p_osm->log, OSM_LOG_VERBOSE,
+			"switch with guid 0x%016" PRIx64 " is not found\n",
+			guid);
+		return 0;
+	}
+
+	if (sw->dimn_ports) {
+		OSM_LOG(&p_subn->p_osm->log, OSM_LOG_VERBOSE,
+			"switch with guid 0x%016" PRIx64 " already listed\n",
+			guid);
+		return 0;
+	}
+
+	dimn_ports = malloc(sizeof(*dimn_ports)*sw->num_ports);
+	if (!dimn_ports) {
+		OSM_LOG(&p_subn->p_osm->log, OSM_LOG_ERROR,
+			"ERR 3A07: cannot allocate memory for dimn_ports\n");
+		return -1;
+	}
+	memset(dimn_ports, 0, sizeof(*dimn_ports)*sw->num_ports);
+
+	/* the ports array is for record keeping of which ports have
+	 * been seen */
+	words = (sw->num_ports + bpw - 1)/bpw;
+	ports = malloc(words*sizeof(*ports));
+	if (!ports) {
+		OSM_LOG(&p_subn->p_osm->log, OSM_LOG_ERROR,
+			"ERR 3A08: cannot allocate memory for ports\n");
+		return -1;
+	}
+	memset(ports, 0, words*sizeof(*ports));
+
+	while ((*p != '\0') && (*p != '#')) {
+		char *e;
+
+		port = strtoul(p, &e, 0);
+		if ((p == e) || (port == 0) || (port >= sw->num_ports) ||
+		    !osm_node_get_physp_ptr(node, port)) {
+			OSM_LOG(&p_subn->p_osm->log, OSM_LOG_VERBOSE,
+				"bad port %d specified for guid 0x%016" PRIx64 "\n",
+				port, guid);
+			free(dimn_ports);
+			free(ports);
+			return 0;
+		}
+
+		if (ports[port/bpw] & (1u << (port%bpw))) {
+			OSM_LOG(&p_subn->p_osm->log, OSM_LOG_VERBOSE,
+				"port %d already specified for guid 0x%016" PRIx64 "\n",
+				port, guid);
+			free(dimn_ports);
+			free(ports);
+			return 0;
+		}
+
+		ports[port/bpw] |= (1u << (port%bpw));
+		dimn_ports[i++] = port;
+
+		p = e;
+		while (isspace(*p)) {
+			p++;
+		}
+	}
+
+	if (i > 1) {
+		for (port = 1; port < sw->num_ports; port++) {
+			/* fill out the rest of the dimn_ports array
+			 * in sequence using the remaining unspecified
+			 * ports.
+			 */
+			if (!(ports[port/bpw] & (1u << (port%bpw)))) {
+				dimn_ports[i++] = port;
+			}
+		}
+		sw->dimn_ports = dimn_ports;
+	} else {
+		free(dimn_ports);
+	}
+
+	free(ports);
+	return 0;
+}
+
 int osm_ucast_mgr_build_lid_matrices(IN osm_ucast_mgr_t * p_mgr)
 {
 	uint32_t i;
@@ -579,7 +676,7 @@ static int ucast_mgr_setup_all_switches(osm_subn_t * p_subn)
 
 	for (p_sw = (osm_switch_t *) cl_qmap_head(&p_subn->sw_guid_tbl);
 	     p_sw != (osm_switch_t *) cl_qmap_end(&p_subn->sw_guid_tbl);
-	     p_sw = (osm_switch_t *) cl_qmap_next(&p_sw->map_item))
+	     p_sw = (osm_switch_t *) cl_qmap_next(&p_sw->map_item)) {
 		if (osm_switch_prepare_path_rebuild(p_sw, lids)) {
 			OSM_LOG(&p_subn->p_osm->log, OSM_LOG_ERROR, "ERR 3A0B: "
 				"cannot setup switch 0x%016" PRIx64 "\n",
@@ -587,6 +684,23 @@ static int ucast_mgr_setup_all_switches(osm_subn_t * p_subn)
 					  (p_sw->p_node)));
 			return -1;
 		}
+		if (p_sw->dimn_ports) {
+			free(p_sw->dimn_ports);
+			p_sw->dimn_ports = NULL;
+		}
+	}
+
+	if (p_subn->opt.dimn_ports_file) {
+		OSM_LOG(&p_subn->p_osm->log, OSM_LOG_DEBUG,
+			"Fetching dimension ports file \'%s\'\n",
+			p_subn->opt.dimn_ports_file);
+		if (parse_node_map(p_subn->opt.dimn_ports_file,
+				   set_dimn_ports, p_subn)) {
+			OSM_LOG(&p_subn->p_osm->log, OSM_LOG_ERROR, "ERR 3A05: "
+				"cannot parse dimn_ports_file \'%s\'\n",
+				p_subn->opt.dimn_ports_file);
+		}
+	}
 
 	return 0;
 }
