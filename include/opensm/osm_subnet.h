@@ -456,8 +456,8 @@ typedef struct osm_subn_opt {
 *       event_db_dump_file
 *               File to dump the event database to
 *
-*       event_db_plugin
-*               Specify the name of the event plugin
+*       event_plugin_name
+*               Specify the name(s) of the event plugin(s)
 *
 *	qos_options
 *		Default set of QoS options
