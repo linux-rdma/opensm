@@ -223,6 +223,7 @@ typedef struct osm_subn_opt {
 	char *event_db_dump_file;
 #endif				/* ENABLE_OSM_PERF_MGR */
 	char *event_plugin_name;
+	char *event_plugin_options;
 	char *node_name_map_name;
 	char *prefix_routes_file;
 	char *log_prefix;
@@ -458,6 +459,9 @@ typedef struct osm_subn_opt {
 *
 *       event_plugin_name
 *               Specify the name(s) of the event plugin(s)
+*
+*       event_plugin_options
+*               Options string that would be passed to the plugin(s)
 *
 *	qos_options
 *		Default set of QoS options

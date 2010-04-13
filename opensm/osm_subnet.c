@@ -364,6 +364,7 @@ static const opt_rec_t opt_tbl[] = {
 	{ "event_db_dump_file", OPT_OFFSET(event_db_dump_file), opts_parse_charp, NULL, 0 },
 #endif				/* ENABLE_OSM_PERF_MGR */
 	{ "event_plugin_name", OPT_OFFSET(event_plugin_name), opts_parse_charp, NULL, 0 },
+	{ "event_plugin_options", OPT_OFFSET(event_plugin_options), opts_parse_charp, NULL, 0 },
 	{ "node_name_map_name", OPT_OFFSET(node_name_map_name), opts_parse_charp, NULL, 0 },
 	{ "qos_max_vls", OPT_OFFSET(qos_options.max_vls), opts_parse_uint32, NULL, 1 },
 	{ "qos_high_limit", OPT_OFFSET(qos_options.high_limit), opts_parse_int32, NULL, 1 },
@@ -727,6 +728,7 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * p_opt)
 #endif				/* ENABLE_OSM_PERF_MGR */
 
 	p_opt->event_plugin_name = NULL;
+	p_opt->event_plugin_options = NULL;
 	p_opt->node_name_map_name = NULL;
 
 	p_opt->dump_files_dir = getenv("OSM_TMP_DIR");
@@ -1544,8 +1546,14 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 
 	fprintf(out,
 		"#\n# Event Plugin Options\n#\n"
-		"event_plugin_name %s\n\n", p_opts->event_plugin_name ?
-		p_opts->event_plugin_name : null_str);
+		"# Event plugin name(s)\n"
+		"event_plugin_name %s\n\n"
+		"# Options string that would be passed to the plugin(s)\n"
+		"event_plugin_options %s\n\n",
+		p_opts->event_plugin_name ?
+		p_opts->event_plugin_name : null_str,
+		p_opts->event_plugin_options ?
+		p_opts->event_plugin_options : null_str);
 
 	fprintf(out,
 		"#\n# Node name map for mapping node's to more descriptive node descriptions\n"
