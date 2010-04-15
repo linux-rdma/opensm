@@ -637,9 +637,8 @@ osm_vendor_open_port(IN osm_vendor_t * const p_vend,
 	}
 
 	for (ca = 0; ca < p_vend->ca_count; ca++) {
-		if ((r = umad_get_ca_portguids(p_vend->ca_names[ca],
-					       portguids,
-					       OSM_UMAD_MAX_CAS)) < 0) {
+		if ((r = umad_get_ca_portguids(p_vend->ca_names[ca], portguids,
+					       OSM_UMAD_MAX_PORTS_PER_CA + 1)) < 0) {
 			OSM_LOG(p_vend->p_log, OSM_LOG_ERROR, "ERR 5421: "
 				"Unable to get CA %s port guids (%s)\n",
 				p_vend->ca_names[ca], strerror(r));
