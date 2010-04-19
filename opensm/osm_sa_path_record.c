@@ -4,6 +4,7 @@
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2008 Xsigo Systems Inc. All rights reserved.
  * Copyright (c) 2009 HNR Consulting. All rights reserved.
+ * Copyright (c) 2010 Sun Microsystems, Inc. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -68,6 +69,8 @@
 #include <opensm/osm_router.h>
 #include <opensm/osm_prefix_route.h>
 #include <opensm/osm_ucast_lash.h>
+
+#define MAX_HOPS 128
 
 typedef struct osm_pr_item {
 	cl_list_item_t list_item;
@@ -178,6 +181,7 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 	osm_qos_level_t *p_qos_level = NULL;
 	uint16_t valid_sl_mask = 0xffff;
 	int is_lash;
+	int hops = 0;
 
 	OSM_LOG_ENTER(sa->p_log);
 
@@ -368,6 +372,23 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 				status = IB_NOT_FOUND;
 				goto Exit;
 			}
+		}
+
+		/* update number of hops traversed */
+		hops++;
+		if (hops > MAX_HOPS) {
+			OSM_LOG(sa->p_log, OSM_LOG_ERROR,
+				"Path from GUID 0x%016" PRIx64 " (%s) to"
+				" lid %u GUID 0x%016" PRIx64 " (%s) needs"
+				" more than %d hops, max %d hops allowed\n",
+				cl_ntoh64(osm_physp_get_port_guid(p_src_physp)),
+				p_src_physp->p_node->print_desc, dest_lid_ho,
+				cl_ntoh64(osm_physp_get_port_guid
+					  (p_dest_physp)),
+				p_dest_physp->p_node->print_desc, hops,
+				MAX_HOPS);
+			status = IB_NOT_FOUND;
+			goto Exit;
 		}
 	}
 
