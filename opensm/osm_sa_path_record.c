@@ -70,7 +70,7 @@
 #include <opensm/osm_prefix_route.h>
 #include <opensm/osm_ucast_lash.h>
 
-#define MAX_HOPS 128
+#define MAX_HOPS 64
 
 typedef struct osm_pr_item {
 	cl_list_item_t list_item;
