@@ -636,11 +636,12 @@ static void lid_mgr_find_free_lid_range(IN osm_lid_mgr_t * p_mgr,
 		/* but we can be out of the range */
 		if (lid + num_lids - 1 <= p_range->max_lid) {
 			/* ok let us use that range */
-			if (lid + num_lids - 1 == p_range->max_lid)
+			if (lid + num_lids - 1 == p_range->max_lid) {
 				/* we consumed the entire range */
 				cl_qlist_remove_item(&p_mgr->free_ranges,
 						     p_item);
-			else
+				free(p_item);
+			} else
 				/* only update the available range */
 				p_range->min_lid = lid + num_lids;
 
