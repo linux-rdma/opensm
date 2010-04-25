@@ -306,11 +306,11 @@ static int lid_mgr_init_sweep(IN osm_lid_mgr_t * p_mgr)
 	   need to honor this file. */
 	if (p_mgr->p_subn->first_time_master_sweep == TRUE) {
 		osm_db_clear(p_mgr->p_g2l);
-		if (p_mgr->p_subn->opt.honor_guid2lid_file == FALSE) {
+		memset(p_mgr->used_lids, 0, sizeof(p_mgr->used_lids));
+		if (p_mgr->p_subn->opt.honor_guid2lid_file == FALSE)
 			OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 				"Ignore guid2lid file when coming out of standby\n");
-			memset(p_mgr->used_lids, 0, sizeof(p_mgr->used_lids));
-		} else {
+		else {
 			OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 				"Honor current guid2lid file when coming out "
 				"of standby\n");
@@ -319,6 +319,7 @@ static int lid_mgr_init_sweep(IN osm_lid_mgr_t * p_mgr)
 					"ERR 0306: "
 					"Error restoring Guid-to-Lid "
 					"persistent database. Ignoring it\n");
+			lid_mgr_validate_db(p_mgr);
 		}
 	}
 
@@ -710,7 +711,7 @@ static int lid_mgr_get_port_lid(IN osm_lid_mgr_t * p_mgr,
 			/* we still need to send the setting to the target port */
 			lid_changed = 1;
 		}
-		goto Exit;
+		goto NewLidSet;
 	} else
 		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 			"0x%016" PRIx64 " has no persistent lid assigned\n",
@@ -764,7 +765,6 @@ NewLidSet:
 	for (lid = *p_min_lid; lid <= *p_max_lid; lid++)
 		p_mgr->used_lids[lid] = 1;
 
-Exit:
 	/* make sure the assigned lids are marked in port_lid_tbl */
 	for (lid = *p_min_lid; lid <= *p_max_lid; lid++)
 		cl_ptr_vector_set(&p_mgr->p_subn->port_lid_tbl, lid, p_port);
