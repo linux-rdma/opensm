@@ -115,11 +115,9 @@ void osm_lid_mgr_destroy(IN osm_lid_mgr_t * p_mgr)
 
 	OSM_LOG_ENTER(p_mgr->p_log);
 
-	p_item = cl_qlist_remove_head(&p_mgr->free_ranges);
-	while (p_item != cl_qlist_end(&p_mgr->free_ranges)) {
+	while ((p_item = cl_qlist_remove_head(&p_mgr->free_ranges)) !=
+	       cl_qlist_end(&p_mgr->free_ranges))
 		free((osm_lid_mgr_range_t *) p_item);
-		p_item = cl_qlist_remove_head(&p_mgr->free_ranges);
-	}
 	OSM_LOG_EXIT(p_mgr->p_log);
 }
 
@@ -150,8 +148,8 @@ static void lid_mgr_validate_db(IN osm_lid_mgr_t * p_mgr)
 		goto Exit;
 	}
 
-	p_item = (osm_db_guid_elem_t *) cl_qlist_remove_head(&guids);
-	while ((cl_list_item_t *) p_item != cl_qlist_end(&guids)) {
+	while ((p_item = (osm_db_guid_elem_t *) cl_qlist_remove_head(&guids))
+	       != (osm_db_guid_elem_t *) cl_qlist_end(&guids)) {
 		if (osm_db_guid2lid_get(p_mgr->p_g2l, p_item->guid,
 					&min_lid, &max_lid))
 			OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 0311: "
@@ -197,22 +195,18 @@ static void lid_mgr_validate_db(IN osm_lid_mgr_t * p_mgr)
 				}
 			}
 
-			if (!lids_ok) {
-				if (osm_db_guid2lid_delete(p_mgr->p_g2l,
-							   p_item->guid))
-					OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR,
-						"ERR 0315: "
-						"failed to delete entry for "
-						"guid:0x%016" PRIx64 "\n",
-						p_item->guid);
-			} else {
+			if (lids_ok)
 				/* mark that it was visited */
 				for (lid = min_lid; lid <= max_lid; lid++)
 					p_mgr->used_lids[lid] = 1;
-			}
+			else if (osm_db_guid2lid_delete(p_mgr->p_g2l,
+							p_item->guid))
+				OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR,
+					"ERR 0315: failed to delete entry for "
+					"guid:0x%016" PRIx64 "\n",
+					p_item->guid);
 		}		/* got a lid */
 		free(p_item);
-		p_item = (osm_db_guid_elem_t *) cl_qlist_remove_head(&guids);
 	}			/* all guids */
 Exit:
 	OSM_LOG_EXIT(p_mgr->p_log);
@@ -291,14 +285,8 @@ static uint16_t trim_lid(IN uint16_t lid)
 static int lid_mgr_init_sweep(IN osm_lid_mgr_t * p_mgr)
 {
 	cl_ptr_vector_t *p_discovered_vec = &p_mgr->p_subn->port_lid_tbl;
-	uint16_t max_defined_lid;
-	uint16_t max_persistent_lid;
-	uint16_t max_discovered_lid;
-	uint16_t lid;
-	uint16_t disc_min_lid;
-	uint16_t disc_max_lid;
-	uint16_t db_min_lid;
-	uint16_t db_max_lid;
+	uint16_t max_defined_lid, max_persistent_lid, max_discovered_lid;
+	uint16_t disc_min_lid, disc_max_lid, db_min_lid, db_max_lid;
 	int status = 0;
 	cl_list_item_t *p_item;
 	boolean_t is_free;
@@ -306,8 +294,7 @@ static int lid_mgr_init_sweep(IN osm_lid_mgr_t * p_mgr)
 	osm_port_t *p_port;
 	cl_qmap_t *p_port_guid_tbl;
 	uint8_t lmc_num_lids = (uint8_t) (1 << p_mgr->p_subn->opt.lmc);
-	uint16_t lmc_mask;
-	uint16_t req_lid, num_lids;
+	uint16_t lmc_mask, req_lid, num_lids, lid;
 
 	OSM_LOG_ENTER(p_mgr->p_log);
 
@@ -318,16 +305,15 @@ static int lid_mgr_init_sweep(IN osm_lid_mgr_t * p_mgr)
 	   Do this only if the honor_guid2lid_file option is FALSE. If not, then
 	   need to honor this file. */
 	if (p_mgr->p_subn->coming_out_of_standby == TRUE) {
+		osm_db_clear(p_mgr->p_g2l);
 		if (p_mgr->p_subn->opt.honor_guid2lid_file == FALSE) {
 			OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 				"Ignore guid2lid file when coming out of standby\n");
-			osm_db_clear(p_mgr->p_g2l);
 			memset(p_mgr->used_lids, 0, sizeof(p_mgr->used_lids));
 		} else {
 			OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 				"Honor current guid2lid file when coming out "
 				"of standby\n");
-			osm_db_clear(p_mgr->p_g2l);
 			if (osm_db_restore(p_mgr->p_g2l))
 				OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR,
 					"ERR 0306: "
@@ -337,11 +323,9 @@ static int lid_mgr_init_sweep(IN osm_lid_mgr_t * p_mgr)
 	}
 
 	/* we need to cleanup the empty ranges list */
-	p_item = cl_qlist_remove_head(&p_mgr->free_ranges);
-	while (p_item != cl_qlist_end(&p_mgr->free_ranges)) {
+	while ((p_item = cl_qlist_remove_head(&p_mgr->free_ranges)) !=
+	       cl_qlist_end(&p_mgr->free_ranges))
 		free((osm_lid_mgr_range_t *) p_item);
-		p_item = cl_qlist_remove_head(&p_mgr->free_ranges);
-	}
 
 	/* first clean up the port_by_lid_tbl */
 	for (lid = 0; lid < cl_ptr_vector_get_size(p_discovered_vec); lid++)
@@ -354,8 +338,7 @@ static int lid_mgr_init_sweep(IN osm_lid_mgr_t * p_mgr)
 	    p_mgr->p_subn->opt.reassign_lids == TRUE) {
 		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 			"Skipping all lids as we are reassigning them\n");
-		p_range =
-		    (osm_lid_mgr_range_t *) malloc(sizeof(osm_lid_mgr_range_t));
+		p_range = malloc(sizeof(osm_lid_mgr_range_t));
 		if (p_range)
 			p_range->min_lid = 1;
 		goto AfterScanningLids;
@@ -442,10 +425,9 @@ static int lid_mgr_init_sweep(IN osm_lid_mgr_t * p_mgr)
 				"persistent db\n", lid);
 			is_free = FALSE;
 			/* check this is a discovered port */
-		} else if (lid <= max_discovered_lid && (p_port = (osm_port_t *)
-							 cl_ptr_vector_get
-							 (p_discovered_vec,
-							  lid))) {
+		} else if (lid <= max_discovered_lid &&
+			   (p_port = cl_ptr_vector_get(p_discovered_vec,
+						       lid))) {
 			/* we have a port. Now lets see if we can preserve its lid range. */
 			/* For that, we need to make sure:
 			   1. The port has a (legal) persistency entry. Then the
@@ -527,23 +509,20 @@ static int lid_mgr_init_sweep(IN osm_lid_mgr_t * p_mgr)
 			if (p_range)
 				p_range->max_lid = lid;
 			else {
-				p_range = (osm_lid_mgr_range_t *)
-				    malloc(sizeof(osm_lid_mgr_range_t));
+				p_range = malloc(sizeof(osm_lid_mgr_range_t));
 				if (p_range) {
 					p_range->min_lid = lid;
 					p_range->max_lid = lid;
 				}
 			}
-		} else {
-			/* this lid is used so we need to finalize the previous free range */
-			if (p_range) {
-				cl_qlist_insert_tail(&p_mgr->free_ranges,
-						     &p_range->item);
-				OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-					"new free lid range [%u:%u]\n",
-					p_range->min_lid, p_range->max_lid);
-				p_range = NULL;
-			}
+		/* this lid is used so we need to finalize the previous free range */
+		} else if (p_range) {
+			cl_qlist_insert_tail(&p_mgr->free_ranges,
+					     &p_range->item);
+			OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
+				"new free lid range [%u:%u]\n",
+				p_range->min_lid, p_range->max_lid);
+			p_range = NULL;
 		}
 	}
 
@@ -551,8 +530,7 @@ AfterScanningLids:
 	/* after scanning all known lids we need to extend the last range
 	   to the max allowed lid */
 	if (!p_range) {
-		p_range =
-		    (osm_lid_mgr_range_t *) malloc(sizeof(osm_lid_mgr_range_t));
+		p_range = malloc(sizeof(osm_lid_mgr_range_t));
 		/*
 		   The p_range can be NULL in one of 2 cases:
 		   1. If max_defined_lid == 0. In this case, we want the
@@ -673,12 +651,10 @@ static void lid_mgr_cleanup_discovered_port_lid_range(IN osm_lid_mgr_t * p_mgr,
 	osm_port_get_lid_range_ho(p_port, &min_lid, &max_lid);
 	min_lid = trim_lid(min_lid);
 	max_lid = trim_lid(max_lid);
-	for (lid = min_lid; lid <= max_lid; lid++) {
-		if ((lid < max_tbl_lid) &&
-		    (p_port ==
-		     (osm_port_t *) cl_ptr_vector_get(p_discovered_vec, lid)))
+	for (lid = min_lid; lid <= max_lid; lid++)
+		if (lid < max_tbl_lid &&
+		    p_port == cl_ptr_vector_get(p_discovered_vec, lid))
 			cl_ptr_vector_set(p_discovered_vec, lid, NULL);
-	}
 }
 
 /**********************************************************************
@@ -720,11 +696,10 @@ static int lid_mgr_get_port_lid(IN osm_lid_mgr_t * p_mgr,
 	if (!osm_db_guid2lid_get(p_mgr->p_g2l, guid, &min_lid, &max_lid)) {
 		*p_min_lid = min_lid;
 		*p_max_lid = min_lid + num_lids - 1;
-		if (min_lid == cl_ntoh16(osm_port_get_base_lid(p_port))) {
+		if (min_lid == cl_ntoh16(osm_port_get_base_lid(p_port)))
 			OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG, "0x%016" PRIx64
 				" matches its known lid:%u\n", guid, min_lid);
-			goto Exit;
-		} else {
+		else {
 			OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 				"0x%016" PRIx64 " with lid:%u "
 				"does not match its known lid:%u\n",
@@ -734,8 +709,8 @@ static int lid_mgr_get_port_lid(IN osm_lid_mgr_t * p_mgr,
 								  p_port);
 			/* we still need to send the setting to the target port */
 			lid_changed = 1;
-			goto Exit;
 		}
+		goto Exit;
 	} else
 		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 			"0x%016" PRIx64 " has no persistent lid assigned\n",
@@ -943,9 +918,8 @@ static int lid_mgr_set_physp_pi(IN osm_lid_mgr_t * p_mgr,
 			send_set = TRUE;
 
 		/* calc new op_vls and mtu */
-		op_vls =
-		    osm_physp_calc_link_op_vls(p_mgr->p_log, p_mgr->p_subn,
-					       p_physp);
+		op_vls = osm_physp_calc_link_op_vls(p_mgr->p_log, p_mgr->p_subn,
+						    p_physp);
 		mtu = osm_physp_calc_link_mtu(p_mgr->p_log, p_physp);
 
 		ib_port_info_set_neighbor_mtu(p_pi, mtu);
