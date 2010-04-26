@@ -304,7 +304,7 @@ static int lid_mgr_init_sweep(IN osm_lid_mgr_t * p_mgr)
 	   info we might have.
 	   Do this only if the honor_guid2lid_file option is FALSE. If not, then
 	   need to honor this file. */
-	if (p_mgr->p_subn->first_time_master_sweep == TRUE) {
+	if (p_mgr->p_subn->coming_out_of_standby == TRUE) {
 		osm_db_clear(p_mgr->p_g2l);
 		memset(p_mgr->used_lids, 0, sizeof(p_mgr->used_lids));
 		if (p_mgr->p_subn->opt.honor_guid2lid_file == FALSE)
