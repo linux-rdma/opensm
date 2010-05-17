@@ -119,7 +119,7 @@ void osm_log(IN osm_log_t * p_log, IN osm_log_level_t verbosity,
 #endif				/* __WIN__ */
 
 	/* If this is a call to syslog - always print it */
-	if (!(verbosity & (OSM_LOG_SYS | p_log->level)))
+	if (!(verbosity & p_log->level))
 		return;
 
 	va_start(args, p_str);
@@ -306,7 +306,7 @@ ib_api_status_t osm_log_init_v2(IN osm_log_t * p_log, IN boolean_t flush,
 				IN unsigned long max_size,
 				IN boolean_t accum_log_file)
 {
-	p_log->level = log_flags;
+	p_log->level = log_flags | OSM_LOG_SYS;
 	p_log->flush = flush;
 	p_log->count = 0;
 	p_log->max_size = max_size << 20; /* convert size in MB to bytes */
