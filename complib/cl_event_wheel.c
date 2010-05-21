@@ -42,7 +42,7 @@
 #include <complib/cl_event_wheel.h>
 #include <complib/cl_debug.h>
 
-#define CL_DBG(fmt, arg...)
+#define CL_DBG(fmt, ...)
 
 static cl_status_t __event_will_age_before(IN const cl_list_item_t *
 					   const p_list_item, IN void *context)
