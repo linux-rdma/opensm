@@ -4395,6 +4395,7 @@ static inline uint32_t OSM_API ib_get_attr_size(IN const ib_net16_t attr_offset)
 
 static inline ib_net16_t OSM_API ib_get_attr_offset(IN const uint32_t attr_size)
 {
+	CL_ASSERT((attr_size & 0x07) == 0);
 	return (cl_hton16((uint16_t) (attr_size >> 3)));
 }
 
