@@ -62,6 +62,7 @@
 #include <opensm/osm_sa.h>
 
 #define OSM_SA_MPR_MAX_NUM_PATH        127
+#define MAX_HOPS 64
 
 typedef struct osm_mpr_item {
 	cl_list_item_t list_item;
@@ -295,7 +296,23 @@ static ib_api_status_t mpr_rcv_get_path_parms(IN osm_sa_t * sa,
 			goto Exit;
 		}
 
+		/* update number of hops traversed */
 		hops++;
+		if (hops > MAX_HOPS) {
+			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4520: "
+				"Path from GUID 0x%016" PRIx64 " (%s) to"
+				" lid %u GUID 0x%016" PRIx64 " (%s) needs"
+				" more than %d hops, max %d hops allowed\n",
+				cl_ntoh64(osm_physp_get_port_guid(p_src_physp)),
+				p_src_physp->p_node->print_desc, dest_lid_ho,
+				cl_ntoh64(osm_physp_get_port_guid
+					  (p_dest_physp)),
+				p_dest_physp->p_node->print_desc, hops,
+				MAX_HOPS);
+			status = IB_NOT_FOUND;
+			goto Exit;
+		}
+
 		in_port_num = osm_physp_get_port_num(p_physp);
 
 		/*
