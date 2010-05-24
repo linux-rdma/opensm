@@ -377,7 +377,7 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 		/* update number of hops traversed */
 		hops++;
 		if (hops > MAX_HOPS) {
-			OSM_LOG(sa->p_log, OSM_LOG_ERROR,
+			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F25: "
 				"Path from GUID 0x%016" PRIx64 " (%s) to"
 				" lid %u GUID 0x%016" PRIx64 " (%s) needs"
 				" more than %d hops, max %d hops allowed\n",
