@@ -96,8 +96,14 @@ static void truncate_log_file(osm_log_t * p_log)
 
 static void truncate_log_file(osm_log_t * p_log)
 {
-	fprintf(stderr,
-		"truncate_log_file: cannot truncate on windows system (yet)\n");
+	int fd = _fileno(p_log->out_port);
+	HANDLE hFile = (HANDLE) _get_osfhandle(fd);
+
+	if (_lseek(fd, 0, SEEK_SET) < 0)
+		fprintf(stderr, "truncate_log_file: cannot rewind: %s\n",
+			strerror(errno));
+	SetEndOfFile(hFile);
+	p_log->count = 0;
 }
 #endif				/* ndef __WIN__ */
 
@@ -123,12 +129,21 @@ void osm_log(IN osm_log_t * p_log, IN osm_log_level_t verbosity,
 		return;
 
 	va_start(args, p_str);
+#ifndef __WIN__
 	if (p_log->log_prefix == NULL)
 		vsprintf(buffer, p_str, args);
 	else {
 		int n = snprintf(buffer, sizeof(buffer), "%s: ", p_log->log_prefix);
 		vsprintf(buffer + n, p_str, args);
 	}
+#else
+	if (p_log->log_prefix == NULL)
+		_vsnprintf(buffer, 1024, (LPSTR)p_str, args);
+	else {
+		int n = snprintf(buffer, sizeof(buffer), "%s: ", p_log->log_prefix);
+		_vsnprintf(buffer + n, (1024 - n), (LPSTR)p_str, args);
+	}
+#endif
 	va_end(args);
 
 	/* this is a call to the syslog */
