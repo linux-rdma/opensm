@@ -181,7 +181,7 @@ BEGIN_C_DECLS
 * SYNOPSIS
 */
 #ifdef __WIN__
-#define OSM_DEFAULT_TMP_DIR GetOsmTempPath()
+#define OSM_DEFAULT_TMP_DIR "%TEMP%\\"
 #else
 #define OSM_DEFAULT_TMP_DIR "/var/log/"
 #endif
@@ -196,7 +196,7 @@ BEGIN_C_DECLS
 * SYNOPSIS
 */
 #ifdef __WIN__
-#define OSM_DEFAULT_CACHE_DIR GetOsmCachePath()
+#define OSM_DEFAULT_CACHE_DIR "%TEMP%"
 #else
 #define OSM_DEFAULT_CACHE_DIR "/var/cache/opensm"
 #endif
@@ -211,7 +211,7 @@ BEGIN_C_DECLS
 * SYNOPSIS
 */
 #ifdef __WIN__
-#define OSM_DEFAULT_LOG_FILE strcat(GetOsmTempPath(), "osm.log")
+#define OSM_DEFAULT_LOG_FILE OSM_DEFAULT_TMP_DIR "osm.log"
 #else
 #define OSM_DEFAULT_LOG_FILE "/var/log/opensm.log"
 #endif
@@ -226,15 +226,13 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-#ifdef __WIN__
-#define OSM_DEFAULT_CONFIG_FILE strcat(GetOsmCachePath(), "opensm.conf")
-#elif defined(HAVE_DEFAULT_OPENSM_CONFIG_FILE)
+#if defined(HAVE_DEFAULT_OPENSM_CONFIG_FILE)
 #define OSM_DEFAULT_CONFIG_FILE HAVE_DEFAULT_OPENSM_CONFIG_FILE
 #elif defined (OPENSM_CONFIG_DIR)
 #define OSM_DEFAULT_CONFIG_FILE OPENSM_CONFIG_DIR "/opensm.conf"
 #else
 #define OSM_DEFAULT_CONFIG_FILE "/etc/opensm/opensm.conf"
-#endif /* __WIN__ */
+#endif
 /***********/
 
 /****d* OpenSM: Base/OSM_DEFAULT_PARTITION_CONFIG_FILE
@@ -246,15 +244,13 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-#ifdef __WIN__
-#define OSM_DEFAULT_PARTITION_CONFIG_FILE strcat(GetOsmCachePath(), "osm-partitions.conf")
-#elif defined(HAVE_DEFAULT_PARTITION_CONFIG_FILE)
+#if defined(HAVE_DEFAULT_PARTITION_CONFIG_FILE)
 #define OSM_DEFAULT_PARTITION_CONFIG_FILE HAVE_DEFAULT_PARTITION_CONFIG_FILE
 #elif defined(OPENSM_CONFIG_DIR)
 #define OSM_DEFAULT_PARTITION_CONFIG_FILE OPENSM_CONFIG_DIR "/partitions.conf"
 #else
 #define OSM_DEFAULT_PARTITION_CONFIG_FILE "/etc/opensm/partitions.conf"
-#endif /* __WIN__ */
+#endif
 /***********/
 
 /****d* OpenSM: Base/OSM_DEFAULT_QOS_POLICY_FILE
@@ -266,15 +262,13 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-#ifdef __WIN__
-#define OSM_DEFAULT_QOS_POLICY_FILE strcat(GetOsmCachePath(), "osm-qos-policy.conf")
-#elif defined(HAVE_DEFAULT_QOS_POLICY_FILE)
+#if defined(HAVE_DEFAULT_QOS_POLICY_FILE)
 #define OSM_DEFAULT_QOS_POLICY_FILE HAVE_DEFAULT_QOS_POLICY_FILE
 #elif defined(OPENSM_CONFIG_DIR)
 #define OSM_DEFAULT_QOS_POLICY_FILE OPENSM_CONFIG_DIR "/qos-policy.conf"
 #else
 #define OSM_DEFAULT_QOS_POLICY_FILE "/etc/opensm/qos-policy.conf"
-#endif /* __WIN__ */
+#endif
 /***********/
 
 /****d* OpenSM: Base/OSM_DEFAULT_PREFIX_ROUTES_FILE
@@ -286,9 +280,7 @@ BEGIN_C_DECLS
 *
 * SYNOPSIS
 */
-#ifdef __WIN__
-#define OSM_DEFAULT_PREFIX_ROUTES_FILE strcat(GetOsmCachePath(), "osm-prefix-routes.conf")
-#elif defined(HAVE_DEFAULT_PREFIX_ROUTES_FILE)
+#if defined(HAVE_DEFAULT_PREFIX_ROUTES_FILE)
 #define OSM_DEFAULT_PREFIX_ROUTES_FILE HAVE_DEFAULT_PREFIX_ROUTES_FILE
 #elif defined(OPENSM_CONFIG_DIR)
 #define OSM_DEFAULT_PREFIX_ROUTES_FILE OPENSM_CONFIG_DIR "/prefix-routes.conf"
