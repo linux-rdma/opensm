@@ -532,6 +532,7 @@ typedef struct osm_subn {
 	boolean_t in_sweep_hop_0;
 	boolean_t first_time_master_sweep;
 	boolean_t coming_out_of_standby;
+	boolean_t sweeping_enabled;
 	unsigned need_update;
 	cl_fmap_t mgrp_mgid_tbl;
 	void *mboxes[IB_LID_MCAST_END_HO - IB_LID_MCAST_START_HO + 1];
@@ -650,6 +651,11 @@ typedef struct osm_subn {
 *		Used for nulling any cache of LID and Routing.
 *		The flag is set true if the SM state was standby and now
 *		changed to MASTER it is reset at the end of the sweep.
+*
+*	sweeping_enabled
+*		FALSE - sweeping is administratively disabled, all
+*		sweeping is inhibited, TRUE - sweeping is done
+*		normally
 *
 *	need_update
 *		This flag should be on during first non-master heavy

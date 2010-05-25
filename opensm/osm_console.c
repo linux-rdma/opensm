@@ -150,6 +150,16 @@ static void help_reroute(FILE * out, int detail)
 	}
 }
 
+static void help_sweep(FILE * out, int detail)
+{
+	fprintf(out, "sweep [on|off]\n");
+	if (detail) {
+		fprintf(out, "enable or disable sweeping\n");
+		fprintf(out, "   [on] sweep normally\n");
+		fprintf(out, "   [off] inhibit all sweeping\n");
+	}
+}
+
 static void help_status(FILE * out, int detail)
 {
 	fprintf(out, "status [loop]\n");
@@ -427,11 +437,15 @@ static void print_status(osm_opensm_t * p_osm, FILE * out)
 			p_osm->stats.sa_mads_ignored);
 		fprintf(out, "\n   Subnet flags\n"
 			"   ------------\n"
+			"   Sweeping enabled               : %d\n"
+			"   Sweep interval (seconds)       : %d\n"
 			"   Ignore existing lfts           : %d\n"
 			"   Subnet Init errors             : %d\n"
 			"   In sweep hop 0                 : %d\n"
 			"   First time master sweep        : %d\n"
 			"   Coming out of standby          : %d\n",
+			p_osm->subn.sweeping_enabled,
+			p_osm->subn.opt.sweep_interval,
 			p_osm->subn.ignore_existing_lfts,
 			p_osm->subn.subnet_initialization_error,
 			p_osm->subn.in_sweep_hop_0,
@@ -493,6 +507,23 @@ static void reroute_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 {
 	p_osm->subn.force_reroute = TRUE;
 	osm_opensm_sweep(p_osm);
+}
+
+static void sweep_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
+{
+	char *p_cmd;
+
+	p_cmd = next_token(p_last);
+	if (!p_cmd ||
+	    (strcmp(p_cmd, "on") != 0 && strcmp(p_cmd, "off") != 0)) {
+		fprintf(out, "Invalid sweep command\n");
+		help_sweep(out, 1);
+	} else {
+		if (strcmp(p_cmd, "on") == 0)
+			p_osm->subn.sweeping_enabled = TRUE;
+		else
+			p_osm->subn.sweeping_enabled = FALSE;
+	}
 }
 
 static void logflush_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
@@ -1332,6 +1363,7 @@ static const struct command console_cmds[] = {
 	{"priority", &help_priority, &priority_parse},
 	{"resweep", &help_resweep, &resweep_parse},
 	{"reroute", &help_reroute, &reroute_parse},
+	{"sweep", &help_sweep, &sweep_parse},
 	{"status", &help_status, &status_parse},
 	{"logflush", &help_logflush, &logflush_parse},
 	{"querylid", &help_querylid, &querylid_parse},

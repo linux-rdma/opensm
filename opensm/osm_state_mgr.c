@@ -1415,7 +1415,13 @@ void osm_state_mgr_process(IN osm_sm_t * sm, IN osm_signal_t signal)
 
 	switch (signal) {
 	case OSM_SIGNAL_SWEEP:
-		do_sweep(sm);
+		if (!sm->p_subn->sweeping_enabled) {
+			OSM_LOG(sm->p_log, OSM_LOG_DEBUG, "sweeping disabled - "
+				"ignoring signal %s in state %s\n",
+				osm_get_sm_signal_str(signal),
+				osm_get_sm_mgr_state_str(sm->p_subn->sm_state));
+		} else
+			do_sweep(sm);
 		break;
 	case OSM_SIGNAL_IDLE_TIME_PROCESS_REQUEST:
 		do_process_mgrp_queue(sm);
