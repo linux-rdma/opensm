@@ -230,10 +230,11 @@ static int qos_extports_setup(osm_sm_t * sm, osm_node_t *node,
 					  &qcfg->sl2vl);
 	}
 
-	for (i = 1; i < num_ports; i++) {
+	for (i = 0; i < num_ports; i++) {
 		p = osm_node_get_physp_ptr(node, i);
 		force_update = p->need_update || sm->p_subn->need_update;
-		for (j = 0; j < num_ports; j++)
+		j = ib_switch_info_is_enhanced_port0(&node->sw->switch_info) ? 0 : 1;
+		for (; j < num_ports; j++)
 			if (sl2vl_update_table(sm, p, i, i << 8 | j,
 					       force_update, &qcfg->sl2vl))
 				ret = -1;
