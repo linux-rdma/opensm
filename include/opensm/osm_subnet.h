@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2009 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2010 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2008 Xsigo Systems Inc.  All rights reserved.
  * Copyright (c) 2009 System Fabric Works, Inc. All rights reserved.
@@ -149,6 +149,8 @@ typedef struct osm_subn_opt {
 	ib_net16_t m_key_lease_period;
 	uint32_t sweep_interval;
 	uint32_t max_wire_smps;
+	uint32_t max_wire_smps2;
+	uint32_t max_smps_timeout;
 	uint32_t transaction_timeout;
 	uint32_t transaction_retries;
 	uint8_t sm_priority;
@@ -263,6 +265,15 @@ typedef struct osm_subn_opt {
 *
 *	max_wire_smps
 *		The maximum number of SMPs sent in parallel.  Default is 4.
+*
+*	max_wire_smps2
+*		The maximum number of timeout SMPs allowed to be outstanding.
+*		Default is same as max_wire_smps which disables the timeout
+*		mechanism.
+*
+*	max_smps_timeout
+*		The wait time in usec for timeout based SMPs.  Default is
+*		timeout * retries.
 *
 *	transaction_timeout
 *		The maximum time in milliseconds allowed for a transaction

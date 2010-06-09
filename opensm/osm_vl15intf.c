@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2009 Sun Microsystems, Inc. All rights reserved.
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2006,2009 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2010 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
  * This software is available to you under a choice of one of two
@@ -113,6 +113,8 @@ static void vl15_poller(IN void *p_ptr)
 	osm_madw_t *p_madw;
 	osm_vl15_t *p_vl = p_ptr;
 	cl_qlist_t *p_fifo;
+	int32_t max_smps = p_vl->max_wire_smps;
+	int32_t max_smps2 = p_vl->max_wire_smps2;
 
 	OSM_LOG_ENTER(p_vl->p_log);
 
@@ -155,17 +157,22 @@ static void vl15_poller(IN void *p_ptr)
 			status = cl_event_wait_on(&p_vl->signal,
 						  EVENT_NO_TIMEOUT, TRUE);
 
-		while (p_vl->p_stats->qp0_mads_outstanding_on_wire >=
-		       (int32_t) p_vl->max_wire_smps &&
+		while (p_vl->p_stats->qp0_mads_outstanding_on_wire >= max_smps &&
 		       p_vl->thread_state == OSM_THREAD_STATE_RUN) {
 			status = cl_event_wait_on(&p_vl->signal,
-						  EVENT_NO_TIMEOUT, TRUE);
-			if (status != CL_SUCCESS) {
+						  p_vl->max_smps_timeout,
+						  TRUE);
+			if (status == CL_TIMEOUT) {
+				if (max_smps < max_smps2)
+					max_smps++;
+				break;
+			} else if (status != CL_SUCCESS) {
 				OSM_LOG(p_vl->p_log, OSM_LOG_ERROR, "ERR 3E02: "
 					"Event wait failed (%s)\n",
 					CL_STATUS_MSG(status));
 				break;
 			}
+			max_smps = p_vl->max_wire_smps;
 		}
 	}
 
@@ -236,7 +243,9 @@ void osm_vl15_destroy(IN osm_vl15_t * p_vl, IN struct osm_mad_pool *p_pool)
 
 ib_api_status_t osm_vl15_init(IN osm_vl15_t * p_vl, IN osm_vendor_t * p_vend,
 			      IN osm_log_t * p_log, IN osm_stats_t * p_stats,
-			      IN int32_t max_wire_smps)
+			      IN int32_t max_wire_smps,
+			      IN int32_t max_wire_smps2,
+			      IN uint32_t max_smps_timeout)
 {
 	ib_api_status_t status = IB_SUCCESS;
 
@@ -246,6 +255,9 @@ ib_api_status_t osm_vl15_init(IN osm_vl15_t * p_vl, IN osm_vendor_t * p_vend,
 	p_vl->p_log = p_log;
 	p_vl->p_stats = p_stats;
 	p_vl->max_wire_smps = max_wire_smps;
+	p_vl->max_wire_smps2 = max_wire_smps2;
+	p_vl->max_smps_timeout = max_wire_smps < max_wire_smps2 ?
+				 max_smps_timeout : EVENT_NO_TIMEOUT;
 
 	status = cl_event_init(&p_vl->signal, FALSE);
 	if (status != IB_SUCCESS)

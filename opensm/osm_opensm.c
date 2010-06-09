@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2006 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2010 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
  * This software is available to you under a choice of one of two
@@ -392,7 +392,8 @@ ib_api_status_t osm_opensm_init(IN osm_opensm_t * p_osm,
 
 	status = osm_vl15_init(&p_osm->vl15, p_osm->p_vendor,
 			       &p_osm->log, &p_osm->stats,
-			       p_opt->max_wire_smps);
+			       p_opt->max_wire_smps, p_opt->max_wire_smps2,
+			       p_opt->max_smps_timeout);
 	if (status != IB_SUCCESS)
 		goto Exit;
 

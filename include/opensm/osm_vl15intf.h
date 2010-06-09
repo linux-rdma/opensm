@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2010 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
  * This software is available to you under a choice of one of two
@@ -117,6 +117,8 @@ typedef struct osm_vl15 {
 	osm_thread_state_t thread_state;
 	osm_vl15_state_t state;
 	uint32_t max_wire_smps;
+	uint32_t max_wire_smps2;
+	uint32_t max_smps_timeout;
 	cl_event_t signal;
 	cl_thread_t poller;
 	cl_qlist_t rfifo;
@@ -136,6 +138,12 @@ typedef struct osm_vl15 {
 *
 *	max_wire_smps
 *		Maximum number of VL15 MADs allowed on the wire at one time.
+*
+*	max_wire_smps2
+*		Maximum number of timeout based SMPs allowed to be outstanding.
+*
+*	max_smps_timeout
+*		Wait time in usec for timeout based SMPs.
 *
 *	signal
 *		Event on which the poller sleeps.
@@ -243,7 +251,9 @@ void osm_vl15_destroy(IN osm_vl15_t * p_vl15, IN struct osm_mad_pool *p_pool);
 */
 ib_api_status_t osm_vl15_init(IN osm_vl15_t * p_vl15, IN osm_vendor_t * p_vend,
 			      IN osm_log_t * p_log, IN osm_stats_t * p_stats,
-			      IN int32_t max_wire_smps);
+			      IN int32_t max_wire_smps,
+			      IN int32_t max_wire_smps2,
+			      IN uint32_t max_smps_timeout);
 /*
 * PARAMETERS
 *	p_vl15
@@ -259,7 +269,15 @@ ib_api_status_t osm_vl15_init(IN osm_vl15_t * p_vl15, IN osm_vendor_t * p_vend,
 *		[in] Pointer to the OpenSM stastics block.
 *
 *	max_wire_smps
-*		[in] Maximum number of MADs allowed on the wire at one time.
+*		[in] Maximum number of SMPs allowed on the wire at one time.
+*
+*	max_wire_smps2
+*		[in] Maximum number of timeout based SMPs allowed to be
+*		     outstanding.
+*
+*	max_smps_timeout
+*		[in] Wait time in usec for timeout based SMPs.
+*
 *
 * RETURN VALUES
 *	IB_SUCCESS if the VL15 object was initialized successfully.

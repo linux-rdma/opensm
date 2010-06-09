@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2009 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2010 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2008 Xsigo Systems Inc.  All rights reserved.
  * Copyright (c) 2009 System Fabric Works, Inc. All rights reserved.
@@ -297,6 +297,8 @@ static const opt_rec_t opt_tbl[] = {
 	{ "m_key_lease_period", OPT_OFFSET(m_key_lease_period), opts_parse_net16, NULL, 1 },
 	{ "sweep_interval", OPT_OFFSET(sweep_interval), opts_parse_uint32, NULL, 1 },
 	{ "max_wire_smps", OPT_OFFSET(max_wire_smps), opts_parse_uint32, NULL, 1 },
+	{ "max_wire_smps2", OPT_OFFSET(max_wire_smps2), opts_parse_uint32, NULL, 1 },
+	{ "max_smps_timeout", OPT_OFFSET(max_smps_timeout), opts_parse_uint32, NULL, 1 },
 	{ "console", OPT_OFFSET(console), opts_parse_charp, NULL, 0 },
 	{ "console_port", OPT_OFFSET(console_port), opts_parse_uint16, NULL, 0 },
 	{ "transaction_timeout", OPT_OFFSET(transaction_timeout), opts_parse_uint32, NULL, 0 },
@@ -670,10 +672,13 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * p_opt)
 	p_opt->m_key_lease_period = 0;
 	p_opt->sweep_interval = OSM_DEFAULT_SWEEP_INTERVAL_SECS;
 	p_opt->max_wire_smps = OSM_DEFAULT_SMP_MAX_ON_WIRE;
+	p_opt->max_wire_smps2 = p_opt->max_wire_smps;
 	p_opt->console = strdup(OSM_DEFAULT_CONSOLE);
 	p_opt->console_port = OSM_DEFAULT_CONSOLE_PORT;
 	p_opt->transaction_timeout = OSM_DEFAULT_TRANS_TIMEOUT_MILLISEC;
 	p_opt->transaction_retries = OSM_DEFAULT_RETRY_COUNT;
+	p_opt->max_smps_timeout = 1000 * p_opt->transaction_timeout *
+				  p_opt->transaction_retries;
 	/* by default we will consider waiting for 50x transaction timeout normal */
 	p_opt->max_msg_fifo_timeout = 50 * OSM_DEFAULT_TRANS_TIMEOUT_MILLISEC;
 	p_opt->sm_priority = OSM_DEFAULT_SM_PRIORITY;
@@ -1072,6 +1077,13 @@ int osm_subn_verify_config(IN osm_subn_opt_t * p_opts)
 			   " Using Default: %u\n",
 			   p_opts->max_wire_smps, OSM_DEFAULT_SMP_MAX_ON_WIRE);
 		p_opts->max_wire_smps = OSM_DEFAULT_SMP_MAX_ON_WIRE;
+	}
+
+	if (p_opts->max_wire_smps2 > 0x7FFFFFFF) {
+		log_report(" Invalid Cached Option Value: max_wire_smps2 = %u,"
+			   " Using Default: %u",
+			   p_opts->max_wire_smps2, p_opts->max_wire_smps);
+		p_opts->max_wire_smps2 = p_opts->max_wire_smps;
 	}
 
 	if (strcmp(p_opts->console, OSM_DISABLE_CONSOLE)
@@ -1482,6 +1494,11 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		"#\n# TIMING AND THREADING OPTIONS\n#\n"
 		"# Maximum number of SMPs sent in parallel\n"
 		"max_wire_smps %u\n\n"
+		"# Maximum number of timeout based SMPs allowed to be outstanding\n"
+		"# A value less than or equal to max_wire_smps disables this mechanism\n"
+		"max_wire_smps2 %u\n\n"
+		"# The timeout in [usec] used for sending SMPs above max_wire_smps limit and below max_wire_smps2 limit\n"
+		"max_smps_timeout %u\n\n"
 		"# The maximum time in [msec] allowed for a transaction to complete\n"
 		"transaction_timeout %u\n\n"
 		"# The maximum number of retries allowed for a transaction to complete\n"
@@ -1494,6 +1511,8 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		"# Use a single thread for handling SA queries\n"
 		"single_thread %s\n\n",
 		p_opts->max_wire_smps,
+		p_opts->max_wire_smps2,
+		p_opts->max_smps_timeout,
 		p_opts->transaction_timeout,
 		p_opts->transaction_retries,
 		p_opts->max_msg_fifo_timeout,
