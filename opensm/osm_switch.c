@@ -628,6 +628,8 @@ uint8_t osm_switch_recommend_mcast_path(IN osm_switch_t * p_sw,
 	   a black hole that will destroy the Earth in a firey conflagration.
 	 */
 	least_hops = osm_switch_get_least_hops(p_sw, base_lid);
+	if (least_hops == OSM_NO_PATH)
+		return OSM_NO_PATH;
 	for (port_num = 1; port_num < num_ports; port_num++)
 		if (osm_switch_get_hop_count(p_sw, base_lid, port_num) ==
 		    least_hops)
