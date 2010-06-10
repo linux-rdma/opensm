@@ -618,6 +618,9 @@ int main(int argc, char *argv[])
 		{NULL, 0, NULL, 0}	/* Required at the end of the array */
 	};
 
+	/* force stdout to be line-buffered */
+	setvbuf(stdout, NULL, _IOLBF, 0);
+
 	/* Make sure that the opensm and complib were compiled using
 	   same modes (debug/free) */
 	if (osm_is_debug() != cl_is_debug()) {
