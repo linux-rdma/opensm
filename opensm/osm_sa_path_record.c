@@ -764,6 +764,18 @@ Exit:
 	return status;
 }
 
+ib_api_status_t osm_get_path_params(IN osm_sa_t * sa,
+				    IN const osm_port_t * p_src_port,
+				    IN const osm_port_t * p_dest_port,
+				    IN const uint16_t dlid_ho,
+				    OUT osm_path_parms_t * p_parms)
+{
+	ib_path_rec_t pr;
+	memset(&pr, 0, sizeof(ib_path_rec_t));
+	return pr_rcv_get_path_parms(sa, &pr,
+		p_src_port, p_dest_port, dlid_ho, 0, p_parms);
+}
+
 static void pr_rcv_build_pr(IN osm_sa_t * sa, IN const osm_port_t * p_src_port,
 			    IN const osm_port_t * p_dest_port,
 			    IN const ib_gid_t * p_dgid,
