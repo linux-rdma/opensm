@@ -502,6 +502,9 @@ static void trap_rcv_process_request(IN osm_sm_t * sm,
 			CL_PLOCK_ACQUIRE(sm->p_lock);
 			osm_req_get_node_desc(sm, p_physp);
 			CL_PLOCK_RELEASE(sm->p_lock);
+			if (!(p_ntci->data_details.ntc_144.change_flgs & ~TRAP_144_MASK_NODE_DESCRIPTION_CHANGE) &&
+			    p_ntci->data_details.ntc_144.new_cap_mask == p_physp->port_info.capability_mask)
+				goto check_report;
 		} else
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR,
 				"ERR 3812: No physical port found for "
@@ -540,6 +543,7 @@ check_sweep:
 	if (physp_change_trap == TRUE)
 		goto Exit;
 
+check_report:
 	/* Add a call to osm_report_notice */
 	/* We are going to report the notice - so need to fix the IssuerGID
 	   accordingly. See IBA 1.2 p.739 or IBA 1.1 p.653 for details. */
