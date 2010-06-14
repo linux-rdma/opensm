@@ -4,6 +4,7 @@
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2008 Xsigo Systems Inc.  All rights reserved.
  * Copyright (c) 2009 Sun Microsystems, Inc. All rights reserved.
+ * Copyright (c) 2010 HNR Consulting. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -746,10 +747,10 @@ static ib_api_status_t mcast_mgr_build_spanning_tree(osm_sm_t * sm,
 	}
 
 	num_ports = cl_qlist_count(&port_list);
-	if (num_ports == 0) {
+	if (num_ports < 2) {
 		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
-			"MLID 0x%X has no members - nothing to do\n",
-			mbox->mlid);
+			"MLID 0x%X has %u members - nothing to do\n",
+			mbox->mlid, num_ports);
 		goto Exit;
 	}
 
