@@ -563,7 +563,7 @@ osmtest_get_all_recs(IN osmtest_t * const p_osmt,
 
 	p_context->p_osmt = p_osmt;
 	user.attr_id = attr_id;
-	user.attr_offset = ib_get_attr_offset((uint16_t) (attr_size >> 3));
+	user.attr_offset = ib_get_attr_offset((uint16_t) attr_size);
 
 	req.query_type = OSMV_QUERY_USER_DEFINED;
 	req.timeout_ms = p_osmt->opt.transaction_timeout;
