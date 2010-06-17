@@ -2,7 +2,7 @@
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2007 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
- * Copyright (c) 2009 HNR Consulting. All rights reserved.
+ * Copyright (c) 2009,2010 HNR Consulting. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -510,10 +510,12 @@ static void trap_rcv_process_request(IN osm_sm_t * sm,
 				"ERR 3812: No physical port found for "
 				"trap 144: \"node description update\"\n");
 		goto check_sweep;
-	} else if (cl_ntoh16(p_ntci->g_or_v.generic.trap_num) == 145)
+	} else if (cl_ntoh16(p_ntci->g_or_v.generic.trap_num) == 145) {
 		/* this assumes that trap 145 content is not broken? */
 		p_physp->p_node->node_info.sys_guid =
 			p_ntci->data_details.ntc_145.new_sys_guid;
+		goto check_report;
+	}
 
 check_sweep:
 	/* do a sweep if we received a trap */
