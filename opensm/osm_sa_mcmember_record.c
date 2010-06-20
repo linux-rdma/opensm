@@ -405,8 +405,7 @@ static boolean_t validate_modify(IN osm_sa_t * sa, IN osm_mgrp_t * p_mgrp,
 				"0x%016" PRIx64 " request:0x%016" PRIx64 "\n",
 				cl_ntoh64((*pp_mcm_port)->port_gid.unicast.
 					  interface_id),
-				cl_ntoh64(p_mad_addr->addr_type.gsi.grh_info.
-					  src_gid.unicast.interface_id));
+				cl_ntoh64(request_gid.unicast.interface_id));
 			return FALSE;
 		}
 	} else {
@@ -422,11 +421,9 @@ static boolean_t validate_modify(IN osm_sa_t * sa, IN osm_mgrp_t * p_mgrp,
 					p_request_physp)) {
 			/* the request port is not part of the partition for this mgrp */
 			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-				"ProxyJoin but port not in partition. stored:"
-				"0x%016" PRIx64 " request:0x%016" PRIx64 "\n",
-				cl_ntoh64((*pp_mcm_port)->port->guid),
-				cl_ntoh64(p_mad_addr->addr_type.gsi.grh_info.
-					  src_gid.unicast.interface_id));
+				"Requesting port 0x%016" PRIx64 " has no P_Key 0x%04x\n",
+				cl_ntoh64(p_request_physp->port_guid),
+				cl_ntoh16(p_mgrp->mcmember_rec.pkey));
 			return FALSE;
 		}
 	}
