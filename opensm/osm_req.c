@@ -250,7 +250,6 @@ int osm_send_trap144(osm_sm_t * sm, ib_net16_t local)
 	smp->method = IB_MAD_METHOD_TRAP;
 	smp->trans_id = cl_hton64((uint64_t) cl_atomic_inc(&sm->sm_trans_id));
 	smp->attr_id = IB_MAD_ATTR_NOTICE;
-	smp->m_key = 0;
 
 	ntc = (ib_mad_notice_attr_t *) smp->data;
 
