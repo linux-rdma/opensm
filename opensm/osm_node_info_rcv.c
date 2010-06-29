@@ -72,8 +72,8 @@ static void report_duplicated_guid(IN osm_sm_t * sm, osm_physp_t * p_physp,
 	p_old = p_physp->p_remote_physp;
 	p_new = osm_node_get_physp_ptr(p_neighbor_node, port_num);
 
-	OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D01: "
-		"Found duplicated node.\n"
+	OSM_LOG(sm->p_log, OSM_LOG_SYS | OSM_LOG_ERROR, "ERR 0D01: "
+		"Found duplicated node GUID.\n"
 		"Node 0x%" PRIx64 " port %u is reachable from remote node "
 		"0x%" PRIx64 " port %u and remote node 0x%" PRIx64 " port %u.\n"
 		"Paths are:\n",
@@ -91,9 +91,6 @@ static void report_duplicated_guid(IN osm_sm_t * sm, osm_physp_t * p_physp,
 			"DR path with hop count %d couldn't be extended\n",
 			path.hop_count);
 	osm_dump_dr_path(sm->p_log, &path, OSM_LOG_ERROR);
-
-	osm_log(sm->p_log, OSM_LOG_SYS,
-		"FATAL: duplicated guids or 12x lane reversal\n");
 }
 
 static void requery_dup_node_info(IN osm_sm_t * sm, osm_physp_t * p_physp,

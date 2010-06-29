@@ -142,7 +142,7 @@ static int do_ucast_file_load(void *context)
 	file = fopen(file_name, "r");
 	if (!file) {
 		OSM_LOG(&p_osm->log, OSM_LOG_ERROR | OSM_LOG_SYS, "ERR 6302: "
-			"cannot open ucast dump file \'%s\': %m\n", file_name);
+			"Can't open ucast dump file \'%s\': %m\n", file_name);
 		return -1;
 	}
 
@@ -269,7 +269,7 @@ static int do_lid_matrix_file_load(void *context)
 	file = fopen(file_name, "r");
 	if (!file) {
 		OSM_LOG(&p_osm->log, OSM_LOG_ERROR | OSM_LOG_SYS, "ERR 6305: "
-			"cannot open lid matrix file \'%s\': %m\n", file_name);
+			"Can't open lid matrix file \'%s\': %m\n", file_name);
 		return -1;
 	}
 

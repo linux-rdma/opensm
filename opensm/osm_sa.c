@@ -923,7 +923,7 @@ int osm_sa_db_file_load(osm_opensm_t * p_osm)
 	file = fopen(file_name, "r");
 	if (!file) {
 		OSM_LOG(&p_osm->log, OSM_LOG_ERROR | OSM_LOG_SYS, "ERR 4C02: "
-			"cannot open sa db file \'%s\'. Skip restoring\n",
+			"Can't open sa db file \'%s\'. Skip restoring\n",
 			file_name);
 		return -1;
 	}
