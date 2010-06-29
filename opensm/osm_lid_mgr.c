@@ -563,10 +563,6 @@ static boolean_t lid_mgr_is_range_not_persistent(IN osm_lid_mgr_t * p_mgr,
 						 IN uint16_t num_lids)
 {
 	uint16_t i;
-	uint8_t start_lid = (uint8_t) (1 << p_mgr->p_subn->opt.lmc);
-
-	if (lid < start_lid)
-		return FALSE;
 
 	for (i = lid; i < lid + num_lids; i++)
 		if (p_mgr->used_lids[i])
