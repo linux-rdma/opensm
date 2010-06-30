@@ -1107,8 +1107,10 @@ static void do_sweep(osm_sm_t * sm)
 		if (wait_for_pending_transactions(&sm->p_subn->p_osm->stats))
 			return;
 		if (!sm->p_subn->force_heavy_sweep) {
-			if (sm->p_subn->opt.sa_db_dump)
-				osm_sa_db_file_dump(sm->p_subn->p_osm);
+			if (sm->p_subn->opt.sa_db_dump &&
+			    !osm_sa_db_file_dump(sm->p_subn->p_osm))
+				osm_opensm_report_event(sm->p_subn->p_osm,
+					OSM_EVENT_ID_SA_DB_DUMPED, NULL);
 			OSM_LOG_MSG_BOX(sm->p_log, OSM_LOG_VERBOSE,
 					"LIGHT SWEEP COMPLETE");
 			return;
@@ -1151,9 +1153,14 @@ static void do_sweep(osm_sm_t * sm)
 		if (!sm->p_subn->subnet_initialization_error) {
 			OSM_LOG_MSG_BOX(sm->p_log, OSM_LOG_VERBOSE,
 					"REROUTE COMPLETE");
+			osm_opensm_report_event(sm->p_subn->p_osm,
+				OSM_EVENT_ID_UCAST_ROUTING_DONE, NULL);
 			return;
 		}
 	}
+
+	osm_opensm_report_event(sm->p_subn->p_osm,
+				OSM_EVENT_ID_HEAVY_SWEEP_START, NULL);
 
 	/* go to heavy sweep */
 repeat_discovery:
@@ -1185,6 +1192,8 @@ repeat_discovery:
 
 		/* Move to DISCOVERING state */
 		osm_sm_state_mgr_process(sm, OSM_SM_SIGNAL_DISCOVER);
+		osm_opensm_report_event(sm->p_subn->p_osm,
+				OSM_EVENT_ID_STATE_CHANGE, NULL);
 		return;
 	}
 
@@ -1205,12 +1214,17 @@ repeat_discovery:
 				"ENTERING STANDBY STATE");
 		/* notify master SM about us */
 		osm_send_trap144(sm, 0);
+		osm_opensm_report_event(sm->p_subn->p_osm,
+				OSM_EVENT_ID_STATE_CHANGE, NULL);
 		return;
 	}
 
 	/* if new sweep requested - don't bother with the rest */
 	if (sm->p_subn->force_heavy_sweep)
 		goto repeat_discovery;
+
+	osm_opensm_report_event(sm->p_subn->p_osm,
+				OSM_EVENT_ID_HEAVY_SWEEP_DONE, NULL);
 
 	OSM_LOG_MSG_BOX(sm->p_log, OSM_LOG_VERBOSE, "HEAVY SWEEP COMPLETE");
 
@@ -1314,6 +1328,8 @@ repeat_discovery:
 
 	OSM_LOG_MSG_BOX(sm->p_log, OSM_LOG_VERBOSE,
 			"SWITCHES CONFIGURED FOR UNICAST");
+	osm_opensm_report_event(sm->p_subn->p_osm,
+			OSM_EVENT_ID_UCAST_ROUTING_DONE, NULL);
 
 	if (!sm->p_subn->opt.disable_multicast) {
 		osm_mcast_mgr_process(sm);
