@@ -475,7 +475,7 @@ void osm_opensm_report_event(osm_opensm_t *osm, osm_epi_event_id_t event_id,
 	cl_list_item_t *item;
 
 	for (item = cl_qlist_head(&osm->plugin_list);
-	     item != cl_qlist_end(&osm->plugin_list);
+	     !osm_exit_flag && item != cl_qlist_end(&osm->plugin_list);
 	     item = cl_qlist_next(item)) {
 		osm_epi_plugin_t *p = (osm_epi_plugin_t *)item;
 		if (p->impl->report)
