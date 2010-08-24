@@ -294,12 +294,32 @@ static cl_status_t __cl_timer_find(IN const cl_list_item_t * const p_list_item,
 	return (CL_NOT_FOUND);
 }
 
+/*
+ * Calculate 'struct timespec' value that is the
+ * current time plus the 'time_ms' milliseconds.
+ */
+static __inline void __cl_timer_calculate(IN const uint32_t time_ms,
+					  OUT struct timespec * const p_timer)
+{
+	struct timeval curtime, deltatime, endtime;
+
+#ifndef timerclear
+#define timerclear(tvp)  (tvp)->tv_sec = (time_t)0, (tvp)->tv_usec = 0L
+#endif
+	timerclear(&curtime);
+	gettimeofday(&curtime, NULL);
+
+	deltatime.tv_sec = time_ms / 1000;
+	deltatime.tv_usec = (time_ms % 1000) * 1000;
+	timeradd(&curtime, &deltatime, &endtime);
+	p_timer->tv_sec = endtime.tv_sec;
+	p_timer->tv_nsec = endtime.tv_usec * 1000;
+}
+
 cl_status_t cl_timer_start(IN cl_timer_t * const p_timer,
 			   IN const uint32_t time_ms)
 {
-	struct timeval curtime;
 	cl_list_item_t *p_list_item;
-	uint32_t delta_time = time_ms;
 
 	CL_ASSERT(p_timer);
 	CL_ASSERT(p_timer->state == CL_INITIALIZED);
@@ -313,20 +333,7 @@ cl_status_t cl_timer_start(IN cl_timer_t * const p_timer,
 		cl_qlist_remove_item(&gp_timer_prov->queue,
 				     &p_timer->list_item);
 
-	/* Get the current time */
-#ifndef timerclear
-#define	timerclear(tvp)		(tvp)->tv_sec = (time_t)0, (tvp)->tv_usec = 0L
-#endif
-	timerclear(&curtime);
-	gettimeofday(&curtime, NULL);
-
-	/* do not do 0 wait ! */
-	/* if (delta_time < 1000.0) {delta_time = 1000;} */
-
-	/* Calculate the timeout. */
-	p_timer->timeout.tv_sec = curtime.tv_sec + (delta_time / 1000);
-	p_timer->timeout.tv_nsec =
-	    (curtime.tv_usec + ((delta_time % 1000) * 1000)) * 1000;
+	__cl_timer_calculate(time_ms, &p_timer->timeout);
 
 	/* Add the timer to the queue. */
 	if (cl_is_qlist_empty(&gp_timer_prov->queue)) {
@@ -385,7 +392,6 @@ void cl_timer_stop(IN cl_timer_t * const p_timer)
 cl_status_t cl_timer_trim(IN cl_timer_t * const p_timer,
 			  IN const uint32_t time_ms)
 {
-	struct timeval curtime;
 	struct timespec newtime;
 	cl_status_t status;
 
@@ -394,13 +400,7 @@ cl_status_t cl_timer_trim(IN cl_timer_t * const p_timer,
 
 	pthread_mutex_lock(&gp_timer_prov->mutex);
 
-	/* Get the current time */
-	timerclear(&curtime);
-	gettimeofday(&curtime, NULL);
-
-	/* Calculate the timeout. */
-	newtime.tv_sec = curtime.tv_sec + (time_ms / 1000);
-	newtime.tv_nsec = (curtime.tv_usec + ((time_ms % 1000) * 1000)) * 1000;
+	__cl_timer_calculate(time_ms, &newtime);
 
 	if (p_timer->timer_state == CL_TIMER_QUEUED) {
 		/* If the old time is earlier, do not trim it.  Just return. */
