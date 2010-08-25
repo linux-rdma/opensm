@@ -303,10 +303,6 @@ static __inline void __cl_timer_calculate(IN const uint32_t time_ms,
 {
 	struct timeval curtime, deltatime, endtime;
 
-#ifndef timerclear
-#define timerclear(tvp)  (tvp)->tv_sec = (time_t)0, (tvp)->tv_usec = 0L
-#endif
-	timerclear(&curtime);
 	gettimeofday(&curtime, NULL);
 
 	deltatime.tv_sec = time_ms / 1000;
@@ -423,7 +419,6 @@ uint64_t cl_get_time_stamp(void)
 	uint64_t tstamp;
 	struct timeval tv;
 
-	timerclear(&tv);
 	gettimeofday(&tv, NULL);
 
 	/* Convert the time of day into a microsecond timestamp. */
@@ -436,7 +431,6 @@ uint32_t cl_get_time_stamp_sec(void)
 {
 	struct timeval tv;
 
-	timerclear(&tv);
 	gettimeofday(&tv, NULL);
 
 	return (tv.tv_sec);
