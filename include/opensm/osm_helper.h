@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2010 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2009 HNR Consulting. All rights reserved.
  *
@@ -488,10 +488,6 @@ const char *osm_get_port_state_str_fixed_width(IN uint8_t port_state);
 const char *osm_get_node_type_str_fixed_width(IN uint8_t node_type);
 
 const char *osm_get_manufacturer_str(IN uint64_t guid_ho);
-
-const char *osm_get_mtu_str(IN uint8_t mtu);
-
-const char *osm_get_lwa_str(IN uint8_t lwa);
 
 const char *osm_get_mtu_str(IN uint8_t mtu);
 
