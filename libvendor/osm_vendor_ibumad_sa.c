@@ -2,7 +2,7 @@
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2007,2009 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
- * Copyright (c) 2009 HNR Consulting. All rights reserved.
+ * Copyright (c) 2009,2010 HNR Consulting. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -341,6 +341,7 @@ __osmv_send_sa_req(IN osmv_sa_bind_info_t * p_bind,
 	static atomic32_t trans_id;
 	boolean_t sync;
 	osmv_query_req_t *p_query_req_copy;
+	uint32_t sa_size;
 
 	OSM_LOG_ENTER(p_log);
 
@@ -400,8 +401,8 @@ __osmv_send_sa_req(IN osmv_sa_bind_info_t * p_bind,
 		p_sa_mad->rmpp_flags = IB_RMPP_FLAG_ACTIVE;
 #endif
 	if (p_sa_mad->comp_mask) {
-		memcpy(p_sa_mad->data, p_sa_mad_data->p_attr,
-		       ib_get_attr_size(p_sa_mad_data->attr_offset));
+		p_sa_mad_data->attr_offset ? (sa_size = ib_get_attr_size(p_sa_mad_data->attr_offset)) : (sa_size = IB_SA_DATA_SIZE);
+		memcpy(p_sa_mad->data, p_sa_mad_data->p_attr, sa_size);
 	}
 
 	/*
@@ -487,6 +488,7 @@ osmv_query_sa(IN osm_bind_handle_t h_bind,
 	/* Set the request information. */
 	sa_mad_data.method = IB_MAD_METHOD_GETTABLE;
 	sa_mad_data.attr_mod = 0;
+	sa_mad_data.attr_offset = 0;
 
 	/* Set the MAD attributes and component mask correctly. */
 	switch (p_query_req->query_type) {
@@ -496,7 +498,11 @@ osmv_query_sa(IN osm_bind_handle_t h_bind,
 		p_user_query = (osmv_user_query_t *) p_query_req->p_query_input;
 		if (p_user_query->method)
 			sa_mad_data.method = p_user_query->method;
-		sa_mad_data.attr_offset = p_user_query->attr_offset;
+#ifdef DUAL_SIDED_RMPP
+		if (sa_mad_data.method == IB_MAD_METHOD_GETMULTI ||
+		    sa_mad_data.method == IB_MAD_METHOD_GETTRACETABLE)
+			sa_mad_data.attr_offset = p_user_query->attr_offset;
+#endif
 		sa_mad_data.attr_id = p_user_query->attr_id;
 		sa_mad_data.attr_mod = p_user_query->attr_mod;
 		sa_mad_data.comp_mask = p_user_query->comp_mask;
@@ -506,8 +512,6 @@ osmv_query_sa(IN osm_bind_handle_t h_bind,
 	case OSMV_QUERY_ALL_SVC_RECS:
 		OSM_LOG(p_log, OSM_LOG_DEBUG, "DBG:001 SVC_REC_BY_NAME\n");
 		sa_mad_data.attr_id = IB_MAD_ATTR_SERVICE_RECORD;
-		sa_mad_data.attr_offset =
-		    ib_get_attr_offset(sizeof(ib_service_record_t));
 		sa_mad_data.comp_mask = 0;
 		sa_mad_data.p_attr = &u.svc_rec;
 		break;
@@ -517,8 +521,6 @@ osmv_query_sa(IN osm_bind_handle_t h_bind,
 		sa_mad_data.method = IB_MAD_METHOD_GET;
 		sa_mad_data.attr_id = IB_MAD_ATTR_SERVICE_RECORD;
 		sa_mad_data.comp_mask = IB_SR_COMPMASK_SNAME;
-		sa_mad_data.attr_offset =
-		    ib_get_attr_offset(sizeof(ib_service_record_t));
 		sa_mad_data.p_attr = &u.svc_rec;
 		memcpy(u.svc_rec.service_name, p_query_req->p_query_input,
 		       sizeof(ib_svc_name_t));
@@ -528,8 +530,6 @@ osmv_query_sa(IN osm_bind_handle_t h_bind,
 		OSM_LOG(p_log, OSM_LOG_DEBUG, "DBG:001 SVC_REC_BY_ID\n");
 		sa_mad_data.attr_id = IB_MAD_ATTR_SERVICE_RECORD;
 		sa_mad_data.comp_mask = IB_SR_COMPMASK_SID;
-		sa_mad_data.attr_offset =
-		    ib_get_attr_offset(sizeof(ib_service_record_t));
 		sa_mad_data.p_attr = &u.svc_rec;
 		u.svc_rec.service_id =
 		    *(ib_net64_t *) (p_query_req->p_query_input);
@@ -539,8 +539,6 @@ osmv_query_sa(IN osm_bind_handle_t h_bind,
 		OSM_LOG(p_log, OSM_LOG_DEBUG, "DBG:001 CLASS_PORT_INFO\n");
 		sa_mad_data.method = IB_MAD_METHOD_GET;
 		sa_mad_data.attr_id = IB_MAD_ATTR_CLASS_PORT_INFO;
-		sa_mad_data.attr_offset =
-		    ib_get_attr_offset(sizeof(ib_class_port_info_t));
 		sa_mad_data.comp_mask = 0;
 		sa_mad_data.p_attr = &u.class_port_info;
 		break;
@@ -548,8 +546,6 @@ osmv_query_sa(IN osm_bind_handle_t h_bind,
 	case OSMV_QUERY_NODE_REC_BY_NODE_GUID:
 		OSM_LOG(p_log, OSM_LOG_DEBUG, "DBG:001 NODE_REC_BY_NODE_GUID\n");
 		sa_mad_data.attr_id = IB_MAD_ATTR_NODE_RECORD;
-		sa_mad_data.attr_offset =
-		    ib_get_attr_offset(sizeof(ib_node_record_t));
 		sa_mad_data.comp_mask = IB_NR_COMPMASK_NODEGUID;
 		sa_mad_data.p_attr = &u.node_rec;
 		u.node_rec.node_info.node_guid =
@@ -559,8 +555,6 @@ osmv_query_sa(IN osm_bind_handle_t h_bind,
 	case OSMV_QUERY_PORT_REC_BY_LID:
 		OSM_LOG(p_log, OSM_LOG_DEBUG, "DBG:001 PORT_REC_BY_LID\n");
 		sa_mad_data.attr_id = IB_MAD_ATTR_PORTINFO_RECORD;
-		sa_mad_data.attr_offset =
-		    ib_get_attr_offset(sizeof(ib_portinfo_record_t));
 		sa_mad_data.comp_mask = IB_PIR_COMPMASK_LID;
 		sa_mad_data.p_attr = &u.port_info;
 		u.port_info.lid = *(ib_net16_t *) (p_query_req->p_query_input);
@@ -571,8 +565,6 @@ osmv_query_sa(IN osm_bind_handle_t h_bind,
 		p_user_query = (osmv_user_query_t *) p_query_req->p_query_input;
 		OSM_LOG(p_log, OSM_LOG_DEBUG, "DBG:001 PORT_REC_BY_LID_AND_NUM\n");
 		sa_mad_data.attr_id = IB_MAD_ATTR_PORTINFO_RECORD;
-		sa_mad_data.attr_offset =
-		    ib_get_attr_offset(sizeof(ib_portinfo_record_t));
 		sa_mad_data.comp_mask =
 		    IB_PIR_COMPMASK_LID | IB_PIR_COMPMASK_PORTNUM;
 		sa_mad_data.p_attr = p_user_query->p_attr;
@@ -583,8 +575,6 @@ osmv_query_sa(IN osm_bind_handle_t h_bind,
 		p_user_query = (osmv_user_query_t *) p_query_req->p_query_input;
 		OSM_LOG(p_log, OSM_LOG_DEBUG, "DBG:001 OSMV_QUERY_VLARB_BY_LID_PORT_BLOCK\n");
 		sa_mad_data.attr_id = IB_MAD_ATTR_VLARB_RECORD;
-		sa_mad_data.attr_offset =
-		    ib_get_attr_offset(sizeof(ib_vl_arb_table_record_t));
 		sa_mad_data.comp_mask =
 		    IB_VLA_COMPMASK_LID | IB_VLA_COMPMASK_OUT_PORT |
 		    IB_VLA_COMPMASK_BLOCK;
@@ -596,8 +586,6 @@ osmv_query_sa(IN osm_bind_handle_t h_bind,
 		p_user_query = (osmv_user_query_t *) p_query_req->p_query_input;
 		OSM_LOG(p_log, OSM_LOG_DEBUG, "DBG:001 OSMV_QUERY_VLARB_BY_LID_PORT_BLOCK\n");
 		sa_mad_data.attr_id = IB_MAD_ATTR_SLVL_RECORD;
-		sa_mad_data.attr_offset =
-		    ib_get_attr_offset(sizeof(ib_slvl_table_record_t));
 		sa_mad_data.comp_mask =
 		    IB_SLVL_COMPMASK_LID | IB_SLVL_COMPMASK_OUT_PORT |
 		    IB_SLVL_COMPMASK_IN_PORT;
@@ -608,8 +596,6 @@ osmv_query_sa(IN osm_bind_handle_t h_bind,
 		OSM_LOG(p_log, OSM_LOG_DEBUG, "DBG:001 PATH_REC_BY_PORT_GUIDS\n");
 		memset(&u.path_rec, 0, sizeof(ib_path_rec_t));
 		sa_mad_data.attr_id = IB_MAD_ATTR_PATH_RECORD;
-		sa_mad_data.attr_offset =
-		    ib_get_attr_offset(sizeof(ib_path_rec_t));
 		sa_mad_data.comp_mask =
 		    (IB_PR_COMPMASK_DGID | IB_PR_COMPMASK_SGID | IB_PR_COMPMASK_NUMBPATH);
 		u.path_rec.num_path = 0x7f;
@@ -628,8 +614,6 @@ osmv_query_sa(IN osm_bind_handle_t h_bind,
 		OSM_LOG(p_log, OSM_LOG_DEBUG, "DBG:001 PATH_REC_BY_GIDS\n");
 		memset(&u.path_rec, 0, sizeof(ib_path_rec_t));
 		sa_mad_data.attr_id = IB_MAD_ATTR_PATH_RECORD;
-		sa_mad_data.attr_offset =
-		    ib_get_attr_offset(sizeof(ib_path_rec_t));
 		sa_mad_data.comp_mask =
 		    (IB_PR_COMPMASK_DGID | IB_PR_COMPMASK_SGID | IB_PR_COMPMASK_NUMBPATH);
 		u.path_rec.num_path = 0x7f;
@@ -647,8 +631,6 @@ osmv_query_sa(IN osm_bind_handle_t h_bind,
 		memset(&u.path_rec, 0, sizeof(ib_path_rec_t));
 		sa_mad_data.method = IB_MAD_METHOD_GET;
 		sa_mad_data.attr_id = IB_MAD_ATTR_PATH_RECORD;
-		sa_mad_data.attr_offset =
-		    ib_get_attr_offset(sizeof(ib_path_rec_t));
 		sa_mad_data.comp_mask =
 		    (IB_PR_COMPMASK_DLID | IB_PR_COMPMASK_SLID);
 		sa_mad_data.p_attr = &u.path_rec;
@@ -664,8 +646,6 @@ osmv_query_sa(IN osm_bind_handle_t h_bind,
 		p_user_query = (osmv_user_query_t *) p_query_req->p_query_input;
 		OSM_LOG(p_log, OSM_LOG_DEBUG, "DBG:001 OSMV_QUERY_UD_MULTICAST_SET\n");
 		sa_mad_data.attr_id = IB_MAD_ATTR_MCMEMBER_RECORD;
-		sa_mad_data.attr_offset =
-		    ib_get_attr_offset(sizeof(ib_member_rec_t));
 		sa_mad_data.comp_mask = p_user_query->comp_mask;
 		sa_mad_data.p_attr = p_user_query->p_attr;
 		break;
@@ -675,8 +655,6 @@ osmv_query_sa(IN osm_bind_handle_t h_bind,
 		p_user_query = (osmv_user_query_t *) p_query_req->p_query_input;
 		OSM_LOG(p_log, OSM_LOG_DEBUG, "DBG:001 OSMV_QUERY_UD_MULTICAST_DELETE\n");
 		sa_mad_data.attr_id = IB_MAD_ATTR_MCMEMBER_RECORD;
-		sa_mad_data.attr_offset =
-		    ib_get_attr_offset(sizeof(ib_member_rec_t));
 		sa_mad_data.comp_mask = p_user_query->comp_mask;
 		sa_mad_data.p_attr = p_user_query->p_attr;
 		break;

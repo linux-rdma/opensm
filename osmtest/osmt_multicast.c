@@ -2,6 +2,7 @@
  * Copyright (c) 2006-2009 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005,2008 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
+ * Copyright (c) 2010 HNR Consulting. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -65,7 +66,6 @@ static void __osmt_print_all_multicast_records(IN osmtest_t * const p_osmt)
 	memset(&user, 0, sizeof(user));
 
 	user.attr_id = IB_MAD_ATTR_MCMEMBER_RECORD;
-	user.attr_offset = ib_get_attr_offset(sizeof(*mcast_record));
 
 	req.query_type = OSMV_QUERY_USER_DEFINED;
 	req.timeout_ms = p_osmt->opt.transaction_timeout;
@@ -167,7 +167,6 @@ ib_api_status_t osmt_query_mcast(IN osmtest_t * const p_osmt)
 
 	context.p_osmt = p_osmt;
 	user.attr_id = IB_MAD_ATTR_MCMEMBER_RECORD;
-	user.attr_offset = ib_get_attr_offset(sizeof(ib_member_rec_t));
 
 	req.query_type = OSMV_QUERY_USER_DEFINED;
 	req.timeout_ms = p_osmt->opt.transaction_timeout;
@@ -303,14 +302,12 @@ osmt_send_mcast_request(IN osmtest_t * const p_osmt,
 		req.query_type = OSMV_QUERY_USER_DEFINED;
 		user.method = IB_MAD_METHOD_GET;
 		user.attr_id = IB_MAD_ATTR_MCMEMBER_RECORD;
-		user.attr_offset = ib_get_attr_offset(sizeof(ib_member_rec_t));
 	} else if (is_set == 0xff) {
 		OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
 			"Set USER DEFINED QUERY\n");
 		req.query_type = OSMV_QUERY_USER_DEFINED;
 		user.method = IB_MAD_METHOD_SET;
 		user.attr_id = IB_MAD_ATTR_MCMEMBER_RECORD;
-		user.attr_offset = ib_get_attr_offset(sizeof(ib_member_rec_t));
 	}
 
 	/* TODO : Check the validity of all user fields in order to use

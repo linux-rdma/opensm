@@ -2,6 +2,7 @@
  * Copyright (c) 2006-2008 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2006 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
+ * Copyright (c) 2010 HNR Consulting. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -121,7 +122,6 @@ osmt_register_service(IN osmtest_t * const p_osmt,
 		    IB_SR_COMPMASK_SLEASE |
 		    IB_SR_COMPMASK_SKEY | IB_SR_COMPMASK_SNAME;
 	}
-	user.attr_offset = ib_get_attr_offset(sizeof(ib_service_record_t));
 	user.p_attr = &svc_rec;
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
@@ -226,7 +226,6 @@ osmt_register_service_with_full_key(IN osmtest_t * const p_osmt,
 		    IB_SR_COMPMASK_SLEASE |
 		    IB_SR_COMPMASK_SKEY | IB_SR_COMPMASK_SNAME;
 	}
-	user.attr_offset = ib_get_attr_offset(sizeof(ib_service_record_t));
 	user.p_attr = &svc_rec;
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
@@ -373,7 +372,6 @@ osmt_register_service_with_data(IN osmtest_t * const p_osmt,
 		    IB_SR_COMPMASK_SDATA32_1 |
 		    IB_SR_COMPMASK_SDATA64_0 | IB_SR_COMPMASK_SDATA64_1;
 	}
-	user.attr_offset = ib_get_attr_offset(sizeof(ib_service_record_t));
 	user.p_attr = &svc_rec;
 
 	/*  Dump to Service Data b4 send */
@@ -486,7 +484,6 @@ osmt_get_service_by_id_and_name(IN osmtest_t * const p_osmt,
 	user.method = IB_MAD_METHOD_GET;
 	user.attr_id = IB_MAD_ATTR_SERVICE_RECORD;
 	user.comp_mask = IB_SR_COMPMASK_SID | IB_SR_COMPMASK_SNAME;
-	user.attr_offset = ib_get_attr_offset(sizeof(ib_service_record_t));
 	user.p_attr = &svc_rec;
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
@@ -607,7 +604,6 @@ osmt_get_service_by_id(IN osmtest_t * const p_osmt,
 	user.method = IB_MAD_METHOD_GET;
 	user.attr_id = IB_MAD_ATTR_SERVICE_RECORD;
 	user.comp_mask = IB_SR_COMPMASK_SID;
-	user.attr_offset = ib_get_attr_offset(sizeof(ib_service_record_t));
 	user.p_attr = &svc_rec;
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
@@ -739,7 +735,6 @@ osmt_get_service_by_name_and_key(IN osmtest_t * const p_osmt,
 	user.method = IB_MAD_METHOD_GET;
 	user.attr_id = IB_MAD_ATTR_SERVICE_RECORD;
 	user.comp_mask = IB_SR_COMPMASK_SNAME | IB_SR_COMPMASK_SKEY;
-	user.attr_offset = ib_get_attr_offset(sizeof(ib_service_record_t));
 	user.p_attr = &svc_rec;
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
@@ -1092,7 +1087,6 @@ osmt_delete_service_by_name(IN osmtest_t * const p_osmt,
 	user.method = IB_MAD_METHOD_DELETE;
 	user.attr_id = IB_MAD_ATTR_SERVICE_RECORD;
 	user.comp_mask = IB_SR_COMPMASK_SNAME;
-	user.attr_offset = ib_get_attr_offset(sizeof(ib_service_record_t));
 	user.p_attr = &svc_rec;
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
