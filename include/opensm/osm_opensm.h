@@ -132,6 +132,8 @@ struct osm_routing_engine {
 	uint8_t (*path_sl)(void *context, IN uint8_t path_sl_hint,
 			   IN const osm_port_t *src_port,
 			   IN const osm_port_t *dst_port);
+	ib_api_status_t (*mcast_build_stree)(void *context,
+					     IN OUT osm_mgrp_box_t *mgb);
 	void (*delete) (void *context);
 	struct osm_routing_engine *next;
 };
@@ -164,6 +166,10 @@ struct osm_routing_engine {
 *
 *	path_sl
 *		The callback for computing path SL.
+*
+*	mcast_build_stree
+*		The callback for building the spanning tree for multicast
+*		forwarding, called per MLID.
 *
 *	delete
 *		The delete method, may be used for routing engine
