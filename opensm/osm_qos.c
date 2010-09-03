@@ -212,6 +212,12 @@ static int qos_extports_setup(osm_sm_t * sm, osm_node_t *node,
 	unsigned in, out;
 	uint8_t op_vl1;
 
+	/*
+	 * Do nothing unless the most recent routing attempt was successful.
+	 */
+	if (!re)
+		return ret;
+
 	for (out = 1; out < num_ports; out++) {
 		p = osm_node_get_physp_ptr(node, out);
 		force_update = p->need_update || sm->p_subn->need_update;

@@ -159,6 +159,11 @@ static struct osm_routing_engine *setup_routing_engine(osm_opensm_t *osm,
 	struct osm_routing_engine *re;
 	const struct routing_engine_module *m;
 
+	if (!strcmp(name, "no_fallback")) {
+		osm->subn.opt.no_fallback_routing_engine = TRUE;
+		return NULL;
+	}
+
 	for (m = routing_modules; m->name && *m->name; m++) {
 		if (!strcmp(m->name, name)) {
 			re = malloc(sizeof(struct osm_routing_engine));

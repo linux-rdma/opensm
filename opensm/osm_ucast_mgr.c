@@ -1091,7 +1091,8 @@ int osm_ucast_mgr_process(IN osm_ucast_mgr_t * p_mgr)
 		p_routing_eng = p_routing_eng->next;
 	}
 
-	if (!p_osm->routing_engine_used) {
+	if (!p_osm->routing_engine_used &&
+	    p_osm->subn.opt.no_fallback_routing_engine != TRUE) {
 		/* If configured routing algorithm failed, use default MinHop */
 		struct osm_routing_engine *r = p_osm->default_routing_engine;
 
@@ -1101,14 +1102,20 @@ int osm_ucast_mgr_process(IN osm_ucast_mgr_t * p_mgr)
 		osm_ucast_mgr_set_fwd_tables(p_mgr);
 	}
 
-	OSM_LOG(p_mgr->p_log, OSM_LOG_INFO,
-		"%s tables configured on all switches\n",
-		osm_routing_engine_type_str(p_osm->
-					    routing_engine_used->type));
+	if (p_osm->routing_engine_used) {
+		OSM_LOG(p_mgr->p_log, OSM_LOG_INFO,
+			"%s tables configured on all switches\n",
+			osm_routing_engine_type_str(p_osm->
+						    routing_engine_used->type));
 
-	if (p_mgr->p_subn->opt.use_ucast_cache)
-		p_mgr->cache_valid = TRUE;
-
+		if (p_mgr->p_subn->opt.use_ucast_cache)
+			p_mgr->cache_valid = TRUE;
+	} else {
+		p_mgr->p_subn->subnet_initialization_error = TRUE;
+		OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR,
+			"No routing engine able to successfully configure "
+			" switch tables on current fabric\n");
+	}
 Exit:
 	CL_PLOCK_RELEASE(p_mgr->p_lock);
 	OSM_LOG_EXIT(p_mgr->p_log);
