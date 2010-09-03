@@ -1142,7 +1142,11 @@ static void do_sweep(osm_sm_t * sm)
 		/* Re-program the switches fully */
 		sm->p_subn->ignore_existing_lfts = TRUE;
 
-		osm_ucast_mgr_process(&sm->ucast_mgr);
+		if (osm_ucast_mgr_process(&sm->ucast_mgr)) {
+			OSM_LOG_MSG_BOX(sm->p_log, OSM_LOG_VERBOSE,
+					"REROUTE FAILED");
+			return;
+		}
 		osm_qos_setup(sm->p_subn->p_osm);
 
 		/* Reset flag */
@@ -1313,12 +1317,14 @@ repeat_discovery:
 			"LID ASSIGNMENT COMPLETE - STARTING SWITCH TABLE CONFIG");
 
 	/*
-	 * Proceed with unicast forwarding table configuration.
+	 * Proceed with unicast forwarding table configuration; if it fails
+	 * return early to wait for a trap or the next sweep interval.
 	 */
 
 	if (!sm->ucast_mgr.cache_valid ||
 	    osm_ucast_cache_process(&sm->ucast_mgr))
-		osm_ucast_mgr_process(&sm->ucast_mgr);
+		if (osm_ucast_mgr_process(&sm->ucast_mgr))
+			return;
 
 	osm_qos_setup(sm->p_subn->p_osm);
 

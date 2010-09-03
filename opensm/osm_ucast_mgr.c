@@ -1069,6 +1069,7 @@ int osm_ucast_mgr_process(IN osm_ucast_mgr_t * p_mgr)
 	osm_opensm_t *p_osm;
 	struct osm_routing_engine *p_routing_eng;
 	cl_qmap_t *p_sw_guid_tbl;
+	int failed = 0;
 
 	OSM_LOG_ENTER(p_mgr->p_log);
 
@@ -1087,7 +1088,8 @@ int osm_ucast_mgr_process(IN osm_ucast_mgr_t * p_mgr)
 
 	p_osm->routing_engine_used = NULL;
 	while (p_routing_eng) {
-		if (!ucast_mgr_route(p_routing_eng, p_osm))
+		failed = ucast_mgr_route(p_routing_eng, p_osm);
+		if (!failed)
 			break;
 		p_routing_eng = p_routing_eng->next;
 	}
@@ -1098,9 +1100,11 @@ int osm_ucast_mgr_process(IN osm_ucast_mgr_t * p_mgr)
 		struct osm_routing_engine *r = p_osm->default_routing_engine;
 
 		r->build_lid_matrices(r->context);
-		r->ucast_build_fwd_tables(r->context);
-		p_osm->routing_engine_used = r;
-		osm_ucast_mgr_set_fwd_tables(p_mgr);
+		failed = r->ucast_build_fwd_tables(r->context);
+		if (!failed) {
+			p_osm->routing_engine_used = r;
+			osm_ucast_mgr_set_fwd_tables(p_mgr);
+		}
 	}
 
 	if (p_osm->routing_engine_used) {
@@ -1120,7 +1124,7 @@ int osm_ucast_mgr_process(IN osm_ucast_mgr_t * p_mgr)
 Exit:
 	CL_PLOCK_RELEASE(p_mgr->p_lock);
 	OSM_LOG_EXIT(p_mgr->p_log);
-	return 0;
+	return failed;
 }
 
 static int ucast_build_lid_matrices(void *context)
