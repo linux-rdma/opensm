@@ -129,6 +129,9 @@ struct osm_routing_engine {
 	void (*update_sl2vl)(void *context, IN osm_physp_t *port,
 			     IN uint8_t in_port_num, IN uint8_t out_port_num,
 			     IN OUT ib_slvl_table_t *t);
+	uint8_t (*path_sl)(void *context, IN uint8_t path_sl_hint,
+			   IN const osm_port_t *src_port,
+			   IN const osm_port_t *dst_port);
 	void (*delete) (void *context);
 	struct osm_routing_engine *next;
 };
@@ -158,6 +161,9 @@ struct osm_routing_engine {
 *		updated. For switches, in_port_num/out_port_num identify
 *		which part of the SL2VL map to update.  For router/HCA ports,
 *		in_port_num/out_port_num should be ignored.
+*
+*	path_sl
+*		The callback for computing path SL.
 *
 *	delete
 *		The delete method, may be used for routing engine

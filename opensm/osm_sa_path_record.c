@@ -164,6 +164,7 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 	const osm_physp_t *p_dest_physp;
 	const osm_prtn_t *p_prtn = NULL;
 	osm_opensm_t *p_osm;
+	struct osm_routing_engine *p_re;
 	const ib_port_info_t *p_pi;
 	ib_api_status_t status = IB_SUCCESS;
 	ib_net16_t pkey;
@@ -180,7 +181,6 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 	ib_slvl_table_t *p_slvl_tbl = NULL;
 	osm_qos_level_t *p_qos_level = NULL;
 	uint16_t valid_sl_mask = 0xffff;
-	int is_lash;
 	int hops = 0;
 
 	OSM_LOG_ENTER(sa->p_log);
@@ -192,6 +192,7 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 	p_src_physp = p_physp;
 	p_pi = &p_physp->port_info;
 	p_osm = sa->p_subn->p_osm;
+	p_re = p_osm->routing_engine_used;
 
 	mtu = ib_port_info_get_mtu_cap(p_pi);
 	rate = ib_port_info_compute_rate(p_pi);
@@ -667,9 +668,6 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 	 * Set PathRecord SL
 	 */
 
-	is_lash = (p_osm->routing_engine_used &&
-		   p_osm->routing_engine_used->type == OSM_ROUTING_ENGINE_TYPE_LASH);
-
 	if (comp_mask & IB_PR_COMPMASK_SL) {
 		/*
 		 * Specific SL was requested
@@ -686,26 +684,10 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 			goto Exit;
 		}
 
-		if (is_lash
-		    && osm_get_lash_sl(p_osm, p_src_port, p_dest_port) != sl) {
-			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F23: "
-				"Required PathRecord SL (%u) doesn't "
-				"match LASH SL\n", sl);
-			status = IB_NOT_FOUND;
-			goto Exit;
-		}
-
-	} else if (is_lash) {
-		/*
-		 * No specific SL in PathRecord request.
-		 * If it's LASH routing - use its SL.
-		 * slid and dest_lid are stored in network in lash.
-		 */
-		sl = osm_get_lash_sl(p_osm, p_src_port, p_dest_port);
 	} else if (p_qos_level && p_qos_level->sl_set) {
 		/*
-		 * No specific SL was requested, and we're not in
-		 * LASH routing, but there is an SL in QoS level.
+		 * No specific SL was requested, but there is an SL in
+		 * QoS level.
 		 */
 		sl = p_qos_level->sl;
 
@@ -745,6 +727,14 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 		status = IB_NOT_FOUND;
 		goto Exit;
 	}
+
+	/*
+	 * If the routing engine wants to have a say in path SL selection,
+	 * send the currently computed SL value as a hint and let the routing
+	 * engine override it.
+	 */
+	if (p_re && p_re->path_sl)
+		sl = p_re->path_sl(p_re->context, sl, p_src_port, p_dest_port);
 
 	/* reset pkey when raw traffic */
 	if (comp_mask & IB_PR_COMPMASK_RAWTRAFFIC &&
