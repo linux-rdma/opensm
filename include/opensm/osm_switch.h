@@ -918,6 +918,7 @@ uint8_t osm_switch_recommend_path(IN const osm_switch_t * p_sw,
 				  IN osm_port_t * p_port, IN uint16_t lid_ho,
 				  IN unsigned start_from,
 				  IN boolean_t ignore_existing,
+				  IN boolean_t routing_for_lmc,
 				  IN boolean_t dor);
 /*
 * PARAMETERS
@@ -939,6 +940,17 @@ uint8_t osm_switch_recommend_path(IN const osm_switch_t * p_sw,
 *		regardless of existing paths.
 *		If false, the switch will choose an existing route if one
 *		exists, otherwise will choose the optimal route.
+*
+*	routing_for_lmc
+*		[in] We support an enhanced LMC aware routing mode:
+*		In the case of LMC > 0, we can track the remote side
+*		system and node for all of the lids of the target
+*		and try and avoid routing again through the same
+*		system / node.
+*
+*		Assume if routing_for_lmc is TRUE that this procedure
+*		was provided with the tracking array and counter via
+*		p_port->priv, and we can conduct this algorithm.
 *
 *	dor
 *		[in] If TRUE, Dimension Order Routing will be done.

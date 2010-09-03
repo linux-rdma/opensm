@@ -221,7 +221,7 @@ static void dump_ucast_routes(cl_map_item_t * item, FILE * file, void *cxt)
 			/* No LMC Optimization */
 			best_port = osm_switch_recommend_path(p_sw, p_port,
 							      lid_ho, 1, TRUE,
-							      dor);
+							      FALSE, dor);
 			fprintf(file, "No %u hop path possible via port %u!",
 				best_hops, best_port);
 		}

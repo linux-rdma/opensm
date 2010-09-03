@@ -216,6 +216,7 @@ uint8_t osm_switch_recommend_path(IN const osm_switch_t * p_sw,
 				  IN osm_port_t * p_port, IN uint16_t lid_ho,
 				  IN unsigned start_from,
 				  IN boolean_t ignore_existing,
+				  IN boolean_t routing_for_lmc,
 				  IN boolean_t dor)
 {
 	/*
@@ -225,10 +226,10 @@ uint8_t osm_switch_recommend_path(IN const osm_switch_t * p_sw,
 	   and try and avoid routing again through the same
 	   system / node.
 
-	   If this procedure is provided with the tracking array
-	   and counter we can conduct this algorithm.
+	   Assume if routing_for_lmc is true that this procedure was
+	   provided the tracking array and counter via p_port->priv,
+	   and we can conduct this algorithm.
 	 */
-	boolean_t routing_for_lmc = (p_port->priv != NULL);
 	uint16_t base_lid;
 	uint8_t hops;
 	uint8_t least_hops;
