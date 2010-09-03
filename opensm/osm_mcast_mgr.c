@@ -147,7 +147,7 @@ static void mcast_mgr_purge_tree_node(IN osm_mtree_node_t * p_mtn)
 	free(p_mtn);
 }
 
-static void mcast_mgr_purge_tree(osm_sm_t * sm, IN osm_mgrp_box_t * mbox)
+void osm_purge_mtree(osm_sm_t * sm, IN osm_mgrp_box_t * mbox)
 {
 	OSM_LOG_ENTER(sm->p_log);
 
@@ -736,7 +736,7 @@ static ib_api_status_t mcast_mgr_build_spanning_tree(osm_sm_t * sm,
 	   on multicast forwarding table information if the user wants to
 	   preserve existing multicast routes.
 	 */
-	mcast_mgr_purge_tree(sm, mbox);
+	osm_purge_mtree(sm, mbox);
 
 	/* build the first "subset" containing all member ports */
 	if (make_port_list(&port_list, mbox)) {
