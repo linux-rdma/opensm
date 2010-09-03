@@ -649,7 +649,7 @@ compiling opensm with -DROUTER_EXP which has been obsoleted.
 
 .SH ROUTING
 .PP
-OpenSM now offers five routing engines:
+OpenSM now offers six routing engines:
 
 1.  Min Hop Algorithm - based on the minimum hops to each node where the
 path length is optimized.
@@ -677,6 +677,13 @@ avoids port equalization except for redundant links between the same
 two switches.  This provides deadlock free routes for hypercubes when
 the fabric is cabled as a hypercube and for meshes when cabled as a
 mesh (see details below).
+
+6. Torus-2QoS unicast routing algorithm - a DOR-based routing algorithm
+specialized for 2D/3D torus topologies.  Torus-2QoS provides deadlock-free
+routing while supporting two quality of service (QoS) levels.  In addition
+it is able to route around multiple failed fabric links or a single failed
+fabric switch without introducing deadlocks, and without changing path SL
+values granted before the failure.
 
 OpenSM also supports a file method which
 can load routes from a table. See \'Modular Routing Engine\' for more
