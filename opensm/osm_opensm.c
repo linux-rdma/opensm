@@ -70,6 +70,7 @@ extern int osm_ucast_file_setup(struct osm_routing_engine *, osm_opensm_t *);
 extern int osm_ucast_ftree_setup(struct osm_routing_engine *, osm_opensm_t *);
 extern int osm_ucast_lash_setup(struct osm_routing_engine *, osm_opensm_t *);
 extern int osm_ucast_dor_setup(struct osm_routing_engine *, osm_opensm_t *);
+extern int osm_ucast_torus2QoS_setup(struct osm_routing_engine *, osm_opensm_t *);
 
 const static struct routing_engine_module routing_modules[] = {
 	{"minhop", osm_ucast_minhop_setup},
@@ -78,6 +79,7 @@ const static struct routing_engine_module routing_modules[] = {
 	{"ftree", osm_ucast_ftree_setup},
 	{"lash", osm_ucast_lash_setup},
 	{"dor", osm_ucast_dor_setup},
+	{"torus-2QoS", osm_ucast_torus2QoS_setup},
 	{NULL, NULL}
 };
 
@@ -98,6 +100,8 @@ const char *osm_routing_engine_type_str(IN osm_routing_engine_type_t type)
 		return "lash";
 	case OSM_ROUTING_ENGINE_TYPE_DOR:
 		return "dor";
+	case OSM_ROUTING_ENGINE_TYPE_TORUS_2QOS:
+		return "torus-2QoS";
 	default:
 		break;
 	}
@@ -124,6 +128,8 @@ osm_routing_engine_type_t osm_routing_engine_type(IN const char *str)
 		return OSM_ROUTING_ENGINE_TYPE_LASH;
 	else if (!strcasecmp(str, "dor"))
 		return OSM_ROUTING_ENGINE_TYPE_DOR;
+	else if (!strcasecmp(str, "torus-2QoS"))
+		return OSM_ROUTING_ENGINE_TYPE_TORUS_2QOS;
 	else
 		return OSM_ROUTING_ENGINE_TYPE_UNKNOWN;
 }
