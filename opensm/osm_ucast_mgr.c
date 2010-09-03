@@ -315,8 +315,10 @@ static void alloc_ports_priv(osm_ucast_mgr_t * mgr)
 	     item = cl_qmap_next(item)) {
 		port = (osm_port_t *) item;
 		lmc = ib_port_info_get_lmc(&port->p_physp->port_info);
-		if (!lmc)
+		if (!lmc) {
+			port->priv = NULL;
 			continue;
+		}
 		r = malloc(sizeof(*r) + sizeof(r->guids[0]) * (1 << lmc));
 		if (!r) {
 			OSM_LOG(mgr->p_log, OSM_LOG_ERROR, "ERR 3A09: "
@@ -363,8 +365,7 @@ static void ucast_mgr_process_tbl(IN cl_map_item_t * p_map_item,
 	/* Initialize LIDs in buffer to invalid port number. */
 	memset(p_sw->new_lft, OSM_NO_PATH, p_sw->max_lid_ho + 1);
 
-	if (p_mgr->p_subn->opt.lmc)
-		alloc_ports_priv(p_mgr);
+	alloc_ports_priv(p_mgr);
 
 	/*
 	   Iterate through every port setting LID routes for each
@@ -381,8 +382,7 @@ static void ucast_mgr_process_tbl(IN cl_map_item_t * p_map_item,
 		}
 	}
 
-	if (p_mgr->p_subn->opt.lmc)
-		free_ports_priv(p_mgr);
+	free_ports_priv(p_mgr);
 
 	OSM_LOG_EXIT(p_mgr->p_log);
 }
