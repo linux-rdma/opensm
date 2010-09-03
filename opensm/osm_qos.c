@@ -308,7 +308,9 @@ int osm_qos_setup(osm_opensm_t * p_osm)
 	int ret = 0;
 	int vlarb_only;
 
-	if (!p_osm->subn.opt.qos)
+	if (!(p_osm->subn.opt.qos ||
+	      (p_osm->routing_engine_used &&
+	       p_osm->routing_engine_used->update_sl2vl)))
 		return 0;
 
 	OSM_LOG_ENTER(&p_osm->log);
@@ -325,7 +327,8 @@ int osm_qos_setup(osm_opensm_t * p_osm)
 	cl_plock_excl_acquire(&p_osm->lock);
 
 	/* read QoS policy config file */
-	osm_qos_parse_policy_file(&p_osm->subn);
+	if (p_osm->subn.opt.qos)
+		osm_qos_parse_policy_file(&p_osm->subn);
 
 	p_tbl = &p_osm->subn.port_guid_tbl;
 	p_next = cl_qmap_head(p_tbl);
