@@ -753,6 +753,7 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * p_opt)
 	p_opt->guid_routing_order_file = NULL;
 	p_opt->sa_db_file = NULL;
 	p_opt->sa_db_dump = FALSE;
+	p_opt->torus_conf_file = strdup(OSM_DEFAULT_TORUS_CONF_FILE);
 	p_opt->do_mesh_analysis = FALSE;
 	p_opt->exit_on_fatal = TRUE;
 	p_opt->enable_quirks = FALSE;

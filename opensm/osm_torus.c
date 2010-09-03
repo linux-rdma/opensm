@@ -9037,7 +9037,7 @@ int torus_build_lfts(void *context)
 	torus->osm = ctx->osm;
 	fabric->osm = ctx->osm;
 
-	if (!parse_config(OPENSM_CONFIG_DIR "/opensm-torus.conf",
+	if (!parse_config(ctx->osm->subn.opt.torus_conf_file,
 			  fabric, torus))
 		goto out;
 

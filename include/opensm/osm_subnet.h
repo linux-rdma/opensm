@@ -204,6 +204,7 @@ typedef struct osm_subn_opt {
 	char *guid_routing_order_file;
 	char *sa_db_file;
 	boolean_t sa_db_dump;
+	char *torus_conf_file;
 	boolean_t do_mesh_analysis;
 	boolean_t exit_on_fatal;
 	boolean_t honor_guid2lid_file;
@@ -430,6 +431,10 @@ typedef struct osm_subn_opt {
 *	sa_db_dump
 *		When TRUE causes OpenSM to dump SA DB at the end of every
 *		light sweep regardless the current verbosity level.
+*
+*	torus_conf_file
+*		Name of the file with extra configuration info for torus-2QoS
+*		routing engine.
 *
 *	exit_on_fatal
 *		If TRUE (default) - SM will exit on fatal subnet initialization
