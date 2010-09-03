@@ -120,6 +120,7 @@ typedef enum _osm_routing_engine_type {
 *	added later.
 */
 struct osm_routing_engine {
+	osm_routing_engine_type_t type;
 	const char *name;
 	void *context;
 	int (*build_lid_matrices) (void *context);
@@ -183,7 +184,8 @@ typedef struct osm_opensm {
 	cl_dispatcher_t disp;
 	cl_plock_t lock;
 	struct osm_routing_engine *routing_engine_list;
-	osm_routing_engine_type_t routing_engine_used;
+	struct osm_routing_engine *routing_engine_used;
+	struct osm_routing_engine *default_routing_engine;
 	osm_stats_t stats;
 	osm_console_t console;
 	nn_map_t *node_name_map;

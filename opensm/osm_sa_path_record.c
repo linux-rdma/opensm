@@ -667,7 +667,8 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 	 * Set PathRecord SL
 	 */
 
-	is_lash = (p_osm->routing_engine_used == OSM_ROUTING_ENGINE_TYPE_LASH);
+	is_lash = (p_osm->routing_engine_used &&
+		   p_osm->routing_engine_used->type == OSM_ROUTING_ENGINE_TYPE_LASH);
 
 	if (comp_mask & IB_PR_COMPMASK_SL) {
 		/*

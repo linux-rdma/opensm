@@ -1056,7 +1056,7 @@ static int ucast_mgr_route(struct osm_routing_engine *r, osm_opensm_t * osm)
 		return ret;
 	}
 
-	osm->routing_engine_used = osm_routing_engine_type(r->name);
+	osm->routing_engine_used = r;
 
 	osm_ucast_mgr_set_fwd_tables(&osm->sm.ucast_mgr);
 
@@ -1084,24 +1084,27 @@ int osm_ucast_mgr_process(IN osm_ucast_mgr_t * p_mgr)
 	    ucast_mgr_setup_all_switches(p_mgr->p_subn) < 0)
 		goto Exit;
 
-	p_osm->routing_engine_used = OSM_ROUTING_ENGINE_TYPE_NONE;
+	p_osm->routing_engine_used = NULL;
 	while (p_routing_eng) {
 		if (!ucast_mgr_route(p_routing_eng, p_osm))
 			break;
 		p_routing_eng = p_routing_eng->next;
 	}
 
-	if (p_osm->routing_engine_used == OSM_ROUTING_ENGINE_TYPE_NONE) {
+	if (!p_osm->routing_engine_used) {
 		/* If configured routing algorithm failed, use default MinHop */
-		osm_ucast_mgr_build_lid_matrices(p_mgr);
-		ucast_mgr_build_lfts(p_mgr);
+		struct osm_routing_engine *r = p_osm->default_routing_engine;
+
+		r->build_lid_matrices(r->context);
+		r->ucast_build_fwd_tables(r->context);
+		p_osm->routing_engine_used = r;
 		osm_ucast_mgr_set_fwd_tables(p_mgr);
-		p_osm->routing_engine_used = OSM_ROUTING_ENGINE_TYPE_MINHOP;
 	}
 
 	OSM_LOG(p_mgr->p_log, OSM_LOG_INFO,
 		"%s tables configured on all switches\n",
-		osm_routing_engine_type_str(p_osm->routing_engine_used));
+		osm_routing_engine_type_str(p_osm->
+					    routing_engine_used->type));
 
 	if (p_mgr->p_subn->opt.use_ucast_cache)
 		p_mgr->cache_valid = TRUE;

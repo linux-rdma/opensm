@@ -382,6 +382,8 @@ static void print_status(osm_opensm_t * p_osm, FILE * out)
 	cl_list_item_t *item;
 
 	if (out) {
+		const char *re_str;
+
 		cl_plock_acquire(&p_osm->lock);
 		fprintf(out, "   OpenSM Version       : %s\n", p_osm->osm_version);
 		fprintf(out, "   SM State             : %s\n",
@@ -390,9 +392,11 @@ static void print_status(osm_opensm_t * p_osm, FILE * out)
 			p_osm->subn.opt.sm_priority);
 		fprintf(out, "   SA State             : %s\n",
 			sa_state_str(p_osm->sa.state));
-		fprintf(out, "   Routing Engine       : %s\n",
-			osm_routing_engine_type_str(p_osm->
-						    routing_engine_used));
+
+		re_str = p_osm->routing_engine_used ?
+			osm_routing_engine_type_str(p_osm->routing_engine_used->type) :
+			osm_routing_engine_type_str(OSM_ROUTING_ENGINE_TYPE_NONE);
+		fprintf(out, "   Routing Engine       : %s\n", re_str);
 
 		fprintf(out, "   Loaded event plugins :");
 		if (cl_qlist_head(&p_osm->plugin_list) ==

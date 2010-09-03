@@ -147,7 +147,8 @@ static void append_routing_engine(osm_opensm_t *osm,
 	r->next = routing_engine;
 }
 
-static void setup_routing_engine(osm_opensm_t *osm, const char *name)
+static struct osm_routing_engine *setup_routing_engine(osm_opensm_t *osm,
+						       const char *name)
 {
 	struct osm_routing_engine *re;
 	const struct routing_engine_module *m;
@@ -158,46 +159,49 @@ static void setup_routing_engine(osm_opensm_t *osm, const char *name)
 			if (!re) {
 				OSM_LOG(&osm->log, OSM_LOG_VERBOSE,
 					"memory allocation failed\n");
-				return;
+				return NULL;
 			}
 			memset(re, 0, sizeof(struct osm_routing_engine));
 
 			re->name = m->name;
+			re->type = osm_routing_engine_type(m->name);
 			if (m->setup(re, osm)) {
 				OSM_LOG(&osm->log, OSM_LOG_VERBOSE,
 					"setup of routing"
 					" engine \'%s\' failed\n", name);
-				return;
+				free(re);
+				return NULL;
 			}
 			OSM_LOG(&osm->log, OSM_LOG_DEBUG,
 				"\'%s\' routing engine set up\n", re->name);
-			append_routing_engine(osm, re);
-			return;
+			if (re->type == OSM_ROUTING_ENGINE_TYPE_MINHOP)
+				osm->default_routing_engine = re;
+			return re;
 		}
 	}
 
 	OSM_LOG(&osm->log, OSM_LOG_ERROR,
 		"cannot find or setup routing engine \'%s\'\n", name);
+	return NULL;
 }
 
 static void setup_routing_engines(osm_opensm_t *osm, const char *engine_names)
 {
 	char *name, *str, *p;
+	struct osm_routing_engine *re;
 
-	if (!engine_names || !*engine_names) {
-		setup_routing_engine(osm, "minhop");
-		return;
+	if (engine_names && *engine_names) {
+		str = strdup(engine_names);
+		name = strtok_r(str, ", \t\n", &p);
+		while (name && *name) {
+			re = setup_routing_engine(osm, name);
+			if (re)
+				append_routing_engine(osm, re);
+			name = strtok_r(NULL, ", \t\n", &p);
+		}
+		free(str);
 	}
-
-	str = strdup(engine_names);
-	name = strtok_r(str, ", \t\n", &p);
-	while (name && *name) {
-		setup_routing_engine(osm, name);
-		name = strtok_r(NULL, ", \t\n", &p);
-	}
-	free(str);
-
-	if (!osm->routing_engine_list)
+	if (!osm->default_routing_engine)
 		setup_routing_engine(osm, "minhop");
 }
 
