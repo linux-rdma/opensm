@@ -1171,6 +1171,12 @@ repeat_discovery:
 	sm->p_subn->force_reroute = FALSE;
 	sm->p_subn->subnet_initialization_error = FALSE;
 
+	/* Reset tracking values in case limiting component got removed
+	 * from fabric. */
+	sm->p_subn->min_ca_mtu = IB_MAX_MTU;
+	sm->p_subn->min_ca_rate = IB_MAX_RATE;
+	sm->p_subn->min_data_vls = IB_MAX_NUM_VLS - 1;
+
 	/* rescan configuration updates */
 	if (!config_parsed && osm_subn_rescan_conf_files(sm->p_subn) < 0)
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 331A: "
