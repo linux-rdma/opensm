@@ -1143,6 +1143,7 @@ static void do_sweep(osm_sm_t * sm)
 		sm->p_subn->ignore_existing_lfts = TRUE;
 
 		osm_ucast_mgr_process(&sm->ucast_mgr);
+		osm_qos_setup(sm->p_subn->p_osm);
 
 		/* Reset flag */
 		sm->p_subn->ignore_existing_lfts = FALSE;
@@ -1273,8 +1274,6 @@ repeat_discovery:
 
 	osm_pkey_mgr_process(sm->p_subn->p_osm);
 
-	osm_qos_setup(sm->p_subn->p_osm);
-
 	/* try to restore SA DB (this should be before lid_mgr
 	   because we may want to disable clients reregistration
 	   when SA DB is restored) */
@@ -1314,6 +1313,8 @@ repeat_discovery:
 	if (!sm->ucast_mgr.cache_valid ||
 	    osm_ucast_cache_process(&sm->ucast_mgr))
 		osm_ucast_mgr_process(&sm->ucast_mgr);
+
+	osm_qos_setup(sm->p_subn->p_osm);
 
 	if (wait_for_pending_transactions(&sm->p_subn->p_osm->stats))
 		return;

@@ -126,6 +126,9 @@ struct osm_routing_engine {
 	int (*build_lid_matrices) (void *context);
 	int (*ucast_build_fwd_tables) (void *context);
 	void (*ucast_dump_tables) (void *context);
+	void (*update_sl2vl)(void *context, IN osm_physp_t *port,
+			     IN uint8_t in_port_num, IN uint8_t out_port_num,
+			     IN OUT ib_slvl_table_t *t);
 	void (*delete) (void *context);
 	struct osm_routing_engine *next;
 };
@@ -146,6 +149,15 @@ struct osm_routing_engine {
 *
 *	ucast_dump_tables
 *		The callback for dumping unicast routing tables.
+*
+*	update_sl2vl(void *context, IN osm_physp_t *port,
+*		     IN uint8_t in_port_num, IN uint8_t out_port_num,
+*		     OUT ib_slvl_table_t *t)
+*		The callback to allow routing engine input for SL2VL maps.
+*		*port is the phyical port for which the SL2VL map is to be
+*		updated. For switches, in_port_num/out_port_num identify
+*		which part of the SL2VL map to update.  For router/HCA ports,
+*		in_port_num/out_port_num should be ignored.
 *
 *	delete
 *		The delete method, may be used for routing engine

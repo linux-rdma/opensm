@@ -207,6 +207,7 @@ static int qos_extports_setup(osm_sm_t * sm, osm_node_t *node,
 	osm_physp_t *p0, *p;
 	unsigned force_update;
 	unsigned num_ports = osm_node_get_num_physp(node);
+	struct osm_routing_engine *re = sm->p_subn->p_osm->routing_engine_used;
 	int ret = 0;
 	unsigned in, out;
 	uint8_t op_vl1;
@@ -224,7 +225,7 @@ static int qos_extports_setup(osm_sm_t * sm, osm_node_t *node,
 		return ret;
 
 	if (ib_switch_info_get_opt_sl2vlmapping(&node->sw->switch_info) &&
-	    sm->p_subn->opt.use_optimized_slvl) {
+	    sm->p_subn->opt.use_optimized_slvl && !re->update_sl2vl) {
 		p = osm_node_get_physp_ptr(node, 1);
 		op_vl1 = ib_port_info_get_op_vls(&p->port_info);
 		force_update = p->need_update || sm->p_subn->need_update;
@@ -249,10 +250,20 @@ static int qos_extports_setup(osm_sm_t * sm, osm_node_t *node,
 		p = osm_node_get_physp_ptr(node, out);
 		force_update = p->need_update || sm->p_subn->need_update;
 		/* go over all in ports */
-		for (in = 0; in < num_ports; in++)
+		for (in = 0; in < num_ports; in++) {
+			const ib_slvl_table_t *port_sl2vl = &qcfg->sl2vl;
+			ib_slvl_table_t routing_sl2vl;
+
+			if (re->update_sl2vl) {
+				routing_sl2vl = *port_sl2vl;
+				re->update_sl2vl(re->context,
+						 p, in, out, &routing_sl2vl);
+				port_sl2vl = &routing_sl2vl;
+			}
 			if (sl2vl_update_table(sm, p, in, in << 8 | out,
-					       force_update, &qcfg->sl2vl))
+					       force_update, port_sl2vl))
 				ret = -1;
+		}
 	}
 
 	return ret;
@@ -262,6 +273,9 @@ static int qos_endport_setup(osm_sm_t * sm, osm_physp_t * p,
 			     const struct qos_config *qcfg, int vlarb_only)
 {
 	unsigned force_update = p->need_update || sm->p_subn->need_update;
+	struct osm_routing_engine *re = sm->p_subn->p_osm->routing_engine_used;
+	const ib_slvl_table_t *port_sl2vl = &qcfg->sl2vl;
+	ib_slvl_table_t routing_sl2vl;
 
 	p->vl_high_limit = qcfg->vl_high_limit;
 	if (vlarb_update(sm, p, 0, force_update, qcfg))
@@ -272,7 +286,12 @@ static int qos_endport_setup(osm_sm_t * sm, osm_physp_t * p,
 	if (!(p->port_info.capability_mask & IB_PORT_CAP_HAS_SL_MAP))
 		return 0;
 
-	if (sl2vl_update_table(sm, p, 0, 0, force_update, &qcfg->sl2vl))
+	if (re->update_sl2vl) {
+		routing_sl2vl = *port_sl2vl;
+		re->update_sl2vl(re->context, p, 0, 0, &routing_sl2vl);
+		port_sl2vl = &routing_sl2vl;
+	}
+	if (sl2vl_update_table(sm, p, 0, 0, force_update, port_sl2vl))
 		return -1;
 
 	return 0;
