@@ -10,7 +10,7 @@ Date:    Dec 2009
 This document describes the contents of the OpenSM 3.3 release.
 OpenSM is an InfiniBand compliant Subnet Manager and Administration,
 and runs on top of OpenIB. The OpenSM version for this release
-is opensm-3.3.6.
+is opensm-3.3.7.
 
 This document includes the following sections:
 1 This Overview section (describing new features and software
@@ -131,6 +131,9 @@ fa356f8 opensm: Add support for optimized SLtoVLMappingTable programming
 8aaae91 Dimension port order file support
 7662eec opensm: Add option to specify prefix to syslog messages
 2382cf3 opensm: Add update_desc command to opensm console
+7cbe193 opensm: toggle sweeping V3
+6f61d8f opensm/osmeventplugin: added new events to monitor SM
+84cf603 opensm/main.c: force stdout to be line-buffered
 
 1.3 Library API Changes
 
@@ -253,6 +256,9 @@ fa90512 opensm/osm_vendor_*_sa: fix incompatibility with QLogic SM
 5ec0b5f opensm: compress IPV6 SNM groups to use a single MLID
 26e7e83 opensm/osm_lid_mgr: fix couple of duplicate LIDs bugs
 fedc419 opensm: Multicast root switch calculation
+6772fdb opensm: Fix sl2vl configuration
+dd3470f complib/cl_timer.c: fixing cl_timer calculation
+ae1bcdd opensm/osm_lid_mgr.c: Allow switch lids to be non LMC aligned
 
 4.2 Other Bug Fixes
 
@@ -551,6 +557,32 @@ d282093 opensm/osm_slvl_map_rcv.c: fix port parsing on BE machine
 7c9d375 osm_sa_path_record.c: separate mutlicast processing code
 cb2d18e opensm/osm_sa_path_record.c: MGID must be specified explicitly
 bd3932b opensm/osm_mcast_mgr.c: strip log-only variable
+9d93de3 opensm/osm_pkey_mgr.c: Eliminate unneeded parameter from pkey_mgr_get_physp_max_blocks API
+5f49472 opensm/include/osm_helper.h: Eliminate some duplicate declarations
+e8ddcd4 opensm/osm_opensm.c: no report when SM is exiting
+77ce7c8 complib/cl_timer: remove not needed timeval initializations
+490aae2 opensm/osm_helper.c: Add some missing message names to disp_msg_str
+d678a21 opensm: Modify OSM_LOG_SYS messages
+4cfb481 opensm: Fix wrong messages in MC delete flow
+5b82f92 opensm/osm_req.c: In osm_send_trap144, eliminate redundant clear of m_key in smp
+9bf64dc opensm/osm_qos.c: Eliminate unneeded endport SL to VL setup
+34b536c opensm/osm_sa_path_record.c: adding wrapper for pr_rcv_get_path_parms()
+237b5d1 opensm/osm_mcast_mgr.c: Only route MLIDs with more than 1 member
+a72db14 opensm/osm_trap_rcv.c: No need for heavy sweep when just NodeDescription changes
+ea9a768 opensm/osmtest.c: fix bug in getting attr offset
+a3dec3a iba/ib_types.h: remove assertion in ib_get_attr_offset()
+6bc032a return no path when path does not exist
+1592ae9 opensm: Better handling of non responsive SMAs
+a69f01b opensm/osm_perfmgr.c: Remove unnecessary lock reference from Performance Manager object
+167ade2 opensm: fixing compilation issues in some header files
+e1c253e opensm/qos.c: Revert port ranges for calls to sl2vl_update_table().
+0689f49 opensm/libvendor Reduce stack consumption
+59056c7 opensm - address windows env issues
+ff14200 opensm/osm_sa_multipath_record.c: livelock in mpr_rcv_get_path_parms
+3f23d83 opensm/osm_sa_path_record.c: Add error code to newly added log message
+7fc6cd3 ib_types.h add debug assert
+4fd4ca3 osmtest - use helper function
+6fdc20a opensm/complib use portable macro syntax
 
 * Other less critical or visible bugs were also fixed.
 
