@@ -48,6 +48,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <arpa/inet.h>
 #include <opensm/osm_log.h>
 #include <opensm/osm_node.h>
 #include <opensm/osm_port.h>
@@ -800,10 +801,12 @@ static void __qos_policy_validate_pkey(
 	ib_member_get_sl_flow_hop(p_prtn->mgrp->mcmember_rec.sl_flow_hop,
 				  &sl, &flow, &hop);
 	if (sl != p_prtn->sl) {
+		char gid_str[INET6_ADDRSTRLEN];
 		OSM_LOG(&p_qos_policy->p_subn->p_osm->log, OSM_LOG_DEBUG,
-			"Updating MCGroup (MLID 0x%04x) SL to "
+			"Updating MCGroup (MGID %s) SL to "
 			"match partition SL (%u)\n",
-			cl_hton16(p_prtn->mgrp->mcmember_rec.mlid),
+			inet_ntop(AF_INET6, p_prtn->mgrp->mcmember_rec.mgid.raw,
+				  gid_str, sizeof gid_str),
 			p_prtn->sl);
 		p_prtn->mgrp->mcmember_rec.sl_flow_hop =
 			ib_member_set_sl_flow_hop(p_prtn->sl, flow, hop);
