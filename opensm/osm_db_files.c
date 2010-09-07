@@ -175,6 +175,7 @@ int osm_db_init(IN osm_db_t * p_db, IN osm_log_t * p_log)
 			OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 6101: "
 				"Failed to create the db directory:%s\n",
 				p_db_imp->db_dir_name);
+			free(p_db_imp);
 			OSM_LOG_EXIT(p_log);
 			return 1;
 		}
