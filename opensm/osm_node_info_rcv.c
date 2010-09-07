@@ -375,7 +375,6 @@ static void ni_rcv_process_existing_ca_or_router(IN osm_sm_t * sm,
 	osm_port_t *p_port;
 	osm_port_t *p_port_check;
 	uint8_t port_num;
-	osm_physp_t *p_physp;
 	osm_dr_path_t *p_dr_path;
 	osm_bind_handle_t h_bind;
 
@@ -437,7 +436,7 @@ static void ni_rcv_process_existing_ca_or_router(IN osm_sm_t * sm,
 			p_port->is_new = 1;
 
 	} else {
-		p_physp = osm_node_get_physp_ptr(p_node, port_num);
+		osm_physp_t *p_physp = osm_node_get_physp_ptr(p_node, port_num);
 		/*
 		   Update the DR Path to the port,
 		   in case the old one is no longer available.
