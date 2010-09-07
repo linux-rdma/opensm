@@ -1302,12 +1302,12 @@ static void dump_portguid_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 	/* Check we have at least one expression to match */
 	if (p_head_regexp == NULL) {
 		fprintf(out, "No valid expression provided. Aborting\n");
-		return;
+		goto Exit;
 	}
 
 	if (p_osm->sm.p_subn->need_update != 0) {
 		fprintf(out, "Subnet is not ready yet. Try again later\n");
-		return;
+		goto Free_and_exit;
 	}
 
 	/* Subnet doesn't need to be updated so we can carry on */
@@ -1333,14 +1333,16 @@ static void dump_portguid_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 	}
 
 	CL_PLOCK_RELEASE(p_osm->sm.p_lock);
-	if (output != out)
-		fclose(output);
 
+Free_and_exit:
 	for (; p_head_regexp; p_head_regexp = p_regexp) {
 		p_regexp = p_head_regexp->next;
 		regfree(&p_head_regexp->exp);
 		free(p_head_regexp);
 	}
+Exit:
+	if (output != out)
+		fclose(output);
 }
 
 static void help_dump_portguid(FILE * out, int detail)
