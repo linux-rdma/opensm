@@ -104,16 +104,6 @@ void osm_pkey_tbl_init_new_blocks(IN const osm_pkey_tbl_t * p_pkey_tbl)
 			memset(p_block, 0, sizeof(*p_block));
 }
 
-void osm_pkey_tbl_cleanup_pending(IN osm_pkey_tbl_t * p_pkey_tbl)
-{
-	cl_list_item_t *p_item;
-
-	p_item = cl_qlist_remove_head(&p_pkey_tbl->pending);
-	while (p_item != cl_qlist_end(&p_pkey_tbl->pending)) {
-		free((osm_pending_pkey_t *) p_item);
-	}
-}
-
 ib_api_status_t osm_pkey_tbl_set(IN osm_pkey_tbl_t * p_pkey_tbl,
 				 IN uint16_t block, IN ib_pkey_table_t * p_tbl)
 {
