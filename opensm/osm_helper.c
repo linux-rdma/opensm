@@ -148,7 +148,7 @@ static const char *ib_sm_method_str[] = {
 	"UNKNOWN"		/* 20 */
 };
 
-#define OSM_SM_METHOD_STR_UNKNOWN_VAL 0x21
+#define OSM_SM_METHOD_STR_UNKNOWN_VAL 0x20
 
 static const char *ib_sm_attr_str[] = {
 	"RESERVED",		/* 0 */
