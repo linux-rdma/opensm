@@ -489,6 +489,12 @@ osmt_run_slvl_and_vlarb_records_flow(IN osmtest_t * const p_osmt)
 	OSM_LOG_ENTER(&p_osmt->log);
 
 	fh = fopen("qos.txt", "w");
+	if (!fh) {
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0474: "
+			"Failed to open file qos.txt for writing\n");
+		status = IB_ERROR;
+		goto Exit;
+	}
 
 	/* go over all ports in the subnet */
 	status = osmt_query_all_ports_vl_arb(p_osmt, fh);
@@ -520,7 +526,8 @@ osmt_run_slvl_and_vlarb_records_flow(IN osmtest_t * const p_osmt)
 	}
 
 Exit:
-	fclose(fh);
+	if (fh)
+		fclose(fh);
 	OSM_LOG_EXIT(&p_osmt->log);
 	return status;
 }
