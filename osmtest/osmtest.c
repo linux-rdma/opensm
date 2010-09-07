@@ -2753,7 +2753,11 @@ static ib_api_status_t osmtest_stress_small_rmpp(IN osmtest_t * const p_osmt)
 
 		status = osmtest_stress_port_recs_small(p_osmt, &delta_recs,
 							&delta_queries);
-		if (status != IB_SUCCESS)
+		if (status == IB_TIMEOUT) {
+			num_timeouts++;
+			continue;
+		}
+		else if (status != IB_SUCCESS)
 			goto Exit;
 
 		num_recs += delta_recs;
@@ -2889,7 +2893,11 @@ static ib_api_status_t osmtest_stress_get_pr(IN osmtest_t * const p_osmt)
 		status = osmtest_stress_path_recs_by_lid(p_osmt,
 							 &delta_recs,
 							 &delta_queries);
-		if (status != IB_SUCCESS)
+		if (status == IB_TIMEOUT) {
+			num_timeouts++;
+			continue;
+		}
+		else if (status != IB_SUCCESS)
 			goto Exit;
 
 		num_recs += delta_recs;
