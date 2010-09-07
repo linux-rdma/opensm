@@ -210,8 +210,7 @@ void __osmv_sa_mad_err_cb(IN void *bind_context, IN osm_madw_t * p_madw)
 	if ((p_query_req_copy->flags & OSM_SA_FLAGS_SYNC) == OSM_SA_FLAGS_SYNC)
 		cl_event_signal(&p_bind->sync_event);
 
-	if (p_query_req_copy)
-		free(p_query_req_copy);
+	free(p_query_req_copy);
 	OSM_LOG_EXIT(p_bind->p_log);
 }
 
