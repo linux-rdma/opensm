@@ -511,9 +511,14 @@ static void trap_rcv_process_request(IN osm_sm_t * sm,
 				"trap 144: \"node description update\"\n");
 		goto check_sweep;
 	} else if (cl_ntoh16(p_ntci->g_or_v.generic.trap_num) == 145) {
-		/* this assumes that trap 145 content is not broken? */
-		p_physp->p_node->node_info.sys_guid =
-			p_ntci->data_details.ntc_145.new_sys_guid;
+		if (p_physp)
+			/* this assumes that trap 145 content is not broken? */
+			p_physp->p_node->node_info.sys_guid =
+				p_ntci->data_details.ntc_145.new_sys_guid;
+		else
+			OSM_LOG(sm->p_log, OSM_LOG_ERROR,
+				"ERR 3813: No physical port found for "
+				"trap 145: \"SystemImageGUID update\"\n");
 		goto check_report;
 	}
 
