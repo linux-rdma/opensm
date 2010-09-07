@@ -436,7 +436,6 @@ static void ni_rcv_process_existing_ca_or_router(IN osm_sm_t * sm,
 		if (sm->p_subn->sm_state == IB_SMINFO_STATE_MASTER)
 			p_port->is_new = 1;
 
-		p_physp = osm_node_get_physp_ptr(p_node, port_num);
 	} else {
 		p_physp = osm_node_get_physp_ptr(p_node, port_num);
 		/*
