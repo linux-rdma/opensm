@@ -73,11 +73,10 @@ void osm_mtree_destroy(IN osm_mtree_node_t * p_mtn)
 	if (p_mtn == NULL)
 		return;
 
-	if (p_mtn->child_array != NULL)
-		for (i = 0; i < p_mtn->max_children; i++)
-			if ((p_mtn->child_array[i] != NULL) &&
-			    (p_mtn->child_array[i] != OSM_MTREE_LEAF))
-				osm_mtree_destroy(p_mtn->child_array[i]);
+	for (i = 0; i < p_mtn->max_children; i++)
+		if ((p_mtn->child_array[i] != NULL) &&
+		    (p_mtn->child_array[i] != OSM_MTREE_LEAF))
+			osm_mtree_destroy(p_mtn->child_array[i]);
 
 	free(p_mtn);
 }
