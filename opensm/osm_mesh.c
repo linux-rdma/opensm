@@ -1385,7 +1385,8 @@ static int compare_switches(const void *p1, const void *p2)
 
 	for (i = 0; i < ctx->mesh->dimension; i++) {
 		j = ctx->mesh->dim_order[i];
-		if ((ret = s1->node->coord[j] - s2->node->coord[j]));
+		ret = s1->node->coord[j] - s2->node->coord[j];
+		if (ret)
 			return ret;
 	}
 
