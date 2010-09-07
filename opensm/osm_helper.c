@@ -84,6 +84,8 @@ static const char *ib_sa_method_str[] = {
 	"UNKNOWN"		/* 16 */
 };
 
+#define OSM_SA_METHOD_STR_UNKNOWN_VAL 0x16
+
 static const char *ib_sa_resp_method_str[] = {
 	"RESERVED",		/* 80 */
 	"SubnAdmGetResp",	/* 81 */
@@ -109,8 +111,6 @@ static const char *ib_sa_resp_method_str[] = {
 	"SubnAdmDeleteResp",	/* 95 */
 	"UNKNOWN"
 };
-
-#define OSM_SA_METHOD_STR_UNKNOWN_VAL 0x16
 
 static const char *ib_sm_method_str[] = {
 	"RESERVED0",		/* 0 */
