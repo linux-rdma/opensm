@@ -763,6 +763,7 @@ qos_ulp:            TK_ULP_DEFAULT single_number {
                             if (range_arr[i][0] > 0xFFFF || range_arr[i][1] > 0xFFFF)
                             {
                                 yyerror("SDP port number out of range");
+				free(range_arr);
                                 return 1;
                             }
                             range_arr[i][0] += OSM_QOS_POLICY_ULP_SDP_SERVICE_ID;
@@ -809,6 +810,7 @@ qos_ulp:            TK_ULP_DEFAULT single_number {
                             if (range_arr[i][0] > 0xFFFF || range_arr[i][1] > 0xFFFF)
                             {
                                 yyerror("SDP port number out of range");
+				free(range_arr);
                                 return 1;
                             }
                             range_arr[i][0] += OSM_QOS_POLICY_ULP_RDS_SERVICE_ID;
@@ -855,6 +857,7 @@ qos_ulp:            TK_ULP_DEFAULT single_number {
                             if (range_arr[i][0] > 0xFFFF || range_arr[i][1] > 0xFFFF)
                             {
                                 yyerror("SDP port number out of range");
+				free(range_arr);
                                 return 1;
                             }
                             range_arr[i][0] += OSM_QOS_POLICY_ULP_ISER_SERVICE_ID;
@@ -944,8 +947,10 @@ qos_ulp:            TK_ULP_DEFAULT single_number {
                          * If some problem would be found, parsing will
                          * be aborted with a proper error messages.
                          */
-                        if (__validate_pkeys(range_arr, range_len, TRUE))
+			if (__validate_pkeys(range_arr, range_len, TRUE)) {
+			    free(range_arr);
                             return 1;
+			}
 
                         p_current_qos_match_rule->pkey_range_arr = range_arr;
                         p_current_qos_match_rule->pkey_range_len = range_len;
