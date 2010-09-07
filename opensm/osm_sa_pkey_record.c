@@ -210,7 +210,6 @@ void osm_pkey_rec_rcv_process(IN void *ctx, IN void *data)
 	const ib_sa_mad_t *p_rcvd_mad;
 	const ib_pkey_table_record_t *p_rcvd_rec;
 	const osm_port_t *p_port = NULL;
-	const ib_pkey_table_t *p_pkey;
 	cl_qlist_t rec_list;
 	osm_pkey_search_ctxt_t context;
 	ib_net64_t comp_mask;
@@ -263,8 +262,6 @@ void osm_pkey_rec_rcv_process(IN void *ctx, IN void *data)
 			"Cannot find requester physical port\n");
 		goto Exit;
 	}
-
-	p_pkey = ib_sa_mad_get_payload_ptr(p_rcvd_mad);
 
 	cl_qlist_init(&rec_list);
 
