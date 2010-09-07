@@ -174,9 +174,8 @@ ib_api_status_t osm_prtn_add_mcgroup(osm_log_t * p_log, osm_subn_t * p_subn,
 	ib_member_rec_t mc_rec;
 	ib_net64_t comp_mask;
 	ib_net16_t pkey;
-	osm_mgrp_t *p_mgrp = NULL;
+	osm_mgrp_t *mgrp;
 	osm_sa_t *p_sa = &p_subn->p_osm->sa;
-	ib_api_status_t status = IB_SUCCESS;
 	uint8_t hop_limit;
 
 	pkey = p->pkey | cl_hton16(0x8000);
@@ -197,24 +196,25 @@ ib_api_status_t osm_prtn_add_mcgroup(osm_log_t * p_log, osm_subn_t * p_subn,
 	mc_rec.pkt_life = p_subn->opt.subnet_timeout;
 	mc_rec.sl_flow_hop = ib_member_set_sl_flow_hop(p->sl, 0, hop_limit);
 	/* Scope in MCMemberRecord (if present) needs to be consistent with MGID */
-	mc_rec.scope_state = ib_member_set_scope_state(scope, IB_MC_REC_STATE_FULL_MEMBER);
+	mc_rec.scope_state =
+	    ib_member_set_scope_state(scope, IB_MC_REC_STATE_FULL_MEMBER);
 	ib_mgid_set_scope(&mc_rec.mgid, scope);
 
 	/* don't update rate, mtu */
 	comp_mask = IB_MCR_COMPMASK_MTU | IB_MCR_COMPMASK_MTU_SEL |
 	    IB_MCR_COMPMASK_RATE | IB_MCR_COMPMASK_RATE_SEL;
-	status = osm_mcmr_rcv_find_or_create_new_mgrp(p_sa, comp_mask, &mc_rec,
-						      &p_mgrp);
-	if (!p_mgrp || status != IB_SUCCESS)
+	mgrp = osm_mcmr_rcv_find_or_create_new_mgrp(p_sa, comp_mask, &mc_rec);
+	if (!mgrp) {
 		OSM_LOG(p_log, OSM_LOG_ERROR,
 			"Failed to create MC group with pkey 0x%04x\n",
 			cl_ntoh16(pkey));
-	if (p_mgrp) {
-		p_mgrp->well_known = TRUE;
-		p->mgrp = p_mgrp;
+		return IB_ERROR;
 	}
 
-	return status;
+	mgrp->well_known = TRUE;
+	p->mgrp = mgrp;
+
+	return IB_SUCCESS;
 }
 
 static uint16_t generate_pkey(osm_subn_t * p_subn)

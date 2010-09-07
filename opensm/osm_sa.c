@@ -741,10 +741,10 @@ static osm_mgrp_t *load_mcgroup(osm_opensm_t * p_osm, ib_net16_t mlid,
 
 	comp_mask = IB_MCR_COMPMASK_MTU | IB_MCR_COMPMASK_MTU_SEL
 	    | IB_MCR_COMPMASK_RATE | IB_MCR_COMPMASK_RATE_SEL;
-	if (osm_mcmr_rcv_find_or_create_new_mgrp(&p_osm->sa,
-						 comp_mask, p_mcm_rec,
-						 &p_mgrp) != IB_SUCCESS ||
-	    !p_mgrp || p_mgrp->mlid != mlid) {
+	if (!(p_mgrp = osm_mcmr_rcv_find_or_create_new_mgrp(&p_osm->sa,
+							    comp_mask,
+							    p_mcm_rec)) ||
+	    p_mgrp->mlid != mlid) {
 		OSM_LOG(&p_osm->log, OSM_LOG_ERROR,
 			"cannot create MC group with mlid 0x%04x and mgid "
 			"0x%016" PRIx64 ":0x%016" PRIx64 "\n", cl_ntoh16(mlid),
