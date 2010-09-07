@@ -1670,13 +1670,13 @@ static int fabric_create_leaf_switch_array(IN ftree_fabric_t * p_ftree)
 	       &(all_switches_at_leaf_level[first_leaf_idx]),
 	       p_ftree->leaf_switches_num * sizeof(ftree_sw_t *));
 
-	free(all_switches_at_leaf_level);
-
 	OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
 		"Created array of %u leaf switches\n",
 		p_ftree->leaf_switches_num);
 
 Exit:
+	if (all_switches_at_leaf_level)
+		free(all_switches_at_leaf_level);
 	OSM_LOG_EXIT(&p_ftree->p_osm->log);
 	return res;
 }				/* fabric_create_leaf_switch_array() */
