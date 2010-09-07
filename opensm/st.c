@@ -194,6 +194,8 @@ size_t size;
 #endif
 
 	size = new_size(size);	/* round up to prime number */
+	if (size < 0)
+		return NULL;
 
 	tbl = alloc(st_table);
 	tbl->type = type;
@@ -351,6 +353,9 @@ register st_table *table;
 	unsigned int hash_val;
 
 	new_num_bins = new_size(old_num_bins + 1);
+	if (new_num_bins < 0)
+		return;
+
 	new_bins =
 	    (st_table_entry **) Calloc(new_num_bins, sizeof(st_table_entry *));
 
