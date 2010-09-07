@@ -791,8 +791,10 @@ static ftree_hca_t *hca_create(IN osm_node_t * p_osm_node)
 	p_hca->up_port_groups = (ftree_port_group_t **)
 	    malloc(osm_node_get_num_physp(p_hca->p_osm_node) *
 		   sizeof(ftree_port_group_t *));
-	if (!p_hca->up_port_groups)
+	if (!p_hca->up_port_groups) {
+		free(p_hca);
 		return NULL;
+	}
 	p_hca->up_port_groups_num = 0;
 	return p_hca;
 }
