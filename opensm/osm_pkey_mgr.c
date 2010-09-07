@@ -118,6 +118,7 @@ pkey_mgr_process_physical_port(IN osm_log_t * p_log,
 				cl_ntoh16(ib_pkey_get_base(pkey)),
 				cl_ntoh64(osm_node_get_node_guid(p_node)),
 				osm_physp_get_port_num(p_physp));
+			free(p_pending);
 			return;
 		}
 		cl_qlist_insert_head(&p_pkey_tbl->pending,
