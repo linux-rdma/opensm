@@ -78,7 +78,6 @@ static void smi_rcv_process_get_request(IN osm_sm_t * sm,
 					IN const osm_madw_t * p_madw)
 {
 	uint8_t payload[IB_SMP_DATA_SIZE];
-	ib_smp_t *p_smp;
 	ib_sm_info_t *p_smi = (ib_sm_info_t *) payload;
 	ib_api_status_t status;
 	ib_sm_info_t *p_remote_smi;
@@ -90,9 +89,7 @@ static void smi_rcv_process_get_request(IN osm_sm_t * sm,
 	/* No real need to grab the lock for this function. */
 	memset(payload, 0, sizeof(payload));
 
-	p_smp = osm_madw_get_smp_ptr(p_madw);
-
-	CL_ASSERT(p_smp->method == IB_MAD_METHOD_GET);
+	CL_ASSERT(osm_madw_get_smp_ptr(p_madw)->method == IB_MAD_METHOD_GET);
 
 	p_smi->guid = sm->p_subn->sm_port_guid;
 	p_smi->act_count = cl_hton32(sm->p_subn->p_osm->stats.qp0_mads_sent);
