@@ -212,7 +212,6 @@ void osm_vlarb_rec_rcv_process(IN void *ctx, IN void *data)
 	const ib_sa_mad_t *sad_mad;
 	const ib_vl_arb_table_record_t *p_rcvd_rec;
 	const osm_port_t *p_port = NULL;
-	const ib_vl_arb_table_t *p_vl_arb;
 	cl_qlist_t rec_list;
 	osm_vl_arb_search_ctxt_t context;
 	ib_api_status_t status = IB_SUCCESS;
@@ -251,8 +250,6 @@ void osm_vlarb_rec_rcv_process(IN void *ctx, IN void *data)
 			"Cannot find requester physical port\n");
 		goto Exit;
 	}
-
-	p_vl_arb = (ib_vl_arb_table_t *) ib_sa_mad_get_payload_ptr(sad_mad);
 
 	cl_qlist_init(&rec_list);
 
