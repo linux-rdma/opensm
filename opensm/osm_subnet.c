@@ -1163,8 +1163,10 @@ int osm_subn_parse_conf_file(char *file_name, osm_subn_opt_t * p_opts)
 	cl_log_event("OpenSM", CL_LOG_INFO, line, NULL, 0);
 
 	p_opts->config_file = file_name;
-	if (!p_opts->file_opts && !(p_opts->file_opts = malloc(sizeof(*p_opts))))
+	if (!p_opts->file_opts && !(p_opts->file_opts = malloc(sizeof(*p_opts)))) {
+		fclose(opts_file);
 		return -1;
+	}
 	memcpy(p_opts->file_opts, p_opts, sizeof(*p_opts));
 
 	while (fgets(line, 1023, opts_file) != NULL) {
