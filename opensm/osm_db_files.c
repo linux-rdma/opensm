@@ -157,7 +157,10 @@ int osm_db_init(IN osm_db_t * p_db, IN osm_log_t * p_log)
 	OSM_LOG_ENTER(p_log);
 
 	p_db_imp = malloc(sizeof(osm_db_imp_t));
-	CL_ASSERT(p_db_imp != NULL);
+	if (!p_db_imp) {
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 6100: No memory.\n");
+		return -1;
+	}
 
 	p_db_imp->db_dir_name = getenv("OSM_CACHE_DIR");
 	if (!p_db_imp->db_dir_name || !(*p_db_imp->db_dir_name))
