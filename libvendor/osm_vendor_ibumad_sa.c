@@ -85,7 +85,8 @@ __osmv_sa_mad_rcv_cb(IN osm_madw_t * p_madw,
 
 	/* obtain the sent context since we store it during send in the ni_ctx */
 	p_query_req_copy =
-	    (osmv_query_req_t *) p_req_madw->context.ni_context.node_guid;
+	    (osmv_query_req_t *) (uintptr_t)(p_req_madw->context.ni_context.
+						node_guid);
 
 	/* provide the context of the original request in the result */
 	query_res.query_context = p_query_req_copy->query_context;
@@ -180,7 +181,8 @@ static void __osmv_sa_mad_err_cb(IN void *bind_context, IN osm_madw_t * p_madw)
 
 	/* Obtain the sent context etc */
 	p_query_req_copy =
-	    (osmv_query_req_t *) p_madw->context.ni_context.node_guid;
+	    (osmv_query_req_t *) (uintptr_t)(p_madw->context.ni_context.
+						node_guid);
 
 	/* provide the context of the original request in the result */
 	query_res.query_context = p_query_req_copy->query_context;
