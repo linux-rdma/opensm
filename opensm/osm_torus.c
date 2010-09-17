@@ -1623,6 +1623,22 @@ bool link_srcsink(struct torus *t, int i, int j, int k)
 		return true;
 
 	fsw = tsw->tmp;
+	/*
+	 * link_srcsink is supposed to get called once for every switch in
+	 * the fabric.  At this point every fsw we encounter must have a
+	 * non-null osm_switch.  Otherwise something has gone horribly
+	 * wrong with topology discovery; the most likely reason is that
+	 * the fabric contains a radix-4 torus dimension, but the user gave
+	 * a config that didn't say so, breaking all the checking in
+	 * safe_x_perpendicular and friends.
+	 */
+	if (!(fsw && fsw->osm_switch)) {
+		OSM_LOG(&t->osm->log, OSM_LOG_ERROR,
+			"Error: Invalid topology discovery. "
+			"Verify torus-2QoS.conf contents.\n");
+		return false;
+	}
+
 	pg = &tsw->ptgrp[2 * TORUS_MAX_DIM];
 	pg->type = SRCSINK;
 	tsw->osm_switch = fsw->osm_switch;
