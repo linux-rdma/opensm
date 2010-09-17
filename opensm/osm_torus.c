@@ -410,7 +410,11 @@ struct torus_context *torus_context_create(osm_opensm_t *osm)
 	struct torus_context *ctx;
 
 	ctx = calloc(1, sizeof(*ctx));
-	ctx->osm = osm;
+	if (ctx)
+		ctx->osm = osm;
+	else
+		OSM_LOG(&osm->log, OSM_LOG_ERROR,
+			"Error: calloc: %s\n", strerror(errno));
 
 	return ctx;
 }
@@ -9113,6 +9117,8 @@ int osm_ucast_torus2QoS_setup(struct osm_routing_engine *r,
 	struct torus_context *ctx;
 
 	ctx = torus_context_create(osm);
+	if (!ctx)
+		return -1;
 
 	r->context = ctx;
 	r->ucast_build_fwd_tables = torus_build_lfts;
