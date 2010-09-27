@@ -1578,6 +1578,7 @@ ib_api_status_t osmt_run_service_records_flow(IN osmtest_t * const p_osmt)
 		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A32: "
 			"Failed to delete service name: %s\n",
 			(char *)service_name[6]);
+		status = IB_ERROR;
 		goto Exit;
 	}
 
