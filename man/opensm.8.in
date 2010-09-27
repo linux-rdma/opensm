@@ -175,7 +175,7 @@ the host comes back online.
 \fB\-z\fR, \fB\-\-connect_roots\fR
 This option enforces routing engines (up/down and
 fat-tree) to make connectivity between root switches and in
-this way to be fully IBA complaint. In many cases this can
+this way to be fully IBA compliant. In many cases this can
 violate "pure" deadlock free algorithm, so use it carefully.
 .TP
 \fB\-M\fR, \fB\-\-lid_matrix_file\fR <file name>
@@ -517,7 +517,7 @@ PortGUIDs list:
                     port.  When omitted (or unrecognized) limited
                     membership is assumed.
 
-There are two useful keywords for PortGUID definition:
+There are several useful keywords for PortGUID definition:
 
  - 'ALL' means all end ports in this subnet.
  - 'ALL_CAS' means all Channel Adapter end ports in this subnet.

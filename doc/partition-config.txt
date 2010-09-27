@@ -75,7 +75,7 @@ PortGUID     - GUID of partition member EndPort. Hexadecimal numbers
 full or      - indicates full or limited membership for this port. When
   limited      omitted (or unrecognized) limited membership is assumed.
 
-There are two useful keywords for PortGUID definition:
+There are several useful keywords for PortGUID definition:
 
 - 'ALL' means all end ports in this subnet.
 - 'ALL_CAS' means all Channel Adapter end ports in this subnet.
