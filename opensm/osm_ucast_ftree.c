@@ -3012,8 +3012,10 @@ static void fabric_route_roots(IN ftree_fabric_t * p_ftree)
 				"through port %u\n",
 				tuple_to_str(p_sw->tuple), lid, port_num);
 
-			/* set local lft */
-			p_sw->p_osm_sw->new_lft[lid] = port_num;
+			if (p_ftree->p_osm->subn.opt.connect_roots) {
+				/* set local lft */
+				p_sw->p_osm_sw->new_lft[lid] = port_num;
+			}
 
 			/*
 			 * Set local min hop table.
@@ -4061,12 +4063,10 @@ static int do_routing(IN void *context)
 		"Filling switch forwarding tables for switch-to-switch paths\n");
 	fabric_route_to_switches(p_ftree);
 
-	if (p_ftree->p_osm->subn.opt.connect_roots) {
-		OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_VERBOSE,
-			"Connecting switches that are unreachable within "
-			"Up/Down rules\n");
-		fabric_route_roots(p_ftree);
-	}
+	OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_VERBOSE,
+		"Connecting switches that are unreachable within "
+		"Up/Down rules\n");
+	fabric_route_roots(p_ftree);
 
 	/* for each switch, set its fwd table */
 	cl_qmap_apply_func(&p_ftree->sw_tbl, set_sw_fwd_table, (void *)p_ftree);
