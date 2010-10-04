@@ -1191,7 +1191,8 @@ repeat_discovery:
 		osm_drop_mgr_process(sm);
 
 		/* Move to DISCOVERING state */
-		osm_sm_state_mgr_process(sm, OSM_SM_SIGNAL_DISCOVER);
+		 if (sm->p_subn->sm_state != IB_SMINFO_STATE_DISCOVERING)
+			osm_sm_state_mgr_process(sm, OSM_SM_SIGNAL_DISCOVER);
 		osm_opensm_report_event(sm->p_subn->p_osm,
 				OSM_EVENT_ID_STATE_CHANGE, NULL);
 		return;
