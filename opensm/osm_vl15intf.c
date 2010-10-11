@@ -57,13 +57,14 @@
 static void vl15_send_mad(osm_vl15_t * p_vl, osm_madw_t * p_madw)
 {
 	ib_api_status_t status;
+	boolean_t resp_expected = p_madw->resp_expected;
 
 	/*
 	   Non-response-expected mads are not throttled on the wire
 	   since we can have no confirmation that they arrived
 	   at their destination.
 	 */
-	if (p_madw->resp_expected == TRUE)
+	if (resp_expected)
 		/*
 		   Note that other threads may not see the response MAD
 		   arrive before send() even returns.
@@ -103,7 +104,7 @@ static void vl15_send_mad(osm_vl15_t * p_vl, osm_madw_t * p_madw)
 	   qp0_mads_outstanding will be decremented by send error callback
 	   (called by osm_vendor_send() */
 	cl_atomic_dec(&p_vl->p_stats->qp0_mads_sent);
-	if (!p_madw->resp_expected)
+	if (!resp_expected)
 		cl_atomic_dec(&p_vl->p_stats->qp0_unicasts_sent);
 }
 
