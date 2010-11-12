@@ -980,7 +980,7 @@ bool parse_config(const char *fn, struct fabric *f, struct torus *t)
 	FILE *fp;
 	char *keyword;
 	char *line_buf = NULL;
-	const char *parse_sep = " \n\t";
+	const char *parse_sep = " \n\t\015";
 	size_t line_buf_sz = 0;
 	size_t line_cntr = 0;
 	ssize_t llen;
