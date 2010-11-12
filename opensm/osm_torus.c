@@ -9038,6 +9038,84 @@ out:
 }
 
 static
+void check_vlarb_config(const char *vlarb_str, bool is_default,
+			const char *str, const char *pri, osm_log_t *log)
+{
+	unsigned total_weight[IB_MAX_NUM_VLS] = {0,};
+	unsigned i = 0, v, vl = 0;
+	char *end;
+	bool uniform;
+
+	while (*vlarb_str && i++ < 2 * IB_NUM_VL_ARB_ELEMENTS_IN_BLOCK) {
+		v = strtoul(vlarb_str, &end, 0);
+		if (*end)
+			end++;
+		vlarb_str = end;
+		if (i & 0x1)
+			vl = v & 0xf;
+		else
+			total_weight[vl] += v & 0xff;
+	}
+	uniform = true;
+	v = total_weight[0];
+	for (i = 1; i < 8; i++) {
+		if (i == 4)
+			v = total_weight[i];
+		if (total_weight[i] != v)
+			uniform = false;
+	}
+	if (!uniform)
+		OSM_LOG(log, OSM_LOG_INFO,
+			"Warning: torus-2QoS requires same VLarb weights for "
+			"VLs 0-3; also for VLs 4-7: not true for %s "
+			"%s_vlarb_%s\n",
+			(is_default ? "default" : "configured"), str, pri);
+}
+
+static
+void check_qos_config(osm_qos_options_t *opt, bool tgt_is_default,
+		      const char *str, osm_log_t *log)
+{
+	const char *vlarb_str;
+	bool is_default;
+
+	if (opt->max_vls > 0 && opt->max_vls < 8)
+		OSM_LOG(log, OSM_LOG_INFO,
+			"Warning: full torus-2QoS functionality not available "
+			"for configured %s_max_vls = %d\n", str, opt->max_vls);
+
+	if (opt->vlarb_high) {
+		is_default = false;
+		vlarb_str = opt->vlarb_high;
+	} else{
+		is_default = true;
+		vlarb_str = OSM_DEFAULT_QOS_VLARB_HIGH;
+	}
+	/*
+	 * Only check values that were actually configured, or the overall
+	 * defaults that target-specific (CA, switch port, etc) defaults
+	 * are set from.
+	 */
+	if (!is_default || tgt_is_default)
+		check_vlarb_config(vlarb_str, is_default, str, "high", log);
+
+	if (opt->vlarb_low) {
+		is_default = false;
+		vlarb_str = opt->vlarb_low;
+	} else {
+		is_default = true;
+		vlarb_str = OSM_DEFAULT_QOS_VLARB_LOW;
+	}
+	if (!is_default || tgt_is_default)
+		check_vlarb_config(vlarb_str, is_default, str, "low", log);
+
+	if (opt->sl2vl)
+		OSM_LOG(log, OSM_LOG_INFO,
+			"Warning: torus-2QoS must override configured "
+			"%s_sl2vl to generate deadlock-free routes\n", str);
+}
+
+static
 int torus_build_lfts(void *context)
 {
 	int status = -1;
@@ -9111,9 +9189,18 @@ out:
 		if (torus)
 			teardown_torus(torus);
 	} else {
+		osm_subn_opt_t *opt = &torus->osm->subn.opt;
+		osm_log_t *log = &torus->osm->log;
+
 		if (ctx->torus)
 			teardown_torus(ctx->torus);
 		ctx->torus = torus;
+
+		check_qos_config(&opt->qos_options, 1, "qos", log);
+		check_qos_config(&opt->qos_ca_options, 0, "qos_ca", log);
+		check_qos_config(&opt->qos_sw0_options, 0, "qos_sw0", log);
+		check_qos_config(&opt->qos_swe_options, 0, "qos_swe", log);
+		check_qos_config(&opt->qos_rtr_options, 0, "qos_rtr", log);
 	}
 	teardown_fabric(fabric);
 	return status;
