@@ -1051,8 +1051,6 @@ static void subn_verify_qos_set(osm_qos_options_t *set, const char *prefix,
 
 int osm_subn_verify_config(IN osm_subn_opt_t * p_opts)
 {
-	osm_qos_options_t dflt;
-
 	if (p_opts->lmc > 7) {
 		log_report(" Invalid Cached Option Value:lmc = %u:"
 			   "Using Default:%u\n", p_opts->lmc, OSM_DEFAULT_LMC);
@@ -1103,15 +1101,17 @@ int osm_subn_verify_config(IN osm_subn_opt_t * p_opts)
 		p_opts->console = OSM_DEFAULT_CONSOLE;
 	}
 
-
-	/* the default options in qos_options must be correct.
-	 * every other one need not be, b/c those will default
-	 * back to whatever is in qos_options.
-	 */
-	subn_set_default_qos_options(&dflt);
-	subn_verify_qos_set(&p_opts->qos_options, "qos", &dflt);
-
 	if (p_opts->qos) {
+		osm_qos_options_t dflt;
+
+		/* the default options in qos_options must be correct.
+		 * every other one need not be, b/c those will default
+		 * back to whatever is in qos_options.
+		 */
+
+		subn_set_default_qos_options(&dflt);
+
+		subn_verify_qos_set(&p_opts->qos_options, "qos", &dflt);
 		subn_verify_qos_set(&p_opts->qos_ca_options, "qos_ca",
 				    &p_opts->qos_options);
 		subn_verify_qos_set(&p_opts->qos_sw0_options, "qos_sw0",
