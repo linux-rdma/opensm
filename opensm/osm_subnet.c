@@ -352,6 +352,7 @@ static const opt_rec_t opt_tbl[] = {
 	{ "guid_routing_order_file", OPT_OFFSET(guid_routing_order_file), opts_parse_charp, NULL, 0 },
 	{ "sa_db_file", OPT_OFFSET(sa_db_file), opts_parse_charp, NULL, 0 },
 	{ "sa_db_dump", OPT_OFFSET(sa_db_dump), opts_parse_boolean, NULL, 1 },
+	{ "torus_config", OPT_OFFSET(torus_conf_file), opts_parse_charp, NULL, 1 },
 	{ "do_mesh_analysis", OPT_OFFSET(do_mesh_analysis), opts_parse_boolean, NULL, 1 },
 	{ "exit_on_fatal", OPT_OFFSET(exit_on_fatal), opts_parse_boolean, NULL, 1 },
 	{ "honor_guid2lid_file", OPT_OFFSET(honor_guid2lid_file), opts_parse_boolean, NULL, 1 },
@@ -1445,6 +1446,10 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		"# every light sweep, regardless of the verbosity level\n"
 		"sa_db_dump %s\n\n",
 		p_opts->sa_db_dump ? "TRUE" : "FALSE");
+
+	fprintf(out,
+		"# Torus-2QoS configuration file name\ntorus_config %s\n\n",
+		p_opts->torus_conf_file ? p_opts->torus_conf_file : null_str);
 
 	fprintf(out,
 		"#\n# HANDOVER - MULTIPLE SMs OPTIONS\n#\n"
