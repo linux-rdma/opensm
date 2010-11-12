@@ -782,6 +782,12 @@ bool parse_torus(struct torus *t, const char *parse_sep)
 	char *ptr;
 	bool success = false;
 
+	/*
+	 * There can be only one.  Ignore the imposters.
+	 */
+	if (t->sw_pool)
+		goto out;
+
 	if (!parse_size(&t->x_sz, &t->flags, X_MESH, parse_sep))
 		goto out;
 
