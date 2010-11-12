@@ -12,7 +12,7 @@ install-exec-hook:
 	chmod 755 $(DESTDIR)/$(sysconfdir)/init.d/opensmd
 
 
-man_MANS = man/opensm.8 man/osmtest.8
+man_MANS = man/opensm.8 man/osmtest.8 man/torus-2QoS.8 man/torus-2QoS.conf.5
 
 various_scripts = $(wildcard scripts/*)
 docs = doc/performance-manager-HOWTO.txt doc/QoS_management_in_OpenSM.txt \
