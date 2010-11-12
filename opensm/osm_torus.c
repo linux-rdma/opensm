@@ -9045,6 +9045,14 @@ int torus_build_lfts(void *context)
 	struct fabric *fabric;
 	struct torus *torus;
 
+	if (!ctx->osm->subn.opt.qos) {
+		OSM_LOG(&ctx->osm->log, OSM_LOG_ERROR,
+			"Error: Routing engine list contains torus-2QoS. "
+			"Enable QoS for correct operation "
+			"(-Q or 'qos TRUE' in opensm.conf).\n");
+		return status;
+	}
+
 	fabric = &ctx->fabric;
 	teardown_fabric(fabric);
 
