@@ -376,7 +376,7 @@ int osm_qos_setup(osm_opensm_t * p_osm)
 /*
  *  QoS config stuff
  */
-static int parse_one_unsigned(char *str, char delim, unsigned *val)
+static int parse_one_unsigned(const char *str, char delim, unsigned *val)
 {
 	char *end;
 	*val = strtoul(str, &end, 0);
@@ -385,10 +385,10 @@ static int parse_one_unsigned(char *str, char delim, unsigned *val)
 	return (int)(end - str);
 }
 
-static int parse_vlarb_entry(char *str, ib_vl_arb_element_t * e)
+static int parse_vlarb_entry(const char *str, ib_vl_arb_element_t * e)
 {
 	unsigned val;
-	char *p = str;
+	const char *p = str;
 	p += parse_one_unsigned(p, ':', &val);
 	e->vl = val % 15;
 	p += parse_one_unsigned(p, ',', &val);
@@ -396,10 +396,10 @@ static int parse_vlarb_entry(char *str, ib_vl_arb_element_t * e)
 	return (int)(p - str);
 }
 
-static int parse_sl2vl_entry(char *str, uint8_t * raw)
+static int parse_sl2vl_entry(const char *str, uint8_t * raw)
 {
 	unsigned val1, val2;
-	char *p = str;
+	const char *p = str;
 	p += parse_one_unsigned(p, ',', &val1);
 	p += parse_one_unsigned(p, ',', &val2);
 	*raw = (val1 << 4) | (val2 & 0xf);
@@ -410,18 +410,36 @@ static void qos_build_config(struct qos_config *cfg, osm_qos_options_t * opt,
 			     osm_qos_options_t * dflt)
 {
 	int i;
-	char *p;
+	const char *p;
 
 	memset(cfg, 0, sizeof(*cfg));
 
-	cfg->max_vls = opt->max_vls > 0 ? opt->max_vls : dflt->max_vls;
+	if (opt->max_vls > 0)
+		cfg->max_vls = opt->max_vls;
+	else {
+		if (dflt->max_vls > 0)
+			cfg->max_vls = dflt->max_vls;
+		else
+			cfg->max_vls = OSM_DEFAULT_QOS_MAX_VLS;
+	}
 
 	if (opt->high_limit >= 0)
 		cfg->vl_high_limit = (uint8_t) opt->high_limit;
-	else
-		cfg->vl_high_limit = (uint8_t) dflt->high_limit;
+	else {
+		if (dflt->high_limit >= 0)
+			cfg->vl_high_limit = (uint8_t) dflt->high_limit;
+		else
+			cfg->vl_high_limit = (uint8_t) OSM_DEFAULT_QOS_HIGH_LIMIT;
+	}
 
-	p = opt->vlarb_high ? opt->vlarb_high : dflt->vlarb_high;
+	if (opt->vlarb_high)
+		p = opt->vlarb_high;
+	else {
+		if (dflt->vlarb_high)
+			p = dflt->vlarb_high;
+		else
+			p = OSM_DEFAULT_QOS_VLARB_HIGH;
+	}
 	for (i = 0; i < 2 * IB_NUM_VL_ARB_ELEMENTS_IN_BLOCK; i++) {
 		p += parse_vlarb_entry(p,
 				       &cfg->vlarb_high[i /
@@ -430,7 +448,14 @@ static void qos_build_config(struct qos_config *cfg, osm_qos_options_t * opt,
 						IB_NUM_VL_ARB_ELEMENTS_IN_BLOCK]);
 	}
 
-	p = opt->vlarb_low ? opt->vlarb_low : dflt->vlarb_low;
+	if (opt->vlarb_low)
+		p = opt->vlarb_low;
+	else {
+		if (dflt->vlarb_low)
+			p = dflt->vlarb_low;
+		else
+			p = OSM_DEFAULT_QOS_VLARB_LOW;
+	}
 	for (i = 0; i < 2 * IB_NUM_VL_ARB_ELEMENTS_IN_BLOCK; i++) {
 		p += parse_vlarb_entry(p,
 				       &cfg->vlarb_low[i /
@@ -440,6 +465,14 @@ static void qos_build_config(struct qos_config *cfg, osm_qos_options_t * opt,
 	}
 
 	p = opt->sl2vl ? opt->sl2vl : dflt->sl2vl;
+	if (opt->sl2vl)
+		p = opt->sl2vl;
+	else {
+		if (dflt->sl2vl)
+			p = dflt->sl2vl;
+		else
+			p = OSM_DEFAULT_QOS_SL2VL;
+	}
 	for (i = 0; i < IB_MAX_NUM_VLS / 2; i++)
 		p += parse_sl2vl_entry(p, &cfg->sl2vl.raw_vl_by_sl[i]);
 }
