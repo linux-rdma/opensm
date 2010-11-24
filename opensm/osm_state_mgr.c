@@ -1156,6 +1156,10 @@ static void do_sweep(osm_sm_t * sm)
 	osm_remote_sm_t *p_remote_sm;
 	unsigned config_parsed = 0;
 
+	/* after subnet initialization error, run heavy sweep */
+	if (sm->p_subn->subnet_initialization_error)
+		sm->p_subn->force_heavy_sweep = TRUE;
+
 	if (sm->p_subn->force_heavy_sweep) {
 		if (osm_subn_rescan_conf_files(sm->p_subn) < 0)
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 331A: "
@@ -1526,6 +1530,7 @@ repeat_discovery:
 
 	/* in any case we zero this flag */
 	sm->p_subn->coming_out_of_standby = FALSE;
+	sm->p_subn->first_time_master_sweep = FALSE;
 
 	/* If there were errors - then the subnet is not really up */
 	if (sm->p_subn->subnet_initialization_error == TRUE) {
@@ -1537,7 +1542,6 @@ repeat_discovery:
 		sm->p_subn->need_update = 0;
 		osm_dump_all(sm->p_subn->p_osm);
 		state_mgr_up_msg(sm);
-		sm->p_subn->first_time_master_sweep = FALSE;
 
 		if (OSM_LOG_IS_ACTIVE_V2(sm->p_log, OSM_LOG_VERBOSE) ||
 		    sm->p_subn->opt.sa_db_dump)
@@ -1554,8 +1558,7 @@ repeat_discovery:
 
 	/* if we got a signal to force heavy sweep or errors
 	 * in the middle of the sweep - try another sweep. */
-	if (sm->p_subn->force_heavy_sweep
-	    || sm->p_subn->subnet_initialization_error)
+	if (sm->p_subn->force_heavy_sweep)
 		osm_sm_signal(sm, OSM_SIGNAL_SWEEP);
 
 	/* Write a new copy of our persistent guid2mkey database */
