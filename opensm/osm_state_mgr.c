@@ -69,7 +69,6 @@ extern void osm_drop_mgr_process(IN osm_sm_t * sm);
 extern int osm_qos_setup(IN osm_opensm_t * p_osm);
 extern int osm_pkey_mgr_process(IN osm_opensm_t * p_osm);
 extern int osm_mcast_mgr_process(IN osm_sm_t * sm);
-extern int osm_mcast_mgr_process_mgroups(IN osm_sm_t * sm);
 extern int osm_link_mgr_process(IN osm_sm_t * sm, IN uint8_t state);
 
 static void state_mgr_up_msg(IN const osm_sm_t * sm)
@@ -1428,7 +1427,7 @@ static void do_process_mgrp_queue(osm_sm_t * sm)
 	if (sm->p_subn->sm_state != IB_SMINFO_STATE_MASTER)
 		return;
 	if (!sm->p_subn->opt.disable_multicast) {
-		osm_mcast_mgr_process_mgroups(sm);
+		osm_mcast_mgr_process(sm);
 		wait_for_pending_transactions(&sm->p_subn->p_osm->stats);
 	}
 }

@@ -1145,54 +1145,11 @@ static int alloc_mfts(osm_sm_t * sm)
 	return 0;
 }
 
-int osm_mcast_mgr_process(osm_sm_t * sm)
-{
-	int i, ret = 0;
-
-	OSM_LOG_ENTER(sm->p_log);
-
-	/* While holding the lock, iterate over all the established
-	   multicast groups, servicing each in turn.
-	   Then, download the multicast tables to the switches. */
-	CL_PLOCK_EXCL_ACQUIRE(sm->p_lock);
-
-	/* If there are no switches in the subnet we have nothing to do. */
-	if (cl_qmap_count(&sm->p_subn->sw_guid_tbl) == 0) {
-		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-			"No switches in subnet. Nothing to do\n");
-		goto exit;
-	}
-
-	if (alloc_mfts(sm)) {
-		OSM_LOG(sm->p_log, OSM_LOG_ERROR,
-			"ERR 0A07: alloc_mfts failed\n");
-		ret = -1;
-		goto exit;
-	}
-
-	for (i = 0; i <= sm->p_subn->max_mcast_lid_ho - IB_LID_MCAST_START_HO;
-	     i++)
-		if (sm->p_subn->mboxes[i] || sm->mlids_req[i])
-			mcast_mgr_process_mlid(sm, i + IB_LID_MCAST_START_HO);
-
-	memset(sm->mlids_req, 0, sm->mlids_req_max);
-	sm->mlids_req_max = 0;
-
-	ret = mcast_mgr_set_mftables(sm);
-
-exit:
-	CL_PLOCK_RELEASE(sm->p_lock);
-
-	OSM_LOG_EXIT(sm->p_log);
-
-	return ret;
-}
-
 /**********************************************************************
   This is the function that is invoked during idle time to handle the
   process request for mcast groups where join/leave/delete was required.
  **********************************************************************/
-int osm_mcast_mgr_process_mgroups(osm_sm_t * sm)
+int osm_mcast_mgr_process(osm_sm_t * sm)
 {
 	int ret = 0;
 	unsigned i;
@@ -1222,7 +1179,6 @@ int osm_mcast_mgr_process_mgroups(osm_sm_t * sm)
 		mcast_mgr_process_mlid(sm, i + IB_LID_MCAST_START_HO);
 	}
 
-	memset(sm->mlids_req, 0, sm->mlids_req_max);
 	sm->mlids_req_max = 0;
 
 	ret = mcast_mgr_set_mftables(sm);
