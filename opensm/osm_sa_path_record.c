@@ -230,8 +230,9 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 		p_physp = osm_switch_get_route_by_lid(p_node->sw, dest_lid);
 		if (p_physp == 0) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F02: "
-				"Cannot find routing to LID %u from switch for GUID 0x%016"
-				PRIx64 "\n", dest_lid_ho,
+				"Cannot find routing to LID %u on switch "
+				"%s (GUID: 0x%016" PRIx64 ")\n", dest_lid_ho,
+				p_node->print_desc,
 				cl_ntoh64(osm_node_get_node_guid(p_node)));
 			status = IB_NOT_FOUND;
 			goto Exit;
@@ -273,8 +274,9 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 
 		if (p_dest_physp == 0) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F03: "
-				"Cannot find routing to LID %u from switch for GUID 0x%016"
-				PRIx64 "\n", dest_lid_ho,
+				"Cannot find routing to LID %u on switch "
+				"%s (GUID: 0x%016" PRIx64 ")\n", dest_lid_ho,
+				p_node->print_desc,
 				cl_ntoh64(osm_node_get_node_guid(p_node)));
 			status = IB_NOT_FOUND;
 			goto Exit;
@@ -288,14 +290,19 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 
 	while (p_physp != p_dest_physp) {
 
+		int tmp_pnum = p_physp->port_num;
 		p_node = osm_physp_get_node_ptr(p_physp);
 		p_physp = osm_physp_get_remote(p_physp);
 
 		if (p_physp == 0) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F05: "
-				"Cannot find remote phys port when routing to LID %u from node GUID 0x%016"
-				PRIx64 "\n", dest_lid_ho,
-				cl_ntoh64(osm_node_get_node_guid(p_node)));
+				"Can't find remote phys port of %s (GUID: "
+				"0x%016"PRIx64") port %d "
+				"while routing to LID %u",
+				p_node->print_desc,
+				cl_ntoh64(osm_node_get_node_guid(p_node)),
+				tmp_pnum,
+				dest_lid_ho);
 			status = IB_ERROR;
 			goto Exit;
 		}
@@ -317,7 +324,18 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 			   the destination by now!
 			 */
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F06: "
-				"Internal error, bad path\n");
+				"Internal error, bad path while routing "
+				"%s (GUID: 0x%016"PRIx64") port %d to "
+				"%s (GUID: 0x%016"PRIx64") port %d; "
+				"ended at %s port %d\n",
+				p_src_port->p_node->print_desc,
+				cl_ntoh64(p_src_port->p_node->node_info.node_guid),
+				p_src_port->p_physp->port_num,
+				p_dest_port->p_node->print_desc,
+				cl_ntoh64(p_dest_port->p_node->node_info.node_guid),
+				p_dest_port->p_physp->port_num,
+				p_node->print_desc,
+				p_physp->port_num);
 			status = IB_ERROR;
 			goto Exit;
 		}
@@ -339,9 +357,11 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 		p_physp = osm_switch_get_route_by_lid(p_node->sw, dest_lid);
 		if (p_physp == 0) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F07: "
-				"Dead end on path to LID %u from switch for GUID 0x%016"
-				PRIx64 "\n", dest_lid_ho,
-				cl_ntoh64(osm_node_get_node_guid(p_node)));
+				"Dead end path on switch "
+				"%s (GUID: 0x%016"PRIx64") to LID %u\n",
+				p_node->print_desc,
+				cl_ntoh64(osm_node_get_node_guid(p_node)),
+				dest_lid_ho);
 			status = IB_ERROR;
 			goto Exit;
 		}
@@ -378,14 +398,18 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 		hops++;
 		if (hops > MAX_HOPS) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F25: "
-				"Path from GUID 0x%016" PRIx64 " (%s) to"
-				" lid %u GUID 0x%016" PRIx64 " (%s) needs"
-				" more than %d hops, max %d hops allowed\n",
+				"Path from GUID 0x%016" PRIx64 " (%s port %d) "
+				"to lid %u GUID 0x%016" PRIx64 " (%s port %d) "
+				"needs more than %d hops, max %d hops allowed\n",
 				cl_ntoh64(osm_physp_get_port_guid(p_src_physp)),
-				p_src_physp->p_node->print_desc, dest_lid_ho,
+				p_src_physp->p_node->print_desc,
+				p_src_physp->port_num,
+				dest_lid_ho,
 				cl_ntoh64(osm_physp_get_port_guid
 					  (p_dest_physp)),
-				p_dest_physp->p_node->print_desc, hops,
+				p_dest_physp->p_node->print_desc,
+				p_dest_physp->port_num,
+				hops,
 				MAX_HOPS);
 			status = IB_NOT_FOUND;
 			goto Exit;
@@ -602,18 +626,35 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 		pkey = p_pr->pkey;
 		if (!osm_physp_share_this_pkey(p_src_physp, p_dest_physp, pkey)) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F1A: "
-				"Ports 0x%016" PRIx64 " 0x%016" PRIx64
+				"Ports 0x%016" PRIx64 " (%s port %d) and "
+				"0x%016" PRIx64 " (%s port %d) "
 				" do not share specified PKey 0x%04x\n",
 				cl_ntoh64(osm_physp_get_port_guid(p_src_physp)),
+				p_src_physp->p_node->print_desc,
+				p_src_physp->port_num,
 				cl_ntoh64(osm_physp_get_port_guid
-					  (p_dest_physp)), cl_ntoh16(pkey));
+					  (p_dest_physp)),
+				p_dest_physp->p_node->print_desc,
+				p_dest_physp->port_num,
+				cl_ntoh16(pkey));
 			status = IB_NOT_FOUND;
 			goto Exit;
 		}
 		if (p_qos_level && p_qos_level->pkey_range_len &&
 		    !osm_qos_level_has_pkey(p_qos_level, pkey)) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F1D: "
-				"Ports do not share PKeys defined by QoS level\n");
+				"Ports 0x%016" PRIx64 " (%s port %d) and "
+				"0x%016"PRIx64" (%s port %d) "
+				"do not share PKeys defined by QoS level "
+				"\"%s\"\n",
+				cl_ntoh64(osm_physp_get_port_guid(p_src_physp)),
+				p_src_physp->p_node->print_desc,
+				p_src_port->p_physp->port_num,
+				cl_ntoh64(osm_physp_get_port_guid
+					  (p_dest_physp)),
+				p_dest_physp->p_node->print_desc,
+				p_dest_port->p_physp->port_num,
+				p_qos_level->name);
 			status = IB_NOT_FOUND;
 			goto Exit;
 		}
@@ -627,11 +668,15 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 						     p_src_physp, p_dest_physp);
 		if (!pkey) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F1E: "
-				"Ports 0x%016" PRIx64 " 0x%016" PRIx64
-				" do not share PKeys defined by QoS level\n",
+				"Ports 0x%016" PRIx64 " (%s) and "
+				"0x%016" PRIx64 " (%s) do not share "
+				"PKeys defined by QoS level \"%s\"\n",
 				cl_ntoh64(osm_physp_get_port_guid(p_src_physp)),
+				p_src_physp->p_node->print_desc,
 				cl_ntoh64(osm_physp_get_port_guid
-					  (p_dest_physp)));
+					  (p_dest_physp)),
+				p_dest_physp->p_node->print_desc,
+				p_qos_level->name);
 			status = IB_NOT_FOUND;
 			goto Exit;
 		}
@@ -643,11 +688,16 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 		pkey = osm_physp_find_common_pkey(p_src_physp, p_dest_physp);
 		if (!pkey) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F1B: "
-				"Ports 0x%016" PRIx64 " 0x%016" PRIx64
-				" do not have any shared PKeys\n",
+				"Ports src 0x%016"PRIx64" (%s port %d) and "
+				"dst 0x%016"PRIx64" (%s port %d) do not have "
+				"any shared PKeys\n",
 				cl_ntoh64(osm_physp_get_port_guid(p_src_physp)),
+				p_src_physp->p_node->print_desc,
+				p_src_physp->port_num,
 				cl_ntoh64(osm_physp_get_port_guid
-					  (p_dest_physp)));
+					  (p_dest_physp)),
+				p_dest_physp->p_node->print_desc,
+				p_dest_physp->port_num);
 			status = IB_NOT_FOUND;
 			goto Exit;
 		}
@@ -679,8 +729,14 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 		    && (p_qos_level->sl != sl)) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F1F: "
 				"QoS constraints: required PathRecord SL (%u) "
-				"doesn't match QoS policy SL (%u)\n", sl,
-				p_qos_level->sl);
+				"doesn't match QoS policy \"%s\" SL (%u) "
+				"[%s port %d <-> %s port %d]\n", sl,
+				p_qos_level->name,
+				p_qos_level->sl,
+				p_src_port->p_node->print_desc,
+				p_src_port->p_physp->port_num,
+				p_dest_port->p_node->print_desc,
+				p_dest_port->p_physp->port_num);
 			status = IB_NOT_FOUND;
 			goto Exit;
 		}
@@ -689,7 +745,15 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 		    && osm_get_lash_sl(p_osm, p_src_port, p_dest_port) != sl) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F23: "
 				"Required PathRecord SL (%u) doesn't "
-				"match LASH SL\n", sl);
+				"match LASH SL (%u) "
+				"[%s port %d <-> %s port %d]\n",
+				sl,
+				osm_get_lash_sl(p_osm, p_src_port,
+						p_dest_port),
+				p_src_port->p_node->print_desc,
+				p_src_port->p_physp->port_num,
+				p_dest_port->p_node->print_desc,
+				p_dest_port->p_physp->port_num);
 			status = IB_NOT_FOUND;
 			goto Exit;
 		}
@@ -722,8 +786,14 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 			/* this may be possible when pkey tables are created somehow in
 			   previous runs or things are going wrong here */
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F1C: "
-				"No partition found for PKey 0x%04x - using default SL %d\n",
-				cl_ntoh16(pkey), sl);
+				"No partition found for PKey 0x%04x - "
+				"using default SL %d "
+				"[%s port %d <-> %s port %d]\n",
+				cl_ntoh16(pkey), sl,
+				p_src_port->p_node->print_desc,
+				p_src_port->p_physp->port_num,
+				p_dest_port->p_node->print_desc,
+				p_dest_port->p_physp->port_num);
 		} else
 			sl = p_prtn->sl;
 	} else if (sa->p_subn->opt.qos) {
@@ -740,7 +810,13 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 
 	if (sa->p_subn->opt.qos && !(valid_sl_mask & (1 << sl))) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F24: "
-			"Selected SL (%u) leads to VL15\n", sl);
+			"Selected SL (%u) leads to VL15 "
+			"[%s port %d <-> %s port %d]\n",
+			sl,
+			p_src_port->p_node->print_desc,
+			p_src_port->p_physp->port_num,
+			p_dest_port->p_node->print_desc,
+			p_dest_port->p_physp->port_num);
 		status = IB_NOT_FOUND;
 		goto Exit;
 	}
@@ -1004,13 +1080,19 @@ static void pr_rcv_get_port_pair_paths(IN osm_sa_t * sa,
 
 	if (src_lid_min_ho == 0) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F20:"
-			"Obtained source LID of 0. No such LID possible\n");
+			"Obtained source LID of 0. No such LID possible "
+			"(%s port %d)\n",
+			p_src_port->p_node->print_desc,
+			p_src_port->p_physp->port_num);
 		goto Exit;
 	}
 
 	if (dest_lid_min_ho == 0) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F21:"
-			"Obtained destination LID of 0. No such LID possible\n");
+			"Obtained destination LID of 0. No such LID possible "
+			"(%s port %d)\n",
+			p_dest_port->p_node->print_desc,
+			p_dest_port->p_physp->port_num);
 		goto Exit;
 	}
 

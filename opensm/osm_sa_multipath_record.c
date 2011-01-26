@@ -225,8 +225,9 @@ static ib_api_status_t mpr_rcv_get_path_parms(IN osm_sa_t * sa,
 		p_physp = osm_switch_get_route_by_lid(p_node->sw, dest_lid);
 		if (p_physp == 0) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4514: "
-				"Can't find routing to LID %u from switch for GUID 0x%016"
-				PRIx64 "\n", dest_lid_ho,
+				"Can't find routing to LID %u on switch %s "
+				"(GUID 0x%016"PRIx64")\n", dest_lid_ho,
+				p_node->print_desc,
 				cl_ntoh64(osm_node_get_node_guid(p_node)));
 			status = IB_NOT_FOUND;
 			goto Exit;
@@ -269,8 +270,9 @@ static ib_api_status_t mpr_rcv_get_path_parms(IN osm_sa_t * sa,
 
 		if (p_dest_physp == 0) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4515: "
-				"Can't find routing to LID %u from switch for GUID 0x%016"
-				PRIx64 "\n", dest_lid_ho,
+				"Can't find routing to LID %u on switch %s "
+				"(GUID 0x%016"PRIx64")\n", dest_lid_ho,
+				p_node->print_desc,
 				cl_ntoh64(osm_node_get_node_guid(p_node)));
 			status = IB_NOT_FOUND;
 			goto Exit;
@@ -284,14 +286,19 @@ static ib_api_status_t mpr_rcv_get_path_parms(IN osm_sa_t * sa,
 
 	while (p_physp != p_dest_physp) {
 
+		int tmp_pnum = p_physp->port_num;
 		p_node = osm_physp_get_node_ptr(p_physp);
 		p_physp = osm_physp_get_remote(p_physp);
 
 		if (p_physp == 0) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4505: "
-				"Can't find remote phys port when routing to LID %u from node GUID 0x%016"
-				PRIx64 "\n", dest_lid_ho,
-				cl_ntoh64(osm_node_get_node_guid(p_node)));
+				"Can't find remote phys port of %s (GUID "
+				"0x%016"PRIx64") port %d "
+				"while routing to LID %u",
+				p_node->print_desc,
+				cl_ntoh64(osm_node_get_node_guid(p_node)),
+				tmp_pnum,
+				dest_lid_ho);
 			status = IB_ERROR;
 			goto Exit;
 		}
@@ -330,7 +337,18 @@ static ib_api_status_t mpr_rcv_get_path_parms(IN osm_sa_t * sa,
 			   the destination by now!
 			 */
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4503: "
-				"Internal error, bad path\n");
+				"Internal error, bad path while routing "
+				"from %s (GUID: 0x%016"PRIx64") port %d "
+				"to %s (GUID: 0x%016"PRIx64") port %d; "
+				"ended at %s port %d\n",
+				p_src_port->p_node->print_desc,
+				cl_ntoh64(p_src_port->p_node->node_info.node_guid),
+				p_src_port->p_physp->port_num,
+				p_dest_port->p_node->print_desc,
+				cl_ntoh64(p_dest_port->p_node->node_info.node_guid),
+				p_dest_port->p_physp->port_num,
+				p_node->print_desc,
+				p_physp->port_num);
 			status = IB_ERROR;
 			goto Exit;
 		}
@@ -352,9 +370,11 @@ static ib_api_status_t mpr_rcv_get_path_parms(IN osm_sa_t * sa,
 		p_physp = osm_switch_get_route_by_lid(p_node->sw, dest_lid);
 		if (p_physp == 0) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4516: "
-				"Dead end on path to LID %u from switch for GUID 0x%016"
-				PRIx64 "\n", dest_lid_ho,
-				cl_ntoh64(osm_node_get_node_guid(p_node)));
+				"Dead end path on switch "
+				"%s (GUID: 0x%016"PRIx64") to LID %u\n",
+				p_node->print_desc,
+				cl_ntoh64(osm_node_get_node_guid(p_node)),
+				dest_lid_ho);
 			status = IB_ERROR;
 			goto Exit;
 		}
@@ -597,19 +617,36 @@ static ib_api_status_t mpr_rcv_get_path_parms(IN osm_sa_t * sa,
 		if (!osm_physp_share_this_pkey
 		    (p_src_physp, p_dest_physp, required_pkey)) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4518: "
-				"Ports do not share specified PKey 0x%04x\n"
-				"\t\tsrc %" PRIx64 " dst %" PRIx64 "\n",
-				cl_ntoh16(required_pkey),
+				"Ports src 0x%016"PRIx64" (%s port %d) "
+				"and dst 0x%016"PRIx64" (%s port %d) "
+				"do not share the specified PKey 0x%04x\n",
 				cl_ntoh64(osm_physp_get_port_guid(p_src_physp)),
+				p_src_physp->p_node->print_desc,
+				p_src_physp->port_num,
 				cl_ntoh64(osm_physp_get_port_guid
-					  (p_dest_physp)));
+					  (p_dest_physp)),
+				p_dest_physp->p_node->print_desc,
+				p_dest_physp->port_num,
+				cl_ntoh16(required_pkey));
 			status = IB_NOT_FOUND;
 			goto Exit;
 		}
 		if (p_qos_level && p_qos_level->pkey_range_len &&
 		    !osm_qos_level_has_pkey(p_qos_level, required_pkey)) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 451C: "
-				"Ports do not share PKeys defined by QoS level\n");
+				"Ports src 0x%016"PRIx64" (%s port %d) "
+				"and dst 0x%016"PRIx64" (%s port %d) "
+				"do not share specified PKey (0x%04x) as "
+				"defined by QoS level \"%s\"\n",
+				cl_ntoh64(osm_physp_get_port_guid(p_src_physp)),
+				p_src_physp->p_node->print_desc,
+				p_src_physp->port_num,
+				cl_ntoh64(osm_physp_get_port_guid
+					  (p_dest_physp)),
+				p_dest_physp->p_node->print_desc,
+				p_dest_physp->port_num,
+				cl_ntoh16(required_pkey),
+				p_qos_level->name);
 			status = IB_NOT_FOUND;
 			goto Exit;
 		}
@@ -624,7 +661,18 @@ static ib_api_status_t mpr_rcv_get_path_parms(IN osm_sa_t * sa,
 							      p_dest_physp);
 		if (!required_pkey) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 451D: "
-				"Ports do not share PKeys defined by QoS level\n");
+				"Ports src 0x%016"PRIx64" (%s port %d) "
+				"and dst 0x%016"PRIx64" (%s port %d) "
+				"do not share a PKey as defined by QoS "
+				"level \"%s\"\n",
+				cl_ntoh64(osm_physp_get_port_guid(p_src_physp)),
+				p_src_physp->p_node->print_desc,
+				p_src_physp->port_num,
+				cl_ntoh64(osm_physp_get_port_guid
+					  (p_dest_physp)),
+				p_dest_physp->p_node->print_desc,
+				p_dest_physp->port_num,
+				p_qos_level->name);
 			status = IB_NOT_FOUND;
 			goto Exit;
 		}
@@ -638,11 +686,16 @@ static ib_api_status_t mpr_rcv_get_path_parms(IN osm_sa_t * sa,
 		    osm_physp_find_common_pkey(p_src_physp, p_dest_physp);
 		if (!required_pkey) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4519: "
-				"Ports do not have any shared PKeys\n"
-				"\t\tsrc %" PRIx64 " dst %" PRIx64 "\n",
-				cl_ntoh64(osm_physp_get_port_guid(p_physp)),
+				"Ports src 0x%016"PRIx64" (%s port %d) "
+				"and dst 0x%016"PRIx64" (%s port %d) "
+				"do not have any shared PKeys\n",
+				cl_ntoh64(osm_physp_get_port_guid(p_src_physp)),
+				p_src_physp->p_node->print_desc,
+				p_src_physp->port_num,
 				cl_ntoh64(osm_physp_get_port_guid
-					  (p_dest_physp)));
+					  (p_dest_physp)),
+				p_dest_physp->p_node->print_desc,
+				p_dest_physp->port_num);
 			status = IB_NOT_FOUND;
 			goto Exit;
 		}
@@ -671,9 +724,15 @@ static ib_api_status_t mpr_rcv_get_path_parms(IN osm_sa_t * sa,
 		if (p_qos_level && p_qos_level->sl_set &&
 		    p_qos_level->sl != required_sl) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 451E: "
-				"QoS constraints: required MultiPathRecord SL (%u) "
-				"doesn't match QoS policy SL (%u)\n",
-				required_sl, p_qos_level->sl);
+				"QoS constraints: required MultiPathRecord SL "
+				"(%u) doesn't match QoS policy \"%s\" SL (%u) "
+				"[%s port %d <-> %s port %d]\n", required_sl,
+				p_qos_level->name,
+				p_qos_level->sl,
+				p_src_port->p_node->print_desc,
+				p_src_port->p_physp->port_num,
+				p_dest_port->p_node->print_desc,
+				p_dest_port->p_physp->port_num);
 			status = IB_NOT_FOUND;
 			goto Exit;
 		}
@@ -703,8 +762,14 @@ static ib_api_status_t mpr_rcv_get_path_parms(IN osm_sa_t * sa,
 			/* this may be possible when pkey tables are created somehow in
 			   previous runs or things are going wrong here */
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 451A: "
-				"No partition found for PKey 0x%04x - using default SL %d\n",
-				cl_ntoh16(required_pkey), required_sl);
+				"No partition found for PKey 0x%04x - "
+				"using default SL %d "
+				"[%s port %d <-> %s port %d]\n",
+				cl_ntoh16(required_pkey), required_sl,
+				p_src_port->p_node->print_desc,
+				p_src_port->p_physp->port_num,
+				p_dest_port->p_node->print_desc,
+				p_dest_port->p_physp->port_num);
 		} else
 			required_sl = p_prtn->sl;
 
@@ -722,7 +787,13 @@ static ib_api_status_t mpr_rcv_get_path_parms(IN osm_sa_t * sa,
 
 	if (sa->p_subn->opt.qos && !(valid_sl_mask & (1 << required_sl))) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 451F: "
-			"Selected SL (%u) leads to VL15\n", required_sl);
+			"Selected SL (%u) leads to VL15 "
+			"[%s port %d <-> %s port %d]\n",
+			required_sl,
+			p_src_port->p_node->print_desc,
+			p_src_port->p_physp->port_num,
+			p_dest_port->p_node->print_desc,
+			p_dest_port->p_physp->port_num);
 		status = IB_NOT_FOUND;
 		goto Exit;
 	}
@@ -1462,8 +1533,8 @@ void osm_mpr_rcv_process(IN void *context, IN void *data)
 	if (sa_status != IB_SA_MAD_STATUS_SUCCESS || !nsrc || !ndest) {
 		if (sa_status == IB_SA_MAD_STATUS_SUCCESS && (!nsrc || !ndest))
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4512: "
-				"mpr_rcv_get_end_points failed, not enough GIDs "
-				"(nsrc %d ndest %d)\n", nsrc, ndest);
+				"mpr_rcv_get_end_points failed, # GIDs found; "
+				"src %d; dest %d)\n", nsrc, ndest);
 		cl_plock_release(sa->p_lock);
 		if (sa_status == IB_SA_MAD_STATUS_SUCCESS)
 			osm_sa_send_error(sa, p_madw,
