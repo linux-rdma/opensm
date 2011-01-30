@@ -1,0 +1,184 @@
+.TH TORUS\-2QOS.CONF 5 "November 11, 2010" "OpenIB" "OpenIB Management"
+.
+.SH NAME
+torus\-2QoS.conf \- Torus-2QoS configuration for OpenSM subnet manager
+.
+.SH DESCRIPTION
+.
+The file
+.B torus-2QoS.conf
+contains configuration information that is specific to the OpenSM
+routing engine torus-2QoS.
+Blank lines and lines where the first non-whitespace character is
+"#" are ignored.
+A token is any contiguous group of non-whitespace characters.
+Any tokens on a line following the recognized configuration tokens described
+below are ignored.
+.
+.P
+\fR[\fBtorus\fR|\fBmesh\fR]
+\fIx_radix\fR[\fBm\fR|\fBM\fR|\fBt\fR|\fBT\fR]
+\fIy_radix\fR[\fBm\fR|\fBM\fR|\fBt\fR|\fBT\fR]
+\fIz_radix\fR[\fBm\fR|\fBM\fR|\fBt\fR|\fBT\fR]
+.RS
+Either \fBtorus\fR or \fBmesh\fR must be the first keyword in the
+configuration, and sets the topology
+that torus-2QoS will try to construct.
+A 2D topology can be configured by specifying one of
+\fIx_radix\fR, \fIy_radix\fR, or \fIz_radix\fR as 1.
+An individual dimension can be configured as mesh (open) or torus
+(looped) by suffixing its radix specification with one of
+\fBm\fR, \fBM\fR, \fBt\fR, or \fBT\fR.  Thus, "mesh 3T 4 5" and
+"torus 3 4M 5M" both specify the same topology.
+.P
+Note that although torus-2QoS can route mesh fabrics, its ability to
+route around failed components is severely compromised on such fabrics.
+A failed fabric component is very likely to cause a disjoint ring;
+see \fBUNICAST ROUTING\fR in torus-2QoS(8).
+.RE
+.
+.P
+\fBxp_link
+\fIsw0_GUID sw1_GUID
+.br
+.ns
+\fByp_link
+\fIsw0_GUID sw1_GUID
+.br
+.ns
+\fBzp_link
+\fIsw0_GUID sw1_GUID
+.br
+.ns
+\fBxm_link
+\fIsw0_GUID sw1_GUID
+.br
+.ns
+\fBym_link
+\fIsw0_GUID sw1_GUID
+.br
+.ns
+\fBzm_link
+\fIsw0_GUID sw1_GUID
+\fR
+.RS
+These keywords are used to seed the torus/mesh topolgy.
+For example, "xp_link 0x2000 0x2001" specifies that a link from
+the switch with node GUID 0x2000 to the switch with node GUID 0x2001
+would point in the positive x direction,
+while "xm_link 0x2000 0x2001" specifies that a link from
+the switch with node GUID 0x2000 to the switch with node GUID 0x2001
+would point in the negative x direction.  All the link keywords for
+a given seed must specify the same "from" switch.
+.P
+In general, it is not necessary to configure both the positive and
+negative directions for a given coordinate; either is sufficient.
+However, the algorithm used for topology discovery needs extra information
+for torus dimensions of radix four (see \fBTOPOLOGY DISCOVERY\fR in
+torus-2QoS(8)).  For such cases both the positive and negative coordinate
+directions must be specified.
+.P
+Based on the topology specifed via the \fBtorus\fR/\fBmesh\fR keyword,
+torus-2QoS will detect and log when it has insufficient seed configuration.
+.RE
+.
+.P
+\fBx_dateline
+\fIposition
+.br
+.ns
+\fBy_dateline
+\fIposition
+.br
+.ns
+\fBz_dateline
+\fIposition
+\fR
+.RS
+In order for torus-2QoS to provide the guarantee that path SL values
+do not change under any conditions for which it can still route the fabric,
+its idea of dateline position must not change relative to physical switch
+locations.  The dateline keywords provide the means to configure such
+behavior.
+.P
+The dateline for a torus dimension is always between the switch with
+coordinate 0 and the switch with coordinate radix-1 for that dimension.
+By default, the common switch in a torus seed is taken as the origin of
+the coordinate system used to describe switch location.
+The \fIposition\fR parameter for a dateline keyword moves the origin
+(and hence the dateline) the specified amount relative to the common
+switch in a torus seed.
+.RE
+.
+.P
+\fBnext_seed
+\fR
+.RS
+If any of the switches used to specify a seed were to fail torus-2QoS
+would be unable to complete topology discovery successfully.
+The \fBnext_seed\fR keyword specifies that the following link and dateline
+keywords apply to a new seed specification.
+.P
+For maximum resiliency, no seed specification should share a switch
+with any other seed specification.
+Multiple seed specifications should use dateline configuration to
+ensure that torus-2QoS can grant path SL values that are constant,
+regardless of which seed was used to initiate topology discovery.
+.RE
+.
+.P
+\fBportgroup_max_ports
+\fImax_ports
+\fR
+.RS
+This keyword specifies the maximum number of parallel inter-switch
+links, and also the maximum number of host ports per switch, that
+torus-2QoS can accommodate.
+The default value is 16.
+Torus-2QoS will log an error message during topology discovery if this
+parameter needs to be increased.
+If this keyword appears multiple times, the last instance prevails.
+.RE
+.
+.SH EXAMPLE
+.
+\f(RC
+.nf
+# Look for a 2D (since x radix is one) 4x5 torus.
+torus 1 4 5
+
+# y is radix-4 torus dimension, need both
+# ym_link and yp_link configuration.
+yp_link 0x200000 0x200005  # sw @ y=0,z=0 -> sw @ y=1,z=0
+ym_link 0x200000 0x20000f  # sw @ y=0,z=0 -> sw @ y=3,z=0
+
+# z is not radix-4 torus dimension, only need one of
+# zm_link or zp_link configuration.
+zp_link 0x200000 0x200001  # sw @ y=0,z=0 -> sw @ y=0,z=1
+
+next_seed
+
+yp_link 0x20000b 0x200010  # sw @ y=2,z=1 -> sw @ y=3,z=1
+ym_link 0x20000b 0x200006  # sw @ y=2,z=1 -> sw @ y=1,z=1
+zp_link 0x20000b 0x20000c  # sw @ y=2,z=1 -> sw @ y=2,z=2
+
+y_dateline -2  # Move the dateline for this seed
+z_dateline -1  # back to its original position.
+
+# If OpenSM failover is configured, for maximum resiliency
+# one instance should run on a host attached to a switch
+# from the first seed, and another instance should run
+# on a host attached to a switch from the second seed.
+# Both instances should use this torus-2QoS.conf to ensure
+# path SL values do not change in the event of SM failover.
+.fi
+\fR
+.
+.SH FILES
+.TP
+.B @OPENSM_CONFIG_DIR@/@TORUS2QOS_CONF_FILE@
+Default torus-2QoS config file.
+.
+.SH SEE ALSO
+.
+opensm(8), torus-2QoS(8).

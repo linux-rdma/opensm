@@ -271,6 +271,24 @@ BEGIN_C_DECLS
 #endif
 /***********/
 
+/****d* OpenSM: Base/OSM_DEFAULT_TORUS_CONF_FILE
+* NAME
+*	OSM_DEFAULT_TORUS_CONF_FILE
+*
+* DESCRIPTION
+*	Specifies the default file name for extra torus-2QoS configuration
+*
+* SYNOPSIS
+*/
+#ifdef __WIN__
+#define OSM_DEFAULT_TORUS_CONF_FILE strcat(GetOsmCachePath(), "osm-torus-2QoS.conf")
+#elif defined(OPENSM_CONFIG_DIR)
+#define OSM_DEFAULT_TORUS_CONF_FILE OPENSM_CONFIG_DIR "/torus-2QoS.conf"
+#else
+#define OSM_DEFAULT_TORUS_CONF_FILE "/etc/opensm/torus-2QoS.conf"
+#endif /* __WIN__ */
+/***********/
+
 /****d* OpenSM: Base/OSM_DEFAULT_PREFIX_ROUTES_FILE
 * NAME
 *	OSM_DEFAULT_PREFIX_ROUTES_FILE

@@ -53,6 +53,7 @@
 #include <opensm/osm_mcm_port.h>
 #include <opensm/osm_subnet.h>
 #include <opensm/osm_log.h>
+#include <opensm/osm_sm.h>
 
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
@@ -191,6 +192,38 @@ osm_mgrp_t *osm_mgrp_new(IN osm_subn_t * subn, IN ib_net16_t mlid,
 *
 * SEE ALSO
 *	Multicast Group, osm_mgrp_delete
+*********/
+
+/*
+ * Need a forward declaration to work around include loop:
+ * osm_sm.h <- osm_multicast.h
+ */
+struct osm_sm;
+
+/****f* OpenSM: Multicast Tree/osm_purge_mtree
+* NAME
+*	osm_purge_mtree
+*
+* DESCRIPTION
+*	Frees all the nodes in a multicast spanning tree
+*
+* SYNOPSIS
+*/
+void osm_purge_mtree(IN struct osm_sm * sm, IN osm_mgrp_box_t * mgb);
+/*
+* PARAMETERS
+*	sm
+*		[in] Pointer to osm_sm_t object.
+*	mgb
+*		[in] Pointer to an osm_mgrp_box_t object.
+*
+* RETURN VALUES
+*	None.
+*
+*
+* NOTES
+*
+* SEE ALSO
 *********/
 
 /****f* OpenSM: Multicast Group/osm_mgrp_is_guid

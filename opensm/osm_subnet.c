@@ -352,6 +352,7 @@ static const opt_rec_t opt_tbl[] = {
 	{ "guid_routing_order_file", OPT_OFFSET(guid_routing_order_file), opts_parse_charp, NULL, 0 },
 	{ "sa_db_file", OPT_OFFSET(sa_db_file), opts_parse_charp, NULL, 0 },
 	{ "sa_db_dump", OPT_OFFSET(sa_db_dump), opts_parse_boolean, NULL, 1 },
+	{ "torus_config", OPT_OFFSET(torus_conf_file), opts_parse_charp, NULL, 1 },
 	{ "do_mesh_analysis", OPT_OFFSET(do_mesh_analysis), opts_parse_boolean, NULL, 1 },
 	{ "exit_on_fatal", OPT_OFFSET(exit_on_fatal), opts_parse_boolean, NULL, 1 },
 	{ "honor_guid2lid_file", OPT_OFFSET(honor_guid2lid_file), opts_parse_boolean, NULL, 1 },
@@ -529,6 +530,7 @@ ib_api_status_t osm_subn_init(IN osm_subn_t * p_subn, IN osm_opensm_t * p_osm,
 	p_subn->max_mcast_lid_ho = IB_LID_MCAST_END_HO;
 	p_subn->min_ca_mtu = IB_MAX_MTU;
 	p_subn->min_ca_rate = IB_MAX_RATE;
+	p_subn->min_data_vls = IB_MAX_NUM_VLS - 1;
 	p_subn->ignore_existing_lfts = TRUE;
 
 	/* we assume master by default - so we only need to set it true if STANDBY */
@@ -633,15 +635,6 @@ osm_mgrp_t *osm_get_mgrp_by_mgid(IN osm_subn_t * subn, IN ib_gid_t * mgid)
 	if (mgrp != (osm_mgrp_t *)cl_fmap_end(&subn->mgrp_mgid_tbl))
 		return mgrp;
 	return NULL;
-}
-
-static void subn_set_default_qos_options(IN osm_qos_options_t * opt)
-{
-	opt->max_vls = OSM_DEFAULT_QOS_MAX_VLS;
-	opt->high_limit = OSM_DEFAULT_QOS_HIGH_LIMIT;
-	opt->vlarb_high = OSM_DEFAULT_QOS_VLARB_HIGH;
-	opt->vlarb_low = OSM_DEFAULT_QOS_VLARB_LOW;
-	opt->sl2vl = OSM_DEFAULT_QOS_SL2VL;
 }
 
 static void subn_init_qos_options(osm_qos_options_t *opt, osm_qos_options_t *f)
@@ -752,6 +745,7 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * p_opt)
 	p_opt->guid_routing_order_file = NULL;
 	p_opt->sa_db_file = NULL;
 	p_opt->sa_db_dump = FALSE;
+	p_opt->torus_conf_file = strdup(OSM_DEFAULT_TORUS_CONF_FILE);
 	p_opt->do_mesh_analysis = FALSE;
 	p_opt->exit_on_fatal = TRUE;
 	p_opt->enable_quirks = FALSE;
@@ -909,38 +903,37 @@ static ib_api_status_t parse_prefix_routes_file(IN osm_subn_t * p_subn)
 	return (errors == 0) ? IB_SUCCESS : IB_ERROR;
 }
 
-static void subn_verify_max_vls(unsigned *max_vls, const char *prefix, unsigned dflt)
+static void subn_verify_max_vls(unsigned *max_vls, const char *prefix)
 {
 	if (!*max_vls || *max_vls > 15) {
 		if (*max_vls)
 			log_report(" Invalid Cached Option: %s_max_vls=%u: "
 				   "Using Default = %u\n",
-				   prefix, *max_vls, dflt);
-		*max_vls = dflt;
+				   prefix, *max_vls, OSM_DEFAULT_QOS_MAX_VLS);
+		*max_vls = 0;
 	}
 }
 
-static void subn_verify_high_limit(int *high_limit, const char *prefix, int dflt)
+static void subn_verify_high_limit(int *high_limit, const char *prefix)
 {
 	if (*high_limit < 0 || *high_limit > 255) {
 		if (*high_limit > 255)
 			log_report(" Invalid Cached Option: %s_high_limit=%d: "
 				   "Using Default: %d\n",
-				   prefix, *high_limit, dflt);
-		*high_limit = dflt;
+				   prefix, *high_limit,
+				   OSM_DEFAULT_QOS_HIGH_LIMIT);
+		*high_limit = -1;
 	}
 }
 
 static void subn_verify_vlarb(char **vlarb, const char *prefix,
-			      const char *suffix, char *dflt)
+			      const char *suffix)
 {
 	char *str, *tok, *end, *ptr;
 	int count = 0;
 
-	if (*vlarb == NULL) {
-		*vlarb = strdup(dflt);
+	if (*vlarb == NULL)
 		return;
-	}
 
 	str = strdup(*vlarb);
 
@@ -999,15 +992,13 @@ static void subn_verify_vlarb(char **vlarb, const char *prefix,
 	free(str);
 }
 
-static void subn_verify_sl2vl(char **sl2vl, const char *prefix, char *dflt)
+static void subn_verify_sl2vl(char **sl2vl, const char *prefix)
 {
 	char *str, *tok, *end, *ptr;
 	int count = 0;
 
-	if (*sl2vl == NULL) {
-		*sl2vl = strdup(dflt);
+	if (*sl2vl == NULL)
 		return;
-	}
 
 	str = strdup(*sl2vl);
 
@@ -1037,14 +1028,13 @@ static void subn_verify_sl2vl(char **sl2vl, const char *prefix, char *dflt)
 	free(str);
 }
 
-static void subn_verify_qos_set(osm_qos_options_t *set, const char *prefix,
-				osm_qos_options_t *dflt)
+static void subn_verify_qos_set(osm_qos_options_t *set, const char *prefix)
 {
-	subn_verify_max_vls(&set->max_vls, prefix, dflt->max_vls);
-	subn_verify_high_limit(&set->high_limit, prefix, dflt->high_limit);
-	subn_verify_vlarb(&set->vlarb_low, prefix, "low", dflt->vlarb_low);
-	subn_verify_vlarb(&set->vlarb_high, prefix, "high", dflt->vlarb_high);
-	subn_verify_sl2vl(&set->sl2vl, prefix, dflt->sl2vl);
+	subn_verify_max_vls(&set->max_vls, prefix);
+	subn_verify_high_limit(&set->high_limit, prefix);
+	subn_verify_vlarb(&set->vlarb_low, prefix, "low");
+	subn_verify_vlarb(&set->vlarb_high, prefix, "high");
+	subn_verify_sl2vl(&set->sl2vl, prefix);
 }
 
 int osm_subn_verify_config(IN osm_subn_opt_t * p_opts)
@@ -1100,24 +1090,11 @@ int osm_subn_verify_config(IN osm_subn_opt_t * p_opts)
 	}
 
 	if (p_opts->qos) {
-		osm_qos_options_t dflt;
-
-		/* the default options in qos_options must be correct.
-		 * every other one need not be, b/c those will default
-		 * back to whatever is in qos_options.
-		 */
-
-		subn_set_default_qos_options(&dflt);
-
-		subn_verify_qos_set(&p_opts->qos_options, "qos", &dflt);
-		subn_verify_qos_set(&p_opts->qos_ca_options, "qos_ca",
-				    &p_opts->qos_options);
-		subn_verify_qos_set(&p_opts->qos_sw0_options, "qos_sw0",
-				    &p_opts->qos_options);
-		subn_verify_qos_set(&p_opts->qos_swe_options, "qos_swe",
-				    &p_opts->qos_options);
-		subn_verify_qos_set(&p_opts->qos_rtr_options, "qos_rtr",
-				    &p_opts->qos_options);
+		subn_verify_qos_set(&p_opts->qos_options, "qos");
+		subn_verify_qos_set(&p_opts->qos_ca_options, "qos_ca");
+		subn_verify_qos_set(&p_opts->qos_sw0_options, "qos_sw0");
+		subn_verify_qos_set(&p_opts->qos_swe_options, "qos_swe");
+		subn_verify_qos_set(&p_opts->qos_rtr_options, "qos_rtr");
 	}
 
 #ifdef ENABLE_OSM_PERF_MGR
@@ -1471,6 +1448,10 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		"# every light sweep, regardless of the verbosity level\n"
 		"sa_db_dump %s\n\n",
 		p_opts->sa_db_dump ? "TRUE" : "FALSE");
+
+	fprintf(out,
+		"# Torus-2QoS configuration file name\ntorus_config %s\n\n",
+		p_opts->torus_conf_file ? p_opts->torus_conf_file : null_str);
 
 	fprintf(out,
 		"#\n# HANDOVER - MULTIPLE SMs OPTIONS\n#\n"

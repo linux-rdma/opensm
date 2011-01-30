@@ -53,20 +53,23 @@
 #include <opensm/osm_helper.h>
 #include <opensm/osm_msgdef.h>
 #include <opensm/osm_opensm.h>
-#include <opensm/osm_ucast_lash.h>
 
 static uint8_t link_mgr_get_smsl(IN osm_sm_t * sm, IN osm_physp_t * p_physp)
 {
 	osm_opensm_t *p_osm = sm->p_subn->p_osm;
+	struct osm_routing_engine *re = p_osm->routing_engine_used;
 	const osm_port_t *p_sm_port, *p_src_port;
 	ib_net16_t slid;
 	uint8_t sl;
 
 	OSM_LOG_ENTER(sm->p_log);
 
-	if (p_osm->routing_engine_used != OSM_ROUTING_ENGINE_TYPE_LASH
-	    || !(slid = osm_physp_get_base_lid(p_physp))) {
-		/* Use default SL if lash routing is not used */
+	if (!(re && re->path_sl &&
+	      (slid = osm_physp_get_base_lid(p_physp)))) {
+		/*
+		 * Use default SL if routing engine does not provide a
+		 * path SL lookup callback.
+		 */
 		OSM_LOG_EXIT(sm->p_log);
 		return sm->p_subn->opt.sm_sl;
 	}
@@ -77,8 +80,9 @@ static uint8_t link_mgr_get_smsl(IN osm_sm_t * sm, IN osm_physp_t * p_physp)
 	/* Find osm_port of the source = p_physp */
 	p_src_port = osm_get_port_by_lid(sm->p_subn, slid);
 
-	/* Call lash to find proper SL */
-	sl = osm_get_lash_sl(p_osm, p_src_port, p_sm_port);
+	/* Call into routing engine to find proper SL */
+	sl = re->path_sl(re->context, sm->p_subn->opt.sm_sl,
+			 p_src_port, p_sm_port);
 
 	OSM_LOG_EXIT(sm->p_log);
 	return sl;

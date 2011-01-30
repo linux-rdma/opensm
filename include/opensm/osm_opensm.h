@@ -105,6 +105,7 @@ typedef enum _osm_routing_engine_type {
 	OSM_ROUTING_ENGINE_TYPE_FTREE,
 	OSM_ROUTING_ENGINE_TYPE_LASH,
 	OSM_ROUTING_ENGINE_TYPE_DOR,
+	OSM_ROUTING_ENGINE_TYPE_TORUS_2QOS,
 	OSM_ROUTING_ENGINE_TYPE_UNKNOWN
 } osm_routing_engine_type_t;
 /***********/
@@ -120,11 +121,20 @@ typedef enum _osm_routing_engine_type {
 *	added later.
 */
 struct osm_routing_engine {
+	osm_routing_engine_type_t type;
 	const char *name;
 	void *context;
 	int (*build_lid_matrices) (void *context);
 	int (*ucast_build_fwd_tables) (void *context);
 	void (*ucast_dump_tables) (void *context);
+	void (*update_sl2vl)(void *context, IN osm_physp_t *port,
+			     IN uint8_t in_port_num, IN uint8_t out_port_num,
+			     IN OUT ib_slvl_table_t *t);
+	uint8_t (*path_sl)(void *context, IN uint8_t path_sl_hint,
+			   IN const osm_port_t *src_port,
+			   IN const osm_port_t *dst_port);
+	ib_api_status_t (*mcast_build_stree)(void *context,
+					     IN OUT osm_mgrp_box_t *mgb);
 	void (*delete) (void *context);
 	struct osm_routing_engine *next;
 };
@@ -145,6 +155,22 @@ struct osm_routing_engine {
 *
 *	ucast_dump_tables
 *		The callback for dumping unicast routing tables.
+*
+*	update_sl2vl(void *context, IN osm_physp_t *port,
+*		     IN uint8_t in_port_num, IN uint8_t out_port_num,
+*		     OUT ib_slvl_table_t *t)
+*		The callback to allow routing engine input for SL2VL maps.
+*		*port is the phyical port for which the SL2VL map is to be
+*		updated. For switches, in_port_num/out_port_num identify
+*		which part of the SL2VL map to update.  For router/HCA ports,
+*		in_port_num/out_port_num should be ignored.
+*
+*	path_sl
+*		The callback for computing path SL.
+*
+*	mcast_build_stree
+*		The callback for building the spanning tree for multicast
+*		forwarding, called per MLID.
 *
 *	delete
 *		The delete method, may be used for routing engine
@@ -183,7 +209,8 @@ typedef struct osm_opensm {
 	cl_dispatcher_t disp;
 	cl_plock_t lock;
 	struct osm_routing_engine *routing_engine_list;
-	osm_routing_engine_type_t routing_engine_used;
+	struct osm_routing_engine *routing_engine_used;
+	struct osm_routing_engine *default_routing_engine;
 	osm_stats_t stats;
 	osm_console_t console;
 	nn_map_t *node_name_map;

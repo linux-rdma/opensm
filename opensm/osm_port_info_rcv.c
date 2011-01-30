@@ -83,6 +83,7 @@ static void pi_rcv_process_endport(IN osm_sm_t * sm, IN osm_physp_t * p_physp,
 	ib_api_status_t status;
 	ib_net64_t port_guid;
 	uint8_t rate, mtu;
+	unsigned data_vls;
 	cl_qmap_t *p_sm_tbl;
 	osm_remote_sm_t *p_sm;
 
@@ -92,7 +93,7 @@ static void pi_rcv_process_endport(IN osm_sm_t * sm, IN osm_physp_t * p_physp,
 
 	/* HACK extended port 0 should be handled too! */
 	if (osm_physp_get_port_num(p_physp) != 0) {
-		/* track the minimal endport MTU and rate */
+		/* track the minimal endport MTU, rate, and operational VLs */
 		mtu = ib_port_info_get_mtu_cap(p_pi);
 		if (mtu < sm->p_subn->min_ca_mtu) {
 			OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
@@ -107,6 +108,16 @@ static void pi_rcv_process_endport(IN osm_sm_t * sm, IN osm_physp_t * p_physp,
 				"Setting endport minimal rate to:%u defined by port:0x%"
 				PRIx64 "\n", rate, cl_ntoh64(port_guid));
 			sm->p_subn->min_ca_rate = rate;
+		}
+
+		data_vls = 1U << (ib_port_info_get_op_vls(p_pi) - 1);
+		if (data_vls >= IB_MAX_NUM_VLS)
+			data_vls = IB_MAX_NUM_VLS - 1;
+		if ((uint8_t)data_vls < sm->p_subn->min_data_vls) {
+			OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
+				"Setting endport minimal data VLs to:%u defined by port:0x%"
+				PRIx64 "\n", data_vls, cl_ntoh64(port_guid));
+			sm->p_subn->min_data_vls = data_vls;
 		}
 	}
 

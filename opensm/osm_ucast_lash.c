@@ -1277,14 +1277,18 @@ static void lash_delete(void *context)
 	free(p_lash);
 }
 
-uint8_t osm_get_lash_sl(osm_opensm_t * p_osm, const osm_port_t * p_src_port,
-			const osm_port_t * p_dst_port)
+static uint8_t get_lash_sl(void *context, uint8_t path_sl_hint,
+			   const osm_port_t *p_src_port,
+			   const osm_port_t *p_dst_port)
 {
 	unsigned dst_id;
 	unsigned src_id;
 	osm_switch_t *p_sw;
+	lash_t *p_lash = context;
+	osm_opensm_t *p_osm = p_lash->p_osm;
 
-	if (p_osm->routing_engine_used != OSM_ROUTING_ENGINE_TYPE_LASH)
+	if (!(p_osm->routing_engine_used &&
+	      p_osm->routing_engine_used->type == OSM_ROUTING_ENGINE_TYPE_LASH))
 		return OSM_DEFAULT_SL;
 
 	p_sw = get_osm_switch_from_port(p_dst_port);
@@ -1311,6 +1315,7 @@ int osm_ucast_lash_setup(struct osm_routing_engine *r, osm_opensm_t *p_osm)
 
 	r->context = p_lash;
 	r->ucast_build_fwd_tables = lash_process;
+	r->path_sl = get_lash_sl;
 	r->delete = lash_delete;
 
 	return 0;

@@ -207,9 +207,16 @@ static int qos_extports_setup(osm_sm_t * sm, osm_node_t *node,
 	osm_physp_t *p0, *p;
 	unsigned force_update;
 	unsigned num_ports = osm_node_get_num_physp(node);
+	struct osm_routing_engine *re = sm->p_subn->p_osm->routing_engine_used;
 	int ret = 0;
 	unsigned in, out;
 	uint8_t op_vl1;
+
+	/*
+	 * Do nothing unless the most recent routing attempt was successful.
+	 */
+	if (!re)
+		return ret;
 
 	for (out = 1; out < num_ports; out++) {
 		p = osm_node_get_physp_ptr(node, out);
@@ -224,7 +231,7 @@ static int qos_extports_setup(osm_sm_t * sm, osm_node_t *node,
 		return ret;
 
 	if (ib_switch_info_get_opt_sl2vlmapping(&node->sw->switch_info) &&
-	    sm->p_subn->opt.use_optimized_slvl) {
+	    sm->p_subn->opt.use_optimized_slvl && !re->update_sl2vl) {
 		p = osm_node_get_physp_ptr(node, 1);
 		op_vl1 = ib_port_info_get_op_vls(&p->port_info);
 		force_update = p->need_update || sm->p_subn->need_update;
@@ -249,10 +256,20 @@ static int qos_extports_setup(osm_sm_t * sm, osm_node_t *node,
 		p = osm_node_get_physp_ptr(node, out);
 		force_update = p->need_update || sm->p_subn->need_update;
 		/* go over all in ports */
-		for (in = 0; in < num_ports; in++)
+		for (in = 0; in < num_ports; in++) {
+			const ib_slvl_table_t *port_sl2vl = &qcfg->sl2vl;
+			ib_slvl_table_t routing_sl2vl;
+
+			if (re->update_sl2vl) {
+				routing_sl2vl = *port_sl2vl;
+				re->update_sl2vl(re->context,
+						 p, in, out, &routing_sl2vl);
+				port_sl2vl = &routing_sl2vl;
+			}
 			if (sl2vl_update_table(sm, p, in, in << 8 | out,
-					       force_update, &qcfg->sl2vl))
+					       force_update, port_sl2vl))
 				ret = -1;
+		}
 	}
 
 	return ret;
@@ -262,6 +279,9 @@ static int qos_endport_setup(osm_sm_t * sm, osm_physp_t * p,
 			     const struct qos_config *qcfg, int vlarb_only)
 {
 	unsigned force_update = p->need_update || sm->p_subn->need_update;
+	struct osm_routing_engine *re = sm->p_subn->p_osm->routing_engine_used;
+	const ib_slvl_table_t *port_sl2vl = &qcfg->sl2vl;
+	ib_slvl_table_t routing_sl2vl;
 
 	p->vl_high_limit = qcfg->vl_high_limit;
 	if (vlarb_update(sm, p, 0, force_update, qcfg))
@@ -272,7 +292,12 @@ static int qos_endport_setup(osm_sm_t * sm, osm_physp_t * p,
 	if (!(p->port_info.capability_mask & IB_PORT_CAP_HAS_SL_MAP))
 		return 0;
 
-	if (sl2vl_update_table(sm, p, 0, 0, force_update, &qcfg->sl2vl))
+	if (re->update_sl2vl) {
+		routing_sl2vl = *port_sl2vl;
+		re->update_sl2vl(re->context, p, 0, 0, &routing_sl2vl);
+		port_sl2vl = &routing_sl2vl;
+	}
+	if (sl2vl_update_table(sm, p, 0, 0, force_update, port_sl2vl))
 		return -1;
 
 	return 0;
@@ -351,7 +376,7 @@ int osm_qos_setup(osm_opensm_t * p_osm)
 /*
  *  QoS config stuff
  */
-static int parse_one_unsigned(char *str, char delim, unsigned *val)
+static int parse_one_unsigned(const char *str, char delim, unsigned *val)
 {
 	char *end;
 	*val = strtoul(str, &end, 0);
@@ -360,10 +385,10 @@ static int parse_one_unsigned(char *str, char delim, unsigned *val)
 	return (int)(end - str);
 }
 
-static int parse_vlarb_entry(char *str, ib_vl_arb_element_t * e)
+static int parse_vlarb_entry(const char *str, ib_vl_arb_element_t * e)
 {
 	unsigned val;
-	char *p = str;
+	const char *p = str;
 	p += parse_one_unsigned(p, ':', &val);
 	e->vl = val % 15;
 	p += parse_one_unsigned(p, ',', &val);
@@ -371,10 +396,10 @@ static int parse_vlarb_entry(char *str, ib_vl_arb_element_t * e)
 	return (int)(p - str);
 }
 
-static int parse_sl2vl_entry(char *str, uint8_t * raw)
+static int parse_sl2vl_entry(const char *str, uint8_t * raw)
 {
 	unsigned val1, val2;
-	char *p = str;
+	const char *p = str;
 	p += parse_one_unsigned(p, ',', &val1);
 	p += parse_one_unsigned(p, ',', &val2);
 	*raw = (val1 << 4) | (val2 & 0xf);
@@ -385,18 +410,36 @@ static void qos_build_config(struct qos_config *cfg, osm_qos_options_t * opt,
 			     osm_qos_options_t * dflt)
 {
 	int i;
-	char *p;
+	const char *p;
 
 	memset(cfg, 0, sizeof(*cfg));
 
-	cfg->max_vls = opt->max_vls > 0 ? opt->max_vls : dflt->max_vls;
+	if (opt->max_vls > 0)
+		cfg->max_vls = opt->max_vls;
+	else {
+		if (dflt->max_vls > 0)
+			cfg->max_vls = dflt->max_vls;
+		else
+			cfg->max_vls = OSM_DEFAULT_QOS_MAX_VLS;
+	}
 
 	if (opt->high_limit >= 0)
 		cfg->vl_high_limit = (uint8_t) opt->high_limit;
-	else
-		cfg->vl_high_limit = (uint8_t) dflt->high_limit;
+	else {
+		if (dflt->high_limit >= 0)
+			cfg->vl_high_limit = (uint8_t) dflt->high_limit;
+		else
+			cfg->vl_high_limit = (uint8_t) OSM_DEFAULT_QOS_HIGH_LIMIT;
+	}
 
-	p = opt->vlarb_high ? opt->vlarb_high : dflt->vlarb_high;
+	if (opt->vlarb_high)
+		p = opt->vlarb_high;
+	else {
+		if (dflt->vlarb_high)
+			p = dflt->vlarb_high;
+		else
+			p = OSM_DEFAULT_QOS_VLARB_HIGH;
+	}
 	for (i = 0; i < 2 * IB_NUM_VL_ARB_ELEMENTS_IN_BLOCK; i++) {
 		p += parse_vlarb_entry(p,
 				       &cfg->vlarb_high[i /
@@ -405,7 +448,14 @@ static void qos_build_config(struct qos_config *cfg, osm_qos_options_t * opt,
 						IB_NUM_VL_ARB_ELEMENTS_IN_BLOCK]);
 	}
 
-	p = opt->vlarb_low ? opt->vlarb_low : dflt->vlarb_low;
+	if (opt->vlarb_low)
+		p = opt->vlarb_low;
+	else {
+		if (dflt->vlarb_low)
+			p = dflt->vlarb_low;
+		else
+			p = OSM_DEFAULT_QOS_VLARB_LOW;
+	}
 	for (i = 0; i < 2 * IB_NUM_VL_ARB_ELEMENTS_IN_BLOCK; i++) {
 		p += parse_vlarb_entry(p,
 				       &cfg->vlarb_low[i /
@@ -415,6 +465,14 @@ static void qos_build_config(struct qos_config *cfg, osm_qos_options_t * opt,
 	}
 
 	p = opt->sl2vl ? opt->sl2vl : dflt->sl2vl;
+	if (opt->sl2vl)
+		p = opt->sl2vl;
+	else {
+		if (dflt->sl2vl)
+			p = dflt->sl2vl;
+		else
+			p = OSM_DEFAULT_QOS_SL2VL;
+	}
 	for (i = 0; i < IB_MAX_NUM_VLS / 2; i++)
 		p += parse_sl2vl_entry(p, &cfg->sl2vl.raw_vl_by_sl[i]);
 }

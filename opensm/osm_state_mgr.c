@@ -1142,7 +1142,12 @@ static void do_sweep(osm_sm_t * sm)
 		/* Re-program the switches fully */
 		sm->p_subn->ignore_existing_lfts = TRUE;
 
-		osm_ucast_mgr_process(&sm->ucast_mgr);
+		if (osm_ucast_mgr_process(&sm->ucast_mgr)) {
+			OSM_LOG_MSG_BOX(sm->p_log, OSM_LOG_VERBOSE,
+					"REROUTE FAILED");
+			return;
+		}
+		osm_qos_setup(sm->p_subn->p_osm);
 
 		/* Reset flag */
 		sm->p_subn->ignore_existing_lfts = FALSE;
@@ -1169,6 +1174,12 @@ repeat_discovery:
 	sm->p_subn->force_heavy_sweep = FALSE;
 	sm->p_subn->force_reroute = FALSE;
 	sm->p_subn->subnet_initialization_error = FALSE;
+
+	/* Reset tracking values in case limiting component got removed
+	 * from fabric. */
+	sm->p_subn->min_ca_mtu = IB_MAX_MTU;
+	sm->p_subn->min_ca_rate = IB_MAX_RATE;
+	sm->p_subn->min_data_vls = IB_MAX_NUM_VLS - 1;
 
 	/* rescan configuration updates */
 	if (!config_parsed && osm_subn_rescan_conf_files(sm->p_subn) < 0)
@@ -1274,8 +1285,6 @@ repeat_discovery:
 
 	osm_pkey_mgr_process(sm->p_subn->p_osm);
 
-	osm_qos_setup(sm->p_subn->p_osm);
-
 	/* try to restore SA DB (this should be before lid_mgr
 	   because we may want to disable clients reregistration
 	   when SA DB is restored) */
@@ -1309,12 +1318,16 @@ repeat_discovery:
 			"LID ASSIGNMENT COMPLETE - STARTING SWITCH TABLE CONFIG");
 
 	/*
-	 * Proceed with unicast forwarding table configuration.
+	 * Proceed with unicast forwarding table configuration; if it fails
+	 * return early to wait for a trap or the next sweep interval.
 	 */
 
 	if (!sm->ucast_mgr.cache_valid ||
 	    osm_ucast_cache_process(&sm->ucast_mgr))
-		osm_ucast_mgr_process(&sm->ucast_mgr);
+		if (osm_ucast_mgr_process(&sm->ucast_mgr))
+			return;
+
+	osm_qos_setup(sm->p_subn->p_osm);
 
 	if (wait_for_pending_transactions(&sm->p_subn->p_osm->stats))
 		return;

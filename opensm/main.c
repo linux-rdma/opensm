@@ -174,7 +174,10 @@ static void show_usage(void)
 	       "          Min Hop algorithm.  Multiple routing engines can be specified\n"
 	       "          separated by commas so that specific ordering of routing\n"
 	       "          algorithms will be tried if earlier routing engines fail.\n"
-	       "          Supported engines: updn, file, ftree, lash, dor\n\n");
+	       "          If all configured routing engines fail, OpenSM will always\n"
+	       "          attempt to route with Min Hop unless 'no_fallback' is\n"
+	       "          included in the list of routing engines.\n"
+	       "          Supported engines: updn, file, ftree, lash, dor, torus-2QoS\n\n");
 	printf("--do_mesh_analysis\n"
 	       "          This option enables additional analysis for the lash\n"
 	       "          routing engine to precondition switch port assignments\n"
@@ -231,6 +234,10 @@ static void show_usage(void)
 	       "          Set the order port guids will be routed for the MinHop\n"
 	       "          and Up/Down routing algorithms to the guids provided in the\n"
 	       "          given file (one to a line)\n\n");
+	printf("--torus_config <path to file>\n"
+	       "          This option defines the file name for the extra configuration\n"
+	       "          info needed for the torus-2QoS routing engine.   The default\n"
+	       "          name is \'"OSM_DEFAULT_TORUS_CONF_FILE"\'\n\n");
 	printf("--once, -o\n"
 	       "          This option causes OpenSM to configure the subnet\n"
 	       "          once, then exit.  Ports remain in the ACTIVE state.\n\n");
@@ -615,6 +622,7 @@ int main(int argc, char *argv[])
 		{"sm_sl", 1, NULL, 7},
 		{"retries", 1, NULL, 8},
 		{"log_prefix", 1, NULL, 9},
+		{"torus_config", 1, NULL, 10},
 		{NULL, 0, NULL, 0}	/* Required at the end of the array */
 	};
 
@@ -1005,6 +1013,10 @@ int main(int argc, char *argv[])
 		case 9:
 			SET_STR_OPT(opt.log_prefix, optarg);
 			printf("Log prefix = %s\n", opt.log_prefix);
+			break;
+		case 10:
+			SET_STR_OPT(opt.torus_conf_file, optarg);
+			printf("Torus-2QoS config file = %s\n", opt.torus_conf_file);
 			break;
 		case 'h':
 		case '?':

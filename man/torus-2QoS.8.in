@@ -1,0 +1,476 @@
+.TH TORUS\-2QOS 8 "November 10, 2010" "OpenIB" "OpenIB Management"
+.
+.SH NAME
+torus\-2QoS \- Routing engine for OpenSM subnet manager
+.
+.SH DESCRIPTION
+.
+Torus-2QoS is routing algorithm designed for large-scale 2D/3D torus fabrics.
+The torus-2QoS routing engine can provide the following functionality on
+a 2D/3D torus:
+.br
+\" roff illiteracy leads to following brain-dead list implementation
+\"
+.na  \" otherwise line space adjustment can add spaces between dash and text
+.in +2m
+\[en]
+'in +2m
+Routing that is free of credit loops.
+.in
+\[en]
+'in +2m
+Two levels of Quality of Service (QoS), assuming switches and channel
+adapters support eight data VLs.
+.in
+\[en]
+'in +2m
+The ability to route around a single failed switch, and/or multiple failed
+links, without
+.in
+.in +2m
+\[en]
+'in +2
+introducing credit loops, or
+.in
+\[en]
+'in +2m
+changing path SL values.
+.in -4m
+\[en]
+'in +2m
+Very short run times, with good scaling properties as fabric size increases.
+.ad
+.
+.SH UNICAST ROUTING
+.
+Unicast routing in torus-2QoS is based on Dimension Order Routing (DOR).
+It avoids the deadlocks that would otherwise occur in a DOR-routed
+torus using the concept of a dateline for each torus dimension.
+It encodes into a path SL which datelines the path crosses, as follows:
+\f(CR
+.P
+.nf
+    sl = 0;
+    for (d = 0; d < torus_dimensions; d++) {
+	/* path_crosses_dateline(d) returns 0 or 1 */
+	sl |= path_crosses_dateline(d) << d;
+    }
+.fi
+\fR
+.P
+On a 3D torus this consumes three SL bits, leaving one SL bit unused.
+Torus-2QoS uses this SL bit to implement two QoS levels.
+.P
+Torus-2QoS also makes use of the output port
+dependence of switch SL2VL maps to encode into one VL bit the
+information encoded in three SL bits.
+It computes in which torus coordinate direction each inter-switch link
+"points", and writes SL2VL maps for such ports as follows:
+\f(CR
+.P
+.nf
+    for (sl = 0; sl < 16; sl++) {
+	/* cdir(port) computes which torus coordinate direction
+	 * a switch port "points" in; returns 0, 1, or 2
+	 */
+	sl2vl(iport,oport,sl) = 0x1 & (sl >> cdir(oport));
+    }
+.fi
+\fR
+.P
+Thus, on a pristine 3D torus,
+\fIi.e.\fR,
+in the absence of failed fabric switches,
+torus-2QoS consumes eight SL values (SL bits 0-2) and
+two VL values (VL bit 0) per QoS level to provide deadlock-free routing.
+.P
+Torus-2QoS routes around link failure by "taking the long way around" any
+1D ring interrupted by link failure.  For example, consider the 2D 6x5
+torus below, where switches are denoted by [+a-zA-Z]:
+.
+.
+\# define macros to start and end ascii art, assuming Roman font.
+\# the start macro takes an argument which is the width in ems of
+\# the ascii art, and is used to center it.
+\#
+.de ascii_art
+.nop \f(CR
+.nr indent_in_ems ((((\\n[.ll] - \\n[.i]) / \\w'm') - \\$1)/2)
+.in +\\n[indent_in_ems]m
+.nf
+..
+.de end_ascii_art
+.fi
+.in
+.nop \fR
+..
+\# end of macro definitions
+.
+.
+.ascii_art 36
+       |    |    |    |    |    |
+  4  --+----+----+----+----+----+--
+       |    |    |    |    |    |
+  3  --+----+----+----D----+----+--
+       |    |    |    |    |    |
+  2  --+----+----I----r----+----+--
+       |    |    |    |    |    |
+  1  --m----S----n----T----o----p--
+       |    |    |    |    |    |
+y=0  --+----+----+----+----+----+--
+       |    |    |    |    |    |
+
+     x=0    1    2    3    4    5
+.end_ascii_art
+.P
+For a pristine fabric the path from S to D would be S-n-T-r-D.
+In the event that either link S-n or n-T has failed, torus-2QoS would
+use the path S-m-p-o-T-r-D.
+Note that it can do this without changing the path SL
+value; once the 1D ring m-S-n-T-o-p-m has been broken by failure, path
+segments using it cannot contribute to deadlock, and the x-direction
+dateline (between, say, x=5 and x=0) can be ignored for path segments on
+that ring.
+.P
+One result of this is that torus-2QoS can route around many simultaneous
+link failures, as long as no 1D ring is broken into disjoint segments.
+For example, if links n-T and T-o have both failed, that ring has been broken
+into two disjoint segments, T and o-p-m-S-n.
+Torus-2QoS checks for such
+issues, reports if they are found, and refuses to route such fabrics.
+.P
+Note that in the case where there are multiple parallel links between a
+pair of switches, torus-2QoS will allocate routes across such links
+in a round-robin fashion, based on ports at the path destination switch that
+are active and not used for inter-switch links.
+Should a link that is one of several such parallel links fail, routes
+are redistributed across the remaining links.
+When the last of such a set of parallel links fails, traffic is rerouted
+as described above.
+.P
+Handling a failed switch under DOR requires introducing into a path at
+least one turn that would be otherwise "illegal",
+\fIi.e.\fR,
+not allowed by DOR rules.
+Torus-2QoS will introduce such a turn as close as possible to the
+failed switch in order to route around it.
+.P
+In the above example, suppose switch T has failed, and consider the path
+from S to D.
+Torus-2QoS will produce the path S-n-I-r-D, rather than the
+S-n-T-r-D path for a pristine torus, by introducing an early turn at n.
+Normal DOR rules will cause traffic arriving at switch I to be forwarded
+to switch r; for traffic arriving from I due to the "early" turn at n,
+this will generate an "illegal" turn at I.
+.P
+Torus-2QoS will also use the input port dependence of SL2VL maps to set VL
+bit 1 (which would be otherwise unused) for y-x, z-x, and z-y turns,
+\fIi.e.\fR,
+those turns that are illegal under DOR.
+This causes the first hop after any such turn to use a separate set of
+VL values, and prevents deadlock in the presence of a single failed switch.
+.P
+For any given path, only the hops after a turn that is illegal under DOR
+can contribute to a credit loop that leads to deadlock.  So in the example
+above with failed switch T, the location of the illegal turn at I in the
+path from S to D requires that any credit loop caused by that turn must
+encircle the failed switch at T.  Thus the second and later hops after the
+illegal turn at I (\fIi.e.\fR, hop r-D) cannot contribute to a credit loop
+because they cannot be used to construct a loop encircling T.  The hop I-r
+uses a separate VL, so it cannot contribute to a credit loop encircling T.
+.P
+Extending this argument shows that in addition to being capable of routing
+around a single switch failure without introducing deadlock, torus-2QoS can
+also route around multiple failed switches on the condition they are
+adjacent in the last dimension routed by DOR.  For example, consider the
+following case on a 6x6 2D torus:
+.
+.ascii_art 36
+       |    |    |    |    |    |
+  5  --+----+----+----+----+----+--
+       |    |    |    |    |    |
+  4  --+----+----+----D----+----+--
+       |    |    |    |    |    |
+  3  --+----+----I----u----+----+--
+       |    |    |    |    |    |
+  2  --+----+----q----R----+----+--
+       |    |    |    |    |    |
+  1  --m----S----n----T----o----p--
+       |    |    |    |    |    |
+y=0  --+----+----+----+----+----+--
+       |    |    |    |    |    |
+
+     x=0    1    2    3    4    5
+.end_ascii_art
+.P
+Suppose switches T and R have failed, and consider the path from S to D.
+Torus-2QoS will generate the path S-n-q-I-u-D, with an illegal turn at
+switch I, and with hop I-u using a VL with bit 1 set.
+.P
+As a further example, consider a case that torus-2QoS cannot route without
+deadlock: two failed switches adjacent in a dimension that is not the last
+dimension routed by DOR; here the failed switches are O and T:
+.
+.ascii_art 36
+       |    |    |    |    |    |
+  5  --+----+----+----+----+----+--
+       |    |    |    |    |    |
+  4  --+----+----+----+----+----+--
+       |    |    |    |    |    |
+  3  --+----+----+----+----D----+--
+       |    |    |    |    |    |
+  2  --+----+----I----q----r----+--
+       |    |    |    |    |    |
+  1  --m----S----n----O----T----p--
+       |    |    |    |    |    |
+y=0  --+----+----+----+----+----+--
+       |    |    |    |    |    |
+
+     x=0    1    2    3    4    5
+.end_ascii_art
+.P
+In a pristine fabric, torus-2QoS would generate the path from S to D as
+S-n-O-T-r-D.  With failed switches O and T, torus-2QoS will generate the
+path S-n-I-q-r-D, with illegal turn at switch I, and with hop I-q using a
+VL with bit 1 set.  In contrast to the earlier examples, the second hop
+after the illegal turn, q-r, can be used to construct a credit loop
+encircling the failed switches.
+.
+.SH MULTICAST ROUTING
+.
+Since torus-2QoS uses all four available SL bits, and the three data VL
+bits that are typically available in current switches, there is no way
+to use SL/VL values to separate multicast traffic from unicast traffic.
+Thus, torus-2QoS must generate multicast routing such that credit loops
+cannot arise from a combination of multicast and unicast path segments.
+.P
+It turns out that it is possible to construct spanning trees for multicast
+routing that have that property.  For the 2D 6x5 torus example above, here
+is the full-fabric spanning tree that torus-2QoS will construct, where "x"
+is the root switch and each "+" is a non-root switch:
+.
+.ascii_art 36
+  4    +    +    +    +    +    +
+       |    |    |    |    |    |
+  3    +    +    +    +    +    +
+       |    |    |    |    |    |
+  2    +----+----+----x----+----+
+       |    |    |    |    |    |
+  1    +    +    +    +    +    +
+       |    |    |    |    |    |
+y=0    +    +    +    +    +    +
+
+     x=0    1    2    3    4    5
+.end_ascii_art
+.P
+For multicast traffic routed from root to tip, every turn in the above
+spanning tree is a legal DOR turn.
+.P
+For traffic routed from tip to root, and some traffic routed through the
+root, turns are not legal DOR turns.  However, to construct a credit loop,
+the union of multicast routing on this spanning tree with DOR unicast
+routing can only provide 3 of the 4 turns needed for the loop.
+.P
+In addition, if none of the above spanning tree branches crosses a dateline
+used for unicast credit loop avoidance on a torus, and if multicast traffic
+is confined to SL 0 or SL 8 (recall that torus-2QoS uses SL bit 3 to
+differentiate QoS level), then multicast traffic also cannot contribute to
+the "ring" credit loops that are otherwise possible in a torus.
+.P
+Torus-2QoS uses these ideas to create a master spanning tree.  Every
+multicast group spanning tree will be constructed as a subset of the master
+tree, with the same root as the master tree.
+.P
+Such multicast group spanning trees will in general not be optimal for
+groups which are a subset of the full fabric. However, this compromise must
+be made to enable support for two QoS levels on a torus while preventing
+credit loops.
+.P
+In the presence of link or switch failures that result in a fabric for
+which torus-2QoS can generate credit-loop-free unicast routes, it is also
+possible to generate a master spanning tree for multicast that retains the
+required properties.  For example, consider that same 2D 6x5 torus, with
+the link from (2,2) to (3,2) failed.  Torus-2QoS will generate the following
+master spanning tree:
+.
+.ascii_art 36
+  4    +    +    +    +    +    +
+       |    |    |    |    |    |
+  3    +    +    +    +    +    +
+       |    |    |    |    |    |
+  2  --+----+----+    x----+----+--
+       |    |    |    |    |    |
+  1    +    +    +    +    +    +
+       |    |    |    |    |    |
+y=0    +    +    +    +    +    +
+
+     x=0    1    2    3    4    5
+.end_ascii_art
+.P
+Two things are notable about this master spanning tree.  First, assuming
+the x dateline was between x=5 and x=0, this spanning tree has a branch
+that crosses the dateline.  However, just as for unicast, crossing a
+dateline on a 1D ring (here, the ring for y=2) that is broken by a failure
+cannot contribute to a torus credit loop.
+.P
+Second, this spanning tree is no longer optimal even for multicast groups
+that encompass the entire fabric.  That, unfortunately, is a compromise that
+must be made to retain the other desirable properties of torus-2QoS routing.
+.P
+In the event that a single switch fails, torus-2QoS will generate a master
+spanning tree that has no "extra" turns by appropriately selecting a root
+switch.
+In the 2D 6x5 torus example, assume now that the switch at (3,2),
+\fIi.e.\fR, the root for a pristine fabric, fails.
+Torus-2QoS will generate the
+following master spanning tree for that case:
+.
+.ascii_art 36
+		      |
+  4    +    +    +    +    +    +
+       |    |    |    |    |    |
+  3    +    +    +    +    +    +
+       |    |    |         |    |
+  2    +    +    +         +    +
+       |    |    |         |    |
+  1    +----+----x----+----+----+
+       |    |    |    |    |    |
+y=0    +    +    +    +    +    +
+		      |
+
+     x=0    1    2    3    4    5
+.end_ascii_art
+.P
+Assuming the y dateline was between y=4 and y=0, this spanning tree has
+a branch that crosses a dateline.  However, again this cannot contribute
+to credit loops as it occurs on a 1D ring (the ring for x=3) that is
+broken by a failure, as in the above example.
+.
+.SH TORUS TOPOLOGY DISCOVERY
+.
+The algorithm used by torus-2QoS to contruct the torus topology from
+the undirected graph representing the fabric requires that the radix of
+each dimension be configured via torus-2QoS.conf.
+It also requires that the torus topology be "seeded"; for a 3D torus this
+requires configuring four switches that define the three coordinate
+directions of the torus.
+.P
+Given this starting information, the algorithm is to examine the
+cube formed by the eight switch locations bounded by the corners
+(x,y,z) and (x+1,y+1,z+1).
+Based on switches already placed into the torus topology at some of these
+locations, the algorithm examines 4-loops of inter-switch links to find the
+one that is consistent with a face of the cube of switch locations,
+and adds its swiches to the discovered topology in the correct locations.
+.P
+Because the algorithm is based on examing the topology of 4-loops of links,
+a torus with one or more radix-4 dimensions requires extra initial
+seed configuration.
+See torus-2QoS.conf(5) for details.
+Torus-2QoS will detect and report when it has insufficient configuration
+for a torus with radix-4 dimensions.
+.P
+In the event the torus is significantly degraded, \fIi.e.\fR, there are
+many missing switches or links, it may happen that torus-2QoS is unable
+to place into the torus some switches and/or links that were discoverd
+in the fabric, and will generate a warning in that case.
+A similar condition occurs if torus-2QoS is misconfigured, \fIi.e.\fR,
+the radix of a torus dimension as configured does not match the radix
+of that torus dimension as wired, and many switches/links in the fabric
+will not be placed into the torus.
+.
+.SH QUALITY OF SERVICE CONFIGURATION
+.
+OpenSM will not program switchs and channel adapters with
+SL2VL maps or VL arbitration configuration unless it is invoked with -Q.
+Since torus-2QoS depends on such functionality for correct operation,
+always invoke OpenSM with -Q when torus-2QoS is in the list of routing
+engines.
+.P
+Any quality of service configuration method supported by OpenSM will
+work with torus-2QoS, subject to the following limitations and
+considerations.
+.P
+For all routing engines supported by OpenSM except torus-2QoS,
+there is a one-to-one correspondence between QoS level and SL.
+Torus-2QoS can only support two quality of service levels, so only
+the high-order bit of any SL value used for unicast QoS configuration
+will be honored by torus-2QoS.
+.P
+For multicast QoS configuration, only SL values 0 and 8 should be used
+with torus-2QoS.
+.P
+Since SL to VL map configuration must be under the complete control of
+torus-2QoS, any configuration via qos_sl2vl, qos_swe_sl2vl,
+\fIetc.\fR, must and  will be ignored, and a warning will be generated.
+.P
+Torus-2QoS uses VL values 0-3 to implement one of its supported QoS
+levels, and VL values 4-7 to implement the other.  Hard-to-diagnose
+application issues may arise if traffic is not delivered fairly
+across each of these two VL ranges.
+Torus-2QoS will detect and warn if VL arbitration is configured
+unfairly across VLs in the range 0-3, and also in the range 4-7.
+Note that the default OpenSM VL arbitration configuration
+does not meet this constraint, so all torus-2QoS users should
+configure VL arbitration via qos_vlarb_high, qos_vlarb_low, \fIetc.\fR
+.
+.SH OPERATIONAL CONSIDERATIONS
+.
+Any routing algorithm for a torus IB fabric must employ path
+SL values to avoid credit loops.
+As a result, all applications run over such fabrics must perform a
+path record query to obtain the correct path SL for connection setup.
+Applications that use \fBrdma_cm\fR for connection setup will automatically
+meet this requirement.
+.P
+If a change in fabric topology causes changes in path SL values required
+to route without credit loops, in general all applications would need
+to repath to avoid message deadlock.  Since torus-2QoS has the ability
+to reroute after a single switch failure without changing path SL values,
+repathing by running applications is not required when the fabric
+is routed with torus-2QoS.
+.P
+Torus-2QoS can provide unchanging path SL values in the presence of
+subnet manager failover provided that all OpenSM instances have the
+same idea of dateline location.  See torus-2QoS.conf(5) for details.
+.P
+Torus-2QoS will detect configurations of failed switches and links
+that prevent routing that is free of credit loops, and will
+log warnings and refuse to route.  If "no_fallback" was configured in the
+list of OpenSM routing engines, then no other routing engine
+will attempt to route the fabric.  In that case all paths that
+do not transit the failed components will continue to work, and
+the subset of paths that are still operational will continue to remain
+free of credit loops.
+OpenSM will continue to attempt to route the fabric after every sweep
+interval, and after any change (such as a link up) in the fabric topology.
+When the fabric components are repaired, full functionality will be
+restored.
+.P
+In the event OpenSM was configured to allow some other engine to
+route the fabric if torus-2QoS fails, then credit loops and message
+deadlock are likely if torus-2QoS had previously routed
+the fabric successfully.
+Even if the other engine is capable of routing a torus
+without credit loops, applications that built connections with
+path SL values granted under torus-2QoS will likely experience
+message deadlock under routing generated by a different engine,
+unless they repath.
+.P
+To verify that a torus fabric is routed free of credit loops,
+use \fBibdmchk\fR to analyze data collected via \fBibdiagnet -vlr\fR.
+.
+.SH FILES
+.TP
+.B @OPENSM_CONFIG_DIR@/@OPENSM_CONFIG_FILE@
+default OpenSM config file.
+.TP
+.B @OPENSM_CONFIG_DIR@/@QOS_POLICY_FILE@
+default QoS policy config file.
+.TP
+.B @OPENSM_CONFIG_DIR@/@TORUS2QOS_CONF_FILE@
+default torus-2QoS config file.
+.
+.SH SEE ALSO
+.
+opensm(8), torus-2QoS.conf(5), ibdiagnet(1), ibdmchk(1), rdma_cm(7).

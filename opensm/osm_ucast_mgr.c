@@ -254,6 +254,7 @@ static void ucast_mgr_process_port(IN osm_ucast_mgr_t * p_mgr,
 	 */
 	port = osm_switch_recommend_path(p_sw, p_port, lid_ho, start_from,
 					 p_mgr->p_subn->ignore_existing_lfts,
+					 p_mgr->p_subn->opt.lmc,
 					 p_mgr->is_dor);
 
 	if (port == OSM_NO_PATH) {
@@ -317,8 +318,10 @@ static void alloc_ports_priv(osm_ucast_mgr_t * mgr)
 	     item = cl_qmap_next(item)) {
 		port = (osm_port_t *) item;
 		lmc = ib_port_info_get_lmc(&port->p_physp->port_info);
-		if (!lmc)
+		if (!lmc) {
+			port->priv = NULL;
 			continue;
+		}
 		r = malloc(sizeof(*r) + sizeof(r->guids[0]) * (1 << lmc));
 		if (!r) {
 			OSM_LOG(mgr->p_log, OSM_LOG_ERROR, "ERR 3A09: "
@@ -365,8 +368,7 @@ static void ucast_mgr_process_tbl(IN cl_map_item_t * p_map_item,
 	/* Initialize LIDs in buffer to invalid port number. */
 	memset(p_sw->new_lft, OSM_NO_PATH, p_sw->max_lid_ho + 1);
 
-	if (p_mgr->p_subn->opt.lmc)
-		alloc_ports_priv(p_mgr);
+	alloc_ports_priv(p_mgr);
 
 	/*
 	   Iterate through every port setting LID routes for each
@@ -383,8 +385,7 @@ static void ucast_mgr_process_tbl(IN cl_map_item_t * p_map_item,
 		}
 	}
 
-	if (p_mgr->p_subn->opt.lmc)
-		free_ports_priv(p_mgr);
+	free_ports_priv(p_mgr);
 
 	OSM_LOG_EXIT(p_mgr->p_log);
 }
@@ -1058,7 +1059,7 @@ static int ucast_mgr_route(struct osm_routing_engine *r, osm_opensm_t * osm)
 		return ret;
 	}
 
-	osm->routing_engine_used = osm_routing_engine_type(r->name);
+	osm->routing_engine_used = r;
 
 	osm_ucast_mgr_set_fwd_tables(&osm->sm.ucast_mgr);
 
@@ -1070,6 +1071,7 @@ int osm_ucast_mgr_process(IN osm_ucast_mgr_t * p_mgr)
 	osm_opensm_t *p_osm;
 	struct osm_routing_engine *p_routing_eng;
 	cl_qmap_t *p_sw_guid_tbl;
+	int failed = 0;
 
 	OSM_LOG_ENTER(p_mgr->p_log);
 
@@ -1086,32 +1088,46 @@ int osm_ucast_mgr_process(IN osm_ucast_mgr_t * p_mgr)
 	    ucast_mgr_setup_all_switches(p_mgr->p_subn) < 0)
 		goto Exit;
 
-	p_osm->routing_engine_used = OSM_ROUTING_ENGINE_TYPE_NONE;
+	failed = -1;
+	p_osm->routing_engine_used = NULL;
 	while (p_routing_eng) {
-		if (!ucast_mgr_route(p_routing_eng, p_osm))
+		failed = ucast_mgr_route(p_routing_eng, p_osm);
+		if (!failed)
 			break;
 		p_routing_eng = p_routing_eng->next;
 	}
 
-	if (p_osm->routing_engine_used == OSM_ROUTING_ENGINE_TYPE_NONE) {
+	if (!p_osm->routing_engine_used &&
+	    p_osm->subn.opt.no_fallback_routing_engine != TRUE) {
 		/* If configured routing algorithm failed, use default MinHop */
-		osm_ucast_mgr_build_lid_matrices(p_mgr);
-		ucast_mgr_build_lfts(p_mgr);
-		osm_ucast_mgr_set_fwd_tables(p_mgr);
-		p_osm->routing_engine_used = OSM_ROUTING_ENGINE_TYPE_MINHOP;
+		struct osm_routing_engine *r = p_osm->default_routing_engine;
+
+		r->build_lid_matrices(r->context);
+		failed = r->ucast_build_fwd_tables(r->context);
+		if (!failed) {
+			p_osm->routing_engine_used = r;
+			osm_ucast_mgr_set_fwd_tables(p_mgr);
+		}
 	}
 
-	OSM_LOG(p_mgr->p_log, OSM_LOG_INFO,
-		"%s tables configured on all switches\n",
-		osm_routing_engine_type_str(p_osm->routing_engine_used));
+	if (p_osm->routing_engine_used) {
+		OSM_LOG(p_mgr->p_log, OSM_LOG_INFO,
+			"%s tables configured on all switches\n",
+			osm_routing_engine_type_str(p_osm->
+						    routing_engine_used->type));
 
-	if (p_mgr->p_subn->opt.use_ucast_cache)
-		p_mgr->cache_valid = TRUE;
-
+		if (p_mgr->p_subn->opt.use_ucast_cache)
+			p_mgr->cache_valid = TRUE;
+	} else {
+		p_mgr->p_subn->subnet_initialization_error = TRUE;
+		OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR,
+			"No routing engine able to successfully configure "
+			" switch tables on current fabric\n");
+	}
 Exit:
 	CL_PLOCK_RELEASE(p_mgr->p_lock);
 	OSM_LOG_EXIT(p_mgr->p_log);
-	return 0;
+	return failed;
 }
 
 static int ucast_build_lid_matrices(void *context)
