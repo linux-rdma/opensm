@@ -157,7 +157,10 @@ static void cpi_rcv_respond(IN osm_sa_t * sa, IN const osm_madw_t * p_madw)
 	    OSM_CAP_IS_PORT_INFO_CAPMASK_MATCH_SUPPORTED;
 #endif
 	if (sa->p_subn->opt.qos)
-		ib_class_set_cap_mask2(p_resp_cpi, OSM_CAP2_IS_QOS_SUPPORTED);
+		ib_class_set_cap_mask2(p_resp_cpi, OSM_CAP2_IS_QOS_SUPPORTED |
+						   OSM_CAP2_IS_MCAST_TOP_SUPPORTED);
+	else
+		ib_class_set_cap_mask2(p_resp_cpi, OSM_CAP2_IS_MCAST_TOP_SUPPORTED);
 
 	if (!sa->p_subn->opt.disable_multicast)
 		p_resp_cpi->cap_mask |= OSM_CAP_IS_UD_MCAST_SUP;
