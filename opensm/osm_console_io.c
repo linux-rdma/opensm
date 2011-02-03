@@ -130,8 +130,10 @@ int cio_open(osm_console_t * p_oct, int new_fd, osm_log_t * p_log)
 				"Console connection aborted: %s (%s)\n",
 				p_oct->client_hn, p_oct->client_ip);
 			close(new_fd);
+			free(p_line);
 			return -1;
 		}
+		free(p_line);
 	}
 	p_oct->in_fd = new_fd;
 	p_oct->out_fd = p_oct->in_fd;
