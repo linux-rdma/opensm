@@ -21,6 +21,6 @@ docs = doc/performance-manager-HOWTO.txt doc/QoS_management_in_OpenSM.txt \
 EXTRA_DIST = autogen.sh opensm.spec $(various_scripts) $(man_MANS) $(docs)
 
 dist-hook: $(EXTRA_DIST)
-	if [ -x $(top_srcdir)/../gen_chlog.sh ] ; then \
-		cd $(top_srcdir)/.. ; ./gen_chlog.sh $(PACKAGE) > $(distdir)/ChangeLog ; cd - ; \
+	if [ -x $(top_srcdir)/gen_chlog.sh ] ; then \
+		cd $(top_srcdir); ./gen_chlog.sh > $(distdir)/ChangeLog ; cd - ; \
 	fi
