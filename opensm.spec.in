@@ -129,6 +129,7 @@ fi
 %{_sbindir}/opensm
 %{_sbindir}/osmtest
 %{_mandir}/man8/*
+%{_mandir}/man5/*
 %doc AUTHORS COPYING README doc/performance-manager-HOWTO.txt doc/QoS_management_in_OpenSM.txt doc/opensm_release_notes-3.3.txt
 %{_sysconfdir}/init.d/opensmd
 %{_sbindir}/sldd.sh
