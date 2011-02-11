@@ -71,6 +71,7 @@ static void sa_pkey_create(IN osm_sa_t * sa, IN osm_physp_t * p_physp,
 	osm_pkey_item_t *p_rec_item;
 	uint16_t lid;
 	ib_api_status_t status = IB_SUCCESS;
+	ib_pkey_table_t *tbl;
 
 	OSM_LOG_ENTER(sa->p_log);
 
@@ -98,8 +99,15 @@ static void sa_pkey_create(IN osm_sa_t * sa, IN osm_physp_t * p_physp,
 	p_rec_item->rec.lid = lid;
 	p_rec_item->rec.block_num = block;
 	p_rec_item->rec.port_num = osm_physp_get_port_num(p_physp);
-	p_rec_item->rec.pkey_tbl =
-	    *(osm_pkey_tbl_block_get(osm_physp_get_pkey_tbl(p_physp), block));
+	/* FIXME: There are ninf.PartitionCap or swinf.PartitionEnforcementCap
+	   pkey entries so everything in that range is a valid block number
+	   even if opensm is not using it. Return 0. However things outside
+	   that range should return no entries.. Not sure how to figure that
+	   here? The range of pkey_tbl can be less than the cap, so
+	   this falsely triggers. */
+	tbl = osm_pkey_tbl_block_get(osm_physp_get_pkey_tbl(p_physp), block);
+	if (tbl)
+		p_rec_item->rec.pkey_tbl = *tbl;
 
 	cl_qlist_insert_tail(p_ctxt->p_list, &p_rec_item->list_item);
 
@@ -269,14 +277,14 @@ void osm_pkey_rec_rcv_process(IN void *ctx, IN void *data)
 	context.p_list = &rec_list;
 	context.comp_mask = p_rcvd_mad->comp_mask;
 	context.sa = sa;
-	context.block_num = p_rcvd_rec->block_num;
+	context.block_num = cl_ntoh16(p_rcvd_rec->block_num);
 	context.p_req_physp = p_req_physp;
 
 	OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 		"Got Query Lid:%u(%02X), Block:0x%02X(%02X), Port:0x%02X(%02X)\n",
 		cl_ntoh16(p_rcvd_rec->lid),
 		(comp_mask & IB_PKEY_COMPMASK_LID) != 0, p_rcvd_rec->port_num,
-		(comp_mask & IB_PKEY_COMPMASK_PORT) != 0, p_rcvd_rec->block_num,
+		(comp_mask & IB_PKEY_COMPMASK_PORT) != 0, context.block_num,
 		(comp_mask & IB_PKEY_COMPMASK_BLOCK) != 0);
 
 	cl_plock_acquire(sa->p_lock);

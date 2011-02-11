@@ -6724,7 +6724,7 @@ typedef struct _ib_pkey_table {
 #include <complib/cl_packon.h>
 typedef struct _ib_pkey_table_record {
 	ib_net16_t lid;		// for CA: lid of port, for switch lid of port 0
-	uint16_t block_num;
+	ib_net16_t block_num;
 	uint8_t port_num;	// for switch: port number, for CA: reserved
 	uint8_t reserved1;
 	uint16_t reserved2;
