@@ -56,6 +56,7 @@
 #include <errno.h>
 #include <signal.h>
 #include <opensm/osm_console_io.h>
+#include <stdlib.h>
 
 static int is_local(char *str)
 {
