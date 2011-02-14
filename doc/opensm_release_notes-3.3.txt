@@ -2,7 +2,7 @@
                        =============================
 
 Version: OpenSM 3.3.x
-Repo:    git://git.openfabrics.org/~sashak/management.git
+Repo:    git://git.openfabrics.org/~alexnetes/opensm.git
 Date:    Dec 2009
 
 1 Overview
@@ -10,7 +10,7 @@ Date:    Dec 2009
 This document describes the contents of the OpenSM 3.3 release.
 OpenSM is an InfiniBand compliant Subnet Manager and Administration,
 and runs on top of OpenIB. The OpenSM version for this release
-is opensm-3.3.7.
+is opensm-3.3.8.
 
 This document includes the following sections:
 1 This Overview section (describing new features and software
@@ -259,6 +259,9 @@ fedc419 opensm: Multicast root switch calculation
 6772fdb opensm: Fix sl2vl configuration
 dd3470f complib/cl_timer.c: fixing cl_timer calculation
 ae1bcdd opensm/osm_lid_mgr.c: Allow switch lids to be non LMC aligned
+593547e Wrong handling of MC create and delete traps
+4c822b0 opensm/osm_prtn.c: removing TopSpin hack
+8214e2a opensm: Add support for SwitchInfo:MulticastFDBTop
 
 4.2 Other Bug Fixes
 
@@ -583,6 +586,47 @@ ff14200 opensm/osm_sa_multipath_record.c: livelock in mpr_rcv_get_path_parms
 7fc6cd3 ib_types.h add debug assert
 4fd4ca3 osmtest - use helper function
 6fdc20a opensm/complib use portable macro syntax
+bf23d7c opensm: fixed getline pointer allocation free in osm_console_io
+74867c7 Add node/port/qos information to some error messages
+31a617d replace (long*)(long) casting with transportable data type (uintptr_t)
+8da7521 opensm/st.c: fix potential core dumps
+6a30911 opensm/osm_console.c: fix memory and file descriptor leaks
+696f12c opensm/osm_qos_parser_y.y: fixing bunch of memory leaks on invalid values
+3a7b97c opensm/osm_ucast_file.c: closing file descriptor in error path
+b4575c5 opensm/osm_pkey_mgr.c: fixing small memory leak
+dc0695f opensm/osm_ucast_lash.c: small bug in calculating allocated size
+3c9604b opensm/osm_ucast_ftree.c: fixing another memory leak at error path
+4460990 opensm/osm_ucast_ftree.c: fix small memory leak in error path
+857cd6c opensm/osm_trap_rcv.c: fix possible core dump
+b74bef5 opensm/osm_trap_rcv.c: No need to check for sweep for trap 145
+81dade3 opensm/osm_ucast_ftree: When roots are not connected, update hop count but not lft
+acf2337 osmtest/osmt_service.c: In osmt_run_service_records_flow, add missing status
+6db7f4a opensm/osm_state_mgr.c: Don't signal DISCOVER to SM state machine when already DISCOVERING
+28693c5 Fix autotools to include the necessary M4 files
+c1c8730 osm_vl15intf.c: fixing use-after-free coredump
+3353f9b opensm/osm_helper.c: use ARR_SIZE macro instead of hardcoded values
+2da9849 osmtest/osmt_slvl_vl_arb.c: handling fopen() failure
+f48d5ea opensm/osm_db_files.c: malloc() return value run-time check
+ea3ef82 opensm/osm_db_files.c: fix small memory leak
+f4a5174 opensm/osm_subnet.c: fixing small bug in error path
+c18ef23 opensm/osm_mesh.c: fixing a bug in compare_switches()
+83b74cd opensm/osm_helper.c: fix potential overrun of the array
+85c0ac9 osmtest/osmtest.c: handle timeouts in PR stress test
+ebb2c84 opensm/osm_node_info_rcv.c: move p_physp declaration under code block
+5c88113 opensm/osm_node_info_rcv.c: remove useless code line
+866d939 opensm/osm_sa_vlarb_record.c: removed unused variable
+15a8770 opensm/osm_sa_pkey_record.c: removing unused variable
+8f002b7 opensm/osm_pkey.c: removing unused function
+9c0fa2f opensm/osm_sminfo_rcv.c: removing unused variable
+d3f060a opensm/osm_mtree.c: removing useless 'if' statement
+bbef64a libvendor/osm_vendor_mlx_sa.c: remove useless "if" statement
+2da02b5 libvendor/osm_vendor_ibumad_sa.c: remove useless "if" statement
+435dde0 opensm/sa: simplify osm_mcmr_rcv_find_or_create_new_mgrp() function call
+e7a872d opensm/osm_qos_policy.c: change a log message
+ffbe7d0 opensm: Cause status of unicast routing attempt to propogate to callers of osm_ucast_mgr_process().
+673877a opensm: Make mcast_mgr_purge_tree() available outside osm_mcast_mgr.c.
+b135687 opensm: Track the minimum value in the fabric of data VLs supported.
+
 
 * Other less critical or visible bugs were also fixed.
 
