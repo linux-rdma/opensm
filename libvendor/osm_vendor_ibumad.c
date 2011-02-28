@@ -1041,10 +1041,10 @@ osm_vendor_send(IN osm_bind_handle_t h_bind,
 #ifdef VENDOR_RMPP_SUPPORT
 		} else
 			is_rmpp = 1;
-			OSM_LOG(p_vend->p_log, OSM_LOG_VERBOSE, "RMPP %d length %d\n",
-				ib_rmpp_is_flag_set((ib_rmpp_mad_t *) p_sa,
-						    IB_RMPP_FLAG_ACTIVE),
-				p_madw->mad_size);
+		OSM_LOG(p_vend->p_log, OSM_LOG_DEBUG, "RMPP %d length %d\n",
+			ib_rmpp_is_flag_set((ib_rmpp_mad_t *) p_sa,
+					    IB_RMPP_FLAG_ACTIVE),
+			p_madw->mad_size);
 #else
 		} else {
 			p_sa->rmpp_version = 1;
