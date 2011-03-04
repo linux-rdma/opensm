@@ -751,6 +751,7 @@ static ib_api_status_t mcast_mgr_build_spanning_tree(osm_sm_t * sm,
 		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 			"MLID 0x%X has %u members - nothing to do\n",
 			mbox->mlid, num_ports);
+		drop_port_list(&port_list);
 		goto Exit;
 	}
 
