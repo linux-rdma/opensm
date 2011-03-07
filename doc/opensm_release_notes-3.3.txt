@@ -3,14 +3,14 @@
 
 Version: OpenSM 3.3.x
 Repo:    git://git.openfabrics.org/~alexnetes/opensm.git
-Date:    Dec 2009
+Date:    Mar 2011
 
 1 Overview
 ----------
 This document describes the contents of the OpenSM 3.3 release.
 OpenSM is an InfiniBand compliant Subnet Manager and Administration,
 and runs on top of OpenIB. The OpenSM version for this release
-is opensm-3.3.8.
+is opensm-3.3.9.
 
 This document includes the following sections:
 1 This Overview section (describing new features and software
@@ -262,6 +262,7 @@ ae1bcdd opensm/osm_lid_mgr.c: Allow switch lids to be non LMC aligned
 593547e Wrong handling of MC create and delete traps
 4c822b0 opensm/osm_prtn.c: removing TopSpin hack
 8214e2a opensm: Add support for SwitchInfo:MulticastFDBTop
+1e544ba opensm: fixed memory leak in multicast spanning tree calculation
 
 4.2 Other Bug Fixes
 
