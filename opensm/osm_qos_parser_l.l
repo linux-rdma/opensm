@@ -355,6 +355,10 @@ QUOTED_TEXT             \"[^\"]*\"
 
 .                   { SAVE_POS; yylval = strdup(yytext); return TK_TEXT;}
 
+<<EOF>>             {
+                        YY_NEW_FILE;
+                        yyterminate();
+                    }
 %%
 
 

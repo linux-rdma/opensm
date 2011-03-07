@@ -149,6 +149,7 @@ extern char * yytext;
 extern int yylex (void);
 extern FILE * yyin;
 extern int errno;
+extern void yyrestart(FILE *input_file);
 int yyparse();
 
 #define RESET_BUFFER  __parser_tmp_struct_reset()
@@ -2359,7 +2360,10 @@ int osm_qos_parse_policy_file(IN osm_subn_t * p_subn)
 
   Exit:
     if (yyin)
+    {
+        yyrestart(yyin);
         fclose(yyin);
+    }
     OSM_LOG_EXIT(p_qos_parser_osm_log);
     return res;
 }
