@@ -554,25 +554,40 @@ static ftree_sw_t *sw_create(IN ftree_fabric_t * p_ftree,
 	p_sw->down_port_groups =
 	    (ftree_port_group_t **) malloc(ports_num *
 					   sizeof(ftree_port_group_t *));
+	if (p_sw->down_port_groups == NULL)
+		goto FREE_P_SW;
+
 	p_sw->up_port_groups =
 	    (ftree_port_group_t **) malloc(ports_num *
 					   sizeof(ftree_port_group_t *));
+	if (p_sw->sibling_port_groups == NULL)
+		goto FREE_DOWN;
+
 	p_sw->sibling_port_groups =
 	    (ftree_port_group_t **) malloc(ports_num *
 					   sizeof(ftree_port_group_t *));
-
-	if (!p_sw->down_port_groups || !p_sw->up_port_groups
-	    || !p_sw->sibling_port_groups)
-		return NULL;
+	if (p_sw->sibling_port_groups == NULL)
+		goto FREE_UP;
 
 	/* initialize lft buffer */
 	memset(p_osm_sw->new_lft, OSM_NO_PATH, p_osm_sw->lft_size);
 	p_sw->hops = malloc((p_osm_sw->max_lid_ho + 1) * sizeof(*(p_sw->hops)));
 	if (p_sw->hops == NULL)
-		return NULL;
+		goto FREE_SIBLING;
+
 	memset(p_sw->hops, OSM_NO_PATH, p_osm_sw->max_lid_ho + 1);
 
 	return p_sw;
+
+FREE_SIBLING:
+	free(p_sw->sibling_port_groups);
+FREE_UP:
+	free(p_sw->up_port_groups);
+FREE_DOWN:
+	free(p_sw->down_port_groups);
+FREE_P_SW:
+	free(p_sw);
+	return NULL;
 }				/* sw_create() */
 
 /***************************************************/
@@ -1662,6 +1677,7 @@ static int fabric_create_leaf_switch_array(IN ftree_fabric_t * p_ftree)
 	if (!p_ftree->leaf_switches) {
 		osm_log(&p_ftree->p_osm->log, OSM_LOG_SYS,
 			"Fat-tree routing: Memory allocation failed\n");
+		free(all_switches_at_leaf_level);
 		res = -1;
 		goto Exit;
 	}
