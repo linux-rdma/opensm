@@ -174,7 +174,7 @@ put_madw(osm_vendor_t * p_vend, osm_madw_t * p_madw, ib_net64_t tid)
 			pthread_mutex_unlock(&p_vend->match_tbl_mutex);
 			return;
 		}
-		if (oldest > m->version) {
+		if (oldest >= m->version) {
 			oldest = m->version;
 			lru = m;
 		}
