@@ -710,13 +710,13 @@ static int init_lash_structures(lash_t * p_lash)
 
 	/* initialise cdg_vertex_matrix[num_switches][num_switches][num_switches] */
 	p_lash->cdg_vertex_matrix =
-	    (cdg_vertex_t ****) malloc(vl_min * sizeof(cdg_vertex_t ****));
+	    (cdg_vertex_t ****) malloc(vl_min * sizeof(cdg_vertex_t ***));
 	if (p_lash->cdg_vertex_matrix == NULL)
 		goto Exit_Mem_Error;
 	for (i = 0; i < vl_min; i++) {
 		p_lash->cdg_vertex_matrix[i] =
 		    (cdg_vertex_t ***) malloc(num_switches *
-					      sizeof(cdg_vertex_t ***));
+					      sizeof(cdg_vertex_t **));
 
 		if (p_lash->cdg_vertex_matrix[i] == NULL)
 			goto Exit_Mem_Error;
