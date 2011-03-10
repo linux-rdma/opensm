@@ -1032,6 +1032,7 @@ static void perfmgr_check_overflow(osm_perfmgr_t * pm,
 				PRIx64 ") port %d\n",
 				mon_node->name, mon_node->guid, port);
 
+		perfmgr_db_clear_prev_err(pm->db, mon_node->guid, port);
 		perfmgr_db_clear_prev_dc(pm->db, mon_node->guid, port);
 	}
 
