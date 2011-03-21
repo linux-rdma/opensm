@@ -235,7 +235,7 @@ Without -s, OpenSM defaults to a sweep interval of
 \fB\-t\fR, \fB\-\-timeout\fR <value>
 This option specifies the time in milliseconds
 used for transaction timeouts.
-Specifying -t 0 disables timeouts.
+Timeout values should be > 0.
 Without -t, OpenSM defaults to a timeout value of
 200 milliseconds.
 .TP
