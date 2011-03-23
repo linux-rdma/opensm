@@ -154,7 +154,7 @@ separated by commas so that specific ordering of routing algorithms
 will be tried if earlier routing engines fail.  If all configured
 routing engines fail, OpenSM will always attempt to route with Min Hop
 unless 'no_fallback' is included in the list of routing engines.
-Supported engines: minhop, updn, file, ftree, lash, dor, torus-2QoS.
+Supported engines: minhop, updn, dnup, file, ftree, lash, dor, torus-2QoS.
 .TP
 \fB\-\-do_mesh_analysis\fR
 This option enables additional analysis for the lash routing engine to
@@ -679,6 +679,10 @@ node, but it is constrained to ranking rules. This algorithm should be chosen
 if the subnet is not a pure Fat Tree, and deadlock may occur due to a
 loop in the subnet.
 
+3. DNUP Unicast routing algorithm - similar to UPDN but allows routing in
+fabrics which have some Ca nodes attached closer to the roots than some switch
+nodes.
+
 3.  Fat Tree Unicast routing algorithm - this algorithm optimizes routing
 for congestion-free "shift" communication pattern.
 It should be chosen if a subnet is a symmetrical or almost symmetrical
@@ -848,6 +852,18 @@ format will be discarded.
 possible to specify CA guids; OpenSM will use the guid of the switch (if
 it exists) that connects the CA to the subnet as a root node.
 
+Purpose of DNUP Algorithm
+
+The DNUP algorithm is designed to serve a similar purpose to UPDN. However
+it is intended to work in network topologies which are unsuited to
+UPDN due to nodes being connected closer to the roots than some of
+the switches.  An example would be a fabric which contains nodes and
+uplinks connected to the same switch. The operation of DNUP is the
+same as UPDN with the exception of the ranking process.  In DNUP all
+switch nodes are ranked based solely on their distance from Ca Nodes,
+all switch nodes directly connected to at least one Ca are assigned a
+value of 1 all other switch nodes are assigned a value of one more than
+the minimum rank of all neighbor switch nodes.
 
 Fat-tree Routing Algorithm
 

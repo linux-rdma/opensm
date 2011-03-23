@@ -66,6 +66,7 @@ struct routing_engine_module {
 
 extern int osm_ucast_minhop_setup(struct osm_routing_engine *, osm_opensm_t *);
 extern int osm_ucast_updn_setup(struct osm_routing_engine *, osm_opensm_t *);
+extern int osm_ucast_dnup_setup(struct osm_routing_engine *, osm_opensm_t *);
 extern int osm_ucast_file_setup(struct osm_routing_engine *, osm_opensm_t *);
 extern int osm_ucast_ftree_setup(struct osm_routing_engine *, osm_opensm_t *);
 extern int osm_ucast_lash_setup(struct osm_routing_engine *, osm_opensm_t *);
@@ -75,6 +76,7 @@ extern int osm_ucast_torus2QoS_setup(struct osm_routing_engine *, osm_opensm_t *
 const static struct routing_engine_module routing_modules[] = {
 	{"minhop", osm_ucast_minhop_setup},
 	{"updn", osm_ucast_updn_setup},
+	{"dnup", osm_ucast_dnup_setup},
 	{"file", osm_ucast_file_setup},
 	{"ftree", osm_ucast_ftree_setup},
 	{"lash", osm_ucast_lash_setup},
@@ -92,6 +94,8 @@ const char *osm_routing_engine_type_str(IN osm_routing_engine_type_t type)
 		return "minhop";
 	case OSM_ROUTING_ENGINE_TYPE_UPDN:
 		return "updn";
+	case OSM_ROUTING_ENGINE_TYPE_DNUP:
+		return "dnup";
 	case OSM_ROUTING_ENGINE_TYPE_FILE:
 		return "file";
 	case OSM_ROUTING_ENGINE_TYPE_FTREE:
@@ -120,6 +124,8 @@ osm_routing_engine_type_t osm_routing_engine_type(IN const char *str)
 		return OSM_ROUTING_ENGINE_TYPE_NONE;
 	else if (!strcasecmp(str, "updn"))
 		return OSM_ROUTING_ENGINE_TYPE_UPDN;
+	else if (!strcasecmp(str, "dnup"))
+		return OSM_ROUTING_ENGINE_TYPE_DNUP;
 	else if (!strcasecmp(str, "file"))
 		return OSM_ROUTING_ENGINE_TYPE_FILE;
 	else if (!strcasecmp(str, "ftree"))

@@ -177,7 +177,7 @@ static void show_usage(void)
 	       "          If all configured routing engines fail, OpenSM will always\n"
 	       "          attempt to route with Min Hop unless 'no_fallback' is\n"
 	       "          included in the list of routing engines.\n"
-	       "          Supported engines: updn, file, ftree, lash, dor, torus-2QoS\n\n");
+	       "          Supported engines: updn, dnup, file, ftree, lash, dor, torus-2QoS\n\n");
 	printf("--do_mesh_analysis\n"
 	       "          This option enables additional analysis for the lash\n"
 	       "          routing engine to precondition switch port assignments\n"
