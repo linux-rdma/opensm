@@ -984,6 +984,8 @@ int osm_sa_db_file_load(osm_opensm_t * p_osm)
 					      well_known);
 			if (!p_mgrp)
 				rereg_clients = 1;
+			if (cl_ntoh16(mlid) > p_osm->sm.mlids_init_max)
+				p_osm->sm.mlids_init_max = cl_ntoh16(mlid);
 		} else if (p_mgrp && !strncmp(p, "mcm_port", 8)) {
 			ib_member_rec_t mcmr;
 			ib_net64_t guid;

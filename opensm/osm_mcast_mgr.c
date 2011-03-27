@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2009 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2011 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2008 Xsigo Systems Inc.  All rights reserved.
  * Copyright (c) 2009 Sun Microsystems, Inc. All rights reserved.
@@ -1027,7 +1027,7 @@ static void mcast_mgr_set_mfttop(IN osm_sm_t * sm, IN osm_switch_t * p_sw)
 	osm_madw_context_t context;
 	ib_api_status_t status;
 	ib_switch_info_t si;
-	uint16_t mcast_top;
+	ib_net16_t mcast_top;
 
 	OSM_LOG_ENTER(sm->p_log);
 
@@ -1046,11 +1046,15 @@ static void mcast_mgr_set_mfttop(IN osm_sm_t * sm, IN osm_switch_t * p_sw)
 		   Set the top of the multicast forwarding table.
 		 */
 		si = p_sw->switch_info;
-		if (p_tbl->max_block_in_use == -1)
-			mcast_top = cl_hton16(IB_LID_MCAST_START_HO - 1);
-		else
-			mcast_top = cl_hton16(IB_LID_MCAST_START_HO +
-					      (p_tbl->max_block_in_use + 1) * IB_MCAST_BLOCK_SIZE - 1);
+		if (sm->p_subn->first_time_master_sweep == TRUE)
+			mcast_top = cl_hton16(sm->mlids_init_max);
+		else {
+			if (p_tbl->max_block_in_use == -1)
+				mcast_top = cl_hton16(IB_LID_MCAST_START_HO - 1);
+			else
+				mcast_top = cl_hton16(IB_LID_MCAST_START_HO +
+						      (p_tbl->max_block_in_use + 1) * IB_MCAST_BLOCK_SIZE - 1);
+		}
 		if (mcast_top == si.mcast_top)
 			return;
 
