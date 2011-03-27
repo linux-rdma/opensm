@@ -288,7 +288,8 @@ void osm_opensm_destroy(IN osm_opensm_t * p_osm)
 	cl_disp_shutdown(&p_osm->disp);
 
 	/* dump SA DB */
-	osm_sa_db_file_dump(p_osm);
+	if (p_osm->subn.opt.sa_db_dump)
+		osm_sa_db_file_dump(p_osm);
 
 	/* do the destruction in reverse order as init */
 	destroy_plugins(p_osm);
