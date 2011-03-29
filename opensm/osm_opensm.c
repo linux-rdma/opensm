@@ -324,7 +324,7 @@ static void load_plugins(osm_opensm_t *osm, const char *plugin_names)
 	char *p_names, *name, *p;
 
 	p_names = strdup(plugin_names);
-	name = strtok_r(p_names, " \t\n", &p);
+	name = strtok_r(p_names, ", \t\n", &p);
 	while (name && *name) {
 		epi = osm_epi_construct(osm, name);
 		if (!epi)
