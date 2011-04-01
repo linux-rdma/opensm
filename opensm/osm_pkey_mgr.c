@@ -36,7 +36,7 @@
 
 /*
  * Abstract:
- * Implementation of the P_Key Manager (Partititon Manager).
+ * Implementation of the P_Key Manager (Partition Manager).
  * This is part of the OpenSM.
  */
 
