@@ -519,7 +519,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	OSM_LOG(&p_osmt->log, OSM_LOG_INFO, "GetTable of all current MCGs...\n");
 	status = osmt_query_mcast(p_osmt);
 	if (status != IB_SUCCESS) {
-		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 2FF "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02FF "
 			"GetTable of all records has failed!\n");
 		goto Exit;
 	}
@@ -677,7 +677,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_END "\n");
 
 	if (status == IB_SUCCESS) {
-		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 2E0 "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02E0 "
 			"SubnAdmGet with invalid mlid 0x%x succeeded\n",
 			cl_ntoh16(mc_req_rec.mlid));
 		status = IB_ERROR;
@@ -706,7 +706,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_END "\n");
 
 	if (status == IB_SUCCESS) {
-		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 2E4 "
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02E4 "
 			"SubnAdmGet with invalid port guid succeeded\n");
 		status = IB_ERROR;
 		goto Exit;
@@ -2409,7 +2409,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 					      cl_ntoh16(p_mc_res->mlid),
 					      p_mc_res);
 			} else if (cur_mlid > cl_ntoh16(max_mlid)) {
-				OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 2E1 "
+				OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02E1 "
 					"Successful Join with greater mlid than switches support (MulticastFDBCap) 0x%04X\n",
 					cur_mlid);
 				status = IB_ERROR;
