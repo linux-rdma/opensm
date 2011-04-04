@@ -137,7 +137,7 @@ ib_api_status_t osm_pkey_tbl_set(IN osm_pkey_tbl_t * p_pkey_tbl,
 	   tables there is no other way but to refresh the entire keys map.
 
 	   Moreover, if the same key exists but with full membership it should
-	   have precedence on the key with limited membership !
+	   have precedence over the key with limited membership !
 	 */
 	cl_map_remove_all(&p_pkey_tbl->keys);
 
