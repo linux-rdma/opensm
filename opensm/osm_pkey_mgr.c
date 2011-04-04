@@ -263,11 +263,11 @@ static int pkey_mgr_update_port(osm_log_t * p_log, osm_sm_t * sm,
 	ib_pkey_table_t empty_block;
 	int ret = 0;
 
-	memset(&empty_block, 0, sizeof(ib_pkey_table_t));
-
 	p_physp = p_port->p_physp;
 	if (!p_physp)
 		return FALSE;
+
+	memset(&empty_block, 0, sizeof(ib_pkey_table_t));
 
 	p_node = osm_physp_get_node_ptr(p_physp);
 	p_pkey_tbl = &p_physp->pkeys;
@@ -392,8 +392,6 @@ static int pkey_mgr_update_peer_port(osm_log_t * p_log, osm_sm_t * sm,
 	ib_pkey_table_t empty_block;
 	int ret = 0;
 
-	memset(&empty_block, 0, sizeof(ib_pkey_table_t));
-
 	p_physp = p_port->p_physp;
 	if (!p_physp)
 		return -1;
@@ -425,6 +423,8 @@ static int pkey_mgr_update_peer_port(osm_log_t * p_log, osm_sm_t * sm,
 
 	if (enforce == FALSE)
 		return ret;
+
+	memset(&empty_block, 0, sizeof(ib_pkey_table_t));
 
 	p_peer_pkey_tbl->used_blocks = p_pkey_tbl->used_blocks;
 	for (block_index = 0; block_index < p_pkey_tbl->used_blocks;
