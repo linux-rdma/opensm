@@ -380,7 +380,6 @@ Exit:
 boolean_t osm_physp_has_pkey(IN osm_log_t * p_log, IN ib_net16_t pkey,
 			     IN const osm_physp_t * p_physp)
 {
-
 	ib_net16_t *p_pkey, pkey_base;
 	const osm_pkey_tbl_t *pkey_tbl;
 	boolean_t res = FALSE;
