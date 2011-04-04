@@ -1019,6 +1019,15 @@ static void mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 		goto Exit;
 	}
 
+	if (p_sa_mad->comp_mask & IB_MCR_COMPMASK_PKEY &&
+	    ib_pkey_is_invalid(p_recvd_mcmember_rec->pkey)) {
+		CL_PLOCK_RELEASE(sa->p_lock);
+		OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
+			"Invalid PKey supplied in request\n");
+		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_REQ_INVALID);
+		goto Exit;
+	}
+
 	ib_member_get_scope_state(p_recvd_mcmember_rec->scope_state, NULL,
 				  &join_state);
 
