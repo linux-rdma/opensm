@@ -1113,7 +1113,7 @@ int osm_sa_db_file_load(osm_opensm_t * p_osm)
 	/*
 	 * If loading succeeded, do whatever 'no_clients_rereg' says.
 	 * If loading failed at some point, turn off the 'no_clients_rereg'
-	 * option (turn on re-registartion requests).
+	 * option (turn on re-registration requests).
 	 */
 	if (rereg_clients)
 		p_osm->subn.opt.no_clients_rereg = FALSE;
