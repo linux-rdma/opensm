@@ -62,14 +62,14 @@ struct osm_mgrp;
 
 /****s* OpenSM: MCM Port Object/osm_mcm_port_t
 * NAME
-*   osm_mcm_port_t
+* 	osm_mcm_port_t
 *
 * DESCRIPTION
-*   This object represents a particular	port as a member of a
+* 	This object represents a particular port as a member of a
 *	multicast group.
 *
-*   This object should be treated as opaque and should
-*   be manipulated only through the provided functions.
+*	This object should be treated as opaque and should
+*	be manipulated only through the provided functions.
 *
 * SYNOPSIS
 */
