@@ -729,7 +729,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 
 	comp_mask = IB_MCR_COMPMASK_MGID | IB_MCR_COMPMASK_PORT_GID |
 	    /* IB_MCR_COMPMASK_QKEY |  */
-	    /* IB_MCR_COMPMASK_PKEY | intentionaly missed to raise the error */
+	    /* IB_MCR_COMPMASK_PKEY | intentionally missed to raise the error */
 	    IB_MCR_COMPMASK_SL | IB_MCR_COMPMASK_FLOW | IB_MCR_COMPMASK_JOIN_STATE | IB_MCR_COMPMASK_TCLASS |	/* all above are required */
 	    IB_MCR_COMPMASK_RATE_SEL | IB_MCR_COMPMASK_RATE;
 
@@ -795,7 +795,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	comp_mask =
 	    IB_MCR_COMPMASK_MGID | IB_MCR_COMPMASK_PORT_GID |
 	    IB_MCR_COMPMASK_QKEY | IB_MCR_COMPMASK_PKEY | IB_MCR_COMPMASK_SL |
-	    /* IB_MCR_COMPMASK_FLOW | intentionaly missed to raise the error */
+	    /* IB_MCR_COMPMASK_FLOW | intentionally missed to raise the error */
 	    IB_MCR_COMPMASK_JOIN_STATE | IB_MCR_COMPMASK_TCLASS |	/* all above are required */
 	    IB_MCR_COMPMASK_RATE_SEL | IB_MCR_COMPMASK_RATE;
 
@@ -857,10 +857,10 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	ib_member_set_join_state(&mc_req_rec, IB_MC_REC_STATE_FULL_MEMBER);
 
 	comp_mask = IB_MCR_COMPMASK_MGID | IB_MCR_COMPMASK_PORT_GID |
-	    /* IB_MCR_COMPMASK_QKEY | intentionaly missed to raise the error */
+	    /* IB_MCR_COMPMASK_QKEY | intentionally missed to raise the error */
 	    IB_MCR_COMPMASK_PKEY | IB_MCR_COMPMASK_SL |
 	    IB_MCR_COMPMASK_FLOW | IB_MCR_COMPMASK_JOIN_STATE |
-	    /* IB_MCR_COMPMASK_TCLASS |  intentionaly missed to raise the error */
+	    /* IB_MCR_COMPMASK_TCLASS |  intentionally missed to raise the error */
 	    IB_MCR_COMPMASK_RATE_SEL | IB_MCR_COMPMASK_RATE;
 
 	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_START "\n");
