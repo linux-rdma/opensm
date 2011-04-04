@@ -742,7 +742,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	    ((ib_net16_t) (sa_mad->status & IB_SMP_STATUS_MASK)) !=
 	    IB_SA_MAD_STATUS_INSUF_COMPS) {
 		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02EE: "
-			"Expectedd REMOTE ERROR IB_SA_MAD_STATUS_INSUF_COMPS got:%s/%s\n",
+			"Expected REMOTE ERROR IB_SA_MAD_STATUS_INSUF_COMPS got:%s/%s\n",
 			ib_get_err_str(status),
 			ib_get_mad_status_str((ib_mad_t *) sa_mad));
 		status = IB_ERROR;
@@ -773,7 +773,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	    ((ib_net16_t) (sa_mad->status & IB_SMP_STATUS_MASK)) !=
 	    IB_SA_MAD_STATUS_INSUF_COMPS) {
 		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02ED: "
-			"Expectedd REMOTE ERROR IB_SA_MAD_STATUS_INSUF_COMPS got:%s/%s\n",
+			"Expected REMOTE ERROR IB_SA_MAD_STATUS_INSUF_COMPS got:%s/%s\n",
 			ib_get_err_str(status),
 			ib_get_mad_status_str((ib_mad_t *) sa_mad));
 		status = IB_ERROR;
