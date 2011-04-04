@@ -813,7 +813,7 @@ typedef enum _osm_thread_state {
 * Name
 *
 * DESCRIPTION
-*	Hierarchy info suppported
+*	Hierarchy info supported
 *
 * SYNOPSIS
 */
