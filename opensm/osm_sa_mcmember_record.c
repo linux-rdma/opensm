@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2009 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2011 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2008 Xsigo Systems Inc.  All rights reserved.
  *
@@ -1462,7 +1462,7 @@ void osm_mcmr_rcv_process(IN void *context, IN void *data)
 					  p_recvd_mcmember_rec->port_gid.raw,
 					  gid_str2, sizeof gid_str2));
 			osm_sa_send_error(sa, p_madw,
-					  IB_SA_MAD_STATUS_REQ_INVALID);
+					  IB_SA_MAD_STATUS_INSUF_COMPS);
 			goto Exit;
 		}
 
@@ -1479,7 +1479,7 @@ void osm_mcmr_rcv_process(IN void *context, IN void *data)
 				cl_ntoh64(p_sa_mad->comp_mask),
 				CL_NTOH64(JOIN_MC_COMP_MASK));
 			osm_sa_send_error(sa, p_madw,
-					  IB_SA_MAD_STATUS_REQ_INVALID);
+					  IB_SA_MAD_STATUS_INSUF_COMPS);
 			goto Exit;
 		}
 
