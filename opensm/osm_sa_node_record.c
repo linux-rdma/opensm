@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2010 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
  * This software is available to you under a choice of one of two
@@ -131,7 +131,7 @@ static void nr_rcv_create_nr(IN osm_sa_t * sa, IN osm_node_t * p_node,
 	OSM_LOG_ENTER(sa->p_log);
 
 	OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-		"Looking for NodeRecord with LID: %u GUID:0x%016"
+		"Looking for NodeRecord with LID: %u GUID: 0x%016"
 		PRIx64 "\n", cl_ntoh16(match_lid), cl_ntoh64(match_port_guid));
 
 	/*
@@ -160,12 +160,13 @@ static void nr_rcv_create_nr(IN osm_sa_t * sa, IN osm_node_t * p_node,
 			continue;
 
 		base_lid = osm_physp_get_base_lid(p_physp);
-		base_lid_ho = cl_ntoh16(base_lid);
-		lmc = osm_physp_get_lmc(p_physp);
-		max_lid_ho = (uint16_t) (base_lid_ho + (1 << lmc) - 1);
-		match_lid_ho = cl_ntoh16(match_lid);
 
 		if (comp_mask & IB_NR_COMPMASK_LID) {
+			base_lid_ho = cl_ntoh16(base_lid);
+			lmc = osm_physp_get_lmc(p_physp);
+			max_lid_ho = (uint16_t) (base_lid_ho + (1 << lmc) - 1);
+			match_lid_ho = cl_ntoh16(match_lid);
+
 			/*
 			   We validate that the lid belongs to this node.
 			 */
