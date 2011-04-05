@@ -72,8 +72,7 @@ void mgrp_box_delete(osm_mgrp_box_t *mbox)
 
 void mgrp_delete(IN osm_mgrp_t * p_mgrp)
 {
-	osm_mcm_port_t *p_mcm_port;
-	osm_mcm_port_t *p_next_mcm_port;
+	osm_mcm_port_t *p_mcm_port, *p_next_mcm_port;
 
 	CL_ASSERT(p_mgrp);
 
@@ -93,7 +92,8 @@ void mgrp_delete(IN osm_mgrp_t * p_mgrp)
 void osm_mgrp_box_delete(osm_mgrp_box_t *mbox)
 {
 	osm_mgrp_t *mgrp;
-	while(cl_qlist_count(&mbox->mgrp_list)) {
+
+	while (cl_qlist_count(&mbox->mgrp_list)) {
 		mgrp = cl_item_obj(cl_qlist_remove_head(&mbox->mgrp_list),
 				   mgrp, list_item);
 		mgrp_delete(mgrp);
@@ -140,7 +140,7 @@ void osm_mgrp_cleanup(osm_subn_t * subn, osm_mgrp_t * mgrp)
 		return;
 
 	while (cl_qmap_count(&mgrp->mcm_port_tbl)) {
-		mcm_port = (osm_mcm_port_t *)cl_qmap_head(&mgrp->mcm_port_tbl);
+		mcm_port = (osm_mcm_port_t *) cl_qmap_head(&mgrp->mcm_port_tbl);
 		cl_qmap_remove_item(&mgrp->mcm_port_tbl, &mcm_port->map_item);
 		cl_qlist_remove_item(&mcm_port->port->mcm_list,
 				     &mcm_port->list_item);
@@ -320,6 +320,6 @@ osm_mcm_port_t *osm_mgrp_get_mcm_port(IN const osm_mgrp_t * p_mgrp,
 {
 	cl_map_item_t *item = cl_qmap_get(&p_mgrp->mcm_port_tbl, port_guid);
 	if (item != cl_qmap_end(&p_mgrp->mcm_port_tbl))
-		return (osm_mcm_port_t *)item;
+		return (osm_mcm_port_t *) item;
 	return NULL;
 }

@@ -1620,7 +1620,7 @@ void osm_pr_rcv_process(IN void *context, IN void *data)
 		goto Exit;
 	}
 
-	/* update the requester physical port. */
+	/* update the requester physical port */
 	requester_port = osm_get_port_by_mad_addr(sa->p_log, sa->p_subn,
 						  osm_madw_get_mad_addr_ptr
 						  (p_madw));

@@ -422,14 +422,12 @@ ib_api_status_t osm_opensm_init(IN osm_opensm_t * p_osm,
 			     p_osm->p_vendor, &p_osm->mad_pool, &p_osm->vl15,
 			     &p_osm->log, &p_osm->stats, &p_osm->disp,
 			     &p_osm->lock);
-
 	if (status != IB_SUCCESS)
 		goto Exit;
 
 	status = osm_sa_init(&p_osm->sm, &p_osm->sa, &p_osm->subn,
 			     p_osm->p_vendor, &p_osm->mad_pool, &p_osm->log,
 			     &p_osm->stats, &p_osm->disp, &p_osm->lock);
-
 	if (status != IB_SUCCESS)
 		goto Exit;
 

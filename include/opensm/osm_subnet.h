@@ -501,7 +501,7 @@ typedef struct osm_subn_opt {
 *		hardware specific work arounds
 *
 *	no_clients_rereg
-*		When TRUE disables clients reregistration request.
+*		When TRUE disables clients reregistration request
 *
 * SEE ALSO
 *	Subnet object
@@ -929,7 +929,7 @@ struct osm_switch *osm_get_switch_by_guid(IN const osm_subn_t * p_subn,
 *	osm_get_node_by_guid
 *
 * DESCRIPTION
-*	The looks for the given node giud in the subnet table of nodes by guid.
+*	This looks for the given node guid in the subnet table of nodes by guid.
 *  NOTE: this code is not thread safe. Need to grab the lock before
 *  calling it.
 *
@@ -958,7 +958,7 @@ struct osm_node *osm_get_node_by_guid(IN osm_subn_t const *p_subn,
 *	osm_get_port_by_guid
 *
 * DESCRIPTION
-*	The looks for the given port guid in the subnet table of ports by guid.
+*	This looks for the given port guid in the subnet table of ports by guid.
 *  NOTE: this code is not thread safe. Need to grab the lock before
 *  calling it.
 *
@@ -1041,7 +1041,7 @@ static inline struct osm_port *osm_get_port_by_lid(IN osm_subn_t const * subn,
 *	osm_get_mgrp_by_mgid
 *
 * DESCRIPTION
-*	The looks for the given multicast group in the subnet table by mgid.
+*	This looks for the given multicast group in the subnet table by mgid.
 *	NOTE: this code is not thread safe. Need to grab the lock before
 *	calling it.
 *
@@ -1065,7 +1065,7 @@ struct osm_mgrp *osm_get_mgrp_by_mgid(IN osm_subn_t * subn, IN ib_gid_t * mgid);
 *	osm_get_mbox_by_mlid
 *
 * DESCRIPTION
-*	The looks for the given multicast group in the subnet table by mlid.
+*	This looks for the given multicast group in the subnet table by mlid.
 *	NOTE: this code is not thread safe. Need to grab the lock before
 *	calling it.
 *

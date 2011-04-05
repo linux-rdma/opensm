@@ -1220,7 +1220,7 @@ osm_port_t *osm_port_new(IN const ib_node_info_t * p_ni,
 /*
 * PARAMETERS
 *	p_ni
-*		[in] Pointer to the NodeInfo attribute relavent for this port.
+*		[in] Pointer to the NodeInfo attribute relevant for this port.
 *
 *	p_parent_node
 *		[in] Pointer to the initialized parent osm_node_t object

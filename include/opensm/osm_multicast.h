@@ -178,6 +178,7 @@ osm_mgrp_t *osm_mgrp_new(IN osm_subn_t * subn, IN ib_net16_t mlid,
 * PARAMETERS
 *	subn
 *		[in] Pointer to osm_subn_t object.
+*
 *	mlid
 *		[in] Multicast LID for this multicast group.
 *
@@ -357,7 +358,7 @@ osm_mcm_port_t *osm_mgrp_add_port(osm_subn_t *subn, osm_log_t *log,
 *	osm_mgrp_get_mcm_port
 *
 * DESCRIPTION
-*	finds a port in the multicast group.
+*	Finds a port in the multicast group.
 *
 * SYNOPSIS
 */
@@ -369,7 +370,7 @@ osm_mcm_port_t *osm_mgrp_get_mcm_port(IN const osm_mgrp_t * p_mgrp,
 *		[in] Pointer to an osm_mgrp_t object.
 *
 *	port_guid
-*		[in] Port guid of the departing port.
+*		[in] Port guid.
 *
 * RETURN VALUES
 *	Pointer to the mcm port object when present or NULL otherwise.
@@ -379,9 +380,9 @@ osm_mcm_port_t *osm_mgrp_get_mcm_port(IN const osm_mgrp_t * p_mgrp,
 * SEE ALSO
 *********/
 
-/****f* OpenSM: Multicast Group/osm_mgrp_remove_port
+/****f* OpenSM: Multicast Group/osm_mgrp_delete_port
 * NAME
-*	osm_mgrp_remove_port
+*	osm_mgrp_delete_port
 *
 * DESCRIPTION
 *	Removes a port from the multicast group.

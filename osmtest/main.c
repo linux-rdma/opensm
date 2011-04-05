@@ -359,7 +359,7 @@ int main(int argc, char *argv[])
 
 		case 'f':
 			/*
-			 * Specifies Flow .
+			 * Specifies Flow.
 			 */
 			if (strlen(optarg) > OSMTEST_FILE_PATH_MAX)
 				printf

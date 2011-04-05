@@ -73,7 +73,7 @@ BEGIN_C_DECLS
 *   osm_ca_info_t
 *
 * DESCRIPTION
-* 	Structure containing information about local Channle Adapters.
+* 	Structure containing information about local Channel Adapters.
 *
 * SYNOPSIS
 */

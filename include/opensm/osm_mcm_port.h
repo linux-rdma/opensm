@@ -87,17 +87,19 @@ typedef struct osm_mcm_port {
 *	map_item
 *		Map Item for qmap linkage.  Must be first element!!
 *
+*	list_item
+*		Linkage structure for cl_qlist.
+*
 *	port
-*		Reference to the parent port.
+*		Reference to the parent port
 *
 *	mgrp
 *		The pointer to multicast group where this port is member of
 *
 *	port_gid
-*		GID of the member port.
+*		GID of the member port
 *
 *	scope_state
-*		???
 *
 *	proxy_join
 *		If FALSE - Join was performed by the endport identified
@@ -124,10 +126,10 @@ osm_mcm_port_t *osm_mcm_port_new(IN osm_port_t * port, IN struct osm_mgrp *mgrp,
 /*
 * PARAMETERS
 *	port
-*		[in] Pointer to the port object.
+*		[in] Pointer to the port object
 *
 *	mgrp
-*		[in] Pointer to multicast group where this port is joined.
+*		[in] Pointer to multicast group where this port is joined
 *
 *	mcmr
 *		[in] Pointer to MCMember record of the join request

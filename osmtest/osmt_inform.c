@@ -596,7 +596,7 @@ osmt_init_inform_info_by_trap(IN osmtest_t * const p_osmt,
  * - try to unregister inform info (should succeed)
  * - register an inform info
  * - send a trap - sleep
- * - check that a Report(Notice) arrived that match the sent one
+ * - check that a Report(Notice) arrived that matches the sent trap
  *
  */
 ib_api_status_t osmt_run_inform_info_flow(IN osmtest_t * const p_osmt)
