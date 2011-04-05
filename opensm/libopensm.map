@@ -21,6 +21,7 @@ OPENSM_1.5 {
 		ib_zero_gid;
 		osm_dump_port_info;
 		osm_dump_portinfo_record;
+		osm_dump_guid_info;
 		osm_dump_guidinfo_record;
 		osm_dump_node_info;
 		osm_dump_node_record;

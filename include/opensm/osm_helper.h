@@ -241,6 +241,47 @@ void osm_dump_port_info(IN osm_log_t * p_log, IN ib_net64_t node_guid,
 * SEE ALSO
 *********/
 
+/****f* OpenSM: Helper/osm_dump_guid_info
+* NAME
+*	osm_dump_guid_info
+*
+* DESCRIPTION
+*	Dumps the GUIDInfo attribute to the log.
+*
+* SYNOPSIS
+*/
+void osm_dump_guid_info(IN osm_log_t * p_log, IN ib_net64_t node_guid,
+			IN ib_net64_t port_guid, IN uint8_t block_num,
+			IN const ib_guid_info_t * p_gi,
+			IN osm_log_level_t log_level);
+/*
+* PARAMETERS
+*	p_log
+*		[in] Pointer to the osm_log_t object.
+*
+*	node_guid
+*		[in] Node GUID that owns this port.
+*
+*	port_guid
+*		[in] Port GUID for this port.
+*
+*	block_num
+*		[in] Block number.
+*
+*	p_gi
+*		[in] Pointer to the GUIDInfo attribute.
+*
+*	log_level
+*		[in] Log verbosity level with which to dump the data.
+*
+* RETURN VALUES
+*	None.
+*
+* NOTES
+*
+* SEE ALSO
+*********/
+
 void osm_dump_path_record(IN osm_log_t * p_log, IN const ib_path_rec_t * p_pr,
 			  IN osm_log_level_t log_level);
 
