@@ -7367,7 +7367,7 @@ ib_api_status_t osmtest_run(IN osmtest_t * const p_osmt)
 				}
 #else
 				OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
-					"The event forwarding flow "
+					"Trap 64/65 flow "
 					"is not implemented yet!\n");
 				status = IB_SUCCESS;
 				goto Exit;
