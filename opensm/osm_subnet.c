@@ -1489,7 +1489,7 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		"# Maximal time in [msec] a message can stay in the incoming message queue.\n"
 		"# If there is more than one message in the queue and the last message\n"
 		"# stayed in the queue more than this value, any SA request will be\n"
-		"# immediately returned with a BUSY status.\n"
+		"# immediately be dropped but BUSY status is not currently returned.\n"
 		"max_msg_fifo_timeout %u\n\n"
 		"# Use a single thread for handling SA queries\n"
 		"single_thread %s\n\n",
