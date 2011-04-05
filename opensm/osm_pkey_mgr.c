@@ -402,7 +402,6 @@ static int pkey_mgr_update_peer_port(osm_log_t * p_log, osm_sm_t * sm,
 		return 0;
 
 	p_pkey_tbl = osm_physp_get_pkey_tbl(p_physp);
-	p_peer_pkey_tbl = &peer->pkeys;
 	peer_max_blocks = pkey_mgr_get_physp_max_blocks(peer);
 	if (peer_max_blocks < p_pkey_tbl->used_blocks) {
 		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0508: "
@@ -424,6 +423,7 @@ static int pkey_mgr_update_peer_port(osm_log_t * p_log, osm_sm_t * sm,
 
 	memset(&empty_block, 0, sizeof(ib_pkey_table_t));
 
+	p_peer_pkey_tbl = &peer->pkeys;
 	p_peer_pkey_tbl->used_blocks = p_pkey_tbl->used_blocks;
 	for (block_index = 0; block_index < p_pkey_tbl->used_blocks;
 	     block_index++) {
