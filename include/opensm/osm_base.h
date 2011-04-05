@@ -917,6 +917,7 @@ typedef enum _osm_sm_signal {
 #define OSM_VENDOR_ID_SUPERMICRO    0x003048
 #define OSM_VENDOR_ID_HP3           0x0019BB
 #define OSM_VENDOR_ID_HP4           0x00237D
+#define OSM_VENDOR_ID_OPENIB        0x001405
 
 /**********/
 
