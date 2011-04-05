@@ -892,9 +892,13 @@ void osm_dump_portinfo_record(IN osm_log_t * p_log,
 			"\t\t\t\tp_key_violations........0x%X\n"
 			"\t\t\t\tq_key_violations........0x%X\n"
 			"\t\t\t\tguid_cap................0x%X\n"
+			"\t\t\t\tclient_reregister.......0x%X\n"
+			"\t\t\t\tmcast_pkey_trap_suppr...0x%X\n"
 			"\t\t\t\tsubnet_timeout..........0x%X\n"
 			"\t\t\t\tresp_time_value.........0x%X\n"
-			"\t\t\t\terror_threshold.........0x%X\n",
+			"\t\t\t\terror_threshold.........0x%X\n"
+			"\t\t\t\tmax_credit_hint.........0x%X\n"
+			"\t\t\t\tlink_round_trip_latency.0x%X\n",
 			cl_ntoh16(p_pir->lid), p_pir->port_num, p_pir->resv,
 			cl_ntoh64(p_pi->m_key), cl_ntoh64(p_pi->subnet_prefix),
 			cl_ntoh16(p_pi->base_lid),
@@ -915,8 +919,11 @@ void osm_dump_portinfo_record(IN osm_log_t * p_log,
 			cl_ntoh16(p_pi->m_key_violations),
 			cl_ntoh16(p_pi->p_key_violations),
 			cl_ntoh16(p_pi->q_key_violations), p_pi->guid_cap,
+			ib_port_info_get_client_rereg(p_pi),
+			ib_port_info_get_mcast_pkey_trap_suppress(p_pi),
 			ib_port_info_get_timeout(p_pi), p_pi->resp_time_value,
-			p_pi->error_threshold);
+			p_pi->error_threshold, cl_ntoh16(p_pi->max_credit_hint),
+			cl_ntoh32(p_pi->link_rt_latency));
 
 		/*  show the capabilities mask */
 		if (p_pi->capability_mask) {
