@@ -255,7 +255,8 @@ static void ucast_mgr_process_port(IN osm_ucast_mgr_t * p_mgr,
 	port = osm_switch_recommend_path(p_sw, p_port, lid_ho, start_from,
 					 p_mgr->p_subn->ignore_existing_lfts,
 					 p_mgr->p_subn->opt.lmc,
-					 p_mgr->is_dor);
+					 p_mgr->is_dor,
+					 p_mgr->p_subn->opt.port_shifting);
 
 	if (port == OSM_NO_PATH) {
 		/* do not try to overwrite the ppro of non existing port ... */

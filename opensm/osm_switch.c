@@ -51,6 +51,14 @@
 #include <iba/ib_types.h>
 #include <opensm/osm_switch.h>
 
+struct switch_port_path {
+	uint8_t port_num;
+	uint32_t path_count;
+	int found_sys_guid;
+	int found_node_guid;
+	uint32_t forwarded_to;
+};
+
 cl_status_t osm_switch_set_hops(IN osm_switch_t * p_sw, IN uint16_t lid_ho,
 				IN uint8_t port_num, IN uint8_t num_hops)
 {
@@ -221,7 +229,8 @@ uint8_t osm_switch_recommend_path(IN const osm_switch_t * p_sw,
 				  IN unsigned start_from,
 				  IN boolean_t ignore_existing,
 				  IN boolean_t routing_for_lmc,
-				  IN boolean_t dor)
+				  IN boolean_t dor,
+				  IN boolean_t port_shifting)
 {
 	/*
 	   We support an enhanced LMC aware routing mode:
@@ -263,6 +272,11 @@ uint8_t osm_switch_recommend_path(IN const osm_switch_t * p_sw,
 	osm_node_t *p_rem_node_first = NULL;
 	struct osm_remote_node *p_remote_guid = NULL;
 	struct osm_remote_node null_remote_node = {NULL, 0, 0};
+	struct switch_port_path port_paths[IB_NODE_NUM_PORTS_MAX];
+	unsigned int port_paths_total_paths = 0;
+	unsigned int port_paths_count = 0;
+	int found_sys_guid;
+	int found_node_guid;
 
 	CL_ASSERT(lid_ho > 0);
 
@@ -373,6 +387,7 @@ uint8_t osm_switch_recommend_path(IN const osm_switch_t * p_sw,
 		check_count =
 		    osm_port_prof_path_count_get(&p_sw->p_prof[port_num]);
 
+
 		if (dor) {
 			/* Get the Remote Node */
 			p_rem_physp = osm_physp_get_remote(p_physp);
@@ -416,7 +431,10 @@ uint8_t osm_switch_recommend_path(IN const osm_switch_t * p_sw,
 					best_port_other_sys = port_num;
 					least_forwarded_to = 0;
 				}
+				found_sys_guid = 0;
 			} else {	/* same sys found - try node */
+
+
 				/* Else is the node guid already used ? */
 				p_remote_guid = switch_find_node_guid_count(p_sw,
 									    p_port->priv,
@@ -431,8 +449,26 @@ uint8_t osm_switch_recommend_path(IN const osm_switch_t * p_sw,
 				}
 				/* else prior sys and node guid already used */
 
+				if (!p_remote_guid)
+					found_node_guid = 0;
+				else
+					found_node_guid = 1;
+				found_sys_guid = 1;
 			}	/* same sys found */
 		}
+
+		port_paths[port_paths_count].port_num = port_num;
+		port_paths[port_paths_count].path_count = check_count;
+		if (routing_for_lmc) {
+			port_paths[port_paths_count].found_sys_guid = found_sys_guid;
+			port_paths[port_paths_count].found_node_guid = found_node_guid;
+		}
+		if (routing_for_lmc && p_remote_guid)
+			port_paths[port_paths_count].forwarded_to = p_remote_guid->forwarded_to;
+		else
+			port_paths[port_paths_count].forwarded_to = 0;
+		port_paths_total_paths += check_count;
+		port_paths_count++;
 
 		/* routing for LMC mode */
 		/*
@@ -457,6 +493,66 @@ uint8_t osm_switch_recommend_path(IN const osm_switch_t * p_sw,
 
 	if (port_found == FALSE)
 		return OSM_NO_PATH;
+
+	if (port_shifting && port_paths_count) {
+		/* In the port_paths[] array, we now have all the ports that we
+		 * can route out of.  Using some shifting math below, possibly
+		 * select a different one so that lids won't align in LFTs
+		 *
+		 * If lmc > 0, we need to loop through these ports to find the
+		 * least_forwarded_to port, best_port_other_sys, and
+		 * best_port_other_node just like before but through the different
+		 * ordering.
+		 */
+
+		least_paths = 0xFFFFFFFF;
+		least_paths_other_sys = 0xFFFFFFFF;
+		least_paths_other_nodes = 0xFFFFFFFF;
+	        least_forwarded_to = 0xFFFFFFFF;
+		best_port = 0;
+		best_port_other_sys = 0;
+		best_port_other_node = 0;
+
+		for (i = 0; i < port_paths_count; i++) {
+			unsigned int idx;
+
+			idx = (port_paths_total_paths/port_paths_count + i) % port_paths_count;
+
+			if (routing_for_lmc) {
+				if (!port_paths[idx].found_sys_guid
+				    && port_paths[idx].path_count < least_paths_other_sys) {
+					least_paths_other_sys = port_paths[idx].path_count;
+					best_port_other_sys = port_paths[idx].port_num;
+					least_forwarded_to = 0;
+				}
+				else if (!port_paths[idx].found_node_guid
+					 && port_paths[idx].path_count < least_paths_other_nodes) {
+					least_paths_other_nodes = port_paths[idx].path_count;
+					best_port_other_node = port_paths[idx].port_num;
+					least_forwarded_to = 0;
+				}
+			}
+
+			if (port_paths[idx].path_count < least_paths) {
+				best_port = port_paths[idx].port_num;
+				least_paths = port_paths[idx].path_count;
+				if (routing_for_lmc
+				    && (port_paths[idx].found_sys_guid
+					|| port_paths[idx].found_node_guid)
+				    && port_paths[idx].forwarded_to < least_forwarded_to)
+					least_forwarded_to = port_paths[idx].forwarded_to;
+			}
+			else if (routing_for_lmc
+				 && (port_paths[idx].found_sys_guid
+				     || port_paths[idx].found_node_guid)
+				 && port_paths[idx].path_count == least_paths
+				 && port_paths[idx].forwarded_to < least_forwarded_to) {
+				least_forwarded_to = port_paths[idx].forwarded_to;
+				best_port = port_paths[idx].port_num;
+			}
+
+		}
+	}
 
 	/*
 	   if we are in enhanced routing mode and the best port is not

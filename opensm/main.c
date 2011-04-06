@@ -223,6 +223,9 @@ static void show_usage(void)
 	printf("--io_guid_file, -G <path to file>\n"
 	       "          Set the I/O nodes for the Fat-Tree routing algorithm\n"
 	       "          to the guids provided in the given file (one to a line)\n\n");
+	printf("--port-shifting\n"
+	       "          Attempt to shift port routes around to remove alignment problems\n"
+	       "          in routing tables\n\n");
 	printf("--max_reverse_hops, -H <hop_count>\n"
 	       "          Set the max number of hops the wrong way around\n"
 	       "          an I/O node is allowed to do (connectivity for I/O nodes on top swithces)\n\n");
@@ -601,6 +604,7 @@ int main(int argc, char *argv[])
 		{"root_guid_file", 1, NULL, 'a'},
 		{"cn_guid_file", 1, NULL, 'u'},
 		{"io_guid_file", 1, NULL, 'G'},
+		{"port-shifting", 0, NULL, 11},
 		{"max_reverse_hops", 1, NULL, 'H'},
 		{"ids_guid_file", 1, NULL, 'm'},
 		{"guid_routing_order_file", 1, NULL, 'X'},
@@ -942,6 +946,10 @@ int main(int argc, char *argv[])
 		case 'G':
 			opt.io_guid_file = optarg;
 			printf(" I/O Node Guid File: %s\n", opt.io_guid_file);
+			break;
+		case 11:
+			opt.port_shifting = TRUE;
+			printf(" Port Shifting is on\n");
 			break;
 		case 'H':
 			opt.max_reverse_hops = atoi(optarg);

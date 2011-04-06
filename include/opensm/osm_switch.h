@@ -919,7 +919,8 @@ uint8_t osm_switch_recommend_path(IN const osm_switch_t * p_sw,
 				  IN unsigned start_from,
 				  IN boolean_t ignore_existing,
 				  IN boolean_t routing_for_lmc,
-				  IN boolean_t dor);
+				  IN boolean_t dor,
+				  IN boolean_t port_shifting);
 /*
 * PARAMETERS
 *	p_sw
@@ -954,6 +955,9 @@ uint8_t osm_switch_recommend_path(IN const osm_switch_t * p_sw,
 *
 *	dor
 *		[in] If TRUE, Dimension Order Routing will be done.
+*
+*	port_shifting
+*		[in] If TRUE, port_shifting will be done.
 *
 * RETURN VALUE
 *	Returns the recommended port on which to route this LID.

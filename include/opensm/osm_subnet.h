@@ -200,6 +200,7 @@ typedef struct osm_subn_opt {
 	char *root_guid_file;
 	char *cn_guid_file;
 	char *io_guid_file;
+	boolean_t port_shifting;
 	uint16_t max_reverse_hops;
 	char *ids_guid_file;
 	char *guid_routing_order_file;
@@ -418,6 +419,9 @@ typedef struct osm_subn_opt {
 *	io_guid_file
 *		Name of the file that contains list of I/O node guids that
 *		will be used by fat-tree routing (provided by User)
+*
+*	port_shifting
+*		This option will turn on port_shifting in routing.
 *
 *	ids_guid_file
 *		Name of the file that contains list of ids which should be

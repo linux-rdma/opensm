@@ -25,6 +25,7 @@ opensm \- InfiniBand subnet manager and administration (SM/SA)
 [\-a | \-\-root_guid_file <path to file>]
 [\-u | \-\-cn_guid_file <path to file>]
 [\-G | \-\-io_guid_file <path to file>]
+[\-\-port\-shifting]
 [\-H | \-\-max_reverse_hops <max reverse hops allowed>]
 [\-X | \-\-guid_routing_order_file <path to file>]
 [\-m | \-\-ids_guid_file <path to file>]
@@ -207,6 +208,13 @@ Set the I/O nodes for the Fat-Tree routing algorithm
 to the guids provided in the given file (one to a line).
 I/O nodes are non-CN nodes allowed to use up to max_reverse_hops switches
 the wrong way around to improve connectivity.
+.TP
+\fB\-\-port\-shifting\fR
+This option enables a feature called \fBport shifting\fR.  In some
+fabrics, particularly cluster environments, routes commonly align and
+congest with other routes due to algorithmically unchanging traffic
+patterns.  This routing option will "shift" routing around in an
+attempt to alleviate this problem.
 .TP
 \fB\-H\fR, \fB\-\-max_reverse_hops\fR <file name>
 Set the maximum number of reverse hops an I/O node is allowed
