@@ -238,6 +238,7 @@ typedef struct osm_subn_opt {
 	struct osm_subn_opt *file_opts; /* used for update */
 	uint8_t lash_start_vl;			/* starting vl to use in lash */
 	uint8_t sm_sl;			/* which SL to use for SM/SA communication */
+	uint32_t scatter_ports;
 } osm_subn_opt_t;
 /*
 * FIELDS
@@ -507,6 +508,10 @@ typedef struct osm_subn_opt {
 *
 *	no_clients_rereg
 *		When TRUE disables clients reregistration request
+*
+*	scatter_ports
+*		When not zero, randomize best possible ports chosen
+*		for a route. The value is used as a random key seed.
 *
 * SEE ALSO
 *	Subnet object

@@ -256,7 +256,8 @@ static void ucast_mgr_process_port(IN osm_ucast_mgr_t * p_mgr,
 					 p_mgr->p_subn->ignore_existing_lfts,
 					 p_mgr->p_subn->opt.lmc,
 					 p_mgr->is_dor,
-					 p_mgr->p_subn->opt.port_shifting);
+					 p_mgr->p_subn->opt.port_shifting,
+					 p_mgr->p_subn->opt.scatter_ports);
 
 	if (port == OSM_NO_PATH) {
 		/* do not try to overwrite the ppro of non existing port ... */
@@ -1038,6 +1039,11 @@ static int ucast_mgr_route(struct osm_routing_engine *r, osm_opensm_t * osm)
 
 	OSM_LOG(&osm->log, OSM_LOG_VERBOSE,
 		"building routing with \'%s\' routing algorithm...\n", r->name);
+
+	/* Set the before each lft build to keep the routes in place between sweeps */
+	if(osm->subn.opt.scatter_ports) {
+		srandom(osm->subn.opt.scatter_ports);
+	}
 
 	if (!r->build_lid_matrices ||
 	    (ret = r->build_lid_matrices(r->context)) > 0)

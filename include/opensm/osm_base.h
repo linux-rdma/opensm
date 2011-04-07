@@ -158,6 +158,17 @@ BEGIN_C_DECLS
 */
 #define OSM_DEFAULT_SL 0
 /********/
+/****s* OpenSM: Base/OSM_DEFAULT_SCATTER_PORTS
+* NAME
+*	OSM_DEFAULT_SCATTER_PORTS
+*
+* DESCRIPTION
+*	Default Scatter Ports value used by OpenSM.
+*
+* SYNOPSIS
+*/
+#define OSM_DEFAULT_SCATTER_PORTS 0
+/********/
 /****s* OpenSM: Base/OSM_DEFAULT_SM_PRIORITY
 * NAME
 *	OSM_DEFAULT_SM_PRIORITY
