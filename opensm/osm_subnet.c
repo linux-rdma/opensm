@@ -350,6 +350,7 @@ static const opt_rec_t opt_tbl[] = {
 	{ "cn_guid_file", OPT_OFFSET(cn_guid_file), opts_parse_charp, NULL, 0 },
 	{ "io_guid_file", OPT_OFFSET(io_guid_file), opts_parse_charp, NULL, 0 },
 	{ "port_shifting", OPT_OFFSET(port_shifting), opts_parse_boolean, NULL, 1 },
+	{ "scatter_ports", OPT_OFFSET(scatter_ports), opts_parse_uint32, NULL, 0 },
 	{ "max_reverse_hops", OPT_OFFSET(max_reverse_hops), opts_parse_uint16, NULL, 0 },
 	{ "ids_guid_file", OPT_OFFSET(ids_guid_file), opts_parse_charp, NULL, 0 },
 	{ "guid_routing_order_file", OPT_OFFSET(guid_routing_order_file), opts_parse_charp, NULL, 0 },
@@ -776,6 +777,7 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * p_opt)
 	p_opt->cn_guid_file = NULL;
 	p_opt->io_guid_file = NULL;
 	p_opt->port_shifting = FALSE;
+	p_opt->scatter_ports = OSM_DEFAULT_SCATTER_PORTS;
 	p_opt->max_reverse_hops = 0;
 	p_opt->ids_guid_file = NULL;
 	p_opt->guid_routing_order_file = NULL;
@@ -1485,6 +1487,12 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		p_opts->port_shifting ? "TRUE" : "FALSE");
 
 	fprintf(out,
+		"# Assign ports in a random order instead of round-robin.\n"
+		"# If zero disable, otherwise use the value as a random seed\n"
+		"scatter_ports %d\n\n",
+		p_opts->scatter_ports);
+
+	fprintf(out,
 		"# SA database file name\nsa_db_file %s\n\n",
 		p_opts->sa_db_file ? p_opts->sa_db_file : null_str);
 
@@ -1497,12 +1505,6 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 	fprintf(out,
 		"# Torus-2QoS configuration file name\ntorus_config %s\n\n",
 		p_opts->torus_conf_file ? p_opts->torus_conf_file : null_str);
-
-	fprintf(out,
-		"# Assign ports in a random order instead of round-robin.\n"
-		"# If zero disable, otherwise use the value as a random seed\n"
-		"scatter_ports %d\n\n",
-		p_opts->scatter_ports);
 
 	fprintf(out,
 		"#\n# HANDOVER - MULTIPLE SMs OPTIONS\n#\n"

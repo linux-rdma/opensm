@@ -226,6 +226,8 @@ static void show_usage(void)
 	printf("--port-shifting\n"
 	       "          Attempt to shift port routes around to remove alignment problems\n"
 	       "          in routing tables\n\n");
+	printf("--scatter-ports <random seed>\n"
+	       "          Randomize best port chosen for a route\n\n");
 	printf("--max_reverse_hops, -H <hop_count>\n"
 	       "          Set the max number of hops the wrong way around\n"
 	       "          an I/O node is allowed to do (connectivity for I/O nodes on top swithces)\n\n");
@@ -605,6 +607,7 @@ int main(int argc, char *argv[])
 		{"cn_guid_file", 1, NULL, 'u'},
 		{"io_guid_file", 1, NULL, 'G'},
 		{"port-shifting", 0, NULL, 11},
+		{"scatter-ports", 1, NULL, 14},
 		{"max_reverse_hops", 1, NULL, 'H'},
 		{"ids_guid_file", 1, NULL, 'm'},
 		{"guid_routing_order_file", 1, NULL, 'X'},
@@ -950,6 +953,10 @@ int main(int argc, char *argv[])
 		case 11:
 			opt.port_shifting = TRUE;
 			printf(" Port Shifting is on\n");
+			break;
+		case 14:
+			opt.scatter_ports = strtol(optarg, NULL, 0);
+			printf(" Scatter Ports is on\n");
 			break;
 		case 'H':
 			opt.max_reverse_hops = atoi(optarg);

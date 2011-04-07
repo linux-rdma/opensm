@@ -201,6 +201,7 @@ typedef struct osm_subn_opt {
 	char *cn_guid_file;
 	char *io_guid_file;
 	boolean_t port_shifting;
+	uint32_t scatter_ports;
 	uint16_t max_reverse_hops;
 	char *ids_guid_file;
 	char *guid_routing_order_file;
@@ -238,7 +239,6 @@ typedef struct osm_subn_opt {
 	struct osm_subn_opt *file_opts; /* used for update */
 	uint8_t lash_start_vl;			/* starting vl to use in lash */
 	uint8_t sm_sl;			/* which SL to use for SM/SA communication */
-	uint32_t scatter_ports;
 } osm_subn_opt_t;
 /*
 * FIELDS

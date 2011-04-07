@@ -26,6 +26,7 @@ opensm \- InfiniBand subnet manager and administration (SM/SA)
 [\-u | \-\-cn_guid_file <path to file>]
 [\-G | \-\-io_guid_file <path to file>]
 [\-\-port\-shifting]
+[\-\-scatter\-ports]
 [\-H | \-\-max_reverse_hops <max reverse hops allowed>]
 [\-X | \-\-guid_routing_order_file <path to file>]
 [\-m | \-\-ids_guid_file <path to file>]
@@ -215,6 +216,9 @@ fabrics, particularly cluster environments, routes commonly align and
 congest with other routes due to algorithmically unchanging traffic
 patterns.  This routing option will "shift" routing around in an
 attempt to alleviate this problem.
+.TP
+\fB\-\-scatter\-ports\fR
+This option will randomize port selecting in routing.
 .TP
 \fB\-H\fR, \fB\-\-max_reverse_hops\fR <file name>
 Set the maximum number of reverse hops an I/O node is allowed

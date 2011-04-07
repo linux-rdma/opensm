@@ -248,12 +248,9 @@ uint8_t osm_switch_recommend_path(IN const osm_switch_t * p_sw,
 	uint8_t hops;
 	uint8_t least_hops;
 	uint8_t port_num;
-	uint8_t *possible_ports;
-	uint8_t num_possible = 0;
 	uint8_t num_ports;
 	uint32_t least_paths = 0xFFFFFFFF;
 	unsigned i;
-	unsigned j;
 	/*
 	   The follwing will track the least paths if the
 	   route should go through a new system/node
@@ -279,6 +276,8 @@ uint8_t osm_switch_recommend_path(IN const osm_switch_t * p_sw,
 	struct switch_port_path port_paths[IB_NODE_NUM_PORTS_MAX];
 	unsigned int port_paths_total_paths = 0;
 	unsigned int port_paths_count = 0;
+	uint8_t scatter_possible_ports[IB_NODE_NUM_PORTS_MAX];
+	unsigned int scatter_possible_ports_count = 0;
 	int found_sys_guid;
 	int found_node_guid;
 
@@ -302,14 +301,6 @@ uint8_t osm_switch_recommend_path(IN const osm_switch_t * p_sw,
 	base_lid = cl_ntoh16(base_lid);
 
 	num_ports = p_sw->num_ports;
-
-	possible_ports = malloc(num_ports * sizeof(uint8_t));
-	if (!possible_ports)
-		/*
-		 * This really isn't ideal, but we don't appear to have a log manager
-		 * context here.
-		 */
-		return OSM_NO_PATH;
 
 	least_hops = osm_switch_get_least_hops(p_sw, base_lid);
 	if (least_hops == OSM_NO_PATH)
@@ -490,17 +481,15 @@ uint8_t osm_switch_recommend_path(IN const osm_switch_t * p_sw,
 			port_found = TRUE;
 			best_port = port_num;
 			least_paths = check_count;
-			for (j = 0; j < num_ports; j++) {
-				possible_ports[j] = 0;
-			}
-			num_possible = 0;
-			possible_ports[num_possible++] = port_num;
+			scatter_possible_ports_count = 0;
+			scatter_possible_ports[scatter_possible_ports_count++] = port_num;
 			if (routing_for_lmc
 			    && p_remote_guid
 			    && p_remote_guid->forwarded_to < least_forwarded_to)
 				least_forwarded_to = p_remote_guid->forwarded_to;
-		} else if (check_count == least_paths) {
-			possible_ports[num_possible++] = port_num;
+		} else if (scatter_ports
+			   && check_count == least_paths) {
+			scatter_possible_ports[scatter_possible_ports_count++] = port_num;
 		} else if (routing_for_lmc
 			   && p_remote_guid
 			   && check_count == least_paths
@@ -577,20 +566,20 @@ uint8_t osm_switch_recommend_path(IN const osm_switch_t * p_sw,
 	   if we are in enhanced routing mode and the best port is not
 	   the local port 0
 	 */
-	if (routing_for_lmc && best_port) {
+	if (routing_for_lmc && best_port && !scatter_ports) {
 		/* Select the least hop port of the non used sys first */
 		if (best_port_other_sys)
 			best_port = best_port_other_sys;
 		else if (best_port_other_node)
 			best_port = best_port_other_node;
 	} else if (scatter_ports) {
-	/*
-	 * There is some danger that this random could "rebalance" the routes
-	 * every time, to combat this there is a global srandom that
-	 * occurs at the start of every sweep.
-	 */
-		j = random() % num_possible;
-		best_port = possible_ports[j];
+		/*
+		 * There is some danger that this random could "rebalance" the routes
+		 * every time, to combat this there is a global srandom that
+		 * occurs at the start of every sweep.
+		 */
+		unsigned int idx = random() % scatter_possible_ports_count;
+		best_port = scatter_possible_ports[idx];
 	}
 	return best_port;
 }
