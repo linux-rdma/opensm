@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2007 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2010 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
  * This software is available to you under a choice of one of two
@@ -105,6 +105,7 @@ struct osm_mgrp;
 typedef struct osm_physp {
 	ib_port_info_t port_info;
 	ib_net64_t port_guid;
+	ib_net64_t (*p_guids)[];
 	uint8_t port_num;
 	struct osm_node *p_node;
 	struct osm_physp *p_remote_physp;
@@ -126,6 +127,11 @@ typedef struct osm_physp {
 *	port_guid
 *		Port GUID value of this port.  For switches,
 *		all ports share the same GUID value.
+*
+*	p_guids
+*		Pointer to array of GUIDs obtained from GUIDInfo.
+*		This pointer is null for switch physical/external ports
+*		(used for endports only).
 *
 *	port_num
 *		The port number of this port.  The PortInfo also
@@ -1454,6 +1460,93 @@ osm_physp_replace_dr_path_with_alternate_dr_path(IN osm_log_t * p_log,
 *
 * SEE ALSO
 *	PhysPort object
+*********/
+
+/****s* OpenSM: Port/osm_alias_guid_t
+* NAME
+*	osm_alias_guid_t
+*
+* DESCRIPTION
+*	This object represents an alias guid for an endport.
+*
+*	The osm_alias_guid_t object should be treated as opaque and should
+*	be manipulated only through the provided functions.
+*
+* SYNOPSIS
+*/
+typedef struct osm_alias_guid {
+	cl_map_item_t map_item;
+	ib_net64_t alias_guid;
+	osm_port_t *p_base_port;
+} osm_alias_guid_t;
+/*
+* FIELDS
+*	map_item
+*		Linkage structure for cl_qmap.  MUST BE FIRST MEMBER!
+*
+*	alias_guid
+*		Alias GUID for port obtained from SM GUIDInfo attribute
+*
+*	p_base_port
+*		Pointer to osm_port_t for base port GUID
+*
+* SEE ALSO
+*	Port, Physical Port, Physical Port Table
+*/
+
+/****f* OpenSM: Port/osm_alias_guid_new
+* NAME
+*	osm_alias_guid_new
+*
+* DESCRIPTION
+*	This function allocates and initializes an alias guid object.
+*
+* SYNOPSIS
+*/
+osm_alias_guid_t *osm_alias_guid_new(IN const ib_net64_t alias_guid,
+				     IN osm_port_t *p_base_port);
+/*
+* PARAMETERS
+*	alias_guid
+*		[in] Alias GUID in network order
+*
+*	p_base_port
+*		[in] Pointer to the port for this base GUID
+*
+* RETURN VALUE
+*	Pointer to the initialized alias guid object.
+*
+* NOTES
+*	Allows calling other alias guid methods.
+*
+* SEE ALSO
+*	Port
+*********/
+
+/****f* OpenSM: Port/osm_alias_guid_delete
+* NAME
+*	osm_alias_guid_delete
+*
+* DESCRIPTION
+*	This function destroys and deallocates an alias guid object.
+*
+* SYNOPSIS
+*/
+void osm_alias_guid_delete(IN OUT osm_alias_guid_t ** pp_alias_guid);
+/*
+* PARAMETERS
+*	pp_alias_guid
+*		[in][out] Pointer to a pointer to an alias guid object to delete.
+*		On return, this pointer is NULL.
+*
+* RETURN VALUE
+*	This function does not return a value.
+*
+* NOTES
+*	Performs any necessary cleanup of the specified alias guid object.
+*
+* SEE ALSO
+*	Port
 *********/
 
 END_C_DECLS

@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2010 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
  * This software is available to you under a choice of one of two
@@ -67,6 +67,9 @@ void osm_physp_destroy(IN osm_physp_t * p_physp)
 
 	/* the physp might be uninitialized */
 	if (p_physp->port_guid) {
+		if (p_physp->p_guids)
+			free(p_physp->p_guids);
+
 		/* free the SL2VL Tables */
 		num_slvl = cl_ptr_vector_get_size(&p_physp->slvl_by_port);
 		for (i = 0; i < num_slvl; i++)
@@ -631,4 +634,23 @@ void osm_physp_set_pkey_tbl(IN osm_log_t * p_log, IN const osm_subn_t * p_subn,
 	}
 
 	osm_pkey_tbl_set(&p_physp->pkeys, block_num, p_pkey_tbl);
+}
+
+osm_alias_guid_t *osm_alias_guid_new(IN const ib_net64_t alias_guid,
+				     IN osm_port_t *p_base_port)
+{
+	osm_alias_guid_t *p_alias_guid;
+
+	p_alias_guid = calloc(1, sizeof(*p_alias_guid));
+	if (p_alias_guid) {
+		p_alias_guid->alias_guid = alias_guid;
+		p_alias_guid->p_base_port = p_base_port;
+	}
+	return p_alias_guid;
+}
+
+void osm_alias_guid_delete(IN OUT osm_alias_guid_t ** pp_alias_guid)
+{
+	free(*pp_alias_guid);
+	*pp_alias_guid = NULL;
 }
