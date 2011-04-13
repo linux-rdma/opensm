@@ -292,7 +292,7 @@ static int qos_endport_setup(osm_sm_t * sm, osm_physp_t * p,
 	if (!(p->port_info.capability_mask & IB_PORT_CAP_HAS_SL_MAP))
 		return 0;
 
-	if (re->update_sl2vl) {
+	if (re && re->update_sl2vl) {
 		routing_sl2vl = *port_sl2vl;
 		re->update_sl2vl(re->context, p, 0, 0, &routing_sl2vl);
 		port_sl2vl = &routing_sl2vl;
