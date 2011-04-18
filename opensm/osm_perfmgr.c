@@ -684,6 +684,10 @@ static unsigned is_sm_port_down(osm_sm_t * sm)
 	}
 	CL_PLOCK_RELEASE(sm->p_lock);
 
+	if (p_port->p_node->sw &&
+	    !ib_switch_info_is_enhanced_port0(&p_port->p_node->sw->switch_info))
+		return 0;	/* base SP0 */
+
 	return osm_physp_get_port_state(p_port->p_physp) == IB_LINK_DOWN;
 }
 
