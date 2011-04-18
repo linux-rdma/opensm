@@ -454,8 +454,12 @@ static void collect_guids(cl_map_item_t * p_map_item, void *context)
 				  ib_switch_info_is_enhanced_port0(&node->sw->
 								   switch_info));
 		for (port = mon_node->esp0 ? 0 : 1; port < num_ports; port++) {
-			mon_node->port[port].orig_lid = get_base_lid(node, port);
-			mon_node->port[port].valid = TRUE;
+			mon_node->port[port].orig_lid = 0;
+			mon_node->port[port].valid = FALSE;
+			if (osm_physp_is_valid(&node->physp_table[port])) {
+				mon_node->port[port].orig_lid = get_base_lid(node, port);
+				mon_node->port[port].valid = TRUE;
+			}
 		}
 
 		cl_qmap_insert(&pm->monitored_map, node_guid,
