@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2006 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2011 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
  * This software is available to you under a choice of one of two
@@ -634,10 +634,9 @@ static void sr_rcv_process_delete_method(osm_sa_t * sa, IN osm_madw_t * p_madw)
 			"No records matched the RID\n");
 		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_NO_RECORDS);
 		goto Exit;
-	} else {
-		osm_svcr_remove_from_db(sa->p_subn, sa->p_log, p_svcr);
 	}
 
+	osm_svcr_remove_from_db(sa->p_subn, sa->p_log, p_svcr);
 	cl_plock_release(sa->p_lock);
 
 	p_sr_item = malloc(sizeof(*p_sr_item));
@@ -654,8 +653,7 @@ static void sr_rcv_process_delete_method(osm_sa_t * sa, IN osm_madw_t * p_madw)
 
 	cl_qlist_insert_tail(&sr_list, &p_sr_item->list_item);
 
-	if (p_svcr)
-		osm_svcr_delete(p_svcr);
+	osm_svcr_delete(p_svcr);
 
 	sr_rcv_respond(sa, p_madw, &sr_list);
 
