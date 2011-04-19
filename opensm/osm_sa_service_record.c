@@ -644,6 +644,7 @@ static void sr_rcv_process_delete_method(osm_sa_t * sa, IN osm_madw_t * p_madw)
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2413: "
 			"Unable to acquire Service record\n");
 		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_NO_RESOURCES);
+		osm_svcr_delete(p_svcr);
 		goto Exit;
 	}
 
