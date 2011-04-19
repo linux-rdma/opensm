@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2010 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2011 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2009 HNR Consulting. All rights reserved.
  * Copyright (c) 2009 Sun Microsystems, Inc. All rights reserved.
@@ -2014,9 +2014,8 @@ static const char *sm_signal_str[] = {
 	"OSM_SIGNAL_NONE",	/* 0 */
 	"OSM_SIGNAL_SWEEP",	/* 1 */
 	"OSM_SIGNAL_IDLE_TIME_PROCESS_REQUEST",	/* 2 */
-	"OSM_SIGNAL_EXIT_STBY",	/* 3 */
-	"OSM_SIGNAL_PERFMGR_SWEEP",	/* 4 */
-	"UNKNOWN SIGNAL!!"	/* 5 */
+	"OSM_SIGNAL_PERFMGR_SWEEP",	/* 3 */
+	"UNKNOWN SIGNAL!!"	/* 4 */
 };
 
 const char *osm_get_sm_signal_str(IN osm_signal_t signal)
@@ -2250,17 +2249,17 @@ const char *osm_get_lsa_str(IN uint8_t lsa)
 
 static const char *sm_mgr_signal_str[] = {
 	"OSM_SM_SIGNAL_NONE",	/* 0 */
-	"OSM_SM_SIGNAL_DISCOVERY_COMPLETED",	/* 2 */
-	"OSM_SM_SIGNAL_POLLING_TIMEOUT",	/* 3 */
-	"OSM_SM_SIGNAL_DISCOVER",	/* 4 */
-	"OSM_SM_SIGNAL_DISABLE",	/* 5 */
-	"OSM_SM_SIGNAL_HANDOVER",	/* 6 */
-	"OSM_SM_SIGNAL_HANDOVER_SENT",	/* 7 */
-	"OSM_SM_SIGNAL_ACKNOWLEDGE",	/* 8 */
-	"OSM_SM_SIGNAL_STANDBY",	/* 9 */
-	"OSM_SM_SIGNAL_MASTER_OR_HIGHER_SM_DETECTED",	/* 10 */
-	"OSM_SM_SIGNAL_WAIT_FOR_HANDOVER",	/* 11 */
-	"UNKNOWN STATE!!"	/* 12 */
+	"OSM_SM_SIGNAL_DISCOVERY_COMPLETED",	/* 1 */
+	"OSM_SM_SIGNAL_POLLING_TIMEOUT",	/* 2 */
+	"OSM_SM_SIGNAL_DISCOVER",	/* 3 */
+	"OSM_SM_SIGNAL_DISABLE",	/* 4 */
+	"OSM_SM_SIGNAL_HANDOVER",	/* 5 */
+	"OSM_SM_SIGNAL_HANDOVER_SENT",	/* 6 */
+	"OSM_SM_SIGNAL_ACKNOWLEDGE",	/* 7 */
+	"OSM_SM_SIGNAL_STANDBY",	/* 8 */
+	"OSM_SM_SIGNAL_MASTER_OR_HIGHER_SM_DETECTED",	/* 9 */
+	"OSM_SM_SIGNAL_WAIT_FOR_HANDOVER",	/* 10 */
+	"UNKNOWN STATE!!"	/* 11 */
 };
 
 const char *osm_get_sm_mgr_signal_str(IN osm_sm_signal_t signal)
