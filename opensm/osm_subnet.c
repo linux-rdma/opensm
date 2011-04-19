@@ -70,6 +70,7 @@
 #include <opensm/osm_perfmgr.h>
 #include <opensm/osm_event_plugin.h>
 #include <opensm/osm_qos_policy.h>
+#include <opensm/osm_service.h>
 
 static const char null_str[] = "(null)";
 
@@ -435,6 +436,7 @@ void osm_subn_destroy(IN osm_subn_t * p_subn)
 	osm_remote_sm_t *p_rsm, *p_next_rsm;
 	osm_prtn_t *p_prtn, *p_next_prtn;
 	osm_infr_t *p_infr, *p_next_infr;
+	osm_svcr_t *p_svcr, *p_next_svcr;
 
 	/* it might be a good idea to de-allocate all known objects */
 	p_next_node = (osm_node_t *) cl_qmap_head(&p_subn->node_guid_tbl);
@@ -489,6 +491,14 @@ void osm_subn_destroy(IN osm_subn_t * p_subn)
 		p_infr = p_next_infr;
 		p_next_infr = (osm_infr_t *) cl_qlist_next(&p_infr->list_item);
 		osm_infr_delete(p_infr);
+	}
+
+	p_next_svcr = (osm_svcr_t *) cl_qlist_head(&p_subn->sa_sr_list);
+	while (p_next_svcr !=
+	       (osm_svcr_t *) cl_qlist_end(&p_subn->sa_sr_list)) {
+		p_svcr = p_next_svcr;
+		p_next_svcr = (osm_svcr_t *) cl_qlist_next(&p_svcr->list_item);
+		osm_svcr_delete(p_svcr);
 	}
 
 	cl_ptr_vector_destroy(&p_subn->port_lid_tbl);
