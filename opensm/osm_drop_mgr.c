@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2008 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2010 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2008 Xsigo Systems Inc.  All rights reserved.
  *
@@ -152,6 +152,7 @@ static void drop_mgr_remove_port(osm_sm_t * sm, IN osm_port_t * p_port)
 {
 	ib_net64_t port_guid;
 	osm_port_t *p_port_check;
+	cl_qmap_t *p_alias_guid_tbl;
 	cl_qmap_t *p_sm_guid_tbl;
 	osm_mcm_port_t *mcm_port;
 	cl_ptr_vector_t *p_port_lid_tbl;
@@ -160,6 +161,7 @@ static void drop_mgr_remove_port(osm_sm_t * sm, IN osm_port_t * p_port)
 	uint16_t lid_ho;
 	osm_node_t *p_node;
 	osm_remote_sm_t *p_sm;
+	osm_alias_guid_t *p_alias_guid, *p_alias_guid_check;
 	ib_gid_t port_gid;
 	ib_mad_notice_attr_t notice;
 	ib_api_status_t status;
@@ -205,6 +207,21 @@ static void drop_mgr_remove_port(osm_sm_t * sm, IN osm_port_t * p_port)
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0103: "
 			"Error sending trap reports (%s)\n",
 			ib_get_err_str(status));
+	}
+
+	p_alias_guid_tbl = &sm->p_subn->alias_port_guid_tbl;
+	p_alias_guid_check = (osm_alias_guid_t *) cl_qmap_head(p_alias_guid_tbl);
+	while (p_alias_guid_check != (osm_alias_guid_t *) cl_qmap_end(p_alias_guid_tbl)) {
+		if (p_alias_guid_check->p_base_port == p_port)
+			p_alias_guid = p_alias_guid_check;
+		else
+			p_alias_guid = NULL;
+		p_alias_guid_check = (osm_alias_guid_t *) cl_qmap_next(&p_alias_guid_check->map_item);
+		if (p_alias_guid) {
+			cl_qmap_remove_item(p_alias_guid_tbl,
+					    &p_alias_guid->map_item);
+			osm_alias_guid_delete(&p_alias_guid);
+		}
 	}
 
 	p_sm_guid_tbl = &sm->p_subn->sm_guid_tbl;

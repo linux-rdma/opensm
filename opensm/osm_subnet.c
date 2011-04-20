@@ -418,6 +418,7 @@ void osm_subn_construct(IN osm_subn_t * p_subn)
 	cl_qmap_init(&p_subn->sw_guid_tbl);
 	cl_qmap_init(&p_subn->node_guid_tbl);
 	cl_qmap_init(&p_subn->port_guid_tbl);
+	cl_qmap_init(&p_subn->alias_port_guid_tbl);
 	cl_qmap_init(&p_subn->sm_guid_tbl);
 	cl_qlist_init(&p_subn->sa_sr_list);
 	cl_qlist_init(&p_subn->sa_infr_list);
@@ -431,6 +432,7 @@ void osm_subn_destroy(IN osm_subn_t * p_subn)
 {
 	int i;
 	osm_node_t *p_node, *p_next_node;
+	osm_alias_guid_t *p_alias_guid, *p_next_alias_guid;
 	osm_port_t *p_port, *p_next_port;
 	osm_switch_t *p_sw, *p_next_sw;
 	osm_remote_sm_t *p_rsm, *p_next_rsm;
@@ -445,6 +447,14 @@ void osm_subn_destroy(IN osm_subn_t * p_subn)
 		p_node = p_next_node;
 		p_next_node = (osm_node_t *) cl_qmap_next(&p_node->map_item);
 		osm_node_delete(&p_node);
+	}
+
+	p_next_alias_guid = (osm_alias_guid_t *) cl_qmap_head(&p_subn->alias_port_guid_tbl);
+	while (p_next_alias_guid !=
+	       (osm_alias_guid_t *) cl_qmap_end(&p_subn->alias_port_guid_tbl)) {
+		p_alias_guid = p_next_alias_guid;
+		p_next_alias_guid = (osm_alias_guid_t *) cl_qmap_next(&p_alias_guid->map_item);
+		osm_alias_guid_delete(&p_alias_guid);
 	}
 
 	p_next_port = (osm_port_t *) cl_qmap_head(&p_subn->port_guid_tbl);
@@ -628,6 +638,17 @@ osm_port_t *osm_get_port_by_guid(IN osm_subn_t const *p_subn, IN ib_net64_t guid
 	if (p_port == (osm_port_t *) cl_qmap_end(&(p_subn->port_guid_tbl)))
 		p_port = NULL;
 	return p_port;
+}
+
+osm_port_t *osm_get_port_by_alias_guid(IN osm_subn_t const *p_subn,
+				       IN ib_net64_t guid)
+{
+	osm_alias_guid_t *p_alias_guid;
+
+	p_alias_guid = (osm_alias_guid_t *) cl_qmap_get(&(p_subn->alias_port_guid_tbl), guid);
+	if (p_alias_guid == (osm_alias_guid_t *) cl_qmap_end(&(p_subn->alias_port_guid_tbl)))
+		return NULL;
+	return p_alias_guid->p_base_port;
 }
 
 osm_port_t *osm_get_port_by_lid_ho(IN osm_subn_t const * subn, IN uint16_t lid)

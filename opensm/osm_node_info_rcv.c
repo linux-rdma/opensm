@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2009 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2010 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2009 HNR Consulting. All rights reserved.
  *
@@ -376,6 +376,7 @@ static void ni_rcv_process_existing_ca_or_router(IN osm_sm_t * sm,
 	osm_port_t *p_port_check;
 	uint8_t port_num;
 	osm_dr_path_t *p_dr_path;
+	osm_alias_guid_t *p_alias_guid, *p_alias_guid_check;
 	osm_bind_handle_t h_bind;
 
 	OSM_LOG_ENTER(sm->p_log);
@@ -425,6 +426,32 @@ static void ni_rcv_process_existing_ca_or_router(IN osm_sm_t * sm,
 			goto Exit;
 		}
 
+		p_alias_guid = osm_alias_guid_new(p_ni->port_guid,
+						  p_port);
+		if (!p_alias_guid) {
+			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D11: "
+				"alias guid memory allocation failed"
+				" for port GUID 0x%" PRIx64 "\n",
+				cl_ntoh64(p_ni->port_guid));
+			goto alias_done;
+		}
+
+		/* insert into alias guid table */
+		p_alias_guid_check =
+			(osm_alias_guid_t *) cl_qmap_insert(&sm->p_subn->alias_port_guid_tbl,
+							    p_alias_guid->alias_guid,
+							    &p_alias_guid->map_item);
+		if (p_alias_guid_check != p_alias_guid) {
+			/* alias GUID is a duplicate */
+			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D13: "
+				"Duplicate alias port GUID 0x%" PRIx64 "\n",
+				cl_ntoh64(p_ni->port_guid));
+			osm_alias_guid_delete(&p_alias_guid);
+			osm_port_delete(&p_port);
+			goto Exit;
+		}
+
+alias_done:
 		/* If we are a master, then this means the port is new on the subnet.
 		   Mark it as new - need to send trap 64 for these ports.
 		   The condition that we are master is true, since if we are in discovering
@@ -555,6 +582,7 @@ static void ni_rcv_process_new(IN osm_sm_t * sm, IN const osm_madw_t * p_madw)
 	ib_node_info_t *p_ni;
 	ib_smp_t *p_smp;
 	osm_ni_context_t *p_ni_context;
+	osm_alias_guid_t *p_alias_guid, *p_alias_guid_check;
 	uint8_t port_num;
 
 	OSM_LOG_ENTER(sm->p_log);
@@ -618,6 +646,30 @@ static void ni_rcv_process_new(IN osm_sm_t * sm, IN const osm_madw_t * p_madw)
 		goto Exit;
 	}
 
+	p_alias_guid = osm_alias_guid_new(p_ni->port_guid,
+					  p_port);
+	if (!p_alias_guid) {
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D18: "
+			"alias guid memory allocation failed"
+			" for port GUID 0x%" PRIx64 "\n",
+			cl_ntoh64(p_ni->port_guid));
+		goto alias_done2;
+	}
+
+	/* insert into alias guid table */
+	p_alias_guid_check =
+		(osm_alias_guid_t *) cl_qmap_insert(&sm->p_subn->alias_port_guid_tbl,
+						    p_alias_guid->alias_guid,
+						    &p_alias_guid->map_item);
+	if (p_alias_guid_check != p_alias_guid) {
+		/* alias GUID is a duplicate */
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D19: "
+			"Duplicate alias port GUID 0x%" PRIx64 "\n",
+			cl_ntoh64(p_ni->port_guid));
+		osm_alias_guid_delete(&p_alias_guid);
+	}
+
+alias_done2:
 	/* If we are a master, then this means the port is new on the subnet.
 	   Mark it as new - need to send trap 64 on these ports.
 	   The condition that we are master is true, since if we are in discovering

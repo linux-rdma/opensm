@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2005-2009 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2009,2010 HNR Consulting. All rights reserved.
+ * Copyright (c) 2010 Mellanox Technologies LTD. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -1422,8 +1423,8 @@ typedef struct _regexp_list {
 
 static void dump_portguid_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 {
-	cl_qmap_t *p_port_guid_tbl;
-	osm_port_t *p_port, *p_next_port;
+	cl_qmap_t *p_alias_port_guid_tbl;
+	osm_alias_guid_t *p_alias_guid, *p_next_alias_guid;
 	regexp_list_t *p_regexp, *p_head_regexp = NULL;
 	FILE *output = out;
 
@@ -1472,22 +1473,23 @@ static void dump_portguid_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 
 	/* Subnet doesn't need to be updated so we can carry on */
 
+	p_alias_port_guid_tbl = &(p_osm->sm.p_subn->alias_port_guid_tbl);
 	CL_PLOCK_ACQUIRE(p_osm->sm.p_lock);
-	p_port_guid_tbl = &(p_osm->sm.p_subn->port_guid_tbl);
 
-	p_next_port = (osm_port_t *) cl_qmap_head(p_port_guid_tbl);
-	while (p_next_port != (osm_port_t *) cl_qmap_end(p_port_guid_tbl)) {
+	p_next_alias_guid = (osm_alias_guid_t *) cl_qmap_head(p_alias_port_guid_tbl);
+	while (p_next_alias_guid != (osm_alias_guid_t *) cl_qmap_end(p_alias_port_guid_tbl)) {
 
-		p_port = p_next_port;
-		p_next_port =
-		    (osm_port_t *) cl_qmap_next(&p_next_port->map_item);
+		p_alias_guid = p_next_alias_guid;
+		p_next_alias_guid =
+		    (osm_alias_guid_t *) cl_qmap_next(&p_next_alias_guid->map_item);
 
 		for (p_regexp = p_head_regexp; p_regexp != NULL;
 		     p_regexp = p_regexp->next)
-			if (regexec(&p_regexp->exp, p_port->p_node->print_desc,
+			if (regexec(&p_regexp->exp,
+				    p_alias_guid->p_base_port->p_node->print_desc,
 				    0, NULL, 0) == 0) {
 				fprintf(output, "0x%" PRIxLEAST64 "\n",
-					cl_ntoh64(p_port->p_physp->port_guid));
+					cl_ntoh64(p_alias_guid->alias_guid));
 				break;
 			}
 	}
