@@ -171,6 +171,7 @@ typedef struct osm_subn_opt {
 	uint8_t leaf_head_of_queue_lifetime;
 	uint8_t local_phy_errors_threshold;
 	uint8_t overrun_errors_threshold;
+	boolean_t use_mfttop;
 	uint32_t sminfo_polling_timeout;
 	uint32_t polling_retry_number;
 	uint32_t max_msg_fifo_timeout;

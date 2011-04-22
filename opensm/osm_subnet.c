@@ -322,6 +322,7 @@ static const opt_rec_t opt_tbl[] = {
 	{ "leaf_head_of_queue_lifetime", OPT_OFFSET(leaf_head_of_queue_lifetime), opts_parse_uint8, NULL, 1 },
 	{ "local_phy_errors_threshold", OPT_OFFSET(local_phy_errors_threshold), opts_parse_uint8, NULL, 1 },
 	{ "overrun_errors_threshold", OPT_OFFSET(overrun_errors_threshold), opts_parse_uint8, NULL, 1 },
+	{ "use_mfttop", OPT_OFFSET(use_mfttop), opts_parse_boolean, NULL, 1},
 	{ "sminfo_polling_timeout", OPT_OFFSET(sminfo_polling_timeout), opts_parse_uint32, opts_setup_sminfo_polling_timeout, 1 },
 	{ "polling_retry_number", OPT_OFFSET(polling_retry_number), opts_parse_uint32, NULL, 1 },
 	{ "force_heavy_sweep", OPT_OFFSET(force_heavy_sweep), opts_parse_boolean, NULL, 1 },
@@ -724,6 +725,7 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * p_opt)
 	    OSM_DEFAULT_LEAF_HEAD_OF_QUEUE_LIFE;
 	p_opt->local_phy_errors_threshold = OSM_DEFAULT_ERROR_THRESHOLD;
 	p_opt->overrun_errors_threshold = OSM_DEFAULT_ERROR_THRESHOLD;
+	p_opt->use_mfttop = TRUE;
 	p_opt->sminfo_polling_timeout =
 	    OSM_SM_DEFAULT_POLLING_TIMEOUT_MILLISECS;
 	p_opt->polling_retry_number = OSM_SM_DEFAULT_POLLING_RETRY_NUMBER;
@@ -1334,7 +1336,9 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		"# Threshold of local phy errors for sending Trap 129\n"
 		"local_phy_errors_threshold 0x%02x\n\n"
 		"# Threshold of credit overrun errors for sending Trap 130\n"
-		"overrun_errors_threshold 0x%02x\n\n",
+		"overrun_errors_threshold 0x%02x\n\n"
+		"# Use SwitchInfo:MulticastFDBTop if advertised in PortInfo:CapabilityMask\n"
+		"use_mfttop %s\n\n",
 		cl_ntoh64(p_opts->guid),
 		cl_ntoh64(p_opts->m_key),
 		cl_ntoh16(p_opts->m_key_lease_period),
@@ -1353,7 +1357,8 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		p_opts->force_link_speed,
 		p_opts->subnet_timeout,
 		p_opts->local_phy_errors_threshold,
-		p_opts->overrun_errors_threshold);
+		p_opts->overrun_errors_threshold,
+		p_opts->use_mfttop ? "TRUE" : "FALSE");
 
 	fprintf(out,
 		"#\n# PARTITIONING OPTIONS\n#\n"

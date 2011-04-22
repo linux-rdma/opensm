@@ -1041,7 +1041,8 @@ static void mcast_mgr_set_mfttop(IN osm_sm_t * sm, IN osm_switch_t * p_sw)
 	p_path = osm_physp_get_dr_path_ptr(p_physp);
 	p_tbl = osm_switch_get_mcast_tbl_ptr(p_sw);
 
-	if (p_physp->port_info.capability_mask & IB_PORT_CAP_HAS_MCAST_FDB_TOP) {
+	if (sm->p_subn->opt.use_mfttop &&
+	    p_physp->port_info.capability_mask & IB_PORT_CAP_HAS_MCAST_FDB_TOP) {
 		/*
 		   Set the top of the multicast forwarding table.
 		 */
