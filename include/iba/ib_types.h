@@ -3489,6 +3489,8 @@ typedef struct _ib_class_port_info {
 #define IB_PM_ALL_PORT_SELECT			(CL_HTON16(((uint16_t)1)<<8))
 #define IB_PM_EXT_WIDTH_SUPPORTED		(CL_HTON16(((uint16_t)1)<<9))
 #define IB_PM_EXT_WIDTH_NOIETF_SUP		(CL_HTON16(((uint16_t)1)<<10))
+#define IB_PM_SAMPLES_ONLY_SUP			(CL_HTON16(((uint16_t)1)<<11))
+#define IB_PM_PC_XMIT_WAIT_SUP			(CL_HTON16(((uint16_t)1)<<12))
 
 /****f* IBA Base: Types/ib_class_set_resp_time_val
 * NAME
