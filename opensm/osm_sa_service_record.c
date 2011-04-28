@@ -113,7 +113,7 @@ match_service_pkey_with_ports_pkey(IN osm_sa_t * sa,
 			service_guid =
 			    p_service_rec->service_gid.unicast.interface_id;
 			service_port =
-			    osm_get_port_by_guid(sa->p_subn, service_guid);
+			    osm_get_port_by_alias_guid(sa->p_subn, service_guid);
 			if (!service_port) {
 				OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2405: "
 					"No port object for port 0x%016" PRIx64
