@@ -402,6 +402,9 @@ static void del_guidinfo(IN osm_sa_t *sa, IN osm_madw_t *p_madw,
 	ib_guidinfo_record_t *p_rcvd_rec;
 	ib_net64_t del_alias_guid;
 	osm_alias_guid_t *p_alias_guid;
+	cl_list_item_t *p_list_item;
+	osm_mcm_port_t *p_mcm_port;
+	osm_mcm_alias_guid_t *p_mcm_alias_guid;
 	uint8_t del_mask;
 	int dirty = 0;
 
@@ -425,6 +428,30 @@ static void del_guidinfo(IN osm_sa_t *sa, IN osm_madw_t *p_madw,
 					  IB_SA_MAD_STATUS_REQ_INVALID);
 			return;
 		}
+		if (!(del_mask & 1<<(i % 8)))
+			continue;
+
+		del_alias_guid = (*p_port->p_physp->p_guids)[i];
+		if (del_alias_guid) {
+			/* Search all of port's multicast groups for alias */
+			p_list_item = cl_qlist_head(&p_port->mcm_list);
+			while (p_list_item != cl_qlist_end(&p_port->mcm_list)) {
+				p_mcm_port = cl_item_obj(p_list_item,
+							 p_mcm_port, list_item);
+				p_list_item = cl_qlist_next(p_list_item);
+				p_mcm_alias_guid = osm_mgrp_get_mcm_alias_guid(p_mcm_port->mgrp, del_alias_guid);
+				if (p_mcm_alias_guid) {
+					osm_sa_send_error(sa, p_madw,
+							  IB_SA_MAD_STATUS_DENIED);
+					return;
+				}
+			}
+		}
+	}
+
+	for (i = block_num * GUID_TABLE_MAX_ENTRIES;
+	     (block_num + 1) * GUID_TABLE_MAX_ENTRIES < p_port->p_physp->port_info.guid_cap ? i < (block_num + 1) * GUID_TABLE_MAX_ENTRIES : i < p_port->p_physp->port_info.guid_cap;
+	     i++) {
 		if (!(del_mask & 1<<(i % 8)))
 			continue;
 
