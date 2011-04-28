@@ -531,14 +531,14 @@ opensm_dump_to_file(osm_opensm_t * p_osm, const char *file_name,
 static void mcast_mgr_dump_one_port(cl_map_item_t * p_map_item, void *cxt)
 {
 	FILE *file = ((struct opensm_dump_context *)cxt)->file;
-	osm_mcm_port_t *p_mcm_port = (osm_mcm_port_t *) p_map_item;
+	osm_mcm_alias_guid_t *p_mcm_alias_guid = (osm_mcm_alias_guid_t *) p_map_item;
 
 	fprintf(file, "mcm_port: "
 		"port_gid=0x%016" PRIx64 ":0x%016" PRIx64 " "
 		"scope_state=0x%02x proxy_join=0x%x" "\n\n",
-		cl_ntoh64(p_mcm_port->port_gid.unicast.prefix),
-		cl_ntoh64(p_mcm_port->port_gid.unicast.interface_id),
-		p_mcm_port->scope_state, p_mcm_port->proxy_join);
+		cl_ntoh64(p_mcm_alias_guid->port_gid.unicast.prefix),
+		cl_ntoh64(p_mcm_alias_guid->port_gid.unicast.interface_id),
+		p_mcm_alias_guid->scope_state, p_mcm_alias_guid->proxy_join);
 }
 
 static void sa_dump_one_mgrp(osm_mgrp_t *p_mgrp, void *cxt)
@@ -573,7 +573,7 @@ static void sa_dump_one_mgrp(osm_mgrp_t *p_mgrp, void *cxt)
 	dump_context.p_osm = p_osm;
 	dump_context.file = file;
 
-	cl_qmap_apply_func(&p_mgrp->mcm_port_tbl,
+	cl_qmap_apply_func(&p_mgrp->mcm_alias_port_tbl,
 			   mcast_mgr_dump_one_port, &dump_context);
 }
 
@@ -1112,7 +1112,7 @@ int osm_sa_db_file_load(osm_opensm_t * p_osm)
 			proxy = val;
 
 			guid = mcmr.port_gid.unicast.interface_id;
-			port = osm_get_port_by_guid(&p_osm->subn, guid);
+			port = osm_get_port_by_alias_guid(&p_osm->subn, guid);
 			if (port &&
 			    cl_qmap_get(&p_mgrp->mcm_port_tbl, guid) ==
 			    cl_qmap_end(&p_mgrp->mcm_port_tbl) &&

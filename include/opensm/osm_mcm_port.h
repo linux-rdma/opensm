@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2012 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
  * This software is available to you under a choice of one of two
@@ -78,9 +78,6 @@ typedef struct osm_mcm_port {
 	cl_list_item_t list_item;
 	osm_port_t *port;
 	struct osm_mgrp *mgrp;
-	ib_gid_t port_gid;
-	uint8_t scope_state;
-	boolean_t proxy_join;
 } osm_mcm_port_t;
 /*
 * FIELDS
@@ -96,17 +93,6 @@ typedef struct osm_mcm_port {
 *	mgrp
 *		The pointer to multicast group where this port is member of
 *
-*	port_gid
-*		GID of the member port
-*
-*	scope_state
-*
-*	proxy_join
-*		If FALSE - Join was performed by the endport identified
-*		by PortGID. If TRUE - Join was performed on behalf of
-*		the endport identified by PortGID by another port within
-*		the same partition.
-*
 * SEE ALSO
 *	MCM Port Object
 *********/
@@ -121,8 +107,7 @@ typedef struct osm_mcm_port {
 *
 * SYNOPSIS
 */
-osm_mcm_port_t *osm_mcm_port_new(IN osm_port_t * port, IN struct osm_mgrp *mgrp,
-				 IN ib_member_rec_t *mcmr, IN boolean_t proxy);
+osm_mcm_port_t *osm_mcm_port_new(IN osm_port_t * port, IN struct osm_mgrp *mgrp);
 /*
 * PARAMETERS
 *	port
@@ -130,12 +115,6 @@ osm_mcm_port_t *osm_mcm_port_new(IN osm_port_t * port, IN struct osm_mgrp *mgrp,
 *
 *	mgrp
 *		[in] Pointer to multicast group where this port is joined
-*
-*	mcmr
-*		[in] Pointer to MCMember record of the join request
-*
-*	proxy
-*		[in] proxy_join state analyzed from the request
 *
 * RETURN VALUES
 *	Pointer to the allocated and initialized MCM Port object.
@@ -169,6 +148,111 @@ void osm_mcm_port_delete(IN osm_mcm_port_t * p_mcm);
 *
 * SEE ALSO
 *	MCM Port Object, osm_mcm_port_new
+*********/
+
+/****s* OpenSM: MCM Port Object/osm_mcm_alias_guid_t
+* NAME
+*	osm_mcm_alias_guid_t
+*
+* DESCRIPTION
+*	This object represents an alias guid for a mcm port.
+*
+*	The osm_mcm_alias_guid_t object should be treated as opaque and should
+*	be manipulated only through the provided functions.
+*
+* SYNOPSIS
+*/
+typedef struct osm_mcm_alias_guid {
+	cl_map_item_t map_item;
+	ib_net64_t alias_guid;
+	osm_mcm_port_t *p_base_mcm_port;
+	ib_gid_t port_gid;
+	uint8_t scope_state;
+	boolean_t proxy_join;
+} osm_mcm_alias_guid_t;
+/*
+* FIELDS
+*	map_item
+*		Linkage structure for cl_qmap.  MUST BE FIRST MEMBER!
+*
+*	alias_guid
+*		Alias GUID for port obtained from SM GUIDInfo attribute
+*
+*	p_base_mcm_port
+*		Pointer to osm_mcm_port_t for base port GUID
+*
+*	port_gid
+*		GID of the member port
+*
+*	scope_state
+*
+*	proxy_join
+*		If FALSE - Join was performed by the endport identified
+*		by PortGID. If TRUE - Join was performed on behalf of
+*		the endport identified by PortGID by another port within
+*		the same partition.
+*
+* SEE ALSO
+*	MCM Port, Physical Port, Physical Port Table
+*/
+
+/****f* OpenSM: MCM Port Object/osm_mcm_alias_guid_new
+* NAME
+*	osm_mcm_alias_guid_new
+*
+* DESCRIPTION
+*	This function allocates and initializes an mcm alias guid object.
+*
+* SYNOPSIS
+*/
+osm_mcm_alias_guid_t *osm_mcm_alias_guid_new(IN osm_mcm_port_t *p_base_mcm_port,
+					     IN ib_member_rec_t *mcmr,
+					     IN boolean_t proxy);
+/*
+* PARAMETERS
+*	p_base_mcm_port
+*		[in] Pointer to the mcm port for this base GUID
+*
+*	mcmr
+*		[in] Pointer to MCMember record of the join request
+*
+*	proxy
+*		[in] proxy_join state analyzed from the request
+*
+* RETURN VALUE
+*	Pointer to the initialized mcm alias guid object.
+*
+* NOTES
+*	Allows calling other mcm alias guid methods.
+*
+* SEE ALSO
+*       MCM Port Object
+*********/
+
+/****f* OpenSM: MCM Port Object/osm_mcm_alias_guid_delete
+* NAME
+*	osm_mcm_alias_guid_delete
+*
+* DESCRIPTION
+*	This function destroys and deallocates an mcm alias guid object.
+*
+* SYNOPSIS
+*/
+void osm_mcm_alias_guid_delete(IN OUT osm_mcm_alias_guid_t ** pp_mcm_alias_guid);
+/*
+* PARAMETERS
+*	pp_mcm_alias_guid
+*		[in][out] Pointer to a pointer to an mcm alias guid object to
+*		delete. On return, this pointer is NULL.
+*
+* RETURN VALUE
+*	This function does not return a value.
+*
+* NOTES
+*	Performs any necessary cleanup of the specified mcm alias guid object.
+*
+* SEE ALSO
+*	MCM Port Object
 *********/
 
 END_C_DECLS

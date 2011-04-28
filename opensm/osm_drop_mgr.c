@@ -209,6 +209,13 @@ static void drop_mgr_remove_port(osm_sm_t * sm, IN osm_port_t * p_port)
 			ib_get_err_str(status));
 	}
 
+	while (!cl_is_qlist_empty(&p_port->mcm_list)) {
+		mcm_port = cl_item_obj(cl_qlist_head(&p_port->mcm_list),
+				       mcm_port, list_item);
+		osm_mgrp_delete_port(sm->p_subn, sm->p_log, mcm_port->mgrp,
+				     p_port);
+	}
+
 	p_alias_guid_tbl = &sm->p_subn->alias_port_guid_tbl;
 	p_alias_guid_check = (osm_alias_guid_t *) cl_qmap_head(p_alias_guid_tbl);
 	while (p_alias_guid_check != (osm_alias_guid_t *) cl_qmap_end(p_alias_guid_tbl)) {
@@ -248,13 +255,6 @@ static void drop_mgr_remove_port(osm_sm_t * sm, IN osm_port_t * p_port)
 		cl_ptr_vector_set(p_port_lid_tbl, lid_ho, NULL);
 
 	drop_mgr_clean_physp(sm, p_port->p_physp);
-
-	while (!cl_is_qlist_empty(&p_port->mcm_list)) {
-		mcm_port = cl_item_obj(cl_qlist_head(&p_port->mcm_list),
-				       mcm_port, list_item);
-		osm_mgrp_delete_port(sm->p_subn, sm->p_log, mcm_port->mgrp,
-				     p_port->guid);
-	}
 
 	/* initialize the p_node - may need to get node_desc later */
 	p_node = p_port->p_node;

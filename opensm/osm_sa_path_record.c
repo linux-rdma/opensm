@@ -1509,9 +1509,8 @@ static ib_api_status_t pr_match_mgrp_attributes(IN osm_sa_t * sa,
 
 	/* If SGID and/or SLID specified, should validate as member of MC group */
 	if (comp_mask & IB_PR_COMPMASK_SGID) {
-		port = osm_get_port_by_guid(sa->p_subn,
-					    p_pr->sgid.unicast.interface_id);
-		if (!port || !osm_mgrp_get_mcm_port(p_mgrp, port->guid))
+		if (!osm_mgrp_get_mcm_alias_guid(p_mgrp,
+						 p_pr->sgid.unicast.interface_id))
 			goto Exit;
 	}
 

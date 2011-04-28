@@ -370,7 +370,7 @@ static boolean_t validate_port_caps(osm_log_t * p_log,
 static boolean_t validate_modify(IN osm_sa_t * sa, IN osm_mgrp_t * p_mgrp,
 				 IN osm_mad_addr_t * p_mad_addr,
 				 IN ib_member_rec_t * p_recvd_mcmember_rec,
-				 OUT osm_mcm_port_t ** pp_mcm_port)
+				 OUT osm_mcm_alias_guid_t ** pp_mcm_alias_guid)
 {
 	ib_net64_t portguid;
 	ib_gid_t request_gid;
@@ -379,10 +379,10 @@ static boolean_t validate_modify(IN osm_sa_t * sa, IN osm_mgrp_t * p_mgrp,
 
 	portguid = p_recvd_mcmember_rec->port_gid.unicast.interface_id;
 
-	*pp_mcm_port = osm_mgrp_get_mcm_port(p_mgrp, portguid);
+	*pp_mcm_alias_guid = osm_mgrp_get_mcm_alias_guid(p_mgrp, portguid);
 
 	/* o15-0.2.1: If this is a new port being added - nothing to check */
-	if (!*pp_mcm_port) {
+	if (!*pp_mcm_alias_guid) {
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"This is a new port in the MC group\n");
 		return TRUE;
@@ -390,7 +390,7 @@ static boolean_t validate_modify(IN osm_sa_t * sa, IN osm_mgrp_t * p_mgrp,
 
 	/* We validate the request according the the proxy_join.
 	   Check if the proxy_join is set or not */
-	if ((*pp_mcm_port)->proxy_join == FALSE) {
+	if ((*pp_mcm_alias_guid)->proxy_join == FALSE) {
 		/* The proxy_join is not set. Modifying can by done only
 		   if the requester GID == PortGID */
 		res = osm_get_gid_by_mad_addr(sa->p_log, sa->p_subn, p_mad_addr,
@@ -401,13 +401,14 @@ static boolean_t validate_modify(IN osm_sa_t * sa, IN osm_mgrp_t * p_mgrp,
 			return FALSE;
 		}
 
-		if (memcmp(&(*pp_mcm_port)->port_gid, &request_gid,
-			   sizeof(ib_gid_t))) {
+		if ((*pp_mcm_alias_guid)->p_base_mcm_port->port->guid !=
+		    request_gid.unicast.interface_id ||
+		    (*pp_mcm_alias_guid)->port_gid.unicast.prefix !=
+		    request_gid.unicast.prefix) {
 			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 				"No ProxyJoin but different ports: stored:"
 				"0x%016" PRIx64 " request:0x%016" PRIx64 "\n",
-				cl_ntoh64((*pp_mcm_port)->port_gid.unicast.
-					  interface_id),
+				cl_ntoh64((*pp_mcm_alias_guid)->p_base_mcm_port->port->guid),
 				cl_ntoh64(request_gid.unicast.interface_id));
 			return FALSE;
 		}
@@ -456,16 +457,16 @@ static boolean_t validate_modify(IN osm_sa_t * sa, IN osm_mgrp_t * p_mgrp,
 static boolean_t validate_delete(IN osm_sa_t * sa, IN osm_mgrp_t * p_mgrp,
 				 IN osm_mad_addr_t * p_mad_addr,
 				 IN ib_member_rec_t * p_recvd_mcmember_rec,
-				 OUT osm_mcm_port_t ** pp_mcm_port)
+				 OUT osm_mcm_alias_guid_t ** pp_mcm_alias_guid)
 {
 	ib_net64_t portguid;
 
 	portguid = p_recvd_mcmember_rec->port_gid.unicast.interface_id;
 
-	*pp_mcm_port = osm_mgrp_get_mcm_port(p_mgrp, portguid);
+	*pp_mcm_alias_guid = osm_mgrp_get_mcm_alias_guid(p_mgrp, portguid);
 
 	/* 1 */
-	if (!*pp_mcm_port) {
+	if (!*pp_mcm_alias_guid) {
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Failed to find the port in the MC group\n");
 		return FALSE;
@@ -473,7 +474,7 @@ static boolean_t validate_delete(IN osm_sa_t * sa, IN osm_mgrp_t * p_mgrp,
 
 	/* 2 */
 	if (!(p_recvd_mcmember_rec->scope_state & 0x0F &
-	      (*pp_mcm_port)->scope_state)) {
+	      (*pp_mcm_alias_guid)->scope_state)) {
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Could not find any matching bits in the stored "
 			"and requested JoinStates\n");
@@ -482,20 +483,20 @@ static boolean_t validate_delete(IN osm_sa_t * sa, IN osm_mgrp_t * p_mgrp,
 
 	/* 3 */
 	if (((p_recvd_mcmember_rec->scope_state & 0x0F) |
-	     (0x0F & (*pp_mcm_port)->scope_state)) !=
-	    (0x0F & (*pp_mcm_port)->scope_state)) {
+	     (0x0F & (*pp_mcm_alias_guid)->scope_state)) !=
+	    (0x0F & (*pp_mcm_alias_guid)->scope_state)) {
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Some bits in the request JoinState (0x%X) are not "
 			"set in the stored port (0x%X)\n",
 			(p_recvd_mcmember_rec->scope_state & 0x0F),
-			(0x0F & (*pp_mcm_port)->scope_state));
+			(0x0F & (*pp_mcm_alias_guid)->scope_state));
 		return FALSE;
 	}
 
 	/* 4 */
 	/* Validate according the the proxy_join (o15-0.1.2) */
 	if (validate_modify(sa, p_mgrp, p_mad_addr, p_recvd_mcmember_rec,
-			    pp_mcm_port) == FALSE) {
+			    pp_mcm_alias_guid) == FALSE) {
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"proxy_join validation failure\n");
 		return FALSE;
@@ -899,7 +900,7 @@ static void mcmr_rcv_leave_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 	ib_sa_mad_t *p_sa_mad;
 	ib_member_rec_t *p_recvd_mcmember_rec;
 	ib_member_rec_t mcmember_rec;
-	osm_mcm_port_t *p_mcm_port;
+	osm_mcm_alias_guid_t *p_mcm_alias_guid;
 
 	OSM_LOG_ENTER(sa->p_log);
 
@@ -929,7 +930,7 @@ static void mcmr_rcv_leave_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 
 	/* check validity of the delete request o15-0.1.14 */
 	if (!validate_delete(sa, p_mgrp, osm_madw_get_mad_addr_ptr(p_madw),
-			     p_recvd_mcmember_rec, &p_mcm_port)) {
+			     p_recvd_mcmember_rec, &p_mcm_alias_guid)) {
 		char gid_str[INET6_ADDRSTRLEN];
 		char gid_str2[INET6_ADDRSTRLEN];
 		CL_PLOCK_RELEASE(sa->p_lock);
@@ -945,7 +946,7 @@ static void mcmr_rcv_leave_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 	}
 
 	/* remove port and/or update join state */
-	osm_mgrp_remove_port(sa->p_subn, sa->p_log, p_mgrp, p_mcm_port,
+	osm_mgrp_remove_port(sa->p_subn, sa->p_log, p_mgrp, p_mcm_alias_guid,
 			     &mcmember_rec);
 	CL_PLOCK_RELEASE(sa->p_lock);
 
@@ -966,6 +967,7 @@ static void mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 	ib_member_rec_t *p_recvd_mcmember_rec;
 	ib_member_rec_t mcmember_rec;
 	osm_mcm_port_t *p_mcmr_port;
+	osm_mcm_alias_guid_t *p_mcm_alias_guid;
 	ib_net64_t portguid;
 	osm_port_t *p_port;
 	osm_physp_t *p_physp;
@@ -991,7 +993,7 @@ static void mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 	CL_PLOCK_EXCL_ACQUIRE(sa->p_lock);
 
 	/* make sure the requested port guid is known to the SM */
-	p_port = osm_get_port_by_guid(sa->p_subn, portguid);
+	p_port = osm_get_port_by_alias_guid(sa->p_subn, portguid);
 	if (!p_port) {
 		CL_PLOCK_RELEASE(sa->p_lock);
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
@@ -1022,7 +1024,7 @@ static void mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 		goto Exit;
 	}
 
-	if (p_sa_mad->comp_mask & IB_MCR_COMPMASK_PKEY &&
+	if ((p_sa_mad->comp_mask & IB_MCR_COMPMASK_PKEY) &&
 	    ib_pkey_is_invalid(p_recvd_mcmember_rec->pkey)) {
 		CL_PLOCK_RELEASE(sa->p_lock);
 		OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
@@ -1137,7 +1139,7 @@ static void mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 	 */
 	if (!is_new_group &&
 	    !validate_modify(sa, p_mgrp, osm_madw_get_mad_addr_ptr(p_madw),
-			     p_recvd_mcmember_rec, &p_mcmr_port)) {
+			     p_recvd_mcmember_rec, &p_mcm_alias_guid)) {
 		CL_PLOCK_RELEASE(sa->p_lock);
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B13: "
 			"validate_modify failed from port 0x%016" PRIx64
@@ -1217,7 +1219,7 @@ static void mcmr_by_comp_mask(osm_sa_t * sa, const ib_member_rec_t * p_rcvd_rec,
 {
 	/* since we might change scope_state */
 	ib_member_rec_t match_rec;
-	osm_mcm_port_t *p_mcm_port;
+	osm_mcm_alias_guid_t *p_mcm_alias_guid;
 	ib_net64_t portguid = p_rcvd_rec->port_gid.unicast.interface_id;
 	/* will be used for group or port info */
 	uint8_t scope_state;
@@ -1297,12 +1299,13 @@ static void mcmr_by_comp_mask(osm_sa_t * sa, const ib_member_rec_t * p_rcvd_rec,
 	/* so did we get the PortGUID mask */
 	if (IB_MCR_COMPMASK_PORT_GID & comp_mask) {
 		/* try to find this port */
-		p_mcm_port = osm_mgrp_get_mcm_port(p_mgrp, portguid);
-		if (!p_mcm_port) /* port not in group */
+		p_mcm_alias_guid = osm_mgrp_get_mcm_alias_guid(p_mgrp, portguid);
+		if (!p_mcm_alias_guid) /* port not in group */
 			goto Exit;
-		scope_state = p_mcm_port->scope_state;
-		memcpy(&port_gid, &(p_mcm_port->port_gid), sizeof(ib_gid_t));
-		proxy_join = p_mcm_port->proxy_join;
+		scope_state = p_mcm_alias_guid->scope_state;
+		memcpy(&port_gid, &(p_mcm_alias_guid->port_gid),
+		       sizeof(ib_gid_t));
+		proxy_join = p_mcm_alias_guid->proxy_join;
 	} else /* point to the group information */
 		scope_state = p_mgrp->mcmember_rec.scope_state;
 
@@ -1319,17 +1322,18 @@ static void mcmr_by_comp_mask(osm_sa_t * sa, const ib_member_rec_t * p_rcvd_rec,
 			"Trusted req is TRUE and no specific port defined\n");
 
 		/* return all the ports that match in this MC group */
-		p_item = cl_qmap_head(&(p_mgrp->mcm_port_tbl));
-		while (p_item != cl_qmap_end(&(p_mgrp->mcm_port_tbl))) {
-			p_mcm_port = (osm_mcm_port_t *) p_item;
+		p_item = cl_qmap_head(&(p_mgrp->mcm_alias_port_tbl));
+		while (p_item != cl_qmap_end(&(p_mgrp->mcm_alias_port_tbl))) {
+			p_mcm_alias_guid = (osm_mcm_alias_guid_t *) p_item;
 
 			if ((scope_state_mask & p_rcvd_rec->scope_state) ==
-			    (scope_state_mask & p_mcm_port->scope_state)) {
+			    (scope_state_mask & p_mcm_alias_guid->scope_state)) {
 				/* add to the list */
 				match_rec = p_mgrp->mcmember_rec;
-				match_rec.scope_state = p_mcm_port->scope_state;
+				match_rec.scope_state = p_mcm_alias_guid->scope_state;
 				memcpy(&match_rec.port_gid,
-				       &p_mcm_port->port_gid, sizeof(ib_gid_t));
+				       &p_mcm_alias_guid->port_gid,
+				       sizeof(ib_gid_t));
 				OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 					"Record of port_gid: %s"
 					" in multicast_lid: 0x%X is returned\n",
@@ -1339,7 +1343,7 @@ static void mcmr_by_comp_mask(osm_sa_t * sa, const ib_member_rec_t * p_rcvd_rec,
 					cl_ntoh16(p_mgrp->mlid));
 
 				match_rec.proxy_join =
-				    (uint8_t) (p_mcm_port->proxy_join);
+				    (uint8_t) (p_mcm_alias_guid->proxy_join);
 
 				mcmr_rcv_new_mcmr(sa, &match_rec, list);
 			}

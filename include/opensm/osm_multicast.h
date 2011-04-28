@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2012 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
  * This software is available to you under a choice of one of two
@@ -101,6 +101,7 @@ typedef struct osm_mgrp {
 	cl_list_item_t list_item;
 	ib_net16_t mlid;
 	cl_qmap_t mcm_port_tbl;
+	cl_qmap_t mcm_alias_port_tbl;
 	ib_member_rec_t mcmember_rec;
 	boolean_t well_known;
 	unsigned full_members;
@@ -120,6 +121,11 @@ typedef struct osm_mgrp {
 *	mcm_port_tbl
 *		Table (sorted by port GUID) of osm_mcm_port_t objects
 *		representing the member ports of this multicast group.
+*
+*	mcm_alias_port_tbl
+*		Table (sorted by port alias GUID) of osm_mcm_port_t
+*		objects representing the member ports of this multicast
+*		group.
 *
 *	mcmember_rec
 *		Holds the parameters of the Multicast Group.
@@ -380,6 +386,33 @@ osm_mcm_port_t *osm_mgrp_get_mcm_port(IN const osm_mgrp_t * p_mgrp,
 * SEE ALSO
 *********/
 
+/****f* OpenSM: Multicast Group/osm_mgrp_get_mcm_alias_guid
+* NAME
+*	osm_mgrp_get_mcm_alias_guid
+*
+* DESCRIPTION
+*	Finds an mcm alias GUID in the multicast group based on an alias GUID.
+*
+* SYNOPSIS
+*/
+osm_mcm_alias_guid_t *osm_mgrp_get_mcm_alias_guid(IN const osm_mgrp_t * p_mgrp,
+						  IN ib_net64_t port_guid);
+/*
+* PARAMETERS
+*	p_mgrp
+*		[in] Pointer to an osm_mgrp_t object.
+*
+*	port_guid
+*		[in] Alias port guid.
+*
+* RETURN VALUES
+*	Pointer to the mcm alias GUID object when present or NULL otherwise.
+*
+* NOTES
+*
+* SEE ALSO
+*********/
+
 /****f* OpenSM: Multicast Group/osm_mgrp_delete_port
 * NAME
 *	osm_mgrp_delete_port
@@ -390,7 +423,7 @@ osm_mcm_port_t *osm_mgrp_get_mcm_port(IN const osm_mgrp_t * p_mgrp,
 * SYNOPSIS
 */
 void osm_mgrp_delete_port(IN osm_subn_t * subn, IN osm_log_t * log,
-			  IN osm_mgrp_t * mgrp, IN ib_net64_t port_guid);
+			  IN osm_mgrp_t * mgrp, IN osm_port_t * port);
 /*
 * PARAMETERS
 *
@@ -403,8 +436,8 @@ void osm_mgrp_delete_port(IN osm_subn_t * subn, IN osm_log_t * log,
 *	mgrp
 *		[in] Pointer to an osm_mgrp_t object.
 *
-*	port_guid
-*		[in] Port guid of the departing port.
+*	port
+*		[in] Pointer to an osm_port_t object for the the departing port.
 *
 * RETURN VALUES
 *	None.
@@ -415,7 +448,8 @@ void osm_mgrp_delete_port(IN osm_subn_t * subn, IN osm_log_t * log,
 *********/
 
 void osm_mgrp_remove_port(osm_subn_t * subn, osm_log_t * log, osm_mgrp_t * mgrp,
-			  osm_mcm_port_t * mcm_port, ib_member_rec_t * mcmr);
+			  osm_mcm_alias_guid_t * mcm_alias_guid,
+			  ib_member_rec_t * mcmr);
 void osm_mgrp_cleanup(osm_subn_t * subn, osm_mgrp_t * mpgr);
 void osm_mgrp_box_delete(osm_mgrp_box_t *mbox);
 

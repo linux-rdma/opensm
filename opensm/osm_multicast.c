@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2006,2008 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2012 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
  * This software is available to you under a choice of one of two
@@ -72,9 +72,20 @@ void mgrp_box_delete(osm_mgrp_box_t *mbox)
 
 void mgrp_delete(IN osm_mgrp_t * p_mgrp)
 {
+	osm_mcm_alias_guid_t *p_mcm_alias_guid, *p_next_mcm_alias_guid;
 	osm_mcm_port_t *p_mcm_port, *p_next_mcm_port;
 
 	CL_ASSERT(p_mgrp);
+
+	p_next_mcm_alias_guid =
+	    (osm_mcm_alias_guid_t *) cl_qmap_head(&p_mgrp->mcm_alias_port_tbl);
+	while (p_next_mcm_alias_guid !=
+	       (osm_mcm_alias_guid_t *) cl_qmap_end(&p_mgrp->mcm_alias_port_tbl)) {
+		p_mcm_alias_guid = p_next_mcm_alias_guid;
+		p_next_mcm_alias_guid =
+		    (osm_mcm_alias_guid_t *) cl_qmap_next(&p_mcm_alias_guid->map_item);
+		osm_mcm_alias_guid_delete(&p_mcm_alias_guid);
+        }
 
 	p_next_mcm_port =
 	    (osm_mcm_port_t *) cl_qmap_head(&p_mgrp->mcm_port_tbl);
@@ -113,6 +124,7 @@ osm_mgrp_t *osm_mgrp_new(IN osm_subn_t * subn, IN ib_net16_t mlid,
 
 	memset(p_mgrp, 0, sizeof(*p_mgrp));
 	cl_qmap_init(&p_mgrp->mcm_port_tbl);
+	cl_qmap_init(&p_mgrp->mcm_alias_port_tbl);
 	p_mgrp->mlid = mlid;
 	p_mgrp->mcmember_rec = *mcmr;
 
@@ -134,10 +146,17 @@ osm_mgrp_t *osm_mgrp_new(IN osm_subn_t * subn, IN ib_net16_t mlid,
 void osm_mgrp_cleanup(osm_subn_t * subn, osm_mgrp_t * mgrp)
 {
 	osm_mgrp_box_t *mbox;
+	osm_mcm_alias_guid_t *mcm_alias_guid;
 	osm_mcm_port_t *mcm_port;
 
 	if (mgrp->full_members)
 		return;
+
+	while (cl_qmap_count(&mgrp->mcm_alias_port_tbl)) {
+		mcm_alias_guid = (osm_mcm_alias_guid_t *) cl_qmap_head(&mgrp->mcm_alias_port_tbl);
+		cl_qmap_remove_item(&mgrp->mcm_alias_port_tbl, &mcm_alias_guid->map_item);
+		osm_mcm_alias_guid_delete(&mcm_alias_guid);
+	}
 
 	while (cl_qmap_count(&mgrp->mcm_port_tbl)) {
 		mcm_port = (osm_mcm_port_t *) cl_qmap_head(&mgrp->mcm_port_tbl);
@@ -188,27 +207,92 @@ static void mgrp_send_notice(osm_subn_t * subn, osm_log_t * log,
 			ib_get_err_str(status));
 }
 
+static boolean_t is_qmap_empty_for_port(IN const cl_qmap_t * const p_map,
+					IN const osm_port_t *port)
+{
+	size_t count = 0;
+	cl_map_item_t *item;
+	osm_mcm_alias_guid_t *mcm_alias_guid;
+
+        for (item = cl_qmap_head(p_map); item != cl_qmap_end(p_map);
+	     item = cl_qmap_next(item)) {
+		mcm_alias_guid = (osm_mcm_alias_guid_t *) item;
+		if (mcm_alias_guid->p_base_mcm_port->port == port) {
+			count++;
+			break;
+		}
+	}
+
+	return (count == 0);
+}
+
+static boolean_t is_qmap_empty_for_mcm_port(IN const cl_qmap_t * const p_map,
+					    IN const osm_mcm_port_t *mcm_port)
+{
+	size_t count = 0;
+	cl_map_item_t *item;
+	osm_mcm_alias_guid_t *mcm_alias_guid;
+
+	for (item = cl_qmap_head(p_map); item != cl_qmap_end(p_map);
+	     item = cl_qmap_next(item)) {
+		mcm_alias_guid = (osm_mcm_alias_guid_t *) item;
+		if (mcm_alias_guid->p_base_mcm_port == mcm_port) {
+			count++;
+			break;
+		}
+	}
+
+	return (count == 0);
+}
+static osm_mcm_alias_guid_t *insert_alias_guid(IN osm_mgrp_t * mgrp,
+					       IN osm_mcm_alias_guid_t * p_mcm_alias_guid)
+{
+	osm_mcm_alias_guid_t *p_mcm_alias_guid_check;
+
+	/* insert into mcm alias guid table */
+	p_mcm_alias_guid_check =
+		(osm_mcm_alias_guid_t *) cl_qmap_insert(&mgrp->mcm_alias_port_tbl,
+							p_mcm_alias_guid->alias_guid,
+							&p_mcm_alias_guid->map_item);
+	if (p_mcm_alias_guid_check != (osm_mcm_alias_guid_t *) &p_mcm_alias_guid->map_item) {
+		/* alias GUID is a duplicate */
+		osm_mcm_alias_guid_delete(&p_mcm_alias_guid);
+		return p_mcm_alias_guid_check;
+	}
+	return NULL;
+}
+
 osm_mcm_port_t *osm_mgrp_add_port(IN osm_subn_t * subn, osm_log_t * log,
 				  IN osm_mgrp_t * mgrp, osm_port_t *port,
 				  IN ib_member_rec_t *mcmr, IN boolean_t proxy)
 {
 	osm_mcm_port_t *mcm_port;
+	osm_mcm_alias_guid_t *p_mcm_alias_guid, *p_mcm_alias_guid_check;
 	cl_map_item_t *prev_item;
 	uint8_t prev_join_state = 0, join_state = mcmr->scope_state;
 	uint8_t prev_scope;
 
 	if (osm_log_is_active(log, OSM_LOG_VERBOSE)) {
 		char gid_str[INET6_ADDRSTRLEN];
-		OSM_LOG(log, OSM_LOG_VERBOSE, "Port 0x%016" PRIx64 " joining "
-			"MC group %s (mlid 0x%x)\n", cl_ntoh64(port->guid),
+		OSM_LOG(log, OSM_LOG_VERBOSE, "GUID 0x%016" PRIx64
+			" Port 0x%016" PRIx64 " joining "
+			"MC group %s (mlid 0x%x)\n",
+			cl_ntoh64(mcmr->port_gid.unicast.interface_id),
+			cl_ntoh64(port->guid),
 			inet_ntop(AF_INET6, mgrp->mcmember_rec.mgid.raw,
 				  gid_str, sizeof(gid_str)),
 			cl_ntoh16(mgrp->mlid));
 	}
 
-	mcm_port = osm_mcm_port_new(port, mgrp, mcmr, proxy);
+	mcm_port = osm_mcm_port_new(port, mgrp);
 	if (!mcm_port)
 		return NULL;
+
+	p_mcm_alias_guid = osm_mcm_alias_guid_new(mcm_port, mcmr, proxy);
+	if (!p_mcm_alias_guid) {
+		osm_mcm_port_delete(mcm_port);
+		return NULL;
+	}
 
 	/*
 	   prev_item = cl_qmap_insert(...)
@@ -220,23 +304,28 @@ osm_mcm_port_t *osm_mgrp_add_port(IN osm_subn_t * subn, osm_log_t * log,
 	prev_item = cl_qmap_insert(&mgrp->mcm_port_tbl, port->guid,
 				   &mcm_port->map_item);
 
-	/* if already exists - revert the insertion and only update join state */
-	if (prev_item != &mcm_port->map_item) {
+	if (prev_item != &mcm_port->map_item) {	/* mcm port already exists */
 		osm_mcm_port_delete(mcm_port);
 		mcm_port = (osm_mcm_port_t *) prev_item;
 
-		ib_member_get_scope_state(mcm_port->scope_state, &prev_scope,
-					  &prev_join_state);
-		mcm_port->scope_state =
-		    ib_member_set_scope_state(prev_scope,
-					      prev_join_state | join_state);
+		p_mcm_alias_guid->p_base_mcm_port = (osm_mcm_port_t *) prev_item;
+		p_mcm_alias_guid_check = insert_alias_guid(mgrp, p_mcm_alias_guid);
+		if (p_mcm_alias_guid_check) {	/* alias GUID already exists */
+			p_mcm_alias_guid = p_mcm_alias_guid_check;
+			ib_member_get_scope_state(p_mcm_alias_guid->scope_state,
+						  &prev_scope, &prev_join_state);
+			p_mcm_alias_guid->scope_state =
+			    ib_member_set_scope_state(prev_scope,
+						      prev_join_state | join_state);
+		}
 	} else {
+		insert_alias_guid(mgrp, p_mcm_alias_guid);
 		cl_qlist_insert_tail(&port->mcm_list, &mcm_port->list_item);
 		osm_sm_reroute_mlid(&subn->p_osm->sm, mgrp->mlid);
 	}
 
 	/* o15.0.1.11: copy the join state */
-	mcmr->scope_state = mcm_port->scope_state;
+	mcmr->scope_state = p_mcm_alias_guid->scope_state;
 
 	if ((join_state & IB_JOIN_STATE_FULL) &&
 	    !(prev_join_state & IB_JOIN_STATE_FULL) &&
@@ -248,7 +337,8 @@ osm_mcm_port_t *osm_mgrp_add_port(IN osm_subn_t * subn, osm_log_t * log,
 }
 
 void osm_mgrp_remove_port(osm_subn_t * subn, osm_log_t * log, osm_mgrp_t * mgrp,
-			  osm_mcm_port_t * mcm_port, ib_member_rec_t *mcmr)
+			  osm_mcm_alias_guid_t * mcm_alias_guid,
+			  ib_member_rec_t *mcmr)
 {
 	uint8_t join_state = mcmr->scope_state & 0xf;
 	uint8_t port_join_state, new_join_state;
@@ -258,36 +348,53 @@ void osm_mgrp_remove_port(osm_subn_t * subn, osm_log_t * log, osm_mgrp_t * mgrp,
 	 * JoinState and the request JoinState and they must be
 	 * opposite to leave - otherwise just update it
 	 */
-	port_join_state = mcm_port->scope_state & 0x0F;
+	port_join_state = mcm_alias_guid->scope_state & 0x0F;
 	new_join_state = port_join_state & ~join_state;
 
 	if (osm_log_is_active(log, OSM_LOG_VERBOSE)) {
 		char gid_str[INET6_ADDRSTRLEN];
 		OSM_LOG(log, OSM_LOG_VERBOSE,
-			"Port 0x%" PRIx64 " leaving MC group %s (mlid 0x%x)\n",
-			cl_ntoh64(mcm_port->port->guid),
+			"GUID 0x%" PRIx64 " Port 0x%" PRIx64
+			" leaving MC group %s (mlid 0x%x)\n",
+			cl_ntoh64(mcm_alias_guid->alias_guid),
+			cl_ntoh64(mcm_alias_guid->p_base_mcm_port->port->guid),
 			inet_ntop(AF_INET6, mgrp->mcmember_rec.mgid.raw,
 				  gid_str, sizeof(gid_str)),
 			cl_ntoh16(mgrp->mlid));
 	}
 
-	if (new_join_state) {
-		mcm_port->scope_state =
-		    new_join_state | (mcm_port->scope_state & 0xf0);
+	if (new_join_state & IB_JOIN_STATE_FULL ||
+	    (new_join_state &&
+	     (mgrp->full_members > (port_join_state & IB_JOIN_STATE_FULL) ? 1 : 0))) {
+		mcm_alias_guid->scope_state =
+		    new_join_state | (mcm_alias_guid->scope_state & 0xf0);
 		OSM_LOG(log, OSM_LOG_DEBUG,
-			"updating port 0x%" PRIx64 " JoinState 0x%x -> 0x%x\n",
-			cl_ntoh64(mcm_port->port->guid),
+			"updating GUID 0x%" PRIx64 " port 0x%" PRIx64
+			" JoinState 0x%x -> 0x%x\n",
+			cl_ntoh64(mcm_alias_guid->alias_guid),
+			cl_ntoh64(mcm_alias_guid->p_base_mcm_port->port->guid),
 			port_join_state, new_join_state);
-		mcmr->scope_state = mcm_port->scope_state;
+		mcmr->scope_state = mcm_alias_guid->scope_state;
 	} else {
-		mcmr->scope_state = mcm_port->scope_state;
-		OSM_LOG(log, OSM_LOG_DEBUG, "removing port 0x%" PRIx64 "\n",
-			cl_ntoh64(mcm_port->port->guid));
-		cl_qmap_remove_item(&mgrp->mcm_port_tbl, &mcm_port->map_item);
-		cl_qlist_remove_item(&mcm_port->port->mcm_list,
-				     &mcm_port->list_item);
-		osm_mcm_port_delete(mcm_port);
-		osm_sm_reroute_mlid(&subn->p_osm->sm, mgrp->mlid);
+		mcmr->scope_state = mcm_alias_guid->scope_state & 0xf0;
+		OSM_LOG(log, OSM_LOG_DEBUG, "removing alias GUID 0x%" PRIx64 "\n",
+			cl_ntoh64(mcm_alias_guid->alias_guid));
+		cl_qmap_remove_item(&mgrp->mcm_alias_port_tbl,
+				    &mcm_alias_guid->map_item);
+		if (is_qmap_empty_for_port(&mgrp->mcm_alias_port_tbl,
+					   mcm_alias_guid->p_base_mcm_port->port)) { /* last alias in mcast group for this port */
+			OSM_LOG(log, OSM_LOG_DEBUG, "removing port 0x%" PRIx64 "\n",
+				cl_ntoh64(mcm_alias_guid->p_base_mcm_port->port->guid));
+			cl_qmap_remove_item(&mgrp->mcm_port_tbl,
+					    &mcm_alias_guid->p_base_mcm_port->map_item);
+			cl_qlist_remove_item(&mcm_alias_guid->p_base_mcm_port->port->mcm_list,
+					     &mcm_alias_guid->p_base_mcm_port->list_item);
+			if (is_qmap_empty_for_mcm_port(&mgrp->mcm_alias_port_tbl,
+						       mcm_alias_guid->p_base_mcm_port)) /* last alias in mcast group for this mcm port */
+				osm_mcm_port_delete(mcm_alias_guid->p_base_mcm_port);
+			osm_sm_reroute_mlid(&subn->p_osm->sm, mgrp->mlid);
+		}
+		osm_mcm_alias_guid_delete(&mcm_alias_guid);
 	}
 
 	/* no more full members so the group will be deleted after re-route
@@ -303,15 +410,20 @@ void osm_mgrp_remove_port(osm_subn_t * subn, osm_log_t * log, osm_mgrp_t * mgrp,
 }
 
 void osm_mgrp_delete_port(osm_subn_t * subn, osm_log_t * log, osm_mgrp_t * mgrp,
-			  ib_net64_t port_guid)
+			  osm_port_t * port)
 {
+	osm_mcm_alias_guid_t *mcm_alias_guid, *next_mcm_alias_guid;
 	ib_member_rec_t mcmrec;
-	cl_map_item_t *item = cl_qmap_get(&mgrp->mcm_port_tbl, port_guid);
 
-	if (item != cl_qmap_end(&mgrp->mcm_port_tbl)) {
-		mcmrec.scope_state = 0xf;
-		osm_mgrp_remove_port(subn, log, mgrp, (osm_mcm_port_t *) item,
-				     &mcmrec);
+	next_mcm_alias_guid = (osm_mcm_alias_guid_t *) cl_qmap_head(&mgrp->mcm_alias_port_tbl);
+	while (next_mcm_alias_guid != (osm_mcm_alias_guid_t *) cl_qmap_end(&mgrp->mcm_alias_port_tbl)) {
+		mcm_alias_guid = next_mcm_alias_guid;
+		next_mcm_alias_guid = (osm_mcm_alias_guid_t *) cl_qmap_next(&next_mcm_alias_guid->map_item);
+		if (mcm_alias_guid->p_base_mcm_port->port == port) {
+			mcmrec.scope_state = 0xf;
+			osm_mgrp_remove_port(subn, log, mgrp, mcm_alias_guid,
+					     &mcmrec);
+		}
 	}
 }
 
@@ -321,5 +433,15 @@ osm_mcm_port_t *osm_mgrp_get_mcm_port(IN const osm_mgrp_t * p_mgrp,
 	cl_map_item_t *item = cl_qmap_get(&p_mgrp->mcm_port_tbl, port_guid);
 	if (item != cl_qmap_end(&p_mgrp->mcm_port_tbl))
 		return (osm_mcm_port_t *) item;
+	return NULL;
+}
+
+osm_mcm_alias_guid_t *osm_mgrp_get_mcm_alias_guid(IN const osm_mgrp_t * p_mgrp,
+						  IN ib_net64_t port_guid)
+{
+	cl_map_item_t *item = cl_qmap_get(&p_mgrp->mcm_alias_port_tbl,
+					  port_guid);
+	if (item != cl_qmap_end(&p_mgrp->mcm_alias_port_tbl))
+		return (osm_mcm_alias_guid_t *) item;
 	return NULL;
 }
