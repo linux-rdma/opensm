@@ -703,13 +703,24 @@ osm_port_t *osm_get_port_by_guid(IN osm_subn_t const *p_subn, IN ib_net64_t guid
 	return p_port;
 }
 
-osm_port_t *osm_get_port_by_alias_guid(IN osm_subn_t const *p_subn,
-				       IN ib_net64_t guid)
+osm_alias_guid_t *osm_get_alias_guid_by_guid(IN osm_subn_t const *p_subn,
+					     IN ib_net64_t guid)
 {
 	osm_alias_guid_t *p_alias_guid;
 
 	p_alias_guid = (osm_alias_guid_t *) cl_qmap_get(&(p_subn->alias_port_guid_tbl), guid);
 	if (p_alias_guid == (osm_alias_guid_t *) cl_qmap_end(&(p_subn->alias_port_guid_tbl)))
+		return NULL;
+	return p_alias_guid;
+}
+
+osm_port_t *osm_get_port_by_alias_guid(IN osm_subn_t const *p_subn,
+				       IN ib_net64_t guid)
+{
+	osm_alias_guid_t *p_alias_guid;
+
+	p_alias_guid = osm_get_alias_guid_by_guid(p_subn, guid);
+	if (!p_alias_guid)
 		return NULL;
 	return p_alias_guid->p_base_port;
 }

@@ -1063,6 +1063,36 @@ struct osm_port *osm_get_port_by_lid_ho(const osm_subn_t * subn, uint16_t lid);
 *       Subnet object, osm_port_t
 *********/
 
+/****f* OpenSM: Subnet/osm_get_alias_guid_by_guid
+* NAME
+*	osm_get_alias_guid_by_guid
+*
+* DESCRIPTION
+*	This looks for the given port guid in the subnet table of ports by
+*	alias guid.
+*  NOTE: this code is not thread safe. Need to grab the lock before
+*  calling it.
+*
+* SYNOPSIS
+*/
+struct osm_alias_guid *osm_get_alias_guid_by_guid(IN osm_subn_t const *p_subn,
+						  IN ib_net64_t guid);
+/*
+* PARAMETERS
+*	p_subn
+*		[in] Pointer to an osm_subn_t object
+*
+*	guid
+*		[in] The alias port guid in network order
+*
+* RETURN VALUES
+*	The alias guid structure pointer if found. NULL otherwise.
+*
+* SEE ALSO
+*	Subnet object, osm_subn_construct, osm_subn_destroy,
+*	osm_alias_guid_t
+*********/
+
 /****f* OpenSM: Subnet/osm_get_port_by_alias_guid
 * NAME
 *	osm_get_port_by_alias_guid
