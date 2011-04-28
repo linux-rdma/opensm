@@ -135,6 +135,7 @@ typedef struct osm_sm {
 	cl_disp_reg_handle_t sweep_fail_disp_h;
 	cl_disp_reg_handle_t ni_disp_h;
 	cl_disp_reg_handle_t pi_disp_h;
+	cl_disp_reg_handle_t gi_disp_h;
 	cl_disp_reg_handle_t nd_disp_h;
 	cl_disp_reg_handle_t si_disp_h;
 	cl_disp_reg_handle_t lft_disp_h;

@@ -832,6 +832,17 @@ typedef enum _osm_thread_state {
 #define OSM_CAP2_IS_HIERARCHY_SUPPORTED (1 << 4)
 /***********/
 
+/****d* OpenSM: Base/OSM_CAP2_IS_ALIAS_GUIDS_SUPPORTED
+* Name
+*
+* DESCRIPTION
+*	Alias GUIDs supported
+*
+* SYNOPSIS
+*/
+#define OSM_CAP2_IS_ALIAS_GUIDS_SUPPORTED (1 << 5)
+/***********/
+
 /****d* OpenSM: Base/OSM_CAP2_IS_FULL_PORTINFO_REC_SUPPORTED
 * Name
 *	OSM_CAP2_IS_FULL_PORTINFO_REC_SUPPORTED

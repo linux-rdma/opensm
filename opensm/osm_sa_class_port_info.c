@@ -158,7 +158,8 @@ static void cpi_rcv_respond(IN osm_sa_t * sa, IN const osm_madw_t * p_madw)
 	    OSM_CAP_IS_PORT_INFO_CAPMASK_MATCH_SUPPORTED;
 #endif
 	cap_mask2 = OSM_CAP2_IS_FULL_PORTINFO_REC_SUPPORTED |
-		    OSM_CAP2_IS_EXTENDED_SPEEDS_SUPPORTED;
+		    OSM_CAP2_IS_EXTENDED_SPEEDS_SUPPORTED |
+		    OSM_CAP2_IS_ALIAS_GUIDS_SUPPORTED;
 	if (sa->p_subn->opt.use_mfttop)
 		cap_mask2 |= OSM_CAP2_IS_MCAST_TOP_SUPPORTED;
 	if (sa->p_subn->opt.qos)

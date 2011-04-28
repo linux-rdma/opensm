@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2012 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2009 HNR Consulting. All rights reserved.
  *
@@ -185,6 +185,23 @@ typedef struct osm_pi_context {
 } osm_pi_context_t;
 /*********/
 
+/****s* OpenSM: MAD Wrapper/osm_gi_context_t
+* NAME
+*	osm_gi_context_t
+*
+* DESCRIPTION
+*	Context needed by recipient of GUIDInfo attribute.
+*
+* SYNOPSIS
+*/
+typedef struct osm_gi_context {
+	ib_net64_t node_guid;
+	ib_net64_t port_guid;
+	boolean_t set_method;
+	uint8_t port_num;
+} osm_gi_context_t;
+/*********/
+
 /****s* OpenSM: MAD Wrapper/osm_nd_context_t
 * NAME
 *	osm_nd_context_t
@@ -352,6 +369,7 @@ typedef struct osm_arbitrary_context {
 typedef union _osm_madw_context {
 	osm_ni_context_t ni_context;
 	osm_pi_context_t pi_context;
+	osm_gi_context_t gi_context;
 	osm_nd_context_t nd_context;
 	osm_si_context_t si_context;
 	osm_lft_context_t lft_context;
@@ -635,6 +653,34 @@ static inline osm_pi_context_t *osm_madw_get_pi_context_ptr(IN const osm_madw_t
 							    * p_madw)
 {
 	return ((osm_pi_context_t *) & p_madw->context);
+}
+
+/*
+* PARAMETERS
+*	p_madw
+*		[in] Pointer to an osm_madw_t object.
+*
+* RETURN VALUES
+*	Pointer to the start of the context structure.
+*
+* NOTES
+*
+* SEE ALSO
+*********/
+
+/****f* OpenSM: MAD Wrapper/osm_madw_get_gi_context_ptr
+* NAME
+*	osm_madw_get_gi_context_ptr
+*
+* DESCRIPTION
+*	Gets a pointer to the GUIDInfo context in this MAD.
+*
+* SYNOPSIS
+*/
+static inline osm_gi_context_t *osm_madw_get_gi_context_ptr(IN const osm_madw_t
+							    * p_madw)
+{
+	return ((osm_gi_context_t *) & p_madw->context);
 }
 
 /*

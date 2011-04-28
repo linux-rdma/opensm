@@ -28,7 +28,7 @@ sbin_PROGRAMS = opensm
 opensm_LDFLAGS = -rdynamic
 opensm_DEPENDENCIES = libopensm.la
 opensm_SOURCES = main.c osm_console_io.c osm_console.c osm_db_files.c \
-		 osm_db_pack.c osm_drop_mgr.c \
+		 osm_db_pack.c osm_drop_mgr.c osm_guid_info_rcv.c \
 		 osm_inform.c osm_lid_mgr.c osm_lin_fwd_rcv.c \
 		 osm_link_mgr.c osm_mcast_fwd_rcv.c \
 		 osm_mcast_mgr.c osm_mcast_tbl.c \

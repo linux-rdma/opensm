@@ -68,6 +68,7 @@ extern void osm_nd_rcv_process(IN void *context, IN void *data);
 extern void osm_ni_rcv_process(IN void *context, IN void *data);
 extern void osm_pkey_rcv_process(IN void *context, IN void *data);
 extern void osm_pi_rcv_process(IN void *context, IN void *data);
+extern void osm_gi_rcv_process(IN void *context, IN void *data);
 extern void osm_slvl_rcv_process(IN void *context, IN void *p_data);
 extern void osm_sminfo_rcv_process(IN void *context, IN void *data);
 extern void osm_si_rcv_process(IN void *context, IN void *data);
@@ -200,6 +201,7 @@ void osm_sm_shutdown(IN osm_sm_t * p_sm)
 	osm_sm_mad_ctrl_destroy(&p_sm->mad_ctrl);
 	cl_disp_unregister(p_sm->ni_disp_h);
 	cl_disp_unregister(p_sm->pi_disp_h);
+	cl_disp_unregister(p_sm->gi_disp_h);
 	cl_disp_unregister(p_sm->si_disp_h);
 	cl_disp_unregister(p_sm->nd_disp_h);
 	cl_disp_unregister(p_sm->lft_disp_h);
@@ -321,6 +323,11 @@ ib_api_status_t osm_sm_init(IN osm_sm_t * p_sm, IN osm_subn_t * p_subn,
 	p_sm->pi_disp_h = cl_disp_register(p_disp, OSM_MSG_MAD_PORT_INFO,
 					   osm_pi_rcv_process, p_sm);
 	if (p_sm->pi_disp_h == CL_DISP_INVALID_HANDLE)
+		goto Exit;
+
+	p_sm->gi_disp_h = cl_disp_register(p_disp, OSM_MSG_MAD_GUID_INFO,
+					   osm_gi_rcv_process, p_sm);
+	if (p_sm->gi_disp_h == CL_DISP_INVALID_HANDLE)
 		goto Exit;
 
 	p_sm->si_disp_h = cl_disp_register(p_disp, OSM_MSG_MAD_SWITCH_INFO,

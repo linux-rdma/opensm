@@ -224,6 +224,9 @@ static void sm_mad_ctrl_process_get_resp(IN osm_sm_mad_ctrl_t * p_ctrl,
 	case IB_MAD_ATTR_NODE_INFO:
 		msg_id = OSM_MSG_MAD_NODE_INFO;
 		break;
+	case IB_MAD_ATTR_GUID_INFO:
+		msg_id = OSM_MSG_MAD_GUID_INFO;
+		break;
 	case IB_MAD_ATTR_SWITCH_INFO:
 		msg_id = OSM_MSG_MAD_SWITCH_INFO;
 		break;
@@ -251,7 +254,6 @@ static void sm_mad_ctrl_process_get_resp(IN osm_sm_mad_ctrl_t * p_ctrl,
 	case IB_MAD_ATTR_MLNX_EXTENDED_PORT_INFO:
 		msg_id = OSM_MSG_MAD_MLNX_EXT_PORT_INFO;
 		break;
-	case IB_MAD_ATTR_GUID_INFO:
 	case IB_MAD_ATTR_CLASS_PORT_INFO:
 	case IB_MAD_ATTR_NOTICE:
 	case IB_MAD_ATTR_INFORM_INFO:

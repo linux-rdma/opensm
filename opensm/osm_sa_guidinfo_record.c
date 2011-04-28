@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2006-2009 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2006 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2012 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
  * This software is available to you under a choice of one of two
@@ -57,6 +57,9 @@
 #include <opensm/osm_pkey.h>
 #include <opensm/osm_sa.h>
 
+#define IB_OPENIB_OUI	0x001405
+#define MOD_GIR_COMP_MASK (IB_GIR_COMPMASK_LID | IB_GIR_COMPMASK_BLOCKNUM)
+
 typedef struct osm_gir_item {
 	cl_list_item_t list_item;
 	ib_guidinfo_record_t rec;
@@ -75,7 +78,7 @@ static ib_api_status_t gir_rcv_new_gir(IN osm_sa_t * sa,
 				       IN cl_qlist_t * p_list,
 				       IN ib_net64_t const match_port_guid,
 				       IN ib_net16_t const match_lid,
-				       IN const osm_physp_t * p_req_physp,
+				       IN const osm_physp_t * p_physp,
 				       IN uint8_t const block_num)
 {
 	osm_gir_item_t *p_rec_item;
@@ -99,9 +102,12 @@ static ib_api_status_t gir_rcv_new_gir(IN osm_sa_t * sa,
 
 	p_rec_item->rec.lid = match_lid;
 	p_rec_item->rec.block_num = block_num;
-	if (!block_num)
-		p_rec_item->rec.guid_info.guid[0] =
-		    osm_physp_get_port_guid(p_req_physp);
+	if (p_physp->p_guids)
+		memcpy(&p_rec_item->rec.guid_info,
+		       *p_physp->p_guids + block_num * GUID_TABLE_MAX_ENTRIES,
+		       sizeof(ib_guid_info_t));
+	else if (!block_num)
+		p_rec_item->rec.guid_info.guid[0] = osm_physp_get_port_guid(p_physp);
 
 	cl_qlist_insert_tail(p_list, &p_rec_item->list_item);
 
@@ -279,50 +285,342 @@ Exit:
 	OSM_LOG_EXIT(p_ctxt->sa->p_log);
 }
 
-void osm_gir_rcv_process(IN void *ctx, IN void *data)
+static inline boolean_t check_mod_comp_mask(ib_net64_t comp_mask)
 {
-	osm_sa_t *sa = ctx;
-	osm_madw_t *p_madw = data;
+	return ((comp_mask & MOD_GIR_COMP_MASK) == MOD_GIR_COMP_MASK);
+}
+
+static uint8_t coalesce_comp_mask(IN osm_madw_t *p_madw)
+{
+	uint8_t comp_mask = 0;
+	ib_sa_mad_t *p_sa_mad;
+
+	p_sa_mad = osm_madw_get_sa_mad_ptr(p_madw);
+	if (p_sa_mad->comp_mask & IB_GIR_COMPMASK_GID0)
+		comp_mask |= 1<<0;
+	if (p_sa_mad->comp_mask & IB_GIR_COMPMASK_GID1)
+		comp_mask |= 1<<1;
+	if (p_sa_mad->comp_mask & IB_GIR_COMPMASK_GID2)
+		comp_mask |= 1<<2;
+	if (p_sa_mad->comp_mask & IB_GIR_COMPMASK_GID3)
+		comp_mask |= 1<<3;
+	if (p_sa_mad->comp_mask & IB_GIR_COMPMASK_GID4)
+		comp_mask |= 1<<4;
+	if (p_sa_mad->comp_mask & IB_GIR_COMPMASK_GID5)
+		comp_mask |= 1<<5;
+	if (p_sa_mad->comp_mask & IB_GIR_COMPMASK_GID6)
+		comp_mask |= 1<<6;
+	if (p_sa_mad->comp_mask & IB_GIR_COMPMASK_GID7)
+		comp_mask |= 1<<7;
+	return comp_mask;
+}
+
+static void guidinfo_respond(IN osm_sa_t *sa, IN osm_madw_t *p_madw,
+			     IN ib_guidinfo_record_t * p_guidinfo_rec)
+{
+	cl_qlist_t rec_list;
+	osm_gir_item_t *item;
+
+	OSM_LOG_ENTER(sa->p_log);
+
+	item = malloc(sizeof(*item));
+	if (!item) {
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 5101: "
+			"rec_item alloc failed\n");
+		goto Exit;
+	}
+
+	item->rec = *p_guidinfo_rec;
+
+	cl_qlist_init(&rec_list);
+	cl_qlist_insert_tail(&rec_list, &item->list_item);
+
+	osm_sa_respond(sa, p_madw, sizeof(ib_guidinfo_record_t), &rec_list);
+
+Exit:
+	OSM_LOG_EXIT(sa->p_log);
+}
+
+static void gir_respond(IN osm_sa_t *sa, IN osm_madw_t *p_madw)
+{
+	ib_sa_mad_t *p_sa_mad;
+	ib_guidinfo_record_t *p_rcvd_rec;
+	ib_guidinfo_record_t guidinfo_rec;
+
+	p_sa_mad = osm_madw_get_sa_mad_ptr(p_madw);
+	p_rcvd_rec = (ib_guidinfo_record_t *) ib_sa_mad_get_payload_ptr(p_sa_mad);
+	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
+		osm_dump_guidinfo_record(sa->p_log, p_rcvd_rec, OSM_LOG_DEBUG);
+
+	guidinfo_rec = *p_rcvd_rec;
+	guidinfo_respond(sa, p_madw, &guidinfo_rec);
+}
+
+static ib_net64_t sm_assigned_guid(uint8_t assigned_byte)
+{
+	static uint32_t uniq_count;
+
+	if (++uniq_count == 0) {
+		uniq_count--;
+		return 0;
+	}
+	return cl_hton64(((uint64_t) uniq_count) |
+			 (((uint64_t) assigned_byte) << 32) |
+			 (((uint64_t) IB_OPENIB_OUI) << 40));
+}
+
+static void guidinfo_set(IN osm_sa_t *sa, IN osm_port_t *p_port,
+			 IN uint8_t block_num)
+{
+	uint8_t payload[IB_SMP_DATA_SIZE];
+	osm_madw_context_t context;
+	ib_api_status_t status;
+
+	memcpy(payload,
+	       &((*p_port->p_physp->p_guids)[block_num * GUID_TABLE_MAX_ENTRIES]),
+	       sizeof(ib_guid_info_t));
+
+	context.gi_context.node_guid = osm_node_get_node_guid(p_port->p_node);
+	context.gi_context.port_guid = osm_physp_get_port_guid(p_port->p_physp);
+	context.gi_context.set_method = TRUE;
+	context.gi_context.port_num = osm_physp_get_port_num(p_port->p_physp);
+
+	status = osm_req_set(sa->sm, osm_physp_get_dr_path_ptr(p_port->p_physp),
+			     payload, sizeof(payload), IB_MAD_ATTR_GUID_INFO,
+			     cl_hton32((uint32_t)block_num),
+			     CL_DISP_MSGID_NONE, &context);
+	if (status != IB_SUCCESS)
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 5109: "
+			"Failure initiating GUIDInfo request (%s)\n",
+			ib_get_err_str(status));
+}
+
+static void del_guidinfo(IN osm_sa_t *sa, IN osm_madw_t *p_madw,
+			 IN osm_port_t *p_port, IN uint8_t block_num)
+{
+	int i;
+	ib_sa_mad_t *p_sa_mad;
+	ib_guidinfo_record_t *p_rcvd_rec;
+	ib_net64_t del_alias_guid;
+	osm_alias_guid_t *p_alias_guid;
+	uint8_t del_mask;
+	int dirty = 0;
+
+	if (!p_port->p_physp->p_guids)
+		goto Exit;
+
+	p_sa_mad = osm_madw_get_sa_mad_ptr(p_madw);
+	p_rcvd_rec =
+		(ib_guidinfo_record_t *) ib_sa_mad_get_payload_ptr(p_sa_mad);
+
+	del_mask = coalesce_comp_mask(p_madw);
+
+	for (i = block_num * GUID_TABLE_MAX_ENTRIES;
+	     (block_num + 1) * GUID_TABLE_MAX_ENTRIES < p_port->p_physp->port_info.guid_cap ? i < (block_num + 1) * GUID_TABLE_MAX_ENTRIES : i < p_port->p_physp->port_info.guid_cap;
+	     i++) {
+		/* can't delete block 0 index 0 (base guid is RO) for alias guid table */
+		if (i == 0 && p_sa_mad->comp_mask & IB_GIR_COMPMASK_GID0) {
+			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
+				"Not allowed to delete RO GID 0\n");
+			osm_sa_send_error(sa, p_madw,
+					  IB_SA_MAD_STATUS_REQ_INVALID);
+			return;
+		}
+		if (!(del_mask & 1<<(i % 8)))
+			continue;
+
+		del_alias_guid = (*p_port->p_physp->p_guids)[i];
+		if (del_alias_guid) {
+			/* remove original from alias guid table */
+			p_alias_guid = (osm_alias_guid_t *)
+				cl_qmap_remove(&sa->p_subn->alias_port_guid_tbl,
+					       del_alias_guid);
+			if (p_alias_guid != (osm_alias_guid_t *)
+						cl_qmap_end(&sa->p_subn->alias_port_guid_tbl))
+				osm_alias_guid_delete(&p_alias_guid);
+			else
+				OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 510B: "
+					"Original alias GUID 0x%" PRIx64
+					" at index %u not found\n",
+					cl_ntoh64(del_alias_guid), i);
+			/* clear guid at index */
+			(*p_port->p_physp->p_guids)[i] = 0;
+			dirty = 1;
+		}
+	}
+
+	if (dirty)
+		guidinfo_set(sa, p_port, block_num);
+
+	memcpy(&p_rcvd_rec->guid_info,
+	       &((*p_port->p_physp->p_guids)[block_num * GUID_TABLE_MAX_ENTRIES]),
+	       sizeof(ib_guid_info_t));
+
+Exit:
+	gir_respond(sa, p_madw);
+}
+
+static void set_guidinfo(IN osm_sa_t *sa, IN osm_madw_t *p_madw,
+			 IN osm_port_t *p_port, IN uint8_t block_num)
+{
+	uint32_t max_block;
+	int i, j, dirty = 0;
+	ib_sa_mad_t *p_sa_mad;
+	ib_guidinfo_record_t *p_rcvd_rec;
+	osm_alias_guid_t *p_alias_guid, *p_alias_guid_check;
+	cl_map_item_t *p_item;
+	ib_net64_t set_alias_guid, del_alias_guid, assigned_guid;
+	uint8_t set_mask;
+
+	if (!p_port->p_physp->p_guids) {
+		max_block = (p_port->p_physp->port_info.guid_cap + GUID_TABLE_MAX_ENTRIES - 1) /
+			     GUID_TABLE_MAX_ENTRIES;
+
+		p_port->p_physp->p_guids = calloc(max_block * GUID_TABLE_MAX_ENTRIES,
+						  sizeof(ib_net64_t));
+		if (!p_port->p_physp->p_guids) {
+			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 5103: "
+				"GUID table memory allocation failed for port "
+				"GUID 0x%" PRIx64 "\n",
+				cl_ntoh64(p_port->p_physp->port_guid));
+			osm_sa_send_error(sa, p_madw,
+					  IB_SA_MAD_STATUS_NO_RESOURCES);
+			return;
+		}
+		/* setup base port guid in index 0 */
+		(*p_port->p_physp->p_guids)[0] = p_port->p_physp->port_guid;
+	}
+
+	p_sa_mad = osm_madw_get_sa_mad_ptr(p_madw);
+	p_rcvd_rec = (ib_guidinfo_record_t *) ib_sa_mad_get_payload_ptr(p_sa_mad);
+
+	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG)) {
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Dump of incoming record\n");
+		osm_dump_guidinfo_record(sa->p_log, p_rcvd_rec, OSM_LOG_DEBUG);
+	}
+
+	set_mask = coalesce_comp_mask(p_madw);
+
+	for (i = block_num * GUID_TABLE_MAX_ENTRIES;
+	     (block_num + 1) * GUID_TABLE_MAX_ENTRIES < p_port->p_physp->port_info.guid_cap ? i < (block_num + 1) * GUID_TABLE_MAX_ENTRIES : i < p_port->p_physp->port_info.guid_cap;
+	     i++) {
+		/* can't set block 0 index 0 (base guid is RO) for alias guid table */
+		if (i == 0 && p_sa_mad->comp_mask & IB_GIR_COMPMASK_GID0) {
+			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
+				"Not allowed to set RO GID 0\n");
+			osm_sa_send_error(sa, p_madw,
+					  IB_SA_MAD_STATUS_REQ_INVALID);
+			return;
+		}
+
+		if (!(set_mask & 1<<(i % 8)))
+			continue;
+
+		set_alias_guid = p_rcvd_rec->guid_info.guid[i % 8];
+		if (!set_alias_guid) {
+			/* was a GUID previously assigned for this index ? */
+			set_alias_guid = (*p_port->p_physp->p_guids)[i];
+			if (set_alias_guid) {
+				p_rcvd_rec->guid_info.guid[i % 8] = set_alias_guid;
+				continue;
+			}
+		}
+		if (!set_alias_guid) {
+			for (j = 0; j < 1000; j++) {
+				assigned_guid = sm_assigned_guid(sa->p_subn->opt.sm_assigned_guid);
+				if (!assigned_guid) {
+					OSM_LOG(sa->p_log, OSM_LOG_ERROR,
+						"ERR 510E: No more assigned guids available\n");
+					osm_sa_send_error(sa, p_madw,
+							  IB_SA_MAD_STATUS_NO_RESOURCES);
+					return;
+				}
+				p_item = cl_qmap_get(&sa->sm->p_subn->alias_port_guid_tbl,
+						     assigned_guid);
+				if (p_item == cl_qmap_end(&sa->sm->p_subn->alias_port_guid_tbl)) {
+					set_alias_guid = assigned_guid;
+					p_rcvd_rec->guid_info.guid[i % 8] = assigned_guid;
+					break;
+				}
+			}
+			if (!set_alias_guid) {
+				OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 510A: "
+					"SA assigned GUID %d failed for "
+					"port GUID 0x%" PRIx64 "\n", i,
+					cl_ntoh64(p_port->p_physp->port_guid));
+				continue;
+			}
+		}
+
+		/* allocate alias guid and add to alias guid table */
+		p_alias_guid = osm_alias_guid_new(set_alias_guid, p_port);
+		if (!p_alias_guid) {
+			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 5107: "
+				"Alias guid %d memory allocation failed"
+				" for port GUID 0x%" PRIx64 "\n",
+				i, cl_ntoh64(p_port->p_physp->port_guid));
+			return;
+		}
+
+		p_alias_guid_check =
+			(osm_alias_guid_t *) cl_qmap_insert(&sa->sm->p_subn->alias_port_guid_tbl,
+							    p_alias_guid->alias_guid,
+							    &p_alias_guid->map_item);
+		if (p_alias_guid_check != p_alias_guid) {
+			/* alias GUID is a duplicate */
+			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 5108: "
+				"Duplicate alias port GUID 0x%" PRIx64
+				" index %d base port GUID 0x%" PRIx64 "\n",
+				cl_ntoh64(p_alias_guid->alias_guid), i,
+				cl_ntoh64(p_alias_guid->p_base_port->guid));
+			osm_alias_guid_delete(&p_alias_guid);
+			/* clear response guid at index to indicate duplicate */
+			p_rcvd_rec->guid_info.guid[i % 8] = 0;
+		} else {
+			del_alias_guid = (*p_port->p_physp->p_guids)[i];
+			if (del_alias_guid) {
+				/* remove original from alias guid table */
+				p_alias_guid_check = (osm_alias_guid_t *)
+					cl_qmap_remove(&sa->p_subn->alias_port_guid_tbl,
+						       del_alias_guid);
+				if (p_alias_guid_check)
+					osm_alias_guid_delete(&p_alias_guid_check);
+				else
+					OSM_LOG(sa->p_log, OSM_LOG_ERROR,
+						"ERR 510C: Original alias GUID "
+						"0x%" PRIx64 "at index %u "
+						"not found\n",
+						cl_ntoh64(del_alias_guid),
+						i);
+			}
+
+			/* insert or replace guid at index */
+			(*p_port->p_physp->p_guids)[i] = set_alias_guid;
+			dirty = 1;
+		}
+	}
+
+	if (dirty)
+		guidinfo_set(sa, p_port, block_num);
+
+	memcpy(&p_rcvd_rec->guid_info,
+	       &((*p_port->p_physp->p_guids)[block_num * GUID_TABLE_MAX_ENTRIES]),
+	       sizeof(ib_guid_info_t));
+
+	gir_respond(sa, p_madw);
+}
+
+static void get_guidinfo(IN osm_sa_t *sa, IN osm_madw_t *p_madw,
+			 IN osm_physp_t *p_req_physp)
+{
 	const ib_sa_mad_t *p_rcvd_mad;
 	const ib_guidinfo_record_t *p_rcvd_rec;
 	cl_qlist_t rec_list;
 	osm_gir_search_ctxt_t context;
-	osm_physp_t *p_req_physp;
-
-	CL_ASSERT(sa);
-
-	OSM_LOG_ENTER(sa->p_log);
-
-	CL_ASSERT(p_madw);
 
 	p_rcvd_mad = osm_madw_get_sa_mad_ptr(p_madw);
 	p_rcvd_rec =
 	    (ib_guidinfo_record_t *) ib_sa_mad_get_payload_ptr(p_rcvd_mad);
-
-	CL_ASSERT(p_rcvd_mad->attr_id == IB_MAD_ATTR_GUIDINFO_RECORD);
-
-	/* we only support SubnAdmGet and SubnAdmGetTable methods */
-	if (p_rcvd_mad->method != IB_MAD_METHOD_GET &&
-	    p_rcvd_mad->method != IB_MAD_METHOD_GETTABLE) {
-		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 5105: "
-			"Unsupported Method (%s)\n",
-			ib_get_sa_method_str(p_rcvd_mad->method));
-		osm_sa_send_error(sa, p_madw, IB_MAD_STATUS_UNSUP_METHOD_ATTR);
-		goto Exit;
-	}
-
-	/* update the requester physical port. */
-	p_req_physp = osm_get_physp_by_mad_addr(sa->p_log, sa->p_subn,
-						osm_madw_get_mad_addr_ptr
-						(p_madw));
-	if (p_req_physp == NULL) {
-		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 5104: "
-			"Cannot find requester physical port\n");
-		goto Exit;
-	}
-
-	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
-		osm_dump_guidinfo_record(sa->p_log, p_rcvd_rec, OSM_LOG_DEBUG);
 
 	cl_qlist_init(&rec_list);
 
@@ -340,6 +638,76 @@ void osm_gir_rcv_process(IN void *ctx, IN void *data)
 	cl_plock_release(sa->p_lock);
 
 	osm_sa_respond(sa, p_madw, sizeof(ib_guidinfo_record_t), &rec_list);
+}
+
+void osm_gir_rcv_process(IN void *ctx, IN void *data)
+{
+	osm_sa_t *sa = ctx;
+	osm_madw_t *p_madw = data;
+	const ib_sa_mad_t *p_rcvd_mad;
+	osm_physp_t *p_req_physp;
+	osm_port_t *p_port;
+	const ib_guidinfo_record_t *p_rcvd_rec;
+
+	CL_ASSERT(sa);
+
+	OSM_LOG_ENTER(sa->p_log);
+
+	CL_ASSERT(p_madw);
+
+	p_rcvd_mad = osm_madw_get_sa_mad_ptr(p_madw);
+
+	CL_ASSERT(p_rcvd_mad->attr_id == IB_MAD_ATTR_GUIDINFO_RECORD);
+
+	/* update the requester physical port */
+	p_req_physp = osm_get_physp_by_mad_addr(sa->p_log, sa->p_subn,
+						osm_madw_get_mad_addr_ptr(p_madw));
+	if (p_req_physp == NULL) {
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 5104: "
+			"Cannot find requester physical port\n");
+		goto Exit;
+	}
+
+	switch(p_rcvd_mad->method) {
+	case IB_MAD_METHOD_GET:
+	case IB_MAD_METHOD_GETTABLE:
+		get_guidinfo(sa, p_madw, p_req_physp);
+		break;
+	case IB_MAD_METHOD_SET:
+	case IB_MAD_METHOD_DELETE:
+		if (!check_mod_comp_mask(p_rcvd_mad->comp_mask)) {
+			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 5106: "
+				"component mask = 0x%016" PRIx64 ", "
+                                "expected comp mask = 0x%016" PRIx64 "\n",
+				cl_ntoh64(p_rcvd_mad->comp_mask),
+				CL_NTOH64(MOD_GIR_COMP_MASK));
+			osm_sa_send_error(sa, p_madw,
+					  IB_SA_MAD_STATUS_REQ_INVALID);
+			goto Exit;
+		}
+		p_rcvd_rec = (ib_guidinfo_record_t *) ib_sa_mad_get_payload_ptr(p_rcvd_mad);
+		p_port = osm_get_port_by_lid(sa->p_subn, p_rcvd_rec->lid);
+		if (!p_port) {
+			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
+				"Port with LID %u not found\n",
+				cl_ntoh16(p_rcvd_rec->lid));
+			goto Exit;
+		}
+		if (!osm_physp_share_pkey(sa->p_log, p_req_physp,
+					  p_port->p_physp))
+			goto Exit;
+		if (p_rcvd_mad->method == IB_MAD_METHOD_SET)
+			set_guidinfo(sa, p_madw, p_port, p_rcvd_rec->block_num);
+		else
+			del_guidinfo(sa, p_madw, p_port, p_rcvd_rec->block_num);
+		break;
+	default:
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 5105: "
+			"Unsupported Method (%s)\n",
+			ib_get_sa_method_str(p_rcvd_mad->method));
+		osm_sa_send_error(sa, p_madw, IB_MAD_STATUS_UNSUP_METHOD_ATTR);
+		break;
+	}
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);
