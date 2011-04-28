@@ -57,7 +57,6 @@
 #include <opensm/osm_pkey.h>
 #include <opensm/osm_sa.h>
 
-#define IB_OPENIB_OUI	0x001405
 #define MOD_GIR_COMP_MASK (IB_GIR_COMPMASK_LID | IB_GIR_COMPMASK_BLOCKNUM)
 
 typedef struct osm_gir_item {
@@ -366,7 +365,7 @@ static ib_net64_t sm_assigned_guid(uint8_t assigned_byte)
 	}
 	return cl_hton64(((uint64_t) uniq_count) |
 			 (((uint64_t) assigned_byte) << 32) |
-			 (((uint64_t) IB_OPENIB_OUI) << 40));
+			 (((uint64_t) OSM_VENDOR_ID_OPENIB) << 40));
 }
 
 static void guidinfo_set(IN osm_sa_t *sa, IN osm_port_t *p_port,
