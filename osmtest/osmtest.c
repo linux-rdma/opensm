@@ -221,8 +221,6 @@ const osmtest_token_t token_array[] = {
 	{OSMTEST_TOKEN_UNKNOWN, 0, ""}	/* must be last entry */
 };
 
-#define IB_MAD_STATUS_CLASS_MASK       (CL_HTON16(0xFF00))
-
 static const char ib_mad_status_str_busy[] = "IB_MAD_STATUS_BUSY";
 static const char ib_mad_status_str_redirect[] = "IB_MAD_STATUS_REDIRECT";
 static const char ib_mad_status_str_unsup_class_ver[] =
