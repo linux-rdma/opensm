@@ -85,7 +85,7 @@ void mgrp_delete(IN osm_mgrp_t * p_mgrp)
 		p_next_mcm_alias_guid =
 		    (osm_mcm_alias_guid_t *) cl_qmap_next(&p_mcm_alias_guid->map_item);
 		osm_mcm_alias_guid_delete(&p_mcm_alias_guid);
-        }
+	}
 
 	p_next_mcm_port =
 	    (osm_mcm_port_t *) cl_qmap_head(&p_mgrp->mcm_port_tbl);
@@ -214,7 +214,7 @@ static boolean_t is_qmap_empty_for_port(IN const cl_qmap_t * const p_map,
 	cl_map_item_t *item;
 	osm_mcm_alias_guid_t *mcm_alias_guid;
 
-        for (item = cl_qmap_head(p_map); item != cl_qmap_end(p_map);
+	for (item = cl_qmap_head(p_map); item != cl_qmap_end(p_map);
 	     item = cl_qmap_next(item)) {
 		mcm_alias_guid = (osm_mcm_alias_guid_t *) item;
 		if (mcm_alias_guid->p_base_mcm_port->port == port) {
