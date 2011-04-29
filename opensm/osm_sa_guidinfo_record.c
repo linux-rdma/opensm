@@ -744,7 +744,7 @@ void osm_gir_rcv_process(IN void *ctx, IN void *data)
 				cl_ntoh64(p_rcvd_mad->comp_mask),
 				CL_NTOH64(MOD_GIR_COMP_MASK));
 			osm_sa_send_error(sa, p_madw,
-					  IB_SA_MAD_STATUS_REQ_INVALID);
+					  IB_SA_MAD_STATUS_INSUF_COMPS);
 			goto Exit;
 		}
 		p_rcvd_rec = (ib_guidinfo_record_t *) ib_sa_mad_get_payload_ptr(p_rcvd_mad);
