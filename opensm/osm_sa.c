@@ -720,7 +720,7 @@ static void sa_dump_all_sa(osm_opensm_t * p_osm, FILE * file)
 
 	dump_context.p_osm = p_osm;
 	dump_context.file = file;
-	OSM_LOG(&p_osm->log, OSM_LOG_ERROR /* DEBUG */, "Dump guidinfo\n");
+	OSM_LOG(&p_osm->log, OSM_LOG_DEBUG, "Dump guidinfo\n");
 	cl_plock_acquire(&p_osm->lock);
 	cl_qmap_apply_func(&p_osm->subn.port_guid_tbl,
 			   sa_dump_one_port_guidinfo, &dump_context);
