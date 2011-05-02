@@ -59,6 +59,8 @@
 #define PORTGRP_MAX_PORTS    16
 #define SWITCH_MAX_PORTGRPS  (1 + 2 * TORUS_MAX_DIM)
 
+#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+
 typedef ib_net64_t guid_t;
 
 /*
@@ -286,6 +288,8 @@ struct torus {
 	unsigned switch_cnt;
 	unsigned seed_cnt, seed_idx;
 	unsigned x_sz, y_sz, z_sz;
+
+	unsigned port_order[IB_NODE_NUM_PORTS_MAX+1];
 
 	unsigned sw_pool_sz;
 	unsigned link_pool_sz;
@@ -844,6 +848,56 @@ out:
 }
 
 static
+bool parse_port(unsigned *pnum, const char *parse_sep)
+{
+	char *val, *nextchar;
+
+	val = strtok(NULL, parse_sep);
+	if (!val)
+		return false;
+	*pnum = strtoul(val, &nextchar, 0);
+	if (*pnum > IB_NODE_NUM_PORTS_MAX) {
+		*pnum = 0;
+	}
+	return true;
+}
+
+static
+bool parse_port_order(struct torus *t, const char *parse_sep)
+{
+	unsigned i, j, k, n;
+
+	for (i = 0; i < ARRAY_SIZE(t->port_order); i++) {
+		if (!parse_port(&(t->port_order[i]), parse_sep)) {
+			OSM_LOG(&t->osm->log, OSM_LOG_ERROR,
+				"Error: cannot parse port_order");
+			break;
+		}
+		for (j = 0; j < i; j++) {
+			if (t->port_order[j] == t->port_order[i]) {
+				OSM_LOG(&t->osm->log, OSM_LOG_ERROR,
+					"Error: ignoring duplicate port %u in "
+					" port_order parsing\n",
+					t->port_order[j]);
+				i--;	/* Ignore duplicate port number */
+				break;
+			}
+		}
+	}
+
+	n = i;
+	for (j = 0; j < ARRAY_SIZE(t->port_order); j++) {
+		for (k = 0; k < i; k++)
+			if (t->port_order[k] == j)
+				break;
+		if (k >= i)
+			t->port_order[n++] = j;
+	}
+
+	return true;
+}
+
+static
 bool parse_pg_max_ports(struct torus *t, const char *parse_sep)
 {
 	char *val, *nextchar;
@@ -982,6 +1036,7 @@ static
 bool parse_config(const char *fn, struct fabric *f, struct torus *t)
 {
 	FILE *fp;
+	unsigned i;
 	char *keyword;
 	char *line_buf = NULL;
 	const char *parse_sep = " \n\t\015";
@@ -992,6 +1047,9 @@ bool parse_config(const char *fn, struct fabric *f, struct torus *t)
 
 	if (!grow_seed_array(t, 2))
 		return false;
+
+	for (i = 0; i < ARRAY_SIZE(t->port_order); i++)
+		t->port_order[i] = i;
 
 	fp = fopen(fn, "r");
 	if (!fp) {
@@ -1018,6 +1076,8 @@ next_line:
 	} else if (strcmp("mesh", keyword) == 0) {
 		t->flags |= X_MESH | Y_MESH | Z_MESH;
 		kw_success = parse_torus(t, parse_sep);
+	} else if (strcmp("port_order", keyword) == 0) {
+		kw_success = parse_port_order(t, parse_sep);
 	} else if (strcmp("next_seed", keyword) == 0) {
 		kw_success = grow_seed_array(t, 1);
 		t->seed_cnt++;
@@ -8424,6 +8484,7 @@ bool torus_lft(struct torus *t, struct t_switch *sw)
 	struct port_grp *pgrp;
 	struct t_switch *dsw;
 	osm_switch_t *osm_sw;
+	unsigned order[IB_NODE_NUM_PORTS_MAX+1];
 
 	if (!(sw->osm_switch && sw->osm_switch->priv == sw)) {
 		OSM_LOG(&t->osm->log, OSM_LOG_ERROR,
@@ -8439,13 +8500,22 @@ bool torus_lft(struct torus *t, struct t_switch *sw)
 		dsw = t->sw_pool[s];
 		pgrp = &dsw->ptgrp[2 * TORUS_MAX_DIM];
 
-		for (p = 0; p < pgrp->port_cnt; p++) {
+		memset(order, IB_INVALID_PORT_NUM, sizeof(order));
+		for (p = 0; p < pgrp->port_cnt; p++)
+			order[pgrp->port[p]->port] = p;
 
-			if (!get_lid(pgrp, p, &dlid_base, &dlid_lmc, &ca))
+		for (p = 0; p < ARRAY_SIZE(order); p++) {
+
+			unsigned px = order[t->port_order[p]];
+
+			if (px == IB_INVALID_PORT_NUM)
+				continue;
+
+			if (!get_lid(pgrp, px, &dlid_base, &dlid_lmc, &ca))
 				return false;
 
 			if (sw->n_id == dsw->n_id)
-				dp = pgrp->port[p]->port;
+				dp = pgrp->port[px]->port;
 			else
 				dp = lft_port(t, sw, dsw, true, ca);
 			/*

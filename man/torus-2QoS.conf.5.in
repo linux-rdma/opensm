@@ -62,7 +62,7 @@ see \fBUNICAST ROUTING\fR in torus-2QoS(8).
 \fIsw0_GUID sw1_GUID
 \fR
 .RS
-These keywords are used to seed the torus/mesh topolgy.
+These keywords are used to seed the torus/mesh topology.
 For example, "xp_link 0x2000 0x2001" specifies that a link from
 the switch with node GUID 0x2000 to the switch with node GUID 0x2001
 would point in the positive x direction,
@@ -78,7 +78,7 @@ for torus dimensions of radix four (see \fBTOPOLOGY DISCOVERY\fR in
 torus-2QoS(8)).  For such cases both the positive and negative coordinate
 directions must be specified.
 .P
-Based on the topology specifed via the \fBtorus\fR/\fBmesh\fR keyword,
+Based on the topology specified via the \fBtorus\fR/\fBmesh\fR keyword,
 torus-2QoS will detect and log when it has insufficient seed configuration.
 .RE
 .
@@ -140,6 +140,24 @@ parameter needs to be increased.
 If this keyword appears multiple times, the last instance prevails.
 .RE
 .
+.P
+\fBport_order
+\fIp1 p2 p3 ...
+\fR
+.RS
+This keyword specifies the order in which CA ports on a destination switch
+are visited when computing routes. When the fabric contains switches connected
+with multiple parallel links, routes are distributed in a round-robin fashion
+across such links, and so changing the order that CA ports are visited changes
+the distribution of routes across such links.  This may be advantageous for
+some specific traffic patterns.
+.P
+The default is to visit CA ports in increasing port
+order on destination switches.
+.P
+Duplicate values in the list will be ignored.
+.RE
+.
 .SH EXAMPLE
 .
 \f(RC
@@ -171,6 +189,10 @@ z_dateline -1  # back to its original position.
 # on a host attached to a switch from the second seed.
 # Both instances should use this torus-2QoS.conf to ensure
 # path SL values do not change in the event of SM failover.
+
+# port_order defines the order on which the ports would be
+# chosen for routing.
+port_order 7 10 8 11 9 12 25 28 26 29 27 30
 .fi
 \fR
 .
