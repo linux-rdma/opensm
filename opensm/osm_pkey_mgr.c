@@ -507,6 +507,10 @@ int osm_pkey_mgr_process(IN osm_opensm_t * p_osm)
 	cl_map_item_t *p_next;
 	osm_prtn_t *p_prtn;
 	osm_port_t *p_port;
+	osm_switch_t *p_sw;
+	osm_physp_t *p_physp;
+	osm_node_t *p_remote_node;
+	uint8_t i;
 	int ret = 0;
 
 	CL_ASSERT(p_osm);
@@ -550,6 +554,30 @@ int osm_pkey_mgr_process(IN osm_opensm_t * p_osm)
 			ret = -1;
 	}
 
+	/* clear partition enforcement on inter-switch links */
+	p_tbl = &p_osm->subn.sw_guid_tbl;
+	p_next = cl_qmap_head(p_tbl);
+	while (p_next != cl_qmap_end(p_tbl)) {
+		p_sw = (osm_switch_t * *) p_next;
+		p_next = cl_qmap_next(p_next);
+		for (i = 1; i < p_sw->num_ports; i++) {
+			p_physp = osm_node_get_physp_ptr(p_sw->p_node, i);
+			if (p_physp && p_physp->p_remote_physp)
+				p_remote_node = p_physp->p_remote_physp->p_node;
+			else
+				continue;
+
+			if (osm_node_get_type(p_remote_node) != IB_NODE_TYPE_SWITCH)
+				continue;
+
+			if(! p_physp->port_info.vl_enforce && 0xc )
+				continue;
+
+			/* clear partition enforcement */
+			if (pkey_mgr_enforce_partition(&p_osm->log, &p_osm->sm, p_physp, FALSE))
+				ret = -1;
+		}
+	}
 _err:
 	CL_PLOCK_RELEASE(&p_osm->lock);
 	OSM_LOG_EXIT(&p_osm->log);
