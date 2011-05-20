@@ -426,6 +426,7 @@ void osm_subn_construct(IN osm_subn_t * p_subn)
 	cl_qmap_init(&p_subn->node_guid_tbl);
 	cl_qmap_init(&p_subn->port_guid_tbl);
 	cl_qmap_init(&p_subn->alias_port_guid_tbl);
+	cl_qmap_init(&p_subn->assigned_guids_tbl);
 	cl_qmap_init(&p_subn->sm_guid_tbl);
 	cl_qlist_init(&p_subn->sa_sr_list);
 	cl_qlist_init(&p_subn->sa_infr_list);
@@ -481,6 +482,7 @@ void osm_subn_destroy(IN osm_subn_t * p_subn)
 {
 	int i;
 	osm_node_t *p_node, *p_next_node;
+	osm_assigned_guids_t *p_assigned_guids, *p_next_assigned_guids;
 	osm_alias_guid_t *p_alias_guid, *p_next_alias_guid;
 	osm_port_t *p_port, *p_next_port;
 	osm_switch_t *p_sw, *p_next_sw;
@@ -496,6 +498,14 @@ void osm_subn_destroy(IN osm_subn_t * p_subn)
 		p_node = p_next_node;
 		p_next_node = (osm_node_t *) cl_qmap_next(&p_node->map_item);
 		osm_node_delete(&p_node);
+	}
+
+	p_next_assigned_guids = (osm_assigned_guids_t *) cl_qmap_head(&p_subn->assigned_guids_tbl);
+	while (p_next_assigned_guids !=
+	       (osm_assigned_guids_t *) cl_qmap_end(&p_subn->assigned_guids_tbl)) {
+		p_assigned_guids = p_next_assigned_guids;
+		p_next_assigned_guids = (osm_assigned_guids_t *) cl_qmap_next(&p_assigned_guids->map_item);
+		osm_assigned_guids_delete(&p_assigned_guids);
 	}
 
 	p_next_alias_guid = (osm_alias_guid_t *) cl_qmap_head(&p_subn->alias_port_guid_tbl);
@@ -702,6 +712,35 @@ osm_port_t *osm_get_port_by_alias_guid(IN osm_subn_t const *p_subn,
 	if (p_alias_guid == (osm_alias_guid_t *) cl_qmap_end(&(p_subn->alias_port_guid_tbl)))
 		return NULL;
 	return p_alias_guid->p_base_port;
+}
+
+osm_assigned_guids_t *osm_assigned_guids_new(IN const ib_net64_t port_guid,
+					     IN const uint32_t num_guids)
+{
+	osm_assigned_guids_t *p_assigned_guids;
+
+	p_assigned_guids = calloc(1, sizeof(*p_assigned_guids) +
+				     sizeof(ib_net64_t) * (num_guids - 1));
+	if (p_assigned_guids)
+		p_assigned_guids->port_guid = port_guid;
+	return p_assigned_guids;
+}
+
+void osm_assigned_guids_delete(IN OUT osm_assigned_guids_t ** pp_assigned_guids)
+{
+	free(*pp_assigned_guids);
+	*pp_assigned_guids = NULL;
+}
+
+osm_assigned_guids_t *osm_get_assigned_guids_by_guid(IN osm_subn_t const *p_subn,
+						     IN ib_net64_t port_guid)
+{
+	osm_assigned_guids_t *p_assigned_guids;
+
+	p_assigned_guids = (osm_assigned_guids_t *) cl_qmap_get(&(p_subn->assigned_guids_tbl), port_guid);
+	if (p_assigned_guids == (osm_assigned_guids_t *) cl_qmap_end(&(p_subn->assigned_guids_tbl)))
+		return NULL;
+	return p_assigned_guids;
 }
 
 osm_port_t *osm_get_port_by_lid_ho(IN osm_subn_t const * subn, IN uint16_t lid)

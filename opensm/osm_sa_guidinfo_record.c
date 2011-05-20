@@ -467,15 +467,15 @@ static void set_guidinfo(IN osm_sa_t *sa, IN osm_madw_t *p_madw,
 	int i, j, dirty = 0;
 	ib_sa_mad_t *p_sa_mad;
 	ib_guidinfo_record_t *p_rcvd_rec;
+	osm_assigned_guids_t *p_assigned_guids = 0;
 	osm_alias_guid_t *p_alias_guid, *p_alias_guid_check;
 	cl_map_item_t *p_item;
 	ib_net64_t set_alias_guid, del_alias_guid, assigned_guid;
 	uint8_t set_mask;
 
+	max_block = (p_port->p_physp->port_info.guid_cap + GUID_TABLE_MAX_ENTRIES - 1) /
+		     GUID_TABLE_MAX_ENTRIES;
 	if (!p_port->p_physp->p_guids) {
-		max_block = (p_port->p_physp->port_info.guid_cap + GUID_TABLE_MAX_ENTRIES - 1) /
-			     GUID_TABLE_MAX_ENTRIES;
-
 		p_port->p_physp->p_guids = calloc(max_block * GUID_TABLE_MAX_ENTRIES,
 						  sizeof(ib_net64_t));
 		if (!p_port->p_physp->p_guids) {
@@ -524,6 +524,18 @@ static void set_guidinfo(IN osm_sa_t *sa, IN osm_madw_t *p_madw,
 				p_rcvd_rec->guid_info.guid[i % 8] = set_alias_guid;
 				continue;
 			}
+			/* Is there a persistent SA assigned guid for this index ? */
+			if (!p_assigned_guids)
+				p_assigned_guids =
+				    osm_get_assigned_guids_by_guid(sa->p_subn,
+								   p_port->p_physp->port_guid);
+			if (p_assigned_guids) {
+				set_alias_guid = p_assigned_guids->assigned_guid[i];
+				if (set_alias_guid) {
+					p_rcvd_rec->guid_info.guid[i % 8] = set_alias_guid;
+					goto add_alias_guid;
+				}
+			}
 		}
 		if (!set_alias_guid) {
 			for (j = 0; j < 1000; j++) {
@@ -540,6 +552,25 @@ static void set_guidinfo(IN osm_sa_t *sa, IN osm_madw_t *p_madw,
 				if (p_item == cl_qmap_end(&sa->sm->p_subn->alias_port_guid_tbl)) {
 					set_alias_guid = assigned_guid;
 					p_rcvd_rec->guid_info.guid[i % 8] = assigned_guid;
+					if (!p_assigned_guids) {
+						p_assigned_guids = osm_assigned_guids_new(p_port->p_physp->port_guid,
+											  max_block * GUID_TABLE_MAX_ENTRIES);
+						if (p_assigned_guids) {
+							cl_qmap_insert(&(sa->p_subn->assigned_guids_tbl),
+								       p_assigned_guids->port_guid,
+								       &p_assigned_guids->map_item);
+						} else {
+							OSM_LOG(sa->p_log,
+								OSM_LOG_ERROR,
+								"ERR 510D: osm_assigned_guids_new failed port GUID 0x%" PRIx64 " index %d\n",
+								cl_ntoh64(p_port->p_physp->port_guid), i);
+							osm_sa_send_error(sa, p_madw,
+									  IB_SA_MAD_STATUS_NO_RESOURCES);
+							return;
+						}
+					}
+					if (p_assigned_guids)
+						p_assigned_guids->assigned_guid[i] = assigned_guid;
 					break;
 				}
 			}
@@ -552,6 +583,7 @@ static void set_guidinfo(IN osm_sa_t *sa, IN osm_madw_t *p_madw,
 			}
 		}
 
+add_alias_guid:
 		/* allocate alias guid and add to alias guid table */
 		p_alias_guid = osm_alias_guid_new(set_alias_guid, p_port);
 		if (!p_alias_guid) {

@@ -538,6 +538,7 @@ typedef struct osm_subn {
 	cl_qmap_t node_guid_tbl;
 	cl_qmap_t port_guid_tbl;
 	cl_qmap_t alias_port_guid_tbl;
+	cl_qmap_t assigned_guids_tbl;
 	cl_qmap_t rtr_guid_tbl;
 	cl_qlist_t prefix_routes_list;
 	cl_qmap_t prtn_pkey_tbl;
@@ -712,6 +713,35 @@ typedef struct osm_subn {
 *	mboxes
 *		Array of pointers to all Multicast MLID box objects in the
 *		subnet. Indexed by MLID offset from base MLID.
+*
+* SEE ALSO
+*	Subnet object
+*********/
+
+/****s* OpenSM: Subnet/osm_assigned_guids_t
+* NAME
+*	osm_assigned_guids_t
+*
+* DESCRIPTION
+*	SA assigned GUIDs structure.
+*
+* SYNOPSIS
+*/
+typedef struct osm_assigned_guids {
+	cl_map_item_t map_item;
+	ib_net64_t port_guid;
+	ib_net64_t assigned_guid[1];
+} osm_assigned_guids_t;
+/*
+* FIELDS
+*	map_item
+*		Linkage structure for cl_qmap.  MUST BE FIRST MEMBER!
+*
+*	port_guid
+*		Base port GUID.
+*
+*	assigned_guids
+*		Table of persistent SA assigned GUIDs.
 *
 * SEE ALSO
 *	Subnet object
@@ -1061,6 +1091,84 @@ struct osm_port *osm_get_port_by_alias_guid(IN osm_subn_t const *p_subn,
 * SEE ALSO
 *	Subnet object, osm_subn_construct, osm_subn_destroy,
 *	osm_port_t
+*********/
+
+/****f* OpenSM: Port/osm_assigned_guids_new
+* NAME
+*	osm_assigned_guids_new
+*
+* DESCRIPTION
+*	This function allocates and initializes an assigned guids object.
+*
+* SYNOPSIS
+*/
+osm_assigned_guids_t *osm_assigned_guids_new(IN const ib_net64_t port_guid,
+					     IN const uint32_t num_guids);
+/*
+* PARAMETERS
+*       port_guid
+*               [in] Base port GUID in network order
+*
+* RETURN VALUE
+*       Pointer to the initialized assigned alias guid object.
+*
+* SEE ALSO
+*	Subnet object, osm_assigned_guids_t, osm_assigned_guids_delete,
+*	osm_get_assigned_guids_by_guid
+*********/
+
+/****f* OpenSM: Port/osm_assigned_guids_delete
+* NAME
+*	osm_assigned_guids_delete
+*
+* DESCRIPTION
+*	This function destroys and deallocates an assigned guids object.
+*
+* SYNOPSIS
+*/
+void osm_assigned_guids_delete(IN OUT osm_assigned_guids_t ** pp_assigned_guids);
+/*
+* PARAMETERS
+*       pp_assigned_guids
+*		[in][out] Pointer to a pointer to an assigned guids object to delete.
+*		On return, this pointer is NULL.
+*
+* RETURN VALUE
+*	This function does not return a value.
+*
+* NOTES
+*	Performs any necessary cleanup of the specified assigned guids object.
+*
+* SEE ALSO
+*	Subnet object, osm_assigned_guids_new, osm_get_assigned_guids_by_guid
+*********/
+
+/****f* OpenSM: Subnet/osm_get_assigned_guids_by_guid
+* NAME
+*	osm_get_assigned_guids_by_guid
+*
+* DESCRIPTION
+*	This looks for the given port guid and returns a pointer
+*	to the guid table of SA assigned alias guids for that port.
+*
+* SYNOPSIS
+*/
+osm_assigned_guids_t *osm_get_assigned_guids_by_guid(IN osm_subn_t const *p_subn,
+						     IN ib_net64_t port_guid);
+/*
+* PARAMETERS
+*	p_subn
+*		[in] Pointer to an osm_subn_t object
+*
+*	port_guid
+*		[in] The base port guid in network order
+*
+* RETURN VALUES
+*	The osm_assigned_guids structure pointer if found. NULL otherwise.
+*
+* SEE ALSO
+*	Subnet object, osm_assigned_guids_new, osm_assigned_guids_delete,
+*	osm_assigned_guids_t
 *********/
 
 /****f* OpenSM: Port/osm_get_port_by_lid
