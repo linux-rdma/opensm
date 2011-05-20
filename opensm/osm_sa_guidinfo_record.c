@@ -449,8 +449,10 @@ static void del_guidinfo(IN osm_sa_t *sa, IN osm_madw_t *p_madw,
 		}
 	}
 
-	if (dirty)
+	if (dirty) {
 		guidinfo_set(sa, p_port, block_num);
+		sa->dirty = TRUE;
+	}
 
 	memcpy(&p_rcvd_rec->guid_info,
 	       &((*p_port->p_physp->p_guids)[block_num * GUID_TABLE_MAX_ENTRIES]),
@@ -632,8 +634,10 @@ add_alias_guid:
 		}
 	}
 
-	if (dirty)
+	if (dirty) {
 		guidinfo_set(sa, p_port, block_num);
+		sa->dirty = TRUE;
+	}
 
 	memcpy(&p_rcvd_rec->guid_info,
 	       &((*p_port->p_physp->p_guids)[block_num * GUID_TABLE_MAX_ENTRIES]),
