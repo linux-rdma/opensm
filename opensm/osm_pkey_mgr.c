@@ -608,7 +608,7 @@ int osm_pkey_mgr_process(IN osm_opensm_t * p_osm)
 	p_tbl = &p_osm->subn.sw_guid_tbl;
 	p_next = cl_qmap_head(p_tbl);
 	while (p_next != cl_qmap_end(p_tbl)) {
-		p_sw = (osm_switch_t * *) p_next;
+		p_sw = (osm_switch_t *) p_next;
 		p_next = cl_qmap_next(p_next);
 		for (i = 1; i < p_sw->num_ports; i++) {
 			p_physp = osm_node_get_physp_ptr(p_sw->p_node, i);
