@@ -65,6 +65,7 @@
 #include <opensm/osm_multicast.h>
 #include <opensm/osm_inform.h>
 #include <opensm/osm_service.h>
+#include <opensm/osm_guid.h>
 #include <opensm/osm_helper.h>
 #include <vendor/osm_vendor_api.h>
 
@@ -938,6 +939,8 @@ static int load_guidinfo(osm_opensm_t * p_osm, ib_net64_t base_guid,
 
 	memcpy(&(*p_port->p_physp->p_guids)[gir->block_num * GUID_TABLE_MAX_ENTRIES],
 	       &gir->guid_info, sizeof(ib_guid_info_t));
+
+	osm_queue_guidinfo(&p_osm->sa, p_port, gir->block_num);
 
 _out:
 	cl_plock_release(&p_osm->lock);

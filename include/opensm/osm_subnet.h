@@ -545,6 +545,7 @@ typedef struct osm_subn {
 	cl_qmap_t sm_guid_tbl;
 	cl_qlist_t sa_sr_list;
 	cl_qlist_t sa_infr_list;
+	cl_qlist_t alias_guid_list;
 	cl_ptr_vector_t port_lid_tbl;
 	ib_net16_t master_sm_base_lid;
 	ib_net16_t sm_base_lid;

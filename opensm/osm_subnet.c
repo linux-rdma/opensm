@@ -64,6 +64,7 @@
 #include <opensm/osm_remote_sm.h>
 #include <opensm/osm_partition.h>
 #include <opensm/osm_node.h>
+#include <opensm/osm_guid.h>
 #include <opensm/osm_multicast.h>
 #include <opensm/osm_inform.h>
 #include <opensm/osm_console.h>
@@ -430,6 +431,7 @@ void osm_subn_construct(IN osm_subn_t * p_subn)
 	cl_qmap_init(&p_subn->sm_guid_tbl);
 	cl_qlist_init(&p_subn->sa_sr_list);
 	cl_qlist_init(&p_subn->sa_infr_list);
+	cl_qlist_init(&p_subn->alias_guid_list);
 	cl_qlist_init(&p_subn->prefix_routes_list);
 	cl_qmap_init(&p_subn->rtr_guid_tbl);
 	cl_qmap_init(&p_subn->prtn_pkey_tbl);
@@ -515,6 +517,9 @@ void osm_subn_destroy(IN osm_subn_t * p_subn)
 		p_next_alias_guid = (osm_alias_guid_t *) cl_qmap_next(&p_alias_guid->map_item);
 		osm_alias_guid_delete(&p_alias_guid);
 	}
+
+	while (cl_qlist_count(&p_subn->alias_guid_list))
+		osm_guid_work_obj_delete((osm_guidinfo_work_obj_t *) cl_qlist_remove_head(&p_subn->alias_guid_list));
 
 	p_next_port = (osm_port_t *) cl_qmap_head(&p_subn->port_guid_tbl);
 	while (p_next_port !=

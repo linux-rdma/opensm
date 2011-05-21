@@ -2078,7 +2078,8 @@ static const char *sm_signal_str[] = {
 	"OSM_SIGNAL_SWEEP",	/* 1 */
 	"OSM_SIGNAL_IDLE_TIME_PROCESS_REQUEST",	/* 2 */
 	"OSM_SIGNAL_PERFMGR_SWEEP",	/* 3 */
-	"UNKNOWN SIGNAL!!"	/* 4 */
+	"OSM_SIGNAL_GUID_PROCESS_REQUEST",	/* 4 */
+	"UNKNOWN SIGNAL!!"	/* 5 */
 };
 
 const char *osm_get_sm_signal_str(IN osm_signal_t signal)

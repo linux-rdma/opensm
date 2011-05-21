@@ -883,7 +883,8 @@ typedef enum _osm_thread_state {
 #define OSM_SIGNAL_SWEEP			1
 #define OSM_SIGNAL_IDLE_TIME_PROCESS_REQUEST	2
 #define OSM_SIGNAL_PERFMGR_SWEEP		3
-#define OSM_SIGNAL_MAX				4
+#define OSM_SIGNAL_GUID_PROCESS_REQUEST		4
+#define OSM_SIGNAL_MAX				5
 
 typedef unsigned int osm_signal_t;
 /***********/

@@ -70,6 +70,7 @@ extern int osm_qos_setup(IN osm_opensm_t * p_osm);
 extern int osm_pkey_mgr_process(IN osm_opensm_t * p_osm);
 extern int osm_mcast_mgr_process(IN osm_sm_t * sm, boolean_t config_all);
 extern int osm_link_mgr_process(IN osm_sm_t * sm, IN uint8_t state);
+extern void osm_guid_mgr_process(IN osm_sm_t * sm);
 
 static void state_mgr_up_msg(IN const osm_sm_t * sm)
 {
@@ -1369,6 +1370,11 @@ repeat_discovery:
 				"SWITCHES CONFIGURED FOR MULTICAST");
 	}
 
+	osm_guid_mgr_process(sm);
+	if (wait_for_pending_transactions(&sm->p_subn->p_osm->stats))
+		return;
+	OSM_LOG_MSG_BOX(sm->p_log, OSM_LOG_VERBOSE, "ALIAS GUIDS CONFIGURED");
+
 	/*
 	 * The LINK_PORTS state is required since we cannot count on
 	 * the port state change MADs to succeed. This is an artifact
@@ -1450,6 +1456,12 @@ static void do_process_mgrp_queue(osm_sm_t * sm)
 	}
 }
 
+static void do_process_guid_queue(osm_sm_t *sm)
+{
+	osm_guid_mgr_process(sm);
+	wait_for_pending_transactions(&sm->p_subn->p_osm->stats);
+}
+
 void osm_state_mgr_process(IN osm_sm_t * sm, IN osm_signal_t signal)
 {
 	CL_ASSERT(sm);
@@ -1472,6 +1484,9 @@ void osm_state_mgr_process(IN osm_sm_t * sm, IN osm_signal_t signal)
 		break;
 	case OSM_SIGNAL_IDLE_TIME_PROCESS_REQUEST:
 		do_process_mgrp_queue(sm);
+		break;
+	case OSM_SIGNAL_GUID_PROCESS_REQUEST:
+		do_process_guid_queue(sm);
 		break;
 	default:
 		CL_ASSERT(FALSE);

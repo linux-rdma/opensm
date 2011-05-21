@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2010 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2012 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2008 Xsigo Systems Inc.  All rights reserved.
  *
@@ -56,6 +56,7 @@
 #include <opensm/osm_router.h>
 #include <opensm/osm_switch.h>
 #include <opensm/osm_node.h>
+#include <opensm/osm_guid.h>
 #include <opensm/osm_helper.h>
 #include <opensm/osm_multicast.h>
 #include <opensm/osm_remote_sm.h>
@@ -162,6 +163,8 @@ static void drop_mgr_remove_port(osm_sm_t * sm, IN osm_port_t * p_port)
 	osm_node_t *p_node;
 	osm_remote_sm_t *p_sm;
 	osm_alias_guid_t *p_alias_guid, *p_alias_guid_check;
+	osm_guidinfo_work_obj_t *wobj;
+	cl_list_item_t *item, *next_item;
 	ib_gid_t port_gid;
 	ib_mad_notice_attr_t notice;
 	ib_api_status_t status;
@@ -207,6 +210,18 @@ static void drop_mgr_remove_port(osm_sm_t * sm, IN osm_port_t * p_port)
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0103: "
 			"Error sending trap reports (%s)\n",
 			ib_get_err_str(status));
+	}
+
+	next_item = cl_qlist_head(&sm->p_subn->alias_guid_list);
+	while (next_item != cl_qlist_end(&sm->p_subn->alias_guid_list)) {
+		item = next_item;
+		next_item = cl_qlist_next(item);
+		wobj = cl_item_obj(item, wobj, list_item);
+		if (wobj->p_port == p_port) {
+			cl_qlist_remove_item(&sm->p_subn->alias_guid_list,
+					     &wobj->list_item);
+			osm_guid_work_obj_delete(wobj);
+		}
 	}
 
 	while (!cl_is_qlist_empty(&p_port->mcm_list)) {
