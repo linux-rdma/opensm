@@ -735,10 +735,12 @@ void osm_gir_rcv_process(IN void *ctx, IN void *data)
 		if (!osm_physp_share_pkey(sa->p_log, p_req_physp,
 					  p_port->p_physp))
 			goto Exit;
+		CL_PLOCK_EXCL_ACQUIRE(sa->p_lock);
 		if (p_rcvd_mad->method == IB_MAD_METHOD_SET)
 			set_guidinfo(sa, p_madw, p_port, p_rcvd_rec->block_num);
 		else
 			del_guidinfo(sa, p_madw, p_port, p_rcvd_rec->block_num);
+		CL_PLOCK_RELEASE(sa->p_lock);
 		break;
 	default:
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 5105: "
