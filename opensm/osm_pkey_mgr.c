@@ -341,17 +341,16 @@ static int pkey_mgr_update_port(osm_log_t * p_log, osm_sm_t * sm,
 				if (pkey_index >= IB_NUM_PKEY_ELEMENTS_IN_BLOCK) {
 					block_index++;
 					pkey_index -= IB_NUM_PKEY_ELEMENTS_IN_BLOCK;
-					if (block_index * IB_NUM_PKEY_ELEMENTS_IN_BLOCK + pkey_index >= pkey_mgr_get_physp_max_pkeys(p_physp)) {
-						OSM_LOG(p_log, OSM_LOG_ERROR,
-							"ERR 0512: "
-							"Failed to set PKey 0x%04x since Pkey table is full "
-							"for node 0x%016" PRIx64 " port %u (%s)\n",
-
-							cl_ntoh16(p_pending->pkey),
-							cl_ntoh64(osm_node_get_node_guid(p_node)),
-							osm_physp_get_port_num(p_physp),
-							p_physp->p_node->print_desc);
-					}
+				}
+				if (block_index * IB_NUM_PKEY_ELEMENTS_IN_BLOCK + pkey_index >= pkey_mgr_get_physp_max_pkeys(p_physp)) {
+					OSM_LOG(p_log, OSM_LOG_ERROR,
+						"ERR 0512: "
+						"Failed to set PKey 0x%04x because Pkey table is full "
+						"for node 0x%016" PRIx64 " port %u (%s)\n",
+						cl_ntoh16(p_pending->pkey),
+						cl_ntoh64(osm_node_get_node_guid(p_node)),
+						osm_physp_get_port_num(p_physp),
+						p_physp->p_node->print_desc);
 				} else
 					found = TRUE;
 			}
