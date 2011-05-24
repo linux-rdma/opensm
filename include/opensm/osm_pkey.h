@@ -299,8 +299,7 @@ static inline ib_pkey_table_t *osm_pkey_tbl_new_block_get(const osm_pkey_tbl_t *
 *  osm_pkey_tbl_set_accum_pkeys
 *
 * DESCRIPTION
-*   Stores the given pkey in the "accum_pkeys" array and update
-*   update the "map"
+*   Stores the given pkey and pkey index in the "accum_pkeys" array
 *
 * SYNOPSIS
 */
