@@ -82,15 +82,21 @@ struct osm_physp;
 * SYNOPSIS
 */
 typedef struct osm_pkeybl {
+	cl_ptr_vector_t accum_pkeys;
 	cl_ptr_vector_t blocks;
 	cl_ptr_vector_t new_blocks;
 	cl_map_t keys;
 	cl_qlist_t pending;
+	uint16_t last_pkey_idx;
 	uint16_t used_blocks;
 	uint16_t max_blocks;
 } osm_pkey_tbl_t;
 /*
 * FIELDS
+*	accum_pkeys
+*		Accumulated pkeys with pkey index. Used to
+*		preserve pkey index.
+*
 *	blocks
 *		The IBA defined blocks of pkey values, updated from the subnet
 *
@@ -287,6 +293,35 @@ static inline ib_pkey_table_t *osm_pkey_tbl_new_block_get(const osm_pkey_tbl_t *
 		(ib_pkey_table_t *)cl_ptr_vector_get(
 		&p_pkey_tbl->new_blocks, block) : NULL);
 };
+
+/****f* OpenSM: osm_pkey_tbl_set_accum_pkeys
+* NAME
+*  osm_pkey_tbl_set_accum_pkeys
+*
+* DESCRIPTION
+*   Stores the given pkey in the "accum_pkeys" array and update
+*   update the "map"
+*
+* SYNOPSIS
+*/
+cl_status_t
+osm_pkey_tbl_set_accum_pkeys(IN osm_pkey_tbl_t * p_pkey_tbl,
+			     IN uint16_t pkey, IN uint16_t pkey_idx);
+/*
+* p_pkey_tbl
+*   [in] Pointer to the PKey table
+*
+* pkey
+*   [in] PKey to store
+*
+* pkey_idx
+*   [in] The overall index
+*
+* RETURN VALUES
+*   CL_SUCCESS if OK
+*   CL_INSUFFICIENT_MEMORY if failed
+*
+*********/
 
 /****f* OpenSM: osm_pkey_tbl_set_new_entry
 * NAME

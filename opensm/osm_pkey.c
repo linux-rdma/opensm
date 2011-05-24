@@ -56,6 +56,7 @@
 
 void osm_pkey_tbl_construct(IN osm_pkey_tbl_t * p_pkey_tbl)
 {
+	cl_ptr_vector_construct(&p_pkey_tbl->accum_pkeys);
 	cl_ptr_vector_construct(&p_pkey_tbl->blocks);
 	cl_ptr_vector_construct(&p_pkey_tbl->new_blocks);
 	cl_map_construct(&p_pkey_tbl->keys);
@@ -79,16 +80,20 @@ void osm_pkey_tbl_destroy(IN osm_pkey_tbl_t * p_pkey_tbl)
 			free(p_block);
 	cl_ptr_vector_destroy(&p_pkey_tbl->new_blocks);
 
+	cl_ptr_vector_destroy(&p_pkey_tbl->accum_pkeys);
+
 	cl_map_remove_all(&p_pkey_tbl->keys);
 	cl_map_destroy(&p_pkey_tbl->keys);
 }
 
 ib_api_status_t osm_pkey_tbl_init(IN osm_pkey_tbl_t * p_pkey_tbl)
 {
+	cl_ptr_vector_init(&p_pkey_tbl->accum_pkeys, 0, 1);
 	cl_ptr_vector_init(&p_pkey_tbl->blocks, 0, 1);
 	cl_ptr_vector_init(&p_pkey_tbl->new_blocks, 0, 1);
 	cl_map_init(&p_pkey_tbl->keys, 1);
 	cl_qlist_init(&p_pkey_tbl->pending);
+	p_pkey_tbl->last_pkey_idx = 0;
 	p_pkey_tbl->used_blocks = 0;
 	p_pkey_tbl->max_blocks = 0;
 	return IB_SUCCESS;
@@ -170,6 +175,20 @@ ib_api_status_t osm_pkey_tbl_set(IN osm_pkey_tbl_t * p_pkey_tbl,
 		}
 	}
 	return IB_SUCCESS;
+}
+
+/*
+  Store the given pkey (along with it's overall index) in the accum_pkeys array.
+*/
+cl_status_t osm_pkey_tbl_set_accum_pkeys(IN osm_pkey_tbl_t * p_pkey_tbl,
+					 IN uint16_t pkey,
+					 IN uint16_t pkey_idx)
+{
+	uintptr_t ptr = pkey_idx + 1; /* 0 means not found so bias by 1 */
+
+	if (pkey_idx > p_pkey_tbl->last_pkey_idx)
+		p_pkey_tbl->last_pkey_idx = pkey_idx;
+	return cl_ptr_vector_set(&p_pkey_tbl->accum_pkeys, pkey, (void *)ptr);
 }
 
 /*
