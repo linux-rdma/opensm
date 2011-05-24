@@ -186,9 +186,44 @@ cl_status_t osm_pkey_tbl_set_accum_pkeys(IN osm_pkey_tbl_t * p_pkey_tbl,
 {
 	uintptr_t ptr = pkey_idx + 1; /* 0 means not found so bias by 1 */
 
-	if (pkey_idx > p_pkey_tbl->last_pkey_idx)
-		p_pkey_tbl->last_pkey_idx = pkey_idx;
+	if (pkey_idx >= p_pkey_tbl->last_pkey_idx)
+		p_pkey_tbl->last_pkey_idx = pkey_idx + 1;
+
 	return cl_ptr_vector_set(&p_pkey_tbl->accum_pkeys, pkey, (void *)ptr);
+}
+
+/*
+  Clears the given pkey (along with it's overall index) in the accum_pkeys array.
+*/
+void osm_pkey_tbl_clear_accum_pkeys(IN osm_pkey_tbl_t * p_pkey_tbl,
+				    IN uint16_t pkey)
+{
+	void *ptr;
+	uintptr_t pkey_idx_ptr;
+	uint16_t pkey_idx, last_pkey_idx, i;
+
+	ptr = cl_ptr_vector_get(&p_pkey_tbl->accum_pkeys, pkey);
+	if (ptr == NULL)
+		return;
+
+	cl_ptr_vector_set(&p_pkey_tbl->accum_pkeys, pkey, NULL);
+
+	pkey_idx_ptr = (uintptr_t) ptr;
+	pkey_idx = pkey_idx_ptr;
+
+	if (p_pkey_tbl->last_pkey_idx == pkey_idx) {
+		last_pkey_idx = 0;
+		for (i = 0; i < cl_ptr_vector_get_size(&p_pkey_tbl->accum_pkeys); i++) {
+			ptr = cl_ptr_vector_get(&p_pkey_tbl->accum_pkeys, i);
+			if (ptr != NULL) {
+				pkey_idx_ptr = (uintptr_t) ptr;
+				pkey_idx = pkey_idx_ptr;
+				if (pkey_idx > last_pkey_idx)
+					last_pkey_idx = pkey_idx;
+			}
+		}
+		p_pkey_tbl->last_pkey_idx = last_pkey_idx;
+	}
 }
 
 /*

@@ -248,12 +248,38 @@ pkey_mgr_enforce_partition(IN osm_log_t * p_log, osm_sm_t * sm,
 	return status;
 }
 
-static void last_accum_pkey_index(osm_pkey_tbl_t * p_pkey_tbl,
-				  uint16_t * p_block_idx,
-				  uint8_t * p_pkey_idx)
+static void clear_accum_pkey_index(osm_pkey_tbl_t * p_pkey_tbl,
+                                   uint16_t pkey_index)
 {
-	*p_block_idx = p_pkey_tbl->last_pkey_idx / IB_NUM_PKEY_ELEMENTS_IN_BLOCK;
-	*p_pkey_idx = p_pkey_tbl->last_pkey_idx % IB_NUM_PKEY_ELEMENTS_IN_BLOCK;
+	uint16_t i, pkey_idx_bias, pkey_idx;
+	void *ptr;
+	uintptr_t pkey_idx_ptr;
+
+	pkey_idx_bias = pkey_index + 1; // adjust for pkey index bias in accum_pkeys
+	for (i = 0; i < cl_ptr_vector_get_size(&p_pkey_tbl->accum_pkeys); i++) {
+		ptr = cl_ptr_vector_get(&p_pkey_tbl->accum_pkeys, i);
+		if (ptr != NULL) {
+			pkey_idx_ptr = (uintptr_t) ptr;
+			pkey_idx = pkey_idx_ptr;
+			if (pkey_idx == pkey_idx_bias) {
+				osm_pkey_tbl_clear_accum_pkeys(p_pkey_tbl, i);
+				break;
+			}
+		}
+	}
+}
+
+static int last_accum_pkey_index(osm_pkey_tbl_t * p_pkey_tbl,
+				 uint16_t * p_block_idx,
+				 uint8_t * p_pkey_idx)
+{
+	if (p_pkey_tbl->last_pkey_idx) {
+		*p_block_idx = (p_pkey_tbl->last_pkey_idx - 1) / IB_NUM_PKEY_ELEMENTS_IN_BLOCK;
+		*p_pkey_idx = (p_pkey_tbl->last_pkey_idx - 1) % IB_NUM_PKEY_ELEMENTS_IN_BLOCK;
+		return 1;
+	}
+
+	return 0;
 }
 
 static int pkey_mgr_update_port(osm_log_t * p_log, osm_sm_t * sm,
@@ -273,7 +299,7 @@ static int pkey_mgr_update_port(osm_log_t * p_log, osm_sm_t * sm,
 	osm_pending_pkey_t *p_pending;
 	boolean_t found;
 	ib_pkey_table_t empty_block;
-	int ret = 0;
+	int ret = 0, full = 0;
 	void *ptr;
 	uintptr_t pkey_idx_ptr;
 	uint16_t pkey_idx;
@@ -333,24 +359,54 @@ static int pkey_mgr_update_port(osm_log_t * p_log, osm_sm_t * sm,
 			}
 
 			if (!found) {
-				last_accum_pkey_index(p_pkey_tbl,
+				if (last_accum_pkey_index(p_pkey_tbl,
 						      &last_free_block_index,
-						      &last_free_pkey_index);
-				block_index = last_free_block_index;
-				pkey_index = last_free_pkey_index + 1;
+						      &last_free_pkey_index)) {
+					block_index = last_free_block_index;
+					pkey_index = last_free_pkey_index + 1;
+				} else {
+					block_index = 0;
+					pkey_index = 0;
+				}
 				if (pkey_index >= IB_NUM_PKEY_ELEMENTS_IN_BLOCK) {
 					block_index++;
 					pkey_index -= IB_NUM_PKEY_ELEMENTS_IN_BLOCK;
 				}
 				if (block_index * IB_NUM_PKEY_ELEMENTS_IN_BLOCK + pkey_index >= pkey_mgr_get_physp_max_pkeys(p_physp)) {
-					OSM_LOG(p_log, OSM_LOG_ERROR,
-						"ERR 0512: "
-						"Failed to set PKey 0x%04x because Pkey table is full "
-						"for node 0x%016" PRIx64 " port %u (%s)\n",
-						cl_ntoh16(p_pending->pkey),
-						cl_ntoh64(osm_node_get_node_guid(p_node)),
-						osm_physp_get_port_num(p_physp),
-						p_physp->p_node->print_desc);
+					last_free_block_index = 0;
+					last_free_pkey_index = 0;
+					found = osm_pkey_find_next_free_entry(p_pkey_tbl, &last_free_block_index, &last_free_pkey_index);
+					if (!found)
+						full = 1;
+					else {
+						block_index = last_free_block_index;
+						pkey_index = last_free_pkey_index;
+						if (block_index * IB_NUM_PKEY_ELEMENTS_IN_BLOCK + pkey_index >= pkey_mgr_get_physp_max_pkeys(p_physp)) {
+							full = 1;
+							found = FALSE;
+						} else {
+							OSM_LOG(p_log, OSM_LOG_INFO,
+								"Reusing PKeyTable block index %u pkey index %u "
+								"for pkey 0x%x on 0x%016" PRIx64 " port %u (%s)\n",
+								block_index,
+								pkey_index,
+								cl_ntoh16(p_pending->pkey),
+								cl_ntoh64(osm_node_get_node_guid(p_node)),
+								osm_physp_get_port_num(p_physp),
+								p_physp->p_node->print_desc);
+
+							clear_accum_pkey_index(p_pkey_tbl, block_index * IB_NUM_PKEY_ELEMENTS_IN_BLOCK + pkey_index);
+						}
+					}
+					if (full)
+						OSM_LOG(p_log, OSM_LOG_ERROR,
+							"ERR 0512: "
+							"Failed to set PKey 0x%04x because Pkey table is full "
+							"for node 0x%016" PRIx64 " port %u (%s)\n",
+							cl_ntoh16(p_pending->pkey),
+							cl_ntoh64(osm_node_get_node_guid(p_node)),
+							osm_physp_get_port_num(p_physp),
+							p_physp->p_node->print_desc);
 				} else
 					found = TRUE;
 			}
@@ -376,6 +432,15 @@ static int pkey_mgr_update_port(osm_log_t * p_log, osm_sm_t * sm,
 			    osm_pkey_tbl_set_accum_pkeys(p_pkey_tbl,
 							 p_pending->pkey,
 							 block_index * IB_NUM_PKEY_ELEMENTS_IN_BLOCK + pkey_index)) {
+				OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0508: "
+					"Failed to set accum_pkeys PKey 0x%04x "
+					"in block %u idx %u for node 0x%016"
+					PRIx64 " port %u (%s)\n",
+					cl_ntoh16(p_pending->pkey), block_index,
+					pkey_index,
+					cl_ntoh64(osm_node_get_node_guid(p_node)),
+					osm_physp_get_port_num(p_physp),
+					p_physp->p_node->print_desc);
 			}
 		}
 
