@@ -594,7 +594,6 @@ int osm_db_delete(IN osm_db_domain_t * p_domain, IN char *p_key)
 				p_key, p_domain_imp->file_name, p_prev_val);
 			res = 1;
 		} else {
-			free(p_key);
 			free(p_prev_val);
 			res = 0;
 		}
