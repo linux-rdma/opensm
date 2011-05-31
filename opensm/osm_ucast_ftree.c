@@ -3281,7 +3281,7 @@ fabric_construct_hca_ports(IN ftree_fabric_t * p_ftree, IN ftree_hca_t * p_hca)
 		p_remote_node =
 		    osm_node_get_remote_node(p_node, i, &remote_port_num);
 
-		if (!p_remote_osm_port)
+		if (!p_remote_osm_port || !p_remote_node)
 			continue;
 
 		remote_node_type = osm_node_get_type(p_remote_node);
@@ -3420,6 +3420,8 @@ static int fabric_construct_sw_ports(IN ftree_fabric_t * p_ftree,
 
 		p_remote_node =
 		    osm_node_get_remote_node(p_node, i, &remote_port_num);
+		if (!p_remote_node)
+			continue;
 
 		/* ignore any loopback connection on switch */
 		if (p_node == p_remote_node) {
