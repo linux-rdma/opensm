@@ -529,6 +529,7 @@ static int set_dimn_ports(void *ctx, uint64_t guid, char *p)
 	if (!ports) {
 		OSM_LOG(&p_subn->p_osm->log, OSM_LOG_ERROR,
 			"ERR 3A08: cannot allocate memory for ports\n");
+		free(dimn_ports);
 		return -1;
 	}
 	memset(ports, 0, words*sizeof(*ports));
@@ -794,6 +795,8 @@ static void add_sw_endports_to_order_list(osm_switch_t * sw,
 			port = osm_get_port_by_guid(m->p_subn,
 						    p->p_remote_physp->
 						    port_guid);
+			if (!port)
+				continue;
 			cl_qlist_insert_tail(&m->port_order_list,
 					     &port->list_item);
 			port->flag = 1;
