@@ -870,8 +870,8 @@ bool parse_port_order(struct torus *t, const char *parse_sep)
 
 		for (j = 0; j < i; j++) {
 			if (t->port_order[j] == t->port_order[i]) {
-				OSM_LOG(&t->osm->log, OSM_LOG_ERROR,
-					"Error: ignoring duplicate port %u in "
+				OSM_LOG(&t->osm->log, OSM_LOG_INFO,
+					"Ignored duplicate port %u in"
 					" port_order parsing\n",
 					t->port_order[j]);
 				i--;	/* Ignore duplicate port number */
