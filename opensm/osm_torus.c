@@ -856,9 +856,6 @@ bool parse_port(unsigned *pnum, const char *parse_sep)
 	if (!val)
 		return false;
 	*pnum = strtoul(val, &nextchar, 0);
-	if (*pnum > IB_NODE_NUM_PORTS_MAX) {
-		*pnum = 0;
-	}
 	return true;
 }
 
@@ -7018,7 +7015,8 @@ static
 bool verify_setup(struct torus *t, struct fabric *f)
 {
 	struct coord_dirs *o;
-	unsigned n = 0;
+	struct f_switch *sw;
+	unsigned p, s, n = 0;
 	bool success = false;
 	bool all_sw_present, need_seed = true;
 
@@ -7043,6 +7041,24 @@ bool verify_setup(struct torus *t, struct fabric *f)
 			"Warning: Too few data VLs to support torus routing "
 			"with two QoS levels (have %d need 8)\n",
 			(int)t->osm->subn.min_data_vls);
+	/*
+	 * Be sure all the switches in the torus support the port
+	 * ordering that might have been configured.
+	 */
+	for (s = 0; s < f->switch_cnt; s++) {
+		sw = f->sw[s];
+		for (p = 0; p < sw->port_cnt; p++) {
+			if (t->port_order[p] >= sw->port_cnt) {
+				OSM_LOG(&t->osm->log, OSM_LOG_ERROR,
+					"Error: port_order configured using "
+					"port %u, but only %u ports in "
+					"switch w/ GUID 0x%04"PRIx64"\n",
+					t->port_order[p],  sw->port_cnt - 1,
+					cl_ntoh64(sw->n_id));
+				goto out;
+			}
+		}
+	}
 	/*
 	 * Unfortunately, there is a problem with non-unique topology for any
 	 * torus dimension which has radix four.  This problem requires extra
