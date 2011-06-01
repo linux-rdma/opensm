@@ -868,11 +868,9 @@ bool parse_port_order(struct torus *t, const char *parse_sep)
 	unsigned i, j, k, n;
 
 	for (i = 0; i < ARRAY_SIZE(t->port_order); i++) {
-		if (!parse_port(&(t->port_order[i]), parse_sep)) {
-			OSM_LOG(&t->osm->log, OSM_LOG_ERROR,
-				"Error: cannot parse port_order");
+		if (!parse_port(&(t->port_order[i]), parse_sep))
 			break;
-		}
+
 		for (j = 0; j < i; j++) {
 			if (t->port_order[j] == t->port_order[i]) {
 				OSM_LOG(&t->osm->log, OSM_LOG_ERROR,
@@ -8484,7 +8482,7 @@ bool torus_lft(struct torus *t, struct t_switch *sw)
 	struct port_grp *pgrp;
 	struct t_switch *dsw;
 	osm_switch_t *osm_sw;
-	unsigned order[IB_NODE_NUM_PORTS_MAX+1];
+	uint8_t order[IB_NODE_NUM_PORTS_MAX+1];
 
 	if (!(sw->osm_switch && sw->osm_switch->priv == sw)) {
 		OSM_LOG(&t->osm->log, OSM_LOG_ERROR,
@@ -8506,7 +8504,7 @@ bool torus_lft(struct torus *t, struct t_switch *sw)
 
 		for (p = 0; p < ARRAY_SIZE(order); p++) {
 
-			unsigned px = order[t->port_order[p]];
+			uint8_t px = order[t->port_order[p]];
 
 			if (px == IB_INVALID_PORT_NUM)
 				continue;
