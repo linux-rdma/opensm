@@ -204,7 +204,7 @@ __osmv_dispatch_route(IN osm_bind_handle_t h_bind,
 
 	if (FALSE == is_txn && TRUE == is_resp) {
 		osm_log(p_bo->p_vendor->p_log, OSM_LOG_DEBUG,
-			"Received a response to a non-started/aged-out transaction (tid=0x%llX). "
+			"Received a response to a non-started/aged-out transaction (tid=0x%" PRIx64 "). "
 			"Dropping the MAD.\n", key);
 		return OSMV_ROUTE_DROP;
 	}
@@ -217,7 +217,7 @@ __osmv_dispatch_route(IN osm_bind_handle_t h_bind,
 	if (TRUE == is_txn && FALSE == is_resp) {
 		/* Does this MAD try to start a transaction with duplicate tid? */
 		osm_log(p_bo->p_vendor->p_log, OSM_LOG_DEBUG,
-			"Duplicate TID 0x%llX received (not a response). "
+			"Duplicate TID 0x%" PRIx64 " received (not a response). "
 			"Dropping the MAD.\n", key);
 
 		return OSMV_ROUTE_DROP;
@@ -272,7 +272,7 @@ __osmv_dispatch_simple_mad(IN osm_bind_handle_t h_bind,
 
 		p_mad_buf->trans_id = cl_hton64(osmv_txn_get_tid(p_txn));
 		osm_log(p_bo->p_vendor->p_log, OSM_LOG_DEBUG,
-			"Restoring the original TID to 0x%llX\n",
+			"Restoring the original TID to 0x%" PRIx64 "\n",
 			cl_ntoh64(p_mad_buf->trans_id));
 
 		/* Reply matched, transaction complete */
@@ -327,7 +327,7 @@ __osmv_dispatch_rmpp_mad(IN osm_bind_handle_t h_bind,
 
 		is_init_by_peer = TRUE;
 		osm_log(p_bo->p_vendor->p_log, OSM_LOG_DEBUG,
-			"A new sender-initiated transfer (TID=0x%llX) started\n",
+			"A new sender-initiated transfer (TID=0x%" PRIx64 ") started\n",
 			key);
 	}
 
@@ -567,7 +567,7 @@ __osmv_dispatch_rmpp_rcv(IN osm_bind_handle_t h_bind,
 
 	if (TRUE != is_last1) {
 		osm_log(p_bo->p_vendor->p_log, OSM_LOG_DEBUG,
-			"RMPP MADW assembly continues, TID=0x%llX\n", tid);
+			"RMPP MADW assembly continues, TID=0x%" PRIx64 "\n", tid);
 		goto dispatch_rmpp_rcv_done;
 	}
 
@@ -620,12 +620,12 @@ __osmv_dispatch_rmpp_rcv(IN osm_bind_handle_t h_bind,
 	}
 
 	osm_log(p_bo->p_vendor->p_log, OSM_LOG_DEBUG,
-		"RMPP MADW %p assembly complete, TID=0x%llX\n", p_new_madw,
+		"RMPP MADW %p assembly complete, TID=0x%" PRIx64 "\n", p_new_madw,
 		tid);
 
 	p_mad_buf->trans_id = cl_hton64(tid);
 	osm_log(p_bo->p_vendor->p_log, OSM_LOG_DEBUG,
-		"Restoring the original TID to 0x%llX\n",
+		"Restoring the original TID to 0x%" PRIx64 "\n",
 		cl_ntoh64(p_mad_buf->trans_id));
 
 	/* Finally, do the job! */
@@ -657,7 +657,7 @@ __osmv_dispatch_accept_seg(IN osm_bind_handle_t h_bind,
 
 	if (seg_num != p_recv_ctx->expected_seg) {
 		osm_log(p_bo->p_vendor->p_log, OSM_LOG_DEBUG,
-			"TID 0x%llX: can't accept this segment (%d) - "
+			"TID 0x%" PRIx64 ": can't accept this segment (%d) - "
 			"this is a Go-Back-N implementation\n", tid, seg_num);
 		return IB_INSUFFICIENT_RESOURCES;
 	}
@@ -671,7 +671,7 @@ __osmv_dispatch_accept_seg(IN osm_bind_handle_t h_bind,
 	}
 
 	osm_log(p_bo->p_vendor->p_log, OSM_LOG_DEBUG,
-		"TID 0x%llX: segment %d accepted\n", tid, seg_num);
+		"TID 0x%" PRIx64 ": segment %d accepted\n", tid, seg_num);
 	p_recv_ctx->expected_seg = seg_num + 1;
 
 	OSM_LOG_EXIT(p_bo->p_vendor->p_log);

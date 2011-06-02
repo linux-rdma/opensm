@@ -264,7 +264,7 @@ __parse_ca_info_file(IN osm_vendor_t * const p_vend,
 
 	osm_log(p_vend->p_log, OSM_LOG_DEBUG,
 		"__parse_ca_info_file: "
-		"CA1 = name:%s guid:0x%016llx ports:%d\n",
+		"CA1 = name:%s guid:0x%" PRIx64 " ports:%d\n",
 		sim_ca_info->name, sim_ca_info->guid, sim_ca_info->num_ports);
 
 	status = IB_SUCCESS;

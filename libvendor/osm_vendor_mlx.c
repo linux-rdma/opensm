@@ -704,7 +704,7 @@ __osmv_get_send_txn(IN osm_bind_handle_t h_bind,
 		if (IB_SUCCESS != ret) {
 			osm_log(p_bo->p_vendor->p_log, OSM_LOG_ERROR,
 				"__osmv_get_send_txn: ERR 7313: "
-				"The transaction id=0x%llX failed to init.\n",
+				"The transaction id=0x%" PRIx64 " failed to init.\n",
 				tid);
 			goto get_send_txn_done;
 		}
@@ -719,7 +719,7 @@ __osmv_get_send_txn(IN osm_bind_handle_t h_bind,
 		    || FALSE == osmv_txn_is_rmpp_init_by_peer(*pp_txn)) {
 			osm_log(p_bo->p_vendor->p_log, OSM_LOG_ERROR,
 				"__osmv_get_send_txn: ERR 7314: "
-				"The transaction id=0x%llX is not unique. Send failed.\n",
+				"The transaction id=0x%" PRIx64 " is not unique. Send failed.\n",
 				tid);
 
 			ret = IB_INVALID_SETTING;
@@ -729,7 +729,7 @@ __osmv_get_send_txn(IN osm_bind_handle_t h_bind,
 		if (TRUE == resp_expected) {
 			osm_log(p_bo->p_vendor->p_log, OSM_LOG_ERROR,
 				"__osmv_get_send_txn: ERR 7315: "
-				"The transaction id=%llX can't expect a response. Send failed.\n",
+				"The transaction id=0x%" PRIx64 " can't expect a response. Send failed.\n",
 				tid);
 
 			ret = IB_INVALID_PARAMETER;
@@ -742,7 +742,7 @@ __osmv_get_send_txn(IN osm_bind_handle_t h_bind,
 		if (IB_SUCCESS != ret) {
 			osm_log(p_bo->p_vendor->p_log, OSM_LOG_ERROR,
 				"__osmv_get_send_txn: ERR 7316: "
-				"The transaction id=%llX failed to init the rmpp mad. Send failed.\n",
+				"The transaction id=0x%" PRIx64 " failed to init the rmpp mad. Send failed.\n",
 				tid);
 			osmv_txn_done(h_bind, tid, FALSE);
 			goto get_send_txn_done;

@@ -341,7 +341,7 @@ __osmv_rmpp_send_segment(IN osm_bind_handle_t h_bind,
 		p_mad->trans_id = cl_hton64(key);
 
 		osm_log(p_bo->p_vendor->p_log, OSM_LOG_DEBUG,
-			"Sending RMPP segment #%d, on-wire TID=0x%llX\n",
+			"Sending RMPP segment #%d, on-wire TID=0x%" PRIx64 "\n",
 			seg_num, p_mad->trans_id);
 
 		/*
