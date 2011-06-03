@@ -2,7 +2,7 @@
  * Copyright (c) 2009 Simula Research Laboratory. All rights reserved.
  * Copyright (c) 2009 Sun Microsystems, Inc. All rights reserved.
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2009 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2011 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
  * This software is available to you under a choice of one of two
@@ -1050,9 +1050,13 @@ static uint8_t fabric_get_rank(ftree_fabric_t * p_ftree)
 
 static void fabric_add_hca(ftree_fabric_t * p_ftree, osm_node_t * p_osm_node)
 {
-	ftree_hca_t *p_hca = hca_create(p_osm_node);
+	ftree_hca_t *p_hca;
 
 	CL_ASSERT(osm_node_get_type(p_osm_node) == IB_NODE_TYPE_CA);
+
+	p_hca = hca_create(p_osm_node);
+	if (!p_hca)
+		return;
 
 	cl_qmap_insert(&p_ftree->hca_tbl, p_osm_node->node_info.node_guid,
 		       &p_hca->map_item);
@@ -1062,9 +1066,13 @@ static void fabric_add_hca(ftree_fabric_t * p_ftree, osm_node_t * p_osm_node)
 
 static void fabric_add_sw(ftree_fabric_t * p_ftree, osm_switch_t * p_osm_sw)
 {
-	ftree_sw_t *p_sw = sw_create(p_ftree, p_osm_sw);
+	ftree_sw_t *p_sw;
 
 	CL_ASSERT(osm_node_get_type(p_osm_sw->p_node) == IB_NODE_TYPE_SWITCH);
+
+	p_sw = sw_create(p_ftree, p_osm_sw);
+	if (!p_sw)
+		return;
 
 	cl_qmap_insert(&p_ftree->sw_tbl, p_osm_sw->p_node->node_info.node_guid,
 		       &p_sw->map_item);
