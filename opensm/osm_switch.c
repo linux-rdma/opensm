@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2009 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2011 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2009 HNR Consulting. All rights reserved.
  *
@@ -177,6 +177,9 @@ switch_find_guid_common(IN const osm_switch_t * p_sw,
 
 	CL_ASSERT(p_sw);
 
+	if (!r)
+		goto out;
+
 	p_physp = osm_node_get_physp_ptr(p_sw->p_node, port_num);
 	p_rem_physp = osm_physp_get_remote(p_physp);
 	p_rem_node = osm_physp_get_node_ptr(p_rem_physp);
@@ -193,6 +196,7 @@ switch_find_guid_common(IN const osm_switch_t * p_sw,
 		}
 	}
 
+out:
 	return p_remote_guid;
 }
 
