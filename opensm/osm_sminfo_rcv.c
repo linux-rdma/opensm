@@ -293,9 +293,9 @@ Exit:
 	OSM_LOG_EXIT(sm->p_log);
 }
 
-static int smi_rcv_process_get_sm(IN osm_sm_t * sm,
-				  IN const osm_remote_sm_t * p_sm,
-				  boolean_t light_sweep)
+static void smi_rcv_process_get_sm(IN osm_sm_t * sm,
+				   IN const osm_remote_sm_t * p_sm,
+				   boolean_t light_sweep)
 {
 	const ib_sm_info_t *p_smi;
 
@@ -405,7 +405,6 @@ static int smi_rcv_process_get_sm(IN osm_sm_t * sm,
 	}
 
 	OSM_LOG_EXIT(sm->p_log);
-	return 0;
 }
 
 static void smi_rcv_process_get_response(IN osm_sm_t * sm,
