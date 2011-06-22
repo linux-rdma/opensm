@@ -1216,7 +1216,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Checking Create given MGID=0 valid Set several options :\n\t\t"
 		"First above min RATE, Second less than max RATE\n\t\t"
-		"Third above min MTU, Second less than max MTU\n\t\t"
+		"Third above min MTU, Fourth less than max MTU\n\t\t"
 		"Fifth exact MTU & RATE feasible, Sixth exact RATE feasible\n\t\t"
 		"Seventh exact MTU feasible (o15.0.1.4)...\n");
 
