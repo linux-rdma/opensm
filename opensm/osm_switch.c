@@ -62,7 +62,7 @@ struct switch_port_path {
 cl_status_t osm_switch_set_hops(IN osm_switch_t * p_sw, IN uint16_t lid_ho,
 				IN uint8_t port_num, IN uint8_t num_hops)
 {
-	if (lid_ho > p_sw->max_lid_ho)
+	if (!lid_ho || lid_ho > p_sw->max_lid_ho)
 		return -1;
 	if (!p_sw->hops[lid_ho]) {
 		p_sw->hops[lid_ho] = malloc(p_sw->num_ports);
