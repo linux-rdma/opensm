@@ -278,8 +278,8 @@ uint8_t osm_switch_recommend_path(IN const osm_switch_t * p_sw,
 	unsigned int port_paths_count = 0;
 	uint8_t scatter_possible_ports[IB_NODE_NUM_PORTS_MAX];
 	unsigned int scatter_possible_ports_count = 0;
-	int found_sys_guid;
-	int found_node_guid;
+	int found_sys_guid = 0;
+	int found_node_guid = 0;
 
 	CL_ASSERT(lid_ho > 0);
 
