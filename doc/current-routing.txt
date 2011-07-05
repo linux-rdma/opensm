@@ -1,7 +1,7 @@
 Current OpenSM Routing
-10/9/09
+7/4/11
 
-OpenSM offers six routing engines:
+OpenSM offers seven routing engines:
 
 1.  Min Hop Algorithm - based on the minimum hops to each node where the
 path length is optimized.
@@ -11,24 +11,28 @@ node, but it is constrained to ranking rules. This algorithm should be chosen
 if the subnet is not a pure Fat Tree, and deadlock may occur due to a
 loop in the subnet.
 
-3.  Fat-tree Unicast routing algorithm - this algorithm optimizes routing
+3. DNUP Unicast routing algorithm - similar to UPDN but allows routing in
+fabrics which have some CA nodes attached closer to the roots than some switch
+nodes.
+
+4.  Fat-tree Unicast routing algorithm - this algorithm optimizes routing
 of fat-trees for congestion-free "shift" communication pattern.
 It should be chosen if a subnet is a symmetrical fat-tree.
 Similar to UPDN routing, Fat-tree routing is credit-loop-free.
 
-4. LASH unicast routing algorithm - uses Infiniband virtual layers
+5. LASH unicast routing algorithm - uses Infiniband virtual layers
 (SL) to provide deadlock-free shortest-path routing while also
 distributing the paths between layers. LASH is an alternative
 deadlock-free topology-agnostic routing algorithm to the non-minimal
 UPDN algorithm avoiding the use of a potentially congested root node.
 
-5. DOR Unicast routing algorithm - based on the Min Hop algorithm, but
+6. DOR Unicast routing algorithm - based on the Min Hop algorithm, but
 avoids port equalization except for redundant links between the same
 two switches.  This provides deadlock free routes for hypercubes when
 the fabric is cabled as a hypercube and for meshes when cabled as a
 mesh (see details below).
 
-6. Torus-2QoS unicast routing algorithm - a DOR-based routing algorithm
+7. Torus-2QoS unicast routing algorithm - a DOR-based routing algorithm
 specialized for 2D/3D torus topologies.  Torus-2QoS provides deadlock-free
 routing while supporting two quality of service (QoS) levels.  In addition
 it is able to route around multiple failed fabric links or a single failed
@@ -190,6 +194,23 @@ it exists) that connects the CA to the subnet as a root node.
 To learn more about deadlock-free routing, see the article
 "Deadlock Free Message Routing in Multiprocessor Interconnection Networks"
 by William J Dally and Charles L Seitz (1985).
+
+
+DNUP Routing Algorithm
+----------------------
+
+Purpose:
+
+The DNUP algorithm is designed to serve a similar purpose to UPDN. However
+it is intended to work in network topologies which are unsuited to
+UPDN due to nodes being connected closer to the roots than some of
+the switches.  An example would be a fabric which contains nodes and
+uplinks connected to the same switch. The operation of DNUP is the
+same as UPDN with the exception of the ranking process.  In DNUP all
+switch nodes are ranked based solely on their distance from CA Nodes,
+all switch nodes directly connected to at least one CA are assigned a
+value of 1 all other switch nodes are assigned a value of one more than
+the minimum rank of all neighbor switch nodes.
 
 
 Fat-tree Routing Algorithm
