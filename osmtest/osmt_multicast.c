@@ -385,7 +385,7 @@ void osmt_init_mc_query_rec(IN osmtest_t * const p_osmt,
 	/*  uint8_t     mtu; - keep it zero means - anything you have please. */
 	/*  uint8_t     tclass; can leave as zero for now (between subnets) */
 	/*  ib_net16_t  pkey; leave as zero */
-	p_mc_req->rate = IB_LINK_WIDTH_ACTIVE_4X;
+	p_mc_req->rate = IB_PATH_RECORD_RATE_2_5_GBS;
 	/*  uint8_t     pkt_life; zero means greater than zero ... */
 	/*  ib_net32_t  sl_flow_hop; keep it all zeros */
 	/*  we want to use a link local scope: 0x02 */
@@ -900,7 +900,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 
 	/* impossible requested rate */
 	mc_req_rec.rate =
-	    IB_LINK_WIDTH_ACTIVE_12X | IB_PATH_SELECTOR_GREATER_THAN << 6;
+	    IB_PATH_RECORD_RATE_60_GBS | IB_PATH_SELECTOR_GREATER_THAN << 6;
 
 	comp_mask = IB_MCR_COMPMASK_GID | IB_MCR_COMPMASK_PORT_GID | IB_MCR_COMPMASK_QKEY | IB_MCR_COMPMASK_PKEY | IB_MCR_COMPMASK_SL | IB_MCR_COMPMASK_FLOW | IB_MCR_COMPMASK_JOIN_STATE | IB_MCR_COMPMASK_TCLASS |	/* all above are required */
 	    IB_MCR_COMPMASK_RATE_SEL | IB_MCR_COMPMASK_RATE;
@@ -1247,7 +1247,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	/* Good Flow - mgid is 0 while giving all required fields for join : P_Key, Q_Key, SL, FlowLabel, Tclass */
 
 	mc_req_rec.rate =
-	    IB_LINK_WIDTH_ACTIVE_12X | IB_PATH_SELECTOR_LESS_THAN << 6;
+	    IB_PATH_RECORD_RATE_60_GBS | IB_PATH_SELECTOR_LESS_THAN << 6;
 
 	comp_mask = IB_MCR_COMPMASK_MGID | IB_MCR_COMPMASK_PORT_GID | IB_MCR_COMPMASK_QKEY | IB_MCR_COMPMASK_PKEY | IB_MCR_COMPMASK_SL | IB_MCR_COMPMASK_FLOW | IB_MCR_COMPMASK_JOIN_STATE | IB_MCR_COMPMASK_TCLASS |	/* all above are required */
 	    IB_MCR_COMPMASK_RATE_SEL | IB_MCR_COMPMASK_RATE;
