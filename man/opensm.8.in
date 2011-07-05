@@ -39,7 +39,8 @@ opensm \- InfiniBand subnet manager and administration (SM/SA)
 [\-console-port <port>]
 [\-i(gnore-guids) <equalize-ignore-guids-file>]
 [\-w | \-\-hop_weights_file <path to file>]
-[\-O | \-\-dimn_ports_file <path to file>]
+[\-O | \-\-port_search_ordering_file <path to file>]
+[\-O | \-\-dimn_ports_file <path to file>] (DEPRECATED)
 [\-f <log file path> | \-\-log_file <log file path> ]
 [\-L | \-\-log_limit <size in MB>] [\-e(rase_log_file)]
 [\-P(config) <partition config file> ]
@@ -289,7 +290,29 @@ factor of 1.  Lines starting with # are comments.  Weights affect only the
 output route from the port, so many useful configurations will require weights
 to be specified in pairs.
 .TP
-\fB\-O\fR, \fB\-\-dimn_ports_file\fR <path to file>
+\fB\-O\fR, \fB\-\-port_search_ordering_file\fR <path to file>
+This option tweaks the routing. It suitable for two cases:
+1. While using DOR routing algorithm.
+This option provides a mapping between hypercube dimensions and ports
+on a per switch basis for the DOR routing engine.  The file consists
+of lines containing a switch node GUID (specified as a 64 bit hex
+number, with leading 0x) followed by a list of non-zero port numbers,
+separated by spaces, one switch per line.  The order for the port
+numbers is in one to one correspondence to the dimensions.  Ports not
+listed on a line are assigned to the remaining dimensions, in port
+order.  Anything after a # is a comment.
+2. While using general routing algorithm.
+This option provides the order of the ports that would be chosen for routing,
+from each switch rather than searching for an appropriate port from port 1 to N.
+The file consists of lines containing a switch node GUID (specified as a 64 bit
+hex number, with leading 0x) followed by a list of non-zero port numbers,
+separated by spaces, one switch per line.  In case of DOR, the order for the
+port numbers is in one to one correspondence to the dimensions.  Ports not
+listed on a line are assigned to the remaining dimensions, in port
+order.  Anything after a # is a comment.
+.TP
+\fB\-O\fR, \fB\-\-dimn_ports_file\fR <path to file> \fB(DEPRECATED)\fR
+This is a deprecated flag. Please use \fB-port_search_ordering_file\fR instead.
 This option provides a mapping between hypercube dimensions and ports
 on a per switch basis for the DOR routing engine.  The file consists
 of lines containing a switch node GUID (specified as a 64 bit hex

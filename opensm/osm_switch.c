@@ -86,8 +86,8 @@ void osm_switch_delete(IN OUT osm_switch_t ** pp_sw)
 	osm_mcast_tbl_destroy(&p_sw->mcast_tbl);
 	if (p_sw->p_prof)
 		free(p_sw->p_prof);
-	if (p_sw->dimn_ports)
-		free(p_sw->dimn_ports);
+	if (p_sw->search_ordering_ports)
+		free(p_sw->search_ordering_ports);
 	if (p_sw->lft)
 		free(p_sw->lft);
 	if (p_sw->new_lft)

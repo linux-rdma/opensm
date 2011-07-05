@@ -100,7 +100,7 @@ typedef struct osm_switch {
 	uint16_t num_hops;
 	uint8_t **hops;
 	osm_port_profile_t *p_prof;
-	uint8_t *dimn_ports;
+	uint8_t *search_ordering_ports;
 	uint8_t *lft;
 	uint8_t *new_lft;
 	uint16_t lft_size;
@@ -885,9 +885,9 @@ static inline uint8_t osm_switch_get_dimn_port(IN const osm_switch_t * p_sw,
 					       IN uint8_t port_num)
 {
 	CL_ASSERT(p_sw);
-	if (p_sw->dimn_ports == NULL)
+	if (p_sw->search_ordering_ports == NULL)
 		return port_num;
-	return p_sw->dimn_ports[port_num];
+	return p_sw->search_ordering_ports[port_num];
 }
 /*
 * PARAMETERS

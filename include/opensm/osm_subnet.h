@@ -189,7 +189,7 @@ typedef struct osm_subn_opt {
 	uint16_t console_port;
 	char *port_prof_ignore_file;
 	char *hop_weights_file;
-	char *dimn_ports_file;
+	char *port_search_ordering_file;
 	boolean_t port_profile_switch_nodes;
 	boolean_t sweep_on_trap;
 	char *routing_engine_names;

@@ -287,7 +287,14 @@ static void show_usage(void)
 	       "          This option provides the means to define a weighting\n"
 	       "          factor per port for customizing the least weight\n"
 	       "          hops for the routing.\n\n");
-	printf("--dimn_ports_file, -O <path to file>\n"
+	printf("--port_search_ordering_file, -O <path to file>\n"
+	       "          This option provides the means to define a mapping\n"
+	       "          between ports and dimension (Order) for controlling\n"
+	       "          Dimension Order Routing (DOR).\n"
+	       "          Moreover this option provides the means to define non\n"
+	       "          default routing port order.\n\n");
+	printf("--dimn_ports_file, -O <path to file> (DEPRECATED)\n"
+	       "          Use --port_search_ordering_file instead.\n"
 	       "          This option provides the means to define a mapping\n"
 	       "          between ports and dimension (Order) for controlling\n"
 	       "          Dimension Order Routing (DOR).\n\n");
@@ -577,6 +584,7 @@ int main(int argc, char *argv[])
 		{"ignore_guids", 1, NULL, 'i'},
 		{"hop_weights_file", 1, NULL, 'w'},
 		{"dimn_ports_file", 1, NULL, 'O'},
+		{"port_search_ordering_file", 1, NULL, 'O'},
 		{"lmc", 1, NULL, 'l'},
 		{"sweep", 1, NULL, 's'},
 		{"timeout", 1, NULL, 't'},
@@ -720,9 +728,9 @@ int main(int argc, char *argv[])
 			break;
 
 		case 'O':
-			opt.dimn_ports_file = optarg;
-			printf(" Dimension Ports File = %s\n",
-			       opt.dimn_ports_file);
+			opt.port_search_ordering_file = optarg;
+			printf(" Port Search Ordering/Dimension Ports File = %s\n",
+			       opt.port_search_ordering_file);
 			break;
 
 		case 'g':
