@@ -206,12 +206,12 @@ AC_DEFUN([OPENIB_OSM_PERF_MGR_SEL], [
 
 dnl enable the perf-mgr
 AC_ARG_ENABLE(perf-mgr,
-[  --enable-perf-mgr Enable the performance manager (default no)],
+[  --enable-perf-mgr Enable the performance manager (default yes)],
    [case $enableval in
      yes) perf_mgr=yes ;;
      no)  perf_mgr=no ;;
    esac],
-   perf_mgr=no)
+   perf_mgr=yes)
 AC_ARG_ENABLE(perf-mgr-profile,
 [  --enable-perf-mgr-profile Enable the performance manager profiling (default no)],
 	[case $enableval in
