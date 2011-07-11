@@ -1002,7 +1002,7 @@ osm_vendor_send(IN osm_bind_handle_t h_bind,
 	ib_mad_t *const p_mad = osm_madw_get_mad_ptr(p_madw);
 	ib_sa_mad_t *const p_sa = (ib_sa_mad_t *) p_mad;
 	int ret = -1;
-	int is_rmpp = 0;
+	int __attribute__((__unused__)) is_rmpp = 0;
 	uint32_t sent_mad_size;
 	uint64_t tid;
 #ifndef VENDOR_RMPP_SUPPORT
