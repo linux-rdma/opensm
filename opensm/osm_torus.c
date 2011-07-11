@@ -9057,7 +9057,7 @@ uint8_t torus_path_sl(void *context, uint8_t path_sl_hint,
 	struct t_switch *ssw, *dsw;
 	struct torus *t;
 	guid_t guid;
-	unsigned sl = 0, sp;
+	unsigned sl = 0;
 
 	sport = osm_sport->priv;
 	if (!(sport && sport->osm_port == osm_sport)) {
@@ -9107,10 +9107,8 @@ uint8_t torus_path_sl(void *context, uint8_t path_sl_hint,
 	 */
 	if (sport->link) {
 		ssw = sport->link->end[0].sw;
-		sp = sport->link->end[0].port;
 	} else {
 		ssw = sport->sw;
-		sp = sport->port;
 	}
 	if (dport->link)
 		dsw = dport->link->end[0].sw;

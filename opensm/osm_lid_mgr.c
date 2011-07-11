@@ -1185,8 +1185,9 @@ int osm_lid_mgr_process_subnet(IN osm_lid_mgr_t * p_mgr)
 		   to look for any field change and will only send an updated
 		   if required */
 		OSM_LOG(p_mgr->p_log, OSM_LOG_VERBOSE,
-			"Assigned port 0x%016" PRIx64 ", LID [%u,%u]\n",
-			cl_ntoh64(port_guid), min_lid_ho, max_lid_ho);
+			"Assigned port 0x%016" PRIx64 ", %s LID [%u,%u]\n",
+			cl_ntoh64(port_guid), lid_changed ? "new" : "",
+			min_lid_ho, max_lid_ho);
 
 		/* the proc returns the fact it sent a set port info */
 		if (lid_mgr_set_physp_pi(p_mgr, p_port, p_port->p_physp,

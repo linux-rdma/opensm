@@ -108,10 +108,8 @@ static void add_lid_hops(osm_opensm_t * p_osm, osm_switch_t * p_sw,
 			 uint16_t lid, ib_net64_t guid,
 			 uint8_t hops[], unsigned len)
 {
-	uint16_t new_lid;
 	uint8_t i;
 
-	new_lid = guid ? remap_lid(p_osm, lid, guid) : lid;
 	if (len > p_sw->num_ports)
 		len = p_sw->num_ports;
 

@@ -1634,7 +1634,6 @@ int osm_do_mesh_analysis(lash_t *p_lash)
 {
 	osm_log_t *p_log = &p_lash->p_osm->log;
 	mesh_t *mesh;
-	int max_class = -1;
 	int max_class_num = 0;
 	int max_class_type = -1;
 	int i;
@@ -1667,7 +1666,6 @@ int osm_do_mesh_analysis(lash_t *p_lash)
 			i, mesh->class_count[i],
 			p_lash->switches[mesh->class_type[i]]->node->type);
 		if (mesh->class_count[i] > max_class_num) {
-			max_class = i;
 			max_class_num = mesh->class_count[i];
 			max_class_type = mesh->class_type[i];
 		}

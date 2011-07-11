@@ -893,7 +893,6 @@ static void mcmr_rcv_leave_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 	ib_sa_mad_t *p_sa_mad;
 	ib_member_rec_t *p_recvd_mcmember_rec;
 	ib_member_rec_t mcmember_rec;
-	ib_net64_t portguid;
 	osm_mcm_port_t *p_mcm_port;
 
 	OSM_LOG_ENTER(sa->p_log);
@@ -921,8 +920,6 @@ static void mcmr_rcv_leave_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_REQ_INVALID);
 		goto Exit;
 	}
-
-	portguid = p_recvd_mcmember_rec->port_gid.unicast.interface_id;
 
 	/* check validity of the delete request o15-0.1.14 */
 	if (!validate_delete(sa, p_mgrp, osm_madw_get_mad_addr_ptr(p_madw),

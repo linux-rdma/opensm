@@ -101,13 +101,12 @@ void osm_sa_construct(IN osm_sa_t * p_sa)
 
 void osm_sa_shutdown(IN osm_sa_t * p_sa)
 {
-	ib_api_status_t status;
 	OSM_LOG_ENTER(p_sa->p_log);
 
 	cl_timer_stop(&p_sa->sr_timer);
 
 	/* unbind from the mad service */
-	status = osm_sa_mad_ctrl_unbind(&p_sa->mad_ctrl);
+	osm_sa_mad_ctrl_unbind(&p_sa->mad_ctrl);
 
 	/* remove any registered dispatcher message */
 	cl_disp_unregister(p_sa->nr_disp_h);

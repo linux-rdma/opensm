@@ -77,7 +77,6 @@ static void sa_vl_arb_create(IN osm_sa_t * sa, IN osm_physp_t * p_physp,
 {
 	osm_vl_arb_item_t *p_rec_item;
 	uint16_t lid;
-	ib_api_status_t status = IB_SUCCESS;
 
 	OSM_LOG_ENTER(sa->p_log);
 
@@ -85,7 +84,6 @@ static void sa_vl_arb_create(IN osm_sa_t * sa, IN osm_physp_t * p_physp,
 	if (p_rec_item == NULL) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2A02: "
 			"rec_item alloc failed\n");
-		status = IB_INSUFFICIENT_RESOURCES;
 		goto Exit;
 	}
 

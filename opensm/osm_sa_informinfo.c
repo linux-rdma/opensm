@@ -235,7 +235,6 @@ static void sa_inform_info_rec_by_comp_mask(IN osm_sa_t * sa,
 					    IN const osm_infr_t * p_infr,
 					    osm_iir_search_ctxt_t * p_ctxt)
 {
-	const ib_inform_info_record_t *p_rcvd_rec = NULL;
 	ib_net64_t comp_mask;
 	ib_net64_t portguid;
 	osm_port_t *p_subscriber_port;
@@ -245,7 +244,6 @@ static void sa_inform_info_rec_by_comp_mask(IN osm_sa_t * sa,
 
 	OSM_LOG_ENTER(sa->p_log);
 
-	p_rcvd_rec = p_ctxt->p_rcvd_rec;
 	comp_mask = p_ctxt->comp_mask;
 	p_req_physp = p_ctxt->p_req_physp;
 

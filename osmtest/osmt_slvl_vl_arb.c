@@ -56,18 +56,18 @@ osmtest_write_vl_arb_table(IN osmtest_t * const p_osmt,
 			   IN FILE * fh,
 			   IN const ib_vl_arb_table_record_t * const p_rec)
 {
-	int result, i;
+	int i;
 	cl_status_t status = IB_SUCCESS;
 
 	OSM_LOG_ENTER(&p_osmt->log);
 
-	result = fprintf(fh,
-			 "VL_ARBITRATION_TABLE\n"
-			 "lid                     0x%X\n"
-			 "port_num                0x%X\n"
-			 "block                   0x%X\n",
-			 cl_ntoh16(p_rec->lid),
-			 p_rec->port_num, p_rec->block_num);
+	fprintf(fh,
+		"VL_ARBITRATION_TABLE\n"
+		"lid                     0x%X\n"
+		"port_num                0x%X\n"
+		"block                   0x%X\n",
+		cl_ntoh16(p_rec->lid),
+		p_rec->port_num, p_rec->block_num);
 
 	fprintf(fh, "       ");
 	for (i = 0; i < 32; i++)
@@ -260,18 +260,18 @@ osmtest_write_slvl_map_table(IN osmtest_t * const p_osmt,
 			     IN FILE * fh,
 			     IN const ib_slvl_table_record_t * const p_rec)
 {
-	int result, i;
+	int i;
 	cl_status_t status = IB_SUCCESS;
 
 	OSM_LOG_ENTER(&p_osmt->log);
 
-	result = fprintf(fh,
-			 "SLtoVL_MAP_TABLE\n"
-			 "lid                     0x%X\n"
-			 "in_port_num             0x%X\n"
-			 "out_port_num            0x%X\n",
-			 cl_ntoh16(p_rec->lid),
-			 p_rec->in_port_num, p_rec->out_port_num);
+	fprintf(fh,
+		"SLtoVL_MAP_TABLE\n"
+		"lid                     0x%X\n"
+		"in_port_num             0x%X\n"
+		"out_port_num            0x%X\n",
+		cl_ntoh16(p_rec->lid),
+		p_rec->in_port_num, p_rec->out_port_num);
 
 	fprintf(fh, "SL:");
 	for (i = 0; i < 16; i++)

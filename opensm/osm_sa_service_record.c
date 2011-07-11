@@ -602,7 +602,6 @@ static void sr_rcv_process_delete_method(osm_sa_t * sa, IN osm_madw_t * p_madw)
 {
 	ib_sa_mad_t *p_sa_mad;
 	ib_service_record_t *p_recvd_service_rec;
-	ib_net64_t comp_mask;
 	osm_svcr_t *p_svcr;
 	osm_sr_item_t *p_sr_item;
 	cl_qlist_t sr_list;
@@ -614,8 +613,6 @@ static void sr_rcv_process_delete_method(osm_sa_t * sa, IN osm_madw_t * p_madw)
 	p_sa_mad = osm_madw_get_sa_mad_ptr(p_madw);
 	p_recvd_service_rec =
 	    (ib_service_record_t *) ib_sa_mad_get_payload_ptr(p_sa_mad);
-
-	comp_mask = p_sa_mad->comp_mask;
 
 	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
 		osm_dump_service_record(sa->p_log, p_recvd_service_rec,

@@ -451,7 +451,6 @@ static void match_notice_to_inf_rec(IN cl_list_item_t * p_list_item,
 	ib_mad_notice_attr_t *p_ntc = p_infr_match->p_ntc;
 	osm_infr_t *p_infr_rec = (osm_infr_t *) p_list_item;
 	ib_inform_info_t *p_ii = &(p_infr_rec->inform_record.inform_info);
-	cl_status_t status = CL_NOT_FOUND;
 	osm_log_t *p_log = p_infr_rec->sa->p_log;
 
 	OSM_LOG_ENTER(p_log);
@@ -559,7 +558,6 @@ static void match_notice_to_inf_rec(IN cl_list_item_t * p_list_item,
 	/* send the report to the address provided in the inform record */
 	OSM_LOG(p_log, OSM_LOG_DEBUG, "MATCH! Sending Report...\n");
 	send_report(p_infr_rec, p_ntc);
-	status = CL_SUCCESS;
 
 Exit:
 	OSM_LOG_EXIT(p_log);

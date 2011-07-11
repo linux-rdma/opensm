@@ -370,7 +370,7 @@ static ib_net16_t lr_rcv_get_end_points(IN osm_sa_t * sa,
 	*pp_src_port = NULL;
 	*pp_dest_port = NULL;
 
-	if (p_sa_mad->comp_mask & IB_LR_COMPMASK_FROM_LID) {
+	if (comp_mask & IB_LR_COMPMASK_FROM_LID) {
 		*pp_src_port = osm_get_port_by_lid(sa->p_subn, p_lr->from_lid);
 		if (!*pp_src_port) {
 			/*
@@ -387,7 +387,7 @@ static ib_net16_t lr_rcv_get_end_points(IN osm_sa_t * sa,
 		}
 	}
 
-	if (p_sa_mad->comp_mask & IB_LR_COMPMASK_TO_LID) {
+	if (comp_mask & IB_LR_COMPMASK_TO_LID) {
 		*pp_dest_port = osm_get_port_by_lid(sa->p_subn, p_lr->to_lid);
 		if (!*pp_dest_port) {
 			/*

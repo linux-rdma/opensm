@@ -443,7 +443,6 @@ void osm_pir_rcv_process(IN void *ctx, IN void *data)
 	const ib_sa_mad_t *p_rcvd_mad;
 	const ib_portinfo_record_t *p_rcvd_rec;
 	const osm_port_t *p_port = NULL;
-	const ib_port_info_t *p_pi;
 	cl_qlist_t rec_list;
 	osm_pir_search_ctxt_t context;
 	ib_net64_t comp_mask;
@@ -484,8 +483,6 @@ void osm_pir_rcv_process(IN void *ctx, IN void *data)
 
 	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
 		osm_dump_portinfo_record(sa->p_log, p_rcvd_rec, OSM_LOG_DEBUG);
-
-	p_pi = &p_rcvd_rec->port_info;
 
 	cl_qlist_init(&rec_list);
 
