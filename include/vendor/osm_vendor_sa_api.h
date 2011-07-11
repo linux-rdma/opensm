@@ -448,7 +448,7 @@ static inline ib_path_rec_t *osmv_get_query_path_rec(IN osm_madw_t *
 						     p_result_madw,
 						     IN uint32_t result_index)
 {
-	ib_sa_mad_t *p_sa_mad;
+	ib_sa_mad_t __attribute__((__unused__)) *p_sa_mad;
 
 	CL_ASSERT(p_result_madw);
 	p_sa_mad = (ib_sa_mad_t *) osm_madw_get_mad_ptr(p_result_madw);
@@ -490,7 +490,7 @@ static inline ib_portinfo_record_t *osmv_get_query_portinfo_rec(IN osm_madw_t *
 								IN uint32_t
 								result_index)
 {
-	ib_sa_mad_t *p_sa_mad;
+	ib_sa_mad_t __attribute__((__unused__)) *p_sa_mad;
 
 	CL_ASSERT(p_result_madw);
 	p_sa_mad = (ib_sa_mad_t *) osm_madw_get_mad_ptr(p_result_madw);
@@ -532,7 +532,7 @@ static inline ib_node_record_t *osmv_get_query_node_rec(IN osm_madw_t *
 							IN uint32_t
 							result_index)
 {
-	ib_sa_mad_t *p_sa_mad;
+	ib_sa_mad_t __attribute__((__unused__)) *p_sa_mad;
 
 	CL_ASSERT(p_result_madw);
 	p_sa_mad = (ib_sa_mad_t *) osm_madw_get_mad_ptr(p_result_madw);
@@ -574,7 +574,7 @@ static inline ib_service_record_t *osmv_get_query_svc_rec(IN osm_madw_t *
 							  IN uint32_t
 							  result_index)
 {
-	ib_sa_mad_t *p_sa_mad;
+	ib_sa_mad_t __attribute__((__unused__)) *p_sa_mad;
 
 	CL_ASSERT(p_result_madw);
 	p_sa_mad = (ib_sa_mad_t *) osm_madw_get_mad_ptr(p_result_madw);
@@ -615,7 +615,7 @@ static inline ib_member_rec_t *osmv_get_query_mc_rec(IN osm_madw_t *
 						     p_result_madw,
 						     IN uint32_t result_index)
 {
-	ib_sa_mad_t *p_sa_mad;
+	ib_sa_mad_t __attribute__((__unused__)) *p_sa_mad;
 
 	CL_ASSERT(p_result_madw);
 	p_sa_mad = (ib_sa_mad_t *) osm_madw_get_mad_ptr(p_result_madw);
@@ -660,7 +660,7 @@ static inline ib_inform_info_record_t *osmv_get_query_inform_info_rec(IN
 								      uint32_t
 								      result_index)
 {
-	ib_sa_mad_t *p_sa_mad;
+	ib_sa_mad_t __attribute__((__unused__)) *p_sa_mad;
 
 	CL_ASSERT(p_result_madw);
 	p_sa_mad = (ib_sa_mad_t *) osm_madw_get_mad_ptr(p_result_madw);

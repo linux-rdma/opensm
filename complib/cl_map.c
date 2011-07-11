@@ -626,7 +626,8 @@ static void __cl_qmap_delta_move(IN OUT cl_qmap_t * const p_dest,
 				 IN OUT cl_qmap_t * const p_src,
 				 IN OUT cl_map_item_t ** const pp_item)
 {
-	cl_map_item_t *p_temp, *p_next;
+	cl_map_item_t __attribute__((__unused__)) *p_temp;
+	cl_map_item_t *p_next;
 
 	/*
 	 * Get the next item so that we can ensure that pp_item points to
@@ -870,7 +871,7 @@ static void __cl_map_revert(IN OUT cl_map_t * const p_map1,
 			    IN OUT cl_map_t * const p_new,
 			    IN OUT cl_map_t * const p_old)
 {
-	cl_status_t status;
+	cl_status_t __attribute__((__unused__)) status;
 
 	/* Restore the initial state. */
 	status = cl_map_merge(p_map1, p_old);
@@ -1562,7 +1563,8 @@ static void __cl_fmap_delta_move(IN OUT cl_fmap_t * const p_dest,
 				 IN OUT cl_fmap_t * const p_src,
 				 IN OUT cl_fmap_item_t ** const pp_item)
 {
-	cl_fmap_item_t *p_temp, *p_next;
+	cl_fmap_item_t __attribute__((__unused__)) *p_temp;
+	cl_fmap_item_t *p_next;
 
 	/*
 	 * Get the next item so that we can ensure that pp_item points to

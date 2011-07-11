@@ -229,7 +229,7 @@ cl_status_t cl_event_wheel_init_ex(IN cl_event_wheel_t * const p_event_wheel,
 void cl_event_wheel_dump(IN cl_event_wheel_t * const p_event_wheel)
 {
 	cl_list_item_t *p_list_item;
-	cl_event_wheel_reg_info_t *p_event;
+	cl_event_wheel_reg_info_t __attribute__((__unused__)) *p_event;
 
 	p_list_item = cl_qlist_head(&p_event_wheel->events_wheel);
 

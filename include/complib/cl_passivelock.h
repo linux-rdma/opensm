@@ -234,7 +234,7 @@ static inline cl_status_t cl_plock_init(IN cl_plock_t * const p_lock)
 */
 static inline void cl_plock_acquire(IN cl_plock_t * const p_lock)
 {
-	cl_status_t status;
+	cl_status_t __attribute__((unused)) status;
 	CL_ASSERT(p_lock);
 	CL_ASSERT(p_lock->state == CL_INITIALIZED);
 
@@ -266,7 +266,7 @@ static inline void cl_plock_acquire(IN cl_plock_t * const p_lock)
 */
 static inline void cl_plock_excl_acquire(IN cl_plock_t * const p_lock)
 {
-	cl_status_t status;
+	cl_status_t __attribute__((unused)) status;
 
 	CL_ASSERT(p_lock);
 	CL_ASSERT(p_lock->state == CL_INITIALIZED);
@@ -299,7 +299,7 @@ static inline void cl_plock_excl_acquire(IN cl_plock_t * const p_lock)
 */
 static inline void cl_plock_release(IN cl_plock_t * const p_lock)
 {
-	cl_status_t status;
+	cl_status_t __attribute__((unused)) status;
 	CL_ASSERT(p_lock);
 	CL_ASSERT(p_lock->state == CL_INITIALIZED);
 

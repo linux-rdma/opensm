@@ -126,13 +126,11 @@ static osm_switch_t *get_osm_switch_from_port(const osm_port_t * port)
 static int cycle_exists(cdg_vertex_t * start, cdg_vertex_t * current,
 			cdg_vertex_t * prev, int visit_num)
 {
-	cdg_vertex_t *h;
 	int i, new_visit_num;
 	int cycle_found = 0;
 
 	if (current != NULL && current->visiting_number > 0) {
 		if (visit_num > current->visiting_number && current->seen == 0) {
-			h = start;
 			cycle_found = 1;
 		}
 	} else {
@@ -180,7 +178,7 @@ static void remove_semipermanent_depend_for_sp(lash_t * p_lash, int sw,
 	int i_next_switch, output_link, i, next_link, i_next_next_switch,
 	    depend = 0;
 	cdg_vertex_t *v;
-	int found;
+	int __attribute__((unused)) found;
 
 	output_link = switches[sw]->routing_table[dest_switch].out_link;
 	i_next_switch = get_next_switch(p_lash, sw, output_link);
