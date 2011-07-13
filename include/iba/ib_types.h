@@ -4543,7 +4543,7 @@ typedef struct _ib_port_info {
 	uint8_t link_width_active;
 	uint8_t state_info1;	/* LinkSpeedSupported and PortState */
 	uint8_t state_info2;	/* PortPhysState and LinkDownDefaultState */
-	uint8_t mkey_lmc;
+	uint8_t mkey_lmc;	/* M_KeyProtectBits and LMC */
 	uint8_t link_speed;	/* LinkSpeedEnabled and LinkSpeedActive */
 	uint8_t mtu_smsl;
 	uint8_t vl_cap;		/* VLCap and InitType */

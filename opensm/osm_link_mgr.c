@@ -235,16 +235,14 @@ static int link_mgr_set_physp_pi(osm_sm_t * sm, IN osm_physp_t * p_physp,
 				   sizeof(p_pi->m_key_lease_period)))
 				send_set = TRUE;
 
-			if (esp0 == FALSE)
-				p_pi->mkey_lmc = sm->p_subn->opt.lmc;
-			else {
-				if (sm->p_subn->opt.lmc_esp0)
-					p_pi->mkey_lmc = sm->p_subn->opt.lmc;
-				else
-					p_pi->mkey_lmc = 0;
-			}
-			if (memcmp(&p_pi->mkey_lmc, &p_old_pi->mkey_lmc,
-				   sizeof(p_pi->mkey_lmc)))
+			/* M_KeyProtectBits are currently always zero */
+			p_pi->mkey_lmc = 0;
+			if (esp0 == FALSE || sm->p_subn->opt.lmc_esp0)
+				ib_port_info_set_lmc(p_pi, sm->p_subn->opt.lmc);
+			if (ib_port_info_get_lmc(p_old_pi) !=
+			    ib_port_info_get_lmc(p_pi) ||
+			    ib_port_info_get_mpb(p_old_pi) !=
+			    ib_port_info_get_mpb(p_pi))
 				send_set = TRUE;
 
 			ib_port_info_set_timeout(p_pi,
