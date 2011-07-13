@@ -860,8 +860,7 @@ static void perfmgr_sweep(void *arg)
 {
 	osm_perfmgr_t *pm = arg;
 
-	if (pm->state == PERFMGR_STATE_ENABLED)
-		osm_sm_signal(pm->sm, OSM_SIGNAL_PERFMGR_SWEEP);
+	osm_sm_signal(pm->sm, OSM_SIGNAL_PERFMGR_SWEEP);
 	cl_timer_start(&pm->sweep_timer, pm->sweep_time_s * 1000);
 }
 
@@ -1380,7 +1379,8 @@ ib_api_status_t osm_perfmgr_init(osm_perfmgr_t * pm, osm_opensm_t * osm,
 
 	init_monitored_nodes(pm);
 
-	cl_timer_start(&pm->sweep_timer, pm->sweep_time_s * 1000);
+	if (pm->state == PERFMGR_STATE_ENABLED)
+		cl_timer_start(&pm->sweep_timer, pm->sweep_time_s * 1000);
 
 	status = IB_SUCCESS;
 Exit:

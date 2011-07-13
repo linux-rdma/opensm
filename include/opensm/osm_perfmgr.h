@@ -167,8 +167,11 @@ inline static void osm_perfmgr_set_state(osm_perfmgr_t * p_perfmgr,
 					 osm_perfmgr_state_t state)
 {
 	p_perfmgr->state = state;
-	if (state == PERFMGR_STATE_ENABLED)
-		osm_sm_signal(p_perfmgr->sm, OSM_SIGNAL_PERFMGR_SWEEP);
+	if (state == PERFMGR_STATE_ENABLED) {
+		cl_timer_start(&p_perfmgr->sweep_timer, p_perfmgr->sweep_time_s * 1000);
+	} else {
+		cl_timer_stop(&p_perfmgr->sweep_timer);
+	}
 }
 
 inline static osm_perfmgr_state_t osm_perfmgr_get_state(osm_perfmgr_t * perfmgr)
