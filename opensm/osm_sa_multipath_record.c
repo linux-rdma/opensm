@@ -189,7 +189,7 @@ static ib_api_status_t mpr_rcv_get_path_parms(IN osm_sa_t * sa,
 	p_pi = &p_physp->port_info;
 
 	mtu = ib_port_info_get_mtu_cap(p_pi);
-	rate = ib_port_info_compute_rate(p_pi);
+	rate = ib_port_info_compute_rate(p_pi, 0);
 
 	/*
 	   Mellanox Tavor device performance is better using 1K MTU.
@@ -361,8 +361,8 @@ static ib_api_status_t mpr_rcv_get_path_parms(IN osm_sa_t * sa,
 		if (mtu > ib_port_info_get_mtu_cap(p_pi))
 			mtu = ib_port_info_get_mtu_cap(p_pi);
 
-		if (rate > ib_port_info_compute_rate(p_pi))
-			rate = ib_port_info_compute_rate(p_pi);
+		if (rate > ib_port_info_compute_rate(p_pi, 0))
+			rate = ib_port_info_compute_rate(p_pi, 0);
 
 		/*
 		   Continue with the egress port on this switch.
@@ -384,8 +384,8 @@ static ib_api_status_t mpr_rcv_get_path_parms(IN osm_sa_t * sa,
 		if (mtu > ib_port_info_get_mtu_cap(p_pi))
 			mtu = ib_port_info_get_mtu_cap(p_pi);
 
-		if (rate > ib_port_info_compute_rate(p_pi))
-			rate = ib_port_info_compute_rate(p_pi);
+		if (rate > ib_port_info_compute_rate(p_pi, 0))
+			rate = ib_port_info_compute_rate(p_pi, 0);
 
 		if (sa->p_subn->opt.qos) {
 			/*
@@ -417,8 +417,8 @@ static ib_api_status_t mpr_rcv_get_path_parms(IN osm_sa_t * sa,
 	if (mtu > ib_port_info_get_mtu_cap(p_pi))
 		mtu = ib_port_info_get_mtu_cap(p_pi);
 
-	if (rate > ib_port_info_compute_rate(p_pi))
-		rate = ib_port_info_compute_rate(p_pi);
+	if (rate > ib_port_info_compute_rate(p_pi, 0))
+		rate = ib_port_info_compute_rate(p_pi, 0);
 
 	OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 		"Path min MTU = %u, min rate = %u\n", mtu, rate);

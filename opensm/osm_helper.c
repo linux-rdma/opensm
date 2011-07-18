@@ -654,9 +654,9 @@ static void dbg_get_capabilities_str(IN char *p_buf, IN uint32_t buf_size,
 				&total_len) != IB_SUCCESS)
 			return;
 	}
-	if (p_pi->capability_mask & IB_PORT_CAP_RESV14) {
+	if (p_pi->capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS) {
 		if (dbg_do_line(&p_local, buf_size, p_prefix_str,
-				"IB_PORT_CAP_RESV14\n",
+				"IB_PORT_CAP_HAS_EXT_SPEEDS\n",
 				&total_len) != IB_SUCCESS)
 			return;
 	}
@@ -812,7 +812,10 @@ void osm_dump_port_info(IN osm_log_t * p_log, IN ib_net64_t node_guid,
 			"\t\t\t\tresp_time_value.........0x%X\n"
 			"\t\t\t\terror_threshold.........0x%X\n"
 			"\t\t\t\tmax_credit_hint.........0x%X\n"
-			"\t\t\t\tlink_round_trip_latency.0x%X\n",
+			"\t\t\t\tlink_round_trip_latency.0x%X\n"
+			"\t\t\t\tlink_speed_ext_active....0x%X\n"
+			"\t\t\t\tlink_speed_ext_supported.0x%X\n"
+			"\t\t\t\tlink_speed_ext_enabled...0x%X\n",
 			port_num, cl_ntoh64(node_guid), cl_ntoh64(port_guid),
 			cl_ntoh64(p_pi->m_key), cl_ntoh64(p_pi->subnet_prefix),
 			cl_ntoh16(p_pi->base_lid),
@@ -837,7 +840,10 @@ void osm_dump_port_info(IN osm_log_t * p_log, IN ib_net64_t node_guid,
 			ib_port_info_get_mcast_pkey_trap_suppress(p_pi),
 			ib_port_info_get_timeout(p_pi), p_pi->resp_time_value,
 			p_pi->error_threshold, cl_ntoh16(p_pi->max_credit_hint),
-			cl_ntoh32(p_pi->link_rt_latency));
+			cl_ntoh32(p_pi->link_rt_latency),
+			ib_port_info_get_link_speed_ext_active(p_pi),
+			ib_port_info_get_link_speed_ext_sup(p_pi),
+			p_pi->link_speed_ext_enabled);
 
 		/*  show the capabilities mask */
 		if (p_pi->capability_mask) {
@@ -861,7 +867,7 @@ void osm_dump_portinfo_record(IN osm_log_t * p_log,
 			"\t\t\t\tRID\n"
 			"\t\t\t\tEndPortLid..............%u\n"
 			"\t\t\t\tPortNum.................%u\n"
-			"\t\t\t\tReserved................0x%X\n"
+			"\t\t\t\tOptions.................0x%X\n"
 			"\t\t\t\tPortInfo dump:\n"
 			"\t\t\t\tm_key...................0x%016" PRIx64 "\n"
 			"\t\t\t\tsubnet_prefix...........0x%016" PRIx64 "\n"
@@ -898,8 +904,11 @@ void osm_dump_portinfo_record(IN osm_log_t * p_log,
 			"\t\t\t\tresp_time_value.........0x%X\n"
 			"\t\t\t\terror_threshold.........0x%X\n"
 			"\t\t\t\tmax_credit_hint.........0x%X\n"
-			"\t\t\t\tlink_round_trip_latency.0x%X\n",
-			cl_ntoh16(p_pir->lid), p_pir->port_num, p_pir->resv,
+			"\t\t\t\tlink_round_trip_latency.0x%X\n"
+			"\t\t\t\tlink_speed_ext_active....0x%X\n"
+			"\t\t\t\tlink_speed_ext_supported.0x%X\n"
+			"\t\t\t\tlink_speed_ext_enabled...0x%X\n",
+			cl_ntoh16(p_pir->lid), p_pir->port_num, p_pir->options,
 			cl_ntoh64(p_pi->m_key), cl_ntoh64(p_pi->subnet_prefix),
 			cl_ntoh16(p_pi->base_lid),
 			cl_ntoh16(p_pi->master_sm_base_lid),
@@ -923,7 +932,10 @@ void osm_dump_portinfo_record(IN osm_log_t * p_log,
 			ib_port_info_get_mcast_pkey_trap_suppress(p_pi),
 			ib_port_info_get_timeout(p_pi), p_pi->resp_time_value,
 			p_pi->error_threshold, cl_ntoh16(p_pi->max_credit_hint),
-			cl_ntoh32(p_pi->link_rt_latency));
+			cl_ntoh32(p_pi->link_rt_latency),
+			ib_port_info_get_link_speed_ext_active(p_pi),
+			ib_port_info_get_link_speed_ext_sup(p_pi),
+			p_pi->link_speed_ext_enabled);
 
 		/*  show the capabilities mask */
 		if (p_pi->capability_mask) {

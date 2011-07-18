@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2009 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2011 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2009 HNR Consulting. All rights reserved.
  *
@@ -2669,7 +2669,7 @@ typedef struct _ib_path_rec {
 /* Port Info Record Component Masks */
 #define IB_PIR_COMPMASK_LID              (CL_HTON64(((uint64_t)1)<<0))
 #define IB_PIR_COMPMASK_PORTNUM          (CL_HTON64(((uint64_t)1)<<1))
-#define IB_PIR_COMPMASK_RESV1            (CL_HTON64(((uint64_t)1)<<2))
+#define IB_PIR_COMPMASK_OPTIONS		 (CL_HTON64(((uint64_t)1)<<2))
 #define IB_PIR_COMPMASK_MKEY             (CL_HTON64(((uint64_t)1)<<3))
 #define IB_PIR_COMPMASK_GIDPRE           (CL_HTON64(((uint64_t)1)<<4))
 #define IB_PIR_COMPMASK_BASELID          (CL_HTON64(((uint64_t)1)<<5))
@@ -3172,6 +3172,14 @@ ib_path_rec_rate(IN const ib_path_rec_t * const p_rec)
 *		8: 60 Gb/sec.
 *		9: 80 Gb/sec.
 *		10: 120 Gb/sec.
+*		11: 14 Gb/sec.
+*		12: 56 Gb/sec.
+*		13: 112 Gb/sec.
+*		14: 168 Gb/sec.
+*		15: 25 Gb/sec.
+*		16: 100 Gb/sec.
+*		17: 200 Gb/sec.
+*		18: 300 Gb/sec.
 *		others: reserved
 *
 * NOTES
@@ -4557,11 +4565,14 @@ typedef struct _ib_port_info {
 	ib_net16_t p_key_violations;
 	ib_net16_t q_key_violations;
 	uint8_t guid_cap;
-	uint8_t subnet_timeout;	/* cli_rereg(1b), mcast_pkey_trap_suppr(1b), resrv(1b), timeout(5b) */
-	uint8_t resp_time_value;
+	uint8_t subnet_timeout;	/* cli_rereg(1b), mcast_pkey_trap_suppr(1b), reserv(1b), timeout(5b) */
+	uint8_t resp_time_value; /* reserv(3b), rtv(5b) */
 	uint8_t error_threshold; /* local phy errors(4b), overrun errors(4b) */
 	ib_net16_t max_credit_hint;
 	ib_net32_t link_rt_latency; /* reserv(8b), link round trip lat(24b) */
+	uint16_t resvd;
+	uint8_t link_speed_ext;	/* LinkSpeedExtActive and LinkSpeedExtSupported */
+	uint8_t link_speed_ext_enabled; /* reserv(3b), LinkSpeedExtEnabled(5b) */
 } PACK_SUFFIX ib_port_info_t;
 #include <complib/cl_packoff.h>
 /************/
@@ -4601,7 +4612,7 @@ typedef struct _ib_port_info {
 #define IB_PORT_CAP_HAS_SYS_IMG_GUID  (CL_HTON32(0x00000800))
 #define IB_PORT_CAP_HAS_PKEY_SW_EXT_PORT_TRAP (CL_HTON32(0x00001000))
 #define IB_PORT_CAP_RESV13        (CL_HTON32(0x00002000))
-#define IB_PORT_CAP_RESV14        (CL_HTON32(0x00004000))
+#define IB_PORT_CAP_HAS_EXT_SPEEDS  (CL_HTON32(0x00004000))
 #define IB_PORT_CAP_RESV15        (CL_HTON32(0x00008000))
 #define IB_PORT_CAP_HAS_COM_MGT   (CL_HTON32(0x00010000))
 #define IB_PORT_CAP_HAS_SNMP      (CL_HTON32(0x00020000))
@@ -5055,6 +5066,9 @@ ib_port_info_get_link_speed_active(IN const ib_port_info_t * const p_pi)
 #define IB_LINK_SPEED_ACTIVE_2_5		1
 #define IB_LINK_SPEED_ACTIVE_5			2
 #define IB_LINK_SPEED_ACTIVE_10			4
+#define IB_LINK_SPEED_EXT_ACTIVE_NONE		0
+#define IB_LINK_SPEED_EXT_ACTIVE_14		1
+#define IB_LINK_SPEED_EXT_ACTIVE_25		2
 
 /* following v1 ver1.2 p901 */
 #define IB_PATH_RECORD_RATE_2_5_GBS		2
@@ -5066,9 +5080,20 @@ ib_port_info_get_link_speed_active(IN const ib_port_info_t * const p_pi)
 #define IB_PATH_RECORD_RATE_60_GBS		8
 #define IB_PATH_RECORD_RATE_80_GBS		9
 #define IB_PATH_RECORD_RATE_120_GBS		10
+#define IB_PATH_RECORD_RATE_14_GBS		11
+#define IB_PATH_RECORD_RATE_56_GBS		12
+#define IB_PATH_RECORD_RATE_112_GBS		13
+#define IB_PATH_RECORD_RATE_168_GBS		14
+#define IB_PATH_RECORD_RATE_25_GBS		15
+#define IB_PATH_RECORD_RATE_100_GBS		16
+#define IB_PATH_RECORD_RATE_200_GBS		17
+#define IB_PATH_RECORD_RATE_300_GBS		18
 
 #define IB_MIN_RATE    IB_PATH_RECORD_RATE_2_5_GBS
-#define IB_MAX_RATE    IB_PATH_RECORD_RATE_120_GBS
+#define IB_MAX_RATE    IB_PATH_RECORD_RATE_300_GBS
+
+static inline uint8_t OSM_API
+ib_port_info_get_link_speed_ext_active(IN const ib_port_info_t * const p_pi);
 
 /****f* IBA Base: Types/ib_port_info_compute_rate
 * NAME
@@ -5080,9 +5105,66 @@ ib_port_info_get_link_speed_active(IN const ib_port_info_t * const p_pi)
 * SYNOPSIS
 */
 static inline uint8_t OSM_API
-ib_port_info_compute_rate(IN const ib_port_info_t * const p_pi)
+ib_port_info_compute_rate(IN const ib_port_info_t * const p_pi,
+			  IN const int extended)
 {
 	uint8_t rate = 0;
+
+	if (extended) {
+		switch (ib_port_info_get_link_speed_ext_active(p_pi)) {
+		case IB_LINK_SPEED_EXT_ACTIVE_14:
+			switch (p_pi->link_width_active) {
+			case IB_LINK_WIDTH_ACTIVE_1X:
+				rate = IB_PATH_RECORD_RATE_14_GBS;
+				break;
+
+			case IB_LINK_WIDTH_ACTIVE_4X:
+				rate = IB_PATH_RECORD_RATE_56_GBS;
+				break;
+
+			case IB_LINK_WIDTH_ACTIVE_8X:
+				rate = IB_PATH_RECORD_RATE_112_GBS;
+				break;
+
+			case IB_LINK_WIDTH_ACTIVE_12X:
+				rate = IB_PATH_RECORD_RATE_168_GBS;
+				break;
+
+			default:
+				rate = IB_PATH_RECORD_RATE_14_GBS;
+				break;
+			}
+			break;
+		case IB_LINK_SPEED_EXT_ACTIVE_25:
+			switch (p_pi->link_width_active) {
+			case IB_LINK_WIDTH_ACTIVE_1X:
+				rate = IB_PATH_RECORD_RATE_25_GBS;
+				break;
+
+			case IB_LINK_WIDTH_ACTIVE_4X:
+				rate = IB_PATH_RECORD_RATE_100_GBS;
+				break;
+
+			case IB_LINK_WIDTH_ACTIVE_8X:
+				rate = IB_PATH_RECORD_RATE_200_GBS;
+				break;
+
+			case IB_LINK_WIDTH_ACTIVE_12X:
+				rate = IB_PATH_RECORD_RATE_300_GBS;
+				break;
+
+			default:
+				rate = IB_PATH_RECORD_RATE_25_GBS;
+				break;
+			}
+			break;
+		/* IB_LINK_SPEED_EXT_ACTIVE_NONE and any others */
+		default:
+			break;
+		}
+		if (rate)
+			return rate;
+	}
 
 	switch (ib_port_info_get_link_speed_active(p_pi)) {
 	case IB_LINK_SPEED_ACTIVE_2_5:
@@ -5166,6 +5248,9 @@ ib_port_info_compute_rate(IN const ib_port_info_t * const p_pi)
 * PARAMETERS
 *	p_pi
 *		[in] Pointer to a PortInfo attribute.
+*
+*	extended
+*		[in] Indicates whether or not to use extended link speeds.
 *
 * RETURN VALUES
 *	Returns the encoded value for the link speed supported.
@@ -5518,6 +5603,151 @@ ib_port_info_get_timeout(IN ib_port_info_t const *p_pi)
 *
 * RETURN VALUES
 *	The encoded timeout value
+*
+* NOTES
+*
+* SEE ALSO
+*********/
+
+/****f* IBA Base: Types/ib_port_info_get_link_speed_ext_active
+* NAME
+*	ib_port_info_get_link_speed_ext_active
+*
+* DESCRIPTION
+*	Gets the encoded LinkSpeedExtActive value in the PortInfo attribute.
+*
+* SYNOPSIS
+*/
+static inline uint8_t OSM_API
+ib_port_info_get_link_speed_ext_active(IN const ib_port_info_t * const p_pi)
+{
+	return ((p_pi->link_speed_ext & 0xF0) >> 4);
+}
+
+/*
+* PARAMETERS
+*	p_pi
+*		[in] Pointer to a PortInfo attribute.
+*
+* RETURN VALUES
+*	The encoded LinkSpeedExtActive value
+*
+* NOTES
+*
+* SEE ALSO
+*********/
+
+/****f* IBA Base: Types/ib_port_info_get_link_speed_ext_sup
+* NAME
+*	ib_port_info_get_link_speed_ext_sup
+*
+* DESCRIPTION
+*	Returns the encoded value for the link speed extended supported.
+*
+* SYNOPSIS
+*/
+static inline uint8_t OSM_API
+ib_port_info_get_link_speed_ext_sup(IN const ib_port_info_t * const p_pi)
+{
+	return (p_pi->link_speed_ext & 0x0F);
+}
+
+/*
+* PARAMETERS
+*	p_pi
+*		[in] Pointer to a PortInfo attribute.
+*
+* RETURN VALUES
+*	The encoded LinkSpeedExtSupported value
+*
+* NOTES
+*
+* SEE ALSO
+*********/
+
+/****f* IBA Base: Types/ib_port_info_get_link_speed_ext_enabled
+* NAME
+*	ib_port_info_get_link_speed_ext_enabled
+*
+* DESCRIPTION
+*	Gets the encoded LinkSpeedExtEnabled value in the PortInfo attribute.
+*
+* SYNOPSIS
+*/
+static inline uint8_t OSM_API
+ib_port_info_get_link_speed_ext_enabled(IN const ib_port_info_t * const p_pi)
+{
+        return (p_pi->link_speed_ext_enabled & 0x1F);
+}
+
+/*
+* PARAMETERS
+*	p_pi
+*		[in] Pointer to a PortInfo attribute.
+*
+* RETURN VALUES
+*	The encoded LinkSpeedExtEnabled value
+*
+* NOTES
+*
+* SEE ALSO
+*********/
+
+/****f* IBA Base: Types/ib_port_info_set_link_speed_ext_enabled
+* NAME
+*	ib_port_info_set_link_speed_ext_enabled
+*
+* DESCRIPTION
+*	Sets the link speed extended enabled value in the PortInfo attribute.
+*
+* SYNOPSIS
+*/
+static inline void OSM_API
+ib_port_info_set_link_speed_ext_enabled(IN ib_port_info_t * const p_pi,
+					IN const uint8_t link_speed_ext_enabled)
+{
+	CL_ASSERT(link_speed_ext_enabled <= 0x1F);
+	p_pi->link_speed_ext_enabled = link_speed_ext_enabled & 0x1F;
+}
+
+/*
+* PARAMETERS
+*	p_pi
+*		[in] Pointer to a PortInfo attribute.
+*
+*	link_speed_ext_enabled
+*		[in] link speed extehded enabled value to set.
+*
+* RETURN VALUES
+*	The encoded LinkSpeedExtEnabled value
+*
+* NOTES
+*
+* SEE ALSO
+*********/
+
+/****f* IBA Base: Types/ib_port_info_get_resp_time_value
+* NAME
+*	ib_port_info_get_resp_time_value
+*
+* DESCRIPTION
+*	Gets the encoded resp time value in the PortInfo attribute.
+*
+* SYNOPSIS
+*/
+static inline uint8_t OSM_API
+ib_port_info_get_resp_time_value(IN const ib_port_info_t * const p_pi)
+{
+	return (p_pi->resp_time_value & 0x1F);
+}
+
+/*
+* PARAMETERS
+*	p_pi
+*		[in] Pointer to a PortInfo attribute.
+*
+* RETURN VALUES
+*	The encoded resp time value
 *
 * NOTES
 *
@@ -6004,8 +6234,9 @@ typedef struct _ib_service_record {
 typedef struct _ib_portinfo_record {
 	ib_net16_t lid;
 	uint8_t port_num;
-	uint8_t resv;
+	uint8_t options;
 	ib_port_info_t port_info;
+	uint8_t pad[4];
 } PACK_SUFFIX ib_portinfo_record_t;
 #include <complib/cl_packoff.h>
 
@@ -6533,10 +6764,10 @@ ib_multipath_rec_mtu_sel(IN const ib_multipath_rec_t * const p_rec)
 
 /****f* IBA Base: Types/ib_multipath_rec_rate
 * NAME
-*       ib_multipath_rec_rate
+*	ib_multipath_rec_rate
 *
 * DESCRIPTION
-*       Get encoded multipath rate.
+*	Get encoded multipath rate.
 *
 * SYNOPSIS
 */
@@ -6548,14 +6779,28 @@ ib_multipath_rec_rate(IN const ib_multipath_rec_t * const p_rec)
 
 /*
 * PARAMETERS
-*       p_rec
-*               [in] Pointer to the multipath record object.
+*	p_rec
+*		[in] Pointer to the multipath record object.
 *
 * RETURN VALUES
-*       Encoded multipath rate.
-*               2: 2.5 Gb/sec.
-*               3: 10 Gb/sec.
-*               4: 30 Gb/sec.
+*	Encoded multipath rate.
+*		2: 2.5 Gb/sec.
+*		3: 10 Gb/sec.
+*		4: 30 Gb/sec.
+*		5: 5 Gb/sec.
+*		6: 20 Gb/sec.
+*		7: 40 Gb/sec.
+*		8: 60 Gb/sec.
+*		9: 80 Gb/sec.
+*		10: 120 Gb/sec.
+*		11: 14 Gb/sec.
+*		12: 56 Gb/sec.
+*		13: 112 Gb/sec.
+*		14: 168 Gb/sec.
+*		15: 25 Gb/sec.
+*		16: 100 Gb/sec.
+*		17: 200 Gb/sec.
+*		18: 300 Gb/sec.
 *               others: reserved
 *
 * NOTES
@@ -7361,7 +7606,7 @@ typedef struct _ib_mad_notice_attr	// Total Size calc  Accumulated
 			uint8_t    pad2;            // reserved
 			uint8_t    local_changes;   // 7b reserved 1b local changes
 			ib_net32_t new_cap_mask;    // new capability mask
-			ib_net16_t change_flgs;     // 13b reserved 3b change flags
+			ib_net16_t change_flgs;     // 10b reserved 6b change flags
 		} PACK_SUFFIX ntc_144;
 		struct _ntc_145 {
 			ib_net16_t pad1;
@@ -7445,6 +7690,8 @@ typedef struct _ib_mad_notice_attr	// Total Size calc  Accumulated
  * Trap 144 masks
  */
 #define TRAP_144_MASK_OTHER_LOCAL_CHANGES      0x01
+#define TRAP_144_MASK_LINK_SPEED_EXT_ENABLE_CHG (CL_HTON16(0x0020))
+#define TRAP_144_MASK_HIERARCHY_INFO_CHANGE    (CL_HTON16(0x0010))
 #define TRAP_144_MASK_SM_PRIORITY_CHANGE       (CL_HTON16(0x0008))
 #define TRAP_144_MASK_LINK_SPEED_ENABLE_CHANGE (CL_HTON16(0x0004))
 #define TRAP_144_MASK_LINK_WIDTH_ENABLE_CHANGE (CL_HTON16(0x0002))
