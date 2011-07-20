@@ -8,7 +8,7 @@
 5	051207 - Client reregistration is indicated before SA is
 		 ready to accept subscriptions
 6	060109 - Use LID routing for light sweep to guarantee trap
-                 delivery path to the SM.
+                 delivery path to the SM
 7	061201 - Finer grained locking ?
 8	061201 - Mapping multiple MGIDs on single MLID when characteristics
                  match (PKey, etc.)
@@ -21,7 +21,7 @@ Futures
 
 LID partitioning ?
 Advanced failover
-Management
+Upper layer management
 Regression tests and automation
 Additional pathing algorithms
 
