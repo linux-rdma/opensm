@@ -68,6 +68,19 @@ BEGIN_C_DECLS
 #define OSM_SUBNET_VECTOR_MIN_SIZE			0
 #define OSM_SUBNET_VECTOR_GROW_SIZE			1
 #define OSM_SUBNET_VECTOR_CAPACITY			256
+
+#define OSM_PARTITION_ENFORCE_BOTH			"both"
+#define OSM_PARTITION_ENFORCE_IN			"in"
+#define OSM_PARTITION_ENFORCE_OUT			"out"
+#define OSM_PARTITION_ENFORCE_OFF			"off"
+
+typedef enum _osm_partition_enforce_type_enum {
+	OSM_PARTITION_ENFORCE_TYPE_BOTH,
+	OSM_PARTITION_ENFORCE_TYPE_IN,
+	OSM_PARTITION_ENFORCE_TYPE_OUT,
+	OSM_PARTITION_ENFORCE_TYPE_OFF
+} osm_partition_enforce_type_enum;
+
 struct osm_opensm;
 struct osm_qos_policy;
 
@@ -184,6 +197,8 @@ typedef struct osm_subn_opt {
 	unsigned long log_max_size;
 	char *partition_config_file;
 	boolean_t no_partition_enforcement;
+	char *part_enforce;
+	osm_partition_enforce_type_enum part_enforce_enum;
 	boolean_t allow_both_pkeys;
 	uint8_t sm_assigned_guid;
 	boolean_t qos;

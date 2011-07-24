@@ -345,6 +345,7 @@ static const opt_rec_t opt_tbl[] = {
 	{ "accum_log_file", OPT_OFFSET(accum_log_file), opts_parse_boolean, opts_setup_accum_log_file, 1 },
 	{ "partition_config_file", OPT_OFFSET(partition_config_file), opts_parse_charp, NULL, 0 },
 	{ "no_partition_enforcement", OPT_OFFSET(no_partition_enforcement), opts_parse_boolean, NULL, 1 },
+	{ "part_enforce", OPT_OFFSET(part_enforce), opts_parse_charp, NULL, 1 },
 	{ "allow_both_pkeys", OPT_OFFSET(allow_both_pkeys), opts_parse_boolean, NULL, 1 },
 	{ "sm_assigned_guid", OPT_OFFSET(sm_assigned_guid), opts_parse_uint8, NULL, 1 },
 	{ "qos", OPT_OFFSET(qos), opts_parse_boolean, NULL, 1 },
@@ -879,6 +880,7 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * p_opt)
 	p_opt->log_max_size = 0;
 	p_opt->partition_config_file = strdup(OSM_DEFAULT_PARTITION_CONFIG_FILE);
 	p_opt->no_partition_enforcement = FALSE;
+	p_opt->part_enforce = OSM_PARTITION_ENFORCE_BOTH;
 	p_opt->allow_both_pkeys = FALSE;
 	p_opt->sm_assigned_guid = 0;
 	p_opt->qos = FALSE;
@@ -1264,6 +1266,27 @@ int osm_subn_verify_config(IN osm_subn_opt_t * p_opts)
 		p_opts->console = strdup(OSM_DEFAULT_CONSOLE);
 	}
 
+	if (p_opts->no_partition_enforcement == TRUE) {
+		strcpy(p_opts->part_enforce, OSM_PARTITION_ENFORCE_OFF);
+		p_opts->part_enforce_enum = OSM_PARTITION_ENFORCE_TYPE_OFF;
+	} else {
+		if (strcmp(p_opts->part_enforce, OSM_PARTITION_ENFORCE_BOTH) == 0)
+			p_opts->part_enforce_enum = OSM_PARTITION_ENFORCE_TYPE_BOTH;
+		else if (strcmp(p_opts->part_enforce, OSM_PARTITION_ENFORCE_IN) == 0)
+			p_opts->part_enforce_enum = OSM_PARTITION_ENFORCE_TYPE_IN;
+		else if (strcmp(p_opts->part_enforce, OSM_PARTITION_ENFORCE_OUT) == 0)
+			p_opts->part_enforce_enum = OSM_PARTITION_ENFORCE_TYPE_OUT;
+		else if (strcmp(p_opts->part_enforce, OSM_PARTITION_ENFORCE_OFF) == 0)
+			p_opts->part_enforce_enum = OSM_PARTITION_ENFORCE_TYPE_OFF;
+		else {
+			log_report(" Invalid Cached Option Value:part_enforce = %s"
+	                           ", Using Default:%s\n",
+	                           p_opts->part_enforce = OSM_PARTITION_ENFORCE_BOTH);
+			p_opts->part_enforce = OSM_PARTITION_ENFORCE_BOTH;
+			p_opts->part_enforce_enum = OSM_PARTITION_ENFORCE_TYPE_BOTH;
+		}
+	}
+
 	if (p_opts->qos) {
 		subn_verify_qos_set(&p_opts->qos_options, "qos");
 		subn_verify_qos_set(&p_opts->qos_ca_options, "qos_ca");
@@ -1551,8 +1574,13 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		"#\n# PARTITIONING OPTIONS\n#\n"
 		"# Partition configuration file to be used\n"
 		"partition_config_file %s\n\n"
-		"# Disable partition enforcement by switches\n"
+		"# Disable partition enforcement by switches (DEPRECATED)\n"
+		"# This option is DEPRECATED. Please use part_enforce instead\n"
 		"no_partition_enforcement %s\n\n"
+		"# Partition enforcement type (for switches)\n"
+		"# Values are both, out, in and off\n"
+		"# Default is both (outbound and inbound enforcement)\n"
+		"part_enforce %s\n\n"
 		"# Allow both full and limited membership on the same partition\n"
 		"allow_both_pkeys %s\n\n"
 		"# SM assigned GUID byte where GUID is formed from OpenFabrics OUI\n"
@@ -1562,6 +1590,7 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		"sm_assigned_guid 0x%02x\n\n",
 		p_opts->partition_config_file,
 		p_opts->no_partition_enforcement ? "TRUE" : "FALSE",
+		p_opts->part_enforce,
 		p_opts->allow_both_pkeys ? "TRUE" : "FALSE",
 		p_opts->sm_assigned_guid);
 

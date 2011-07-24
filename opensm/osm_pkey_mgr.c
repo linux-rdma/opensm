@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2010 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2011 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2009 Sun Microsystems, Inc. All rights reserved.
  *
@@ -192,16 +192,26 @@ pkey_mgr_update_pkey_entry(IN osm_sm_t * sm,
 
 static ib_api_status_t
 pkey_mgr_enforce_partition(IN osm_log_t * p_log, osm_sm_t * sm,
-			   IN osm_physp_t * p_physp, IN const boolean_t enforce)
+			   IN osm_physp_t * p_physp,
+			   IN osm_partition_enforce_type_enum enforce_type)
 {
 	osm_madw_context_t context;
 	uint8_t payload[IB_SMP_DATA_SIZE];
 	ib_port_info_t *p_pi;
 	ib_api_status_t status;
+	uint8_t enforce_bits;
 
 	p_pi = &p_physp->port_info;
 
-	if ((p_pi->vl_enforce & 0xc) == (0xc) * (enforce == TRUE)) {
+	if (enforce_type == OSM_PARTITION_ENFORCE_TYPE_BOTH)
+		enforce_bits = 0xc;
+	else if (enforce_type == OSM_PARTITION_ENFORCE_TYPE_IN)
+		enforce_bits = 0x8;
+	else
+		enforce_bits = 0x4;
+
+	if ((p_pi->vl_enforce & 0xc) == enforce_bits *
+	    (enforce_type == OSM_PARTITION_ENFORCE_TYPE_OFF)) {
 		OSM_LOG(p_log, OSM_LOG_DEBUG,
 			"No need to update PortInfo for "
 			"node 0x%016" PRIx64 " port %u (%s)\n",
@@ -215,10 +225,10 @@ pkey_mgr_enforce_partition(IN osm_log_t * p_log, osm_sm_t * sm,
 	memcpy(payload, p_pi, sizeof(ib_port_info_t));
 
 	p_pi = (ib_port_info_t *) payload;
-	if (enforce == TRUE)
-		p_pi->vl_enforce |= 0xc;
-	else
-		p_pi->vl_enforce &= ~0xc;
+	p_pi->vl_enforce &= ~0xc;
+	if (enforce_type != OSM_PARTITION_ENFORCE_TYPE_OFF)
+		p_pi->vl_enforce |= enforce_bits;
+
 	p_pi->state_info2 = 0;
 	ib_port_info_set_port_state(p_pi, IB_LINK_NO_CHANGE);
 
@@ -572,7 +582,7 @@ static int new_pkey_exists(osm_pkey_tbl_t * p_pkey_tbl, ib_net16_t pkey)
 static int pkey_mgr_update_peer_port(osm_log_t * p_log, osm_sm_t * sm,
 				     const osm_subn_t * p_subn,
 				     const osm_port_t * const p_port,
-				     boolean_t enforce)
+				     osm_partition_enforce_type_enum enforce_type)
 {
 	osm_physp_t *p_physp, *peer;
 	osm_node_t *p_node;
@@ -597,8 +607,8 @@ static int pkey_mgr_update_peer_port(osm_log_t * p_log, osm_sm_t * sm,
 	if (!p_node->sw || !p_node->sw->switch_info.enforce_cap)
 		return 0;
 
-	if (enforce == FALSE) {
-		pkey_mgr_enforce_partition(p_log, sm, peer, FALSE);
+	if (enforce_type != OSM_PARTITION_ENFORCE_TYPE_OFF) {
+		pkey_mgr_enforce_partition(p_log, sm, peer, OSM_PARTITION_ENFORCE_TYPE_OFF);
 		return ret;
 	}
 
@@ -669,14 +679,14 @@ static int pkey_mgr_update_peer_port(osm_log_t * p_log, osm_sm_t * sm,
 						cl_ntoh64(osm_node_get_node_guid(p_node)),
 						osm_physp_get_port_num(peer),
 						p_node->print_desc);
-					enforce = FALSE;
+					enforce_type = OSM_PARTITION_ENFORCE_TYPE_OFF;
 					ret = -1;
 				}
 			}
 		}
 	} else {
 		p_peer_pkey_tbl->used_blocks = peer_max_blocks;
-		enforce = FALSE;
+		enforce_type = OSM_PARTITION_ENFORCE_TYPE_OFF;
 	}
 
 	if (!ret)
@@ -686,7 +696,7 @@ static int pkey_mgr_update_peer_port(osm_log_t * p_log, osm_sm_t * sm,
 			cl_ntoh64(osm_node_get_node_guid(p_node)),
 			osm_physp_get_port_num(peer), p_node->print_desc);
 
-	if (pkey_mgr_enforce_partition(p_log, sm, peer, enforce))
+	if (pkey_mgr_enforce_partition(p_log, sm, peer, enforce_type))
 		ret = -1;
 
 	return ret;
@@ -740,8 +750,7 @@ int osm_pkey_mgr_process(IN osm_opensm_t * p_osm)
 		if ((osm_node_get_type(p_port->p_node) != IB_NODE_TYPE_SWITCH)
 		    && pkey_mgr_update_peer_port(&p_osm->log, &p_osm->sm,
 						 &p_osm->subn, p_port,
-						 !p_osm->subn.opt.
-						 no_partition_enforcement))
+						 p_osm->subn.opt.part_enforce_enum))
 			ret = -1;
 	}
 
@@ -765,7 +774,7 @@ int osm_pkey_mgr_process(IN osm_opensm_t * p_osm)
 				continue;
 
 			/* clear partition enforcement */
-			if (pkey_mgr_enforce_partition(&p_osm->log, &p_osm->sm, p_physp, FALSE))
+			if (pkey_mgr_enforce_partition(&p_osm->log, &p_osm->sm, p_physp, OSM_PARTITION_ENFORCE_TYPE_OFF))
 				ret = -1;
 		}
 	}

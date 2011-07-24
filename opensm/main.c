@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2009 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2011 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2009 HNR Consulting. All rights reserved.
  * Copyright (c) 2009 System Fabric Works, Inc. All rights reserved.
@@ -321,8 +321,13 @@ static void show_usage(void)
 	       "          This option defines the optional partition configuration file.\n"
 	       "          The default name is \'"
 	       OSM_DEFAULT_PARTITION_CONFIG_FILE "\'.\n\n");
-	printf("--no_part_enforce, -N\n"
+	printf("--no_part_enforce, -N (DEPRECATED)\n"
+	       "          Use --part_enforce instead.\n"
 	       "          This option disables partition enforcement on switch external ports.\n\n");
+	printf("--part_enforce, -Z [both, in, out, off]\n"
+	       "          This option indicates the partition enforcement type (for switches)\n"
+	       "          Enforcement type can be outbound only (out), inbound only (in), both or\n"
+	       "          disabled (off). Default is both.\n\n");
 	printf("--allow_both_pkeys, -W\n"
 	       "          This option indicates whether both full and limited membership\n"
 	       "          on the same partition can be configured in the PKeyTable.\n"
@@ -573,7 +578,7 @@ int main(int argc, char *argv[])
 	char *conf_template = NULL, *config_file = NULL;
 	uint32_t val;
 	const char *const short_option =
-	    "F:c:i:w:O:f:ed:D:g:l:L:s:t:a:u:m:X:R:zM:U:S:P:Y:ANWBIQvVhoryxp:n:q:k:C:G:H:";
+	    "F:c:i:w:O:f:ed:D:g:l:L:s:t:a:u:m:X:R:zM:U:S:P:Y:ANZ:WBIQvVhoryxp:n:q:k:C:G:H:";
 
 	/*
 	   In the array below, the 2nd parameter specifies the number
@@ -602,6 +607,7 @@ int main(int argc, char *argv[])
 		{"erase_log_file", 0, NULL, 'e'},
 		{"Pconfig", 1, NULL, 'P'},
 		{"no_part_enforce", 0, NULL, 'N'},
+		{"part_enforce", 1, NULL, 'Z'},
 		{"allow_both_pkeys", 0, NULL, 'W'},
 		{"qos", 0, NULL, 'Q'},
 		{"qos_policy_file", 1, NULL, 'Y'},
@@ -877,6 +883,25 @@ int main(int argc, char *argv[])
 
 		case 'N':
 			opt.no_partition_enforcement = TRUE;
+			break;
+
+		case 'Z':
+			if (strcmp(optarg, OSM_PARTITION_ENFORCE_BOTH) == 0
+			    || strcmp(optarg, OSM_PARTITION_ENFORCE_IN) == 0
+			    || strcmp(optarg, OSM_PARTITION_ENFORCE_OUT) == 0
+			    || strcmp(optarg, OSM_PARTITION_ENFORCE_OFF) == 0) {
+				SET_STR_OPT(opt.part_enforce, optarg);
+				if (strcmp(optarg, OSM_PARTITION_ENFORCE_BOTH) == 0)
+					opt.part_enforce_enum = OSM_PARTITION_ENFORCE_TYPE_BOTH;
+				else if (strcmp(optarg, OSM_PARTITION_ENFORCE_IN) == 0)
+					opt.part_enforce_enum = OSM_PARTITION_ENFORCE_TYPE_IN;
+				else if (strcmp(optarg, OSM_PARTITION_ENFORCE_OUT) == 0)
+					opt.part_enforce_enum = OSM_PARTITION_ENFORCE_TYPE_OUT;
+				else
+					opt.part_enforce_enum = OSM_PARTITION_ENFORCE_TYPE_OFF;
+			} else
+				printf("-part_enforce %s option not understood\n",
+				       optarg);
 			break;
 
 		case 'W':
