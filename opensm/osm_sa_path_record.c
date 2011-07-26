@@ -349,7 +349,8 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 		if (mtu > ib_port_info_get_mtu_cap(p_pi))
 			mtu = ib_port_info_get_mtu_cap(p_pi);
 
-		if (rate > ib_port_info_compute_rate(p_pi, 0))
+		if (ib_path_compare_rates(rate,
+					  ib_port_info_compute_rate(p_pi, 0)) > 0)
 			rate = ib_port_info_compute_rate(p_pi, 0);
 
 		/*
@@ -372,7 +373,8 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 		if (mtu > ib_port_info_get_mtu_cap(p_pi))
 			mtu = ib_port_info_get_mtu_cap(p_pi);
 
-		if (rate > ib_port_info_compute_rate(p_pi, 0))
+		if (ib_path_compare_rates(rate,
+					  ib_port_info_compute_rate(p_pi, 0)) > 0)
 			rate = ib_port_info_compute_rate(p_pi, 0);
 
 		if (sa->p_subn->opt.qos) {
@@ -425,7 +427,8 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 	if (mtu > ib_port_info_get_mtu_cap(p_pi))
 		mtu = ib_port_info_get_mtu_cap(p_pi);
 
-	if (rate > ib_port_info_compute_rate(p_pi, 0))
+	if (ib_path_compare_rates(rate,
+				  ib_port_info_compute_rate(p_pi, 0)) > 0)
 		rate = ib_port_info_compute_rate(p_pi, 0);
 
 	OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
@@ -451,7 +454,7 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 			mtu = p_qos_level->mtu_limit;
 
 		if (p_qos_level->rate_limit_set
-		    && (rate > p_qos_level->rate_limit))
+		    && (ib_path_compare_rates(rate, p_qos_level->rate_limit) > 0))
 			rate = p_qos_level->rate_limit;
 
 		if (p_qos_level->sl_set) {
@@ -529,23 +532,22 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 		required_rate = ib_path_rec_rate(p_pr);
 		switch (ib_path_rec_rate_sel(p_pr)) {
 		case 0:	/* must be greater than */
-			if (rate <= required_rate)
+			if (ib_path_compare_rates(rate, required_rate) <= 0)
 				status = IB_NOT_FOUND;
 			break;
 
 		case 1:	/* must be less than */
-			if (rate >= required_rate) {
+			if (ib_path_compare_rates(rate, required_rate) >= 0) {
 				/* adjust the rate to use the highest rate
 				   lower then the required one */
-				if (required_rate > 2)
-					rate = required_rate - 1;
-				else
+				rate = ib_path_rate_get_prev(required_rate);
+				if (!rate)
 					status = IB_NOT_FOUND;
 			}
 			break;
 
 		case 2:	/* exact match */
-			if (rate < required_rate)
+			if (ib_path_compare_rates(rate, required_rate))
 				status = IB_NOT_FOUND;
 			else
 				rate = required_rate;
