@@ -203,8 +203,6 @@ pkey_mgr_enforce_partition(IN osm_log_t * p_log, osm_sm_t * sm,
 	}
 
 	memcpy(payload, p_pi, sizeof(ib_port_info_t));
-	memset(payload + sizeof(ib_port_info_t), 0,
-	       IB_SMP_DATA_SIZE - sizeof(ib_port_info_t));
 
 	p_pi = (ib_port_info_t *) payload;
 	if (enforce == TRUE)
