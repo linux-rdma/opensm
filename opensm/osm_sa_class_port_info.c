@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2008 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2007 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2011 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
  * This software is available to you under a choice of one of two
@@ -73,6 +73,7 @@ static void cpi_rcv_respond(IN osm_sa_t * sa, IN const osm_madw_t * p_madw)
 	ib_sa_mad_t *p_resp_sa_mad;
 	ib_class_port_info_t *p_resp_cpi;
 	ib_gid_t zero_gid;
+	uint32_t cap_mask2;
 	uint8_t rtv;
 
 	OSM_LOG_ENTER(sa->p_log);
@@ -156,13 +157,11 @@ static void cpi_rcv_respond(IN osm_sa_t * sa, IN const osm_madw_t * p_madw)
 	p_resp_cpi->cap_mask = OSM_CAP_IS_SUBN_GET_SET_NOTICE_SUP |
 	    OSM_CAP_IS_PORT_INFO_CAPMASK_MATCH_SUPPORTED;
 #endif
+	cap_mask2 = OSM_CAP2_IS_MCAST_TOP_SUPPORTED |
+		    OSM_CAP2_IS_FULL_PORTINFO_REC_SUPPORTED;
 	if (sa->p_subn->opt.qos)
-		ib_class_set_cap_mask2(p_resp_cpi, OSM_CAP2_IS_QOS_SUPPORTED |
-						   OSM_CAP2_IS_MCAST_TOP_SUPPORTED |
-						   OSM_CAP2_IS_FULL_PORTINFO_REC_SUPPORTED);
-	else
-		ib_class_set_cap_mask2(p_resp_cpi, OSM_CAP2_IS_MCAST_TOP_SUPPORTED |
-						   OSM_CAP2_IS_FULL_PORTINFO_REC_SUPPORTED);
+		cap_mask2 |= OSM_CAP2_IS_QOS_SUPPORTED;
+	ib_class_set_cap_mask2(p_resp_cpi, cap_mask2);
 
 	if (!sa->p_subn->opt.disable_multicast)
 		p_resp_cpi->cap_mask |= OSM_CAP_IS_UD_MCAST_SUP;
