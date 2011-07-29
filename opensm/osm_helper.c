@@ -439,6 +439,27 @@ static const char *ib_sa_attr_str[] = {
 
 #define OSM_SA_ATTR_STR_UNKNOWN_VAL (ARR_SIZE(ib_sa_attr_str) - 1)
 
+static int ordered_rates[] = {
+	0, 0,	/*  0, 1 - reserved */
+	1,	/*  2 - 2.5 Gbps */
+	3,	/*  3 - 10  Gbps */
+	6,	/*  4 - 30  Gbps */
+	2,	/*  5 - 5   Gbps */
+	5,	/*  6 - 20  Gbps */
+	8,	/*  7 - 40  Gbps */
+	9,	/*  8 - 60  Gbps */
+	11,	/*  9 - 80  Gbps */
+	12,	/* 10 - 120 Gbps */
+	4,	/* 11 -  14 Gbps (17 Gbps equiv) */
+	10,	/* 12 -  56 Gbps (68 Gbps equiv) */
+	14,	/* 13 - 112 Gbps (136 Gbps equiv) */
+	15,	/* 14 - 158 Gbps (204 Gbps equiv) */
+	7,	/* 15 -  25 Gbps (31.25 Gbps equiv) */
+	13,	/* 16 - 100 Gbps (125 Gbps equiv) */
+	16,	/* 17 - 200 Gbps (250 Gbps equiv) */
+	17	/* 18 - 300 Gbps (375 Gbps equiv) */
+};
+
 static int sprint_uint8_arr(char *buf, size_t size,
 			    const uint8_t * arr, size_t len)
 {
@@ -2294,4 +2315,63 @@ const char *osm_get_sm_mgr_state_str(IN uint16_t state)
 	return state < ARR_SIZE(sm_mgr_state_str) ?
 	    sm_mgr_state_str[state] :
 	    sm_mgr_state_str[ARR_SIZE(sm_mgr_state_str) - 1];
+}
+
+int ib_path_compare_rates(IN const int rate1, IN const int rate2)
+{
+	int orate1 = 0, orate2 = 0;
+
+	CL_ASSERT(rate1 >= IB_MIN_RATE && rate1 <= IB_MAX_RATE);
+	CL_ASSERT(rate2 >= IB_MIN_RATE && rate2 <= IB_MAX_RATE);
+
+	if (rate1 <= IB_MAX_RATE)
+		orate1 = ordered_rates[rate1];
+	if (rate2 <= IB_MAX_RATE)
+		orate2 = ordered_rates[rate2];
+	if (orate1 < orate2)
+		return -1;
+	if (orate1 == orate2)
+		return 0;
+	return 1;
+}
+
+static int find_ordered_rate(IN const int rate)
+{
+	int i;
+
+	for (i = IB_MIN_RATE; i <= IB_MAX_RATE; i++) {
+		if (ordered_rates[i] == rate)
+			return i;
+	}
+	return 0;
+}
+
+int ib_path_rate_get_prev(IN const int rate)
+{
+	int orate;
+
+	CL_ASSERT(rate >= IB_MIN_RATE && rate <= IB_MAX_RATE);
+
+	if (rate <= IB_MIN_RATE)
+		return 0;
+	if (rate > IB_MAX_RATE)
+		return 0;
+	orate = ordered_rates[rate];
+	orate--;
+	return find_ordered_rate(orate);
+}
+
+int ib_path_rate_get_next(IN const int rate)
+{
+	int orate;
+
+	CL_ASSERT(rate >= IB_MIN_RATE && rate <= IB_MAX_RATE);
+
+	if (rate < IB_MIN_RATE)
+		return 0;
+	if (rate >= IB_MAX_RATE)
+		return 0;
+	orate = ordered_rates[rate];
+	orate++;
+	return find_ordered_rate(orate);
 }

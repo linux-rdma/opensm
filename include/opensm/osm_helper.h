@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2010 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2011 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2009 HNR Consulting. All rights reserved.
  *
@@ -576,6 +576,86 @@ const char *osm_get_sm_mgr_state_str(IN uint16_t state);
 *
 * RETURN VALUES
 *	Pointer to the state description string.
+*
+* NOTES
+*
+* SEE ALSO
+*********/
+
+/****f* IBA Base: Types/ib_path_compare_rates
+* NAME
+*	ib_path_compare_rates
+*
+* DESCRIPTION
+*	Compares the encoded values for two path rates and
+*	return value is based on the ordered comparison of
+*	the path rates (or path rate equivalents).
+*
+* SYNOPSIS
+*/
+int ib_path_compare_rates(IN const int rate1, IN const int rate2);
+
+/*
+* PARAMETERS
+*	rate1
+*		[in] Encoded path rate 1.
+*
+*	rate2
+*		[in] Encoded path rate 2.
+*
+* RETURN VALUES
+*	Returns an int indicating less than (-1), equal to (0), or
+*	greater than (1) rate1 as compared with rate2.
+*
+* NOTES
+*
+* SEE ALSO
+*********/
+
+/****f* IBA Base: Types/ib_path_rate_get_prev
+* NAME
+*	ib_path_rate_get_prev
+*
+* DESCRIPTION
+*	Obtains encoded rate for the rate previous to the one requested.
+*
+* SYNOPSIS
+*/
+int ib_path_rate_get_prev(IN const int rate);
+
+/*
+* PARAMETERS
+*	rate
+*		[in] Encoded path rate.
+*
+* RETURN VALUES
+*	Returns an int indicating encoded rate or
+*	0 if none can be found.
+*
+* NOTES
+*
+* SEE ALSO
+*********/
+
+/****f* IBA Base: Types/ib_path_rate_get_next
+* NAME
+*	ib_path_rate_get_next
+*
+* DESCRIPTION
+*	Obtains encoded rate for the rate subsequent to the one requested.
+*
+* SYNOPSIS
+*/
+int ib_path_rate_get_next(IN const int rate);
+
+/*
+* PARAMETERS
+*	rate
+*		[in] Encoded path rate.
+*
+* RETURN VALUES
+*	Returns an int indicating encoded rate or
+*	0 if none can be found.
 *
 * NOTES
 *
