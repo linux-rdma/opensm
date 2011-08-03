@@ -45,7 +45,7 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <regex.h>
-#ifdef ENABLE_OSM_CONSOLE_SOCKET
+#ifdef ENABLE_OSM_CONSOLE_LOOPBACK
 #include <arpa/inet.h>
 #endif
 #include <unistd.h>
@@ -1620,7 +1620,7 @@ int osm_console(osm_opensm_t * p_osm)
 	if (poll(fds, nfds, 1000) <= 0)
 		return 0;
 
-#ifdef ENABLE_OSM_CONSOLE_SOCKET
+#ifdef ENABLE_OSM_CONSOLE_LOOPBACK
 	if (pollfd[0].revents & POLLIN) {
 		int new_fd = 0;
 		struct sockaddr_in sin;
@@ -1678,7 +1678,7 @@ int osm_console(osm_opensm_t * p_osm)
 	}
 	/* input fd is closed (hanged up) */
 	if (pollfd[1].revents & POLLHUP) {
-#ifdef ENABLE_OSM_CONSOLE_SOCKET
+#ifdef ENABLE_OSM_CONSOLE_LOOPBACK
 		/* If we are using a socket, we close the current connection */
 		if (p_oct->socket >= 0) {
 			cio_close(p_oct, &p_osm->log);

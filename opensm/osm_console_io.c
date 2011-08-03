@@ -46,7 +46,7 @@
 #endif				/* HAVE_CONFIG_H */
 
 #define _GNU_SOURCE		/* for getline */
-#ifdef ENABLE_OSM_CONSOLE_SOCKET
+#ifdef ENABLE_OSM_CONSOLE_LOOPBACK
 #include <tcpd.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
@@ -66,6 +66,7 @@ static int is_local(char *str)
 	return 0;
 }
 
+#ifdef ENABLE_OSM_CONSOLE_LOOPBACK
 static int is_loopback(char *str)
 {
 	/* convenience - checks if socket based connection */
@@ -73,7 +74,11 @@ static int is_loopback(char *str)
 		return (strcmp(str, OSM_LOOPBACK_CONSOLE) == 0);
 	return 0;
 }
+#else
+#define is_loopback is_local
+#endif
 
+#ifdef ENABLE_OSM_CONSOLE_SOCKET
 static int is_remote(char *str)
 {
 	/* convenience - checks if socket based connection */
@@ -81,6 +86,9 @@ static int is_remote(char *str)
 		return strcmp(str, OSM_REMOTE_CONSOLE) == 0 || is_loopback(str);
 	return 0;
 }
+#else
+#define is_remote is_loopback
+#endif
 
 int is_console_enabled(osm_subn_opt_t * p_opt)
 {
@@ -92,7 +100,7 @@ int is_console_enabled(osm_subn_opt_t * p_opt)
 }
 
 
-#ifdef ENABLE_OSM_CONSOLE_SOCKET
+#ifdef ENABLE_OSM_CONSOLE_LOOPBACK
 int cio_close(osm_console_t * p_oct, osm_log_t * p_log)
 {
 	int rtnval = -1;
@@ -181,9 +189,12 @@ int osm_console_init(osm_subn_opt_t * opt, osm_console_t * p_oct, osm_log_t * p_
 		p_oct->out_fd = fileno(stdout);
 
 		osm_console_prompt(p_oct->out);
+#ifdef ENABLE_OSM_CONSOLE_LOOPBACK
+	} else if (strcmp(opt->console, OSM_LOOPBACK_CONSOLE) == 0
 #ifdef ENABLE_OSM_CONSOLE_SOCKET
-	} else if (strcmp(opt->console, OSM_REMOTE_CONSOLE) == 0
-		   || strcmp(opt->console, OSM_LOOPBACK_CONSOLE) == 0) {
+		   || strcmp(opt->console, OSM_REMOTE_CONSOLE) == 0
+#endif
+		   ) {
 		struct sockaddr_in sin;
 		int optval = 1;
 
@@ -197,9 +208,11 @@ int osm_console_init(osm_subn_opt_t * opt, osm_console_t * p_oct, osm_log_t * p_
 			   &optval, sizeof(optval));
 		sin.sin_family = AF_INET;
 		sin.sin_port = htons(opt->console_port);
+#ifdef ENABLE_OSM_CONSOLE_SOCKET
 		if (strcmp(opt->console, OSM_REMOTE_CONSOLE) == 0)
 			sin.sin_addr.s_addr = htonl(INADDR_ANY);
 		else
+#endif
 			sin.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 		if (bind(p_oct->socket, &sin, sizeof(sin)) < 0) {
 			OSM_LOG(p_log, OSM_LOG_ERROR,
@@ -230,7 +243,7 @@ int osm_console_init(osm_subn_opt_t * opt, osm_console_t * p_oct, osm_log_t * p_
 /* clean up and release resources */
 void osm_console_exit(osm_console_t * p_oct, osm_log_t * p_log)
 {
-#ifdef ENABLE_OSM_CONSOLE_SOCKET
+#ifdef ENABLE_OSM_CONSOLE_LOOPBACK
 	cio_close(p_oct, p_log);
 	if (p_oct->socket > 0) {
 		OSM_LOG(p_log, OSM_LOG_INFO, "Closing console socket\n");

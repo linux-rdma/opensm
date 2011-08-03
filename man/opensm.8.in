@@ -266,10 +266,13 @@ SMPs.
 Without -maxsmps, OpenSM defaults to a maximum of
 4 outstanding SMPs.
 .TP
-\fB\-console [off | local | socket | loopback]\fR
-This option brings up the OpenSM console (default off).
-Note that the socket and loopback options will only be available
-if OpenSM was built with --enable-console-socket.
+\fB\-console [off | local | loopback | socket]\fR
+This option brings up the OpenSM console (default off).  Note, loopback and
+socket open a socket which can be connected to WITHOUT CREDENTIALS.  Loopback
+is safer if access to your SM host is controlled.  tcp_wrappers
+(hosts.[allow|deny]) is used with loopback and socket.  loopback and socket
+will only be available if OpenSM was built with --enable-console-loopback
+(default yes) and --enable-console-socket (default no) respectively.
 .TP
 \fB\-console-port\fR <port>
 Specify an alternate telnet port for the socket console (default 10000).

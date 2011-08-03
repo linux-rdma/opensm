@@ -45,8 +45,12 @@
 
 #define OSM_DISABLE_CONSOLE      "off"
 #define OSM_LOCAL_CONSOLE        "local"
+#ifdef ENABLE_OSM_CONSOLE_SOCKET
 #define OSM_REMOTE_CONSOLE       "socket"
+#endif
+#ifdef ENABLE_OSM_CONSOLE_LOOPBACK
 #define OSM_LOOPBACK_CONSOLE     "loopback"
+#endif
 #define OSM_CONSOLE_NAME         "OSM Console"
 
 #define OSM_DEFAULT_CONSOLE      OSM_DISABLE_CONSOLE
@@ -81,7 +85,7 @@ int osm_console_init(osm_subn_opt_t * opt, osm_console_t * p_oct, osm_log_t * p_
 void osm_console_exit(osm_console_t * p_oct, osm_log_t * p_log);
 int is_console_enabled(osm_subn_opt_t *p_opt);
 
-#ifdef ENABLE_OSM_CONSOLE_SOCKET
+#ifdef ENABLE_OSM_CONSOLE_LOOPBACK
 int cio_open(osm_console_t * p_oct, int new_fd, osm_log_t * p_log);
 int cio_close(osm_console_t * p_oct, osm_log_t * p_log);
 int is_authorized(osm_console_t * p_oct);

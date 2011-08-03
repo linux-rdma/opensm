@@ -1118,8 +1118,10 @@ int osm_subn_verify_config(IN osm_subn_opt_t * p_opts)
 
 	if (strcmp(p_opts->console, OSM_DISABLE_CONSOLE)
 	    && strcmp(p_opts->console, OSM_LOCAL_CONSOLE)
-#ifdef ENABLE_OSM_CONSOLE_SOCKET
+#ifdef ENABLE_OSM_CONSOLE_LOOPBACK
 	    && strcmp(p_opts->console, OSM_LOOPBACK_CONSOLE)
+#endif
+#ifdef ENABLE_OSM_CONSOLE_SOCKET
 	    && strcmp(p_opts->console, OSM_REMOTE_CONSOLE)
 #endif
 	    ) {
@@ -1634,8 +1636,11 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		"disable_multicast %s\n\n"
 		"# If TRUE opensm will exit on fatal initialization issues\n"
 		"exit_on_fatal %s\n\n" "# console [off|local"
+#ifdef ENABLE_OSM_CONSOLE_LOOPBACK
+		"|loopback"
+#endif
 #ifdef ENABLE_OSM_CONSOLE_SOCKET
-		"|loopback|socket]\n"
+		"|socket]\n"
 #else
 		"]\n"
 #endif

@@ -270,11 +270,14 @@ static void show_usage(void)
 	       "          Without --maxsmps, OpenSM defaults to a maximum of\n"
 	       "          4 outstanding SMPs.\n\n");
 	printf("--console, -q [off|local"
+#ifdef ENABLE_OSM_CONSOLE_LOOPBACK
+	       "|loopback"
+#endif
 #ifdef ENABLE_OSM_CONSOLE_SOCKET
-	       "|socket|loopback"
+	       "|socket"
 #endif
 	       "]\n          This option activates the OpenSM console (default off).\n\n");
-#ifdef ENABLE_OSM_CONSOLE_SOCKET
+#ifdef ENABLE_OSM_CONSOLE_LOOPBACK
 	printf("--console-port, -C <port>\n"
 	       "          Specify an alternate telnet port for the console (default %d).\n\n",
 	       OSM_DEFAULT_CONSOLE_PORT);
@@ -621,7 +624,7 @@ int main(int argc, char *argv[])
 		{"guid_routing_order_file", 1, NULL, 'X'},
 		{"stay_on_fatal", 0, NULL, 'y'},
 		{"honor_guid2lid", 0, NULL, 'x'},
-#ifdef ENABLE_OSM_CONSOLE_SOCKET
+#ifdef ENABLE_OSM_CONSOLE_LOOPBACK
 		{"console-port", 1, NULL, 'C'},
 #endif
 		{"daemon", 0, NULL, 'B'},
@@ -788,6 +791,8 @@ int main(int argc, char *argv[])
 			    || strcmp(optarg, OSM_LOCAL_CONSOLE) == 0
 #ifdef ENABLE_OSM_CONSOLE_SOCKET
 			    || strcmp(optarg, OSM_REMOTE_CONSOLE) == 0
+#endif
+#ifdef ENABLE_OSM_CONSOLE_LOOPBACK
 			    || strcmp(optarg, OSM_LOOPBACK_CONSOLE) == 0
 #endif
 			    )
@@ -797,7 +802,7 @@ int main(int argc, char *argv[])
 				       optarg);
 			break;
 
-#ifdef ENABLE_OSM_CONSOLE_SOCKET
+#ifdef ENABLE_OSM_CONSOLE_LOOPBACK
 		case 'C':
 			opt.console_port = strtol(optarg, NULL, 0);
 			break;

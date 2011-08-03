@@ -178,27 +178,50 @@ fi
 # --- END OPENIB_APP_OSMV_CHECK_HEADER ---
 ]) dnl OPENIB_APP_OSMV_CHECK_HEADER
 
-dnl Check if they want the socket console
+dnl Check for socket console support
 AC_DEFUN([OPENIB_OSM_CONSOLE_SOCKET_SEL], [
 # --- BEGIN OPENIB_OSM_CONSOLE_SOCKET_SEL ---
 
+dnl Console over a loopback socket is default if libwrap is available
+AC_ARG_ENABLE(console-loopback,
+[  --enable-console-loopback Enable a console socket on the loopback interface, requires tcp_wrappers (default yes)],
+[case $enableval in
+     yes) console_loopback=yes ;;
+     no)  console_loopback=no ;;
+   esac],
+   console_loopback=yes)
+
+if test $console_loopback = yes; then
+AC_CHECK_LIB(wrap, request_init, [], [console_loopback=no
+		AC_MSG_WARN(libwrap is missing. setting console_loopback=no)])
+fi
+if test $console_loopback = yes; then
+  AC_DEFINE(ENABLE_OSM_CONSOLE_LOOPBACK,
+	    1,
+	    [Define as 1 if you want to enable a loopback console])
+fi
+
 dnl Console over a socket connection
 AC_ARG_ENABLE(console-socket,
-[  --enable-console-socket Enable a console socket, requires tcp_wrappers (default no)],
+[  --enable-console-socket Enable a console socket, requires --enable-console-loopback (default no)],
 [case $enableval in
      yes) console_socket=yes ;;
      no)  console_socket=no ;;
    esac],
    console_socket=no)
 if test $console_socket = yes; then
-  AC_CHECK_LIB(wrap, request_init, [],
- 	AC_MSG_ERROR([request_init() not found. console-socket requires libwrap.]))
+  if test $console_loopback = no; then
+    AC_MSG_ERROR([--enable-console-socket requires --enable-console-loopback])
+  fi
   AC_DEFINE(ENABLE_OSM_CONSOLE_SOCKET,
 	    1,
 	    [Define as 1 if you want to enable a console on a socket connection])
 fi
+
 # --- END OPENIB_OSM_CONSOLE_SOCKET_SEL ---
 ]) dnl OPENIB_OSM_CONSOLE_SOCKET_SEL
+
+
 
 dnl Check if they want the PerfMgr
 AC_DEFUN([OPENIB_OSM_PERF_MGR_SEL], [
