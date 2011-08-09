@@ -368,6 +368,7 @@ static void dump_topology_node(cl_map_item_t * item, FILE * file, void *cxt)
 	osm_node_t *p_nbnode;
 	osm_physp_t *p_physp, *p_default_physp, *p_rphysp;
 	uint8_t link_speed_act;
+	char *link_speed_act_str;
 
 	if (!p_node->node_info.num_ports)
 		return;
@@ -444,6 +445,25 @@ static void dump_topology_node(cl_map_item_t * item, FILE * file, void *cxt)
 		port_state = ib_port_info_get_port_state(&p_physp->port_info);
 		link_speed_act =
 		    ib_port_info_get_link_speed_active(&p_physp->port_info);
+		if (link_speed_act == IB_LINK_SPEED_ACTIVE_2_5)
+			link_speed_act_str = "2.5";
+		else if (link_speed_act == IB_LINK_SPEED_ACTIVE_5)
+			link_speed_act_str = "5";
+		else if (link_speed_act == IB_LINK_SPEED_ACTIVE_10)
+			link_speed_act_str = "10";
+		else
+			link_speed_act_str = "??";
+
+		if (p_default_physp->port_info.capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS) {
+			link_speed_act =
+			    ib_port_info_get_link_speed_ext_active(&p_physp->port_info);
+			if (link_speed_act == IB_LINK_SPEED_EXT_ACTIVE_14)
+				link_speed_act_str = "14";
+			else if (link_speed_act == IB_LINK_SPEED_EXT_ACTIVE_25)
+				link_speed_act_str = "25";
+			else if (link_speed_act != IB_LINK_SPEED_EXT_ACTIVE_NONE)
+				link_speed_act_str = "??";
+		}
 
 		fprintf(file, "PHY=%s LOG=%s SPD=%s\n",
 			p_physp->port_info.link_width_active == 1 ? "1x" :
@@ -453,9 +473,7 @@ static void dump_topology_node(cl_map_item_t * item, FILE * file, void *cxt)
 			port_state == IB_LINK_ACTIVE ? "ACT" :
 			port_state == IB_LINK_ARMED ? "ARM" :
 			port_state == IB_LINK_INIT ? "INI" : "DWN",
-			link_speed_act == 1 ? "2.5" :
-			link_speed_act == 2 ? "5" :
-			link_speed_act == 4 ? "10" : "??");
+			link_speed_act_str);
 	}
 }
 
@@ -514,7 +532,9 @@ static void print_node_report(cl_map_item_t * item, FILE * file, void *cxt)
 				(ib_port_info_get_neighbor_mtu(p_pi)),
 				osm_get_lwa_str(p_pi->link_width_active),
 				osm_get_lsa_str
-				(ib_port_info_get_link_speed_active(p_pi)));
+				(ib_port_info_get_link_speed_active(p_pi),
+				 ib_port_info_get_link_speed_ext_active(p_pi),
+				 ib_port_info_get_port_state(p_pi)));
 		else
 			fprintf(file, "      :     :     ");
 

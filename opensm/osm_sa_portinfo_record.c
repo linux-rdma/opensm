@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2007 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2011 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
  * This software is available to you under a choice of one of two
@@ -74,10 +74,12 @@ typedef struct osm_pir_search_ctxt {
 
 static ib_api_status_t pir_rcv_new_pir(IN osm_sa_t * sa,
 				       IN const osm_physp_t * p_physp,
-				       IN cl_qlist_t * p_list,
+				       IN osm_pir_search_ctxt_t * p_ctxt,
 				       IN ib_net16_t const lid)
 {
 	osm_pir_item_t *p_rec_item;
+	ib_port_info_t *p_pi;
+	osm_physp_t *p_physp0;
 	ib_api_status_t status = IB_SUCCESS;
 
 	OSM_LOG_ENTER(sa->p_log);
@@ -100,9 +102,35 @@ static ib_api_status_t pir_rcv_new_pir(IN osm_sa_t * sa,
 
 	p_rec_item->rec.lid = lid;
 	p_rec_item->rec.port_info = p_physp->port_info;
+	if (p_ctxt->comp_mask & IB_PIR_COMPMASK_OPTIONS)
+		p_rec_item->rec.options = p_ctxt->p_rcvd_rec->options;
+	if ((p_ctxt->comp_mask & IB_PIR_COMPMASK_OPTIONS) == 0 ||
+	    (p_ctxt->p_rcvd_rec->options & 0x80) == 0) {
+		/* Does requested port have an extended link speed active ? */
+		if (osm_node_get_type(p_physp->p_node) ==
+		    IB_NODE_TYPE_SWITCH) {
+			p_physp0 = osm_node_get_physp_ptr(p_ctxt->p_req_physp->p_node, 0);
+			p_pi = &p_physp0->port_info;
+		} else
+			p_pi = (ib_port_info_t *) &p_physp->port_info;
+		if ((p_pi->capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS) > 0) {
+			if (ib_port_info_get_link_speed_ext_active(&p_physp->port_info)) {
+				/* Add QDR bits to original link speed components */
+				p_pi = &p_rec_item->rec.port_info;
+				ib_port_info_set_link_speed_enabled(p_pi,
+								    ib_port_info_get_link_speed_enabled(p_pi) | IB_LINK_SPEED_ACTIVE_10);
+				p_pi->state_info1 =
+				    (uint8_t) ((p_pi->state_info1 & IB_PORT_STATE_MASK) |
+					       (ib_port_info_get_link_speed_sup(p_pi) | IB_LINK_SPEED_ACTIVE_10) << IB_PORT_LINK_SPEED_SHIFT);
+				p_pi->link_speed =
+				    (uint8_t) ((p_pi->link_speed & IB_PORT_LINK_SPEED_ENABLED_MASK) |
+					       (ib_port_info_get_link_speed_active(p_pi) | IB_LINK_SPEED_ACTIVE_10) << IB_PORT_LINK_SPEED_SHIFT);
+			}
+		}
+	}
 	p_rec_item->rec.port_num = osm_physp_get_port_num(p_physp);
 
-	cl_qlist_insert_tail(p_list, &p_rec_item->list_item);
+	cl_qlist_insert_tail(p_ctxt->p_list, &p_rec_item->list_item);
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);
@@ -147,7 +175,7 @@ static void sa_pir_create(IN osm_sa_t * sa, IN const osm_physp_t * p_physp,
 			goto Exit;
 	}
 
-	pir_rcv_new_pir(sa, p_physp, p_ctxt->p_list, cl_hton16(base_lid_ho));
+	pir_rcv_new_pir(sa, p_physp, p_ctxt, cl_hton16(base_lid_ho));
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);
@@ -160,6 +188,8 @@ static void sa_pir_check_physp(IN osm_sa_t * sa, IN const osm_physp_t * p_physp,
 	ib_net64_t comp_mask;
 	const ib_port_info_t *p_comp_pi;
 	const ib_port_info_t *p_pi;
+	const osm_physp_t * p_physp0;
+	ib_net32_t cap_mask;
 
 	OSM_LOG_ENTER(sa->p_log);
 
@@ -372,7 +402,29 @@ static void sa_pir_check_physp(IN osm_sa_t * sa, IN const osm_physp_t * p_physp,
 		    ib_port_info_get_overrun_err_thd(p_pi))
 			goto Exit;
 	}
-
+	if (osm_node_get_type(p_physp->p_node) == IB_NODE_TYPE_SWITCH) {
+		p_physp0 = osm_node_get_physp_ptr(p_physp->p_node, 0);
+		cap_mask = p_physp0->port_info.capability_mask;
+	} else
+		cap_mask = p_pi->capability_mask;
+	if (comp_mask & IB_PIR_COMPMASK_LINKSPDEXTACT) {
+		if (((cap_mask & IB_PORT_CAP_HAS_EXT_SPEEDS) > 0) &&
+		    (ib_port_info_get_link_speed_ext_active(p_comp_pi) !=
+		     ib_port_info_get_link_speed_ext_active(p_pi)))
+			goto Exit;
+	}
+	if (comp_mask & IB_PIR_COMPMASK_LINKSPDEXTSUPP) {
+		if (((cap_mask & IB_PORT_CAP_HAS_EXT_SPEEDS) > 0) &&
+		    (ib_port_info_get_link_speed_ext_sup(p_comp_pi) !=
+		     ib_port_info_get_link_speed_ext_sup(p_pi)))
+			goto Exit;
+	}
+	if (comp_mask & IB_PIR_COMPMASK_LINKSPDEXTENAB) {
+		if (((cap_mask & IB_PORT_CAP_HAS_EXT_SPEEDS) > 0) &&
+		    (ib_port_info_get_link_speed_ext_enabled(p_comp_pi) !=
+		     ib_port_info_get_link_speed_ext_enabled(p_pi)))
+			goto Exit;
+	}
 	sa_pir_create(sa, p_physp, p_ctxt);
 
 Exit:

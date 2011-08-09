@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2005-2009 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2009,2010 HNR Consulting. All rights reserved.
- * Copyright (c) 2010 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2010,2011 Mellanox Technologies LTD. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -650,6 +650,8 @@ typedef struct {
 	uint64_t ports_sdr;
 	uint64_t ports_ddr;
 	uint64_t ports_qdr;
+	uint64_t ports_fdr;
+	uint64_t ports_edr;
 	uint64_t ports_unknown_speed;
 	uint64_t ports_reduced_speed;
 	port_report_t *reduced_speed_ports;
@@ -662,6 +664,8 @@ static void __get_stats(cl_map_item_t * const p_map_item, void *context)
 {
 	fabric_stats_t *fs = (fabric_stats_t *) context;
 	osm_node_t *node = (osm_node_t *) p_map_item;
+	osm_physp_t *physp0;
+	ib_port_info_t *pi0;
 	uint8_t num_ports = osm_node_get_num_physp(node);
 	uint8_t port = 0;
 
@@ -671,6 +675,12 @@ static void __get_stats(cl_map_item_t * const p_map_item, void *context)
 		return;
 
 	fs->total_nodes++;
+
+	if (osm_node_get_type(node) == IB_NODE_TYPE_SWITCH) {
+		physp0 = osm_node_get_physp_ptr(node, 0);
+		pi0 = &physp0->port_info;
+	} else
+		pi0 = NULL;
 
 	for (port = 1; port < num_ports; port++) {
 		osm_physp_t *phys = osm_node_get_physp_ptr(node, port);
@@ -685,7 +695,9 @@ static void __get_stats(cl_map_item_t * const p_map_item, void *context)
 		if (!phys)
 			continue;
 
-		pi = &(phys->port_info);
+		pi = &phys->port_info;
+		if (!pi0)
+			pi0 = pi;
 		active_speed = ib_port_info_get_link_speed_active(pi);
 		enabled_speed = ib_port_info_get_link_speed_enabled(pi);
 		active_width = pi->link_width_active;
@@ -715,11 +727,37 @@ static void __get_stats(cl_map_item_t * const p_map_item, void *context)
 			fs->ports_ddr++;
 			break;
 		case IB_LINK_SPEED_ACTIVE_10:
-			fs->ports_qdr++;
+			if (!(pi0->capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS) ||
+			    ((pi0->capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS) &&
+			    !ib_port_info_get_link_speed_ext_active(pi)))
+				fs->ports_qdr++;
 			break;
 		default:
 			fs->ports_unknown_speed++;
 			break;
+		}
+		if (pi0->capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS &&
+		    ib_port_info_get_link_speed_ext_sup(pi) &&
+		    (enabled_speed = pi->link_speed_ext_enabled) != IB_LINK_SPEED_EXT_DISABLE &&
+		    active_speed == IB_LINK_SPEED_ACTIVE_10) {
+			active_speed = ib_port_info_get_link_speed_ext_active(pi);
+			if ((enabled_speed ^ active_speed) > active_speed) {
+				__tag_port_report(&(fs->reduced_speed_ports),
+						  cl_ntoh64(node->node_info.node_guid),
+						  port, node->print_desc);
+				fs->ports_reduced_speed++;
+			}
+			switch (active_speed) {
+			case IB_LINK_SPEED_EXT_ACTIVE_14:
+				fs->ports_fdr++;
+				break;
+			case IB_LINK_SPEED_EXT_ACTIVE_25:
+				fs->ports_edr++;
+				break;
+			default:
+				fs->ports_unknown_speed++;
+				break;
+			}
 		}
 		switch (active_width) {
 		case IB_LINK_WIDTH_ACTIVE_1X:
@@ -814,6 +852,10 @@ static void portstatus_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 		fprintf(out, "   %" PRIu64 " at 5.0 Gbps\n", fs.ports_ddr);
 	if (fs.ports_qdr)
 		fprintf(out, "   %" PRIu64 " at 10.0 Gbps\n", fs.ports_qdr);
+	if (fs.ports_fdr)
+		fprintf(out, "   %" PRIu64 " at 14.0625 Gbps\n", fs.ports_fdr);
+	if (fs.ports_edr)
+		fprintf(out, "   %" PRIu64 " at 25.78125 Gbps\n", fs.ports_edr);
 
 	if (fs.ports_disabled + fs.ports_reduced_speed + fs.ports_reduced_width
 	    > 0) {

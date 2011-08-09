@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2007 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2011 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2009 Sun Microsystems, Inc. All rights reserved.
  *
@@ -99,8 +99,10 @@ static int link_mgr_set_physp_pi(osm_sm_t * sm, IN osm_physp_t * p_physp,
 	ib_api_status_t status;
 	uint8_t port_num, mtu, op_vls, smsl = OSM_DEFAULT_SL;
 	boolean_t esp0 = FALSE, send_set = FALSE;
-	osm_physp_t *p_remote_physp;
+	osm_physp_t *p_remote_physp, *physp0;
+	int qdr_change = 0;
 	int ret = 0;
+	ib_net32_t attr_mod, cap_mask;
 
 	OSM_LOG_ENTER(sm->p_log);
 
@@ -329,8 +331,54 @@ static int link_mgr_set_physp_pi(osm_sm_t * sm, IN osm_physp_t * p_physp,
 							    sm->p_subn->opt.
 							    force_link_speed);
 			if (memcmp(&p_pi->link_speed, &p_old_pi->link_speed,
-				   sizeof(p_pi->link_speed)))
+				   sizeof(p_pi->link_speed))) {
 				send_set = TRUE;
+				/* Determine whether QDR in LSE is being changed */
+				if ((ib_port_info_get_link_speed_enabled(p_pi) &
+				     IB_LINK_SPEED_ACTIVE_10 &&
+				     !(ib_port_info_get_link_speed_enabled(p_old_pi) &
+				      IB_LINK_SPEED_ACTIVE_10)) ||
+				    ((!(ib_port_info_get_link_speed_enabled(p_pi) &
+				       IB_LINK_SPEED_ACTIVE_10) &&
+				      ib_port_info_get_link_speed_enabled(p_old_pi) &
+				      IB_LINK_SPEED_ACTIVE_10)))
+				qdr_change = 1;
+			}
+		}
+
+		if (osm_node_get_type(p_physp->p_node) == IB_NODE_TYPE_SWITCH) {
+			physp0 = osm_node_get_physp_ptr(p_physp->p_node, 0);
+			cap_mask = physp0->port_info.capability_mask;
+		} else
+			cap_mask = p_pi->capability_mask;
+		if (!(cap_mask & IB_PORT_CAP_HAS_EXT_SPEEDS))
+			qdr_change = 0;
+
+		/* Do peer ports support extended link speeds ? */
+		if (port_num != 0 && p_remote_physp) {
+			osm_physp_t *rphysp0;
+			ib_net32_t rem_cap_mask;
+
+			if (osm_node_get_type(p_remote_physp->p_node) ==
+			    IB_NODE_TYPE_SWITCH) {
+				rphysp0 = osm_node_get_physp_ptr(p_remote_physp->p_node, 0);
+				rem_cap_mask = rphysp0->port_info.capability_mask;
+			} else
+				rem_cap_mask = p_remote_physp->port_info.capability_mask;
+
+			if (cap_mask & IB_PORT_CAP_HAS_EXT_SPEEDS &&
+			    rem_cap_mask & IB_PORT_CAP_HAS_EXT_SPEEDS) {
+				if (sm->p_subn->opt.force_link_speed_ext &&
+				    (sm->p_subn->opt.force_link_speed_ext != IB_LINK_SPEED_EXT_SET_LSES ||
+				     p_pi->link_speed_ext_enabled !=
+				     ib_port_info_get_link_speed_sup(p_pi))) {
+					p_pi->link_speed_ext_enabled = sm->p_subn->opt.force_link_speed_ext;
+					if (memcmp(&p_pi->link_speed_ext_enabled,
+						   &p_old_pi->link_speed_ext_enabled,
+						   sizeof(p_pi->link_speed_ext_enabled)))
+						send_set = TRUE;
+				}
+			}
 		}
 
 		/* calc new op_vls and mtu */
@@ -386,9 +434,12 @@ Send:
 	if (!send_set)
 		goto Exit;
 
+	attr_mod = cl_hton32(port_num);
+	if (qdr_change)
+		attr_mod |= cl_hton32(1 << 31);	/* AM SMSupportExtendedSpeeds */
 	status = osm_req_set(sm, osm_physp_get_dr_path_ptr(p_physp),
 			     payload, sizeof(payload), IB_MAD_ATTR_PORT_INFO,
-			     cl_hton32(port_num), CL_DISP_MSGID_NONE, &context);
+			     attr_mod, CL_DISP_MSGID_NONE, &context);
 	if (status)
 		ret = -1;
 

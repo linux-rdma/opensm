@@ -534,7 +534,7 @@ const char *osm_get_mtu_str(IN uint8_t mtu);
 
 const char *osm_get_lwa_str(IN uint8_t lwa);
 
-const char *osm_get_lsa_str(IN uint8_t lsa);
+const char *osm_get_lsa_str(IN uint8_t lsa, IN uint8_t lsea, IN uint8_t state);
 
 /****f* IBA Base: Types/osm_get_sm_mgr_signal_str
 * NAME

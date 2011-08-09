@@ -795,45 +795,45 @@ void osm_dump_port_info(IN osm_log_t * p_log, IN ib_net64_t node_guid,
 
 		osm_log(p_log, log_level,
 			"PortInfo dump:\n"
-			"\t\t\t\tport number.............%u\n"
-			"\t\t\t\tnode_guid...............0x%016" PRIx64 "\n"
-			"\t\t\t\tport_guid...............0x%016" PRIx64 "\n"
-			"\t\t\t\tm_key...................0x%016" PRIx64 "\n"
-			"\t\t\t\tsubnet_prefix...........0x%016" PRIx64 "\n"
-			"\t\t\t\tbase_lid................%u\n"
-			"\t\t\t\tmaster_sm_base_lid......%u\n"
-			"\t\t\t\tcapability_mask.........0x%X\n"
-			"\t\t\t\tdiag_code...............0x%X\n"
-			"\t\t\t\tm_key_lease_period......0x%X\n"
-			"\t\t\t\tlocal_port_num..........%u\n"
-			"\t\t\t\tlink_width_enabled......0x%X\n"
-			"\t\t\t\tlink_width_supported....0x%X\n"
-			"\t\t\t\tlink_width_active.......0x%X\n"
-			"\t\t\t\tlink_speed_supported....0x%X\n"
-			"\t\t\t\tport_state..............%s\n"
-			"\t\t\t\tstate_info2.............0x%X\n"
-			"\t\t\t\tm_key_protect_bits......0x%X\n"
-			"\t\t\t\tlmc.....................0x%X\n"
-			"\t\t\t\tlink_speed..............0x%X\n"
-			"\t\t\t\tmtu_smsl................0x%X\n"
-			"\t\t\t\tvl_cap_init_type........0x%X\n"
-			"\t\t\t\tvl_high_limit...........0x%X\n"
-			"\t\t\t\tvl_arb_high_cap.........0x%X\n"
-			"\t\t\t\tvl_arb_low_cap..........0x%X\n"
-			"\t\t\t\tinit_rep_mtu_cap........0x%X\n"
-			"\t\t\t\tvl_stall_life...........0x%X\n"
-			"\t\t\t\tvl_enforce..............0x%X\n"
-			"\t\t\t\tm_key_violations........0x%X\n"
-			"\t\t\t\tp_key_violations........0x%X\n"
-			"\t\t\t\tq_key_violations........0x%X\n"
-			"\t\t\t\tguid_cap................0x%X\n"
-			"\t\t\t\tclient_reregister.......0x%X\n"
-			"\t\t\t\tmcast_pkey_trap_suppr...0x%X\n"
-			"\t\t\t\tsubnet_timeout..........0x%X\n"
-			"\t\t\t\tresp_time_value.........0x%X\n"
-			"\t\t\t\terror_threshold.........0x%X\n"
-			"\t\t\t\tmax_credit_hint.........0x%X\n"
-			"\t\t\t\tlink_round_trip_latency.0x%X\n"
+			"\t\t\t\tport number..............%u\n"
+			"\t\t\t\tnode_guid................0x%016" PRIx64 "\n"
+			"\t\t\t\tport_guid................0x%016" PRIx64 "\n"
+			"\t\t\t\tm_key....................0x%016" PRIx64 "\n"
+			"\t\t\t\tsubnet_prefix............0x%016" PRIx64 "\n"
+			"\t\t\t\tbase_lid.................%u\n"
+			"\t\t\t\tmaster_sm_base_lid.......%u\n"
+			"\t\t\t\tcapability_mask..........0x%X\n"
+			"\t\t\t\tdiag_code................0x%X\n"
+			"\t\t\t\tm_key_lease_period.......0x%X\n"
+			"\t\t\t\tlocal_port_num...........%u\n"
+			"\t\t\t\tlink_width_enabled.......0x%X\n"
+			"\t\t\t\tlink_width_supported.....0x%X\n"
+			"\t\t\t\tlink_width_active........0x%X\n"
+			"\t\t\t\tlink_speed_supported.....0x%X\n"
+			"\t\t\t\tport_state...............%s\n"
+			"\t\t\t\tstate_info2..............0x%X\n"
+			"\t\t\t\tm_key_protect_bits.......0x%X\n"
+			"\t\t\t\tlmc......................0x%X\n"
+			"\t\t\t\tlink_speed...............0x%X\n"
+			"\t\t\t\tmtu_smsl.................0x%X\n"
+			"\t\t\t\tvl_cap_init_type.........0x%X\n"
+			"\t\t\t\tvl_high_limit............0x%X\n"
+			"\t\t\t\tvl_arb_high_cap..........0x%X\n"
+			"\t\t\t\tvl_arb_low_cap...........0x%X\n"
+			"\t\t\t\tinit_rep_mtu_cap.........0x%X\n"
+			"\t\t\t\tvl_stall_life............0x%X\n"
+			"\t\t\t\tvl_enforce...............0x%X\n"
+			"\t\t\t\tm_key_violations.........0x%X\n"
+			"\t\t\t\tp_key_violations.........0x%X\n"
+			"\t\t\t\tq_key_violations.........0x%X\n"
+			"\t\t\t\tguid_cap.................0x%X\n"
+			"\t\t\t\tclient_reregister........0x%X\n"
+			"\t\t\t\tmcast_pkey_trap_suppr....0x%X\n"
+			"\t\t\t\tsubnet_timeout...........0x%X\n"
+			"\t\t\t\tresp_time_value..........0x%X\n"
+			"\t\t\t\terror_threshold..........0x%X\n"
+			"\t\t\t\tmax_credit_hint..........0x%X\n"
+			"\t\t\t\tlink_round_trip_latency..0x%X\n"
 			"\t\t\t\tlink_speed_ext_active....0x%X\n"
 			"\t\t\t\tlink_speed_ext_supported.0x%X\n"
 			"\t\t\t\tlink_speed_ext_enabled...0x%X\n",
@@ -859,7 +859,8 @@ void osm_dump_port_info(IN osm_log_t * p_log, IN ib_net64_t node_guid,
 			cl_ntoh16(p_pi->q_key_violations), p_pi->guid_cap,
 			ib_port_info_get_client_rereg(p_pi),
 			ib_port_info_get_mcast_pkey_trap_suppress(p_pi),
-			ib_port_info_get_timeout(p_pi), p_pi->resp_time_value,
+			ib_port_info_get_timeout(p_pi),
+			ib_port_info_get_resp_time_value(p_pi),
 			p_pi->error_threshold, cl_ntoh16(p_pi->max_credit_hint),
 			cl_ntoh32(p_pi->link_rt_latency),
 			ib_port_info_get_link_speed_ext_active(p_pi),
@@ -886,46 +887,46 @@ void osm_dump_portinfo_record(IN osm_log_t * p_log,
 		osm_log(p_log, log_level,
 			"PortInfo Record dump:\n"
 			"\t\t\t\tRID\n"
-			"\t\t\t\tEndPortLid..............%u\n"
-			"\t\t\t\tPortNum.................%u\n"
-			"\t\t\t\tOptions.................0x%X\n"
+			"\t\t\t\tEndPortLid...............%u\n"
+			"\t\t\t\tPortNum..................%u\n"
+			"\t\t\t\tOptions..................0x%X\n"
 			"\t\t\t\tPortInfo dump:\n"
-			"\t\t\t\tm_key...................0x%016" PRIx64 "\n"
-			"\t\t\t\tsubnet_prefix...........0x%016" PRIx64 "\n"
-			"\t\t\t\tbase_lid................%u\n"
-			"\t\t\t\tmaster_sm_base_lid......%u\n"
-			"\t\t\t\tcapability_mask.........0x%X\n"
-			"\t\t\t\tdiag_code...............0x%X\n"
-			"\t\t\t\tm_key_lease_period......0x%X\n"
-			"\t\t\t\tlocal_port_num..........%u\n"
-			"\t\t\t\tlink_width_enabled......0x%X\n"
-			"\t\t\t\tlink_width_supported....0x%X\n"
-			"\t\t\t\tlink_width_active.......0x%X\n"
-			"\t\t\t\tlink_speed_supported....0x%X\n"
-			"\t\t\t\tport_state..............%s\n"
-			"\t\t\t\tstate_info2.............0x%X\n"
-			"\t\t\t\tm_key_protect_bits......0x%X\n"
-			"\t\t\t\tlmc.....................0x%X\n"
-			"\t\t\t\tlink_speed..............0x%X\n"
-			"\t\t\t\tmtu_smsl................0x%X\n"
-			"\t\t\t\tvl_cap_init_type........0x%X\n"
-			"\t\t\t\tvl_high_limit...........0x%X\n"
-			"\t\t\t\tvl_arb_high_cap.........0x%X\n"
-			"\t\t\t\tvl_arb_low_cap..........0x%X\n"
-			"\t\t\t\tinit_rep_mtu_cap........0x%X\n"
-			"\t\t\t\tvl_stall_life...........0x%X\n"
-			"\t\t\t\tvl_enforce..............0x%X\n"
-			"\t\t\t\tm_key_violations........0x%X\n"
-			"\t\t\t\tp_key_violations........0x%X\n"
-			"\t\t\t\tq_key_violations........0x%X\n"
-			"\t\t\t\tguid_cap................0x%X\n"
-			"\t\t\t\tclient_reregister.......0x%X\n"
-			"\t\t\t\tmcast_pkey_trap_suppr...0x%X\n"
-			"\t\t\t\tsubnet_timeout..........0x%X\n"
-			"\t\t\t\tresp_time_value.........0x%X\n"
-			"\t\t\t\terror_threshold.........0x%X\n"
-			"\t\t\t\tmax_credit_hint.........0x%X\n"
-			"\t\t\t\tlink_round_trip_latency.0x%X\n"
+			"\t\t\t\tm_key....................0x%016" PRIx64 "\n"
+			"\t\t\t\tsubnet_prefix............0x%016" PRIx64 "\n"
+			"\t\t\t\tbase_lid.................%u\n"
+			"\t\t\t\tmaster_sm_base_lid.......%u\n"
+			"\t\t\t\tcapability_mask..........0x%X\n"
+			"\t\t\t\tdiag_code................0x%X\n"
+			"\t\t\t\tm_key_lease_period.......0x%X\n"
+			"\t\t\t\tlocal_port_num...........%u\n"
+			"\t\t\t\tlink_width_enabled.......0x%X\n"
+			"\t\t\t\tlink_width_supported.....0x%X\n"
+			"\t\t\t\tlink_width_active........0x%X\n"
+			"\t\t\t\tlink_speed_supported.....0x%X\n"
+			"\t\t\t\tport_state...............%s\n"
+			"\t\t\t\tstate_info2..............0x%X\n"
+			"\t\t\t\tm_key_protect_bits.......0x%X\n"
+			"\t\t\t\tlmc......................0x%X\n"
+			"\t\t\t\tlink_speed...............0x%X\n"
+			"\t\t\t\tmtu_smsl.................0x%X\n"
+			"\t\t\t\tvl_cap_init_type.........0x%X\n"
+			"\t\t\t\tvl_high_limit............0x%X\n"
+			"\t\t\t\tvl_arb_high_cap..........0x%X\n"
+			"\t\t\t\tvl_arb_low_cap...........0x%X\n"
+			"\t\t\t\tinit_rep_mtu_cap.........0x%X\n"
+			"\t\t\t\tvl_stall_life............0x%X\n"
+			"\t\t\t\tvl_enforce...............0x%X\n"
+			"\t\t\t\tm_key_violations.........0x%X\n"
+			"\t\t\t\tp_key_violations.........0x%X\n"
+			"\t\t\t\tq_key_violations.........0x%X\n"
+			"\t\t\t\tguid_cap.................0x%X\n"
+			"\t\t\t\tclient_reregister........0x%X\n"
+			"\t\t\t\tmcast_pkey_trap_suppr....0x%X\n"
+			"\t\t\t\tsubnet_timeout...........0x%X\n"
+			"\t\t\t\tresp_time_value..........0x%X\n"
+			"\t\t\t\terror_threshold..........0x%X\n"
+			"\t\t\t\tmax_credit_hint..........0x%X\n"
+			"\t\t\t\tlink_round_trip_latency..0x%X\n"
 			"\t\t\t\tlink_speed_ext_active....0x%X\n"
 			"\t\t\t\tlink_speed_ext_supported.0x%X\n"
 			"\t\t\t\tlink_speed_ext_enabled...0x%X\n",
@@ -951,7 +952,8 @@ void osm_dump_portinfo_record(IN osm_log_t * p_log,
 			cl_ntoh16(p_pi->q_key_violations), p_pi->guid_cap,
 			ib_port_info_get_client_rereg(p_pi),
 			ib_port_info_get_mcast_pkey_trap_suppress(p_pi),
-			ib_port_info_get_timeout(p_pi), p_pi->resp_time_value,
+			ib_port_info_get_timeout(p_pi),
+			ib_port_info_get_resp_time_value(p_pi),
 			p_pi->error_threshold, cl_ntoh16(p_pi->max_credit_hint),
 			cl_ntoh32(p_pi->link_rt_latency),
 			ib_port_info_get_link_speed_ext_active(p_pi),
@@ -975,9 +977,9 @@ void osm_dump_guid_info(IN osm_log_t * p_log, IN ib_net64_t node_guid,
 	if (osm_log_is_active(p_log, log_level)) {
 		osm_log(p_log, log_level,
 			"GUIDInfo dump:\n"
-                        "\t\t\t\tblock number............%u\n"
-                        "\t\t\t\tnode_guid...............0x%016" PRIx64 "\n"
-                        "\t\t\t\tport_guid...............0x%016" PRIx64 "\n"
+			"\t\t\t\tblock number............%u\n"
+			"\t\t\t\tnode_guid...............0x%016" PRIx64 "\n"
+			"\t\t\t\tport_guid...............0x%016" PRIx64 "\n"
 			"\t\t\t\tGUID 0..................0x%016" PRIx64 "\n"
 			"\t\t\t\tGUID 1..................0x%016" PRIx64 "\n"
 			"\t\t\t\tGUID 2..................0x%016" PRIx64 "\n"
@@ -2265,19 +2267,28 @@ const char *osm_get_lwa_str(IN uint8_t lwa)
 }
 
 static const char *lsa_str_fixed_width[] = {
-	"???",
+	"Ext",
 	"2.5",
 	"5  ",
 	"???",
 	"10 "
 };
 
-const char *osm_get_lsa_str(IN uint8_t lsa)
+static const char *lsea_str_fixed_width[] = {
+	"Std",
+	"14 ",
+	"25 "
+};
+
+const char *osm_get_lsa_str(IN uint8_t lsa, IN uint8_t lsea, IN uint8_t state)
 {
-	if (lsa > 4)
-		return lsa_str_fixed_width[0];
-	else
+	if (lsa > IB_LINK_SPEED_ACTIVE_10)
+		return lsa_str_fixed_width[3];
+	if (lsea == IB_LINK_SPEED_EXT_ACTIVE_NONE)
 		return lsa_str_fixed_width[lsa];
+	if (lsea > IB_LINK_SPEED_EXT_ACTIVE_25)
+		return lsa_str_fixed_width[3];
+	return lsea_str_fixed_width[lsea];
 }
 
 static const char *sm_mgr_signal_str[] = {

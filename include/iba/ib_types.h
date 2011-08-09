@@ -2720,6 +2720,11 @@ typedef struct _ib_path_rec {
 #define IB_PIR_COMPMASK_MAXCREDHINT	 (CL_HTON64(((uint64_t)1)<<50))
 #define IB_PIR_COMPMASK_RESV5		 (CL_HTON64(((uint64_t)1)<<51))
 #define IB_PIR_COMPMASK_LINKRTLAT	 (CL_HTON64(((uint64_t)1)<<52))
+#define IB_PIR_COMPMASK_RESV6		 (CL_HTON64(((uint64_t)1)<<53))
+#define IB_PIR_COMPMASK_LINKSPDEXTACT	 (CL_HTON64(((uint64_t)1)<<54))
+#define IB_PIR_COMPMASK_LINKSPDEXTSUPP	 (CL_HTON64(((uint64_t)1)<<55))
+#define IB_PIR_COMPMASK_RESV7		 (CL_HTON64(((uint64_t)1)<<56))
+#define IB_PIR_COMPMASK_LINKSPDEXTENAB	 (CL_HTON64(((uint64_t)1)<<57))
 
 /* Multicast Member Record Component Masks */
 #define IB_MCR_COMPMASK_GID         (CL_HTON64(((uint64_t)1)<<0))
@@ -5073,6 +5078,8 @@ ib_port_info_get_link_speed_active(IN const ib_port_info_t * const p_pi)
 #define IB_LINK_SPEED_EXT_ACTIVE_NONE		0
 #define IB_LINK_SPEED_EXT_ACTIVE_14		1
 #define IB_LINK_SPEED_EXT_ACTIVE_25		2
+#define IB_LINK_SPEED_EXT_DISABLE		30
+#define IB_LINK_SPEED_EXT_SET_LSES		31
 
 /* following v1 ver1.2 p901 */
 #define IB_PATH_RECORD_RATE_2_5_GBS		2

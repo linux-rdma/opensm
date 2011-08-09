@@ -843,6 +843,18 @@ typedef enum _osm_thread_state {
 #define OSM_CAP2_IS_FULL_PORTINFO_REC_SUPPORTED (1 << 6)
 /***********/
 
+/****d* OpenSM: Base/OSM_CAP2_IS_EXTENDED_SPEEDS_SUPPORTED
+* Name
+*	OSM_CAP2_IS_EXTENDED_SPEEDS_SUPPORTED
+*
+* DESCRIPTION
+*	Extended Link Speeds supported
+*
+* SYNOPSIS
+*/
+#define OSM_CAP2_IS_EXTENDED_SPEEDS_SUPPORTED (1 << 7)
+/***********/
+
 /****d* OpenSM: Base/osm_signal_t
 * NAME
 *	osm_signal_t

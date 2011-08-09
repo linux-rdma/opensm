@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2009 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2011 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2009 HNR Consulting. All rights reserved.
  *
@@ -102,7 +102,8 @@ static void pi_rcv_process_endport(IN osm_sm_t * sm, IN osm_physp_t * p_physp,
 			sm->p_subn->min_ca_mtu = mtu;
 		}
 
-		rate = ib_port_info_compute_rate(p_pi, 0);
+		rate = ib_port_info_compute_rate(p_pi,
+						 p_pi->capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS);
 		if (rate < sm->p_subn->min_ca_rate) {
 			OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 				"Setting endport minimal rate to:%u defined by port:0x%"
