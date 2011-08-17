@@ -402,6 +402,21 @@ static void sa_pir_check_physp(IN osm_sa_t * sa, IN const osm_physp_t * p_physp,
 		    ib_port_info_get_overrun_err_thd(p_pi))
 			goto Exit;
 	}
+
+	/* IBTA 1.2 errata provides support for bitwise compare if the bit 31
+	   of the attribute modifier of the Get/GetTable is set */
+	if (comp_mask & IB_PIR_COMPMASK_CAPMASK2) {
+		if (p_ctxt->is_enhanced_comp_mask) {
+			if ((cl_ntoh16(p_comp_pi->capability_mask2) &
+			     cl_ntoh16(p_pi->capability_mask2)) !=
+			     cl_ntoh16(p_comp_pi->capability_mask2))
+				goto Exit;
+		} else {
+			if (cl_ntoh16(p_comp_pi->capability_mask2) !=
+			    cl_ntoh16(p_pi->capability_mask2))
+				goto Exit;
+		}
+	}
 	if (osm_node_get_type(p_physp->p_node) == IB_NODE_TYPE_SWITCH) {
 		p_physp0 = osm_node_get_physp_ptr(p_physp->p_node, 0);
 		cap_mask = p_physp0->port_info.capability_mask;
