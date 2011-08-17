@@ -109,7 +109,7 @@ static ib_api_status_t pir_rcv_new_pir(IN osm_sa_t * sa,
 		/* Does requested port have an extended link speed active ? */
 		if (osm_node_get_type(p_physp->p_node) ==
 		    IB_NODE_TYPE_SWITCH) {
-			p_physp0 = osm_node_get_physp_ptr(p_ctxt->p_req_physp->p_node, 0);
+			p_physp0 = osm_node_get_physp_ptr(p_physp->p_node, 0);
 			p_pi = &p_physp0->port_info;
 		} else
 			p_pi = (ib_port_info_t *) &p_physp->port_info;
