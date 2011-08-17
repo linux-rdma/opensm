@@ -2720,7 +2720,7 @@ typedef struct _ib_path_rec {
 #define IB_PIR_COMPMASK_MAXCREDHINT	 (CL_HTON64(((uint64_t)1)<<50))
 #define IB_PIR_COMPMASK_RESV5		 (CL_HTON64(((uint64_t)1)<<51))
 #define IB_PIR_COMPMASK_LINKRTLAT	 (CL_HTON64(((uint64_t)1)<<52))
-#define IB_PIR_COMPMASK_RESV6		 (CL_HTON64(((uint64_t)1)<<53))
+#define IB_PIR_COMPMASK_CAPMASK2	 (CL_HTON64(((uint64_t)1)<<53))
 #define IB_PIR_COMPMASK_LINKSPDEXTACT	 (CL_HTON64(((uint64_t)1)<<54))
 #define IB_PIR_COMPMASK_LINKSPDEXTSUPP	 (CL_HTON64(((uint64_t)1)<<55))
 #define IB_PIR_COMPMASK_RESV7		 (CL_HTON64(((uint64_t)1)<<56))
@@ -4579,7 +4579,7 @@ typedef struct _ib_port_info {
 	uint8_t error_threshold; /* local phy errors(4b), overrun errors(4b) */
 	ib_net16_t max_credit_hint;
 	ib_net32_t link_rt_latency; /* reserv(8b), link round trip lat(24b) */
-	uint16_t resvd;
+	ib_net16_t capability_mask2;
 	uint8_t link_speed_ext;	/* LinkSpeedExtActive and LinkSpeedExtSupported */
 	uint8_t link_speed_ext_enabled; /* reserv(3b), LinkSpeedExtEnabled(5b) */
 } PACK_SUFFIX ib_port_info_t;
@@ -4622,7 +4622,7 @@ typedef struct _ib_port_info {
 #define IB_PORT_CAP_HAS_PKEY_SW_EXT_PORT_TRAP (CL_HTON32(0x00001000))
 #define IB_PORT_CAP_RESV13        (CL_HTON32(0x00002000))
 #define IB_PORT_CAP_HAS_EXT_SPEEDS  (CL_HTON32(0x00004000))
-#define IB_PORT_CAP_RESV15        (CL_HTON32(0x00008000))
+#define IB_PORT_CAP_HAS_CAP_MASK2 (CL_HTON32(0x00008000))
 #define IB_PORT_CAP_HAS_COM_MGT   (CL_HTON32(0x00010000))
 #define IB_PORT_CAP_HAS_SNMP      (CL_HTON32(0x00020000))
 #define IB_PORT_CAP_REINIT        (CL_HTON32(0x00040000))
