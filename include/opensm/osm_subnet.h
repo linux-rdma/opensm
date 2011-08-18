@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2010 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2011 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2008 Xsigo Systems Inc.  All rights reserved.
  * Copyright (c) 2009 System Fabric Works, Inc. All rights reserved.
@@ -159,6 +159,7 @@ typedef struct osm_subn_opt {
 	uint8_t max_op_vls;
 	uint8_t force_link_speed;
 	uint8_t force_link_speed_ext;
+	uint8_t fdr10;
 	boolean_t reassign_lids;
 	boolean_t ignore_other_sm;
 	boolean_t single_thread;
@@ -1128,6 +1129,8 @@ static inline struct osm_mgrp_box *osm_get_mbox_by_mlid(osm_subn_t const *p_subn
 * RETURN VALUES
 *	The multicast group structure pointer if found. NULL otherwise.
 *********/
+
+int is_mlnx_ext_port_info_supported(ib_net16_t devid);
 
 /****f* OpenSM: Subnet/osm_subn_set_default_opt
 * NAME

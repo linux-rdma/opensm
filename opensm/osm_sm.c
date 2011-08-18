@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2011 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2008 Xsigo Systems Inc.  All rights reserved.
  *
@@ -73,6 +73,7 @@ extern void osm_sminfo_rcv_process(IN void *context, IN void *data);
 extern void osm_si_rcv_process(IN void *context, IN void *data);
 extern void osm_trap_rcv_process(IN void *context, IN void *data);
 extern void osm_vla_rcv_process(IN void *context, IN void *data);
+extern void osm_mlnx_epi_rcv_process(IN void *context, IN void *data);
 
 extern void osm_state_mgr_process(IN osm_sm_t * sm, IN osm_signal_t signal);
 extern void osm_sm_state_mgr_polling_callback(IN void *context);
@@ -208,6 +209,7 @@ void osm_sm_shutdown(IN osm_sm_t * p_sm)
 	cl_disp_unregister(p_sm->slvl_disp_h);
 	cl_disp_unregister(p_sm->vla_disp_h);
 	cl_disp_unregister(p_sm->pkey_disp_h);
+	cl_disp_unregister(p_sm->mlnx_epi_disp_h);
 	cl_disp_unregister(p_sm->sweep_fail_disp_h);
 
 	OSM_LOG_EXIT(p_sm->p_log);
@@ -364,6 +366,12 @@ ib_api_status_t osm_sm_init(IN osm_sm_t * p_sm, IN osm_subn_t * p_subn,
 	p_sm->pkey_disp_h = cl_disp_register(p_disp, OSM_MSG_MAD_PKEY,
 					     osm_pkey_rcv_process, p_sm);
 	if (p_sm->pkey_disp_h == CL_DISP_INVALID_HANDLE)
+		goto Exit;
+
+	p_sm->mlnx_epi_disp_h = cl_disp_register(p_disp,
+						 OSM_MSG_MAD_MLNX_EXT_PORT_INFO,
+						 osm_mlnx_epi_rcv_process, p_sm);
+	if (p_sm->mlnx_epi_disp_h == CL_DISP_INVALID_HANDLE)
 		goto Exit;
 
 	p_subn->sm_state = p_subn->opt.sm_inactive ?

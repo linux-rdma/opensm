@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2009 Sun Microsystems, Inc. All rights reserved.
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2006 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2011 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
  * This software is available to you under a choice of one of two
@@ -463,7 +463,8 @@ static void dump_topology_node(cl_map_item_t * item, FILE * file, void *cxt)
 				link_speed_act_str = "25";
 			else if (link_speed_act != IB_LINK_SPEED_EXT_ACTIVE_NONE)
 				link_speed_act_str = "??";
-		}
+		} else if (p_physp->ext_port_info.link_speed_active & FDR10)
+			link_speed_act_str = "FDR10";
 
 		fprintf(file, "PHY=%s LOG=%s SPD=%s\n",
 			p_physp->port_info.link_width_active == 1 ? "1x" :
@@ -534,9 +535,10 @@ static void print_node_report(cl_map_item_t * item, FILE * file, void *cxt)
 				osm_get_lsa_str
 				(ib_port_info_get_link_speed_active(p_pi),
 				 ib_port_info_get_link_speed_ext_active(p_pi),
-				 ib_port_info_get_port_state(p_pi)));
+				 ib_port_info_get_port_state(p_pi),
+				 p_physp->ext_port_info.link_speed_active & FDR10));
 		else
-			fprintf(file, "      :     :     ");
+			fprintf(file, "      :     :      ");
 
 		if (osm_physp_get_port_guid(p_physp) == osm->subn.sm_port_guid)
 			fprintf(file, "* %016" PRIx64 " *",
@@ -620,7 +622,7 @@ static void print_report(osm_opensm_t * osm, FILE * file)
 	fprintf(file, "\n==================================================="
 		"====================================================\n"
 		"Vendor      : Ty : #  : Sta : LID  : LMC : MTU  : LWA :"
-		" LSA : Port GUID        : Neighbor Port (Port #)\n");
+		" LSA  : Port GUID        : Neighbor Port (Port #)\n");
 	dump_qmap(stdout, &osm->subn.node_guid_tbl, print_node_report, osm);
 }
 

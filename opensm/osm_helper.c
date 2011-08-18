@@ -502,6 +502,9 @@ const char *ib_get_sm_attr_str(IN ib_net16_t attr)
 {
 	uint16_t host_attr = cl_ntoh16(attr);
 
+	if (attr == IB_MAD_ATTR_MLNX_EXTENDED_PORT_INFO)
+		return "MLNXExtendedPortInfo";
+
 	if (host_attr > OSM_SM_ATTR_STR_UNKNOWN_VAL)
 		host_attr = OSM_SM_ATTR_STR_UNKNOWN_VAL;
 
@@ -875,6 +878,27 @@ void osm_dump_port_info(IN osm_log_t * p_log, IN ib_net64_t node_guid,
 						 p_pi);
 			osm_log(p_log, log_level, "%s", buf);
 		}
+	}
+}
+
+void osm_dump_mlnx_ext_port_info(IN osm_log_t * p_log, IN ib_net64_t node_guid,
+				 IN ib_net64_t port_guid, IN uint8_t port_num,
+				 IN const ib_mlnx_ext_port_info_t * p_pi,
+				 IN osm_log_level_t log_level)
+{
+	if (osm_log_is_active(p_log, log_level)) {
+		osm_log(p_log, log_level,
+			"MLNX ExtendedPortInfo dump:\n"
+			"\t\t\t\tport number..............%u\n"
+			"\t\t\t\tnode_guid................0x%016" PRIx64 "\n"
+			"\t\t\t\tport_guid................0x%016" PRIx64 "\n"
+			"\t\t\t\tStateChangeEnable........0x%X\n"
+			"\t\t\t\tLinkSpeedSupported.......0x%X\n"
+			"\t\t\t\tLinkSpeedEnabled.........0x%X\n"
+			"\t\t\t\tLinkSpeedActive..........0x%X\n",
+			port_num, cl_ntoh64(node_guid), cl_ntoh64(port_guid),
+			p_pi->state_change_enable, p_pi->link_speed_supported,
+			p_pi->link_speed_enabled, p_pi->link_speed_active);
 	}
 }
 
@@ -2099,6 +2123,7 @@ static const char *disp_msg_str[] = {
 	"OSM_MSG_MAD_MULTIPATH_RECORD",
 #endif
 	"OSM_MSG_MAD_PORT_COUNTERS",
+	"OSM_MSG_MAD_MLNX_EXT_PORT_INFO",
 	"UNKNOWN!!"
 };
 
@@ -2271,25 +2296,30 @@ const char *osm_get_lwa_str(IN uint8_t lwa)
 }
 
 static const char *lsa_str_fixed_width[] = {
-	"Ext",
-	"2.5",
-	"5  ",
-	"???",
-	"10 "
+	"Ext ",
+	"2.5 ",
+	"5   ",
+	"????",
+	"10  "
 };
 
 static const char *lsea_str_fixed_width[] = {
-	"Std",
-	"14 ",
-	"25 "
+	"Std ",
+	"14  ",
+	"25  "
 };
 
-const char *osm_get_lsa_str(IN uint8_t lsa, IN uint8_t lsea, IN uint8_t state)
+const char *osm_get_lsa_str(IN uint8_t lsa, IN uint8_t lsea, IN uint8_t state,
+			    IN uint8_t fdr10)
 {
 	if (lsa > IB_LINK_SPEED_ACTIVE_10)
 		return lsa_str_fixed_width[3];
-	if (lsea == IB_LINK_SPEED_EXT_ACTIVE_NONE)
-		return lsa_str_fixed_width[lsa];
+	if (lsea == IB_LINK_SPEED_EXT_ACTIVE_NONE) {
+		if (fdr10)
+			return "FDR10";
+		else
+			return lsa_str_fixed_width[lsa];
+	}
 	if (lsea > IB_LINK_SPEED_EXT_ACTIVE_25)
 		return lsa_str_fixed_width[3];
 	return lsea_str_fixed_width[lsea];

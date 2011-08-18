@@ -91,16 +91,18 @@ static uint8_t link_mgr_get_smsl(IN osm_sm_t * sm, IN osm_physp_t * p_physp)
 static int link_mgr_set_physp_pi(osm_sm_t * sm, IN osm_physp_t * p_physp,
 				 IN uint8_t port_state)
 {
-	uint8_t payload[IB_SMP_DATA_SIZE];
+	uint8_t payload[IB_SMP_DATA_SIZE], payload2[IB_SMP_DATA_SIZE];
 	ib_port_info_t *p_pi = (ib_port_info_t *) payload;
+	ib_mlnx_ext_port_info_t *p_epi = (ib_mlnx_ext_port_info_t *) payload2;
 	const ib_port_info_t *p_old_pi;
+	const ib_mlnx_ext_port_info_t *p_old_epi;
 	osm_madw_context_t context;
 	osm_node_t *p_node;
 	ib_api_status_t status;
 	uint8_t port_num, mtu, op_vls, smsl = OSM_DEFAULT_SL;
-	boolean_t esp0 = FALSE, send_set = FALSE;
+	boolean_t esp0 = FALSE, send_set = FALSE, send_set2 = FALSE;
 	osm_physp_t *p_remote_physp, *physp0;
-	int qdr_change = 0;
+	int qdr_change = 0, fdr10_change = 0;
 	int ret = 0;
 	ib_net32_t attr_mod, cap_mask;
 
@@ -346,6 +348,28 @@ static int link_mgr_set_physp_pi(osm_sm_t * sm, IN osm_physp_t * p_physp,
 			}
 		}
 
+		if (sm->p_subn->opt.fdr10 &&
+		    p_physp->ext_port_info.link_speed_supported & FDR10) {
+			if (sm->p_subn->opt.fdr10 == 1) { /* enable */
+				if (!(p_physp->ext_port_info.link_speed_enabled & FDR10))
+					fdr10_change = 1;
+			} else {	/* disable */
+				if (p_physp->ext_port_info.link_speed_enabled & FDR10)
+					fdr10_change = 1;
+			}
+			if (fdr10_change) {
+				p_old_epi = &p_physp->ext_port_info;
+				memcpy(payload2, p_old_epi,
+				       sizeof(ib_mlnx_ext_port_info_t));
+				p_epi->state_change_enable = 0x01;
+				if (sm->p_subn->opt.fdr10 == 1)
+					p_epi->link_speed_enabled = FDR10;
+				else
+					p_epi->link_speed_enabled = 0;
+				send_set2 = TRUE;
+			}
+		}
+
 		if (osm_node_get_type(p_physp->p_node) == IB_NODE_TYPE_SWITCH) {
 			physp0 = osm_node_get_physp_ptr(p_physp->p_node, 0);
 			cap_mask = physp0->port_info.capability_mask;
@@ -442,6 +466,16 @@ Send:
 			     attr_mod, CL_DISP_MSGID_NONE, &context);
 	if (status)
 		ret = -1;
+
+	if (send_set2) {
+		status = osm_req_set(sm, osm_physp_get_dr_path_ptr(p_physp),
+				     payload2, sizeof(payload2),
+				     IB_MAD_ATTR_MLNX_EXTENDED_PORT_INFO,
+				     cl_hton32(port_num),
+				     CL_DISP_MSGID_NONE, &context);
+		if (status)
+			ret = -1;
+	}
 
 Exit:
 	OSM_LOG_EXIT(sm->p_log);

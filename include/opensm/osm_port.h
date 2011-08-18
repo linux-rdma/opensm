@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2010 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2011 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
  * This software is available to you under a choice of one of two
@@ -104,6 +104,7 @@ struct osm_mgrp;
 */
 typedef struct osm_physp {
 	ib_port_info_t port_info;
+	ib_mlnx_ext_port_info_t ext_port_info;
 	ib_net64_t port_guid;
 	ib_net64_t (*p_guids)[];
 	uint8_t port_num;
@@ -123,6 +124,9 @@ typedef struct osm_physp {
 * FIELDS
 *	port_info
 *		The IBA defined PortInfo data for this port.
+*
+*	ext_port_info
+*		Mellanox vendor specific ExtendedPortInfo data for this port.
 *
 *	port_guid
 *		Port GUID value of this port.  For switches,

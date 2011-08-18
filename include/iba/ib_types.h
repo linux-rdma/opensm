@@ -1281,6 +1281,18 @@ static inline boolean_t OSM_API ib_class_is_rmpp(IN const uint8_t class_code)
 #define IB_MAD_ATTR_LED_INFO				(CL_HTON16(0x0031))
 /**********/
 
+/****d* IBA Base: Constants/IB_MAD_ATTR_MLNX_EXTENDED_PORT_INFO
+* NAME
+*	IB_MAD_ATTR_MLNX_EXTENDED_PORT_INFO
+*
+* DESCRIPTION
+*	Vendor specific SM attribute (14.2.5)
+*
+* SOURCE
+*/
+#define IB_MAD_ATTR_MLNX_EXTENDED_PORT_INFO		(CL_HTON16(0xFF90))
+/**********/
+
 /****d* IBA Base: Constants/IB_MAD_ATTR_SERVICE_RECORD
 * NAME
 *	IB_MAD_ATTR_SERVICE_RECORD
@@ -6222,6 +6234,32 @@ ib_port_info_set_phy_and_overrun_err_thd(IN ib_port_info_t * const p_pi,
 *
 * SEE ALSO
 *********/
+
+/****s* IBA Base: Types/ib_mlnx_ext_port_info_t
+* NAME
+*	ib_mlnx_ext_port_info_t
+*
+* DESCRIPTION
+*	Mellanox ExtendedPortInfo (Vendor specific SM class attribute).
+*
+* SYNOPSIS
+*/
+#include <complib/cl_packon.h>
+typedef struct _ib_mlnx_ext_port_info {
+	uint8_t resvd1[3];
+	uint8_t state_change_enable;
+	uint8_t resvd2[3];
+	uint8_t link_speed_supported;
+	uint8_t resvd3[3];
+	uint8_t link_speed_enabled;
+	uint8_t resvd4[3];
+	uint8_t link_speed_active;
+	uint8_t resvd5[48];
+} PACK_SUFFIX ib_mlnx_ext_port_info_t;
+#include <complib/cl_packoff.h>
+/************/
+
+#define FDR10 0x01
 
 typedef uint8_t ib_svc_name_t[64];
 

@@ -282,6 +282,11 @@ void osm_dump_guid_info(IN osm_log_t * p_log, IN ib_net64_t node_guid,
 * SEE ALSO
 *********/
 
+void osm_dump_mlnx_ext_port_info(IN osm_log_t * p_log, IN ib_net64_t node_guid,
+				 IN ib_net64_t port_guid, IN uint8_t port_num,
+				 IN const ib_mlnx_ext_port_info_t * p_pi,
+				 IN osm_log_level_t log_level);
+
 void osm_dump_path_record(IN osm_log_t * p_log, IN const ib_path_rec_t * p_pr,
 			  IN osm_log_level_t log_level);
 
@@ -534,7 +539,8 @@ const char *osm_get_mtu_str(IN uint8_t mtu);
 
 const char *osm_get_lwa_str(IN uint8_t lwa);
 
-const char *osm_get_lsa_str(IN uint8_t lsa, IN uint8_t lsea, IN uint8_t state);
+const char *osm_get_lsa_str(IN uint8_t lsa, IN uint8_t lsea, IN uint8_t state,
+			    IN uint8_t fdr10);
 
 /****f* IBA Base: Types/osm_get_sm_mgr_signal_str
 * NAME

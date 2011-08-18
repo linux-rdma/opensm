@@ -650,6 +650,7 @@ typedef struct {
 	uint64_t ports_sdr;
 	uint64_t ports_ddr;
 	uint64_t ports_qdr;
+	uint64_t ports_fdr10;
 	uint64_t ports_fdr;
 	uint64_t ports_edr;
 	uint64_t ports_unknown_speed;
@@ -685,6 +686,7 @@ static void __get_stats(cl_map_item_t * const p_map_item, void *context)
 	for (port = 1; port < num_ports; port++) {
 		osm_physp_t *phys = osm_node_get_physp_ptr(node, port);
 		ib_port_info_t *pi = NULL;
+		ib_mlnx_ext_port_info_t *epi = NULL;
 		uint8_t active_speed = 0;
 		uint8_t enabled_speed = 0;
 		uint8_t active_width = 0;
@@ -696,6 +698,7 @@ static void __get_stats(cl_map_item_t * const p_map_item, void *context)
 			continue;
 
 		pi = &phys->port_info;
+		epi = &phys->ext_port_info;
 		if (!pi0)
 			pi0 = pi;
 		active_speed = ib_port_info_get_link_speed_active(pi);
@@ -729,8 +732,20 @@ static void __get_stats(cl_map_item_t * const p_map_item, void *context)
 		case IB_LINK_SPEED_ACTIVE_10:
 			if (!(pi0->capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS) ||
 			    ((pi0->capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS) &&
-			    !ib_port_info_get_link_speed_ext_active(pi)))
-				fs->ports_qdr++;
+			    !ib_port_info_get_link_speed_ext_active(pi))) {
+				if (epi->link_speed_active & FDR10)
+					fs->ports_fdr10++;
+				else {
+					fs->ports_qdr++;
+					/* check for speed reduced from FDR10 */
+					if (epi->link_speed_enabled & FDR10) {
+						__tag_port_report(&(fs->reduced_speed_ports),
+								  cl_ntoh64(node->node_info.node_guid),
+								  port, node->print_desc);
+						fs->ports_reduced_speed++;
+					}
+				}
+			}
 			break;
 		default:
 			fs->ports_unknown_speed++;

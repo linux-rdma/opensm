@@ -60,5 +60,6 @@ OPENSM_1.5 {
 		ib_path_compare_rates;
 		ib_path_rate_get_prev;
 		ib_path_rate_get_next;
+		osm_dump_mlnx_ext_port_info;
 	local: *;
 };

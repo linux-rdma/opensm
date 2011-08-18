@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2010 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2011 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2008 Xsigo Systems Inc.  All rights reserved.
  * Copyright (c) 2009 System Fabric Works, Inc. All rights reserved.
@@ -311,6 +311,7 @@ static const opt_rec_t opt_tbl[] = {
 	{ "max_op_vls", OPT_OFFSET(max_op_vls), opts_parse_uint8, NULL, 1 },
 	{ "force_link_speed", OPT_OFFSET(force_link_speed), opts_parse_uint8, NULL, 1 },
 	{ "force_link_speed_ext", OPT_OFFSET(force_link_speed_ext), opts_parse_uint8, NULL, 1 },
+	{ "fdr10", OPT_OFFSET(fdr10), opts_parse_uint8, NULL, 1 },
 	{ "reassign_lids", OPT_OFFSET(reassign_lids), opts_parse_boolean, NULL, 1 },
 	{ "ignore_other_sm", OPT_OFFSET(ignore_other_sm), opts_parse_boolean, NULL, 1 },
 	{ "single_thread", OPT_OFFSET(single_thread), opts_parse_boolean, NULL, 0 },
@@ -674,6 +675,18 @@ osm_mgrp_t *osm_get_mgrp_by_mgid(IN osm_subn_t * subn, IN ib_gid_t * mgid)
 	return NULL;
 }
 
+int is_mlnx_ext_port_info_supported(ib_net16_t devid)
+{
+	uint16_t devid_ho;
+
+	devid_ho = cl_ntoh16(devid);
+	if (devid_ho == 0xc738)
+		return 1;
+	if (devid_ho >= 0x1003 && devid_ho <= 0x1010)
+		return 1;
+	return 0;
+}
+
 static void subn_init_qos_options(osm_qos_options_t *opt, osm_qos_options_t *f)
 {
 	opt->max_vls = 0;
@@ -717,6 +730,7 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * p_opt)
 	p_opt->max_op_vls = OSM_DEFAULT_MAX_OP_VLS;
 	p_opt->force_link_speed = 15;
 	p_opt->force_link_speed_ext = 31;
+	p_opt->fdr10 = 1;
 	p_opt->reassign_lids = FALSE;
 	p_opt->ignore_other_sm = FALSE;
 	p_opt->single_thread = FALSE;
@@ -1110,6 +1124,12 @@ int osm_subn_verify_config(IN osm_subn_opt_t * p_opts)
 		p_opts->force_link_speed_ext = 31;
 	}
 
+	if (2 < p_opts->fdr10) {
+		log_report(" Invalid Cached Option Value:fdr10 = %u:"
+			   "Using Default:%u\n", p_opts->fdr10, 1);
+		p_opts->fdr10 = 1;
+	}
+
 	if (p_opts->max_wire_smps == 0)
 		p_opts->max_wire_smps = 0x7FFFFFFF;
 	else if (p_opts->max_wire_smps > 0x7FFFFFFF) {
@@ -1359,6 +1379,12 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		"#    30: Disable extended link speeds\n"
 		"#    Default 31: set to PortInfo:LinkSpeedExtSupported\n"
 		"force_link_speed_ext %u\n\n"
+		"# FDR10 on ports on devices that support FDR10\n"
+		"# Values are:\n"
+		"#    0: don't use fdr10 (no MLNX ExtendedPortInfo MADs)\n"
+		"#    Default 1: enable fdr10 when supported\n"
+		"#    2: disable fdr10 when supported\n"
+		"fdr10 %u\n\n"
 		"# The subnet_timeout code that will be set for all the ports\n"
 		"# The actual timeout is 4.096usec * 2^<subnet_timeout>\n"
 		"subnet_timeout %u\n\n"
@@ -1385,6 +1411,7 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		p_opts->max_op_vls,
 		p_opts->force_link_speed,
 		p_opts->force_link_speed_ext,
+		p_opts->fdr10,
 		p_opts->subnet_timeout,
 		p_opts->local_phy_errors_threshold,
 		p_opts->overrun_errors_threshold,

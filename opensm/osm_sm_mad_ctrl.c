@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2011 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2009 HNR Consulting. All rights reserved.
  * Copyright (c) 2009 Sun Microsystems, Inc. All rights reserved.
@@ -247,6 +247,9 @@ static void sm_mad_ctrl_process_get_resp(IN osm_sm_mad_ctrl_t * p_ctrl,
 		break;
 	case IB_MAD_ATTR_P_KEY_TABLE:
 		msg_id = OSM_MSG_MAD_PKEY;
+		break;
+	case IB_MAD_ATTR_MLNX_EXTENDED_PORT_INFO:
+		msg_id = OSM_MSG_MAD_MLNX_EXT_PORT_INFO;
 		break;
 	case IB_MAD_ATTR_GUID_INFO:
 	case IB_MAD_ATTR_CLASS_PORT_INFO:
@@ -726,6 +729,7 @@ static void sm_mad_ctrl_send_err_cb(IN void *context, IN osm_madw_t * p_madw)
 	 */
 	if (p_smp->method == IB_MAD_METHOD_SET &&
 	    (p_smp->attr_id == IB_MAD_ATTR_PORT_INFO ||
+	     p_smp->attr_id == IB_MAD_ATTR_MLNX_EXTENDED_PORT_INFO ||
 	     p_smp->attr_id == IB_MAD_ATTR_MCAST_FWD_TBL ||
 	     p_smp->attr_id == IB_MAD_ATTR_SWITCH_INFO ||
 	     p_smp->attr_id == IB_MAD_ATTR_LIN_FWD_TBL ||
