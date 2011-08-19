@@ -1442,7 +1442,7 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		"# Multiple routing engines can be specified separated by\n"
 		"# commas so that specific ordering of routing algorithms will\n"
 		"# be tried if earlier routing engines fail.\n"
-		"# Supported engines: minhop, updn, file, ftree, lash, dor\n"
+		"# Supported engines: minhop, updn, file, ftree, lash, dor, torus-2QoS\n"
 		"routing_engine %s\n\n", p_opts->routing_engine_names ?
 		p_opts->routing_engine_names : null_str);
 
