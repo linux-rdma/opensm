@@ -484,7 +484,7 @@ Exit:
 static int link_mgr_process_node(osm_sm_t * sm, IN osm_node_t * p_node,
 				 IN const uint8_t link_state)
 {
-	osm_physp_t *p_physp;
+	osm_physp_t *p_physp, *p_physp_remote;
 	uint32_t i, num_physp;
 	int ret = 0;
 	uint8_t current_state;
@@ -515,6 +515,19 @@ static int link_mgr_process_node(osm_sm_t * sm, IN osm_node_t * p_node,
 		current_state = osm_physp_get_port_state(p_physp);
 		if (current_state == IB_LINK_DOWN)
 			continue;
+
+		/*
+		    Set PortState to DOWN in case Remote Physical Port is
+		    unreachable. We have to check this for all ports, except
+		    port zero.
+		 */
+		p_physp_remote = osm_physp_get_remote(p_physp);
+		if ((i != 0) && (!p_physp_remote ||
+		    !osm_physp_is_valid(p_physp_remote))) {
+			if (current_state != IB_LINK_INIT)
+				link_mgr_set_physp_pi(sm, p_physp, IB_LINK_DOWN);
+			continue;
+		}
 
 		/*
 		   Normally we only send state update if state is lower
