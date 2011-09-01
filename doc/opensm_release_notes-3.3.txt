@@ -3,14 +3,14 @@
 
 Version: OpenSM 3.3.x
 Repo:    git://git.openfabrics.org/~alexnetes/opensm.git
-Date:    Mar 2011
+Date:    Aug 2011
 
 1 Overview
 ----------
 This document describes the contents of the OpenSM 3.3 release.
 OpenSM is an InfiniBand compliant Subnet Manager and Administration,
 and runs on top of OpenIB. The OpenSM version for this release
-is opensm-3.3.9.
+is opensm-3.3.10.
 
 This document includes the following sections:
 1 This Overview section (describing new features and software
@@ -58,12 +58,49 @@ This document includes the following sections:
   exceeds subnet's MLID routing capability (normally 1024 groups). In such
   cases many multicast groups (MGID) can be routed using same MLID value.
 
+* Torus-2QoS unicast routing algorithm - a DOR-based routing algorithm
+  specialized for 2D/3D torus topologies. Torus-2QoS provides deadlock-free
+  routing while supporting two quality of service (QoS) levels. In addition
+  it is able to route around multiple failed fabric links or a single failed
+  fabric switch without introducing deadlocks, and without changing path SL
+  values granted before the failure.
+
+* DNUP Unicast routing algorithm - similar to UPDN but allows routing in
+  fabrics which have some CA nodes attached closer to the roots than some
+  switch nodes.
+
+* Extended speed support
+  This provides support for FDR and EDR speeds.
+
 * Many code improvements, optimizations and cleanups.
 
 * Windows support (early stage).
 
 1.2 Minor New Features:
 
+e3a946d opensm: Add FDR10 support
+6cea3df opensm/osm_sa_portinfo_record.c: Add SA PortInfoRecord support
+	for CapabilityMask2 matching
+9ac7eeb opensm: Add infrastructure support for CapabilityMask2 field in
+	PortInfo
+8bc7c30 opensm: make loopback console compile on by default.
+566b462 opensm/ib_types.h: Update SA PortInfoRecord component masks
+480de4a opensm: Use forward extensible and safer way to compare mkey_lmc
+	field in PortInfo attribute
+22ca966 opensm: enable perfmgr build by default
+4250c59 opensm: perfmgr only run sweep timer when enabled
+1810672 Support scatter ports
+dd21107 Support port shifting
+1c2a298 OpenSM torus routing order list
+b92d21f opensm: Create all directories in database path on Windows
+83b6752 opensm/osm_subnet.c: In osm_subn_destroy, delete service records
+0fc8124 opensm: Add OSM_VENDOR_ID_OPENIB support
+c0d8b56 opensm/osm_sa_node_record.c: In nr_rcv_create_nr, only set some
+	variables when needed
+9acaba0 opensm/osm_helper.c: Add some missing fields to
+	osm_dump_portinfo_record
+8a43aea Allow comma in plugin names parsing
+cdf227c opensm: Proper mfttop initialization when starting/restarting
 cde0c0d opensm: Convert remaining helper routines for GID printing format
 bc5743c opensm: Add support for MaxCreditHint and LinkRoundTripLatency to
 	osm_dump_port_info
@@ -234,6 +271,7 @@ information regarding each compliance statement.
 
 4.1 Major Bug Fixes
 
+7bf7482 fix segfault corner case w/ updn routing and LMC > 0
 18990fa opensm: set IS_SM bit during opensm init
 3551389 fix local port smlid in osm_send_trap144()
 a6de48d opensm/osm_link_mgr.c initialize SMSL
@@ -266,6 +304,43 @@ ae1bcdd opensm/osm_lid_mgr.c: Allow switch lids to be non LMC aligned
 
 4.2 Other Bug Fixes
 
+e17dae6 opensm/osm_sa_portinfo_record.c: In pir_rcv_new_pir, fix switch port 0 physp
+93b2f56 libvendor/osm_vendor_ibumad.c: fix unused-but-set warning
+cda58af fixed unsused-but-set warning for DEBUG variables
+e881d0e opensm/osmtest/osmt_multicast.: Fix typo in log message
+203f3c6 opensm/osm_switch.c: Fix compile warnings
+67c2538 opensm/man/opensm.8.in: Fix some typos
+7338efc opensm/osmtest/osmtest.c: Fix endian in some log messages
+67063ca opensm/libvendor: Fix compile warnings on 64 bit machines when building --with-osmv=sim
+a8c209c opensm: fixed port order configuration in torus routing engine
+7359cfc opensm/osm_ucast_mgr.c: Fix some issues found by Coverity
+0150ab9 opensm/osm_ucast_ftree.c: Fix some issues found by Coverity
+267a08f opensm/osm_pkey_mgr.c: Fix cast
+12f772d opensm: Fix some OSM_SIGNAL and OSM_SM_SIGNAL numbering
+c29c4f1 opensm/osm_sa_service_record.c: Fix minor memory leak
+f936f8b opensm: fix strtoull error handling
+0292ae2 opensm: fixed segfault when enable qos on fabric with no switches
+619fa64 osmtest/osmt_multicast.c: Fixed another insufficient component case
+1618803 opensm/osm_sa.c: Fix commentary typo
+c98fec9 opensm/osm_subnet.c: Fix description of max_msg_fifo_timeout
+0a3839f osmtest/osmtest.c: Fix trap flow not implemented log message
+f08479a opensm/osm_base.h: Fix a commentary typo
+ae966f6 osmtest/osmt_multicast.c: Fix some typos
+8a3b5b9 osmtest/osmt_multicast.c: Fixed some error codes in OSM_LOG messages
+c90953d osmtest/osmt_multicast.c: Fixed a couple of typos in OSM_LOG messages
+f7f1ead opensm/osm_sa_mcmember_record.c: Fix handling of invalid PKey
+65d3e4f opensm/osm_pkey_mgr.c: Fix commentary typo
+34d61cc opensm/perfmgr: fix overflow processing
+77d79b4 opensm: fixed potential null variable dereferencing in libvendor
+350c6e4 opensm: fixed potential memory leak in osm_ucast_ftree()
+e206872 opensm: Fixed debug message in osm_vendor_send()
+1b3e93e opensm: fixed sizeof of pointer allocation in osm_ucast_lash()
+f0b915a Fix SANodeRecord.nodeInfo.localPortNum
+3332658 opensm: fixed memory leak in multicast spanning tree calculation
+e4525b1 opensm: fixed indentation and decreased verbosity of RMPP length message
+10ac4c1 Fix compile warning introduced by patch "fixed getline pointer allocation free in osm_console_io"
+bf23d7c opensm: fixed getline pointer allocation free in osm_console_io
+54b1583 Makefile: ChangeLog and version generation script path fix
 4911e0b performance-manager-HOWTO.txt: Indicate master state
 86ccaa4 opensm/osm_pkey_mgr.c: Fix pkey endian in log message
 b79b079 opensm.8.in: Add mention of backing documentation for QoS policy
