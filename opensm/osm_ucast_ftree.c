@@ -560,7 +560,7 @@ static ftree_sw_t *sw_create(IN ftree_fabric_t * p_ftree,
 	p_sw->up_port_groups =
 	    (ftree_port_group_t **) malloc(ports_num *
 					   sizeof(ftree_port_group_t *));
-	if (p_sw->sibling_port_groups == NULL)
+	if (p_sw->up_port_groups == NULL)
 		goto FREE_DOWN;
 
 	p_sw->sibling_port_groups =
