@@ -271,6 +271,7 @@ information regarding each compliance statement.
 
 4.1 Major Bug Fixes
 
+5654e22 Fix invalid error check, which lead to segfault
 7bf7482 fix segfault corner case w/ updn routing and LMC > 0
 18990fa opensm: set IS_SM bit during opensm init
 3551389 fix local port smlid in osm_send_trap144()
