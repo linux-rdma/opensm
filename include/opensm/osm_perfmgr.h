@@ -179,7 +179,7 @@ inline static osm_perfmgr_state_t osm_perfmgr_get_state(osm_perfmgr_t * perfmgr)
 	return perfmgr->state;
 }
 
-inline static char *osm_perfmgr_get_state_str(osm_perfmgr_t * p_perfmgr)
+inline static const char *osm_perfmgr_get_state_str(osm_perfmgr_t * p_perfmgr)
 {
 	switch (p_perfmgr->state) {
 	case PERFMGR_STATE_DISABLE:
@@ -195,7 +195,7 @@ inline static char *osm_perfmgr_get_state_str(osm_perfmgr_t * p_perfmgr)
 	return "UNKNOWN";
 }
 
-inline static char *osm_perfmgr_get_sweep_state_str(osm_perfmgr_t * perfmgr)
+inline static const char *osm_perfmgr_get_sweep_state_str(osm_perfmgr_t * perfmgr)
 {
 	switch (perfmgr->sweep_state) {
 	case PERFMGR_SWEEP_SLEEP:
