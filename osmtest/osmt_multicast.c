@@ -894,13 +894,13 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	}
 
 	/* o15.0.1.8: */
-	/* - Request join with irrelevant RATE : get a ERR_INSUFFICIENT_COMPONENTS */
+	/* - Request join with unrealistic RATE : get REQ INVALID status */
 	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Checking Join with unrealistic rate (o15.0.1.8)...\n");
 
 	/* impossible requested rate */
 	mc_req_rec.rate =
-	    IB_PATH_RECORD_RATE_60_GBS | IB_PATH_SELECTOR_GREATER_THAN << 6;
+	    IB_PATH_RECORD_RATE_56_GBS | IB_PATH_SELECTOR_GREATER_THAN << 6;
 
 	comp_mask = IB_MCR_COMPMASK_GID | IB_MCR_COMPMASK_PORT_GID | IB_MCR_COMPMASK_QKEY | IB_MCR_COMPMASK_PKEY | IB_MCR_COMPMASK_SL | IB_MCR_COMPMASK_FLOW | IB_MCR_COMPMASK_JOIN_STATE | IB_MCR_COMPMASK_TCLASS |	/* all above are required */
 	    IB_MCR_COMPMASK_RATE_SEL | IB_MCR_COMPMASK_RATE;
@@ -922,11 +922,11 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 
 	/* Check Valid value which is unreasonable now */
 	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
-		"Checking Join with unrealistic rate 120GB (o15.0.1.8)...\n");
+		"Checking Join with unrealistic rate 300GB (o15.0.1.8)...\n");
 
 	/* impossible requested rate */
 	mc_req_rec.rate =
-	    IB_PATH_RECORD_RATE_120_GBS | IB_PATH_SELECTOR_GREATER_THAN << 6;
+	    IB_PATH_RECORD_RATE_300_GBS | IB_PATH_SELECTOR_GREATER_THAN << 6;
 
 	comp_mask = IB_MCR_COMPMASK_GID | IB_MCR_COMPMASK_PORT_GID | IB_MCR_COMPMASK_QKEY | IB_MCR_COMPMASK_PKEY | IB_MCR_COMPMASK_SL | IB_MCR_COMPMASK_FLOW | IB_MCR_COMPMASK_JOIN_STATE | IB_MCR_COMPMASK_TCLASS |	/* all above are required */
 	    IB_MCR_COMPMASK_RATE_SEL | IB_MCR_COMPMASK_RATE;
