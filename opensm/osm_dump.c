@@ -454,6 +454,9 @@ static void dump_topology_node(cl_map_item_t * item, FILE * file, void *cxt)
 		else
 			link_speed_act_str = "??";
 
+		if (p_physp->ext_port_info.link_speed_active & FDR10)
+			link_speed_act_str = "FDR10";
+
 		if (p_default_physp->port_info.capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS) {
 			link_speed_act =
 			    ib_port_info_get_link_speed_ext_active(&p_physp->port_info);
@@ -463,8 +466,7 @@ static void dump_topology_node(cl_map_item_t * item, FILE * file, void *cxt)
 				link_speed_act_str = "25";
 			else if (link_speed_act != IB_LINK_SPEED_EXT_ACTIVE_NONE)
 				link_speed_act_str = "??";
-		} else if (p_physp->ext_port_info.link_speed_active & FDR10)
-			link_speed_act_str = "FDR10";
+		}
 
 		fprintf(file, "PHY=%s LOG=%s SPD=%s\n",
 			p_physp->port_info.link_width_active == 1 ? "1x" :
