@@ -1425,6 +1425,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	/* no MGID */
 	memset(&mc_req_rec.mgid, 0, sizeof(ib_gid_t));
 	/* Request Join */
+	mc_req_rec.pkey = IB_DEFAULT_PKEY;
 	ib_member_set_join_state(&mc_req_rec, IB_MC_REC_STATE_FULL_MEMBER);
 
 	mc_req_rec.pkt_life = 0 | IB_PATH_SELECTOR_GREATER_THAN << 6;
@@ -1451,6 +1452,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	/* o15.0.1.6: */
 	/* - Create a new MCG with valid requested MGID. */
 	osmt_init_mc_query_rec(p_osmt, &mc_req_rec);
+	mc_req_rec.pkey = IB_DEFAULT_PKEY;
 	mc_req_rec.mgid = good_mgid;
 
 	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
@@ -2214,6 +2216,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 		"\t\twith unrealistic MTU greater than 4096 (o15.0.1.8)...\n");
 
 	/* First create new mgrp */
+	mc_req_rec.pkey = IB_DEFAULT_PKEY;
 	ib_member_set_join_state(&mc_req_rec, IB_MC_REC_STATE_FULL_MEMBER);
 	mc_req_rec.mtu = IB_MTU_LEN_1024 | IB_PATH_SELECTOR_EXACTLY << 6;
 	memset(&mc_req_rec.mgid, 0, sizeof(ib_gid_t));
@@ -2301,6 +2304,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	}
 
 	if (remote_port_guid != 0x0) {
+		mc_req_rec.pkey = IB_DEFAULT_PKEY;
 		ib_member_set_join_state(&mc_req_rec,
 					 IB_MC_REC_STATE_FULL_MEMBER);
 		memset(&mc_req_rec.mgid, 0, sizeof(ib_gid_t));
