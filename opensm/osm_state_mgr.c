@@ -1198,8 +1198,12 @@ repeat_discovery:
 		return;
 
 	if (state_mgr_is_sm_port_down(sm) == TRUE) {
-		osm_log(sm->p_log, OSM_LOG_SYS, "SM port is down\n");
-		OSM_LOG_MSG_BOX(sm->p_log, OSM_LOG_VERBOSE, "SM PORT DOWN");
+		if (sm->p_subn->last_sm_port_state) {
+			sm->p_subn->last_sm_port_state = 0;
+			osm_log(sm->p_log, OSM_LOG_SYS, "SM port is down\n");
+			OSM_LOG_MSG_BOX(sm->p_log, OSM_LOG_VERBOSE,
+					"SM PORT DOWN");
+		}
 
 		/* Run the drop manager - we want to clear all records */
 		osm_drop_mgr_process(sm);
@@ -1210,6 +1214,13 @@ repeat_discovery:
 		osm_opensm_report_event(sm->p_subn->p_osm,
 				OSM_EVENT_ID_STATE_CHANGE, NULL);
 		return;
+	} else {
+		if (!sm->p_subn->last_sm_port_state) {
+			sm->p_subn->last_sm_port_state = 1;
+			osm_log(sm->p_log, OSM_LOG_SYS, "SM port is up\n");
+			OSM_LOG_MSG_BOX(sm->p_log, OSM_LOG_VERBOSE,
+					"SM PORT UP");
+		}
 	}
 
 	status = state_mgr_sweep_hop_1(sm);

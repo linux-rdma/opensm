@@ -548,6 +548,7 @@ typedef struct osm_subn {
 	ib_net16_t master_sm_base_lid;
 	ib_net16_t sm_base_lid;
 	ib_net64_t sm_port_guid;
+	uint8_t last_sm_port_state;
 	uint8_t sm_state;
 	osm_subn_opt_t opt;
 	struct osm_qos_policy *p_qos_policy;
@@ -606,6 +607,10 @@ typedef struct osm_subn {
 *
 *	sm_port_guid
 *		This SM's own port GUID.
+*
+*	last_sm_port_state
+*		Last state of this SM's port.
+*		0 is down and 1 is up.
 *
 *	sm_state
 *		The high-level state of the SM.  This value is made available
