@@ -2362,6 +2362,13 @@ const char *osm_get_sm_mgr_state_str(IN uint16_t state)
 	    sm_mgr_state_str[ARR_SIZE(sm_mgr_state_str) - 1];
 }
 
+int ib_rate_is_valid(IN const int rate)
+{
+	if (rate < IB_MIN_RATE || rate > IB_MAX_RATE)
+		return 0;
+	return 1;
+}
+
 int ib_path_compare_rates(IN const int rate1, IN const int rate2)
 {
 	int orate1 = 0, orate2 = 0;

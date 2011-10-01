@@ -588,6 +588,30 @@ const char *osm_get_sm_mgr_state_str(IN uint16_t state);
 * SEE ALSO
 *********/
 
+/****f* IBA Base: Types/ib_rate_is_valid
+* NAME
+*	ib_rate_is_valid
+*
+* DESCRIPTION
+*	Validates encoded rate
+*
+* SYNOPSIS
+*/
+int ib_rate_is_valid(IN const int rate);
+/*
+* PARAMETERS
+*	rate
+*		[in] Encoded path rate.
+*
+* RETURN VALUES
+*	Returns an int indicating rate is valid (1)
+*	or invalid (0).
+*
+* NOTES
+*
+* SEE ALSO
+*********/
+
 /****f* IBA Base: Types/ib_path_compare_rates
 * NAME
 *	ib_path_compare_rates
