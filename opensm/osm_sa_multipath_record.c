@@ -1494,6 +1494,7 @@ void osm_mpr_rcv_process(IN void *context, IN void *data)
 	cl_qlist_t pr_list;
 	ib_net16_t sa_status;
 	int nsrc, ndest;
+	uint8_t rate;
 
 	OSM_LOG_ENTER(sa->p_log);
 
@@ -1532,6 +1533,17 @@ void osm_mpr_rcv_process(IN void *context, IN void *data)
 
 	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
 		osm_dump_multipath_record(sa->p_log, p_mpr, OSM_LOG_DEBUG);
+
+	/* Validatg rate if supplied */
+	if ((p_sa_mad->comp_mask & IB_MPR_COMPMASK_RATESELEC) &&
+	    (p_sa_mad->comp_mask & IB_MPR_COMPMASK_RATE)) {
+		rate = ib_multipath_rec_rate(p_mpr);
+		if (!ib_rate_is_valid(rate)) {
+			osm_sa_send_error(sa, p_madw,
+					  IB_SA_MAD_STATUS_REQ_INVALID);
+			goto Exit;
+		}
+	}
 
 	cl_qlist_init(&pr_list);
 
