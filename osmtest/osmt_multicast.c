@@ -1215,18 +1215,14 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 
 	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Checking Create given MGID=0 valid Set several options :\n\t\t"
-		"First above min RATE, Second less than max RATE\n\t\t"
+		"First any RATE, Second less than max RATE\n\t\t"
 		"Third above min MTU, Fourth less than max MTU\n\t\t"
 		"Fifth exact MTU & RATE feasible, Sixth exact RATE feasible\n\t\t"
 		"Seventh exact MTU feasible (o15.0.1.4)...\n");
 
 	/* Good Flow - mgid is 0 while giving all required fields for join : P_Key, Q_Key, SL, FlowLabel, Tclass */
 
-	mc_req_rec.rate =
-	    IB_LINK_WIDTH_ACTIVE_1X | IB_PATH_SELECTOR_GREATER_THAN << 6;
-
-	comp_mask = IB_MCR_COMPMASK_MGID | IB_MCR_COMPMASK_PORT_GID | IB_MCR_COMPMASK_QKEY | IB_MCR_COMPMASK_PKEY | IB_MCR_COMPMASK_SL | IB_MCR_COMPMASK_FLOW | IB_MCR_COMPMASK_JOIN_STATE | IB_MCR_COMPMASK_TCLASS |	/* all above are required */
-	    IB_MCR_COMPMASK_RATE_SEL | IB_MCR_COMPMASK_RATE;
+	comp_mask = IB_MCR_COMPMASK_MGID | IB_MCR_COMPMASK_PORT_GID | IB_MCR_COMPMASK_QKEY | IB_MCR_COMPMASK_PKEY | IB_MCR_COMPMASK_SL | IB_MCR_COMPMASK_FLOW | IB_MCR_COMPMASK_JOIN_STATE | IB_MCR_COMPMASK_TCLASS;	/* all above are required */
 
 	status = osmt_send_mcast_request(p_osmt, 1, &mc_req_rec, comp_mask,
 					 sa_mad);
