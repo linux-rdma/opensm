@@ -1251,8 +1251,10 @@ repeat_discovery:
 	}
 
 	/* if new sweep requested - don't bother with the rest */
-	if (sm->p_subn->force_heavy_sweep)
+	if (sm->p_subn->force_heavy_sweep) {
+		config_parsed = 0;
 		goto repeat_discovery;
+	}
 
 	osm_opensm_report_event(sm->p_subn->p_osm,
 				OSM_EVENT_ID_HEAVY_SWEEP_DONE, NULL);
