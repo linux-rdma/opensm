@@ -1452,6 +1452,20 @@ static uint8_t rate_is_valid(IN const ib_sa_mad_t *p_sa_mad,
 	return 1;
 }
 
+static int mtu_is_valid(IN const ib_sa_mad_t *p_sa_mad,
+			IN const ib_member_rec_t *p_recvd_mcmember_rec)
+{
+	uint8_t mtu;
+
+	/* Validate MTU if supplied */
+	if ((p_sa_mad->comp_mask & IB_MCR_COMPMASK_MTU_SEL) &&
+	    (p_sa_mad->comp_mask & IB_MCR_COMPMASK_MTU)) {
+		mtu = (uint8_t) (p_recvd_mcmember_rec->mtu & 0x3F);
+		return ib_mtu_is_valid(mtu);
+	}
+	return 1;
+}
+
 void osm_mcmr_rcv_process(IN void *context, IN void *data)
 {
 	osm_sa_t *sa = context;
@@ -1492,7 +1506,8 @@ void osm_mcmr_rcv_process(IN void *context, IN void *data)
 					  IB_SA_MAD_STATUS_INSUF_COMPS);
 			goto Exit;
 		}
-		if (!rate_is_valid(p_sa_mad, p_recvd_mcmember_rec)) {
+		if (!rate_is_valid(p_sa_mad, p_recvd_mcmember_rec) ||
+		    !mtu_is_valid(p_sa_mad, p_recvd_mcmember_rec)) {
 			osm_sa_send_error(sa, p_madw,
 					  IB_SA_MAD_STATUS_REQ_INVALID);
 			goto Exit;
@@ -1514,7 +1529,8 @@ void osm_mcmr_rcv_process(IN void *context, IN void *data)
 					  IB_SA_MAD_STATUS_INSUF_COMPS);
 			goto Exit;
 		}
-		if (!rate_is_valid(p_sa_mad, p_recvd_mcmember_rec)) {
+		if (!rate_is_valid(p_sa_mad, p_recvd_mcmember_rec) ||
+		    !mtu_is_valid(p_sa_mad, p_recvd_mcmember_rec)) {
 			osm_sa_send_error(sa, p_madw,
 					  IB_SA_MAD_STATUS_REQ_INVALID);
 			goto Exit;
@@ -1527,7 +1543,8 @@ void osm_mcmr_rcv_process(IN void *context, IN void *data)
 		break;
 	case IB_MAD_METHOD_GET:
 	case IB_MAD_METHOD_GETTABLE:
-		if (!rate_is_valid(p_sa_mad, p_recvd_mcmember_rec)) {
+		if (!rate_is_valid(p_sa_mad, p_recvd_mcmember_rec) ||
+		    !mtu_is_valid(p_sa_mad, p_recvd_mcmember_rec)) {
 			osm_sa_send_error(sa, p_madw,
 					  IB_SA_MAD_STATUS_REQ_INVALID);
 			goto Exit;
