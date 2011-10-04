@@ -1616,7 +1616,7 @@ void osm_pr_rcv_process(IN void *context, IN void *data)
 	const ib_gid_t *p_dgid = NULL;
 	const osm_port_t *p_src_port, *p_dest_port;
 	osm_port_t *requester_port;
-	uint8_t rate;
+	uint8_t rate, mtu;
 
 	OSM_LOG_ENTER(sa->p_log);
 
@@ -1652,6 +1652,16 @@ void osm_pr_rcv_process(IN void *context, IN void *data)
 	    (p_sa_mad->comp_mask & IB_PR_COMPMASK_RATE)) {
 		rate = ib_path_rec_rate(p_pr);
 		if (!ib_rate_is_valid(rate)) {
+			osm_sa_send_error(sa, p_madw,
+					  IB_SA_MAD_STATUS_REQ_INVALID);
+			goto Exit;
+		}
+	}
+	/* Validate MTU if supplied */
+	if ((p_sa_mad->comp_mask & IB_PR_COMPMASK_MTUSELEC) &&
+	    (p_sa_mad->comp_mask & IB_PR_COMPMASK_MTU)) {
+		mtu = ib_path_rec_mtu(p_pr);
+		if (!ib_mtu_is_valid(mtu)) {
 			osm_sa_send_error(sa, p_madw,
 					  IB_SA_MAD_STATUS_REQ_INVALID);
 			goto Exit;
