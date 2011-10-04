@@ -57,6 +57,7 @@ OPENSM_1.5 {
 		osm_get_lsa_str;
 		osm_get_sm_mgr_signal_str;
 		osm_get_sm_mgr_state_str;
+		ib_mtu_is_valid;
 		ib_rate_is_valid;
 		ib_path_compare_rates;
 		ib_path_rate_get_prev;

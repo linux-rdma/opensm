@@ -588,6 +588,30 @@ const char *osm_get_sm_mgr_state_str(IN uint16_t state);
 * SEE ALSO
 *********/
 
+/****f* IBA Base: Types/ib_mtu_is_valid
+* NAME
+*	ib_mtu_is_valid
+*
+* DESCRIPTION
+*	Validates encoded MTU
+*
+* SYNOPSIS
+*/
+int ib_mtu_is_valid(IN const int mtu);
+/*
+* PARAMETERS
+*	mtu
+*		[in] Encoded path mtu.
+*
+* RETURN VALUES
+*	Returns an int indicating mtu is valid (1)
+*	or invalid (0).
+*
+* NOTES
+*
+* SEE ALSO
+*********/
+
 /****f* IBA Base: Types/ib_rate_is_valid
 * NAME
 *	ib_rate_is_valid
