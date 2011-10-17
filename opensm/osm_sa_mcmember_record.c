@@ -615,7 +615,7 @@ static ib_api_status_t validate_requested_mgid(IN osm_sa_t * sa,
 
 	/*
 	 * For SA assigned MGIDs (signature 0xA01B):
-	 * There is no real way to make sure the Unique MGID Prefix is really unique.
+	 * There is no real way to make sure the GID Prefix is really unique.
 	 * If we could enforce using the Subnet Prefix for that purpose it would
 	 * have been nice. But the spec does not require it.
 	 */
@@ -776,7 +776,6 @@ static unsigned build_new_mgid(osm_sa_t * sa, ib_net64_t comp_mask,
 	mgid->raw[2] = 0xa0;
 	mgid->raw[3] = 0x1b;
 
-	/* HACK: use the SA port gid to make it globally unique */
 	memcpy(&mgid->raw[4], &sa->p_subn->opt.subnet_prefix, sizeof(uint64_t));
 
 	for (i = 0; i < 1000; i++) {
