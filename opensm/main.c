@@ -645,7 +645,7 @@ int main(int argc, char *argv[])
 	};
 
 	/* force stdout to be line-buffered */
-	setvbuf(stdout, NULL, _IOLBF, 0);
+	setvbuf(stdout, NULL, _IOLBF, BUFSIZ);
 
 	/* Make sure that the opensm and complib were compiled using
 	   same modes (debug/free) */
