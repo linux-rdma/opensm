@@ -718,7 +718,9 @@ void osm_dump_all(osm_opensm_t * osm)
 				      &osm->subn.sw_guid_tbl,
 				      dump_mcast_routes, osm);
 		/* SL2VL tables */
-		if (osm->subn.opt.qos)
+		if (osm->subn.opt.qos ||
+		    (osm->routing_engine_used &&
+		     osm->routing_engine_used->update_sl2vl))
 			osm_dump_qmap_to_file(osm, "opensm-sl2vl.dump",
 					      &osm->subn.port_guid_tbl,
 					      dump_sl2vl_tbl, osm);
