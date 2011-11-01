@@ -756,7 +756,7 @@ decision is made as to what port should be used to get to that LID.
    This step is common to standard and Up/Down routing. Each port has a
 counter counting the number of target LIDs going through it.
    When there are multiple alternative ports with same MinHop to a LID,
-the one with less previously assigned ports is selected.
+the one with less previously assigned LIDs is selected.
    If LMC > 0, more checks are added: Within each group of LIDs assigned to
 same target port,
    a. use only ports which have same MinHop
