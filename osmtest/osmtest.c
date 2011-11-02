@@ -181,7 +181,6 @@ const osmtest_token_t token_array[] = {
 	{OSMTEST_TOKEN_RATE, 4, "RATE"},
 	{OSMTEST_TOKEN_PKT_LIFE, 8, "PKT_LIFE"},
 	{OSMTEST_TOKEN_PREFERENCE, 10, "PREFERENCE"},
-	{OSMTEST_TOKEN_MKEY, 4, "M_KEY"},
 	{OSMTEST_TOKEN_SUBN_PREF, 13, "SUBNET_PREFIX"},
 	{OSMTEST_TOKEN_BASE_LID, 8, "BASE_LID"},
 	{OSMTEST_TOKEN_SM_BASE_LID, 18, "MASTER_SM_BASE_LID"},
@@ -213,6 +212,7 @@ const osmtest_token_t token_array[] = {
 	{OSMTEST_TOKEN_SUBN_TIMEOUT, 14, "subnet_timeout"},
 	{OSMTEST_TOKEN_RESP_TIME_VAL, 15, "resp_time_value"},
 	{OSMTEST_TOKEN_ERR_THRESHOLD, 15, "error_threshold"},
+	{OSMTEST_TOKEN_MKEY, 4, "M_KEY"}, /* must be after the other mkey... tokens. */
 	{OSMTEST_TOKEN_MTU, 3, "MTU"},	/*  must be after the other mtu... tokens. */
 	{OSMTEST_TOKEN_FROMLID, 8, "from_lid"},
 	{OSMTEST_TOKEN_FROMPORTNUM, 13, "from_port_num"},
