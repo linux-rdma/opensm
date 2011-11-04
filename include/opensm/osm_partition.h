@@ -94,10 +94,11 @@ typedef struct osm_prtn {
 	cl_map_item_t map_item;
 	ib_net16_t pkey;
 	uint8_t sl;
-	osm_mgrp_t *mgrp;
 	cl_map_t full_guid_tbl;
 	cl_map_t part_guid_tbl;
 	char name[32];
+	osm_mgrp_t **mgrps;
+	int nmgrps;
 } osm_prtn_t;
 /*
 * FIELDS
@@ -110,10 +111,6 @@ typedef struct osm_prtn {
 *	sl
 *		The Service Level (SL) associated with this Partiton.
 *
-*	mgrp
-*		The pointer to the well known Multicast Group
-*		that was created for this partition (when configured).
-*
 *	full_guid_tbl
 *		Container of pointers to all Port objects in the Partition
 *		with full membership, indexed by port GUID.
@@ -125,6 +122,14 @@ typedef struct osm_prtn {
 *	name
 *		Name of the Partition as specified in partition
 *		configuration.
+*
+*	mgrps
+*		List of well known Multicast Groups
+*		that were created for this partition (when configured).
+*		This includes the IPoIB broadcast group.
+*
+*	nmgrps
+*		Number of known Multicast Groups.
 *
 * SEE ALSO
 *	Partition
@@ -139,7 +144,7 @@ typedef struct osm_prtn {
 *
 * SYNOPSIS
 */
-void osm_prtn_delete(IN OUT osm_prtn_t ** pp_prtn);
+void osm_prtn_delete(IN osm_subn_t * p_subn, IN OUT osm_prtn_t ** pp_prtn);
 /*
 * PARAMETERS
 *	pp_prtn

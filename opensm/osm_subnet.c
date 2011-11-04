@@ -492,7 +492,7 @@ void osm_subn_destroy(IN osm_subn_t * p_subn)
 	       (osm_prtn_t *) cl_qmap_end(&p_subn->prtn_pkey_tbl)) {
 		p_prtn = p_next_prtn;
 		p_next_prtn = (osm_prtn_t *) cl_qmap_next(&p_prtn->map_item);
-		osm_prtn_delete(&p_prtn);
+		osm_prtn_delete(p_subn, &p_prtn);
 	}
 
 	cl_fmap_remove_all(&p_subn->mgrp_mgid_tbl);

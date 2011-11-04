@@ -53,6 +53,8 @@
 #include <opensm/osm_node.h>
 #include <opensm/osm_sa.h>
 #include <opensm/osm_multicast.h>
+#include <arpa/inet.h>
+#include <errno.h>
 
 extern int osm_prtn_config_parse_file(osm_log_t * p_log, osm_subn_t * p_subn,
 				      const char *file_name);
@@ -68,6 +70,8 @@ osm_prtn_t *osm_prtn_new(IN const char *name, IN uint16_t pkey)
 	memset(p, 0, sizeof(*p));
 	p->pkey = pkey;
 	p->sl = OSM_DEFAULT_SL;
+	p->mgrps = NULL;
+	p->nmgrps = 0;
 	cl_map_construct(&p->full_guid_tbl);
 	cl_map_init(&p->full_guid_tbl, 32);
 	cl_map_construct(&p->part_guid_tbl);
@@ -81,14 +85,35 @@ osm_prtn_t *osm_prtn_new(IN const char *name, IN uint16_t pkey)
 	return p;
 }
 
-void osm_prtn_delete(IN OUT osm_prtn_t ** pp_prtn)
+void osm_prtn_delete(IN osm_subn_t * p_subn, IN OUT osm_prtn_t ** pp_prtn)
 {
+	char gid_str[INET6_ADDRSTRLEN];
+	int i = 0;
 	osm_prtn_t *p = *pp_prtn;
 
 	cl_map_remove_all(&p->full_guid_tbl);
 	cl_map_destroy(&p->full_guid_tbl);
 	cl_map_remove_all(&p->part_guid_tbl);
 	cl_map_destroy(&p->part_guid_tbl);
+
+	if (p->mgrps) {
+		/* Clean up mgrps */
+		for (i = 0; i < p->nmgrps; i++) {
+			/* osm_mgrp_cleanup will not delete
+			 * "well_known" groups */
+			p->mgrps[i]->well_known = FALSE;
+			osm_mgrp_cleanup(p_subn, p->mgrps[i]);
+			OSM_LOG(&p_subn->p_osm->log, OSM_LOG_DEBUG,
+				"removing mgroup %s from partition (0x%x)\n",
+				inet_ntop(AF_INET6,
+					  p->mgrps[i]->mcmember_rec.mgid.raw,
+					  gid_str, sizeof gid_str),
+				cl_hton16(p->pkey));
+		}
+
+		free(p->mgrps);
+	}
+
 	free(p);
 	*pp_prtn = NULL;
 }
@@ -156,21 +181,48 @@ _err:
 	return status;
 }
 
-static const ib_gid_t osm_ipoib_mgid = {
-	{
-	 0xff,			/*  multicast field */
-	 0x12,			/*  non-permanent bit, link local scope */
-	 0x40, 0x1b,		/*  IPv4 signature */
-	 0xff, 0xff,		/*  16 bits of P_Key (to be filled in) */
-	 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,	/*  48 bits of zeros */
-	 0xff, 0xff, 0xff, 0xff,	/*  32 bit IPv4 broadcast address */
-	 },
-};
+static ib_api_status_t
+track_mgrp_w_partition(osm_log_t *p_log, osm_prtn_t *p, osm_mgrp_t *mgrp,
+			osm_subn_t *p_subn, const ib_gid_t *mgid,
+			ib_net16_t pkey)
+{
+	char gid_str[INET6_ADDRSTRLEN];
+	osm_mgrp_t **tmp;
+	int i = 0;
+
+	/* check if we are already tracking this group */
+	for (i = 0; i< p->nmgrps; i++)
+		if (p->mgrps[i] == mgrp)
+			return (IB_SUCCESS);
+
+	/* otherwise add it to our list */
+	tmp = realloc(p->mgrps, (p->nmgrps +1) * sizeof(*p->mgrps));
+	if (tmp) {
+		p->mgrps = tmp;
+		p->mgrps[p->nmgrps] = mgrp;
+		p->nmgrps++;
+	} else {
+		OSM_LOG(p_log, OSM_LOG_ERROR,
+		        "realloc error to create MC group (%s) in "
+		        "partition (pkey 0x%04x)\n",
+		        inet_ntop(AF_INET6, mgid->raw,
+		                gid_str, sizeof gid_str),
+		        cl_ntoh16(pkey));
+		mgrp->well_known = FALSE;
+		osm_mgrp_cleanup(p_subn, mgrp);
+		return (IB_ERROR);
+	}
+	mgrp->well_known = TRUE;
+	return (IB_SUCCESS);
+}
 
 ib_api_status_t osm_prtn_add_mcgroup(osm_log_t * p_log, osm_subn_t * p_subn,
 				     osm_prtn_t * p, uint8_t rate, uint8_t mtu,
-				     uint8_t scope)
+				     uint8_t sl, uint8_t scope, uint32_t Q_Key,
+				     uint8_t tclass, uint32_t FlowLabel,
+				     const ib_gid_t *mgid)
 {
+	char gid_str[INET6_ADDRSTRLEN];
 	ib_member_rec_t mc_rec;
 	ib_net64_t comp_mask;
 	ib_net16_t pkey;
@@ -185,16 +237,15 @@ ib_api_status_t osm_prtn_add_mcgroup(osm_log_t * p_log, osm_subn_t * p_subn,
 
 	memset(&mc_rec, 0, sizeof(mc_rec));
 
-	mc_rec.mgid = osm_ipoib_mgid;	/* ipv4 broadcast group */
-	memcpy(&mc_rec.mgid.raw[4], &pkey, sizeof(pkey));
+	mc_rec.mgid = *mgid;
 
-	mc_rec.qkey = CL_HTON32(0x0b1b);
-	mc_rec.mtu = (mtu ? mtu : OSM_DEFAULT_MGRP_MTU) | (2 << 6);	/* 2048 Bytes */
-	mc_rec.tclass = 0;
+	mc_rec.qkey = CL_HTON32(Q_Key);
+	mc_rec.mtu = mtu | (2 << 6);
+	mc_rec.tclass = tclass;
 	mc_rec.pkey = pkey;
-	mc_rec.rate = (rate ? rate : OSM_DEFAULT_MGRP_RATE) | (2 << 6);	/* 10Gb/sec */
+	mc_rec.rate = rate | (2 << 6);
 	mc_rec.pkt_life = p_subn->opt.subnet_timeout;
-	mc_rec.sl_flow_hop = ib_member_set_sl_flow_hop(p->sl, 0, hop_limit);
+	mc_rec.sl_flow_hop = ib_member_set_sl_flow_hop(sl, FlowLabel, hop_limit);
 	/* Scope in MCMemberRecord (if present) needs to be consistent with MGID */
 	mc_rec.scope_state =
 	    ib_member_set_scope_state(scope, IB_MC_REC_STATE_FULL_MEMBER);
@@ -206,15 +257,13 @@ ib_api_status_t osm_prtn_add_mcgroup(osm_log_t * p_log, osm_subn_t * p_subn,
 	mgrp = osm_mcmr_rcv_find_or_create_new_mgrp(p_sa, comp_mask, &mc_rec);
 	if (!mgrp) {
 		OSM_LOG(p_log, OSM_LOG_ERROR,
-			"Failed to create MC group with pkey 0x%04x\n",
+			"Failed to create MC group (%s) with pkey 0x%04x\n",
+			inet_ntop(AF_INET6, mgid->raw, gid_str, sizeof gid_str),
 			cl_ntoh16(pkey));
 		return IB_ERROR;
 	}
 
-	mgrp->well_known = TRUE;
-	p->mgrp = mgrp;
-
-	return IB_SUCCESS;
+	return (track_mgrp_w_partition(p_log, p, mgrp, p_subn, mgid, pkey));
 }
 
 static uint16_t generate_pkey(osm_subn_t * p_subn)
@@ -274,7 +323,7 @@ osm_prtn_t *osm_prtn_make_new(osm_log_t * p_log, osm_subn_t * p_subn,
 			" definition: \'%s\' (0x%04x) prev name \'%s\'"
 			".  Will use it\n",
 			name, cl_ntoh16(pkey), p_check->name);
-		osm_prtn_delete(&p);
+		osm_prtn_delete(p_subn, &p);
 		p = p_check;
 	}
 
@@ -298,8 +347,12 @@ static ib_api_status_t prtn_make_default(osm_log_t * p_log, osm_subn_t * p_subn,
 	status =
 	    osm_prtn_add_port(p_log, p_subn, p, p_subn->sm_port_guid, TRUE);
 
+	/* ipv4 broadcast group */
 	if (no_config)
-		osm_prtn_add_mcgroup(p_log, p_subn, p, 0, 0, 0);
+		osm_prtn_add_mcgroup(p_log, p_subn, p, OSM_DEFAULT_MGRP_RATE,
+				     OSM_DEFAULT_MGRP_MTU, OSM_DEFAULT_SL,
+				     0, OSM_IPOIB_BROADCAST_MGRP_QKEY, 0, 0,
+				     &osm_ipoib_broadcast_mgid);
 
 _err:
 	return status;
@@ -316,8 +369,12 @@ ib_api_status_t osm_prtn_make_partitions(osm_log_t * p_log, osm_subn_t * p_subn)
 
 	file_name = p_subn->opt.partition_config_file ?
 	    p_subn->opt.partition_config_file : OSM_DEFAULT_PARTITION_CONFIG_FILE;
-	if (stat(file_name, &statbuf))
+	if (stat(file_name, &statbuf)) {
+		OSM_LOG(p_log, OSM_LOG_ERROR, "Partition configuration "
+			"%s is not accesible (%s)\n", file_name,
+			strerror(errno));
 		is_config = FALSE;
+	}
 
 	/* clean up current port maps */
 	p_next = cl_qmap_head(&p_subn->prtn_pkey_tbl);
@@ -347,7 +404,7 @@ ib_api_status_t osm_prtn_make_partitions(osm_log_t * p_log, osm_subn_t * p_subn)
 		    cl_map_count(&p->full_guid_tbl) == 0) {
 			cl_qmap_remove_item(&p_subn->prtn_pkey_tbl,
 					    (cl_map_item_t *) p);
-			osm_prtn_delete(&p);
+			osm_prtn_delete(p_subn, &p);
 		}
 	}
 

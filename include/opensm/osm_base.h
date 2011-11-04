@@ -53,6 +53,7 @@
 #endif
 
 #include <complib/cl_types.h>
+#include <iba/ib_types.h>
 
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
@@ -953,6 +954,10 @@ typedef enum _osm_sm_signal {
 #define OSM_VENDOR_ID_HP3           0x0019BB
 #define OSM_VENDOR_ID_HP4           0x00237D
 #define OSM_VENDOR_ID_OPENIB        0x001405
+
+/* IPoIB Broadcast Defaults */
+#define OSM_IPOIB_BROADCAST_MGRP_QKEY 0x0b1b
+extern const ib_gid_t osm_ipoib_broadcast_mgid;
 
 /**********/
 
