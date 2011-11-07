@@ -624,7 +624,7 @@ qos_match_rule_entry: qos_match_rule_use
      *   sdp with port-num
      *   rds
      *   rds with port-num
-     *   srp with port-guid
+     *   srp with target-port-guid
      *   iser
      *   iser with port-num
      *   ipoib
