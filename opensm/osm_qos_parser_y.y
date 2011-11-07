@@ -261,6 +261,7 @@ static cl_list_t __ulp_match_rules;
 %token TK_ULP_ANY_PKEY
 %token TK_ULP_ANY_TARGET_PORT_GUID
 %token TK_ULP_ANY_SOURCE_PORT_GUID
+%token TK_ULP_ANY_SOURCE_TARGET_PORT_GUID
 %token TK_ULP_SDP_DEFAULT
 %token TK_ULP_SDP_PORT
 %token TK_ULP_RDS_DEFAULT
@@ -308,6 +309,7 @@ qos_policy_entry:     qos_ulps_section
      *      any, pkey 0x0ABC              : 3
      *      any, target-port-guid 0x0ABC-0xFFFFF : 6
      *      any, source-port-guid 0x1234  : 7
+     *      any, source-target-port-guid 0x5678 : 8
      *  end-qos-ulps
      */
 
@@ -635,6 +637,7 @@ qos_match_rule_entry: qos_match_rule_use
      *   any with pkey
      *   any with target-port-guid
      *   any with source-port-guid
+     *   any with source-target-port-guid
      */
 
 qos_ulp:            TK_ULP_DEFAULT single_number {
@@ -761,6 +764,44 @@ qos_ulp:            TK_ULP_DEFAULT single_number {
                         /* add this port group to the source
                            groups of the current match rule */
                         cl_list_insert_tail(&p_current_qos_match_rule->source_group_list,
+                                            p_current_port_group);
+
+                        __parser_port_group_end();
+
+		    } qos_ulp_sl
+
+		    | qos_ulp_type_any_source_target_port_guid list_of_ranges TK_DOTDOT {
+			/* any, source-target-port-guid ... : sl */
+			uint64_t ** range_arr;
+			unsigned    range_len;
+
+			if (!cl_list_count(&tmp_parser_struct.num_pair_list))
+			{
+				yyerror("ULP rule doesn't have port guids");
+				return 1;
+			}
+
+                        /* create a new port group with these ports */
+                        __parser_port_group_start();
+
+                        p_current_port_group->name = strdup("_ULP_Sources_Targets_");
+                        p_current_port_group->use = strdup("Generated from ULP rules");
+
+                        __rangelist2rangearr( &tmp_parser_struct.num_pair_list,
+                                              &range_arr,
+                                              &range_len );
+
+                        __parser_add_guid_range_to_port_map(
+                                              &p_current_port_group->port_map,
+                                              range_arr,
+                                              range_len);
+
+                        /* add this port group to the source and destination
+                           groups of the current match rule */
+                        cl_list_insert_tail(&p_current_qos_match_rule->source_group_list,
+                                            p_current_port_group);
+
+                        cl_list_insert_tail(&p_current_qos_match_rule->destination_group_list,
                                             p_current_port_group);
 
                         __parser_port_group_end();
@@ -1007,6 +1048,9 @@ qos_ulp_type_any_target_port_guid: TK_ULP_ANY_TARGET_PORT_GUID
                     { __parser_ulp_match_rule_start(); };
 
 qos_ulp_type_any_source_port_guid: TK_ULP_ANY_SOURCE_PORT_GUID
+                    { __parser_ulp_match_rule_start(); };
+
+qos_ulp_type_any_source_target_port_guid: TK_ULP_ANY_SOURCE_TARGET_PORT_GUID
                     { __parser_ulp_match_rule_start(); };
 
 qos_ulp_type_sdp_default: TK_ULP_SDP_DEFAULT
