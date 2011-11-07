@@ -618,7 +618,7 @@ int osm_pkey_mgr_process(IN osm_opensm_t * p_osm)
 			if (osm_node_get_type(p_remote_node) != IB_NODE_TYPE_SWITCH)
 				continue;
 
-			if(! p_physp->port_info.vl_enforce && 0xc )
+			if(! p_physp->port_info.vl_enforce & 0xc )
 				continue;
 
 			/* clear partition enforcement */
