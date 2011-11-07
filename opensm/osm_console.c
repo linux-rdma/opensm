@@ -72,7 +72,7 @@ static struct {
 	time_t previous;
 	void (*loop_function) (osm_opensm_t * p_osm, FILE * out);
 } loop_command = {
-on: 0, delay_s: 2, loop_function:NULL};
+.on = 0, .delay_s = 2, .loop_function = NULL};
 
 static const struct command console_cmds[];
 
