@@ -1,4 +1,4 @@
-.TH TORUS\-2QOS.CONF 5 "November 11, 2010" "OpenIB" "OpenIB Management"
+.TH TORUS\-2QOS.CONF 5 "November 7, 2011" "OpenIB" "OpenIB Management"
 .
 .SH NAME
 torus\-2QoS.conf \- Torus-2QoS configuration for OpenSM subnet manager
@@ -138,6 +138,10 @@ The default value is 16.
 Torus-2QoS will log an error message during topology discovery if this
 parameter needs to be increased.
 If this keyword appears multiple times, the last instance prevails.
+.P
+Note that the switch management port (switch port 0) gets put into
+the same port group with the host ports, so if you have 16 host ports per
+switch, portgroup_max_ports would need to be at least 17.
 .RE
 .
 .P
