@@ -292,6 +292,7 @@ Match rules include:
  - any ULP/application with a specific Service ID in the PR/MPR query
  - any ULP/application with a specific PKey in the PR/MPR query
  - any ULP/application with a specific target IB port GUID in the PR/MPR query
+ - any ULP/application with a specific source IB port GUID in the PR/MPR query
 
 Since any section of the policy file is optional, as long as basic rules of
 the file are kept (such as no referring to nonexisting port group, having
@@ -332,6 +333,9 @@ Below is an example of simplified QoS policy with all the possible keywords:
                                           # a specified IB port GUID
         any, target-port-guid 0x0ABC-0xFFFFF : 6 # match any PR/MPR query with
                                           # a specific target port GUID
+        any, source-port-guid 0x5678  : 7 # match any PR/MPR query with
+                                          # a specific source port
+                                          # GUID
     end-qos-ulps
 
 
