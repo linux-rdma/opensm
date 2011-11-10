@@ -660,12 +660,6 @@ int main(int argc, char *argv[])
 	printf("-------------------------------------------------\n");
 	printf("%s\n", OSM_VERSION);
 
-	osm_subn_set_default_opt(&opt);
-
-	if (osm_subn_parse_conf_file(OSM_DEFAULT_CONFIG_FILE, &opt) < 0)
-		printf("\nFail to parse config file \'%s\'\n",
-		       OSM_DEFAULT_CONFIG_FILE);
-
 	do {
 		next_option = getopt_long_only(argc, argv, short_option,
 					       long_option, NULL);
@@ -681,7 +675,12 @@ int main(int argc, char *argv[])
 
 	optind = 0;		/* reset command line */
 
-	if (config_file && osm_subn_parse_conf_file(config_file, &opt) < 0)
+	if (!config_file)
+		config_file = OSM_DEFAULT_CONFIG_FILE;
+
+	osm_subn_set_default_opt(&opt);
+
+	if (osm_subn_parse_conf_file(config_file, &opt) < 0)
 		printf("\nFail to parse config file \'%s\'\n", config_file);
 
 	printf("Command Line Arguments:\n");
