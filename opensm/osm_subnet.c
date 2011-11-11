@@ -1158,7 +1158,8 @@ int osm_subn_verify_config(IN osm_subn_opt_t * p_opts)
 		log_report(" Invalid Cached Option Value:console = %s"
 			   ", Using Default:%s\n",
 			   p_opts->console, OSM_DEFAULT_CONSOLE);
-		p_opts->console = OSM_DEFAULT_CONSOLE;
+		free(p_opts->console);
+		p_opts->console = strdup(OSM_DEFAULT_CONSOLE);
 	}
 
 	if (p_opts->qos) {
