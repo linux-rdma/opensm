@@ -212,6 +212,7 @@ typedef struct osm_opensm {
 	struct osm_routing_engine *routing_engine_list;
 	struct osm_routing_engine *routing_engine_used;
 	struct osm_routing_engine *default_routing_engine;
+	boolean_t no_fallback_routing_engine;
 	osm_stats_t stats;
 	osm_console_t console;
 	nn_map_t *node_name_map;
@@ -258,6 +259,9 @@ typedef struct osm_opensm {
 *
 *	routing_engine_used
 *		Indicates which routing engine was used to route a subnet.
+*
+*	no_fallback_routing_engine
+*		Indicates if default routing engine should not be used.
 *
 *	stats
 *		Open SM statistics block

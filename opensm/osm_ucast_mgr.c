@@ -1103,7 +1103,7 @@ int osm_ucast_mgr_process(IN osm_ucast_mgr_t * p_mgr)
 	}
 
 	if (!p_osm->routing_engine_used &&
-	    p_osm->subn.opt.no_fallback_routing_engine != TRUE) {
+	    p_osm->no_fallback_routing_engine != TRUE) {
 		/* If configured routing algorithm failed, use default MinHop */
 		struct osm_routing_engine *r = p_osm->default_routing_engine;
 

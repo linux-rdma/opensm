@@ -166,7 +166,7 @@ static struct osm_routing_engine *setup_routing_engine(osm_opensm_t *osm,
 	const struct routing_engine_module *m;
 
 	if (!strcmp(name, "no_fallback")) {
-		osm->subn.opt.no_fallback_routing_engine = TRUE;
+		osm->no_fallback_routing_engine = TRUE;
 		return NULL;
 	}
 
@@ -447,6 +447,8 @@ ib_api_status_t osm_opensm_init(IN osm_opensm_t * p_osm,
 	if (status != IB_SUCCESS)
 		goto Exit;
 #endif				/* ENABLE_OSM_PERF_MGR */
+
+	p_osm->no_fallback_routing_engine = FALSE;
 
 	setup_routing_engines(p_osm, p_opt->routing_engine_names);
 
