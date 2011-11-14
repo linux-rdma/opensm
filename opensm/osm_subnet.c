@@ -434,6 +434,48 @@ void osm_subn_construct(IN osm_subn_t * p_subn)
 	cl_fmap_init(&p_subn->mgrp_mgid_tbl, compar_mgids);
 }
 
+static void subn_destroy_qos_options(osm_qos_options_t *opt)
+{
+	free(opt->vlarb_high);
+	free(opt->vlarb_low);
+	free(opt->sl2vl);
+}
+
+static void subn_opt_destroy(IN osm_subn_opt_t * p_opt)
+{
+	free(p_opt->console);
+	free(p_opt->port_prof_ignore_file);
+	free(p_opt->hop_weights_file);
+	free(p_opt->port_search_ordering_file);
+	free(p_opt->routing_engine_names);
+	free(p_opt->log_file);
+	free(p_opt->partition_config_file);
+	free(p_opt->qos_policy_file);
+	free(p_opt->dump_files_dir);
+	free(p_opt->lid_matrix_dump_file);
+	free(p_opt->lfts_file);
+	free(p_opt->root_guid_file);
+	free(p_opt->cn_guid_file);
+	free(p_opt->io_guid_file);
+	free(p_opt->ids_guid_file);
+	free(p_opt->guid_routing_order_file);
+	free(p_opt->sa_db_file);
+	free(p_opt->torus_conf_file);
+#ifdef ENABLE_OSM_PERF_MGR
+	free(p_opt->event_db_dump_file);
+#endif /* ENABLE_OSM_PERF_MGR */
+	free(p_opt->event_plugin_name);
+	free(p_opt->event_plugin_options);
+	free(p_opt->node_name_map_name);
+	free(p_opt->prefix_routes_file);
+	free(p_opt->log_prefix);
+	subn_destroy_qos_options(&p_opt->qos_options);
+	subn_destroy_qos_options(&p_opt->qos_ca_options);
+	subn_destroy_qos_options(&p_opt->qos_sw0_options);
+	subn_destroy_qos_options(&p_opt->qos_swe_options);
+	subn_destroy_qos_options(&p_opt->qos_rtr_options);
+}
+
 void osm_subn_destroy(IN osm_subn_t * p_subn)
 {
 	int i;
@@ -525,6 +567,9 @@ void osm_subn_destroy(IN osm_subn_t * p_subn)
 		cl_list_item_t *item = cl_qlist_remove_head(&p_subn->prefix_routes_list);
 		free(item);
 	}
+
+	subn_opt_destroy(&p_subn->opt);
+	free(p_subn->opt.file_opts);
 }
 
 ib_api_status_t osm_subn_init(IN osm_subn_t * p_subn, IN osm_opensm_t * p_osm,
@@ -1216,6 +1261,7 @@ int osm_subn_parse_conf_file(char *file_name, osm_subn_opt_t * p_opts)
 		return -1;
 	}
 	memcpy(p_opts->file_opts, p_opts, sizeof(*p_opts));
+	p_opts->file_opts->file_opts = NULL;
 
 	while (fgets(line, 1023, opts_file) != NULL) {
 		/* get the first token */
