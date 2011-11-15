@@ -176,8 +176,7 @@ static void drop_mgr_remove_port(osm_sm_t * sm, IN osm_port_t * p_port)
 		"Unreachable port 0x%016" PRIx64 "\n", cl_ntoh64(port_guid));
 
 	p_port_check =
-	    (osm_port_t *) cl_qmap_remove(&sm->p_subn->port_guid_tbl,
-					  port_guid);
+	    (osm_port_t *) cl_qmap_get(&sm->p_subn->port_guid_tbl, port_guid);
 	if (p_port_check != p_port) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0101: "
 			"Port 0x%016" PRIx64 " not in guid table\n",
@@ -245,6 +244,8 @@ static void drop_mgr_remove_port(osm_sm_t * sm, IN osm_port_t * p_port)
 			osm_alias_guid_delete(&p_alias_guid);
 		}
 	}
+
+	cl_qmap_remove(&sm->p_subn->port_guid_tbl, port_guid);
 
 	p_sm_guid_tbl = &sm->p_subn->sm_guid_tbl;
 	p_sm = (osm_remote_sm_t *) cl_qmap_remove(p_sm_guid_tbl, port_guid);
