@@ -87,8 +87,7 @@ int32_t cl_atomic_inc(IN atomic32_t * const p_value);
 *	synchronization mechanisms in multi-threaded environments.
 *
 * SEE ALSO
-*	Atomic Operations, cl_atomic_dec, cl_atomic_add, cl_atomic_sub,
-*	cl_atomic_xchg, cl_atomic_comp_xchg
+*	Atomic Operations, cl_atomic_dec, cl_atomic_add, cl_atomic_sub
 *********/
 
 /****f* Component Library: Atomic Operations/cl_atomic_dec
@@ -118,8 +117,7 @@ int32_t cl_atomic_dec(IN atomic32_t * const p_value);
 *	synchronization mechanisms in multi-threaded environments.
 *
 * SEE ALSO
-*	Atomic Operations, cl_atomic_inc, cl_atomic_add, cl_atomic_sub,
-*	cl_atomic_xchg, cl_atomic_comp_xchg
+*	Atomic Operations, cl_atomic_inc, cl_atomic_add, cl_atomic_sub
 *********/
 
 /****f* Component Library: Atomic Operations/cl_atomic_add
@@ -153,8 +151,7 @@ cl_atomic_add(IN atomic32_t * const p_value, IN const int32_t increment);
 *	synchronization mechanisms in multi-threaded environments.
 *
 * SEE ALSO
-*	Atomic Operations, cl_atomic_inc, cl_atomic_dec, cl_atomic_sub,
-*	cl_atomic_xchg, cl_atomic_comp_xchg
+*	Atomic Operations, cl_atomic_inc, cl_atomic_dec, cl_atomic_sub
 *********/
 
 /****f* Component Library: Atomic Operations/cl_atomic_sub
@@ -188,8 +185,7 @@ cl_atomic_sub(IN atomic32_t * const p_value, IN const int32_t decrement);
 *	synchronization mechanisms in multi-threaded environments.
 *
 * SEE ALSO
-*	Atomic Operations, cl_atomic_inc, cl_atomic_dec, cl_atomic_add,
-*	cl_atomic_xchg, cl_atomic_comp_xchg
+*	Atomic Operations, cl_atomic_inc, cl_atomic_dec, cl_atomic_add
 *********/
 
 END_C_DECLS
