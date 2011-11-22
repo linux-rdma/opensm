@@ -546,6 +546,25 @@ static int update_peer_block(osm_log_t * p_log, osm_sm_t * sm,
 	return ret;
 }
 
+static int new_pkey_exists(osm_pkey_tbl_t * p_pkey_tbl, ib_net16_t pkey)
+{
+	uint16_t num_blocks;
+	uint16_t block_index;
+	ib_pkey_table_t *block;
+	uint16_t pkey_idx;
+
+	num_blocks = (uint16_t) cl_ptr_vector_get_size(&p_pkey_tbl->new_blocks);
+	for (block_index = 0; block_index < num_blocks; block_index++) {
+		block = osm_pkey_tbl_new_block_get(p_pkey_tbl, block_index);
+		for (pkey_idx = 0; pkey_idx < IB_NUM_PKEY_ELEMENTS_IN_BLOCK;
+		     pkey_idx++) {
+			if (block->pkey_entry[pkey_idx] == pkey)
+				return 1;
+		}
+	}
+	return 0;
+}
+
 static int pkey_mgr_update_peer_port(osm_log_t * p_log, osm_sm_t * sm,
 				     const osm_subn_t * p_subn,
 				     const osm_port_t * const p_port,
@@ -561,7 +580,7 @@ static int pkey_mgr_update_peer_port(osm_log_t * p_log, osm_sm_t * sm,
 	uint16_t last_index;
 	ib_pkey_table_t new_peer_block;
 	uint16_t pkey_idx, peer_pkey_idx;
-	ib_net16_t pkey;
+	ib_net16_t pkey, full_pkey;
 	int ret = 0, loop_exit = 0;
 
 	p_physp = p_port->p_physp;
@@ -596,6 +615,11 @@ static int pkey_mgr_update_peer_port(osm_log_t * p_log, osm_sm_t * sm,
 			pkey = block->pkey_entry[pkey_idx];
 			if (ib_pkey_is_invalid(pkey))
 				continue;
+			if (!ib_pkey_is_full_member(pkey)) {
+				full_pkey = pkey | IB_PKEY_TYPE_MASK;
+				if (new_pkey_exists(&p_physp->pkeys, full_pkey))
+					continue;
+			}
 			new_peer_block.pkey_entry[peer_pkey_idx] = pkey;
 			if (peer_block_idx >= peer_max_blocks) {
 				loop_exit = 1;

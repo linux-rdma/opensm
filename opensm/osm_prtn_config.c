@@ -378,7 +378,8 @@ static int partition_add_all(struct part_conf *conf, osm_prtn_t * p,
 	if (membership != LIMITED &&
 	    osm_prtn_add_all(conf->p_log, conf->p_subn, p, type, TRUE) != IB_SUCCESS)
 		return -1;
-	if (membership != FULL &&
+	if ((membership == LIMITED ||
+	     (membership == BOTH && conf->p_subn->opt.allow_both_pkeys)) &&
 	    osm_prtn_add_all(conf->p_log, conf->p_subn, p, type, FALSE) != IB_SUCCESS)
 		return -1;
 	return 0;
@@ -432,7 +433,8 @@ static int partition_add_port(unsigned lineno, struct part_conf *conf,
 	    osm_prtn_add_port(conf->p_log, conf->p_subn, p,
 			      cl_hton64(guid), TRUE) != IB_SUCCESS)
 		return -1;
-	if (membership != FULL &&
+	if ((membership == LIMITED ||
+	    (membership == BOTH && conf->p_subn->opt.allow_both_pkeys)) &&
 	    osm_prtn_add_port(conf->p_log, conf->p_subn, p,
 			      cl_hton64(guid), FALSE) != IB_SUCCESS)
 		return -1;
