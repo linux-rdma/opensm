@@ -1077,8 +1077,7 @@ static void subn_verify_sl2vl(char **sl2vl, const char *prefix)
 	if (count < 16)
 		log_report(" Warning: Cached Option %s_sl2vl: < 16 VLs "
 			   "listed\n", prefix);
-
-	if (count > 16)
+	else if (count > 16)
 		log_report(" Warning: Cached Option %s_sl2vl: > 16 listed: "
 			   "excess VLs will be dropped\n", prefix);
 
