@@ -323,6 +323,10 @@ static void show_usage(void)
 	       OSM_DEFAULT_PARTITION_CONFIG_FILE "\'.\n\n");
 	printf("--no_part_enforce, -N\n"
 	       "          This option disables partition enforcement on switch external ports.\n\n");
+	printf("--allow_both_pkeys, -W\n"
+	       "          This option indicates whether both full and limited membership\n"
+	       "          on the same partition can be configured in the PKeyTable.\n"
+	       "          Default is not to allow both pkeys.\n\n");
 	printf("--qos, -Q\n" "          This option enables QoS setup.\n\n");
 	printf("--qos_policy_file, -Y <QoS-policy-file>\n"
 	       "          This option defines the optional QoS policy file.\n"
@@ -569,7 +573,7 @@ int main(int argc, char *argv[])
 	char *conf_template = NULL, *config_file = NULL;
 	uint32_t val;
 	const char *const short_option =
-	    "F:c:i:w:O:f:ed:D:g:l:L:s:t:a:u:m:X:R:zM:U:S:P:Y:ANBIQvVhoryxp:n:q:k:C:G:H:";
+	    "F:c:i:w:O:f:ed:D:g:l:L:s:t:a:u:m:X:R:zM:U:S:P:Y:ANWBIQvVhoryxp:n:q:k:C:G:H:";
 
 	/*
 	   In the array below, the 2nd parameter specifies the number
@@ -598,6 +602,7 @@ int main(int argc, char *argv[])
 		{"erase_log_file", 0, NULL, 'e'},
 		{"Pconfig", 1, NULL, 'P'},
 		{"no_part_enforce", 0, NULL, 'N'},
+		{"allow_both_pkeys", 0, NULL, 'W'},
 		{"qos", 0, NULL, 'Q'},
 		{"qos_policy_file", 1, NULL, 'Y'},
 		{"maxsmps", 1, NULL, 'n'},
@@ -872,6 +877,10 @@ int main(int argc, char *argv[])
 
 		case 'N':
 			opt.no_partition_enforcement = TRUE;
+			break;
+
+		case 'W':
+			opt.allow_both_pkeys = TRUE;
 			break;
 
 		case 'Q':

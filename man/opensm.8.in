@@ -45,6 +45,7 @@ opensm \- InfiniBand subnet manager and administration (SM/SA)
 [\-L | \-\-log_limit <size in MB>] [\-e(rase_log_file)]
 [\-P(config) <partition config file> ]
 [\-N | \-\-no_part_enforce]
+[\-W | \-\-allow_both_pkeys]
 [\-Q | \-\-qos [\-Y | \-\-qos_policy_file <file name>]]
 [\-y | \-\-stay_on_fatal]
 [\-B | \-\-daemon]
@@ -368,6 +369,11 @@ configuring QoS policy via this file.
 .TP
 \fB\-N\fR, \fB\-\-no_part_enforce\fR
 This option disables partition enforcement on switch external ports.
+.TP
+\fB\-W\fR, \fB\-\-allow_both_pkeys\fR
+This option indicates whether both full and limited membership on the
+same partition can be configured in the PKeyTable. Default is not
+to allow both pkeys.
 .TP
 \fB\-y\fR, \fB\-\-stay_on_fatal\fR
 This option will cause SM not to exit on fatal initialization
