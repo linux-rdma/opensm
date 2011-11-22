@@ -104,7 +104,11 @@ pkey_mgr_process_physical_port(IN osm_log_t * p_log,
 		return;
 	}
 	p_pending->pkey = pkey;
-	p_orig_pkey = cl_map_get(&p_pkey_tbl->keys, ib_pkey_get_base(pkey));
+	if (sm->p_subn->opt.allow_both_pkeys)
+		p_orig_pkey = cl_map_get(&p_pkey_tbl->keys, pkey);
+	else
+		p_orig_pkey = cl_map_get(&p_pkey_tbl->keys,
+					 ib_pkey_get_base(pkey));
 	if (!p_orig_pkey) {
 		p_pending->is_new = TRUE;
 		cl_qlist_insert_tail(&p_pkey_tbl->pending,

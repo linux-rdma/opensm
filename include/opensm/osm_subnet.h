@@ -184,6 +184,7 @@ typedef struct osm_subn_opt {
 	unsigned long log_max_size;
 	char *partition_config_file;
 	boolean_t no_partition_enforcement;
+	boolean_t allow_both_pkeys;
 	uint8_t sm_assigned_guid;
 	boolean_t qos;
 	char *qos_policy_file;

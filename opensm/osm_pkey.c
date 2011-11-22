@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2006,2008 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2012 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
  * This software is available to you under a choice of one of two
@@ -110,12 +110,13 @@ void osm_pkey_tbl_init_new_blocks(IN const osm_pkey_tbl_t * p_pkey_tbl)
 }
 
 ib_api_status_t osm_pkey_tbl_set(IN osm_pkey_tbl_t * p_pkey_tbl,
-				 IN uint16_t block, IN ib_pkey_table_t * p_tbl)
+				 IN uint16_t block, IN ib_pkey_table_t * p_tbl,
+				 IN boolean_t allow_both_pkeys)
 {
 	uint16_t b, i;
 	ib_pkey_table_t *p_pkey_block;
 	uint16_t *p_prev_pkey;
-	ib_net16_t pkey;
+	ib_net16_t pkey, pkey_base;
 
 	/* make sure the block is allocated */
 	if (cl_ptr_vector_get_size(&p_pkey_tbl->blocks) > block)
@@ -157,19 +158,23 @@ ib_api_status_t osm_pkey_tbl_set(IN osm_pkey_tbl_t * p_pkey_tbl,
 			if (ib_pkey_is_invalid(pkey))
 				continue;
 
+			if (allow_both_pkeys)
+				pkey_base = pkey;
+			else
+				pkey_base = ib_pkey_get_base(pkey);
+
 			/*
+			   If allow_both_pkeys is FALSE,
 			   ignore the PKey Full Member bit in the key but store
 			   the pointer to the table element as the map value
 			 */
-			p_prev_pkey =
-			    cl_map_get(&p_pkey_tbl->keys,
-				       ib_pkey_get_base(pkey));
+			p_prev_pkey = cl_map_get(&p_pkey_tbl->keys, pkey_base);
 
-			/* we only insert if no previous or it is not full member */
+			/* we only insert if no previous or it is not full member and allow_both_pkeys is FALSE */
 			if ((p_prev_pkey == NULL) ||
-			    (cl_ntoh16(*p_prev_pkey) < cl_ntoh16(pkey)))
-				cl_map_insert(&p_pkey_tbl->keys,
-					      ib_pkey_get_base(pkey),
+			    (allow_both_pkeys == FALSE &&
+			     cl_ntoh16(*p_prev_pkey) < cl_ntoh16(pkey)))
+				cl_map_insert(&p_pkey_tbl->keys, pkey_base,
 					      &(p_pkey_block->pkey_entry[i])
 				    );
 		}

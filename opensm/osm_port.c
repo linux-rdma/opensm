@@ -633,7 +633,8 @@ void osm_physp_set_pkey_tbl(IN osm_log_t * p_log, IN const osm_subn_t * p_subn,
 		return;
 	}
 
-	osm_pkey_tbl_set(&p_physp->pkeys, block_num, p_pkey_tbl);
+	osm_pkey_tbl_set(&p_physp->pkeys, block_num, p_pkey_tbl,
+			 p_subn->opt.allow_both_pkeys);
 }
 
 osm_alias_guid_t *osm_alias_guid_new(IN const ib_net64_t alias_guid,

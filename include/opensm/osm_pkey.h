@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2010 Sun Microsystems, Inc. All rights reserved.
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2012 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
  * This software is available to you under a choice of one of two
@@ -472,16 +472,21 @@ osm_pkey_tbl_get_block_and_idx(IN osm_pkey_tbl_t * p_pkey_tbl,
 */
 ib_api_status_t
 osm_pkey_tbl_set(IN osm_pkey_tbl_t * p_pkey_tbl,
-		 IN uint16_t block, IN ib_pkey_table_t * p_tbl);
+		 IN uint16_t block, IN ib_pkey_table_t * p_tbl,
+		 IN boolean_t allow_both_pkeys);
 /*
 *  p_pkey_tbl
-*     [in] Pointer to osm_pkey_tbl_t object.
+*     [in] Pointer to osm_pkey_tbl_t object
 *
 *  block
 *     [in] The block number to set
 *
 *  p_tbl
 *     [in] The IB PKey block to copy to the object
+*
+*  allow_both_pkeys
+*     [in] Whether both full and limited membership on same partition
+*          are allowed
 *
 * RETURN VALUES
 *  IB_SUCCESS or IB_ERROR
