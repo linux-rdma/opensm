@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2009 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2012 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2008 Xsigo Systems Inc.  All rights reserved.
  * Copyright (c) 2009 HNR Consulting.  All rights reserved.
@@ -312,7 +312,8 @@ boolean_t osm_qos_level_has_pkey(IN const osm_qos_level_t * p_qos_level,
 
 ib_net16_t osm_qos_level_get_shared_pkey(IN const osm_qos_level_t * p_qos_level,
 					 IN const osm_physp_t * p_src_physp,
-					 IN const osm_physp_t * p_dest_physp)
+					 IN const osm_physp_t * p_dest_physp,
+					 IN const boolean_t allow_both_pkeys)
 {
 	unsigned i;
 	uint16_t pkey_ho = 0;
@@ -330,7 +331,8 @@ ib_net16_t osm_qos_level_get_shared_pkey(IN const osm_qos_level_t * p_qos_level,
 		for (pkey_ho = p_qos_level->pkey_range_arr[i][0];
 		     pkey_ho <= p_qos_level->pkey_range_arr[i][1]; pkey_ho++) {
 			if (osm_physp_share_this_pkey
-			    (p_src_physp, p_dest_physp, cl_hton16(pkey_ho)))
+			    (p_src_physp, p_dest_physp, cl_hton16(pkey_ho),
+			     allow_both_pkeys))
 				return cl_hton16(pkey_ho);
 		}
 	}

@@ -506,7 +506,8 @@ osm_pkey_tbl_set(IN osm_pkey_tbl_t * p_pkey_tbl,
 */
 boolean_t osm_physp_share_this_pkey(IN const struct osm_physp * p_physp1,
 				    IN const struct osm_physp * p_physp2,
-				    IN ib_net16_t pkey);
+				    IN ib_net16_t pkey,
+				    IN boolean_t allow_both_pkeys);
 /*
 * PARAMETERS
 *
@@ -518,6 +519,9 @@ boolean_t osm_physp_share_this_pkey(IN const struct osm_physp * p_physp1,
 *
 *  pkey
 *     [in] value of P_Key to check.
+*
+*  allow_both_pkeys
+*     [in] whether both pkeys allowed policy is being used.
 *
 * RETURN VALUES
 *  Returns TRUE if the two ports are matching.

@@ -640,7 +640,8 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 		 * PR returned pkey is the requested pkey.
 		 */
 		pkey = p_pr->pkey;
-		if (!osm_physp_share_this_pkey(p_src_physp, p_dest_physp, pkey)) {
+		if (!osm_physp_share_this_pkey(p_src_physp, p_dest_physp, pkey,
+					       sa->p_subn->opt.allow_both_pkeys)) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F1A: "
 				"Ports 0x%016" PRIx64 " (%s port %d) and "
 				"0x%016" PRIx64 " (%s port %d) "
@@ -681,7 +682,8 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 		 * has pkeys - get shared pkey from QoS level pkeys
 		 */
 		pkey = osm_qos_level_get_shared_pkey(p_qos_level,
-						     p_src_physp, p_dest_physp);
+						     p_src_physp, p_dest_physp,
+						     sa->p_subn->opt.allow_both_pkeys);
 		if (!pkey) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F1E: "
 				"Ports 0x%016" PRIx64 " (%s) and "
