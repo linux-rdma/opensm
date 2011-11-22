@@ -537,7 +537,28 @@ static void set_guidinfo(IN osm_sa_t *sa, IN osm_madw_t *p_madw,
 				set_alias_guid = p_assigned_guids->assigned_guid[i];
 				if (set_alias_guid) {
 					p_rcvd_rec->guid_info.guid[i % 8] = set_alias_guid;
-					goto add_alias_guid;
+					p_item = cl_qmap_get(&sa->sm->p_subn->alias_port_guid_tbl,
+							     set_alias_guid);
+					if (p_item == cl_qmap_end(&sa->sm->p_subn->alias_port_guid_tbl))
+						goto add_alias_guid;
+					else {
+						p_alias_guid = (osm_alias_guid_t *) p_item;
+						if (p_alias_guid->p_base_port != p_port) {
+							OSM_LOG(sa->p_log,
+								OSM_LOG_ERROR,
+								"ERR 5110: "
+								" Assigned alias port GUID 0x%" PRIx64
+								" index %d base port GUID 0x%" PRIx64
+								" now attempted on port GUID 0x%" PRIx64
+								"\n",
+								cl_ntoh64(p_alias_guid->alias_guid), i,
+								cl_ntoh64(p_alias_guid->p_base_port->guid),
+								cl_ntoh64(p_port->guid));
+							/* clear response guid at index to indicate duplicate */
+							p_rcvd_rec->guid_info.guid[i % 8] = 0;
+						}
+						continue;
+					}
 				}
 			}
 		}
