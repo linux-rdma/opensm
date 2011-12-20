@@ -212,7 +212,10 @@ static void perfmgr_mad_send_err_callback(void *bind_context,
 	p_mon_node = (monitored_node_t *) p_node;
 
 	OSM_LOG(pm->log, OSM_LOG_ERROR, "ERR 4C02: %s (0x%" PRIx64
-		") port %u\n", p_mon_node->name, p_mon_node->guid, port);
+		") port %u LID %u TID 0x%" PRIx64 "\n",
+		p_mon_node->name, p_mon_node->guid, port,
+		cl_ntoh16(p_madw->mad_addr.dest_lid),
+		cl_ntoh64(p_madw->p_mad->trans_id));
 
 	if (pm->subn->opt.perfmgr_redir && p_madw->status == IB_TIMEOUT) {
 		/* First, find the node in the monitored map */
