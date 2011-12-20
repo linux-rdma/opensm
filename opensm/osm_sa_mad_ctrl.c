@@ -398,9 +398,6 @@ static void sa_mad_ctrl_send_err_callback(IN void *context,
 
 	OSM_LOG_ENTER(p_ctrl->p_log);
 
-	OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 1A06: "
-		"MAD transaction completed in error\n");
-
 	/*
 	   We should never be here since the SA never originates a request.
 	   Unless we generated a Report(Notice)
@@ -408,13 +405,23 @@ static void sa_mad_ctrl_send_err_callback(IN void *context,
 
 	CL_ASSERT(p_madw);
 
+	OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 1A06: "
+		"MAD completed in error (%s): "
+		"%s(%s), attr_mod 0x%x, LID %u, TID 0x%" PRIx64 "\n",
+		ib_get_err_str(p_madw->status),
+		ib_get_sa_method_str(p_madw->p_mad->method),
+		ib_get_sa_attr_str(p_madw->p_mad->attr_id),
+		cl_ntoh32(p_madw->p_mad->attr_mod),
+		cl_ntoh16(p_madw->mad_addr.dest_lid),
+		cl_ntoh64(p_madw->p_mad->trans_id));
+
+	osm_dump_sa_mad(p_ctrl->p_log, osm_madw_get_sa_mad_ptr(p_madw),
+			OSM_LOG_ERROR);
+
 	/*
 	   An error occurred.  No response was received to a request MAD.
 	   Retire the original request MAD.
 	 */
-
-	osm_dump_sa_mad(p_ctrl->p_log, osm_madw_get_sa_mad_ptr(p_madw),
-			OSM_LOG_ERROR);
 
 	/*  sm_mad_ctrl_update_wire_stats( p_ctrl ); */
 
