@@ -141,13 +141,13 @@ static void handle_trap_event(_log_events_t *log, ib_mad_notice_attr_t *p_ntc)
 {
 	if (ib_notice_is_generic(p_ntc)) {
 		fprintf(log->log_file,
-			"Generic trap type %d; event %d; from LID 0x%x\n",
+			"Generic trap type %d; event %d; from LID %u\n",
 			ib_notice_get_type(p_ntc),
 			cl_ntoh16(p_ntc->g_or_v.generic.trap_num),
 			cl_ntoh16(p_ntc->issuer_lid));
 	} else {
 		fprintf(log->log_file,
-			"Vendor trap type %d; from LID 0x%x\n",
+			"Vendor trap type %d; from LID %u\n",
 			ib_notice_get_type(p_ntc),
 			cl_ntoh16(p_ntc->issuer_lid));
 	}
