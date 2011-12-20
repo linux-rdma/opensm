@@ -575,7 +575,7 @@ boolean_t osm_switch_get_lft_block(IN const osm_switch_t * p_sw,
 *
 *	p_block
 *		[out] Pointer to the 64 byte array to store the
-*		forwarding table clock specified by block_id.
+*		forwarding table block specified by block_id.
 *
 * RETURN VALUES
 *	Returns true if there are more blocks necessary to
