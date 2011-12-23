@@ -273,7 +273,6 @@ static void *umad_receiver(void *p_ptr)
 	umad_receiver_t *const p_ur = (umad_receiver_t *) p_ptr;
 	osm_vendor_t *p_vend = p_ur->p_vend;
 	osm_umad_bind_info_t *p_bind;
-	ib_mad_addr_t *ib_mad_addr;
 	osm_mad_addr_t osm_addr;
 	osm_madw_t *p_madw, *p_req_madw;
 	ib_mad_t *mad;
@@ -329,7 +328,6 @@ static void *umad_receiver(void *p_ptr)
 		}
 
 		mad = (ib_mad_t *) umad_get_mad(umad);
-		ib_mad_addr = umad_get_mad_addr(umad);
 
 		ib_mad_addr_conv(umad, &osm_addr,
 				 mad->mgmt_class == IB_MCLASS_SUBN_LID ||
