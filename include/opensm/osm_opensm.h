@@ -136,7 +136,7 @@ struct osm_routing_engine {
 			   IN const osm_port_t *dst_port);
 	ib_api_status_t (*mcast_build_stree)(void *context,
 					     IN OUT osm_mgrp_box_t *mgb);
-	void (*delete) (void *context);
+	void (*destroy) (void *context);
 	struct osm_routing_engine *next;
 };
 /*

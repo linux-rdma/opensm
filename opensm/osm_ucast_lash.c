@@ -1314,7 +1314,7 @@ int osm_ucast_lash_setup(struct osm_routing_engine *r, osm_opensm_t *p_osm)
 	r->context = p_lash;
 	r->ucast_build_fwd_tables = lash_process;
 	r->path_sl = get_lash_sl;
-	r->delete = lash_delete;
+	r->destroy = lash_delete;
 
 	return 0;
 }

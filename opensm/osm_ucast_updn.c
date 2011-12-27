@@ -661,7 +661,7 @@ int osm_ucast_updn_setup(struct osm_routing_engine *r, osm_opensm_t *osm)
 	updn->p_osm = osm;
 
 	r->context = updn;
-	r->delete = updn_delete;
+	r->destroy = updn_delete;
 	r->build_lid_matrices = updn_lid_matrices;
 
 	return 0;

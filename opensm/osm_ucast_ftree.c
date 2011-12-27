@@ -4134,7 +4134,7 @@ int osm_ucast_ftree_setup(struct osm_routing_engine *r, osm_opensm_t * p_osm)
 	r->context = (void *)p_ftree;
 	r->build_lid_matrices = construct_fabric;
 	r->ucast_build_fwd_tables = do_routing;
-	r->delete = delete;
+	r->destroy = delete;
 
 	return 0;
 }

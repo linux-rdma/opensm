@@ -9307,6 +9307,6 @@ int osm_ucast_torus2QoS_setup(struct osm_routing_engine *r,
 	r->update_sl2vl = torus_update_osm_sl2vl;
 	r->path_sl = torus_path_sl;
 	r->mcast_build_stree = torus_mcast_stree;
-	r->delete = torus_context_delete;
+	r->destroy = torus_context_delete;
 	return 0;
 }

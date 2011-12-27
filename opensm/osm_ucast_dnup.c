@@ -489,7 +489,7 @@ int osm_ucast_dnup_setup(struct osm_routing_engine *r, osm_opensm_t *osm)
 	dnup->p_osm = osm;
 
 	r->context = dnup;
-	r->delete = dnup_delete;
+	r->destroy = dnup_delete;
 	r->build_lid_matrices = dnup_lid_matrices;
 
         OSM_LOG_EXIT(&osm->log);

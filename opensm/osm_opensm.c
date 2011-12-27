@@ -243,8 +243,8 @@ static void destroy_routing_engines(osm_opensm_t *osm)
 	while (next) {
 		r = next;
 		next = r->next;
-		if (r->delete)
-			r->delete(r->context);
+		if (r->destroy)
+			r->destroy(r->context);
 		free(r);
 	}
 }
