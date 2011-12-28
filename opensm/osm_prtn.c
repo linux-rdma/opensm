@@ -371,7 +371,7 @@ ib_api_status_t osm_prtn_make_partitions(osm_log_t * p_log, osm_subn_t * p_subn)
 	    p_subn->opt.partition_config_file : OSM_DEFAULT_PARTITION_CONFIG_FILE;
 	if (stat(file_name, &statbuf)) {
 		OSM_LOG(p_log, OSM_LOG_ERROR, "Partition configuration "
-			"%s is not accesible (%s)\n", file_name,
+			"%s is not accessible (%s)\n", file_name,
 			strerror(errno));
 		is_config = FALSE;
 	}
