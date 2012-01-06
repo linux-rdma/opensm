@@ -68,7 +68,7 @@
 extern void osm_drop_mgr_process(IN osm_sm_t * sm);
 extern int osm_qos_setup(IN osm_opensm_t * p_osm);
 extern int osm_pkey_mgr_process(IN osm_opensm_t * p_osm);
-extern int osm_mcast_mgr_process(IN osm_sm_t * sm);
+extern int osm_mcast_mgr_process(IN osm_sm_t * sm, boolean_t config_all);
 extern int osm_link_mgr_process(IN osm_sm_t * sm, IN uint8_t state);
 
 static void state_mgr_up_msg(IN const osm_sm_t * sm)
@@ -1360,7 +1360,7 @@ repeat_discovery:
 			OSM_EVENT_ID_UCAST_ROUTING_DONE, NULL);
 
 	if (!sm->p_subn->opt.disable_multicast) {
-		osm_mcast_mgr_process(sm);
+		osm_mcast_mgr_process(sm, TRUE);
 		if (wait_for_pending_transactions(&sm->p_subn->p_osm->stats))
 			return;
 		OSM_LOG_MSG_BOX(sm->p_log, OSM_LOG_VERBOSE,
@@ -1442,7 +1442,7 @@ static void do_process_mgrp_queue(osm_sm_t * sm)
 	if (sm->p_subn->sm_state != IB_SMINFO_STATE_MASTER)
 		return;
 	if (!sm->p_subn->opt.disable_multicast) {
-		osm_mcast_mgr_process(sm);
+		osm_mcast_mgr_process(sm, FALSE);
 		wait_for_pending_transactions(&sm->p_subn->p_osm->stats);
 	}
 }

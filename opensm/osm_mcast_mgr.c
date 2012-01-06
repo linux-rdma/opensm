@@ -1151,13 +1151,15 @@ static int alloc_mfts(osm_sm_t * sm)
 }
 
 /**********************************************************************
-  This is the function that is invoked during idle time to handle the
-  process request for mcast groups where join/leave/delete was required.
+  This is the function that is invoked during idle time and sweep to
+  handle the process request for mcast groups where join/leave/delete
+  was required.
  **********************************************************************/
-int osm_mcast_mgr_process(osm_sm_t * sm)
+int osm_mcast_mgr_process(osm_sm_t * sm, boolean_t config_all)
 {
 	int ret = 0;
 	unsigned i;
+	unsigned max_mlid;
 
 	OSM_LOG_ENTER(sm->p_log);
 
@@ -1177,11 +1179,14 @@ int osm_mcast_mgr_process(osm_sm_t * sm)
 		goto exit;
 	}
 
-	for (i = 0; i <= sm->mlids_req_max; i++) {
-		if (!sm->mlids_req[i])
-			continue;
-		sm->mlids_req[i] = 0;
-		mcast_mgr_process_mlid(sm, i + IB_LID_MCAST_START_HO);
+	max_mlid = config_all ? sm->p_subn->max_mcast_lid_ho
+			- IB_LID_MCAST_START_HO : sm->mlids_req_max;
+	for (i = 0; i <= max_mlid; i++) {
+		if (sm->mlids_req[i] ||
+		    (config_all && sm->p_subn->mboxes[i])) {
+			sm->mlids_req[i] = 0;
+			mcast_mgr_process_mlid(sm, i + IB_LID_MCAST_START_HO);
+		}
 	}
 
 	sm->mlids_req_max = 0;
