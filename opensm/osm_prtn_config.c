@@ -203,7 +203,7 @@ static void __create_mgrp(struct part_conf *conf, struct precreate_mgroup *group
 static int partition_create(unsigned lineno, struct part_conf *conf,
 			    char *name, char *id, char *flag, char *flag_val)
 {
-	uint16_t pkey;
+	ib_net16_t pkey;
 
 	if (!id && name && isdigit(*name)) {
 		id = name;
@@ -213,14 +213,14 @@ static int partition_create(unsigned lineno, struct part_conf *conf,
 	if (id) {
 		char *end;
 
-		pkey = (uint16_t) strtoul(id, &end, 0);
+		pkey = cl_hton16((uint16_t)strtoul(id, &end, 0));
 		if (end == id || *end)
 			return -1;
 	} else
 		pkey = 0;
 
 	conf->p_prtn = osm_prtn_make_new(conf->p_log, conf->p_subn,
-					 name, cl_hton16(pkey));
+					 name, pkey);
 	if (!conf->p_prtn)
 		return -1;
 
@@ -237,6 +237,8 @@ static int partition_create(unsigned lineno, struct part_conf *conf,
 		struct precreate_mgroup broadcast_mgroup;
 		memset(&broadcast_mgroup, 0, sizeof(broadcast_mgroup));
 		broadcast_mgroup.mgid = osm_ipoib_broadcast_mgid;
+		pkey |= cl_hton16(0x8000);
+		memcpy(&broadcast_mgroup.mgid.raw[4], &pkey , sizeof(pkey));
 		broadcast_mgroup.flags.mtu = conf->flags.mtu;
 		broadcast_mgroup.flags.rate = conf->flags.rate;
 		broadcast_mgroup.flags.sl = conf->flags.sl;
