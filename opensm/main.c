@@ -724,13 +724,13 @@ int main(int argc, char *argv[])
 			break;
 
 		case 'w':
-			opt.hop_weights_file = optarg;
+			SET_STR_OPT(opt.hop_weights_file, optarg);
 			printf(" Hop Weights File = %s\n",
 			       opt.hop_weights_file);
 			break;
 
 		case 'O':
-			opt.port_search_ordering_file = optarg;
+			SET_STR_OPT(opt.port_search_ordering_file, optarg);
 			printf(" Port Search Ordering/Dimension Ports File = %s\n",
 			       opt.port_search_ordering_file);
 			break;
@@ -959,7 +959,7 @@ int main(int argc, char *argv[])
 			break;
 
 		case 'G':
-			opt.io_guid_file = optarg;
+			SET_STR_OPT(opt.io_guid_file, optarg);
 			printf(" I/O Node Guid File: %s\n", opt.io_guid_file);
 			break;
 		case 11:
