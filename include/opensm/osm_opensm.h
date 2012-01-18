@@ -173,8 +173,8 @@ struct osm_routing_engine {
 *		The callback for building the spanning tree for multicast
 *		forwarding, called per MLID.
 *
-*	delete
-*		The delete method, may be used for routing engine
+*	destroy
+*		The destroy method, may be used for routing engine
 *		internals cleanup.
 *
 *	next
