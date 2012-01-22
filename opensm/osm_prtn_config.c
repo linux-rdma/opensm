@@ -670,6 +670,7 @@ skip_header:
 		if (q)
 			*q++ = '\0';
 		ret = parse_name_token(p, &name, &flag);
+		len += ret;
 
 		if (strcmp(name, "mgid") == 0) {
 			/* parse an mgid line if specified. */
@@ -685,7 +686,6 @@ skip_header:
 			return -1;
 		}
 		p += ret;
-		len += ret;
 	} while (q);
 
 done:
