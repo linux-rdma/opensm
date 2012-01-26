@@ -5,6 +5,7 @@
  * Copyright (c) 2008 Xsigo Systems Inc.  All rights reserved.
  * Copyright (c) 2009 System Fabric Works, Inc. All rights reserved.
  * Copyright (c) 2009 HNR Consulting. All rights reserved.
+ * Copyright (c) 2009-2011 ZIH, TU Dresden, Federal Republic of Germany. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -1638,7 +1639,7 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		"# commas so that specific ordering of routing algorithms will\n"
 		"# be tried if earlier routing engines fail.\n"
 		"# Supported engines: minhop, updn, dnup, file, ftree, lash,\n"
-		"#    dor, torus-2QoS\n"
+		"#    dor, torus-2QoS, dfsssp, sssp\n"
 		"routing_engine %s\n\n", p_opts->routing_engine_names ?
 		p_opts->routing_engine_names : null_str);
 

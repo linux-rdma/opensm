@@ -53,7 +53,8 @@ opensm_SOURCES = main.c osm_console_io.c osm_console.c osm_db_files.c \
 		 osm_prtn.c osm_prtn_config.c osm_qos.c osm_router.c \
 		 osm_trap_rcv.c osm_ucast_mgr.c osm_ucast_updn.c \
 		 osm_ucast_lash.c osm_ucast_file.c osm_ucast_ftree.c \
-		 osm_torus.c osm_ucast_dnup.c osm_vl15intf.c \
+		 osm_torus.c osm_ucast_dnup.c \
+		 osm_ucast_dfsssp.c osm_vl15intf.c \
 		 osm_vl_arb_rcv.c st.c osm_perfmgr.c osm_perfmgr_db.c \
 		 osm_event_plugin.c osm_dump.c osm_ucast_cache.c \
 		 osm_qos_parser_y.y osm_qos_parser_l.l osm_qos_policy.c

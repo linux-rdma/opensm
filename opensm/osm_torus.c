@@ -2,6 +2,7 @@
  * Copyright 2009 Sandia Corporation.  Under the terms of Contract
  * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government retains
  * certain rights in this software.
+ * Copyright (c) 2009-2011 ZIH, TU Dresden, Federal Republic of Germany. All rights reserved.
  *
  *
  * This software is available to you under a choice of one of two
@@ -9047,8 +9048,8 @@ int route_torus(struct torus *t)
 }
 
 uint8_t torus_path_sl(void *context, uint8_t path_sl_hint,
-		      const osm_port_t *osm_sport,
-		      const osm_port_t *osm_dport)
+		      const osm_port_t *osm_sport, const uint16_t slid,
+		      const osm_port_t *osm_dport, const uint16_t dlid)
 {
 	struct torus_context *ctx = context;
 	osm_log_t *log = &ctx->osm->log;

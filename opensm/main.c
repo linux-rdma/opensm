@@ -4,6 +4,7 @@
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2009 HNR Consulting. All rights reserved.
  * Copyright (c) 2009 System Fabric Works, Inc. All rights reserved.
+ * Copyright (c) 2009-2011 ZIH, TU Dresden, Federal Republic of Germany. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -177,7 +178,7 @@ static void show_usage(void)
 	       "          If all configured routing engines fail, OpenSM will always\n"
 	       "          attempt to route with Min Hop unless 'no_fallback' is\n"
 	       "          included in the list of routing engines.\n"
-	       "          Supported engines: updn, dnup, file, ftree, lash, dor, torus-2QoS\n\n");
+	       "          Supported engines: updn, dnup, file, ftree, lash, dor, torus-2QoS, dfsssp, sssp\n\n");
 	printf("--do_mesh_analysis\n"
 	       "          This option enables additional analysis for the lash\n"
 	       "          routing engine to precondition switch port assignments\n"

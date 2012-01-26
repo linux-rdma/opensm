@@ -2,6 +2,7 @@
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2006 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
+ * Copyright (c) 2009-2011 ZIH, TU Dresden, Federal Republic of Germany. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -107,6 +108,8 @@ typedef enum _osm_routing_engine_type {
 	OSM_ROUTING_ENGINE_TYPE_LASH,
 	OSM_ROUTING_ENGINE_TYPE_DOR,
 	OSM_ROUTING_ENGINE_TYPE_TORUS_2QOS,
+	OSM_ROUTING_ENGINE_TYPE_SSSP,
+	OSM_ROUTING_ENGINE_TYPE_DFSSSP,
 	OSM_ROUTING_ENGINE_TYPE_UNKNOWN
 } osm_routing_engine_type_t;
 /***********/
@@ -132,8 +135,8 @@ struct osm_routing_engine {
 			     IN uint8_t in_port_num, IN uint8_t out_port_num,
 			     IN OUT ib_slvl_table_t *t);
 	uint8_t (*path_sl)(void *context, IN uint8_t path_sl_hint,
-			   IN const osm_port_t *src_port,
-			   IN const osm_port_t *dst_port);
+			   IN const osm_port_t *src_port, IN const uint16_t slid,
+			   IN const osm_port_t *dst_port, IN const uint16_t dlid);
 	ib_api_status_t (*mcast_build_stree)(void *context,
 					     IN OUT osm_mgrp_box_t *mgb);
 	void (*destroy) (void *context);

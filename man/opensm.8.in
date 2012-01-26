@@ -157,7 +157,8 @@ separated by commas so that specific ordering of routing algorithms
 will be tried if earlier routing engines fail.  If all configured
 routing engines fail, OpenSM will always attempt to route with Min Hop
 unless 'no_fallback' is included in the list of routing engines.
-Supported engines: minhop, updn, dnup, file, ftree, lash, dor, torus-2QoS.
+Supported engines: minhop, updn, dnup, file, ftree, lash, dor, torus-2QoS,
+dfsssp, sssp.
 .TP
 \fB\-\-do_mesh_analysis\fR
 This option enables additional analysis for the lash routing engine to
@@ -751,7 +752,7 @@ compiling opensm with -DROUTER_EXP which has been obsoleted.
 
 .SH ROUTING
 .PP
-OpenSM now offers seven routing engines:
+OpenSM now offers nine routing engines:
 
 1.  Min Hop Algorithm - based on the minimum hops to each node where the
 path length is optimized.
@@ -790,6 +791,16 @@ routing while supporting two quality of service (QoS) levels.  In addition
 it is able to route around multiple failed fabric links or a single failed
 fabric switch without introducing deadlocks, and without changing path SL
 values granted before the failure.
+
+8. DFSSSP unicast routing algorithm - a deadlock-free
+single-source-shortest-path routing, which uses the SSSP algorithm
+(see algorithm 9.) as the base to optimize link utilization and uses
+Infiniband virtual lanes (SL) to provide deadlock-freedom.
+
+9. SSSP unicast routing algorithm - a single-source-shortest-path routing
+algorithm, which globally balances the number of routes per link to
+optimize link utilization. This routing algorithm has no restrictions
+in terms of the underlying topology.
 
 OpenSM also supports a file method which
 can load routes from a table. See \'Modular Routing Engine\' for more
@@ -1122,6 +1133,84 @@ along the mesh dimension, or the -O option used as an override.
 
 Use '-R dor' option to activate the DOR algorithm.
 
+DFSSSP and SSSP Routing Algorithm
+
+The (Deadlock-Free) Single-Source-Shortest-Path routing algorithm is
+designed to optimize link utilization thru global balancing of routes,
+while supporting arbitrary topologies. The DFSSSP routing algorithm
+uses Infiniband virtual lanes (SL) to provide deadlock-freedom.
+
+The DFSSSP algorithm consists of five major steps:
+.br
+1) It discovers the subnet and models the subnet as a directed
+multigraph in which each node represents a node of the physical
+network and each edge represents one direction of the full-duplex
+links used to connect the nodes.
+.br
+2) A loop, which iterates over all CA and switches of the subnet, will
+perform three steps to generate the linear forwarding tables for
+each switch:
+.br
+2.1) use Dijkstra's algorithm to find the shortest path from all
+nodes to the current selected destination;
+.br
+2.2) update the egde weights in the graph, i.e. add the number of
+routes, which use a link to reach the destination,
+to the link/edge;
+.br
+2.3) update the LFT of each switch with the outgoing port which was
+used in the current step to route the traffic to the
+destination node.
+.br
+3) After the number of available virtual lanes or layers in the subnet
+is detected and a channel dependency graph is initialized for each
+layer, the algorithm will put each possible route of the subnet into
+the first layer.
+.br
+4) A loop iterates over all channel dependency graphs (CDG) and performs
+the following substeps:
+.br
+4.1) search for a cycle in the current CDG;
+.br
+4.2) when a cycle is found, i.e. a possible deadlock is present,
+one edge is selected and all routes, which induced this egde,
+are moved to the "next higher" virtual layer (CDG[i+1]);
+.br
+4.3) the cycle search is continued until all cycles are broken and
+routes are moved "up".
+.br
+5) When the number of needed layers does not exceeds the number of
+available SL/VL to remove all cycles in all CDGs, the rounting is
+deadlock-free and an relation table is generated, which contains
+the assignment of routes from source to destination to a SL
+
+Note on SSSP:
+.br
+This algorithm does not perform the steps 3)-5) and can not be
+considered to be deadlock-free for all topologies. But on the one
+hand, you can choose this algorithm for really large networks
+(5,000+ CAs and deadlock-free by design) to reduce
+the runtime of the algorithm. On the other hand, you might use
+the SSSP routing algorithm as an alternative, when all deadlock-free
+routing algorithms fail to route the network for whatever reason.
+In the last case, SSSP was designed to deliver an equal or higher
+bandwidth due to better congestion avoidance than the Min Hop
+routing algorithm.
+
+Notes for usage:
+.br
+a) running DFSSSP: '-R dfsssp -Q'
+.br
+a.1) QoS has to be configured to equally spread the load on the
+available SL or virtual lanes
+.br
+a.2) applications must perform a path record query to get path SL for
+each route, which the application will use to transmite packages
+.br
+b) running SSSP:   '-R sssp'
+.br
+c) both algorithms support LMC > 0
+
 Torus-2QoS Routing Algorithm
 
 Torus-2QoS is routing algorithm designed for large-scale 2D/3D torus fabrics;
@@ -1157,6 +1246,16 @@ Communications Magazine, Vol.44, No.7, July 2006.
 Networks", Skeie et al. IEEE Computer Society Communication
 Architecture for Clusters 2002.
 
+To learn more about the DFSSSP and SSSP routing algorithm,
+see the articles:
+.br
+J. Domke, T. Hoefler and W. Nagel: Deadlock-Free Oblivious Routing
+for Arbitrary Topologies, In Proceedings of the 25th IEEE International
+Parallel & Distributed Processing Symposium (IPDPS 2011)
+.br
+T. Hoefler, T. Schneider and A. Lumsdaine: Optimized Routing for
+Large-Scale InfiniBand Networks, In 17th Annual IEEE Symposium on High
+Performance Interconnects (HOTI 2009)
 
 Modular Routine Engine
 

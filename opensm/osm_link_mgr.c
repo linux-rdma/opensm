@@ -3,6 +3,7 @@
  * Copyright (c) 2002-2011 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2009 Sun Microsystems, Inc. All rights reserved.
+ * Copyright (c) 2009-2011 ZIH, TU Dresden, Federal Republic of Germany. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -60,6 +61,7 @@ static uint8_t link_mgr_get_smsl(IN osm_sm_t * sm, IN osm_physp_t * p_physp)
 	struct osm_routing_engine *re = p_osm->routing_engine_used;
 	const osm_port_t *p_sm_port, *p_src_port;
 	ib_net16_t slid;
+	ib_net16_t smlid;
 	uint8_t sl;
 
 	OSM_LOG_ENTER(sm->p_log);
@@ -75,6 +77,7 @@ static uint8_t link_mgr_get_smsl(IN osm_sm_t * sm, IN osm_physp_t * p_physp)
 	}
 
 	/* Find osm_port of the SM itself = dest_port */
+	smlid = sm->p_subn->sm_base_lid;
 	p_sm_port = osm_get_port_by_lid(sm->p_subn, sm->p_subn->sm_base_lid);
 
 	/* Find osm_port of the source = p_physp */
@@ -82,7 +85,7 @@ static uint8_t link_mgr_get_smsl(IN osm_sm_t * sm, IN osm_physp_t * p_physp)
 
 	/* Call into routing engine to find proper SL */
 	sl = re->path_sl(re->context, sm->p_subn->opt.sm_sl,
-			 p_src_port, p_sm_port);
+			 p_src_port, slid, p_sm_port, smlid);
 
 	OSM_LOG_EXIT(sm->p_log);
 	return sl;

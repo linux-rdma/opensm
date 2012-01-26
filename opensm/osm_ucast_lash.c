@@ -6,6 +6,7 @@
  * Copyright (c) 2007      Silicon Graphics Inc. All rights reserved.
  * Copyright (c) 2008,2009 System Fabric Works, Inc. All rights reserved.
  * Copyright (c) 2009      HNR Consulting. All rights reserved.
+ * Copyright (c) 2009-2011 ZIH, TU Dresden, Federal Republic of Germany. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -1276,8 +1277,8 @@ static void lash_delete(void *context)
 }
 
 static uint8_t get_lash_sl(void *context, uint8_t path_sl_hint,
-			   const osm_port_t *p_src_port,
-			   const osm_port_t *p_dst_port)
+			   const osm_port_t *p_src_port, const uint16_t slid,
+			   const osm_port_t *p_dst_port, const uint16_t dlid)
 {
 	unsigned dst_id;
 	unsigned src_id;

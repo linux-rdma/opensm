@@ -5,6 +5,7 @@
  * Copyright (c) 2008 Xsigo Systems Inc. All rights reserved.
  * Copyright (c) 2009 HNR Consulting. All rights reserved.
  * Copyright (c) 2010 Sun Microsystems, Inc. All rights reserved.
+ * Copyright (c) 2009-2011 ZIH, TU Dresden, Federal Republic of Germany. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -153,6 +154,7 @@ sa_path_rec_apply_tavor_mtu_limit(IN const ib_path_rec_t * p_pr,
 static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 					     IN const ib_path_rec_t * p_pr,
 					     IN const osm_alias_guid_t * p_src_alias_guid,
+					     IN const uint16_t src_lid_ho,
 					     IN const osm_alias_guid_t * p_dest_alias_guid,
 					     IN const uint16_t dest_lid_ho,
 					     IN const ib_net64_t comp_mask,
@@ -820,8 +822,8 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 	 */
 	if (p_re && p_re->path_sl)
 		sl = p_re->path_sl(p_re->context, sl,
-				   p_src_alias_guid->p_base_port,
-				   p_dest_alias_guid->p_base_port);
+				   p_src_alias_guid->p_base_port, src_lid_ho,
+				   p_dest_alias_guid->p_base_port, dest_lid_ho);
 
 	/* reset pkey when raw traffic */
 	if (comp_mask & IB_PR_COMPMASK_RAWTRAFFIC &&
@@ -844,6 +846,7 @@ Exit:
 
 ib_api_status_t osm_get_path_params(IN osm_sa_t * sa,
 				    IN const osm_port_t * p_src_port,
+				    IN const uint16_t slid_ho,
 				    IN const osm_port_t * p_dest_port,
 				    IN const uint16_t dlid_ho,
 				    OUT osm_path_parms_t * p_parms)
@@ -944,7 +947,7 @@ static osm_pr_item_t *pr_rcv_get_lid_pair_path(IN osm_sa_t * sa,
 	}
 	memset(p_pr_item, 0, sizeof(*p_pr_item));
 
-	status = pr_rcv_get_path_parms(sa, p_pr, p_src_alias_guid,
+	status = pr_rcv_get_path_parms(sa, p_pr, p_src_alias_guid, src_lid_ho,
 				       p_dest_alias_guid, dest_lid_ho,
 				       comp_mask, &path_parms);
 
@@ -956,8 +959,10 @@ static osm_pr_item_t *pr_rcv_get_lid_pair_path(IN osm_sa_t * sa,
 
 	/* now try the reversible path */
 	rev_path_status = pr_rcv_get_path_parms(sa, p_pr, p_dest_alias_guid,
-						p_src_alias_guid, src_lid_ho,
-						comp_mask, &rev_path_parms);
+						dest_lid_ho, p_src_alias_guid,
+						src_lid_ho, comp_mask,
+						&rev_path_parms);
+
 	path_parms.reversible = (rev_path_status == IB_SUCCESS);
 
 	/* did we get a Reversible Path compmask ? */
