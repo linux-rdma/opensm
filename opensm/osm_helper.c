@@ -453,7 +453,7 @@ static int ordered_rates[] = {
 	4,	/* 11 -  14 Gbps (17 Gbps equiv) */
 	10,	/* 12 -  56 Gbps (68 Gbps equiv) */
 	14,	/* 13 - 112 Gbps (136 Gbps equiv) */
-	15,	/* 14 - 158 Gbps (204 Gbps equiv) */
+	15,	/* 14 - 168 Gbps (204 Gbps equiv) */
 	7,	/* 15 -  25 Gbps (31.25 Gbps equiv) */
 	13,	/* 16 - 100 Gbps (125 Gbps equiv) */
 	16,	/* 17 - 200 Gbps (250 Gbps equiv) */
