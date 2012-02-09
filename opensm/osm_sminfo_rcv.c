@@ -323,8 +323,8 @@ static void smi_rcv_process_get_sm(IN osm_sm_t * sm,
 			/* save on the sm the guid of the current master. */
 			OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 				"Found master SM. Updating sm_state_mgr master_guid: 0x%016"
-				PRIx64 "\n", cl_ntoh64(p_sm->p_port->guid));
-			sm->master_sm_guid = p_sm->p_port->guid;
+				PRIx64 "\n", cl_ntoh64(p_smi->guid));
+			sm->master_sm_guid = p_smi->guid;
 			break;
 		case IB_SMINFO_STATE_DISCOVERING:
 		case IB_SMINFO_STATE_STANDBY:
@@ -336,8 +336,8 @@ static void smi_rcv_process_get_sm(IN osm_sm_t * sm,
 				OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 					"Found higher SM. Updating sm_state_mgr master_guid:"
 					" 0x%016" PRIx64 "\n",
-					cl_ntoh64(p_sm->p_port->guid));
-				sm->master_sm_guid = p_sm->p_port->guid;
+					cl_ntoh64(p_smi->guid));
+				sm->master_sm_guid = p_smi->guid;
 			}
 			break;
 		default:
@@ -361,7 +361,7 @@ static void smi_rcv_process_get_sm(IN osm_sm_t * sm,
 		case IB_SMINFO_STATE_STANDBY:
 			/* This should be the response from the sm we are polling. */
 			/* If it is - then signal master is alive */
-			if (sm->master_sm_guid == p_sm->p_port->guid) {
+			if (sm->master_sm_guid == p_sm->smi.guid) {
 				/* Make sure that it is an SM with higher priority than us.
 				   If we started polling it when it was master, and it moved
 				   to standby - then it might be with a lower priority than
@@ -498,7 +498,7 @@ static void smi_rcv_process_get_response(IN osm_sm_t * sm,
 			goto _unlock_and_exit;
 		}
 
-		osm_remote_sm_init(p_sm, p_port, p_smi);
+		osm_remote_sm_init(p_sm, p_smi);
 
 		cl_qmap_insert(p_sm_tbl, port_guid, &p_sm->map_item);
 	} else

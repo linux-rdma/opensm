@@ -491,12 +491,20 @@ static void query_sm_info(cl_map_item_t * item, void *cxt)
 	osm_remote_sm_t *r_sm = cl_item_obj(item, r_sm, map_item);
 	osm_sm_t *sm = cxt;
 	ib_api_status_t ret;
+	osm_port_t *p_port;
 
-	context.smi_context.port_guid = r_sm->p_port->guid;
+	p_port= osm_get_port_by_guid(sm->p_subn, r_sm->smi.guid);
+	if (p_port == NULL) {
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3340: "
+			"No port object on given sm object\n");
+		return;
+        }
+
+	context.smi_context.port_guid = r_sm->smi.guid;
 	context.smi_context.set_method = FALSE;
 	context.smi_context.light_sweep = TRUE;
 
-	ret = osm_req_get(sm, osm_physp_get_dr_path_ptr(r_sm->p_port->p_physp),
+	ret = osm_req_get(sm, osm_physp_get_dr_path_ptr(p_port->p_physp),
 			  IB_MAD_ATTR_SM_INFO, 0, CL_DISP_MSGID_NONE, &context);
 	if (ret != IB_SUCCESS)
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3314: "
@@ -673,6 +681,7 @@ static osm_remote_sm_t *state_mgr_exists_other_master_sm(IN osm_sm_t * sm)
 	cl_qmap_t *p_sm_tbl;
 	osm_remote_sm_t *p_sm;
 	osm_remote_sm_t *p_sm_res = NULL;
+	osm_node_t *p_node;
 
 	OSM_LOG_ENTER(sm->p_log);
 
@@ -683,12 +692,12 @@ static osm_remote_sm_t *state_mgr_exists_other_master_sm(IN osm_sm_t * sm)
 	     p_sm != (osm_remote_sm_t *) cl_qmap_end(p_sm_tbl);
 	     p_sm = (osm_remote_sm_t *) cl_qmap_next(&p_sm->map_item)) {
 		/* If the sm is in MASTER state - return a pointer to it */
+		p_node = osm_get_node_by_guid(sm->p_subn, p_sm->smi.guid);
 		if (ib_sminfo_get_state(&p_sm->smi) == IB_SMINFO_STATE_MASTER) {
 			OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 				"Found remote master SM with guid:0x%016" PRIx64
 				" (node %s)\n", cl_ntoh64(p_sm->smi.guid),
-				p_sm->p_port->p_node ? p_sm->p_port->p_node->
-				print_desc : "UNKNOWN");
+				p_node ? p_node->print_desc : "UNKNOWN");
 			p_sm_res = p_sm;
 			goto Exit;
 		}
@@ -712,6 +721,7 @@ static osm_remote_sm_t *state_mgr_get_highest_sm(IN osm_sm_t * sm)
 	osm_remote_sm_t *p_highest_sm;
 	uint8_t highest_sm_priority;
 	ib_net64_t highest_sm_guid;
+	osm_node_t *p_node;
 
 	OSM_LOG_ENTER(sm->p_log);
 
@@ -744,13 +754,13 @@ static osm_remote_sm_t *state_mgr_get_highest_sm(IN osm_sm_t * sm)
 		}
 	}
 
-	if (p_highest_sm != NULL)
+	if (p_highest_sm != NULL) {
+		p_node = osm_get_node_by_guid(sm->p_subn, p_highest_sm->smi.guid);
 		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 			"Found higher SM with guid: %016" PRIx64 " (node %s)\n",
 			cl_ntoh64(p_highest_sm->smi.guid),
-			p_highest_sm->p_port->p_node ?
-			p_highest_sm->p_port->p_node->print_desc : "UNKNOWN");
-
+			p_node ? p_node->print_desc : "UNKNOWN");
+	}
 	OSM_LOG_EXIT(sm->p_log);
 	return p_highest_sm;
 }
@@ -774,7 +784,7 @@ static void state_mgr_send_handover(IN osm_sm_t * sm, IN osm_remote_sm_t * p_sm)
 	 */
 
 	memset(&context, 0, sizeof(context));
-	p_port = p_sm->p_port;
+	p_port = osm_get_port_by_guid(sm->p_subn, p_sm->smi.guid);
 	if (p_port == NULL) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3316: "
 			"No port object on given remote_sm object\n");

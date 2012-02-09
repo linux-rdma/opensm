@@ -123,6 +123,7 @@ static void sa_smir_by_comp_mask(IN osm_sa_t * sa,
 	const ib_sminfo_record_t *const p_rcvd_rec = p_ctxt->p_rcvd_rec;
 	const osm_physp_t *const p_req_physp = p_ctxt->p_req_physp;
 	ib_net64_t const comp_mask = p_ctxt->comp_mask;
+	osm_port_t *p_port;
 
 	OSM_LOG_ENTER(sa->p_log);
 
@@ -144,8 +145,15 @@ static void sa_smir_by_comp_mask(IN osm_sa_t * sa,
 	}
 
 	/* Implement any other needed search cases */
+	p_port = osm_get_port_by_guid(sa->p_subn, p_rem_sm->smi.guid);
 
-	smir_rcv_new_smir(sa, p_rem_sm->p_port, p_ctxt->p_list,
+        if (p_port == NULL) {
+                OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2810: "
+                        "No port for remote sm\n");
+                goto Exit;
+        }
+
+	smir_rcv_new_smir(sa, p_port, p_ctxt->p_list,
 			  p_rem_sm->smi.guid, p_rem_sm->smi.act_count,
 			  p_rem_sm->smi.pri_state, p_req_physp);
 

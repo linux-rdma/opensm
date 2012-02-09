@@ -59,15 +59,13 @@ void osm_remote_sm_destroy(IN osm_remote_sm_t * p_sm)
 	memset(p_sm, 0, sizeof(*p_sm));
 }
 
-void osm_remote_sm_init(IN osm_remote_sm_t * p_sm, IN const osm_port_t * p_port,
+void osm_remote_sm_init(IN osm_remote_sm_t * p_sm,
 			IN const ib_sm_info_t * p_smi)
 {
 	CL_ASSERT(p_sm);
-	CL_ASSERT(p_port);
 
 	osm_remote_sm_construct(p_sm);
 
-	p_sm->p_port = p_port;
 	p_sm->smi = *p_smi;
 	return;
 }

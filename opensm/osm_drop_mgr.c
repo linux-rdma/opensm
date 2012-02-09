@@ -256,7 +256,9 @@ static void drop_mgr_remove_port(osm_sm_t * sm, IN osm_port_t * p_port)
 		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 			"Cleaned SM for port guid 0x%016" PRIx64 "\n",
 			cl_ntoh64(port_guid));
-
+		/* clean up the polling_sm pointer */
+		if (sm->p_polling_sm == p_sm)
+			sm->p_polling_sm = NULL;
 		free(p_sm);
 	}
 
