@@ -385,8 +385,22 @@ static void smi_rcv_process_get_sm(IN osm_sm_t * sm,
 				osm_sm_state_mgr_signal_master_is_alive(sm);
 			else {
 				/* This is a response we got while sweeping the subnet.
-				   We will handle a case of handover needed later on, when the sweep
-				   is done and all SMs are recongnized. */
+				 *
+				 * If this is during a heavy sweep, we will handle a case of
+				 * handover needed later on, when the sweep is done and all
+				 * SMs are recognized.
+				 *
+				 * If this is during a light sweep, initiate a heavy sweep
+				 * to initiate handover scenarios.
+				 *
+				 * Note that it does not matter if the remote SM is lower
+				 * or higher priority.  If it is lower priority, we must
+				 * wait for it HANDOVER.  If it is higher priority, we need
+				 * to HANDOVER to it.  Both cases are handled after doing
+				 * a heavy sweep.
+				 */
+				if (light_sweep)
+					sm->p_subn->force_heavy_sweep = TRUE;
 			}
 			break;
 		case IB_SMINFO_STATE_STANDBY:
