@@ -316,6 +316,8 @@ cache_restore_ucast_info(osm_ucast_mgr_t * p_mgr,
 		free(p_sw->new_lft);
 	p_sw->new_lft = p_cache_sw->lft;
 	p_cache_sw->lft = NULL;
+	p_sw->lft_size = (p_sw->max_lid_ho / IB_SMP_DATA_SIZE + 1)
+			 * IB_SMP_DATA_SIZE;
 
 	p_sw->num_hops = p_cache_sw->num_hops;
 	p_cache_sw->num_hops = 0;
@@ -1018,10 +1020,13 @@ int osm_ucast_cache_process(osm_ucast_mgr_t * p_mgr)
 	     item = cl_qmap_next(item)) {
 		p_sw = (osm_switch_t *) item;
 
-		if (p_sw->need_update && !p_sw->new_lft) {
-			/* no new routing was recently calculated for this
-			   switch, but the LFT needs to be updated anyway */
-			p_sw->new_lft = p_sw->lft;
+		if (p_sw->need_update) {
+			if (!p_sw->new_lft)
+				/* no new routing was recently calculated for this
+				   switch, but the LFT needs to be updated anyway */
+				p_sw->new_lft = p_sw->lft;
+
+
 			p_sw->lft = malloc(p_sw->lft_size);
 			if (!p_sw->lft)
 				return IB_INSUFFICIENT_MEMORY;
