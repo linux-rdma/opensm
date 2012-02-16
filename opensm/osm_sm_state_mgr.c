@@ -403,6 +403,10 @@ ib_api_status_t osm_sm_state_mgr_process(osm_sm_t * sm,
 			OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 				"Forcing heavy sweep. "
 				"Received OSM_SM_SIGNAL_HANDOVER or OSM_SM_SIGNAL_POLLING_TIMEOUT\n");
+			/* Force set_client_rereg_on_sweep, we don't know what the other
+			 * SM may have configure/done on the fabric.
+			 */
+			sm->p_subn->set_client_rereg_on_sweep = TRUE;
 			sm->p_polling_sm = NULL;
 			sm->p_subn->force_heavy_sweep = TRUE;
 			osm_sm_signal(sm, OSM_SIGNAL_SWEEP);

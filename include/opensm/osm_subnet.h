@@ -562,6 +562,7 @@ typedef struct osm_subn {
 	boolean_t force_reroute;
 	boolean_t in_sweep_hop_0;
 	boolean_t first_time_master_sweep;
+	boolean_t set_client_rereg_on_sweep;
 	boolean_t coming_out_of_standby;
 	boolean_t sweeping_enabled;
 	unsigned need_update;
@@ -668,13 +669,20 @@ typedef struct osm_subn {
 *		the sweeping.
 *
 *	first_time_master_sweep
-*		This flag is used for the PortInfo setting. On the first
-*		sweep as master (meaning after moving from Standby|Discovering
-*		state), the SM must send a PortInfoSet to all ports. After
-*		that - we want to minimize the number of PortInfoSet requests
-*		sent, and to send only requests that change the value from
-*		what is updated in the port (or send a first request if this
-*		is a new port). We will set this flag to TRUE when entering
+*		This flag is to indicate the first sweep as master (meaning
+*		after moving from Standby|Discovering state).  The flag is
+*		used to notify some alternate actions that must be done on
+*		the first master sweep.  It may perform some actions indicated
+*		by flags below, such as set_client_rereg_on_sweep.
+*
+*	set_client_rereg_on_sweep
+*		This flag is used for the PortInfo setting client rereg.
+*		When configuring the subnet for the first time, and several
+*		other circumstances, SM must send a PortInfoSet to all ports.
+*		After that - we want to minimize the number of PortInfoSet
+*		requests sent, and to send only requests that change the value
+*		from what is updated in the port (or send a first request if
+*		this is a new port). We will set this flag to TRUE when entering
 *		the master state, and set it back to FALSE at the end of the
 *		drop manager. This is done since at the end of the drop manager
 *		we have updated all the ports that are reachable, and from now
