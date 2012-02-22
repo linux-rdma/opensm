@@ -373,6 +373,7 @@ static void del_guidinfo(IN osm_sa_t *sa, IN osm_madw_t *p_madw,
 			 IN osm_port_t *p_port, IN uint8_t block_num)
 {
 	int i;
+	uint32_t max_block;
 	ib_sa_mad_t *p_sa_mad;
 	ib_guidinfo_record_t *p_rcvd_rec;
 	ib_net64_t del_alias_guid;
@@ -385,6 +386,19 @@ static void del_guidinfo(IN osm_sa_t *sa, IN osm_madw_t *p_madw,
 
 	if (!p_port->p_physp->p_guids)
 		goto Exit;
+
+	max_block = (p_port->p_physp->port_info.guid_cap + GUID_TABLE_MAX_ENTRIES - 1) /
+		     GUID_TABLE_MAX_ENTRIES;
+
+	if (block_num > max_block) {
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 5116: "
+			"block_num %d is higher than Max GUID Cap block %d "
+			"for port GUID 0x%" PRIx64 "\n",
+			block_num, max_block, cl_ntoh64(p_port->p_physp->port_guid));
+		osm_sa_send_error(sa, p_madw,
+				  IB_SA_MAD_STATUS_NO_RECORDS);
+		return;
+	}
 
 	p_sa_mad = osm_madw_get_sa_mad_ptr(p_madw);
 	p_rcvd_rec =
@@ -479,6 +493,15 @@ static void set_guidinfo(IN osm_sa_t *sa, IN osm_madw_t *p_madw,
 
 	max_block = (p_port->p_physp->port_info.guid_cap + GUID_TABLE_MAX_ENTRIES - 1) /
 		     GUID_TABLE_MAX_ENTRIES;
+	if (block_num > max_block) {
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 5118: "
+			"block_num %d is higher than Max GUID Cap block %d "
+			"for port GUID 0x%" PRIx64 "\n",
+			block_num, max_block, cl_ntoh64(p_port->p_physp->port_guid));
+		osm_sa_send_error(sa, p_madw,
+				  IB_SA_MAD_STATUS_NO_RECORDS);
+		return;
+	}
 	if (!p_port->p_physp->p_guids) {
 		p_port->p_physp->p_guids = calloc(max_block * GUID_TABLE_MAX_ENTRIES,
 						  sizeof(ib_net64_t));
