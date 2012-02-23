@@ -63,7 +63,7 @@
  *    Switches are stored in two cl_qmaps - one is
  *    ordered by guid, and the other by a key that is
  *    generated from tuple. Since cl_qmap supports only
- *    a 64-bit key, the maximal tuple lenght is 8 bytes.
+ *    a 64-bit key, the maximal tuple length is 8 bytes.
  *    which means that maximal tree rank is 8.
  * Note that the above also implies that each switch
  * can have at max 255 up/down ports.
@@ -2216,7 +2216,7 @@ fabric_route_upgoing_by_going_down(IN ftree_fabric_t * p_ftree,
 			/* Loop in the fabric - we already routed the remote switch
 			   on our way UP, and now we see it again on our way DOWN */
 			OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
-				"Loop of lenght %d in the fabric:\n                             "
+				"Loop of length %d in the fabric:\n                             "
 				"Switch %s (LID %u) closes loop through switch %s (LID %u)\n",
 				current_hops,
 				tuple_to_str(p_remote_sw->tuple),
