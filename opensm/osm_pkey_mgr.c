@@ -255,12 +255,13 @@ pkey_mgr_enforce_partition(IN osm_log_t * p_log, osm_sm_t * sm,
 static void clear_accum_pkey_index(osm_pkey_tbl_t * p_pkey_tbl,
                                    uint16_t pkey_index)
 {
-	uint16_t i, pkey_idx_bias, pkey_idx;
+	uint16_t pkey_idx_bias, pkey_idx;
+	uint32_t i;
 	void *ptr;
 	uintptr_t pkey_idx_ptr;
 
 	pkey_idx_bias = pkey_index + 1; // adjust for pkey index bias in accum_pkeys
-	for (i = 0; i < cl_ptr_vector_get_size(&p_pkey_tbl->accum_pkeys); i++) {
+	for (i = 1; i < cl_ptr_vector_get_size(&p_pkey_tbl->accum_pkeys); i++) {
 		ptr = cl_ptr_vector_get(&p_pkey_tbl->accum_pkeys, i);
 		if (ptr != NULL) {
 			pkey_idx_ptr = (uintptr_t) ptr;
