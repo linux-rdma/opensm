@@ -748,9 +748,10 @@ void osm_gir_rcv_process(IN void *ctx, IN void *data)
 		p_rcvd_rec = (ib_guidinfo_record_t *) ib_sa_mad_get_payload_ptr(p_rcvd_mad);
 		p_port = osm_get_port_by_lid(sa->p_subn, p_rcvd_rec->lid);
 		if (!p_port) {
-			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
+			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 5117: "
 				"Port with LID %u not found\n",
 				cl_ntoh16(p_rcvd_rec->lid));
+			osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_NO_RECORDS);
 			goto Exit;
 		}
 		if (!osm_physp_share_pkey(sa->p_log, p_req_physp,
