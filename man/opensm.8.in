@@ -439,7 +439,7 @@ specific log level as follows:
  0x10 - FUNCS (function entry/exit, very high volume)
  0x20 - FRAMES (dumps all SMP and GMP frames)
  0x40 - ROUTING (dump FDB routing information)
- 0x80 - currently unused.
+ 0x80 - SYS (syslog at LOG_INFO level in addition to OpenSM logging)
 
 Without -D, OpenSM defaults to ERROR + INFO (0x3).
 Specifying -D 0 disables all messages.
