@@ -572,19 +572,19 @@ typedef struct osm_subn {
 /*
 * FIELDS
 *	sw_guid_tbl
-*		Container of pointers to all Switch objects in the subent.
+*		Container of pointers to all Switch objects in the subnet.
 *		Indexed by node GUID.
 *
 *	node_guid_tbl
-*		Container of pointers to all Node objects in the subent.
+*		Container of pointers to all Node objects in the subnet.
 *		Indexed by node GUID.
 *
 *	port_guid_tbl
-*		Container of pointers to all Port objects in the subent.
+*		Container of pointers to all Port objects in the subnet.
 *		Indexed by port GUID - network order!
 *
 *	rtr_guid_tbl
-*		Container of pointers to all Router objects in the subent.
+*		Container of pointers to all Router objects in the subnet.
 *		Indexed by node GUID.
 *
 *	prtn_pkey_tbl
@@ -596,7 +596,7 @@ typedef struct osm_subn {
 *		on the subnet.
 *
 *	port_lid_tbl
-*		Container of pointers to all Port objects in the subent.
+*		Container of pointers to all Port objects in the subnet.
 *		Indexed by port LID.
 *
 *	master_sm_base_lid
