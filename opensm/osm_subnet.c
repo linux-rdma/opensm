@@ -1197,7 +1197,7 @@ osm_mgrp_t *osm_get_mgrp_by_mgid(IN osm_subn_t * subn, IN ib_gid_t * mgid)
 {
 	osm_mgrp_t *mgrp;
 
-	mgrp= (osm_mgrp_t *)cl_fmap_get(&subn->mgrp_mgid_tbl, mgid);
+	mgrp = (osm_mgrp_t *)cl_fmap_get(&subn->mgrp_mgid_tbl, mgid);
 	if (mgrp != (osm_mgrp_t *)cl_fmap_end(&subn->mgrp_mgid_tbl))
 		return mgrp;
 	return NULL;
