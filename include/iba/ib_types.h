@@ -11201,7 +11201,7 @@ ib_cc_mad_get_cc_key(IN const ib_cc_mad_t * const p_cc_mad)
 
 /****f* IBA Base: Types/ib_cc_mad_get_log_data_ptr
 * NAME
-*	ib_cc_mad_get_mgt_data_ptr
+*	ib_cc_mad_get_log_data_ptr
 *
 * DESCRIPTION
 *	Gets a pointer to the CC MAD's log data area.
@@ -11504,16 +11504,16 @@ typedef struct _ib_sw_cong_setting {
 *		  bits [254..1]: ports [254..1]
 *		  bit 255: reserved
 *
-*	threshold
-*		bits [15..12] Indicates how agressive cong. marking should be
-*		bits [11..0] Reserved
+*	threshold_resv
+*		bits [7..4] Indicates how aggressive cong. marking should be
+*		bits [3..0] Reserved
 *
 *	packet_size
 *		Any packet less than this size won't be marked with FECN
 *
-*	cs_threshold
-*		bits [7..4] How agressive Credit Starvation should be
-*		bits [3..0] Reserved
+*	cs_threshold_resv
+*		bits [15..12] How aggressive Credit Starvation should be
+*		bits [11..0] Reserved
 *
 *	cs_return_delay
 *		Value that controls credit return rate.
