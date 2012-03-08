@@ -869,6 +869,8 @@ static void portstatus_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 		fprintf(out, "   %" PRIu64 " at 5.0 Gbps\n", fs.ports_ddr);
 	if (fs.ports_qdr)
 		fprintf(out, "   %" PRIu64 " at 10.0 Gbps\n", fs.ports_qdr);
+	if (fs.ports_fdr10)
+		fprintf(out, "   %" PRIu64 " at 10.0 Gbps (FDR10)\n", fs.ports_fdr10);
 	if (fs.ports_fdr)
 		fprintf(out, "   %" PRIu64 " at 14.0625 Gbps\n", fs.ports_fdr);
 	if (fs.ports_edr)
