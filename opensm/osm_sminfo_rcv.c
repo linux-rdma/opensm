@@ -181,7 +181,7 @@ static void smi_rcv_process_set_request(IN osm_sm_t * sm,
 		goto Exit;
 	}
 
-	CL_PLOCK_EXCL_ACQUIRE(sm->p_lock);
+	CL_PLOCK_ACQUIRE(sm->p_lock);
 
 	p_smi->guid = sm->p_subn->sm_port_guid;
 	p_smi->act_count = cl_hton32(sm->p_subn->p_osm->stats.qp0_mads_sent);
@@ -247,6 +247,8 @@ static void smi_rcv_process_set_request(IN osm_sm_t * sm,
 		goto Exit;
 	}
 
+	CL_PLOCK_RELEASE(sm->p_lock);
+
 	/* check legality of the needed transition in the SM state machine */
 	status = osm_sm_state_mgr_check_legality(sm, sm_signal);
 	if (status != IB_SUCCESS) {
@@ -260,7 +262,6 @@ static void smi_rcv_process_set_request(IN osm_sm_t * sm,
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 2F08: "
 				"Error sending response (%s)\n",
 				ib_get_err_str(status));
-		CL_PLOCK_RELEASE(sm->p_lock);
 		goto Exit;
 	}
 
@@ -280,10 +281,11 @@ static void smi_rcv_process_set_request(IN osm_sm_t * sm,
 			"Received a STANDBY signal. Updating "
 			"sm_state_mgr master_guid: 0x%016" PRIx64 "\n",
 			cl_ntoh64(sm_smi->guid));
+		CL_PLOCK_EXCL_ACQUIRE(sm->p_lock);
 		sm->master_sm_guid = sm_smi->guid;
+		CL_PLOCK_RELEASE(sm->p_lock);
 	}
 
-	CL_PLOCK_RELEASE(sm->p_lock);
 	status = osm_sm_state_mgr_process(sm, sm_signal);
 
 	if (status != IB_SUCCESS)
