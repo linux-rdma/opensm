@@ -9048,16 +9048,25 @@ int route_torus(struct torus *t)
 }
 
 uint8_t torus_path_sl(void *context, uint8_t path_sl_hint,
-		      const osm_port_t *osm_sport, const uint16_t slid,
-		      const osm_port_t *osm_dport, const uint16_t dlid)
+		      const ib_net16_t slid, const ib_net16_t dlid)
 {
 	struct torus_context *ctx = context;
-	osm_log_t *log = &ctx->osm->log;
+	osm_opensm_t *p_osm = ctx->osm;
+	osm_log_t *log = &p_osm->log;
+	osm_port_t *osm_sport, *osm_dport;
 	struct endpoint *sport, *dport;
 	struct t_switch *ssw, *dsw;
 	struct torus *t;
 	guid_t guid;
 	unsigned sl = 0;
+
+	osm_sport = osm_get_port_by_lid(&p_osm->subn, slid);
+	if (!osm_sport)
+		goto out;
+
+	osm_dport = osm_get_port_by_lid(&p_osm->subn, dlid);
+	if (!osm_dport)
+		goto out;
 
 	sport = osm_sport->priv;
 	if (!(sport && sport->osm_port == osm_sport)) {

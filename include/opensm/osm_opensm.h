@@ -135,8 +135,7 @@ struct osm_routing_engine {
 			     IN uint8_t in_port_num, IN uint8_t out_port_num,
 			     IN OUT ib_slvl_table_t *t);
 	uint8_t (*path_sl)(void *context, IN uint8_t path_sl_hint,
-			   IN const osm_port_t *src_port, IN const uint16_t slid,
-			   IN const osm_port_t *dst_port, IN const uint16_t dlid);
+			   IN const ib_net16_t slid, IN const ib_net16_t dlid);
 	ib_api_status_t (*mcast_build_stree)(void *context,
 					     IN OUT osm_mgrp_box_t *mgb);
 	void (*destroy) (void *context);

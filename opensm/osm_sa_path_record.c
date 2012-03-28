@@ -822,8 +822,7 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 	 */
 	if (p_re && p_re->path_sl)
 		sl = p_re->path_sl(p_re->context, sl,
-				   p_src_alias_guid->p_base_port, src_lid_ho,
-				   p_dest_alias_guid->p_base_port, dest_lid_ho);
+				   cl_hton16(src_lid_ho), cl_hton16(dest_lid_ho));
 
 	/* reset pkey when raw traffic */
 	if (comp_mask & IB_PR_COMPMASK_RAWTRAFFIC &&
