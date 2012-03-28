@@ -2137,6 +2137,8 @@ static void dfsssp_context_destroy(void *context)
 	/* free srcdest2vl table (can be done because, dfsssp_context_destroy is called after osm_get_dfsssp_sl) */
 	vltable_dealloc(&(dfsssp_ctx->srcdest2vl_table));
 	dfsssp_ctx->srcdest2vl_table = NULL;
+
+	free(context);
 }
 
 static void delete(void *context)
