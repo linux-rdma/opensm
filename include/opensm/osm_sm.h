@@ -434,6 +434,73 @@ ib_api_status_t osm_req_get(IN osm_sm_t * sm, IN const osm_dr_path_t * p_path,
 *	The response from the node will be routed through the Dispatcher
 *	to the appropriate receive controller object.
 *********/
+
+/****f* OpenSM: SM/osm_send_req_mad
+* NAME
+*       osm_send_req_mad
+*
+* DESCRIPTION
+*	Starts the process to transmit a preallocated/predefined directed route
+*	Set() request.
+*
+* SYNOPSIS
+*/
+void osm_send_req_mad(IN osm_sm_t * sm, IN osm_madw_t *p_madw);
+/*
+* PARAMETERS
+*	sm
+*		[in] Pointer to an osm_sm_t object.
+*	p_madw
+*		[in] Pointer to a preallocated MAD buffer
+*
+*********/
+
+/***f* OpenSM: SM/osm_prepare_req_set
+* NAME
+*	osm_prepare_req_set
+*
+* DESCRIPTION
+*	Preallocate and fill a directed route Set() MAD w/o sending it.
+*
+* SYNOPSIS
+*/
+osm_madw_t *osm_prepare_req_set(IN osm_sm_t * sm, IN const osm_dr_path_t * p_path,
+				IN const uint8_t * p_payload,
+				IN size_t payload_size, IN ib_net16_t attr_id,
+				IN ib_net32_t attr_mod, IN cl_disp_msgid_t err_msg,
+				IN const osm_madw_context_t * p_context);
+/*
+* PARAMETERS
+*	sm
+*		[in] Pointer to an osm_sm_t object.
+*
+*	p_path
+*		[in] Pointer to the directed route path of the recipient.
+*
+*	p_payload
+*		[in] Pointer to the SMP payload to send.
+*
+*	payload_size
+*		[in] The size of the payload to be copied to the SMP data field.
+*
+*	attr_id
+*		[in] Attribute ID to request.
+*
+*	attr_mod
+*		[in] Attribute modifier for this request.
+*
+*	err_msg
+*		[in] Message id with which to post this MAD if an error occurs.
+*
+*	p_context
+*		[in] Mad wrapper context structure to be copied into the wrapper
+*		     context, and thus visible to the recipient of the response.
+*
+* RETURN VALUES
+*	Pointer the MAD buffer in case of success and NULL in case of failure.
+*
+*********/
+
 /****f* OpenSM: SM/osm_req_set
 * NAME
 *	osm_req_set

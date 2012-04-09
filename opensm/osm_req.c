@@ -129,15 +129,14 @@ Exit:
 /**********************************************************************
   The plock MAY or MAY NOT be held before calling this function.
 **********************************************************************/
-ib_api_status_t osm_req_set(IN osm_sm_t * sm, IN const osm_dr_path_t * p_path,
-			    IN const uint8_t * p_payload,
-			    IN size_t payload_size,
-			    IN ib_net16_t attr_id, IN ib_net32_t attr_mod,
-			    IN cl_disp_msgid_t err_msg,
-			    IN const osm_madw_context_t * p_context)
+osm_madw_t *osm_prepare_req_set(IN osm_sm_t * sm, IN const osm_dr_path_t * p_path,
+				IN const uint8_t * p_payload,
+				IN size_t payload_size,
+				IN ib_net16_t attr_id, IN ib_net32_t attr_mod,
+				IN cl_disp_msgid_t err_msg,
+				IN const osm_madw_context_t * p_context)
 {
-	osm_madw_t *p_madw;
-	ib_api_status_t status = IB_SUCCESS;
+	osm_madw_t *p_madw = NULL;
 	ib_net64_t tid;
 
 	CL_ASSERT(sm);
@@ -159,7 +158,6 @@ ib_api_status_t osm_req_set(IN osm_sm_t * sm, IN const osm_dr_path_t * p_path,
 	if (p_madw == NULL) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR,
 			"ERR 1102: Unable to acquire MAD\n");
-		status = IB_INSUFFICIENT_RESOURCES;
 		goto Exit;
 	}
 
@@ -191,10 +189,39 @@ ib_api_status_t osm_req_set(IN osm_sm_t * sm, IN const osm_dr_path_t * p_path,
 
 	memcpy(osm_madw_get_smp_ptr(p_madw)->data, p_payload, payload_size);
 
-	osm_vl15_post(sm->p_vl15, p_madw);
-
 Exit:
 	OSM_LOG_EXIT(sm->p_log);
+	return p_madw;
+}
+
+void osm_send_req_mad(IN osm_sm_t * sm, IN osm_madw_t *p_madw)
+{
+	CL_ASSERT(p_madw);
+	CL_ASSERT(sm);
+
+	osm_vl15_post(sm->p_vl15, p_madw);
+}
+
+/**********************************************************************
+  The plock MAY or MAY NOT be held before calling this function.
+**********************************************************************/
+ib_api_status_t osm_req_set(IN osm_sm_t * sm, IN const osm_dr_path_t * p_path,
+                            IN const uint8_t * p_payload,
+                            IN size_t payload_size,
+                            IN ib_net16_t attr_id, IN ib_net32_t attr_mod,
+                            IN cl_disp_msgid_t err_msg,
+                            IN const osm_madw_context_t * p_context)
+{
+	osm_madw_t *p_madw;
+	ib_api_status_t status = IB_SUCCESS;
+
+	p_madw = osm_prepare_req_set(sm, p_path, p_payload, payload_size,attr_id,
+				     attr_mod, err_msg, p_context);
+	if (p_madw == NULL)
+		status = IB_INSUFFICIENT_RESOURCES;
+	else
+		osm_send_req_mad(sm, p_madw);
+
 	return status;
 }
 
