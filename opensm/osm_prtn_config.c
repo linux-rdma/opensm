@@ -727,7 +727,7 @@ int osm_prtn_config_parse_file(osm_log_t * p_log, osm_subn_t * p_subn,
 				break;
 
 			if (!conf && !(conf = new_part_conf(p_log, p_subn))) {
-				OSM_LOG(conf->p_log, OSM_LOG_ERROR,
+				OSM_LOG(p_log, OSM_LOG_ERROR,
 					"PARSE ERROR: line %d: "
 					"internal: cannot create config\n",
 					lineno);
