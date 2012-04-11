@@ -212,7 +212,8 @@ static int qos_extports_setup(osm_sm_t * sm, osm_node_t *node,
 	struct osm_routing_engine *re = sm->p_subn->p_osm->routing_engine_used;
 	int ret = 0;
 	unsigned in, out;
-	uint8_t op_vl1;
+	uint8_t op_vl, common_op_vl = 0, max_num = 0;
+	uint8_t op_vl_arr[15];
 
 	/*
 	 * Do nothing unless the most recent routing attempt was successful.
@@ -222,6 +223,8 @@ static int qos_extports_setup(osm_sm_t * sm, osm_node_t *node,
 
 	for (out = 1; out < num_ports; out++) {
 		p = osm_node_get_physp_ptr(node, out);
+		if (ib_port_info_get_port_state(&p->port_info) == IB_LINK_DOWN)
+			continue;
 		force_update = p->need_update || sm->p_subn->need_update;
 		p->vl_high_limit = qcfg->vl_high_limit;
 		if (vlarb_update(sm, p, p->port_num, force_update, qcfg))
@@ -234,19 +237,43 @@ static int qos_extports_setup(osm_sm_t * sm, osm_node_t *node,
 
 	if (ib_switch_info_get_opt_sl2vlmapping(&node->sw->switch_info) &&
 	    sm->p_subn->opt.use_optimized_slvl && !re->update_sl2vl) {
-		p = osm_node_get_physp_ptr(node, 1);
-		op_vl1 = ib_port_info_get_op_vls(&p->port_info);
+
+		/* we should find the op_vl that is used by majority of ports */
+		memset(&op_vl_arr[0], 0, sizeof(op_vl_arr));
+		p0 = osm_node_get_physp_ptr(node, 1);
+
+		for (out = 1; out < num_ports; out++) {
+			p = osm_node_get_physp_ptr(node, out);
+			if (ib_port_info_get_port_state(&p->port_info) ==
+			    IB_LINK_DOWN)
+				continue;
+			op_vl = ib_port_info_get_op_vls(&p->port_info);
+			op_vl_arr[op_vl]++;
+			if (op_vl_arr[op_vl] > max_num){
+				max_num = op_vl_arr[op_vl];
+				common_op_vl = op_vl;
+				/* remember the port with most common op_vl */
+				p0 = p;
+			}
+
+		}
 		force_update = p->need_update || sm->p_subn->need_update;
-		if (sl2vl_update_table(sm, p, 0, 0x30000, force_update,
+		if (sl2vl_update_table(sm, p0, 0, 0x30000, force_update,
 					&qcfg->sl2vl))
 			ret = -1;
-		/* overwrite default ALL configuration if port's
-		   op_vl is different */
-		for (out = 2; out < num_ports; out++) {
+		/*
+		 * Overwrite default ALL configuration if port's
+		 * op_vl is different.
+		 */
+		for (out = 1; out < num_ports; out++) {
 			p = osm_node_get_physp_ptr(node, out);
-			if (ib_port_info_get_op_vls(&p->port_info) != op_vl1 &&
-			    sl2vl_update_table(sm, p, 0, 0x20000 | out, force_update,
-						&qcfg->sl2vl))
+			if (ib_port_info_get_port_state(&p->port_info) ==
+			    IB_LINK_DOWN)
+				continue;
+			if (ib_port_info_get_op_vls(&p->port_info) !=
+			    common_op_vl &&
+			    sl2vl_update_table(sm, p, 0, 0x20000 | out,
+					       force_update, &qcfg->sl2vl))
 				ret = -1;
 		}
 		return ret;
@@ -256,6 +283,8 @@ static int qos_extports_setup(osm_sm_t * sm, osm_node_t *node,
 	out = ib_switch_info_is_enhanced_port0(&node->sw->switch_info) ? 0 : 1;
 	for (; out < num_ports; out++) {
 		p = osm_node_get_physp_ptr(node, out);
+		if (ib_port_info_get_port_state(&p->port_info) == IB_LINK_DOWN)
+			continue;
 		force_update = p->need_update || sm->p_subn->need_update;
 		/* go over all in ports */
 		for (in = 0; in < num_ports; in++) {
