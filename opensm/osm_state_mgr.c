@@ -1311,7 +1311,7 @@ repeat_discovery:
 		return;
 
 	OSM_LOG_MSG_BOX(sm->p_log, OSM_LOG_VERBOSE,
-			"PKEY and QOS setup completed - STARTING SM LID CONFIG");
+			"PKEY setup completed - STARTING SM LID CONFIG");
 
 	osm_lid_mgr_process_sm(&sm->lid_mgr);
 	if (wait_for_pending_transactions(&sm->p_subn->p_osm->stats))
