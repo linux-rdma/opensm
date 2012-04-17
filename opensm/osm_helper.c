@@ -2218,6 +2218,7 @@ const char *osm_get_manufacturer_str(IN uint64_t guid_ho)
 	case OSM_VENDOR_ID_PATHSCALE:
 		return pathscale_str;
 	case OSM_VENDOR_ID_IBM:
+	case OSM_VENDOR_ID_IBM2:
 		return ibm_str;
 	case OSM_VENDOR_ID_DIVERGENET:
 		return divergenet_str;
