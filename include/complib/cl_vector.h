@@ -393,7 +393,7 @@ cl_vector_init(IN cl_vector_t * const p_vector,
 *	p_vector
 *		[in] Pointer to a cl_vector_t structure to inititalize.
 *
-*	initial_size
+*	min_size
 *		[in] Initial number of elements.
 *
 *	grow_size
