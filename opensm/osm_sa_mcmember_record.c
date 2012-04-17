@@ -1124,13 +1124,16 @@ static void mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 				       p_sa_mad->comp_mask)
 	    || !validate_port_caps(sa->p_log, p_mgrp, p_physp)
 	    || !(join_state != 0)) {
+		char gid_str[INET6_ADDRSTRLEN];
 		/* since we might have created the new group we need to cleanup */
 		osm_mgrp_cleanup(sa->p_subn, p_mgrp);
 		CL_PLOCK_RELEASE(sa->p_lock);
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B12: "
 			"validate_more_comp_fields, validate_port_caps, "
-			"or JoinState = 0 failed from port 0x%016" PRIx64
+			"or JoinState = 0 failed for MGID: %s port 0x%016" PRIx64
 			" (%s), " "sending IB_SA_MAD_STATUS_REQ_INVALID\n",
+			   inet_ntop(AF_INET6, p_mgrp->mcmember_rec.mgid.raw,
+				     gid_str, sizeof gid_str),
 			cl_ntoh64(portguid), p_port->p_node->print_desc);
 		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_REQ_INVALID);
 		goto Exit;
