@@ -174,7 +174,8 @@ void osm_port_get_lid_range_ho(IN const osm_port_t * p_port,
 }
 
 uint8_t osm_physp_calc_link_mtu(IN osm_log_t * p_log,
-				IN const osm_physp_t * p_physp)
+				IN const osm_physp_t * p_physp,
+				IN uint8_t current_mtu)
 {
 	const osm_physp_t *p_remote_physp;
 	uint8_t mtu;
@@ -200,17 +201,17 @@ uint8_t osm_physp_calc_link_mtu(IN osm_log_t * p_log,
 		if (mtu != remote_mtu) {
 			if (mtu > remote_mtu)
 				mtu = remote_mtu;
-
-			OSM_LOG(p_log, OSM_LOG_VERBOSE,
-				"MTU mismatch between ports."
-				"\n\t\t\t\tPort 0x%016" PRIx64 ", port %u"
-				" and port 0x%016" PRIx64 ", port %u."
-				"\n\t\t\t\tUsing lower MTU of %u\n",
-				cl_ntoh64(osm_physp_get_port_guid(p_physp)),
-				osm_physp_get_port_num(p_physp),
-				cl_ntoh64(osm_physp_get_port_guid
-					  (p_remote_physp)),
-				osm_physp_get_port_num(p_remote_physp), mtu);
+			if (mtu != current_mtu)
+				OSM_LOG(p_log, OSM_LOG_VERBOSE,
+					"MTU mismatch between ports."
+					"\n\t\t\t\tPort 0x%016" PRIx64 ", port %u"
+					" and port 0x%016" PRIx64 ", port %u."
+					"\n\t\t\t\tUsing lower MTU of %u\n",
+					cl_ntoh64(osm_physp_get_port_guid(p_physp)),
+					osm_physp_get_port_num(p_physp),
+					cl_ntoh64(osm_physp_get_port_guid
+						  (p_remote_physp)),
+					osm_physp_get_port_num(p_remote_physp), mtu);
 		}
 	} else
 		mtu = ib_port_info_get_neighbor_mtu(&p_physp->port_info);
@@ -227,7 +228,8 @@ uint8_t osm_physp_calc_link_mtu(IN osm_log_t * p_log,
 
 uint8_t osm_physp_calc_link_op_vls(IN osm_log_t * p_log,
 				   IN const osm_subn_t * p_subn,
-				   IN const osm_physp_t * p_physp)
+				   IN const osm_physp_t * p_physp,
+				   IN uint8_t current_op_vls)
 {
 	const osm_physp_t *p_remote_physp;
 	uint8_t op_vls;
@@ -253,17 +255,17 @@ uint8_t osm_physp_calc_link_op_vls(IN osm_log_t * p_log,
 		if (op_vls != remote_op_vls) {
 			if (op_vls > remote_op_vls)
 				op_vls = remote_op_vls;
-
-			OSM_LOG(p_log, OSM_LOG_VERBOSE,
-				"OP_VLS mismatch between ports."
-				"\n\t\t\t\tPort 0x%016" PRIx64 ", port 0x%X"
-				" and port 0x%016" PRIx64 ", port 0x%X."
-				"\n\t\t\t\tUsing lower OP_VLS of %u\n",
-				cl_ntoh64(osm_physp_get_port_guid(p_physp)),
-				osm_physp_get_port_num(p_physp),
-				cl_ntoh64(osm_physp_get_port_guid
-					  (p_remote_physp)),
-				osm_physp_get_port_num(p_remote_physp), op_vls);
+			if (op_vls != current_op_vls)
+				OSM_LOG(p_log, OSM_LOG_VERBOSE,
+					"OP_VLS mismatch between ports."
+					"\n\t\t\t\tPort 0x%016" PRIx64 ", port 0x%X"
+					" and port 0x%016" PRIx64 ", port 0x%X."
+					"\n\t\t\t\tUsing lower OP_VLS of %u\n",
+					cl_ntoh64(osm_physp_get_port_guid(p_physp)),
+					osm_physp_get_port_num(p_physp),
+					cl_ntoh64(osm_physp_get_port_guid
+						  (p_remote_physp)),
+					osm_physp_get_port_num(p_remote_physp), op_vls);
 		}
 	} else
 		op_vls = ib_port_info_get_op_vls(&p_physp->port_info);

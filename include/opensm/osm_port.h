@@ -1377,7 +1377,8 @@ void osm_port_get_lid_range_ho(IN const osm_port_t * p_port,
 * SYNOPSIS
 */
 uint8_t osm_physp_calc_link_mtu(IN osm_log_t * p_log,
-				IN const osm_physp_t * p_physp);
+				IN const osm_physp_t * p_physp,
+				IN uint8_t current_mtu);
 /*
 * PARAMETERS
 *	p_log
@@ -1385,6 +1386,9 @@ uint8_t osm_physp_calc_link_mtu(IN osm_log_t * p_log,
 *
 *	p_physp
 *		[in] Pointer to an osm_physp_t object.
+*
+*	current_mtu
+*		[in] Current neighbor mtu on this port
 *
 * RETURN VALUES
 *	The MTU of the link to be used.
@@ -1407,7 +1411,8 @@ uint8_t osm_physp_calc_link_mtu(IN osm_log_t * p_log,
 */
 uint8_t osm_physp_calc_link_op_vls(IN osm_log_t * p_log,
 				   IN const osm_subn_t * p_subn,
-				   IN const osm_physp_t * p_physp);
+				   IN const osm_physp_t * p_physp,
+				   IN uint8_t current_op_vls);
 /*
 * PARAMETERS
 *	p_log
@@ -1418,6 +1423,9 @@ uint8_t osm_physp_calc_link_op_vls(IN osm_log_t * p_log,
 *
 *	p_physp
 *		[in] Pointer to an osm_physp_t object.
+*
+*	current_op_vls
+*		[in] Current operational VL on the port
 *
 * RETURN VALUES
 *	The OP_VLS of the link to be used.

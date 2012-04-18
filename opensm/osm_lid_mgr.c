@@ -915,8 +915,10 @@ static int lid_mgr_set_physp_pi(IN osm_lid_mgr_t * p_mgr,
 
 		/* calc new op_vls and mtu */
 		op_vls = osm_physp_calc_link_op_vls(p_mgr->p_log, p_mgr->p_subn,
-						    p_physp);
-		mtu = osm_physp_calc_link_mtu(p_mgr->p_log, p_physp);
+					      p_physp,
+					      ib_port_info_get_op_vls(p_old_pi));
+		mtu = osm_physp_calc_link_mtu(p_mgr->p_log, p_physp,
+					      ib_port_info_get_neighbor_mtu(p_old_pi));
 
 		ib_port_info_set_neighbor_mtu(p_pi, mtu);
 
