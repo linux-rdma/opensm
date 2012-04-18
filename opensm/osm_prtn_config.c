@@ -129,8 +129,10 @@ static inline boolean_t ip_mgroup_pkey_ok(struct part_conf *conf,
 	char gid_str[INET6_ADDRSTRLEN];
 
 	if (mgid_is_broadcast(&group->mgid)
-	    || mpkey == 0x0000 /* user requested "wild card" of pkey */
-	    || mpkey == conf->p_prtn->pkey) /* user was smart enough to match */
+	    /* user requested "wild card" of pkey */
+	    || mpkey == 0x0000
+	    /* user was smart enough to match */
+	    || mpkey == (conf->p_prtn->pkey | cl_hton16(0x8000)))
 		return (TRUE);
 
 	OSM_LOG(conf->p_log, OSM_LOG_ERROR,
