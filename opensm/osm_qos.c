@@ -318,7 +318,7 @@ static int qos_extports_setup(osm_sm_t * sm, osm_node_t *node,
 			}
 
 		}
-		force_update = p->need_update || sm->p_subn->need_update;
+		force_update = node->sw->need_update || sm->p_subn->need_update;
 		if (sl2vl_update_table(sm, p0, 0, 0x30000, force_update,
 					&qcfg->sl2vl, port_mad_list))
 			ret = -1;
@@ -331,6 +331,8 @@ static int qos_extports_setup(osm_sm_t * sm, osm_node_t *node,
 			if (ib_port_info_get_port_state(&p->port_info) ==
 			    IB_LINK_DOWN)
 				continue;
+
+			force_update = p->need_update || force_update;
 			if (ib_port_info_get_op_vls(&p->port_info) !=
 			    common_op_vl &&
 			    sl2vl_update_table(sm, p, 0, 0x20000 | out,
