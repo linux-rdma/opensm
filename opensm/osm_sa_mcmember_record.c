@@ -1405,6 +1405,11 @@ static void mcmr_query_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 		goto Exit;
 	}
 
+	if (OSM_LOG_IS_ACTIVE_V2(sa->p_log, OSM_LOG_DEBUG)) {
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Dump of record\n");
+		osm_dump_mc_record(sa->p_log, p_rcvd_rec, OSM_LOG_DEBUG);
+	}
+
 	cl_qlist_init(&rec_list);
 
 	CL_PLOCK_ACQUIRE(sa->p_lock);
