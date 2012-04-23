@@ -561,6 +561,12 @@ void osm_sminfo_rcv_process(IN void *context, IN void *data)
 	CL_ASSERT(p_madw);
 
 	p_smp = osm_madw_get_smp_ptr(p_madw);
+	if (ib_smp_get_status(p_smp)) {
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
+			"MAD status 0x%x received\n",
+			cl_ntoh16(ib_smp_get_status(p_smp)));
+		goto Exit;
+	}
 
 	/* Determine if this is a request for our own SMInfo or if
 	   this is a response to our request for another SM's SMInfo. */
