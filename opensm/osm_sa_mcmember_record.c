@@ -913,6 +913,18 @@ static void mcmr_rcv_leave_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 	mcmember_rec = *p_recvd_mcmember_rec;
 
 	if (OSM_LOG_IS_ACTIVE_V2(sa->p_log, OSM_LOG_DEBUG)) {
+		osm_physp_t *p_req_physp;
+
+		p_req_physp = osm_get_physp_by_mad_addr(sa->p_log, sa->p_subn,
+							osm_madw_get_mad_addr_ptr(p_madw));
+		if (p_req_physp == NULL) {
+			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B02: "
+				"Cannot find requester physical port\n");
+		} else {
+			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
+				"Requester port GUID 0x%" PRIx64 "\n",
+				cl_ntoh64(osm_physp_get_port_guid(p_req_physp)));
+		}
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Dump of record\n");
 		osm_dump_mc_record_v2(sa->p_log, &mcmember_rec, FILE_ID, OSM_LOG_DEBUG);
 	}
@@ -988,6 +1000,18 @@ static void mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 	mcmember_rec = *p_recvd_mcmember_rec;
 
 	if (OSM_LOG_IS_ACTIVE_V2(sa->p_log, OSM_LOG_DEBUG)) {
+		osm_physp_t *p_req_physp;
+
+		p_req_physp = osm_get_physp_by_mad_addr(sa->p_log, sa->p_subn,
+							osm_madw_get_mad_addr_ptr(p_madw));
+		if (p_req_physp == NULL) {
+			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B03: "
+				"Cannot find requester physical port\n");
+		} else {
+			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
+				"Requester port GUID 0x%" PRIx64 "\n",
+				cl_ntoh64(osm_physp_get_port_guid(p_req_physp)));
+		}
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Dump of incoming record\n");
 		osm_dump_mc_record_v2(sa->p_log, &mcmember_rec, FILE_ID, OSM_LOG_DEBUG);
 	}
@@ -1398,7 +1422,7 @@ static void mcmr_query_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 	 */
 	trusted_req = (p_rcvd_mad->sm_key != 0);
 
-	/* update the requester physical port. */
+	/* update the requester physical port */
 	p_req_physp = osm_get_physp_by_mad_addr(sa->p_log, sa->p_subn,
 						osm_madw_get_mad_addr_ptr
 						(p_madw));
@@ -1409,6 +1433,9 @@ static void mcmr_query_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 	}
 
 	if (OSM_LOG_IS_ACTIVE_V2(sa->p_log, OSM_LOG_DEBUG)) {
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
+			"Requester port GUID 0x%" PRIx64 "\n",
+			cl_ntoh64(osm_physp_get_port_guid(p_req_physp)));
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Dump of record\n");
 		osm_dump_mc_record(sa->p_log, p_rcvd_rec, OSM_LOG_DEBUG);
 	}
