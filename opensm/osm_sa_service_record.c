@@ -89,7 +89,7 @@ match_service_pkey_with_ports_pkey(IN osm_sa_t * sa,
 	ib_net64_t service_guid;
 	osm_port_t *service_port;
 
-	/* update the requester physical port. */
+	/* update the requester physical port */
 	p_req_physp = osm_get_physp_by_mad_addr(sa->p_log, sa->p_subn,
 						osm_madw_get_mad_addr_ptr
 						(p_madw));
@@ -99,6 +99,9 @@ match_service_pkey_with_ports_pkey(IN osm_sa_t * sa,
 		valid = FALSE;
 		goto Exit;
 	}
+	OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
+		"Requester port GUID 0x%" PRIx64 "\n",
+		cl_ntoh64(osm_physp_get_port_guid(p_req_physp)));
 
 	if ((comp_mask & IB_SR_COMPMASK_SPKEY) == IB_SR_COMPMASK_SPKEY) {
 		/* We have a ServiceP_Key - check matching on requester port,
@@ -451,7 +454,7 @@ static void sr_rcv_process_get_method(osm_sa_t * sa, IN osm_madw_t * p_madw)
 
 	CL_ASSERT(p_madw);
 
-	/* update the requester physical port. */
+	/* update the requester physical port */
 	p_req_physp = osm_get_physp_by_mad_addr(sa->p_log, sa->p_subn,
 						osm_madw_get_mad_addr_ptr
 						(p_madw));
@@ -465,9 +468,13 @@ static void sr_rcv_process_get_method(osm_sa_t * sa, IN osm_madw_t * p_madw)
 	p_recvd_service_rec =
 	    (ib_service_record_t *) ib_sa_mad_get_payload_ptr(p_sa_mad);
 
-	if (OSM_LOG_IS_ACTIVE_V2(sa->p_log, OSM_LOG_DEBUG))
+	if (OSM_LOG_IS_ACTIVE_V2(sa->p_log, OSM_LOG_DEBUG)) {
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
+			"Requester port GUID 0x%" PRIx64 "\n",
+			cl_ntoh64(osm_physp_get_port_guid(p_req_physp)));
 		osm_dump_service_record_v2(sa->p_log, p_recvd_service_rec,
 					   FILE_ID, OSM_LOG_DEBUG);
+	}
 
 	cl_qlist_init(&sr_match_item.sr_list);
 	sr_match_item.p_service_rec = p_recvd_service_rec;
