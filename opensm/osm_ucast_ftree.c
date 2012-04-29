@@ -886,9 +886,24 @@ static ftree_port_group_t *hca_get_port_group_by_remote_lid(IN ftree_hca_t *
 	return NULL;
 }
 
+static ftree_port_group_t *hca_get_port_group_by_lid(IN ftree_hca_t *
+						     p_hca,
+						     IN uint16_t
+						     base_lid)
+{
+	uint32_t i;
+	for (i = 0; i < p_hca->up_port_groups_num; i++)
+		if (base_lid ==
+		    p_hca->up_port_groups[i]->base_lid)
+			return p_hca->up_port_groups[i];
+
+	return NULL;
+
+}
 /***************************************************/
 
-static void hca_add_port(IN ftree_hca_t * p_hca, IN uint8_t port_num,
+static void hca_add_port(IN ftree_fabric_t * p_ftree,
+			 IN ftree_hca_t * p_hca, IN uint8_t port_num,
 			 IN uint8_t remote_port_num, IN uint16_t base_lid,
 			 IN uint16_t remote_base_lid, IN ib_net64_t port_guid,
 			 IN ib_net64_t remote_port_guid,
@@ -903,7 +918,7 @@ static void hca_add_port(IN ftree_hca_t * p_hca, IN uint8_t port_num,
 	   in hca's that lead to switches */
 	CL_ASSERT(remote_node_type == IB_NODE_TYPE_SWITCH);
 
-	p_group = hca_get_port_group_by_remote_lid(p_hca, remote_base_lid);
+	p_group = hca_get_port_group_by_lid(p_hca, base_lid);
 
 	if (!p_group) {
 		p_group = port_group_create(base_lid, remote_base_lid,
@@ -914,9 +929,11 @@ static void hca_add_port(IN ftree_hca_t * p_hca, IN uint8_t port_num,
 					    p_remote_hca_or_sw, is_cn, is_io);
 		CL_ASSERT(p_group);
 		p_hca->up_port_groups[p_hca->up_port_groups_num++] = p_group;
-	}
-	port_group_add_port(p_group, port_num, remote_port_num);
-
+		port_group_add_port(p_group, port_num, remote_port_num);
+	} else
+		OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_ERROR,
+			"ERR AB32: Duplicated LID for CA GUID: 0x%016" PRIx64 "\n",
+			cl_ntoh64(port_guid));
 }				/* hca_add_port() */
 
 /***************************************************
@@ -3379,7 +3396,8 @@ fabric_construct_hca_ports(IN ftree_fabric_t * p_ftree, IN ftree_hca_t * p_hca)
 		}
 		p_ftree->ca_ports++;
 
-		hca_add_port(p_hca,	/* local ftree_hca object */
+		hca_add_port(p_ftree,
+			     p_hca,	/* local ftree_hca object */
 			     i,	/* local port number */
 			     remote_port_num,	/* remote port number */
 			     cl_ntoh16(osm_node_get_base_lid(p_node, i)),	/* local lid */
