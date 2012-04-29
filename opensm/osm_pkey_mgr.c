@@ -211,7 +211,7 @@ pkey_mgr_enforce_partition(IN osm_log_t * p_log, osm_sm_t * sm,
 		enforce_bits = 0x4;
 
 	if ((p_pi->vl_enforce & 0xc) == enforce_bits *
-	    (enforce_type == OSM_PARTITION_ENFORCE_TYPE_OFF)) {
+	    (enforce_type != OSM_PARTITION_ENFORCE_TYPE_OFF)) {
 		OSM_LOG(p_log, OSM_LOG_DEBUG,
 			"No need to update PortInfo for "
 			"node 0x%016" PRIx64 " port %u (%s)\n",
@@ -607,7 +607,7 @@ static int pkey_mgr_update_peer_port(osm_log_t * p_log, osm_sm_t * sm,
 	if (!p_node->sw || !p_node->sw->switch_info.enforce_cap)
 		return 0;
 
-	if (enforce_type != OSM_PARTITION_ENFORCE_TYPE_OFF) {
+	if (enforce_type == OSM_PARTITION_ENFORCE_TYPE_OFF) {
 		pkey_mgr_enforce_partition(p_log, sm, peer, OSM_PARTITION_ENFORCE_TYPE_OFF);
 		return ret;
 	}
