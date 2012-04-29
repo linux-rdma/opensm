@@ -940,9 +940,9 @@ void osm_ucast_cache_add_node(osm_ucast_mgr_t * p_mgr, osm_node_t * p_node)
 		 */
 
 		p_cache_sw = cache_get_sw(p_mgr, lid_ho);
-		CL_ASSERT(p_cache_sw);
 
-		if (!cache_sw_is_leaf(p_cache_sw)) {
+		/* p_cache_sw could be NULL if it has no remote phys ports */
+		if (!p_cache_sw || !cache_sw_is_leaf(p_cache_sw)) {
 			OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 				"Dropped non-leaf switch (lid %u)\n", lid_ho);
 			osm_ucast_cache_invalidate(p_mgr);
