@@ -897,6 +897,14 @@ void osm_ucast_cache_add_node(osm_ucast_mgr_t * p_mgr, osm_node_t * p_node)
 
 		lid_ho = cl_ntoh16(osm_node_get_base_lid(p_node, 0));
 
+		if (!lid_ho) {
+			OSM_LOG(p_mgr->p_log, OSM_LOG_VERBOSE,
+				"Skip caching. Switch dropped before "
+				"it gets a valid lid.\n");
+			osm_ucast_cache_invalidate(p_mgr);
+			goto Exit;
+		}
+
 		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 			"Caching dropped switch lid %u\n", lid_ho);
 
