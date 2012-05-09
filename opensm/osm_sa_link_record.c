@@ -137,17 +137,20 @@ static void lr_rcv_get_physp_link(IN osm_sa_t * sa,
 
 	/* Check that the p_src_physp, p_dest_physp and p_req_physp
 	   all share a pkey (doesn't have to be the same p_key). */
-	if (!osm_physp_share_pkey(sa->p_log, p_src_physp, p_dest_physp)) {
+	if (!osm_physp_share_pkey(sa->p_log, p_src_physp, p_dest_physp,
+				  sa->p_subn->opt.allow_both_pkeys)) {
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Source and Dest PhysPorts do not share PKey\n");
 		goto Exit;
 	}
-	if (!osm_physp_share_pkey(sa->p_log, p_src_physp, p_req_physp)) {
+	if (!osm_physp_share_pkey(sa->p_log, p_src_physp, p_req_physp,
+				  sa->p_subn->opt.allow_both_pkeys)) {
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Source and Requester PhysPorts do not share PKey\n");
 		goto Exit;
 	}
-	if (!osm_physp_share_pkey(sa->p_log, p_req_physp, p_dest_physp)) {
+	if (!osm_physp_share_pkey(sa->p_log, p_req_physp, p_dest_physp,
+				  sa->p_subn->opt.allow_both_pkeys)) {
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Requester and Dest PhysPorts do not share PKey\n");
 		goto Exit;

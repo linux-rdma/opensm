@@ -136,7 +136,8 @@ static void sir_rcv_create_sir(IN osm_sa_t * sa, IN const osm_switch_t * p_sw,
 			cl_ntoh64(p_sw->p_node->node_info.node_guid));
 		goto Exit;
 	}
-	if (!osm_physp_share_pkey(sa->p_log, p_req_physp, p_physp))
+	if (!osm_physp_share_pkey(sa->p_log, p_req_physp, p_physp,
+				  sa->p_subn->opt.allow_both_pkeys))
 		goto Exit;
 
 	/* get the port 0 of the switch */

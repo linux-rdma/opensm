@@ -150,7 +150,8 @@ static void nr_rcv_create_nr(IN osm_sa_t * sa, IN osm_node_t * p_node,
 
 		/* Check to see if the found p_physp and the requester physp
 		   share a pkey. If not - continue */
-		if (!osm_physp_share_pkey(sa->p_log, p_physp, p_req_physp))
+		if (!osm_physp_share_pkey(sa->p_log, p_physp, p_req_physp,
+					  sa->p_subn->opt.allow_both_pkeys))
 			continue;
 
 		port_guid = osm_physp_get_port_guid(p_physp);

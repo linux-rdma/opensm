@@ -541,7 +541,8 @@ boolean_t osm_physp_share_this_pkey(IN const struct osm_physp * p_physp1,
 * SYNOPSIS
 */
 ib_net16_t osm_physp_find_common_pkey(IN const struct osm_physp *p_physp1,
-				      IN const struct osm_physp *p_physp2);
+				      IN const struct osm_physp *p_physp2,
+				      IN boolean_t allow_both_pkeys);
 /*
 * PARAMETERS
 *
@@ -550,6 +551,10 @@ ib_net16_t osm_physp_find_common_pkey(IN const struct osm_physp *p_physp1,
 *
 *  p_physp2
 *     [in] Pointer to an osm_physp_t object.
+*
+*  allow_both_pkeys
+*     [in] Whether both full and limited membership on same partition
+*          are allowed
 *
 * RETURN VALUES
 *  Returns value of first shared P_Key or INVALID P_Key (0x0) if not
@@ -585,7 +590,8 @@ ib_net16_t osm_physp_find_common_pkey(IN const struct osm_physp *p_physp1,
 */
 boolean_t osm_physp_share_pkey(IN osm_log_t * p_log,
 			       IN const struct osm_physp * p_physp_1,
-			       IN const struct osm_physp * p_physp_2);
+			       IN const struct osm_physp * p_physp_2,
+			       IN boolean_t allow_both_pkeys);
 
 /*
 * PARAMETERS
@@ -597,6 +603,10 @@ boolean_t osm_physp_share_pkey(IN osm_log_t * p_log,
 *
 *  p_physp_2
 *     [in] Pointer to an osm_physp_t object.
+*
+*  allow_both_pkeys
+*     [in] Whether both full and limited membership on same partition
+*          are allowed
 *
 * RETURN VALUES
 *  Returns TRUE if the 2 physical ports are matching.
@@ -632,7 +642,8 @@ boolean_t osm_physp_share_pkey(IN osm_log_t * p_log,
 */
 boolean_t osm_port_share_pkey(IN osm_log_t * p_log,
 			      IN const struct osm_port * p_port_1,
-			      IN const struct osm_port * p_port_2);
+			      IN const struct osm_port * p_port_2,
+			      IN boolean_t allow_both_pkeys);
 
 /*
 * PARAMETERS

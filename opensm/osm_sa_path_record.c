@@ -631,7 +631,8 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 
 	if ((comp_mask & IB_PR_COMPMASK_RAWTRAFFIC) &&
 	    (cl_ntoh32(p_pr->hop_flow_raw) & (1 << 31)))
-		pkey = osm_physp_find_common_pkey(p_src_physp, p_dest_physp);
+		pkey = osm_physp_find_common_pkey(p_src_physp, p_dest_physp,
+						  sa->p_subn->opt.allow_both_pkeys);
 
 	else if (comp_mask & IB_PR_COMPMASK_PKEY) {
 		/*
@@ -705,7 +706,8 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 		 * Neither PR request nor QoS level have pkey.
 		 * Just get any shared pkey.
 		 */
-		pkey = osm_physp_find_common_pkey(p_src_physp, p_dest_physp);
+		pkey = osm_physp_find_common_pkey(p_src_physp, p_dest_physp,
+						  sa->p_subn->opt.allow_both_pkeys);
 		if (!pkey) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F1B: "
 				"Ports src 0x%016"PRIx64" (%s port %d) and "
@@ -1020,11 +1022,14 @@ static void pr_rcv_get_port_pair_paths(IN osm_sa_t * sa,
 	/* Check that the req_port, src_port and dest_port all share a
 	   pkey. The check is done on the default physical port of the ports. */
 	if (osm_port_share_pkey(sa->p_log, p_req_port,
-				p_src_alias_guid->p_base_port) == FALSE
+				p_src_alias_guid->p_base_port,
+				sa->p_subn->opt.allow_both_pkeys) == FALSE
 	    || osm_port_share_pkey(sa->p_log, p_req_port,
-				   p_dest_alias_guid->p_base_port) == FALSE
+				   p_dest_alias_guid->p_base_port,
+				   sa->p_subn->opt.allow_both_pkeys) == FALSE
 	    || osm_port_share_pkey(sa->p_log, p_src_alias_guid->p_base_port,
-				   p_dest_alias_guid->p_base_port) == FALSE)
+				   p_dest_alias_guid->p_base_port,
+				   sa->p_subn->opt.allow_both_pkeys) == FALSE)
 		/* One of the pairs doesn't share a pkey so the path is disqualified. */
 		goto Exit;
 

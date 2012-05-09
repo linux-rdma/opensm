@@ -141,7 +141,8 @@ static void sa_slvl_by_comp_mask(IN osm_sa_t * sa, IN const osm_port_t * p_port,
 			p_port->p_physp->port_num);
 		p_out_physp = p_port->p_physp;
 		/* check that the p_out_physp and the p_req_physp share a pkey */
-		if (osm_physp_share_pkey(sa->p_log, p_req_physp, p_out_physp))
+		if (osm_physp_share_pkey(sa->p_log, p_req_physp, p_out_physp,
+					 sa->p_subn->opt.allow_both_pkeys))
 			sa_slvl_create(sa, p_out_physp, p_ctxt, 0);
 	} else {
 		if (comp_mask & IB_SLVL_COMPMASK_OUT_PORT)
@@ -173,8 +174,8 @@ static void sa_slvl_by_comp_mask(IN osm_sa_t * sa, IN const osm_port_t * p_port,
 
 				/* if the requester and the p_out_physp don't share a pkey -
 				   continue */
-				if (!osm_physp_share_pkey
-				    (sa->p_log, p_req_physp, p_out_physp))
+				if (!osm_physp_share_pkey(sa->p_log, p_req_physp, p_out_physp,
+							  sa->p_subn->opt.allow_both_pkeys))
 					continue;
 
 				sa_slvl_create(sa, p_out_physp, p_ctxt,

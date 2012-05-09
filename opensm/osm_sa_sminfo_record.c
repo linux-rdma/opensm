@@ -254,7 +254,8 @@ void osm_smir_rcv_process(IN void *ctx, IN void *data)
 		if (!p_port || local_port == p_port) {
 			if (FALSE ==
 			    osm_physp_share_pkey(sa->p_log, p_req_physp,
-						 local_port->p_physp)) {
+						 local_port->p_physp,
+						 sa->p_subn->opt.allow_both_pkeys)) {
 				cl_plock_release(sa->p_lock);
 				OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2805: "
 					"Cannot get SMInfo record due to pkey violation\n");

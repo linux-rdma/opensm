@@ -139,7 +139,8 @@ static void lftr_rcv_by_comp_mask(IN cl_map_item_t * p_map_item, IN void *cxt)
 			cl_ntoh64(p_sw->p_node->node_info.node_guid));
 		return;
 	}
-	if (!osm_physp_share_pkey(sa->p_log, p_req_physp, p_physp))
+	if (!osm_physp_share_pkey(sa->p_log, p_req_physp,
+				  p_physp, sa->p_subn->opt.allow_both_pkeys))
 		return;
 
 	/* get the port 0 of the switch */

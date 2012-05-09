@@ -1016,7 +1016,8 @@ static void mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 
 	proxy = (p_physp != p_request_physp);
 
-	if (proxy && !osm_physp_share_pkey(sa->p_log, p_physp, p_request_physp)) {
+	if (proxy && !osm_physp_share_pkey(sa->p_log, p_physp, p_request_physp,
+					   sa->p_subn->opt.allow_both_pkeys)) {
 		CL_PLOCK_RELEASE(sa->p_lock);
 		OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
 			"Port and requester don't share pkey\n");

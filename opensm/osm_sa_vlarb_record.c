@@ -164,8 +164,8 @@ static void sa_vl_arb_by_comp_mask(osm_sa_t * sa, IN const osm_port_t * p_port,
 			/* check that the p_physp is valid, and that the requester
 			   and the p_physp share a pkey. */
 			if (p_physp &&
-			    osm_physp_share_pkey(sa->p_log, p_req_physp,
-						 p_physp))
+			    osm_physp_share_pkey(sa->p_log, p_req_physp, p_physp,
+						 sa->p_subn->opt.allow_both_pkeys))
 				sa_vl_arb_check_physp(sa, p_physp, p_ctxt);
 		} else {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2A03: "
@@ -184,8 +184,8 @@ static void sa_vl_arb_by_comp_mask(osm_sa_t * sa, IN const osm_port_t * p_port,
 
 			/* if the requester and the p_physp don't share a pkey -
 			   continue */
-			if (!osm_physp_share_pkey
-			    (sa->p_log, p_req_physp, p_physp))
+			if (!osm_physp_share_pkey(sa->p_log, p_req_physp, p_physp,
+						  sa->p_subn->opt.allow_both_pkeys))
 				continue;
 
 			sa_vl_arb_check_physp(sa, p_physp, p_ctxt);

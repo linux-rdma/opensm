@@ -116,7 +116,8 @@ static boolean_t validate_ports_access_rights(IN osm_sa_t * sa,
 		/* make sure that the requester and destination port can access
 		   each other according to the current partitioning. */
 		if (!osm_physp_share_pkey
-		    (sa->p_log, p_port->p_physp, p_requester_physp)) {
+		    (sa->p_log, p_port->p_physp, p_requester_physp,
+		     sa->p_subn->opt.allow_both_pkeys)) {
 			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 				"port and requester don't share pkey\n");
 			valid = FALSE;
@@ -165,7 +166,8 @@ static boolean_t validate_ports_access_rights(IN osm_sa_t * sa,
 			/* make sure that the requester and destination port can access
 			   each other according to the current partitioning. */
 			if (!osm_physp_share_pkey
-			    (sa->p_log, p_port->p_physp, p_requester_physp)) {
+			    (sa->p_log, p_port->p_physp, p_requester_physp,
+			     sa->p_subn->opt.allow_both_pkeys)) {
 				OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 					"port and requester don't share pkey\n");
 				valid = FALSE;
@@ -273,7 +275,8 @@ static void sa_inform_info_rec_by_comp_mask(IN osm_sa_t * sa,
 	p_subscriber_physp = p_subscriber_port->p_physp;
 	/* make sure that the requester and subscriber port can access each
 	   other according to the current partitioning. */
-	if (!osm_physp_share_pkey(sa->p_log, p_req_physp, p_subscriber_physp)) {
+	if (!osm_physp_share_pkey(sa->p_log, p_req_physp, p_subscriber_physp,
+				  sa->p_subn->opt.allow_both_pkeys)) {
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"requester and subscriber ports don't share pkey\n");
 		goto Exit;

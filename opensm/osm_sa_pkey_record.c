@@ -171,7 +171,7 @@ static void sa_pkey_by_comp_mask(IN osm_sa_t * sa, IN const osm_port_t * p_port,
 			   with the p_req_physp. */
 			if (p_physp &&
 			    osm_physp_share_pkey(sa->p_log, p_req_physp,
-						 p_physp))
+						 p_physp, sa->p_subn->opt.allow_both_pkeys))
 				sa_pkey_check_physp(sa, p_physp, p_ctxt);
 		} else {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4603: "
@@ -191,7 +191,7 @@ static void sa_pkey_by_comp_mask(IN osm_sa_t * sa, IN const osm_port_t * p_port,
 			/* if the requester and the p_physp don't share a pkey -
 			   continue */
 			if (!osm_physp_share_pkey
-			    (sa->p_log, p_req_physp, p_physp))
+			    (sa->p_log, p_req_physp, p_physp, sa->p_subn->opt.allow_both_pkeys))
 				continue;
 
 			sa_pkey_check_physp(sa, p_physp, p_ctxt);

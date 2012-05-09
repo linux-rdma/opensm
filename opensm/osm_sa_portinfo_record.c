@@ -472,8 +472,8 @@ static void sa_pir_by_comp_mask(IN osm_sa_t * sa, IN osm_node_t * p_node,
 			/* Check that the p_physp is valid, and that the
 			   p_physp and the p_req_physp share a pkey. */
 			if (p_physp &&
-			    osm_physp_share_pkey(sa->p_log, p_req_physp,
-						 p_physp))
+			    osm_physp_share_pkey(sa->p_log, p_req_physp, p_physp,
+						 sa->p_subn->opt.allow_both_pkeys))
 				sa_pir_check_physp(sa, p_physp, p_ctxt);
 		}
 	} else {
@@ -484,8 +484,8 @@ static void sa_pir_by_comp_mask(IN osm_sa_t * sa, IN osm_node_t * p_node,
 
 			/* if the requester and the p_physp don't share a pkey -
 			   continue */
-			if (!osm_physp_share_pkey
-			    (sa->p_log, p_req_physp, p_physp))
+			if (!osm_physp_share_pkey(sa->p_log, p_req_physp, p_physp,
+						  sa->p_subn->opt.allow_both_pkeys))
 				continue;
 
 			sa_pir_check_physp(sa, p_physp, p_ctxt);

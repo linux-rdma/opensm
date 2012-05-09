@@ -415,7 +415,8 @@ static int is_access_permitted(osm_infr_t *p_infr_rec,
 			}
 
 
-			if (osm_port_share_pkey(p_log, p_src_port, p_dest_port) == FALSE) {
+			if (osm_port_share_pkey(p_log, p_src_port, p_dest_port,
+						p_subn->opt.allow_both_pkeys) == FALSE) {
 				OSM_LOG(p_log, OSM_LOG_DEBUG, "Mismatch by Pkey\n");
 				/* According to o13-17.1.2 - If this informInfo
 				   does not have lid_range_begin of 0xFFFF,
