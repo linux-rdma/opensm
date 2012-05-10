@@ -4171,6 +4171,9 @@ static int construct_fabric(IN void *context)
 	OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_VERBOSE,
 		"Max LID in switch LFTs: %u\n", p_ftree->lft_max_lid);
 
+	/* Build the full lid matrices needed for multicast routing */
+	osm_ucast_mgr_build_lid_matrices(&p_ftree->p_osm->sm.ucast_mgr);
+
 Exit:
 	if (status != 0) {
 		OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_VERBOSE,
