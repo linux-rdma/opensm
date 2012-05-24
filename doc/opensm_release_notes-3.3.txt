@@ -3,14 +3,14 @@
 
 Version: OpenSM 3.3.x
 Repo:    git://git.openfabrics.org/~alexnetes/opensm.git
-Date:    Jan 2012
+Date:    May 2012
 
 1 Overview
 ----------
 This document describes the contents of the OpenSM 3.3 release.
 OpenSM is an InfiniBand compliant Subnet Manager and Administration,
 and runs on top of OpenIB. The OpenSM version for this release
-is opensm-3.3.13.
+is opensm-3.3.14.
 
 This document includes the following sections:
 1 This Overview section (describing new features and software
@@ -68,6 +68,21 @@ This document includes the following sections:
 * DNUP Unicast routing algorithm - similar to UPDN but allows routing in
   fabrics which have some CA nodes attached closer to the roots than some
   switch nodes.
+
+* SSSP Unicast routing algorithm - SSSP unicast routing algorithm - a
+  single-source-shortest-path routing algorithm, which globally balances the
+  number of routes per link to optimize link utilization. This routing
+  algorithm has no restrictions in terms of the underlying topology.
+
+* DFSSSP unicast routing algorithm - a deadlock-free single-source-
+  shortest-path routing, which uses the SSSP algorithm as the base to optimize
+  link utilization and uses Infiniband virtual lanes (SL) to provide deadlock-
+  freedom.
+
+* SRIOV (Alias GUID) Support - In order to support virtualized environments,
+  alias GUID support is added to OpenSM. This support allows an SA client to
+  add and remove additional port GUIDs based on SubAdmSet/SubAdmDelete of
+  GUIDInfoRecord.
 
 * Extended speed support
   This provides support for FDR and EDR speeds.
@@ -186,6 +201,43 @@ cb1484d opensm/osm_sa_mcmember_record.c: Add rate validation if supplied
 9b50961 opensm: Change osm_routing_engine struct to not use C++ reserved word
 c9c0aa6 opensm/man/torus-2QoS.conf.5.in: Update portgroup_max_ports section
 3c97f06 opensm: Add the precreation of multicast groups
+a9b9f09 opensm/osm_sminfo_rcv.c: Handle SMP status
+1190c15 opensm/osm_switch.c: In osm_switch_set_hops, return, error when port_num is invalid
+3d149db Changed sl_path API to include slid and dlid only
+6cfb0eb Optimized and deadlock-free routing algorithm for InfiniBand
+45f93ec opensm: Add additional IBM vendor ID/OUI
+c386eb2 opensm/osm_state_mgr.c: Cosmetic change to log message
+703e596 opensm: Add support for partition enforcement types to accomodate IBA extended link speeds
+a2a03a8 Check block_num validity in set_guidinfo() and del_guidinfo() requests
+e6ec61f end error resoponse to invalid LID in GUIDInfo request
+7fce500 opensm/Makefile.am: Add doc/opensm-sriov.txt to docs
+264aeb1 opensm: Add documentation for SRIOV support
+c639832 opensm: Enhance osm_physp_share_this_pkey for allow_both_pkeys policy
+b17b63c opensm: When allowing both pkeys, on a switch external, (peer) port eliminate limited pkey when full pkey with same base is present
+a758da2 opensm: Add command line option for allow_both_pkeys
+f412de3 opensm: Update partition documentation and man page for (allowing) both (limited and full) memberships in the same partition
+726ce6a Support allowing both full and limited members of same partition
+4ccf32f opensm/PKeyMgr: Support pkey index reuse when there are no longer any previously unused indices available
+eb375a6 opensm/osm_pkey_mgr.c: Detect pkey table overflow in pkey_mgr_update_port
+411e742 opensm/PkeyMgr: Don't change end port pkey index when simultaneously adding and removing partitions
+15e7223 opensm/osm_sa_guidinfo_record.c: In set_guidinfo, better SM reassigned guid handing
+e79b725 opensm: Handle SubnSet GUIDInfo asynchronously from GUIDInfoRecord handling
+96c741d opensm: Some cosmetic formatting changes
+1d5e370 opensm/osm_sa_guidinfo_record.c: Better status for SA response
+efd3ba2 opensm/osm_sa.c: Change log level of message
+db8b7da opensm/osm_sa_service_record.c: Alias GUID support
+5330986 opensm/osm_sa_multipath_record.c: Add support for alias GUIDs
+44168c9 opensm/osm_sa_guidinfo_record.c: In del_guidinfo, validate guid not in use
+63eb65b opensm: Add multicast support for alias GUIDs
+700d15f opensm/osm_sa_path_record.c: Add support for alias GUIDs
+f818387 opensm/osm_sa_guidinfo_record.c: Use OSM_VENDOR_ID_OPENIB define rather than IB_OPENIB_OUI
+97e360e opensm: Dump/load SA GUIDInfoRecords
+fe74f1d opensm: Make SA assigned guids persistent across port down/up events
+eb8f1d9 opensm: Add support for alias GUIDs
+b3b1861 opensm: osm_subnet.c: Updated patch to add error-reporting to the parsing of opensm.conf
+cd8a708 opensm/man/opensm.8.in: Add description for OSM_LOG_SYS logging flag
+1308e5c opensm/osm_console.c: Add display of FDR10 ports to portstatus_parse
+f4722b0 opensm: Reset client reregistration when receiving handover
 
 1.3 Library API Changes
 
@@ -318,6 +370,9 @@ ae1bcdd opensm/osm_lid_mgr.c: Allow switch lids to be non LMC aligned
 8214e2a opensm: Add support for SwitchInfo:MulticastFDBTop
 1e544ba opensm: fixed memory leak in multicast spanning tree calculation
 0456b3f Fixed multicast groups reconfiguration during heawy sweep
+9ad844f Fix ucast cache crash, when switch doesn't have valid phys ports
+07aa9fa opensm: fix crash in osm_ucast_mgr
+076bd38 opensm/osm_ucast_cache.c: fix crash in ucast cache when switch with lid 0 dropped
 
 4.2 Other Bug Fixes
 
@@ -754,6 +809,25 @@ ad2dbf8 Support source-target-port-guid QoS policy configuration with ULP 'any'
 bcfe1b9 opensm/osm_torus.c: Use "OpenSM standard" error codes
 683397d Fix use of GNU old-style field designator extension
 719fcd4 Fix use of logical && with constant operand; switch to bitwise &
+6bc87bd opensm: fix search common pkeys
+a6ac5e3 opensm/osm_drop_mgr.c: GID out trap fix
+7717505 opensm/osm_pkey_mgr.c: fix segfault when trying to access not allocated block
+eb90efd include/opensm/osm_subnet.h: fix comment typos
+0a315e3 opensm/include/iba/ib_types.h: fix comment typos and errors
+125baa0 opensm/opensm.8.in: Fix cut 'n paste error
+f0d14d2 opensm/osm_ucast_ftree.c: Fix some typos
+841096f opensm: Fix opensm handover/relinquish corner case
+bf420ac opensm/osm_helper.c: Fix commentary typo
+2be999c opensm: fixed description in osm_routing_engine
+cf3d185 gen_chlog.sh: fixed version ordering
+8d49c5d opensm/osm_sa_guidinfo_record.c: Fix locking
+8d764b8 Fix continous looping when clearing accum_pkeys table
+32500a6 opensm/osm_link_mgr.c: Fix sending PortInfo Set for ports supporting extended speed
+e24ff39 Fix Pkey enforcement configuration
+041e47a Fix PathRecord reply to be the same for allow_both_pkeys ON and OFF
+3c9b81d OpenSM/osm_prtn_config.c: Fix non-initialized pointer usage
+28a40a2 Fix logging messages about op_vls and mtu mismatch
+5e672a6 Fix memory leak on dfsssp_context_destroy()
 
 * Other less critical or visible bugs were also fixed.
 
