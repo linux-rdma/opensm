@@ -295,9 +295,6 @@ information regarding each compliance statement.
   If no permission to forward, the subscription should be removed and
   no further forwarding should occur.
 
-* C14-24.1.1.5 and C14-62.1.1.22 (Initialization):
-  GUIDInfo - SM should enable assigning Port GUIDInfo.
-
 * C14-44 (Initialization):
   If the SM discovers that it is missing an M_Key to update CA/RT/SW,
   it should notify the higher level.
