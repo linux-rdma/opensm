@@ -1315,6 +1315,17 @@ int osm_subn_verify_config(IN osm_subn_opt_t * p_opts)
 	}
 #endif
 
+	if (p_opts->root_guid_file != NULL) {
+		FILE *root_file = fopen(p_opts->root_guid_file, "r");
+		if (!root_file) {
+			log_report("Root guid file provided: %s doesn't exist.\n"
+				    "Using default roots discovery algorithm\n",
+				    p_opts->root_guid_file);
+			p_opts->root_guid_file = NULL;
+		} else
+			fclose(root_file);
+	}
+
 	return 0;
 }
 
