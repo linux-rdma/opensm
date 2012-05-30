@@ -102,7 +102,7 @@ typedef uint8_t osm_log_level_t;
 */
 #define OSM_LOG_DEFAULT_LEVEL		OSM_LOG_ERROR | OSM_LOG_INFO
 
-/****s* OpenSM: MAD Wrapper/osm_log_t
+/****s* OpenSM: Log/osm_log_t
 * NAME
 *	osm_log_t
 *
