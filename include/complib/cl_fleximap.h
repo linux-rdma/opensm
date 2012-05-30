@@ -462,8 +462,8 @@ static inline cl_fmap_item_t *cl_fmap_head(IN const cl_fmap_t * const p_map)
 /*
 * PARAMETERS
 *	p_map
-*		[in] Pointer to a cl_fmap_t structure whose item with the lowest key
-*		is returned.
+*		[in] Pointer to a cl_fmap_t structure whose item with the lowest
+*		key is returned.
 *
 * RETURN VALUES
 *	Pointer to the map item with the lowest key in the flexi map.
@@ -601,7 +601,7 @@ cl_fmap_item_t *cl_fmap_insert(IN cl_fmap_t * const p_map,
 *		[in] Pointer to the key value to assign to the item.  Storage
 *		for the key must be persistant, as only the pointer is stored.
 *		Users are responsible for maintaining the validity of key
-*		 pointers while they are in use.
+*		pointers while they are in use.
 *
 *	p_item
 *		[in] Pointer to a cl_fmap_item_t stucture to insert into the flexi map.
@@ -693,8 +693,8 @@ cl_fmap_item_t *cl_fmap_get(IN const cl_fmap_t * const p_map,
 *	cl_fmap_get_next
 *
 * DESCRIPTION
-*	The cl_fmap_get_next function returns the first map item associated with a
-*	key > the key specified.
+*	The cl_fmap_get_next function returns the first map item associated with
+*	a key > the key specified.
 *
 * SYNOPSIS
 */
@@ -744,7 +744,7 @@ cl_fmap_remove_item(IN cl_fmap_t * const p_map,
 *	This function does not return a value.
 *
 *	In a debug build, cl_fmap_remove_item asserts that the item being
-*	removed es in the specified map.
+*	removed is in the specified map.
 *
 * NOTES
 *	Removes the map item pointed to by p_item from its flexi map.
