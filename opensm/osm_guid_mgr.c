@@ -129,6 +129,7 @@ void osm_guid_mgr_process(IN osm_sm_t * sm) {
 
 	OSM_LOG(sm->p_log, OSM_LOG_DEBUG, "Processing alias guid list\n");
 
+	CL_PLOCK_EXCL_ACQUIRE(sm->p_lock);
 	while (cl_qlist_count(&sm->p_subn->alias_guid_list)) {
 		p_obj = (osm_guidinfo_work_obj_t *) cl_qlist_remove_head(&sm->p_subn->alias_guid_list);
 		guidinfo_set(&sm->p_subn->p_osm->sa, p_obj->p_port,
@@ -136,5 +137,6 @@ void osm_guid_mgr_process(IN osm_sm_t * sm) {
 		osm_guid_work_obj_delete(p_obj);
 	}
 
+	CL_PLOCK_RELEASE(sm->p_lock);
 	OSM_LOG_EXIT(sm->p_log);
 }
