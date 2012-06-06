@@ -49,6 +49,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <arpa/inet.h>
+#define FILE_ID 41
 #include <opensm/osm_log.h>
 #include <opensm/osm_node.h>
 #include <opensm/osm_port.h>

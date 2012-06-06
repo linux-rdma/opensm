@@ -52,6 +52,7 @@
 #include <errno.h>
 #include <complib/cl_debug.h>
 #include <complib/cl_qmap.h>
+#define FILE_ID 81
 #include <opensm/osm_switch.h>
 #include <opensm/osm_opensm.h>
 #include <opensm/osm_log.h>

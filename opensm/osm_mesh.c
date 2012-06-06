@@ -43,6 +43,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#define FILE_ID 21
 #include <opensm/osm_switch.h>
 #include <opensm/osm_opensm.h>
 #include <opensm/osm_log.h>
@@ -872,7 +873,7 @@ static void seed_axes(lash_t *p_lash, int sw)
 		}
 	}
 
-	if (osm_log_is_active(p_log, OSM_LOG_DEBUG)) {
+	if (OSM_LOG_IS_ACTIVE_V2(p_log, OSM_LOG_DEBUG)) {
 		char buf[256], *p;
 
 		for (i = 0; i < n; i++) {
@@ -1719,7 +1720,7 @@ int osm_do_mesh_analysis(lash_t *p_lash)
 		OSM_LOG(p_log, OSM_LOG_INFO, "%s", buf);
 	}
 
-	if (osm_log_is_active(p_log, OSM_LOG_DEBUG))
+	if (OSM_LOG_IS_ACTIVE_V2(p_log, OSM_LOG_DEBUG))
 		dump_mesh(p_lash);
 
 done:

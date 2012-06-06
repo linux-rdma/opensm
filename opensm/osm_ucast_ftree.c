@@ -51,6 +51,7 @@
 #include <iba/ib_types.h>
 #include <complib/cl_qmap.h>
 #include <complib/cl_debug.h>
+#define FILE_ID 80
 #include <opensm/osm_opensm.h>
 #include <opensm/osm_switch.h>
 
@@ -476,7 +477,7 @@ static void port_group_dump(IN ftree_fabric_t * p_ftree,
 	if (!p_group)
 		return;
 
-	if (!osm_log_is_active(&p_ftree->p_osm->log, OSM_LOG_DEBUG))
+	if (!OSM_LOG_IS_ACTIVE_V2(&p_ftree->p_osm->log, OSM_LOG_DEBUG))
 		return;
 
 	size = cl_ptr_vector_get_size(&p_group->ports);
@@ -642,7 +643,7 @@ static void sw_dump(IN ftree_fabric_t * p_ftree, IN ftree_sw_t * p_sw)
 	if (!p_sw)
 		return;
 
-	if (!osm_log_is_active(&p_ftree->p_osm->log, OSM_LOG_DEBUG))
+	if (!OSM_LOG_IS_ACTIVE_V2(&p_ftree->p_osm->log, OSM_LOG_DEBUG))
 		return;
 
 	OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
@@ -858,7 +859,7 @@ static void hca_dump(IN ftree_fabric_t * p_ftree, IN ftree_hca_t * p_hca)
 	if (!p_hca)
 		return;
 
-	if (!osm_log_is_active(&p_ftree->p_osm->log, OSM_LOG_DEBUG))
+	if (!OSM_LOG_IS_ACTIVE_V2(&p_ftree->p_osm->log, OSM_LOG_DEBUG))
 		return;
 
 	OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
@@ -1148,7 +1149,7 @@ static void fabric_dump(ftree_fabric_t * p_ftree)
 	ftree_hca_t *p_hca;
 	ftree_sw_t *p_sw;
 
-	if (!osm_log_is_active(&p_ftree->p_osm->log, OSM_LOG_DEBUG))
+	if (!OSM_LOG_IS_ACTIVE_V2(&p_ftree->p_osm->log, OSM_LOG_DEBUG))
 		return;
 
 	OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG, "\n"
@@ -1227,7 +1228,7 @@ static void fabric_dump_general_info(IN ftree_fabric_t * p_ftree)
 				i);
 	}
 
-	if (osm_log_is_active(&p_ftree->p_osm->log, OSM_LOG_VERBOSE)) {
+	if (OSM_LOG_IS_ACTIVE_V2(&p_ftree->p_osm->log, OSM_LOG_VERBOSE)) {
 		OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_VERBOSE,
 			"  - Root switches:\n");
 		for (p_sw = (ftree_sw_t *) cl_qmap_head(&p_ftree->sw_tbl);
@@ -1633,8 +1634,8 @@ static int fabric_create_leaf_switch_array(IN ftree_fabric_t * p_ftree)
 	all_switches_at_leaf_level = (ftree_sw_t **)
 	    malloc(cl_qmap_count(&p_ftree->sw_tbl) * sizeof(ftree_sw_t *));
 	if (!all_switches_at_leaf_level) {
-		osm_log(&p_ftree->p_osm->log, OSM_LOG_SYS,
-			"Fat-tree routing: Memory allocation failed\n");
+		osm_log_v2(&p_ftree->p_osm->log, OSM_LOG_SYS, FILE_ID,
+			   "Fat-tree routing: Memory allocation failed\n");
 		res = -1;
 		goto Exit;
 	}
@@ -1685,8 +1686,8 @@ static int fabric_create_leaf_switch_array(IN ftree_fabric_t * p_ftree)
 	p_ftree->leaf_switches = (ftree_sw_t **)
 	    malloc(p_ftree->leaf_switches_num * sizeof(ftree_sw_t *));
 	if (!p_ftree->leaf_switches) {
-		osm_log(&p_ftree->p_osm->log, OSM_LOG_SYS,
-			"Fat-tree routing: Memory allocation failed\n");
+		osm_log_v2(&p_ftree->p_osm->log, OSM_LOG_SYS, FILE_ID,
+			   "Fat-tree routing: Memory allocation failed\n");
 		free(all_switches_at_leaf_level);
 		res = -1;
 		goto Exit;
@@ -1753,8 +1754,8 @@ static boolean_t fabric_validate_topology(IN ftree_fabric_t * p_ftree)
 	reference_sw_arr =
 	    (ftree_sw_t **) malloc(tree_rank * sizeof(ftree_sw_t *));
 	if (reference_sw_arr == NULL) {
-		osm_log(&p_ftree->p_osm->log, OSM_LOG_SYS,
-			"Fat-tree routing: Memory allocation failed\n");
+		osm_log_v2(&p_ftree->p_osm->log, OSM_LOG_SYS, FILE_ID,
+			   "Fat-tree routing: Memory allocation failed\n");
 		return FALSE;
 	}
 	memset(reference_sw_arr, 0, tree_rank * sizeof(ftree_sw_t *));
@@ -3887,29 +3888,29 @@ static int construct_fabric(IN void *context)
 	fabric_clear(p_ftree);
 
 	if (p_ftree->p_osm->subn.opt.lmc > 0) {
-		osm_log(&p_ftree->p_osm->log, OSM_LOG_INFO,
-			"LMC > 0 is not supported by fat-tree routing.\n"
-			"Falling back to default routing\n");
+		osm_log_v2(&p_ftree->p_osm->log, OSM_LOG_INFO, FILE_ID,
+			   "LMC > 0 is not supported by fat-tree routing.\n"
+			   "Falling back to default routing\n");
 		status = -1;
 		goto Exit;
 	}
 
 	if (cl_qmap_count(&p_ftree->p_osm->subn.sw_guid_tbl) < 2) {
-		osm_log(&p_ftree->p_osm->log, OSM_LOG_INFO,
-			"Fabric has %u switches - topology is not fat-tree.\n"
-			"Falling back to default routing\n",
-			cl_qmap_count(&p_ftree->p_osm->subn.sw_guid_tbl));
+		osm_log_v2(&p_ftree->p_osm->log, OSM_LOG_INFO, FILE_ID,
+			   "Fabric has %u switches - topology is not fat-tree.\n"
+			   "Falling back to default routing\n",
+			   cl_qmap_count(&p_ftree->p_osm->subn.sw_guid_tbl));
 		status = -1;
 		goto Exit;
 	}
 
 	if ((cl_qmap_count(&p_ftree->p_osm->subn.node_guid_tbl) -
 	     cl_qmap_count(&p_ftree->p_osm->subn.sw_guid_tbl)) < 2) {
-		osm_log(&p_ftree->p_osm->log, OSM_LOG_INFO,
-			"Fabric has %u nodes (%u switches) - topology is not fat-tree.\n"
-			"Falling back to default routing\n",
-			cl_qmap_count(&p_ftree->p_osm->subn.node_guid_tbl),
-			cl_qmap_count(&p_ftree->p_osm->subn.sw_guid_tbl));
+		osm_log_v2(&p_ftree->p_osm->log, OSM_LOG_INFO, FILE_ID,
+			   "Fabric has %u nodes (%u switches) - topology is not fat-tree.\n"
+			   "Falling back to default routing\n",
+			   cl_qmap_count(&p_ftree->p_osm->subn.node_guid_tbl),
+			   cl_qmap_count(&p_ftree->p_osm->subn.sw_guid_tbl));
 		status = -1;
 		goto Exit;
 	}
@@ -3922,9 +3923,9 @@ static int construct_fabric(IN void *context)
 	OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_VERBOSE,
 		"Populating FatTree Switch and CA tables\n");
 	if (fabric_populate_nodes(p_ftree) != 0) {
-		osm_log(&p_ftree->p_osm->log, OSM_LOG_INFO,
-			"Fabric topology is not fat-tree - "
-			"falling back to default routing\n");
+		osm_log_v2(&p_ftree->p_osm->log, OSM_LOG_INFO, FILE_ID,
+			   "Fabric topology is not fat-tree - "
+			   "falling back to default routing\n");
 		status = -1;
 		goto Exit;
 	}
@@ -3932,18 +3933,18 @@ static int construct_fabric(IN void *context)
 	OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_VERBOSE,
 		"Reading guid files provided by user\n");
 	if (fabric_read_guid_files(p_ftree) != 0) {
-		osm_log(&p_ftree->p_osm->log, OSM_LOG_INFO,
-			"Failed reading guid files - "
-			"falling back to default routing\n");
+		osm_log_v2(&p_ftree->p_osm->log, OSM_LOG_INFO, FILE_ID,
+			   "Failed reading guid files - "
+			   "falling back to default routing\n");
 		status = -1;
 		goto Exit;
 	}
 
 	if (cl_qmap_count(&p_ftree->hca_tbl) < 2) {
-		osm_log(&p_ftree->p_osm->log, OSM_LOG_INFO,
-			"Fabric has %u CAs - topology is not fat-tree.\n"
-			"Falling back to default routing\n",
-			cl_qmap_count(&p_ftree->hca_tbl));
+		osm_log_v2(&p_ftree->p_osm->log, OSM_LOG_INFO, FILE_ID,
+			   "Fabric has %u CAs - topology is not fat-tree.\n"
+			   "Falling back to default routing\n",
+			   cl_qmap_count(&p_ftree->hca_tbl));
 		status = -1;
 		goto Exit;
 	}
@@ -3954,8 +3955,8 @@ static int construct_fabric(IN void *context)
 	   whole tree rank after filling ports and marking CNs. */
 	OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_VERBOSE, "Ranking FatTree\n");
 	if (fabric_rank(p_ftree) != 0) {
-		osm_log(&p_ftree->p_osm->log, OSM_LOG_INFO,
-			"Failed ranking the tree\n");
+		osm_log_v2(&p_ftree->p_osm->log, OSM_LOG_INFO, FILE_ID,
+			   "Failed ranking the tree\n");
 		status = -1;
 		goto Exit;
 	}
@@ -3968,13 +3969,13 @@ static int construct_fabric(IN void *context)
 	OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_VERBOSE,
 		"Populating CA & switch ports\n");
 	if (fabric_populate_ports(p_ftree) != 0) {
-		osm_log(&p_ftree->p_osm->log, OSM_LOG_INFO,
-			"Fabric topology is not a fat-tree\n");
+		osm_log_v2(&p_ftree->p_osm->log, OSM_LOG_INFO, FILE_ID,
+			   "Fabric topology is not a fat-tree\n");
 		status = -1;
 		goto Exit;
 	} else if (p_ftree->cn_num == 0) {
-		osm_log(&p_ftree->p_osm->log, OSM_LOG_INFO,
-			"Fabric has no valid compute nodes\n");
+		osm_log_v2(&p_ftree->p_osm->log, OSM_LOG_INFO, FILE_ID,
+			   "Fabric has no valid compute nodes\n");
 		status = -1;
 		goto Exit;
 	}
@@ -3985,10 +3986,10 @@ static int construct_fabric(IN void *context)
 
 	if (fabric_get_rank(p_ftree) > FAT_TREE_MAX_RANK ||
 	    fabric_get_rank(p_ftree) < FAT_TREE_MIN_RANK) {
-		osm_log(&p_ftree->p_osm->log, OSM_LOG_INFO,
-			"Fabric rank is %u (should be between %u and %u)\n",
-			fabric_get_rank(p_ftree), FAT_TREE_MIN_RANK,
-			FAT_TREE_MAX_RANK);
+		osm_log_v2(&p_ftree->p_osm->log, OSM_LOG_INFO, FILE_ID,
+			   "Fabric rank is %u (should be between %u and %u)\n",
+			   fabric_get_rank(p_ftree), FAT_TREE_MIN_RANK,
+			   FAT_TREE_MAX_RANK);
 		status = -1;
 		goto Exit;
 	}
@@ -3998,8 +3999,8 @@ static int construct_fabric(IN void *context)
 	   As a by-product, this function also runs basic topology
 	   validation - it checks that all the CNs are at the same rank. */
 	if (fabric_mark_leaf_switches(p_ftree)) {
-		osm_log(&p_ftree->p_osm->log, OSM_LOG_INFO,
-			"Fabric topology is not a fat-tree\n");
+		osm_log_v2(&p_ftree->p_osm->log, OSM_LOG_INFO, FILE_ID,
+			   "Fabric topology is not a fat-tree\n");
 		status = -1;
 		goto Exit;
 	}
@@ -4016,8 +4017,8 @@ static int construct_fabric(IN void *context)
 	   switches at the same leaf rank w/o CNs, if this is the order of indexing.
 	   In any case, the first and the last switches in the array are REAL leafs. */
 	if (fabric_create_leaf_switch_array(p_ftree)) {
-		osm_log(&p_ftree->p_osm->log, OSM_LOG_INFO,
-			"Fabric topology is not a fat-tree\n");
+		osm_log_v2(&p_ftree->p_osm->log, OSM_LOG_INFO, FILE_ID,
+			   "Fabric topology is not a fat-tree\n");
 		status = -1;
 		goto Exit;
 	}
@@ -4029,15 +4030,15 @@ static int construct_fabric(IN void *context)
 	fabric_dump_general_info(p_ftree);
 
 	/* dump full tree topology */
-	if (osm_log_is_active(&p_ftree->p_osm->log, OSM_LOG_DEBUG))
+	if (OSM_LOG_IS_ACTIVE_V2(&p_ftree->p_osm->log, OSM_LOG_DEBUG))
 		fabric_dump(p_ftree);
 
 	/* the fabric is required to be PURE fat-tree only if the root
 	   guid file hasn't been provided by user */
 	if (!fabric_roots_provided(p_ftree) &&
 	    !fabric_validate_topology(p_ftree)) {
-		osm_log(&p_ftree->p_osm->log, OSM_LOG_INFO,
-			"Fabric topology is not a fat-tree\n");
+		osm_log_v2(&p_ftree->p_osm->log, OSM_LOG_INFO, FILE_ID,
+			   "Fabric topology is not a fat-tree\n");
 		status = -1;
 		goto Exit;
 	}

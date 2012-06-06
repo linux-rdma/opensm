@@ -49,6 +49,7 @@
 #include <iba/ib_types.h>
 #include <complib/cl_qmap.h>
 #include <complib/cl_debug.h>
+#define FILE_ID 76
 #include <opensm/osm_madw.h>
 #include <opensm/osm_log.h>
 #include <opensm/osm_node.h>
@@ -242,7 +243,7 @@ static int disable_port(osm_sm_t *sm, osm_physp_t *p)
 static void log_trap_info(osm_log_t *p_log, ib_mad_notice_attr_t *p_ntci,
 			  ib_net16_t source_lid, ib_net64_t trans_id)
 {
-	if (!osm_log_is_active(p_log, OSM_LOG_ERROR))
+	if (!OSM_LOG_IS_ACTIVE_V2(p_log, OSM_LOG_ERROR))
 		return;
 
 	if (ib_notice_is_generic(p_ntci)) {

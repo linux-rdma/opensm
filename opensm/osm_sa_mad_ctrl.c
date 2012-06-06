@@ -47,6 +47,7 @@
 #include <string.h>
 #include <complib/cl_debug.h>
 #include <iba/ib_types.h>
+#define FILE_ID 52
 #include <vendor/osm_vendor_api.h>
 #include <opensm/osm_sa_mad_ctrl.h>
 #include <opensm/osm_msgdef.h>
@@ -317,7 +318,7 @@ static void sa_mad_ctrl_rcv_callback(IN osm_madw_t * p_madw, IN void *context,
 
 	p_sa_mad = osm_madw_get_sa_mad_ptr(p_madw);
 
-	if (osm_log_is_active(p_ctrl->p_log, OSM_LOG_FRAMES))
+	if (OSM_LOG_IS_ACTIVE_V2(p_ctrl->p_log, OSM_LOG_FRAMES))
 		osm_dump_sa_mad(p_ctrl->p_log, p_sa_mad, OSM_LOG_FRAMES);
 
 	/*

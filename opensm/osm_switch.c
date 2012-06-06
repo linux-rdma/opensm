@@ -49,6 +49,7 @@
 #include <string.h>
 #include <complib/cl_math.h>
 #include <iba/ib_types.h>
+#define FILE_ID 74
 #include <opensm/osm_switch.h>
 
 struct switch_port_path {

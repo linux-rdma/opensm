@@ -48,6 +48,7 @@
 #include <iba/ib_types.h>
 #include <complib/cl_passivelock.h>
 #include <complib/cl_debug.h>
+#define FILE_ID 70
 #include <opensm/osm_sm.h>
 #include <opensm/osm_madw.h>
 #include <opensm/osm_switch.h>
@@ -66,7 +67,7 @@ void osm_report_sm_state(osm_sm_t * sm)
 	char buf[64];
 	const char *state_str = osm_get_sm_mgr_state_str(sm->p_subn->sm_state);
 
-	osm_log(sm->p_log, OSM_LOG_SYS, "Entering %s state\n", state_str);
+	osm_log_v2(sm->p_log, OSM_LOG_SYS, FILE_ID, "Entering %s state\n", state_str);
 	snprintf(buf, sizeof(buf), "ENTERING SM %s STATE", state_str);
 	OSM_LOG_MSG_BOX(sm->p_log, OSM_LOG_VERBOSE, buf);
 }

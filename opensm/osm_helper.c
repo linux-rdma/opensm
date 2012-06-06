@@ -50,6 +50,7 @@
 #include <arpa/inet.h>
 #include <complib/cl_debug.h>
 #include <iba/ib_types.h>
+#define FILE_ID 10
 #include <opensm/osm_helper.h>
 #include <opensm/osm_log.h>
 
@@ -1991,7 +1992,7 @@ void osm_dump_sa_mad(IN osm_log_t * p_log, IN const ib_sa_mad_t * p_mad,
 
 		/* make sure the mad is valid */
 		if (p_mad == NULL) {
-			OSM_LOG(p_log, log_level, "NULL MAD POINTER\n");
+			osm_log(p_log, log_level, "NULL MAD POINTER\n");
 			return;
 		}
 

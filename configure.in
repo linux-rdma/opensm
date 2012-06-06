@@ -221,6 +221,26 @@ AC_DEFINE_UNQUOTED(HAVE_DEFAULT_PREFIX_ROUTES_FILE,
 	[Define a Prefix Routes config file])
 AC_SUBST(PREFIX_ROUTES_FILE)
 
+dnl Check for a different per-module-logging file
+PER_MOD_LOGGING_FILE=per-module-logging.conf
+AC_MSG_CHECKING(for --with-per-module-logging-conf)
+AC_ARG_WITH(per-module-logging.conf,
+    AC_HELP_STRING([--with-per-module-logging-conf=file],
+                   [define a Per Module Logging config file (default is per-module-logging.conf)]),
+    [ case "$withval" in
+    no)
+        ;;
+    *)
+        PER_MOD_LOGGING_FILE=$withval
+        ;;
+    esac ]
+)
+AC_MSG_RESULT($PER_MOD_LOGGING_FILE)
+AC_DEFINE_UNQUOTED(HAVE_DEFAULT_PER_MOD_LOGGING_FILE,
+        ["$OPENSM_CONFIG_DIR/$PER_MOD_LOGGING_FILE"],
+        [Define a Per Module Logging config file])
+AC_SUBST(PER_MOD_LOGGING_FILE)
+
 dnl select example event plugin or not
 OPENIB_OSM_DEFAULT_EVENT_PLUGIN_SEL
 

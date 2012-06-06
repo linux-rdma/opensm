@@ -59,6 +59,7 @@
 #include <iba/ib_types.h>
 #include <complib/cl_debug.h>
 #include <complib/cl_thread.h>
+#define FILE_ID 29
 #include <vendor/osm_vendor_api.h>
 #include <opensm/osm_perfmgr.h>
 #include <opensm/osm_log.h>
@@ -842,13 +843,13 @@ void osm_perfmgr_process(osm_perfmgr_t * pm)
 
 	gettimeofday(&after, NULL);
 	diff_time(&before, &after, &after);
-	osm_log(pm->log, OSM_LOG_INFO,
-		"PerfMgr total sweep time : %ld.%06ld s\n"
-		"        fastest mad      : %g us\n"
-		"        slowest mad      : %g us\n"
-		"        average mad      : %g us\n",
-		after.tv_sec, after.tv_usec, perfmgr_mad_stats.fastest_us,
-		perfmgr_mad_stats.slowest_us, perfmgr_mad_stats.avg_us);
+	osm_log_v2(pm->log, OSM_LOG_INFO, FILE_ID,
+		   "PerfMgr total sweep time : %ld.%06ld s\n"
+		   "        fastest mad      : %g us\n"
+		   "        slowest mad      : %g us\n"
+		   "        average mad      : %g us\n",
+		   after.tv_sec, after.tv_usec, perfmgr_mad_stats.fastest_us,
+		   perfmgr_mad_stats.slowest_us, perfmgr_mad_stats.avg_us);
 	clear_mad_stats();
 #endif
 
@@ -1009,10 +1010,10 @@ static void perfmgr_check_overflow(osm_perfmgr_t * pm,
 		if (!mon_node->port[port].valid)
 			goto Exit;
 
-		osm_log(pm->log, OSM_LOG_VERBOSE,
-			"PerfMgr: Counter overflow: %s (0x%" PRIx64
-			") port %d; clearing counters\n",
-			mon_node->name, mon_node->guid, port);
+		osm_log_v2(pm->log, OSM_LOG_VERBOSE, FILE_ID,
+			   "PerfMgr: Counter overflow: %s (0x%" PRIx64
+			   ") port %d; clearing counters\n",
+			   mon_node->name, mon_node->guid, port);
 
 		cl_plock_acquire(&pm->osm->lock);
 		p_node =
@@ -1400,7 +1401,7 @@ void osm_perfmgr_clear_counters(osm_perfmgr_t * pm)
 	 * FIXME todo issue clear on the fabric?
 	 */
 	perfmgr_db_clear_counters(pm->db);
-	osm_log(pm->log, OSM_LOG_INFO, "PerfMgr counters cleared\n");
+	osm_log_v2(pm->log, OSM_LOG_INFO, FILE_ID, "PerfMgr counters cleared\n");
 }
 
 /*******************************************************************

@@ -50,6 +50,7 @@
 #include <string.h>
 #include <complib/cl_dispatcher.h>
 #include <complib/cl_passivelock.h>
+#define FILE_ID 28
 #include <vendor/osm_vendor_api.h>
 #include <opensm/osm_version.h>
 #include <opensm/osm_base.h>
@@ -347,8 +348,8 @@ static void load_plugins(osm_opensm_t *osm, const char *plugin_names)
 	while (name && *name) {
 		epi = osm_epi_construct(osm, name);
 		if (!epi)
-			osm_log(&osm->log, OSM_LOG_ERROR,
-				"cannot load plugin \'%s\'\n", name);
+			osm_log_v2(&osm->log, OSM_LOG_ERROR, FILE_ID,
+				   "cannot load plugin \'%s\'\n", name);
 		else
 			cl_qlist_insert_tail(&osm->plugin_list, &epi->list);
 		name = strtok_r(NULL, " \t\n", &p);
@@ -373,13 +374,14 @@ ib_api_status_t osm_opensm_init(IN osm_opensm_t * p_osm,
 	if (status != IB_SUCCESS)
 		return status;
 	p_osm->log.log_prefix = p_opt->log_prefix;
+	p_osm->log.p_subn = &p_osm->subn;
 
 	/* If there is a log level defined - add the OSM_VERSION to it */
-	osm_log(&p_osm->log,
-		osm_log_get_level(&p_osm->log) & (OSM_LOG_SYS ^ 0xFF), "%s\n",
-		p_osm->osm_version);
+	osm_log_v2(&p_osm->log,
+		   osm_log_get_level(&p_osm->log) & (OSM_LOG_SYS ^ 0xFF),
+		   FILE_ID, "%s\n", p_osm->osm_version);
 	/* Write the OSM_VERSION to the SYS_LOG */
-	osm_log(&p_osm->log, OSM_LOG_SYS, "%s\n", p_osm->osm_version);	/* Format Waived */
+	osm_log_v2(&p_osm->log, OSM_LOG_SYS, FILE_ID, "%s\n", p_osm->osm_version);	/* Format Waived */
 
 	OSM_LOG(&p_osm->log, OSM_LOG_FUNCS, "[\n");	/* Format Waived */
 

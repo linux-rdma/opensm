@@ -1,4 +1,4 @@
-.TH OPENSM 8 "November 22, 2011" "OpenIB" "OpenIB Management"
+.TH OPENSM 8 "March 8, 2012" "OpenIB" "OpenIB Management"
 
 .SH NAME
 opensm \- InfiniBand subnet manager and administration (SM/SA)
@@ -1317,6 +1317,33 @@ a file compatible with dump_lfts.sh output. This file can be used
 as input for forwarding tables loading by 'file' routing engine.
 Both or one of options -U and -M can be specified together with \'-R file\'.
 
+.SH PER MODULE LOGGING CONFIGURATION
+.PP
+To enabled per module logging, set per_module_logging to TRUE in
+the opensm options file and configure per_module_logging_file there
+appropriately.
+
+The per module logging config file format is a set of lines with module
+name and logging level as follows:
+
+ <module name><separator><logging level>
+
+ <module name> is the file name including .c
+ <separator> is either = , space, or tab
+ <logging level> is the same levels as used in the coarse/overall
+ logging as follows:
+
+ BIT    LOG LEVEL ENABLED
+ ----   -----------------
+ 0x01 - ERROR (error messages)
+ 0x02 - INFO (basic messages, low volume)
+ 0x04 - VERBOSE (interesting stuff, moderate volume)
+ 0x08 - DEBUG (diagnostic, high volume)
+ 0x10 - FUNCS (function entry/exit, very high volume)
+ 0x20 - FRAMES (dumps all SMP and GMP frames)
+ 0x40 - ROUTING (dump FDB routing information)
+ 0x80 - SYS (syslog at LOG_INFO level in addition to OpenSM logging)
+
 .SH FILES
 .TP
 .B @OPENSM_CONFIG_DIR@/@OPENSM_CONFIG_FILE@
@@ -1336,16 +1363,20 @@ default QOS policy config file
 
 .TP
 .B @OPENSM_CONFIG_DIR@/@PREFIX_ROUTES_FILE@
-default prefix routes file.
+default prefix routes file
+
+.TP
+.B @OPENSM_CONFIG_DIR@/@PER_MOD_LOGGING_FILE@
+default per module logging config file
 
 .TP
 .B @OPENSM_CONFIG_DIR@/@TORUS2QOS_CONF_FILE@
-default torus-2QoS config file.
+default torus-2QoS config file
 
 .SH AUTHORS
 .TP
 Hal Rosenstock
-.RI < hal.rosenstock@gmail.com >
+.RI < hal@mellanox.com >
 .TP
 Sasha Khapyorsky
 .RI < sashak@voltaire.com >

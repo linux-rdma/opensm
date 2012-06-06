@@ -63,5 +63,9 @@ OPENSM_1.5 {
 		ib_path_rate_get_prev;
 		ib_path_rate_get_next;
 		osm_dump_mlnx_ext_port_info;
+		osm_log_v2;
+		osm_log_msg_box_v2;
+		osm_log_is_active_v2;
+		osm_get_log_per_module;
 	local: *;
 };

@@ -47,6 +47,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#define FILE_ID 88
 #include <opensm/osm_ucast_mgr.h>
 #include <opensm/osm_opensm.h>
 #include <opensm/osm_node.h>
@@ -1185,7 +1186,7 @@ static int dfsssp_build_graph(void *context)
 		}
 	}
 	/* print the discovered graph */
-	if (osm_log_is_active(p_mgr->p_log, OSM_LOG_DEBUG))
+	if (OSM_LOG_IS_ACTIVE_V2(p_mgr->p_log, OSM_LOG_DEBUG))
 		dfsssp_print_graph(p_mgr, adj_list, adj_list_size);
 
 	dfsssp_ctx->adj_list = adj_list;
@@ -1814,7 +1815,7 @@ static int dfsssp_remove_deadlocks(dfsssp_context_t * dfsssp_ctx)
 
 	OSM_LOG(p_mgr->p_log, OSM_LOG_INFO,
 		"Virtual Lanes needed: %" PRIu8 "\n", vl_needed);
-	if (osm_log_is_active(p_mgr->p_log, OSM_LOG_INFO)) {
+	if (OSM_LOG_IS_ACTIVE_V2(p_mgr->p_log, OSM_LOG_INFO)) {
 		OSM_LOG(p_mgr->p_log, OSM_LOG_INFO,
 			"Paths per VL (before balancing):\n");
 		for (i = 0; i < vl_avail; i++)
@@ -1869,7 +1870,7 @@ static int dfsssp_remove_deadlocks(dfsssp_context_t * dfsssp_ctx)
 		goto ERROR;
 	}
 	/* else { no balancing } */
-	if (osm_log_is_active(p_mgr->p_log, OSM_LOG_INFO)) {
+	if (OSM_LOG_IS_ACTIVE_V2(p_mgr->p_log, OSM_LOG_INFO)) {
 		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 			"Virtual Lanes per src/dest combination after balancing:\n");
 		vltable_print(p_mgr, srcdest2vl_table);
@@ -1958,7 +1959,7 @@ static int dfsssp_do_dijkstra_routing(void *context)
 					     port, lid);
 				if (err)
 					return err;
-				if (osm_log_is_active(p_mgr->p_log,
+				if (OSM_LOG_IS_ACTIVE_V2(p_mgr->p_log,
 				    OSM_LOG_DEBUG))
 					print_routes(p_mgr, adj_list,
 						     adj_list_size, port);
@@ -1974,7 +1975,7 @@ static int dfsssp_do_dijkstra_routing(void *context)
 				update_weights(p_mgr, adj_list, adj_list_size,
 					       port);
 
-				if (osm_log_is_active(p_mgr->p_log,
+				if (OSM_LOG_IS_ACTIVE_V2(p_mgr->p_log,
 				    OSM_LOG_DEBUG))
 					dfsssp_print_graph(p_mgr, adj_list,
 							   adj_list_size);
@@ -1998,7 +1999,7 @@ static int dfsssp_do_dijkstra_routing(void *context)
 			    dijkstra(p_mgr, adj_list, adj_list_size, port, lid);
 			if (err)
 				return err;
-			if (osm_log_is_active(p_mgr->p_log, OSM_LOG_DEBUG))
+			if (OSM_LOG_IS_ACTIVE_V2(p_mgr->p_log, OSM_LOG_DEBUG))
 				print_routes(p_mgr, adj_list, adj_list_size,
 					     port);
 
@@ -2010,7 +2011,7 @@ static int dfsssp_do_dijkstra_routing(void *context)
 			/* add weights for calculated routes to adjust the weights for the next cycle */
 			update_weights(p_mgr, adj_list, adj_list_size, port);
 
-			if (osm_log_is_active(p_mgr->p_log, OSM_LOG_DEBUG))
+			if (OSM_LOG_IS_ACTIVE_V2(p_mgr->p_log, OSM_LOG_DEBUG))
 				dfsssp_print_graph(p_mgr, adj_list,
 						   adj_list_size);
 		}
@@ -2032,7 +2033,7 @@ static int dfsssp_do_dijkstra_routing(void *context)
 	}
 
 	/* print the new_lft for each switch after routing is done */
-	if (osm_log_is_active(p_mgr->p_log, OSM_LOG_DEBUG)) {
+	if (OSM_LOG_IS_ACTIVE_V2(p_mgr->p_log, OSM_LOG_DEBUG)) {
 		for (item = cl_qmap_head(sw_tbl); item != cl_qmap_end(sw_tbl);
 		     item = cl_qmap_next(item)) {
 			sw = (osm_switch_t *) item;

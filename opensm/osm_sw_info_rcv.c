@@ -50,6 +50,7 @@
 #include <complib/cl_qmap.h>
 #include <complib/cl_passivelock.h>
 #include <complib/cl_debug.h>
+#define FILE_ID 73
 #include <opensm/osm_log.h>
 #include <opensm/osm_switch.h>
 #include <opensm/osm_subnet.h>

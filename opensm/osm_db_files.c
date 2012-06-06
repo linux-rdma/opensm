@@ -46,6 +46,7 @@
 #include <sys/types.h>
 #include <stdlib.h>
 #include <string.h>
+#define FILE_ID 3
 #include <opensm/st.h>
 #include <opensm/osm_db.h>
 

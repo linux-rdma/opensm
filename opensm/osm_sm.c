@@ -52,6 +52,7 @@
 #include <complib/cl_passivelock.h>
 #include <complib/cl_debug.h>
 #include <complib/cl_thread.h>
+#define FILE_ID 67
 #include <opensm/osm_sm.h>
 #include <opensm/osm_madw.h>
 #include <opensm/osm_log.h>
@@ -231,7 +232,7 @@ void osm_sm_destroy(IN osm_sm_t * p_sm)
 	cl_spinlock_destroy(&p_sm->state_lock);
 	free(p_sm->mlids_req);
 
-	osm_log(p_sm->p_log, OSM_LOG_SYS, "Exiting SM\n");	/* Format Waived */
+	osm_log_v2(p_sm->p_log, OSM_LOG_SYS, FILE_ID, "Exiting SM\n");	/* Format Waived */
 	OSM_LOG_EXIT(p_sm->p_log);
 }
 

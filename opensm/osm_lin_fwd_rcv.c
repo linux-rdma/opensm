@@ -47,6 +47,7 @@
 
 #include <string.h>
 #include <complib/cl_debug.h>
+#define FILE_ID 13
 #include <opensm/osm_switch.h>
 #include <opensm/osm_sm.h>
 

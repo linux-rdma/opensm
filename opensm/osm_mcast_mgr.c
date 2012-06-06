@@ -50,6 +50,7 @@
 #include <string.h>
 #include <iba/ib_types.h>
 #include <complib/cl_debug.h>
+#define FILE_ID 18
 #include <opensm/osm_opensm.h>
 #include <opensm/osm_sm.h>
 #include <opensm/osm_multicast.h>
@@ -481,7 +482,7 @@ static void mcast_mgr_subdivide(osm_sm_t * sm, uint16_t mlid_ho,
 
 static void mcast_mgr_purge_list(osm_sm_t * sm, cl_qlist_t * list)
 {
-	if (osm_log_is_active(sm->p_log, OSM_LOG_ERROR)) {
+	if (OSM_LOG_IS_ACTIVE_V2(sm->p_log, OSM_LOG_ERROR)) {
 		osm_mcast_work_obj_t *wobj;
 		cl_list_item_t *i;
 		for (i = cl_qlist_head(list); i != cl_qlist_end(list);

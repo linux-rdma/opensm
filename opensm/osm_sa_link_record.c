@@ -48,6 +48,7 @@
 #include <iba/ib_types.h>
 #include <complib/cl_qmap.h>
 #include <complib/cl_debug.h>
+#define FILE_ID 51
 #include <vendor/osm_vendor_api.h>
 #include <opensm/osm_node.h>
 #include <opensm/osm_switch.h>
@@ -453,7 +454,7 @@ void osm_lr_rcv_process(IN void *context, IN void *data)
 		goto Exit;
 	}
 
-	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
+	if (OSM_LOG_IS_ACTIVE_V2(sa->p_log, OSM_LOG_DEBUG))
 		osm_dump_link_record(sa->p_log, p_lr, OSM_LOG_DEBUG);
 
 	cl_qlist_init(&lr_list);

@@ -50,6 +50,7 @@
 #  include <config.h>
 #endif				/* HAVE_CONFIG_H */
 
+#define FILE_ID 75
 #include <opensm/osm_log.h>
 #include <opensm/osm_port.h>
 #include <opensm/osm_switch.h>

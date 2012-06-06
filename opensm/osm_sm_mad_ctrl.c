@@ -49,6 +49,7 @@
 #include <string.h>
 #include <complib/cl_debug.h>
 #include <iba/ib_types.h>
+#define FILE_ID 69
 #include <opensm/osm_sm_mad_ctrl.h>
 #include <vendor/osm_vendor_api.h>
 #include <opensm/osm_madw.h>
@@ -636,7 +637,7 @@ static void sm_mad_ctrl_rcv_callback(IN osm_madw_t * p_madw,
 		goto Exit;
 	}
 
-	if (osm_log_is_active(p_ctrl->p_log, OSM_LOG_FRAMES))
+	if (OSM_LOG_IS_ACTIVE_V2(p_ctrl->p_log, OSM_LOG_FRAMES))
 		osm_dump_dr_smp(p_ctrl->p_log, p_smp, OSM_LOG_FRAMES);
 
 	if (p_smp->mgmt_class == IB_MCLASS_SUBN_DIR)

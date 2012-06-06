@@ -47,6 +47,7 @@
 #include <iba/ib_types.h>
 #include <complib/cl_qmap.h>
 #include <complib/cl_debug.h>
+#define FILE_ID 38
 #include <opensm/osm_opensm.h>
 #include <opensm/osm_subnet.h>
 #include <opensm/osm_qos_policy.h>

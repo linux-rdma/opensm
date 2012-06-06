@@ -41,6 +41,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#define FILE_ID 87
 #include <opensm/st.h>
 
 typedef struct st_table_entry st_table_entry;

@@ -51,6 +51,7 @@
 #include <complib/cl_qmap.h>
 #include <complib/cl_passivelock.h>
 #include <complib/cl_debug.h>
+#define FILE_ID 27
 #include <opensm/osm_madw.h>
 #include <opensm/osm_log.h>
 #include <opensm/osm_node.h>
@@ -220,10 +221,10 @@ static void ni_rcv_set_links(IN osm_sm_t * sm, osm_node_t * p_node,
 				 OSM_LOG_VERBOSE);
 
 		if (sm->p_subn->opt.exit_on_fatal == TRUE) {
-			osm_log(sm->p_log, OSM_LOG_SYS,
-				"Errors on subnet. Duplicate GUID found "
-				"by link from a port to itself. "
-				"See verbose opensm.log for more details\n");
+			osm_log_v2(sm->p_log, OSM_LOG_SYS, FILE_ID,
+				   "Errors on subnet. Duplicate GUID found "
+				   "by link from a port to itself. "
+				   "See verbose opensm.log for more details\n");
 			exit(1);
 		}
 	}

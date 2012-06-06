@@ -50,6 +50,7 @@
 #include <complib/cl_passivelock.h>
 #include <complib/cl_debug.h>
 #include <complib/cl_qlist.h>
+#define FILE_ID 47
 #include <vendor/osm_vendor_api.h>
 #include <opensm/osm_helper.h>
 #include <opensm/osm_sa.h>
@@ -170,7 +171,7 @@ static void cpi_rcv_respond(IN osm_sa_t * sa, IN const osm_madw_t * p_madw)
 		p_resp_cpi->cap_mask |= OSM_CAP_IS_UD_MCAST_SUP;
 	p_resp_cpi->cap_mask = cl_hton16(p_resp_cpi->cap_mask);
 
-	if (osm_log_is_active(sa->p_log, OSM_LOG_FRAMES))
+	if (OSM_LOG_IS_ACTIVE_V2(sa->p_log, OSM_LOG_FRAMES))
 		osm_dump_sa_mad(sa->p_log, p_resp_sa_mad, OSM_LOG_FRAMES);
 
 	osm_sa_send(sa, p_resp_madw, FALSE);

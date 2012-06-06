@@ -48,6 +48,7 @@
 #include <ctype.h>
 #include <complib/cl_debug.h>
 #include <complib/cl_qmap.h>
+#define FILE_ID 83
 #include <opensm/osm_switch.h>
 #include <opensm/osm_opensm.h>
 #include <opensm/osm_ucast_mgr.h>
@@ -628,7 +629,7 @@ static int updn_lid_matrices(void *ctx)
 		ret = -1;
 	}
 
-	if (osm_log_is_active(&p_updn->p_osm->log, OSM_LOG_ROUTING))
+	if (OSM_LOG_IS_ACTIVE_V2(&p_updn->p_osm->log, OSM_LOG_ROUTING))
 		osm_dump_qmap_to_file(p_updn->p_osm, "opensm-updn-roots.dump",
 				      &p_updn->p_osm->subn.sw_guid_tbl,
 				      dump_roots, NULL);

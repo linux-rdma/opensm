@@ -48,6 +48,7 @@
 #include <string.h>
 #include <iba/ib_types.h>
 #include <complib/cl_thread.h>
+#define FILE_ID 85
 #include <vendor/osm_vendor_api.h>
 #include <opensm/osm_vl15intf.h>
 #include <opensm/osm_madw.h>
@@ -145,7 +146,7 @@ static void vl15_poller(IN void *p_ptr)
 		if (p_madw != (osm_madw_t *) cl_qlist_end(p_fifo)) {
 			OSM_LOG(p_vl->p_log, OSM_LOG_DEBUG,
 				"Servicing p_madw = %p\n", p_madw);
-			if (osm_log_is_active(p_vl->p_log, OSM_LOG_FRAMES))
+			if (OSM_LOG_IS_ACTIVE_V2(p_vl->p_log, OSM_LOG_FRAMES))
 				osm_dump_dr_smp(p_vl->p_log,
 						osm_madw_get_smp_ptr(p_madw),
 						OSM_LOG_FRAMES);

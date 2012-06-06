@@ -48,13 +48,16 @@
 #endif
 #include <complib/cl_spinlock.h>
 #include <opensm/osm_base.h>
+#include <opensm/osm_subnet.h>
 #include <iba/ib_types.h>
 #include <stdio.h>
 
 #ifdef __GNUC__
 #define STRICT_OSM_LOG_FORMAT __attribute__((format(printf, 3, 4)))
+#define STRICT_OSM_LOG_V2_FORMAT __attribute__((format(printf, 4, 5)))
 #else
 #define STRICT_OSM_LOG_FORMAT
+#define STRICT_OSM_LOG_V2_FORMAT
 #endif
 
 #ifdef __cplusplus
@@ -69,12 +72,24 @@ BEGIN_C_DECLS
 #define LOG_ENTRY_SIZE_MAX		4096
 #define BUF_SIZE			LOG_ENTRY_SIZE_MAX
 #define __func__ __FUNCTION__
+#ifdef FILE_ID
+#define OSM_LOG_ENTER( OSM_LOG_PTR ) \
+	osm_log_v2( OSM_LOG_PTR, OSM_LOG_FUNCS, FILE_ID, \
+		    "%s: [\n", __func__);
+#define OSM_LOG_EXIT( OSM_LOG_PTR ) \
+	osm_log_v2( OSM_LOG_PTR, OSM_LOG_FUNCS, FILE_ID, \
+		    "%s: ]\n", __func__);
+#define OSM_LOG_IS_ACTIVE_V2( OSM_LOG_PTR, OSM_LOG_FUNCS ) \
+	osm_log_is_active_v2( OSM_LOG_PTR, OSM_LOG_FUNCS, FILE_ID)
+#else
 #define OSM_LOG_ENTER( OSM_LOG_PTR ) \
 	osm_log( OSM_LOG_PTR, OSM_LOG_FUNCS, \
 		 "%s: [\n", __func__);
 #define OSM_LOG_EXIT( OSM_LOG_PTR ) \
 	osm_log( OSM_LOG_PTR, OSM_LOG_FUNCS, \
 		 "%s: ]\n", __func__);
+#endif
+
 /****h* OpenSM/Log
 * NAME
 *	Log
@@ -84,7 +99,10 @@ BEGIN_C_DECLS
 * AUTHOR
 *
 *********/
+#ifndef OSM_LOG_LEVEL_T_DEFINED
+#define OSM_LOG_LEVEL_T_DEFINED
 typedef uint8_t osm_log_level_t;
+#endif
 
 #define OSM_LOG_NONE	0x00
 #define OSM_LOG_ERROR	0x01
@@ -121,8 +139,36 @@ typedef struct osm_log {
 	boolean_t daemon;
 	char *log_file_name;
 	char *log_prefix;
+	osm_subn_t *p_subn;
 } osm_log_t;
 /*********/
+
+#define OSM_LOG_MOD_NAME_MAX	32
+
+/****f* OpenSM: Log/osm_get_log_per_module
+ * NAME
+ *	osm_get_log_per_module
+ *
+ * DESCRIPTION
+ *	This looks up the given file ID in the per module log table.
+ *	NOTE: this code is not thread safe. Need to grab the lock before
+ *	calling it.
+ *
+ * SYNOPSIS
+ */
+osm_log_level_t osm_get_log_per_module(IN osm_subn_t * subn,
+				       IN const int file_id);
+/*
+ * PARAMETERS
+ *	subn
+ *		[in] Pointer to an osm_subn_t object
+ *
+ *	file_id
+ *		[in] File ID for module
+ *
+ * RETURN VALUES
+ *	The log level from the per module logging structure for this file ID.
+ *********/
 
 /****f* OpenSM: Log/osm_log_construct
 * NAME
@@ -279,6 +325,9 @@ ib_api_status_t osm_log_init(IN osm_log_t * p_log, IN boolean_t flush,
 void osm_log(IN osm_log_t * p_log, IN osm_log_level_t verbosity,
 	     IN const char *p_str, ...) STRICT_OSM_LOG_FORMAT;
 
+void osm_log_v2(IN osm_log_t * p_log, IN osm_log_level_t verbosity,
+		IN const int file_id, IN const char *p_str, ...) STRICT_OSM_LOG_V2_FORMAT;
+
 /****f* OpenSM: Log/osm_log_get_level
 * NAME
 *	osm_log_get_level
@@ -377,11 +426,36 @@ static inline boolean_t osm_log_is_active(IN const osm_log_t * p_log,
 *	osm_log_destroy
 *********/
 
+static inline boolean_t osm_log_is_active_v2(IN const osm_log_t * p_log,
+					     IN osm_log_level_t level,
+					     IN const int file_id)
+{
+	if ((p_log->level & level) != 0)
+		return 1;
+	if (!p_log->p_subn)
+		return 0;
+	if ((level & p_log->p_subn->per_mod_log_tbl[file_id]))
+		return 1;
+	return 0;
+}
+
 extern void osm_log_msg_box(osm_log_t *log, osm_log_level_t level,
 			    const char *func_name, const char *msg);
+extern void osm_log_msg_box_v2(osm_log_t *log, osm_log_level_t level,
+			       const int file_id, const char *func_name,
+			       const char *msg);
 extern void osm_log_raw(IN osm_log_t * p_log, IN osm_log_level_t verbosity,
 			IN const char *p_buf);
 
+#ifdef FILE_ID
+#define OSM_LOG(log, level, fmt, ...) do { \
+		if (osm_log_is_active_v2(log, (level), FILE_ID)) \
+			osm_log_v2(log, level, FILE_ID, "%s: " fmt, __func__, ## __VA_ARGS__); \
+	} while (0)
+
+#define OSM_LOG_MSG_BOX(log, level, msg) \
+		osm_log_msg_box_v2(log, level, FILE_ID, __func__, msg)
+#else
 #define OSM_LOG(log, level, fmt, ...) do { \
 		if (osm_log_is_active(log, (level))) \
 			osm_log(log, level, "%s: " fmt, __func__, ## __VA_ARGS__); \
@@ -389,6 +463,7 @@ extern void osm_log_raw(IN osm_log_t * p_log, IN osm_log_level_t verbosity,
 
 #define OSM_LOG_MSG_BOX(log, level, msg) \
 		osm_log_msg_box(log, level, __func__, msg)
+#endif
 
 #define DBG_CL_LOCK 0
 

@@ -53,6 +53,7 @@
 #include <complib/cl_passivelock.h>
 #include <complib/cl_debug.h>
 #include <complib/cl_qlist.h>
+#define FILE_ID 53
 #include <vendor/osm_vendor_api.h>
 #include <opensm/osm_madw.h>
 #include <opensm/osm_log.h>
@@ -910,7 +911,7 @@ static void mcmr_rcv_leave_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 
 	mcmember_rec = *p_recvd_mcmember_rec;
 
-	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG)) {
+	if (OSM_LOG_IS_ACTIVE_V2(sa->p_log, OSM_LOG_DEBUG)) {
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Dump of record\n");
 		osm_dump_mc_record(sa->p_log, &mcmember_rec, OSM_LOG_DEBUG);
 	}
@@ -985,7 +986,7 @@ static void mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 
 	mcmember_rec = *p_recvd_mcmember_rec;
 
-	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG)) {
+	if (OSM_LOG_IS_ACTIVE_V2(sa->p_log, OSM_LOG_DEBUG)) {
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Dump of incoming record\n");
 		osm_dump_mc_record(sa->p_log, &mcmember_rec, OSM_LOG_DEBUG);
 	}
@@ -1169,7 +1170,7 @@ static void mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 	/* Release the lock as we don't need it. */
 	CL_PLOCK_RELEASE(sa->p_lock);
 
-	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
+	if (OSM_LOG_IS_ACTIVE_V2(sa->p_log, OSM_LOG_DEBUG))
 		osm_dump_mc_record(sa->p_log, &mcmember_rec, OSM_LOG_DEBUG);
 
 	mcmr_rcv_respond(sa, p_madw, &mcmember_rec);

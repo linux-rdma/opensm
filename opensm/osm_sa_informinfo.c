@@ -52,6 +52,7 @@
 #include <complib/cl_passivelock.h>
 #include <complib/cl_debug.h>
 #include <complib/cl_qlist.h>
+#define FILE_ID 49
 #include <vendor/osm_vendor_api.h>
 #include <opensm/osm_port.h>
 #include <opensm/osm_node.h>
@@ -336,7 +337,7 @@ static void infr_rcv_process_get_method(osm_sa_t * sa, IN osm_madw_t * p_madw)
 		goto Exit;
 	}
 
-	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
+	if (OSM_LOG_IS_ACTIVE_V2(sa->p_log, OSM_LOG_DEBUG))
 		osm_dump_inform_info_record(sa->p_log, p_rcvd_rec,
 					    OSM_LOG_DEBUG);
 
@@ -401,7 +402,7 @@ static void infr_rcv_process_set_method(osm_sa_t * sa, IN osm_madw_t * p_madw)
 	    (ib_inform_info_t *) ib_sa_mad_get_payload_ptr(p_sa_mad);
 
 #if 0
-	if (osm_log_is_active(sa->p_log, OSM_LOG_DEBUG))
+	if (OSM_LOG_IS_ACTIVE_V2(sa->p_log, OSM_LOG_DEBUG))
 		osm_dump_inform_info(sa->p_log, p_recvd_inform_info,
 				     OSM_LOG_DEBUG);
 #endif

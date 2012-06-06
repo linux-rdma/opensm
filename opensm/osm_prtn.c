@@ -49,6 +49,7 @@
 #include <sys/stat.h>
 #include <complib/cl_debug.h>
 #include <iba/ib_types.h>
+#define FILE_ID 36
 #include <opensm/osm_opensm.h>
 #include <opensm/osm_partition.h>
 #include <opensm/osm_node.h>

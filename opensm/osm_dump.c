@@ -50,6 +50,7 @@
 #include <iba/ib_types.h>
 #include <complib/cl_qmap.h>
 #include <complib/cl_debug.h>
+#define FILE_ID 6
 #include <opensm/osm_opensm.h>
 #include <opensm/osm_log.h>
 #include <opensm/osm_node.h>
@@ -684,7 +685,7 @@ static void print_report(osm_opensm_t * osm, FILE * file)
 
 void osm_dump_mcast_routes(osm_opensm_t * osm)
 {
-	if (osm_log_is_active(&osm->log, OSM_LOG_ROUTING))
+	if (OSM_LOG_IS_ACTIVE_V2(&osm->log, OSM_LOG_ROUTING))
 		/* multicast routes */
 		osm_dump_qmap_to_file(osm, "opensm.mcfdbs",
 				      &osm->subn.sw_guid_tbl,
@@ -693,7 +694,7 @@ void osm_dump_mcast_routes(osm_opensm_t * osm)
 
 void osm_dump_all(osm_opensm_t * osm)
 {
-	if (osm_log_is_active(&osm->log, OSM_LOG_ROUTING)) {
+	if (OSM_LOG_IS_ACTIVE_V2(&osm->log, OSM_LOG_ROUTING)) {
 		/* unicast routes */
 		osm_dump_qmap_to_file(osm, "opensm-lid-matrix.dump",
 				      &osm->subn.sw_guid_tbl, dump_lid_matrix,
@@ -701,7 +702,7 @@ void osm_dump_all(osm_opensm_t * osm)
 		osm_dump_qmap_to_file(osm, "opensm-lfts.dump",
 				      &osm->subn.sw_guid_tbl, dump_ucast_lfts,
 				      osm);
-		if (osm_log_is_active(&osm->log, OSM_LOG_DEBUG))
+		if (OSM_LOG_IS_ACTIVE_V2(&osm->log, OSM_LOG_DEBUG))
 			dump_qmap(stdout, &osm->subn.sw_guid_tbl,
 				  dump_ucast_path_distribution, osm);
 
@@ -728,6 +729,6 @@ void osm_dump_all(osm_opensm_t * osm)
 	osm_dump_qmap_to_file(osm, "opensm-subnet.lst",
 			      &osm->subn.node_guid_tbl, dump_topology_node,
 			      osm);
-	if (osm_log_is_active(&osm->log, OSM_LOG_VERBOSE))
+	if (OSM_LOG_IS_ACTIVE_V2(&osm->log, OSM_LOG_VERBOSE))
 		print_report(osm, stdout);
 }

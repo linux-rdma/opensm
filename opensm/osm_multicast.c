@@ -45,6 +45,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <arpa/inet.h>
+#define FILE_ID 24
 #include <opensm/osm_multicast.h>
 #include <opensm/osm_mcm_port.h>
 #include <opensm/osm_mtree.h>
@@ -272,7 +273,7 @@ osm_mcm_port_t *osm_mgrp_add_port(IN osm_subn_t * subn, osm_log_t * log,
 	uint8_t prev_join_state = 0, join_state = mcmr->scope_state;
 	uint8_t prev_scope;
 
-	if (osm_log_is_active(log, OSM_LOG_VERBOSE)) {
+	if (OSM_LOG_IS_ACTIVE_V2(log, OSM_LOG_VERBOSE)) {
 		char gid_str[INET6_ADDRSTRLEN];
 		OSM_LOG(log, OSM_LOG_VERBOSE, "GUID 0x%016" PRIx64
 			" Port 0x%016" PRIx64 " joining "
@@ -351,7 +352,7 @@ void osm_mgrp_remove_port(osm_subn_t * subn, osm_log_t * log, osm_mgrp_t * mgrp,
 	port_join_state = mcm_alias_guid->scope_state & 0x0F;
 	new_join_state = port_join_state & ~join_state;
 
-	if (osm_log_is_active(log, OSM_LOG_VERBOSE)) {
+	if (OSM_LOG_IS_ACTIVE_V2(log, OSM_LOG_VERBOSE)) {
 		char gid_str[INET6_ADDRSTRLEN];
 		OSM_LOG(log, OSM_LOG_VERBOSE,
 			"GUID 0x%" PRIx64 " Port 0x%" PRIx64

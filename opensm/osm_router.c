@@ -47,6 +47,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <iba/ib_types.h>
+#define FILE_ID 45
 #include <opensm/osm_router.h>
 
 void osm_router_delete(IN OUT osm_router_t ** pp_rtr)

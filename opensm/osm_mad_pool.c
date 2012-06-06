@@ -46,6 +46,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#define FILE_ID 16
 #include <opensm/osm_mad_pool.h>
 #include <opensm/osm_madw.h>
 #include <vendor/osm_vendor_api.h>

@@ -45,6 +45,7 @@
 #include <dlfcn.h>
 #include <sys/stat.h>
 
+#define FILE_ID 30
 #include <opensm/osm_perfmgr_db.h>
 #include <opensm/osm_perfmgr.h>
 #include <opensm/osm_opensm.h>
@@ -195,60 +196,60 @@ debug_dump_err_reading(perfmgr_db_t * db, uint64_t guid, uint8_t port_num,
 {
 	osm_log_t *log = db->perfmgr->log;
 
-	if (!osm_log_is_active(log, OSM_LOG_DEBUG))
+	if (!OSM_LOG_IS_ACTIVE_V2(log, OSM_LOG_DEBUG))
 		return;		/* optimize this a bit */
 
-	osm_log(log, OSM_LOG_DEBUG,
-		"GUID 0x%" PRIx64 " Port %u:\n", guid, port_num);
-	osm_log(log, OSM_LOG_DEBUG,
-		"sym %" PRIu64 " <-- %" PRIu64 " (%" PRIu64 ")\n",
-		cur->symbol_err_cnt, port->err_previous.symbol_err_cnt,
-		port->err_total.symbol_err_cnt);
-	osm_log(log, OSM_LOG_DEBUG,
-		"ler %" PRIu64 " <-- %" PRIu64 " (%" PRIu64 ")\n",
-		cur->link_err_recover, port->err_previous.link_err_recover,
-		port->err_total.link_err_recover);
-	osm_log(log, OSM_LOG_DEBUG,
-		"ld %" PRIu64 " <-- %" PRIu64 " (%" PRIu64 ")\n",
-		cur->link_downed, port->err_previous.link_downed,
-		port->err_total.link_downed);
-	osm_log(log, OSM_LOG_DEBUG,
-		"re %" PRIu64 " <-- %" PRIu64 " (%" PRIu64 ")\n", cur->rcv_err,
-		port->err_previous.rcv_err, port->err_total.rcv_err);
-	osm_log(log, OSM_LOG_DEBUG,
-		"rrp %" PRIu64 " <-- %" PRIu64 " (%" PRIu64 ")\n",
-		cur->rcv_rem_phys_err, port->err_previous.rcv_rem_phys_err,
-		port->err_total.rcv_rem_phys_err);
-	osm_log(log, OSM_LOG_DEBUG,
-		"rsr %" PRIu64 " <-- %" PRIu64 " (%" PRIu64 ")\n",
-		cur->rcv_switch_relay_err,
-		port->err_previous.rcv_switch_relay_err,
-		port->err_total.rcv_switch_relay_err);
-	osm_log(log, OSM_LOG_DEBUG,
-		"xd %" PRIu64 " <-- %" PRIu64 " (%" PRIu64 ")\n",
-		cur->xmit_discards, port->err_previous.xmit_discards,
-		port->err_total.xmit_discards);
-	osm_log(log, OSM_LOG_DEBUG,
-		"xce %" PRIu64 " <-- %" PRIu64 " (%" PRIu64 ")\n",
-		cur->xmit_constraint_err,
-		port->err_previous.xmit_constraint_err,
-		port->err_total.xmit_constraint_err);
-	osm_log(log, OSM_LOG_DEBUG,
-		"rce %" PRIu64 " <-- %" PRIu64 " (%" PRIu64 ")\n",
-		cur->rcv_constraint_err, port->err_previous.rcv_constraint_err,
-		port->err_total.rcv_constraint_err);
-	osm_log(log, OSM_LOG_DEBUG,
-		"li %" PRIu64 " <-- %" PRIu64 " (%" PRIu64 ")\n",
-		cur->link_integrity, port->err_previous.link_integrity,
-		port->err_total.link_integrity);
-	osm_log(log, OSM_LOG_DEBUG,
-		"bo %" PRIu64 " <-- %" PRIu64 " (%" PRIu64 ")\n",
-		cur->buffer_overrun, port->err_previous.buffer_overrun,
-		port->err_total.buffer_overrun);
-	osm_log(log, OSM_LOG_DEBUG,
-		"vld %" PRIu64 " <-- %" PRIu64 " (%" PRIu64 ")\n",
-		cur->vl15_dropped, port->err_previous.vl15_dropped,
-		port->err_total.vl15_dropped);
+	osm_log_v2(log, OSM_LOG_DEBUG, FILE_ID,
+		   "GUID 0x%" PRIx64 " Port %u:\n", guid, port_num);
+	osm_log_v2(log, OSM_LOG_DEBUG, FILE_ID,
+		   "sym %" PRIu64 " <-- %" PRIu64 " (%" PRIu64 ")\n",
+		   cur->symbol_err_cnt, port->err_previous.symbol_err_cnt,
+		   port->err_total.symbol_err_cnt);
+	osm_log_v2(log, OSM_LOG_DEBUG, FILE_ID,
+		   "ler %" PRIu64 " <-- %" PRIu64 " (%" PRIu64 ")\n",
+		   cur->link_err_recover, port->err_previous.link_err_recover,
+		   port->err_total.link_err_recover);
+	osm_log_v2(log, OSM_LOG_DEBUG, FILE_ID,
+		   "ld %" PRIu64 " <-- %" PRIu64 " (%" PRIu64 ")\n",
+		   cur->link_downed, port->err_previous.link_downed,
+		   port->err_total.link_downed);
+	osm_log_v2(log, OSM_LOG_DEBUG, FILE_ID,
+		   "re %" PRIu64 " <-- %" PRIu64 " (%" PRIu64 ")\n", cur->rcv_err,
+		   port->err_previous.rcv_err, port->err_total.rcv_err);
+	osm_log_v2(log, OSM_LOG_DEBUG, FILE_ID,
+		   "rrp %" PRIu64 " <-- %" PRIu64 " (%" PRIu64 ")\n",
+		   cur->rcv_rem_phys_err, port->err_previous.rcv_rem_phys_err,
+		   port->err_total.rcv_rem_phys_err);
+	osm_log_v2(log, OSM_LOG_DEBUG, FILE_ID,
+		   "rsr %" PRIu64 " <-- %" PRIu64 " (%" PRIu64 ")\n",
+		   cur->rcv_switch_relay_err,
+		   port->err_previous.rcv_switch_relay_err,
+		   port->err_total.rcv_switch_relay_err);
+	osm_log_v2(log, OSM_LOG_DEBUG, FILE_ID,
+		   "xd %" PRIu64 " <-- %" PRIu64 " (%" PRIu64 ")\n",
+		   cur->xmit_discards, port->err_previous.xmit_discards,
+		   port->err_total.xmit_discards);
+	osm_log_v2(log, OSM_LOG_DEBUG, FILE_ID,
+		   "xce %" PRIu64 " <-- %" PRIu64 " (%" PRIu64 ")\n",
+		   cur->xmit_constraint_err,
+		   port->err_previous.xmit_constraint_err,
+		   port->err_total.xmit_constraint_err);
+	osm_log_v2(log, OSM_LOG_DEBUG, FILE_ID,
+		   "rce %" PRIu64 " <-- %" PRIu64 " (%" PRIu64 ")\n",
+		   cur->rcv_constraint_err, port->err_previous.rcv_constraint_err,
+		   port->err_total.rcv_constraint_err);
+	osm_log_v2(log, OSM_LOG_DEBUG, FILE_ID,
+		   "li %" PRIu64 " <-- %" PRIu64 " (%" PRIu64 ")\n",
+		   cur->link_integrity, port->err_previous.link_integrity,
+		   port->err_total.link_integrity);
+	osm_log_v2(log, OSM_LOG_DEBUG, FILE_ID,
+		   "bo %" PRIu64 " <-- %" PRIu64 " (%" PRIu64 ")\n",
+		   cur->buffer_overrun, port->err_previous.buffer_overrun,
+		   port->err_total.buffer_overrun);
+	osm_log_v2(log, OSM_LOG_DEBUG, FILE_ID,
+		   "vld %" PRIu64 " <-- %" PRIu64 " (%" PRIu64 ")\n",
+		   cur->vl15_dropped, port->err_previous.vl15_dropped,
+		   port->err_total.vl15_dropped);
 }
 
 /**********************************************************************
@@ -374,23 +375,23 @@ debug_dump_dc_reading(perfmgr_db_t * db, uint64_t guid, uint8_t port_num,
 		      db_port_t * port, perfmgr_db_data_cnt_reading_t * cur)
 {
 	osm_log_t *log = db->perfmgr->log;
-	if (!osm_log_is_active(log, OSM_LOG_DEBUG))
+	if (!OSM_LOG_IS_ACTIVE_V2(log, OSM_LOG_DEBUG))
 		return;
 
-	osm_log(log, OSM_LOG_DEBUG,
-		"xd %" PRIu64 " <-- %" PRIu64 " (%" PRIu64 ")\n",
-		cur->xmit_data, port->dc_previous.xmit_data,
-		port->dc_total.xmit_data);
-	osm_log(log, OSM_LOG_DEBUG,
-		"rd %" PRIu64 " <-- %" PRIu64 " (%" PRIu64 ")\n", cur->rcv_data,
-		port->dc_previous.rcv_data, port->dc_total.rcv_data);
-	osm_log(log, OSM_LOG_DEBUG,
-		"xp %" PRIu64 " <-- %" PRIu64 " (%" PRIu64 ")\n",
-		cur->xmit_pkts, port->dc_previous.xmit_pkts,
-		port->dc_total.xmit_pkts);
-	osm_log(log, OSM_LOG_DEBUG,
-		"rp %" PRIu64 " <-- %" PRIu64 " (%" PRIu64 ")\n", cur->rcv_pkts,
-		port->dc_previous.rcv_pkts, port->dc_total.rcv_pkts);
+	osm_log_v2(log, OSM_LOG_DEBUG, FILE_ID,
+		   "xd %" PRIu64 " <-- %" PRIu64 " (%" PRIu64 ")\n",
+		   cur->xmit_data, port->dc_previous.xmit_data,
+		   port->dc_total.xmit_data);
+	osm_log_v2(log, OSM_LOG_DEBUG, FILE_ID,
+		   "rd %" PRIu64 " <-- %" PRIu64 " (%" PRIu64 ")\n", cur->rcv_data,
+		   port->dc_previous.rcv_data, port->dc_total.rcv_data);
+	osm_log_v2(log, OSM_LOG_DEBUG, FILE_ID,
+		   "xp %" PRIu64 " <-- %" PRIu64 " (%" PRIu64 ")\n",
+		   cur->xmit_pkts, port->dc_previous.xmit_pkts,
+		   port->dc_total.xmit_pkts);
+	osm_log_v2(log, OSM_LOG_DEBUG, FILE_ID,
+		   "rp %" PRIu64 " <-- %" PRIu64 " (%" PRIu64 ")\n", cur->rcv_pkts,
+		   port->dc_previous.rcv_pkts, port->dc_total.rcv_pkts);
 }
 
 /**********************************************************************

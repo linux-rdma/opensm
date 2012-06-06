@@ -52,6 +52,7 @@
 #include <complib/cl_passivelock.h>
 #include <complib/cl_debug.h>
 #include <complib/cl_qmap.h>
+#define FILE_ID 71
 #include <opensm/osm_sm.h>
 #include <opensm/osm_madw.h>
 #include <opensm/osm_switch.h>
@@ -79,8 +80,8 @@ static void state_mgr_up_msg(IN const osm_sm_t * sm)
 	 * SM moves to Master state and the subnet is up for
 	 * the first time.
 	 */
-	osm_log(sm->p_log, sm->p_subn->first_time_master_sweep ?
-		OSM_LOG_SYS : OSM_LOG_INFO, "SUBNET UP\n");
+	osm_log_v2(sm->p_log, sm->p_subn->first_time_master_sweep ?
+		   OSM_LOG_SYS : OSM_LOG_INFO, FILE_ID, "SUBNET UP\n");
 
 	OSM_LOG_MSG_BOX(sm->p_log, OSM_LOG_VERBOSE,
 			sm->p_subn->opt.sweep_interval ?
@@ -1034,10 +1035,10 @@ static void cleanup_switch(cl_map_item_t * item, void *log)
 		return;
 
 	if (memcmp(sw->lft, sw->new_lft, sw->max_lid_ho + 1))
-		osm_log(log, OSM_LOG_ERROR, "ERR 331D: "
-			"LFT of switch 0x%016" PRIx64 " (%s) is not up to date\n",
-			cl_ntoh64(sw->p_node->node_info.node_guid),
-			sw->p_node->print_desc);
+		osm_log_v2(log, OSM_LOG_ERROR, FILE_ID, "ERR 331D: "
+			   "LFT of switch 0x%016" PRIx64 " (%s) is not up to date\n",
+			   cl_ntoh64(sw->p_node->node_info.node_guid),
+			   sw->p_node->print_desc);
 	else {
 		free(sw->new_lft);
 		sw->new_lft = NULL;
@@ -1203,7 +1204,7 @@ repeat_discovery:
 	if (state_mgr_is_sm_port_down(sm) == TRUE) {
 		if (sm->p_subn->last_sm_port_state) {
 			sm->p_subn->last_sm_port_state = 0;
-			osm_log(sm->p_log, OSM_LOG_SYS, "SM port is down\n");
+			osm_log_v2(sm->p_log, OSM_LOG_SYS, FILE_ID, "SM port is down\n");
 			OSM_LOG_MSG_BOX(sm->p_log, OSM_LOG_VERBOSE,
 					"SM PORT DOWN");
 		}
@@ -1220,7 +1221,7 @@ repeat_discovery:
 	} else {
 		if (!sm->p_subn->last_sm_port_state) {
 			sm->p_subn->last_sm_port_state = 1;
-			osm_log(sm->p_log, OSM_LOG_SYS, "SM port is up\n");
+			osm_log_v2(sm->p_log, OSM_LOG_SYS, FILE_ID, "SM port is up\n");
 			OSM_LOG_MSG_BOX(sm->p_log, OSM_LOG_VERBOSE,
 					"SM PORT UP");
 		}
@@ -1415,8 +1416,8 @@ repeat_discovery:
 
 	/* If there were errors - then the subnet is not really up */
 	if (sm->p_subn->subnet_initialization_error == TRUE) {
-		osm_log(sm->p_log, OSM_LOG_SYS,
-			"Errors during initialization\n");
+		osm_log_v2(sm->p_log, OSM_LOG_SYS, FILE_ID,
+			   "Errors during initialization\n");
 		OSM_LOG_MSG_BOX(sm->p_log, OSM_LOG_ERROR,
 				"ERRORS DURING INITIALIZATION");
 	} else {
@@ -1426,7 +1427,7 @@ repeat_discovery:
 		sm->p_subn->first_time_master_sweep = FALSE;
 		sm->p_subn->set_client_rereg_on_sweep = FALSE;
 
-		if (osm_log_is_active(sm->p_log, OSM_LOG_VERBOSE) ||
+		if (OSM_LOG_IS_ACTIVE_V2(sm->p_log, OSM_LOG_VERBOSE) ||
 		    sm->p_subn->opt.sa_db_dump)
 			osm_sa_db_file_dump(sm->p_subn->p_osm);
 	}

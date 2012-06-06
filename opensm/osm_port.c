@@ -48,6 +48,7 @@
 #include <string.h>
 #include <complib/cl_debug.h>
 #include <iba/ib_types.h>
+#define FILE_ID 34
 #include <opensm/osm_port.h>
 #include <opensm/osm_node.h>
 #include <opensm/osm_madw.h>

@@ -47,6 +47,7 @@
 #include <string.h>
 #include <arpa/inet.h>
 #include <complib/cl_debug.h>
+#define FILE_ID 11
 #include <opensm/osm_helper.h>
 #include <opensm/osm_inform.h>
 #include <vendor/osm_vendor_api.h>
@@ -81,7 +82,7 @@ static void dump_all_informs(IN const osm_subn_t * p_subn, IN osm_log_t * p_log)
 {
 	cl_list_item_t *p_list_item;
 
-	if (!osm_log_is_active(p_log, OSM_LOG_DEBUG))
+	if (!OSM_LOG_IS_ACTIVE_V2(p_log, OSM_LOG_DEBUG))
 		return;
 
 	p_list_item = cl_qlist_head(&p_subn->sa_infr_list);
@@ -628,7 +629,7 @@ ib_api_status_t osm_report_notice(IN osm_log_t * p_log, IN osm_subn_t * p_subn,
 		return IB_ERROR;
 	}
 
-	if (osm_log_is_active(p_log, OSM_LOG_INFO))
+	if (OSM_LOG_IS_ACTIVE_V2(p_log, OSM_LOG_INFO))
 		log_notice(p_log, OSM_LOG_INFO, p_ntc);
 
 	/* Create a list that will hold all the infr records that should

@@ -85,6 +85,7 @@
 #include <iba/ib_types.h>
 #include <complib/cl_qmap.h>
 #include <complib/cl_debug.h>
+#define FILE_ID 12
 #include <opensm/osm_lid_mgr.h>
 #include <opensm/osm_sm.h>
 #include <opensm/osm_log.h>
@@ -247,9 +248,9 @@ ib_api_status_t osm_lid_mgr_init(IN osm_lid_mgr_t * p_mgr, IN osm_sm_t * sm)
 			 * are closed, so we might see corrupted guid2lid file.
 			 */
 			if (p_mgr->p_subn->opt.exit_on_fatal) {
-				osm_log(p_mgr->p_log, OSM_LOG_SYS,
-					"FATAL: Error restoring Guid-to-Lid "
-					"persistent database\n");
+				osm_log_v2(p_mgr->p_log, OSM_LOG_SYS, FILE_ID,
+					   "FATAL: Error restoring Guid-to-Lid "
+					   "persistent database\n");
 				status = IB_ERROR;
 				goto Exit;
 			} else

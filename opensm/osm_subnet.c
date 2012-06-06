@@ -56,6 +56,7 @@
 #include <ctype.h>
 #include <complib/cl_debug.h>
 #include <complib/cl_log.h>
+#define FILE_ID 72
 #include <opensm/osm_subnet.h>
 #include <opensm/osm_opensm.h>
 #include <opensm/osm_log.h>
@@ -77,6 +78,7 @@
 static const char null_str[] = "(null)";
 
 #define OPT_OFFSET(opt) offsetof(osm_subn_opt_t, opt)
+#define ARR_SIZE(a) (sizeof(a)/sizeof((a)[0]))
 
 typedef struct opt_rec {
 	const char *name;
@@ -87,6 +89,117 @@ typedef struct opt_rec {
 	void (*setup_fn)(osm_subn_t *p_subn, void *p_val);
 	int  can_update;
 } opt_rec_t;
+
+static const char *module_name_str[] = {
+	"main.c",
+	"osm_console.c",
+	"osm_console_io.c",
+	"osm_db_files.c",
+	"osm_db_pack.c",
+	"osm_drop_mgr.c",
+	"osm_dump.c",
+	"osm_event_plugin.c",
+	"osm_guid_info_rcv.c",
+	"osm_guid_mgr.c",
+	"osm_helper.c",
+	"osm_inform.c",
+	"osm_lid_mgr.c",
+	"osm_lin_fwd_rcv.c",
+	"osm_link_mgr.c",
+	"osm_log.c",
+	"osm_mad_pool.c",
+	"osm_mcast_fwd_rcv.c",
+	"osm_mcast_mgr.c",
+	"osm_mcast_tbl.c",
+	"osm_mcm_port.c",
+	"osm_mesh.c",
+	"osm_mlnx_ext_port_info_rcv.c",
+	"osm_mtree.c",
+	"osm_multicast.c",
+	"osm_node.c",
+	"osm_node_desc_rcv.c",
+	"osm_node_info_rcv.c",
+	"osm_opensm.c",
+	"osm_perfmgr.c",
+	"osm_perfmgr_db.c",
+	"osm_pkey.c",
+	"osm_pkey_mgr.c",
+	"osm_pkey_rcv.c",
+	"osm_port.c",
+	"osm_port_info_rcv.c",
+	"osm_prtn.c",
+	"osm_prtn_config.c",
+	"osm_qos.c",
+	"osm_qos_parser_l.c",
+	"osm_qos_parser_y.c",
+	"osm_qos_policy.c",
+	"osm_remote_sm.c",
+	"osm_req.c",
+	"osm_resp.c",
+	"osm_router.c",
+	"osm_sa.c",
+	"osm_sa_class_port_info.c",
+	"osm_sa_guidinfo_record.c",
+	"osm_sa_informinfo.c",
+	"osm_sa_lft_record.c",
+	"osm_sa_link_record.c",
+	"osm_sa_mad_ctrl.c",
+	"osm_sa_mcmember_record.c",
+	"osm_sa_mft_record.c",
+	"osm_sa_multipath_record.c",
+	"osm_sa_node_record.c",
+	"osm_sa_path_record.c",
+	"osm_sa_pkey_record.c",
+	"osm_sa_portinfo_record.c",
+	"osm_sa_service_record.c",
+	"osm_sa_slvl_record.c",
+	"osm_sa_sminfo_record.c",
+	"osm_sa_sw_info_record.c",
+	"osm_sa_vlarb_record.c",
+	"osm_service.c",
+	"osm_slvl_map_rcv.c",
+	"osm_sm.c",
+	"osm_sminfo_rcv.c",
+	"osm_sm_mad_ctrl.c",
+	"osm_sm_state_mgr.c",
+	"osm_state_mgr.c",
+	"osm_subnet.c",
+	"osm_sw_info_rcv.c",
+	"osm_switch.c",
+	"osm_torus.c",
+	"osm_trap_rcv.c",
+	"osm_ucast_cache.c",
+	"osm_ucast_dnup.c",
+	"osm_ucast_file.c",
+	"osm_ucast_ftree.c",
+	"osm_ucast_lash.c",
+	"osm_ucast_mgr.c",
+	"osm_ucast_updn.c",
+	"osm_vendor_ibumad.c",
+	"osm_vl15intf.c",
+	"osm_vl_arb_rcv.c",
+	"st.c",
+	"osm_ucast_dfsssp.c",
+	/* Add new module names here ... */
+	/* FILE_ID define in those modules must be identical to index here */
+	/* last FILE_ID is currently 88 */
+};
+
+#define MOD_NAME_STR_UNKNOWN_VAL (ARR_SIZE(module_name_str))
+
+static int find_module_name(const char *name, uint8_t *file_id)
+{
+	uint8_t i;
+
+	for (i = 0; i < MOD_NAME_STR_UNKNOWN_VAL; i++) {
+		if (strcmp(name, module_name_str[i]) == 0) {
+			if (file_id)
+				*file_id = i;
+			return 0;
+		}
+	}
+	return 1;
+}
 
 static void log_report(const char *fmt, ...)
 {
@@ -414,6 +527,8 @@ static const opt_rec_t opt_tbl[] = {
 	{ "lash_start_vl", OPT_OFFSET(lash_start_vl), opts_parse_uint8, NULL, 1 },
 	{ "sm_sl", OPT_OFFSET(sm_sl), opts_parse_uint8, NULL, 1 },
 	{ "log_prefix", OPT_OFFSET(log_prefix), opts_parse_charp, NULL, 1 },
+	{ "per_module_logging", OPT_OFFSET(per_module_logging), opts_parse_boolean, NULL, 1 },
+	{ "per_module_logging_file", OPT_OFFSET(per_module_logging_file), opts_parse_charp, NULL, 0 },
 	{0}
 };
 
@@ -917,6 +1032,8 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * p_opt)
 	p_opt->lash_start_vl = 0;
 	p_opt->sm_sl = OSM_DEFAULT_SL;
 	p_opt->log_prefix = NULL;
+	p_opt->per_module_logging = FALSE;
+	p_opt->per_module_logging_file = strdup(OSM_DEFAULT_PER_MOD_LOGGING_CONF_FILE);
 	subn_init_qos_options(&p_opt->qos_options, NULL);
 	subn_init_qos_options(&p_opt->qos_ca_options, NULL);
 	subn_init_qos_options(&p_opt->qos_sw0_options, NULL);
@@ -1056,6 +1173,80 @@ static ib_api_status_t parse_prefix_routes_file(IN osm_subn_t * p_subn)
 		}
 
 		if (append_prefix_route(p_subn, prefix, guid) != IB_SUCCESS) {
+			errors++;
+			break;
+		}
+	}
+
+	fclose(fp);
+	return (errors == 0) ? IB_SUCCESS : IB_ERROR;
+}
+
+static ib_api_status_t insert_per_module_debug(IN osm_subn_t * p_subn,
+					       char *mod_name,
+					       osm_log_level_t level)
+{
+	uint8_t index;
+
+	if (find_module_name(mod_name, &index)) {
+		OSM_LOG(&p_subn->p_osm->log, OSM_LOG_ERROR,
+			"Module name %s not found\n", mod_name);
+		return IB_ERROR;
+	}
+	p_subn->per_mod_log_tbl[index] = level;
+	return IB_SUCCESS;
+}
+
+static ib_api_status_t parse_per_mod_logging_file(IN osm_subn_t * p_subn)
+{
+	osm_log_t *log = &p_subn->p_osm->log;
+	FILE *fp;
+	char buf[1024];
+	int line = 0;
+	int errors = 0;
+
+	memset(p_subn->per_mod_log_tbl, 0, sizeof(p_subn->per_mod_log_tbl));
+
+	fp = fopen(p_subn->opt.per_module_logging_file, "r");
+	if (!fp) {
+		if (errno == ENOENT)
+			return IB_SUCCESS;
+
+		OSM_LOG(log, OSM_LOG_ERROR, "fopen(%s) failed: %s",
+			p_subn->opt.per_module_logging_file, strerror(errno));
+		return IB_ERROR;
+	}
+
+	while (fgets(buf, sizeof buf, fp) != NULL) {
+		char *p_mod_name, *p_level, *p_extra, *p_last;
+		osm_log_level_t level;
+
+		line++;
+		if (errors > 10)
+			break;
+
+		p_mod_name = strtok_r(buf, " =,\t\n", &p_last);
+		if (!p_mod_name)
+			continue; /* ignore blank lines */
+
+		if (*p_mod_name == '#')
+			continue; /* ignore comment lines */
+
+		p_level = strtok_r(NULL, " \t\n", &p_last);
+		if (!p_level) {
+			OSM_LOG(log, OSM_LOG_ERROR, "%s:%d: missing log level\n",
+				p_subn->opt.per_module_logging_file, line);
+			errors++;
+			continue;
+		}
+		p_extra = strtok_r(NULL, " \t\n", &p_last);
+		if (p_extra && *p_extra != '#') {
+			OSM_LOG(log, OSM_LOG_INFO, "%s:%d: extra tokens ignored\n",
+				p_subn->opt.per_module_logging_file, line);
+		}
+
+		level = strtoul(p_level, NULL, 0);
+		if (insert_per_module_debug(p_subn, p_mod_name, level) != IB_SUCCESS) {
 			errors++;
 			break;
 		}
@@ -1468,6 +1659,8 @@ int osm_subn_rescan_conf_files(IN osm_subn_t * p_subn)
 
 	parse_prefix_routes_file(p_subn);
 
+	parse_per_mod_logging_file(p_subn);
+
 	return 0;
 }
 
@@ -1854,6 +2047,14 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		"log_max_size %lu\n\n"
 		"# If TRUE will accumulate the log over multiple OpenSM sessions\n"
 		"accum_log_file %s\n\n"
+		"# Per module logging\n"
+		"per_module_logging %s\n\n"
+		"# Per module logging configuration file\n"
+		"# Each line in config file contains <module_name><separator><log_flags>\n"
+		"# where module_name is file name including .c\n"
+		"# separator is either = , space, or tab\n"
+		"# log_flags is the same flags as used in the coarse/overall logging\n"
+		"per_module_logging_file %s\n\n"
 		"# The directory to hold the file OpenSM dumps\n"
 		"dump_files_dir %s\n\n"
 		"# If TRUE enables new high risk options and hardware specific quirks\n"
@@ -1881,6 +2082,8 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		p_opts->log_file,
 		p_opts->log_max_size,
 		p_opts->accum_log_file ? "TRUE" : "FALSE",
+		p_opts->per_module_logging ? "TRUE" : "FALSE",
+		p_opts->per_module_logging_file,
 		p_opts->dump_files_dir,
 		p_opts->enable_quirks ? "TRUE" : "FALSE",
 		p_opts->no_clients_rereg ? "TRUE" : "FALSE",

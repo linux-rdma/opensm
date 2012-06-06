@@ -319,6 +319,24 @@ BEGIN_C_DECLS
 #endif
 /***********/
 
+/****d* OpenSM: Base/OSM_DEFAULT_PER_MOD_LOGGING_CONF_FILE
+* NAME
+*	OSM_DEFAULT_PER_MOD_LOGGING_CONF_FILE
+*
+* DESCRIPTION
+*	Specifies the default file name for per module logging configuration
+*
+* SYNOPSIS
+*/
+#ifdef __WIN__
+#define OSM_DEFAULT_PER_MOD_LOGGING_CONF_FILE strcat(GetOsmCachePath(), "per-module-logging.conf")
+#elif defined(OPENSM_CONFIG_DIR)
+#define OSM_DEFAULT_PER_MOD_LOGGING_CONF_FILE OPENSM_CONFIG_DIR "/per-module-logging.conf"
+#else
+#define OSM_DEFAULT_PER_MOD_LOGGING_CONF_FILE "/etc/opensm/per-module-logging.conf"
+#endif /* __WIN__ */
+/***********/
+
 /****d* OpenSM: Base/OSM_DEFAULT_SWEEP_INTERVAL_SECS
 * NAME
 *	OSM_DEFAULT_SWEEP_INTERVAL_SECS

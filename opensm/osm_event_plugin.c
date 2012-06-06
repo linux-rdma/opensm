@@ -49,6 +49,7 @@
 
 #include <stdlib.h>
 #include <dlfcn.h>
+#define FILE_ID 7
 #include <opensm/osm_event_plugin.h>
 #include <opensm/osm_opensm.h>
 

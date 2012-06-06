@@ -53,6 +53,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <errno.h>
+#define FILE_ID 40
 #include <opensm/osm_opensm.h>
 #include <opensm/osm_qos_policy.h>
 

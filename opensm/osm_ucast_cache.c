@@ -53,6 +53,7 @@
 #include <complib/cl_qmap.h>
 #include <complib/cl_pool.h>
 #include <complib/cl_debug.h>
+#define FILE_ID 77
 #include <opensm/osm_opensm.h>
 #include <opensm/osm_ucast_mgr.h>
 #include <opensm/osm_ucast_cache.h>
@@ -334,7 +335,7 @@ static void ucast_cache_dump(osm_ucast_mgr_t * p_mgr)
 
 	OSM_LOG_ENTER(p_mgr->p_log);
 
-	if (!osm_log_is_active(p_mgr->p_log, OSM_LOG_DEBUG))
+	if (!OSM_LOG_IS_ACTIVE_V2(p_mgr->p_log, OSM_LOG_DEBUG))
 		goto Exit;
 
 	OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,

@@ -50,6 +50,7 @@
 #include <complib/cl_qmap.h>
 #include <complib/cl_passivelock.h>
 #include <complib/cl_debug.h>
+#define FILE_ID 68
 #include <opensm/osm_madw.h>
 #include <opensm/osm_log.h>
 #include <opensm/osm_node.h>
@@ -455,8 +456,8 @@ static void smi_rcv_process_get_response(IN osm_sm_t * sm,
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 2F18: "
 			"Got SM with sm_key that doesn't match our "
 			"local key. Exiting\n");
-		osm_log(sm->p_log, OSM_LOG_SYS,
-			"Found remote SM with non-matching sm_key. Exiting\n");
+		osm_log_v2(sm->p_log, OSM_LOG_SYS, FILE_ID,
+			   "Found remote SM with non-matching sm_key. Exiting\n");
 		osm_exit_flag = TRUE;
 		goto Exit;
 	}

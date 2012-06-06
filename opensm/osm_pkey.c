@@ -47,6 +47,7 @@
 #include <string.h>
 #include <complib/cl_debug.h>
 #include <iba/ib_types.h>
+#define FILE_ID 31
 #include <opensm/osm_pkey.h>
 #include <opensm/osm_log.h>
 #include <opensm/osm_port.h>

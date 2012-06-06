@@ -61,6 +61,7 @@
 #include <complib/cl_qlist.h>
 #include <complib/cl_math.h>
 #include <complib/cl_debug.h>
+#define FILE_ID 84
 #include <opensm/osm_madw.h>
 #include <opensm/osm_log.h>
 #include <opensm/osm_mad_pool.h>

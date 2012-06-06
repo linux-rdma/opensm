@@ -55,6 +55,7 @@
 #include <complib/cl_passivelock.h>
 #include <complib/cl_debug.h>
 #include <iba/ib_types.h>
+#define FILE_ID 46
 #include <opensm/osm_sa.h>
 #include <opensm/osm_madw.h>
 #include <opensm/osm_log.h>
@@ -368,7 +369,7 @@ void osm_sa_send_error(IN osm_sa_t * sa, IN const osm_madw_t * p_madw,
 	if (p_resp_sa_mad->attr_id == IB_MAD_ATTR_MULTIPATH_RECORD)
 		p_resp_sa_mad->attr_id = IB_MAD_ATTR_PATH_RECORD;
 
-	if (osm_log_is_active(sa->p_log, OSM_LOG_FRAMES))
+	if (OSM_LOG_IS_ACTIVE_V2(sa->p_log, OSM_LOG_FRAMES))
 		osm_dump_sa_mad(sa->p_log, p_resp_sa_mad, OSM_LOG_FRAMES);
 
 	osm_sa_send(sa, p_resp_madw, FALSE);

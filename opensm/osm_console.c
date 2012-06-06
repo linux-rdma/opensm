@@ -52,6 +52,7 @@
 #include <errno.h>
 #include <ctype.h>
 #include <sys/time.h>
+#define FILE_ID 1
 #include <opensm/osm_console.h>
 #include <complib/cl_passivelock.h>
 #include <opensm/osm_perfmgr.h>
@@ -131,6 +132,11 @@ static void help_loglevel(FILE * out, int detail)
 		fprintf(out, "   OSM_LOG_DEFAULT_LEVEL    0x%02X\n",
 			OSM_LOG_DEFAULT_LEVEL);
 	}
+}
+
+static void help_permodlog(FILE * out, int detail)
+{
+	fprintf(out, "permodlog\n");
 }
 
 static void help_priority(FILE * out, int detail)
@@ -305,6 +311,33 @@ static void loglevel_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 			osm_log_set_level(&p_osm->log, level);
 		} else
 			fprintf(out, "Invalid log level 0x%x\n", level);
+	}
+}
+
+static void permodlog_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
+{
+	fprintf(out, "Per module logging is %sabled\n",
+		p_osm->subn.opt.per_module_logging ? "en" : "dis");
+	if (p_osm->subn.opt.per_module_logging) {
+		FILE *fp;
+		char buf[1024];
+
+		fp = fopen(p_osm->subn.opt.per_module_logging_file, "r");
+		if (!fp) {
+			if (errno == ENOENT)
+				return;
+			fprintf(out, "fopen(%s) failed: %s\n",
+				p_osm->subn.opt.per_module_logging_file,
+				strerror(errno));
+			return;
+		}
+
+		fprintf(out, "Per module logging file: %s\n",
+			p_osm->subn.opt.per_module_logging_file);
+		while (fgets(buf, sizeof buf, fp) != NULL)
+			fprintf(out, "%s", buf);
+		fclose(fp);
+		fprintf(out, "\n");
 	}
 }
 
@@ -1585,6 +1618,7 @@ static const struct command console_cmds[] = {
 	{"help", &help_command, &help_parse},
 	{"quit", &help_quit, &quit_parse},
 	{"loglevel", &help_loglevel, &loglevel_parse},
+	{"permodlog", &help_permodlog, &permodlog_parse},
 	{"priority", &help_priority, &priority_parse},
 	{"resweep", &help_resweep, &resweep_parse},
 	{"reroute", &help_reroute, &reroute_parse},

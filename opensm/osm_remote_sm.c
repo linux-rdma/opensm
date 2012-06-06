@@ -45,6 +45,7 @@
 #endif				/* HAVE_CONFIG_H */
 
 #include <string.h>
+#define FILE_ID 42
 #include <opensm/osm_remote_sm.h>
 
 void osm_remote_sm_construct(IN osm_remote_sm_t * p_sm)
