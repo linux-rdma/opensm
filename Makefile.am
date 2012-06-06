@@ -16,7 +16,8 @@ man_MANS = man/opensm.8 man/osmtest.8 man/torus-2QoS.8 man/torus-2QoS.conf.5
 
 various_scripts = $(wildcard scripts/*)
 docs = doc/performance-manager-HOWTO.txt doc/QoS_management_in_OpenSM.txt \
-	doc/opensm-sriov.txt doc/opensm_release_notes-3.3.txt
+	doc/partition-config.txt doc/opensm-sriov.txt \
+	doc/opensm_release_notes-3.3.txt
 
 EXTRA_DIST = autogen.sh opensm.spec $(various_scripts) $(man_MANS) $(docs)
 
