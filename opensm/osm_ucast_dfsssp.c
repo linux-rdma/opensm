@@ -2037,7 +2037,7 @@ static int dfsssp_do_dijkstra_routing(void *context)
 		     item = cl_qmap_next(item)) {
 			sw = (osm_switch_t *) item;
 			OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-				"Summery of the (new) LFT for switch 0x%" PRIx64
+				"Summary of the (new) LFT for switch 0x%" PRIx64
 				" (%s):\n",
 				cl_ntoh64(osm_node_get_node_guid(sw->p_node)),
 				sw->p_node->print_desc);

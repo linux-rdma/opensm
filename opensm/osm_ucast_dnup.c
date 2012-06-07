@@ -175,7 +175,7 @@ static int dnup_bfs_by_node(IN osm_log_t * p_log, IN osm_subn_t * p_subn,
 					current_min_hop+=prune_weight;
 					if(current_min_hop >= 64) {
 						OSM_LOG(p_log, OSM_LOG_ERROR,
-							"ERR AE02 Too many hops on subnet,"
+							"ERR AE02: Too many hops on subnet,"
 							" can't relax illegal Dn/Up transition.");
 						osm_switch_set_hops(p_remote_sw, lid,
 								    pn_rem, OSM_NO_PATH);
@@ -479,7 +479,7 @@ int osm_ucast_dnup_setup(struct osm_routing_engine *r, osm_opensm_t *osm)
 {
 	dnup_t *dnup;
 
-        OSM_LOG_ENTER(&osm->log);
+	OSM_LOG_ENTER(&osm->log);
 
 	dnup = malloc(sizeof(dnup_t));
 	if (!dnup)
@@ -492,6 +492,6 @@ int osm_ucast_dnup_setup(struct osm_routing_engine *r, osm_opensm_t *osm)
 	r->destroy = dnup_delete;
 	r->build_lid_matrices = dnup_lid_matrices;
 
-        OSM_LOG_EXIT(&osm->log);
+	OSM_LOG_EXIT(&osm->log);
 	return 0;
 }

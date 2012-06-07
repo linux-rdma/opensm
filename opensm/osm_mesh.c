@@ -1659,7 +1659,7 @@ int osm_do_mesh_analysis(lash_t *p_lash)
 	 * find dominant switch class
 	 */
 	OSM_LOG(p_log, OSM_LOG_INFO, "found %d node class%s\n",
-		mesh->num_class, (mesh->num_class == 1)? "" : "es");
+		mesh->num_class, (mesh->num_class == 1) ? "" : "es");
 	for (i = 0; i < mesh->num_class; i++) {
 		OSM_LOG(p_log, OSM_LOG_INFO,
 			"class[%d] has %d members with type = %d\n",

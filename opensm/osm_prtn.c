@@ -214,11 +214,11 @@ track_mgrp_w_partition(osm_log_t *p_log, osm_prtn_t *p, osm_mgrp_t *mgrp,
 		p->nmgrps++;
 	} else {
 		OSM_LOG(p_log, OSM_LOG_ERROR,
-		        "realloc error to create MC group (%s) in "
-		        "partition (pkey 0x%04x)\n",
-		        inet_ntop(AF_INET6, mgid->raw,
-		                gid_str, sizeof gid_str),
-		        cl_ntoh16(pkey));
+			"realloc error to create MC group (%s) in "
+			"partition (pkey 0x%04x)\n",
+			inet_ntop(AF_INET6, mgid->raw,
+				  gid_str, sizeof gid_str),
+			cl_ntoh16(pkey));
 		mgrp->well_known = FALSE;
 		osm_mgrp_cleanup(p_subn, mgrp);
 		return (IB_ERROR);

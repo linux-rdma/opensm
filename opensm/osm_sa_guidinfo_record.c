@@ -762,7 +762,7 @@ void osm_gir_rcv_process(IN void *ctx, IN void *data)
 		if (!check_mod_comp_mask(p_rcvd_mad->comp_mask)) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 5106: "
 				"component mask = 0x%016" PRIx64 ", "
-                                "expected comp mask = 0x%016" PRIx64 "\n",
+				"expected comp mask = 0x%016" PRIx64 "\n",
 				cl_ntoh64(p_rcvd_mad->comp_mask),
 				CL_NTOH64(MOD_GIR_COMP_MASK));
 			osm_sa_send_error(sa, p_madw,

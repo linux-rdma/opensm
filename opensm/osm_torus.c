@@ -717,14 +717,14 @@ bool build_link(struct fabric *f,
 		OSM_LOG(&f->osm->log, OSM_LOG_ERROR,
 			"ERR 4E0A: missing switch w/GUID 0x%04"PRIx64"\n",
 			cl_ntoh64(sw_guid0));
-			goto out;
+		goto out;
 	}
 	sw1 = find_f_sw(f, sw_guid1);
 	if (!sw1) {
 		OSM_LOG(&f->osm->log, OSM_LOG_ERROR,
 			"ERR 4E0B: missing switch w/GUID 0x%04"PRIx64"\n",
 			cl_ntoh64(sw_guid1));
-			goto out;
+		goto out;
 	}
 	l = alloc_flink(f);
 	if (!l)
@@ -7053,7 +7053,7 @@ bool verify_setup(struct torus *t, struct fabric *f)
 					"ERR 4E21: port_order configured using "
 					"port %u, but only %u ports in "
 					"switch w/ GUID 0x%04"PRIx64"\n",
-					t->port_order[p],  sw->port_cnt - 1,
+					t->port_order[p], sw->port_cnt - 1,
 					cl_ntoh64(sw->n_id));
 				goto out;
 			}
