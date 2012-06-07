@@ -105,7 +105,7 @@ cl_status_t cl_thread_pool_init(IN cl_thread_pool_t * const p_thread_pool,
 
 	for (i = 0; i < count; i++) {
 		if (pthread_create(&p_thread_pool->tid[i], NULL,
-				   thread_pool_routine, p_thread_pool) < 0) {
+				   thread_pool_routine, p_thread_pool) != 0) {
 			cl_thread_pool_destroy(p_thread_pool);
 			return CL_INSUFFICIENT_RESOURCES;
 		}

@@ -425,7 +425,7 @@ static int umad_receiver_start(osm_vendor_t * p_vend)
 	p_ur->p_vend = p_vend;
 	p_ur->p_log = p_vend->p_log;
 
-	if (pthread_create(&p_ur->tid, NULL, umad_receiver, p_ur) < 0)
+	if (pthread_create(&p_ur->tid, NULL, umad_receiver, p_ur) != 0)
 		return -1;
 
 	return 0;
