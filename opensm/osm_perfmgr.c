@@ -59,7 +59,8 @@
 #include <iba/ib_types.h>
 #include <complib/cl_debug.h>
 #include <complib/cl_thread.h>
-#define FILE_ID 29
+#include <opensm/osm_file_ids.h>
+#define FILE_ID OSM_FILE_PERFMGR_C
 #include <vendor/osm_vendor_api.h>
 #include <opensm/osm_perfmgr.h>
 #include <opensm/osm_log.h>

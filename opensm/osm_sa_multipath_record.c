@@ -52,7 +52,8 @@
 #include <complib/cl_passivelock.h>
 #include <complib/cl_debug.h>
 #include <complib/cl_qlist.h>
-#define FILE_ID 55
+#include <opensm/osm_file_ids.h>
+#define FILE_ID OSM_FILE_SA_MULTIPATH_RECORD_C
 #include <vendor/osm_vendor_api.h>
 #include <opensm/osm_port.h>
 #include <opensm/osm_node.h>

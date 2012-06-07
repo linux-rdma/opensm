@@ -48,7 +48,8 @@
 #include <ctype.h>
 
 #include <iba/ib_types.h>
-#define FILE_ID 37
+#include <opensm/osm_file_ids.h>
+#define FILE_ID OSM_FILE_PRTN_CONFIG_C
 #include <opensm/osm_base.h>
 #include <opensm/osm_partition.h>
 #include <opensm/osm_subnet.h>

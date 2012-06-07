@@ -49,7 +49,8 @@
 #include <iba/ib_types.h>
 #include <complib/cl_qmap.h>
 #include <complib/cl_debug.h>
-#define FILE_ID 79
+#include <opensm/osm_file_ids.h>
+#define FILE_ID OSM_FILE_UCAST_FILE_C
 #include <opensm/osm_opensm.h>
 #include <opensm/osm_switch.h>
 #include <opensm/osm_log.h>

@@ -47,7 +47,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define FILE_ID 88
+#include <opensm/osm_file_ids.h>
+#define FILE_ID OSM_FILE_UCAST_DFSSSP_C
 #include <opensm/osm_ucast_mgr.h>
 #include <opensm/osm_opensm.h>
 #include <opensm/osm_node.h>

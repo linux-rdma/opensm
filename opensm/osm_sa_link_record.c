@@ -48,7 +48,8 @@
 #include <iba/ib_types.h>
 #include <complib/cl_qmap.h>
 #include <complib/cl_debug.h>
-#define FILE_ID 51
+#include <opensm/osm_file_ids.h>
+#define FILE_ID OSM_FILE_SA_LINK_RECORD_C
 #include <vendor/osm_vendor_api.h>
 #include <opensm/osm_node.h>
 #include <opensm/osm_switch.h>

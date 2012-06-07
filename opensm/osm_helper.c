@@ -50,7 +50,8 @@
 #include <arpa/inet.h>
 #include <complib/cl_debug.h>
 #include <iba/ib_types.h>
-#define FILE_ID 10
+#include <opensm/osm_file_ids.h>
+#define FILE_ID OSM_FILE_HELPER_C
 #include <opensm/osm_helper.h>
 #include <opensm/osm_log.h>
 

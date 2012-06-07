@@ -46,7 +46,8 @@
 
 #include <stdlib.h>
 #include <string.h>
-#define FILE_ID 20
+#include <opensm/osm_file_ids.h>
+#define FILE_ID OSM_FILE_MCM_PORT_C
 #include <opensm/osm_mcm_port.h>
 #include <opensm/osm_multicast.h>
 

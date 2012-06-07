@@ -52,7 +52,8 @@
 #include <errno.h>
 #include <ctype.h>
 #include <sys/time.h>
-#define FILE_ID 1
+#include <opensm/osm_file_ids.h>
+#define FILE_ID OSM_FILE_CONSOLE_C
 #include <opensm/osm_console.h>
 #include <complib/cl_passivelock.h>
 #include <opensm/osm_perfmgr.h>

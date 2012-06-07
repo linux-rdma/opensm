@@ -47,7 +47,8 @@
 #include <string.h>
 #include <arpa/inet.h>
 #include <complib/cl_debug.h>
-#define FILE_ID 11
+#include <opensm/osm_file_ids.h>
+#define FILE_ID OSM_FILE_INFORM_C
 #include <opensm/osm_helper.h>
 #include <opensm/osm_inform.h>
 #include <vendor/osm_vendor_api.h>

@@ -49,7 +49,8 @@
 #include <ctype.h>
 #include <complib/cl_debug.h>
 #include <complib/cl_qmap.h>
-#define FILE_ID 78
+#include <opensm/osm_file_ids.h>
+#define FILE_ID OSM_FILE_UCAST_DNUP_C
 #include <opensm/osm_switch.h>
 #include <opensm/osm_opensm.h>
 #include <opensm/osm_ucast_mgr.h>

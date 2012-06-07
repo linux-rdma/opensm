@@ -47,7 +47,8 @@
 #include <string.h>
 #include <complib/cl_debug.h>
 #include <iba/ib_types.h>
-#define FILE_ID 52
+#include <opensm/osm_file_ids.h>
+#define FILE_ID OSM_FILE_SA_MAD_CTRL_C
 #include <vendor/osm_vendor_api.h>
 #include <opensm/osm_sa_mad_ctrl.h>
 #include <opensm/osm_msgdef.h>

@@ -51,7 +51,8 @@
 #include <complib/cl_qmap.h>
 #include <complib/cl_debug.h>
 #include <complib/cl_qlist.h>
-#define FILE_ID 82
+#include <opensm/osm_file_ids.h>
+#define FILE_ID OSM_FILE_UCAST_MGR_C
 #include <opensm/osm_ucast_mgr.h>
 #include <opensm/osm_sm.h>
 #include <opensm/osm_log.h>

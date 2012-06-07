@@ -55,7 +55,8 @@
 #include <fcntl.h>
 #include <complib/cl_types.h>
 #include <complib/cl_debug.h>
-#define FILE_ID 0
+#include <opensm/osm_file_ids.h>
+#define FILE_ID OSM_FILE_MAIN_C
 #include <vendor/osm_vendor_api.h>
 #include <opensm/osm_version.h>
 #include <opensm/osm_opensm.h>

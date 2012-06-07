@@ -45,7 +45,8 @@
 #include <dlfcn.h>
 #include <sys/stat.h>
 
-#define FILE_ID 30
+#include <opensm/osm_file_ids.h>
+#define FILE_ID OSM_FILE_PERFMGR_DB_C
 #include <opensm/osm_perfmgr_db.h>
 #include <opensm/osm_perfmgr.h>
 #include <opensm/osm_opensm.h>

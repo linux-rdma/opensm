@@ -76,6 +76,7 @@ opensminclude_HEADERS = \
 	$(srcdir)/../include/opensm/osm_db_pack.h \
 	$(srcdir)/../include/opensm/osm_event_plugin.h \
 	$(srcdir)/../include/opensm/osm_errors.h \
+	$(srcdir)/../include/opensm/osm_file_ids.h \
 	$(srcdir)/../include/opensm/osm_guid.h \
 	$(srcdir)/../include/opensm/osm_helper.h \
 	$(srcdir)/../include/opensm/osm_inform.h \

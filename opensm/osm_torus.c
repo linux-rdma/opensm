@@ -50,7 +50,8 @@
 #  include <config.h>
 #endif				/* HAVE_CONFIG_H */
 
-#define FILE_ID 75
+#include <opensm/osm_file_ids.h>
+#define FILE_ID OSM_FILE_TORUS_C
 #include <opensm/osm_log.h>
 #include <opensm/osm_port.h>
 #include <opensm/osm_switch.h>

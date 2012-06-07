@@ -43,7 +43,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#define FILE_ID 21
+#include <opensm/osm_file_ids.h>
+#define FILE_ID OSM_FILE_MESH_C
 #include <opensm/osm_switch.h>
 #include <opensm/osm_opensm.h>
 #include <opensm/osm_log.h>

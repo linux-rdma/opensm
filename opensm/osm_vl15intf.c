@@ -48,7 +48,8 @@
 #include <string.h>
 #include <iba/ib_types.h>
 #include <complib/cl_thread.h>
-#define FILE_ID 85
+#include <opensm/osm_file_ids.h>
+#define FILE_ID OSM_FILE_VL15INTF_C
 #include <vendor/osm_vendor_api.h>
 #include <opensm/osm_vl15intf.h>
 #include <opensm/osm_madw.h>

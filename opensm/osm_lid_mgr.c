@@ -85,7 +85,8 @@
 #include <iba/ib_types.h>
 #include <complib/cl_qmap.h>
 #include <complib/cl_debug.h>
-#define FILE_ID 12
+#include <opensm/osm_file_ids.h>
+#define FILE_ID OSM_FILE_LID_MGR_C
 #include <opensm/osm_lid_mgr.h>
 #include <opensm/osm_sm.h>
 #include <opensm/osm_log.h>

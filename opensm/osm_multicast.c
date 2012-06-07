@@ -45,7 +45,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <arpa/inet.h>
-#define FILE_ID 24
+#include <opensm/osm_file_ids.h>
+#define FILE_ID OSM_FILE_MULTICAST_C
 #include <opensm/osm_multicast.h>
 #include <opensm/osm_mcm_port.h>
 #include <opensm/osm_mtree.h>

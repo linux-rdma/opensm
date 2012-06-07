@@ -44,7 +44,8 @@
 #  include <config.h>
 #endif				/* HAVE_CONFIG_H */
 
-#define FILE_ID 15
+#include <opensm/osm_file_ids.h>
+#define FILE_ID OSM_FILE_LOG_C
 #include <opensm/osm_log.h>
 #include <stdlib.h>
 #include <stdio.h>

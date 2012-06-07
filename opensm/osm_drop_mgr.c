@@ -52,7 +52,8 @@
 #include <complib/cl_passivelock.h>
 #include <complib/cl_debug.h>
 #include <complib/cl_ptr_vector.h>
-#define FILE_ID 5
+#include <opensm/osm_file_ids.h>
+#define FILE_ID OSM_FILE_DROP_MGR_C
 #include <opensm/osm_sm.h>
 #include <opensm/osm_router.h>
 #include <opensm/osm_switch.h>

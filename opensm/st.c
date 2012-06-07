@@ -41,7 +41,8 @@
 
 #include <stdio.h>
 #include <string.h>
-#define FILE_ID 87
+#include <opensm/osm_file_ids.h>
+#define FILE_ID OSM_FILE_ST_C
 #include <opensm/st.h>
 
 typedef struct st_table_entry st_table_entry;

@@ -50,7 +50,8 @@
 #include <iba/ib_types.h>
 #include <complib/cl_passivelock.h>
 #include <complib/cl_debug.h>
-#define FILE_ID 86
+#include <opensm/osm_file_ids.h>
+#define FILE_ID OSM_FILE_VL_ARB_RCV_C
 #include <opensm/osm_madw.h>
 #include <opensm/osm_log.h>
 #include <opensm/osm_node.h>

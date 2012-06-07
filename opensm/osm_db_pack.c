@@ -39,7 +39,8 @@
 
 #include <stdlib.h>
 #include <complib/cl_debug.h>
-#define FILE_ID 4
+#include <opensm/osm_file_ids.h>
+#define FILE_ID OSM_FILE_DB_PACK_C
 #include <opensm/osm_db_pack.h>
 
 static inline void pack_guid(uint64_t guid, char *p_guid_str)

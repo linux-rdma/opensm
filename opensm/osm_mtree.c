@@ -44,7 +44,8 @@
 #endif				/* HAVE_CONFIG_H */
 
 #include <stdlib.h>
-#define FILE_ID 23
+#include <opensm/osm_file_ids.h>
+#define FILE_ID OSM_FILE_MTREE_C
 #include <complib/cl_debug.h>
 #include <opensm/osm_mtree.h>
 

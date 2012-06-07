@@ -47,7 +47,8 @@
 
 #include <string.h>
 #include <complib/cl_debug.h>
-#define FILE_ID 13
+#include <opensm/osm_file_ids.h>
+#define FILE_ID OSM_FILE_LIN_FWD_RCV_C
 #include <opensm/osm_switch.h>
 #include <opensm/osm_sm.h>
 

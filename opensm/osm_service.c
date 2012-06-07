@@ -45,7 +45,8 @@
 #include <stdlib.h>
 #include <complib/cl_debug.h>
 #include <complib/cl_timer.h>
-#define FILE_ID 65
+#include <opensm/osm_file_ids.h>
+#define FILE_ID OSM_FILE_SERVICE_C
 #include <opensm/osm_service.h>
 #include <opensm/osm_opensm.h>
 

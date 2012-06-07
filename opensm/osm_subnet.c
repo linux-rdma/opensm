@@ -56,7 +56,8 @@
 #include <ctype.h>
 #include <complib/cl_debug.h>
 #include <complib/cl_log.h>
-#define FILE_ID 72
+#include <opensm/osm_file_ids.h>
+#define FILE_ID OSM_FILE_SUBNET_C
 #include <opensm/osm_subnet.h>
 #include <opensm/osm_opensm.h>
 #include <opensm/osm_log.h>

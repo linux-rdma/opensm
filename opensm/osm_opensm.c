@@ -50,7 +50,8 @@
 #include <string.h>
 #include <complib/cl_dispatcher.h>
 #include <complib/cl_passivelock.h>
-#define FILE_ID 28
+#include <opensm/osm_file_ids.h>
+#define FILE_ID OSM_FILE_OPENSM_C
 #include <vendor/osm_vendor_api.h>
 #include <opensm/osm_version.h>
 #include <opensm/osm_base.h>

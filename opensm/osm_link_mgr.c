@@ -48,7 +48,8 @@
 #include <string.h>
 #include <iba/ib_types.h>
 #include <complib/cl_debug.h>
-#define FILE_ID 14
+#include <opensm/osm_file_ids.h>
+#define FILE_ID OSM_FILE_LINK_MGR_C
 #include <opensm/osm_sm.h>
 #include <opensm/osm_node.h>
 #include <opensm/osm_switch.h>

@@ -53,7 +53,8 @@
 #include <complib/cl_qmap.h>
 #include <complib/cl_pool.h>
 #include <complib/cl_debug.h>
-#define FILE_ID 77
+#include <opensm/osm_file_ids.h>
+#define FILE_ID OSM_FILE_UCAST_CACHE_C
 #include <opensm/osm_opensm.h>
 #include <opensm/osm_ucast_mgr.h>
 #include <opensm/osm_ucast_cache.h>

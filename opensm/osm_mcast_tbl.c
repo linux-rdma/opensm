@@ -49,7 +49,8 @@
 #include <string.h>
 #include <complib/cl_math.h>
 #include <iba/ib_types.h>
-#define FILE_ID 19
+#include <opensm/osm_file_ids.h>
+#define FILE_ID OSM_FILE_MCAST_TBL_C
 #include <opensm/osm_mcast_tbl.h>
 
 void osm_mcast_tbl_init(IN osm_mcast_tbl_t * p_tbl, IN uint8_t num_ports,
