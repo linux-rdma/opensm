@@ -325,6 +325,8 @@ cache_restore_ucast_info(osm_ucast_mgr_t * p_mgr,
 		free(p_sw->hops);
 	p_sw->hops = p_cache_sw->hops;
 	p_cache_sw->hops = NULL;
+
+	p_sw->need_update = 2;
 }
 
 static void ucast_cache_dump(osm_ucast_mgr_t * p_mgr)
