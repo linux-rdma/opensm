@@ -245,7 +245,7 @@ void osm_physp_init(IN osm_physp_t * p_physp, IN ib_net64_t port_guid,
 *
 *	h_bind
 *		[in] Bind handle on which this port is accessed.
-*		Caller should use OSM_INVALID_BIND_HANDLE if the bind
+*		Caller should use OSM_BIND_INVALID_HANDLE if the bind
 *		handle to this port is unknown.
 *
 *	hop_count
