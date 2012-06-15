@@ -783,7 +783,8 @@ osm_vendor_bind(IN osm_vendor_t * const p_vend,
 	port_guid = p_user_bind->port_guid;
 
 	OSM_LOG(p_vend->p_log, OSM_LOG_INFO,
-		"Binding to port 0x%" PRIx64 "\n", cl_ntoh64(port_guid));
+		"Mgmt class 0x%02x binding to port GUID 0x%" PRIx64 "\n",
+		p_user_bind->mad_class, cl_ntoh64(port_guid));
 
 	if ((umad_port_id = osm_vendor_open_port(p_vend, port_guid)) < 0) {
 		OSM_LOG(p_vend->p_log, OSM_LOG_ERROR, "ERR 5424: "
