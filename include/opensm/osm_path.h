@@ -80,7 +80,6 @@ BEGIN_C_DECLS
 * SYNOPSIS
 */
 typedef struct osm_dr_path {
-	osm_bind_handle_t h_bind;
 	uint8_t hop_count;
 	uint8_t path[IB_SUBNET_PATH_HOPS_MAX];
 } osm_dr_path_t;
@@ -111,7 +110,6 @@ static inline void osm_dr_path_construct(IN osm_dr_path_t * p_path)
 {
 	/* The first location in the path array is reserved. */
 	memset(p_path, 0, sizeof(*p_path));
-	p_path->h_bind = OSM_BIND_INVALID_HANDLE;
 }
 
 /*
@@ -146,14 +144,12 @@ static inline void osm_dr_path_construct(IN osm_dr_path_t * p_path)
 * SYNOPSIS
 */
 static inline void
-osm_dr_path_init(IN osm_dr_path_t * p_path, IN osm_bind_handle_t h_bind,
-		 IN uint8_t hop_count,
+osm_dr_path_init(IN osm_dr_path_t * p_path, IN uint8_t hop_count,
 		 IN const uint8_t path[IB_SUBNET_PATH_HOPS_MAX])
 {
 	/* The first location in the path array is reserved. */
 	CL_ASSERT(path[0] == 0);
 	CL_ASSERT(hop_count < IB_SUBNET_PATH_HOPS_MAX);
-	p_path->h_bind = h_bind;
 	p_path->hop_count = hop_count;
 	memcpy(p_path->path, path, hop_count + 1);
 }
@@ -213,37 +209,6 @@ static inline int osm_dr_path_extend(IN osm_dr_path_t * p_path,
 * RETURN VALUES
 *	0 indicates path was extended.
 *	Other than 0 indicates path was not extended.
-*
-* NOTES
-*
-* SEE ALSO
-*********/
-
-/****f* OpenSM: DR Path/osm_dr_path_get_bind_handle
-* NAME
-*	osm_dr_path_get_bind_handle
-*
-* DESCRIPTION
-*	Gets the bind handle from a path.
-*
-* SYNOPSIS
-*/
-static inline osm_bind_handle_t
-osm_dr_path_get_bind_handle(IN const osm_dr_path_t * p_path)
-{
-	return p_path->h_bind;
-}
-
-/*
-* PARAMETERS
-*	p_path
-*		[in] Pointer to a directed route path object to initialize.
-*
-*	port_num
-*		[in] Additional port to add to the DR path.
-*
-* RETURN VALUE
-*	None.
 *
 * NOTES
 *

@@ -103,7 +103,7 @@ void osm_physp_init(IN osm_physp_t * p_physp, IN ib_net64_t port_guid,
 	p_physp->need_update = 2;
 	p_physp->p_node = (struct osm_node *)p_node;
 
-	osm_dr_path_init(&p_physp->dr_path, h_bind, hop_count, p_initial_path);
+	osm_dr_path_init(&p_physp->dr_path, hop_count, p_initial_path);
 
 	/* allocate enough SL2VL tables */
 	if (osm_node_get_type(p_node) == IB_NODE_TYPE_SWITCH)
@@ -418,7 +418,7 @@ static void physp_update_new_dr_path(IN osm_physp_t const *p_dest_physp,
 	}
 	if (p_src_physp) {
 		p_dr_path = osm_physp_get_dr_path_ptr(p_src_physp);
-		osm_dr_path_init(p_dr_path, h_bind, i, path_array);
+		osm_dr_path_init(p_dr_path, i, path_array);
 	}
 
 	cl_list_destroy(&tmpPortsList);

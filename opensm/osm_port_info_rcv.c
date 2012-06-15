@@ -588,8 +588,8 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 		/* Update the directed route path to this port
 		   in case the old path is no longer usable. */
 		p_dr_path = osm_physp_get_dr_path_ptr(p_physp);
-		osm_dr_path_init(p_dr_path, osm_madw_get_bind_handle(p_madw),
-				 p_smp->hop_count, p_smp->initial_path);
+		osm_dr_path_init(p_dr_path, p_smp->hop_count,
+				 p_smp->initial_path);
 
 		/* if port just inited or reached INIT state (external reset)
 		   request update for port related tables */

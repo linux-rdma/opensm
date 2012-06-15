@@ -394,14 +394,12 @@ static void ni_rcv_process_existing_ca_or_router(IN osm_sm_t * sm,
 	uint8_t port_num;
 	osm_dr_path_t *p_dr_path;
 	osm_alias_guid_t *p_alias_guid, *p_alias_guid_check;
-	osm_bind_handle_t h_bind;
 
 	OSM_LOG_ENTER(sm->p_log);
 
 	p_smp = osm_madw_get_smp_ptr(p_madw);
 	p_ni = ib_smp_get_payload_ptr(p_smp);
 	port_num = ib_node_info_get_local_port_num(p_ni);
-	h_bind = osm_madw_get_bind_handle(p_madw);
 
 	/*
 	   Determine if we have encountered this node through a
@@ -487,7 +485,7 @@ alias_done:
 		 */
 		p_dr_path = osm_physp_get_dr_path_ptr(p_physp);
 
-		osm_dr_path_init(p_dr_path, h_bind, p_smp->hop_count,
+		osm_dr_path_init(p_dr_path, p_smp->hop_count,
 				 p_smp->initial_path);
 	}
 
@@ -511,8 +509,7 @@ static void ni_rcv_process_switch(IN osm_sm_t * sm, IN osm_node_t * p_node,
 
 	/* update DR path of already initialized switch port 0 */
 	path = osm_physp_get_dr_path_ptr(osm_node_get_physp_ptr(p_node, 0));
-	osm_dr_path_init(path, osm_madw_get_bind_handle(p_madw),
-			 p_smp->hop_count, p_smp->initial_path);
+	osm_dr_path_init(path, p_smp->hop_count, p_smp->initial_path);
 
 	context.si_context.node_guid = osm_node_get_node_guid(p_node);
 	context.si_context.set_method = FALSE;

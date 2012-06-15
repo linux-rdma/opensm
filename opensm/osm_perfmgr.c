@@ -572,12 +572,9 @@ extern void osm_drop_mgr_process(IN osm_sm_t * sm);
 static int sweep_hop_1(osm_sm_t * sm)
 {
 	ib_api_status_t status = IB_SUCCESS;
-	osm_bind_handle_t h_bind;
 	osm_madw_context_t context;
 	osm_node_t *p_node;
 	osm_port_t *p_port;
-	osm_physp_t *p_physp;
-	osm_dr_path_t *p_dr_path;
 	osm_dr_path_t hop_1_path;
 	ib_net64_t port_guid;
 	uint8_t port_num;
@@ -600,15 +597,6 @@ static int sweep_hop_1(osm_sm_t * sm)
 	OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 		"Probing hop 1 on local port %u\n", port_num);
 
-	p_physp = osm_node_get_physp_ptr(p_node, port_num);
-
-	CL_ASSERT(p_physp);
-
-	p_dr_path = osm_physp_get_dr_path_ptr(p_physp);
-	h_bind = osm_dr_path_get_bind_handle(p_dr_path);
-
-	CL_ASSERT(h_bind != OSM_BIND_INVALID_HANDLE);
-
 	memset(path_array, 0, sizeof(path_array));
 	/* the hop_1 operations depend on the type of our node.
 	 * Currently - legal nodes that can host SM are SW and CA */
@@ -621,7 +609,7 @@ static int sweep_hop_1(osm_sm_t * sm)
 
 		path_array[1] = port_num;
 
-		osm_dr_path_init(&hop_1_path, h_bind, 1, path_array);
+		osm_dr_path_init(&hop_1_path, 1, path_array);
 		status = osm_req_get(sm, &hop_1_path, IB_MAD_ATTR_NODE_INFO, 0,
 				     CL_DISP_MSGID_NONE, &context);
 
@@ -653,7 +641,7 @@ static int sweep_hop_1(osm_sm_t * sm)
 
 			path_array[1] = port_num;
 
-			osm_dr_path_init(&hop_1_path, h_bind, 1, path_array);
+			osm_dr_path_init(&hop_1_path, 1, path_array);
 			status = osm_req_get(sm, &hop_1_path,
 					     IB_MAD_ATTR_NODE_INFO, 0,
 					     CL_DISP_MSGID_NONE, &context);
@@ -715,7 +703,7 @@ static int sweep_hop_0(osm_sm_t * sm)
 		return -1;
 	}
 
-	osm_dr_path_init(&dr_path, h_bind, 0, path_array);
+	osm_dr_path_init(&dr_path, 0, path_array);
 	status = osm_req_get(sm, &dr_path, IB_MAD_ATTR_NODE_INFO, 0,
 			     CL_DISP_MSGID_NONE, NULL);
 
