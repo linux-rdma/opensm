@@ -318,8 +318,6 @@ cache_restore_ucast_info(osm_ucast_mgr_t * p_mgr,
 		free(p_sw->new_lft);
 	p_sw->new_lft = p_cache_sw->lft;
 	p_cache_sw->lft = NULL;
-	p_sw->lft_size = (p_sw->max_lid_ho / IB_SMP_DATA_SIZE + 1)
-			 * IB_SMP_DATA_SIZE;
 
 	p_sw->num_hops = p_cache_sw->num_hops;
 	p_cache_sw->num_hops = 0;
@@ -978,6 +976,7 @@ void osm_ucast_cache_add_node(osm_ucast_mgr_t * p_mgr, osm_node_t * p_node)
 			/* no LFT buffer, so we use the switch's LFT */
 			p_cache_sw->lft = p_node->sw->lft;
 			p_node->sw->lft = NULL;
+			p_node->sw->lft_size = 0;
 		}
 		p_cache_sw->max_lid_ho = p_node->sw->max_lid_ho;
 	} else {
@@ -1007,6 +1006,7 @@ int osm_ucast_cache_process(osm_ucast_mgr_t * p_mgr)
 	cl_qmap_t *tbl = &p_mgr->p_subn->sw_guid_tbl;
 	cl_map_item_t *item;
 	osm_switch_t *p_sw;
+	uint16_t lft_size;
 
 	if (!p_mgr->p_subn->opt.use_ucast_cache)
 		return 1;
@@ -1028,10 +1028,12 @@ int osm_ucast_cache_process(osm_ucast_mgr_t * p_mgr)
 				   switch, but the LFT needs to be updated anyway */
 				p_sw->new_lft = p_sw->lft;
 
-
-			p_sw->lft = malloc(p_sw->lft_size);
+			lft_size = (p_sw->max_lid_ho / IB_SMP_DATA_SIZE + 1)
+				   * IB_SMP_DATA_SIZE;
+			p_sw->lft = malloc(lft_size);
 			if (!p_sw->lft)
 				return IB_INSUFFICIENT_MEMORY;
+			p_sw->lft_size = lft_size;
 			memset(p_sw->lft, OSM_NO_PATH, p_sw->lft_size);
 		}
 
