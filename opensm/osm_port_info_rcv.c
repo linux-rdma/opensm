@@ -568,7 +568,6 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 	if (p_context->set_method)
 		pi_rcv_process_set(sm, p_node, port_num, p_madw);
 	else {
-		p_port->discovery_count++;
 
 		/*
 		   This PortInfo arrived because we did a Get() method,
@@ -600,10 +599,13 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 		switch (osm_node_get_type(p_node)) {
 		case IB_NODE_TYPE_CA:
 		case IB_NODE_TYPE_ROUTER:
+			p_port->discovery_count++;
 			pi_rcv_process_ca_or_router_port(sm, p_node, p_physp,
 							 p_pi);
 			break;
 		case IB_NODE_TYPE_SWITCH:
+			if (port_num == 0)
+				p_port->discovery_count++;
 			pi_rcv_process_switch_port(sm, p_node, p_physp, p_pi);
 			break;
 		default:
