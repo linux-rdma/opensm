@@ -1082,13 +1082,20 @@ static void do_sweep(osm_sm_t * sm)
 	    sm->p_subn->sm_state != IB_SMINFO_STATE_DISCOVERING)
 		return;
 
-	if (sm->p_subn->coming_out_of_standby)
+	if (sm->p_subn->coming_out_of_standby) {
 		/*
 		 * Need to force re-write of sm_base_lid to all ports
 		 * to do that we want all the ports to be considered
 		 * foreign
 		 */
 		state_mgr_clean_known_lids(sm);
+
+		/*
+		 * Need to reconfigure LFTs, PKEYs, and QoS on all switches
+		 * when coming out of STANDBY
+		 */
+		sm->p_subn->need_update = 1;
+	}
 
 	sm->master_sm_found = 0;
 
