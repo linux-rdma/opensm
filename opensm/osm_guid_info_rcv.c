@@ -90,8 +90,8 @@ void osm_gi_rcv_process(IN void *context, IN void *data)
 	port_guid = p_context->port_guid;
 	node_guid = p_context->node_guid;
 
-	osm_dump_guid_info(sm->p_log, node_guid, port_guid, block_num, p_gi,
-			   OSM_LOG_DEBUG);
+	osm_dump_guid_info_v2(sm->p_log, node_guid, port_guid, block_num, p_gi,
+			      FILE_ID, OSM_LOG_DEBUG);
 
 	CL_PLOCK_EXCL_ACQUIRE(sm->p_lock);
 	p_port = osm_get_port_by_guid(sm->p_subn, port_guid);

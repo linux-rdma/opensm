@@ -88,9 +88,9 @@ static void dump_all_informs(IN const osm_subn_t * p_subn, IN osm_log_t * p_log)
 
 	p_list_item = cl_qlist_head(&p_subn->sa_infr_list);
 	while (p_list_item != cl_qlist_end(&p_subn->sa_infr_list)) {
-		osm_dump_inform_info(p_log,
-				     &((osm_infr_t *) p_list_item)->
-				     inform_record.inform_info, OSM_LOG_DEBUG);
+		osm_dump_inform_info_v2(p_log,
+				        &((osm_infr_t *) p_list_item)->
+				        inform_record.inform_info, FILE_ID, OSM_LOG_DEBUG);
 		p_list_item = cl_qlist_next(p_list_item);
 	}
 }
@@ -217,8 +217,8 @@ osm_infr_t *osm_infr_get_by_rec(IN osm_subn_t const *p_subn,
 	dump_all_informs(p_subn, p_log);
 
 	OSM_LOG(p_log, OSM_LOG_DEBUG, "Looking for Inform Record\n");
-	osm_dump_inform_info(p_log, &(p_infr_rec->inform_record.inform_info),
-			     OSM_LOG_DEBUG);
+	osm_dump_inform_info_v2(p_log, &(p_infr_rec->inform_record.inform_info),
+			        FILE_ID, OSM_LOG_DEBUG);
 	OSM_LOG(p_log, OSM_LOG_DEBUG, "InformInfo list size %d\n",
 		cl_qlist_count(&p_subn->sa_infr_list));
 
@@ -244,9 +244,9 @@ void osm_infr_insert_to_db(IN osm_subn_t * p_subn, IN osm_log_t * p_log,
 	dump_all_informs(p_subn, p_log);
 
 #if 0
-	osm_dump_inform_info(p_log,
-			     &(p_infr->inform_record.inform_info),
-			     OSM_LOG_DEBUG);
+	osm_dump_inform_info_v2(p_log,
+			        &(p_infr->inform_record.inform_info),
+			        FILE_ID, OSM_LOG_DEBUG);
 #endif
 
 	cl_qlist_insert_head(&p_subn->sa_infr_list, &p_infr->list_item);
@@ -270,8 +270,8 @@ void osm_infr_remove_from_db(IN osm_subn_t * p_subn, IN osm_log_t * p_log,
 			  gid_str, sizeof gid_str),
 		p_infr->inform_record.subscriber_enum);
 
-	osm_dump_inform_info(p_log, &(p_infr->inform_record.inform_info),
-			     OSM_LOG_DEBUG);
+	osm_dump_inform_info_v2(p_log, &(p_infr->inform_record.inform_info),
+			        FILE_ID, OSM_LOG_DEBUG);
 
 	cl_qlist_remove_item(&p_subn->sa_infr_list, &p_infr->list_item);
 	p_subn->p_osm->sa.dirty = TRUE;

@@ -656,9 +656,9 @@ static ib_api_status_t state_mgr_light_sweep_start(IN osm_sm_t * sm)
 						  (p_node)),
 					p_node->print_desc, port_num);
 
-				osm_dump_dr_path(sm->p_log,
-						 osm_physp_get_dr_path_ptr
-						 (p_physp), OSM_LOG_ERROR);
+				osm_dump_dr_path_v2(sm->p_log,
+						    osm_physp_get_dr_path_ptr
+						    (p_physp), FILE_ID, OSM_LOG_ERROR);
 
 				state_mgr_get_remote_port_info(sm, p_physp);
 			}

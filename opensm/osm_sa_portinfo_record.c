@@ -200,9 +200,9 @@ static void sa_pir_check_physp(IN osm_sa_t * sa, IN const osm_physp_t * p_physp,
 	p_comp_pi = &p_rcvd_rec->port_info;
 	p_pi = &p_physp->port_info;
 
-	osm_dump_port_info(sa->p_log, osm_node_get_node_guid(p_physp->p_node),
-			   p_physp->port_guid, p_physp->port_num,
-			   &p_physp->port_info, OSM_LOG_DEBUG);
+	osm_dump_port_info_v2(sa->p_log, osm_node_get_node_guid(p_physp->p_node),
+			      p_physp->port_guid, p_physp->port_num,
+			      &p_physp->port_info, FILE_ID, OSM_LOG_DEBUG);
 
 	/* We have to re-check the base_lid, since if the given
 	   base_lid in p_pi is zero - we are comparing on all ports. */
@@ -551,7 +551,7 @@ void osm_pir_rcv_process(IN void *ctx, IN void *data)
 	}
 
 	if (OSM_LOG_IS_ACTIVE_V2(sa->p_log, OSM_LOG_DEBUG))
-		osm_dump_portinfo_record(sa->p_log, p_rcvd_rec, OSM_LOG_DEBUG);
+		osm_dump_portinfo_record_v2(sa->p_log, p_rcvd_rec, FILE_ID, OSM_LOG_DEBUG);
 
 	cl_qlist_init(&rec_list);
 

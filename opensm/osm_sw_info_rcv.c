@@ -212,7 +212,7 @@ static void si_rcv_process_new(IN osm_sm_t * sm, IN osm_node_t * p_node,
 	p_smp = osm_madw_get_smp_ptr(p_madw);
 	p_si = ib_smp_get_payload_ptr(p_smp);
 
-	osm_dump_switch_info(sm->p_log, p_si, OSM_LOG_DEBUG);
+	osm_dump_switch_info_v2(sm->p_log, p_si, FILE_ID, OSM_LOG_DEBUG);
 
 	p_sw = osm_switch_new(p_node, p_madw);
 	if (p_sw == NULL) {
@@ -312,7 +312,7 @@ static boolean_t si_rcv_process_existing(IN osm_sm_t * sm,
 				"Commencing heavy sweep\n");
 			is_change_detected = TRUE;
 		} else if (ib_switch_info_get_state_change(p_si)) {
-			osm_dump_switch_info(sm->p_log, p_si, OSM_LOG_DEBUG);
+			osm_dump_switch_info_v2(sm->p_log, p_si, FILE_ID, OSM_LOG_DEBUG);
 			is_change_detected = TRUE;
 		}
 	}

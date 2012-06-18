@@ -462,8 +462,8 @@ static void pi_rcv_process_set(IN osm_sm_t * sm, IN osm_node_t * p_node,
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0F10: "
 				"Received error status for SetResp()\n");
 		}
-		osm_dump_port_info(sm->p_log, osm_node_get_node_guid(p_node),
-				   port_guid, port_num, p_pi, level);
+		osm_dump_port_info_v2(sm->p_log, osm_node_get_node_guid(p_node),
+				      port_guid, port_num, p_pi, FILE_ID, level);
 	}
 
 	OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
@@ -510,8 +510,8 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 	port_guid = p_context->port_guid;
 	node_guid = p_context->node_guid;
 
-	osm_dump_port_info(sm->p_log, node_guid, port_guid, port_num, p_pi,
-			   OSM_LOG_DEBUG);
+	osm_dump_port_info_v2(sm->p_log, node_guid, port_guid, port_num, p_pi,
+			      FILE_ID, OSM_LOG_DEBUG);
 
 	/* On receipt of client reregister, clear the reregister bit so
 	   reregistering won't be sent again and again */

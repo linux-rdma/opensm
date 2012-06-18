@@ -218,7 +218,7 @@ static void sa_mad_ctrl_process(IN osm_sa_mad_ctrl_t * p_ctrl,
 		OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 1A01: "
 			"Unsupported attribute 0x%X\n",
 			cl_ntoh16(p_sa_mad->attr_id));
-		osm_dump_sa_mad(p_ctrl->p_log, p_sa_mad, OSM_LOG_ERROR);
+		osm_dump_sa_mad_v2(p_ctrl->p_log, p_sa_mad, FILE_ID, OSM_LOG_ERROR);
 	}
 
 	if (msg_id != CL_DISP_MSGID_NONE) {
@@ -320,7 +320,7 @@ static void sa_mad_ctrl_rcv_callback(IN osm_madw_t * p_madw, IN void *context,
 	p_sa_mad = osm_madw_get_sa_mad_ptr(p_madw);
 
 	if (OSM_LOG_IS_ACTIVE_V2(p_ctrl->p_log, OSM_LOG_FRAMES))
-		osm_dump_sa_mad(p_ctrl->p_log, p_sa_mad, OSM_LOG_FRAMES);
+		osm_dump_sa_mad_v2(p_ctrl->p_log, p_sa_mad, FILE_ID, OSM_LOG_FRAMES);
 
 	/*
 	 * C15-0.1.5 - Table 185: SA Header - p884
@@ -417,8 +417,8 @@ static void sa_mad_ctrl_send_err_callback(IN void *context,
 		cl_ntoh16(p_madw->mad_addr.dest_lid),
 		cl_ntoh64(p_madw->p_mad->trans_id));
 
-	osm_dump_sa_mad(p_ctrl->p_log, osm_madw_get_sa_mad_ptr(p_madw),
-			OSM_LOG_ERROR);
+	osm_dump_sa_mad_v2(p_ctrl->p_log, osm_madw_get_sa_mad_ptr(p_madw),
+			   FILE_ID, OSM_LOG_ERROR);
 
 	/*
 	   An error occurred.  No response was received to a request MAD.

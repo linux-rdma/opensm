@@ -1560,7 +1560,7 @@ void osm_mpr_rcv_process(IN void *context, IN void *data)
 	}
 
 	if (OSM_LOG_IS_ACTIVE_V2(sa->p_log, OSM_LOG_DEBUG))
-		osm_dump_multipath_record(sa->p_log, p_mpr, OSM_LOG_DEBUG);
+		osm_dump_multipath_record_v2(sa->p_log, p_mpr, FILE_ID, OSM_LOG_DEBUG);
 
 	/* Validatg rate if supplied */
 	if ((p_sa_mad->comp_mask & IB_MPR_COMPMASK_RATESELEC) &&

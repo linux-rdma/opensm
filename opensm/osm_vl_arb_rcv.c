@@ -142,8 +142,8 @@ void osm_vla_rcv_process(IN void *context, IN void *data)
 		goto Exit;
 	}
 
-	osm_dump_vl_arb_table(sm->p_log, port_guid, block_num, port_num,
-			      p_vla_tbl, OSM_LOG_DEBUG);
+	osm_dump_vl_arb_table_v2(sm->p_log, port_guid, block_num, port_num,
+			         p_vla_tbl, FILE_ID, OSM_LOG_DEBUG);
 	osm_physp_set_vla_tbl(p_physp, p_vla_tbl, block_num);
 
 Exit:

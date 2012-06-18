@@ -1680,7 +1680,7 @@ void osm_pr_rcv_process(IN void *context, IN void *data)
 	}
 
 	if (OSM_LOG_IS_ACTIVE_V2(sa->p_log, OSM_LOG_DEBUG))
-		osm_dump_path_record(sa->p_log, p_pr, OSM_LOG_DEBUG);
+		osm_dump_path_record_v2(sa->p_log, p_pr, FILE_ID, OSM_LOG_DEBUG);
 
 	/* Validate rate if supplied */
 	if ((p_sa_mad->comp_mask & IB_PR_COMPMASK_RATESELEC) &&

@@ -206,8 +206,8 @@ static void nr_rcv_by_comp_mask(IN cl_map_item_t * p_map_item, IN void *context)
 
 	OSM_LOG_ENTER(p_ctxt->sa->p_log);
 
-	osm_dump_node_info(p_ctxt->sa->p_log, &p_node->node_info,
-			   OSM_LOG_DEBUG);
+	osm_dump_node_info_v2(p_ctxt->sa->p_log, &p_node->node_info,
+			      FILE_ID, OSM_LOG_DEBUG);
 
 	if (comp_mask & IB_NR_COMPMASK_LID)
 		match_lid = p_rcvd_rec->lid;
@@ -325,7 +325,7 @@ void osm_nr_rcv_process(IN void *ctx, IN void *data)
 	}
 
 	if (OSM_LOG_IS_ACTIVE_V2(sa->p_log, OSM_LOG_DEBUG))
-		osm_dump_node_record(sa->p_log, p_rcvd_rec, OSM_LOG_DEBUG);
+		osm_dump_node_record_v2(sa->p_log, p_rcvd_rec, FILE_ID, OSM_LOG_DEBUG);
 
 	cl_qlist_init(&rec_list);
 

@@ -449,7 +449,7 @@ static void smi_rcv_process_get_response(IN osm_sm_t * sm,
 	p_sm_tbl = &sm->p_subn->sm_guid_tbl;
 	port_guid = p_smi->guid;
 
-	osm_dump_sm_info(sm->p_log, p_smi, OSM_LOG_DEBUG);
+	osm_dump_sm_info_v2(sm->p_log, p_smi, FILE_ID, OSM_LOG_DEBUG);
 
 	/* Check that the sm_key of the found SM is the same as ours,
 	   or is zero. If not - OpenSM cannot continue with configuration!. */
@@ -535,7 +535,7 @@ static void smi_rcv_process_set_response(IN osm_sm_t * sm,
 	}
 
 	p_smi = ib_smp_get_payload_ptr(p_smp);
-	osm_dump_sm_info(sm->p_log, p_smi, OSM_LOG_DEBUG);
+	osm_dump_sm_info_v2(sm->p_log, p_smi, FILE_ID, OSM_LOG_DEBUG);
 
 	/* Check the AttributeModifier */
 	if (p_smp->attr_mod != IB_SMINFO_ATTR_MOD_HANDOVER) {

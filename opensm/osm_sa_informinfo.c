@@ -339,8 +339,8 @@ static void infr_rcv_process_get_method(osm_sa_t * sa, IN osm_madw_t * p_madw)
 	}
 
 	if (OSM_LOG_IS_ACTIVE_V2(sa->p_log, OSM_LOG_DEBUG))
-		osm_dump_inform_info_record(sa->p_log, p_rcvd_rec,
-					    OSM_LOG_DEBUG);
+		osm_dump_inform_info_record_v2(sa->p_log, p_rcvd_rec,
+					       FILE_ID, OSM_LOG_DEBUG);
 
 	cl_qlist_init(&rec_list);
 
@@ -404,8 +404,8 @@ static void infr_rcv_process_set_method(osm_sa_t * sa, IN osm_madw_t * p_madw)
 
 #if 0
 	if (OSM_LOG_IS_ACTIVE_V2(sa->p_log, OSM_LOG_DEBUG))
-		osm_dump_inform_info(sa->p_log, p_recvd_inform_info,
-				     OSM_LOG_DEBUG);
+		osm_dump_inform_info_v2(sa->p_log, p_recvd_inform_info,
+				        FILE_ID, OSM_LOG_DEBUG);
 #endif
 
 	/* Grab the lock */

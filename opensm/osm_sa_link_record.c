@@ -456,7 +456,7 @@ void osm_lr_rcv_process(IN void *context, IN void *data)
 	}
 
 	if (OSM_LOG_IS_ACTIVE_V2(sa->p_log, OSM_LOG_DEBUG))
-		osm_dump_link_record(sa->p_log, p_lr, OSM_LOG_DEBUG);
+		osm_dump_link_record_v2(sa->p_log, p_lr, FILE_ID, OSM_LOG_DEBUG);
 
 	cl_qlist_init(&lr_list);
 

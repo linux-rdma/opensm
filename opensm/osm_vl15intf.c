@@ -148,9 +148,9 @@ static void vl15_poller(IN void *p_ptr)
 			OSM_LOG(p_vl->p_log, OSM_LOG_DEBUG,
 				"Servicing p_madw = %p\n", p_madw);
 			if (OSM_LOG_IS_ACTIVE_V2(p_vl->p_log, OSM_LOG_FRAMES))
-				osm_dump_dr_smp(p_vl->p_log,
-						osm_madw_get_smp_ptr(p_madw),
-						OSM_LOG_FRAMES);
+				osm_dump_dr_smp_v2(p_vl->p_log,
+						   osm_madw_get_smp_ptr(p_madw),
+						   FILE_ID, OSM_LOG_FRAMES);
 
 			vl15_send_mad(p_vl, p_madw);
 		} else

@@ -914,7 +914,7 @@ static void mcmr_rcv_leave_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 
 	if (OSM_LOG_IS_ACTIVE_V2(sa->p_log, OSM_LOG_DEBUG)) {
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Dump of record\n");
-		osm_dump_mc_record(sa->p_log, &mcmember_rec, OSM_LOG_DEBUG);
+		osm_dump_mc_record_v2(sa->p_log, &mcmember_rec, FILE_ID, OSM_LOG_DEBUG);
 	}
 
 	CL_PLOCK_EXCL_ACQUIRE(sa->p_lock);
@@ -989,7 +989,7 @@ static void mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 
 	if (OSM_LOG_IS_ACTIVE_V2(sa->p_log, OSM_LOG_DEBUG)) {
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Dump of incoming record\n");
-		osm_dump_mc_record(sa->p_log, &mcmember_rec, OSM_LOG_DEBUG);
+		osm_dump_mc_record_v2(sa->p_log, &mcmember_rec, FILE_ID, OSM_LOG_DEBUG);
 	}
 
 	CL_PLOCK_EXCL_ACQUIRE(sa->p_lock);
@@ -1172,7 +1172,7 @@ static void mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 	CL_PLOCK_RELEASE(sa->p_lock);
 
 	if (OSM_LOG_IS_ACTIVE_V2(sa->p_log, OSM_LOG_DEBUG))
-		osm_dump_mc_record(sa->p_log, &mcmember_rec, OSM_LOG_DEBUG);
+		osm_dump_mc_record_v2(sa->p_log, &mcmember_rec, FILE_ID, OSM_LOG_DEBUG);
 
 	mcmr_rcv_respond(sa, p_madw, &mcmember_rec);
 

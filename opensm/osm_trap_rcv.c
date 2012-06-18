@@ -402,7 +402,7 @@ static void trap_rcv_process_request(IN osm_sm_t * sm,
 		log_trap_info(sm->p_log, p_ntci, source_lid, p_smp->trans_id);
 	}
 
-	osm_dump_notice(sm->p_log, p_ntci, OSM_LOG_VERBOSE);
+	osm_dump_notice_v2(sm->p_log, p_ntci, FILE_ID, OSM_LOG_VERBOSE);
 
 	p_physp = osm_get_physp_by_mad_addr(sm->p_log, sm->p_subn,
 					    &tmp_madw.mad_addr);

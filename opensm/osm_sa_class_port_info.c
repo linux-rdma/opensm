@@ -173,7 +173,7 @@ static void cpi_rcv_respond(IN osm_sa_t * sa, IN const osm_madw_t * p_madw)
 	p_resp_cpi->cap_mask = cl_hton16(p_resp_cpi->cap_mask);
 
 	if (OSM_LOG_IS_ACTIVE_V2(sa->p_log, OSM_LOG_FRAMES))
-		osm_dump_sa_mad(sa->p_log, p_resp_sa_mad, OSM_LOG_FRAMES);
+		osm_dump_sa_mad_v2(sa->p_log, p_resp_sa_mad, FILE_ID, OSM_LOG_FRAMES);
 
 	osm_sa_send(sa, p_resp_madw, FALSE);
 

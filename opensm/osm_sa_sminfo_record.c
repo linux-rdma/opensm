@@ -213,7 +213,7 @@ void osm_smir_rcv_process(IN void *ctx, IN void *data)
 	}
 
 	if (OSM_LOG_IS_ACTIVE_V2(sa->p_log, OSM_LOG_DEBUG))
-		osm_dump_sm_info_record(sa->p_log, p_rcvd_rec, OSM_LOG_DEBUG);
+		osm_dump_sm_info_record_v2(sa->p_log, p_rcvd_rec, FILE_ID, OSM_LOG_DEBUG);
 
 	p_smi = &p_rcvd_rec->sm_info;
 

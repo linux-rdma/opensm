@@ -130,8 +130,8 @@ void osm_pkey_rcv_process(IN void *context, IN void *data)
 		goto Exit;
 	}
 
-	osm_dump_pkey_block(sm->p_log, port_guid, block_num, port_num,
-			    p_pkey_tbl, OSM_LOG_DEBUG);
+	osm_dump_pkey_block_v2(sm->p_log, port_guid, block_num, port_num,
+			       p_pkey_tbl, FILE_ID, OSM_LOG_DEBUG);
 
 	osm_physp_set_pkey_tbl(sm->p_log, sm->p_subn,
 			       p_physp, p_pkey_tbl, block_num);
