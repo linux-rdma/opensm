@@ -95,6 +95,9 @@ ib_api_status_t osm_req_get(IN osm_sm_t * sm, IN const osm_dr_path_t * p_path,
 
 	tid = cl_hton64((uint64_t) cl_atomic_inc(&sm->sm_trans_id)
 						 & (uint64_t)(0xFFFFFFFF));
+	if (tid == 0)
+		tid = cl_hton64((uint64_t) cl_atomic_inc(&sm->sm_trans_id)
+							 & (uint64_t)(0xFFFFFFFF));
 
 	OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 		"Getting %s (0x%X), modifier 0x%X, TID 0x%" PRIx64 "\n",
@@ -164,6 +167,9 @@ osm_madw_t *osm_prepare_req_set(IN osm_sm_t * sm, IN const osm_dr_path_t * p_pat
 
 	tid = cl_hton64((uint64_t) cl_atomic_inc(&sm->sm_trans_id)
 						 & (uint64_t)(0xFFFFFFFF));
+	if (tid == 0)
+		tid = cl_hton64((uint64_t) cl_atomic_inc(&sm->sm_trans_id)
+							 & (uint64_t)(0xFFFFFFFF));
 
 	OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 		"Setting %s (0x%X), modifier 0x%X, TID 0x%" PRIx64 "\n",
@@ -281,6 +287,10 @@ int osm_send_trap144(osm_sm_t * sm, ib_net16_t local)
 	smp->method = IB_MAD_METHOD_TRAP;
 	smp->trans_id = cl_hton64((uint64_t) cl_atomic_inc(&sm->sm_trans_id)
 							   & (uint64_t)(0xFFFFFFFF));
+	if (smp->trans_id == 0)
+		smp->trans_id = cl_hton64((uint64_t) cl_atomic_inc(&sm->sm_trans_id)
+								   & (uint64_t)(0xFFFFFFFF));
+
 	smp->attr_id = IB_MAD_ATTR_NOTICE;
 
 	ntc = (ib_mad_notice_attr_t *) smp->data;

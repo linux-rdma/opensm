@@ -387,7 +387,12 @@ static ib_api_status_t perfmgr_send_pc_mad(osm_perfmgr_t * perfmgr,
 	pm_mad->header.status = 0;
 	pm_mad->header.class_spec = 0;
 	pm_mad->header.trans_id =
-	    cl_hton64((uint64_t) cl_atomic_inc(&perfmgr->trans_id));
+	    cl_hton64((uint64_t) cl_atomic_inc(&perfmgr->trans_id) &
+		      (uint64_t) (0xFFFFFFFF));
+	if (perfmgr->trans_id == 0)
+		pm_mad->header.trans_id =
+		    cl_hton64((uint64_t) cl_atomic_inc(&perfmgr->trans_id) &
+			      (uint64_t) (0xFFFFFFFF));
 	pm_mad->header.attr_id = IB_MAD_ATTR_PORT_CNTRS;
 	pm_mad->header.resv = 0;
 	pm_mad->header.attr_mod = 0;

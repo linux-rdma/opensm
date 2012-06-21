@@ -297,6 +297,7 @@ static ib_api_status_t send_report(IN osm_infr_t * p_infr_rec,	/* the informinfo
 	static atomic32_t trap_fwd_trans_id = 0x02DAB000;
 	ib_api_status_t status = IB_SUCCESS;
 	osm_log_t *p_log = p_infr_rec->sa->p_log;
+	ib_net64_t tid;
 
 	OSM_LOG_ENTER(p_log);
 
@@ -323,10 +324,14 @@ static ib_api_status_t send_report(IN osm_infr_t * p_infr_rec,	/* the informinfo
 	p_report_madw->resp_expected = TRUE;
 
 	/* advance trap trans id (cant simply ++ on some systems inside ntoh) */
+	tid = cl_hton64((uint64_t) cl_atomic_inc(&trap_fwd_trans_id) &
+			(uint64_t) (0xFFFFFFFF));
+	if (trap_fwd_trans_id == 0)
+		tid = cl_hton64((uint64_t) cl_atomic_inc(&trap_fwd_trans_id) &
+				(uint64_t) (0xFFFFFFFF));
 	p_mad = osm_madw_get_mad_ptr(p_report_madw);
 	ib_mad_init_new(p_mad, IB_MCLASS_SUBN_ADM, 2, IB_MAD_METHOD_REPORT,
-			cl_hton64((uint64_t) cl_atomic_inc(&trap_fwd_trans_id)),
-			IB_MAD_ATTR_NOTICE, 0);
+			tid, IB_MAD_ATTR_NOTICE, 0);
 
 	p_sa_mad = osm_madw_get_sa_mad_ptr(p_report_madw);
 
