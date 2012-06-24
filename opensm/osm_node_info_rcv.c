@@ -624,6 +624,17 @@ static void ni_rcv_process_new(IN osm_sm_t * sm, IN const osm_madw_t * p_madw)
 		ib_get_node_type_str(p_ni->node_type),
 		cl_ntoh64(p_ni->node_guid), cl_ntoh64(p_smp->trans_id));
 
+	if (port_num > p_ni->num_ports) {
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D0A: "
+			"New %s node GUID 0x%" PRIx64 "is non-compliant and "
+			"is being ignored since the "
+			"local port num %u > num ports %u\n",
+			ib_get_node_type_str(p_ni->node_type),
+			cl_ntoh64(p_ni->node_guid), port_num,
+			p_ni->num_ports);
+		goto Exit;
+	}
+
 	p_node = osm_node_new(p_madw);
 	if (p_node == NULL) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D07: "
