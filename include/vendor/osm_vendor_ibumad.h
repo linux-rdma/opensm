@@ -140,6 +140,7 @@ typedef struct _umad_match {
 	ib_net64_t tid;
 	void *v;
 	uint32_t version;
+	uint8_t mgmt_class;
 } umad_match_t;
 
 #define DEFAULT_OSM_UMAD_MAX_PENDING	1000
