@@ -111,7 +111,8 @@ static void state_mgr_reset_switch_count(IN cl_map_item_t * p_map_item,
 {
 	osm_switch_t *p_sw = (osm_switch_t *) p_map_item;
 
-	p_sw->need_update = 1;
+	if (p_sw->max_lid_ho != 0)
+		p_sw->need_update = 1;
 }
 
 static void state_mgr_get_sw_info(IN cl_map_item_t * p_object, IN void *context)
