@@ -781,6 +781,17 @@ static void ni_rcv_process_existing(IN osm_sm_t * sm, IN osm_node_t * p_node,
 		cl_ntoh64(p_ni->node_guid),
 		cl_ntoh64(p_smp->trans_id), p_node->discovery_count);
 
+	if (port_num > p_ni->num_ports) {
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D0C: "
+			"Existing %s node GUID 0x%" PRIx64 "is non-compliant "
+			"and is being ignored since the "
+			"local port num %u > num ports %u\n",
+			ib_get_node_type_str(p_ni->node_type),
+			cl_ntoh64(p_ni->node_guid), port_num,
+			p_ni->num_ports);
+		goto Exit;
+	}
+
 	/*
 	   If we haven't already encountered this existing node
 	   on this particular sweep, then process further.
@@ -806,6 +817,7 @@ static void ni_rcv_process_existing(IN osm_sm_t * sm, IN osm_node_t * p_node,
 
 	ni_rcv_set_links(sm, p_node, port_num, p_ni_context);
 
+Exit:
 	OSM_LOG_EXIT(sm->p_log);
 }
 
