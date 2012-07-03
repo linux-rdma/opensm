@@ -699,6 +699,55 @@ static void dump_node_mr(db_node_t * node, FILE * fp)
 	}
 }
 
+static void dump_hr_dc(FILE *fp, uint64_t val64, int data)
+{
+	char *unit = "";
+	uint64_t tmp = val64;
+	float val = 0.0;
+	int ui = 0;
+	int div = 1;
+
+	tmp /= 1024;
+	while (tmp) {
+		ui++;
+		tmp /= 1024;
+		div *= 1024;
+	}
+
+	val = (float)(val64);
+	if (data) {
+		val *= 4;
+		if (val/div > 1024) {
+			ui++;
+			div *= 1024;
+		}
+	}
+	val /= div;
+
+	switch (ui) {
+		case 1:
+			unit = "K";
+			break;
+		case 2:
+			unit = "M";
+			break;
+		case 3:
+			unit = "G";
+			break;
+		case 4:
+			unit = "T";
+			break;
+		case 5:
+			unit = "P";
+			break;
+		case 6:
+			unit = "E";
+			break;
+	}
+
+	fprintf(fp, " (%5.3f%s%s)\n", val, unit, data ? "B" : "");
+}
+
 /**********************************************************************
  * Output a human readable output of the port counters
  **********************************************************************/
@@ -738,15 +787,7 @@ static void dump_node_hr(db_node_t * node, FILE * fp, char *port)
 			"     rcv_constraint_err   : %" PRIu64 "\n"
 			"     link_integrity_err   : %" PRIu64 "\n"
 			"     buf_overrun_err      : %" PRIu64 "\n"
-			"     vl15_dropped         : %" PRIu64 "\n"
-			"     xmit_data            : %" PRIu64 "\n"
-			"     rcv_data             : %" PRIu64 "\n"
-			"     xmit_pkts            : %" PRIu64 "\n"
-			"     rcv_pkts             : %" PRIu64 "\n"
-			"     unicast_xmit_pkts    : %" PRIu64 "\n"
-			"     unicast_rcv_pkts     : %" PRIu64 "\n"
-			"     multicast_xmit_pkts  : %" PRIu64 "\n"
-			"     multicast_rcv_pkts   : %" PRIu64 "\n",
+			"     vl15_dropped         : %" PRIu64 "\n",
 			node->node_name,
 			node->node_guid,
 			node->active ? "TRUE":"FALSE",
@@ -763,15 +804,33 @@ static void dump_node_hr(db_node_t * node, FILE * fp, char *port)
 			node->ports[i].err_total.rcv_constraint_err,
 			node->ports[i].err_total.link_integrity,
 			node->ports[i].err_total.buffer_overrun,
-			node->ports[i].err_total.vl15_dropped,
-			node->ports[i].dc_total.xmit_data,
-			node->ports[i].dc_total.rcv_data,
-			node->ports[i].dc_total.xmit_pkts,
-			node->ports[i].dc_total.rcv_pkts,
-			node->ports[i].dc_total.unicast_xmit_pkts,
-			node->ports[i].dc_total.unicast_rcv_pkts,
-			node->ports[i].dc_total.multicast_xmit_pkts,
+			node->ports[i].err_total.vl15_dropped);
+
+		fprintf(fp, "     xmit_data            : %" PRIu64,
+			node->ports[i].dc_total.xmit_data);
+		dump_hr_dc(fp, node->ports[i].dc_total.xmit_data, 1);
+		fprintf(fp, "     rcv_data             : %" PRIu64,
+			node->ports[i].dc_total.rcv_data);
+		dump_hr_dc(fp, node->ports[i].dc_total.rcv_data, 1);
+		fprintf(fp, "     xmit_pkts            : %" PRIu64,
+			node->ports[i].dc_total.xmit_pkts);
+		dump_hr_dc(fp, node->ports[i].dc_total.xmit_pkts, 0);
+		fprintf(fp, "     rcv_pkts             : %" PRIu64,
+			node->ports[i].dc_total.rcv_pkts);
+		dump_hr_dc(fp, node->ports[i].dc_total.rcv_pkts, 0);
+		fprintf(fp, "     unicast_xmit_pkts    : %" PRIu64,
+			node->ports[i].dc_total.unicast_xmit_pkts);
+		dump_hr_dc(fp, node->ports[i].dc_total.unicast_xmit_pkts, 0);
+		fprintf(fp, "     unicast_rcv_pkts     : %" PRIu64,
+			node->ports[i].dc_total.unicast_rcv_pkts);
+		dump_hr_dc(fp, node->ports[i].dc_total.unicast_rcv_pkts, 0);
+		fprintf(fp, "     multicast_xmit_pkts  : %" PRIu64,
+			node->ports[i].dc_total.multicast_xmit_pkts);
+		dump_hr_dc(fp, node->ports[i].dc_total.multicast_xmit_pkts, 0);
+		fprintf(fp, "     multicast_rcv_pkts   : %" PRIu64,
 			node->ports[i].dc_total.multicast_rcv_pkts);
+		dump_hr_dc(fp, node->ports[i].dc_total.multicast_rcv_pkts, 0);
+
 	}
 }
 
