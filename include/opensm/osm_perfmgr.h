@@ -138,6 +138,7 @@ typedef struct osm_perfmgr {
 	atomic32_t outstanding_queries;	/* this along with sig_query */
 	cl_event_t sig_query;	/* will throttle our queries */
 	uint32_t max_outstanding_queries;
+	boolean_t ignore_cas;
 	cl_qmap_t monitored_map;	/* map the nodes being tracked */
 	monitored_node_t *remove_list;
 	ib_net64_t port_guid;

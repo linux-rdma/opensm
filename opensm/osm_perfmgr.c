@@ -438,6 +438,11 @@ static void collect_guids(cl_map_item_t * p_map_item, void *context)
 
 	if (cl_qmap_get(&pm->monitored_map, node_guid)
 	    == cl_qmap_end(&pm->monitored_map)) {
+
+		if (pm->ignore_cas &&
+		    (node->node_info.node_type == IB_NODE_TYPE_CA))
+			goto Exit;
+
 		/* if not already in map add it */
 		num_ports = osm_node_get_num_physp(node);
 		mon_node = malloc(sizeof(*mon_node) +
@@ -1349,6 +1354,7 @@ ib_api_status_t osm_perfmgr_init(osm_perfmgr_t * pm, osm_opensm_t * osm,
 	    p_opt->perfmgr ? PERFMGR_STATE_ENABLED : PERFMGR_STATE_DISABLE;
 	pm->sweep_time_s = p_opt->perfmgr_sweep_time_s;
 	pm->max_outstanding_queries = p_opt->perfmgr_max_outstanding_queries;
+	pm->ignore_cas = p_opt->perfmgr_ignore_cas;
 	pm->osm = osm;
 	pm->local_port = -1;
 
