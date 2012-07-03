@@ -108,6 +108,11 @@ static inline perfmgr_db_err_t bad_node_port(db_node_t * node, uint8_t port)
 	return PERFMGR_EVENT_DB_SUCCESS;
 }
 
+static inline void mark_port_valid(db_node_t * node, uint8_t port)
+{
+	node->ports[port].valid = TRUE;
+}
+
 /** =========================================================================
  */
 static db_node_t *malloc_node(uint64_t guid, boolean_t esp0,
@@ -131,6 +136,7 @@ static db_node_t *malloc_node(uint64_t guid, boolean_t esp0,
 		rc->ports[i].last_reset = cur_time;
 		rc->ports[i].err_previous.time = cur_time;
 		rc->ports[i].dc_previous.time = cur_time;
+		rc->ports[i].valid = FALSE;
 	}
 	snprintf(rc->node_name, sizeof(rc->node_name), "%s", name);
 
@@ -270,6 +276,8 @@ perfmgr_db_add_err_reading(perfmgr_db_t * db, uint64_t guid, uint8_t port,
 	node = get(db, guid);
 	if ((rc = bad_node_port(node, port)) != PERFMGR_EVENT_DB_SUCCESS)
 		goto Exit;
+
+	mark_port_valid(node, port);
 
 	p_port = &(node->ports[port]);
 	previous = &(node->ports[port].err_previous);
@@ -412,6 +420,8 @@ perfmgr_db_add_dc_reading(perfmgr_db_t * db, uint64_t guid, uint8_t port,
 	node = get(db, guid);
 	if ((rc = bad_node_port(node, port)) != PERFMGR_EVENT_DB_SUCCESS)
 		goto Exit;
+
+	mark_port_valid(node, port);
 
 	p_port = &node->ports[port];
 	previous = &node->ports[port].dc_previous;
@@ -579,6 +589,10 @@ static void dump_node_mr(db_node_t * node, FILE * fp)
 		"multicast_rcv_pkts");
 	for (i = (node->esp0) ? 0 : 1; i < node->num_ports; i++) {
 		char *since = ctime(&node->ports[i].last_reset);
+
+		if (!node->ports[i].valid)
+			continue;
+
 		since[strlen(since) - 1] = '\0';	/* remove \n */
 
 		fprintf(fp,
@@ -622,6 +636,10 @@ static void dump_node_hr(db_node_t * node, FILE * fp)
 	fprintf(fp, "\n");
 	for (i = (node->esp0) ? 0 : 1; i < node->num_ports; i++) {
 		char *since = ctime(&node->ports[i].last_reset);
+
+		if (!node->ports[i].valid)
+			continue;
+
 		since[strlen(since) - 1] = '\0';	/* remove \n */
 
 		fprintf(fp, "\"%s\" 0x%" PRIx64 " port %d (Since %s)\n"

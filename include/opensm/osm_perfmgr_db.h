@@ -126,6 +126,7 @@ typedef struct db_port {
 	perfmgr_db_data_cnt_reading_t dc_total;
 	perfmgr_db_data_cnt_reading_t dc_previous;
 	time_t last_reset;
+	boolean_t valid;
 } db_port_t;
 
 /** =========================================================================
