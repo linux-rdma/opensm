@@ -1471,11 +1471,20 @@ static void perfmgr_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 			p_cmd = next_token(p_last);
 			if (p_cmd) {
 				uint16_t time_s = atoi(p_cmd);
-				osm_perfmgr_set_sweep_time_s(&p_osm->perfmgr,
-							     time_s);
+				if (time_s < 1)
+					fprintf(out,
+						"sweep_time requires a "
+						"positive time period "
+						"(in seconds) to be "
+						"specified\n");
+				else
+					osm_perfmgr_set_sweep_time_s(
+							&p_osm->perfmgr,
+							time_s);
 			} else {
 				fprintf(out,
-					"sweep_time requires a time period (in seconds) to be specified\n");
+					"sweep_time requires a time period "
+					"(in seconds) to be specified\n");
 			}
 		} else {
 			fprintf(out, "\"%s\" option not found\n", p_cmd);
