@@ -105,6 +105,7 @@ static inline perfmgr_db_err_t bad_node_port(db_node_t * node, uint8_t port)
 		return PERFMGR_EVENT_DB_GUIDNOTFOUND;
 	if (port >= node->num_ports || (!node->esp0 && port == 0))
 		return PERFMGR_EVENT_DB_PORTNOTFOUND;
+
 	return PERFMGR_EVENT_DB_SUCCESS;
 }
 
@@ -139,6 +140,7 @@ static db_node_t *malloc_node(uint64_t guid, boolean_t esp0,
 		rc->ports[i].valid = FALSE;
 	}
 	snprintf(rc->node_name, sizeof(rc->node_name), "%s", name);
+	rc->active = FALSE;
 
 	return rc;
 
@@ -206,6 +208,62 @@ perfmgr_db_delete_entry(perfmgr_db_t * db, uint64_t guid)
 	free_node(pc_node);
 	return(PERFMGR_EVENT_DB_SUCCESS);
 }
+
+perfmgr_db_err_t
+perfmgr_db_delete_inactive(perfmgr_db_t * db, unsigned *cnt)
+{
+	perfmgr_db_err_t rc = PERFMGR_EVENT_DB_SUCCESS;
+	int i = 0;
+	int num = 0;
+	uint64_t * guid_list;
+	cl_map_item_t * p_map_item = cl_qmap_head(&db->pc_data);
+
+	if (p_map_item == cl_qmap_end(&db->pc_data)) {
+		rc = PERFMGR_EVENT_DB_SUCCESS;
+		goto Done;
+	}
+
+	while (p_map_item != cl_qmap_end(&db->pc_data)) {
+		db_node_t *n = (db_node_t *)p_map_item;
+		if (n->active == FALSE) {
+			guid_list = realloc(guid_list,
+					sizeof(*guid_list) * (num+1));
+			if (!guid_list) {
+				num = 0;
+				rc = PERFMGR_EVENT_DB_NOMEM;
+				goto Done;
+			}
+			guid_list[num] = n->node_guid;
+			num++;
+		}
+		p_map_item = cl_qmap_next(p_map_item);
+	}
+
+	for (i = 0 ; i < num; i++)
+		perfmgr_db_delete_entry(db, guid_list[i]);
+
+	free(guid_list);
+
+Done:
+	if (cnt)
+		*cnt = num;
+
+	return(rc);
+}
+
+perfmgr_db_err_t
+perfmgr_db_mark_active(perfmgr_db_t *db, uint64_t guid, boolean_t active)
+{
+	db_node_t *node = NULL;
+
+	cl_plock_excl_acquire(&db->lock);
+	node = get(db, guid);
+	if (node)
+		node->active = active;
+	cl_plock_release(&db->lock);
+	return (PERFMGR_EVENT_DB_SUCCESS);
+}
+
 
 /**********************************************************************
  * Dump a reading vs the previous reading to stdout
@@ -575,7 +633,7 @@ static void dump_node_mr(db_node_t * node, FILE * fp)
 {
 	int i = 0;
 
-	fprintf(fp, "\nName\tGUID\tPort\tLast Reset\t"
+	fprintf(fp, "\nName\tGUID\tActive\tPort\tLast Reset\t"
 		"%s\t%s\t"
 		"%s\t%s\t%s\t%s\t%s\t%s\t%s\t"
 		"%s\t%s\t%s\t%s\t%s\t%s\t%s\t"
@@ -609,13 +667,15 @@ static void dump_node_mr(db_node_t * node, FILE * fp)
 		since[strlen(since) - 1] = '\0';	/* remove \n */
 
 		fprintf(fp,
-			"%s\t0x%" PRIx64 "\t%d\t%s\t%" PRIu64 "\t%" PRIu64 "\t"
+			"%s\t0x%" PRIx64 "\t%s\t%d\t%s\t%" PRIu64 "\t%" PRIu64 "\t"
 			"%" PRIu64 "\t%" PRIu64 "\t%" PRIu64 "\t%" PRIu64 "\t"
 			"%" PRIu64 "\t%" PRIu64 "\t%" PRIu64 "\t" "%" PRIu64
 			"\t%" PRIu64 "\t%" PRIu64 "\t" "%" PRIu64 "\t%" PRIu64
 			"\t%" PRIu64 "\t%" PRIu64 "\t" "%" PRIu64 "\t%" PRIu64
 			"\t%" PRIu64 "\t%" PRIu64 "\n", node->node_name,
-			node->node_guid, i, since,
+			node->node_guid,
+			node->active ? "TRUE" : "FALSE",
+			i, since,
 			node->ports[i].err_total.symbol_err_cnt,
 			node->ports[i].err_total.link_err_recover,
 			node->ports[i].err_total.link_downed,
@@ -655,7 +715,7 @@ static void dump_node_hr(db_node_t * node, FILE * fp)
 
 		since[strlen(since) - 1] = '\0';	/* remove \n */
 
-		fprintf(fp, "\"%s\" 0x%" PRIx64 " port %d (Since %s)\n"
+		fprintf(fp, "\"%s\" 0x%" PRIx64 " active %s port %d (Since %s)\n"
 			"     symbol_err_cnt       : %" PRIu64 "\n"
 			"     link_err_recover     : %" PRIu64 "\n"
 			"     link_downed          : %" PRIu64 "\n"
@@ -678,6 +738,7 @@ static void dump_node_hr(db_node_t * node, FILE * fp)
 			"     multicast_rcv_pkts   : %" PRIu64 "\n",
 			node->node_name,
 			node->node_guid,
+			node->active ? "TRUE":"FALSE",
 			i,
 			since,
 			node->ports[i].err_total.symbol_err_cnt,

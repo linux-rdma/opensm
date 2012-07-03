@@ -239,7 +239,7 @@ static void help_update_desc(FILE *out, int detail)
 static void help_perfmgr(FILE * out, int detail)
 {
 	fprintf(out,
-		"perfmgr [enable|disable|clear_counters|dump_counters|print_counters|dump_redir|clear_redir|set_rm_nodes|clear_rm_nodes|sweep_time[seconds]]\n");
+		"perfmgr [enable|disable|clear_counters|dump_counters|print_counters|dump_redir|clear_redir|set_rm_nodes|clear_rm_nodes|clear_inactive|sweep_time[seconds]]\n");
 	if (detail) {
 		fprintf(out,
 			"perfmgr -- print the performance manager state\n");
@@ -260,6 +260,8 @@ static void help_perfmgr(FILE * out, int detail)
 		fprintf(out,
 			"   [[set|clear]_rm_nodes] -- enable/disable the removal of \"inactive\" nodes from the DB\n"
 			"                             Inactive nodes are those which no longer appear on the fabric\n");
+		fprintf(out,
+			"   [clear_inactive] -- Delete inactive nodes from the DB\n");
 	}
 }
 #endif				/* ENABLE_OSM_PERF_MGR */
@@ -1459,7 +1461,11 @@ static void perfmgr_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 				osm_perfmgr_dump_counters(&p_osm->perfmgr,
 							  PERFMGR_EVENT_DB_DUMP_HR);
 			}
+		} else if (strcmp(p_cmd, "clear_inactive") == 0) {
+			unsigned cnt = osm_perfmgr_delete_inactive(&p_osm->perfmgr);
+			fprintf(out, "Removed %u nodes from Database\n", cnt);
 		} else if (strcmp(p_cmd, "print_counters") == 0) {
+			char *port = NULL;
 			p_cmd = name_token(p_last);
 			if (p_cmd) {
 				osm_perfmgr_print_counters(&p_osm->perfmgr,

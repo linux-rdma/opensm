@@ -235,6 +235,13 @@ inline static uint16_t osm_perfmgr_get_sweep_time_s(osm_perfmgr_t * p_perfmgr)
 	return p_perfmgr->sweep_time_s;
 }
 
+inline static unsigned osm_perfmgr_delete_inactive(osm_perfmgr_t * pm)
+{
+	unsigned rc;
+	perfmgr_db_delete_inactive(pm->db, &rc);
+	return (rc);
+}
+
 void osm_perfmgr_clear_counters(osm_perfmgr_t * p_perfmgr);
 void osm_perfmgr_dump_counters(osm_perfmgr_t * p_perfmgr,
 			       perfmgr_db_dump_t dump_type);

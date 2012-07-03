@@ -148,6 +148,8 @@ static void remove_marked_nodes(osm_perfmgr_t * pm)
 
 		if (pm->rm_nodes)
 			perfmgr_db_delete_entry(pm->db, pm->remove_list->guid);
+		else
+			perfmgr_db_mark_active(pm->db, pm->remove_list->guid, FALSE);
 
 		if (pm->remove_list->name)
 			free(pm->remove_list->name);
@@ -523,6 +525,8 @@ static void perfmgr_query_counters(cl_map_item_t * p_map_item, void *context)
 			strerror(errno));
 		goto Exit;
 	}
+
+	perfmgr_db_mark_active(pm->db, node_guid, TRUE);
 
 	/* issue the query for each port */
 	for (port = mon_node->esp0 ? 0 : 1; port < num_ports; port++) {
