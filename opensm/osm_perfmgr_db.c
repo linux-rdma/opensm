@@ -788,6 +788,25 @@ static void db_dump(cl_map_item_t * const p_map_item, void *context)
 }
 
 /**********************************************************************
+ * print all node data to fp
+ **********************************************************************/
+void
+perfmgr_db_print_all(perfmgr_db_t * db, FILE *fp)
+{
+	cl_map_item_t *item;
+	db_node_t *node;
+
+	cl_plock_acquire(&db->lock);
+	item = cl_qmap_head(&db->pc_data);
+	while (item != cl_qmap_end(&db->pc_data)) {
+		node = (db_node_t *)item;
+		dump_node_hr(node, fp);
+		item = cl_qmap_next(item);
+	}
+	cl_plock_release(&db->lock);
+}
+
+/**********************************************************************
  * print node data to fp
  **********************************************************************/
 void

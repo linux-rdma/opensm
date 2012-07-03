@@ -252,7 +252,8 @@ static void help_perfmgr(FILE * out, int detail)
 		fprintf(out,
 			"   [dump_counters [mach]] -- dump the counters (optionally in [mach]ine readable format)\n");
 		fprintf(out,
-			"   [print_counters <nodename|nodeguid>] -- print the counters for the specified node\n");
+			"   [print_counters [<nodename|nodeguid>]] -- print the internal counters\n"
+			"                                             Optionaly limit output by name or guid\n");
 		fprintf(out,
 			"   [dump_redir [<nodename|nodeguid>]] -- dump the redirection table\n");
 		fprintf(out,
@@ -1467,13 +1468,8 @@ static void perfmgr_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 		} else if (strcmp(p_cmd, "print_counters") == 0) {
 			char *port = NULL;
 			p_cmd = name_token(p_last);
-			if (p_cmd) {
-				osm_perfmgr_print_counters(&p_osm->perfmgr,
-							   p_cmd, out);
-			} else {
-				fprintf(out,
-					"print_counters requires a node name or node GUID to be specified\n");
-			}
+			osm_perfmgr_print_counters(&p_osm->perfmgr, p_cmd,
+						   out);
 		} else if (strcmp(p_cmd, "dump_redir") == 0) {
 			p_cmd = name_token(p_last);
 			dump_redir(p_osm, p_cmd, out);

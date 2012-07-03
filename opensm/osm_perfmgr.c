@@ -1432,11 +1432,14 @@ void osm_perfmgr_dump_counters(osm_perfmgr_t * pm, perfmgr_db_dump_t dump_type)
  *******************************************************************/
 void osm_perfmgr_print_counters(osm_perfmgr_t * pm, char *nodename, FILE * fp)
 {
-	char *end = NULL;
-	uint64_t guid = strtoull(nodename, &end, 0);
-	if (nodename + strlen(nodename) != end)
-		perfmgr_db_print_by_name(pm->db, nodename, fp);
-	else
-		perfmgr_db_print_by_guid(pm->db, guid, fp);
+	if (nodename) {
+		char *end = NULL;
+		uint64_t guid = strtoull(nodename, &end, 0);
+		if (nodename + strlen(nodename) != end)
+			perfmgr_db_print_by_name(pm->db, nodename, fp);
+		else
+			perfmgr_db_print_by_guid(pm->db, guid, fp);
+	} else
+		perfmgr_db_print_all(pm->db, fp);
 }
 #endif				/* ENABLE_OSM_PERF_MGR */
