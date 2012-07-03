@@ -146,6 +146,9 @@ static void remove_marked_nodes(osm_perfmgr_t * pm)
 		cl_qmap_remove_item(&pm->monitored_map,
 				    (cl_map_item_t *) (pm->remove_list));
 
+		if (pm->rm_nodes)
+			perfmgr_db_delete_entry(pm->db, pm->remove_list->guid);
+
 		if (pm->remove_list->name)
 			free(pm->remove_list->name);
 		free(pm->remove_list);
@@ -1381,6 +1384,7 @@ ib_api_status_t osm_perfmgr_init(osm_perfmgr_t * pm, osm_opensm_t * osm,
 	if (pm->state == PERFMGR_STATE_ENABLED)
 		cl_timer_start(&pm->sweep_timer, pm->sweep_time_s * 1000);
 
+	pm->rm_nodes = p_opt->perfmgr_rm_nodes;
 	status = IB_SUCCESS;
 Exit:
 	OSM_LOG_EXIT(pm->log);

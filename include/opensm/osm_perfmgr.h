@@ -143,6 +143,7 @@ typedef struct osm_perfmgr {
 	monitored_node_t *remove_list;
 	ib_net64_t port_guid;
 	int16_t local_port;
+	int rm_nodes;
 } osm_perfmgr_t;
 /*
 * FIELDS
@@ -178,6 +179,16 @@ inline static void osm_perfmgr_set_state(osm_perfmgr_t * p_perfmgr,
 inline static osm_perfmgr_state_t osm_perfmgr_get_state(osm_perfmgr_t * perfmgr)
 {
 	return perfmgr->state;
+}
+
+inline static void osm_perfmgr_set_rm_nodes(osm_perfmgr_t *perfmgr,
+					    int rm_nodes)
+{
+	perfmgr->rm_nodes = rm_nodes;
+}
+inline static int osm_perfmgr_get_rm_nodes(osm_perfmgr_t *perfmgr)
+{
+	return perfmgr->rm_nodes;
 }
 
 inline static const char *osm_perfmgr_get_state_str(osm_perfmgr_t * p_perfmgr)

@@ -239,7 +239,7 @@ static void help_update_desc(FILE *out, int detail)
 static void help_perfmgr(FILE * out, int detail)
 {
 	fprintf(out,
-		"perfmgr [enable|disable|clear_counters|dump_counters|print_counters|dump_redir|clear_redir|sweep_time[seconds]]\n");
+		"perfmgr [enable|disable|clear_counters|dump_counters|print_counters|dump_redir|clear_redir|set_rm_nodes|clear_rm_nodes|sweep_time[seconds]]\n");
 	if (detail) {
 		fprintf(out,
 			"perfmgr -- print the performance manager state\n");
@@ -257,6 +257,9 @@ static void help_perfmgr(FILE * out, int detail)
 			"   [dump_redir [<nodename|nodeguid>]] -- dump the redirection table\n");
 		fprintf(out,
 			"   [clear_redir [<nodename|nodeguid>]] -- clear the redirection table\n");
+		fprintf(out,
+			"   [[set|clear]_rm_nodes] -- enable/disable the removal of \"inactive\" nodes from the DB\n"
+			"                             Inactive nodes are those which no longer appear on the fabric\n");
 	}
 }
 #endif				/* ENABLE_OSM_PERF_MGR */
@@ -1443,6 +1446,10 @@ static void perfmgr_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 					      PERFMGR_STATE_DISABLE);
 		} else if (strcmp(p_cmd, "clear_counters") == 0) {
 			osm_perfmgr_clear_counters(&p_osm->perfmgr);
+		} else if (strcmp(p_cmd, "set_rm_nodes") == 0) {
+			osm_perfmgr_set_rm_nodes(&p_osm->perfmgr, 1);
+		} else if (strcmp(p_cmd, "clear_rm_nodes") == 0) {
+			osm_perfmgr_set_rm_nodes(&p_osm->perfmgr, 0);
 		} else if (strcmp(p_cmd, "dump_counters") == 0) {
 			p_cmd = next_token(p_last);
 			if (p_cmd && (strcmp(p_cmd, "mach") == 0)) {
@@ -1491,15 +1498,18 @@ static void perfmgr_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 		}
 	} else {
 		fprintf(out, "Performance Manager status:\n"
-			"state                   : %s\n"
-			"sweep state             : %s\n"
-			"sweep time              : %us\n"
-			"outstanding queries/max : %d/%u\n",
+			"state                        : %s\n"
+			"sweep state                  : %s\n"
+			"sweep time                   : %us\n"
+			"outstanding queries/max      : %d/%u\n"
+			"remove missing nodes from DB : %s\n",
 			osm_perfmgr_get_state_str(&p_osm->perfmgr),
 			osm_perfmgr_get_sweep_state_str(&p_osm->perfmgr),
 			osm_perfmgr_get_sweep_time_s(&p_osm->perfmgr),
 			p_osm->perfmgr.outstanding_queries,
-			p_osm->perfmgr.max_outstanding_queries);
+			p_osm->perfmgr.max_outstanding_queries,
+			osm_perfmgr_get_rm_nodes(&p_osm->perfmgr)
+						 ? "TRUE" : "FALSE");
 	}
 }
 #endif				/* ENABLE_OSM_PERF_MGR */

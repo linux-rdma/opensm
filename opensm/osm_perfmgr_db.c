@@ -194,6 +194,19 @@ Exit:
 	return rc;
 }
 
+perfmgr_db_err_t
+perfmgr_db_delete_entry(perfmgr_db_t * db, uint64_t guid)
+{
+	cl_map_item_t * rc = cl_qmap_remove(&db->pc_data, guid);
+
+	if (rc == cl_qmap_end(&db->pc_data))
+		return(PERFMGR_EVENT_DB_GUIDNOTFOUND);
+
+	db_node_t *pc_node = (db_node_t *)rc;
+	free_node(pc_node);
+	return(PERFMGR_EVENT_DB_SUCCESS);
+}
+
 /**********************************************************************
  * Dump a reading vs the previous reading to stdout
  **********************************************************************/
