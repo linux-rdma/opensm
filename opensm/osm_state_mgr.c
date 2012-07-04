@@ -1272,6 +1272,8 @@ repeat_discovery:
 
 	OSM_LOG_MSG_BOX(sm->p_log, OSM_LOG_VERBOSE, "HEAVY SWEEP COMPLETE");
 
+	osm_drop_mgr_process(sm);
+
 	/* If we are MASTER - get the highest remote_sm, and
 	 * see if it is higher than our local sm.
 	 */
@@ -1303,9 +1305,6 @@ repeat_discovery:
 			}
 		}
 	}
-
-	/* Need to continue with lid assignment */
-	osm_drop_mgr_process(sm);
 
 	/*
 	 * If we are not MASTER already - this means that we are
