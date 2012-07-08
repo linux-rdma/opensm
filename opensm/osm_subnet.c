@@ -902,7 +902,7 @@ int is_mlnx_ext_port_info_supported(ib_net16_t devid)
 	devid_ho = cl_ntoh16(devid);
 	if (devid_ho == 0xc738)
 		return 1;
-	if (devid_ho >= 0x1003 && devid_ho <= 0x1010)
+	if (devid_ho >= 0x1003 && devid_ho <= 0x1011)
 		return 1;
 	return 0;
 }
