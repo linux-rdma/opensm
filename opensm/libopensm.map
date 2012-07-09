@@ -49,7 +49,6 @@ OPENSM_1.5 {
 		osm_dump_switch_info_v2;
 		osm_dump_switch_info_record;
 		osm_dump_switch_info_record_v2;
-		osm_dump_pkey_table;
 		osm_dump_slvl_map_table;
 		osm_dump_slvl_map_table_v2;
 		osm_dump_vl_arb_table;
