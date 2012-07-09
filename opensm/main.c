@@ -1120,8 +1120,14 @@ int main(int argc, char *argv[])
 
 	block_signals();
 
-	if (opt.daemon)
+	if (opt.daemon) {
+		if (INVALID_GUID == opt.guid) {
+			fprintf(stderr,
+				"ERROR: Invalid GUID specified; exiting because of daemon mode\n");
+			return -1;
+		}
 		daemonize(&osm);
+	}
 
 	complib_init();
 
