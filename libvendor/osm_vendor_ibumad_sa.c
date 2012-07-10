@@ -240,7 +240,7 @@ osmv_bind_sa(IN osm_vendor_t * const p_vend,
 	bind_info.is_report_processor = FALSE;
 	bind_info.send_q_size = OSM_SM_DEFAULT_QP1_RCV_SIZE;
 	bind_info.recv_q_size = OSM_SM_DEFAULT_QP1_SEND_SIZE;
-	bind_info.timeout = OSM_DEFAULT_TRANS_TIMEOUT_MILLISEC;
+	bind_info.timeout = p_vend->timeout;
 	bind_info.retries = OSM_DEFAULT_RETRY_COUNT;
 
 	/* allocate the new sa bind info */
