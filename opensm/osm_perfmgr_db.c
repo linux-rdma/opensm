@@ -702,12 +702,23 @@ static void dump_node_mr(db_node_t * node, FILE * fp)
 /**********************************************************************
  * Output a human readable output of the port counters
  **********************************************************************/
-static void dump_node_hr(db_node_t * node, FILE * fp)
+static void dump_node_hr(db_node_t * node, FILE * fp, char *port)
 {
-	int i = 0;
+	int i = (node->esp0) ? 0 : 1;
+	int num_ports = node->num_ports;
 
+	if (port) {
+		char *end = NULL;
+		int p = strtoul(port, &end, 0);
+		if (port + strlen(port) == end && p >= i && p < num_ports) {
+			i = p;
+			num_ports = p+1;
+		} else {
+			fprintf(fp, "Warning: \"%s\" is not a valid port\n", port);
+		}
+	}
 	fprintf(fp, "\n");
-	for (i = (node->esp0) ? 0 : 1; i < node->num_ports; i++) {
+	for (/* set above */; i < num_ports; i++) {
 		char *since = ctime(&node->ports[i].last_reset);
 
 		if (!node->ports[i].valid)
@@ -782,7 +793,7 @@ static void db_dump(cl_map_item_t * const p_map_item, void *context)
 		break;
 	case PERFMGR_EVENT_DB_DUMP_HR:
 	default:
-		dump_node_hr(node, fp);
+		dump_node_hr(node, fp, NULL);
 		break;
 	}
 }
@@ -800,7 +811,7 @@ perfmgr_db_print_all(perfmgr_db_t * db, FILE *fp)
 	item = cl_qmap_head(&db->pc_data);
 	while (item != cl_qmap_end(&db->pc_data)) {
 		node = (db_node_t *)item;
-		dump_node_hr(node, fp);
+		dump_node_hr(node, fp, NULL);
 		item = cl_qmap_next(item);
 	}
 	cl_plock_release(&db->lock);
@@ -810,7 +821,8 @@ perfmgr_db_print_all(perfmgr_db_t * db, FILE *fp)
  * print node data to fp
  **********************************************************************/
 void
-perfmgr_db_print_by_name(perfmgr_db_t * db, char *nodename, FILE *fp)
+perfmgr_db_print_by_name(perfmgr_db_t * db, char *nodename, FILE *fp,
+			 char *port)
 {
 	cl_map_item_t *item;
 	db_node_t *node;
@@ -822,7 +834,7 @@ perfmgr_db_print_by_name(perfmgr_db_t * db, char *nodename, FILE *fp)
 	while (item != cl_qmap_end(&db->pc_data)) {
 		node = (db_node_t *)item;
 		if (strcmp(node->node_name, nodename) == 0) {
-			dump_node_hr(node, fp);
+			dump_node_hr(node, fp, port);
 			goto done;
 		}
 		item = cl_qmap_next(item);
@@ -837,7 +849,8 @@ done:
  * print node data to fp
  **********************************************************************/
 void
-perfmgr_db_print_by_guid(perfmgr_db_t * db, uint64_t nodeguid, FILE *fp)
+perfmgr_db_print_by_guid(perfmgr_db_t * db, uint64_t nodeguid, FILE *fp,
+			 char *port)
 {
 	cl_map_item_t *node;
 
@@ -845,7 +858,7 @@ perfmgr_db_print_by_guid(perfmgr_db_t * db, uint64_t nodeguid, FILE *fp)
 
 	node = cl_qmap_get(&db->pc_data, nodeguid);
 	if (node != cl_qmap_end(&db->pc_data))
-		dump_node_hr((db_node_t *)node, fp);
+		dump_node_hr((db_node_t *)node, fp, port);
 	else
 		fprintf(fp, "Node 0x%" PRIx64 " not found...\n", nodeguid);
 

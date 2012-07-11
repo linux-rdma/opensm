@@ -245,7 +245,8 @@ inline static unsigned osm_perfmgr_delete_inactive(osm_perfmgr_t * pm)
 void osm_perfmgr_clear_counters(osm_perfmgr_t * p_perfmgr);
 void osm_perfmgr_dump_counters(osm_perfmgr_t * p_perfmgr,
 			       perfmgr_db_dump_t dump_type);
-void osm_perfmgr_print_counters(osm_perfmgr_t *pm, char *nodename, FILE *fp);
+void osm_perfmgr_print_counters(osm_perfmgr_t *pm, char *nodename, FILE *fp,
+				char *port);
 
 ib_api_status_t osm_perfmgr_bind(osm_perfmgr_t * p_perfmgr,
 				 ib_net64_t port_guid);

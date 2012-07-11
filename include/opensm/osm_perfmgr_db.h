@@ -191,8 +191,10 @@ void perfmgr_db_clear_counters(perfmgr_db_t * db);
 perfmgr_db_err_t perfmgr_db_dump(perfmgr_db_t * db, char *file,
 				 perfmgr_db_dump_t dump_type);
 void perfmgr_db_print_all(perfmgr_db_t * db, FILE *fp);
-void perfmgr_db_print_by_name(perfmgr_db_t * db, char *nodename, FILE *fp);
-void perfmgr_db_print_by_guid(perfmgr_db_t * db, uint64_t guid, FILE *fp);
+void perfmgr_db_print_by_name(perfmgr_db_t * db, char *nodename, FILE *fp,
+			      char *port);
+void perfmgr_db_print_by_guid(perfmgr_db_t * db, uint64_t guid, FILE *fp,
+			      char *port);
 
 /** =========================================================================
  * helper functions to fill in the various db objects from wire objects
