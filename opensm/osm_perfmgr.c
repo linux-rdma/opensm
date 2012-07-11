@@ -1431,16 +1431,18 @@ void osm_perfmgr_dump_counters(osm_perfmgr_t * pm, perfmgr_db_dump_t dump_type)
  * Print the DB information to the fp specified
  *******************************************************************/
 void osm_perfmgr_print_counters(osm_perfmgr_t * pm, char *nodename, FILE * fp,
-				char *port)
+				char *port, int err_only)
 {
 	if (nodename) {
 		char *end = NULL;
 		uint64_t guid = strtoull(nodename, &end, 0);
 		if (nodename + strlen(nodename) != end)
-			perfmgr_db_print_by_name(pm->db, nodename, fp, port);
+			perfmgr_db_print_by_name(pm->db, nodename, fp, port,
+						 err_only);
 		else
-			perfmgr_db_print_by_guid(pm->db, guid, fp, port);
+			perfmgr_db_print_by_guid(pm->db, guid, fp, port,
+						 err_only);
 	} else
-		perfmgr_db_print_all(pm->db, fp);
+		perfmgr_db_print_all(pm->db, fp, err_only);
 }
 #endif				/* ENABLE_OSM_PERF_MGR */
