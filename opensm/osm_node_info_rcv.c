@@ -479,6 +479,16 @@ alias_done:
 
 	} else {
 		osm_physp_t *p_physp = osm_node_get_physp_ptr(p_node, port_num);
+
+		if (p_physp == NULL) {
+			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D1C: "
+				"No physical port found for node GUID 0x%"
+				PRIx64 " port %u. Might be duplicate port GUID\n",
+				cl_ntoh64(p_node->node_info.node_guid),
+				port_num);
+			goto Exit;
+		}
+
 		/*
 		   Update the DR Path to the port,
 		   in case the old one is no longer available.
