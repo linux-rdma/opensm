@@ -575,6 +575,7 @@ static void subn_opt_destroy(IN osm_subn_opt_t * p_opt)
 	free(p_opt->partition_config_file);
 	free(p_opt->qos_policy_file);
 	free(p_opt->dump_files_dir);
+	free(p_opt->part_enforce);
 	free(p_opt->lid_matrix_dump_file);
 	free(p_opt->lfts_file);
 	free(p_opt->root_guid_file);
@@ -997,7 +998,7 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * p_opt)
 	p_opt->log_max_size = 0;
 	p_opt->partition_config_file = strdup(OSM_DEFAULT_PARTITION_CONFIG_FILE);
 	p_opt->no_partition_enforcement = FALSE;
-	p_opt->part_enforce = OSM_PARTITION_ENFORCE_BOTH;
+	p_opt->part_enforce = strdup(OSM_PARTITION_ENFORCE_BOTH);
 	p_opt->allow_both_pkeys = FALSE;
 	p_opt->sm_assigned_guid = 0;
 	p_opt->qos = FALSE;
