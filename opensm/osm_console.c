@@ -242,12 +242,15 @@ static void help_perfmgr(FILE * out, int detail)
 		"perfmgr(pm) [enable|disable\n"
 		"             |clear_counters|dump_counters|print_counters(pc)|print_errors(pe)\n"
 		"             |set_rm_nodes|clear_rm_nodes|clear_inactive\n"
-		"             |dump_redir|clear_redir|sweep_time[seconds]]\n");
+		"             |dump_redir|clear_redir\n"
+		"             |sweep|sweep_time[seconds]]\n");
 	if (detail) {
 		fprintf(out,
 			"perfmgr -- print the performance manager state\n");
 		fprintf(out,
 			"   [enable|disable] -- change the perfmgr state\n");
+		fprintf(out,
+			"   [sweep] -- Initiate a sweep of the fabric\n");
 		fprintf(out,
 			"   [sweep_time] -- change the perfmgr sweep time (requires [seconds] option)\n");
 		fprintf(out,
@@ -1521,6 +1524,9 @@ static void perfmgr_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 					"sweep_time requires a time period "
 					"(in seconds) to be specified\n");
 			}
+		} else if (strcmp(p_cmd, "sweep") == 0) {
+			osm_sm_signal(&p_osm->sm, OSM_SIGNAL_PERFMGR_SWEEP);
+			fprintf(out, "sweep initiated...\n");
 		} else {
 			fprintf(out, "\"%s\" option not found\n", p_cmd);
 		}

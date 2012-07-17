@@ -807,6 +807,12 @@ void osm_perfmgr_process(osm_perfmgr_t * pm)
 	if (pm->state != PERFMGR_STATE_ENABLED)
 		return;
 
+	if (pm->sweep_state == PERFMGR_SWEEP_ACTIVE ||
+	    pm->sweep_state == PERFMGR_SWEEP_SUSPENDED)
+		return;
+
+	pm->sweep_state = PERFMGR_SWEEP_ACTIVE;
+
 	if (pm->subn->sm_state == IB_SMINFO_STATE_STANDBY ||
 	    pm->subn->sm_state == IB_SMINFO_STATE_NOTACTIVE)
 		perfmgr_discovery(pm->subn->p_osm);
@@ -832,7 +838,6 @@ void osm_perfmgr_process(osm_perfmgr_t * pm)
 #if ENABLE_OSM_PERF_MGR_PROFILE
 	gettimeofday(&before, NULL);
 #endif
-	pm->sweep_state = PERFMGR_SWEEP_ACTIVE;
 	/* With the global lock held, collect the node guids */
 	/* FIXME we should be able to track SA notices
 	 * and not have to sweep the node_guid_tbl each pass
