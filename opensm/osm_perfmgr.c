@@ -1055,12 +1055,11 @@ Exit:
 /**********************************************************************
  * Check values for logging of errors
  **********************************************************************/
-static void perfmgr_log_events(osm_perfmgr_t * pm,
+static void perfmgr_log_errors(osm_perfmgr_t * pm,
 			       monitored_node_t * mon_node, uint8_t port,
 			       perfmgr_db_err_reading_t * reading)
 {
 	perfmgr_db_err_reading_t prev_read;
-	time_t time_diff = 0;
 	perfmgr_db_err_t err =
 	    perfmgr_db_get_prev_err(pm->db, mon_node->guid, port, &prev_read);
 
@@ -1070,30 +1069,28 @@ static void perfmgr_log_events(osm_perfmgr_t * pm,
 			mon_node->name, mon_node->guid, port);
 		return;
 	}
-	time_diff = (reading->time - prev_read.time);
 
-	/* FIXME these events should be defineable by the user in a config
-	 * file somewhere. */
-	if (reading->symbol_err_cnt > prev_read.symbol_err_cnt)
-		OSM_LOG(pm->log, OSM_LOG_ERROR, "ERR 4C0D: "
-			"Found %" PRIu64 " Symbol errors in %lu sec on %s (0x%"
-			PRIx64 ") port %u\n",
-			reading->symbol_err_cnt - prev_read.symbol_err_cnt,
-			time_diff, mon_node->name, mon_node->guid, port);
+#define LOG_ERR_CNT(errname, errnum, counter_name) \
+	if (reading->counter_name > prev_read.counter_name) \
+		OSM_LOG(pm->log, OSM_LOG_ERROR, "ERR %s: " \
+			"%s : %" PRIu64 " : node " \
+			"\"%s\" (NodeGUID: 0x%" PRIx64 ") : port %u\n", \
+			errnum, errname, \
+			reading->counter_name - prev_read.counter_name, \
+			mon_node->name, mon_node->guid, port);
 
-	if (reading->rcv_err > prev_read.rcv_err)
-		OSM_LOG(pm->log, OSM_LOG_ERROR, "ERR 4C0E: "
-			"Found %" PRIu64
-			" Receive errors in %lu sec on %s (0x%" PRIx64
-			") port %u\n", reading->rcv_err - prev_read.rcv_err,
-			time_diff, mon_node->name, mon_node->guid, port);
-
-	if (reading->xmit_discards > prev_read.xmit_discards)
-		OSM_LOG(pm->log, OSM_LOG_ERROR, "ERR 4C0F: "
-			"Found %" PRIu64 " Xmit Discards in %lu sec on %s (0x%"
-			PRIx64 ") port %u\n",
-			reading->xmit_discards - prev_read.xmit_discards,
-			time_diff, mon_node->name, mon_node->guid, port);
+	LOG_ERR_CNT("SymbolErrorCounter",           "4C31", symbol_err_cnt);
+	LOG_ERR_CNT("LinkErrorRecoveryCounter",     "4C32", link_err_recover);
+	LOG_ERR_CNT("LinkDownedCounter",            "4C33", link_downed);
+	LOG_ERR_CNT("PortRcvErrors",                "4C34", rcv_err);
+	LOG_ERR_CNT("PortRcvRemotePhysicalErrors",  "4C35", rcv_rem_phys_err);
+	LOG_ERR_CNT("PortRcvSwitchRelayErrors",     "4C36", rcv_switch_relay_err);
+	LOG_ERR_CNT("PortXmitDiscards",             "4C37", xmit_discards);
+	LOG_ERR_CNT("PortXmitConstraintErrors",     "4C38", xmit_constraint_err);
+	LOG_ERR_CNT("PortRcvConstraintErrors",      "4C39", rcv_constraint_err);
+	LOG_ERR_CNT("LocalLinkIntegrityErrors",     "4C3A", link_integrity);
+	LOG_ERR_CNT("ExcessiveBufferOverrunErrors", "4C3B", buffer_overrun);
+	LOG_ERR_CNT("VL15Dropped",                  "4C3C", vl15_dropped);
 }
 
 static int16_t validate_redir_pkey(osm_perfmgr_t *pm, ib_net16_t pkey)
@@ -1304,10 +1301,11 @@ static void pc_recv_process(void *context, void *data)
 		perfmgr_check_oob_clear(pm, p_mon_node, port, &err_reading,
 					&data_reading);
 
-	/* log any critical events from this reading */
-	perfmgr_log_events(pm, p_mon_node, port, &err_reading);
-
 	if (mad_context->perfmgr_context.mad_method == IB_MAD_METHOD_GET) {
+		/* log errors from this reading */
+		if (pm->subn->opt.perfmgr_log_errors)
+			perfmgr_log_errors(pm, p_mon_node, port, &err_reading);
+
 		perfmgr_db_add_err_reading(pm->db, node_guid, port,
 					   &err_reading);
 		perfmgr_db_add_dc_reading(pm->db, node_guid, port,

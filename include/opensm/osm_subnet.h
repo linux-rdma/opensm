@@ -254,6 +254,7 @@ typedef struct osm_subn_opt {
 	boolean_t perfmgr_ignore_cas;
 	char *event_db_dump_file;
 	int perfmgr_rm_nodes;
+	boolean_t perfmgr_log_errors;
 #endif				/* ENABLE_OSM_PERF_MGR */
 	char *event_plugin_name;
 	char *event_plugin_options;
