@@ -376,9 +376,6 @@ ib_net16_t osm_physp_find_common_pkey(IN const osm_physp_t * p_physp1,
 	pkey_tbl1 = osm_physp_get_pkey_tbl(p_physp1);
 	pkey_tbl2 = osm_physp_get_pkey_tbl(p_physp2);
 
-	if (allow_both_pkeys)
-		goto SearchByKeys;
-
 	map_iter1 = cl_map_head(&pkey_tbl1->keys);
 	map_iter2 = cl_map_head(&pkey_tbl2->keys);
 
@@ -403,34 +400,81 @@ ib_net16_t osm_physp_find_common_pkey(IN const osm_physp_t * p_physp1,
 			map_iter1 = cl_map_next(map_iter1);
 	}
 
-	return 0;
+	if (!allow_both_pkeys)
+		return 0;
 
-SearchByKeys:
+	/*
+	   When using allow_both_pkeys, the keys in pkey tables are the
+	   pkey value including membership bit.
+	   Therefore, in order to complete the search, we also need to
+	   compare port\s 1 full pkeys with port 2 limited pkeys, and
+	   port 2 full pkeys with port 1 full pkeys.
+	*/
 
-	/* Select to iterate over the table with the least elements */
-	if (cl_map_count(&pkey_tbl1->keys) < cl_map_count(&pkey_tbl2->keys)) {
-		map_iter = cl_map_head(&pkey_tbl1->keys);
-		map_end = cl_map_end(&pkey_tbl1->keys);
-		pkey_tbl = pkey_tbl2;
-	} else {
-		map_iter = cl_map_head(&pkey_tbl2->keys);
-		map_end = cl_map_end(&pkey_tbl2->keys);
-		pkey_tbl =  pkey_tbl1;
+	map_iter1 = cl_map_head(&pkey_tbl1->keys);
+	map_iter2 = cl_map_head(&pkey_tbl2->keys);
+
+	/* comparing pkey_tbl1 full with pkey_tbl2 limited */
+	while ((map_iter1 != cl_map_end(&pkey_tbl1->keys)) &&
+	       (map_iter2 != cl_map_end(&pkey_tbl2->keys))) {
+		pkey1 = (ib_net16_t *) cl_map_obj(map_iter1);
+		pkey2 = (ib_net16_t *) cl_map_obj(map_iter2);
+
+		if (!ib_pkey_is_full_member(*pkey1)) {
+			map_iter1 = cl_map_next(map_iter1);
+			continue;
+		}
+		if (ib_pkey_is_full_member(*pkey2)) {
+			map_iter2 = cl_map_next(map_iter2);
+			continue;
+		}
+
+		if (match_pkey(pkey1, pkey2))
+			return *pkey1;
+
+		/* advance the lower value if they are not equal */
+		pkey1_base = cl_map_key(map_iter1);
+		pkey2_base = cl_map_key(map_iter2);
+		if (pkey2_base == pkey1_base) {
+			map_iter1 = cl_map_next(map_iter1);
+			map_iter2 = cl_map_next(map_iter2);
+		} else if (pkey2_base < pkey1_base)
+			map_iter2 = cl_map_next(map_iter2);
+		else
+			map_iter1 = cl_map_next(map_iter1);
 	}
 
-	while (map_iter != map_end) {
-		pkey1 = (ib_net16_t *) cl_map_obj(map_iter);
-		key = cl_map_key(map_iter);
+	map_iter1 = cl_map_head(&pkey_tbl1->keys);
+	map_iter2 = cl_map_head(&pkey_tbl2->keys);
 
-		pkey2 = cl_map_get(&pkey_tbl->keys, key | IB_PKEY_TYPE_MASK);
-		if (!pkey2)
-			pkey2 = cl_map_get(&pkey_tbl->keys,
-					key & ~IB_PKEY_TYPE_MASK);
+	/* comparing pkey_tbl1 limited with pkey_tbl2 full */
+	while ((map_iter1 != cl_map_end(&pkey_tbl1->keys)) &&
+	       (map_iter2 != cl_map_end(&pkey_tbl2->keys))) {
+		pkey1 = (ib_net16_t *) cl_map_obj(map_iter1);
+		pkey2 = (ib_net16_t *) cl_map_obj(map_iter2);
 
-		if (pkey2 && match_pkey(pkey1, pkey2))
-			return (pkey_tbl == pkey_tbl2 ? *pkey1 : *pkey2);
+		if (ib_pkey_is_full_member(*pkey1)) {
+			map_iter1 = cl_map_next(map_iter1);
+			continue;
+		}
+		if (!ib_pkey_is_full_member(*pkey2)) {
+			map_iter2 = cl_map_next(map_iter2);
+			continue;
+		}
 
-		map_iter = cl_map_next(map_iter);
+		if (match_pkey(pkey1, pkey2))
+			return *pkey1;
+
+		/* advance the lower value if they are not equal */
+		pkey1_base = cl_map_key(map_iter1);
+		pkey2_base = cl_map_key(map_iter2);
+		if (pkey2_base == pkey1_base) {
+			map_iter1 = cl_map_next(map_iter1);
+			map_iter2 = cl_map_next(map_iter2);
+		} else if (pkey2_base < pkey1_base)
+			map_iter2 = cl_map_next(map_iter2);
+		else
+			map_iter1 = cl_map_next(map_iter1);
 	}
 
 	return 0;
