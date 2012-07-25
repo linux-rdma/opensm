@@ -7656,6 +7656,7 @@ typedef struct _ib_mad_notice_attr	// Total Size calc  Accumulated
 			uint8_t    local_changes;   // 7b reserved 1b local changes
 			ib_net32_t new_cap_mask;    // new capability mask
 			ib_net16_t change_flgs;     // 10b reserved 6b change flags
+			ib_net16_t cap_mask2;
 		} PACK_SUFFIX ntc_144;
 		struct _ntc_145 {
 			ib_net16_t pad1;
