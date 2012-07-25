@@ -76,6 +76,7 @@ typedef struct osm_iir_search_ctxt {
 	ib_net16_t subscriber_enum;
 	osm_sa_t *sa;
 	osm_physp_t *p_req_physp;
+	ib_net64_t sm_key;
 } osm_iir_search_ctxt_t;
 
 /**********************************************************************
@@ -293,6 +294,16 @@ static void sa_inform_info_rec_by_comp_mask(IN osm_sa_t * sa,
 
 	memcpy(&p_rec_item->rec, &p_infr->inform_record,
 	       sizeof(ib_inform_info_record_t));
+
+	/*
+	 * Per C15-0.2-1.16, InformInfoRecords shall always be
+	 * provided with the QPN set to 0, except for the case
+	 * of a trusted request, in which case the actual
+	 * subscriber QPN shall be returned.
+	 */
+	if (p_ctxt->sm_key == 0)
+		ib_inform_info_set_qpn(&p_rec_item->rec.inform_info, 0);
+
 	cl_qlist_insert_tail(p_ctxt->p_list, &p_rec_item->list_item);
 
 Exit:
@@ -355,6 +366,7 @@ static void infr_rcv_process_get_method(osm_sa_t * sa, IN osm_madw_t * p_madw)
 	context.subscriber_enum = p_rcvd_rec->subscriber_enum;
 	context.sa = sa;
 	context.p_req_physp = p_req_physp;
+	context.sm_key = p_rcvd_mad->sm_key;
 
 	OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 		"Query Subscriber GID:%s(%02X) Enum:0x%X(%02X)\n",
@@ -449,6 +461,24 @@ static void infr_rcv_process_set_method(osm_sa_t * sa, IN osm_madw_t * p_madw)
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 430A: "
 			"Invalid subscribe: %d\n",
 			p_recvd_inform_info->subscribe);
+		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_REQ_INVALID);
+		goto Exit;
+	}
+
+	/*
+	 * Per C15-0.2-1.16, SubnAdmSet(InformInfo) subscriptions for
+	 * SM security traps shall be provided only if they come from a
+	 * trusted source.
+	 */
+	if ((p_sa_mad->sm_key == 0) && p_recvd_inform_info->is_generic &&
+	    ((cl_ntoh16(p_recvd_inform_info->g_or_v.generic.trap_num) >= 256) &&
+	     (cl_ntoh16(p_recvd_inform_info->g_or_v.generic.trap_num) <= 259))) {
+		cl_plock_release(sa->p_lock);
+
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 430B "
+			"Request for security trap from non-trusted requester: "
+			"Given SM_Key:0x%016" PRIx64 "\n",
+			cl_ntoh64(p_sa_mad->sm_key));
 		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_REQ_INVALID);
 		goto Exit;
 	}
