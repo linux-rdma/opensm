@@ -567,7 +567,6 @@ check_sweep:
 		goto Exit;
 
 check_report:
-	/* Add a call to osm_report_notice */
 	/* We are going to report the notice - so need to fix the IssuerGID
 	   accordingly. See IBA 1.2 p.739 or IBA 1.1 p.653 for details. */
 	if (is_gsi) {
