@@ -306,7 +306,7 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F05: "
 				"Can't find remote phys port of %s (GUID: "
 				"0x%016"PRIx64") port %d "
-				"while routing to LID %u",
+				"while routing to LID %u\n",
 				p_node->print_desc,
 				cl_ntoh64(osm_node_get_node_guid(p_node)),
 				tmp_pnum,
