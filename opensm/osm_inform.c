@@ -314,7 +314,7 @@ static ib_api_status_t send_report(IN osm_infr_t * p_infr_rec,	/* the informinfo
 					 &(p_infr_rec->report_addr));
 
 	if (!p_report_madw) {
-		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0203"
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0203: "
 			"osm_mad_pool_get failed\n");
 		status = IB_ERROR;
 		goto Exit;
