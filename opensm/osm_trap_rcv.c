@@ -268,6 +268,20 @@ static void log_trap_info(osm_log_t *p_log, ib_mad_notice_attr_t *p_ntci,
 			cl_ntoh32(ib_notice_get_prod_type(p_ntci)),
 			ib_get_producer_type_str(ib_notice_get_prod_type(p_ntci)),
 			cl_hton16(source_lid), str, cl_ntoh64(trans_id));
+		if ((p_ntci->g_or_v.generic.trap_num == CL_HTON16(257)) ||
+		    (p_ntci->g_or_v.generic.trap_num == CL_HTON16(258))) {
+			OSM_LOG(p_log, OSM_LOG_ERROR,
+				"Bad %s_Key:0x%x on SL:%d from "
+				"LID1:%u QP1:0x%x to "
+				"LID2:%u QP2:0x%x\n",
+				(p_ntci->g_or_v.generic.trap_num == CL_HTON16(257)) ? "P" : "Q",
+				cl_ntoh32(p_ntci->data_details.ntc_257_258.key),
+				cl_ntoh32(p_ntci->data_details.ntc_257_258.qp1) >> 28,
+				cl_ntoh16(p_ntci->data_details.ntc_257_258.lid1),
+				cl_ntoh32(p_ntci->data_details.ntc_257_258.qp1) & 0xfff,
+				cl_ntoh16(p_ntci->data_details.ntc_257_258.lid2),
+				cl_ntoh32(p_ntci->data_details.ntc_257_258.qp2));
+		}
 	} else
 		OSM_LOG(p_log, OSM_LOG_ERROR,
 			"Received Vendor Notice type:%u vend:0x%06X "
