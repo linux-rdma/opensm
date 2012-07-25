@@ -428,7 +428,7 @@ static void infr_rcv_process_set_method(osm_sa_t * sa, IN osm_madw_t * p_madw)
 	if (res != IB_SUCCESS) {
 		cl_plock_release(sa->p_lock);
 
-		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4308 "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4308: "
 			"Subscribe Request from unknown LID: %u\n",
 			cl_ntoh16(p_madw->mad_addr.dest_lid));
 		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_REQ_INVALID);
@@ -442,7 +442,7 @@ static void infr_rcv_process_set_method(osm_sa_t * sa, IN osm_madw_t * p_madw)
 	if (p_recvd_inform_info->subscribe > 1) {
 		cl_plock_release(sa->p_lock);
 
-		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4308 "
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 430A: "
 			"Invalid subscribe: %d\n",
 			p_recvd_inform_info->subscribe);
 		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_REQ_INVALID);
