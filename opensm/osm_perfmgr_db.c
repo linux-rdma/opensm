@@ -977,15 +977,14 @@ perfmgr_db_fill_err_read(ib_port_counters_t * wire_read,
 			 perfmgr_db_err_reading_t * reading)
 {
 	reading->symbol_err_cnt = cl_ntoh16(wire_read->symbol_err_cnt);
-	reading->link_err_recover = cl_ntoh16(wire_read->link_err_recover);
+	reading->link_err_recover = wire_read->link_err_recover;
 	reading->link_downed = wire_read->link_downed;
-	reading->rcv_err = wire_read->rcv_err;
+	reading->rcv_err = cl_ntoh16(wire_read->rcv_err);
 	reading->rcv_rem_phys_err = cl_ntoh16(wire_read->rcv_rem_phys_err);
 	reading->rcv_switch_relay_err =
 	    cl_ntoh16(wire_read->rcv_switch_relay_err);
 	reading->xmit_discards = cl_ntoh16(wire_read->xmit_discards);
-	reading->xmit_constraint_err =
-	    cl_ntoh16(wire_read->xmit_constraint_err);
+	reading->xmit_constraint_err = wire_read->xmit_constraint_err;
 	reading->rcv_constraint_err = wire_read->rcv_constraint_err;
 	reading->link_integrity =
 	    PC_LINK_INT(wire_read->link_int_buffer_overrun);
