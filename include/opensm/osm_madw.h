@@ -988,9 +988,9 @@ static inline osm_vend_wrap_t *osm_madw_get_vend_ptr(IN const osm_madw_t *
 * SEE ALSO
 *********/
 
-/****f* OpenSM: MAD Wrapper/osm_madw_get_vend_ptr
+/****f* OpenSM: MAD Wrapper/osm_madw_get_bind_handle
 * NAME
-*	osm_madw_get_vend_ptr
+*	osm_madw_get_bind_handle
 *
 * DESCRIPTION
 *	Returns the bind handle associated with this MAD.
