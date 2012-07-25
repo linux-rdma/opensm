@@ -425,8 +425,6 @@ static void sa_mad_ctrl_send_err_callback(IN void *context,
 	   Retire the original request MAD.
 	 */
 
-	/*  sm_mad_ctrl_update_wire_stats( p_ctrl ); */
-
 	if (osm_madw_get_err_msg(p_madw) != CL_DISP_MSGID_NONE) {
 		OSM_LOG(p_ctrl->p_log, OSM_LOG_DEBUG,
 			"Posting Dispatcher message %s\n",
