@@ -52,7 +52,9 @@
 #  define END_C_DECLS
 #endif				/* __cplusplus */
 
-BEGIN_C_DECLS extern cl_spinlock_t cl_atomic_spinlock;
+BEGIN_C_DECLS
+
+extern cl_spinlock_t cl_atomic_spinlock;
 
 static inline int32_t cl_atomic_inc(IN atomic32_t * const p_value)
 {
