@@ -11471,11 +11471,12 @@ typedef struct _ib_cong_log {
 *
 * SYNOPSIS
 */
+#define IB_CC_PORT_MASK_DATA_SIZE 32
 #include <complib/cl_packon.h>
 typedef struct _ib_sw_cong_setting {
 	ib_net32_t control_map;
-	uint8_t victim_mask[32];
-	uint8_t credit_mask[32];
+	uint8_t victim_mask[IB_CC_PORT_MASK_DATA_SIZE];
+	uint8_t credit_mask[IB_CC_PORT_MASK_DATA_SIZE];
 	uint8_t threshold_resv;
 	uint8_t packet_size;
 	ib_net16_t cs_threshold_resv;
@@ -11585,7 +11586,8 @@ typedef struct _ib_sw_port_cong_setting_element {
 *
 * SOURCE
 */
-typedef ib_sw_port_cong_setting_element_t ib_sw_port_cong_setting_block_t[32];
+#define IB_CC_SW_PORT_SETTING_ELEMENTS 32
+typedef ib_sw_port_cong_setting_element_t ib_sw_port_cong_setting_block_t[IB_CC_SW_PORT_SETTING_ELEMENTS];
 /**********/
 
 /****s* IBA Base: Types/ib_sw_port_cong_setting_t
@@ -11663,11 +11665,12 @@ typedef struct _ib_ca_cong_entry {
 *
 * SYNOPSIS
 */
+#define IB_CA_CONG_ENTRY_DATA_SIZE 16
 #include <complib/cl_packon.h>
 typedef struct _ib_ca_cong_setting {
 	ib_net16_t port_control;
 	ib_net16_t control_map;
-	ib_ca_cong_entry_t entry_list[16];
+	ib_ca_cong_entry_t entry_list[IB_CA_CONG_ENTRY_DATA_SIZE];
 } PACK_SUFFIX ib_ca_cong_setting_t;
 #include <complib/cl_packoff.h>
 /*
@@ -11726,11 +11729,12 @@ typedef struct _ib_cc_tbl_entry {
 *
 * SYNOPSIS
 */
+#define IB_CC_TBL_ENTRY_LIST_MAX 64
 #include <complib/cl_packon.h>
 typedef struct _ib_cc_tbl {
 	ib_net16_t ccti_limit;
 	ib_net16_t resv;
-	ib_cc_tbl_entry_t entry_list[64];
+	ib_cc_tbl_entry_t entry_list[IB_CC_TBL_ENTRY_LIST_MAX];
 } PACK_SUFFIX ib_cc_tbl_t;
 #include <complib/cl_packoff.h>
 /*

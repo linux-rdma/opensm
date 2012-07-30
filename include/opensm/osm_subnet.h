@@ -81,6 +81,10 @@ typedef enum _osm_partition_enforce_type_enum {
 	OSM_PARTITION_ENFORCE_TYPE_OFF
 } osm_partition_enforce_type_enum;
 
+/* XXX: not actual max, max we're currently going to support */
+#define OSM_CCT_ENTRY_MAX        128
+#define OSM_CCT_ENTRY_MAD_BLOCKS (OSM_CCT_ENTRY_MAX/64)
+
 struct osm_opensm;
 struct osm_qos_policy;
 
@@ -141,6 +145,91 @@ typedef struct osm_qos_options {
 *		SL2VL Mapping table (IBA 7.6.6) template. (NULL == use default)
 *
 *********/
+
+/****s* OpenSM: Subnet/osm_cct_entry_t
+* NAME
+*	osm_cct_entry_t
+*
+* DESCRIPTION
+*	Subnet Congestion Control Table entry.  See A10.2.2.1.1 for format details.
+*
+* SYNOPSIS
+*/
+typedef struct osm_cct_entry {
+	uint8_t shift; //Alex: shift 2 bits
+	uint16_t multiplier; //Alex multiplier 14 bits
+} osm_cct_entry_t;
+/*
+* FIELDS
+*
+*	shift
+*		shift field in CCT entry.  See A10.2.2.1.1.
+*
+*	multiplier
+*		multiplier field in CCT entry.  See A10.2.2.1.1.
+*
+*********/
+
+/****s* OpenSM: Subnet/osm_cacongestion_entry_t
+* NAME
+*	osm_cacongestion_entry_t
+*
+* DESCRIPTION
+*	Subnet CA Congestion entry.  See A10.4.3.8.4 for format details.
+*
+* SYNOPSIS
+*/
+typedef struct osm_cacongestion_entry {
+	ib_net16_t ccti_timer; //Alex: ccti_timer and ccti_increase should be replaced
+	uint8_t ccti_increase;
+	uint8_t trigger_threshold;
+	uint8_t ccti_min;
+} osm_cacongestion_entry_t;
+/*
+* FIELDS
+*
+*	ccti_timer
+*		CCTI Timer
+*
+*	ccti_increase
+*		CCTI Increase
+*
+*	trigger_threshold
+*		CCTI trigger for log message
+*
+*	ccti_min
+*		CCTI Minimum
+*
+*********/
+
+/****s* OpenSM: Subnet/osm_cct_t
+* NAME
+*	osm_cct_t
+*
+* DESCRIPTION
+*	Subnet CongestionControlTable.  See A10.4.3.9 for format details.
+*
+* SYNOPSIS
+*/
+typedef struct osm_cct {
+	osm_cct_entry_t entries[OSM_CCT_ENTRY_MAX];
+	unsigned int entries_len;
+	char *input_str;
+} osm_cct_t;
+/*
+* FIELDS
+*
+*	entries
+*		Entries in CCT
+*
+*	entries_len
+*		Length of entries
+*
+*	input_str
+*		Original str input
+*
+*********/
+
 
 /****s* OpenSM: Subnet/osm_subn_opt_t
 * NAME
@@ -239,6 +328,21 @@ typedef struct osm_subn_opt {
 	osm_qos_options_t qos_sw0_options;
 	osm_qos_options_t qos_swe_options;
 	osm_qos_options_t qos_rtr_options;
+	boolean_t congestion_control;
+	ib_net64_t cc_key;
+	uint32_t cc_max_outstanding_mads;
+	ib_net32_t cc_sw_cong_setting_control_map;
+	uint8_t cc_sw_cong_setting_victim_mask[IB_CC_PORT_MASK_DATA_SIZE];
+	uint8_t cc_sw_cong_setting_credit_mask[IB_CC_PORT_MASK_DATA_SIZE];
+	uint8_t cc_sw_cong_setting_threshold;
+	uint8_t cc_sw_cong_setting_packet_size;
+	uint8_t cc_sw_cong_setting_credit_starvation_threshold;
+	osm_cct_entry_t cc_sw_cong_setting_credit_starvation_return_delay;
+	ib_net16_t cc_sw_cong_setting_marking_rate;
+	ib_net16_t cc_ca_cong_setting_port_control;
+	ib_net16_t cc_ca_cong_setting_control_map;
+	osm_cacongestion_entry_t cc_ca_cong_entries[IB_CA_CONG_ENTRY_DATA_SIZE];
+	osm_cct_t cc_cct;
 	boolean_t enable_quirks;
 	boolean_t no_clients_rereg;
 #ifdef ENABLE_OSM_PERF_MGR
@@ -524,6 +628,60 @@ typedef struct osm_subn_opt {
 *
 *	qos_rtr_options
 *		QoS options for router ports
+*
+*	congestion_control
+*		Boolean that specifies whether OpenSM congestion control configuration
+*		should be off or no.
+*
+*	cc_key
+*		CCkey to use when configuring congestion control.
+*
+*	cc_max_outstanding_mads
+*		Max number of outstanding CC mads that can be on the wire.
+*
+*	cc_sw_cong_setting_control_map
+*		Congestion Control Switch Congestion Setting Control Map
+*		configuration setting.
+*
+*	cc_sw_cong_setting_victim_mask
+*		Congestion Control Switch Congestion Setting Victim Mask
+*		configuration setting.
+*
+*	cc_sw_cong_setting_credit_mask
+*		Congestion Control Switch Congestion Setting Credit Mask
+*		configuration setting.
+*
+*	cc_sw_cong_setting_threshold
+*		Congestion Control Switch Congestion Setting Threshold
+*		configuration setting.
+*
+*	cc_sw_cong_setting_packet_size
+*		Congestion Control Switch Congestion Setting Packet Size
+*		configuration setting.
+*
+*	cc_sw_cong_setting_credit_starvation_threshold
+*		Congestion Control Switch Congestion Setting Credit Staraction Threshold
+*		configuration setting.
+*
+*	cc_sw_cong_setting_credit_starvation_return_delay
+*		Congestion Control Switch Congestion Setting Credit Starvation Return Delay
+*		configuration setting.
+*
+*	cc_sw_cong_setting_marking_rate
+*		Congestion Control Switch Congestion Setting Marking Rate
+*		configuration setting.
+*
+*	cc_ca_cong_setting_port_control
+*		Congestion Control CA Congestion Setting Port Control
+*
+*	cc_ca_cong_setting_control_map
+*		Congestion Control CA Congestion Setting Control Map
+
+*	cc_ca_cong_entries
+*		Congestion Control CA Congestion Setting Entries
+*
+*	cc_cct
+*		Congestion Control Table array of entries
 *
 *	enable_quirks
 *		Enable high risk new features and not fully qualified

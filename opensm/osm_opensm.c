@@ -61,6 +61,7 @@
 #include <opensm/osm_sm.h>
 #include <opensm/osm_vl15intf.h>
 #include <opensm/osm_event_plugin.h>
+#include <opensm/osm_congestion_control.h>
 
 struct routing_engine_module {
 	const char *name;
@@ -291,6 +292,8 @@ void osm_opensm_destroy(IN osm_opensm_t * p_osm)
 	osm_perfmgr_shutdown(&p_osm->perfmgr);
 #endif				/* ENABLE_OSM_PERF_MGR */
 
+	osm_congestion_control_shutdown(&p_osm->cc);
+
 	/* shut down the SA
 	 * - unbind from QP1 messages
 	 */
@@ -320,6 +323,7 @@ void osm_opensm_destroy(IN osm_opensm_t * p_osm)
 #ifdef ENABLE_OSM_PERF_MGR
 	osm_perfmgr_destroy(&p_osm->perfmgr);
 #endif				/* ENABLE_OSM_PERF_MGR */
+	osm_congestion_control_destroy(&p_osm->cc);
 	osm_db_destroy(&p_osm->db);
 	osm_vl15_destroy(&p_osm->vl15, &p_osm->mad_pool);
 	osm_mad_pool_destroy(&p_osm->mad_pool);
@@ -463,6 +467,11 @@ ib_api_status_t osm_opensm_init(IN osm_opensm_t * p_osm,
 		goto Exit;
 #endif				/* ENABLE_OSM_PERF_MGR */
 
+	status = osm_congestion_control_init(&p_osm->cc,
+					     p_osm, p_opt);
+	if (status != IB_SUCCESS)
+		goto Exit;
+
 	p_osm->no_fallback_routing_engine = FALSE;
 
 	setup_routing_engines(p_osm, p_opt->routing_engine_names);
@@ -495,6 +504,10 @@ ib_api_status_t osm_opensm_bind(IN osm_opensm_t * p_osm, IN ib_net64_t guid)
 	if (status != IB_SUCCESS)
 		goto Exit;
 #endif				/* ENABLE_OSM_PERF_MGR */
+
+	status = osm_congestion_control_bind(&p_osm->cc, guid);
+	if (status != IB_SUCCESS)
+		goto Exit;
 
 	/* setting IS_SM in capability mask */
 	OSM_LOG(&p_osm->log, OSM_LOG_INFO, "Setting IS_SM on port 0x%016" PRIx64 "\n",

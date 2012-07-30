@@ -61,6 +61,7 @@
 #include <opensm/osm_subnet.h>
 #include <opensm/osm_mad_pool.h>
 #include <opensm/osm_vl15intf.h>
+#include <opensm/osm_congestion_control.h>
 
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
@@ -203,6 +204,7 @@ typedef struct osm_opensm {
 #ifdef ENABLE_OSM_PERF_MGR
 	osm_perfmgr_t perfmgr;
 #endif				/* ENABLE_OSM_PERF_MGR */
+	osm_congestion_control_t cc;
 	cl_qlist_t plugin_list;
 	osm_db_t db;
 	osm_mad_pool_t mad_pool;

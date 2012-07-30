@@ -340,6 +340,11 @@ static void show_usage(void)
 	       "          This option defines the optional QoS policy file.\n"
 	       "          The default name is \'" OSM_DEFAULT_QOS_POLICY_FILE
 	       "\'.\n\n");
+	printf("--congestion_control\n"
+	       "          (EXPERIMENTAL) This option enables congestion control configuration.\n\n");
+	printf("--cc_key <key>\n"
+	       "          (EXPERIMENTAL) This option configures the CCkey to use when configuring\n"
+	       "          congestion control.\n\n");
 	printf("--stay_on_fatal, -y\n"
 	       "          This option will cause SM not to exit on fatal initialization\n"
 	       "          issues: if SM discovers duplicated guids or 12x link with\n"
@@ -614,6 +619,8 @@ int main(int argc, char *argv[])
 		{"allow_both_pkeys", 0, NULL, 'W'},
 		{"qos", 0, NULL, 'Q'},
 		{"qos_policy_file", 1, NULL, 'Y'},
+		{"congestion_control", 0, NULL, 128},
+		{"cc_key", 1, NULL, 129},
 		{"maxsmps", 1, NULL, 'n'},
 		{"console", 1, NULL, 'q'},
 		{"V", 0, NULL, 'V'},
@@ -918,6 +925,15 @@ int main(int argc, char *argv[])
 		case 'Y':
 			SET_STR_OPT(opt.qos_policy_file, optarg);
 			printf(" QoS policy file \'%s\'\n", optarg);
+			break;
+
+		case 128:
+			opt.congestion_control = TRUE;
+			break;
+
+		case 129:
+			opt.cc_key = strtoull(optarg, NULL, 0);
+			printf(" CC Key 0x%" PRIx64 "\n", opt.cc_key);
 			break;
 
 		case 'y':

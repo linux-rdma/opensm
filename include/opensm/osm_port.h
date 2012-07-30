@@ -119,6 +119,15 @@ typedef struct osm_physp {
 	ib_vl_arb_table_t vl_arb[4];
 	cl_ptr_vector_t slvl_by_port;
 	uint8_t hop_wf;
+	union {
+		struct {
+			ib_sw_cong_setting_t sw_cong_setting;
+		} sw;
+		struct {
+			ib_ca_cong_setting_t ca_cong_setting;
+			ib_cc_tbl_t cc_tbl[OSM_CCT_ENTRY_MAD_BLOCKS];
+		} ca;
+	} cc;
 } osm_physp_t;
 /*
 * FIELDS
@@ -185,6 +194,15 @@ typedef struct osm_physp {
 *
 *	hop_wf
 *		Hop weighting factor to be used in the routing.
+*
+*	sw_cong_setting
+*		Physical port switch congestion settings (switches only)
+*
+*	ca_cong_setting
+*		Physical port ca congestion settings (cas only)
+*
+*	cc_tbl
+*		Physical port ca congestion control table (cas only)
 *
 * SEE ALSO
 *	Port

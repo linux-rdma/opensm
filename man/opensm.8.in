@@ -48,6 +48,8 @@ opensm \- InfiniBand subnet manager and administration (SM/SA)
 [\-Z | \-\-part_enforce [both | in | out | off]]
 [\-W | \-\-allow_both_pkeys]
 [\-Q | \-\-qos [\-Y | \-\-qos_policy_file <file name>]]
+[\-\-congestion\-control]
+[\-\-cckey <key>]
 [\-y | \-\-stay_on_fatal]
 [\-B | \-\-daemon]
 [\-I | \-\-inactive]
@@ -368,6 +370,15 @@ This option defines the optional QoS policy file. The default
 name is \fB\%@OPENSM_CONFIG_DIR@/@QOS_POLICY_FILE@\fP. See
 QoS_management_in_OpenSM.txt in opensm doc for more information on
 configuring QoS policy via this file.
+.TP
+\fB\-\-congestion_control\fR
+(EXPERIMENTAL) This option enables congestion control configuration.
+It is disabled by default.  See config file for congestion control
+configuration options.
+\fB\-\-cc_key\fR <key>
+(EXPERIMENTAL) This option configures the CCkey to use when configuring
+congestion control.  Note that this option does not configure a new
+CCkey into switches and CAs.  Defaults to 0.
 .TP
 \fB\-N\fR, \fB\-\-no_part_enforce\fR \fB(DEPRECATED)\fR
 This is a deprecated flag. Please use \fB\-\-part_enforce\fR instead.

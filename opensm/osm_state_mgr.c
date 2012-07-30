@@ -66,6 +66,7 @@
 #include <vendor/osm_vendor_api.h>
 #include <opensm/osm_inform.h>
 #include <opensm/osm_opensm.h>
+#include <opensm/osm_congestion_control.h>
 
 extern void osm_drop_mgr_process(IN osm_sm_t * sm);
 extern int osm_qos_setup(IN osm_opensm_t * p_osm);
@@ -1156,6 +1157,11 @@ static void do_sweep(osm_sm_t * sm)
 		if (wait_for_pending_transactions(&sm->p_subn->p_osm->stats))
 			return;
 
+		osm_congestion_control_setup(sm->p_subn->p_osm);
+
+		if (osm_congestion_control_wait_pending_transactions (sm->p_subn->p_osm))
+			return;
+
 		if (!sm->p_subn->subnet_initialization_error) {
 			OSM_LOG_MSG_BOX(sm->p_log, OSM_LOG_VERBOSE,
 					"REROUTE COMPLETE");
@@ -1400,6 +1406,13 @@ repeat_discovery:
 	/*
 	 * The sweep completed!
 	 */
+
+	/* Now do GSI configuration */
+
+	osm_congestion_control_setup(sm->p_subn->p_osm);
+
+	if (osm_congestion_control_wait_pending_transactions (sm->p_subn->p_osm))
+		return;
 
 	/*
 	 * Send trap 64 on newly discovered endports

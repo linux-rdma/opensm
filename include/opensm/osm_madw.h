@@ -340,6 +340,19 @@ typedef struct osm_perfmgr_context {
 } osm_perfmgr_context_t;
 /*********/
 
+/****s* OpenSM: MAD Wrapper/osm_cc_context_t
+* DESCRIPTION
+*	Context for Congestion Control MADs
+*/
+typedef struct osm_cc_context {
+	ib_net64_t node_guid;
+	ib_net64_t port_guid;
+	uint8_t port;
+	uint8_t mad_method;	/* was this a get or a set */
+	ib_net32_t attr_mod;
+} osm_cc_context_t;
+/*********/
+
 #ifndef OSM_VENDOR_INTF_OPENIB
 /****s* OpenSM: MAD Wrapper/osm_arbitrary_context_t
 * NAME
@@ -379,6 +392,7 @@ typedef union _osm_madw_context {
 	osm_pkey_context_t pkey_context;
 	osm_vla_context_t vla_context;
 	osm_perfmgr_context_t perfmgr_context;
+	osm_cc_context_t cc_context;
 #ifndef OSM_VENDOR_INTF_OPENIB
 	osm_arbitrary_context_t arb_context;
 #endif
@@ -605,6 +619,32 @@ static inline ib_perfmgt_mad_t *osm_madw_get_perfmgt_mad_ptr(IN const osm_madw_t
 *
 * RETURN VALUES
 *	Pointer to the start of the PerfMgt MAD.
+*
+* NOTES
+*
+* SEE ALSO
+*	MAD Wrapper object
+*********/
+
+/****f* OpenSM: MAD Wrapper/osm_madw_get_cc_mad_ptr
+* DESCRIPTION
+*	Gets a pointer to the Congestion Control MAD in this MAD wrapper.
+*
+* SYNOPSIS
+*/
+static inline ib_cc_mad_t *osm_madw_get_cc_mad_ptr(IN const osm_madw_t
+						   * p_madw)
+{
+	return ((ib_cc_mad_t *) p_madw->p_mad);
+}
+
+/*
+* PARAMETERS
+*	p_madw
+*		[in] Pointer to an osm_madw_t object.
+*
+* RETURN VALUES
+*	Pointer to the start of the Congestion Control MAD.
 *
 * NOTES
 *

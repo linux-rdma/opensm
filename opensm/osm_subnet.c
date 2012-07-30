@@ -72,6 +72,7 @@
 #include <opensm/osm_inform.h>
 #include <opensm/osm_console.h>
 #include <opensm/osm_perfmgr.h>
+#include <opensm/osm_congestion_control.h>
 #include <opensm/osm_event_plugin.h>
 #include <opensm/osm_qos_policy.h>
 #include <opensm/osm_service.h>
@@ -300,6 +301,22 @@ static void opts_parse_uint32(IN osm_subn_t *p_subn, IN char *p_key,
 	}
 }
 
+static void opts_parse_net32(IN osm_subn_t *p_subn, IN char *p_key,
+			     IN char *p_val_str, void *p_v1, void *p_v2,
+			     void (*pfn)(osm_subn_t *, void *))
+{
+	uint32_t *p_val1 = p_v1, *p_val2 = p_v2;
+	uint32_t val = strtoul(p_val_str, NULL, 0);
+
+	if (cl_hton32(val) != *p_val1) {
+		log_config_value(p_key, "%u", val);
+		if (pfn)
+			pfn(p_subn, &val);
+		*p_val1 = *p_val2 = cl_hton32(val);
+	}
+}
+
+
 static void opts_parse_int32(IN osm_subn_t *p_subn, IN char *p_key,
 			     IN char *p_val_str, void *p_v1, void *p_v2,
 			     void (*pfn)(osm_subn_t *, void *))
@@ -403,6 +420,274 @@ static void opts_parse_charp(IN osm_subn_t *p_subn, IN char *p_key,
 			free(*p_val2);
 		*p_val1 = *p_val2 = new;
 	}
+}
+
+static void opts_parse_256bit(IN osm_subn_t *p_subn, IN char *p_key,
+			      IN char *p_val_str, void *p_v1, void *p_v2,
+			      void (*pfn)(osm_subn_t *, void *))
+{
+	uint8_t *p_val1 = p_v1, *p_val2 = p_v2;
+	uint8_t val[IB_CC_PORT_MASK_DATA_SIZE] = { 0 };
+	char tmpbuf[3] = { 0 };
+	uint8_t tmpint;
+	int numdigits = 0;
+	int startindex;
+	char *strptr = p_val_str;
+	char *ptr;
+	int i;
+
+	/* parse like it's hypothetically a 256 bit integer code
+	 *
+	 * store "big endian"
+	 */
+
+	if (!strncmp(strptr, "0x", 2) || !strncmp(strptr, "0X", 2))
+		strptr+=2;
+
+	for (ptr = strptr; *ptr; ptr++) {
+		if (!isxdigit(*ptr)) {
+			log_report("invalid hex digit in bitmask\n");
+			return;
+		}
+		numdigits++;
+	}
+
+	if (!numdigits) {
+		log_report("invalid length bitmask\n");
+		return;
+	}
+
+	/* max of 2 hex chars per byte */
+	if (numdigits > IB_CC_PORT_MASK_DATA_SIZE * 2)
+		numdigits = IB_CC_PORT_MASK_DATA_SIZE * 2;
+
+	startindex = IB_CC_PORT_MASK_DATA_SIZE - ((numdigits - 1) / 2) - 1;
+
+	if (numdigits % 2) {
+		memcpy(tmpbuf, strptr, 1);
+		strptr += 1;
+	}
+	else {
+		memcpy(tmpbuf, strptr, 2);
+		strptr += 2;
+	}
+
+	tmpint = strtoul(tmpbuf, NULL, 16);
+	val[startindex] = tmpint;
+
+	for (i = (startindex + 1); i < IB_CC_PORT_MASK_DATA_SIZE; i++) {
+		memcpy(tmpbuf, strptr, 2);
+		strptr += 2;
+		tmpint = strtoul(tmpbuf, NULL, 16);
+		val[i] = tmpint;
+	}
+
+	if (memcmp(val, p_val1, IB_CC_PORT_MASK_DATA_SIZE)) {
+		log_config_value(p_key, "%s", p_val_str);
+		if (pfn)
+			pfn(p_subn, val);
+		memcpy(p_val1, val, IB_CC_PORT_MASK_DATA_SIZE);
+		memcpy(p_val2, val, IB_CC_PORT_MASK_DATA_SIZE);
+	}
+
+}
+
+static void opts_parse_cct_entry(IN osm_subn_t *p_subn, IN char *p_key,
+				 IN char *p_val_str, void *p_v1, void *p_v2,
+				 void (*pfn)(osm_subn_t *, void *))
+{
+	osm_cct_entry_t *p_cct1 = p_v1, *p_cct2 = p_v2;
+	osm_cct_entry_t cct;
+	char buf[512] = { 0 };
+	char *ptr;
+
+	strncpy(buf, p_val_str, 511);
+
+	if (!(ptr = strchr(buf, ':'))) {
+		log_report("invalid CCT entry\n");
+		return;
+	}
+
+	*ptr = '\0';
+	ptr++;
+
+	cct.shift = strtoul(buf, NULL, 0);
+	cct.multiplier = strtoul(ptr, NULL, 0);
+
+	if (cct.shift != p_cct1->shift
+	    || cct.multiplier != p_cct1->multiplier) {
+		log_config_value(p_key, "%s", p_val_str);
+		if (pfn)
+			pfn(p_subn, &cct);
+		p_cct1->shift = p_cct2->shift = cct.shift;
+		p_cct1->multiplier = p_cct2->multiplier = cct.multiplier;
+	}
+}
+
+static void opts_parse_cc_cct(IN osm_subn_t *p_subn, IN char *p_key,
+			      IN char *p_val_str, void *p_v1, void *p_v2,
+			      void (*pfn)(osm_subn_t *, void *))
+{
+	osm_cct_t *p_val1 = p_v1, *p_val2 = p_v2;
+	const char *current_str = p_val1->input_str ? p_val1->input_str : null_str;
+
+	if (p_val_str && strcmp(p_val_str, current_str)) {
+		osm_cct_t newcct;
+		char *new;
+		unsigned int len = 0;
+		char *lasts;
+		char *tok;
+		char *ptr;
+
+		/* special case the "(null)" string */
+		new = strcmp(null_str, p_val_str) ? strdup(p_val_str) : NULL;
+
+		if (!new) {
+			log_config_value(p_key, "%s", p_val_str);
+			if (pfn)
+				pfn(p_subn, NULL);
+			memset(p_val1->entries, '\0', sizeof(p_val1->entries));
+			memset(p_val2->entries, '\0', sizeof(p_val2->entries));
+			p_val1->entries_len = p_val2->entries_len = 0;
+			p_val1->input_str = p_val2->input_str = NULL;
+			return;
+		}
+
+		memset(&newcct, '\0', sizeof(newcct));
+
+		tok = strtok_r(new, ",", &lasts);
+		while (tok && len < OSM_CCT_ENTRY_MAX) {
+
+			if (!(ptr = strchr(tok, ':'))) {
+				log_report("invalid CCT entry\n");
+				free(new);
+				return;
+			}
+			*ptr = '\0';
+			ptr++;
+
+			newcct.entries[len].shift = strtoul(tok, NULL, 0);
+			newcct.entries[len].multiplier = strtoul(ptr, NULL, 0);
+			len++;
+			tok = strtok_r(NULL, ",", &lasts);
+		}
+
+		free(new);
+
+		newcct.entries_len = len;
+		newcct.input_str = strdup(p_val_str);
+
+		log_config_value(p_key, "%s", p_val_str);
+		if (pfn)
+			pfn(p_subn, &newcct);
+		if (p_val1->input_str && p_val1->input_str != p_val2->input_str)
+			free(p_val1->input_str);
+		if (p_val2->input_str)
+			free(p_val2->input_str);
+		memcpy(p_val1->entries, newcct.entries, sizeof(newcct.entries));
+		memcpy(p_val2->entries, newcct.entries, sizeof(newcct.entries));
+		p_val1->entries_len = p_val2->entries_len = newcct.entries_len;
+		p_val1->input_str = p_val2->input_str = newcct.input_str;
+	}
+}
+
+static int parse_ca_cong_common(char *p_val_str, uint8_t *sl, unsigned int *val_offset) {
+	char *new, *lasts, *sl_str, *val_str;
+	uint8_t sltmp;
+
+	new = strcmp(null_str, p_val_str) ? strdup(p_val_str) : NULL;
+	if (!new)
+		return -1;
+
+	sl_str = strtok_r(new, " \t", &lasts);
+	val_str = strtok_r(NULL, " \t", &lasts);
+
+	if (!val_str) {
+		log_report("value must be specified in addition to SL\n");
+		free(new);
+		return -1;
+	}
+
+	sltmp = strtoul(sl_str, NULL, 0);
+	if (sltmp >= IB_CA_CONG_ENTRY_DATA_SIZE) {
+		log_report("invalid SL specified\n");
+		free(new);
+		return -1;
+	}
+
+	*sl = sltmp;
+	*val_offset = (unsigned int)(val_str - new);
+
+	free(new);
+	return 0;
+}
+
+static void opts_parse_ccti_timer(IN osm_subn_t *p_subn, IN char *p_key,
+				  IN char *p_val_str, void *p_v1, void *p_v2,
+				  void (*pfn)(osm_subn_t *, void *))
+{
+	osm_cacongestion_entry_t *p_val1 = p_v1, *p_val2 = p_v2;
+	unsigned int val_offset = 0;
+	uint8_t sl = 0;
+
+	if (parse_ca_cong_common(p_val_str, &sl, &val_offset) < 0)
+		return;
+
+	opts_parse_net16(p_subn, p_key, p_val_str + val_offset,
+			 &p_val1[sl].ccti_timer,
+			 &p_val2[sl].ccti_timer,
+			 pfn);
+}
+
+static void opts_parse_ccti_increase(IN osm_subn_t *p_subn, IN char *p_key,
+				     IN char *p_val_str, void *p_v1, void *p_v2,
+				     void (*pfn)(osm_subn_t *, void *))
+{
+	osm_cacongestion_entry_t *p_val1 = p_v1, *p_val2 = p_v2;
+	unsigned int val_offset = 0;
+	uint8_t sl = 0;
+
+	if (parse_ca_cong_common(p_val_str, &sl, &val_offset) < 0)
+		return;
+
+	opts_parse_uint8(p_subn, p_key, p_val_str + val_offset,
+			 &p_val1[sl].ccti_increase,
+			 &p_val2[sl].ccti_increase,
+			 pfn);
+}
+
+static void opts_parse_trigger_threshold(IN osm_subn_t *p_subn, IN char *p_key,
+					 IN char *p_val_str, void *p_v1, void *p_v2,
+					 void (*pfn)(osm_subn_t *, void *))
+{
+	osm_cacongestion_entry_t *p_val1 = p_v1, *p_val2 = p_v2;
+	unsigned int val_offset = 0;
+	uint8_t sl = 0;
+
+	if (parse_ca_cong_common(p_val_str, &sl, &val_offset) < 0)
+		return;
+
+	opts_parse_uint8(p_subn, p_key, p_val_str + val_offset,
+			 &p_val1[sl].trigger_threshold,
+			 &p_val2[sl].trigger_threshold,
+			 pfn);
+}
+
+static void opts_parse_ccti_min(IN osm_subn_t *p_subn, IN char *p_key,
+				IN char *p_val_str, void *p_v1, void *p_v2,
+				void (*pfn)(osm_subn_t *, void *))
+{
+	osm_cacongestion_entry_t *p_val1 = p_v1, *p_val2 = p_v2;
+	unsigned int val_offset = 0;
+	uint8_t sl = 0;
+
+	if (parse_ca_cong_common(p_val_str, &sl, &val_offset) < 0)
+		return;
+
+	opts_parse_uint8(p_subn, p_key, p_val_str + val_offset,
+			 &p_val1[sl].ccti_min,
+			 &p_val2[sl].ccti_min,
+			 pfn);
 }
 
 static const opt_rec_t opt_tbl[] = {
@@ -524,6 +809,24 @@ static const opt_rec_t opt_tbl[] = {
 	{ "qos_rtr_vlarb_high", OPT_OFFSET(qos_rtr_options.vlarb_high), opts_parse_charp, NULL, 1 },
 	{ "qos_rtr_vlarb_low", OPT_OFFSET(qos_rtr_options.vlarb_low), opts_parse_charp, NULL, 1 },
 	{ "qos_rtr_sl2vl", OPT_OFFSET(qos_rtr_options.sl2vl), opts_parse_charp, NULL, 1 },
+	{ "congestion_control", OPT_OFFSET(congestion_control), opts_parse_boolean, NULL, 1 },
+	{ "cc_key", OPT_OFFSET(cc_key), opts_parse_net64, NULL, 0},
+	{ "cc_max_outstanding_mads", OPT_OFFSET(cc_max_outstanding_mads), opts_parse_uint32, NULL, 0 },
+	{ "cc_sw_cong_setting_control_map", OPT_OFFSET(cc_sw_cong_setting_control_map), opts_parse_net32, NULL, 1},
+	{ "cc_sw_cong_setting_victim_mask", OPT_OFFSET(cc_sw_cong_setting_victim_mask), opts_parse_256bit, NULL, 1},
+	{ "cc_sw_cong_setting_credit_mask", OPT_OFFSET(cc_sw_cong_setting_credit_mask), opts_parse_256bit, NULL, 1},
+	{ "cc_sw_cong_setting_threshold", OPT_OFFSET(cc_sw_cong_setting_threshold), opts_parse_uint8, NULL, 1},
+	{ "cc_sw_cong_setting_packet_size", OPT_OFFSET(cc_sw_cong_setting_packet_size), opts_parse_uint8, NULL, 1},
+	{ "cc_sw_cong_setting_credit_starvation_threshold", OPT_OFFSET(cc_sw_cong_setting_credit_starvation_threshold), opts_parse_uint8, NULL, 1},
+	{ "cc_sw_cong_setting_credit_starvation_return_delay", OPT_OFFSET(cc_sw_cong_setting_credit_starvation_return_delay), opts_parse_cct_entry, NULL, 1},
+	{ "cc_sw_cong_setting_marking_rate", OPT_OFFSET(cc_sw_cong_setting_marking_rate), opts_parse_net16, NULL, 1},
+	{ "cc_ca_cong_setting_port_control", OPT_OFFSET(cc_ca_cong_setting_port_control), opts_parse_net16, NULL, 1},
+	{ "cc_ca_cong_setting_control_map", OPT_OFFSET(cc_ca_cong_setting_control_map), opts_parse_net16, NULL, 1},
+	{ "cc_ca_cong_setting_ccti_timer", OPT_OFFSET(cc_ca_cong_entries), opts_parse_ccti_timer, NULL, 1},
+	{ "cc_ca_cong_setting_ccti_increase", OPT_OFFSET(cc_ca_cong_entries), opts_parse_ccti_increase, NULL, 1},
+	{ "cc_ca_cong_setting_trigger_threshold", OPT_OFFSET(cc_ca_cong_entries), opts_parse_trigger_threshold, NULL, 1},
+	{ "cc_ca_cong_setting_ccti_min", OPT_OFFSET(cc_ca_cong_entries), opts_parse_ccti_min, NULL, 1},
+	{ "cc_cct", OPT_OFFSET(cc_cct), opts_parse_cc_cct, NULL, 1},
 	{ "enable_quirks", OPT_OFFSET(enable_quirks), opts_parse_boolean, NULL, 1 },
 	{ "no_clients_rereg", OPT_OFFSET(no_clients_rereg), opts_parse_boolean, NULL, 1 },
 	{ "prefix_routes_file", OPT_OFFSET(prefix_routes_file), opts_parse_charp, NULL, 0 },
@@ -601,6 +904,7 @@ static void subn_opt_destroy(IN osm_subn_opt_t * p_opt)
 	subn_destroy_qos_options(&p_opt->qos_sw0_options);
 	subn_destroy_qos_options(&p_opt->qos_swe_options);
 	subn_destroy_qos_options(&p_opt->qos_rtr_options);
+	free(p_opt->cc_cct.input_str);
 }
 
 void osm_subn_destroy(IN osm_subn_t * p_subn)
@@ -1033,6 +1337,9 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * p_opt)
 	p_opt->torus_conf_file = strdup(OSM_DEFAULT_TORUS_CONF_FILE);
 	p_opt->do_mesh_analysis = FALSE;
 	p_opt->exit_on_fatal = TRUE;
+	p_opt->congestion_control = FALSE;
+	p_opt->cc_key = OSM_DEFAULT_CC_KEY;
+	p_opt->cc_max_outstanding_mads = OSM_PERFMGR_DEFAULT_MAX_OUTSTANDING_QUERIES;
 	p_opt->enable_quirks = FALSE;
 	p_opt->no_clients_rereg = FALSE;
 	p_opt->prefix_routes_file = strdup(OSM_DEFAULT_PREFIX_ROUTES_FILE);
@@ -1047,6 +1354,8 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * p_opt)
 	subn_init_qos_options(&p_opt->qos_sw0_options, NULL);
 	subn_init_qos_options(&p_opt->qos_swe_options, NULL);
 	subn_init_qos_options(&p_opt->qos_rtr_options, NULL);
+	p_opt->cc_cct.entries_len = 0;
+	p_opt->cc_cct.input_str = NULL;
 }
 
 static char *clean_val(char *val)
@@ -1674,6 +1983,9 @@ int osm_subn_rescan_conf_files(IN osm_subn_t * p_subn)
 
 int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 {
+	int cacongoutputcount = 0;
+	int i;
+
 	fprintf(out,
 		"#\n# DEVICE ATTRIBUTES OPTIONS\n#\n"
 		"# The port GUID on which the OpenSM is running\n"
@@ -2135,6 +2447,164 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 	subn_dump_qos_options(out,
 			      "QoS Router ports options", "qos_rtr",
 			      &p_opts->qos_rtr_options);
+	fprintf(out, "\n");
+
+	fprintf(out,
+		"#\n# Congestion Control OPTIONS (EXPERIMENTAL)\n#\n\n"
+		"# Enable Congestion Control Configuration\n"
+		"congestion_control %s\n\n"
+		"# CCKey to use when configuring congestion control\n"
+		"# note that this does not configure a new CCkey, only the CCkey to use\n"
+		"cc_key 0x%016" PRIx64 "\n\n"
+		"# Congestion Control Max outstanding MAD\n"
+		"cc_max_outstanding_mads %u\n\n",
+		p_opts->congestion_control ? "TRUE" : "FALSE",
+		cl_ntoh64(p_opts->cc_key),
+		p_opts->cc_max_outstanding_mads);
+
+	fprintf(out,
+		"#\n# Congestion Control SwitchCongestionSetting options\n#\n"
+		"# Control Map - bitmask indicating which of the following attributes are to be used\n"
+		"# bit 0 - victim mask\n"
+		"# bit 1 - credit mask\n"
+		"# bit 2 - threshold + packet size\n"
+		"# bit 3 - credit starvation threshold + return delay valid\n"
+		"# bit 4 - marking rate valid\n"
+		"cc_sw_cong_setting_control_map 0x%X\n\n",
+		cl_ntoh32(p_opts->cc_sw_cong_setting_control_map));
+
+	fprintf(out,
+		"# Victim Mask - 256 bit mask representing switch ports, mark packets with FECN\n"
+		"# whether they are the source or victim of congestion\n"
+		"# bit 0 - port 0 (enhanced port)\n"
+		"# bit 1 - port 1\n"
+		"# ...\n"
+		"# bit 254 - port 254\n"
+		"# bit 255 - reserved\n"
+		"cc_sw_cong_setting_victim_mask 0x");
+
+	for (i = 0; i < IB_CC_PORT_MASK_DATA_SIZE; i++)
+		fprintf(out, "%02X", p_opts->cc_sw_cong_setting_victim_mask[i]);
+	fprintf(out, "\n\n");
+
+	fprintf(out,
+		"# Credit Mask - 256 bit mask representing switch ports to apply credit starvation\n"
+		"# bit 0 - port 0 (enhanced port)\n"
+		"# bit 1 - port 1\n"
+		"# ...\n"
+		"# bit 254 - port 254\n"
+		"# bit 255 - reserved\n"
+		"cc_sw_cong_setting_credit_mask 0x");
+
+	for (i = 0; i < IB_CC_PORT_MASK_DATA_SIZE; i++)
+		fprintf(out, "%02X", p_opts->cc_sw_cong_setting_credit_mask[i]);
+	fprintf(out, "\n\n");
+
+	fprintf(out,
+		"# Threshold - value indicating aggressiveness of congestion marking\n"
+		"# 0x0 - none, 0x1 - loose, ..., 0xF - aggressive\n"
+		"cc_sw_cong_setting_threshold 0x%02X\n\n"
+		"# Packet Size - any packet less than this size will not be marked with a FECN\n"
+		"# units are in credits\n"
+		"cc_sw_cong_setting_packet_size %u\n\n"
+		"# Credit Starvation Threshold - value indicating aggressiveness of credit starvation\n"
+		"# 0x0 - none, 0x1 - loose, ..., 0xF - aggressive\n"
+		"cc_sw_cong_setting_credit_starvation_threshold 0x%02X\n\n"
+		"# Credit Starvation Return Delay - in CCT entry shift:multiplier format, see IB spec\n"
+		"cc_sw_cong_setting_credit_starvation_return_delay %u:%u\n\n"
+		"# Marking Rate - mean number of packets between markings\n"
+		"cc_sw_cong_setting_marking_rate %u\n\n",
+		p_opts->cc_sw_cong_setting_threshold,
+		p_opts->cc_sw_cong_setting_packet_size,
+		p_opts->cc_sw_cong_setting_credit_starvation_threshold,
+		p_opts->cc_sw_cong_setting_credit_starvation_return_delay.shift,
+		p_opts->cc_sw_cong_setting_credit_starvation_return_delay.multiplier,
+		cl_ntoh16(p_opts->cc_sw_cong_setting_marking_rate));
+
+	fprintf(out,
+		"#\n# Congestion Control CA Congestion Setting options\n#\n"
+		"# Port Control\n"
+		"# bit 0 = 0, QP based congestion control\n"
+		"# bit 0 = 1, SL/port based congestion control\n"
+		"cc_ca_cong_setting_port_control 0x%04X\n\n"
+		"# Control Map - 16 bit bitmask indicating which SLs should be configured\n"
+		"cc_ca_cong_setting_control_map 0x%04X\n\n",
+		cl_ntoh16(p_opts->cc_ca_cong_setting_port_control),
+		cl_ntoh16(p_opts->cc_ca_cong_setting_control_map));
+
+	fprintf(out,
+		"#\n# CA Congestion Setting Entries\n#\n"
+		"# Each of congestion control settings below configures the CA Congestion\n"
+		"# Settings for an individual SL.  The SL must be specified before the value.\n"
+		"# These options may be specified multiple times to configure different values\n"
+		"# for different SLs.\n"
+		"#\n"
+		"# ccti timer - when expires decrements 1 from the CCTI\n"
+		"# ccti increase - number to be added to the table index on receipt of a BECN\n"
+		"# trigger threshold - when the ccti is equal to this, an event is logged\n"
+		"# ccti min - the minimum value for the ccti.  This imposes a minimum rate\n"
+		"#            on the injection rate\n\n");
+
+	for (i = 0; i < IB_CA_CONG_ENTRY_DATA_SIZE; i++) {
+		/* Don't output unless one of the settings has been set, there's no need
+		 * to output 16 chunks of this with all defaults of 0 */
+		if (p_opts->cc_ca_cong_entries[i].ccti_timer
+		    || p_opts->cc_ca_cong_entries[i].ccti_increase
+		    || p_opts->cc_ca_cong_entries[i].trigger_threshold
+		    || p_opts->cc_ca_cong_entries[i].ccti_min) {
+			fprintf(out,
+				"# SL = %u\n"
+				"cc_ca_cong_setting_ccti_timer %u %u\n"
+				"cc_ca_cong_setting_ccti_increase %u %u\n"
+				"cc_ca_cong_setting_trigger_threshold %u %u\n"
+				"cc_ca_cong_setting_ccti_min %u %u\n\n",
+				i,
+				i,
+				cl_ntoh16(p_opts->cc_ca_cong_entries[i].ccti_timer),
+				i,
+				p_opts->cc_ca_cong_entries[i].ccti_increase,
+				i,
+				p_opts->cc_ca_cong_entries[i].trigger_threshold,
+				i,
+				p_opts->cc_ca_cong_entries[i].ccti_min);
+			cacongoutputcount++;
+		}
+	}
+
+	/* If by chance all the CA Cong Settings are default, output atleast 1 chunk
+         * for illustration */
+	if (!cacongoutputcount)
+		fprintf(out,
+			"# SL = 0\n"
+			"cc_ca_cong_setting_ccti_timer 0 %u\n"
+			"cc_ca_cong_setting_ccti_increase 0 %u\n"
+			"cc_ca_cong_setting_trigger_threshold 0 %u\n"
+			"cc_ca_cong_setting_ccti_min 0 %u\n\n",
+			cl_ntoh16(p_opts->cc_ca_cong_entries[0].ccti_timer),
+			p_opts->cc_ca_cong_entries[0].ccti_increase,
+			p_opts->cc_ca_cong_entries[0].trigger_threshold,
+			p_opts->cc_ca_cong_entries[0].ccti_min);
+
+	fprintf(out,
+		"#\n# Congestion Control Table\n#\n"
+		"# Comma separated list of CCT entries representing CCT.\n"
+		"# Format is shift:multipler,shift_multiplier,shift:multiplier,...\n"
+		"cc_cct ");
+
+	if (!p_opts->cc_cct.entries_len) {
+		fprintf(out, "%s\n", null_str);
+	}
+	else {
+		fprintf(out, "%u:%u",
+			p_opts->cc_cct.entries[0].shift,
+			p_opts->cc_cct.entries[0].multiplier);
+		for (i = 0; i < p_opts->cc_cct.entries_len; i++) {
+			fprintf(out, ",%u:%u",
+				p_opts->cc_cct.entries[0].shift,
+				p_opts->cc_cct.entries[0].multiplier);
+		}
+		fprintf(out, "\n");
+	}
 	fprintf(out, "\n");
 
 	fprintf(out,
