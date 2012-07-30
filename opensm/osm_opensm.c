@@ -375,7 +375,6 @@ ib_api_status_t osm_opensm_init(IN osm_opensm_t * p_osm,
 	if (status != IB_SUCCESS)
 		return status;
 	p_osm->log.log_prefix = p_opt->log_prefix;
-	p_osm->log.p_subn = &p_osm->subn;
 
 	/* If there is a log level defined - add the OSM_VERSION to it */
 	osm_log_v2(&p_osm->log,

@@ -74,11 +74,6 @@ BEGIN_C_DECLS
 #define OSM_PARTITION_ENFORCE_OUT			"out"
 #define OSM_PARTITION_ENFORCE_OFF			"off"
 
-#ifndef OSM_LOG_LEVEL_T_DEFINED
-#define OSM_LOG_LEVEL_T_DEFINED
-typedef uint8_t osm_log_level_t;
-#endif
-
 typedef enum _osm_partition_enforce_type_enum {
 	OSM_PARTITION_ENFORCE_TYPE_BOTH,
 	OSM_PARTITION_ENFORCE_TYPE_IN,
@@ -604,7 +599,6 @@ typedef struct osm_subn {
 	unsigned need_update;
 	cl_fmap_t mgrp_mgid_tbl;
 	void *mboxes[IB_LID_MCAST_END_HO - IB_LID_MCAST_START_HO + 1];
-	osm_log_level_t per_mod_log_tbl[256];
 } osm_subn_t;
 /*
 * FIELDS
@@ -748,9 +742,6 @@ typedef struct osm_subn {
 *	mboxes
 *		Array of pointers to all Multicast MLID box objects in the
 *		subnet. Indexed by MLID offset from base MLID.
-*
-*	per_mod_log_tbl
-*		Array of log levels based on per module logging file ID.
 *
 * SEE ALSO
 *	Subnet object

@@ -48,7 +48,6 @@
 #endif
 #include <complib/cl_spinlock.h>
 #include <opensm/osm_base.h>
-#include <opensm/osm_subnet.h>
 #include <iba/ib_types.h>
 #include <stdio.h>
 
@@ -99,10 +98,7 @@ BEGIN_C_DECLS
 * AUTHOR
 *
 *********/
-#ifndef OSM_LOG_LEVEL_T_DEFINED
-#define OSM_LOG_LEVEL_T_DEFINED
 typedef uint8_t osm_log_level_t;
-#endif
 
 #define OSM_LOG_NONE	0x00
 #define OSM_LOG_ERROR	0x01
@@ -139,7 +135,7 @@ typedef struct osm_log {
 	boolean_t daemon;
 	char *log_file_name;
 	char *log_prefix;
-	osm_subn_t *p_subn;
+	osm_log_level_t per_mod_log_tbl[256];
 } osm_log_t;
 /*********/
 
@@ -156,18 +152,67 @@ typedef struct osm_log {
  *
  * SYNOPSIS
  */
-osm_log_level_t osm_get_log_per_module(IN osm_subn_t * subn,
+osm_log_level_t osm_get_log_per_module(IN osm_log_t * p_log,
 				       IN const int file_id);
 /*
  * PARAMETERS
- *	subn
- *		[in] Pointer to an osm_subn_t object
+ *	p_log
+ *		[in] Pointer to a Log object to construct.
  *
  *	file_id
  *		[in] File ID for module
  *
  * RETURN VALUES
  *	The log level from the per module logging structure for this file ID.
+ *********/
+
+/****f* OpenSM: Log/osm_set_log_per_module
+ * NAME
+ *	osm_set_log_per_module
+ *
+ * DESCRIPTION
+ *	This sets log level for the given file ID in the per module log table.
+ *	NOTE: this code is not thread safe. Need to grab the lock before
+ *	calling it.
+ *
+ * SYNOPSIS
+ */
+void osm_set_log_per_module(IN osm_log_t * p_log, IN const int file_id,
+			    IN osm_log_level_t level);
+/*
+ * PARAMETERS
+ *	p_log
+ *		[in] Pointer to a Log object to construct.
+ *
+ *	file_id
+ *		[in] File ID for module
+ *
+ *	level
+ *		[in] Log level of the module
+ *
+ * RETURN VALUES
+ *	This function does not return a value.
+ *********/
+
+/****f* OpenSM: Log/osm_reset_log_per_module
+ * NAME
+ *	osm_reset_log_per_module
+ *
+ * DESCRIPTION
+ *	This resets log level for the entire per module log table.
+ *	NOTE: this code is not thread safe. Need to grab the lock before
+ *	calling it.
+ *
+ * SYNOPSIS
+ */
+void osm_reset_log_per_module(IN osm_log_t * p_log);
+/*
+ * PARAMETERS
+ *	p_log
+ *		[in] Pointer to a Log object to construct.
+ *
+ * RETURN VALUES
+ *	This function does not return a value.
  *********/
 
 /****f* OpenSM: Log/osm_log_construct
@@ -432,9 +477,7 @@ static inline boolean_t osm_log_is_active_v2(IN const osm_log_t * p_log,
 {
 	if ((p_log->level & level) != 0)
 		return 1;
-	if (!p_log->p_subn)
-		return 0;
-	if ((level & p_log->p_subn->per_mod_log_tbl[file_id]))
+	if ((level & p_log->per_mod_log_tbl[file_id]))
 		return 1;
 	return 0;
 }

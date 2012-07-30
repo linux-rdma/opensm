@@ -1201,7 +1201,7 @@ static ib_api_status_t insert_per_module_debug(IN osm_subn_t * p_subn,
 			"Module name %s not found\n", mod_name);
 		return IB_ERROR;
 	}
-	p_subn->per_mod_log_tbl[index] = level;
+	osm_set_log_per_module(&p_subn->p_osm->log, index, level);
 	return IB_SUCCESS;
 }
 
@@ -1213,7 +1213,7 @@ static ib_api_status_t parse_per_mod_logging_file(IN osm_subn_t * p_subn)
 	int line = 0;
 	int errors = 0;
 
-	memset(p_subn->per_mod_log_tbl, 0, sizeof(p_subn->per_mod_log_tbl));
+	osm_reset_log_per_module(log);
 
 	fp = fopen(p_subn->opt.per_module_logging_file, "r");
 	if (!fp) {

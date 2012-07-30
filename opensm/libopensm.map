@@ -92,5 +92,7 @@ OPENSM_1.5 {
 		osm_log_msg_box_v2;
 		osm_log_is_active_v2;
 		osm_get_log_per_module;
+		osm_set_log_per_module;
+		osm_reset_log_per_module;
 	local: *;
 };

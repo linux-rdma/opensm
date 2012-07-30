@@ -239,9 +239,7 @@ void osm_log_v2(IN osm_log_t * p_log, IN osm_log_level_t verbosity,
 
 	/* If this is a call to syslog - always print it */
 	if (!(verbosity & p_log->level)) {
-		if (!p_log->p_subn)
-			return;
-		if (!(verbosity & p_log->p_subn->per_mod_log_tbl[file_id]))
+		if (!(verbosity & p_log->per_mod_log_tbl[file_id]))
 			return;
 	}
 
@@ -472,7 +470,7 @@ ib_api_status_t osm_log_init_v2(IN osm_log_t * p_log, IN boolean_t flush,
 	p_log->max_size = max_size << 20; /* convert size in MB to bytes */
 	p_log->accum_log_file = accum_log_file;
 	p_log->log_file_name = (char *)log_file;
-	p_log->p_subn = NULL;
+	memset(p_log->per_mod_log_tbl, 0, sizeof(p_log->per_mod_log_tbl));
 
 	openlog("OpenSM", LOG_CONS | LOG_PID, LOG_USER);
 
@@ -498,8 +496,19 @@ ib_api_status_t osm_log_init(IN osm_log_t * p_log, IN boolean_t flush,
 			       accum_log_file);
 }
 
-osm_log_level_t osm_get_log_per_module(IN osm_subn_t * subn,
+osm_log_level_t osm_get_log_per_module(IN osm_log_t * p_log,
 				       IN const int file_id)
 {
-	return subn->per_mod_log_tbl[file_id];
+	return p_log->per_mod_log_tbl[file_id];
+}
+
+void osm_set_log_per_module(IN osm_log_t * p_log, IN const int file_id,
+			    IN osm_log_level_t level)
+{
+	p_log->per_mod_log_tbl[file_id] = level;
+}
+
+void osm_reset_log_per_module(IN osm_log_t * p_log)
+{
+	memset(p_log->per_mod_log_tbl, 0, sizeof(p_log->per_mod_log_tbl));
 }
