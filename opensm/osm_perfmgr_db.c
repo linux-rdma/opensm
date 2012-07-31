@@ -215,7 +215,7 @@ perfmgr_db_delete_inactive(perfmgr_db_t * db, unsigned *cnt)
 	perfmgr_db_err_t rc = PERFMGR_EVENT_DB_SUCCESS;
 	int i = 0;
 	int num = 0;
-	uint64_t * guid_list;
+	uint64_t * guid_list = NULL;
 	cl_map_item_t * p_map_item = cl_qmap_head(&db->pc_data);
 
 	if (p_map_item == cl_qmap_end(&db->pc_data)) {
