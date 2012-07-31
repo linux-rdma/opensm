@@ -834,7 +834,6 @@ static const opt_rec_t opt_tbl[] = {
 	{ "lash_start_vl", OPT_OFFSET(lash_start_vl), opts_parse_uint8, NULL, 1 },
 	{ "sm_sl", OPT_OFFSET(sm_sl), opts_parse_uint8, NULL, 1 },
 	{ "log_prefix", OPT_OFFSET(log_prefix), opts_parse_charp, NULL, 1 },
-	{ "per_module_logging", OPT_OFFSET(per_module_logging), opts_parse_boolean, NULL, 1 },
 	{ "per_module_logging_file", OPT_OFFSET(per_module_logging_file), opts_parse_charp, NULL, 0 },
 	{0}
 };
@@ -1347,7 +1346,6 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * p_opt)
 	p_opt->lash_start_vl = 0;
 	p_opt->sm_sl = OSM_DEFAULT_SL;
 	p_opt->log_prefix = NULL;
-	p_opt->per_module_logging = FALSE;
 	p_opt->per_module_logging_file = strdup(OSM_DEFAULT_PER_MOD_LOGGING_CONF_FILE);
 	subn_init_qos_options(&p_opt->qos_options, NULL);
 	subn_init_qos_options(&p_opt->qos_ca_options, NULL);
@@ -2375,8 +2373,6 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		"log_max_size %lu\n\n"
 		"# If TRUE will accumulate the log over multiple OpenSM sessions\n"
 		"accum_log_file %s\n\n"
-		"# Per module logging\n"
-		"per_module_logging %s\n\n"
 		"# Per module logging configuration file\n"
 		"# Each line in config file contains <module_name><separator><log_flags>\n"
 		"# where module_name is file name including .c\n"
@@ -2410,7 +2406,6 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		p_opts->log_file,
 		p_opts->log_max_size,
 		p_opts->accum_log_file ? "TRUE" : "FALSE",
-		p_opts->per_module_logging ? "TRUE" : "FALSE",
 		p_opts->per_module_logging_file,
 		p_opts->dump_files_dir,
 		p_opts->enable_quirks ? "TRUE" : "FALSE",

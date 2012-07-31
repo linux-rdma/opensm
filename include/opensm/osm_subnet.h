@@ -364,7 +364,6 @@ typedef struct osm_subn_opt {
 	struct osm_subn_opt *file_opts; /* used for update */
 	uint8_t lash_start_vl;			/* starting vl to use in lash */
 	uint8_t sm_sl;			/* which SL to use for SM/SA communication */
-	boolean_t per_module_logging;
 	char *per_module_logging_file;
 } osm_subn_opt_t;
 /*
@@ -693,10 +692,6 @@ typedef struct osm_subn_opt {
 *	scatter_ports
 *		When not zero, randomize best possible ports chosen
 *		for a route. The value is used as a random key seed.
-*
-*	per_module_logging
-*		Enable/disable the per module logging feature.
-*		Default is disabled.
 *
 *	per_module_logging_file
 *		File name of per module logging configuration.
