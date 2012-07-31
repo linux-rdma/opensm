@@ -1522,6 +1522,9 @@ static ib_api_status_t parse_per_mod_logging_file(IN osm_subn_t * p_subn)
 
 	osm_reset_log_per_module(log);
 
+	if (p_subn->opt.per_module_logging_file == NULL)
+		return IB_SUCCESS;
+
 	fp = fopen(p_subn->opt.per_module_logging_file, "r");
 	if (!fp) {
 		if (errno == ENOENT)
@@ -2406,7 +2409,8 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		p_opts->log_file,
 		p_opts->log_max_size,
 		p_opts->accum_log_file ? "TRUE" : "FALSE",
-		p_opts->per_module_logging_file,
+		p_opts->per_module_logging_file ?
+			p_opts->per_module_logging_file : null_str,
 		p_opts->dump_files_dir,
 		p_opts->enable_quirks ? "TRUE" : "FALSE",
 		p_opts->no_clients_rereg ? "TRUE" : "FALSE",
