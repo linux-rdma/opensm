@@ -82,7 +82,12 @@ static void cc_mad_post(osm_congestion_control_t *p_cc,
 	p_cc_mad->header.status = 0;
 	p_cc_mad->header.class_spec = 0;
 	p_cc_mad->header.trans_id =
-		cl_hton64((uint64_t) cl_atomic_inc(&p_cc->trans_id));
+		cl_hton64((uint64_t) cl_atomic_inc(&p_cc->trans_id) &
+			  (uint64_t) (0xFFFFFFFF));
+	if (p_cc_mad->header.trans_id == 0)
+		p_cc_mad->header.trans_id =
+			cl_hton64((uint64_t) cl_atomic_inc(&p_cc->trans_id) &
+				  (uint64_t) (0xFFFFFFFF));
 	p_cc_mad->header.attr_id = attr_id;
 	p_cc_mad->header.resv = 0;
 	p_cc_mad->header.attr_mod = attr_mod;
