@@ -56,7 +56,7 @@
 #include <opensm/osm_subnet.h>
 #include <opensm/osm_congestion_control.h>
 
-#define CONGESTION_CONTROL_INITIAL_TID_VALUE 0xbabe
+#define CONGESTION_CONTROL_INITIAL_TID_VALUE 0x7A93
 
 static void cc_mad_post(osm_congestion_control_t *p_cc,
 			osm_madw_t *p_madw,
