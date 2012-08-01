@@ -213,6 +213,7 @@ static int disable_port(osm_sm_t *sm, osm_physp_t *p)
 	uint8_t payload[IB_SMP_DATA_SIZE];
 	osm_madw_context_t context;
 	ib_port_info_t *pi = (ib_port_info_t *)payload;
+	ib_api_status_t status;
 
 	/* select the nearest port to master opensm */
 	if (p->p_remote_physp &&
@@ -235,10 +236,13 @@ static int disable_port(osm_sm_t *sm, osm_physp_t *p)
 	context.pi_context.light_sweep = FALSE;
 	context.pi_context.active_transition = FALSE;
 
-	return osm_req_set(sm, osm_physp_get_dr_path_ptr(p),
+	CL_PLOCK_ACQUIRE(sm->p_lock);
+	status = osm_req_set(sm, osm_physp_get_dr_path_ptr(p),
 			   payload, sizeof(payload), IB_MAD_ATTR_PORT_INFO,
 			   cl_hton32(osm_physp_get_port_num(p)),
 			   CL_DISP_MSGID_NONE, &context);
+	CL_PLOCK_RELEASE(sm->p_lock);
+	return status;
 }
 
 static void log_trap_info(osm_log_t *p_log, ib_mad_notice_attr_t *p_ntci,

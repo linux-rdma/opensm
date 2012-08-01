@@ -241,8 +241,10 @@ static ib_api_status_t state_mgr_sweep_hop_0(IN osm_sm_t * sm)
 		CL_PLOCK_RELEASE(sm->p_lock);
 
 		osm_dr_path_init(&dr_path, 0, path_array);
+		CL_PLOCK_ACQUIRE(sm->p_lock);
 		status = osm_req_get(sm, &dr_path, IB_MAD_ATTR_NODE_INFO, 0,
 				     CL_DISP_MSGID_NONE, NULL);
+		CL_PLOCK_RELEASE(sm->p_lock);
 		if (status != IB_SUCCESS)
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3305: "
 				"Request for NodeInfo failed (%s)\n",
@@ -434,8 +436,10 @@ static ib_api_status_t state_mgr_sweep_hop_1(IN osm_sm_t * sm)
 		path_array[1] = port_num;
 
 		osm_dr_path_init(&hop_1_path, 1, path_array);
+		CL_PLOCK_ACQUIRE(sm->p_lock);
 		status = osm_req_get(sm, &hop_1_path, IB_MAD_ATTR_NODE_INFO, 0,
 				     CL_DISP_MSGID_NONE, &context);
+		CL_PLOCK_RELEASE(sm->p_lock);
 		if (status != IB_SUCCESS)
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3311: "
 				"Request for NodeInfo failed (%s)\n",
@@ -463,10 +467,12 @@ static ib_api_status_t state_mgr_sweep_hop_1(IN osm_sm_t * sm)
 
 				path_array[1] = port_num;
 				osm_dr_path_init(&hop_1_path, 1, path_array);
+				CL_PLOCK_ACQUIRE(sm->p_lock);
 				status = osm_req_get(sm, &hop_1_path,
 						     IB_MAD_ATTR_NODE_INFO, 0,
 						     CL_DISP_MSGID_NONE,
 						     &context);
+				CL_PLOCK_RELEASE(sm->p_lock);
 				if (status != IB_SUCCESS)
 					OSM_LOG(sm->p_log, OSM_LOG_ERROR,
 						"ERR 3312: "
@@ -823,10 +829,12 @@ static void state_mgr_send_handover(IN osm_sm_t * sm, IN osm_remote_sm_t * p_sm)
 		p_smi->sm_key = 0;
 	}
 
+	CL_PLOCK_ACQUIRE(sm->p_lock);
 	status = osm_req_set(sm, osm_physp_get_dr_path_ptr(p_port->p_physp),
 			     payload, sizeof(payload), IB_MAD_ATTR_SM_INFO,
 			     IB_SMINFO_ATTR_MOD_HANDOVER, CL_DISP_MSGID_NONE,
 			     &context);
+	CL_PLOCK_RELEASE(sm->p_lock);
 
 	if (status != IB_SUCCESS)
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3317: "
