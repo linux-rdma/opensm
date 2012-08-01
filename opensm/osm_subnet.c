@@ -2012,6 +2012,26 @@ int osm_subn_verify_config(IN osm_subn_opt_t * p_opts)
 			   "instead\n", p_opts->m_key_protect_bits, 2);
 		p_opts->m_key_protect_bits = 2;
 	}
+	if (p_opts->m_key_protect_bits && p_opts->m_key_lease_period) {
+		if (!p_opts->sweep_interval) {
+			log_report(" Sweep disabled with protected mkey "
+				   "leases in effect; re-enabling sweeping "
+				   "with interval %u\n",
+				   cl_ntoh16(p_opts->m_key_lease_period) - 1);
+			p_opts->sweep_interval =
+				cl_ntoh16(p_opts->m_key_lease_period) - 1;
+		}
+		if (p_opts->sweep_interval >=
+			cl_ntoh16(p_opts->m_key_lease_period)) {
+			log_report(" Sweep interval %u >= mkey lease period "
+				   "%u. Setting lease period to %u\n",
+				   p_opts->sweep_interval,
+				   cl_ntoh16(p_opts->m_key_lease_period),
+				   p_opts->sweep_interval + 1);
+			p_opts->m_key_lease_period =
+				cl_hton16(p_opts->sweep_interval + 1);
+		}
+	}
 
 	if (p_opts->root_guid_file != NULL) {
 		FILE *root_file = fopen(p_opts->root_guid_file, "r");
