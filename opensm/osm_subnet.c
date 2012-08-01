@@ -2006,6 +2006,13 @@ int osm_subn_verify_config(IN osm_subn_opt_t * p_opts)
 	}
 #endif
 
+	if (p_opts->m_key_protect_bits > 3) {
+		log_report(" Invalid Cached Option Value:"
+			   "m_key_protection_level = %u Setting to %u "
+			   "instead\n", p_opts->m_key_protect_bits, 2);
+		p_opts->m_key_protect_bits = 2;
+	}
+
 	if (p_opts->root_guid_file != NULL) {
 		FILE *root_file = fopen(p_opts->root_guid_file, "r");
 		if (!root_file) {
