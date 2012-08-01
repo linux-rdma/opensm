@@ -885,6 +885,28 @@ typedef enum _osm_thread_state {
 #define OSM_CAP2_IS_EXTENDED_SPEEDS_SUPPORTED (1 << 7)
 /***********/
 
+/****d* OpenSM: Base/OSM_CAP2_IS_MULTICAST_SERVICE_RECS_SUPPORTED
+ * Name
+ *	OSM_CAP2_IS_MULTICAST_SERVICE_RECS_SUPPORTED
+ *
+ * DESCRIPTION
+ *	Multicast Service Records supported
+ *
+ * SYNOPSIS
+ */
+#define OSM_CAP2_IS_MULTICAST_SERVICE_RECS_SUPPORTED (1 << 8)
+
+/****d* OpenSM: Base/OSM_CAP2_IS_PORT_INFO_CAPMASK2_MATCH_SUPPORTED
+ * Name
+ *	OSM_CAP2_IS_PORT_INFO_CAPMASK2_MATCH_SUPPORTED
+ *
+ * DESCRIPTION
+ *	CapMask2 matching for PortInfoRecord supported
+ *
+ * SYNOPSIS
+ */
+#define OSM_CAP2_IS_PORT_INFO_CAPMASK2_MATCH_SUPPORTED (1 << 9)
+
 /****d* OpenSM: Base/osm_signal_t
 * NAME
 *	osm_signal_t
