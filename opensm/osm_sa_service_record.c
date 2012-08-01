@@ -113,8 +113,9 @@ match_service_pkey_with_ports_pkey(IN osm_sa_t * sa,
 			goto Exit;
 		}
 
-		/* Make sure it matches the port of the ServiceGid */
-		if (comp_mask & IB_SR_COMPMASK_SGID) {
+		/* If unicast, make sure it matches the port of the ServiceGid */
+		if (comp_mask & IB_SR_COMPMASK_SGID &&
+		    !ib_gid_is_multicast(&p_service_rec->service_gid)) {
 			service_guid =
 			    p_service_rec->service_gid.unicast.interface_id;
 			service_port =
