@@ -240,8 +240,8 @@ static int link_mgr_set_physp_pi(osm_sm_t * sm, IN osm_physp_t * p_physp,
 				   sizeof(p_pi->m_key_lease_period)))
 				send_set = TRUE;
 
-			/* M_KeyProtectBits are currently always zero */
 			p_pi->mkey_lmc = 0;
+			ib_port_info_set_mpb(p_pi, sm->p_subn->opt.m_key_protect_bits);
 			if (esp0 == FALSE || sm->p_subn->opt.lmc_esp0)
 				ib_port_info_set_lmc(p_pi, sm->p_subn->opt.lmc);
 			if (ib_port_info_get_lmc(p_old_pi) !=

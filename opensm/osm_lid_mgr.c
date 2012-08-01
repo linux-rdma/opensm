@@ -889,6 +889,11 @@ static int lid_mgr_set_physp_pi(IN osm_lid_mgr_t * p_mgr,
 		   sizeof(p_pi->m_key_lease_period)))
 		send_set = TRUE;
 
+	p_pi->mkey_lmc = 0;
+	ib_port_info_set_mpb(p_pi, p_mgr->p_subn->opt.m_key_protect_bits);
+	if (ib_port_info_get_mpb(p_pi) != ib_port_info_get_mpb(p_old_pi))
+		send_set = TRUE;
+
 	/*
 	   we want to set the timeout for both the switch port 0
 	   and the CA ports
@@ -910,12 +915,10 @@ static int lid_mgr_set_physp_pi(IN osm_lid_mgr_t * p_mgr,
 			   sizeof(p_pi->link_width_enabled)))
 			send_set = TRUE;
 
-		/* M_KeyProtectBits are currently always zero */
-		p_pi->mkey_lmc = p_mgr->p_subn->opt.lmc;
+		/* p_pi->mkey_lmc is initialized earlier */
+		ib_port_info_set_lmc(p_pi, p_mgr->p_subn->opt.lmc);
 		if (ib_port_info_get_lmc(p_pi) !=
-		    ib_port_info_get_lmc(p_old_pi) ||
-		    ib_port_info_get_mpb(p_pi) !=
-		    ib_port_info_get_mpb(p_old_pi))
+		    ib_port_info_get_lmc(p_old_pi))
 			send_set = TRUE;
 
 		/* calc new op_vls and mtu */
@@ -996,12 +999,10 @@ static int lid_mgr_set_physp_pi(IN osm_lid_mgr_t * p_mgr,
 
 		/* Determine if enhanced switch port 0 and if so set LMC */
 		if (osm_switch_sp0_is_lmc_capable(p_node->sw, p_mgr->p_subn)) {
-			/* M_KeyProtectBits are currently always zero */
-			p_pi->mkey_lmc = p_mgr->p_subn->opt.lmc;
+			/* p_pi->mkey_lmc is initialized earlier */
+			ib_port_info_set_lmc(p_pi, p_mgr->p_subn->opt.lmc);
 			if (ib_port_info_get_lmc(p_pi) !=
-			    ib_port_info_get_lmc(p_old_pi) ||
-			    ib_port_info_get_mpb(p_pi) !=
-			    ib_port_info_get_mpb(p_old_pi))
+			    ib_port_info_get_lmc(p_old_pi))
 				send_set = TRUE;
 		}
 	}

@@ -250,6 +250,7 @@ typedef struct osm_subn_opt {
 	ib_net64_t sa_key;
 	ib_net64_t subnet_prefix;
 	ib_net16_t m_key_lease_period;
+	uint8_t m_key_protect_bits;
 	uint32_t sweep_interval;
 	uint32_t max_wire_smps;
 	uint32_t max_wire_smps2;

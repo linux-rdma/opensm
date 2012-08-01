@@ -699,6 +699,7 @@ static const opt_rec_t opt_tbl[] = {
 	{ "sa_key", OPT_OFFSET(sa_key), opts_parse_net64, NULL, 1 },
 	{ "subnet_prefix", OPT_OFFSET(subnet_prefix), opts_parse_net64, NULL, 1 },
 	{ "m_key_lease_period", OPT_OFFSET(m_key_lease_period), opts_parse_net16, NULL, 1 },
+	{ "m_key_protection_level", OPT_OFFSET(m_key_protect_bits), opts_parse_uint8, NULL, 1 },
 	{ "sweep_interval", OPT_OFFSET(sweep_interval), opts_parse_uint32, NULL, 1 },
 	{ "max_wire_smps", OPT_OFFSET(max_wire_smps), opts_parse_uint32, NULL, 1 },
 	{ "max_wire_smps2", OPT_OFFSET(max_wire_smps2), opts_parse_uint32, NULL, 1 },
@@ -1317,6 +1318,7 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * p_opt)
 	p_opt->sa_key = OSM_DEFAULT_SA_KEY;
 	p_opt->subnet_prefix = IB_DEFAULT_SUBNET_PREFIX;
 	p_opt->m_key_lease_period = 0;
+	p_opt->m_key_protect_bits = 0;
 	p_opt->sweep_interval = OSM_DEFAULT_SWEEP_INTERVAL_SECS;
 	p_opt->max_wire_smps = OSM_DEFAULT_SMP_MAX_ON_WIRE;
 	p_opt->max_wire_smps2 = p_opt->max_wire_smps;
@@ -2072,6 +2074,8 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		"m_key 0x%016" PRIx64 "\n\n"
 		"# The lease period used for the M_Key on this subnet in [sec]\n"
 		"m_key_lease_period %u\n\n"
+		"# The protection level used for the M_Key on this subnet\n"
+		"m_key_protection_level %u\n\n"
 		"# SM_Key value of the SM used for SM authentication\n"
 		"sm_key 0x%016" PRIx64 "\n\n"
 		"# SM_Key value to qualify rcv SA queries as 'trusted'\n"
@@ -2153,6 +2157,7 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		cl_ntoh64(p_opts->guid),
 		cl_ntoh64(p_opts->m_key),
 		cl_ntoh16(p_opts->m_key_lease_period),
+		p_opts->m_key_protect_bits,
 		cl_ntoh64(p_opts->sm_key),
 		cl_ntoh64(p_opts->sa_key),
 		cl_ntoh64(p_opts->subnet_prefix),
