@@ -1090,18 +1090,18 @@ static void perfmgr_log_errors(osm_perfmgr_t * pm,
 			reading->counter_name - prev_read.counter_name, \
 			mon_node->name, mon_node->guid, port);
 
-	LOG_ERR_CNT("SymbolErrorCounter",           "4C31", symbol_err_cnt);
-	LOG_ERR_CNT("LinkErrorRecoveryCounter",     "4C32", link_err_recover);
-	LOG_ERR_CNT("LinkDownedCounter",            "4C33", link_downed);
-	LOG_ERR_CNT("PortRcvErrors",                "4C34", rcv_err);
-	LOG_ERR_CNT("PortRcvRemotePhysicalErrors",  "4C35", rcv_rem_phys_err);
-	LOG_ERR_CNT("PortRcvSwitchRelayErrors",     "4C36", rcv_switch_relay_err);
-	LOG_ERR_CNT("PortXmitDiscards",             "4C37", xmit_discards);
-	LOG_ERR_CNT("PortXmitConstraintErrors",     "4C38", xmit_constraint_err);
-	LOG_ERR_CNT("PortRcvConstraintErrors",      "4C39", rcv_constraint_err);
-	LOG_ERR_CNT("LocalLinkIntegrityErrors",     "4C3A", link_integrity);
-	LOG_ERR_CNT("ExcessiveBufferOverrunErrors", "4C3B", buffer_overrun);
-	LOG_ERR_CNT("VL15Dropped",                  "4C3C", vl15_dropped);
+	LOG_ERR_CNT("SymbolErrorCounter",           "5431", symbol_err_cnt);
+	LOG_ERR_CNT("LinkErrorRecoveryCounter",     "5432", link_err_recover);
+	LOG_ERR_CNT("LinkDownedCounter",            "5433", link_downed);
+	LOG_ERR_CNT("PortRcvErrors",                "5434", rcv_err);
+	LOG_ERR_CNT("PortRcvRemotePhysicalErrors",  "5435", rcv_rem_phys_err);
+	LOG_ERR_CNT("PortRcvSwitchRelayErrors",     "5436", rcv_switch_relay_err);
+	LOG_ERR_CNT("PortXmitDiscards",             "5437", xmit_discards);
+	LOG_ERR_CNT("PortXmitConstraintErrors",     "5438", xmit_constraint_err);
+	LOG_ERR_CNT("PortRcvConstraintErrors",      "5439", rcv_constraint_err);
+	LOG_ERR_CNT("LocalLinkIntegrityErrors",     "543A", link_integrity);
+	LOG_ERR_CNT("ExcessiveBufferOverrunErrors", "543B", buffer_overrun);
+	LOG_ERR_CNT("VL15Dropped",                  "543C", vl15_dropped);
 }
 
 static int16_t validate_redir_pkey(osm_perfmgr_t *pm, ib_net16_t pkey)
@@ -1147,7 +1147,7 @@ static int16_t validate_redir_pkey(osm_perfmgr_t *pm, ib_net16_t pkey)
 		} else {
 			CL_PLOCK_RELEASE(pm->sm->p_lock);
 			OSM_LOG(pm->log, OSM_LOG_ERROR,
-				"ERR 0x4C1F: Failed to obtain P_Key 0x%04x "
+				"ERR 541F: Failed to obtain P_Key 0x%04x "
 				"block and index for PerfMgr port\n",
 				cl_ntoh16(pkey));
 		}
