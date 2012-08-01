@@ -63,6 +63,7 @@
 #include <opensm/osm_msgdef.h>
 #include <opensm/osm_opensm.h>
 #include <opensm/osm_ucast_mgr.h>
+#include <opensm/osm_db_pack.h>
 
 static void report_duplicated_guid(IN osm_sm_t * sm, osm_physp_t * p_physp,
 				   osm_node_t * p_neighbor_node,
@@ -134,7 +135,7 @@ static void ni_rcv_set_links(IN osm_sm_t * sm, osm_node_t * p_node,
 			     const osm_ni_context_t * p_ni_context)
 {
 	osm_node_t *p_neighbor_node;
-	osm_physp_t *p_physp;
+	osm_physp_t *p_physp, *p_remote_physp;
 
 	OSM_LOG_ENTER(sm->p_log);
 
@@ -244,6 +245,20 @@ static void ni_rcv_set_links(IN osm_sm_t * sm, osm_node_t * p_node,
 
 	osm_node_link(p_node, port_num, p_neighbor_node,
 		      p_ni_context->port_num);
+
+	p_physp = osm_node_get_physp_ptr(p_node, port_num);
+	p_remote_physp = osm_node_get_physp_ptr(p_neighbor_node,
+						p_ni_context->port_num);
+	osm_db_neighbor_set(sm->p_subn->p_neighbor,
+			    cl_ntoh64(osm_physp_get_port_guid(p_physp)),
+			    port_num,
+			    cl_ntoh64(osm_physp_get_port_guid(p_remote_physp)),
+			    p_ni_context->port_num);
+	osm_db_neighbor_set(sm->p_subn->p_neighbor,
+			    cl_ntoh64(osm_physp_get_port_guid(p_remote_physp)),
+			    p_ni_context->port_num,
+			    cl_ntoh64(osm_physp_get_port_guid(p_physp)),
+			    port_num);
 
 _exit:
 	OSM_LOG_EXIT(sm->p_log);

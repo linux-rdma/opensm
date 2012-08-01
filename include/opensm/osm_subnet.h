@@ -754,6 +754,7 @@ typedef struct osm_subn {
 	unsigned need_update;
 	cl_fmap_t mgrp_mgid_tbl;
 	osm_db_domain_t *p_g2m;
+	osm_db_domain_t *p_neighbor;
 	void *mboxes[IB_LID_MCAST_END_HO - IB_LID_MCAST_START_HO + 1];
 } osm_subn_t;
 /*

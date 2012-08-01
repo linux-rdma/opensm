@@ -1477,6 +1477,7 @@ repeat_discovery:
 
 	/* Write a new copy of our persistent guid2mkey database */
 	osm_db_store(sm->p_subn->p_g2m);
+	osm_db_store(sm->p_subn->p_neighbor);
 }
 
 static void do_process_mgrp_queue(osm_sm_t * sm)

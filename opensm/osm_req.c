@@ -115,6 +115,15 @@ static ib_net64_t req_determine_mkey(IN osm_sm_t * sm,
 		goto Remote_Guid;
 	}
 
+	OSM_LOG(sm->p_log, OSM_LOG_DEBUG, "Target port guid unknown, "
+		"using persistent DB\n");
+	if (!osm_db_neighbor_get(sm->p_subn->p_neighbor,
+				 cl_ntoh64(p_physp->port_guid),
+				 p_physp->port_num,
+				 &dest_port_guid, NULL)) {
+		dest_port_guid = cl_hton64(dest_port_guid);
+	}
+
 Remote_Guid:
 	if (dest_port_guid) {
 		if (!osm_db_guid2mkey_get(sm->p_subn->p_g2m,
