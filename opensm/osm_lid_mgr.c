@@ -800,6 +800,7 @@ static int lid_mgr_set_physp_pi(IN osm_lid_mgr_t * p_mgr,
 	uint8_t op_vls;
 	uint8_t port_num;
 	boolean_t send_set = FALSE;
+	boolean_t update_mkey = FALSE;
 	int ret = 0;
 
 	OSM_LOG_ENTER(p_mgr->p_log);
@@ -862,8 +863,10 @@ static int lid_mgr_set_physp_pi(IN osm_lid_mgr_t * p_mgr,
 		send_set = TRUE;
 
 	p_pi->m_key = p_mgr->p_subn->opt.m_key;
-	if (memcmp(&p_pi->m_key, &p_old_pi->m_key, sizeof(p_pi->m_key)))
+	if (memcmp(&p_pi->m_key, &p_old_pi->m_key, sizeof(p_pi->m_key))) {
+		update_mkey = TRUE;
 		send_set = TRUE;
+	}
 
 	p_pi->subnet_prefix = p_mgr->p_subn->opt.subnet_prefix;
 	if (memcmp(&p_pi->subnet_prefix, &p_old_pi->subnet_prefix,
@@ -1053,6 +1056,13 @@ static int lid_mgr_set_physp_pi(IN osm_lid_mgr_t * p_mgr,
 			     CL_DISP_MSGID_NONE, &context);
 	if (status != IB_SUCCESS)
 		ret = -1;
+	/* If we sent a new mkey above, update our guid2mkey map
+	   now, on the assumption that the SubnSet succeeds
+	*/
+	if (update_mkey)
+		osm_db_guid2mkey_set(p_mgr->p_subn->p_g2m,
+				     cl_ntoh64(p_physp->port_guid),
+				     cl_ntoh64(p_pi->m_key));
 
 Exit:
 	OSM_LOG_EXIT(p_mgr->p_log);

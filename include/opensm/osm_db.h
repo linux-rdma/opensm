@@ -43,7 +43,8 @@
 
 #include <complib/cl_list.h>
 #include <complib/cl_spinlock.h>
-#include <opensm/osm_log.h>
+
+struct osm_log;
 
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
@@ -118,7 +119,7 @@ typedef struct osm_db_domain {
 */
 typedef struct osm_db {
 	void *p_db_imp;
-	osm_log_t *p_log;
+	struct osm_log *p_log;
 	cl_list_t domains;
 } osm_db_t;
 /*
@@ -185,7 +186,7 @@ void osm_db_destroy(IN osm_db_t * p_db);
 *
 * SYNOPSIS
 */
-int osm_db_init(IN osm_db_t * p_db, IN osm_log_t * p_log);
+int osm_db_init(IN osm_db_t * p_db, IN struct osm_log * p_log);
 /*
 * PARAMETERS
 *

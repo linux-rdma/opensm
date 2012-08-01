@@ -235,5 +235,149 @@ int osm_db_guid2lid_delete(IN osm_db_domain_t * p_g2l, IN uint64_t guid);
 * osm_db_guid2lid_get, osm_db_guid2lid_set
 *********/
 
+/****f* OpenSM: DB-Pack/osm_db_guid2mkey_init
+* NAME
+*	osm_db_guid2mkey_init
+*
+* DESCRIPTION
+*	Initialize a domain for the guid2mkey table
+*
+* SYNOPSIS
+*/
+static inline osm_db_domain_t *osm_db_guid2mkey_init(IN osm_db_t * p_db)
+{
+	return osm_db_domain_init(p_db, "guid2mkey");
+}
+
+/*
+* PARAMETERS
+*	p_db
+*		[in] Pointer to the database object to construct
+*
+* RETURN VALUES
+*	The pointer to the new allocated domain object or NULL.
+*
+* NOTE: DB domains are destroyed by the osm_db_destroy
+*
+* SEE ALSO
+*	Database, osm_db_init, osm_db_destroy
+*********/
+
+/****f* OpenSM: DB-Pack/osm_db_guid2mkey_guids
+* NAME
+*	osm_db_guid2mkey_guids
+*
+* DESCRIPTION
+*	Provides back a list of guid elements.
+*
+* SYNOPSIS
+*/
+int osm_db_guid2mkey_guids(IN osm_db_domain_t * p_g2m,
+			  OUT cl_qlist_t * p_guid_list);
+/*
+* PARAMETERS
+*	p_g2l
+*		[in] Pointer to the guid2mkey domain
+*
+*  p_guid_list
+*     [out] A quick list of guid elements of type osm_db_guid_elem_t
+*
+* RETURN VALUES
+*	0 if successful
+*
+* NOTE: the output qlist should be initialized and each item freed
+*       by the caller, then destroyed.
+*
+* SEE ALSO
+* osm_db_guid2mkey_init, osm_db_guid2mkey_guids, osm_db_guid2mkey_get
+* osm_db_guid2mkey_set, osm_db_guid2mkey_delete
+*********/
+
+/****f* OpenSM: DB-Pack/osm_db_guid2mkey_get
+* NAME
+*	osm_db_guid2mkey_get
+*
+* DESCRIPTION
+*	Get the mkey for the given guid.
+*
+* SYNOPSIS
+*/
+int osm_db_guid2mkey_get(IN osm_db_domain_t * p_g2m, IN uint64_t guid,
+			 OUT uint64_t * p_mkey);
+/*
+* PARAMETERS
+*	p_g2m
+*		[in] Pointer to the guid2mkey domain
+*
+*  guid
+*     [in] The guid to look for
+*
+*  p_mkey
+*     [out] Pointer to the resulting mkey in host order.
+*
+* RETURN VALUES
+*	0 if successful. The lid will be set to 0 if not found.
+*
+* SEE ALSO
+* osm_db_guid2mkey_init, osm_db_guid2mkey_guids
+* osm_db_guid2mkey_set, osm_db_guid2mkey_delete
+*********/
+
+/****f* OpenSM: DB-Pack/osm_db_guid2mkey_set
+* NAME
+*	osm_db_guid2mkey_set
+*
+* DESCRIPTION
+*	Set the mkey for the given guid.
+*
+* SYNOPSIS
+*/
+int osm_db_guid2mkey_set(IN osm_db_domain_t * p_g2m, IN uint64_t guid,
+			 IN uint64_t mkey);
+/*
+* PARAMETERS
+*	p_g2m
+*		[in] Pointer to the guid2mkey domain
+*
+*  guid
+*     [in] The guid to look for
+*
+*  mkey
+*     [in] The mkey value to set, in host order
+*
+* RETURN VALUES
+*	0 if successful
+*
+* SEE ALSO
+* osm_db_guid2mkey_init, osm_db_guid2mkey_guids
+* osm_db_guid2mkey_get, osm_db_guid2mkey_delete
+*********/
+
+/****f* OpenSM: DB-Pack/osm_db_guid2mkey_delete
+* NAME
+*	osm_db_guid2mkey_delete
+*
+* DESCRIPTION
+*	Delete the entry by the given guid
+*
+* SYNOPSIS
+*/
+int osm_db_guid2mkey_delete(IN osm_db_domain_t * p_g2m, IN uint64_t guid);
+/*
+* PARAMETERS
+*	p_g2m
+*		[in] Pointer to the guid2mkey domain
+*
+*  guid
+*     [in] The guid to look for
+*
+* RETURN VALUES
+*	0 if successful otherwise 1
+*
+* SEE ALSO
+* osm_db_guid2mkey_init, osm_db_guid2mkey_guids
+* osm_db_guid2mkey_get, osm_db_guid2mkey_set
+*********/
+
 END_C_DECLS
 #endif				/* _OSM_DB_PACK_H_ */

@@ -50,6 +50,7 @@
 #define FILE_ID OSM_FILE_DB_FILES_C
 #include <opensm/st.h>
 #include <opensm/osm_db.h>
+#include <opensm/osm_log.h>
 
 /****d* Database/OSM_DB_MAX_LINE_LEN
  * NAME

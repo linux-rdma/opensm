@@ -67,6 +67,7 @@
 #include <opensm/osm_inform.h>
 #include <opensm/osm_opensm.h>
 #include <opensm/osm_congestion_control.h>
+#include <opensm/osm_db.h>
 
 extern void osm_drop_mgr_process(IN osm_sm_t * sm);
 extern int osm_qos_setup(IN osm_opensm_t * p_osm);
@@ -1465,6 +1466,9 @@ repeat_discovery:
 	if (sm->p_subn->force_heavy_sweep
 	    || sm->p_subn->subnet_initialization_error)
 		osm_sm_signal(sm, OSM_SIGNAL_SWEEP);
+
+	/* Write a new copy of our persistent guid2mkey database */
+	osm_db_store(sm->p_subn->p_g2m);
 }
 
 static void do_process_mgrp_queue(osm_sm_t * sm)

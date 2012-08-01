@@ -312,7 +312,7 @@ static void pi_rcv_process_switch_port(IN osm_sm_t * sm, IN osm_node_t * p_node,
 	/*
 	   Update the PortInfo attribute.
 	 */
-	osm_physp_set_port_info(p_physp, p_pi);
+	osm_physp_set_port_info(p_physp, p_pi, sm);
 
 	if (port_num == 0) {
 		/* Determine if base switch port 0 */
@@ -337,7 +337,7 @@ static void pi_rcv_process_ca_or_router_port(IN osm_sm_t * sm,
 
 	pi_rcv_check_and_fix_lid(sm->p_log, p_pi, p_physp);
 
-	osm_physp_set_port_info(p_physp, p_pi);
+	osm_physp_set_port_info(p_physp, p_pi, sm);
 
 	pi_rcv_process_endport(sm, p_physp, p_pi);
 
@@ -475,7 +475,7 @@ static void pi_rcv_process_set(IN osm_sm_t * sm, IN osm_node_t * p_node,
 		cl_ntoh64(osm_node_get_node_guid(p_node)),
 		cl_ntoh64(p_smp->trans_id));
 
-	osm_physp_set_port_info(p_physp, p_pi);
+	osm_physp_set_port_info(p_physp, p_pi, sm);
 
 	OSM_LOG_EXIT(sm->p_log);
 }

@@ -56,6 +56,7 @@
 #include <opensm/osm_helper.h>
 #include <opensm/osm_msgdef.h>
 #include <opensm/osm_opensm.h>
+#include <opensm/osm_db_pack.h>
 
 static uint8_t link_mgr_get_smsl(IN osm_sm_t * sm, IN osm_physp_t * p_physp)
 {
@@ -104,6 +105,7 @@ static int link_mgr_set_physp_pi(osm_sm_t * sm, IN osm_physp_t * p_physp,
 	int qdr_change = 0, fdr10_change = 0;
 	int ret = 0;
 	ib_net32_t attr_mod, cap_mask;
+	boolean_t update_mkey = FALSE;
 
 	OSM_LOG_ENTER(sm->p_log);
 
@@ -194,8 +196,10 @@ static int link_mgr_set_physp_pi(osm_sm_t * sm, IN osm_physp_t * p_physp,
 		    port_num == 0) {
 			p_pi->m_key = sm->p_subn->opt.m_key;
 			if (memcmp(&p_pi->m_key, &p_old_pi->m_key,
-				   sizeof(p_pi->m_key)))
+				   sizeof(p_pi->m_key))) {
+				update_mkey = TRUE;
 				send_set = TRUE;
+			}
 
 			p_pi->subnet_prefix = sm->p_subn->opt.subnet_prefix;
 			if (memcmp(&p_pi->subnet_prefix,
@@ -465,6 +469,14 @@ Send:
 			     attr_mod, CL_DISP_MSGID_NONE, &context);
 	if (status)
 		ret = -1;
+
+	/* If we sent a new mkey above, update our guid2mkey map
+	   now, on the assumption that the SubnSet succeeds
+	 */
+	if (update_mkey)
+		osm_db_guid2mkey_set(sm->p_subn->p_g2m,
+				     cl_ntoh64(p_physp->port_guid),
+				     cl_ntoh64(p_pi->m_key));
 
 	if (send_set2) {
 		status = osm_req_set(sm, osm_physp_get_dr_path_ptr(p_physp),

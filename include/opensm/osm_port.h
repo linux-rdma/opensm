@@ -66,6 +66,7 @@ BEGIN_C_DECLS
 struct osm_port;
 struct osm_node;
 struct osm_mgrp;
+struct osm_sm;
 
 /****h* OpenSM/Physical Port
 * NAME
@@ -449,22 +450,9 @@ static inline void osm_physp_set_health(IN osm_physp_t * p_physp,
 *
 * SYNOPSIS
 */
-static inline void osm_physp_set_port_info(IN osm_physp_t * p_physp,
-					   IN const ib_port_info_t * p_pi)
-{
-	CL_ASSERT(p_pi);
-	CL_ASSERT(osm_physp_is_valid(p_physp));
-
-	if (ib_port_info_get_port_state(p_pi) == IB_LINK_DOWN) {
-		/* If PortState is down, only copy PortState */
-		/* and PortPhysicalState per C14-24-2.1 */
-		ib_port_info_set_port_state(&p_physp->port_info, IB_LINK_DOWN);
-		ib_port_info_set_port_phys_state
-		    (ib_port_info_get_port_phys_state(p_pi),
-		     &p_physp->port_info);
-	} else
-		p_physp->port_info = *p_pi;
-}
+void osm_physp_set_port_info(IN osm_physp_t * p_physp,
+					   IN const ib_port_info_t * p_pi,
+					   IN const struct osm_sm * p_sm);
 
 /*
 * PARAMETERS
@@ -473,6 +461,9 @@ static inline void osm_physp_set_port_info(IN osm_physp_t * p_physp,
 *
 *	p_pi
 *		[in] Pointer to the IBA defined PortInfo at this port number.
+*
+*	p_sm
+*		[in] Pointer to an osm_sm_t object.
 *
 * RETURN VALUES
 *	This function does not return a value.

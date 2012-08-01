@@ -58,6 +58,7 @@
 #include <opensm/osm_vl15intf.h>
 #include <opensm/osm_msgdef.h>
 #include <opensm/osm_opensm.h>
+#include <opensm/osm_db_pack.h>
 
 /**********************************************************************
   The plock MAY or MAY NOT be held before calling this function.

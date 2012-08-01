@@ -416,6 +416,11 @@ ib_api_status_t osm_opensm_init(IN osm_opensm_t * p_osm,
 	if (status != IB_SUCCESS)
 		goto Exit;
 
+	/* the DB is in use by subn so init before */
+	status = osm_db_init(&p_osm->db, &p_osm->log);
+	if (status != IB_SUCCESS)
+		goto Exit;
+
 	status = osm_subn_init(&p_osm->subn, p_osm, p_opt);
 	if (status != IB_SUCCESS)
 		goto Exit;
@@ -435,11 +440,6 @@ ib_api_status_t osm_opensm_init(IN osm_opensm_t * p_osm,
 			       &p_osm->log, &p_osm->stats,
 			       p_opt->max_wire_smps, p_opt->max_wire_smps2,
 			       p_opt->max_smps_timeout);
-	if (status != IB_SUCCESS)
-		goto Exit;
-
-	/* the DB is in use by the SM and SA so init before */
-	status = osm_db_init(&p_osm->db, &p_osm->log);
 	if (status != IB_SUCCESS)
 		goto Exit;
 

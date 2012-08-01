@@ -85,6 +85,17 @@ static inline int unpack_lids(IN char *p_lid_str, OUT uint16_t * p_min_lid,
 	return 0;
 }
 
+static inline void pack_mkey(uint64_t mkey, char *p_mkey_str)
+{
+	sprintf(p_mkey_str, "0x%016" PRIx64, mkey);
+}
+
+static inline uint64_t unpack_mkey(char *p_mkey_str)
+{
+	return strtoull(p_mkey_str, NULL, 0);
+}
+
+
 int osm_db_guid2lid_guids(IN osm_db_domain_t * p_g2l,
 			  OUT cl_qlist_t * p_guid_list)
 {
@@ -150,4 +161,66 @@ int osm_db_guid2lid_delete(IN osm_db_domain_t * p_g2l, IN uint64_t guid)
 	char guid_str[20];
 	pack_guid(guid, guid_str);
 	return osm_db_delete(p_g2l, guid_str);
+}
+
+int osm_db_guid2mkey_guids(IN osm_db_domain_t * p_g2m,
+			   OUT cl_qlist_t * p_guid_list)
+{
+	char *p_key;
+	cl_list_t keys;
+	osm_db_guid_elem_t *p_guid_elem;
+
+	cl_list_construct(&keys);
+	cl_list_init(&keys, 10);
+
+	if (osm_db_keys(p_g2m, &keys))
+		return 1;
+
+	while ((p_key = cl_list_remove_head(&keys)) != NULL) {
+		p_guid_elem =
+		    (osm_db_guid_elem_t *) malloc(sizeof(osm_db_guid_elem_t));
+		CL_ASSERT(p_guid_elem != NULL);
+
+		p_guid_elem->guid = unpack_guid(p_key);
+		cl_qlist_insert_head(p_guid_list, &p_guid_elem->item);
+	}
+
+	cl_list_destroy(&keys);
+	return 0;
+}
+
+int osm_db_guid2mkey_get(IN osm_db_domain_t * p_g2m, IN uint64_t guid,
+			 OUT uint64_t * p_mkey)
+{
+	char guid_str[20];
+	char *p_mkey_str;
+
+	pack_guid(guid, guid_str);
+	p_mkey_str = osm_db_lookup(p_g2m, guid_str);
+	if (!p_mkey_str)
+		return 1;
+
+	if (p_mkey)
+		*p_mkey = unpack_mkey(p_mkey_str);
+
+	return 0;
+}
+
+int osm_db_guid2mkey_set(IN osm_db_domain_t * p_g2m, IN uint64_t guid,
+			 IN uint64_t mkey)
+{
+	char guid_str[20];
+	char mkey_str[20];
+
+	pack_guid(guid, guid_str);
+	pack_mkey(mkey, mkey_str);
+
+	return osm_db_update(p_g2m, guid_str, mkey_str);
+}
+
+int osm_db_guid2mkey_delete(IN osm_db_domain_t * p_g2m, IN uint64_t guid)
+{
+	char guid_str[20];
+	pack_guid(guid, guid_str);
+	return osm_db_delete(p_g2m, guid_str);
 }

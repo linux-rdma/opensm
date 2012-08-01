@@ -54,6 +54,7 @@
 #include <complib/cl_list.h>
 #include <opensm/osm_base.h>
 #include <opensm/osm_prefix_route.h>
+#include <opensm/osm_db.h>
 #include <stdio.h>
 
 #ifdef __cplusplus
@@ -751,6 +752,7 @@ typedef struct osm_subn {
 	boolean_t sweeping_enabled;
 	unsigned need_update;
 	cl_fmap_t mgrp_mgid_tbl;
+	osm_db_domain_t *p_g2m;
 	void *mboxes[IB_LID_MCAST_END_HO - IB_LID_MCAST_START_HO + 1];
 } osm_subn_t;
 /*

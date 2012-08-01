@@ -76,6 +76,8 @@
 #include <opensm/osm_event_plugin.h>
 #include <opensm/osm_qos_policy.h>
 #include <opensm/osm_service.h>
+#include <opensm/osm_db.h>
+#include <opensm/osm_db_pack.h>
 
 static const char null_str[] = "(null)";
 
@@ -843,6 +845,52 @@ static int compar_mgids(const void *m1, const void *m2)
 	return memcmp(m1, m2, sizeof(ib_gid_t));
 }
 
+static void subn_validate_g2m(osm_subn_t *p_subn)
+{
+	cl_qlist_t guids;
+	osm_db_guid_elem_t *p_item;
+	uint64_t mkey;
+	boolean_t valid_entry;
+
+	OSM_LOG_ENTER(&(p_subn->p_osm->log));
+	cl_qlist_init(&guids);
+
+	if (osm_db_guid2mkey_guids(p_subn->p_g2m, &guids)) {
+		OSM_LOG(&(p_subn->p_osm->log), OSM_LOG_ERROR, "ERR 7506: "
+			"could not get mkey guid list\n");
+		goto Exit;
+	}
+
+	while ((p_item = (osm_db_guid_elem_t *) cl_qlist_remove_head(&guids))
+	       != (osm_db_guid_elem_t *) cl_qlist_end(&guids)) {
+		valid_entry = TRUE;
+
+		if (p_item->guid == 0) {
+			OSM_LOG(&(p_subn->p_osm->log), OSM_LOG_ERROR,
+				"ERR 7507: found invalid zero guid");
+			valid_entry = FALSE;
+		} else if (osm_db_guid2mkey_get(p_subn->p_g2m, p_item->guid,
+						&mkey)) {
+			OSM_LOG(&(p_subn->p_osm->log), OSM_LOG_ERROR,
+				"ERR 7508: could not get mkey for guid:0x%016"
+				PRIx64 "\n", p_item->guid);
+			valid_entry = FALSE;
+		}
+
+		if (valid_entry == FALSE) {
+			if (osm_db_guid2mkey_delete(p_subn->p_g2m,
+						    p_item->guid))
+				OSM_LOG(&(p_subn->p_osm->log), OSM_LOG_ERROR,
+					"ERR 7509: failed to delete entry for "
+					"guid:0x%016" PRIx64 "\n",
+					p_item->guid);
+		}
+	}
+
+Exit:
+	OSM_LOG_EXIT(&(p_subn->p_osm->log));
+}
+
 void osm_subn_construct(IN osm_subn_t * p_subn)
 {
 	memset(p_subn, 0, sizeof(*p_subn));
@@ -1050,6 +1098,35 @@ ib_api_status_t osm_subn_init(IN osm_subn_t * p_subn, IN osm_opensm_t * p_osm,
 	p_subn->coming_out_of_standby = FALSE;
 	p_subn->sweeping_enabled = TRUE;
 	p_subn->last_sm_port_state = 1;
+
+	/* Initialize the guid2mkey database */
+	p_subn->p_g2m = osm_db_domain_init(&(p_osm->db), "guid2mkey");
+	if (!p_subn->p_g2m) {
+		OSM_LOG(&(p_osm->log), OSM_LOG_ERROR, "ERR 7510: "
+			"Error initializing Guid-to-MKey persistent database\n");
+		return IB_ERROR;
+	}
+
+	if (osm_db_restore(p_subn->p_g2m)) {
+#ifndef __WIN__
+		/*
+		 * When Windows is BSODing, it might corrupt files that
+		 * were previously opened for writing, even if the files
+		 * are closed, so we might see corrupted guid2mkey file.
+		 */
+		if (p_subn->opt.exit_on_fatal) {
+			osm_log(&(p_osm->log), OSM_LOG_SYS,
+				"FATAL: Error restoring Guid-to-Mkey "
+				"persistent database\n");
+			return IB_ERROR;
+		} else
+#endif
+			OSM_LOG(&(p_osm->log), OSM_LOG_ERROR,
+				"ERR 7511: Error restoring Guid-to-Mkey "
+				"persistent database\n");
+	}
+
+	subn_validate_g2m(p_subn);
 
 	return IB_SUCCESS;
 }
