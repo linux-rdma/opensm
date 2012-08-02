@@ -3,14 +3,14 @@
 
 Version: OpenSM 3.3.x
 Repo:    git://git.openfabrics.org/~alexnetes/opensm.git
-Date:    May 2012
+Date:    Aug 2012
 
 1 Overview
 ----------
 This document describes the contents of the OpenSM 3.3 release.
 OpenSM is an InfiniBand compliant Subnet Manager and Administration,
 and runs on top of OpenIB. The OpenSM version for this release
-is opensm-3.3.14.
+is opensm-3.3.15.
 
 This document includes the following sections:
 1 This Overview section (describing new features and software
@@ -87,12 +87,97 @@ This document includes the following sections:
 * Extended speed support
   This provides support for FDR and EDR speeds.
 
+* Congestion control support
+
 * Many code improvements, optimizations and cleanups.
 
 * Windows support (early stage).
 
 1.2 Minor New Features:
 
+7e6bdef opensm/man/opensm.8.in: Add section for MKey support
+aebe678 opensm: Add support for multicast service records
+5509234 opensm/scripts/sldd.sh: Update to support guid2mkey/neighbors
+2ae1477 opensm: Ensure sweep interval/mkey lease are sensibly set
+cefe79b opensm: Check for valid mkey protection level in config file
+8fa0d2c opensm: Add neighboring link cache file
+5088d08 opensm: Log errors on SubnGet timeouts
+9eed9c6 opensm: Add support for setting mkey protection levels
+5c4157d opensm: Add locking where necessary around osm_req_*
+2f74f34 opensm: Allow recovery of subnets with misset mkeys
+e5dc557 opensm: Add guid2mkey cache file support
+3659b37 opensm/osm_sa_class_port_info.c: Indicate support for PortInfo CapMask2
+	matching in SA ClassPortInfo:CapabilityMask2
+8016d3b opensm/osm_base.h: Add some SA ClassPortInfo CapabilityMask2 bits
+1a31c44 opensm/osm_perfmgr.c: Use non conflicting error codes in log messages
+03a75d0 opensm/osm_sa_path_record.c: Restore osm_get_path_params functionality
+a9340cf opensm: Support (null) being specified for per_module_logging_file
+	option
+00375aa opensm/osm_perfmgr.c: Eliminate compile warning
+7868c98 opensm: Remove unused per_module_logging option
+49c460b Call drop manager before checking for other Master SM in the fabric
+c0604f3 Increase p_port->discovery_count only when received PortInfo for port 0
+	of the switch
+24b30d2 opensm/osm_node_info_rcv.c: Handle non-compliant SMA gracefully
+a4f2689 opensm/osm_vendor_ibumad: Add management class into match criteria
+4be6375 opensm/osm_sa*.c: Log requester port GUID at DEBUG level
+4cca51d opensm/osm_sa_mcmember_record.c: Log requester port GUID at DEBUG level
+15b3eae opensm/osm_sa_path_record.c: Log requester port GUID at DEBUG level
+0b580ca opensm/osm_sa_path_record.c: Add debug logging to
+	pr_match_mgrp_attributes
+ed4b7fb opensm/osm_sa_mcmember_record.c: In mcmr_rcv_join_mgrp, add MGID to log
+	message
+872dae4 opensm/osm_sa_mcmember_record.c: Dump MCMemberRecord in mcmr_query_mgrp
+71f2ce7 Sending SL2VL and VLARB SET MADs in distributed manner
+f07bcc1 opensm/osm_subnet.c: Cosmetic formatting change
+c823a5b opensm/osm_link_mgr.c: Set PortInfo:PortState to LinkDown when remote
+	port isn't accessible
+ab88df6 Add support to reread configuration file when stacked in rediscovery
+	loop.
+67c9bae opensm: Move per_mod_log_tbl array from subn to log structure
+2cbd9f5 opensm/cl_atomic_osd.h: Cosmetic formatting change
+cd63dec opensm/osm_helper.c: Add CapabilityMask2 to notice dump for trap 144
+9205812 opensm/ib_types.h: Add CapabilityMask2 to notice for trap 144
+25de706 opensm/osm_sa_path_record.c: Add missing end-of-line in the log message
+3551530 opensm/osm_trap_rcv.c: Remove vestigial comment
+067d217 opensm/osm_inform.c: Make log message format consistent for error
+	messages
+759b82a opensm/osm_trap_rcv.c: Add better logging for traps 257 and 258
+b806657 opensm/osm_sa_mad_ctrl.c: Eliminate commented out code line
+a851693 opensm/perfmgr: add logging of error counters
+52fa659 opensm/console: add perfmgr "print_errors" (pe) console command.
+a832ce2 opensm/console: Add human readable output for perfmgr data counters
+77a1756 opensm/console: add abreviations for perfmgr commands
+aca9a07 opensm/console; add port option to perfmgr print_counters
+00628cc opensm/console: add "print all" to print_counters console command
+f5de9b5 opensm: perfmgr mark inactive nodes in perfmgr db
+ff06340 opensm: perfmgr delete "inactive" nodes from the DB
+059d8f4 opensm/console: protect against 0 entered for the perfmgr sweep_time
+cc86607 opensm/perfmgr: Add config option to ignore Channel Adapters.
+91f0c00 opensm/osm_node_info_rcv.c: In ni_rcv_process_existing_ca_or_router,
+	handle error
+c930a23 opensm/osm_subnet.c: Indicate lmc and lmc_esp0 are not changeable
+	"on the fly"
+7825e67 opensm/libopensm.map: Removed unimplemented routine
+7de7b04 opensm/main.c: Handle daemon mode with guid specified as 0 more
+	gracefully
+9478fbf opensm/osm_subnet.c: Support MLNX ExtendedPortInfo for ConnectIB device
+f8fc334 opensm/osm_node_info_rec.c: Also handle non compliant SMA in
+	ni_rcv_process_existing
+b4a481d opensm: Eliminate unneeded field in DR path structure
+01bc8c9 opensm/osm_state_mgr.c: Force subn->need_update when coming out of
+	STANDBY
+276be8b opensm: Dump info functions update for per module logging
+64b512a opensm/osm_vendor_ibumad.c: Make binding log message clearer
+e70c8c1 opensm: Add enum for FILE_ID for per module logging
+2a2db8c opensm: Add per module logging support
+e21b106 opensm: Cosmetic changes
+3ddb2e3 opensm: Add partition manager configuration doc to docs
+9586649 opensm/opensm_release_notes-3.3.txt: Update Unsupported IB Compliance
+	Statements
+826b5c4 opensm/osm_ucast_dfsssp.c: Use osm_log_is_active
+b2cad9d opensm/complib/cl_fleximap.h: Cosmetic changes
+322a310 opensm/osm_ucast_ftree.c: Add a couple of asserts
 e3a946d opensm: Add FDR10 support
 6cea3df opensm/osm_sa_portinfo_record.c: Add SA PortInfoRecord support
 	for CapabilityMask2 matching
@@ -335,6 +420,16 @@ information regarding each compliance statement.
 
 4.1 Major Bug Fixes
 
+a322f51 Skip TID 0 on 32 bit wraparound for SMP, SA and PerfMgt queries
+cded9af Fix transaction id casting
+3585f8b opensm: Fix crash found with ucast cache
+74e12d9 opensm: fix part_enforce parameter parsing crash
+647a98e Fixed crash in sm_state_mgr_send_master_sm_info_req() during fabric
+	merge
+63ebd0d Fix crash in ucast cache when chain of switches connected back at once
+	to the fabric
+3b21d6f Fix crash in ucast cache when ucast cache invalidates after updating
+	one of the switches
 5654e22 Fix invalid error check, which lead to segfault
 7bf7482 fix segfault corner case w/ updn routing and LMC > 0
 18990fa opensm: set IS_SM bit during opensm init
@@ -373,6 +468,28 @@ ae1bcdd opensm/osm_lid_mgr.c: Allow switch lids to be non LMC aligned
 
 4.2 Other Bug Fixes
 
+740c22b opensm/include/opensm/osm_log.h: Fix commentary cut 'n paste error
+13ebee4 opensm/osm_subnet.c: Fixed ftree/updn configuration failure when
+	root_guid_file points to non-existing file
+8a9d267 opensm: fix locking in osm_guid_mgr_process
+4d682bb opensm: Fix pthread_create() return value checks
+63c6609 opensm/osm_port.h: Fix commentary typo
+3e4e00b opensm/osmtest: fix osmtest ignores timeout parameter
+68b1d92 opensm: perfmgr fix dump_counters
+9d16039 opensm/perfmgr: fix endian conversion of PortCounters
+324f269 opensm/osm_sa_inform_info.c: Fix some error log messages
+1d5213a opensm/osm_madw.h: Fix a couple of cut 'n paste commentary errors
+3fc662d opensm/torus-2QoS: Fix some typos in documentation
+048c66e Fixed Multicast precreation parsing
+086d611 Fixes in SL2VL table distribution algorithm
+7d9f0c9 Fix deadlock between sminfo_set_req() and osm_sm_state_mgr()
+69741e6 Fix base port0 sl2vl mapping optimization
+bcda38e Fix SL2VL configuration
+7e39542 Fix pre-creation of MC group with MGID containing P_Key
+20e1a46 opensm/osm_congestion_control.c: Fix initialization hex string
+a59072d opensm/osm_congestion_control.c: Skip TID 0 on 32 bit wraparound
+7d18662 osmtest/osmtest.c: Fix permission
+e7d4574 opensm/perfmgr: update new error codes to '54' prefix
 e17dae6 opensm/osm_sa_portinfo_record.c: In pir_rcv_new_pir, fix switch port 0 physp
 93b2f56 libvendor/osm_vendor_ibumad.c: fix unused-but-set warning
 cda58af fixed unsused-but-set warning for DEBUG variables
