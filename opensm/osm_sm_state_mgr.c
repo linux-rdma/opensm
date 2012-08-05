@@ -450,6 +450,8 @@ ib_api_status_t osm_sm_state_mgr_process(osm_sm_t * sm,
 			 */
 			sm->p_subn->set_client_rereg_on_sweep = TRUE;
 			sm->polling_sm_guid = 0;
+			sm->p_subn->first_time_master_sweep = TRUE;
+			sm->p_subn->coming_out_of_standby = TRUE;
 			sm->p_subn->force_heavy_sweep = TRUE;
 			osm_sm_signal(sm, OSM_SIGNAL_SWEEP);
 			break;
