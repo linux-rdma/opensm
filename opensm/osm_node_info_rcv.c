@@ -846,6 +846,13 @@ static void ni_rcv_process_existing(IN osm_sm_t * sm, IN osm_node_t * p_node,
 		break;
 	}
 
+	if ( p_ni->sys_guid != p_node->node_info.sys_guid) {
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG, "Updated SysImageGUID: 0x%"
+			PRIx64 " for node 0x%" PRIx64 "\n",
+			cl_ntoh64(p_ni->sys_guid),
+			cl_ntoh64(p_ni->node_guid));
+		p_node->node_info.sys_guid = p_ni->sys_guid;
+	}
 	ni_rcv_set_links(sm, p_node, port_num, p_ni_context);
 
 Exit:
