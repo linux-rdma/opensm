@@ -2135,12 +2135,11 @@ static void dfsssp_context_destroy(void *context)
 	}
 	free(adj_list);
 	dfsssp_ctx->adj_list = NULL;
+	dfsssp_ctx->adj_list_size = 0;
 
 	/* free srcdest2vl table (can be done because, dfsssp_context_destroy is called after osm_get_dfsssp_sl) */
 	vltable_dealloc(&(dfsssp_ctx->srcdest2vl_table));
 	dfsssp_ctx->srcdest2vl_table = NULL;
-
-	free(context);
 }
 
 static void delete(void *context)
@@ -2148,6 +2147,8 @@ static void delete(void *context)
 	if (!context)
 		return;
 	dfsssp_context_destroy(context);
+
+	free(context);
 }
 
 int osm_ucast_dfsssp_setup(struct osm_routing_engine *r, osm_opensm_t * p_osm)
