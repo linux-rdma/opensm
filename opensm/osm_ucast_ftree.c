@@ -453,10 +453,10 @@ static void port_group_destroy(IN ftree_port_group_t * p_group)
 
 	/* remove all the elements of p_group->ports vector */
 	size = cl_ptr_vector_get_size(&p_group->ports);
-	for (i = 0; i < size; i++) {
-		cl_ptr_vector_at(&p_group->ports, i, (void *)&p_port);
-		port_destroy(p_port);
-	}
+	for (i = 0; i < size; i++)
+		if (cl_ptr_vector_at(&p_group->ports, i, (void *)&p_port) == CL_SUCCESS)
+			port_destroy(p_port);
+
 	cl_ptr_vector_destroy(&p_group->ports);
 	free(p_group);
 }				/* port_group_destroy() */
