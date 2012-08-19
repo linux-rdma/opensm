@@ -69,6 +69,8 @@
 #include <opensm/osm_opensm.h>
 #include <opensm/osm_congestion_control.h>
 #include <opensm/osm_db.h>
+#include <opensm/osm_service.h>
+#include <opensm/osm_guid.h>
 
 extern void osm_drop_mgr_process(IN osm_sm_t * sm);
 extern int osm_qos_setup(IN osm_opensm_t * p_osm);
@@ -286,6 +288,105 @@ static ib_api_status_t state_mgr_clean_known_lids(IN osm_sm_t * sm)
 
 	CL_PLOCK_RELEASE(sm->p_lock);
 
+	OSM_LOG_EXIT(sm->p_log);
+	return status;
+}
+
+/**********************************************************************
+ Clear SA cache
+**********************************************************************/
+static ib_api_status_t state_mgr_sa_clean(IN osm_sm_t * sm)
+{
+	ib_api_status_t status = IB_SUCCESS;
+	cl_qmap_t *p_port_guid_tbl;
+	osm_assigned_guids_t *p_assigned_guids, *p_next_assigned_guids;
+	osm_alias_guid_t *p_alias_guid, *p_next_alias_guid;
+	osm_mcm_port_t *mcm_port;
+	osm_subn_t * p_subn;
+	osm_port_t *p_port;
+	osm_infr_t *p_infr;
+	osm_svcr_t *p_svcr;
+
+	OSM_LOG_ENTER(sm->p_log);
+
+	p_subn = sm->p_subn;
+
+	/* we need a lock here! */
+	CL_PLOCK_EXCL_ACQUIRE(sm->p_lock);
+
+	if (p_subn->opt.drop_event_subscriptions) {
+		/* Clean InformInfo records */
+		p_infr = (osm_infr_t *) cl_qlist_remove_head(&p_subn->sa_infr_list);
+		while (p_infr !=
+		       (osm_infr_t *) cl_qlist_end(&p_subn->sa_infr_list)) {
+			osm_infr_delete(p_infr);
+			p_infr = (osm_infr_t *) cl_qlist_remove_head(&p_subn->sa_infr_list);
+		}
+
+		/* For now, treat Service Records in same category as InformInfos */
+		/* Clean Service records */
+		p_svcr = (osm_svcr_t *) cl_qlist_remove_head(&p_subn->sa_sr_list);
+		while (p_svcr !=
+		       (osm_svcr_t *) cl_qlist_end(&p_subn->sa_sr_list)) {
+			osm_svcr_delete(p_svcr);
+			p_svcr = (osm_svcr_t *) cl_qlist_remove_head(&p_subn->sa_sr_list);
+		}
+	}
+
+	/* Clean Multicast member list on each port */
+	p_port_guid_tbl = &p_subn->port_guid_tbl;
+	for (p_port = (osm_port_t *) cl_qmap_head(p_port_guid_tbl);
+	     p_port != (osm_port_t *) cl_qmap_end(p_port_guid_tbl);
+	     p_port = (osm_port_t *) cl_qmap_next(&p_port->map_item)) {
+		while (!cl_is_qlist_empty(&p_port->mcm_list)) {
+			mcm_port = cl_item_obj(cl_qlist_head(&p_port->mcm_list),
+					       mcm_port, list_item);
+			osm_mgrp_delete_port(p_subn, sm->p_log, mcm_port->mgrp,
+					     p_port);
+		}
+		/* Hack - clean alias guid table from physp */
+		free(p_port->p_physp->p_guids);
+		p_port->p_physp->p_guids = NULL;
+	}
+
+	/* Clean Alias Guid work objects */
+	while (cl_qlist_count(&p_subn->alias_guid_list))
+		osm_guid_work_obj_delete((osm_guidinfo_work_obj_t *)
+			cl_qlist_remove_head(&p_subn->alias_guid_list));
+
+	/* Clean Assigned GUIDs table */
+	p_next_assigned_guids = (osm_assigned_guids_t *)
+				cl_qmap_head(&p_subn->assigned_guids_tbl);
+	while (p_next_assigned_guids !=
+	       (osm_assigned_guids_t *) cl_qmap_end(&p_subn->assigned_guids_tbl)) {
+		p_assigned_guids = p_next_assigned_guids;
+		p_next_assigned_guids = (osm_assigned_guids_t *)
+					cl_qmap_next(&p_assigned_guids->map_item);
+		cl_qmap_remove_item(&p_subn->assigned_guids_tbl,
+				    &p_assigned_guids->map_item);
+		osm_assigned_guids_delete(&p_assigned_guids);
+        }
+
+	/* Clean Alias GUIDs table */
+	p_next_alias_guid = (osm_alias_guid_t *)
+			    cl_qmap_head(&p_subn->alias_port_guid_tbl);
+	while (p_next_alias_guid !=
+	       (osm_alias_guid_t *) cl_qmap_end(&p_subn->alias_port_guid_tbl)) {
+		p_alias_guid = p_next_alias_guid;
+		p_next_alias_guid = (osm_alias_guid_t *)
+				    cl_qmap_next(&p_alias_guid->map_item);
+		if (osm_alias_guid_get_alias_guid(p_alias_guid) !=
+		    osm_alias_guid_get_base_guid(p_alias_guid)) {
+			/* Clean if it's not base port GUID */
+			cl_qmap_remove_item(&p_subn->alias_port_guid_tbl,
+					    &p_alias_guid->map_item);
+			osm_alias_guid_delete(&p_alias_guid);
+		}
+	}
+
+	p_subn->p_osm->sa.dirty = TRUE;
+
+	CL_PLOCK_RELEASE(sm->p_lock);
 	OSM_LOG_EXIT(sm->p_log);
 	return status;
 }
@@ -1197,6 +1298,12 @@ static void do_sweep(osm_sm_t * sm)
 		state_mgr_clean_known_lids(sm);
 
 		/*
+		 * Need to clean SA cache when state changes to STANDBY
+		 * after handover.
+		 */
+		state_mgr_sa_clean(sm);
+
+		/*
 		 * Need to reconfigure LFTs, PKEYs, and QoS on all switches
 		 * when coming out of STANDBY
 		 */
@@ -1323,6 +1430,7 @@ repeat_discovery:
 	if (state_mgr_is_sm_port_down(sm) == TRUE) {
 		if (sm->p_subn->last_sm_port_state) {
 			sm->p_subn->last_sm_port_state = 0;
+			state_mgr_sa_clean(sm);
 			osm_log_v2(sm->p_log, OSM_LOG_SYS, FILE_ID,
 				   "SM port is down\n");
 			OSM_LOG_MSG_BOX(sm->p_log, OSM_LOG_VERBOSE,

@@ -1611,5 +1611,61 @@ void osm_alias_guid_delete(IN OUT osm_alias_guid_t ** pp_alias_guid);
 *	Port
 *********/
 
+/****f* OpenSM: Port/osm_alias_guid_get_alias_guid
+* NAME
+*	osm_alias_guid_get_alias_guid
+*
+* DESCRIPTION
+*	This function retrieves alias guid from alias guid object.
+*
+* SYNOPSIS
+*/
+static inline ib_net64_t osm_alias_guid_get_alias_guid(IN osm_alias_guid_t *p_alias_guid)
+{
+	CL_ASSERT(p_alias_guid);
+	return p_alias_guid->alias_guid;
+}
+/*
+* PARAMETERS
+*	p_alias_guid
+*		[in] Pointer to a pointer to an alias guid object.
+*
+* RETURN VALUE
+*	This function returns the alias guid or NULL if fails.
+*
+* NOTES
+*
+* SEE ALSO
+*	Port
+*********/
+
+/****f* OpenSM: Port/osm_alias_guid_get_base_guid
+* NAME
+*	osm_alias_guid_get_base_guid
+*
+* DESCRIPTION
+*	This function retrieves base guid from alias guid object.
+*
+* SYNOPSIS
+*/
+static inline ib_net64_t osm_alias_guid_get_base_guid(IN osm_alias_guid_t *p_alias_guid)
+{
+	CL_ASSERT(p_alias_guid);
+	return osm_port_get_guid(p_alias_guid->p_base_port);
+}
+/*
+* PARAMETERS
+*	p_alias_guid
+*		[in] Pointer to a pointer to an alias guid object.
+*
+* RETURN VALUE
+*	This function returns the base guid or NULL if fails.
+*
+* NOTES
+*
+* SEE ALSO
+*	Port
+*********/
+
 END_C_DECLS
 #endif				/* _OSM_PORT_H_ */

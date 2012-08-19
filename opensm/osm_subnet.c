@@ -2613,7 +2613,7 @@ void osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		"sm_inactive %s\n\n"
 		"# Babbling Port Policy\n"
 		"babbling_port_policy %s\n\n"
-		"# Drop event subscriptions (InformInfo) if the port goes away\n"
+		"# Drop event subscriptions (InformInfo and ServiceRecord) on port removal and SM coming out of STANDBY\n"
 		"drop_event_subscriptions %s\n\n"
 		"# Use Optimized SLtoVLMapping programming if supported by device\n"
 		"use_optimized_slvl %s\n\n"
