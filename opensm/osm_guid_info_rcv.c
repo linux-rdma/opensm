@@ -93,6 +93,13 @@ void osm_gi_rcv_process(IN void *context, IN void *data)
 	osm_dump_guid_info_v2(sm->p_log, node_guid, port_guid, block_num, p_gi,
 			      FILE_ID, OSM_LOG_DEBUG);
 
+	if (ib_smp_get_status(p_smp)) {
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
+			"MAD status 0x%x received\n",
+			cl_ntoh16(ib_smp_get_status(p_smp)));
+		goto Exit;
+	}
+
 	CL_PLOCK_EXCL_ACQUIRE(sm->p_lock);
 	p_port = osm_get_port_by_guid(sm->p_subn, port_guid);
 	if (!p_port) {

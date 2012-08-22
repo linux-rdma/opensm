@@ -296,6 +296,7 @@ typedef struct osm_subn_opt {
 	uint8_t sm_assigned_guid;
 	boolean_t qos;
 	char *qos_policy_file;
+	boolean_t suppress_sl2vl_mad_status_errors;
 	boolean_t accum_log_file;
 	char *console;
 	uint16_t console_port;

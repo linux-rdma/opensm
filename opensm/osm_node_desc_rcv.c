@@ -110,6 +110,13 @@ void osm_nd_rcv_process(IN void *context, IN void *data)
 	CL_ASSERT(p_madw);
 
 	p_smp = osm_madw_get_smp_ptr(p_madw);
+	if (ib_smp_get_status(p_smp)) {
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
+			"MAD status 0x%x received\n",
+			cl_ntoh16(ib_smp_get_status(p_smp)));
+		goto Exit;
+	}
+
 	p_nd = ib_smp_get_payload_ptr(p_smp);
 
 	/* Acquire the node object and add the node description. */
@@ -124,5 +131,6 @@ void osm_nd_rcv_process(IN void *context, IN void *data)
 		nd_rcv_process_nd(sm, p_node, p_nd);
 
 	CL_PLOCK_RELEASE(sm->p_lock);
+Exit:
 	OSM_LOG_EXIT(sm->p_log);
 }

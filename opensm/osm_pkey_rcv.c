@@ -84,6 +84,13 @@ void osm_pkey_rcv_process(IN void *context, IN void *data)
 
 	CL_ASSERT(p_smp->attr_id == IB_MAD_ATTR_P_KEY_TABLE);
 
+	if (ib_smp_get_status(p_smp)) {
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
+			"MAD status 0x%x received\n",
+			cl_ntoh16(ib_smp_get_status(p_smp)));
+		goto Exit2;
+	}
+
 	cl_plock_excl_acquire(sm->p_lock);
 	p_port = osm_get_port_by_guid(sm->p_subn, port_guid);
 	if (!p_port) {
@@ -140,5 +147,6 @@ void osm_pkey_rcv_process(IN void *context, IN void *data)
 Exit:
 	cl_plock_release(sm->p_lock);
 
+Exit2:
 	OSM_LOG_EXIT(sm->p_log);
 }

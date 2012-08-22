@@ -84,6 +84,13 @@ void osm_lft_rcv_process(IN void *context, IN void *data)
 	p_lft_context = osm_madw_get_lft_context_ptr(p_madw);
 	node_guid = p_lft_context->node_guid;
 
+	if (ib_smp_get_status(p_smp)) {
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
+			"MAD status 0x%x received\n",
+			cl_ntoh16(ib_smp_get_status(p_smp)));
+		goto Exit;
+	}
+
 	CL_PLOCK_EXCL_ACQUIRE(sm->p_lock);
 	p_sw = osm_get_switch_by_guid(sm->p_subn, node_guid);
 
@@ -113,5 +120,6 @@ void osm_lft_rcv_process(IN void *context, IN void *data)
 	}
 
 	CL_PLOCK_RELEASE(sm->p_lock);
+Exit:
 	OSM_LOG_EXIT(sm->p_log);
 }

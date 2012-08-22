@@ -907,6 +907,13 @@ void osm_ni_rcv_process(IN void *context, IN void *data)
 		goto Exit;
 	}
 
+	if (ib_smp_get_status(p_smp)) {
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
+			"MAD status 0x%x received\n",
+			cl_ntoh16(ib_smp_get_status(p_smp)));
+		goto Exit;
+	}
+
 	/*
 	   Determine if this node has already been discovered,
 	   and process accordingly.

@@ -540,6 +540,12 @@ static void smi_rcv_process_set_response(IN osm_sm_t * sm,
 	CL_ASSERT(p_madw);
 
 	p_smp = osm_madw_get_smp_ptr(p_madw);
+	if (ib_smp_get_status(p_smp)) {
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
+			"MAD status 0x%x received\n",
+			cl_ntoh16(ib_smp_get_status(p_smp)));
+		goto Exit;
+	}
 
 	if (p_smp->method != IB_MAD_METHOD_GET_RESP) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 2F16: "

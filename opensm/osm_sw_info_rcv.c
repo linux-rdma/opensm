@@ -358,6 +358,13 @@ void osm_si_rcv_process(IN void *context, IN void *data)
 		"Switch GUID 0x%016" PRIx64 ", TID 0x%" PRIx64 "\n",
 		cl_ntoh64(node_guid), cl_ntoh64(p_smp->trans_id));
 
+	if (ib_smp_get_status(p_smp)) {
+		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
+			"MAD status 0x%x received\n",
+			cl_ntoh16(ib_smp_get_status(p_smp)));
+		goto Exit2;
+	}
+
 	CL_PLOCK_EXCL_ACQUIRE(sm->p_lock);
 
 	p_node = osm_get_node_by_guid(sm->p_subn, node_guid);
@@ -390,7 +397,8 @@ void osm_si_rcv_process(IN void *context, IN void *data)
 		/* we might get back a request for signaling change was detected */
 		sm->p_subn->force_heavy_sweep = TRUE;
 
-	CL_PLOCK_RELEASE(sm->p_lock);
 Exit:
+	CL_PLOCK_RELEASE(sm->p_lock);
+Exit2:
 	OSM_LOG_EXIT(sm->p_log);
 }

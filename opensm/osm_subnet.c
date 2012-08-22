@@ -756,6 +756,7 @@ static const opt_rec_t opt_tbl[] = {
 	{ "sm_assigned_guid", OPT_OFFSET(sm_assigned_guid), opts_parse_uint8, NULL, 1 },
 	{ "qos", OPT_OFFSET(qos), opts_parse_boolean, NULL, 1 },
 	{ "qos_policy_file", OPT_OFFSET(qos_policy_file), opts_parse_charp, NULL, 0 },
+	{ "suppress_sl2vl_mad_status_errors", OPT_OFFSET(suppress_sl2vl_mad_status_errors), opts_parse_boolean, NULL, 1 },
 	{ "dump_files_dir", OPT_OFFSET(dump_files_dir), opts_parse_charp, NULL, 0 },
 	{ "lid_matrix_dump_file", OPT_OFFSET(lid_matrix_dump_file), opts_parse_charp, NULL, 0 },
 	{ "lfts_file", OPT_OFFSET(lfts_file), opts_parse_charp, NULL, 0 },
@@ -1517,6 +1518,7 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * p_opt)
 	p_opt->sm_assigned_guid = 0;
 	p_opt->qos = FALSE;
 	p_opt->qos_policy_file = strdup(OSM_DEFAULT_QOS_POLICY_FILE);
+	p_opt->suppress_sl2vl_mad_status_errors = FALSE;
 	p_opt->accum_log_file = TRUE;
 	p_opt->port_prof_ignore_file = NULL;
 	p_opt->hop_weights_file = NULL;
@@ -2664,8 +2666,11 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		"# Enable QoS setup\n"
 		"qos %s\n\n"
 		"# QoS policy file to be used\n"
-		"qos_policy_file %s\n\n",
-		p_opts->qos ? "TRUE" : "FALSE", p_opts->qos_policy_file);
+		"qos_policy_file %s\n"
+		"# Supress QoS MAD status errors\n"
+		"suppress_sl2vl_mad_status_errors %s\n\n",
+		p_opts->qos ? "TRUE" : "FALSE", p_opts->qos_policy_file,
+		p_opts->suppress_sl2vl_mad_status_errors ? "TRUE" : "FALSE");
 
 	subn_dump_qos_options(out,
 			      "QoS default options", "qos",
