@@ -1520,7 +1520,7 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * p_opt)
 	p_opt->exit_on_fatal = TRUE;
 	p_opt->congestion_control = FALSE;
 	p_opt->cc_key = OSM_DEFAULT_CC_KEY;
-	p_opt->cc_max_outstanding_mads = OSM_PERFMGR_DEFAULT_MAX_OUTSTANDING_QUERIES;
+	p_opt->cc_max_outstanding_mads = OSM_CC_DEFAULT_MAX_OUTSTANDING_QUERIES;
 	p_opt->enable_quirks = FALSE;
 	p_opt->no_clients_rereg = FALSE;
 	p_opt->prefix_routes_file = strdup(OSM_DEFAULT_PREFIX_ROUTES_FILE);
