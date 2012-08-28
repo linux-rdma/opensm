@@ -190,15 +190,21 @@ static osm_madw_t *get_madw(osm_vendor_t * p_vend, ib_net64_t * tid,
 	return 0;
 }
 
+/*
+ * If match table full, evict LRU (least recently used) transaction.
+ * Maintain 2 LRUs: one for SMPs, and one for others (GS).
+ * Evict LRU GS transaction if one is available and only evict LRU SMP
+ * transaction if no other choice.
+ */
 static void
 put_madw(osm_vendor_t * p_vend, osm_madw_t * p_madw, ib_net64_t tid,
 	 uint8_t mgmt_class)
 {
-	umad_match_t *m, *e, *old_lru, *lru = 0;
+	umad_match_t *m, *e, *old_lru, *lru = 0, *lru_smp = 0;
 	osm_madw_t *p_req_madw;
 	osm_umad_bind_info_t *p_bind;
 	ib_net64_t old_tid;
-	uint32_t oldest = ~0;
+	uint32_t oldest = ~0, oldest_smp = ~0;
 	uint8_t old_mgmt_class;
 
 	pthread_mutex_lock(&p_vend->match_tbl_mutex);
@@ -213,15 +219,30 @@ put_madw(osm_vendor_t * p_vend, osm_madw_t * p_madw, ib_net64_t tid,
 			pthread_mutex_unlock(&p_vend->match_tbl_mutex);
 			return;
 		}
-		if (oldest >= m->version) {
-			oldest = m->version;
-			lru = m;
+		if (m->mgmt_class == IB_MCLASS_SUBN_DIR ||
+		    m->mgmt_class == IB_MCLASS_SUBN_LID) {
+			if (oldest_smp >= m->version) {
+				oldest_smp = m->version;
+				lru_smp = m;
+			}
+		} else {
+			if (oldest >= m->version) {
+				oldest = m->version;
+				lru = m;
+			}
 		}
 	}
 
-	old_lru = lru;
-	old_tid = lru->tid;
-	old_mgmt_class = lru->mgmt_class;
+	if (oldest != ~0) {
+		old_lru = lru;
+		old_tid = lru->tid;
+		old_mgmt_class = lru->mgmt_class;
+	} else {
+		CL_ASSERT(oldest_smp != ~0);
+		old_lru = lru_smp;
+		old_tid = lru_smp->tid;
+		old_mgmt_class = lru_smp->mgmt_class;
+	}
 	p_req_madw = old_lru->v;
 	p_bind = p_req_madw->h_bind;
 	p_req_madw->status = IB_CANCELED;
@@ -229,11 +250,20 @@ put_madw(osm_vendor_t * p_vend, osm_madw_t * p_madw, ib_net64_t tid,
 	pthread_mutex_lock(&p_vend->cb_mutex);
 	(*p_bind->send_err_callback) (p_bind->client_context, p_req_madw);
 	pthread_mutex_unlock(&p_vend->cb_mutex);
-	lru->tid = tid;
-	lru->mgmt_class = mgmt_class;
-	lru->v = p_madw;
-	lru->version =
-	    cl_atomic_inc((atomic32_t *) & p_vend->mtbl.last_version);
+	if (mgmt_class == IB_MCLASS_SUBN_DIR ||
+	    mgmt_class == IB_MCLASS_SUBN_LID) {
+		lru_smp->tid = tid;
+		lru_smp->mgmt_class = mgmt_class;
+		lru_smp->v = p_madw;
+		lru_smp->version =
+		    cl_atomic_inc((atomic32_t *) & p_vend->mtbl.last_version);
+	} else {
+		lru->tid = tid;
+		lru->mgmt_class = mgmt_class;
+		lru->v = p_madw;
+		lru->version =
+		    cl_atomic_inc((atomic32_t *) & p_vend->mtbl.last_version);
+	}
 	pthread_mutex_unlock(&p_vend->match_tbl_mutex);
 	OSM_LOG(p_vend->p_log, OSM_LOG_ERROR, "ERR 5402: "
 		"evicting entry %p (tid was 0x%" PRIx64
