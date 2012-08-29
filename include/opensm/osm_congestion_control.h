@@ -67,6 +67,8 @@
 
 #define OSM_CC_DEFAULT_MAX_OUTSTANDING_QUERIES 500
 
+#define OSM_CC_TIMEOUT_COUNT_THRESHOLD 3
+
 /****s* OpenSM: CongestionControl/osm_congestion_control_t
 *  This object should be treated as opaque and should
 *  be manipulated only through the provided functions.

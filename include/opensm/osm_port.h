@@ -1163,6 +1163,8 @@ typedef struct osm_port {
 	osm_physp_t *p_physp;
 	cl_qlist_t mcm_list;
 	int flag;
+	unsigned int cc_timeout_count;
+	int cc_unavailable_flag;
 	void *priv;
 } osm_port_t;
 /*
@@ -1194,6 +1196,12 @@ typedef struct osm_port {
 *
 *	flag
 *		Utility flag for port management
+*
+*	cc_timeout_count
+*		Count number of times congestion control config times out.
+*
+*	cc_unavailable_flag
+*		Flag indicating if congestion control is not supported.
 *
 * SEE ALSO
 *	Port, Physical Port, Physical Port Table
