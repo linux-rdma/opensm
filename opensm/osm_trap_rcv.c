@@ -447,7 +447,7 @@ static void trap_rcv_process_request(IN osm_sm_t * sm,
 	}
 
 	osm_dump_notice_v2(sm->p_log, p_ntci, FILE_ID, OSM_LOG_VERBOSE);
-
+	CL_PLOCK_EXCL_ACQUIRE(sm->p_lock);
 	p_physp = osm_get_physp_by_mad_addr(sm->p_log, sm->p_subn,
 					    &tmp_madw.mad_addr);
 	if (p_physp)
@@ -545,9 +545,7 @@ static void trap_rcv_process_request(IN osm_sm_t * sm,
 		OSM_LOG(sm->p_log, OSM_LOG_INFO, "Trap 144 Node description update\n");
 
 		if (p_physp) {
-			CL_PLOCK_ACQUIRE(sm->p_lock);
 			osm_req_get_node_desc(sm, p_physp);
-			CL_PLOCK_RELEASE(sm->p_lock);
 			if (!(p_ntci->data_details.ntc_144.change_flgs & ~TRAP_144_MASK_NODE_DESCRIPTION_CHANGE) &&
 			    p_ntci->data_details.ntc_144.new_cap_mask == p_physp->port_info.capability_mask)
 				goto check_report;
@@ -647,9 +645,7 @@ check_report:
 	}
 
 	/* we need a lock here as the InformInfo DB must be stable */
-	CL_PLOCK_ACQUIRE(sm->p_lock);
 	status = osm_report_notice(sm->p_log, sm->p_subn, p_ntci);
-	CL_PLOCK_RELEASE(sm->p_lock);
 	if (status != IB_SUCCESS) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3803: "
 			"Error sending trap reports (%s)\n",
@@ -658,6 +654,7 @@ check_report:
 	}
 
 Exit:
+	CL_PLOCK_RELEASE(sm->p_lock);
 	OSM_LOG_EXIT(sm->p_log);
 }
 
