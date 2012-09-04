@@ -1007,6 +1007,7 @@ typedef enum _osm_sm_signal {
 #define OSM_VENDOR_ID_HP4           0x00237D
 #define OSM_VENDOR_ID_OPENIB        0x001405
 #define OSM_VENDOR_ID_IBM2	    0x5CF3FC
+#define OSM_VENDOR_ID_MELLANOX2     0xF45214
 
 /* IPoIB Broadcast Defaults */
 #define OSM_IPOIB_BROADCAST_MGRP_QKEY 0x0b1b
