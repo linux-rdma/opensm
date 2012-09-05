@@ -2096,9 +2096,9 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
 		"Validating Join State update remove (o15.0.1.14)...\n");
 
-	if (p_mc_res->scope_state != 0x25) {	/* scope is MSB - now only 0x0 so port is removed from MCG */
+	if (p_mc_res->scope_state != 0x20) {	/* scope is MSB - now only 0x0 so port is removed from MCG */
 		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 02BF: "
-			"Validating JoinState update failed. Expected 0x25 got: 0x%02X\n",
+			"Validating JoinState update failed. Expected 0x20 got: 0x%02X\n",
 			p_mc_res->scope_state);
 		status = IB_ERROR;
 		goto Exit;
