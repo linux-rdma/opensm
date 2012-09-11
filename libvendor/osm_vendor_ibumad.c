@@ -288,7 +288,7 @@ static void *umad_receiver(void *p_ptr)
 	osm_umad_bind_info_t *p_bind;
 	osm_mad_addr_t osm_addr;
 	osm_madw_t *p_madw, *p_req_madw;
-	ib_mad_t *mad;
+	ib_mad_t *p_mad;
 	void *umad = 0;
 	int mad_agent, length;
 
@@ -340,11 +340,11 @@ static void *umad_receiver(void *p_ptr)
 			continue;
 		}
 
-		mad = (ib_mad_t *) umad_get_mad(umad);
+		p_mad = (ib_mad_t *) umad_get_mad(umad);
 
 		ib_mad_addr_conv(umad, &osm_addr,
-				 mad->mgmt_class == IB_MCLASS_SUBN_LID ||
-				 mad->mgmt_class == IB_MCLASS_SUBN_DIR);
+				 p_mad->mgmt_class == IB_MCLASS_SUBN_LID ||
+				 p_mad->mgmt_class == IB_MCLASS_SUBN_DIR);
 
 		if (!(p_madw = osm_mad_pool_get(p_bind->p_mad_pool,
 						(osm_bind_handle_t) p_bind,
@@ -367,15 +367,15 @@ static void *umad_receiver(void *p_ptr)
 
 		/* if status != 0 then we are handling recv timeout on send */
 		if (umad_status(p_madw->vend_wrap.umad)) {
-			if (!(p_req_madw = get_madw(p_vend, &mad->trans_id,
-						    mad->mgmt_class))) {
+			if (!(p_req_madw = get_madw(p_vend, &p_mad->trans_id,
+						    p_mad->mgmt_class))) {
 				OSM_LOG(p_vend->p_log, OSM_LOG_ERROR,
 					"ERR 5412: "
 					"Failed to obtain request madw for timed out MAD"
 					" (class=0x%X method=0x%X attr=0x%X tid=0x%"PRIx64") -- dropping\n",
-					mad->mgmt_class, mad->method,
-					cl_ntoh16(mad->attr_id),
-					cl_ntoh64(mad->trans_id));
+					p_mad->mgmt_class, p_mad->method,
+					cl_ntoh16(p_mad->attr_id),
+					cl_ntoh64(p_mad->trans_id));
 			} else {
 				p_req_madw->status = IB_TIMEOUT;
 				log_send_error(p_vend, p_req_madw);
@@ -394,30 +394,30 @@ static void *umad_receiver(void *p_ptr)
 		}
 
 		p_req_madw = 0;
-		if (ib_mad_is_response(mad) &&
-		    !(p_req_madw = get_madw(p_vend, &mad->trans_id,
-					    mad->mgmt_class))) {
+		if (ib_mad_is_response(p_mad) &&
+		    !(p_req_madw = get_madw(p_vend, &p_mad->trans_id,
+					    p_mad->mgmt_class))) {
 			OSM_LOG(p_vend->p_log, OSM_LOG_ERROR, "ERR 5413: "
 				"Failed to obtain request madw for received MAD"
 				" (class=0x%X method=0x%X attr=0x%X tid=0x%"PRIx64") -- dropping\n",
-				mad->mgmt_class, mad->method,
-				cl_ntoh16((mad)->attr_id),
-				cl_ntoh64(mad->trans_id));
+				p_mad->mgmt_class, p_mad->method,
+				cl_ntoh16(p_mad->attr_id),
+				cl_ntoh64(p_mad->trans_id));
 			osm_mad_pool_put(p_bind->p_mad_pool, p_madw);
 			continue;
 		}
 #ifndef VENDOR_RMPP_SUPPORT
-		if ((mad->mgmt_class != IB_MCLASS_SUBN_DIR) &&
-		    (mad->mgmt_class != IB_MCLASS_SUBN_LID) &&
-		    (ib_rmpp_is_flag_set((ib_rmpp_mad_t *) mad,
+		if ((p_mad->mgmt_class != IB_MCLASS_SUBN_DIR) &&
+		    (p_mad->mgmt_class != IB_MCLASS_SUBN_LID) &&
+		    (ib_rmpp_is_flag_set((ib_rmpp_mad_t *) p_mad,
 					 IB_RMPP_FLAG_ACTIVE))) {
 			OSM_LOG(p_vend->p_log, OSM_LOG_ERROR, "ERR 5414: "
 				"class 0x%x method 0x%x RMPP version %d type "
 				"%d flags 0x%x received -- dropping\n",
-				mad->mgmt_class, mad->method,
-				((ib_rmpp_mad_t *) mad)->rmpp_version,
-				((ib_rmpp_mad_t *) mad)->rmpp_type,
-				((ib_rmpp_mad_t *) mad)->rmpp_flags);
+				p_mad->mgmt_class, p_mad->method,
+				((ib_rmpp_mad_t *) p_mad)->rmpp_version,
+				((ib_rmpp_mad_t *) p_mad)->rmpp_type,
+				((ib_rmpp_mad_t *) p_mad)->rmpp_flags);
 			osm_mad_pool_put(p_bind->p_mad_pool, p_madw);
 			continue;
 		}
