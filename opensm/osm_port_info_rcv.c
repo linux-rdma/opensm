@@ -505,6 +505,11 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 
 	CL_ASSERT(p_smp->attr_id == IB_MAD_ATTR_PORT_INFO);
 
+	/*
+	 * Attribute modifier has already been validated upon MAD receive,
+	 * which means that port_num has to be valid - it originated from
+	 * the request attribute modifier.
+	 */
 	port_num = (uint8_t) cl_ntoh32(p_smp->attr_mod);
 
 	port_guid = p_context->port_guid;
@@ -553,6 +558,17 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 
 	p_node = p_port->p_node;
 	CL_ASSERT(p_node);
+
+	if (p_pi->local_port_num > p_node->node_info.num_ports) {
+		CL_PLOCK_RELEASE(sm->p_lock);
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0F15: "
+			"Received PortInfo for port GUID 0x%" PRIx64 " is "
+			"non-compliant and is being ignored since the "
+			"local port num %u > num ports %u\n",
+			cl_ntoh64(port_guid), p_pi->local_port_num,
+			p_node->node_info.num_ports);
+		goto Exit;
+	}
 
 	/*
 	   If we were setting the PortInfo, then receiving
