@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2011 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2012 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2009 HNR Consulting. All rights reserved.
  *
@@ -153,7 +153,7 @@ static void ni_rcv_set_links(IN osm_sm_t * sm, osm_node_t * p_node,
 
 	p_neighbor_node = osm_get_node_by_guid(sm->p_subn,
 					       p_ni_context->node_guid);
-	if (!p_neighbor_node) {
+	if (PF(!p_neighbor_node)) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D10: "
 			"Unexpected removal of neighbor node 0x%" PRIx64 "\n",
 			cl_ntoh64(p_ni_context->node_guid));
@@ -430,7 +430,7 @@ static void ni_rcv_process_existing_ca_or_router(IN osm_sm_t * sm,
 		osm_node_init_physp(p_node, port_num, p_madw);
 
 		p_port = osm_port_new(p_ni, p_node);
-		if (p_port == NULL) {
+		if (PF(p_port == NULL)) {
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D04: "
 				"Unable to create new port object\n");
 			goto Exit;
@@ -443,7 +443,7 @@ static void ni_rcv_process_existing_ca_or_router(IN osm_sm_t * sm,
 		    (osm_port_t *) cl_qmap_insert(&sm->p_subn->port_guid_tbl,
 						  p_ni->port_guid,
 						  &p_port->map_item);
-		if (p_port_check != p_port) {
+		if (PF(p_port_check != p_port)) {
 			/*
 			   We should never be here!
 			   Somehow, this port GUID already exists in the table.
@@ -458,7 +458,7 @@ static void ni_rcv_process_existing_ca_or_router(IN osm_sm_t * sm,
 
 		p_alias_guid = osm_alias_guid_new(p_ni->port_guid,
 						  p_port);
-		if (!p_alias_guid) {
+		if (PF(!p_alias_guid)) {
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D11: "
 				"alias guid memory allocation failed"
 				" for port GUID 0x%" PRIx64 "\n",
@@ -495,7 +495,7 @@ alias_done:
 	} else {
 		osm_physp_t *p_physp = osm_node_get_physp_ptr(p_node, port_num);
 
-		if (p_physp == NULL) {
+		if (PF(p_physp == NULL)) {
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D1C: "
 				"No physical port found for node GUID 0x%"
 				PRIx64 " port %u. Might be duplicate port GUID\n",
@@ -639,7 +639,7 @@ static void ni_rcv_process_new(IN osm_sm_t * sm, IN const osm_madw_t * p_madw)
 		ib_get_node_type_str(p_ni->node_type),
 		cl_ntoh64(p_ni->node_guid), cl_ntoh64(p_smp->trans_id));
 
-	if (port_num > p_ni->num_ports) {
+	if (PF(port_num > p_ni->num_ports)) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D0A: "
 			"New %s node GUID 0x%" PRIx64 "is non-compliant and "
 			"is being ignored since the "
@@ -651,7 +651,7 @@ static void ni_rcv_process_new(IN osm_sm_t * sm, IN const osm_madw_t * p_madw)
 	}
 
 	p_node = osm_node_new(p_madw);
-	if (p_node == NULL) {
+	if (PF(p_node == NULL)) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D07: "
 			"Unable to create new node object\n");
 		goto Exit;
@@ -662,7 +662,7 @@ static void ni_rcv_process_new(IN osm_sm_t * sm, IN const osm_madw_t * p_madw)
 	   ports in the port table.
 	 */
 	p_port = osm_port_new(p_ni, p_node);
-	if (p_port == NULL) {
+	if (PF(p_port == NULL)) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D14: "
 			"Unable to create new port object\n");
 		osm_node_delete(&p_node);
@@ -675,7 +675,7 @@ static void ni_rcv_process_new(IN osm_sm_t * sm, IN const osm_madw_t * p_madw)
 	p_port_check =
 	    (osm_port_t *) cl_qmap_insert(&sm->p_subn->port_guid_tbl,
 					  p_ni->port_guid, &p_port->map_item);
-	if (p_port_check != p_port) {
+	if (PF(p_port_check != p_port)) {
 		/*
 		   We should never be here!
 		   Somehow, this port GUID already exists in the table.
@@ -698,7 +698,7 @@ static void ni_rcv_process_new(IN osm_sm_t * sm, IN const osm_madw_t * p_madw)
 
 	p_alias_guid = osm_alias_guid_new(p_ni->port_guid,
 					  p_port);
-	if (!p_alias_guid) {
+	if (PF(!p_alias_guid)) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D18: "
 			"alias guid memory allocation failed"
 			" for port GUID 0x%" PRIx64 "\n",
@@ -733,7 +733,7 @@ alias_done2:
 	/* If there were RouterInfo or other router attribute,
 	   this would be elsewhere */
 	if (p_ni->node_type == IB_NODE_TYPE_ROUTER) {
-		if ((p_rtr = osm_router_new(p_port)) == NULL)
+		if (PF((p_rtr = osm_router_new(p_port)) == NULL))
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D1A: "
 				"Unable to create new router object\n");
 		else {
@@ -742,7 +742,7 @@ alias_done2:
 			    (osm_router_t *) cl_qmap_insert(p_rtr_guid_tbl,
 							    p_ni->port_guid,
 							    &p_rtr->map_item);
-			if (p_rtr_check != p_rtr)
+			if (PF(p_rtr_check != p_rtr))
 				OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D1B: "
 					"Unable to add port GUID:0x%016" PRIx64
 					" to router table\n",
@@ -753,7 +753,7 @@ alias_done2:
 	p_node_check =
 	    (osm_node_t *) cl_qmap_insert(&sm->p_subn->node_guid_tbl,
 					  p_ni->node_guid, &p_node->map_item);
-	if (p_node_check != p_node) {
+	if (PF(p_node_check != p_node)) {
 		/*
 		   This node must have been inserted by another thread.
 		   This is unexpected, but is not an error.
@@ -817,7 +817,7 @@ static void ni_rcv_process_existing(IN osm_sm_t * sm, IN osm_node_t * p_node,
 		cl_ntoh64(p_ni->node_guid),
 		cl_ntoh64(p_smp->trans_id), p_node->discovery_count);
 
-	if (port_num > p_ni->num_ports) {
+	if (PF(port_num > p_ni->num_ports)) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D0C: "
 			"Existing %s node GUID 0x%" PRIx64 "is non-compliant "
 			"and is being ignored since the "
@@ -876,14 +876,14 @@ void osm_ni_rcv_process(IN void *context, IN void *data)
 
 	CL_ASSERT(p_smp->attr_id == IB_MAD_ATTR_NODE_INFO);
 
-	if (p_ni->node_guid == 0) {
+	if (PF(p_ni->node_guid == 0)) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D16: "
 			"Got Zero Node GUID! Found on the directed route:\n");
 		osm_dump_smp_dr_path_v2(sm->p_log, p_smp, FILE_ID, OSM_LOG_ERROR);
 		goto Exit;
 	}
 
-	if (p_ni->port_guid == 0) {
+	if (PF(p_ni->port_guid == 0)) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D17: "
 			"Got Zero Port GUID! Found on the directed route:\n");
 		osm_dump_smp_dr_path_v2(sm->p_log, p_smp, FILE_ID, OSM_LOG_ERROR);
