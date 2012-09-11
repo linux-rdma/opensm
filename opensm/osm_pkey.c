@@ -369,9 +369,6 @@ ib_net16_t osm_physp_find_common_pkey(IN const osm_physp_t * p_physp1,
 	uint64_t pkey1_base, pkey2_base;
 	const osm_pkey_tbl_t *pkey_tbl1, *pkey_tbl2;
 	cl_map_iterator_t map_iter1, map_iter2;
-	ib_net16_t key;
-	const osm_pkey_tbl_t *pkey_tbl;
-	cl_map_iterator_t map_iter, map_end;
 
 	pkey_tbl1 = osm_physp_get_pkey_tbl(p_physp1);
 	pkey_tbl2 = osm_physp_get_pkey_tbl(p_physp2);
