@@ -288,7 +288,7 @@ static void *umad_receiver(void *p_ptr)
 	osm_umad_bind_info_t *p_bind;
 	osm_mad_addr_t osm_addr;
 	osm_madw_t *p_madw, *p_req_madw;
-	ib_mad_t *p_mad;
+	ib_mad_t *p_mad, *p_req_mad;
 	void *umad = 0;
 	int mad_agent, length;
 
@@ -394,18 +394,51 @@ static void *umad_receiver(void *p_ptr)
 		}
 
 		p_req_madw = 0;
-		if (ib_mad_is_response(p_mad) &&
-		    !(p_req_madw = get_madw(p_vend, &p_mad->trans_id,
-					    p_mad->mgmt_class))) {
-			OSM_LOG(p_vend->p_log, OSM_LOG_ERROR, "ERR 5413: "
-				"Failed to obtain request madw for received MAD"
-				" (class=0x%X method=0x%X attr=0x%X tid=0x%"PRIx64") -- dropping\n",
-				p_mad->mgmt_class, p_mad->method,
-				cl_ntoh16(p_mad->attr_id),
-				cl_ntoh64(p_mad->trans_id));
-			osm_mad_pool_put(p_bind->p_mad_pool, p_madw);
-			continue;
+		if (ib_mad_is_response(p_mad)) {
+			p_req_madw = get_madw(p_vend, &p_mad->trans_id,
+					      p_mad->mgmt_class);
+			if (PF(!p_req_madw)) {
+				OSM_LOG(p_vend->p_log, OSM_LOG_ERROR,
+					"ERR 5413: Failed to obtain request "
+					"madw for received MAD "
+					"(class=0x%X method=0x%X attr=0x%X "
+					"tid=0x%"PRIx64") -- dropping\n",
+					p_mad->mgmt_class, p_mad->method,
+					cl_ntoh16(p_mad->attr_id),
+					cl_ntoh64(p_mad->trans_id));
+				osm_mad_pool_put(p_bind->p_mad_pool, p_madw);
+				continue;
+			}
+
+			/*
+			 * Check that request MAD was really a request,
+			 * and make sure that attribute ID, attribute
+			 * modifier and transaction ID are the same in
+			 * request and response.
+			 */
+			p_req_mad = osm_madw_get_mad_ptr(p_req_madw);
+			if (PF(ib_mad_is_response(p_req_mad) ||
+			       p_mad->attr_id != p_req_mad->attr_id ||
+			       p_mad->attr_mod != p_req_mad->attr_mod ||
+			       p_mad->trans_id != p_req_mad->trans_id)) {
+				OSM_LOG(p_vend->p_log, OSM_LOG_ERROR,
+					"ERR 541A: "
+					"Response MAD validation failed "
+					"(request attr=0x%X modif=0x%X "
+					"tid=0x%"PRIx64", "
+					"response attr=0x%X modif=0x%X "
+					"tid=0x%"PRIx64") -- dropping\n",
+					cl_ntoh16(p_req_mad->attr_id),
+					cl_ntoh32(p_req_mad->attr_mod),
+					cl_ntoh64(p_req_mad->trans_id),
+					cl_ntoh16(p_mad->attr_id),
+					cl_ntoh32(p_mad->attr_mod),
+					cl_ntoh64(p_mad->trans_id));
+				osm_mad_pool_put(p_bind->p_mad_pool, p_madw);
+				continue;
+			}
 		}
+
 #ifndef VENDOR_RMPP_SUPPORT
 		if ((p_mad->mgmt_class != IB_MCLASS_SUBN_DIR) &&
 		    (p_mad->mgmt_class != IB_MCLASS_SUBN_LID) &&
