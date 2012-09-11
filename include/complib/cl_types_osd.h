@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2012 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
  * This software is available to you under a choice of one of two
@@ -64,6 +64,18 @@ BEGIN_C_DECLS
 #include <inttypes.h>
 #include <assert.h>
 #include <string.h>
+
+/*
+ * Branch prediction hints
+ */
+#if defined(HAVE_BUILTIN_EXPECT)
+#define PT(exp)    __builtin_expect( ((uintptr_t)(exp)), 1 )
+#define PF(exp)    __builtin_expect( ((uintptr_t)(exp)), 0 )
+#else
+#define PT(exp)    (exp)
+#define PF(exp)    (exp)
+#endif
+
 #if defined (_DEBUG_)
 #define CL_ASSERT	assert
 #else				/* _DEBUG_ */
