@@ -8583,7 +8583,7 @@ osm_mtree_node_t *mcast_stree_branch(struct t_switch *sw, osm_switch_t *osm_sw,
 	mtn = osm_mtree_node_new(osm_sw);
 	if (!mtn) {
 		OSM_LOG(&sw->torus->osm->log, OSM_LOG_ERROR,
-			"Insufficient memory to build multicast tree\n");
+			"ERR 4E46: Insufficient memory to build multicast tree\n");
 		goto out;
 	}
 	mcast_tbl = osm_switch_get_mcast_tbl_ptr(osm_sw);
@@ -9186,7 +9186,7 @@ void check_qos_config(osm_qos_options_t *opt, bool tgt_is_default,
 	if (opt->vlarb_high) {
 		is_default = false;
 		vlarb_str = opt->vlarb_high;
-	} else{
+	} else {
 		is_default = true;
 		vlarb_str = OSM_DEFAULT_QOS_VLARB_HIGH;
 	}
