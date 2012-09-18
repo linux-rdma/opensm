@@ -73,8 +73,8 @@ BEGIN_C_DECLS
 *
 * DESCRIPTION
 *	The SA object encapsulates the information needed by the
-*	OpenSM to instantiate a subnet administrator.  The OpenSM allocates
-*	one SA object per subnet manager.
+*	OpenSM to instantiate subnet administration.  The OpenSM
+*	allocates one SA object per subnet manager.
 *
 *	The SA object is thread safe.
 *
