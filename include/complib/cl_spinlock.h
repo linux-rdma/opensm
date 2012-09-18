@@ -73,7 +73,6 @@ BEGIN_C_DECLS
 *
 *	Manipulation
 *		cl_spinlock_acquire, cl_spinlock_release
-*		cl_spinlock_acquire_irq, cl_spinlock_release_irq
 *********/
 /****f* Component Library: Spinlock/cl_spinlock_construct
 * NAME
@@ -133,9 +132,7 @@ cl_status_t cl_spinlock_init(IN cl_spinlock_t * const p_spinlock);
 *
 * SEE ALSO
 *	Spinlock, cl_spinlock_construct, cl_spinlock_destroy,
-*	cl_spinlock_acquire, cl_spinlock_acquire_irq,
-*	cl_spinlock_release, cl_spinlock_release
-*	cl_spinlock_release_irq, cl_spinlock_release_irq
+*	cl_spinlock_acquire, cl_spinlock_release
 *********/
 
 /****f* Component Library: Spinlock/cl_spinlock_destroy
@@ -174,8 +171,7 @@ void cl_spinlock_destroy(IN cl_spinlock_t * const p_spinlock);
 *	The cl_spinlock_acquire function acquires a spin lock.
 *	This version of lock does not prevent an interrupt from
 *	occuring on the processor on which the code is being
-*	executed. To protect from an interrupt level resource
-*	use the cl_spinlock_acquire_irq function.
+*	executed.
 *
 * SYNOPSIS
 */
@@ -189,33 +185,7 @@ void cl_spinlock_acquire(IN cl_spinlock_t * const p_spinlock);
 *	This function does not return a value.
 *
 * SEE ALSO
-*	Spinlock, cl_spinlock_acquire_irq, cl_spinlock_release
-*	cl_spinlock_release_irq
-*********/
-
-/****f* Component Library: Spinlock/cl_spinlock_acquire_irq
-* NAME
-*	cl_spinlock_acquire_irq
-*
-* DESCRIPTION
-*	The cl_spinlock_acquire_irq function acquires a spin lock and protects
-*	the current processor from taking interrupts. If you need to protect
-*	a variable from an interrupt resource, use this version to acquire
-*	a lock.
-*
-* SYNOPSIS
-*/
-void cl_spinlock_acquire_irq(IN cl_spinlock_t * const p_spinlock);
-/*
-* PARAMETERS
-*	p_spin_lock
-*		[in] Pointer to a spin lock structure to acquire.
-*
-* RETURN VALUE
-*	This function does not return a value.
-*
-* SEE ALSO
-*	Spinlock, cl_spinlock_release_irq
+*	Spinlock, cl_spinlock_release
 *********/
 
 /****f* Component Library: Spinlock/cl_spinlock_release
@@ -241,31 +211,6 @@ void cl_spinlock_release(IN cl_spinlock_t * const p_spinlock);
 *
 * SEE ALSO
 *	Spinlock, cl_spinlock_acquire
-*********/
-
-/****f* Component Library: Spinlock/cl_spinlock_release_irq
-* NAME
-*	cl_spinlock_release_irq
-*
-* DESCRIPTION
-*	The cl_spinlock_release_irq function releases a spin lock object.
-*
-* SYNOPSIS
-*/
-void cl_spinlock_release_irq(IN cl_spinlock_t * const p_spinlock);
-/*
-* PARAMETERS
-*	p_spin_lock
-*		[in] Pointer to a spin lock structure to release.
-*
-* RETURN VALUE
-*	This function does not return a value.
-*
-* NOTES
-*	Releases a spin lock after a call to cl_spinlock_acquire.
-*
-* SEE ALSO
-*	Spinlock, cl_spinlock_acquire_irq
 *********/
 
 END_C_DECLS
