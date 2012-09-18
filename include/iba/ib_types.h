@@ -7765,10 +7765,10 @@ ib_notice_is_generic(IN const ib_mad_notice_attr_t * p_ntc)
 /*
 * PARAMETERS
 *	p_ntc
-*		[in] Pointer to  the notice MAD attribute
+*		[in] Pointer to the notice MAD attribute
 *
 * RETURN VALUES
-*	TRUE if mad is generic
+*	TRUE if notice MAD is generic
 *
 * SEE ALSO
 *	ib_mad_notice_attr_t
