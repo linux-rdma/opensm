@@ -2559,6 +2559,12 @@ void osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		p_opts->scatter_ports);
 
 	fprintf(out,
+		"# Don't use scatter for ports defined in\n"
+		"# guid_routing_order file\n"
+		"guid_routing_order_no_scatter %s\n\n",
+		p_opts->guid_routing_order_no_scatter ? "TRUE" : "FALSE");
+
+	fprintf(out,
 		"# SA database file name\nsa_db_file %s\n\n",
 		p_opts->sa_db_file ? p_opts->sa_db_file : null_str);
 
