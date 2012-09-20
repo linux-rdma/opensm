@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2006 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2012 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  *
  * This software is available to you under a choice of one of two
@@ -427,7 +427,7 @@ static inline void osm_log_set_level(IN osm_log_t * p_log,
 *		[in] New level to set.
 *
 * RETURN VALUES
-*	Returns the current log level.
+*	This function does not return a value.
 *
 * NOTES
 *
