@@ -11,6 +11,16 @@ AM_INIT_AUTOMAKE
 AC_SUBST(RELEASE, ${RELEASE:-unknown})
 AC_SUBST(TARBALL, ${TARBALL:-${PACKAGE}-${VERSION}.tar.gz})
 
+if { rpm -q sles-release || rpm -q openSUSE-release; } >/dev/null 2>&1; then
+   default_start="2 3 5"
+   default_stop="0 1 4 6"
+else
+   default_start="2 3 4 5"
+   default_stop="0 1 6"
+fi
+AC_SUBST(DEFAULT_START, $default_start)
+AC_SUBST(DEFAULT_STOP, $default_stop)
+
 dnl NOTE: AC_DEFINE's and AC_DEFINE_UNQUOTED's which are used in header files
 dnl       MUST have a corresponding entry in include/opensm/osm_config.h.in to
 dnl       ensure plugin compatibility.

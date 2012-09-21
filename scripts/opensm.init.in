@@ -9,8 +9,8 @@
 # Provides: opensm
 # Required-Start: $syslog
 # Required-Stop:
-# Default-Start: none
-# Default-Stop: 0 1 6
+# Default-Start: @DEFAULT_START@
+# Default-Stop: @DEFAULT_STOP@
 # Description:  Manage OpenSM
 ### END INIT INFO
 #
