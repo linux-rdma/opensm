@@ -52,6 +52,7 @@ opensm \- InfiniBand subnet manager and administration (SM/SA)
 [\-\-cckey <key>]
 [\-y | \-\-stay_on_fatal]
 [\-B | \-\-daemon]
+[\-J | \-\-pidfile <file_name>]
 [\-I | \-\-inactive]
 [\-\-perfmgr]
 [\-\-perfmgr_sweep_time_s <seconds>]
@@ -402,6 +403,10 @@ By default, the SM will exit on these errors.
 .TP
 \fB\-B\fR, \fB\-\-daemon\fR
 Run in daemon mode - OpenSM will run in the background.
+.TP
+\fB\-J\fR, \fB\-\-pidfile <file_name>\fR
+Makes the SM write its own PID to the specified file when started in daemon
+mode.
 .TP
 \fB\-I\fR, \fB\-\-inactive\fR
 Start SM in inactive rather than init SM state.  This

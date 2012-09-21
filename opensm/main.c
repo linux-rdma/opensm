@@ -68,6 +68,7 @@ volatile unsigned int osm_exit_flag = 0;
 
 static volatile unsigned int osm_hup_flag = 0;
 static volatile unsigned int osm_usr1_flag = 0;
+static char *pidfile;
 
 #define MAX_LOCAL_IBPORTS 64
 #define INVALID_GUID (0xFFFFFFFFFFFFFFFFULL)
@@ -498,10 +499,17 @@ static ib_net64_t get_port_guid(IN osm_opensm_t * p_osm, uint64_t port_guid)
 	return attr_array[choice].port_guid;
 }
 
+static void remove_pidfile(void)
+{
+	if (pidfile)
+		unlink(pidfile);
+}
+
 static int daemonize(osm_opensm_t * osm)
 {
 	pid_t pid;
 	int fd;
+	FILE *f;
 
 	fd = open("/dev/null", O_WRONLY);
 	if (fd < 0) {
@@ -522,6 +530,18 @@ static int daemonize(osm_opensm_t * osm)
 		exit(-1);
 	} else if (pid > 0)
 		exit(0);
+
+	if (pidfile) {
+		remove_pidfile();
+		f = fopen(pidfile, "w");
+		if (f) {
+			fprintf(f, "%d\n", getpid());
+			fclose(f);
+		} else {
+			perror("fopen");
+			exit(1);
+		}
+	}
 
 	close(0);
 	close(1);
@@ -649,6 +669,7 @@ int main(int argc, char *argv[])
 		{"console-port", 1, NULL, 'C'},
 #endif
 		{"daemon", 0, NULL, 'B'},
+		{"pidfile", 1, NULL, 'J'},
 		{"inactive", 0, NULL, 'I'},
 #ifdef ENABLE_OSM_PERF_MGR
 		{"perfmgr", 0, NULL, 1},
@@ -885,6 +906,10 @@ int main(int argc, char *argv[])
 		case 'e':
 			opt.accum_log_file = FALSE;
 			printf(" Creating new log file\n");
+			break;
+
+		case 'J':
+			pidfile = optarg;
 			break;
 
 		case 'P':
@@ -1212,6 +1237,7 @@ int main(int argc, char *argv[])
 Exit:
 	osm_opensm_destroy(&osm);
 	complib_exit();
+	remove_pidfile();
 
 	exit(0);
 }
