@@ -36,8 +36,6 @@ Source: http://www.openfabrics.org/downloads/management/@TARBALL@
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: libibumad-devel, libtool
 Requires: %{name}-libs = %{version}-%{release}, logrotate
-Requires(post): /sbin/service, /sbin/chkconfig
-Requires(preun): /sbin/chkconfig, /sbin/service
 
 %description
 OpenSM provides an implementation of an InfiniBand Subnet Manager and
@@ -109,15 +107,30 @@ rm -rf $RPM_BUILD_ROOT
 
 %post
 if [ $1 = 1 ]; then
-    /sbin/chkconfig --add opensmd
+    if [ -e /sbin/chkconfig ]; then
+        /sbin/chkconfig --add opensmd
+    elif [ -e /usr/sbin/update-rc.d ]; then
+        /usr/sbin/update-rc.d opensmd defaults
+    else
+        /usr/lib/lsb/install_initd /etc/init.d/opensmd
+    fi
+    if type systemctl >/dev/null 2>&1; then
+        systemctl --system daemon-reload
+    fi
 else
-    /sbin/service opensmd condrestart
+    /etc/init.d/opensmd condrestart
 fi
 
 %preun
 if [ $1 = 0 ]; then
-    /sbin/service opensmd stop
-    /sbin/chkconfig --del opensmd
+    /etc/init.d/opensmd stop
+    if [ -e /sbin/chkconfig ]; then
+        /sbin/chkconfig --del opensmd
+    elif [ -e /usr/sbin/update-rc.d ]; then
+        /usr/sbin/update-rc.d -f opensmd remove
+    else
+        /usr/lib/lsb/remove_initd /etc/init.d/opensmd
+    fi
     rm -f /var/cache/opensm/*
 fi
 
