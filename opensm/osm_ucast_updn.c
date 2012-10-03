@@ -595,7 +595,7 @@ static int updn_lid_matrices(void *ctx)
 		ret = parse_node_map(p_updn->p_osm->subn.opt.root_guid_file,
 				     rank_root_node, p_updn);
 		if (ret)
-			OSM_LOG(&p_updn->p_osm->log, OSM_LOG_ERROR, "ERR : "
+			OSM_LOG(&p_updn->p_osm->log, OSM_LOG_ERROR, "ERR AA02: "
 				"cannot parse root guids file \'%s\'\n",
 				p_updn->p_osm->subn.opt.root_guid_file);
 		if (p_updn->p_osm->subn.opt.connect_roots &&
@@ -614,7 +614,7 @@ static int updn_lid_matrices(void *ctx)
 		ret = parse_node_map(p_updn->p_osm->subn.opt.ids_guid_file,
 				     update_id, p_updn->p_osm);
 		if (ret)
-			OSM_LOG(&p_updn->p_osm->log, OSM_LOG_ERROR, "ERR : "
+			OSM_LOG(&p_updn->p_osm->log, OSM_LOG_ERROR, "ERR AA03: "
 				"cannot parse node ids file \'%s\'\n",
 				p_updn->p_osm->subn.opt.ids_guid_file);
 	}
