@@ -2814,7 +2814,7 @@ void osm_dump_dr_path(IN osm_log_t * p_log, IN const osm_dr_path_t * p_path,
 
 		osm_dump_dr_path_to_buf(p_path, buf);
 
-		osm_log(p_log, log_level, buf);
+		osm_log(p_log, log_level, "%s\n", buf);
 	}
 }
 
@@ -2826,7 +2826,7 @@ void osm_dump_dr_path_v2(IN osm_log_t * p_log, IN const osm_dr_path_t * p_path,
 
 		osm_dump_dr_path_to_buf(p_path, buf);
 
-		osm_log_v2(p_log, log_level, file_id, buf);
+		osm_log_v2(p_log, log_level, file_id, "%s\n", buf);
 	}
 }
 
@@ -2858,7 +2858,7 @@ void osm_dump_smp_dr_path(IN osm_log_t * p_log, IN const ib_smp_t * p_smp,
 
 		osm_dump_smp_dr_path_to_buf(p_smp, buf);
 
-		osm_log(p_log, log_level, buf);
+		osm_log(p_log, log_level, "%s\n", buf);
 	}
 }
 
@@ -2870,7 +2870,7 @@ void osm_dump_smp_dr_path_v2(IN osm_log_t * p_log, IN const ib_smp_t * p_smp,
 
 		osm_dump_smp_dr_path_to_buf(p_smp, buf);
 
-		osm_log_v2(p_log, log_level, file_id, buf);
+		osm_log_v2(p_log, log_level, file_id, "%s\n", buf);
 	}
 }
 
