@@ -1208,6 +1208,7 @@ repeat_discovery:
 	sm->p_subn->min_ca_mtu = IB_MAX_MTU;
 	sm->p_subn->min_ca_rate = IB_MAX_RATE;
 	sm->p_subn->min_data_vls = IB_MAX_NUM_VLS - 1;
+	sm->p_subn->min_sw_data_vls = IB_MAX_NUM_VLS - 1;
 
 	/* rescan configuration updates */
 	if (!config_parsed && osm_subn_rescan_conf_files(sm->p_subn) < 0)

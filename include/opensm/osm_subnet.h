@@ -742,6 +742,7 @@ typedef struct osm_subn {
 	uint8_t min_ca_mtu;
 	uint8_t min_ca_rate;
 	uint8_t min_data_vls;
+	uint8_t min_sw_data_vls;
 	boolean_t ignore_existing_lfts;
 	boolean_t subnet_initialization_error;
 	boolean_t force_heavy_sweep;
