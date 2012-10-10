@@ -7027,22 +7027,27 @@ bool verify_setup(struct torus *t, struct fabric *f)
 			"ERR 4E20: missing required torus size specification!\n");
 		goto out;
 	}
-	if (t->osm->subn.min_data_vls < 2)
+	if (t->osm->subn.min_data_vls < 2 || t->osm->subn.min_sw_data_vls < 2)
 		OSM_LOG(&t->osm->log, OSM_LOG_INFO,
 			"Warning: Too few data VLs to support torus routing "
-			"without credit loops (have %d need 2)\n",
-			(int)t->osm->subn.min_data_vls);
-	if (t->osm->subn.min_data_vls < 4)
+			"without credit loops (have endport %d switchport %d "
+			"need 2)\n",
+			(int)t->osm->subn.min_data_vls,
+			(int)t->osm->subn.min_sw_data_vls);
+	if (t->osm->subn.min_data_vls < 4 || t->osm->subn.min_sw_data_vls < 4)
 		OSM_LOG(&t->osm->log, OSM_LOG_INFO,
 			"Warning: Too few data VLs to support torus routing "
-			"with a failed switch without credit loops"
-			"(have %d need 4)\n",
-			(int)t->osm->subn.min_data_vls);
-	if (t->osm->subn.min_data_vls < 8)
+			"with a failed switch without credit loops "
+			"(have endport %d switchport %d need 4)\n",
+			(int)t->osm->subn.min_data_vls,
+			(int)t->osm->subn.min_sw_data_vls);
+	if (t->osm->subn.min_data_vls < 8 || t->osm->subn.min_sw_data_vls < 8)
 		OSM_LOG(&t->osm->log, OSM_LOG_INFO,
 			"Warning: Too few data VLs to support torus routing "
-			"with two QoS levels (have %d need 8)\n",
-			(int)t->osm->subn.min_data_vls);
+			"with two QoS levels (have endport %d switchport %d "
+			"need 8)\n",
+			(int)t->osm->subn.min_data_vls,
+			(int)t->osm->subn.min_sw_data_vls);
 	/*
 	 * Be sure all the switches in the torus support the port
 	 * ordering that might have been configured.
@@ -7982,7 +7987,10 @@ unsigned sl2vl_entry(struct torus *t, struct t_switch *sw,
 	else
 		od = TORUS_MAX_DIM;
 
-	data_vls = t->osm->subn.min_data_vls;
+	if (sw)
+		data_vls = t->osm->subn.min_sw_data_vls;
+	else
+		data_vls = t->osm->subn.min_data_vls;
 	vl = 0;
 
 	if (data_vls >= 2)
@@ -9251,9 +9259,10 @@ int torus_build_lfts(void *context)
 
 	OSM_LOG(&torus->osm->log, OSM_LOG_INFO,
 		"Found fabric w/ %d links, %d switches, %d CA ports, "
-		"minimum %d data VLs\n",
+		"minimum data VLs: endport %d, switchport %d\n",
 		(int)fabric->link_cnt, (int)fabric->switch_cnt,
-		(int)fabric->ca_cnt, (int)ctx->osm->subn.min_data_vls);
+		(int)fabric->ca_cnt, (int)ctx->osm->subn.min_data_vls,
+		(int)ctx->osm->subn.min_sw_data_vls);
 
 	if (!verify_setup(torus, fabric))
 		goto out;
