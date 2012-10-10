@@ -8016,7 +8016,7 @@ void torus_update_osm_sl2vl(void *context, osm_physp_t *osm_phys_port,
 				"Error: osm_switch (GUID 0x%04"PRIx64") "
 				"not in our fabric description\n",
 				cl_ntoh64(guid));
-		return;
+			return;
 		}
 	}
 	for (sl = 0; sl < 16; sl++) {
