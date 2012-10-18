@@ -447,7 +447,7 @@ static void trap_rcv_process_request(IN osm_sm_t * sm,
 	}
 
 	osm_dump_notice_v2(sm->p_log, p_ntci, FILE_ID, OSM_LOG_VERBOSE);
-	CL_PLOCK_EXCL_ACQUIRE(sm->p_lock);
+	CL_PLOCK_ACQUIRE(sm->p_lock);
 	p_physp = osm_get_physp_by_mad_addr(sm->p_log, sm->p_subn,
 					    &tmp_madw.mad_addr);
 	if (p_physp)
@@ -555,11 +555,18 @@ static void trap_rcv_process_request(IN osm_sm_t * sm,
 				"trap 144: \"node description update\"\n");
 		goto check_sweep;
 	} else if (cl_ntoh16(p_ntci->g_or_v.generic.trap_num) == SM_SYS_IMG_GUID_CHANGED_TRAP) {
-		if (p_physp)
-			/* this assumes that trap 145 content is not broken? */
-			p_physp->p_node->node_info.sys_guid =
-				p_ntci->data_details.ntc_145.new_sys_guid;
-		else
+		if (p_physp) {
+			CL_PLOCK_RELEASE(sm->p_lock);
+			CL_PLOCK_EXCL_ACQUIRE(sm->p_lock);
+			p_physp = osm_get_physp_by_mad_addr(sm->p_log,
+							    sm->p_subn,
+							    &tmp_madw.mad_addr);
+			if (p_physp) {
+				/* this assumes that trap 145 content is not broken? */
+				p_physp->p_node->node_info.sys_guid =
+					p_ntci->data_details.ntc_145.new_sys_guid;
+			}
+		} else
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR,
 				"ERR 3813: No physical port found for "
 				"trap 145: \"SystemImageGUID update\"\n");
