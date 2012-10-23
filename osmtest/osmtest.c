@@ -2720,22 +2720,24 @@ osmtest_create_inventory_file(IN osmtest_t * const p_osmt)
 	/* HACK: the order is important: nodes ports paths */
 	status = osmtest_write_all_node_recs(p_osmt, fh);
 	if (status != IB_SUCCESS)
-		goto Exit;
+		goto CloseFile;
 
 	status = osmtest_write_all_port_recs(p_osmt, fh);
 	if (status != IB_SUCCESS)
-		goto Exit;
+		goto CloseFile;
 
 	if (!p_osmt->opt.ignore_path_records) {
 		status = osmtest_write_all_path_recs(p_osmt, fh);
 		if (status != IB_SUCCESS)
-			goto Exit;
+			goto CloseFile;
 	}
 
 	status = osmtest_write_all_link_recs(p_osmt, fh);
 	if (status != IB_SUCCESS)
-		goto Exit;
+		goto CloseFile;
 
+
+CloseFile:
 	fclose(fh);
 
 Exit:
