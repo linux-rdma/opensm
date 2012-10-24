@@ -614,23 +614,11 @@ Exit:
 	OSM_LOG_EXIT(sm->p_log);
 }
 
-static void trap_rcv_process_response(IN osm_sm_t * sm,
-				      IN const osm_madw_t * p_madw)
-{
-
-	OSM_LOG_ENTER(sm->p_log);
-
-	OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3808: "
-		"This function is not supported yet\n");
-
-	OSM_LOG_EXIT(sm->p_log);
-}
-
 void osm_trap_rcv_process(IN void *context, IN void *data)
 {
 	osm_sm_t *sm = context;
 	osm_madw_t *p_madw = data;
-	ib_smp_t *p_smp;
+	ib_smp_t __attribute__((unused)) *p_smp;
 
 	OSM_LOG_ENTER(sm->p_log);
 
@@ -638,15 +626,9 @@ void osm_trap_rcv_process(IN void *context, IN void *data)
 
 	p_smp = osm_madw_get_smp_ptr(p_madw);
 
-	/*
-	   Determine if this is a request for our own Trap
-	   or if this is a response to our request for another
-	   SM's Trap.
-	 */
-	if (ib_smp_is_response(p_smp))
-		trap_rcv_process_response(sm, p_madw);
-	else
-		trap_rcv_process_request(sm, p_madw);
+	/* Only Trap requests get here */
+	CL_ASSERT(!ib_smp_is_response(p_smp));
+	trap_rcv_process_request(sm, p_madw);
 
 	OSM_LOG_EXIT(sm->p_log);
 }
