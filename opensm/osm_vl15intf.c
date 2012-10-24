@@ -346,7 +346,7 @@ void osm_vl15_shutdown(IN osm_vl15_t * p_vl, IN osm_mad_pool_t * p_mad_pool)
 	/* we only should get here after the VL15 interface was initialized */
 	CL_ASSERT(p_vl->state == OSM_VL15_STATE_READY);
 
-	/* grap a lock on the object */
+	/* grab a lock on the object */
 	cl_spinlock_acquire(&p_vl->lock);
 
 	/* go over all outstanding MADs and retire their transactions */
