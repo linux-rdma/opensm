@@ -96,7 +96,7 @@ cl_atomic_sub(IN atomic32_t * const p_value, IN const int32_t decrement)
 	int32_t new_val;
 
 	cl_spinlock_acquire(&cl_atomic_spinlock);
-	new_val = *p_value + decrement;
+	new_val = *p_value - decrement;
 	*p_value = new_val;
 	cl_spinlock_release(&cl_atomic_spinlock);
 	return (new_val);
