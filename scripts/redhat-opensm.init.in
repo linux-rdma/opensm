@@ -7,6 +7,8 @@
 #
 ### BEGIN INIT INFO
 # Provides:       opensm
+# Required-Start: $syslog @RDMA_SERVICE@
+# Required-Stop: $syslog @RDMA_SERVICE@
 # Default-Start: @DEFAULT_START@
 # Default-Stop: @DEFAULT_STOP@
 # Description:  Manage OpenSM
