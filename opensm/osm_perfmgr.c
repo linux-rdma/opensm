@@ -420,7 +420,7 @@ static ib_api_status_t perfmgr_send_pc_mad(osm_perfmgr_t * perfmgr,
 		/* pause thread if there are too many outstanding requests */
 		cl_atomic_inc(&(perfmgr->outstanding_queries));
 		if (perfmgr->outstanding_queries >
-		    perfmgr->max_outstanding_queries) {
+		    (int32_t)perfmgr->max_outstanding_queries) {
 			perfmgr->sweep_state = PERFMGR_SWEEP_SUSPENDED;
 			cl_event_wait_on(&perfmgr->sig_query, EVENT_NO_TIMEOUT,
 					 TRUE);

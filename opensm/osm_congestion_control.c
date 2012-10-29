@@ -526,7 +526,7 @@ static void cc_poller_send(osm_congestion_control_t *p_cc,
 	if (status == IB_SUCCESS) {
 		cl_atomic_inc(&p_cc->outstanding_mads_on_wire);
 		if (p_cc->outstanding_mads_on_wire >
-		    p_opt->cc_max_outstanding_mads)
+		    (int32_t)p_opt->cc_max_outstanding_mads)
 			cl_event_wait_on(&p_cc->sig_mads_on_wire_continue,
 					 EVENT_NO_TIMEOUT,
 					 TRUE);
