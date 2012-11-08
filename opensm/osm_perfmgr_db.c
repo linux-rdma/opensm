@@ -705,7 +705,7 @@ static void dump_hr_dc(FILE *fp, uint64_t val64, int data)
 	uint64_t tmp = val64;
 	float val = 0.0;
 	int ui = 0;
-	int div = 1;
+	uint64_t div = 1;
 
 	tmp /= 1024;
 	while (tmp) {
