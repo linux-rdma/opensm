@@ -184,9 +184,10 @@ static const char *module_name_str[] = {
 	"osm_vl_arb_rcv.c",
 	"st.c",
 	"osm_ucast_dfsssp.c",
+	"osm_congestion_control.c",
 	/* Add new module names here ... */
 	/* FILE_ID define in those modules must be identical to index here */
-	/* last FILE_ID is currently 88 */
+	/* last FILE_ID is currently 89 */
 };
 
 #define MOD_NAME_STR_UNKNOWN_VAL (ARR_SIZE(module_name_str))
