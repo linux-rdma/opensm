@@ -43,8 +43,18 @@
 #include <unistd.h>
 #include <ctype.h>
 #include <config.h>
+#include <errno.h>
 
 #include <complib/cl_nodenamemap.h>
+#include <complib/cl_math.h>
+
+#define PARSE_NODE_MAP_BUFLEN  256
+
+static int parse_node_map_wrap(const char *file_name,
+			       int (*create)(void *, uint64_t, char *),
+			       void *cxt,
+			       char *linebuf,
+			       unsigned int linebuflen);
 
 static int map_name(void *cxt, uint64_t guid, char *p)
 {
@@ -67,6 +77,7 @@ static int map_name(void *cxt, uint64_t guid, char *p)
 nn_map_t *open_node_name_map(char *node_name_map)
 {
 	nn_map_t *map;
+	char linebuf[PARSE_NODE_MAP_BUFLEN + 1];
 
 	if (!node_name_map) {
 #ifdef HAVE_DEFAULT_NODENAME_MAP
@@ -84,10 +95,23 @@ nn_map_t *open_node_name_map(char *node_name_map)
 		return NULL;
 	cl_qmap_init(map);
 
-	if (parse_node_map(node_name_map, map_name, map)) {
-		fprintf(stderr,
-			"WARNING failed to open node name map \"%s\" (%s)\n",
-			node_name_map, strerror(errno));
+	memset(linebuf, '\0', PARSE_NODE_MAP_BUFLEN + 1);
+	if (parse_node_map_wrap(node_name_map, map_name, map,
+				linebuf, PARSE_NODE_MAP_BUFLEN)) {
+		if (errno == EIO) {
+			fprintf(stderr,
+				"WARNING failed to parse node name map "
+				"\"%s\"\n",
+				node_name_map);
+			fprintf(stderr,
+				"WARNING failed line: \"%s\"\n",
+				linebuf);
+		}
+		else
+			fprintf(stderr,
+				"WARNING failed to open node name map "
+				"\"%s\" (%s)\n",
+				node_name_map, strerror(errno));
 		close_node_name_map(map);
 		return NULL;
 	}
@@ -144,10 +168,13 @@ char *clean_nodedesc(char *nodedesc)
 	return (nodedesc);
 }
 
-int parse_node_map(const char *file_name,
-		   int (*create) (void *, uint64_t, char *), void *cxt)
+static int parse_node_map_wrap(const char *file_name,
+			       int (*create) (void *, uint64_t, char *),
+			       void *cxt,
+			       char *linebuf,
+			       unsigned int linebuflen)
 {
-	char line[256];
+	char line[PARSE_NODE_MAP_BUFLEN];
 	FILE *f;
 
 	if (!(f = fopen(file_name, "r")))
@@ -166,6 +193,14 @@ int parse_node_map(const char *file_name,
 		guid = strtoull(p, &e, 0);
 		if (e == p || (!isspace(*e) && *e != '#' && *e != '\0')) {
 			fclose(f);
+			errno = EIO;
+			if (linebuf) {
+				memcpy(linebuf, line,
+				       MIN(PARSE_NODE_MAP_BUFLEN, linebuflen));
+				e = strpbrk(linebuf, "\n");
+				if (e)
+					*e = '\0';
+			}
 			return -1;
 		}
 
@@ -185,4 +220,10 @@ int parse_node_map(const char *file_name,
 
 	fclose(f);
 	return 0;
+}
+
+int parse_node_map(const char *file_name,
+		   int (*create) (void *, uint64_t, char *), void *cxt)
+{
+	return parse_node_map_wrap(file_name, create, cxt, NULL, 0);
 }
