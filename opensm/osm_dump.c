@@ -320,7 +320,7 @@ static void dump_lid_matrix(cl_map_item_t * item, FILE * file, void *cxt)
 				osm_switch_get_hop_count(p_sw, lid, port));
 		p_port = osm_get_port_by_lid_ho(&p_osm->subn, lid);
 		if (p_port)
-			fprintf(file, " # portguid 0x016%" PRIx64,
+			fprintf(file, " # portguid 0x%016" PRIx64,
 				cl_ntoh64(osm_port_get_guid(p_port)));
 		fprintf(file, "\n");
 	}
