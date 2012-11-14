@@ -528,7 +528,7 @@ static int update_id(void *cxt, uint64_t guid, char *p)
 	id = strtoull(p, &e, 0);
 	if (*e && !isspace(*e)) {
 		OSM_LOG(&osm->log, OSM_LOG_ERROR,
-			"ERR: cannot parse node id \'%s\'", p);
+			"ERR AA05: cannot parse node id \'%s\'", p);
 		return -1;
 	}
 
