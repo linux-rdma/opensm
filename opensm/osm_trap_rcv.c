@@ -566,6 +566,8 @@ static void trap_rcv_process_request(IN osm_sm_t * sm,
 				p_physp->p_node->node_info.sys_guid =
 					p_ntci->data_details.ntc_145.new_sys_guid;
 			}
+			CL_PLOCK_RELEASE(sm->p_lock);
+			CL_PLOCK_ACQUIRE(sm->p_lock);
 		} else
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR,
 				"ERR 3813: No physical port found for "
