@@ -97,6 +97,8 @@ static void state_mgr_reset_node_count(IN cl_map_item_t * p_map_item,
 	osm_node_t *p_node = (osm_node_t *) p_map_item;
 
 	p_node->discovery_count = 0;
+
+	memset(p_node->physp_discovered, 0, sizeof(uint8_t) * p_node->physp_tbl_size);
 }
 
 static void state_mgr_reset_port_count(IN cl_map_item_t * p_map_item,

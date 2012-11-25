@@ -633,13 +633,18 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 		switch (osm_node_get_type(p_node)) {
 		case IB_NODE_TYPE_CA:
 		case IB_NODE_TYPE_ROUTER:
-			p_port->discovery_count++;
+			if (!p_node->physp_discovered[port_num]) {
+				p_port->discovery_count++;
+				p_node->physp_discovered[port_num] = 1;
+			}
 			pi_rcv_process_ca_or_router_port(sm, p_node, p_physp,
 							 p_pi);
 			break;
 		case IB_NODE_TYPE_SWITCH:
-			if (port_num == 0)
+			if (!p_node->physp_discovered[port_num]) {
 				p_port->discovery_count++;
+				p_node->physp_discovered[port_num] = 1;
+			}
 			pi_rcv_process_switch_port(sm, p_node, p_physp, p_pi);
 			break;
 		default:

@@ -102,6 +102,7 @@ typedef struct osm_node {
 	uint32_t discovery_count;
 	uint32_t physp_tbl_size;
 	char *print_desc;
+	uint8_t *physp_discovered;
 	osm_physp_t physp_table[1];
 } osm_node_t;
 /*
@@ -132,6 +133,11 @@ typedef struct osm_node {
 *
 *	print_desc
 *		A printable version of the node description.
+*
+*	physp_discovered
+*		Array of physp_discovered objects for all ports of this node.
+*		Each object indiactes whether the port has been discovered
+*		during the sweep or not. 1 means that the port had been discovered.
 *
 *	phsyp_table
 *		Array of physical port objects belonging to this node.

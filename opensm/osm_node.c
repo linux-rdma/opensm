@@ -99,6 +99,12 @@ osm_node_t *osm_node_new(IN const osm_madw_t * p_madw)
 	p_node->node_info = *p_ni;
 	p_node->physp_tbl_size = size + 1;
 
+	p_node->physp_discovered = malloc(sizeof(uint8_t) * p_node->physp_tbl_size);
+	if (!p_node->physp_discovered) {
+		free(p_node);
+		return NULL;
+	}
+	memset(p_node->physp_discovered, 0, sizeof(uint8_t) * p_node->physp_tbl_size);
 	/*
 	   Construct Physical Port objects owned by this Node.
 	   Then, initialize the Physical Port through with we
@@ -136,6 +142,9 @@ static void node_destroy(IN osm_node_t * p_node)
 	/* cleanup printable node_desc field */
 	if (p_node->print_desc)
 		free(p_node->print_desc);
+
+	/* cleanup physp_discovered array */
+	free(p_node->physp_discovered);
 }
 
 void osm_node_delete(IN OUT osm_node_t ** p_node)

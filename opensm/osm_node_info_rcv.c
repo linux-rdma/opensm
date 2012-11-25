@@ -172,6 +172,19 @@ static void ni_rcv_set_links(IN osm_sm_t * sm, osm_node_t * p_node,
 		goto _exit;
 	}
 
+	p_physp = osm_node_get_physp_ptr(p_node, port_num);
+	/*
+	 * If the link went UP, after we already discovered it, we shouldn't
+	 * set the link between the ports and resweep.
+	 */
+	if (osm_physp_get_port_state(p_physp) == IB_LINK_DOWN &&
+	    p_node->physp_discovered[port_num]) {
+		/* Link down on another side. Don't create a link*/
+		p_node->physp_discovered[port_num] = 0;
+		sm->p_subn->force_heavy_sweep = TRUE;
+		goto _exit;
+	}
+
 	if (osm_node_has_any_link(p_node, port_num) &&
 	    sm->p_subn->force_heavy_sweep == FALSE &&
 	    (!p_ni_context->dup_count ||
