@@ -72,14 +72,18 @@ static inline int unpack_lids(IN char *p_lid_str, OUT uint16_t * p_min_lid,
 	if (!p_num)
 		return 1;
 	tmp = strtoul(p_num, NULL, 0);
-	CL_ASSERT(tmp < 0x10000);
+	if (tmp >= 0xC000)
+		return 1;
+
 	*p_min_lid = (uint16_t) tmp;
 
 	p_num = strtok_r(NULL, " \t", &p_next);
 	if (!p_num)
 		return 1;
 	tmp = strtoul(p_num, NULL, 0);
-	CL_ASSERT(tmp < 0x10000);
+	if (tmp >= 0xC000)
+		return 1;
+
 	*p_max_lid = (uint16_t) tmp;
 
 	return 0;
