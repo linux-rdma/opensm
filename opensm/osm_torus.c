@@ -7027,27 +7027,27 @@ bool verify_setup(struct torus *t, struct fabric *f)
 			"ERR 4E20: missing required torus size specification!\n");
 		goto out;
 	}
-	if (t->osm->subn.min_data_vls < 2 || t->osm->subn.min_sw_data_vls < 2)
+	if (t->osm->subn.min_sw_data_vls < 2)
 		OSM_LOG(&t->osm->log, OSM_LOG_INFO,
 			"Warning: Too few data VLs to support torus routing "
-			"without credit loops (have endport %d switchport %d "
-			"need 2)\n",
-			(int)t->osm->subn.min_data_vls,
+			"without credit loops (have switchport %d need 2)\n",
 			(int)t->osm->subn.min_sw_data_vls);
-	if (t->osm->subn.min_data_vls < 4 || t->osm->subn.min_sw_data_vls < 4)
+	if (t->osm->subn.min_sw_data_vls < 4)
 		OSM_LOG(&t->osm->log, OSM_LOG_INFO,
 			"Warning: Too few data VLs to support torus routing "
 			"with a failed switch without credit loops "
-			"(have endport %d switchport %d need 4)\n",
-			(int)t->osm->subn.min_data_vls,
+			"(have switchport %d need 4)\n",
 			(int)t->osm->subn.min_sw_data_vls);
-	if (t->osm->subn.min_data_vls < 8 || t->osm->subn.min_sw_data_vls < 8)
+	if (t->osm->subn.min_sw_data_vls < 8)
 		OSM_LOG(&t->osm->log, OSM_LOG_INFO,
 			"Warning: Too few data VLs to support torus routing "
-			"with two QoS levels (have endport %d switchport %d "
-			"need 8)\n",
-			(int)t->osm->subn.min_data_vls,
+			"with two QoS levels (have switchport %d need 8)\n",
 			(int)t->osm->subn.min_sw_data_vls);
+	if (t->osm->subn.min_data_vls < 2)
+		OSM_LOG(&t->osm->log, OSM_LOG_INFO,
+			"Warning: Too few data VLs to support torus routing "
+			"with two QoS levels (have endport %d need 2)\n",
+			(int)t->osm->subn.min_data_vls);
 	/*
 	 * Be sure all the switches in the torus support the port
 	 * ordering that might have been configured.
@@ -7929,6 +7929,7 @@ unsigned sl_get_qos(unsigned sl)
  * Functions to encode routing/QoS info into VL bits.  Combine the resuts of
  * these functions with bitwise or to get final VL.
  *
+ * For interswitch links:
  * VL bit 0 encodes whether we need to leave on the "loop" VL.
  *
  * VL bit 1 encodes whether turn is XYZ DOR or ZYX DOR. A 3d mesh/torus
@@ -7943,6 +7944,9 @@ unsigned sl_get_qos(unsigned sl)
  *
  * VL bit 2 encodes QoS level.
  *
+ * For end port links:
+ * VL bit 0 encodes QoS level.
+ *
  * Note that if VL bit encodings are changed here, the available fabric VL
  * verification in verify_setup() needs to be updated as well.
  */
@@ -7956,6 +7960,12 @@ static inline
 unsigned vl_set_qos_vl(unsigned qos)
 {
 	return (qos & 0x1) << 2;
+}
+
+static inline
+unsigned vl_set_ca_qos_vl(unsigned qos)
+{
+	return qos & 0x1;
 }
 
 static inline
@@ -7991,15 +8001,19 @@ unsigned sl2vl_entry(struct torus *t, struct t_switch *sw,
 		data_vls = t->osm->subn.min_sw_data_vls;
 	else
 		data_vls = t->osm->subn.min_data_vls;
+
 	vl = 0;
-
-	if (data_vls >= 2)
-		vl |= vl_set_loop_vl(sl_get_use_loop_vl(sl, od));
-	if (data_vls >= 4)
-		vl |= vl_set_turn_vl(id, od);
-	if (data_vls >= 8)
-		vl |= vl_set_qos_vl(sl_get_qos(sl));
-
+	if (sw && od != TORUS_MAX_DIM) {
+		if (data_vls >= 2)
+			vl |= vl_set_loop_vl(sl_get_use_loop_vl(sl, od));
+		if (data_vls >= 4)
+			vl |= vl_set_turn_vl(id, od);
+		if (data_vls >= 8)
+			vl |= vl_set_qos_vl(sl_get_qos(sl));
+	} else {
+		if (data_vls >= 2)
+			vl |= vl_set_ca_qos_vl(sl_get_qos(sl));
+	}
 	return vl;
 }
 
@@ -8030,6 +8044,73 @@ void torus_update_osm_sl2vl(void *context, osm_physp_t *osm_phys_port,
 	for (sl = 0; sl < 16; sl++) {
 		vl = sl2vl_entry(ctx->torus, sw, iport_num, oport_num, sl);
 		ib_slvl_table_set(osm_oport_sl2vl, sl, vl);
+	}
+}
+
+static
+void torus_update_osm_vlarb(void *context, osm_physp_t *osm_phys_port,
+			    uint8_t port_num, ib_vl_arb_table_t *block,
+			    unsigned block_length, unsigned block_num)
+{
+	osm_node_t *node = osm_physp_get_node_ptr(osm_phys_port);
+	struct torus_context *ctx = context;
+	struct t_switch *sw = NULL;
+	unsigned i, next;
+
+	if (node->sw) {
+		sw = node->sw->priv;
+		if (sw && sw->osm_switch != node->sw) {
+			osm_log_t *log = &ctx->osm->log;
+			guid_t guid;
+
+			guid = osm_node_get_node_guid(node);
+			OSM_LOG(log, OSM_LOG_INFO,
+				"Error: osm_switch (GUID 0x%04"PRIx64") "
+				"not in our fabric description\n",
+				cl_ntoh64(guid));
+			return;
+		}
+	}
+
+	/*
+	 * If osm_phys_port is a switch port that connects to a CA, then
+	 * we're using at most VL 0 (for QoS level 0) and VL 1 (for QoS
+	 * level 1).  We've been passed the  VLarb values for a switch
+	 * external port, so we need to fix them up to avoid unexpected
+	 * results depending on how the switch handles VLarb values for
+	 * unprogrammed VLs.
+	 *
+	 * For inter-switch links torus-2QoS uses VLs 0-3 to implement
+	 * QoS level 0, and VLs 4-7 to implement QoS level 1.
+	 *
+	 * So, leave VL 0 alone, remap VL 4 to VL 1, zero out the rest,
+	 * and compress out the zero entries to the end.
+	 */
+	if (!sw || !port_num ||
+	    sw->port[port_num]->pgrp->port_grp != 2 * TORUS_MAX_DIM)
+		return;
+
+	next = 0;
+	for (i = 0; i < block_length; i++) {
+		switch (block->vl_entry[i].vl) {
+		case 4:
+			block->vl_entry[i].vl = 1;
+			/* fall through */
+		case 0:
+			block->vl_entry[next].vl = block->vl_entry[i].vl;
+			block->vl_entry[next].weight = block->vl_entry[i].weight;
+			next++;
+			/*
+			 * If we didn't update vl_entry[i] in place,
+			 * fall through to zero it out.
+			 */
+			if (next > i)
+				break;
+		default:
+			block->vl_entry[i].vl = 0;
+			block->vl_entry[i].weight = 0;
+			break;
+		}
 	}
 }
 
@@ -9191,6 +9272,9 @@ void check_qos_config(osm_qos_options_t *opt, bool tgt_is_default,
 			"Warning: full torus-2QoS functionality not available "
 			"for configured %s_max_vls = %d\n", str, opt->max_vls);
 
+	if (!strcmp(str, "qos_ca"))
+		goto check_sl2vl;
+
 	if (opt->vlarb_high) {
 		is_default = false;
 		vlarb_str = opt->vlarb_high;
@@ -9216,6 +9300,7 @@ void check_qos_config(osm_qos_options_t *opt, bool tgt_is_default,
 	if (!is_default || tgt_is_default)
 		check_vlarb_config(vlarb_str, is_default, str, "low", log);
 
+check_sl2vl:
 	if (opt->sl2vl)
 		OSM_LOG(log, OSM_LOG_INFO,
 			"Warning: torus-2QoS must override configured "
@@ -9326,6 +9411,7 @@ int osm_ucast_torus2QoS_setup(struct osm_routing_engine *r,
 	r->context = ctx;
 	r->ucast_build_fwd_tables = torus_build_lfts;
 	r->update_sl2vl = torus_update_osm_sl2vl;
+	r->update_vlarb = torus_update_osm_vlarb;
 	r->path_sl = torus_path_sl;
 	r->mcast_build_stree = torus_mcast_stree;
 	r->destroy = torus_context_delete;
