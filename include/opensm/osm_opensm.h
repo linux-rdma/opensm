@@ -135,6 +135,10 @@ struct osm_routing_engine {
 	void (*update_sl2vl)(void *context, IN osm_physp_t *port,
 			     IN uint8_t in_port_num, IN uint8_t out_port_num,
 			     IN OUT ib_slvl_table_t *t);
+	void (*update_vlarb)(void *context, IN osm_physp_t *port,
+			     IN uint8_t port_num,
+			     IN OUT ib_vl_arb_table_t *block,
+			     unsigned block_length, unsigned block_num);
 	uint8_t (*path_sl)(void *context, IN uint8_t path_sl_hint,
 			   IN const ib_net16_t slid, IN const ib_net16_t dlid);
 	ib_api_status_t (*mcast_build_stree)(void *context,
@@ -168,6 +172,14 @@ struct osm_routing_engine {
 *		updated. For switches, in_port_num/out_port_num identify
 *		which part of the SL2VL map to update.  For router/HCA ports,
 *		in_port_num/out_port_num should be ignored.
+*
+*	update_vlarb(void *context, IN osm_physp_t *port,
+*		     IN uint8_t port_num,
+*		     IN OUT ib_vl_arb_table_t *block,
+*		     unsigned block_length, unsigned block_num)
+*		The callback to allow routing engine input for VLArbitration.
+*		*port is the physical port for which the VLArb table is to be
+*		updated.
 *
 *	path_sl
 *		The callback for computing path SL.

@@ -144,6 +144,7 @@ static ib_api_status_t vlarb_update_table_block(osm_sm_t * sm,
 						unsigned block_num,
 						cl_qlist_t *mad_list)
 {
+	struct osm_routing_engine *re = sm->p_subn->p_osm->routing_engine_used;
 	ib_vl_arb_table_t block;
 	uint32_t attr_mod;
 	unsigned vl_mask, i;
@@ -152,6 +153,11 @@ static ib_api_status_t vlarb_update_table_block(osm_sm_t * sm,
 
 	memset(&block, 0, sizeof(block));
 	memcpy(&block, table_block, block_length * sizeof(block.vl_entry[0]));
+
+	if (re && re->update_vlarb)
+		re->update_vlarb(re->context, p, port_num, &block,
+				 block_length, block_num);
+
 	for (i = 0; i < block_length; i++)
 		block.vl_entry[i].vl &= vl_mask;
 
