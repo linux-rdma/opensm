@@ -1,5 +1,5 @@
 Current OpenSM Routing
-7/4/11
+11/14/12
 
 OpenSM offers nine routing engines:
 
@@ -746,14 +746,23 @@ Since SL to VL map configuration must be under the complete control of
 torus-2QoS, any configuration via qos_sl2vl, qos_swe_sl2vl, etc., must and
 will be ignored, and a warning will be generated.
 
-Torus-2QoS uses VL values 0-3 to implement one of its supported QoS levels,
-and VL values 4-7 to implement the other.  Hard-to-diagnose application
+For inter-switch links, Torus-2QoS uses VL values 0-3 to implement one of
+its supported QoS levels, and VL values 4-7 to implement the other. For
+CA links, Torus-2QoS uses VL value 0 for one of its supported QoS
+levels and VL value 1 to implement the other.  Hard-to-diagnose application
 issues may arise if traffic is not delivered fairly across each of these
-two VL ranges. Torus-2QoS will detect and warn if VL arbitration is
-configured unfairly across VLs in the range 0-3, and also in the range
-4-7. Note that the default OpenSM VL arbitration configuration does not
-meet this constraint, so all torus-2QoS users should configure VL
-arbitration via qos_vlarb_high, qos_vlarb_low, etc.
+two VL ranges. For inter-switch links, Torus-2QoS will detect and warn if
+VL arbitration is configured unfairly across VLs in the range 0-3, and also
+in the range 4-7. Note that the default OpenSM VL arbitration configuration
+does not meet this constraint, so all torus-2QoS users should configure VL
+arbitration via qos_ca_vlarb_high, qos_swe_vlarb_high, qos_ca_vlarb_low,
+qos_swe_vlarb_low, etc.
+
+Note that torus-2QoS maps SL values to VL values differently
+for inter-switch and CA links.  This is why qos_vlarb_high and
+qos_vlarb_low should not be used, as using them may result in
+VL arbitration for a QoS level being different across inter-switch
+links vs. across CA links.
 
 Operational Considerations:
 
