@@ -164,7 +164,7 @@ struct osm_routing_engine {
 *		     IN uint8_t in_port_num, IN uint8_t out_port_num,
 *		     OUT ib_slvl_table_t *t)
 *		The callback to allow routing engine input for SL2VL maps.
-*		*port is the phyical port for which the SL2VL map is to be
+*		*port is the physical port for which the SL2VL map is to be
 *		updated. For switches, in_port_num/out_port_num identify
 *		which part of the SL2VL map to update.  For router/HCA ports,
 *		in_port_num/out_port_num should be ignored.
