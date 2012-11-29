@@ -7010,8 +7010,9 @@ out:
 	return;
 }
 
-#define LINK_ERR_STR " direction link required!\n"
-#define SEED_ERR_STR " direction links with different seed switches!\n"
+#define LINK_ERR_STR " direction link required for topology seed configuration since radix == 4! See torus-2QoS.conf(5).\n"
+#define LINK_ERR2_STR " direction link required for topology seed configuration! See torus-2QoS.conf(5).\n"
+#define SEED_ERR_STR " direction links for topology seed do not share a common switch! See torus-2QoS.conf(5).\n"
 
 static
 bool verify_setup(struct torus *t, struct fabric *f)
@@ -7139,7 +7140,7 @@ again:
 		if (o->xp_link.end[0].port >= 0 &&
 		    o->xm_link.end[0].port >= 0) {
 			OSM_LOG(&t->osm->log, OSM_LOG_ERROR,
-				"ERR 4E2B: Positive or negative x" LINK_ERR_STR);
+				"ERR 4E2B: Positive or negative x" LINK_ERR2_STR);
 			goto out;
 		}
 		if (o->xp_link.end[0].port < 0 &&
@@ -7162,7 +7163,7 @@ again:
 		if (o->zp_link.end[0].port >= 0 &&
 		    o->zm_link.end[0].port >= 0) {
 			OSM_LOG(&t->osm->log, OSM_LOG_ERROR,
-				"ERR 4E2C: Positive or negative z" LINK_ERR_STR);
+				"ERR 4E2C: Positive or negative z" LINK_ERR2_STR);
 			goto out;
 		}
 		if ((o->xp_link.end[0].port < 0 &&
@@ -7205,7 +7206,7 @@ again:
 		if (o->yp_link.end[0].port >= 0 &&
 		    o->ym_link.end[0].port >= 0) {
 			OSM_LOG(&t->osm->log, OSM_LOG_ERROR,
-				"ERR 4E2E: Positive or negative y" LINK_ERR_STR);
+				"ERR 4E2E: Positive or negative y" LINK_ERR2_STR);
 			goto out;
 		}
 		if ((o->xp_link.end[0].port < 0 &&
@@ -7254,7 +7255,9 @@ again:
 	if (need_seed)
 		OSM_LOG(&t->osm->log, OSM_LOG_ERROR,
 			"ERR 4E30: Every configured torus seed has at "
-			"least one switch missing in fabric!\n");
+			"least one switch missing in fabric! See "
+			"torus-2QoS.conf(5) and TORUS TOPOLOGY DISCOVERY "
+			"in torus-2QoS(8)\n");
 	else
 		success = true;
 out:
