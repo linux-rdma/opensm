@@ -2213,6 +2213,8 @@ fabric_route_upgoing_by_going_down(IN ftree_fabric_t * p_ftree,
 		/* find the least loaded port of the group (in indexing order) */
 		p_min_port = NULL;
 		ports_num = (uint16_t) cl_ptr_vector_get_size(&p_group->ports);
+		if(ports_num == 0)
+			continue;
 
 		for (j = 0; j < ports_num; j++) {
 			cl_ptr_vector_at(&p_group->ports, j, (void *)&p_port);
