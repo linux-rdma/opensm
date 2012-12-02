@@ -2591,6 +2591,8 @@ fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
 		   trying to balance these routes - always pick port 0. */
 		p_min_port = NULL;
 		ports_num = (uint16_t) cl_ptr_vector_get_size(&p_group->ports);
+		if(ports_num == 0)
+			continue;
 		for (j = 0; j < ports_num; j++) {
 			cl_ptr_vector_at(&p_group->ports, j, (void *)&p_port);
 			if (!p_min_port) {
