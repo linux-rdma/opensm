@@ -1689,7 +1689,6 @@ static int fabric_create_leaf_switch_array(IN ftree_fabric_t * p_ftree)
 	if (!p_ftree->leaf_switches) {
 		osm_log_v2(&p_ftree->p_osm->log, OSM_LOG_SYS, FILE_ID,
 			   "Fat-tree routing: Memory allocation failed\n");
-		free(all_switches_at_leaf_level);
 		res = -1;
 		goto Exit;
 	}
