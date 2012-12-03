@@ -94,7 +94,8 @@ static void pi_rcv_process_endport(IN osm_sm_t * sm, IN osm_physp_t * p_physp,
 	port_guid = osm_physp_get_port_guid(p_physp);
 
 	/* HACK extended port 0 should be handled too! */
-	if (osm_physp_get_port_num(p_physp) != 0) {
+	if (osm_physp_get_port_num(p_physp) != 0 &&
+	    ib_port_info_get_port_state(p_pi) != IB_LINK_DOWN) {
 		/* track the minimal endport MTU, rate, and operational VLs */
 		mtu = ib_port_info_get_mtu_cap(p_pi);
 		if (mtu < sm->p_subn->min_ca_mtu) {
@@ -323,6 +324,9 @@ static void pi_rcv_process_switch_port(IN osm_sm_t * sm, IN osm_node_t * p_node,
 			p_physp->port_info = *p_pi;
 		pi_rcv_process_endport(sm, p_physp, p_pi);
 	} else {
+		if (ib_port_info_get_port_state(p_pi) == IB_LINK_DOWN)
+			goto Exit;
+
 		data_vls = 1U << (ib_port_info_get_op_vls(p_pi) - 1);
 		if (data_vls >= IB_MAX_NUM_VLS)
 			data_vls = IB_MAX_NUM_VLS - 1;
@@ -336,6 +340,7 @@ static void pi_rcv_process_switch_port(IN osm_sm_t * sm, IN osm_node_t * p_node,
 		}
 	}
 
+Exit:
 	OSM_LOG_EXIT(sm->p_log);
 }
 
