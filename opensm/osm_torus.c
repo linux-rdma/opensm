@@ -8089,7 +8089,7 @@ void torus_update_osm_vlarb(void *context, osm_physp_t *osm_phys_port,
 	 * So, leave VL 0 alone, remap VL 4 to VL 1, zero out the rest,
 	 * and compress out the zero entries to the end.
 	 */
-	if (!sw || !port_num ||
+	if (!sw || !port_num || !sw->port[port_num] ||
 	    sw->port[port_num]->pgrp->port_grp != 2 * TORUS_MAX_DIM)
 		return;
 
