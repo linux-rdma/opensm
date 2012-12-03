@@ -916,7 +916,8 @@ static void subn_validate_neighbor(osm_subn_t *p_subn)
 		valid_entry = TRUE;
 
 		OSM_LOG(&(p_subn->p_osm->log), OSM_LOG_DEBUG,
-			"Validating neighbor for 0x%016" PRIx64 ", port %d\n",
+			"Validating neighbor for guid:0x%016" PRIx64
+			", port %d\n",
 			p_item->guid, p_item->portnum);
 		if (p_item->guid == 0) {
 			OSM_LOG(&(p_subn->p_osm->log), OSM_LOG_ERROR,
@@ -924,31 +925,40 @@ static void subn_validate_neighbor(osm_subn_t *p_subn)
 			valid_entry = FALSE;
 		} else if (p_item->portnum == 0) {
 			OSM_LOG(&(p_subn->p_osm->log), OSM_LOG_ERROR,
-				"ERR 7514: found invalid zero port\n");
+				"ERR 7514: found invalid zero port for "
+				"guid: 0x%016" PRIx64 "\n",
+				p_item->guid);
 			valid_entry = FALSE;
 		} else if (osm_db_neighbor_get(p_subn->p_neighbor,
 					       p_item->guid, p_item->portnum,
 					       &guid, &port)) {
 			OSM_LOG(&(p_subn->p_osm->log), OSM_LOG_ERROR,
 				"ERR 7515: could not find neighbor for "
-				"guid: 0x%016" PRIx64 "\n", p_item->guid);
+				"guid: 0x%016" PRIx64 ", port %d\n",
+				p_item->guid, p_item->portnum);
 			valid_entry = FALSE;
 		} else if (guid == 0) {
 			OSM_LOG(&(p_subn->p_osm->log), OSM_LOG_ERROR,
 				"ERR 7516: found invalid neighbor "
-				"zero guid");
+				"zero guid for guid: 0x%016" PRIx64
+				", port %d\n",
+				p_item->guid, p_item->portnum);
 			valid_entry = FALSE;
 		} else if (port == 0) {
 			OSM_LOG(&(p_subn->p_osm->log), OSM_LOG_ERROR,
 				"ERR 7517: found invalid neighbor "
-				"zero port\n");
+				"zero port for guid: 0x%016" PRIx64
+				", port %d\n",
+				p_item->guid, p_item->portnum);
 			valid_entry = FALSE;
 		} else if (osm_db_neighbor_get(p_subn->p_neighbor,
 					       guid, port, &guid, &port) ||
 			guid != p_item->guid || port != p_item->portnum) {
 			OSM_LOG(&(p_subn->p_osm->log), OSM_LOG_ERROR,
 				"ERR 7518: neighbor does not point "
-				"back at us\n");
+				"back at us (guid: 0x%016" PRIx64
+				", port %d)\n",
+				p_item->guid, p_item->portnum);
 			valid_entry = FALSE;
 		}
 
