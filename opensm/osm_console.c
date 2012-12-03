@@ -512,7 +512,6 @@ static void print_status(osm_opensm_t * p_osm, FILE * out)
 			"   Subnet Init errors             : %d\n"
 			"   In sweep hop 0                 : %d\n"
 			"   First time master sweep        : %d\n"
-			"   Set client rereg on sweep      : %d\n"
 			"   Coming out of standby          : %d\n",
 			p_osm->subn.sweeping_enabled,
 			p_osm->subn.opt.sweep_interval,
@@ -520,7 +519,6 @@ static void print_status(osm_opensm_t * p_osm, FILE * out)
 			p_osm->subn.subnet_initialization_error,
 			p_osm->subn.in_sweep_hop_0,
 			p_osm->subn.first_time_master_sweep,
-			p_osm->subn.set_client_rereg_on_sweep,
 			p_osm->subn.coming_out_of_standby);
 		dump_sms(p_osm, out);
 		fprintf(out, "\n");

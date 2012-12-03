@@ -1034,9 +1034,7 @@ static int lid_mgr_set_physp_pi(IN osm_lid_mgr_t * p_mgr,
 	   the cli_rereg bit. We know that the port was just discovered if its
 	   is_new field is set.
 	 */
-	if ((p_mgr->p_subn->first_time_master_sweep == TRUE
-	     || p_mgr->p_subn->set_client_rereg_on_sweep == TRUE
-	     || p_port->is_new)
+	if ((p_mgr->p_subn->first_time_master_sweep == TRUE || p_port->is_new)
 	    && !p_mgr->p_subn->opt.no_clients_rereg
 	    && (p_old_pi->capability_mask & IB_PORT_CAP_HAS_CLIENT_REREG)) {
 		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
@@ -1056,13 +1054,8 @@ static int lid_mgr_set_physp_pi(IN osm_lid_mgr_t * p_mgr,
 	   2. first_time_master_sweep flag on the subnet is TRUE. This means the
 	   SM just became master, and it then needs to send a PortInfo Set to
 	   every port.
-	   3. set_client_rereg_on_sweep is TRUE.  The one situation in which this
-	   is true but first_time_master_sweep is FALSE is when the SM receives
-	   a HANDOVER while in master.  We don't want to re-setup everything by
-	   setting first_time_master_sweep, but we do want to reset up this.
 	 */
-	if (p_mgr->p_subn->first_time_master_sweep == TRUE
-	    || p_mgr->p_subn->set_client_rereg_on_sweep == TRUE)
+	if (p_mgr->p_subn->first_time_master_sweep == TRUE)
 		send_set = TRUE;
 
 	if (!send_set)

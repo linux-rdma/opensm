@@ -455,11 +455,7 @@ ib_api_status_t osm_sm_state_mgr_process(osm_sm_t * sm,
 			OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 				"Forcing heavy sweep. Received signal %s\n",
 				osm_get_sm_mgr_signal_str(signal));
-			/* Force set_client_rereg_on_sweep, we don't know what the other
-			 * SM may have configure/done on the fabric.
-			 */
 			CL_PLOCK_EXCL_ACQUIRE(sm->p_lock);
-			sm->p_subn->set_client_rereg_on_sweep = TRUE;
 			sm->polling_sm_guid = 0;
 			sm->p_subn->first_time_master_sweep = TRUE;
 			sm->p_subn->coming_out_of_standby = TRUE;
