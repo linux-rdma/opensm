@@ -87,16 +87,20 @@ static ib_net64_t req_determine_mkey(IN osm_sm_t * sm,
 		goto Remote_Guid;
 	}
 
-	if (p_sm_port)
+	if (p_sm_port) {
+		/* get the node for the SM */
+		p_node = p_sm_port->p_node;
 		p_physp = p_sm_port->p_physp;
+	}
 
-	/* hop_count == 1: outgoing physp is SM physp */
-	for (hop = 2; p_physp && hop <= p_path->hop_count; hop++) {
+	for (hop = 1; p_physp && hop <= p_path->hop_count; hop++) {
+		p_physp = osm_node_get_physp_ptr(p_node, p_path->path[hop]);
+		if (!p_physp)
+			break;
 		p_physp = p_physp->p_remote_physp;
 		if (!p_physp)
 			break;
 		p_node = p_physp->p_node;
-		p_physp = osm_node_get_physp_ptr(p_node, p_path->path[hop]);
 	}
 
 	/* At this point, p_physp points at the outgoing physp on the
