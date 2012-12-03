@@ -97,10 +97,10 @@ static ib_net64_t req_determine_mkey(IN osm_sm_t * sm,
 		p_physp = osm_node_get_physp_ptr(p_node, p_path->path[hop]);
 		if (!p_physp)
 			break;
-		p_physp = p_physp->p_remote_physp;
+		p_physp = osm_physp_get_remote(p_physp);
 		if (!p_physp)
 			break;
-		p_node = p_physp->p_node;
+		p_node = osm_physp_get_node_ptr(p_physp);
 	}
 
 	/* At this point, p_physp points at the outgoing physp on the
