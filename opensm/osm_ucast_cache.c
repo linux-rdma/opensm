@@ -559,6 +559,17 @@ static void ucast_cache_validate(osm_ucast_mgr_t * p_mgr)
 					    osm_get_port_by_guid(p_mgr->p_subn,
 								 osm_physp_get_port_guid
 								 (p_remote_physp));
+					if (!p_remote_port) {
+						OSM_LOG(p_mgr->p_log,
+							OSM_LOG_ERROR,
+							"ERR AD04: No port was found for "
+							"port GUID 0x%" PRIx64 "\n",
+							cl_ntoh64(osm_physp_get_port_guid
+								      (p_remote_physp)));
+						osm_ucast_cache_invalidate
+						    (p_mgr);
+						goto Exit;
+					}
 					if (p_remote_port->is_new) {
 						OSM_LOG(p_mgr->p_log,
 							OSM_LOG_DEBUG,
