@@ -574,7 +574,7 @@ osm_vendor_t *osm_vendor_new(IN osm_log_t * const p_log,
 
 	memset(p_vend, 0, sizeof(*p_vend));
 
-	if (osm_vendor_init(p_vend, p_log, timeout) < 0) {
+	if (osm_vendor_init(p_vend, p_log, timeout) != IB_SUCCESS) {
 		free(p_vend);
 		p_vend = NULL;
 	}

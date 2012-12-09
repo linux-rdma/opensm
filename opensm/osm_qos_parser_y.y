@@ -1648,8 +1648,7 @@ sl2vl_scope_from_list_of_ranges: list_of_ranges {
                                 num_pair = (uint64_t*)cl_list_obj(list_iterator);
                                 if (num_pair)
                                 {
-                                    if ( num_pair[0] < 0 ||
-                                         num_pair[1] >= OSM_QOS_POLICY_MAX_PORTS_ON_SWITCH )
+                                    if ( num_pair[1] >= OSM_QOS_POLICY_MAX_PORTS_ON_SWITCH )
                                     {
                                         yyerror("port number out of range 'from' list");
                                         free(num_pair);
@@ -1680,8 +1679,7 @@ sl2vl_scope_to_list_of_ranges: list_of_ranges {
                                 num_pair = (uint64_t*)cl_list_obj(list_iterator);
                                 if (num_pair)
                                 {
-                                    if ( num_pair[0] < 0 ||
-                                         num_pair[1] >= OSM_QOS_POLICY_MAX_PORTS_ON_SWITCH )
+                                    if ( num_pair[1] >= OSM_QOS_POLICY_MAX_PORTS_ON_SWITCH )
                                     {
                                         yyerror("port number out of range 'to' list");
                                         free(num_pair);

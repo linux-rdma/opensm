@@ -166,7 +166,7 @@ static int new_size(int size)
 			return primes[i];
 	}
 	/* Ran out of polynomials */
-	return -1;		/* should raise exception */
+	return 0;		/* should raise exception */
 #endif
 }
 
@@ -196,7 +196,7 @@ size_t size;
 #endif
 
 	size = new_size(size);	/* round up to prime number */
-	if (size < 0)
+	if (!size)
 		return NULL;
 
 	tbl = alloc(st_table);
@@ -355,7 +355,7 @@ register st_table *table;
 	unsigned int hash_val;
 
 	new_num_bins = new_size(old_num_bins + 1);
-	if (new_num_bins < 0)
+	if (!new_num_bins)
 		return;
 
 	new_bins =
