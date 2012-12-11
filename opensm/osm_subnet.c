@@ -894,6 +894,7 @@ static void subn_validate_g2m(osm_subn_t *p_subn)
 					"guid:0x%016" PRIx64 "\n",
 					p_item->guid);
 		}
+		free(p_item);
 	}
 
 Exit:
