@@ -69,7 +69,7 @@ static ib_net64_t req_determine_mkey(IN osm_sm_t * sm,
 	osm_node_t *p_node;
 	osm_port_t *p_sm_port;
 	osm_physp_t *p_physp;
-	ib_net64_t dest_port_guid, m_key;
+	ib_net64_t dest_port_guid = 0, m_key;
 	uint8_t hop;
 
 	OSM_LOG_ENTER(sm->p_log);
