@@ -534,6 +534,7 @@ static void sm_mad_ctrl_process_trap_repress(IN osm_sm_mad_ctrl_t * p_ctrl,
 	 */
 	switch (p_smp->attr_id) {
 	case IB_MAD_ATTR_NOTICE:
+		sm_mad_ctrl_update_wire_stats(p_ctrl);
 		sm_mad_ctrl_retire_trans_mad(p_ctrl, p_madw);
 		break;
 	default:
