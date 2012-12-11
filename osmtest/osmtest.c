@@ -3068,7 +3068,8 @@ Exit:
 	return (status);
 }
 
-inline uint32_t osmtest_path_rec_key_get(IN const ib_path_rec_t * const p_rec)
+static inline uint32_t
+osmtest_path_rec_key_get(IN const ib_path_rec_t * const p_rec)
 {
 	return (p_rec->dlid << 16 | p_rec->slid);
 }
