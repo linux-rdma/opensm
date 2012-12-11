@@ -979,6 +979,7 @@ static void subn_validate_neighbor(osm_subn_t *p_subn)
 					"guid:0x%016" PRIx64 " port:%u\n",
 					p_item->guid, p_item->portnum);
 		}
+		free(p_item);
 	}
 
 Exit:
