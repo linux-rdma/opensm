@@ -103,8 +103,10 @@ static void sa_slvl_create(IN osm_sa_t * sa, IN const osm_physp_t * p_physp,
 	memset(p_rec_item, 0, sizeof(*p_rec_item));
 
 	p_rec_item->rec.lid = lid;
-	p_rec_item->rec.out_port_num = osm_physp_get_port_num(p_physp);
-	p_rec_item->rec.in_port_num = in_port_idx;
+	if (p_physp->p_node->node_info.node_type == IB_NODE_TYPE_SWITCH) {
+		p_rec_item->rec.out_port_num = osm_physp_get_port_num(p_physp);
+		p_rec_item->rec.in_port_num = in_port_idx;
+	}
 	p_rec_item->rec.slvl_tbl =
 	    *(osm_physp_get_slvl_tbl(p_physp, in_port_idx));
 
