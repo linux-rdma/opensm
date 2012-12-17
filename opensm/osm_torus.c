@@ -8751,7 +8751,7 @@ osm_mtree_node_t *mcast_stree_branch(struct t_switch *sw, osm_switch_t *osm_sw,
 		}
 	}
 	if (!(mcast_end_ports || mcast_fwd_ports)) {
-		free(mtn);
+		osm_mtree_destroy(mtn);
 		mtn = NULL;
 	} else if (depth > *max_depth)
 		*max_depth = depth;
