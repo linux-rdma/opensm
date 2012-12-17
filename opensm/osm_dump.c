@@ -529,8 +529,7 @@ static void dump_sl2vl_tbl(cl_map_item_t * item, FILE * file, void *cxt)
 		for (i = 0, n = 0; i < 16; i++)
 			n += sprintf(buf + n, " %-2d",
 					ib_slvl_table_get(p_tbl, i));
-		fprintf(file, "%-3d %-3d :%s\n",
-			0, p_physp->port_num, buf);
+		fprintf(file, "%-3d %-3d :%s\n", 0, 0, buf);
 	}
 
 	fprintf(file, "%s\n\n", separator_line);
