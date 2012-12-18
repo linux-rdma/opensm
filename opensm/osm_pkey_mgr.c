@@ -488,9 +488,9 @@ static int pkey_mgr_update_port(osm_log_t * p_log, osm_sm_t * sm,
 
 				if (block_index * IB_NUM_PKEY_ELEMENTS_IN_BLOCK + pkey_index >= pkey_mgr_get_physp_max_pkeys(p_physp)) {
 					if ((sm->p_subn->opt.allow_both_pkeys &&
-					     p_pending->pkey == IB_DEFAULT_PKEY) ||
+					     p_pending->pkey != IB_DEFAULT_PKEY) ||
 					    (!sm->p_subn->opt.allow_both_pkeys &&
-					     ib_pkey_get_base(p_pending->pkey) == IB_DEFAULT_PARTIAL_PKEY)) {
+					     ib_pkey_get_base(p_pending->pkey) != IB_DEFAULT_PARTIAL_PKEY)) {
 						last_free_block_index = 0;
 						last_free_pkey_index = 1;
 						found = osm_pkey_find_next_free_entry(p_pkey_tbl, &last_free_block_index, &last_free_pkey_index);
