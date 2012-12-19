@@ -102,7 +102,7 @@ static int link_mgr_set_physp_pi(osm_sm_t * sm, IN osm_physp_t * p_physp,
 	uint8_t port_num, mtu, op_vls, smsl = OSM_DEFAULT_SL;
 	boolean_t esp0 = FALSE, send_set = FALSE, send_set2 = FALSE;
 	osm_physp_t *p_remote_physp, *physp0;
-	int issue_ext = 1, fdr10_change = 0;
+	int issue_ext = 0, fdr10_change = 0;
 	int ret = 0;
 	ib_net32_t attr_mod, cap_mask;
 	boolean_t update_mkey = FALSE;
@@ -365,8 +365,8 @@ static int link_mgr_set_physp_pi(osm_sm_t * sm, IN osm_physp_t * p_physp,
 			cap_mask = physp0->port_info.capability_mask;
 		} else
 			cap_mask = p_pi->capability_mask;
-		if (!(cap_mask & IB_PORT_CAP_HAS_EXT_SPEEDS))
-			issue_ext = 0;
+		if (cap_mask & IB_PORT_CAP_HAS_EXT_SPEEDS)
+			issue_ext = 1;
 
 		/* Do peer ports support extended link speeds ? */
 		if (port_num != 0 && p_remote_physp) {
