@@ -248,7 +248,7 @@ static int partition_create(unsigned lineno, struct part_conf *conf,
 		struct precreate_mgroup broadcast_mgroup;
 		memset(&broadcast_mgroup, 0, sizeof(broadcast_mgroup));
 		broadcast_mgroup.mgid = osm_ipoib_broadcast_mgid;
-		pkey |= cl_hton16(0x8000);
+		pkey = CL_HTON16(0x8000) | conf->p_prtn->pkey;
 		memcpy(&broadcast_mgroup.mgid.raw[4], &pkey , sizeof(pkey));
 		broadcast_mgroup.flags.mtu = conf->flags.mtu;
 		broadcast_mgroup.flags.rate = conf->flags.rate;
