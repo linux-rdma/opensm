@@ -1,4 +1,4 @@
-.TH TORUS\-2QOS.CONF 5 "November 7, 2011" "OpenIB" "OpenIB Management"
+.TH TORUS\-2QOS.CONF 5 "January 4, 2013" "OpenIB" "OpenIB Management"
 .
 .SH NAME
 torus\-2QoS.conf \- Torus-2QoS configuration for OpenSM subnet manager
@@ -160,6 +160,15 @@ The default is to visit CA ports in increasing port
 order on destination switches.
 .P
 Duplicate values in the list will be ignored.
+.RE
+.
+.P
+\fBmax_changes
+\fImax
+\fR
+.RS
+This keyword specifies the maximum number of torus changes reported.
+The default value is 32.
 .RE
 .
 .SH EXAMPLE

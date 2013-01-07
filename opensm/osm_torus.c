@@ -61,6 +61,7 @@
 #define TORUS_MAX_DIM        3
 #define PORTGRP_MAX_PORTS    16
 #define SWITCH_MAX_PORTGRPS  (1 + 2 * TORUS_MAX_DIM)
+#define DEFAULT_MAX_CHANGES  32
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
@@ -307,6 +308,7 @@ struct torus {
 	struct t_switch *master_stree_root;
 
 	unsigned flags;
+	unsigned max_changes;
 	int debug;
 };
 
@@ -1044,6 +1046,7 @@ bool parse_config(const char *fn, struct fabric *f, struct torus *t)
 	}
 	t->flags |= NOTIFY_CHANGES;
 	t->portgrp_sz = PORTGRP_MAX_PORTS;
+	t->max_changes = DEFAULT_MAX_CHANGES;
 
 next_line:
 	llen = getline(&line_buf, &line_buf_sz, fp);
@@ -1104,6 +1107,8 @@ next_line:
 		if (!t->seed_cnt)
 			t->seed_cnt++;
 		kw_success = parse_dir_dateline(3, t, parse_sep);
+	} else if (strcmp("max_changes", keyword) == 0) {
+		kw_success = parse_unsigned(&t->max_changes, parse_sep);
 	} else if (keyword[0] == '#')
 		goto next_line;
 	else {
@@ -7498,6 +7503,7 @@ void report_torus_changes(struct torus *nt, struct torus *ot)
 	unsigned x_sz = nt->x_sz;
 	unsigned y_sz = nt->y_sz;
 	unsigned z_sz = nt->z_sz;
+	unsigned max_changes = nt->max_changes;
 
 	if (!(nt && ot))
 		return;
@@ -7538,7 +7544,7 @@ void report_torus_changes(struct torus *nt, struct torus *ot)
 				 * We want to log changes to learn more about
 				 * bouncing links, etc, so they can be fixed.
 				 */
-				if (cnt > 32) {
+				if (cnt > max_changes) {
 					OSM_LOG(&nt->osm->log, OSM_LOG_INFO,
 						"Too many torus changes; "
 						"stopping reporting early\n");
