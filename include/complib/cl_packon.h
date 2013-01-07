@@ -55,14 +55,14 @@
 *	not align properly for some platforms. Care must be taken when creating
 *	packed structures that the alignment rules for all platforms are followed.
 *
-*	To pack a structure, include ipackon.h before defining the structure, and
-*	include ipackoff.h after the structure definition.  Multiple structures
+*	To pack a structure, include cl_packon.h before defining the structure, and
+*	include cl_packoff.h after the structure definition.  Multiple structures
 *	can be packed between the two include statements if desired.
 *
 *	The structure definition itself must use the PACK_SUFFIX keyword.
 *
 * EXAMPLE
-*	#include <complib/ipackon.h>
+*	#include <complib/cl_packon.h>
 *
 *	typedef _my_struct_t
 *	{
@@ -71,7 +71,7 @@
 *	    uint16 small;
 *
 *	} PACK_SUFFIX my_struct_t;
-*	#include <complib/ipackoff.h>
+*	#include <complib/cl_packoff.h>
 *********/
 
 #ifndef PACK_SUFFIX
