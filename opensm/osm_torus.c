@@ -850,14 +850,14 @@ out:
 }
 
 static
-bool parse_port(unsigned *pnum, const char *parse_sep)
+bool parse_unsigned(unsigned *result, const char *parse_sep)
 {
 	char *val, *nextchar;
 
 	val = strtok(NULL, parse_sep);
 	if (!val)
 		return false;
-	*pnum = strtoul(val, &nextchar, 0);
+	*result = strtoul(val, &nextchar, 0);
 	return true;
 }
 
@@ -867,7 +867,7 @@ bool parse_port_order(struct torus *t, const char *parse_sep)
 	unsigned i, j, k, n;
 
 	for (i = 0; i < ARRAY_SIZE(t->port_order); i++) {
-		if (!parse_port(&(t->port_order[i]), parse_sep))
+		if (!parse_unsigned(&(t->port_order[i]), parse_sep))
 			break;
 
 		for (j = 0; j < i; j++) {
@@ -891,18 +891,6 @@ bool parse_port_order(struct torus *t, const char *parse_sep)
 			t->port_order[n++] = j;
 	}
 
-	return true;
-}
-
-static
-bool parse_pg_max_ports(struct torus *t, const char *parse_sep)
-{
-	char *val, *nextchar;
-
-	val = strtok(NULL, parse_sep);
-	if (!val)
-		return false;
-	t->portgrp_sz = strtoul(val, &nextchar, 0);
 	return true;
 }
 
@@ -1079,7 +1067,7 @@ next_line:
 		kw_success = grow_seed_array(t, 1);
 		t->seed_cnt++;
 	} else if (strcmp("portgroup_max_ports", keyword) == 0) {
-		kw_success = parse_pg_max_ports(t, parse_sep);
+		kw_success = parse_unsigned(&t->portgrp_sz, parse_sep);
 	} else if (strcmp("xp_link", keyword) == 0) {
 		if (!t->seed_cnt)
 			t->seed_cnt++;
