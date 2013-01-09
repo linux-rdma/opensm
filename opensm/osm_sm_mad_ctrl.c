@@ -262,8 +262,9 @@ static void sm_mad_ctrl_process_get_resp(IN osm_sm_mad_ctrl_t * p_ctrl,
 	default:
 		cl_atomic_inc(&p_ctrl->p_stats->qp0_mads_rcvd_unknown);
 		OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 3103: "
-			"Unsupported attribute 0x%X\n",
-			cl_ntoh16(p_smp->attr_id));
+			"Unsupported attribute 0x%X (%s)\n",
+			cl_ntoh16(p_smp->attr_id),
+			ib_get_sm_attr_str(p_smp->attr_id));
 		osm_dump_dr_smp_v2(p_ctrl->p_log, p_smp, FILE_ID, OSM_LOG_ERROR);
 		osm_mad_pool_put(p_ctrl->p_mad_pool, p_madw);
 		goto Exit;
@@ -392,8 +393,9 @@ static void sm_mad_ctrl_process_set(IN osm_sm_mad_ctrl_t * p_ctrl,
 	default:
 		cl_atomic_inc(&p_ctrl->p_stats->qp0_mads_rcvd_unknown);
 		OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 3107: "
-			"Unsupported attribute 0x%X\n",
-			cl_ntoh16(p_smp->attr_id));
+			"Unsupported attribute 0x%X (%s)\n",
+			cl_ntoh16(p_smp->attr_id),
+			ib_get_sm_attr_str(p_smp->attr_id));
 		osm_dump_dr_smp_v2(p_ctrl->p_log, p_smp, FILE_ID, OSM_LOG_ERROR);
 		osm_mad_pool_put(p_ctrl->p_mad_pool, p_madw);
 		goto Exit;
@@ -471,8 +473,9 @@ static void sm_mad_ctrl_process_trap(IN osm_sm_mad_ctrl_t * p_ctrl,
 	default:
 		cl_atomic_inc(&p_ctrl->p_stats->qp0_mads_rcvd_unknown);
 		OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 3109: "
-			"Unsupported attribute 0x%X\n",
-			cl_ntoh16(p_smp->attr_id));
+			"Unsupported attribute 0x%X (%s)\n",
+			cl_ntoh16(p_smp->attr_id),
+			ib_get_sm_attr_str(p_smp->attr_id));
 		osm_dump_dr_smp_v2(p_ctrl->p_log, p_smp, FILE_ID, OSM_LOG_ERROR);
 		osm_mad_pool_put(p_ctrl->p_mad_pool, p_madw);
 		goto Exit;
@@ -540,8 +543,9 @@ static void sm_mad_ctrl_process_trap_repress(IN osm_sm_mad_ctrl_t * p_ctrl,
 	default:
 		cl_atomic_inc(&p_ctrl->p_stats->qp0_mads_rcvd_unknown);
 		OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 3105: "
-			"Unsupported attribute 0x%X\n",
-			cl_ntoh16(p_smp->attr_id));
+			"Unsupported attribute 0x%X (%s)\n",
+			cl_ntoh16(p_smp->attr_id),
+			ib_get_sm_attr_str(p_smp->attr_id));
 		osm_dump_dr_smp_v2(p_ctrl->p_log, p_smp, FILE_ID, OSM_LOG_ERROR);
 		osm_mad_pool_put(p_ctrl->p_mad_pool, p_madw);
 		break;

@@ -217,8 +217,9 @@ static void sa_mad_ctrl_process(IN osm_sa_mad_ctrl_t * p_ctrl,
 
 	default:
 		OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 1A01: "
-			"Unsupported attribute 0x%X\n",
-			cl_ntoh16(p_sa_mad->attr_id));
+			"Unsupported attribute 0x%X (%s)\n",
+			cl_ntoh16(p_sa_mad->attr_id),
+			ib_get_sa_attr_str(p_sa_mad->attr_id));
 		osm_dump_sa_mad_v2(p_ctrl->p_log, p_sa_mad, FILE_ID, OSM_LOG_ERROR);
 	}
 
