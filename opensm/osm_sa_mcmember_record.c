@@ -97,6 +97,7 @@ static void copy_from_create_mc_rec(IN ib_member_rec_t * dest,
 	dest->tclass = src->tclass;
 	dest->pkey = src->pkey;
 	dest->sl_flow_hop = src->sl_flow_hop;
+	dest->scope_state = src->scope_state;
 	dest->mtu = src->mtu;
 	dest->rate = src->rate;
 	dest->pkt_life = src->pkt_life;
