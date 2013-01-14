@@ -7517,11 +7517,12 @@ void dump_torus(struct torus *t)
 	for (k = 0; k < z_sz; k++)
 		for (j = 0; j < y_sz; j++)
 			for (i = 0; i < x_sz; i++)
-				fprintf(file, "switch %u,%u,%u GUID 0x%04"
-					PRIx64 " (%s)\n",
-					i, j, k,
-					cl_ntoh64(t->sw[i][j][k]->n_id),
-					t->sw[i][j][k]->osm_switch->p_node->print_desc);
+				if (t->sw[i][j][k])
+					fprintf(file, "switch %u,%u,%u GUID 0x%04"
+						PRIx64 " (%s)\n",
+						i, j, k,
+						cl_ntoh64(t->sw[i][j][k]->n_id),
+						t->sw[i][j][k]->osm_switch->p_node->print_desc);
 	fclose(file);
 }
 
