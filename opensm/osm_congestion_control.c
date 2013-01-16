@@ -671,7 +671,7 @@ static void cc_mad_send_err_callback(void *bind_context,
 
 	p_port = osm_get_port_by_guid(p_cc->subn, port_guid);
 	if (!p_port) {
-		OSM_LOG(p_cc->log, OSM_LOG_ERROR, "ERR C106A: "
+		OSM_LOG(p_cc->log, OSM_LOG_ERROR, "ERR C10B: "
 			"Port guid not in table 0x%" PRIx64 "\n",
 			port_guid);
 		cl_plock_release(&p_osm->lock);
