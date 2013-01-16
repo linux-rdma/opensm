@@ -7021,11 +7021,13 @@ bool verify_setup(struct torus *t, struct fabric *f)
 			"ERR 4E20: missing required torus size specification!\n");
 		goto out;
 	}
-	if (t->osm->subn.min_sw_data_vls < 2)
-		OSM_LOG(&t->osm->log, OSM_LOG_INFO,
-			"Warning: Too few data VLs to support torus routing "
+	if (t->osm->subn.min_sw_data_vls < 2) {
+		OSM_LOG(&t->osm->log, OSM_LOG_ERROR,
+			"ERR 4E48: Too few data VLs to support torus routing "
 			"without credit loops (have switchport %d need 2)\n",
 			(int)t->osm->subn.min_sw_data_vls);
+		goto out;
+	}
 	if (t->osm->subn.min_sw_data_vls < 4)
 		OSM_LOG(&t->osm->log, OSM_LOG_INFO,
 			"Warning: Too few data VLs to support torus routing "
