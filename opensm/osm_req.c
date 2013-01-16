@@ -104,8 +104,7 @@ static ib_net64_t req_determine_mkey(IN osm_sm_t * sm,
 	*/
 	if (!p_physp) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR,
-			"req_determine_mkey: ERR 1107: "
-			"Outgoing physp is null on non-hop_0!\n");
+			"ERR 1107: Outgoing physp is null on non-hop_0!\n");
 		dest_port_guid = 0;
 		goto Remote_Guid;
 	}
