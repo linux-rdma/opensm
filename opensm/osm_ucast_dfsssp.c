@@ -2069,14 +2069,16 @@ static uint8_t get_dfsssp_sl(void *context, uint8_t hint_for_default_sl,
 			     const ib_net16_t slid, const ib_net16_t dlid)
 {
 	dfsssp_context_t *dfsssp_ctx = (dfsssp_context_t *) context;
-	osm_ucast_mgr_t *p_mgr = (osm_ucast_mgr_t *) dfsssp_ctx->p_mgr;
 	osm_port_t *src_port, *dest_port;
 	vltable_t *srcdest2vl_table = NULL;
+	osm_ucast_mgr_t *p_mgr = NULL;
 	int32_t res = 0;
 
 	if (dfsssp_ctx
-	    && dfsssp_ctx->routing_type == OSM_ROUTING_ENGINE_TYPE_DFSSSP)
+	    && dfsssp_ctx->routing_type == OSM_ROUTING_ENGINE_TYPE_DFSSSP) {
+		p_mgr = (osm_ucast_mgr_t *) dfsssp_ctx->p_mgr;
 		srcdest2vl_table = (vltable_t *) (dfsssp_ctx->srcdest2vl_table);
+	}
 	else
 		return hint_for_default_sl;
 
