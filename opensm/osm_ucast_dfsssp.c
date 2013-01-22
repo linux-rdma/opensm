@@ -1813,8 +1813,14 @@ static int dfsssp_remove_deadlocks(dfsssp_context_t * dfsssp_ctx)
 					    (uint8_t)
 					    vltable_get_vl(srcdest2vl_table,
 							   cl_hton16(slid),
-							   cl_hton16(dlid)))
+							   cl_hton16(dlid))) {
+						/* this path has been moved
+						   before -> don't count
+						 */
+						paths_per_vl[test_vl]++;
+						paths_per_vl[test_vl + 1]--;
 						continue;
+					}
 
 					src_port =
 					    osm_get_port_by_lid(p_mgr->p_subn,
