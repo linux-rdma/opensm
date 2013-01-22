@@ -1145,7 +1145,7 @@ static int dfsssp_build_graph(void *context)
 				continue;
 			/* if there is a Hca connected -> count and cycle */
 			if (!remote_node->sw) {
-				lmc = osm_port_get_lmc(p_port);
+				lmc = osm_node_get_lmc(remote_node, (uint32_t)remote_port);
 				adj_list[i].num_hca += (1 << lmc);
 				continue;
 			}
