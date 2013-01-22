@@ -1161,6 +1161,11 @@ static int dfsssp_build_graph(void *context)
 				OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR,
 					"ERR AD08: cannot allocate memory for a link\n");
 				dfsssp_context_destroy(context);
+				while (head) {
+					link = head;
+					head = head->next;
+					free(link);
+                                }
 				return 1;
 			}
 			link = link->next;
