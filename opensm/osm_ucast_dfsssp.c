@@ -1093,6 +1093,9 @@ static int dfsssp_build_graph(void *context)
 	for (i = 0; i < adj_list_size; i++)
 		set_default_vertex(&adj_list[i]);
 
+	dfsssp_ctx->adj_list = adj_list;
+	dfsssp_ctx->adj_list_size = adj_list_size;
+
 	/* count the total number of Hca / LIDs (for lmc>0) in the fabric */
 	for (item = cl_qmap_head(port_tbl); item != cl_qmap_end(port_tbl);
 	     item = cl_qmap_next(item)) {
@@ -1189,9 +1192,6 @@ static int dfsssp_build_graph(void *context)
 	/* print the discovered graph */
 	if (OSM_LOG_IS_ACTIVE_V2(p_mgr->p_log, OSM_LOG_DEBUG))
 		dfsssp_print_graph(p_mgr, adj_list, adj_list_size);
-
-	dfsssp_ctx->adj_list = adj_list;
-	dfsssp_ctx->adj_list_size = adj_list_size;
 
 	OSM_LOG_EXIT(p_mgr->p_log);
 	return 0;
