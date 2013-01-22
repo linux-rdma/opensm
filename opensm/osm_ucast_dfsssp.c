@@ -815,7 +815,7 @@ static int update_channel_dep_graph(cdg_node_t ** cdg_root,
 		    osm_node_get_remote_node(local_node, local_port,
 					     &remote_port);
 		/* if remote_node is a Hca, then the last channel from switch to Hca would be a sink in the cdg -> skip */
-		if (!remote_node->sw)
+		if (!remote_node || !remote_node->sw)
 			break;
 		remote_lid = cl_ntoh16(osm_node_get_base_lid(remote_node, 0));
 
@@ -961,7 +961,7 @@ static int remove_path_from_cdg(cdg_node_t ** cdg_root, osm_port_t * src_port,
 		    osm_node_get_remote_node(local_node, local_port,
 					     &remote_port);
 		/* if remote_node is a Hca, then the last channel from switch to Hca would be a sink in the cdg -> skip */
-		if (!remote_node->sw)
+		if (!remote_node || !remote_node->sw)
 			break;
 		remote_lid = cl_ntoh16(osm_node_get_base_lid(remote_node, 0));
 
