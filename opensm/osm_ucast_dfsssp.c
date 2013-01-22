@@ -1940,10 +1940,13 @@ static int dfsssp_remove_deadlocks(dfsssp_context_t * dfsssp_ctx)
 		goto ERROR;
 	}
 	/* else { no balancing } */
-	if (OSM_LOG_IS_ACTIVE_V2(p_mgr->p_log, OSM_LOG_INFO)) {
+
+	if (OSM_LOG_IS_ACTIVE_V2(p_mgr->p_log, OSM_LOG_DEBUG)) {
 		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 			"Virtual Lanes per src/dest combination after balancing:\n");
 		vltable_print(p_mgr, srcdest2vl_table);
+	}
+	if (OSM_LOG_IS_ACTIVE_V2(p_mgr->p_log, OSM_LOG_INFO)) {
 		OSM_LOG(p_mgr->p_log, OSM_LOG_INFO,
 			"Paths per VL (after balancing):\n");
 		for (i = 0; i < vl_avail; i++)
