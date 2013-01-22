@@ -339,7 +339,7 @@ static void heap_free(binary_heap_t * heap)
 /* compare function of two lids for stdlib qsort */
 static int cmp_lids(const void *l1, const void *l2)
 {
-	uint16_t lid1 = *((uint16_t *) l1), lid2 = *((uint16_t *) l2);
+	ib_net16_t lid1 = *((ib_net16_t *) l1), lid2 = *((ib_net16_t *) l2);
 
 	if (lid1 < lid2)
 		return -1;
@@ -352,19 +352,19 @@ static int cmp_lids(const void *l1, const void *l2)
 /* use stdlib to sort the lid array */
 static inline void vltable_sort_lids(vltable_t * vltable)
 {
-	qsort(vltable->lids, vltable->num_lids, sizeof(uint16_t), cmp_lids);
+	qsort(vltable->lids, vltable->num_lids, sizeof(ib_net16_t), cmp_lids);
 }
 
 /* use stdlib to get index of key in lid array;
    return -1 if lid isn't found in lids array
 */
-static inline int64_t vltable_get_lidindex(uint16_t * key, vltable_t * vltable)
+static inline int64_t vltable_get_lidindex(ib_net16_t * key, vltable_t * vltable)
 {
-	uint16_t *found_lid = NULL;
+	ib_net16_t *found_lid = NULL;
 
 	found_lid =
-	    (uint16_t *) bsearch(key, vltable->lids, vltable->num_lids,
-				 sizeof(uint16_t), cmp_lids);
+	    (ib_net16_t *) bsearch(key, vltable->lids, vltable->num_lids,
+				   sizeof(ib_net16_t), cmp_lids);
 	if (found_lid)
 		return found_lid - vltable->lids;
 	else
@@ -374,7 +374,7 @@ static inline int64_t vltable_get_lidindex(uint16_t * key, vltable_t * vltable)
 /* get virtual lane from src lid X dest lid kombination;
    return -1 for invalid lids
 */
-static int32_t vltable_get_vl(vltable_t * vltable, uint16_t slid, uint16_t dlid)
+static int32_t vltable_get_vl(vltable_t * vltable, ib_net16_t slid, ib_net16_t dlid)
 {
 	int64_t ind1 = vltable_get_lidindex(&slid, vltable);
 	int64_t ind2 = vltable_get_lidindex(&dlid, vltable);
@@ -387,8 +387,8 @@ static int32_t vltable_get_vl(vltable_t * vltable, uint16_t slid, uint16_t dlid)
 }
 
 /* set a virtual lane in the matrix */
-static inline void vltable_insert(vltable_t * vltable, uint16_t slid,
-				  uint16_t dlid, uint8_t vl)
+static inline void vltable_insert(vltable_t * vltable, ib_net16_t slid,
+				  ib_net16_t dlid, uint8_t vl)
 {
 	int64_t ind1 = vltable_get_lidindex(&slid, vltable);
 	int64_t ind2 = vltable_get_lidindex(&dlid, vltable);
@@ -436,8 +436,8 @@ static void vltable_print(osm_ucast_mgr_t * p_mgr, vltable_t * vltable)
 				OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 					"   route from src_lid=%" PRIu16
 					" to dest_lid=%" PRIu16 " on vl=%" PRIu8
-					"\n", vltable->lids[ind1],
-					vltable->lids[ind2],
+					"\n", cl_ntoh16(vltable->lids[ind1]),
+					cl_ntoh16(vltable->lids[ind2]),
 					vltable->vls[ind1 +
 						     ind2 * vltable->num_lids]);
 			}
@@ -464,7 +464,7 @@ static int vltable_alloc(vltable_t ** vltable, uint64_t size)
 	if (!(*vltable))
 		goto ERROR;
 	(*vltable)->num_lids = size;
-	(*vltable)->lids = (uint16_t *) malloc(size * sizeof(uint16_t));
+	(*vltable)->lids = (ib_net16_t *) malloc(size * sizeof(ib_net16_t));
 	if (!((*vltable)->lids))
 		goto ERROR;
 	(*vltable)->vls = (uint8_t *) malloc(size * size * sizeof(uint8_t));
@@ -1704,7 +1704,7 @@ static int dfsssp_remove_deadlocks(dfsssp_context_t * dfsssp_ctx)
 			osm_port_get_lid_range_ho(dest_port, &min_lid_ho,
 						  &max_lid_ho);
 			for (dlid = min_lid_ho; dlid <= max_lid_ho; dlid++, i++)
-				srcdest2vl_table->lids[i] = dlid;
+				srcdest2vl_table->lids[i] = cl_hton16(dlid);
 		}
 	}
 	/* sort lids */
@@ -1761,7 +1761,8 @@ static int dfsssp_remove_deadlocks(dfsssp_context_t * dfsssp_ctx)
 						/* add the <s,d> kombination / coresponding virtual lane to the VL table */
 						vltable_insert
 						    (srcdest2vl_table,
-						     slid, dlid,
+						     cl_hton16(slid),
+						     cl_hton16(dlid),
 						     test_vl);
 						paths_per_vl[test_vl]++;
 
@@ -1811,7 +1812,8 @@ static int dfsssp_remove_deadlocks(dfsssp_context_t * dfsssp_ctx)
 					if (test_vl !=
 					    (uint8_t)
 					    vltable_get_vl(srcdest2vl_table,
-							   slid, dlid))
+							   cl_hton16(slid),
+							   cl_hton16(dlid)))
 						continue;
 
 					src_port =
@@ -1853,8 +1855,10 @@ static int dfsssp_remove_deadlocks(dfsssp_context_t * dfsssp_ctx)
 							"ERR AD14: cannot allocate memory for cdg node or link in update_channel_dep_graph(...)\n");
 						goto ERROR;
 					}
-					vltable_insert(srcdest2vl_table, slid,
-						       dlid, test_vl + 1);
+					vltable_insert(srcdest2vl_table,
+						       cl_hton16(slid),
+						       cl_hton16(dlid),
+						       test_vl + 1);
 				}
 
 				if (weakest_link->num_pairs)
