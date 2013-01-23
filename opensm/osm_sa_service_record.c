@@ -61,10 +61,7 @@
 #include <opensm/osm_service.h>
 #include <opensm/osm_pkey.h>
 
-typedef struct osm_sr_item {
-	cl_list_item_t list_item;
-	ib_service_record_t service_rec;
-} osm_sr_item_t;
+#define SA_SR_RESP_SIZE SA_ITEM_RESP_SIZE(service_rec)
 
 typedef struct osm_sr_match_item {
 	cl_qlist_t sr_list;
@@ -206,12 +203,12 @@ static void sr_rcv_respond(IN osm_sa_t * sa, IN osm_madw_t * p_madw,
 	   sm_key.
 	 */
 	if (!osm_madw_get_sa_mad_ptr(p_madw)->sm_key) {
-		osm_sr_item_t *item;
-		for (item = (osm_sr_item_t *) cl_qlist_head(p_list);
-		     item != (osm_sr_item_t *) cl_qlist_end(p_list);
-		     item = (osm_sr_item_t *) cl_qlist_next(&item->list_item))
-			memset(item->service_rec.service_key, 0,
-			       sizeof(item->service_rec.service_key));
+		osm_sa_item_t *item;
+		for (item = (osm_sa_item_t *) cl_qlist_head(p_list);
+		     item != (osm_sa_item_t *) cl_qlist_end(p_list);
+		     item = (osm_sa_item_t *) cl_qlist_next(&item->list_item))
+			memset(item->resp.service_rec.service_key, 0,
+			       sizeof(item->resp.service_rec.service_key));
 	}
 
 	osm_sa_respond(sa, p_madw, sizeof(ib_service_record_t), p_list);
@@ -221,7 +218,7 @@ static void get_matching_sr(IN cl_list_item_t * p_list_item, IN void *context)
 {
 	osm_sr_search_ctxt_t *p_ctxt = context;
 	osm_svcr_t *p_svcr = (osm_svcr_t *) p_list_item;
-	osm_sr_item_t *p_sr_pool_item;
+	osm_sa_item_t *p_sr_pool_item;
 	osm_sr_match_item_t *p_sr_item = p_ctxt->p_sr_item;
 	ib_net64_t comp_mask = p_sr_item->comp_mask;
 	const osm_physp_t *p_req_physp = p_ctxt->p_req_physp;
@@ -428,14 +425,14 @@ static void get_matching_sr(IN cl_list_item_t * p_list_item, IN void *context)
 		}
 	}
 
-	p_sr_pool_item = malloc(sizeof(*p_sr_pool_item));
+	p_sr_pool_item = malloc(SA_SR_RESP_SIZE);
 	if (p_sr_pool_item == NULL) {
 		OSM_LOG(p_sr_item->sa->p_log, OSM_LOG_ERROR, "ERR 2408: "
 			"Unable to acquire Service Record from pool\n");
 		goto Exit;
 	}
 
-	p_sr_pool_item->service_rec = p_svcr->service_record;
+	p_sr_pool_item->resp.service_rec = p_svcr->service_record;
 
 	cl_qlist_insert_tail(&p_sr_item->sr_list, &p_sr_pool_item->list_item);
 
@@ -513,7 +510,7 @@ static void sr_rcv_process_set_method(osm_sa_t * sa, IN osm_madw_t * p_madw)
 	ib_service_record_t *p_recvd_service_rec;
 	ib_net64_t comp_mask;
 	osm_svcr_t *p_svcr;
-	osm_sr_item_t *p_sr_item;
+	osm_sa_item_t *p_sr_item;
 	cl_qlist_t sr_list;
 
 	OSM_LOG_ENTER(sa->p_log);
@@ -585,7 +582,7 @@ static void sr_rcv_process_set_method(osm_sa_t * sa, IN osm_madw_t * p_madw)
 		p_svcr->modified_time = cl_get_time_stamp_sec();
 	}
 
-	p_sr_item = malloc(sizeof(*p_sr_item));
+	p_sr_item = malloc(SA_SR_RESP_SIZE);
 	if (p_sr_item == NULL) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2412: "
 			"Unable to acquire Service record\n");
@@ -597,7 +594,7 @@ static void sr_rcv_process_set_method(osm_sa_t * sa, IN osm_madw_t * p_madw)
 		/* Set the Default Service P_Key in the response */
 		p_recvd_service_rec->service_pkey = IB_DEFAULT_PKEY;
 
-	p_sr_item->service_rec = *p_recvd_service_rec;
+	p_sr_item->resp.service_rec = *p_recvd_service_rec;
 	cl_qlist_init(&sr_list);
 
 	cl_qlist_insert_tail(&sr_list, &p_sr_item->list_item);
@@ -613,7 +610,7 @@ static void sr_rcv_process_delete_method(osm_sa_t * sa, IN osm_madw_t * p_madw)
 	ib_sa_mad_t *p_sa_mad;
 	ib_service_record_t *p_recvd_service_rec;
 	osm_svcr_t *p_svcr;
-	osm_sr_item_t *p_sr_item;
+	osm_sa_item_t *p_sr_item;
 	cl_qlist_t sr_list;
 
 	OSM_LOG_ENTER(sa->p_log);
@@ -646,7 +643,7 @@ static void sr_rcv_process_delete_method(osm_sa_t * sa, IN osm_madw_t * p_madw)
 	osm_svcr_remove_from_db(sa->p_subn, sa->p_log, p_svcr);
 	cl_plock_release(sa->p_lock);
 
-	p_sr_item = malloc(sizeof(*p_sr_item));
+	p_sr_item = malloc(SA_SR_RESP_SIZE);
 	if (p_sr_item == NULL) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2413: "
 			"Unable to acquire Service record\n");
@@ -656,7 +653,7 @@ static void sr_rcv_process_delete_method(osm_sa_t * sa, IN osm_madw_t * p_madw)
 	}
 
 	/* provide back the copy of the record */
-	p_sr_item->service_rec = p_svcr->service_record;
+	p_sr_item->resp.service_rec = p_svcr->service_record;
 	cl_qlist_init(&sr_list);
 
 	cl_qlist_insert_tail(&sr_list, &p_sr_item->list_item);

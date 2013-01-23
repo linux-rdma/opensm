@@ -60,6 +60,8 @@
 #include <opensm/osm_pkey.h>
 #include <opensm/osm_sa.h>
 
+#define SA_GIR_RESP_SIZE SA_ITEM_RESP_SIZE(guid_rec)
+
 #define MOD_GIR_COMP_MASK (IB_GIR_COMPMASK_LID | IB_GIR_COMPMASK_BLOCKNUM)
 
 typedef struct osm_gir_item {
@@ -83,12 +85,12 @@ static ib_api_status_t gir_rcv_new_gir(IN osm_sa_t * sa,
 				       IN const osm_physp_t * p_physp,
 				       IN uint8_t const block_num)
 {
-	osm_gir_item_t *p_rec_item;
+	osm_sa_item_t *p_rec_item;
 	ib_api_status_t status = IB_SUCCESS;
 
 	OSM_LOG_ENTER(sa->p_log);
 
-	p_rec_item = malloc(sizeof(*p_rec_item));
+	p_rec_item = malloc(SA_GIR_RESP_SIZE);
 	if (p_rec_item == NULL) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 5102: "
 			"rec_item alloc failed\n");
@@ -100,16 +102,16 @@ static ib_api_status_t gir_rcv_new_gir(IN osm_sa_t * sa,
 		"New GUIDInfoRecord: lid %u, block num %d\n",
 		cl_ntoh16(match_lid), block_num);
 
-	memset(p_rec_item, 0, sizeof(*p_rec_item));
+	memset(p_rec_item, 0, SA_GIR_RESP_SIZE);
 
-	p_rec_item->rec.lid = match_lid;
-	p_rec_item->rec.block_num = block_num;
+	p_rec_item->resp.guid_rec.lid = match_lid;
+	p_rec_item->resp.guid_rec.block_num = block_num;
 	if (p_physp->p_guids)
-		memcpy(&p_rec_item->rec.guid_info,
+		memcpy(&p_rec_item->resp.guid_rec.guid_info,
 		       *p_physp->p_guids + block_num * GUID_TABLE_MAX_ENTRIES,
 		       sizeof(ib_guid_info_t));
 	else if (!block_num)
-		p_rec_item->rec.guid_info.guid[0] = osm_physp_get_port_guid(p_physp);
+		p_rec_item->resp.guid_rec.guid_info.guid[0] = osm_physp_get_port_guid(p_physp);
 
 	cl_qlist_insert_tail(p_list, &p_rec_item->list_item);
 
@@ -322,18 +324,18 @@ static void guidinfo_respond(IN osm_sa_t *sa, IN osm_madw_t *p_madw,
 			     IN ib_guidinfo_record_t * p_guidinfo_rec)
 {
 	cl_qlist_t rec_list;
-	osm_gir_item_t *item;
+	osm_sa_item_t *item;
 
 	OSM_LOG_ENTER(sa->p_log);
 
-	item = malloc(sizeof(*item));
+	item = malloc(SA_GIR_RESP_SIZE);
 	if (!item) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 5101: "
 			"rec_item alloc failed\n");
 		goto Exit;
 	}
 
-	item->rec = *p_guidinfo_rec;
+	item->resp.guid_rec = *p_guidinfo_rec;
 
 	cl_qlist_init(&rec_list);
 	cl_qlist_insert_tail(&rec_list, &item->list_item);

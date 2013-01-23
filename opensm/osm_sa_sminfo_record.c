@@ -65,10 +65,7 @@
 #include <opensm/osm_sa.h>
 #include <opensm/osm_opensm.h>
 
-typedef struct osm_smir_item {
-	cl_list_item_t list_item;
-	ib_sminfo_record_t rec;
-} osm_smir_item_t;
+#define SA_SMIR_RESP_SIZE SA_ITEM_RESP_SIZE(sminfo_rec)
 
 typedef struct osm_smir_search_ctxt {
 	const ib_sminfo_record_t *p_rcvd_rec;
@@ -86,12 +83,12 @@ static ib_api_status_t smir_rcv_new_smir(IN osm_sa_t * sa,
 					 IN uint8_t const pri_state,
 					 IN const osm_physp_t * p_req_physp)
 {
-	osm_smir_item_t *p_rec_item;
+	osm_sa_item_t *p_rec_item;
 	ib_api_status_t status = IB_SUCCESS;
 
 	OSM_LOG_ENTER(sa->p_log);
 
-	p_rec_item = malloc(sizeof(*p_rec_item));
+	p_rec_item = malloc(SA_SMIR_RESP_SIZE);
 	if (p_rec_item == NULL) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2801: "
 			"rec_item alloc failed\n");
@@ -102,12 +99,12 @@ static ib_api_status_t smir_rcv_new_smir(IN osm_sa_t * sa,
 	OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 		"New SMInfo: GUID 0x%016" PRIx64 "\n", cl_ntoh64(guid));
 
-	memset(p_rec_item, 0, sizeof(*p_rec_item));
+	memset(p_rec_item, 0, SA_SMIR_RESP_SIZE);
 
-	p_rec_item->rec.lid = osm_port_get_base_lid(p_port);
-	p_rec_item->rec.sm_info.guid = guid;
-	p_rec_item->rec.sm_info.act_count = act_count;
-	p_rec_item->rec.sm_info.pri_state = pri_state;
+	p_rec_item->resp.sminfo_rec.lid = osm_port_get_base_lid(p_port);
+	p_rec_item->resp.sminfo_rec.sm_info.guid = guid;
+	p_rec_item->resp.sminfo_rec.sm_info.act_count = act_count;
+	p_rec_item->resp.sminfo_rec.sm_info.pri_state = pri_state;
 
 	cl_qlist_insert_tail(p_list, &p_rec_item->list_item);
 

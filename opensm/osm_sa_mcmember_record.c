@@ -66,6 +66,8 @@
 #include <opensm/osm_inform.h>
 #include <opensm/osm_sa.h>
 
+#define SA_MCM_RESP_SIZE SA_ITEM_RESP_SIZE(mc_rec)
+
 #define JOIN_MC_COMP_MASK (IB_MCR_COMPMASK_MGID | \
 				IB_MCR_COMPMASK_PORT_GID | \
 				IB_MCR_COMPMASK_JOIN_STATE)
@@ -78,11 +80,6 @@
 					IB_MCR_COMPMASK_PKEY | \
 					IB_MCR_COMPMASK_FLOW | \
 					IB_MCR_COMPMASK_SL)
-
-typedef struct osm_mcmr_item {
-	cl_list_item_t list_item;
-	ib_member_rec_t rec;
-} osm_mcmr_item_t;
 
 /*********************************************************************
  Copy certain fields between two mcmember records
@@ -195,26 +192,26 @@ static void mcmr_rcv_respond(IN osm_sa_t * sa, IN osm_madw_t * p_madw,
 			     IN ib_member_rec_t * p_mcmember_rec)
 {
 	cl_qlist_t rec_list;
-	osm_mcmr_item_t *item;
+	osm_sa_item_t *item;
 
 	OSM_LOG_ENTER(sa->p_log);
 
-	item = malloc(sizeof(*item));
+	item = malloc(SA_MCM_RESP_SIZE);
 	if (!item) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B16: "
 			"rec_item alloc failed\n");
 		goto Exit;
 	}
 
-	item->rec = *p_mcmember_rec;
+	item->resp.mc_rec = *p_mcmember_rec;
 
 	/* Fill in the mtu, rate, and packet lifetime selectors */
-	item->rec.mtu &= 0x3f;
-	item->rec.mtu |= 2 << 6;	/* exactly */
-	item->rec.rate &= 0x3f;
-	item->rec.rate |= 2 << 6;	/* exactly */
-	item->rec.pkt_life &= 0x3f;
-	item->rec.pkt_life |= 2 << 6;	/* exactly */
+	item->resp.mc_rec.mtu &= 0x3f;
+	item->resp.mc_rec.mtu |= 2 << 6;	/* exactly */
+	item->resp.mc_rec.rate &= 0x3f;
+	item->resp.mc_rec.rate |= 2 << 6;	/* exactly */
+	item->resp.mc_rec.pkt_life &= 0x3f;
+	item->resp.mc_rec.pkt_life |= 2 << 6;	/* exactly */
 
 	cl_qlist_init(&rec_list);
 	cl_qlist_insert_tail(&rec_list, &item->list_item);
@@ -1216,12 +1213,12 @@ static ib_api_status_t mcmr_rcv_new_mcmr(IN osm_sa_t * sa,
 					 IN const ib_member_rec_t * p_rcvd_rec,
 					 IN cl_qlist_t * p_list)
 {
-	osm_mcmr_item_t *p_rec_item;
+	osm_sa_item_t *p_rec_item;
 	ib_api_status_t status = IB_SUCCESS;
 
 	OSM_LOG_ENTER(sa->p_log);
 
-	p_rec_item = malloc(sizeof(*p_rec_item));
+	p_rec_item = malloc(SA_MCM_RESP_SIZE);
 	if (p_rec_item == NULL) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B15: "
 			"rec_item alloc failed\n");
@@ -1229,11 +1226,11 @@ static ib_api_status_t mcmr_rcv_new_mcmr(IN osm_sa_t * sa,
 		goto Exit;
 	}
 
-	memset(p_rec_item, 0, sizeof(*p_rec_item));
+	memset(p_rec_item, 0, SA_MCM_RESP_SIZE);
 
 	/* HACK: Untrusted requesters should result with 0 Join
 	   State, Port Guid, and Proxy */
-	p_rec_item->rec = *p_rcvd_rec;
+	p_rec_item->resp.mc_rec = *p_rcvd_rec;
 	cl_qlist_insert_tail(p_list, &p_rec_item->list_item);
 
 Exit:
@@ -1464,14 +1461,14 @@ static void mcmr_query_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 	 */
 
 	if (!p_rcvd_mad->sm_key) {
-		osm_mcmr_item_t *item;
-		for (item = (osm_mcmr_item_t *) cl_qlist_head(&rec_list);
-		     item != (osm_mcmr_item_t *) cl_qlist_end(&rec_list);
+		osm_sa_item_t *item;
+		for (item = (osm_sa_item_t *) cl_qlist_head(&rec_list);
+		     item != (osm_sa_item_t *) cl_qlist_end(&rec_list);
 		     item =
-		     (osm_mcmr_item_t *) cl_qlist_next(&item->list_item)) {
-			memset(&item->rec.port_gid, 0, sizeof(ib_gid_t));
-			ib_member_set_join_state(&item->rec, 0);
-			item->rec.proxy_join = 0;
+		     (osm_sa_item_t *) cl_qlist_next(&item->list_item)) {
+			memset(&item->resp.mc_rec.port_gid, 0, sizeof(ib_gid_t));
+			ib_member_set_join_state(&item->resp.mc_rec, 0);
+			item->resp.mc_rec.proxy_join = 0;
 		}
 	}
 

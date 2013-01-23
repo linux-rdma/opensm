@@ -66,13 +66,7 @@
 #define OSM_SA_MPR_MAX_NUM_PATH        127
 #define MAX_HOPS 64
 
-typedef struct osm_mpr_item {
-	cl_list_item_t list_item;
-	ib_path_rec_t path_rec;
-	const osm_port_t *p_src_port;
-	const osm_port_t *p_dest_port;
-	int hops;
-} osm_mpr_item_t;
+#define SA_MPR_RESP_SIZE SA_ITEM_RESP_SIZE(mpr_rec)
 
 typedef struct osm_path_parms {
 	ib_net16_t pkey;
@@ -889,21 +883,21 @@ static void mpr_rcv_build_pr(IN osm_sa_t * sa,
 	OSM_LOG_EXIT(sa->p_log);
 }
 
-static osm_mpr_item_t *mpr_rcv_get_lid_pair_path(IN osm_sa_t * sa,
-						 IN const ib_multipath_rec_t *
-						 p_mpr,
-						 IN const osm_alias_guid_t *
-						 p_src_alias_guid,
-						 IN const osm_alias_guid_t *
-						 p_dest_alias_guid,
-						 IN const uint16_t src_lid_ho,
-						 IN const uint16_t dest_lid_ho,
-						 IN const ib_net64_t comp_mask,
-						 IN const uint8_t preference)
+static osm_sa_item_t *mpr_rcv_get_lid_pair_path(IN osm_sa_t * sa,
+						IN const ib_multipath_rec_t *
+						p_mpr,
+						IN const osm_alias_guid_t *
+						p_src_alias_guid,
+						IN const osm_alias_guid_t *
+						p_dest_alias_guid,
+						IN const uint16_t src_lid_ho,
+						IN const uint16_t dest_lid_ho,
+						IN const ib_net64_t comp_mask,
+						IN const uint8_t preference)
 {
 	osm_path_parms_t path_parms;
 	osm_path_parms_t rev_path_parms;
-	osm_mpr_item_t *p_pr_item;
+	osm_sa_item_t *p_pr_item;
 	ib_api_status_t status, rev_path_status;
 
 	OSM_LOG_ENTER(sa->p_log);
@@ -911,13 +905,13 @@ static osm_mpr_item_t *mpr_rcv_get_lid_pair_path(IN osm_sa_t * sa,
 	OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Src LID %u, Dest LID %u\n",
 		src_lid_ho, dest_lid_ho);
 
-	p_pr_item = malloc(sizeof(*p_pr_item));
+	p_pr_item = malloc(SA_MPR_RESP_SIZE);
 	if (p_pr_item == NULL) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4501: "
 			"Unable to allocate path record\n");
 		goto Exit;
 	}
-	memset(p_pr_item, 0, sizeof(*p_pr_item));
+	memset(p_pr_item, 0, SA_MPR_RESP_SIZE);
 
 	status = mpr_rcv_get_path_parms(sa, p_mpr, p_src_alias_guid,
 					p_dest_alias_guid, dest_lid_ho,
@@ -952,13 +946,13 @@ static osm_mpr_item_t *mpr_rcv_get_lid_pair_path(IN osm_sa_t * sa,
 		}
 	}
 
-	p_pr_item->p_src_port = p_src_alias_guid->p_base_port;
-	p_pr_item->p_dest_port = p_dest_alias_guid->p_base_port;
-	p_pr_item->hops = path_parms.hops;
+	p_pr_item->resp.mpr_rec.p_src_port = p_src_alias_guid->p_base_port;
+	p_pr_item->resp.mpr_rec.p_dest_port = p_dest_alias_guid->p_base_port;
+	p_pr_item->resp.mpr_rec.hops = path_parms.hops;
 
 	mpr_rcv_build_pr(sa, p_src_alias_guid, p_dest_alias_guid, src_lid_ho,
 			 dest_lid_ho, preference, &path_parms,
-			 &p_pr_item->path_rec);
+			 &p_pr_item->resp.mpr_rec.path_rec);
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);
@@ -974,7 +968,7 @@ static uint32_t mpr_rcv_get_port_pair_paths(IN osm_sa_t * sa,
 					    IN const ib_net64_t comp_mask,
 					    IN cl_qlist_t * p_list)
 {
-	osm_mpr_item_t *p_pr_item;
+	osm_sa_item_t *p_pr_item;
 	uint16_t src_lid_min_ho;
 	uint16_t src_lid_max_ho;
 	uint16_t dest_lid_min_ho;
@@ -1156,20 +1150,20 @@ Exit:
 #undef min
 #define min(x,y)	(((x) < (y)) ? (x) : (y))
 
-static osm_mpr_item_t *mpr_rcv_get_apm_port_pair_paths(IN osm_sa_t * sa,
-						       IN const
-						       ib_multipath_rec_t *
-						       p_mpr,
-						       IN const osm_alias_guid_t *
-						       p_src_alias_guid,
-						       IN const osm_alias_guid_t *
-						       p_dest_alias_guid,
-						       IN int base_offs,
-						       IN const ib_net64_t
-						       comp_mask,
-						       IN cl_qlist_t * p_list)
+static osm_sa_item_t *mpr_rcv_get_apm_port_pair_paths(IN osm_sa_t * sa,
+						      IN const
+						      ib_multipath_rec_t *
+						      p_mpr,
+						      IN const osm_alias_guid_t *
+						      p_src_alias_guid,
+						      IN const osm_alias_guid_t *
+						      p_dest_alias_guid,
+						      IN int base_offs,
+						      IN const ib_net64_t
+						      comp_mask,
+						      IN cl_qlist_t * p_list)
 {
-	osm_mpr_item_t *p_pr_item = 0;
+	osm_sa_item_t *p_pr_item = 0;
 	uint16_t src_lid_min_ho;
 	uint16_t src_lid_max_ho;
 	uint16_t dest_lid_min_ho;
@@ -1222,7 +1216,7 @@ static osm_mpr_item_t *mpr_rcv_get_apm_port_pair_paths(IN osm_sa_t * sa,
 		if (p_pr_item) {
 			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 				"Found matching path from Src LID %u to Dest LID %u with %d hops\n",
-				src_lid_ho, dest_lid_ho, p_pr_item->hops);
+				src_lid_ho, dest_lid_ho, p_pr_item->resp.mpr_rec.hops);
 			break;
 		}
 
@@ -1357,7 +1351,7 @@ static void mpr_rcv_get_apm_paths(IN osm_sa_t * sa,
 				  IN cl_qlist_t * p_list)
 {
 	osm_alias_guid_t *pp_alias_guids[4];
-	osm_mpr_item_t *matrix[2][2];
+	osm_sa_item_t *matrix[2][2];
 	int base_offs, src_lid_ho, dest_lid_ho;
 	int sumA, sumB, minA, minB;
 
@@ -1421,20 +1415,26 @@ static void mpr_rcv_get_apm_paths(IN osm_sa_t * sa,
 	OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "APM matrix:\n"
 		"\t{0,0} 0x%X->0x%X (%d)\t| {0,1} 0x%X->0x%X (%d)\n"
 		"\t{1,0} 0x%X->0x%X (%d)\t| {1,1} 0x%X->0x%X (%d)\n",
-		matrix[0][0]->path_rec.slid, matrix[0][0]->path_rec.dlid,
-		matrix[0][0]->hops, matrix[0][1]->path_rec.slid,
-		matrix[0][1]->path_rec.dlid, matrix[0][1]->hops,
-		matrix[1][0]->path_rec.slid, matrix[1][0]->path_rec.dlid,
-		matrix[1][0]->hops, matrix[1][1]->path_rec.slid,
-		matrix[1][1]->path_rec.dlid, matrix[1][1]->hops);
+		matrix[0][0]->resp.mpr_rec.path_rec.slid,
+		matrix[0][0]->resp.mpr_rec.path_rec.dlid,
+		matrix[0][0]->resp.mpr_rec.hops,
+		matrix[0][1]->resp.mpr_rec.path_rec.slid,
+		matrix[0][1]->resp.mpr_rec.path_rec.dlid,
+		matrix[0][1]->resp.mpr_rec.hops,
+		matrix[1][0]->resp.mpr_rec.path_rec.slid,
+		matrix[1][0]->resp.mpr_rec.path_rec.dlid,
+		matrix[1][0]->resp.mpr_rec.hops,
+		matrix[1][1]->resp.mpr_rec.path_rec.slid,
+		matrix[1][1]->resp.mpr_rec.path_rec.dlid,
+		matrix[1][1]->resp.mpr_rec.hops);
 
 	/* check diagonal A {(0,0), (1,1)} */
-	sumA = matrix[0][0]->hops + matrix[1][1]->hops;
-	minA = min(matrix[0][0]->hops, matrix[1][1]->hops);
+	sumA = matrix[0][0]->resp.mpr_rec.hops + matrix[1][1]->resp.mpr_rec.hops;
+	minA = min(matrix[0][0]->resp.mpr_rec.hops, matrix[1][1]->resp.mpr_rec.hops);
 
 	/* check diagonal B {(0,1), (1,0)} */
-	sumB = matrix[0][1]->hops + matrix[1][0]->hops;
-	minB = min(matrix[0][1]->hops, matrix[1][0]->hops);
+	sumB = matrix[0][1]->resp.mpr_rec.hops + matrix[1][0]->resp.mpr_rec.hops;
+	minB = min(matrix[0][1]->resp.mpr_rec.hops, matrix[1][0]->resp.mpr_rec.hops);
 
 	/* and the winner is... */
 	if (minA <= minB || (minA == minB && sumA < sumB)) {
@@ -1442,10 +1442,12 @@ static void mpr_rcv_get_apm_paths(IN osm_sa_t * sa,
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Diag {0,0} & {1,1} is the best:\n"
 			"\t{0,0} 0x%X->0x%X (%d)\t & {1,1} 0x%X->0x%X (%d)\n",
-			matrix[0][0]->path_rec.slid,
-			matrix[0][0]->path_rec.dlid, matrix[0][0]->hops,
-			matrix[1][1]->path_rec.slid,
-			matrix[1][1]->path_rec.dlid, matrix[1][1]->hops);
+			matrix[0][0]->resp.mpr_rec.path_rec.slid,
+			matrix[0][0]->resp.mpr_rec.path_rec.dlid,
+			matrix[0][0]->resp.mpr_rec.hops,
+			matrix[1][1]->resp.mpr_rec.path_rec.slid,
+			matrix[1][1]->resp.mpr_rec.path_rec.dlid,
+			matrix[1][1]->resp.mpr_rec.hops);
 		cl_qlist_insert_tail(p_list, &matrix[0][0]->list_item);
 		cl_qlist_insert_tail(p_list, &matrix[1][1]->list_item);
 		free(matrix[0][1]);
@@ -1455,10 +1457,12 @@ static void mpr_rcv_get_apm_paths(IN osm_sa_t * sa,
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Diag {0,1} & {1,0} is the best:\n"
 			"\t{0,1} 0x%X->0x%X (%d)\t & {1,0} 0x%X->0x%X (%d)\n",
-			matrix[0][1]->path_rec.slid,
-			matrix[0][1]->path_rec.dlid, matrix[0][1]->hops,
-			matrix[1][0]->path_rec.slid,
-			matrix[1][0]->path_rec.dlid, matrix[1][0]->hops);
+			matrix[0][1]->resp.mpr_rec.path_rec.slid,
+			matrix[0][1]->resp.mpr_rec.path_rec.dlid,
+			matrix[0][1]->resp.mpr_rec.hops,
+			matrix[1][0]->resp.mpr_rec.path_rec.slid,
+			matrix[1][0]->resp.mpr_rec.path_rec.dlid,
+			matrix[1][0]->resp.mpr_rec.hops);
 		cl_qlist_insert_tail(p_list, &matrix[0][1]->list_item);
 		cl_qlist_insert_tail(p_list, &matrix[1][0]->list_item);
 		free(matrix[0][0]);

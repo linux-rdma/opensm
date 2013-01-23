@@ -73,12 +73,9 @@
 #include <opensm/osm_prefix_route.h>
 #include <opensm/osm_ucast_lash.h>
 
-#define MAX_HOPS 64
+#define SA_PR_RESP_SIZE SA_ITEM_RESP_SIZE(path_rec)
 
-typedef struct osm_pr_item {
-	cl_list_item_t list_item;
-	ib_path_rec_t path_rec;
-} osm_pr_item_t;
+#define MAX_HOPS 64
 
 typedef struct osm_path_parms {
 	ib_net16_t pkey;
@@ -931,7 +928,7 @@ static void pr_rcv_build_pr(IN osm_sa_t * sa,
 	OSM_LOG_EXIT(sa->p_log);
 }
 
-static osm_pr_item_t *pr_rcv_get_lid_pair_path(IN osm_sa_t * sa,
+static osm_sa_item_t *pr_rcv_get_lid_pair_path(IN osm_sa_t * sa,
 					       IN const ib_path_rec_t * p_pr,
 					       IN const osm_alias_guid_t * p_src_alias_guid,
 					       IN const osm_alias_guid_t * p_dest_alias_guid,
@@ -944,7 +941,7 @@ static osm_pr_item_t *pr_rcv_get_lid_pair_path(IN osm_sa_t * sa,
 {
 	osm_path_parms_t path_parms;
 	osm_path_parms_t rev_path_parms;
-	osm_pr_item_t *p_pr_item;
+	osm_sa_item_t *p_pr_item;
 	ib_api_status_t status, rev_path_status;
 
 	OSM_LOG_ENTER(sa->p_log);
@@ -952,13 +949,13 @@ static osm_pr_item_t *pr_rcv_get_lid_pair_path(IN osm_sa_t * sa,
 	OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Src LID %u, Dest LID %u\n",
 		src_lid_ho, dest_lid_ho);
 
-	p_pr_item = malloc(sizeof(*p_pr_item));
+	p_pr_item = malloc(SA_PR_RESP_SIZE);
 	if (p_pr_item == NULL) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F01: "
 			"Unable to allocate path record\n");
 		goto Exit;
 	}
-	memset(p_pr_item, 0, sizeof(*p_pr_item));
+	memset(p_pr_item, 0, SA_PR_RESP_SIZE);
 
 	status = pr_rcv_get_path_parms(sa, p_pr, p_src_alias_guid, src_lid_ho,
 				       p_dest_alias_guid, dest_lid_ho,
@@ -995,7 +992,7 @@ static osm_pr_item_t *pr_rcv_get_lid_pair_path(IN osm_sa_t * sa,
 
 	pr_rcv_build_pr(sa, p_src_alias_guid, p_dest_alias_guid, p_sgid, p_dgid,
 			src_lid_ho, dest_lid_ho, preference, &path_parms,
-			&p_pr_item->path_rec);
+			&p_pr_item->resp.path_rec);
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);
@@ -1013,7 +1010,7 @@ static void pr_rcv_get_port_pair_paths(IN osm_sa_t * sa,
 {
 	const ib_path_rec_t *p_pr = ib_sa_mad_get_payload_ptr(sa_mad);
 	ib_net64_t comp_mask = sa_mad->comp_mask;
-	osm_pr_item_t *p_pr_item;
+	osm_sa_item_t *p_pr_item;
 	uint16_t src_lid_min_ho;
 	uint16_t src_lid_max_ho;
 	uint16_t dest_lid_min_ho;
@@ -1626,7 +1623,7 @@ static void pr_process_multicast(osm_sa_t * sa, const ib_sa_mad_t *sa_mad,
 	ib_path_rec_t *pr = ib_sa_mad_get_payload_ptr(sa_mad);
 	osm_mgrp_t *mgrp;
 	ib_api_status_t status;
-	osm_pr_item_t *pr_item;
+	osm_sa_item_t *pr_item;
 	uint32_t flow_label;
 	uint8_t sl, hop_limit;
 
@@ -1650,34 +1647,34 @@ static void pr_process_multicast(osm_sa_t * sa, const ib_sa_mad_t *sa_mad,
 		return;
 	}
 
-	pr_item = malloc(sizeof(*pr_item));
+	pr_item = malloc(SA_PR_RESP_SIZE);
 	if (pr_item == NULL) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F18: "
 			"Unable to allocate path record for MC group\n");
 		return;
 	}
-	memset(pr_item, 0, sizeof(*pr_item));
+	memset(pr_item, 0, SA_PR_RESP_SIZE);
 
 	/* Copy PathRecord request into response */
-	pr_item->path_rec = *pr;
+	pr_item->resp.path_rec = *pr;
 
 	/* Now, use the MC info to cruft up the PathRecord response */
-	pr_item->path_rec.dgid = mgrp->mcmember_rec.mgid;
-	pr_item->path_rec.dlid = mgrp->mcmember_rec.mlid;
-	pr_item->path_rec.tclass = mgrp->mcmember_rec.tclass;
-	pr_item->path_rec.num_path = 1;
-	pr_item->path_rec.pkey = mgrp->mcmember_rec.pkey;
+	pr_item->resp.path_rec.dgid = mgrp->mcmember_rec.mgid;
+	pr_item->resp.path_rec.dlid = mgrp->mcmember_rec.mlid;
+	pr_item->resp.path_rec.tclass = mgrp->mcmember_rec.tclass;
+	pr_item->resp.path_rec.num_path = 1;
+	pr_item->resp.path_rec.pkey = mgrp->mcmember_rec.pkey;
 
 	/* MTU, rate, and packet lifetime should be exactly */
-	pr_item->path_rec.mtu = (2 << 6) | mgrp->mcmember_rec.mtu;
-	pr_item->path_rec.rate = (2 << 6) | mgrp->mcmember_rec.rate;
-	pr_item->path_rec.pkt_life = (2 << 6) | mgrp->mcmember_rec.pkt_life;
+	pr_item->resp.path_rec.mtu = (2 << 6) | mgrp->mcmember_rec.mtu;
+	pr_item->resp.path_rec.rate = (2 << 6) | mgrp->mcmember_rec.rate;
+	pr_item->resp.path_rec.pkt_life = (2 << 6) | mgrp->mcmember_rec.pkt_life;
 
 	/* SL, Hop Limit, and Flow Label */
 	ib_member_get_sl_flow_hop(mgrp->mcmember_rec.sl_flow_hop,
 				  &sl, &flow_label, &hop_limit);
-	ib_path_rec_set_sl(&pr_item->path_rec, sl);
-	ib_path_rec_set_qos_class(&pr_item->path_rec, 0);
+	ib_path_rec_set_sl(&pr_item->resp.path_rec, sl);
+	ib_path_rec_set_qos_class(&pr_item->resp.path_rec, 0);
 
 	/* HopLimit is not yet set in non link local MC groups */
 	/* If it were, this would not be needed */
@@ -1685,7 +1682,7 @@ static void pr_process_multicast(osm_sa_t * sa, const ib_sa_mad_t *sa_mad,
 	    IB_MC_SCOPE_LINK_LOCAL)
 		hop_limit = IB_HOPLIMIT_MAX;
 
-	pr_item->path_rec.hop_flow_raw =
+	pr_item->resp.path_rec.hop_flow_raw =
 	    cl_hton32(hop_limit) | (flow_label << 8);
 
 	cl_qlist_insert_tail(list, &pr_item->list_item);

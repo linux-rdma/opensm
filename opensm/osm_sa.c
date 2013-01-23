@@ -382,10 +382,6 @@ Exit:
 void osm_sa_respond(osm_sa_t *sa, osm_madw_t *madw, size_t attr_size,
 		    cl_qlist_t *list)
 {
-	struct item_data {
-		cl_list_item_t list;
-		char data[0];
-	};
 	cl_list_item_t *item;
 	osm_madw_t *resp_madw;
 	ib_sa_mad_t *sa_mad, *resp_sa_mad;
@@ -478,7 +474,7 @@ void osm_sa_respond(osm_sa_t *sa, osm_madw_t *madw, size_t attr_size,
 
 	for (i = 0; i < num_rec; i++) {
 		item = cl_qlist_remove_head(list);
-		memcpy(p, ((struct item_data *)item)->data, attr_size);
+		memcpy(p, ((osm_sa_item_t *)item)->resp.data, attr_size);
 		p += attr_size;
 		free(item);
 	}

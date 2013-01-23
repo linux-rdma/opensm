@@ -86,6 +86,7 @@ BEGIN_C_DECLS
 *	Anil Keshavamurthy, Intel
 *
 *********/
+
 /****d* OpenSM: SA/osm_sa_state_t
 * NAME
 *	osm_sa_state_t
@@ -100,6 +101,69 @@ typedef enum _osm_sa_state {
 	OSM_SA_STATE_READY
 } osm_sa_state_t;
 /***********/
+
+/****d* OpenSM: SA/osm_mpr_rec_t
+* NAME
+*	osm_mpr_rec_t
+*
+* DESCRIPTION
+*	SA MultiPathRecord response.
+*
+* SYNOPSIS
+*/
+typedef struct osm_mpr_rec {
+	ib_path_rec_t path_rec;
+	const osm_port_t *p_src_port;
+	const osm_port_t *p_dest_port;
+	int hops;
+} osm_mpr_rec_t;
+/***********/
+
+/****d* OpenSM: SA/osm_sa_item_t
+* NAME
+*	osm_sa_item_t
+*
+* DESCRIPTION
+*	SA response item.
+*
+* SYNOPSIS
+*/
+typedef struct osm_sa_item {
+	cl_list_item_t list_item;
+	union {
+		char data[0];
+		ib_guidinfo_record_t guid_rec;
+		ib_inform_info_record_t inform_rec;
+		ib_lft_record_t lft_rec;
+		ib_link_record_t link_rec;
+		ib_member_rec_t mc_rec;
+		ib_mft_record_t mft_rec;
+		osm_mpr_rec_t mpr_rec;
+		ib_node_record_t node_rec;
+		ib_path_rec_t path_rec;
+		ib_pkey_table_record_t pkey_rec;
+		ib_portinfo_record_t port_rec;
+		ib_service_record_t service_rec;
+		ib_slvl_table_record_t slvl_rec;
+		ib_sminfo_record_t sminfo_rec;
+		ib_switch_info_record_t swinfo_rec;
+		ib_vl_arb_table_record_t vlarb_rec;
+	} resp;
+} osm_sa_item_t;
+/*
+* NOTES
+*	Actual structure allocated is based on SA attribute
+*	type. As such, it is variable sized. The allocation
+*	occurs in the SA attribute handling code.
+*	Note also that the size is specified external
+*	to this structure (It's passed as a parameter to
+*	osm_sa_respond). The SA_ITEM_RESP_SIZE macro
+*	facilitates determining the size required.
+*
+***********/
+
+#define SA_ITEM_RESP_SIZE(_m) offsetof(osm_sa_item_t, resp._m) + \
+			      sizeof(((osm_sa_item_t *)NULL)->resp._m)
 
 /****s* OpenSM: SM/osm_sa_t
 * NAME

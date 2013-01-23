@@ -59,10 +59,7 @@
 #include <opensm/osm_pkey.h>
 #include <opensm/osm_sa.h>
 
-typedef struct osm_slvl_item {
-	cl_list_item_t list_item;
-	ib_slvl_table_record_t rec;
-} osm_slvl_item_t;
+#define SA_SLVL_RESP_SIZE SA_ITEM_RESP_SIZE(slvl_rec)
 
 typedef struct osm_slvl_search_ctxt {
 	const ib_slvl_table_record_t *p_rcvd_rec;
@@ -77,12 +74,12 @@ static void sa_slvl_create(IN osm_sa_t * sa, IN const osm_physp_t * p_physp,
 			   IN osm_slvl_search_ctxt_t * p_ctxt,
 			   IN uint8_t in_port_idx)
 {
-	osm_slvl_item_t *p_rec_item;
+	osm_sa_item_t *p_rec_item;
 	uint16_t lid;
 
 	OSM_LOG_ENTER(sa->p_log);
 
-	p_rec_item = malloc(sizeof(*p_rec_item));
+	p_rec_item = malloc(SA_SLVL_RESP_SIZE);
 	if (p_rec_item == NULL) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2602: "
 			"rec_item alloc failed\n");
@@ -100,14 +97,14 @@ static void sa_slvl_create(IN osm_sa_t * sa, IN const osm_physp_t * p_physp,
 		cl_ntoh64(osm_physp_get_port_guid(p_physp)),
 		cl_ntoh16(lid), osm_physp_get_port_num(p_physp), in_port_idx);
 
-	memset(p_rec_item, 0, sizeof(*p_rec_item));
+	memset(p_rec_item, 0, SA_SLVL_RESP_SIZE);
 
-	p_rec_item->rec.lid = lid;
+	p_rec_item->resp.slvl_rec.lid = lid;
 	if (p_physp->p_node->node_info.node_type == IB_NODE_TYPE_SWITCH) {
-		p_rec_item->rec.out_port_num = osm_physp_get_port_num(p_physp);
-		p_rec_item->rec.in_port_num = in_port_idx;
+		p_rec_item->resp.slvl_rec.out_port_num = osm_physp_get_port_num(p_physp);
+		p_rec_item->resp.slvl_rec.in_port_num = in_port_idx;
 	}
-	p_rec_item->rec.slvl_tbl =
+	p_rec_item->resp.slvl_rec.slvl_tbl =
 	    *(osm_physp_get_slvl_tbl(p_physp, in_port_idx));
 
 	cl_qlist_insert_tail(p_ctxt->p_list, &p_rec_item->list_item);

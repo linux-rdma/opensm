@@ -63,10 +63,7 @@
 #include <opensm/osm_inform.h>
 #include <opensm/osm_pkey.h>
 
-typedef struct osm_iir_item {
-	cl_list_item_t list_item;
-	ib_inform_info_record_t rec;
-} osm_iir_item_t;
+#define SA_IIR_RESP_SIZE SA_ITEM_RESP_SIZE(inform_rec)
 
 typedef struct osm_iir_search_ctxt {
 	const ib_inform_info_record_t *p_rcvd_rec;
@@ -209,23 +206,23 @@ Set(InformInfo) request.
 static void infr_rcv_respond(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 {
 	cl_qlist_t rec_list;
-	osm_iir_item_t *item;
+	osm_sa_item_t *item;
 
 	OSM_LOG_ENTER(sa->p_log);
 
 	OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 		"Generating successful InformInfo response\n");
 
-	item = malloc(sizeof(*item));
+	item = malloc(SA_IIR_RESP_SIZE);
 	if (!item) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4303: "
 			"rec_item alloc failed\n");
 		goto Exit;
 	}
 
-	memcpy(&item->rec,
+	memcpy(&item->resp.inform_rec,
 	       ib_sa_mad_get_payload_ptr(osm_madw_get_sa_mad_ptr(p_madw)),
-	       sizeof(item->rec));
+	       sizeof(item->resp.inform_rec));
 
 	cl_qlist_init(&rec_list);
 	cl_qlist_insert_tail(&rec_list, &item->list_item);
@@ -245,7 +242,7 @@ static void sa_inform_info_rec_by_comp_mask(IN osm_sa_t * sa,
 	osm_port_t *p_subscriber_port;
 	osm_physp_t *p_subscriber_physp;
 	const osm_physp_t *p_req_physp;
-	osm_iir_item_t *p_rec_item;
+	osm_sa_item_t *p_rec_item;
 
 	OSM_LOG_ENTER(sa->p_log);
 
@@ -285,14 +282,14 @@ static void sa_inform_info_rec_by_comp_mask(IN osm_sa_t * sa,
 		goto Exit;
 	}
 
-	p_rec_item = malloc(sizeof(*p_rec_item));
+	p_rec_item = malloc(SA_IIR_RESP_SIZE);
 	if (p_rec_item == NULL) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 430E: "
 			"rec_item alloc failed\n");
 		goto Exit;
 	}
 
-	memcpy(&p_rec_item->rec, &p_infr->inform_record,
+	memcpy(&p_rec_item->resp.inform_rec, &p_infr->inform_record,
 	       sizeof(ib_inform_info_record_t));
 
 	/*
@@ -302,7 +299,7 @@ static void sa_inform_info_rec_by_comp_mask(IN osm_sa_t * sa,
 	 * subscriber QPN shall be returned.
 	 */
 	if (p_ctxt->sm_key == 0)
-		ib_inform_info_set_qpn(&p_rec_item->rec.inform_info, 0);
+		ib_inform_info_set_qpn(&p_rec_item->resp.inform_rec.inform_info, 0);
 
 	cl_qlist_insert_tail(p_ctxt->p_list, &p_rec_item->list_item);
 
@@ -330,7 +327,7 @@ static void infr_rcv_process_get_method(osm_sa_t * sa, IN osm_madw_t * p_madw)
 	cl_qlist_t rec_list;
 	osm_iir_search_ctxt_t context;
 	osm_physp_t *p_req_physp;
-	osm_iir_item_t *item;
+	osm_sa_item_t *item;
 
 	OSM_LOG_ENTER(sa->p_log);
 
@@ -384,11 +381,11 @@ static void infr_rcv_process_get_method(osm_sa_t * sa, IN osm_madw_t * p_madw)
 	cl_plock_release(sa->p_lock);
 
 	/* clear reserved and pad fields in InformInfoRecord */
-	for (item = (osm_iir_item_t *) cl_qlist_head(&rec_list);
-	     item != (osm_iir_item_t *) cl_qlist_end(&rec_list);
-	     item = (osm_iir_item_t *) cl_qlist_next(&item->list_item)) {
-		memset(item->rec.reserved, 0, sizeof(item->rec.reserved));
-		memset(item->rec.pad, 0, sizeof(item->rec.pad));
+	for (item = (osm_sa_item_t *) cl_qlist_head(&rec_list);
+	     item != (osm_sa_item_t *) cl_qlist_end(&rec_list);
+	     item = (osm_sa_item_t *) cl_qlist_next(&item->list_item)) {
+		memset(item->resp.inform_rec.reserved, 0, sizeof(item->resp.inform_rec.reserved));
+		memset(item->resp.inform_rec.pad, 0, sizeof(item->resp.inform_rec.pad));
 	}
 
 	osm_sa_respond(sa, p_madw, sizeof(ib_inform_info_record_t), &rec_list);
