@@ -64,6 +64,7 @@
 #include <opensm/osm_pkey.h>
 
 #define SA_IIR_RESP_SIZE SA_ITEM_RESP_SIZE(inform_rec)
+#define SA_II_RESP_SIZE SA_ITEM_RESP_SIZE(inform)
 
 typedef struct osm_iir_search_ctxt {
 	const ib_inform_info_record_t *p_rcvd_rec;
@@ -213,16 +214,16 @@ static void infr_rcv_respond(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 	OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 		"Generating successful InformInfo response\n");
 
-	item = malloc(SA_IIR_RESP_SIZE);
+	item = malloc(SA_II_RESP_SIZE);
 	if (!item) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4303: "
 			"rec_item alloc failed\n");
 		goto Exit;
 	}
 
-	memcpy(&item->resp.inform_rec,
+	memcpy(&item->resp.inform,
 	       ib_sa_mad_get_payload_ptr(osm_madw_get_sa_mad_ptr(p_madw)),
-	       sizeof(item->resp.inform_rec));
+	       sizeof(ib_inform_info_t));
 
 	cl_qlist_init(&rec_list);
 	cl_qlist_insert_tail(&rec_list, &item->list_item);

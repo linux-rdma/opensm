@@ -133,6 +133,7 @@ typedef struct osm_sa_item {
 	union {
 		char data[0];
 		ib_guidinfo_record_t guid_rec;
+		ib_inform_info_t inform;
 		ib_inform_info_record_t inform_rec;
 		ib_lft_record_t lft_rec;
 		ib_link_record_t link_rec;
