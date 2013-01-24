@@ -524,7 +524,6 @@ static void dump_sl2vl_tbl(cl_map_item_t * item, FILE * file, void *cxt)
 		}
 	} else {
 		p_physp = p_port->p_physp;
-		CL_ASSERT(p_physp->p_remote_physp);
 		p_tbl = osm_physp_get_slvl_tbl(p_physp, 0);
 		for (i = 0, n = 0; i < 16; i++)
 			n += sprintf(buf + n, " %-2d",
