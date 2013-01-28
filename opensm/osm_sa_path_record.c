@@ -1666,9 +1666,9 @@ static void pr_process_multicast(osm_sa_t * sa, const ib_sa_mad_t *sa_mad,
 	pr_item->resp.path_rec.pkey = mgrp->mcmember_rec.pkey;
 
 	/* MTU, rate, and packet lifetime should be exactly */
-	pr_item->resp.path_rec.mtu = (2 << 6) | mgrp->mcmember_rec.mtu;
-	pr_item->resp.path_rec.rate = (2 << 6) | mgrp->mcmember_rec.rate;
-	pr_item->resp.path_rec.pkt_life = (2 << 6) | mgrp->mcmember_rec.pkt_life;
+	pr_item->resp.path_rec.mtu = (IB_PATH_SELECTOR_EXACTLY << 6) | mgrp->mcmember_rec.mtu;
+	pr_item->resp.path_rec.rate = (IB_PATH_SELECTOR_EXACTLY << 6) | mgrp->mcmember_rec.rate;
+	pr_item->resp.path_rec.pkt_life = (IB_PATH_SELECTOR_EXACTLY << 6) | mgrp->mcmember_rec.pkt_life;
 
 	/* SL, Hop Limit, and Flow Label */
 	ib_member_get_sl_flow_hop(mgrp->mcmember_rec.sl_flow_hop,

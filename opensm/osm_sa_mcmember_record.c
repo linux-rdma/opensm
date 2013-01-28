@@ -207,11 +207,11 @@ static void mcmr_rcv_respond(IN osm_sa_t * sa, IN osm_madw_t * p_madw,
 
 	/* Fill in the mtu, rate, and packet lifetime selectors */
 	item->resp.mc_rec.mtu &= 0x3f;
-	item->resp.mc_rec.mtu |= 2 << 6;	/* exactly */
+	item->resp.mc_rec.mtu |= IB_PATH_SELECTOR_EXACTLY << 6;
 	item->resp.mc_rec.rate &= 0x3f;
-	item->resp.mc_rec.rate |= 2 << 6;	/* exactly */
+	item->resp.mc_rec.rate |= IB_PATH_SELECTOR_EXACTLY << 6;
 	item->resp.mc_rec.pkt_life &= 0x3f;
-	item->resp.mc_rec.pkt_life |= 2 << 6;	/* exactly */
+	item->resp.mc_rec.pkt_life |= IB_PATH_SELECTOR_EXACTLY << 6;
 
 	cl_qlist_init(&rec_list);
 	cl_qlist_insert_tail(&rec_list, &item->list_item);
@@ -862,11 +862,11 @@ static ib_api_status_t mcmr_rcv_create_new_mgrp(IN osm_sa_t * sa,
 
 	/* the mcmember_record should have mtu_sel, rate_sel, and pkt_lifetime_sel = 2 */
 	(*pp_mgrp)->mcmember_rec.mtu &= 0x3f;
-	(*pp_mgrp)->mcmember_rec.mtu |= 2 << 6;	/* exactly */
+	(*pp_mgrp)->mcmember_rec.mtu |= IB_PATH_SELECTOR_EXACTLY << 6;
 	(*pp_mgrp)->mcmember_rec.rate &= 0x3f;
-	(*pp_mgrp)->mcmember_rec.rate |= 2 << 6;	/* exactly */
+	(*pp_mgrp)->mcmember_rec.rate |= IB_PATH_SELECTOR_EXACTLY << 6;
 	(*pp_mgrp)->mcmember_rec.pkt_life &= 0x3f;
-	(*pp_mgrp)->mcmember_rec.pkt_life |= 2 << 6;	/* exactly */
+	(*pp_mgrp)->mcmember_rec.pkt_life |= IB_PATH_SELECTOR_EXACTLY << 6;
 
 Exit:
 	OSM_LOG_EXIT(sa->p_log);

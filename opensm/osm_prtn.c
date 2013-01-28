@@ -253,10 +253,10 @@ ib_api_status_t osm_prtn_add_mcgroup(osm_log_t * p_log, osm_subn_t * p_subn,
 	mc_rec.mgid = *mgid;
 
 	mc_rec.qkey = CL_HTON32(Q_Key);
-	mc_rec.mtu = mtu | (2 << 6);
+	mc_rec.mtu = mtu | (IB_PATH_SELECTOR_EXACTLY << 6);
 	mc_rec.tclass = tclass;
 	mc_rec.pkey = pkey;
-	mc_rec.rate = rate | (2 << 6);
+	mc_rec.rate = rate | (IB_PATH_SELECTOR_EXACTLY << 6);
 	mc_rec.pkt_life = p_subn->opt.subnet_timeout;
 	mc_rec.sl_flow_hop = ib_member_set_sl_flow_hop(sl, FlowLabel, hop_limit);
 	/* Scope in MCMemberRecord (if present) needs to be consistent with MGID */
