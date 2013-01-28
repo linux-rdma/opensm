@@ -242,7 +242,6 @@ boolean_t osm_mcast_tbl_get_block(IN osm_mcast_tbl_t * p_tbl,
 
 	CL_ASSERT(p_tbl);
 	CL_ASSERT(p_block);
-	CL_ASSERT(block_num * IB_MCAST_BLOCK_SIZE <= p_tbl->mft_depth);
 
 	if (block_num > p_tbl->max_block_in_use)
 		return FALSE;
@@ -254,6 +253,8 @@ boolean_t osm_mcast_tbl_get_block(IN osm_mcast_tbl_t * p_tbl,
 		memset(p_block, 0, IB_SMP_DATA_SIZE);
 		return TRUE;
 	}
+
+	CL_ASSERT(block_num * IB_MCAST_BLOCK_SIZE <= p_tbl->mft_depth);
 
 	mlid_start_ho = (uint16_t) (block_num * IB_MCAST_BLOCK_SIZE);
 
