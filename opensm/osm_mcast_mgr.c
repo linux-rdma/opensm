@@ -155,10 +155,11 @@ static void create_mgrp_switch_map(cl_qmap_t * m, cl_qlist_t * port_list)
 		if (port->p_node->sw) {
 			sw = port->p_node->sw;
 			sw->is_mc_member = 1;
-		} else {
-			sw = port->p_physp->p_remote_physp->p_node->sw;
-			sw->num_of_mcm++;
-		}
+		} else if (port->p_physp->p_remote_physp) {
+				sw = port->p_physp->p_remote_physp->p_node->sw;
+				sw->num_of_mcm++;
+		} else
+			continue;
 		guid = osm_node_get_node_guid(sw->p_node);
 		if (cl_qmap_get(m, guid) == cl_qmap_end(m))
 			cl_qmap_insert(m, guid, &sw->mgrp_item);
