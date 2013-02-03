@@ -312,6 +312,8 @@ static int qos_extports_setup(osm_sm_t * sm, osm_node_t *node,
 
 	for (out = 1; out < num_ports; out++) {
 		p = osm_node_get_physp_ptr(node, out);
+		if (!p)
+			continue;
 		if (ib_port_info_get_port_state(&p->port_info) == IB_LINK_DOWN)
 			continue;
 		force_update = p->need_update || sm->p_subn->need_update;
@@ -334,6 +336,8 @@ static int qos_extports_setup(osm_sm_t * sm, osm_node_t *node,
 
 		for (out = 1; out < num_ports; out++) {
 			p = osm_node_get_physp_ptr(node, out);
+			if (!p)
+				continue;
 			if (ib_port_info_get_port_state(&p->port_info) ==
 			    IB_LINK_DOWN)
 				continue;
@@ -347,6 +351,8 @@ static int qos_extports_setup(osm_sm_t * sm, osm_node_t *node,
 			}
 
 		}
+		if (!p0)
+			return -1;
 		force_update = node->sw->need_update || sm->p_subn->need_update;
 		if (sl2vl_update_table(sm, p0, p0->port_num, 0x30000, force_update,
 					&qcfg->sl2vl, port_mad_list))
@@ -357,6 +363,8 @@ static int qos_extports_setup(osm_sm_t * sm, osm_node_t *node,
 		 */
 		for (out = 1; out < num_ports; out++) {
 			p = osm_node_get_physp_ptr(node, out);
+			if (!p)
+				continue;
 			if (ib_port_info_get_port_state(&p->port_info) ==
 			    IB_LINK_DOWN)
 				continue;
@@ -376,6 +384,8 @@ static int qos_extports_setup(osm_sm_t * sm, osm_node_t *node,
 	out = ib_switch_info_is_enhanced_port0(&node->sw->switch_info) ? 0 : 1;
 	for (; out < num_ports; out++) {
 		p = osm_node_get_physp_ptr(node, out);
+		if (!p)
+			continue;
 		if (ib_port_info_get_port_state(&p->port_info) == IB_LINK_DOWN)
 			continue;
 		force_update = p->need_update || sm->p_subn->need_update;

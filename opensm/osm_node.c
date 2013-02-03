@@ -161,9 +161,6 @@ void osm_node_link(IN osm_node_t * p_node, IN uint8_t port_num,
 	osm_physp_t *p_physp;
 	osm_physp_t *p_remote_physp;
 
-	CL_ASSERT(port_num < p_node->physp_tbl_size);
-	CL_ASSERT(remote_port_num < p_remote_node->physp_tbl_size);
-
 	p_physp = osm_node_get_physp_ptr(p_node, port_num);
 	p_remote_physp = osm_node_get_physp_ptr(p_remote_node, remote_port_num);
 

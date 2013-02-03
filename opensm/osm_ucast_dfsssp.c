@@ -1558,6 +1558,13 @@ static int update_lft(osm_ucast_mgr_t * p_mgr, vertex_t * adj_list,
 					  (p_sw->p_node)));
 
 			p = osm_node_get_physp_ptr(p_sw->p_node, port);
+			if (!p) {
+				OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR,
+					"ERR AD0A: Physical port %d of Node GUID 0x%"
+					PRIx64 "not found\n", port,
+					cl_ntoh64(osm_node_get_node_guid(p_sw->p_node)));
+				return 1;
+			}
 
 			/* we would like to optionally ignore this port in equalization
 			   as in the case of the Mellanox Anafa Internal PCI TCA port

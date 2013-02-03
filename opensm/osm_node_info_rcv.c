@@ -82,8 +82,10 @@ static void report_duplicated_guid(IN osm_sm_t * sm, osm_physp_t * p_physp,
 		"Paths are:\n",
 		cl_ntoh64(p_physp->p_node->node_info.node_guid),
 		p_physp->port_num,
-		cl_ntoh64(p_old->p_node->node_info.node_guid), p_old->port_num,
-		cl_ntoh64(p_new->p_node->node_info.node_guid), p_new->port_num);
+		p_old ? cl_ntoh64(p_old->p_node->node_info.node_guid) : 0,
+		p_old ? p_old->port_num : 0,
+		p_new ? cl_ntoh64(p_new->p_node->node_info.node_guid) : 0,
+		p_new ? p_new->port_num : 0);
 
 	osm_dump_dr_path_v2(sm->p_log, osm_physp_get_dr_path_ptr(p_physp),
 			    FILE_ID, OSM_LOG_ERROR);
@@ -102,6 +104,12 @@ static void requery_dup_node_info(IN osm_sm_t * sm, osm_physp_t * p_physp,
 	osm_madw_context_t context;
 	osm_dr_path_t path;
 	cl_status_t status;
+
+	if (!p_physp->p_remote_physp) {
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D0D: "
+			"DR path couldn't be extended due to NULL remote physp\n");
+		return;
+	}
 
 	path = *osm_physp_get_dr_path_ptr(p_physp->p_remote_physp);
 	if (osm_dr_path_extend(&path, p_physp->p_remote_physp->port_num)) {
@@ -173,6 +181,14 @@ static void ni_rcv_set_links(IN osm_sm_t * sm, osm_node_t * p_node,
 	}
 
 	p_physp = osm_node_get_physp_ptr(p_node, port_num);
+	if (!p_physp) {
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR OD0E: "
+			"Failed to find physp for port %d of Node GUID 0x%"
+			PRIx64 "\n", port_num,
+			cl_ntoh64(osm_node_get_node_guid(p_node)));
+		goto _exit;
+	}
+
 	/*
 	 * If the link went UP, after we already discovered it, we shouldn't
 	 * set the link between the ports and resweep.
@@ -206,6 +222,14 @@ static void ni_rcv_set_links(IN osm_sm_t * sm, osm_node_t * p_node,
 		   it is impossible with CAs.
 		 */
 		p_physp = osm_node_get_physp_ptr(p_node, port_num);
+		if (!p_physp) {
+			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR OD0F: "
+				"Failed to find physp for port %d of Node GUID 0x%"
+				PRIx64 "\n", port_num,
+				cl_ntoh64(osm_node_get_node_guid(p_node)));
+			goto _exit;
+		}
+
 		if (p_ni_context->dup_count > 5) {
 			report_duplicated_guid(sm, p_physp, p_neighbor_node,
 					       p_ni_context->port_num);
@@ -232,6 +256,14 @@ static void ni_rcv_set_links(IN osm_sm_t * sm, osm_node_t * p_node,
 			"node 0x%" PRIx64 ", port number %u\n",
 			cl_ntoh64(osm_node_get_node_guid(p_node)), port_num);
 		p_physp = osm_node_get_physp_ptr(p_node, port_num);
+		if (!p_physp) {
+			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR OD1D: "
+				"Failed to find physp for port %d of Node GUID 0x%"
+				PRIx64 "\n", port_num,
+				cl_ntoh64(osm_node_get_node_guid(p_node)));
+			goto _exit;
+		}
+
 		osm_dump_dr_path_v2(sm->p_log, osm_physp_get_dr_path_ptr(p_physp),
 				    FILE_ID, OSM_LOG_VERBOSE);
 
@@ -256,12 +288,14 @@ static void ni_rcv_set_links(IN osm_sm_t * sm, osm_node_t * p_node,
 					       p_neighbor_node,
 					       p_ni_context->port_num);
 
-	osm_node_link(p_node, port_num, p_neighbor_node,
-		      p_ni_context->port_num);
-
 	p_physp = osm_node_get_physp_ptr(p_node, port_num);
 	p_remote_physp = osm_node_get_physp_ptr(p_neighbor_node,
 						p_ni_context->port_num);
+	if (!p_physp || !p_remote_physp)
+		goto _exit;
+
+	osm_node_link(p_node, port_num, p_neighbor_node, p_ni_context->port_num);
+
 	osm_db_neighbor_set(sm->p_subn->p_neighbor,
 			    cl_ntoh64(osm_physp_get_port_guid(p_physp)),
 			    port_num,
@@ -295,6 +329,13 @@ static void ni_rcv_get_port_info(IN osm_sm_t * sm, IN osm_node_t * node,
 		mlnx_epi_supported = is_mlnx_ext_port_info_supported(ni->device_id);
 
 	physp = osm_node_get_physp_ptr(node, port);
+	if (!physp) {
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR OD1E: "
+			"Failed to find physp for port %d of Node GUID 0x%"
+			PRIx64 "\n", port,
+			cl_ntoh64(osm_node_get_node_guid(node)));
+		return;
+	}
 
 	context.pi_context.node_guid = osm_node_get_node_guid(node);
 	context.pi_context.port_guid = osm_physp_get_port_guid(physp);
@@ -373,6 +414,13 @@ static void ni_rcv_get_node_desc(IN osm_sm_t * sm, IN osm_node_t * p_node,
 	   knows which node & port are relevant.
 	 */
 	p_physp = osm_node_get_physp_ptr(p_node, port_num);
+	if (!p_physp) {
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR OD1F: "
+			"Failed to find physp for port %d of Node GUID 0x%"
+			PRIx64 "\n", port_num,
+			cl_ntoh64(osm_node_get_node_guid(p_node)));
+		return;
+	}
 
 	osm_req_get_node_desc(sm, p_physp);
 

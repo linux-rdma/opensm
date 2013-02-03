@@ -513,7 +513,7 @@ static void dump_sl2vl_tbl(cl_map_item_t * item, FILE * file, void *cxt)
 			p_physp = osm_node_get_physp_ptr(p_node, out_port);
 
 			/* no need to print SL2VL table for port that is down */
-			if (!p_physp->p_remote_physp)
+			if (!p_physp || !p_physp->p_remote_physp)
 				continue;
 
 			for (in_port = 0; in_port <= num_ports; in_port++) {

@@ -193,6 +193,9 @@ switch_find_guid_common(IN const osm_switch_t * p_sw,
 		goto out;
 
 	p_physp = osm_node_get_physp_ptr(p_sw->p_node, port_num);
+	if (!p_physp)
+		goto out;
+
 	p_rem_physp = osm_physp_get_remote(p_physp);
 	p_rem_node = osm_physp_get_node_ptr(p_rem_physp);
 	sys_guid = p_rem_node->node_info.sys_guid;

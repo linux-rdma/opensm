@@ -121,7 +121,7 @@ static osm_switch_t *get_osm_switch_from_port(const osm_port_t * port)
 	osm_physp_t *p = port->p_physp;
 	if (p->p_node->sw)
 		return p->p_node->sw;
-	else if (p->p_remote_physp->p_node->sw)
+	else if (p->p_remote_physp && p->p_remote_physp->p_node->sw)
 		return p->p_remote_physp->p_node->sw;
 	return NULL;
 }
