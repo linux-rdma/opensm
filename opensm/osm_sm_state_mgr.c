@@ -294,11 +294,13 @@ ib_api_status_t osm_sm_state_mgr_process(osm_sm_t * sm,
 			break;
 		case OSM_SM_SIGNAL_HANDOVER:
 			/*
-			 * Do nothing. We will discover it later on. If we already discovered
-			 * this SM, and got the HANDOVER - this means the remote SM is of
-			 * lower priority. In this case we will stop polling it (since it is
-			 * a lower priority SM in STANDBY state).
+			 * Signal for a new sweep. We need to discover the other SM.
+			 * If we already discovered this SM, and got the
+			 * HANDOVER - this means the remote SM is of lower priority.
+			 * In this case we will stop polling it (since it is a lower
+			 * priority SM in STANDBY state).
 			 */
+			osm_sm_signal(sm, OSM_SIGNAL_SWEEP);
 			break;
 		default:
 			sm_state_mgr_signal_error(sm, signal);
