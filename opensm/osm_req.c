@@ -93,7 +93,7 @@ static ib_net64_t req_determine_mkey(IN osm_sm_t * sm,
 		p_physp = p_sm_port->p_physp;
 	}
 
-	for (hop = 1; p_physp && hop <= p_path->hop_count; hop++) {
+	for (hop = 1; p_physp && hop < p_path->hop_count; hop++) {
 		p_physp = osm_node_get_physp_ptr(p_node, p_path->path[hop]);
 		if (!p_physp)
 			break;
@@ -102,6 +102,8 @@ static ib_net64_t req_determine_mkey(IN osm_sm_t * sm,
 			break;
 		p_node = osm_physp_get_node_ptr(p_physp);
 	}
+
+	p_physp = osm_node_get_physp_ptr(p_node, p_path->path[hop]);
 
 	/* At this point, p_physp points at the outgoing physp on the
 	   last hop, or NULL if we don't know it.
