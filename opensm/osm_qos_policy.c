@@ -283,15 +283,16 @@ void osm_qos_policy_qos_level_destroy(osm_qos_level_t * p)
 	if (!p)
 		return;
 
-	if (p->name)
-		free(p->name);
-	if (p->use)
-		free(p->use);
+	free(p->name);
+	free(p->use);
 
 	for (i = 0; i < p->path_bits_range_len; i++)
 		free(p->path_bits_range_arr[i]);
-	if (p->path_bits_range_arr)
-		free(p->path_bits_range_arr);
+	free(p->path_bits_range_arr);
+
+	for(i = 0; i < p->pkey_range_len; i++)
+		free((p->pkey_range_arr[i]));
+	free(p->pkey_range_arr);
 
 	free(p);
 }
