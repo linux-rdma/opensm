@@ -856,6 +856,9 @@ static void dump_node_hr(db_node_t * node, FILE * fp, char *port, int err_only)
 			fprintf(fp, "     vl15_dropped         : %" PRIu64 "\n",
 				err->vl15_dropped);
 
+		if (err_only)
+			continue;
+
 		fprintf(fp, "     Last Data Update     : %s\n",
 			last_data_update);
 		fprintf(fp, "     xmit_data            : %" PRIu64,
