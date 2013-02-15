@@ -2586,6 +2586,9 @@ typedef struct _ib_path_rec {
 #define  IB_PR_COMPMASK_PKTLIFETIMESELEC  (CL_HTON64(((uint64_t)1)<<20))
 #define  IB_PR_COMPMASK_PKTLIFETIME       (CL_HTON64(((uint64_t)1)<<21))
 
+#define  IB_PR_COMPMASK_SERVICEID (IB_PR_COMPMASK_SERVICEID_MSB | \
+				   IB_PR_COMPMASK_SERVICEID_LSB)
+
 /* Link Record Component Masks */
 #define IB_LR_COMPMASK_FROM_LID           (CL_HTON64(((uint64_t)1)<<0))
 #define IB_LR_COMPMASK_FROM_PORT          (CL_HTON64(((uint64_t)1)<<1))
