@@ -7529,7 +7529,6 @@ void dump_torus(struct torus *t)
 }
 
 static
-
 void report_torus_changes(struct torus *nt, struct torus *ot)
 {
 	unsigned cnt = 0;
@@ -7542,7 +7541,7 @@ void report_torus_changes(struct torus *nt, struct torus *ot)
 	if (OSM_LOG_IS_ACTIVE_V2(&nt->osm->log, OSM_LOG_ROUTING))
 		dump_torus(nt);
 
-	if (!(ot))
+	if (!ot)
 		return;
 
 	if (x_sz != ot->x_sz) {
