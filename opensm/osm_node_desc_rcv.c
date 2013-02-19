@@ -79,6 +79,13 @@ static void nd_rcv_process_nd(IN osm_sm_t * sm, IN osm_node_t * p_node,
 		free(p_node->print_desc);
 	p_node->print_desc = tmp_desc;
 
+#ifdef ENABLE_OSM_PERF_MGR
+	/* update the perfmgr entry if available */
+	osm_perfmgr_update_nodename(&sm->p_subn->p_osm->perfmgr,
+				cl_ntoh64(osm_node_get_node_guid(p_node)),
+				p_node->print_desc);
+#endif				/* ENABLE_OSM_PERF_MGR */
+
 	OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 		"Node 0x%" PRIx64 "\n\t\t\t\tDescription = %s\n",
 		cl_ntoh64(osm_node_get_node_guid(p_node)), p_node->print_desc);

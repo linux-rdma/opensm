@@ -247,6 +247,8 @@ void osm_perfmgr_dump_counters(osm_perfmgr_t * p_perfmgr,
 			       perfmgr_db_dump_t dump_type);
 void osm_perfmgr_print_counters(osm_perfmgr_t *pm, char *nodename, FILE *fp,
 				char *port, int err_only);
+void osm_perfmgr_update_nodename(osm_perfmgr_t *pm, uint64_t node_guid,
+				char *nodename);
 
 ib_api_status_t osm_perfmgr_bind(osm_perfmgr_t * p_perfmgr,
 				 ib_net64_t port_guid);

@@ -197,6 +197,19 @@ Exit:
 }
 
 perfmgr_db_err_t
+perfmgr_db_update_name(perfmgr_db_t * db, uint64_t node_guid, char *name)
+{
+	db_node_t *node = NULL;
+
+	cl_plock_excl_acquire(&db->lock);
+	node = get(db, node_guid);
+	if (node)
+		snprintf(node->node_name, sizeof(node->node_name), "%s", name);
+	cl_plock_release(&db->lock);
+	return (PERFMGR_EVENT_DB_SUCCESS);
+}
+
+perfmgr_db_err_t
 perfmgr_db_delete_entry(perfmgr_db_t * db, uint64_t guid)
 {
 	cl_map_item_t * rc = cl_qmap_remove(&db->pc_data, guid);

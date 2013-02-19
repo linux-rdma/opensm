@@ -1459,4 +1459,10 @@ void osm_perfmgr_print_counters(osm_perfmgr_t * pm, char *nodename, FILE * fp,
 	} else
 		perfmgr_db_print_all(pm->db, fp, err_only);
 }
+void osm_perfmgr_update_nodename(osm_perfmgr_t *pm, uint64_t node_guid,
+				char *nodename)
+{
+	if (pm->db)
+		perfmgr_db_update_name(pm->db, node_guid, nodename);
+}
 #endif				/* ENABLE_OSM_PERF_MGR */

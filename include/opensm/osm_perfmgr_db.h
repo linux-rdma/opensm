@@ -164,6 +164,9 @@ perfmgr_db_err_t perfmgr_db_create_entry(perfmgr_db_t * db, uint64_t guid,
 perfmgr_db_err_t perfmgr_db_delete_entry(perfmgr_db_t * db, uint64_t guid);
 perfmgr_db_err_t perfmgr_db_delete_inactive(perfmgr_db_t * db, unsigned *cnt);
 
+perfmgr_db_err_t perfmgr_db_update_name(perfmgr_db_t * db, uint64_t node_guid,
+					char *name);
+
 perfmgr_db_err_t perfmgr_db_add_err_reading(perfmgr_db_t * db, uint64_t guid,
 					    uint8_t port,
 					    perfmgr_db_err_reading_t * reading);
