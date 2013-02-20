@@ -643,19 +643,19 @@ static osm_qos_match_rule_t *__qos_policy_get_match_rule_by_params(
 		 */
 		if (cl_list_count(&p_qos_match_rule->source_group_list)
 		    && cl_list_count(&p_qos_match_rule->destination_group_list)) {
-			if (!__qos_policy_is_port_in_group_list(p_qos_policy,
-								p_src_physp,
-								&p_qos_match_rule->
-								source_group_list)
-			    && !__qos_policy_is_port_in_group_list(p_qos_policy,
-								   p_dest_physp,
-								   &p_qos_match_rule->
-								   destination_group_list))
-			{
+			if (__qos_policy_is_port_in_group_list(p_qos_policy,
+							       p_src_physp,
+							       &p_qos_match_rule->
+							       source_group_list)
+			    && __qos_policy_is_port_in_group_list(p_qos_policy,
+								  p_dest_physp,
+								  &p_qos_match_rule->
+								  destination_group_list))
+				matched_by_sordguid = TRUE;
+			else {
 				list_iterator = cl_list_next(list_iterator);
 				continue;
 			}
-			matched_by_sordguid = TRUE;
 		}
 
 		/* If a match rule has QoS classes, PR request HAS
