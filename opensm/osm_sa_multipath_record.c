@@ -1615,6 +1615,14 @@ void osm_mpr_rcv_process(IN void *context, IN void *data)
 		}
 	}
 
+	/* Make sure either none or both ServiceID parameters are supplied */
+	if ((p_sa_mad->comp_mask & IB_MPR_COMPMASK_SERVICEID) != 0 &&
+	    (p_sa_mad->comp_mask & IB_MPR_COMPMASK_SERVICEID) !=
+	     IB_MPR_COMPMASK_SERVICEID) {
+		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_INSUF_COMPS);
+		goto Exit;
+	}
+
 	cl_qlist_init(&pr_list);
 
 	/*
