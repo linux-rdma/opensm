@@ -415,10 +415,18 @@ static void *umad_receiver(void *p_ptr)
 			 * and make sure that attribute ID, attribute
 			 * modifier and transaction ID are the same in
 			 * request and response.
+			 *
+			 * Exception for o15-0.2-1.11:
+			 * SA response to a SubnAdmGetMulti() containing a
+			 * MultiPathRecord shall have PathRecord attribute ID.
 			 */
 			p_req_mad = osm_madw_get_mad_ptr(p_req_madw);
 			if (PF(ib_mad_is_response(p_req_mad) ||
-			       p_mad->attr_id != p_req_mad->attr_id ||
+			       (p_mad->attr_id != p_req_mad->attr_id &&
+                                !(p_mad->mgmt_class == IB_MCLASS_SUBN_ADM &&
+                                  p_req_mad->attr_id ==
+					IB_MAD_ATTR_MULTIPATH_RECORD &&
+                                  p_mad->attr_id == IB_MAD_ATTR_PATH_RECORD)) ||
 			       p_mad->attr_mod != p_req_mad->attr_mod ||
 			       p_mad->trans_id != p_req_mad->trans_id)) {
 				OSM_LOG(p_vend->p_log, OSM_LOG_ERROR,
