@@ -562,9 +562,10 @@ static void print_node_report(cl_map_item_t * item, FILE * file, void *cxt)
 		p_pi = &p_physp->port_info;
 
 		/*
-		 * Port state is not defined for switch port 0
+		 * Port state is not defined for base switch port 0
 		 */
-		if (port_num == 0)
+		if (port_num == 0 &&
+		    ib_switch_info_is_enhanced_port0(&p_node->sw->switch_info) == FALSE)
 			fprintf(file, "     :");
 		else
 			fprintf(file, " %s :",
@@ -583,7 +584,10 @@ static void print_node_report(cl_map_item_t * item, FILE * file, void *cxt)
 		else
 			fprintf(file, "      :     :");
 
-		if (port_num != 0)
+		if (port_num == 0 &&
+		    ib_switch_info_is_enhanced_port0(&p_node->sw->switch_info) == FALSE)
+			fprintf(file, "      :     :      ");
+		else
 			fprintf(file, " %s : %s : %s ",
 				osm_get_mtu_str
 				(ib_port_info_get_neighbor_mtu(p_pi)),
@@ -593,8 +597,6 @@ static void print_node_report(cl_map_item_t * item, FILE * file, void *cxt)
 				 ib_port_info_get_link_speed_ext_active(p_pi),
 				 ib_port_info_get_port_state(p_pi),
 				 p_physp->ext_port_info.link_speed_active & FDR10));
-		else
-			fprintf(file, "      :     :      ");
 
 		if (osm_physp_get_port_guid(p_physp) == osm->subn.sm_port_guid)
 			fprintf(file, "* %016" PRIx64 " *",
