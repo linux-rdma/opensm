@@ -2800,6 +2800,9 @@ typedef struct _ib_path_rec {
 #define IB_MPR_COMPMASK_DGIDCOUNT	(CL_HTON64(((uint64_t)1)<<20))
 #define IB_MPR_COMPMASK_SERVICEID_LSB	(CL_HTON64(((uint64_t)1)<<21))
 
+#define IB_MPR_COMPMASK_SERVICEID (IB_MPR_COMPMASK_SERVICEID_MSB | \
+				   IB_MPR_COMPMASK_SERVICEID_LSB)
+
 /* SMInfo Record Component Masks */
 #define IB_SMIR_COMPMASK_LID		(CL_HTON64(((uint64_t)1)<<0))
 #define IB_SMIR_COMPMASK_RESV0		(CL_HTON64(((uint64_t)1)<<1))
