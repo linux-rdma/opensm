@@ -1594,6 +1594,13 @@ void osm_mpr_rcv_process(IN void *context, IN void *data)
 		osm_dump_multipath_record_v2(sa->p_log, p_mpr, FILE_ID, OSM_LOG_DEBUG);
 	}
 
+	/* Make sure required components (S/DGIDCount) are supplied */
+	if (!(p_sa_mad->comp_mask & IB_MPR_COMPMASK_SGIDCOUNT) ||
+	    !(p_sa_mad->comp_mask & IB_MPR_COMPMASK_DGIDCOUNT)) {
+		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_INSUF_COMPS);
+		goto Exit;
+	}
+
 	/* Validate rate if supplied */
 	if ((p_sa_mad->comp_mask & IB_MPR_COMPMASK_RATESELEC) &&
 	    (p_sa_mad->comp_mask & IB_MPR_COMPMASK_RATE)) {
