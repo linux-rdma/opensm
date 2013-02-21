@@ -2157,7 +2157,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	mc_req_rec.mgid = good_mgid;
 	mc_req_rec.mgid.raw[12] = 0xAA;
 	mc_req_rec.pkt_life = 0 | IB_PATH_SELECTOR_GREATER_THAN << 6;
-	mc_req_rec.scope_state = 0x21;	/* Full memeber */
+	mc_req_rec.scope_state = 0x21;	/* Full member */
 	comp_mask = IB_MCR_COMPMASK_GID | IB_MCR_COMPMASK_PORT_GID | IB_MCR_COMPMASK_QKEY | IB_MCR_COMPMASK_PKEY | IB_MCR_COMPMASK_SL | IB_MCR_COMPMASK_FLOW | IB_MCR_COMPMASK_JOIN_STATE | IB_MCR_COMPMASK_TCLASS |	/* all above are required */
 	    IB_MCR_COMPMASK_LIFE | IB_MCR_COMPMASK_LIFE_SEL;
 
