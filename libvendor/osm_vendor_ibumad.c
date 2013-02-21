@@ -646,6 +646,7 @@ osm_vendor_get_all_port_attr(IN osm_vendor_t * const p_vend,
 				attr->lid = ca.ports[j]->base_lid;
 				attr->port_num = ca.ports[j]->portnum;
 				attr->sm_lid = ca.ports[j]->sm_lid;
+				attr->sm_sl = ca.ports[j]->sm_sl;
 				attr->link_state = ca.ports[j]->state;
 				if (attr->num_pkeys && attr->p_pkey_table) {
 					if (attr->num_pkeys > ca.ports[j]->pkeys_size)
