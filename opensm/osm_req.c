@@ -80,30 +80,26 @@ static ib_net64_t req_determine_mkey(IN osm_sm_t * sm,
 
 	/* hop_count == 0: destination port guid is SM */
 	if (p_path->hop_count == 0) {
-		if (p_sm_port != NULL)
-			dest_port_guid = sm->p_subn->sm_port_guid;
-		else
-			dest_port_guid = sm->p_subn->opt.guid;
+		dest_port_guid = sm->p_subn->sm_port_guid;
 		goto Remote_Guid;
 	}
 
 	if (p_sm_port) {
-		/* get the node for the SM */
 		p_node = p_sm_port->p_node;
-		p_physp = p_sm_port->p_physp;
+		if (osm_node_get_type(p_node) == IB_NODE_TYPE_SWITCH)
+			p_physp = osm_node_get_physp_ptr(p_node, p_path->path[1]);
+		else
+			p_physp = p_sm_port->p_physp;
 	}
 
-	for (hop = 1; p_physp && hop < p_path->hop_count; hop++) {
+	/* hop_count == 1: outgoing physp is SM physp */
+	for (hop = 2; p_physp && hop <= p_path->hop_count; hop++) {
+		p_physp = p_physp->p_remote_physp;
+		if (!p_physp)
+			break;
+		p_node = p_physp->p_node;
 		p_physp = osm_node_get_physp_ptr(p_node, p_path->path[hop]);
-		if (!p_physp)
-			break;
-		p_physp = osm_physp_get_remote(p_physp);
-		if (!p_physp)
-			break;
-		p_node = osm_physp_get_node_ptr(p_physp);
 	}
-
-	p_physp = osm_node_get_physp_ptr(p_node, p_path->path[hop]);
 
 	/* At this point, p_physp points at the outgoing physp on the
 	   last hop, or NULL if we don't know it.
