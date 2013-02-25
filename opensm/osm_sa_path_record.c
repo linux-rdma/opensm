@@ -77,15 +77,6 @@
 
 #define MAX_HOPS 64
 
-typedef struct osm_path_parms {
-	ib_net16_t pkey;
-	uint8_t mtu;
-	uint8_t rate;
-	uint8_t sl;
-	uint8_t pkt_life;
-	boolean_t reversible;
-} osm_path_parms_t;
-
 static inline boolean_t sa_path_rec_is_tavor_port(IN const osm_port_t * p_port)
 {
 	osm_node_t const *p_node;

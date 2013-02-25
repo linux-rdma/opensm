@@ -555,5 +555,26 @@ osm_mgrp_t *osm_mcmr_rcv_find_or_create_new_mgrp(IN osm_sa_t * sa,
 *
 *********/
 
+/**
+ * The following expose functionality of osm_sa_path_record.c for internal use
+ * by sub managers
+ */
+typedef struct osm_path_parms {
+	ib_net16_t pkey;
+	uint8_t mtu;
+	uint8_t rate;
+	uint8_t sl;
+	uint8_t pkt_life;
+	boolean_t reversible;
+	int hops;
+} osm_path_parms_t;
+
+ib_api_status_t osm_get_path_params(IN osm_sa_t * sa,
+				    IN const osm_port_t * p_src_port,
+				    IN const uint16_t slid_ho,
+				    IN const osm_port_t * p_dest_port,
+				    IN const uint16_t dlid_ho,
+				    OUT osm_path_parms_t * p_parms);
+
 END_C_DECLS
 #endif				/* _OSM_SA_H_ */

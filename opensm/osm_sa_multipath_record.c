@@ -68,16 +68,6 @@
 
 #define SA_MPR_RESP_SIZE SA_ITEM_RESP_SIZE(mpr_rec)
 
-typedef struct osm_path_parms {
-	ib_net16_t pkey;
-	uint8_t mtu;
-	uint8_t rate;
-	uint8_t sl;
-	uint8_t pkt_life;
-	boolean_t reversible;
-	int hops;
-} osm_path_parms_t;
-
 static boolean_t sa_multipath_rec_is_tavor_port(IN const osm_port_t * p_port)
 {
 	osm_node_t const *p_node;
