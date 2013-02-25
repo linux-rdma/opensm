@@ -576,5 +576,30 @@ ib_api_status_t osm_get_path_params(IN osm_sa_t * sa,
 				    IN const uint16_t dlid_ho,
 				    OUT osm_path_parms_t * p_parms);
 
+ib_net16_t osm_pr_get_end_points(IN osm_sa_t * sa,
+					IN const ib_sa_mad_t *sa_mad,
+					OUT const osm_alias_guid_t ** pp_src_alias_guid,
+					OUT const osm_alias_guid_t ** pp_dest_alias_guid,
+					OUT const osm_port_t ** pp_src_port,
+					OUT const osm_port_t ** pp_dest_port,
+					OUT const ib_gid_t ** pp_sgid,
+					OUT const ib_gid_t ** pp_dgid);
+
+void osm_pr_process_pair(IN osm_sa_t * sa, IN const ib_sa_mad_t * sa_mad,
+				IN const osm_port_t * requester_port,
+				IN const osm_alias_guid_t * p_src_alias_guid,
+				IN const osm_alias_guid_t * p_dest_alias_guid,
+				IN const ib_gid_t * p_sgid,
+				IN const ib_gid_t * p_dgid,
+				IN cl_qlist_t * p_list);
+
+void osm_pr_process_half(IN osm_sa_t * sa, IN const ib_sa_mad_t * sa_mad,
+				IN const osm_port_t * requester_port,
+				IN const osm_alias_guid_t * p_src_alias_guid,
+				IN const osm_alias_guid_t * p_dest_alias_guid,
+				IN const ib_gid_t * p_sgid,
+				IN const ib_gid_t * p_dgid,
+				IN cl_qlist_t * p_list);
+
 END_C_DECLS
 #endif				/* _OSM_SA_H_ */
