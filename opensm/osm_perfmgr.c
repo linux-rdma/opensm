@@ -832,7 +832,7 @@ void osm_perfmgr_process(osm_perfmgr_t * pm)
 		} else
 			OSM_LOG(pm->log, OSM_LOG_ERROR,
 				"ERR 5487: No PerfMgr port object for "
-				"port_guid 0x%"PRIx64"\n",
+				"port GUID 0x%" PRIx64 "\n",
 				cl_ntoh64(pm->port_guid));
 		CL_PLOCK_RELEASE(pm->sm->p_lock);
 	}
