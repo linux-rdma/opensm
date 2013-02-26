@@ -770,6 +770,22 @@ static void __get_stats(cl_map_item_t * const p_map_item, void *context)
 		port_state = ib_port_info_get_port_state(pi);
 		port_phys_state = ib_port_info_get_port_phys_state(pi);
 
+		if (port_state == IB_LINK_DOWN)
+			fs->ports_down++;
+		else if (port_state == IB_LINK_ACTIVE)
+			fs->ports_active++;
+		if (port_phys_state == IB_PORT_PHYS_STATE_DISABLED) {
+			__tag_port_report(&(fs->disabled_ports),
+					  cl_ntoh64(node->node_info.node_guid),
+					  port, node->print_desc);
+			fs->ports_disabled++;
+		}
+
+		fs->total_ports++;
+
+		if (port_state == IB_LINK_DOWN)
+			continue;
+
 		if (!(active_width & enabled_width)) {
 			__tag_port_report(&(fs->unenabled_width_ports),
 					  cl_ntoh64(node->node_info.node_guid),
@@ -872,18 +888,6 @@ static void __get_stats(cl_map_item_t * const p_map_item, void *context)
 			fs->ports_unknown_width++;
 			break;
 		}
-		if (port_state == IB_LINK_DOWN)
-			fs->ports_down++;
-		else if (port_state == IB_LINK_ACTIVE)
-			fs->ports_active++;
-		if (port_phys_state == IB_PORT_PHYS_STATE_DISABLED) {
-			__tag_port_report(&(fs->disabled_ports),
-					  cl_ntoh64(node->node_info.node_guid),
-					  port, node->print_desc);
-			fs->ports_disabled++;
-		}
-
-		fs->total_ports++;
 	}
 }
 
