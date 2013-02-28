@@ -844,7 +844,7 @@ static void __get_stats(cl_map_item_t * const p_map_item, void *context)
 		}
 		if (pi0->capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS &&
 		    ib_port_info_get_link_speed_ext_sup(pi) &&
-		    (enabled_speed = pi->link_speed_ext_enabled) != IB_LINK_SPEED_EXT_DISABLE &&
+		    (enabled_speed = ib_port_info_get_link_speed_ext_enabled(pi)) != IB_LINK_SPEED_EXT_DISABLE &&
 		    active_speed == IB_LINK_SPEED_ACTIVE_10) {
 			active_speed = ib_port_info_get_link_speed_ext_active(pi);
 			if (!(active_speed & enabled_speed)) {
