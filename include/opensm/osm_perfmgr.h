@@ -137,6 +137,7 @@ typedef struct osm_perfmgr {
 	cl_disp_reg_handle_t pc_disp_h;
 	osm_perfmgr_state_t state;
 	osm_perfmgr_sweep_state_t sweep_state;
+	cl_spinlock_t lock;
 	uint16_t sweep_time_s;
 	perfmgr_db_t *db;
 	atomic32_t outstanding_queries;	/* this along with sig_query */

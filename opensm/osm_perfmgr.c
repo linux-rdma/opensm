@@ -434,11 +434,22 @@ static ib_api_status_t perfmgr_send_mad(osm_perfmgr_t *perfmgr,
 		cl_atomic_inc(&(perfmgr->outstanding_queries));
 		while (perfmgr->outstanding_queries >
 		       (int32_t)perfmgr->max_outstanding_queries) {
+			cl_spinlock_acquire(&perfmgr->lock);
 			perfmgr->sweep_state = PERFMGR_SWEEP_SUSPENDED;
+			cl_spinlock_release(&perfmgr->lock);
 			cl_event_wait_on(&perfmgr->sig_query, EVENT_NO_TIMEOUT,
 					 TRUE);
+
+			cl_spinlock_acquire(&perfmgr->lock);
+			if (perfmgr->sweep_state == PERFMGR_SWEEP_SUSPENDED) {
+				perfmgr->sweep_state = PERFMGR_SWEEP_ACTIVE;
+				cl_spinlock_release(&perfmgr->lock);
+			} else {
+				cl_spinlock_release(&perfmgr->lock);
+				OSM_LOG(perfmgr->log, OSM_LOG_ERROR, "ERR 54FF: "
+					"PM was NOT in Suspended state???\n");
+			}
 		}
-		perfmgr->sweep_state = PERFMGR_SWEEP_ACTIVE;
 	}
 	return (status);
 }
@@ -986,11 +997,15 @@ void osm_perfmgr_process(osm_perfmgr_t * pm)
 	if (pm->state != PERFMGR_STATE_ENABLED)
 		return;
 
+	cl_spinlock_acquire(&pm->lock);
 	if (pm->sweep_state == PERFMGR_SWEEP_ACTIVE ||
-	    pm->sweep_state == PERFMGR_SWEEP_SUSPENDED)
+	    pm->sweep_state == PERFMGR_SWEEP_SUSPENDED) {
+		cl_spinlock_release(&pm->lock);
 		return;
+	}
 
 	pm->sweep_state = PERFMGR_SWEEP_ACTIVE;
+	cl_spinlock_release(&pm->lock);
 
 	if (pm->subn->sm_state == IB_SMINFO_STATE_STANDBY ||
 	    pm->subn->sm_state == IB_SMINFO_STATE_NOTACTIVE)
@@ -1051,7 +1066,9 @@ void osm_perfmgr_process(osm_perfmgr_t * pm)
 	clear_mad_stats();
 #endif
 
+	cl_spinlock_acquire(&pm->lock);
 	pm->sweep_state = PERFMGR_SWEEP_SLEEP;
+	cl_spinlock_release(&pm->lock);
 }
 
 /**********************************************************************
@@ -1816,6 +1833,8 @@ ib_api_status_t osm_perfmgr_init(osm_perfmgr_t * pm, osm_opensm_t * osm,
 	pm->trans_id = PERFMGR_INITIAL_TID_VALUE;
 	pm->state =
 	    p_opt->perfmgr ? PERFMGR_STATE_ENABLED : PERFMGR_STATE_DISABLE;
+	pm->sweep_state = PERFMGR_SWEEP_SLEEP;
+	cl_spinlock_init(&pm->lock);
 	pm->sweep_time_s = p_opt->perfmgr_sweep_time_s;
 	pm->max_outstanding_queries = p_opt->perfmgr_max_outstanding_queries;
 	pm->ignore_cas = p_opt->perfmgr_ignore_cas;
