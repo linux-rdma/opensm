@@ -2,6 +2,7 @@
  * Copyright (c) 2007 The Regents of the University of California.
  * Copyright (c) 2007-2009 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2009,2010 HNR Consulting. All rights reserved.
+ * Copyright (c) 2013 Lawrence Livermore National Security. All rights * reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -356,17 +357,20 @@ static ib_net16_t get_lid(osm_node_t * p_node, uint8_t port,
 	return get_base_lid(p_node, port);
 }
 
+
 /**********************************************************************
- * Form and send the Port Counters MAD for a single port.
+ * Build a Performance Management class MAD
  **********************************************************************/
-static ib_api_status_t perfmgr_send_pc_mad(osm_perfmgr_t * perfmgr,
-					   ib_net16_t dest_lid,
-					   ib_net32_t dest_qp, uint16_t pkey_ix,
-					   uint8_t port, uint8_t mad_method,
-					   osm_madw_context_t * p_context)
+static osm_madw_t *perfmgr_build_mad(osm_perfmgr_t * perfmgr,
+				     ib_net16_t dest_lid,
+				     uint8_t sl,
+				     ib_net32_t dest_qp,
+				     uint16_t pkey_ix,
+				     uint8_t mad_method,
+				     ib_net16_t attr_id,
+				     osm_madw_context_t * p_context,
+				     ib_perfmgt_mad_t ** p_pm_mad)
 {
-	ib_api_status_t status = IB_SUCCESS;
-	ib_port_counters_t *port_counter = NULL;
 	ib_perfmgt_mad_t *pm_mad = NULL;
 	osm_madw_t *p_madw = NULL;
 
@@ -375,7 +379,7 @@ static ib_api_status_t perfmgr_send_pc_mad(osm_perfmgr_t * perfmgr,
 	p_madw = osm_mad_pool_get(perfmgr->mad_pool, perfmgr->bind_handle,
 				  MAD_BLOCK_SIZE, NULL);
 	if (p_madw == NULL)
-		return IB_INSUFFICIENT_MEMORY;
+		return NULL;
 
 	pm_mad = osm_madw_get_perfmgt_mad_ptr(p_madw);
 
@@ -393,29 +397,38 @@ static ib_api_status_t perfmgr_send_pc_mad(osm_perfmgr_t * perfmgr,
 		pm_mad->header.trans_id =
 		    cl_hton64((uint64_t) cl_atomic_inc(&perfmgr->trans_id) &
 			      (uint64_t) (0xFFFFFFFF));
-	pm_mad->header.attr_id = IB_MAD_ATTR_PORT_CNTRS;
+	pm_mad->header.attr_id = attr_id;
 	pm_mad->header.resv = 0;
 	pm_mad->header.attr_mod = 0;
-
-	port_counter = (ib_port_counters_t *) & pm_mad->data;
-	memset(port_counter, 0, sizeof(*port_counter));
-	port_counter->port_select = port;
-	port_counter->counter_select = 0xFFFF;
 
 	p_madw->mad_addr.dest_lid = dest_lid;
 	p_madw->mad_addr.addr_type.gsi.remote_qp = dest_qp;
 	p_madw->mad_addr.addr_type.gsi.remote_qkey =
 	    cl_hton32(IB_QP1_WELL_KNOWN_Q_KEY);
 	p_madw->mad_addr.addr_type.gsi.pkey_ix = pkey_ix;
-	p_madw->mad_addr.addr_type.gsi.service_level = 0;
+	p_madw->mad_addr.addr_type.gsi.service_level = sl;
 	p_madw->mad_addr.addr_type.gsi.global_route = FALSE;
 	p_madw->resp_expected = TRUE;
 
 	if (p_context)
 		p_madw->context = *p_context;
 
-	status = osm_vendor_send(perfmgr->bind_handle, p_madw, TRUE);
+	if (p_pm_mad)
+		*p_pm_mad = pm_mad;
 
+	OSM_LOG_EXIT(perfmgr->log);
+
+	return (p_madw);
+}
+
+/**********************************************************************
+ * Send a Performance Management class MAD
+ **********************************************************************/
+static ib_api_status_t perfmgr_send_mad(osm_perfmgr_t *perfmgr,
+					osm_madw_t * const p_madw)
+{
+	ib_api_status_t status = osm_vendor_send(perfmgr->bind_handle, p_madw,
+						 TRUE);
 	if (status == IB_SUCCESS) {
 		/* pause thread if there are too many outstanding requests */
 		cl_atomic_inc(&(perfmgr->outstanding_queries));
@@ -427,6 +440,39 @@ static ib_api_status_t perfmgr_send_pc_mad(osm_perfmgr_t * perfmgr,
 		}
 		perfmgr->sweep_state = PERFMGR_SWEEP_ACTIVE;
 	}
+	return (status);
+}
+
+
+/**********************************************************************
+ * Form and send the PortCounters MAD for a single port.
+ **********************************************************************/
+static ib_api_status_t perfmgr_send_pc_mad(osm_perfmgr_t * perfmgr,
+					   ib_net16_t dest_lid,
+					   ib_net32_t dest_qp, uint16_t pkey_ix,
+					   uint8_t port, uint8_t mad_method,
+					   osm_madw_context_t * p_context,
+					   uint8_t sl)
+{
+	ib_api_status_t status = IB_SUCCESS;
+	ib_port_counters_t *port_counter = NULL;
+	ib_perfmgt_mad_t *pm_mad = NULL;
+	osm_madw_t *p_madw = NULL;
+
+	OSM_LOG_ENTER(perfmgr->log);
+
+	p_madw = perfmgr_build_mad(perfmgr, dest_lid, sl, dest_qp, pkey_ix,
+				mad_method, IB_MAD_ATTR_PORT_CNTRS, p_context,
+				&pm_mad);
+	if (p_madw == NULL)
+		return IB_INSUFFICIENT_MEMORY;
+
+	port_counter = (ib_port_counters_t *) & pm_mad->data;
+	memset(port_counter, 0, sizeof(*port_counter));
+	port_counter->port_select = port;
+	port_counter->counter_select = 0xFFFF;
+
+	status = perfmgr_send_mad(perfmgr, p_madw);
 
 	OSM_LOG_EXIT(perfmgr->log);
 	return status;
@@ -469,6 +515,7 @@ static void collect_guids(cl_map_item_t * p_map_item, void *context)
 		mon_node->guid = node_guid;
 		mon_node->name = strdup(node->print_desc);
 		mon_node->num_ports = num_ports;
+		mon_node->node_type = node->node_info.node_type;
 		/* check for enhanced switch port 0 */
 		mon_node->esp0 = (node->sw &&
 				  ib_switch_info_is_enhanced_port0(&node->sw->
@@ -488,6 +535,35 @@ static void collect_guids(cl_map_item_t * p_map_item, void *context)
 
 Exit:
 	OSM_LOG_EXIT(pm->log);
+}
+
+/**********************************************************************
+ * Form and send the ClassPortInfo MAD for a single port.
+ **********************************************************************/
+static ib_api_status_t perfmgr_send_cpi_mad(osm_perfmgr_t * pm,
+					    ib_net16_t dest_lid,
+					    ib_net32_t dest_qp,
+					    uint16_t pkey_ix,
+					    uint8_t port,
+					    osm_madw_context_t * p_context,
+					    uint8_t sl)
+{
+	ib_api_status_t status = IB_SUCCESS;
+	osm_madw_t *p_madw = NULL;
+
+	OSM_LOG_ENTER(pm->log);
+
+	p_madw = perfmgr_build_mad(pm, dest_lid, sl, dest_qp,
+				   pkey_ix, IB_MAD_METHOD_GET,
+				   IB_MAD_ATTR_CLASS_PORT_INFO, p_context,
+				   NULL);
+	if (p_madw == NULL)
+		return IB_INSUFFICIENT_MEMORY;
+
+	status = perfmgr_send_mad(pm, p_madw);
+
+	OSM_LOG_EXIT(pm->log);
+	return status;
 }
 
 /**********************************************************************
@@ -557,22 +633,42 @@ static void perfmgr_query_counters(cl_map_item_t * p_map_item, void *context)
 		mad_context.perfmgr_context.node_guid = node_guid;
 		mad_context.perfmgr_context.port = port;
 		mad_context.perfmgr_context.mad_method = IB_MAD_METHOD_GET;
+
+		if (pm->query_cpi && !mon_node->port[port].cpi_valid) {
+			status = perfmgr_send_cpi_mad(pm, lid, remote_qp,
+						mon_node->port[port].pkey_ix,
+						port, &mad_context,
+						0); /* FIXME SL != 0 */
+			if (status != IB_SUCCESS)
+				OSM_LOG(pm->log, OSM_LOG_ERROR, "ERR 5410: "
+					"Failed to issue ClassPortInfo query "
+					"for node 0x%" PRIx64
+					" port %d (%s)\n",
+					node->node_info.node_guid, port,
+					node->print_desc);
+			if (mon_node->node_type == IB_NODE_TYPE_SWITCH)
+				goto Exit; /* only need to issue 1 CPI query
+						for switches */
+		} else {
+
 #ifdef ENABLE_OSM_PERF_MGR_PROFILE
-		gettimeofday(&mad_context.perfmgr_context.query_start, NULL);
+			gettimeofday(&mad_context.perfmgr_context.query_start, NULL);
 #endif
-		OSM_LOG(pm->log, OSM_LOG_VERBOSE, "Getting stats for node 0x%"
-			PRIx64 " port %d (lid %u) (%s)\n", node_guid, port,
-			cl_ntoh16(lid), node->print_desc);
-		status = perfmgr_send_pc_mad(pm, lid, remote_qp,
-					     mon_node->port[port].pkey_ix,
-					     port, IB_MAD_METHOD_GET,
-					     &mad_context);
-		if (status != IB_SUCCESS)
-			OSM_LOG(pm->log, OSM_LOG_ERROR, "ERR 5409: "
-				"Failed to issue port counter query for node 0x%"
-				PRIx64 " port %d (%s)\n",
-				node->node_info.node_guid, port,
-				node->print_desc);
+			OSM_LOG(pm->log, OSM_LOG_VERBOSE, "Getting stats for node 0x%"
+				PRIx64 " port %d (lid %u) (%s)\n", node_guid, port,
+				cl_ntoh16(lid), node->print_desc);
+			status = perfmgr_send_pc_mad(pm, lid, remote_qp,
+						     mon_node->port[port].pkey_ix,
+						     port, IB_MAD_METHOD_GET,
+						     &mad_context,
+						     0); /* FIXME SL != 0 */
+			if (status != IB_SUCCESS)
+				OSM_LOG(pm->log, OSM_LOG_ERROR, "ERR 5409: "
+					"Failed to issue port counter query for node 0x%"
+					PRIx64 " port %d (%s)\n",
+					node->node_info.node_guid, port,
+					node->print_desc);
+		}
 	}
 Exit:
 	cl_plock_release(&pm->osm->lock);
@@ -1055,7 +1151,8 @@ static void perfmgr_check_overflow(osm_perfmgr_t * pm,
 		/* clear port counters */
 		status = perfmgr_send_pc_mad(pm, lid, remote_qp, pkey_ix,
 					     port, IB_MAD_METHOD_SET,
-					     &mad_context);
+					     &mad_context,
+					     0); /* FIXME SL != 0 */
 		if (status != IB_SUCCESS)
 			OSM_LOG(pm->log, OSM_LOG_ERROR, "PerfMgr: ERR 5411: "
 				"Failed to send clear counters MAD for %s (0x%"
@@ -1189,6 +1286,7 @@ static void pc_recv_process(void *context, void *data)
 	monitored_node_t *p_mon_node;
 	int16_t pkey_ix = 0;
 	boolean_t valid = TRUE;
+	ib_class_port_info_t *cpi = NULL;
 
 	OSM_LOG_ENTER(pm->log);
 
@@ -1211,14 +1309,49 @@ static void pc_recv_process(void *context, void *data)
 	CL_ASSERT(p_mad->attr_id == IB_MAD_ATTR_PORT_CNTRS ||
 		  p_mad->attr_id == IB_MAD_ATTR_CLASS_PORT_INFO);
 
-	/* Response could also be redirection (IBM eHCA PMA does this) */
-	if (p_mad->status & IB_MAD_STATUS_REDIRECT &&
-	    p_mad->attr_id == IB_MAD_ATTR_CLASS_PORT_INFO) {
-		char gid_str[INET6_ADDRSTRLEN];
-		ib_class_port_info_t *cpi =
-		    (ib_class_port_info_t *) &
+	cl_plock_acquire(&pm->osm->lock);
+	/* validate port number */
+	if (port >= p_mon_node->num_ports) {
+		cl_plock_release(&pm->osm->lock);
+		OSM_LOG(pm->log, OSM_LOG_ERROR, "ERR 5413: "
+			"Invalid port num %d for GUID 0x%016"
+			PRIx64 " num ports %d\n", port, node_guid,
+			p_mon_node->num_ports);
+		goto Exit;
+	}
+	cl_plock_release(&pm->osm->lock);
+
+	/* capture CLASS_PORT_INFO data */
+	if (p_mad->attr_id == IB_MAD_ATTR_CLASS_PORT_INFO) {
+		cpi = (ib_class_port_info_t *) &
 		    (osm_madw_get_perfmgt_mad_ptr(p_madw)->data);
+
+		if (pm->query_cpi) {
+			cl_plock_acquire(&pm->osm->lock);
+			if (p_mon_node->node_type == IB_NODE_TYPE_SWITCH) {
+				int i = 0;
+				for (i = p_mon_node->esp0 ? 0 : 1;
+				     i < p_mon_node->num_ports;
+				     i++) {
+					p_mon_node->port[i].cap_mask = cpi->cap_mask;
+					p_mon_node->port[i].cpi_valid = TRUE;
+				}
+			} else {
+				p_mon_node->port[port].cap_mask = cpi->cap_mask;
+				p_mon_node->port[port].cpi_valid = TRUE;
+			}
+			cl_plock_release(&pm->osm->lock);
+		}
+	}
+
+	/* Response could also be redirection (IBM eHCA PMA does this) */
+	if (p_mad->status & IB_MAD_STATUS_REDIRECT) {
+		char gid_str[INET6_ADDRSTRLEN];
 		ib_api_status_t status;
+		uint8_t mad_method;
+
+		CL_ASSERT(cpi); /* Redirect should have returned CPI
+					(processed in previous block) */
 
 		OSM_LOG(pm->log, OSM_LOG_VERBOSE,
 			"Redirection to LID %u GID %s QP 0x%x received\n",
@@ -1294,19 +1427,39 @@ static void pc_recv_process(void *context, void *data)
 		if (!valid)
 			goto Exit;
 
-		/* Finally, reissue the query to the redirected location */
-		status = perfmgr_send_pc_mad(pm, cpi->redir_lid, cpi->redir_qp,
-					     pkey_ix, port,
-					     mad_context->perfmgr_context.
-					     mad_method, mad_context);
+		/* either */
+		if (pm->query_cpi)
+		{
+			/* issue a CPI query to the redirected location */
+			mad_method = IB_MAD_METHOD_GET;
+			p_mon_node->port[port].cpi_valid = FALSE;
+			status = perfmgr_send_cpi_mad(pm, cpi->redir_lid,
+							cpi->redir_qp, pkey_ix,
+							port, mad_context,
+							0); /* FIXME SL != 0 */
+		} else {
+			/* reissue the original query to the redirected location */
+			mad_method = mad_context->perfmgr_context.mad_method,
+			status = perfmgr_send_pc_mad(pm, cpi->redir_lid, cpi->redir_qp,
+							pkey_ix, port,
+							mad_method,
+							mad_context,
+							0); /* FIXME SL != 0 */
+		}
 		if (status != IB_SUCCESS)
 			OSM_LOG(pm->log, OSM_LOG_ERROR, "ERR 5414: "
-				"Failed to send redirected MAD with method 0x%x for node 0x%"
-				PRIx64 " port %d\n",
-				mad_context->perfmgr_context.mad_method,
-				node_guid, port);
+				"Failed to send redirected MAD "
+				"with method 0x%x for node %s "
+				"(NodeGuid 0x%" PRIx64 ") port %d\n",
+				mad_method, p_mon_node->name, node_guid, port);
 		goto Exit;
 	}
+
+	/* ClassPortInfo needed to process optional Redirection
+	 * now exit normally
+	 */
+	if (p_mad->attr_id == IB_MAD_ATTR_CLASS_PORT_INFO)
+		goto Exit;
 
 	perfmgr_db_fill_err_read(wire_read, &err_reading);
 	/* FIXME separate query for extended counters if they are supported
@@ -1405,6 +1558,7 @@ ib_api_status_t osm_perfmgr_init(osm_perfmgr_t * pm, osm_opensm_t * osm,
 		cl_timer_start(&pm->sweep_timer, pm->sweep_time_s * 1000);
 
 	pm->rm_nodes = p_opt->perfmgr_rm_nodes;
+	pm->query_cpi = p_opt->perfmgr_query_cpi;
 	status = IB_SUCCESS;
 Exit:
 	OSM_LOG_EXIT(pm->log);

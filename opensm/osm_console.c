@@ -242,6 +242,7 @@ static void help_perfmgr(FILE * out, int detail)
 		"perfmgr(pm) [enable|disable\n"
 		"             |clear_counters|dump_counters|print_counters(pc)|print_errors(pe)\n"
 		"             |set_rm_nodes|clear_rm_nodes|clear_inactive\n"
+		"             |set_query_cpi|clear_query_cpi\n"
 		"             |dump_redir|clear_redir\n"
 		"             |sweep|sweep_time[seconds]]\n");
 	if (detail) {
@@ -274,6 +275,9 @@ static void help_perfmgr(FILE * out, int detail)
 		fprintf(out,
 			"   [[set|clear]_rm_nodes] -- enable/disable the removal of \"inactive\" nodes from the DB\n"
 			"                             Inactive nodes are those which no longer appear on the fabric\n");
+		fprintf(out,
+			"   [[set|clear]_query_cpi] -- enable/disable PerfMgrGet(ClassPortInfo)\n"
+			"                             ClassPortInfo indicates hardware support for extended attributes such as PortCountersExtended\n");
 		fprintf(out,
 			"   [clear_inactive] -- Delete inactive nodes from the DB\n");
 	}
@@ -1506,6 +1510,10 @@ static void perfmgr_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 			osm_perfmgr_set_rm_nodes(&p_osm->perfmgr, 1);
 		} else if (strcmp(p_cmd, "clear_rm_nodes") == 0) {
 			osm_perfmgr_set_rm_nodes(&p_osm->perfmgr, 0);
+		} else if (strcmp(p_cmd, "set_query_cpi") == 0) {
+			osm_perfmgr_set_query_cpi(&p_osm->perfmgr, 1);
+		} else if (strcmp(p_cmd, "clear_query_cpi") == 0) {
+			osm_perfmgr_set_query_cpi(&p_osm->perfmgr, 0);
 		} else if (strcmp(p_cmd, "dump_counters") == 0) {
 			p_cmd = next_token(p_last);
 			if (p_cmd && (strcmp(p_cmd, "mach") == 0)) {
@@ -1573,13 +1581,16 @@ static void perfmgr_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 			"sweep state                  : %s\n"
 			"sweep time                   : %us\n"
 			"outstanding queries/max      : %d/%u\n"
-			"remove missing nodes from DB : %s\n",
+			"remove missing nodes from DB : %s\n"
+			"query ClassPortInfo          : %s\n",
 			osm_perfmgr_get_state_str(&p_osm->perfmgr),
 			osm_perfmgr_get_sweep_state_str(&p_osm->perfmgr),
 			osm_perfmgr_get_sweep_time_s(&p_osm->perfmgr),
 			p_osm->perfmgr.outstanding_queries,
 			p_osm->perfmgr.max_outstanding_queries,
 			osm_perfmgr_get_rm_nodes(&p_osm->perfmgr)
+						 ? "TRUE" : "FALSE",
+			osm_perfmgr_get_query_cpi(&p_osm->perfmgr)
 						 ? "TRUE" : "FALSE");
 	}
 }

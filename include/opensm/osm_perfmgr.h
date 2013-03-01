@@ -100,6 +100,9 @@ typedef struct monitored_port {
 	ib_net16_t lid;
 	ib_net16_t pkey;
 	ib_net32_t qp;
+	/* ClassPortInfo fields */
+	boolean_t cpi_valid;
+	ib_net16_t cap_mask;
 } monitored_port_t;
 
 /* Node to store information about nodes being monitored */
@@ -107,6 +110,7 @@ typedef struct monitored_node {
 	cl_map_item_t map_item;
 	struct monitored_node *next;
 	uint64_t guid;
+	uint8_t node_type;
 	boolean_t esp0;
 	char *name;
 	uint32_t num_ports;
@@ -144,6 +148,7 @@ typedef struct osm_perfmgr {
 	ib_net64_t port_guid;
 	int16_t local_port;
 	int rm_nodes;
+	boolean_t query_cpi;
 } osm_perfmgr_t;
 /*
 * FIELDS
@@ -189,6 +194,16 @@ inline static void osm_perfmgr_set_rm_nodes(osm_perfmgr_t *perfmgr,
 inline static int osm_perfmgr_get_rm_nodes(osm_perfmgr_t *perfmgr)
 {
 	return perfmgr->rm_nodes;
+}
+
+inline static void osm_perfmgr_set_query_cpi(osm_perfmgr_t *perfmgr,
+					    int query_cpi)
+{
+	perfmgr->query_cpi = query_cpi;
+}
+inline static int osm_perfmgr_get_query_cpi(osm_perfmgr_t *perfmgr)
+{
+	return perfmgr->query_cpi;
 }
 
 inline static const char *osm_perfmgr_get_state_str(osm_perfmgr_t * p_perfmgr)
