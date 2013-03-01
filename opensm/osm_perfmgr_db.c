@@ -1053,7 +1053,7 @@ perfmgr_db_fill_data_cnt_read_pc(ib_port_counters_t * wire_read,
 }
 
 void
-perfmgr_db_fill_data_cnt_read_epc(ib_port_counters_ext_t * wire_read,
+perfmgr_db_fill_data_cnt_read_pce(ib_port_counters_ext_t * wire_read,
 				  perfmgr_db_data_cnt_reading_t * reading)
 {
 	reading->xmit_data = cl_ntoh64(wire_read->xmit_data);

@@ -207,7 +207,7 @@ void perfmgr_db_fill_err_read(ib_port_counters_t * wire_read,
 			      perfmgr_db_err_reading_t * reading);
 void perfmgr_db_fill_data_cnt_read_pc(ib_port_counters_t * wire_read,
 				      perfmgr_db_data_cnt_reading_t * reading);
-void perfmgr_db_fill_data_cnt_read_epc(ib_port_counters_ext_t * wire_read,
+void perfmgr_db_fill_data_cnt_read_pce(ib_port_counters_ext_t * wire_read,
 				       perfmgr_db_data_cnt_reading_t * reading);
 
 END_C_DECLS
