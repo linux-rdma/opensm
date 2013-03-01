@@ -569,9 +569,20 @@ static ib_api_status_t perfmgr_send_cpi_mad(osm_perfmgr_t * pm,
 }
 
 /**********************************************************************
- * return if PortCountersExtended are supported.
+ * return if some form of PortCountersExtended (PCE || PCE NoIETF) are supported.
  **********************************************************************/
-static boolean_t pce_supported(monitored_node_t *mon_node, uint8_t port)
+static inline boolean_t pce_supported(monitored_node_t *mon_node, uint8_t port)
+{
+	monitored_port_t *mon_port = &(mon_node->port[port]);
+	return (mon_port->cpi_valid
+		&& (mon_port->cap_mask & IB_PM_EXT_WIDTH_SUPPORTED
+		|| mon_port->cap_mask & IB_PM_EXT_WIDTH_NOIETF_SUP));
+}
+
+/**********************************************************************
+ * return if "full" PortCountersExtended (IETF) is indicated
+ **********************************************************************/
+static inline boolean_t ietf_supported(monitored_node_t *mon_node, uint8_t port)
 {
 	monitored_port_t *mon_port = &(mon_node->port[port]);
 	return (mon_port->cpi_valid
@@ -1242,10 +1253,11 @@ static void perfmgr_check_pce_overflow(osm_perfmgr_t * pm,
 	    counter_overflow_64(pc->rcv_data) ||
 	    counter_overflow_64(pc->xmit_pkts) ||
 	    counter_overflow_64(pc->rcv_pkts) ||
-	    counter_overflow_64(pc->unicast_xmit_pkts) ||
+	    (ietf_supported(mon_node, port) &&
+	    (counter_overflow_64(pc->unicast_xmit_pkts) ||
 	    counter_overflow_64(pc->unicast_rcv_pkts) ||
 	    counter_overflow_64(pc->multicast_xmit_pkts) ||
-	    counter_overflow_64(pc->multicast_rcv_pkts)) {
+	    counter_overflow_64(pc->multicast_rcv_pkts)))) {
 		osm_node_t *p_node = NULL;
 		ib_net16_t lid = 0;
 
@@ -1537,10 +1549,11 @@ static void perfmgr_check_data_cnt_oob_clear(osm_perfmgr_t * pm,
 	    dc->rcv_data < prev_dc.rcv_data ||
 	    dc->xmit_pkts < prev_dc.xmit_pkts ||
 	    dc->rcv_pkts < prev_dc.rcv_pkts ||
-	    dc->unicast_xmit_pkts < prev_dc.unicast_xmit_pkts ||
+	    (ietf_supported(mon_node, port) &&
+	    (dc->unicast_xmit_pkts < prev_dc.unicast_xmit_pkts ||
 	    dc->unicast_rcv_pkts < prev_dc.unicast_rcv_pkts ||
 	    dc->multicast_xmit_pkts < prev_dc.multicast_xmit_pkts ||
-	    dc->multicast_rcv_pkts < prev_dc.multicast_rcv_pkts) {
+	    dc->multicast_rcv_pkts < prev_dc.multicast_rcv_pkts))) {
 		OSM_LOG(pm->log, OSM_LOG_ERROR,
 			"PerfMgr: ERR 540B: Detected an out of band data counter "
 			"clear on node %s (0x%" PRIx64 ") port %u\n",
@@ -1638,7 +1651,9 @@ static void pc_recv_process(void *context, void *data)
 				&osm_madw_get_perfmgt_mad_ptr(p_madw)->data;
 
 		/* convert wire data to perfmgr data counter reading */
-		perfmgr_db_fill_data_cnt_read_pce(ext_wire_read, &data_reading);
+		perfmgr_db_fill_data_cnt_read_pce(ext_wire_read, &data_reading,
+						  ietf_supported(p_mon_node,
+								 port));
 
 		/* detect an out of band clear on the port */
 		if (mad_context->perfmgr_context.mad_method !=
@@ -1650,7 +1665,9 @@ static void pc_recv_process(void *context, void *data)
 		if (mad_context->perfmgr_context.mad_method
 		    == IB_MAD_METHOD_GET) {
 			perfmgr_db_add_dc_reading(pm->db, node_guid, port,
-						  &data_reading);
+						  &data_reading,
+						  ietf_supported(p_mon_node,
+								 port));
 		} else {
 			perfmgr_db_clear_prev_dc(pm->db, node_guid, port);
 		}
@@ -1686,7 +1703,7 @@ static void pc_recv_process(void *context, void *data)
 						   &err_reading);
 			if (!pce_sup)
 				perfmgr_db_add_dc_reading(pm->db, node_guid, port,
-							  &data_reading);
+							  &data_reading, 0);
 		} else {
 			perfmgr_db_clear_prev_err(pm->db, node_guid, port);
 			if (!pce_sup)

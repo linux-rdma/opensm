@@ -495,7 +495,8 @@ debug_dump_dc_reading(perfmgr_db_t * db, uint64_t guid, uint8_t port_num,
  **********************************************************************/
 perfmgr_db_err_t
 perfmgr_db_add_dc_reading(perfmgr_db_t * db, uint64_t guid, uint8_t port,
-			  perfmgr_db_data_cnt_reading_t * reading)
+			  perfmgr_db_data_cnt_reading_t * reading,
+			  int ietf_sup)
 {
 	db_port_t *p_port = NULL;
 	db_node_t *node = NULL;
@@ -528,18 +529,22 @@ perfmgr_db_add_dc_reading(perfmgr_db_t * db, uint64_t guid, uint8_t port,
 	p_port->dc_total.xmit_pkts += epi_dc_data.xmit_pkts;
 	epi_dc_data.rcv_pkts = reading->rcv_pkts - previous->rcv_pkts;
 	p_port->dc_total.rcv_pkts += epi_dc_data.rcv_pkts;
-	epi_dc_data.unicast_xmit_pkts =
-	    reading->unicast_xmit_pkts - previous->unicast_xmit_pkts;
-	p_port->dc_total.unicast_xmit_pkts += epi_dc_data.unicast_xmit_pkts;
-	epi_dc_data.unicast_rcv_pkts =
-	    reading->unicast_rcv_pkts - previous->unicast_rcv_pkts;
-	p_port->dc_total.unicast_rcv_pkts += epi_dc_data.unicast_rcv_pkts;
-	epi_dc_data.multicast_xmit_pkts =
-	    reading->multicast_xmit_pkts - previous->multicast_xmit_pkts;
-	p_port->dc_total.multicast_xmit_pkts += epi_dc_data.multicast_xmit_pkts;
-	epi_dc_data.multicast_rcv_pkts =
-	    reading->multicast_rcv_pkts - previous->multicast_rcv_pkts;
-	p_port->dc_total.multicast_rcv_pkts += epi_dc_data.multicast_rcv_pkts;
+
+	if (ietf_sup)
+	{
+		epi_dc_data.unicast_xmit_pkts =
+		    reading->unicast_xmit_pkts - previous->unicast_xmit_pkts;
+		p_port->dc_total.unicast_xmit_pkts += epi_dc_data.unicast_xmit_pkts;
+		epi_dc_data.unicast_rcv_pkts =
+		    reading->unicast_rcv_pkts - previous->unicast_rcv_pkts;
+		p_port->dc_total.unicast_rcv_pkts += epi_dc_data.unicast_rcv_pkts;
+		epi_dc_data.multicast_xmit_pkts =
+		    reading->multicast_xmit_pkts - previous->multicast_xmit_pkts;
+		p_port->dc_total.multicast_xmit_pkts += epi_dc_data.multicast_xmit_pkts;
+		epi_dc_data.multicast_rcv_pkts =
+		    reading->multicast_rcv_pkts - previous->multicast_rcv_pkts;
+		p_port->dc_total.multicast_rcv_pkts += epi_dc_data.multicast_rcv_pkts;
+	}
 
 	p_port->dc_previous = *reading;
 
@@ -1054,17 +1059,21 @@ perfmgr_db_fill_data_cnt_read_pc(ib_port_counters_t * wire_read,
 
 void
 perfmgr_db_fill_data_cnt_read_pce(ib_port_counters_ext_t * wire_read,
-				  perfmgr_db_data_cnt_reading_t * reading)
+				  perfmgr_db_data_cnt_reading_t * reading,
+				  int ietf_sup)
 {
 	reading->xmit_data = cl_ntoh64(wire_read->xmit_data);
 	reading->rcv_data = cl_ntoh64(wire_read->rcv_data);
 	reading->xmit_pkts = cl_ntoh64(wire_read->xmit_pkts);
 	reading->rcv_pkts = cl_ntoh64(wire_read->rcv_pkts);
-	reading->unicast_xmit_pkts = cl_ntoh64(wire_read->unicast_xmit_pkts);
-	reading->unicast_rcv_pkts = cl_ntoh64(wire_read->unicast_rcv_pkts);
-	reading->multicast_xmit_pkts =
-	    cl_ntoh64(wire_read->multicast_xmit_pkts);
-	reading->multicast_rcv_pkts = cl_ntoh64(wire_read->multicast_rcv_pkts);
+	if (ietf_sup)
+	{
+		reading->unicast_xmit_pkts = cl_ntoh64(wire_read->unicast_xmit_pkts);
+		reading->unicast_rcv_pkts = cl_ntoh64(wire_read->unicast_rcv_pkts);
+		reading->multicast_xmit_pkts =
+		    cl_ntoh64(wire_read->multicast_xmit_pkts);
+		reading->multicast_rcv_pkts = cl_ntoh64(wire_read->multicast_rcv_pkts);
+	}
 	reading->time = time(NULL);
 }
 #endif				/* ENABLE_OSM_PERF_MGR */

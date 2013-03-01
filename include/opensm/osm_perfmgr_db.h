@@ -179,7 +179,8 @@ perfmgr_db_err_t perfmgr_db_clear_prev_err(perfmgr_db_t * db, uint64_t guid,
 perfmgr_db_err_t perfmgr_db_add_dc_reading(perfmgr_db_t * db, uint64_t guid,
 					   uint8_t port,
 					   perfmgr_db_data_cnt_reading_t *
-					   reading);
+					   reading,
+					   int ietf_sup);
 perfmgr_db_err_t perfmgr_db_get_prev_dc(perfmgr_db_t * db, uint64_t guid,
 					uint8_t port,
 					perfmgr_db_data_cnt_reading_t *
@@ -208,7 +209,8 @@ void perfmgr_db_fill_err_read(ib_port_counters_t * wire_read,
 void perfmgr_db_fill_data_cnt_read_pc(ib_port_counters_t * wire_read,
 				      perfmgr_db_data_cnt_reading_t * reading);
 void perfmgr_db_fill_data_cnt_read_pce(ib_port_counters_ext_t * wire_read,
-				       perfmgr_db_data_cnt_reading_t * reading);
+				       perfmgr_db_data_cnt_reading_t * reading,
+				       int ietf_sup);
 
 END_C_DECLS
 
