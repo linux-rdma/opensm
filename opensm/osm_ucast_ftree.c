@@ -3360,7 +3360,9 @@ fabric_construct_hca_ports(IN ftree_fabric_t * p_ftree, IN ftree_hca_t * p_hca)
 				if (p_elem != (name_map_item_t *)
 				    cl_qmap_end(&p_ftree->io_guid_tbl))
 					is_io = TRUE;
+			}
 
+			if (is_io) {
 				OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
 					"Marking I/O port GUID 0x%016" PRIx64
 					"\n",
