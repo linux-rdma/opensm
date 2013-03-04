@@ -2238,9 +2238,6 @@ osmtest_write_all_path_recs(IN osmtest_t * const p_osmt, IN FILE * fh)
 
 	OSM_LOG_ENTER(&p_osmt->log);
 
-	p_tbl = &p_osmt->exp_subn.node_guid_tbl;
-	p_dst_node = (node_t *) cl_qmap_head(p_tbl);
-
 	result = fprintf(fh, "#\n" "# Path Records\n" "#\n");
 	if (result < 0) {
 		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0026: "
@@ -2248,6 +2245,9 @@ osmtest_write_all_path_recs(IN osmtest_t * const p_osmt, IN FILE * fh)
 		status = IB_ERROR;
 		goto Exit;
 	}
+
+	p_tbl = &p_osmt->exp_subn.node_guid_tbl;
+	p_dst_node = (node_t *) cl_qmap_head(p_tbl);
 
 	while (p_dst_node != (node_t *) cl_qmap_end(p_tbl)) {
 
