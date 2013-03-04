@@ -86,6 +86,7 @@ typedef struct _osmtest_opt {
 	uint8_t wait_time;
 	char *log_file;
 	boolean_t ignore_path_records;
+	boolean_t full_world_path_recs;
 } osmtest_opt_t;
 
 /*

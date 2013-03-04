@@ -107,6 +107,7 @@ void show_usage()
 	       "          -d0  - Unused.\n"
 	       "          -d1  - Do not scan/compare path records.\n"
 	       "          -d2  - Force log flushing after each log message.\n"
+	       "          -d4  - Use full world path record queries.\n"
 	       "          Without -d, no debug options are enabled\n\n");
 	printf("-m <LID in hex>\n"
 	       "--max_lid <LID in hex>\n"
@@ -327,6 +328,7 @@ int main(int argc, char *argv[])
 	opt.create = FALSE;
 	opt.mmode = 1;
 	opt.ignore_path_records = FALSE;	/*  Do path Records too */
+	opt.full_world_path_recs = FALSE;
 	opt.flow = OSMT_FLOW_ALL;	/*  run all validation tests */
 	strcpy(flow_name, "All Validations");
 	strcpy(opt.file_name, "osmtest.dat");
@@ -532,6 +534,10 @@ int main(int argc, char *argv[])
 			case 2:
 				printf("Force Log Flush\n");
 				opt.force_log_flush = TRUE;
+				break;
+			case 4:
+				printf("Use Full World Path Record Queries\n");
+				opt.full_world_path_recs = TRUE;
 				break;
 			case 3:
 				/* Used to be memory tracking */

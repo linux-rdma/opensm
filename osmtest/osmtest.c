@@ -2238,6 +2238,9 @@ osmtest_write_all_path_recs(IN osmtest_t * const p_osmt, IN FILE * fh)
 
 	OSM_LOG_ENTER(&p_osmt->log);
 
+	if (p_osmt->opt.full_world_path_recs)
+		goto full_world;
+
 	result = fprintf(fh, "#\n" "# Path Records\n" "#\n");
 	if (result < 0) {
 		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0026: "
@@ -2274,6 +2277,43 @@ osmtest_write_all_path_recs(IN osmtest_t * const p_osmt, IN FILE * fh)
 			osmtest_write_path_info(p_osmt, fh, p_rec);
 		}
 		p_dst_node = (node_t *) cl_qmap_next(&p_dst_node->map_item);
+	}
+	goto Exit;
+
+full_world:
+	memset(&context, 0, sizeof(context));
+
+	/*
+	 * Do a blocking query for all PathRecords in the subnet.
+	 */
+	status = osmtest_get_all_recs(p_osmt, IB_MAD_ATTR_PATH_RECORD,
+				      sizeof(*p_rec), &context);
+
+	if (status != IB_SUCCESS) {
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0002: "
+			"osmtest_get_all_recs failed (%s)\n",
+			ib_get_err_str(status));
+		goto Exit;
+	}
+	/*
+	 * Write the received records out to the file.
+	 */
+	num_recs = context.result.result_cnt;
+
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE, "Received %zu records\n", num_recs);
+
+	result = fprintf(fh, "#\n" "# Path Records\n" "#\n");
+	if (result < 0) {
+		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0005: "
+			"Write failed\n");
+		status = IB_ERROR;
+		goto Exit;
+	}
+
+	for (i = 0; i < num_recs; i++) {
+		p_rec =
+		    osmv_get_query_path_rec(context.result.p_result_madw, i);
+		osmtest_write_path_info(p_osmt, fh, p_rec);
 	}
 
 Exit:
