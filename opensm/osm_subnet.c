@@ -1497,7 +1497,7 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * p_opt)
 
 	p_opt->dump_files_dir = getenv("OSM_TMP_DIR");
 	if (!p_opt->dump_files_dir || !(*p_opt->dump_files_dir))
-		p_opt->dump_files_dir = OSM_DEFAULT_TMP_DIR;
+		p_opt->dump_files_dir = strdup(OSM_DEFAULT_TMP_DIR);
 	p_opt->dump_files_dir = strdup(p_opt->dump_files_dir);
 	p_opt->log_file = strdup(OSM_DEFAULT_LOG_FILE);
 	p_opt->log_max_size = 0;
@@ -1987,8 +1987,8 @@ int osm_subn_verify_config(IN osm_subn_opt_t * p_opts)
 		else {
 			log_report(" Invalid Cached Option Value:part_enforce = %s"
 	                           ", Using Default:%s\n",
-	                           p_opts->part_enforce = OSM_PARTITION_ENFORCE_BOTH);
-			p_opts->part_enforce = OSM_PARTITION_ENFORCE_BOTH;
+	                           p_opts->part_enforce, OSM_PARTITION_ENFORCE_BOTH);
+			strcpy(p_opts->part_enforce, OSM_PARTITION_ENFORCE_BOTH);
 			p_opts->part_enforce_enum = OSM_PARTITION_ENFORCE_TYPE_BOTH;
 		}
 	}
