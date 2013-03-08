@@ -1173,6 +1173,7 @@ bool capture_fabric(struct fabric *fabric)
 
 		osm_sw = (osm_switch_t *)item;
 		item = cl_qmap_next(item);
+		osm_sw->priv = NULL;  /* avoid stale pointer dereferencing */
 		osm_node = osm_sw->p_node;
 
 		if (osm_node_get_type(osm_node) != IB_NODE_TYPE_SWITCH)
@@ -1193,6 +1194,7 @@ bool capture_fabric(struct fabric *fabric)
 
 		lport = (osm_port_t *)item;
 		item = cl_qmap_next(item);
+		lport->priv = NULL;  /* avoid stale pointer dereferencing */
 
 		lphysp = lport->p_physp;
 		if (!(lphysp && osm_physp_is_valid(lphysp)))
