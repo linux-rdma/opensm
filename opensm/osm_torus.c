@@ -8070,8 +8070,8 @@ void torus_update_osm_sl2vl(void *context, osm_physp_t *osm_phys_port,
 
 			guid = osm_node_get_node_guid(node);
 			OSM_LOG(log, OSM_LOG_INFO,
-				"Error: osm_switch (GUID 0x%04"PRIx64") "
-				"not in our fabric description\n",
+				"Note: osm_switch (GUID 0x%04"PRIx64") "
+				"not in torus fabric description\n",
 				cl_ntoh64(guid));
 			return;
 		}
@@ -8100,8 +8100,8 @@ void torus_update_osm_vlarb(void *context, osm_physp_t *osm_phys_port,
 
 			guid = osm_node_get_node_guid(node);
 			OSM_LOG(log, OSM_LOG_INFO,
-				"Error: osm_switch (GUID 0x%04"PRIx64") "
-				"not in our fabric description\n",
+				"Note: osm_switch (GUID 0x%04"PRIx64") "
+				"not in torus fabric description\n",
 				cl_ntoh64(guid));
 			return;
 		}
@@ -8693,7 +8693,7 @@ osm_mtree_node_t *mcast_stree_branch(struct t_switch *sw, osm_switch_t *osm_sw,
 	if (osm_sw->priv != sw) {
 		OSM_LOG(&sw->torus->osm->log, OSM_LOG_ERROR,
 			"ERR 4E3E: osm_sw (GUID 0x%04"PRIx64") "
-			"not in our fabric description\n",
+			"not in torus fabric description\n",
 			cl_ntoh64(osm_node_get_node_guid(osm_sw->p_node)));
 		goto out;
 	}
@@ -8863,7 +8863,7 @@ ib_api_status_t torus_mcast_stree(void *context, osm_mgrp_box_t *mgb)
 				id = osm_node_get_node_guid(osm_port->p_node);
 				OSM_LOG(&ctx->osm->log, OSM_LOG_ERROR,
 					"ERR 4E41: osm_port (GUID 0x%04"PRIx64") "
-					"not in our fabric description\n",
+					"not in torus fabric description\n",
 					cl_ntoh64(id));
 				continue;
 			}
@@ -9200,8 +9200,8 @@ uint8_t torus_path_sl(void *context, uint8_t path_sl_hint,
 		if (!sport) {
 			guid = osm_node_get_node_guid(osm_sport->p_node);
 			OSM_LOG(log, OSM_LOG_INFO,
-				"Error: osm_sport (GUID 0x%04"PRIx64") "
-				"not in our fabric description\n",
+				"Note: osm_sport (GUID 0x%04"PRIx64") "
+				"not in torus fabric description\n",
 				cl_ntoh64(guid));
 			goto out;
 		}
@@ -9212,8 +9212,8 @@ uint8_t torus_path_sl(void *context, uint8_t path_sl_hint,
 		if (!dport) {
 			guid = osm_node_get_node_guid(osm_dport->p_node);
 			OSM_LOG(log, OSM_LOG_INFO,
-				"Error: osm_dport (GUID 0x%04"PRIx64") "
-				"not in our fabric description\n",
+				"Note: osm_dport (GUID 0x%04"PRIx64") "
+				"not in torus fabric description\n",
 				cl_ntoh64(guid));
 			goto out;
 		}
