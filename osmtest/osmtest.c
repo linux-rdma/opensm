@@ -2132,7 +2132,7 @@ osmtest_write_all_node_recs(IN osmtest_t * const p_osmt, IN FILE * fh)
 
 		/* create a subnet object */
 		p_guid_node = node_new();
-		CL_ASSERT(p_node != NULL);
+		CL_ASSERT(p_guid_node != NULL);
 
 		/* copy the info to the subnet node object */
 		p_guid_node->rec = *p_rec;
