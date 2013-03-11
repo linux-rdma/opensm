@@ -570,7 +570,7 @@ boolean_t osm_switch_get_lft_block(IN const osm_switch_t * p_sw,
 *	p_sw
 *		[in] Pointer to an osm_switch_t object.
 *
-*	block_ID
+*	block_id
 *		[in] The block_id to retrieve.
 *
 *	p_block
