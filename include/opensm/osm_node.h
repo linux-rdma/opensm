@@ -126,10 +126,10 @@ typedef struct osm_node {
 *		during the current fabric sweep.  This number is reset
 *		to zero at the start of a sweep.
 *
-*	phsyp_tbl_size
+*	physp_tbl_size
 *		The size of the physp_table array.  This value is one greater
 *		than the number of ports in the node, since port numbers
-*		start with 1 for some bizzare reason.
+*		start with 1 for some bizarre reason.
 *
 *	print_desc
 *		A printable version of the node description.
