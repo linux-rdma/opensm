@@ -277,7 +277,7 @@ static inline boolean_t tuple_assigned(IN ftree_tuple_t tuple)
 
 #define FTREE_TUPLE_BUFFERS_NUM 6
 
-static char *tuple_to_str(IN ftree_tuple_t tuple)
+static const char *tuple_to_str(IN ftree_tuple_t tuple)
 {
 	static char buffer[FTREE_TUPLE_BUFFERS_NUM][FTREE_TUPLE_BUFF_LEN];
 	static uint8_t ind = 0;
@@ -1269,7 +1269,7 @@ static void fabric_dump_hca_ordering(IN ftree_fabric_t * p_ftree)
 
 	char path[1024];
 	FILE *p_hca_ordering_file;
-	char *filename = "opensm-ftree-ca-order.dump";
+	const char *filename = "opensm-ftree-ca-order.dump";
 
 	snprintf(path, sizeof(path), "%s/%s",
 		 p_ftree->p_osm->subn.opt.dump_files_dir, filename);

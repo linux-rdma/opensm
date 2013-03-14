@@ -2061,7 +2061,7 @@ int osm_subn_verify_config(IN osm_subn_opt_t * p_opts)
 	return 0;
 }
 
-int osm_subn_parse_conf_file(char *file_name, osm_subn_opt_t * p_opts)
+int osm_subn_parse_conf_file(const char *file_name, osm_subn_opt_t * p_opts)
 {
 	char line[1024];
 	FILE *opts_file;

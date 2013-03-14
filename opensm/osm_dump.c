@@ -370,7 +370,7 @@ static void dump_topology_node(cl_map_item_t * item, FILE * file, void *cxt)
 	osm_node_t *p_nbnode;
 	osm_physp_t *p_physp, *p_default_physp, *p_rphysp;
 	uint8_t link_speed_act;
-	char *link_speed_act_str;
+	const char *link_speed_act_str;
 
 	if (!p_node->node_info.num_ports)
 		return;
@@ -493,8 +493,8 @@ static void dump_sl2vl_tbl(cl_map_item_t * item, FILE * file, void *cxt)
 	ib_slvl_table_t *p_tbl;
 	int i, n;
 	char buf[1024];
-	char * header_line =	"#in out : 0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15";
-	char * separator_line = "#--------------------------------------------------------";
+	const char * header_line =	"#in out : 0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15";
+	const char * separator_line = "#--------------------------------------------------------";
 
 	if (!num_ports)
 		return;

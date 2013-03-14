@@ -54,7 +54,7 @@ typedef cl_qmap_t nn_map_t;
  * Node name map interface.
  * It is OK to pass NULL for the node_name_map[_fp] parameters.
  */
-nn_map_t *open_node_name_map(char *node_name_map);
+nn_map_t *open_node_name_map(const char *node_name_map);
 void  close_node_name_map(nn_map_t *map);
 char *remap_node_name(nn_map_t *map, uint64_t target_guid, char *nodedesc);
 	/* NOTE: parameter "nodedesc" may be modified here. */

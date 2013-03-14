@@ -748,7 +748,7 @@ static osm_qos_match_rule_t *__qos_policy_get_match_rule_by_params(
 
 static osm_qos_level_t *__qos_policy_get_qos_level_by_name(
 		const osm_qos_policy_t * p_qos_policy,
-		char *name)
+		const char *name)
 {
 	osm_qos_level_t *p_qos_level = NULL;
 	cl_list_iterator_t list_iterator;

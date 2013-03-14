@@ -9,7 +9,7 @@ else
 DBGFLAGS = -g
 endif
 
-libosmcomp_la_CFLAGS = -Wall $(DBGFLAGS) -D_XOPEN_SOURCE=600 -D_BSD_SOURCE=1
+libosmcomp_la_CFLAGS = -Wall -Wwrite-strings $(DBGFLAGS) -D_XOPEN_SOURCE=600 -D_BSD_SOURCE=1
 
 if HAVE_LD_VERSION_SCRIPT
     libosmcomp_version_script = -Wl,--version-script=$(srcdir)/libosmcomp.map

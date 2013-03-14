@@ -62,7 +62,7 @@ static int log_exit_count = 0;
 #include <unistd.h>
 #include <complib/cl_timer.h>
 
-static char *month_str[] = {
+static const char *month_str[] = {
 	"Jan",
 	"Feb",
 	"Mar",

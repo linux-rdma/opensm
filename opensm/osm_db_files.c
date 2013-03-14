@@ -108,7 +108,7 @@ typedef struct osm_db_domain_imp {
  * SYNOPSIS
  */
 typedef struct osm_db_imp {
-	char *db_dir_name;
+	const char *db_dir_name;
 } osm_db_imp_t;
 /*
  * FIELDS
@@ -206,7 +206,7 @@ err:
 	return 1;
 }
 
-osm_db_domain_t *osm_db_domain_init(IN osm_db_t * p_db, IN char *domain_name)
+osm_db_domain_t *osm_db_domain_init(IN osm_db_t * p_db, IN const char *domain_name)
 {
 	osm_db_domain_t *p_domain;
 	osm_db_domain_imp_t *p_domain_imp;

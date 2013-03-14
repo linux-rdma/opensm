@@ -11,7 +11,7 @@ INCLUDES = $(OSMV_INCLUDES)
 
 lib_LTLIBRARIES = libosmvendor.la
 
-libosmvendor_la_CFLAGS = -Wall $(DBGFLAGS)
+libosmvendor_la_CFLAGS = -Wall -Wwrite-strings $(DBGFLAGS)
 
 if HAVE_LD_VERSION_SCRIPT
     libosmvendor_version_script = -Wl,--version-script=$(srcdir)/libosmvendor.map

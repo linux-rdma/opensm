@@ -92,7 +92,7 @@ pkey_mgr_process_physical_port(IN osm_log_t * p_log,
 	osm_node_t *p_node = osm_physp_get_node_ptr(p_physp);
 	osm_pkey_tbl_t *p_pkey_tbl;
 	ib_net16_t *p_orig_pkey;
-	char *stat = NULL;
+	const char *stat = NULL;
 	osm_pending_pkey_t *p_pending;
 
 	p_pkey_tbl = &p_physp->pkeys;

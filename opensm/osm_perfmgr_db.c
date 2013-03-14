@@ -733,7 +733,7 @@ static void dump_node_mr(db_node_t * node, FILE * fp)
 
 static void dump_hr_dc(FILE *fp, uint64_t val64, int data)
 {
-	char *unit = "";
+	const char *unit = "";
 	uint64_t tmp = val64;
 	float val = 0.0;
 	int ui = 0;

@@ -243,7 +243,7 @@ typedef struct osm_cct {
 * SYNOPSIS
 */
 typedef struct osm_subn_opt {
-	char *config_file;
+	const char *config_file;
 	ib_net64_t guid;
 	ib_net64_t m_key;
 	ib_net64_t sm_key;
@@ -1506,7 +1506,7 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * p_opt);
 *
 * SYNOPSIS
 */
-int osm_subn_parse_conf_file(char *conf_file, osm_subn_opt_t * p_opt);
+int osm_subn_parse_conf_file(const char *conf_file, osm_subn_opt_t * p_opt);
 /*
 * PARAMETERS
 *

@@ -74,7 +74,7 @@ static int map_name(void *cxt, uint64_t guid, char *p)
 	return 0;
 }
 
-nn_map_t *open_node_name_map(char *node_name_map)
+nn_map_t *open_node_name_map(const char *node_name_map)
 {
 	nn_map_t *map;
 	char linebuf[PARSE_NODE_MAP_BUFLEN + 1];

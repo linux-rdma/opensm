@@ -1547,7 +1547,7 @@ bool link_tswitches(struct torus *t, int cdir,
 	int p;
 	struct port_grp *pg0, *pg1;
 	struct f_switch *f_sw0, *f_sw1;
-	char *cdir_name = "unknown";
+	const char *cdir_name = "unknown";
 	unsigned port_cnt;
 	int success = false;
 

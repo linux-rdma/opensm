@@ -603,7 +603,8 @@ int main(int argc, char *argv[])
 	boolean_t run_once_flag = FALSE;
 	int32_t vendor_debug = 0;
 	int next_option;
-	char *conf_template = NULL, *config_file = NULL;
+	char *conf_template = NULL;
+	const char *config_file = NULL;
 	uint32_t val;
 	const char *const short_option =
 	    "F:c:i:w:O:f:ed:D:g:l:L:s:t:a:u:m:X:R:zM:U:S:P:Y:ANZ:WBIQvVhoryxp:n:q:k:C:G:H:";

@@ -62,7 +62,7 @@
 extern void osm_update_node_desc(IN osm_opensm_t *osm);
 
 struct command {
-	char *name;
+	const char *name;
 	void (*help_function) (FILE * out, int detail);
 	void (*parse_function) (char **p_last, osm_opensm_t * p_osm,
 				FILE * out);
