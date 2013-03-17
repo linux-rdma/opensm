@@ -439,6 +439,9 @@ void osm_si_rcv_process(IN void *context, IN void *data)
 		/* we might get back a request for signaling change was detected */
 		sm->p_subn->force_heavy_sweep = TRUE;
 
+	if (p_context->light_sweep || p_context->set_method)
+		goto Exit;
+
 	si_rcv_get_sp0_info(sm, p_node);
 
 Exit:
