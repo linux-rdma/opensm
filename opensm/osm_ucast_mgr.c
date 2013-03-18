@@ -918,6 +918,8 @@ static void ucast_mgr_set_fwd_top(IN cl_map_item_t * p_map_item,
 
 	p_path = osm_physp_get_dr_path_ptr(osm_node_get_physp_ptr(p_node, 0));
 
+	p_sw->lft_change = 0;
+
 	/*
 	   Set the top of the unicast forwarding table.
 	 */
@@ -926,6 +928,7 @@ static void ucast_mgr_set_fwd_top(IN cl_map_item_t * p_map_item,
 	if (lin_top != si.lin_top) {
 		set_swinfo_require = TRUE;
 		si.lin_top = lin_top;
+		p_sw->lft_change = 1;
 	}
 
 	/* check to see if the change state bit is on. If it is - then we
@@ -963,7 +966,7 @@ static void ucast_mgr_set_fwd_top(IN cl_map_item_t * p_map_item,
 }
 
 static int set_lft_block(IN osm_switch_t *p_sw, IN osm_ucast_mgr_t *p_mgr,
-			 IN uint16_t block_id_ho)
+			 IN uint16_t block_id_ho, IN unsigned last_block)
 {
 	uint8_t block[IB_SMP_DATA_SIZE];
 	osm_madw_context_t context;
@@ -993,6 +996,8 @@ static int set_lft_block(IN osm_switch_t *p_sw, IN osm_ucast_mgr_t *p_mgr,
 		     IB_SMP_DATA_SIZE)))
 		return 0;
 
+	p_sw->lft_change = 1;
+
 	OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 		"Writing FT block %u to switch 0x%" PRIx64 "\n", block_id_ho,
 		cl_ntoh64(context.lft_context.node_guid));
@@ -1002,6 +1007,12 @@ static int set_lft_block(IN osm_switch_t *p_sw, IN osm_ucast_mgr_t *p_mgr,
 			     IB_SMP_DATA_SIZE, IB_MAD_ATTR_LIN_FWD_TBL,
 			     cl_hton32(block_id_ho),
 			     CL_DISP_MSGID_NONE, &context);
+
+	if (!p_mgr->p_subn->first_time_master_sweep &&
+	    block_id_ho == last_block && p_sw->lft_change)
+		osm_opensm_report_event(p_mgr->p_subn->p_osm,
+					OSM_EVENT_ID_LFT_CHANGE, p_sw);
+
 	if (status != IB_SUCCESS) {
 		OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 3A05: "
 			"Sending linear fwd. tbl. block failed (%s)\n",
@@ -1022,7 +1033,8 @@ static void ucast_mgr_pipeline_fwd_tbl(osm_ucast_mgr_t * p_mgr)
 	for (i = 0; i < max_block; i++)
 		for (item = cl_qmap_head(tbl); item != cl_qmap_end(tbl);
 		     item = cl_qmap_next(item))
-			set_lft_block((osm_switch_t *)item, p_mgr, i);
+			set_lft_block((osm_switch_t *)item, p_mgr,
+				      i, max_block - 1);
 }
 
 void osm_ucast_mgr_set_fwd_tables(osm_ucast_mgr_t * p_mgr)
