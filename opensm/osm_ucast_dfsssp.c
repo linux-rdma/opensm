@@ -2233,6 +2233,7 @@ static dfsssp_context_t *dfsssp_context_create(osm_opensm_t * p_osm,
 		dfsssp_ctx->routing_type = routing_type;
 		dfsssp_ctx->p_mgr = (osm_ucast_mgr_t *) & (p_osm->sm.ucast_mgr);
 		dfsssp_ctx->adj_list = NULL;
+		dfsssp_ctx->adj_list_size = 0;
 		dfsssp_ctx->srcdest2vl_table = NULL;
 	} else {
 		OSM_LOG(p_osm->sm.ucast_mgr.p_log, OSM_LOG_ERROR,
