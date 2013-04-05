@@ -436,7 +436,7 @@ static int lid_mgr_init_sweep(IN osm_lid_mgr_t * p_mgr)
 			   1. The port has a (legal) persistency entry. Then the
 			   local lid is free (we will use the persistency value).
 			   2. Can the port keep its local assignment?
-			   a. Make sure the lid a aligned.
+			   a. Make sure the lid is aligned.
 			   b. Make sure all needed lids (for the lmc) are free
 			   according to persistency table.
 			 */
@@ -716,7 +716,7 @@ static int lid_mgr_get_port_lid(IN osm_lid_mgr_t * p_mgr,
 			guid);
 
 	/* if the port info carries a lid it must be lmc aligned and not mapped
-	   by the pesistent storage  */
+	   by the persistent storage  */
 	min_lid = cl_ntoh16(osm_port_get_base_lid(p_port));
 
 	/* we want to ignore the discovered lid if we are also on first sweep of
