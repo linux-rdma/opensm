@@ -183,6 +183,7 @@ AC_DEFUN([OPENIB_OSM_CONSOLE_SOCKET_SEL], [
 # --- BEGIN OPENIB_OSM_CONSOLE_SOCKET_SEL ---
 
 dnl Console over a loopback socket is default if libwrap is available
+AC_MSG_CHECKING([to enable console loopback])
 AC_ARG_ENABLE(console-loopback,
 [  --enable-console-loopback Enable a console socket on the loopback interface, requires tcp_wrappers (default yes)],
 [case $enableval in
@@ -190,6 +191,7 @@ AC_ARG_ENABLE(console-loopback,
      no)  console_loopback=no ;;
    esac],
    console_loopback=yes)
+AC_MSG_RESULT([$console_loopback])
 
 if test $console_loopback = yes; then
 AC_CHECK_LIB(wrap, request_init, [], [console_loopback=no
@@ -202,6 +204,7 @@ if test $console_loopback = yes; then
 fi
 
 dnl Console over a socket connection
+AC_MSG_CHECKING([to enable console socket])
 AC_ARG_ENABLE(console-socket,
 [  --enable-console-socket Enable a console socket, requires --enable-console-loopback (default no)],
 [case $enableval in
@@ -209,6 +212,8 @@ AC_ARG_ENABLE(console-socket,
      no)  console_socket=no ;;
    esac],
    console_socket=no)
+AC_MSG_RESULT([$console_socket])
+
 if test $console_socket = yes; then
   if test $console_loopback = no; then
     AC_MSG_ERROR([--enable-console-socket requires --enable-console-loopback])
@@ -228,6 +233,7 @@ AC_DEFUN([OPENIB_OSM_PERF_MGR_SEL], [
 # --- BEGIN OPENIB_OSM_PERF_MGR_SEL ---
 
 dnl enable the perf-mgr
+AC_MSG_CHECKING([to enable perf mgr])
 AC_ARG_ENABLE(perf-mgr,
 [  --enable-perf-mgr Enable the performance manager (default yes)],
    [case $enableval in
@@ -235,6 +241,9 @@ AC_ARG_ENABLE(perf-mgr,
      no)  perf_mgr=no ;;
    esac],
    perf_mgr=yes)
+AC_MSG_RESULT([$perf_mgr])
+
+AC_MSG_CHECKING([to enable perf mgr profiling])
 AC_ARG_ENABLE(perf-mgr-profile,
 [  --enable-perf-mgr-profile Enable the performance manager profiling (default no)],
 	[case $enableval in
@@ -242,6 +251,8 @@ AC_ARG_ENABLE(perf-mgr-profile,
 	no)  perf_mgr_profile=no ;;
 	esac],
 	perf_mgr_profile=no)
+AC_MSG_RESULT([$perf_mgr_profile])
+
 if test $perf_mgr = yes; then
   AC_DEFINE(ENABLE_OSM_PERF_MGR,
 	1,
@@ -261,6 +272,7 @@ AC_DEFUN([OPENIB_OSM_DEFAULT_EVENT_PLUGIN_SEL], [
 # --- BEGIN OPENIB_OSM_DEFAULT_EVENT_PLUGIN_SEL ---
 
 dnl enable the default-event-plugin
+AC_MSG_CHECKING([to enable default event plugin])
 AC_ARG_ENABLE(default-event-plugin,
 [  --enable-default-event-plugin  Enable a default event plugin "osmeventplugin" (default no)],
    [case $enableval in
@@ -268,6 +280,8 @@ AC_ARG_ENABLE(default-event-plugin,
      no)  default_event_plugin=no ;;
    esac],
    default_event_plugin=no)
+AC_MSG_RESULT([$default_event_plugin])
+
 if test $default_event_plugin = yes; then
   AC_DEFINE(ENABLE_OSM_DEFAULT_EVENT_PLUGIN,
 	    1,
