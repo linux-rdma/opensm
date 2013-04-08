@@ -1,6 +1,6 @@
 /*
+ * Copyright (c) 2002-2013 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2013, Oracle and/or its affiliates. All rights reserved.
  *
@@ -297,15 +297,17 @@ ib_api_status_t osm_sm_state_mgr_process(osm_sm_t * sm,
 			 * Update the state of the SM to MASTER
 			 */
 			/* Turn on the first_time_master_sweep flag */
-			sm->p_subn->first_time_master_sweep = TRUE;
 			sm->p_subn->sm_state = IB_SMINFO_STATE_MASTER;
 			osm_report_sm_state(sm);
 			/*
 			 * Make sure to set the subnet master_sm_base_lid
 			 * to the sm_base_lid value
 			 */
+			CL_PLOCK_EXCL_ACQUIRE(sm->p_lock);
+			sm->p_subn->first_time_master_sweep = TRUE;
 			sm->p_subn->master_sm_base_lid =
 			    sm->p_subn->sm_base_lid;
+			CL_PLOCK_RELEASE(sm->p_lock);
 			break;
 		case OSM_SM_SIGNAL_MASTER_OR_HIGHER_SM_DETECTED:
 			/*
@@ -318,8 +320,9 @@ ib_api_status_t osm_sm_state_mgr_process(osm_sm_t * sm,
 			 * Since another SM is doing the LFT config - we should not
 			 * ignore the results of it
 			 */
+			CL_PLOCK_EXCL_ACQUIRE(sm->p_lock);
 			sm->p_subn->ignore_existing_lfts = FALSE;
-
+			CL_PLOCK_RELEASE(sm->p_lock);
 			sm_state_mgr_start_polling(sm);
 			break;
 		case OSM_SM_SIGNAL_HANDOVER:
@@ -351,7 +354,9 @@ ib_api_status_t osm_sm_state_mgr_process(osm_sm_t * sm,
 			 */
 			sm->p_subn->sm_state = IB_SMINFO_STATE_DISCOVERING;
 			osm_report_sm_state(sm);
+			CL_PLOCK_EXCL_ACQUIRE(sm->p_lock);
 			sm->p_subn->coming_out_of_standby = TRUE;
+			CL_PLOCK_RELEASE(sm->p_lock);
 			osm_sm_signal(sm, OSM_SIGNAL_SWEEP);
 			break;
 		case OSM_SM_SIGNAL_DISABLE:
@@ -367,6 +372,7 @@ ib_api_status_t osm_sm_state_mgr_process(osm_sm_t * sm,
 			 * OPTIONAL: send ACKNOWLEDGE
 			 */
 			/* Turn on the first_time_master_sweep flag */
+			CL_PLOCK_EXCL_ACQUIRE(sm->p_lock);
 			sm->p_subn->first_time_master_sweep = TRUE;
 			/*
 			 * Turn on the force_heavy_sweep - we want a
@@ -374,15 +380,19 @@ ib_api_status_t osm_sm_state_mgr_process(osm_sm_t * sm,
 			 */
 			sm->p_subn->force_heavy_sweep = TRUE;
 
-			sm->p_subn->sm_state = IB_SMINFO_STATE_MASTER;
-			osm_report_sm_state(sm);
 			/*
 			 * Make sure to set the subnet master_sm_base_lid
 			 * to the sm_base_lid value
 			 */
 			sm->p_subn->master_sm_base_lid =
 			    sm->p_subn->sm_base_lid;
+
 			sm->p_subn->coming_out_of_standby = TRUE;
+
+			CL_PLOCK_RELEASE(sm->p_lock);
+
+			sm->p_subn->sm_state = IB_SMINFO_STATE_MASTER;
+			osm_report_sm_state(sm);
 			osm_sm_signal(sm, OSM_SIGNAL_SWEEP);
 			break;
 		case OSM_SM_SIGNAL_ACKNOWLEDGE:
@@ -448,11 +458,13 @@ ib_api_status_t osm_sm_state_mgr_process(osm_sm_t * sm,
 			/* Force set_client_rereg_on_sweep, we don't know what the other
 			 * SM may have configure/done on the fabric.
 			 */
+			CL_PLOCK_EXCL_ACQUIRE(sm->p_lock);
 			sm->p_subn->set_client_rereg_on_sweep = TRUE;
 			sm->polling_sm_guid = 0;
 			sm->p_subn->first_time_master_sweep = TRUE;
 			sm->p_subn->coming_out_of_standby = TRUE;
 			sm->p_subn->force_heavy_sweep = TRUE;
+			CL_PLOCK_RELEASE(sm->p_lock);
 			osm_sm_signal(sm, OSM_SIGNAL_SWEEP);
 			break;
 		case OSM_SM_SIGNAL_HANDOVER_SENT:
