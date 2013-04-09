@@ -919,6 +919,18 @@ static void mcmr_rcv_leave_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 
 	mcmember_rec = *p_recvd_mcmember_rec;
 
+	/* Validate the subnet prefix in the PortGID */
+	if (p_recvd_mcmember_rec->port_gid.unicast.prefix !=
+	    sa->p_subn->opt.subnet_prefix) {
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
+			"PortGID subnet prefix 0x%" PRIx64
+			" does not match configured prefix 0x%" PRIx64 "\n",
+			cl_ntoh64(p_recvd_mcmember_rec->port_gid.unicast.prefix),
+			cl_ntoh64(sa->p_subn->opt.subnet_prefix));
+		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_INVALID_GID);
+		goto Exit;
+	}
+
 	if (OSM_LOG_IS_ACTIVE_V2(sa->p_log, OSM_LOG_DEBUG)) {
 		osm_physp_t *p_req_physp;
 
@@ -1005,6 +1017,18 @@ static void mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 	portguid = p_recvd_mcmember_rec->port_gid.unicast.interface_id;
 
 	mcmember_rec = *p_recvd_mcmember_rec;
+
+        /* Validate the subnet prefix in the PortGID */
+	if (p_recvd_mcmember_rec->port_gid.unicast.prefix !=
+	    sa->p_subn->opt.subnet_prefix) {
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
+			"PortGID subnet prefix 0x%" PRIx64
+			" does not match configured prefix 0x%" PRIx64 "\n",
+			cl_ntoh64(p_recvd_mcmember_rec->port_gid.unicast.prefix),
+			cl_ntoh64(sa->p_subn->opt.subnet_prefix));
+		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_INVALID_GID);
+		goto Exit;
+	}
 
 	if (OSM_LOG_IS_ACTIVE_V2(sa->p_log, OSM_LOG_DEBUG)) {
 		osm_physp_t *p_req_physp;
