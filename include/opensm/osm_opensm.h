@@ -219,8 +219,10 @@ typedef struct osm_opensm {
 	osm_congestion_control_t cc;
 	cl_qlist_t plugin_list;
 	osm_db_t db;
+	boolean_t mad_pool_constructed;
 	osm_mad_pool_t mad_pool;
 	osm_vendor_t *p_vendor;
+	boolean_t vl15_constructed;
 	osm_vl15_t vl15;
 	osm_log_t log;
 	cl_dispatcher_t disp;
@@ -313,6 +315,34 @@ void osm_opensm_construct(IN osm_opensm_t * p_osm);
 *	SM object, osm_opensm_init, osm_opensm_destroy
 *********/
 
+/****f* OpenSM: OpenSM/osm_opensm_construct_finish
+* NAME
+*	osm_opensm_construct_finish
+*
+* DESCRIPTION
+*	The osm_opensm_construct_finish function completes
+*	the second phase of constucting an OpenSM object.
+*
+* SYNOPSIS
+*/
+void osm_opensm_construct_finish(IN osm_opensm_t * p_osm);
+/*
+* PARAMETERS
+*	p_osm
+*		[in] Pointer to a OpenSM object to construct.
+*
+* RETURN VALUE
+*	This function does not return a value.
+*
+* NOTES
+*	Calling osm_opensm_construct/osm_construct_finish is a prerequisite
+*	to calling any other method except osm_opensm_init/osm_opensm_init_finish.
+*
+* SEE ALSO
+*	SM object, osm_opensm_init, osm_opensm_construct_finish,
+*	osm_opensm_destroy, osm_opensm_destroy_finish
+*********/
+
 /****f* OpenSM: OpenSM/osm_opensm_destroy
 * NAME
 *	osm_opensm_destroy
@@ -342,6 +372,36 @@ void osm_opensm_destroy(IN osm_opensm_t * p_osm);
 *	SM object, osm_opensm_construct, osm_opensm_init
 *********/
 
+/****f* OpenSM: OpenSM/osm_opensm_destroy_finish
+* NAME
+*	osm_opensm_destroy_finish
+*
+* DESCRIPTION
+*	The osm_opensm_destroy_finish function handles the second phase
+*	of destroying an SM, releasing all resources.
+*
+* SYNOPSIS
+*/
+void osm_opensm_destroy_finish(IN osm_opensm_t * p_osm);
+/*
+* PARAMETERS
+*	p_osm
+*		[in] Pointer to a OpenSM object to destroy.
+*
+* RETURN VALUE
+*	This function does not return a value.
+*
+* NOTES
+*	Performs second phase of any necessary cleanup of the specified OpenSM object.
+*	Further operations should not be attempted on the destroyed object.
+*	This function should only be called after a call to
+*	osm_opensm_construct_finish or osm_opensm_init_finish.
+*
+* SEE ALSO
+*	SM object, osm_opensm_construct, osm_opensm_construct_finish,
+*	osm_opensm_init, osm_opensm_init_finish
+*********/
+
 /****f* OpenSM: OpenSM/osm_opensm_init
 * NAME
 *	osm_opensm_init
@@ -369,6 +429,37 @@ ib_api_status_t osm_opensm_init(IN osm_opensm_t * p_osm,
 *
 * SEE ALSO
 *	SM object, osm_opensm_construct, osm_opensm_destroy
+*********/
+
+/****f* OpenSM: OpenSM/osm_opensm_init_finish
+* NAME
+*	osm_opensm_init_finish
+*
+* DESCRIPTION
+*	The osm_opensm_init_finish function performs the second phase
+*	of initialization of an OpenSM object.
+*
+* SYNOPSIS
+*/
+ib_api_status_t osm_opensm_init_finish(IN osm_opensm_t * p_osm,
+				       IN const osm_subn_opt_t * p_opt);
+/*
+* PARAMETERS
+*	p_osm
+*		[in] Pointer to an osm_opensm_t object to initialize.
+*
+*	p_opt
+*		[in] Pointer to the subnet options structure.
+*
+* RETURN VALUES
+*	IB_SUCCESS if the OpenSM object was initialized successfully.
+*
+* NOTES
+*	Allows calling other OpenSM methods.
+*
+* SEE ALSO
+*	SM object, osm_opensm_construct, osm_opensm_construct_finish,
+*	osm_opensm_destroy, osm_opensm_destroy_finish
 *********/
 
 /****f* OpenSM: OpenSM/osm_opensm_sweep

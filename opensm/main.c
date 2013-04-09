@@ -1193,7 +1193,16 @@ int main(int argc, char *argv[])
 		opt.guid = get_port_guid(&osm, opt.guid);
 
 	if (opt.guid == 0)
-		goto Exit;
+		goto Exit2;
+
+	status = osm_opensm_init_finish(&osm, &opt);
+	if (status != IB_SUCCESS) {
+		const char *err_str = ib_get_err_str(status);
+		if (err_str == NULL)
+			err_str = "Unknown Error Type";
+		printf("\nError from osm_opensm_init_finish: %s.\n", err_str);
+		goto Exit2;
+	}
 
 	status = osm_opensm_bind(&osm, opt.guid);
 	if (status != IB_SUCCESS) {
@@ -1237,6 +1246,8 @@ int main(int argc, char *argv[])
 
 Exit:
 	osm_opensm_destroy(&osm);
+Exit2:
+	osm_opensm_destroy_finish(&osm);
 	complib_exit();
 	remove_pidfile();
 
