@@ -406,11 +406,19 @@ static boolean_t validate_modify(IN osm_sa_t * sa, IN osm_mgrp_t * p_mgrp,
 		    request_gid.unicast.interface_id ||
 		    (*pp_mcm_alias_guid)->port_gid.unicast.prefix !=
 		    request_gid.unicast.prefix) {
+			ib_gid_t base_port_gid;
+			char gid_str[INET6_ADDRSTRLEN];
+			char gid_str2[INET6_ADDRSTRLEN];
+
+			base_port_gid.unicast.prefix = (*pp_mcm_alias_guid)->port_gid.unicast.prefix;
+			base_port_gid.unicast.interface_id = (*pp_mcm_alias_guid)->p_base_mcm_port->port->guid;
 			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 				"No ProxyJoin but different ports: stored:"
-				"0x%016" PRIx64 " request:0x%016" PRIx64 "\n",
-				cl_ntoh64((*pp_mcm_alias_guid)->p_base_mcm_port->port->guid),
-				cl_ntoh64(request_gid.unicast.interface_id));
+				"%s request:%s\n",
+				inet_ntop(AF_INET6, base_port_gid.raw, gid_str,
+					  sizeof gid_str),
+				inet_ntop(AF_INET6, request_gid.raw, gid_str2,
+					  sizeof gid_str2));
 			return FALSE;
 		}
 	} else {
