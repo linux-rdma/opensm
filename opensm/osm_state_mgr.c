@@ -138,6 +138,7 @@ static void state_mgr_get_sw_info(IN cl_map_item_t * p_object, IN void *context)
 	mad_context.si_context.node_guid = osm_node_get_node_guid(p_node);
 	mad_context.si_context.set_method = FALSE;
 	mad_context.si_context.light_sweep = TRUE;
+	mad_context.si_context.lft_top_change = FALSE;
 
 	status = osm_req_get(sm, p_dr_path, IB_MAD_ATTR_SWITCH_INFO, 0,
 			     OSM_MSG_LIGHT_SWEEP_FAIL, &mad_context);

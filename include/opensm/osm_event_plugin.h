@@ -39,6 +39,7 @@
 #include <iba/ib_types.h>
 #include <complib/cl_qlist.h>
 #include <opensm/osm_config.h>
+#include <opensm/osm_switch.h>
 
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
@@ -86,6 +87,18 @@ typedef struct osm_epi_port_id {
 	uint8_t port_num;
 	char node_name[OSM_EPI_NODE_NAME_LEN];
 } osm_epi_port_id_t;
+
+typedef enum {
+	LFT_CHANGED_LFT_TOP = (1 << 0),
+	LFT_CHANGED_BLOCK = (1 << 1)
+} osm_epi_lft_change_flags_t;
+
+typedef struct osm_epi_lft_change_event {
+	osm_switch_t *p_sw;
+	osm_epi_lft_change_flags_t flags;
+	uint16_t lft_top;
+	uint32_t block_num;
+} osm_epi_lft_change_event_t;
 
 /** =========================================================================
  * Port error event

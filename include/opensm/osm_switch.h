@@ -104,7 +104,6 @@ typedef struct osm_switch {
 	uint8_t *lft;
 	uint8_t *new_lft;
 	uint16_t lft_size;
-	unsigned lft_change;
 	osm_mcast_tbl_t mcast_tbl;
 	int32_t mft_block_num;
 	uint32_t mft_position;

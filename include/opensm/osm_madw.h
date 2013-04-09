@@ -229,6 +229,7 @@ typedef struct osm_si_context {
 	ib_net64_t node_guid;
 	boolean_t set_method;
 	boolean_t light_sweep;
+	boolean_t lft_top_change;
 } osm_si_context_t;
 /*********/
 

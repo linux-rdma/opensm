@@ -288,6 +288,7 @@ static boolean_t si_rcv_process_existing(IN osm_sm_t * sm,
 	ib_switch_info_t *p_si;
 	osm_si_context_t *p_si_context;
 	ib_smp_t *p_smp;
+	osm_epi_lft_change_event_t lft_change;
 	boolean_t is_change_detected = FALSE;
 
 	OSM_LOG_ENTER(sm->p_log);
@@ -315,6 +316,17 @@ static boolean_t si_rcv_process_existing(IN osm_sm_t * sm,
 			osm_dump_switch_info_v2(sm->p_log, p_si, FILE_ID, OSM_LOG_DEBUG);
 			is_change_detected = TRUE;
 		}
+	}
+
+	if (sm->p_subn->first_time_master_sweep == FALSE &&
+	    p_si_context->set_method && p_si_context->lft_top_change) {
+		lft_change.p_sw = p_sw;
+		lft_change.flags = LFT_CHANGED_LFT_TOP;
+		lft_change.lft_top = cl_ntoh16(p_si->lin_top);
+		lft_change.block_num = 0;
+		osm_opensm_report_event(sm->p_subn->p_osm,
+					OSM_EVENT_ID_LFT_CHANGE,
+					&lft_change);
 	}
 
 	OSM_LOG_EXIT(sm->p_log);

@@ -552,6 +552,7 @@ static void ni_rcv_process_switch(IN osm_sm_t * sm, IN osm_node_t * p_node,
 	context.si_context.node_guid = osm_node_get_node_guid(p_node);
 	context.si_context.set_method = FALSE;
 	context.si_context.light_sweep = FALSE;
+	context.si_context.lft_top_change = FALSE;
 
 	/* Request a SwitchInfo attribute */
 	status = osm_req_get(sm, path, IB_MAD_ATTR_SWITCH_INFO,

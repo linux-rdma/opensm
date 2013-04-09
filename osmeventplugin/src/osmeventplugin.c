@@ -156,11 +156,13 @@ static void handle_trap_event(_log_events_t *log, ib_mad_notice_attr_t *p_ntc)
 
 /** =========================================================================
  */
-static void handle_lft_change_event(_log_events_t *log, osm_switch_t *p_sw)
+static void handle_lft_change_event(_log_events_t *log,
+				    osm_epi_lft_change_event_t *lft_change)
 {
 	fprintf(log->log_file,
-		"LFT changed for switch 0x%" PRIx64 "\n",
-		cl_ntoh64(osm_node_get_node_guid(p_sw->p_node)));
+		"LFT changed for switch 0x%" PRIx64 " flags 0x%x LFTTop %u block %d\n",
+		cl_ntoh64(osm_node_get_node_guid(lft_change->p_sw->p_node)),
+		lft_change->flags, lft_change->lft_top, lft_change->block_num);
 }
 
 /** =========================================================================
@@ -201,7 +203,7 @@ static void report(void *_log, osm_epi_event_id_t event_id, void *event_data)
 		fprintf(log->log_file, "SA DB dump file updated\n");
 		break;
 	case OSM_EVENT_ID_LFT_CHANGE:
-		handle_lft_change_event(log, (osm_switch_t *) event_data);
+		handle_lft_change_event(log, (osm_epi_lft_change_event_t *) event_data);
 		break;
 	case OSM_EVENT_ID_MAX:
 	default:

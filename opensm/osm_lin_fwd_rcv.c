@@ -51,6 +51,8 @@
 #define FILE_ID OSM_FILE_LIN_FWD_RCV_C
 #include <opensm/osm_switch.h>
 #include <opensm/osm_sm.h>
+#include <opensm/osm_event_plugin.h>
+#include <opensm/osm_opensm.h>
 
 void osm_lft_rcv_process(IN void *context, IN void *data)
 {
@@ -62,6 +64,7 @@ void osm_lft_rcv_process(IN void *context, IN void *data)
 	osm_lft_context_t *p_lft_context;
 	uint8_t *p_block;
 	ib_net64_t node_guid;
+	osm_epi_lft_change_event_t lft_change;
 	ib_api_status_t status;
 
 	CL_ASSERT(sm);
@@ -89,7 +92,17 @@ void osm_lft_rcv_process(IN void *context, IN void *data)
 			"0x%" PRIx64 "\n", cl_ntoh64(node_guid));
 	} else {
 		status = osm_switch_set_lft_block(p_sw, p_block, block_num);
-		if (status != IB_SUCCESS) {
+		if (status == IB_SUCCESS) {
+			if (sm->p_subn->first_time_master_sweep == FALSE) {
+				lft_change.p_sw = p_sw;
+				lft_change.flags = LFT_CHANGED_BLOCK;
+				lft_change.lft_top = 0;
+				lft_change.block_num = block_num;
+				osm_opensm_report_event(sm->p_subn->p_osm,
+							OSM_EVENT_ID_LFT_CHANGE,
+							&lft_change);
+			}
+		} else {
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0402: "
 				"Setting forwarding table block failed (%s)"
 				", Switch 0x%" PRIx64 " %s\n",

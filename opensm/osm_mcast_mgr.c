@@ -1070,6 +1070,7 @@ static void mcast_mgr_set_mfttop(IN osm_sm_t * sm, IN osm_switch_t * p_sw)
 		context.si_context.light_sweep = FALSE;
 		context.si_context.node_guid = osm_node_get_node_guid(p_node);
 		context.si_context.set_method = TRUE;
+		context.si_context.lft_top_change = FALSE;
 
 		status = osm_req_set(sm, p_path, (uint8_t *) & si,
 				     sizeof(si), IB_MAD_ATTR_SWITCH_INFO,
