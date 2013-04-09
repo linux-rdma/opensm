@@ -362,7 +362,7 @@ int osm_congestion_control_setup(struct osm_opensm *p_osm)
 	/*
 	 * Do nothing unless the most recent routing attempt was successful.
 	 */
-	if (!p_osm->sm.p_subn->p_osm->routing_engine_used)
+	if (!p_osm->routing_engine_used)
 		return 0;
 
 	cc_setup_mad_data(&p_osm->sm);
@@ -409,7 +409,7 @@ int osm_congestion_control_setup(struct osm_opensm *p_osm)
 
 int osm_congestion_control_wait_pending_transactions(struct osm_opensm *p_osm)
 {
-	osm_congestion_control_t *cc = &p_osm->sm.p_subn->p_osm->cc;
+	osm_congestion_control_t *cc = &p_osm->cc;
 
 	if (!p_osm->subn.opt.congestion_control)
 		return 0;
