@@ -119,7 +119,7 @@ void osm_log(IN osm_log_t * p_log, IN osm_log_level_t verbosity,
 	SYSTEMTIME st;
 	uint32_t pid = GetCurrentThreadId();
 #else
-	pid_t pid = 0;
+	pid_t pid;
 	time_t tim;
 	struct tm result;
 	uint64_t time_usecs;
