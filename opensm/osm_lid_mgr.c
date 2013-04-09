@@ -47,7 +47,7 @@
  * ALGORITHM:
  *
  * 0. we define a function to obtain the correct port lid:
- *    lid_mgr_get_port_lid( p_mgr, port, &min_lid ):
+ *    lid_mgr_get_port_lid( p_mgr, port, &min_lid, &max_lid ):
  *    0.1 if the port info lid matches the guid2lid return 0
  *    0.2 if the port info has a lid and that range is empty in
  *        port_lid_tbl, return 0 and update the port_lid_tbl and
@@ -64,12 +64,12 @@
  * 2. During SM port lid assignment:
  *   2.1 if reassign_lids is set, make it 2^lmc
  *   2.2 cleanup all port_lid_tbl and re-fill it according to guid2lid
- *   2.3 call lid_mgr_get_port_lid the SM port
+ *   2.3 call lid_mgr_get_port_lid for the SM port
  *   2.4 set the port info
  *
  * 3. During all other ports lid assignment:
  *   3.1 go through all ports in the subnet
- *   3.1.1 call lid_mgr_get_port_min_lid
+ *   3.1.1 call lid_mgr_get_port_lid
  *   3.1.2 if a change required send the port info
  *   3.2 if any change send the signal PENDING...
  *
@@ -1153,7 +1153,7 @@ int osm_lid_mgr_process_sm(IN osm_lid_mgr_t * p_mgr)
 
 /**********************************************************************
  1 go through all ports in the subnet.
- 1.1 call lid_mgr_get_port_min_lid
+ 1.1 call lid_mgr_get_port_lid
  1.2 if a change is required send the port info
  2 if any change send the signal PENDING...
 **********************************************************************/
