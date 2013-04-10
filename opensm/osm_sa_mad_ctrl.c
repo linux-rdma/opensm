@@ -54,6 +54,7 @@
 #include <opensm/osm_msgdef.h>
 #include <opensm/osm_helper.h>
 #include <opensm/osm_sa.h>
+#include <opensm/osm_opensm.h>
 
 /****f* opensm: SA/sa_mad_ctrl_disp_done_callback
  * NAME
@@ -357,7 +358,11 @@ static void sa_mad_ctrl_rcv_callback(IN osm_madw_t * p_madw, IN void *context,
 #endif
 	case IB_MAD_METHOD_SET:
 	case IB_MAD_METHOD_DELETE:
-		sa_mad_ctrl_process(p_ctrl, p_madw);
+		/* if we are closing down simply do nothing */
+		if (osm_exit_flag)
+			osm_mad_pool_put(p_ctrl->p_mad_pool, p_madw);
+		else
+			sa_mad_ctrl_process(p_ctrl, p_madw);
 		break;
 
 	default:
