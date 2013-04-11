@@ -302,11 +302,17 @@ static int lid_mgr_init_sweep(IN osm_lid_mgr_t * p_mgr)
 
 	lmc_mask = ~((1 << p_mgr->p_subn->opt.lmc) - 1);
 
-	/* if we came out of standby we need to discard any previous guid2lid
-	   info we might have.
-	   Do this only if the honor_guid2lid_file option is FALSE. If not, then
-	   need to honor this file. */
-	if (p_mgr->p_subn->coming_out_of_standby == TRUE) {
+	/* We must discard previous guid2lid db if this is the first master
+	 * sweep and reassign_lids option is TRUE.
+	 * If we came out of standby and honor_guid2lid_file option is TRUE, we
+	 * must restore guid2lid db. Otherwise if honor_guid2lid_file option is
+	 * FALSE we must discard previous guid2lid db.
+	 */
+	if (p_mgr->p_subn->first_time_master_sweep == TRUE &&
+	    p_mgr->p_subn->opt.reassign_lids == TRUE) {
+		osm_db_clear(p_mgr->p_g2l);
+		memset(p_mgr->used_lids, 0, sizeof(p_mgr->used_lids));
+	} else if (p_mgr->p_subn->coming_out_of_standby == TRUE) {
 		osm_db_clear(p_mgr->p_g2l);
 		memset(p_mgr->used_lids, 0, sizeof(p_mgr->used_lids));
 		if (p_mgr->p_subn->opt.honor_guid2lid_file == FALSE)
