@@ -296,12 +296,14 @@ static int parse_group_flag(unsigned lineno, osm_log_t * p_log,
 		else
 			flags->scope_mask |= (1<<scope);
 	} else if (!strncmp(flag, "Q_Key", strlen(flag))) {
+		rc = 1;
 		if (!val || (flags->Q_Key = strtoul(val, NULL, 0)) == 0)
 			OSM_LOG(p_log, OSM_LOG_VERBOSE,
 				"PARSE WARN: line %d: "
 				"flag \'Q_Key\' requires valid value"
 				" - using '0'\n", lineno);
 	} else if (!strncmp(flag, "TClass", strlen(flag))) {
+		rc =1;
 		if (!val || (flags->TClass = strtoul(val, NULL, 0)) == 0)
 			OSM_LOG(p_log, OSM_LOG_VERBOSE,
 				"PARSE WARN: line %d: "
@@ -406,7 +408,7 @@ static int partition_add_port(unsigned lineno, struct part_conf *conf,
 			membership = FULL;
 		else if (!strncmp(flag, "both", strlen(flag)))
 			membership = BOTH;
-		else if (!strncmp(flag, "limited", strlen(flag))) {
+		else if (strncmp(flag, "limited", strlen(flag))) {
 			OSM_LOG(conf->p_log, OSM_LOG_VERBOSE,
 				"PARSE WARN: line %d: "
 				"unrecognized port flag \'%s\'."

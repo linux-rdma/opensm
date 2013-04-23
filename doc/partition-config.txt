@@ -94,11 +94,11 @@ General file format:
 			    mgid.  Furthermore specifying multiple scope
 			    settings will result in multiple MC groups
 			    being created.
-        qkey=<val>      - specifies the Q_Key for this MC group
+        Q_Key=<val>     - specifies the Q_Key for this MC group
                           (default: 0x0b1b for IP groups, 0 for other groups)
                           WARNING: changing this for the broadcast group may
 			           break IPoIB on client nodes!!!
-        tclass=<val>    - specifies tclass for this MC group
+        TClass=<val>    - specifies tclass for this MC group
                           (default is 0)
         FlowLabel=<val> - specifies FlowLabel for this MC group
                           (default is 0)
