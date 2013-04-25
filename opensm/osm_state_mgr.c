@@ -1404,9 +1404,16 @@ repeat_discovery:
 				 * need to wait for that SM to relinquish control
 				 * of its portion of the subnet. C14-60.2.1.
 				 * Also - need to start polling on that SM. */
+				CL_PLOCK_EXCL_ACQUIRE(sm->p_lock);
 				sm->polling_sm_guid = p_remote_sm->smi.guid;
+				CL_PLOCK_RELEASE(sm->p_lock);
 				osm_sm_state_mgr_process(sm,
 							 OSM_SM_SIGNAL_WAIT_FOR_HANDOVER);
+				return;
+			} else if (sm->polling_sm_guid) {
+				/* Stop polling SM if it's not found */
+				osm_sm_state_mgr_process(sm,
+							 OSM_SM_SIGNAL_POLLING_TIMEOUT);
 				return;
 			}
 		}
