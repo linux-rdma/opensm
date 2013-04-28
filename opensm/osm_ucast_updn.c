@@ -594,12 +594,14 @@ static int updn_lid_matrices(void *ctx)
 
 		ret = parse_node_map(p_updn->p_osm->subn.opt.root_guid_file,
 				     rank_root_node, p_updn);
-		if (ret)
+		if (ret) {
 			OSM_LOG(&p_updn->p_osm->log, OSM_LOG_ERROR, "ERR AA02: "
 				"cannot parse root guids file \'%s\'\n",
 				p_updn->p_osm->subn.opt.root_guid_file);
-		if (p_updn->p_osm->subn.opt.connect_roots &&
-		    p_updn->num_roots > 1)
+			osm_ucast_mgr_build_lid_matrices(&p_updn->p_osm->sm.ucast_mgr);
+			updn_find_root_nodes_by_min_hop(p_updn);
+		} else if (p_updn->p_osm->subn.opt.connect_roots &&
+			   p_updn->num_roots > 1)
 			osm_ucast_mgr_build_lid_matrices(&p_updn->p_osm->sm.ucast_mgr);
 	} else {
 		osm_ucast_mgr_build_lid_matrices(&p_updn->p_osm->sm.ucast_mgr);

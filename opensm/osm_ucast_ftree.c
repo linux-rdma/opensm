@@ -3558,6 +3558,9 @@ static boolean_t fabric_load_roots(IN ftree_fabric_t * p_ftree,
 		context.list = p_ranking_bfs_list;
 		if (parse_node_map(p_ftree->p_osm->subn.opt.root_guid_file,
 				   rank_root_sw_by_guid, &context)) {
+			OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_ERROR, "ERR AB2A: "
+				"cannot parse root guids file \'%s\'\n",
+				p_ftree->p_osm->subn.opt.root_guid_file);
 			return FALSE;
 		}
 
@@ -3722,10 +3725,9 @@ static int fabric_rank(IN ftree_fabric_t * p_ftree)
 
 	OSM_LOG_ENTER(&p_ftree->p_osm->log);
 
-	if (fabric_roots_provided(p_ftree)){
-		if (fabric_load_roots(p_ftree, &ranking_bfs_list))
+	if (fabric_roots_provided(p_ftree) &&
+	    fabric_load_roots(p_ftree, &ranking_bfs_list))
 			res = fabric_rank_from_roots(p_ftree, &ranking_bfs_list);
-	}
 	else {
 		res = fabric_rank_from_hcas(p_ftree);
 		if (!res)
