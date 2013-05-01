@@ -6242,6 +6242,65 @@ ib_port_info_set_phy_and_overrun_err_thd(IN ib_port_info_t * const p_pi,
 * SEE ALSO
 *********/
 
+/****f* IBA Base: Types/ib_port_info_get_m_key
+* NAME
+*	ib_port_info_get_m_key
+*
+* DESCRIPTION
+*	Gets the M_Key
+*
+* SYNOPSIS
+*/
+static inline ib_net64_t OSM_API
+ib_port_info_get_m_key(IN const ib_port_info_t * const p_pi)
+{
+	return p_pi->m_key;
+}
+
+/*
+* PARAMETERS
+*	p_pi
+*		[in] Pointer to a PortInfo attribute.
+*
+* RETURN VALUES
+*	M_Key.
+*
+* NOTES
+*
+* SEE ALSO
+*********/
+
+/****f* IBA Base: Types/ib_port_info_set_m_key
+* NAME
+*	ib_port_info_set_m_key
+*
+* DESCRIPTION
+*	Sets the M_Key value
+*
+* SYNOPSIS
+*/
+static inline void OSM_API
+ib_port_info_set_m_key(IN ib_port_info_t * const p_pi, IN ib_net64_t m_key)
+{
+	p_pi->m_key = m_key;
+}
+
+/*
+* PARAMETERS
+*	p_pi
+*		[in] Pointer to a PortInfo attribute.
+*	m_key
+*		[in] M_Key value.
+*
+* RETURN VALUES
+*	None.
+*
+* NOTES
+*
+* SEE ALSO
+*********/
+
+
 /****s* IBA Base: Types/ib_mlnx_ext_port_info_t
 * NAME
 *	ib_mlnx_ext_port_info_t

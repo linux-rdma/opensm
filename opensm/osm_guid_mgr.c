@@ -73,6 +73,8 @@ static void guidinfo_set(IN osm_sa_t *sa, IN osm_port_t *p_port,
 
 	status = osm_req_set(sa->sm, osm_physp_get_dr_path_ptr(p_port->p_physp),
 			     payload, sizeof(payload), IB_MAD_ATTR_GUID_INFO,
+			     FALSE,
+			     ib_port_info_get_m_key(&p_port->p_physp->port_info),
 			     cl_hton32((uint32_t)block_num),
 			     CL_DISP_MSGID_NONE, &context);
 	if (status != IB_SUCCESS)

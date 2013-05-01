@@ -216,6 +216,8 @@ static int disable_port(osm_sm_t *sm, osm_physp_t *p)
 	uint8_t payload[IB_SMP_DATA_SIZE];
 	osm_madw_context_t context;
 	ib_port_info_t *pi = (ib_port_info_t *)payload;
+	osm_physp_t *physp0;
+	ib_net64_t m_key;
 	ib_api_status_t status;
 
 	/* select the nearest port to master opensm */
@@ -238,11 +240,18 @@ static int disable_port(osm_sm_t *sm, osm_physp_t *p)
 	context.pi_context.set_method = TRUE;
 	context.pi_context.light_sweep = FALSE;
 	context.pi_context.active_transition = FALSE;
+	if (osm_node_get_type(p->p_node) == IB_NODE_TYPE_SWITCH &&
+	    osm_physp_get_port_num(p) != 0) {
+		physp0 = osm_node_get_physp_ptr(p->p_node, 0);
+		m_key = ib_port_info_get_m_key(&physp0->port_info);
+	} else
+		m_key = ib_port_info_get_m_key(&p->port_info);
 
 	CL_PLOCK_ACQUIRE(sm->p_lock);
 	status = osm_req_set(sm, osm_physp_get_dr_path_ptr(p),
 			   payload, sizeof(payload), IB_MAD_ATTR_PORT_INFO,
 			   cl_hton32(osm_physp_get_port_num(p)),
+			   FALSE, m_key,
 			   CL_DISP_MSGID_NONE, &context);
 	CL_PLOCK_RELEASE(sm->p_lock);
 	return status;
@@ -428,7 +437,7 @@ static void trap_rcv_process_request(IN osm_sm_t * sm,
 	p_physp = osm_get_physp_by_mad_addr(sm->p_log, sm->p_subn,
 					    &tmp_madw.mad_addr);
 	if (p_physp)
-		p_smp->m_key = p_physp->port_info.m_key;
+		p_smp->m_key = ib_port_info_get_m_key(&p_physp->port_info);
 	else
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3809: "
 			"Failed to find source physical port for trap\n");

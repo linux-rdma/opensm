@@ -121,6 +121,7 @@ static void state_mgr_reset_switch_count(IN cl_map_item_t * p_map_item,
 static void state_mgr_get_sw_info(IN cl_map_item_t * p_object, IN void *context)
 {
 	osm_node_t *p_node;
+	osm_physp_t *p_physp;
 	osm_dr_path_t *p_dr_path;
 	osm_madw_context_t mad_context;
 	osm_switch_t *const p_sw = (osm_switch_t *) p_object;
@@ -130,8 +131,8 @@ static void state_mgr_get_sw_info(IN cl_map_item_t * p_object, IN void *context)
 	OSM_LOG_ENTER(sm->p_log);
 
 	p_node = p_sw->p_node;
-	p_dr_path =
-	    osm_physp_get_dr_path_ptr(osm_node_get_physp_ptr(p_node, 0));
+	p_physp = osm_node_get_physp_ptr(p_node, 0);
+	p_dr_path = osm_physp_get_dr_path_ptr(p_physp);
 
 	memset(&mad_context, 0, sizeof(mad_context));
 
@@ -141,6 +142,7 @@ static void state_mgr_get_sw_info(IN cl_map_item_t * p_object, IN void *context)
 	mad_context.si_context.lft_top_change = FALSE;
 
 	status = osm_req_get(sm, p_dr_path, IB_MAD_ATTR_SWITCH_INFO, 0,
+			     FALSE, ib_port_info_get_m_key(&p_physp->port_info),
 			     OSM_MSG_LIGHT_SWEEP_FAIL, &mad_context);
 	if (status != IB_SUCCESS)
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3304: "
@@ -186,7 +188,7 @@ static void state_mgr_get_remote_port_info(IN osm_sm_t * sm,
 	/* note that with some negative logic - if the query failed it means
 	 * that there is no point in going to heavy sweep */
 	status = osm_req_get(sm, &rem_node_dr_path, IB_MAD_ATTR_PORT_INFO, 0,
-			     CL_DISP_MSGID_NONE, &mad_context);
+			     TRUE, 0, CL_DISP_MSGID_NONE, &mad_context);
 	if (status != IB_SUCCESS)
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 332E: "
 			"Request for PortInfo failed (%s)\n",
@@ -246,7 +248,7 @@ static ib_api_status_t state_mgr_sweep_hop_0(IN osm_sm_t * sm)
 		osm_dr_path_init(&dr_path, 0, path_array);
 		CL_PLOCK_ACQUIRE(sm->p_lock);
 		status = osm_req_get(sm, &dr_path, IB_MAD_ATTR_NODE_INFO, 0,
-				     CL_DISP_MSGID_NONE, NULL);
+				     TRUE, 0, CL_DISP_MSGID_NONE, NULL);
 		CL_PLOCK_RELEASE(sm->p_lock);
 		if (status != IB_SUCCESS)
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3305: "
@@ -441,7 +443,7 @@ static ib_api_status_t state_mgr_sweep_hop_1(IN osm_sm_t * sm)
 		osm_dr_path_init(&hop_1_path, 1, path_array);
 		CL_PLOCK_ACQUIRE(sm->p_lock);
 		status = osm_req_get(sm, &hop_1_path, IB_MAD_ATTR_NODE_INFO, 0,
-				     CL_DISP_MSGID_NONE, &context);
+				     TRUE, 0, CL_DISP_MSGID_NONE, &context);
 		CL_PLOCK_RELEASE(sm->p_lock);
 		if (status != IB_SUCCESS)
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3311: "
@@ -473,6 +475,7 @@ static ib_api_status_t state_mgr_sweep_hop_1(IN osm_sm_t * sm)
 				CL_PLOCK_ACQUIRE(sm->p_lock);
 				status = osm_req_get(sm, &hop_1_path,
 						     IB_MAD_ATTR_NODE_INFO, 0,
+						     TRUE, 0,
 						     CL_DISP_MSGID_NONE,
 						     &context);
 				CL_PLOCK_RELEASE(sm->p_lock);
@@ -516,7 +519,9 @@ static void query_sm_info(cl_map_item_t * item, void *cxt)
 	context.smi_context.light_sweep = TRUE;
 
 	ret = osm_req_get(sm, osm_physp_get_dr_path_ptr(p_port->p_physp),
-			  IB_MAD_ATTR_SM_INFO, 0, CL_DISP_MSGID_NONE, &context);
+			  IB_MAD_ATTR_SM_INFO, 0, FALSE,
+			  ib_port_info_get_m_key(&p_port->p_physp->port_info),
+			  CL_DISP_MSGID_NONE, &context);
 	if (ret != IB_SUCCESS)
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3314: "
 			"Failure requesting SMInfo (%s)\n",
@@ -555,8 +560,9 @@ static void state_mgr_update_node_desc(IN cl_map_item_t * obj, IN void *context)
 	mad_context.nd_context.node_guid = osm_node_get_node_guid(p_node);
 
 	status = osm_req_get(sm, osm_physp_get_dr_path_ptr(p_physp),
-			     IB_MAD_ATTR_NODE_DESC, 0, CL_DISP_MSGID_NONE,
-			     &mad_context);
+			     IB_MAD_ATTR_NODE_DESC, 0, FALSE,
+			     ib_port_info_get_m_key(&p_physp->port_info),
+			     CL_DISP_MSGID_NONE, &mad_context);
 	if (status != IB_SUCCESS)
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR,
 			"ERR 331B: Failure initiating NodeDescription request "
@@ -835,8 +841,9 @@ static void state_mgr_send_handover(IN osm_sm_t * sm, IN osm_remote_sm_t * p_sm)
 	CL_PLOCK_ACQUIRE(sm->p_lock);
 	status = osm_req_set(sm, osm_physp_get_dr_path_ptr(p_port->p_physp),
 			     payload, sizeof(payload), IB_MAD_ATTR_SM_INFO,
-			     IB_SMINFO_ATTR_MOD_HANDOVER, CL_DISP_MSGID_NONE,
-			     &context);
+			     IB_SMINFO_ATTR_MOD_HANDOVER, FALSE,
+			     ib_port_info_get_m_key(&p_port->p_physp->port_info),
+			     CL_DISP_MSGID_NONE, &context);
 	CL_PLOCK_RELEASE(sm->p_lock);
 
 	if (status != IB_SUCCESS)

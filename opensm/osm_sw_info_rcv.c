@@ -93,7 +93,7 @@ static void si_rcv_get_fwd_tbl(IN osm_sm_t * sm, IN osm_switch_t * p_sw)
 			"Retrieving FT block %u\n", block_id_ho);
 
 		status = osm_req_get(sm, p_dr_path, IB_MAD_ATTR_LIN_FWD_TBL,
-				     cl_hton32(block_id_ho),
+				     cl_hton32(block_id_ho), TRUE, 0,
 				     CL_DISP_MSGID_NONE, &context);
 		if (status != IB_SUCCESS)
 			/* continue the loop despite the error */
@@ -175,7 +175,7 @@ static void si_rcv_get_mcast_fwd_tbl(IN osm_sm_t * sm, IN osm_switch_t * p_sw)
 			status =
 			    osm_req_get(sm, p_dr_path,
 					IB_MAD_ATTR_MCAST_FWD_TBL,
-					cl_hton32(attr_mod_ho),
+					cl_hton32(attr_mod_ho), TRUE, 0,
 					CL_DISP_MSGID_NONE, &context);
 			if (status != IB_SUCCESS)
 				/* continue the loop despite the error */

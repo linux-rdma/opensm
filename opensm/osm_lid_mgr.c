@@ -1061,6 +1061,7 @@ static int lid_mgr_set_physp_pi(IN osm_lid_mgr_t * p_mgr,
 	status = osm_req_set(p_mgr->sm, osm_physp_get_dr_path_ptr(p_physp),
 			     payload, sizeof(payload), IB_MAD_ATTR_PORT_INFO,
 			     cl_hton32(osm_physp_get_port_num(p_physp)),
+			     FALSE, ib_port_info_get_m_key(&p_physp->port_info),
 			     CL_DISP_MSGID_NONE, &context);
 	if (status != IB_SUCCESS)
 		ret = -1;

@@ -348,6 +348,7 @@ static int mcast_mgr_set_mft_block(osm_sm_t * sm, IN osm_switch_t * p_sw,
 				   uint32_t block_num, uint32_t position)
 {
 	osm_node_t *p_node;
+	osm_physp_t *p_physp;
 	osm_dr_path_t *p_path;
 	osm_madw_context_t context;
 	ib_api_status_t status;
@@ -366,7 +367,8 @@ static int mcast_mgr_set_mft_block(osm_sm_t * sm, IN osm_switch_t * p_sw,
 
 	CL_ASSERT(p_node);
 
-	p_path = osm_physp_get_dr_path_ptr(osm_node_get_physp_ptr(p_node, 0));
+	p_physp = osm_node_get_physp_ptr(p_node, 0);
+	p_path = osm_physp_get_dr_path_ptr(p_physp);
 
 	/*
 	   Send multicast forwarding table blocks to the switch
@@ -390,8 +392,9 @@ static int mcast_mgr_set_mft_block(osm_sm_t * sm, IN osm_switch_t * p_sw,
 
 		status = osm_req_set(sm, p_path, (void *)block, sizeof(block),
 				     IB_MAD_ATTR_MCAST_FWD_TBL,
-				     cl_hton32(block_id_ho), CL_DISP_MSGID_NONE,
-				     &context);
+				     cl_hton32(block_id_ho), FALSE,
+				     ib_port_info_get_m_key(&p_physp->port_info),
+				     CL_DISP_MSGID_NONE, &context);
 		if (status != IB_SUCCESS) {
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A02: "
 				"Sending multicast fwd. tbl. block to %s failed (%s)\n",
@@ -1071,7 +1074,9 @@ static void mcast_mgr_set_mfttop(IN osm_sm_t * sm, IN osm_switch_t * p_sw)
 
 		status = osm_req_set(sm, p_path, (uint8_t *) & si,
 				     sizeof(si), IB_MAD_ATTR_SWITCH_INFO,
-				     0, CL_DISP_MSGID_NONE, &context);
+				     0, FALSE,
+				     ib_port_info_get_m_key(&p_physp->port_info),
+				     CL_DISP_MSGID_NONE, &context);
 
 		if (status != IB_SUCCESS)
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A1B: "

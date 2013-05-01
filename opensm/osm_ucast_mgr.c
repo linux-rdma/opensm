@@ -895,6 +895,7 @@ static void ucast_mgr_set_fwd_top(IN cl_map_item_t * p_map_item,
 	osm_ucast_mgr_t *p_mgr = cxt;
 	osm_switch_t * p_sw = (osm_switch_t *) p_map_item;
 	osm_node_t *p_node;
+	osm_physp_t *p_physp;
 	osm_dr_path_t *p_path;
 	osm_madw_context_t context;
 	ib_api_status_t status;
@@ -916,7 +917,11 @@ static void ucast_mgr_set_fwd_top(IN cl_map_item_t * p_map_item,
 	if (p_mgr->max_lid < p_sw->max_lid_ho)
 		p_mgr->max_lid = p_sw->max_lid_ho;
 
-	p_path = osm_physp_get_dr_path_ptr(osm_node_get_physp_ptr(p_node, 0));
+	p_physp = osm_node_get_physp_ptr(p_node, 0);
+
+	CL_ASSERT(p_physp);
+
+	p_path = osm_physp_get_dr_path_ptr(p_physp);
 
 	/*
 	   Set the top of the unicast forwarding table.
@@ -953,7 +958,9 @@ static void ucast_mgr_set_fwd_top(IN cl_map_item_t * p_map_item,
 
 		status = osm_req_set(p_mgr->sm, p_path, (uint8_t *) & si,
 				     sizeof(si), IB_MAD_ATTR_SWITCH_INFO,
-				     0, CL_DISP_MSGID_NONE, &context);
+				     0, FALSE,
+				     ib_port_info_get_m_key(&p_physp->port_info),
+				     CL_DISP_MSGID_NONE, &context);
 
 		if (status != IB_SUCCESS)
 			OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 3A06: "
@@ -969,6 +976,7 @@ static int set_lft_block(IN osm_switch_t *p_sw, IN osm_ucast_mgr_t *p_mgr,
 {
 	osm_madw_context_t context;
 	osm_dr_path_t *p_path;
+	osm_physp_t *p_physp;
 	ib_api_status_t status;
 
 	/*
@@ -983,7 +991,11 @@ static int set_lft_block(IN osm_switch_t *p_sw, IN osm_ucast_mgr_t *p_mgr,
 		return -1;
 	}
 
-	p_path = osm_physp_get_dr_path_ptr(osm_node_get_physp_ptr(p_sw->p_node, 0));
+	p_physp = osm_node_get_physp_ptr(p_sw->p_node, 0);
+	if (!p_physp)
+		return -1;
+
+	p_path = osm_physp_get_dr_path_ptr(p_physp);
 
 	context.lft_context.node_guid = osm_node_get_node_guid(p_sw->p_node);
 	context.lft_context.set_method = TRUE;
@@ -1001,7 +1013,8 @@ static int set_lft_block(IN osm_switch_t *p_sw, IN osm_ucast_mgr_t *p_mgr,
 	status = osm_req_set(p_mgr->sm, p_path,
 			     p_sw->new_lft + block_id_ho * IB_SMP_DATA_SIZE,
 			     IB_SMP_DATA_SIZE, IB_MAD_ATTR_LIN_FWD_TBL,
-			     cl_hton32(block_id_ho),
+			     cl_hton32(block_id_ho), FALSE,
+			     ib_port_info_get_m_key(&p_physp->port_info),
 			     CL_DISP_MSGID_NONE, &context);
 
 	if (status != IB_SUCCESS) {

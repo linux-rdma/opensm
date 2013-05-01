@@ -402,6 +402,7 @@ ib_api_status_t osm_sm_bind(IN osm_sm_t * p_sm, IN ib_net64_t port_guid);
 */
 ib_api_status_t osm_req_get(IN osm_sm_t * sm, IN const osm_dr_path_t * p_path,
 			    IN ib_net16_t attr_id, IN ib_net32_t attr_mod,
+			    IN boolean_t find_mkey, ib_net64_t m_key,
 			    IN cl_disp_msgid_t err_msg,
 			    IN const osm_madw_context_t * p_context);
 /*
@@ -418,6 +419,13 @@ ib_api_status_t osm_req_get(IN osm_sm_t * sm, IN const osm_dr_path_t * p_path,
 *
 *	attr_mod
 *		[in] Attribute modifier for this request.
+*
+*	find_mkey
+*		[in] Flag to indicate whether the M_Key should be looked up for
+*		     this MAD.
+* 	m_key
+* 		[in] M_Key value to be send with this MAD. Applied, only when
+* 		     find_mkey is FALSE.
 *
 *	err_msg
 *		[in] Message id with which to post this MAD if an error occurs.
@@ -467,7 +475,8 @@ void osm_send_req_mad(IN osm_sm_t * sm, IN osm_madw_t *p_madw);
 osm_madw_t *osm_prepare_req_set(IN osm_sm_t * sm, IN const osm_dr_path_t * p_path,
 				IN const uint8_t * p_payload,
 				IN size_t payload_size, IN ib_net16_t attr_id,
-				IN ib_net32_t attr_mod, IN cl_disp_msgid_t err_msg,
+				IN ib_net32_t attr_mod, IN boolean_t find_mkey,
+				IN ib_net64_t m_key, IN cl_disp_msgid_t err_msg,
 				IN const osm_madw_context_t * p_context);
 /*
 * PARAMETERS
@@ -488,6 +497,13 @@ osm_madw_t *osm_prepare_req_set(IN osm_sm_t * sm, IN const osm_dr_path_t * p_pat
 *
 *	attr_mod
 *		[in] Attribute modifier for this request.
+*
+*	find_mkey
+*		[in] Flag to indicate whether the M_Key should be looked up for
+*		     this MAD.
+* 	m_key
+* 		[in] M_Key value to be send with this MAD. Applied, only when
+* 		     find_mkey is FALSE.
 *
 *	err_msg
 *		[in] Message id with which to post this MAD if an error occurs.
@@ -513,7 +529,8 @@ osm_madw_t *osm_prepare_req_set(IN osm_sm_t * sm, IN const osm_dr_path_t * p_pat
 ib_api_status_t osm_req_set(IN osm_sm_t * sm, IN const osm_dr_path_t * p_path,
 			    IN const uint8_t * p_payload,
 			    IN size_t payload_size, IN ib_net16_t attr_id,
-			    IN ib_net32_t attr_mod, IN cl_disp_msgid_t err_msg,
+			    IN ib_net32_t attr_mod, IN boolean_t find_mkey,
+			    IN ib_net64_t m_key, IN cl_disp_msgid_t err_msg,
 			    IN const osm_madw_context_t * p_context);
 /*
 * PARAMETERS
@@ -534,6 +551,14 @@ ib_api_status_t osm_req_set(IN osm_sm_t * sm, IN const osm_dr_path_t * p_path,
 *
 *	attr_mod
 *		[in] Attribute modifier for this request.
+*
+*	find_mkey
+*		[in] Flag to indicate whether the M_Key should be looked up for
+*		     this MAD.
+*
+* 	m_key
+* 		[in] M_Key value to be send with this MAD. Applied, only when
+* 		     find_mkey is FALSE.
 *
 *	err_msg
 *		[in] Message id with which to post this MAD if an error occurs.

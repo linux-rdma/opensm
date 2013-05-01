@@ -106,6 +106,7 @@ static int link_mgr_set_physp_pi(osm_sm_t * sm, IN osm_physp_t * p_physp,
 	int ret = 0;
 	ib_net32_t attr_mod, cap_mask;
 	boolean_t update_mkey = FALSE;
+	ib_net64_t m_key = 0;
 
 	OSM_LOG_ENTER(sm->p_log);
 
@@ -360,11 +361,15 @@ static int link_mgr_set_physp_pi(osm_sm_t * sm, IN osm_physp_t * p_physp,
 			}
 		}
 
-		if (osm_node_get_type(p_physp->p_node) == IB_NODE_TYPE_SWITCH) {
+		if (osm_node_get_type(p_physp->p_node) == IB_NODE_TYPE_SWITCH &&
+		    osm_physp_get_port_num(p_physp) != 0) {
 			physp0 = osm_node_get_physp_ptr(p_physp->p_node, 0);
 			cap_mask = physp0->port_info.capability_mask;
-		} else
+			m_key = ib_port_info_get_m_key(&physp0->port_info);
+		} else {
 			cap_mask = p_pi->capability_mask;
+			m_key = ib_port_info_get_m_key(p_pi);
+		}
 		if (cap_mask & IB_PORT_CAP_HAS_EXT_SPEEDS)
 			issue_ext = 1;
 
@@ -455,7 +460,8 @@ Send:
 		attr_mod |= cl_hton32(1 << 31);	/* AM SMSupportExtendedSpeeds */
 	status = osm_req_set(sm, osm_physp_get_dr_path_ptr(p_physp),
 			     payload, sizeof(payload), IB_MAD_ATTR_PORT_INFO,
-			     attr_mod, CL_DISP_MSGID_NONE, &context);
+			     attr_mod, FALSE, m_key,
+			     CL_DISP_MSGID_NONE, &context);
 	if (status)
 		ret = -1;
 
@@ -471,7 +477,7 @@ Send:
 		status = osm_req_set(sm, osm_physp_get_dr_path_ptr(p_physp),
 				     payload2, sizeof(payload2),
 				     IB_MAD_ATTR_MLNX_EXTENDED_PORT_INFO,
-				     cl_hton32(port_num),
+				     cl_hton32(port_num), FALSE, m_key,
 				     CL_DISP_MSGID_NONE, &context);
 		if (status)
 			ret = -1;

@@ -119,7 +119,7 @@ static void requery_dup_node_info(IN osm_sm_t * sm, osm_physp_t * p_physp,
 	context.ni_context.dup_count = count;
 
 	status = osm_req_get(sm, &path, IB_MAD_ATTR_NODE_INFO, 0,
-			     CL_DISP_MSGID_NONE, &context);
+			     TRUE, 0, CL_DISP_MSGID_NONE, &context);
 
 	if (status != IB_SUCCESS)
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D02: "
@@ -311,7 +311,7 @@ static void ni_rcv_get_port_info(IN osm_sm_t * sm, IN osm_node_t * node,
 	for (; port < num_ports; port++) {
 		status = osm_req_get(sm, osm_physp_get_dr_path_ptr(physp),
 				     IB_MAD_ATTR_PORT_INFO, cl_hton32(port),
-				     CL_DISP_MSGID_NONE, &context);
+				     TRUE, 0, CL_DISP_MSGID_NONE, &context);
 		if (status != IB_SUCCESS)
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR OD02: "
 				"Failure initiating PortInfo request (%s)\n",
@@ -320,7 +320,7 @@ static void ni_rcv_get_port_info(IN osm_sm_t * sm, IN osm_node_t * node,
 			status = osm_req_get(sm,
 					     osm_physp_get_dr_path_ptr(physp),
 					     IB_MAD_ATTR_MLNX_EXTENDED_PORT_INFO,
-					     cl_hton32(port),
+					     cl_hton32(port), TRUE, 0,
 					     CL_DISP_MSGID_NONE, &context);
 			if (status != IB_SUCCESS)
 				OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D0B: "
@@ -344,8 +344,8 @@ void osm_req_get_node_desc(IN osm_sm_t * sm, osm_physp_t * p_physp)
 	    osm_node_get_node_guid(osm_physp_get_node_ptr(p_physp));
 
 	status = osm_req_get(sm, osm_physp_get_dr_path_ptr(p_physp),
-			     IB_MAD_ATTR_NODE_DESC, 0, CL_DISP_MSGID_NONE,
-			     &context);
+			     IB_MAD_ATTR_NODE_DESC, 0, TRUE, 0,
+			     CL_DISP_MSGID_NONE, &context);
 	if (status != IB_SUCCESS)
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D03: "
 			"Failure initiating NodeDescription request (%s)\n",
@@ -537,6 +537,7 @@ static void ni_rcv_process_switch(IN osm_sm_t * sm, IN osm_node_t * p_node,
 				  IN const osm_madw_t * p_madw)
 {
 	ib_api_status_t status = IB_SUCCESS;
+	osm_physp_t *p_physp;
 	osm_madw_context_t context;
 	osm_dr_path_t *path;
 	ib_smp_t *p_smp;
@@ -545,8 +546,9 @@ static void ni_rcv_process_switch(IN osm_sm_t * sm, IN osm_node_t * p_node,
 
 	p_smp = osm_madw_get_smp_ptr(p_madw);
 
+	p_physp = osm_node_get_physp_ptr(p_node, 0);
 	/* update DR path of already initialized switch port 0 */
-	path = osm_physp_get_dr_path_ptr(osm_node_get_physp_ptr(p_node, 0));
+	path = osm_physp_get_dr_path_ptr(p_physp);
 	osm_dr_path_init(path, p_smp->hop_count, p_smp->initial_path);
 
 	context.si_context.node_guid = osm_node_get_node_guid(p_node);
@@ -555,8 +557,8 @@ static void ni_rcv_process_switch(IN osm_sm_t * sm, IN osm_node_t * p_node,
 	context.si_context.lft_top_change = FALSE;
 
 	/* Request a SwitchInfo attribute */
-	status = osm_req_get(sm, path, IB_MAD_ATTR_SWITCH_INFO,
-			     0, CL_DISP_MSGID_NONE, &context);
+	status = osm_req_get(sm, path, IB_MAD_ATTR_SWITCH_INFO, 0, TRUE, 0,
+			     CL_DISP_MSGID_NONE, &context);
 	if (status != IB_SUCCESS)
 		/* continue despite error */
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D06: "

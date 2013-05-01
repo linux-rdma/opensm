@@ -171,6 +171,8 @@ static void pi_rcv_process_endport(IN osm_sm_t * sm, IN osm_physp_t * p_physp,
 						     osm_physp_get_dr_path_ptr
 						     (p_physp),
 						     IB_MAD_ATTR_SM_INFO, 0,
+						     FALSE,
+						     ib_port_info_get_m_key(&p_physp->port_info),
 						     CL_DISP_MSGID_NONE,
 						     &context);
 
@@ -289,6 +291,7 @@ static void pi_rcv_process_switch_port(IN osm_sm_t * sm, IN osm_node_t * p_node,
 
 				status = osm_req_get(sm, &path,
 						     IB_MAD_ATTR_NODE_INFO, 0,
+						     TRUE, 0,
 						     CL_DISP_MSGID_NONE,
 						     &context);
 
@@ -387,6 +390,8 @@ static void get_pkey_table(IN osm_log_t * p_log, IN osm_sm_t * sm,
 	osm_madw_context_t context;
 	ib_api_status_t status;
 	osm_dr_path_t path;
+	osm_physp_t *physp0;
+	ib_net64_t m_key;
 	uint8_t port_num;
 	uint16_t block_num, max_blocks;
 	uint32_t attr_mod_ho;
@@ -427,13 +432,18 @@ static void get_pkey_table(IN osm_log_t * p_log, IN osm_sm_t * sm,
 	}
 
 	for (block_num = 0; block_num < max_blocks; block_num++) {
-		if (osm_node_get_type(p_node) != IB_NODE_TYPE_SWITCH)
+		if (osm_node_get_type(p_node) != IB_NODE_TYPE_SWITCH ||
+		    osm_physp_get_port_num(p_physp) == 0) {
 			attr_mod_ho = block_num;
-		else
+			m_key = ib_port_info_get_m_key(&p_physp->port_info);
+		} else {
 			attr_mod_ho = block_num | (port_num << 16);
+			physp0 = osm_node_get_physp_ptr(p_node, 0);
+			m_key = ib_port_info_get_m_key(&physp0->port_info);
+		}
 		status = osm_req_get(sm, &path, IB_MAD_ATTR_P_KEY_TABLE,
-				     cl_hton32(attr_mod_ho),
-				     CL_DISP_MSGID_NONE, &context);
+				     cl_hton32(attr_mod_ho), FALSE,
+				     m_key, CL_DISP_MSGID_NONE, &context);
 
 		if (status != IB_SUCCESS) {
 			OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0F12: "

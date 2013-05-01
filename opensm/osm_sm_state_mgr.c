@@ -119,8 +119,9 @@ static void sm_state_mgr_send_master_sm_info_req(osm_sm_t * sm)
 	memcpy(&dr_path, osm_physp_get_dr_path_ptr(p_port->p_physp), sizeof(osm_dr_path_t));
 
 	status = osm_req_get(sm, &dr_path,
-			     IB_MAD_ATTR_SM_INFO, 0, CL_DISP_MSGID_NONE,
-			     &context);
+			     IB_MAD_ATTR_SM_INFO, 0, FALSE,
+			     ib_port_info_get_m_key(&p_port->p_physp->port_info),
+			     CL_DISP_MSGID_NONE, &context);
 	CL_PLOCK_RELEASE(sm->p_lock);
 
 	if (status != IB_SUCCESS)

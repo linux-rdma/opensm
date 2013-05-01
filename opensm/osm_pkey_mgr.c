@@ -178,18 +178,26 @@ pkey_mgr_update_pkey_entry(IN osm_sm_t * sm,
 {
 	osm_madw_context_t context;
 	osm_node_t *p_node = osm_physp_get_node_ptr(p_physp);
+	osm_physp_t *physp0;
 	uint32_t attr_mod;
+	ib_net64_t m_key;
 
 	context.pkey_context.node_guid = osm_node_get_node_guid(p_node);
 	context.pkey_context.port_guid = osm_physp_get_port_guid(p_physp);
 	context.pkey_context.set_method = TRUE;
 	attr_mod = block_index;
-	if (osm_node_get_type(p_node) == IB_NODE_TYPE_SWITCH)
+	if (osm_node_get_type(p_node) == IB_NODE_TYPE_SWITCH &&
+	    osm_physp_get_port_num(p_physp) != 0) {
 		attr_mod |= osm_physp_get_port_num(p_physp) << 16;
+		physp0 = osm_node_get_physp_ptr(p_node, 0);
+		m_key = ib_port_info_get_m_key(&physp0->port_info);
+	} else
+		m_key = ib_port_info_get_m_key(&p_physp->port_info);
 	return osm_req_set(sm, osm_physp_get_dr_path_ptr(p_physp),
 			   (uint8_t *) block, sizeof(*block),
 			   IB_MAD_ATTR_P_KEY_TABLE,
-			   cl_hton32(attr_mod), CL_DISP_MSGID_NONE, &context);
+			   cl_hton32(attr_mod), FALSE, m_key,
+			   CL_DISP_MSGID_NONE, &context);
 }
 
 static ib_api_status_t
@@ -200,6 +208,8 @@ pkey_mgr_enforce_partition(IN osm_log_t * p_log, osm_sm_t * sm,
 	osm_madw_context_t context;
 	uint8_t payload[IB_SMP_DATA_SIZE];
 	ib_port_info_t *p_pi;
+	ib_net64_t m_key;
+	osm_physp_t *physp0;
 	ib_api_status_t status;
 	uint8_t enforce_bits;
 
@@ -234,6 +244,9 @@ pkey_mgr_enforce_partition(IN osm_log_t * p_log, osm_sm_t * sm,
 	p_pi->state_info2 = 0;
 	ib_port_info_set_port_state(p_pi, IB_LINK_NO_CHANGE);
 
+	physp0 = osm_node_get_physp_ptr(p_physp->p_node, 0);
+	m_key = ib_port_info_get_m_key(&physp0->port_info);
+
 	context.pi_context.node_guid =
 	    osm_node_get_node_guid(osm_physp_get_node_ptr(p_physp));
 	context.pi_context.port_guid = osm_physp_get_port_guid(p_physp);
@@ -245,6 +258,7 @@ pkey_mgr_enforce_partition(IN osm_log_t * p_log, osm_sm_t * sm,
 			     payload, sizeof(payload),
 			     IB_MAD_ATTR_PORT_INFO,
 			     cl_hton32(osm_physp_get_port_num(p_physp)),
+			     FALSE, m_key,
 			     CL_DISP_MSGID_NONE, &context);
 	if (status != IB_SUCCESS)
 		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0511: "
