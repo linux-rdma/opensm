@@ -191,7 +191,8 @@ ib_api_status_t osm_req_get(IN osm_sm_t * sm, IN const osm_dr_path_t * p_path,
 		tid = cl_hton64((uint64_t) cl_atomic_inc(&sm->sm_trans_id)
 							 & (uint64_t)(0xFFFFFFFF));
 
-	m_key = req_determine_mkey(sm, p_path);
+	m_key = (sm->p_subn->opt.m_key_lookup == TRUE) ?
+		req_determine_mkey(sm, p_path) : sm->p_subn->opt.m_key;
 
 	OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 		"Getting %s (0x%X), modifier 0x%X, TID 0x%" PRIx64
@@ -267,7 +268,8 @@ osm_madw_t *osm_prepare_req_set(IN osm_sm_t * sm, IN const osm_dr_path_t * p_pat
 		tid = cl_hton64((uint64_t) cl_atomic_inc(&sm->sm_trans_id)
 							 & (uint64_t)(0xFFFFFFFF));
 
-	m_key = req_determine_mkey(sm, p_path);
+	m_key = (sm->p_subn->opt.m_key_lookup == TRUE) ?
+		req_determine_mkey(sm, p_path) : sm->p_subn->opt.m_key;
 
 	OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 		"Setting %s (0x%X), modifier 0x%X, TID 0x%" PRIx64
