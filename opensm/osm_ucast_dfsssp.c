@@ -3,6 +3,7 @@
  * Copyright (c) 2002-2009 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2009-2011 ZIH, TU Dresden, Federal Republic of Germany. All rights reserved.
+ * Copyright (C) 2012-2013 Tokyo Institute of Technology. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -52,6 +53,8 @@
 #include <opensm/osm_ucast_mgr.h>
 #include <opensm/osm_opensm.h>
 #include <opensm/osm_node.h>
+#include <opensm/osm_multicast.h>
+#include <opensm/osm_mcast_mgr.h>
 
 /* "infinity" for dijkstra */
 #define INF      0x7FFFFFFF
@@ -1537,6 +1540,103 @@ static int update_lft(osm_ucast_mgr_t * p_mgr, vertex_t * adj_list,
 	return 0;
 }
 
+/* update the multicast forwarding tables of all switches with the informations
+   from the previous dijsktra step for the current mlid
+*/
+static int update_mcft(osm_sm_t * p_sm, vertex_t * adj_list,
+		       uint32_t adj_list_size, uint16_t mlid_ho,
+		       cl_qmap_t * port_map, osm_switch_t * root_sw)
+{
+	uint32_t i = 0;
+	uint8_t port = 0, remote_port = 0;
+	uint8_t upstream_port = 0, downstream_port = 0;
+	ib_net64_t guid = 0;
+	osm_switch_t *p_sw = NULL;
+	osm_node_t *remote_node = NULL;
+	osm_physp_t *p_physp = NULL;
+	osm_mcast_tbl_t *p_tbl = NULL;
+	vertex_t *curr_adj = NULL;
+
+	OSM_LOG_ENTER(p_sm->p_log);
+
+	for (i = 1; i < adj_list_size; i++) {
+		p_sw = adj_list[i].sw;
+		OSM_LOG(p_sm->p_log, OSM_LOG_VERBOSE,
+			"Processing switch 0x%016" PRIx64
+			" (%s) for MLID 0x%X\n", cl_ntoh64(adj_list[i].guid),
+			p_sw->p_node->print_desc, mlid_ho);
+
+		/* if a) no route goes thru this switch  or
+		      b) the switch does not support mcast  or
+		      c) no ports of this switch are part or the mcast group
+		   then cycle
+		 */
+		if (!(adj_list[i].used_link) ||
+		    osm_switch_supports_mcast(p_sw) == FALSE ||
+		    (p_sw->num_of_mcm == 0 && !(p_sw->is_mc_member)))
+			continue;
+
+		p_tbl = osm_switch_get_mcast_tbl_ptr(p_sw);
+
+		/* add all ports of this sw to the mcast table,
+		   if they are part of the mcast grp
+		 */
+		if (p_sw->is_mc_member)
+			osm_mcast_tbl_set(p_tbl, mlid_ho, 0);
+		for (port = 1; port < p_sw->num_ports; port++) {
+			/* get the node behind the port */
+			remote_node =
+				osm_node_get_remote_node(p_sw->p_node, port,
+							 &remote_port);
+			/* check if connected and its not the same switch */
+			if (!remote_node || remote_node->sw == p_sw)
+				continue;
+			/* make sure the link is healthy */
+			p_physp = osm_node_get_physp_ptr(p_sw->p_node, port);
+			if (!p_physp || !osm_link_is_healthy(p_physp))
+				continue;
+			/* we don't add upstream ports in this step */
+			if (osm_node_get_type(remote_node) != IB_NODE_TYPE_CA)
+				continue;
+
+			guid = osm_physp_get_port_guid(osm_node_get_physp_ptr(
+						       remote_node,
+						       remote_port));
+			if (cl_qmap_get(port_map, guid)
+			    != cl_qmap_end(port_map))
+				osm_mcast_tbl_set(p_tbl, mlid_ho, port);
+		}
+
+		/* now we have to add the upstream port of 'this' switch and
+		   the downstream port of the next switch to the mcast table
+		   until we reach the root_sw
+		 */
+		int counter;
+		counter = 0;
+		curr_adj = &adj_list[i];
+		while (curr_adj->sw != root_sw) {
+			/* the used_link is the link that was used in dijkstra to reach this node,
+			   so the to_port is the local (upstream) port on curr_adj->sw
+			 */
+			upstream_port = curr_adj->used_link->to_port;
+			osm_mcast_tbl_set(p_tbl, mlid_ho, upstream_port);
+
+			/* now we go one step in direction root_sw and add the
+			   downstream port for the spanning tree
+			 */
+			downstream_port = curr_adj->used_link->from_port;
+			p_tbl = osm_switch_get_mcast_tbl_ptr(
+				adj_list[curr_adj->used_link->from].sw);
+			osm_mcast_tbl_set(p_tbl, mlid_ho, downstream_port);
+
+			curr_adj = &adj_list[curr_adj->used_link->from];
+		}
+	}
+
+	OSM_LOG_EXIT(p_sm->p_log);
+	return 0;
+}
+
 /* increment the edge weights of the df-/sssp graph which represent the number
    of paths on this link
 */
@@ -2181,6 +2281,98 @@ static int dfsssp_do_dijkstra_routing(void *context)
 	return 0;
 }
 
+/* meta function which calls subfunctions for finding the optimal switch
+   for the spanning tree, performing a dijkstra step with this sw as root,
+   and calculating the mcast table for MLID
+*/
+static ib_api_status_t dfsssp_do_mcast_routing(void * context,
+					       osm_mgrp_box_t * mbox)
+{
+	dfsssp_context_t *dfsssp_ctx = (dfsssp_context_t *) context;
+	osm_ucast_mgr_t *p_mgr = (osm_ucast_mgr_t *) dfsssp_ctx->p_mgr;
+	osm_sm_t *sm = (osm_sm_t *) p_mgr->sm;
+	vertex_t *adj_list = (vertex_t *) dfsssp_ctx->adj_list;
+	uint32_t adj_list_size = dfsssp_ctx->adj_list_size;
+	cl_qlist_t mcastgrp_port_list;
+	cl_qmap_t mcastgrp_port_map;
+	osm_switch_t *root_sw = NULL;
+	osm_port_t *port = NULL;
+	ib_net16_t lid = 0;
+	uint32_t err = 0, num_ports = 0;
+	ib_api_status_t status = IB_SUCCESS;
+
+	OSM_LOG_ENTER(sm->p_log);
+
+	/* create a map and a list of all ports which are member in the mcast
+	   group; map for searching elements and list for iteration
+	 */
+	if (osm_mcast_make_port_list_and_map(&mcastgrp_port_list,
+					     &mcastgrp_port_map, mbox)) {
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR AD50: "
+                        "Insufficient memory to make port list\n");
+                status = IB_ERROR;
+                goto Exit;
+        }
+
+	num_ports = cl_qlist_count(&mcastgrp_port_list);
+	if (num_ports < 2) {
+		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
+			"MLID 0x%X has %u members - nothing to do\n",
+			mbox->mlid, num_ports);
+		goto Exit;
+	}
+
+	/* find the root switch for the spanning tree, which has the smallest
+	   hops count to all LIDs in the mcast group
+	 */
+	root_sw = osm_mcast_mgr_find_root_switch(sm, &mcastgrp_port_list);
+	if (!root_sw) {
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR AD51: "
+			"Unable to locate a suitable switch for group 0x%X\n",
+			mbox->mlid);
+		status = IB_ERROR;
+		goto Exit;
+	}
+
+	/* a) start one dijkstra step from the root switch to generate a
+	   spanning tree
+	   b) this might be a bit of an overkill to span the whole
+	   network, if there are only a few ports in the mcast group, but
+	   its only one dijkstra step for each mcast group and we did many
+	   steps before in the ucast routing for each LID in the subnet;
+	   c) we can use the subnet structure from the ucast routing, and
+	   don't even have to reset the link weights (=> therefore the mcast
+	   spanning tree will use less 'growded' links in the network)
+	   d) the mcast dfsssp algorithm will not change the link weights
+	 */
+	lid = osm_node_get_base_lid(root_sw->p_node, 0);
+	port = osm_get_port_by_lid(sm->p_subn, lid);
+	err = dijkstra(p_mgr, adj_list, adj_list_size, port, lid);
+	if (err) {
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR AD52: "
+			"Dijkstra step for mcast failed for group 0x%X\n",
+			mbox->mlid);
+		status = IB_ERROR;
+		goto Exit;
+	}
+
+	/* update the mcast forwarding tables of the switches */
+	err = update_mcft(sm, adj_list, adj_list_size, mbox->mlid,
+			  &mcastgrp_port_map, root_sw);
+	if (err) {
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR AD53: "
+			"Update of mcast forwarding tables failed for group 0x%X\n",
+			mbox->mlid);
+		status = IB_ERROR;
+		goto Exit;
+	}
+
+Exit:
+	osm_mcast_drop_port_list(&mcastgrp_port_list);
+	OSM_LOG_EXIT(sm->p_log);
+	return status;
+}
+
 /* called from extern in QP creation process to gain the the service level and
    the virtual lane respectively for a <s,d> pair
 */
@@ -2291,6 +2483,7 @@ int osm_ucast_dfsssp_setup(struct osm_routing_engine *r, osm_opensm_t * p_osm)
 	r->context = (void *)dfsssp_context;
 	r->build_lid_matrices = dfsssp_build_graph;
 	r->ucast_build_fwd_tables = dfsssp_do_dijkstra_routing;
+	r->mcast_build_stree = dfsssp_do_mcast_routing;
 	r->path_sl = get_dfsssp_sl;
 	r->destroy = delete;
 
@@ -2310,6 +2503,7 @@ int osm_ucast_sssp_setup(struct osm_routing_engine *r, osm_opensm_t * p_osm)
 	r->context = (void *)dfsssp_context;
 	r->build_lid_matrices = dfsssp_build_graph;
 	r->ucast_build_fwd_tables = dfsssp_do_dijkstra_routing;
+	r->mcast_build_stree = dfsssp_do_mcast_routing;
 	r->destroy = delete;
 
 	return 0;

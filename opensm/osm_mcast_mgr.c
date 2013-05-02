@@ -5,6 +5,7 @@
  * Copyright (c) 2008 Xsigo Systems Inc.  All rights reserved.
  * Copyright (c) 2009 Sun Microsystems, Inc. All rights reserved.
  * Copyright (c) 2010 HNR Consulting. All rights reserved.
+ * Copyright (C) 2012-2013 Tokyo Institute of Technology. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -59,12 +60,7 @@
 #include <opensm/osm_switch.h>
 #include <opensm/osm_helper.h>
 #include <opensm/osm_msgdef.h>
-
-typedef struct osm_mcast_work_obj {
-	cl_list_item_t list_item;
-	osm_port_t *p_port;
-	cl_map_item_t map_item;
-} osm_mcast_work_obj_t;
+#include <opensm/osm_mcast_mgr.h>
 
 static osm_mcast_work_obj_t *mcast_work_obj_new(IN osm_port_t * p_port)
 {
@@ -89,16 +85,16 @@ static void mcast_work_obj_delete(IN osm_mcast_work_obj_t * p_wobj)
 	free(p_wobj);
 }
 
-static int make_port_list(cl_qlist_t * list, osm_mgrp_box_t * mbox)
+int osm_mcast_make_port_list_and_map(cl_qlist_t * list, cl_qmap_t * map,
+				     osm_mgrp_box_t * mbox)
 {
-	cl_qmap_t map;
 	cl_map_item_t *map_item;
 	cl_list_item_t *list_item;
 	osm_mgrp_t *mgrp;
 	osm_mcm_port_t *mcm_port;
 	osm_mcast_work_obj_t *wobj;
 
-	cl_qmap_init(&map);
+	cl_qmap_init(map);
 	cl_qlist_init(list);
 
 	for (list_item = cl_qlist_head(&mbox->mgrp_list);
@@ -111,21 +107,21 @@ static int make_port_list(cl_qlist_t * list, osm_mgrp_box_t * mbox)
 			/* Acquire the port object for this port guid, then
 			   create the new worker object to build the list. */
 			mcm_port = cl_item_obj(map_item, mcm_port, map_item);
-			if (cl_qmap_get(&map, mcm_port->port->guid) !=
-			    cl_qmap_end(&map))
+			if (cl_qmap_get(map, mcm_port->port->guid) !=
+			    cl_qmap_end(map))
 				continue;
 			wobj = mcast_work_obj_new(mcm_port->port);
 			if (!wobj)
 				return -1;
 			cl_qlist_insert_tail(list, &wobj->list_item);
-			cl_qmap_insert(&map, mcm_port->port->guid,
+			cl_qmap_insert(map, mcm_port->port->guid,
 				       &wobj->map_item);
 		}
 	}
 	return 0;
 }
 
-static void drop_port_list(cl_qlist_t * list)
+void osm_mcast_drop_port_list(cl_qlist_t * list)
 {
 	while (cl_qlist_count(list))
 		mcast_work_obj_delete((osm_mcast_work_obj_t *)
@@ -330,7 +326,7 @@ static osm_switch_t *mcast_mgr_find_optimal_switch(osm_sm_t * sm,
 /**********************************************************************
    This function returns the existing or optimal root switch for the tree.
 **********************************************************************/
-static osm_switch_t *mcast_mgr_find_root_switch(osm_sm_t * sm, cl_qlist_t *list)
+osm_switch_t *osm_mcast_mgr_find_root_switch(osm_sm_t * sm, cl_qlist_t *list)
 {
 	osm_switch_t *p_sw = NULL;
 
@@ -494,7 +490,7 @@ static void mcast_mgr_purge_list(osm_sm_t * sm, cl_qlist_t * list)
 				osm_port_get_guid(wobj->p_port));
 		}
 	}
-	drop_port_list(list);
+	osm_mcast_drop_port_list(list);
 }
 
 /**********************************************************************
@@ -725,6 +721,7 @@ static ib_api_status_t mcast_mgr_build_spanning_tree(osm_sm_t * sm,
 						     osm_mgrp_box_t * mbox)
 {
 	cl_qlist_t port_list;
+	cl_qmap_t port_map;
 	uint32_t num_ports;
 	osm_switch_t *p_sw;
 	ib_api_status_t status = IB_SUCCESS;
@@ -741,7 +738,7 @@ static ib_api_status_t mcast_mgr_build_spanning_tree(osm_sm_t * sm,
 	osm_purge_mtree(sm, mbox);
 
 	/* build the first "subset" containing all member ports */
-	if (make_port_list(&port_list, mbox)) {
+	if (osm_mcast_make_port_list_and_map(&port_list, &port_map, mbox)) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A10: "
 			"Insufficient memory to make port list\n");
 		status = IB_ERROR;
@@ -753,7 +750,7 @@ static ib_api_status_t mcast_mgr_build_spanning_tree(osm_sm_t * sm,
 		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 			"MLID 0x%X has %u members - nothing to do\n",
 			mbox->mlid, num_ports);
-		drop_port_list(&port_list);
+		osm_mcast_drop_port_list(&port_list);
 		goto Exit;
 	}
 
@@ -773,12 +770,12 @@ static ib_api_status_t mcast_mgr_build_spanning_tree(osm_sm_t * sm,
 	   Locate the switch around which to create the spanning
 	   tree for this multicast group.
 	 */
-	p_sw = mcast_mgr_find_root_switch(sm, &port_list);
+	p_sw = osm_mcast_mgr_find_root_switch(sm, &port_list);
 	if (p_sw == NULL) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A08: "
 			"Unable to locate a suitable switch for group 0x%X\n",
 			mbox->mlid);
-		drop_port_list(&port_list);
+		osm_mcast_drop_port_list(&port_list);
 		status = IB_ERROR;
 		goto Exit;
 	}

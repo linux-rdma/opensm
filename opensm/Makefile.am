@@ -116,6 +116,7 @@ opensminclude_HEADERS = \
 	$(srcdir)/../include/opensm/osm_subnet.h \
 	$(srcdir)/../include/opensm/osm_switch.h \
 	$(srcdir)/../include/opensm/osm_ucast_mgr.h \
+	$(srcdir)/../include/opensm/osm_mcast_mgr.h \
 	$(srcdir)/../include/opensm/osm_ucast_cache.h \
 	$(srcdir)/../include/opensm/osm_vl15intf.h \
 	$(top_builddir)/include/opensm/osm_version.h \
