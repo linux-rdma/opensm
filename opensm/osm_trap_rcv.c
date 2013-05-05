@@ -258,13 +258,11 @@ static int disable_port(osm_sm_t *sm, osm_physp_t *p)
 		pi->master_sm_base_lid = sm->p_subn->sm_base_lid;
 	}
 
-	CL_PLOCK_ACQUIRE(sm->p_lock);
 	status = osm_req_set(sm, osm_physp_get_dr_path_ptr(p),
 			   payload, sizeof(payload), IB_MAD_ATTR_PORT_INFO,
 			   cl_hton32(osm_physp_get_port_num(p)),
 			   FALSE, m_key,
 			   CL_DISP_MSGID_NONE, &context);
-	CL_PLOCK_RELEASE(sm->p_lock);
 	return status;
 }
 
