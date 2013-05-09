@@ -1611,8 +1611,6 @@ static int update_mcft(osm_sm_t * p_sm, vertex_t * adj_list,
 		   the downstream port of the next switch to the mcast table
 		   until we reach the root_sw
 		 */
-		int counter;
-		counter = 0;
 		curr_adj = &adj_list[i];
 		while (curr_adj->sw != root_sw) {
 			/* the used_link is the link that was used in dijkstra to reach this node,
