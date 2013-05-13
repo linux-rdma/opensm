@@ -2,6 +2,7 @@
  * Copyright (c) 2006-2009 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2011 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
+ * Copyright (c) 2013 Oracle and/or its affiliates. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -841,10 +842,10 @@ static void mpr_rcv_build_pr(IN osm_sa_t * sa,
 	p_dest_physp = p_dest_alias_guid->p_base_port->p_physp;
 
 	p_pr->dgid.unicast.prefix = osm_physp_get_subnet_prefix(p_dest_physp);
-	p_pr->dgid.unicast.interface_id = osm_physp_get_port_guid(p_dest_physp);
+	p_pr->dgid.unicast.interface_id = p_dest_alias_guid->alias_guid;
 
 	p_pr->sgid.unicast.prefix = osm_physp_get_subnet_prefix(p_src_physp);
-	p_pr->sgid.unicast.interface_id = osm_physp_get_port_guid(p_src_physp);
+	p_pr->sgid.unicast.interface_id = p_src_alias_guid->alias_guid;
 
 	p_pr->dlid = cl_hton16(dest_lid_ho);
 	p_pr->slid = cl_hton16(src_lid_ho);
