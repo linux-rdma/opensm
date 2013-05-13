@@ -1288,7 +1288,6 @@ static uint8_t get_lash_sl(void *context, uint8_t path_sl_hint,
 	lash_t *p_lash = context;
 	osm_opensm_t *p_osm = p_lash->p_osm;
 
-
 	if (!(p_osm->routing_engine_used &&
 	      p_osm->routing_engine_used->type == OSM_ROUTING_ENGINE_TYPE_LASH))
 		return OSM_DEFAULT_SL;
