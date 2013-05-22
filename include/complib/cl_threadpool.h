@@ -74,7 +74,7 @@ BEGIN_C_DECLS
 *		cl_thread_pool_t
 *
 *	Initialization:
-*		cl_thread_pool_construct, cl_thread_pool_init, cl_thread_pool_destroy
+*		cl_thread_pool_init, cl_thread_pool_destroy
 *
 *	Manipulation
 *		cl_thread_pool_signal
@@ -177,7 +177,7 @@ cl_thread_pool_init(IN cl_thread_pool_t * const p_thread_pool,
 *	are processors in the system.
 *
 * SEE ALSO
-*	Thread Pool, cl_thread_pool_construct, cl_thread_pool_destroy,
+*	Thread Pool, cl_thread_pool_destroy,
 *	cl_thread_pool_signal, cl_pfn_thread_callback_t
 *********/
 
@@ -207,10 +207,10 @@ void cl_thread_pool_destroy(IN cl_thread_pool_t * const p_thread_pool);
 *	state is valid from the calling thread context.
 *
 *	This function should only be called after a call to
-*	cl_thread_pool_construct or cl_thread_pool_init.
+*	cl_thread_pool_init.
 *
 * SEE ALSO
-*	Thread Pool, cl_thread_pool_construct, cl_thread_pool_init
+*	Thread Pool, cl_thread_pool_init
 *********/
 
 /****f* Component Library: Thread Pool/cl_thread_pool_signal
