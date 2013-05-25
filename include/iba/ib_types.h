@@ -3406,7 +3406,7 @@ ib_path_rec_hop_limit(IN const ib_path_rec_t * const p_rec)
 *
 * DESCRIPTION
 *	ClassPortInfo CapabilityMask bits.
-*	Switch only: This bit will be set if the EnhacedPort0
+*	Switch only: This bit will be set if the EnhancedPort0
 *	supports CA Congestion Control (A10.4.3.1).
 *
 * SEE ALSO
