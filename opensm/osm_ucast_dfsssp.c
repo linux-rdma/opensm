@@ -2174,6 +2174,7 @@ static int dfsssp_do_dijkstra_routing(void *context)
 		} else {
 			OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR,
 				"ERR AD31: corrupted sw_list array in dfsssp_do_dijkstra_routing\n");
+			free(sw_list);
 			return 1;
 		}
 	}
