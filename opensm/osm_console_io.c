@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2005-2009 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2008 HNR Consulting. All rights reserved.
+ * Copyright (c) 2013 Oracle and/or its affiliates. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -107,10 +108,10 @@ int cio_close(osm_console_t * p_oct, osm_log_t * p_log)
 {
 	int rtnval = -1;
 	if (p_oct && p_oct->in_fd > 0) {
-		OSM_LOG(p_log, OSM_LOG_INFO,
+		OSM_LOG(p_log, OSM_LOG_VERBOSE,
 			"Console connection closed: %s (%s)\n",
 			p_oct->client_hn, p_oct->client_ip);
-		rtnval = close(p_oct->in_fd);
+		rtnval = fclose(p_oct->in);
 		p_oct->in_fd = -1;
 		p_oct->out_fd = -1;
 		p_oct->in = NULL;
@@ -138,9 +139,10 @@ int cio_open(osm_console_t * p_oct, int new_fd, osm_log_t * p_log)
 			cio_close(p_oct, p_log);
 		else {
 			OSM_LOG(p_log, OSM_LOG_INFO,
-				"Console connection aborted: %s (%s)\n",
+				"Console connection aborted: %s (%s) - "
+				"already in use\n",
 				p_oct->client_hn, p_oct->client_ip);
-			close(new_fd);
+			fclose(file);
 			free(p_line);
 			return -1;
 		}
@@ -151,7 +153,7 @@ int cio_open(osm_console_t * p_oct, int new_fd, osm_log_t * p_log)
 	p_oct->in = fdopen(p_oct->in_fd, "w+");
 	p_oct->out = p_oct->in;
 	osm_console_prompt(p_oct->out);
-	OSM_LOG(p_log, OSM_LOG_INFO, "Console connection accepted: %s (%s)\n",
+	OSM_LOG(p_log, OSM_LOG_VERBOSE, "Console connection accepted: %s (%s)\n",
 		p_oct->client_hn, p_oct->client_ip);
 
 	return (p_oct->in == NULL) ? -1 : 0;
@@ -224,7 +226,7 @@ int osm_console_init(osm_subn_opt_t * opt, osm_console_t * p_oct, osm_log_t * p_
 		}
 		if (listen(p_oct->socket, 1) < 0) {
 			OSM_LOG(p_log, OSM_LOG_ERROR,
-				"ERR 4B03: Failed to listen on socket: %s\n",
+				"ERR 4B03: Failed to listen on console socket: %s\n",
 				strerror(errno));
 			return -1;
 		}
