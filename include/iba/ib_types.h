@@ -3,6 +3,7 @@
  * Copyright (c) 2002-2011 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2009 HNR Consulting. All rights reserved.
+ * Copyright (c) 2013 Oracle and/or its affiliates. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -7618,6 +7619,23 @@ ib_member_set_join_state(IN OUT ib_member_rec_t * p_mc_rec,
 #define IB_NOTICE_TYPE_SUBN_MGMT			0x03
 #define IB_NOTICE_TYPE_INFO				0x04
 #define IB_NOTICE_TYPE_EMPTY				0x7F
+
+#define SM_GID_IN_SERVICE_TRAP				64
+#define SM_GID_OUT_OF_SERVICE_TRAP			65
+#define SM_MGID_CREATED_TRAP				66
+#define SM_MGID_DESTROYED_TRAP				67
+#define SM_UNPATH_TRAP					68
+#define SM_REPATH_TRAP					69
+#define SM_LINK_STATE_CHANGED_TRAP			128
+#define SM_LINK_INTEGRITY_THRESHOLD_TRAP		129
+#define SM_BUFFER_OVERRUN_THRESHOLD_TRAP		130
+#define SM_WATCHDOG_TIMER_EXPIRED_TRAP			131
+#define SM_LOCAL_CHANGES_TRAP				144
+#define SM_SYS_IMG_GUID_CHANGED_TRAP			145
+#define SM_BAD_MKEY_TRAP				256
+#define SM_BAD_PKEY_TRAP				257
+#define SM_BAD_QKEY_TRAP				258
+#define SM_BAD_SWITCH_PKEY_TRAP				259
 
 #include <complib/cl_packon.h>
 typedef struct _ib_mad_notice_attr	// Total Size calc  Accumulated
