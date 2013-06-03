@@ -2,6 +2,7 @@
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2007 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
+ * Copyright (c) 2013 Oracle and/or its affiliates. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -87,7 +88,7 @@ static void nd_rcv_process_nd(IN osm_sm_t * sm, IN osm_node_t * p_node,
 #endif				/* ENABLE_OSM_PERF_MGR */
 
 	OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
-		"Node 0x%" PRIx64 "\n\t\t\t\tDescription = %s\n",
+		"Node 0x%" PRIx64 ", Description = %s\n",
 		cl_ntoh64(osm_node_get_node_guid(p_node)), p_node->print_desc);
 
 	OSM_LOG_EXIT(sm->p_log);

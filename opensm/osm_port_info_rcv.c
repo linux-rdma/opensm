@@ -3,6 +3,7 @@
  * Copyright (c) 2002-2012 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2009 HNR Consulting. All rights reserved.
+ * Copyright (c) 2013 Oracle and/or its affiliates. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -146,8 +147,8 @@ static void pi_rcv_process_endport(IN osm_sm_t * sm, IN osm_physp_t * p_physp,
 					cl_ntoh64(port_guid));
 			else {
 				OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
-					"Detected another SM. Requesting SMInfo"
-					"\n\t\t\t\tPort 0x%" PRIx64 "\n",
+					"Detected another SM. Requesting SMInfo "
+					"from port 0x%" PRIx64 "\n",
 					cl_ntoh64(port_guid));
 
 				/*
@@ -168,8 +169,10 @@ static void pi_rcv_process_endport(IN osm_sm_t * sm, IN osm_physp_t * p_physp,
 				if (status != IB_SUCCESS)
 					OSM_LOG(sm->p_log, OSM_LOG_ERROR,
 						"ERR 0F05: "
-						"Failure requesting SMInfo (%s)\n",
-						ib_get_err_str(status));
+						"Failure requesting SMInfo (%s) "
+						"from port 0x%" PRIx64 "\n",
+						ib_get_err_str(status),
+						cl_ntoh64(port_guid));
 			}
 		} else {
 			p_sm =

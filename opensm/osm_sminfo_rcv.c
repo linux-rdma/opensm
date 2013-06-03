@@ -2,6 +2,7 @@
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
+ * Copyright (c) 2013 Oracle and/or its affiliates. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -116,7 +117,7 @@ static void smi_rcv_process_get_request(IN osm_sm_t * sm,
 	status = osm_resp_send(sm, p_madw, 0, payload);
 	if (status != IB_SUCCESS) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 2F02: "
-			"Error sending response (%s)\n",
+			"Error sending SMInfo response (%s)\n",
 			ib_get_err_str(status));
 		goto Exit;
 	}
@@ -177,7 +178,7 @@ static void smi_rcv_process_set_request(IN osm_sm_t * sm,
 
 	if (p_smp->method != IB_MAD_METHOD_SET) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 2F03: "
-			"Unsupported method 0x%X\n", p_smp->method);
+			"Unsupported set method 0x%X\n", p_smp->method);
 		goto Exit;
 	}
 
@@ -213,7 +214,7 @@ static void smi_rcv_process_set_request(IN osm_sm_t * sm,
 		status = osm_resp_send(sm, p_madw, 7, payload);
 		if (status != IB_SUCCESS)
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 2F05: "
-				"Error sending response (%s)\n",
+				"Error sending SMInfo response (%s)\n",
 				ib_get_err_str(status));
 		CL_PLOCK_RELEASE(sm->p_lock);
 		goto Exit;
@@ -260,7 +261,7 @@ static void smi_rcv_process_set_request(IN osm_sm_t * sm,
 		status = osm_resp_send(sm, p_madw, 7, payload);
 		if (status != IB_SUCCESS)
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 2F08: "
-				"Error sending response (%s)\n",
+				"Error sending SMInfo response (%s)\n",
 				ib_get_err_str(status));
 		goto Exit;
 	}
@@ -269,7 +270,7 @@ static void smi_rcv_process_set_request(IN osm_sm_t * sm,
 	status = osm_resp_send(sm, p_madw, 0, payload);
 	if (status != IB_SUCCESS)
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 2F09: "
-			"Error sending response (%s)\n",
+			"Error sending SMInfo response (%s)\n",
 			ib_get_err_str(status));
 
 	/* it is a legal packet - act according to it */
@@ -308,8 +309,9 @@ static void smi_rcv_process_get_sm(IN osm_sm_t * sm,
 	p_smi = &p_sm->smi;
 
 	OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
-		"Detected SM 0x%016" PRIx64 " in state %u\n",
-		cl_ntoh64(p_smi->guid), ib_sminfo_get_state(p_smi));
+		"Detected SM 0x%016" PRIx64 " in state %u (%s)\n",
+		cl_ntoh64(p_smi->guid), ib_sminfo_get_state(p_smi),
+		osm_get_sm_mgr_state_str(ib_sminfo_get_state(p_smi)));
 
 	/* Check the state of this SM vs. our own. */
 	switch (sm->p_subn->sm_state) {
@@ -443,7 +445,7 @@ static void smi_rcv_process_get_response(IN osm_sm_t * sm,
 
 	if (p_smp->method != IB_MAD_METHOD_GET_RESP) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 2F11: "
-			"Unsupported method 0x%X\n", p_smp->method);
+			"Unsupported response method 0x%X\n", p_smp->method);
 		goto Exit;
 	}
 
@@ -477,7 +479,7 @@ static void smi_rcv_process_get_response(IN osm_sm_t * sm,
 
 	if (osm_port_get_guid(p_port) != p_smi->guid) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 2F13: "
-			"Bogus SM port GUID\n\t\t\t\tExpected 0x%016" PRIx64
+			"Bogus SM port GUID, Expected 0x%016" PRIx64
 			", Received 0x%016" PRIx64 "\n",
 			cl_ntoh64(osm_port_get_guid(p_port)),
 			cl_ntoh64(p_smi->guid));
@@ -532,7 +534,7 @@ static void smi_rcv_process_set_response(IN osm_sm_t * sm,
 
 	if (p_smp->method != IB_MAD_METHOD_GET_RESP) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 2F16: "
-			"Unsupported method 0x%X\n", p_smp->method);
+			"Unsupported response method 0x%X\n", p_smp->method);
 		goto Exit;
 	}
 
@@ -542,7 +544,8 @@ static void smi_rcv_process_set_response(IN osm_sm_t * sm,
 	/* Check the AttributeModifier */
 	if (p_smp->attr_mod != IB_SMINFO_ATTR_MOD_HANDOVER) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 2F17: "
-			"Unsupported attribute modifier 0x%X\n",
+			"Unsupported attribute modifier 0x%X, "
+			"expected ATTR_MOD_HANDOVER\n",
 			p_smp->attr_mod);
 		goto Exit;
 	}
@@ -585,7 +588,7 @@ void osm_sminfo_rcv_process(IN void *context, IN void *data)
 		if (p_smi_context->port_guid != p_smi->guid) {
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 2F19: "
 				"Unexpected SM port GUID in response"
-				"\n\t\t\t\tExpected 0x%016" PRIx64
+				", Expected 0x%016" PRIx64
 				", Received 0x%016" PRIx64 "\n",
 				cl_ntoh64(p_smi_context->port_guid),
 				cl_ntoh64(p_smi->guid));
