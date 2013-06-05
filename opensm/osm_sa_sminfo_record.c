@@ -311,7 +311,7 @@ void osm_smir_rcv_process(IN void *ctx, IN void *data)
 				OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 280A: "
 					"No remote SM for GUID 0x%016" PRIx64
 					"\n", cl_ntoh64(port_guid));
-		} else {
+		} else if (!p_port) {
 			/* Go over all other known (remote) SMs */
 			cl_qmap_apply_func(&sa->p_subn->sm_guid_tbl,
 					   sa_smir_by_comp_mask_cb, &context);
