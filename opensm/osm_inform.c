@@ -305,10 +305,12 @@ static ib_api_status_t send_report(IN osm_infr_t * p_infr_rec,	/* the informinfo
 	/* HACK: who switches or uses the src and dest GIDs in the grh_info ?? */
 
 	/* it is better to use LIDs since the GIDs might not be there for SMI traps */
-	OSM_LOG(p_log, OSM_LOG_DEBUG, "Forwarding Notice Event from LID:%u"
-		" to InformInfo LID:%u TID:0x%X\n",
+	OSM_LOG(p_log, OSM_LOG_DEBUG, "Forwarding Notice Event from LID %u"
+		" to InformInfo LID %u GUID 0x%" PRIx64 ", TID 0x%X\n",
 		cl_ntoh16(p_ntc->issuer_lid),
-		cl_ntoh16(p_infr_rec->report_addr.dest_lid), trap_fwd_trans_id);
+		cl_ntoh16(p_infr_rec->report_addr.dest_lid),
+		cl_ntoh64(p_infr_rec->inform_record.subscriber_gid.unicast.interface_id),
+		trap_fwd_trans_id);
 
 	/* get the MAD to send */
 	p_report_madw = osm_mad_pool_get(p_infr_rec->sa->p_mad_pool,

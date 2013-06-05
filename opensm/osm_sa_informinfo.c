@@ -3,6 +3,7 @@
  * Copyright (c) 2002-2006 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2009 HNR Consulting. All rights reserved.
+ * Copyright (c) 2013 Oracle and/or its affiliates. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -544,6 +545,10 @@ static void infr_rcv_process_set_method(osm_sa_t * sa, IN osm_madw_t * p_madw)
 				goto Exit;
 			}
 
+			OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
+				"Adding event subscription for port 0x%" PRIx64 "\n",
+				cl_ntoh64(inform_info_rec.inform_record.subscriber_gid.unicast.interface_id));
+
 			/* Add this new osm_infr_t object to subnet object */
 			osm_infr_insert_to_db(sa->p_subn, sa->p_log, p_infr);
 		} else
@@ -561,9 +566,13 @@ static void infr_rcv_process_set_method(osm_sa_t * sa, IN osm_madw_t * p_madw)
 		p_recvd_inform_info->subscribe = 0;
 		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_REQ_INVALID);
 		goto Exit;
-	} else
+	} else {
 		/* Delete this object from the subnet list of informs */
+		OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
+			"Removing event subscription for port 0x%" PRIx64 "\n",
+			cl_ntoh64(inform_info_rec.inform_record.subscriber_gid.unicast.interface_id));
 		osm_infr_remove_from_db(sa->p_subn, sa->p_log, p_infr);
+	}
 
 	cl_plock_release(sa->p_lock);
 
