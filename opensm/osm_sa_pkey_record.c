@@ -2,6 +2,7 @@
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
+ * Copyright (c) 2013 Oracle and/or its affiliates. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -237,7 +238,7 @@ void osm_pkey_rec_rcv_process(IN void *ctx, IN void *data)
 	if (p_rcvd_mad->method != IB_MAD_METHOD_GET &&
 	    p_rcvd_mad->method != IB_MAD_METHOD_GETTABLE) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4605: "
-			"Unsupported Method (%s)\n",
+			"Unsupported Method (%s) for PKeyRecord request\n",
 			ib_get_sa_method_str(p_rcvd_mad->method));
 		osm_sa_send_error(sa, p_madw, IB_MAD_STATUS_UNSUP_METHOD_ATTR);
 		goto Exit;
@@ -251,8 +252,8 @@ void osm_pkey_rec_rcv_process(IN void *ctx, IN void *data)
 	if (p_rcvd_mad->sm_key != sa->p_subn->opt.sa_key) {
 		/* This is not a trusted requester! */
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4608: "
-			"Request from non-trusted requester: "
-			"Given SM_Key:0x%016" PRIx64 "\n",
+			"Ignoring PKeyRecord request from non-trusted requester"
+			" with SM_Key 0x%016" PRIx64 "\n",
 			cl_ntoh64(p_rcvd_mad->sm_key));
 		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_REQ_INVALID);
 		goto Exit;

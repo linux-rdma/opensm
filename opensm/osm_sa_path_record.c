@@ -6,6 +6,7 @@
  * Copyright (c) 2009 HNR Consulting. All rights reserved.
  * Copyright (c) 2010 Sun Microsystems, Inc. All rights reserved.
  * Copyright (c) 2009-2011 ZIH, TU Dresden, Federal Republic of Germany. All rights reserved.
+ * Copyright (c) 2013 Oracle and/or its affiliates. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -1702,7 +1703,7 @@ void osm_pr_rcv_process(IN void *context, IN void *data)
 	if (p_sa_mad->method != IB_MAD_METHOD_GET &&
 	    p_sa_mad->method != IB_MAD_METHOD_GETTABLE) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F17: "
-			"Unsupported Method (%s)\n",
+			"Unsupported Method (%s) for PathRecord request\n",
 			ib_get_sa_method_str(p_sa_mad->method));
 		osm_sa_send_error(sa, p_madw, IB_MAD_STATUS_UNSUP_METHOD_ATTR);
 		goto Exit;

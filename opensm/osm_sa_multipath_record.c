@@ -1562,7 +1562,7 @@ void osm_mpr_rcv_process(IN void *context, IN void *data)
 	/* we only support SubnAdmGetMulti method */
 	if (p_sa_mad->method != IB_MAD_METHOD_GETMULTI) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4513: "
-			"Unsupported Method (%s)\n",
+			"Unsupported Method (%s) for MultiPathRecord request\n",
 			ib_get_sa_method_str(p_sa_mad->method));
 		osm_sa_send_error(sa, p_madw, IB_MAD_STATUS_UNSUP_METHOD_ATTR);
 		goto Exit;
