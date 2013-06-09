@@ -3267,8 +3267,11 @@ fabric_construct_hca_ports(IN ftree_fabric_t * p_ftree, IN ftree_hca_t * p_hca)
 	osm_physp_t *p_remote_osm_port;
 	uint8_t i;
 	uint8_t remote_port_num;
-	boolean_t is_cn = FALSE;
+	boolean_t is_cn = TRUE;
+	boolean_t is_in_cn_file = FALSE;
 	boolean_t is_io = FALSE;
+	boolean_t is_cns_file_provided = fabric_cns_provided(p_ftree);
+	boolean_t is_ios_file_provided = fabric_ios_provided(p_ftree);
 	int res = 0;
 
 	for (i = 0; i < osm_node_get_num_physp(p_node); i++) {
@@ -3324,16 +3327,27 @@ fabric_construct_hca_ports(IN ftree_fabric_t * p_ftree, IN ftree_hca_t * p_hca)
 		/* If CN file is not supplied, then all the CAs considered as Compute Nodes.
 		   Otherwise all the CAs are not CNs, and only guids that are present in the
 		   CN file will be marked as compute nodes. */
-		if (!fabric_cns_provided(p_ftree)) {
-			is_cn = TRUE;
-		} else {
+		if (is_cns_file_provided == TRUE) {
 			name_map_item_t *p_elem = (name_map_item_t *)
-			    cl_qmap_get(&p_ftree->cn_guid_tbl,
-					cl_ntoh64(osm_physp_get_port_guid
-						  (p_osm_port)));
+			cl_qmap_get(&p_ftree->cn_guid_tbl,
+				    cl_ntoh64(osm_physp_get_port_guid
+					     (p_osm_port)));
+			if (p_elem == (name_map_item_t *)
+				cl_qmap_end(&p_ftree->cn_guid_tbl))
+				is_cn = FALSE;
+			else
+				is_in_cn_file = TRUE;
+		}
+		if (is_in_cn_file == FALSE && is_ios_file_provided == TRUE) {
+			name_map_item_t *p_elem = (name_map_item_t *)
+			cl_qmap_get(&p_ftree->io_guid_tbl,
+				    cl_ntoh64(osm_physp_get_port_guid
+					     (p_osm_port)));
 			if (p_elem != (name_map_item_t *)
-			    cl_qmap_end(&p_ftree->cn_guid_tbl))
-				is_cn = TRUE;
+				cl_qmap_end(&p_ftree->io_guid_tbl)) {
+				is_io = TRUE;
+				is_cn = FALSE;
+			}
 		}
 
 		if (is_cn) {
@@ -3342,32 +3356,19 @@ fabric_construct_hca_ports(IN ftree_fabric_t * p_ftree, IN ftree_hca_t * p_hca)
 			OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
 				"Marking CN port GUID 0x%016" PRIx64 "\n",
 				cl_ntoh64(osm_physp_get_port_guid(p_osm_port)));
-		} else {
-			if (fabric_ios_provided(p_ftree)) {
-				name_map_item_t *p_elem = (name_map_item_t *)
-				    cl_qmap_get(&p_ftree->io_guid_tbl,
-						cl_ntoh64
-						(osm_physp_get_port_guid
-						 (p_osm_port)));
-				if (p_elem != (name_map_item_t *)
-				    cl_qmap_end(&p_ftree->io_guid_tbl))
-					is_io = TRUE;
-			}
-
-			if (is_io) {
+		} else if (is_io) {
 				OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
 					"Marking I/O port GUID 0x%016" PRIx64
 					"\n",
 					cl_ntoh64(osm_physp_get_port_guid
-						  (p_osm_port)));
+						 (p_osm_port)));
 
-			} else {
+		} else {
 				OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
 					"Marking non-CN port GUID 0x%016" PRIx64
 					"\n",
 					cl_ntoh64(osm_physp_get_port_guid
-						  (p_osm_port)));
-			}
+						 (p_osm_port)));
 		}
 		p_ftree->ca_ports++;
 

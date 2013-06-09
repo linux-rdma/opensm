@@ -2414,11 +2414,14 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 
 	fprintf(out,
 		"# The file holding the fat-tree I/O node guids\n"
-		"# One guid in each line\nio_guid_file %s\n\n",
+		"# One guid in each line.\n"
+		"# If only io_guid file is provided, the rest of nodes\n"
+		"# are considered as compute nodes.\n"
+		"io_guid_file %s\n\n",
 		p_opts->io_guid_file ? p_opts->io_guid_file : null_str);
 
 	fprintf(out,
-		"# Number of reverse hops allowed for I/O nodes \n"
+		"# Number of reverse hops allowed for I/O nodes\n"
 		"# Used for connectivity between I/O nodes connected to Top Switches\nmax_reverse_hops %d\n\n",
 		p_opts->max_reverse_hops);
 
