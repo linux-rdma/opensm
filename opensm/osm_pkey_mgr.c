@@ -481,7 +481,7 @@ static int pkey_mgr_update_port(osm_log_t * p_log, osm_sm_t * sm,
 					       block_index);
 		if (status == IB_SUCCESS)
 			OSM_LOG(p_log, OSM_LOG_DEBUG,
-				"Updated pkey table block %d for node 0x%016"
+				"Updated pkey table block %u for node 0x%016"
 				PRIx64 " port %u (%s)\n", block_index,
 				cl_ntoh64(osm_node_get_node_guid(p_node)),
 				osm_physp_get_port_num(p_physp),
@@ -489,7 +489,7 @@ static int pkey_mgr_update_port(osm_log_t * p_log, osm_sm_t * sm,
 		else {
 			OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0506: "
 				"pkey_mgr_update_pkey_entry() failed to update "
-				"pkey table block %d for node 0x%016" PRIx64
+				"pkey table block %u for node 0x%016" PRIx64
 				" port %u (%s)\n", block_index,
 				cl_ntoh64(osm_node_get_node_guid(p_node)),
 				osm_physp_get_port_num(p_physp),
@@ -546,7 +546,7 @@ static int update_peer_block(osm_log_t * p_log, osm_sm_t * sm,
 					       peer_block_idx) != IB_SUCCESS) {
 			OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0509: "
 				"pkey_mgr_update_pkey_entry() failed to update "
-				"pkey table block %d for node 0x%016"
+				"pkey table block %u for node 0x%016"
 				PRIx64 " port %u (%s)\n",
 				peer_block_idx,
 				cl_ntoh64(osm_node_get_node_guid(p_node)),

@@ -105,7 +105,7 @@ void osm_lft_rcv_process(IN void *context, IN void *data)
 			}
 		} else {
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0402: "
-				"Setting forwarding table block %d failed (%s)"
+				"Setting forwarding table block %u failed (%s)"
 				", Switch 0x%" PRIx64 " %s\n", block_num,
 				ib_get_err_str(status), cl_ntoh64(node_guid),
 				p_sw->p_node->print_desc);
