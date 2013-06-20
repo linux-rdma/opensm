@@ -157,7 +157,7 @@ static void sm_state_mgr_start_polling(osm_sm_t * sm)
 	cl_status = cl_timer_start(&sm->polling_timer, timeout);
 	if (cl_status != CL_SUCCESS)
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3210: "
-			"Failed to start timer\n");
+			"Failed to start polling timer\n");
 
 	OSM_LOG_EXIT(sm->p_log);
 }
@@ -201,7 +201,8 @@ void osm_sm_state_mgr_polling_callback(IN void *context)
 	 * osm_sm_state_mgr_process with signal OSM_SM_SIGNAL_POLLING_TIMEOUT
 	 */
 	sm->retry_number++;
-	OSM_LOG(sm->p_log, OSM_LOG_VERBOSE, "Retry number:%d\n",
+	OSM_LOG(sm->p_log, OSM_LOG_VERBOSE, "SM State %d (%s), Retry number:%d\n",
+		sm->p_subn->sm_state,  osm_get_sm_mgr_state_str(sm->p_subn->sm_state),
 		sm->retry_number);
 
 	if (sm->retry_number >= sm->p_subn->opt.polling_retry_number) {
@@ -219,7 +220,7 @@ void osm_sm_state_mgr_polling_callback(IN void *context)
 	cl_status = cl_timer_start(&sm->polling_timer, timeout);
 	if (cl_status != CL_SUCCESS)
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3211: "
-			"Failed to restart timer\n");
+			"Failed to restart polling timer\n");
 
 Exit:
 	OSM_LOG_EXIT(sm->p_log);
@@ -414,8 +415,8 @@ ib_api_status_t osm_sm_state_mgr_process(osm_sm_t * sm,
 			 * handover from it.
 			 */
 			OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
-				"Forcing heavy sweep. "
-				"Received OSM_SM_SIGNAL_HANDOVER or OSM_SM_SIGNAL_POLLING_TIMEOUT\n");
+				"Forcing heavy sweep. Received signal %s\n",
+				osm_get_sm_mgr_signal_str(signal));
 			/* Force set_client_rereg_on_sweep, we don't know what the other
 			 * SM may have configure/done on the fabric.
 			 */
