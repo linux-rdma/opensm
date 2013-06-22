@@ -129,6 +129,9 @@ void cl_thread_pool_destroy(IN cl_thread_pool_t * const p_thread_pool)
 			pthread_join(p_thread_pool->tid[i], NULL);
 
 	p_thread_pool->running_count = 0;
+
+	free(p_thread_pool->tid);
+
 	pthread_cond_destroy(&p_thread_pool->cond);
 	pthread_mutex_destroy(&p_thread_pool->mutex);
 
