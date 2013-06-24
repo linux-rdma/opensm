@@ -90,7 +90,7 @@ static osm_physp_t *get_physp_by_lid_and_num(IN osm_sm_t * sm,
 	if (!p_port)
 		return NULL;
 
-	if (osm_node_get_num_physp(p_port->p_node) < num)
+	if (osm_node_get_num_physp(p_port->p_node) <= num)
 		return NULL;
 
 	return osm_node_get_physp_ptr(p_port->p_node, num);
