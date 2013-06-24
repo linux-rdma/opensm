@@ -967,7 +967,6 @@ static void ucast_mgr_set_fwd_top(IN cl_map_item_t * p_map_item,
 static int set_lft_block(IN osm_switch_t *p_sw, IN osm_ucast_mgr_t *p_mgr,
 			 IN uint16_t block_id_ho)
 {
-	uint8_t block[IB_SMP_DATA_SIZE];
 	osm_madw_context_t context;
 	osm_dr_path_t *p_path;
 	ib_api_status_t status;
@@ -989,10 +988,10 @@ static int set_lft_block(IN osm_switch_t *p_sw, IN osm_ucast_mgr_t *p_mgr,
 	context.lft_context.node_guid = osm_node_get_node_guid(p_sw->p_node);
 	context.lft_context.set_method = TRUE;
 
-	if (!osm_switch_get_lft_block(p_sw, block_id_ho, block) ||
-	    (!p_sw->need_update && !p_mgr->p_subn->need_update &&
-	     !memcmp(block, p_sw->new_lft + block_id_ho * IB_SMP_DATA_SIZE,
-		     IB_SMP_DATA_SIZE)))
+	if (!p_sw->need_update && !p_mgr->p_subn->need_update &&
+	    !memcmp(p_sw->new_lft + block_id_ho * IB_SMP_DATA_SIZE,
+		    p_sw->lft + block_id_ho * IB_SMP_DATA_SIZE,
+		    IB_SMP_DATA_SIZE))
 		return 0;
 
 	OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
