@@ -1110,14 +1110,7 @@ int osm_ucast_mgr_process(IN osm_ucast_mgr_t * p_mgr)
 	if (!p_osm->routing_engine_used &&
 	    p_osm->no_fallback_routing_engine != TRUE) {
 		/* If configured routing algorithm failed, use default MinHop */
-		struct osm_routing_engine *r = p_osm->default_routing_engine;
-
-		r->build_lid_matrices(r->context);
-		failed = r->ucast_build_fwd_tables(r->context);
-		if (!failed) {
-			p_osm->routing_engine_used = r;
-			osm_ucast_mgr_set_fwd_tables(p_mgr);
-		}
+		failed = ucast_mgr_route(p_osm->default_routing_engine, p_osm);
 	}
 
 	if (p_osm->routing_engine_used) {
