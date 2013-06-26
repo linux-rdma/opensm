@@ -554,9 +554,8 @@ static boolean_t validate_delete(IN osm_sa_t * sa, IN osm_mgrp_t * p_mgrp,
  *    scope bits set. (EZ: the idea here is that SA created MGIDs are the
  *    only source for this signature with link-local scope)
  */
-static ib_api_status_t validate_requested_mgid(IN osm_sa_t * sa,
-					       IN const ib_member_rec_t *
-					       p_mcm_rec)
+static boolean_t validate_requested_mgid(IN osm_sa_t * sa,
+					 IN const ib_member_rec_t * p_mcm_rec)
 {
 	uint16_t signature;
 	boolean_t valid = TRUE;
