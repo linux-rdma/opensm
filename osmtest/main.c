@@ -293,7 +293,7 @@ int main(int argc, char *argv[])
 		{"wait", 1, NULL, 'w'},
 		{"inventory", 1, NULL, 'i'},
 		{"max_lid", 1, NULL, 'm'},
-		{"guid", 2, NULL, 'g'},
+		{"guid", 1, NULL, 'g'},
 		{"port", 0, NULL, 'p'},
 		{"help", 0, NULL, 'h'},
 		{"stress", 1, NULL, 's'},
