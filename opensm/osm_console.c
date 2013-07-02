@@ -178,7 +178,7 @@ static void help_status(FILE * out, int detail)
 
 static void help_logflush(FILE * out, int detail)
 {
-	fprintf(out, "logflush -- flush the opensm.log file\n");
+	fprintf(out, "logflush [on|off] -- toggle opensm.log file flushing\n");
 }
 
 static void help_querylid(FILE * out, int detail)
@@ -599,7 +599,20 @@ static void sweep_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 
 static void logflush_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 {
-	fflush(p_osm->log.out_port);
+	char *p_cmd;
+
+	p_cmd = next_token(p_last);
+	if (!p_cmd ||
+	    (strcmp(p_cmd, "on") != 0 && strcmp(p_cmd, "off") != 0)) {
+		fprintf(out, "Invalid logflush command\n");
+		help_sweep(out, 1);
+	} else {
+		if (strcmp(p_cmd, "on") == 0) {
+			p_osm->log.flush = TRUE;
+	                fflush(p_osm->log.out_port);
+		} else
+			p_osm->log.flush = FALSE;
+	}
 }
 
 static void querylid_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
