@@ -1190,7 +1190,7 @@ static void do_sweep(osm_sm_t * sm)
 					"REROUTE COMPLETE");
 			osm_opensm_report_event(sm->p_subn->p_osm,
 						OSM_EVENT_ID_UCAST_ROUTING_DONE,
-						NULL);
+						(void *) UCAST_ROUTING_REROUTE);
 			return;
 		}
 	}
@@ -1387,7 +1387,8 @@ repeat_discovery:
 	OSM_LOG_MSG_BOX(sm->p_log, OSM_LOG_VERBOSE,
 			"SWITCHES CONFIGURED FOR UNICAST");
 	osm_opensm_report_event(sm->p_subn->p_osm,
-				OSM_EVENT_ID_UCAST_ROUTING_DONE, NULL);
+				OSM_EVENT_ID_UCAST_ROUTING_DONE,
+				(void *) UCAST_ROUTING_HEAVY_SWEEP);
 
 	if (!sm->p_subn->opt.disable_multicast) {
 		osm_mcast_mgr_process(sm, TRUE);

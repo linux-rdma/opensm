@@ -94,6 +94,12 @@ typedef enum {
 	LFT_CHANGED_BLOCK = (1 << 1)
 } osm_epi_lft_change_flags_t;
 
+typedef enum {
+	UCAST_ROUTING_NONE,
+	UCAST_ROUTING_HEAVY_SWEEP,
+	UCAST_ROUTING_REROUTE
+} osm_epi_ucast_routing_flags_t;
+
 typedef struct osm_epi_lft_change_event {
 	osm_switch_t *p_sw;
 	osm_epi_lft_change_flags_t flags;

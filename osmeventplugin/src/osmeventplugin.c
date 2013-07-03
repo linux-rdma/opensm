@@ -195,7 +195,7 @@ static void report(void *_log, osm_epi_event_id_t event_id, void *event_data)
 		fprintf(log->log_file, "Heavy sweep completed\n");
 		break;
 	case OSM_EVENT_ID_UCAST_ROUTING_DONE:
-		fprintf(log->log_file, "Unicast routing completed\n");
+		fprintf(log->log_file, "Unicast routing completed %d\n", event_data);
 		break;
 	case OSM_EVENT_ID_STATE_CHANGE:
 		fprintf(log->log_file, "SM state changed\n");
