@@ -503,7 +503,7 @@ void __cl_event_wheel_dump(IN cl_event_wheel_t * const p_event_wheel)
 
 /* The callback for aging event */
 /* We assume we pass a text context */
-void __test_event_aging(uint64_t key, void *context)
+static uint64_t __test_event_aging(uint64_t key, uint32_t num_regs, void *context)
 {
 	printf("*****************************************************\n");
 	printf("Aged key: 0x%" PRIx64 " Context:%s\n", key, (char *)context);
@@ -513,6 +513,9 @@ int main()
 {
 	cl_event_wheel_t event_wheel;
 	/*  uint64_t key; */
+
+	/* init complib */
+	complib_init();
 
 	/* construct */
 	cl_event_wheel_construct(&event_wheel);
@@ -559,6 +562,8 @@ int main()
 	sleep(5);
 	/* destroy */
 	cl_event_wheel_destroy(&event_wheel);
+
+	complib_exit();
 
 	return (0);
 }
