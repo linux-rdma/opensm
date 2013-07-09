@@ -238,8 +238,8 @@ void cl_event_wheel_dump(IN cl_event_wheel_t * const p_event_wheel)
 		    PARENT_STRUCT(p_list_item, cl_event_wheel_reg_info_t,
 				  list_item);
 		CL_DBG("cl_event_wheel_dump: Found event key:<0x%"
-		       PRIx64 ">, aging time:%" PRIu64 "\n",
-		       p_event->key, p_event->aging_time);
+		       PRIx64 ">, num_regs:%d, aging time:%" PRIu64 "\n",
+		       p_event->key, p_event->num_regs, p_event->aging_time);
 		p_list_item = cl_qlist_next(p_list_item);
 	}
 }
