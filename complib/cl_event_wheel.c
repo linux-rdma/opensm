@@ -173,7 +173,7 @@ static void __cl_event_wheel_callback(IN void *context)
 		       "%u [msec]\n", new_timeout);
 		cl_status = cl_timer_start(&p_event_wheel->timer, new_timeout);
 		if (cl_status != CL_SUCCESS) {
-			CL_DBG("__cl_event_wheel_callback : ERR 6100: "
+			CL_DBG("__cl_event_wheel_callback : ERR 6200: "
 			       "Failed to start timer\n");
 		}
 	}
@@ -371,7 +371,7 @@ cl_status_t cl_event_wheel_reg(IN cl_event_wheel_t * const p_event_wheel,
 		/* start the timer to the timeout [msec] */
 		cl_status = cl_timer_start(&p_event_wheel->timer, to);
 		if (cl_status != CL_SUCCESS) {
-			CL_DBG("cl_event_wheel_reg : ERR 6103: "
+			CL_DBG("cl_event_wheel_reg : ERR 6203: "
 			       "Failed to start timer\n");
 			goto Exit;
 		}
