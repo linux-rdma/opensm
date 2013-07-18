@@ -167,8 +167,7 @@ static void __cl_event_wheel_callback(IN void *context)
 
 		/* start the timer to the timeout [msec] */
 		new_timeout =
-		    (uint32_t) (((p_event->aging_time - current_time) / 1000) +
-				0.5);
+		    (uint32_t) ((p_event->aging_time - current_time + 500) / 1000);
 		CL_DBG("__cl_event_wheel_callback: Restart timer in: "
 		       "%u [msec]\n", new_timeout);
 		cl_status = cl_timer_start(&p_event_wheel->timer, new_timeout);
