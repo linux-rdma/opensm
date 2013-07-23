@@ -234,8 +234,7 @@ osm_pkt_randomizer_mad_drop(IN osm_log_t * p_log,
 		/* This is a lid route mad. Don't drop it */
 		goto Exit;
 
-	osm_dr_path_init(&dr_path, 0,	/* The h_bind is not really important for us to save */
-			 p_smp->hop_count, p_smp->initial_path);
+	osm_dr_path_init(&dr_path, p_smp->hop_count, p_smp->initial_path);
 
 	if (__osm_pkt_randomizer_process_path
 	    (p_log, p_pkt_randomizer, &dr_path)) {
