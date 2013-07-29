@@ -629,6 +629,11 @@ static void cc_mad_recv_callback(osm_madw_t * p_madw, void *bind_context,
 
 	OSM_LOG_ENTER(p_cc->log);
 
+	CL_ASSERT(p_madw);
+
+	/* HACK - should be extended when supporting CC traps */
+	CL_ASSERT(p_req_madw != NULL);
+
 	osm_madw_copy_context(p_madw, p_req_madw);
 	osm_mad_pool_put(p_cc->mad_pool, p_req_madw);
 

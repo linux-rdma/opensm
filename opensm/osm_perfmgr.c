@@ -176,6 +176,9 @@ static void perfmgr_mad_recv_callback(osm_madw_t * p_madw, void *bind_context,
 
 	OSM_LOG_ENTER(pm->log);
 
+	CL_ASSERT(p_madw);
+	CL_ASSERT(p_req_madw != NULL);
+
 	osm_madw_copy_context(p_madw, p_req_madw);
 	osm_mad_pool_put(pm->mad_pool, p_req_madw);
 
