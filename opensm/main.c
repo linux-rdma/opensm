@@ -213,7 +213,8 @@ static void show_usage(void)
 	       "          loaded.\n\n");
 	printf("--lfts_file, -U <file name>\n"
 	       "          This option specifies the name of the LFTs file\n"
-	       "          from where switch forwarding tables will be loaded.\n\n");
+	       "          from where switch forwarding tables will be loaded when using \"file\"\n"
+	       "          routing engine.\n\n");
 	printf("--sadb_file, -S <file name>\n"
 	       "          This option specifies the name of the SA DB dump file\n"
 	       "          from where SA database will be loaded.\n\n");

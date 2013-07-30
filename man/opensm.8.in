@@ -197,7 +197,8 @@ loaded.
 .TP
 \fB\-U\fR, \fB\-\-lfts_file\fR <file name>
 This option specifies the name of the LFTs file
-from where switch forwarding tables will be loaded.
+from where switch forwarding tables will be loaded when using "file" routing
+engine.
 .TP
 \fB\-S\fR, \fB\-\-sadb_file\fR <file name>
 This option specifies the name of the SA DB dump file
