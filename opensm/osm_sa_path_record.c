@@ -379,7 +379,7 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 					  ib_port_info_compute_rate(p_pi,
 								    p_pi0->capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS)) > 0)
 			rate = ib_port_info_compute_rate(p_pi,
-							 p_pi->capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS);
+							 p_pi0->capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS);
 
 		if (sa->p_subn->opt.qos) {
 			/*
