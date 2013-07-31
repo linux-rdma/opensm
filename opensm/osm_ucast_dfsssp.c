@@ -1126,7 +1126,7 @@ static int dfsssp_build_graph(void *context)
 	dfsssp_context_t *dfsssp_ctx = (dfsssp_context_t *) context;
 	osm_ucast_mgr_t *p_mgr = (osm_ucast_mgr_t *) (dfsssp_ctx->p_mgr);
 
-	cl_qmap_t *port_tbl = &p_mgr->p_subn->port_guid_tbl;	/* 1 managment port per switch + 1 or 2 ports for each Hca */
+	cl_qmap_t *port_tbl = &p_mgr->p_subn->port_guid_tbl;	/* 1 management port per switch + 1 or 2 ports for each Hca */
 	osm_port_t *p_port = NULL;
 	cl_qmap_t *sw_tbl = &p_mgr->p_subn->sw_guid_tbl;
 	cl_map_item_t *item = NULL;
@@ -1207,7 +1207,7 @@ static int dfsssp_build_graph(void *context)
 		lmc = osm_node_get_lmc(sw->p_node, 0);
 		adj_list[i].num_hca += (1 << lmc);
 
-		/* iterate over all ports in the switch, start with port 1 (port 0 is a managment port) */
+		/* iterate over all ports in the switch, start with port 1 (port 0 is a management port) */
 		for (port = 1; port < sw->num_ports; port++) {
 			/* get the node behind the port */
 			remote_node =
@@ -1252,7 +1252,7 @@ static int dfsssp_build_graph(void *context)
 			link->from = i;
 			link->from_port = port;
 			link->to_port = remote_port;
-			link->weight = total_num_hca * total_num_hca;	/* initilize with P^2 to force shortest paths */
+			link->weight = total_num_hca * total_num_hca;	/* initialize with P^2 to force shortest paths */
 		}
 
 		adj_list[i].links = head->next;
@@ -1684,7 +1684,7 @@ static uint8_t get_avail_vl_in_subn(osm_ucast_mgr_t * p_mgr)
 	     item = cl_qmap_next(item)) {
 		sw = (osm_switch_t *) item;
 
-		/* ignore managment port 0 */
+		/* ignore management port 0 */
 		for (i = 1; i < osm_node_get_num_physp(sw->p_node); i++) {
 			osm_physp_t *p_physp =
 			    osm_node_get_physp_ptr(sw->p_node, i);
@@ -1720,7 +1720,7 @@ static int dfsssp_remove_deadlocks(dfsssp_context_t * dfsssp_ctx)
 {
 	osm_ucast_mgr_t *p_mgr = (osm_ucast_mgr_t *) dfsssp_ctx->p_mgr;
 
-	cl_qmap_t *port_tbl = &p_mgr->p_subn->port_guid_tbl;	/* 1 managment port per switch + 1 or 2 ports for each Hca */
+	cl_qmap_t *port_tbl = &p_mgr->p_subn->port_guid_tbl;	/* 1 management port per switch + 1 or 2 ports for each Hca */
 	cl_map_item_t *item1 = NULL, *item2 = NULL;
 	osm_port_t *src_port = NULL, *dest_port = NULL;
 
@@ -2063,7 +2063,7 @@ static int dfsssp_remove_deadlocks(dfsssp_context_t * dfsssp_ctx)
 	} else if (vl_needed > vl_avail) {
 		/* routing not possible, a further development would be the LASH-TOR approach (update: LASH-TOR isn't possible, there is a mistake in the theory) */
 		OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR,
-			"ERR AD25: Not enough VL available (avail=%d, needed=%d); Stop dfsssp routing!\n",
+			"ERR AD25: Not enough VLs available (avail=%d, needed=%d); Stopping dfsssp routing!\n",
 			vl_avail, vl_needed);
 		err = 1;
 		goto ERROR;
@@ -2115,7 +2115,7 @@ ERROR:
 }
 
 /* meta function which calls subfunctions for dijkstra, update lft and weights,
-   (and remove deadklocks) to calculate the routing for the subnet
+   (and remove deadlocks) to calculate the routing for the subnet
 */
 static int dfsssp_do_dijkstra_routing(void *context)
 {
@@ -2152,7 +2152,7 @@ static int dfsssp_do_dijkstra_routing(void *context)
 		min_lid_ho = cl_ntoh16(osm_node_get_base_lid(sw->p_node, 0));
 		lmc = osm_node_get_lmc(sw->p_node, 0);
 		for (i = min_lid_ho; i < min_lid_ho + (1 << lmc); i++) {
-			/* for each switch the port to the 'self'lid is the managment port 0 */
+			/* for each switch the port to the 'self'lid is the management port 0 */
 			sw->new_lft[i] = 0;
 			/* the hop count to the 'self'lid is 0 for each switch */
 			osm_switch_set_hops(sw, i, 0, 0);
@@ -2520,7 +2520,7 @@ static void delete(void *context)
 
 int osm_ucast_dfsssp_setup(struct osm_routing_engine *r, osm_opensm_t * p_osm)
 {
-	/* create context container and add ucast managment object */
+	/* create context container and add ucast management object */
 	dfsssp_context_t *dfsssp_context =
 	    dfsssp_context_create(p_osm, OSM_ROUTING_ENGINE_TYPE_DFSSSP);
 	if (!dfsssp_context) {
@@ -2545,7 +2545,7 @@ int osm_ucast_dfsssp_setup(struct osm_routing_engine *r, osm_opensm_t * p_osm)
 
 int osm_ucast_sssp_setup(struct osm_routing_engine *r, osm_opensm_t * p_osm)
 {
-	/* create context container and add ucast managment object */
+	/* create context container and add ucast management object */
 	dfsssp_context_t *dfsssp_context =
 	    dfsssp_context_create(p_osm, OSM_ROUTING_ENGINE_TYPE_SSSP);
 	if (!dfsssp_context) {
