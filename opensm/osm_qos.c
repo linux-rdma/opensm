@@ -270,8 +270,9 @@ static ib_api_status_t sl2vl_update_table(osm_sm_t * sm, osm_physp_t * p,
 		tbl.raw_vl_by_sl[i] = (vl1 << 4) | vl2;
 	}
 
-	if (!force_update && (p_tbl = osm_physp_get_slvl_tbl(p, in_port)) &&
-	    !memcmp(p_tbl, &tbl, sizeof(tbl)))
+	p_tbl = osm_physp_get_slvl_tbl(p, in_port);
+
+	if (!force_update && !memcmp(p_tbl, &tbl, sizeof(tbl)))
 		return IB_SUCCESS;
 
 	p_mad = osm_qos_mad_create(sm, p, sizeof(tbl), (uint8_t *) & tbl,
