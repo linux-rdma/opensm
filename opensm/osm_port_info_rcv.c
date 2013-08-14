@@ -85,7 +85,7 @@ static void pi_rcv_process_endport(IN osm_sm_t * sm, IN osm_physp_t * p_physp,
 	osm_madw_context_t context;
 	ib_api_status_t status;
 	ib_net64_t port_guid;
-	uint8_t rate, mtu;
+	uint8_t rate, mtu, mpb;
 	unsigned data_vls;
 	cl_qmap_t *p_sm_tbl;
 	osm_remote_sm_t *p_sm;
@@ -124,6 +124,14 @@ static void pi_rcv_process_endport(IN osm_sm_t * sm, IN osm_physp_t * p_physp,
 				PRIx64 "\n", data_vls, cl_ntoh64(port_guid));
 			sm->p_subn->min_data_vls = data_vls;
 		}
+	}
+
+	/* Check M_Key vs M_Key protect, can we control the port ? */
+	mpb = ib_port_info_get_mpb(p_pi);
+	if (mpb > 0 && p_pi->m_key == 0) {
+		OSM_LOG(sm->p_log, OSM_LOG_INFO,
+			"Port 0x%" PRIx64 " has unknown M_Key, protection level %u\n",
+			cl_ntoh64(port_guid), mpb);
 	}
 
 	if (port_guid != sm->p_subn->sm_port_guid) {
