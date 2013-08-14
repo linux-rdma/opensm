@@ -985,10 +985,11 @@ static int lid_mgr_set_physp_pi(IN osm_lid_mgr_t * p_mgr,
 			    ib_port_info_get_port_state(p_old_pi))
 				send_set = TRUE;
 		}
-	} else {
+	} else if (ib_switch_info_is_enhanced_port0(&p_node->sw->switch_info)) {
 		/*
-		   For Port 0, NeighborMTU is relevant only for Enh. SP0.
-		   In this case, we'll set the MTU according to the mtu_cap
+		 * Configure Enh. SP0:
+		 * Set MTU according to the mtu_cap.
+		 * Set LMC if lmc_esp0 is defined.
 		 */
 		ib_port_info_set_neighbor_mtu(p_pi,
 					      ib_port_info_get_mtu_cap
@@ -1003,8 +1004,8 @@ static int lid_mgr_set_physp_pi(IN osm_lid_mgr_t * p_mgr,
 			cl_ntoh64(osm_physp_get_port_guid(p_physp)),
 			ib_port_info_get_neighbor_mtu(p_pi));
 
-		/* Determine if enhanced switch port 0 and if so set LMC */
-		if (osm_switch_sp0_is_lmc_capable(p_node->sw, p_mgr->p_subn)) {
+		/* Configure LMC on enhanced SP0 */
+		if (p_mgr->p_subn->opt.lmc_esp0) {
 			/* p_pi->mkey_lmc is initialized earlier */
 			ib_port_info_set_lmc(p_pi, p_mgr->p_subn->opt.lmc);
 			if (ib_port_info_get_lmc(p_pi) !=
