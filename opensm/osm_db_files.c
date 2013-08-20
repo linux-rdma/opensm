@@ -272,7 +272,7 @@ int osm_db_restore(IN osm_db_domain_t * p_domain)
 	boolean_t before_key;
 	char *p_first_word, *p_rest_of_line, *p_last;
 	char *p_key = NULL;
-	char *p_prev_val, *p_accum_val = NULL;
+	char *p_prev_val = NULL, *p_accum_val = NULL;
 	char *endptr = NULL;
 	unsigned int line_num;
 
@@ -371,12 +371,18 @@ int osm_db_restore(IN osm_db_domain_t * p_domain)
 				if (st_lookup(p_domain_imp->p_hash,
 					      (st_data_t) p_key,
 					      (void *)&p_prev_val)) {
+					/* if previously used we ignore this guid */
 					OSM_LOG(p_log, OSM_LOG_ERROR,
 						"ERR 6106: "
 						"Key:%s already exists in:%s with value:%s."
 						" Removing it\n", p_key,
 						p_domain_imp->file_name,
 						p_prev_val);
+						free(p_key);
+						p_key = NULL;
+						free(p_accum_val);
+						p_accum_val = NULL;
+						continue;
 				} else {
 					p_prev_val = NULL;
 				}
@@ -391,6 +397,10 @@ int osm_db_restore(IN osm_db_domain_t * p_domain)
 					OSM_LOG(p_log, OSM_LOG_ERROR,
 						"ERR 610B: "
 						"Key:%s is invalid\n", p_key);
+						free(p_key);
+						p_key = NULL;
+						free(p_accum_val);
+						p_accum_val = NULL;
 				} else {
 					/* store our key and value */
 					st_insert(p_domain_imp->p_hash,
@@ -404,6 +414,7 @@ int osm_db_restore(IN osm_db_domain_t * p_domain)
 						     strlen(sLine) + 1);
 				strcpy(p_accum_val, p_prev_val);
 				free(p_prev_val);
+				p_prev_val = NULL;
 				strcat(p_accum_val, sLine);
 			}
 		}		/* in key */
