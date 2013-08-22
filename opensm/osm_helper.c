@@ -2933,8 +2933,8 @@ static const char *disp_msg_str[] = {
 
 const char *osm_get_disp_msg_str(IN cl_disp_msgid_t msg)
 {
-	if (msg > OSM_MSG_MAX)
-		msg = OSM_MSG_MAX;
+	if (msg >= OSM_MSG_MAX)
+		msg = OSM_MSG_MAX-1;
 	return disp_msg_str[msg];
 }
 
