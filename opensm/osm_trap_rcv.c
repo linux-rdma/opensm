@@ -113,6 +113,8 @@ static uint64_t aging_tracker_callback(IN uint64_t key, IN uint32_t num_regs,
 	lid = (ib_net16_t) ((key & 0x0000FFFF00000000ULL) >> 32);
 	port_num = (uint8_t) ((key & 0x00FF000000000000ULL) >> 48);
 
+	CL_PLOCK_ACQUIRE(sm->p_lock);
+
 	p_physp = get_physp_by_lid_and_num(sm, lid, port_num);
 	if (!p_physp)
 		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
@@ -129,6 +131,7 @@ static uint64_t aging_tracker_callback(IN uint64_t key, IN uint32_t num_regs,
 		osm_physp_set_health(p_physp, TRUE);
 	}
 
+	CL_PLOCK_RELEASE(sm->p_lock);
 	OSM_LOG_EXIT(sm->p_log);
 
 	/* We want to remove the event from the tracker - so
