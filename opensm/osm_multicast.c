@@ -143,6 +143,7 @@ osm_mgrp_t *osm_mgrp_new(IN osm_subn_t * subn, IN ib_net16_t mlid,
 	cl_fmap_insert(&subn->mgrp_mgid_tbl, &p_mgrp->mcmember_rec.mgid,
 		       &p_mgrp->map_item);
 
+	subn->p_osm->sa.dirty = TRUE;
 	return p_mgrp;
 }
 
