@@ -653,15 +653,21 @@ add_alias_guid:
 							    p_alias_guid->alias_guid,
 							    &p_alias_guid->map_item);
 		if (p_alias_guid_check != p_alias_guid) {
-			/* alias GUID is a duplicate */
-			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 5108: "
-				"Duplicate alias port GUID 0x%" PRIx64
-				" index %d base port GUID 0x%" PRIx64 "\n",
-				cl_ntoh64(p_alias_guid->alias_guid), i,
-				cl_ntoh64(p_alias_guid->p_base_port->guid));
-			osm_alias_guid_delete(&p_alias_guid);
-			/* clear response guid at index to indicate duplicate */
-			p_rcvd_rec->guid_info.guid[i % 8] = 0;
+			/* alias GUID is a duplicate if it exists on another port or on the same port but at another index */
+			if (p_alias_guid_check->p_base_port != p_port ||
+			    (*p_port->p_physp->p_guids)[i] != set_alias_guid) {
+				OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 5108: "
+					"Duplicate alias port GUID 0x%" PRIx64
+					" index %d base port GUID 0x%" PRIx64
+					", alias GUID already assigned to "
+					"base port GUID 0x%" PRIx64 "\n",
+					cl_ntoh64(p_alias_guid->alias_guid), i,
+					cl_ntoh64(p_alias_guid->p_base_port->guid),
+					cl_ntoh64(p_alias_guid_check->p_base_port->guid));
+				osm_alias_guid_delete(&p_alias_guid);
+				/* clear response guid at index to indicate duplicate */
+				p_rcvd_rec->guid_info.guid[i % 8] = 0;
+			}
 		} else {
 			del_alias_guid = (*p_port->p_physp->p_guids)[i];
 			if (del_alias_guid) {
