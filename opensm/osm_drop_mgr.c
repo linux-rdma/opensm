@@ -3,6 +3,7 @@
  * Copyright (c) 2002-2012 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2008 Xsigo Systems Inc.  All rights reserved.
+ * Copyright (c) 2013 Oracle and/or its affiliates. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -275,6 +276,15 @@ static void drop_mgr_remove_port(osm_sm_t * sm, IN osm_port_t * p_port)
 		cl_ptr_vector_set(p_port_lid_tbl, lid_ho, NULL);
 
 	drop_mgr_clean_physp(sm, p_port->p_physp);
+
+	/* Delete event forwarding subscriptions */
+	if (sm->p_subn->opt.drop_event_subscriptions) {
+		if (osm_infr_remove_subscriptions(sm->p_subn, sm->p_log, port_guid)
+		    == CL_SUCCESS)
+			OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
+			    "Removed event subscriptions for port 0x%016" PRIx64 "\n",
+			    cl_ntoh64(port_guid));
+	}
 
 	/* initialize the p_node - may need to get node_desc later */
 	p_node = p_port->p_node;

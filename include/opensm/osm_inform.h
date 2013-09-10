@@ -2,6 +2,7 @@
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2005 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
+ * Copyright (c) 2013 Oracle and/or its affiliates. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -199,6 +200,35 @@ void osm_infr_insert_to_db(IN osm_subn_t * p_subn, IN osm_log_t * p_log,
 
 void osm_infr_remove_from_db(IN osm_subn_t * p_subn, IN osm_log_t * p_log,
 			     IN osm_infr_t * p_infr);
+
+/****f* OpenSM: Inform Record/osm_infr_remove_subscriptions
+* NAME
+*	osm_infr_remove_subscriptions
+*
+* DESCRIPTION
+*	Remove all event subscriptions of a port
+*
+* SYNOPSIS
+*/
+ib_api_status_t
+osm_infr_remove_subscriptions(IN osm_subn_t * p_subn, IN osm_log_t * p_log,
+			      IN ib_net64_t port_guid);
+/*
+* PARAMETERS
+*	p_subn
+*		[in] Pointer to the subnet object
+*
+*	p_log
+*		[in] Pointer to the log object
+*
+*	port_guid
+*		[in] PortGUID of the subscriber that should be removed
+*
+* RETURN
+*	CL_SUCCESS if port_guid had any subscriptions being removed
+*	CL_NOT_FOUND if port_guid did not have any active subscriptions
+* SEE ALSO
+*********/
 
 /****f* OpenSM: Inform Record/osm_report_notice
 * NAME

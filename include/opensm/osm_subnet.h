@@ -5,6 +5,7 @@
  * Copyright (c) 2008 Xsigo Systems Inc.  All rights reserved.
  * Copyright (c) 2009 System Fabric Works, Inc. All rights reserved.
  * Copyright (c) 2009 HNR Consulting. All rights reserved.
+ * Copyright (c) 2013 Oracle and/or its affiliates. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -325,6 +326,7 @@ typedef struct osm_subn_opt {
 	boolean_t daemon;
 	boolean_t sm_inactive;
 	boolean_t babbling_port_policy;
+	boolean_t drop_event_subscriptions;
 	boolean_t use_optimized_slvl;
 	osm_qos_options_t qos_options;
 	osm_qos_options_t qos_ca_options;
@@ -594,6 +596,9 @@ typedef struct osm_subn_opt {
 *
 *	babbling_port_policy
 *		OpenSM will enforce its "babbling" port policy.
+*
+*	drop_event_subscriptions
+*		OpenSM will drop event subscriptions if the port goes away.
 *
 *	use_optimized_slvl
 *		Use optimized SLtoVLMappingTable programming if
