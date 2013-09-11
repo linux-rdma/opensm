@@ -266,9 +266,9 @@ static void log_trap_info(osm_log_t *p_log, ib_mad_notice_attr_t *p_ntci,
 	if (ib_notice_is_generic(p_ntci)) {
 		char str[32];
 
-		if ((p_ntci->g_or_v.generic.trap_num == CL_HTON16(129)) ||
-		    (p_ntci->g_or_v.generic.trap_num == CL_HTON16(130)) ||
-		    (p_ntci->g_or_v.generic.trap_num == CL_HTON16(131)))
+		if ((p_ntci->g_or_v.generic.trap_num == CL_HTON16(SM_LINK_INTEGRITY_THRESHOLD_TRAP)) ||
+		    (p_ntci->g_or_v.generic.trap_num == CL_HTON16(SM_BUFFER_OVERRUN_THRESHOLD_TRAP)) ||
+		    (p_ntci->g_or_v.generic.trap_num == CL_HTON16(SM_WATCHDOG_TIMER_EXPIRED_TRAP)))
 			snprintf(str, sizeof(str), " Port %u",
 				 p_ntci->data_details.ntc_129_131.port_num);
 		else
@@ -284,8 +284,8 @@ static void log_trap_info(osm_log_t *p_log, ib_mad_notice_attr_t *p_ntci,
 			cl_ntoh32(ib_notice_get_prod_type(p_ntci)),
 			ib_get_producer_type_str(ib_notice_get_prod_type(p_ntci)),
 			cl_hton16(source_lid), str, cl_ntoh64(trans_id));
-		if ((p_ntci->g_or_v.generic.trap_num == CL_HTON16(257)) ||
-		    (p_ntci->g_or_v.generic.trap_num == CL_HTON16(258))) {
+		if ((p_ntci->g_or_v.generic.trap_num == CL_HTON16(SM_BAD_PKEY_TRAP)) ||
+		    (p_ntci->g_or_v.generic.trap_num == CL_HTON16(SM_BAD_QKEY_TRAP))) {
 			OSM_LOG(p_log, OSM_LOG_ERROR,
 				"Bad %s_Key:0x%x on SL:%d from "
 				"LID1:%u QP1:0x%x to "
@@ -459,9 +459,9 @@ static void trap_rcv_process_request(IN osm_sm_t * sm,
 
 	if (is_gsi == FALSE) {
 		if (ib_notice_is_generic(p_ntci) &&
-		    (p_ntci->g_or_v.generic.trap_num == CL_HTON16(129) ||
-		     p_ntci->g_or_v.generic.trap_num == CL_HTON16(130) ||
-		     p_ntci->g_or_v.generic.trap_num == CL_HTON16(131))) {
+		    (p_ntci->g_or_v.generic.trap_num == CL_HTON16(SM_LINK_INTEGRITY_THRESHOLD_TRAP) ||
+		     p_ntci->g_or_v.generic.trap_num == CL_HTON16(SM_BUFFER_OVERRUN_THRESHOLD_TRAP) ||
+		     p_ntci->g_or_v.generic.trap_num == CL_HTON16(SM_WATCHDOG_TIMER_EXPIRED_TRAP))) {
 			/* If this is a trap 129, 130, or 131 - then this is a
 			 * trap signaling a change on a physical port.
 			 * Mark the physp_change_trap flag as TRUE.
@@ -525,7 +525,7 @@ static void trap_rcv_process_request(IN osm_sm_t * sm,
 	/* Check for node description update. IB Spec v1.2.1 pg 823 */
 	if (!ib_notice_is_generic(p_ntci))
 		goto check_sweep;
-	if (cl_ntoh16(p_ntci->g_or_v.generic.trap_num) == 144 &&
+	if (cl_ntoh16(p_ntci->g_or_v.generic.trap_num) == SM_LOCAL_CHANGES_TRAP &&
 	    p_ntci->data_details.ntc_144.local_changes & TRAP_144_MASK_OTHER_LOCAL_CHANGES &&
 	    p_ntci->data_details.ntc_144.change_flgs & TRAP_144_MASK_NODE_DESCRIPTION_CHANGE) {
 		OSM_LOG(sm->p_log, OSM_LOG_INFO, "Trap 144 Node description update\n");
@@ -542,7 +542,7 @@ static void trap_rcv_process_request(IN osm_sm_t * sm,
 				"ERR 3812: No physical port found for "
 				"trap 144: \"node description update\"\n");
 		goto check_sweep;
-	} else if (cl_ntoh16(p_ntci->g_or_v.generic.trap_num) == 145) {
+	} else if (cl_ntoh16(p_ntci->g_or_v.generic.trap_num) == SM_SYS_IMG_GUID_CHANGED_TRAP) {
 		if (p_physp)
 			/* this assumes that trap 145 content is not broken? */
 			p_physp->p_node->node_info.sys_guid =
@@ -564,8 +564,8 @@ check_sweep:
 		   TODO: In the future this can be changed to just getting
 		   PortInfo on this port instead of sweeping the entire subnet. */
 		if (ib_notice_is_generic(p_ntci) &&
-		    (cl_ntoh16(p_ntci->g_or_v.generic.trap_num) == 128 ||
-		     cl_ntoh16(p_ntci->g_or_v.generic.trap_num) == 144 ||
+		    (cl_ntoh16(p_ntci->g_or_v.generic.trap_num) == SM_LINK_STATE_CHANGED_TRAP ||
+		     cl_ntoh16(p_ntci->g_or_v.generic.trap_num) == SM_LOCAL_CHANGES_TRAP ||
 		     run_heavy_sweep)) {
 			OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 				"Forcing heavy sweep. Received trap:%u\n",

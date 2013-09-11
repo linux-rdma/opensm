@@ -405,7 +405,8 @@ static int is_access_permitted(osm_infr_t *p_infr_rec,
 	   pkey with MC group.
 	   In all other cases the issuer gid is the trap source.
 	*/
-	if (trap_num >= 64 && trap_num <= 67 )
+	if (trap_num >= SM_GID_IN_SERVICE_TRAP &&
+	    trap_num <= SM_MGID_DESTROYED_TRAP)
 		/* The issuer of these traps is the SM so source_gid
 		   is the gid saved on the data details */
 		source_gid = p_ntc->data_details.ntc_64_67.gid;
@@ -423,8 +424,8 @@ static int is_access_permitted(osm_infr_t *p_infr_rec,
 
 	/* Check if there is a pkey match. o13-17.1.1 */
 	switch (trap_num) {
-		case 66:
-		case 67:
+		case SM_MGID_CREATED_TRAP:
+		case SM_MGID_DESTROYED_TRAP:
 			p_mgrp = osm_get_mgrp_by_mgid(p_subn, &source_gid);
 			if (!p_mgrp) {
 				char gid_str[INET6_ADDRSTRLEN];
@@ -623,10 +624,10 @@ static void log_notice(osm_log_t * log, osm_log_level_t level,
 
 	/* an official Event information log */
 	if (ib_notice_is_generic(ntc)) {
-		if ((ntc->g_or_v.generic.trap_num == CL_HTON16(64)) ||
-		    (ntc->g_or_v.generic.trap_num == CL_HTON16(65)) ||
-		    (ntc->g_or_v.generic.trap_num == CL_HTON16(66)) ||
-		    (ntc->g_or_v.generic.trap_num == CL_HTON16(67)))
+		if ((ntc->g_or_v.generic.trap_num == CL_HTON16(SM_GID_IN_SERVICE_TRAP)) ||
+		    (ntc->g_or_v.generic.trap_num == CL_HTON16(SM_GID_OUT_OF_SERVICE_TRAP)) ||
+		    (ntc->g_or_v.generic.trap_num == CL_HTON16(SM_MGID_CREATED_TRAP)) ||
+		    (ntc->g_or_v.generic.trap_num == CL_HTON16(SM_MGID_DESTROYED_TRAP)))
 			gid = &ntc->data_details.ntc_64_67.gid;
 		else
 			gid = &ntc->issuer_gid;
