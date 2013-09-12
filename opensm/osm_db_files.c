@@ -162,7 +162,8 @@ int osm_db_init(IN osm_db_t * p_db, IN osm_log_t * p_log)
 
 	p_db_imp = malloc(sizeof(osm_db_imp_t));
 	if (!p_db_imp) {
-		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 6100: No memory.\n");
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 6100: "
+			"Failed to allocate db memory\n");
 		return -1;
 	}
 
@@ -668,6 +669,10 @@ int main(int argc, char **argv)
 	}
 
 	p_dbd = osm_db_domain_init(&db, "lid_by_guid");
+	if (!p_dbd) {
+		printf("db domain init failed\n");
+		exit(1);
+	}
 
 	if (osm_db_restore(p_dbd)) {
 		printf("failed to restore\n");
