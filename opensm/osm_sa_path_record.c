@@ -639,7 +639,7 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F1A: "
 				"Ports 0x%016" PRIx64 " (%s port %d) and "
 				"0x%016" PRIx64 " (%s port %d) "
-				" do not share specified PKey 0x%04x\n",
+				"do not share specified PKey 0x%04x\n",
 				cl_ntoh64(osm_physp_get_port_guid(p_src_physp)),
 				p_src_physp->p_node->print_desc,
 				p_src_physp->port_num,
