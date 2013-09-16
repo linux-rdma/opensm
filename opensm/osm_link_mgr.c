@@ -101,7 +101,7 @@ static int link_mgr_set_physp_pi(osm_sm_t * sm, IN osm_physp_t * p_physp,
 	ib_api_status_t status;
 	uint8_t port_num, mtu, op_vls, smsl = OSM_DEFAULT_SL;
 	boolean_t esp0 = FALSE, send_set = FALSE, send_set2 = FALSE;
-	osm_physp_t *p_remote_physp, *physp0;
+	osm_physp_t *p_remote_physp, *physp0 = NULL;
 	int issue_ext = 0, fdr10_change = 0;
 	int ret = 0;
 	ib_net32_t attr_mod, cap_mask;
