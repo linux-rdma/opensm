@@ -127,7 +127,7 @@ static void free_mlid(IN osm_sa_t * sa, IN uint16_t mlid)
 
 static int compare_ipv6_snm_mgids(const void *m1, const void *m2)
 {
-	return memcmp(m1, m2, sizeof(ib_gid_t) - 6);
+	return memcmp(m1, m2, sizeof(ib_gid_t) - 3);
 }
 
 static ib_net16_t find_ipv6_snm_mlid(osm_subn_t *subn, ib_gid_t *mgid)
