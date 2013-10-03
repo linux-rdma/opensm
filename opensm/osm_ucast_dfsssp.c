@@ -1607,13 +1607,11 @@ static int update_mcft(osm_sm_t * p_sm, vertex_t * adj_list,
 			" (%s) for MLID 0x%X\n", cl_ntoh64(adj_list[i].guid),
 			p_sw->p_node->print_desc, mlid_ho);
 
-		/* if a) no route goes thru this switch  or
-		      b) the switch does not support mcast  or
-		      c) no ports of this switch are part or the mcast group
+		/* if a) the switch does not support mcast  or
+		      b) no ports of this switch are part or the mcast group
 		   then cycle
 		 */
-		if (!(adj_list[i].used_link) ||
-		    osm_switch_supports_mcast(p_sw) == FALSE ||
+		if (osm_switch_supports_mcast(p_sw) == FALSE ||
 		    (p_sw->num_of_mcm == 0 && !(p_sw->is_mc_member)))
 			continue;
 
