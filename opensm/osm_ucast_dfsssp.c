@@ -1544,6 +1544,43 @@ static int update_lft(osm_ucast_mgr_t * p_mgr, vertex_t * adj_list,
 	return 0;
 }
 
+/* the function updates the multicast group membership information
+   similar to create_mgrp_switch_map (osm_mcast_mgr.c)
+   => with it we can identify if a switch needs to be processed
+   or not in update_mcft
+*/
+static void update_mgrp_membership(cl_qlist_t * port_list)
+{
+	osm_mcast_work_obj_t *wobj = NULL;
+	osm_port_t *port = NULL;
+	osm_switch_t *sw = NULL;
+	cl_list_item_t *i = NULL;
+
+	for (i = cl_qlist_head(port_list); i != cl_qlist_end(port_list);
+	     i = cl_qlist_next(i)) {
+		wobj = cl_item_obj(i, wobj, list_item);
+		port = wobj->p_port;
+		if (port->p_node->sw) {
+			sw = port->p_node->sw;
+			sw->is_mc_member = 1;
+		} else {
+			sw = port->p_physp->p_remote_physp->p_node->sw;
+			sw->num_of_mcm++;
+		}
+	}
+}
+
+/* reset is_mc_member and num_of_mcm for future computations */
+static void reset_mgrp_membership(vertex_t * adj_list, uint32_t adj_list_size)
+{
+	uint32_t i = 0;
+
+	for (i = 1; i < adj_list_size; i++) {
+		adj_list[i].sw->is_mc_member = 0;
+		adj_list[i].sw->num_of_mcm = 0;
+	}
+}
+
 /* update the multicast forwarding tables of all switches with the informations
    from the previous dijsktra step for the current mlid
 */
@@ -2386,6 +2423,11 @@ static ib_api_status_t dfsssp_do_mcast_routing(void * context,
 		goto Exit;
 	}
 
+	/* set mcast group membership again for update_mcft
+	   (unfortunately: osm_mcast_mgr_find_root_switch resets it)
+	 */
+	update_mgrp_membership(&mcastgrp_port_list);
+
 	/* update the mcast forwarding tables of the switches */
 	err = update_mcft(sm, adj_list, adj_list_size, mbox->mlid,
 			  &mcastgrp_port_map, root_sw);
@@ -2398,6 +2440,7 @@ static ib_api_status_t dfsssp_do_mcast_routing(void * context,
 	}
 
 Exit:
+	reset_mgrp_membership(adj_list, adj_list_size);
 	osm_mcast_drop_port_list(&mcastgrp_port_list);
 	OSM_LOG_EXIT(sm->p_log);
 	return status;
