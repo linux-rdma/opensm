@@ -7206,8 +7206,15 @@ osmtest_bind(IN osmtest_t * p_osmt,
 	ib_api_status_t status;
 	uint32_t num_ports = MAX_LOCAL_IBPORTS;
 	ib_port_attr_t attr_array[MAX_LOCAL_IBPORTS] = { {0} };
+	ib_gid_t gid[MAX_LOCAL_IBPORTS];
+	int i;
 
 	OSM_LOG_ENTER(&p_osmt->log);
+
+	for (i = 0; i < MAX_LOCAL_IBPORTS; i++) {
+		attr_array[i].num_gids = 1;
+		attr_array[i].p_gid_table = &gid[i];
+	}
 
 	/*
 	 * Call the transport layer for a list of local port
@@ -7255,7 +7262,17 @@ osmtest_bind(IN osmtest_t * p_osmt,
 	 * Copy the port info for the selected port.
 	 */
 	memcpy(&p_osmt->local_port, &attr_array[port_index],
-	       sizeof(p_osmt->local_port));
+	       sizeof(p_osmt->local_port) - sizeof(p_osmt->local_port.p_gid_table));
+	if (p_osmt->local_port.num_gids) {
+		p_osmt->local_port_gid.unicast.prefix = p_osmt->local_port.p_gid_table[0].unicast.prefix;
+		p_osmt->local_port_gid.unicast.interface_id = p_osmt->local_port.p_gid_table[0].unicast.interface_id;
+	} else {
+		p_osmt->local_port_gid.unicast.prefix = IB_DEFAULT_SUBNET_PREFIX_HO;
+		p_osmt->local_port_gid.unicast.interface_id = attr_array[port_index].port_guid;
+		p_osmt->local_port.p_gid_table = NULL;
+	}
+	p_osmt->local_port.num_gids = 1;
+	p_osmt->local_port.p_gid_table = &p_osmt->local_port_gid;
 
 	/* bind to the SA */
 	OSM_LOG(&p_osmt->log, OSM_LOG_DEBUG,

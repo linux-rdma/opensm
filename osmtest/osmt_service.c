@@ -85,7 +85,7 @@ osmt_register_service(IN osmtest_t * const p_osmt,
 	/* set the new service record fields */
 	svc_rec.service_id = service_id;
 	svc_rec.service_pkey = service_pkey;
-	svc_rec.service_gid.unicast.prefix = 0;
+	svc_rec.service_gid.unicast.prefix = p_osmt->local_port_gid.unicast.prefix;
 	svc_rec.service_gid.unicast.interface_id = p_osmt->local_port.port_guid;
 	svc_rec.service_lease = service_lease;
 	memset(&svc_rec.service_key, 0, 16 * sizeof(uint8_t));
@@ -188,7 +188,7 @@ osmt_register_service_with_full_key(IN osmtest_t * const p_osmt,
 	/* set the new service record fields */
 	svc_rec.service_id = service_id;
 	svc_rec.service_pkey = service_pkey;
-	svc_rec.service_gid.unicast.prefix = 0;
+	svc_rec.service_gid.unicast.prefix = p_osmt->local_port_gid.unicast.prefix;
 	svc_rec.service_gid.unicast.interface_id = p_osmt->local_port.port_guid;
 	svc_rec.service_lease = service_lease;
 	memset(&svc_rec.service_key, 0, 16 * sizeof(uint8_t));
@@ -312,7 +312,7 @@ osmt_register_service_with_data(IN osmtest_t * const p_osmt,
 	/* set the new service record fields */
 	svc_rec.service_id = service_id;
 	svc_rec.service_pkey = service_pkey;
-	svc_rec.service_gid.unicast.prefix = 0;
+	svc_rec.service_gid.unicast.prefix = p_osmt->local_port_gid.unicast.prefix;
 	svc_rec.service_gid.unicast.interface_id = p_osmt->local_port.port_guid;
 	svc_rec.service_lease = service_lease;
 	memset(&svc_rec.service_key, 0, 16 * sizeof(uint8_t));

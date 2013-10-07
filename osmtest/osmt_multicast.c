@@ -378,7 +378,7 @@ void osmt_init_mc_query_rec(IN osmtest_t * const p_osmt,
 	       sizeof(p_osmt->local_port.port_guid));
 
 	/*  use our own subnet prefix: */
-	p_mc_req->port_gid.unicast.prefix = CL_HTON64(0xFE80000000000000ULL);
+	p_mc_req->port_gid.unicast.prefix = cl_hton64(p_osmt->local_port_gid.unicast.prefix);
 
 	/*  ib_net32_t  qkey; */
 	/*  ib_net16_t  mlid; - we keep it zero for upper level to decide. */

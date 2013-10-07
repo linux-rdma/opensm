@@ -432,6 +432,8 @@ static ib_net64_t get_port_guid(IN osm_opensm_t * p_osm, uint64_t port_guid)
 	for (i = 0; i < num_ports; i++) {
 		attr_array[i].num_pkeys = 0;
 		attr_array[i].p_pkey_table = NULL;
+		attr_array[i].num_gids = 0;
+		attr_array[i].p_gid_table = NULL;
 	}
 
 	/* Call the transport layer for a list of local port GUID values */

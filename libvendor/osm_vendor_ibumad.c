@@ -656,6 +656,11 @@ osm_vendor_get_all_port_attr(IN osm_vendor_t * const p_vend,
 							cl_hton16(ca.ports[j]->pkeys[k]);
 				}
 				attr->num_pkeys = ca.ports[j]->pkeys_size;
+				if (attr->num_gids && attr->p_gid_table) {
+					attr->p_gid_table[0].unicast.prefix = cl_hton64(ca.ports[j]->gid_prefix);
+					attr->p_gid_table[0].unicast.interface_id = cl_hton64(ca.ports[j]->port_guid);
+					attr->num_gids = 1;
+				}
 				attr++;
 				if (attr - p_attr_array > *p_num_ports) {
 					done = 1;
