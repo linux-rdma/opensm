@@ -622,6 +622,10 @@ void osm_dump_sa_mad(IN osm_log_t * p_log, IN const ib_sa_mad_t * p_smp,
 void osm_dump_sa_mad_v2(IN osm_log_t * p_log, IN const ib_sa_mad_t * p_smp,
 			IN const int file_id, IN osm_log_level_t level);
 
+void osm_dump_dr_path_as_buf(IN size_t max_len, IN const osm_dr_path_t * p_path,
+			     OUT char* buf);
+
+
 /****f* IBA Base: Types/osm_get_sm_signal_str
 * NAME
 *	osm_get_sm_signal_str

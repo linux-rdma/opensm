@@ -2875,6 +2875,13 @@ void osm_dump_smp_dr_path_v2(IN osm_log_t * p_log, IN const ib_smp_t * p_smp,
 	}
 }
 
+void osm_dump_dr_path_as_buf(IN size_t max_len,
+			     IN const osm_dr_path_t * p_path,
+			     OUT char* buf)
+{
+	sprint_uint8_arr(buf, max_len, p_path->path, p_path->hop_count + 1);
+}
+
 static const char *sm_signal_str[] = {
 	"OSM_SIGNAL_NONE",	/* 0 */
 	"OSM_SIGNAL_SWEEP",	/* 1 */

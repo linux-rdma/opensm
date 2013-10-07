@@ -65,6 +65,7 @@ OPENSM_1.5 {
 		osm_dump_sa_mad_v2;
 		osm_dump_dr_path;
 		osm_dump_dr_path_v2;
+		osm_dump_dr_path_as_buf;
 		osm_dump_smp_dr_path;
 		osm_dump_smp_dr_path_v2;
 		osm_dump_pkey_block;
