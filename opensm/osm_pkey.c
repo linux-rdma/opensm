@@ -430,8 +430,8 @@ ib_net16_t osm_physp_find_common_pkey(IN const osm_physp_t * p_physp1,
 			return *pkey1;
 
 		/* advance the lower value if they are not equal */
-		pkey1_base = cl_map_key(map_iter1);
-		pkey2_base = cl_map_key(map_iter2);
+		pkey1_base = ib_pkey_get_base(cl_map_key(map_iter1));
+		pkey2_base = ib_pkey_get_base(cl_map_key(map_iter2));
 		if (pkey2_base == pkey1_base) {
 			map_iter1 = cl_map_next(map_iter1);
 			map_iter2 = cl_map_next(map_iter2);
@@ -463,8 +463,8 @@ ib_net16_t osm_physp_find_common_pkey(IN const osm_physp_t * p_physp1,
 			return *pkey1;
 
 		/* advance the lower value if they are not equal */
-		pkey1_base = cl_map_key(map_iter1);
-		pkey2_base = cl_map_key(map_iter2);
+		pkey1_base = ib_pkey_get_base(cl_map_key(map_iter1));
+		pkey2_base = ib_pkey_get_base(cl_map_key(map_iter2));
 		if (pkey2_base == pkey1_base) {
 			map_iter1 = cl_map_next(map_iter1);
 			map_iter2 = cl_map_next(map_iter2);
