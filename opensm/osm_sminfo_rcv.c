@@ -385,11 +385,20 @@ static void smi_rcv_process_get_sm(IN osm_sm_t * sm,
 		switch (ib_sminfo_get_state(p_smi)) {
 		case IB_SMINFO_STATE_MASTER:
 			/* If this is a response due to our polling, this means that we are
-			   waiting for a handover from this SM, and it is still alive -
-			   signal that. */
-			if (sm->p_polling_sm)
+			 * waiting for a handover from this SM, and it is still alive -
+			 * signal that. If we detected the remote SM with higher priority
+			 * we should init a heavy sweep in order to go STANDBY. If we
+			 * detected a remote SM with lower priority, we should resend trap144
+			 * as it might not get it and we don't want to wait for a HANDOVER
+			 * forever.
+			 */
+			if (sm->p_polling_sm) {
+				if (smi_rcv_remote_sm_is_higher(sm, p_smi))
+					sm->p_subn->force_heavy_sweep = TRUE;
+				else
+					osm_send_trap144(sm, TRAP_144_MASK_SM_PRIORITY_CHANGE);
 				osm_sm_state_mgr_signal_master_is_alive(sm);
-			else {
+			} else {
 				/* This is a response we got while sweeping the subnet.
 				 *
 				 * If this is during a heavy sweep, we will handle a case of
