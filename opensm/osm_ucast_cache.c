@@ -114,13 +114,19 @@ static cache_switch_t *cache_sw_new(uint16_t lid_ho, unsigned num_ports)
 
 static void cache_sw_destroy(cache_switch_t * p_sw)
 {
+	unsigned i;
+
 	if (!p_sw)
 		return;
 
 	if (p_sw->lft)
 		free(p_sw->lft);
-	if (p_sw->hops)
+	if (p_sw->hops) {
+		for (i = 0; i < p_sw->num_hops; i++)
+			if (p_sw->hops[i])
+				free(p_sw->hops[i]);
 		free(p_sw->hops);
+	}
 	free(p_sw);
 }
 
