@@ -426,13 +426,12 @@ static int link_mgr_set_physp_pi(osm_sm_t * sm, IN osm_physp_t * p_physp,
 	}
 
 Send:
+	context.pi_context.active_transition = FALSE;
 	if (port_state != IB_LINK_NO_CHANGE &&
 	    port_state != ib_port_info_get_port_state(p_old_pi)) {
 		send_set = TRUE;
 		if (port_state == IB_LINK_ACTIVE)
 			context.pi_context.active_transition = TRUE;
-		else
-			context.pi_context.active_transition = FALSE;
 	}
 
 	context.pi_context.node_guid = osm_node_get_node_guid(p_node);
