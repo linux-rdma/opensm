@@ -500,6 +500,9 @@ void osm_drop_mgr_process(osm_sm_t * sm)
 	cl_qmap_t *p_node_guid_tbl, *p_port_guid_tbl;
 	osm_port_t *p_port, *p_next_port;
 	osm_node_t *p_node, *p_next_node;
+	int max_ports, port_num;
+	osm_physp_t *p_physp;
+	ib_net64_t port_guid;
 
 	CL_ASSERT(sm);
 
@@ -530,6 +533,28 @@ void osm_drop_mgr_process(osm_sm_t * sm)
 		 */
 		if (p_node->discovery_count == 0)
 			drop_mgr_process_node(sm, p_node);
+		else {
+			/*
+			 * Drop port if there was timeout for GetPKeyTable
+			 */
+			if (osm_node_get_type(p_node) == IB_NODE_TYPE_SWITCH)
+				port_num = 0;
+			else
+				port_num = 1;
+			max_ports = osm_node_get_num_physp(p_node);
+			for (; port_num < max_ports; port_num++) {
+				p_physp = osm_node_get_physp_ptr(p_node, port_num);
+				if (!p_physp || p_physp->pkeys.rcv_blocks_cnt == 0)
+					continue;
+				sm->p_subn->subnet_initialization_error = TRUE;
+				if (!port_num || osm_node_get_type(p_node) != IB_NODE_TYPE_SWITCH) {
+					port_guid = osm_physp_get_port_guid(p_physp);
+					p_port = osm_get_port_by_guid(sm->p_subn, port_guid);
+					p_port->discovery_count = 0;
+				} else
+					p_node->physp_discovered[port_num] = 0;
+			}
+		}
 	}
 
 	/*

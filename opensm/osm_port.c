@@ -639,6 +639,8 @@ void osm_physp_set_pkey_tbl(IN osm_log_t * p_log, IN const osm_subn_t * p_subn,
 		return;
 	}
 
+	/* decrement block received counter */
+	p_physp->pkeys.rcv_blocks_cnt--;
 	osm_pkey_tbl_set(&p_physp->pkeys, block_num, p_pkey_tbl,
 			 p_subn->opt.allow_both_pkeys);
 }

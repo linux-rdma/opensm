@@ -90,6 +90,7 @@ typedef struct osm_pkeybl {
 	uint16_t last_pkey_idx;
 	uint16_t used_blocks;
 	uint16_t max_blocks;
+	uint16_t rcv_blocks_cnt;
 } osm_pkey_tbl_t;
 /*
 * FIELDS
@@ -118,6 +119,11 @@ typedef struct osm_pkeybl {
 *		this value is based on node_info (for port 0 or CA) or
 *		switch_info updated on receiving the node_info or switch_info
 *		GetResp
+*
+*	rcv_blocks_cnt
+*		Counter for the received GetPKeyTable mads.
+*		For every GetPKeyTable mad we send, increase the counter,
+*		and for every GetRespPKeyTable we decrease the counter.
 *
 * NOTES
 * 'blocks' vector should be used to store pkey values obtained from

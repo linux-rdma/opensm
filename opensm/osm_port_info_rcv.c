@@ -431,6 +431,7 @@ static void get_pkey_table(IN osm_log_t * p_log, IN osm_sm_t * sm,
 			      1) / IB_NUM_PKEY_ELEMENTS_IN_BLOCK;
 	}
 
+	p_physp->pkeys.rcv_blocks_cnt = max_blocks;
 	for (block_num = 0; block_num < max_blocks; block_num++) {
 		if (osm_node_get_type(p_node) != IB_NODE_TYPE_SWITCH ||
 		    osm_physp_get_port_num(p_physp) == 0) {

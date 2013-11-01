@@ -98,6 +98,7 @@ ib_api_status_t osm_pkey_tbl_init(IN osm_pkey_tbl_t * p_pkey_tbl)
 	p_pkey_tbl->last_pkey_idx = 0;
 	p_pkey_tbl->used_blocks = 0;
 	p_pkey_tbl->max_blocks = 0;
+	p_pkey_tbl->rcv_blocks_cnt = 0;
 	return IB_SUCCESS;
 }
 
