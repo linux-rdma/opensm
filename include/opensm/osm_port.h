@@ -1166,6 +1166,7 @@ typedef struct osm_port {
 	unsigned int cc_timeout_count;
 	int cc_unavailable_flag;
 	void *priv;
+	ib_net16_t lid;
 } osm_port_t;
 /*
 * FIELDS

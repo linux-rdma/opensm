@@ -107,6 +107,7 @@ static int link_mgr_set_physp_pi(osm_sm_t * sm, IN osm_physp_t * p_physp,
 	ib_net32_t attr_mod, cap_mask;
 	boolean_t update_mkey = FALSE;
 	ib_net64_t m_key = 0;
+	osm_port_t *p_port;
 
 	OSM_LOG_ENTER(sm->p_log);
 
@@ -115,6 +116,24 @@ static int link_mgr_set_physp_pi(osm_sm_t * sm, IN osm_physp_t * p_physp,
 	p_old_pi = &p_physp->port_info;
 
 	port_num = osm_physp_get_port_num(p_physp);
+
+	memcpy(payload, p_old_pi, sizeof(ib_port_info_t));
+
+	if (osm_node_get_type(p_node) != IB_NODE_TYPE_SWITCH ||
+	    port_num == 0) {
+		/* Need to make sure LID and SMLID fields in PortInfo are not 0 */
+		if (!p_pi->base_lid) {
+			p_port = osm_get_port_by_guid(sm->p_subn,
+						      osm_physp_get_port_guid(p_physp));
+			p_pi->base_lid = p_port->lid;
+			send_set = TRUE;
+		}
+
+		/* we are initializing the ports with our local sm_base_lid */
+		p_pi->master_sm_base_lid = sm->p_subn->sm_base_lid;
+		if (p_pi->master_sm_base_lid != p_old_pi->master_sm_base_lid)
+			send_set = TRUE;
+	}
 
 	if (port_num == 0) {
 		/*
@@ -143,7 +162,8 @@ static int link_mgr_set_physp_pi(osm_sm_t * sm, IN osm_physp_t * p_physp,
 					PRIx64 "\n", smsl,
 					cl_ntoh64(osm_physp_get_port_guid
 						  (p_physp)));
-			} else {
+			/* Enter if base lid and master_sm_lid didn't change */
+			} else if (send_set == FALSE) {
 				/* This means the switch doesn't support
 				   enhanced port 0 and we don't need to
 				   change SMSL. Can skip it. */
@@ -157,8 +177,6 @@ static int link_mgr_set_physp_pi(osm_sm_t * sm, IN osm_physp_t * p_physp,
 		} else
 			esp0 = TRUE;
 	}
-
-	memcpy(payload, p_old_pi, sizeof(ib_port_info_t));
 
 	/*
 	   Should never write back a value that is bigger then 3 in
@@ -206,18 +224,6 @@ static int link_mgr_set_physp_pi(osm_sm_t * sm, IN osm_physp_t * p_physp,
 			if (memcmp(&p_pi->subnet_prefix,
 				   &p_old_pi->subnet_prefix,
 				   sizeof(p_pi->subnet_prefix)))
-				send_set = TRUE;
-
-			p_pi->base_lid = osm_physp_get_base_lid(p_physp);
-			if (memcmp(&p_pi->base_lid, &p_old_pi->base_lid,
-				   sizeof(p_pi->base_lid)))
-				send_set = TRUE;
-
-			/* we are initializing the ports with our local sm_base_lid */
-			p_pi->master_sm_base_lid = sm->p_subn->sm_base_lid;
-			if (memcmp(&p_pi->master_sm_base_lid,
-				   &p_old_pi->master_sm_base_lid,
-				   sizeof(p_pi->master_sm_base_lid)))
 				send_set = TRUE;
 
 			smsl = link_mgr_get_smsl(sm, p_physp);

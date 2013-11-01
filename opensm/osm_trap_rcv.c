@@ -217,6 +217,7 @@ static int disable_port(osm_sm_t *sm, osm_physp_t *p)
 	osm_madw_context_t context;
 	ib_port_info_t *pi = (ib_port_info_t *)payload;
 	osm_physp_t *physp0;
+	osm_port_t *p_port;
 	ib_net64_t m_key;
 	ib_api_status_t status;
 
@@ -246,6 +247,15 @@ static int disable_port(osm_sm_t *sm, osm_physp_t *p)
 		m_key = ib_port_info_get_m_key(&physp0->port_info);
 	} else
 		m_key = ib_port_info_get_m_key(&p->port_info);
+
+	if (osm_node_get_type(p->p_node) != IB_NODE_TYPE_SWITCH) {
+		if (!pi->base_lid) {
+			p_port = osm_get_port_by_guid(sm->p_subn,
+						      osm_physp_get_port_guid(p));
+			pi->base_lid = p_port->lid;
+		}
+		pi->master_sm_base_lid = sm->p_subn->sm_base_lid;
+	}
 
 	CL_PLOCK_ACQUIRE(sm->p_lock);
 	status = osm_req_set(sm, osm_physp_get_dr_path_ptr(p),

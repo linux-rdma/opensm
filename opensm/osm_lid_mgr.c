@@ -879,6 +879,7 @@ static int lid_mgr_set_physp_pi(IN osm_lid_mgr_t * p_mgr,
 		   sizeof(p_pi->subnet_prefix)))
 		send_set = TRUE;
 
+	p_port->lid = lid;
 	p_pi->base_lid = lid;
 	if (memcmp(&p_pi->base_lid, &p_old_pi->base_lid,
 		   sizeof(p_pi->base_lid)))
