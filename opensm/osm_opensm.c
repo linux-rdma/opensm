@@ -318,7 +318,8 @@ void osm_opensm_destroy(IN osm_opensm_t * p_osm)
 	cl_disp_shutdown(&p_osm->disp);
 
 	/* dump SA DB */
-	if (p_osm->subn.opt.sa_db_dump)
+	if ((p_osm->sm.p_subn->sm_state == IB_SMINFO_STATE_MASTER) &&
+	     p_osm->subn.opt.sa_db_dump)
 		osm_sa_db_file_dump(p_osm);
 
 	/* do the destruction in reverse order as init */
