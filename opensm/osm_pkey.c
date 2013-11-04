@@ -58,7 +58,7 @@
 
 void osm_pkey_tbl_construct(IN osm_pkey_tbl_t * p_pkey_tbl)
 {
-	cl_ptr_vector_construct(&p_pkey_tbl->accum_pkeys);
+	cl_map_construct(&p_pkey_tbl->accum_pkeys);
 	cl_ptr_vector_construct(&p_pkey_tbl->blocks);
 	cl_ptr_vector_construct(&p_pkey_tbl->new_blocks);
 	cl_map_construct(&p_pkey_tbl->keys);
@@ -82,7 +82,8 @@ void osm_pkey_tbl_destroy(IN osm_pkey_tbl_t * p_pkey_tbl)
 			free(p_block);
 	cl_ptr_vector_destroy(&p_pkey_tbl->new_blocks);
 
-	cl_ptr_vector_destroy(&p_pkey_tbl->accum_pkeys);
+	cl_map_remove_all(&p_pkey_tbl->accum_pkeys);
+	cl_map_destroy(&p_pkey_tbl->accum_pkeys);
 
 	cl_map_remove_all(&p_pkey_tbl->keys);
 	cl_map_destroy(&p_pkey_tbl->keys);
@@ -90,7 +91,7 @@ void osm_pkey_tbl_destroy(IN osm_pkey_tbl_t * p_pkey_tbl)
 
 ib_api_status_t osm_pkey_tbl_init(IN osm_pkey_tbl_t * p_pkey_tbl)
 {
-	cl_ptr_vector_init(&p_pkey_tbl->accum_pkeys, 0, 1);
+	cl_map_init(&p_pkey_tbl->accum_pkeys, 1);
 	cl_ptr_vector_init(&p_pkey_tbl->blocks, 0, 1);
 	cl_ptr_vector_init(&p_pkey_tbl->new_blocks, 0, 1);
 	cl_map_init(&p_pkey_tbl->keys, 1);
@@ -193,11 +194,44 @@ cl_status_t osm_pkey_tbl_set_accum_pkeys(IN osm_pkey_tbl_t * p_pkey_tbl,
 					 IN uint16_t pkey_idx)
 {
 	uintptr_t ptr = pkey_idx + 1; /* 0 means not found so bias by 1 */
+	uint16_t *p_prev_pkey_idx;
+	cl_status_t status = CL_SUCCESS;
 
 	if (pkey_idx >= p_pkey_tbl->last_pkey_idx)
 		p_pkey_tbl->last_pkey_idx = pkey_idx + 1;
 
-	return cl_ptr_vector_set(&p_pkey_tbl->accum_pkeys, pkey, (void *)ptr);
+	p_prev_pkey_idx = (uint16_t *) cl_map_get(&p_pkey_tbl->accum_pkeys, pkey);
+
+	if (p_prev_pkey_idx != NULL)
+		cl_map_remove(&p_pkey_tbl->accum_pkeys, pkey);
+
+	if (cl_map_insert(&p_pkey_tbl->accum_pkeys, pkey, (void *) ptr) == NULL)
+		status = CL_INSUFFICIENT_MEMORY;
+
+	return status;
+
+}
+
+/*
++ * Find the next last pkey index
++*/
+void osm_pkey_find_last_accum_pkey_index(IN osm_pkey_tbl_t * p_pkey_tbl)
+{
+	void *ptr;
+	uintptr_t pkey_idx_ptr;
+	uint16_t pkey_idx, last_pkey_idx = 0;
+	cl_map_iterator_t map_iter = cl_map_head(&p_pkey_tbl->accum_pkeys);
+
+	while (map_iter != cl_map_end(&p_pkey_tbl->accum_pkeys)) {
+		ptr = (uint16_t *) cl_map_obj(map_iter);
+		CL_ASSERT(ptr);
+		pkey_idx_ptr = (uintptr_t) ptr;
+		pkey_idx = pkey_idx_ptr;
+		if (pkey_idx > last_pkey_idx)
+			last_pkey_idx = pkey_idx;
+		map_iter = cl_map_next(map_iter);
+	}
+	p_pkey_tbl->last_pkey_idx = last_pkey_idx;
 }
 
 /*
@@ -207,32 +241,12 @@ void osm_pkey_tbl_clear_accum_pkeys(IN osm_pkey_tbl_t * p_pkey_tbl,
 				    IN uint16_t pkey)
 {
 	void *ptr;
-	uintptr_t pkey_idx_ptr;
-	uint16_t pkey_idx, last_pkey_idx;
-	uint32_t i;
 
-	ptr = cl_ptr_vector_get(&p_pkey_tbl->accum_pkeys, pkey);
+	ptr = cl_map_remove(&p_pkey_tbl->accum_pkeys, pkey);
 	if (ptr == NULL)
 		return;
 
-	cl_ptr_vector_set(&p_pkey_tbl->accum_pkeys, pkey, NULL);
-
-	pkey_idx_ptr = (uintptr_t) ptr;
-	pkey_idx = pkey_idx_ptr;
-
-	if (p_pkey_tbl->last_pkey_idx == pkey_idx) {
-		last_pkey_idx = 0;
-		for (i = 1; i < cl_ptr_vector_get_size(&p_pkey_tbl->accum_pkeys); i++) {
-			ptr = cl_ptr_vector_get(&p_pkey_tbl->accum_pkeys, i);
-			if (ptr != NULL) {
-				pkey_idx_ptr = (uintptr_t) ptr;
-				pkey_idx = pkey_idx_ptr;
-				if (pkey_idx > last_pkey_idx)
-					last_pkey_idx = pkey_idx;
-			}
-		}
-		p_pkey_tbl->last_pkey_idx = last_pkey_idx;
-	}
+	osm_pkey_find_last_accum_pkey_index(p_pkey_tbl);
 }
 
 /*

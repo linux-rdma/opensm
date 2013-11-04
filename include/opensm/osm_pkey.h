@@ -82,7 +82,7 @@ struct osm_physp;
 * SYNOPSIS
 */
 typedef struct osm_pkeybl {
-	cl_ptr_vector_t accum_pkeys;
+	cl_map_t accum_pkeys;
 	cl_ptr_vector_t blocks;
 	cl_ptr_vector_t new_blocks;
 	cl_map_t keys;
@@ -299,6 +299,18 @@ static inline ib_pkey_table_t *osm_pkey_tbl_new_block_get(const osm_pkey_tbl_t *
 		(ib_pkey_table_t *)cl_ptr_vector_get(
 		&p_pkey_tbl->new_blocks, block) : NULL);
 };
+
+/****f* OpenSM: osm_pkey_find_last_accum_pkey_index
+ * NAME
+ *   osm_pkey_find_last_accum_pkey_index
+ *
+ * DESCRIPTION
+ *   Finds the next last accumulated pkey
+ *
+ * SYNOPSIS
+ */
+void osm_pkey_find_last_accum_pkey_index(IN osm_pkey_tbl_t * p_pkey_tbl);
+
 
 /****f* OpenSM: osm_pkey_tbl_set_accum_pkeys
 * NAME
