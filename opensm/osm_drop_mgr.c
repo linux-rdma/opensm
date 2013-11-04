@@ -535,7 +535,15 @@ void osm_drop_mgr_process(osm_sm_t * sm)
 			drop_mgr_process_node(sm, p_node);
 		else {
 			/*
-			 * Drop port if there was timeout for GetPKeyTable
+			 * We want to preserve the configured pkey indexes,
+			 * so if we don't receive GetResp P_KeyTable for some block,
+			 * do the following:
+			 *   1. Drop node if the node is sw and got timeout for port 0.
+			 *   2. Drop node if node is HCA/RTR.
+			 *   3. Drop only physp if got timeout for sw when the port isn't 0.
+			 * We'll set error during initialization in order to
+			 * cause an immediate heavy sweep and try to get the
+			 * configured P_KeyTable again.
 			 */
 			if (osm_node_get_type(p_node) == IB_NODE_TYPE_SWITCH)
 				port_num = 0;
@@ -547,12 +555,12 @@ void osm_drop_mgr_process(osm_sm_t * sm)
 				if (!p_physp || p_physp->pkeys.rcv_blocks_cnt == 0)
 					continue;
 				sm->p_subn->subnet_initialization_error = TRUE;
-				if (!port_num || osm_node_get_type(p_node) != IB_NODE_TYPE_SWITCH) {
-					port_guid = osm_physp_get_port_guid(p_physp);
-					p_port = osm_get_port_by_guid(sm->p_subn, port_guid);
-					p_port->discovery_count = 0;
-				} else
+				port_guid = osm_physp_get_port_guid(p_physp);
+				p_port = osm_get_port_by_guid(sm->p_subn, port_guid);
+				if (p_node->physp_discovered[port_num]) {
 					p_node->physp_discovered[port_num] = 0;
+					p_port->discovery_count--;
+				}
 			}
 		}
 	}
