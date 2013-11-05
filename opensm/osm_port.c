@@ -599,7 +599,8 @@ boolean_t osm_link_is_healthy(IN const osm_physp_t * p_physp)
 void osm_physp_set_pkey_tbl(IN osm_log_t * p_log, IN const osm_subn_t * p_subn,
 			    IN osm_physp_t * p_physp,
 			    IN ib_pkey_table_t * p_pkey_tbl,
-			    IN uint16_t block_num)
+			    IN uint16_t block_num,
+			    IN boolean_t is_set)
 {
 	uint16_t max_blocks;
 
@@ -640,7 +641,8 @@ void osm_physp_set_pkey_tbl(IN osm_log_t * p_log, IN const osm_subn_t * p_subn,
 	}
 
 	/* decrement block received counter */
-	p_physp->pkeys.rcv_blocks_cnt--;
+	if(!is_set)
+		p_physp->pkeys.rcv_blocks_cnt--;
 	osm_pkey_tbl_set(&p_physp->pkeys, block_num, p_pkey_tbl,
 			 p_subn->opt.allow_both_pkeys);
 }

@@ -134,7 +134,8 @@ void osm_pkey_rcv_process(IN void *context, IN void *data)
 			       p_pkey_tbl, FILE_ID, OSM_LOG_DEBUG);
 
 	osm_physp_set_pkey_tbl(sm->p_log, sm->p_subn,
-			       p_physp, p_pkey_tbl, block_num);
+			       p_physp, p_pkey_tbl, block_num,
+			       p_context->set_method);
 
 Exit:
 	cl_plock_release(sm->p_lock);
