@@ -554,6 +554,8 @@ void osm_drop_mgr_process(osm_sm_t * sm)
 				p_physp = osm_node_get_physp_ptr(p_node, port_num);
 				if (!p_physp || p_physp->pkeys.rcv_blocks_cnt == 0)
 					continue;
+				p_physp->pkeys.rcv_blocks_cnt = 0;
+				p_physp->need_update = 2;
 				sm->p_subn->subnet_initialization_error = TRUE;
 				port_guid = osm_physp_get_port_guid(p_physp);
 				p_port = osm_get_port_by_guid(sm->p_subn, port_guid);
