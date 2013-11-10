@@ -506,25 +506,37 @@ opensm_dump_to_file(osm_opensm_t * p_osm, const char *file_name,
 		    void (*dump_func) (osm_opensm_t * p_osm, FILE * file))
 {
 	char path[1024];
+	char path_tmp[1032];
 	FILE *file;
+	int status = 0;
 
 	snprintf(path, sizeof(path), "%s/%s",
 		 p_osm->subn.opt.dump_files_dir, file_name);
 
-	file = fopen(path, "w");
+	snprintf(path_tmp, sizeof(path_tmp), "%s.tmp", path);
+
+	file = fopen(path_tmp, "w");
 	if (!file) {
 		OSM_LOG(&p_osm->log, OSM_LOG_ERROR, "ERR 4C01: "
 			"cannot open file \'%s\': %s\n",
-			file_name, strerror(errno));
+			path_tmp, strerror(errno));
 		return -1;
 	}
 
-	chmod(path, S_IRUSR | S_IWUSR);
+	chmod(path_tmp, S_IRUSR | S_IWUSR);
 
 	dump_func(p_osm, file);
 
 	fclose(file);
-	return 0;
+
+	status = rename(path_tmp, path);
+	if (status) {
+		OSM_LOG(&p_osm->log, OSM_LOG_ERROR, "ERR 4C0B: "
+			"Failed to rename file:%s (err:%s)\n",
+			path_tmp, strerror(errno));
+	}
+
+	return status;
 }
 
 static void mcast_mgr_dump_one_port(cl_map_item_t * p_map_item, void *cxt)
