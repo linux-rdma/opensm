@@ -135,6 +135,9 @@ static int link_mgr_set_physp_pi(osm_sm_t * sm, IN osm_physp_t * p_physp,
 			send_set = TRUE;
 	}
 
+	if (osm_node_get_type(p_node) == IB_NODE_TYPE_SWITCH)
+		physp0 = osm_node_get_physp_ptr(p_node, 0);
+
 	if (port_num == 0) {
 		/*
 		   CAs don't have a port 0, and for switch port 0,
@@ -148,8 +151,6 @@ static int link_mgr_set_physp_pi(osm_sm_t * sm, IN osm_physp_t * p_physp,
 				cl_ntoh64(p_node->node_info.node_guid));
 			goto Exit;
 		}
-
-		physp0 = osm_node_get_physp_ptr(p_physp->p_node, 0);
 
 		if (ib_switch_info_is_enhanced_port0(&p_node->sw->switch_info)
 		    == FALSE) {
@@ -193,7 +194,7 @@ static int link_mgr_set_physp_pi(osm_sm_t * sm, IN osm_physp_t * p_physp,
 	ib_port_info_set_port_state(p_pi, port_state);
 
 	/* Determine ports' M_Key */
-	if (osm_node_get_type(p_physp->p_node) == IB_NODE_TYPE_SWITCH &&
+	if (osm_node_get_type(p_node) == IB_NODE_TYPE_SWITCH &&
 	    osm_physp_get_port_num(p_physp) != 0)
 		m_key = ib_port_info_get_m_key(&physp0->port_info);
 	else
