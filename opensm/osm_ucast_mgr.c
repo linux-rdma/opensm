@@ -1182,3 +1182,8 @@ int osm_ucast_dor_setup(struct osm_routing_engine *r, osm_opensm_t * osm)
 	r->ucast_build_fwd_tables = ucast_dor_build_lfts;
 	return 0;
 }
+
+int ucast_dummy_build_lid_matrices(void *context)
+{
+	return 0;
+}

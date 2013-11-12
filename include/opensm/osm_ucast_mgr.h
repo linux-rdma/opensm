@@ -296,5 +296,7 @@ int osm_ucast_mgr_process(IN osm_ucast_mgr_t * p_mgr);
 * SEE ALSO
 *	Unicast Manager, Node Info Response Controller
 *********/
+
+int ucast_dummy_build_lid_matrices(void *context);
 END_C_DECLS
 #endif				/* _OSM_UCAST_MGR_H_ */

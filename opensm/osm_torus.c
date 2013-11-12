@@ -9550,6 +9550,7 @@ int osm_ucast_torus2QoS_setup(struct osm_routing_engine *r,
 
 	r->context = ctx;
 	r->ucast_build_fwd_tables = torus_build_lfts;
+	r->build_lid_matrices = ucast_dummy_build_lid_matrices;
 	r->update_sl2vl = torus_update_osm_sl2vl;
 	r->update_vlarb = torus_update_osm_vlarb;
 	r->path_sl = torus_path_sl;
