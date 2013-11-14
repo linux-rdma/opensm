@@ -360,7 +360,7 @@ static int updn_build_lid_matrices(IN updn_t * p_updn)
 
 	/* Check if it's not a switched subnet */
 	if (cl_is_qmap_empty(&p_updn->p_osm->subn.sw_guid_tbl)) {
-		OSM_LOG(&p_updn->p_osm->log, OSM_LOG_ERROR, "ERR AAOB: "
+		OSM_LOG(&p_updn->p_osm->log, OSM_LOG_ERROR, "ERR AA0B: "
 			"This is not a switched subnet, cannot perform UPDN algorithm\n");
 		status = -1;
 		goto _exit;
