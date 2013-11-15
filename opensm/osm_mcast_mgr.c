@@ -397,7 +397,8 @@ static int mcast_mgr_set_mft_block(osm_sm_t * sm, IN osm_switch_t * p_sw,
 				     CL_DISP_MSGID_NONE, &context);
 		if (status != IB_SUCCESS) {
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A02: "
-				"Sending multicast fwd. tbl. block to %s failed (%s)\n",
+				"Sending multicast fwd. tbl. block 0x%X to %s "
+				"failed (%s)\n", block_id_ho,
 				p_node->print_desc, ib_get_err_str(status));
 			ret = -1;
 		}
