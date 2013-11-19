@@ -1037,8 +1037,8 @@ static void state_mgr_check_tbl_consistency(IN osm_sm_t * sm)
 				p_port_ref->p_node->print_desc,
 				p_port_ref->p_physp->port_num,
 				cl_ntoh64(osm_port_get_guid(p_port_stored)),
-				p_port_ref->p_node->print_desc,
-				p_port_ref->p_physp->port_num);
+				p_port_stored->p_node->print_desc,
+				p_port_stored->p_physp->port_num);
 
 		/* In any of these cases we want to set NULL in the
 		 * port_lid_tbl, since this entry is invalid. Also, make sure
