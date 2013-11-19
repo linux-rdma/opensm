@@ -459,7 +459,7 @@ static void mcast_mgr_subdivide(osm_sm_t * sm, uint16_t mlid_ho,
 			continue;
 		}
 
-		if (port_num > array_size) {
+		if (port_num >= array_size) {
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A04: "
 				"Error routing MLID 0x%X through switch 0x%"
 				PRIx64 " %s\n"
@@ -470,8 +470,6 @@ static void mcast_mgr_subdivide(osm_sm_t * sm, uint16_t mlid_ho,
 				cl_ntoh16(osm_port_get_base_lid
 					  (p_wobj->p_port)));
 			mcast_work_obj_delete(p_wobj);
-			/* This is means OpenSM has a bug. */
-			CL_ASSERT(FALSE);
 			continue;
 		}
 
