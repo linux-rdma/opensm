@@ -882,8 +882,14 @@ static int lid_mgr_set_physp_pi(IN osm_lid_mgr_t * p_mgr,
 	p_port->lid = lid;
 	p_pi->base_lid = lid;
 	if (memcmp(&p_pi->base_lid, &p_old_pi->base_lid,
-		   sizeof(p_pi->base_lid)))
+		   sizeof(p_pi->base_lid))) {
+		/*
+		 * Reset stored base_lid.
+		 * On successful send, we'll update it when we'll get a reply.
+		 */
+		osm_physp_set_base_lid(p_physp, 0);
 		send_set = TRUE;
+	}
 
 	/* we are updating the ports with our local sm_base_lid */
 	p_pi->master_sm_base_lid = p_mgr->p_subn->sm_base_lid;

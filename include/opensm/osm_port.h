@@ -474,6 +474,36 @@ void osm_physp_set_port_info(IN osm_physp_t * p_physp,
 *	Port, Physical Port
 *********/
 
+/****f* OpenSM: Physical Port/osm_physp_set_base_lid
+* NAME
+*	osm_physp_set_base_lid
+*
+* DESCRIPTION
+*	Sets the base lid for this Physical Port.
+*
+* SYNOPSIS
+*/
+static inline void osm_physp_set_base_lid(IN osm_physp_t * p_physp,
+					  IN ib_net16_t base_lid)
+{
+	CL_ASSERT(p_physp);
+	CL_ASSERT(osm_physp_is_valid(p_physp));
+	p_physp->port_info.base_lid = base_lid;
+}
+
+/*
+* PARAMETERS
+*	p_physp
+*		[in] Pointer to an osm_physp_t object.
+*
+*	base_lid
+*		[in] Lid to set.
+*
+* NOTES
+*
+* SEE ALSO
+*********/
+
 /****f* OpenSM: Physical Port/osm_physp_set_pkey_tbl
 * NAME
 *  osm_physp_set_pkey_tbl
