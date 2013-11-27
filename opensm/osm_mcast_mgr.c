@@ -537,7 +537,7 @@ static osm_mtree_node_t *mcast_mgr_branch(osm_sm_t * sm, uint16_t mlid_ho,
 	depth++;
 
 	if (depth >= 64) {
-		OSM_LOG(sm->p_log, OSM_LOG_ERROR,
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A21: "
 			"Maximal hops number is reached for MLID 0x%x."
 			" Break processing.", mlid_ho);
 		mcast_mgr_purge_list(sm, p_list);
