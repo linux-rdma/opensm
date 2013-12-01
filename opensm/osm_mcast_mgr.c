@@ -128,29 +128,12 @@ void osm_mcast_drop_port_list(cl_qlist_t * list)
 				      cl_qlist_remove_head(list));
 }
 
-/**********************************************************************
- Recursively remove nodes from the tree
- *********************************************************************/
-static void mcast_mgr_purge_tree_node(IN osm_mtree_node_t * p_mtn)
-{
-	uint8_t i;
-
-	for (i = 0; i < p_mtn->max_children; i++) {
-		if (p_mtn->child_array[i] &&
-		    (p_mtn->child_array[i] != OSM_MTREE_LEAF))
-			mcast_mgr_purge_tree_node(p_mtn->child_array[i]);
-		p_mtn->child_array[i] = NULL;
-	}
-
-	free(p_mtn);
-}
-
 void osm_purge_mtree(osm_sm_t * sm, IN osm_mgrp_box_t * mbox)
 {
 	OSM_LOG_ENTER(sm->p_log);
 
 	if (mbox->root)
-		mcast_mgr_purge_tree_node(mbox->root);
+		osm_mtree_destroy(mbox->root);
 	mbox->root = NULL;
 
 	OSM_LOG_EXIT(sm->p_log);
