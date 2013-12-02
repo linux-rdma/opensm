@@ -70,7 +70,7 @@ osm_mtree_node_t *osm_mtree_node_new(IN const osm_switch_t * p_sw)
 
 void osm_mtree_destroy(IN osm_mtree_node_t * p_mtn)
 {
-	uint32_t i;
+	uint8_t i;
 
 	if (p_mtn == NULL)
 		return;
