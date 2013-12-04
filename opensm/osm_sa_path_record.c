@@ -813,10 +813,28 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 	 * send the currently computed SL value as a hint and let the routing
 	 * engine override it.
 	 */
-	if (p_re && p_re->path_sl)
+	if (p_re && p_re->path_sl) {
+		uint8_t pr_sl;
+		pr_sl = sl;
+
 		sl = p_re->path_sl(p_re->context, sl,
 				   cl_hton16(src_lid_ho), cl_hton16(dest_lid_ho));
 
+		if ((comp_mask & IB_PR_COMPMASK_SL) && (sl != pr_sl)) {
+			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F2A: "
+				"Requested SL (%u) doesn't match SL calculated"
+				"by routing engine (%u) "
+				"[%s port %d <-> %s port %d]\n",
+				pr_sl,
+				sl,
+				p_src_alias_guid->p_base_port->p_node->print_desc,
+				p_src_alias_guid->p_base_port->p_physp->port_num,
+				p_dest_alias_guid->p_base_port->p_node->print_desc,
+				p_dest_alias_guid->p_base_port->p_physp->port_num);
+			status = IB_NOT_FOUND;
+			goto Exit;
+		}
+	}
 	/* reset pkey when raw traffic */
 	if (comp_mask & IB_PR_COMPMASK_RAWTRAFFIC &&
 	    cl_ntoh32(p_pr->hop_flow_raw) & (1 << 31))
