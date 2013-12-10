@@ -340,29 +340,6 @@ osm_pkey_tbl_set_accum_pkeys(IN osm_pkey_tbl_t * p_pkey_tbl,
 *
 *********/
 
-/****f* OpenSM: osm_pkey_tbl_clear_accum_pkeys
-* NAME
-*  osm_pkey_tbl_clear_accum_pkeys
-*
-* DESCRIPTION
-*   Clears the given pkey in the "accum_pkeys" array
-*
-* SYNOPSIS
-*/
-void
-osm_pkey_tbl_clear_accum_pkeys(IN osm_pkey_tbl_t * p_pkey_tbl,
-			       IN uint16_t pkey);
-/*
-* p_pkey_tbl
-*   [in] Pointer to the PKey table
-*
-* pkey
-*   [in] PKey to clear
-*
-* NOTES
-*
-*********/
-
 /****f* OpenSM: osm_pkey_tbl_set_new_entry
 * NAME
 *  osm_pkey_tbl_set_new_entry

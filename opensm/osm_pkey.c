@@ -235,21 +235,6 @@ void osm_pkey_find_last_accum_pkey_index(IN osm_pkey_tbl_t * p_pkey_tbl)
 }
 
 /*
-  Clears the given pkey (along with it's overall index) in the accum_pkeys array.
-*/
-void osm_pkey_tbl_clear_accum_pkeys(IN osm_pkey_tbl_t * p_pkey_tbl,
-				    IN uint16_t pkey)
-{
-	void *ptr;
-
-	ptr = cl_map_remove(&p_pkey_tbl->accum_pkeys, pkey);
-	if (ptr == NULL)
-		return;
-
-	osm_pkey_find_last_accum_pkey_index(p_pkey_tbl);
-}
-
-/*
   Store the given pkey in the "new" blocks array.
   Also, make sure the regular block exists.
 */
