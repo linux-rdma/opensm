@@ -654,18 +654,18 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 		if (p_qos_level && p_qos_level->pkey_range_len &&
 		    !osm_qos_level_has_pkey(p_qos_level, pkey)) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F1D: "
-				"Ports 0x%016" PRIx64 " (%s port %d) and "
-				"0x%016"PRIx64" (%s port %d) "
-				"do not share PKeys defined by QoS level "
-				"\"%s\"\n",
+				"QoS level \"%s\" doesn't define specified PKey 0x%04x "
+				"for ports 0x%016" PRIx64 " (%s port %d) and "
+				"0x%016"PRIx64" (%s port %d)\n",
+				p_qos_level->name,
+				cl_ntoh16(pkey),
 				cl_ntoh64(osm_physp_get_port_guid(p_src_physp)),
 				p_src_physp->p_node->print_desc,
 				p_src_alias_guid->p_base_port->p_physp->port_num,
 				cl_ntoh64(osm_physp_get_port_guid
 					  (p_dest_physp)),
 				p_dest_physp->p_node->print_desc,
-				p_dest_alias_guid->p_base_port->p_physp->port_num,
-				p_qos_level->name);
+				p_dest_alias_guid->p_base_port->p_physp->port_num);
 			status = IB_NOT_FOUND;
 			goto Exit;
 		}
