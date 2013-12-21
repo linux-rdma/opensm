@@ -288,13 +288,18 @@ int osm_db_clear(IN osm_db_domain_t * p_domain);
 *
 * SYNOPSIS
 */
-int osm_db_store(IN osm_db_domain_t * p_domain);
+int osm_db_store(IN osm_db_domain_t * p_domain,
+		 IN boolean_t fsync_high_avail_files);
 /*
 * PARAMETERS
 *
 *	p_domain
 *		[in] Pointer to the database domain object to restore from
 *		     persistent db
+*
+*	fsync_high_avail_files
+*		[in] Boolean that indicates whether or not to synchronize
+*		     in-memory high availability files with storage
 *
 * RETURN VALUES
 *	0 if successful 1 otherwize

@@ -48,6 +48,7 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include <opensm/osm_file_ids.h>
 #define FILE_ID OSM_FILE_DB_FILES_C
 #include <opensm/st.h>
@@ -461,12 +462,13 @@ static int dump_tbl_entry(st_data_t key, st_data_t val, st_data_t arg)
 	return ST_CONTINUE;
 }
 
-int osm_db_store(IN osm_db_domain_t * p_domain)
+int osm_db_store(IN osm_db_domain_t * p_domain,
+		 IN boolean_t fsync_high_avail_files)
 {
 	osm_log_t *p_log = p_domain->p_db->p_log;
 	osm_db_domain_imp_t *p_domain_imp;
 	FILE *p_file = NULL;
-	int status = 0;
+	int fd, status = 0;
 	char *p_tmp_file_name = NULL;
 
 	OSM_LOG_ENTER(p_log);
@@ -494,6 +496,26 @@ int osm_db_store(IN osm_db_domain_t * p_domain)
 	}
 
 	st_foreach(p_domain_imp->p_hash, dump_tbl_entry, (st_data_t) p_file);
+
+	if (fsync_high_avail_files) {
+		if (fflush(p_file) == 0) {
+			fd = fileno(p_file);
+			if (fd != -1) {
+				if (fsync(fd) == -1)
+					OSM_LOG(p_log, OSM_LOG_ERROR,
+						"ERR 6110: fsync() failed (%s) for %s\n",
+						strerror(errno),
+						p_domain_imp->file_name);
+			} else
+				OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 6111: "
+					"fileno() failed for %s\n",
+					p_domain_imp->file_name);
+		} else
+			OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 6112: "
+				"fflush() failed (%s) for %s\n",
+				strerror(errno), p_domain_imp->file_name);
+	}
+
 	fclose(p_file);
 
 	status = rename(p_tmp_file_name, p_domain_imp->file_name);
@@ -734,7 +756,7 @@ int main(int argc, char **argv)
 			printf("key = %s val = %s\n", p_key, p_val);
 		}
 	}
-	if (osm_db_store(p_dbd))
+	if (osm_db_store(p_dbd, FALSE))
 		printf("failed to store\n");
 
 	osm_db_destroy(&db);

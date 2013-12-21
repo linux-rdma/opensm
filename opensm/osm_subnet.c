@@ -778,6 +778,7 @@ static const opt_rec_t opt_tbl[] = {
 	{ "babbling_port_policy", OPT_OFFSET(babbling_port_policy), opts_parse_boolean, NULL, 1 },
 	{ "drop_event_subscriptions", OPT_OFFSET(drop_event_subscriptions), opts_parse_boolean, NULL, 1 },
 	{ "use_optimized_slvl", OPT_OFFSET(use_optimized_slvl), opts_parse_boolean, NULL, 1 },
+	{ "fsync_high_avail_files", OPT_OFFSET(fsync_high_avail_files), opts_parse_boolean, NULL, 1 },
 #ifdef ENABLE_OSM_PERF_MGR
 	{ "perfmgr", OPT_OFFSET(perfmgr), opts_parse_boolean, NULL, 0 },
 	{ "perfmgr_redir", OPT_OFFSET(perfmgr_redir), opts_parse_boolean, NULL, 0 },
@@ -1483,6 +1484,7 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * p_opt)
 	p_opt->babbling_port_policy = FALSE;
 	p_opt->drop_event_subscriptions = FALSE;
 	p_opt->use_optimized_slvl = FALSE;
+	p_opt->fsync_high_avail_files = TRUE;
 #ifdef ENABLE_OSM_PERF_MGR
 	p_opt->perfmgr = FALSE;
 	p_opt->perfmgr_redir = TRUE;
@@ -2538,12 +2540,15 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		"# Drop event subscriptions (InformInfo) if the port goes away\n"
 		"drop_event_subscriptions %s\n\n"
 		"# Use Optimized SLtoVLMapping programming if supported by device\n"
-		"use_optimized_slvl %s\n\n",
+		"use_optimized_slvl %s\n\n"
+		"# Sync in memory files used for high availability with storage\n"
+		"fsync_high_avail_files %s\n\n",
 		p_opts->daemon ? "TRUE" : "FALSE",
 		p_opts->sm_inactive ? "TRUE" : "FALSE",
 		p_opts->babbling_port_policy ? "TRUE" : "FALSE",
 		p_opts->drop_event_subscriptions ? "TRUE" : "FALSE",
-		p_opts->use_optimized_slvl ? "TRUE" : "FALSE");
+		p_opts->use_optimized_slvl ? "TRUE" : "FALSE",
+		p_opts->fsync_high_avail_files ? "TRUE" : "FALSE");
 
 #ifdef ENABLE_OSM_PERF_MGR
 	fprintf(out,

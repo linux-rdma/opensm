@@ -1233,7 +1233,7 @@ int osm_lid_mgr_process_subnet(IN osm_lid_mgr_t * p_mgr)
 	}			/* all ports */
 
 	/* store the guid to lid table in persistent db */
-	osm_db_store(p_mgr->p_g2l);
+	osm_db_store(p_mgr->p_g2l, p_mgr->p_subn->opt.fsync_high_avail_files);
 
 	CL_PLOCK_RELEASE(p_mgr->p_lock);
 

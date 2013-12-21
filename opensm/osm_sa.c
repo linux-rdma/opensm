@@ -49,6 +49,7 @@
 #include <ctype.h>
 #include <errno.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <complib/cl_qmap.h>
@@ -508,7 +509,7 @@ opensm_dump_to_file(osm_opensm_t * p_osm, const char *file_name,
 	char path[1024];
 	char path_tmp[1032];
 	FILE *file;
-	int status = 0;
+	int fd, status = 0;
 
 	snprintf(path, sizeof(path), "%s/%s",
 		 p_osm->subn.opt.dump_files_dir, file_name);
@@ -526,6 +527,23 @@ opensm_dump_to_file(osm_opensm_t * p_osm, const char *file_name,
 	chmod(path_tmp, S_IRUSR | S_IWUSR);
 
 	dump_func(p_osm, file);
+
+	if (p_osm->subn.opt.fsync_high_avail_files) {
+		if (fflush(file) == 0) {
+			fd = fileno(file);
+			if (fd != -1) {
+				if (fsync(fd) == -1)
+					OSM_LOG(&p_osm->log, OSM_LOG_ERROR,
+						"ERR 4C08: fsync() failed (%s) for %s\n",
+						strerror(errno), path_tmp);
+			} else
+				OSM_LOG(&p_osm->log, OSM_LOG_ERROR, "ERR 4C09: "
+					"fileno() failed for %s\n", path_tmp);
+		} else
+			OSM_LOG(&p_osm->log, OSM_LOG_ERROR, "ERR 4C0A: "
+				"fflush() failed (%s) for %s\n",
+				strerror(errno), path_tmp);
+	}
 
 	fclose(file);
 

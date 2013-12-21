@@ -328,6 +328,7 @@ typedef struct osm_subn_opt {
 	boolean_t babbling_port_policy;
 	boolean_t drop_event_subscriptions;
 	boolean_t use_optimized_slvl;
+	boolean_t fsync_high_avail_files;
 	osm_qos_options_t qos_options;
 	osm_qos_options_t qos_ca_options;
 	osm_qos_options_t qos_sw0_options;
@@ -603,6 +604,10 @@ typedef struct osm_subn_opt {
 *	use_optimized_slvl
 *		Use optimized SLtoVLMappingTable programming if
 *		device indicates it supports this.
+*
+*	fsync_high_avail_files
+*		Synchronize high availability in memory files
+*		with storage.
 *
 *	perfmgr
 *		Enable or disable the performance manager

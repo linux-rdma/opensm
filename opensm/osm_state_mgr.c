@@ -1493,8 +1493,9 @@ repeat_discovery:
 		osm_sm_signal(sm, OSM_SIGNAL_SWEEP);
 
 	/* Write a new copy of our persistent guid2mkey database */
-	osm_db_store(sm->p_subn->p_g2m);
-	osm_db_store(sm->p_subn->p_neighbor);
+	osm_db_store(sm->p_subn->p_g2m, sm->p_subn->opt.fsync_high_avail_files);
+	osm_db_store(sm->p_subn->p_neighbor,
+		     sm->p_subn->opt.fsync_high_avail_files);
 }
 
 static void do_process_mgrp_queue(osm_sm_t * sm)
