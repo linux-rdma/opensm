@@ -216,6 +216,17 @@ static int do_ucast_file_load(void *context)
 					file_name, lineno, p);
 				goto Exit;
 			}
+			if (port_num >=
+				osm_node_get_num_physp(p_sw->p_node)) {
+					OSM_LOG(&p_osm->log, OSM_LOG_ERROR,
+						"Invalid port %d found "
+						"for switch %016" PRIx64 "\n",
+						port_num,
+						cl_ntoh64(osm_node_get_node_guid
+							(p_sw->p_node)));
+					goto Exit;
+			}
+
 			p = q;
 			/* additionally try to extract guid */
 			q = strstr(p, " portguid 0x");
