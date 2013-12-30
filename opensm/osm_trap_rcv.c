@@ -571,7 +571,8 @@ check_sweep:
 	if (osm_log_is_active_v2(sm->p_log, OSM_LOG_INFO, FILE_ID)) {
 		if (ib_notice_is_generic(p_ntci) &&
 		    cl_ntoh16(p_ntci->g_or_v.generic.trap_num) == SM_LINK_STATE_CHANGED_TRAP) {
-			p_path = osm_physp_get_dr_path_ptr(p_physp);
+			p_path = (p_physp) ?
+			    osm_physp_get_dr_path_ptr(p_physp) : NULL;
 			if (p_path) {
 				n = sprintf(buf, "SM class trap %u: ",
 					    cl_ntoh16(p_ntci->g_or_v.generic.trap_num));
