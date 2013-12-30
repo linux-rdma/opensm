@@ -475,15 +475,20 @@ int osm_db_store(IN osm_db_domain_t * p_domain,
 
 	p_domain_imp = (osm_db_domain_imp_t *) p_domain->p_domain_imp;
 
-	if (p_domain_imp->dirty == FALSE)
-		goto Exit;
-
 	p_tmp_file_name = malloc(sizeof(char) *
 				 (strlen(p_domain_imp->file_name) + 8));
+	if (!p_tmp_file_name) {
+		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 6113: "
+			"Failed to allocate memory for temporary file name\n");
+		goto Exit;
+	}
 	strcpy(p_tmp_file_name, p_domain_imp->file_name);
 	strcat(p_tmp_file_name, ".tmp");
 
 	cl_spinlock_acquire(&p_domain_imp->lock);
+
+	if (p_domain_imp->dirty == FALSE)
+		goto Exit;
 
 	/* open up the output file */
 	p_file = fopen(p_tmp_file_name, "w");
