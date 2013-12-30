@@ -1689,11 +1689,18 @@ static int fabric_create_leaf_switch_array(IN ftree_fabric_t * p_ftree)
 			last_leaf_idx = i;
 		}
 	}
-	CL_ASSERT(first_leaf_idx < last_leaf_idx);
 
 	OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
 		"Full leaf array info: first_leaf_idx = %u, last_leaf_idx = %u\n",
 		first_leaf_idx, last_leaf_idx);
+
+	if (first_leaf_idx >= last_leaf_idx) {
+		osm_log_v2(&p_ftree->p_osm->log, OSM_LOG_INFO, FILE_ID,
+			   "Faild to find leaf switches - topology is not "
+			   "fat-tree\n");
+		res = -1;
+		goto Exit;
+	}
 
 	/* Create array of REAL leaf switches, sorted by index.
 	   This array may contain switches at the same rank w/o CNs,
