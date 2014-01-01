@@ -566,7 +566,7 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 
 	/* On receipt of client reregister, clear the reregister bit so
 	   reregistering won't be sent again and again */
-	if (ib_port_info_get_client_rereg(p_pi)) {
+	if (p_context->set_method && ib_port_info_get_client_rereg(p_pi)) {
 		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 			"Client reregister received on response\n");
 		ib_port_info_set_client_rereg(p_pi, 0);
