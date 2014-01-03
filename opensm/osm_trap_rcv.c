@@ -241,6 +241,7 @@ static int disable_port(osm_sm_t *sm, osm_physp_t *p)
 	context.pi_context.set_method = TRUE;
 	context.pi_context.light_sweep = FALSE;
 	context.pi_context.active_transition = FALSE;
+	context.pi_context.client_rereg = FALSE;
 	if (osm_node_get_type(p->p_node) == IB_NODE_TYPE_SWITCH &&
 	    osm_physp_get_port_num(p) != 0) {
 		physp0 = osm_node_get_physp_ptr(p->p_node, 0);

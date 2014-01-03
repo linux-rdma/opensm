@@ -451,6 +451,7 @@ Send:
 	context.pi_context.port_guid = osm_physp_get_port_guid(p_physp);
 	context.pi_context.set_method = TRUE;
 	context.pi_context.light_sweep = FALSE;
+	context.pi_context.client_rereg = FALSE;
 
 	/* We need to send the PortInfoSet request with the new sm_lid
 	   in the following cases:

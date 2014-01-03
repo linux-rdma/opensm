@@ -182,6 +182,7 @@ typedef struct osm_pi_context {
 	boolean_t set_method;
 	boolean_t light_sweep;
 	boolean_t active_transition;
+	boolean_t client_rereg;
 } osm_pi_context_t;
 /*********/
 

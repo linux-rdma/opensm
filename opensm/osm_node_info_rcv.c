@@ -307,6 +307,7 @@ static void ni_rcv_get_port_info(IN osm_sm_t * sm, IN osm_node_t * node,
 	context.pi_context.set_method = FALSE;
 	context.pi_context.light_sweep = FALSE;
 	context.pi_context.active_transition = FALSE;
+	context.pi_context.client_rereg = FALSE;
 
 	for (; port < num_ports; port++) {
 		status = osm_req_get(sm, osm_physp_get_dr_path_ptr(physp),

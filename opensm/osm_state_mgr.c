@@ -186,6 +186,7 @@ static void state_mgr_get_remote_port_info(IN osm_sm_t * sm,
 	mad_context.pi_context.set_method = FALSE;
 	mad_context.pi_context.light_sweep = TRUE;
 	mad_context.pi_context.active_transition = FALSE;
+	mad_context.pi_context.client_rereg = FALSE;
 
 	/* note that with some negative logic - if the query failed it means
 	 * that there is no point in going to heavy sweep */

@@ -1043,9 +1043,12 @@ static int lid_mgr_set_physp_pi(IN osm_lid_mgr_t * p_mgr,
 			"Setting client rereg on %s, port %d\n",
 			p_port->p_node->print_desc, p_port->p_physp->port_num);
 		ib_port_info_set_client_rereg(p_pi, 1);
+		context.pi_context.client_rereg = TRUE;
 		send_set = TRUE;
-	} else
+	} else {
 		ib_port_info_set_client_rereg(p_pi, 0);
+		context.pi_context.client_rereg = FALSE;
+	}
 
 	/* We need to send the PortInfo Set request with the new sm_lid
 	   in the following cases:
