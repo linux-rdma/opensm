@@ -118,7 +118,7 @@ static inline void diff_time(struct timeval *before, struct timeval *after,
 #endif
 
 /**********************************************************************
- * Internal helper functions.
+ * Internal helper functions
  **********************************************************************/
 static void init_monitored_nodes(osm_perfmgr_t * pm)
 {
@@ -167,7 +167,7 @@ static inline void decrement_outstanding_queries(osm_perfmgr_t * pm)
 
 /**********************************************************************
  * Receive the MAD from the vendor layer and post it for processing by
- * the dispatcher.
+ * the dispatcher
  **********************************************************************/
 static void perfmgr_mad_recv_callback(osm_madw_t * p_madw, void *bind_context,
 				      osm_madw_t * p_req_madw)
@@ -195,7 +195,7 @@ static void perfmgr_mad_recv_callback(osm_madw_t * p_madw, void *bind_context,
 }
 
 /**********************************************************************
- * Process MAD send errors.
+ * Process MAD send errors
  **********************************************************************/
 static void perfmgr_mad_send_err_callback(void *bind_context,
 					  osm_madw_t * p_madw)
@@ -360,7 +360,6 @@ static ib_net16_t get_lid(osm_node_t * p_node, uint8_t port,
 	return get_base_lid(p_node, port);
 }
 
-
 /**********************************************************************
  * Build a Performance Management class MAD
  **********************************************************************/
@@ -459,7 +458,7 @@ static ib_api_status_t perfmgr_send_mad(osm_perfmgr_t *perfmgr,
 
 
 /**********************************************************************
- * Form and send the PortCounters MAD for a single port.
+ * Form and send the PortCounters MAD for a single port
  **********************************************************************/
 static ib_api_status_t perfmgr_send_pc_mad(osm_perfmgr_t * perfmgr,
 					   ib_net16_t dest_lid,
@@ -508,8 +507,8 @@ static void collect_guids(cl_map_item_t * p_map_item, void *context)
 
 	OSM_LOG_ENTER(pm->log);
 
-	if (cl_qmap_get(&pm->monitored_map, node_guid)
-	    == cl_qmap_end(&pm->monitored_map)) {
+	if (cl_qmap_get(&pm->monitored_map, node_guid) ==
+	    cl_qmap_end(&pm->monitored_map)) {
 
 		if (pm->ignore_cas &&
 		    (node->node_info.node_type == IB_NODE_TYPE_CA))
@@ -554,7 +553,7 @@ Exit:
 }
 
 /**********************************************************************
- * Form and send the ClassPortInfo MAD for a single port.
+ * Form and send the ClassPortInfo MAD for a single port
  **********************************************************************/
 static ib_api_status_t perfmgr_send_cpi_mad(osm_perfmgr_t * pm,
 					    ib_net16_t dest_lid,
@@ -584,7 +583,7 @@ static ib_api_status_t perfmgr_send_cpi_mad(osm_perfmgr_t * pm,
 }
 
 /**********************************************************************
- * return if some form of PortCountersExtended (PCE || PCE NoIETF) are supported.
+ * return if some form of PortCountersExtended (PCE || PCE NoIETF) are supported
  **********************************************************************/
 static inline boolean_t pce_supported(monitored_node_t *mon_node, uint8_t port)
 {
@@ -605,7 +604,7 @@ static inline boolean_t ietf_supported(monitored_node_t *mon_node, uint8_t port)
 }
 
 /**********************************************************************
- * Form and send the PortCountersExtended MAD for a single port.
+ * Form and send the PortCountersExtended MAD for a single port
  **********************************************************************/
 static ib_api_status_t perfmgr_send_pce_mad(osm_perfmgr_t * perfmgr,
 					    ib_net16_t dest_lid,
@@ -641,7 +640,7 @@ static ib_api_status_t perfmgr_send_pce_mad(osm_perfmgr_t * perfmgr,
 }
 
 /**********************************************************************
- * query the Port Counters of all the nodes in the subnet.
+ * query the Port Counters of all the nodes in the subnet
  **********************************************************************/
 static void perfmgr_query_counters(cl_map_item_t * p_map_item, void *context)
 {
@@ -773,7 +772,7 @@ Exit:
 }
 
 /**********************************************************************
- * Discovery stuff.
+ * Discovery stuff
  * This code should not be here, but merged with main OpenSM
  **********************************************************************/
 extern int wait_for_pending_transactions(osm_stats_t * stats);
@@ -989,7 +988,7 @@ _exit:
 }
 
 /**********************************************************************
- * Main PerfMgr processor - query the performance counters.
+ * Main PerfMgr processor - query the performance counters
  **********************************************************************/
 void osm_perfmgr_process(osm_perfmgr_t * pm)
 {
@@ -1076,7 +1075,7 @@ void osm_perfmgr_process(osm_perfmgr_t * pm)
 
 /**********************************************************************
  * PerfMgr timer - loop continuously and signal SM to run PerfMgr
- * processor if enabled.
+ * processor if enabled
  **********************************************************************/
 static void perfmgr_sweep(void *arg)
 {
@@ -1106,7 +1105,7 @@ void osm_perfmgr_destroy(osm_perfmgr_t * pm)
 /**********************************************************************
  * Detect if someone else on the network could have cleared the counters
  * without us knowing.  This is easy to detect because the counters never
- * wrap but are "sticky"
+ * wrap but are "sticky".
  *
  * The one time this will not work is if the port is getting errors fast
  * enough to have the reading overtake the previous reading.  In this case,
@@ -1206,7 +1205,7 @@ static int counter_overflow_64(ib_net64_t val)
 
 /**********************************************************************
  * Check if the port counters have overflowed and if so issue a clear
- * MAD to the port.
+ * MAD to the port
  **********************************************************************/
 static void perfmgr_check_overflow(osm_perfmgr_t * pm,
 				   monitored_node_t * mon_node, int16_t pkey_ix,
@@ -1298,7 +1297,7 @@ Exit:
 
 /**********************************************************************
  * Check if the port counters have overflowed and if so issue a clear
- * MAD to the port.
+ * MAD to the port
  **********************************************************************/
 static void perfmgr_check_pce_overflow(osm_perfmgr_t * pm,
 				       monitored_node_t * mon_node,
@@ -1587,7 +1586,7 @@ Exit:
 /**********************************************************************
  * Detect if someone else on the network could have cleared the counters
  * without us knowing.  This is easy to detect because the counters never
- * wrap but are "sticky"  PortCountersExtended version.
+ * wrap but are "sticky" PortCountersExtended version.
  *
  * The one time this will not work is if the port is getting errors fast
  * enough to have the reading overtake the previous reading.  In this case,
@@ -1650,7 +1649,7 @@ static void perfmgr_check_data_cnt_oob_clear(osm_perfmgr_t * pm,
 
 /**********************************************************************
  * The dispatcher uses a thread pool which will call this function when
- * there is a thread available to process the mad received on the wire.
+ * there is a thread available to process the mad received on the wire
  **********************************************************************/
 static void pc_recv_process(void *context, void *data)
 {
@@ -1925,6 +1924,7 @@ void osm_perfmgr_print_counters(osm_perfmgr_t * pm, char *nodename, FILE * fp,
 	} else
 		perfmgr_db_print_all(pm->db, fp, err_only);
 }
+
 void osm_perfmgr_update_nodename(osm_perfmgr_t *pm, uint64_t node_guid,
 				char *nodename)
 {
