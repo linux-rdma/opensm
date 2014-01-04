@@ -533,8 +533,8 @@ int osm_db_store(IN osm_db_domain_t * p_domain,
 	p_domain_imp->dirty = FALSE;
 Exit:
 	cl_spinlock_release(&p_domain_imp->lock);
-Exit2:
 	free(p_tmp_file_name);
+Exit2:
 	OSM_LOG_EXIT(p_log);
 	return status;
 }
