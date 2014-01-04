@@ -376,6 +376,7 @@ ib_api_status_t osm_prtn_make_partitions(osm_log_t * p_log, osm_subn_t * p_subn)
 	struct stat statbuf;
 	const char *file_name;
 	boolean_t is_config = TRUE;
+	boolean_t is_wrong_config = FALSE;
 	ib_api_status_t status = IB_SUCCESS;
 	cl_map_item_t *p_next;
 	osm_prtn_t *p;
@@ -389,6 +390,7 @@ ib_api_status_t osm_prtn_make_partitions(osm_log_t * p_log, osm_subn_t * p_subn)
 		is_config = FALSE;
 	}
 
+retry_default:
 	/* clean up current port maps */
 	p_next = cl_qmap_head(&p_subn->prtn_pkey_tbl);
 	while (p_next != cl_qmap_end(&p_subn->prtn_pkey_tbl)) {
@@ -404,9 +406,11 @@ ib_api_status_t osm_prtn_make_partitions(osm_log_t * p_log, osm_subn_t * p_subn)
 	if (status != IB_SUCCESS)
 		goto _err;
 
-	if (is_config && osm_prtn_config_parse_file(p_log, p_subn, file_name))
+	if (is_config && osm_prtn_config_parse_file(p_log, p_subn, file_name)) {
 		OSM_LOG(p_log, OSM_LOG_VERBOSE, "Partition configuration "
 			"was not fully processed\n");
+		is_wrong_config = TRUE;
+	}
 
 	/* and now clean up empty partitions */
 	p_next = cl_qmap_head(&p_subn->prtn_pkey_tbl);
@@ -419,6 +423,13 @@ ib_api_status_t osm_prtn_make_partitions(osm_log_t * p_log, osm_subn_t * p_subn)
 					    (cl_map_item_t *) p);
 			osm_prtn_delete(p_subn, &p);
 		}
+	}
+
+	if (is_config && is_wrong_config) {
+		OSM_LOG(p_log, OSM_LOG_ERROR, "Partition configuration "
+			"in error; retrying with default config\n");
+		is_config = FALSE;
+		goto retry_default;
 	}
 
 _err:
