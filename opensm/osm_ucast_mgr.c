@@ -799,7 +799,7 @@ static void add_sw_endports_to_order_list(osm_switch_t * sw,
 			port = osm_get_port_by_guid(m->p_subn,
 						    p->p_remote_physp->
 						    port_guid);
-			if (!port)
+			if (!port || port->flag)
 				continue;
 			cl_qlist_insert_tail(&m->port_order_list,
 					     &port->list_item);
@@ -864,8 +864,8 @@ static int ucast_mgr_build_lfts(osm_ucast_mgr_t * p_mgr)
 			OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 3A0D: "
 				"cannot parse guid routing order file \'%s\'\n",
 				p_mgr->p_subn->opt.guid_routing_order_file);
-	} else
-		sort_ports_by_switch_load(p_mgr);
+	}
+	sort_ports_by_switch_load(p_mgr);
 
 	if (p_mgr->p_subn->opt.port_prof_ignore_file) {
 		cl_qmap_apply_func(&p_mgr->p_subn->sw_guid_tbl,
