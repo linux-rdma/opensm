@@ -1194,6 +1194,7 @@ typedef struct osm_port {
 	osm_physp_t *p_physp;
 	cl_qlist_t mcm_list;
 	int flag;
+	int use_scatter;
 	unsigned int cc_timeout_count;
 	int cc_unavailable_flag;
 	void *priv;

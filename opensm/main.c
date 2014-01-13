@@ -369,6 +369,8 @@ static void show_usage(void)
 	printf("--consolidate_ipv6_snm_req\n"
 	       "          Use shared MLID for IPv6 Solicited Node Multicast groups\n"
 	       "          per MGID scope and P_Key.\n\n");
+	printf("--guid_routing_order_no_scatter\n"
+	       "          Don't use scatter for ports defined in guid_routing_order file\n\n");
 	printf("--log_prefix <prefix text>\n"
 	       "          Prefix to syslog messages from OpenSM.\n\n");
 	printf("--verbose, -v\n"
@@ -687,6 +689,7 @@ int main(int argc, char *argv[])
 		{"retries", 1, NULL, 8},
 		{"log_prefix", 1, NULL, 9},
 		{"torus_config", 1, NULL, 10},
+		{"guid_routing_order_no_scatter", 0, NULL, 13},
 		{NULL, 0, NULL, 0}	/* Required at the end of the array */
 	};
 
@@ -1132,6 +1135,9 @@ int main(int argc, char *argv[])
 		case 10:
 			SET_STR_OPT(opt.torus_conf_file, optarg);
 			printf("Torus-2QoS config file = %s\n", opt.torus_conf_file);
+			break;
+		case 13:
+			opt.guid_routing_order_no_scatter = TRUE;
 			break;
 		case 'h':
 		case '?':

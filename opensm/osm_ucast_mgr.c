@@ -259,7 +259,7 @@ static void ucast_mgr_process_port(IN osm_ucast_mgr_t * p_mgr,
 					 p_mgr->p_subn->opt.lmc,
 					 p_mgr->is_dor,
 					 p_mgr->p_subn->opt.port_shifting,
-					 p_mgr->p_subn->opt.scatter_ports);
+					 p_port->use_scatter);
 
 	if (port == OSM_NO_PATH) {
 		/* do not try to overwrite the ppro of non existing port ... */
@@ -729,6 +729,7 @@ static int add_guid_to_order_list(void *ctx, uint64_t guid, char *p)
 
 	cl_qlist_insert_tail(&m->port_order_list, &port->list_item);
 	port->flag = 1;
+	port->use_scatter =  (m->p_subn->opt.guid_routing_order_no_scatter == TRUE) ? 0 : m->p_subn->opt.scatter_ports;
 
 	return 0;
 }
@@ -738,9 +739,10 @@ static void add_port_to_order_list(cl_map_item_t * p_map_item, void *ctx)
 	osm_port_t *port = (osm_port_t *) p_map_item;
 	osm_ucast_mgr_t *m = ctx;
 
-	if (!port->flag)
+	if (!port->flag) {
+		port->use_scatter = m->p_subn->opt.scatter_ports;
 		cl_qlist_insert_tail(&m->port_order_list, &port->list_item);
-	else
+	} else
 		port->flag = 0;
 }
 
@@ -804,6 +806,7 @@ static void add_sw_endports_to_order_list(osm_switch_t * sw,
 			cl_qlist_insert_tail(&m->port_order_list,
 					     &port->list_item);
 			port->flag = 1;
+			port->use_scatter = m->p_subn->opt.scatter_ports;
 		}
 	}
 }

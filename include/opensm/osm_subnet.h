@@ -317,6 +317,7 @@ typedef struct osm_subn_opt {
 	uint16_t max_reverse_hops;
 	char *ids_guid_file;
 	char *guid_routing_order_file;
+	boolean_t guid_routing_order_no_scatter;
 	char *sa_db_file;
 	boolean_t sa_db_dump;
 	char *torus_conf_file;

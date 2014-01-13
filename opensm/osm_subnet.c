@@ -767,6 +767,7 @@ static const opt_rec_t opt_tbl[] = {
 	{ "max_reverse_hops", OPT_OFFSET(max_reverse_hops), opts_parse_uint16, NULL, 0 },
 	{ "ids_guid_file", OPT_OFFSET(ids_guid_file), opts_parse_charp, NULL, 0 },
 	{ "guid_routing_order_file", OPT_OFFSET(guid_routing_order_file), opts_parse_charp, NULL, 0 },
+	{ "guid_routing_order_no_scatter", OPT_OFFSET(guid_routing_order_no_scatter), opts_parse_boolean, NULL, 0 },
 	{ "sa_db_file", OPT_OFFSET(sa_db_file), opts_parse_charp, NULL, 0 },
 	{ "sa_db_dump", OPT_OFFSET(sa_db_dump), opts_parse_boolean, NULL, 1 },
 	{ "torus_config", OPT_OFFSET(torus_conf_file), opts_parse_charp, NULL, 1 },
@@ -1535,6 +1536,7 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * p_opt)
 	p_opt->max_reverse_hops = 0;
 	p_opt->ids_guid_file = NULL;
 	p_opt->guid_routing_order_file = NULL;
+	p_opt->guid_routing_order_no_scatter = FALSE;
 	p_opt->sa_db_file = NULL;
 	p_opt->sa_db_dump = FALSE;
 	p_opt->torus_conf_file = strdup(OSM_DEFAULT_TORUS_CONF_FILE);
