@@ -209,14 +209,23 @@ Set the root nodes for the Up/Down or Fat-Tree routing
 algorithm to the guids provided in the given file (one to a line).
 .TP
 \fB\-u\fR, \fB\-\-cn_guid_file\fR <file name>
-Set the compute nodes for the Fat-Tree routing algorithm
-to the guids provided in the given file (one to a line).
+Set the compute nodes for the Fat-Tree or DFSSSP/SSSP routing algorithms
+to the port GUIDs provided in the given file (one to a line).
 .TP
 \fB\-G\fR, \fB\-\-io_guid_file\fR <file name>
-Set the I/O nodes for the Fat-Tree routing algorithm
-to the guids provided in the given file (one to a line).
+Set the I/O nodes for the Fat-Tree or DFSSSP/SSSP routing algorithms
+to the port GUIDs provided in the given file (one to a line).
+.br
+In the case of Fat-Tree routing:
+.br
 I/O nodes are non-CN nodes allowed to use up to max_reverse_hops switches
 the wrong way around to improve connectivity.
+.br
+In the case of (DF)SSSP routing:
+.br
+Providing guids of compute and/or I/O nodes will ensure that paths towards
+those nodes are as much separated as possible within their node category,
+i.e., I/O traffic will not share the same link if multiple links are available.
 .TP
 \fB\-\-port\-shifting\fR
 This option enables a feature called \fBport shifting\fR.  In some
@@ -1307,6 +1316,48 @@ each route, which the application will use to transmite packages
 b) running SSSP:   '-R sssp'
 .br
 c) both algorithms support LMC > 0
+
+Hints for optimizing I/O traffic:
+.br
+Having more nodes (I/O and compute) connected to a switch than incoming links
+can result in a 'bad' routing of the I/O traffic as long as (DF)SSSP routing
+is not aware of the dedicated I/O nodes, i.e., in the following network
+configuration CN1-CN3 might send all I/O traffic via Link2 to IO1,IO2:
+
+     CN1         Link1        IO1
+.br
+        \\       /----\\       /
+.br
+  CN2 -- Switch1      Switch2 -- CN4
+.br
+        /       \\----/       \\
+.br
+     CN3         Link2        IO2
+
+To prevent this from happening (DF)SSSP can use both the compute node guid
+file and the I/O guid file specified by the \'-u\' or \'--cn_guid_file\' and
+\'-G\' or \'--io_guid_file\' options (similar to the Fat-Tree routing).
+This ensures that traffic towards compute nodes and I/O nodes is balanced
+separately and therefore distributed as much as possible across the available
+links. Port GUIDs, as listed by ibstat, must be specified (not Node GUIDs).
+.br
+The priority for the optimization is as follows:
+.br
+  compute nodes -> I/O nodes -> other nodes
+.br
+Possible use case szenarios:
+.br
+a) neither \'-u\' nor \'-G\' are specified: all nodes a treated as \'other nodes\'
+and therefore balanced equally;
+.br
+b) \'-G\' is specified: traffic towards I/O nodes will be balanced optimally;
+.br
+c) the system has three node types, such as login/admin, compute and I/O,
+but the balancing focus should be I/O, then one has to use \'-u\' and \'-G\'
+with I/O guids listed in cn_guid_file and compute node guids listed in
+io_guid_file;
+.br
+d) ...
 
 Torus-2QoS Routing Algorithm
 

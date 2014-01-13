@@ -223,11 +223,11 @@ static void show_usage(void)
 	       "          algorithm to the guids provided in the given file (one\n"
 	       "          to a line)\n" "\n");
 	printf("--cn_guid_file, -u <path to file>\n"
-	       "          Set the compute nodes for the Fat-Tree routing algorithm\n"
-	       "          to the guids provided in the given file (one to a line)\n\n");
+	       "          Set the compute nodes for the Fat-Tree or DFSSSP/SSSP routing algorithms\n"
+	       "          to the port GUIDs provided in the given file (one to a line)\n\n");
 	printf("--io_guid_file, -G <path to file>\n"
-	       "          Set the I/O nodes for the Fat-Tree routing algorithm\n"
-	       "          to the guids provided in the given file (one to a line)\n\n");
+	       "          Set the I/O nodes for the Fat-Tree or DFSSSP/SSSP routing algorithms\n"
+	       "          to the port GUIDs provided in the given file (one to a line)\n\n");
 	printf("--port-shifting\n"
 	       "          Attempt to shift port routes around to remove alignment problems\n"
 	       "          in routing tables\n\n");

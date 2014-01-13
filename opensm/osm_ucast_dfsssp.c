@@ -1021,22 +1021,38 @@ ERROR:
  ************ (functions copied from osm_ucast_mgr.c and modified) ****
  **********************************************************************/
 static void add_sw_endports_to_order_list(osm_switch_t * sw,
-					  osm_ucast_mgr_t * m)
+					  osm_ucast_mgr_t * m,
+					  cl_qmap_t * guid_tbl,
+					  boolean_t add_guids)
 {
 	osm_port_t *port;
+	uint64_t port_guid;
 	osm_physp_t *p;
 	int i;
+	boolean_t found;
 
 	for (i = 1; i < sw->num_ports; i++) {
 		p = osm_node_get_physp_ptr(sw->p_node, i);
 		if (p && p->p_remote_physp && !p->p_remote_physp->p_node->sw) {
-			port = osm_get_port_by_guid(m->p_subn,
-						    p->p_remote_physp->
-						    port_guid);
+			port_guid = p->p_remote_physp->port_guid;
+			port = osm_get_port_by_guid(m->p_subn, port_guid);
 			if (!port)
 				continue;
-			cl_qlist_insert_tail(&m->port_order_list,
-					     &port->list_item);
+			if (!cl_is_qmap_empty(guid_tbl)) {
+				found = (cl_qmap_get(guid_tbl, port_guid)
+					 != cl_qmap_end(guid_tbl));
+				if ((add_guids && !found)
+				    || (!add_guids && found))
+					continue;
+			}
+			if (!cl_is_item_in_qlist(&m->port_order_list,
+						 &port->list_item))
+				cl_qlist_insert_tail(&m->port_order_list,
+						     &port->list_item);
+			else
+				OSM_LOG(m->p_log, OSM_LOG_INFO,
+					"WRN AD37: guid 0x%016" PRIx64
+					" already in list\n", port_guid);
 		}
 	}
 }
@@ -1050,7 +1066,12 @@ static void add_guid_to_order_list(uint64_t guid, osm_ucast_mgr_t * m)
 			 "port guid not found: 0x%016" PRIx64 "\n", guid);
 	}
 
-	cl_qlist_insert_tail(&m->port_order_list, &port->list_item);
+	if (!cl_is_item_in_qlist(&m->port_order_list, &port->list_item))
+		cl_qlist_insert_tail(&m->port_order_list, &port->list_item);
+	else
+		OSM_LOG(m->p_log, OSM_LOG_INFO,
+			"WRN AD38: guid 0x%016" PRIx64 " already in list\n",
+			guid);
 }
 
 /* compare function of #Hca attached to a switch for stdlib qsort */
@@ -1078,6 +1099,40 @@ static inline void sw_list_sort_by_num_hca(vertex_t ** sw_list,
 					   uint32_t sw_list_size)
 {
 	qsort(sw_list, sw_list_size, sizeof(vertex_t *), cmp_num_hca);
+}
+
+/**********************************************************************
+ **********************************************************************/
+
+/************ helper functions to manage a map of CN and I/O guids ****
+ **********************************************************************/
+static int add_guid_to_map(void * cxt, uint64_t guid, char * p)
+{
+	cl_qmap_t *map = cxt;
+	name_map_item_t *item;
+
+	item = malloc(sizeof(*item));
+	if (!item)
+		return -1;
+
+	item->guid = cl_hton64(guid);	/* internal: network byte order */
+	item->name = NULL;		/* name isn't needed */
+	cl_qmap_insert(map, item->guid, &item->item);
+
+	return 0;
+}
+
+static void destroy_guid_map(cl_qmap_t * guid_tbl)
+{
+	name_map_item_t *p_guid = NULL, *p_next_guid = NULL;
+
+	p_next_guid = (name_map_item_t *) cl_qmap_head(guid_tbl);
+	while (p_next_guid != (name_map_item_t *) cl_qmap_end(guid_tbl)) {
+		p_guid = p_next_guid;
+		p_next_guid = (name_map_item_t *) cl_qmap_next(&p_guid->item);
+		free(p_guid);
+	}
+	cl_qmap_remove_all(guid_tbl);
 }
 
 /**********************************************************************
@@ -2166,16 +2221,24 @@ static int dfsssp_do_dijkstra_routing(void *context)
 	cl_list_item_t *qlist_item = NULL;
 
 	cl_qmap_t *sw_tbl = &p_mgr->p_subn->sw_guid_tbl;
+	cl_qmap_t cn_tbl, io_tbl, *p_mixed_tbl = NULL;
 	cl_map_item_t *item = NULL;
 	osm_switch_t *sw = NULL;
 	osm_port_t *port = NULL;
 	uint32_t i = 0, err = 0;
 	uint16_t lid = 0, min_lid_ho = 0, max_lid_ho = 0;
 	uint8_t lmc = 0;
+	boolean_t cn_nodes_provided = FALSE, io_nodes_provided = FALSE;
 
 	OSM_LOG_ENTER(p_mgr->p_log);
 	OSM_LOG(p_mgr->p_log, OSM_LOG_VERBOSE,
 		"Calculating shortest path from all Hca/switches to all\n");
+
+	cl_qmap_init(&cn_tbl);
+	cl_qmap_init(&io_tbl);
+	p_mixed_tbl = &cn_tbl;
+
+	cl_qlist_init(&p_mgr->port_order_list);
 
 	/* reset the new_lft for each switch */
 	for (item = cl_qmap_head(sw_tbl); item != cl_qmap_end(sw_tbl);
@@ -2213,22 +2276,98 @@ static int dfsssp_do_dijkstra_routing(void *context)
 	/* sort the sw_list in descending order */
 	sw_list_sort_by_num_hca(sw_list, sw_list_size);
 
-	/* if we mix Hca and SP0 during the dijkstra routing, we might end up
+	/* parse compute node guid file, if provided by the user */
+	if (p_mgr->p_subn->opt.cn_guid_file) {
+		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
+			"Parsing compute nodes from file %s\n",
+			p_mgr->p_subn->opt.cn_guid_file);
+
+		if (parse_node_map(p_mgr->p_subn->opt.cn_guid_file,
+				   add_guid_to_map, &cn_tbl)) {
+			OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR,
+				"ERR AD33: Problem parsing compute node guid file\n");
+			goto ERROR;
+		}
+
+		if (cl_is_qmap_empty(&cn_tbl))
+			OSM_LOG(p_mgr->p_log, OSM_LOG_INFO,
+				"WRN AD34: compute node guids file contains no valid guids\n");
+		else
+			cn_nodes_provided = TRUE;
+	}
+
+	/* parse I/O guid file, if provided by the user */
+	if (p_mgr->p_subn->opt.io_guid_file) {
+		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
+			"Parsing I/O nodes from file %s\n",
+			p_mgr->p_subn->opt.io_guid_file);
+
+		if (parse_node_map(p_mgr->p_subn->opt.io_guid_file,
+				   add_guid_to_map, &io_tbl)) {
+			OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR,
+				"ERR AD35: Problem parsing I/O guid file\n");
+			goto ERROR;
+		}
+
+		if (cl_is_qmap_empty(&io_tbl))
+			OSM_LOG(p_mgr->p_log, OSM_LOG_INFO,
+				"WRN AD36: I/O node guids file contains no valid guids\n");
+		else
+			io_nodes_provided = TRUE;
+	}
+
+	/* if we mix Hca/Tca/SP0 during the dijkstra routing, we might end up
 	   in rare cases with a bad balancing for Hca<->Hca connections, i.e.
-	   some inter-switch links get oversubscribed with paths
+	   some inter-switch links get oversubscribed with paths;
+	   therefore: add Hca ports first to ensure good Hca<->Hca balancing
 	 */
-	cl_qlist_init(&p_mgr->port_order_list);
-	/* add Hca ports first to ensure good Hca<->Hca balancing */
+	if (cn_nodes_provided) {
+		for (i = 0; i < adj_list_size - 1; i++) {
+			if (sw_list[i] && sw_list[i]->sw) {
+				sw = (osm_switch_t *)(sw_list[i]->sw);
+				add_sw_endports_to_order_list(sw, p_mgr,
+							      &cn_tbl, TRUE);
+			} else {
+				OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR,
+					"ERR AD30: corrupted sw_list array in dfsssp_do_dijkstra_routing\n");
+				goto ERROR;
+			}
+		}
+	}
+	/* then: add Tca ports to ensure good Hca->Tca balancing and separate
+	   paths towards I/O nodes on the same switch (if possible)
+	 */
+	if (io_nodes_provided) {
+		for (i = 0; i < adj_list_size - 1; i++) {
+			if (sw_list[i] && sw_list[i]->sw) {
+				sw = (osm_switch_t *)(sw_list[i]->sw);
+				add_sw_endports_to_order_list(sw, p_mgr,
+							      &io_tbl, TRUE);
+			} else {
+				OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR,
+					"ERR AD32: corrupted sw_list array in dfsssp_do_dijkstra_routing\n");
+				goto ERROR;
+			}
+		}
+	}
+	/* then: add anything else, such as administration nodes, ... */
+	if (cn_nodes_provided && io_nodes_provided) {
+		cl_qmap_merge(&cn_tbl, &io_tbl);
+	} else if (io_nodes_provided) {
+		p_mixed_tbl = &io_tbl;
+	}
 	for (i = 0; i < adj_list_size - 1; i++) {
 		if (sw_list[i] && sw_list[i]->sw) {
 			sw = (osm_switch_t *)(sw_list[i]->sw);
-			add_sw_endports_to_order_list(sw, p_mgr);
+			add_sw_endports_to_order_list(sw, p_mgr, p_mixed_tbl,
+						      FALSE);
 		} else {
 			OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR,
-				"ERR AD30: corrupted sw_list array in dfsssp_do_dijkstra_routing\n");
+				"ERR AD39: corrupted sw_list array in dfsssp_do_dijkstra_routing\n");
+			goto ERROR;
 		}
 	}
-	/* add SP0 afterwards with have lower priority for balancing */
+	/* last: add SP0 afterwards which have lower priority for balancing */
 	for (i = 0; i < sw_list_size; i++) {
 		if (sw_list[i] && sw_list[i]->sw) {
 			sw = (osm_switch_t *)(sw_list[i]->sw);
@@ -2237,13 +2376,17 @@ static int dfsssp_do_dijkstra_routing(void *context)
 		} else {
 			OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR,
 				"ERR AD31: corrupted sw_list array in dfsssp_do_dijkstra_routing\n");
-			free(sw_list);
 			goto ERROR;
 		}
 	}
 
 	/* the intermediate array lived long enough */
 	free(sw_list);
+	/* same is true for the compute node and I/O guid map */
+	destroy_guid_map(&cn_tbl);
+	cn_nodes_provided = FALSE;
+	destroy_guid_map(&io_tbl);
+	io_nodes_provided = FALSE;
 
 	/* do the routing for the each Hca in the subnet and each switch
 	   in the subnet (to add the routes to base/enhanced SP0)
@@ -2343,6 +2486,14 @@ static int dfsssp_do_dijkstra_routing(void *context)
 	return 0;
 
 ERROR:
+	if (!cl_is_qlist_empty(&p_mgr->port_order_list))
+		cl_qlist_remove_all(&p_mgr->port_order_list);
+	if (cn_nodes_provided)
+		destroy_guid_map(&cn_tbl);
+	if (io_nodes_provided)
+		destroy_guid_map(&io_tbl);
+	if (sw_list)
+		free(sw_list);
 	return -1;
 }
 
