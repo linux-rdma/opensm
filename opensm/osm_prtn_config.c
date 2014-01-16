@@ -697,7 +697,7 @@ done:
 }
 
 /**
- * @return -1 on error, 0 on success
+ * @return 1 on error, 0 on success
  */
 int osm_prtn_config_parse_file(osm_log_t * p_log, osm_subn_t * p_subn,
 			       const char *file_name)
@@ -706,7 +706,7 @@ int osm_prtn_config_parse_file(osm_log_t * p_log, osm_subn_t * p_subn,
 	struct part_conf *conf = NULL;
 	FILE *file;
 	int lineno;
-	boolean_t is_parse_success;
+	int is_parse_success;
 
 	file = fopen(file_name, "r");
 	if (!file) {
@@ -718,7 +718,7 @@ int osm_prtn_config_parse_file(osm_log_t * p_log, osm_subn_t * p_subn,
 
 	lineno = 0;
 
-	is_parse_success = FALSE;
+	is_parse_success = 0;
 
 	while (fgets(line, sizeof(line) - 1, file) != NULL) {
 		char *q, *p = line;
@@ -730,8 +730,6 @@ int osm_prtn_config_parse_file(osm_log_t * p_log, osm_subn_t * p_subn,
 		q = strchr(p, '#');
 		if (q)
 			*q = '\0';
-		else
-			is_parse_success = TRUE;
 
 		do {
 			int len;
@@ -749,7 +747,7 @@ int osm_prtn_config_parse_file(osm_log_t * p_log, osm_subn_t * p_subn,
 					"PARSE ERROR: line %d: "
 					"internal: cannot create config\n",
 					lineno);
-				is_parse_success = FALSE;
+				is_parse_success = -1;
 				break;
 			}
 
@@ -759,9 +757,11 @@ int osm_prtn_config_parse_file(osm_log_t * p_log, osm_subn_t * p_subn,
 
 			len = parse_part_conf(conf, p, lineno);
 			if (len < 0) {
-				is_parse_success = FALSE;
+				is_parse_success = -1;
 				break;
 			}
+
+			is_parse_success = 1;
 
 			p += len;
 
@@ -770,12 +770,12 @@ int osm_prtn_config_parse_file(osm_log_t * p_log, osm_subn_t * p_subn,
 				conf = NULL;
 			}
 		} while (q);
+
+		if (is_parse_success == -1)
+			break;
 	}
 
 	fclose(file);
 
-	if (is_parse_success)
-		return 0;
-	else
-		return -1;
+	return (is_parse_success == 1) ? 0 : 1;
 }
