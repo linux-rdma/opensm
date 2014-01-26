@@ -369,7 +369,8 @@ static void load_plugins(osm_opensm_t *osm, const char *plugin_names)
 		epi = osm_epi_construct(osm, name);
 		if (!epi)
 			osm_log_v2(&osm->log, OSM_LOG_ERROR, FILE_ID,
-				   "cannot load plugin \'%s\'\n", name);
+				   "ERR 1000: cannot load plugin \'%s\'\n",
+				   name);
 		else
 			cl_qlist_insert_tail(&osm->plugin_list, &epi->list);
 		name = strtok_r(NULL, " \t\n", &p);
