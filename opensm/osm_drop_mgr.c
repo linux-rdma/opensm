@@ -559,6 +559,7 @@ void osm_drop_mgr_process(osm_sm_t * sm)
 				sm->p_subn->subnet_initialization_error = TRUE;
 				port_guid = osm_physp_get_port_guid(p_physp);
 				p_port = osm_get_port_by_guid(sm->p_subn, port_guid);
+				CL_ASSERT(p_port);
 				if (p_node->physp_discovered[port_num]) {
 					p_node->physp_discovered[port_num] = 0;
 					p_port->discovery_count--;
