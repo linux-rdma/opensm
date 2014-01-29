@@ -192,6 +192,7 @@ inline static void osm_perfmgr_set_rm_nodes(osm_perfmgr_t *perfmgr,
 {
 	perfmgr->rm_nodes = rm_nodes;
 }
+
 inline static int osm_perfmgr_get_rm_nodes(osm_perfmgr_t *perfmgr)
 {
 	return perfmgr->rm_nodes;
@@ -202,6 +203,7 @@ inline static void osm_perfmgr_set_query_cpi(osm_perfmgr_t *perfmgr,
 {
 	perfmgr->query_cpi = query_cpi;
 }
+
 inline static int osm_perfmgr_get_query_cpi(osm_perfmgr_t *perfmgr)
 {
 	return perfmgr->query_cpi;
