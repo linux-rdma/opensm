@@ -632,9 +632,9 @@ void osm_physp_set_pkey_tbl(IN osm_log_t * p_log, IN const osm_subn_t * p_subn,
 
 	if (block_num >= max_blocks) {
 		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 4108: "
-			"Got illegal set for block number:%u "
-			"For GUID: %" PRIx64 " port number:%u\n",
-			block_num,
+			"Got illegal update for block number:%u max:%u "
+			"for GUID: %" PRIx64 " port number:%u\n",
+			block_num, max_blocks,
 			cl_ntoh64(p_physp->p_node->node_info.node_guid),
 			p_physp->port_num);
 		return;
