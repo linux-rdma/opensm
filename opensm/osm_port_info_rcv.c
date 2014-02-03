@@ -199,18 +199,75 @@ static void pi_rcv_process_endport(IN osm_sm_t * sm, IN osm_physp_t * p_physp,
 /**********************************************************************
  The plock must be held before calling this function.
 **********************************************************************/
-static void pi_rcv_process_switch_port(IN osm_sm_t * sm, IN osm_node_t * p_node,
-				       IN osm_physp_t * p_physp,
-				       IN ib_port_info_t * p_pi)
+static void pi_rcv_process_switch_port0(IN osm_sm_t * sm,
+					IN osm_node_t * p_node,
+					IN osm_physp_t * p_physp,
+					IN ib_port_info_t * p_pi)
+{
+	ib_api_status_t status;
+	osm_madw_context_t context;
+	uint8_t port, num_ports;
+
+	OSM_LOG_ENTER(sm->p_log);
+
+	num_ports = osm_node_get_num_physp(p_node);
+
+	context.pi_context.node_guid = osm_node_get_node_guid(p_node);
+	context.pi_context.port_guid = osm_physp_get_port_guid(p_physp);
+	context.pi_context.set_method = FALSE;
+	context.pi_context.light_sweep = FALSE;
+	context.pi_context.active_transition = FALSE;
+	context.pi_context.client_rereg = FALSE;
+
+	for (port = 1; port < num_ports; port++) {
+		status = osm_req_get(sm, osm_physp_get_dr_path_ptr(p_physp),
+				     IB_MAD_ATTR_PORT_INFO, cl_hton32(port),
+				     FALSE,
+				     ib_port_info_get_m_key(&p_physp->port_info),
+				     CL_DISP_MSGID_NONE, &context);
+		if (status != IB_SUCCESS)
+			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0F16: "
+				"Failure initiating PortInfo request (%s)\n",
+				ib_get_err_str(status));
+	}
+
+	if (p_physp->need_update)
+		sm->p_subn->ignore_existing_lfts = TRUE;
+
+	pi_rcv_check_and_fix_lid(sm->p_log, p_pi, p_physp);
+
+	/*
+	   Update the PortInfo attribute.
+	 */
+	osm_physp_set_port_info(p_physp, p_pi, sm);
+
+	/* Determine if base switch port 0 */
+	if (p_node->sw &&
+	    !ib_switch_info_is_enhanced_port0(&p_node->sw->switch_info))
+		/* PortState is not used on BSP0 but just in case it is DOWN */
+		p_physp->port_info = *p_pi;
+	pi_rcv_process_endport(sm, p_physp, p_pi);
+	OSM_LOG_EXIT(sm->p_log);
+}
+
+/**********************************************************************
+ The plock must be held before calling this function.
+**********************************************************************/
+static void pi_rcv_process_switch_ext_port(IN osm_sm_t * sm,
+					   IN osm_node_t * p_node,
+					   IN osm_physp_t * p_physp,
+					   IN ib_port_info_t * p_pi)
 {
 	ib_api_status_t status = IB_SUCCESS;
 	osm_madw_context_t context;
-	osm_physp_t *p_remote_physp;
+	osm_physp_t *p_remote_physp, *physp0;
 	osm_node_t *p_remote_node;
+	ib_net64_t m_key;
 	unsigned data_vls;
 	uint8_t port_num;
 	uint8_t remote_port_num;
 	osm_dr_path_t path;
+	int mlnx_epi_supported = 0;
 
 	OSM_LOG_ENTER(sm->p_log);
 
@@ -220,10 +277,14 @@ static void pi_rcv_process_switch_port(IN osm_sm_t * sm, IN osm_node_t * p_node,
 	   then ask for NodeInfo.  Ignore the switch management port.
 	 */
 	port_num = osm_physp_get_port_num(p_physp);
+
+	if (sm->p_subn->opt.fdr10)
+		mlnx_epi_supported = is_mlnx_ext_port_info_supported(p_node->node_info.device_id);
+
 	/* if in_sweep_hop_0 is TRUE, then this means the SM is on the switch,
 	   and we got switchInfo of our local switch. Do not continue
 	   probing through the switch. */
-	if (port_num != 0 && sm->p_subn->in_sweep_hop_0 == FALSE) {
+	if (sm->p_subn->in_sweep_hop_0 == FALSE) {
 		switch (ib_port_info_get_port_state(p_pi)) {
 		case IB_LINK_DOWN:
 			p_remote_physp = osm_physp_get_remote(p_physp);
@@ -259,6 +320,26 @@ static void pi_rcv_process_switch_port(IN osm_sm_t * sm, IN osm_node_t * p_node,
 		case IB_LINK_INIT:
 		case IB_LINK_ARMED:
 		case IB_LINK_ACTIVE:
+			physp0 = osm_node_get_physp_ptr(p_node, 0);
+			if (mlnx_epi_supported) {
+				m_key = ib_port_info_get_m_key(&physp0->port_info);
+
+				context.pi_context.node_guid = osm_node_get_node_guid(p_node);
+				context.pi_context.port_guid = osm_physp_get_port_guid(p_physp);
+				context.pi_context.set_method = FALSE;
+				context.pi_context.light_sweep = FALSE;
+				context.pi_context.active_transition = FALSE;
+				context.pi_context.client_rereg = FALSE;
+				status = osm_req_get(sm,
+						     osm_physp_get_dr_path_ptr(p_physp),
+						     IB_MAD_ATTR_MLNX_EXTENDED_PORT_INFO,
+						     cl_hton32(port_num), FALSE, m_key,
+						     CL_DISP_MSGID_NONE, &context);
+				if (status != IB_SUCCESS)
+					OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0F11: "
+						"Failure initiating MLNX ExtPortInfo request (%s)\n",
+						ib_get_err_str(status));
+		        }
 			/*
 			   To avoid looping forever, only probe the port if it
 			   is NOT the port that responded to the SMP.
@@ -316,46 +397,35 @@ static void pi_rcv_process_switch_port(IN osm_sm_t * sm, IN osm_node_t * p_node,
 	}
 
 	if (ib_port_info_get_port_state(p_pi) > IB_LINK_INIT && p_node->sw &&
-	    p_node->sw->need_update == 1 && port_num != 0)
+	    p_node->sw->need_update == 1)
 		p_node->sw->need_update = 0;
 
 	if (p_physp->need_update)
 		sm->p_subn->ignore_existing_lfts = TRUE;
-
-	if (port_num == 0)
-		pi_rcv_check_and_fix_lid(sm->p_log, p_pi, p_physp);
 
 	/*
 	   Update the PortInfo attribute.
 	 */
 	osm_physp_set_port_info(p_physp, p_pi, sm);
 
-	if (port_num == 0) {
-		/* Determine if base switch port 0 */
-		if (p_node->sw &&
-		    !ib_switch_info_is_enhanced_port0(&p_node->sw->switch_info))
-			/* PortState is not used on BSP0 but just in case it is DOWN */
-			p_physp->port_info = *p_pi;
-		pi_rcv_process_endport(sm, p_physp, p_pi);
-	} else {
-		if (ib_port_info_get_port_state(p_pi) == IB_LINK_DOWN)
-			goto Exit;
+	if (ib_port_info_get_port_state(p_pi) == IB_LINK_DOWN)
+		goto Exit;
 
-		p_remote_physp = osm_physp_get_remote(p_physp);
-		if (p_remote_physp) {
-			p_remote_node = osm_physp_get_node_ptr(p_remote_physp);
-			if (p_remote_node->sw) {
-				data_vls = 1U << (ib_port_info_get_op_vls(p_pi) - 1);
-				if (data_vls >= IB_MAX_NUM_VLS)
-					data_vls = IB_MAX_NUM_VLS - 1;
-				if ((uint8_t)data_vls < sm->p_subn->min_sw_data_vls) {
-					OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
-						"Setting switch port minimal data VLs to:%u defined by node:0x%"
-						PRIx64 ", port:%u\n", data_vls,
-						cl_ntoh64(osm_node_get_node_guid(p_node)),
-						port_num);
-					sm->p_subn->min_sw_data_vls = data_vls;
-				}
+	p_remote_physp = osm_physp_get_remote(p_physp);
+	if (p_remote_physp) {
+		p_remote_node = osm_physp_get_node_ptr(p_remote_physp);
+		if (p_remote_node->sw) {
+			data_vls = 1U << (ib_port_info_get_op_vls(p_pi) - 1);
+			if (data_vls >= IB_MAX_NUM_VLS)
+				data_vls = IB_MAX_NUM_VLS - 1;
+			if ((uint8_t)data_vls < sm->p_subn->min_sw_data_vls) {
+				OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
+					"Setting switch port minimal data VLs "
+					"to:%u defined by node:0x%"
+					PRIx64 ", port:%u\n", data_vls,
+					cl_ntoh64(osm_node_get_node_guid(p_node)),
+					port_num);
+				sm->p_subn->min_sw_data_vls = data_vls;
 			}
 		}
 	}
@@ -467,6 +537,18 @@ static void pi_rcv_get_pkey_slvl_vla_tables(IN osm_sm_t * sm,
 	get_pkey_table(sm->p_log, sm, p_node, p_physp);
 
 	OSM_LOG_EXIT(sm->p_log);
+}
+
+static int osm_pi_rcv_update_self(IN osm_sm_t *sm, IN osm_physp_t *p_physp,
+				  IN ib_port_info_t *p_pi)
+{
+	if (ib_port_info_get_port_state(p_pi) == IB_LINK_DOWN)
+		return 0;
+
+	if (sm->p_subn->need_update || p_physp->need_update > 1)
+		return 1;
+
+	return 0;
 }
 
 static void pi_rcv_process_set(IN osm_sm_t * sm, IN osm_node_t * p_node,
@@ -654,11 +736,7 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 		osm_dr_path_init(p_dr_path, p_smp->hop_count,
 				 p_smp->initial_path);
 
-		/* if port just inited or reached INIT state (external reset)
-		   request update for port related tables */
-		p_physp->need_update =
-		    (ib_port_info_get_port_state(p_pi) == IB_LINK_INIT ||
-		     p_physp->need_update > 1) ? 1 : 0;
+		p_physp->need_update = osm_pi_rcv_update_self(sm, p_physp, p_pi);
 
 		switch (osm_node_get_type(p_node)) {
 		case IB_NODE_TYPE_CA:
@@ -675,7 +753,12 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 				p_port->discovery_count++;
 				p_node->physp_discovered[port_num] = 1;
 			}
-			pi_rcv_process_switch_port(sm, p_node, p_physp, p_pi);
+			if (port_num == 0)
+				pi_rcv_process_switch_port0(sm, p_node,
+							    p_physp, p_pi);
+			else
+				pi_rcv_process_switch_ext_port(sm, p_node,
+							       p_physp, p_pi);
 			break;
 		default:
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0F07: "
@@ -688,7 +771,7 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 		/*
 		   Get the tables on the physp.
 		 */
-		if (p_physp->need_update || sm->p_subn->need_update)
+		if (p_physp->need_update)
 			pi_rcv_get_pkey_slvl_vla_tables(sm, p_node, p_physp);
 
 	}
