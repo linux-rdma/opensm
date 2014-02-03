@@ -397,6 +397,7 @@ static void pi_rcv_process_switch_ext_port(IN osm_sm_t * sm,
 	}
 
 	if (ib_port_info_get_port_state(p_pi) > IB_LINK_INIT && p_node->sw &&
+	    !ib_switch_info_get_state_change(&p_node->sw->switch_info) &&
 	    p_node->sw->need_update == 1)
 		p_node->sw->need_update = 0;
 
@@ -545,7 +546,8 @@ static int osm_pi_rcv_update_self(IN osm_sm_t *sm, IN osm_physp_t *p_physp,
 	if (ib_port_info_get_port_state(p_pi) == IB_LINK_DOWN)
 		return 0;
 
-	if (sm->p_subn->need_update || p_physp->need_update > 1)
+	if (sm->p_subn->need_update || p_physp->need_update > 1 ||
+	    ib_port_info_get_port_state(p_pi) == IB_LINK_INIT)
 		return 1;
 
 	return 0;
@@ -606,6 +608,28 @@ static void pi_rcv_process_set(IN osm_sm_t * sm, IN osm_node_t * p_node,
 	osm_physp_set_port_info(p_physp, p_pi, sm);
 
 	OSM_LOG_EXIT(sm->p_log);
+}
+
+static int osm_pi_rcv_update_neighbor(IN osm_physp_t *p_physp)
+{
+	osm_physp_t *p_rem_physp = p_physp->p_remote_physp;
+	osm_node_t *p_node;
+
+	/*
+	 * Our own port - this is the only case where CA port
+	 * is discovered before its' neighbor port
+	 */
+	if (!p_rem_physp)
+		return p_physp->need_update;
+
+	p_node = osm_physp_get_node_ptr(p_rem_physp);
+	CL_ASSERT(p_node);
+
+	/* CA/RTR to CA/RTR connection */
+	if (!p_node->sw)
+		return p_physp->need_update;
+
+	return (ib_switch_info_get_state_change(&p_node->sw->switch_info) ? 1 : p_physp->need_update);
 }
 
 void osm_pi_rcv_process(IN void *context, IN void *data)
@@ -745,6 +769,7 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 				p_port->discovery_count++;
 				p_node->physp_discovered[port_num] = 1;
 			}
+			p_physp->need_update = osm_pi_rcv_update_neighbor(p_physp);
 			pi_rcv_process_ca_or_router_port(sm, p_node, p_physp,
 							 p_pi);
 			break;

@@ -938,18 +938,11 @@ static void ucast_mgr_set_fwd_top(IN cl_map_item_t * p_map_item,
 	} else
 		context.si_context.lft_top_change = FALSE;
 
-	/* check to see if the change state bit is on. If it is - then we
-	   need to clear it. */
-	if (ib_switch_info_get_state_change(&si))
-		life_state = ((p_mgr->p_subn->opt.packet_life_time << 3)
-			      | (si.life_state & IB_SWITCH_PSC)) & 0xfc;
-	else
-		life_state = (p_mgr->p_subn->opt.packet_life_time << 3) & 0xf8;
+	life_state = si.life_state;
+	ib_switch_info_set_life_time(&si, p_mgr->p_subn->opt.packet_life_time);
 
-	if (life_state != si.life_state || ib_switch_info_get_state_change(&si)) {
+	if (life_state != si.life_state)
 		set_swinfo_require = TRUE;
-		si.life_state = life_state;
-	}
 
 	if (set_swinfo_require) {
 		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,

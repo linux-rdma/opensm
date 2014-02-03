@@ -6507,6 +6507,34 @@ ib_switch_info_clear_state_change(IN ib_switch_info_t * const p_si)
 * SEE ALSO
 *********/
 
+/****f* IBA Base: Types/ib_switch_info_set_state_change
+* NAME
+*	ib_switch_info_set_state_change
+*
+* DESCRIPTION
+*	Clears the switch's state change bit.
+*
+* SYNOPSIS
+*/
+static inline void OSM_API
+ib_switch_info_set_state_change(IN ib_switch_info_t * const p_si)
+{
+	p_si->life_state = (uint8_t) ((p_si->life_state & ~IB_SWITCH_PSC) | IB_SWITCH_PSC);
+}
+
+/*
+* PARAMETERS
+*	p_si
+*		[in] Pointer to a SwitchInfo attribute.
+*
+* RETURN VALUES
+*	None
+*
+* NOTES
+*
+* SEE ALSO
+*********/
+
 /****f* IBA Base: Types/ib_switch_info_get_opt_sl2vlmapping
 * NAME
 *	ib_switch_info_get_state_opt_sl2vlmapping
@@ -6529,6 +6557,38 @@ ib_switch_info_get_opt_sl2vlmapping(IN const ib_switch_info_t * const p_si)
 *
 * RETURN VALUES
 *	Returns the value of the optimized SLtoVLMapping programming flag.
+*
+* NOTES
+*
+* SEE ALSO
+*********/
+
+/****f* IBA Base: Types/ib_switch_info_set_life_time
+* NAME
+*	ib_switch_info_set_life_time
+*
+* DESCRIPTION
+*	Sets the value of LifeTimeValue.
+*
+* SYNOPSIS
+*/
+static inline void OSM_API
+ib_switch_info_set_life_time(IN ib_switch_info_t * const p_si,
+			     IN const uint8_t life_time_val)
+{
+	p_si->life_state = (p_si->life_state & 0x1f) |
+			   (life_time_val << 3);
+}
+
+/*
+* PARAMETERS
+*	p_si
+*		[in] Pointer to a SwitchInfo attribute.
+*	life_time_val
+*		[in] LiveTimeValue.
+*
+* RETURN VALUES
+*	None.
 *
 * NOTES
 *
