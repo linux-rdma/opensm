@@ -796,7 +796,8 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 		/*
 		   Get the tables on the physp.
 		 */
-		if (p_physp->need_update)
+		if (p_physp->need_update || (p_node->sw &&
+					     p_node->sw->need_update))
 			pi_rcv_get_pkey_slvl_vla_tables(sm, p_node, p_physp);
 
 	}
