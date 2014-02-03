@@ -183,6 +183,13 @@ static ib_api_status_t vlarb_update_table_block(osm_sm_t * sm,
 	if (!p_mad)
 		return IB_INSUFFICIENT_MEMORY;
 
+	/*
+	 * Zero the stored VL Arbitration block, so in case the MAD will
+	 * end up with error, we will resend it in the next sweep.
+	 */
+	memset(&p->vl_arb[block_num], 0,
+	       block_length * sizeof(block.vl_entry[0]));
+
 	cl_qlist_insert_tail(mad_list, &p_mad->list_item);
 
 	return IB_SUCCESS;
@@ -271,6 +278,12 @@ static ib_api_status_t sl2vl_update_table(osm_sm_t * sm, osm_physp_t * p,
 				   IB_MAD_ATTR_SLVL_TABLE, attr_mod);
 	if (!p_mad)
 		return IB_INSUFFICIENT_MEMORY;
+
+	/*
+	 * Zero the stored SL2VL block, so in case the MAD will
+	 * end up with error, we will resend it in the next sweep.
+	 */
+	memset(p_tbl, 0, sizeof(tbl));
 
 	cl_qlist_insert_tail(mad_list, &p_mad->list_item);
 	return IB_SUCCESS;

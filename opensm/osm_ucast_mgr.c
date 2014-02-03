@@ -1002,6 +1002,13 @@ static int set_lft_block(IN osm_switch_t *p_sw, IN osm_ucast_mgr_t *p_mgr,
 		    IB_SMP_DATA_SIZE))
 		return 0;
 
+	/*
+	 * Zero the stored LFT block, so in case the MAD will end up
+	 * with error, we will resend it in the next sweep.
+	 */
+	memset(p_sw->lft + block_id_ho * IB_SMP_DATA_SIZE, OSM_NO_PATH,
+	       IB_SMP_DATA_SIZE);
+
 	OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 		"Writing FT block %u to switch 0x%" PRIx64 "\n", block_id_ho,
 		cl_ntoh64(context.lft_context.node_guid));
