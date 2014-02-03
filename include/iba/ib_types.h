@@ -8164,9 +8164,10 @@ static inline void OSM_API
 ib_inform_info_set_qpn(IN ib_inform_info_t * p_ii, IN ib_net32_t const qpn)
 {
 	uint32_t tmp = cl_ntoh32(p_ii->g_or_v.generic.qpn_resp_time_val);
+	uint32_t qpn_h = cl_ntoh32(qpn);
 
 	p_ii->g_or_v.generic.qpn_resp_time_val =
-	    cl_hton32((tmp & 0x000000ff) | ((cl_ntoh32(qpn) << 8) & 0xffffff00)
+	    cl_hton32((tmp & 0x000000ff) | ((qpn_h << 8) & 0xffffff00)
 	    );
 }
 
