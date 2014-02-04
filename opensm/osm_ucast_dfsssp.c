@@ -2382,6 +2382,7 @@ static int dfsssp_do_dijkstra_routing(void *context)
 
 	/* the intermediate array lived long enough */
 	free(sw_list);
+	sw_list = NULL;
 	/* same is true for the compute node and I/O guid map */
 	destroy_guid_map(&cn_tbl);
 	cn_nodes_provided = FALSE;
