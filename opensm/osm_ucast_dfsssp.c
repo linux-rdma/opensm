@@ -1541,14 +1541,15 @@ static int update_lft(osm_ucast_mgr_t * p_mgr, vertex_t * adj_list,
 		 */
 
 		if (port == OSM_NO_PATH) {	/* if clause shouldn't be possible in this routing, but who cares */
-			OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
-				"No path to get to LID %" PRIu16
+			OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR,
+				"ERR AD06: No path to get to LID %" PRIu16
 				" from switch 0x%" PRIx64 "\n", lid,
 				cl_ntoh64(osm_node_get_node_guid
 					  (p_sw->p_node)));
 
 			/* do not try to overwrite the ppro of non existing port ... */
 			is_ignored_by_port_prof = TRUE;
+			return 1;
 		} else {
 			OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 				"Routing LID %" PRIu16 " to port %" PRIu8
@@ -1810,8 +1811,8 @@ static int dfsssp_remove_deadlocks(dfsssp_context_t * dfsssp_ctx)
 {
 	osm_ucast_mgr_t *p_mgr = (osm_ucast_mgr_t *) dfsssp_ctx->p_mgr;
 
-	cl_qmap_t *port_tbl = &p_mgr->p_subn->port_guid_tbl;	/* 1 management port per switch + 1 or 2 ports for each Hca */
-	cl_map_item_t *item1 = NULL, *item2 = NULL;
+	cl_qlist_t *port_tbl = &p_mgr->port_order_list;	/* 1 management port per switch + 1 or 2 ports for each Hca */
+	cl_list_item_t *item1 = NULL, *item2 = NULL;
 	osm_port_t *src_port = NULL, *dest_port = NULL;
 
 	uint32_t i = 0, j = 0, err = 0;
@@ -1858,9 +1859,10 @@ static int dfsssp_remove_deadlocks(dfsssp_context_t * dfsssp_ctx)
 
 	count = 0;
 	/* count all ports (also multiple LIDs) of type CA or SP0 for size of VL table */
-	for (item1 = cl_qmap_head(port_tbl); item1 != cl_qmap_end(port_tbl);
-	     item1 = cl_qmap_next(item1)) {
-		dest_port = (osm_port_t *) item1;
+	for (item1 = cl_qlist_head(port_tbl); item1 != cl_qlist_end(port_tbl);
+	     item1 = cl_qlist_next(item1)) {
+		dest_port = (osm_port_t *)cl_item_obj(item1, dest_port,
+						      list_item);
 		ntype = osm_node_get_type(dest_port->p_node);
 		if (ntype == IB_NODE_TYPE_CA || ntype == IB_NODE_TYPE_SWITCH) {
 			/* only SP0 with SLtoVLMapping support will be processed */
@@ -1883,9 +1885,10 @@ static int dfsssp_remove_deadlocks(dfsssp_context_t * dfsssp_ctx)
 
 	i = 0;
 	/* fill lids into indexing array */
-	for (item1 = cl_qmap_head(port_tbl); item1 != cl_qmap_end(port_tbl);
-	     item1 = cl_qmap_next(item1)) {
-		dest_port = (osm_port_t *) item1;
+	for (item1 = cl_qlist_head(port_tbl); item1 != cl_qlist_end(port_tbl);
+	     item1 = cl_qlist_next(item1)) {
+		dest_port = (osm_port_t *)cl_item_obj(item1, dest_port,
+						      list_item);
 		ntype = osm_node_get_type(dest_port->p_node);
 		if (ntype == IB_NODE_TYPE_CA || ntype == IB_NODE_TYPE_SWITCH) {
 			/* only SP0 with SLtoVLMapping support will be processed */
@@ -1905,19 +1908,21 @@ static int dfsssp_remove_deadlocks(dfsssp_context_t * dfsssp_ctx)
 
 	test_vl = 0;
 	/* fill cdg[0] with routes from each src/dest port combination for all Hca/SP0 in the subnet */
-	for (item1 = cl_qmap_head(port_tbl); item1 != cl_qmap_end(port_tbl);
-	     item1 = cl_qmap_next(item1)) {
-		dest_port = (osm_port_t *) item1;
+	for (item1 = cl_qlist_head(port_tbl); item1 != cl_qlist_end(port_tbl);
+	     item1 = cl_qlist_next(item1)) {
+		dest_port = (osm_port_t *)cl_item_obj(item1, dest_port,
+						      list_item);
 		ntype = osm_node_get_type(dest_port->p_node);
 		if ((ntype != IB_NODE_TYPE_CA && ntype != IB_NODE_TYPE_SWITCH)
 		    || !(dest_port->p_physp->port_info.capability_mask
 		    & IB_PORT_CAP_HAS_SL_MAP))
 			continue;
 
-		for (item2 = cl_qmap_head(port_tbl);
-		     item2 != cl_qmap_end(port_tbl);
-		     item2 = cl_qmap_next(item2)) {
-			src_port = (osm_port_t *) item2;
+		for (item2 = cl_qlist_head(port_tbl);
+		     item2 != cl_qlist_end(port_tbl);
+		     item2 = cl_qlist_next(item2)) {
+			src_port = (osm_port_t *)cl_item_obj(item2, src_port,
+							     list_item);
 			ntype = osm_node_get_type(src_port->p_node);
 			if ((ntype != IB_NODE_TYPE_CA
 			    && ntype != IB_NODE_TYPE_SWITCH)
@@ -2445,9 +2450,6 @@ static int dfsssp_do_dijkstra_routing(void *context)
 		}
 	}
 
-	/* ordered port list not needed after the dijkstra step */
-	cl_qlist_remove_all(&p_mgr->port_order_list);
-
 	/* try deadlock removal only for the dfsssp routing (not for the sssp case, which is a subset of the dfsssp algorithm) */
 	if (dfsssp_ctx->routing_type == OSM_ROUTING_ENGINE_TYPE_DFSSSP) {
 		/* remove potential deadlocks by assigning different virtual lanes to src/dest paths and balance the lanes */
@@ -2462,6 +2464,9 @@ static int dfsssp_do_dijkstra_routing(void *context)
 			"ERR AD28: wrong routing engine specified in dfsssp_ctx\n");
 		goto ERROR;
 	}
+
+	/* list not needed after the dijkstra steps and deadlock removal */
+	cl_qlist_remove_all(&p_mgr->port_order_list);
 
 	/* print the new_lft for each switch after routing is done */
 	if (OSM_LOG_IS_ACTIVE_V2(p_mgr->p_log, OSM_LOG_DEBUG)) {
