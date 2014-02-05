@@ -573,20 +573,9 @@ static void ni_rcv_process_existing_switch(IN osm_sm_t * sm,
 	/*
 	   If this switch has already been probed during this sweep,
 	   then don't bother reprobing it.
-	   There is one exception - if the node has been visited, but
-	   for some reason we don't have the switch object (this can happen
-	   if the SwitchInfo mad didn't reach the SM) then we want
-	   to retry to probe the switch.
 	 */
 	if (p_node->discovery_count == 1)
 		ni_rcv_process_switch(sm, p_node, p_madw);
-	else if (!p_node->sw) {
-		/* we don't have the SwitchInfo - retry to get it */
-		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-			"Retry to get SwitchInfo on node GUID:0x%" PRIx64 "\n",
-			cl_ntoh64(osm_node_get_node_guid(p_node)));
-		ni_rcv_process_switch(sm, p_node, p_madw);
-	}
 
 	OSM_LOG_EXIT(sm->p_log);
 }
