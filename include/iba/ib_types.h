@@ -6507,9 +6507,9 @@ ib_switch_info_clear_state_change(IN ib_switch_info_t * const p_si)
 * SEE ALSO
 *********/
 
-/****f* IBA Base: Types/ib_switch_info_set_state_change
+/****f* IBA Base: Types/ib_switch_info_state_change_set
 * NAME
-*	ib_switch_info_set_state_change
+*	ib_switch_info_state_change_set
 *
 * DESCRIPTION
 *	Clears the switch's state change bit.
@@ -6517,7 +6517,7 @@ ib_switch_info_clear_state_change(IN ib_switch_info_t * const p_si)
 * SYNOPSIS
 */
 static inline void OSM_API
-ib_switch_info_set_state_change(IN ib_switch_info_t * const p_si)
+ib_switch_info_state_change_set(IN ib_switch_info_t * const p_si)
 {
 	p_si->life_state = (uint8_t) ((p_si->life_state & ~IB_SWITCH_PSC) | IB_SWITCH_PSC);
 }

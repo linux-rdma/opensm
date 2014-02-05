@@ -559,7 +559,7 @@ static void state_mgr_reset_state_change_bit(IN cl_map_item_t * obj,
 
 	si = p_sw->switch_info;
 
-	ib_switch_info_set_state_change(&si);
+	ib_switch_info_state_change_set(&si);
 
 	OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 		"Resetting PortStateChange on switch GUID 0x%016" PRIx64 "\n",
