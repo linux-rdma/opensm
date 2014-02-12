@@ -1006,7 +1006,7 @@ static int set_lft_block(IN osm_switch_t *p_sw, IN osm_ucast_mgr_t *p_mgr,
 	 * Zero the stored LFT block, so in case the MAD will end up
 	 * with error, we will resend it in the next sweep.
 	 */
-	memset(p_sw->lft + block_id_ho * IB_SMP_DATA_SIZE, OSM_NO_PATH,
+	memset(p_sw->lft + block_id_ho * IB_SMP_DATA_SIZE, 0,
 	       IB_SMP_DATA_SIZE);
 
 	OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
