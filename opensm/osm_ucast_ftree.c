@@ -3555,7 +3555,6 @@ static boolean_t fabric_load_roots(IN ftree_fabric_t * p_ftree,
 	unsigned num_roots;
 
 	if (p_ranking_bfs_list) {
-		cl_list_init(p_ranking_bfs_list, 10);
 
 		/* Rank all the roots and add them to list */
 		OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
@@ -3709,7 +3708,6 @@ static int fabric_rerank_using_root(IN ftree_fabric_t * p_ftree,
 	int res;
 
 	OSM_LOG_ENTER(&p_ftree->p_osm->log);
-	cl_list_init(p_ranking_bfs_list, 10);
 
 	p_next_sw = (ftree_sw_t *) cl_qmap_head(&p_ftree->sw_tbl);
 	while (p_next_sw != (ftree_sw_t *) cl_qmap_end(&p_ftree->sw_tbl)) {
@@ -3732,10 +3730,11 @@ static int fabric_rank(IN ftree_fabric_t * p_ftree)
 	cl_list_t ranking_bfs_list;
 
 	OSM_LOG_ENTER(&p_ftree->p_osm->log);
+	cl_list_init(&ranking_bfs_list, 10);
 
 	if (fabric_roots_provided(p_ftree) &&
 	    fabric_load_roots(p_ftree, &ranking_bfs_list))
-			res = fabric_rank_from_roots(p_ftree, &ranking_bfs_list);
+		res = fabric_rank_from_roots(p_ftree, &ranking_bfs_list);
 	else {
 		res = fabric_rank_from_hcas(p_ftree);
 		if (!res)
