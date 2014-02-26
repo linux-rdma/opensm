@@ -1727,23 +1727,6 @@ void osm_pr_rcv_process(IN void *context, IN void *data)
 		goto Exit;
 	}
 
-	/* update the requester physical port */
-	requester_port = osm_get_port_by_mad_addr(sa->p_log, sa->p_subn,
-						  osm_madw_get_mad_addr_ptr
-						  (p_madw));
-	if (requester_port == NULL) {
-		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F16: "
-			"Cannot find requester physical port\n");
-		goto Exit;
-	}
-
-	if (OSM_LOG_IS_ACTIVE_V2(sa->p_log, OSM_LOG_DEBUG)) {
-		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-			"Requester port GUID 0x%" PRIx64 "\n",
-			cl_ntoh64(osm_port_get_guid(requester_port)));
-		osm_dump_path_record_v2(sa->p_log, p_pr, FILE_ID, OSM_LOG_DEBUG);
-	}
-
 	/* Validate rate if supplied */
 	if ((p_sa_mad->comp_mask & IB_PR_COMPMASK_RATESELEC) &&
 	    (p_sa_mad->comp_mask & IB_PR_COMPMASK_RATE)) {
@@ -1780,6 +1763,24 @@ void osm_pr_rcv_process(IN void *context, IN void *data)
 	   subnet object, so we grab the lock non-exclusively.
 	 */
 	cl_plock_acquire(sa->p_lock);
+
+	/* update the requester physical port */
+	requester_port = osm_get_port_by_mad_addr(sa->p_log, sa->p_subn,
+						  osm_madw_get_mad_addr_ptr
+						  (p_madw));
+	if (requester_port == NULL) {
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F16: "
+			"Cannot find requester physical port\n");
+		cl_plock_release(sa->p_lock);
+		goto Exit;
+	}
+
+	if (OSM_LOG_IS_ACTIVE_V2(sa->p_log, OSM_LOG_DEBUG)) {
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
+			"Requester port GUID 0x%" PRIx64 "\n",
+			cl_ntoh64(osm_port_get_guid(requester_port)));
+		osm_dump_path_record_v2(sa->p_log, p_pr, FILE_ID, OSM_LOG_DEBUG);
+	}
 
 	/* Handle multicast destinations separately */
 	if ((p_sa_mad->comp_mask & IB_PR_COMPMASK_DGID) &&
