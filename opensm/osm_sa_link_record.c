@@ -443,11 +443,14 @@ void osm_lr_rcv_process(IN void *context, IN void *data)
 		goto Exit;
 	}
 
+	cl_plock_acquire(sa->p_lock);
+
 	/* update the requester physical port */
 	p_req_physp = osm_get_physp_by_mad_addr(sa->p_log, sa->p_subn,
 						osm_madw_get_mad_addr_ptr
 						(p_madw));
 	if (p_req_physp == NULL) {
+		cl_plock_release(sa->p_lock);
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1805: "
 			"Cannot find requester physical port\n");
 		goto Exit;
@@ -466,8 +469,6 @@ void osm_lr_rcv_process(IN void *context, IN void *data)
 	   Most SA functions (including this one) are read-only on the
 	   subnet object, so we grab the lock non-exclusively.
 	 */
-	cl_plock_acquire(sa->p_lock);
-
 	status = lr_rcv_get_end_points(sa, p_madw, &p_src_port, &p_dest_port);
 
 	if (status == IB_SA_MAD_STATUS_SUCCESS)

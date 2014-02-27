@@ -538,11 +538,14 @@ void osm_pir_rcv_process(IN void *ctx, IN void *data)
 		goto Exit;
 	}
 
+	cl_plock_acquire(sa->p_lock);
+
 	/* update the requester physical port */
 	p_req_physp = osm_get_physp_by_mad_addr(sa->p_log, sa->p_subn,
 						osm_madw_get_mad_addr_ptr
 						(p_madw));
 	if (p_req_physp == NULL) {
+		cl_plock_release(sa->p_lock);
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2104: "
 			"Cannot find requester physical port\n");
 		goto Exit;
@@ -564,8 +567,6 @@ void osm_pir_rcv_process(IN void *ctx, IN void *data)
 	context.p_req_physp = p_req_physp;
 	context.is_enhanced_comp_mask =
 	    cl_ntoh32(p_rcvd_mad->attr_mod) & (1 << 31);
-
-	cl_plock_acquire(sa->p_lock);
 
 	/*
 	   If the user specified a LID, it obviously narrows our

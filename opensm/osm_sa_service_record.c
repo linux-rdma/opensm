@@ -453,11 +453,15 @@ static void sr_rcv_process_get_method(osm_sa_t * sa, IN osm_madw_t * p_madw)
 
 	CL_ASSERT(p_madw);
 
+	/* Grab the lock */
+	cl_plock_excl_acquire(sa->p_lock);
+
 	/* update the requester physical port */
 	p_req_physp = osm_get_physp_by_mad_addr(sa->p_log, sa->p_subn,
 						osm_madw_get_mad_addr_ptr
 						(p_madw));
 	if (p_req_physp == NULL) {
+		cl_plock_release(sa->p_lock);
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2409: "
 			"Cannot find requester physical port\n");
 		goto Exit;
@@ -482,9 +486,6 @@ static void sr_rcv_process_get_method(osm_sa_t * sa, IN osm_madw_t * p_madw)
 
 	context.p_sr_item = &sr_match_item;
 	context.p_req_physp = p_req_physp;
-
-	/* Grab the lock */
-	cl_plock_excl_acquire(sa->p_lock);
 
 	cl_qlist_apply_func(&sa->p_subn->sa_sr_list, get_matching_sr, &context);
 
@@ -530,6 +531,7 @@ static void sr_rcv_process_set_method(osm_sa_t * sa, IN osm_madw_t * p_madw)
 
 	if ((comp_mask & (IB_SR_COMPMASK_SID | IB_SR_COMPMASK_SGID)) !=
 	    (IB_SR_COMPMASK_SID | IB_SR_COMPMASK_SGID)) {
+		cl_plock_release(sa->p_lock);
 		OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
 			"Component Mask RID check failed for METHOD_SET\n");
 		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_REQ_INVALID);
@@ -543,9 +545,6 @@ static void sr_rcv_process_set_method(osm_sa_t * sa, IN osm_madw_t * p_madw)
 		p_recvd_service_rec->service_lease = 0xFFFFFFFF;
 	}
 
-	/* Grab the lock */
-	cl_plock_excl_acquire(sa->p_lock);
-
 	/* If Record exists with matching RID */
 	p_svcr = osm_svcr_get_by_rid(sa->p_subn, sa->p_log,
 				     p_recvd_service_rec);
@@ -555,7 +554,6 @@ static void sr_rcv_process_set_method(osm_sa_t * sa, IN osm_madw_t * p_madw)
 		p_svcr = osm_svcr_new(p_recvd_service_rec);
 		if (p_svcr == NULL) {
 			cl_plock_release(sa->p_lock);
-
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 2411: "
 				"Failed to create new service record\n");
 
@@ -626,9 +624,6 @@ static void sr_rcv_process_delete_method(osm_sa_t * sa, IN osm_madw_t * p_madw)
 		osm_dump_service_record_v2(sa->p_log, p_recvd_service_rec,
 					   FILE_ID, OSM_LOG_DEBUG);
 
-	/* Grab the lock */
-	cl_plock_excl_acquire(sa->p_lock);
-
 	/* If Record exists with matching RID */
 	p_svcr = osm_svcr_get_by_rid(sa->p_subn, sa->p_log,
 				     p_recvd_service_rec);
@@ -685,19 +680,24 @@ void osm_sr_rcv_process(IN void *context, IN void *data)
 
 	switch (p_sa_mad->method) {
 	case IB_MAD_METHOD_SET:
+		cl_plock_excl_acquire(sa->p_lock);
 		valid = validate_sr(sa, p_madw);
 		if (!valid) {
+			cl_plock_release(sa->p_lock);
 			OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
 				"Component Mask check failed for set request\n");
 			osm_sa_send_error(sa, p_madw,
 					  IB_SA_MAD_STATUS_REQ_INVALID);
 			goto Exit;
 		}
+		cl_plock_release(sa->p_lock);
 		sr_rcv_process_set_method(sa, p_madw);
 		break;
 	case IB_MAD_METHOD_DELETE:
+		cl_plock_excl_acquire(sa->p_lock);
 		valid = validate_sr(sa, p_madw);
 		if (!valid) {
+			cl_plock_release(sa->p_lock);
 			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 				"Component Mask check failed for delete request\n");
 			osm_sa_send_error(sa, p_madw,

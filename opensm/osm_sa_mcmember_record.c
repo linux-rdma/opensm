@@ -931,6 +931,8 @@ static void mcmr_rcv_leave_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 		goto Exit;
 	}
 
+	CL_PLOCK_EXCL_ACQUIRE(sa->p_lock);
+
 	if (OSM_LOG_IS_ACTIVE_V2(sa->p_log, OSM_LOG_DEBUG)) {
 		osm_physp_t *p_req_physp;
 
@@ -948,7 +950,6 @@ static void mcmr_rcv_leave_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 		osm_dump_mc_record_v2(sa->p_log, &mcmember_rec, FILE_ID, OSM_LOG_DEBUG);
 	}
 
-	CL_PLOCK_EXCL_ACQUIRE(sa->p_lock);
 	p_mgrp = osm_get_mgrp_by_mgid(sa->p_subn, &p_recvd_mcmember_rec->mgid);
 	if (!p_mgrp) {
 		char gid_str[INET6_ADDRSTRLEN];
@@ -1030,6 +1031,10 @@ static void mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 		goto Exit;
 	}
 
+	CL_PLOCK_EXCL_ACQUIRE(sa->p_lock);
+
+	CL_PLOCK_EXCL_ACQUIRE(sa->p_lock);
+
 	if (OSM_LOG_IS_ACTIVE_V2(sa->p_log, OSM_LOG_DEBUG)) {
 		osm_physp_t *p_req_physp;
 
@@ -1046,8 +1051,6 @@ static void mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Dump of incoming record\n");
 		osm_dump_mc_record_v2(sa->p_log, &mcmember_rec, FILE_ID, OSM_LOG_DEBUG);
 	}
-
-	CL_PLOCK_EXCL_ACQUIRE(sa->p_lock);
 
 	/* make sure the requested port guid is known to the SM */
 	p_port = osm_get_port_by_alias_guid(sa->p_subn, portguid);
@@ -1451,11 +1454,14 @@ static void mcmr_query_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 	 */
 	trusted_req = (p_rcvd_mad->sm_key != 0);
 
+	CL_PLOCK_ACQUIRE(sa->p_lock);
+
 	/* update the requester physical port */
 	p_req_physp = osm_get_physp_by_mad_addr(sa->p_log, sa->p_subn,
 						osm_madw_get_mad_addr_ptr
 						(p_madw));
 	if (p_req_physp == NULL) {
+		CL_PLOCK_RELEASE(sa->p_lock);
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B04: "
 			"Cannot find requester physical port\n");
 		goto Exit;
@@ -1470,8 +1476,6 @@ static void mcmr_query_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 	}
 
 	cl_qlist_init(&rec_list);
-
-	CL_PLOCK_ACQUIRE(sa->p_lock);
 
 	/* simply go over all MCGs and match */
 	for (p_mgrp = (osm_mgrp_t *) cl_fmap_head(&sa->p_subn->mgrp_mgid_tbl);

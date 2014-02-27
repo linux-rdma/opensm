@@ -338,11 +338,14 @@ static void infr_rcv_process_get_method(osm_sa_t * sa, IN osm_madw_t * p_madw)
 	p_rcvd_rec =
 	    (ib_inform_info_record_t *) ib_sa_mad_get_payload_ptr(p_rcvd_mad);
 
+	cl_plock_acquire(sa->p_lock);
+
 	/* update the requester physical port */
 	p_req_physp = osm_get_physp_by_mad_addr(sa->p_log, sa->p_subn,
 						osm_madw_get_mad_addr_ptr
 						(p_madw));
 	if (p_req_physp == NULL) {
+		cl_plock_release(sa->p_lock);
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4309: "
 			"Cannot find requester physical port\n");
 		goto Exit;
@@ -375,12 +378,8 @@ static void infr_rcv_process_get_method(osm_sa_t * sa, IN osm_madw_t * p_madw)
 		cl_ntoh16(p_rcvd_rec->subscriber_enum),
 		(p_rcvd_mad->comp_mask & IB_IIR_COMPMASK_ENUM) != 0);
 
-	cl_plock_acquire(sa->p_lock);
-
 	cl_qlist_apply_func(&sa->p_subn->sa_infr_list,
 			    sa_inform_info_rec_by_comp_mask_cb, &context);
-
-	cl_plock_release(sa->p_lock);
 
 	/* clear reserved and pad fields in InformInfoRecord */
 	for (item = (osm_sa_item_t *) cl_qlist_head(&rec_list);
@@ -389,6 +388,8 @@ static void infr_rcv_process_get_method(osm_sa_t * sa, IN osm_madw_t * p_madw)
 		memset(item->resp.inform_rec.reserved, 0, sizeof(item->resp.inform_rec.reserved));
 		memset(item->resp.inform_rec.pad, 0, sizeof(item->resp.inform_rec.pad));
 	}
+
+	cl_plock_release(sa->p_lock);
 
 	osm_sa_respond(sa, p_madw, sizeof(ib_inform_info_record_t), &rec_list);
 
