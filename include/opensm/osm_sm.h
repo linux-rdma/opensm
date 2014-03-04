@@ -116,7 +116,7 @@ typedef struct osm_sm {
 	unsigned master_sm_found;
 	uint32_t retry_number;
 	ib_net64_t master_sm_guid;
-	osm_remote_sm_t *p_polling_sm;
+	ib_net64_t polling_sm_guid;
 	osm_subn_t *p_subn;
 	osm_db_t *p_db;
 	osm_vendor_t *p_vendor;

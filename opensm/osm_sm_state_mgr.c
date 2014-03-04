@@ -97,11 +97,11 @@ static boolean_t sm_state_mgr_send_master_sm_info_req(osm_sm_t * sm, uint8_t sm_
 	} else {
 		/*
 		 * We are not in STANDBY - this means we are in MASTER state -
-		 * so we need to poll the SM that is saved in p_polling_sm
+		 * so we need to poll the SM that is saved in polling_sm_guid
 		 * under sm.
 		 * Send a query of SubnGet(SMInfo) to that SM.
 		 */
-		guid = sm->p_polling_sm->smi.guid;
+		guid = sm->polling_sm_guid;
 	}
 
 	/* Verify that SM is not polling itself */
@@ -198,7 +198,7 @@ void osm_sm_state_mgr_polling_callback(IN void *context)
 	 * If we are not in one of these cases - don't need to restart the poller.
 	 */
 	if (!((sm_state == IB_SMINFO_STATE_MASTER &&
-	       sm->p_polling_sm != NULL) ||
+	       sm->polling_sm_guid != 0) ||
 	      sm_state == IB_SMINFO_STATE_STANDBY)) {
 		CL_PLOCK_RELEASE(sm->p_lock);
 		goto Exit;
@@ -426,7 +426,7 @@ ib_api_status_t osm_sm_state_mgr_process(osm_sm_t * sm,
 			 * We want to force a heavy sweep - hopefully this
 			 * occurred because the remote sm died, and we'll find
 			 * this out and configure the subnet after a heavy sweep.
-			 * We also want to clear the p_polling_sm object - since
+			 * We also want to clear the polling_sm_guid - since
 			 * we are done polling on that remote sm - we are
 			 * sweeping again.
 			 */
@@ -438,7 +438,7 @@ ib_api_status_t osm_sm_state_mgr_process(osm_sm_t * sm,
 			 * change, or we are in idle state - since we
 			 * recognized a master SM before - so we want to make a
 			 * heavy sweep and reconfigure the new subnet.
-			 * We also want to clear the p_polling_sm object - since
+			 * We also want to clear the polling_sm_guid - since
 			 * we are done polling on that remote sm - we got a
 			 * handover from it.
 			 */
@@ -449,7 +449,7 @@ ib_api_status_t osm_sm_state_mgr_process(osm_sm_t * sm,
 			 * SM may have configure/done on the fabric.
 			 */
 			sm->p_subn->set_client_rereg_on_sweep = TRUE;
-			sm->p_polling_sm = NULL;
+			sm->polling_sm_guid = 0;
 			sm->p_subn->force_heavy_sweep = TRUE;
 			osm_sm_signal(sm, OSM_SIGNAL_SWEEP);
 			break;

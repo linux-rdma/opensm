@@ -1386,7 +1386,7 @@ repeat_discovery:
 				 * need to wait for that SM to relinquish control
 				 * of its portion of the subnet. C14-60.2.1.
 				 * Also - need to start polling on that SM. */
-				sm->p_polling_sm = p_remote_sm;
+				sm->polling_sm_guid = p_remote_sm->smi.guid;
 				osm_sm_state_mgr_process(sm,
 							 OSM_SM_SIGNAL_WAIT_FOR_HANDOVER);
 				return;

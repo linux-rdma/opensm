@@ -392,7 +392,7 @@ static void smi_rcv_process_get_sm(IN osm_sm_t * sm,
 			 * as it might not get it and we don't want to wait for a HANDOVER
 			 * forever.
 			 */
-			if (sm->p_polling_sm) {
+			if (sm->polling_sm_guid) {
 				if (smi_rcv_remote_sm_is_higher(sm, p_smi))
 					sm->p_subn->force_heavy_sweep = TRUE;
 				else
