@@ -851,9 +851,9 @@ static void ni_rcv_process_existing(IN osm_sm_t * sm, IN osm_node_t * p_node,
 			PRIx64 " for node 0x%" PRIx64 "\n",
 			cl_ntoh64(p_ni->sys_guid),
 			cl_ntoh64(p_ni->node_guid));
-		p_node->node_info.sys_guid = p_ni->sys_guid;
 	}
 	ni_rcv_set_links(sm, p_node, port_num, p_ni_context);
+	p_node->node_info = *p_ni;
 
 Exit:
 	OSM_LOG_EXIT(sm->p_log);
