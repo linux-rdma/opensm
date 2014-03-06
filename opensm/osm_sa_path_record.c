@@ -1769,9 +1769,9 @@ void osm_pr_rcv_process(IN void *context, IN void *data)
 						  osm_madw_get_mad_addr_ptr
 						  (p_madw));
 	if (requester_port == NULL) {
+		cl_plock_release(sa->p_lock);
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F16: "
 			"Cannot find requester physical port\n");
-		cl_plock_release(sa->p_lock);
 		goto Exit;
 	}
 
