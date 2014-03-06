@@ -395,8 +395,13 @@ static void smi_rcv_process_get_sm(IN osm_sm_t * sm,
 			if (sm->polling_sm_guid) {
 				if (smi_rcv_remote_sm_is_higher(sm, p_smi))
 					sm->p_subn->force_heavy_sweep = TRUE;
-				else
+				else {
+					/* Update master_sm_guid to the GUID of the newly
+					 * found MASTER SM and send trap 144 to it.
+					 */
+					sm->master_sm_guid = sm->polling_sm_guid;
 					osm_send_trap144(sm, TRAP_144_MASK_SM_PRIORITY_CHANGE);
+				}
 				osm_sm_state_mgr_signal_master_is_alive(sm);
 			} else {
 				/* This is a response we got while sweeping the subnet.
