@@ -1537,6 +1537,7 @@ repeat_discovery:
 		sm->p_subn->need_update = 0;
 		osm_dump_all(sm->p_subn->p_osm);
 		state_mgr_up_msg(sm);
+		sm->p_subn->first_time_master_sweep = FALSE;
 
 		if (OSM_LOG_IS_ACTIVE_V2(sm->p_log, OSM_LOG_VERBOSE) ||
 		    sm->p_subn->opt.sa_db_dump)
