@@ -275,12 +275,58 @@ static void opts_setup_sm_priority(osm_subn_t *p_subn, void *p_val)
 	osm_set_sm_priority(p_sm, sm_priority);
 }
 
+static int opts_strtoul(uint32_t *val, IN char *p_val_str,
+			IN char *p_key, uint32_t max_value)
+{
+	char *endptr;
+	unsigned long int tmp_val;
+
+	errno = 0;
+	tmp_val = strtoul(p_val_str, &endptr, 0);
+	*val = tmp_val;
+	if (*p_val_str == '\0' || *endptr != '\0') {
+		log_report("-E- Parsing error in field %s, expected "
+			   "numeric input received: %s\n", p_key, p_val_str);
+		return -1;
+	}
+	if (tmp_val > max_value ||
+	    ((tmp_val == ULONG_MAX) && errno == ERANGE)) {
+		log_report("-E- Parsing error in field %s, value out of range\n", p_key);
+		return -1;
+	}
+	return 0;
+}
+
+static int opts_strtoull(uint64_t *val, IN char *p_val_str,
+			 IN char *p_key, uint64_t max_value)
+{
+	char *endptr;
+	unsigned long long int tmp_val;
+
+	errno = 0;
+	tmp_val = strtoull(p_val_str, &endptr, 0);
+	*val = tmp_val;
+	if (*p_val_str == '\0' || *endptr != '\0') {
+		log_report("-E- Parsing error in field %s, expected "
+			   "numeric input received: %s\n", p_key, p_val_str);
+		return -1;
+	}
+	if (tmp_val > max_value || (tmp_val == ULLONG_MAX && errno == ERANGE)) {
+		log_report("-E- Parsing error in field %s, value out of range", p_key);
+		return -1;
+	}
+	return 0;
+}
+
 static void opts_parse_net64(IN osm_subn_t *p_subn, IN char *p_key,
 			     IN char *p_val_str, void *p_v1, void *p_v2,
 			     void (*pfn)(osm_subn_t *, void *))
 {
 	uint64_t *p_val1 = p_v1, *p_val2 = p_v2;
-	uint64_t val = strtoull(p_val_str, NULL, 0);
+	uint64_t val;
+
+	if (opts_strtoull(&val, p_val_str, p_key, UINT64_MAX))
+		return;
 
 	if (cl_hton64(val) != *p_val1) {
 		log_config_value(p_key, "0x%016" PRIx64, val);
@@ -295,7 +341,10 @@ static void opts_parse_uint32(IN osm_subn_t *p_subn, IN char *p_key,
 			      void (*pfn)(osm_subn_t *, void *))
 {
 	uint32_t *p_val1 = p_v1, *p_val2 = p_v2;
-	uint32_t val = strtoul(p_val_str, NULL, 0);
+	uint32_t val;
+
+	if (opts_strtoul(&val, p_val_str, p_key, UINT32_MAX))
+		return;
 
 	if (val != *p_val1) {
 		log_config_value(p_key, "%u", val);
@@ -310,7 +359,10 @@ static void opts_parse_net32(IN osm_subn_t *p_subn, IN char *p_key,
 			     void (*pfn)(osm_subn_t *, void *))
 {
 	uint32_t *p_val1 = p_v1, *p_val2 = p_v2;
-	uint32_t val = strtoul(p_val_str, NULL, 0);
+	uint32_t val;
+
+	if (opts_strtoul(&val, p_val_str, p_key, UINT32_MAX))
+		return;
 
 	if (cl_hton32(val) != *p_val1) {
 		log_config_value(p_key, "%u", val);
@@ -319,7 +371,6 @@ static void opts_parse_net32(IN osm_subn_t *p_subn, IN char *p_key,
 		*p_val1 = *p_val2 = cl_hton32(val);
 	}
 }
-
 
 static void opts_parse_int32(IN osm_subn_t *p_subn, IN char *p_key,
 			     IN char *p_val_str, void *p_v1, void *p_v2,
@@ -341,8 +392,12 @@ static void opts_parse_uint16(IN osm_subn_t *p_subn, IN char *p_key,
 			      void (*pfn)(osm_subn_t *, void *))
 {
 	uint16_t *p_val1 = p_v1, *p_val2 = p_v2;
-	uint16_t val = (uint16_t) strtoul(p_val_str, NULL, 0);
+	uint32_t tmp_val;
 
+	if (opts_strtoul(&tmp_val, p_val_str, p_key, UINT16_MAX))
+		return;
+
+	uint16_t val = (uint16_t) tmp_val;
 	if (val != *p_val1) {
 		log_config_value(p_key, "%u", val);
 		if (pfn)
@@ -356,8 +411,12 @@ static void opts_parse_net16(IN osm_subn_t *p_subn, IN char *p_key,
 			     void (*pfn)(osm_subn_t *, void *))
 {
 	uint16_t *p_val1 = p_v1, *p_val2 = p_v2;
-	uint16_t val = strtoul(p_val_str, NULL, 0);
+	uint32_t tmp_val;
 
+	if (opts_strtoul(&tmp_val, p_val_str, p_key, UINT16_MAX))
+		return;
+
+	uint16_t val = (uint16_t) tmp_val;
 	if (cl_hton16(val) != *p_val1) {
 		log_config_value(p_key, "0x%04x", val);
 		if (pfn)
@@ -371,8 +430,12 @@ static void opts_parse_uint8(IN osm_subn_t *p_subn, IN char *p_key,
 			     void (*pfn)(osm_subn_t *, void *))
 {
 	uint8_t *p_val1 = p_v1, *p_val2 = p_v2;
-	uint8_t val = strtoul(p_val_str, NULL, 0);
+	uint32_t tmp_val;
 
+	if (opts_strtoul(&tmp_val, p_val_str, p_key, UINT8_MAX))
+		return;
+
+	uint8_t val = (uint8_t) tmp_val;
 	if (val != *p_val1) {
 		log_config_value(p_key, "%u", val);
 		if (pfn)
