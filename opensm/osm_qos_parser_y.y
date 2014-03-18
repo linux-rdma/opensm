@@ -61,6 +61,8 @@
 #define OSM_QOS_POLICY_MAX_LINE_LEN         1024*10
 #define OSM_QOS_POLICY_SL2VL_TABLE_LEN      IB_MAX_NUM_VLS
 #define OSM_QOS_POLICY_MAX_VL_NUM           IB_MAX_NUM_VLS
+#define OSM_QOS_POLICY_MAX_RATE             IB_MAX_RATE
+#define OSM_QOS_POLICY_MIN_RATE             IB_MIN_RATE
 
 typedef struct tmp_parser_struct_t_ {
     char       str[OSM_QOS_POLICY_MAX_LINE_LEN];
@@ -1879,6 +1881,13 @@ qos_level_rate_limit:    qos_level_rate_limit_start single_number {
                             }
                             list_iterator = cl_list_head(&tmp_parser_struct.num_list);
                             p_num = (uint64_t*)cl_list_obj(list_iterator);
+                            if (*p_num > OSM_QOS_POLICY_MAX_RATE || *p_num < OSM_QOS_POLICY_MIN_RATE)
+                            {
+                                yyerror("rate limit is out of range, value: %d", *p_num);
+                                free(p_num);
+                                cl_list_remove_all(&tmp_parser_struct.num_list);
+                                return 1;
+                            }
                             p_current_qos_level->rate_limit = (uint8_t)(*p_num);
                             free(p_num);
                             p_current_qos_level->rate_limit_set = TRUE;
