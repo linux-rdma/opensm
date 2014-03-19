@@ -1,4 +1,4 @@
-.TH OPENSM 8 "March 8, 2012" "OpenIB" "OpenIB Management"
+.TH OPENSM 8 "March 18, 2014" "OpenIB" "OpenIB Management"
 
 .SH NAME
 opensm \- InfiniBand subnet manager and administration (SM/SA)
@@ -1467,9 +1467,10 @@ Both or one of options -U and -M can be specified together with \'-R file\'.
 
 .SH PER MODULE LOGGING CONFIGURATION
 .PP
-To enabled per module logging, set per_module_logging to TRUE in
-the opensm options file and configure per_module_logging_file there
-appropriately.
+To enable per module logging, configure per_module_logging_file to
+the per module logging config file name in the opensm options
+file. To disable, configure per_module_logging_file to (null)
+there.
 
 The per module logging config file format is a set of lines with module
 name and logging level as follows:
