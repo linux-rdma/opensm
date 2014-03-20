@@ -1177,7 +1177,8 @@ static void mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 	    || !(join_state != 0)) {
 		char gid_str[INET6_ADDRSTRLEN];
 		/* since we might have created the new group we need to cleanup */
-		osm_mgrp_cleanup(sa->p_subn, p_mgrp);
+		if (is_new_group)
+			osm_mgrp_cleanup(sa->p_subn, p_mgrp);
 		CL_PLOCK_RELEASE(sa->p_lock);
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B12: "
 			"validate_more_comp_fields, validate_port_caps, "
@@ -1214,7 +1215,8 @@ static void mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 					&mcmember_rec, proxy);
 	if (!p_mcmr_port) {
 		/* we fail to add the port so we might need to delete the group */
-		osm_mgrp_cleanup(sa->p_subn, p_mgrp);
+		if (is_new_group)
+			osm_mgrp_cleanup(sa->p_subn, p_mgrp);
 		CL_PLOCK_RELEASE(sa->p_lock);
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B06: "
 			"osm_mgrp_add_port failed\n");
