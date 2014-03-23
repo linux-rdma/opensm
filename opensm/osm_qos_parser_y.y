@@ -63,6 +63,8 @@
 #define OSM_QOS_POLICY_MAX_VL_NUM           IB_MAX_NUM_VLS
 #define OSM_QOS_POLICY_MAX_RATE             IB_MAX_RATE
 #define OSM_QOS_POLICY_MIN_RATE             IB_MIN_RATE
+#define OSM_QOS_POLICY_MAX_MTU              IB_MAX_MTU
+#define OSM_QOS_POLICY_MIN_MTU              IB_MIN_MTU
 
 typedef struct tmp_parser_struct_t_ {
     char       str[OSM_QOS_POLICY_MAX_LINE_LEN];
@@ -1855,6 +1857,13 @@ qos_level_mtu_limit:    qos_level_mtu_limit_start single_number {
                             }
                             list_iterator = cl_list_head(&tmp_parser_struct.num_list);
                             p_num = (uint64_t*)cl_list_obj(list_iterator);
+                            if (*p_num > OSM_QOS_POLICY_MAX_MTU || *p_num < OSM_QOS_POLICY_MIN_MTU)
+                            {
+                                yyerror("mtu limit is out of range, value: %d", *p_num);
+                                free(p_num);
+                                cl_list_remove_all(&tmp_parser_struct.num_list);
+                                return 1;
+                            }
                             p_current_qos_level->mtu_limit = (uint8_t)(*p_num);
                             free(p_num);
                             p_current_qos_level->mtu_limit_set = TRUE;
