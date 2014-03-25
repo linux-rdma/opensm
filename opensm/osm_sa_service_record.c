@@ -454,7 +454,7 @@ static void sr_rcv_process_get_method(osm_sa_t * sa, IN osm_madw_t * p_madw)
 	CL_ASSERT(p_madw);
 
 	/* Grab the lock */
-	cl_plock_excl_acquire(sa->p_lock);
+	cl_plock_acquire(sa->p_lock);
 
 	/* update the requester physical port */
 	p_req_physp = osm_get_physp_by_mad_addr(sa->p_log, sa->p_subn,
