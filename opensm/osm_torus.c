@@ -7262,7 +7262,7 @@ out:
 }
 
 static
-void build_torus(struct fabric *f, struct torus *t)
+bool build_torus(struct fabric *f, struct torus *t)
 {
 	int i, j, k;
 	int im1, jm1, km1;
@@ -7383,9 +7383,12 @@ again:
 	for (k = 0; k < (int)t->z_sz; k++)
 		for (j = 0; j < (int)t->y_sz; j++)
 			for (i = 0; i < (int)t->x_sz; i++)
-				link_srcsink(t, i, j, k);
+				if (!link_srcsink(t, i, j, k)) {
+					success = false;
+					goto out;
+				}
 out:
-	return;
+	return success;
 }
 
 /*
@@ -9493,7 +9496,11 @@ int torus_build_lfts(void *context)
 		(int)torus->x_sz, (int)torus->y_sz, (int)torus->z_sz,
 		(ALL_MESH(torus->flags) ? "mesh" : "torus"));
 
-	build_torus(fabric, torus);
+	if (!build_torus(fabric, torus)) {
+		OSM_LOG(&torus->osm->log, OSM_LOG_ERROR, "ERR 4E57: "
+			"build_torus finished with errors\n");
+		goto out;
+	}
 
 	OSM_LOG(&torus->osm->log, OSM_LOG_INFO,
 		"Built %d x %d x %d %s w/ %d links, %d switches, %d CA ports\n",
