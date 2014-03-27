@@ -1033,8 +1033,6 @@ static void mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 
 	CL_PLOCK_EXCL_ACQUIRE(sa->p_lock);
 
-	CL_PLOCK_EXCL_ACQUIRE(sa->p_lock);
-
 	if (OSM_LOG_IS_ACTIVE_V2(sa->p_log, OSM_LOG_DEBUG)) {
 		osm_physp_t *p_req_physp;
 
