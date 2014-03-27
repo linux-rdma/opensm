@@ -690,7 +690,6 @@ void osm_sr_rcv_process(IN void *context, IN void *data)
 					  IB_SA_MAD_STATUS_REQ_INVALID);
 			goto Exit;
 		}
-		cl_plock_release(sa->p_lock);
 		sr_rcv_process_set_method(sa, p_madw);
 		break;
 	case IB_MAD_METHOD_DELETE:
