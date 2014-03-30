@@ -1663,7 +1663,7 @@ static void pr_process_multicast(osm_sa_t * sa, const ib_sa_mad_t *sa_mad,
 			"Unable to allocate path record for MC group\n");
 		return;
 	}
-	memset(pr_item, 0, SA_PR_RESP_SIZE);
+	memset(pr_item, 0, sizeof(cl_list_item_t));
 
 	/* Copy PathRecord request into response */
 	pr_item->resp.path_rec = *pr;

@@ -1257,7 +1257,7 @@ static ib_api_status_t mcmr_rcv_new_mcmr(IN osm_sa_t * sa,
 		goto Exit;
 	}
 
-	memset(p_rec_item, 0, SA_MCM_RESP_SIZE);
+	memset(p_rec_item, 0, sizeof(cl_list_item_t));
 
 	/* HACK: Untrusted requesters should result with 0 Join
 	   State, Port Guid, and Proxy */
