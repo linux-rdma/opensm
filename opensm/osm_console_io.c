@@ -208,8 +208,15 @@ int osm_console_init(osm_subn_opt_t * opt, osm_console_t * p_oct, osm_log_t * p_
 				strerror(errno));
 			return -1;
 		}
-		setsockopt(p_oct->socket, SOL_SOCKET, SO_REUSEADDR,
-			   &optval, sizeof(optval));
+
+		if (setsockopt(p_oct->socket, SOL_SOCKET, SO_REUSEADDR,
+			       &optval, sizeof(optval))) {
+			OSM_LOG(p_log, OSM_LOG_ERROR,
+		                "ERR 4B06: Failed to set socket option: %s\n",
+		                strerror(errno));
+		        return -1;
+		}
+
 		sin.sin_family = AF_INET;
 		sin.sin_port = htons(opt->console_port);
 #ifdef ENABLE_OSM_CONSOLE_SOCKET
