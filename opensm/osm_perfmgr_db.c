@@ -341,6 +341,10 @@ debug_dump_err_reading(perfmgr_db_t * db, uint64_t guid, uint8_t port_num,
 		   "vld %" PRIu64 " <-- %" PRIu64 " (%" PRIu64 ")\n",
 		   cur->vl15_dropped, port->err_previous.vl15_dropped,
 		   port->err_total.vl15_dropped);
+	osm_log_v2(log, OSM_LOG_DEBUG, FILE_ID,
+		   "xw %" PRIu64 " <-- %" PRIu64 " (%" PRIu64 ")\n",
+		   cur->xmit_wait, port->err_previous.xmit_wait,
+		   port->err_total.xmit_wait);
 }
 
 /**********************************************************************
@@ -355,6 +359,7 @@ perfmgr_db_add_err_reading(perfmgr_db_t * db, uint64_t guid, uint8_t port,
 	perfmgr_db_err_reading_t *previous = NULL;
 	perfmgr_db_err_t rc = PERFMGR_EVENT_DB_SUCCESS;
 	osm_epi_pe_event_t epi_pe_data;
+	uint64_t xmit_wait_diff;
 
 	cl_plock_excl_acquire(&db->lock);
 	node = get(db, guid);
@@ -410,6 +415,9 @@ perfmgr_db_add_err_reading(perfmgr_db_t * db, uint64_t guid, uint8_t port,
 	epi_pe_data.vl15_dropped =
 	    (reading->vl15_dropped - previous->vl15_dropped);
 	p_port->err_total.vl15_dropped += epi_pe_data.vl15_dropped;
+	xmit_wait_diff =
+	    (reading->xmit_wait - previous->xmit_wait);
+	p_port->err_total.xmit_wait += xmit_wait_diff;
 
 	p_port->err_previous = *reading;
 
@@ -662,7 +670,7 @@ static void dump_node_mr(db_node_t * node, FILE * fp)
 		"%s\t%s\t"
 		"%s\t%s\t%s\t%s\t%s\t%s\t%s\t"
 		"%s\t%s\t%s\t%s\t%s\t%s\t%s\t"
-		"%s\t%s\t%s\t%s\n",
+		"%s\t%s\t%s\t%s\t%s\n",
 		"symbol_err_cnt",
 		"link_err_recover",
 		"link_downed",
@@ -675,6 +683,7 @@ static void dump_node_mr(db_node_t * node, FILE * fp)
 		"link_int_err",
 		"buf_overrun_err",
 		"vl15_dropped",
+		"xmit_wait",
 		"xmit_data",
 		"rcv_data",
 		"xmit_pkts",
@@ -704,7 +713,7 @@ static void dump_node_mr(db_node_t * node, FILE * fp)
 			"%" PRIu64 "\t%" PRIu64 "\t%" PRIu64 "\t" "%" PRIu64
 			"\t%" PRIu64 "\t%" PRIu64 "\t" "%" PRIu64 "\t%" PRIu64
 			"\t%" PRIu64 "\t%" PRIu64 "\t" "%" PRIu64 "\t%" PRIu64
-			"\t%" PRIu64 "\t%" PRIu64 "\n", node->node_name,
+			"\t%" PRIu64 "\t%" PRIu64 "\t%" PRIu64 "\n", node->node_name,
 			node->node_guid,
 			node->active ? "TRUE" : "FALSE",
 			i, last_reset, last_err_update, last_data_update,
@@ -720,6 +729,7 @@ static void dump_node_mr(db_node_t * node, FILE * fp)
 			node->ports[i].err_total.link_integrity,
 			node->ports[i].err_total.buffer_overrun,
 			node->ports[i].err_total.vl15_dropped,
+			node->ports[i].err_total.xmit_wait,
 			node->ports[i].dc_total.xmit_data,
 			node->ports[i].dc_total.rcv_data,
 			node->ports[i].dc_total.xmit_pkts,
@@ -827,7 +837,8 @@ static void dump_node_hr(db_node_t * node, FILE * fp, char *port, int err_only)
 		    && err->rcv_constraint_err == 0
 		    && err->link_integrity == 0
 		    && err->buffer_overrun == 0
-		    && err->vl15_dropped == 0)
+		    && err->vl15_dropped == 0
+		    && err->xmit_wait == 0)
 			continue;
 
 		fprintf(fp, "\"%s\" 0x%" PRIx64 " active %s port %d\n"
@@ -873,6 +884,9 @@ static void dump_node_hr(db_node_t * node, FILE * fp, char *port, int err_only)
 		if (!err_only || err->vl15_dropped != 0)
 			fprintf(fp, "     vl15_dropped         : %" PRIu64 "\n",
 				err->vl15_dropped);
+		if (!err_only || err->xmit_wait != 0)
+			fprintf(fp, "     xmit_wait            : %" PRIu64 "\n",
+				err->xmit_wait);
 
 		if (err_only)
 			continue;
@@ -1022,7 +1036,8 @@ perfmgr_db_dump(perfmgr_db_t * db, char *file, perfmgr_db_dump_t dump_type)
  **********************************************************************/
 void
 perfmgr_db_fill_err_read(ib_port_counters_t * wire_read,
-			 perfmgr_db_err_reading_t * reading)
+			 perfmgr_db_err_reading_t * reading,
+			 boolean_t xmit_wait_sup)
 {
 	reading->symbol_err_cnt = cl_ntoh16(wire_read->symbol_err_cnt);
 	reading->link_err_recover = wire_read->link_err_recover;
@@ -1039,6 +1054,10 @@ perfmgr_db_fill_err_read(ib_port_counters_t * wire_read,
 	reading->buffer_overrun =
 	    PC_BUF_OVERRUN(wire_read->link_int_buffer_overrun);
 	reading->vl15_dropped = cl_ntoh16(wire_read->vl15_dropped);
+	if (xmit_wait_sup)
+		reading->xmit_wait = cl_ntoh32(wire_read->xmit_wait);
+	else
+		reading->xmit_wait = 0;
 	reading->time = time(NULL);
 }
 

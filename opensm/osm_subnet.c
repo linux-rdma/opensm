@@ -854,6 +854,8 @@ static const opt_rec_t opt_tbl[] = {
 	{ "perfmgr_rm_nodes", OPT_OFFSET(perfmgr_rm_nodes), opts_parse_boolean, NULL, 0 },
 	{ "perfmgr_log_errors", OPT_OFFSET(perfmgr_log_errors), opts_parse_boolean, NULL, 0 },
 	{ "perfmgr_query_cpi", OPT_OFFSET(perfmgr_query_cpi), opts_parse_boolean, NULL, 0 },
+	{ "perfmgr_xmit_wait_log", OPT_OFFSET(perfmgr_xmit_wait_log), opts_parse_boolean, NULL, 0 },
+	{ "perfmgr_xmit_wait_threshold", OPT_OFFSET(perfmgr_xmit_wait_threshold), opts_parse_uint32, NULL, 0 },
 #endif				/* ENABLE_OSM_PERF_MGR */
 	{ "event_plugin_name", OPT_OFFSET(event_plugin_name), opts_parse_charp, NULL, 0 },
 	{ "event_plugin_options", OPT_OFFSET(event_plugin_options), opts_parse_charp, NULL, 0 },
@@ -1563,6 +1565,8 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * p_opt)
 	p_opt->perfmgr_rm_nodes = TRUE;
 	p_opt->perfmgr_log_errors = TRUE;
 	p_opt->perfmgr_query_cpi = FALSE;
+	p_opt->perfmgr_xmit_wait_log = FALSE;
+	p_opt->perfmgr_xmit_wait_threshold = OSM_PERFMGR_DEFAULT_XMIT_WAIT_THRESHOLD;
 #endif				/* ENABLE_OSM_PERF_MGR */
 
 	p_opt->event_plugin_name = NULL;
@@ -2637,7 +2641,12 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		"# Log error counters to opensm.log\n"
 		"perfmgr_log_errors %s\n\n"
 		"# Query PerfMgrGet(ClassPortInfo) for extended capabilities\n"
-		"perfmgr_query_cpi %s\n\n",
+		"perfmgr_query_cpi %s\n\n"
+		"# Log xmit_wait errors\n"
+		"perfmgr_xmit_wait_log %s\n\n"
+		"# If logging xmit_wait's; set threshold (default %u)\n"
+		"perfmgr_xmit_wait_threshold %u\n\n"
+		,
 		p_opts->perfmgr ? "TRUE" : "FALSE",
 		p_opts->perfmgr_redir ? "TRUE" : "FALSE",
 		p_opts->perfmgr_sweep_time_s,
@@ -2645,7 +2654,10 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		p_opts->perfmgr_ignore_cas ? "TRUE" : "FALSE",
 		p_opts->perfmgr_rm_nodes ? "TRUE" : "FALSE",
 		p_opts->perfmgr_log_errors ? "TRUE" : "FALSE",
-		p_opts->perfmgr_query_cpi ? "TRUE" : "FALSE");
+		p_opts->perfmgr_query_cpi ? "TRUE" : "FALSE",
+		p_opts->perfmgr_xmit_wait_log ? "TRUE" : "FALSE",
+		OSM_PERFMGR_DEFAULT_XMIT_WAIT_THRESHOLD,
+		p_opts->perfmgr_xmit_wait_threshold);
 
 	fprintf(out,
 		"#\n# Event DB Options\n#\n"

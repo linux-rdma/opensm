@@ -465,6 +465,7 @@ static ib_api_status_t perfmgr_send_pc_mad(osm_perfmgr_t * perfmgr,
 					   ib_net32_t dest_qp, uint16_t pkey_ix,
 					   uint8_t port, uint8_t mad_method,
 					   uint16_t counter_select,
+					   uint8_t counter_select2,
 					   osm_madw_context_t * p_context,
 					   uint8_t sl)
 {
@@ -486,6 +487,7 @@ static ib_api_status_t perfmgr_send_pc_mad(osm_perfmgr_t * perfmgr,
 	memset(port_counter, 0, sizeof(*port_counter));
 	port_counter->port_select = port;
 	port_counter->counter_select = cl_hton16(counter_select);
+	port_counter->counter_select2 = counter_select2;
 
 	status = perfmgr_send_mad(perfmgr, p_madw);
 
@@ -591,6 +593,16 @@ static inline boolean_t pce_supported(monitored_node_t *mon_node, uint8_t port)
 	return (mon_port->cpi_valid
 		&& (mon_port->cap_mask & IB_PM_EXT_WIDTH_SUPPORTED
 		|| mon_port->cap_mask & IB_PM_EXT_WIDTH_NOIETF_SUP));
+}
+
+/**********************************************************************
+ * return if CapMask.PortCountersXmitWaitSupported is set
+ **********************************************************************/
+static inline boolean_t xmit_wait_supported(monitored_node_t *mon_node, uint8_t port)
+{
+	monitored_port_t *mon_port = &(mon_node->port[port]);
+	return (mon_port->cpi_valid
+		&& (mon_port->cap_mask & IB_PM_PC_XMIT_WAIT_SUP));
 }
 
 /**********************************************************************
@@ -734,6 +746,7 @@ static void perfmgr_query_counters(cl_map_item_t * p_map_item, void *context)
 						     mon_node->port[port].pkey_ix,
 						     port, IB_MAD_METHOD_GET,
 						     0xffff,
+						     1,
 						     &mad_context,
 						     0); /* FIXME SL != 0 */
 			if (status != IB_SUCCESS)
@@ -1139,6 +1152,7 @@ static void perfmgr_check_oob_clear(osm_perfmgr_t * pm,
 		"LI:   %"PRIu64" ?< %"PRIu64"\n"
 		"BO:   %"PRIu64" ?< %"PRIu64"\n"
 		"VL15: %"PRIu64" ?< %"PRIu64"\n"
+		"XW:   %"PRIu64" ?< %"PRIu64"\n"
 		,
 		mon_node->name, mon_node->guid, port,
 		cr->symbol_err_cnt, prev_err.symbol_err_cnt,
@@ -1152,7 +1166,8 @@ static void perfmgr_check_oob_clear(osm_perfmgr_t * pm,
 		cr->rcv_constraint_err, prev_err.rcv_constraint_err,
 		cr->link_integrity, prev_err.link_integrity,
 		cr->buffer_overrun, prev_err.buffer_overrun,
-		cr->vl15_dropped, prev_err.vl15_dropped);
+		cr->vl15_dropped, prev_err.vl15_dropped,
+		cr->xmit_wait, prev_err.xmit_wait);
 
 	if (cr->symbol_err_cnt < prev_err.symbol_err_cnt ||
 	    cr->link_err_recover < prev_err.link_err_recover ||
@@ -1165,7 +1180,8 @@ static void perfmgr_check_oob_clear(osm_perfmgr_t * pm,
 	    cr->rcv_constraint_err < prev_err.rcv_constraint_err ||
 	    cr->link_integrity < prev_err.link_integrity ||
 	    cr->buffer_overrun < prev_err.buffer_overrun ||
-	    cr->vl15_dropped < prev_err.vl15_dropped) {
+	    cr->vl15_dropped < prev_err.vl15_dropped ||
+	    cr->xmit_wait < prev_err.xmit_wait) {
 		OSM_LOG(pm->log, OSM_LOG_ERROR, "PerfMgr: ERR 540A: "
 			"Detected an out of band error clear "
 			"on %s (0x%" PRIx64 ") port %u\n",
@@ -1209,12 +1225,14 @@ static int counter_overflow_64(ib_net64_t val)
  **********************************************************************/
 static void perfmgr_check_overflow(osm_perfmgr_t * pm,
 				   monitored_node_t * mon_node, int16_t pkey_ix,
-				   uint8_t port, ib_port_counters_t * pc)
+				   uint8_t port, ib_port_counters_t * pc,
+				   boolean_t xmit_wait_sup)
 {
 	osm_madw_context_t mad_context;
 	ib_api_status_t status;
 	ib_net32_t remote_qp;
 	uint16_t counter_select;
+	uint8_t counter_select2;
 
 	OSM_LOG_ENTER(pm->log);
 
@@ -1230,6 +1248,7 @@ static void perfmgr_check_overflow(osm_perfmgr_t * pm,
 	    counter_overflow_4(PC_LINK_INT(pc->link_int_buffer_overrun)) ||
 	    counter_overflow_4(PC_BUF_OVERRUN(pc->link_int_buffer_overrun)) ||
 	    counter_overflow_16(pc->vl15_dropped) ||
+	    (xmit_wait_sup && counter_overflow_32(pc->xmit_wait)) ||
 	    (!pce_supported(mon_node, port) &&
 	    (counter_overflow_32(pc->xmit_data) ||
 	     counter_overflow_32(pc->rcv_data) ||
@@ -1275,9 +1294,15 @@ static void perfmgr_check_overflow(osm_perfmgr_t * pm,
 		else
 			counter_select = 0xffff;
 
+		if (xmit_wait_sup)
+			counter_select2 = 1;
+		else
+			counter_select2 = 0;
+
 		status = perfmgr_send_pc_mad(pm, lid, remote_qp, pkey_ix,
 					     port, IB_MAD_METHOD_SET,
 					     counter_select,
+					     counter_select2,
 					     &mad_context,
 					     0); /* FIXME SL != 0 */
 		if (status != IB_SUCCESS)
@@ -1377,6 +1402,7 @@ static void perfmgr_log_errors(osm_perfmgr_t * pm,
 	perfmgr_db_err_reading_t prev_read;
 	perfmgr_db_err_t err =
 	    perfmgr_db_get_prev_err(pm->db, mon_node->guid, port, &prev_read);
+	uint64_t cur, prev;
 
 	if (err != PERFMGR_EVENT_DB_SUCCESS) {
 		OSM_LOG(pm->log, OSM_LOG_VERBOSE, "Failed to find previous "
@@ -1406,6 +1432,15 @@ static void perfmgr_log_errors(osm_perfmgr_t * pm,
 	LOG_ERR_CNT("LocalLinkIntegrityErrors",     "543A", link_integrity);
 	LOG_ERR_CNT("ExcessiveBufferOverrunErrors", "543B", buffer_overrun);
 	LOG_ERR_CNT("VL15Dropped",                  "543C", vl15_dropped);
+
+	cur = reading->xmit_wait;
+	prev = prev_read.xmit_wait;
+	if (pm->xmit_wait_log && cur > prev &&
+	    (cur - prev) >= pm->xmit_wait_threshold) {
+		OSM_LOG(pm->log, OSM_LOG_ERROR, "ERR 543D: XmitWait : %" PRIu64
+			" : node \"%s\" (NodeGUID: 0x%" PRIx64 ") : port %u\n",
+			cur - prev, mon_node->name, mon_node->guid, port);
+	}
 }
 
 static int16_t validate_redir_pkey(osm_perfmgr_t *pm, ib_net16_t pkey)
@@ -1555,6 +1590,13 @@ static boolean_t handle_redirect(osm_perfmgr_t *pm,
 						0); /* FIXME SL != 0 */
 	} else {
 		/* reissue the original query to the redirected location */
+		uint8_t counter_select2;
+
+		if (xmit_wait_supported(p_mon_node, port))
+			counter_select2 = 1;
+		else
+			counter_select2 = 0;
+
 		mad_method = mad_context->perfmgr_context.mad_method;
 		if (mad_context->perfmgr_context.mad_attr_id
 		    == IB_MAD_ATTR_PORT_CNTRS) {
@@ -1562,6 +1604,7 @@ static boolean_t handle_redirect(osm_perfmgr_t *pm,
 						     pkey_ix, port,
 						     mad_method,
 						     0xffff,
+						     counter_select2,
 						     mad_context,
 						     0); /* FIXME SL != 0 */
 		} else {
@@ -1760,11 +1803,12 @@ static void pc_recv_process(void *context, void *data)
 					   port, ext_wire_read);
 	} else {
 		boolean_t pce_sup = pce_supported(p_mon_node, port);
+		boolean_t xmit_wait_sup = xmit_wait_supported(p_mon_node, port);
 		ib_port_counters_t *wire_read =
 				(ib_port_counters_t *)
 				&osm_madw_get_perfmgt_mad_ptr(p_madw)->data;
 
-		perfmgr_db_fill_err_read(wire_read, &err_reading);
+		perfmgr_db_fill_err_read(wire_read, &err_reading, xmit_wait_sup);
 		if (!pce_sup)
 			perfmgr_db_fill_data_cnt_read_pc(wire_read, &data_reading);
 
@@ -1791,7 +1835,7 @@ static void pc_recv_process(void *context, void *data)
 		}
 
 		perfmgr_check_overflow(pm, p_mon_node, p_mon_node->port[port].pkey_ix,
-				       port, wire_read);
+				       port, wire_read, xmit_wait_sup);
 
 	}
 
@@ -1868,6 +1912,8 @@ ib_api_status_t osm_perfmgr_init(osm_perfmgr_t * pm, osm_opensm_t * osm,
 
 	pm->rm_nodes = p_opt->perfmgr_rm_nodes;
 	pm->query_cpi = p_opt->perfmgr_query_cpi;
+	pm->xmit_wait_log = p_opt->perfmgr_xmit_wait_log;
+	pm->xmit_wait_threshold = p_opt->perfmgr_xmit_wait_threshold;
 	status = IB_SUCCESS;
 Exit:
 	OSM_LOG_EXIT(pm->log);

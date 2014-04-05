@@ -75,6 +75,7 @@ extern "C" {
 #define OSM_PERFMGR_DEFAULT_SWEEP_TIME_S 180
 #define OSM_PERFMGR_DEFAULT_DUMP_FILE "opensm_port_counters.log"
 #define OSM_PERFMGR_DEFAULT_MAX_OUTSTANDING_QUERIES 500
+#define OSM_PERFMGR_DEFAULT_XMIT_WAIT_THRESHOLD 0x0000FFFF
 
 /****s* OpenSM: PerfMgr/osm_perfmgr_state_t */
 typedef enum {
@@ -150,6 +151,8 @@ typedef struct osm_perfmgr {
 	int16_t local_port;
 	int rm_nodes;
 	boolean_t query_cpi;
+	boolean_t xmit_wait_log;
+	uint32_t xmit_wait_threshold;
 } osm_perfmgr_t;
 /*
 * FIELDS

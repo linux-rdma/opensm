@@ -363,6 +363,8 @@ typedef struct osm_subn_opt {
 	int perfmgr_rm_nodes;
 	boolean_t perfmgr_log_errors;
 	boolean_t perfmgr_query_cpi;
+	boolean_t perfmgr_xmit_wait_log;
+	uint32_t perfmgr_xmit_wait_threshold;
 #endif				/* ENABLE_OSM_PERF_MGR */
 	char *event_plugin_name;
 	char *event_plugin_options;

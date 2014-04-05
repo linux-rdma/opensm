@@ -90,6 +90,7 @@ typedef struct {
 	uint64_t link_integrity;
 	uint64_t buffer_overrun;
 	uint64_t vl15_dropped;
+	uint64_t xmit_wait;
 	time_t time;
 } perfmgr_db_err_reading_t;
 
@@ -205,7 +206,8 @@ void perfmgr_db_print_by_guid(perfmgr_db_t * db, uint64_t guid, FILE *fp,
  */
 
 void perfmgr_db_fill_err_read(ib_port_counters_t * wire_read,
-			      perfmgr_db_err_reading_t * reading);
+			      perfmgr_db_err_reading_t * reading,
+			      boolean_t xmit_wait_sup);
 void perfmgr_db_fill_data_cnt_read_pc(ib_port_counters_t * wire_read,
 				      perfmgr_db_data_cnt_reading_t * reading);
 void perfmgr_db_fill_data_cnt_read_pce(ib_port_counters_ext_t * wire_read,
