@@ -359,7 +359,6 @@ perfmgr_db_add_err_reading(perfmgr_db_t * db, uint64_t guid, uint8_t port,
 	perfmgr_db_err_reading_t *previous = NULL;
 	perfmgr_db_err_t rc = PERFMGR_EVENT_DB_SUCCESS;
 	osm_epi_pe_event_t epi_pe_data;
-	uint64_t xmit_wait_diff;
 
 	cl_plock_excl_acquire(&db->lock);
 	node = get(db, guid);
@@ -415,9 +414,9 @@ perfmgr_db_add_err_reading(perfmgr_db_t * db, uint64_t guid, uint8_t port,
 	epi_pe_data.vl15_dropped =
 	    (reading->vl15_dropped - previous->vl15_dropped);
 	p_port->err_total.vl15_dropped += epi_pe_data.vl15_dropped;
-	xmit_wait_diff =
+	epi_pe_data.xmit_wait =
 	    (reading->xmit_wait - previous->xmit_wait);
-	p_port->err_total.xmit_wait += xmit_wait_diff;
+	p_port->err_total.xmit_wait += epi_pe_data.xmit_wait;
 
 	p_port->err_previous = *reading;
 

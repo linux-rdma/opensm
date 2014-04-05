@@ -126,6 +126,7 @@ typedef struct osm_epi_pe_event {
 	uint64_t link_integrity;
 	uint64_t buffer_overrun;
 	uint64_t vl15_dropped;
+	uint64_t xmit_wait;
 	time_t time_diff_s;
 } osm_epi_pe_event_t;
 

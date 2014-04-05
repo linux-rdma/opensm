@@ -105,7 +105,9 @@ static void handle_port_counter(_log_events_t * log, osm_epi_pe_event_t * pc)
 	    || pc->xmit_constraint_err > 0
 	    || pc->rcv_constraint_err > 0
 	    || pc->link_integrity > 0
-	    || pc->buffer_overrun > 0 || pc->vl15_dropped > 0) {
+	    || pc->buffer_overrun > 0
+	    || pc->vl15_dropped > 0
+	    || pc->xmit_wait > 0) {
 		fprintf(log->log_file,
 			"Port counter errors for node 0x%" PRIx64
 			" (%s) port %d\n", pc->port_id.node_guid,
