@@ -700,7 +700,7 @@ static int ucast_mgr_setup_all_switches(osm_subn_t * p_subn)
 			p_subn->opt.port_search_ordering_file);
 		if (parse_node_map(p_subn->opt.port_search_ordering_file,
 				   set_search_ordering_ports, p_subn)) {
-			OSM_LOG(&p_subn->p_osm->log, OSM_LOG_ERROR, "ERR 3A05: "
+			OSM_LOG(&p_subn->p_osm->log, OSM_LOG_ERROR, "ERR 3A0F: "
 				"cannot parse port_search_ordering_file \'%s\'\n",
 				p_subn->opt.port_search_ordering_file);
 		}
@@ -1021,7 +1021,7 @@ static int set_lft_block(IN osm_switch_t *p_sw, IN osm_ucast_mgr_t *p_mgr,
 			     CL_DISP_MSGID_NONE, &context);
 
 	if (status != IB_SUCCESS) {
-		OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 3A05: "
+		OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 3A10: "
 			"Sending linear fwd. tbl. block failed (%s)\n",
 			ib_get_err_str(status));
 		return -1;
