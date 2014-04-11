@@ -57,7 +57,7 @@ operation of your subnet.
 Step 2: Enable the perfmgr and console in opensm.conf
 -----------------------------------------------------
 
-Turning the Perfmorance Manager on is pretty easy, set the following options in
+Turning the Performance Manager on is pretty easy, set the following options in
 the opensm.conf config file.  (Default location is
 /usr/local/etc/opensm/opensm.conf)
 
