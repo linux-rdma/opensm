@@ -331,9 +331,12 @@ static void sa_mad_ctrl_rcv_callback(IN osm_madw_t * p_madw, IN void *context,
 	if (p_sa_mad->sm_key != 0 &&
 	    p_sa_mad->sm_key != p_ctrl->p_subn->opt.sa_key) {
 		OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 1A04: "
-			"Non-Zero SA MAD SM_Key: 0x%" PRIx64 " != SM_Key: 0x%"
-			PRIx64 "; MAD ignored\n", cl_ntoh64(p_sa_mad->sm_key),
-			cl_ntoh64(p_ctrl->p_subn->opt.sa_key));
+			"Non-Zero MAD SM_Key: 0x%" PRIx64 " != SM_Key: 0x%"
+			PRIx64 "; SA MAD ignored for method 0x%X attribute 0x%X (%s)\n",
+			cl_ntoh64(p_sa_mad->sm_key),
+			cl_ntoh64(p_ctrl->p_subn->opt.sa_key),
+			p_sa_mad->method, cl_ntoh16(p_sa_mad->attr_id),
+			ib_get_sa_attr_str(p_sa_mad->attr_id));
 		osm_mad_pool_put(p_ctrl->p_mad_pool, p_madw);
 		goto Exit;
 	}
