@@ -230,6 +230,7 @@ void osm_log_v2(IN osm_log_t * p_log, IN osm_log_level_t verbosity,
 	SYSTEMTIME st;
 	uint32_t pid = GetCurrentThreadId();
 #else
+	struct timeval tv;
 	pid_t pid = 0;
 	time_t tim;
 	struct tm result;
@@ -294,7 +295,9 @@ _retry:
 		    st.wHour, st.wMinute, st.wSecond, st.wMilliseconds,
 		    pid, verbosity, buffer);
 #else
-	time_usecs = cl_get_time_stamp();
+	gettimeofday(&tv, NULL);
+	/* Convert the time of day into a microsecond timestamp */
+	time_usecs = ((uint64_t) tv.tv_sec * 1000000) + (uint64_t) tv.tv_usec;
 	tim = time_usecs / 1000000;
 	usecs = time_usecs % 1000000;
 	localtime_r(&tim, &result);
