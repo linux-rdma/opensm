@@ -472,7 +472,7 @@ static void mcast_mgr_purge_list(osm_sm_t * sm, cl_qlist_t * list)
 			wobj = cl_item_obj(i, wobj, list_item);
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A06: "
 				"Unable to route for port 0x%" PRIx64 "\n",
-				osm_port_get_guid(wobj->p_port));
+				cl_ntoh64(osm_port_get_guid(wobj->p_port)));
 		}
 	}
 	osm_mcast_drop_port_list(list);
