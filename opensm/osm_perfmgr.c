@@ -447,9 +447,10 @@ static ib_api_status_t perfmgr_send_mad(osm_perfmgr_t *perfmgr,
 				perfmgr->sweep_state = PERFMGR_SWEEP_ACTIVE;
 				cl_spinlock_release(&perfmgr->lock);
 			} else {
-				cl_spinlock_release(&perfmgr->lock);
 				OSM_LOG(perfmgr->log, OSM_LOG_ERROR, "ERR 54FF: "
-					"PM was NOT in Suspended state???\n");
+					"PM state %d was NOT Suspended???\n",
+					perfmgr->sweep_state);
+				cl_spinlock_release(&perfmgr->lock);
 			}
 		}
 	}
