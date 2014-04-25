@@ -246,6 +246,7 @@ ib_mad_addr_conv(ib_user_mad_t * umad, osm_mad_addr_t * osm_mad_addr,
 		 int is_smi)
 {
 	ib_mad_addr_t *ib_mad_addr = umad_get_mad_addr(umad);
+
 	osm_mad_addr->dest_lid = ib_mad_addr->lid;
 	osm_mad_addr->path_bits = ib_mad_addr->path_bits;
 	osm_mad_addr->static_rate = 0;
@@ -1084,12 +1085,12 @@ osm_vendor_send(IN osm_bind_handle_t h_bind,
 
 	if (p_mad->mgmt_class == IB_MCLASS_SUBN_DIR) {
 		umad_set_addr_net(p_vw->umad, 0xffff, 0, 0, 0);
-		umad_set_grh(p_vw->umad, 0);
+		umad_set_grh(p_vw->umad, NULL);
 		goto Resp;
 	}
 	if (p_mad->mgmt_class == IB_MCLASS_SUBN_LID) {
 		umad_set_addr_net(p_vw->umad, p_mad_addr->dest_lid, 0, 0, 0);
-		umad_set_grh(p_vw->umad, 0);
+		umad_set_grh(p_vw->umad, NULL);
 		goto Resp;
 	}
 	/* GS classes */
@@ -1097,7 +1098,7 @@ osm_vendor_send(IN osm_bind_handle_t h_bind,
 			  p_mad_addr->addr_type.gsi.remote_qp,
 			  p_mad_addr->addr_type.gsi.service_level,
 			  IB_QP1_WELL_KNOWN_Q_KEY);
-	umad_set_grh(p_vw->umad, 0);	/* FIXME: GRH support */
+	umad_set_grh(p_vw->umad, NULL);	/* FIXME: GRH support */
 	umad_set_pkey(p_vw->umad, p_mad_addr->addr_type.gsi.pkey_ix);
 	if (ib_class_is_rmpp(p_mad->mgmt_class)) {	/* RMPP GS classes     FIXME: no GRH */
 		if (!ib_rmpp_is_flag_set((ib_rmpp_mad_t *) p_sa,
