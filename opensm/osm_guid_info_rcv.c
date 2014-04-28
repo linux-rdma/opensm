@@ -74,9 +74,10 @@ void osm_gi_rcv_process(IN void *context, IN void *data)
 	ib_net64_t port_guid, node_guid;
 	uint8_t block_num;
 
+	CL_ASSERT(sm);
+
 	OSM_LOG_ENTER(sm->p_log);
 
-	CL_ASSERT(sm);
 	CL_ASSERT(p_madw);
 
 	p_smp = osm_madw_get_smp_ptr(p_madw);
