@@ -60,6 +60,7 @@ static void vl15_send_mad(osm_vl15_t * p_vl, osm_madw_t * p_madw)
 {
 	ib_api_status_t status;
 	boolean_t resp_expected = p_madw->resp_expected;
+	ib_smp_t * p_smp;
 
 	/*
 	   Non-response-expected mads are not throttled on the wire
@@ -106,8 +107,21 @@ static void vl15_send_mad(osm_vl15_t * p_vl, osm_madw_t * p_madw)
 	   qp0_mads_outstanding will be decremented by send error callback
 	   (called by osm_vendor_send() */
 	cl_atomic_dec(&p_vl->p_stats->qp0_mads_sent);
-	if (!resp_expected)
+	if (!resp_expected) {
 		cl_atomic_dec(&p_vl->p_stats->qp0_unicasts_sent);
+		return;
+	}
+
+	/* need to cause heavy-sweep if resp_expected MAD sending failed */
+	p_smp = osm_madw_get_smp_ptr(p_madw);
+	OSM_LOG(p_vl->p_log, OSM_LOG_ERROR, "ERR 3E04: "
+		"%s method failed for attribute 0x%X (%s)\n",
+		p_smp->method == IB_MAD_METHOD_SET ? "SET" : "GET",
+		cl_ntoh16(p_smp->attr_id),
+		ib_get_sm_attr_str(p_smp->attr_id));
+
+	p_vl->p_subn->subnet_initialization_error = TRUE;
+
 }
 
 static void vl15_poller(IN void *p_ptr)
@@ -246,6 +260,7 @@ void osm_vl15_destroy(IN osm_vl15_t * p_vl, IN struct osm_mad_pool *p_pool)
 
 ib_api_status_t osm_vl15_init(IN osm_vl15_t * p_vl, IN osm_vendor_t * p_vend,
 			      IN osm_log_t * p_log, IN osm_stats_t * p_stats,
+			      IN osm_subn_t * p_subn,
 			      IN int32_t max_wire_smps,
 			      IN int32_t max_wire_smps2,
 			      IN uint32_t max_smps_timeout)
@@ -257,6 +272,7 @@ ib_api_status_t osm_vl15_init(IN osm_vl15_t * p_vl, IN osm_vendor_t * p_vend,
 	p_vl->p_vend = p_vend;
 	p_vl->p_log = p_log;
 	p_vl->p_stats = p_stats;
+	p_vl->p_subn = p_subn;
 	p_vl->max_wire_smps = max_wire_smps;
 	p_vl->max_wire_smps2 = max_wire_smps2;
 	p_vl->max_smps_timeout = max_wire_smps < max_wire_smps2 ?

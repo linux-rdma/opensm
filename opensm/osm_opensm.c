@@ -465,7 +465,7 @@ ib_api_status_t osm_opensm_init_finish(IN osm_opensm_t * p_osm,
 		goto Exit;
 
 	status = osm_vl15_init(&p_osm->vl15, p_osm->p_vendor,
-			       &p_osm->log, &p_osm->stats,
+			       &p_osm->log, &p_osm->stats, &p_osm->subn,
 			       p_opt->max_wire_smps, p_opt->max_wire_smps2,
 			       p_opt->max_smps_timeout);
 	if (status != IB_SUCCESS)

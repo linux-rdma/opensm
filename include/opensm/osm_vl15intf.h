@@ -53,6 +53,7 @@
 #include <opensm/osm_madw.h>
 #include <opensm/osm_mad_pool.h>
 #include <vendor/osm_vendor_api.h>
+#include <opensm/osm_subnet.h>
 
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
@@ -127,6 +128,7 @@ typedef struct osm_vl15 {
 	osm_vendor_t *p_vend;
 	osm_log_t *p_log;
 	osm_stats_t *p_stats;
+	osm_subn_t *p_subn;
 } osm_vl15_t;
 /*
 * FIELDS
@@ -170,6 +172,9 @@ typedef struct osm_vl15 {
 *
 *	p_stats
 *		Pointer to the OpenSM statistics block.
+*
+*	p_subn
+*		Pointer to the OpenSM subnet object.
 *
 * SEE ALSO
 *	VL15 object
@@ -251,6 +256,7 @@ void osm_vl15_destroy(IN osm_vl15_t * p_vl15, IN struct osm_mad_pool *p_pool);
 */
 ib_api_status_t osm_vl15_init(IN osm_vl15_t * p_vl15, IN osm_vendor_t * p_vend,
 			      IN osm_log_t * p_log, IN osm_stats_t * p_stats,
+			      IN osm_subn_t * p_subn,
 			      IN int32_t max_wire_smps,
 			      IN int32_t max_wire_smps2,
 			      IN uint32_t max_smps_timeout);
@@ -266,7 +272,10 @@ ib_api_status_t osm_vl15_init(IN osm_vl15_t * p_vl15, IN osm_vendor_t * p_vend,
 *		[in] Pointer to the log object.
 *
 *	p_stats
-*		[in] Pointer to the OpenSM stastics block.
+*		[in] Pointer to the OpenSM statistics block.
+*
+*	p_subn
+*		[in] Pointer to the OpenSM subnet object.
 *
 *	max_wire_smps
 *		[in] Maximum number of SMPs allowed on the wire at one time.
