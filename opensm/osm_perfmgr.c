@@ -2,7 +2,8 @@
  * Copyright (c) 2007 The Regents of the University of California.
  * Copyright (c) 2007-2009 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2009,2010 HNR Consulting. All rights reserved.
- * Copyright (c) 2013 Lawrence Livermore National Security. All rights * reserved.
+ * Copyright (c) 2013 Lawrence Livermore National Security. All rights reserved.
+ * Copyright (c) 2011-2014 Mellanox Technologies LTD. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
