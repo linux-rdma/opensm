@@ -1760,7 +1760,7 @@ static void pc_recv_process(void *context, void *data)
 		if (pm->query_cpi && cpi_valid) {
 			cl_plock_acquire(&pm->osm->lock);
 			if (p_mon_node->node_type == IB_NODE_TYPE_SWITCH) {
-				int i = 0;
+				int i;
 				for (i = p_mon_node->esp0 ? 0 : 1;
 				     i < p_mon_node->num_ports;
 				     i++) {
