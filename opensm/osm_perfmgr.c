@@ -741,8 +741,9 @@ static void perfmgr_query_counters(cl_map_item_t * p_map_item, void *context)
 			gettimeofday(&mad_context.perfmgr_context.query_start, NULL);
 #endif
 			OSM_LOG(pm->log, OSM_LOG_VERBOSE, "Getting stats for node 0x%"
-				PRIx64 " port %d (lid %u) (%s)\n", node_guid, port,
-				cl_ntoh16(lid), node->print_desc);
+				PRIx64 " port %d (lid %u) (%s)\n",
+				node_guid, port, cl_ntoh16(lid),
+				node->print_desc);
 			status = perfmgr_send_pc_mad(pm, lid, remote_qp,
 						     mon_node->port[port].pkey_ix,
 						     port, IB_MAD_METHOD_GET,
@@ -1601,7 +1602,8 @@ static boolean_t handle_redirect(osm_perfmgr_t *pm,
 		mad_method = mad_context->perfmgr_context.mad_method;
 		if (mad_context->perfmgr_context.mad_attr_id
 		    == IB_MAD_ATTR_PORT_CNTRS) {
-			status = perfmgr_send_pc_mad(pm, cpi->redir_lid, cpi->redir_qp,
+			status = perfmgr_send_pc_mad(pm, cpi->redir_lid,
+						     cpi->redir_qp,
 						     pkey_ix, port,
 						     mad_method,
 						     0xffff,
