@@ -627,6 +627,7 @@ static void clear_counters(cl_map_item_t * const p_map_item, void *context)
 		node->ports[i].err_total.link_integrity = 0;
 		node->ports[i].err_total.buffer_overrun = 0;
 		node->ports[i].err_total.vl15_dropped = 0;
+		node->ports[i].err_total.xmit_wait = 0;
 		node->ports[i].err_total.time = ts;
 
 		node->ports[i].dc_total.xmit_data = 0;
