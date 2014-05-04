@@ -5095,9 +5095,9 @@ osmtest_validate_single_port_rec_lid(IN osmtest_t * const p_osmt,
 	memset(&context, 0, sizeof(context));
 
 	context.p_osmt = p_osmt;
-	osmtest_get_port_rec_by_num(p_osmt,
-				    p_port->rec.lid,
-				    p_port->rec.port_num, &context);
+	status = osmtest_get_port_rec_by_num(p_osmt,
+					     p_port->rec.lid,
+					     p_port->rec.port_num, &context);
 	if (status != IB_SUCCESS) {
 		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0108: "
 			"ib_query failed (%s)\n", ib_get_err_str(status));
