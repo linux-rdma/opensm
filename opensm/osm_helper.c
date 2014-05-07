@@ -3011,6 +3011,7 @@ const char *osm_get_manufacturer_str(IN uint64_t guid_ho)
 		return intel_str;
 	case OSM_VENDOR_ID_MELLANOX:
 	case OSM_VENDOR_ID_MELLANOX2:
+	case OSM_VENDOR_ID_MELLANOX3:
 		return mellanox_str;
 	case OSM_VENDOR_ID_REDSWITCH:
 		return redswitch_str;
