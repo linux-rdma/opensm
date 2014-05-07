@@ -2628,28 +2628,35 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 	fprintf(out,
 		"#\n# Performance Manager Options\n#\n"
 		"# perfmgr enable\n"
+		"# PerfMgr is enabled if TRUE and disabled if FALSE (default FALSE)\n"
 		"perfmgr %s\n\n"
-		"# perfmgr redirection enable\n"
+		"# redirection enable\n"
+		"# Redirection supported if TRUE and not supported if FALSE (default TRUE)\n"
 		"perfmgr_redir %s\n\n"
-		"# sweep time in seconds\n"
+		"# sweep time in seconds (default %u seconds)\n"
 		"perfmgr_sweep_time_s %u\n\n"
-		"# Max outstanding queries\n"
+		"# Max outstanding queries (default %u)\n"
 		"perfmgr_max_outstanding_queries %u\n"
+		"# Ignore CAs on sweep (default FALSE)\n"
 		"perfmgr_ignore_cas %s\n\n"
-		"# Remove missing nodes from DB\n"
+		"# Remove missing nodes from DB (default TRUE)\n"
 		"perfmgr_rm_nodes %s\n\n"
-		"# Log error counters to opensm.log\n"
+		"# Log error counters to opensm.log (default TRUE)\n"
 		"perfmgr_log_errors %s\n\n"
 		"# Query PerfMgrGet(ClassPortInfo) for extended capabilities\n"
+		"# Extended capabilities include 64 bit extended counters and transmit wait support\n"
+		"# default FALSE\n"
 		"perfmgr_query_cpi %s\n\n"
-		"# Log xmit_wait errors\n"
+		"# Log xmit_wait errors (default FALSE)\n"
 		"perfmgr_xmit_wait_log %s\n\n"
 		"# If logging xmit_wait's; set threshold (default %u)\n"
 		"perfmgr_xmit_wait_threshold %u\n\n"
 		,
 		p_opts->perfmgr ? "TRUE" : "FALSE",
 		p_opts->perfmgr_redir ? "TRUE" : "FALSE",
+		OSM_PERFMGR_DEFAULT_SWEEP_TIME_S,
 		p_opts->perfmgr_sweep_time_s,
+		OSM_PERFMGR_DEFAULT_MAX_OUTSTANDING_QUERIES,
 		p_opts->perfmgr_max_outstanding_queries,
 		p_opts->perfmgr_ignore_cas ? "TRUE" : "FALSE",
 		p_opts->perfmgr_rm_nodes ? "TRUE" : "FALSE",
