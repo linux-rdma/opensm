@@ -1131,7 +1131,7 @@ osm_vendor_send(IN osm_bind_handle_t h_bind,
 	} else
 		umad_set_grh(p_vw->umad, NULL);
 	umad_set_pkey(p_vw->umad, p_mad_addr->addr_type.gsi.pkey_ix);
-	if (ib_class_is_rmpp(p_mad->mgmt_class)) {	/* RMPP GS classes     FIXME: no GRH */
+	if (ib_class_is_rmpp(p_mad->mgmt_class)) {	/* RMPP GS classes */
 		if (!ib_rmpp_is_flag_set((ib_rmpp_mad_t *) p_sa,
 					 IB_RMPP_FLAG_ACTIVE)) {
 			/* Clear RMPP header when RMPP not ACTIVE */
