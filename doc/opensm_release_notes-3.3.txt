@@ -2,7 +2,7 @@
                        =============================
 
 Version: OpenSM 3.3.x
-Repo:    git://git.openfabrics.org/~alexnetes/opensm.git
+Repo:    git://git.openfabrics.org/~halr/opensm.git
 Date:    Jan 2014
 
 1 Overview
