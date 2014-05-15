@@ -430,6 +430,7 @@ static osm_madw_t *perfmgr_build_mad(osm_perfmgr_t * perfmgr,
 static ib_api_status_t perfmgr_send_mad(osm_perfmgr_t *perfmgr,
 					osm_madw_t * const p_madw)
 {
+	cl_status_t sts;
 	ib_api_status_t status = osm_vendor_send(perfmgr->bind_handle, p_madw,
 						 TRUE);
 	if (status == IB_SUCCESS) {
@@ -440,8 +441,11 @@ static ib_api_status_t perfmgr_send_mad(osm_perfmgr_t *perfmgr,
 			cl_spinlock_acquire(&perfmgr->lock);
 			perfmgr->sweep_state = PERFMGR_SWEEP_SUSPENDED;
 			cl_spinlock_release(&perfmgr->lock);
-			cl_event_wait_on(&perfmgr->sig_query, EVENT_NO_TIMEOUT,
-					 TRUE);
+wait:
+			sts = cl_event_wait_on(&perfmgr->sig_query,
+					       EVENT_NO_TIMEOUT, TRUE);
+			if (sts != CL_SUCCESS)
+				goto wait;
 
 			cl_spinlock_acquire(&perfmgr->lock);
 			if (perfmgr->sweep_state == PERFMGR_SWEEP_SUSPENDED) {
