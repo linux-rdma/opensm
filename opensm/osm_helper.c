@@ -3126,7 +3126,7 @@ static const char *lsea_str_fixed_width[] = {
 const char *osm_get_lsa_str(IN uint8_t lsa, IN uint8_t lsea, IN uint8_t state,
 			    IN uint8_t fdr10)
 {
-	if (lsa > IB_LINK_SPEED_ACTIVE_10)
+	if (lsa > IB_LINK_SPEED_ACTIVE_10 || state == IB_LINK_DOWN)
 		return lsa_str_fixed_width[3];
 	if (lsea == IB_LINK_SPEED_EXT_ACTIVE_NONE) {
 		if (fdr10)
