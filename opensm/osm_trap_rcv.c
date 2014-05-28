@@ -338,7 +338,10 @@ static int shutup_noisy_port(osm_sm_t *sm, ib_net16_t lid, uint8_t port,
 			cl_ntoh16(lid), port);
 		if (disable_port(sm, p))
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3811: "
-				"Failed to disable.\n");
+				"Failed to disable noisy physical port 0x%016"
+				PRIx64 ": lid %u, num %u\n",
+				cl_ntoh64(osm_physp_get_port_guid(p)),
+				cl_ntoh16(lid), port);
 		else
 			return 1;
 	}
