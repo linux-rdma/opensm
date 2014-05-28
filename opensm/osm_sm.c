@@ -111,7 +111,7 @@ static void sm_sweeper(IN void *p_ptr)
 		if (status == CL_SUCCESS)
 			OSM_LOG(p_sm->p_log, OSM_LOG_DEBUG,
 				"Off schedule sweep signalled\n");
-		else if (status != CL_TIMEOUT) {
+		else {
 			OSM_LOG(p_sm->p_log, OSM_LOG_ERROR, "ERR 2E01: "
 				"Event wait failed (%s)\n",
 				CL_STATUS_MSG(status));
