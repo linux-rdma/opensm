@@ -1071,10 +1071,6 @@ void osm_perfmgr_process(osm_perfmgr_t * pm)
 	remove_marked_nodes(pm);
 
 #ifdef ENABLE_OSM_PERF_MGR_PROFILE
-	/* spin on outstanding queries */
-	while (pm->outstanding_queries > 0)
-		cl_event_wait_on(&pm->sig_sweep, 1000, TRUE);
-
 	gettimeofday(&after, NULL);
 	diff_time(&before, &after, &after);
 	osm_log_v2(pm->log, OSM_LOG_INFO, FILE_ID,
@@ -1876,8 +1872,6 @@ ib_api_status_t osm_perfmgr_init(osm_perfmgr_t * pm, osm_opensm_t * osm,
 
 	memset(pm, 0, sizeof(*pm));
 
-	cl_event_construct(&pm->sig_sweep);
-	cl_event_init(&pm->sig_sweep, FALSE);
 	pm->subn = &osm->subn;
 	pm->sm = &osm->sm;
 	pm->log = &osm->log;

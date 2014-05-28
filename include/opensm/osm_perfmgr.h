@@ -125,7 +125,6 @@ struct osm_opensm;
 *  be manipulated only through the provided functions.
 */
 typedef struct osm_perfmgr {
-	cl_event_t sig_sweep;
 	cl_timer_t sweep_timer;
 	struct osm_opensm *osm;
 	osm_subn_t *subn;
