@@ -978,7 +978,7 @@ static ib_api_status_t mcast_mgr_process_mlid(osm_sm_t * sm, uint16_t mlid)
 	OSM_LOG_ENTER(sm->p_log);
 
 	OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-		"Processing multicast group with lid 0x%X\n", mlid);
+		"Processing multicast group with mlid 0x%X\n", mlid);
 
 	/* Clear the multicast tables to start clean, then build
 	   the spanning tree which sets the mcast table bits for each
