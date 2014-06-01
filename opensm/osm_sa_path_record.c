@@ -1113,7 +1113,7 @@ static void pr_rcv_get_port_pair_paths(IN osm_sa_t * sa,
 					  &src_lid_min_ho, &src_lid_max_ho);
 
 	if (src_lid_min_ho == 0) {
-		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F20:"
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Obtained source LID of 0. No such LID possible "
 			"(%s port %d)\n",
 			p_src_alias_guid->p_base_port->p_node->print_desc,
@@ -1122,7 +1122,7 @@ static void pr_rcv_get_port_pair_paths(IN osm_sa_t * sa,
 	}
 
 	if (dest_lid_min_ho == 0) {
-		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F21:"
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 			"Obtained destination LID of 0. No such LID possible "
 			"(%s port %d)\n",
 			p_dest_alias_guid->p_base_port->p_node->print_desc,
