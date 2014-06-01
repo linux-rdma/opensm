@@ -61,6 +61,12 @@ static void vl15_send_mad(osm_vl15_t * p_vl, osm_madw_t * p_madw)
 	ib_api_status_t status;
 	boolean_t resp_expected = p_madw->resp_expected;
 	ib_smp_t * p_smp;
+	ib_net16_t attr_id;
+	uint8_t method;
+
+	p_smp = osm_madw_get_smp_ptr(p_madw);
+	method = p_smp->method;
+	attr_id = p_smp->attr_id;
 
 	/*
 	   Non-response-expected mads are not throttled on the wire
@@ -113,12 +119,10 @@ static void vl15_send_mad(osm_vl15_t * p_vl, osm_madw_t * p_madw)
 	}
 
 	/* need to cause heavy-sweep if resp_expected MAD sending failed */
-	p_smp = osm_madw_get_smp_ptr(p_madw);
 	OSM_LOG(p_vl->p_log, OSM_LOG_ERROR, "ERR 3E04: "
 		"%s method failed for attribute 0x%X (%s)\n",
-		p_smp->method == IB_MAD_METHOD_SET ? "SET" : "GET",
-		cl_ntoh16(p_smp->attr_id),
-		ib_get_sm_attr_str(p_smp->attr_id));
+		method == IB_MAD_METHOD_SET ? "SET" : "GET",
+		cl_ntoh16(attr_id), ib_get_sm_attr_str(attr_id));
 
 	p_vl->p_subn->subnet_initialization_error = TRUE;
 
