@@ -396,7 +396,7 @@ static void del_guidinfo(IN osm_sa_t *sa, IN osm_madw_t *p_madw,
 	max_block = (p_port->p_physp->port_info.guid_cap + GUID_TABLE_MAX_ENTRIES - 1) /
 		     GUID_TABLE_MAX_ENTRIES;
 
-	if (block_num > max_block) {
+	if (block_num >= max_block) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 5116: "
 			"block_num %d is higher than Max GUID Cap block %d "
 			"for port GUID 0x%" PRIx64 "\n",
@@ -503,7 +503,7 @@ static void set_guidinfo(IN osm_sa_t *sa, IN osm_madw_t *p_madw,
 
 	max_block = (p_port->p_physp->port_info.guid_cap + GUID_TABLE_MAX_ENTRIES - 1) /
 		     GUID_TABLE_MAX_ENTRIES;
-	if (block_num > max_block) {
+	if (block_num >= max_block) {
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 5118: "
 			"block_num %d is higher than Max GUID Cap block %d "
 			"for port GUID 0x%" PRIx64 "\n",
