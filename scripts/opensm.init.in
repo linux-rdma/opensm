@@ -80,6 +80,7 @@ start () {
     fi
     echo -n "Starting opensm: "
     @sbindir@/opensm --daemon --pidfile $pidfile $OPTIONS > /dev/null
+    RETVAL=$?
     if [[ $RETVAL -eq 0 ]]; then
         success
     else
@@ -91,6 +92,7 @@ start () {
 stop () {
     echo -n "Shutting down opensm: "
     killproc opensm
+    RETVAL=$?
     if [[ $RETVAL -eq 0 ]]; then
         success
     else
