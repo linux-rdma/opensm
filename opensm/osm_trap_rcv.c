@@ -390,7 +390,7 @@ static void trap_rcv_process_request(IN osm_sm_t * sm,
 		   Otherwise we start a sweep on the trap 144 caused by
 		   cleaning up SM Cap bit...
 		 */
-		goto Exit;
+		goto Exit2;
 
 	/* update the is_gsi flag according to the mgmt_class field */
 	if (p_madw->p_mad->mgmt_class == IB_MCLASS_SUBN_LID ||
@@ -406,7 +406,7 @@ static void trap_rcv_process_request(IN osm_sm_t * sm,
 	if (p_smp->method != IB_MAD_METHOD_TRAP) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3801: "
 			"Unsupported method 0x%X\n", p_smp->method);
-		goto Exit;
+		goto Exit2;
 	}
 
 	/*
@@ -432,7 +432,7 @@ static void trap_rcv_process_request(IN osm_sm_t * sm,
 			if (sm->p_subn->sm_base_lid == 0) {
 				OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 					"Received SLID=0 Trap with local LID=0. Ignoring MAD\n");
-				goto Exit;
+				goto Exit2;
 			}
 			OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 				"Received SLID=0 Trap. Using local LID:%u instead\n",
@@ -665,6 +665,7 @@ check_report:
 
 Exit:
 	CL_PLOCK_RELEASE(sm->p_lock);
+Exit2:
 	OSM_LOG_EXIT(sm->p_log);
 }
 
