@@ -727,10 +727,14 @@ osm_vendor_open_port(IN osm_vendor_t * const p_vend,
 	for (ca = 0; ca < p_vend->ca_count; ca++) {
 		if ((r = umad_get_ca_portguids(p_vend->ca_names[ca], portguids,
 					       OSM_UMAD_MAX_PORTS_PER_CA + 1)) < 0) {
+#ifdef __WIN__
+			OSM_LOG(p_vend->p_log, OSM_LOG_VERBOSE,
+#else
 			OSM_LOG(p_vend->p_log, OSM_LOG_ERROR, "ERR 5421: "
+#endif
 				"Unable to get CA %s port guids (%s)\n",
 				p_vend->ca_names[ca], strerror(r));
-			goto Exit;
+			continue;
 		}
 		for (i = 0; i < r; i++)
 			if (port_guid == portguids[i]) {
