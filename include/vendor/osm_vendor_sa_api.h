@@ -740,6 +740,8 @@ typedef struct _osmv_query_req {
 
 	const void *query_context;
 	osmv_pfn_query_cb_t pfn_query_cb;
+	int with_grh;
+	ib_gid_t gid;
 } osmv_query_req_t;
 /*
 * FIELDS
@@ -776,6 +778,12 @@ typedef struct _osmv_query_req {
 *	pfn_query_cb
 *		A user-defined callback that is invoked upon completion of the
 *		query.
+*
+*	with_grh
+*		Indicates that SA queries should be sent with GRH.
+*
+*	gid
+*		Used to store the SM/SA GID.
 *
 * NOTES
 *	This structure is used when requesting an osm vendor provided query

@@ -78,6 +78,7 @@ typedef struct _osmtest_opt {
 	uint32_t transaction_timeout;
 	boolean_t force_log_flush;
 	boolean_t create;
+	boolean_t with_grh;
 	uint32_t retry_count;
 	uint32_t stress;
 	uint32_t mmode;
@@ -129,6 +130,7 @@ typedef struct _osmtest {
 	osmtest_opt_t opt;
 	ib_port_attr_t local_port;
 	ib_gid_t local_port_gid;
+	ib_gid_t sm_port_gid;
 	subnet_t exp_subn;
 	cl_qpool_t node_pool;
 	cl_qpool_t port_pool;

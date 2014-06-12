@@ -145,6 +145,10 @@ void show_usage()
 	       "          -s3  - Multi-MAD (RMPP) Path Record SA queries\n"
 	       "          -s4  - Single-MAD (non RMPP) get Path Record SA queries\n"
 	       "          Without -s, stress testing is not performed\n\n");
+	printf("-G\n"
+	       "--grh\n"
+	       "          sends all SA queries with GRH with exception of\n"
+	       "	  GetMulti MultiPathRecord\n\n");
 	printf("-M\n"
 	       "--Multicast_Mode\n"
 	       "          This option specify length of Multicast test:\n"
@@ -277,7 +281,7 @@ int main(int argc, char *argv[])
 	int32_t vendor_debug = 0;
 	char flow_name[64];
 	uint32_t next_option;
-	const char *const short_option = "f:l:m:M:d:g:s:t:i:pcvVh";
+	const char *const short_option = "f:l:m:M:d:g:s:t:i:pcvGVh";
 
 	/*
 	 * In the array below, the 2nd parameter specified the number
@@ -297,6 +301,7 @@ int main(int argc, char *argv[])
 		{"port", 0, NULL, 'p'},
 		{"help", 0, NULL, 'h'},
 		{"stress", 1, NULL, 's'},
+		{"grh", 0, NULL, 'G'},
 		{"Multicast_Mode", 1, NULL, 'M'},
 		{"timeout", 1, NULL, 't'},
 		{"verbose", 0, NULL, 'v'},
@@ -330,6 +335,7 @@ int main(int argc, char *argv[])
 	opt.ignore_path_records = FALSE;	/*  Do path Records too */
 	opt.full_world_path_recs = FALSE;
 	opt.flow = OSMT_FLOW_ALL;	/*  run all validation tests */
+	opt.with_grh = FALSE;
 	strcpy(flow_name, "All Validations");
 	strcpy(opt.file_name, "osmtest.dat");
 
@@ -558,7 +564,9 @@ int main(int argc, char *argv[])
 			    ("\t\t\t\tVerbose option -vf (log flags = 0x%X)\n",
 			     log_flags);
 			break;
-
+		case 'G':
+			opt.with_grh = TRUE;
+			break;
 		case -1:
 			printf("Done with args\n");
 			break;

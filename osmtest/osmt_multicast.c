@@ -76,6 +76,10 @@ static void __osmt_print_all_multicast_records(IN osmtest_t * const p_osmt)
 	req.pfn_query_cb = osmtest_query_res_cb;
 	req.p_query_input = &user;
 
+	if (p_osmt->opt.with_grh) {
+		req.with_grh = 1;
+		memcpy(&req.gid, &p_osmt->sm_port_gid, 16);
+	}
 	/* UnTrusted (SMKey of 0)  - get the multicast groups */
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 
@@ -175,6 +179,11 @@ ib_api_status_t osmt_query_mcast(IN osmtest_t * const p_osmt)
 	req.query_context = &context;
 	req.pfn_query_cb = osmtest_query_res_cb;
 	req.p_query_input = &user;
+
+	if (p_osmt->opt.with_grh) {
+		req.with_grh = 1;
+		memcpy(&req.gid, &p_osmt->sm_port_gid, 16);
+	}
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 
@@ -326,6 +335,11 @@ osmt_send_mcast_request(IN osmtest_t * const p_osmt,
 	req.query_context = &context;
 	req.pfn_query_cb = osmtest_query_res_cb;
 	req.p_query_input = &user;
+
+	if (p_osmt->opt.with_grh) {
+		req.with_grh = 1;
+		memcpy(&req.gid, &p_osmt->sm_port_gid, 16);
+	}
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 

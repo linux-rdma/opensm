@@ -571,6 +571,11 @@ osmtest_get_all_recs(IN osmtest_t * const p_osmt,
 	req.p_query_input = &user;
 	req.sm_key = 0;
 
+	if (p_osmt->opt.with_grh) {
+		req.with_grh = 1;
+		memcpy(&req.gid, &p_osmt->sm_port_gid, 16);
+	}
+
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
 		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0004: "
@@ -630,6 +635,12 @@ ib_api_status_t osmtest_validate_sa_class_port_info(IN osmtest_t * const p_osmt)
 	req.pfn_query_cb = osmtest_query_res_cb;
 	req.p_query_input = 0;
 	req.sm_key = 0;
+
+	if (p_osmt->opt.flow != OSMT_FLOW_CREATE_INVENTORY &&
+	    p_osmt->opt.with_grh) {
+		req.with_grh = 1;
+		memcpy(&req.gid, &p_osmt->sm_port_gid, 16);
+	}
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
@@ -727,6 +738,11 @@ osmtest_get_node_rec(IN osmtest_t * const p_osmt,
 	req.p_query_input = &user;
 	req.sm_key = 0;
 
+	if (p_osmt->opt.with_grh) {
+		req.with_grh = 1;
+		memcpy(&req.gid, &p_osmt->sm_port_gid, 16);
+	}
+
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
 		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0071: "
@@ -800,6 +816,11 @@ osmtest_get_node_rec_by_lid(IN osmtest_t * const p_osmt,
 	req.p_query_input = &user;
 	req.sm_key = 0;
 
+	if (p_osmt->opt.with_grh) {
+		req.with_grh = 1;
+		memcpy(&req.gid, &p_osmt->sm_port_gid, 16);
+	}
+
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
 		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0073: "
@@ -865,6 +886,11 @@ osmtest_get_path_rec_by_half_world_query(IN osmtest_t * const p_osmt,
 	req.p_query_input = &user;
 	req.sm_key = 0;
 
+	if (p_osmt->opt.with_grh) {
+		req.with_grh = 1;
+		memcpy(&req.gid, &p_osmt->sm_port_gid, 16);
+	}
+
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
 		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0063: "
@@ -927,6 +953,11 @@ osmtest_get_path_rec_by_guid_pair(IN osmtest_t * const p_osmt,
 	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
 		"Query for path from 0x%" PRIx64 " to 0x%" PRIx64 "\n",
 		cl_ntoh64(sguid), cl_ntoh64(dguid));
+
+	if (p_osmt->opt.with_grh) {
+		req.with_grh = 1;
+		memcpy(&req.gid, &p_osmt->sm_port_gid, 16);
+	}
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
@@ -994,6 +1025,11 @@ osmtest_get_path_rec_by_gid_pair(IN osmtest_t * const p_osmt,
 		cl_ntoh64(sgid.unicast.interface_id),
 		cl_ntoh64(dgid.unicast.prefix),
 		cl_ntoh64(dgid.unicast.interface_id));
+
+	if (p_osmt->opt.with_grh) {
+		req.with_grh = 1;
+		memcpy(&req.gid, &p_osmt->sm_port_gid, 16);
+	}
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
@@ -1128,6 +1164,11 @@ osmtest_get_port_rec(IN osmtest_t * const p_osmt,
 	req.p_query_input = &user;
 	req.sm_key = 0;
 
+	if (p_osmt->opt.with_grh) {
+		req.with_grh = 1;
+		memcpy(&req.gid, &p_osmt->sm_port_gid, 16);
+	}
+
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
 		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0075: "
@@ -1199,6 +1240,11 @@ osmtest_get_port_rec_by_num(IN osmtest_t * const p_osmt,
 	req.pfn_query_cb = osmtest_query_res_cb;
 	req.p_query_input = &user;
 	req.sm_key = 0;
+
+	if (p_osmt->opt.with_grh) {
+		req.with_grh = 1;
+		memcpy(&req.gid, &p_osmt->sm_port_gid, 16);
+	}
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
@@ -1690,6 +1736,11 @@ ib_api_status_t osmtest_wrong_sm_key_ignored(IN osmtest_t * const p_osmt)
 	req.sm_key = 9999;
 	context.result.p_result_madw = NULL;
 
+	if (p_osmt->opt.with_grh) {
+		req.with_grh = 1;
+		memcpy(&req.gid, &p_osmt->sm_port_gid, 16);
+	}
+
 	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_START "\n");
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_END "\n");
@@ -2046,6 +2097,10 @@ osmtest_get_path_rec_by_lid_pair(IN osmtest_t * const p_osmt,
 
 	req.p_query_input = &lid_pair;
 	req.sm_key = 0;
+	if (p_osmt->opt.with_grh) {
+		req.with_grh = 1;
+		memcpy(&req.gid, &p_osmt->sm_port_gid, 16);
+	}
 
 	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
 		"Query for path from 0x%X to 0x%X\n",
@@ -4306,6 +4361,11 @@ osmtest_get_link_rec_by_lid(IN osmtest_t * const p_osmt,
 	req.p_query_input = &user;
 	req.sm_key = 0;
 
+	if (p_osmt->opt.with_grh) {
+		req.with_grh = 1;
+		memcpy(&req.gid, &p_osmt->sm_port_gid, 16);
+	}
+
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
 		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 007A: "
@@ -4383,6 +4443,11 @@ osmtest_get_guidinfo_rec_by_lid(IN osmtest_t * const p_osmt,
 	req.pfn_query_cb = osmtest_query_res_cb;
 	req.p_query_input = &user;
 	req.sm_key = 0;
+
+	if (p_osmt->opt.with_grh) {
+		req.with_grh = 1;
+		memcpy(&req.gid, &p_osmt->sm_port_gid, 16);
+	}
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
@@ -4462,6 +4527,11 @@ osmtest_get_pkeytbl_rec_by_lid(IN osmtest_t * const p_osmt,
 	req.p_query_input = &user;
 	req.sm_key = sm_key;
 
+	if (p_osmt->opt.with_grh) {
+		req.with_grh = 1;
+		memcpy(&req.gid, &p_osmt->sm_port_gid, 16);
+	}
+
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
 		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 007E: "
@@ -4539,6 +4609,11 @@ osmtest_get_sw_info_rec_by_lid(IN osmtest_t * const p_osmt,
 	req.pfn_query_cb = osmtest_query_res_cb;
 	req.p_query_input = &user;
 	req.sm_key = 0;
+
+	if (p_osmt->opt.with_grh) {
+		req.with_grh = 1;
+		memcpy(&req.gid, &p_osmt->sm_port_gid, 16);
+	}
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
@@ -4618,6 +4693,11 @@ osmtest_get_lft_rec_by_lid(IN osmtest_t * const p_osmt,
 	req.p_query_input = &user;
 	req.sm_key = 0;
 
+	if (p_osmt->opt.with_grh) {
+		req.with_grh = 1;
+		memcpy(&req.gid, &p_osmt->sm_port_gid, 16);
+	}
+
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
 		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 008A: "
@@ -4695,6 +4775,11 @@ osmtest_get_mft_rec_by_lid(IN osmtest_t * const p_osmt,
 	req.pfn_query_cb = osmtest_query_res_cb;
 	req.p_query_input = &user;
 	req.sm_key = 0;
+
+	if (p_osmt->opt.with_grh) {
+		req.with_grh = 1;
+		memcpy(&req.gid, &p_osmt->sm_port_gid, 16);
+	}
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
@@ -4786,6 +4871,11 @@ osmtest_sminfo_record_request(IN osmtest_t * const p_osmt,
 	req.pfn_query_cb = osmtest_query_res_cb;
 	req.p_query_input = &user;
 	req.sm_key = 0;
+
+	if (p_osmt->opt.with_grh) {
+		req.with_grh = 1;
+		memcpy(&req.gid, &p_osmt->sm_port_gid, 16);
+	}
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
@@ -4895,6 +4985,11 @@ osmtest_informinfo_request(IN osmtest_t * const p_osmt,
 	req.pfn_query_cb = osmtest_query_res_cb;
 	req.p_query_input = &user;
 	req.sm_key = 0;
+
+	if (p_osmt->opt.with_grh) {
+		req.with_grh = 1;
+		memcpy(&req.gid, &p_osmt->sm_port_gid, 16);
+	}
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
@@ -5025,6 +5120,11 @@ osmtest_validate_single_node_rec_lid(IN osmtest_t * const p_osmt,
 	req.pfn_query_cb = osmtest_query_res_cb;
 	req.p_query_input = &user;
 	req.sm_key = 0;
+
+	if (p_osmt->opt.with_grh) {
+		req.with_grh = 1;
+		memcpy(&req.gid, &p_osmt->sm_port_gid, 16);
+	}
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 
@@ -5163,6 +5263,11 @@ osmtest_validate_single_path_rec_guid_pair(IN osmtest_t * const p_osmt,
 	req.p_query_input = p_pair;
 	req.sm_key = 0;
 
+	if (p_osmt->opt.with_grh) {
+		req.with_grh = 1;
+		memcpy(&req.gid, &p_osmt->sm_port_gid, 16);
+	}
+
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
 		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0110: "
@@ -5242,6 +5347,49 @@ Exit:
 		context.result.p_result_madw = NULL;
 	}
 
+	OSM_LOG_EXIT(&p_osmt->log);
+	return (status);
+}
+
+static ib_api_status_t
+osmtest_get_sm_gid(IN osmtest_t * const p_osmt)
+{
+	cl_status_t status = IB_SUCCESS;
+	node_t *p_node;
+	const cl_qmap_t *p_tbl;
+	ib_port_attr_t *local_port;
+
+	OSM_LOG_ENTER(&p_osmt->log);
+
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
+		"Calculate SM GID for use in subsequent SA queries\n");
+
+	local_port = &p_osmt->local_port;
+	p_osmt->sm_port_gid.unicast.prefix =
+		cl_hton64(p_osmt->local_port_gid.unicast.prefix);
+
+	if (local_port->lid != local_port->sm_lid) {
+		p_tbl = &p_osmt->exp_subn.node_lid_tbl;
+		p_node = (node_t *) cl_qmap_get(p_tbl, local_port->sm_lid);
+		if (p_node == (node_t *) cl_qmap_end(p_tbl)) {
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
+				"ERR 0154: SM LID 0x%X doesn't exist\n",
+				local_port->sm_lid);
+			status = IB_ERROR;
+			goto Exit;
+		}
+		p_osmt->sm_port_gid.unicast.interface_id = p_node->rec.node_info.port_guid;
+	} else {
+		p_osmt->sm_port_gid.unicast.interface_id =
+			cl_hton64(p_osmt->local_port_gid.unicast.interface_id);
+	}
+
+	OSM_LOG(&p_osmt->log, OSM_LOG_VERBOSE,
+		"SM GID 0x%016" PRIx64 " 0x%016" PRIx64 "\n",
+		cl_ntoh64(p_osmt->sm_port_gid.unicast.prefix),
+		cl_ntoh64(p_osmt->sm_port_gid.unicast.interface_id));
+
+Exit:
 	OSM_LOG_EXIT(&p_osmt->log);
 	return (status);
 }
@@ -7299,6 +7447,17 @@ ib_api_status_t osmtest_run(IN osmtest_t * const p_osmt)
 	ib_api_status_t status = IB_SUCCESS;
 
 	OSM_LOG_ENTER(&p_osmt->log);
+	if (p_osmt->opt.flow != OSMT_FLOW_CREATE_INVENTORY &&
+	    p_osmt->opt.with_grh) {
+		/* Get SM GID for GRH DGID */
+		status = osmtest_get_sm_gid(p_osmt);
+		if (status != IB_SUCCESS) {
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
+				"ERR 0153: calculating SM GID failed: (%s)\n",
+				ib_get_err_str(status));
+			goto Exit;
+		}
+	}
 
 	status = osmtest_validate_sa_class_port_info(p_osmt);
 	if (status != IB_SUCCESS) {

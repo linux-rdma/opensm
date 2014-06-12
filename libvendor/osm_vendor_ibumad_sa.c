@@ -415,6 +415,20 @@ __osmv_send_sa_req(IN osmv_sa_bind_info_t * p_bind,
 	p_madw->fail_msg = CL_DISP_MSGID_NONE;
 
 	/*
+	   add grh
+	 */
+	if (p_query_req->with_grh) {
+		OSM_LOG(p_log, OSM_LOG_DEBUG, "sending sa query with GRH "
+			"GID : 0x%016" PRIx64 " 0x%016" PRIx64 "\n",
+			p_query_req->gid.unicast.prefix,
+			p_query_req->gid.unicast.interface_id);
+		p_madw->mad_addr.addr_type.gsi.global_route = 1;
+		memset(&p_madw->mad_addr.addr_type.gsi.grh_info, 0,
+		       sizeof(p_madw->mad_addr.addr_type.gsi.grh_info));
+		memcpy(&p_madw->mad_addr.addr_type.gsi.grh_info.dest_gid, &(p_query_req->gid), 16);
+	}
+
+	/*
 	   Provide MAD context such that the call back will know what to do.
 	   We have to keep the entire request structure so we know the CB.
 	   Since we can not rely on the client to keep it around until

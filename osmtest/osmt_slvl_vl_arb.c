@@ -135,6 +135,11 @@ osmt_query_vl_arb(IN osmtest_t * const p_osmt,
 	req.p_query_input = &user;
 	req.sm_key = 0;
 
+	if (p_osmt->opt.with_grh) {
+		req.with_grh = 1;
+		memcpy(&req.gid, &p_osmt->sm_port_gid, 16);
+	}
+
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 
 	if (status != IB_SUCCESS) {
@@ -335,6 +340,11 @@ osmt_query_slvl_map(IN osmtest_t * const p_osmt,
 	req.pfn_query_cb = osmtest_query_res_cb;
 	req.p_query_input = &user;
 	req.sm_key = 0;
+
+	if (p_osmt->opt.with_grh) {
+		req.with_grh = 1;
+		memcpy(&req.gid, &p_osmt->sm_port_gid, 16);
+	}
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 

@@ -124,6 +124,11 @@ osmt_register_service(IN osmtest_t * const p_osmt,
 	}
 	user.p_attr = &svc_rec;
 
+	if (p_osmt->opt.with_grh) {
+		req.with_grh = 1;
+		memcpy(&req.gid, &p_osmt->sm_port_gid, 16);
+	}
+
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
 		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A01: "
@@ -227,6 +232,11 @@ osmt_register_service_with_full_key(IN osmtest_t * const p_osmt,
 		    IB_SR_COMPMASK_SKEY | IB_SR_COMPMASK_SNAME;
 	}
 	user.p_attr = &svc_rec;
+
+	if (p_osmt->opt.with_grh) {
+		req.with_grh = 1;
+		memcpy(&req.gid, &p_osmt->sm_port_gid, 16);
+	}
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
@@ -379,6 +389,11 @@ osmt_register_service_with_data(IN osmtest_t * const p_osmt,
 		"Dumping service data b4 send\n");
 	osm_dump_service_record(&p_osmt->log, &svc_rec, OSM_LOG_VERBOSE);
 
+	if (p_osmt->opt.with_grh) {
+		req.with_grh = 1;
+		memcpy(&req.gid, &p_osmt->sm_port_gid, 16);
+	}
+
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
 		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A05: "
@@ -485,6 +500,11 @@ osmt_get_service_by_id_and_name(IN osmtest_t * const p_osmt,
 	user.attr_id = IB_MAD_ATTR_SERVICE_RECORD;
 	user.comp_mask = IB_SR_COMPMASK_SID | IB_SR_COMPMASK_SNAME;
 	user.p_attr = &svc_rec;
+
+	if (p_osmt->opt.with_grh) {
+		req.with_grh = 1;
+		memcpy(&req.gid, &p_osmt->sm_port_gid, 16);
+	}
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
@@ -605,6 +625,11 @@ osmt_get_service_by_id(IN osmtest_t * const p_osmt,
 	user.attr_id = IB_MAD_ATTR_SERVICE_RECORD;
 	user.comp_mask = IB_SR_COMPMASK_SID;
 	user.p_attr = &svc_rec;
+
+	if (p_osmt->opt.with_grh) {
+		req.with_grh = 1;
+		memcpy(&req.gid, &p_osmt->sm_port_gid, 16);
+	}
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
@@ -736,6 +761,12 @@ osmt_get_service_by_name_and_key(IN osmtest_t * const p_osmt,
 	user.attr_id = IB_MAD_ATTR_SERVICE_RECORD;
 	user.comp_mask = IB_SR_COMPMASK_SNAME | IB_SR_COMPMASK_SKEY;
 	user.p_attr = &svc_rec;
+
+	if (p_osmt->opt.with_grh) {
+		req.with_grh = 1;
+		memcpy(&req.gid, &p_osmt->sm_port_gid, 16);
+	}
+
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
 		OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 4A0C: "
@@ -849,6 +880,11 @@ osmt_get_service_by_name(IN osmtest_t * const p_osmt,
 	memset(service_name, 0, sizeof(service_name));
 	memcpy(service_name, sr_name, (strlen(sr_name) + 1) * sizeof(char));
 	req.p_query_input = service_name;
+
+	if (p_osmt->opt.with_grh) {
+		req.with_grh = 1;
+		memcpy(&req.gid, &p_osmt->sm_port_gid, 16);
+	}
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
@@ -965,6 +1001,11 @@ osmt_get_all_services_and_check_names(IN osmtest_t * const p_osmt,
 	req.query_context = &context;
 	req.pfn_query_cb = osmtest_query_res_cb;
 	req.sm_key = 0;
+
+	if (p_osmt->opt.with_grh) {
+		req.with_grh = 1;
+		memcpy(&req.gid, &p_osmt->sm_port_gid, 16);
+	}
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
@@ -1088,6 +1129,11 @@ osmt_delete_service_by_name(IN osmtest_t * const p_osmt,
 	user.attr_id = IB_MAD_ATTR_SERVICE_RECORD;
 	user.comp_mask = IB_SR_COMPMASK_SNAME;
 	user.p_attr = &svc_rec;
+
+	if (p_osmt->opt.with_grh) {
+		req.with_grh = 1;
+		memcpy(&req.gid, &p_osmt->sm_port_gid, 16);
+	}
 
 	status = osmv_query_sa(p_osmt->h_bind, &req);
 	if (status != IB_SUCCESS) {
