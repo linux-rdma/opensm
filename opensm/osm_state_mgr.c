@@ -1057,7 +1057,7 @@ static void state_mgr_check_tbl_consistency(IN osm_sm_t * sm)
 			 * same for this lid. Nothing to do. */
 			continue;
 
-		if (p_port_ref == NULL)
+		if (p_port_ref == NULL) {
 			/* There is an object in the subnet database for this
 			 * lid, but no such object exists in the reference
 			 * port_list_tbl. This can occur if we wanted to assign
@@ -1074,7 +1074,8 @@ static void state_mgr_check_tbl_consistency(IN osm_sm_t * sm)
 				cl_ntoh64(osm_port_get_guid(p_port_stored)),
 				p_port_stored->p_node->print_desc,
 				p_port_stored->p_physp->port_num);
-		else if (p_port_stored == NULL)
+			cl_ptr_vector_set(p_port_lid_tbl, lid, NULL);
+		} else if (p_port_stored == NULL)
 			/* There is an object in the new database, but no
 			 * object in our subnet database. This is the matching
 			 * case of the prior check - the port still has its
@@ -1086,7 +1087,7 @@ static void state_mgr_check_tbl_consistency(IN osm_sm_t * sm)
 				cl_ntoh64(osm_port_get_guid(p_port_ref)),
 				p_port_ref->p_node->print_desc,
 				p_port_ref->p_physp->port_num, lid);
-		else
+		else {
 			/* if we reached here then p_port_stored != p_port_ref.
 			 * We were trying to set a lid to p_port_stored, but
 			 * it didn't reach it, and p_port_ref also didn't get
@@ -1102,11 +1103,9 @@ static void state_mgr_check_tbl_consistency(IN osm_sm_t * sm)
 				cl_ntoh64(osm_port_get_guid(p_port_stored)),
 				p_port_stored->p_node->print_desc,
 				p_port_stored->p_physp->port_num);
-
-		/* In any of these cases we want to set NULL in the
-		 * port_lid_tbl, since this entry is invalid. Also, make sure
-		 * we'll do another heavy sweep. */
-		cl_ptr_vector_set(p_port_lid_tbl, lid, NULL);
+			cl_ptr_vector_set(p_port_lid_tbl, lid, NULL);
+		}
+		/* Make sure we'll do another heavy sweep. */
 		sm->p_subn->subnet_initialization_error = TRUE;
 	}
 
