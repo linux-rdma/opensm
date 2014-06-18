@@ -889,6 +889,7 @@ static int lid_mgr_set_physp_pi(IN osm_lid_mgr_t * p_mgr,
 		 */
 		osm_physp_set_base_lid(p_physp, 0);
 		send_set = TRUE;
+		p_mgr->dirty = TRUE;
 	}
 
 	/* we are updating the ports with our local sm_base_lid */

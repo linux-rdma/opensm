@@ -98,6 +98,7 @@ typedef struct osm_lid_mgr {
 	cl_plock_t *p_lock;
 	osm_db_domain_t *p_g2l;
 	cl_qlist_t free_ranges;
+	boolean_t dirty;
 	uint8_t used_lids[IB_LID_UCAST_END_HO + 1];
 } osm_lid_mgr_t;
 /*
@@ -120,15 +121,18 @@ typedef struct osm_lid_mgr {
 *	p_g2l
 *		Pointer to the database domain storing guid to lid mapping.
 *
-*	used_lids
-*		An array of used lids. keeps track of
-*		existing and non existing mapping of guid->lid
-*
 *	free_ranges
 *		A list of available free lid ranges. The list is initialized
 *		by the code that initializes the lid assignment and is consumed
 *		by the procedure that finds a free range. It holds elements of
 *		type osm_lid_mgr_range_t
+*
+*	dirty
+*		 Indicates that lid table was updated
+*
+*	used_lids
+*		 An array of used lids. keeps track of
+*		 existing and non existing mapping of guid->lid
 *
 * SEE ALSO
 *	LID Manager object

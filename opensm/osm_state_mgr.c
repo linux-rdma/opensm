@@ -1019,6 +1019,11 @@ static void state_mgr_check_tbl_consistency(IN osm_sm_t * sm)
 
 	OSM_LOG_ENTER(sm->p_log);
 
+	if (sm->lid_mgr.dirty == FALSE)
+		goto Exit;
+
+	sm->lid_mgr.dirty = FALSE;
+
 	cl_ptr_vector_construct(&ref_port_lid_tbl);
 	cl_ptr_vector_init(&ref_port_lid_tbl,
 			   cl_ptr_vector_get_size(&sm->p_subn->port_lid_tbl),
@@ -1110,6 +1115,8 @@ static void state_mgr_check_tbl_consistency(IN osm_sm_t * sm)
 	}
 
 	cl_ptr_vector_destroy(&ref_port_lid_tbl);
+
+Exit:
 	OSM_LOG_EXIT(sm->p_log);
 }
 

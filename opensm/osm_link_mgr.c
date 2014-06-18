@@ -126,6 +126,7 @@ static int link_mgr_set_physp_pi(osm_sm_t * sm, IN osm_physp_t * p_physp,
 			p_port = osm_get_port_by_guid(sm->p_subn,
 						      osm_physp_get_port_guid(p_physp));
 			p_pi->base_lid = p_port->lid;
+			sm->lid_mgr.dirty = TRUE;
 			send_set = TRUE;
 		}
 
