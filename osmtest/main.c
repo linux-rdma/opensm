@@ -560,9 +560,8 @@ int main(int argc, char *argv[])
 
 		case 'x':
 			log_flags = strtol(optarg, NULL, 0);
-			printf
-			    ("\t\t\t\tVerbose option -vf (log flags = 0x%X)\n",
-			     log_flags);
+			printf("\tVerbose option -vf (log flags = 0x%X)\n",
+			       log_flags);
 			break;
 		case 'G':
 			opt.with_grh = TRUE;
