@@ -503,7 +503,7 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 		case 1:	/* must be less than */
 			if (mtu >= required_mtu) {
 				/* adjust to use the highest mtu
-				   lower then the required one */
+				   lower than the required one */
 				if (required_mtu > 1)
 					mtu = required_mtu - 1;
 				else
@@ -545,7 +545,7 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 		case 1:	/* must be less than */
 			if (ib_path_compare_rates(rate, required_rate) >= 0) {
 				/* adjust the rate to use the highest rate
-				   lower then the required one */
+				   lower than the required one */
 				rate = ib_path_rate_get_prev(required_rate);
 				if (!rate)
 					status = IB_NOT_FOUND;
@@ -586,7 +586,7 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 		case 1:	/* must be less than */
 			if (pkt_life >= required_pkt_life) {
 				/* adjust the lifetime to use the highest possible
-				   lower then the required one */
+				   lower than the required one */
 				if (required_pkt_life > 1)
 					pkt_life = required_pkt_life - 1;
 				else
@@ -988,7 +988,7 @@ static osm_sa_item_t *pr_rcv_get_lid_pair_path(IN osm_sa_t * sa,
 	/* did we get a Reversible Path compmask ? */
 	/*
 	   NOTE that if the reversible component = 0, it is a don't care
-	   rather then requiring non-reversible paths ...
+	   rather than requiring non-reversible paths ...
 	   see Vol1 Ver1.2 p900 l16
 	 */
 	if ((comp_mask & IB_PR_COMPMASK_REVERSIBLE) &&
