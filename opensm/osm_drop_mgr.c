@@ -472,7 +472,7 @@ static void drop_mgr_check_node(osm_sm_t * sm, IN osm_node_t * p_node)
 					"Unlinking local node 0x%" PRIx64
 					", port %u"
 					"\n\t\t\t\tand remote node 0x%" PRIx64
-					", port %u\n due to missing PortInfo",
+					", port %u due to missing PortInfo\n",
 					cl_ntoh64(osm_node_get_node_guid
 						  (p_node)), port_num,
 					cl_ntoh64(osm_node_get_node_guid
