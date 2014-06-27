@@ -1017,6 +1017,9 @@ void osm_perfmgr_process(osm_perfmgr_t * pm)
 	if (pm->sweep_state == PERFMGR_SWEEP_ACTIVE ||
 	    pm->sweep_state == PERFMGR_SWEEP_SUSPENDED) {
 		cl_spinlock_release(&pm->lock);
+		OSM_LOG(pm->log, OSM_LOG_INFO,
+			"PM sweep state %d, skipping sweep\n",
+			pm->sweep_state);
 		return;
 	}
 
