@@ -448,13 +448,8 @@ wait:
 				goto wait;
 
 			cl_spinlock_acquire(&perfmgr->lock);
-			if (perfmgr->sweep_state == PERFMGR_SWEEP_SUSPENDED) {
+			if (perfmgr->sweep_state == PERFMGR_SWEEP_SUSPENDED)
 				perfmgr->sweep_state = PERFMGR_SWEEP_ACTIVE;
-			} else {
-				OSM_LOG(perfmgr->log, OSM_LOG_ERROR, "ERR 54FF: "
-					"PM state %d was NOT Suspended???\n",
-					perfmgr->sweep_state);
-			}
 			cl_spinlock_release(&perfmgr->lock);
 		}
 	}
