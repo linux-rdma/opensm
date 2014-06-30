@@ -165,6 +165,7 @@ static ib_api_status_t mpr_rcv_get_path_parms(IN osm_sa_t * sa,
 	uint8_t i;
 	osm_qos_level_t *p_qos_level = NULL;
 	uint16_t valid_sl_mask = 0xffff;
+	int extended, p0_extended;
 
 	OSM_LOG_ENTER(sa->p_log);
 
@@ -176,8 +177,8 @@ static ib_api_status_t mpr_rcv_get_path_parms(IN osm_sa_t * sa,
 	p_pi = &p_physp->port_info;
 
 	mtu = ib_port_info_get_mtu_cap(p_pi);
-	rate = ib_port_info_compute_rate(p_pi,
-					 p_pi->capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS);
+	extended = p_pi->capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS;
+	rate = ib_port_info_compute_rate(p_pi, extended);
 
 	/*
 	   Mellanox Tavor device performance is better using 1K MTU.
@@ -353,11 +354,11 @@ static ib_api_status_t mpr_rcv_get_path_parms(IN osm_sa_t * sa,
 
 		p_physp0 = osm_node_get_physp_ptr((osm_node_t *)p_node, 0);
 		p_pi0 = &p_physp0->port_info;
+		p0_extended = p_pi0->capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS;
 		if (ib_path_compare_rates(rate,
 					  ib_port_info_compute_rate(p_pi,
-								    p_pi0->capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS)) > 0)
-			rate = ib_port_info_compute_rate(p_pi,
-							 p_pi0->capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS);
+								    p0_extended)) > 0)
+			rate = ib_port_info_compute_rate(p_pi, p0_extended);
 
 		/*
 		   Continue with the egress port on this switch.
@@ -381,11 +382,11 @@ static ib_api_status_t mpr_rcv_get_path_parms(IN osm_sa_t * sa,
 
 		p_physp0 = osm_node_get_physp_ptr((osm_node_t *)p_node, 0);
 		p_pi0 = &p_physp0->port_info;
+		p0_extended = p_pi0->capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS;
 		if (ib_path_compare_rates(rate,
 					  ib_port_info_compute_rate(p_pi,
-								    p_pi0->capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS)) > 0)
-			rate = ib_port_info_compute_rate(p_pi,
-							 p_pi0->capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS);
+								    p0_extended)) > 0)
+			rate = ib_port_info_compute_rate(p_pi, p0_extended);
 
 		if (sa->p_subn->opt.qos) {
 			/*
@@ -417,11 +418,11 @@ static ib_api_status_t mpr_rcv_get_path_parms(IN osm_sa_t * sa,
 	if (mtu > ib_port_info_get_mtu_cap(p_pi))
 		mtu = ib_port_info_get_mtu_cap(p_pi);
 
+	extended = p_pi->capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS;
 	if (ib_path_compare_rates(rate,
 				  ib_port_info_compute_rate(p_pi,
-							    p_pi->capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS)) > 0)
-		rate = ib_port_info_compute_rate(p_pi,
-						 p_pi->capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS);
+							    extended)) > 0)
+		rate = ib_port_info_compute_rate(p_pi, extended);
 
 	OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 		"Path min MTU = %u, min rate = %u\n", mtu, rate);

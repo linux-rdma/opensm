@@ -85,6 +85,7 @@ static void pi_rcv_process_endport(IN osm_sm_t * sm, IN osm_physp_t * p_physp,
 	osm_madw_context_t context;
 	ib_api_status_t status;
 	ib_net64_t port_guid;
+	int extended;
 	uint8_t rate, mtu, mpb;
 	unsigned data_vls;
 	cl_qmap_t *p_sm_tbl;
@@ -106,8 +107,8 @@ static void pi_rcv_process_endport(IN osm_sm_t * sm, IN osm_physp_t * p_physp,
 			sm->p_subn->min_ca_mtu = mtu;
 		}
 
-		rate = ib_port_info_compute_rate(p_pi,
-						 p_pi->capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS);
+		extended = p_pi->capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS;
+		rate = ib_port_info_compute_rate(p_pi, extended);
 		if (rate < sm->p_subn->min_ca_rate) {
 			OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 				"Setting endport minimal rate to:%u defined by port:0x%"

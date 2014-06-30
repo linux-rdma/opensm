@@ -334,6 +334,7 @@ static boolean_t validate_port_caps(osm_log_t * p_log,
 	uint8_t mtu_mgrp;
 	uint8_t rate_required;
 	uint8_t rate_mgrp;
+	int extended;
 
 	mtu_required = ib_port_info_get_mtu_cap(&p_physp->port_info);
 	mtu_mgrp = (uint8_t) (p_mgrp->mcmember_rec.mtu & 0x3F);
@@ -345,8 +346,8 @@ static boolean_t validate_port_caps(osm_log_t * p_log,
 	}
 
 	p_pi = &p_physp->port_info;
-	rate_required = ib_port_info_compute_rate(p_pi,
-						  p_pi->capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS);
+	extended = p_pi->capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS;
+	rate_required = ib_port_info_compute_rate(p_pi, extended);
 	rate_mgrp = (uint8_t) (p_mgrp->mcmember_rec.rate & 0x3F);
 	if (ib_path_compare_rates(rate_required, rate_mgrp) < 0) {
 		OSM_LOG(p_log, OSM_LOG_VERBOSE,
@@ -652,6 +653,7 @@ static boolean_t mgrp_request_is_realizable(IN osm_sa_t * sa,
 	uint8_t rate_required, rate, port_rate;
 	const ib_port_info_t *p_pi;
 	osm_log_t *p_log = sa->p_log;
+	int extended;
 
 	OSM_LOG_ENTER(sa->p_log);
 
@@ -715,9 +717,12 @@ static boolean_t mgrp_request_is_realizable(IN osm_sa_t * sa,
 	}
 	p_mcm_rec->mtu = (mtu_sel << 6) | mtu;
 
-	port_rate =
-	    p_physp ? ib_port_info_compute_rate(p_pi,
-						p_pi->capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS) : 0;
+	if (p_physp) {
+		extended = p_pi->capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS;
+		port_rate = ib_port_info_compute_rate(p_pi, extended);
+	} else
+		port_rate = 0;
+
 	if (!(comp_mask & IB_MCR_COMPMASK_RATE)
 	    || !(comp_mask & IB_MCR_COMPMASK_RATE_SEL)
 	    || (rate_sel = (p_mcm_rec->rate >> 6)) == 3)
