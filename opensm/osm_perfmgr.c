@@ -163,6 +163,17 @@ static void remove_marked_nodes(osm_perfmgr_t * pm)
 static inline void decrement_outstanding_queries(osm_perfmgr_t * pm)
 {
 	cl_atomic_dec(&pm->outstanding_queries);
+
+	if (!pm->outstanding_queries) {
+		cl_spinlock_acquire(&pm->lock);
+		if (pm->sweep_state == PERFMGR_SWEEP_POST_PROCESSING) {
+			pm->sweep_state = PERFMGR_SWEEP_SLEEP;
+			OSM_LOG(pm->log, OSM_LOG_INFO,
+				"PM sweep state exiting Post Processing\n");
+		}
+		cl_spinlock_release(&pm->lock);
+	}
+
 	cl_event_signal(&pm->sig_query);
 }
 
@@ -439,7 +450,12 @@ static ib_api_status_t perfmgr_send_mad(osm_perfmgr_t *perfmgr,
 		while (perfmgr->outstanding_queries >
 		       (int32_t)perfmgr->max_outstanding_queries) {
 			cl_spinlock_acquire(&perfmgr->lock);
-			perfmgr->sweep_state = PERFMGR_SWEEP_SUSPENDED;
+			if (perfmgr->sweep_state == PERFMGR_SWEEP_SLEEP) {
+				perfmgr->sweep_state = PERFMGR_SWEEP_POST_PROCESSING;
+				OSM_LOG(perfmgr->log, OSM_LOG_INFO,
+					"PM sweep state going into Post Processing\n");
+			} else if (perfmgr->sweep_state == PERFMGR_SWEEP_ACTIVE)
+				perfmgr->sweep_state = PERFMGR_SWEEP_SUSPENDED;
 			cl_spinlock_release(&perfmgr->lock);
 wait:
 			sts = cl_event_wait_on(&perfmgr->sig_query,
@@ -1015,7 +1031,8 @@ void osm_perfmgr_process(osm_perfmgr_t * pm)
 
 	cl_spinlock_acquire(&pm->lock);
 	if (pm->sweep_state == PERFMGR_SWEEP_ACTIVE ||
-	    pm->sweep_state == PERFMGR_SWEEP_SUSPENDED) {
+	    pm->sweep_state == PERFMGR_SWEEP_SUSPENDED ||
+	    pm->sweep_state == PERFMGR_SWEEP_POST_PROCESSING) {
 		cl_spinlock_release(&pm->lock);
 		OSM_LOG(pm->log, OSM_LOG_INFO,
 			"PM sweep state %d, skipping sweep\n",

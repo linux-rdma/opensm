@@ -88,7 +88,8 @@ typedef enum {
 typedef enum {
 	PERFMGR_SWEEP_SLEEP,
 	PERFMGR_SWEEP_ACTIVE,
-	PERFMGR_SWEEP_SUSPENDED
+	PERFMGR_SWEEP_SUSPENDED,
+	PERFMGR_SWEEP_POST_PROCESSING
 } osm_perfmgr_sweep_state_t;
 
 typedef struct monitored_port {
@@ -238,6 +239,9 @@ inline static const char *osm_perfmgr_get_sweep_state_str(osm_perfmgr_t * perfmg
 		break;
 	case PERFMGR_SWEEP_SUSPENDED:
 		return "Suspended";
+		break;
+	case PERFMGR_SWEEP_POST_PROCESSING:
+		return "PostProcessing";
 		break;
 	}
 	return "UNKNOWN";
