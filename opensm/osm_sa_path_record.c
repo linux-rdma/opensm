@@ -162,7 +162,7 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 	ib_api_status_t status = IB_SUCCESS;
 	ib_net16_t pkey;
 	uint8_t mtu;
-	uint8_t rate;
+	uint8_t rate, p0_extended_rate, dest_rate;
 	uint8_t pkt_life;
 	uint8_t required_mtu;
 	uint8_t required_rate;
@@ -349,10 +349,9 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 		p_physp0 = osm_node_get_physp_ptr((osm_node_t *)p_node, 0);
 		p_pi0 = &p_physp0->port_info;
 		p0_extended = p_pi0->capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS;
-		if (ib_path_compare_rates(rate,
-					  ib_port_info_compute_rate(p_pi,
-								    p0_extended)) > 0)
-			rate = ib_port_info_compute_rate(p_pi, p0_extended);
+		p0_extended_rate = ib_port_info_compute_rate(p_pi, p0_extended);
+		if (ib_path_compare_rates(rate, p0_extended_rate) > 0)
+			rate = p0_extended_rate;
 
 		/*
 		   Continue with the egress port on this switch.
@@ -377,10 +376,9 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 		p_physp0 = osm_node_get_physp_ptr((osm_node_t *)p_node, 0);
 		p_pi0 = &p_physp0->port_info;
 		p0_extended = p_pi0->capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS;
-		if (ib_path_compare_rates(rate,
-					  ib_port_info_compute_rate(p_pi,
-								    p0_extended)) > 0)
-			rate = ib_port_info_compute_rate(p_pi, p0_extended);
+		p0_extended_rate = ib_port_info_compute_rate(p_pi, p0_extended);
+		if (ib_path_compare_rates(rate, p0_extended_rate) > 0)
+			rate = p0_extended_rate;
 
 		if (sa->p_subn->opt.qos) {
 			/*
@@ -433,10 +431,9 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 		mtu = ib_port_info_get_mtu_cap(p_pi);
 
 	extended = p_pi->capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS;
-	if (ib_path_compare_rates(rate,
-				  ib_port_info_compute_rate(p_pi,
-							    extended)) > 0)
-		rate = ib_port_info_compute_rate(p_pi, extended);
+	dest_rate = ib_port_info_compute_rate(p_pi, extended);
+	if (ib_path_compare_rates(rate, dest_rate) > 0)
+		rate = dest_rate;
 
 	OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 		"Path min MTU = %u, min rate = %u\n", mtu, rate);
