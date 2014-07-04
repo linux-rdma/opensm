@@ -1026,7 +1026,7 @@ static void subn_validate_neighbor(osm_subn_t *p_subn)
 			valid_entry = FALSE;
 		} else if (osm_db_neighbor_get(p_subn->p_neighbor,
 					       guid, port, &guid, &port) ||
-			guid != p_item->guid || port != p_item->portnum) {
+			   guid != p_item->guid || port != p_item->portnum) {
 			OSM_LOG(&(p_subn->p_osm->log), OSM_LOG_ERROR,
 				"ERR 7518: neighbor does not point "
 				"back at us (guid: 0x%016" PRIx64
