@@ -1,4 +1,4 @@
-.TH OPENSM 8 "March 18, 2014" "OpenIB" "OpenIB Management"
+.TH OPENSM 8 "July 4, 2014" "OpenIB" "OpenIB Management"
 
 .SH NAME
 opensm \- InfiniBand subnet manager and administration (SM/SA)
