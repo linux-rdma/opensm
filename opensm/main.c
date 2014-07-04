@@ -232,7 +232,9 @@ static void show_usage(void)
 	       "          Attempt to shift port routes around to remove alignment problems\n"
 	       "          in routing tables\n\n");
 	printf("--scatter-ports <random seed>\n"
-	       "          Randomize best port chosen for a route\n\n");
+	       "          Randomize best port chosen for a route\n"
+	       "          Assign ports in a random order instead of round-robin\n"
+	       "          If zero disable (default), otherwise use the value as a random seed\n\n");
 	printf("--max_reverse_hops, -H <hop_count>\n"
 	       "          Set the max number of hops the wrong way around\n"
 	       "          an I/O node is allowed to do (connectivity for I/O nodes on top swithces)\n\n");

@@ -2535,8 +2535,8 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		p_opts->port_shifting ? "TRUE" : "FALSE");
 
 	fprintf(out,
-		"# Assign ports in a random order instead of round-robin.\n"
-		"# If zero disable, otherwise use the value as a random seed\n"
+		"# Assign ports in a random order instead of round-robin\n"
+		"# If zero disable (default), otherwise use the value as a random seed\n"
 		"scatter_ports %d\n\n",
 		p_opts->scatter_ports);
 

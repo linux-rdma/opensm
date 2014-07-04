@@ -26,7 +26,7 @@ opensm \- InfiniBand subnet manager and administration (SM/SA)
 [\-u | \-\-cn_guid_file <path to file>]
 [\-G | \-\-io_guid_file <path to file>]
 [\-\-port\-shifting]
-[\-\-scatter\-ports]
+[\-\-scatter\-ports <random seed>]
 [\-H | \-\-max_reverse_hops <max reverse hops allowed>]
 [\-X | \-\-guid_routing_order_file <path to file>]
 [\-m | \-\-ids_guid_file <path to file>]
@@ -234,8 +234,11 @@ congest with other routes due to algorithmically unchanging traffic
 patterns.  This routing option will "shift" routing around in an
 attempt to alleviate this problem.
 .TP
-\fB\-\-scatter\-ports\fR
-This option will randomize port selecting in routing.
+\fB\-\-scatter\-ports\fR <random seed>
+This option is used to randomize port selection in routing rather than
+using a round-robin algorithm (which is the default). Value supplied
+with option is used as a random seed.  If value is 0,
+which is the default, the scatter ports option is disabled.
 .TP
 \fB\-H\fR, \fB\-\-max_reverse_hops\fR <max reverse hops allowed>
 Set the maximum number of reverse hops an I/O node is allowed
