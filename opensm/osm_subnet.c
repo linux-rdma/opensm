@@ -1564,7 +1564,7 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * p_opt)
 	p_opt->event_db_dump_file = NULL; /* use default */
 	p_opt->perfmgr_rm_nodes = TRUE;
 	p_opt->perfmgr_log_errors = TRUE;
-	p_opt->perfmgr_query_cpi = FALSE;
+	p_opt->perfmgr_query_cpi = TRUE;
 	p_opt->perfmgr_xmit_wait_log = FALSE;
 	p_opt->perfmgr_xmit_wait_threshold = OSM_PERFMGR_DEFAULT_XMIT_WAIT_THRESHOLD;
 #endif				/* ENABLE_OSM_PERF_MGR */
@@ -2645,7 +2645,7 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		"perfmgr_log_errors %s\n\n"
 		"# Query PerfMgt Get(ClassPortInfo) for extended capabilities\n"
 		"# Extended capabilities include 64 bit extended counters\n"
-		"# and transmit wait support (default FALSE)\n"
+		"# and transmit wait support (default TRUE)\n"
 		"perfmgr_query_cpi %s\n\n"
 		"# Log xmit_wait errors (default FALSE)\n"
 		"perfmgr_xmit_wait_log %s\n\n"
