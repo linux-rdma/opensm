@@ -2251,7 +2251,7 @@ int osm_subn_rescan_conf_files(IN osm_subn_t * p_subn)
 
 			token_matched = 1;
 
-			if (!r->can_update || strcmp(r->name, p_key))
+			if (!r->can_update)
 				continue;
 
 			p_field1 = (void *)p_opts->file_opts + r->opt_offset;
