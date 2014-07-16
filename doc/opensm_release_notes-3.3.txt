@@ -3,14 +3,14 @@
 
 Version: OpenSM 3.3.x
 Repo:    git://git.openfabrics.org/~halr/opensm.git
-Date:    Jan 2014
+Date:    July 2014
 
 1 Overview
 ----------
 This document describes the contents of the OpenSM 3.3 release.
 OpenSM is an InfiniBand compliant Subnet Manager and Administration,
 and runs on top of OpenIB. The OpenSM version for this release
-is opensm-3.3.17.
+is opensm-3.3.18.
 
 This document includes the following sections:
 1 This Overview section (describing new features and software
@@ -95,6 +95,8 @@ This document includes the following sections:
 
 1.2 Minor New Features:
 
+672de65 perfmgr: Add xmit_wait to event plugin error counters data structure
+d86e7e3 perfmgr: Add xmit_wait support
 7e6bdef opensm/man/opensm.8.in: Add section for MKey support
 aebe678 opensm: Add support for multicast service records
 5509234 opensm/scripts/sldd.sh: Update to support guid2mkey/neighbors
@@ -415,6 +417,7 @@ b73c378 opensm/perfmgr; add support for PortCountersExtended NOIETF
 
 1.3 Library API Changes
 
+44a6358 libvendor/osm_vendor_ibumad.c: Support GRH (for GS classes)
 de02954 osm_trap_rcv.c: Log DR path to node when trap 128
 
 1.4 Software Dependencies
@@ -509,6 +512,37 @@ information regarding each compliance statement.
 
 4.1 Major Bug Fixes
 
+db69cd8 osm_perfmgr.c: Fix perfmgr sweep_state race
+b42f11f osm_vendor_ibumad.c: Better match table eviction strategy
+cc0d61b libvendor/osm_vendor_ibumad.c: Check the next CA if an error is
+returned for the current one
+a16349d osm_trap_rcv.c: Lock released without locking in some cases of trap
+processing
+6c6e4cc osm_sa_guidinfo_record.c: Fix crash when receiving AGUID SET/DELETE
+with block_num equal to max_block
+a8b23b7 osm_vl15intf.c: Fix potential NULL dereference in vl15_send_mad
+e94d471 osm_torus.c: Fix torus crash when actual topology is not torus
+a20cd5f osm_sa_service_record.c: Fix locking issue in osm_sr_rcv_process
+127acf1 osm_sa_mcmember_record.c: Fix double locking in mcmr_rcv_join_mgrp
+c86c30a All SA queries should validate the requester port under lock
+80e1e59 osm_sminfo_rcv.c: Send trap 144 to a newly found MASTER SM when in
+MASTER state
+0189dea osm_sm_state_mgr.c: Fix opensm crash after handover
+52c4a30 osm_sm_state_mgr.c: Reconfigure the fabric when receiving
+HANDOVER/POLLING_TIMEOUT in MASTER state
+26af3a9 Fix crash during handover
+f775a1a osm_sa_path_record.c: Search for requester port should be under lock
+24d6219 osm_sw_info_rcv.c: Fix sending PortInfo during lightsweep
+12d2c8e osm_node_info_rcv.c: Fix multiple switch discovery during a sweep
+ef22eb9 osm_qos.c: Fix possible seg fault
+9dd8f45 dfsssp: avoid crash due to port initialisation errors
+f6418cf osm_ucast_dfsssp.c: prevent double free error
+1633550 Resend LFTs/VLArb/SL2VL MADs in case of error
+90d19c2 osm_port_info_rcv.c: Reread pkeys from SP0 if switch rebooted during a
+sweep
+6e90421 Better handling of topology changes in the fabric
+b33c3ba Change discovery order of switch data
+395b5f0 Handle bad SMP status
 a322f51 Skip TID 0 on 32 bit wraparound for SMP, SA and PerfMgt queries
 cded9af Fix transaction id casting
 3585f8b opensm: Fix crash found with ucast cache
@@ -668,6 +702,103 @@ f37bf3c opensm/perfmgr: skip data counters when only printing errors
 
 4.2 Other Bug Fixes
 
+179fbac Add support for additional Mellanox OUI
+be3e4f1 osm_subnet.c: Remove duplicate strcmp check in
+osm_subn_rescan_conf_files method
+e6fc2f8 Add some missing documentation files to installation
+ed1571a osm_subnet.c: Change default for perfmgr_query_cpi option
+3a1b458 osm_mcast_mgr.c: Cosmetic change to error log mesage
+56bd964 opensm.init.in: Fix return value checking in opensm.init script
+787c16e Eliminate redundant calls to ib_port_info_compute_rate
+6a2d081 Shorten long lines while calculating SA rate
+6ec10d6 man/opensm.8.in: Update date on man page
+1dcf322 Improve scatter ports documentation
+b1a8fb0 osm_subnet.c: Cosmetic formatting change in subn_validate_neighbor
+d1b70fc osm_perfmgr.c: Add log message when perfmgr sweep is skipped
+8098a4d osm_perfmgr.c: Remove unnecessary log message
+38bc2e4 Skip state_mgr_check_tbl_consistency when no LID is changed by lid or
+link managers
+ce73c60 osm_drop_mgr.c: Add missing CR at end of log message in
+drop_mgr_check_node
+8255f8f osm_state_mgr.c: Improve error flow with wrong LIDs
+86f1720 osm_sa_path_record.c: Fix some commentary typos
+2bc6074 osmtest/main.c: Output formatting change for case 'x'
+60727f7 osmtest: Add GRH tests for SA queries
+d29dcd7 osm_sa_path_record.c: Fix misleading error messages during sweep
+e91908b Add osm_congestion_control.c to per module logging support
+3de1091 osm_congestion_control.c: Fix error code
+3ee0a22 osm_sm.c: In sm_sweeper, no need to check for timeout after
+cl_event_wait_on EVENT_NO_TIMEOUT
+f3e1924 osm_trap_rcv.c: In shutup_noisy_port, improve ERR 3811 log message
+f73ff43 osm_mcast_mgr.c: In mcast_mgr_process_mlid, cosmetic change to log
+message
+ab9fec9 osm_congestion_control.c: In cc_poller_send, handle cl_event_wait_on
+return status
+af04af7 osm_[sm sa]_mad_ctrl.c: Improve unsupported attribute error messages
+16fee25 osm_helper.c: In osm_get_lsa_str, fix printing of wrong FDR10 data if
+link is down
+6c70bf1 PerfMgr: Eliminate no longer used sig_sweep variable
+41d0a42 osm_perfmgr.c: In perfmgr_send_mad, handle cl_event_wait_on return
+status
+d764777 osm_perfmgr.c: Minor code factoring in perfmgr_send_mad
+fa31298 doc/opensm_release_notes-3.3.txt: Updated repo location
+8394ef8 libvendor/osm_vendor_ibumad.c: Commentary change
+0ab7492 osm_subnet.c: More cosmetic changes to opensm conf file PerfMgr
+documentation
+cc977be osm_subnet.c: Enhance opensm conf file documentation for PerfMgr
+options
+38273db osm_port_info_rcv.c: Fixed calculation of min_data_vls
+dc3259e Add support for additional Mellanox OUI
+99a8e74 osmtest.c: Fixed missing assignment of return value from function
+osmtest_get_port_rec_by_num
+9ffa520 Fix the creation of empty multicast groups from SADB
+1d3aacf osm_perfmgr_db.c: Add missing clear of new xmit_wait counter in
+clear_counters
+0f9b15c SM should resweep the fabric if vl15_send_mad fails
+ee5f6d5 osm_perfmgr.c: Added Mellanox copyright
+05be6c4 osm_perfmgr.c: Eliminate unneeded initialization in pc_recv_process
+9ac71fd osm_perfmgr.c: Cosmetic formatting changes
+54c6c86 osm_log.c: Fix wrong hour and date display in log when CL_ASSERT fail
+5c81051 osm_console_io.c: Handle return value of function setsockopt
+2e1294a osm_sa_[mcmember path]_record.c: Optimize clearing of SA record items
+db9c450 osm_guid_info_rcv.c: Fix assert placement in osm_gi_rcv_process
+bb723ae libvendor/osm_vendor_ibumad.c: Cosmetic change to umad_set_grh calls
+5ca6bdc osm_perfmgr.c: Add current PerfMgr sweep state to 54FF error log
+message
+753af81 osm_mcast_mgr.c: Add missing new line at end of ERR 0A21 log message
+d437d58 osm_mcast_mgr.c: Fix endian of port GUID in ERR 0A06 log message
+51fb51d osm_ucast_mgr.c: Fix duplicated error codes
+21c2ab7 osm_sa_mad_ctrl.c: In sa_mad_ctrl_rcv_callback, improve 1A04 error log
+message
+c83bde4 doc/performance-manager-HOWTO.txt: Fix typo
+abaf91b osm_sa_service_record.c: Improved locking
+1f4de58 osm_subnet.c: Fix bug in parsing configuration file
+0fa5fc1 osm_sa_mcmember_record.c: Fix removing members from existing mc group
+due to invalid requests
+e156626 osm_qos_parser_y.y: Added range check for mtu limit parsing
+cb439b3 osm_qos_parser_y.y: Added range check for rate limit parsing
+a556f82 man/opensm.8.in: Minor fixes to per module logging configuration
+7991745 osm_node_info_rcv.c: Update local copy of node info for known nodes
+1c637df osm_node_info_rcv.c: Update NodeInfo.SysImageGUID on heavy sweep
+275a56a osm_state_mgr.c: Clear first time sweep even after subnet error
+09b5ffe osm_sa_path_record.c: In osm_pr_rcv_process, release lock before log
+message
+ef7a651 osm_state_mgr.c: Revert commit to "remove redundant unset to
+first_time_master_sweep"
+23dfbf8 osm_state_mgr.c: Remove redundant unset to first_time_master_sweep
+e5a87dd Revert "Reset client reregistration when receiving handover"
+28e5fa7 osm_sw_info_rcv.c: Add check of switch mcast_cap
+78b6e8f osm_subnet.c: Fix resource leak neighbor parser
+("subn_validate_neighbor" function)
+46749c0 osm_subnet.c: Fix resource leak guid2mkey parser (guid validation
+function)
+6212e4b osm_ucast_ftree.c: Fix memory leak in ftree fabric_rank
+afb6cb8 osm_ucast_mgr.c: Use LFT block of all port 0s to indicate resend
+319e065 ib_types.h: Rename ib_switch_info_set_state_change function
+b1c17a8 ib_types.h: Fix shadow declaration warnings
+e3f0440 osm_ucast_updn.c: Fix the AA0B error number
+30d9020 osm_ucast_updn.c: Add missing ERR number to log message
+e8a9275 osm_port.c: Improve ERR 4108 log message
 740c22b opensm/include/opensm/osm_log.h: Fix commentary cut 'n paste error
 13ebee4 opensm/osm_subnet.c: Fixed ftree/updn configuration failure when
 	root_guid_file points to non-existing file
