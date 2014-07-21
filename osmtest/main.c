@@ -451,7 +451,7 @@ int main(int argc, char *argv[])
 
 		case 'l':
 			opt.log_file = optarg;
-			printf("\tLog File:%s\n", opt.log_file);
+			printf("\tLog File: %s\n", opt.log_file);
 			break;
 
 		case 'v':
