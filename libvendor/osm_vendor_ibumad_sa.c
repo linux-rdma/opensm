@@ -419,9 +419,9 @@ __osmv_send_sa_req(IN osmv_sa_bind_info_t * p_bind,
 	 */
 	if (p_query_req->with_grh) {
 		OSM_LOG(p_log, OSM_LOG_DEBUG, "sending sa query with GRH "
-			"GID : 0x%016" PRIx64 " 0x%016" PRIx64 "\n",
-			p_query_req->gid.unicast.prefix,
-			p_query_req->gid.unicast.interface_id);
+			"GID 0x%016" PRIx64 " 0x%016" PRIx64 "\n",
+			cl_ntoh64(p_query_req->gid.unicast.prefix),
+			cl_ntoh64(p_query_req->gid.unicast.interface_id));
 		p_madw->mad_addr.addr_type.gsi.global_route = 1;
 		memset(&p_madw->mad_addr.addr_type.gsi.grh_info, 0,
 		       sizeof(p_madw->mad_addr.addr_type.gsi.grh_info));
