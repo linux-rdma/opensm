@@ -4,17 +4,17 @@ OpenSM Performance manager HOWTO
 Introduction
 ============
 
-OpenSM now includes a performance manager which collects Port counters from
+OpenSM now includes a performance manager which collects port counters from
 the subnet and stores them internally in OpenSM.
 
 Some of the features of the performance manager are:
 
-	1) Collect port data and error counters per v1.2 spec and store in
+	1) Collect port data and error counters per v1.2.1 spec and store in
 	   64 bit internal counts.
-	2) Automatic reset of counters when they reach approximatly 3/4 full.
-	   (While not guarenteeing that counts will not be missed this does
+	2) Automatic reset of counters when they reach approximately 3/4 full.
+	   (While not guaranteeing that counts will not be missed, this does
 	   keep counts incrementing as best as possible given the current
-	   hardware limitations.)
+	   spec limitations.)
 	3) Basic warnings in the OpenSM log on "critical" errors like symbol
 	   errors.
 	4) Automatically detects "outside" resets of counters and adjusts to
@@ -45,10 +45,10 @@ Using the Performance Manager consists of 3 steps:
 Step 1: Compile in support for the Performance Manager
 ------------------------------------------------------
 
-At this time it is really best to enable the console socket option as well.
+At this time, it is really best to enable the console socket option as well.
 OpenSM can be run in an "interactive" mode.  But with the console socket
 option turned on one can also make a connection to a running OpenSM.  By
-default only "loopback" is enabled with the console with socket being a
+default, only "loopback" is enabled with the console with socket being a
 compile time option.  Regardless, please be aware of your network security
 configuration for as the commands presented in the console can affect the
 operation of your subnet.
@@ -61,19 +61,45 @@ Turning the Performance Manager on is pretty easy, set the following options in
 the opensm.conf config file.  (Default location is
 /usr/local/etc/opensm/opensm.conf)
 
-	# Turn it all on.
+	# Turn it all on
 	perfmgr TRUE
+
+	# redirection enable
+	perfmgr_redir TRUE
 
 	# sweep time in seconds
 	perfmgr_sweep_time_s 180
 
+	# Max outstanding queries
+	perfmgr_max_outstanding_queries 500
+
+	# Ignore CAs on sweep
+	perfmgr_ignore_cas FALSE
+
+	# Remove missing nodes from DB
+	perfmgr_rm_nodes TRUE
+
+	# Log error counters to opensm.log
+	perfmgr_log_errors TRUE
+
+	# Query PerfMgt Get(ClassPortInfo) for extended capabilities
+	# Extended capabilities include 64 bit extended counters
+	# and transmit wait support
+	perfmgr_query_cpi TRUE
+
+	# Log xmit_wait errors
+	perfmgr_xmit_wait_log FALSE
+
+	# If logging xmit_wait's; set threshold
+	perfmgr_xmit_wait_threshold 65535
+
 	# Dump file to dump the events to
 	event_db_dump_file /var/log/opensm_port_counters.log
 
-Also enable the console socket and configure the port for it to listen to if
+Also, enable the console socket and configure the port for it to listen to if
 desired.
 
-	# console [off|local|loopback]
+	# console [off|local|loopback|socket]
 	console socket
 
 	# Telnet port for console (default 10000)
@@ -82,7 +108,7 @@ desired.
 	"local" is only useful if you run OpenSM in the foreground.
 
 
-Step 3: retrieve data which has been collected
+Step 3: Retrieve data which has been collected
 ----------------------------------------------
 
 Step 3a: Using console dump function
