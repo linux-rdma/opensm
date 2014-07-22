@@ -1314,7 +1314,8 @@ repeat_discovery:
 	if (state_mgr_is_sm_port_down(sm) == TRUE) {
 		if (sm->p_subn->last_sm_port_state) {
 			sm->p_subn->last_sm_port_state = 0;
-			osm_log_v2(sm->p_log, OSM_LOG_SYS, FILE_ID, "SM port is down\n");
+			osm_log_v2(sm->p_log, OSM_LOG_SYS, FILE_ID,
+				   "SM port is down\n");
 			OSM_LOG_MSG_BOX(sm->p_log, OSM_LOG_VERBOSE,
 					"SM PORT DOWN");
 		}
@@ -1331,7 +1332,8 @@ repeat_discovery:
 	} else {
 		if (!sm->p_subn->last_sm_port_state) {
 			sm->p_subn->last_sm_port_state = 1;
-			osm_log_v2(sm->p_log, OSM_LOG_SYS, FILE_ID, "SM port is up\n");
+			osm_log_v2(sm->p_log, OSM_LOG_SYS, FILE_ID,
+				   "SM port is up\n");
 			OSM_LOG_MSG_BOX(sm->p_log, OSM_LOG_VERBOSE,
 					"SM PORT UP");
 		}
