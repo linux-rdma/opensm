@@ -245,6 +245,8 @@ static const char ib_mad_status_str_insuf_comps[] =
     "IB_SA_MAD_STATUS_INSUF_COMPS";
 static const char generic_or_str[] = " | ";
 
+static ib_api_status_t osmtest_create_db(IN osmtest_t * const p_osmt);
+
 const char *ib_get_mad_status_str(IN const ib_mad_t * const p_mad)
 {
 	static char line[512];
@@ -5368,9 +5370,18 @@ osmtest_get_sm_gid(IN osmtest_t * const p_osmt)
 	p_osmt->sm_port_gid.unicast.prefix =
 		cl_hton64(p_osmt->local_port_gid.unicast.prefix);
 
-	if (local_port->lid != local_port->sm_lid) {
+	if (local_port->lid != local_port->sm_lid) {	
+		status = osmtest_create_db(p_osmt);
+		if (status != IB_SUCCESS) {
+			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
+				"ERR 0155: Database creation failed (%s)\n",
+				ib_get_err_str(status));
+			goto Exit;
+		}
+
 		p_tbl = &p_osmt->exp_subn.node_lid_tbl;
-		p_node = (node_t *) cl_qmap_get(p_tbl, local_port->sm_lid);
+		p_node = (node_t *) cl_qmap_get(p_tbl,
+						cl_hton16(local_port->sm_lid));
 		if (p_node == (node_t *) cl_qmap_end(p_tbl)) {
 			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
 				"ERR 0154: SM LID 0x%X doesn't exist\n",
