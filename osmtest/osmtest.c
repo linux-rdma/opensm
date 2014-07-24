@@ -5370,7 +5370,7 @@ osmtest_get_sm_gid(IN osmtest_t * const p_osmt)
 	p_osmt->sm_port_gid.unicast.prefix =
 		cl_hton64(p_osmt->local_port_gid.unicast.prefix);
 
-	if (local_port->lid != local_port->sm_lid) {	
+	if (local_port->lid != local_port->sm_lid) {
 		status = osmtest_create_db(p_osmt);
 		if (status != IB_SUCCESS) {
 			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR,
