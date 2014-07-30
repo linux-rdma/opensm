@@ -1127,7 +1127,7 @@ Exit:
 	OSM_LOG_EXIT(sm->p_log);
 }
 
-static void cleanup_switch(cl_map_item_t * item, void *log)
+static void check_switch_lft(cl_map_item_t * item, void *log)
 {
 	osm_switch_t *sw = (osm_switch_t *) item;
 
@@ -1139,10 +1139,6 @@ static void cleanup_switch(cl_map_item_t * item, void *log)
 			   "LFT of switch 0x%016" PRIx64 " (%s) is not up to date\n",
 			   cl_ntoh64(sw->p_node->node_info.node_guid),
 			   sw->p_node->print_desc);
-	else {
-		free(sw->new_lft);
-		sw->new_lft = NULL;
-	}
 }
 
 int wait_for_pending_transactions(osm_stats_t * stats)
@@ -1490,9 +1486,6 @@ repeat_discovery:
 	if (wait_for_pending_transactions(&sm->p_subn->p_osm->stats))
 		return;
 
-	/* cleanup switch lft buffers */
-	cl_qmap_apply_func(&sm->p_subn->sw_guid_tbl, cleanup_switch, sm->p_log);
-
 	/* We are done setting all LFTs so clear the ignore existing.
 	 * From now on, as long as we are still master, we want to
 	 * take into account these lfts. */
@@ -1558,6 +1551,10 @@ repeat_discovery:
 	 * Send trap 64 on newly discovered endports
 	 */
 	state_mgr_report_new_ports(sm);
+
+	/* check switch lft buffers assignments */
+	cl_qmap_apply_func(&sm->p_subn->sw_guid_tbl, check_switch_lft,
+			   sm->p_log);
 
 	/* in any case we zero this flag */
 	sm->p_subn->coming_out_of_standby = FALSE;
