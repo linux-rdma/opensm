@@ -1070,7 +1070,7 @@ static int ucast_mgr_route(struct osm_routing_engine *r, osm_opensm_t * osm)
 
 	if (ret < 0) {
 		OSM_LOG(&osm->log, OSM_LOG_ERROR,
-			"%s: cannot build lid matrices.\n", r->name);
+			"%s: cannot build lid matrices\n", r->name);
 		return ret;
 	}
 
@@ -1080,7 +1080,7 @@ static int ucast_mgr_route(struct osm_routing_engine *r, osm_opensm_t * osm)
 
 	if (ret < 0) {
 		OSM_LOG(&osm->log, OSM_LOG_ERROR,
-			"%s: cannot build fwd tables.\n", r->name);
+			"%s: cannot build fwd tables\n", r->name);
 		return ret;
 	}
 
