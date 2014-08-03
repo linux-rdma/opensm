@@ -1069,7 +1069,8 @@ static void switchbalance_check(osm_opensm_t * p_osm,
 			continue;
 
 		for (lid_ho = min_lid_ho; lid_ho <= max_lid_ho; lid_ho++) {
-			port_num = osm_switch_get_port_by_lid(p_sw, lid_ho);
+			port_num = osm_switch_get_port_by_lid(p_sw, lid_ho,
+							      OSM_NEW_LFT);
 			if (port_num == OSM_NO_PATH)
 				continue;
 
@@ -1219,7 +1220,8 @@ static void lidbalance_check(osm_opensm_t * p_osm,
 			boolean_t rem_node_found = FALSE;
 			unsigned int indx = 0;
 
-			port_num = osm_switch_get_port_by_lid(p_sw, lid_ho);
+			port_num = osm_switch_get_port_by_lid(p_sw, lid_ho,
+							      OSM_NEW_LFT);
 			if (port_num == OSM_NO_PATH)
 				continue;
 

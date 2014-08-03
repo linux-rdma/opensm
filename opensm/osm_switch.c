@@ -169,7 +169,7 @@ boolean_t osm_switch_get_lft_block(IN const osm_switch_t * p_sw,
 		return FALSE;
 
 	CL_ASSERT(base_lid_ho + IB_SMP_DATA_SIZE - 1 <= IB_LID_UCAST_END_HO);
-	memcpy(p_block, &(p_sw->lft[base_lid_ho]), IB_SMP_DATA_SIZE);
+	memcpy(p_block, &(p_sw->new_lft[base_lid_ho]), IB_SMP_DATA_SIZE);
 	return TRUE;
 }
 
@@ -235,7 +235,8 @@ uint8_t osm_switch_recommend_path(IN const osm_switch_t * p_sw,
 				  IN boolean_t routing_for_lmc,
 				  IN boolean_t dor,
 				  IN boolean_t port_shifting,
-				  IN uint32_t scatter_ports)
+				  IN uint32_t scatter_ports,
+				  IN osm_lft_type_enum lft_enum)
 {
 	/*
 	   We support an enhanced LMC aware routing mode:
@@ -319,7 +320,7 @@ uint8_t osm_switch_recommend_path(IN const osm_switch_t * p_sw,
 	   4. the port has min-hops to the target (avoid loops)
 	 */
 	if (!ignore_existing) {
-		port_num = osm_switch_get_port_by_lid(p_sw, lid_ho);
+		port_num = osm_switch_get_port_by_lid(p_sw, lid_ho, lft_enum);
 
 		if (port_num != OSM_NO_PATH) {
 			CL_ASSERT(port_num < num_ports);

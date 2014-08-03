@@ -234,7 +234,8 @@ static void ucast_mgr_process_port(IN osm_ucast_mgr_t * p_mgr,
 
 	if (lid_offset && !p_mgr->is_dor)
 		/* ignore potential overflow - it is handled in osm_switch.c */
-		start_from = osm_switch_get_port_by_lid(p_sw, lid_ho - 1) + 1;
+		start_from =
+		    osm_switch_get_port_by_lid(p_sw, lid_ho - 1, OSM_LFT) + 1;
 
 	OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 		"Processing port 0x%" PRIx64
@@ -259,7 +260,8 @@ static void ucast_mgr_process_port(IN osm_ucast_mgr_t * p_mgr,
 					 p_mgr->p_subn->opt.lmc,
 					 p_mgr->is_dor,
 					 p_mgr->p_subn->opt.port_shifting,
-					 p_port->use_scatter);
+					 p_port->use_scatter,
+					 OSM_LFT);
 
 	if (port == OSM_NO_PATH) {
 		/* do not try to overwrite the ppro of non existing port ... */

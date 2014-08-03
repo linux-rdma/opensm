@@ -149,7 +149,8 @@ static void dump_ucast_routes(cl_map_item_t * item, FILE * file, void *cxt)
 			continue;
 		}
 
-		port_num = osm_switch_get_port_by_lid(p_sw, lid_ho);
+		port_num = osm_switch_get_port_by_lid(p_sw, lid_ho,
+						      OSM_NEW_LFT);
 		if (port_num == OSM_NO_PATH) {
 			/*
 			   This may occur if there are 'holes' in the existing
@@ -225,7 +226,8 @@ static void dump_ucast_routes(cl_map_item_t * item, FILE * file, void *cxt)
 							      lid_ho, 1, TRUE,
 							      FALSE, dor,
 							      p_osm->subn.opt.port_shifting,
-							      p_osm->subn.opt.scatter_ports);
+							      p_osm->subn.opt.scatter_ports,
+							      OSM_NEW_LFT);
 			fprintf(file, "No %u hop path possible via port %u!",
 				best_hops, best_port);
 		}
@@ -342,7 +344,7 @@ static void dump_ucast_lfts(cl_map_item_t * item, FILE * file, void *cxt)
 		cl_ntoh64(osm_node_get_node_guid(p_node)), p_node->print_desc);
 	for (lid = 0; lid <= max_lid; lid++) {
 		osm_port_t *p_port;
-		port = osm_switch_get_port_by_lid(p_sw, lid);
+		port = osm_switch_get_port_by_lid(p_sw, lid, OSM_NEW_LFT);
 
 		if (port >= max_port)
 			continue;

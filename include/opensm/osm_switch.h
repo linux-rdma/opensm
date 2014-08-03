@@ -407,6 +407,21 @@ uint8_t osm_switch_get_port_least_hops(IN const osm_switch_t * p_sw,
 *	Switch object
 *********/
 
+/****d* OpenSM: osm_lft_type_enum
+* NAME
+*	osm_lft_type_enum
+*
+* DESCRIPTION
+*	Enumerates LFT sets types of a switch.
+*
+* SYNOPSIS
+*/
+typedef enum osm_lft_type_enum {
+	OSM_LFT = 0,
+	OSM_NEW_LFT
+} osm_lft_type_enum;
+/***********/
+
 /****f* OpenSM: Switch/osm_switch_get_port_by_lid
 * NAME
 *	osm_switch_get_port_by_lid
@@ -417,11 +432,12 @@ uint8_t osm_switch_get_port_least_hops(IN const osm_switch_t * p_sw,
 * SYNOPSIS
 */
 static inline uint8_t osm_switch_get_port_by_lid(IN const osm_switch_t * p_sw,
-						 IN uint16_t lid_ho)
+						 IN uint16_t lid_ho,
+						 IN osm_lft_type_enum lft_enum)
 {
 	if (lid_ho == 0 || lid_ho > p_sw->max_lid_ho)
 		return OSM_NO_PATH;
-	return p_sw->lft[lid_ho];
+	return lft_enum == OSM_LFT ? p_sw->lft[lid_ho] : p_sw->new_lft[lid_ho];
 }
 /*
 * PARAMETERS
@@ -430,6 +446,10 @@ static inline uint8_t osm_switch_get_port_by_lid(IN const osm_switch_t * p_sw,
 *
 *	lid_ho
 *		[in] LID (host order) for which to retrieve the shortest hop count.
+*
+*	lft_enum
+*		[in] Use LFT that was calculated by routing engine, or
+*		current LFT on the switch.
 *
 * RETURN VALUES
 *	Returns the switch port on which the specified LID is routed.
@@ -457,7 +477,8 @@ static inline osm_physp_t *osm_switch_get_route_by_lid(IN const osm_switch_t *
 	CL_ASSERT(p_sw);
 	CL_ASSERT(lid);
 
-	port_num = osm_switch_get_port_by_lid(p_sw, cl_ntoh16(lid));
+	port_num = osm_switch_get_port_by_lid(p_sw, cl_ntoh16(lid),
+					      OSM_NEW_LFT);
 
 	/*
 	   In order to avoid holes in the subnet (usually happens when
@@ -921,7 +942,8 @@ uint8_t osm_switch_recommend_path(IN const osm_switch_t * p_sw,
 				  IN boolean_t routing_for_lmc,
 				  IN boolean_t dor,
 				  IN boolean_t port_shifting,
-				  IN uint32_t scatter_ports);
+				  IN uint32_t scatter_ports,
+				  IN osm_lft_type_enum lft_enum);
 /*
 * PARAMETERS
 *	p_sw
@@ -962,6 +984,10 @@ uint8_t osm_switch_recommend_path(IN const osm_switch_t * p_sw,
 *
 * 	scatter_ports
 * 		[in] If not zero, randomize the selection of the best ports.
+*
+* 	lft_enum
+*		[in] Use LFT that was calculated by routing engine, or
+*		current LFT on the switch.
 *
 * RETURN VALUE
 *	Returns the recommended port on which to route this LID.
