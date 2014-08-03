@@ -235,7 +235,7 @@ static void ucast_mgr_process_port(IN osm_ucast_mgr_t * p_mgr,
 	if (lid_offset && !p_mgr->is_dor)
 		/* ignore potential overflow - it is handled in osm_switch.c */
 		start_from =
-		    osm_switch_get_port_by_lid(p_sw, lid_ho - 1, OSM_LFT) + 1;
+		    osm_switch_get_port_by_lid(p_sw, lid_ho - 1, OSM_NEW_LFT) + 1;
 
 	OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
 		"Processing port 0x%" PRIx64
