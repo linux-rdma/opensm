@@ -272,9 +272,9 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 
 		if (p_dest_physp == 0) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F03: "
-				"Cannot find routing to LID %u on switch "
-				"%s (GUID: 0x%016" PRIx64 ")\n", dest_lid_ho,
-				p_node->print_desc,
+				"Can't find routing from LID %u to LID %u on "
+				"switch %s (GUID: 0x%016" PRIx64 ")\n",
+				src_lid_ho, dest_lid_ho, p_node->print_desc,
 				cl_ntoh64(osm_node_get_node_guid(p_node)));
 			status = IB_NOT_FOUND;
 			goto Exit;
@@ -296,11 +296,10 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F05: "
 				"Can't find remote phys port of %s (GUID: "
 				"0x%016"PRIx64") port %d "
-				"while routing to LID %u\n",
+				"while routing from LID %u to LID %u\n",
 				p_node->print_desc,
 				cl_ntoh64(osm_node_get_node_guid(p_node)),
-				tmp_pnum,
-				dest_lid_ho);
+				tmp_pnum, src_lid_ho, dest_lid_ho);
 			status = IB_ERROR;
 			goto Exit;
 		}
