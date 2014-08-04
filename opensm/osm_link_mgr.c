@@ -467,7 +467,7 @@ Send:
 		send_set = TRUE;
 
 	if (!send_set)
-		goto Exit;
+		goto SEND_EPI;
 
 	attr_mod = cl_hton32(port_num);
 	if (issue_ext)
@@ -487,6 +487,7 @@ Send:
 				     cl_ntoh64(p_physp->port_guid),
 				     cl_ntoh64(p_pi->m_key));
 
+SEND_EPI:
 	if (send_set2) {
 		status = osm_req_set(sm, osm_physp_get_dr_path_ptr(p_physp),
 				     payload2, sizeof(payload2),
