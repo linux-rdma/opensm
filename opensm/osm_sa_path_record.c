@@ -228,9 +228,9 @@ static ib_api_status_t pr_rcv_get_path_parms(IN osm_sa_t * sa,
 		p_physp = osm_switch_get_route_by_lid(p_node->sw, dest_lid);
 		if (p_physp == 0) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1F02: "
-				"Cannot find routing to LID %u on switch "
-				"%s (GUID: 0x%016" PRIx64 ")\n", dest_lid_ho,
-				p_node->print_desc,
+				"Cannot find routing from LID %u to LID %u on "
+				"switch %s (GUID: 0x%016" PRIx64 ")\n",
+				src_lid_ho, dest_lid_ho, p_node->print_desc,
 				cl_ntoh64(osm_node_get_node_guid(p_node)));
 			status = IB_NOT_FOUND;
 			goto Exit;
