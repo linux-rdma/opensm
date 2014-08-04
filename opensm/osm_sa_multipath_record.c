@@ -139,6 +139,7 @@ static ib_api_status_t mpr_rcv_get_path_parms(IN osm_sa_t * sa,
 					      p_mpr,
 					      IN const osm_alias_guid_t * p_src_alias_guid,
 					      IN const osm_alias_guid_t * p_dest_alias_guid,
+					      IN const uint16_t src_lid_ho,
 					      IN const uint16_t dest_lid_ho,
 					      IN const ib_net64_t comp_mask,
 					      OUT osm_path_parms_t * p_parms)
@@ -216,9 +217,9 @@ static ib_api_status_t mpr_rcv_get_path_parms(IN osm_sa_t * sa,
 		p_physp = osm_switch_get_route_by_lid(p_node->sw, dest_lid);
 		if (p_physp == 0) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4514: "
-				"Can't find routing to LID %u on switch %s "
-				"(GUID 0x%016"PRIx64")\n", dest_lid_ho,
-				p_node->print_desc,
+				"Can't find routing from LID %u to LID %u on "
+				"switch %s (GUID 0x%016" PRIx64 ")\n",
+				src_lid_ho, dest_lid_ho, p_node->print_desc,
 				cl_ntoh64(osm_node_get_node_guid(p_node)));
 			status = IB_NOT_FOUND;
 			goto Exit;
@@ -261,9 +262,9 @@ static ib_api_status_t mpr_rcv_get_path_parms(IN osm_sa_t * sa,
 
 		if (p_dest_physp == 0) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4515: "
-				"Can't find routing to LID %u on switch %s "
-				"(GUID 0x%016"PRIx64")\n", dest_lid_ho,
-				p_node->print_desc,
+				"Can't find routing from LID %u to LID %u on "
+				"switch %s (GUID 0x%016" PRIx64 ")\n",
+				src_lid_ho, dest_lid_ho, p_node->print_desc,
 				cl_ntoh64(osm_node_get_node_guid(p_node)));
 			status = IB_NOT_FOUND;
 			goto Exit;
@@ -284,12 +285,11 @@ static ib_api_status_t mpr_rcv_get_path_parms(IN osm_sa_t * sa,
 		if (p_physp == 0) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 4505: "
 				"Can't find remote phys port of %s (GUID "
-				"0x%016"PRIx64") port %d "
-				"while routing to LID %u",
+				"0x%016" PRIx64 ") port %d "
+				"while routing from LID %u to LID %u",
 				p_node->print_desc,
 				cl_ntoh64(osm_node_get_node_guid(p_node)),
-				tmp_pnum,
-				dest_lid_ho);
+				tmp_pnum, src_lid_ho, dest_lid_ho);
 			status = IB_ERROR;
 			goto Exit;
 		}
@@ -903,7 +903,8 @@ static osm_sa_item_t *mpr_rcv_get_lid_pair_path(IN osm_sa_t * sa,
 	memset(p_pr_item, 0, SA_MPR_RESP_SIZE);
 
 	status = mpr_rcv_get_path_parms(sa, p_mpr, p_src_alias_guid,
-					p_dest_alias_guid, dest_lid_ho,
+					p_dest_alias_guid,
+					src_lid_ho, dest_lid_ho,
 					comp_mask, &path_parms);
 
 	if (status != IB_SUCCESS) {
@@ -914,7 +915,8 @@ static osm_sa_item_t *mpr_rcv_get_lid_pair_path(IN osm_sa_t * sa,
 
 	/* now try the reversible path */
 	rev_path_status = mpr_rcv_get_path_parms(sa, p_mpr, p_dest_alias_guid,
-						 p_src_alias_guid, src_lid_ho,
+						 p_src_alias_guid,
+						 dest_lid_ho, src_lid_ho,
 						 comp_mask, &rev_path_parms);
 	path_parms.reversible = (rev_path_status == IB_SUCCESS);
 
