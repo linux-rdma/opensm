@@ -2426,7 +2426,7 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		"reassign_lids %s\n\n"
 		"# If TRUE forces every sweep to be a heavy sweep\n"
 		"force_heavy_sweep %s\n\n"
-		"# If TRUE every trap will cause a heavy sweep.\n"
+		"# If TRUE every trap 128 and 144 will cause a heavy sweep.\n"
 		"# NOTE: successive identical traps (>10) are suppressed\n"
 		"sweep_on_trap %s\n\n",
 		p_opts->sweep_interval,
