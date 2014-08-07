@@ -473,6 +473,7 @@ static void dump_topology_node(cl_map_item_t * item, FILE * file, void *cxt)
 		fprintf(file, "PHY=%s LOG=%s SPD=%s\n",
 			p_physp->port_info.link_width_active == 1 ? "1x" :
 			p_physp->port_info.link_width_active == 2 ? "4x" :
+			p_physp->port_info.link_width_active == 4 ? "8x" :
 			p_physp->port_info.link_width_active == 8 ? "12x" :
 			"??",
 			port_state == IB_LINK_ACTIVE ? "ACT" :
