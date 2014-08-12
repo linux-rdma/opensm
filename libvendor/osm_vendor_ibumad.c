@@ -277,9 +277,9 @@ ib_mad_addr_conv(ib_user_mad_t * umad, osm_mad_addr_t * osm_mad_addr,
 {
 	ib_mad_addr_t *ib_mad_addr = umad_get_mad_addr(umad);
 
+	memset(osm_mad_addr, 0, sizeof(osm_mad_addr_t));
 	osm_mad_addr->dest_lid = ib_mad_addr->lid;
 	osm_mad_addr->path_bits = ib_mad_addr->path_bits;
-	osm_mad_addr->static_rate = 0;
 
 	if (is_smi) {
 		osm_mad_addr->addr_type.smi.source_lid = osm_mad_addr->dest_lid;
@@ -300,10 +300,6 @@ ib_mad_addr_conv(ib_user_mad_t * umad, osm_mad_addr_t * osm_mad_addr,
 						  ib_mad_addr->flow_label);
 		memcpy(&osm_mad_addr->addr_type.gsi.grh_info.dest_gid,
 		       &ib_mad_addr->gid, 16);
-	} else {
-		osm_mad_addr->addr_type.gsi.global_route = 0;
-		memset(&osm_mad_addr->addr_type.gsi.grh_info, 0,
-		       sizeof osm_mad_addr->addr_type.gsi.grh_info);
 	}
 }
 
