@@ -975,7 +975,8 @@ static void portstatus_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 		fprintf(out, "   %" PRIu64 " at 25.78125 Gbps\n", fs.ports_edr);
 
 	if (fs.ports_disabled + fs.ports_reduced_speed + fs.ports_reduced_width
-	    + fs.ports_unenabled_width + fs.ports_unenabled_speed > 0) {
+	    + fs.ports_unenabled_width + fs.ports_unenabled_speed
+	    + fs.ports_unknown_width + fs.ports_unknown_speed > 0) {
 		fprintf(out, "\nPossible issues:\n");
 	}
 	if (fs.ports_disabled) {
@@ -992,6 +993,10 @@ static void portstatus_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 			fs.ports_reduced_speed);
 		__print_port_report(out, fs.reduced_speed_ports);
 	}
+	if (fs.ports_unknown_speed) {
+		fprintf(out, "   %" PRIu64 " with unknown speed\n",
+			fs.ports_unknown_speed);
+	}
 	if (fs.ports_unenabled_width) {
 		fprintf(out, "   %" PRIu64 " with unenabled width\n",
 			fs.ports_unenabled_width);
@@ -1001,6 +1006,10 @@ static void portstatus_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 		fprintf(out, "   %" PRIu64 " with reduced width\n",
 			fs.ports_reduced_width);
 		__print_port_report(out, fs.reduced_width_ports);
+	}
+	if (fs.ports_unknown_width) {
+		fprintf(out, "   %" PRIu64 " with unknown width\n",
+			fs.ports_unknown_width);
 	}
 	fprintf(out, "\n");
 }
