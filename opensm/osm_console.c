@@ -718,6 +718,7 @@ typedef struct {
 	uint64_t ports_8X;
 	uint64_t ports_12X;
 	uint64_t ports_unknown_width;
+	port_report_t *unknown_width_ports;
 	uint64_t ports_unenabled_width;
 	port_report_t *unenabled_width_ports;
 	uint64_t ports_reduced_width;
@@ -729,6 +730,7 @@ typedef struct {
 	uint64_t ports_fdr;
 	uint64_t ports_edr;
 	uint64_t ports_unknown_speed;
+	port_report_t *unknown_speed_ports;
 	uint64_t ports_unenabled_speed;
 	port_report_t *unenabled_speed_ports;
 	uint64_t ports_reduced_speed;
@@ -855,6 +857,9 @@ static void __get_stats(cl_map_item_t * const p_map_item, void *context)
 			break;
 		default:
 			fs->ports_unknown_speed++;
+			__tag_port_report(&(fs->unknown_speed_ports),
+					  cl_ntoh64(node->node_info.node_guid),
+					  port, node->print_desc);
 			break;
 		}
 		if (pi0->capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS &&
@@ -901,6 +906,9 @@ static void __get_stats(cl_map_item_t * const p_map_item, void *context)
 			break;
 		default:
 			fs->ports_unknown_width++;
+			__tag_port_report(&(fs->unknown_width_ports),
+					  cl_ntoh64(node->node_info.node_guid),
+					  port, node->print_desc);
 			break;
 		}
 	}
@@ -996,6 +1004,7 @@ static void portstatus_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 	if (fs.ports_unknown_speed) {
 		fprintf(out, "   %" PRIu64 " with unknown speed\n",
 			fs.ports_unknown_speed);
+		__print_port_report(out, fs.unknown_speed_ports);
 	}
 	if (fs.ports_unenabled_width) {
 		fprintf(out, "   %" PRIu64 " with unenabled width\n",
@@ -1010,6 +1019,7 @@ static void portstatus_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 	if (fs.ports_unknown_width) {
 		fprintf(out, "   %" PRIu64 " with unknown width\n",
 			fs.ports_unknown_width);
+		__print_port_report(out, fs.unknown_width_ports);
 	}
 	fprintf(out, "\n");
 }
