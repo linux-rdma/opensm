@@ -1228,12 +1228,11 @@ static void do_sweep(osm_sm_t * sm)
 	}
 
 	/*
-	 * Unicast cache should be invalidated if there were errors
-	 * during initialization or if subnet re-route is requested.
+	 * Unicast cache should be invalidated when subnet re-route is
+	 * requested, and when OpenSM comes out of standby state.
 	 */
 	if (sm->p_subn->opt.use_ucast_cache &&
-	    (sm->p_subn->subnet_initialization_error ||
-	     sm->p_subn->force_reroute || sm->p_subn->coming_out_of_standby))
+	    (sm->p_subn->force_reroute || sm->p_subn->coming_out_of_standby))
 		osm_ucast_cache_invalidate(&sm->ucast_mgr);
 
 	/*
@@ -1458,9 +1457,12 @@ repeat_discovery:
 	 */
 
 	if (!sm->ucast_mgr.cache_valid ||
-	    osm_ucast_cache_process(&sm->ucast_mgr))
-		if (osm_ucast_mgr_process(&sm->ucast_mgr))
+	    osm_ucast_cache_process(&sm->ucast_mgr)) {
+		if (osm_ucast_mgr_process(&sm->ucast_mgr)) {
+			osm_ucast_cache_invalidate(&sm->ucast_mgr);
 			return;
+		}
+	}
 
 	osm_qos_setup(sm->p_subn->p_osm);
 
