@@ -55,6 +55,9 @@
 #include <opensm/osm_partition.h>
 #include <opensm/osm_opensm.h>
 
+static void clear_accum_pkey_index(osm_pkey_tbl_t * p_pkey_tbl,
+				   uint16_t pkey_index);
+
 /*
   The max number of pkeys/pkey blocks for a physical port is located
   in a different place for switch external ports (SwitchInfo) and the
@@ -92,7 +95,6 @@ pkey_mgr_process_physical_port(IN osm_log_t * p_log,
 	osm_node_t *p_node = osm_physp_get_node_ptr(p_physp);
 	osm_pkey_tbl_t *p_pkey_tbl;
 	ib_net16_t *p_orig_pkey;
-	const char *stat = NULL;
 	osm_pending_pkey_t *p_pending;
 
 	p_pkey_tbl = &p_physp->pkeys;
@@ -111,11 +113,9 @@ pkey_mgr_process_physical_port(IN osm_log_t * p_log,
 	else
 		p_orig_pkey = cl_map_get(&p_pkey_tbl->keys,
 					 ib_pkey_get_base(pkey));
+
 	if (!p_orig_pkey) {
 		p_pending->is_new = TRUE;
-		cl_qlist_insert_tail(&p_pkey_tbl->pending,
-				     (cl_list_item_t *) p_pending);
-		stat = "inserted";
 	} else {
 		CL_ASSERT(ib_pkey_get_base(*p_orig_pkey) ==
 			  ib_pkey_get_base(pkey));
@@ -133,14 +133,64 @@ pkey_mgr_process_physical_port(IN osm_log_t * p_log,
 			free(p_pending);
 			return;
 		}
+		if (p_physp->pkeys.indx0_pkey) {
+			/*
+			 * Remove the pkey that should be at index 0 from
+			 * accum pkey if current position is not index 0
+			 */
+			if (((sm->p_subn->opt.allow_both_pkeys &&
+			      pkey == p_physp->pkeys.indx0_pkey) ||
+			     (!sm->p_subn->opt.allow_both_pkeys &&
+			      ib_pkey_get_base(pkey) == ib_pkey_get_base(p_physp->pkeys.indx0_pkey))) &&
+			    (p_pending->block != 0 || p_pending->index != 0)) {
+					p_pending->is_new = TRUE;
+					clear_accum_pkey_index(p_pkey_tbl,
+							       p_pending->block *
+							       IB_NUM_PKEY_ELEMENTS_IN_BLOCK +
+							       p_pending->index);
+			}
+
+			if (p_pending->block == 0 && p_pending->index == 0) {
+				/* Move the pkey away from index 0 */
+				if ((sm->p_subn->opt.allow_both_pkeys &&
+				     pkey != p_physp->pkeys.indx0_pkey) ||
+				    (!sm->p_subn->opt.allow_both_pkeys &&
+				     ib_pkey_get_base(pkey) != ib_pkey_get_base(p_physp->pkeys.indx0_pkey))) {
+					p_pending->is_new = TRUE;
+					clear_accum_pkey_index(p_pkey_tbl, 0);
+				}
+			}
+		 } else {
+			/* If index 0 is occupied by non-default, it should reoccupied by pkey 0x7FFF */
+			if (p_pending->block == 0 && p_pending->index == 0) {
+				if (ib_pkey_get_base(pkey) != IB_DEFAULT_PARTIAL_PKEY) {
+					p_pending->is_new = TRUE;
+					clear_accum_pkey_index(p_pkey_tbl, 0);
+				}
+			/* Need to move default pkey to index 0 */
+			} else if ((sm->p_subn->opt.allow_both_pkeys &&
+				    pkey == IB_DEFAULT_PKEY) ||
+				   (!sm->p_subn->opt.allow_both_pkeys &&
+				    ib_pkey_get_base(pkey) == IB_DEFAULT_PARTIAL_PKEY)) {
+					p_pending->is_new = TRUE;
+					clear_accum_pkey_index(p_pkey_tbl,
+							       p_pending->block *
+							       IB_NUM_PKEY_ELEMENTS_IN_BLOCK +
+							       p_pending->index);
+			}
+		}
+
+	}
+	if (p_pending->is_new == TRUE)
+		 cl_qlist_insert_tail(&p_pkey_tbl->pending,
+				      (cl_list_item_t *) p_pending);
+	else
 		cl_qlist_insert_head(&p_pkey_tbl->pending,
 				     (cl_list_item_t *) p_pending);
-		stat = "updated";
-	}
 
 	OSM_LOG(p_log, OSM_LOG_DEBUG,
 		"pkey 0x%04x was %s for node 0x%016" PRIx64 " port %u\n",
-		cl_ntoh16(pkey), stat,
+		cl_ntoh16(pkey), p_pending->is_new ? "inserted" : "updated",
 		cl_ntoh64(osm_node_get_node_guid(p_node)),
 		osm_physp_get_port_num(p_physp));
 }
@@ -390,27 +440,62 @@ static int pkey_mgr_update_port(osm_log_t * p_log, osm_sm_t * sm,
 				pkey_idx--; /* adjust pkey index for bias */
 				block_index = pkey_idx / IB_NUM_PKEY_ELEMENTS_IN_BLOCK;
 				pkey_index = pkey_idx % IB_NUM_PKEY_ELEMENTS_IN_BLOCK;
-				found = TRUE;
+
+				if (((sm->p_subn->opt.allow_both_pkeys &&
+				      p_pending->pkey == p_physp->pkeys.indx0_pkey) ||
+				     (!sm->p_subn->opt.allow_both_pkeys &&
+				      ib_pkey_get_base(p_pending->pkey) == ib_pkey_get_base(p_physp->pkeys.indx0_pkey))) ||
+				    ((p_pending->pkey != p_physp->pkeys.indx0_pkey &&
+				      pkey_idx == 0))) {
+					clear_accum_pkey_index(p_pkey_tbl, pkey_idx);
+					cl_qlist_insert_tail(&p_pkey_tbl->pending,
+							     (cl_list_item_t *)p_pending);
+					p_pending =
+                                            (osm_pending_pkey_t *) cl_qlist_remove_head(&p_pkey_tbl->pending);
+					continue;
+				} else
+					found = TRUE;
 			}
 
 			if (!found) {
-				if (last_accum_pkey_index(p_pkey_tbl,
-						      &last_free_block_index,
-						      &last_free_pkey_index)) {
-					block_index = last_free_block_index;
-					pkey_index = last_free_pkey_index + 1;
-				} else {
+				if (!p_pkey_tbl->indx0_pkey &&
+				    ((sm->p_subn->opt.allow_both_pkeys &&
+				      p_pending->pkey == IB_DEFAULT_PKEY) ||
+				     (!sm->p_subn->opt.allow_both_pkeys &&
+				      ib_pkey_get_base(p_pending->pkey) == IB_DEFAULT_PARTIAL_PKEY))) {
 					block_index = 0;
 					pkey_index = 0;
+				} else if ((sm->p_subn->opt.allow_both_pkeys &&
+					    p_pending->pkey == p_pkey_tbl->indx0_pkey) ||
+					   (!sm->p_subn->opt.allow_both_pkeys &&
+					    ib_pkey_get_base(p_pending->pkey) ==
+					    ib_pkey_get_base(p_pkey_tbl->indx0_pkey))) {
+					block_index = 0;
+					pkey_index = 0;
+				} else if (last_accum_pkey_index(p_pkey_tbl,
+								 &last_free_block_index,
+								 &last_free_pkey_index)) {
+					block_index = last_free_block_index;
+					pkey_index = last_free_pkey_index + 1;
+					if (pkey_index >= IB_NUM_PKEY_ELEMENTS_IN_BLOCK) {
+						block_index++;
+						pkey_index -= IB_NUM_PKEY_ELEMENTS_IN_BLOCK;
+					}
+				} else {
+					block_index = 0;
+					pkey_index = 1;
 				}
-				if (pkey_index >= IB_NUM_PKEY_ELEMENTS_IN_BLOCK) {
-					block_index++;
-					pkey_index -= IB_NUM_PKEY_ELEMENTS_IN_BLOCK;
-				}
+
 				if (block_index * IB_NUM_PKEY_ELEMENTS_IN_BLOCK + pkey_index >= pkey_mgr_get_physp_max_pkeys(p_physp)) {
-					last_free_block_index = 0;
-					last_free_pkey_index = 0;
-					found = osm_pkey_find_next_free_entry(p_pkey_tbl, &last_free_block_index, &last_free_pkey_index);
+					if ((sm->p_subn->opt.allow_both_pkeys &&
+					     p_pending->pkey == IB_DEFAULT_PKEY) ||
+					    (!sm->p_subn->opt.allow_both_pkeys &&
+					     ib_pkey_get_base(p_pending->pkey) == IB_DEFAULT_PARTIAL_PKEY)) {
+						last_free_block_index = 0;
+						last_free_pkey_index = 1;
+						found = osm_pkey_find_next_free_entry(p_pkey_tbl, &last_free_block_index, &last_free_pkey_index);
+					} else
+						found = FALSE;
 					if (!found)
 						full = 1;
 					else {
@@ -478,13 +563,13 @@ static int pkey_mgr_update_port(osm_log_t * p_log, osm_sm_t * sm,
 					p_physp->p_node->print_desc);
 			}
 		}
-
 		free(p_pending);
 		p_pending =
 		    (osm_pending_pkey_t *) cl_qlist_remove_head(&p_pkey_tbl->
 								pending);
 	}
 
+	p_pkey_tbl->indx0_pkey = 0;
 	/* now look for changes and store */
 	for (block_index = 0; block_index < num_of_blocks; block_index++) {
 		block = osm_pkey_tbl_block_get(p_pkey_tbl, block_index);

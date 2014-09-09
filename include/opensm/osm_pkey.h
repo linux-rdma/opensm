@@ -91,6 +91,7 @@ typedef struct osm_pkeybl {
 	uint16_t used_blocks;
 	uint16_t max_blocks;
 	uint16_t rcv_blocks_cnt;
+	uint16_t indx0_pkey;
 } osm_pkey_tbl_t;
 /*
 * FIELDS
@@ -124,6 +125,10 @@ typedef struct osm_pkeybl {
 *		Counter for the received GetPKeyTable mads.
 *		For every GetPKeyTable mad we send, increase the counter,
 *		and for every GetRespPKeyTable we decrease the counter.
+*
+*	indx0_pkey
+*		stores the pkey to be inserted at block 0 index 0.
+*		if this field is 0, the default pkey will be inserted.
 *
 * NOTES
 * 'blocks' vector should be used to store pkey values obtained from

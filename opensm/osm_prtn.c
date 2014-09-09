@@ -123,7 +123,7 @@ void osm_prtn_delete(IN osm_subn_t * p_subn, IN OUT osm_prtn_t ** pp_prtn)
 
 ib_api_status_t osm_prtn_add_port(osm_log_t * p_log, osm_subn_t * p_subn,
 				  osm_prtn_t * p, ib_net64_t guid,
-				  boolean_t full)
+				  boolean_t full, boolean_t indx0)
 {
 	ib_api_status_t status = IB_SUCCESS;
 	cl_map_t *p_tbl;
@@ -143,6 +143,18 @@ ib_api_status_t osm_prtn_add_port(osm_log_t * p_log, osm_subn_t * p_subn,
 			"no physical for port 0x%" PRIx64 "\n",
 			cl_ntoh64(guid));
 		return status;
+	}
+	/* Set the pkey to be inserted to block 0 index 0 */
+	if (indx0) {
+		if (p_physp->pkeys.indx0_pkey == 0)
+			p_physp->pkeys.indx0_pkey = (full == TRUE) ?
+				p->pkey | cl_hton16(0x8000) : p->pkey;
+		else if (ib_pkey_get_base(p_physp->pkeys.indx0_pkey) !=
+			 ib_pkey_get_base(p->pkey))
+			OSM_LOG(p_log, OSM_LOG_ERROR, "port 0x%" PRIx64
+				" pkey already in indx0, ignoring "
+				"indx0 of pkey 0x%04x\n",
+				cl_ntoh64(guid), cl_ntoh16(p->pkey));
 	}
 
 	p_tbl = (full == TRUE) ? &p->full_guid_tbl : &p->part_guid_tbl;
@@ -170,7 +182,8 @@ ib_api_status_t osm_prtn_add_port(osm_log_t * p_log, osm_subn_t * p_subn,
 }
 
 ib_api_status_t osm_prtn_add_all(osm_log_t * p_log, osm_subn_t * p_subn,
-				 osm_prtn_t * p, unsigned type, boolean_t full)
+				 osm_prtn_t * p, unsigned type,
+				 boolean_t full, boolean_t indx0)
 {
 	cl_qmap_t *p_port_tbl = &p_subn->port_guid_tbl;
 	cl_map_item_t *p_item;
@@ -184,7 +197,7 @@ ib_api_status_t osm_prtn_add_all(osm_log_t * p_log, osm_subn_t * p_subn,
 		if (!type || osm_node_get_type(p_port->p_node) == type) {
 			status = osm_prtn_add_port(p_log, p_subn, p,
 						   osm_port_get_guid(p_port),
-						   full);
+						   full, indx0);
 			if (status != IB_SUCCESS)
 				goto _err;
 		}
@@ -353,12 +366,12 @@ static ib_api_status_t prtn_make_default(osm_log_t * p_log, osm_subn_t * p_subn,
 			      IB_DEFAULT_PARTIAL_PKEY);
 	if (!p)
 		goto _err;
-	status = osm_prtn_add_all(p_log, p_subn, p, 0, no_config);
+	status = osm_prtn_add_all(p_log, p_subn, p, 0, no_config, FALSE);
 	if (status != IB_SUCCESS)
 		goto _err;
 	cl_map_remove(&p->part_guid_tbl, p_subn->sm_port_guid);
 	status =
-	    osm_prtn_add_port(p_log, p_subn, p, p_subn->sm_port_guid, TRUE);
+	    osm_prtn_add_port(p_log, p_subn, p, p_subn->sm_port_guid, TRUE, FALSE);
 
 	/* ipv4 broadcast group */
 	if (no_config)
