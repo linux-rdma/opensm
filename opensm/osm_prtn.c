@@ -149,7 +149,7 @@ ib_api_status_t osm_prtn_add_port(osm_log_t * p_log, osm_subn_t * p_subn,
 
 	if (p_subn->opt.allow_both_pkeys) {
 		if (cl_map_remove(p_tbl, guid))
-			OSM_LOG(p_log, OSM_LOG_ERROR, "port 0x%" PRIx64
+			OSM_LOG(p_log, OSM_LOG_VERBOSE, "port 0x%" PRIx64
 				" already in partition \'%s\' (0x%04x) full %d."
 				" Will overwrite\n",
 				cl_ntoh64(guid), p->name, cl_ntoh16(p->pkey),
