@@ -677,7 +677,7 @@ typedef struct osm_subn_opt {
 *		configuration setting.
 *
 *	cc_sw_cong_setting_credit_starvation_threshold
-*		Congestion Control Switch Congestion Setting Credit Staraction Threshold
+*		Congestion Control Switch Congestion Setting Credit Starvation Threshold
 *		configuration setting.
 *
 *	cc_sw_cong_setting_credit_starvation_return_delay
