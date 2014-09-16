@@ -287,7 +287,7 @@ typedef struct osm_subn_opt {
 	uint8_t log_flags;
 	char *dump_files_dir;
 	char *log_file;
-	unsigned long log_max_size;
+	uint32_t log_max_size;
 	char *partition_config_file;
 	boolean_t no_partition_enforcement;
 	char *part_enforce;

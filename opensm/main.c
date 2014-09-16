@@ -908,7 +908,7 @@ int main(int argc, char *argv[])
 
 		case 'L':
 			opt.log_max_size = strtoul(optarg, NULL, 0);
-			printf(" Log file max size is %lu MBytes\n",
+			printf(" Log file max size is %u MBytes\n",
 			       opt.log_max_size);
 			break;
 
