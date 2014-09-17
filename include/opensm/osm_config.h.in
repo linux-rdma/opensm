@@ -12,6 +12,7 @@
 
 /* define 1 if OpenSM build is in a debug mode */
 #undef OSM_DEBUG
+#undef _DEBUG_
 
 /* Define as 1 if you want Dual Sided RMPP Support */
 #undef DUAL_SIDED_RMPP
