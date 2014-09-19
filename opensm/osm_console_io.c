@@ -167,7 +167,7 @@ int is_authorized(osm_console_t * p_oct)
 	/* allowed to use the console? */
 	p_oct->authorized = !is_remote(p_oct->client_type) ||
 	    hosts_ctl((char *)OSM_DAEMON_NAME, p_oct->client_hn, p_oct->client_ip,
-		      (char *)"STRING_UNKNOWN");
+		      (char *)STRING_UNKNOWN);
 	return p_oct->authorized;
 }
 #endif
