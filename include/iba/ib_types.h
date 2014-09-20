@@ -5092,6 +5092,7 @@ ib_port_info_get_link_speed_active(IN const ib_port_info_t * const p_pi)
 #define IB_LINK_WIDTH_ACTIVE_4X			2
 #define IB_LINK_WIDTH_ACTIVE_8X			4
 #define IB_LINK_WIDTH_ACTIVE_12X 		8
+#define IB_LINK_SPEED_ACTIVE_EXTENDED		0
 #define IB_LINK_SPEED_ACTIVE_2_5		1
 #define IB_LINK_SPEED_ACTIVE_5			2
 #define IB_LINK_SPEED_ACTIVE_10			4

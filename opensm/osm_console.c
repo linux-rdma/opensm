@@ -855,6 +855,8 @@ static void __get_stats(cl_map_item_t * const p_map_item, void *context)
 				}
 			}
 			break;
+		case IB_LINK_SPEED_ACTIVE_EXTENDED:
+			break;
 		default:
 			__tag_port_report(&(fs->unknown_speed_ports),
 					  cl_ntoh64(node->node_info.node_guid),
@@ -885,6 +887,8 @@ static void __get_stats(cl_map_item_t * const p_map_item, void *context)
 				break;
 			case IB_LINK_SPEED_EXT_ACTIVE_25:
 				fs->ports_edr++;
+				break;
+			case IB_LINK_SPEED_EXT_ACTIVE_NONE:
 				break;
 			default:
 				__tag_port_report(&(fs->unknown_speed_ports),
