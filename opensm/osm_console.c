@@ -856,10 +856,10 @@ static void __get_stats(cl_map_item_t * const p_map_item, void *context)
 			}
 			break;
 		default:
-			fs->ports_unknown_speed++;
 			__tag_port_report(&(fs->unknown_speed_ports),
 					  cl_ntoh64(node->node_info.node_guid),
 					  port, node->print_desc);
+			fs->ports_unknown_speed++;
 			break;
 		}
 		if (pi0->capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS &&
@@ -887,6 +887,9 @@ static void __get_stats(cl_map_item_t * const p_map_item, void *context)
 				fs->ports_edr++;
 				break;
 			default:
+				__tag_port_report(&(fs->unknown_speed_ports),
+						  cl_ntoh64(node->node_info.node_guid),
+						  port, node->print_desc);
 				fs->ports_unknown_speed++;
 				break;
 			}
@@ -905,10 +908,10 @@ static void __get_stats(cl_map_item_t * const p_map_item, void *context)
 			fs->ports_12X++;
 			break;
 		default:
-			fs->ports_unknown_width++;
 			__tag_port_report(&(fs->unknown_width_ports),
 					  cl_ntoh64(node->node_info.node_guid),
 					  port, node->print_desc);
+			fs->ports_unknown_width++;
 			break;
 		}
 	}
