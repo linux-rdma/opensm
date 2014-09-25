@@ -44,6 +44,7 @@
 #include <time.h>
 #include <dlfcn.h>
 #include <stdint.h>
+#include <opensm/osm_config.h>
 #include <complib/cl_qmap.h>
 #include <complib/cl_passivelock.h>
 #include <opensm/osm_version.h>
