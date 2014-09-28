@@ -226,6 +226,8 @@ typedef struct osm_opensm {
 	osm_vl15_t vl15;
 	osm_log_t log;
 	cl_dispatcher_t disp;
+	cl_dispatcher_t sa_set_disp;
+	boolean_t sa_set_disp_initialized;
 	cl_plock_t lock;
 	struct osm_routing_engine *routing_engine_list;
 	struct osm_routing_engine *routing_engine_used;
@@ -268,6 +270,12 @@ typedef struct osm_opensm {
 *
 *	disp
 *		Central dispatcher containing the OpenSM worker threads.
+*
+*	sa_set_disp
+*		Dispatcher for SA Set and Delete requests.
+*
+*	sa_set_disp_initialized.
+*		Indicator that sa_set_disp dispatcher was initialized.
 *
 *	lock
 *		Shared lock guarding most OpenSM structures.

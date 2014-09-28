@@ -93,15 +93,19 @@ static void sa_mad_ctrl_disp_done_callback(IN void *context, IN void *p_data)
  * SYNOPSIS
  */
 static void sa_mad_ctrl_process(IN osm_sa_mad_ctrl_t * p_ctrl,
-				IN osm_madw_t * p_madw)
+				IN osm_madw_t * p_madw,
+				IN boolean_t is_get_request)
 {
 	ib_sa_mad_t *p_sa_mad;
+	cl_disp_reg_handle_t h_disp;
 	cl_status_t status;
 	cl_disp_msgid_t msg_id = CL_DISP_MSGID_NONE;
 	uint64_t last_dispatched_msg_queue_time_msec;
 	uint32_t num_messages;
 
 	OSM_LOG_ENTER(p_ctrl->p_log);
+
+	p_sa_mad = osm_madw_get_sa_mad_ptr(p_madw);
 
 	/*
 	   If the dispatcher is showing us that it is overloaded
@@ -113,8 +117,16 @@ static void sa_mad_ctrl_process(IN osm_sa_mad_ctrl_t * p_ctrl,
 	   HACK: Actually, we cannot send a mad from within the receive callback;
 	   thus - we will just drop it.
 	 */
-	cl_disp_get_queue_status(p_ctrl->h_disp, &num_messages,
+
+	if (!is_get_request && p_ctrl->p_set_disp) {
+		h_disp = p_ctrl->h_set_disp;
+		goto SKIP_QUEUE_CHECK;
+	}
+
+	h_disp = p_ctrl->h_disp;
+	cl_disp_get_queue_status(h_disp, &num_messages,
 				 &last_dispatched_msg_queue_time_msec);
+
 	if (num_messages > 1 && p_ctrl->p_subn->opt.max_msg_fifo_timeout &&
 	    last_dispatched_msg_queue_time_msec >
 	    p_ctrl->p_subn->opt.max_msg_fifo_timeout) {
@@ -134,8 +146,7 @@ static void sa_mad_ctrl_process(IN osm_sa_mad_ctrl_t * p_ctrl,
 		goto Exit;
 	}
 
-	p_sa_mad = osm_madw_get_sa_mad_ptr(p_madw);
-
+SKIP_QUEUE_CHECK:
 	/*
 	   Note that attr_id (like the rest of the MAD) is in
 	   network byte order.
@@ -233,7 +244,7 @@ static void sa_mad_ctrl_process(IN osm_sa_mad_ctrl_t * p_ctrl,
 			"Posting Dispatcher message %s\n",
 			osm_get_disp_msg_str(msg_id));
 
-		status = cl_disp_post(p_ctrl->h_disp, msg_id, p_madw,
+		status = cl_disp_post(h_disp, msg_id, p_madw,
 				      sa_mad_ctrl_disp_done_callback, p_ctrl);
 
 		if (status != CL_SUCCESS) {
@@ -283,6 +294,7 @@ static void sa_mad_ctrl_rcv_callback(IN osm_madw_t * p_madw, IN void *context,
 {
 	osm_sa_mad_ctrl_t *p_ctrl = context;
 	ib_sa_mad_t *p_sa_mad;
+	boolean_t is_get_request = FALSE;
 
 	OSM_LOG_ENTER(p_ctrl->p_log);
 
@@ -360,13 +372,14 @@ static void sa_mad_ctrl_rcv_callback(IN osm_madw_t * p_madw, IN void *context,
 #if defined (VENDOR_RMPP_SUPPORT) && defined (DUAL_SIDED_RMPP)
 	case IB_MAD_METHOD_GETMULTI:
 #endif
+		is_get_request = TRUE;
 	case IB_MAD_METHOD_SET:
 	case IB_MAD_METHOD_DELETE:
 		/* if we are closing down simply do nothing */
 		if (osm_exit_flag)
 			osm_mad_pool_put(p_ctrl->p_mad_pool, p_madw);
 		else
-			sa_mad_ctrl_process(p_ctrl, p_madw);
+			sa_mad_ctrl_process(p_ctrl, p_madw, is_get_request);
 		break;
 
 	default:
@@ -439,9 +452,20 @@ static void sa_mad_ctrl_send_err_callback(IN void *context,
 			"Posting Dispatcher message %s\n",
 			osm_get_disp_msg_str(osm_madw_get_err_msg(p_madw)));
 
-		status = cl_disp_post(p_ctrl->h_disp,
-				      osm_madw_get_err_msg(p_madw), p_madw,
-				      sa_mad_ctrl_disp_done_callback, p_ctrl);
+		if (p_ctrl->p_set_disp &&
+		    (p_madw->p_mad->method == IB_MAD_METHOD_SET ||
+		     p_madw->p_mad->method == IB_MAD_METHOD_DELETE))
+			status = cl_disp_post(p_ctrl->h_set_disp,
+					      osm_madw_get_err_msg(p_madw),
+					      p_madw,
+					      sa_mad_ctrl_disp_done_callback,
+					      p_ctrl);
+		else
+			status = cl_disp_post(p_ctrl->h_disp,
+					      osm_madw_get_err_msg(p_madw),
+					      p_madw,
+					      sa_mad_ctrl_disp_done_callback,
+					      p_ctrl);
 		if (status != CL_SUCCESS) {
 			OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 1A07: "
 				"Dispatcher post message failed (%s)\n",
@@ -468,12 +492,14 @@ void osm_sa_mad_ctrl_construct(IN osm_sa_mad_ctrl_t * p_ctrl)
 	CL_ASSERT(p_ctrl);
 	memset(p_ctrl, 0, sizeof(*p_ctrl));
 	p_ctrl->h_disp = CL_DISP_INVALID_HANDLE;
+	p_ctrl->h_set_disp = CL_DISP_INVALID_HANDLE;
 }
 
 void osm_sa_mad_ctrl_destroy(IN osm_sa_mad_ctrl_t * p_ctrl)
 {
 	CL_ASSERT(p_ctrl);
 	cl_disp_unregister(p_ctrl->h_disp);
+	cl_disp_unregister(p_ctrl->h_set_disp);
 }
 
 ib_api_status_t osm_sa_mad_ctrl_init(IN osm_sa_mad_ctrl_t * p_ctrl,
@@ -483,7 +509,8 @@ ib_api_status_t osm_sa_mad_ctrl_init(IN osm_sa_mad_ctrl_t * p_ctrl,
 				     IN osm_subn_t * p_subn,
 				     IN osm_log_t * p_log,
 				     IN osm_stats_t * p_stats,
-				     IN cl_dispatcher_t * p_disp)
+				     IN cl_dispatcher_t * p_disp,
+				     IN cl_dispatcher_t * p_set_disp)
 {
 	ib_api_status_t status = IB_SUCCESS;
 
@@ -494,6 +521,7 @@ ib_api_status_t osm_sa_mad_ctrl_init(IN osm_sa_mad_ctrl_t * p_ctrl,
 	p_ctrl->sa = sa;
 	p_ctrl->p_log = p_log;
 	p_ctrl->p_disp = p_disp;
+	p_ctrl->p_set_disp = p_set_disp;
 	p_ctrl->p_mad_pool = p_mad_pool;
 	p_ctrl->p_vendor = p_vendor;
 	p_ctrl->p_stats = p_stats;
@@ -507,6 +535,19 @@ ib_api_status_t osm_sa_mad_ctrl_init(IN osm_sa_mad_ctrl_t * p_ctrl,
 			"Dispatcher registration failed\n");
 		status = IB_INSUFFICIENT_RESOURCES;
 		goto Exit;
+	}
+
+	if (p_set_disp) {
+		p_ctrl->h_set_disp =
+		    cl_disp_register(p_set_disp, CL_DISP_MSGID_NONE, NULL,
+				     p_ctrl);
+
+		if (p_ctrl->h_set_disp == CL_DISP_INVALID_HANDLE) {
+			OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 1A0A: "
+				"SA set dispatcher registration failed\n");
+			status = IB_INSUFFICIENT_RESOURCES;
+			goto Exit;
+		}
 	}
 
 Exit:

@@ -186,6 +186,7 @@ typedef struct osm_sa {
 	osm_log_t *p_log;
 	osm_mad_pool_t *p_mad_pool;
 	cl_dispatcher_t *p_disp;
+	cl_dispatcher_t *p_set_disp;
 	cl_plock_t *p_lock;
 	atomic32_t sa_trans_id;
 	osm_sa_mad_ctrl_t mad_ctrl;
@@ -211,6 +212,10 @@ typedef struct osm_sa {
 	cl_disp_reg_handle_t lft_disp_h;
 	cl_disp_reg_handle_t sir_disp_h;
 	cl_disp_reg_handle_t mft_disp_h;
+	cl_disp_reg_handle_t infr_set_disp_h;
+	cl_disp_reg_handle_t gir_set_disp_h;
+	cl_disp_reg_handle_t mcmr_set_disp_h;
+	cl_disp_reg_handle_t sr_set_disp_h;
 } osm_sa_t;
 /*
 * FIELDS
@@ -234,6 +239,9 @@ typedef struct osm_sa {
 *
 *	p_disp
 *		Pointer to dispatcher
+*
+*	p_set_disp
+*		Pointer to dispatcher for Set requests.
 *
 *	p_lock
 *		Pointer to Lock for serialization
@@ -346,6 +354,7 @@ ib_api_status_t osm_sa_init(IN osm_sm_t * p_sm, IN osm_sa_t * p_sa,
 			    IN osm_mad_pool_t * p_mad_pool,
 			    IN osm_log_t * p_log, IN osm_stats_t * p_stats,
 			    IN cl_dispatcher_t * p_disp,
+			    IN cl_dispatcher_t * p_set_disp,
 			    IN cl_plock_t * p_lock);
 /*
 * PARAMETERS
@@ -369,6 +378,9 @@ ib_api_status_t osm_sa_init(IN osm_sm_t * p_sm, IN osm_sa_t * p_sa,
 *
 *	p_disp
 *		[in] Pointer to the OpenSM central Dispatcher.
+*
+*	p_set_disp
+*		[in] Pointer to the OpenSM Dispatcher for Set requests.
 *
 *	p_lock
 *		[in] Pointer to the OpenSM serializing lock.

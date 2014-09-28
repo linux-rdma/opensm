@@ -345,6 +345,8 @@ void osm_opensm_destroy_finish(IN osm_opensm_t * p_osm)
 	osm_vendor_delete(&p_osm->p_vendor);
 	osm_subn_destroy(&p_osm->subn);
 	cl_disp_destroy(&p_osm->disp);
+	if (p_osm->sa_set_disp_initialized)
+		cl_disp_destroy(&p_osm->sa_set_disp);
 #ifdef HAVE_LIBPTHREAD
 	pthread_cond_destroy(&p_osm->stats.cond);
 	pthread_mutex_destroy(&p_osm->stats.mutex);
@@ -432,6 +434,17 @@ ib_api_status_t osm_opensm_init(IN osm_opensm_t * p_osm,
 	if (status != IB_SUCCESS)
 		goto Exit;
 
+	/* Unless OpenSM runs in single threaded mode, we create new single
+	 * threaded dispatcher for SA Set and Delete requets.
+	 */
+	p_osm->sa_set_disp_initialized = FALSE;
+	if (!p_opt->single_thread) {
+		status = cl_disp_init(&p_osm->sa_set_disp, 1, "subnadmin_set");
+		if (status != IB_SUCCESS)
+			goto Exit;
+		p_osm->sa_set_disp_initialized = TRUE;
+	}
+
 	/* the DB is in use by subn so init before */
 	status = osm_db_init(&p_osm->db, &p_osm->log);
 	if (status != IB_SUCCESS)
@@ -480,7 +493,9 @@ ib_api_status_t osm_opensm_init_finish(IN osm_opensm_t * p_osm,
 
 	status = osm_sa_init(&p_osm->sm, &p_osm->sa, &p_osm->subn,
 			     p_osm->p_vendor, &p_osm->mad_pool, &p_osm->log,
-			     &p_osm->stats, &p_osm->disp, &p_osm->lock);
+			     &p_osm->stats, &p_osm->disp,
+			     p_opt->single_thread ? NULL : &p_osm->sa_set_disp,
+			     &p_osm->lock);
 	if (status != IB_SUCCESS)
 		goto Exit;
 

@@ -132,6 +132,14 @@ void osm_sa_shutdown(IN osm_sa_t * p_sa)
 	cl_disp_unregister(p_sa->lft_disp_h);
 	cl_disp_unregister(p_sa->sir_disp_h);
 	cl_disp_unregister(p_sa->mft_disp_h);
+
+	if (p_sa->p_set_disp) {
+		cl_disp_unregister(p_sa->mcmr_set_disp_h);
+		cl_disp_unregister(p_sa->infr_set_disp_h);
+		cl_disp_unregister(p_sa->sr_set_disp_h);
+		cl_disp_unregister(p_sa->gir_set_disp_h);
+	}
+
 	osm_sa_mad_ctrl_destroy(&p_sa->mad_ctrl);
 
 	OSM_LOG_EXIT(p_sa->p_log);
@@ -152,7 +160,9 @@ ib_api_status_t osm_sa_init(IN osm_sm_t * p_sm, IN osm_sa_t * p_sa,
 			    IN osm_subn_t * p_subn, IN osm_vendor_t * p_vendor,
 			    IN osm_mad_pool_t * p_mad_pool,
 			    IN osm_log_t * p_log, IN osm_stats_t * p_stats,
-			    IN cl_dispatcher_t * p_disp, IN cl_plock_t * p_lock)
+			    IN cl_dispatcher_t * p_disp,
+			    IN cl_dispatcher_t * p_set_disp,
+			    IN cl_plock_t * p_lock)
 {
 	ib_api_status_t status;
 
@@ -164,13 +174,14 @@ ib_api_status_t osm_sa_init(IN osm_sm_t * p_sm, IN osm_sa_t * p_sa,
 	p_sa->p_mad_pool = p_mad_pool;
 	p_sa->p_log = p_log;
 	p_sa->p_disp = p_disp;
+	p_sa->p_set_disp = p_set_disp;
 	p_sa->p_lock = p_lock;
 
 	p_sa->state = OSM_SA_STATE_READY;
 
 	status = osm_sa_mad_ctrl_init(&p_sa->mad_ctrl, p_sa, p_sa->p_mad_pool,
 				      p_sa->p_vendor, p_subn, p_log, p_stats,
-				      p_disp);
+				      p_disp, p_set_disp);
 	if (status != IB_SUCCESS)
 		goto Exit;
 
@@ -276,6 +287,36 @@ ib_api_status_t osm_sa_init(IN osm_sm_t * p_sm, IN osm_sa_t * p_sa,
 					    osm_mftr_rcv_process, p_sa);
 	if (p_sa->mft_disp_h == CL_DISP_INVALID_HANDLE)
 		goto Exit;
+
+	/*
+	 * When p_set_disp is defined, it means that we use different dispatcher
+	 * for SA Set requests, and we need to register handlers for it.
+	 */
+	if (p_set_disp) {
+		p_sa->gir_set_disp_h =
+		    cl_disp_register(p_set_disp, OSM_MSG_MAD_GUIDINFO_RECORD,
+				     osm_gir_rcv_process, p_sa);
+		if (p_sa->gir_set_disp_h == CL_DISP_INVALID_HANDLE)
+			goto Exit;
+
+		p_sa->mcmr_set_disp_h =
+		    cl_disp_register(p_set_disp, OSM_MSG_MAD_MCMEMBER_RECORD,
+				     osm_mcmr_rcv_process, p_sa);
+		if (p_sa->mcmr_set_disp_h == CL_DISP_INVALID_HANDLE)
+			goto Exit;
+
+		p_sa->sr_set_disp_h =
+		    cl_disp_register(p_set_disp, OSM_MSG_MAD_SERVICE_RECORD,
+				     osm_sr_rcv_process, p_sa);
+		if (p_sa->sr_set_disp_h == CL_DISP_INVALID_HANDLE)
+			goto Exit;
+
+		p_sa->infr_set_disp_h =
+		    cl_disp_register(p_set_disp, OSM_MSG_MAD_INFORM_INFO,
+				     osm_infr_rcv_process, p_sa);
+		if (p_sa->infr_set_disp_h == CL_DISP_INVALID_HANDLE)
+			goto Exit;
+	}
 
 	status = IB_SUCCESS;
 Exit:

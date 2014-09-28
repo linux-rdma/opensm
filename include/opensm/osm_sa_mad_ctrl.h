@@ -98,7 +98,9 @@ typedef struct osm_sa_mad_ctrl {
 	osm_vendor_t *p_vendor;
 	osm_bind_handle_t h_bind;
 	cl_dispatcher_t *p_disp;
+	cl_dispatcher_t *p_set_disp;
 	cl_disp_reg_handle_t h_disp;
+	cl_disp_reg_handle_t h_set_disp;
 	osm_stats_t *p_stats;
 	osm_subn_t *p_subn;
 } osm_sa_mad_ctrl_t;
@@ -122,8 +124,14 @@ typedef struct osm_sa_mad_ctrl {
 *	p_disp
 *		Pointer to the Dispatcher.
 *
+*	p_set_disp
+*		Pointer to the Dispatcher for Set requests.
+*
 *	h_disp
 *		Handle returned from dispatcher registration.
+*
+*	h_set_disp
+*		Handle returned from Set requests dispatcher registration.
 *
 *	p_stats
 *		Pointer to the OpenSM statistics block.
@@ -211,7 +219,8 @@ ib_api_status_t osm_sa_mad_ctrl_init(IN osm_sa_mad_ctrl_t * p_ctrl,
 				     IN osm_subn_t * p_subn,
 				     IN osm_log_t * p_log,
 				     IN osm_stats_t * p_stats,
-				     IN cl_dispatcher_t * p_disp);
+				     IN cl_dispatcher_t * p_disp,
+				     IN cl_dispatcher_t * p_set_disp);
 /*
 * PARAMETERS
 *	p_ctrl
@@ -234,6 +243,9 @@ ib_api_status_t osm_sa_mad_ctrl_init(IN osm_sa_mad_ctrl_t * p_ctrl,
 *
 *	p_disp
 *		[in] Pointer to the OpenSM central Dispatcher.
+*
+*	p_set_disp
+*		[in] Pointer to the OpenSM Dispatcher for Set requests.
 *
 * RETURN VALUES
 *	IB_SUCCESS if the SA MAD Controller object was initialized
