@@ -1040,13 +1040,8 @@ int osm_ucast_cache_process(osm_ucast_mgr_t * p_mgr)
 	for (item = cl_qmap_head(tbl); item != cl_qmap_end(tbl);
 	     item = cl_qmap_next(item)) {
 		p_sw = (osm_switch_t *) item;
-
-		if (p_sw->need_update) {
-			if (!p_sw->new_lft)
-				/* no new routing was recently calculated for this
-				   switch, but the LFT needs to be updated anyway */
-				p_sw->new_lft = p_sw->lft;
-
+		CL_ASSERT(p_sw->new_lft);
+		if (!p_sw->lft) {
 			lft_size = (p_sw->max_lid_ho / IB_SMP_DATA_SIZE + 1)
 				   * IB_SMP_DATA_SIZE;
 			p_sw->lft = malloc(lft_size);
