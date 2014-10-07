@@ -3528,6 +3528,9 @@ typedef struct _ib_class_port_info {
 #define IB_PM_EXT_WIDTH_NOIETF_SUP		(CL_HTON16(((uint16_t)1)<<10))
 #define IB_PM_SAMPLES_ONLY_SUP			(CL_HTON16(((uint16_t)1)<<11))
 #define IB_PM_PC_XMIT_WAIT_SUP			(CL_HTON16(((uint16_t)1)<<12))
+#define IS_PM_INH_LMTD_PKEY_MC_CONSTR_ERR	(CL_HTON16(((uint16_t)1)<<13))
+#define IS_PM_RSFEC_COUNTERS_SUP		(CL_HTON16(((uint16_t)1)<<14))
+#define IB_PM_IS_QP1_DROP_SUP			(CL_HTON16(((uint16_t)1)<<15))
 
 /****f* IBA Base: Types/ib_class_set_resp_time_val
 * NAME
@@ -4660,6 +4663,37 @@ typedef struct _ib_port_info {
 #define IB_PORT_CAP_HAS_MCAST_FDB_TOP (CL_HTON32(0x40000000))
 #define IB_PORT_CAP_HAS_HIER_INFO (CL_HTON32(0x80000000))
 
+#define IB_PORT_CAP2_IS_SET_NODE_DESC_SUPPORTED (CL_HTON16(0x0001))
+#define IB_PORT_CAP2_IS_PORT_INFO_EXT_SUPPORTED (CL_HTON16(0x0002))
+
+/****s* IBA Base: Types/ib_port_info_ext_t
+* NAME
+*	ib_port_info_ext_t
+*
+* DESCRIPTION
+*	IBA defined PortInfoExtended. (14.2.5.19)
+*
+* SYNOPSIS
+*/
+#include <complib/cl_packon.h>
+typedef struct _ib_port_info_ext {
+	ib_net32_t cap_mask;
+	ib_net16_t fec_mode_active;
+	ib_net16_t fdr_fec_mode_sup;
+	ib_net16_t fdr_fec_mode_enable;
+	ib_net16_t edr_fec_mode_sup;
+	ib_net16_t edr_fec_mode_enable;
+	uint8_t reserved[50];
+} PACK_SUFFIX ib_port_info_ext_t;
+#include <complib/cl_packoff.h>
+/************/
+
+#define IB_PORT_EXT_NO_FEC_MODE_ACTIVE		    0
+#define IB_PORT_EXT_FIRE_CODE_FEC_MODE_ACTIVE	    (CL_HTON16(0x0001))
+#define IB_PORT_EXT_RS_FEC_MODE_ACTIVE		    (CL_HTON16(0x0002))
+#define IB_PORT_EXT_LOW_LATENCY_RS_FEC_MODE_ACTIVE  (CL_HTON16(0x0003))
+
+#define IB_PORT_EXT_CAP_IS_FEC_MODE_SUPPORTED (CL_HTON32(0x00000001))
 /****f* IBA Base: Types/ib_port_info_get_port_state
 * NAME
 *	ib_port_info_get_port_state
@@ -6355,6 +6389,15 @@ typedef struct _ib_portinfo_record {
 	ib_port_info_t port_info;
 	uint8_t pad[4];
 } PACK_SUFFIX ib_portinfo_record_t;
+#include <complib/cl_packoff.h>
+
+#include <complib/cl_packon.h>
+typedef struct _ib_portinfoext_record {
+	ib_net16_t lid;
+	uint8_t port_num;
+	uint8_t options;
+	ib_port_info_ext_t port_info_ext;
+} PACK_SUFFIX ib_portinfoext_record_t;
 #include <complib/cl_packoff.h>
 
 #include <complib/cl_packon.h>
