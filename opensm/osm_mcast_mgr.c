@@ -634,17 +634,13 @@ static osm_mtree_node_t *mcast_mgr_branch(osm_sm_t * sm, uint16_t mlid_ho,
 			"Routing %zu destinations via switch port %u\n",
 			count, i);
 
-		/*
-		   This port routes frames for this mcast group.  Therefore,
-		   set the appropriate bit in the multicast forwarding
-		   table for this switch.
-		 */
-		osm_mcast_tbl_set(p_tbl, mlid_ho, i);
 		if (i == 0) {
 			/* This means we are adding the switch to the MC group.
 			   We do not need to continue looking at the remote
 			   port, just needed to add the port to the table */
 			CL_ASSERT(count == 1);
+
+			osm_mcast_tbl_set(p_tbl, mlid_ho, i);
 
 			p_wobj = (osm_mcast_work_obj_t *)
 			    cl_qlist_remove_head(p_port_list);
@@ -654,8 +650,47 @@ static osm_mtree_node_t *mcast_mgr_branch(osm_sm_t * sm, uint16_t mlid_ho,
 
 		p_node = p_sw->p_node;
 		p_remote_node = osm_node_get_remote_node(p_node, i, NULL);
-		if (!p_remote_node)
+		if (!p_remote_node) {
+			/*
+			 * If we reached here, it means the minhop table has
+			 * invalid entries that leads to disconnected ports.
+			 *
+			 * A possible reason for the code to reach here is
+			 * that ucast cache is enabled, and a leaf switch that
+			 * is used as a non-leaf switch in a multicast has been
+			 * removed from the fabric.
+			 *
+			 * When it happens, we should invalidate the cache
+			 * and force rerouting of the fabric.
+			 */
+
+			OSM_LOG(sm->p_log, OSM_LOG_ERROR,
+				"ERR 0A1E: Tried to route MLID 0x%X through "
+				"disconnected switch 0x%" PRIx64 " port %d\n",
+				mlid_ho, cl_ntoh64(node_guid), i);
+
+			/* Free memory */
+			mcast_mgr_purge_list(sm, p_port_list);
+
+			/* Invalidate ucast cache */
+			if (sm->ucast_mgr.p_subn->opt.use_ucast_cache &&
+			    sm->ucast_mgr.cache_valid) {
+				OSM_LOG(sm->p_log, OSM_LOG_INFO,
+					"Unicast Cache will be invalidated due "
+					"to multicast routing errors\n");
+				osm_ucast_cache_invalidate(&sm->ucast_mgr);
+				sm->p_subn->force_heavy_sweep = TRUE;
+			}
+
 			continue;
+		}
+
+		/*
+		   This port routes frames for this mcast group.  Therefore,
+		   set the appropriate bit in the multicast forwarding
+		   table for this switch.
+		 */
+		osm_mcast_tbl_set(p_tbl, mlid_ho, i);
 
 		if (osm_node_get_type(p_remote_node) == IB_NODE_TYPE_SWITCH) {
 			/*
