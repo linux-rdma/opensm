@@ -371,15 +371,10 @@ ib_api_status_t osm_sm_state_mgr_process(osm_sm_t * sm,
 			 * Update the state to MASTER, and start sweeping
 			 * OPTIONAL: send ACKNOWLEDGE
 			 */
-			/* Turn on the first_time_master_sweep flag */
+			/* Turn on the force_first_time_master_sweep flag */
+			/* We want full reconfiguration to occur on the first */
+			/* master sweep of this SM */
 			CL_PLOCK_EXCL_ACQUIRE(sm->p_lock);
-			sm->p_subn->first_time_master_sweep = TRUE;
-			/*
-			 * Turn on the force_heavy_sweep - we want a
-			 * heavy sweep to occur on the first sweep of this SM.
-			 */
-			sm->p_subn->force_heavy_sweep = TRUE;
-
 			/*
 			 * Make sure to set the subnet master_sm_base_lid
 			 * to the sm_base_lid value
@@ -387,8 +382,7 @@ ib_api_status_t osm_sm_state_mgr_process(osm_sm_t * sm,
 			sm->p_subn->master_sm_base_lid =
 			    sm->p_subn->sm_base_lid;
 
-			sm->p_subn->coming_out_of_standby = TRUE;
-
+			sm->p_subn->force_first_time_master_sweep = TRUE;
 			CL_PLOCK_RELEASE(sm->p_lock);
 
 			sm->p_subn->sm_state = IB_SMINFO_STATE_MASTER;
@@ -457,9 +451,7 @@ ib_api_status_t osm_sm_state_mgr_process(osm_sm_t * sm,
 				osm_get_sm_mgr_signal_str(signal));
 			CL_PLOCK_EXCL_ACQUIRE(sm->p_lock);
 			sm->polling_sm_guid = 0;
-			sm->p_subn->first_time_master_sweep = TRUE;
-			sm->p_subn->coming_out_of_standby = TRUE;
-			sm->p_subn->force_heavy_sweep = TRUE;
+			sm->p_subn->force_first_time_master_sweep = TRUE;
 			CL_PLOCK_RELEASE(sm->p_lock);
 			osm_sm_signal(sm, OSM_SIGNAL_SWEEP);
 			break;

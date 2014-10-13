@@ -1162,6 +1162,13 @@ static void do_sweep(osm_sm_t * sm)
 	osm_remote_sm_t *p_remote_sm;
 	unsigned config_parsed = 0;
 
+	if (sm->p_subn->force_first_time_master_sweep) {
+		sm->p_subn->force_heavy_sweep = TRUE;
+		sm->p_subn->coming_out_of_standby = TRUE;
+		sm->p_subn->first_time_master_sweep = TRUE;
+		sm->p_subn->force_first_time_master_sweep = FALSE;
+	}
+
 	/* after subnet initialization error, run heavy sweep */
 	if (sm->p_subn->subnet_initialization_error)
 		sm->p_subn->force_heavy_sweep = TRUE;

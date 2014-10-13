@@ -764,6 +764,7 @@ typedef struct osm_subn {
 	boolean_t force_heavy_sweep;
 	boolean_t force_reroute;
 	boolean_t in_sweep_hop_0;
+	boolean_t force_first_time_master_sweep;
 	boolean_t first_time_master_sweep;
 	boolean_t coming_out_of_standby;
 	boolean_t sweeping_enabled;
@@ -871,6 +872,16 @@ typedef struct osm_subn {
 *		This is relevant for the case of SM on switch, since in the
 *		switch info we need to signal somehow not to continue
 *		the sweeping.
+*
+*	force_first_time_master_sweep
+*		This flag is used to avoid race condition when Master SM being
+*		in the middle of very long configuration stage of the heavy sweep,
+*		receives HANDOVER from another MASTER SM. When the current heavy sweep
+*		is finished, new heavy sweep will be started immediately.
+*		At the beginning of the sweep, opensm will set first_time_master_sweep,
+*		force_heavy_sweep and coming_out_of_standby flags in order to allow full
+*		reconfiguration of the fabric. This is required as another MASTER SM could
+*		change configuration of the fabric before sending HANDOVER to MASTER SM.
 *
 *	first_time_master_sweep
 *		This flag is used for the PortInfo setting. On the first
