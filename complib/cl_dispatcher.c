@@ -302,6 +302,11 @@ cl_status_t cl_disp_post(IN const cl_disp_reg_handle_t handle,
 
 	cl_spinlock_acquire(&p_disp->lock);
 	/* Check that the recipient exists. */
+	if (cl_ptr_vector_get_size(&p_disp->reg_vec) <= msg_id) {
+		cl_spinlock_release(&p_disp->lock);
+		return (CL_NOT_FOUND);
+	}
+
 	p_dest_reg = cl_ptr_vector_get(&p_disp->reg_vec, msg_id);
 	if (!p_dest_reg) {
 		cl_spinlock_release(&p_disp->lock);
