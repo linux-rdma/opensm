@@ -96,7 +96,7 @@ pkey_mgr_process_physical_port(IN osm_log_t * p_log,
 	osm_pending_pkey_t *p_pending;
 
 	p_pkey_tbl = &p_physp->pkeys;
-	p_pending = (osm_pending_pkey_t *) malloc(sizeof(osm_pending_pkey_t));
+	p_pending = (osm_pending_pkey_t *) calloc(1, sizeof(osm_pending_pkey_t));
 	if (!p_pending) {
 		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0502: "
 			"Failed to allocate new pending pkey entry for node "
