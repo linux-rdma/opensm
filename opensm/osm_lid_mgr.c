@@ -806,6 +806,7 @@ static int lid_mgr_set_physp_pi(IN osm_lid_mgr_t * p_mgr,
 	uint8_t op_vls;
 	uint8_t port_num;
 	boolean_t send_set = FALSE;
+	boolean_t send_client_rereg = FALSE;
 	boolean_t update_mkey = FALSE;
 	int ret = 0;
 
@@ -892,11 +893,17 @@ static int lid_mgr_set_physp_pi(IN osm_lid_mgr_t * p_mgr,
 		p_mgr->dirty = TRUE;
 	}
 
-	/* we are updating the ports with our local sm_base_lid */
+	/*
+	   We are updating the ports with our local sm_base_lid
+	   if for some reason currently received SM LID is different from our SM LID,
+	   need to send client reregister to this port
+	*/
 	p_pi->master_sm_base_lid = p_mgr->p_subn->sm_base_lid;
 	if (memcmp(&p_pi->master_sm_base_lid, &p_old_pi->master_sm_base_lid,
-		   sizeof(p_pi->master_sm_base_lid)))
+		   sizeof(p_pi->master_sm_base_lid))) {
+		send_client_rereg = TRUE;
 		send_set = TRUE;
+	}
 
 	p_pi->m_key_lease_period = p_mgr->p_subn->opt.m_key_lease_period;
 	if (memcmp(&p_pi->m_key_lease_period, &p_old_pi->m_key_lease_period,
@@ -1029,13 +1036,16 @@ static int lid_mgr_set_physp_pi(IN osm_lid_mgr_t * p_mgr,
 	context.pi_context.active_transition = FALSE;
 
 	/*
-	   We need to set the cli_rereg bit when we are in first_time_master_sweep
-	   for ports supporting the ClientReregistration Vol1 (v1.2) p811 14.4.11
-	   Also, if this port was just now discovered, then we should also set
-	   the cli_rereg bit. We know that the port was just discovered if its
-	   is_new field is set.
-	 */
-	if ((p_mgr->p_subn->first_time_master_sweep == TRUE || p_port->is_new)
+	  For ports supporting the ClientReregistration Vol1 (v1.2) p811 14.4.11:
+	  need to set the cli_rereg bit when current SM LID at the Host
+	  is different from our SM LID,
+	  also if we are in first_time_master_sweep,
+	  also if this port was just now discovered, then we should also set
+	  the cli_rereg bit (we know that the port was just discovered
+	  if its is_new field is set).
+	*/
+	if  ((send_client_rereg ||
+	    p_mgr->p_subn->first_time_master_sweep == TRUE || p_port->is_new)
 	    && !p_mgr->p_subn->opt.no_clients_rereg
 	    && (p_old_pi->capability_mask & IB_PORT_CAP_HAS_CLIENT_REREG)) {
 		OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,
