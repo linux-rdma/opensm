@@ -462,7 +462,7 @@ static void mcast_mgr_subdivide(osm_sm_t * sm, uint16_t mlid_ho,
 	OSM_LOG_EXIT(sm->p_log);
 }
 
-static void mcast_mgr_purge_list(osm_sm_t * sm, cl_qlist_t * list)
+static void mcast_mgr_purge_list(osm_sm_t * sm, uint16_t mlid, cl_qlist_t * list)
 {
 	if (OSM_LOG_IS_ACTIVE_V2(sm->p_log, OSM_LOG_ERROR)) {
 		osm_mcast_work_obj_t *wobj;
@@ -471,8 +471,8 @@ static void mcast_mgr_purge_list(osm_sm_t * sm, cl_qlist_t * list)
 		     i = cl_qlist_next(i)) {
 			wobj = cl_item_obj(i, wobj, list_item);
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A06: "
-				"Unable to route for port 0x%" PRIx64 "\n",
-				cl_ntoh64(osm_port_get_guid(wobj->p_port)));
+				"Unable to route MLID 0x%X for port 0x%" PRIx64 "\n",
+				mlid, cl_ntoh64(osm_port_get_guid(wobj->p_port)));
 		}
 	}
 	osm_mcast_drop_port_list(list);
@@ -523,7 +523,7 @@ static osm_mtree_node_t *mcast_mgr_branch(osm_sm_t * sm, uint16_t mlid_ho,
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A21: "
 			"Maximal hops number is reached for MLID 0x%x."
 			" Break processing\n", mlid_ho);
-		mcast_mgr_purge_list(sm, p_list);
+		mcast_mgr_purge_list(sm, mlid_ho, p_list);
 		goto Exit;
 	}
 
@@ -543,7 +543,7 @@ static osm_mtree_node_t *mcast_mgr_branch(osm_sm_t * sm, uint16_t mlid_ho,
 		/*
 		   Deallocate all the work objects on this branch of the tree.
 		 */
-		mcast_mgr_purge_list(sm, p_list);
+		mcast_mgr_purge_list(sm, mlid_ho, p_list);
 		goto Exit;
 	}
 
@@ -559,7 +559,7 @@ static osm_mtree_node_t *mcast_mgr_branch(osm_sm_t * sm, uint16_t mlid_ho,
 		/*
 		   Deallocate all the work objects on this branch of the tree.
 		 */
-		mcast_mgr_purge_list(sm, p_list);
+		mcast_mgr_purge_list(sm, mlid_ho, p_list);
 		goto Exit;
 	}
 
@@ -576,7 +576,7 @@ static osm_mtree_node_t *mcast_mgr_branch(osm_sm_t * sm, uint16_t mlid_ho,
 	if (list_array == NULL) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A16: "
 			"Unable to allocate list array\n");
-		mcast_mgr_purge_list(sm, p_list);
+		mcast_mgr_purge_list(sm, mlid_ho, p_list);
 		osm_mtree_destroy(p_mtn);
 		p_mtn = NULL;
 		goto Exit;
@@ -670,7 +670,7 @@ static osm_mtree_node_t *mcast_mgr_branch(osm_sm_t * sm, uint16_t mlid_ho,
 				mlid_ho, cl_ntoh64(node_guid), i);
 
 			/* Free memory */
-			mcast_mgr_purge_list(sm, p_port_list);
+			mcast_mgr_purge_list(sm, mlid_ho, p_port_list);
 
 			/* Invalidate ucast cache */
 			if (sm->ucast_mgr.p_subn->opt.use_ucast_cache &&
