@@ -619,6 +619,7 @@ static int alloc_lft(IN osm_switch_t * p_sw, uint16_t lids)
 int osm_switch_prepare_path_rebuild(IN osm_switch_t * p_sw, IN uint16_t max_lids)
 {
 	uint8_t **hops;
+	uint8_t *new_lft;
 	unsigned i;
 
 	if (alloc_lft(p_sw, max_lids))
@@ -629,8 +630,10 @@ int osm_switch_prepare_path_rebuild(IN osm_switch_t * p_sw, IN uint16_t max_lids
 
 	osm_switch_clear_hops(p_sw);
 
-	if (!(p_sw->new_lft = realloc(p_sw->new_lft, p_sw->lft_size)))
+	if (!(new_lft = realloc(p_sw->new_lft, p_sw->lft_size)))
 		return -1;
+
+	p_sw->new_lft = new_lft;
 
 	memset(p_sw->new_lft, OSM_NO_PATH, p_sw->lft_size);
 
