@@ -524,7 +524,14 @@ opensm_dump_to_file(osm_opensm_t * p_osm, const char *file_name,
 		return -1;
 	}
 
-	chmod(path_tmp, S_IRUSR | S_IWUSR);
+	if (chmod(path_tmp, S_IRUSR | S_IWUSR)) {
+		OSM_LOG(&p_osm->log, OSM_LOG_ERROR, "ERR 4C0C: "
+			"cannot change access permissions of file "
+			"\'%s\' : %s\n",
+			path_tmp, strerror(errno));
+		fclose(file);
+		return -1;
+	}
 
 	dump_func(p_osm, file);
 
