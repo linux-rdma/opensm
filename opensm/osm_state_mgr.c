@@ -373,6 +373,13 @@ static boolean_t state_mgr_is_sm_port_down(IN osm_sm_t * sm)
 		state = IB_LINK_ACTIVE;	/* base SP0 */
 	else
 		state = osm_physp_get_port_state(p_physp);
+
+	if (!p_port->discovery_count) {
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR,
+			"ERR 330A: Failed to discover SM port\n");
+		state = IB_LINK_DOWN;
+	}
+
 	CL_PLOCK_RELEASE(sm->p_lock);
 
 Exit:
