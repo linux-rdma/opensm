@@ -472,7 +472,7 @@ static void opts_parse_charp(IN osm_subn_t *p_subn, IN char *p_key,
 			     void (*pfn)(osm_subn_t *, void *))
 {
 	char **p_val1 = p_v1, **p_val2 = p_v2;
-	const char *current_str = *p_val1 ? *p_val1 : null_str ;
+	const char *current_str = *p_val1 ? *p_val1 : null_str;
 
 	if (p_val_str && strcmp(p_val_str, current_str)) {
 		char *new;
