@@ -105,6 +105,11 @@ typedef struct monitored_port {
 	/* ClassPortInfo fields */
 	boolean_t cpi_valid;
 	ib_net16_t cap_mask;
+	/* Remote end connected to */
+	boolean_t remote_valid;
+	uint64_t remote_guid;
+	char *remote_name;
+	uint8_t remote_port;
 } monitored_port_t;
 
 /* Node to store information about nodes being monitored */

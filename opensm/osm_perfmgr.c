@@ -144,6 +144,7 @@ static void remove_marked_nodes(osm_perfmgr_t * pm)
 {
 	while (pm->remove_list) {
 		monitored_node_t *next = pm->remove_list->next;
+		int port;
 
 		cl_qmap_remove_item(&pm->monitored_map,
 				    (cl_map_item_t *) (pm->remove_list));
@@ -155,6 +156,14 @@ static void remove_marked_nodes(osm_perfmgr_t * pm)
 
 		if (pm->remove_list->name)
 			free(pm->remove_list->name);
+
+		for (port = pm->remove_list->esp0 ? 0 : 1;
+		     port < pm->remove_list->num_ports;
+		     port++) {
+			if (pm->remove_list->port[port].remote_name)
+				free(pm->remove_list->port[port].remote_name);
+		}
+
 		free(pm->remove_list);
 		pm->remove_list = next;
 	}
@@ -554,11 +563,24 @@ static void collect_guids(cl_map_item_t * p_map_item, void *context)
 				  ib_switch_info_is_enhanced_port0(&node->sw->
 								   switch_info));
 		for (port = mon_node->esp0 ? 0 : 1; port < num_ports; port++) {
-			mon_node->port[port].orig_lid = 0;
-			mon_node->port[port].valid = FALSE;
-			if (osm_physp_is_valid(&node->physp_table[port])) {
-				mon_node->port[port].orig_lid = get_base_lid(node, port);
-				mon_node->port[port].valid = TRUE;
+			monitored_port_t *mon_port = &mon_node->port[port];
+			osm_physp_t *p_physp = &node->physp_table[port];
+			osm_physp_t *p_remote_physp = p_physp->p_remote_physp;
+
+			mon_port->orig_lid = 0;
+			mon_port->valid = FALSE;
+			if (osm_physp_is_valid(p_physp)) {
+				mon_port->orig_lid = get_base_lid(node, port);
+				mon_port->valid = TRUE;
+			}
+			mon_port->remote_valid = FALSE;
+			mon_port->remote_name = NULL;
+			if (p_remote_physp && osm_physp_is_valid(p_remote_physp)) {
+				osm_node_t *p_remote_node = p_remote_physp->p_node;
+				mon_port->remote_valid = TRUE;
+				mon_port->remote_guid = p_remote_node->node_info.node_guid;
+				mon_port->remote_name = strdup(p_remote_node->print_desc);
+				mon_port->remote_port = p_remote_physp->port_num;
 			}
 		}
 
@@ -1429,13 +1451,26 @@ static void perfmgr_log_errors(osm_perfmgr_t * pm,
 	}
 
 #define LOG_ERR_CNT(errname, errnum, counter_name) \
-	if (reading->counter_name > prev_read.counter_name) \
-		OSM_LOG(pm->log, OSM_LOG_ERROR, "ERR %s: " \
-			"%s : %" PRIu64 " : node " \
-			"\"%s\" (NodeGUID: 0x%" PRIx64 ") : port %u\n", \
-			errnum, errname, \
-			reading->counter_name - prev_read.counter_name, \
-			mon_node->name, mon_node->guid, port);
+	if (reading->counter_name > prev_read.counter_name) { \
+		if (mon_node->port[port].remote_valid == TRUE) \
+			OSM_LOG(pm->log, OSM_LOG_ERROR, "ERR %s: " \
+				"%s : %" PRIu64 " : node " \
+				"\"%s\" (NodeGUID: 0x%" PRIx64 ") : port %u " \
+				"connected to \"%s\" (NodeGUID: 0x%" PRIx64 ") : port %u\n", \
+				errnum, errname, \
+				reading->counter_name - prev_read.counter_name, \
+				mon_node->name, mon_node->guid, port, \
+				mon_node->port[port].remote_name, \
+				mon_node->port[port].remote_guid, \
+				mon_node->port[port].remote_port); \
+		else \
+			OSM_LOG(pm->log, OSM_LOG_ERROR, "ERR %s: " \
+				"%s : %" PRIu64 " : node " \
+				"\"%s\" (NodeGUID: 0x%" PRIx64 ") : port %u\n", \
+				errnum, errname, \
+				reading->counter_name - prev_read.counter_name, \
+				mon_node->name, mon_node->guid, port); \
+	}
 
 	LOG_ERR_CNT("SymbolErrorCounter",           "5431", symbol_err_cnt);
 	LOG_ERR_CNT("LinkErrorRecoveryCounter",     "5432", link_err_recover);
