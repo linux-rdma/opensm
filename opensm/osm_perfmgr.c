@@ -985,6 +985,9 @@ static void reset_node_count(cl_map_item_t * p_map_item, void *cxt)
 {
 	osm_node_t *p_node = (osm_node_t *) p_map_item;
 	p_node->discovery_count = 0;
+
+	memset(p_node->physp_discovered, 0,
+	       sizeof(uint8_t) * p_node->physp_tbl_size);
 }
 
 static void reset_port_count(cl_map_item_t * p_map_item, void *cxt)
