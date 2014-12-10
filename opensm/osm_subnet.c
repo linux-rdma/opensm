@@ -2274,7 +2274,7 @@ int osm_subn_rescan_conf_files(IN osm_subn_t * p_subn)
 	return 0;
 }
 
-int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
+void osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 {
 	int cacongoutputcount = 0;
 	int i;
@@ -2949,7 +2949,6 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 
 	/* optional string attributes ... */
 
-	return 0;
 }
 
 int osm_subn_write_conf_file(char *file_name, IN osm_subn_opt_t * p_opts)
@@ -2963,8 +2962,7 @@ int osm_subn_write_conf_file(char *file_name, IN osm_subn_opt_t * p_opts)
 		return -1;
 	}
 
-	if (osm_subn_output_conf(opts_file, p_opts) < 0)
-		return -1;
+	osm_subn_output_conf(opts_file, p_opts);
 
 	fclose(opts_file);
 

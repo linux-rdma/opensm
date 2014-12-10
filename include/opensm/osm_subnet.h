@@ -1568,7 +1568,7 @@ int osm_subn_rescan_conf_files(IN osm_subn_t * p_subn);
 *
 * SYNOPSIS
 */
-int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opt);
+void osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opt);
 /*
 * PARAMETERS
 *
@@ -1579,7 +1579,7 @@ int osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opt);
 *		[in] Pointer to the subnet options structure.
 *
 * RETURN VALUES
-*	0 on success, negative value otherwise
+*	This method does not return a value
 *********/
 
 /****f* OpenSM: Subnet/osm_subn_write_conf_file
