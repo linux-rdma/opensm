@@ -457,7 +457,7 @@ static void cc_rcv_mad(void *context, void *data)
 
 	OSM_LOG(p_cc->log, OSM_LOG_VERBOSE,
 		"Processing received MAD status 0x%x node 0x%" PRIx64 " port %u\n",
-		p_mad->status, cl_ntoh64(node_guid), port);
+		cl_ntoh16(p_mad->status), cl_ntoh64(node_guid), port);
 
 	p_cc_mad = osm_madw_get_cc_mad_ptr(p_madw);
 
