@@ -448,16 +448,16 @@ static void cc_rcv_mad(void *context, void *data)
 	ib_cc_mad_t *p_cc_mad;
 	osm_madw_context_t *p_mad_context = &p_madw->context;
 	ib_mad_t *p_mad = osm_madw_get_mad_ptr(p_madw);
-	uint64_t node_guid = p_mad_context->cc_context.node_guid;
-	uint64_t port_guid = p_mad_context->cc_context.port_guid;
+	ib_net64_t node_guid = p_mad_context->cc_context.node_guid;
+	ib_net64_t port_guid = p_mad_context->cc_context.port_guid;
 	uint8_t port = p_mad_context->cc_context.port;
 	osm_port_t *p_port;
 
 	OSM_LOG_ENTER(p_cc->log);
 
 	OSM_LOG(p_cc->log, OSM_LOG_VERBOSE,
-		"Processing received MAD status 0x%x context 0x%"
-		PRIx64 " port %u\n", p_mad->status, node_guid, port);
+		"Processing received MAD status 0x%x node 0x%" PRIx64 " port %u\n",
+		p_mad->status, cl_ntoh64(node_guid), port);
 
 	p_cc_mad = osm_madw_get_cc_mad_ptr(p_madw);
 
@@ -466,8 +466,8 @@ static void cc_rcv_mad(void *context, void *data)
 	p_port = osm_get_port_by_guid(p_cc->subn, port_guid);
 	if (!p_port) {
 		OSM_LOG(p_cc->log, OSM_LOG_ERROR, "ERR C109: "
-			"Port GUID not in table 0x%" PRIx64 "\n",
-			port_guid);
+			"Port GUID 0x%" PRIx64 " not in table\n",
+			cl_ntoh64(port_guid));
 		cl_plock_release(&p_osm->lock);
 		goto Exit;
 	}
@@ -539,7 +539,7 @@ wait:
 	} else
 		OSM_LOG(p_cc->log, OSM_LOG_ERROR, "ERR C104: "
 			"send failed to node 0x%" PRIx64 "port %u\n",
-			mad_context.cc_context.node_guid,
+			cl_ntoh64(mad_context.cc_context.node_guid),
 			mad_context.cc_context.port);
 }
 
@@ -673,8 +673,8 @@ static void cc_mad_send_err_callback(void *bind_context,
 	p_port = osm_get_port_by_guid(p_cc->subn, port_guid);
 	if (!p_port) {
 		OSM_LOG(p_cc->log, OSM_LOG_ERROR, "ERR C10B: "
-			"Port guid not in table 0x%" PRIx64 "\n",
-			port_guid);
+			"Port GUID 0x%" PRIx64 " not in table\n",
+			cl_ntoh64(port_guid));
 		cl_plock_release(&p_osm->lock);
 		goto Exit;
 	}
@@ -693,7 +693,7 @@ static void cc_mad_send_err_callback(void *bind_context,
 			ib_get_err_str(p_madw->status),
 			p_madw->p_mad->attr_id,
 			cl_ntoh16(p_madw->mad_addr.dest_lid),
-			node_guid,
+			cl_ntoh64(node_guid),
 			port,
 			cl_ntoh64(p_madw->p_mad->trans_id));
 
