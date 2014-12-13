@@ -1780,7 +1780,7 @@ static void pc_recv_process(void *context, void *data)
 
 	OSM_LOG(pm->log, OSM_LOG_VERBOSE,
 		"Processing received MAD status 0x%x context 0x%"
-		PRIx64 " port %u\n", p_mad->status, node_guid, port);
+		PRIx64 " port %u\n", cl_ntoh16(p_mad->status), node_guid, port);
 
 	CL_ASSERT(p_mad->attr_id == IB_MAD_ATTR_PORT_CNTRS ||
 		  p_mad->attr_id == IB_MAD_ATTR_PORT_CNTRS_EXT ||
