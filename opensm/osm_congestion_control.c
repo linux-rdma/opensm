@@ -456,8 +456,11 @@ static void cc_rcv_mad(void *context, void *data)
 	OSM_LOG_ENTER(p_cc->log);
 
 	OSM_LOG(p_cc->log, OSM_LOG_VERBOSE,
-		"Processing received MAD status 0x%x node 0x%" PRIx64 " port %u\n",
-		cl_ntoh16(p_mad->status), cl_ntoh64(node_guid), port);
+		"Processing received MAD status 0x%x for "
+		"attr ID %u mod 0x%x node 0x%" PRIx64 " port %u\n",
+		cl_ntoh16(p_mad->status), cl_ntoh16(p_mad->attr_id),
+		cl_ntoh32(p_mad_context->cc_context.attr_mod),
+		cl_ntoh64(node_guid), port);
 
 	p_cc_mad = osm_madw_get_cc_mad_ptr(p_madw);
 
@@ -506,8 +509,8 @@ static void cc_rcv_mad(void *context, void *data)
 	}
 	else
 		OSM_LOG(p_cc->log, OSM_LOG_ERROR, "ERR C10A: "
-			"Unexpected MAD attribute received: %u\n",
-			p_cc_mad->header.attr_id);
+			"Unexpected MAD attribute ID %u received\n",
+			cl_ntoh16(p_cc_mad->header.attr_id));
 
 	cl_plock_release(&p_osm->lock);
 
