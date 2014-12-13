@@ -2899,7 +2899,7 @@ void osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		}
 	}
 
-	/* If by chance all the CA Cong Settings are default, output atleast 1 chunk
+	/* If by chance all the CA Cong Settings are default, output at least 1 chunk
          * for illustration */
 	if (!cacongoutputcount)
 		fprintf(out,

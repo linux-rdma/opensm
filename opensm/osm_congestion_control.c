@@ -174,7 +174,7 @@ static void cc_setup_mad_data(osm_sm_t * p_sm)
 
 	/* Congestion Control Table */
 
-	/* if no entries, we will always send atleast 1 mad to set ccti_limit = 0 */
+	/* if no entries, we will always send at least 1 mad to set ccti_limit = 0 */
 	if (!p_opt->cc_cct.entries_len)
 		p_cc->cc_tbl_mads = 1;
 	else {
