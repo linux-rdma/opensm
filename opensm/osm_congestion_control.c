@@ -440,7 +440,6 @@ static inline void decrement_outstanding_mads(osm_congestion_control_t *p_cc)
 	cl_event_signal(&p_cc->sig_mads_on_wire_continue);
 }
 
-
 static void cc_rcv_mad(void *context, void *data)
 {
 	osm_congestion_control_t *p_cc = context;
@@ -458,7 +457,7 @@ static void cc_rcv_mad(void *context, void *data)
 
 	OSM_LOG(p_cc->log, OSM_LOG_VERBOSE,
 		"Processing received MAD status 0x%x context 0x%"
-		PRIx64 "port %u\n", p_mad->status, node_guid, port);
+		PRIx64 " port %u\n", p_mad->status, node_guid, port);
 
 	p_cc_mad = osm_madw_get_cc_mad_ptr(p_madw);
 
@@ -467,8 +466,8 @@ static void cc_rcv_mad(void *context, void *data)
 	p_port = osm_get_port_by_guid(p_cc->subn, port_guid);
 	if (!p_port) {
 		OSM_LOG(p_cc->log, OSM_LOG_ERROR, "ERR C109: "
-			"Port guid not in table 0x%" PRIx64 "\n",
-			   port_guid);
+			"Port GUID not in table 0x%" PRIx64 "\n",
+			port_guid);
 		cl_plock_release(&p_osm->lock);
 		goto Exit;
 	}
@@ -508,7 +507,7 @@ static void cc_rcv_mad(void *context, void *data)
 	else
 		OSM_LOG(p_cc->log, OSM_LOG_ERROR, "ERR C10A: "
 			"Unexpected MAD attribute received: %u\n",
-			   p_cc_mad->header.attr_id);
+			p_cc_mad->header.attr_id);
 
 	cl_plock_release(&p_osm->lock);
 
