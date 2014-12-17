@@ -3,14 +3,14 @@
 
 Version: OpenSM 3.3.x
 Repo:    git://git.openfabrics.org/~halr/opensm.git
-Date:    July 2014
+Date:    December 2014
 
 1 Overview
 ----------
 This document describes the contents of the OpenSM 3.3 release.
 OpenSM is an InfiniBand compliant Subnet Manager and Administration,
 and runs on top of OpenIB. The OpenSM version for this release
-is opensm-3.3.18.
+is opensm-3.3.19.
 
 This document includes the following sections:
 1 This Overview section (describing new features and software
@@ -87,7 +87,7 @@ This document includes the following sections:
 * Extended speed support
   This provides support for FDR and EDR speeds.
 
-* Congestion control support
+* Congestion control support (experimental)
 
 * Many code improvements, optimizations and cleanups.
 
@@ -512,6 +512,19 @@ information regarding each compliance statement.
 
 4.1 Major Bug Fixes
 
+5077198 osm_perfmgr.c: Reset physp_discovered before discovery
+8d51ae5 osm_state_mgr.c: Avoid continuing discovery when SM port is
+unresponsive
+f017063 Better way to handle polling other MASTER SM
+25e5ee5 complib/cl_dispatcher.c: Check registrations vector size when
+searching for handlers
+6b0fb4d osm_lid_mgr.c: Send client reregistration in case of SM LID change
+5d231f8 osm_pkey_mgr.c: Use calloc instead of malloc in
+pkey_mgr_process_physical_port
+985859e Fix turning on first_time_master_sweep flag
+4629e80 osm_mcast_mgr.c: Invalidate cache due to multicast routing errors
+b6a1dd4 osm_state_mgr.c: Avoid ucast cache invalidation due to errors during
+initialization
 db69cd8 osm_perfmgr.c: Fix perfmgr sweep_state race
 b42f11f osm_vendor_ibumad.c: Better match table eviction strategy
 cc0d61b libvendor/osm_vendor_ibumad.c: Check the next CA if an error is
@@ -702,6 +715,71 @@ f37bf3c opensm/perfmgr: skip data counters when only printing errors
 
 4.2 Other Bug Fixes
 
+28fd4ee osm_[subnet congestion_control].c: Cosmetic commentary change
+391c244 osm_congestion_control.c: Added Mellanox copyright
+7e08621 osm_congestion_control.c: In cc_rcv_mad, add attribute ID and modifier
+to log message
+62075d6 osm_perfmgr.c: Fix endian of MAD status in pc_recv_process
+cd94c9c osm_congestion_control.c: Fix endian of MAD status in cc_rcv_mad
+cb5df8b osm_congestion_control.c: Fix endian of node and port GUIDs in some
+log messages
+68887fb osm_congestion_control.c: Cosmetic changes
+1331a46 osm_subnet.[h c]: Fix possibility for open file descriptor issue
+ce15bb7 osm_perfmgr.c: Output remote port on perfmgr error counter log
+messages
+030ac82 osm_sa.c: Improve ERR 4C05 log message
+fbb63d6 osm_subnet.c: Update MEPI supported devices white list
+0774229 osm_subnet.c: Cosmetic formatting change
+5871ef7 osm_sa.c: Check return value from chmod in opensm_dump_to_file
+61cd0cf osm_switch.c: Fix potential memory leak due to misuse of realloc
+c78adde osm_req.c: Initialize dest_port_guid in req_determine_mkey
+dd5e5df osm_mcast_mgr.c: Add MLID to error 0A06 log message
+63900bc osm_vendor_ibumad.h: Use UMAD_MAX_DEVICES for OSM_UMAD_MAX_CAS
+a5c0200 iba/ib_types.h: Add support for new MAD SM:PortInfoExtended and for
+modifying PM:PortExtendedSpeedsCounters
+3f99535 osm_port_info_rcv.c: In osm_pi_rcv_process, move assert before first
+log message
+a0b9444 Change osm_subn_t.log_max_size type to uint32_t
+b5abaa2 osmeventplugin.c: Add include of osm_config.h as first OpenSM include
+ecce4e3 osm_console.c: Handle LinkSpeed[Ext]Active 0 for portstatus command
+f622810 osm_console.c: Fix unknown speed/width port reporting for portstatus
+command
+ffdd042 osm_console_io.c: In is_authorized, STRING_UNKNOWN is define
+a6ba888 Add missing keyword in partition definition in man page and
+partition.txt doc
+7444e5e Fix the difference in osm_opensm struct size between OpenSM and
+plugin(s)
+caf764f osm_subnet.h: Fixed commentary typo
+117bc82 osm_prtn.c: Change message verbosity for log message in
+osm_prtn_add_port
+3b172ab osm_config.h.in: Fixed the difference in osm_opensm_t struct size
+between opensm and plugins
+d13d4bd osm_console.c: Track and report unknown/speed width ports
+d63e7f6 osm_sa_path_record.c: Cosmetic formatting changes
+48d159b libvendor/osm_vendor_ibumad.c: Remove GID index 0 check in
+umad_receiver
+d7f1d02 libvendor/osm_vendor_ibumad.c: memset osm_mad_addr_t before setting
+fields
+96f89d6 osm_console.c: Included unknown speed/width ports in "possible issues"
+44df235 osm_dump.c: In dump_topology_node, handle link_width_active of 4 for
+8X
+a1e58e0 osm_link_mgr.c: Fix bug in mlnx extended port info setting
+fcb6967 osm_subnet.c: Improve sweep_on_trap documentation in generated conf
+file
+47a6b00 osm_sa_multipath_record.c: Better logging for 4514, 4515, and 4505
+error messages
+115529b osm_sa_path_record.c: Better logging for 1F02 error message
+fe079df osm_sa_path_record.c: Better logging for 1F05 and 1F03 error messages
+43c378f osm_ucast_mgr.c: A couple of cosmetic log message changes in
+ucast_mgr_route
+9a5e514 osmtest/osmtest.c: Cosmetic formatting change
+90db6c3 osm_state_mgr.c: Cosmetic formatting changes
+e7139af osmtest/osmtest.c: Fix osmtest_get_sm_gid when running osmtest on node
+other than SM node
+83ea812 doc/performance-manager-HOWTO.txt: Update perfmgr config options
+documentation
+d4d5af3 libvendor/osm_vendor_ibumad_sa.c: Fixed endian in debug log message
+c1080b9 osmtest/main.c: Cosmetic change to output for consistency
 179fbac Add support for additional Mellanox OUI
 be3e4f1 osm_subnet.c: Remove duplicate strcmp check in
 osm_subn_rescan_conf_files method
