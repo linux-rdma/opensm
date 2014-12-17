@@ -1,14 +1,14 @@
 dnl Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.57)
-AC_INIT(opensm, 3.3.18, linux-rdma@vger.kernel.org)
+AC_INIT(opensm, 3.3.19, linux-rdma@vger.kernel.org)
 AC_CONFIG_SRCDIR([opensm/osm_opensm.c])
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_MACRO_DIR(config)
 AC_CONFIG_HEADERS(include/config.h include/opensm/osm_config.h)
 AM_INIT_AUTOMAKE
 
-AC_SUBST(RELEASE, ${RELEASE:-unknown})
+AC_SUBST(RELEASE, ${RELEASE:-${VERSION}})
 AC_SUBST(TARBALL, ${TARBALL:-${PACKAGE}-${VERSION}.tar.gz})
 
 default_rdma_service=openibd
