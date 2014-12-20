@@ -168,7 +168,7 @@ boolean_t osm_switch_get_lft_block(IN const osm_switch_t * p_sw,
 	if (base_lid_ho > p_sw->max_lid_ho)
 		return FALSE;
 
-	CL_ASSERT(base_lid_ho + IB_SMP_DATA_SIZE <= IB_LID_UCAST_END_HO);
+	CL_ASSERT(base_lid_ho + IB_SMP_DATA_SIZE - 1 <= IB_LID_UCAST_END_HO);
 	memcpy(p_block, &(p_sw->lft[base_lid_ho]), IB_SMP_DATA_SIZE);
 	return TRUE;
 }
