@@ -705,8 +705,10 @@ static void cc_mad_send_err_callback(void *bind_context,
 	if (p_madw->status == IB_TIMEOUT) {
 		p_port->cc_timeout_count++;
 		if (p_port->cc_timeout_count > OSM_CC_TIMEOUT_COUNT_THRESHOLD
-		    && !p_port->cc_unavailable_flag)
+		    && !p_port->cc_unavailable_flag) {
 			p_port->cc_unavailable_flag = TRUE;
+			p_port->cc_timeout_count = 0;
+		}
 	} else
 		p_cc->subn->subnet_initialization_error = TRUE;
 
