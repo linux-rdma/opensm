@@ -479,7 +479,8 @@ static void cc_rcv_mad(void *context, void *data)
 	p_port->cc_timeout_count = 0;
 
 	if (p_cc_mad->header.status) {
-		if (p_cc_mad->header.status & IB_MAD_STATUS_UNSUP_METHOD
+		if (p_cc_mad->header.status & IB_MAD_STATUS_UNSUP_CLASS_VER
+		    || p_cc_mad->header.status & IB_MAD_STATUS_UNSUP_METHOD
 		    || p_cc_mad->header.status & IB_MAD_STATUS_UNSUP_METHOD_ATTR)
 			p_port->cc_unavailable_flag = 1;
 		cl_plock_release(&p_osm->lock);
