@@ -482,12 +482,12 @@ static void cc_rcv_mad(void *context, void *data)
 		if (p_cc_mad->header.status & IB_MAD_STATUS_UNSUP_CLASS_VER
 		    || p_cc_mad->header.status & IB_MAD_STATUS_UNSUP_METHOD
 		    || p_cc_mad->header.status & IB_MAD_STATUS_UNSUP_METHOD_ATTR)
-			p_port->cc_unavailable_flag = 1;
+			p_port->cc_unavailable_flag = TRUE;
 		cl_plock_release(&p_osm->lock);
 		goto Exit;
 	}
 	else
-		p_port->cc_unavailable_flag = 0;
+		p_port->cc_unavailable_flag = FALSE;
 
 	if (p_cc_mad->header.attr_id == IB_MAD_ATTR_SW_CONG_SETTING) {
 		ib_sw_cong_setting_t *p_sw_cong_setting;
@@ -706,7 +706,7 @@ static void cc_mad_send_err_callback(void *bind_context,
 		p_port->cc_timeout_count++;
 		if (p_port->cc_timeout_count > OSM_CC_TIMEOUT_COUNT_THRESHOLD
 		    && !p_port->cc_unavailable_flag)
-			p_port->cc_unavailable_flag++;
+			p_port->cc_unavailable_flag = TRUE;
 	} else
 		p_cc->subn->subnet_initialization_error = TRUE;
 
