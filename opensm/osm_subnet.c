@@ -2926,10 +2926,10 @@ void osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		fprintf(out, "%u:%u",
 			p_opts->cc_cct.entries[0].shift,
 			p_opts->cc_cct.entries[0].multiplier);
-		for (i = 0; i < p_opts->cc_cct.entries_len; i++) {
+		for (i = 1; i < p_opts->cc_cct.entries_len; i++) {
 			fprintf(out, ",%u:%u",
-				p_opts->cc_cct.entries[0].shift,
-				p_opts->cc_cct.entries[0].multiplier);
+				p_opts->cc_cct.entries[i].shift,
+				p_opts->cc_cct.entries[i].multiplier);
 		}
 		fprintf(out, "\n");
 	}
