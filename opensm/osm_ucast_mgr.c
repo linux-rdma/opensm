@@ -1061,7 +1061,7 @@ static int ucast_mgr_route(struct osm_routing_engine *r, osm_opensm_t * osm)
 		"building routing with \'%s\' routing algorithm...\n", r->name);
 
 	/* Set the before each lft build to keep the routes in place between sweeps */
-	if(osm->subn.opt.scatter_ports)
+	if (osm->subn.opt.scatter_ports)
 		srandom(osm->subn.opt.scatter_ports);
 
 	if (!r->build_lid_matrices ||
