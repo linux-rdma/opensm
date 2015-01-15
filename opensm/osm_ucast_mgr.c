@@ -1098,7 +1098,7 @@ int osm_ucast_mgr_process(IN osm_ucast_mgr_t * p_mgr)
 	osm_opensm_t *p_osm;
 	struct osm_routing_engine *p_routing_eng;
 	cl_qmap_t *p_sw_guid_tbl;
-	int failed = -1;
+	int failed = 0;
 
 	OSM_LOG_ENTER(p_mgr->p_log);
 
@@ -1115,6 +1115,7 @@ int osm_ucast_mgr_process(IN osm_ucast_mgr_t * p_mgr)
 	    ucast_mgr_setup_all_switches(p_mgr->p_subn) < 0)
 		goto Exit;
 
+	failed = -1;
 	p_osm->routing_engine_used = NULL;
 	while (p_routing_eng) {
 		failed = ucast_mgr_route(p_routing_eng, p_osm);
