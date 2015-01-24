@@ -1024,7 +1024,7 @@ static void mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 
 	mcmember_rec = *p_recvd_mcmember_rec;
 
-        /* Validate the subnet prefix in the PortGID */
+	/* Validate the subnet prefix in the PortGID */
 	if (p_recvd_mcmember_rec->port_gid.unicast.prefix !=
 	    sa->p_subn->opt.subnet_prefix) {
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
