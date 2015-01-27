@@ -227,8 +227,8 @@ static void report(void *_log, osm_epi_event_id_t event_id, void *event_data)
 #endif
 
 osm_event_plugin_t osm_event_plugin = {
-      osm_version:OSM_VERSION,
-      create:construct,
-      delete:destroy,
-      report:report
+      OSM_VERSION,
+      construct,
+      destroy,
+      report
 };
