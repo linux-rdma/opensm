@@ -316,6 +316,8 @@ void osm_opensm_destroy(IN osm_opensm_t * p_osm)
 
 	/* shut down the dispatcher - so no new messages cross */
 	cl_disp_shutdown(&p_osm->disp);
+	if (p_osm->sa_set_disp_initialized)
+		cl_disp_shutdown(&p_osm->sa_set_disp);
 
 	/* dump SA DB */
 	if ((p_osm->sm.p_subn->sm_state == IB_SMINFO_STATE_MASTER) &&
