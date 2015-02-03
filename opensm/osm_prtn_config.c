@@ -123,7 +123,7 @@ static inline boolean_t mgid_is_ip(const ib_gid_t *mgid)
 }
 
 static inline boolean_t ip_mgroup_pkey_ok(struct part_conf *conf,
-				struct precreate_mgroup *group)
+					  struct precreate_mgroup *group)
 {
 	ib_net16_t mpkey = *(ib_net16_t *)&group->mgid.raw[4];
 	char gid_str[INET6_ADDRSTRLEN];
