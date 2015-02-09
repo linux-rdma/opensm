@@ -260,7 +260,7 @@ static void ucast_mgr_process_port(IN osm_ucast_mgr_t * p_mgr,
 					 p_mgr->p_subn->opt.lmc,
 					 p_mgr->is_dor,
 					 p_mgr->p_subn->opt.port_shifting,
-					 p_port->use_scatter,
+					 !lid_offset && p_port->use_scatter,
 					 OSM_LFT);
 
 	if (port == OSM_NO_PATH) {
