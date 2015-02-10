@@ -1197,6 +1197,24 @@ static void mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 		goto Exit;
 	}
 
+	/* verify that the joining port is in the partition of the group */
+	if (!osm_physp_has_pkey(sa->p_log, p_mgrp->mcmember_rec.pkey, p_physp)) {
+		char gid_str[INET6_ADDRSTRLEN];
+		if (is_new_group)
+			osm_mgrp_cleanup(sa->p_subn, p_mgrp);
+		CL_PLOCK_RELEASE(sa->p_lock);
+		memset(gid_str, 0, sizeof(gid_str));
+		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B14: "
+			"Cannot join port 0x%016" PRIx64 " to MGID %s - "
+			"Port is not in partition of this MC group\n",
+			cl_ntoh64(portguid),
+			inet_ntop(AF_INET6,
+				  p_mgrp->mcmember_rec.mgid.raw,
+				  gid_str, sizeof(gid_str)));
+		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_REQ_INVALID);
+		goto Exit;
+	}
+
 	/*
 	 * o15-0.2.1 requires validation of the requesting port
 	 * in the case of modification:
