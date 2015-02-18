@@ -141,6 +141,16 @@ OSMCOMP_2.3 {
 		cl_vector_apply_func;
 		cl_vector_find_from_start;
 		cl_vector_find_from_end;
+		cl_heap_construct;
+		cl_heap_init;
+		cl_heap_destroy;
+		cl_heap_modify_key;
+		cl_heap_insert;
+		cl_heap_delete;
+		cl_heap_extract_root;
+		cl_heap_resize;
+		cl_verify_heap_property;
+		cl_is_stored_in_heap;
 		cl_atomic_spinlock;
 		cl_atomic_dec;
 		ib_error_str;

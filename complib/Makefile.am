@@ -26,7 +26,7 @@ libosmcomp_la_SOURCES = cl_complib.c cl_dispatcher.c \
 			cl_spinlock.c cl_statustext.c \
 			cl_thread.c cl_threadpool.c \
 			cl_timer.c cl_vector.c \
-			ib_statustext.c \
+			cl_heap.c ib_statustext.c \
 			cl_nodenamemap.c
 
 libosmcomp_la_LDFLAGS = -version-info $(complib_api_version) \
@@ -70,7 +70,8 @@ libosmcompinclude_HEADERS = $(srcdir)/../include/complib/cl_atomic.h \
 	$(srcdir)/../include/complib/cl_timer_osd.h \
 	$(srcdir)/../include/complib/cl_types.h \
 	$(srcdir)/../include/complib/cl_types_osd.h \
-	$(srcdir)/../include/complib/cl_vector.h
+	$(srcdir)/../include/complib/cl_vector.h \
+	$(srcdir)/../include/complib/cl_heap.h
 
 # headers are distributed as part of the include dir
 EXTRA_DIST = $(srcdir)/libosmcomp.map $(srcdir)/libosmcomp.ver
