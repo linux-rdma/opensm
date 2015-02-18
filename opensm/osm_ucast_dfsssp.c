@@ -48,6 +48,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <complib/cl_heap.h>
 #include <opensm/osm_file_ids.h>
 #define FILE_ID OSM_FILE_UCAST_DFSSSP_C
 #include <opensm/osm_ucast_mgr.h>
@@ -91,17 +92,12 @@ typedef struct vertex {
 	link_t *used_link;	/* link between the vertex discovered before and this vertex */
 	uint64_t distance;	/* distance from source to this vertex */
 	uint8_t state;
-	/* for the binary heap */
-	uint32_t heap_id;
+	/* for the d-ary heap */
+	size_t heap_index;
 	/* for LFT writing and debug */
 	osm_switch_t *sw;	/* selfpointer */
 	boolean_t dropped;	/* indicate dropped switches (w/ ucast cache) */
 } vertex_t;
-
-typedef struct binary_heap {
-	uint32_t size;		/* size of the heap */
-	vertex_t **nodes;	/* array with pointers to elements of the adj_list */
-} binary_heap_t;
 
 typedef struct vltable {
 	uint64_t num_lids;	/* size of the lids array */
@@ -160,7 +156,7 @@ static inline void set_default_vertex(vertex_t * vertex)
 	vertex->used_link = NULL;
 	vertex->distance = 0;
 	vertex->state = UNDISCOVERED;
-	vertex->heap_id = 0;
+	vertex->heap_index = 0;
 	vertex->sw = NULL;
 	vertex->dropped = FALSE;
 }
@@ -175,166 +171,6 @@ static inline void set_default_cdg_node(cdg_node_t * node)
 	node->left = NULL;
 	node->right = NULL;
 	node->parent = NULL;
-}
-
-/**********************************************************************
- **********************************************************************/
-
-/************ helper functions for heap in dijkstra *******************
- **********************************************************************/
-/* returns true if element 1 is smaller than element 2 */
-static inline uint32_t heap_smaller(binary_heap_t * heap, uint32_t i,
-				    uint32_t j)
-{
-	return (heap->nodes[i]->distance < heap->nodes[j]->distance) ? 1 : 0;
-}
-
-/* swap two elements */
-static void heap_exchange(binary_heap_t * heap, uint32_t i, uint32_t j)
-{
-	uint32_t tmp_heap_id = 0;
-	vertex_t *tmp_node = NULL;
-
-	/* 1. swap the heap_id */
-	tmp_heap_id = heap->nodes[i]->heap_id;
-	heap->nodes[i]->heap_id = heap->nodes[j]->heap_id;
-	heap->nodes[j]->heap_id = tmp_heap_id;
-	/* 2. swap pointers */
-	tmp_node = heap->nodes[i];
-	heap->nodes[i] = heap->nodes[j];
-	heap->nodes[j] = tmp_node;
-}
-
-/* changes position of element with parent until children are bigger */
-static uint32_t heap_up(binary_heap_t * heap, uint32_t i)
-{
-	uint32_t curr = i, father = 0;
-
-	if (curr > 0) {
-		father = (curr - 1) >> 1;
-		while (heap_smaller(heap, curr, father)) {
-			heap_exchange(heap, curr, father);
-			/* try to go up when we arent already root */
-			curr = father;
-			if (curr > 0)
-				father = (curr - 1) >> 1;
-		}
-	}
-
-	return curr;
-}
-
-/* changes position of element with children until parent is smaller */
-static uint32_t heap_down(binary_heap_t * heap, uint32_t i)
-{
-	uint32_t curr = i;
-	uint32_t son1 = 0, son2 = 0, smaller_son = 0;
-	uint32_t exchanged = 0;
-
-	do {
-		son1 = ((curr + 1) << 1) - 1;
-		son2 = (curr + 1) << 1;
-		exchanged = 0;
-
-		/* exchange with smaller son */
-		if (son1 < heap->size && son2 < heap->size) {
-			if (heap_smaller(heap, son1, son2))
-				smaller_son = son1;
-			else
-				smaller_son = son2;
-		} else if (son1 < heap->size) {
-			/* only one son */
-			smaller_son = son1;
-		} else {
-			/* finished */
-			break;
-		}
-
-		/* only exchange when smaller */
-		if (heap_smaller(heap, smaller_son, curr)) {
-			heap_exchange(heap, curr, smaller_son);
-			exchanged = 1;
-			curr = smaller_son;
-		}
-	} while (exchanged);
-
-	return curr;
-}
-
-/* reheapify element */
-static inline void heap_heapify(binary_heap_t * heap, uint32_t i)
-{
-	heap_down(heap, heap_up(heap, i));
-}
-
-/* creates heap for graph */
-static int heap_create(vertex_t * adj_list, uint32_t adj_list_size,
-		       binary_heap_t ** binheap)
-{
-	binary_heap_t *heap = NULL;
-	uint32_t i = 0;
-
-	/* allocate the memory for the heap object */
-	heap = (binary_heap_t *) malloc(sizeof(binary_heap_t));
-	if (!heap)
-		return 1;
-
-	/* the heap size is equivalent to the size of the adj_list */
-	heap->size = adj_list_size;
-
-	/* allocate the pointer array, fill with the pointers to the elements of the adj_list and set the initial heap_id */
-	heap->nodes = (vertex_t **) malloc(heap->size * sizeof(vertex_t *));
-	if (!heap->nodes) {
-		free(heap);
-		return 1;
-	}
-	for (i = 0; i < heap->size; i++) {
-		heap->nodes[i] = &adj_list[i];
-		heap->nodes[i]->heap_id = i;
-	}
-
-	/* sort elements */
-	for (i = heap->size; i > 0; i--)
-		heap_down(heap, i - 1);
-
-	*binheap = heap;
-	return 0;
-}
-
-/* returns current minimum and removes it from heap */
-static vertex_t *heap_getmin(binary_heap_t * heap)
-{
-	vertex_t *min = NULL;
-
-	if (heap->size > 0)
-		min = heap->nodes[0];
-
-	if (min == NULL)
-		return min;
-
-	if (heap->size > 0) {
-		if (heap->size > 1) {
-			heap_exchange(heap, 0, heap->size - 1);
-			heap->size--;
-			heap_down(heap, 0);
-		} else {
-			heap->size--;
-		}
-	}
-
-	return min;
-}
-
-/* cleanup heap */
-static void heap_free(binary_heap_t * heap)
-{
-	if (heap) {
-		if (heap->nodes) {
-			free(heap->nodes);
-			heap->nodes = NULL;
-		}
-		free(heap);
-	}
 }
 
 /**********************************************************************
@@ -1197,8 +1033,9 @@ static void dfsssp_print_graph(osm_ucast_mgr_t * p_mgr, vertex_t * adj_list,
 
 /* predefine, to use this in next function */
 static void dfsssp_context_destroy(void *context);
-static int dijkstra(osm_ucast_mgr_t * p_mgr, vertex_t * adj_list,
-		    uint32_t adj_list_size, osm_port_t * port, uint16_t lid);
+static int dijkstra(osm_ucast_mgr_t * p_mgr, cl_heap_t * p_heap,
+		    vertex_t * adj_list, uint32_t adj_list_size,
+		    osm_port_t * port, uint16_t lid);
 
 /* traverse subnet to gather information about the connected switches */
 static int dfsssp_build_graph(void *context)
@@ -1221,6 +1058,7 @@ static int dfsssp_build_graph(void *context)
 	uint32_t num_sw = 0, adj_list_size = 0;
 	uint8_t lmc = 0;
 	uint16_t sm_lid = 0;
+	cl_heap_t heap;
 
 	OSM_LOG_ENTER(p_mgr->p_log);
 	OSM_LOG(p_mgr->p_log, OSM_LOG_VERBOSE,
@@ -1231,6 +1069,9 @@ static int dfsssp_build_graph(void *context)
 	 */
 	if (dfsssp_ctx->adj_list)
 		dfsssp_context_destroy(context);
+
+	/* construct the generic heap opject to use it in dijkstra */
+	cl_heap_construct(&heap);
 
 	num_sw = cl_qmap_count(sw_tbl);
 	adj_list_size = num_sw + 1;
@@ -1350,10 +1191,11 @@ static int dfsssp_build_graph(void *context)
 			link = link->next;
 		}
 	}
+
 	/* do one dry run to determine connectivity issues */
 	sm_lid = p_mgr->p_subn->master_sm_base_lid;
 	p_port = osm_get_port_by_lid(p_mgr->p_subn, sm_lid);
-	err = dijkstra(p_mgr, adj_list, adj_list_size, p_port, sm_lid);
+	err = dijkstra(p_mgr, &heap, adj_list, adj_list_size, p_port, sm_lid);
 	if (err) {
 		goto ERROR;
 	} else {
@@ -1372,6 +1214,9 @@ static int dfsssp_build_graph(void *context)
 			goto ERROR;
 		}
 	}
+	/* delete the heap which is not needed anymore */
+	cl_heap_destroy(&heap);
+
 	/* print the discovered graph */
 	if (OSM_LOG_IS_ACTIVE_V2(p_mgr->p_log, OSM_LOG_DEBUG))
 		dfsssp_print_graph(p_mgr, adj_list, adj_list_size);
@@ -1380,6 +1225,8 @@ static int dfsssp_build_graph(void *context)
 	return 0;
 
 ERROR:
+	if (cl_is_heap_inited(&heap))
+		cl_heap_destroy(&heap);
 	dfsssp_context_destroy(context);
 	return -1;
 }
@@ -1421,9 +1268,18 @@ static void print_routes(osm_ucast_mgr_t * p_mgr, vertex_t * adj_list,
 	}
 }
 
+/* callback function for the cl_heap to update the index */
+static void apply_index_update(const void * context, const size_t new_index)
+{
+	vertex_t *heap_elem = (vertex_t *) context;
+	if (heap_elem)
+		heap_elem->heap_index = new_index;
+}
+
 /* dijkstra step from one source to all switches in the df-/sssp graph */
-static int dijkstra(osm_ucast_mgr_t * p_mgr, vertex_t * adj_list,
-		    uint32_t adj_list_size, osm_port_t * port, uint16_t lid)
+static int dijkstra(osm_ucast_mgr_t * p_mgr, cl_heap_t * p_heap,
+		    vertex_t * adj_list, uint32_t adj_list_size,
+		    osm_port_t * port, uint16_t lid)
 {
 	uint32_t i = 0, j = 0, index = 0;
 	osm_node_t *remote_node = NULL;
@@ -1431,10 +1287,21 @@ static int dijkstra(osm_ucast_mgr_t * p_mgr, vertex_t * adj_list,
 	vertex_t *current = NULL;
 	link_t *link = NULL;
 	uint64_t guid = 0;
-	binary_heap_t *heap = NULL;
-	int err = 0;
+	cl_status_t ret = CL_SUCCESS;
 
 	OSM_LOG_ENTER(p_mgr->p_log);
+
+	/* build an 4-ary heap to find the node with minimum distance */
+	if (!cl_is_heap_inited(p_heap))
+		ret = cl_heap_init(p_heap, adj_list_size, 4,
+				   &apply_index_update, NULL);
+	else
+		ret = cl_heap_resize(p_heap, adj_list_size);
+	if (ret != CL_SUCCESS) {
+		OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR,
+			"ERR AD09: cannot allocate memory or resize heap\n");
+		return ret;
+	}
 
 	/* reset all switches for new round with a new source for dijkstra */
 	for (i = 1; i < adj_list_size; i++) {
@@ -1442,6 +1309,12 @@ static int dijkstra(osm_ucast_mgr_t * p_mgr, vertex_t * adj_list,
 		adj_list[i].used_link = NULL;
 		adj_list[i].distance = INF;
 		adj_list[i].state = UNDISCOVERED;
+		ret = cl_heap_insert(p_heap, INF, &adj_list[i]);
+		if (ret != CL_SUCCESS) {
+			OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR,
+				"ERR AD11: cl_heap_insert failed\n");
+			return ret;
+		}
 	}
 
 	/* if behind port is a Hca -> set adj_list[0] */
@@ -1504,6 +1377,12 @@ static int dijkstra(osm_ucast_mgr_t * p_mgr, vertex_t * adj_list,
 				" shutdown this routing engine)\n");
 			return 1;
 		}
+		ret = cl_heap_insert(p_heap, INF, &adj_list[0]);
+		if (ret != CL_SUCCESS) {
+			OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR,
+				"ERR AD11: cl_heap_insert failed\n");
+			return ret;
+		}
 		/* if behind port is a switch -> search switch in adj_list */
 	} else {
 		/* reset adj_list[0], if links=NULL reset was done before, then skip */
@@ -1525,19 +1404,15 @@ static int dijkstra(osm_ucast_mgr_t * p_mgr, vertex_t * adj_list,
 	adj_list[index].distance = 0;
 	adj_list[index].state = DISCOVERED;
 	adj_list[index].hops = 0;	/* the source has hop count = 0 */
-
-	/* create a heap to find (efficient) the node with the smallest distance */
-	if (osm_node_get_type(port->p_node) == IB_NODE_TYPE_CA)
-		err = heap_create(adj_list, adj_list_size, &heap);
-	else
-		err = heap_create(&adj_list[1], adj_list_size - 1, &heap);
-	if (err) {
+	ret = cl_heap_modify_key(p_heap, adj_list[index].distance,
+				 adj_list[index].heap_index);
+	if (ret != CL_SUCCESS) {
 		OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR,
-			"ERR AD09: cannot allocate memory for heap or heap->node in heap_create(...)\n");
-		return err;
+			"ERR AD10: index out of bounds in cl_heap_modify_key\n");
+		return ret;
 	}
 
-	current = heap_getmin(heap);
+	current = (vertex_t *) cl_heap_extract_root(p_heap);
 	while (current) {
 		current->state = DISCOVERED;
 		if (current->used_link)	/* increment the number of hops to the source for each new node */
@@ -1552,16 +1427,19 @@ static int dijkstra(osm_ucast_mgr_t * p_mgr, vertex_t * adj_list,
 				adj_list[link->to].used_link = link;
 				adj_list[link->to].distance =
 				    current->distance + link->weight;
-				heap_heapify(heap, adj_list[link->to].heap_id);
+				ret = cl_heap_modify_key(p_heap,
+							 adj_list[link->to].distance,
+							 adj_list[link->to].heap_index);
+				if (ret != CL_SUCCESS) {
+					OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR,
+						"ERR AD10: index out of bounds in cl_heap_modify_key\n");
+					return ret;
+				}
 			}
 		}
 
-		current = heap_getmin(heap);
+		current = (vertex_t *) cl_heap_extract_root(p_heap);
 	}
-
-	/* destroy the heap */
-	heap_free(heap);
-	heap = NULL;
 
 	OSM_LOG_EXIT(p_mgr->p_log);
 	return 0;
@@ -2286,6 +2164,7 @@ static int dfsssp_do_dijkstra_routing(void *context)
 	osm_ucast_mgr_t *p_mgr = (osm_ucast_mgr_t *) dfsssp_ctx->p_mgr;
 	vertex_t *adj_list = (vertex_t *) dfsssp_ctx->adj_list;
 	uint32_t adj_list_size = dfsssp_ctx->adj_list_size;
+	cl_heap_t heap;
 
 	vertex_t **sw_list = NULL;
 	uint32_t sw_list_size = 0;
@@ -2329,6 +2208,9 @@ static int dfsssp_do_dijkstra_routing(void *context)
 			osm_switch_set_hops(sw, i, 0, 0);
 		}
 	}
+
+	/* construct the generic heap opject to use it in dijkstra */
+	cl_heap_construct(&heap);
 
 	/* we need an intermediate array of pointers to switches in adj_list;
 	   this array will be sorted in respect to num_hca (descending)
@@ -2496,7 +2378,8 @@ static int dfsssp_do_dijkstra_routing(void *context)
 		for (lid = min_lid_ho; lid <= max_lid_ho; lid++) {
 			/* do dijkstra from this Hca/LID/SP0 to each switch */
 			err =
-			    dijkstra(p_mgr, adj_list, adj_list_size, port, lid);
+			    dijkstra(p_mgr, &heap, adj_list, adj_list_size,
+				     port, lid);
 			if (err)
 				goto ERROR;
 			if (OSM_LOG_IS_ACTIVE_V2(p_mgr->p_log, OSM_LOG_DEBUG))
@@ -2536,6 +2419,9 @@ static int dfsssp_do_dijkstra_routing(void *context)
 	/* list not needed after the dijkstra steps and deadlock removal */
 	cl_qlist_remove_all(&p_mgr->port_order_list);
 
+	/* delete the heap which is not needed anymore */
+	cl_heap_destroy(&heap);
+
 	/* print the new_lft for each switch after routing is done */
 	if (OSM_LOG_IS_ACTIVE_V2(p_mgr->p_log, OSM_LOG_DEBUG)) {
 		for (item = cl_qmap_head(sw_tbl); item != cl_qmap_end(sw_tbl);
@@ -2568,6 +2454,8 @@ ERROR:
 		destroy_guid_map(&io_tbl);
 	if (sw_list)
 		free(sw_list);
+	if (cl_is_heap_inited(&heap))
+		cl_heap_destroy(&heap);
 	return -1;
 }
 
@@ -2591,6 +2479,7 @@ static ib_api_status_t dfsssp_do_mcast_routing(void * context,
 	uint32_t err = 0, num_ports = 0, i = 0;
 	ib_net64_t guid = 0;
 	ib_api_status_t status = IB_SUCCESS;
+	cl_heap_t heap;
 
 	OSM_LOG_ENTER(sm->p_log);
 
@@ -2637,6 +2526,9 @@ static ib_api_status_t dfsssp_do_mcast_routing(void * context,
 		}
 	}
 
+	/* construct the generic heap opject to use it in dijkstra */
+	cl_heap_construct(&heap);
+
 	/* create a map and a list of all ports which are member in the mcast
 	   group; map for searching elements and list for iteration
 	 */
@@ -2681,7 +2573,7 @@ static ib_api_status_t dfsssp_do_mcast_routing(void * context,
 	 */
 	lid = osm_node_get_base_lid(root_sw->p_node, 0);
 	port = osm_get_port_by_lid(sm->p_subn, lid);
-	err = dijkstra(p_mgr, adj_list, adj_list_size, port, lid);
+	err = dijkstra(p_mgr, &heap, adj_list, adj_list_size, port, lid);
 	if (err) {
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR AD52: "
 			"Dijkstra step for mcast failed for group 0x%X\n",
@@ -2707,6 +2599,8 @@ static ib_api_status_t dfsssp_do_mcast_routing(void * context,
 	}
 
 Exit:
+	if (cl_is_heap_inited(&heap))
+		cl_heap_destroy(&heap);
 	reset_mgrp_membership(adj_list, adj_list_size);
 	osm_mcast_drop_port_list(&mcastgrp_port_list);
 	OSM_LOG_EXIT(sm->p_log);
