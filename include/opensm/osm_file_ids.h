@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2012 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (C) 2012-2017 Tokyo Institute of Technology. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -150,6 +151,7 @@ typedef enum _osm_file_ids_enum {
 	OSM_FILE_ST_C,
 	OSM_FILE_UCAST_DFSSSP_C,
 	OSM_FILE_CONGESTION_CONTROL_C,
+	OSM_FILE_UCAST_NUE_C,
 } osm_file_ids_enum;
 /***********/
 

@@ -5,6 +5,7 @@
  * Copyright (c) 2009 HNR Consulting. All rights reserved.
  * Copyright (c) 2009 System Fabric Works, Inc. All rights reserved.
  * Copyright (c) 2009-2011 ZIH, TU Dresden, Federal Republic of Germany. All rights reserved.
+ * Copyright (C) 2012-2017 Tokyo Institute of Technology. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -181,7 +182,8 @@ static void show_usage(void)
 	       "          If all configured routing engines fail, OpenSM will always\n"
 	       "          attempt to route with Min Hop unless 'no_fallback' is\n"
 	       "          included in the list of routing engines.\n"
-	       "          Supported engines: updn, dnup, file, ftree, lash, dor, torus-2QoS, dfsssp, sssp\n\n");
+	       "          Supported engines: updn, dnup, file, ftree, lash, dor,\n"
+	       "                             torus-2QoS, nue, dfsssp, sssp\n\n");
 	printf("--do_mesh_analysis\n"
 	       "          This option enables additional analysis for the lash\n"
 	       "          routing engine to precondition switch port assignments\n"
@@ -189,9 +191,14 @@ static void show_usage(void)
 	       "          of SLs required to give a deadlock free routing\n\n");
 	printf("--lash_start_vl <vl number>\n"
 	       "          Sets the starting VL to use for the lash routing algorithm.\n"
-	       "          Defaults to 0.\n");
+	       "          Defaults to 0.\n\n");
 	printf("--sm_sl <sl number>\n"
 	       "          Sets the SL to use to communicate with the SM/SA. Defaults to 0.\n\n");
+	printf("--nue_max_num_vls <vl number>\n"
+	       "          Sets the maximum number of VLs to be used by Nue routing.\n"
+	       "          Defaults to 1 to enforce deadlock-freedom even if QoS is not\n"
+	       "          enabled. Set to 0 if Nue should automatically determine and\n"
+	       "          choose maximum supported by the fabric, or any interger >= 1.\n\n");
 	printf("--connect_roots, -z\n"
 	       "          This option enforces routing engines (up/down and \n"
 	       "          fat-tree) to make connectivity between root switches\n"
@@ -692,6 +699,7 @@ int main(int argc, char *argv[])
 		{"log_prefix", 1, NULL, 9},
 		{"torus_config", 1, NULL, 10},
 		{"guid_routing_order_no_scatter", 0, NULL, 13},
+		{"nue_max_num_vls", 1, NULL, 15},
 		{NULL, 0, NULL, 0}	/* Required at the end of the array */
 	};
 
@@ -1140,6 +1148,17 @@ int main(int argc, char *argv[])
 			break;
 		case 13:
 			opt.guid_routing_order_no_scatter = TRUE;
+			break;
+		case 15:
+			temp = strtoul(optarg, NULL, 0);
+			if (temp < 0 || temp >= IB_MAX_NUM_VLS) {
+				fprintf(stderr,
+					"ERROR: maximum #VLs for nue routing must be between 0 and %d\n",
+					IB_MAX_NUM_VLS);
+				return -1;
+			}
+			opt.nue_max_num_vls = (uint8_t) temp;
+			printf(" Nue maximum #VLs = %d\n", opt.nue_max_num_vls);
 			break;
 		case 'h':
 		case '?':

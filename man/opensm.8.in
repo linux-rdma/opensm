@@ -17,6 +17,7 @@ opensm \- InfiniBand subnet manager and administration (SM/SA)
 [\-R <engine name(s)> | \-\-routing_engine <engine name(s)>]
 [\-\-do_mesh_analysis]
 [\-\-lash_start_vl <vl number>]
+[\-\-nue_max_num_vls <vl number>]
 [\-A | \-\-ucast_cache]
 [\-z | \-\-connect_roots]
 [\-M <file name> | \-\-lid_matrix_file <file name>]
@@ -161,7 +162,7 @@ will be tried if earlier routing engines fail.  If all configured
 routing engines fail, OpenSM will always attempt to route with Min Hop
 unless 'no_fallback' is included in the list of routing engines.
 Supported engines: minhop, updn, dnup, file, ftree, lash, dor, torus-2QoS,
-dfsssp, sssp.
+nue, dfsssp, sssp.
 .TP
 \fB\-\-do_mesh_analysis\fR
 This option enables additional analysis for the lash routing engine to
@@ -171,6 +172,14 @@ may reduce the number of SLs required to give a deadlock free routing.
 \fB\-\-lash_start_vl\fR <vl number>
 This option sets the starting VL to use for the lash routing algorithm.
 Defaults to 0.
+.TP
+\fB\-\-nue_max_num_vls\fR <vl number>
+This option sets the maximum number of VLs to use for the Nue routing engine.
+Every number greater or equal to 0 is allowed, and the default is 1 to enforce
+deadlock-freedom even if QoS is not enabled. If set to 0, then Nue routing will
+automatically determine and choose maximum supported by the fabric. And if set
+to any interger >= 1, then Nue uses min(max_supported,nue_max_num_vls).
+Rule of thumb is: higher nue_max_num_vls results in better path balancing.
 .TP
 \fB\-A\fR, \fB\-\-ucast_cache\fR
 This option enables unicast routing cache and prevents routing
@@ -870,7 +879,7 @@ information that do not contain the proper MKey.
 
 .SH ROUTING
 .PP
-OpenSM now offers nine routing engines:
+OpenSM now offers ten routing engines:
 
 1.  Min Hop Algorithm - based on the minimum hops to each node where the
 path length is optimized.
@@ -919,6 +928,12 @@ InfiniBand virtual lanes (SL) to provide deadlock-freedom.
 algorithm, which globally balances the number of routes per link to
 optimize link utilization. This routing algorithm has no restrictions
 in terms of the underlying topology.
+
+10. Nue unicast routing algorithm - a 100%-applicable and deadlock-free routing
+which can be used for any arbitrary or faulty network topology and any number
+of virtual lanes (this includes the absense of VLs as well). Paths are globally
+balanced w.r.t the number of routes per link, and are kept as short as possible
+while enforcing deadlock-freedom within the VL constraint.
 
 OpenSM also supports a file method which
 can load routes from a table. See \'Modular Routing Engine\' for more
@@ -1379,6 +1394,117 @@ see torus-2QoS(8) for full documentation.
 Use '-R torus-2QoS -Q' or '-R torus-2QoS,no_fallback -Q'
 to activate the torus-2QoS algorithm.
 
+Nue Routing Algorithm
+
+Use either `-R nue' or `-R nue -Q --nue_max_num_vls <int>' to activate Nue.
+
+Note: if `--nue_max_num_vls' is specified and unequal to 1, then QoS support
+must be turned on, so that SL2VL mappings are valid and applications comply with
+suggested SLs to avoid credit-loops. For more details on QoS and Nue see below.
+
+The implementation of Nue routing for OpenSM is a 100%-applicable, balanced, and
+deadlock-free unicast routing engine (which also configures multicast tables,
+see 'Note on multicast' below). The key points of this algorithm are the
+following:
+  - 100% fault-tolerant, oblivious routing strategy
+  - topology-agnostic, i.e., applicable to every topology (no matter if topology
+    is regular, irregular after faults, or random)
+  - 100% deadlock-free routing within the resource limits (i.e., it never
+    exceeds the given number of available virtual lanes, and it does not
+    necessarily require virtual lanes) for every topology
+  - very good path balancing and therefore high throughput (even better when
+    using METIS, see notes below)
+  - QoS (via SLs/VLs) + deadlock-freedom can be combined (since both rely on
+    VLs), e.g., using VL0-3 for Nue's deadlock-freedom (and 1. QoS level) and
+    VL4-7 as second QoS level
+  - forwarding tables are fast to calculate: O(n^2 * log n), however slightly
+    slower compared to topology-aware routings (for obvious reasons), and
+  - the path-to-VL mapping only depends on the destination, which may be useful
+    for scalable, efficient path resolution and caching mechanisms.
+.br
+From a very high level perspective, Nue routing is similar to DFSSSP (see above)
+in the sense that both use Dijkstra and edge weight updates for path balancing,
+and paths are mapped to virtual layers assuming a 1:1 mapping of SL2VL tables.
+However, the fundamental difference is that Nue routing doesn't perform the path
+calculation on the graph representing the real fabric, and instead routes
+directly within the channel dependency graph. This approach allows Nue routing
+to place routing restrictions (to avoid any credit-loops) in an on-demand
+manner, which overcomes the problem of all other good VL-based algorithms.
+Meaning, the competitors cannot control or limit the use of VLs, and might run
+out of them and have to give up. On the flip side, Nue may have to use detours
+for a few routes, and hence cannot really be considered "shortest-path" routing,
+because it is impossible to accomplish deadlock-free, shortest-path routing with
+an limited number of available virtual lanes for arbitrary network topologies.
+
+Note on the use of METIS library with Nue:
+.br
+Nue routing may has to separate the LIDs into multiple subsets, one for every
+virtual layer, if multiple layers are used. Nue has two options to perform this
+partitioning (not to be confused with IB partitions); the first is a fairly
+simple semi-random assignment of LIDs to layers/subsets, and the second
+partitioning uses the METIS library to partition the network graph into k
+approximately equal sized parts. The latter approach has shown better results
+in terms of path balancing and avoidance of using fallback paths, and hence
+it is HIGHLY advised to install/use the METIS library with OpenSM (enforced
+via `--enable-metis' configure flag when building OpenSM). For the rare case,
+that METIS isn't packaged with the Linux distro, here is a link to the official
+website to download and install METIS 5.1.0 manually:
+.br
+   http://glaros.dtc.umn.edu/gkhome/metis/metis/overview
+.br
+OpenSM's configure script also provides options in case METIS header and library
+aren't found in the default path.
+
+Runtime options for Nue:
+.br
+The behavior of Nue routing can be directly influenced by the osm.conf parameter
+(which is also available as command line option):
+  - nue_max_num_vls: controls/limits the number of virtual lanes/layers which
+       Nue is allowed to use (detailed explanation in osm.conf file).
+.br
+Furthermore, Nue supports TRUE and FALSE settings of avoid_throttled_links,
+use_ucast_cache, and qos (more on this hereafter); and lmc > 0.
+
+Notes on Quality of Service (QoS):
+.br
+The advantage of Nue is that it works with AND without QoS being enabled, i.e.,
+the usage of SLs/VLs for deadlock-freedom can be avoided. Here are the three
+possible usage scenarios:
+  - neither setting `--nue_max_num_vls <int>' nor `-Q': Nue assumes that only 1
+       virtual layer (identical to physical network; or OperVLs equal to VL0) is
+       usable and all paths are to be calculated within this one layer. Hence,
+       there is no need for special SL2VL mappings in the network and the use of
+       specific SLs by applications.
+  - setting `-Q' but not `--nue_max_num_vls <int>': This combination works like
+       the previous one, meaning the SL returned for path record requests is not
+       defined by Nue, since all paths are deadlock-free without using VLs.
+       However, any separate QoS settings may influence the SL returned to
+       applications.
+  - setting `-Q --nue_max_num_vls <int>' with int != 1: In this configuration,
+       applications have to query and obey the SL for path records as returned
+       by Nue because otherwise the deadlock-freedom cannot be guaranteed
+       anymore. Furthermore, errors in the fabric may require applications to
+       repath to avoid message deadlocks. Since Nue operates on virtual layer,
+       admins should configure the SL2VL mapping tables in an homogeneous 1:1
+       manner across the entire subnet to separate the layers.
+.br
+As an additional note, using more VLs for Nue usually improves the overall
+network throughput, so there are trade offs admins may have to consider when
+configuring the subnet manager with Nue routing.
+
+Note on multicast:
+.br
+The Nue routing engine configures multicast forwarding tables by utilizing a
+spanning tree calculation routed at a subnet switch suggested by OpenSM. This
+spanning tree for a mcast group will try to use the least overloaded links
+(w.r.t the ucast paths-per-link metric/weight) in the fabric. However, Nue
+routing currently does not guarantee deadlock-freedom for the set of multicast
+routes on all topologies, nor for the combination of deadlock-free unicast
+routes with additional multicast routes. Assuming, for a given topology the
+calculated mcast routes are dl-free, then an admin may fix the latter problem
+by separating the VLs, e.g., using VL0-6 for unicast routing by specifying
+`--nue_max_num_vls 7' and utilizing VL7 for multicast.
+
 
 Routing References
 
@@ -1416,6 +1542,10 @@ Parallel & Distributed Processing Symposium (IPDPS 2011)
 T. Hoefler, T. Schneider and A. Lumsdaine: Optimized Routing for
 Large-Scale InfiniBand Networks, In 17th Annual IEEE Symposium on High
 Performance Interconnects (HOTI 2009)
+
+To learn more about the Nue routing algorithm, see the article "Routing on the
+Dependency Graph: A New Approach to Deadlock-Free High-Performance Routing" by
+J. Domke, T. Hoefler and S. Matsuoka (published in HPDC'16).
 
 Modular Routine Engine
 

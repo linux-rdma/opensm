@@ -1,5 +1,5 @@
 
-AM_CPPFLAGS = $(OSMV_INCLUDES)
+AM_CPPFLAGS = $(OSMV_INCLUDES) $(METIS_INCLUDES)
 
 AM_CFLAGS = -Wall -Wwrite-strings $(DBGFLAGS) -D_XOPEN_SOURCE=600 -D_BSD_SOURCE=1
 
@@ -54,7 +54,7 @@ opensm_SOURCES = main.c osm_console_io.c osm_console.c osm_db_files.c \
 		 osm_trap_rcv.c osm_ucast_mgr.c osm_ucast_updn.c \
 		 osm_ucast_lash.c osm_ucast_file.c osm_ucast_ftree.c \
 		 osm_torus.c osm_ucast_dnup.c \
-		 osm_ucast_dfsssp.c osm_vl15intf.c \
+		 osm_ucast_nue.c osm_ucast_dfsssp.c osm_vl15intf.c \
 		 osm_vl_arb_rcv.c st.c osm_perfmgr.c osm_perfmgr_db.c \
 		 osm_event_plugin.c osm_dump.c osm_ucast_cache.c \
 		 osm_qos_parser_y.y osm_qos_parser_l.l osm_qos_policy.c \
@@ -64,7 +64,7 @@ AM_YFLAGS:= -d
 
 # we need to be able to load libraries from local build subtree before make install
 # we always give precedence to local tree libs and then use the pre-installed ones.
-opensm_LDADD = -L../complib -losmcomp -L../libvendor -losmvendor -L. -lopensm $(OSMV_LDADD)
+opensm_LDADD = -L../complib -losmcomp -L../libvendor -losmvendor -L. -lopensm $(OSMV_LDADD) $(METIS_LDADD)
 
 opensmincludedir = $(includedir)/infiniband/opensm
 

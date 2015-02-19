@@ -187,9 +187,10 @@ static const char *module_name_str[] = {
 	"st.c",
 	"osm_ucast_dfsssp.c",
 	"osm_congestion_control.c",
+	"osm_ucast_nue.c",
 	/* Add new module names here ... */
 	/* FILE_ID define in those modules must be identical to index here */
-	/* last FILE_ID is currently 89 */
+	/* last FILE_ID is currently 90 */
 };
 
 #define MOD_NAME_STR_UNKNOWN_VAL (ARR_SIZE(module_name_str))
@@ -914,6 +915,8 @@ static const opt_rec_t opt_tbl[] = {
 	{ "consolidate_ipv6_snm_req", OPT_OFFSET(consolidate_ipv6_snm_req), opts_parse_boolean, NULL, 1 },
 	{ "lash_start_vl", OPT_OFFSET(lash_start_vl), opts_parse_uint8, NULL, 1 },
 	{ "sm_sl", OPT_OFFSET(sm_sl), opts_parse_uint8, NULL, 1 },
+	{ "nue_max_num_vls", OPT_OFFSET(nue_max_num_vls), opts_parse_uint8, NULL, 1 },
+	{ "nue_include_switches", OPT_OFFSET(nue_include_switches), opts_parse_boolean, NULL, 0 },
 	{ "log_prefix", OPT_OFFSET(log_prefix), opts_parse_charp, NULL, 1 },
 	{ "per_module_logging_file", OPT_OFFSET(per_module_logging_file), opts_parse_charp, NULL, 0 },
 	{ "quasi_ftree_indexing", OPT_OFFSET(quasi_ftree_indexing), opts_parse_boolean, NULL, 1 },
@@ -1658,6 +1661,8 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * p_opt)
 	p_opt->consolidate_ipv6_snm_req = FALSE;
 	p_opt->lash_start_vl = 0;
 	p_opt->sm_sl = OSM_DEFAULT_SL;
+	p_opt->nue_max_num_vls = 1;
+	p_opt->nue_include_switches = FALSE;
 	p_opt->log_prefix = NULL;
 	p_opt->per_module_logging_file = strdup(OSM_DEFAULT_PER_MOD_LOGGING_CONF_FILE);
 	subn_init_qos_options(&p_opt->qos_options, NULL);
@@ -2512,13 +2517,13 @@ void osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		"# commas so that specific ordering of routing algorithms will\n"
 		"# be tried if earlier routing engines fail.\n"
 		"# Supported engines: minhop, updn, dnup, file, ftree, lash,\n"
-		"#    dor, torus-2QoS, dfsssp, sssp\n"
+		"#    dor, torus-2QoS, nue, dfsssp, sssp\n"
 		"routing_engine %s\n\n", p_opts->routing_engine_names ?
 		p_opts->routing_engine_names : null_str);
 
 	fprintf(out,
 		"# Routing engines will avoid throttled switch-to-switch links\n"
-		"# (currently supported by: dfsssp, sssp; use FALSE if unsure)\n"
+		"# (supported by: nue, dfsssp, sssp; use FALSE if unsure)\n"
 		"avoid_throttled_links %s\n\n",
 		p_opts->avoid_throttled_links ? "TRUE" : "FALSE");
 
@@ -2593,6 +2598,21 @@ void osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		"# Starting VL for LASH algorithm\n"
 		"lash_start_vl %u\n\n",
 		p_opts->lash_start_vl);
+
+	fprintf(out,
+		"# Maximum number of VLs for Nue routing algorithm (default: 1; to enforce\n"
+		"# deadlock-freedom even if QoS is not enabled). Set to 0 if Nue should\n"
+		"# automatically determine and choose maximum supported by the fabric, or\n"
+		"# any interger >= 1 (then Nue uses min(max_supported,nue_max_num_vls)\n"
+		"nue_max_num_vls %u\n\n",
+		p_opts->nue_max_num_vls);
+
+	fprintf(out,
+		"# If TRUE, then Nue assumes that switches will send/receive\n"
+		"# data traffic, too, and hence their paths are included in\n"
+		"# the deadlock-avoidance calculation (use FALSE if unsure)\n"
+		"nue_include_switches %s\n\n",
+		p_opts->nue_include_switches ? "TRUE" : "FALSE");
 
 	fprintf(out,
 		"# Port Shifting (use FALSE if unsure)\n"

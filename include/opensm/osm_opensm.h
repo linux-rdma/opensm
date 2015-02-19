@@ -3,6 +3,7 @@
  * Copyright (c) 2002-2006 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2009-2011 ZIH, TU Dresden, Federal Republic of Germany. All rights reserved.
+ * Copyright (C) 2012-2017 Tokyo Institute of Technology. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -109,6 +110,7 @@ typedef enum _osm_routing_engine_type {
 	OSM_ROUTING_ENGINE_TYPE_LASH,
 	OSM_ROUTING_ENGINE_TYPE_DOR,
 	OSM_ROUTING_ENGINE_TYPE_TORUS_2QOS,
+	OSM_ROUTING_ENGINE_TYPE_NUE,
 	OSM_ROUTING_ENGINE_TYPE_SSSP,
 	OSM_ROUTING_ENGINE_TYPE_DFSSSP,
 	OSM_ROUTING_ENGINE_TYPE_UNKNOWN

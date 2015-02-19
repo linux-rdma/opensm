@@ -280,6 +280,13 @@ dnl Checks for headers and libraries
 OPENIB_APP_OSMV_CHECK_HEADER
 OPENIB_APP_OSMV_CHECK_LIB
 
+dnl Provide user option to enable metis support for nue
+METIS_SEL
+
+dnl Checks for headers and libraries
+METIS_CHECK_HEADER
+METIS_CHECK_LIB
+
 AC_CONFIG_FILES([man/opensm.8 man/torus-2QoS.8 man/torus-2QoS.conf.5 scripts/opensm.init scripts/redhat-opensm.init scripts/sldd.sh])
 
 dnl Create the following Makefiles

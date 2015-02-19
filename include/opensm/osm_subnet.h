@@ -381,6 +381,8 @@ typedef struct osm_subn_opt {
 	struct osm_subn_opt *file_opts; /* used for update */
 	uint8_t lash_start_vl;			/* starting vl to use in lash */
 	uint8_t sm_sl;			/* which SL to use for SM/SA communication */
+	uint8_t nue_max_num_vls;	/* maximum #VLs to use in nue */
+	boolean_t nue_include_switches;	/* control how nue treats switches */
 	char *per_module_logging_file;
 	boolean_t quasi_ftree_indexing;
 } osm_subn_opt_t;

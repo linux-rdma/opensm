@@ -3,6 +3,7 @@
  * Copyright (c) 2002-2010 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2009-2011 ZIH, TU Dresden, Federal Republic of Germany. All rights reserved.
+ * Copyright (C) 2012-2017 Tokyo Institute of Technology. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -76,6 +77,7 @@ extern int osm_ucast_ftree_setup(struct osm_routing_engine *, osm_opensm_t *);
 extern int osm_ucast_lash_setup(struct osm_routing_engine *, osm_opensm_t *);
 extern int osm_ucast_dor_setup(struct osm_routing_engine *, osm_opensm_t *);
 extern int osm_ucast_torus2QoS_setup(struct osm_routing_engine *, osm_opensm_t *);
+extern int osm_ucast_nue_setup(struct osm_routing_engine *, osm_opensm_t *);
 extern int osm_ucast_sssp_setup(struct osm_routing_engine *, osm_opensm_t *);
 extern int osm_ucast_dfsssp_setup(struct osm_routing_engine *, osm_opensm_t *);
 
@@ -88,6 +90,7 @@ const static struct routing_engine_module routing_modules[] = {
 	{"lash", osm_ucast_lash_setup},
 	{"dor", osm_ucast_dor_setup},
 	{"torus-2QoS", osm_ucast_torus2QoS_setup},
+	{"nue", osm_ucast_nue_setup},
 	{"dfsssp", osm_ucast_dfsssp_setup},
 	{"sssp", osm_ucast_sssp_setup},
 	{NULL, NULL}
@@ -114,6 +117,8 @@ const char *osm_routing_engine_type_str(IN osm_routing_engine_type_t type)
 		return "dor";
 	case OSM_ROUTING_ENGINE_TYPE_TORUS_2QOS:
 		return "torus-2QoS";
+	case OSM_ROUTING_ENGINE_TYPE_NUE:
+		return "nue";
 	case OSM_ROUTING_ENGINE_TYPE_DFSSSP:
 		return "dfsssp";
 	case OSM_ROUTING_ENGINE_TYPE_SSSP:
@@ -148,6 +153,8 @@ osm_routing_engine_type_t osm_routing_engine_type(IN const char *str)
 		return OSM_ROUTING_ENGINE_TYPE_DOR;
 	else if (!strcasecmp(str, "torus-2QoS"))
 		return OSM_ROUTING_ENGINE_TYPE_TORUS_2QOS;
+	else if (!strcasecmp(str, "nue"))
+		return OSM_ROUTING_ENGINE_TYPE_NUE;
 	else if (!strcasecmp(str, "sssp"))
 		return OSM_ROUTING_ENGINE_TYPE_SSSP;
 	else if (!strcasecmp(str, "dfsssp"))
