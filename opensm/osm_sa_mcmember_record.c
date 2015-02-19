@@ -1213,7 +1213,7 @@ static void mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 		goto Exit;
 	}
 
-	/* copy qkey mlid tclass pkey sl_flow_hop mtu rate pkt_life sl_flow_hop */
+	/* copy qkey mlid tclass pkey sl_flow_hop mtu rate pkt_life */
 	copy_from_create_mc_rec(&mcmember_rec, &p_mgrp->mcmember_rec);
 
 	/* create or update existing port (join-state will be updated) */
