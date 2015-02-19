@@ -891,7 +891,7 @@ fat-tree of various types, not just K-ary-N-Trees: non-constant K, not
 fully staffed, any Constant Bisectional Bandwidth (CBB) ratio.
 Similar to UPDN, Fat Tree routing is constrained to ranking rules.
 
-5. LASH unicast routing algorithm - uses Infiniband virtual layers
+5. LASH unicast routing algorithm - uses InfiniBand virtual layers
 (SL) to provide deadlock-free shortest-path routing while also
 distributing the paths between layers. LASH is an alternative
 deadlock-free topology-agnostic routing algorithm to the non-minimal
@@ -913,7 +913,7 @@ values granted before the failure.
 8. DFSSSP unicast routing algorithm - a deadlock-free
 single-source-shortest-path routing, which uses the SSSP algorithm
 (see algorithm 9.) as the base to optimize link utilization and uses
-Infiniband virtual lanes (SL) to provide deadlock-freedom.
+InfiniBand virtual lanes (SL) to provide deadlock-freedom.
 
 9. SSSP unicast routing algorithm - a single-source-shortest-path routing
 algorithm, which globally balances the number of routes per link to
@@ -1256,7 +1256,7 @@ DFSSSP and SSSP Routing Algorithm
 The (Deadlock-Free) Single-Source-Shortest-Path routing algorithm is
 designed to optimize link utilization thru global balancing of routes,
 while supporting arbitrary topologies. The DFSSSP routing algorithm
-uses Infiniband virtual lanes (SL) to provide deadlock-freedom.
+uses InfiniBand virtual lanes (SL) to provide deadlock-freedom.
 
 The DFSSSP algorithm consists of five major steps:
 .br
@@ -1298,7 +1298,7 @@ are moved to the "next higher" virtual layer (CDG[i+1]);
 routes are moved "up".
 .br
 5) When the number of needed layers does not exceeds the number of
-available SL/VL to remove all cycles in all CDGs, the rounting is
+available SL/VL to remove all cycles in all CDGs, the routing is
 deadlock-free and an relation table is generated, which contains
 the assignment of routes from source to destination to a SL
 
@@ -1323,7 +1323,7 @@ a.1) QoS has to be configured to equally spread the load on the
 available SL or virtual lanes
 .br
 a.2) applications must perform a path record query to get path SL for
-each route, which the application will use to transmite packages
+each route, which the application will use to transmit packages
 .br
 b) running SSSP:   '-R sssp'
 .br
@@ -1357,7 +1357,7 @@ The priority for the optimization is as follows:
 .br
   compute nodes -> I/O nodes -> other nodes
 .br
-Possible use case szenarios:
+Possible use case scenarios:
 .br
 a) neither \'-u\' nor \'-G\' are specified: all nodes a treated as \'other nodes\'
 and therefore balanced equally;

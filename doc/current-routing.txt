@@ -20,7 +20,7 @@ of fat-trees for congestion-free "shift" communication pattern.
 It should be chosen if a subnet is a symmetrical fat-tree.
 Similar to UPDN routing, Fat-tree routing is credit-loop-free.
 
-5. LASH unicast routing algorithm - uses Infiniband virtual layers
+5. LASH unicast routing algorithm - uses InfiniBand virtual layers
 (SL) to provide deadlock-free shortest-path routing while also
 distributing the paths between layers. LASH is an alternative
 deadlock-free topology-agnostic routing algorithm to the non-minimal
@@ -41,7 +41,7 @@ values granted before the failure.
 
 8. DFSSSP unicast routing algorithm - a deadlock-free single-source-
 shortest-path routing, which uses the SSSP algorithm (see algorithm 9.)
-as the base to optimize link utilization and uses Infiniband virtual lanes
+as the base to optimize link utilization and uses InfiniBand virtual lanes
 (SL) to provide deadlock-freedom.
 
 9. SSSP unicast routing algorithm - a single-source-shortest-path routing
@@ -297,7 +297,7 @@ To solve this problem, a list of non-CN nodes can be specified by \'-G\' or \'--
 Theses nodes will be allowed to use switches the wrong way around a specific number of times (specified by \'-H\' or \'--max_reverse_hops\'.
 With the proper max_reverse_hops and io_guid_file values, you can ensure full connectivity in the Fat Tree.
 
-In the scheme above, with a max_reverse_hop of 1, routes will be instanciated between N1<->N2 and N2<->N3.
+In the scheme above, with a max_reverse_hop of 1, routes will be instantiated between N1<->N2 and N2<->N3.
 With a max_reverse_hops value of 2, N1,N2 and N3 will all have routes between them.
 
 Please note that using max_reverse_hops creates routes that use the switch in a counter-stream way.
@@ -707,7 +707,7 @@ formed by the eight switch locations bounded by the corners (x,y,z) and
 (x+1,y+1,z+1).  Based on switches already placed into the torus topology at
 some of these locations, the algorithm examines 4-loops of interswitch
 links to find the one that is consistent with a face of the cube of switch
-locations, and adds its swiches to the discovered topology in the correct
+locations, and adds its switches to the discovered topology in the correct
 locations.
 
 Because the algorithm is based on examining the topology of 4-loops of links,
@@ -726,7 +726,7 @@ and many switches/links in the fabric will not be placed into the torus.
 
 Quality Of Service Configuration:
 
-OpenSM will not program switchs and channel adapters with SL2VL maps or VL
+OpenSM will not program switches and channel adapters with SL2VL maps or VL
 arbitration configuration unless it is invoked with -Q.  Since torus-2QoS
 depends on such functionality for correct operation, always invoke OpenSM
 with -Q when torus-2QoS is in the list of routing engines.
@@ -812,7 +812,7 @@ DFSSSP and SSSP Routing Algorithm
 The (Deadlock-Free) Single-Source-Shortest-Path routing algorithm is
 designed to optimize link utilization thru global balancing of routes,
 while supporting arbitrary topologies. The DFSSSP routing algorithm
-uses Infiniband virtual lanes (SL) to provide deadlock-freedom.
+uses InfiniBand virtual lanes (SL) to provide deadlock-freedom.
 
 The DFSSSP algorithm consists of five major steps:
 1) It discovers the subnet and models the subnet as a directed
@@ -841,7 +841,7 @@ The DFSSSP algorithm consists of five major steps:
 4.3) the cycle search is continued until all cycles are broken and
      routes are moved "up".
 5) When the number of needed layers does not exceeds the number of
-   available SL/VL to remove all cycles in all CDGs, the rounting is
+   available SL/VL to remove all cycles in all CDGs, the routing is
    deadlock-free and an relation table is generated, which contains
    the assignment of routes from source to destination to a SL
 
@@ -862,7 +862,7 @@ Notes for usage:
     a.1) QoS has to be configured to equally spread the load on the
          available SL or virtual lanes
     a.2) applications must perform a path record query to get path SL for
-         each route, which the application will use to transmite packages
+         each route, which the application will use to transmit packages
   b) running SSSP:   '-R sssp'
   c) both algorithms support LMC > 0
 
@@ -886,7 +886,7 @@ separately and therefore distributed as much as possible across the available
 links. Port GUIDs, as listed by ibstat, must be specified (not Node GUIDs).
 The priority for the optimization is as follows:
   compute nodes -> I/O nodes -> other nodes
-Possible use case szenarios:
+Possible use case scenarios:
   a) neither '-u' nor '-G' are specified: all nodes a treated as 'other nodes'
      and therefore balanced equally;
   b) '-G' is specified: traffic towards I/O nodes will be balanced optimally;
