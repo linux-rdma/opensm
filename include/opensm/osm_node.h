@@ -139,7 +139,7 @@ typedef struct osm_node {
 *		Each object indiactes whether the port has been discovered
 *		during the sweep or not. 1 means that the port had been discovered.
 *
-*	phsyp_table
+*	physp_table
 *		Array of physical port objects belonging to this node.
 *		Index is contiguous by local port number.
 *		For switches, port 0 is the always the management port (14.2.5.6).
