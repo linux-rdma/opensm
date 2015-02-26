@@ -225,8 +225,7 @@ static void pi_rcv_process_switch_port0(IN osm_sm_t * sm,
 	for (port = 1; port < num_ports; port++) {
 		status = osm_req_get(sm, osm_physp_get_dr_path_ptr(p_physp),
 				     IB_MAD_ATTR_PORT_INFO, cl_hton32(port),
-				     FALSE,
-				     ib_port_info_get_m_key(&p_physp->port_info),
+				     TRUE, 0,
 				     CL_DISP_MSGID_NONE, &context);
 		if (status != IB_SUCCESS)
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0F16: "
