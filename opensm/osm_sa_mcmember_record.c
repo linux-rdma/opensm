@@ -436,7 +436,7 @@ static boolean_t validate_modify(IN osm_sa_t * sa, IN osm_mgrp_t * p_mgrp,
 					p_request_physp)) {
 			/* the request port is not part of the partition for this mgrp */
 			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-				"Requesting port 0x%016" PRIx64 " has no P_Key 0x%04x\n",
+				"Requesting port 0x%016" PRIx64 " has no PKey 0x%04x\n",
 				cl_ntoh64(p_request_physp->port_guid),
 				cl_ntoh16(p_mgrp->mcmember_rec.pkey));
 			return FALSE;
@@ -530,7 +530,7 @@ static boolean_t validate_delete(IN osm_sa_t * sa, IN osm_mgrp_t * p_mgrp,
  *     Sc  4bit = Scope (c)
  *     Si 16bit = Signature (2)
  *     P  64bit = GID Prefix (should be a subnet unique ID - normally Subnet Prefix)
- *     Id 32bit = Unique ID in the Subnet (might be MLID or Pkey ?)
+ *     Id 32bit = Unique ID in the Subnet (might be MLID or P_Key ?)
  *
  *  a) 8-bits of 11111111 at the start of the GID identifies this as being a
  *     multicast GID.
@@ -1083,7 +1083,7 @@ static void mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 					   sa->p_subn->opt.allow_both_pkeys)) {
 		CL_PLOCK_RELEASE(sa->p_lock);
 		OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
-			"Port and requester don't share pkey\n");
+			"Port and requester don't share PKey\n");
 		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_REQ_INVALID);
 		goto Exit;
 	}
