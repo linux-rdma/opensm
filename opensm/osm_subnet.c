@@ -2794,7 +2794,7 @@ void osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 
 	fprintf(out,
 		"#\n# Congestion Control SwitchCongestionSetting options\n#\n"
-		"# Control Map - bitmask indicating which of the following attributes are to be used\n"
+		"# Control Map - bitmask indicating which of the following are to be used\n"
 		"# bit 0 - victim mask\n"
 		"# bit 1 - credit mask\n"
 		"# bit 2 - threshold + packet size\n"
