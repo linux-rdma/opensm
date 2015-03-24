@@ -694,5 +694,37 @@ boolean_t osm_physp_has_pkey(IN osm_log_t * p_log, IN ib_net16_t pkey,
 *
 *********/
 
+/****f* OpenSM: osm_pkey_tbl_set_indx0_pkey
+* NAME
+*  osm_pkey_tbl_set_indx0_pkey
+*
+* DESCRIPTION
+*  Sets given pkey at index0 in given pkey_tbl.
+*
+* SYNOPSIS
+*/
+void osm_pkey_tbl_set_indx0_pkey(IN osm_log_t * p_log, IN ib_net16_t pkey,
+				 IN boolean_t full,
+				 OUT osm_pkey_tbl_t * p_pkey_tbl);
+/*
+* PARAMETERS
+*  p_log
+*     [in] Pointer to a log object.
+*
+*  pkey
+*     [in] P_Key.
+*
+*  full
+*     [in] Indication if this is a full/limited membership pkey.
+*
+*  p_pkey_tbl
+*     [out] Pointer to osm_pkey_tbl_t object in which to set indx0 pkey.
+*
+* RETURN VALUES
+*  None
+*
+* NOTES
+*
+*********/
 END_C_DECLS
 #endif				/* _OSM_PKEY_H_ */
