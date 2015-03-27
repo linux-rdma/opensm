@@ -37,7 +37,7 @@ opensm \- InfiniBand subnet manager and administration (SM/SA)
 [\-\-maxsmps <number>]
 [\-\-console [off | local | socket | loopback]]
 [\-\-console-port <port>]
-[\-i(gnore-guids) <equalize-ignore-guids-file>]
+[\-i | \-\-ignore_guids <equalize-ignore-guids-file>]
 [\-w | \-\-hop_weights_file <path to file>]
 [\-O | \-\-port_search_ordering_file <path to file>]
 [\-O | \-\-dimn_ports_file <path to file>] (DEPRECATED)
@@ -298,7 +298,7 @@ Specify an alternate telnet port for the socket console (default 10000).
 Note that this option only appears if OpenSM was built with
 --enable-console-socket.
 .TP
-\fB\-i\fR, \fB\-\-ignore-guids\fR <equalize-ignore-guids-file>
+\fB\-i\fR, \fB\-\-ignore_guids\fR <equalize-ignore-guids-file>
 This option provides the means to define a set of ports
 (by node guid and port number) that will be ignored by the link load
 equalization algorithm.
@@ -987,7 +987,7 @@ port GUID. The latter is supplied by:
 
 -i <equalize-ignore-guids-file>
 .br
-\-\-ignore-guids <equalize-ignore-guids-file>
+\-\-ignore_guids <equalize-ignore-guids-file>
           This option provides the means to define a set of ports
           (by guid) that will be ignored by the link load
           equalization algorithm. Note that only endports (CA,

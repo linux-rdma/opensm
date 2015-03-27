@@ -289,7 +289,7 @@ static void show_usage(void)
 	       "          Specify an alternate telnet port for the console (default %d).\n\n",
 	       OSM_DEFAULT_CONSOLE_PORT);
 #endif
-	printf("--ignore-guids, -i <equalize-ignore-guids-file>\n"
+	printf("--ignore_guids, -i <equalize-ignore-guids-file>\n"
 	       "          This option provides the means to define a set of ports\n"
 	       "          (by guid) that will be ignored by the link load\n"
 	       "          equalization algorithm.\n\n");

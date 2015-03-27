@@ -127,7 +127,7 @@ subscription is also equalized with the ability to override based on
 port GUID. The latter is supplied by:
 
 -i <equalize-ignore-guids-file>
--ignore-guids <equalize-ignore-guids-file>
+--ignore_guids <equalize-ignore-guids-file>
           This option provides the means to define a set of ports
           (by guids) that will be ignored by the link load
           equalization algorithm.
