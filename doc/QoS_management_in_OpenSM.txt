@@ -496,6 +496,6 @@ Below is an example of SL2VL and VL Arbitration configuration on subnet:
 
 In this example, there are 8 VLs configured on subnet: VL0 to VL7. VL0 is
 defined as a high priority VL, and it is limited to 6 x 4KB = 24KB in a single
-transmission burst. Such configuration would suilt VL that needs low latency
-and uses small MTU when transmitting packets. Rest of VLs are defined as low
-priority VLs with different weights, while VL4 is effectively turned off.
+transmission burst. Such configuration would suit a VL that needs low latency
+and uses a small MTU when transmitting packets. Rest of the VLs are defined as
+low priority VLs with different weights, while VL4 is effectively turned off.
