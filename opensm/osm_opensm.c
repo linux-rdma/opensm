@@ -300,16 +300,16 @@ void osm_opensm_destroy(IN osm_opensm_t * p_osm)
 
 	osm_congestion_control_shutdown(&p_osm->cc);
 
-	/* shut down the SA
-	 * - unbind from QP1 messages
-	 */
-	osm_sa_shutdown(&p_osm->sa);
-
 	/* shut down the SM
 	 * - make sure the SM sweeper thread exited
 	 * - unbind from QP0 messages
 	 */
 	osm_sm_shutdown(&p_osm->sm);
+
+	/* shut down the SA
+	 * - unbind from QP1 messages
+	 */
+	osm_sa_shutdown(&p_osm->sa);
 
 	/* cleanup all messages on VL15 fifo that were not sent yet */
 	osm_vl15_shutdown(&p_osm->vl15, &p_osm->mad_pool);
