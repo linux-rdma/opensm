@@ -287,62 +287,62 @@ static void pi_rcv_process_switch_ext_port(IN osm_sm_t * sm,
 	/* if in_sweep_hop_0 is TRUE, then this means the SM is on the switch,
 	   and we got switchInfo of our local switch. Do not continue
 	   probing through the switch. */
-	if (sm->p_subn->in_sweep_hop_0 == FALSE) {
-		switch (ib_port_info_get_port_state(p_pi)) {
-		case IB_LINK_DOWN:
-			p_remote_physp = osm_physp_get_remote(p_physp);
-			if (p_remote_physp) {
-				p_remote_node =
-				    osm_physp_get_node_ptr(p_remote_physp);
-				remote_port_num =
-				    osm_physp_get_port_num(p_remote_physp);
+	switch (ib_port_info_get_port_state(p_pi)) {
+	case IB_LINK_DOWN:
+		p_remote_physp = osm_physp_get_remote(p_physp);
+		if (p_remote_physp) {
+			p_remote_node =
+			    osm_physp_get_node_ptr(p_remote_physp);
+			remote_port_num =
+			    osm_physp_get_port_num(p_remote_physp);
 
-				OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
-					"Unlinking local node 0x%" PRIx64
-					", port %u"
-					"\n\t\t\t\tand remote node 0x%" PRIx64
-					", port %u\n",
-					cl_ntoh64(osm_node_get_node_guid
-						  (p_node)), port_num,
-					cl_ntoh64(osm_node_get_node_guid
-						  (p_remote_node)),
-					remote_port_num);
+			OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
+				"Unlinking local node 0x%" PRIx64
+				", port %u"
+				"\n\t\t\t\tand remote node 0x%" PRIx64
+				", port %u\n",
+				cl_ntoh64(osm_node_get_node_guid
+					  (p_node)), port_num,
+				cl_ntoh64(osm_node_get_node_guid
+					  (p_remote_node)),
+				remote_port_num);
 
-				if (sm->ucast_mgr.cache_valid)
-					osm_ucast_cache_add_link(&sm->ucast_mgr,
-								 p_physp,
-								 p_remote_physp);
+			if (sm->ucast_mgr.cache_valid)
+				osm_ucast_cache_add_link(&sm->ucast_mgr,
+							 p_physp,
+							 p_remote_physp);
 
-				osm_node_unlink(p_node, (uint8_t) port_num,
-						p_remote_node,
-						(uint8_t) remote_port_num);
+			osm_node_unlink(p_node, (uint8_t) port_num,
+					p_remote_node,
+					(uint8_t) remote_port_num);
 
-			}
-			break;
+		}
+		break;
 
-		case IB_LINK_INIT:
-		case IB_LINK_ARMED:
-		case IB_LINK_ACTIVE:
-			physp0 = osm_node_get_physp_ptr(p_node, 0);
-			if (mlnx_epi_supported) {
-				m_key = ib_port_info_get_m_key(&physp0->port_info);
+	case IB_LINK_INIT:
+	case IB_LINK_ARMED:
+	case IB_LINK_ACTIVE:
+		physp0 = osm_node_get_physp_ptr(p_node, 0);
+		if (mlnx_epi_supported) {
+			m_key = ib_port_info_get_m_key(&physp0->port_info);
 
-				context.pi_context.node_guid = osm_node_get_node_guid(p_node);
-				context.pi_context.port_guid = osm_physp_get_port_guid(p_physp);
-				context.pi_context.set_method = FALSE;
-				context.pi_context.light_sweep = FALSE;
-				context.pi_context.active_transition = FALSE;
-				context.pi_context.client_rereg = FALSE;
-				status = osm_req_get(sm,
-						     osm_physp_get_dr_path_ptr(p_physp),
-						     IB_MAD_ATTR_MLNX_EXTENDED_PORT_INFO,
-						     cl_hton32(port_num), FALSE, m_key,
-						     CL_DISP_MSGID_NONE, &context);
-				if (status != IB_SUCCESS)
-					OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0F11: "
-						"Failure initiating MLNX ExtPortInfo request (%s)\n",
-						ib_get_err_str(status));
-		        }
+			context.pi_context.node_guid = osm_node_get_node_guid(p_node);
+			context.pi_context.port_guid = osm_physp_get_port_guid(p_physp);
+			context.pi_context.set_method = FALSE;
+			context.pi_context.light_sweep = FALSE;
+			context.pi_context.active_transition = FALSE;
+			context.pi_context.client_rereg = FALSE;
+			status = osm_req_get(sm,
+					     osm_physp_get_dr_path_ptr(p_physp),
+					     IB_MAD_ATTR_MLNX_EXTENDED_PORT_INFO,
+					     cl_hton32(port_num), FALSE, m_key,
+					     CL_DISP_MSGID_NONE, &context);
+			if (status != IB_SUCCESS)
+				OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0F11: "
+					"Failure initiating MLNX ExtPortInfo request (%s)\n",
+					ib_get_err_str(status));
+		}
+		if (sm->p_subn->in_sweep_hop_0 == FALSE) {
 			/*
 			   To avoid looping forever, only probe the port if it
 			   is NOT the port that responded to the SMP.
@@ -388,15 +388,15 @@ static void pi_rcv_process_switch_ext_port(IN osm_sm_t * sm,
 				OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 					"Skipping SMP responder port %u\n",
 					p_pi->local_port_num);
-			break;
-
-		default:
-			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0F03: "
-				"Unknown link state = %u, port = %u\n",
-				ib_port_info_get_port_state(p_pi),
-				p_pi->local_port_num);
-			break;
 		}
+		break;
+
+	default:
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0F03: "
+			"Unknown link state = %u, port = %u\n",
+			ib_port_info_get_port_state(p_pi),
+			p_pi->local_port_num);
+		break;
 	}
 
 	if (ib_port_info_get_port_state(p_pi) > IB_LINK_INIT && p_node->sw &&
