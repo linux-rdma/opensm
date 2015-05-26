@@ -482,32 +482,32 @@ static void print_status(osm_opensm_t * p_osm, FILE * out)
 #endif
 		fprintf(out, "\n   MAD stats\n"
 			"   ---------\n"
-			"   QP0 MADs outstanding           : %d\n"
-			"   QP0 MADs outstanding (on wire) : %d\n"
-			"   QP0 MADs rcvd                  : %d\n"
-			"   QP0 MADs sent                  : %d\n"
-			"   QP0 unicasts sent              : %d\n"
-			"   QP0 unknown MADs rcvd          : %d\n"
-			"   SA MADs outstanding            : %d\n"
-			"   SA MADs rcvd                   : %d\n"
-			"   SA MADs sent                   : %d\n"
-			"   SA unknown MADs rcvd           : %d\n"
-			"   SA MADs ignored                : %d\n",
-			p_osm->stats.qp0_mads_outstanding,
-			p_osm->stats.qp0_mads_outstanding_on_wire,
-			p_osm->stats.qp0_mads_rcvd,
-			p_osm->stats.qp0_mads_sent,
-			p_osm->stats.qp0_unicasts_sent,
-			p_osm->stats.qp0_mads_rcvd_unknown,
-			p_osm->stats.sa_mads_outstanding,
-			p_osm->stats.sa_mads_rcvd,
-			p_osm->stats.sa_mads_sent,
-			p_osm->stats.sa_mads_rcvd_unknown,
-			p_osm->stats.sa_mads_ignored);
+			"   QP0 MADs outstanding           : %u\n"
+			"   QP0 MADs outstanding (on wire) : %u\n"
+			"   QP0 MADs rcvd                  : %u\n"
+			"   QP0 MADs sent                  : %u\n"
+			"   QP0 unicasts sent              : %u\n"
+			"   QP0 unknown MADs rcvd          : %u\n"
+			"   SA MADs outstanding            : %u\n"
+			"   SA MADs rcvd                   : %u\n"
+			"   SA MADs sent                   : %u\n"
+			"   SA unknown MADs rcvd           : %u\n"
+			"   SA MADs ignored                : %u\n",
+			(uint32_t)p_osm->stats.qp0_mads_outstanding,
+			(uint32_t)p_osm->stats.qp0_mads_outstanding_on_wire,
+			(uint32_t)p_osm->stats.qp0_mads_rcvd,
+			(uint32_t)p_osm->stats.qp0_mads_sent,
+			(uint32_t)p_osm->stats.qp0_unicasts_sent,
+			(uint32_t)p_osm->stats.qp0_mads_rcvd_unknown,
+			(uint32_t)p_osm->stats.sa_mads_outstanding,
+			(uint32_t)p_osm->stats.sa_mads_rcvd,
+			(uint32_t)p_osm->stats.sa_mads_sent,
+			(uint32_t)p_osm->stats.sa_mads_rcvd_unknown,
+			(uint32_t)p_osm->stats.sa_mads_ignored);
 		fprintf(out, "\n   Subnet flags\n"
 			"   ------------\n"
 			"   Sweeping enabled               : %d\n"
-			"   Sweep interval (seconds)       : %d\n"
+			"   Sweep interval (seconds)       : %u\n"
 			"   Ignore existing lfts           : %d\n"
 			"   Subnet Init errors             : %d\n"
 			"   In sweep hop 0                 : %d\n"
