@@ -528,8 +528,7 @@ static void port_group_add_port(IN ftree_port_group_t * p_group,
  **
  ***************************************************/
 
-static ftree_sw_t *sw_create(IN ftree_fabric_t * p_ftree,
-			     IN osm_switch_t * p_osm_sw)
+static ftree_sw_t *sw_create(IN osm_switch_t * p_osm_sw)
 {
 	ftree_sw_t *p_sw;
 	uint8_t ports_num;
@@ -1089,7 +1088,7 @@ static void fabric_add_sw(ftree_fabric_t * p_ftree, osm_switch_t * p_osm_sw)
 
 	CL_ASSERT(osm_node_get_type(p_osm_sw->p_node) == IB_NODE_TYPE_SWITCH);
 
-	p_sw = sw_create(p_ftree, p_osm_sw);
+	p_sw = sw_create(p_osm_sw);
 	if (!p_sw)
 		return;
 
