@@ -594,7 +594,7 @@ FREE_P_SW:
 
 /***************************************************/
 
-static void sw_destroy(IN ftree_fabric_t * p_ftree, IN ftree_sw_t * p_sw)
+static void sw_destroy(IN ftree_sw_t * p_sw)
 {
 	uint8_t i;
 
@@ -990,7 +990,7 @@ static void fabric_clear(ftree_fabric_t * p_ftree)
 	while (p_next_sw != (ftree_sw_t *) cl_qmap_end(&p_ftree->sw_tbl)) {
 		p_sw = p_next_sw;
 		p_next_sw = (ftree_sw_t *) cl_qmap_next(&p_sw->map_item);
-		sw_destroy(p_ftree, p_sw);
+		sw_destroy(p_sw);
 	}
 	cl_qmap_remove_all(&p_ftree->sw_tbl);
 
@@ -3996,7 +3996,7 @@ static void fabric_remove_unranked_sw(IN ftree_fabric_t *p_ftree)
 			OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_VERBOSE,
 				"Removing Unranked sw 0x%" PRIx64 " (with %d dependent hca's)\n",
 				sw_get_guid_ho(p_sw),removed_hca);
-			sw_destroy(p_ftree, p_sw);
+			sw_destroy(p_sw);
 			count++;
 		}
 	}
