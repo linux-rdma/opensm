@@ -193,6 +193,7 @@ typedef struct ftree_hca_t_ {
 	cl_map_item_t map_item;
 	osm_node_t *p_osm_node;
 	ftree_port_group_t **up_port_groups;
+	uint8_t *disconnected_ports;
 	uint16_t up_port_groups_num;
 	unsigned cn_num;
 } ftree_hca_t;
@@ -811,6 +812,14 @@ static ftree_hca_t *hca_create(IN osm_node_t * p_osm_node)
 	}
 	memset(p_hca->up_port_groups, 0, osm_node_get_num_physp(p_hca->p_osm_node) *
 	       sizeof(ftree_port_group_t *));
+
+	p_hca->disconnected_ports = (uint8_t *)
+	    calloc(osm_node_get_num_physp(p_hca->p_osm_node) + 1, sizeof(uint8_t));
+	if (!p_hca->disconnected_ports) {
+		free(p_hca->up_port_groups);
+		free(p_hca);
+		return NULL;
+	}
 	p_hca->up_port_groups_num = 0;
 	return p_hca;
 }
@@ -828,6 +837,7 @@ static void hca_destroy(IN ftree_hca_t * p_hca)
 		port_group_destroy(p_hca->up_port_groups[i]);
 
 	free(p_hca->up_port_groups);
+	free(p_hca->disconnected_ports);
 
 	free(p_hca);
 }
@@ -3285,6 +3295,9 @@ fabric_construct_hca_ports(IN ftree_fabric_t * p_ftree, IN ftree_hca_t * p_hca)
 		if (!p_osm_port || !osm_link_is_healthy(p_osm_port))
 			continue;
 
+		if (p_hca->disconnected_ports[i])
+			continue;
+
 		p_remote_osm_port = osm_physp_get_remote(p_osm_port);
 		p_remote_node =
 		    osm_node_get_remote_node(p_node, i, &remote_port_num);
@@ -3955,6 +3968,7 @@ static int remove_depended_hca(IN ftree_fabric_t *p_ftree, IN ftree_sw_t *p_sw)
 	ftree_hca_t *p_hca;
 	int counter = 0;
 	int port_num;
+	uint8_t remote_port_num;
 	osm_physp_t* physp;
 	osm_node_t* sw_node;
 	uint64_t remote_hca_guid;
@@ -3967,10 +3981,17 @@ static int remove_depended_hca(IN ftree_fabric_t *p_ftree, IN ftree_sw_t *p_sw)
 				remote_hca_guid =
 				    osm_node_get_node_guid(physp->p_remote_physp->p_node);
 				p_hca = fabric_get_hca_by_guid(p_ftree, remote_hca_guid);
-				if (p_hca && has_one_remote_switch(p_ftree, p_hca, sw_node)) {
+				if (!p_hca)
+					continue;
+
+				if (has_one_remote_switch(p_ftree, p_hca, sw_node)) {
 					cl_qmap_remove_item(&p_ftree->hca_tbl, &p_hca->map_item);
 					hca_destroy(p_hca);
 					counter++;
+				} else {
+					remote_port_num =
+					    osm_physp_get_port_num(physp->p_remote_physp);
+					p_hca->disconnected_ports[remote_port_num] = 1;
 				}
 			}
 		}
