@@ -4076,6 +4076,15 @@ static int construct_fabric(IN void *context)
 	}
 	fabric_remove_unranked_sw(p_ftree);
 
+	if (p_ftree->max_switch_rank == 0 &&
+	    cl_qmap_count(&p_ftree->sw_tbl) > 1) {
+		OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_ERROR,
+			"ERR AB2B: Found more than one root on fabric with "
+			"maximum rank 0\n");
+		status = -1;
+		goto Exit;
+	}
+
 	/* For each hca and switch, construct array of ports.
 	   This is done after the whole FatTree data structure is ready,
 	   because we want the ports to have pointers to ftree_{sw,hca}_t
