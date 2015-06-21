@@ -144,6 +144,9 @@ static void drop_mgr_clean_physp(osm_sm_t * sm, IN osm_physp_t * p_physp)
 
 	}
 
+	/* Make port as undiscovered */
+	p_physp->p_node->physp_discovered[p_physp->port_num] = 0;
+
 	OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 		"Clearing node 0x%016" PRIx64 " physical port number %u\n",
 		cl_ntoh64(osm_node_get_node_guid(p_physp->p_node)),
