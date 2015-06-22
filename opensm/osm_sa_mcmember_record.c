@@ -336,7 +336,7 @@ static boolean_t validate_port_caps(osm_log_t * p_log,
 	uint8_t rate_mgrp;
 	int extended;
 
-	mtu_required = ib_port_info_get_mtu_cap(&p_physp->port_info);
+	mtu_required = ib_port_info_get_neighbor_mtu(&p_physp->port_info);
 	mtu_mgrp = (uint8_t) (p_mgrp->mcmember_rec.mtu & 0x3F);
 	if (mtu_required < mtu_mgrp) {
 		OSM_LOG(p_log, OSM_LOG_VERBOSE,
