@@ -377,10 +377,68 @@ static int partition_add_flag(unsigned lineno, struct part_conf *conf,
 	}
 	return 0;
 }
+static void manage_membership_change(struct part_conf *conf,
+				    osm_prtn_t * p,
+				    unsigned type,
+				    membership_t membership,
+				    ib_net64_t guid)
+{
+	cl_map_t *p_tbl;
+	cl_map_iterator_t p_next, p_item;
+	osm_physp_t *p_physp;
 
+	/* In allow_both_pkeys mode */
+	/* if membership of the PKEY is set to FULL */
+	/* need to clean up the part_guid_tbl table entry for this guid */
+	/* if membership of the PKEY is set to LIMITED */
+	/* need to clean up the full_guid_tbl table entry for this guid */
+	/* as it could be populated because of previous definitions */
+
+	if (!conf->p_subn->opt.allow_both_pkeys ||  membership == BOTH)
+		return;
+
+	switch (type){
+	/* ALL = 0 */
+	case 0:
+		cl_map_remove_all(membership == LIMITED ?
+				  &p->full_guid_tbl :
+				  &p->part_guid_tbl);
+		break;
+	/* specific GUID */
+	case 0xFF:
+		cl_map_remove(membership == LIMITED ?
+			      &p->full_guid_tbl :
+			      &p->part_guid_tbl,
+			      cl_hton64(guid));
+		break;
+
+	case IB_NODE_TYPE_CA:
+	case IB_NODE_TYPE_SWITCH:
+	case IB_NODE_TYPE_ROUTER:
+		p_tbl = (membership == LIMITED) ?
+				&p->full_guid_tbl :
+				&p->part_guid_tbl;
+
+		p_next = cl_map_head(p_tbl);
+		while (p_next != cl_map_end(p_tbl)) {
+			p_item = p_next;
+			p_next = cl_map_next(p_item);
+			p_physp = (osm_physp_t *) cl_map_obj(p_item);
+			if (osm_node_get_type(p_physp->p_node) == type)
+				cl_map_remove_item(p_tbl, p_item);
+
+		}
+		break;
+	default:
+		break;
+
+	}
+}
 static int partition_add_all(struct part_conf *conf, osm_prtn_t * p,
 			     unsigned type, membership_t membership)
 {
+	manage_membership_change(conf, p, type, membership, 0);
+
 	if (membership != LIMITED &&
 	    osm_prtn_add_all(conf->p_log, conf->p_subn, p, type, TRUE) != IB_SUCCESS)
 		return -1;
@@ -435,6 +493,7 @@ static int partition_add_port(unsigned lineno, struct part_conf *conf,
 			return -1;
 	}
 
+	manage_membership_change(conf, p, 0xFF, membership, guid);
 	if (membership != LIMITED &&
 	    osm_prtn_add_port(conf->p_log, conf->p_subn, p,
 			      cl_hton64(guid), TRUE) != IB_SUCCESS)
