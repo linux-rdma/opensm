@@ -1010,6 +1010,7 @@ typedef enum _osm_sm_signal {
 #define OSM_VENDOR_ID_MELLANOX2     0xF45214
 #define OSM_VENDOR_ID_MELLANOX3     0x00258B
 #define OSM_VENDOR_ID_MELLANOX4     0xE41D2D
+#define OSM_VENDOR_ID_MELLANOX5     0x7CFE90
 
 /* IPoIB Broadcast Defaults */
 #define OSM_IPOIB_BROADCAST_MGRP_QKEY 0x0b1b
