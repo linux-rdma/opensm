@@ -115,7 +115,8 @@ static void drop_mgr_clean_physp(osm_sm_t * sm, IN osm_physp_t * p_physp)
 			   the remote port, since it is no longer reachable.
 			   This can be done if we reset the discovery count
 			   of the remote port. */
-			if (!p_remote_physp->p_node->sw) {
+			if (!p_remote_physp->p_node->sw &&
+                            p_remote_physp->port_guid != sm->p_subn->sm_port_guid) {
 				p_remote_port->discovery_count = 0;
 				OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 					"Resetting discovery count of node: "
