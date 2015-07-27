@@ -182,6 +182,8 @@ void osm_mgrp_cleanup(osm_subn_t * subn, osm_mgrp_t * mgrp)
 		mgrp_box_delete(mbox);
 	}
 	free(mgrp);
+
+	subn->p_osm->sa.dirty = TRUE;
 }
 
 static void mgrp_send_notice(osm_subn_t * subn, osm_log_t * log,
