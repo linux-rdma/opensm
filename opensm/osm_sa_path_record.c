@@ -1827,7 +1827,7 @@ void osm_pr_rcv_process(IN void *context, IN void *data)
 			}
 		}
 	} else {
-		if (p_dest_alias_guid)
+		if (p_dest_alias_guid && !p_src_port)
 			osm_pr_process_half(sa, p_sa_mad, requester_port,
 					    NULL, p_dest_alias_guid, p_sgid,
 					    p_dgid, &pr_list);
@@ -1837,7 +1837,27 @@ void osm_pr_rcv_process(IN void *context, IN void *data)
 			 */
 			pr_rcv_process_world(sa, p_sa_mad, requester_port,
 					     p_sgid, p_dgid, &pr_list);
-		else if (p_src_port && !p_dest_port) {
+		else if (p_dest_alias_guid && p_src_port) {
+			/* Get all alias GUIDs for the src port */
+			p_src_alias_guid = (osm_alias_guid_t *) cl_qmap_head(&sa->p_subn->alias_port_guid_tbl);
+			while (p_src_alias_guid !=
+			       (osm_alias_guid_t *) cl_qmap_end(&sa->p_subn->alias_port_guid_tbl)) {
+				if (osm_get_port_by_alias_guid(sa->p_subn,
+							       p_src_alias_guid->alias_guid) ==
+				    p_src_port)
+					osm_pr_process_pair(sa, p_sa_mad,
+							    requester_port,
+							    p_src_alias_guid,
+							    p_dest_alias_guid,
+							    p_sgid, p_dgid,
+							    &pr_list);
+				if (p_sa_mad->method == IB_MAD_METHOD_GET &&
+				    cl_qlist_count(&pr_list) > 0)
+					break;
+				p_src_alias_guid = (osm_alias_guid_t *) cl_qmap_next(&p_src_alias_guid->map_item);
+			}
+
+		} else if (p_src_port && !p_dest_port) {
 			/* Get all alias GUIDs for the src port */
 			p_src_alias_guid = (osm_alias_guid_t *) cl_qmap_head(&sa->p_subn->alias_port_guid_tbl);
 			while (p_src_alias_guid !=
