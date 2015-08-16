@@ -821,9 +821,9 @@ int osm_sa_db_file_dump(osm_opensm_t * p_osm)
 {
 	int res = 1;
 	if (p_osm->sa.dirty) {
+		p_osm->sa.dirty = FALSE;
 		res = opensm_dump_to_file(
 			p_osm, "opensm-sa.dump", sa_dump_all_sa);
-		p_osm->sa.dirty = FALSE;
 	}
 	return res;
 }
