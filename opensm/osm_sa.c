@@ -800,7 +800,6 @@ static void sa_dump_all_sa(osm_opensm_t * p_osm, FILE * file)
 	dump_context.p_osm = p_osm;
 	dump_context.file = file;
 	OSM_LOG(&p_osm->log, OSM_LOG_DEBUG, "Dump guidinfo\n");
-	cl_plock_acquire(&p_osm->lock);
 	cl_qmap_apply_func(&p_osm->subn.port_guid_tbl,
 			   sa_dump_one_port_guidinfo, &dump_context);
 	OSM_LOG(&p_osm->log, OSM_LOG_DEBUG, "Dump multicast\n");
@@ -814,17 +813,21 @@ static void sa_dump_all_sa(osm_opensm_t * p_osm, FILE * file)
 	OSM_LOG(&p_osm->log, OSM_LOG_DEBUG, "Dump services\n");
 	cl_qlist_apply_func(&p_osm->subn.sa_sr_list,
 			    sa_dump_one_service, &dump_context);
-	cl_plock_release(&p_osm->lock);
 }
 
 int osm_sa_db_file_dump(osm_opensm_t * p_osm)
 {
 	int res = 1;
+
+	cl_plock_acquire(&p_osm->lock);
 	if (p_osm->sa.dirty) {
-		p_osm->sa.dirty = FALSE;
 		res = opensm_dump_to_file(
 			p_osm, "opensm-sa.dump", sa_dump_all_sa);
+		if (!res)
+			p_osm->sa.dirty = FALSE;
 	}
+	cl_plock_release(&p_osm->lock);
+
 	return res;
 }
 
