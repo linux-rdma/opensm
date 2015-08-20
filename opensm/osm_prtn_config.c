@@ -767,6 +767,7 @@ int osm_prtn_config_parse_file(osm_log_t * p_log, osm_subn_t * p_subn,
 	int lineno;
 	int is_parse_success;
 
+	line[0] = '\0';
 	file = fopen(file_name, "r");
 	if (!file) {
 		OSM_LOG(p_log, OSM_LOG_VERBOSE,
