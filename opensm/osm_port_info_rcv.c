@@ -117,8 +117,8 @@ static void pi_rcv_process_endport(IN osm_sm_t * sm, IN osm_physp_t * p_physp,
 		}
 
 		data_vls = 1U << (ib_port_info_get_vl_cap(p_pi) - 1);
-		if (data_vls > sm->p_subn->opt.max_op_vls)
-			data_vls = sm->p_subn->opt.max_op_vls;
+		if (data_vls > 1U << (sm->p_subn->opt.max_op_vls - 1))
+			data_vls = 1U << (sm->p_subn->opt.max_op_vls - 1);
 		if (data_vls >= IB_MAX_NUM_VLS)
 			data_vls = IB_MAX_NUM_VLS - 1;
 		if ((uint8_t)data_vls < sm->p_subn->min_data_vls) {
@@ -420,8 +420,8 @@ static void pi_rcv_process_switch_ext_port(IN osm_sm_t * sm,
 		p_remote_node = osm_physp_get_node_ptr(p_remote_physp);
 		if (p_remote_node->sw) {
 			data_vls = 1U << (ib_port_info_get_vl_cap(p_pi) - 1);
-			if (data_vls > sm->p_subn->opt.max_op_vls)
-				data_vls = sm->p_subn->opt.max_op_vls;
+			if (data_vls > 1U << (sm->p_subn->opt.max_op_vls - 1))
+				data_vls = 1U << (sm->p_subn->opt.max_op_vls - 1);
 			if (data_vls >= IB_MAX_NUM_VLS)
 				data_vls = IB_MAX_NUM_VLS - 1;
 			if ((uint8_t)data_vls < sm->p_subn->min_sw_data_vls) {
