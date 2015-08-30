@@ -1745,7 +1745,8 @@ static void fabric_set_max_cn_per_leaf(IN ftree_fabric_t * p_ftree)
 	unsigned j;
 	unsigned cns_on_this_leaf;
 	ftree_sw_t *p_sw;
-	ftree_port_group_t *p_group;
+	ftree_port_group_t *p_group, *p_up_group;
+	ftree_hca_t *p_hca;
 
 	for (i = 0; i < p_ftree->leaf_switches_num; i++) {
 		p_sw = p_ftree->leaf_switches[i];
@@ -1754,8 +1755,18 @@ static void fabric_set_max_cn_per_leaf(IN ftree_fabric_t * p_ftree)
 			p_group = p_sw->down_port_groups[j];
 			if (p_group->remote_node_type != IB_NODE_TYPE_CA)
 				continue;
-			cns_on_this_leaf +=
-			    p_group->remote_hca_or_sw.p_hca->cn_num;
+			p_hca = p_group->remote_hca_or_sw.p_hca;
+			/*
+			 * Get the hca port group corresponding
+			 * to the LID of remote HCA port
+			 */
+			p_up_group = hca_get_port_group_by_lid(p_hca,
+				     p_group->remote_base_lid);
+
+			CL_ASSERT(p_up_group);
+
+			if (p_up_group->is_cn)
+				cns_on_this_leaf++;
 		}
 		if (cns_on_this_leaf > p_ftree->max_cn_per_leaf)
 			p_ftree->max_cn_per_leaf = cns_on_this_leaf;
