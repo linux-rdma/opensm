@@ -907,7 +907,6 @@ static ftree_port_group_t *hca_get_port_group_by_lid(IN ftree_hca_t *
 			return p_hca->up_port_groups[i];
 
 	return NULL;
-
 }
 /***************************************************/
 
