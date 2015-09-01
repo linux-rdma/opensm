@@ -1329,7 +1329,9 @@ ib_net16_t osm_pr_get_end_points(IN osm_sa_t * sa,
 		}
 		if (pp_sgid)
 			*pp_sgid = &p_pr->sgid;
-	} else if (comp_mask & IB_PR_COMPMASK_SLID) {
+	}
+
+	if (comp_mask & IB_PR_COMPMASK_SLID) {
 		*pp_src_port = osm_get_port_by_lid(sa->p_subn, p_pr->slid);
 		if (!*pp_src_port) {
 			/*
@@ -1381,7 +1383,9 @@ ib_net16_t osm_pr_get_end_points(IN osm_sa_t * sa,
 			sa_status = IB_SA_MAD_STATUS_INVALID_GID;
 			goto Exit;
 		}
-	} else if (comp_mask & IB_PR_COMPMASK_DLID) {
+	}
+
+	if (comp_mask & IB_PR_COMPMASK_DLID) {
 		*pp_dest_port = osm_get_port_by_lid(sa->p_subn, p_pr->dlid);
 		if (!*pp_dest_port) {
 			/*
@@ -1705,7 +1709,7 @@ void osm_pr_rcv_process(IN void *context, IN void *data)
 	const ib_gid_t *p_sgid = NULL, *p_dgid = NULL;
 	const osm_alias_guid_t *p_src_alias_guid, *p_dest_alias_guid;
 	const osm_port_t *p_src_port, *p_dest_port;
-	osm_port_t *requester_port, *port_by_guid, *port_by_lid;
+	osm_port_t *requester_port;
 	uint8_t rate, mtu;
 
 	OSM_LOG_ENTER(sa->p_log);
@@ -1788,78 +1792,38 @@ void osm_pr_rcv_process(IN void *context, IN void *data)
 
 	OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Unicast destination requested\n");
 
-	if ((p_sa_mad->comp_mask & IB_PR_COMPMASK_DGID) &&
-	    (p_sa_mad->comp_mask & IB_PR_COMPMASK_DLID)) {
-		/* Validate that DGID and DLID refer to the same port */
-		port_by_guid = osm_get_port_by_alias_guid(sa->p_subn,
-							  p_pr->dgid.unicast.interface_id);
-		if (!port_by_guid)
-			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-				"Requester port GUID 0x%" PRIx64
-				": No port found for DGUID 0x%" PRIx64 "\n",
-				cl_ntoh64(osm_port_get_guid(requester_port)),
-				cl_ntoh64(p_pr->dgid.unicast.interface_id));
-		port_by_lid = osm_get_port_by_lid(sa->p_subn, p_pr->dlid);
-		if (!port_by_lid)
-			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-				"Requester port GUID 0x%" PRIx64
-				": No port found for DLID %u\n",
-				cl_ntoh64(osm_port_get_guid(requester_port)),
-				cl_ntoh16(p_pr->dlid));
-		if (port_by_guid != port_by_lid || !port_by_guid) {
-			cl_plock_release(sa->p_lock);
-			if (port_by_guid && port_by_lid)
-				OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
-					"Requester port GUID 0x%" PRIx64
-					": Port for DGUID 0x%" PRIx64
-					" not same as port for DLID %u\n",
-					cl_ntoh64(osm_port_get_guid(requester_port)),
-					cl_ntoh64(p_pr->dgid.unicast.interface_id),
-					cl_ntoh16(p_pr->dlid));
-			osm_sa_send_error(sa, p_madw,
-					  IB_SA_MAD_STATUS_REQ_INVALID);
-			goto Exit;
-		}
-	}
-	if ((p_sa_mad->comp_mask & IB_PR_COMPMASK_SGID) &&
-	    (p_sa_mad->comp_mask & IB_PR_COMPMASK_SLID)) {
-		/* Validate that SGID and SLID refer to the same port */
-		port_by_guid = osm_get_port_by_alias_guid(sa->p_subn,
-							  p_pr->sgid.unicast.interface_id);
-		if (!port_by_guid)
-			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-				"Requester port GUID 0x%" PRIx64
-				": No port found for SGUID 0x%" PRIx64 "\n",
-				cl_ntoh64(osm_port_get_guid(requester_port)),
-				cl_ntoh64(p_pr->sgid.unicast.interface_id));
-		port_by_lid = osm_get_port_by_lid(sa->p_subn, p_pr->slid);
-		if (!port_by_lid)
-			OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
-				"Requester port GUID 0x%" PRIx64
-				": No port found for SLID %u\n",
-				cl_ntoh64(osm_port_get_guid(requester_port)),
-				cl_ntoh16(p_pr->slid));
-		if (port_by_guid != port_by_lid || !port_by_guid) {
-			cl_plock_release(sa->p_lock);
-			if (port_by_guid && port_by_lid)
-				OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
-					"Requester port GUID 0x%" PRIx64
-					": Port for SGUID 0x%" PRIx64
-					" not same as port for SLID %u\n",
-					cl_ntoh64(osm_port_get_guid(requester_port)),
-					cl_ntoh64(p_pr->sgid.unicast.interface_id),
-					cl_ntoh16(p_pr->slid));
-			osm_sa_send_error(sa, p_madw,
-					  IB_SA_MAD_STATUS_REQ_INVALID);
-			goto Exit;
-		}
-	}
-
 	if (osm_pr_get_end_points(sa, p_sa_mad,
 				  &p_src_alias_guid, &p_dest_alias_guid,
 				  &p_src_port, &p_dest_port,
 				  &p_sgid, &p_dgid) != IB_SA_MAD_STATUS_SUCCESS)
 		goto Unlock;
+
+	if (p_src_alias_guid && p_src_port &&
+	    p_src_alias_guid->p_base_port != p_src_port) {
+		cl_plock_release(sa->p_lock);
+		OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
+			"Requester port GUID 0x%" PRIx64 ": Port for SGUID "
+			"0x%" PRIx64 " not same as port for SLID %u\n",
+			cl_ntoh64(osm_port_get_guid(requester_port)),
+			cl_ntoh64(p_pr->sgid.unicast.interface_id),
+			cl_ntoh16(p_pr->slid));
+		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_REQ_INVALID);
+		goto Exit;
+	}
+
+	if (p_dest_alias_guid && p_dest_port &&
+	    p_dest_alias_guid->p_base_port != p_dest_port) {
+		cl_plock_release(sa->p_lock);
+		OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
+			"Requester port GUID 0x%" PRIx64 ": Port for DGUID "
+			"0x%" PRIx64 " not same as port for DLID %u\n",
+			cl_ntoh64(osm_port_get_guid(requester_port)),
+			cl_ntoh64(p_pr->dgid.unicast.interface_id),
+			cl_ntoh16(p_pr->dlid));
+		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_REQ_INVALID);
+		goto Exit;
+	}
+
 	/*
 	   What happens next depends on the type of endpoint information
 	   that was specified....
