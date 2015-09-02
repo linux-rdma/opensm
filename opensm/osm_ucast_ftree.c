@@ -879,22 +879,6 @@ static void hca_dump(IN ftree_fabric_t * p_ftree, IN ftree_hca_t * p_hca)
 				FTREE_DIRECTION_UP);
 }
 
-/***************************************************/
-
-static ftree_port_group_t *hca_get_port_group_by_remote_lid(IN ftree_hca_t *
-							    p_hca,
-							    IN uint16_t
-							    remote_base_lid)
-{
-	uint32_t i;
-	for (i = 0; i < p_hca->up_port_groups_num; i++)
-		if (remote_base_lid ==
-		    p_hca->up_port_groups[i]->remote_base_lid)
-			return p_hca->up_port_groups[i];
-
-	return NULL;
-}
-
 static ftree_port_group_t *hca_get_port_group_by_lid(IN ftree_hca_t *
 						     p_hca,
 						     IN uint16_t
@@ -1320,9 +1304,9 @@ static void fabric_dump_hca_ordering(IN ftree_fabric_t * p_ftree)
 
 			p_hca = p_group_on_sw->remote_hca_or_sw.p_hca;
 			p_group_on_hca =
-			    hca_get_port_group_by_remote_lid(p_hca,
-							     p_group_on_sw->
-							     base_lid);
+			    hca_get_port_group_by_lid(p_hca,
+						      p_group_on_sw->
+						      remote_base_lid);
 
 			/* treat non-compute nodes as dummies */
 			if (!p_group_on_hca->is_cn)
@@ -2775,9 +2759,9 @@ static void fabric_route_to_cns(IN ftree_fabric_t * p_ftree)
 				continue;
 
 			p_hca_port_group =
-			    hca_get_port_group_by_remote_lid(p_hca,
-							     p_leaf_port_group->
-							     base_lid);
+			    hca_get_port_group_by_lid(p_hca,
+						      p_leaf_port_group->
+						      remote_base_lid);
 			CL_ASSERT(p_hca_port_group);
 
 			/* work with this port group only if remote port is CN */
