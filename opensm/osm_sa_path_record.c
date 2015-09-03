@@ -1923,7 +1923,6 @@ void osm_pr_rcv_process(IN void *context, IN void *data)
 					break;
 				p_src_alias_guid = (osm_alias_guid_t *) cl_qmap_next(&p_src_alias_guid->map_item);
 			}
-
 		} else if (p_src_port && !p_dest_port) {
 			/* Get all alias GUIDs for the src port */
 			p_src_alias_guid = (osm_alias_guid_t *) cl_qmap_head(&sa->p_subn->alias_port_guid_tbl);
