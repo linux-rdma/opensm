@@ -3277,15 +3277,19 @@ fabric_construct_hca_ports(IN ftree_fabric_t * p_ftree, IN ftree_hca_t * p_hca)
 	osm_physp_t *p_remote_osm_port;
 	uint8_t i;
 	uint8_t remote_port_num;
-	boolean_t is_cn = TRUE;
-	boolean_t is_in_cn_file = FALSE;
-	boolean_t is_io = FALSE;
+	boolean_t is_cn;
+	boolean_t is_in_cn_file;
+	boolean_t is_io;
 	boolean_t is_cns_file_provided = fabric_cns_provided(p_ftree);
 	boolean_t is_ios_file_provided = fabric_ios_provided(p_ftree);
 	int res = 0;
 
 	for (i = 0; i < osm_node_get_num_physp(p_node); i++) {
 		osm_physp_t *p_osm_port = osm_node_get_physp_ptr(p_node, i);
+		is_io = FALSE;
+		is_cn = TRUE;
+		is_in_cn_file = FALSE;
+
 		if (!p_osm_port || !osm_link_is_healthy(p_osm_port))
 			continue;
 
