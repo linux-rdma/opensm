@@ -141,8 +141,8 @@ typedef union ftree_hca_or_sw_ {
 
 typedef struct ftree_port_group_t_ {
 	cl_map_item_t map_item;
-	uint16_t base_lid;	/* base lid of the current node */
-	uint16_t remote_base_lid;	/* base lid of the remote node */
+	uint16_t lid;	/* lid of the current node */
+	uint16_t remote_lid;	/* lid of the remote node */
 	ib_net64_t port_guid;	/* port guid of this port */
 	ib_net64_t node_guid;	/* this node's guid */
 	uint8_t node_type;	/* this node's type */
@@ -169,7 +169,7 @@ typedef struct ftree_sw_t_ {
 	osm_switch_t *p_osm_sw;
 	uint32_t rank;
 	ftree_tuple_t tuple;
-	uint16_t base_lid;
+	uint16_t lid;
 	ftree_port_group_t **down_port_groups;
 	uint8_t down_port_groups_num;
 	ftree_port_group_t **sibling_port_groups;
@@ -378,8 +378,8 @@ static void port_destroy(IN ftree_port_t * p_port)
  **
  ***************************************************/
 
-static ftree_port_group_t *port_group_create(IN uint16_t base_lid,
-					     IN uint16_t remote_base_lid,
+static ftree_port_group_t *port_group_create(IN uint16_t lid,
+					     IN uint16_t remote_lid,
 					     IN ib_net64_t port_guid,
 					     IN ib_net64_t node_guid,
 					     IN uint8_t node_type,
@@ -397,8 +397,8 @@ static ftree_port_group_t *port_group_create(IN uint16_t base_lid,
 		return NULL;
 	memset(p_group, 0, sizeof(ftree_port_group_t));
 
-	p_group->base_lid = base_lid;
-	p_group->remote_base_lid = remote_base_lid;
+	p_group->lid = lid;
+	p_group->remote_lid = remote_lid;
 	memcpy(&p_group->port_guid, &port_guid, sizeof(ib_net64_t));
 	memcpy(&p_group->node_guid, &node_guid, sizeof(ib_net64_t));
 	memcpy(&p_group->remote_port_guid, &remote_port_guid,
@@ -499,8 +499,8 @@ static void port_group_dump(IN ftree_fabric_t * p_ftree,
 		(direction == FTREE_DIRECTION_DOWN) ? "DOWN" : (direction ==
 								FTREE_DIRECTION_SAME)
 		? "SIBLING" : "UP", cl_ntoh64(p_group->port_guid),
-		p_group->base_lid, cl_ntoh64(p_group->remote_port_guid),
-		p_group->remote_base_lid);
+		p_group->lid, cl_ntoh64(p_group->remote_port_guid),
+		p_group->remote_lid);
 
 }				/* port_group_dump() */
 
@@ -547,7 +547,7 @@ static ftree_sw_t *sw_create(IN osm_switch_t * p_osm_sw)
 	p_sw->rank = 0xFFFFFFFF;
 	tuple_init(p_sw->tuple);
 
-	p_sw->base_lid =
+	p_sw->lid =
 	    cl_ntoh16(osm_node_get_base_lid(p_sw->p_osm_sw->p_node, 0));
 
 	ports_num = osm_node_get_num_physp(p_sw->p_osm_sw->p_node);
@@ -674,7 +674,7 @@ static boolean_t sw_ranked(IN ftree_sw_t * p_sw)
 
 static ftree_port_group_t *sw_get_port_group_by_remote_lid(IN ftree_sw_t * p_sw,
 							   IN uint16_t
-							   remote_base_lid,
+							   remote_lid,
 							   IN ftree_direction_t
 							   direction)
 {
@@ -694,7 +694,7 @@ static ftree_port_group_t *sw_get_port_group_by_remote_lid(IN ftree_sw_t * p_sw,
 	}
 
 	for (i = 0; i < size; i++)
-		if (remote_base_lid == port_groups[i]->remote_base_lid)
+		if (remote_lid == port_groups[i]->remote_lid)
 			return port_groups[i];
 
 	return NULL;
@@ -703,8 +703,8 @@ static ftree_port_group_t *sw_get_port_group_by_remote_lid(IN ftree_sw_t * p_sw,
 /***************************************************/
 
 static void sw_add_port(IN ftree_sw_t * p_sw, IN uint8_t port_num,
-			IN uint8_t remote_port_num, IN uint16_t base_lid,
-			IN uint16_t remote_base_lid, IN ib_net64_t port_guid,
+			IN uint8_t remote_port_num, IN uint16_t lid,
+			IN uint16_t remote_lid, IN ib_net64_t port_guid,
 			IN ib_net64_t remote_port_guid,
 			IN ib_net64_t remote_node_guid,
 			IN uint8_t remote_node_type,
@@ -712,10 +712,10 @@ static void sw_add_port(IN ftree_sw_t * p_sw, IN uint8_t port_num,
 			IN ftree_direction_t direction)
 {
 	ftree_port_group_t *p_group =
-	    sw_get_port_group_by_remote_lid(p_sw, remote_base_lid, direction);
+	    sw_get_port_group_by_remote_lid(p_sw, remote_lid, direction);
 
 	if (!p_group) {
-		p_group = port_group_create(base_lid, remote_base_lid,
+		p_group = port_group_create(lid, remote_lid,
 					    port_guid, sw_get_guid_no(p_sw),
 					    IB_NODE_TYPE_SWITCH, p_sw,
 					    remote_port_guid, remote_node_guid,
@@ -882,12 +882,12 @@ static void hca_dump(IN ftree_fabric_t * p_ftree, IN ftree_hca_t * p_hca)
 static ftree_port_group_t *hca_get_port_group_by_lid(IN ftree_hca_t *
 						     p_hca,
 						     IN uint16_t
-						     base_lid)
+						     lid)
 {
 	uint32_t i;
 	for (i = 0; i < p_hca->up_port_groups_num; i++)
-		if (base_lid ==
-		    p_hca->up_port_groups[i]->base_lid)
+		if (lid ==
+		    p_hca->up_port_groups[i]->lid)
 			return p_hca->up_port_groups[i];
 
 	return NULL;
@@ -896,8 +896,8 @@ static ftree_port_group_t *hca_get_port_group_by_lid(IN ftree_hca_t *
 
 static void hca_add_port(IN ftree_fabric_t * p_ftree,
 			 IN ftree_hca_t * p_hca, IN uint8_t port_num,
-			 IN uint8_t remote_port_num, IN uint16_t base_lid,
-			 IN uint16_t remote_base_lid, IN ib_net64_t port_guid,
+			 IN uint8_t remote_port_num, IN uint16_t lid,
+			 IN uint16_t remote_lid, IN ib_net64_t port_guid,
 			 IN ib_net64_t remote_port_guid,
 			 IN ib_net64_t remote_node_guid,
 			 IN uint8_t remote_node_type,
@@ -910,10 +910,10 @@ static void hca_add_port(IN ftree_fabric_t * p_ftree,
 	   in hca's that lead to switches */
 	CL_ASSERT(remote_node_type == IB_NODE_TYPE_SWITCH);
 
-	p_group = hca_get_port_group_by_lid(p_hca, base_lid);
+	p_group = hca_get_port_group_by_lid(p_hca, lid);
 
 	if (!p_group) {
-		p_group = port_group_create(base_lid, remote_base_lid,
+		p_group = port_group_create(lid, remote_lid,
 					    port_guid, hca_get_guid_no(p_hca),
 					    IB_NODE_TYPE_CA, p_hca,
 					    remote_port_guid, remote_node_guid,
@@ -1089,8 +1089,8 @@ static void fabric_add_sw(ftree_fabric_t * p_ftree, osm_switch_t * p_osm_sw)
 		       &p_sw->map_item);
 
 	/* track the max lid (in host order) that exists in the fabric */
-	if (p_sw->base_lid > p_ftree->lft_max_lid)
-		p_ftree->lft_max_lid = p_sw->base_lid;
+	if (p_sw->lid > p_ftree->lft_max_lid)
+		p_ftree->lft_max_lid = p_sw->lid;
 }
 
 /***************************************************/
@@ -1247,7 +1247,7 @@ static void fabric_dump_general_info(IN ftree_fabric_t * p_ftree)
 					"      GUID: 0x%016" PRIx64
 					", LID: %u, Index %s\n",
 					sw_get_guid_ho(p_sw),
-					p_sw->base_lid,
+					p_sw->lid,
 					tuple_to_str(p_sw->tuple));
 		}
 
@@ -1258,7 +1258,7 @@ static void fabric_dump_general_info(IN ftree_fabric_t * p_ftree)
 				"      GUID: 0x%016" PRIx64
 				", LID: %u, Index %s\n",
 				sw_get_guid_ho(p_ftree->leaf_switches[i]),
-				p_ftree->leaf_switches[i]->base_lid,
+				p_ftree->leaf_switches[i]->lid,
 				tuple_to_str(p_ftree->leaf_switches[i]->tuple));
 		}
 	}
@@ -1306,14 +1306,14 @@ static void fabric_dump_hca_ordering(IN ftree_fabric_t * p_ftree)
 			p_group_on_hca =
 			    hca_get_port_group_by_lid(p_hca,
 						      p_group_on_sw->
-						      remote_base_lid);
+						      remote_lid);
 
 			/* treat non-compute nodes as dummies */
 			if (!p_group_on_hca->is_cn)
 				continue;
 
 			fprintf(p_hca_ordering_file, "0x%04x\t%s\n",
-				p_group_on_hca->base_lid,
+				p_group_on_hca->lid,
 				p_hca->p_osm_node->print_desc);
 
 			printed_hcas_on_leaf++;
@@ -1517,7 +1517,7 @@ static void fabric_make_indexing(IN ftree_fabric_t * p_ftree)
 		"                                            - Node LID     : %u\n"
 		"                                            - Node GUID    : 0x%016"
 		PRIx64 "\n", p_sw->rank, tuple_to_str(p_sw->tuple),
-		p_sw->base_lid, sw_get_guid_ho(p_sw));
+		p_sw->lid, sw_get_guid_ho(p_sw));
 
 	/*
 	 * Now run BFS and assign indexes to all switches
@@ -1745,7 +1745,7 @@ static void fabric_set_max_cn_per_leaf(IN ftree_fabric_t * p_ftree)
 			 * to the LID of remote HCA port
 			 */
 			p_up_group = hca_get_port_group_by_lid(p_hca,
-				     p_group->remote_base_lid);
+				     p_group->remote_lid);
 
 			CL_ASSERT(p_up_group);
 
@@ -1806,13 +1806,13 @@ static boolean_t fabric_validate_topology(IN ftree_fabric_t * p_ftree)
 					", LID %u, Index %s - %u groups\n",
 					sw_get_guid_ho
 					(reference_sw_arr[p_sw->rank]),
-					reference_sw_arr[p_sw->rank]->base_lid,
+					reference_sw_arr[p_sw->rank]->lid,
 					tuple_to_str
 					(reference_sw_arr[p_sw->rank]->tuple),
 					reference_sw_arr[p_sw->
 							 rank]->
 					up_port_groups_num,
-					sw_get_guid_ho(p_sw), p_sw->base_lid,
+					sw_get_guid_ho(p_sw), p_sw->lid,
 					tuple_to_str(p_sw->tuple),
 					p_sw->up_port_groups_num);
 				res = FALSE;
@@ -1832,13 +1832,13 @@ static boolean_t fabric_validate_topology(IN ftree_fabric_t * p_ftree)
 					", LID %u, Index %s - %u port groups\n",
 					sw_get_guid_ho
 					(reference_sw_arr[p_sw->rank]),
-					reference_sw_arr[p_sw->rank]->base_lid,
+					reference_sw_arr[p_sw->rank]->lid,
 					tuple_to_str
 					(reference_sw_arr[p_sw->rank]->tuple),
 					reference_sw_arr[p_sw->
 							 rank]->
 					down_port_groups_num,
-					sw_get_guid_ho(p_sw), p_sw->base_lid,
+					sw_get_guid_ho(p_sw), p_sw->lid,
 					tuple_to_str(p_sw->tuple),
 					p_sw->down_port_groups_num);
 				res = FALSE;
@@ -1870,14 +1870,14 @@ static boolean_t fabric_validate_topology(IN ftree_fabric_t * p_ftree)
 							 [p_sw->rank]),
 							reference_sw_arr[p_sw->
 									 rank]->
-							base_lid,
+							lid,
 							tuple_to_str
 							(reference_sw_arr
 							 [p_sw->rank]->tuple),
 							cl_ptr_vector_get_size
 							(&p_ref_group->ports),
 							sw_get_guid_ho(p_sw),
-							p_sw->base_lid,
+							p_sw->lid,
 							tuple_to_str(p_sw->
 								     tuple),
 							cl_ptr_vector_get_size
@@ -1913,14 +1913,14 @@ static boolean_t fabric_validate_topology(IN ftree_fabric_t * p_ftree)
 							 [p_sw->rank]),
 							reference_sw_arr[p_sw->
 									 rank]->
-							base_lid,
+							lid,
 							tuple_to_str
 							(reference_sw_arr
 							 [p_sw->rank]->tuple),
 							cl_ptr_vector_get_size
 							(&p_ref_group->ports),
 							sw_get_guid_ho(p_sw),
-							p_sw->base_lid,
+							p_sw->lid,
 							tuple_to_str(p_sw->
 								     tuple),
 							cl_ptr_vector_get_size
@@ -2216,7 +2216,7 @@ fabric_route_upgoing_by_going_down(IN ftree_fabric_t * p_ftree,
 		}
 
 		if (p_prev_sw
-		    && p_group->remote_base_lid == p_prev_sw->base_lid) {
+		    && p_group->remote_lid == p_prev_sw->lid) {
 			/* This port group has a port that was used when we entered this switch,
 			   which means that the current group points to the switch where we were
 			   at the previous step of the algorithm (before going up).
@@ -2253,9 +2253,9 @@ fabric_route_upgoing_by_going_down(IN ftree_fabric_t * p_ftree,
 				"Switch %s (LID %u) closes loop through switch %s (LID %u)\n",
 				current_hops,
 				tuple_to_str(p_remote_sw->tuple),
-				p_group->base_lid,
+				p_group->lid,
 				tuple_to_str(p_sw->tuple),
-				p_group->remote_base_lid);
+				p_group->remote_lid);
 			/* We skip only if we have come through a longer path */
 			if (current_hops + 1 >= least_hops)
 				continue;
@@ -2761,7 +2761,7 @@ static void fabric_route_to_cns(IN ftree_fabric_t * p_ftree)
 			p_hca_port_group =
 			    hca_get_port_group_by_lid(p_hca,
 						      p_leaf_port_group->
-						      remote_base_lid);
+						      remote_lid);
 			CL_ASSERT(p_hca_port_group);
 
 			/* work with this port group only if remote port is CN */
@@ -2769,7 +2769,7 @@ static void fabric_route_to_cns(IN ftree_fabric_t * p_ftree)
 				continue;
 
 			/* obtain the LID of HCA port */
-			hca_lid = p_leaf_port_group->remote_base_lid;
+			hca_lid = p_leaf_port_group->remote_lid;
 
 			/* set local LFT(LID) to the port that is connected to HCA */
 			cl_ptr_vector_at(&p_leaf_port_group->ports, 0,
@@ -2888,7 +2888,7 @@ static void fabric_route_to_non_cns(IN ftree_fabric_t * p_ftree)
 				continue;
 
 			p_sw = p_hca_port_group->remote_hca_or_sw.p_sw;
-			hca_lid = p_hca_port_group->base_lid;
+			hca_lid = p_hca_port_group->lid;
 
 			/* set switches  LFT(LID) to the port that is connected to HCA */
 			cl_ptr_vector_at(&p_hca_port_group->ports, 0,
@@ -2951,19 +2951,19 @@ static void fabric_route_to_switches(IN ftree_fabric_t * p_ftree)
 		p_next_sw = (ftree_sw_t *) cl_qmap_next(&p_sw->map_item);
 
 		/* set local LFT(LID) to 0 (route to itself) */
-		p_sw->p_osm_sw->new_lft[p_sw->base_lid] = 0;
+		p_sw->p_osm_sw->new_lft[p_sw->lid] = 0;
 
 		OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
 			"Switch %s (LID %u): routing switch-to-switch paths\n",
-			tuple_to_str(p_sw->tuple), p_sw->base_lid);
+			tuple_to_str(p_sw->tuple), p_sw->lid);
 
 		/* set min hop table of the switch to itself */
-		sw_set_hops(p_sw, p_sw->base_lid, 0,	/* port_num */
+		sw_set_hops(p_sw, p_sw->lid, 0,	/* port_num */
 			    0, TRUE);	/* hops     */
 
 		fabric_route_downgoing_by_going_up(p_ftree, p_sw,	/* local switch - used as a route-downgoing alg. start point */
 						   NULL,	/* prev. position switch */
-						   p_sw->base_lid,	/* LID that we're routing to */
+						   p_sw->lid,	/* LID that we're routing to */
 						   FALSE,	/* whether this path to HCA should by tracked by counters */
 						   TRUE,	/* Whether the target LID is a switch or not */
 						   0,	/* Number of reverse hops allowed */
@@ -3033,7 +3033,7 @@ static void fabric_route_roots(IN ftree_fabric_t * p_ftree)
 			 * the missing LID will be routed through the same
 			 * port that routes to the selected leaf switch
 			 */
-			port_num = p_sw->p_osm_sw->new_lft[p_leaf_sw->base_lid];
+			port_num = p_sw->p_osm_sw->new_lft[p_leaf_sw->lid];
 
 			OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
 				"Switch %s: setting path to LID %u "
@@ -3050,7 +3050,7 @@ static void fabric_route_roots(IN ftree_fabric_t * p_ftree)
 			 * from the leaf to the target LID.
 			 */
 			sw_set_hops(p_sw, lid, port_num,
-				p_sw->hops[p_leaf_sw->base_lid] +
+				p_sw->hops[p_leaf_sw->lid] +
 				p_leaf_sw->hops[lid], TRUE);
 		}
 	}
@@ -3243,7 +3243,7 @@ static int rank_leaf_switches(IN ftree_fabric_t * p_ftree,
 			PRIx64 "\n"
 			"                                            - Switch LID : %u\n",
 			hca_get_guid_ho(p_hca),
-			sw_get_guid_ho(p_sw), p_sw->base_lid);
+			sw_get_guid_ho(p_sw), p_sw->lid);
 		cl_list_insert_tail(p_ranking_bfs_list, p_sw);
 	}
 
@@ -3417,7 +3417,7 @@ static int fabric_construct_sw_ports(IN ftree_fabric_t * p_ftree,
 	ftree_sw_t *p_remote_sw;
 	osm_node_t *p_node = p_sw->p_osm_sw->p_node;
 	osm_node_t *p_remote_node;
-	uint16_t remote_base_lid;
+	uint16_t remote_lid;
 	uint8_t remote_node_type;
 	ib_net64_t remote_node_guid;
 	osm_physp_t *p_remote_osm_port;
@@ -3449,7 +3449,7 @@ static int fabric_construct_sw_ports(IN ftree_fabric_t * p_ftree,
 				"Ignoring loopback on switch GUID 0x%016" PRIx64
 				", LID %u, rank %u\n",
 				sw_get_guid_ho(p_sw),
-				p_sw->base_lid, p_sw->rank);
+				p_sw->lid, p_sw->rank);
 			continue;
 		}
 
@@ -3471,7 +3471,7 @@ static int fabric_construct_sw_ports(IN ftree_fabric_t * p_ftree,
 			p_remote_hca_or_sw = (void *)p_remote_hca;
 			direction = FTREE_DIRECTION_DOWN;
 
-			remote_base_lid =
+			remote_lid =
 			    cl_ntoh16(osm_physp_get_base_lid
 				      (p_remote_osm_port));
 			break;
@@ -3493,7 +3493,7 @@ static int fabric_construct_sw_ports(IN ftree_fabric_t * p_ftree,
 				direction = FTREE_DIRECTION_DOWN;
 
 			/* switch LID is only in port 0 port_info structure */
-			remote_base_lid =
+			remote_lid =
 			    cl_ntoh16(osm_node_get_base_lid(p_remote_node, 0));
 
 			break;
@@ -3510,8 +3510,8 @@ static int fabric_construct_sw_ports(IN ftree_fabric_t * p_ftree,
 		sw_add_port(p_sw,	/* local ftree_sw object */
 			    i,	/* local port number */
 			    remote_port_num,	/* remote port number */
-			    p_sw->base_lid,	/* local lid */
-			    remote_base_lid,	/* remote lid */
+			    p_sw->lid,	/* local lid */
+			    remote_lid,	/* remote lid */
 			    osm_physp_get_port_guid(p_osm_port),	/* local port guid */
 			    osm_physp_get_port_guid(p_remote_osm_port),	/* remote port guid */
 			    remote_node_guid,	/* remote node guid */
@@ -3520,8 +3520,8 @@ static int fabric_construct_sw_ports(IN ftree_fabric_t * p_ftree,
 			    direction);	/* port direction (up or down) */
 
 		/* Track the max lid (in host order) that exists in the fabric */
-		if (remote_base_lid > p_ftree->lft_max_lid)
-			p_ftree->lft_max_lid = remote_base_lid;
+		if (remote_lid > p_ftree->lft_max_lid)
+			p_ftree->lft_max_lid = remote_lid;
 	}
 
 Exit:
