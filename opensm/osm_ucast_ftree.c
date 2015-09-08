@@ -3472,8 +3472,7 @@ static int fabric_construct_sw_ports(IN ftree_fabric_t * p_ftree,
 			direction = FTREE_DIRECTION_DOWN;
 
 			remote_lid =
-			    cl_ntoh16(osm_physp_get_base_lid
-				      (p_remote_osm_port));
+			    cl_ntoh16(osm_physp_get_base_lid(p_remote_osm_port));
 			break;
 
 		case IB_NODE_TYPE_SWITCH:
