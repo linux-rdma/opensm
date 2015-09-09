@@ -2194,7 +2194,7 @@ static inline ib_net16_t OSM_API ib_pkey_get_base(IN const ib_net16_t pkey)
 *	ib_pkey_is_full_member
 *
 * DESCRIPTION
-*	Indicates if the port is a full member of the parition.
+*	Indicates if the port is a full member of the partition.
 *
 * SYNOPSIS
 */
