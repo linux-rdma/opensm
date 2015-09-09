@@ -995,6 +995,57 @@ Exit:
 	OSM_LOG_EXIT(sa->p_log);
 }
 
+static int validate_other_comp_fields(ib_net64_t comp_mask,
+				      const ib_member_rec_t * p_mcmr,
+				      osm_mgrp_t * p_mgrp)
+{
+	int ret = 0;
+
+	if ((IB_MCR_COMPMASK_QKEY & comp_mask) &&
+	    p_mcmr->qkey != p_mgrp->mcmember_rec.qkey)
+		goto Exit;
+
+	if (IB_MCR_COMPMASK_PKEY & comp_mask) {
+		if (!(ib_pkey_is_full_member(p_mcmr->pkey) ||
+		      ib_pkey_is_full_member(p_mgrp->mcmember_rec.pkey)))
+			goto Exit;
+		if (ib_pkey_get_base(p_mcmr->pkey) !=
+		    ib_pkey_get_base(p_mgrp->mcmember_rec.pkey))
+			goto Exit;
+	}
+
+	if ((IB_MCR_COMPMASK_TCLASS & comp_mask) &&
+	    p_mcmr->tclass != p_mgrp->mcmember_rec.tclass)
+		goto Exit;
+
+	/* check SL, Flow, and Hop limit */
+	{
+		uint32_t mgrp_flow, query_flow;
+		uint8_t mgrp_sl, query_sl;
+		uint8_t mgrp_hop, query_hop;
+
+		ib_member_get_sl_flow_hop(p_mcmr->sl_flow_hop,
+					  &query_sl, &query_flow, &query_hop);
+
+		ib_member_get_sl_flow_hop(p_mgrp->mcmember_rec.sl_flow_hop,
+					  &mgrp_sl, &mgrp_flow, &mgrp_hop);
+
+		if ((IB_MCR_COMPMASK_SL & comp_mask) && query_sl != mgrp_sl)
+			goto Exit;
+
+		if ((IB_MCR_COMPMASK_FLOW & comp_mask) &&
+		    query_flow != mgrp_flow)
+			goto Exit;
+
+		if ((IB_MCR_COMPMASK_HOP & comp_mask) && query_hop != mgrp_hop)
+			goto Exit;
+	}
+
+	ret = 1;
+Exit:
+	return ret;
+}
+
 /**********************************************************************
  Handle a join (or create) request
 **********************************************************************/
@@ -1152,9 +1203,27 @@ static void mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 		/* copy the MGID to the result */
 		mcmember_rec.mgid = p_mgrp->mcmember_rec.mgid;
 		is_new_group = 1;
-	} else
+	} else {
 		/* no need for a new group */
 		is_new_group = 0;
+		if (!validate_other_comp_fields(p_sa_mad->comp_mask,
+						p_recvd_mcmember_rec, p_mgrp)) {
+			char gid_str[INET6_ADDRSTRLEN];
+			CL_PLOCK_RELEASE(sa->p_lock);
+			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B1A: "
+				"validate_other_comp_fields failed for "
+				"MGID: %s port 0x%016" PRIx64
+				" (%s), sending IB_SA_MAD_STATUS_REQ_INVALID\n",
+				inet_ntop(AF_INET6,
+					  p_mgrp->mcmember_rec.mgid.raw,
+					  gid_str, sizeof gid_str),
+				cl_ntoh64(portguid),
+				p_port->p_node->print_desc);
+			osm_sa_send_error(sa, p_madw,
+					  IB_SA_MAD_STATUS_REQ_INVALID);
+			goto Exit;
+		}
+	}
 
 	CL_ASSERT(p_mgrp);
 
@@ -1334,40 +1403,8 @@ static void mcmr_by_comp_mask(osm_sa_t * sa, const ib_member_rec_t * p_rcvd_rec,
 		goto Exit;
 
 	/* now do the rest of the match */
-	if ((IB_MCR_COMPMASK_QKEY & comp_mask) &&
-	    p_rcvd_rec->qkey != p_mgrp->mcmember_rec.qkey)
+	if (!validate_other_comp_fields(comp_mask, p_rcvd_rec, p_mgrp))
 		goto Exit;
-
-	if ((IB_MCR_COMPMASK_PKEY & comp_mask) &&
-	    p_rcvd_rec->pkey != p_mgrp->mcmember_rec.pkey)
-		goto Exit;
-
-	if ((IB_MCR_COMPMASK_TCLASS & comp_mask) &&
-	    p_rcvd_rec->tclass != p_mgrp->mcmember_rec.tclass)
-		goto Exit;
-
-	/* check SL, Flow, and Hop limit */
-	{
-		uint8_t mgrp_sl, query_sl;
-		uint32_t mgrp_flow, query_flow;
-		uint8_t mgrp_hop, query_hop;
-
-		ib_member_get_sl_flow_hop(p_rcvd_rec->sl_flow_hop,
-					  &query_sl, &query_flow, &query_hop);
-
-		ib_member_get_sl_flow_hop(p_mgrp->mcmember_rec.sl_flow_hop,
-					  &mgrp_sl, &mgrp_flow, &mgrp_hop);
-
-		if ((IB_MCR_COMPMASK_SL & comp_mask) && query_sl != mgrp_sl)
-			goto Exit;
-
-		if ((IB_MCR_COMPMASK_FLOW & comp_mask) &&
-		    query_flow != mgrp_flow)
-			goto Exit;
-
-		if ((IB_MCR_COMPMASK_HOP & comp_mask) && query_hop != mgrp_hop)
-			goto Exit;
-	}
 
 	if ((IB_MCR_COMPMASK_PROXY & comp_mask) &&
 	    p_rcvd_rec->proxy_join != p_mgrp->mcmember_rec.proxy_join)
