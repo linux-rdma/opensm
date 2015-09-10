@@ -3374,18 +3374,13 @@ fabric_construct_hca_ports(IN ftree_fabric_t * p_ftree, IN ftree_hca_t * p_hca)
 				"Marking CN port GUID 0x%016" PRIx64 "\n",
 				cl_ntoh64(osm_physp_get_port_guid(p_osm_port)));
 		} else if (is_io) {
-				OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
-					"Marking I/O port GUID 0x%016" PRIx64
-					"\n",
-					cl_ntoh64(osm_physp_get_port_guid
-						 (p_osm_port)));
-
+			OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
+				"Marking I/O port GUID 0x%016" PRIx64 "\n",
+				cl_ntoh64(osm_physp_get_port_guid(p_osm_port)));
 		} else {
-				OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
-					"Marking non-CN port GUID 0x%016" PRIx64
-					"\n",
-					cl_ntoh64(osm_physp_get_port_guid
-						 (p_osm_port)));
+			OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_DEBUG,
+				"Marking non-CN port GUID 0x%016" PRIx64 "\n",
+				cl_ntoh64(osm_physp_get_port_guid(p_osm_port)));
 		}
 		p_ftree->ca_ports++;
 
