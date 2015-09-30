@@ -842,6 +842,7 @@ static const opt_rec_t opt_tbl[] = {
 	{ "sm_inactive", OPT_OFFSET(sm_inactive), opts_parse_boolean, NULL, 1 },
 	{ "babbling_port_policy", OPT_OFFSET(babbling_port_policy), opts_parse_boolean, NULL, 1 },
 	{ "drop_event_subscriptions", OPT_OFFSET(drop_event_subscriptions), opts_parse_boolean, NULL, 1 },
+	{ "ipoib_mcgroup_creation_validation", OPT_OFFSET(ipoib_mcgroup_creation_validation), opts_parse_boolean, NULL, 1 },
 	{ "use_optimized_slvl", OPT_OFFSET(use_optimized_slvl), opts_parse_boolean, NULL, 1 },
 	{ "fsync_high_avail_files", OPT_OFFSET(fsync_high_avail_files), opts_parse_boolean, NULL, 1 },
 #ifdef ENABLE_OSM_PERF_MGR
@@ -1552,6 +1553,7 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * p_opt)
 	p_opt->sm_inactive = FALSE;
 	p_opt->babbling_port_policy = FALSE;
 	p_opt->drop_event_subscriptions = FALSE;
+	p_opt->ipoib_mcgroup_creation_validation = TRUE;
 	p_opt->use_optimized_slvl = FALSE;
 	p_opt->fsync_high_avail_files = TRUE;
 #ifdef ENABLE_OSM_PERF_MGR
@@ -2615,6 +2617,9 @@ void osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		"babbling_port_policy %s\n\n"
 		"# Drop event subscriptions (InformInfo and ServiceRecord) on port removal and SM coming out of STANDBY\n"
 		"drop_event_subscriptions %s\n\n"
+		"# Validate IPoIB non-broadcast group creation parameters against\n"
+		"# broadcast group parameters per IETF RFC 4391 (default TRUE)\n"
+		"ipoib_mcgroup_creation_validation %s\n\n"
 		"# Use Optimized SLtoVLMapping programming if supported by device\n"
 		"use_optimized_slvl %s\n\n"
 		"# Sync in memory files used for high availability with storage\n"
@@ -2623,6 +2628,7 @@ void osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		p_opts->sm_inactive ? "TRUE" : "FALSE",
 		p_opts->babbling_port_policy ? "TRUE" : "FALSE",
 		p_opts->drop_event_subscriptions ? "TRUE" : "FALSE",
+		p_opts->ipoib_mcgroup_creation_validation ? "TRUE" : "FALSE",
 		p_opts->use_optimized_slvl ? "TRUE" : "FALSE",
 		p_opts->fsync_high_avail_files ? "TRUE" : "FALSE");
 

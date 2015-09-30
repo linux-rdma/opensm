@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2002-2011 Mellanox Technologies LTD. All rights reserved.
+ * Copyright (c) 2002-2015 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2008 Xsigo Systems Inc.  All rights reserved.
  * Copyright (c) 2009 System Fabric Works, Inc. All rights reserved.
@@ -330,6 +330,7 @@ typedef struct osm_subn_opt {
 	boolean_t sm_inactive;
 	boolean_t babbling_port_policy;
 	boolean_t drop_event_subscriptions;
+	boolean_t ipoib_mcgroup_creation_validation;
 	boolean_t use_optimized_slvl;
 	boolean_t fsync_high_avail_files;
 	osm_qos_options_t qos_options;
@@ -605,6 +606,10 @@ typedef struct osm_subn_opt {
 *
 *	drop_event_subscriptions
 *		OpenSM will drop event subscriptions if the port goes away.
+*
+*	ipoib_mcgroup_creation_validation
+*		OpenSM will validate IPoIB non-broadcast group parameters
+*		against IPoIB broadcast group.
 *
 *	use_optimized_slvl
 *		Use optimized SLtoVLMappingTable programming if

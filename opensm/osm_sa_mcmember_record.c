@@ -82,6 +82,13 @@
 					IB_MCR_COMPMASK_FLOW | \
 					IB_MCR_COMPMASK_SL)
 
+#define IPV4_BCAST_MGID_PREFIX CL_HTON64(0xff10401b00000000ULL)
+#define IPV4_BCAST_MGID_INT_ID CL_HTON64(0x00000000ffffffffULL)
+
+static int validate_other_comp_fields(osm_log_t * p_log, ib_net64_t comp_mask,
+				      const ib_member_rec_t * p_mcmr,
+				      osm_mgrp_t * p_mgrp);
+
 /*********************************************************************
  Copy certain fields between two mcmember records
  used during the process of join request to copy data from the mgrp
@@ -816,16 +823,18 @@ static ib_api_status_t mcmr_rcv_create_new_mgrp(IN osm_sa_t * sa,
 						OUT osm_mgrp_t ** pp_mgrp)
 {
 	ib_net16_t mlid;
+	uint16_t signature;
 	ib_api_status_t status = IB_SUCCESS;
+	osm_mgrp_t *bcast_mgrp;
+	ib_gid_t bcast_mgid;
 	ib_member_rec_t mcm_rec = *p_recvd_mcmember_rec;	/* copy for modifications */
+	char gid_str[INET6_ADDRSTRLEN];
 
 	OSM_LOG_ENTER(sa->p_log);
 
 	/* we need to create the new MGID if it was not defined */
 	if (!ib_gid_is_notzero(&p_recvd_mcmember_rec->mgid)) {
 		/* create a new MGID */
-		char gid_str[INET6_ADDRSTRLEN];
-
 		if (!build_new_mgid(sa, comp_mask, &mcm_rec)) {
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B23: "
 				"cannot allocate unique MGID value\n");
@@ -835,10 +844,51 @@ static ib_api_status_t mcmr_rcv_create_new_mgrp(IN osm_sa_t * sa,
 		OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Allocated new MGID:%s\n",
 			inet_ntop(AF_INET6, mcm_rec.mgid.raw, gid_str,
 				  sizeof gid_str));
-	} else if (!validate_requested_mgid(sa, &mcm_rec)) {
+	} else if (sa->p_subn->opt.ipoib_mcgroup_creation_validation) {
 		/* a specific MGID was requested so validate the resulting MGID */
-		status = IB_SA_MAD_STATUS_REQ_INVALID;
-		goto Exit;
+		if (validate_requested_mgid(sa, &mcm_rec)) {
+			memcpy(&signature, &(mcm_rec.mgid.multicast.raw_group_id),
+			       sizeof(signature));
+			signature = cl_ntoh16(signature);
+			/* Check for IPoIB signature in MGID */
+			if (signature == 0x401B || signature == 0x601B) {
+				/* Derive IPoIB broadcast MGID */
+				bcast_mgid.unicast.prefix = IPV4_BCAST_MGID_PREFIX;
+				bcast_mgid.unicast.interface_id = IPV4_BCAST_MGID_INT_ID;
+				/* Set scope in IPoIB broadcast MGID */
+				bcast_mgid.multicast.header[1] =
+					(bcast_mgid.multicast.header[1] & 0xF0) |
+					(mcm_rec.mgid.multicast.header[1] & 0x0F);
+				/* Set P_Key in IPoIB broadcast MGID */
+				bcast_mgid.multicast.raw_group_id[2] =
+					mcm_rec.mgid.multicast.raw_group_id[2];
+				bcast_mgid.multicast.raw_group_id[3] =
+					mcm_rec.mgid.multicast.raw_group_id[3];
+				/* Check MC group for the IPoIB broadcast group */
+				if (signature != 0x401B ||
+				    memcmp(&bcast_mgid, &(mcm_rec.mgid), sizeof(ib_gid_t))) {
+					bcast_mgrp = osm_get_mgrp_by_mgid(sa->p_subn,
+									  &bcast_mgid);
+					if (!bcast_mgrp) {
+						OSM_LOG(sa->p_log, OSM_LOG_ERROR,
+							"ERR 1B1B: Broadcast group %s not found, sending IB_SA_MAD_STATUS_REQ_INVALID\n",
+							inet_ntop(AF_INET6, bcast_mgid.raw, gid_str, sizeof gid_str));
+						status = IB_SA_MAD_STATUS_REQ_INVALID;
+						goto Exit;
+					}
+					if (!validate_other_comp_fields(sa->p_log, comp_mask, p_recvd_mcmember_rec, bcast_mgrp)) {
+						OSM_LOG(sa->p_log, OSM_LOG_ERROR,
+							"ERR 1B1C: validate_other_comp_fields failed for MGID: %s, sending IB_SA_MAD_STATUS_REQ_INVALID\n",
+							inet_ntop(AF_INET6, &p_recvd_mcmember_rec->mgid, gid_str, sizeof gid_str));
+						status = IB_SA_MAD_STATUS_REQ_INVALID;
+						goto Exit;
+					}
+				}
+			}
+		} else {
+			status = IB_SA_MAD_STATUS_REQ_INVALID;
+			goto Exit;
+		}
 	}
 
 	/* check the requested parameters are realizable */
