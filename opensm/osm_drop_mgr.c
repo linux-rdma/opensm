@@ -193,7 +193,7 @@ static void drop_mgr_remove_port(osm_sm_t * sm, IN osm_port_t * p_port)
 
 	/* issue a notice - trap 65 (SM_GID_OUT_OF_SERVICE_TRAP) */
 	/* details of the notice */
-	notice.generic_type = 0x83;	/* is generic subn mgt type */
+	notice.generic_type = 0x80 | IB_NOTICE_TYPE_SUBN_MGMT;	/* is generic subn mgt type */
 	ib_notice_set_prod_type_ho(&notice, 4);	/* A class manager generator */
 	/* endport ceases to be reachable */
 	notice.g_or_v.generic.trap_num = CL_HTON16(SM_GID_OUT_OF_SERVICE_TRAP); /* 65 */

@@ -189,7 +189,7 @@ static void mgrp_send_notice(osm_subn_t * subn, osm_log_t * log,
 	ib_mad_notice_attr_t notice;
 	ib_api_status_t status;
 
-	notice.generic_type = 0x83;	/* generic SubnMgt type */
+	notice.generic_type = 0x80 | IB_NOTICE_TYPE_SUBN_MGMT;	/* is generic subn mgt type */
 	ib_notice_set_prod_type_ho(&notice, 4);	/* A Class Manager generator */
 	notice.g_or_v.generic.trap_num = CL_HTON16(num);
 	/* The sm_base_lid is saved in network order already. */

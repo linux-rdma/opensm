@@ -1060,7 +1060,7 @@ static void state_mgr_report_new_ports(IN osm_sm_t * sm)
 		/* issue a notice - trap 64 (SM_GID_IN_SERVICE_TRAP) */
 
 		/* details of the notice */
-		notice.generic_type = 0x83;	/* is generic subn mgt type */
+		notice.generic_type = 0x80 | IB_NOTICE_TYPE_SUBN_MGMT;	/* is generic subn mgt type */
 		ib_notice_set_prod_type_ho(&notice, 4);	/* A Class Manager generator */
 		/* endport becomes reachable */
 		notice.g_or_v.generic.trap_num = CL_HTON16(SM_GID_IN_SERVICE_TRAP); /* 64 */
