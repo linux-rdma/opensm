@@ -2,7 +2,7 @@
  * Copyright (c) 2004-2008 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2015 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
- * Copyright (c) 2009-2011 ZIH, TU Dresden, Federal Republic of Germany. All rights reserved.
+ * Copyright (c) 2009-2015 ZIH, TU Dresden, Federal Republic of Germany. All rights reserved.
  * Copyright (C) 2012-2013 Tokyo Institute of Technology. All rights reserved.
  *
  * This software is available to you under a choice of one of two
@@ -95,6 +95,7 @@ typedef struct vertex {
 	uint32_t heap_id;
 	/* for LFT writing and debug */
 	osm_switch_t *sw;	/* selfpointer */
+	boolean_t dropped;	/* indicate dropped switches (w/ ucast cache) */
 } vertex_t;
 
 typedef struct binary_heap {
@@ -161,6 +162,7 @@ static inline void set_default_vertex(vertex_t * vertex)
 	vertex->state = UNDISCOVERED;
 	vertex->heap_id = 0;
 	vertex->sw = NULL;
+	vertex->dropped = FALSE;
 }
 
 static inline void set_default_cdg_node(cdg_node_t * node)
@@ -1639,6 +1641,9 @@ static void reset_mgrp_membership(vertex_t * adj_list, uint32_t adj_list_size)
 	uint32_t i = 0;
 
 	for (i = 1; i < adj_list_size; i++) {
+		if (adj_list[i].dropped)
+			continue;
+
 		adj_list[i].sw->is_mc_member = 0;
 		adj_list[i].sw->num_of_mcm = 0;
 	}
@@ -1664,6 +1669,9 @@ static int update_mcft(osm_sm_t * p_sm, vertex_t * adj_list,
 	OSM_LOG_ENTER(p_sm->p_log);
 
 	for (i = 1; i < adj_list_size; i++) {
+		if (adj_list[i].dropped)
+			continue;
+
 		p_sw = adj_list[i].sw;
 		OSM_LOG(p_sm->p_log, OSM_LOG_VERBOSE,
 			"Processing switch 0x%016" PRIx64
@@ -2524,10 +2532,11 @@ static ib_api_status_t dfsssp_do_mcast_routing(void * context,
 	uint32_t adj_list_size = dfsssp_ctx->adj_list_size;
 	cl_qlist_t mcastgrp_port_list;
 	cl_qmap_t mcastgrp_port_map;
-	osm_switch_t *root_sw = NULL;
+	osm_switch_t *root_sw = NULL, *p_sw = NULL;
 	osm_port_t *port = NULL;
 	ib_net16_t lid = 0;
-	uint32_t err = 0, num_ports = 0;
+	uint32_t err = 0, num_ports = 0, i = 0;
+	ib_net64_t guid = 0;
 	ib_api_status_t status = IB_SUCCESS;
 
 	OSM_LOG_ENTER(sm->p_log);
@@ -2561,6 +2570,48 @@ static ib_api_status_t dfsssp_do_mcast_routing(void * context,
 			mbox->mlid);
 		status = IB_ERROR;
 		goto Exit;
+	}
+
+	/* using the ucast cache feature with dfsssp might mean that a leaf sw
+	   got removed (and got back) without calling dfsssp_build_graph
+	   and therefore the adj_list (and pointers to osm's internal switches)
+	   could be outdated (here we have no knowledge if it has happened, so
+	   unfortunately a check is necessary... still better than rebuilding
+	   adj_list every time we arrive here)
+	 */
+	if (p_mgr->p_subn->opt.use_ucast_cache && p_mgr->cache_valid) {
+		for (i = 1; i < adj_list_size; i++) {
+			guid = cl_hton64(adj_list[i].guid);
+			p_sw = osm_get_switch_by_guid(p_mgr->p_subn, guid);
+			if (p_sw) {
+				/* check if switch came back from the dead */
+				if (adj_list[i].dropped)
+					adj_list[i].dropped = FALSE;
+
+				/* verify that sw object has not been moved
+				   (this can happen for a leaf switch, if it
+				   was dropped and came back later without a
+				   rerouting), otherwise we have to update
+				   dfsssp's internal switch list with the new
+				   sw pointer
+				 */
+				if (p_sw == adj_list[i].sw)
+					continue;
+				else
+					adj_list[i].sw = p_sw;
+			} else {
+				/* if a switch from adj_list is not in the
+				   sw_guid_tbl anymore, then the only reason is
+				   that it was a leaf switch and opensm dropped
+				   it without calling a rerouting
+				   -> calling dijkstra is no problem, since it
+				      is a leaf and different from root_sw
+				   -> only update_mcft and reset_mgrp_membership
+				      need to be aware of these dropped switches
+				 */
+				adj_list[i].dropped = TRUE;
+			}
+		}
 	}
 
 	/* a) start one dijkstra step from the root switch to generate a
