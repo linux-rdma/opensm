@@ -526,38 +526,38 @@ const char *ib_get_sa_attr_str(IN ib_net16_t attr)
 const char *ib_get_trap_str(ib_net16_t trap_num)
 {
 	switch (cl_ntoh16(trap_num)) {
-	case 64:
+	case SM_GID_IN_SERVICE_TRAP:	/* 64 */
 		return "GID in service";
-	case 65:
+	case SM_GID_OUT_OF_SERVICE_TRAP: /* 65 */
 		return "GID out of service";
-	case 66:
+	case SM_MGID_CREATED_TRAP:	/* 66 */
 		return "New mcast group created";
-	case 67:
+	case SM_MGID_DESTROYED_TRAP:	/* 67 */
 		return "Mcast group deleted";
-	case 68:
+	case SM_UNPATH_TRAP:		/* 68 */
 		return "UnPath, Path no longer valid";
-	case 69:
+	case SM_REPATH_TRAP:		/* 69 */
 		return "RePath, Path recomputed";
-	case 128:
+	case SM_LINK_STATE_CHANGED_TRAP: /* 128 */
 		return "Link state change";
-	case 129:
+	case SM_LINK_INTEGRITY_THRESHOLD_TRAP: /* 129 */
 		return "Local Link integrity threshold reached";
-	case 130:
+	case SM_BUFFER_OVERRUN_THRESHOLD_TRAP: /* 130 */
 		return "Excessive Buffer Overrun Threshold reached";
-	case 131:
+	case SM_WATCHDOG_TIMER_EXPIRED_TRAP:   /* 131 */
 		return "Flow Control Update watchdog timer expired";
-	case 144:
+	case SM_LOCAL_CHANGES_TRAP:	/* 144 */
 		return
 		    "CapabilityMask, NodeDescription, Link [Width|Speed] Enabled, SM priority changed";
-	case 145:
+	case SM_SYS_IMG_GUID_CHANGED_TRAP: /* 145 */
 		return "System Image GUID changed";
-	case 256:
+	case SM_BAD_MKEY_TRAP:		/* 256 */
 		return "Bad M_Key";
-	case 257:
+	case SM_BAD_PKEY_TRAP:		/* 257 */
 		return "Bad P_Key";
-	case 258:
+	case SM_BAD_QKEY_TRAP:		/* 258 */
 		return "Bad Q_Key";
-	case 259:
+	case SM_BAD_SWITCH_PKEY_TRAP:	/* 259 */
 		return "Bad P_Key (switch external port)";
 	default:
 		break;
@@ -2369,24 +2369,24 @@ static void osm_dump_notice_to_buf_generic(IN const ib_mad_notice_attr_t * p_ntc
 
 		/* immediate data based on the trap */
 		switch (cl_ntoh16(p_ntci->g_or_v.generic.trap_num)) {
-		case 64:
-		case 65:
-		case 66:
-		case 67:
+		case SM_GID_IN_SERVICE_TRAP:	/* 64 */
+		case SM_GID_OUT_OF_SERVICE_TRAP: /* 65 */
+		case SM_MGID_CREATED_TRAP:	/* 66 */
+		case SM_MGID_DESTROYED_TRAP:	/* 67 */
 			sprintf(buff,
 				"\t\t\t\tsrc_gid..................%s\n",
 				inet_ntop(AF_INET6, p_ntci->data_details.
 					  ntc_64_67.gid.raw, gid_str,
 					  sizeof gid_str));
 			break;
-		case 128:
+		case SM_LINK_STATE_CHANGED_TRAP: /* 128 */
 			sprintf(buff,
 				"\t\t\t\tsw_lid...................%u\n",
 				cl_ntoh16(p_ntci->data_details.ntc_128.sw_lid));
 			break;
-		case 129:
-		case 130:
-		case 131:
+		case SM_LINK_INTEGRITY_THRESHOLD_TRAP: /* 129 */
+		case SM_BUFFER_OVERRUN_THRESHOLD_TRAP: /* 130 */
+		case SM_WATCHDOG_TIMER_EXPIRED_TRAP:   /* 131 */
 			sprintf(buff,
 				"\t\t\t\tlid......................%u\n"
 				"\t\t\t\tport_num.................%u\n",
@@ -2394,7 +2394,7 @@ static void osm_dump_notice_to_buf_generic(IN const ib_mad_notice_attr_t * p_ntc
 					  ntc_129_131.lid),
 				p_ntci->data_details.ntc_129_131.port_num);
 			break;
-		case 144:
+		case SM_LOCAL_CHANGES_TRAP:	/* 144 */
 			sprintf(buff,
 				"\t\t\t\tlid......................%u\n"
 				"\t\t\t\tlocal_changes............%u\n"
@@ -2410,7 +2410,7 @@ static void osm_dump_notice_to_buf_generic(IN const ib_mad_notice_attr_t * p_ntc
 				cl_ntoh16(p_ntci->data_details.ntc_144.
 					  cap_mask2));
 			break;
-		case 145:
+		case SM_SYS_IMG_GUID_CHANGED_TRAP: /* 145 */
 			sprintf(buff,
 				"\t\t\t\tlid......................%u\n"
 				"\t\t\t\tnew_sys_guid.............0x%016"
@@ -2420,7 +2420,7 @@ static void osm_dump_notice_to_buf_generic(IN const ib_mad_notice_attr_t * p_ntc
 				cl_ntoh64(p_ntci->data_details.ntc_145.
 					  new_sys_guid));
 			break;
-		case 256:
+		case SM_BAD_MKEY_TRAP:	/* 256 */
 			n = sprintf(buff,
 				    "\t\t\t\tlid......................%u\n"
 				    "\t\t\t\tdrslid...................%u\n"
@@ -2464,8 +2464,8 @@ static void osm_dump_notice_to_buf_generic(IN const ib_mad_notice_attr_t * p_ntc
 			}
 			snprintf(buff + n, sizeof(buff) - n, "\n");
 			break;
-		case 257:
-		case 258:
+		case SM_BAD_PKEY_TRAP:	/* 257 */
+		case SM_BAD_QKEY_TRAP:	/* 258 */
 			sprintf(buff,
 				"\t\t\t\tlid1.....................%u\n"
 				"\t\t\t\tlid2.....................%u\n"
@@ -2493,7 +2493,7 @@ static void osm_dump_notice_to_buf_generic(IN const ib_mad_notice_attr_t * p_ntc
 					  ntc_257_258.gid2.raw, gid_str2,
 					  sizeof gid_str2));
 			break;
-		case 259:
+		case SM_BAD_SWITCH_PKEY_TRAP:	/* 259 */
 			sprintf(buff,
 				"\t\t\t\tdata_valid...............0x%x\n"
 				"\t\t\t\tlid1.....................%u\n"

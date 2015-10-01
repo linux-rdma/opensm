@@ -397,11 +397,12 @@ static int is_access_permitted(osm_infr_t *p_infr_rec,
 	osm_port_t *p_src_port;
 	osm_port_t *p_dest_port;
 
-	/* In case of GID_IN(64) or GID_OUT(65) traps the source gid
-	   comparison should be done on the trap source (saved as the gid in the
-	   data details field).
-	   For traps MC_CREATE(66) or MC_DELETE(67) the data details gid is
-	   the MGID. We need to check whether the subscriber has a compatible
+	/* In case of SM_GID_IN_SERVICE_TRAP(64) or SM_GID_OUT_OF_SERVICE_TRAP(65) traps
+	   the source gid comparison should be done on the trap source (saved
+	   as the gid in the data details field).
+	   For traps SM_MGID_CREATED_TRAP(66) or SM_MGID_DESTROYED_TRAP(67)
+	   the data details gid is the MGID.
+	   We need to check whether the subscriber has a compatible
 	   pkey with MC group.
 	   In all other cases the issuer gid is the trap source.
 	*/

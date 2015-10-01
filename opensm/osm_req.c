@@ -411,7 +411,7 @@ int osm_send_trap144(osm_sm_t * sm, ib_net16_t local)
 
 	ntc->generic_type = 0x80 | IB_NOTICE_TYPE_INFO;
 	ib_notice_set_prod_type_ho(ntc, osm_node_get_type(port->p_node));
-	ntc->g_or_v.generic.trap_num = cl_hton16(144);
+	ntc->g_or_v.generic.trap_num = cl_hton16(SM_LOCAL_CHANGES_TRAP); /* 144 */
 	ntc->issuer_lid = pi->base_lid;
 	ntc->data_details.ntc_144.lid = pi->base_lid;
 	ntc->data_details.ntc_144.local_changes = local ?

@@ -333,7 +333,7 @@ osm_mcm_port_t *osm_mgrp_add_port(IN osm_subn_t * subn, osm_log_t * log,
 	if ((join_state & IB_JOIN_STATE_FULL) &&
 	    !(prev_join_state & IB_JOIN_STATE_FULL) &&
 	    ++mgrp->full_members == 1)
-		mgrp_send_notice(subn, log, mgrp, 66);
+		mgrp_send_notice(subn, log, mgrp, SM_MGID_CREATED_TRAP); /* 66 */
 
 	subn->p_osm->sa.dirty = TRUE;
 	return mcm_port;
@@ -406,7 +406,7 @@ boolean_t osm_mgrp_remove_port(osm_subn_t * subn, osm_log_t * log, osm_mgrp_t * 
 	if ((port_join_state & IB_JOIN_STATE_FULL) &&
 	    !(new_join_state & IB_JOIN_STATE_FULL) &&
 	    --mgrp->full_members == 0) {
-		mgrp_send_notice(subn, log, mgrp, 67);
+		mgrp_send_notice(subn, log, mgrp, SM_MGID_DESTROYED_TRAP); /* 67 */
 		osm_mgrp_cleanup(subn, mgrp);
 		mgrp_deleted = TRUE;
 	}

@@ -1057,13 +1057,13 @@ static void state_mgr_report_new_ports(IN osm_sm_t * sm)
 			continue;
 
 		port_guid = osm_port_get_guid(p_port);
-		/* issue a notice - trap 64 */
+		/* issue a notice - trap 64 (SM_GID_IN_SERVICE_TRAP) */
 
 		/* details of the notice */
 		notice.generic_type = 0x83;	/* is generic subn mgt type */
 		ib_notice_set_prod_type_ho(&notice, 4);	/* A Class Manager generator */
 		/* endport becomes reachable */
-		notice.g_or_v.generic.trap_num = CL_HTON16(64);
+		notice.g_or_v.generic.trap_num = CL_HTON16(SM_GID_IN_SERVICE_TRAP); /* 64 */
 		/* The sm_base_lid is saved in network order already. */
 		notice.issuer_lid = sm->p_subn->sm_base_lid;
 		/* following C14-72.1.1 and table 119 p739 */
