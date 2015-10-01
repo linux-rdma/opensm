@@ -1723,7 +1723,7 @@ static inline boolean_t OSM_API ib_class_is_rmpp(IN const uint8_t class_code)
 *
 * SOURCE
 */
-#define IB_NOTICE_PRODUCER_TYPE_CLASS_MGR			(CL_HTON32(0x000004))
+#define IB_NOTICE_PRODUCER_TYPE_CLASS_MGR		(CL_HTON32(0x000004))
 /**********/
 
 /****d* IBA Base: Constants/IB_MTU_LEN_TYPE
