@@ -1287,7 +1287,8 @@ static void mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 	} else {
 		/* no need for a new group */
 		is_new_group = 0;
-		if (!validate_other_comp_fields(sa->p_log, p_sa_mad->comp_mask,
+		if (sa->p_subn->opt.mcgroup_join_validation &&
+		    !validate_other_comp_fields(sa->p_log, p_sa_mad->comp_mask,
 						p_recvd_mcmember_rec, p_mgrp)) {
 			char gid_str[INET6_ADDRSTRLEN];
 			CL_PLOCK_RELEASE(sa->p_lock);

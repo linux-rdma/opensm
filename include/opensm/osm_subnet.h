@@ -331,6 +331,7 @@ typedef struct osm_subn_opt {
 	boolean_t babbling_port_policy;
 	boolean_t drop_event_subscriptions;
 	boolean_t ipoib_mcgroup_creation_validation;
+	boolean_t mcgroup_join_validation;
 	boolean_t use_optimized_slvl;
 	boolean_t fsync_high_avail_files;
 	osm_qos_options_t qos_options;
@@ -610,6 +611,10 @@ typedef struct osm_subn_opt {
 *	ipoib_mcgroup_creation_validation
 *		OpenSM will validate IPoIB non-broadcast group parameters
 *		against IPoIB broadcast group.
+*
+*	mcgroup_join_validation
+*		OpenSM will validate multicast join parameters against
+*		multicast group parameters when MC group already exists.
 *
 *	use_optimized_slvl
 *		Use optimized SLtoVLMappingTable programming if
