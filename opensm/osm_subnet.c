@@ -5,7 +5,7 @@
  * Copyright (c) 2008 Xsigo Systems Inc.  All rights reserved.
  * Copyright (c) 2009 System Fabric Works, Inc. All rights reserved.
  * Copyright (c) 2009 HNR Consulting. All rights reserved.
- * Copyright (c) 2009-2011 ZIH, TU Dresden, Federal Republic of Germany. All rights reserved.
+ * Copyright (c) 2009-2015 ZIH, TU Dresden, Federal Republic of Germany. All rights reserved.
  * Copyright (c) 2013 Oracle and/or its affiliates. All rights reserved.
  *
  * This software is available to you under a choice of one of two
@@ -1371,7 +1371,7 @@ osm_physp_t *osm_get_physp_by_mad_addr(IN osm_log_t * p_log,
 }
 
 osm_switch_t *osm_get_switch_by_guid(IN const osm_subn_t * p_subn,
-				     IN uint64_t guid)
+				     IN ib_net64_t guid)
 {
 	osm_switch_t *p_switch;
 
@@ -1381,7 +1381,7 @@ osm_switch_t *osm_get_switch_by_guid(IN const osm_subn_t * p_subn,
 	return p_switch;
 }
 
-osm_node_t *osm_get_node_by_guid(IN osm_subn_t const *p_subn, IN uint64_t guid)
+osm_node_t *osm_get_node_by_guid(IN osm_subn_t const *p_subn, IN ib_net64_t guid)
 {
 	osm_node_t *p_node;
 
