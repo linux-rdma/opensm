@@ -423,7 +423,7 @@ void osmt_init_mc_query_rec(IN osmtest_t * const p_osmt,
  * - Try to create a new MCG with invalid MGID : get back ERR_REQ_INVALID
  * - Try again with MGID prefix = 0xA01B (maybe 0x1BA0 little or big ?)
  * - Try to create again the already created group: ERR_REQ_INVALID
- * o15.0.1.7 - implicitlly checked during the prev steps.
+ * o15.0.1.7 - implicitly checked during the prev steps.
  * o15.0.1.9
  * - Create MCG with Invalid JoinState.FullMember != 1 : get ERR_REQ_INVALID
  * o15.0.1.10 - can't check on a single client .
@@ -1692,8 +1692,8 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 			  sizeof gid_str), cl_ntoh16(p_mc_res->mlid));
 	cl_map_insert(&test_created_mlids, cl_ntoh16(p_mc_res->mlid), p_mc_res);
 
-	/* o15.0.1.7 - implicitlly checked during the prev steps. */
-	/* o15.0.1.8 - implicitlly checked during the prev steps. */
+	/* o15.0.1.7 - implicitly checked during the prev steps */
+	/* o15.0.1.8 - implicitly checked during the prev steps */
 
 	/* o15.0.1.9 */
 	/* - Create MCG with Invalid JoinState.FullMember != 1 : get ERR_REQ_INVALID */
@@ -1750,7 +1750,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 
 	OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, EXPECTING_ERRORS_START "\n");
 
-	/* We have created a new MCG so now we need different mgid when cresting group otherwise it will be counted as join request . */
+	/* We have created a new MCG so now we need different mgid when creating group otherwise it will be counted as join request */
 	mc_req_rec.mgid = good_mgid;
 	mc_req_rec.mgid.raw[12] = 0xFC;
 	mc_req_rec.scope_state = 0x24;	/* link-local scope, send only member */
@@ -1964,7 +1964,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	}
 
 	/* Now try to update value of join state */
-	mc_req_rec.scope_state = 0x22;	/* link-local scope,non member */
+	mc_req_rec.scope_state = 0x22;	/* link-local scope, non member */
 
 	status = osmt_send_mcast_request(p_osmt, 1, &mc_req_rec, comp_mask,
 					 sa_mad);
@@ -2109,7 +2109,6 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 	}
 
 	/* Now use the same scope_state and delete all JoinState - leave multicast group since state is 0x0 */
-
 	mc_req_rec.scope_state = 0x25;
 	status = osmt_send_mcast_request(p_osmt, 0, &mc_req_rec, comp_mask,
 					 sa_mad);
