@@ -386,7 +386,7 @@ static boolean_t drop_mgr_process_node(osm_sm_t * sm, IN osm_node_t * p_node)
 	return return_val;
 }
 
-static void drop_mgr_check_node(osm_sm_t * sm, IN osm_node_t * p_node)
+static void drop_mgr_check_switch_node(osm_sm_t * sm, IN osm_node_t * p_node)
 {
 	ib_net64_t node_guid;
 	osm_physp_t *p_physp, *p_remote_physp;
@@ -398,13 +398,6 @@ static void drop_mgr_check_node(osm_sm_t * sm, IN osm_node_t * p_node)
 	OSM_LOG_ENTER(sm->p_log);
 
 	node_guid = osm_node_get_node_guid(p_node);
-
-	if (osm_node_get_type(p_node) != IB_NODE_TYPE_SWITCH) {
-		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0107: "
-			"Node 0x%016" PRIx64 " is not a switch node\n",
-			cl_ntoh64(node_guid));
-		goto Exit;
-	}
 
 	/* Make sure we have a switch object for this node */
 	if (!p_node->sw) {
@@ -590,7 +583,7 @@ void osm_drop_mgr_process(osm_sm_t * sm)
 			continue;
 
 		/* We are handling a switch node */
-		drop_mgr_check_node(sm, p_node);
+		drop_mgr_check_switch_node(sm, p_node);
 	}
 
 	p_next_port = (osm_port_t *) cl_qmap_head(p_port_guid_tbl);
