@@ -2609,7 +2609,8 @@ static ib_api_status_t dfsssp_do_mcast_routing(void * context,
 				   -> only update_mcft and reset_mgrp_membership
 				      need to be aware of these dropped switches
 				 */
-				adj_list[i].dropped = TRUE;
+				if (!adj_list[i].dropped)
+					adj_list[i].dropped = TRUE;
 			}
 		}
 	}
