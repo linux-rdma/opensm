@@ -219,7 +219,7 @@ static void ucast_mgr_process_port(IN osm_ucast_mgr_t * p_mgr,
 	 * the initialization. Don't handle this port. */
 	if (min_lid_ho == 0 || max_lid_ho == 0) {
 		OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 3A04: "
-			"Port 0x%"PRIx64" (%s port %d) has LID 0. An "
+			"Port 0x%" PRIx64 " (%s port %d) has LID 0. An "
 			"initialization error occurred. Ignoring port\n",
 			cl_ntoh64(osm_port_get_guid(p_port)),
 			p_port->p_node->print_desc,
