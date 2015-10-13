@@ -1038,7 +1038,7 @@ static void ucast_mgr_pipeline_fwd_tbl(osm_ucast_mgr_t * p_mgr)
 {
 	cl_qmap_t *tbl;
 	cl_map_item_t *item;
-	unsigned i, max_block = p_mgr->max_lid / 64 + 1;
+	unsigned i, max_block = p_mgr->max_lid / IB_SMP_DATA_SIZE + 1;
 
 	tbl = &p_mgr->p_subn->sw_guid_tbl;
 	for (i = 0; i < max_block; i++)
