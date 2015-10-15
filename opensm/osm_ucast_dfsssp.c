@@ -2541,37 +2541,6 @@ static ib_api_status_t dfsssp_do_mcast_routing(void * context,
 
 	OSM_LOG_ENTER(sm->p_log);
 
-	/* create a map and a list of all ports which are member in the mcast
-	   group; map for searching elements and list for iteration
-	 */
-	if (osm_mcast_make_port_list_and_map(&mcastgrp_port_list,
-					     &mcastgrp_port_map, mbox)) {
-		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR AD50: "
-                        "Insufficient memory to make port list\n");
-                status = IB_ERROR;
-                goto Exit;
-        }
-
-	num_ports = cl_qlist_count(&mcastgrp_port_list);
-	if (num_ports < 2) {
-		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
-			"MLID 0x%X has %u members - nothing to do\n",
-			mbox->mlid, num_ports);
-		goto Exit;
-	}
-
-	/* find the root switch for the spanning tree, which has the smallest
-	   hops count to all LIDs in the mcast group
-	 */
-	root_sw = osm_mcast_mgr_find_root_switch(sm, &mcastgrp_port_list);
-	if (!root_sw) {
-		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR AD51: "
-			"Unable to locate a suitable switch for group 0x%X\n",
-			mbox->mlid);
-		status = IB_ERROR;
-		goto Exit;
-	}
-
 	/* using the ucast cache feature with dfsssp might mean that a leaf sw
 	   got removed (and got back) without calling dfsssp_build_graph
 	   and therefore the adj_list (and pointers to osm's internal switches)
@@ -2613,6 +2582,37 @@ static ib_api_status_t dfsssp_do_mcast_routing(void * context,
 					adj_list[i].dropped = TRUE;
 			}
 		}
+	}
+
+	/* create a map and a list of all ports which are member in the mcast
+	   group; map for searching elements and list for iteration
+	 */
+	if (osm_mcast_make_port_list_and_map(&mcastgrp_port_list,
+					     &mcastgrp_port_map, mbox)) {
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR AD50: "
+			"Insufficient memory to make port list\n");
+		status = IB_ERROR;
+		goto Exit;
+	}
+
+	num_ports = cl_qlist_count(&mcastgrp_port_list);
+	if (num_ports < 2) {
+		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
+			"MLID 0x%X has %u members - nothing to do\n",
+			mbox->mlid, num_ports);
+		goto Exit;
+	}
+
+	/* find the root switch for the spanning tree, which has the smallest
+	   hops count to all LIDs in the mcast group
+	 */
+	root_sw = osm_mcast_mgr_find_root_switch(sm, &mcastgrp_port_list);
+	if (!root_sw) {
+		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR AD51: "
+			"Unable to locate a suitable switch for group 0x%X\n",
+			mbox->mlid);
+		status = IB_ERROR;
+		goto Exit;
 	}
 
 	/* a) start one dijkstra step from the root switch to generate a
