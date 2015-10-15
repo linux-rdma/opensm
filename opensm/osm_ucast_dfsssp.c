@@ -340,7 +340,7 @@ static void heap_free(binary_heap_t * heap)
 /**********************************************************************
  **********************************************************************/
 
-/************ helper functions to save src/dest X vl kombination ******
+/************ helper functions to save src/dest X vl combination ******
  **********************************************************************/
 /* compare function of two lids for stdlib qsort */
 static int cmp_lids(const void *l1, const void *l2)
@@ -377,7 +377,7 @@ static inline int64_t vltable_get_lidindex(ib_net16_t * key, vltable_t * vltable
 		return -1;
 }
 
-/* get virtual lane from src lid X dest lid kombination;
+/* get virtual lane from src lid X dest lid combination;
    return -1 for invalid lids
 */
 static int32_t vltable_get_vl(vltable_t * vltable, ib_net16_t slid, ib_net16_t dlid)
@@ -1260,7 +1260,7 @@ static int dfsssp_build_graph(void *context)
 		head = link;
 		head->next = NULL;
 
-		/* add SP0 to number of CA conneted to a switch */
+		/* add SP0 to number of CA connected to a switch */
 		lmc = osm_node_get_lmc(sw->p_node, 0);
 		adj_list[i].num_hca += (1 << lmc);
 
@@ -1583,7 +1583,7 @@ static int update_lft(osm_ucast_mgr_t * p_mgr, vertex_t * adj_list,
 		}
 
 		/* to support lmc > 0 the functions alloc_ports_priv, free_ports_priv, find_and_add_remote_sys
-		   from minhop aren't needed cause osm_switch_recommend_path is implicit calulated
+		   from minhop aren't needed cause osm_switch_recommend_path is implicitly calculated
 		   for each LID pair thru dijkstra;
 		   for each port the dijkstra algorithm calculates (max_lid_ho - min_lid_ho)-times maybe
 		   disjoint routes to spread the bandwidth -> diffent routes for one port and lmc>0
@@ -1595,7 +1595,7 @@ static int update_lft(osm_ucast_mgr_t * p_mgr, vertex_t * adj_list,
 			/* update the number of path routing thru this port */
 			osm_switch_count_path(p_sw, port);
 		}
-		/* set te hop count from this switch to the lid */
+		/* set the hop count from this switch to the lid */
 		ret = osm_switch_set_hops(p_sw, lid, port, hops);
 		if (ret != CL_SUCCESS)
 			OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR,
@@ -1774,7 +1774,7 @@ static void update_weights(osm_ucast_mgr_t * p_mgr, vertex_t * adj_list,
 	OSM_LOG_EXIT(p_mgr->p_log);
 }
 
-/* get the larges number of virtual lanes which is supported by all switches
+/* get the largest number of virtual lanes which is supported by all switches
    in the subnet
 */
 static uint8_t get_avail_vl_in_subn(osm_ucast_mgr_t * p_mgr)
@@ -1971,7 +1971,7 @@ static int dfsssp_remove_deadlocks(dfsssp_context_t * dfsssp_ctx)
 								"ERR AD14: cannot allocate memory for cdg node or link in update_channel_dep_graph(...)\n");
 							goto ERROR;
 						}
-						/* add the <s,d> kombination / coresponding virtual lane to the VL table */
+						/* add the <s,d> combination / corresponding virtual lane to the VL table */
 						vltable_insert
 						    (srcdest2vl_table,
 						     cl_hton16(slid),
