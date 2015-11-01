@@ -993,6 +993,7 @@ static void state_mgr_send_handover(IN osm_sm_t * sm, IN osm_remote_sm_t * p_sm)
 	context.smi_context.port_guid = p_port->guid;
 	context.smi_context.set_method = TRUE;
 
+	memset(payload, 0, sizeof(payload));
 	p_smi->guid = sm->p_subn->sm_port_guid;
 	p_smi->act_count = cl_hton32(sm->p_subn->p_osm->stats.qp0_mads_sent);
 	p_smi->pri_state = (uint8_t) (sm->p_subn->sm_state |
