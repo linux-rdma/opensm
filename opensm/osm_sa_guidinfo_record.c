@@ -674,10 +674,10 @@ add_alias_guid:
 					cl_ntoh64(p_alias_guid->alias_guid), i,
 					cl_ntoh64(p_alias_guid->p_base_port->guid),
 					cl_ntoh64(p_alias_guid_check->p_base_port->guid));
-				osm_alias_guid_delete(&p_alias_guid);
 				/* clear response guid at index to indicate duplicate */
 				p_rcvd_rec->guid_info.guid[i % 8] = 0;
 			}
+			osm_alias_guid_delete(&p_alias_guid);
 		} else {
 			del_alias_guid = (*p_port->p_physp->p_guids)[i];
 			if (del_alias_guid) {
