@@ -204,7 +204,7 @@ track_mgrp_w_partition(osm_log_t *p_log, osm_prtn_t *p, osm_mgrp_t *mgrp,
 	int i = 0;
 
 	/* check if we are already tracking this group */
-	for (i = 0; i< p->nmgrps; i++)
+	for (i = 0; i < p->nmgrps; i++)
 		if (p->mgrps[i] == mgrp)
 			return (IB_SUCCESS);
 
