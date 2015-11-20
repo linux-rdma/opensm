@@ -817,8 +817,7 @@ static unsigned build_new_mgid(osm_sa_t * sa, ib_net64_t comp_mask,
 **********************************************************************/
 static ib_api_status_t mcmr_rcv_create_new_mgrp(IN osm_sa_t * sa,
 						IN ib_net64_t comp_mask,
-						IN const ib_member_rec_t *
-						p_recvd_mcmember_rec,
+						IN const ib_member_rec_t * p_recvd_mcmember_rec,
 						IN const osm_physp_t * p_physp,
 						OUT osm_mgrp_t ** pp_mgrp)
 {
