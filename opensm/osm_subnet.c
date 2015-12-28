@@ -913,6 +913,7 @@ static const opt_rec_t opt_tbl[] = {
 	{ "sm_sl", OPT_OFFSET(sm_sl), opts_parse_uint8, NULL, 1 },
 	{ "log_prefix", OPT_OFFSET(log_prefix), opts_parse_charp, NULL, 1 },
 	{ "per_module_logging_file", OPT_OFFSET(per_module_logging_file), opts_parse_charp, NULL, 0 },
+	{ "quasi_ftree_indexing", OPT_OFFSET(quasi_ftree_indexing), opts_parse_boolean, NULL, 1 },
 	{0}
 };
 
@@ -1635,6 +1636,7 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * p_opt)
 	subn_init_qos_options(&p_opt->qos_rtr_options, NULL);
 	p_opt->cc_cct.entries_len = 0;
 	p_opt->cc_cct.input_str = NULL;
+	p_opt->quasi_ftree_indexing = FALSE;
 }
 
 static char *clean_val(char *val)
@@ -2508,6 +2510,15 @@ void osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		"# are considered as compute nodes.\n"
 		"io_guid_file %s\n\n",
 		p_opts->io_guid_file ? p_opts->io_guid_file : null_str);
+
+        fprintf(out,
+		"# If TRUE enables alternative indexing policy for ftree routing\n"
+		"# in quasi-ftree topologies that can improve shift-pattern support.\n"
+		"# The switch indexing starts from root switch and leaf switches\n"
+		"# are termination points of BFS algorithm\n"
+		"# If FALSE, the indexing starts from leaf switch (default)\n"
+		"quasi_ftree_indexing %s\n\n",
+		p_opts->quasi_ftree_indexing ? "TRUE" : "FALSE");
 
 	fprintf(out,
 		"# Number of reverse hops allowed for I/O nodes\n"

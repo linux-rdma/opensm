@@ -206,6 +206,7 @@ typedef struct ftree_hca_t_ {
 
 typedef struct ftree_fabric_t_ {
 	osm_opensm_t *p_osm;
+	osm_subn_t *p_subn;
 	cl_qmap_t hca_tbl;
 	cl_qmap_t sw_tbl;
 	cl_qmap_t sw_by_tuple_tbl;
@@ -221,6 +222,11 @@ typedef struct ftree_fabric_t_ {
 	uint16_t lft_max_lid;
 	boolean_t fabric_built;
 } ftree_fabric_t;
+
+static inline osm_subn_t *ftree_get_subnet(IN ftree_fabric_t * p_ftree)
+{
+	return p_ftree->p_subn;
+}
 
 /***************************************************
  **
@@ -1343,16 +1349,35 @@ static void fabric_assign_tuple(IN ftree_fabric_t * p_ftree,
 /***************************************************/
 
 static void fabric_assign_first_tuple(IN ftree_fabric_t * p_ftree,
-				      IN ftree_sw_t * p_sw)
+				      IN ftree_sw_t * p_sw,
+				      IN unsigned int subtree)
 {
 	uint8_t i;
 	ftree_tuple_t new_tuple;
 
+	if (p_ftree->leaf_switch_rank >= FTREE_TUPLE_LEN)
+		return;
+
 	tuple_init(new_tuple);
 	new_tuple[0] = (uint8_t) p_sw->rank;
-	for (i = 1; i <= p_sw->rank; i++)
+
+	for (i = 1; i <= p_ftree->leaf_switch_rank; i++)
 		new_tuple[i] = 0;
 
+	if (p_sw->rank == 0) {
+		if (p_ftree->leaf_switch_rank > 1)
+			new_tuple[p_ftree->leaf_switch_rank] = subtree;
+
+		for (i = 0; i < 0xFF; i++) {
+			new_tuple[1] = i;
+			if (fabric_get_sw_by_tuple(p_ftree, new_tuple) == NULL)
+				break;
+		}
+		if (i == 0xFF) {
+			/* new tuple not found - there are more than 255 ports in one direction */
+			return;
+		}
+	}
 	fabric_assign_tuple(p_ftree, p_sw, new_tuple);
 }
 
@@ -1479,46 +1504,17 @@ Exit:
 }				/* fabric_mark_leaf_switches() */
 
 /***************************************************/
-
-static void fabric_make_indexing(IN ftree_fabric_t * p_ftree)
+static void bfs_fabric_indexing(IN ftree_fabric_t * p_ftree,
+				IN ftree_sw_t *p_first_sw)
 {
 	ftree_sw_t *p_remote_sw;
 	ftree_sw_t *p_sw = NULL;
-	ftree_sw_t *p_next_sw;
 	ftree_tuple_t new_tuple;
 	uint32_t i;
 	cl_list_t bfs_list;
 
 	OSM_LOG_ENTER(&p_ftree->p_osm->log);
-
-	OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_VERBOSE,
-		"Starting FatTree indexing\n");
-
-	/* using the first leaf switch as a starting point for indexing algorithm. */
-	p_next_sw = (ftree_sw_t *) cl_qmap_head(&p_ftree->sw_tbl);
-	while (p_next_sw != (ftree_sw_t *) cl_qmap_end(&p_ftree->sw_tbl)) {
-		p_sw = p_next_sw;
-		if (p_sw->is_leaf)
-			break;
-		p_next_sw = (ftree_sw_t *) cl_qmap_next(&p_sw->map_item);
-	}
-
-	CL_ASSERT(p_next_sw != (ftree_sw_t *) cl_qmap_end(&p_ftree->sw_tbl));
-
-	/* Assign the first tuple to the switch that is used as BFS starting point.
-	   The tuple will be as follows: [rank].0.0.0...
-	   This fuction also adds the switch it into the switch_by_tuple table. */
-	fabric_assign_first_tuple(p_ftree, p_sw);
-
-	OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_VERBOSE,
-		"Indexing starting point:\n"
-		"                                            - Switch rank  : %u\n"
-		"                                            - Switch index : %s\n"
-		"                                            - Node LID     : %u\n"
-		"                                            - Node GUID    : 0x%016"
-		PRIx64 "\n", p_sw->rank, tuple_to_str(p_sw->tuple),
-		p_sw->lid, sw_get_guid_ho(p_sw));
-
+	cl_list_init(&bfs_list, cl_qmap_count(&p_ftree->sw_tbl));
 	/*
 	 * Now run BFS and assign indexes to all switches
 	 * Pseudo code of the algorithm is as follows:
@@ -1533,8 +1529,7 @@ static void fabric_make_indexing(IN ftree_fabric_t * p_ftree)
 	 *          + Add remote switch to the BFS queue
 	 */
 
-	cl_list_init(&bfs_list, cl_qmap_count(&p_ftree->sw_tbl));
-	cl_list_insert_tail(&bfs_list, p_sw);
+	cl_list_insert_tail(&bfs_list, p_first_sw);
 
 	while (!cl_is_list_empty(&bfs_list)) {
 		p_sw = (ftree_sw_t *) cl_list_remove_head(&bfs_list);
@@ -1584,9 +1579,10 @@ static void fabric_make_indexing(IN ftree_fabric_t * p_ftree)
 		}
 
 		/* Done indexing switches from ports that go down.
-		   Now do the same with ports that are pointing up. */
+		   Now do the same with ports that are pointing up.
+		   if we started from root (rank == 0), the leaf is bsf termination point */
 
-		if (p_sw->rank != 0) {
+		if (p_sw->rank != 0 && (p_first_sw->rank != 0 || !p_sw->is_leaf)) {
 			/* This is not the root switch, which means that all the ports
 			   that are pointing up are taking us to another switches. */
 			for (i = 0; i < p_sw->up_port_groups_num; i++) {
@@ -1621,8 +1617,65 @@ static void fabric_make_indexing(IN ftree_fabric_t * p_ftree)
 	cl_list_destroy(&bfs_list);
 
 	OSM_LOG_EXIT(&p_ftree->p_osm->log);
-}				/* fabric_make_indexing() */
+}
 
+static void fabric_make_indexing(IN ftree_fabric_t * p_ftree)
+{
+	ftree_sw_t *p_sw = NULL;
+	unsigned int subtree = 0;
+	OSM_LOG_ENTER(&p_ftree->p_osm->log);
+
+	OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_VERBOSE,
+		"Starting FatTree indexing\n");
+
+	/* using the first switch as a starting point for indexing algorithm. */
+	for (p_sw = (ftree_sw_t *) cl_qmap_head(&p_ftree->sw_tbl);
+	     p_sw != (ftree_sw_t *) cl_qmap_end(&p_ftree->sw_tbl);
+	     p_sw = (ftree_sw_t *) cl_qmap_next(&p_sw->map_item)) {
+		if (ftree_get_subnet(p_ftree)->opt.quasi_ftree_indexing) {
+			/* find first root switch */
+			if (p_sw->rank != 0)
+				continue;
+		} else {
+			/* find first leaf switch */
+			if (!p_sw->is_leaf)
+				continue;
+		}
+		/* Assign the first tuple to the switch that is used as BFS starting point
+		   in the subtree.
+		   The tuple will be as follows: [rank].0...0.subtree
+		   This fuction also adds the switch it into the switch_by_tuple table. */
+		if (!tuple_assigned(p_sw->tuple)) {
+			fabric_assign_first_tuple(p_ftree, p_sw, subtree++);
+			OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_VERBOSE,
+			"Indexing starting point:\n"
+			"                                            - Switch rank  : %u\n"
+			"                                            - Switch index : %s\n"
+			"                                            - Node LID     : %u\n"
+			"                                            - Node GUID    : 0x%016"
+			PRIx64 "\n", p_sw->rank, tuple_to_str(p_sw->tuple),
+			p_sw->lid, sw_get_guid_ho(p_sw));
+		}
+
+		bfs_fabric_indexing(p_ftree, p_sw);
+
+		if (ftree_get_subnet(p_ftree)->opt.quasi_ftree_indexing == FALSE)
+			goto Exit;
+	}
+	p_sw = (ftree_sw_t *) cl_qmap_head(&p_ftree->sw_tbl);
+	while (p_sw != (ftree_sw_t *) cl_qmap_end(&p_ftree->sw_tbl)) {
+		if (p_sw->is_leaf) {
+			qsort(p_sw->up_port_groups,	/* array */
+			      p_sw->up_port_groups_num,	/* number of elements */
+			      sizeof(ftree_port_group_t *),	/* size of each element */
+			      compare_port_groups_by_remote_switch_index);	/* comparator */
+		}
+		p_sw = (ftree_sw_t *) cl_qmap_next(&p_sw->map_item);
+
+	}
+Exit:
+	OSM_LOG_EXIT(&p_ftree->p_osm->log);
+}				/* fabric_make_indexing() */
 /***************************************************/
 
 static int fabric_create_leaf_switch_array(IN ftree_fabric_t * p_ftree)
@@ -2812,6 +2865,7 @@ static void fabric_route_to_cns(IN ftree_fabric_t * p_ftree)
 			     p_ftree->max_cn_per_leaf - routed_targets_on_leaf;
 			     j++) {
 				ftree_sw_t *p_next_sw, *p_ftree_sw;
+				sw_set_hops(p_sw, 0, 0xFF, 1, FALSE);
 				/* assign downgoing ports by stepping up */
 				fabric_route_downgoing_by_going_up(p_ftree, p_sw,	/* local switch - used as a route-downgoing alg. start point */
 								   NULL,	/* prev. position switch */
@@ -4254,6 +4308,7 @@ int osm_ucast_ftree_setup(struct osm_routing_engine *r, osm_opensm_t * p_osm)
 		return -1;
 
 	p_ftree->p_osm = p_osm;
+	p_ftree->p_subn = p_osm->sm.ucast_mgr.p_subn;
 
 	r->context = (void *)p_ftree;
 	r->build_lid_matrices = construct_fabric;
