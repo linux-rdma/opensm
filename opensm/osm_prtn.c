@@ -151,7 +151,9 @@ ib_api_status_t osm_prtn_add_port(osm_log_t * p_log, osm_subn_t * p_subn,
 			cl_ntoh16(p->pkey), cl_ntoh64(guid));
 		osm_pkey_tbl_set_indx0_pkey(p_log, p->pkey, full,
 					    &p_physp->pkeys);
-	}
+	} else if (ib_pkey_get_base(p_physp->pkeys.indx0_pkey) ==
+		   ib_pkey_get_base(p->pkey))
+		p_physp->pkeys.indx0_pkey = 0;
 
 	p_tbl = (full == TRUE) ? &p->full_guid_tbl : &p->part_guid_tbl;
 

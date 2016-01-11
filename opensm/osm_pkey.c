@@ -579,17 +579,8 @@ void osm_pkey_tbl_set_indx0_pkey(IN osm_log_t * p_log, IN ib_net16_t pkey,
 				 IN boolean_t full,
 				 OUT osm_pkey_tbl_t * p_pkey_tbl)
 {
-	if (p_pkey_tbl->indx0_pkey) {
-		if (ib_pkey_get_base(p_pkey_tbl->indx0_pkey) !=
-		    ib_pkey_get_base(pkey))
-			OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 7800: "
-				"pkey already in indx0, ignoring "
-				"indx0 argument for pkey 0x%04x\n",
-				cl_ntoh16(pkey));
-	} else {
-		p_pkey_tbl->indx0_pkey = (full == TRUE) ?
-					 pkey | cl_hton16(0x8000) : pkey;
-		OSM_LOG(p_log, OSM_LOG_DEBUG, "pkey 0x%04x set at indx0\n",
-			cl_ntoh16(p_pkey_tbl->indx0_pkey));
-	}
+	p_pkey_tbl->indx0_pkey = (full == TRUE) ?
+				 pkey | cl_hton16(0x8000) : pkey;
+	OSM_LOG(p_log, OSM_LOG_DEBUG, "pkey 0x%04x set at indx0\n",
+		cl_ntoh16(p_pkey_tbl->indx0_pkey));
 }
