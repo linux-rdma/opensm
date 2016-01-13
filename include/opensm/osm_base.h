@@ -918,6 +918,17 @@ typedef enum _osm_thread_state {
  */
 #define OSM_CAP2_IS_PORT_INFO_CAPMASK2_MATCH_SUPPORTED (1 << 10)
 
+/****d* OpenSM: Base/OSM_CAP2_IS_SEND_ONLY_FULL_MEMBER_SUPPORTED
+ * Name
+ *	OSM_CAP2_IS_SEND_ONLY_FULL_MEMBER_SUPPORTED
+ *
+ * DESCRIPTION
+ *	Send only full member multicast join supported
+ *
+ * SYNOPSIS
+ */
+#define OSM_CAP2_IS_SEND_ONLY_FULL_MEMBER_SUPPORTED (1 << 12)
+
 /****d* OpenSM: Base/OSM_CAP2_IS_LINK_WIDTH_2X_SUPPORTED
  * Name
  *	OSM_CAP2_IS_LINK_WIDTH_2X_SUPPORTED

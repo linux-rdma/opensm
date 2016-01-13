@@ -2160,6 +2160,7 @@ ib_get_port_state_from_str(IN char *p_port_state_str)
 #define IB_JOIN_STATE_FULL		1
 #define IB_JOIN_STATE_NON		2
 #define IB_JOIN_STATE_SEND_ONLY		4
+#define IB_JOIN_STATE_SEND_ONLY_FULL	8
 /**********/
 
 /****f* IBA Base: Types/ib_pkey_get_base
@@ -7846,6 +7847,7 @@ ib_member_set_join_state(IN OUT ib_member_rec_t * p_mc_rec,
 #define IB_MC_REC_STATE_FULL_MEMBER 0x01
 #define IB_MC_REC_STATE_NON_MEMBER 0x02
 #define IB_MC_REC_STATE_SEND_ONLY_NON_MEMBER 0x04
+#define IB_MC_REC_STATE_SEND_ONLY_FULL_MEMBER 0x08
 
 /*
  *	Generic MAD notice types

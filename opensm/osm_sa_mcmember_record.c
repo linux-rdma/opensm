@@ -1237,12 +1237,13 @@ static void mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 	p_mgrp = osm_get_mgrp_by_mgid(sa->p_subn, &p_recvd_mcmember_rec->mgid);
 	if (!p_mgrp) {
 		/* check for JoinState.FullMember = 1 o15.0.1.9 */
-		if ((join_state & 0x01) != 0x01) {
+		if (!(join_state & (IB_JOIN_STATE_FULL | IB_JOIN_STATE_SEND_ONLY_FULL))) {
 			char gid_str[INET6_ADDRSTRLEN];
 			CL_PLOCK_RELEASE(sa->p_lock);
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B10: "
 				"Failed to create multicast group "
-				"because Join State != FullMember, "
+				"because Join State != FullMember | SendOnlyFullMember"
+				" - required for create, "
 				"MGID: %s from port 0x%016" PRIx64 " (%s)\n",
 				inet_ntop(AF_INET6,
 					  p_recvd_mcmember_rec->mgid.raw,

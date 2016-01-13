@@ -276,7 +276,7 @@ osm_mcm_port_t *osm_mgrp_add_port(IN osm_subn_t * subn, osm_log_t * log,
 	osm_mcm_alias_guid_t *p_mcm_alias_guid, *p_mcm_alias_guid_check;
 	cl_map_item_t *prev_item;
 	uint8_t prev_join_state = 0, join_state = mcmr->scope_state;
-	uint8_t prev_scope;
+	uint8_t prev_scope, full_join_state;
 
 	if (OSM_LOG_IS_ACTIVE_V2(log, OSM_LOG_VERBOSE)) {
 		char gid_str[INET6_ADDRSTRLEN];
@@ -333,8 +333,8 @@ osm_mcm_port_t *osm_mgrp_add_port(IN osm_subn_t * subn, osm_log_t * log,
 	/* o15.0.1.11: copy the join state */
 	mcmr->scope_state = p_mcm_alias_guid->scope_state;
 
-	if ((join_state & IB_JOIN_STATE_FULL) &&
-	    !(prev_join_state & IB_JOIN_STATE_FULL) &&
+	full_join_state = IB_JOIN_STATE_FULL | IB_JOIN_STATE_SEND_ONLY_FULL;
+	if ((join_state & full_join_state) && !(prev_join_state & full_join_state) &&
 	    ++mgrp->full_members == 1)
 		mgrp_send_notice(subn, log, mgrp, SM_MGID_CREATED_TRAP); /* 66 */
 
@@ -347,7 +347,7 @@ boolean_t osm_mgrp_remove_port(osm_subn_t * subn, osm_log_t * log, osm_mgrp_t * 
 			  ib_member_rec_t *mcmr)
 {
 	uint8_t join_state = mcmr->scope_state & 0xf;
-	uint8_t port_join_state, new_join_state;
+	uint8_t port_join_state, new_join_state, full_join_state;
 	boolean_t mgrp_deleted = FALSE;
 
 	/*
@@ -404,10 +404,11 @@ boolean_t osm_mgrp_remove_port(osm_subn_t * subn, osm_log_t * log, osm_mgrp_t * 
 		osm_mcm_alias_guid_delete(&mcm_alias_guid);
 	}
 
+	full_join_state = IB_JOIN_STATE_FULL | IB_JOIN_STATE_SEND_ONLY_FULL;
+
 	/* no more full members so the group will be deleted after re-route
 	   but only if it is not a well known group */
-	if ((port_join_state & IB_JOIN_STATE_FULL) &&
-	    !(new_join_state & IB_JOIN_STATE_FULL) &&
+	if ((port_join_state & full_join_state) && !(new_join_state & full_join_state) &&
 	    --mgrp->full_members == 0) {
 		mgrp_send_notice(subn, log, mgrp, SM_MGID_DESTROYED_TRAP); /* 67 */
 		osm_mgrp_cleanup(subn, mgrp);
