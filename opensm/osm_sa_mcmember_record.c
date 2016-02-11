@@ -87,7 +87,8 @@
 
 static int validate_other_comp_fields(osm_log_t * p_log, ib_net64_t comp_mask,
 				      const ib_member_rec_t * p_mcmr,
-				      osm_mgrp_t * p_mgrp);
+				      osm_mgrp_t * p_mgrp,
+				      osm_log_level_t log_level);
 
 /*********************************************************************
  Copy certain fields between two mcmember records
@@ -875,7 +876,7 @@ static ib_api_status_t mcmr_rcv_create_new_mgrp(IN osm_sa_t * sa,
 						status = IB_SA_MAD_STATUS_REQ_INVALID;
 						goto Exit;
 					}
-					if (!validate_other_comp_fields(sa->p_log, comp_mask, p_recvd_mcmember_rec, bcast_mgrp)) {
+					if (!validate_other_comp_fields(sa->p_log, comp_mask, p_recvd_mcmember_rec, bcast_mgrp, OSM_LOG_ERROR)) {
 						OSM_LOG(sa->p_log, OSM_LOG_ERROR,
 							"ERR 1B1C: validate_other_comp_fields failed for MGID: %s, sending IB_SA_MAD_STATUS_REQ_INVALID\n",
 							inet_ntop(AF_INET6, &p_recvd_mcmember_rec->mgid, gid_str, sizeof gid_str));
@@ -1046,13 +1047,14 @@ Exit:
 
 static int validate_other_comp_fields(osm_log_t * p_log, ib_net64_t comp_mask,
 				      const ib_member_rec_t * p_mcmr,
-				      osm_mgrp_t * p_mgrp)
+				      osm_mgrp_t * p_mgrp,
+				      osm_log_level_t log_level)
 {
 	int ret = 0;
 
 	if ((IB_MCR_COMPMASK_QKEY & comp_mask) &&
 	    p_mcmr->qkey != p_mgrp->mcmember_rec.qkey) {
-		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 1B30: "
+		OSM_LOG(p_log, log_level, "ERR 1B30: "
 			"Q_Key mismatch: query 0x%x group 0x%x\n",
 			cl_ntoh32(p_mcmr->qkey),
 			cl_ntoh32(p_mgrp->mcmember_rec.qkey));
@@ -1062,7 +1064,7 @@ static int validate_other_comp_fields(osm_log_t * p_log, ib_net64_t comp_mask,
 	if (IB_MCR_COMPMASK_PKEY & comp_mask) {
 		if (!(ib_pkey_is_full_member(p_mcmr->pkey) ||
 		      ib_pkey_is_full_member(p_mgrp->mcmember_rec.pkey))) {
-			OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 1B31: "
+			OSM_LOG(p_log, log_level, "ERR 1B31: "
 				"Both limited P_Keys: query 0x%x group 0x%x\n",
 				cl_ntoh16(p_mcmr->pkey),
 				cl_ntoh16(p_mgrp->mcmember_rec.pkey));
@@ -1070,7 +1072,7 @@ static int validate_other_comp_fields(osm_log_t * p_log, ib_net64_t comp_mask,
 		}
 		if (ib_pkey_get_base(p_mcmr->pkey) !=
 		    ib_pkey_get_base(p_mgrp->mcmember_rec.pkey)) {
-			OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 1B32: "
+			OSM_LOG(p_log, log_level, "ERR 1B32: "
 				"P_Key base mismatch: query 0x%x group 0x%x\n",
 				cl_ntoh16(p_mcmr->pkey),
 				cl_ntoh16(p_mgrp->mcmember_rec.pkey));
@@ -1080,7 +1082,7 @@ static int validate_other_comp_fields(osm_log_t * p_log, ib_net64_t comp_mask,
 
 	if ((IB_MCR_COMPMASK_TCLASS & comp_mask) &&
 	    p_mcmr->tclass != p_mgrp->mcmember_rec.tclass) {
-		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 1B33: "
+		OSM_LOG(p_log, log_level, "ERR 1B33: "
 			"TClass mismatch: query %d group %d\n",
 			p_mcmr->tclass, p_mgrp->mcmember_rec.tclass);
 		goto Exit;
@@ -1099,7 +1101,7 @@ static int validate_other_comp_fields(osm_log_t * p_log, ib_net64_t comp_mask,
 					  &mgrp_sl, &mgrp_flow, &mgrp_hop);
 
 		if ((IB_MCR_COMPMASK_SL & comp_mask) && query_sl != mgrp_sl) {
-			OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 1B34: "
+			OSM_LOG(p_log, log_level, "ERR 1B34: "
 				"SL mismatch: query %d group %d\n",
 				query_sl, mgrp_sl);
 			goto Exit;
@@ -1107,14 +1109,14 @@ static int validate_other_comp_fields(osm_log_t * p_log, ib_net64_t comp_mask,
 
 		if ((IB_MCR_COMPMASK_FLOW & comp_mask) &&
 		    query_flow != mgrp_flow) {
-			OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 1B35: "
+			OSM_LOG(p_log, log_level, "ERR 1B35: "
 				"FlowLabel mismatch: query 0x%x group 0x%x\n",
 				query_flow, mgrp_flow);
 			goto Exit;
 		}
 
 		if ((IB_MCR_COMPMASK_HOP & comp_mask) && query_hop != mgrp_hop) {
-			OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 1B36: "
+			OSM_LOG(p_log, log_level, "ERR 1B36: "
 				"Hop mismatch: query %d group %d\n",
 				query_hop, mgrp_hop);
 			goto Exit;
@@ -1288,7 +1290,8 @@ static void mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 		is_new_group = 0;
 		if (sa->p_subn->opt.mcgroup_join_validation &&
 		    !validate_other_comp_fields(sa->p_log, p_sa_mad->comp_mask,
-						p_recvd_mcmember_rec, p_mgrp)) {
+						p_recvd_mcmember_rec, p_mgrp,
+						OSM_LOG_ERROR)) {
 			char gid_str[INET6_ADDRSTRLEN];
 			CL_PLOCK_RELEASE(sa->p_lock);
 			OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B1A: "
@@ -1484,7 +1487,8 @@ static void mcmr_by_comp_mask(osm_sa_t * sa, const ib_member_rec_t * p_rcvd_rec,
 		goto Exit;
 
 	/* now do the rest of the match */
-	if (!validate_other_comp_fields(sa->p_log, comp_mask, p_rcvd_rec, p_mgrp))
+	if (!validate_other_comp_fields(sa->p_log, comp_mask, p_rcvd_rec, p_mgrp,
+					OSM_LOG_NONE))
 		goto Exit;
 
 	if ((IB_MCR_COMPMASK_PROXY & comp_mask) &&
