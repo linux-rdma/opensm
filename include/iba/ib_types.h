@@ -1832,7 +1832,7 @@ static inline boolean_t OSM_API ib_class_is_rmpp(IN const uint8_t class_code)
 
 /****d* IBA Base: Constants/IB_MULTIPATH_REC_SL_MASK
 * NAME
-*	IB_MILTIPATH_REC_SL_MASK
+*	IB_MULTIPATH_REC_SL_MASK
 *
 * DESCRIPTION
 *	Mask for the sl field for MultiPath record
