@@ -192,7 +192,7 @@ violate "pure" deadlock free algorithm, so use it carefully.
 .TP
 \fB\-M\fR, \fB\-\-lid_matrix_file\fR <file name>
 This option specifies the name of the lid matrix dump file
-from where switch lid matrices (min hops tables will be
+from where switch lid matrices (min hops tables) will be
 loaded.
 .TP
 \fB\-U\fR, \fB\-\-lfts_file\fR <file name>
