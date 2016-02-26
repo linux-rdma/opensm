@@ -694,7 +694,7 @@ a branch that crosses a dateline.  However, again this cannot contribute
 to credit loops as it occurs on a 1D ring (the ring for x=3) that is
 broken by a failure, as in the above example.
 
-Torus Topolgy Discovery:
+Torus Topology Discovery:
 
 The algorithm used by torus-2QoS to construct the torus topology from the
 undirected graph representing the fabric requires that the radix of each
