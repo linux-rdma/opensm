@@ -72,7 +72,7 @@ BEGIN_C_DECLS
 * DESCRIPTION
 *	The following constants are used throughout the IBA code base.
 *
-*	Definitions are from the InfiniBand Architecture Specification v1.2
+*	Definitions are from the InfiniBand Architecture Specification v1.3.1
 *
 *********/
 /****d* IBA Base: Constants/MAD_BLOCK_SIZE
