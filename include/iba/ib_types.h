@@ -152,8 +152,8 @@ BEGIN_C_DECLS
 */
 #define IB_QP1_WELL_KNOWN_Q_KEY				CL_HTON32(0x80010000)
 /*********/
-#define IB_QP0								0
-#define IB_QP1								CL_HTON32(1)
+#define IB_QP0						0
+#define IB_QP1						CL_HTON32(1)
 #define IB_QP_PRIVILEGED_Q_KEY				CL_HTON32(0x80000000)
 /****d* IBA Base: Constants/IB_LID_UCAST_START
 * NAME
@@ -165,7 +165,7 @@ BEGIN_C_DECLS
 * SOURCE
 */
 #define IB_LID_UCAST_START_HO				0x0001
-#define IB_LID_UCAST_START					(CL_HTON16(IB_LID_UCAST_START_HO))
+#define IB_LID_UCAST_START				(CL_HTON16(IB_LID_UCAST_START_HO))
 /**********/
 /****d* IBA Base: Constants/IB_LID_UCAST_END
 * NAME
@@ -176,8 +176,8 @@ BEGIN_C_DECLS
 *
 * SOURCE
 */
-#define IB_LID_UCAST_END_HO					0xBFFF
-#define IB_LID_UCAST_END					(CL_HTON16(IB_LID_UCAST_END_HO))
+#define IB_LID_UCAST_END_HO				0xBFFF
+#define IB_LID_UCAST_END				(CL_HTON16(IB_LID_UCAST_END_HO))
 /**********/
 /****d* IBA Base: Constants/IB_LID_MCAST_START
 * NAME
@@ -189,7 +189,7 @@ BEGIN_C_DECLS
 * SOURCE
 */
 #define IB_LID_MCAST_START_HO				0xC000
-#define IB_LID_MCAST_START					(CL_HTON16(IB_LID_MCAST_START_HO))
+#define IB_LID_MCAST_START				(CL_HTON16(IB_LID_MCAST_START_HO))
 /**********/
 /****d* IBA Base: Constants/IB_LID_MCAST_END
 * NAME
@@ -200,8 +200,8 @@ BEGIN_C_DECLS
 *
 * SOURCE
 */
-#define IB_LID_MCAST_END_HO					0xFFFE
-#define IB_LID_MCAST_END					(CL_HTON16(IB_LID_MCAST_END_HO))
+#define IB_LID_MCAST_END_HO				0xFFFE
+#define IB_LID_MCAST_END				(CL_HTON16(IB_LID_MCAST_END_HO))
 /**********/
 /****d* IBA Base: Constants/IB_DEFAULT_SUBNET_PREFIX
 * NAME
@@ -234,7 +234,7 @@ BEGIN_C_DECLS
 *
 * SOURCE
 */
-#define IB_INVALID_PORT_NUM					0xFF
+#define IB_INVALID_PORT_NUM				0xFF
 /*********/
 /****d* IBA Base: Constants/IB_SUBNET_PATH_HOPS_MAX
 * NAME
@@ -279,7 +279,7 @@ BEGIN_C_DECLS
 *
 * SOURCE
 */
-#define IB_PKEY_MAX_BLOCKS					2048
+#define IB_PKEY_MAX_BLOCKS				2048
 /*********/
 /****d* IBA Base: Constants/IB_MCAST_MAX_BLOCK_ID
 * NAME
@@ -312,7 +312,7 @@ BEGIN_C_DECLS
 *
 * SOURCE
 */
-#define IB_MCAST_BLOCK_SIZE					32
+#define IB_MCAST_BLOCK_SIZE				32
 /*********/
 /****d* IBA Base: Constants/IB_MCAST_MASK_SIZE
 * NAME
@@ -323,7 +323,7 @@ BEGIN_C_DECLS
 *
 * SOURCE
 */
-#define IB_MCAST_MASK_SIZE					16
+#define IB_MCAST_MASK_SIZE				16
 /*********/
 /****d* IBA Base: Constants/IB_MCAST_POSITION_MASK_HO
 * NAME
@@ -334,7 +334,7 @@ BEGIN_C_DECLS
 *
 * SOURCE
 */
-#define IB_MCAST_POSITION_MASK_HO				0xF0000000
+#define IB_MCAST_POSITION_MASK_HO			0xF0000000
 /*********/
 /****d* IBA Base: Constants/IB_MCAST_POSITION_MAX
 * NAME
@@ -378,7 +378,7 @@ BEGIN_C_DECLS
 *
 * SOURCE
 */
-#define IB_PKEY_BASE_MASK					(CL_HTON16(0x7FFF))
+#define IB_PKEY_BASE_MASK				(CL_HTON16(0x7FFF))
 /*********/
 /****d* IBA Base: Constants/IB_PKEY_TYPE_MASK
 * NAME
@@ -389,7 +389,7 @@ BEGIN_C_DECLS
 *
 * SOURCE
 */
-#define IB_PKEY_TYPE_MASK					(CL_HTON16(0x8000))
+#define IB_PKEY_TYPE_MASK				(CL_HTON16(0x8000))
 /*********/
 /****d* IBA Base: Constants/IB_DEFAULT_PARTIAL_PKEY
 * NAME
@@ -400,7 +400,7 @@ BEGIN_C_DECLS
 *
 * SOURCE
 */
-#define IB_DEFAULT_PARTIAL_PKEY				       (CL_HTON16(0x7FFF))
+#define IB_DEFAULT_PARTIAL_PKEY				(CL_HTON16(0x7FFF))
 /**********/
 /****d* IBA Base: Constants/IB_MCLASS_SUBN_LID
 * NAME
@@ -411,7 +411,7 @@ BEGIN_C_DECLS
 *
 * SOURCE
 */
-#define IB_MCLASS_SUBN_LID					0x01
+#define IB_MCLASS_SUBN_LID				0x01
 /**********/
 /****d* IBA Base: Constants/IB_MCLASS_SUBN_DIR
 * NAME
@@ -422,7 +422,7 @@ BEGIN_C_DECLS
 *
 * SOURCE
 */
-#define IB_MCLASS_SUBN_DIR					0x81
+#define IB_MCLASS_SUBN_DIR				0x81
 /**********/
 /****d* IBA Base: Constants/IB_MCLASS_SUBN_ADM
 * NAME
@@ -433,7 +433,7 @@ BEGIN_C_DECLS
 *
 * SOURCE
 */
-#define IB_MCLASS_SUBN_ADM					0x03
+#define IB_MCLASS_SUBN_ADM				0x03
 /**********/
 /****d* IBA Base: Constants/IB_MCLASS_PERF
 * NAME
@@ -444,7 +444,7 @@ BEGIN_C_DECLS
 *
 * SOURCE
 */
-#define IB_MCLASS_PERF						0x04
+#define IB_MCLASS_PERF					0x04
 /**********/
 /****d* IBA Base: Constants/IB_MCLASS_BM
 * NAME
@@ -455,7 +455,7 @@ BEGIN_C_DECLS
 *
 * SOURCE
 */
-#define IB_MCLASS_BM						0x05
+#define IB_MCLASS_BM					0x05
 /**********/
 /****d* IBA Base: Constants/IB_MCLASS_DEV_MGMT
 * NAME
@@ -466,7 +466,7 @@ BEGIN_C_DECLS
 *
 * SOURCE
 */
-#define IB_MCLASS_DEV_MGMT					0x06
+#define IB_MCLASS_DEV_MGMT				0x06
 /**********/
 /****d* IBA Base: Constants/IB_MCLASS_COMM_MGMT
 * NAME
@@ -477,7 +477,7 @@ BEGIN_C_DECLS
 *
 * SOURCE
 */
-#define IB_MCLASS_COMM_MGMT					0x07
+#define IB_MCLASS_COMM_MGMT				0x07
 /**********/
 /****d* IBA Base: Constants/IB_MCLASS_SNMP
 * NAME
@@ -488,7 +488,7 @@ BEGIN_C_DECLS
 *
 * SOURCE
 */
-#define IB_MCLASS_SNMP						0x08
+#define IB_MCLASS_SNMP					0x08
 /**********/
 /****d* IBA Base: Constants/IB_MCLASS_VENDOR_LOW_RANGE_MIN
 * NAME
@@ -499,7 +499,7 @@ BEGIN_C_DECLS
 *
 * SOURCE
 */
-#define IB_MCLASS_VENDOR_LOW_RANGE_MIN 0x09
+#define IB_MCLASS_VENDOR_LOW_RANGE_MIN			0x09
 /**********/
 /****d* IBA Base: Constants/IB_MCLASS_VENDOR_LOW_RANGE_MAX
 * NAME
@@ -510,7 +510,7 @@ BEGIN_C_DECLS
 *
 * SOURCE
 */
-#define IB_MCLASS_VENDOR_LOW_RANGE_MAX 0x0f
+#define IB_MCLASS_VENDOR_LOW_RANGE_MAX			0x0F
 /**********/
 /****d* IBA Base: Constants/IB_MCLASS_DEV_ADM
 * NAME
@@ -521,7 +521,7 @@ BEGIN_C_DECLS
 *
 * SOURCE
 */
-#define IB_MCLASS_DEV_ADM 0x10
+#define IB_MCLASS_DEV_ADM				0x10
 /**********/
 /****d* IBA Base: Constants/IB_MCLASS_BIS
 * NAME
@@ -532,7 +532,7 @@ BEGIN_C_DECLS
 *
 * SOURCE
 */
-#define IB_MCLASS_BIS 0x12
+#define IB_MCLASS_BIS					0x12
 /**********/
 /****d* IBA Base: Constants/IB_MCLASS_CC
 * NAME
@@ -543,7 +543,7 @@ BEGIN_C_DECLS
 *
 * SOURCE
 */
-#define IB_MCLASS_CC 0x21
+#define IB_MCLASS_CC					0x21
 /**********/
 /****d* IBA Base: Constants/IB_MCLASS_VENDOR_HIGH_RANGE_MIN
 * NAME
@@ -554,7 +554,7 @@ BEGIN_C_DECLS
 *
 * SOURCE
 */
-#define IB_MCLASS_VENDOR_HIGH_RANGE_MIN 0x30
+#define IB_MCLASS_VENDOR_HIGH_RANGE_MIN			0x30
 /**********/
 /****d* IBA Base: Constants/IB_MCLASS_VENDOR_HIGH_RANGE_MAX
 * NAME
@@ -565,7 +565,7 @@ BEGIN_C_DECLS
 *
 * SOURCE
 */
-#define IB_MCLASS_VENDOR_HIGH_RANGE_MAX 0x4f
+#define IB_MCLASS_VENDOR_HIGH_RANGE_MAX			0x4F
 /**********/
 /****f* IBA Base: Types/ib_class_is_vendor_specific_low
 * NAME
