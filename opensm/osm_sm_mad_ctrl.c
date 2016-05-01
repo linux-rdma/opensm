@@ -750,7 +750,7 @@ static void sm_mad_ctrl_send_err_cb(IN void *context, IN osm_madw_t * p_madw)
 		p_ctrl->p_subn->subnet_initialization_error = TRUE;
 	} else if (p_madw->status == IB_TIMEOUT &&
 		   p_smp->method == IB_MAD_METHOD_GET) {
-		OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 3120 "
+		OSM_LOG(p_ctrl->p_log, OSM_LOG_ERROR, "ERR 3120: "
 			"Timeout while getting attribute 0x%X (%s); "
 			"Possible mis-set mkey?\n",
 			cl_ntoh16(p_smp->attr_id),
