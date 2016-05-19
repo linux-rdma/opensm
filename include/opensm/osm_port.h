@@ -1667,5 +1667,35 @@ static inline ib_net64_t osm_alias_guid_get_base_guid(IN osm_alias_guid_t *p_ali
 *	Port
 *********/
 
+/****f* OpenSM: Port/osm_port_clear_base_lid
+* NAME
+*	osm_port_clear_base_lid
+*
+* DESCRIPTION
+*	Clear the base lid of a given port.
+*
+* SYNOPSIS
+*/
+static inline void osm_port_clear_base_lid(OUT osm_port_t * p_port)
+{
+	CL_ASSERT(p_port);
+	p_port->lid = 0;
+	osm_physp_set_base_lid(p_port->p_physp, 0);
+}
+
+/*
+* PARAMETERS
+*	p_port
+*		[out] Pointer to a Port object.
+*
+* RETURN VALUE
+*	None
+*
+* NOTES
+*
+* SEE ALSO
+*	Port
+*********/
+
 END_C_DECLS
 #endif				/* _OSM_PORT_H_ */

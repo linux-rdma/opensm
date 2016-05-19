@@ -1188,7 +1188,6 @@ static void state_mgr_check_tbl_consistency(IN osm_sm_t * sm)
 				cl_ntoh64(osm_port_get_guid(p_port_stored)),
 				p_port_stored->p_node->print_desc,
 				p_port_stored->p_physp->port_num);
-			cl_ptr_vector_set(p_port_lid_tbl, lid, NULL);
 		} else if (p_port_stored == NULL)
 			/* There is an object in the new database, but no
 			 * object in our subnet database. This is the matching
@@ -1217,8 +1216,20 @@ static void state_mgr_check_tbl_consistency(IN osm_sm_t * sm)
 				cl_ntoh64(osm_port_get_guid(p_port_stored)),
 				p_port_stored->p_node->print_desc,
 				p_port_stored->p_physp->port_num);
+		}
+
+		/*
+		 * Clear the lid of the port in order to ignore it
+		 *  in routing phase
+		 */
+		if (p_port_stored) {
+			OSM_LOG(sm->p_log, OSM_LOG_INFO, "Clearing Lid for "
+				"port 0x%016" PRIx64 "\n",
+				cl_ntoh64(osm_port_get_guid(p_port_stored)));
+			osm_port_clear_base_lid(p_port_stored);
 			cl_ptr_vector_set(p_port_lid_tbl, lid, NULL);
 		}
+
 		/* Make sure we'll do another heavy sweep. */
 		sm->p_subn->subnet_initialization_error = TRUE;
 	}
