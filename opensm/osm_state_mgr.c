@@ -1178,9 +1178,8 @@ static void state_mgr_check_tbl_consistency(IN osm_sm_t * sm)
 			 * a certain port with some lid (different than the one
 			 * pre-assigned to it), and the port didn't get the
 			 * PortInfo Set request. Due to this, the port is
-			 * updated with its original lid in our database, but
-			 * with the new lid we wanted to give it in our
-			 * port_lid_tbl. */
+			 * updated with its original lid in our database
+			 * rather than the new lid we wanted to give it. */
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3322: "
 				"lid %zu is wrongly assigned to port 0x%016"
 				PRIx64 " (\'%s\' port %u) in port_lid_tbl\n",
