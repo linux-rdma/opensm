@@ -483,8 +483,10 @@ int osm_qos_setup(osm_opensm_t * p_osm)
 		p_next = cl_qmap_next(p_next);
 
 		p_list = (qos_mad_list_t *) malloc(sizeof(*p_list));
-		if (!p_list)
+		if (!p_list) {
+			cl_plock_release(&p_osm->lock);
 			return -1;
+		}
 
 		memset(p_list, 0, sizeof(*p_list));
 
@@ -493,8 +495,10 @@ int osm_qos_setup(osm_opensm_t * p_osm)
 		p_node = p_port->p_node;
 		if (p_node->sw) {
 			if (qos_extports_setup(&p_osm->sm, p_node, &swe_config,
-					       &p_list->port_mad_list))
+					       &p_list->port_mad_list)) {
+				cl_plock_release(&p_osm->lock);
 				ret = -1;
+			}
 
 			/* skip base port 0 */
 			if (!ib_switch_info_is_enhanced_port0
@@ -514,9 +518,10 @@ int osm_qos_setup(osm_opensm_t * p_osm)
 			cfg = &ca_config;
 
 		if (qos_endport_setup(&p_osm->sm, p_port->p_physp, cfg,
-				      vlarb_only, &p_list->port_mad_list))
-
+				      vlarb_only, &p_list->port_mad_list)) {
+			cl_plock_release(&p_osm->lock);
 			ret = -1;
+		}
 Continue:
 		/* if MAD list is not empty, add it to the global MAD list */
 		if (cl_qlist_count(&p_list->port_mad_list)) {

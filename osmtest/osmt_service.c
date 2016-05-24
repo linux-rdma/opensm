@@ -459,6 +459,8 @@ osmt_get_service_by_id_and_name(IN osmtest_t * const p_osmt,
 	ib_service_record_t svc_rec, *p_rec;
 	uint32_t num_recs = 0;
 	osmv_user_query_t user;
+	const uint16_t ERR_SIZE = 512;
+	char mad_stat_err[ERR_SIZE];
 
 	OSM_LOG_ENTER(&p_osmt->log);
 
@@ -517,17 +519,21 @@ osmt_get_service_by_id_and_name(IN osmtest_t * const p_osmt,
 	num_recs = context.result.result_cnt;
 
 	if (status != IB_SUCCESS) {
-		char mad_stat_err[256];
 
 		/* If the failure is due to IB_SA_MAD_STATUS_NO_RECORDS and rec_num is 0,
 		   then this is fine */
 		if (status == IB_REMOTE_ERROR)
-			strcpy(mad_stat_err,
-			       ib_get_mad_status_str(osm_madw_get_mad_ptr
-						     (context.result.
-						      p_result_madw)));
+			strncpy(mad_stat_err,
+			        ib_get_mad_status_str(osm_madw_get_mad_ptr
+						      (context.result.
+						       p_result_madw)),
+				ERR_SIZE -1);
 		else
-			strcpy(mad_stat_err, ib_get_err_str(status));
+			strncpy(mad_stat_err, ib_get_err_str(status),
+				ERR_SIZE -1);
+
+		mad_stat_err[ERR_SIZE -1] = '\0';
+
 		if (status == IB_REMOTE_ERROR &&
 		    !strcmp(mad_stat_err, "IB_SA_MAD_STATUS_NO_RECORDS") &&
 		    rec_num == 0) {
@@ -715,6 +721,8 @@ osmt_get_service_by_name_and_key(IN osmtest_t * const p_osmt,
 	ib_service_record_t svc_rec, *p_rec;
 	uint32_t num_recs = 0, i;
 	osmv_user_query_t user;
+	const uint16_t ERR_SIZE = 512;
+	char mad_stat_err[ERR_SIZE];
 
 	OSM_LOG_ENTER(&p_osmt->log);
 
@@ -778,17 +786,20 @@ osmt_get_service_by_name_and_key(IN osmtest_t * const p_osmt,
 	num_recs = context.result.result_cnt;
 
 	if (status != IB_SUCCESS) {
-		char mad_stat_err[256];
 
 		/* If the failure is due to IB_SA_MAD_STATUS_NO_RECORDS and rec_num is 0,
 		   then this is fine */
 		if (status == IB_REMOTE_ERROR)
-			strcpy(mad_stat_err,
-			       ib_get_mad_status_str(osm_madw_get_mad_ptr
-						     (context.result.
-						      p_result_madw)));
+			strncpy(mad_stat_err,
+			        ib_get_mad_status_str(osm_madw_get_mad_ptr
+						      (context.result.
+						      p_result_madw)),
+				ERR_SIZE -1);
 		else
-			strcpy(mad_stat_err, ib_get_err_str(status));
+			strncpy(mad_stat_err, ib_get_err_str(status),
+				ERR_SIZE -1);
+
+		mad_stat_err[ERR_SIZE -1] = '\0';
 
 		if (status == IB_REMOTE_ERROR &&
 		    !strcmp(mad_stat_err, "IB_SA_MAD_STATUS_NO_RECORDS") &&

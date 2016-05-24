@@ -477,7 +477,7 @@ static void port_group_dump(IN ftree_fabric_t * p_ftree,
 	ftree_port_t *p_port;
 	uint32_t size;
 	uint32_t i;
-	char buff[10 * 1024];
+	char *buff;
 
 	if (!p_group)
 		return;
@@ -486,7 +486,13 @@ static void port_group_dump(IN ftree_fabric_t * p_ftree,
 		return;
 
 	size = cl_ptr_vector_get_size(&p_group->ports);
-	buff[0] = '\0';
+
+	buff = calloc(10, 1024);
+	if (!buff) {
+		OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_ERROR, "ERR AB33: "
+			"Failed to allocate buffer\n");
+		return;
+	}
 
 	for (i = 0; i < size; i++) {
 		cl_ptr_vector_at(&p_group->ports, i, (void *)&p_port);
@@ -507,6 +513,8 @@ static void port_group_dump(IN ftree_fabric_t * p_ftree,
 		? "SIBLING" : "UP", cl_ntoh64(p_group->port_guid),
 		p_group->lid, cl_ntoh64(p_group->remote_port_guid),
 		p_group->remote_lid);
+
+	free(buff);
 
 }				/* port_group_dump() */
 
