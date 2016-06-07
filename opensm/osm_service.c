@@ -138,7 +138,7 @@ void osm_svcr_remove_from_db(IN osm_subn_t * p_subn, IN osm_log_t * p_log,
 	OSM_LOG(p_log, OSM_LOG_DEBUG,
 		"Removing Service Record Name:%s ID:0x%016" PRIx64
 		" from Database\n", p_svcr->service_record.service_name,
-		p_svcr->service_record.service_id);
+		cl_ntoh64(p_svcr->service_record.service_id));
 
 	cl_qlist_remove_item(&p_subn->sa_sr_list, &p_svcr->list_item);
 	p_subn->p_osm->sa.dirty = TRUE;
