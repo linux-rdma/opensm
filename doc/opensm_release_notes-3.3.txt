@@ -3,14 +3,14 @@
 
 Version: OpenSM 3.3.x
 Repo:    git://git.openfabrics.org/~halr/opensm.git
-Date:    December 2014
+Date:    June 2016
 
 1 Overview
 ----------
 This document describes the contents of the OpenSM 3.3 release.
 OpenSM is an InfiniBand compliant Subnet Manager and Administration,
 and runs on top of OpenIB. The OpenSM version for this release
-is opensm-3.3.19.
+is opensm-3.3.20.
 
 This document includes the following sections:
 1 This Overview section (describing new features and software
@@ -95,6 +95,16 @@ This document includes the following sections:
 
 1.2 Minor New Features:
 
+fbe5107 osm_subnet.c: Add support for Switch-IB2 in is_mlnx_ext_port_info_supported
+6eb8b96 ftree: Additional ftree indexing algorithm
+c1f7ffd Support configuration for index 0 in pkey table
+1b73efd osm_sa_mcmember_record.c: Conditionalize multicast join parameter
+validation on new mcgroup_join_validation option
+4cd7ec3 osm_sa_mcmember_record.c: Validate IPoIB non broadcast group
+parameters on group creation
+fd754d2 Support another new MLNX OUI
+66301d8 osm_subnet.c: Add more supported device IDs
+948e2b1 Add separate dispatcher for SA set and delete requests
 672de65 perfmgr: Add xmit_wait to event plugin error counters data structure
 d86e7e3 perfmgr: Add xmit_wait support
 7e6bdef opensm/man/opensm.8.in: Add section for MKey support
@@ -512,6 +522,74 @@ information regarding each compliance statement.
 
 4.1 Major Bug Fixes
 
+62ea61a osm_state_mgr.c: Fix bug in handling of PortInfo Set timeout
+34e81df Change precedence in pkey manager with indx0 feature
+aa905e2 osm_pkey.[h c], osm_prtn.c: Create method to set pkey at indx0
+8a696eb osm_base.h: Fix OSM_CAP2_IS_PORT_INFO_CAPMASK2_MATCH_SUPPORTED
+definition
+70a364f opensm/osm_pkey_mgr.c: Fix pkey index wraparound/reuse
+6e27bba osm_multicast.c: Dump sa after deleting well known mc group
+df212a6 osm_multicast.c: Fix not dumping empty predefined mc groups
+1007810 osm_sa_guidinfo_record.c: Fix memory leak in set_guidinfo
+6272a56 osm_ucast_dfsssp.c: In dfsssp_do_mcast_routing, update adj_list first
+44b4edc osm_ucast_mgr.c: LFT update breaks if IB_SMP_DATA_SIZE changes
+19dbb67 osm_ucast_dfsssp.c: Fix dangling pointer when dfsssp used with ucast
+cache
+76bd8cd osm_sa_mcmember_record.c: Add error logging for mismatches to
+validate_other_comp_fields
+122cad3 osm_sa_mcmember_record.c: When joining MC group and MC group already
+exists, validate other components if supplied
+909976d Add more checks for physp validity
+b37560b osm_mcast_mgr.c: Add check for physp validity to create_mgrp_switch_map
+e4e449e osm_ucast_ftree.c: Fix wrong is_io assignment to the second HCA port
+e9bbf44 osm_ucast_ftree.c: Fix wrong handling of dual port HCA
+ccab3b8 osm_ucast_ftree.c: ftree calculates wrong number of compute nodes per
+leaf
+06ae3ad osm_sa.c: Fix osm_db_file_dump
+f1ab545 osm_drop_mgr.c: Do not set SM port discovery count to 0 when switch
+remote port is nonresponsive
+cd12dcd osm_port_info_rcv.c: Fix calculation of minimum data VLs
+cb20b11 osm_ucast_ftree.c: Fail routing if max rank is 0 and more than one
+root
+c633e05 osm_ucast_ftree.c: Mark HCA ports connected to unranked switches
+f004819 osm_sa.c: Fix race condition when writing SA DB file
+a64de2e osm_prtn_config.c: Fix wrong pkey table calculation in
+allow_both_pkeys mode
+0b6d8ea osm_sa_mcmember_record.c: Validate port's neighbor_mtu when joining MC
+group
+80ca401 osm_sa_path_record.c: When both [D S] GID and LID are supplied,
+validate that underlying ports are the same
+1fa8089 osm_sa_path_record.c: Handle path query by DGID and SLID
+141293d osmtest/osmt_multicast.c: Fix MC join with unrealistic rate test
+f471571 osm_subnet.c: Remove support for changing allow_both_pkeys on the fly
+cd31ff6 osm_port_info_rcv.c: Sending MEPI(Get) to local switch ports on hop 0
+4c3d782 osm_state_mgr.c: Mark port as undiscovered when removed by drop_mgr
+a1c4bc2 osm_console.c: Fix display of negative counters in console
+a6c2bf8 Add cleanup of SA cache after handover
+075ff44 osm_mcast_tbl.c: Wrong assert placement in osm_mcast_tbl_get_block
+953b70d osm_opensm.c: Fix race condition between traps handling and SA
+shutdown
+5e50a3c osm_sa_mcmember_record.c: Extend P_Pkey validation on MCMemberRecord(Join)
+3fcb121 osm_subnet.c: Improved m_key_lookup description in generated conf file
+b4d20d7 osm_port_info_rcv.c: In pi_rcv_process_switch_port0, store port 0's
+PortInfo before querying switch external ports
+062d35d osm_port_info_rcv.c: In pi_rcv_process_switch_port0, determine mkey
+899664d osm_ucast_mgr.c: Support diverse paths for LMC > 0 when scatter_ports
+is enabled
+6dc0b80 osm_opensm.c: Call cl_disp_shutdown for SA SET dispatcher
+3199d34 osmeventplugin.c: Modify osm_event_plugin_t initialization
+94c2d74 Revert "osm_ucast_mgr.c: Force unicast routing to fail when lft
+allocations fail" patch
+1d205bc osm_ucast_mgr.c: Select exit ports for lid offset > 0 using new_lft
+2a32095 osm_ucast_cache.c: Rewrite p_sw->lft allocation in osm_ucast_cache_process
+e2ee83e Use routing engine calculated LFT for SA queries
+1413d64 osm_state_mgr.c: Remove new_lft buffers cleanup
+f2b96de osm_ucast_mgr.c: Force unicast routing to fail when lft allocations fail
+8ea4e06 osm_congestion_control.c: Reset cc_timeout_count when count threshold passed
+0b7c80c osm_congestion_control.c: Consistently set cc_unavailable_flag
+e590ebc osm_congestion_control.c: Add additional header status check in cc_rcv_mad
+f130d5a osm_subnet.c: Correct output error with congestion control table entries
+0a695ae osm_switch.c: Fix wrong assertion failed in osm_switch_get_lft_block()
 5077198 osm_perfmgr.c: Reset physp_discovered before discovery
 8d51ae5 osm_state_mgr.c: Avoid continuing discovery when SM port is
 unresponsive
@@ -715,6 +793,66 @@ f37bf3c opensm/perfmgr: skip data counters when only printing errors
 
 4.2 Other Bug Fixes
 
+bb15d2f osm_service.c: Fix missing endian conversion in log message
+c0e8141 Fix various coverity issues
+a0d9157 osm_subnet.c: Add guid_routing_order_no_scatter option to opensm.conf
+5d521c1 osm_state_mgr.c: Update comment in state_mgr_check_tbl_consistency
+ccefa3d osm_sm_mad_ctrl.c: Add ':' to "ERR 3120" error message
+dc45fca ib_types.h: Comment change to indicate 1.3.1 rather than 1.2 IBA spec
+37e1246 ib_types.h: Cosmetic formatting changes
+73fd8ee man/opensm.8.in: Fix typo (missing close parenthesis)
+c32b813 doc/current-routing.txt: Fix typo
+c4691e7 ib_types.h: Cosmetic commentary fix
+85e2214 osm_sa_mcmember_record.c: Prevent log errors swamp in MC query scenario
+88626f4 osm_sa_mcmember_record.c: Updated Mellanox copyright years
+432727b osm_sa_mcmember_record.c: Cosmetic formatting change to mcmr_rcv_create_new_mgrp
+b85c31e osm_prtn_config.c: Cosmetic formatting changes in manage_membership_change
+1a2a6d7 osm_prtn_config.c: Updated Mellanox copyright years
+8b288b8 osm_mcast_mgr.c: Cosmetic formatting change in create_mgrp_switch_map
+4772806 osm_state_mgr.c: Fix uninitialized area of SMInfo SET mad
+175de41 osm_prtn.c: Cosmetic formatting change
+870b21a osm_ucast_dfsssp.c: Fix some commentary typos
+d5c51e9 osm_ucast_mgr.c: Cosmetic formatting change
+f234d83 osm_inform.c: Cosmetic code refactoring in match_inf_rec
+fdd1a68 Updated some Mellanox copyrights
+ecf07eb Set Type field in Notice attribute using IB_NOTICE_TYPE_SUBN_MGMT define
+022e6af Use SM trap defines from ib_types.h rather than hard coded values
+d111a2c ib_types.h: Cosmetic formatting change
+1cbea4b osmtest/osmt_multicast.c: Cosmetic changes
+c52a1b2 osm_drop_mgr.c: Eliminated redundant check for switch node type
+2c4771f osm_ucast_dfsssp.c: Minor change to setting dropped when switch exists
+e94fc29 osm_subnet.[h c]: Fix wrong function documentation and parameter list
+098259e Updated Mellanox copyrights in some recently changed files
+1f3dcb4 osm_ucast_ftree.c: Cosmetic formatting changes in fabric_construct_hca_ports
+e92cfe5 iba/ib_types.h: Fix commentary typo
+5109f44 osm_ucast_ftree.c: Cosmetic formatting change
+0bc858e osm_ucast_ftree.c: Cosmetic variable name changes in ftree_port_group_t struct
+08e8a9a osm_sa_path_record.c: Refactored PR [D/S] GID and LID validation
+7777987 osm_sa_path_record.c: Cosmetic formatting change
+a7ac5fc osm_prtn_config.c: Handle valgrind warning in osm_prtn_config_parse_file
+609b777 osm_ucast_ftree.c: Cosmetic formatting change
+d9a601b osm_ucast_ftree.c: Remove no longer needed code in remove_depended_hca
+1f6cd87 osm_state_mgr.c: Cosmetic formatting changes
+7f2f902 libvendor/osm_vendor_ibumad_sa.c: Cosmetic formatting change to ERR
+5501 log message
+e527ec6 libvendor/osm_vendor_ibumad_sa.c: Cosmetic formatting changes to
+osmv_query_sa
+ec2e2bf osm_pkey.h: Fix osm_physp_has_pkey method description
+bf3818b partition_config.txt: Small correction in doc file
+9fa761c osm_ucast_ftree.c: Removed *p_ftree parameter from sw_destroy function
+652b063 osm_ucast_ftree.c: Removed *p_ftree parameter from sw_create function
+d504e76 doc/QoS_management_in_OpenSM.txt: Cosmetic changes
+a28d63e Fix documentation on ignore-guids command line option
+df32644 osm_subnet.c: Minor clarification to SwitchCongestionSetting Control
+Map description in generated option file
+483ff00 man/osmtest.8: Minor tweaks to inventory option description
+8d3c6f8 osm_sa_mcmember_record.c: Change to log messages for PKey consistency
+504e43f osm_req.c: Cosmetic formatting change
+a5e484b osm_node.h: Fix commentary typo
+6ceb0ce osm_sa_mcmember_record.c: Removed redundancy in comment
+9e0cba3 osm_prtn_config.c: Cosmetic formatting change
+0eb5117 osm_sa_mcmember_record.c: Cosmetic formatting change
+2541ed9 osm_ucast_mgr.c: Cosmetic formatting change
 28fd4ee osm_[subnet congestion_control].c: Cosmetic commentary change
 391c244 osm_congestion_control.c: Added Mellanox copyright
 7e08621 osm_congestion_control.c: In cc_rcv_mad, add attribute ID and modifier
