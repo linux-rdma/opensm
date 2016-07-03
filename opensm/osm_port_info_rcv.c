@@ -599,7 +599,8 @@ static void pi_rcv_process_set(IN osm_sm_t * sm, IN osm_node_t * p_node,
 		}
 		osm_dump_port_info_v2(sm->p_log, osm_node_get_node_guid(p_node),
 				      port_guid, port_num, p_pi, FILE_ID, level);
-	}
+	} else
+		osm_physp_set_port_info(p_physp, p_pi, sm);
 
 	OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
 		"Received logical SetResp() for GUID 0x%" PRIx64
@@ -610,7 +611,6 @@ static void pi_rcv_process_set(IN osm_sm_t * sm, IN osm_node_t * p_node,
 		cl_ntoh64(osm_node_get_node_guid(p_node)),
 		cl_ntoh64(p_smp->trans_id));
 
-	osm_physp_set_port_info(p_physp, p_pi, sm);
 
 	OSM_LOG_EXIT(sm->p_log);
 }
