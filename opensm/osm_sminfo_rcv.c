@@ -78,12 +78,12 @@ static boolean_t smi_rcv_remote_sm_is_higher(IN osm_sm_t * sm,
 }
 
 static void smi_rcv_process_get_request(IN osm_sm_t * sm,
-					IN const osm_madw_t * p_madw)
+					IN const osm_madw_t * p_madw,
+					IN boolean_t fill_sm_key)
 {
 	uint8_t payload[IB_SMP_DATA_SIZE];
 	ib_sm_info_t *p_smi = (ib_sm_info_t *) payload;
 	ib_api_status_t status;
-	ib_sm_info_t *p_remote_smi;
 
 	OSM_LOG_ENTER(sm->p_log);
 
@@ -98,21 +98,7 @@ static void smi_rcv_process_get_request(IN osm_sm_t * sm,
 	p_smi->act_count = cl_hton32(sm->p_subn->p_osm->stats.qp0_mads_sent);
 	p_smi->pri_state = (uint8_t) (sm->p_subn->sm_state |
 				      sm->p_subn->opt.sm_priority << 4);
-	/*
-	   p.840 line 20 - Return 0 for the SM key unless we authenticate the
-	   requester as the master SM.
-	 */
-	p_remote_smi = ib_smp_get_payload_ptr(osm_madw_get_smp_ptr(p_madw));
-	if (ib_sminfo_get_state(p_remote_smi) == IB_SMINFO_STATE_MASTER) {
-		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-			"Responding to master SM with real sm_key\n");
-		p_smi->sm_key = sm->p_subn->opt.sm_key;
-	} else {
-		/* The requester is not authenticated as master - set sm_key to zero. */
-		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-			"Responding to SM not master with zero sm_key\n");
-		p_smi->sm_key = 0;
-	}
+	p_smi->sm_key = fill_sm_key ? sm->p_subn->opt.sm_key : 0;
 
 	status = osm_resp_send(sm, p_madw, 0, payload);
 	if (status != IB_SUCCESS) {
@@ -165,7 +151,6 @@ static void smi_rcv_process_set_request(IN osm_sm_t * sm,
 	ib_sm_info_t *sm_smi;
 	ib_api_status_t status;
 	osm_sm_signal_t sm_signal;
-	ib_sm_info_t *p_remote_smi;
 
 	OSM_LOG_ENTER(sm->p_log);
 
@@ -188,21 +173,7 @@ static void smi_rcv_process_set_request(IN osm_sm_t * sm,
 	p_smi->act_count = cl_hton32(sm->p_subn->p_osm->stats.qp0_mads_sent);
 	p_smi->pri_state = (uint8_t) (sm->p_subn->sm_state |
 				      sm->p_subn->opt.sm_priority << 4);
-	/*
-	   p.840 line 20 - Return 0 for the SM key unless we authenticate the
-	   requester as the master SM.
-	 */
-	p_remote_smi = ib_smp_get_payload_ptr(osm_madw_get_smp_ptr(p_madw));
-	if (ib_sminfo_get_state(p_remote_smi) == IB_SMINFO_STATE_MASTER) {
-		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-			"Responding to master SM with real sm_key\n");
-		p_smi->sm_key = sm->p_subn->opt.sm_key;
-	} else {
-		/* The requester is not authenticated as master - set sm_key to zero. */
-		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-			"Responding to SM not master with zero sm_key\n");
-		p_smi->sm_key = 0;
-	}
+	p_smi->sm_key = sm->p_subn->opt.sm_key;
 
 	/* Check the legality of the packet */
 	status = smi_rcv_check_set_req_legality(p_smp);
@@ -450,6 +421,7 @@ static void smi_rcv_process_get_response(IN osm_sm_t * sm,
 	osm_port_t *p_port;
 	ib_net64_t port_guid;
 	osm_remote_sm_t *p_sm;
+	char buf[256];
 
 	OSM_LOG_ENTER(sm->p_log);
 
@@ -470,14 +442,19 @@ static void smi_rcv_process_get_response(IN osm_sm_t * sm,
 	osm_dump_sm_info_v2(sm->p_log, p_smi, FILE_ID, OSM_LOG_DEBUG);
 
 	/* Check that the sm_key of the found SM is the same as ours,
-	   or is zero. If not - OpenSM cannot continue with configuration!. */
-	if (p_smi->sm_key != 0 && p_smi->sm_key != sm->p_subn->opt.sm_key) {
+	   or is zero. If not - OpenSM should ignore this SM */
+	if (sm->p_subn->opt.sm_key != 0 && p_smi->sm_key != sm->p_subn->opt.sm_key) {
+		if (p_smp->mgmt_class == IB_MCLASS_SUBN_DIR)
+			sprint_uint8_arr(buf, sizeof(buf),
+				p_smp->return_path, p_smp->hop_count + 1);
+		else
+			sprintf(buf, "LID %u",
+				cl_ntoh16(p_madw->mad_addr.addr_type.smi.source_lid));
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 2F18: "
-			"Got SM with sm_key that doesn't match our "
-			"local key. Exiting\n");
+			"Got SM (%s) with sm_key 0x%016" PRIx64 " that doesn't match our "
+			"local sm_key. Ignoring SMInfo\n", buf, cl_ntoh64(p_smi->sm_key));
 		osm_log_v2(sm->p_log, OSM_LOG_SYS, FILE_ID,
-			   "Found remote SM with non-matching sm_key. Exiting\n");
-		osm_exit_flag = TRUE;
+			   "Found remote SM (%s) with non-matching sm_key\n", buf);
 		goto Exit;
 	}
 
@@ -621,12 +598,59 @@ void osm_sminfo_rcv_process(IN void *context, IN void *data)
 		else
 			/* this is a response to a Set method */
 			smi_rcv_process_set_response(sm, p_madw);
-	} else if (p_smp->method == IB_MAD_METHOD_GET)
-		/* This is a SubnGet request */
-		smi_rcv_process_get_request(sm, p_madw);
-	else
-		/* This should be a SubnSet request */
-		smi_rcv_process_set_request(sm, p_madw);
+	} else {
+		osm_port_t * p_port;
+		ib_net64_t my_mkey;
+		uint8_t mpb;
+		char buf[256];
+
+		if(!(p_port = osm_get_port_by_guid(sm->p_subn,
+						   sm->p_subn->sm_port_guid)))
+			goto Exit;
+
+		if (!p_port->p_physp)
+			goto Exit;
+
+		my_mkey = ib_port_info_get_m_key(&p_port->p_physp->port_info);
+		mpb = my_mkey ? ib_port_info_get_mpb(&p_port->p_physp->port_info) : 0;
+
+		if (p_smp->method == IB_MAD_METHOD_GET) {
+			/* M-Key Authentication */
+			if (my_mkey && mpb > 1 && my_mkey != p_smp->m_key) {
+				if (p_smp->mgmt_class == IB_MCLASS_SUBN_DIR)
+					sprint_uint8_arr(buf, sizeof(buf),
+					      p_smp->return_path, p_smp->hop_count + 1);
+				else
+					sprintf(buf, "LID %u",
+						cl_ntoh16(p_madw->mad_addr.addr_type.smi.source_lid));
+				OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 2F1A: "
+					"SMInfo(GET) sender (%s) authentication failure."
+					"Ignoring SMInfo\n", buf);
+				goto Exit;
+			}
+			/* If protection bits == 1 but MKEY mismatch, return SM-KEY = 0 */
+			if (my_mkey && mpb == 1 && my_mkey != p_smp->m_key)
+				smi_rcv_process_get_request(sm, p_madw, FALSE);
+			else
+				smi_rcv_process_get_request(sm, p_madw, TRUE);
+		} else {
+			/* M-Key Authentication */
+			if (my_mkey && my_mkey != p_smp->m_key) {
+				if (p_smp->mgmt_class == IB_MCLASS_SUBN_DIR)
+					sprint_uint8_arr(buf, sizeof(buf),
+					      p_smp->return_path, p_smp->hop_count + 1);
+				else
+					sprintf(buf, "LID %u",
+						cl_ntoh16(p_madw->mad_addr.addr_type.smi.source_lid));
+				OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 2F1B: "
+					"SMInfo(SET) sender (%s) authentication failure."
+					"Ignoring SMInfo\n", buf);
+				goto Exit;
+			}
+			/* This should be a SubnSet request */
+			smi_rcv_process_set_request(sm, p_madw);
+		}
+	}
 
 Exit:
 	OSM_LOG_EXIT(sm->p_log);

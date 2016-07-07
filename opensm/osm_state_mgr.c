@@ -998,20 +998,7 @@ static void state_mgr_send_handover(IN osm_sm_t * sm, IN osm_remote_sm_t * p_sm)
 	p_smi->act_count = cl_hton32(sm->p_subn->p_osm->stats.qp0_mads_sent);
 	p_smi->pri_state = (uint8_t) (sm->p_subn->sm_state |
 				      sm->p_subn->opt.sm_priority << 4);
-	/*
-	 * Return 0 for the SM key unless we authenticate the requester
-	 * as the master SM.
-	 */
-	if (ib_sminfo_get_state(&p_sm->smi) == IB_SMINFO_STATE_MASTER) {
-		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-			"Responding to master SM with real sm_key\n");
-		p_smi->sm_key = sm->p_subn->opt.sm_key;
-	} else {
-		/* The requester is not authenticated as master - set sm_key to zero */
-		OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
-			"Responding to SM not master with zero sm_key\n");
-		p_smi->sm_key = 0;
-	}
+	p_smi->sm_key = sm->p_subn->opt.sm_key;
 
 	CL_PLOCK_ACQUIRE(sm->p_lock);
 	status = osm_req_set(sm, osm_physp_get_dr_path_ptr(p_port->p_physp),

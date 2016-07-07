@@ -836,5 +836,42 @@ int ib_path_rate_get_next(IN const int rate);
 * SEE ALSO
 *********/
 
+/****f* OpenSM: Helper/sprint_uint8_arr
+* NAME
+*	sprint_uint8_arr
+*
+* DESCRIPTION
+*	Create the comma-separated string of numbers
+*	from input array of uint8 numbers
+*	(e.g. "1,2,3,4")
+*
+* SYNOPSIS
+*/
+int sprint_uint8_arr(IN char *buf, IN size_t size,
+		     IN const uint8_t * arr, IN size_t len);
+
+/*
+* PARAMETERS
+*	buf
+*		[in] Pointer to the output buffer
+*
+*	size
+*		[in] Size of the output buffer
+*
+*	arr
+*		[in] Pointer to the input array of uint8
+*
+*	len
+*		[in] Size of the input array
+*
+* RETURN VALUES
+*	Return the number of characters printed to the buffer
+*
+* NOTES
+*
+* SEE ALSO
+*********/
+
+
 END_C_DECLS
 #endif				/* _OSM_HELPER_H_ */

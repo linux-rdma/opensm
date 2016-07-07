@@ -462,8 +462,8 @@ static int ordered_rates[] = {
 	17	/* 18 - 300 Gbps (375 Gbps equiv) */
 };
 
-static int sprint_uint8_arr(char *buf, size_t size,
-			    const uint8_t * arr, size_t len)
+int sprint_uint8_arr(char *buf, size_t size,
+		     const uint8_t * arr, size_t len)
 {
 	int n;
 	unsigned int i;
