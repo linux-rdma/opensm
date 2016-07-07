@@ -1700,9 +1700,6 @@ repeat_discovery:
 	 */
 	cl_event_signal(&sm->subnet_up_event);
 
-	osm_opensm_report_event(sm->p_subn->p_osm, OSM_EVENT_ID_SUBNET_UP,
-				NULL);
-
 	/* if we got a signal to force heavy sweep or errors
 	 * in the middle of the sweep - try another sweep. */
 	if (sm->p_subn->force_heavy_sweep)
@@ -1712,6 +1709,9 @@ repeat_discovery:
 	osm_db_store(sm->p_subn->p_g2m, sm->p_subn->opt.fsync_high_avail_files);
 	osm_db_store(sm->p_subn->p_neighbor,
 		     sm->p_subn->opt.fsync_high_avail_files);
+
+	osm_opensm_report_event(sm->p_subn->p_osm, OSM_EVENT_ID_SUBNET_UP,
+				NULL);
 }
 
 static void do_process_mgrp_queue(osm_sm_t * sm)
