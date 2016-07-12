@@ -6443,6 +6443,103 @@ ib_port_info_set_m_key(IN ib_port_info_t * const p_pi, IN ib_net64_t m_key)
 * SEE ALSO
 *********/
 
+#define FDR10 0x01
+
+/****f* IBA Base: Types/ib_get_highest_link_speed
+* NAME
+*	ib_get_highest_link_speed
+*
+* DESCRIPTION
+*	Returns the highest link speed encoded in the given bit field.
+*
+* SYNOPSIS
+*/
+static inline uint8_t OSM_API ib_get_highest_link_speed(IN const uint8_t speeds)
+{
+	uint8_t ret = 0;
+	uint8_t extspeeds = (speeds >> 4);
+
+	if (extspeeds & IB_LINK_SPEED_EXT_ACTIVE_50)
+		ret = IB_LINK_SPEED_EXT_ACTIVE_50 << 4;
+	else if (extspeeds & IB_LINK_SPEED_EXT_ACTIVE_25)
+		ret = IB_LINK_SPEED_EXT_ACTIVE_25 << 4;
+	else if (extspeeds & IB_LINK_SPEED_EXT_ACTIVE_14)
+		ret = IB_LINK_SPEED_EXT_ACTIVE_14 << 4;
+	else if (speeds & (FDR10 << 3))
+		ret = FDR10 << 3;
+	else if (speeds & IB_LINK_SPEED_ACTIVE_10)
+		ret = IB_LINK_SPEED_ACTIVE_10;
+	else if (speeds & IB_LINK_SPEED_ACTIVE_5)
+		ret = IB_LINK_SPEED_ACTIVE_5;
+	else if (speeds & IB_LINK_SPEED_ACTIVE_2_5)
+		ret = IB_LINK_SPEED_ACTIVE_2_5;
+
+	return ret;
+}
+
+/*
+* PARAMETERS
+*	speed
+*		[in] The bit field for the supported or enabled link speeds,
+*		     where the 3 LSBs of `speeds' encode the last 3 bits of
+*		     LinkSpeedSupported or LinkSpeedEnabled, the 4. bit encodes
+*		     supported/enabled FDR10 and the first 4 bits of `speeds'
+*		     encode either all bits of LinkSpeedExtSupported or the last
+*		     4 bits of the 5-bit long LinkSpeedExtEnabled component.
+*
+* RETURN VALUES
+*	Returns the highest link speed encoded in the given bit field, e.g.
+*	a return value of 2 indicates DDR, 8 indicates FDR10, and a return value
+*	of 32 (or 00100000 in bit) would indicate EDR speed.
+*
+* NOTES
+*	This fn most likely will only support up to NDR speeds, because the
+*	LinkSpeedExtActive component is defined as 4 bits wide (and HDR already
+*	occupies the 3rd bit).
+*
+* SEE ALSO
+*********/
+
+/****f* IBA Base: Types/ib_get_highest_link_width
+* NAME
+*	ib_get_highest_link_width
+*
+* DESCRIPTION
+*	Returns the highest link width encoded in the given bit field.
+*
+* SYNOPSIS
+*/
+static inline uint8_t OSM_API ib_get_highest_link_width(IN const uint8_t widths)
+{
+	uint8_t ret = 0;
+
+	if (widths & IB_LINK_WIDTH_ACTIVE_12X)
+		ret = IB_LINK_WIDTH_ACTIVE_12X;
+	else if (widths & IB_LINK_WIDTH_ACTIVE_8X)
+		ret = IB_LINK_WIDTH_ACTIVE_8X;
+	else if (widths & IB_LINK_WIDTH_ACTIVE_4X)
+		ret = IB_LINK_WIDTH_ACTIVE_4X;
+	else if (widths & IB_LINK_WIDTH_ACTIVE_2X)
+		ret = IB_LINK_WIDTH_ACTIVE_2X;
+	else if (widths & IB_LINK_WIDTH_ACTIVE_1X)
+		ret = IB_LINK_WIDTH_ACTIVE_1X;
+
+	return ret;
+}
+
+/*
+* PARAMETERS
+*	widths
+*		[in] The bit field for the supported or enabled link widths.
+*
+* RETURN VALUES
+*	Returns the highest link width encoded in the given bit field.
+*
+* NOTES
+*
+* SEE ALSO
+*********/
+
 
 /****s* IBA Base: Types/ib_mlnx_ext_port_info_t
 * NAME
@@ -6467,8 +6564,6 @@ typedef struct _ib_mlnx_ext_port_info {
 } PACK_SUFFIX ib_mlnx_ext_port_info_t;
 #include <complib/cl_packoff.h>
 /************/
-
-#define FDR10 0x01
 
 typedef uint8_t ib_svc_name_t[64];
 

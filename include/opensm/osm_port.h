@@ -2,6 +2,7 @@
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2011 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
+ * Copyright (C) 2012-2017 Tokyo Institute of Technology. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -438,6 +439,39 @@ static inline void osm_physp_set_health(IN osm_physp_t * p_physp,
 *
 * SEE ALSO
 *	Port, Physical Port
+*********/
+
+/****f* OpenSM: Physical Port/osm_link_is_throttled
+* NAME
+*	osm_link_is_throttled
+*
+* DESCRIPTION
+*	Returns TRUE if the link speed/width given by the physical port is
+*	below the theoretical maximum enabled by both ports, and FALSE
+*	otherwise.
+*
+* SYNOPSIS
+*/
+boolean_t osm_link_is_throttled(IN osm_physp_t * p_physp,
+				IN const boolean_t subn_has_fdr10_enabled);
+/*
+* PARAMETERS
+*	p_physp
+*		[in] Pointer to an osm_physp_t object.
+*
+*	subn_has_fdr10_enabled
+*		[in] TRUE if FDR10 is enabled for subnet, or FALSE otherwise.
+*
+* RETURN VALUES
+*	FALSE if both directions of the link have active link speed/width equal
+*	to the common maximum which both sides have enabled, and TRUE otherwise.
+*	The return value is independent of whether or not the link was
+*	throttled intentionally by the admin or throttled automatically by the
+*	link auto-negotiation.
+*
+* NOTES
+*
+* SEE ALSO
 *********/
 
 /****f* OpenSM: Physical Port/osm_physp_set_port_info

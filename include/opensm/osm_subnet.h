@@ -7,6 +7,7 @@
  * Copyright (c) 2009 HNR Consulting. All rights reserved.
  * Copyright (c) 2013 Oracle and/or its affiliates. All rights reserved.
  * Copyright (c) 2009-2015 ZIH, TU Dresden, Federal Republic of Germany. All rights reserved.
+ * Copyright (C) 2012-2017 Tokyo Institute of Technology. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -308,6 +309,7 @@ typedef struct osm_subn_opt {
 	boolean_t port_profile_switch_nodes;
 	boolean_t sweep_on_trap;
 	char *routing_engine_names;
+	boolean_t avoid_throttled_links;
 	boolean_t use_ucast_cache;
 	boolean_t connect_roots;
 	char *lid_matrix_dump_file;
@@ -538,6 +540,12 @@ typedef struct osm_subn_opt {
 *
 *	routing_engine_names
 *		Name of routing engine(s) to use.
+*
+*	avoid_throttled_links
+*		This option will enforce that throttled switch-to-switch links
+*		in the fabric are treated as 'broken' by the routing engines
+*		(if they support it), and hence no path is assigned to these
+*		underperforming links and a warning is logged instead.
 *
 *	connect_roots
 *		The option which will enforce root to root connectivity with

@@ -1042,7 +1042,7 @@ static int dfsssp_build_graph(void *context)
 {
 	dfsssp_context_t *dfsssp_ctx = (dfsssp_context_t *) context;
 	osm_ucast_mgr_t *p_mgr = (osm_ucast_mgr_t *) (dfsssp_ctx->p_mgr);
-
+	boolean_t has_fdr10 = (1 == p_mgr->p_subn->opt.fdr10) ? TRUE : FALSE;
 	cl_qmap_t *port_tbl = &p_mgr->p_subn->port_guid_tbl;	/* 1 management port per switch + 1 or 2 ports for each Hca */
 	osm_port_t *p_port = NULL;
 	cl_qmap_t *sw_tbl = &p_mgr->p_subn->sw_guid_tbl;
@@ -1145,6 +1145,19 @@ static int dfsssp_build_graph(void *context)
 			if (!remote_node->sw) {
 				lmc = osm_node_get_lmc(remote_node, (uint32_t)remote_port);
 				adj_list[i].num_hca += (1 << lmc);
+				continue;
+			}
+			/* filter out throttled links to improve performance */
+			if (p_mgr->p_subn->opt.avoid_throttled_links &&
+			    osm_link_is_throttled(p_physp, has_fdr10)) {
+				OSM_LOG(p_mgr->p_log, OSM_LOG_INFO,
+					"Detected and ignoring throttled link:"
+					" 0x%" PRIx64 "/P%" PRIu8
+					" <--> 0x%" PRIx64 "/P%" PRIu8 "\n",
+					cl_ntoh64(osm_node_get_node_guid(sw->p_node)),
+					port,
+					cl_ntoh64(osm_node_get_node_guid(remote_node)),
+					remote_port);
 				continue;
 			}
 			OSM_LOG(p_mgr->p_log, OSM_LOG_DEBUG,

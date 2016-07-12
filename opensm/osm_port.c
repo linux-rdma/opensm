@@ -2,6 +2,7 @@
  * Copyright (c) 2004-2009 Voltaire, Inc. All rights reserved.
  * Copyright (c) 2002-2015 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
+ * Copyright (C) 2012-2017 Tokyo Institute of Technology. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -597,6 +598,94 @@ boolean_t osm_link_is_healthy(IN const osm_physp_t * p_physp)
 		return ((p_physp->healthy) & (p_remote_physp->healthy));
 	/* the other side is not known - consider the link as healthy */
 	return TRUE;
+}
+
+boolean_t osm_link_is_throttled(IN osm_physp_t * p_physp,
+				IN const boolean_t subn_has_fdr10_enabled)
+{
+	osm_physp_t *p_remote;
+	uint8_t speed_physp, speed_remote, width_physp, width_remote;
+	uint8_t highest_speed, highest_width;
+	boolean_t physp_has_extended_speeds_capability;
+	boolean_t remote_has_extended_speeds_capability;
+	ib_port_info_t *p_physp_info, *p_remote_info;
+
+	CL_ASSERT(p_physp);
+	p_remote = p_physp->p_remote_physp;
+
+	/* the other side is not known - consider the link as unthrottled */
+	if (!p_remote)
+		return FALSE;
+
+	/* only SP0 (and not Sw Ext.) have a valid CapabilityMask */
+	if (osm_node_get_type(p_physp->p_node) == IB_NODE_TYPE_SWITCH)
+		p_physp_info =
+		    &(osm_node_get_physp_ptr(p_physp->p_node, 0)->port_info);
+	else
+		p_physp_info = &p_physp->port_info;
+	if (osm_node_get_type(p_remote->p_node) == IB_NODE_TYPE_SWITCH)
+		p_remote_info =
+		    &(osm_node_get_physp_ptr(p_remote->p_node, 0)->port_info);
+	else
+		p_remote_info = &p_remote->port_info;
+
+	physp_has_extended_speeds_capability =
+	    p_physp_info->capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS;
+	remote_has_extended_speeds_capability =
+	    p_remote_info->capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS;
+
+	/* reset again to the original port_info */
+	p_physp_info = &p_physp->port_info;
+	p_remote_info = &p_remote->port_info;
+
+	/* first determine the enabled link speed/width of both sides */
+	speed_physp =
+	    (physp_has_extended_speeds_capability ?
+	     ib_port_info_get_link_speed_ext_enabled(p_physp_info) << 4 : 0)
+	    + (subn_has_fdr10_enabled ?
+	       (p_physp->ext_port_info.link_speed_enabled & FDR10) << 3 : 0)
+	    + ib_port_info_get_link_speed_enabled(p_physp_info);
+	width_physp = p_physp_info->link_width_enabled;
+
+	speed_remote =
+	    (remote_has_extended_speeds_capability ?
+	     ib_port_info_get_link_speed_ext_enabled(p_remote_info) << 4 : 0)
+	    + (subn_has_fdr10_enabled ?
+	       (p_remote->ext_port_info.link_speed_enabled & FDR10) << 3 : 0)
+	    + ib_port_info_get_link_speed_enabled(p_remote_info);
+	width_remote = p_remote_info->link_width_enabled;
+
+	highest_speed = ib_get_highest_link_speed(speed_physp & speed_remote);
+	highest_width = ib_get_highest_link_width(width_physp & width_remote);
+
+	/* and now determine the currently active link speed/width */
+	speed_physp =
+	    (physp_has_extended_speeds_capability ?
+	     ib_port_info_get_link_speed_ext_active(p_physp_info) << 4 : 0)
+	    + (subn_has_fdr10_enabled ?
+	       (p_physp->ext_port_info.link_speed_active & FDR10) << 3 : 0)
+	    + ib_port_info_get_link_speed_active(p_physp_info);
+	speed_physp = ib_get_highest_link_speed(speed_physp);
+	width_physp = p_physp_info->link_width_active;
+
+	speed_remote =
+	    (remote_has_extended_speeds_capability ?
+	     ib_port_info_get_link_speed_ext_active(p_remote_info) << 4 : 0)
+	    + (subn_has_fdr10_enabled ?
+	       (p_remote->ext_port_info.link_speed_active & FDR10) << 3 : 0)
+	    + ib_port_info_get_link_speed_active(p_remote_info);
+	speed_remote = ib_get_highest_link_speed(speed_remote);
+	width_remote = p_remote_info->link_width_active;
+
+	/* check if the link supports same speed in both directions
+	   and whether or not it runs at maximum speed/width which is
+	   enabled by both ends (if not then its considered 'throttled')
+	 */
+	if (speed_physp != speed_remote || speed_physp != highest_speed ||
+	    width_physp != width_remote || width_physp != highest_width)
+		return TRUE;
+
+	return FALSE;
 }
 
 void osm_physp_set_pkey_tbl(IN osm_log_t * p_log, IN const osm_subn_t * p_subn,

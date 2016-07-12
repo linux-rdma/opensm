@@ -7,6 +7,7 @@
  * Copyright (c) 2009 HNR Consulting. All rights reserved.
  * Copyright (c) 2009-2015 ZIH, TU Dresden, Federal Republic of Germany. All rights reserved.
  * Copyright (c) 2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (C) 2012-2017 Tokyo Institute of Technology. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -806,6 +807,7 @@ static const opt_rec_t opt_tbl[] = {
 	{ "port_profile_switch_nodes", OPT_OFFSET(port_profile_switch_nodes), opts_parse_boolean, NULL, 1 },
 	{ "sweep_on_trap", OPT_OFFSET(sweep_on_trap), opts_parse_boolean, NULL, 1 },
 	{ "routing_engine", OPT_OFFSET(routing_engine_names), opts_parse_charp, NULL, 0 },
+	{ "avoid_throttled_links", OPT_OFFSET(avoid_throttled_links), opts_parse_boolean, NULL, 0 },
 	{ "connect_roots", OPT_OFFSET(connect_roots), opts_parse_boolean, NULL, 1 },
 	{ "use_ucast_cache", OPT_OFFSET(use_ucast_cache), opts_parse_boolean, NULL, 0 },
 	{ "log_file", OPT_OFFSET(log_file), opts_parse_charp, NULL, 0 },
@@ -1629,6 +1631,7 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * p_opt)
 	p_opt->sweep_on_trap = TRUE;
 	p_opt->use_ucast_cache = FALSE;
 	p_opt->routing_engine_names = NULL;
+	p_opt->avoid_throttled_links = FALSE;
 	p_opt->connect_roots = FALSE;
 	p_opt->lid_matrix_dump_file = NULL;
 	p_opt->lfts_file = NULL;
@@ -2512,6 +2515,12 @@ void osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		"#    dor, torus-2QoS, dfsssp, sssp\n"
 		"routing_engine %s\n\n", p_opts->routing_engine_names ?
 		p_opts->routing_engine_names : null_str);
+
+	fprintf(out,
+		"# Routing engines will avoid throttled switch-to-switch links\n"
+		"# (currently supported by: dfsssp, sssp; use FALSE if unsure)\n"
+		"avoid_throttled_links %s\n\n",
+		p_opts->avoid_throttled_links ? "TRUE" : "FALSE");
 
 	fprintf(out,
 		"# Connect roots (use FALSE if unsure)\n"
