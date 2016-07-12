@@ -8113,7 +8113,7 @@ void torus_update_osm_vlarb(void *context, osm_physp_t *osm_phys_port,
 	/*
 	 * If osm_phys_port is a switch port that connects to a CA, then
 	 * we're using at most VL 0 (for QoS level 0) and VL 1 (for QoS
-	 * level 1).  We've been passed the  VLarb values for a switch
+	 * level 1).  We've been passed the VLarb values for a switch
 	 * external port, so we need to fix them up to avoid unexpected
 	 * results depending on how the switch handles VLarb values for
 	 * unprogrammed VLs.
