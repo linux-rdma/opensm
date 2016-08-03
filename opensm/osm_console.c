@@ -260,12 +260,12 @@ static void help_perfmgr(FILE * out, int detail)
 			"   [dump_counters [mach]] -- dump the counters (optionally in [mach]ine readable format)\n");
 		fprintf(out,
 			"   [print_counters [<nodename|nodeguid>][:<port>]] -- print the internal counters\n"
-			"                                                      Optionaly limit output by name, guid, or port\n");
+			"                                                      Optionally limit output by name, guid, or port\n");
 		fprintf(out,
 			"   [pc [<nodename|nodeguid>][:<port>]] -- same as print_counters\n");
 		fprintf(out,
 			"   [print_errors [<nodename|nodeguid>]] -- print only ports with errors\n"
-			"                                           Optionaly limit output by name or guid\n");
+			"                                           Optionally limit output by name or guid\n");
 		fprintf(out,
 			"   [pe [<nodename|nodeguid>]] -- same as print_errors\n");
 		fprintf(out,

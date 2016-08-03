@@ -267,7 +267,7 @@ osmv_bind_sa(IN osm_vendor_t * const p_vend,
 		goto Exit;
 	}
 
-	/* update time umad_port is initilized now */
+	/* update time umad_port is initialized now */
 	p_sa_bind_info->last_lids_update_sec = time(NULL);
 
 	/* initialize the sync_event */

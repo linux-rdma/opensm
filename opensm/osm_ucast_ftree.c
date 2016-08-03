@@ -1749,7 +1749,7 @@ static int fabric_create_leaf_switch_array(IN ftree_fabric_t * p_ftree)
 
 	if (first_leaf_idx >= last_leaf_idx) {
 		osm_log_v2(&p_ftree->p_osm->log, OSM_LOG_INFO, FILE_ID,
-			   "Faild to find leaf switches - topology is not "
+			   "Failed to find leaf switches - topology is not "
 			   "fat-tree\n");
 		res = -1;
 		goto Exit;

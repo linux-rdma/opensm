@@ -824,7 +824,7 @@ The DFSSSP algorithm consists of five major steps:
    each switch:
 2.1) use Dijkstra's algorithm to find the shortest path from all nodes
      to the current selected destination;
-2.2) update the egde weights in the graph, i.e. add the number of
+2.2) update the edge weights in the graph, i.e. add the number of
      routes, which use a link to reach the destination, to the link/edge;
 2.3) update the LFT of each switch with the outgoing port which was used
      in the current step to route the traffic to the destination node.
@@ -836,7 +836,7 @@ The DFSSSP algorithm consists of five major steps:
    the following substeps:
 4.1) search for a cycle in the current CDG;
 4.2) when a cycle is found, i.e. a possible deadlock is present,
-     one edge is selected and all routes, which induced this egde, are moved
+     one edge is selected and all routes, which induced this edge, are moved
      to the "next higher" virtual layer (CDG[i+1]);
 4.3) the cycle search is continued until all cycles are broken and
      routes are moved "up".

@@ -2423,7 +2423,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 		/* Check invalid Join with max mlid which is more than the
 		   Mellanox switches support 0xC000+0x1000 = 0xd000 */
 		OSM_LOG(&p_osmt->log, OSM_LOG_INFO,
-			"Checking Creation of Maximum avaliable Groups (MulticastFDBCap)...\n");
+			"Checking Creation of Maximum available Groups (MulticastFDBCap)...\n");
 		tmp_mlid = cl_ntoh16(max_mlid) - cnt;
 
 		while (tmp_mlid > 0) {

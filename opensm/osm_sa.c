@@ -1125,7 +1125,7 @@ int osm_sa_db_file_load(osm_opensm_t * p_osm)
 	file_name = p_osm->subn.opt.sa_db_file;
 	if (!file_name) {
 		OSM_LOG(&p_osm->log, OSM_LOG_VERBOSE,
-			"sa db file name is not specifed. Skip restore\n");
+			"sa db file name is not specified. Skip restore\n");
 		return 0;
 	}
 
