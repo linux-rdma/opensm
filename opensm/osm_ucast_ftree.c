@@ -1286,20 +1286,24 @@ static void fabric_dump_hca_ordering(IN ftree_fabric_t * p_ftree)
 	ftree_sw_t *p_sw;
 	ftree_port_group_t *p_group_on_sw;
 	ftree_port_group_t *p_group_on_hca;
+	int rename_status = 0;
 	uint32_t i;
 	uint32_t j;
 	unsigned printed_hcas_on_leaf;
 
-	char path[1024];
+	char path[1024], path_tmp[1032];
 	FILE *p_hca_ordering_file;
 	const char *filename = "opensm-ftree-ca-order.dump";
 
 	snprintf(path, sizeof(path), "%s/%s",
 		 p_ftree->p_osm->subn.opt.dump_files_dir, filename);
-	p_hca_ordering_file = fopen(path, "w");
+
+	snprintf(path_tmp, sizeof(path_tmp), "%s.tmp", path);
+
+	p_hca_ordering_file = fopen(path_tmp, "w");
 	if (!p_hca_ordering_file) {
 		OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_ERROR, "ERR AB01: "
-			"cannot open file \'%s\': %s\n", filename,
+			"cannot open file \'%s\': %s\n", path_tmp,
 			strerror(errno));
 		return;
 	}
@@ -1342,6 +1346,13 @@ static void fabric_dump_hca_ordering(IN ftree_fabric_t * p_ftree)
 	/* done going through all the leaf switches */
 
 	fclose(p_hca_ordering_file);
+
+	rename_status = rename(path_tmp, path);
+	if (rename_status) {
+		OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_ERROR, "ERR AB03: "
+			"cannot rename file \'%s\': %s\n", path_tmp,
+			strerror(errno));
+	}
 }				/* fabric_dump_hca_ordering() */
 
 /***************************************************/
