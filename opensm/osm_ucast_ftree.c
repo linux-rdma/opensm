@@ -2551,10 +2551,8 @@ fabric_route_downgoing_by_going_up(IN ftree_fabric_t * p_ftree,
 		/* skip if target lid has been already set on remote switch fwd tbl (with a bigger hop count) */
 		if ((p_remote_sw->p_osm_sw->new_lft[target_lid] == OSM_NO_PATH)
 		    ||
-		    ((p_remote_sw->p_osm_sw->new_lft[target_lid] != OSM_NO_PATH)
-			     &&
-		      (current_hops + 1 <
-		       sw_get_least_hops(p_remote_sw, target_lid)))) {
+		    (current_hops + 1 <
+		     sw_get_least_hops(p_remote_sw, target_lid))) {
 
 			p_remote_sw->p_osm_sw->new_lft[target_lid] =
 				p_min_port->remote_port_num;
