@@ -839,8 +839,7 @@ static void __get_stats(cl_map_item_t * const p_map_item, void *context)
 			break;
 		case IB_LINK_SPEED_ACTIVE_10:
 			if (!(pi0->capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS) ||
-			    ((pi0->capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS) &&
-			    !ib_port_info_get_link_speed_ext_active(pi))) {
+			    !ib_port_info_get_link_speed_ext_active(pi)) {
 				if (epi->link_speed_active & FDR10)
 					fs->ports_fdr10++;
 				else {
