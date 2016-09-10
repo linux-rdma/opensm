@@ -1375,11 +1375,15 @@ static void mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 	if (!is_new_group &&
 	    !validate_modify(sa, p_mgrp, osm_madw_get_mad_addr_ptr(p_madw),
 			     p_recvd_mcmember_rec, &p_mcm_alias_guid)) {
+		char gid_str[INET6_ADDRSTRLEN];
 		CL_PLOCK_RELEASE(sa->p_lock);
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B13: "
 			"validate_modify failed from port 0x%016" PRIx64
-			" (%s), sending IB_SA_MAD_STATUS_REQ_INVALID\n",
-			cl_ntoh64(portguid), p_port->p_node->print_desc);
+			" (%s) for MGID: %s, sending IB_SA_MAD_STATUS_REQ_INVALID\n",
+			cl_ntoh64(portguid), p_port->p_node->print_desc,
+			inet_ntop(AF_INET6,
+				  p_mgrp->mcmember_rec.mgid.raw,
+				  gid_str, sizeof(gid_str)));
 		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_REQ_INVALID);
 		goto Exit;
 	}
