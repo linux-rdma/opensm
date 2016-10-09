@@ -136,7 +136,7 @@ static void ucast_mgr_process_neighbor(IN osm_ucast_mgr_t * p_mgr,
 	osm_switch_t *p_sw;
 	cl_map_item_t *item;
 	uint16_t lid_ho;
-	uint8_t hops;
+	uint16_t hops;
 	osm_physp_t *p;
 
 	OSM_LOG_ENTER(p_mgr->p_log);
@@ -162,7 +162,7 @@ static void ucast_mgr_process_neighbor(IN osm_ucast_mgr_t * p_mgr,
 		if (hops <
 		    osm_switch_get_hop_count(p_this_sw, lid_ho, port_num)) {
 			if (osm_switch_set_hops
-			    (p_this_sw, lid_ho, port_num, hops) != 0)
+			    (p_this_sw, lid_ho, port_num, (uint8_t) hops) != 0)
 				OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR, "ERR 3A03: "
 					"cannot set hops for lid %u at switch 0x%"
 					PRIx64 "\n", lid_ho,
