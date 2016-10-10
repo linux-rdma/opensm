@@ -315,7 +315,7 @@ cl_status_t osm_switch_set_hops(IN osm_switch_t * p_sw, IN uint16_t lid_ho,
 *		[in] value to assign to this entry.
 *
 * RETURN VALUES
-*	Returns 0 if successfull. -1 if it failed
+*	Returns 0 if successful. -1 if it failed
 *
 * NOTES
 *
