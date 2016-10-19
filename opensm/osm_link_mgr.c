@@ -339,9 +339,7 @@ static int link_mgr_set_physp_pi(osm_sm_t * sm, IN osm_physp_t * p_physp,
 		   then determine the neighbor MTU.
 		 */
 		p_pi->link_width_enabled = p_old_pi->link_width_supported;
-		if (memcmp(&p_pi->link_width_enabled,
-			   &p_old_pi->link_width_enabled,
-			   sizeof(p_pi->link_width_enabled)))
+		if (p_pi->link_width_enabled != p_old_pi->link_width_enabled)
 			send_set = TRUE;
 
 		if (sm->p_subn->opt.force_link_speed &&

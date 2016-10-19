@@ -931,9 +931,7 @@ static int lid_mgr_set_physp_pi(IN osm_lid_mgr_t * p_mgr,
 		   This is not the switch management port
 		 */
 		p_pi->link_width_enabled = p_old_pi->link_width_supported;
-		if (memcmp(&p_pi->link_width_enabled,
-			   &p_old_pi->link_width_enabled,
-			   sizeof(p_pi->link_width_enabled)))
+		if (p_pi->link_width_enabled != p_old_pi->link_width_enabled)
 			send_set = TRUE;
 
 		/* p_pi->mkey_lmc is initialized earlier */
