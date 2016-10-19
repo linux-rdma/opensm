@@ -446,7 +446,7 @@ static void smi_rcv_process_get_response(IN osm_sm_t * sm,
 	if (sm->p_subn->opt.sm_key != 0 && p_smi->sm_key != sm->p_subn->opt.sm_key) {
 		if (p_smp->mgmt_class == IB_MCLASS_SUBN_DIR)
 			sprint_uint8_arr(buf, sizeof(buf),
-				p_smp->return_path, p_smp->hop_count + 1);
+				p_smp->initial_path, p_smp->hop_count + 1);
 		else
 			sprintf(buf, "LID %u",
 				cl_ntoh16(p_madw->mad_addr.addr_type.smi.source_lid));
