@@ -349,8 +349,7 @@ static int link_mgr_set_physp_pi(osm_sm_t * sm, IN osm_physp_t * p_physp,
 			ib_port_info_set_link_speed_enabled(p_pi,
 							    sm->p_subn->opt.
 							    force_link_speed);
-			if (memcmp(&p_pi->link_speed, &p_old_pi->link_speed,
-				   sizeof(p_pi->link_speed)))
+			if (p_pi->link_speed != p_old_pi->link_speed)
 				send_set = TRUE;
 		}
 
@@ -404,9 +403,8 @@ static int link_mgr_set_physp_pi(osm_sm_t * sm, IN osm_physp_t * p_physp,
 				     p_pi->link_speed_ext_enabled !=
 				     ib_port_info_get_link_speed_ext_sup(p_pi))) {
 					p_pi->link_speed_ext_enabled = sm->p_subn->opt.force_link_speed_ext;
-					if (memcmp(&p_pi->link_speed_ext_enabled,
-						   &p_old_pi->link_speed_ext_enabled,
-						   sizeof(p_pi->link_speed_ext_enabled)))
+					if (p_pi->link_speed_ext_enabled !=
+					    p_old_pi->link_speed_ext_enabled)
 						send_set = TRUE;
 				}
 			}
