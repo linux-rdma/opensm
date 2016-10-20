@@ -967,8 +967,7 @@ static int lid_mgr_set_physp_pi(IN osm_lid_mgr_t * p_mgr,
 							 p_mgr->p_subn->opt.
 							 overrun_errors_threshold);
 
-		if (memcmp(&p_pi->error_threshold, &p_old_pi->error_threshold,
-			   sizeof(p_pi->error_threshold)))
+		if (p_pi->error_threshold != p_old_pi->error_threshold)
 			send_set = TRUE;
 
 		/*

@@ -330,8 +330,7 @@ static int link_mgr_set_physp_pi(osm_sm_t * sm, IN osm_physp_t * p_physp,
 							 local_phy_errors_threshold,
 							 sm->p_subn->opt.
 							 overrun_errors_threshold);
-		if (memcmp(&p_pi->error_threshold, &p_old_pi->error_threshold,
-			   sizeof(p_pi->error_threshold)))
+		if (p_pi->error_threshold != p_old_pi->error_threshold)
 			send_set = TRUE;
 
 		/*
