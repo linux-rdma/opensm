@@ -1677,9 +1677,12 @@ repeat_discovery:
 		osm_dump_all(sm->p_subn->p_osm);
 		state_mgr_up_msg(sm);
 
-		if (OSM_LOG_IS_ACTIVE_V2(sm->p_log, OSM_LOG_VERBOSE) ||
-		    sm->p_subn->opt.sa_db_dump)
-			osm_sa_db_file_dump(sm->p_subn->p_osm);
+		if ((OSM_LOG_IS_ACTIVE_V2(sm->p_log, OSM_LOG_VERBOSE) ||
+		    sm->p_subn->opt.sa_db_dump) &&
+		    !osm_sa_db_file_dump(sm->p_subn->p_osm))
+			osm_opensm_report_event(sm->p_subn->p_osm,
+						OSM_EVENT_ID_SA_DB_DUMPED,
+						NULL);
 	}
 
 	/*
