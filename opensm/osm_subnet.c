@@ -312,7 +312,7 @@ static int opts_strtoull(uint64_t *val, IN char *p_val_str,
 		return -1;
 	}
 	if (tmp_val > max_value || (tmp_val == ULLONG_MAX && errno == ERANGE)) {
-		log_report("-E- Parsing error in field %s, value out of range", p_key);
+		log_report("-E- Parsing error in field %s, value out of range\n", p_key);
 		return -1;
 	}
 	return 0;
