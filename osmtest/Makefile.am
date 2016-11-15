@@ -5,7 +5,7 @@ else
 DBGFLAGS = -g
 endif
 
-INCLUDES = -I$(srcdir)/include $(OSMV_INCLUDES)
+AM_CPPFLAGS = -I$(srcdir)/include $(OSMV_INCLUDES)
 
 sbin_PROGRAMS = osmtest
 osmtest_SOURCES = main.c osmtest.c osmt_service.c osmt_slvl_vl_arb.c \

@@ -1,6 +1,6 @@
 
-INCLUDES = -I$(srcdir)/../include \
-	   -I$(includedir)/infiniband
+AM_CPPFLAGS = -I$(srcdir)/../include \
+	      -I$(includedir)/infiniband
 
 lib_LTLIBRARIES = libosmeventplugin.la
 

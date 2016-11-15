@@ -7,7 +7,7 @@ else
 DBGFLAGS = -g
 endif
 
-INCLUDES = $(OSMV_INCLUDES)
+AM_CPPFLAGS = $(OSMV_INCLUDES)
 
 lib_LTLIBRARIES = libosmvendor.la
 
