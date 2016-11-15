@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # This generates a version string which includes recent version as
-# specified in correspondent sub project's configure.in file, plus
+# specified in correspondent sub project's configure.ac file, plus
 # git revision abbreviation in the case if sub-project HEAD is different
 # from recent tag, plus "-dirty" suffix if local uncommitted changes are
 # in the sub project tree.
