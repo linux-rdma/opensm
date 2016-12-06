@@ -3005,6 +3005,7 @@ const char *osm_get_manufacturer_str(IN uint64_t guid_ho)
 	static const char *supermicro_str = "SuperMicro";
 	static const char *openib_str = "OpenIB";
 	static const char *unknown_str = "Unknown";
+	static const char *bull_str = "Bull";
 
 	switch ((uint32_t) (guid_ho >> (5 * 8))) {
 	case OSM_VENDOR_ID_INTEL:
@@ -3069,6 +3070,8 @@ const char *osm_get_manufacturer_str(IN uint64_t guid_ho)
 		return supermicro_str;
 	case OSM_VENDOR_ID_OPENIB:
 		return openib_str;
+	case OSM_VENDOR_ID_BULL:
+		return bull_str;
 	default:
 		return unknown_str;
 	}
