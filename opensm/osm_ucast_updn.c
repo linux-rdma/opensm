@@ -367,7 +367,12 @@ static int updn_build_lid_matrices(IN updn_t * p_updn)
 	}
 
 	/* Rank the subnet switches */
-	updn_subn_rank(p_updn);
+	if (updn_subn_rank(p_updn)) {
+		OSM_LOG(&p_updn->p_osm->log, OSM_LOG_ERROR, "ERR AA0E: "
+			"Failed to assign ranks\n");
+		status = -1;
+		goto _exit;
+	}
 
 	/* After multiple ranking need to set Min Hop Table by UpDn algorithm  */
 	OSM_LOG(&p_updn->p_osm->log, OSM_LOG_VERBOSE,
