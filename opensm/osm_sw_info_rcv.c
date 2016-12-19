@@ -360,7 +360,9 @@ static void si_rcv_get_sp0_info(IN osm_sm_t * sm, IN osm_node_t * node)
 
 	if (ib_switch_info_is_enhanced_port0(&node->sw->switch_info) &&
 	    sm->p_subn->opt.fdr10) {
-		mlnx_epi_supported = is_mlnx_ext_port_info_supported(node->node_info.device_id);
+		mlnx_epi_supported = is_mlnx_ext_port_info_supported(
+						ib_node_info_get_vendor_id(&node->node_info),
+						node->node_info.device_id);
 		if (mlnx_epi_supported) {
 			status = osm_req_get(sm,
 					     osm_physp_get_dr_path_ptr(physp),

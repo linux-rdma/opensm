@@ -282,7 +282,9 @@ static void pi_rcv_process_switch_ext_port(IN osm_sm_t * sm,
 	port_num = osm_physp_get_port_num(p_physp);
 
 	if (sm->p_subn->opt.fdr10)
-		mlnx_epi_supported = is_mlnx_ext_port_info_supported(p_node->node_info.device_id);
+		mlnx_epi_supported = is_mlnx_ext_port_info_supported(
+						ib_node_info_get_vendor_id(&p_node->node_info),
+						p_node->node_info.device_id);
 
 	/* if in_sweep_hop_0 is TRUE, then this means the SM is on the switch,
 	   and we got switchInfo of our local switch. Do not continue

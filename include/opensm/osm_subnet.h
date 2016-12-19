@@ -1499,7 +1499,7 @@ static inline struct osm_mgrp_box *osm_get_mbox_by_mlid(osm_subn_t const *p_subn
 *	The multicast group structure pointer if found. NULL otherwise.
 *********/
 
-int is_mlnx_ext_port_info_supported(ib_net16_t devid);
+int is_mlnx_ext_port_info_supported(ib_net32_t vendid, ib_net16_t devid);
 
 /****f* OpenSM: Subnet/osm_subn_set_default_opt
 * NAME

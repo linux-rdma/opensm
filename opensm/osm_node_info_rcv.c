@@ -326,7 +326,9 @@ static void ni_rcv_get_port_info(IN osm_sm_t * sm, IN osm_node_t * node,
 	port = ib_node_info_get_local_port_num(ni);
 
 	if (sm->p_subn->opt.fdr10)
-		mlnx_epi_supported = is_mlnx_ext_port_info_supported(ni->device_id);
+		mlnx_epi_supported = is_mlnx_ext_port_info_supported(
+						ib_node_info_get_vendor_id(ni),
+						ni->device_id);
 
 	physp = osm_node_get_physp_ptr(node, port);
 	if (!physp) {

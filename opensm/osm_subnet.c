@@ -1472,8 +1472,9 @@ osm_mgrp_t *osm_get_mgrp_by_mgid(IN osm_subn_t * subn, IN ib_gid_t * mgid)
 	return NULL;
 }
 
-int is_mlnx_ext_port_info_supported(ib_net16_t devid)
+int is_mlnx_ext_port_info_supported(ib_net32_t vendid, ib_net16_t devid)
 {
+	uint32_t vendid_ho;
 	uint16_t devid_ho;
 
 	devid_ho = cl_ntoh16(devid);
@@ -1482,6 +1483,30 @@ int is_mlnx_ext_port_info_supported(ib_net16_t devid)
 		return 1;
 	if (devid_ho >= 0x1003 && devid_ho <= 0x1016)
 		return 1;
+
+	vendid_ho = cl_ntoh32(vendid);
+	if (vendid_ho == 0x119f) {
+		/* Bull Switch-X */
+		if (devid_ho == 0x1b02 || devid_ho == 0x1b50)
+			return 1;
+		/* Bull Switch-IB/IB2 */
+		if (devid_ho == 0x1ba0 ||
+		    (devid_ho >= 0x1bd0 && devid_ho <= 0x1bd5))
+			return 1;
+		/* Bull Connect-X3 */
+		if (devid_ho == 0x1b33 || devid_ho == 0x1b73 ||
+		    devid_ho == 0x1b40 || devid_ho == 0x1b41 ||
+		    devid_ho == 0x1b60 || devid_ho == 0x1b61)
+			return 1;
+		/* Bull Connect-IB */
+		if (devid_ho == 0x1b83 ||
+		    devid_ho == 0x1b93 || devid_ho == 0x1b94)
+			return 1;
+		/* Bull Connect-X4 */
+		if (devid_ho == 0x1bb4 || devid_ho == 0x1bb5 ||
+		    devid_ho == 0x1bc4)
+			return 1;
+	}
 	return 0;
 }
 
