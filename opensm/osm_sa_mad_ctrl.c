@@ -356,10 +356,10 @@ static void sa_mad_ctrl_rcv_callback(IN osm_madw_t * p_madw, IN void *context,
 
 	switch (p_sa_mad->method) {
 	case IB_MAD_METHOD_REPORT_RESP:
-		/* we do not really do anything with report represses -
+		/* we do not really do anything with report responses -
 		   just retire the transaction */
 		OSM_LOG(p_ctrl->p_log, OSM_LOG_DEBUG,
-			"Received Report Repress. Retiring the transaction\n");
+			"Received Report Response. Retiring the transaction\n");
 
 		if (p_req_madw)
 			osm_mad_pool_put(p_ctrl->p_mad_pool, p_req_madw);
