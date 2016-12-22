@@ -762,7 +762,7 @@ static const opt_rec_t opt_tbl[] = {
 	{ "m_key", OPT_OFFSET(m_key), opts_parse_net64, NULL, 1 },
 	{ "sm_key", OPT_OFFSET(sm_key), opts_parse_net64, NULL, 1 },
 	{ "sa_key", OPT_OFFSET(sa_key), opts_parse_net64, NULL, 1 },
-	{ "subnet_prefix", OPT_OFFSET(subnet_prefix), opts_parse_net64, NULL, 1 },
+	{ "subnet_prefix", OPT_OFFSET(subnet_prefix), opts_parse_net64, NULL, 0 },
 	{ "m_key_lease_period", OPT_OFFSET(m_key_lease_period), opts_parse_net16, NULL, 1 },
 	{ "m_key_protection_level", OPT_OFFSET(m_key_protect_bits), opts_parse_uint8, NULL, 1 },
 	{ "m_key_lookup", OPT_OFFSET(m_key_lookup), opts_parse_boolean, NULL, 1 },
