@@ -3435,6 +3435,22 @@ ib_path_rec_hop_limit(IN const ib_path_rec_t * const p_rec)
 #define IB_CLASS_RESP_TIME_MASK				0x1F
 /*********/
 
+/****s* IBA Base: Constants/IB_CLASS_CAPMASK2_SHIFT
+* NAME
+*	IB_CLASS_CAPMASK2_SHIFT
+*
+* DESCRIPTION
+*	Number of bits to shift to extract the capability mask2
+*	from the cap_mask2_resp_time field of ib_class_port_info_t.
+*
+* SEE ALSO
+*	ib_class_port_info_t
+*
+* SOURCE
+*/
+#define IB_CLASS_CAPMASK2_SHIFT				5
+/*********/
+
 /****s* IBA Base: Types/ib_class_port_info_t
 * NAME
 *	ib_class_port_info_t
@@ -3612,7 +3628,7 @@ ib_class_set_cap_mask2(IN ib_class_port_info_t * const p_cpi,
 {
 	p_cpi->cap_mask2_resp_time = (p_cpi->cap_mask2_resp_time &
 		CL_HTON32(IB_CLASS_RESP_TIME_MASK)) |
-		cl_hton32(cap_mask2 << 5);
+		cl_hton32(cap_mask2 << IB_CLASS_CAPMASK2_SHIFT);
 }
 
 /*
@@ -3644,7 +3660,7 @@ ib_class_set_cap_mask2(IN ib_class_port_info_t * const p_cpi,
 static inline uint32_t OSM_API
 ib_class_cap_mask2(IN const ib_class_port_info_t * const p_cpi)
 {
-	return (cl_ntoh32(p_cpi->cap_mask2_resp_time) >> 5);
+	return (cl_ntoh32(p_cpi->cap_mask2_resp_time) >> IB_CLASS_CAPMASK2_SHIFT);
 }
 
 /*
