@@ -3547,6 +3547,8 @@ typedef struct _ib_class_port_info {
 #define IS_PM_INH_LMTD_PKEY_MC_CONSTR_ERR	(CL_HTON16(((uint16_t)1)<<13))
 #define IS_PM_RSFEC_COUNTERS_SUP		(CL_HTON16(((uint16_t)1)<<14))
 #define IB_PM_IS_QP1_DROP_SUP			(CL_HTON16(((uint16_t)1)<<15))
+/* CapabilityMask2 */
+#define IB_PM_IS_ADDL_PORT_CTRS_EXT_SUP		(CL_HTON32(((uint32_t)1)<<0))
 
 /****f* IBA Base: Types/ib_class_set_resp_time_val
 * NAME
@@ -8471,7 +8473,7 @@ typedef struct _ib_port_counters_ext {
 	uint8_t reserved;
 	uint8_t port_select;
 	ib_net16_t counter_select;
-	ib_net32_t reserved2;
+	ib_net32_t counter_select2;
 	ib_net64_t xmit_data;
 	ib_net64_t rcv_data;
 	ib_net64_t xmit_pkts;
@@ -8480,6 +8482,20 @@ typedef struct _ib_port_counters_ext {
 	ib_net64_t unicast_rcv_pkts;
 	ib_net64_t multicast_xmit_pkts;
 	ib_net64_t multicast_rcv_pkts;
+	ib_net64_t symbol_err_cnt;
+	ib_net64_t link_err_recover;
+	ib_net64_t link_downed;
+	ib_net64_t rcv_err;
+	ib_net64_t rcv_rem_phys_err;
+	ib_net64_t rcv_switch_relay_err;
+	ib_net64_t xmit_discards;
+	ib_net64_t xmit_constraint_err;
+	ib_net64_t rcv_constraint_err;
+	ib_net64_t link_integrity_err;
+	ib_net64_t buffer_overrun;
+	ib_net64_t vl15_dropped;
+	ib_net64_t xmit_wait;
+	ib_net64_t qp1_dropped;
 } PACK_SUFFIX ib_port_counters_ext_t;
 #include <complib/cl_packoff.h>
 
