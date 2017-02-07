@@ -3424,8 +3424,8 @@ ib_path_rec_hop_limit(IN const ib_path_rec_t * const p_rec)
 *	IB_CLASS_RESP_TIME_MASK
 *
 * DESCRIPTION
-*	Mask bits to extract the reponse time value from the
-*	resp_time_val field of ib_class_port_info_t.
+*	Mask bits to extract the response time value from the
+*	cap_mask2_resp_time field of ib_class_port_info_t.
 *
 * SEE ALSO
 *	ib_class_port_info_t
