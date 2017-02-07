@@ -8444,7 +8444,7 @@ typedef struct _ib_port_counters {
 	uint8_t rcv_constraint_err;
 	uint8_t counter_select2;
 	uint8_t link_int_buffer_overrun;
-	ib_net16_t resv;
+	ib_net16_t qp1_dropped;
 	ib_net16_t vl15_dropped;
 	ib_net32_t xmit_data;
 	ib_net32_t rcv_data;
