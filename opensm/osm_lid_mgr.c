@@ -137,10 +137,11 @@ static void lid_mgr_validate_db(IN osm_lid_mgr_t * p_mgr)
 	uint16_t max_lid;
 	uint16_t lmc_mask;
 	boolean_t lids_ok;
+	uint8_t lmc_num_lids = (uint8_t) (1 << p_mgr->p_subn->opt.lmc);
 
 	OSM_LOG_ENTER(p_mgr->p_log);
 
-	lmc_mask = ~((1 << p_mgr->p_subn->opt.lmc) - 1);
+	lmc_mask = ~(lmc_num_lids - 1);
 
 	cl_qlist_init(&guids);
 
@@ -199,8 +200,10 @@ static void lid_mgr_validate_db(IN osm_lid_mgr_t * p_mgr)
 
 			if (lids_ok)
 				/* mark that it was visited */
-				for (lid = min_lid; lid <= max_lid; lid++)
-					p_mgr->used_lids[lid] = 1;
+				for (lid = min_lid; lid <= max_lid; lid++) {
+					if (lid < min_lid + lmc_num_lids)
+						p_mgr->used_lids[lid] = 1;
+				}
 			else if (osm_db_guid2lid_delete(p_mgr->p_g2l,
 							p_item->guid))
 				OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR,
@@ -362,8 +365,12 @@ static int lid_mgr_init_sweep(IN osm_lid_mgr_t * p_mgr)
 		osm_port_get_lid_range_ho(p_port, &disc_min_lid, &disc_max_lid);
 		disc_min_lid = trim_lid(disc_min_lid);
 		disc_max_lid = trim_lid(disc_max_lid);
-		for (lid = disc_min_lid; lid <= disc_max_lid; lid++)
-			cl_ptr_vector_set(p_discovered_vec, lid, p_port);
+		for (lid = disc_min_lid; lid <= disc_max_lid; lid++) {
+			if (lid < disc_min_lid + lmc_num_lids)
+				cl_ptr_vector_set(p_discovered_vec, lid, p_port);
+			else
+				cl_ptr_vector_set(p_discovered_vec, lid, NULL);
+		}
 		/* make sure the guid2lid entry is valid. If not, clean it. */
 		if (osm_db_guid2lid_get(p_mgr->p_g2l,
 					cl_ntoh64(osm_port_get_guid(p_port)),
