@@ -3379,7 +3379,7 @@ ib_path_rec_hop_limit(IN const ib_path_rec_t * const p_rec)
 *	if the class supports Trap() MADs (13.4.8.1).
 *
 * SEE ALSO
-*	ib_class_port_info_t, IB_CLASS_CAP_GETSET
+*	ib_class_port_info_t, IB_CLASS_CAP_GETSET, IB_CLASS_CAP_CAPMASK2
 *
 * SOURCE
 */
@@ -3395,11 +3395,28 @@ ib_path_rec_hop_limit(IN const ib_path_rec_t * const p_rec)
 *	if the class supports Get(Notice) and Set(Notice) MADs (13.4.8.1).
 *
 * SEE ALSO
-*	ib_class_port_info_t, IB_CLASS_CAP_TRAP
+*	ib_class_port_info_t, IB_CLASS_CAP_TRAP, IB_CLASS_CAP_CAPMASK2
 *
 * SOURCE
 */
 #define IB_CLASS_CAP_GETSET					0x0002
+/*********/
+
+/****s* IBA Base: Constants/IB_CLASS_CAP_CAPMASK2
+* NAME
+*	IB_CLASS_CAP_CAPMASK2
+*
+* DESCRIPTION
+*	ClassPortInfo CapabilityMask bits.
+*	This bit will be set of the class supports additional class specific
+*	capabilities (CapabilityMask2) (13.4.8.1).
+*
+* SEE ALSO
+*	ib_class_port_info_t, IB_CLASS_CAP_TRAP, IB_CLASS_CAP_GETSET
+*
+* SOURCE
+*/
+#define IB_CLASS_CAP_CAPMASK2					0x0004
 /*********/
 
 /****s* IBA Base: Constants/IB_CLASS_ENH_PORT0_CC_MASK
