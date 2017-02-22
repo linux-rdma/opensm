@@ -3548,6 +3548,7 @@ typedef struct _ib_class_port_info {
 #define IS_PM_RSFEC_COUNTERS_SUP		(CL_HTON16(((uint16_t)1)<<14))
 #define IB_PM_IS_QP1_DROP_SUP			(CL_HTON16(((uint16_t)1)<<15))
 /* CapabilityMask2 */
+#define IB_PM_IS_PM_KEY_SUPPORTED		(CL_HTON32(((uint32_t)1)<<0))
 #define IB_PM_IS_ADDL_PORT_CTRS_EXT_SUP		(CL_HTON32(((uint32_t)1)<<1))
 
 /****f* IBA Base: Types/ib_class_set_resp_time_val
