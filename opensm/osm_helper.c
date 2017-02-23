@@ -790,6 +790,48 @@ static void dbg_get_capabilities_str(IN char *p_buf, IN uint32_t buf_size,
 	}
 }
 
+static void dbg_get_capabilities2_str(IN char *p_buf, IN uint32_t buf_size,
+				      IN const char *p_prefix_str,
+				      IN const ib_port_info_t * p_pi)
+{
+	uint32_t total_len = 0;
+	char *p_local = p_buf;
+
+	strcpy(p_local, "Capability Mask2:\n");
+	p_local += strlen(p_local);
+
+	if (p_pi->capability_mask2 & IB_PORT_CAP2_IS_SET_NODE_DESC_SUPPORTED) {
+		if (dbg_do_line(&p_local, buf_size, p_prefix_str,
+				"IB_PORT_CAP2_IS_SET_NODE_DESC_SUPPORTED\n",
+				&total_len) != IB_SUCCESS)
+			return;
+	}
+	if (p_pi->capability_mask2 & IB_PORT_CAP2_IS_PORT_INFO_EXT_SUPPORTED) {
+		if (dbg_do_line(&p_local, buf_size, p_prefix_str,
+				"IB_PORT_CAP2_IS_PORT_INFO_EXT_SUPPORTED\n",
+				&total_len) != IB_SUCCESS)
+			return;
+	}
+	if (p_pi->capability_mask2 & IB_PORT_CAP2_IS_VIRT_SUPPORTED) {
+		if (dbg_do_line(&p_local, buf_size, p_prefix_str,
+				"IB_PORT_CAP2_IS_VIRT_SUPPORTED\n",
+				&total_len) != IB_SUCCESS)
+			return;
+	}
+	if (p_pi->capability_mask2 & IB_PORT_CAP2_IS_SWITCH_PORT_STATE_TBL_SUPP) {
+		if (dbg_do_line(&p_local, buf_size, p_prefix_str,
+				"IB_PORT_CAP2_IS_SWITCH_PORT_STATE_TBL_SUPP\n",
+				&total_len) != IB_SUCCESS)
+			return;
+	}
+	if (p_pi->capability_mask2 & IB_PORT_CAP2_IS_LINK_WIDTH_2X_SUPPORTED) {
+		if (dbg_do_line(&p_local, buf_size, p_prefix_str,
+				"IB_PORT_CAP2_IS_LINK_WIDTH_2X_SUPPORTED\n",
+				&total_len) != IB_SUCCESS)
+			return;
+	}
+}
+
 static void osm_dump_port_info_to_buf(IN ib_net64_t node_guid,
 				      IN ib_net64_t port_guid,
 				      IN uint8_t port_num,
@@ -890,10 +932,16 @@ void osm_dump_port_info(IN osm_log_t * p_log, IN ib_net64_t node_guid,
 
 		osm_log(p_log, log_level, "%s", buf);
 
-		/*  show the capabilities mask */
+		/*  show the capabilities masks */
 		if (p_pi->capability_mask) {
 			dbg_get_capabilities_str(buf, BUF_SIZE, "\t\t\t\t",
 						 p_pi);
+			osm_log(p_log, log_level, "%s", buf);
+		}
+		if ((p_pi->capability_mask & IB_PORT_CAP_HAS_CAP_MASK2) &&
+		    p_pi->capability_mask2) {
+			dbg_get_capabilities2_str(buf, BUF_SIZE, "\t\t\t\t",
+						  p_pi);
 			osm_log(p_log, log_level, "%s", buf);
 		}
 	}
@@ -912,11 +960,17 @@ void osm_dump_port_info_v2(IN osm_log_t * p_log, IN ib_net64_t node_guid,
 
 		osm_log_v2(p_log, log_level, file_id, "%s", buf);
 
-		/*  show the capabilities mask */
+		/*  show the capabilities masks */
 		if (p_pi->capability_mask) {
 			dbg_get_capabilities_str(buf, BUF_SIZE, "\t\t\t\t",
 						 p_pi);
 			osm_log_v2(p_log, log_level, file_id, "%s", buf);
+		}
+		if ((p_pi->capability_mask & IB_PORT_CAP_HAS_CAP_MASK2) &&
+		    p_pi->capability_mask2) {
+			dbg_get_capabilities2_str(buf, BUF_SIZE, "\t\t\t\t",
+						  p_pi);
+			osm_log(p_log, log_level, "%s", buf);
 		}
 	}
 }
@@ -1074,10 +1128,16 @@ void osm_dump_portinfo_record(IN osm_log_t * p_log,
 
 		osm_log(p_log, log_level, "%s", buf);
 
-		/*  show the capabilities mask */
+		/*  show the capabilities masks */
 		if (p_pi->capability_mask) {
 			dbg_get_capabilities_str(buf, BUF_SIZE, "\t\t\t\t",
 						 p_pi);
+			osm_log(p_log, log_level, "%s", buf);
+		}
+		if ((p_pi->capability_mask & IB_PORT_CAP_HAS_CAP_MASK2) &&
+		    p_pi->capability_mask2) {
+			dbg_get_capabilities2_str(buf, BUF_SIZE, "\t\t\t\t",
+						  p_pi);
 			osm_log(p_log, log_level, "%s", buf);
 		}
 	}
@@ -1096,11 +1156,17 @@ void osm_dump_portinfo_record_v2(IN osm_log_t * p_log,
 
 		osm_log_v2(p_log, log_level, file_id, "%s", buf);
 
-		/*  show the capabilities mask */
+		/*  show the capabilities masks */
 		if (p_pi->capability_mask) {
 			dbg_get_capabilities_str(buf, BUF_SIZE, "\t\t\t\t",
 						 p_pi);
 			osm_log_v2(p_log, log_level, file_id, "%s", buf);
+		}
+		if ((p_pi->capability_mask & IB_PORT_CAP_HAS_CAP_MASK2) &&
+		    p_pi->capability_mask2) {
+			dbg_get_capabilities2_str(buf, BUF_SIZE, "\t\t\t\t",
+						  p_pi);
+			osm_log(p_log, log_level, "%s", buf);
 		}
 	}
 }
