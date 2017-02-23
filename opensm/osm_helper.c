@@ -674,9 +674,9 @@ static void dbg_get_capabilities_str(IN char *p_buf, IN uint32_t buf_size,
 				&total_len) != IB_SUCCESS)
 			return;
 	}
-	if (p_pi->capability_mask & IB_PORT_CAP_RESV13) {
+	if (p_pi->capability_mask & IB_PORT_CAP_HAS_CABLE_INFO) {
 		if (dbg_do_line(&p_local, buf_size, p_prefix_str,
-				"IB_PORT_CAP_RESV13\n",
+				"IB_PORT_CAP_HAS_CABLE_INFO\n",
 				&total_len) != IB_SUCCESS)
 			return;
 	}
