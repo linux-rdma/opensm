@@ -109,7 +109,7 @@ static void pi_rcv_process_endport(IN osm_sm_t * sm, IN osm_physp_t * p_physp,
 
 		extended = p_pi->capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS;
 		rate = ib_port_info_compute_rate(p_pi, extended);
-		if (rate < sm->p_subn->min_ca_rate) {
+		if (ib_path_compare_rates(rate, sm->p_subn->min_ca_rate) < 0) {
 			OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 				"Setting endport minimal rate to:%u defined by port:0x%"
 				PRIx64 "\n", rate, cl_ntoh64(port_guid));
