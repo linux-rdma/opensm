@@ -861,7 +861,11 @@ ib_api_status_t osm_get_path_params(IN osm_sa_t * sa,
 	osm_alias_guid_t *p_src_alias_guid, *p_dest_alias_guid;
 	ib_path_rec_t pr;
 
+	if (!p_src_port || !slid_ho || !p_dest_port || !dlid_ho)
+		return IB_INVALID_PARAMETER;
+
 	memset(&pr, 0, sizeof(ib_path_rec_t));
+
 	p_src_alias_guid = osm_get_alias_guid_by_guid(sa->p_subn,
 						      osm_port_get_guid(p_src_port));
 	p_dest_alias_guid = osm_get_alias_guid_by_guid(sa->p_subn,
