@@ -471,8 +471,8 @@ static void infr_rcv_process_set_method(osm_sa_t * sa, IN osm_madw_t * p_madw)
 	 * trusted source.
 	 */
 	if ((p_sa_mad->sm_key == 0) && p_recvd_inform_info->is_generic &&
-	    ((cl_ntoh16(p_recvd_inform_info->g_or_v.generic.trap_num) >= 256) &&
-	     (cl_ntoh16(p_recvd_inform_info->g_or_v.generic.trap_num) <= 259))) {
+	    ((cl_ntoh16(p_recvd_inform_info->g_or_v.generic.trap_num) >= SM_BAD_MKEY_TRAP) &&
+	     (cl_ntoh16(p_recvd_inform_info->g_or_v.generic.trap_num) <= SM_BAD_SWITCH_PKEY_TRAP))) {
 		cl_plock_release(sa->p_lock);
 
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 430B "
