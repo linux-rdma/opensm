@@ -448,18 +448,20 @@ static int ordered_rates[] = {
 	6,	/*  4 - 30  Gbps */
 	2,	/*  5 - 5   Gbps */
 	5,	/*  6 - 20  Gbps */
-	8,	/*  7 - 40  Gbps */
-	9,	/*  8 - 60  Gbps */
-	11,	/*  9 - 80  Gbps */
-	12,	/* 10 - 120 Gbps */
+	9,	/*  7 - 40  Gbps */
+	10,	/*  8 - 60  Gbps */
+	13,	/*  9 - 80  Gbps */
+	14,	/* 10 - 120 Gbps */
 	4,	/* 11 -  14 Gbps (17 Gbps equiv) */
-	10,	/* 12 -  56 Gbps (68 Gbps equiv) */
-	14,	/* 13 - 112 Gbps (136 Gbps equiv) */
-	15,	/* 14 - 168 Gbps (204 Gbps equiv) */
+	12,	/* 12 -  56 Gbps (68 Gbps equiv) */
+	16,	/* 13 - 112 Gbps (136 Gbps equiv) */
+	17,	/* 14 - 168 Gbps (204 Gbps equiv) */
 	7,	/* 15 -  25 Gbps (31.25 Gbps equiv) */
-	13,	/* 16 - 100 Gbps (125 Gbps equiv) */
-	16,	/* 17 - 200 Gbps (250 Gbps equiv) */
-	17	/* 18 - 300 Gbps (375 Gbps equiv) */
+	15,	/* 16 - 100 Gbps (125 Gbps equiv) */
+	18,	/* 17 - 200 Gbps (250 Gbps equiv) */
+	19,	/* 18 - 300 Gbps (375 Gbps equiv) */
+	8,	/* 19 -  28 Gbps (35 Gbps equiv) */
+	11,	/* 20 -  50 Gbps (62.5 Gbps equiv) */
 };
 
 int sprint_uint8_arr(char *buf, size_t size,
@@ -3169,12 +3171,20 @@ static const char *lwa_str_fixed_width[] = {
 	"???",
 	"???",
 	"???",
-	"12x"
+	"12x",
+	"???",
+	"???",
+	"???",
+	"???",
+	"???",
+	"???",
+	"???",
+	"2x "
 };
 
 const char *osm_get_lwa_str(IN uint8_t lwa)
 {
-	if (lwa > 8)
+	if (lwa > 16)
 		return lwa_str_fixed_width[0];
 	else
 		return lwa_str_fixed_width[lwa];

@@ -1253,7 +1253,7 @@ ib_api_status_t osm_subn_init(IN osm_subn_t * p_subn, IN osm_opensm_t * p_osm,
 	p_subn->max_ucast_lid_ho = IB_LID_UCAST_END_HO;
 	p_subn->max_mcast_lid_ho = IB_LID_MCAST_END_HO;
 	p_subn->min_ca_mtu = IB_MAX_MTU;
-	p_subn->min_ca_rate = IB_MAX_RATE;
+	p_subn->min_ca_rate = IB_PATH_RECORD_RATE_300_GBS;
 	p_subn->min_data_vls = IB_MAX_NUM_VLS - 1;
 	p_subn->min_sw_data_vls = IB_MAX_NUM_VLS - 1;
 	p_subn->ignore_existing_lfts = TRUE;

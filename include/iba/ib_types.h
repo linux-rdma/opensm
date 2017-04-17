@@ -5165,6 +5165,7 @@ ib_port_info_get_link_speed_active(IN const ib_port_info_t * const p_pi)
 #define IB_LINK_WIDTH_ACTIVE_4X			2
 #define IB_LINK_WIDTH_ACTIVE_8X			4
 #define IB_LINK_WIDTH_ACTIVE_12X 		8
+#define IB_LINK_WIDTH_ACTIVE_2X			16
 #define IB_LINK_SPEED_ACTIVE_EXTENDED		0
 #define IB_LINK_SPEED_ACTIVE_2_5		1
 #define IB_LINK_SPEED_ACTIVE_5			2
@@ -5175,7 +5176,7 @@ ib_port_info_get_link_speed_active(IN const ib_port_info_t * const p_pi)
 #define IB_LINK_SPEED_EXT_DISABLE		30
 #define IB_LINK_SPEED_EXT_SET_LSES		31
 
-/* following v1 ver1.2 p901 */
+/* following v1 ver1.3 p984 */
 #define IB_PATH_RECORD_RATE_2_5_GBS		2
 #define IB_PATH_RECORD_RATE_10_GBS		3
 #define IB_PATH_RECORD_RATE_30_GBS		4
@@ -5193,9 +5194,11 @@ ib_port_info_get_link_speed_active(IN const ib_port_info_t * const p_pi)
 #define IB_PATH_RECORD_RATE_100_GBS		16
 #define IB_PATH_RECORD_RATE_200_GBS		17
 #define IB_PATH_RECORD_RATE_300_GBS		18
+#define IB_PATH_RECORD_RATE_28_GBS		19
+#define IB_PATH_RECORD_RATE_50_GBS		20
 
 #define IB_MIN_RATE    IB_PATH_RECORD_RATE_2_5_GBS
-#define IB_MAX_RATE    IB_PATH_RECORD_RATE_300_GBS
+#define IB_MAX_RATE    IB_PATH_RECORD_RATE_50_GBS
 
 static inline uint8_t OSM_API
 ib_port_info_get_link_speed_ext_active(IN const ib_port_info_t * const p_pi);
@@ -5235,6 +5238,10 @@ ib_port_info_compute_rate(IN const ib_port_info_t * const p_pi,
 				rate = IB_PATH_RECORD_RATE_168_GBS;
 				break;
 
+			case IB_LINK_WIDTH_ACTIVE_2X:
+				rate = IB_PATH_RECORD_RATE_28_GBS;
+				break;
+
 			default:
 				rate = IB_PATH_RECORD_RATE_14_GBS;
 				break;
@@ -5256,6 +5263,10 @@ ib_port_info_compute_rate(IN const ib_port_info_t * const p_pi,
 
 			case IB_LINK_WIDTH_ACTIVE_12X:
 				rate = IB_PATH_RECORD_RATE_300_GBS;
+				break;
+
+			case IB_LINK_WIDTH_ACTIVE_2X:
+				rate = IB_PATH_RECORD_RATE_50_GBS;
 				break;
 
 			default:
@@ -5290,6 +5301,10 @@ ib_port_info_compute_rate(IN const ib_port_info_t * const p_pi,
 			rate = IB_PATH_RECORD_RATE_30_GBS;
 			break;
 
+		case IB_LINK_WIDTH_ACTIVE_2X:
+			rate = IB_PATH_RECORD_RATE_5_GBS;
+			break;
+
 		default:
 			rate = IB_PATH_RECORD_RATE_2_5_GBS;
 			break;
@@ -5313,6 +5328,10 @@ ib_port_info_compute_rate(IN const ib_port_info_t * const p_pi,
 			rate = IB_PATH_RECORD_RATE_60_GBS;
 			break;
 
+		case IB_LINK_WIDTH_ACTIVE_2X:
+			rate = IB_PATH_RECORD_RATE_10_GBS;
+			break;
+
 		default:
 			rate = IB_PATH_RECORD_RATE_5_GBS;
 			break;
@@ -5334,6 +5353,10 @@ ib_port_info_compute_rate(IN const ib_port_info_t * const p_pi,
 
 		case IB_LINK_WIDTH_ACTIVE_12X:
 			rate = IB_PATH_RECORD_RATE_120_GBS;
+			break;
+
+		case IB_LINK_WIDTH_ACTIVE_2X:
+			rate = IB_PATH_RECORD_RATE_20_GBS;
 			break;
 
 		default:

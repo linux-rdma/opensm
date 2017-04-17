@@ -717,6 +717,7 @@ typedef struct {
 	uint64_t ports_4X;
 	uint64_t ports_8X;
 	uint64_t ports_12X;
+	uint64_t ports_2X;
 	uint64_t ports_unknown_width;
 	port_report_t *unknown_width_ports;
 	uint64_t ports_unenabled_width;
@@ -909,6 +910,9 @@ static void __get_stats(cl_map_item_t * const p_map_item, void *context)
 			break;
 		case IB_LINK_WIDTH_ACTIVE_12X:
 			fs->ports_12X++;
+			break;
+		case IB_LINK_WIDTH_ACTIVE_2X:
+			fs->ports_2X++;
 			break;
 		default:
 			__tag_port_report(&(fs->unknown_width_ports),

@@ -907,6 +907,17 @@ typedef enum _osm_thread_state {
  */
 #define OSM_CAP2_IS_PORT_INFO_CAPMASK2_MATCH_SUPPORTED (1 << 10)
 
+/****d* OpenSM: Base/OSM_CAP2_IS_LINK_WIDTH_2X_SUPPORTED
+ * Name
+ *	OSM_CAP2_IS_LINK_WIDTH_2X_SUPPORTED
+ *
+ * DESCRIPTION
+ *	2x link widths supported
+ *
+ * SYNOPSIS
+ */
+#define OSM_CAP2_IS_LINK_WIDTH_2X_SUPPORTED (1 << 13)
+
 /****d* OpenSM: Base/osm_signal_t
 * NAME
 *	osm_signal_t

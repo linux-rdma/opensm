@@ -372,7 +372,7 @@ static void dump_topology_node(cl_map_item_t * item, FILE * file, void *cxt)
 	osm_node_t *p_nbnode;
 	osm_physp_t *p_physp, *p_default_physp, *p_rphysp;
 	uint8_t link_speed_act;
-	const char *link_speed_act_str;
+	const char *link_speed_act_str, *link_width_act_str;
 
 	if (!p_node->node_info.num_ports)
 		return;
@@ -472,12 +472,24 @@ static void dump_topology_node(cl_map_item_t * item, FILE * file, void *cxt)
 				link_speed_act_str = "??";
 		}
 
+		if (p_physp->port_info.link_width_active == 1)
+			link_width_act_str = "1x";
+		else if (p_physp->port_info.link_width_active == 2)
+			link_width_act_str = "4x";
+		else if (p_physp->port_info.link_width_active == 4)
+			link_width_act_str = "8x";
+		else if (p_physp->port_info.link_width_active == 8)
+			link_width_act_str = "12x";
+		else link_width_act_str = "??";
+
+		if (p_default_physp->port_info.capability_mask2 &
+		    IB_PORT_CAP2_IS_LINK_WIDTH_2X_SUPPORTED) {
+			if (p_physp->port_info.link_width_active == 16)
+				link_width_act_str = "2x";
+		}
+
 		fprintf(file, "PHY=%s LOG=%s SPD=%s\n",
-			p_physp->port_info.link_width_active == 1 ? "1x" :
-			p_physp->port_info.link_width_active == 2 ? "4x" :
-			p_physp->port_info.link_width_active == 4 ? "8x" :
-			p_physp->port_info.link_width_active == 8 ? "12x" :
-			"??",
+			link_width_act_str,
 			port_state == IB_LINK_ACTIVE ? "ACT" :
 			port_state == IB_LINK_ARMED ? "ARM" :
 			port_state == IB_LINK_INIT ? "INI" : "DWN",
