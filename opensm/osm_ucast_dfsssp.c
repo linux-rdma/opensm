@@ -3,7 +3,7 @@
  * Copyright (c) 2002-2015 Mellanox Technologies LTD. All rights reserved.
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2009-2015 ZIH, TU Dresden, Federal Republic of Germany. All rights reserved.
- * Copyright (C) 2012-2013 Tokyo Institute of Technology. All rights reserved.
+ * Copyright (C) 2012-2017 Tokyo Institute of Technology. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -812,6 +812,9 @@ static int update_channel_dep_graph(cdg_node_t ** cdg_root,
 	while (remote_node && remote_node->sw) {
 		local_node = remote_node;
 		local_port = local_node->sw->new_lft[dlid];
+		/* sanity check: local_port must be set or routing is broken */
+		if (local_port == OSM_NO_PATH)
+			goto ERROR;
 		local_lid = cl_ntoh16(osm_node_get_base_lid(local_node, 0));
 		/* each port belonging to a switch has lmc==0 -> get_base_lid is fine
 		   (local/remote port in this function are always part of a switch)
@@ -961,6 +964,9 @@ static int remove_path_from_cdg(cdg_node_t ** cdg_root, osm_port_t * src_port,
 	while (remote_node && remote_node->sw) {
 		local_node = remote_node;
 		local_port = local_node->sw->new_lft[dlid];
+		/* sanity check: local_port must be set or routing is broken */
+		if (local_port == OSM_NO_PATH)
+			goto ERROR;
 		local_lid = cl_ntoh16(osm_node_get_base_lid(local_node, 0));
 
 		remote_node =
@@ -1028,7 +1034,8 @@ static void add_sw_endports_to_order_list(osm_switch_t * sw,
 					  boolean_t add_guids)
 {
 	osm_port_t *port;
-	uint64_t port_guid;
+	ib_net64_t port_guid;
+	uint64_t sw_guid;
 	osm_physp_t *p;
 	int i;
 	boolean_t found;
@@ -1037,6 +1044,17 @@ static void add_sw_endports_to_order_list(osm_switch_t * sw,
 		p = osm_node_get_physp_ptr(sw->p_node, i);
 		if (p && p->p_remote_physp && !p->p_remote_physp->p_node->sw) {
 			port_guid = p->p_remote_physp->port_guid;
+			/* check if link is healthy, otherwise ignore CA */
+			if (!osm_link_is_healthy(p)) {
+				sw_guid =
+				    cl_ntoh64(osm_node_get_node_guid
+					      (sw->p_node));
+				OSM_LOG(m->p_log, OSM_LOG_INFO,
+					"WRN AD40: ignoring CA due to unhealthy"
+					" link from switch 0x%016" PRIx64
+					" port %" PRIu8 " to CA 0x%016" PRIx64
+					"\n", sw_guid, i, cl_ntoh64(port_guid));
+			}
 			port = osm_get_port_by_guid(m->p_subn, port_guid);
 			if (!port)
 				continue;
@@ -1176,6 +1194,8 @@ static void dfsssp_print_graph(osm_ucast_mgr_t * p_mgr, vertex_t * adj_list,
 
 /* predefine, to use this in next function */
 static void dfsssp_context_destroy(void *context);
+static int dijkstra(osm_ucast_mgr_t * p_mgr, vertex_t * adj_list,
+		    uint32_t adj_list_size, osm_port_t * port, uint16_t lid);
 
 /* traverse subnet to gather information about the connected switches */
 static int dfsssp_build_graph(void *context)
@@ -1190,13 +1210,14 @@ static int dfsssp_build_graph(void *context)
 	osm_switch_t *sw = NULL;
 	osm_node_t *remote_node = NULL;
 	uint8_t port = 0, remote_port = 0;
-	uint32_t i = 0, j = 0;
+	uint32_t i = 0, j = 0, err = 0, undiscov = 0, max_num_undiscov = 0;
 	uint64_t total_num_hca = 0;
 	vertex_t *adj_list = NULL;
 	osm_physp_t *p_physp = NULL;
 	link_t *link = NULL, *head = NULL;
 	uint32_t num_sw = 0, adj_list_size = 0;
 	uint8_t lmc = 0;
+	uint16_t sm_lid = 0;
 
 	OSM_LOG_ENTER(p_mgr->p_log);
 	OSM_LOG(p_mgr->p_log, OSM_LOG_VERBOSE,
@@ -1254,7 +1275,6 @@ static int dfsssp_build_graph(void *context)
 		if (!link) {
 			OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR,
 				"ERR AD03: cannot allocate memory for a link\n");
-			dfsssp_context_destroy(context);
 			goto ERROR;
 		}
 		head = link;
@@ -1294,7 +1314,6 @@ static int dfsssp_build_graph(void *context)
 			if (!link->next) {
 				OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR,
 					"ERR AD08: cannot allocate memory for a link\n");
-				dfsssp_context_destroy(context);
 				while (head) {
 					link = head;
 					head = head->next;
@@ -1328,6 +1347,28 @@ static int dfsssp_build_graph(void *context)
 			link = link->next;
 		}
 	}
+	/* do one dry run to determine connectivity issues */
+	sm_lid = p_mgr->p_subn->master_sm_base_lid;
+	p_port = osm_get_port_by_lid(p_mgr->p_subn, sm_lid);
+	err = dijkstra(p_mgr, adj_list, adj_list_size, p_port, sm_lid);
+	if (err) {
+		goto ERROR;
+	} else {
+		/* if sm is running on a switch, then dijkstra doesn't
+		   initialize the used_link for this switch
+		 */
+		if (osm_node_get_type(p_port->p_node) != IB_NODE_TYPE_CA)
+			max_num_undiscov = 1;
+		for (i = 1; i < adj_list_size; i++)
+			undiscov += (adj_list[i].used_link) ? 0 : 1;
+		if (max_num_undiscov < undiscov) {
+			OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR,
+				"ERR AD0C: unsupported network state (detached"
+				" and inaccessible switches found; gracefully"
+				" shutdown this routing engine)\n");
+			goto ERROR;
+		}
+	}
 	/* print the discovered graph */
 	if (OSM_LOG_IS_ACTIVE_V2(p_mgr->p_log, OSM_LOG_DEBUG))
 		dfsssp_print_graph(p_mgr, adj_list, adj_list_size);
@@ -1336,6 +1377,7 @@ static int dfsssp_build_graph(void *context)
 	return 0;
 
 ERROR:
+	dfsssp_context_destroy(context);
 	return -1;
 }
 
@@ -1450,6 +1492,14 @@ static int dijkstra(osm_ucast_mgr_t * p_mgr, vertex_t * adj_list,
 					}
 				}
 			}
+		} else {
+			/* if link is unhealthy then there's a severe issue */
+			OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR,
+				"ERR AD0B: unsupported network state (CA with"
+				" unhealthy link state discovered; should have"
+				" been filtered out before already; gracefully"
+				" shutdown this routing engine)\n");
+			return 1;
 		}
 		/* if behind port is a switch -> search switch in adj_list */
 	} else {
