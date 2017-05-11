@@ -260,7 +260,7 @@ uint8_t osm_switch_recommend_path(IN const osm_switch_t * p_sw,
 	uint32_t least_paths = 0xFFFFFFFF;
 	unsigned i;
 	/*
-	   The follwing will track the least paths if the
+	   The following will track the least paths if the
 	   route should go through a new system/node
 	 */
 	uint32_t least_paths_other_sys = 0xFFFFFFFF;
