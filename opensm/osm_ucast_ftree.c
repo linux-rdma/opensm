@@ -3926,13 +3926,16 @@ static int add_guid_item_to_map(void *cxt, uint64_t guid, char *p)
 {
 	cl_qmap_t *map = cxt;
 	name_map_item_t *item;
+	name_map_item_t *inserted_item;
 
 	item = malloc(sizeof(*item));
 	if (!item)
 		return -1;
 
 	item->guid = guid;
-	cl_qmap_insert(map, guid, &item->item);
+	inserted_item = (name_map_item_t *) cl_qmap_insert(map, guid, &item->item);
+	if (inserted_item != item)
+                free(item);
 
 	return 0;
 }

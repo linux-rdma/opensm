@@ -1130,6 +1130,7 @@ static int add_guid_to_map(void * cxt, uint64_t guid, char * p)
 {
 	cl_qmap_t *map = cxt;
 	name_map_item_t *item;
+	name_map_item_t *inserted_item;
 
 	item = malloc(sizeof(*item));
 	if (!item)
@@ -1137,7 +1138,9 @@ static int add_guid_to_map(void * cxt, uint64_t guid, char * p)
 
 	item->guid = cl_hton64(guid);	/* internal: network byte order */
 	item->name = NULL;		/* name isn't needed */
-	cl_qmap_insert(map, item->guid, &item->item);
+	inserted_item = (name_map_item_t *) cl_qmap_insert(map, item->guid, &item->item);
+	if (inserted_item != item)
+                free(item);
 
 	return 0;
 }
