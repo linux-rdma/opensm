@@ -3209,6 +3209,8 @@ ib_path_rec_rate(IN const ib_path_rec_t * const p_rec)
 *		16: 100 Gb/sec.
 *		17: 200 Gb/sec.
 *		18: 300 Gb/sec.
+*		19: 28 Gb/sec.
+*		20: 50 Gb/sec.
 *		others: reserved
 *
 * NOTES
@@ -7083,6 +7085,8 @@ ib_multipath_rec_rate(IN const ib_multipath_rec_t * const p_rec)
 *		16: 100 Gb/sec.
 *		17: 200 Gb/sec.
 *		18: 300 Gb/sec.
+*		19: 28 Gb/sec.
+*		20: 50 Gb/sec.
 *               others: reserved
 *
 * NOTES
