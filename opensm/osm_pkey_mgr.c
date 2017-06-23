@@ -247,7 +247,7 @@ pkey_mgr_update_pkey_entry(IN osm_sm_t * sm,
 			   (uint8_t *) block, sizeof(*block),
 			   IB_MAD_ATTR_P_KEY_TABLE,
 			   cl_hton32(attr_mod), FALSE, m_key,
-			   CL_DISP_MSGID_NONE, &context);
+			   0, CL_DISP_MSGID_NONE, &context);
 }
 
 static ib_api_status_t
@@ -310,7 +310,7 @@ pkey_mgr_enforce_partition(IN osm_log_t * p_log, osm_sm_t * sm,
 			     IB_MAD_ATTR_PORT_INFO,
 			     cl_hton32(osm_physp_get_port_num(p_physp)),
 			     FALSE, m_key,
-			     CL_DISP_MSGID_NONE, &context);
+			     0, CL_DISP_MSGID_NONE, &context);
 	if (status != IB_SUCCESS)
 		OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0511: "
 			"Failed to set PortInfo for "

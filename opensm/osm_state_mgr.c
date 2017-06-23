@@ -682,7 +682,7 @@ static void state_mgr_reset_state_change_bit(IN cl_map_item_t * obj,
 			     sizeof(si), IB_MAD_ATTR_SWITCH_INFO,
 			     0, FALSE,
 			     ib_port_info_get_m_key(&p_physp->port_info),
-			     CL_DISP_MSGID_NONE, &mad_context);
+			     0, CL_DISP_MSGID_NONE, &mad_context);
 
 	if (status != IB_SUCCESS)
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 332A: "
@@ -1005,7 +1005,7 @@ static void state_mgr_send_handover(IN osm_sm_t * sm, IN osm_remote_sm_t * p_sm)
 			     payload, sizeof(payload), IB_MAD_ATTR_SM_INFO,
 			     IB_SMINFO_ATTR_MOD_HANDOVER, FALSE,
 			     ib_port_info_get_m_key(&p_port->p_physp->port_info),
-			     CL_DISP_MSGID_NONE, &context);
+			     0, CL_DISP_MSGID_NONE, &context);
 	CL_PLOCK_RELEASE(sm->p_lock);
 
 	if (status != IB_SUCCESS)

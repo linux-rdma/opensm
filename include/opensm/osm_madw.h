@@ -455,6 +455,7 @@ typedef struct osm_madw {
 	ib_api_status_t status;
 	cl_disp_msgid_t fail_msg;
 	boolean_t resp_expected;
+	uint32_t timeout;
 	const ib_mad_t *p_mad;
 } osm_madw_t;
 /*
@@ -494,6 +495,9 @@ typedef struct osm_madw {
 *	resp_expected
 *		TRUE if a response is expected to this MAD.
 *		FALSE otherwise.
+*
+*	timeout
+*		Transaction timeout in msec.
 *
 *	p_mad
 *		Pointer to the wire MAD.  The MAD itself cannot be part of the

@@ -470,7 +470,7 @@ Send:
 	status = osm_req_set(sm, osm_physp_get_dr_path_ptr(p_physp),
 			     payload, sizeof(payload), IB_MAD_ATTR_PORT_INFO,
 			     attr_mod, FALSE, m_key,
-			     CL_DISP_MSGID_NONE, &context);
+			     0, CL_DISP_MSGID_NONE, &context);
 	if (status)
 		ret = -1;
 
@@ -488,7 +488,7 @@ SEND_EPI:
 				     payload2, sizeof(payload2),
 				     IB_MAD_ATTR_MLNX_EXTENDED_PORT_INFO,
 				     cl_hton32(port_num), FALSE, m_key,
-				     CL_DISP_MSGID_NONE, &context);
+				     0, CL_DISP_MSGID_NONE, &context);
 		if (status)
 			ret = -1;
 	}

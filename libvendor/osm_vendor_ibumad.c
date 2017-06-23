@@ -1114,7 +1114,7 @@ osm_vendor_send(IN osm_bind_handle_t h_bind,
 	ib_mad_addr_t mad_addr;
 	int ret = -1;
 	int __attribute__((__unused__)) is_rmpp = 0;
-	uint32_t sent_mad_size;
+	uint32_t sent_mad_size, timeout = 0;
 	uint64_t tid;
 #ifndef VENDOR_RMPP_SUPPORT
 	uint32_t paylen = 0;
@@ -1191,9 +1191,14 @@ Resp:
 	    p_madw->mad_size;
 #endif
 	tid = cl_ntoh64(p_mad->trans_id);
+	if (resp_expected) {
+		if (p_madw->timeout)
+			timeout = p_madw->timeout;
+		else
+			timeout = p_bind->timeout;
+	}
 	if ((ret = umad_send(p_bind->port_id, p_bind->agent_id, p_vw->umad,
-			     sent_mad_size,
-			     resp_expected ? p_bind->timeout : 0,
+			     sent_mad_size, timeout,
 			     p_bind->max_retries)) < 0) {
 		OSM_LOG(p_vend->p_log, OSM_LOG_ERROR, "ERR 5430: "
 			"Send p_madw = %p of size %d, Class 0x%x, Method 0x%X, "

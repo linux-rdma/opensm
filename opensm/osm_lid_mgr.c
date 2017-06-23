@@ -1080,7 +1080,7 @@ static int lid_mgr_set_physp_pi(IN osm_lid_mgr_t * p_mgr,
 			     payload, sizeof(payload), IB_MAD_ATTR_PORT_INFO,
 			     cl_hton32(osm_physp_get_port_num(p_physp)),
 			     FALSE, ib_port_info_get_m_key(&p_physp->port_info),
-			     CL_DISP_MSGID_NONE, &context);
+			     0, CL_DISP_MSGID_NONE, &context);
 	if (status != IB_SUCCESS)
 		ret = -1;
 	/* If we sent a new mkey above, update our guid2mkey map

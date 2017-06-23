@@ -128,7 +128,7 @@ static qos_mad_item_t *osm_qos_mad_create(IN osm_sm_t * sm,
 				     p_data, data_size,
 				     attr_id, cl_hton32(attr_mod),
 				     FALSE, m_key,
-				     CL_DISP_MSGID_NONE, &context);
+				     0, CL_DISP_MSGID_NONE, &context);
 
 	if (p_madw == NULL) {
 		free(p_mad);

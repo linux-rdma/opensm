@@ -75,7 +75,7 @@ static void guidinfo_set(IN osm_sa_t *sa, IN osm_port_t *p_port,
 			     payload, sizeof(payload), IB_MAD_ATTR_GUID_INFO,
 			     cl_hton32((uint32_t)block_num), FALSE,
 			     ib_port_info_get_m_key(&p_port->p_physp->port_info),
-					            CL_DISP_MSGID_NONE, &context);
+			     0, CL_DISP_MSGID_NONE, &context);
 	if (status != IB_SUCCESS)
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 5109: "
 			"Failure initiating GUIDInfo request (%s)\n",

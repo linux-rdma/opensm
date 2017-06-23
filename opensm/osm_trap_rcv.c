@@ -262,7 +262,7 @@ static int disable_port(osm_sm_t *sm, osm_physp_t *p)
 			   payload, sizeof(payload), IB_MAD_ATTR_PORT_INFO,
 			   cl_hton32(osm_physp_get_port_num(p)),
 			   FALSE, m_key,
-			   CL_DISP_MSGID_NONE, &context);
+			   0, CL_DISP_MSGID_NONE, &context);
 	return status;
 }
 

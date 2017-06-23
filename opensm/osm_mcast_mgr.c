@@ -378,7 +378,7 @@ static int mcast_mgr_set_mft_block(osm_sm_t * sm, IN osm_switch_t * p_sw,
 				     IB_MAD_ATTR_MCAST_FWD_TBL,
 				     cl_hton32(block_id_ho), FALSE,
 				     ib_port_info_get_m_key(&p_physp->port_info),
-				     CL_DISP_MSGID_NONE, &context);
+				     0, CL_DISP_MSGID_NONE, &context);
 		if (status != IB_SUCCESS) {
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A02: "
 				"Sending multicast fwd. tbl. block 0x%X to %s "
@@ -1094,7 +1094,7 @@ static void mcast_mgr_set_mfttop(IN osm_sm_t * sm, IN osm_switch_t * p_sw)
 				     sizeof(si), IB_MAD_ATTR_SWITCH_INFO,
 				     0, FALSE,
 				     ib_port_info_get_m_key(&p_physp->port_info),
-				     CL_DISP_MSGID_NONE, &context);
+				     0, CL_DISP_MSGID_NONE, &context);
 
 		if (status != IB_SUCCESS)
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0A1B: "
