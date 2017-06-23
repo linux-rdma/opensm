@@ -450,7 +450,6 @@ typedef struct osm_madw {
 	osm_bind_handle_t h_bind;
 	osm_vend_wrap_t vend_wrap;
 	osm_mad_addr_t mad_addr;
-	osm_bind_info_t bind_info;
 	osm_madw_context_t context;
 	uint32_t mad_size;
 	ib_api_status_t status;
