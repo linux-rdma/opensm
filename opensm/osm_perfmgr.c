@@ -873,7 +873,7 @@ static int sweep_hop_1(osm_sm_t * sm)
 		osm_dr_path_init(&hop_1_path, 1, path_array);
 		CL_PLOCK_ACQUIRE(sm->p_lock);
 		status = osm_req_get(sm, &hop_1_path, IB_MAD_ATTR_NODE_INFO, 0,
-				     TRUE, 0, CL_DISP_MSGID_NONE, &context);
+				     TRUE, 0, 0, CL_DISP_MSGID_NONE, &context);
 		CL_PLOCK_RELEASE(sm->p_lock);
 
 		if (status != IB_SUCCESS)
@@ -908,7 +908,7 @@ static int sweep_hop_1(osm_sm_t * sm)
 			CL_PLOCK_ACQUIRE(sm->p_lock);
 			status = osm_req_get(sm, &hop_1_path,
 					     IB_MAD_ATTR_NODE_INFO, 0, TRUE, 0,
-					     CL_DISP_MSGID_NONE, &context);
+					     0, CL_DISP_MSGID_NONE, &context);
 			CL_PLOCK_RELEASE(sm->p_lock);
 
 			if (status != IB_SUCCESS)
@@ -971,7 +971,7 @@ static int sweep_hop_0(osm_sm_t * sm)
 	osm_dr_path_init(&dr_path, 0, path_array);
 	CL_PLOCK_ACQUIRE(sm->p_lock);
 	status = osm_req_get(sm, &dr_path, IB_MAD_ATTR_NODE_INFO, 0,
-			     TRUE, 0, CL_DISP_MSGID_NONE, NULL);
+			     TRUE, 0, 0, CL_DISP_MSGID_NONE, NULL);
 	CL_PLOCK_RELEASE(sm->p_lock);
 
 	if (status != IB_SUCCESS)

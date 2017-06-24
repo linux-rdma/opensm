@@ -176,7 +176,7 @@ static void pi_rcv_process_endport(IN osm_sm_t * sm, IN osm_physp_t * p_physp,
 						     IB_MAD_ATTR_SM_INFO, 0,
 						     FALSE,
 						     ib_port_info_get_m_key(&p_physp->port_info),
-						     CL_DISP_MSGID_NONE,
+						     0, CL_DISP_MSGID_NONE,
 						     &context);
 
 				if (status != IB_SUCCESS)
@@ -242,7 +242,7 @@ static void pi_rcv_process_switch_port0(IN osm_sm_t * sm,
 				     IB_MAD_ATTR_PORT_INFO, cl_hton32(port),
 				     FALSE,
 				     ib_port_info_get_m_key(&p_physp->port_info),
-				     CL_DISP_MSGID_NONE, &context);
+				     0, CL_DISP_MSGID_NONE, &context);
 		if (status != IB_SUCCESS)
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0F16: "
 				"Failure initiating PortInfo request (%s)\n",
@@ -338,7 +338,7 @@ static void pi_rcv_process_switch_ext_port(IN osm_sm_t * sm,
 					     osm_physp_get_dr_path_ptr(p_physp),
 					     IB_MAD_ATTR_MLNX_EXTENDED_PORT_INFO,
 					     cl_hton32(port_num), FALSE, m_key,
-					     CL_DISP_MSGID_NONE, &context);
+					     0, CL_DISP_MSGID_NONE, &context);
 			if (status != IB_SUCCESS)
 				OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0F11: "
 					"Failure initiating MLNX ExtPortInfo request (%s)\n",
@@ -377,7 +377,7 @@ static void pi_rcv_process_switch_ext_port(IN osm_sm_t * sm,
 
 				status = osm_req_get(sm, &path,
 						     IB_MAD_ATTR_NODE_INFO, 0,
-						     TRUE, 0,
+						     TRUE, 0, 0,
 						     CL_DISP_MSGID_NONE,
 						     &context);
 
@@ -522,7 +522,7 @@ static void get_pkey_table(IN osm_log_t * p_log, IN osm_sm_t * sm,
 		}
 		status = osm_req_get(sm, &path, IB_MAD_ATTR_P_KEY_TABLE,
 				     cl_hton32(attr_mod_ho), FALSE,
-				     m_key, CL_DISP_MSGID_NONE, &context);
+				     m_key, 0, CL_DISP_MSGID_NONE, &context);
 
 		if (status != IB_SUCCESS) {
 			OSM_LOG(p_log, OSM_LOG_ERROR, "ERR 0F12: "

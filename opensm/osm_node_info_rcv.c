@@ -127,7 +127,7 @@ static void requery_dup_node_info(IN osm_sm_t * sm, osm_physp_t * p_physp,
 	context.ni_context.dup_count = count;
 
 	status = osm_req_get(sm, &path, IB_MAD_ATTR_NODE_INFO, 0,
-			     TRUE, 0, CL_DISP_MSGID_NONE, &context);
+			     TRUE, 0, 0, CL_DISP_MSGID_NONE, &context);
 
 	if (status != IB_SUCCESS)
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D02: "
@@ -348,7 +348,7 @@ static void ni_rcv_get_port_info(IN osm_sm_t * sm, IN osm_node_t * node,
 
 	status = osm_req_get(sm, osm_physp_get_dr_path_ptr(physp),
 			     IB_MAD_ATTR_PORT_INFO, cl_hton32(port),
-			     TRUE, 0, CL_DISP_MSGID_NONE, &context);
+			     TRUE, 0, 0, CL_DISP_MSGID_NONE, &context);
 	if (status != IB_SUCCESS)
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR OD02: "
 			"Failure initiating PortInfo request (%s)\n",
@@ -358,7 +358,7 @@ static void ni_rcv_get_port_info(IN osm_sm_t * sm, IN osm_node_t * node,
 				     osm_physp_get_dr_path_ptr(physp),
 				     IB_MAD_ATTR_MLNX_EXTENDED_PORT_INFO,
 				     cl_hton32(port),
-				     TRUE, 0, CL_DISP_MSGID_NONE, &context);
+				     TRUE, 0, 0, CL_DISP_MSGID_NONE, &context);
 		if (status != IB_SUCCESS)
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D0B: "
 				"Failure initiating MLNX ExtPortInfo request (%s)\n",
@@ -381,7 +381,7 @@ void osm_req_get_node_desc(IN osm_sm_t * sm, osm_physp_t * p_physp)
 
 	status = osm_req_get(sm, osm_physp_get_dr_path_ptr(p_physp),
 			     IB_MAD_ATTR_NODE_DESC, 0, TRUE, 0,
-			     CL_DISP_MSGID_NONE, &context);
+			     0, CL_DISP_MSGID_NONE, &context);
 	if (status != IB_SUCCESS)
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D03: "
 			"Failure initiating NodeDescription request (%s)\n",
@@ -601,7 +601,7 @@ static void ni_rcv_process_switch(IN osm_sm_t * sm, IN osm_node_t * p_node,
 
 	/* Request a SwitchInfo attribute */
 	status = osm_req_get(sm, path, IB_MAD_ATTR_SWITCH_INFO, 0, TRUE, 0,
-			     CL_DISP_MSGID_NONE, &context);
+			     0, CL_DISP_MSGID_NONE, &context);
 	if (status != IB_SUCCESS)
 		/* continue despite error */
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0D06: "

@@ -127,7 +127,7 @@ static boolean_t sm_state_mgr_send_master_sm_info_req(osm_sm_t * sm, uint8_t sm_
 	status = osm_req_get(sm, &dr_path,
 			     IB_MAD_ATTR_SM_INFO, 0, FALSE,
 			     ib_port_info_get_m_key(&p_port->p_physp->port_info),
-			     CL_DISP_MSGID_NONE, &context);
+			     0, CL_DISP_MSGID_NONE, &context);
 
 	if (status != IB_SUCCESS)
 		OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 3204: "

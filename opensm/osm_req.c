@@ -155,8 +155,8 @@ Remote_Guid:
 **********************************************************************/
 ib_api_status_t osm_req_get(IN osm_sm_t * sm, IN const osm_dr_path_t * p_path,
 			    IN ib_net16_t attr_id, IN ib_net32_t attr_mod,
-			    IN boolean_t find_mkey, ib_net64_t m_key,
-			    IN cl_disp_msgid_t err_msg,
+			    IN boolean_t find_mkey, IN ib_net64_t m_key,
+			    IN uint32_t timeout, IN cl_disp_msgid_t err_msg,
 			    IN const osm_madw_context_t * p_context)
 {
 	osm_madw_t *p_madw;
@@ -214,6 +214,7 @@ ib_api_status_t osm_req_get(IN osm_sm_t * sm, IN const osm_dr_path_t * p_path,
 	p_madw->mad_addr.dest_lid = IB_LID_PERMISSIVE;
 	p_madw->mad_addr.addr_type.smi.source_lid = IB_LID_PERMISSIVE;
 	p_madw->resp_expected = TRUE;
+	p_madw->timeout = timeout;
 	p_madw->fail_msg = err_msg;
 
 	/*
