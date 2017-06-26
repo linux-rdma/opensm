@@ -260,6 +260,7 @@ typedef struct osm_subn_opt {
 	uint32_t max_smps_timeout;
 	uint32_t transaction_timeout;
 	uint32_t transaction_retries;
+	uint32_t long_transaction_timeout;
 	uint8_t sm_priority;
 	uint8_t lmc;
 	boolean_t lmc_esp0;
@@ -427,6 +428,10 @@ typedef struct osm_subn_opt {
 *
 *	transaction_retries
 *		The number of retries for a transaction. Default is 3.
+*
+*	long_transaction_timeout
+*		The maximum time in milliseconds allowed for "long" transaction
+*		to complete.  Default is 500.
 *
 *	sm_priority
 *		The priority of this SM as specified by the user.  This

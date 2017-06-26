@@ -359,6 +359,17 @@ BEGIN_C_DECLS
 */
 #define OSM_DEFAULT_TRANS_TIMEOUT_MILLISEC 200
 /***********/
+/****d* OpenSM: Base/OSM_DEFAULT_LONG_TRANS_TIMEOUT_MILLISEC
+* NAME
+*       OSM_DEFAULT_LONG_TRANS_TIMEOUT_MILLISEC
+*
+* DESCRIPTION
+*       Specifies the default "long" transaction timeout in milliseconds.
+*
+* SYNOPSIS
+*/
+#define OSM_DEFAULT_LONG_TRANS_TIMEOUT_MILLISEC 500
+/***********/
 /****d* OpenSM: Base/OSM_DEFAULT_SUBNET_TIMEOUT
 * NAME
 *	OSM_DEFAULT_SUBNET_TIMEOUT

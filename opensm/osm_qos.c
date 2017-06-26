@@ -94,6 +94,7 @@ static qos_mad_item_t *osm_qos_mad_create(IN osm_sm_t * sm,
 	osm_node_t *p_node;
 	osm_physp_t *physp0;
 	ib_net64_t m_key;
+	uint32_t timeout = 0;
 
 	p_node = osm_physp_get_node_ptr(p);
 	if (osm_node_get_type(p_node) == IB_NODE_TYPE_SWITCH &&
@@ -108,6 +109,8 @@ static qos_mad_item_t *osm_qos_mad_create(IN osm_sm_t * sm,
 		context.slvl_context.node_guid = osm_node_get_node_guid(p_node);
 		context.slvl_context.port_guid = osm_physp_get_port_guid(p);
 		context.slvl_context.set_method = TRUE;
+		if ((attr_mod & 0x30000) != 0)	/* optimized ? */
+			timeout = sm->p_subn->opt.long_transaction_timeout;
 		break;
 	case IB_MAD_ATTR_VL_ARBITRATION:
 		context.vla_context.node_guid = osm_node_get_node_guid(p_node);
@@ -128,7 +131,7 @@ static qos_mad_item_t *osm_qos_mad_create(IN osm_sm_t * sm,
 				     p_data, data_size,
 				     attr_id, cl_hton32(attr_mod),
 				     FALSE, m_key,
-				     0, CL_DISP_MSGID_NONE, &context);
+				     timeout, CL_DISP_MSGID_NONE, &context);
 
 	if (p_madw == NULL) {
 		free(p_mad);
