@@ -159,13 +159,13 @@ typedef struct osm_mgrp_box {
 *		The host ordered LID of this Multicast Group (must be
 *		>= 0xC000).
 *
-*	p_root
+*	mgrp_list
+*		List of multicast groups (mpgr object) having same MLID value.
+*
+*	root
 *		Pointer to the root "tree node" in the single spanning tree
 *		for this multicast group.  The nodes of the tree represent
 *		switches.  Member ports are not represented in the tree.
-*
-*	mgrp_list
-*		List of multicast groups (mpgr object) having same MLID value.
 *
 * SEE ALSO
 *********/
