@@ -679,7 +679,7 @@ static boolean_t mgrp_request_is_realizable(IN osm_sa_t * sa,
 	 */
 
 	p_pi = &p_physp->port_info;
-	port_mtu = p_physp ? ib_port_info_get_mtu_cap(p_pi) : 0;
+	port_mtu = p_physp ? ib_port_info_get_neighbor_mtu(p_pi) : 0;
 	if (!(comp_mask & IB_MCR_COMPMASK_MTU) ||
 	    !(comp_mask & IB_MCR_COMPMASK_MTU_SEL) ||
 	    (mtu_sel = (p_mcm_rec->mtu >> 6)) == 3)
