@@ -929,7 +929,7 @@ ib_api_status_t osmt_run_mcast_flow(IN osmtest_t * const p_osmt)
 
 	/* impossible requested rate */
 	mc_req_rec.rate =
-	    IB_MAX_RATE | IB_PATH_SELECTOR_GREATER_THAN << 6;
+	    IB_RATE_MAX | IB_PATH_SELECTOR_GREATER_THAN << 6;
 
 	comp_mask = IB_MCR_COMPMASK_GID | IB_MCR_COMPMASK_PORT_GID | IB_MCR_COMPMASK_QKEY | IB_MCR_COMPMASK_PKEY | IB_MCR_COMPMASK_SL | IB_MCR_COMPMASK_FLOW | IB_MCR_COMPMASK_JOIN_STATE | IB_MCR_COMPMASK_TCLASS |	/* all above are required */
 	    IB_MCR_COMPMASK_RATE_SEL | IB_MCR_COMPMASK_RATE;

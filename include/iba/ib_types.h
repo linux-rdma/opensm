@@ -5201,6 +5201,7 @@ ib_port_info_get_link_speed_active(IN const ib_port_info_t * const p_pi)
 
 #define IB_MIN_RATE    IB_PATH_RECORD_RATE_2_5_GBS
 #define IB_MAX_RATE    IB_PATH_RECORD_RATE_50_GBS
+#define IB_RATE_MAX    IB_PATH_RECORD_RATE_300_GBS
 
 static inline uint8_t OSM_API
 ib_port_info_get_link_speed_ext_active(IN const ib_port_info_t * const p_pi);
