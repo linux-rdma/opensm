@@ -2266,6 +2266,12 @@ typedef union _ib_gid {
 		uint8_t header[2];
 		uint8_t raw_group_id[14];
 	} PACK_SUFFIX multicast;
+	struct _ib_gid_ip_multicast {
+		uint8_t header[2];
+		ib_net16_t signature;
+		ib_net16_t p_key;
+		uint8_t group_id[10];
+	} PACK_SUFFIX ip_multicast;
 } PACK_SUFFIX ib_gid_t;
 #include <complib/cl_packoff.h>
 /*

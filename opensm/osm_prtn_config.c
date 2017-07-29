@@ -120,14 +120,14 @@ static inline boolean_t mgid_is_broadcast(const ib_gid_t *mgid)
 
 static inline boolean_t mgid_is_ip(const ib_gid_t *mgid)
 {
-	ib_net16_t ipsig = *(ib_net16_t *)&mgid->raw[2];
+	ib_net16_t ipsig = mgid->ip_multicast.signature;
 	return (ipsig == cl_hton16(0x401b) || ipsig == cl_hton16(0x601b));
 }
 
 static inline boolean_t ip_mgroup_pkey_ok(struct part_conf *conf,
 					  struct precreate_mgroup *group)
 {
-	ib_net16_t mpkey = *(ib_net16_t *)&group->mgid.raw[4];
+	ib_net16_t mpkey = group->mgid.ip_multicast.p_key;
 	char gid_str[INET6_ADDRSTRLEN];
 
 	if (mgid_is_broadcast(&group->mgid)
