@@ -208,6 +208,10 @@ static ib_api_status_t vlarb_update(osm_sm_t * sm, osm_physp_t * p,
 	ib_port_info_t *p_pi = &p->port_info;
 	unsigned len;
 
+	if (ib_port_info_get_vl_cap(p_pi) == 1) {	/* no VLArb if 1 data VL */
+		p->vl_high_limit = 0;
+		return status;
+	}
 	if (p_pi->vl_arb_low_cap > 0) {
 		len = p_pi->vl_arb_low_cap < IB_NUM_VL_ARB_ELEMENTS_IN_BLOCK ?
 		    p_pi->vl_arb_low_cap : IB_NUM_VL_ARB_ELEMENTS_IN_BLOCK;
