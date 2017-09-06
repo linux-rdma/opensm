@@ -4641,7 +4641,7 @@ typedef struct _ib_port_info {
 	ib_net16_t p_key_violations;
 	ib_net16_t q_key_violations;
 	uint8_t guid_cap;
-	uint8_t subnet_timeout;	/* cli_rereg(1b), mcast_pkey_trap_suppr(1b), reserv(1b), timeout(5b) */
+	uint8_t subnet_timeout;	/* cli_rereg(1b), mcast_pkey_trap_suppr(2b), timeout(5b) */
 	uint8_t resp_time_value; /* reserv(3b), rtv(5b) */
 	uint8_t error_threshold; /* local phy errors(4b), overrun errors(4b) */
 	ib_net16_t max_credit_hint;
@@ -5687,7 +5687,7 @@ ib_port_info_set_client_rereg(IN ib_port_info_t * const p_pi,
 *	ib_port_info_set_mcast_pkey_trap_suppress
 *
 * DESCRIPTION
-*	Sets the encoded multicast pkey trap suppression enabled bit value
+*	Sets the encoded multicast pkey trap suppression enabled bits value
 *	in the PortInfo attribute.
 *
 * SYNOPSIS
@@ -5698,7 +5698,7 @@ ib_port_info_set_mcast_pkey_trap_suppress(IN ib_port_info_t * const p_pi,
 {
 	CL_ASSERT(trap_suppress <= 0x1);
 	p_pi->subnet_timeout =
-	    (uint8_t) ((p_pi->subnet_timeout & 0xBF) | (trap_suppress << 6));
+	    (uint8_t) ((p_pi->subnet_timeout & 0x9F) | (trap_suppress << 5));
 }
 
 /*
@@ -5924,7 +5924,7 @@ ib_port_info_get_client_rereg(IN ib_port_info_t const *p_pi)
 *	ib_port_info_get_mcast_pkey_trap_suppress
 *
 * DESCRIPTION
-*	Gets the encoded multicast pkey trap suppression enabled bit value
+*	Gets the encoded multicast pkey trap suppression enabled bits value
 *	in the PortInfo attribute.
 *
 * SYNOPSIS
@@ -5932,7 +5932,7 @@ ib_port_info_get_client_rereg(IN ib_port_info_t const *p_pi)
 static inline uint8_t OSM_API
 ib_port_info_get_mcast_pkey_trap_suppress(IN ib_port_info_t const *p_pi)
 {
-	return ((p_pi->subnet_timeout & 0x40) >> 6);
+	return ((p_pi->subnet_timeout & 0x60) >> 5);
 }
 
 /*
