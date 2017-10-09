@@ -468,6 +468,8 @@ static void dump_topology_node(cl_map_item_t * item, FILE * file, void *cxt)
 				link_speed_act_str = "14";
 			else if (link_speed_act == IB_LINK_SPEED_EXT_ACTIVE_25)
 				link_speed_act_str = "25";
+			else if (link_speed_act == IB_LINK_SPEED_EXT_ACTIVE_50)
+				link_speed_act_str = "50";
 			else if (link_speed_act != IB_LINK_SPEED_EXT_ACTIVE_NONE)
 				link_speed_act_str = "??";
 		}

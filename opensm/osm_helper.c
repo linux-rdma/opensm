@@ -462,6 +462,8 @@ static int ordered_rates[] = {
 	19,	/* 18 - 300 Gbps (375 Gbps equiv) */
 	8,	/* 19 -  28 Gbps (35 Gbps equiv) */
 	11,	/* 20 -  50 Gbps (62.5 Gbps equiv) */
+	20,	/* 21 - 400 Gbps (500 Gbps equiv) */
+	21,	/* 22 - 600 Gbps (750 Gbps equiv) */
 };
 
 int sprint_uint8_arr(char *buf, size_t size,
@@ -3202,7 +3204,8 @@ static const char *lsa_str_fixed_width[] = {
 static const char *lsea_str_fixed_width[] = {
 	"Std ",
 	"14  ",
-	"25  "
+	"25  ",
+	"50"
 };
 
 const char *osm_get_lsa_str(IN uint8_t lsa, IN uint8_t lsea, IN uint8_t state,
@@ -3216,7 +3219,7 @@ const char *osm_get_lsa_str(IN uint8_t lsa, IN uint8_t lsea, IN uint8_t state,
 		else
 			return lsa_str_fixed_width[lsa];
 	}
-	if (lsea > IB_LINK_SPEED_EXT_ACTIVE_25)
+	if (lsea > IB_LINK_SPEED_EXT_ACTIVE_50)
 		return lsa_str_fixed_width[3];
 	return lsea_str_fixed_width[lsea];
 }

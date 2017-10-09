@@ -940,6 +940,17 @@ typedef enum _osm_thread_state {
  */
 #define OSM_CAP2_IS_LINK_WIDTH_2X_SUPPORTED (1 << 13)
 
+/****d* OpenSM: Base/OSM_CAP2_IS_LINK_SPEED_HDR_SUPPORTED
+ * Name
+ *	OSM_CAP2_IS_LINK_SPEED_HDR_SUPPORTED
+ *
+ * DESCRIPTION
+ *	HDR link speed supported
+ *
+ * SYNOPSIS
+ */
+#define OSM_CAP2_IS_LINK_SPEED_HDR_SUPPORTED (1 << 15)
+
 /****d* OpenSM: Base/osm_signal_t
 * NAME
 *	osm_signal_t

@@ -1408,7 +1408,7 @@ repeat_discovery:
 	/* Reset tracking values in case limiting component got removed
 	 * from fabric. */
 	sm->p_subn->min_ca_mtu = IB_MAX_MTU;
-	sm->p_subn->min_ca_rate = IB_PATH_RECORD_RATE_300_GBS;
+	sm->p_subn->min_ca_rate = IB_RATE_MAX;
 	sm->p_subn->min_data_vls = IB_MAX_NUM_VLS - 1;
 	sm->p_subn->min_sw_data_vls = IB_MAX_NUM_VLS - 1;
 

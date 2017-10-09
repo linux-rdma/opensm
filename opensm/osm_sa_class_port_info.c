@@ -166,7 +166,8 @@ static void cpi_rcv_respond(IN osm_sa_t * sa, IN const osm_madw_t * p_madw)
 		    OSM_CAP2_IS_MULTICAST_SERVICE_RECS_SUPPORTED |
 		    OSM_CAP2_IS_PORT_INFO_CAPMASK2_MATCH_SUPPORTED |
 		    OSM_CAP2_IS_SEND_ONLY_FULL_MEMBER_SUPPORTED |
-		    OSM_CAP2_IS_LINK_WIDTH_2X_SUPPORTED;
+		    OSM_CAP2_IS_LINK_WIDTH_2X_SUPPORTED |
+		    OSM_CAP2_IS_LINK_SPEED_HDR_SUPPORTED;
 	if (sa->p_subn->opt.use_mfttop)
 		cap_mask2 |= OSM_CAP2_IS_MCAST_TOP_SUPPORTED;
 	if (sa->p_subn->opt.qos)

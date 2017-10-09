@@ -3218,6 +3218,8 @@ ib_path_rec_rate(IN const ib_path_rec_t * const p_rec)
 *		18: 300 Gb/sec.
 *		19: 28 Gb/sec.
 *		20: 50 Gb/sec.
+*		21: 400 Gb/sec.
+*		22: 600 Gb/sec.
 *		others: reserved
 *
 * NOTES
@@ -4713,6 +4715,7 @@ typedef struct _ib_port_info {
 #define IB_PORT_CAP2_IS_VIRT_SUPPORTED (CL_HTON16(0x0004))
 #define IB_PORT_CAP2_IS_SWITCH_PORT_STATE_TBL_SUPP (CL_HTON16(0x0008))
 #define IB_PORT_CAP2_IS_LINK_WIDTH_2X_SUPPORTED (CL_HTON16(0x0010))
+#define IB_PORT_CAP2_IS_LINK_SPEED_HDR_SUPPORTED (CL_HTON16(0x0020))
 
 /****s* IBA Base: Types/ib_port_info_ext_t
 * NAME
@@ -4731,7 +4734,9 @@ typedef struct _ib_port_info_ext {
 	ib_net16_t fdr_fec_mode_enable;
 	ib_net16_t edr_fec_mode_sup;
 	ib_net16_t edr_fec_mode_enable;
-	uint8_t reserved[50];
+	ib_net16_t hdr_fec_mode_sup;
+	ib_net16_t hdr_fec_mode_enable;
+	uint8_t reserved[46];
 } PACK_SUFFIX ib_port_info_ext_t;
 #include <complib/cl_packoff.h>
 /************/
@@ -5182,6 +5187,7 @@ ib_port_info_get_link_speed_active(IN const ib_port_info_t * const p_pi)
 #define IB_LINK_SPEED_EXT_ACTIVE_NONE		0
 #define IB_LINK_SPEED_EXT_ACTIVE_14		1
 #define IB_LINK_SPEED_EXT_ACTIVE_25		2
+#define IB_LINK_SPEED_EXT_ACTIVE_50		4
 #define IB_LINK_SPEED_EXT_DISABLE		30
 #define IB_LINK_SPEED_EXT_SET_LSES		31
 
@@ -5205,10 +5211,12 @@ ib_port_info_get_link_speed_active(IN const ib_port_info_t * const p_pi)
 #define IB_PATH_RECORD_RATE_300_GBS		18
 #define IB_PATH_RECORD_RATE_28_GBS		19
 #define IB_PATH_RECORD_RATE_50_GBS		20
+#define IB_PATH_RECORD_RATE_400_GBS		21
+#define IB_PATH_RECORD_RATE_600_GBS		22
 
 #define IB_MIN_RATE    IB_PATH_RECORD_RATE_2_5_GBS
-#define IB_MAX_RATE    IB_PATH_RECORD_RATE_50_GBS
-#define IB_RATE_MAX    IB_PATH_RECORD_RATE_300_GBS
+#define IB_MAX_RATE    IB_PATH_RECORD_RATE_600_GBS
+#define IB_RATE_MAX    IB_PATH_RECORD_RATE_600_GBS
 
 static inline uint8_t OSM_API
 ib_port_info_get_link_speed_ext_active(IN const ib_port_info_t * const p_pi);
@@ -5281,6 +5289,33 @@ ib_port_info_compute_rate(IN const ib_port_info_t * const p_pi,
 
 			default:
 				rate = IB_PATH_RECORD_RATE_25_GBS;
+				break;
+			}
+			break;
+		case IB_LINK_SPEED_EXT_ACTIVE_50:
+			switch (p_pi->link_width_active) {
+			case IB_LINK_WIDTH_ACTIVE_1X:
+				rate = IB_PATH_RECORD_RATE_50_GBS;
+				break;
+
+			case IB_LINK_WIDTH_ACTIVE_4X:
+				rate = IB_PATH_RECORD_RATE_200_GBS;
+				break;
+
+			case IB_LINK_WIDTH_ACTIVE_8X:
+				rate = IB_PATH_RECORD_RATE_400_GBS;
+				break;
+
+			case IB_LINK_WIDTH_ACTIVE_12X:
+				rate = IB_PATH_RECORD_RATE_600_GBS;
+				break;
+
+			case IB_LINK_WIDTH_ACTIVE_2X:
+				rate = IB_PATH_RECORD_RATE_100_GBS;
+				break;
+
+			default:
+				rate = IB_PATH_RECORD_RATE_50_GBS;
 				break;
 			}
 			break;
@@ -7095,6 +7130,8 @@ ib_multipath_rec_rate(IN const ib_multipath_rec_t * const p_rec)
 *		18: 300 Gb/sec.
 *		19: 28 Gb/sec.
 *		20: 50 Gb/sec.
+*		21: 400 Gb/sec.
+*		22: 600 Gb/sec.
 *               others: reserved
 *
 * NOTES

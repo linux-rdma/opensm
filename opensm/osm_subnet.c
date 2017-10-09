@@ -2042,7 +2042,7 @@ int osm_subn_verify_config(IN osm_subn_opt_t * p_opts)
 	}
 
 	if ((31 < p_opts->force_link_speed_ext) ||
-	    (p_opts->force_link_speed_ext > 3 && p_opts->force_link_speed_ext < 30)) {
+	    (p_opts->force_link_speed_ext > 7 && p_opts->force_link_speed_ext < 30)) {
 		log_report(" Invalid Cached Option Value:force_link_speed_ext = %u:"
 			   "Using Default:%u\n", p_opts->force_link_speed_ext,
 			   31);
@@ -2390,10 +2390,14 @@ void osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		"# Force PortInfo:LinkSpeedExtEnabled on ports\n"
 		"# If 0, don't modify PortInfo:LinkSpeedExtEnabled on port\n"
 		"# Otherwise, use value for PortInfo:LinkSpeedExtEnabled on port\n"
-		"# Values are (MgtWG RefID #4722)\n"
+		"# Values are (MgtWG RefIDs #4722 and #9366)\n"
 		"#    1: 14.0625 Gbps\n"
 		"#    2: 25.78125 Gbps\n"
 		"#    3: 14.0625 Gbps or 25.78125 Gbps\n"
+		"#    4: 53.125 Gbps\n"
+		"#    5: 14.0625 Gbps or 53.125 Gbps\n"
+		"#    6: 25.78125 Gbps or 53.125 Gbps\n"
+		"#    7: 14.0625 Gbps, 25.78125 Gbps or 53.125 Gbps\n"
 		"#    30: Disable extended link speeds\n"
 		"#    Default 31: set to PortInfo:LinkSpeedExtSupported\n"
 		"force_link_speed_ext %u\n\n"

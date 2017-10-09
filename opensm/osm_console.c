@@ -730,6 +730,7 @@ typedef struct {
 	uint64_t ports_fdr10;
 	uint64_t ports_fdr;
 	uint64_t ports_edr;
+	uint64_t ports_hdr;
 	uint64_t ports_unknown_speed;
 	port_report_t *unknown_speed_ports;
 	uint64_t ports_unenabled_speed;
@@ -888,6 +889,9 @@ static void __get_stats(cl_map_item_t * const p_map_item, void *context)
 			case IB_LINK_SPEED_EXT_ACTIVE_25:
 				fs->ports_edr++;
 				break;
+			case IB_LINK_SPEED_EXT_ACTIVE_50:
+				fs->ports_hdr++;
+				break;
 			case IB_LINK_SPEED_EXT_ACTIVE_NONE:
 				break;
 			default:
@@ -991,6 +995,8 @@ static void portstatus_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 		fprintf(out, "   %" PRIu64 " at 14.0625 Gbps\n", fs.ports_fdr);
 	if (fs.ports_edr)
 		fprintf(out, "   %" PRIu64 " at 25.78125 Gbps\n", fs.ports_edr);
+	if (fs.ports_hdr)
+		fprintf(out, "   %" PRIu64 " at 53.125 Gbps\n", fs.ports_hdr);
 
 	if (fs.ports_disabled + fs.ports_reduced_speed + fs.ports_reduced_width
 	    + fs.ports_unenabled_width + fs.ports_unenabled_speed
