@@ -834,6 +834,12 @@ static void dbg_get_capabilities2_str(IN char *p_buf, IN uint32_t buf_size,
 				&total_len) != IB_SUCCESS)
 			return;
 	}
+	if (p_pi->capability_mask2 & IB_PORT_CAP2_IS_LINK_SPEED_HDR_SUPPORTED) {
+		if (dbg_do_line(&p_local, buf_size, p_prefix_str,
+				"IB_PORT_CAP2_IS_LINK_SPEED_HDR_SUPPORTED\n",
+				&total_len) != IB_SUCCESS)
+			return;
+	}
 }
 
 static void osm_dump_port_info_to_buf(IN ib_net64_t node_guid,
