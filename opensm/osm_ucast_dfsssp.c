@@ -1380,7 +1380,7 @@ static int dijkstra(osm_ucast_mgr_t * p_mgr, cl_heap_t * p_heap,
 		ret = cl_heap_insert(p_heap, INF, &adj_list[0]);
 		if (ret != CL_SUCCESS) {
 			OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR,
-				"ERR AD11: cl_heap_insert failed\n");
+				"ERR AD13: cl_heap_insert failed\n");
 			return ret;
 		}
 		/* if behind port is a switch -> search switch in adj_list */
@@ -1432,7 +1432,7 @@ static int dijkstra(osm_ucast_mgr_t * p_mgr, cl_heap_t * p_heap,
 							 adj_list[link->to].heap_index);
 				if (ret != CL_SUCCESS) {
 					OSM_LOG(p_mgr->p_log, OSM_LOG_ERROR,
-						"ERR AD10: index out of bounds in cl_heap_modify_key\n");
+						"ERR AD12: index out of bounds in cl_heap_modify_key\n");
 					return ret;
 				}
 			}
