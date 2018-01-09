@@ -81,13 +81,14 @@ cl_status_t cl_heap_init(IN cl_heap_t * const p_heap, IN const size_t max_size,
 {
 	CL_ASSERT(p_heap);
 
+	if (!cl_is_state_valid(p_heap->state))
+		cl_heap_construct(p_heap);
+
 	if (max_size <= 0 || !d || !pfn_index_update)
 		return (CL_INVALID_PARAMETER);
 
 	if (cl_is_heap_inited(p_heap))
 		cl_heap_destroy(p_heap);
-
-	cl_heap_construct(p_heap);
 
 	p_heap->branching_factor = d;
 	p_heap->element_array = NULL;
@@ -116,12 +117,10 @@ void cl_heap_destroy(IN cl_heap_t * const p_heap)
 	CL_ASSERT(p_heap);
 	CL_ASSERT(cl_is_state_valid(p_heap->state));
 
-	if (p_heap->element_array) {
+	if (p_heap->element_array)
 		free(p_heap->element_array);
-		p_heap->element_array = NULL;
-	}
 
-	p_heap->state = CL_UNINITIALIZED;
+	cl_heap_construct(p_heap);
 }
 
 cl_status_t cl_heap_resize(IN cl_heap_t * const p_heap,
@@ -333,7 +332,7 @@ boolean_t cl_is_stored_in_heap(IN const cl_heap_t * const p_heap,
 			       IN const void *const ctx, IN const size_t index)
 {
 	CL_ASSERT(p_heap);
-	CL_ASSERT(p_heap->state == CL_INITIALIZED);
+	CL_ASSERT(cl_is_heap_inited(p_heap));
 
 	return ((index < 0 || index >= p_heap->size ||
 		 p_heap->element_array[index].context != ctx) ? FALSE : TRUE);
@@ -344,7 +343,7 @@ boolean_t cl_verify_heap_property(IN const cl_heap_t * const p_heap)
 	int64_t first_child, child, parent, d;
 
 	CL_ASSERT(p_heap);
-	CL_ASSERT(p_heap->state == CL_INITIALIZED);
+	CL_ASSERT(cl_is_heap_inited(p_heap));
 
 	d = (int64_t) p_heap->branching_factor;
 	parent = 0;

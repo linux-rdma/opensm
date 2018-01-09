@@ -332,8 +332,8 @@ cl_heap_init(IN cl_heap_t * const p_heap,
 *	cl_heap_destroy
 *
 * DESCRIPTION
-*	The cl_heap_destroy function destroys the heap. The heap afterwars in
-*	the CL_UNINITIALIZED state.
+*	The cl_heap_destroy function destroys the heap. The heap is afterwards
+*	in the CL_UNINITIALIZED state.
 *
 * SYNOPSIS
 */
@@ -348,7 +348,8 @@ void cl_heap_destroy(IN cl_heap_t * const p_heap);
 *
 * NOTES
 *	cl_heap_destroy frees all memory allocated for the heap. The heap
-*	is left valid, but uninitialized, with a zero capacity and size.
+*	is left valid, but uninitialized, with a zero capacity and size, and
+*	must be re-initialized by calling cl_heap_init for further usage.
 *
 *	This function should only be called after a call to cl_heap_construct
 *	or cl_heap_init.
