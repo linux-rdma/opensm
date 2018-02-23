@@ -833,6 +833,7 @@ static void mpr_rcv_build_pr(IN osm_sa_t * sa,
 			     OUT ib_path_rec_t * p_pr)
 {
 	const osm_physp_t *p_src_physp, *p_dest_physp;
+	uint8_t rate, new_rate;
 
 	OSM_LOG_ENTER(sa->p_log);
 
@@ -854,7 +855,17 @@ static void mpr_rcv_build_pr(IN osm_sa_t * sa,
 	ib_path_rec_set_qos_class(p_pr, 0);
 	ib_path_rec_set_sl(p_pr, p_parms->sl);
 	p_pr->mtu = (uint8_t) (p_parms->mtu | 0x80);
-	p_pr->rate = (uint8_t) (p_parms->rate | 0x80);
+	rate = p_parms->rate;
+	if (sa->p_subn->opt.use_original_extended_sa_rates_only) {
+		new_rate = ib_path_rate_max_12xedr(rate);
+		if (new_rate != rate) {
+			OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
+				"Rate decreased from %u to %u\n",
+				rate, new_rate);
+			rate = new_rate;
+		}
+	}
+	p_pr->rate = (uint8_t) (rate | 0x80);
 
 	/* According to 1.2 spec definition Table 205 PacketLifeTime description,
 	   for loopback paths, packetLifeTime shall be zero. */

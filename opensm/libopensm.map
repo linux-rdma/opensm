@@ -96,5 +96,6 @@ OPENSM_1.5 {
 		osm_set_log_per_module;
 		osm_reset_log_per_module;
 		sprint_uint8_arr;
+		ib_path_rate_max_12xedr;
 	local: *;
 };

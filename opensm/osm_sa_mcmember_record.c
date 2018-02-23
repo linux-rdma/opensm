@@ -658,7 +658,7 @@ static boolean_t mgrp_request_is_realizable(IN osm_sa_t * sa,
 	uint8_t mtu_sel = 2;	/* exactly */
 	uint8_t mtu_required, mtu, port_mtu;
 	uint8_t rate_sel = 2;	/* exactly */
-	uint8_t rate_required, rate, port_rate;
+	uint8_t rate_required, rate, port_rate, new_rate;
 	const ib_port_info_t *p_pi;
 	osm_log_t *p_log = sa->p_log;
 	int extended;
@@ -773,6 +773,15 @@ static boolean_t mgrp_request_is_realizable(IN osm_sa_t * sa,
 			OSM_LOG(p_log, OSM_LOG_VERBOSE,
 				"Calculated RATE %x is out of range\n", rate);
 			return FALSE;
+		}
+	}
+	if (sa->p_subn->opt.use_original_extended_sa_rates_only) {
+		new_rate = ib_path_rate_max_12xedr(rate);
+		if (new_rate != rate) {
+			OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
+				"Rate decreased from %u to %u\n",
+				rate, new_rate);
+			rate = new_rate;
 		}
 	}
 	p_mcm_rec->rate = (rate_sel << 6) | rate;

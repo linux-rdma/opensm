@@ -3339,3 +3339,25 @@ int ib_path_rate_get_next(IN const int rate)
 	orate++;
 	return find_ordered_rate(orate);
 }
+
+int ib_path_rate_max_12xedr(IN const int rate)
+{
+	CL_ASSERT(rate >= IB_MIN_RATE && rate <= IB_MAX_RATE);
+
+	if (rate <= IB_PATH_RECORD_RATE_300_GBS)
+		return rate;
+
+	switch (rate) {
+	case IB_PATH_RECORD_RATE_28_GBS:
+		return IB_PATH_RECORD_RATE_25_GBS;
+	case IB_PATH_RECORD_RATE_50_GBS:
+		return IB_PATH_RECORD_RATE_40_GBS;
+	case IB_PATH_RECORD_RATE_400_GBS:
+	case IB_PATH_RECORD_RATE_600_GBS:
+		return IB_PATH_RECORD_RATE_300_GBS;
+	default:
+		break;
+	}
+
+	return 0;
+}

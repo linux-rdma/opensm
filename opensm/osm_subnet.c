@@ -848,6 +848,7 @@ static const opt_rec_t opt_tbl[] = {
 	{ "drop_event_subscriptions", OPT_OFFSET(drop_event_subscriptions), opts_parse_boolean, NULL, 1 },
 	{ "ipoib_mcgroup_creation_validation", OPT_OFFSET(ipoib_mcgroup_creation_validation), opts_parse_boolean, NULL, 1 },
 	{ "mcgroup_join_validation", OPT_OFFSET(mcgroup_join_validation), opts_parse_boolean, NULL, 1 },
+	{ "use_original_extended_sa_rates_only", OPT_OFFSET(use_original_extended_sa_rates_only), opts_parse_boolean, NULL, 1 },
 	{ "use_optimized_slvl", OPT_OFFSET(use_optimized_slvl), opts_parse_boolean, NULL, 1 },
 	{ "fsync_high_avail_files", OPT_OFFSET(fsync_high_avail_files), opts_parse_boolean, NULL, 1 },
 #ifdef ENABLE_OSM_PERF_MGR
@@ -1590,6 +1591,7 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * p_opt)
 	p_opt->drop_event_subscriptions = FALSE;
 	p_opt->ipoib_mcgroup_creation_validation = TRUE;
 	p_opt->mcgroup_join_validation = TRUE;
+	p_opt->use_original_extended_sa_rates_only = FALSE;
 	p_opt->use_optimized_slvl = FALSE;
 	p_opt->fsync_high_avail_files = TRUE;
 #ifdef ENABLE_OSM_PERF_MGR
@@ -2714,6 +2716,12 @@ void osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		"# Validate multicast join parameters against multicast group\n"
 		"# parameters when MC group already exists\n"
 		"mcgroup_join_validation %s\n\n"
+		"# Use original extended SA rates only\n"
+		"# The original extended SA rates are up through 300 Gbps (12x EDR)\n"
+		"# Set to TRUE for subnets with old kernels/drivers that don't understand\n"
+		"# the new SA rates for 2x link width and/or HDR link speed (19-22)\n"
+		"# default is FALSE\n"
+		"use_original_extended_sa_rates_only %s\n\n"
 		"# Use Optimized SLtoVLMapping programming if supported by device\n"
 		"use_optimized_slvl %s\n\n"
 		"# Sync in memory files used for high availability with storage\n"
@@ -2724,6 +2732,7 @@ void osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		p_opts->drop_event_subscriptions ? "TRUE" : "FALSE",
 		p_opts->ipoib_mcgroup_creation_validation ? "TRUE" : "FALSE",
 		p_opts->mcgroup_join_validation ? "TRUE" : "FALSE",
+		p_opts->use_original_extended_sa_rates_only ? "TRUE" : "FALSE",
 		p_opts->use_optimized_slvl ? "TRUE" : "FALSE",
 		p_opts->fsync_high_avail_files ? "TRUE" : "FALSE");
 

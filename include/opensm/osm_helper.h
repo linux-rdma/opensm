@@ -836,6 +836,36 @@ int ib_path_rate_get_next(IN const int rate);
 * SEE ALSO
 *********/
 
+/****f* IBA Base: Types/ib_path_rate_max_12xedr
+ * NAME
+ *	ib_path_rate_max_12xedr
+ *
+ * DESCRIPTION
+ *	Obtains encoded rate from the set of "original" extended
+ *	SA rates (up through and including 300 Gbps - 12x EDR).
+ *
+ * SYNOPSIS
+ */
+int ib_path_rate_max_12xedr(IN const int rate);
+
+/*
+* PARAMETERS
+*	rate
+*		[in] Encoded path rate.
+*
+* RETURN VALUES
+*	Returns an int indicating the encoded rate
+*	with a maximum of 300 Gbps (12x EDR).
+*	For new rates (relating to 2x and HDR), the
+*	nearest "original" extended rate lower than
+*	the 2x or HDR related rate is returned.
+*	0 if none can be found.
+*
+* NOTES
+*
+* SEE ALSO
+*********/
+
 /****f* OpenSM: Helper/sprint_uint8_arr
 * NAME
 *	sprint_uint8_arr
