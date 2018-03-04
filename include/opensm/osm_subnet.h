@@ -296,6 +296,7 @@ typedef struct osm_subn_opt {
 	char *part_enforce;
 	osm_partition_enforce_type_enum part_enforce_enum;
 	boolean_t allow_both_pkeys;
+	boolean_t keep_pkey_indexes;
 	uint8_t sm_assigned_guid;
 	boolean_t qos;
 	char *qos_policy_file;
