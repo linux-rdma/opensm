@@ -2862,7 +2862,7 @@ void osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		"# Enable QoS setup\n"
 		"qos %s\n\n"
 		"# QoS policy file to be used\n"
-		"qos_policy_file %s\n"
+		"qos_policy_file %s\n\n"
 		"# Suppress QoS MAD status errors\n"
 		"suppress_sl2vl_mad_status_errors %s\n\n",
 		p_opts->qos ? "TRUE" : "FALSE", p_opts->qos_policy_file,
