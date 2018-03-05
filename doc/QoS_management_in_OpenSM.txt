@@ -230,7 +230,7 @@ policy file and their syntax:
 
     end-qos-levels
 
-    # Match rules are scanned in order of their apperance in the policy file.
+    # Match rules are scanned in order of their appearance in the policy file.
     # First matched rule takes precedence.
     qos-match-rules
 
