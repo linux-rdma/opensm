@@ -864,6 +864,39 @@ static void mpr_rcv_build_pr(IN osm_sa_t * sa,
 				rate, new_rate);
 			rate = new_rate;
 		}
+	} else if (rate == IB_PATH_RECORD_RATE_28_GBS ||
+		   rate == IB_PATH_RECORD_RATE_50_GBS) {
+		/*
+		 * If one of the new 2x or HDR rates, make sure that
+		 * src (and dest if reversible) ports support this
+		 */
+		if (!(p_src_physp->port_info.capability_mask & IB_PORT_CAP_HAS_CAP_MASK2) ||
+		    (p_src_physp->port_info.capability_mask & IB_PORT_CAP_HAS_CAP_MASK2 &&
+		    !(p_src_physp->port_info.capability_mask2 & IB_PORT_CAP2_IS_LINK_WIDTH_2X_SUPPORTED) &&
+		    !(p_src_physp->port_info.capability_mask2 & IB_PORT_CAP2_IS_LINK_SPEED_HDR_SUPPORTED))) {
+			/* Reduce to closest lower "original" extended rate */
+			if (rate == IB_PATH_RECORD_RATE_28_GBS) {
+				if (p_src_physp->port_info.capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS)
+					rate = IB_PATH_RECORD_RATE_25_GBS;
+				else
+					rate = IB_PATH_RECORD_RATE_20_GBS;
+			} else
+				rate = IB_PATH_RECORD_RATE_40_GBS;
+		} else if (p_parms->reversible) {
+			if (!(p_dest_physp->port_info.capability_mask & IB_PORT_CAP_HAS_CAP_MASK2) ||
+			    (p_dest_physp->port_info.capability_mask & IB_PORT_CAP_HAS_CAP_MASK2 &&
+			     !(p_dest_physp->port_info.capability_mask2 & IB_PORT_CAP2_IS_LINK_WIDTH_2X_SUPPORTED) &&
+			     !(p_dest_physp->port_info.capability_mask2 & IB_PORT_CAP2_IS_LINK_SPEED_HDR_SUPPORTED))) {
+				/* Reduce to closest lower "original" extended rate */
+				if (rate == IB_PATH_RECORD_RATE_28_GBS) {
+					if (p_dest_physp->port_info.capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS)
+						rate = IB_PATH_RECORD_RATE_25_GBS;
+					else
+						rate = IB_PATH_RECORD_RATE_20_GBS;
+				} else
+					rate = IB_PATH_RECORD_RATE_40_GBS;
+			}
+		}
 	}
 	p_pr->rate = (uint8_t) (rate | 0x80);
 

@@ -886,7 +886,8 @@ static void pr_rcv_build_pr(IN osm_sa_t * sa,
 			    IN const osm_path_parms_t * p_parms,
 			    OUT ib_path_rec_t * p_pr)
 {
-	const osm_physp_t *p_src_physp, *p_dest_physp;
+	const osm_physp_t *p_src_physp = NULL, *p_dest_physp = NULL;
+	osm_port_t *p_port;
 	uint8_t rate, new_rate;
 
 	OSM_LOG_ENTER(sa->p_log);
@@ -930,6 +931,53 @@ static void pr_rcv_build_pr(IN osm_sa_t * sa,
 				"Rate decreased from %u to %u\n",
 				rate, new_rate);
 			rate = new_rate;
+		}
+	} else if (rate == IB_PATH_RECORD_RATE_28_GBS ||
+		   rate == IB_PATH_RECORD_RATE_50_GBS) {
+		/*
+		 * If one of the new 2x or HDR rates, make sure that
+		 * src (and dest if reversible) ports support this
+		 */
+		if (p_src_physp == NULL) {
+			p_port = osm_get_port_by_lid_ho(sa->p_subn, src_lid_ho);
+			if (p_port)
+				p_src_physp = p_port->p_physp;
+		}
+		if (p_src_physp &&
+		    (!(p_src_physp->port_info.capability_mask & IB_PORT_CAP_HAS_CAP_MASK2) ||
+
+		     (p_src_physp->port_info.capability_mask & IB_PORT_CAP_HAS_CAP_MASK2 &&
+		     !(p_src_physp->port_info.capability_mask2 & IB_PORT_CAP2_IS_LINK_WIDTH_2X_SUPPORTED) &&
+		     !(p_src_physp->port_info.capability_mask2 & IB_PORT_CAP2_IS_LINK_SPEED_HDR_SUPPORTED)))) {
+			/* Reduce to closest lower "original" extended rate */
+			if (rate == IB_PATH_RECORD_RATE_28_GBS) {
+				if (p_src_physp->port_info.capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS)
+					rate = IB_PATH_RECORD_RATE_25_GBS;
+				else
+					rate = IB_PATH_RECORD_RATE_20_GBS;
+			} else
+				rate = IB_PATH_RECORD_RATE_40_GBS;
+		} else if (p_parms->reversible) {
+			if (p_dest_physp == NULL) {
+				p_port = osm_get_port_by_lid_ho(sa->p_subn,
+								dest_lid_ho);
+				if (p_port)
+					p_dest_physp = p_port->p_physp;
+			}
+			if (p_dest_physp &&
+			    (!(p_dest_physp->port_info.capability_mask & IB_PORT_CAP_HAS_CAP_MASK2) ||
+			     (p_dest_physp->port_info.capability_mask & IB_PORT_CAP_HAS_CAP_MASK2 &&
+			     !(p_dest_physp->port_info.capability_mask2 & IB_PORT_CAP2_IS_LINK_WIDTH_2X_SUPPORTED) &&
+			     !(p_dest_physp->port_info.capability_mask2 & IB_PORT_CAP2_IS_LINK_SPEED_HDR_SUPPORTED)))) {
+				/* Reduce to closest lower "original" extended rate */
+				if (rate == IB_PATH_RECORD_RATE_28_GBS) {
+					if (p_dest_physp->port_info.capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS)
+						rate = IB_PATH_RECORD_RATE_25_GBS;
+					else
+						rate = IB_PATH_RECORD_RATE_20_GBS;
+				} else
+					rate = IB_PATH_RECORD_RATE_40_GBS;
+			}
 		}
 	}
 	p_pr->rate = (uint8_t) (rate | 0x80);
