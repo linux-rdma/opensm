@@ -379,9 +379,6 @@ static ib_api_status_t mpr_rcv_get_path_parms(IN osm_sa_t * sa,
 		if (mtu > ib_port_info_get_mtu_cap(p_pi))
 			mtu = ib_port_info_get_mtu_cap(p_pi);
 
-		p_physp0 = osm_node_get_physp_ptr((osm_node_t *)p_node, 0);
-		p_pi0 = &p_physp0->port_info;
-		p0_extended = p_pi0->capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS;
 		p0_extended_rate = ib_port_info_compute_rate(p_pi, p0_extended);
 		if (ib_path_compare_rates(rate, p0_extended_rate) > 0)
 			rate = p0_extended_rate;
