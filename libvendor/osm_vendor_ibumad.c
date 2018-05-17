@@ -561,8 +561,6 @@ osm_vendor_init(IN osm_vendor_t * const p_vend,
 			"ERR 5415: Error opening UMAD\n");
 	}
 
-	umad_open_port("", 255);
-
 	if ((n_cas = umad_get_cas_names(p_vend->ca_names,
 					OSM_UMAD_MAX_CAS)) < 0) {
 		OSM_LOG(p_vend->p_log, OSM_LOG_ERROR,
