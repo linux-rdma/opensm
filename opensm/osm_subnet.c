@@ -1486,10 +1486,12 @@ int is_mlnx_ext_port_info_supported(ib_net32_t vendid, ib_net16_t devid)
 	uint16_t devid_ho;
 
 	devid_ho = cl_ntoh16(devid);
-	if ((devid_ho >= 0xc738 && devid_ho <= 0xc73b) || devid_ho == 0xcb20 ||
-	    devid_ho == 0xcf08 || devid == 0x1b02)
+	if ((devid_ho >= 0xc738 && devid_ho <= 0xc73b) ||
+	    devid_ho == 0xc839 || devid_ho == 0xcb20 ||
+	    devid_ho == 0xcf08 || devid_ho == 0xcf09 ||
+	    devid_ho == 0x1b02 || devid_ho == 0xd2f0)
 		return 1;
-	if (devid_ho >= 0x1003 && devid_ho <= 0x1019)
+	if (devid_ho >= 0x1003 && devid_ho <= 0x101b)
 		return 1;
 
 	vendid_ho = cl_ntoh32(vendid);
