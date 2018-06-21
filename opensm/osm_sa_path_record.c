@@ -951,7 +951,7 @@ static void pr_rcv_build_pr(IN osm_sa_t * sa,
 					rate = IB_PATH_RECORD_RATE_25_GBS;
 				else
 					rate = IB_PATH_RECORD_RATE_20_GBS;
-			} else
+			} else		/* IB_PATH_RECORD_RATE_50_GBS */
 				rate = IB_PATH_RECORD_RATE_40_GBS;
 		} else if (p_parms->reversible) {
 			if (p_dest_physp == NULL) {
@@ -971,7 +971,7 @@ static void pr_rcv_build_pr(IN osm_sa_t * sa,
 						rate = IB_PATH_RECORD_RATE_25_GBS;
 					else
 						rate = IB_PATH_RECORD_RATE_20_GBS;
-				} else
+				} else		/* IB_PATH_RECORD_RATE_50_GBS */
 					rate = IB_PATH_RECORD_RATE_40_GBS;
 			}
 		}
