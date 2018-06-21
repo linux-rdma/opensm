@@ -942,7 +942,6 @@ static void pr_rcv_build_pr(IN osm_sa_t * sa,
 		}
 		if (p_src_physp &&
 		    (!(p_src_physp->port_info.capability_mask & IB_PORT_CAP_HAS_CAP_MASK2) ||
-
 		     (p_src_physp->port_info.capability_mask & IB_PORT_CAP_HAS_CAP_MASK2 &&
 		     !(p_src_physp->port_info.capability_mask2 & IB_PORT_CAP2_IS_LINK_WIDTH_2X_SUPPORTED) &&
 		     !(p_src_physp->port_info.capability_mask2 & IB_PORT_CAP2_IS_LINK_SPEED_HDR_SUPPORTED)))) {
