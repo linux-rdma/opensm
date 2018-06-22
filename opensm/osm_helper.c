@@ -3364,3 +3364,27 @@ int ib_path_rate_max_12xedr(IN const int rate)
 
 	return 0;
 }
+
+int ib_path_rate_2x_hdr_fixups(IN const ib_port_info_t * p_pi,
+			       IN const int rate)
+{
+	int new_rate = rate;
+
+	CL_ASSERT(rate >= IB_MIN_RATE && rate <= IB_MAX_RATE);
+
+	if (!(p_pi->capability_mask & IB_PORT_CAP_HAS_CAP_MASK2) ||
+	    (p_pi->capability_mask & IB_PORT_CAP_HAS_CAP_MASK2 &&
+	    !(p_pi->capability_mask2 & IB_PORT_CAP2_IS_LINK_WIDTH_2X_SUPPORTED) &&
+	    !(p_pi->capability_mask2 & IB_PORT_CAP2_IS_LINK_SPEED_HDR_SUPPORTED))) {
+		/* Reduce to closest lower "original" extended rate */
+		if (rate == IB_PATH_RECORD_RATE_28_GBS) {
+			if (p_pi->capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS)
+				new_rate = IB_PATH_RECORD_RATE_25_GBS;
+			else
+				new_rate = IB_PATH_RECORD_RATE_20_GBS;
+		} else if (rate == IB_PATH_RECORD_RATE_50_GBS)
+			new_rate = IB_PATH_RECORD_RATE_40_GBS;
+	}
+
+	return new_rate;
+}

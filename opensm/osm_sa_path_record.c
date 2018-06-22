@@ -940,40 +940,18 @@ static void pr_rcv_build_pr(IN osm_sa_t * sa,
 			if (p_port)
 				p_src_physp = p_port->p_physp;
 		}
-		if (p_src_physp &&
-		    (!(p_src_physp->port_info.capability_mask & IB_PORT_CAP_HAS_CAP_MASK2) ||
-		     (p_src_physp->port_info.capability_mask & IB_PORT_CAP_HAS_CAP_MASK2 &&
-		     !(p_src_physp->port_info.capability_mask2 & IB_PORT_CAP2_IS_LINK_WIDTH_2X_SUPPORTED) &&
-		     !(p_src_physp->port_info.capability_mask2 & IB_PORT_CAP2_IS_LINK_SPEED_HDR_SUPPORTED)))) {
-			/* Reduce to closest lower "original" extended rate */
-			if (rate == IB_PATH_RECORD_RATE_28_GBS) {
-				if (p_src_physp->port_info.capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS)
-					rate = IB_PATH_RECORD_RATE_25_GBS;
-				else
-					rate = IB_PATH_RECORD_RATE_20_GBS;
-			} else		/* IB_PATH_RECORD_RATE_50_GBS */
-				rate = IB_PATH_RECORD_RATE_40_GBS;
-		} else if (p_parms->reversible) {
+
+		if (p_src_physp)
+			rate = ib_path_rate_2x_hdr_fixups(&p_src_physp->port_info, rate);
+		if (p_parms->reversible) {
 			if (p_dest_physp == NULL) {
 				p_port = osm_get_port_by_lid_ho(sa->p_subn,
 								dest_lid_ho);
 				if (p_port)
 					p_dest_physp = p_port->p_physp;
 			}
-			if (p_dest_physp &&
-			    (!(p_dest_physp->port_info.capability_mask & IB_PORT_CAP_HAS_CAP_MASK2) ||
-			     (p_dest_physp->port_info.capability_mask & IB_PORT_CAP_HAS_CAP_MASK2 &&
-			     !(p_dest_physp->port_info.capability_mask2 & IB_PORT_CAP2_IS_LINK_WIDTH_2X_SUPPORTED) &&
-			     !(p_dest_physp->port_info.capability_mask2 & IB_PORT_CAP2_IS_LINK_SPEED_HDR_SUPPORTED)))) {
-				/* Reduce to closest lower "original" extended rate */
-				if (rate == IB_PATH_RECORD_RATE_28_GBS) {
-					if (p_dest_physp->port_info.capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS)
-						rate = IB_PATH_RECORD_RATE_25_GBS;
-					else
-						rate = IB_PATH_RECORD_RATE_20_GBS;
-				} else		/* IB_PATH_RECORD_RATE_50_GBS */
-					rate = IB_PATH_RECORD_RATE_40_GBS;
-			}
+			if (p_dest_physp)
+				rate = ib_path_rate_2x_hdr_fixups(&p_dest_physp->port_info, rate);
 		}
 	}
 	p_pr->rate = (uint8_t) (rate | 0x80);

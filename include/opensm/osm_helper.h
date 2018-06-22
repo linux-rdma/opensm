@@ -837,15 +837,15 @@ int ib_path_rate_get_next(IN const int rate);
 *********/
 
 /****f* IBA Base: Types/ib_path_rate_max_12xedr
- * NAME
- *	ib_path_rate_max_12xedr
- *
- * DESCRIPTION
- *	Obtains encoded rate from the set of "original" extended
- *	SA rates (up through and including 300 Gbps - 12x EDR).
- *
- * SYNOPSIS
- */
+* NAME
+*	ib_path_rate_max_12xedr
+*
+* DESCRIPTION
+*	Obtains encoded rate from the set of "original" extended
+*	SA rates (up through and including 300 Gbps - 12x EDR).
+*
+* SYNOPSIS
+*/
 int ib_path_rate_max_12xedr(IN const int rate);
 
 /*
@@ -860,6 +860,35 @@ int ib_path_rate_max_12xedr(IN const int rate);
 *	nearest "original" extended rate lower than
 *	the 2x or HDR related rate is returned.
 *	0 if none can be found.
+*
+* NOTES
+*
+* SEE ALSO
+*********/
+
+/****f* IBA Base: Types/ib_path_rate_2x_hdr_fixups
+* NAME
+*	ib_path_rate_2x_hdr_fixups
+*
+* DESCRIPTION
+*	Fixes encoded rate based on whether 2x link width
+*	and/or HDR are supported.
+*
+* SYNOPSIS
+*/
+int ib_path_rate_2x_hdr_fixups(IN const ib_port_info_t * p_pi,
+			       IN const int rate);
+
+/*
+* PARAMETERS
+*	p_pi
+*		[in] Pointer to the PortInfo attribute
+*	rate
+*		[in] Encoded path rate.
+*
+* RETURN VALUES
+*	Returns an int indicating the fixed up encoded rate 
+*	based on whether 2x link width and/or HDR are supported.
 *
 * NOTES
 *
