@@ -861,8 +861,7 @@ static void mpr_rcv_build_pr(IN osm_sa_t * sa,
 				rate, new_rate);
 			rate = new_rate;
 		}
-	} else if (rate == IB_PATH_RECORD_RATE_28_GBS ||
-		   rate == IB_PATH_RECORD_RATE_50_GBS) {
+	} else if (rate >= IB_PATH_RECORD_RATE_28_GBS) {
 		/*
 		 * If one of the new 2x or HDR rates, make sure that
 		 * src (and dest if reversible) ports support this

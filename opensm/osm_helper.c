@@ -3372,18 +3372,36 @@ int ib_path_rate_2x_hdr_fixups(IN const ib_port_info_t * p_pi,
 
 	CL_ASSERT(rate >= IB_MIN_RATE && rate <= IB_MAX_RATE);
 
-	if (!(p_pi->capability_mask & IB_PORT_CAP_HAS_CAP_MASK2) ||
-	    (p_pi->capability_mask & IB_PORT_CAP_HAS_CAP_MASK2 &&
-	    !(p_pi->capability_mask2 & IB_PORT_CAP2_IS_LINK_WIDTH_2X_SUPPORTED) &&
-	    !(p_pi->capability_mask2 & IB_PORT_CAP2_IS_LINK_SPEED_HDR_SUPPORTED))) {
-		/* Reduce to closest lower "original" extended rate */
-		if (rate == IB_PATH_RECORD_RATE_28_GBS) {
+	switch (rate) {
+	case IB_PATH_RECORD_RATE_28_GBS:
+		/* 2x not supported but 2x only rate */
+		if (!(p_pi->capability_mask & IB_PORT_CAP_HAS_CAP_MASK2) ||
+		    (p_pi->capability_mask & IB_PORT_CAP_HAS_CAP_MASK2 &&
+		    !(p_pi->capability_mask2 & IB_PORT_CAP2_IS_LINK_WIDTH_2X_SUPPORTED))) {
 			if (p_pi->capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS)
 				new_rate = IB_PATH_RECORD_RATE_25_GBS;
 			else
 				new_rate = IB_PATH_RECORD_RATE_20_GBS;
-		} else if (rate == IB_PATH_RECORD_RATE_50_GBS)
+		}
+		break;
+	case IB_PATH_RECORD_RATE_50_GBS:
+		/* neither 2x or HDR supported */
+		if (!(p_pi->capability_mask & IB_PORT_CAP_HAS_CAP_MASK2) ||
+		    (p_pi->capability_mask & IB_PORT_CAP_HAS_CAP_MASK2 &&
+		    !(p_pi->capability_mask2 & IB_PORT_CAP2_IS_LINK_WIDTH_2X_SUPPORTED) &&
+		    !(p_pi->capability_mask2 & IB_PORT_CAP2_IS_LINK_SPEED_HDR_SUPPORTED)))
 			new_rate = IB_PATH_RECORD_RATE_40_GBS;
+		break;
+	case IB_PATH_RECORD_RATE_400_GBS:
+	case IB_PATH_RECORD_RATE_600_GBS:
+		/* HDR not supported but HDR only rate */
+		if (!(p_pi->capability_mask & IB_PORT_CAP_HAS_CAP_MASK2) ||
+		    (p_pi->capability_mask & IB_PORT_CAP_HAS_CAP_MASK2 &&
+		    !(p_pi->capability_mask2 & IB_PORT_CAP2_IS_LINK_SPEED_HDR_SUPPORTED)))
+			new_rate = IB_PATH_RECORD_RATE_300_GBS;
+		break;
+	default:
+		break;
 	}
 
 	return new_rate;
