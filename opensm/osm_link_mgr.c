@@ -337,9 +337,16 @@ static int link_mgr_set_physp_pi(osm_sm_t * sm, IN osm_physp_t * p_physp,
 		   Set the easy common parameters for all port types,
 		   then determine the neighbor MTU.
 		 */
-		p_pi->link_width_enabled = p_old_pi->link_width_supported;
-		if (p_pi->link_width_enabled != p_old_pi->link_width_enabled)
-			send_set = TRUE;
+		if (sm->p_subn->opt.force_link_width &&
+		    (sm->p_subn->opt.force_link_width < 16 ||
+		    (p_pi->capability_mask2 &
+		    IB_PORT_CAP2_IS_LINK_WIDTH_2X_SUPPORTED)) &&
+		     (sm->p_subn->opt.force_link_width != 255 ||
+		     p_pi->link_width_enabled != p_pi->link_width_supported)) {
+			p_pi->link_width_enabled = sm->p_subn->opt.force_link_width;
+			if (p_pi->link_width_enabled != p_old_pi->link_width_enabled)
+				send_set = TRUE;
+		}
 
 		if (sm->p_subn->opt.force_link_speed &&
 		    (sm->p_subn->opt.force_link_speed != 15 ||

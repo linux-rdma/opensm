@@ -937,9 +937,6 @@ static int lid_mgr_set_physp_pi(IN osm_lid_mgr_t * p_mgr,
 		   the state bits are ignored.
 		   This is not the switch management port
 		 */
-		p_pi->link_width_enabled = p_old_pi->link_width_supported;
-		if (p_pi->link_width_enabled != p_old_pi->link_width_enabled)
-			send_set = TRUE;
 
 		/* p_pi->mkey_lmc is initialized earlier */
 		ib_port_info_set_lmc(p_pi, p_mgr->p_subn->opt.lmc);
