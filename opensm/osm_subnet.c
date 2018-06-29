@@ -784,6 +784,7 @@ static const opt_rec_t opt_tbl[] = {
 	{ "max_op_vls", OPT_OFFSET(max_op_vls), opts_parse_uint8, NULL, 1 },
 	{ "force_link_speed", OPT_OFFSET(force_link_speed), opts_parse_uint8, NULL, 1 },
 	{ "force_link_speed_ext", OPT_OFFSET(force_link_speed_ext), opts_parse_uint8, NULL, 1 },
+	{ "force_link_width", OPT_OFFSET(force_link_width), opts_parse_uint8, NULL, 1 },
 	{ "fdr10", OPT_OFFSET(fdr10), opts_parse_uint8, NULL, 1 },
 	{ "reassign_lids", OPT_OFFSET(reassign_lids), opts_parse_boolean, NULL, 1 },
 	{ "ignore_other_sm", OPT_OFFSET(ignore_other_sm), opts_parse_boolean, NULL, 1 },
@@ -1565,6 +1566,7 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * p_opt)
 	p_opt->max_op_vls = OSM_DEFAULT_MAX_OP_VLS;
 	p_opt->force_link_speed = 15;
 	p_opt->force_link_speed_ext = 31;
+	p_opt->force_link_width = 255;
 	p_opt->fdr10 = 1;
 	p_opt->reassign_lids = FALSE;
 	p_opt->ignore_other_sm = FALSE;
@@ -2062,6 +2064,13 @@ int osm_subn_verify_config(IN osm_subn_opt_t * p_opts)
 		p_opts->force_link_speed_ext = 31;
 	}
 
+	if ((255 < p_opts->force_link_width) ||
+	    (p_opts->force_link_width > 31 && p_opts->force_link_width < 255)) {
+		log_report(" Invalid Cached Option Value:force_link_width = %u:"
+			   "Using Default:%u\n", p_opts->force_link_width, 255);
+		p_opts->force_link_width = 255;
+	}
+
 	if (2 < p_opts->fdr10) {
 		log_report(" Invalid Cached Option Value:fdr10 = %u:"
 			   "Using Default:%u\n", p_opts->fdr10, 1);
@@ -2414,6 +2423,45 @@ void osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		"#    30: Disable extended link speeds\n"
 		"#    Default 31: set to PortInfo:LinkSpeedExtSupported\n"
 		"force_link_speed_ext %u\n\n"
+		"# Force PortInfo:LinkWidthEnabled on switch ports\n"
+		"# If 0, don't modify PortInfo:LinkWidthEnabled on switch port\n"
+		"# Otherwise, use value for PortInfo:LinkWidthEnabled on switch port\n"
+		"# Values are (IB Spec 1.2.1, 14.2.5.6 Table 146 \"PortInfo\"\n"
+		"# augmented by MgtWG RefIDs #9306-9309)\n"
+		"#    1: 1x\n"
+		"#    2: 4x\n"
+		"#    3: 1x or 4x\n"
+		"#    4: 8x\n"
+		"#    5: 1x or 8x\n"
+		"#    6: 4x or 8x\n"
+		"#    7: 1x or 4x or 8x\n"
+		"#    8: 12x\n"
+		"#    9: 1x or 12x\n"
+		"#    10: 4x or 12x\n"
+		"#    11: 1x or 4x or 12x\n"
+		"#    12: 8x or 12x\n"
+		"#    13: 1x or 8x or 12x\n"
+		"#    14: 4x or 8x or 12x\n"
+		"#    15: 1x or 4x or 8x or 12x\n"
+		"#    16: 2x\n"
+		"#    17: 1x or 2x\n"
+		"#    18: 2x or 4x\n"
+		"#    19: 1x or 2x or 4x\n"
+		"#    20: 2x or 8x\n"
+		"#    21: 1x or 2x or 8x\n"
+		"#    22: 2x or 4x or 8x\n"
+		"#    23: 1x or 2x or 4x or 8x\n"
+		"#    24: 2x or 12x\n"
+		"#    25: 1x or 2x or 12x\n"
+		"#    26: 2x or 4x or 12x\n"
+		"#    27: 1x or 2x or 4x or 12x\n"
+		"#    28: 2x or 8x or 12x\n"
+		"#    29: 1x or 2x or 8x or 12x\n"
+		"#    30: 2x or 4x or 8x or 12x\n"
+		"#    31: 1x or 2x or 4x or 8x or 12x\n"
+		"#    32-254 Reserved\n"
+		"#    Default 255: set to PortInfo:LinkWidthSupported\n"
+		"force_link_width %u\n\n"
 		"# FDR10 on ports on devices that support FDR10\n"
 		"# Values are:\n"
 		"#    0: don't use fdr10 (no MLNX ExtendedPortInfo MADs)\n"
@@ -2448,6 +2496,7 @@ void osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		p_opts->max_op_vls,
 		p_opts->force_link_speed,
 		p_opts->force_link_speed_ext,
+		p_opts->force_link_width,
 		p_opts->fdr10,
 		p_opts->subnet_timeout,
 		p_opts->local_phy_errors_threshold,
