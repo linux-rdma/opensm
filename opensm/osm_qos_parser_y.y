@@ -2391,6 +2391,13 @@ int osm_qos_parse_policy_file(IN osm_subn_t * p_subn)
     osm_qos_policy_destroy(p_subn->p_qos_policy);
     p_subn->p_qos_policy = NULL;
 
+    if (!p_subn->opt.qos_policy_file) {
+        OSM_LOG(p_qos_parser_osm_log, OSM_LOG_ERROR, "ERR AC06: "
+                "QoS policy file name is empty\n");
+        res = 1;
+        goto Exit;
+    }
+
     yyin = fopen (p_subn->opt.qos_policy_file, "r");
     if (!yyin)
     {
