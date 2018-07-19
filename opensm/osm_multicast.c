@@ -428,8 +428,8 @@ void osm_mgrp_delete_port(osm_subn_t * subn, osm_log_t * log, osm_mgrp_t * mgrp,
 	boolean_t mgrp_deleted = FALSE;
 
 	next_mcm_alias_guid = (osm_mcm_alias_guid_t *) cl_qmap_head(&mgrp->mcm_alias_port_tbl);
-	while (next_mcm_alias_guid != (osm_mcm_alias_guid_t *) cl_qmap_end(&mgrp->mcm_alias_port_tbl) &&
-	      !mgrp_deleted) {
+	while (!mgrp_deleted &&
+	       next_mcm_alias_guid != (osm_mcm_alias_guid_t *) cl_qmap_end(&mgrp->mcm_alias_port_tbl)) {
 		mcm_alias_guid = next_mcm_alias_guid;
 		next_mcm_alias_guid = (osm_mcm_alias_guid_t *) cl_qmap_next(&next_mcm_alias_guid->map_item);
 		if (mcm_alias_guid->p_base_mcm_port->port == port) {
