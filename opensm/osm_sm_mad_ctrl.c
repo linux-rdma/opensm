@@ -560,7 +560,7 @@ static void log_rcv_cb_error(osm_log_t *p_log, ib_smp_t *p_smp, ib_net16_t statu
 	uint32_t i;
 
 	if (p_smp->mgmt_class == IB_MCLASS_SUBN_DIR) {
-		char ipath[BUF_SIZE], rpath[BUF_SIZE];
+		char ipath[256], rpath[256];
 		int ni = sprintf(ipath, "%d", p_smp->initial_path[0]);
 		int nr = sprintf(rpath, "%d", p_smp->return_path[0]);
 		for (i = 1; i <= p_smp->hop_count; i++) {
