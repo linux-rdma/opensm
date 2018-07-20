@@ -182,7 +182,8 @@ void osm_console_prompt(FILE * out)
 int osm_console_init(osm_subn_opt_t * opt, osm_console_t * p_oct, osm_log_t * p_log)
 {
 	p_oct->socket = -1;
-	strncpy(p_oct->client_type, opt->console, sizeof(p_oct->client_type));
+	strncpy(p_oct->client_type, opt->console, sizeof(p_oct->client_type) - 1);
+	p_oct->client_type[sizeof(p_oct->client_type) - 1] = '\0';
 
 	/* set up the file descriptors for the console */
 	if (strcmp(opt->console, OSM_LOCAL_CONSOLE) == 0) {
