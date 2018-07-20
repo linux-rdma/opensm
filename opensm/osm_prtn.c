@@ -80,9 +80,10 @@ osm_prtn_t *osm_prtn_new(IN const char *name, IN uint16_t pkey)
 	cl_map_construct(&p->part_guid_tbl);
 	cl_map_init(&p->part_guid_tbl, 32);
 
-	if (name && *name)
-		strncpy(p->name, name, sizeof(p->name));
-	else
+	if (name && *name) {
+		strncpy(p->name, name, sizeof(p->name) - 1);
+		p->name[sizeof(p->name) - 1] = '\0';
+	} else
 		snprintf(p->name, sizeof(p->name), "%04x", cl_ntoh16(pkey));
 
 	return p;
