@@ -35,9 +35,6 @@
  *
  */
 
-/* for getline() in stdio.h */
-#define _GNU_SOURCE
-
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>

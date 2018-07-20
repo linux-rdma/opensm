@@ -37,7 +37,6 @@
 #  include <config.h>
 #endif				/* HAVE_CONFIG_H */
 
-#define _GNU_SOURCE		/* for getline */
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/poll.h>

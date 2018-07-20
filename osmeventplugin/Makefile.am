@@ -10,7 +10,7 @@ else
 DBGFLAGS = -g
 endif
 
-libosmeventplugin_la_CFLAGS = -Wall -Wwrite-strings $(DBGFLAGS) -D_XOPEN_SOURCE=600 -D_BSD_SOURCE=1
+libosmeventplugin_la_CFLAGS = -Wall -Wwrite-strings $(DBGFLAGS) -D_XOPEN_SOURCE=600 -D_GNU_SOURCE=1
 
 if HAVE_LD_VERSION_SCRIPT
     libosmeventplugin_version_script = -Wl,--version-script=$(srcdir)/libosmeventplugin.map

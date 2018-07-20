@@ -46,7 +46,6 @@
 #  include <config.h>
 #endif				/* HAVE_CONFIG_H */
 
-#define _GNU_SOURCE		/* for getline */
 #ifdef ENABLE_OSM_CONSOLE_LOOPBACK
 #include <tcpd.h>
 #include <arpa/inet.h>
