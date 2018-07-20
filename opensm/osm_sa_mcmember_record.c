@@ -1483,6 +1483,8 @@ static void mcmr_by_comp_mask(osm_sa_t * sa, const ib_member_rec_t * p_rcvd_rec,
 	OSM_LOG(sa->p_log, OSM_LOG_DEBUG,
 		"Checking mlid:0x%X\n", cl_ntoh16(p_mgrp->mlid));
 
+	memset(&port_gid, 0, sizeof(port_gid));
+
 	/* first try to eliminate the group by MGID, MLID, or P_Key */
 	if ((IB_MCR_COMPMASK_MGID & comp_mask) &&
 	    memcmp(&p_rcvd_rec->mgid, &p_mgrp->mcmember_rec.mgid,
