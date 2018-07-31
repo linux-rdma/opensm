@@ -705,6 +705,12 @@ static void perfmgr_query_counters(cl_map_item_t * p_map_item, void *context)
 
 	OSM_LOG_ENTER(pm->log);
 
+	if (osm_exit_flag) {
+		OSM_LOG(pm->log, OSM_LOG_INFO,
+			"OpenSM is exiting!\n");
+		goto Exit2;
+	}
+
 	cl_plock_acquire(&pm->osm->lock);
 	node = osm_get_node_by_guid(pm->subn, cl_hton64(mon_node->guid));
 	if (!node) {
@@ -820,6 +826,7 @@ static void perfmgr_query_counters(cl_map_item_t * p_map_item, void *context)
 	}
 Exit:
 	cl_plock_release(&pm->osm->lock);
+Exit2:
 	OSM_LOG_EXIT(pm->log);
 }
 
