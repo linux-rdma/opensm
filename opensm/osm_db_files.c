@@ -624,7 +624,7 @@ int osm_db_update(IN osm_db_domain_t * p_domain, IN char *p_key, IN char *p_val)
 		strcpy(p_new_key, p_key);
 	}
 
-	/* need to arange a new copy of the  value */
+	/* need to arrange a new copy of the value */
 	p_new_val = malloc(sizeof(char) * (strlen(p_val) + 1));
 	strcpy(p_new_val, p_val);
 
