@@ -1038,7 +1038,7 @@ static void make_geometry(lash_t *p_lash, int sw)
 
 				if (!s2->node->axes[l2]) {
 					/*
-					 * set axis to opposite of s1->axes[i]
+					 * set axis to opposite of s1->node->axes[i]
 					 */
 					s2->node->axes[l2] = opposite(seed, s1->node->axes[i]);
 					change++;
