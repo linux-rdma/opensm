@@ -1345,6 +1345,12 @@ static void mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 	    || !validate_port_caps(sa->p_log, p_mgrp, p_physp)
 	    || !(join_state != 0)) {
 		char gid_str[INET6_ADDRSTRLEN];
+		memset(gid_str, 0, sizeof(gid_str));
+
+		/* get the gid_str before the cleanup, the cleanup can free the pointer */
+		inet_ntop(AF_INET6, p_mgrp->mcmember_rec.mgid.raw, gid_str,
+			  sizeof gid_str);
+
 		/* since we might have created the new group we need to cleanup */
 		if (is_new_group)
 			osm_mgrp_cleanup(sa->p_subn, p_mgrp);
@@ -1353,9 +1359,7 @@ static void mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 			"validate_more_comp_fields, validate_port_caps, "
 			"or JoinState = 0 failed for MGID: %s port 0x%016" PRIx64
 			" (%s), sending IB_SA_MAD_STATUS_REQ_INVALID\n",
-			   inet_ntop(AF_INET6, p_mgrp->mcmember_rec.mgid.raw,
-				     gid_str, sizeof gid_str),
-			cl_ntoh64(portguid), p_port->p_node->print_desc);
+			gid_str, cl_ntoh64(portguid), p_port->p_node->print_desc);
 		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_REQ_INVALID);
 		goto Exit;
 	}
@@ -1363,17 +1367,17 @@ static void mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 	/* verify that the joining port is in the partition of the group */
 	if (!osm_physp_has_pkey(sa->p_log, p_mgrp->mcmember_rec.pkey, p_physp)) {
 		char gid_str[INET6_ADDRSTRLEN];
+		memset(gid_str, 0, sizeof(gid_str));
+		inet_ntop(AF_INET6, p_mgrp->mcmember_rec.mgid.raw, gid_str,
+			  sizeof(gid_str));
+
 		if (is_new_group)
 			osm_mgrp_cleanup(sa->p_subn, p_mgrp);
 		CL_PLOCK_RELEASE(sa->p_lock);
-		memset(gid_str, 0, sizeof(gid_str));
 		OSM_LOG(sa->p_log, OSM_LOG_ERROR, "ERR 1B14: "
 			"Cannot join port 0x%016" PRIx64 " to MGID %s - "
 			"Port is not in partition of this MC group\n",
-			cl_ntoh64(portguid),
-			inet_ntop(AF_INET6,
-				  p_mgrp->mcmember_rec.mgid.raw,
-				  gid_str, sizeof(gid_str)));
+			cl_ntoh64(portguid), gid_str);
 		osm_sa_send_error(sa, p_madw, IB_SA_MAD_STATUS_REQ_INVALID);
 		goto Exit;
 	}
