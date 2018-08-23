@@ -67,18 +67,6 @@
 #define OSM_DB_MAX_LINE_LEN 1024
 /**********/
 
-/****d* Database/OSM_DB_MAX_GUID_LEN
- * NAME
- * OSM_DB_MAX_GUID_LEN
- *
- * DESCRIPTION
- * The Maximal word length allowed for the file (guid or lid)
- *
- * SYNOPSIS
- */
-#define OSM_DB_MAX_GUID_LEN 32
-/**********/
-
 /****s* OpenSM: Database/osm_db_domain_imp
  * NAME
  * osm_db_domain_imp
@@ -346,15 +334,6 @@ int osm_db_restore(IN osm_db_domain_t * p_domain)
 					OSM_LOG(p_log, OSM_LOG_ERROR,
 						"ERR 6104: "
 						"Failed to get key from line:%u : %s (file:%s)\n",
-						line_num, sLine,
-						p_domain_imp->file_name);
-					status = 1;
-					goto EndParsing;
-				}
-				if (strlen(p_first_word) > OSM_DB_MAX_GUID_LEN) {
-					OSM_LOG(p_log, OSM_LOG_ERROR,
-						"ERR 610A: "
-						"Illegal key from line:%u : %s (file:%s)\n",
 						line_num, sLine,
 						p_domain_imp->file_name);
 					status = 1;
