@@ -1003,8 +1003,11 @@ qos_ulp:            TK_ULP_DEFAULT single_number {
                          * we still need to validate it by checking that it has
                          * at least two full members. Otherwise IPoIB won't work.
                          */
-                        if (__validate_pkeys(range_arr, 1, TRUE))
+                        if (__validate_pkeys(range_arr, 1, TRUE)) {
+                            free(range_arr[0]);
+                            free(range_arr);
                             return 1;
+			}
 
                         p_current_qos_match_rule->pkey_range_arr = range_arr;
                         p_current_qos_match_rule->pkey_range_len = 1;
