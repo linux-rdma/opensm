@@ -3162,8 +3162,10 @@ static nue_context_t *nue_create_context(const osm_opensm_t * osm,
 		nue_ctx->routing_type = routing_type;
 		nue_ctx->mgr = (osm_ucast_mgr_t *) & (osm->sm.ucast_mgr);
 		err = create_context(nue_ctx);
-		if (err)
+		if (err) {
+			free(nue_ctx);
 			return NULL;
+		}
 	} else {
 		OSM_LOG(osm->sm.ucast_mgr.p_log, OSM_LOG_ERROR,
 			"ERR NUE01: cannot allocate memory for nue_ctx\n");
