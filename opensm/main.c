@@ -565,6 +565,8 @@ static int daemonize(osm_opensm_t * osm)
 	dup2(fd, 1);
 	dup2(fd, 2);
 
+	close(fd);
+
 	return 0;
 }
 
