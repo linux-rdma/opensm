@@ -6600,6 +6600,7 @@ osmtest_parse_port(IN osmtest_t * const p_osmt,
 			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0123: "
 				"Unexpected end of file\n");
 			status = IB_ERROR;
+			port_delete(p_port);
 			goto Exit;
 		}
 
