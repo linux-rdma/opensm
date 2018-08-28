@@ -7007,6 +7007,7 @@ osmtest_parse_path(IN osmtest_t * const p_osmt,
 			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0127: "
 				"Unexpected end of file\n");
 			status = IB_ERROR;
+			path_delete(p_path);
 			goto Exit;
 		}
 
@@ -7117,6 +7118,7 @@ osmtest_parse_path(IN osmtest_t * const p_osmt,
 
 	if (got_error) {
 		status = IB_ERROR;
+		path_delete(p_path);
 		goto Exit;
 	}
 	/*
