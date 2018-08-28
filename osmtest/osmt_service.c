@@ -1087,6 +1087,7 @@ Exit:
 		context.result.p_result_madw = NULL;
 	}
 
+	free(p_checked_names);
 	OSM_LOG_EXIT(&p_osmt->log);
 	return status;
 }
