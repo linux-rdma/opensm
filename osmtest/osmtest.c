@@ -6375,6 +6375,7 @@ osmtest_parse_node(IN osmtest_t * const p_osmt,
 			OSM_LOG(&p_osmt->log, OSM_LOG_ERROR, "ERR 0119: "
 				"Unexpected end of file\n");
 			status = IB_ERROR;
+			node_delete(p_node);
 			goto Exit;
 		}
 
