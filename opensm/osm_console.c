@@ -1679,6 +1679,8 @@ static void dump_portguid_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 		if (strcmp(p_cmd, "file") == 0) {
 			p_cmd = next_token(p_last);
 			if (p_cmd) {
+				if (output != out)
+					fclose(output);
 				output = fopen(p_cmd, "w+");
 				if (output == NULL) {
 					fprintf(out,
