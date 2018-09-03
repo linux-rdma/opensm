@@ -266,6 +266,19 @@ static int partition_create(unsigned lineno, struct part_conf *conf,
 	return 0;
 }
 
+static unsigned long int verify_val(unsigned lineno, osm_log_t *p_log,
+					char *flag, char *val)
+{
+	char *end;
+	unsigned long int ret = strtoul(val, &end, 0);
+	if (val && end)
+		OSM_LOG(p_log, OSM_LOG_VERBOSE,
+			"PARSE WARN: line %d: "
+			"suspicious val=(%s) detected. "
+			"flag=(%s)\n", lineno, val, flag);
+	return ret;
+}
+
 /* returns 1 if processed 0 if _not_ */
 static int parse_group_flag(unsigned lineno, osm_log_t * p_log,
 			    struct group_flags *flags,
@@ -275,14 +288,14 @@ static int parse_group_flag(unsigned lineno, osm_log_t * p_log,
 	int len = strlen(flag);
 	if (!strncmp(flag, "mtu", len)) {
 		rc = 1;
-		if (!val || (flags->mtu = strtoul(val, NULL, 0)) == 0)
+		if (!val || (flags->mtu = verify_val(lineno, p_log, flag, val)) == 0)
 			OSM_LOG(p_log, OSM_LOG_VERBOSE,
 				"PARSE WARN: line %d: "
 				"flag \'mtu\' requires valid value"
 				" - skipped\n", lineno);
 	} else if (!strncmp(flag, "rate", len)) {
 		rc = 1;
-		if (!val || (flags->rate = strtoul(val, NULL, 0)) == 0)
+		if (!val || (flags->rate = verify_val(lineno, p_log, flag, val)) == 0)
 			OSM_LOG(p_log, OSM_LOG_VERBOSE,
 				"PARSE WARN: line %d: "
 				"flag \'rate\' requires valid value"
@@ -290,7 +303,7 @@ static int parse_group_flag(unsigned lineno, osm_log_t * p_log,
 	} else if (!strncmp(flag, "scope", len)) {
 		unsigned int scope;
 		rc = 1;
-		if (!val || (scope = strtoul(val, NULL, 0)) == 0 || scope > 0xF)
+		if (!val || (scope = verify_val(lineno, p_log, flag, val)) == 0 || scope > 0xF)
 			OSM_LOG(p_log, OSM_LOG_VERBOSE,
 				"PARSE WARN: line %d: "
 				"flag \'scope\' requires valid value"
@@ -299,14 +312,14 @@ static int parse_group_flag(unsigned lineno, osm_log_t * p_log,
 			flags->scope_mask |= (1<<scope);
 	} else if (!strncmp(flag, "Q_Key", strlen(flag))) {
 		rc = 1;
-		if (!val || (flags->Q_Key = strtoul(val, NULL, 0)) == 0)
+		if (!val || (flags->Q_Key = verify_val(lineno, p_log, flag, val)) == 0)
 			OSM_LOG(p_log, OSM_LOG_VERBOSE,
 				"PARSE WARN: line %d: "
 				"flag \'Q_Key\' requires valid value"
 				" - using '0'\n", lineno);
 	} else if (!strncmp(flag, "TClass", strlen(flag))) {
 		rc =1;
-		if (!val || (flags->TClass = strtoul(val, NULL, 0)) == 0)
+		if (!val || (flags->TClass = verify_val(lineno, p_log, flag, val)) == 0)
 			OSM_LOG(p_log, OSM_LOG_VERBOSE,
 				"PARSE WARN: line %d: "
 				"flag \'TClass\' requires valid value"
