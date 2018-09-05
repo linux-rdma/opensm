@@ -659,6 +659,7 @@ General file format:
                           (default is 0)
         FlowLabel=<val> - specifies FlowLabel for this MC group
                           (default is 0)
+	NOTE: All mgroup_flag flags MUST be separated by comma (,).
 
 Note that values for rate, mtu, and scope, for both partitions and multicast
 groups, should be specified as defined in the IBTA specification (for example,
