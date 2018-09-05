@@ -318,7 +318,7 @@ static int parse_group_flag(unsigned lineno, osm_log_t * p_log,
 				"flag \'Q_Key\' requires valid value"
 				" - using '0'\n", lineno);
 	} else if (!strncmp(flag, "TClass", strlen(flag))) {
-		rc =1;
+		rc = 1;
 		if (!val || (flags->TClass = verify_val(lineno, p_log, flag, val)) == 0)
 			OSM_LOG(p_log, OSM_LOG_VERBOSE,
 				"PARSE WARN: line %d: "
