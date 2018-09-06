@@ -271,7 +271,7 @@ static unsigned long int verify_val(unsigned lineno, osm_log_t *p_log,
 {
 	char *end;
 	unsigned long int ret = strtoul(val, &end, 0);
-	if (val && end)
+	if (val && *end)
 		OSM_LOG(p_log, OSM_LOG_VERBOSE,
 			"PARSE WARN: line %d: "
 			"suspicious val=(%s) detected. "
