@@ -338,10 +338,10 @@ static int link_mgr_set_physp_pi(osm_sm_t * sm, IN osm_physp_t * p_physp,
 		   then determine the neighbor MTU.
 		 */
 		if (sm->p_subn->opt.force_link_width &&
-		    (sm->p_subn->opt.force_link_width < 16 ||
+		    (sm->p_subn->opt.force_link_width < IB_LINK_WIDTH_ACTIVE_2X ||
 		     (p_pi->capability_mask2 &
 		      IB_PORT_CAP2_IS_LINK_WIDTH_2X_SUPPORTED)) &&
-		    (sm->p_subn->opt.force_link_width != 255 ||
+		    (sm->p_subn->opt.force_link_width != IB_LINK_WIDTH_SET_LWS ||
 		     p_pi->link_width_enabled != p_pi->link_width_supported)) {
 			p_pi->link_width_enabled = sm->p_subn->opt.force_link_width;
 			if (p_pi->link_width_enabled != p_old_pi->link_width_enabled)
@@ -349,7 +349,7 @@ static int link_mgr_set_physp_pi(osm_sm_t * sm, IN osm_physp_t * p_physp,
 		}
 
 		if (sm->p_subn->opt.force_link_speed &&
-		    (sm->p_subn->opt.force_link_speed != 15 ||
+		    (sm->p_subn->opt.force_link_speed != IB_LINK_SPEED_SET_LSS ||
 		     ib_port_info_get_link_speed_enabled(p_pi) !=
 		     ib_port_info_get_link_speed_sup(p_pi))) {
 			ib_port_info_set_link_speed_enabled(p_pi,

@@ -1566,9 +1566,9 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * p_opt)
 	p_opt->lmc = OSM_DEFAULT_LMC;
 	p_opt->lmc_esp0 = FALSE;
 	p_opt->max_op_vls = OSM_DEFAULT_MAX_OP_VLS;
-	p_opt->force_link_speed = 15;
-	p_opt->force_link_speed_ext = 31;
-	p_opt->force_link_width = 255;
+	p_opt->force_link_speed = IB_LINK_SPEED_SET_LSS;
+	p_opt->force_link_speed_ext = IB_LINK_SPEED_EXT_SET_LSES;
+	p_opt->force_link_width = IB_LINK_WIDTH_SET_LWS;
 	p_opt->fdr10 = 1;
 	p_opt->reassign_lids = FALSE;
 	p_opt->ignore_other_sm = FALSE;
@@ -2050,27 +2050,31 @@ int osm_subn_verify_config(IN osm_subn_opt_t * p_opts)
 		p_opts->sm_priority = OSM_DEFAULT_SM_PRIORITY;
 	}
 
-	if ((15 < p_opts->force_link_speed) ||
-	    (p_opts->force_link_speed > 7 && p_opts->force_link_speed < 15)) {
+	if ((IB_LINK_SPEED_SET_LSS < p_opts->force_link_speed) ||
+	    (p_opts->force_link_speed > IB_LINK_SPEED_2_5_5_OR_10 &&
+	     p_opts->force_link_speed < IB_LINK_SPEED_SET_LSS)) {
 		log_report(" Invalid Cached Option Value:force_link_speed = %u:"
 			   "Using Default:%u\n", p_opts->force_link_speed,
-			   IB_PORT_LINK_SPEED_ENABLED_MASK);
-		p_opts->force_link_speed = IB_PORT_LINK_SPEED_ENABLED_MASK;
+			   IB_LINK_SPEED_SET_LSS);
+		p_opts->force_link_speed = IB_LINK_SPEED_SET_LSS;
 	}
 
-	if ((31 < p_opts->force_link_speed_ext) ||
-	    (p_opts->force_link_speed_ext > 7 && p_opts->force_link_speed_ext < 30)) {
+	if ((IB_LINK_SPEED_EXT_SET_LSES < p_opts->force_link_speed_ext) ||
+	    (p_opts->force_link_speed_ext > IB_LINK_SPEED_EXT_14_25_OR_50 &&
+	     p_opts->force_link_speed_ext < IB_LINK_SPEED_EXT_DISABLE)) {
 		log_report(" Invalid Cached Option Value:force_link_speed_ext = %u:"
 			   "Using Default:%u\n", p_opts->force_link_speed_ext,
-			   31);
-		p_opts->force_link_speed_ext = 31;
+			   IB_LINK_SPEED_EXT_SET_LSES);
+		p_opts->force_link_speed_ext = IB_LINK_SPEED_EXT_SET_LSES;
 	}
 
-	if ((255 < p_opts->force_link_width) ||
-	    (p_opts->force_link_width > 31 && p_opts->force_link_width < 255)) {
+	if ((IB_LINK_WIDTH_SET_LWS < p_opts->force_link_width) ||
+	    (p_opts->force_link_width > IB_LINK_WIDTH_1X_2X_4X_8X_OR_12X &&
+	     p_opts->force_link_width < IB_LINK_WIDTH_SET_LWS)) {
 		log_report(" Invalid Cached Option Value:force_link_width = %u:"
-			   "Using Default:%u\n", p_opts->force_link_width, 255);
-		p_opts->force_link_width = 255;
+			   "Using Default:%u\n", p_opts->force_link_width,
+			   IB_LINK_WIDTH_SET_LWS);
+		p_opts->force_link_width = IB_LINK_WIDTH_SET_LWS;
 	}
 
 	if (2 < p_opts->fdr10) {
