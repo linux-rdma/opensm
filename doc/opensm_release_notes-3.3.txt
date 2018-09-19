@@ -2,15 +2,15 @@
                        =============================
 
 Version: OpenSM 3.3.x
-Repo:    git://git.openfabrics.org/~halr/opensm.git
-Date:    June 2016
+Repo:    git://github.com/linux-rdma/opensm
+Date:    September 2018
 
 1 Overview
 ----------
 This document describes the contents of the OpenSM 3.3 release.
 OpenSM is an InfiniBand compliant Subnet Manager and Administration,
 and runs on top of OpenIB. The OpenSM version for this release
-is opensm-3.3.20.
+is opensm-3.3.21.
 
 This document includes the following sections:
 1 This Overview section (describing new features and software
@@ -23,14 +23,40 @@ This document includes the following sections:
 
 1.1 Major New Features
 
+* Support for HDR link speed and 2x link width
+  IBTA has recently (beyond IBA 1.3) added support for HDR link speed
+  and 2x link width.
+
+* Nue routing algorithm.
+  The Nue routing is a novel topology-agnostic routing approach which
+  implicitly avoids deadlocks during the path calculation instead of
+  solving both problems separately. Nue routing heuristically optimizes
+  the load balancing, i.e., the number of routes per link, while
+  enforcing deadlock-freedom without exceeding a given number of
+  virtual lanes (VLs). Our Nue implementation for the InfiniBand subnet
+  manager supports any number of virtual lanes.
+
+* Support for ignoring throttled links with DFSSSP.
+  Throttled links, either because they are faulty or throttled intentionally,
+  aren't good for the achievable performance of an HPC system.
+  During the discovery process, (DF)SSSP analyzes the theoretical maximum
+  enabled link speed, which both ends of a peer link support and compares it
+  to the actual link speed. If these numbers don't match, then the link is
+  ignored as potential path for routes between nodes. A similar comparison
+  is done for link width.
+
+* Support for long transaction timeout for SM class transactions.
+  Currently, it is only used for optimized SL2VLMappingTable operations.
+  Option is long_transaction_timeout with default of 500 msec.
+
 * Mesh Analysis for LASH routing algorithm.
   The performance of LASH can be improved by preconditioning the mesh in
   cases where there are multiple links connecting switches and also in
   cases where the switches are not cabled consistently.
   Activated with --do_mesh_analysis command line and config file option.
 
-* Reloadable OpenSM configuration (preliminary implemented)
-  This is possible now to reload OpenSM configuration parameters on the
+* Reloadable OpenSM configuration (preliminary implementation)
+  It is possible now to reload OpenSM configuration parameters on the
   fly without restarting.
 
 * Routing paths sorted balancing (for UpDown and MinHops)
@@ -95,6 +121,30 @@ This document includes the following sections:
 
 1.2 Minor New Features:
 
+6a24bcd osm_subnet.c: Add additional device ID to is_mlnx_ext_port_info_supported
+0ab8d12 Add force_link_width option
+3f28045 Handle other 2x and/or HDR not supported SA rate cases
+5b56f06 osm_subnet.c: Add additional device IDs to is_mlnx_ext_port_info_supported
+f92b33c Add support for additional Mellanox OUIs
+b8e2a5b Add option and support for only using the original extended SA rates
+deb194f osm_subnet.c: Add additional ConnectX-5 device ID to is_mlnx_ext_port_info_supported
+e4e95b3 dfsssp: Replace the internal heap implementation
+0dc7b6d Add support for send only full member multicast joins
+f8344d0 osm_[base.h helper.c]: Add new Mellanox OUI 0xec0d9a
+48457af Add initial policy for long transaction timeout
+0b4e9a6 Add timeout parameter for SM class get transactions
+2acf61f ib_types.h: Add new rates to return values for ib_[multi]path_rec_rate
+f48d4c7 ib_types.h: Add CapabiltyMask2 bit definition for CPI CapabilityMask
+012ff1d osm_helper.c: Add support for dumping PortInfo:CapabilityMask2
+b937054 ib_types.h: Add additional PortInfo:CapabilityMask2 definitions
+ab8b977 [ib_types.h, osm_helper.c]: Change IB_PORT_CAP_RESV13 to IB_PORT_CAP_HAS_CABLE_INFO
+771c101 ib_types.h: Add IsPMKeySupported ClassPortInfo CapabilityMask2 bit
+ab0671c ib_types.h: Add additional optional counters to PortCountersExtended
+abe9803 ib_types.h: Add optional QP1Dropped counter to PortCounters attribute
+566222b osm_subnet.c: Add Connect-X5 support to is_mlnx_ext_port_info_supported
+f85c48f Add Bull device IDs to device white lists
+6531f0b osm_subnet.c: Add support for Bull device ID to is_mlnx_ext_port_info_supported
+f30ebc4 osm_[helper.c base.h]: Add support for Bull OUI
 fbe5107 osm_subnet.c: Add support for Switch-IB2 in is_mlnx_ext_port_info_supported
 6eb8b96 ftree: Additional ftree indexing algorithm
 c1f7ffd Support configuration for index 0 in pkey table
@@ -427,6 +477,9 @@ b73c378 opensm/perfmgr; add support for PortCountersExtended NOIETF
 
 1.3 Library API Changes
 
+925e1ce Add timeout parameter for SM class set transactions
+f60e241 osm_madw.h: Remove unused bind_info in osm_madw structure
+aa63c3c complib: Add a d-ary heap
 44a6358 libvendor/osm_vendor_ibumad.c: Support GRH (for GS classes)
 de02954 osm_trap_rcv.c: Log DR path to node when trap 128
 
@@ -521,7 +574,17 @@ information regarding each compliance statement.
 -----------
 
 4.1 Major Bug Fixes
-
+af9fc7a osm_sa_mcmember_record.c: Use neighbor MTU rather than MTUCap in mgrp_request_is_realizable
+9a4e79b dfsssp - detect and try to repair an odd network state
+85f841c osm_ucast_[dfsssp ftree].c: Fix memory leak when io/cn guid file have duplicated guids
+8980f12 osm_port_info_rcv.c: Fix min_ca_rate determination in pi_rcv_process_endport
+a7db80a osm_lid_mgr.c: Clean up LID ranges that are beyond current LMC setting
+677bc59 osm_ucast_updn.c: Add memory allocation failure handling in updn_build_lid_matrices
+2f4713d osm_qos_policy.c: Partition SL independence from QoS matching rules
+0d88e64 osm_state_mgr.c: opensm does not generate SA_DB_DUMPED event after heavy sweep
+a686cec osm_ucast_mgr.c: Fix minhop tables miscalculation due to variable wraparound
+aa7d21a Fix SM-Key management
+f6af5af osm_port_info_rcv.c: Fix bug in portinfo set failure handling
 62ea61a osm_state_mgr.c: Fix bug in handling of PortInfo Set timeout
 34e81df Change precedence in pkey manager with indx0 feature
 aa905e2 osm_pkey.[h c], osm_prtn.c: Create method to set pkey at indx0
@@ -793,6 +856,85 @@ f37bf3c opensm/perfmgr: skip data counters when only printing errors
 
 4.2 Other Bug Fixes
 
+43270a6 Replace hard coded constants with defines for force_link_xxx options
+901af61 osm_helper.h: Remove trailing whitespace in comment
+a0aee8b Revert osm_db_files.c: Fix bad free in osm_db_delete
+9dc1106 osm_prtn_config.c: Fix pointer dereference in verify_val
+c9fcdfd osm_prtn_config.c: Cosmetic formatting change
+024fe73 opensm.8.in:  Emphasize that the fields of mgroup_flag must be split with "comma"
+1f82c22 partition-config.txt: Emphasize that the fields of mgroup_flag must be split with "comma"
+04d2a8b osm_prtn_config.c: parse_group_flag log suspicious group flag value
+bfa7f34 osm_sm_mad_ctrl.c: Change [i r]path declarations in log_rcv_cb_error
+a07b48a osm_console.c: Fix resource leak in dump_portguid_parse
+9da76ca osm_qos_parser_y.y: Fix opensm crash when qos policy file is null
+a16cdef osmtest.c: Close file before exit function osmtest_create_inventory_file
+87848a2 osmtest.c: osmtest_parse_path fix resource leak in error path
+a3e2286 osmtest.c: osmtest_parse_port fix resource leak in error path
+f03f013 osmtest.c: osmtest_parse_node delete p_node in error path
+b8048cd osmt_service.c: Fix resource leak in osmt_get_all_services_and_check_names
+b10f46c osm_ucast_nue.c: Fix resource leak in nue_create_context
+a7084c9 osm_qos_parser_y.y: Fix resource leak
+92059c2 osm_port.c: Fix memory leak in osm_port_new
+dcfeb90 main.c: Close fd before return to avoid resource leak
+91f0e83 opensm.spec.in: Adjust BuildRequires for covscan
+2ef378f osm_ucast_lash.c: Fix comment in init_lash_structures
+94bfbdb osm_sa_mcmember_record.c: Fix use after free in mcmr_rcv_join_mgrp
+257d6c0 osm_mesh.c: Improve one line of comment in make_geometry
+4123382 osm_db_files.c: Fix bad free in osm_db_delete
+16c35ba osm_db_files.c: Cosmetic change to comment in osm_db_update
+2028be0 osm_sm_mad_ctrl.c: Reduce path buffer sizes to avoid format truncation in log_rcv_cb_error
+9070d50 osm_prtn.c: Avoid potential no NUL-terminated strncpy in osm_prtn_new
+1c586e9 osm_console_io.c: Avoid potential no NUL-terminated strncpy in osm_console_init
+f211bbc osm_sa_mcmember_record.c: Fix maybe uninitialized issue in mcmr_by_comp_mask
+2f21624 Replace deprecated 'BSD_SOURCE' macro in Makefiles with GNU_SOURCE
+a3a6876 Refactor common SA path record rate code into ib_path_rate_2x_hdr_fixups
+7cbfac9 osm_sa_[multi]path_record.c: Add some comments for better code clarity
+f096ee5 osm_sa_path_record.c: Cosmetic formatting change
+16f441c osm_subnet.c: Remove redundant Bull device ID in is_mlnx_ext_port_info_supported
+10cf3e0 Revert osm_vendor_ibumad.c: OpenSM no longer works with ibsim with latest libibuma
+62e0ee0 osm_pkey.c: Fix comment in match_pkey
+c4770cf osm_vendor_ibumad.c: OpenSM no longer works with ibsim with latest libibumad
+ef0fcce osm_sa_[multi]path_record.c: Remove some redundant code in [m]pr_pr_rcv_get_path_parms
+7122495 osm_[multi]path_record.c: Fix a couple of edge cases with new 2x/HDR SA rates
+aa638d6 PKEY: Add functionality to ignore existing pkey indexes
+9094a58 osm_subnet.c: Make formatting consistent in generated opensm.conf
+ad7d56d doc/QoS_management_in_OpenSM.txt: Fix typo
+a166aca osm_ucast_dfsssp.c: Uniquify some error codes
+9012a8a complib/cl_heap.[h c]: Fix a corner case in d-ary heap
+3d22440 osm_helper.c: Add decode of HDR supported to dbg_get_capabilities2_str
+b31ec5e [current-routing.txt man/opensm.8.in]: Some minor fixups
+d12e40e osm_subnet.c: Fix typo in generated configuration/options file
+0d58e55 ib_types.h: mcast_pkey_trap_suppr in PortInfo attribute is 2 bits in IBA 1.3
+ece32f3 osm_sa.c: Cosmetic change to 4C05 error log message
+78f262a osm_qos.c: Better handling of VL arbitration tables when there is 1 data VL
+a3f0c5f osm_prtn_config.c: Fix a couple of compile warnings with more recent gcc
+e9ad4af osmtest/osmt_multicast.c: Fix MC join with unrealistic rate
+55823ac osm_multicast.h: Fix some osm_mgrp_box structure field descriptions
+7e00315 osm_sa_path_record.c: Check input parameters in osm_get_path_params
+dfaf5db osm_switch.c: Fix commentary typo
+b879f98 osm_sa_inform_info.c: Use defines rather than hard coded constants in infr_rcv_process_set_method
+135ad4b ib_types.h: Fix bit for IB_PM_IS_ADDL_PORT_CTRS_EXT_SUP
+a161ec4 ib_types.h: Replace hard coded constant with define
+fe1cf8d ib_types.h: Fix some typos associated with IB_CLASS_RESP_TIME_MASK
+e16fedf osm_subnet.c: Indicate that subnet prefix can't be changed at runtime
+c9a3c6f osm_sa_mad_ctrl.c: It's report response rather than repress
+075fbd6 osm_subnet.c: EOL missing in error message in opts_strtoull
+cb99d8d gen_ver.sh: Change configure.in to configure.ac in comment
+519b24d configure.ac: Update configure.in to configure.ac
+1ed0eea configure.in: Update AM_INIT_AUTOMAKE to use subdir-objects
+e4f6b79 Makefile.am: Fix INCLUDES warnings
+b4f5374 osm_[link lid]_mgr.c: Simplify error threshold comparisons
+ed4e65a osm_link_mgr.c: Simplify some link speed related comparisons
+eaa1469 osm_[link lid]_mgr.c: Simplify link width comparisons
+5baa2a4 osm_sminfo_rcv.c: Use initial rather than return path in smi_rcv_process_get_response
+f449e50 osm_switch.h: Fix commentary typo
+063154d osm_sa_mcmember_record.c: Add MGID to 1B13 error message
+68db71c osm_ucast_ftree.c: Remove redundant condition in fabric_route_downgoing_by_going_up
+b25e518 osm_console.c: Remove redundant condition in __get_stats
+3d665b3 osm_ucast_ftree.c: Implement atomic update operation for dump file
+b439c42 Fix various typos
+6a1624f osm_state_mgr.c: Move subnet up event to occur after mkey related files are written
+58884b5 osm_torus.c: Cosmetic formatting change
 bb15d2f osm_service.c: Fix missing endian conversion in log message
 c0e8141 Fix various coverity issues
 a0d9157 osm_subnet.c: Add guid_routing_order_no_scatter option to opensm.conf
