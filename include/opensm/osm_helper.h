@@ -887,7 +887,7 @@ int ib_path_rate_2x_hdr_fixups(IN const ib_port_info_t * p_pi,
 *		[in] Encoded path rate.
 *
 * RETURN VALUES
-*	Returns an int indicating the fixed up encoded rate 
+*	Returns an int indicating the fixed up encoded rate
 *	based on whether 2x link width and/or HDR are supported.
 *
 * NOTES
