@@ -118,8 +118,8 @@ static void cl_vector_copy8(OUT void *const p_dest,
  *	None
  *
  */
-void cl_vector_copy16(OUT void *const p_dest,
-		      IN const void *const p_src, IN const size_t size)
+static void cl_vector_copy16(OUT void *const p_dest,
+			     IN const void *const p_src, IN const size_t size)
 {
 	CL_ASSERT(size == sizeof(uint16_t));
 	UNUSED_PARAM(size);
@@ -143,8 +143,8 @@ void cl_vector_copy16(OUT void *const p_dest,
  *	None
  *
  */
-void cl_vector_copy32(OUT void *const p_dest,
-		      IN const void *const p_src, IN const size_t size)
+static void cl_vector_copy32(OUT void *const p_dest,
+			     IN const void *const p_src, IN const size_t size)
 {
 	CL_ASSERT(size == sizeof(uint32_t));
 	UNUSED_PARAM(size);
@@ -168,8 +168,8 @@ void cl_vector_copy32(OUT void *const p_dest,
  *	None
  *
  */
-void cl_vector_copy64(OUT void *const p_dest,
-		      IN const void *const p_src, IN const size_t size)
+static void cl_vector_copy64(OUT void *const p_dest,
+			     IN const void *const p_src, IN const size_t size)
 {
 	CL_ASSERT(size == sizeof(uint64_t));
 	UNUSED_PARAM(size);

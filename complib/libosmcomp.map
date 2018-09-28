@@ -126,10 +126,6 @@ OSMCOMP_2.3 {
 		cl_timer_trim;
 		cl_get_time_stamp;
 		cl_get_time_stamp_sec;
-		cl_vector_copy_general;
-		cl_vector_copy16;
-		cl_vector_copy32;
-		cl_vector_copy64;
 		cl_vector_construct;
 		cl_vector_init;
 		cl_vector_destroy;
