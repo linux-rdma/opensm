@@ -7352,7 +7352,7 @@ osmtest_get_user_port(IN osmtest_t * const p_osmt,
 		fflush(stdout);
 		if (scanf("%u", &choice) <= 0) {
 			char junk[256];
-			if (scanf("%s", junk) <= 0)
+			if (scanf("%255s", junk) <= 0)
 				printf("\nError: Cannot scan!\n");
 		} else if (choice && choice <= num_ports)
 			break;
