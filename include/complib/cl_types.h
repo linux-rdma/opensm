@@ -295,38 +295,6 @@ typedef int cl_status_t;
 /* Status values above converted to text for easier printing. */
 extern const char *cl_status_text[];
 
-#ifndef cl_panic
-/****f* Component Library: Error Trapping/cl_panic
-* NAME
-*	cl_panic
-*
-* DESCRIPTION
-*	Halts execution of the current process.  Halts the system if called in
-*	from the kernel.
-*
-* SYNOPSIS
-*/
-void cl_panic(IN const char *const message, IN ...);
-/*
-* PARAMETERS
-*	message
-*		[in] ANSI string formatted identically as for a call to the standard C
-*		function printf describing the cause for the panic.
-*
-*	...
-*		[in] Extra parameters for string formatting, as defined for the
-*		standard C function printf.
-*
-* RETURN VALUE
-*	This function does not return.
-*
-* NOTES
-*	The formatting of the message string is the same as for printf
-*
-*	cl_panic sends the message to the current message logging target.
-*********/
-#endif				/* cl_panic */
-
 /****d* Component Library: Data Types/CL_STATUS_MSG
 * NAME
 *	CL_STATUS_MSG
