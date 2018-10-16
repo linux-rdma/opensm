@@ -191,11 +191,11 @@ typedef uint64_t net64_t;
 #endif
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%                  Function Returns And Completion Codes					 %%
-%%																			 %%
-%% The text for any addition to this enumerated type must be added to the	 %%
-%% string array defined in <cl_statustext.c>.								 %%
-%%																			 %%
+%%                  Function Returns And Completion Codes                    %%
+%%                                                                           %%
+%% The text for any addition to this enumerated type must be added to the    %%
+%% string array defined in <cl_statustext.c>.                                %%
+%%                                                                           %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
 /****d* Component Library/Data Types
