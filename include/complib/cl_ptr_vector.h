@@ -572,7 +572,7 @@ void *cl_ptr_vector_remove(IN cl_ptr_vector_t * const p_vector,
 *	Value of the pointer stored at the specified index.
 *
 * NOTES
-*	cl_ptr_vector_get does not perform boundary checking. Callers are
+*	cl_ptr_vector_remove does not perform boundary checking. Callers are
 *	responsible for providing an index that is within the range of the pointer
 *	vector.
 *
