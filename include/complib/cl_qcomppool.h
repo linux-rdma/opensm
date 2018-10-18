@@ -312,7 +312,7 @@ typedef struct _cl_qcpool {
 *		Number of objects managed by the pool
 *
 *	max_objects
-*		Maximum number of objects in pool
+*		Maximum number of objects allowed to be created in pool
 *
 *	grow_size
 *		Number of objects to add when automatically growing the pool.
