@@ -91,7 +91,6 @@ cl_status_t cl_heap_init(IN cl_heap_t * const p_heap, IN const size_t max_size,
 		cl_heap_destroy(p_heap);
 
 	p_heap->branching_factor = d;
-	p_heap->element_array = NULL;
 	p_heap->size = 0;
 	p_heap->capacity = max_size;
 	p_heap->pfn_index_update = pfn_index_update;
