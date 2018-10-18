@@ -76,7 +76,7 @@ BEGIN_C_DECLS
 *	decrease_key, and delete, are provided and referencing an element,
 *	e.g., for deletion is done via indices. The implication is, that
 *	the caller needs to be informed about index changes, e.g., after
-*	internal reordering through shift_[up | down], to always know the
+*	internal reordering through heap_[up | down], to always know the
 *	index of each element in the heap. Therefore, the caller has to
 *	provide a callback function, which forwards the context of an element
 *	and the new index in the heap back to the caller. The caller is
@@ -84,7 +84,7 @@ BEGIN_C_DECLS
 *
 *	An implementation of heapify is omitted, because the caller should not
 *	be able to allocate and provide an unsorted array. All heapify
-*	operations with shift_up and shift_down are done internally after the
+*	operations with heap_up and heap_down are done internally after the
 *	caller manipulated the heap with the provided functions.
 *
 *	Heaps are used extensively in some routing functions, such as [DF]SSSP
@@ -366,7 +366,7 @@ void cl_heap_destroy(IN cl_heap_t * const p_heap);
 *	The cl_heap_modify_key function changes the key of an element in the
 *	heap identified by an index. The result could be invalidate the heap
 *	property for the stored elements. Therefore, the cl_heap_modify_key
-*	function calls shift_[up | down] internally to reconstruct a valid
+*	function calls heap_[up | down] internally to reconstruct a valid
 *	heap.
 *
 * SYNOPSIS
