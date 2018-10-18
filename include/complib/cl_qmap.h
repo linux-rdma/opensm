@@ -770,6 +770,10 @@ cl_qmap_remove_item(IN cl_qmap_t * const p_map,
 		    IN cl_map_item_t * const p_item);
 /*
 * PARAMETERS
+*	p_map
+*		[in] Pointer to a cl_qmap_t structure from which to
+*		remove item.
+*
 *	p_item
 *		[in] Pointer to a map item to remove from its quick map.
 *

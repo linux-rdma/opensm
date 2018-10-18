@@ -119,6 +119,11 @@ typedef cl_status_t
 *	context
 *		[in] Context provided in a call to cl_qpool_init.
 *
+*	pp_pool_item
+*		[out] Users should set this pointer to reference the cl_pool_item_t
+*		structure that represents the composite object.  This pointer must
+*		not be NULL if the function returns CL_SUCCESS.
+*
 * RETURN VALUES
 *	Return CL_SUCCESS to indicate that initialization of the object
 *	was successful and that initialization of further objects may continue.

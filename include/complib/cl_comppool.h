@@ -113,8 +113,12 @@ typedef cl_status_t
 			    IN const uint32_t num_components, IN void *context);
 /*
 * PARAMETERS
-*	p_object
-*		[in] Pointer to an object to initialize.
+*	p_comp_array
+*		[in] Pointer to the first entry in an array of pointers, each of
+*		which points to a component that makes up a composite object.
+*
+*	num_components
+*		[in] Number of components in the composite array.
 *
 *	context
 *		[in] Context provided in a call to cl_cpool_init.

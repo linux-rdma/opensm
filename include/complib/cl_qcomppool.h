@@ -188,7 +188,7 @@ typedef cl_status_t
 *		which points to a component that makes up a composite object.
 *
 *	num_components
-*		[in] Number of components that in the component array.
+*		[in] Number of components in the component array.
 *
 *	context
 *		[in] Context provided in a call to cl_qcpool_init.
@@ -310,6 +310,9 @@ typedef struct _cl_qcpool {
 *
 *	num_objects
 *		Number of objects managed by the pool
+*
+*	max_objects
+*		Maximum number of objects in pool
 *
 *	grow_size
 *		Number of objects to add when automatically growing the pool.
@@ -660,7 +663,7 @@ cl_qcpool_put_list(IN cl_qcpool_t * const p_pool, IN cl_qlist_t * const p_list)
 	CL_ASSERT(p_list);
 
 #ifdef _DEBUG_
-	/* Chech that all items in the list came from this pool. */
+	/* Check that all items in the list came from this pool. */
 	p_item = cl_qlist_head(p_list);
 	while (p_item != cl_qlist_end(p_list)) {
 		CL_ASSERT(((cl_pool_item_t *) p_item)->p_pool == p_pool);
@@ -668,7 +671,6 @@ cl_qcpool_put_list(IN cl_qcpool_t * const p_pool, IN cl_qlist_t * const p_list)
 	}
 #endif
 
-	/* return these lil' doggies to the pool */
 	cl_qlist_insert_list_head(&p_pool->free_list, p_list);
 }
 

@@ -1034,10 +1034,6 @@ static inline cl_list_iterator_t cl_list_next(IN cl_list_iterator_t iterator)
 
 /*
 * PARAMETERS
-*	p_list
-*		[in] Pointer to a cl_list_t structure for which the iterator for the
-*		next object is to be returned.
-*
 *	iterator
 *		[in] cl_list_iterator_t returned by a previous call to cl_list_head,
 *		cl_list_tail, cl_list_next, or cl_list_prev.
@@ -1076,10 +1072,6 @@ static inline cl_list_iterator_t cl_list_prev(IN cl_list_iterator_t iterator)
 
 /*
 * PARAMETERS
-*	p_list
-*		[in] Pointer to a cl_list_t structure for which the iterator for the
-*		next object is to be returned.
-*
 *	iterator
 *		[in] cl_list_iterator_t returned by a previous call to cl_list_head,
 *		cl_list_tail, cl_list_next, or cl_list_prev.
