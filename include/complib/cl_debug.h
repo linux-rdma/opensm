@@ -191,7 +191,7 @@ void cl_msg_out(IN const char *const message, IN ...);
 */
 #define	CL_DBG_DISABLE		0
 #define	CL_DBG_ERROR		0x80000000
-#define	CL_DBG_ALL			0xFFFFFFFF
+#define	CL_DBG_ALL		0xFFFFFFFF
 /*
 * VALUES
 *	CL_DBG_DISABLE
@@ -270,12 +270,12 @@ void cl_msg_out(IN const char *const message, IN ...);
 * SEE ALSO
 *	Debug Output, Debug Levels, CL_ENTER, CL_EXIT, CL_TRACE, CL_TRACE_EXIT
 *********/
-#define	CL_PRINT( DBG_LVL, CHK_LVL, STRING )								\
-	{																		\
-	if( DBG_LVL & CL_DBG_ERROR )											\
-		cl_dbg_out STRING;													\
-	else if( (DBG_LVL & CHK_LVL) == DBG_LVL )								\
-		cl_dbg_out STRING;													\
+#define	CL_PRINT( DBG_LVL, CHK_LVL, STRING )				\
+	{								\
+	if( DBG_LVL & CL_DBG_ERROR )					\
+		cl_dbg_out STRING;					\
+	else if( (DBG_LVL & CHK_LVL) == DBG_LVL )			\
+		cl_dbg_out STRING;					\
 	}
 
 /****d* Component Library: Debug Output/CL_ENTER
@@ -331,8 +331,8 @@ void cl_msg_out(IN const char *const message, IN ...);
 * SEE ALSO
 *	Debug Output, Debug Levels, CL_PRINT, CL_EXIT, CL_TRACE, CL_TRACE_EXIT
 *********/
-#define CL_ENTER( DBG_LVL, CHK_LVL )										\
-	CL_CHK_STK;																\
+#define CL_ENTER( DBG_LVL, CHK_LVL )			\
+	CL_CHK_STK;					\
 	CL_PRINT( DBG_LVL, CHK_LVL, _CL_DBG_ENTER );
 
 /****d* Component Library: Debug Output/CL_EXIT
@@ -391,7 +391,7 @@ void cl_msg_out(IN const char *const message, IN ...);
 * SEE ALSO
 *	Debug Output, Debug Levels, CL_PRINT, CL_ENTER, CL_TRACE, CL_TRACE_EXIT
 *********/
-#define CL_EXIT( DBG_LVL, CHK_LVL )											\
+#define CL_EXIT( DBG_LVL, CHK_LVL )			\
 	CL_PRINT( DBG_LVL, CHK_LVL, _CL_DBG_EXIT );
 
 /****d* Component Library: Debug Output/CL_TRACE
@@ -460,18 +460,18 @@ void cl_msg_out(IN const char *const message, IN ...);
 * SEE ALSO
 *	Debug Output, Debug Levels, CL_PRINT, CL_ENTER, CL_EXIT, CL_TRACE_EXIT
 *********/
-#define CL_TRACE( DBG_LVL, CHK_LVL, STRING )								\
-{																			\
-switch( DBG_LVL & CL_DBG_ERROR )											\
-{																			\
-	case CL_DBG_ERROR:														\
-		CL_PRINT( DBG_LVL, CHK_LVL, _CL_DBG_ERROR );						\
-		break;																\
-	default:																\
-		CL_PRINT( DBG_LVL, CHK_LVL, _CL_DBG_INFO );							\
-		break;																\
-}																			\
-CL_PRINT( DBG_LVL, CHK_LVL, STRING );										\
+#define CL_TRACE( DBG_LVL, CHK_LVL, STRING )			\
+{								\
+switch( DBG_LVL & CL_DBG_ERROR )				\
+{								\
+	case CL_DBG_ERROR:					\
+		CL_PRINT( DBG_LVL, CHK_LVL, _CL_DBG_ERROR );	\
+		break;						\
+	default:						\
+		CL_PRINT( DBG_LVL, CHK_LVL, _CL_DBG_INFO );	\
+		break;						\
+}								\
+CL_PRINT( DBG_LVL, CHK_LVL, STRING );				\
 }
 
 /****d* Component Library: Debug Output/CL_TRACE_EXIT
@@ -537,8 +537,8 @@ CL_PRINT( DBG_LVL, CHK_LVL, STRING );										\
 * SEE ALSO
 *	Debug Output, Debug Levels, CL_PRINT, CL_ENTER, CL_EXIT, CL_TRACE
 *********/
-#define CL_TRACE_EXIT( DBG_LVL, CHK_LVL, STRING )							\
-	CL_TRACE( DBG_LVL, CHK_LVL, STRING );									\
+#define CL_TRACE_EXIT( DBG_LVL, CHK_LVL, STRING )		\
+	CL_TRACE( DBG_LVL, CHK_LVL, STRING );			\
 	CL_EXIT( DBG_LVL, CHK_LVL );
 
 #else				/* defined(_DEBUG_) */
