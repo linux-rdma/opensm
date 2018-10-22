@@ -51,7 +51,6 @@
 #include <opensm/osm_subnet.h>
 #include <opensm/osm_log.h>
 #include <opensm/osm_sm.h>
-#include <opensm/osm_opensm.h>
 #include <opensm/osm_base.h>
 
 /****s* OpenSM: Base/OSM_DEFAULT_CC_KEY

@@ -61,7 +61,6 @@
 #include <opensm/osm_port.h>
 #include <opensm/osm_db.h>
 #include <opensm/osm_remote_sm.h>
-#include <opensm/osm_multicast.h>
 
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {

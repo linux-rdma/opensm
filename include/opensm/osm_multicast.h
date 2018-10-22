@@ -54,7 +54,6 @@
 #include <opensm/osm_mcm_port.h>
 #include <opensm/osm_subnet.h>
 #include <opensm/osm_log.h>
-#include <opensm/osm_sm.h>
 
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
