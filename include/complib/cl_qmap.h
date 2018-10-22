@@ -165,10 +165,6 @@ typedef struct _cl_map_item {
 *	p_up
 *		Pointer to the map item that is the parent of the node.
 *
-*	p_nil
-*		Pointer to the map's NIL item, used as a terminator for leaves.
-*		The NIL sentinel is in the cl_qmap_t structure.
-*
 *	color
 *		Indicates whether a node is red or black in the map.
 *
