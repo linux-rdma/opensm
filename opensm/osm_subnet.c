@@ -1505,6 +1505,9 @@ int is_mlnx_ext_port_info_supported(ib_net32_t vendid, ib_net16_t devid)
 		if (devid_ho == 0x1ba0 ||
 		    (devid_ho >= 0x1bd0 && devid_ho <= 0x1bd5))
 			return 1;
+		/* Bull Quantum */
+		if (devid_ho == 0x1bf0)
+			return 1;
 		/* Bull Connect-X3 */
 		if (devid_ho == 0x1b33 || devid_ho == 0x1b73 ||
 		    devid_ho == 0x1b40 || devid_ho == 0x1b41 ||
@@ -1514,9 +1517,9 @@ int is_mlnx_ext_port_info_supported(ib_net32_t vendid, ib_net16_t devid)
 		if (devid_ho == 0x1b83 ||
 		    devid_ho == 0x1b93 || devid_ho == 0x1b94)
 			return 1;
-		/* Bull Connect-X4 */
+		/* Bull Connect-X4, Sequana HDR and HDR100 */
 		if (devid_ho == 0x1bb4 || devid_ho == 0x1bb5 ||
-		    devid_ho == 0x1bc4)
+		    (devid_ho >= 0x1bc4 && devid_ho <= 0x1bc6))
 			return 1;
 	}
 	return 0;
