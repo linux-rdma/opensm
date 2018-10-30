@@ -77,7 +77,7 @@ BEGIN_C_DECLS
 *		cl_disp_construct, cl_disp_init, cl_disp_shutdown, cl_disp_destroy
 *
 *	Manipulation:
-*		cl_disp_post, cl_disp_reset, cl_disp_wait_on
+*		cl_disp_post, cl_disp_register, cl_disp_unregister
 *********/
 /****s* Component Library: Dispatcher/cl_disp_msgid_t
 * NAME
@@ -220,31 +220,28 @@ typedef struct _cl_dispatcher {
 } cl_dispatcher_t;
 /*
 * FIELDS
+*	lock
+*		Spinlock to guard internal structures.
+*
 *	reg_vec
 *		Vector of registration info objects.  Indexed by message msg_id.
 *
-*	lock
-*		Spinlock to guard internal structures.
+*	reg_list
+*		List of registration info objects.
+*
+*	worker_threads
+*		Thread pool of worker threads to dispose of posted messages.
 *
 *	msg_fifo
 *		FIFO of messages being processed by the Dispatcher.  New
 *		messages are posted to the tail of the FIFO.  Worker threads
 *		pull messages from the front.
 *
-*	worker_threads
-*		Thread pool of worker threads to dispose of posted messages.
-*
 *	msg_pool
 *		Pool of message objects to be processed through the FIFO.
 *
-*	reg_count
-*		Count of the number of registrants.
-*
-*	state
-*		Indicates the state of the object.
-*
-*       last_msg_queue_time_us
-*               The time that the last message spent in the Q in usec
+*	last_msg_queue_time_us
+*		The time that the last message spent in the Q in usec
 *
 * SEE ALSO
 *	Dispatcher
@@ -272,23 +269,17 @@ typedef struct _cl_disp_reg_info {
 } cl_disp_reg_info_t;
 /*
 * FIELDS
+* 	list_item
+* 		List linkage.  Must be first element in the structure!!
+*
 *	pfn_rcv_callback
 *		Client's message receive callback.
 *
 *	context
 *		Client's context for message receive callback.
 *
-*	rcv_thread_count
-*		Number of threads currently in the receive callback.
-*
-*	msg_done_thread_count
-*		Number of threads currently in the message done callback.
-*
-*	state
-*		State of this registration object.
-*			DISP_REGSTATE_INIT: initialized and inactive
-*			DISP_REGSTATE_ACTIVE: in active use
-*			DISP_REGSTATE_UNREGPEND: unregistration is pending
+*	ref_cnt
+*		Reference count.
 *
 *	msg_id
 *		Dispatcher message msg_id value for this registration object.
@@ -325,15 +316,15 @@ typedef struct _cl_disp_msg {
 *	item
 *		List & Pool linkage.  Must be first element in the structure!!
 *
-*	msg_id
-*		The message's numberic ID value.
-*
 *	p_data
 *		Pointer to the data payload for this message.  The payload
 *		is opaque to the Dispatcher.
 *
-*	p_reg_info
+*	p_src_reg
 *		Pointer to the registration info of the sender.
+*
+* 	p_dest_reg
+* 		Pointer to the registration info of the recipient.
 *
 *	pfn_xmt_callback
 *		Client's message done callback.
@@ -597,7 +588,7 @@ cl_disp_post(IN const cl_disp_reg_handle_t handle,
 *	cl_disp_get_queue_status
 *
 * DESCRIPTION
-*	This function posts a message to a Dispatcher object.
+*	This function gets queue status of a Dispatcher object.
 *
 * SYNOPSIS
 */
@@ -610,12 +601,12 @@ cl_disp_get_queue_status(IN const cl_disp_reg_handle_t handle,
 *   handle
 *     [in] cl_disp_reg_handle_t value return by cl_disp_register.
 *
+*   p_num_queued_msgs
+*     [out] number of messages in the queue
+*
 *   p_last_msg_queue_time_ms
 *     [out] pointer to a variable to hold the time the last popped up message
 *           spent in the queue
-*
-*   p_num_queued_msgs
-*     [out] number of messages in the queue
 *
 * RETURN VALUE
 *	Thr time the last popped up message stayed in the queue, in msec
