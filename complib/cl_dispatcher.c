@@ -85,7 +85,7 @@ void __cl_disp_worker(IN void *context)
 		p_msg =
 		    (cl_disp_msg_t *) cl_qlist_remove_head(&p_disp->msg_fifo);
 
-		/* we track the tim ethe last message spent in the queue */
+		/* we track the time the last message spent in the queue */
 		p_disp->last_msg_queue_time_us =
 		    cl_get_time_stamp() - p_msg->in_time;
 
@@ -279,7 +279,6 @@ void cl_disp_unregister(IN const cl_disp_reg_handle_t handle)
 	cl_spinlock_acquire(&p_disp->lock);
 	/* Remove the registrant from the list. */
 	cl_qlist_remove_item(&p_disp->reg_list, (cl_list_item_t *) p_reg);
-	/* Return the registration info to the pool */
 	free(p_reg);
 
 	cl_spinlock_release(&p_disp->lock);
