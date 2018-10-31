@@ -792,6 +792,11 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 			else
 				pi_rcv_process_switch_ext_port(sm, p_node,
 							       p_physp, p_pi);
+
+			if (ib_port_info_get_port_state(p_pi) == IB_LINK_DOWN) {
+				CL_PLOCK_RELEASE(sm->p_lock);
+				goto Exit;
+			}
 			break;
 		default:
 			OSM_LOG(sm->p_log, OSM_LOG_ERROR, "ERR 0F07: "
