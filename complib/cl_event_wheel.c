@@ -90,7 +90,7 @@ static void __cl_event_wheel_callback(IN void *context)
 		/* the list is empty - nothing to do */
 		goto Exit;
 
-	/* we found such an item.  get the p_event */
+	/* we found such an item. get the p_event */
 	p_event =
 	    PARENT_STRUCT(p_list_item, cl_event_wheel_reg_info_t, list_item);
 
@@ -173,7 +173,7 @@ static void __cl_event_wheel_callback(IN void *context)
 		       "%u [msec]\n", new_timeout);
 		cl_status = cl_timer_start(&p_event_wheel->timer, new_timeout);
 		if (cl_status != CL_SUCCESS) {
-			CL_DBG("__cl_event_wheel_callback : ERR 6200: "
+			CL_DBG("__cl_event_wheel_callback: ERR 6200: "
 			       "Failed to start timer\n");
 		}
 	}
@@ -303,7 +303,7 @@ cl_status_t cl_event_wheel_reg(IN cl_event_wheel_t * const p_event_wheel,
 	/* Make sure such a key does not exists */
 	p_map_item = cl_qmap_get(&p_event_wheel->events_map, key);
 	if (p_map_item != cl_qmap_end(&p_event_wheel->events_map)) {
-		CL_DBG("cl_event_wheel_reg: Already exists key:0x%"
+		CL_DBG("cl_event_wheel_reg: Already existing key:0x%"
 		       PRIx64 "\n", key);
 
 		/* already there - remove it from the list as it is getting a new time */
@@ -506,13 +506,13 @@ void __cl_event_wheel_dump(IN cl_event_wheel_t * const p_event_wheel)
 static uint64_t __test_event_aging(uint64_t key, uint32_t num_regs, void *context)
 {
 	printf("*****************************************************\n");
-	printf("Aged key: 0x%" PRIx64 " Context:%s\n", key, (char *)context);
+	printf("Aged key: 0x%" PRIx64 " Context:%s\n", key, (char *) context);
 }
 
 int main()
 {
 	cl_event_wheel_t event_wheel;
-	/*  uint64_t key; */
+	/* uint64_t key; */
 
 	/* init complib */
 	complib_init();
@@ -527,7 +527,7 @@ int main()
 	cl_event_wheel_reg(&event_wheel, 1,	/*  key */
 			   cl_get_time_stamp() + 3000000,	/*  3 sec lifetime */
 			   __test_event_aging,	/*  cb */
-			   "The first Aging Event");
+			   "The First Aging Event");
 
 	cl_event_wheel_reg(&event_wheel, 2,	/*  key */
 			   cl_get_time_stamp() + 3000000,	/*  3 sec lifetime */
