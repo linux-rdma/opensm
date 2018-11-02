@@ -262,7 +262,7 @@ cl_event_wheel_init(IN cl_event_wheel_t * const p_event_wheel);
 *	CL_SUCCESS if the operation is successful.
 *
 * SEE ALSO
-*	Event_Wheel, cl_event_wheel_destoy, cl_event_wheel_reg, cl_event_wheel_unreg
+*	Event_Wheel, cl_event_wheel_destroy, cl_event_wheel_reg, cl_event_wheel_unreg
 *
 *********/
 
@@ -292,7 +292,7 @@ cl_event_wheel_init_ex(IN cl_event_wheel_t * const p_event_wheel,
 *	CL_SUCCESS if the operation is successful.
 *
 * SEE ALSO
-*	Event_Wheel, cl_event_wheel_destoy, cl_event_wheel_reg, cl_event_wheel_unreg
+*	Event_Wheel, cl_event_wheel_destroy, cl_event_wheel_reg, cl_event_wheel_unreg
 *
 *********/
 

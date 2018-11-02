@@ -410,7 +410,7 @@ cl_disp_init(IN cl_dispatcher_t * const p_disp,
 *	CL_SUCCESS if the operation is successful.
 *
 * SEE ALSO
-*	Dispatcher, cl_disp_destoy, cl_disp_register, cl_disp_unregister,
+*	Dispatcher, cl_disp_destroy, cl_disp_register, cl_disp_unregister,
 *	cl_disp_post
 *********/
 
