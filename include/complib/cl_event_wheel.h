@@ -137,7 +137,6 @@ typedef uint64_t
 typedef struct _cl_event_wheel {
 	cl_spinlock_t lock;
 	cl_spinlock_t *p_external_lock;
-
 	cl_qmap_t events_map;
 	boolean_t closing;
 	cl_qlist_t events_wheel;
@@ -221,7 +220,7 @@ typedef struct _cl_event_wheel_reg_info {
 *	cl_event_wheel_construct
 *
 * DESCRIPTION
-*	This function constructs a Event_Wheel object.
+*	This function constructs an Event_Wheel object.
 *
 * SYNOPSIS
 */
@@ -229,7 +228,7 @@ void cl_event_wheel_construct(IN cl_event_wheel_t * const p_event_wheel);
 /*
 * PARAMETERS
 *	p_event_wheel
-*		[in] Pointer to a Event_Wheel.
+*		[in] Pointer to an Event_Wheel.
 *
 * RETURN VALUE
 *	This function does not return a value.
@@ -246,7 +245,7 @@ void cl_event_wheel_construct(IN cl_event_wheel_t * const p_event_wheel);
 *	cl_event_wheel_init
 *
 * DESCRIPTION
-*	This function initializes a Event_Wheel object.
+*	This function initializes an Event_Wheel object.
 *
 * SYNOPSIS
 */
@@ -256,7 +255,7 @@ cl_event_wheel_init(IN cl_event_wheel_t * const p_event_wheel);
 /*
 * PARAMETERS
 *	p_event_wheel
-*		[in] Pointer to a Event_Wheel.
+*		[in] Pointer to an Event_Wheel.
 *
 * RETURN VALUE
 *	CL_SUCCESS if the operation is successful.
@@ -266,12 +265,12 @@ cl_event_wheel_init(IN cl_event_wheel_t * const p_event_wheel);
 *
 *********/
 
-/****f* Component Library: Event_Wheel/cl_event_wheel_init
+/****f* Component Library: Event_Wheel/cl_event_wheel_init_ex
 * NAME
-*	cl_event_wheel_init
+*	cl_event_wheel_init_ex
 *
 * DESCRIPTION
-*	This function initializes a Event_Wheel object.
+*	This function initializes an Event_Wheel object with an external spinlock
 *
 * SYNOPSIS
 */
@@ -282,7 +281,7 @@ cl_event_wheel_init_ex(IN cl_event_wheel_t * const p_event_wheel,
 /*
 * PARAMETERS
 *	p_event_wheel
-*		[in] Pointer to a Event_Wheel.
+*		[in] Pointer to an Event_Wheel.
 *
 *	p_external_lock
 *		[in] Reference to external spinlock to guard internal structures
@@ -301,7 +300,7 @@ cl_event_wheel_init_ex(IN cl_event_wheel_t * const p_event_wheel,
 *	cl_event_wheel_destroy
 *
 * DESCRIPTION
-*	This function destroys a Event_Wheel object.
+*	This function destroys an Event_Wheel object.
 *
 * SYNOPSIS
 */
@@ -309,7 +308,7 @@ void cl_event_wheel_destroy(IN cl_event_wheel_t * const p_event_wheel);
 /*
 * PARAMETERS
 *	p_event_wheel
-*		[in] Pointer to a Event_Wheel.
+*		[in] Pointer to an Event_Wheel.
 *
 * RETURN VALUE
 *	This function does not return a value.
@@ -335,7 +334,7 @@ void cl_event_wheel_dump(IN cl_event_wheel_t * const p_event_wheel);
 /*
 * PARAMETERS
 *	p_event_wheel
-*		[in] Pointer to a Event_Wheel.
+*		[in] Pointer to an Event_Wheel.
 *
 * RETURN VALUE
 *	This function does not return a value.
@@ -353,7 +352,7 @@ void cl_event_wheel_dump(IN cl_event_wheel_t * const p_event_wheel);
 *	cl_event_wheel_reg
 *
 * DESCRIPTION
-*	This function registers a client with a Event_Wheel object.
+*	This function registers a client with an Event_Wheel object.
 *
 * SYNOPSIS
 */
@@ -366,7 +365,7 @@ cl_event_wheel_reg(IN cl_event_wheel_t * const p_event_wheel,
 /*
 * PARAMETERS
 *	p_event_wheel
-*		[in] Pointer to a Event_Wheel.
+*		[in] Pointer to an Event_Wheel.
 *
 *	key
 *		[in] The specifc Key by which events are registered.
@@ -383,7 +382,7 @@ cl_event_wheel_reg(IN cl_event_wheel_t * const p_event_wheel,
 *		function.
 *
 * RETURN VALUE
-*	On success a Event_Wheel CL_SUCCESS or CL_ERROR otherwise.
+*	On success an Event_Wheel CL_SUCCESS or CL_ERROR otherwise.
 *
 * SEE ALSO
 *	Event_Wheel, cl_event_wheel_unreg
@@ -394,7 +393,7 @@ cl_event_wheel_reg(IN cl_event_wheel_t * const p_event_wheel,
 *	cl_event_wheel_unreg
 *
 * DESCRIPTION
-*	This function unregisters a client event from a Event_Wheel.
+*	This function unregisters a client event from an Event_Wheel.
 *
 * SYNOPSIS
 */
@@ -404,7 +403,7 @@ cl_event_wheel_unreg(IN cl_event_wheel_t * const p_event_wheel,
 /*
 * PARAMETERS
 *	p_event_wheel
-*		[in] Pointer to a Event_Wheel.
+*		[in] Pointer to an Event_Wheel.
 *
 *	key
 *		[in] The key used for registering the event
@@ -436,7 +435,7 @@ cl_event_wheel_num_regs(IN cl_event_wheel_t * const p_event_wheel,
 /*
 * PARAMETERS
 *	p_event_wheel
-*		[in] Pointer to a Event_Wheel.
+*		[in] Pointer to an Event_Wheel.
 *
 *	key
 *		[in] The key used for registering the event
