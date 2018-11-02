@@ -321,6 +321,10 @@ cl_status_t cl_event_wheel_reg(IN cl_event_wheel_t * const p_event_wheel,
 		/* make a new one */
 		p_event = (cl_event_wheel_reg_info_t *)
 		    malloc(sizeof(cl_event_wheel_reg_info_t));
+		if (!p_event) {
+			cl_status = CL_ERROR;
+			goto Exit;
+		}
 		p_event->num_regs = 0;
 	}
 
