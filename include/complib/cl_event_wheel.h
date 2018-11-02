@@ -189,7 +189,6 @@ typedef struct _cl_event_wheel_reg_info {
 	uint64_t aging_time;
 	uint32_t num_regs;
 	void *context;
-	cl_event_wheel_t *p_event_wheel;
 } cl_event_wheel_reg_info_t;
 /*
 * FIELDS
@@ -213,9 +212,6 @@ typedef struct _cl_event_wheel_reg_info {
 *
 *	context
 *		Client's context for event-aged callback.
-*
-*	p_event_wheel
-*		Pointer to this event wheel object
 *
 * SEE ALSO
 *********/
