@@ -39,6 +39,9 @@
 
 #include <math.h>
 #include <stdlib.h>
+#ifdef __CL_EVENT_WHEEL_TEST__
+#include <unistd.h>		/* sleep() */
+#endif
 #include <complib/cl_event_wheel.h>
 #include <complib/cl_debug.h>
 
@@ -516,7 +519,6 @@ static uint64_t __test_event_aging(uint64_t key, uint32_t num_regs, void *contex
 int main()
 {
 	cl_event_wheel_t event_wheel;
-	/* uint64_t key; */
 
 	/* init complib */
 	complib_init();
@@ -539,7 +541,7 @@ int main()
 			   "The Second Aging Event");
 
 	cl_event_wheel_reg(&event_wheel, 3,	/*  key */
-			   cl_get_time_stamp() + 3500000,	/*  3 sec lifetime */
+			   cl_get_time_stamp() + 3500000,	/*  3.5 sec lifetime */
 			   __test_event_aging,	/*  cb */
 			   "The Third Aging Event");
 
@@ -547,7 +549,7 @@ int main()
 
 	sleep(2);
 	cl_event_wheel_reg(&event_wheel, 2,	/*  key */
-			   cl_get_time_stamp() + 8000000,	/*  3 sec lifetime */
+			   cl_get_time_stamp() + 8000000,	/*  8 sec lifetime */
 			   __test_event_aging,	/*  cb */
 			   "The Second Aging Event Moved");
 
