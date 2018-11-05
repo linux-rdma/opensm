@@ -117,11 +117,10 @@ static void __cl_event_wheel_callback(IN void *context)
 					    &(p_event->map_item));
 
 			/* pop p_event from the wheel */
-			p_list_item = cl_qlist_remove_head(&p_event_wheel->events_wheel);
+			cl_qlist_remove_head(&p_event_wheel->events_wheel);
 
 			/* delete the event info object - allocated by cl_event_wheel_reg */
 			free(p_event);
-			free(p_list_item);
 		} else {
 			/* update the required aging time */
 			p_event->aging_time = next_aging_time;
