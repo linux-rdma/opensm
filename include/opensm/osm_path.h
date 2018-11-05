@@ -85,9 +85,6 @@ typedef struct osm_dr_path {
 } osm_dr_path_t;
 /*
 * FIELDS
-*	h_bind
-*		Bind handle for port to which this path applies.
-*
 *	hop_count
 *		The number of hops in this path.
 *
@@ -108,7 +105,6 @@ typedef struct osm_dr_path {
 */
 static inline void osm_dr_path_construct(IN osm_dr_path_t * p_path)
 {
-	/* The first location in the path array is reserved. */
 	memset(p_path, 0, sizeof(*p_path));
 }
 
@@ -116,15 +112,6 @@ static inline void osm_dr_path_construct(IN osm_dr_path_t * p_path)
 * PARAMETERS
 *	p_path
 *		[in] Pointer to a directed route path object to initialize.
-*
-*	h_bind
-*		[in] Bind handle for the port on which this path applies.
-*
-*	hop_count
-*		[in] Hop count needed to reach this node.
-*
-*	path
-*		[in] Directed route path to reach this node.
 *
 * RETURN VALUE
 *	None.
@@ -158,9 +145,6 @@ osm_dr_path_init(IN osm_dr_path_t * p_path, IN uint8_t hop_count,
 * PARAMETERS
 *	p_path
 *		[in] Pointer to a directed route path object to initialize.
-*
-*	h_bind
-*		[in] Bind handle for the port on which this path applies.
 *
 *	hop_count
 *		[in] Hop count needed to reach this node.
