@@ -69,7 +69,6 @@ opensm_LDADD = -L../complib -losmcomp -L../libvendor -losmvendor -L. -lopensm $(
 opensmincludedir = $(includedir)/infiniband/opensm
 
 opensminclude_HEADERS = \
-	$(srcdir)/../include/opensm/osm_attrib_req.h \
 	$(srcdir)/../include/opensm/osm_base.h \
 	$(srcdir)/../include/opensm/osm_console.h \
 	$(srcdir)/../include/opensm/osm_console_io.h \

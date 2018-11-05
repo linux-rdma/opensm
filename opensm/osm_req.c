@@ -51,7 +51,6 @@
 #include <opensm/osm_file_ids.h>
 #define FILE_ID OSM_FILE_REQ_C
 #include <opensm/osm_madw.h>
-#include <opensm/osm_attrib_req.h>
 #include <opensm/osm_log.h>
 #include <opensm/osm_helper.h>
 #include <opensm/osm_mad_pool.h>
