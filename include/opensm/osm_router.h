@@ -120,7 +120,8 @@ void osm_router_delete(IN OUT osm_router_t ** pp_rtr);
 /*
 * PARAMETERS
 *	p_rtr
-*		[in] Pointer to the object to destroy.
+*		[in][out] Pointer to a pointer to the object to destroy.
+*		The pointer will be set to NULL on return.
 *
 * RETURN VALUE
 *	None.
