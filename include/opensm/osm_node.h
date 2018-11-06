@@ -234,7 +234,7 @@ static inline osm_physp_t *osm_node_get_physp_ptr(IN osm_node_t * p_node,
 * RETURN VALUES
 *	Returns a pointer to the physical port object at the
 *	specified local port number.
-*	A return value of zero means the port number was out of range.
+*	A return value of NULL means the port number was out of range.
 *
 * NOTES
 *
@@ -454,6 +454,9 @@ void osm_node_init_physp(IN osm_node_t * p_node, uint8_t port_num,
 *	p_node
 *		[in] Pointer to an osm_node_t object.
 *
+*	port_num
+*		[in] Local port number.
+*
 *	p_madw
 *		[in] Pointer to a osm_madw_t object containing a mad with
 *		the node's NodeInfo attribute as discovered through the
@@ -517,7 +520,7 @@ void osm_node_link(IN osm_node_t * p_node, IN uint8_t port_num,
 *		[in] Port number in p_node through which to create the link.
 *
 *	p_remote_node
-*		[in] Pointer to the remote port object.
+*		[in] Pointer to the remote node object.
 *
 *	remote_port_num
 *		[in] Port number in the remote's node through which to
@@ -553,7 +556,7 @@ void osm_node_unlink(IN osm_node_t * p_node, IN uint8_t port_num,
 *		[in] Port number in p_node through which to unlink.
 *
 *	p_remote_node
-*		[in] Pointer to the remote port object.
+*		[in] Pointer to the remote node object.
 *
 *	remote_port_num
 *		[in] Port number in the remote's node through which to unlink.
@@ -590,7 +593,7 @@ boolean_t osm_node_link_exists(IN osm_node_t * p_node, IN uint8_t port_num,
 *		[in] Port number in p_node through which to check the link.
 *
 *	p_remote_node
-*		[in] Pointer to the remote port object.
+*		[in] Pointer to the remote node object.
 *
 *	remote_port_num
 *		[in] Port number in the remote's node through which to
@@ -659,6 +662,13 @@ boolean_t osm_node_link_has_valid_ports(IN osm_node_t * p_node,
 *
 *	port_num
 *		[in] Port number in p_node through which to check the link.
+*
+*	p_remote_node
+*		[in] Pointer to the remote node object.
+*
+*	remote_port_num
+*		[in] Port number in the remote's node through which to
+*		check this link.
 *
 * RETURN VALUES
 *	Return TRUE if both ports in the link are valid (initialized).
