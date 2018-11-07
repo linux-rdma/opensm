@@ -135,6 +135,9 @@ typedef struct osm_mgrp {
 *		is created during the initialization of SM/SA and will be
 *		present even if there are no ports for this group
 *
+* 	full_members
+*		Number of full members in the Multicast Group.
+*
 * SEE ALSO
 *********/
 
@@ -338,6 +341,12 @@ osm_mcm_port_t *osm_mgrp_add_port(osm_subn_t *subn, osm_log_t *log,
 				  IN ib_member_rec_t *mcmr, IN boolean_t proxy);
 /*
 * PARAMETERS
+*	subn
+*		[in] Pointer to the subnet object
+*
+*	log
+*		[in] The log object pointer
+*
 *	mgrp
 *		[in] Pointer to an osm_mgrp_t object to initialize.
 *
@@ -426,7 +435,6 @@ void osm_mgrp_delete_port(IN osm_subn_t * subn, IN osm_log_t * log,
 			  IN osm_mgrp_t * mgrp, IN osm_port_t * port);
 /*
 * PARAMETERS
-*
 *	subn
 *		[in] Pointer to the subnet object
 *
