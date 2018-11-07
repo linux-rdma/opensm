@@ -124,6 +124,7 @@ typedef struct osm_mtree_node {
 *	child_array
 *		Array (indexed by port number) of pointers to the
 *		child osm_mtree_node_t objects of this tree node, if any.
+*		MUST BE LAST ELEMENT!!!
 *
 * SEE ALSO
 *********/
@@ -257,9 +258,6 @@ static inline const osm_switch_t *osm_mtree_node_get_switch_ptr(IN const
 * PARAMETERS
 *	p_mtn
 *		[in] Pointer to the multicast tree node.
-*
-*	child
-*		[in] Index of the child to retrieve.
 *
 * RETURN VALUES
 *	Returns a pointer to the switch object represented by this tree node.
