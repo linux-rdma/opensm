@@ -136,9 +136,11 @@ typedef struct osm_sa_mad_ctrl {
 *	p_stats
 *		Pointer to the OpenSM statistics block.
 *
+*	p_subn
+*		Pointer to the OpenSM Subnet object.
+*
 * SEE ALSO
 *	SA MAD Controller object
-*	SA MADr object
 *********/
 
 /****f* OpenSM: SA MAD Controller/osm_sa_mad_ctrl_construct
@@ -234,6 +236,9 @@ ib_api_status_t osm_sa_mad_ctrl_init(IN osm_sa_mad_ctrl_t * p_ctrl,
 *
 *	p_vendor
 *		[in] Pointer to the vendor specific interfaces object.
+*
+*	p_subn
+*		[in] Pointer to the OpenSM Subnet object.
 *
 *	p_log
 *		[in] Pointer to the log object.
