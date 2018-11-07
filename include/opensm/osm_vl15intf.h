@@ -92,7 +92,7 @@ BEGIN_C_DECLS
 *	osm_vl15_state_t
 *
 * DESCRIPTION
-*	Enumerates the possible states of SM object.
+*	Enumerates the possible states of OpenSM VL15 object.
 *
 * SYNOPSIS
 */
@@ -150,6 +150,9 @@ typedef struct osm_vl15 {
 *	signal
 *		Event on which the poller sleeps.
 *
+*	poller
+*		Worker thread pool that services the fifo to transmit VL15 MADs
+*
 *	rfifo
 *		First-in First-out queue for outbound VL15 MADs for which
 *		a response is expected, aka the "response fifo"
@@ -157,9 +160,6 @@ typedef struct osm_vl15 {
 *	ufifo
 *		First-in First-out queue for outbound VL15 MADs for which
 *		no response is expected, aka the "unicast fifo".
-*
-*	poller
-*		Worker thread pool that services the fifo to transmit VL15 MADs
 *
 *	lock
 *		Spinlock guarding the FIFO.
@@ -224,8 +224,8 @@ void osm_vl15_destroy(IN osm_vl15_t * p_vl15, IN struct osm_mad_pool *p_pool);
 *	p_vl15
 *		[in] Pointer to a VL15 object to destroy.
 *
-*  p_pool
-*     [in] The pointer to the mad pool to return outstanding mads to
+*	p_pool
+*		[in] The pointer to the mad pool to return outstanding mads to
 *
 * RETURN VALUE
 *	This function does not return a value.
@@ -240,11 +240,6 @@ void osm_vl15_destroy(IN osm_vl15_t * p_vl15, IN struct osm_mad_pool *p_pool);
 *	VL15 object, osm_vl15_construct, osm_vl15_init
 *********/
 
-/*
-	Initialization.
-	Rate specifies the minimum number of microseconds between transmissions
-	on VL15.
-*/
 /****f* OpenSM: VL15/osm_vl15_init
 * NAME
 *	osm_vl15_init
@@ -372,8 +367,8 @@ void osm_vl15_shutdown(IN osm_vl15_t * p_vl, IN osm_mad_pool_t * p_mad_pool);
 *	p_vl15
 *		[in] Pointer to an osm_vl15_t object.
 *
-*  p_mad_pool
-*     [in] The MAD pool owning the mads.
+*	p_mad_pool
+*		[in] The MAD pool owning the mads.
 *
 * RETURN VALUES
 *	None.
