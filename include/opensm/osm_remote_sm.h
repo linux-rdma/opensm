@@ -35,7 +35,7 @@
 
 /*
  * Abstract:
- * 	Declaration of osm_sm_t, osm_remote_sm_t.
+ * 	Declaration of osm_remote_sm_t.
  *	This object represents an IBA subnet.
  *	This object is part of the OpenSM family of objects.
  */
@@ -93,8 +93,6 @@ typedef struct osm_remote_sm {
 * FIELDS
 *	map_item
 *		Linkage for the cl_qmap container.  MUST BE FIRST ELEMENT!!
-*	p_port
-*		Pointer to the port object for this SM.
 *
 *	smi
 *		The SMInfo attribute for this SM.
@@ -173,9 +171,6 @@ void osm_remote_sm_init(IN osm_remote_sm_t * p_sm, IN const ib_sm_info_t * p_smi
 * PARAMETERS
 *	p_sm
 *		[in] Pointer to an osm_remote_sm_t object to initialize.
-*
-*	p_port
-*		[in] Pointer to the Remote SM's port object.
 *
 *	p_smi
 *		[in] Pointer to the SMInfo attribute for this SM.
