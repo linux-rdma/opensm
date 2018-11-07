@@ -115,6 +115,9 @@ typedef struct osm_sm_mad_ctrl {
 *	p_mad_pool
 *		Pointer to the MAD pool.
 *
+*	p_vl15
+*		Pointer to the VL15 interface object.
+*
 *	p_vendor
 *		Pointer to the vendor specific interfaces object.
 *
@@ -135,7 +138,6 @@ typedef struct osm_sm_mad_ctrl {
 *
 * SEE ALSO
 *	SM MAD Controller object
-*	SM MADr object
 *********/
 
 /****f* OpenSM: SM MAD Controller/osm_sm_mad_ctrl_construct
@@ -222,6 +224,9 @@ ib_api_status_t osm_sm_mad_ctrl_init(IN osm_sm_mad_ctrl_t * p_ctrl,
 * PARAMETERS
 *	p_ctrl
 *		[in] Pointer to an osm_sm_mad_ctrl_t object to initialize.
+*
+*	p_subn
+*		[in] Pointer to the subnet object.
 *
 *	p_mad_pool
 *		[in] Pointer to the MAD pool.
