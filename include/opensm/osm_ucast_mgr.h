@@ -116,11 +116,14 @@ typedef struct osm_ucast_mgr {
 *	p_lock
 *		Pointer to the serializing lock.
 *
-*	is_dor
-*		Dimension Order Routing (DOR) will be done
+*	max_lid
+*		Max LID of all the switches in the subnet.
 *
 *	port_order_list
 *		List of ports ordered for routing.
+*
+*	is_dor
+*		Dimension Order Routing (DOR) will be done
 *
 *	some_hop_count_set
 *		Initialized to FALSE at the beginning of each the min hop
