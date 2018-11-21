@@ -134,7 +134,7 @@ typedef struct osm_mtree_node {
 *	osm_mtree_node_new
 *
 * DESCRIPTION
-*	Returns an initialized a Multicast Tree object for use.
+*	Returns an initialized Multicast Tree object for use.
 *
 * SYNOPSIS
 */
