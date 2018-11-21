@@ -96,10 +96,10 @@ typedef struct osm_svcr {
 } osm_svcr_t;
 /*
 * FIELDS
-*	map_item
-*		Map Item for qmap linkage.  Must be first element!!
+*	list_item
+*		List Item for Quick List linkage.  Must be first element!!
 *
-*	svc_rec
+*	service_record
 *		IB Service record structure
 *
 *	modified_time
@@ -128,7 +128,7 @@ osm_svcr_t *osm_svcr_new(IN const ib_service_record_t * p_svc_rec);
 *		[in] Pointer to IB Service Record
 *
 * RETURN VALUES
-*	pointer to osm_svcr_t structure.
+*	Pointer to osm_svcr_t structure.
 *
 * NOTES
 *	Allows calling other service record methods.
@@ -150,10 +150,11 @@ void osm_svcr_init(IN osm_svcr_t * p_svcr,
 		   IN const ib_service_record_t * p_svc_rec);
 /*
 * PARAMETERS
-*	p_svc_rec
+*	p_svcr
 *		[in] Pointer to osm_svcr_t structure
+*
 *	p_svc_rec
-*		[in] Pointer to the ib_service_record_t
+*		[in] Pointer to IB Service Record
 *
 * SEE ALSO
 *	Service Record
@@ -171,21 +172,102 @@ void osm_svcr_init(IN osm_svcr_t * p_svcr,
 void osm_svcr_delete(IN osm_svcr_t * p_svcr);
 /*
 * PARAMETERS
-*	p_svc_rec
+*	p_svcr
 *		[in] Pointer to osm_svcr_t structure
 *
 * SEE ALSO
 *	Service Record, osm_svcr_new
 *********/
 
+/****f* OpenSM: Service Record/osm_svcr_get_by_rid
+* NAME
+*	osm_svcr_get_by_rid
+*
+* DESCRIPTION
+*	Search the Service Record Database by record service_id,
+* service_gid and service_pkey (RID).
+*
+* SYNOPSIS
+*/
 osm_svcr_t *osm_svcr_get_by_rid(IN osm_subn_t const *p_subn,
 				IN osm_log_t * p_log,
 				IN ib_service_record_t * p_svc_rec);
+/*
+* PARAMETERS
+*	p_subn
+*		[in] Pointer to Subnet structure
+*
+*	p_log
+*		[in] Pointer to osm_log_t
+*
+*	p_svc_rec
+*		[in] Pointer to IB Service Record
+*
+* RETURN VALUES
+*	If a matching record is found, pointer to osm_svcr_t structure.
+*	Otherwise, pointer to NULL.
+*
+* SEE ALSO
+*	Service Record
+*********/
 
+/****f* OpenSM: Service Record/osm_svcr_insert_to_db
+* NAME
+*	osm_svcr_insert_to_db
+*
+* DESCRIPTION
+*	Insert new Service Record into Database
+*
+* SYNOPSIS
+*/
 void osm_svcr_insert_to_db(IN osm_subn_t * p_subn, IN osm_log_t * p_log,
 			   IN osm_svcr_t * p_svcr);
+/*
+* PARAMETERS
+*	p_subn
+*		[in] Pointer to Subnet structure
+*
+*	p_log
+*		[in] Pointer to osm_log_t
+*
+*	p_svcr
+*		[in] Pointer to IB Service Record to be inserted
+*
+* RETURN VALUES
+*	This function does not return a value.
+*
+* SEE ALSO
+*	Service Record, osm_svcr_remove_from_db
+*********/
+
+/****f* OpenSM: Service Record/osm_svcr_remove_from_db
+* NAME
+*	osm_svcr_remove_from_db
+*
+* DESCRIPTION
+*	Remove a Service Record from Database
+*
+* SYNOPSIS
+*/
 void osm_svcr_remove_from_db(IN osm_subn_t * p_subn, IN osm_log_t * p_log,
 			     IN osm_svcr_t * p_svcr);
+/*
+* PARAMETERS
+*	p_subn
+*		[in] Pointer to Subnet structure
+*
+*	p_log
+*		[in] Pointer to osm_log_t
+*
+*	p_svcr
+*		[in] Pointer to IB Service Record to be removed
+*
+* RETURN VALUES
+*	This function does not return a value.
+*
+* SEE ALSO
+*	Service Record, osm_svcr_insert_to_db
+*********/
 
 END_C_DECLS
 #endif				/* _OSM_SVCR_H_ */
