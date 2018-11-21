@@ -35,7 +35,7 @@
 
 /*
  * Abstract:
- *    Implementation of osm_sm_t.
+ *    Implementation of osm_remote_sm_t.
  * This object represents the remote SM object.
  * This object is part of the opensm family of objects.
  */
