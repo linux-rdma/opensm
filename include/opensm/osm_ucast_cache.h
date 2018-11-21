@@ -89,7 +89,7 @@ struct osm_ucast_mgr;
 *
 * SYNOPSIS
 */
-void osm_ucast_cache_invalidate(struct osm_ucast_mgr *p_mgr);
+void osm_ucast_cache_invalidate(IN struct osm_ucast_mgr *p_mgr);
 /*
 * PARAMETERS
 *	p_mgr
@@ -115,19 +115,27 @@ void osm_ucast_cache_invalidate(struct osm_ucast_mgr *p_mgr);
 *
 * SYNOPSIS
 */
-void osm_ucast_cache_check_new_link(struct osm_ucast_mgr *p_mgr,
-				    osm_node_t * p_node_1, uint8_t port_num_1,
-				    osm_node_t * p_node_2, uint8_t port_num_2);
+void osm_ucast_cache_check_new_link(IN struct osm_ucast_mgr *p_mgr,
+				    IN osm_node_t * p_node_1,
+				    IN uint8_t port_num_1,
+				    IN osm_node_t * p_node_2,
+				    IN uint8_t port_num_2);
 /*
 * PARAMETERS
 *	p_mgr
 *		[in] Pointer to the unicast manager object.
 *
-*	physp1
-*		[in] Pointer to the first physical port of the link.
+*	p_node_1
+*		[in] Pointer to the first node of the link.
 *
-*	physp2
-*		[in] Pointer to the second physical port of the link.
+*	port_num_1
+*		[in] Port number of the first node.
+*
+*	p_node_2
+*		[in] Pointer to the second node of the link.
+*
+*	port_num_2
+*		[in] Port number of the second node.
 *
 * RETURN VALUE
 *	This function does not return any value.
@@ -151,8 +159,9 @@ void osm_ucast_cache_check_new_link(struct osm_ucast_mgr *p_mgr,
 *
 * SYNOPSIS
 */
-void osm_ucast_cache_add_link(struct osm_ucast_mgr *p_mgr,
-			      osm_physp_t * physp1, osm_physp_t * physp2);
+void osm_ucast_cache_add_link(IN struct osm_ucast_mgr *p_mgr,
+			      IN osm_physp_t * physp1,
+			      IN osm_physp_t * physp2);
 /*
 * PARAMETERS
 *	p_mgr
@@ -188,7 +197,8 @@ void osm_ucast_cache_add_link(struct osm_ucast_mgr *p_mgr,
 *
 * SYNOPSIS
 */
-void osm_ucast_cache_add_node(struct osm_ucast_mgr *p_mgr, osm_node_t * p_node);
+void osm_ucast_cache_add_node(IN struct osm_ucast_mgr *p_mgr,
+			      IN osm_node_t * p_node);
 /*
 * PARAMETERS
 *	p_mgr
@@ -218,7 +228,7 @@ void osm_ucast_cache_add_node(struct osm_ucast_mgr *p_mgr, osm_node_t * p_node);
 *
 * SYNOPSIS
 */
-int osm_ucast_cache_process(struct osm_ucast_mgr *p_mgr);
+int osm_ucast_cache_process(IN struct osm_ucast_mgr *p_mgr);
 /*
 * PARAMETERS
 *	p_mgr
