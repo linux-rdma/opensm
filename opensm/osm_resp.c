@@ -85,8 +85,6 @@ static void resp_make_resp_smp(IN osm_sm_t * sm, IN const ib_smp_t * p_src_smp,
 	if (p_src_smp->mgmt_class == IB_MCLASS_SUBN_DIR)
 		p_dest_smp->status |= IB_SMP_DIRECTION;
 
-	p_dest_smp->dr_dlid = p_dest_smp->dr_slid;
-	p_dest_smp->dr_slid = p_dest_smp->dr_dlid;
 	memcpy(&p_dest_smp->data, p_payload, IB_SMP_DATA_SIZE);
 
 Exit:
