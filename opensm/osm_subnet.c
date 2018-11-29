@@ -1118,6 +1118,7 @@ static void subn_opt_destroy(IN osm_subn_opt_t * p_opt)
 	free(p_opt->node_name_map_name);
 	free(p_opt->prefix_routes_file);
 	free(p_opt->log_prefix);
+	free(p_opt->per_module_logging_file);
 	subn_destroy_qos_options(&p_opt->qos_options);
 	subn_destroy_qos_options(&p_opt->qos_ca_options);
 	subn_destroy_qos_options(&p_opt->qos_sw0_options);
