@@ -276,6 +276,13 @@ static void destroy_routing_engines(osm_opensm_t *osm)
 			r->destroy(r->context);
 		free(r);
 	}
+
+	r = osm->default_routing_engine;
+	if (r) {
+		if (r->destroy)
+			r->destroy(r->context);
+		free(r);
+	}
 }
 
 static void destroy_plugins(osm_opensm_t *osm)
