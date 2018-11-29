@@ -336,10 +336,8 @@ ib_api_status_t osm_sa_bind(IN osm_sa_t * p_sa, IN ib_net64_t port_guid)
 		OSM_LOG(p_sa->p_log, OSM_LOG_ERROR, "ERR 4C03: "
 			"SA MAD Controller bind failed (%s)\n",
 			ib_get_err_str(status));
-		goto Exit;
 	}
 
-Exit:
 	OSM_LOG_EXIT(p_sa->p_log);
 	return status;
 }
