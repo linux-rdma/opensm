@@ -272,16 +272,21 @@ static void destroy_routing_engines(osm_opensm_t *osm)
 	while (next) {
 		r = next;
 		next = r->next;
-		if (r->destroy)
-			r->destroy(r->context);
-		free(r);
+		if (r != osm->default_routing_engine) {
+			if (r->destroy)
+				r->destroy(r->context);
+			free(r);
+		} else /* do not free default_routing_engine */
+			r->next = NULL;
 	}
+	osm->routing_engine_list = NULL;
 
 	r = osm->default_routing_engine;
 	if (r) {
-		if (r->destroy)
+		if (r->destroy && r->context)
 			r->destroy(r->context);
 		free(r);
+		osm->default_routing_engine = NULL;
 	}
 }
 
