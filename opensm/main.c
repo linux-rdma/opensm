@@ -198,7 +198,7 @@ static void show_usage(void)
 	       "          Sets the maximum number of VLs to be used by Nue routing.\n"
 	       "          Defaults to 1 to enforce deadlock-freedom even if QoS is not\n"
 	       "          enabled. Set to 0 if Nue should automatically determine and\n"
-	       "          choose maximum supported by the fabric, or any interger >= 1.\n\n");
+	       "          choose maximum supported by the fabric, or any integer >= 1.\n\n");
 	printf("--connect_roots, -z\n"
 	       "          This option enforces routing engines (up/down and \n"
 	       "          fat-tree) to make connectivity between root switches\n"

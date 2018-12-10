@@ -39,7 +39,7 @@
  * Abstract:
  *    Implementation of Nue routing for OpenSM. Nue is a deadlock-free routing
  *    engine which can be used for arbitrary network topologies and any number
- *    of virtual lanes (this includes the absense of VLs as well). The paper
+ *    of virtual lanes (this includes the absence of VLs as well). The paper
  *    explaining the details of Nue routing is: [1] J. Domke, T. Hoefler and
  *    S. Matsuoka "Routing on the Dependency Graph: A New Approach to
  *    Deadlock-Free High-Performance Routing", HPDC'16. An in-depth explanation

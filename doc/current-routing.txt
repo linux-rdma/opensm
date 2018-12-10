@@ -51,7 +51,7 @@ in terms of the underlying topology.
 
 10. Nue unicast routing algorithm - a 100%-applicable and deadlock-free
 routing which can be used for any arbitrary or faulty network topology
-and any number of virtual lanes (this includes the absense of VLs as well).
+and any number of virtual lanes (this includes the absence of VLs as well).
 Paths are globally balanced w.r.t the number of routes per link, and are
 kept as short as possible while enforcing deadlock-freedom within the VL
 constraint.
