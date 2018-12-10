@@ -3266,7 +3266,7 @@ static int rank_leaf_switches(IN ftree_fabric_t * p_ftree,
 			/* HCA connected directly to another HCA - not FatTree */
 			OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_ERROR,
 				"ERR AB0F: "
-				"CA conected directly to another CA: " "0x%016"
+				"CA connected directly to another CA: " "0x%016"
 				PRIx64 " <---> 0x%016" PRIx64 "\n",
 				hca_get_guid_ho(p_hca),
 				cl_ntoh64(osm_node_get_node_guid
@@ -3386,7 +3386,7 @@ fabric_construct_hca_ports(IN ftree_fabric_t * p_ftree, IN ftree_hca_t * p_hca)
 			/* HCA connected directly to another HCA - not FatTree */
 			OSM_LOG(&p_ftree->p_osm->log, OSM_LOG_ERROR,
 				"ERR AB11: "
-				"CA conected directly to another CA: " "0x%016"
+				"CA connected directly to another CA: " "0x%016"
 				PRIx64 " <---> 0x%016" PRIx64 "\n",
 				cl_ntoh64(osm_node_get_node_guid(p_node)),
 				cl_ntoh64(remote_node_guid));

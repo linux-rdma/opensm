@@ -381,7 +381,7 @@ will not be placed into the torus.
 .
 .SH QUALITY OF SERVICE CONFIGURATION
 .
-OpenSM will not program switchs and channel adapters with
+OpenSM will not program switches and channel adapters with
 SL2VL maps or VL arbitration configuration unless it is invoked with -Q.
 Since torus-2QoS depends on such functionality for correct operation,
 always invoke OpenSM with -Q when torus-2QoS is in the list of routing
