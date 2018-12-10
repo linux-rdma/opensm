@@ -2671,7 +2671,7 @@ void osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		"# Maximum number of VLs for Nue routing algorithm (default: 1; to enforce\n"
 		"# deadlock-freedom even if QoS is not enabled). Set to 0 if Nue should\n"
 		"# automatically determine and choose maximum supported by the fabric, or\n"
-		"# any interger >= 1 (then Nue uses min(max_supported,nue_max_num_vls)\n"
+		"# any integer >= 1 (then Nue uses min(max_supported,nue_max_num_vls)\n"
 		"nue_max_num_vls %u\n\n",
 		p_opts->nue_max_num_vls);
 

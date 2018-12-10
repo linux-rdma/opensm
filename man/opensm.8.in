@@ -178,7 +178,7 @@ This option sets the maximum number of VLs to use for the Nue routing engine.
 Every number greater or equal to 0 is allowed, and the default is 1 to enforce
 deadlock-freedom even if QoS is not enabled. If set to 0, then Nue routing will
 automatically determine and choose maximum supported by the fabric. And if set
-to any interger >= 1, then Nue uses min(max_supported,nue_max_num_vls).
+to any integer >= 1, then Nue uses min(max_supported,nue_max_num_vls).
 Rule of thumb is: higher nue_max_num_vls results in better path balancing.
 .TP
 \fB\-A\fR, \fB\-\-ucast_cache\fR
@@ -531,7 +531,7 @@ runs are consistent. The default directory used is /var/cache/opensm.
 The following files are included in it:
 
  guid2lid  - stores the LID range assigned to each GUID
- guid2mkey - stores the MKey previously assiged to each GUID
+ guid2mkey - stores the MKey previously assigned to each GUID
  neighbors - stores a map of the GUIDs at either end of each link
              in the fabric
 
@@ -932,7 +932,7 @@ in terms of the underlying topology.
 
 10. Nue unicast routing algorithm - a 100%-applicable and deadlock-free routing
 which can be used for any arbitrary or faulty network topology and any number
-of virtual lanes (this includes the absense of VLs as well). Paths are globally
+of virtual lanes (this includes the absence of VLs as well). Paths are globally
 balanced w.r.t the number of routes per link, and are kept as short as possible
 while enforcing deadlock-freedom within the VL constraint.
 
