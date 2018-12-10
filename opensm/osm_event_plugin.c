@@ -103,7 +103,7 @@ osm_epi_plugin_t *osm_epi_construct(osm_opensm_t *osm, char *plugin_name)
 	old_impl = (struct old_if *) rc->impl;
 	if (old_impl->ver == OSM_ORIG_EVENT_PLUGIN_INTERFACE_VER) {
 		OSM_LOG(&osm->log, OSM_LOG_ERROR, "Error loading plugin: "
-			"\'%s\' contains a depricated interface version %d\n"
+			"\'%s\' contains a deprecated interface version %d\n"
 			"   Please recompile with the new interface.\n",
 			plugin_name, old_impl->ver);
 		goto Exit;
