@@ -374,7 +374,7 @@ static void trap_rcv_process_request(IN osm_sm_t * sm,
 	boolean_t is_gsi = TRUE;
 	uint8_t port_num = 0;
 	boolean_t physp_change_trap = FALSE;
-	uint64_t event_wheel_timeout = OSM_DEFAULT_TRAP_SUPRESSION_TIMEOUT;
+	uint64_t event_wheel_timeout = OSM_DEFAULT_TRAP_SUPPRESSION_TIMEOUT;
 	boolean_t run_heavy_sweep = FALSE;
 	char buf[1024];
 	osm_dr_path_t *p_path;
