@@ -27,7 +27,8 @@ COMM_HDRS= $(srcdir)/../include/vendor/osm_vendor_api.h \
 
 if OSMV_OPENIB
 libosmvendor_la_SOURCES = osm_vendor_ibumad.c \
-			  osm_vendor_ibumad_sa.c
+			  osm_vendor_ibumad_sa.c \
+			  osm_mad_pool.c
 HDRS =$(COMM_HDRS) $(srcdir)/../include/vendor/osm_vendor_ibumad.h
 endif
 if OSMV_SIM
@@ -40,7 +41,8 @@ libosmvendor_la_SOURCES = osm_vendor_mlx.c \
 		osm_vendor_mlx_sender.c \
 		osm_vendor_mlx_txn.c \
 		osm_vendor_mlx_sa.c \
-		osm_pkt_randomizer.c
+		osm_pkt_randomizer.c \
+		osm_mad_pool.c
 HDRS =$(COMM_HDRS) $(srcdir)/../include/vendor/osm_vendor_mlx.h \
 	$(srcdir)/../include/vendor/osm_pkt_randomizer.h
 endif
@@ -54,7 +56,8 @@ libosmvendor_la_SOURCES = osm_vendor_mlx.c \
 		osm_vendor_mlx_sender.c \
 		osm_vendor_mlx_ts.c \
 		osm_vendor_mlx_txn.c \
-		osm_vendor_mlx_sa.c
+		osm_vendor_mlx_sa.c \
+		osm_mad_pool.c
 HDRS =$(COMM_HDRS) $(srcdir)/../include/vendor/osm_vendor_mlx.h \
 	$(srcdir)/../include/vendor/osm_pkt_randomizer.h
 endif
@@ -68,12 +71,13 @@ libosmvendor_la_SOURCES = osm_vendor_mlx.c \
 		osm_vendor_mlx_sender.c \
 		osm_vendor_mlx_ibmgt.c \
 		osm_vendor_mlx_txn.c \
-		osm_vendor_mlx_sa.c
+		osm_vendor_mlx_sa.c \
+		osm_mad_pool.c
 HDRS =$(COMM_HDRS) $(srcdir)/../include/vendor/osm_vendor_mlx.h \
 	$(srcdir)/../include/vendor/osm_pkt_randomizer.h
 endif
 
-libosmvendor_la_LIBADD = -L../complib -losmcomp
+libosmvendor_la_LIBADD = -L../complib -losmcomp -L../libopensm -lopensm
 libosmvendor_la_LDFLAGS = -version-info $(osmvendor_api_version) \
 	-export-dynamic $(libosmvendor_version_script)
 libosmvendor_la_DEPENDENCIES = $(srcdir)/libosmvendor.map

@@ -3,30 +3,14 @@ AM_CPPFLAGS = $(OSMV_INCLUDES) $(METIS_INCLUDES)
 
 AM_CFLAGS = -Wall -Wwrite-strings $(DBGFLAGS) -D_XOPEN_SOURCE=600 -D_GNU_SOURCE=1
 
-lib_LTLIBRARIES = libopensm.la
-
 if DEBUG
 DBGFLAGS = -ggdb -D_DEBUG_
 else
 DBGFLAGS = -g
 endif
 
-if HAVE_LD_VERSION_SCRIPT
-libopensm_version_script = -Wl,--version-script=$(srcdir)/libopensm.map
-else
-libopensm_version_script =
-endif
-
-opensm_api_version=$(shell grep LIBVERSION= $(srcdir)/libopensm.ver | sed 's/LIBVERSION=//')
-
-libopensm_la_SOURCES = osm_log.c osm_mad_pool.c osm_helper.c
-libopensm_la_LDFLAGS = -version-info $(opensm_api_version) \
-	-export-dynamic $(libopensm_version_script)
-libopensm_la_DEPENDENCIES = $(srcdir)/libopensm.map
-
 sbin_PROGRAMS = opensm
 opensm_LDFLAGS = -rdynamic
-opensm_DEPENDENCIES = libopensm.la
 opensm_SOURCES = main.c osm_console_io.c osm_console.c osm_db_files.c \
 		 osm_db_pack.c osm_drop_mgr.c osm_guid_info_rcv.c \
 		 osm_guid_mgr.c osm_inform.c osm_lid_mgr.c osm_lin_fwd_rcv.c \
@@ -64,7 +48,7 @@ AM_YFLAGS:= -d
 
 # we need to be able to load libraries from local build subtree before make install
 # we always give precedence to local tree libs and then use the pre-installed ones.
-opensm_LDADD = -L../complib -losmcomp -L../libvendor -losmvendor -L. -lopensm $(OSMV_LDADD) $(METIS_LDADD)
+opensm_LDADD = -L../complib -losmcomp -L../libopensm -lopensm -L../libvendor -losmvendor $(OSMV_LDADD) $(METIS_LDADD)
 
 opensmincludedir = $(includedir)/infiniband/opensm
 
@@ -134,5 +118,4 @@ osm_version:
 	fi
 
 # files distributed as part of the srcdir
-EXTRA_DIST = $(srcdir)/libopensm.map $(srcdir)/libopensm.ver \
-	     $(srcdir)/ChangeLog
+EXTRA_DIST = $(srcdir)/ChangeLog

@@ -6,13 +6,6 @@ OPENSM_1.5 {
 		osm_log_init;
 		osm_log_init_v2;
 		osm_log_reopen_file;
-		osm_mad_pool_construct;
-		osm_mad_pool_destroy;
-		osm_mad_pool_init;
-		osm_mad_pool_get;
-		osm_mad_pool_put;
-		osm_mad_pool_get_wrapper;
-		osm_mad_pool_get_wrapper_raw;
 		ib_get_sa_method_str;
 		ib_get_sm_method_str;
 		ib_get_sm_attr_str;

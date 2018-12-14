@@ -1,7 +1,7 @@
 
 # note that order matters: make the libs first then use them
-SUBDIRS = complib libvendor opensm osmtest include $(DEFAULT_EVENT_PLUGIN)
-DIST_SUBDIRS = complib libvendor opensm osmtest include osmeventplugin
+SUBDIRS = complib libopensm libvendor opensm osmtest include $(DEFAULT_EVENT_PLUGIN)
+DIST_SUBDIRS = complib libopensm libvendor opensm osmtest include osmeventplugin
 
 ACLOCAL_AMFLAGS = -I config
 

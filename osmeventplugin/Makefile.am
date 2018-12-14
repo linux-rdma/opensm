@@ -23,7 +23,7 @@ osmeventplugin_api_version=$(shell grep LIBVERSION= $(srcdir)/libosmeventplugin.
 libosmeventplugin_la_SOURCES = src/osmeventplugin.c
 libosmeventplugin_la_LDFLAGS = -version-info $(osmeventplugin_api_version) \
 	 -export-dynamic $(libosmeventplugin_version_script)
-libosmeventplugin_la_LIBADD = -L../complib $(OSMV_LDADD) -losmcomp
+libosmeventplugin_la_LIBADD = -L../complib -losmcomp -L../libopensm -lopensm $(OSMV_LDADD)
 libosmeventplugin_la_DEPENDENCIES = $(srcdir)/libosmeventplugin.map
 
 libosmeventpluginincludedir = $(includedir)/infiniband/complib

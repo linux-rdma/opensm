@@ -16,5 +16,12 @@ OSMVENDOR_2.0 {
 		osmv_bind_sa;
 		osmv_query_sa;
 		osm_vendor_get_guid_ca_and_port;
+		osm_mad_pool_construct;
+		osm_mad_pool_destroy;
+		osm_mad_pool_init;
+		osm_mad_pool_get;
+		osm_mad_pool_put;
+		osm_mad_pool_get_wrapper;
+		osm_mad_pool_get_wrapper_raw;
 	local: *;
 };

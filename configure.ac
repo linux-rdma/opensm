@@ -290,4 +290,4 @@ METIS_CHECK_LIB
 AC_CONFIG_FILES([man/opensm.8 man/torus-2QoS.8 man/torus-2QoS.conf.5 scripts/opensm.init scripts/redhat-opensm.init scripts/sldd.sh])
 
 dnl Create the following Makefiles
-AC_OUTPUT([include/opensm/osm_version.h Makefile include/Makefile complib/Makefile libvendor/Makefile opensm/Makefile osmeventplugin/Makefile osmtest/Makefile opensm.spec])
+AC_OUTPUT([include/opensm/osm_version.h Makefile include/Makefile complib/Makefile libopensm/Makefile libvendor/Makefile opensm/Makefile osmeventplugin/Makefile osmtest/Makefile opensm.spec])

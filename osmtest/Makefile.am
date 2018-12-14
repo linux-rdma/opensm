@@ -14,7 +14,7 @@ if OSMV_VAPI
 osmtest_SOURCES += osmt_mtl_regular_qp.c
 endif
 osmtest_CFLAGS = -Wall -Wwrite-strings $(DBGFLAGS)
-osmtest_LDADD = -L../complib -losmcomp -L../libvendor -losmvendor -L../opensm -lopensm $(OSMV_LDADD)
+osmtest_LDADD = -L../complib -losmcomp -L../libopensm -lopensm -L../libvendor -losmvendor $(OSMV_LDADD)
 
 EXTRA_DIST = $(srcdir)/include/osmt_inform.h \
    $(srcdir)/include/osmtest_subnet.h \
