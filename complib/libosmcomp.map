@@ -157,5 +157,6 @@ OSMCOMP_2.3 {
 		parse_node_map;
 		remap_node_name;
 		clean_nodedesc;
+		complib_init_v2;
 	local: *;
 };

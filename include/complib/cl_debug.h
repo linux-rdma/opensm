@@ -586,7 +586,9 @@ CL_PRINT( DBG_LVL, CHK_LVL, STRING );				\
 *	The above keywords are strings and make use of compilers' string
 *	concatenation ability.
 *********/
-void complib_init(void);
+
+void complib_init(void) __attribute__ ((deprecated));
+cl_status_t complib_init_v2(void);
 
 void complib_exit(void);
 

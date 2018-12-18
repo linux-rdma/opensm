@@ -74,6 +74,25 @@ _error:
 	exit(1);
 }
 
+cl_status_t complib_init_v2(void)
+{
+	cl_status_t status = CL_SUCCESS;
+
+	status = cl_spinlock_init(&cl_atomic_spinlock);
+	if (status != CL_SUCCESS)
+		goto _error;
+
+	status = __cl_timer_prov_create();
+	if (status != CL_SUCCESS)
+		goto _error;
+	return status;
+
+_error:
+	cl_msg_out("__init_v2: failed to create complib (%s)\n",
+		   CL_STATUS_MSG(status));
+	return status;
+}
+
 void complib_exit(void)
 {
 	__cl_timer_prov_destroy();

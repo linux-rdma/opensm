@@ -520,8 +520,10 @@ int main()
 	cl_event_wheel_t event_wheel;
 
 	/* init complib */
-	complib_init();
-
+	if (complib_init_v2() != CL_SUCCESS) {
+		printf("complib_init_v2 failed\n");
+		exit(1);
+	}
 	/* construct */
 	cl_event_wheel_construct(&event_wheel);
 

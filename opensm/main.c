@@ -1218,7 +1218,10 @@ int main(int argc, char *argv[])
 		daemonize(&osm);
 	}
 
-	complib_init();
+	if (complib_init_v2() != CL_SUCCESS) {
+		printf("\ncomplib_init_v2 error\n");
+		return -1;
+	}
 
 	status = osm_opensm_init(&osm, &opt);
 	if (status != IB_SUCCESS) {

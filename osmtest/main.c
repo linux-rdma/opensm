@@ -582,7 +582,11 @@ int main(int argc, char *argv[])
 	if (vendor_debug)
 		osm_vendor_set_debug(osm_test.p_vendor, vendor_debug);
 
-	complib_init();
+	if (complib_init_v2() != CL_SUCCESS) {
+		printf("\ncomplib_init_v2 failed\n");
+		status = IB_ERROR;
+		goto Exit;
+	}
 
 	status = osmtest_init(&osm_test, &opt, (osm_log_level_t) log_flags);
 	if (status != IB_SUCCESS) {
