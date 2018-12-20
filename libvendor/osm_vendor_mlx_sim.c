@@ -175,7 +175,7 @@ osmv_transport_init(IN osm_bind_info_t * p_info,
 			 (void *)p_bo);
 	if (!conHdl) {
 		printf("fail to connect to the server.\n");
-		exit(1);
+		return IB_ERROR;
 	}
 
 	/*

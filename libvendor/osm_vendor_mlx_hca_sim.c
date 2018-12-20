@@ -136,13 +136,10 @@ int __hca_sim_get_num_cas(void)
 		}
 		closedir(dp);
 	} else {
-		printf("__hca_sim_get_num_cas: ERROR : ail to open dir %s\n",
+		printf("__hca_sim_get_num_cas: ERROR: fail to open dir %s\n",
 		       __get_simulator_dir());
-		exit(1);
 	}
 
-	if (!num_cas)
-		exit(1);
 	return num_cas;
 }
 
