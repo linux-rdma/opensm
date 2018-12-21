@@ -167,6 +167,7 @@ osmv_transport_init(IN osm_bind_info_t * p_info,
 	   validate the target guid */
 	if (osm_vendor_get_guid_by_ca_and_port
 	    (p_bo->p_vendor, hca_id, p_bo->port_num, &port_guid)) {
+		free(p_mgr);
 		return IB_INVALID_GUID;
 	}
 
@@ -175,6 +176,7 @@ osmv_transport_init(IN osm_bind_info_t * p_info,
 			 (void *)p_bo);
 	if (!conHdl) {
 		printf("fail to connect to the server.\n");
+		free(p_mgr);
 		return IB_ERROR;
 	}
 
