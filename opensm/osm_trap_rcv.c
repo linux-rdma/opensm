@@ -493,7 +493,7 @@ static void trap_rcv_process_request(IN osm_sm_t * sm,
 						       trap_key);
 
 		/* Now we know how many times it provided this trap */
-		if (num_received > 10) {
+		if (num_received >= 10) {
 			if (print_num_received(num_received))
 				OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 					"Received trap %u times consecutively\n",
@@ -529,7 +529,7 @@ static void trap_rcv_process_request(IN osm_sm_t * sm,
 					   NULL, NULL);
 
 		/* If was already registered do nothing more */
-		if (num_received > 10 && run_heavy_sweep == FALSE) {
+		if (num_received >= 10 && run_heavy_sweep == FALSE) {
 			if (print_num_received(num_received))
 				OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
 					"Ignoring noisy traps.\n");
