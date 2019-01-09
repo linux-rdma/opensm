@@ -161,6 +161,9 @@ static void show_usage(void)
 	       "          This will effect the handover cases, where master\n"
 	       "          is chosen by priority and GUID.  Range goes\n"
 	       "          from 0 (lowest priority) to 15 (highest).\n\n");
+	printf("--subnet_prefix <prefix>\n"
+	       "          Set the subnet prefix to something other than the\n"
+	       "          default value of 0xfe80000000000000\n\n");
 	printf("--smkey, -k <SM_Key>\n"
 	       "          This option specifies the SM's SM_Key (64 bits).\n"
 	       "          This will effect SM authentication.\n"
@@ -319,6 +322,8 @@ static void show_usage(void)
 	       "          This option forces OpenSM to honor the guid2lid file,\n"
 	       "          when it comes out of Standby state, if such file exists\n"
 	       "          under OSM_CACHE_DIR, and is valid. By default, this is FALSE.\n\n");
+	printf("--dump_files_dir <directory-name>"
+	       "          The directory to hold the file dumps.\n");
 	printf("--log_file, -f <log-file-name>\n"
 	       "          This option defines the log to be the given file.\n"
 	       "          By default, the log goes to /var/log/opensm.log.\n"
@@ -665,6 +670,7 @@ int main(int argc, char *argv[])
 		{"once", 0, NULL, 'o'},
 		{"reassign_lids", 0, NULL, 'r'},
 		{"priority", 1, NULL, 'p'},
+		{"subnet_prefix", 1, NULL, 16},
 		{"smkey", 1, NULL, 'k'},
 		{"routing_engine", 1, NULL, 'R'},
 		{"ucast_cache", 0, NULL, 'A'},
@@ -702,6 +708,7 @@ int main(int argc, char *argv[])
 		{"torus_config", 1, NULL, 10},
 		{"guid_routing_order_no_scatter", 0, NULL, 13},
 		{"nue_max_num_vls", 1, NULL, 15},
+		{"dump_files_dir", 1, NULL, 17},
 		{NULL, 0, NULL, 0}	/* Required at the end of the array */
 	};
 
@@ -1008,6 +1015,11 @@ int main(int argc, char *argv[])
 			printf(" Priority = %d\n", temp);
 			break;
 
+		case 16:
+			opt.subnet_prefix = cl_hton64(strtoull(optarg, NULL, 16));
+			printf(" Subnet_Prefix = <0x%" PRIx64 ">\n", cl_hton64(opt.subnet_prefix));
+			break;
+
 		case 'k':
 			sm_key = cl_hton64(strtoull(optarg, NULL, 16));
 			printf(" SM Key <0x%" PRIx64 ">\n", cl_hton64(sm_key));
@@ -1161,6 +1173,9 @@ int main(int argc, char *argv[])
 			}
 			opt.nue_max_num_vls = (uint8_t) temp;
 			printf(" Nue maximum #VLs = %d\n", opt.nue_max_num_vls);
+			break;
+		case 17:
+			SET_STR_OPT(opt.dump_files_dir, optarg);
 			break;
 		case 'h':
 		case '?':
