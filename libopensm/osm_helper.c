@@ -3215,7 +3215,7 @@ static const char *lsea_str_fixed_width[] = {
 	"14  ",
 	"25  ",
 	"????",
-	"50"
+	"50  "
 };
 
 const char *osm_get_lsa_str(IN uint8_t lsa, IN uint8_t lsea, IN uint8_t state,
