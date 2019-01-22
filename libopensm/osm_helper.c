@@ -3214,6 +3214,7 @@ static const char *lsea_str_fixed_width[] = {
 	"Std ",
 	"14  ",
 	"25  ",
+	"????",
 	"50"
 };
 
