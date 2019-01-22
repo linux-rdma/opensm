@@ -112,6 +112,7 @@ static int link_mgr_set_physp_pi(osm_sm_t * sm, IN osm_physp_t * p_physp,
 	OSM_LOG_ENTER(sm->p_log);
 
 	p_node = osm_physp_get_node_ptr(p_physp);
+	CL_ASSERT(p_node);
 
 	p_old_pi = &p_physp->port_info;
 
@@ -125,6 +126,7 @@ static int link_mgr_set_physp_pi(osm_sm_t * sm, IN osm_physp_t * p_physp,
 		if (!p_pi->base_lid) {
 			p_port = osm_get_port_by_guid(sm->p_subn,
 						      osm_physp_get_port_guid(p_physp));
+			CL_ASSERT(p_port);
 			p_pi->base_lid = p_port->lid;
 			sm->lid_mgr.dirty = TRUE;
 			send_set = TRUE;

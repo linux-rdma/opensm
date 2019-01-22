@@ -253,7 +253,16 @@ static int disable_port(osm_sm_t *sm, osm_physp_t *p)
 		if (!pi->base_lid) {
 			p_port = osm_get_port_by_guid(sm->p_subn,
 						      osm_physp_get_port_guid(p));
-			pi->base_lid = p_port->lid;
+			if (p_port)
+				pi->base_lid = p_port->lid;
+			else {
+				OSM_LOG(sm->p_log, OSM_LOG_ERROR,
+					"ERR 3804: Port 0x%" PRIx64
+					" not found, port set failed\n",
+					cl_ntoh64(osm_physp_get_port_guid(p)));
+				status = IB_ERROR;
+				goto EXIT;
+			}
 		}
 		pi->master_sm_base_lid = sm->p_subn->sm_base_lid;
 	}
@@ -263,6 +272,8 @@ static int disable_port(osm_sm_t *sm, osm_physp_t *p)
 			   cl_hton32(osm_physp_get_port_num(p)),
 			   FALSE, m_key,
 			   0, CL_DISP_MSGID_NONE, &context);
+
+EXIT:
 	return status;
 }
 
