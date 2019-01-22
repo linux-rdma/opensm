@@ -1165,7 +1165,7 @@ int main(int argc, char *argv[])
 			break;
 		case 15:
 			temp = strtoul(optarg, NULL, 0);
-			if (temp < 0 || temp >= IB_MAX_NUM_VLS) {
+			if (temp >= IB_MAX_NUM_VLS) {
 				fprintf(stderr,
 					"ERROR: maximum #VLs for nue routing must be between 0 and %d\n",
 					IB_MAX_NUM_VLS);
