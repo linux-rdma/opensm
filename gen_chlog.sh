@@ -27,7 +27,7 @@ mkchlog()
 	prev_tag=""
 
 	for tag in `git tag -l '*' | sort -V` ; do
-		obj=`git cat-file tag $tag | awk '/^object /{print $2}'`
+		obj=`git describe $tag`
 		base=`git merge-base $obj HEAD`
 		if [ -z "$base" -o "$base" != $obj ] ; then
 			continue
