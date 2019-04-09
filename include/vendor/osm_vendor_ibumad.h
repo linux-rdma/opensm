@@ -169,7 +169,7 @@ typedef struct _osm_vendor {
 	char issm_path[256];
 } osm_vendor_t;
 
-#define OSM_BIND_INVALID_HANDLE 0
+#define OSM_BIND_INVALID_HANDLE NULL
 
 typedef struct _osm_vend_wrap {
 	int agent;
