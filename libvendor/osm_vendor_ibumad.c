@@ -720,7 +720,7 @@ static int
 osm_vendor_open_port(IN osm_vendor_t * const p_vend,
 		     IN const ib_net64_t port_guid)
 {
-	ib_net64_t portguids[OSM_UMAD_MAX_PORTS_PER_CA + 1];
+	__be64 portguids[OSM_UMAD_MAX_PORTS_PER_CA + 1];
 	umad_ca_t umad_ca;
 	int i = 0, umad_port_id = -1;
 	char *name;
