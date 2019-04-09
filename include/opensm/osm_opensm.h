@@ -4,6 +4,7 @@
  * Copyright (c) 1996-2003 Intel Corporation. All rights reserved.
  * Copyright (c) 2009-2011 ZIH, TU Dresden, Federal Republic of Germany. All rights reserved.
  * Copyright (C) 2012-2017 Tokyo Institute of Technology. All rights reserved.
+ * Copyright (c) 2019 Fabriscale Technologies AS. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -113,7 +114,8 @@ typedef enum _osm_routing_engine_type {
 	OSM_ROUTING_ENGINE_TYPE_NUE,
 	OSM_ROUTING_ENGINE_TYPE_SSSP,
 	OSM_ROUTING_ENGINE_TYPE_DFSSSP,
-	OSM_ROUTING_ENGINE_TYPE_UNKNOWN
+	OSM_ROUTING_ENGINE_TYPE_UNKNOWN,
+	OSM_ROUTING_ENGINE_TYPE_EXTERNAL
 } osm_routing_engine_type_t;
 /***********/
 
@@ -127,7 +129,7 @@ typedef enum _osm_routing_engine_type {
 *	routing engine structure - multicast callbacks may be
 *	added later.
 */
-struct osm_routing_engine {
+typedef struct osm_routing_engine {
 	osm_routing_engine_type_t type;
 	const char *name;
 	void *context;
@@ -147,7 +149,7 @@ struct osm_routing_engine {
 					     IN OUT osm_mgrp_box_t *mgb);
 	void (*destroy) (void *context);
 	struct osm_routing_engine *next;
-};
+} osm_routing_engine_t;
 /*
 * FIELDS
 *	name
@@ -197,6 +199,37 @@ struct osm_routing_engine {
 *	next
 *		Pointer to next routing engine in the list.
 */
+
+/****s* OpenSM: OpenSM/external_routing_engine_module_t
+ * NAME
+ *	external_routing_engine_module_t
+ *
+ * DESCRIPTION
+ *	External routing engine module structure.
+ *
+ *	This structure is used to register a new external routing engine
+ *
+ * SYNOPSIS
+ */
+typedef struct external_routing_engine_module {
+	const char *name;
+	int (*setup)(struct osm_routing_engine *re, struct osm_opensm *osm);
+	void *context;
+} external_routing_engine_module_t;
+/*
+ * FIELDS
+ *	name
+ *		Name of the external routing engine
+ *
+ *	setup
+ *		function to setup the external routing engine's callbacks
+ *
+ *	context
+ *		User defined context
+ *
+ *	SEE ALSO
+ *		osm_register_external_routing_engine
+ *********/
 
 /****s* OpenSM: OpenSM/osm_opensm_t
 * NAME
@@ -602,6 +635,37 @@ osm_opensm_wait_for_subnet_up(IN osm_opensm_t * p_osm, IN uint32_t wait_us,
 *
 * SEE ALSO
 *********/
+
+/****f* OpenSM: OpenSM/osm_register_external_routing_engine
+ * NAME
+ *	osm_register_external_routing_engine
+ *
+ * DESCRIPTION
+ *	Register a new external routing engine.
+ *
+ * SYNOPSIS
+ */
+cl_status_t osm_register_external_routing_engine(
+	IN osm_opensm_t *osm,
+	IN const external_routing_engine_module_t *module,
+	IN void *context);
+/*
+ * PARAMETERS
+ *	type
+ *      [in] Pointer to a osm_opensm_t object
+ *      [in] Pointer to a external_routing_engine_module_t object to be registered.
+ *      [in] Pointer to a user context that will be set in osm_routing_engine_t
+ *
+ * RETURN VALUES
+ *	CL_SUCCESS if the routing engine was registered successfully.
+ *	CL_DUPLICATE if a routing engine with the same name
+ *               or type was already registered.
+ *
+ * NOTES
+ *
+ * SEE ALSO
+ *    external_routing_engine_module_t
+ *********/
 
 /****f* OpenSM: OpenSM/osm_routing_engine_type_str
 * NAME
