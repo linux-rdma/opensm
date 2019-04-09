@@ -149,7 +149,7 @@ typedef struct _osmtest_token {
 	const char *str;
 } osmtest_token_t;
 
-const osmtest_token_t token_array[] = {
+static const osmtest_token_t token_array[] = {
 	{OSMTEST_TOKEN_COMMENT, 1, "#"},
 	{OSMTEST_TOKEN_END, 3, "END"},
 	{OSMTEST_TOKEN_DEFINE_NODE, 11, "DEFINE_NODE"},
@@ -606,7 +606,7 @@ Exit:
 	return (status);
 }
 
-ib_api_status_t osmtest_validate_sa_class_port_info(IN osmtest_t * const p_osmt)
+static ib_api_status_t osmtest_validate_sa_class_port_info(IN osmtest_t * const p_osmt)
 {
 	ib_api_status_t status = IB_SUCCESS;
 	osmv_query_req_t req;
@@ -775,7 +775,7 @@ Exit:
 /**********************************************************************
  * Get a node record by node LID
  **********************************************************************/
-ib_api_status_t
+static ib_api_status_t
 osmtest_get_node_rec_by_lid(IN osmtest_t * const p_osmt,
 			    IN ib_net16_t const lid,
 			    IN OUT osmtest_req_context_t * const p_context)
@@ -1123,7 +1123,7 @@ Exit:
 }
 #endif
 
-ib_api_status_t
+static ib_api_status_t
 osmtest_get_port_rec(IN osmtest_t * const p_osmt,
 		     IN ib_net16_t const lid,
 		     IN OUT osmtest_req_context_t * const p_context)
@@ -1199,7 +1199,7 @@ Exit:
 	return (status);
 }
 
-ib_api_status_t
+static ib_api_status_t
 osmtest_get_port_rec_by_num(IN osmtest_t * const p_osmt,
 			    IN ib_net16_t const lid,
 			    IN uint8_t const port_num,
@@ -1279,7 +1279,7 @@ Exit:
 	return (status);
 }
 
-ib_api_status_t
+static ib_api_status_t
 osmtest_stress_port_recs_large(IN osmtest_t * const p_osmt,
 			       OUT uint32_t * const p_num_recs,
 			       OUT uint32_t * const p_num_queries)
@@ -1340,7 +1340,7 @@ Exit:
 	return (status);
 }
 
-ib_api_status_t
+static ib_api_status_t
 osmtest_stress_node_recs_large(IN osmtest_t * const p_osmt,
 			       OUT uint32_t * const p_num_recs,
 			       OUT uint32_t * const p_num_queries)
@@ -1402,7 +1402,7 @@ Exit:
 	return (status);
 }
 
-ib_api_status_t
+static ib_api_status_t
 osmtest_stress_path_recs_large(IN osmtest_t * const p_osmt,
 			       OUT uint32_t * const p_num_recs,
 			       OUT uint32_t * const p_num_queries)
@@ -1463,7 +1463,7 @@ Exit:
 	return (status);
 }
 
-ib_api_status_t
+static ib_api_status_t
 osmtest_stress_path_recs_by_guid(IN osmtest_t * const p_osmt,
 				 OUT uint32_t * const p_num_recs,
 				 OUT uint32_t * const p_num_queries)
@@ -1573,7 +1573,7 @@ Exit:
 	return (status);
 }
 
-ib_api_status_t
+static ib_api_status_t
 osmtest_stress_port_recs_small(IN osmtest_t * const p_osmt,
 			       OUT uint32_t * const p_num_recs,
 			       OUT uint32_t * const p_num_queries)
@@ -1695,7 +1695,7 @@ Exit:
  * Use a wrong SM_Key in a simple port query and report success if
  * failed.
  **********************************************************************/
-ib_api_status_t osmtest_wrong_sm_key_ignored(IN osmtest_t * const p_osmt)
+static ib_api_status_t osmtest_wrong_sm_key_ignored(IN osmtest_t * const p_osmt)
 {
 	ib_api_status_t status = IB_SUCCESS;
 	osmv_user_query_t user;
@@ -2983,7 +2983,7 @@ Exit:
 	return (status);
 }
 
-ib_api_status_t
+static ib_api_status_t
 osmtest_stress_path_recs_by_lid(IN osmtest_t * const p_osmt,
 				OUT uint32_t * const p_num_recs,
 				OUT uint32_t * const p_num_queries)
@@ -4122,7 +4122,7 @@ Exit:
 }
 
 #ifdef VENDOR_RMPP_SUPPORT
-ib_net64_t portguid = 0;
+static ib_net64_t portguid;
 
 static ib_api_status_t
 osmtest_validate_all_node_recs(IN osmtest_t * const p_osmt)
@@ -4317,7 +4317,7 @@ Exit:
 /**********************************************************************
  * Get link record by LID
  **********************************************************************/
-ib_api_status_t
+static ib_api_status_t
 osmtest_get_link_rec_by_lid(IN osmtest_t * const p_osmt,
 			    IN ib_net16_t const from_lid,
 			    IN ib_net16_t const to_lid,
@@ -4405,7 +4405,7 @@ Exit:
 /**********************************************************************
  * Get GUIDInfo record by LID
  **********************************************************************/
-ib_api_status_t
+static ib_api_status_t
 osmtest_get_guidinfo_rec_by_lid(IN osmtest_t * const p_osmt,
 				IN ib_net16_t const lid,
 				IN OUT osmtest_req_context_t * const p_context)
@@ -4487,7 +4487,7 @@ Exit:
 /**********************************************************************
  * Get PKeyTable record by LID
  **********************************************************************/
-ib_api_status_t
+static ib_api_status_t
 osmtest_get_pkeytbl_rec_by_lid(IN osmtest_t * const p_osmt,
 			       IN ib_net16_t const lid,
 			       IN ib_net64_t const sm_key,
@@ -4570,7 +4570,7 @@ Exit:
 /**********************************************************************
  * Get SwitchInfo record by LID
  **********************************************************************/
-ib_api_status_t
+static ib_api_status_t
 osmtest_get_sw_info_rec_by_lid(IN osmtest_t * const p_osmt,
 			       IN ib_net16_t const lid,
 			       IN OUT osmtest_req_context_t * const p_context)
@@ -4653,7 +4653,7 @@ Exit:
 /**********************************************************************
  * Get LFT record by LID
  **********************************************************************/
-ib_api_status_t
+static ib_api_status_t
 osmtest_get_lft_rec_by_lid(IN osmtest_t * const p_osmt,
 			   IN ib_net16_t const lid,
 			   IN OUT osmtest_req_context_t * const p_context)
@@ -4736,7 +4736,7 @@ Exit:
 /**********************************************************************
  * Get MFT record by LID
  **********************************************************************/
-ib_api_status_t
+static ib_api_status_t
 osmtest_get_mft_rec_by_lid(IN osmtest_t * const p_osmt,
 			   IN ib_net16_t const lid,
 			   IN OUT osmtest_req_context_t * const p_context)

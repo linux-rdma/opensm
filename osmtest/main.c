@@ -61,7 +61,7 @@
 #define OSMT_DEFAULT_TRAP_WAIT_TIMEOUT_SEC 10
 #define INVALID_GUID (0xFFFFFFFFFFFFFFFFULL)
 
-boolean_t osmt_is_debug(void)
+static boolean_t osmt_is_debug(void)
 {
 #if defined( _DEBUG_ )
 	return TRUE;
@@ -70,7 +70,7 @@ boolean_t osmt_is_debug(void)
 #endif				/* defined( _DEBUG_ ) */
 }
 
-void show_usage()
+static void show_usage()
 {
 	printf
 	    ("\n------- osmtest - Usage and options ----------------------\n");
@@ -234,7 +234,7 @@ static void print_all_guids(IN osmtest_t * p_osmt)
 		       cl_hton64(attr_array[i].port_guid));
 }
 
-ib_net64_t get_port_guid(IN osmtest_t * p_osmt, uint64_t port_guid)
+static ib_net64_t get_port_guid(IN osmtest_t * p_osmt, uint64_t port_guid)
 {
 	ib_api_status_t status;
 	uint32_t num_ports = MAX_LOCAL_IBPORTS;
