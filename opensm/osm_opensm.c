@@ -81,7 +81,7 @@ extern int osm_ucast_nue_setup(struct osm_routing_engine *, osm_opensm_t *);
 extern int osm_ucast_sssp_setup(struct osm_routing_engine *, osm_opensm_t *);
 extern int osm_ucast_dfsssp_setup(struct osm_routing_engine *, osm_opensm_t *);
 
-const static struct routing_engine_module routing_modules[] = {
+static const struct routing_engine_module routing_modules[] = {
 	{"minhop", osm_ucast_minhop_setup},
 	{"updn", osm_ucast_updn_setup},
 	{"dnup", osm_ucast_dnup_setup},
