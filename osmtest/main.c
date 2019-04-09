@@ -280,7 +280,7 @@ int main(int argc, char *argv[])
 	uint32_t log_flags = OSM_LOG_ERROR | OSM_LOG_INFO;
 	int32_t vendor_debug = 0;
 	char flow_name[64];
-	uint32_t next_option;
+	int next_option;
 	const char *const short_option = "f:l:m:M:d:g:s:t:i:pcvGVh";
 
 	/*
