@@ -1564,7 +1564,7 @@ To learn more about the Nue routing algorithm, see the article "Routing on the
 Dependency Graph: A New Approach to Deadlock-Free High-Performance Routing" by
 J. Domke, T. Hoefler and S. Matsuoka (published in HPDC'16).
 
-Modular Routine Engine
+Modular Routing Engine
 
 Modular routing engine structure allows for the ease of
 "plugging" new routing modules.

@@ -113,7 +113,8 @@ typedef enum _osm_routing_engine_type {
 	OSM_ROUTING_ENGINE_TYPE_NUE,
 	OSM_ROUTING_ENGINE_TYPE_SSSP,
 	OSM_ROUTING_ENGINE_TYPE_DFSSSP,
-	OSM_ROUTING_ENGINE_TYPE_UNKNOWN
+	OSM_ROUTING_ENGINE_TYPE_UNKNOWN,
+	OSM_ROUTING_ENGINE_TYPE_EXTERNAL = 100
 } osm_routing_engine_type_t;
 /***********/
 
@@ -127,7 +128,7 @@ typedef enum _osm_routing_engine_type {
 *	routing engine structure - multicast callbacks may be
 *	added later.
 */
-struct osm_routing_engine {
+typedef struct osm_routing_engine {
 	osm_routing_engine_type_t type;
 	const char *name;
 	void *context;
@@ -147,7 +148,44 @@ struct osm_routing_engine {
 					     IN OUT osm_mgrp_box_t *mgb);
 	void (*destroy) (void *context);
 	struct osm_routing_engine *next;
-};
+} osm_routing_engine_t;
+
+/****s* OpenSM: OpenSM/routing_engine_module_t
+ * NAME
+ *	routing_engine_module_t
+ *
+ * DESCRIPTION
+ *	Routing engine module structure.
+ *
+ *	This structure is used to register a new routing engine
+ *
+ * SYNOPSIS
+ */
+typedef struct routing_engine_module {
+	const char *name;
+	osm_routing_engine_type_t type;
+	int (*setup)(struct osm_routing_engine *re, struct osm_opensm *osm);
+	void *context;
+} routing_engine_module_t;
+/*
+ * FIELDS
+ *	name
+ *		Name of the routing engine
+ *
+ *	type
+ *		Type (unique identifier) of the routing engine.
+ *      If set to OSM_ROUTING_ENGINE_TYPE_UNKNOWN, a new type will be generated
+ *
+ *	setup
+ *		function to setup the routing engine's callbacks
+ *
+ *	context
+ *		User defined context
+ *
+ * SEE ALSO
+ *    osm_routing_engine, osm_opensm_register_routing_engine
+ *********/
+
 /*
 * FIELDS
 *	name
@@ -602,6 +640,39 @@ osm_opensm_wait_for_subnet_up(IN osm_opensm_t * p_osm, IN uint32_t wait_us,
 *
 * SEE ALSO
 *********/
+
+/****f* OpenSM: OpenSM/osm_opensm_register_routing_engine
+ * NAME
+ *	osm_opensm_register_routing_engine
+ *
+ * DESCRIPTION
+ *	Register a new routing engine.
+ *
+ * SYNOPSIS
+ */
+cl_status_t osm_opensm_register_routing_engine(
+	IN osm_opensm_t *osm,
+	IN OUT routing_engine_module_t *module,
+	IN void *context);
+/*
+ * PARAMETERS
+ *	type
+ *      [in] Pointer to a osm_opensm_t object
+ *      [in] Pointer to a osm_routing_engine_t object to be registered.
+ *            If module->type is OSM_ROUTING_ENGINE_TYPE_UNKNOWN,
+ *            a new type will be assigned to the module
+ *      [in] Pointer to a user context that will be set in osm_routing_engine_t
+ *
+ * RETURN VALUES
+ *	CL_SUCCESS if the routing engine was registered successfully.
+ *	CL_DUPLICATE if a routing engine with the same name
+ *               or type was already registered.
+ *
+ * NOTES
+ *
+ * SEE ALSO
+ *    routing_engine_module_t
+ *********/
 
 /****f* OpenSM: OpenSM/osm_routing_engine_type_str
 * NAME
