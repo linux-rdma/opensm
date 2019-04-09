@@ -70,7 +70,7 @@ static boolean_t osmt_is_debug(void)
 #endif				/* defined( _DEBUG_ ) */
 }
 
-static void show_usage()
+static void show_usage(void)
 {
 	printf
 	    ("\n------- osmtest - Usage and options ----------------------\n");
