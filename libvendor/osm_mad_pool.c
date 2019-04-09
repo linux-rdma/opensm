@@ -150,8 +150,8 @@ osm_madw_t *osm_mad_pool_get_wrapper_raw(IN osm_mad_pool_t * p_pool)
 	if (!p_madw)
 		return NULL;
 
-	osm_madw_init(p_madw, 0, 0, 0);
-	osm_madw_set_mad(p_madw, 0);
+	osm_madw_init(p_madw, NULL, 0, NULL);
+	osm_madw_set_mad(p_madw, NULL);
 	cl_atomic_inc(&p_pool->mads_out);
 
 	return p_madw;

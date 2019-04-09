@@ -635,7 +635,7 @@ ib_api_status_t osmtest_validate_sa_class_port_info(IN osmtest_t * const p_osmt)
 	req.flags = OSM_SA_FLAGS_SYNC;
 	req.query_context = p_context;
 	req.pfn_query_cb = osmtest_query_res_cb;
-	req.p_query_input = 0;
+	req.p_query_input = NULL;
 	req.sm_key = 0;
 
 	if (p_osmt->opt.flow != OSMT_FLOW_CREATE_INVENTORY &&
