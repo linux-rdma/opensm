@@ -127,7 +127,7 @@ static void cc_setup_mad_data(osm_sm_t * p_sm)
 	osm_congestion_control_t *p_cc = &p_sm->p_subn->p_osm->cc;
 	osm_subn_opt_t *p_opt = &p_sm->p_subn->opt;
 	uint16_t ccti_limit;
-	int i;
+	unsigned i;
 
 	/* Switch Congestion Setting */
 	p_cc->sw_cong_setting.control_map = p_opt->cc_sw_cong_setting_control_map;

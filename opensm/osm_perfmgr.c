@@ -144,7 +144,7 @@ static void remove_marked_nodes(osm_perfmgr_t * pm)
 {
 	while (pm->remove_list) {
 		monitored_node_t *next = pm->remove_list->next;
-		int port;
+		unsigned port;
 
 		cl_qmap_remove_item(&pm->monitored_map,
 				    (cl_map_item_t *) (pm->remove_list));
@@ -530,7 +530,7 @@ static void collect_guids(cl_map_item_t * p_map_item, void *context)
 	osm_perfmgr_t *pm = (osm_perfmgr_t *) context;
 	monitored_node_t *mon_node = NULL;
 	uint32_t num_ports;
-	int port;
+	unsigned port;
 
 	OSM_LOG_ENTER(pm->log);
 
@@ -1813,7 +1813,7 @@ static void pc_recv_process(void *context, void *data)
 		if (pm->query_cpi && cpi_valid) {
 			cl_plock_acquire(&pm->osm->lock);
 			if (p_mon_node->node_type == IB_NODE_TYPE_SWITCH) {
-				int i;
+				unsigned i;
 				for (i = p_mon_node->esp0 ? 0 : 1;
 				     i < p_mon_node->num_ports;
 				     i++) {
