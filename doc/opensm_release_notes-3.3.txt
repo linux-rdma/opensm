@@ -3,14 +3,14 @@
 
 Version: OpenSM 3.3.x
 Repo:    git://github.com/linux-rdma/opensm
-Date:    September 2018
+Date:    April 2019
 
 1 Overview
 ----------
 This document describes the contents of the OpenSM 3.3 release.
 OpenSM is an InfiniBand compliant Subnet Manager and Administration,
 and runs on top of OpenIB. The OpenSM version for this release
-is opensm-3.3.21.
+is opensm-3.3.22.
 
 This document includes the following sections:
 1 This Overview section (describing new features and software
@@ -121,6 +121,9 @@ This document includes the following sections:
 
 1.2 Minor New Features:
 
+82c3ea6 Add '--subnet_prefix' and '--dump_files_dir' options
+dfc383e osm_port_info_rcv.c: Optimize PKEY sending during heavy sweep
+6abbbcd osm_subnet.c: Add latest Bull device IDs to device white lists
 6a24bcd osm_subnet.c: Add additional device ID to is_mlnx_ext_port_info_supported
 0ab8d12 Add force_link_width option
 3f28045 Handle other 2x and/or HDR not supported SA rate cases
@@ -477,6 +480,10 @@ b73c378 opensm/perfmgr; add support for PortCountersExtended NOIETF
 
 1.3 Library API Changes
 
+2fd785f Deprecate complib_init() due to use of exit() function
+399fe25 Eliminate circular dependencies in shared libraries
+d7135b1 complib/cl_types.h: Remove unimplemented function cl_panic
+04b0c34 complib: cl_vector_copy16/32/64 should be static functions
 925e1ce Add timeout parameter for SM class set transactions
 f60e241 osm_madw.h: Remove unused bind_info in osm_madw structure
 aa63c3c complib: Add a d-ary heap
@@ -574,6 +581,9 @@ information regarding each compliance statement.
 -----------
 
 4.1 Major Bug Fixes
+
+73f6461 osm_opensm.c: Fix seg fault in destroy_routing_engine
+9a7fa48 osm_multicast.c: Fix potential crash in osm_mgrp_delete_port
 af9fc7a osm_sa_mcmember_record.c: Use neighbor MTU rather than MTUCap in mgrp_request_is_realizable
 9a4e79b dfsssp - detect and try to repair an odd network state
 85f841c osm_ucast_[dfsssp ftree].c: Fix memory leak when io/cn guid file have duplicated guids
@@ -856,6 +866,71 @@ f37bf3c opensm/perfmgr: skip data counters when only printing errors
 
 4.2 Other Bug Fixes
 
+1c57b7d libvendor/osm_vendor_ibumad.c: Fix type of array passed to umad_get_ca_portguids in libibumad
+f5c21ce osmtest.c: Remove ununsed osmtest_get_node_rec routine
+e3e49a9 osmtest/main.c: Fix show_usage declaration
+ef67b6a osmtest: Add missing static keywords
+2989b31 libvendor,osmtest: Use NULL instead of 0 in all places where it used as a pointer
+9b8bcc1 osmtest/main.c: Fix return type for getopt_long_only
+8e6d76c osm_[congestion_control perfmgr].c: Fix signed vs unsigned comparison
+476b822 osm_opensm.c: Fix static declaration
+6d49a7e libvendor/osm_vendor_mlx_sim.c: In osmv_transport_init, fix memory leaks on error
+e76b7ab libvendor/osm_vendor_mlx[_hca]_sim.c: Eliminate use of exit
+d34622f gen_chlog.sh: Update script to use git describe rather than git cat-file tag
+92a9c3e osm_[link_mgr trap_rcv].c: Check the return value of osm_get_port_by_guid
+06b168a main.c: Remove NO_EFFECT code
+20c135d osm_helper.c: Make "50" string proper fixed width in lsea_str_fixed_width
+df22e54 osm_helper.c: Fix lsea_str_fixed_width OVERRUN issue
+d289316 osm_trap_rcv.c: Fix missing log message when 10 traps are received from the same source within time window
+ceef038 man/opensm.8.in: Quiet some man warnings
+aae42c6 Fix various typos
+8e6abe9 Fix typo in OSM_DEFAULT_TRAP_SUPPRESSION_TIMEOUT
+6b71ec0 Fix a bunch of typos
+7c2dd40 osm_opensm.c: No need to check context for default routing engine in destroy_routing_engines
+7f98069 osm_opensm.c: destroy_routing_engines should destroy the default routing engine
+a66a09c osm_subnet.c: Free per_module_logging_file in subn_opt_destroy
+7c9521b osm_sa.c: Remove unneeded label in osm_sa_bind
+e000a2e osm_resp.c: No need to swap DR [D/S]LIDs in resp_make_resp_smp
+67799fa opensm/osm_service.h: Fix and add some comments
+5da75d8 opensm/osm_mlnx_ext_port_info_rcv.c: Check the pointer of osm_sm_t before accessing it
+406dc70 opensm/osm_mtree.h: Improve comment
+7b06728 opensm/osm_remote_sm.c: Improve comment
+d817750 opensm/osm_ucast_cache.h: Improve coding style and comments
+717312e opensm/osm_ucast_mgr.h: Add comment for 'max_lid' foeld in osm_ucast_mgr structure
+718c14b opensm/osm_multicast.h: Improve comments
+f538e69 opensm/osm_sa_mad_ctrl.h: Improve comments
+6173c97 opensm/osm_sm_mad_ctrl.h: Improve comments
+2414219 opensm/osm_remote_sm.h: Improve comments
+6f2cbdb opensm/osm_mtree.h: Improve comments
+242f0a8 opensm/osm_vl15intf.h: Minor update of comments
+a989601 opensm/osm_node.h: Improve comments
+519c2d1 opensm/osm_router.h: Improve comments
+537cbb9 Delete unused header opensm/osm_attrib_req.h
+688543e opensm/osm_path.h: Delete comments for non-existent struct field and function parameters
+4974027 Revert complib/cl_event_wheel.c: Fix memory leak in event_wheel mechanism
+f911f13 opensm/osm_base.h: Delete comments about non-existent "Base" class
+fb9c811 opensm/osm_base.h: Delete unused header complib/cl_types.h
+e316e0a complib/cl_event_wheel.c: Minor update to the sample test program
+ae1c005 complib/cl_event_wheel.h: Improve comment documentation
+1b1048b complib/cl_[dispatcher event_wheel].h: Fix commentary typo
+c11b31c complib/cl_event_wheel.c: Handle malloc failure in cl_event_wheel_reg
+7345086 complib/cl_event_wheel.h: Eliminate unneeded field in cl_event_wheel_reg_info_t
+be122bc complib/cl_event_wheel.c: Some cosmetic changes
+44afd73 complib/cl_event_wheel.c: Fix memory leak in event_wheel mechanism
+12c24d1 complib/cl_dispatcher.h: Improve comments
+b69dc33 complib/cl_dispatcher.c: Fix typo and delete one incorrect comment
+c558360 include/opensm: Remove some redundant includes
+169b144 include/complib: Delete documentation about 'p_nil'
+2c6c6b4 complib/cl_debug.h: Cosmetic formatting changes to some macros
+8a4172c complib/cl_heap.c: Remove redundant initialization statement
+b42bea6 complib/cl_heap.h: Replace 'shift_' with 'heap_' in the DESCRIPTION section
+5446e32 complib/cl_qcomppool.h: Improve max_objects comment
+d429d5f include/complib: Fix comments and documentation
+0877d07 complib/cl_ptr_vector.h: Fixed cut 'n paste error in cl_ptr_vector_remove NOTES
+329cb4a complib/cl_types.h: Cosmetic formatting changes
+250204d osm_db_files.c: Remove an obsolete GUID-length check on osm_db_restore
+15c1acc osm_sa_mcmember_record.c: Change level of log messages for port GID subnet prefix mismatches in join/leave
+2b9cf6f Use precision specifier for scanf
 43270a6 Replace hard coded constants with defines for force_link_xxx options
 901af61 osm_helper.h: Remove trailing whitespace in comment
 a0aee8b Revert osm_db_files.c: Fix bad free in osm_db_delete
