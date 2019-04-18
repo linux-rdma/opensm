@@ -318,6 +318,7 @@ static inline ftree_tuple_key_t tuple_to_key(IN ftree_tuple_t tuple)
 	return key;
 }
 
+#if 0
 /***************************************************/
 
 static inline void tuple_from_key(IN ftree_tuple_t tuple,
@@ -325,6 +326,7 @@ static inline void tuple_from_key(IN ftree_tuple_t tuple,
 {
 	memcpy(tuple, &key, FTREE_TUPLE_LEN);
 }
+#endif
 
 /***************************************************
  **

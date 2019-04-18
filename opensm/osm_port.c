@@ -303,6 +303,7 @@ static inline uint64_t ptr_to_key(void const *p)
 	return k;
 }
 
+#if 0
 static inline void *key_to_ptr(uint64_t k)
 {
 	void *p = 0;
@@ -310,6 +311,7 @@ static inline void *key_to_ptr(uint64_t k)
 	memcpy(&p, &k, sizeof(void *));
 	return p;
 }
+#endif
 
 /**********************************************************************
  Traverse the fabric from the SM node following the DR path given and
