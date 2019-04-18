@@ -3866,7 +3866,9 @@ static void fabric_set_leaf_rank(IN ftree_fabric_t * p_ftree)
 			hca_get_guid_ho(p_hca));
 
 		for (i = 0; (i < p_hca->up_port_groups_num)
-		     && (!p_hca->up_port_groups[i]->is_cn); i++) ;
+		     && (!p_hca->up_port_groups[i]->is_cn); i++)
+			;
+
 		CL_ASSERT(i < p_hca->up_port_groups_num);
 		CL_ASSERT(p_hca->up_port_groups[i]->remote_node_type ==
 			  IB_NODE_TYPE_SWITCH);
