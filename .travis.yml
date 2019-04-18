@@ -13,6 +13,8 @@ addons:
     - libtool-bin
     - make
     - sparse
+    - wget
     - libibumad-dev
 script:
+  - scripts/travis-checkpatch
   - scripts/travis-build
