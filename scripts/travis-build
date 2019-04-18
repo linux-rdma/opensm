@@ -1,0 +1,28 @@
+#!/bin/bash
+
+PATH=/home/`whoami`/.local/bin:$PATH
+DIR=$(readlink -f .)
+# Stop on error
+set -e
+# Echo all commands to Travis log
+set -x
+
+./autogen.sh
+
+
+# Clang doesn't like getting pointers from packed struct members, even if aligned.
+CC=clang CFLAGS="-Wno-address-of-packed-member"  ./configure
+make
+make clean
+
+# Run sparse on the subdirectories which are sparse clean
+CC=cgcc CFLAGS="-Werror" make > /dev/null 2>&1 | grep -v '^/usr/include' | tee out
+make clean
+# sparse does not fail gcc on messages
+if [ -s out ]; then
+   false
+fi
+
+CC=gcc-8 CFLAGS="" ./configure
+make
+make dist

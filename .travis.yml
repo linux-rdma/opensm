@@ -1,0 +1,18 @@
+language: c
+dist: xenial
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - bison
+    - flex
+    - autoconf
+    - automake
+    - gcc-8
+    - libtool-bin
+    - make
+    - sparse
+    - libibumad-dev
+script:
+  - scripts/travis-build
