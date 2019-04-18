@@ -540,7 +540,7 @@ ib_api_status_t osm_opensm_init_finish(IN osm_opensm_t * p_osm,
 
 	setup_routing_engines(p_osm, p_opt->routing_engine_names);
 
-	p_osm->routing_engine_used = OSM_ROUTING_ENGINE_TYPE_NONE;
+	p_osm->routing_engine_used = NULL;
 
 	p_osm->node_name_map = open_node_name_map(p_opt->node_name_map_name);
 
