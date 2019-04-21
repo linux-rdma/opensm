@@ -743,7 +743,7 @@ osm_vendor_open_port(IN osm_vendor_t * const p_vend,
 	}
 
 	for (ca = 0; ca < p_vend->ca_count; ca++) {
-		if ((r = umad_get_ca_portguids(p_vend->ca_names[ca], portguids,
+		if ((r = umad_get_ca_portguids(p_vend->ca_names[ca], &portguids[0],
 					       OSM_UMAD_MAX_PORTS_PER_CA + 1)) < 0) {
 #ifdef __WIN__
 			OSM_LOG(p_vend->p_log, OSM_LOG_VERBOSE,

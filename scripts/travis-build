@@ -10,8 +10,7 @@ set -x
 ./autogen.sh
 
 
-# Clang doesn't like getting pointers from packed struct members, even if aligned.
-CC=clang CFLAGS="-Wno-address-of-packed-member"  ./configure
+CC=clang CFLAGS="-Werror"  ./configure
 make
 make clean
 
