@@ -31,8 +31,8 @@ Version: @VERSION@
 Release: %rel%{?dist}
 License: GPLv2 or BSD
 Group: System Environment/Daemons
-URL: http://openfabrics.org/
-Source: http://www.openfabrics.org/downloads/management/@TARBALL@
+URL: https://github.com/linux-rdma/opensm
+Source: https://github.com/linux-rdma/opensm/releases/download/@VERSION@/@TARBALL@
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: libibumad-devel, libtool, gcc, bison, flex
 Requires: %{name}-libs = %{version}-%{release}, logrotate
@@ -143,7 +143,8 @@ fi
 %{_sbindir}/osmtest
 %{_mandir}/man8/*
 %{_mandir}/man5/*
-%doc AUTHORS COPYING README doc/performance-manager-HOWTO.txt doc/QoS_management_in_OpenSM.txt doc/partition-config.txt doc/opensm-sriov.txt doc/current-routing.txt doc/opensm_release_notes-3.3.txt
+%doc AUTHORS README doc/performance-manager-HOWTO.txt doc/QoS_management_in_OpenSM.txt doc/partition-config.txt doc/opensm-sriov.txt doc/current-routing.txt doc/opensm_release_notes-3.3.txt
+%license COPYING
 %{_sysconfdir}/init.d/opensmd
 %{_sbindir}/sldd.sh
 %config(noreplace) %{_sysconfdir}/logrotate.d/opensm
