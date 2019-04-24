@@ -2256,25 +2256,23 @@ static inline boolean_t OSM_API ib_pkey_is_invalid(IN const ib_net16_t pkey)
 *
 * SYNOPSIS
 */
-#include <complib/cl_packon.h>
 typedef union _ib_gid {
 	uint8_t raw[16];
 	struct _ib_gid_unicast {
 		ib_gid_prefix_t prefix;
 		ib_net64_t interface_id;
-	} PACK_SUFFIX unicast;
+	} unicast;
 	struct _ib_gid_multicast {
 		uint8_t header[2];
 		uint8_t raw_group_id[14];
-	} PACK_SUFFIX multicast;
+	} multicast;
 	struct _ib_gid_ip_multicast {
 		uint8_t header[2];
 		ib_net16_t signature;
 		ib_net16_t p_key;
 		uint8_t group_id[10];
-	} PACK_SUFFIX ip_multicast;
-} PACK_SUFFIX ib_gid_t;
-#include <complib/cl_packoff.h>
+	} ip_multicast;
+} ib_gid_t;
 /*
 * FIELDS
 *	raw
@@ -2500,7 +2498,6 @@ ib_gid_get_guid(IN const ib_gid_t * const p_gid)
 *
 * SYNOPSIS
 */
-#include <complib/cl_packon.h>
 typedef struct _ib_path_rec {
 	ib_net64_t service_id;
 	ib_gid_t dgid;
@@ -2517,8 +2514,7 @@ typedef struct _ib_path_rec {
 	uint8_t pkt_life;
 	uint8_t preference;
 	uint8_t resv2[6];
-} PACK_SUFFIX ib_path_rec_t;
-#include <complib/cl_packoff.h>
+} ib_path_rec_t;
 /*
 * FIELDS
 *	service_id
@@ -3488,7 +3484,6 @@ ib_path_rec_hop_limit(IN const ib_path_rec_t * const p_rec)
 *
 * SYNOPSIS
 */
-#include <complib/cl_packon.h>
 typedef struct _ib_class_port_info {
 	uint8_t base_ver;
 	uint8_t class_ver;
@@ -3506,8 +3501,7 @@ typedef struct _ib_class_port_info {
 	ib_net16_t trap_pkey;
 	ib_net32_t trap_hop_qp;
 	ib_net32_t trap_qkey;
-} PACK_SUFFIX ib_class_port_info_t;
-#include <complib/cl_packoff.h>
+} ib_class_port_info_t;
 /*
 * FIELDS
 *	base_ver
@@ -3807,7 +3801,6 @@ ib_sminfo_get_state(IN const ib_sm_info_t * const p_smi)
 *
 * SYNOPSIS
 */
-#include <complib/cl_packon.h>
 typedef struct _ib_mad {
 	uint8_t base_ver;
 	uint8_t mgmt_class;
@@ -3819,8 +3812,7 @@ typedef struct _ib_mad {
 	ib_net16_t attr_id;
 	ib_net16_t resv;
 	ib_net32_t attr_mod;
-} PACK_SUFFIX ib_mad_t;
-#include <complib/cl_packoff.h>
+} ib_mad_t;
 /*
 * FIELDS
 *	base_ver
@@ -4128,7 +4120,6 @@ ib_rmpp_get_resp_time(IN const ib_rmpp_mad_t * const p_rmpp_mad)
 * SYNOPSIS
 */
 #define IB_SMP_DATA_SIZE 64
-#include <complib/cl_packon.h>
 typedef struct _ib_smp {
 	uint8_t base_ver;
 	uint8_t mgmt_class;
@@ -4148,8 +4139,7 @@ typedef struct _ib_smp {
 	uint8_t data[IB_SMP_DATA_SIZE];
 	uint8_t initial_path[IB_SUBNET_PATH_HOPS_MAX];
 	uint8_t return_path[IB_SUBNET_PATH_HOPS_MAX];
-} PACK_SUFFIX ib_smp_t;
-#include <complib/cl_packoff.h>
+} ib_smp_t;
 /*
 * FIELDS
 *	base_ver
@@ -4587,14 +4577,12 @@ ib_node_info_get_vendor_id(IN const ib_node_info_t * const p_ni)
 
 #define IB_NODE_DESCRIPTION_SIZE 64
 
-#include <complib/cl_packon.h>
 typedef struct _ib_node_desc {
 	// Node String is an array of UTF-8 characters
 	// that describe the node in text format
 	// Note that this string is NOT NULL TERMINATED!
 	uint8_t description[IB_NODE_DESCRIPTION_SIZE];
-} PACK_SUFFIX ib_node_desc_t;
-#include <complib/cl_packoff.h>
+} ib_node_desc_t;
 
 #include <complib/cl_packon.h>
 typedef struct _ib_node_record_t {
@@ -4615,7 +4603,6 @@ typedef struct _ib_node_record_t {
 *
 * SYNOPSIS
 */
-#include <complib/cl_packon.h>
 typedef struct _ib_port_info {
 	ib_net64_t m_key;
 	ib_net64_t subnet_prefix;
@@ -4652,8 +4639,7 @@ typedef struct _ib_port_info {
 	ib_net16_t capability_mask2;
 	uint8_t link_speed_ext;	/* LinkSpeedExtActive and LinkSpeedExtSupported */
 	uint8_t link_speed_ext_enabled; /* reserv(3b), LinkSpeedExtEnabled(5b) */
-} PACK_SUFFIX ib_port_info_t;
-#include <complib/cl_packoff.h>
+} ib_port_info_t;
 /************/
 
 #define IB_PORT_STATE_MASK			0x0F
@@ -4726,7 +4712,6 @@ typedef struct _ib_port_info {
 *
 * SYNOPSIS
 */
-#include <complib/cl_packon.h>
 typedef struct _ib_port_info_ext {
 	ib_net32_t cap_mask;
 	ib_net16_t fec_mode_active;
@@ -4737,8 +4722,7 @@ typedef struct _ib_port_info_ext {
 	ib_net16_t hdr_fec_mode_sup;
 	ib_net16_t hdr_fec_mode_enable;
 	uint8_t reserved[46];
-} PACK_SUFFIX ib_port_info_ext_t;
-#include <complib/cl_packoff.h>
+} ib_port_info_ext_t;
 /************/
 
 #define IB_PORT_EXT_NO_FEC_MODE_ACTIVE		    0
@@ -6563,7 +6547,6 @@ static inline uint8_t OSM_API ib_get_highest_link_width(IN const uint8_t widths)
 *
 * SYNOPSIS
 */
-#include <complib/cl_packon.h>
 typedef struct _ib_mlnx_ext_port_info {
 	uint8_t resvd1[3];
 	uint8_t state_change_enable;
@@ -6574,13 +6557,11 @@ typedef struct _ib_mlnx_ext_port_info {
 	uint8_t resvd4[3];
 	uint8_t link_speed_active;
 	uint8_t resvd5[48];
-} PACK_SUFFIX ib_mlnx_ext_port_info_t;
-#include <complib/cl_packoff.h>
+} ib_mlnx_ext_port_info_t;
 /************/
 
 typedef uint8_t ib_svc_name_t[64];
 
-#include <complib/cl_packon.h>
 typedef struct _ib_service_record {
 	ib_net64_t service_id;
 	ib_gid_t service_gid;
@@ -6593,8 +6574,7 @@ typedef struct _ib_service_record {
 	ib_net16_t service_data16[8];
 	ib_net32_t service_data32[4];
 	ib_net64_t service_data64[2];
-} PACK_SUFFIX ib_service_record_t;
-#include <complib/cl_packoff.h>
+} ib_service_record_t;
 
 #include <complib/cl_packon.h>
 typedef struct _ib_portinfo_record {
@@ -6606,24 +6586,20 @@ typedef struct _ib_portinfo_record {
 } PACK_SUFFIX ib_portinfo_record_t;
 #include <complib/cl_packoff.h>
 
-#include <complib/cl_packon.h>
 typedef struct _ib_portinfoext_record {
 	ib_net16_t lid;
 	uint8_t port_num;
 	uint8_t options;
 	ib_port_info_ext_t port_info_ext;
-} PACK_SUFFIX ib_portinfoext_record_t;
-#include <complib/cl_packoff.h>
+} ib_portinfoext_record_t;
 
-#include <complib/cl_packon.h>
 typedef struct _ib_link_record {
 	ib_net16_t from_lid;
 	uint8_t from_port_num;
 	uint8_t to_port_num;
 	ib_net16_t to_lid;
 	uint8_t pad[2];
-} PACK_SUFFIX ib_link_record_t;
-#include <complib/cl_packoff.h>
+} ib_link_record_t;
 
 #include <complib/cl_packon.h>
 typedef struct _ib_sminfo_record {
@@ -6643,14 +6619,12 @@ typedef struct _ib_sminfo_record {
 *
 * SYNOPSIS
 */
-#include <complib/cl_packon.h>
 typedef struct _ib_lft_record {
 	ib_net16_t lid;
 	ib_net16_t block_num;
 	uint32_t resv0;
 	uint8_t lft[64];
-} PACK_SUFFIX ib_lft_record_t;
-#include <complib/cl_packoff.h>
+} ib_lft_record_t;
 /************/
 
 /****s* IBA Base: Types/ib_mft_record_t
@@ -6662,14 +6636,12 @@ typedef struct _ib_lft_record {
 *
 * SYNOPSIS
 */
-#include <complib/cl_packon.h>
 typedef struct _ib_mft_record {
 	ib_net16_t lid;
 	ib_net16_t position_block_num;
 	uint32_t resv0;
 	ib_net16_t mft[IB_MCAST_BLOCK_SIZE];
-} PACK_SUFFIX ib_mft_record_t;
-#include <complib/cl_packoff.h>
+} ib_mft_record_t;
 /************/
 
 /****s* IBA Base: Types/ib_switch_info_t
@@ -6681,7 +6653,6 @@ typedef struct _ib_mft_record {
 *
 * SYNOPSIS
 */
-#include <complib/cl_packon.h>
 typedef struct _ib_switch_info {
 	ib_net16_t lin_cap;
 	ib_net16_t rand_cap;
@@ -6696,17 +6667,14 @@ typedef struct _ib_switch_info {
 	uint8_t flags;
 	uint8_t resvd;
 	ib_net16_t mcast_top;
-} PACK_SUFFIX ib_switch_info_t;
-#include <complib/cl_packoff.h>
+} ib_switch_info_t;
 /************/
 
-#include <complib/cl_packon.h>
 typedef struct _ib_switch_info_record {
 	ib_net16_t lid;
 	uint16_t resv0;
 	ib_switch_info_t switch_info;
-} PACK_SUFFIX ib_switch_info_record_t;
-#include <complib/cl_packoff.h>
+} ib_switch_info_record_t;
 
 #define IB_SWITCH_PSC 0x04
 
@@ -6895,26 +6863,21 @@ ib_switch_info_is_enhanced_port0(IN const ib_switch_info_t * const p_si)
 */
 #define	GUID_TABLE_MAX_ENTRIES		8
 
-#include <complib/cl_packon.h>
 typedef struct _ib_guid_info {
 	ib_net64_t guid[GUID_TABLE_MAX_ENTRIES];
-} PACK_SUFFIX ib_guid_info_t;
-#include <complib/cl_packoff.h>
+} ib_guid_info_t;
 /************/
 
-#include <complib/cl_packon.h>
 typedef struct _ib_guidinfo_record {
 	ib_net16_t lid;
 	uint8_t block_num;
 	uint8_t resv;
 	uint32_t reserved;
 	ib_guid_info_t guid_info;
-} PACK_SUFFIX ib_guidinfo_record_t;
-#include <complib/cl_packoff.h>
+} ib_guidinfo_record_t;
 
 #define IB_MULTIPATH_MAX_GIDS 11	/* Support max that can fit into first MAD (for now) */
 
-#include <complib/cl_packon.h>
 typedef struct _ib_multipath_rec_t {
 	ib_net32_t hop_flow_raw;
 	uint8_t tclass;
@@ -6930,8 +6893,7 @@ typedef struct _ib_multipath_rec_t {
 	uint8_t dgid_count;
 	uint8_t service_id_56lsb[7];
 	ib_gid_t gids[IB_MULTIPATH_MAX_GIDS];
-} PACK_SUFFIX ib_multipath_rec_t;
-#include <complib/cl_packoff.h>
+} ib_multipath_rec_t;
 /*
 * FIELDS
 *       hop_flow_raw
@@ -7391,11 +7353,9 @@ ib_multipath_rec_service_id(IN const ib_multipath_rec_t * const p_rec)
 * SYNOPSIS
 */
 
-#include <complib/cl_packon.h>
 typedef struct _ib_pkey_table {
 	ib_net16_t pkey_entry[IB_NUM_PKEY_ELEMENTS_IN_BLOCK];
-} PACK_SUFFIX ib_pkey_table_t;
-#include <complib/cl_packoff.h>
+} ib_pkey_table_t;
 /************/
 
 /****s* IBA Base: Types/ib_pkey_table_record_t
@@ -7407,7 +7367,6 @@ typedef struct _ib_pkey_table {
 *
 * SYNOPSIS
 */
-#include <complib/cl_packon.h>
 typedef struct _ib_pkey_table_record {
 	ib_net16_t lid;		// for CA: lid of port, for switch lid of port 0
 	ib_net16_t block_num;
@@ -7415,8 +7374,7 @@ typedef struct _ib_pkey_table_record {
 	uint8_t reserved1;
 	uint16_t reserved2;
 	ib_pkey_table_t pkey_tbl;
-} PACK_SUFFIX ib_pkey_table_record_t;
-#include <complib/cl_packoff.h>
+} ib_pkey_table_record_t;
 /************/
 
 #define IB_DROP_VL 15
@@ -7430,11 +7388,9 @@ typedef struct _ib_pkey_table_record {
 *
 * SYNOPSIS
 */
-#include <complib/cl_packon.h>
 typedef struct _ib_slvl_table {
 	uint8_t raw_vl_by_sl[IB_MAX_NUM_VLS / 2];
-} PACK_SUFFIX ib_slvl_table_t;
-#include <complib/cl_packoff.h>
+} ib_slvl_table_t;
 /************/
 
 /****s* IBA Base: Types/ib_slvl_table_record_t
@@ -7446,15 +7402,13 @@ typedef struct _ib_slvl_table {
 *
 * SYNOPSIS
 */
-#include <complib/cl_packon.h>
 typedef struct _ib_slvl_table_record {
 	ib_net16_t lid;		// for CA: lid of port, for switch lid of port 0
 	uint8_t in_port_num;	// reserved for CAs
 	uint8_t out_port_num;	// reserved for CAs
 	uint32_t resv;
 	ib_slvl_table_t slvl_tbl;
-} PACK_SUFFIX ib_slvl_table_record_t;
-#include <complib/cl_packoff.h>
+} ib_slvl_table_record_t;
 /************/
 
 /****f* IBA Base: Types/ib_slvl_table_set
@@ -7553,12 +7507,10 @@ ib_slvl_table_get(IN const ib_slvl_table_t * p_slvl_tbl, IN uint8_t sl_index)
 *
 * SYNOPSIS
 */
-#include <complib/cl_packon.h>
 typedef struct _ib_vl_arb_element {
 	uint8_t vl;
 	uint8_t weight;
-} PACK_SUFFIX ib_vl_arb_element_t;
-#include <complib/cl_packoff.h>
+} ib_vl_arb_element_t;
 /************/
 
 #define IB_NUM_VL_ARB_ELEMENTS_IN_BLOCK 32
@@ -7572,11 +7524,9 @@ typedef struct _ib_vl_arb_element {
 *
 * SYNOPSIS
 */
-#include <complib/cl_packon.h>
 typedef struct _ib_vl_arb_table {
 	ib_vl_arb_element_t vl_entry[IB_NUM_VL_ARB_ELEMENTS_IN_BLOCK];
-} PACK_SUFFIX ib_vl_arb_table_t;
-#include <complib/cl_packoff.h>
+} ib_vl_arb_table_t;
 /************/
 
 /****s* IBA Base: Types/ib_vl_arb_table_record_t
@@ -7588,21 +7538,18 @@ typedef struct _ib_vl_arb_table {
 *
 * SYNOPSIS
 */
-#include <complib/cl_packon.h>
 typedef struct _ib_vl_arb_table_record {
 	ib_net16_t lid;		// for CA: lid of port, for switch lid of port 0
 	uint8_t port_num;
 	uint8_t block_num;
 	uint32_t reserved;
 	ib_vl_arb_table_t vl_arb_tbl;
-} PACK_SUFFIX ib_vl_arb_table_record_t;
-#include <complib/cl_packoff.h>
+} ib_vl_arb_table_record_t;
 /************/
 
 /*
  *	Global route header information received with unreliable datagram messages
  */
-#include <complib/cl_packon.h>
 typedef struct _ib_grh {
 	ib_net32_t ver_class_flow;
 	ib_net16_t resv1;
@@ -7610,8 +7557,7 @@ typedef struct _ib_grh {
 	uint8_t hop_limit;
 	ib_gid_t src_gid;
 	ib_gid_t dest_gid;
-} PACK_SUFFIX ib_grh_t;
-#include <complib/cl_packoff.h>
+} ib_grh_t;
 
 /****f* IBA Base: Types/ib_grh_get_ver_class_flow
 * NAME
@@ -7719,7 +7665,6 @@ ib_grh_set_ver_class_flow(IN const uint8_t ver,
 *
 * SYNOPSIS
 */
-#include <complib/cl_packon.h>
 typedef struct _ib_member_rec {
 	ib_gid_t mgid;
 	ib_gid_t port_gid;
@@ -7735,8 +7680,7 @@ typedef struct _ib_member_rec {
 	uint8_t proxy_join:1;
 	uint8_t reserved[2];
 	uint8_t pad[4];
-} PACK_SUFFIX ib_member_rec_t;
-#include <complib/cl_packoff.h>
+} ib_member_rec_t;
 /*
 * FIELDS
 *	mgid
@@ -8599,14 +8543,12 @@ typedef struct _ib_inform_info_record {
 *
 * SYNOPSIS
 */
-#include <complib/cl_packon.h>
 typedef struct _ib_perfmgt_mad {
 	ib_mad_t header;
 	uint8_t resv[40];
 #define	IB_PM_DATA_SIZE		192
 	uint8_t data[IB_PM_DATA_SIZE];
-} PACK_SUFFIX ib_perfmgt_mad_t;
-#include <complib/cl_packoff.h>
+} ib_perfmgt_mad_t;
 /*
 * FIELDS
 *	header
@@ -8632,7 +8574,6 @@ typedef struct _ib_perfmgt_mad {
 *
 * SYNOPSIS
 */
-#include <complib/cl_packon.h>
 typedef struct _ib_port_counters {
 	uint8_t reserved;
 	uint8_t port_select;
@@ -8655,8 +8596,7 @@ typedef struct _ib_port_counters {
 	ib_net32_t xmit_pkts;
 	ib_net32_t rcv_pkts;
 	ib_net32_t xmit_wait;
-} PACK_SUFFIX ib_port_counters_t;
-#include <complib/cl_packoff.h>
+} ib_port_counters_t;
 
 #define PC_LINK_INT(integ_buf_over) ((integ_buf_over & 0xF0) >> 4)
 #define PC_BUF_OVERRUN(integ_buf_over) (integ_buf_over & 0x0F)
@@ -8670,7 +8610,6 @@ typedef struct _ib_port_counters {
 *
 * SYNOPSIS
 */
-#include <complib/cl_packon.h>
 typedef struct _ib_port_counters_ext {
 	uint8_t reserved;
 	uint8_t port_select;
@@ -8698,8 +8637,7 @@ typedef struct _ib_port_counters_ext {
 	ib_net64_t vl15_dropped;
 	ib_net64_t xmit_wait;
 	ib_net64_t qp1_dropped;
-} PACK_SUFFIX ib_port_counters_ext_t;
-#include <complib/cl_packoff.h>
+} ib_port_counters_ext_t;
 
 /****s* IBA Base: Types/ib_port_samples_control
 * NAME
@@ -8767,7 +8705,6 @@ typedef struct _ib_port_samples_control {
 *
 * SYNOPSIS
 */
-#include <complib/cl_packon.h>
 typedef struct _ib_port_samples_result {
 	ib_net16_t tag;
 	ib_net16_t sample_status;	/* 14 bits res : 2 bits sample_status */
@@ -8786,8 +8723,7 @@ typedef struct _ib_port_samples_result {
 	ib_net32_t counter12;
 	ib_net32_t counter13;
 	ib_net32_t counter14;
-} PACK_SUFFIX ib_port_samples_result_t;
-#include <complib/cl_packoff.h>
+} ib_port_samples_result_t;
 
 /****s* IBA Base: Types/ib_port_xmit_data_sl
 * NAME
@@ -8798,15 +8734,13 @@ typedef struct _ib_port_samples_result {
 *
 * SYNOPSIS
 */
-#include <complib/cl_packon.h>
 typedef struct _ib_port_xmit_data_sl {
 	uint8_t reserved;
 	uint8_t port_select;
 	ib_net16_t counter_select;
 	ib_net32_t port_xmit_data_sl[16];
 	uint8_t resv[124];
-} PACK_SUFFIX ib_port_xmit_data_sl_t;
-#include <complib/cl_packoff.h>
+} ib_port_xmit_data_sl_t;
 
 /****s* IBA Base: Types/ib_port_rcv_data_sl
 * NAME
@@ -8817,15 +8751,13 @@ typedef struct _ib_port_xmit_data_sl {
 *
 * SYNOPSIS
 */
-#include <complib/cl_packon.h>
 typedef struct _ib_port_rcv_data_sl {
 	uint8_t reserved;
 	uint8_t port_select;
 	ib_net16_t counter_select;
 	ib_net32_t port_rcv_data_sl[16];
 	uint8_t resv[124];
-} PACK_SUFFIX ib_port_rcv_data_sl_t;
-#include <complib/cl_packoff.h>
+} ib_port_rcv_data_sl_t;
 
 /****d* IBA Base: Types/DM_SVC_NAME
 * NAME
@@ -8850,14 +8782,12 @@ typedef struct _ib_port_rcv_data_sl {
 *
 * SYNOPSIS
 */
-#include <complib/cl_packon.h>
 typedef struct _ib_dm_mad {
 	ib_mad_t header;
 	uint8_t resv[40];
 #define	IB_DM_DATA_SIZE		192
 	uint8_t data[IB_DM_DATA_SIZE];
-} PACK_SUFFIX ib_dm_mad_t;
-#include <complib/cl_packoff.h>
+} ib_dm_mad_t;
 /*
 * FIELDS
 *	header
@@ -8883,7 +8813,6 @@ typedef struct _ib_dm_mad {
 *
 * SYNOPSIS
 */
-#include <complib/cl_packon.h>
 typedef struct _ib_iou_info {
 	ib_net16_t change_id;
 	uint8_t max_controllers;
@@ -8894,8 +8823,7 @@ typedef struct _ib_iou_info {
 #define	IOC_INSTALLED			0x1
 //              Reserved values                         0x02-0xE
 #define	SLOT_DOES_NOT_EXIST		0xF
-} PACK_SUFFIX ib_iou_info_t;
-#include <complib/cl_packoff.h>
+} ib_iou_info_t;
 /*
 * FIELDS
 *	change_id
@@ -9023,7 +8951,6 @@ ioc_at_slot(IN const ib_iou_info_t * const p_iou_info, IN uint8_t slot)
 *
 * SYNOPSIS
 */
-#include <complib/cl_packon.h>
 typedef struct _ib_ioc_profile {
 	ib_net64_t ioc_guid;
 	ib_net32_t vend_id;
@@ -9057,8 +8984,7 @@ typedef struct _ib_ioc_profile {
 	uint8_t resv6[9];
 #define	CTRL_ID_STRING_LEN	64
 	char id_string[CTRL_ID_STRING_LEN];
-} PACK_SUFFIX ib_ioc_profile_t;
-#include <complib/cl_packoff.h>
+} ib_ioc_profile_t;
 /*
 * FIELDS
 *	ioc_guid
@@ -9142,13 +9068,11 @@ ib_ioc_profile_set_vend_id(IN ib_ioc_profile_t * const p_ioc_profile,
 *
 * SYNOPSIS
 */
-#include <complib/cl_packon.h>
 typedef struct _ib_svc_entry {
 #define	MAX_SVC_ENTRY_NAME_LEN		40
 	char name[MAX_SVC_ENTRY_NAME_LEN];
 	ib_net64_t id;
-} PACK_SUFFIX ib_svc_entry_t;
-#include <complib/cl_packoff.h>
+} ib_svc_entry_t;
 /*
 * FIELDS
 *	name
@@ -9170,12 +9094,10 @@ typedef struct _ib_svc_entry {
 *
 * SYNOPSIS
 */
-#include <complib/cl_packon.h>
 typedef struct _ib_svc_entries {
 #define	SVC_ENTRY_COUNT			4
 	ib_svc_entry_t service_entry[SVC_ENTRY_COUNT];
-} PACK_SUFFIX ib_svc_entries_t;
-#include <complib/cl_packoff.h>
+} ib_svc_entries_t;
 /*
 * FIELDS
 *	service_entry
@@ -9203,7 +9125,6 @@ ib_dm_get_slot_lo_hi(IN const ib_net32_t slot_lo_hi,
 /*
  *	IBA defined information describing an I/O controller
  */
-#include <complib/cl_packon.h>
 typedef struct _ib_ioc_info {
 	ib_net64_t module_guid;
 	ib_net64_t iou_guid;
@@ -9211,8 +9132,7 @@ typedef struct _ib_ioc_info {
 	ib_net64_t access_key;
 	uint16_t initiators_conf;
 	uint8_t resv[38];
-} PACK_SUFFIX ib_ioc_info_t;
-#include <complib/cl_packoff.h>
+} ib_ioc_info_t;
 
 /*
  *	The following definitions are shared between the Access Layer and VPD
@@ -11569,14 +11489,12 @@ typedef struct _ib_ci_op {
 #define IB_CC_MAD_HDR_SIZE (sizeof(ib_sa_mad_t) - IB_CC_LOG_DATA_SIZE \
 						- IB_CC_MGT_DATA_SIZE)
 
-#include <complib/cl_packon.h>
 typedef struct _ib_cc_mad {
 	ib_mad_t header;
 	ib_net64_t cc_key;
 	uint8_t log_data[IB_CC_LOG_DATA_SIZE];
 	uint8_t mgt_data[IB_CC_MGT_DATA_SIZE];
-} PACK_SUFFIX ib_cc_mad_t;
-#include <complib/cl_packoff.h>
+} ib_cc_mad_t;
 /*
 * FIELDS
 *	header
@@ -11688,13 +11606,11 @@ ib_cc_mad_get_mgt_data_ptr(IN const ib_cc_mad_t * const p_cc_mad)
 *
 * SYNOPSIS
 */
-#include <complib/cl_packon.h>
 typedef struct _ib_cong_info {
 	uint8_t cong_info;
 	uint8_t resv;
 	uint8_t ctrl_table_cap;
-} PACK_SUFFIX ib_cong_info_t;
-#include <complib/cl_packoff.h>
+} ib_cong_info_t;
 /*
 * FIELDS
 *	cong_info
@@ -11751,14 +11667,12 @@ typedef struct _ib_cong_key_info {
 *
 * SYNOPSIS
 */
-#include <complib/cl_packon.h>
 typedef struct _ib_cong_log_event_sw {
 	ib_net16_t slid;
 	ib_net16_t dlid;
 	ib_net32_t sl;
 	ib_net32_t time_stamp;
-} PACK_SUFFIX ib_cong_log_event_sw_t;
-#include <complib/cl_packoff.h>
+} ib_cong_log_event_sw_t;
 /*
 * FIELDS
 *	slid
@@ -11787,15 +11701,13 @@ typedef struct _ib_cong_log_event_sw {
 *
 * SYNOPSIS
 */
-#include <complib/cl_packon.h>
 typedef struct _ib_cong_log_event_ca {
 	ib_net32_t local_qp_resv0;
 	ib_net32_t remote_qp_sl_service_type;
 	ib_net16_t remote_lid;
 	ib_net16_t resv1;
 	ib_net32_t time_stamp;
-} PACK_SUFFIX ib_cong_log_event_ca_t;
-#include <complib/cl_packoff.h>
+} ib_cong_log_event_ca_t;
 /*
 * FIELDS
 *	resv0_local_qp
@@ -11895,7 +11807,6 @@ typedef struct _ib_cong_log {
 * SYNOPSIS
 */
 #define IB_CC_PORT_MASK_DATA_SIZE 32
-#include <complib/cl_packon.h>
 typedef struct _ib_sw_cong_setting {
 	ib_net32_t control_map;
 	uint8_t victim_mask[IB_CC_PORT_MASK_DATA_SIZE];
@@ -11905,8 +11816,7 @@ typedef struct _ib_sw_cong_setting {
 	ib_net16_t cs_threshold_resv;
 	ib_net16_t cs_return_delay;
 	ib_net16_t marking_rate;
-} PACK_SUFFIX ib_sw_cong_setting_t;
-#include <complib/cl_packoff.h>
+} ib_sw_cong_setting_t;
 /*
 * FIELDS
 *
@@ -11960,13 +11870,11 @@ typedef struct _ib_sw_cong_setting {
 *
 * SYNOPSIS
 */
-#include <complib/cl_packon.h>
 typedef struct _ib_sw_port_cong_setting_element {
 	uint8_t valid_ctrl_type_res_threshold;
 	uint8_t packet_size;
 	ib_net16_t cong_param;
-} PACK_SUFFIX ib_sw_port_cong_setting_element_t;
-#include <complib/cl_packoff.h>
+} ib_sw_port_cong_setting_element_t;
 /*
 * FIELDS
 *
@@ -12023,11 +11931,9 @@ typedef ib_sw_port_cong_setting_element_t ib_sw_port_cong_setting_block_t[IB_CC_
 * SYNOPSIS
 */
 
-#include <complib/cl_packon.h>
 typedef struct _ib_sw_port_cong_setting {
 	ib_sw_port_cong_setting_block_t block;
-} PACK_SUFFIX ib_sw_port_cong_setting_t;
-#include <complib/cl_packoff.h>
+} ib_sw_port_cong_setting_t;
 /*
 * FIELDS
 *
@@ -12047,7 +11953,6 @@ typedef struct _ib_sw_port_cong_setting {
 *
 * SYNOPSIS
 */
-#include <complib/cl_packon.h>
 typedef struct _ib_ca_cong_entry {
 	ib_net16_t ccti_timer;
 	uint8_t ccti_increase;
@@ -12055,8 +11960,7 @@ typedef struct _ib_ca_cong_entry {
 	uint8_t ccti_min;
 	uint8_t resv0;
 	ib_net16_t resv1;
-} PACK_SUFFIX ib_ca_cong_entry_t;
-#include <complib/cl_packoff.h>
+} ib_ca_cong_entry_t;
 /*
 * FIELDS
 *
@@ -12089,13 +11993,11 @@ typedef struct _ib_ca_cong_entry {
 * SYNOPSIS
 */
 #define IB_CA_CONG_ENTRY_DATA_SIZE 16
-#include <complib/cl_packon.h>
 typedef struct _ib_ca_cong_setting {
 	ib_net16_t port_control;
 	ib_net16_t control_map;
 	ib_ca_cong_entry_t entry_list[IB_CA_CONG_ENTRY_DATA_SIZE];
-} PACK_SUFFIX ib_ca_cong_setting_t;
-#include <complib/cl_packoff.h>
+} ib_ca_cong_setting_t;
 /*
 * FIELDS
 *
@@ -12125,11 +12027,9 @@ typedef struct _ib_ca_cong_setting {
 *
 * SYNOPSIS
 */
-#include <complib/cl_packon.h>
 typedef struct _ib_cc_tbl_entry {
 	ib_net16_t shift_multiplier;
-} PACK_SUFFIX ib_cc_tbl_entry_t;
-#include <complib/cl_packoff.h>
+} ib_cc_tbl_entry_t;
 /*
 * FIELDS
 *
@@ -12153,13 +12053,11 @@ typedef struct _ib_cc_tbl_entry {
 * SYNOPSIS
 */
 #define IB_CC_TBL_ENTRY_LIST_MAX 64
-#include <complib/cl_packon.h>
 typedef struct _ib_cc_tbl {
 	ib_net16_t ccti_limit;
 	ib_net16_t resv;
 	ib_cc_tbl_entry_t entry_list[IB_CC_TBL_ENTRY_LIST_MAX];
-} PACK_SUFFIX ib_cc_tbl_t;
-#include <complib/cl_packoff.h>
+} ib_cc_tbl_t;
 /*
 * FIELDS
 *
@@ -12182,11 +12080,9 @@ typedef struct _ib_cc_tbl {
 *
 * SOURCE
 */
-#include <complib/cl_packon.h>
 typedef struct _ib_time_stamp {
 	ib_net32_t value;
-} PACK_SUFFIX ib_time_stamp_t;
-#include <complib/cl_packoff.h>
+} ib_time_stamp_t;
 /*
 * FIELDS
 *
