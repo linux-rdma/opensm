@@ -65,45 +65,50 @@
 #include <opensm/osm_event_plugin.h>
 #include <opensm/osm_congestion_control.h>
 
-extern int osm_ucast_minhop_setup(
-	struct osm_routing_engine *re, osm_opensm_t *osm);
+/** =========================================================================
+ * built-in routing engine setup functions
+ */
+extern int osm_ucast_minhop_setup(struct osm_routing_engine *, osm_opensm_t *);
+extern int osm_ucast_updn_setup(struct osm_routing_engine *, osm_opensm_t *);
+extern int osm_ucast_dnup_setup(struct osm_routing_engine *, osm_opensm_t *);
+extern int osm_ucast_file_setup(struct osm_routing_engine *, osm_opensm_t *);
+extern int osm_ucast_ftree_setup(struct osm_routing_engine *, osm_opensm_t *);
+extern int osm_ucast_lash_setup(struct osm_routing_engine *, osm_opensm_t *);
+extern int osm_ucast_dor_setup(struct osm_routing_engine *, osm_opensm_t *);
+extern int osm_ucast_torus2QoS_setup(struct osm_routing_engine *, osm_opensm_t *);
+extern int osm_ucast_nue_setup(struct osm_routing_engine *, osm_opensm_t *);
+extern int osm_ucast_sssp_setup(struct osm_routing_engine *, osm_opensm_t *);
+extern int osm_ucast_dfsssp_setup(struct osm_routing_engine *, osm_opensm_t *);
 
-extern int osm_ucast_updn_setup(
-	struct osm_routing_engine *re, osm_opensm_t *osm);
+/** =========================================================================
+ * Local types
+ */
 
-extern int osm_ucast_dnup_setup(
-	struct osm_routing_engine *re, osm_opensm_t *osm);
+typedef struct builtin_routing_engine_module {
+	const char *name;
+	osm_routing_engine_type_t type;
+	int (*setup)(struct osm_routing_engine *re, struct osm_opensm *osm);
+} builtin_routing_engine_module_t;
 
-extern int osm_ucast_file_setup(
-	struct osm_routing_engine *re, osm_opensm_t *osm);
+typedef struct routing_engine_module {
+	char *name;
+	osm_routing_engine_type_t type;
+	int (*setup)(struct osm_routing_engine *re, struct osm_opensm *osm);
+	void *context;
+} routing_engine_module_t;
 
-extern int osm_ucast_ftree_setup(
-	struct osm_routing_engine *re, osm_opensm_t *osm);
 
-extern int osm_ucast_lash_setup(
-	struct osm_routing_engine *re, osm_opensm_t *osm);
-
-extern int osm_ucast_dor_setup(
-	struct osm_routing_engine *re, osm_opensm_t *osm);
-
-extern int osm_ucast_torus2QoS_setup(
-	struct osm_routing_engine *re, osm_opensm_t *osm);
-
-extern int osm_ucast_nue_setup(
-	struct osm_routing_engine *re, osm_opensm_t *osm);
-
-extern int osm_ucast_sssp_setup(
-	struct osm_routing_engine *re, osm_opensm_t *osm);
-
-extern int osm_ucast_dfsssp_setup(
-	struct osm_routing_engine *re, osm_opensm_t *osm);
+/** =========================================================================
+ * Local variables
+ */
+static const char * unknown_routing_engine_name = "unknown";
 
 static cl_list_t routing_modules;
 
-static osm_routing_engine_type_t last_routing_engine_type =
+static osm_routing_engine_type_t last_external_routing_engine_type =
 	OSM_ROUTING_ENGINE_TYPE_EXTERNAL;
 
-static routing_engine_module_t static_routing_modules[] = {
+static builtin_routing_engine_module_t static_routing_modules[] = {
 	{
 		"none",
 		OSM_ROUTING_ENGINE_TYPE_NONE,
@@ -169,12 +174,6 @@ static routing_engine_module_t static_routing_modules[] = {
 /** =========================================================================
  * Forward declarations
  */
-struct routing_engine_module_ {
-	char *name;
-	osm_routing_engine_type_t type;
-	int (*setup)(struct osm_routing_engine *re, struct osm_opensm *osm);
-	void *context;
-};
 
 static cl_status_t _match_routing_engine_type(
 	IN const void *const p_object, IN void *context);
@@ -197,69 +196,115 @@ static void dump_routing_engines(
 static void setup_routing_engines(
 	osm_opensm_t *osm, const char *engine_names);
 
+static cl_status_t register_builtin_routing_engine(
+	IN osm_opensm_t *osm,
+	IN OUT builtin_routing_engine_module_t *module);
+
+static cl_status_t register_routing_engine(
+	IN osm_opensm_t *osm,
+	IN OUT routing_engine_module_t *module);
+
 static void destroy_routing_engines(
 	osm_opensm_t *osm);
 
+static void __free_routing_module(
+	void *p_object, void *context);
+
 /** =========================================================================
  */
-cl_status_t osm_opensm_register_routing_engine(
+
+cl_status_t osm_register_external_routing_engine(
 	IN osm_opensm_t *osm,
-	IN OUT routing_engine_module_t *module,
-	void *context)
+	IN OUT external_routing_engine_module_t *module,
+	IN void *context)
 {
 	cl_status_t status;
-	osm_routing_engine_type_t type;
-	struct routing_engine_module_ *copy;
-	const char *routing_engine_type;
+	routing_engine_module_t * copy = NULL;
 
 	if (!osm || !module)
 		return CL_INVALID_PARAMETER;
 
-	type = osm_routing_engine_type(module->name);
+	OSM_LOG(&osm->log, OSM_LOG_VERBOSE,
+		"Assign type '%d' to external routing engine with name: \'%s\'\n",
+		last_external_routing_engine_type,
+		module->name);
 
-	routing_engine_type = type < OSM_ROUTING_ENGINE_TYPE_EXTERNAL ?
+	copy = (routing_engine_module_t *)
+		malloc(sizeof(routing_engine_module_t));
+	copy->name = strdup(module->name);
+	copy->setup = module->setup;
+	copy->type = last_external_routing_engine_type++;
+	copy->context = context;
+
+	status = register_routing_engine(osm, copy);
+	if (status != CL_SUCCESS) {
+		__free_routing_module(copy, NULL);
+	}
+	return status;
+}
+
+
+cl_status_t register_builtin_routing_engine(
+	IN osm_opensm_t *osm,
+	IN OUT builtin_routing_engine_module_t *module)
+{
+	cl_status_t status;
+	routing_engine_module_t * copy;
+
+	if (!osm || !module)
+		return CL_INVALID_PARAMETER;
+
+	copy = (routing_engine_module_t *)
+		malloc(sizeof(routing_engine_module_t));
+	copy->name = strdup(module->name);
+	copy->setup = module->setup;
+	copy->type = module->type;
+	copy->context = NULL;
+
+	status = register_routing_engine(osm, copy);
+	if (status != CL_SUCCESS) {
+		__free_routing_module(copy, NULL);
+	}
+	return status;
+}
+
+cl_status_t register_routing_engine(
+	IN osm_opensm_t *osm,
+	IN OUT routing_engine_module_t *module)
+{
+	cl_status_t status;
+	osm_routing_engine_type_t type;
+	const char *routing_engine_type;
+
+	routing_engine_type = 
+		module->type < OSM_ROUTING_ENGINE_TYPE_UNKNOWN ?
 		"Built-in routing engine" : "External routing engine";
 
+	type = osm_routing_engine_type(module->name);
 	if (type != OSM_ROUTING_ENGINE_TYPE_UNKNOWN) {
 		OSM_LOG(&osm->log, OSM_LOG_ERROR,
-			"%s with name '%s' was aleady registered with type: '%d'\n",
+			"%s with name \'%s\' was already registered with type: '%d'\n",
 			routing_engine_type,
 			module->name,
-			osm_routing_engine_type(module->name));
+			type);
 		return CL_DUPLICATE;
 	}
 
-	if (strcmp(osm_routing_engine_type_str(module->type), "unknown") != 0) {
+	if (strcmp(osm_routing_engine_type_str(module->type), unknown_routing_engine_name) != 0) {
 		OSM_LOG(&osm->log, OSM_LOG_ERROR,
-			"%s with type '%d' was aleady registered with name: '%s'\n",
+			"%s with type '%d' was already registered with name: \'%s\'\n",
 			routing_engine_type,
 			module->type,
 			osm_routing_engine_type_str(module->type));
 		return CL_DUPLICATE;
 	}
 
-	if (module->type == OSM_ROUTING_ENGINE_TYPE_UNKNOWN) {
-		OSM_LOG(&osm->log, OSM_LOG_VERBOSE,
-			"Assign type '%d' to %s with name: '%s'\n",
-			last_routing_engine_type,
-			routing_engine_type,
-			module->name);
-		module->type = last_routing_engine_type++;
-	}
-
 	OSM_LOG(&osm->log, OSM_LOG_VERBOSE,
-		"Register %s with name: '%s' and type: '%d'\n",
+		"Register %s with name: \'%s\' and type: '%d'\n",
 		routing_engine_type,
 		module->name, module->type);
 
-	copy = (struct routing_engine_module_ *)
-		malloc(sizeof(struct routing_engine_module_));
-	copy->name = strdup(module->name);
-	copy->setup = module->setup;
-	copy->type = module->type;
-	copy->context = context;
-
-	status = cl_list_insert_tail(&routing_modules, copy);
+	status = cl_list_insert_tail(&routing_modules, module);
 	return status;
 }
 
@@ -267,10 +312,10 @@ static cl_status_t _match_routing_engine_type(
 	IN const void *const p_object, IN void *context)
 {
 	osm_routing_engine_type_t type;
-	struct routing_engine_module_ *module;
+	routing_engine_module_t *module;
 
 	type = (osm_routing_engine_type_t) context;
-	module = (struct routing_engine_module_ *) p_object;
+	module = (routing_engine_module_t *) p_object;
 
 	if (module->type == type)
 		return CL_SUCCESS;
@@ -282,27 +327,26 @@ const char *osm_routing_engine_type_str(
 	IN osm_routing_engine_type_t type)
 {
 	cl_list_iterator_t iter;
-	struct routing_engine_module_ *module;
+	routing_engine_module_t *module;
 
 	iter = cl_list_find_from_head(
 		&routing_modules, _match_routing_engine_type, (void *)type);
 
 	if (iter != cl_list_end(&routing_modules)) {
-		module = (struct routing_engine_module_ *) cl_list_obj(iter);
+		module = (routing_engine_module_t *) cl_list_obj(iter);
 		return module->name;
 	}
-
-	return "unknown";
+	return unknown_routing_engine_name;
 }
 
 static cl_status_t _match_routing_engine_str(
 	IN const void *const p_object, IN void *context)
 {
 	const char *name = (char *) context;
-	struct routing_engine_module_ *module;
+	routing_engine_module_t *module;
 
 	name = (char *) context;
-	module = (struct routing_engine_module_ *) p_object;
+	module = (routing_engine_module_t *) p_object;
 
 	/* For legacy reasons, consider a NULL pointer and the string
 	 * "null" as the minhop routing engine.
@@ -319,13 +363,13 @@ static cl_status_t _match_routing_engine_str(
 osm_routing_engine_type_t osm_routing_engine_type(IN const char *str)
 {
 	cl_list_iterator_t iter;
-	struct routing_engine_module_ *module;
+	routing_engine_module_t *module;
 
 	iter = cl_list_find_from_head(
 		&routing_modules, _match_routing_engine_str, (void *)str);
 
 	if (iter != cl_list_end(&routing_modules)) {
-		module = (struct routing_engine_module_ *) cl_list_obj(iter);
+		module = (routing_engine_module_t *) cl_list_obj(iter);
 		return module->type;
 	}
 
@@ -355,7 +399,7 @@ static struct osm_routing_engine *setup_routing_engine(osm_opensm_t *osm,
 						       const char *name)
 {
 	struct osm_routing_engine *re;
-	struct routing_engine_module_ *m;
+	routing_engine_module_t *m;
 	cl_list_iterator_t iter;
 
 	if (!strcmp(name, "no_fallback")) {
@@ -366,7 +410,7 @@ static struct osm_routing_engine *setup_routing_engine(osm_opensm_t *osm,
 	for (iter = cl_list_head(&routing_modules);
 		 iter != cl_list_end(&routing_modules);
 		 iter = cl_list_next(iter)) {
-		m = (struct routing_engine_module_ *)cl_list_obj(iter);
+		m = (routing_engine_module_t *)cl_list_obj(iter);
 		if (!strcmp(m->name, name)) {
 			re = malloc(sizeof(struct osm_routing_engine));
 			if (!re) {
@@ -380,12 +424,13 @@ static struct osm_routing_engine *setup_routing_engine(osm_opensm_t *osm,
 			re->context = m->context;
 
 			OSM_LOG(&osm->log, OSM_LOG_VERBOSE,
-				"setup of routing engine '%s' ...\n", name);
+				"setup of routing engine \'%s\' ...\n", name);
 
 			re->type = osm_routing_engine_type(m->name);
 			if (m->setup(re, osm)) {
 				OSM_LOG(&osm->log, OSM_LOG_VERBOSE,
-					"setup of routing engine '%s' failed\n", name);
+					"setup of routing"
+					" engine \'%s\' failed\n", name);
 				free(re);
 				return NULL;
 			}
@@ -418,7 +463,7 @@ static void setup_routing_engines(osm_opensm_t *osm, const char *engine_names)
 				append_routing_engine(osm, re);
 			else
 				OSM_LOG(&osm->log, OSM_LOG_ERROR,
-					"Failed to setup routing engine '%s'\n", name);
+					"Failed to setup routing engine \'%s\'\n", name);
 			name = strtok_r(NULL, ", \t\n", &p);
 		}
 		free(str);
@@ -431,10 +476,10 @@ static void dump_routing_engine(
 	IN void *const p_object, IN void *context)
 {
 	osm_opensm_t *osm;
-	struct routing_engine_module_ *module;
+	routing_engine_module_t *module;
 
-	osm = (struct osm_opensm_t *) context;
-	module = (struct routing_engine_module_ *) p_object;
+	osm = (osm_opensm_t *) context;
+	module = (routing_engine_module_t *) p_object;
 
 	OSM_LOG(&osm->log, OSM_LOG_VERBOSE,
 		"    name: %s - Type: %d\n",
@@ -456,21 +501,21 @@ void osm_routing_modules_construct(
 	size_t i, len;
 
 	len = sizeof(static_routing_modules) /
-		  sizeof(struct routing_engine_module_);
+		  sizeof(builtin_routing_engine_module_t);
 
 	cl_list_construct(&routing_modules);
 	cl_list_init(&routing_modules, len);
 	for (i = 0; i < len; i++) {
-		osm_opensm_register_routing_engine(
-			p_osm, &(static_routing_modules[i]), NULL);
+		register_builtin_routing_engine(
+			p_osm, &(static_routing_modules[i]));
 	}
 }
 
 static void __free_routing_module(void *p_object, void *context)
 {
-	struct routing_engine_module_ *p_module;
+	routing_engine_module_t *p_module;
 
-	p_module = (struct routing_engine_module_ *) p_object;
+	p_module = (routing_engine_module_t *) p_object;
 	if (p_module) {
 		if (p_module->name)
 			free(p_module->name);
@@ -485,7 +530,7 @@ void osm_routing_modules_destroy(IN osm_opensm_t *p_osm)
 	cl_list_destroy(&routing_modules);
 }
 
-void osm_opensm_construct(IN osm_opensm_t *p_osm)
+void osm_opensm_construct(IN osm_opensm_t * p_osm)
 {
 	memset(p_osm, 0, sizeof(*p_osm));
 	p_osm->osm_version = OSM_VERSION;
@@ -495,7 +540,7 @@ void osm_opensm_construct(IN osm_opensm_t *p_osm)
 	osm_log_construct(&p_osm->log);
 }
 
-void osm_opensm_construct_finish(IN osm_opensm_t *p_osm)
+void osm_opensm_construct_finish(IN osm_opensm_t * p_osm)
 {
 	osm_sm_construct(&p_osm->sm);
 	osm_sa_construct(&p_osm->sa);
@@ -535,14 +580,14 @@ static void destroy_plugins(osm_opensm_t *osm)
 {
 	osm_epi_plugin_t *p;
 	/* remove from the list, and destroy it */
-	while (!cl_is_qlist_empty(&osm->plugin_list)) {
+	while (!cl_is_qlist_empty(&osm->plugin_list)){
 		p = (osm_epi_plugin_t *)cl_qlist_remove_head(&osm->plugin_list);
 		/* plugin is responsible for freeing its own resources */
 		osm_epi_destroy(p);
 	}
 }
 
-void osm_opensm_destroy(IN osm_opensm_t *p_osm)
+void osm_opensm_destroy(IN osm_opensm_t * p_osm)
 {
 	/* in case of shutdown through exit proc - no ^C */
 	osm_exit_flag = TRUE;
@@ -596,7 +641,7 @@ void osm_opensm_destroy(IN osm_opensm_t *p_osm)
 	osm_congestion_control_destroy(&p_osm->cc);
 }
 
-void osm_opensm_destroy_finish(IN osm_opensm_t *p_osm)
+void osm_opensm_destroy_finish(IN osm_opensm_t * p_osm)
 {
 	osm_db_destroy(&p_osm->db);
 	if (p_osm->vl15_constructed && p_osm->mad_pool_constructed)
@@ -643,8 +688,8 @@ static void load_plugins(osm_opensm_t *osm, const char *plugin_names)
 	free(p_names);
 }
 
-ib_api_status_t osm_opensm_init(IN osm_opensm_t *p_osm,
-				IN const osm_subn_opt_t *p_opt)
+ib_api_status_t osm_opensm_init(IN osm_opensm_t * p_osm,
+				IN const osm_subn_opt_t * p_opt)
 {
 	ib_api_status_t status;
 
@@ -727,8 +772,8 @@ Exit:
 	return status;
 }
 
-ib_api_status_t osm_opensm_init_finish(IN osm_opensm_t *p_osm,
-				       IN const osm_subn_opt_t *p_opt)
+ib_api_status_t osm_opensm_init_finish(IN osm_opensm_t * p_osm,
+				       IN const osm_subn_opt_t * p_opt)
 {
 	ib_api_status_t status;
 
@@ -791,7 +836,7 @@ Exit:
 	return status;
 }
 
-ib_api_status_t osm_opensm_bind(IN osm_opensm_t *p_osm, IN ib_net64_t guid)
+ib_api_status_t osm_opensm_bind(IN osm_opensm_t * p_osm, IN ib_net64_t guid)
 {
 	ib_api_status_t status;
 
@@ -829,12 +874,11 @@ void osm_opensm_report_event(osm_opensm_t *osm, osm_epi_event_id_t event_id,
 			     void *event_data)
 {
 	cl_list_item_t *item;
-	osm_epi_plugin_t *p;
 
 	for (item = cl_qlist_head(&osm->plugin_list);
 	     !osm_exit_flag && item != cl_qlist_end(&osm->plugin_list);
 	     item = cl_qlist_next(item)) {
-		p = (osm_epi_plugin_t *)item;
+		osm_epi_plugin_t *p = (osm_epi_plugin_t *)item;
 		if (p->impl->report)
 			p->impl->report(p->plugin_data, event_id, event_data);
 	}

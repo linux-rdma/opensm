@@ -7,6 +7,7 @@ aclocal.m4
 autom4te.cache/
 config.log
 config.status
+config/compile
 config/config.guess
 config/config.sub
 config/depcomp
