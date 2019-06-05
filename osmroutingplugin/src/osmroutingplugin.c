@@ -52,7 +52,8 @@
 #include <opensm/osm_log.h>
 
 /** =========================================================================
- * This is a simple routing engine plugin which implements the routing engine API
+ * This is a simple routing engine plugin
+ * which implements the routing engine API
  */
 
 struct  plugin_t {
@@ -275,11 +276,11 @@ static void plugin_destroy_routing_engine(
  */
 
 #if OSM_EVENT_PLUGIN_INTERFACE_VER != 2
-#error OpenSM plugin interface version missmatch
+#error OpenSM plugin interface version mismatch
 #endif
 
 osm_event_plugin_t osm_event_plugin = {
-      OSM_VERSION,
-      construct,
-      destroy
+	OSM_VERSION,
+	construct,
+	destroy
 };

@@ -101,7 +101,7 @@ typedef struct routing_engine_module {
 /** =========================================================================
  * Local variables
  */
-static const char * unknown_routing_engine_name = "unknown";
+static const char *unknown_routing_engine_name = "unknown";
 
 static cl_list_t routing_modules;
 
@@ -219,7 +219,7 @@ cl_status_t osm_register_external_routing_engine(
 	IN void *context)
 {
 	cl_status_t status;
-	routing_engine_module_t * copy = NULL;
+	routing_engine_module_t *copy = NULL;
 
 	if (!osm || !module)
 		return CL_INVALID_PARAMETER;
@@ -276,7 +276,7 @@ cl_status_t register_routing_engine(
 	osm_routing_engine_type_t type;
 	const char *routing_engine_type;
 
-	routing_engine_type = 
+	routing_engine_type =
 		module->type < OSM_ROUTING_ENGINE_TYPE_UNKNOWN ?
 		"Built-in routing engine" : "External routing engine";
 
