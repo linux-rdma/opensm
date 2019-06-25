@@ -663,7 +663,7 @@ cl_status_t osm_register_external_routing_engine(
  * NOTES
  *
  * SEE ALSO
- *    routing_engine_module_t
+ *    external_routing_engine_module_t
  *********/
 
 /****f* OpenSM: OpenSM/osm_routing_engine_type_str
