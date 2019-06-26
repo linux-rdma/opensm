@@ -210,6 +210,9 @@ static void destroy_routing_engines(
 static void __free_routing_module(
 	void *p_object, void *context);
 
+static const char *routing_engine_type(
+	IN osm_routing_engine_type_t type);
+
 /** =========================================================================
  */
 
@@ -237,19 +240,17 @@ cl_status_t osm_register_external_routing_engine(
 	copy->context = context;
 
 	status = register_routing_engine(osm, copy);
-	if (status != CL_SUCCESS) {
+	if (status != CL_SUCCESS)
 		__free_routing_module(copy, NULL);
-	}
 	return status;
 }
-
 
 cl_status_t register_builtin_routing_engine(
 	IN osm_opensm_t *osm,
 	IN OUT builtin_routing_engine_module_t *module)
 {
 	cl_status_t status;
-	routing_engine_module_t * copy;
+	routing_engine_module_t *copy;
 
 	if (!osm || !module)
 		return CL_INVALID_PARAMETER;
@@ -262,9 +263,8 @@ cl_status_t register_builtin_routing_engine(
 	copy->context = NULL;
 
 	status = register_routing_engine(osm, copy);
-	if (status != CL_SUCCESS) {
+	if (status != CL_SUCCESS)
 		__free_routing_module(copy, NULL);
-	}
 	return status;
 }
 
@@ -273,36 +273,49 @@ cl_status_t register_routing_engine(
 	IN OUT routing_engine_module_t *module)
 {
 	cl_status_t status;
-	osm_routing_engine_type_t type;
-	const char *routing_engine_type;
+	osm_routing_engine_type_t existing_type, new_type;
+	const char *existing_routing_engine_type, *new_routing_engine_type;
+	const char *existing_routing_engine_name, *new_name;
 
-	routing_engine_type =
-		module->type < OSM_ROUTING_ENGINE_TYPE_UNKNOWN ?
-		"Built-in routing engine" : "External routing engine";
+	new_type = module->type;
+	new_name = module->name;
+	new_routing_engine_type = routing_engine_type(new_type);
 
-	type = osm_routing_engine_type(module->name);
-	if (type != OSM_ROUTING_ENGINE_TYPE_UNKNOWN) {
+	/* check if another routine engine has already been registed with the same name */
+	existing_type = osm_routing_engine_type(new_name);
+	existing_routing_engine_type = routing_engine_type(existing_type);
+	existing_routing_engine_name = osm_routing_engine_type_str(existing_type);
+	if (existing_type != OSM_ROUTING_ENGINE_TYPE_UNKNOWN) {
 		OSM_LOG(&osm->log, OSM_LOG_ERROR,
-			"%s with name \'%s\' was already registered with type: '%d'\n",
-			routing_engine_type,
-			module->name,
-			type);
+			"Failed to register %s routing engine with name \'%s\': %s routing engine with name \'%s\' was already registered with type: '%d'\n",
+			new_routing_engine_type,
+			new_name,
+			existing_routing_engine_type,
+			existing_routing_engine_name,
+			existing_type);
 		return CL_DUPLICATE;
 	}
 
-	if (strcmp(osm_routing_engine_type_str(module->type), unknown_routing_engine_name) != 0) {
+	/* check if another routine engine has already been registed with the same type */
+	existing_type = new_type;
+	existing_routing_engine_type = routing_engine_type(existing_type);
+	existing_routing_engine_name = osm_routing_engine_type_str(existing_type);
+	if (strcmp(existing_routing_engine_name, unknown_routing_engine_name) != 0) {
 		OSM_LOG(&osm->log, OSM_LOG_ERROR,
-			"%s with type '%d' was already registered with name: \'%s\'\n",
-			routing_engine_type,
-			module->type,
-			osm_routing_engine_type_str(module->type));
+			"Failed to register %s routing engine with name \'%s\': %s routing engine with type '%d' was already registered with name: \'%s\'\n",
+			new_routing_engine_type,
+			new_name,
+			existing_routing_engine_type,
+			existing_type,
+			existing_routing_engine_name);
 		return CL_DUPLICATE;
 	}
 
 	OSM_LOG(&osm->log, OSM_LOG_VERBOSE,
-		"Register %s with name: \'%s\' and type: '%d'\n",
-		routing_engine_type,
-		module->name, module->type);
+		"Register %s routine engine with name: \'%s\' and type: '%d'\n",
+		new_routing_engine_type,
+		new_name,
+		new_type);
 
 	status = cl_list_insert_tail(&routing_modules, module);
 	return status;
@@ -493,6 +506,12 @@ static void dump_routing_engines(
 		&routing_modules,
 		dump_routing_engine,
 		(void *) osm);
+}
+
+static const char *routing_engine_type(IN osm_routing_engine_type_t type)
+{
+	return type < OSM_ROUTING_ENGINE_TYPE_UNKNOWN ?
+		"built-in" : "external";
 }
 
 void osm_routing_modules_construct(
