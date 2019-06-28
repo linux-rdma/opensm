@@ -51,7 +51,7 @@
 #include <opensm/osm_opensm.h>
 #include <opensm/osm_log.h>
 
-/** =========================================================================
+/*
  * This is a simple routing engine plugin
  * which implements the routing engine API
  */
@@ -60,7 +60,7 @@ struct  plugin_t {
 	osm_opensm_t *osm;
 };
 
-/** =========================================================================
+/*
  * Forward declarations
  */
 static void *construct(osm_opensm_t *osm);
@@ -108,7 +108,7 @@ static int routing_engine_setup(
 	osm_routing_engine_t *engine,
 	osm_opensm_t *osm);
 
-/** =========================================================================
+/*
  * Implement plugin functions
  */
 static void *construct(osm_opensm_t *osm)
@@ -142,8 +142,6 @@ static void *construct(osm_opensm_t *osm)
 	return ((void *)plugin);
 }
 
-/** =========================================================================
- */
 static void destroy(void *context)
 {
 	struct plugin_t *plugin = (struct plugin_t *) context;
@@ -156,7 +154,7 @@ static void destroy(void *context)
 	}
 }
 
-/** =========================================================================
+/*
  * Implement routing engine functions
  */
 int routing_engine_setup(
@@ -271,7 +269,7 @@ static void plugin_destroy_routing_engine(
 		"Destroying plugin routing engine\n");
 }
 
-/** =========================================================================
+/*
  * Define the object symbol for loading
  */
 

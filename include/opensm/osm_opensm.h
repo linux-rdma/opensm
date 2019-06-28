@@ -646,7 +646,7 @@ osm_opensm_wait_for_subnet_up(IN osm_opensm_t * p_osm, IN uint32_t wait_us,
  */
 cl_status_t osm_register_external_routing_engine(
 	IN osm_opensm_t *osm,
-	IN OUT external_routing_engine_module_t *module,
+	IN const external_routing_engine_module_t *module,
 	IN void *context);
 /*
  * PARAMETERS
