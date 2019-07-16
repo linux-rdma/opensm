@@ -1,7 +1,5 @@
 /*
- * Copyright (c) 2013 Mellanox Technologies LTD. All rights reserved.
- * Copyright (c) 2008 Voltaire, Inc. All rights reserved.
- * Copyright (c) 2007 The Regents of the University of California.
+ * Copyright (C) 2019      Fabriscale Technologies AS. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
