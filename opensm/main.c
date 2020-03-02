@@ -247,7 +247,7 @@ static void show_usage(void)
 	       "          If zero disable (default), otherwise use the value as a random seed\n\n");
 	printf("--max_reverse_hops, -H <hop_count>\n"
 	       "          Set the max number of hops the wrong way around\n"
-	       "          an I/O node is allowed to do (connectivity for I/O nodes on top swithces)\n\n");
+	       "          an I/O node is allowed to do (connectivity for I/O nodes on top switches)\n\n");
 	printf("--ids_guid_file, -m <path to file>\n"
 	       "          Name of the map file with set of the IDs which will be used\n"
 	       "          by Up/Down routing algorithm instead of node GUIDs\n"
