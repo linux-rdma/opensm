@@ -10,7 +10,7 @@ Date:    April 2019
 This document describes the contents of the OpenSM 3.3 release.
 OpenSM is an InfiniBand compliant Subnet Manager and Administration,
 and runs on top of OpenIB. The OpenSM version for this release
-is opensm-3.3.22.
+is opensm-3.3.23.
 
 This document includes the following sections:
 1 This Overview section (describing new features and software
@@ -121,6 +121,7 @@ This document includes the following sections:
 
 1.2 Minor New Features:
 
+924f030 Add support for registering an opensm plugin as a new routing engine
 82c3ea6 Add '--subnet_prefix' and '--dump_files_dir' options
 dfc383e osm_port_info_rcv.c: Optimize PKEY sending during heavy sweep
 6abbbcd osm_subnet.c: Add latest Bull device IDs to device white lists
@@ -866,6 +867,15 @@ f37bf3c opensm/perfmgr: skip data counters when only printing errors
 
 4.2 Other Bug Fixes
 
+9b9ea72 Fix spelling mistake of "switches"
+70722b4 ib_types: Drop packed attribute where unnecessary
+9a7cc0d opensm.spec.in: Move COPYING back into doc
+b2f10ec opensm.spec.in: Updated for move to github
+8bf41a5 travis: Add patch check
+2e1bd5e Add travis validatio
+393f665 osm_[port ucast_ftree].c: Remove unused static functions
+3bcefae osm_ucast_ftree.c: Fix clang warning about empty loop
+992687f osm_opensm.c: Fix use of enum as NULL pointer in osm_opensm_init_finish
 1c57b7d libvendor/osm_vendor_ibumad.c: Fix type of array passed to umad_get_ca_portguids in libibumad
 f5c21ce osmtest.c: Remove ununsed osmtest_get_node_rec routine
 e3e49a9 osmtest/main.c: Fix show_usage declaration
