@@ -33,6 +33,7 @@ Makefile.in
 man/opensm.8
 man/torus-2QoS.8
 man/torus-2QoS.conf.5
+opensm@.service
 opensm.spec
 opensm/opensm
 opensm/osm_qos_parser_l.c

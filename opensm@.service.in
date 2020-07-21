@@ -1,0 +1,10 @@
+[Unit]
+Description=Starts the OpenSM InfiniBand fabric Subnet Manager %I
+Documentation=man:opensm(8)
+Before=network.target remote-fs-pre.target
+PartOf=opensm.service
+ConditionPathExists=/sys/class/infiniband_mad/abi_version
+
+[Service]
+Type=simple
+ExecStart=@sbindir@/opensm --guid %I --log_file /var/log/opensm.%I.log

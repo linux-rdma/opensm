@@ -1,0 +1,13 @@
+[Unit]
+Description=Starts the OpenSM InfiniBand fabric Subnet Managers
+Documentation=man:opensm(8)
+Before=network.target remote-fs-pre.target
+ConditionPathExists=/sys/class/infiniband_mad/abi_version
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c 'PORTS=$(/usr/sbin/ibstat -p); if test -z "$PORTS"; then echo "No InfiniBand ports found."; exit 0; fi; echo "Starting opensm on following ports: $PORTS"; systemctl start $(echo $PORTS | sed -r "s/(\\w+)/opensm@\\1.service/g")'
+RemainAfterExit=on
+
+[Install]
+WantedBy=network-online.target

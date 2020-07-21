@@ -19,6 +19,12 @@ docs = doc/performance-manager-HOWTO.txt doc/QoS_management_in_OpenSM.txt \
 	doc/partition-config.txt doc/opensm-sriov.txt \
 	doc/current-routing.txt doc/opensm_release_notes-3.3.txt
 
+systemdunitdir = $(SYSTEMD_UNIT_DIR)
+systemdunit_DATA = opensm.service opensm@.service
+
+opensm@.service: opensm@.service.in
+	sed -e 's,@sbindir\@,$(sbindir),g' $< > $@
+
 EXTRA_DIST = autogen.sh opensm.spec $(various_scripts) $(man_MANS) $(docs)
 
 dist-hook: $(EXTRA_DIST)

@@ -270,6 +270,13 @@ AC_DEFINE_UNQUOTED(HAVE_DEFAULT_PER_MOD_LOGGING_FILE,
         [Define a Per Module Logging config file])
 AC_SUBST(PER_MOD_LOGGING_FILE)
 
+SYSTEMD_UNIT_DIR=`pkg-config systemd --variable=systemdsystemunitdir`
+# Use default if SYSTEMD_DIR is empty
+if test x"$SYSTEMD_UNIT_DIR" = "x"; then
+    SYSTEMD_UNIT_DIR=/lib/systemd/system
+fi
+AC_SUBST([SYSTEMD_UNIT_DIR])
+
 dnl select example event plugin or not
 OPENIB_OSM_DEFAULT_EVENT_PLUGIN_SEL
 
