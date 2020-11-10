@@ -107,6 +107,7 @@ static int link_mgr_set_physp_pi(osm_sm_t * sm, IN osm_physp_t * p_physp,
 	ib_net32_t attr_mod, cap_mask;
 	boolean_t update_mkey = FALSE;
 	ib_net64_t m_key = 0;
+	ib_net16_t capability_mask2;
 	osm_port_t *p_port;
 
 	OSM_LOG_ENTER(sm->p_log);
@@ -196,12 +197,15 @@ static int link_mgr_set_physp_pi(osm_sm_t * sm, IN osm_physp_t * p_physp,
 	p_pi->state_info2 = 0x02;
 	ib_port_info_set_port_state(p_pi, port_state);
 
-	/* Determine ports' M_Key */
+	/* Determine ports' M_Key and CapabilityMask2 */
 	if (osm_node_get_type(p_node) == IB_NODE_TYPE_SWITCH &&
-	    osm_physp_get_port_num(p_physp) != 0)
+	    osm_physp_get_port_num(p_physp) != 0) {
 		m_key = ib_port_info_get_m_key(&physp0->port_info);
-	else
+		capability_mask2 = physp0->port_info.capability_mask2;
+	} else {
 		m_key = ib_port_info_get_m_key(p_pi);
+		capability_mask2 = p_pi->capability_mask2;
+	}
 
 	/* Check whether this is base port0 smsl handling only */
 	if (port_num == 0 && esp0 == FALSE) {
@@ -341,7 +345,7 @@ static int link_mgr_set_physp_pi(osm_sm_t * sm, IN osm_physp_t * p_physp,
 		 */
 		if (sm->p_subn->opt.force_link_width &&
 		    (sm->p_subn->opt.force_link_width < IB_LINK_WIDTH_ACTIVE_2X ||
-		     (p_pi->capability_mask2 &
+		     (capability_mask2 &
 		      IB_PORT_CAP2_IS_LINK_WIDTH_2X_SUPPORTED)) &&
 		    (sm->p_subn->opt.force_link_width != IB_LINK_WIDTH_SET_LWS ||
 		     p_pi->link_width_enabled != p_pi->link_width_supported)) {
