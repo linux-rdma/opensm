@@ -974,12 +974,23 @@ static void mcmr_rcv_leave_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 	ib_member_rec_t *p_recvd_mcmember_rec;
 	ib_member_rec_t mcmember_rec;
 	osm_mcm_alias_guid_t *p_mcm_alias_guid;
+	ib_net64_t prefix;
 
 	OSM_LOG_ENTER(sa->p_log);
 
 	p_sa_mad = osm_madw_get_sa_mad_ptr(p_madw);
 	p_recvd_mcmember_rec =
 	    (ib_member_rec_t *) ib_sa_mad_get_payload_ptr(p_sa_mad);
+
+	if (OSM_LOG_IS_ACTIVE_V2(sa->p_log, OSM_LOG_DEBUG)) {
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Dump of record\n");
+		osm_dump_mc_record_v2(sa->p_log, p_recvd_mcmember_rec, FILE_ID, OSM_LOG_DEBUG);
+	}
+
+	/* Use ports actual subnet prefix */
+	prefix = p_recvd_mcmember_rec->port_gid.unicast.prefix;
+	if (prefix == IB_DEFAULT_SUBNET_PREFIX)
+		p_recvd_mcmember_rec->port_gid.unicast.prefix = sa->p_subn->opt.subnet_prefix;
 
 	mcmember_rec = *p_recvd_mcmember_rec;
 
@@ -1010,8 +1021,6 @@ static void mcmr_rcv_leave_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 				"Requester port GUID 0x%" PRIx64 "\n",
 				cl_ntoh64(osm_physp_get_port_guid(p_req_physp)));
 		}
-		OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Dump of record\n");
-		osm_dump_mc_record_v2(sa->p_log, &mcmember_rec, FILE_ID, OSM_LOG_DEBUG);
 	}
 
 	p_mgrp = osm_get_mgrp_by_mgid(sa->p_subn, &p_recvd_mcmember_rec->mgid);
@@ -1048,6 +1057,8 @@ static void mcmr_rcv_leave_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 			     &mcmember_rec);
 	CL_PLOCK_RELEASE(sa->p_lock);
 
+	/* Return response with same subnet prefix of the request */
+	mcmember_rec.port_gid.unicast.prefix = prefix;
 	mcmr_rcv_respond(sa, p_madw, &mcmember_rec);
 
 Exit:
@@ -1156,13 +1167,24 @@ static void mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 	uint8_t is_new_group;	/* TRUE = there is a need to create a group */
 	uint8_t join_state;
 	boolean_t proxy;
+	ib_net64_t prefix;
 
 	OSM_LOG_ENTER(sa->p_log);
 
 	p_sa_mad = osm_madw_get_sa_mad_ptr(p_madw);
 	p_recvd_mcmember_rec = ib_sa_mad_get_payload_ptr(p_sa_mad);
 
+	if (OSM_LOG_IS_ACTIVE_V2(sa->p_log, OSM_LOG_DEBUG)) {
+		OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Dump of incoming record\n");
+		osm_dump_mc_record_v2(sa->p_log, p_recvd_mcmember_rec, FILE_ID, OSM_LOG_DEBUG);
+	}
+
 	portguid = p_recvd_mcmember_rec->port_gid.unicast.interface_id;
+
+	/* Use ports actual subnet prefix */
+	prefix = p_recvd_mcmember_rec->port_gid.unicast.prefix;
+	if (prefix == IB_DEFAULT_SUBNET_PREFIX)
+		p_recvd_mcmember_rec->port_gid.unicast.prefix = sa->p_subn->opt.subnet_prefix;
 
 	mcmember_rec = *p_recvd_mcmember_rec;
 
@@ -1193,8 +1215,6 @@ static void mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 				"Requester port GUID 0x%" PRIx64 "\n",
 				cl_ntoh64(osm_physp_get_port_guid(p_req_physp)));
 		}
-		OSM_LOG(sa->p_log, OSM_LOG_DEBUG, "Dump of incoming record\n");
-		osm_dump_mc_record_v2(sa->p_log, &mcmember_rec, FILE_ID, OSM_LOG_DEBUG);
 	}
 
 	/* make sure the requested port guid is known to the SM */
@@ -1421,6 +1441,9 @@ static void mcmr_rcv_join_mgrp(IN osm_sa_t * sa, IN osm_madw_t * p_madw)
 
 	/* Release the lock as we don't need it. */
 	CL_PLOCK_RELEASE(sa->p_lock);
+
+	/* Return response with same subnet prefix of the request */
+	mcmember_rec.port_gid.unicast.prefix = prefix;
 
 	if (OSM_LOG_IS_ACTIVE_V2(sa->p_log, OSM_LOG_DEBUG))
 		osm_dump_mc_record_v2(sa->p_log, &mcmember_rec, FILE_ID, OSM_LOG_DEBUG);
