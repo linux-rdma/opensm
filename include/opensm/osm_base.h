@@ -933,6 +933,17 @@ typedef enum _osm_thread_state {
  */
 #define OSM_CAP2_IS_LINK_SPEED_HDR_SUPPORTED (1 << 15)
 
+/****d* OpenSM: OSM_CAP2_IS_LINK_SPEED_NDR_SUPPORTED
+ * Name
+ *	OSM_CAP2_IS_LINK_SPEED_NDR_SUPPORTED
+ *
+ * DESCRIPTION
+ *	NDR link speed supported
+ *
+ * SYNOPSIS
+ */
+#define OSM_CAP2_IS_LINK_SPEED_NDR_SUPPORTED (1 << 17)
+
 /****d* OpenSM: osm_signal_t
 * NAME
 *	osm_signal_t

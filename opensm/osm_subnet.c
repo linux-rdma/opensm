@@ -2064,7 +2064,7 @@ int osm_subn_verify_config(IN osm_subn_opt_t * p_opts)
 	}
 
 	if ((IB_LINK_SPEED_EXT_SET_LSES < p_opts->force_link_speed_ext) ||
-	    (p_opts->force_link_speed_ext > IB_LINK_SPEED_EXT_14_25_OR_50 &&
+	    (p_opts->force_link_speed_ext > IB_LINK_SPEED_EXT_MAX_VALUE &&
 	     p_opts->force_link_speed_ext < IB_LINK_SPEED_EXT_DISABLE)) {
 		log_report(" Invalid Cached Option Value:force_link_speed_ext = %u:"
 			   "Using Default:%u\n", p_opts->force_link_speed_ext,
@@ -2430,6 +2430,14 @@ void osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		"#    5: 14.0625 Gbps or 53.125 Gbps\n"
 		"#    6: 25.78125 Gbps or 53.125 Gbps\n"
 		"#    7: 14.0625 Gbps, 25.78125 Gbps or 53.125 Gbps\n"
+		"#    8: 106.25 Gbps\n"
+		"#    9: 14.0625 Gbps or 106.25 Gbps\n"
+		"#    10: 25.78125 Gbps or 106.25 Gbps\n"
+		"#    11: 14.0625 Gbps or 25.78125 Gbps or 106.25 Gbps\n"
+		"#    12: 53.125 Gbps or 106.25 Gbps\n"
+		"#    13: 14.0625 Gbps or 53.125 Gbps or 106.25 Gbps\n"
+		"#    14: 25.78125 Gbps or 53.125 Gbps or 106.25 Gbps\n"
+		"#    15: 14.0625 Gbps, 25.78125 Gbps or 53.125 Gbps or 106.25 Gbps\n"
 		"#    30: Disable extended link speeds\n"
 		"#    Default 31: set to PortInfo:LinkSpeedExtSupported\n"
 		"force_link_speed_ext %u\n\n"
