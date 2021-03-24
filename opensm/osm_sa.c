@@ -1375,3 +1375,11 @@ _error:
 	fclose(file);
 	return ret;
 }
+
+uint8_t osm_sa_limit_rate(IN osm_sa_t *sa, IN const uint8_t rate)
+{
+	if (sa->p_subn->opt.max_rate_enum < rate)
+		return ib_path_get_reduced_rate(rate, sa->p_subn->opt.max_rate_enum);
+
+	return rate;
+}

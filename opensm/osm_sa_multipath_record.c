@@ -853,8 +853,8 @@ static void mpr_rcv_build_pr(IN osm_sa_t * sa,
 	ib_path_rec_set_sl(p_pr, p_parms->sl);
 	p_pr->mtu = (uint8_t) (p_parms->mtu | 0x80);
 	rate = p_parms->rate;
-	if (sa->p_subn->opt.use_original_extended_sa_rates_only) {
-		new_rate = ib_path_rate_max_12xedr(rate);
+	if (sa->p_subn->opt.max_rate_enum < SA_RATE_MAX_ENUM) {
+		new_rate = osm_sa_limit_rate(sa, rate);
 		if (new_rate != rate) {
 			OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
 				"Rate decreased from %u to %u\n",

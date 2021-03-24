@@ -66,6 +66,8 @@
 #  define END_C_DECLS
 #endif				/* __cplusplus */
 
+#define SA_RATE_MAX_ENUM 63
+
 BEGIN_C_DECLS
 /****h* OpenSM/SA
 * NAME
@@ -612,6 +614,32 @@ void osm_pr_process_half(IN osm_sa_t * sa, IN const ib_sa_mad_t * sa_mad,
 				IN const ib_gid_t * p_sgid,
 				IN const ib_gid_t * p_dgid,
 				IN cl_qlist_t * p_list);
+
+/****f* OpenSM: SA/osm_sa_limit_rate
+ * NAME
+ *	osm_sa_limit_rate
+ *
+ * DESCRIPTION
+ *	Find reduced rate of input rate that does not exceed the maximal
+ *	rate value of subnet.
+ *
+ * SYNOPSIS
+ */
+uint8_t osm_sa_limit_rate(IN osm_sa_t *sa, IN const uint8_t rate);
+/*
+ * PARAMETERS
+ *	sa
+ *		[in] Pointer to a SA object.
+ *
+ *	rate
+ *		[in] Rate to be adjusted to maximal rate value of subnet.
+ *
+ * RETURN VALUE
+ *	The rate after adjusting to maximal rate, may be the same or lower.
+ *
+ * SEE ALSO
+ *	SA object, osm_sa_construct, osm_sa_init
+ *********/
 
 END_C_DECLS
 #endif				/* _OSM_SA_H_ */

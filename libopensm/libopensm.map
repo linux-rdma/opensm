@@ -91,5 +91,6 @@ OPENSM_1.5 {
 		sprint_uint8_arr;
 		ib_path_rate_max_12xedr;
 		ib_path_rate_2x_hdr_fixups;
+		ib_path_get_reduced_rate;
 	local: *;
 };

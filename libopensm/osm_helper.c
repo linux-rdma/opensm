@@ -3350,6 +3350,17 @@ int ib_path_rate_get_next(IN const int rate)
 	return find_ordered_rate(orate);
 }
 
+int ib_path_get_reduced_rate(IN const uint8_t rate, IN const uint8_t limit)
+{
+	int i = ib_path_rate_get_prev(rate);
+
+	while (i > IB_MIN_RATE &&
+	       (ordered_rates[i] > ordered_rates[limit] || i > limit))
+		i = ib_path_rate_get_prev(i);
+
+	return i ? i : IB_MIN_RATE;
+}
+
 int ib_path_rate_max_12xedr(IN const int rate)
 {
 	CL_ASSERT(rate >= IB_MIN_RATE && rate <= IB_MAX_RATE);
