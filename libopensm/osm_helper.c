@@ -2588,10 +2588,11 @@ static void osm_dump_notice_to_buf_generic(IN const ib_mad_notice_attr_t * p_ntc
 				cl_ntoh16(p_ntci->data_details.ntc_259.lid2),
 				cl_ntoh16(p_ntci->data_details.ntc_259.pkey),
 				cl_ntoh32(p_ntci->data_details.ntc_259.
-					  sl_qp1) >> 24,
+					  sl_qp1) >> 28,
 				cl_ntoh32(p_ntci->data_details.ntc_259.
 					  sl_qp1) & 0xffffff,
-				cl_ntoh32(p_ntci->data_details.ntc_259.qp2),
+				cl_ntoh32(p_ntci->data_details.ntc_259.
+					  qp2) & 0xffffff,
 				inet_ntop(AF_INET6, p_ntci->data_details.
 					  ntc_259.gid1.raw, gid_str,
 					  sizeof gid_str),
