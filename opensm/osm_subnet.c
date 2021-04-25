@@ -851,6 +851,7 @@ static const opt_rec_t opt_tbl[] = {
 	{ "ipoib_mcgroup_creation_validation", OPT_OFFSET(ipoib_mcgroup_creation_validation), opts_parse_boolean, NULL, 1 },
 	{ "mcgroup_join_validation", OPT_OFFSET(mcgroup_join_validation), opts_parse_boolean, NULL, 1 },
 	{ "use_original_extended_sa_rates_only", OPT_OFFSET(use_original_extended_sa_rates_only), opts_parse_boolean, NULL, 1 },
+	{ "max_rate_enum", OPT_OFFSET(max_rate_enum), opts_parse_uint8, NULL, 1},
 	{ "use_optimized_slvl", OPT_OFFSET(use_optimized_slvl), opts_parse_boolean, NULL, 1 },
 	{ "fsync_high_avail_files", OPT_OFFSET(fsync_high_avail_files), opts_parse_boolean, NULL, 1 },
 #ifdef ENABLE_OSM_PERF_MGR
@@ -1686,6 +1687,7 @@ void osm_subn_set_default_opt(IN osm_subn_opt_t * p_opt)
 	p_opt->cc_cct.entries_len = 0;
 	p_opt->cc_cct.input_str = NULL;
 	p_opt->quasi_ftree_indexing = FALSE;
+	p_opt->max_rate_enum = SA_RATE_MAX_ENUM;
 }
 
 static char *clean_val(char *val)
@@ -2064,7 +2066,7 @@ int osm_subn_verify_config(IN osm_subn_opt_t * p_opts)
 	}
 
 	if ((IB_LINK_SPEED_EXT_SET_LSES < p_opts->force_link_speed_ext) ||
-	    (p_opts->force_link_speed_ext > IB_LINK_SPEED_EXT_14_25_OR_50 &&
+	    (p_opts->force_link_speed_ext > IB_LINK_SPEED_EXT_MAX_VALUE &&
 	     p_opts->force_link_speed_ext < IB_LINK_SPEED_EXT_DISABLE)) {
 		log_report(" Invalid Cached Option Value:force_link_speed_ext = %u:"
 			   "Using Default:%u\n", p_opts->force_link_speed_ext,
@@ -2199,6 +2201,28 @@ int osm_subn_verify_config(IN osm_subn_opt_t * p_opts)
 			p_opts->m_key_lease_period =
 				cl_hton16(p_opts->sweep_interval + 1);
 		}
+	}
+
+	if (p_opts->use_original_extended_sa_rates_only &&
+	    p_opts->max_rate_enum > IB_PATH_RECORD_RATE_300_GBS) {
+		if (p_opts->max_rate_enum != SA_RATE_MAX_ENUM)
+			log_report(" Warning:"
+				   " use_original_extended_sa_rates_only"
+				   " defines a rate limit lower"
+				   " than max_rate_enum.\n\t "
+				   " Setting max_rate_enum to %d\n",
+				   IB_PATH_RECORD_RATE_300_GBS);
+
+		p_opts->max_rate_enum = IB_PATH_RECORD_RATE_300_GBS;
+	}
+
+	if (p_opts->max_rate_enum < IB_MIN_RATE ||
+	    (p_opts->max_rate_enum > IB_MAX_RATE &&
+	     p_opts->max_rate_enum != SA_RATE_MAX_ENUM)) {
+		log_report("Illegal max_rate_enum %u, setting to default "
+			   "value (%u), support all rates\n",
+			   p_opts->max_rate_enum, SA_RATE_MAX_ENUM);
+		p_opts->max_rate_enum = SA_RATE_MAX_ENUM;
 	}
 
 	return 0;
@@ -2430,6 +2454,14 @@ void osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		"#    5: 14.0625 Gbps or 53.125 Gbps\n"
 		"#    6: 25.78125 Gbps or 53.125 Gbps\n"
 		"#    7: 14.0625 Gbps, 25.78125 Gbps or 53.125 Gbps\n"
+		"#    8: 106.25 Gbps\n"
+		"#    9: 14.0625 Gbps or 106.25 Gbps\n"
+		"#    10: 25.78125 Gbps or 106.25 Gbps\n"
+		"#    11: 14.0625 Gbps or 25.78125 Gbps or 106.25 Gbps\n"
+		"#    12: 53.125 Gbps or 106.25 Gbps\n"
+		"#    13: 14.0625 Gbps or 53.125 Gbps or 106.25 Gbps\n"
+		"#    14: 25.78125 Gbps or 53.125 Gbps or 106.25 Gbps\n"
+		"#    15: 14.0625 Gbps, 25.78125 Gbps or 53.125 Gbps or 106.25 Gbps\n"
 		"#    30: Disable extended link speeds\n"
 		"#    Default 31: set to PortInfo:LinkSpeedExtSupported\n"
 		"force_link_speed_ext %u\n\n"
@@ -2787,7 +2819,16 @@ void osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		"# Set to TRUE for subnets with old kernels/drivers that don't understand\n"
 		"# the new SA rates for 2x link width and/or HDR link speed (19-22)\n"
 		"# default is FALSE\n"
+		"# Notice: use_original_extended_sa_rates_only is deprecated by max_rate_enum!\n"
+		"# Use max_rate_enum 18 instead.\n"
 		"use_original_extended_sa_rates_only %s\n\n"
+		"# Enumeration of the maximal rate subnet supports. Option is needed for\n"
+		"# subnets with old kernels/drivers that don't understand new SA rates.\n"
+		"# For example:"
+		"# 18: Rate of 300Gbps - support speeds up to 12xEDR\n"
+		"# 22: Rate of 600Gbps - support speeds up to HDR\n"
+		"# For farther reference refer to IB specification chapter 15.2.5.16.1\n"
+		"max_rate_enum %u\n\n"
 		"# Use Optimized SLtoVLMapping programming if supported by device\n"
 		"use_optimized_slvl %s\n\n"
 		"# Sync in memory files used for high availability with storage\n"
@@ -2799,6 +2840,7 @@ void osm_subn_output_conf(FILE *out, IN osm_subn_opt_t * p_opts)
 		p_opts->ipoib_mcgroup_creation_validation ? "TRUE" : "FALSE",
 		p_opts->mcgroup_join_validation ? "TRUE" : "FALSE",
 		p_opts->use_original_extended_sa_rates_only ? "TRUE" : "FALSE",
+		p_opts->max_rate_enum,
 		p_opts->use_optimized_slvl ? "TRUE" : "FALSE",
 		p_opts->fsync_high_avail_files ? "TRUE" : "FALSE");
 

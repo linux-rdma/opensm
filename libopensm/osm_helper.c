@@ -464,6 +464,8 @@ static int ordered_rates[] = {
 	11,	/* 20 -  50 Gbps (62.5 Gbps equiv) */
 	20,	/* 21 - 400 Gbps (500 Gbps equiv) */
 	21,	/* 22 - 600 Gbps (750 Gbps equiv) */
+	22,	/* 23 - 800 Gbps (1000 Gbps equiv) */
+	23,	/* 24 - 1200 Gbps (1500 Gbps equiv) */
 };
 
 int sprint_uint8_arr(char *buf, size_t size,
@@ -3215,7 +3217,11 @@ static const char *lsea_str_fixed_width[] = {
 	"14  ",
 	"25  ",
 	"????",
-	"50  "
+	"50  ",
+	"????",
+	"????",
+	"????",
+	"100 "
 };
 
 const char *osm_get_lsa_str(IN uint8_t lsa, IN uint8_t lsea, IN uint8_t state,
@@ -3229,7 +3235,7 @@ const char *osm_get_lsa_str(IN uint8_t lsa, IN uint8_t lsea, IN uint8_t state,
 		else
 			return lsa_str_fixed_width[lsa];
 	}
-	if (lsea > IB_LINK_SPEED_EXT_ACTIVE_50)
+	if (lsea > IB_LINK_SPEED_EXT_ACTIVE_100)
 		return lsa_str_fixed_width[3];
 	return lsea_str_fixed_width[lsea];
 }
@@ -3344,6 +3350,17 @@ int ib_path_rate_get_next(IN const int rate)
 	return find_ordered_rate(orate);
 }
 
+int ib_path_get_reduced_rate(IN const uint8_t rate, IN const uint8_t limit)
+{
+	int i = ib_path_rate_get_prev(rate);
+
+	while (i > IB_MIN_RATE &&
+	       (ordered_rates[i] > ordered_rates[limit] || i > limit))
+		i = ib_path_rate_get_prev(i);
+
+	return i ? i : IB_MIN_RATE;
+}
+
 int ib_path_rate_max_12xedr(IN const int rate)
 {
 	CL_ASSERT(rate >= IB_MIN_RATE && rate <= IB_MAX_RATE);
@@ -3358,6 +3375,8 @@ int ib_path_rate_max_12xedr(IN const int rate)
 		return IB_PATH_RECORD_RATE_40_GBS;
 	case IB_PATH_RECORD_RATE_400_GBS:
 	case IB_PATH_RECORD_RATE_600_GBS:
+	case IB_PATH_RECORD_RATE_800_GBS:
+	case IB_PATH_RECORD_RATE_1200_GBS:
 		return IB_PATH_RECORD_RATE_300_GBS;
 	default:
 		break;
@@ -3397,9 +3416,27 @@ int ib_path_rate_2x_hdr_fixups(IN const ib_port_info_t * p_pi,
 	case IB_PATH_RECORD_RATE_600_GBS:
 		/* HDR not supported but HDR only rate */
 		if (!(p_pi->capability_mask & IB_PORT_CAP_HAS_CAP_MASK2) ||
-		    (p_pi->capability_mask & IB_PORT_CAP_HAS_CAP_MASK2 &&
-		    !(p_pi->capability_mask2 & IB_PORT_CAP2_IS_LINK_SPEED_HDR_SUPPORTED)))
+		    ((p_pi->capability_mask & IB_PORT_CAP_HAS_CAP_MASK2) &&
+		    !(p_pi->capability_mask2 &
+		    (IB_PORT_CAP2_IS_LINK_SPEED_HDR_SUPPORTED |
+		    IB_PORT_CAP2_IS_LINK_SPEED_NDR_SUPPORTED))))
 			new_rate = IB_PATH_RECORD_RATE_300_GBS;
+		break;
+	case IB_PATH_RECORD_RATE_800_GBS:
+	case IB_PATH_RECORD_RATE_1200_GBS:
+		/* NDR not supported but NDR only rate */
+		if (!(p_pi->capability_mask & IB_PORT_CAP_HAS_CAP_MASK2) ||
+		    (p_pi->capability_mask & IB_PORT_CAP_HAS_CAP_MASK2 &&
+		    !(p_pi->capability_mask2 & IB_PORT_CAP2_IS_LINK_SPEED_NDR_SUPPORTED))) {
+			if ((p_pi->capability_mask & IB_PORT_CAP_HAS_CAP_MASK2) &&
+			    !(p_pi->capability_mask2 & IB_PORT_CAP2_IS_LINK_SPEED_HDR_SUPPORTED)) {
+				/* HDR not supported */
+				new_rate = IB_PATH_RECORD_RATE_300_GBS;
+			} else {
+				/* HDR is supported */
+				new_rate = IB_PATH_RECORD_RATE_600_GBS;
+			}
+		}
 		break;
 	default:
 		break;

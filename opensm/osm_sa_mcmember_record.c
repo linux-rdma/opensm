@@ -775,8 +775,8 @@ static boolean_t mgrp_request_is_realizable(IN osm_sa_t * sa,
 			return FALSE;
 		}
 	}
-	if (sa->p_subn->opt.use_original_extended_sa_rates_only) {
-		new_rate = ib_path_rate_max_12xedr(rate);
+	if (sa->p_subn->opt.max_rate_enum < SA_RATE_MAX_ENUM) {
+		new_rate = osm_sa_limit_rate(sa, rate);
 		if (new_rate != rate) {
 			OSM_LOG(sa->p_log, OSM_LOG_VERBOSE,
 				"Rate decreased from %u to %u\n",

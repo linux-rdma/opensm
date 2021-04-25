@@ -338,6 +338,7 @@ typedef struct osm_subn_opt {
 	boolean_t ipoib_mcgroup_creation_validation;
 	boolean_t mcgroup_join_validation;
 	boolean_t use_original_extended_sa_rates_only;
+	uint8_t max_rate_enum;
 	boolean_t use_optimized_slvl;
 	boolean_t fsync_high_avail_files;
 	osm_qos_options_t qos_options;
@@ -640,6 +641,12 @@ typedef struct osm_subn_opt {
 *		for 12x EDR). Option is needed for subnets with
 *		old kernels/drivers that don't understand the
 *		new SA rates for 2x link width and/or HDR link speed (19-22).
+*
+*	max_rate_enum
+*		Enumeration of the maximal rate subnet supports. Option is
+*		required for subnets with old kernels/drivers that don't
+*		understand new SA rates.
+*		See also : use_original_extended_sa_rates_only.
 *
 *	use_optimized_slvl
 *		Use optimized SLtoVLMappingTable programming if

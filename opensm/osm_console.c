@@ -730,6 +730,7 @@ typedef struct {
 	uint64_t ports_fdr;
 	uint64_t ports_edr;
 	uint64_t ports_hdr;
+	uint64_t ports_ndr;
 	uint64_t ports_unknown_speed;
 	port_report_t *unknown_speed_ports;
 	uint64_t ports_unenabled_speed;
@@ -996,6 +997,8 @@ static void portstatus_parse(char **p_last, osm_opensm_t * p_osm, FILE * out)
 		fprintf(out, "   %" PRIu64 " at 25.78125 Gbps\n", fs.ports_edr);
 	if (fs.ports_hdr)
 		fprintf(out, "   %" PRIu64 " at 53.125 Gbps\n", fs.ports_hdr);
+	if (fs.ports_ndr)
+		fprintf(out, "   %" PRIu64 " at 106.25 Gbps\n", fs.ports_ndr);
 
 	if (fs.ports_disabled + fs.ports_reduced_speed + fs.ports_reduced_width
 	    + fs.ports_unenabled_width + fs.ports_unenabled_speed

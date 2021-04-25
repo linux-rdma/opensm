@@ -3216,6 +3216,8 @@ ib_path_rec_rate(IN const ib_path_rec_t * const p_rec)
 *		20: 50 Gb/sec.
 *		21: 400 Gb/sec.
 *		22: 600 Gb/sec.
+*		23 : 800 Gb/sec.
+*		24 : 1200 Gb/sec.
 *		others: reserved
 *
 * NOTES
@@ -4702,6 +4704,7 @@ typedef struct _ib_port_info {
 #define IB_PORT_CAP2_IS_SWITCH_PORT_STATE_TBL_SUPP (CL_HTON16(0x0008))
 #define IB_PORT_CAP2_IS_LINK_WIDTH_2X_SUPPORTED (CL_HTON16(0x0010))
 #define IB_PORT_CAP2_IS_LINK_SPEED_HDR_SUPPORTED (CL_HTON16(0x0020))
+#define IB_PORT_CAP2_IS_LINK_SPEED_NDR_SUPPORTED (CL_HTON16(0x0400))
 
 /****s* IBA Base: Types/ib_port_info_ext_t
 * NAME
@@ -4721,7 +4724,9 @@ typedef struct _ib_port_info_ext {
 	ib_net16_t edr_fec_mode_enable;
 	ib_net16_t hdr_fec_mode_sup;
 	ib_net16_t hdr_fec_mode_enable;
-	uint8_t reserved[46];
+	ib_net16_t ndr_fec_mode_sup;
+	ib_net16_t ndr_fec_mode_enable;
+	uint8_t reserved[42];
 } ib_port_info_ext_t;
 /************/
 
@@ -5182,9 +5187,14 @@ ib_port_info_get_link_speed_active(IN const ib_port_info_t * const p_pi)
 #define IB_LINK_SPEED_EXT_ACTIVE_14		1
 #define IB_LINK_SPEED_EXT_ACTIVE_25		2
 #define IB_LINK_SPEED_EXT_ACTIVE_50		4
+#define IB_LINK_SPEED_EXT_ACTIVE_100		8
 #define IB_LINK_SPEED_EXT_14_25_OR_50		(IB_LINK_SPEED_EXT_ACTIVE_14 | \
 						 IB_LINK_SPEED_EXT_ACTIVE_25 | \
 						 IB_LINK_SPEED_EXT_ACTIVE_50)
+#define IB_LINK_SPEED_EXT_MAX_VALUE		(IB_LINK_SPEED_EXT_ACTIVE_14 | \
+						 IB_LINK_SPEED_EXT_ACTIVE_25 | \
+						 IB_LINK_SPEED_EXT_ACTIVE_50 | \
+						 IB_LINK_SPEED_EXT_ACTIVE_100)
 #define IB_LINK_SPEED_EXT_DISABLE		30
 #define IB_LINK_SPEED_EXT_SET_LSES		31
 
@@ -5210,10 +5220,13 @@ ib_port_info_get_link_speed_active(IN const ib_port_info_t * const p_pi)
 #define IB_PATH_RECORD_RATE_50_GBS		20
 #define IB_PATH_RECORD_RATE_400_GBS		21
 #define IB_PATH_RECORD_RATE_600_GBS		22
+/* following v1 ver1.5 p1044 */
+#define IB_PATH_RECORD_RATE_800_GBS		23
+#define IB_PATH_RECORD_RATE_1200_GBS		24
 
 #define IB_MIN_RATE    IB_PATH_RECORD_RATE_2_5_GBS
-#define IB_MAX_RATE    IB_PATH_RECORD_RATE_600_GBS
-#define IB_RATE_MAX    IB_PATH_RECORD_RATE_600_GBS
+#define IB_MAX_RATE    IB_PATH_RECORD_RATE_1200_GBS
+#define IB_RATE_MAX    IB_PATH_RECORD_RATE_1200_GBS
 
 static inline uint8_t OSM_API
 ib_port_info_get_link_speed_ext_active(IN const ib_port_info_t * const p_pi);
@@ -5313,6 +5326,33 @@ ib_port_info_compute_rate(IN const ib_port_info_t * const p_pi,
 
 			default:
 				rate = IB_PATH_RECORD_RATE_50_GBS;
+				break;
+			}
+			break;
+		case IB_LINK_SPEED_EXT_ACTIVE_100:
+			switch (p_pi->link_width_active) {
+			case IB_LINK_WIDTH_ACTIVE_1X:
+				rate = IB_PATH_RECORD_RATE_100_GBS;
+				break;
+
+			case IB_LINK_WIDTH_ACTIVE_4X:
+				rate = IB_PATH_RECORD_RATE_400_GBS;
+				break;
+
+			case IB_LINK_WIDTH_ACTIVE_8X:
+				rate = IB_PATH_RECORD_RATE_800_GBS;
+				break;
+
+			case IB_LINK_WIDTH_ACTIVE_12X:
+				rate = IB_PATH_RECORD_RATE_1200_GBS;
+				break;
+
+			case IB_LINK_WIDTH_ACTIVE_2X:
+				rate = IB_PATH_RECORD_RATE_200_GBS;
+				break;
+
+			default:
+				rate = IB_PATH_RECORD_RATE_100_GBS;
 				break;
 			}
 			break;
@@ -6456,7 +6496,9 @@ static inline uint8_t OSM_API ib_get_highest_link_speed(IN const uint8_t speeds)
 	uint8_t ret = 0;
 	uint8_t extspeeds = (speeds >> 4);
 
-	if (extspeeds & IB_LINK_SPEED_EXT_ACTIVE_50)
+	if (extspeeds & IB_LINK_SPEED_EXT_ACTIVE_100)
+		ret = IB_LINK_SPEED_EXT_ACTIVE_100 << 4;
+	else if (extspeeds & IB_LINK_SPEED_EXT_ACTIVE_50)
 		ret = IB_LINK_SPEED_EXT_ACTIVE_50 << 4;
 	else if (extspeeds & IB_LINK_SPEED_EXT_ACTIVE_25)
 		ret = IB_LINK_SPEED_EXT_ACTIVE_25 << 4;
