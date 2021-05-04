@@ -2520,8 +2520,8 @@ static void osm_dump_notice_to_buf_generic(IN const ib_mad_notice_attr_t * p_ntc
 					      mkey),
 				    p_ntci->data_details.ntc_256.
 				    dr_trunc_hop >> 7,
-				    p_ntci->data_details.ntc_256.
-				    dr_trunc_hop >> 6,
+				    (p_ntci->data_details.ntc_256.
+				    dr_trunc_hop & 0x40) >> 6,
 				    p_ntci->data_details.ntc_256.
 				    dr_trunc_hop & 0x3f);
 			n += snprintf(buff + n, sizeof(buff) - n,
