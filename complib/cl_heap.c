@@ -239,7 +239,7 @@ cl_status_t cl_heap_modify_key(IN cl_heap_t * const p_heap,
 	CL_ASSERT(p_heap);
 	CL_ASSERT(cl_is_heap_inited(p_heap));
 
-	if (index < 0 || index >= p_heap->size)
+	if (index >= p_heap->size)
 		return (CL_INVALID_PARAMETER);
 
 	old_key = p_heap->element_array[index].key;
@@ -286,7 +286,7 @@ void *cl_heap_delete(IN cl_heap_t * const p_heap, IN const size_t index)
 
 	if (!p_heap->size)
 		return NULL;
-	if (index < 0 || index >= p_heap->size)
+	if (index >= p_heap->size)
 		return NULL;
 	if (p_heap->size == 1)
 		return p_heap->element_array[--(p_heap->size)].context;
@@ -333,7 +333,7 @@ boolean_t cl_is_stored_in_heap(IN const cl_heap_t * const p_heap,
 	CL_ASSERT(p_heap);
 	CL_ASSERT(cl_is_heap_inited(p_heap));
 
-	return ((index < 0 || index >= p_heap->size ||
+	return ((index >= p_heap->size ||
 		 p_heap->element_array[index].context != ctx) ? FALSE : TRUE);
 }
 
