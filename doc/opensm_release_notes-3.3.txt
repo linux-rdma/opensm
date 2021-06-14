@@ -10,7 +10,7 @@ Date:    April 2019
 This document describes the contents of the OpenSM 3.3 release.
 OpenSM is an InfiniBand compliant Subnet Manager and Administration,
 and runs on top of OpenIB. The OpenSM version for this release
-is opensm-3.3.23.
+is opensm-3.3.24.
 
 This document includes the following sections:
 1 This Overview section (describing new features and software
@@ -22,6 +22,8 @@ This document includes the following sections:
 6 Qualified Software Stacks and Devices
 
 1.1 Major New Features
+
+* Support for NDR link speed
 
 * Support for HDR link speed and 2x link width
   IBTA has recently (beyond IBA 1.3) added support for HDR link speed
@@ -121,6 +123,7 @@ This document includes the following sections:
 
 1.2 Minor New Features:
 
+b17b4db Backward compatibility for old drivers
 924f030 Add support for registering an opensm plugin as a new routing engine
 82c3ea6 Add '--subnet_prefix' and '--dump_files_dir' options
 dfc383e osm_port_info_rcv.c: Optimize PKEY sending during heavy sweep
@@ -867,6 +870,11 @@ f37bf3c opensm/perfmgr: skip data counters when only printing errors
 
 4.2 Other Bug Fixes
 
+580e6d8 Remove redundant negativity check of size_t type, which is unsigned thus non negative.
+086c870 libopensm/osm_helper.c: Fix printing trap 256 details
+8870b89 libopensm/osm_helper.c: Fix printing trap 259 details
+9b3e860 osm_link_mgr.c: Fix checking if port support link width 2x
+0a8d939 osm_sa_mcmember_record.c: Allow MCMR requests with default subnet prefix
 9b9ea72 Fix spelling mistake of "switches"
 70722b4 ib_types: Drop packed attribute where unnecessary
 9a7cc0d opensm.spec.in: Move COPYING back into doc
