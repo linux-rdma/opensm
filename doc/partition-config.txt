@@ -150,7 +150,7 @@ General file format:
 
 Note that values for rate, mtu, and scope, for both partitions and multicast
 groups, should be specified as defined in the IBTA specification (for example,
-mtu=4 for 2048).
+mtu=5 for 4096).
 
 There are several useful keywords for PortGUID definition:
 
