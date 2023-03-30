@@ -149,8 +149,8 @@ General file format:
 	NOTE: All mgroup_flag flags MUST be separated by comma (,).
 
 Note that values for rate, mtu, and scope, for both partitions and multicast
-groups, should be specified as defined in the IBTA specification (for example,
-mtu=5 for 4096).
+groups, should be specified as defined in the IBTA specification.
+For example, "mtu=5" to allow 4K MTU sizes of 4096.
 
 There are several useful keywords for PortGUID definition:
 
