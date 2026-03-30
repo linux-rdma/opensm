@@ -762,6 +762,24 @@ void osm_pi_rcv_process(IN void *context, IN void *data)
 
 		CL_ASSERT(p_physp);
 
+		if (!p_context->set_method &&
+			!(cl_ntoh32(p_smp->attr_mod) & (1 << 31)) &&
+			(p_pi->capability_mask & IB_PORT_CAP_HAS_EXT_SPEEDS)) {
+
+			OSM_LOG(sm->p_log, OSM_LOG_DEBUG,
+				"Re-querying PortInfo to unlock extended speeds\n");
+
+			p_smp->attr_mod |= cl_hton32(1 << 31);
+
+			osm_req_get(sm, osm_physp_get_dr_path_ptr(p_physp),
+				IB_MAD_ATTR_PORT_INFO, p_smp->attr_mod,
+				FALSE, p_smp->m_key, 0, CL_DISP_MSGID_NONE,
+				&p_madw->context);
+			CL_PLOCK_RELEASE(sm->p_lock);
+
+			goto Exit;
+		}
+
 		/* Update the directed route path to this port
 		   in case the old path is no longer usable. */
 		p_dr_path = osm_physp_get_dr_path_ptr(p_physp);
