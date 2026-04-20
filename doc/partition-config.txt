@@ -91,10 +91,42 @@ General file format:
                       bits.
 
      mgroup_flag:
-        rate=<val>  - specifies rate for this MC group
-                      (default is 3 (10GBps))
-        mtu=<val>   - specifies MTU for this MC group
-                      (default is 4 (2048))
+        rate=<val>  - specifies rate selector for this MC group
+                      | Selector |  Gb/s  |         |
+                      |----------|--------|---------|
+                      |  2       |    2.5 |         |
+                      |  3       |   10   | default |
+                      |  4       |   30   |         |
+                      |  5       |    5   |         |
+                      |  6       |   20   |         |
+                      |  7       |   40   |         |
+                      |  8       |   60   |         |
+                      |  9       |   80   |         |
+                      | 10       |  120   |         |
+                      | 11       |   14   |         |
+                      | 12       |   56   |         |
+                      | 13       |  112   |         |
+                      | 14       |  168   |         |
+                      | 15       |   25   |         |
+                      | 16       |  100   |         |
+                      | 17       |  200   |         |
+                      | 18       |  300   |         |
+                      | 19       |   28   |         |
+                      | 20       |   50   |         |
+                      | 21       |  400   |         |
+                      | 22       |  600   |         |
+                      | 23       |  800   |         |
+                      | 24       | 1200   |         |
+
+        mtu=<val>   - specifies MTU selector for this MC group
+                      | Selector |  MTU   |         |
+                      |----------|--------|---------|
+                      | 1        |  256   |         |
+                      | 2        |  512   |         |
+                      | 3        | 1024   |         |
+                      | 4        | 2048   | default |
+                      | 5        | 4096   |         |
+
         sl=<val>    - specifies SL for this MC group
                       (default is 0)
         scope=<val> - specifies scope for this MC group
@@ -117,8 +149,8 @@ General file format:
 	NOTE: All mgroup_flag flags MUST be separated by comma (,).
 
 Note that values for rate, mtu, and scope, for both partitions and multicast
-groups, should be specified as defined in the IBTA specification (for example,
-mtu=4 for 2048).
+groups, should be specified as defined in the IBTA specification.
+For example, "mtu=5" to allow 4K MTU sizes of 4096.
 
 There are several useful keywords for PortGUID definition:
 
