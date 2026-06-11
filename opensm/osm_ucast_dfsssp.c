@@ -1784,7 +1784,7 @@ static int dfsssp_remove_deadlocks(dfsssp_context_t * dfsssp_ctx)
 	vltable_t *srcdest2vl_table = NULL;
 	uint8_t lmc = 0;
 	uint16_t slid = 0, dlid = 0, min_lid_ho = 0, max_lid_ho =
-	    0, min_lid_ho2 = 0, max_lid_ho2 = 0;;
+	    0, min_lid_ho2 = 0, max_lid_ho2 = 0;
 	uint64_t *paths_per_vl = NULL;
 	uint64_t from = 0, to = 0, count = 0;
 	uint8_t *split_count = NULL;
