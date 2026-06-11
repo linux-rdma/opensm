@@ -584,7 +584,7 @@ static ib_api_status_t dbg_do_line(IN char **pp_local, IN uint32_t buf_size,
 	sprintf(line, "%s%s", p_prefix_str, p_new_str);
 	len = (uint32_t) strlen(line);
 	*p_total_len += len;
-	if (*p_total_len + sizeof('\0') > buf_size)
+	if (*p_total_len + 1 /* NUL */ > buf_size)
 		return IB_INSUFFICIENT_MEMORY;
 
 	strcpy(*pp_local, line);
