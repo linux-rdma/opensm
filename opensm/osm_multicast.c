@@ -370,9 +370,11 @@ boolean_t osm_mgrp_remove_port(osm_subn_t * subn, osm_log_t * log, osm_mgrp_t * 
 			cl_ntoh16(mgrp->mlid));
 	}
 
-	if (new_join_state & IB_JOIN_STATE_FULL ||
+	full_join_state = IB_JOIN_STATE_FULL | IB_JOIN_STATE_SEND_ONLY_FULL;
+
+	if (new_join_state & full_join_state ||
 	    (new_join_state &&
-	     (mgrp->full_members > (port_join_state & IB_JOIN_STATE_FULL) ? 1 : 0))) {
+	     (mgrp->full_members > ((port_join_state & full_join_state) ? 1 : 0)))) {
 		mcm_alias_guid->scope_state =
 		    new_join_state | (mcm_alias_guid->scope_state & 0xf0);
 		OSM_LOG(log, OSM_LOG_DEBUG,
@@ -403,8 +405,6 @@ boolean_t osm_mgrp_remove_port(osm_subn_t * subn, osm_log_t * log, osm_mgrp_t * 
 		}
 		osm_mcm_alias_guid_delete(&mcm_alias_guid);
 	}
-
-	full_join_state = IB_JOIN_STATE_FULL | IB_JOIN_STATE_SEND_ONLY_FULL;
 
 	/* no more full members so the group will be deleted after re-route
 	   but only if it is not a well known group */
